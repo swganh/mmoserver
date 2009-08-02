@@ -1,0 +1,89 @@
+/*
+---------------------------------------------------------------------------------------
+This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
+For more information, see http://www.swganh.org
+
+
+Copyright (c) 2006 - 2008 The swgANH Team
+
+---------------------------------------------------------------------------------------
+*/
+
+#ifndef ANH_ZONESERVER_CHARACTERLOGINHANDLER_H
+#define ANH_ZONESERVER_CHARACTERLOGINHANDLER_H
+
+#include "Common/MessageDispatchCallback.h"
+#include "ObjectFactoryCallback.h"
+#include "ObjectFactory.h"
+#include "ZoneOpcodes.h"
+
+
+//======================================================================================================================
+
+class Message;
+class Database;
+class MessageDispatch;
+
+//======================================================================================================================
+
+enum CLHCallBack
+{
+	CLHCallBack_None				= 0,
+	CLHCallBack_Transfer_Ticket		= 1,
+	CLHCallBack_Transfer_Position	= 2,
+};
+
+class CharacterLoadingContainer
+{
+public:
+
+	DispatchClient*				mClient;
+	ObjectFactoryCallback*		ofCallback;
+	DatabaseCallback*			dbCallback;
+	uint64						mPlayerId;
+	Anh_Math::Vector3			destination;
+	uint16						planet;
+	PlayerObject*				player;
+	CLHCallBack					callBack;
+};
+
+class CharacterLoginHandler : public MessageDispatchCallback,public ObjectFactoryCallback, public DatabaseCallback
+{
+	public:
+
+        CharacterLoginHandler(void);
+        ~CharacterLoginHandler(void);
+
+		void	Startup(Database* database, MessageDispatch* dispatch);
+		void	Shutdown(void);
+
+		// DatabaseCallback
+		virtual void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
+
+		  // Inherited from MessageDispatchCallback
+		virtual void	handleDispatchMessage(uint32 opcode, Message* message, DispatchClient* client);
+
+		  // ObjectFactoryCallback
+		virtual void	handleObjectReady(Object* object,DispatchClient* client);
+
+	private:
+
+		void    _processClusterClientDisconnect(Message* message, DispatchClient* client);
+		void    _processClusterZoneTransferApprovedByTicket(Message* message, DispatchClient* client);
+		void    _processClusterZoneTransferApprovedByPosition(Message* message, DispatchClient* client);
+		void    _processClusterZoneTransferDenied(Message* message, DispatchClient* client);
+    
+		Database*					mDatabase;
+		MessageDispatch*			mMessageDispatch;
+
+		uint32						mZoneId;
+		ZThread::RecursiveMutex		mSessionMutex;
+};
+
+
+
+
+#endif // ANH_ZONESERVER_CHARACTERLOGINHANDLER_H
+
+
+

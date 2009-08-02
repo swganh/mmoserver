@@ -1,0 +1,1 @@
+SubWCRev.exe "..\..\.." "..\..\common\BuildInfoSrc.h" "..\..\Common\BuildInfo.h"

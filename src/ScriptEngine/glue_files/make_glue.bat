@@ -1,0 +1,1 @@
+tolua++ -H LuaInterface.h -o LuaInterface.cpp LuaInterface.pkg

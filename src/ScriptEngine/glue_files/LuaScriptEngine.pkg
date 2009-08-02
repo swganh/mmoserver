@@ -1,0 +1,8 @@
+$#include "ScriptEngine/ScriptEngine.h"
+
+class ScriptEngine
+{
+	public:
+	static ScriptEngine*	Init();
+	Tutorial*			getTutorial(void* script);
+};

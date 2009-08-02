@@ -21,8 +21,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
+			OutputDirectory="&quot;$(SolutionDir)obj\$(ConfigurationName)\$(ProjectName)&quot;"
+			IntermediateDirectory="&quot;$(SolutionDir)obj\$(ConfigurationName)\$(ProjectName)&quot;"
 			ConfigurationType="4"
 			CharacterSet="1"
 			WholeProgramOptimization="0"
@@ -45,7 +45,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../deps/boost;../depends/boost"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)deps\boost&quot;"
 				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_DEBUG;WIN32;_LIB;_WIN32_WINNT=0x0500"
 				MinimalRebuild="true"
 				ExceptionHandling="1"
@@ -63,6 +63,7 @@
 				AssemblerOutput="2"
 				BrowseInformation="1"
 				WarningLevel="3"
+				WarnAsError="true"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="4"
 				CompileAs="2"
@@ -78,6 +79,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
+				OutputFile="&quot;$(SolutionDir)lib\$(ConfigurationName)\$(ProjectName).lib&quot;"
 				AdditionalLibraryDirectories=""
 				IgnoreDefaultLibraryNames=""
 			/>
@@ -101,8 +103,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
+			OutputDirectory="&quot;$(SolutionDir)obj\$(ConfigurationName)\$(ProjectName)&quot;"
+			IntermediateDirectory="&quot;$(SolutionDir)obj\$(ConfigurationName)\$(ProjectName)&quot;"
 			ConfigurationType="4"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
@@ -125,7 +127,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="3"
-				AdditionalIncludeDirectories="../deps/boost;../depends/boost"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)deps\boost&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_WIN32_WINNT=0x0500 "
 				ExceptionHandling="1"
 				RuntimeLibrary="0"
@@ -135,6 +137,7 @@
 				TreatWChar_tAsBuiltInType="false"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
+				WarnAsError="true"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="0"
 			/>
@@ -149,6 +152,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
+				OutputFile="&quot;$(SolutionDir)lib\$(ConfigurationName)\$(ProjectName).lib&quot;"
 				IgnoreDefaultLibraryNames=""
 			/>
 			<Tool
@@ -167,46 +171,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Debug-Linux|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="0"
-			>
-			<Tool
-				Name="VCNMakeTool"
-				BuildCommandLine="D:\Apps\Internet\plink.exe -load Centurion &quot;cd /mnt/veto/working/mmoserver/dev/Utils; make -j 1 debug&quot;"
-				ReBuildCommandLine="D:\Apps\Internet\plink.exe -load Centurion &quot;cd /mnt/veto/working/mmoserver/dev/Utils; make -j 1 rebuilddebug&quot;"
-				CleanCommandLine="D:\Apps\Internet\plink.exe -load Centurion &quot;cd /mnt/veto/working/mmoserver/dev/Utils; make -j 1 cleandebug&quot;"
-				Output=""
-				PreprocessorDefinitions=""
-				IncludeSearchPath=""
-				ForcedIncludes=""
-				AssemblySearchPath=""
-				ForcedUsingAssemblies=""
-				CompileAsManaged=""
-			/>
-		</Configuration>
-		<Configuration
-			Name="Release-Linux|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="0"
-			>
-			<Tool
-				Name="VCNMakeTool"
-				BuildCommandLine="D:\Apps\Internet\plink.exe -load Centurion &quot;cd /mnt/veto/working/mmoserver/dev/Utils; make -j 1 release&quot;"
-				ReBuildCommandLine="D:\Apps\Internet\plink.exe -load Centurion &quot;cd /mnt/veto/working/mmoserver/dev/Utils; make -j 1 rebuildrelease&quot;"
-				CleanCommandLine="D:\Apps\Internet\plink.exe -load Centurion &quot;cd /mnt/veto/working/mmoserver/dev/Utils; make -j 1 cleanrelease&quot;"
-				Output=""
-				PreprocessorDefinitions=""
-				IncludeSearchPath=""
-				ForcedIncludes=""
-				AssemblySearchPath=""
-				ForcedUsingAssemblies=""
-				CompileAsManaged=""
 			/>
 		</Configuration>
 		<Configuration

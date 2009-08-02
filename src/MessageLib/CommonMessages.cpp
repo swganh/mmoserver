@@ -126,8 +126,6 @@ bool MessageLib::sendDestroyObject(uint64 objectId, PlayerObject* targetObject)
 
 bool MessageLib::sendDestroyObject(uint64 objectId, CreatureObject* owner)
 {
-	Message*		message;
-
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opSceneDestroyObject);   
 	gMessageFactory->addUint64(objectId);  
@@ -143,8 +141,6 @@ bool MessageLib::sendDestroyObject_InRange(uint64 objectId, PlayerObject* const 
 {
 	if(!(owner->isConnected()))
 		return(false);
-
-	Message*		message;
 
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opSceneDestroyObject);   
@@ -165,9 +161,6 @@ bool MessageLib::sendDestroyObject_InRange(uint64 objectId, PlayerObject* const 
 // its however not needed for destroy object
 bool MessageLib::sendDestroyObject_InRangeofObject(Object* object)
 {
-
-	Message*		message;
-
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opSceneDestroyObject);   
 	gMessageFactory->addUint64(object->getId());  
@@ -213,8 +206,6 @@ bool MessageLib::sendContainmentMessage_InRange(uint64 objectId,uint64 parentId,
 	if(!(targetObject->isConnected()))
 		return(false);
 
-	Message*		message;
-
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opUpdateContainmentMessage);  
 
@@ -230,8 +221,6 @@ bool MessageLib::sendContainmentMessage_InRange(uint64 objectId,uint64 parentId,
 
 bool MessageLib::sendContainmentMessage_InRange(uint64 objectId,uint64 parentId,uint32 linkType,CreatureObject* targetObject)
 {
-	Message*		message;
-
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opUpdateContainmentMessage);  
 
@@ -1256,8 +1245,6 @@ bool MessageLib::broadcastContainmentMessage(uint64 objectId,uint64 parentId,uin
 	if(!(targetObject->isConnected()))
 		return(false);
 
-	Message*		message;
-
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opUpdateContainmentMessage);  
 
@@ -1281,7 +1268,6 @@ bool MessageLib::broadcastContainmentMessage(uint64 objectId,uint64 parentId,uin
 bool MessageLib::broadcastContainmentMessage(uint64 objectId,uint64 parentId,uint32 linkType,Object* targetObject)
 {
 	// gLogger->logMsg("MessageLib::broadcastContainmentMessage");
-	Message*		message;
 
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opUpdateContainmentMessage);  

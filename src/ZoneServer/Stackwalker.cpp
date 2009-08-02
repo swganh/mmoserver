@@ -1726,8 +1726,8 @@ static void EnumAndLoadModuleSymbols( HANDLE hProcess, DWORD pid, FILE *fLogFile
   for ( it = modules.begin(); it != modules.end(); ++ it )
   {
     // SymLoadModule() wants writeable strings
-    img = strdup(it->imageName.c_str());
-    mod = strdup(it->moduleName.c_str());
+    img = _strdup(it->imageName.c_str());
+    mod = _strdup(it->moduleName.c_str());
 
     pSLM( hProcess, 0, img, mod, it->baseAddress, it->size );
 

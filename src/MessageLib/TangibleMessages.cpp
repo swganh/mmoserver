@@ -217,8 +217,6 @@ bool  MessageLib::sendUpdateCustomization_InRange(TangibleObject* tangibleObject
 		if(!(playerObject->isConnected()))
 		return(false);
 
-	Message* newMessage;
-
 	gMessageFactory->StartMessage();  
 	gMessageFactory->addUint32(opDeltasMessage);
 	gMessageFactory->addUint64(tangibleObject->getId());
@@ -250,8 +248,6 @@ bool MessageLib::sendUpdateTypeOption(TangibleObject* tangibleObject,PlayerObjec
 {
 	if(!(playerObject->isConnected()))
 		return(false);
-
-	Message* newMessage;
 
 	gMessageFactory->StartMessage();  
 	gMessageFactory->addUint32(opDeltasMessage);

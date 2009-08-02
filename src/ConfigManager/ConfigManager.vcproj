@@ -16,8 +16,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
+			OutputDirectory="&quot;$(SolutionDir)obj\$(ConfigurationName)\$(ProjectName)&quot;"
+			IntermediateDirectory="&quot;$(SolutionDir)obj\$(ConfigurationName)\$(ProjectName)&quot;"
 			ConfigurationType="4"
 			CharacterSet="1"
 			>
@@ -39,7 +39,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../;../deps/zthread/include;../depends/boost;../depends/zthread/include"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)src&quot;;&quot;$(SolutionDir)deps\boost&quot;;&quot;$(SolutionDir)deps\zthread\include&quot;"
 				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_DEBUG,WIN32;_LIB;_WIN32_WINNT=0x0500 "
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -47,6 +47,7 @@
 				StructMemberAlignment="3"
 				TreatWChar_tAsBuiltInType="false"
 				WarningLevel="3"
+				WarnAsError="true"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="4"
 			/>
@@ -61,6 +62,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
+				OutputFile="&quot;$(SolutionDir)lib\$(ConfigurationName)\$(ProjectName).lib&quot;"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -82,8 +84,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
+			OutputDirectory="&quot;$(SolutionDir)obj\$(ConfigurationName)\$(ProjectName)&quot;"
+			IntermediateDirectory="&quot;$(SolutionDir)obj\$(ConfigurationName)\$(ProjectName)&quot;"
 			ConfigurationType="4"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
@@ -106,10 +108,12 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="3"
-				AdditionalIncludeDirectories="../;../deps/zthread/include;../depends/boost;../depends/zthread/include"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)src&quot;;&quot;$(SolutionDir)deps\boost&quot;;&quot;$(SolutionDir)deps\zthread\include&quot;"
 				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;WIN32;NDEBUG;_LIB;_WIN32_WINNT=0x0500 "
 				StructMemberAlignment="3"
 				TreatWChar_tAsBuiltInType="false"
+				WarningLevel="3"
+				WarnAsError="true"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -122,6 +126,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
+				OutputFile="&quot;$(SolutionDir)lib\$(ConfigurationName)\$(ProjectName).lib&quot;"
 			/>
 			<Tool
 				Name="VCALinkTool"

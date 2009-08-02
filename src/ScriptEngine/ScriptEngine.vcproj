@@ -21,8 +21,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
+			OutputDirectory="&quot;$(SolutionDir)obj\$(ConfigurationName)\$(ProjectName)&quot;"
+			IntermediateDirectory="&quot;$(SolutionDir)obj\$(ConfigurationName)\$(ProjectName)&quot;"
 			ConfigurationType="4"
 			CharacterSet="1"
 			WholeProgramOptimization="0"
@@ -46,7 +46,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="../;../deps;../deps/boost;../deps/lua/src;../deps/noise/src;../deps/spatialindex/tools/include;../deps/zthread/include;../depends;../depends/boost;../depends/spatialindex/tools/include;../depends/lua/src;../depends/zthread/include;../depends/noise/src"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)src&quot;;&quot;$(SolutionDir)deps&quot;;&quot;$(SolutionDir)deps\boost&quot;;&quot;$(SolutionDir)deps\lua\src&quot;;&quot;$(SolutionDir)deps\noise\src&quot;;&quot;$(SolutionDir)deps\spatialindex\tools\include&quot;;&quot;$(SolutionDir)deps\zthread\include&quot;"
 				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;WIN32;_LIB;_WIN32_WINNT=0x0500;_DEBUG"
 				MinimalRebuild="true"
 				ExceptionHandling="1"
@@ -63,7 +63,8 @@
 				PrecompiledHeaderThrough=""
 				AssemblerOutput="0"
 				BrowseInformation="0"
-				WarningLevel="1"
+				WarningLevel="3"
+				WarnAsError="true"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="4"
 				CompileAs="2"
@@ -79,6 +80,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
+				OutputFile="&quot;$(SolutionDir)lib\$(ConfigurationName)\$(ProjectName).lib&quot;"
 				AdditionalLibraryDirectories=""
 				IgnoreDefaultLibraryNames=""
 			/>
@@ -102,8 +104,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
+			OutputDirectory="&quot;$(SolutionDir)obj\$(ConfigurationName)\$(ProjectName)&quot;"
+			IntermediateDirectory="&quot;$(SolutionDir)obj\$(ConfigurationName)\$(ProjectName)&quot;"
 			ConfigurationType="4"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
@@ -126,7 +128,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="3"
-				AdditionalIncludeDirectories="../;../deps;../deps/lua/src;../deps/boost;../deps/noise/src;../deps/spatialindex/tools/include;../deps/zthread/include;../depends;../depends/boost;../depends/spatialindex/tools/include;../depends/lua/src;../depends/zthread/include;../depends/noise/src"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)src&quot;;&quot;$(SolutionDir)deps&quot;;&quot;$(SolutionDir)deps\boost&quot;;&quot;$(SolutionDir)deps\lua\src&quot;;&quot;$(SolutionDir)deps\noise\src&quot;;&quot;$(SolutionDir)deps\spatialindex\tools\include&quot;;&quot;$(SolutionDir)deps\zthread\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_WIN32_WINNT=0x0500 "
 				ExceptionHandling="1"
 				RuntimeLibrary="0"
@@ -136,6 +138,7 @@
 				TreatWChar_tAsBuiltInType="false"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
+				WarnAsError="true"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="0"
 			/>
@@ -150,6 +153,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
+				OutputFile="&quot;$(SolutionDir)lib\$(ConfigurationName)\$(ProjectName).lib&quot;"
 				AdditionalLibraryDirectories=""
 			/>
 			<Tool
@@ -168,46 +172,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Debug-Linux|Win32"
-			OutputDirectory="$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="0"
-			>
-			<Tool
-				Name="VCNMakeTool"
-				BuildCommandLine="D:\Apps\Internet\plink.exe -load Centurion &quot;cd /mnt/veto/working/mmoserver/dev/ScriptEngine; make -j 1 debug&quot;"
-				ReBuildCommandLine="D:\Apps\Internet\plink.exe -load Centurion &quot;cd /mnt/veto/working/mmoserver/dev/ScriptEngine; make -j 1 rebuilddebug&quot;"
-				CleanCommandLine="D:\Apps\Internet\plink.exe -load Centurion &quot;cd /mnt/veto/working/mmoserver/dev/ScriptEngine; make -j 1 cleandebug&quot;"
-				Output=""
-				PreprocessorDefinitions=""
-				IncludeSearchPath=""
-				ForcedIncludes=""
-				AssemblySearchPath=""
-				ForcedUsingAssemblies=""
-				CompileAsManaged=""
-			/>
-		</Configuration>
-		<Configuration
-			Name="Release-Linux|Win32"
-			OutputDirectory="$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="0"
-			>
-			<Tool
-				Name="VCNMakeTool"
-				BuildCommandLine="D:\Apps\Internet\plink.exe -load Centurion &quot;cd /mnt/veto/working/mmoserver/dev/ScriptEngine; make -j 1 release&quot;"
-				ReBuildCommandLine="D:\Apps\Internet\plink.exe -load Centurion &quot;cd /mnt/veto/working/mmoserver/dev/ScriptEngine; make -j 1 rebuildrelease&quot;"
-				CleanCommandLine="D:\Apps\Internet\plink.exe -load Centurion &quot;cd /mnt/veto/working/mmoserver/dev/ScriptEngine; make -j 1 cleanrelease&quot;"
-				Output=""
-				PreprocessorDefinitions=""
-				IncludeSearchPath=""
-				ForcedIncludes=""
-				AssemblySearchPath=""
-				ForcedUsingAssemblies=""
-				CompileAsManaged=""
 			/>
 		</Configuration>
 		<Configuration

@@ -267,7 +267,7 @@ void bytebuffer::ascii_to_unicode(wchar_t *destination,const char *source, int l
 void bytebuffer::unicode_to_ascii(char *destination,const wchar_t *source, int length)
 {
     for(int i=0; i < length; i++)
-        destination[i] = source[i];
+        destination[i] = static_cast<char>(source[i]);
 }
 //-------------------------------------------------------------------------------------------------------------------
 void bytebuffer::writeBUFFER(bytebuffer &data)

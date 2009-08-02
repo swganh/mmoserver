@@ -16,8 +16,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
+			OutputDirectory="&quot;$(SolutionDir)obj\$(ConfigurationName)\$(ProjectName)&quot;"
+			IntermediateDirectory="&quot;$(SolutionDir)obj\$(ConfigurationName)\$(ProjectName)&quot;"
 			ConfigurationType="4"
 			CharacterSet="1"
 			>
@@ -39,13 +39,15 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../;../deps;../deps/boost;../deps/noise/src;../deps/spatialindex/tools/include;../deps/zthread/include;../depends;../depends/boost;../depends/noise/src;../depends/zthread/include/;../depends/spatialindex/tools/include"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)src&quot;;&quot;$(SolutionDir)deps&quot;;&quot;$(SolutionDir)deps\boost&quot;;&quot;$(SolutionDir)deps\noise\src&quot;;&quot;$(SolutionDir)deps\spatialindex\tools\include&quot;;&quot;$(SolutionDir)deps\zthread\include&quot;"
 				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_DEBUG,WIN32;_LIB;_WIN32_WINNT=0x0500 "
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
 				StructMemberAlignment="3"
 				TreatWChar_tAsBuiltInType="false"
+				WarningLevel="3"
+				WarnAsError="true"
 				DebugInformationFormat="4"
 			/>
 			<Tool
@@ -59,6 +61,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
+				OutputFile="&quot;$(SolutionDir)lib\$(ConfigurationName)\$(ProjectName).lib&quot;"
 				IgnoreDefaultLibraryNames=""
 			/>
 			<Tool
@@ -81,8 +84,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
+			OutputDirectory="&quot;$(SolutionDir)obj\$(ConfigurationName)\$(ProjectName)&quot;"
+			IntermediateDirectory="&quot;$(SolutionDir)obj\$(ConfigurationName)\$(ProjectName)&quot;"
 			ConfigurationType="4"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
@@ -105,10 +108,12 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="3"
-				AdditionalIncludeDirectories="../;../deps;../deps/boost;../deps/noise/src;../deps/spatialindex/tools/include;../deps/zthread/include;../depends;../depends/boost;../depends/noise/src;../depends/zthread/include/;../depends/spatialindex/tools/include"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)src&quot;;&quot;$(SolutionDir)deps&quot;;&quot;$(SolutionDir)deps\boost&quot;;&quot;$(SolutionDir)deps\noise\src&quot;;&quot;$(SolutionDir)deps\spatialindex\tools\include&quot;;&quot;$(SolutionDir)deps\zthread\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_WIN32_WINNT=0x0500 "
 				StructMemberAlignment="3"
 				TreatWChar_tAsBuiltInType="false"
+				WarningLevel="3"
+				WarnAsError="true"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -121,6 +126,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
+				OutputFile="&quot;$(SolutionDir)lib\$(ConfigurationName)\$(ProjectName).lib&quot;"
 			/>
 			<Tool
 				Name="VCALinkTool"

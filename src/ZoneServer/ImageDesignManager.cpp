@@ -180,7 +180,7 @@ string EntertainerManager::commitIdheight(PlayerObject* customer, float value)
 			float newVal = (0.08*value);
 			
 			minScale = 0.75F;
-			maxScale = 0.83;
+			maxScale = 0.83F;
 			totalScale = minScale + newVal;
 				
 		}

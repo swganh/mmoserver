@@ -21,8 +21,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="../../$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
+			OutputDirectory="&quot;$(SolutionDir)obj\$(ConfigurationName)\$(ProjectName)&quot;"
+			IntermediateDirectory="&quot;$(SolutionDir)obj\$(ConfigurationName)\$(ProjectName)&quot;"
 			ConfigurationType="1"
 			CharacterSet="1"
 			>
@@ -46,7 +46,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="../;../deps;../deps/boost;../deps/lua/src;../deps/noise/src;../deps/spatialindex/tools/include;../deps/zthread/include;../depends;../depends/boost;../depends/lua/src;../depends/noise/src;../depends/spatialindex/tools/include;../depends/zthread/include"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)src&quot;;&quot;$(SolutionDir)deps&quot;;&quot;$(SolutionDir)deps\boost&quot;;&quot;$(SolutionDir)deps\lua\src&quot;;&quot;$(SolutionDir)deps\noise\src&quot;;&quot;$(SolutionDir)deps\spatialindex\tools\include&quot;;&quot;$(SolutionDir)deps\zthread\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_CRT_NON_CONFORMING_SWPRINTFS;_CRT_SECURE_NO_DEPRECATE;_WIN32_WINNT=0x0500"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="3"
@@ -59,9 +59,9 @@
 				UsePrecompiledHeader="0"
 				BrowseInformation="0"
 				WarningLevel="3"
+				WarnAsError="true"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="4"
-				DisableSpecificWarnings="4244"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -75,8 +75,9 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ws2_32.lib libmysql.lib zlibd.lib winmm.lib libnoise.lib spatialindex_d.lib zthreadd.lib lua5.1d.lib toluapp.lib"
+				OutputFile="&quot;$(SolutionDir)bin\$(ConfigurationName)\$(ProjectName).exe&quot;"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="../deps/boost/stage/lib;../deps/lua/lib;../deps/mysql/lib/debug;../deps/noise/win32/Debug;../deps/spatialindex/Debug;&quot;../deps/tolua++/win32/vc9/withLua51_Debug&quot;;../deps/zlib/projects/visualc6/Win32_LIB_Debug;../deps/zthread/Debug;../depends/boost/stage/lib;../depends/spatialindex/debug;../depends/zlib/Win32_LIB_Debug;../depends/lua/lib/static;&quot;../depends/tolua++/withLua51_Debug&quot;;../depends/noise/win32/debug;../depends/zthread/zthread___Win32_Debug"
+				AdditionalLibraryDirectories="&quot;$(SolutionDir)deps\boost\stage\lib&quot;;&quot;$(SolutionDir)deps\lua\lib&quot;;&quot;$(SolutionDir)deps\mysql\lib\debug&quot;;&quot;$(SolutionDir)deps\noise\win32\Debug&quot;;&quot;$(SolutionDir)deps\spatialindex\Debug&quot;;&quot;$(SolutionDir)deps\tolua++\win32\vc9\withLua51_Debug&quot;;&quot;$(SolutionDir)deps\zlib\projects\visualc6\Win32_LIB_Debug&quot;;&quot;$(SolutionDir)deps\zthread\Debug&quot;"
 				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="true"
 				GenerateMapFile="true"
@@ -111,8 +112,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="../../$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
+			OutputDirectory="&quot;$(SolutionDir)obj\$(ConfigurationName)\$(ProjectName)&quot;"
+			IntermediateDirectory="&quot;$(SolutionDir)obj\$(ConfigurationName)\$(ProjectName)&quot;"
 			ConfigurationType="1"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
@@ -135,8 +136,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="3"
-				AdditionalIncludeDirectories="../;../deps;../deps/boost;../deps/lua/src;../deps/noise/src;../deps/spatialindex/tools/include;../deps/zthread/include;../depends;../depends/boost;../depends/lua/src;../depends/noise/src;../depends/spatialindex/tools/include;../depends/zthread/include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_CRT_NON_CONFORMING_SWPRINTFS;_CRT_SECURE_NO_DEPRECATE_WIN32_WINNT=0x0500 "
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)src&quot;;&quot;$(SolutionDir)deps&quot;;&quot;$(SolutionDir)deps\boost&quot;;&quot;$(SolutionDir)deps\lua\src&quot;;&quot;$(SolutionDir)deps\noise\src&quot;;&quot;$(SolutionDir)deps\spatialindex\tools\include&quot;;&quot;$(SolutionDir)deps\zthread\include&quot;"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_CRT_NON_CONFORMING_SWPRINTFS;_CRT_SECURE_NO_DEPRECATE;_WIN32_WINNT=0x0500"
 				ExceptionHandling="1"
 				RuntimeLibrary="0"
 				StructMemberAlignment="3"
@@ -145,9 +146,9 @@
 				TreatWChar_tAsBuiltInType="false"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
+				WarnAsError="true"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="0"
-				DisableSpecificWarnings="4244"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -162,8 +163,9 @@
 				Name="VCLinkerTool"
 				UseLibraryDependencyInputs="true"
 				AdditionalDependencies="ws2_32.lib libmysql.lib zlib.lib winmm.lib libnoise.lib spatialindex.lib zthread.lib lua5.1d.lib toluapp.lib"
+				OutputFile="&quot;$(SolutionDir)bin\$(ConfigurationName)\$(ProjectName).exe&quot;"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="../deps/boost/stage/lib;../deps/lua/lib;../deps/mysql/lib/opt;../deps/noise/win32/Release;../deps/spatialindex/Release;&quot;../deps/tolua++/win32/vc9/withLua51_Release&quot;;../deps/zlib/projects/visualc6/Win32_LIB_Release;../deps/zthread/Release;../depends/boost/stage/lib;..\depends\lua\lib;..\depends\zthread;..\depends\spatialindex\debug;..\depends\zlib\Win32_LIB_Debug;../depends/zlib/Win32_LIB_Release;../depends/noise/win32/release;../depends/lua/lib/static;&quot;../depends/tolua++/withLua51_Release&quot;;../depends/zthread/zthread___Win32_Release;../depends/spatialindex/release"
+				AdditionalLibraryDirectories="&quot;$(SolutionDir)\deps\boost\stage\lib&quot;;&quot;$(SolutionDir)deps\lua\lib&quot;;&quot;$(SolutionDir)deps\mysql\lib\opt&quot;;&quot;$(SolutionDir)deps\noise\win32\Release&quot;;&quot;$(SolutionDir)deps\spatialindex\Release&quot;;&quot;$(SolutionDir)deps\tolua++\win32\vc9\withLua51_Release&quot;;&quot;$(SolutionDir)deps\zlib\projects\visualc6\Win32_LIB_Release&quot;;&quot;$(SolutionDir)deps\zthread\Release&quot;"
 				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="false"
 				SubSystem="1"
@@ -193,46 +195,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Debug-Linux|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="0"
-			>
-			<Tool
-				Name="VCNMakeTool"
-				BuildCommandLine="D:\Apps\Internet\plink.exe -load Centurion &quot;cd /mnt/veto/working/mmoserver/dev/ZoneServer; make -j 1 debug&quot;"
-				ReBuildCommandLine="D:\Apps\Internet\plink.exe -load Centurion &quot;cd /mnt/veto/working/mmoserver/dev/ZoneServer; make -j 1 rebuilddebug&quot;"
-				CleanCommandLine="D:\Apps\Internet\plink.exe -load Centurion &quot;cd /mnt/veto/working/mmoserver/dev/ZoneServer; make -j 1 cleandebug&quot;"
-				Output=""
-				PreprocessorDefinitions=""
-				IncludeSearchPath=""
-				ForcedIncludes=""
-				AssemblySearchPath=""
-				ForcedUsingAssemblies=""
-				CompileAsManaged=""
-			/>
-		</Configuration>
-		<Configuration
-			Name="Release-Linux|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="0"
-			>
-			<Tool
-				Name="VCNMakeTool"
-				BuildCommandLine="D:\Apps\Internet\plink.exe -load Centurion &quot;cd /mnt/veto/working/mmoserver/dev/ZoneServer; make -j 1 release&quot;"
-				ReBuildCommandLine="D:\Apps\Internet\plink.exe -load Centurion &quot;cd /mnt/veto/working/mmoserver/dev/ZoneServer; make -j 1 rebuildrelease&quot;"
-				CleanCommandLine="D:\Apps\Internet\plink.exe -load Centurion &quot;cd /mnt/veto/working/mmoserver/dev/ZoneServer; make -j 1 cleanrelease&quot;"
-				Output=""
-				PreprocessorDefinitions=""
-				IncludeSearchPath=""
-				ForcedIncludes=""
-				AssemblySearchPath=""
-				ForcedUsingAssemblies=""
-				CompileAsManaged=""
 			/>
 		</Configuration>
 		<Configuration

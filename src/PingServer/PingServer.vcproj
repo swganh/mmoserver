@@ -16,8 +16,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="../../$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
+			OutputDirectory="&quot;$(SolutionDir)obj\$(ConfigurationName)\$(ProjectName)&quot;"
+			IntermediateDirectory="&quot;$(SolutionDir)obj\$(ConfigurationName)\$(ProjectName)&quot;"
 			ConfigurationType="1"
 			CharacterSet="1"
 			>
@@ -39,13 +39,15 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../;../deps/boost;../deps/zthread/include;../depends/boost;../depends/zthread/include"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)src&quot;;&quot;$(SolutionDir)deps\boost&quot;;&quot;$(SolutionDir)deps\zthread\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_WIN32_WINNT=0x0500 "
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
 				StructMemberAlignment="3"
 				TreatWChar_tAsBuiltInType="false"
+				WarningLevel="3"
+				WarnAsError="true"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="4"
 			/>
@@ -61,8 +63,9 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ws2_32.lib winmm.lib zthreadd.lib"
+				OutputFile="&quot;$(SolutionDir)bin\$(ConfigurationName)\$(ProjectName).exe&quot;"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="../deps/boost/stage/lib;../deps/mysql/lib/debug;../deps/zlib/projects/visualc6/Win32_LIB_Debug;../deps/zthread/Debug;../depends/boost/stage/lib;../depends/zthread/zthread___Win32_Debug"
+				AdditionalLibraryDirectories="&quot;$(SolutionDir)deps\boost\stage\lib&quot;;&quot;$(SolutionDir)deps\mysql\lib\debug&quot;;&quot;$(SolutionDir)deps\zlib\projects\visualc6\Win32_LIB_Debug&quot;;&quot;$(SolutionDir)deps\zthread\Debug&quot;"
 				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="true"
 				SubSystem="1"
@@ -96,8 +99,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="../../$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
+			OutputDirectory="&quot;$(SolutionDir)obj\$(ConfigurationName)\$(ProjectName)&quot;"
+			IntermediateDirectory="&quot;$(SolutionDir)obj\$(ConfigurationName)\$(ProjectName)&quot;"
 			ConfigurationType="1"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
@@ -121,10 +124,12 @@
 				Name="VCCLCompilerTool"
 				Optimization="3"
 				WholeProgramOptimization="true"
-				AdditionalIncludeDirectories="../;../deps/boost;../deps/zthread/include;../depends/boost;../depends/zthread/include"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)src&quot;;&quot;$(SolutionDir)deps\boost&quot;;&quot;$(SolutionDir)deps\zthread\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_WIN32_WINNT=0x0500;_CRT_SECURE_NO_DEPRECATE"
 				StructMemberAlignment="3"
 				TreatWChar_tAsBuiltInType="false"
+				WarningLevel="3"
+				WarnAsError="true"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="0"
 			/>
@@ -140,8 +145,9 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ws2_32.lib winmm.lib zthread.lib"
+				OutputFile="&quot;$(SolutionDir)bin\$(ConfigurationName)\$(ProjectName).exe&quot;"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="../deps/boost/stage/lib;../deps/mysql/lib/opt;../deps/zlib/projects/visualc6/Win32_LIB_Release;../deps/zthread/Release;../depends/boost/stage/lib;../depends/zthread/zthread___Win32_Debug"
+				AdditionalLibraryDirectories="&quot;$(SolutionDir)deps\boost\stage\lib&quot;;&quot;$(SolutionDir)deps\mysql\lib\opt&quot;;&quot;$(SolutionDir)deps\zlib\projects\visualc6\Win32_LIB_Release&quot;;&quot;$(SolutionDir)deps\zthread\Release&quot;"
 				IgnoreDefaultLibraryNames=""
 				SubSystem="1"
 				OptimizeReferences="2"

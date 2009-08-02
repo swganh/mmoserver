@@ -1835,8 +1835,6 @@ bool MessageLib::sendSkillModUpdateCreo4(PlayerObject* playerObject)
 		++it;
 	}
 
-	Message* newMessage;
-
 	gMessageFactory->StartMessage();             
 	gMessageFactory->addUint32(opDeltasMessage);  
 	gMessageFactory->addUint64(playerObject->getId());           

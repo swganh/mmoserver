@@ -2365,7 +2365,7 @@ static int tolua_LuaInterface_ScriptSupport_lairSpawn00(lua_State* tolua_S)
   float posZ = ((float)  tolua_tonumber(tolua_S,9,0));
   float xWidth = ((float)  tolua_tonumber(tolua_S,10,0));
   float zWidth = ((float)  tolua_tonumber(tolua_S,11,0));
-  bool isFixedPosition = ((bool)  tolua_toboolean(tolua_S,12,0));
+  bool isFixedPosition = (tolua_toboolean(tolua_S,12,0) != 0);
   unsigned long long respawnPeriod = (( unsigned long long)  tolua_tonumber(tolua_S,13,0));
   unsigned long long templateId = (( unsigned long long)  tolua_tonumber(tolua_S,14,0));
 #ifndef TOLUA_RELEASE

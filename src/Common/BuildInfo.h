@@ -17,7 +17,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 //======================================================================================================================
 const char* GetBuildString(void)
 {
-	return "swgANH "ANH_VERSION_NAME" - "ANH_VERSION_MAJOR"."ANH_VERSION_MINOR".1315 - 2009/08/02 00:26:37";
+	return "swgANH "ANH_VERSION_NAME" - "ANH_VERSION_MAJOR"."ANH_VERSION_MINOR".1316 - 2009/08/02 10:13:58";
 }
 
 

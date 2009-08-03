@@ -21,8 +21,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="&quot;$(SolutionDir)obj\$(ConfigurationName)\$(ProjectName)&quot;"
-			IntermediateDirectory="&quot;$(SolutionDir)obj\$(ConfigurationName)\$(ProjectName)&quot;"
+			OutputDirectory="&quot;$(SolutionDir)build-aux\obj\$(ConfigurationName)\$(ProjectName)&quot;"
+			IntermediateDirectory="&quot;$(SolutionDir)build-aux\obj\$(ConfigurationName)\$(ProjectName)&quot;"
 			ConfigurationType="1"
 			CharacterSet="1"
 			>
@@ -74,7 +74,7 @@
 				OutputFile="&quot;$(SolutionDir)bin\$(ConfigurationName)\$(ProjectName).exe&quot;"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;$(SolutionDir)deps\boost\stage\lib&quot;;&quot;$(SolutionDir)deps\mysql\lib\debug&quot;;&quot;$(SolutionDir)deps\zlib\projects\visualc6\Win32_LIB_Debug&quot;;&quot;$(SolutionDir)deps\zthread\Debug&quot;"
-				GenerateManifest="true"
+				GenerateManifest="false"
 				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="true"
 				SubSystem="1"
@@ -105,12 +105,13 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine="if not exist &quot;$(SolutionDir)bin\$(ConfigurationName)\config&quot; (&#x0D;&#x0A;   xcopy &quot;$(SolutionDir)data\config&quot; &quot;$(SolutionDir)bin\$(ConfigurationName)\config&quot; /I /Y /s&#x0D;&#x0A;)&#x0D;&#x0A;&#x0D;&#x0A;if not exist &quot;$(SolutionDir)bin\$(ConfigurationName)\log&quot; (&#x0D;&#x0A;  mkdir &quot;$(SolutionDir)bin\$(ConfigurationName)\log&quot;&#x0D;&#x0A;)&#x0D;&#x0A;&#x0D;&#x0A;if not exist &quot;$(SolutionDir)bin\$(ConfigurationName)\script&quot; (&#x0D;&#x0A;   xcopy &quot;$(SolutionDir)data\script&quot; &quot;$(SolutionDir)bin\$(ConfigurationName)\script&quot; /I /Y /s&#x0D;&#x0A;)&#x0D;&#x0A;&#x0D;&#x0A;if not exist &quot;$(SolutionDir)bin\$(ConfigurationName)\ServerStart.bat&quot; (&#x0D;&#x0A;   xcopy &quot;$(SolutionDir)data\ServerStart.bat&quot; &quot;$(SolutionDir)bin\$(ConfigurationName)&quot; /I /Y /s&#x0D;&#x0A;)"
 			/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="&quot;$(SolutionDir)obj\$(ConfigurationName)\$(ProjectName)&quot;"
-			IntermediateDirectory="&quot;$(SolutionDir)obj\$(ConfigurationName)\$(ProjectName)&quot;"
+			OutputDirectory="&quot;$(SolutionDir)build-aux\obj\$(ConfigurationName)\$(ProjectName)&quot;"
+			IntermediateDirectory="&quot;$(SolutionDir)build-aux\obj\$(ConfigurationName)\$(ProjectName)&quot;"
 			ConfigurationType="1"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
@@ -160,6 +161,7 @@
 				OutputFile="&quot;$(SolutionDir)bin\$(ConfigurationName)\$(ProjectName).exe&quot;"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;$(SolutionDir)deps\boost\stage\lib&quot;;&quot;$(SolutionDir)deps\mysql\lib\opt&quot;;&quot;$(SolutionDir)deps\zlib\projects\visualc6\Win32_LIB_Release&quot;;&quot;$(SolutionDir)deps\zthread\Release&quot;"
+				GenerateManifest="false"
 				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="false"
 				SubSystem="1"
@@ -191,6 +193,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine="if not exist &quot;$(SolutionDir)bin\$(ConfigurationName)\config&quot; (&#x0D;&#x0A;   xcopy &quot;$(SolutionDir)data\config&quot; &quot;$(SolutionDir)bin\$(ConfigurationName)\config&quot; /I /Y /s&#x0D;&#x0A;)&#x0D;&#x0A;&#x0D;&#x0A;if not exist &quot;$(SolutionDir)bin\$(ConfigurationName)\log&quot; (&#x0D;&#x0A;  mkdir &quot;$(SolutionDir)bin\$(ConfigurationName)\log&quot;&#x0D;&#x0A;)&#x0D;&#x0A;&#x0D;&#x0A;if not exist &quot;$(SolutionDir)bin\$(ConfigurationName)\script&quot; (&#x0D;&#x0A;   xcopy &quot;$(SolutionDir)data\script&quot; &quot;$(SolutionDir)bin\$(ConfigurationName)\script&quot; /I /Y /s&#x0D;&#x0A;)&#x0D;&#x0A;&#x0D;&#x0A;if not exist &quot;$(SolutionDir)bin\$(ConfigurationName)\ServerStart.bat&quot; (&#x0D;&#x0A;   xcopy &quot;$(SolutionDir)data\ServerStart.bat&quot; &quot;$(SolutionDir)bin\$(ConfigurationName)&quot; /I /Y /s&#x0D;&#x0A;)"
 			/>
 		</Configuration>
 		<Configuration

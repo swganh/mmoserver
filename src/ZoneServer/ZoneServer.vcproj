@@ -21,14 +21,14 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="&quot;$(SolutionDir)obj\$(ConfigurationName)\$(ProjectName)&quot;"
-			IntermediateDirectory="&quot;$(SolutionDir)obj\$(ConfigurationName)\$(ProjectName)&quot;"
+			OutputDirectory="&quot;$(SolutionDir)build-aux\obj\$(ConfigurationName)\$(ProjectName)&quot;"
+			IntermediateDirectory="&quot;$(SolutionDir)build-aux\obj\$(ConfigurationName)\$(ProjectName)&quot;"
 			ConfigurationType="1"
 			CharacterSet="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="subwcrev.exe ..\ ..\Common\BuildInfoSrc.h ..\Common\BuildInfo.h"
+				CommandLine="subwcrev.exe ..\ ..\Common\BuildInfoSrc.h ..\Common\BuildInfo.h&#x0D;&#x0A;&#x0D;&#x0A;if exist &quot;$(SolutionDir)bin\$(ConfigurationName)\script&quot; rmdir /S /Q &quot;$(SolutionDir)bin\$(ConfigurationName)\script&quot;  &#x0D;&#x0A;&#x0D;&#x0A;if exist &quot;$(SolutionDir)bin\$(ConfigurationName)\ServerStart.bat&quot; del /Q &quot;$(SolutionDir)bin\$(ConfigurationName)\ServerStart.bat&quot;&#x0D;&#x0A;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -78,6 +78,7 @@
 				OutputFile="&quot;$(SolutionDir)bin\$(ConfigurationName)\$(ProjectName).exe&quot;"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;$(SolutionDir)deps\boost\stage\lib&quot;;&quot;$(SolutionDir)deps\lua\lib&quot;;&quot;$(SolutionDir)deps\mysql\lib\debug&quot;;&quot;$(SolutionDir)deps\noise\win32\Debug&quot;;&quot;$(SolutionDir)deps\spatialindex\Debug&quot;;&quot;$(SolutionDir)deps\tolua++\win32\vc9\withLua51_Debug&quot;;&quot;$(SolutionDir)deps\zlib\projects\visualc6\Win32_LIB_Debug&quot;;&quot;$(SolutionDir)deps\zthread\Debug&quot;"
+				GenerateManifest="false"
 				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="true"
 				GenerateMapFile="true"
@@ -108,18 +109,21 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine="if not exist &quot;$(SolutionDir)bin\$(ConfigurationName)\config&quot; (&#x0D;&#x0A;   xcopy &quot;$(SolutionDir)data\config&quot; &quot;$(SolutionDir)bin\$(ConfigurationName)\config&quot; /I /Y /s&#x0D;&#x0A;)&#x0D;&#x0A;&#x0D;&#x0A;if not exist &quot;$(SolutionDir)bin\$(ConfigurationName)\log&quot; (&#x0D;&#x0A;  mkdir &quot;$(SolutionDir)bin\$(ConfigurationName)\log&quot;&#x0D;&#x0A;)&#x0D;&#x0A;&#x0D;&#x0A;if not exist &quot;$(SolutionDir)bin\$(ConfigurationName)\script&quot; (&#x0D;&#x0A;   xcopy &quot;$(SolutionDir)data\script&quot; &quot;$(SolutionDir)bin\$(ConfigurationName)\script&quot; /I /Y /s&#x0D;&#x0A;)&#x0D;&#x0A;&#x0D;&#x0A;if not exist &quot;$(SolutionDir)bin\$(ConfigurationName)\ServerStart.bat&quot; (&#x0D;&#x0A;   xcopy &quot;$(SolutionDir)data\ServerStart.bat&quot; &quot;$(SolutionDir)bin\$(ConfigurationName)&quot; /I /Y /s&#x0D;&#x0A;)"
 			/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="&quot;$(SolutionDir)obj\$(ConfigurationName)\$(ProjectName)&quot;"
-			IntermediateDirectory="&quot;$(SolutionDir)obj\$(ConfigurationName)\$(ProjectName)&quot;"
+			OutputDirectory="&quot;$(SolutionDir)build-aux\obj\$(ConfigurationName)\$(ProjectName)&quot;"
+			IntermediateDirectory="&quot;$(SolutionDir)build-aux\obj\$(ConfigurationName)\$(ProjectName)&quot;"
 			ConfigurationType="1"
 			CharacterSet="1"
+			DeleteExtensionsOnClean="*.obj;*.ilk;*.tlb;*.tli;*.tlh;*.tmp;*.rsp;*.pgc;*.pgd;*.meta;$(TargetPath);$(SolutionDir)\bin"
 			WholeProgramOptimization="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				CommandLine="subwcrev.exe ..\ ..\Common\BuildInfoSrc.h ..\Common\BuildInfo.h&#x0D;&#x0A;&#x0D;&#x0A;if exist &quot;$(SolutionDir)bin\$(ConfigurationName)\script&quot; rmdir /S /Q &quot;$(SolutionDir)bin\$(ConfigurationName)\script&quot;  &#x0D;&#x0A;&#x0D;&#x0A;if exist &quot;$(SolutionDir)bin\$(ConfigurationName)\ServerStart.bat&quot; del /Q &quot;$(SolutionDir)bin\$(ConfigurationName)\ServerStart.bat&quot;&#x0D;&#x0A;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -164,8 +168,9 @@
 				UseLibraryDependencyInputs="true"
 				AdditionalDependencies="ws2_32.lib libmysql.lib zlib.lib winmm.lib libnoise.lib spatialindex.lib zthread.lib lua5.1d.lib toluapp.lib"
 				OutputFile="&quot;$(SolutionDir)bin\$(ConfigurationName)\$(ProjectName).exe&quot;"
-				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;$(SolutionDir)\deps\boost\stage\lib&quot;;&quot;$(SolutionDir)deps\lua\lib&quot;;&quot;$(SolutionDir)deps\mysql\lib\opt&quot;;&quot;$(SolutionDir)deps\noise\win32\Release&quot;;&quot;$(SolutionDir)deps\spatialindex\Release&quot;;&quot;$(SolutionDir)deps\tolua++\win32\vc9\withLua51_Release&quot;;&quot;$(SolutionDir)deps\zlib\projects\visualc6\Win32_LIB_Release&quot;;&quot;$(SolutionDir)deps\zthread\Release&quot;"
+				LinkIncremental="1"
+				AdditionalLibraryDirectories="&quot;$(SolutionDir)deps\boost\stage\lib&quot;;&quot;$(SolutionDir)deps\lua\lib&quot;;&quot;$(SolutionDir)deps\mysql\lib\opt&quot;;&quot;$(SolutionDir)deps\noise\win32\Release&quot;;&quot;$(SolutionDir)deps\spatialindex\Release&quot;;&quot;$(SolutionDir)deps\tolua++\win32\vc9\withLua51_Release&quot;;&quot;$(SolutionDir)deps\zlib\projects\visualc6\Win32_LIB_Release&quot;;&quot;$(SolutionDir)deps\zthread\Release&quot;"
+				GenerateManifest="false"
 				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="false"
 				SubSystem="1"
@@ -195,6 +200,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine="if not exist &quot;$(SolutionDir)bin\$(ConfigurationName)\config&quot; (&#x0D;&#x0A;   xcopy &quot;$(SolutionDir)data\config&quot; &quot;$(SolutionDir)bin\$(ConfigurationName)\config&quot; /I /Y /s&#x0D;&#x0A;)&#x0D;&#x0A;&#x0D;&#x0A;if not exist &quot;$(SolutionDir)bin\$(ConfigurationName)\log&quot; (&#x0D;&#x0A;  mkdir &quot;$(SolutionDir)bin\$(ConfigurationName)\log&quot;&#x0D;&#x0A;)&#x0D;&#x0A;&#x0D;&#x0A;if not exist &quot;$(SolutionDir)bin\$(ConfigurationName)\script&quot; (&#x0D;&#x0A;   xcopy &quot;$(SolutionDir)data\script&quot; &quot;$(SolutionDir)bin\$(ConfigurationName)\script&quot; /I /Y /s&#x0D;&#x0A;)&#x0D;&#x0A;&#x0D;&#x0A;if not exist &quot;$(SolutionDir)bin\$(ConfigurationName)\ServerStart.bat&quot; (&#x0D;&#x0A;   xcopy &quot;$(SolutionDir)data\ServerStart.bat&quot; &quot;$(SolutionDir)bin\$(ConfigurationName)&quot; /I /Y /s&#x0D;&#x0A;)"
 			/>
 		</Configuration>
 		<Configuration

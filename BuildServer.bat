@@ -236,7 +236,7 @@ if not exist "%PROJECT_BASE%\%DEPENDENCIES_FILE%" (
 )
 
 if exist "%PROJECT_BASE%\%DEPENDENCIES_FILE%" (
-    "%PROJECT_BASE%\tools\unzip.exe" %PROJECT_BASE%\%DEPENDENCIES_FILE% -d %PROJECT_BASE%
+    "%PROJECT_BASE%\tools\unzip.exe" "%PROJECT_BASE%\%DEPENDENCIES_FILE%" -d %PROJECT_BASE%
 )
                                                       
 goto :eof

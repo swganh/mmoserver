@@ -57,10 +57,10 @@ set DEPENDENCIES_FILE=swganh-deps-1307.zip
 set DEPENDENCIES_REMOTE_FILE=gf.php?fid=200907310257018365
 set DEPENDENCIES_URL=http://share.swganh.org/%DEPENDENCIES_REMOTE_FILE%
 set PROJECT_BASE=%~dp0
-set BUILD_TYPE=all
+set BUILD_TYPE=debug
 set MSVC_VERSION=vc9
 set REBUILD=build
-set DBINSTALL=true
+set DBINSTALL=false
 
 goto :eof
 rem --- End of SET_DEFAULTS ----------------------------------------------------  
@@ -79,6 +79,7 @@ if "%0" == "-h" (
     echo.
 
     echo "    /nodbinstall                   Skips the database build process"
+    echo "    /dbinstall                     Run the database build process"
     echo "    /rebuild                       Rebuilds the projects instead of incremental build."
     echo "    /clean                         Cleans the generated files"
     echo "    /build [debug-release-all]     Specifies the build type, defaults to debug"
@@ -92,6 +93,10 @@ if "%0" == "/clean" (
 
 if "%0" == "/nodbinstall" (
 	  set DBINSTALL=false
+)
+
+if "%0" == "/dbinstall" (
+	  set DBINSTALL=true
 )
 
 rem Check for /rebuild then set REBUILD
@@ -365,12 +370,12 @@ rem --- Compiles the lua library.                                            ---
 
 if "%1" == "debug" (
     set buildcmd=cl /nologo /MTd /O2 /W3 /c /D_CRT_SECURE_NO_DEPRECATE
-    set libname=lua5.1.lib
+    set libname=lua5.1d.lib
 )
 
 if "%1" == "release" (
     set buildcmd=cl /nologo /MT /O2 /W3 /c /D_CRT_SECURE_NO_DEPRECATE
-    set libname=lua5.1d.lib
+    set libname=lua5.1.lib
 )
 
 if "%buildcmd%" == "" (

@@ -166,7 +166,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				UseLibraryDependencyInputs="true"
-				AdditionalDependencies="ws2_32.lib libmysql.lib zlib.lib winmm.lib libnoise.lib spatialindex.lib zthread.lib lua5.1d.lib toluapp.lib"
+				AdditionalDependencies="ws2_32.lib libmysql.lib zlib.lib winmm.lib libnoise.lib spatialindex.lib zthread.lib lua5.1.lib toluapp.lib"
 				OutputFile="&quot;$(SolutionDir)bin\$(ConfigurationName)\$(ProjectName).exe&quot;"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;$(SolutionDir)deps\boost\stage\lib&quot;;&quot;$(SolutionDir)deps\lua\lib&quot;;&quot;$(SolutionDir)deps\mysql\lib\opt&quot;;&quot;$(SolutionDir)deps\noise\win32\Release&quot;;&quot;$(SolutionDir)deps\spatialindex\Release&quot;;&quot;$(SolutionDir)deps\tolua++\win32\vc9\withLua51_Release&quot;;&quot;$(SolutionDir)deps\zlib\projects\visualc6\Win32_LIB_Release&quot;;&quot;$(SolutionDir)deps\zthread\Release&quot;"

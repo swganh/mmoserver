@@ -19,9 +19,9 @@ goto :PROCESS_ARGUMENTS
 rem Build the environment and bail out if it fails
 call :BUILD_ENVIRONMENT
 if x%environment_built% == x goto :eof
-
+                    
 call :BUILD_DEPENDENCIES
-
+                                        
 if not exist "%PROJECT_BASE%\deps" (
     echo Missing SWGANH dependencies!
     echo.
@@ -32,8 +32,11 @@ if not exist "%PROJECT_BASE%\deps" (
 
 call :BUILD_PROJECT     
 
+if not %ERRORLEVEL% == 0 exit /b %ERRORLEVEL%
+
 if "%DBINSTALL%" == "true" (
-    call :INITIALIZE_DATABASE
+    call :INITIALIZE_DATABASE                  
+    if not %ERRORLEVEL% == 0 exit /b %ERRORLEVEL%
 )
 
 goto :eof
@@ -61,6 +64,7 @@ set BUILD_TYPE=debug
 set MSVC_VERSION=vc9
 set REBUILD=build
 set DBINSTALL=false
+set BUILD_ERROR=false
 
 goto :eof
 rem --- End of SET_DEFAULTS ----------------------------------------------------  
@@ -258,14 +262,14 @@ echo BUILDING: Boost - http://www.boost.org/
 rem Only build boost if it hasn't been built already.
 rem Only build lua if it hasn't been built already.
 if "%BUILD_TYPE%" == "debug" (
-    if exist "%PROJECT_BASE%\deps\boost\stage\lib\libboost_*-mt-sgd.lib.lib" (
+    if exist "%PROJECT_BASE%\deps\boost\stage\lib\libboost_*-mt-sgd.lib" (
         echo Boost libraries already built ... skipping
         echo.
         goto :eof
     )
 )
 if "%BUILD_TYPE%" == "release" (
-    if exist "%PROJECT_BASE%\deps\boost\stage\lib\libboost_*-mt-s.lib.lib" (
+    if exist "%PROJECT_BASE%\deps\boost\stage\lib\libboost_*-mt-s.lib" (
         echo Boost libraries already built ... skipping
         echo.
         goto :eof
@@ -302,7 +306,7 @@ if "%BUILD_TYPE%" == "release" (
 if "%BUILD_TYPE%" == "all" (
     cmd /c "%PROJECT_BASE%\deps\boost\tools\jam\src\bin.ntx86\bjam" --toolset=msvc --with-date_time --with-regex --with-thread --with-math --with-system variant=debug,release link=static runtime-link=static threading=multi
 )
-
+                                                      
 goto :eof
 rem --- End of BUILD_BOOST -----------------------------------------------------
 rem ----------------------------------------------------------------------------
@@ -355,7 +359,7 @@ if "%BUILD_TYPE%" == "release" (
 if "%BUILD_TYPE%" == "all" (
     call :COMPILE_LUA debug
     call :COMPILE_LUA release
-)
+)     
 
 goto :eof
 rem --- End of BUILD_LUA -------------------------------------------------------
@@ -461,7 +465,7 @@ if "%BUILD_TYPE%" == "all" (
 
 	  "%MSBUILD%" "%PROJECT_BASE%\deps\noise\libnoise.sln" /t:rebuild /p:Configuration=Release,VCBuildAdditionalOptions="/useenv"
 	  if exist "%PROJECT_BASE%\deps\noise\*.cache" del /S /Q "%PROJECT_BASE%\deps\noise\*.cache"
-)
+)      
 
 goto :eof
 rem --- End of BUILD_NOISE -----------------------------------------------------
@@ -524,7 +528,7 @@ if "%BUILD_TYPE%" == "all" (
 
 	  "%MSBUILD%" "%PROJECT_BASE%\deps\spatialindex\spatialindex.sln" /t:rebuild /p:Configuration=Release,VCBuildAdditionalOptions="/useenv"
 	  if exist "%PROJECT_BASE%\deps\spatialindex\*.cache" del /S /Q "%PROJECT_BASE%\deps\spatialindex\*.cache"
-)
+)    
 
 goto :eof
 rem --- End of BUILD_SPATIALINDEX ----------------------------------------------
@@ -733,22 +737,26 @@ if exist "%PROJECT_BASE%\*.cache" del /S /Q "%PROJECT_BASE%\*.cache"
 
 if "%BUILD_TYPE%" == "debug" (
 	  "%MSBUILD%" "%PROJECT_BASE%\MMOServer.sln" /t:%REBUILD% /p:Configuration=Debug,VCBuildAdditionalOptions="/useenv"
-	  if exist "%PROJECT_BASE%\*.cache" del /S /Q "%PROJECT_BASE%\*.cache"
+	  if errorlevel 1 exit /b 1
+    if exist "%PROJECT_BASE%\*.cache" del /S /Q "%PROJECT_BASE%\*.cache"          
 )
 
 if "%BUILD_TYPE%" == "release" (
 	  "%MSBUILD%" "%PROJECT_BASE%\MMOServer.sln" /t:%REBUILD% /p:Configuration=Release,VCBuildAdditionalOptions="/useenv"
+	  if errorlevel 1 exit /b 1
 	  if exist "%PROJECT_BASE%\*.cache" del /S /Q "%PROJECT_BASE%\*.cache"
 )
 
 if "%BUILD_TYPE%" == "all" (
 	  "%MSBUILD%" "%PROJECT_BASE%\MMOServer.sln" /t:%REBUILD% /p:Configuration=Debug,VCBuildAdditionalOptions="/useenv"
+	  if errorlevel 1 exit /b 1
 	  if exist "%PROJECT_BASE%\*.cache" del /S /Q "%PROJECT_BASE%\*.cache"
 	
 	  "%MSBUILD%" "%PROJECT_BASE%\MMOServer.sln" /t:%REBUILD% /p:Configuration=Release,VCBuildAdditionalOptions="/useenv"
+	  if errorlevel 1 exit /b 1
 	  if exist "%PROJECT_BASE%\*.cache" del /S /Q "%PROJECT_BASE%\*.cache"
 )
-
+  
 goto :eof
 rem --- End of BUILD_PROJECT ---------------------------------------------------
 rem ----------------------------------------------------------------------------

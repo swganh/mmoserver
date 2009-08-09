@@ -56,7 +56,7 @@ rem ----------------------------------------------------------------------------
 rem --- Start of SET_DEFAULTS --------------------------------------------------
 :SET_DEFAULTS
 
-set DEPENDENCIES_FILE=swganh-deps-1307.zip
+set DEPENDENCIES_FILE=swganh-deps-1370.zip
 set DEPENDENCIES_REMOTE_FILE=gf.php?fid=200907310257018365
 set DEPENDENCIES_URL=http://share.swganh.org/%DEPENDENCIES_REMOTE_FILE%
 set PROJECT_BASE=%~dp0
@@ -219,7 +219,9 @@ echo.
 
 if not exist "%PROJECT_BASE%\deps" call :DOWNLOAD_DEPENDENCIES
 
-if exist "%PROJECT_BASE%\deps\boost" call :BUILD_BOOST
+if exist "%PROJECT_BASE%\deps\boost" call :BUILD_BOOST     
+if exist "%PROJECT_BASE%\deps\gtest" call :BUILD_GTEST  
+if exist "%PROJECT_BASE%\deps\gmock" call :BUILD_GMOCK
 if exist "%PROJECT_BASE%\deps\lua" call :BUILD_LUA
 if exist "%PROJECT_BASE%\deps\noise" call :BUILD_NOISE
 if exist "%PROJECT_BASE%\deps\spatialindex" call :BUILD_SPATIALINDEX
@@ -309,6 +311,124 @@ if "%BUILD_TYPE%" == "all" (
                                                       
 goto :eof
 rem --- End of BUILD_BOOST -----------------------------------------------------
+rem ----------------------------------------------------------------------------
+
+
+
+rem ----------------------------------------------------------------------------
+rem --- Start of BUILD_GTEST ---------------------------------------------------
+rem --- Builds all googletest library used for unit testing.                 ---
+:BUILD_GTEST
+
+echo BUILDING: Google Test - http://code.google.com/p/googletest/
+
+rem Only build gtest if it hasn't been built already.
+if "%BUILD_TYPE%" == "debug" (
+	  if exist "%PROJECT_BASE%\deps\gtest\msvc\debug\gtestd.lib" (
+  	    echo Google Test library already built ... skipping
+  	    echo.
+  	    goto :eof
+    )
+)
+if "%BUILD_TYPE%" == "release" (
+	  if exist "%PROJECT_BASE%\deps\gtest\msvc\release\gtest.lib" (
+  	    echo Google Test library already built ... skipping
+  	    echo.
+  	    goto :eof
+    )
+)
+if "%BUILD_TYPE%" == "all" (
+	  if exist "%PROJECT_BASE%\deps\gtest\msvc\debug\gtestd.lib" (
+		    if exist "%PROJECT_BASE%\deps\gtest\msvc\release\gtest.lib" (
+  		      echo Google Test library already built ... skipping
+  		      echo.
+  		      goto :eof
+  	    )
+    )
+)
+
+cd "%PROJECT_BASE%\deps\gtest"
+    
+if exist "%PROJECT_BASE%\deps\gtest\msvc\*.cache" del /S /Q "%PROJECT_BASE%\deps\gtest\msvc\*.cache"
+    
+if "%BUILD_TYPE%" == "debug" (
+    "%MSBUILD%" "%PROJECT_BASE%\deps\gtest\msvc\gtest.sln" /t:rebuild /p:Configuration=Debug,VCBuildAdditionalOptions="/useenv"
+    if exist "%PROJECT_BASE%\deps\gtest\msvc\*.cache" del /S /Q "%PROJECT_BASE%\deps\gtest\msvc\*.cache"
+)
+
+if "%BUILD_TYPE%" == "release" (
+	  "%MSBUILD%" "%PROJECT_BASE%\deps\gtest\msvc\gtest.sln" /t:rebuild /p:Configuration=Release,VCBuildAdditionalOptions="/useenv"
+    if exist "%PROJECT_BASE%\deps\gtest\msvc\*.cache" del /S /Q "%PROJECT_BASE%\deps\gtest\msvc\*.cache"
+)
+
+if "%BUILD_TYPE%" == "all" (
+	  "%MSBUILD%" "%PROJECT_BASE%\deps\gtest\msvc\gtest.sln" /t:rebuild /p:Configuration=Debug,VCBuildAdditionalOptions="/useenv"
+	  if exist "%PROJECT_BASE%\deps\gtest\msvc\*.cache" del /S /Q "%PROJECT_BASE%\deps\gtest\msvc\*.cache"
+	
+	  "%MSBUILD%" "%PROJECT_BASE%\deps\gtest\msvc\gtest.sln" /t:rebuild /p:Configuration=Release,VCBuildAdditionalOptions="/useenv"
+    if exist "%PROJECT_BASE%\deps\gtest\msvc\*.cache" del /S /Q "%PROJECT_BASE%\deps\gtest\msvc\*.cache"
+)
+goto :eof
+rem --- End of BUILD_GTEST -----------------------------------------------------
+rem ----------------------------------------------------------------------------
+
+
+
+rem ----------------------------------------------------------------------------
+rem --- Start of BUILD_GMOCK ---------------------------------------------------
+rem --- Builds all googlemock library used for unit testing.                 ---
+:BUILD_GMOCK
+
+echo BUILDING: Google Mock - http://code.google.com/p/googlemock/
+
+rem Only build mock if it hasn't been built already.
+if "%BUILD_TYPE%" == "debug" (
+	  if exist "%PROJECT_BASE%\deps\gmock\msvc\debug\gmock.lib" (
+  	    echo Google Mock library already built ... skipping
+  	    echo.
+  	    goto :eof
+    )
+)
+if "%BUILD_TYPE%" == "release" (
+	  if exist "%PROJECT_BASE%\deps\gmock\msvc\release\gmock.lib" (
+  	    echo Google Mock library already built ... skipping
+  	    echo.
+  	    goto :eof
+    )
+)
+if "%BUILD_TYPE%" == "all" (
+	  if exist "%PROJECT_BASE%\deps\gmock\msvc\debug\gmock.lib" (
+		    if exist "%PROJECT_BASE%\deps\gmock\msvc\release\gmock.lib" (
+  		      echo Google Mock library already built ... skipping
+  		      echo.
+  		      goto :eof
+  	    )
+    )
+)
+
+cd "%PROJECT_BASE%\deps\gmock"
+    
+if exist "%PROJECT_BASE%\deps\gmock\msvc\*.cache" del /S /Q "%PROJECT_BASE%\deps\gmock\msvc\*.cache"
+    
+if "%BUILD_TYPE%" == "debug" (
+    "%MSBUILD%" "%PROJECT_BASE%\deps\gmock\msvc\gmock.sln" /t:rebuild /p:Configuration=Debug,VCBuildAdditionalOptions="/useenv"
+    if exist "%PROJECT_BASE%\deps\gmock\msvc\*.cache" del /S /Q "%PROJECT_BASE%\deps\gmock\msvc\*.cache"
+)
+
+if "%BUILD_TYPE%" == "release" (
+	  "%MSBUILD%" "%PROJECT_BASE%\deps\gmock\msvc\gmock.sln" /t:rebuild /p:Configuration=Release,VCBuildAdditionalOptions="/useenv"
+    if exist "%PROJECT_BASE%\deps\gmock\msvc\*.cache" del /S /Q "%PROJECT_BASE%\deps\gmock\msvc\*.cache"
+)
+
+if "%BUILD_TYPE%" == "all" (
+	  "%MSBUILD%" "%PROJECT_BASE%\deps\gmock\msvc\gmock.sln" /t:rebuild /p:Configuration=Debug,VCBuildAdditionalOptions="/useenv"
+	  if exist "%PROJECT_BASE%\deps\gmock\msvc\*.cache" del /S /Q "%PROJECT_BASE%\deps\gmock\msvc\*.cache"
+	
+	  "%MSBUILD%" "%PROJECT_BASE%\deps\gmock\msvc\gmock.sln" /t:rebuild /p:Configuration=Release,VCBuildAdditionalOptions="/useenv"
+    if exist "%PROJECT_BASE%\deps\gmock\msvc\*.cache" del /S /Q "%PROJECT_BASE%\deps\gmock\msvc\*.cache"
+)
+goto :eof
+rem --- End of BUILD_GMOCK -----------------------------------------------------
 rem ----------------------------------------------------------------------------
 
 
@@ -733,28 +853,29 @@ rem --- Builds the actual project.                                           ---
 rem Build the zthread libraries we need.
 cd "%PROJECT_BASE%"
 
-if exist "%PROJECT_BASE%\*.cache" del /S /Q "%PROJECT_BASE%\*.cache"
+if exist "%PROJECT_BASE%\*.cache" del /S /Q "%PROJECT_BASE%\*.cache"   
+if exist "%PROJECT_BASE%\build-aux\MMOServer-Tests.xml" del /S /Q "%PROJECT_BASE%\build-aux\MMOServer-Tests.xml"
 
 if "%BUILD_TYPE%" == "debug" (
 	  "%MSBUILD%" "%PROJECT_BASE%\MMOServer.sln" /t:%REBUILD% /p:Configuration=Debug,VCBuildAdditionalOptions="/useenv"
 	  if errorlevel 1 exit /b 1
-    if exist "%PROJECT_BASE%\*.cache" del /S /Q "%PROJECT_BASE%\*.cache"          
+    if exist "%PROJECT_BASE%\*.cache" del /S /Q "%PROJECT_BASE%\*.cache"  
 )
 
 if "%BUILD_TYPE%" == "release" (
 	  "%MSBUILD%" "%PROJECT_BASE%\MMOServer.sln" /t:%REBUILD% /p:Configuration=Release,VCBuildAdditionalOptions="/useenv"
 	  if errorlevel 1 exit /b 1
-	  if exist "%PROJECT_BASE%\*.cache" del /S /Q "%PROJECT_BASE%\*.cache"
+	  if exist "%PROJECT_BASE%\*.cache" del /S /Q "%PROJECT_BASE%\*.cache"    
 )
 
 if "%BUILD_TYPE%" == "all" (
 	  "%MSBUILD%" "%PROJECT_BASE%\MMOServer.sln" /t:%REBUILD% /p:Configuration=Debug,VCBuildAdditionalOptions="/useenv"
 	  if errorlevel 1 exit /b 1
-	  if exist "%PROJECT_BASE%\*.cache" del /S /Q "%PROJECT_BASE%\*.cache"
+	  if exist "%PROJECT_BASE%\*.cache" del /S /Q "%PROJECT_BASE%\*.cache"     
 	
 	  "%MSBUILD%" "%PROJECT_BASE%\MMOServer.sln" /t:%REBUILD% /p:Configuration=Release,VCBuildAdditionalOptions="/useenv"
 	  if errorlevel 1 exit /b 1
-	  if exist "%PROJECT_BASE%\*.cache" del /S /Q "%PROJECT_BASE%\*.cache"
+	  if exist "%PROJECT_BASE%\*.cache" del /S /Q "%PROJECT_BASE%\*.cache" 
 )
   
 goto :eof

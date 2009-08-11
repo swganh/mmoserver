@@ -56,8 +56,8 @@ rem ----------------------------------------------------------------------------
 rem --- Start of SET_DEFAULTS --------------------------------------------------
 :SET_DEFAULTS
 
-set DEPENDENCIES_FILE=swganh-deps-1370.zip
-set DEPENDENCIES_URL=http://share.swganh.org/gf.php?fid=200908091300386072
+set DEPENDENCIES_FILE=swganh-deps-1374.zip
+set DEPENDENCIES_URL=http://share.swganh.org/gf.php?fid=200908110346158937
 set PROJECT_BASE=%~dp0
 set BUILD_TYPE=debug
 set MSVC_VERSION=vc9

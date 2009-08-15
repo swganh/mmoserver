@@ -58,7 +58,7 @@ rem --- Start of SET_DEFAULTS --------------------------------------------------
 
 set DEPENDENCIES_FILE=swganh-deps-1374.zip
 set DEPENDENCIES_URL=http://share.swganh.org/gf.php?fid=200908110346158937
-set PROJECT_BASE=%~dp0
+set "PROJECT_BASE=%~dp0"
 set BUILD_TYPE=debug
 set MSVC_VERSION=vc9
 set REBUILD=build
@@ -157,7 +157,7 @@ rem --- Start of BUILD_ENVIRONMENT ---------------------------------------------
 call :BUILD_ENVIRONMENT_FOR_%MSVC_VERSION%
 
 rem Set to devenv.exe for all versions of VS except express.
-if exist "%VS_BASE_DIR%"\Common7\IDE\devenv.com (
+if exist "%VS_BASE_DIR%\Common7\IDE\devenv.com" (
     set "DEVENV=%VS_BASE_DIR%\Common7\IDE\devenv.com"
 ) else (
     set "DEVENV=%VS_BASE_DIR%\Common7\IDE\vcexpress.exe"
@@ -171,7 +171,7 @@ if not exist "%DOTNET_BASE_DIR%" (
 
 set "MSBUILD=%DOTNET_BASE_DIR%\msbuild.exe"
 
-call "%VS_BASE_DIR%"\VC\vcvarsall.bat >NUL
+call "%VS_BASE_DIR%\VC\vcvarsall.bat" >NUL
 
 set environment_built=yes
 
@@ -328,26 +328,27 @@ echo BUILDING: Google Test - http://code.google.com/p/googletest/
 
 rem Only build gtest if it hasn't been built already.
 if "%BUILD_TYPE%" == "debug" (
-	  if exist "%PROJECT_BASE%\deps\gtest\msvc\debug\gtestd.lib" (
-  	    echo Google Test library already built ... skipping
-  	    echo.
-  	    goto :eof
+    if exist "%PROJECT_BASE%\deps\gtest\msvc\debug\gtestd.lib" (
+        echo Google Test library already built ... skipping
+        echo.
+        goto :eof
     )
 )
 if "%BUILD_TYPE%" == "release" (
-	  if exist "%PROJECT_BASE%\deps\gtest\msvc\release\gtest.lib" (
-  	    echo Google Test library already built ... skipping
-  	    echo.
-  	    goto :eof
+    if exist "%PROJECT_BASE%\deps\gtest\msvc\release\gtest.lib" (
+        echo Google Test library already built ... skipping
+        echo.
+        goto :eof
     )
 )
+
 if "%BUILD_TYPE%" == "all" (
-	  if exist "%PROJECT_BASE%\deps\gtest\msvc\debug\gtestd.lib" (
-		    if exist "%PROJECT_BASE%\deps\gtest\msvc\release\gtest.lib" (
-  		      echo Google Test library already built ... skipping
-  		      echo.
-  		      goto :eof
-  	    )
+    if exist "%PROJECT_BASE%\deps\gtest\msvc\debug\gtestd.lib" (
+        if exist "%PROJECT_BASE%\deps\gtest\msvc\release\gtest.lib" (
+            echo Google Test library already built ... skipping
+            echo.
+            goto :eof
+        )
     )
 )
 
@@ -361,15 +362,15 @@ if "%BUILD_TYPE%" == "debug" (
 )
 
 if "%BUILD_TYPE%" == "release" (
-	  "%MSBUILD%" "%PROJECT_BASE%\deps\gtest\msvc\gtest.sln" /t:rebuild /p:Configuration=Release,VCBuildAdditionalOptions="/useenv" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\gtest\msvc\gtest.sln" /t:rebuild /p:Configuration=Release,VCBuildAdditionalOptions="/useenv" >NUL
     if exist "%PROJECT_BASE%\deps\gtest\msvc\*.cache" del /S /Q "%PROJECT_BASE%\deps\gtest\msvc\*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "all" (
-	  "%MSBUILD%" "%PROJECT_BASE%\deps\gtest\msvc\gtest.sln" /t:rebuild /p:Configuration=Debug,VCBuildAdditionalOptions="/useenv" >NUL
-	  if exist "%PROJECT_BASE%\deps\gtest\msvc\*.cache" del /S /Q "%PROJECT_BASE%\deps\gtest\msvc\*.cache" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\gtest\msvc\gtest.sln" /t:rebuild /p:Configuration=Debug,VCBuildAdditionalOptions="/useenv" >NUL
+    if exist "%PROJECT_BASE%\deps\gtest\msvc\*.cache" del /S /Q "%PROJECT_BASE%\deps\gtest\msvc\*.cache" >NUL
 	
-	  "%MSBUILD%" "%PROJECT_BASE%\deps\gtest\msvc\gtest.sln" /t:rebuild /p:Configuration=Release,VCBuildAdditionalOptions="/useenv" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\gtest\msvc\gtest.sln" /t:rebuild /p:Configuration=Release,VCBuildAdditionalOptions="/useenv" >NUL
     if exist "%PROJECT_BASE%\deps\gtest\msvc\*.cache" del /S /Q "%PROJECT_BASE%\deps\gtest\msvc\*.cache" >NUL
 )
 goto :eof
@@ -387,26 +388,27 @@ echo BUILDING: Google Mock - http://code.google.com/p/googlemock/
 
 rem Only build mock if it hasn't been built already.
 if "%BUILD_TYPE%" == "debug" (
-	  if exist "%PROJECT_BASE%\deps\gmock\msvc\debug\gmock.lib" (
-  	    echo Google Mock library already built ... skipping
-  	    echo.
-  	    goto :eof
+    if exist "%PROJECT_BASE%\deps\gmock\msvc\debug\gmock.lib" (
+        echo Google Mock library already built ... skipping
+        echo.
+        goto :eof
     )
 )
 if "%BUILD_TYPE%" == "release" (
-	  if exist "%PROJECT_BASE%\deps\gmock\msvc\release\gmock.lib" (
-  	    echo Google Mock library already built ... skipping
-  	    echo.
-  	    goto :eof
+    if exist "%PROJECT_BASE%\deps\gmock\msvc\release\gmock.lib" (
+        echo Google Mock library already built ... skipping
+        echo.
+        goto :eof
     )
 )
+
 if "%BUILD_TYPE%" == "all" (
-	  if exist "%PROJECT_BASE%\deps\gmock\msvc\debug\gmock.lib" (
-		    if exist "%PROJECT_BASE%\deps\gmock\msvc\release\gmock.lib" (
-  		      echo Google Mock library already built ... skipping
-  		      echo.
-  		      goto :eof
-  	    )
+    if exist "%PROJECT_BASE%\deps\gmock\msvc\debug\gmock.lib" (
+        if exist "%PROJECT_BASE%\deps\gmock\msvc\release\gmock.lib" (
+            echo Google Mock library already built ... skipping
+            echo.
+            goto :eof
+        )
     )
 )
 
@@ -420,15 +422,15 @@ if "%BUILD_TYPE%" == "debug" (
 )
 
 if "%BUILD_TYPE%" == "release" (
-	  "%MSBUILD%" "%PROJECT_BASE%\deps\gmock\msvc\gmock.sln" /t:rebuild /p:Configuration=Release,VCBuildAdditionalOptions="/useenv" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\gmock\msvc\gmock.sln" /t:rebuild /p:Configuration=Release,VCBuildAdditionalOptions="/useenv" >NUL
     if exist "%PROJECT_BASE%\deps\gmock\msvc\*.cache" del /S /Q "%PROJECT_BASE%\deps\gmock\msvc\*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "all" (
-	  "%MSBUILD%" "%PROJECT_BASE%\deps\gmock\msvc\gmock.sln" /t:rebuild /p:Configuration=Debug,VCBuildAdditionalOptions="/useenv" >NUL
-	  if exist "%PROJECT_BASE%\deps\gmock\msvc\*.cache" del /S /Q "%PROJECT_BASE%\deps\gmock\msvc\*.cache" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\gmock\msvc\gmock.sln" /t:rebuild /p:Configuration=Debug,VCBuildAdditionalOptions="/useenv" >NUL
+    if exist "%PROJECT_BASE%\deps\gmock\msvc\*.cache" del /S /Q "%PROJECT_BASE%\deps\gmock\msvc\*.cache" >NUL
 	
-	  "%MSBUILD%" "%PROJECT_BASE%\deps\gmock\msvc\gmock.sln" /t:rebuild /p:Configuration=Release,VCBuildAdditionalOptions="/useenv" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\gmock\msvc\gmock.sln" /t:rebuild /p:Configuration=Release,VCBuildAdditionalOptions="/useenv" >NUL
     if exist "%PROJECT_BASE%\deps\gmock\msvc\*.cache" del /S /Q "%PROJECT_BASE%\deps\gmock\msvc\*.cache" >NUL
 )
 goto :eof
@@ -446,22 +448,22 @@ echo BUILDING: Lua - http://www.lua.org/
 
 rem Only build lua if it hasn't been built already.
 if "%BUILD_TYPE%" == "debug" (
-	  if exist "%PROJECT_BASE%\deps\lua\lib\lua5.1d.lib" (
-  	    echo Lua already built ... skipping
+    if exist "%PROJECT_BASE%\deps\lua\lib\lua5.1d.lib" (
+        echo Lua already built ... skipping
         echo.
         goto :eof
     )
 )
 if "%BUILD_TYPE%" == "release" (
-	  if exist "%PROJECT_BASE%\deps\lua\lib\lua5.1.lib" (
-  	    echo Lua already built ... skipping
+    if exist "%PROJECT_BASE%\deps\lua\lib\lua5.1.lib" (
+        echo Lua already built ... skipping
         echo.
         goto :eof
     )
 )
 if "%BUILD_TYPE%" == "all" (
-	  if exist "%PROJECT_BASE%\deps\lua\lib\lua5.1d.lib" (
-		    if exist "%PROJECT_BASE%\deps\lua\lib\lua5.1.lib" (
+    if exist "%PROJECT_BASE%\deps\lua\lib\lua5.1d.lib" (
+        if exist "%PROJECT_BASE%\deps\lua\lib\lua5.1.lib" (
             echo Lua already built ... skipping
             echo.
             goto :eof
@@ -543,22 +545,22 @@ echo BUILDING: Noise - http://libnoise.sourceforge.net/
 
 rem Only build noise if it hasn't been built already.
 if "%BUILD_TYPE%" == "debug" (
-	  if exist "%PROJECT_BASE%\deps\noise\win32\Debug\libnoise.lib" (
-  	    echo Noise already built ... skipping
+    if exist "%PROJECT_BASE%\deps\noise\win32\Debug\libnoise.lib" (
+        echo Noise already built ... skipping
         echo.
         goto :eof
     )
 )
 if "%BUILD_TYPE%" == "release" (
-	  if exist "%PROJECT_BASE%\deps\noise\win32\Release\libnoise.lib" (
-  	    echo Noise already built ... skipping
+    if exist "%PROJECT_BASE%\deps\noise\win32\Release\libnoise.lib" (
+        echo Noise already built ... skipping
         echo.
         goto :eof
     )
 )
 if "%BUILD_TYPE%" == "all" (
-	  if exist "%PROJECT_BASE%\deps\noise\win32\Debug\libnoise.lib" (
-		    if exist "%PROJECT_BASE%\deps\noise\win32\Release\libnoise.lib" (
+    if exist "%PROJECT_BASE%\deps\noise\win32\Debug\libnoise.lib" (
+        if exist "%PROJECT_BASE%\deps\noise\win32\Release\libnoise.lib" (
             echo Noise already built ... skipping
             echo.
             goto :eof
@@ -574,21 +576,21 @@ rem Removing it as it's not needed.
 if exist "%PROJECT_BASE%\deps\noise\*.cache" del /S /Q "%PROJECT_BASE%\deps\noise\*.cache" >NUL
 
 if "%BUILD_TYPE%" == "debug" (
-	  "%MSBUILD%" "%PROJECT_BASE%\deps\noise\libnoise.sln" /t:rebuild /p:Configuration=Debug,VCBuildAdditionalOptions="/useenv" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\noise\libnoise.sln" /t:rebuild /p:Configuration=Debug,VCBuildAdditionalOptions="/useenv" >NUL
     if exist "%PROJECT_BASE%\deps\noise\*.cache" del /S /Q "%PROJECT_BASE%\deps\noise\*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "release" (
-	  "%MSBUILD%" "%PROJECT_BASE%\deps\noise\libnoise.sln" /t:rebuild /p:Configuration=Release,VCBuildAdditionalOptions="/useenv" >NUL
-	  if exist "%PROJECT_BASE%\deps\noise\*.cache" del /S /Q "%PROJECT_BASE%\deps\noise\*.cache" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\noise\libnoise.sln" /t:rebuild /p:Configuration=Release,VCBuildAdditionalOptions="/useenv" >NUL
+    if exist "%PROJECT_BASE%\deps\noise\*.cache" del /S /Q "%PROJECT_BASE%\deps\noise\*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "all" (
-	  "%MSBUILD%" "%PROJECT_BASE%\deps\noise\libnoise.sln" /t:rebuild /p:Configuration=Debug,VCBuildAdditionalOptions="/useenv" >NUL
-	  if exist "%PROJECT_BASE%\deps\noise\*.cache" del /S /Q "%PROJECT_BASE%\deps\noise\*.cache" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\noise\libnoise.sln" /t:rebuild /p:Configuration=Debug,VCBuildAdditionalOptions="/useenv" >NUL
+    if exist "%PROJECT_BASE%\deps\noise\*.cache" del /S /Q "%PROJECT_BASE%\deps\noise\*.cache" >NUL
 
-	  "%MSBUILD%" "%PROJECT_BASE%\deps\noise\libnoise.sln" /t:rebuild /p:Configuration=Release,VCBuildAdditionalOptions="/useenv" >NUL
-	  if exist "%PROJECT_BASE%\deps\noise\*.cache" del /S /Q "%PROJECT_BASE%\deps\noise\*.cache" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\noise\libnoise.sln" /t:rebuild /p:Configuration=Release,VCBuildAdditionalOptions="/useenv" >NUL
+    if exist "%PROJECT_BASE%\deps\noise\*.cache" del /S /Q "%PROJECT_BASE%\deps\noise\*.cache" >NUL
 )      
 
 goto :eof
@@ -606,22 +608,22 @@ echo BUILDING: SpatialIndex - http://research.att.com/~marioh/spatialindex/
 
 rem Only build spatial index if it hasn't been built already.
 if "%BUILD_TYPE%" == "debug" (
-	  if exist "%PROJECT_BASE%\deps\spatialindex\Debug\spatialIndex_d.lib" (
-  	    echo SpatialIndex already built ... skipping
+    if exist "%PROJECT_BASE%\deps\spatialindex\Debug\spatialIndex_d.lib" (
+        echo SpatialIndex already built ... skipping
         echo.
         goto :eof
     )
 )
 if "%BUILD_TYPE%" == "release" (
-	  if exist "%PROJECT_BASE%\deps\spatialindex\Release\spatialIndex.lib" (
-  	    echo SpatialIndex already built ... skipping
+    if exist "%PROJECT_BASE%\deps\spatialindex\Release\spatialIndex.lib" (
+        echo SpatialIndex already built ... skipping
         echo.
         goto :eof
     )
 )
 if "%BUILD_TYPE%" == "all" (
-	  if exist "%PROJECT_BASE%\deps\spatialindex\Debug\spatialIndex_d.lib" (
-		    if exist "%PROJECT_BASE%\deps\spatialindex\Release\spatialIndex.lib" (
+    if exist "%PROJECT_BASE%\deps\spatialindex\Debug\spatialIndex_d.lib" (
+        if exist "%PROJECT_BASE%\deps\spatialindex\Release\spatialIndex.lib" (
             echo SpatialIndex already built ... skipping
             echo.
             goto :eof
@@ -637,21 +639,21 @@ rem Removing it as it's not needed.
 if exist "%PROJECT_BASE%\deps\spatialindex\*.cache" del /S /Q "%PROJECT_BASE%\deps\spatialindex\*.cache" >NUL
 
 if "%BUILD_TYPE%" == "debug" (
-	  "%MSBUILD%" "%PROJECT_BASE%\deps\spatialindex\spatialindex.sln" /t:rebuild /p:Configuration=Debug,VCBuildAdditionalOptions="/useenv" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\spatialindex\spatialindex.sln" /t:rebuild /p:Configuration=Debug,VCBuildAdditionalOptions="/useenv" >NUL
     if exist "%PROJECT_BASE%\deps\spatialindex\*.cache" del /S /Q "%PROJECT_BASE%\deps\spatialindex\*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "release" (
-	  "%MSBUILD%" "%PROJECT_BASE%\deps\spatialindex\spatialindex.sln" /t:rebuild /p:Configuration=Release,VCBuildAdditionalOptions="/useenv" >NUL
-	  if exist "%PROJECT_BASE%\deps\spatialindex\*.cache" del /S /Q "%PROJECT_BASE%\deps\spatialindex\*.cache" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\spatialindex\spatialindex.sln" /t:rebuild /p:Configuration=Release,VCBuildAdditionalOptions="/useenv" >NUL
+    if exist "%PROJECT_BASE%\deps\spatialindex\*.cache" del /S /Q "%PROJECT_BASE%\deps\spatialindex\*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "all" (
-	  "%MSBUILD%" "%PROJECT_BASE%\deps\spatialindex\spatialindex.sln" /t:rebuild /p:Configuration=Debug,VCBuildAdditionalOptions="/useenv" >NUL
-	  if exist "%PROJECT_BASE%\deps\spatialindex\*.cache" del /S /Q "%PROJECT_BASE%\deps\spatialindex\*.cache" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\spatialindex\spatialindex.sln" /t:rebuild /p:Configuration=Debug,VCBuildAdditionalOptions="/useenv" >NUL
+    if exist "%PROJECT_BASE%\deps\spatialindex\*.cache" del /S /Q "%PROJECT_BASE%\deps\spatialindex\*.cache" >NUL
 
-	  "%MSBUILD%" "%PROJECT_BASE%\deps\spatialindex\spatialindex.sln" /t:rebuild /p:Configuration=Release,VCBuildAdditionalOptions="/useenv" >NUL
-	  if exist "%PROJECT_BASE%\deps\spatialindex\*.cache" del /S /Q "%PROJECT_BASE%\deps\spatialindex\*.cache" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\spatialindex\spatialindex.sln" /t:rebuild /p:Configuration=Release,VCBuildAdditionalOptions="/useenv" >NUL
+    if exist "%PROJECT_BASE%\deps\spatialindex\*.cache" del /S /Q "%PROJECT_BASE%\deps\spatialindex\*.cache" >NUL
 )    
 
 goto :eof
@@ -669,22 +671,22 @@ echo BUILDING: tolua++ - http://www.codenix.com/~tolua/
 
 rem Only build tolua++ if it hasn't been built already.
 if "%BUILD_TYPE%" == "debug" (
-	  if exist "%PROJECT_BASE%\deps\tolua++\win32\vc9\withLua51_Debug\toluapp.lib" (
-  	    echo tolua++ already built ... skipping
+    if exist "%PROJECT_BASE%\deps\tolua++\win32\vc9\withLua51_Debug\toluapp.lib" (
+        echo tolua++ already built ... skipping
         echo.
         goto :eof
     )
 )
 if "%BUILD_TYPE%" == "release" (
-	  if exist "%PROJECT_BASE%\deps\tolua++\win32\vc9\withLua51_Release\toluapp.lib" (
-  	    echo tolua++ already built ... skipping
+    if exist "%PROJECT_BASE%\deps\tolua++\win32\vc9\withLua51_Release\toluapp.lib" (
+        echo tolua++ already built ... skipping
         echo.
         goto :eof
     )
 )
 if "%BUILD_TYPE%" == "all" (
-	  if exist "%PROJECT_BASE%\deps\tolua++\win32\vc9\withLua51_Debug\toluapp.lib" (
-		    if exist "%PROJECT_BASE%\deps\tolua++\win32\vc9\withLua51_Release\toluapp.lib" (
+    if exist "%PROJECT_BASE%\deps\tolua++\win32\vc9\withLua51_Debug\toluapp.lib" (
+        if exist "%PROJECT_BASE%\deps\tolua++\win32\vc9\withLua51_Release\toluapp.lib" (
             echo tolua++ already built ... skipping
             echo.
             goto :eof
@@ -700,20 +702,20 @@ rem Removing it as it's not needed.
 if exist "%PROJECT_BASE%\deps\tolua++\win32\vc9\*.cache" del /S /Q "%PROJECT_BASE%\deps\tolua++\win32\vc9\*.cache" >NUL
 
 if "%BUILD_TYPE%" == "debug" (
-	  "%MSBUILD%" "%PROJECT_BASE%\deps\tolua++\win32\vc9\toluapp.sln" /t:rebuild /p:Configuration=withLua51_Debug,VCBuildAdditionalOptions="/useenv" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\tolua++\win32\vc9\toluapp.sln" /t:rebuild /p:Configuration=withLua51_Debug,VCBuildAdditionalOptions="/useenv" >NUL
     if exist "%PROJECT_BASE%\deps\tolua++\win32\vc9\*.cache" del /S /Q "%PROJECT_BASE%\deps\tolua++\win32\vc9\*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "release" (
-	  "%MSBUILD%" "%PROJECT_BASE%\deps\tolua++\win32\vc9\toluapp.sln" /t:rebuild /p:Configuration=withLua51_Release,VCBuildAdditionalOptions="/useenv" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\tolua++\win32\vc9\toluapp.sln" /t:rebuild /p:Configuration=withLua51_Release,VCBuildAdditionalOptions="/useenv" >NUL
     if exist "%PROJECT_BASE%\deps\tolua++\win32\vc9\*.cache" del /S /Q "%PROJECT_BASE%\deps\tolua++\win32\vc9\*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "all" (
-	  "%MSBUILD%" "%PROJECT_BASE%\deps\tolua++\win32\vc9\toluapp.sln" /t:rebuild /p:Configuration=withLua51_Debug,VCBuildAdditionalOptions="/useenv" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\tolua++\win32\vc9\toluapp.sln" /t:rebuild /p:Configuration=withLua51_Debug,VCBuildAdditionalOptions="/useenv" >NUL
     if exist "%PROJECT_BASE%\deps\tolua++\win32\vc9\*.cache" del /S /Q "%PROJECT_BASE%\deps\tolua++\win32\vc9\*.cache" >NUL
 
-	  "%MSBUILD%" "%PROJECT_BASE%\deps\tolua++\win32\vc9\toluapp.sln" /t:rebuild /p:Configuration=withLua51_Release,VCBuildAdditionalOptions="/useenv" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\tolua++\win32\vc9\toluapp.sln" /t:rebuild /p:Configuration=withLua51_Release,VCBuildAdditionalOptions="/useenv" >NUL
     if exist "%PROJECT_BASE%\deps\tolua++\win32\vc9\*.cache" del /S /Q "%PROJECT_BASE%\deps\tolua++\win32\vc9\*.cache" >NUL
 )
 
@@ -763,21 +765,21 @@ rem VS likes to create these .cache files and then complain about them existing 
 rem Removing it as it's not needed.
 if exist "%PROJECT_BASE%\deps\zlib\projects\visualc6\zlib.sln.cache" del /S /Q "%PROJECT_BASE%\deps\zlib\projects\visualc6\zlib.sln.cache" >NUL
 
-if "%BUILD_TYPE%" == "debug" (
-	  "%MSBUILD%" "%PROJECT_BASE%\deps\zlib\projects\visualc6\zlib.sln" /t:rebuild /p:Configuration="LIB Debug",VCBuildAdditionalOptions="/useenv" >NUL
+if "%BUILD_TYPE%" == "debug" ( 
+    "%MSBUILD%" "%PROJECT_BASE%\deps\zlib\projects\visualc6\zlib.sln" /t:rebuild /p:Configuration="LIB Debug",VCBuildAdditionalOptions="/useenv" >NUL
     if exist "%PROJECT_BASE%\deps\zlib\projects\visualc6\zlib.sln.cache" del /S /Q "%PROJECT_BASE%\deps\zlib\projects\visualc6\zlib.sln.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "release" (
-	  "%MSBUILD%" "%PROJECT_BASE%\deps\zlib\projects\visualc6\zlib.sln" /t:rebuild /p:Configuration="LIB Release",VCBuildAdditionalOptions="/useenv" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\zlib\projects\visualc6\zlib.sln" /t:rebuild /p:Configuration="LIB Release",VCBuildAdditionalOptions="/useenv" >NUL
     if exist "%PROJECT_BASE%\deps\zlib\projects\visualc6\zlib.sln.cache" del /S /Q "%PROJECT_BASE%\deps\zlib\projects\visualc6\zlib.sln.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "all" (
-	  "%MSBUILD%" "%PROJECT_BASE%\deps\zlib\projects\visualc6\zlib.sln" /t:rebuild /p:Configuration="LIB Debug",VCBuildAdditionalOptions="/useenv" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\zlib\projects\visualc6\zlib.sln" /t:rebuild /p:Configuration="LIB Debug",VCBuildAdditionalOptions="/useenv" >NUL
     if exist "%PROJECT_BASE%\deps\zlib\projects\visualc6\zlib.sln.cache" del /S /Q "%PROJECT_BASE%\deps\zlib\projects\visualc6\zlib.sln.cache" >NUL
 
-	  "%MSBUILD%" "%PROJECT_BASE%\deps\zlib\projects\visualc6\zlib.sln" /t:rebuild /p:Configuration="LIB Release",VCBuildAdditionalOptions="/useenv" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\zlib\projects\visualc6\zlib.sln" /t:rebuild /p:Configuration="LIB Release",VCBuildAdditionalOptions="/useenv" >NUL
     if exist "%PROJECT_BASE%\deps\zlib\projects\visualc6\zlib.sln.cache" del /S /Q "%PROJECT_BASE%\deps\zlib\projects\visualc6\zlib.sln.cache" >NUL
 )
 goto :eof
@@ -795,22 +797,22 @@ echo BUILDING: ZThread - http://zthread.sourceforge.net/
 
 rem Only build zthread if it hasn't been built already.
 if "%BUILD_TYPE%" == "debug" (
-	  if exist "%PROJECT_BASE%\deps\zthread\Debug\zthreadd.lib" (
-  	    echo ZThread already built ... skipping
+    if exist "%PROJECT_BASE%\deps\zthread\Debug\zthreadd.lib" (
+        echo ZThread already built ... skipping
         echo.
         goto :eof
     )
 )
 if "%BUILD_TYPE%" == "release" (
-	  if exist "%PROJECT_BASE%\deps\zthread\Release\zthread.lib" (
-  	    echo ZThread already built ... skipping
+    if exist "%PROJECT_BASE%\deps\zthread\Release\zthread.lib" (
+        echo ZThread already built ... skipping
         echo.
         goto :eof
     )
 )
 if "%BUILD_TYPE%" == "all" (
-	  if exist "%PROJECT_BASE%\deps\zthread\Debug\zthreadd.lib" (
-		    if exist "%PROJECT_BASE%\deps\zthread\Release\zthread.lib" (
+    if exist "%PROJECT_BASE%\deps\zthread\Debug\zthreadd.lib" (
+        if exist "%PROJECT_BASE%\deps\zthread\Release\zthread.lib" (
             echo ZThread already built ... skipping
             echo.
             goto :eof
@@ -826,21 +828,21 @@ rem Removing it as it's not needed.
 if exist "%PROJECT_BASE%\deps\zthread\*.cache" del /S /Q "%PROJECT_BASE%\deps\zthread\*.cache" >NUL
 
 if "%BUILD_TYPE%" == "debug" (
-	  "%MSBUILD%" "%PROJECT_BASE%\deps\zthread\zthread.sln" /t:rebuild /p:Configuration=Debug,VCBuildAdditionalOptions="/useenv" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\zthread\zthread.sln" /t:rebuild /p:Configuration=Debug,VCBuildAdditionalOptions="/useenv" >NUL
     if exist "%PROJECT_BASE%\deps\zthread\*.cache" del /S /Q "%PROJECT_BASE%\deps\zthread\*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "release" (
-	  "%MSBUILD%" "%PROJECT_BASE%\deps\zthread\zthread.sln" /t:rebuild /p:Configuration=Release,VCBuildAdditionalOptions="/useenv" >NUL
-	  if exist "%PROJECT_BASE%\deps\zthread\*.cache" del /S /Q "%PROJECT_BASE%\deps\zthread\*.cache" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\zthread\zthread.sln" /t:rebuild /p:Configuration=Release,VCBuildAdditionalOptions="/useenv" >NUL
+    if exist "%PROJECT_BASE%\deps\zthread\*.cache" del /S /Q "%PROJECT_BASE%\deps\zthread\*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "all" (
-	  "%MSBUILD%" "%PROJECT_BASE%\deps\zthread\zthread.sln" /t:rebuild /p:Configuration=Debug,VCBuildAdditionalOptions="/useenv" >NUL
-	  if exist "%PROJECT_BASE%\deps\zthread\*.cache" del /S /Q "%PROJECT_BASE%\deps\zthread\*.cache" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\zthread\zthread.sln" /t:rebuild /p:Configuration=Debug,VCBuildAdditionalOptions="/useenv" >NUL
+    if exist "%PROJECT_BASE%\deps\zthread\*.cache" del /S /Q "%PROJECT_BASE%\deps\zthread\*.cache" >NUL
 
-	  "%MSBUILD%" "%PROJECT_BASE%\deps\zthread\zthread.sln" /t:rebuild /p:Configuration=Release,VCBuildAdditionalOptions="/useenv" >NUL
-	  if exist "%PROJECT_BASE%\deps\zthread\*.cache" del /S /Q "%PROJECT_BASE%\deps\zthread\*.cache" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\zthread\zthread.sln" /t:rebuild /p:Configuration=Release,VCBuildAdditionalOptions="/useenv" >NUL
+    if exist "%PROJECT_BASE%\deps\zthread\*.cache" del /S /Q "%PROJECT_BASE%\deps\zthread\*.cache" >NUL
 )
 
 goto :eof
@@ -854,32 +856,31 @@ rem --- Start of BUILD_PROJECT -------------------------------------------------
 rem --- Builds the actual project.                                           ---
 :BUILD_PROJECT                              	
             
-rem Build the zthread libraries we need.
 cd "%PROJECT_BASE%"
 
 if exist "%PROJECT_BASE%\*.cache" del /S /Q "%PROJECT_BASE%\*.cache" >NUL   
 if exist "%PROJECT_BASE%\build-aux\MMOServer-Tests.xml" del /S /Q "%PROJECT_BASE%\build-aux\MMOServer-Tests.xml" >NUL
 
 if "%BUILD_TYPE%" == "debug" (
-	  "%MSBUILD%" "%PROJECT_BASE%\MMOServer.sln" /t:%REBUILD% /p:Configuration=Debug,VCBuildAdditionalOptions="/useenv"
-	  if errorlevel 1 exit /b 1
+    "%MSBUILD%" "%PROJECT_BASE%\MMOServer.sln" /t:%REBUILD% /p:Configuration=Debug,VCBuildAdditionalOptions="/useenv"
+    if errorlevel 1 exit /b 1
     if exist "%PROJECT_BASE%\*.cache" del /S /Q "%PROJECT_BASE%\*.cache" >NUL  
 )
 
 if "%BUILD_TYPE%" == "release" (
-	  "%MSBUILD%" "%PROJECT_BASE%\MMOServer.sln" /t:%REBUILD% /p:Configuration=Release,VCBuildAdditionalOptions="/useenv"
-	  if errorlevel 1 exit /b 1
-	  if exist "%PROJECT_BASE%\*.cache" del /S /Q "%PROJECT_BASE%\*.cache" >NUL    
+    "%MSBUILD%" "%PROJECT_BASE%\MMOServer.sln" /t:%REBUILD% /p:Configuration=Release,VCBuildAdditionalOptions="/useenv"
+    if errorlevel 1 exit /b 1
+    if exist "%PROJECT_BASE%\*.cache" del /S /Q "%PROJECT_BASE%\*.cache" >NUL    
 )
 
 if "%BUILD_TYPE%" == "all" (
-	  "%MSBUILD%" "%PROJECT_BASE%\MMOServer.sln" /t:%REBUILD% /p:Configuration=Debug,VCBuildAdditionalOptions="/useenv"
-	  if errorlevel 1 exit /b 1
-	  if exist "%PROJECT_BASE%\*.cache" del /S /Q "%PROJECT_BASE%\*.cache" >NUL     
+    "%MSBUILD%" "%PROJECT_BASE%\MMOServer.sln" /t:%REBUILD% /p:Configuration=Debug,VCBuildAdditionalOptions="/useenv"
+    if errorlevel 1 exit /b 1
+    if exist "%PROJECT_BASE%\*.cache" del /S /Q "%PROJECT_BASE%\*.cache" >NUL     
 	
-	  "%MSBUILD%" "%PROJECT_BASE%\MMOServer.sln" /t:%REBUILD% /p:Configuration=Release,VCBuildAdditionalOptions="/useenv"
-	  if errorlevel 1 exit /b 1
-	  if exist "%PROJECT_BASE%\*.cache" del /S /Q "%PROJECT_BASE%\*.cache" >NUL 
+    "%MSBUILD%" "%PROJECT_BASE%\MMOServer.sln" /t:%REBUILD% /p:Configuration=Release,VCBuildAdditionalOptions="/useenv"
+    if errorlevel 1 exit /b 1
+    if exist "%PROJECT_BASE%\*.cache" del /S /Q "%PROJECT_BASE%\*.cache" >NUL 
 )
   
 goto :eof

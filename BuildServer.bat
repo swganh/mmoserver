@@ -357,20 +357,20 @@ cd "%PROJECT_BASE%\deps\gtest"
 if exist "%PROJECT_BASE%\deps\gtest\msvc\*.cache" del /S /Q "%PROJECT_BASE%\deps\gtest\msvc\*.cache" >NUL
     
 if "%BUILD_TYPE%" == "debug" (
-    "%MSBUILD%" "%PROJECT_BASE%\deps\gtest\msvc\gtest.sln" /t:rebuild /p:Configuration=Debug,VCBuildAdditionalOptions="/useenv" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\gtest\msvc\gtest.sln" /t:rebuild /p:Configuration=Debug,VCBuildAdditionalOptions="/useenv"
     if exist "%PROJECT_BASE%\deps\gtest\msvc\*.cache" del /S /Q "%PROJECT_BASE%\deps\gtest\msvc\*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "release" (
-    "%MSBUILD%" "%PROJECT_BASE%\deps\gtest\msvc\gtest.sln" /t:rebuild /p:Configuration=Release,VCBuildAdditionalOptions="/useenv" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\gtest\msvc\gtest.sln" /t:rebuild /p:Configuration=Release,VCBuildAdditionalOptions="/useenv"
     if exist "%PROJECT_BASE%\deps\gtest\msvc\*.cache" del /S /Q "%PROJECT_BASE%\deps\gtest\msvc\*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "all" (
-    "%MSBUILD%" "%PROJECT_BASE%\deps\gtest\msvc\gtest.sln" /t:rebuild /p:Configuration=Debug,VCBuildAdditionalOptions="/useenv" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\gtest\msvc\gtest.sln" /t:rebuild /p:Configuration=Debug,VCBuildAdditionalOptions="/useenv"
     if exist "%PROJECT_BASE%\deps\gtest\msvc\*.cache" del /S /Q "%PROJECT_BASE%\deps\gtest\msvc\*.cache" >NUL
 	
-    "%MSBUILD%" "%PROJECT_BASE%\deps\gtest\msvc\gtest.sln" /t:rebuild /p:Configuration=Release,VCBuildAdditionalOptions="/useenv" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\gtest\msvc\gtest.sln" /t:rebuild /p:Configuration=Release,VCBuildAdditionalOptions="/useenv"
     if exist "%PROJECT_BASE%\deps\gtest\msvc\*.cache" del /S /Q "%PROJECT_BASE%\deps\gtest\msvc\*.cache" >NUL
 )
 goto :eof
@@ -417,20 +417,20 @@ cd "%PROJECT_BASE%\deps\gmock"
 if exist "%PROJECT_BASE%\deps\gmock\msvc\*.cache" del /S /Q "%PROJECT_BASE%\deps\gmock\msvc\*.cache" >NUL
     
 if "%BUILD_TYPE%" == "debug" (
-    "%MSBUILD%" "%PROJECT_BASE%\deps\gmock\msvc\gmock.sln" /t:rebuild /p:Configuration=Debug,VCBuildAdditionalOptions="/useenv" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\gmock\msvc\gmock.sln" /t:rebuild /p:Configuration=Debug,VCBuildAdditionalOptions="/useenv"
     if exist "%PROJECT_BASE%\deps\gmock\msvc\*.cache" del /S /Q "%PROJECT_BASE%\deps\gmock\msvc\*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "release" (
-    "%MSBUILD%" "%PROJECT_BASE%\deps\gmock\msvc\gmock.sln" /t:rebuild /p:Configuration=Release,VCBuildAdditionalOptions="/useenv" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\gmock\msvc\gmock.sln" /t:rebuild /p:Configuration=Release,VCBuildAdditionalOptions="/useenv"
     if exist "%PROJECT_BASE%\deps\gmock\msvc\*.cache" del /S /Q "%PROJECT_BASE%\deps\gmock\msvc\*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "all" (
-    "%MSBUILD%" "%PROJECT_BASE%\deps\gmock\msvc\gmock.sln" /t:rebuild /p:Configuration=Debug,VCBuildAdditionalOptions="/useenv" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\gmock\msvc\gmock.sln" /t:rebuild /p:Configuration=Debug,VCBuildAdditionalOptions="/useenv"
     if exist "%PROJECT_BASE%\deps\gmock\msvc\*.cache" del /S /Q "%PROJECT_BASE%\deps\gmock\msvc\*.cache" >NUL
 	
-    "%MSBUILD%" "%PROJECT_BASE%\deps\gmock\msvc\gmock.sln" /t:rebuild /p:Configuration=Release,VCBuildAdditionalOptions="/useenv" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\gmock\msvc\gmock.sln" /t:rebuild /p:Configuration=Release,VCBuildAdditionalOptions="/useenv"
     if exist "%PROJECT_BASE%\deps\gmock\msvc\*.cache" del /S /Q "%PROJECT_BASE%\deps\gmock\msvc\*.cache" >NUL
 )
 goto :eof
@@ -576,20 +576,20 @@ rem Removing it as it's not needed.
 if exist "%PROJECT_BASE%\deps\noise\*.cache" del /S /Q "%PROJECT_BASE%\deps\noise\*.cache" >NUL
 
 if "%BUILD_TYPE%" == "debug" (
-    "%MSBUILD%" "%PROJECT_BASE%\deps\noise\libnoise.sln" /t:rebuild /p:Configuration=Debug,VCBuildAdditionalOptions="/useenv" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\noise\libnoise.sln" /t:rebuild /p:Configuration=Debug,VCBuildAdditionalOptions="/useenv"
     if exist "%PROJECT_BASE%\deps\noise\*.cache" del /S /Q "%PROJECT_BASE%\deps\noise\*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "release" (
-    "%MSBUILD%" "%PROJECT_BASE%\deps\noise\libnoise.sln" /t:rebuild /p:Configuration=Release,VCBuildAdditionalOptions="/useenv" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\noise\libnoise.sln" /t:rebuild /p:Configuration=Release,VCBuildAdditionalOptions="/useenv"
     if exist "%PROJECT_BASE%\deps\noise\*.cache" del /S /Q "%PROJECT_BASE%\deps\noise\*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "all" (
-    "%MSBUILD%" "%PROJECT_BASE%\deps\noise\libnoise.sln" /t:rebuild /p:Configuration=Debug,VCBuildAdditionalOptions="/useenv" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\noise\libnoise.sln" /t:rebuild /p:Configuration=Debug,VCBuildAdditionalOptions="/useenv"
     if exist "%PROJECT_BASE%\deps\noise\*.cache" del /S /Q "%PROJECT_BASE%\deps\noise\*.cache" >NUL
 
-    "%MSBUILD%" "%PROJECT_BASE%\deps\noise\libnoise.sln" /t:rebuild /p:Configuration=Release,VCBuildAdditionalOptions="/useenv" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\noise\libnoise.sln" /t:rebuild /p:Configuration=Release,VCBuildAdditionalOptions="/useenv"
     if exist "%PROJECT_BASE%\deps\noise\*.cache" del /S /Q "%PROJECT_BASE%\deps\noise\*.cache" >NUL
 )      
 
@@ -639,20 +639,20 @@ rem Removing it as it's not needed.
 if exist "%PROJECT_BASE%\deps\spatialindex\*.cache" del /S /Q "%PROJECT_BASE%\deps\spatialindex\*.cache" >NUL
 
 if "%BUILD_TYPE%" == "debug" (
-    "%MSBUILD%" "%PROJECT_BASE%\deps\spatialindex\spatialindex.sln" /t:rebuild /p:Configuration=Debug,VCBuildAdditionalOptions="/useenv" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\spatialindex\spatialindex.sln" /t:rebuild /p:Configuration=Debug,VCBuildAdditionalOptions="/useenv"
     if exist "%PROJECT_BASE%\deps\spatialindex\*.cache" del /S /Q "%PROJECT_BASE%\deps\spatialindex\*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "release" (
-    "%MSBUILD%" "%PROJECT_BASE%\deps\spatialindex\spatialindex.sln" /t:rebuild /p:Configuration=Release,VCBuildAdditionalOptions="/useenv" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\spatialindex\spatialindex.sln" /t:rebuild /p:Configuration=Release,VCBuildAdditionalOptions="/useenv"
     if exist "%PROJECT_BASE%\deps\spatialindex\*.cache" del /S /Q "%PROJECT_BASE%\deps\spatialindex\*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "all" (
-    "%MSBUILD%" "%PROJECT_BASE%\deps\spatialindex\spatialindex.sln" /t:rebuild /p:Configuration=Debug,VCBuildAdditionalOptions="/useenv" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\spatialindex\spatialindex.sln" /t:rebuild /p:Configuration=Debug,VCBuildAdditionalOptions="/useenv"
     if exist "%PROJECT_BASE%\deps\spatialindex\*.cache" del /S /Q "%PROJECT_BASE%\deps\spatialindex\*.cache" >NUL
 
-    "%MSBUILD%" "%PROJECT_BASE%\deps\spatialindex\spatialindex.sln" /t:rebuild /p:Configuration=Release,VCBuildAdditionalOptions="/useenv" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\spatialindex\spatialindex.sln" /t:rebuild /p:Configuration=Release,VCBuildAdditionalOptions="/useenv"
     if exist "%PROJECT_BASE%\deps\spatialindex\*.cache" del /S /Q "%PROJECT_BASE%\deps\spatialindex\*.cache" >NUL
 )    
 
@@ -702,20 +702,20 @@ rem Removing it as it's not needed.
 if exist "%PROJECT_BASE%\deps\tolua++\win32\vc9\*.cache" del /S /Q "%PROJECT_BASE%\deps\tolua++\win32\vc9\*.cache" >NUL
 
 if "%BUILD_TYPE%" == "debug" (
-    "%MSBUILD%" "%PROJECT_BASE%\deps\tolua++\win32\vc9\toluapp.sln" /t:rebuild /p:Configuration=withLua51_Debug,VCBuildAdditionalOptions="/useenv" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\tolua++\win32\vc9\toluapp.sln" /t:rebuild /p:Configuration=withLua51_Debug,VCBuildAdditionalOptions="/useenv"
     if exist "%PROJECT_BASE%\deps\tolua++\win32\vc9\*.cache" del /S /Q "%PROJECT_BASE%\deps\tolua++\win32\vc9\*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "release" (
-    "%MSBUILD%" "%PROJECT_BASE%\deps\tolua++\win32\vc9\toluapp.sln" /t:rebuild /p:Configuration=withLua51_Release,VCBuildAdditionalOptions="/useenv" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\tolua++\win32\vc9\toluapp.sln" /t:rebuild /p:Configuration=withLua51_Release,VCBuildAdditionalOptions="/useenv"
     if exist "%PROJECT_BASE%\deps\tolua++\win32\vc9\*.cache" del /S /Q "%PROJECT_BASE%\deps\tolua++\win32\vc9\*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "all" (
-    "%MSBUILD%" "%PROJECT_BASE%\deps\tolua++\win32\vc9\toluapp.sln" /t:rebuild /p:Configuration=withLua51_Debug,VCBuildAdditionalOptions="/useenv" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\tolua++\win32\vc9\toluapp.sln" /t:rebuild /p:Configuration=withLua51_Debug,VCBuildAdditionalOptions="/useenv"
     if exist "%PROJECT_BASE%\deps\tolua++\win32\vc9\*.cache" del /S /Q "%PROJECT_BASE%\deps\tolua++\win32\vc9\*.cache" >NUL
 
-    "%MSBUILD%" "%PROJECT_BASE%\deps\tolua++\win32\vc9\toluapp.sln" /t:rebuild /p:Configuration=withLua51_Release,VCBuildAdditionalOptions="/useenv" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\tolua++\win32\vc9\toluapp.sln" /t:rebuild /p:Configuration=withLua51_Release,VCBuildAdditionalOptions="/useenv"
     if exist "%PROJECT_BASE%\deps\tolua++\win32\vc9\*.cache" del /S /Q "%PROJECT_BASE%\deps\tolua++\win32\vc9\*.cache" >NUL
 )
 
@@ -766,20 +766,20 @@ rem Removing it as it's not needed.
 if exist "%PROJECT_BASE%\deps\zlib\projects\visualc6\zlib.sln.cache" del /S /Q "%PROJECT_BASE%\deps\zlib\projects\visualc6\zlib.sln.cache" >NUL
 
 if "%BUILD_TYPE%" == "debug" ( 
-    "%MSBUILD%" "%PROJECT_BASE%\deps\zlib\projects\visualc6\zlib.sln" /t:rebuild /p:Configuration="LIB Debug",VCBuildAdditionalOptions="/useenv" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\zlib\projects\visualc6\zlib.sln" /t:rebuild /p:Configuration="LIB Debug",VCBuildAdditionalOptions="/useenv"
     if exist "%PROJECT_BASE%\deps\zlib\projects\visualc6\zlib.sln.cache" del /S /Q "%PROJECT_BASE%\deps\zlib\projects\visualc6\zlib.sln.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "release" (
-    "%MSBUILD%" "%PROJECT_BASE%\deps\zlib\projects\visualc6\zlib.sln" /t:rebuild /p:Configuration="LIB Release",VCBuildAdditionalOptions="/useenv" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\zlib\projects\visualc6\zlib.sln" /t:rebuild /p:Configuration="LIB Release",VCBuildAdditionalOptions="/useenv"
     if exist "%PROJECT_BASE%\deps\zlib\projects\visualc6\zlib.sln.cache" del /S /Q "%PROJECT_BASE%\deps\zlib\projects\visualc6\zlib.sln.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "all" (
-    "%MSBUILD%" "%PROJECT_BASE%\deps\zlib\projects\visualc6\zlib.sln" /t:rebuild /p:Configuration="LIB Debug",VCBuildAdditionalOptions="/useenv" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\zlib\projects\visualc6\zlib.sln" /t:rebuild /p:Configuration="LIB Debug",VCBuildAdditionalOptions="/useenv"
     if exist "%PROJECT_BASE%\deps\zlib\projects\visualc6\zlib.sln.cache" del /S /Q "%PROJECT_BASE%\deps\zlib\projects\visualc6\zlib.sln.cache" >NUL
 
-    "%MSBUILD%" "%PROJECT_BASE%\deps\zlib\projects\visualc6\zlib.sln" /t:rebuild /p:Configuration="LIB Release",VCBuildAdditionalOptions="/useenv" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\zlib\projects\visualc6\zlib.sln" /t:rebuild /p:Configuration="LIB Release",VCBuildAdditionalOptions="/useenv"
     if exist "%PROJECT_BASE%\deps\zlib\projects\visualc6\zlib.sln.cache" del /S /Q "%PROJECT_BASE%\deps\zlib\projects\visualc6\zlib.sln.cache" >NUL
 )
 goto :eof
@@ -828,20 +828,20 @@ rem Removing it as it's not needed.
 if exist "%PROJECT_BASE%\deps\zthread\*.cache" del /S /Q "%PROJECT_BASE%\deps\zthread\*.cache" >NUL
 
 if "%BUILD_TYPE%" == "debug" (
-    "%MSBUILD%" "%PROJECT_BASE%\deps\zthread\zthread.sln" /t:rebuild /p:Configuration=Debug,VCBuildAdditionalOptions="/useenv" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\zthread\zthread.sln" /t:rebuild /p:Configuration=Debug,VCBuildAdditionalOptions="/useenv"
     if exist "%PROJECT_BASE%\deps\zthread\*.cache" del /S /Q "%PROJECT_BASE%\deps\zthread\*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "release" (
-    "%MSBUILD%" "%PROJECT_BASE%\deps\zthread\zthread.sln" /t:rebuild /p:Configuration=Release,VCBuildAdditionalOptions="/useenv" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\zthread\zthread.sln" /t:rebuild /p:Configuration=Release,VCBuildAdditionalOptions="/useenv"
     if exist "%PROJECT_BASE%\deps\zthread\*.cache" del /S /Q "%PROJECT_BASE%\deps\zthread\*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "all" (
-    "%MSBUILD%" "%PROJECT_BASE%\deps\zthread\zthread.sln" /t:rebuild /p:Configuration=Debug,VCBuildAdditionalOptions="/useenv" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\zthread\zthread.sln" /t:rebuild /p:Configuration=Debug,VCBuildAdditionalOptions="/useenv"
     if exist "%PROJECT_BASE%\deps\zthread\*.cache" del /S /Q "%PROJECT_BASE%\deps\zthread\*.cache" >NUL
 
-    "%MSBUILD%" "%PROJECT_BASE%\deps\zthread\zthread.sln" /t:rebuild /p:Configuration=Release,VCBuildAdditionalOptions="/useenv" >NUL
+    "%MSBUILD%" "%PROJECT_BASE%\deps\zthread\zthread.sln" /t:rebuild /p:Configuration=Release,VCBuildAdditionalOptions="/useenv"
     if exist "%PROJECT_BASE%\deps\zthread\*.cache" del /S /Q "%PROJECT_BASE%\deps\zthread\*.cache" >NUL
 )
 

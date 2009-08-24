@@ -137,7 +137,7 @@ void ConnectionServer::Startup(void)
 
 void ConnectionServer::Shutdown(void)
 {
-	gLogger->logMsg("ConnectionServer Shutting down...\n");
+	gLogger->logMsg("ConnectionServer Shutting down...");
 
 	// Update our status for the LoginServer
 	mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE galaxy SET status=0 WHERE galaxy_id=%u;",mClusterId));
@@ -170,7 +170,7 @@ void ConnectionServer::Shutdown(void)
 	delete mDatabaseManager;
 	delete mNetworkManager;
 
-	gLogger->logMsg("ConnectionServer Shutdown Complete\n");
+	gLogger->logMsg("ConnectionServer Shutdown Complete");
 }
 
 //======================================================================================================================

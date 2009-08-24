@@ -252,7 +252,6 @@ public:
 	bool				sendUpdateWaypoint(WaypointObject* waypoint,ObjectUpdate updateType,PlayerObject* playerObject);
 	bool				sendSkillCmdDeltasPLAY_9(PlayerObject* playerObject);
 	bool				sendSchematicDeltasPLAY_9(PlayerObject* playerObject);
-	bool				sendSchematicDeltasAddPLAY_9(PlayerObject* playerObject);
 	bool				sendUpdateXpTypes(SkillXpTypesList newXpTypes,uint8 remove,PlayerObject* playerObject);
 	bool				sendXpUpdate(uint32 xpType,PlayerObject* playerObject);
 	bool				sendFriendListPlay9(PlayerObject* playerObject);
@@ -305,7 +304,13 @@ public:
 	// deltas
 	bool				sendDeltasMSCO_3(ManufacturingSchematic* manSchem,PlayerObject* playerObject);
 	bool				sendDeltasMSCO_7(ManufacturingSchematic* manSchem,PlayerObject* playerObject);
+	
+	
 	bool				sendAttributeDeltasMSCO_7(ManufacturingSchematic* manSchem,PlayerObject* playerObject);
+	
+	bool				sendAttributeDeltasMSCO_7_New(ManufacturingSchematic* manSchem,PlayerObject* playerObject);
+
+
 	bool				sendUpdateFilledManufactureSlots(ManufacturingSchematic* manSchem,PlayerObject* playerObject);
 	bool				sendManufactureSlotUpdate(ManufacturingSchematic* manSchem,uint8 slotId,PlayerObject* playerObject);
 	bool				sendManufactureSlotUpdateSmall(ManufacturingSchematic* manSchem,uint8 slotId,PlayerObject* playerObject);
@@ -392,9 +397,10 @@ private:
 	bool				_checkPlayer(uint64 playerId) const;
 
 	void				_sendToInRangeUnreliable(Message* message, Object* const object,uint16 priority,bool toSelf = true);
-	void				_sendToInRange(Message* message, Object* const object,uint16 priority,bool toSelf = true,bool unreliable = false);
+	void				_sendToInRange(Message* message, Object* const object,uint16 priority,bool toSelf = true);
 
-	void				_sendToInstancedPlayers(Message* message, uint16 priority, const PlayerObject* const player, bool unreliable = false) const ;
+	void				_sendToInstancedPlayersUnreliable(Message* message, uint16 priority, const PlayerObject* const player) const ;
+	void				_sendToInstancedPlayers(Message* message, uint16 priority, const PlayerObject* const player) const ;
 	void				_sendToAll(Message* message,uint16 priority,bool unreliable = false) const;
 
 	static MessageLib*	mSingleton;

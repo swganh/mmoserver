@@ -148,7 +148,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
 				if(elements < 3)
 				{
-					gLogger->logMsg("SchematicManager: Error in Schematic String");
+					gLogger->logMsg("SchematicManager: Error in Schematic String\n");
 					break;
 				}
 
@@ -222,7 +222,10 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 			mSchematicCount += count;
 
 			if(!--mGroupLoadCount)
+			{
 				gLogger->logMsgF("SchematicManager::Loaded %u Groups %u Schematics",MSG_NORMAL,mGroupCount,mSchematicCount);
+				gLogger->logMsgOk(13);
+			}
 
 			mDatabase->DestroyDataBinding(binding);
 		}

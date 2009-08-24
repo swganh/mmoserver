@@ -78,11 +78,10 @@ bool MessageLib::sendBaselinesRCNO_3(ResourceContainer* resourceContainer,Player
 	gMessageFactory->addUint8(0);
 	gMessageFactory->addUint32(resourceContainer->getAmount());
 	gMessageFactory->addUint64((resourceContainer->getResource())->getId());
-	gLogger->logMsgF("MessageLib rcno 3 parent ressource ID : %I64u",MSG_HIGH,(resourceContainer->getResource())->getId());
 	
 	message = gMessageFactory->EndMessage();
 
-	(targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5, false);
+	(targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5);
 
 	Resource* resource = gResourceManager->getResourceById((resourceContainer->getResource())->getId());
 
@@ -135,7 +134,7 @@ bool MessageLib::sendBaselinesRCNO_6(ResourceContainer* resourceContainer,Player
 
 	message = gMessageFactory->EndMessage();
 
-	(targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5, false);
+	(targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5);
 
 	return(true);
 }
@@ -164,7 +163,7 @@ bool MessageLib::sendBaselinesRCNO_8(ResourceContainer* resourceContainer,Player
 
 	message = gMessageFactory->EndMessage();
 
-	(targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5, false);
+	(targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5);
 
 	return(true);
 }
@@ -193,7 +192,7 @@ bool MessageLib::sendBaselinesRCNO_9(ResourceContainer* resourceContainer,Player
 
 	message = gMessageFactory->EndMessage();
 
-	(targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5, false);
+	(targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5);
 
 	return(true);
 }
@@ -224,7 +223,7 @@ bool MessageLib::sendResourceContainerUpdateAmount(ResourceContainer* resourceCo
 
 	newMessage = gMessageFactory->EndMessage();
 
-	(playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 5, false);
+	(playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 5);
 
 	return(true);
 }

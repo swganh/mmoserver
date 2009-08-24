@@ -167,21 +167,31 @@ void SocketReadThread::run(void)
 		if(count && FD_ISSET(mSocket, &socketSet))
 		{
 			// Read any incoming packets.
-			recvLen = recvfrom(mSocket, mReceivePacket->getData(), mMessageMaxSize, 0, (sockaddr*)&from, (socklen_t*)&fromLen); 
-			if (recvLen <= 0)
+			recvLen = recvfrom(mSocket, mReceivePacket->getData(),(int) mMessageMaxSize, 0, (sockaddr*)&from, (socklen_t*)&fromLen); 
+			if (recvLen <= 2)
 			{
+				if (recvLen <= 2)
+				{
 #if(ANH_PLATFORM == ANH_PLATFORM_WIN32)
 
-				int error = WSAGetLastError();
-				gLogger->logMsgF("*** Unkown error from socket recvFrom: %u", MSG_NORMAL, error);
+					int error = WSAGetLastError();
+					gLogger->logMsgF("*** Unkown error from socket recvFrom: %i recvL returned %i", MSG_NORMAL, error,recvLen);
+					gLogger->logMsgF("*** mMessageMaxSize: %i", MSG_NORMAL, mMessageMaxSize);
 
 #elif(ANH_PLATFORM == ANH_PLATFORM_LINUX)
 
-				int error = errno;
+					int error = errno;
 
 #endif
+				}
+				//if(error != 10040)
 				continue;
+				
+
+				recvLen = mMessageMaxSize;
 			}
+			if(recvLen > mMessageMaxSize)
+				gLogger->logMsgF("*** Received Size > mMessageMaxSize: %u", MSG_NORMAL, recvLen);
 
 			// Get our remote Address and port
 			address = from.sin_addr.s_addr;
@@ -280,8 +290,8 @@ void SocketReadThread::run(void)
 						if (crcLow != (uint8)packetCrc || crcHigh != (uint8)(packetCrc >> 8))
 						{
 							// CRC mismatch.  Dropping packet.
-							gLogger->hexDump(mReceivePacket->getData(),mReceivePacket->getSize());
-							gLogger->logMsgF("*** Reliable Packet dropped.  CRC mismatch.",MSG_NORMAL);
+							//gLogger->hexDump(mReceivePacket->getData(),mReceivePacket->getSize());
+							gLogger->logMsgF("*** Ack or orderr or disconnect or Ping dropped  CRC mismatch.",MSG_NORMAL);
 							continue;
 						}
 
@@ -308,7 +318,7 @@ void SocketReadThread::run(void)
 					case SESSIONOP_DataFrag4:   
 					{
 
-						// Before we do anythign else, check the CRC.
+						// Before we do anything else, check the CRC.
 						uint32 packetCrc = mCompCryptor->GenerateCRC(mReceivePacket->getData(), recvLen - 2, session->getEncryptKey());
 
 						uint8 crcLow  = (uint8)*(mReceivePacket->getData() + recvLen - 1);
@@ -319,9 +329,11 @@ void SocketReadThread::run(void)
 						if (crcLow != (uint8)packetCrc || crcHigh != (uint8)(packetCrc >> 8))
 						{
 							// CRC mismatch.  Dropping packet.
-							gLogger->hexDump(mReceivePacket->getData(),mReceivePacket->getSize());
+							
+							gLogger->logMsgF("*** Reliable Packet dropped. %X CRC mismatch.",MSG_NORMAL,packetType);
+							mCompCryptor->Decrypt(mReceivePacket->getData() + 2, recvLen - 4, session->getEncryptKey());  // don't hardcode the header buffer or CRC len.
 
-							gLogger->logMsgF("*** Unreliable Packet dropped. CRC mismatch.",MSG_NORMAL);
+							gLogger->hexDump(mReceivePacket->getData(),mReceivePacket->getSize());
 							continue;
 						}
 

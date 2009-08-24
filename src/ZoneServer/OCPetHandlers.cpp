@@ -49,7 +49,7 @@ void ObjectController::_handleMount(uint64 targetId,Message* message,ObjectContr
 				}
 				else
 				{
-					gLogger->logMsg("ObjectController::_handleMount : Cannot find vehicle");
+					gLogger->logMsg("ObjectController::_handleMount : Cannot find vehicle\n");
 				}
 			}
 		}

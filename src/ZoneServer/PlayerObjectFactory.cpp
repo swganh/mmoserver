@@ -698,7 +698,7 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
 	mIlc = _getObject(object->getParentId());
 	if(!mIlc)
 	{
-		gLogger->logMsg("no mIlc :(");
+		gLogger->logMsg("no mIlc :(\n");
 		return;
 	}
 	mIlc->mLoadCounter--;
@@ -744,7 +744,7 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
 	}
 	else
 	{
-		gLogger->logMsg("no idea what this was");
+		gLogger->logMsg("no idea what this was\n");
 	}
 
 	if(!mIlc->mLoadCounter)

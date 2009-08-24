@@ -80,7 +80,7 @@ bool MessageLib::_checkPlayer(const PlayerObject* const player) const
 	PlayerObject* tested = gWorldManager->getPlayerByAccId(player->getAccountId());
 	if(!tested)	
 	{
-		gLogger->logMsgF("Player account (%u) invalid",MSG_NORMAL,player->getAccountId());
+		gLogger->logMsgF("Player account (%u) invalid\n",MSG_NORMAL,player->getAccountId());
 		return false;
 	}
 
@@ -92,7 +92,7 @@ bool MessageLib::_checkPlayer(uint64 playerId) const
 	PlayerObject* tested = dynamic_cast <PlayerObject*> (gWorldManager->getObjectById(playerId));
 	if(!tested)	
 	{
-		gLogger->logMsgF("Player Id (%I64u) invalid",MSG_NORMAL,playerId);
+		gLogger->logMsgF("Player Id (%I64u) invalid\n",MSG_NORMAL,playerId);
 		return false;
 	}
 	return((tested->isConnected())&&(tested->getClient()));
@@ -139,7 +139,7 @@ void MessageLib::_sendToInRangeUnreliable(Message* message, Object* const object
 
 }
 
-void MessageLib::_sendToInRange(Message* message, Object* const object,uint16 priority,bool toSelf,bool unreliable)
+void MessageLib::_sendToInRange(Message* message, Object* const object,uint16 priority,bool toSelf)
 {
 	PlayerObjectSet*	inRangePlayers	= object->getKnownPlayers();
 	PlayerObjectSet::iterator	it			= inRangePlayers->begin();
@@ -154,7 +154,7 @@ void MessageLib::_sendToInRange(Message* message, Object* const object,uint16 pr
 			gMessageFactory->addData(message->getData(),message->getSize());
 			clonedMessage = gMessageFactory->EndMessage();
 
-			((*it)->getClient())->SendChannelA(clonedMessage,(*it)->getAccountId(),CR_Client,priority,unreliable);
+			((*it)->getClient())->SendChannelA(clonedMessage,(*it)->getAccountId(),CR_Client,priority);
 		}
 
 		++it;
@@ -165,7 +165,7 @@ void MessageLib::_sendToInRange(Message* message, Object* const object,uint16 pr
 		const PlayerObject* const srcPlayer = dynamic_cast<const PlayerObject*>(object);
 		if(_checkPlayer(srcPlayer))	
 		{
-			(srcPlayer->getClient())->SendChannelA(message,srcPlayer->getAccountId(),CR_Client,priority,unreliable);
+			(srcPlayer->getClient())->SendChannelA(message,srcPlayer->getAccountId(),CR_Client,priority);
 			return;
 		}
 	}
@@ -180,7 +180,7 @@ void MessageLib::_sendToInRange(Message* message, Object* const object,uint16 pr
 // Broadcasts a message to players in group and in range of the given object, used by tutorial and other instances
 //
 
-void MessageLib::_sendToInstancedPlayers(Message* message,uint16 priority, const PlayerObject* const playerObject, bool unreliable) const
+void MessageLib::_sendToInstancedPlayers(Message* message,uint16 priority, const PlayerObject* const playerObject) const
 {
 	if (!_checkPlayer(playerObject)) 
 	{
@@ -200,12 +200,48 @@ void MessageLib::_sendToInstancedPlayers(Message* message,uint16 priority, const
 			gMessageFactory->addData(message->getData(),message->getSize());
 			clonedMessage = gMessageFactory->EndMessage();
 
-			((*player)->getClient())->SendChannelA(clonedMessage,(*player)->getAccountId(),CR_Client,priority,unreliable);
+			((*player)->getClient())->SendChannelA(clonedMessage,(*player)->getAccountId(),CR_Client,priority);
 		}
 		++player;
 	}
 	gMessageFactory->DestroyMessage(message);
 }
+
+
+//======================================================================================================================
+//
+// Broadcasts a message to players in group and in range of the given object, used by tutorial and other instances
+//
+
+void MessageLib::_sendToInstancedPlayersUnreliable(Message* message,uint16 priority, const PlayerObject* const playerObject) const
+{
+	if (!_checkPlayer(playerObject)) 
+	{
+		return;
+	}
+
+	PlayerList const inRangeMembers = playerObject->getInRangeGroupMembers(true);
+	PlayerList::const_iterator player	= inRangeMembers.begin();
+	Message* clonedMessage;
+
+	while (player != inRangeMembers.end())
+	{
+		if (_checkPlayer(*player)) 
+		{
+			// Clone the message.
+			gMessageFactory->StartMessage();
+			gMessageFactory->addData(message->getData(),message->getSize());
+			clonedMessage = gMessageFactory->EndMessage();
+
+
+			((*player)->getClient())->SendChannelAUnreliable(clonedMessage,(*player)->getAccountId(),CR_Client,priority);
+	
+		}
+		++player;
+	}
+	gMessageFactory->DestroyMessage(message);
+}
+
 
 //======================================================================================================================
 //
@@ -228,7 +264,10 @@ void MessageLib::_sendToAll(Message* message,uint16 priority,bool unreliable) co
 			gMessageFactory->addData(message->getData(),message->getSize());
 			clonedMessage = gMessageFactory->EndMessage();
 
-			(player->getClient())->SendChannelA(clonedMessage,player->getAccountId(),CR_Client,priority,unreliable);
+			if(unreliable)
+				(player->getClient())->SendChannelAUnreliable(clonedMessage,player->getAccountId(),CR_Client,priority);
+			else
+				(player->getClient())->SendChannelA(clonedMessage,player->getAccountId(),CR_Client,priority);
 		}
 
 		++it;
@@ -264,7 +303,7 @@ bool MessageLib::sendEquippedItems(PlayerObject* srcObject,PlayerObject* targetO
 				}
 				else
 				{
-					gLogger->logMsgF("MssageLib send equipped objects: Its not equipped ... %I64u",MSG_NORMAL,item->getId());
+					gLogger->logMsgF("MssageLib send equipped objects: Its not equipped ... %I64u\n",MSG_NORMAL,item->getId());
 				}
 			}
 		}
@@ -537,7 +576,7 @@ bool MessageLib::sendCreateTangible(TangibleObject* tangibleObject,const PlayerO
 					}
 					else
 					{
-						gLogger->logMsgF("Inventory:: cant find parent for equipped item",MSG_NORMAL);
+						gLogger->logMsgF("Inventory:: cant find parent for equipped item\n",MSG_NORMAL);
 					}
 				}
 				else
@@ -916,7 +955,7 @@ void MessageLib::sendCreateObject(Object* object,PlayerObject* player,bool sendS
 		// unknown types
 	default:
 		{
-			gLogger->logMsgF("MessageLib::createObject: Unhandled object type: %i",MSG_HIGH,object->getType());
+			gLogger->logMsgF("MessageLib::createObject: Unhandled object type: %i\n",MSG_HIGH,object->getType());
 		}
 		break;
 	}

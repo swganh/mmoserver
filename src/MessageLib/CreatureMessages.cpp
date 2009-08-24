@@ -107,7 +107,7 @@ bool MessageLib::sendBaselinesCREO_1(PlayerObject* player)
 
 	message = gMessageFactory->EndMessage();
 
-	(player->getClient())->SendChannelA(message, player->getAccountId(), CR_Client, 3, false);
+	(player->getClient())->SendChannelA(message, player->getAccountId(), CR_Client, 3);
 
 	return(true);
 }
@@ -251,7 +251,7 @@ bool MessageLib::sendBaselinesCREO_3(CreatureObject* creatureObject,PlayerObject
 
 	message = gMessageFactory->EndMessage();
 
-	(targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5, false);
+	(targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5);
 
 	return(true);
 }
@@ -270,24 +270,9 @@ bool MessageLib::sendBaselinesCREO_4(PlayerObject* player)
 	Ham*			playerHam		= player->getHam();
 	SkillModsList*	playerSkillMods = player->getSkillMods();
 
+	//thats the message databody
 	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opBaselinesMessage);   
-	gMessageFactory->addUint64(player->getId()); 
-	gMessageFactory->addUint32(opCREO);
-	gMessageFactory->addUint8(4);  
-
-	// compute skillmod list size
-	uint32					skillModByteCount	= 0;
-	SkillModsList::iterator it					= playerSkillMods->begin();
-
-	while(it != playerSkillMods->end())
-	{
-		skillModByteCount += (gSkillManager->getSkillModById((*it).first).getLength() + 11); // strlen + value + delimiter
-
-		++it;
-	}
-
-	gMessageFactory->addUint32(86 + skillModByteCount); 
+	
 	gMessageFactory->addUint16(14); 
 
 	gMessageFactory->addFloat(1.0f); // acceleration base
@@ -306,7 +291,7 @@ bool MessageLib::sendBaselinesCREO_4(PlayerObject* player)
 	player->mSkillModUpdateCounter += playerSkillMods->size();
 	gMessageFactory->addUint32(player->mSkillModUpdateCounter);  
 
-	it = playerSkillMods->begin();
+	SkillModsList::iterator it = playerSkillMods->begin();
 
 	while(it != playerSkillMods->end())
 	{
@@ -345,7 +330,22 @@ bool MessageLib::sendBaselinesCREO_4(PlayerObject* player)
 	gMessageFactory->addFloat(0.0125f);	// unknown
 	gMessageFactory->addUint64(0);	// unknown
 
-	(player->getClient())->SendChannelA(gMessageFactory->EndMessage(),player->getAccountId(),CR_Client,3,false);
+	Message* data = gMessageFactory->EndMessage();
+
+
+	//Now the Message header
+
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opBaselinesMessage);   
+	gMessageFactory->addUint64(player->getId()); 
+	gMessageFactory->addUint32(opCREO);
+	gMessageFactory->addUint8(4);  
+
+	gMessageFactory->addUint32(data->getSize()); 
+	gMessageFactory->addData(data->getData(),data->getSize());
+	data->setPendingDelete(true);
+															  
+	(player->getClient())->SendChannelA(gMessageFactory->EndMessage(),player->getAccountId(),CR_Client,3);
 
 	return(true);
 }
@@ -594,7 +594,7 @@ bool MessageLib::sendBaselinesCREO_6(CreatureObject* creatureObject,PlayerObject
 	gMessageFactory->addUint8(0);  // extra byte that was needed to correct movement
 	message = gMessageFactory->EndMessage();
 
-	(targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5, false);
+	(targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5);
 
 	return(true);
 }
@@ -619,7 +619,7 @@ bool MessageLib::sendPostureMessage(CreatureObject* creatureObject,PlayerObject*
 
 	message = gMessageFactory->EndMessage();
 
-	(targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 3, false);
+	(targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 3);
 
 	return(true);
 }
@@ -820,7 +820,6 @@ bool MessageLib::sendEquippedItemUpdate_InRange(CreatureObject* creatureObject, 
 	PlayerObject* player = dynamic_cast<PlayerObject*>(creatureObject);
 	if((!player)||(!player->isConnected()))
 	{
-		gLogger->logMsgF("MessageLib::sendEquippedItemUpdate_InRange : No player", MSG_NORMAL);
 		return(false);
 	}
 
@@ -955,7 +954,7 @@ bool MessageLib::sendUpdatePvpStatus(CreatureObject* creatureObject,PlayerObject
 
 	gMessageFactory->addUint64(creatureObject->getId());
 
-	(targetObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),targetObject->getAccountId(),CR_Client,4,false);
+	(targetObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),targetObject->getAccountId(),CR_Client,4);
 
 	return(true);
 }
@@ -1121,7 +1120,7 @@ bool MessageLib::sendBankCreditsUpdate(PlayerObject* playerObject)
 		gMessageFactory->addUint32(0);
 	}
 
-	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5,false);
+	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5);
 
 	return(true);
 }
@@ -1155,7 +1154,7 @@ bool MessageLib::sendInventoryCreditsUpdate(PlayerObject* playerObject)
 		gMessageFactory->addUint32(0);
 	}
 
-	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5,false);
+	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5);
 
 	return(true);
 }
@@ -1189,7 +1188,7 @@ bool MessageLib::sendUpdateMovementProperties(PlayerObject* playerObject)
 	gMessageFactory->addUint16(11);
 	gMessageFactory->addFloat(playerObject->getCurrentAcceleration());
 
-	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5,false);
+	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5);
 
 	return(true);
 }
@@ -1220,7 +1219,7 @@ bool MessageLib::sendSkillDeltasCreo1(Skill* skill,uint8 action,PlayerObject* ta
 	gMessageFactory->addUint8(action);
 	gMessageFactory->addString(skill->mName);
 
-	(targetObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),targetObject->getAccountId(),CR_Client,5,false);
+	(targetObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),targetObject->getAccountId(),CR_Client,5);
 
 	return(true);
 }
@@ -1271,7 +1270,7 @@ bool MessageLib::sendSkillModDeltasCREO_4(SkillModsList smList,uint8 remove,Crea
 		++it;
 	}
 
-	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5,false);
+	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5);
 
 	return(true);
 }
@@ -1490,7 +1489,7 @@ void MessageLib::sendBFUpdateCreo3(CreatureObject* playerObject)
 
 	gMessageFactory->addInt32(ham->getBattleFatigue());  
 
-	(pObject)->getClient()->SendChannelA(gMessageFactory->EndMessage(),pObject->getAccountId(),CR_Client,5,false);
+	(pObject)->getClient()->SendChannelA(gMessageFactory->EndMessage(),pObject->getAccountId(),CR_Client,5);
 }
 
 //======================================================================================================================
@@ -1515,7 +1514,7 @@ void MessageLib::sendOwnerUpdateCreo3(CreatureObject* creatureObject)
 	gMessageFactory->addInt64(creatureObject->getOwner());  
 
 	_sendToInRange(gMessageFactory->EndMessage(),creatureObject,5);
-	//(pObject)->getClient()->SendChannelA(gMessageFactory->EndMessage(),pObject->getAccountId(),CR_Client,5,false);
+	//(pObject)->getClient()->SendChannelA(gMessageFactory->EndMessage(),pObject->getAccountId(),CR_Client,5);
 }
 
 //======================================================================================================================
@@ -1562,7 +1561,7 @@ void MessageLib::sendInviteSenderUpdateDeltasCreo6(uint64 id, PlayerObject* targ
 	gMessageFactory->addUint64(id);
 	gMessageFactory->addUint64((uint64)targetPlayer->getClientTickCount());  // fake counter, otherwise window doesnt popup two times
 
-	(targetPlayer->getClient())->SendChannelA(gMessageFactory->EndMessage(),targetPlayer->getAccountId(),CR_Client,5,false);
+	(targetPlayer->getClient())->SendChannelA(gMessageFactory->EndMessage(),targetPlayer->getAccountId(),CR_Client,5);
 } 
 
 //======================================================================================================================
@@ -1586,7 +1585,7 @@ void MessageLib::sendGroupIdUpdateDeltasCreo6(uint64 groupId, const PlayerObject
 	gMessageFactory->addUint16(6);  // CREO6 GroupID
 	gMessageFactory->addUint64(groupId);  // new id
 
-	(target->getClient())->SendChannelA(gMessageFactory->EndMessage(),target->getAccountId(),CR_Client,5,false);
+	(target->getClient())->SendChannelA(gMessageFactory->EndMessage(),target->getAccountId(),CR_Client,5);
 } 
 
 //======================================================================================================================
@@ -1829,32 +1828,23 @@ bool MessageLib::sendSkillModUpdateCreo4(PlayerObject* playerObject)
 
 	SkillModsList::iterator it	= playerSkillMods->begin();
 
-	while(it != playerSkillMods->end())
-	{
-		skillModByteCount += (gSkillManager->getSkillModById((*it).first).getLength() + 11); // strlen + value + delimiter
-		++it;
-	}
 
+	//start the data part
+	Message* data;
+	
 	gMessageFactory->StartMessage();             
-	gMessageFactory->addUint32(opDeltasMessage);  
-	gMessageFactory->addUint64(playerObject->getId());           
-	gMessageFactory->addUint32(opCREO);           
-	gMessageFactory->addUint8(4);
 
-	gMessageFactory->addUint32(13+skillModByteCount);	//bytecount
 	gMessageFactory->addUint16(1);						//nr of updates in the delta
 	gMessageFactory->addUint16(3);						//position nr
 
 	// skillmods
 
-	gMessageFactory->addUint32(playerSkillMods->size()+1);  
-	gMessageFactory->addUint32(playerObject->getAndIncrementSkillModUpdateCounter(playerSkillMods->size()+1));  
+	gMessageFactory->addUint32(playerSkillMods->size());  
+	gMessageFactory->addUint32(playerObject->getAndIncrementSkillModUpdateCounter(playerSkillMods->size()));  
 	//playerObject->getAndIncrementSkillModUpdateCounter(1)
 
-	gMessageFactory->addUint8(3);
-	gMessageFactory->addUint16(playerSkillMods->size());
+	//gMessageFactory->addUint16(playerSkillMods->size());
 
-	it = playerSkillMods->begin();
 	while(it != playerSkillMods->end())
 	{
 		gMessageFactory->addUint8(0);
@@ -1864,6 +1854,23 @@ bool MessageLib::sendSkillModUpdateCreo4(PlayerObject* playerObject)
 		++it;
 	}
 
+	data = gMessageFactory->EndMessage();
+
+
+	//now the actual message
+
+	gMessageFactory->StartMessage();             
+	gMessageFactory->addUint32(opDeltasMessage);  
+	gMessageFactory->addUint64(playerObject->getId());           
+	gMessageFactory->addUint32(opCREO);           
+	gMessageFactory->addUint8(4);
+
+	gMessageFactory->addUint32(data->getSize());	//bytecount
+	gMessageFactory->addData(data->getData(),data->getSize());
+	
+	data->setPendingDelete(true);
+
+	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5);
 	return(true);
 
 }

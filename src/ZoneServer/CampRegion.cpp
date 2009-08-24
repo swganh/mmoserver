@@ -178,7 +178,7 @@ void	CampRegion::despawnCamp()
 	mDestroyed	= true;
 	mActive		= false;
 
-	gLogger->logMsg("destroy the camp");
+	gLogger->logMsg("destroy the camp\n");
 
 	PlayerObject* owner = NULL;//dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(mOwnerId));
 	//we need to destroy our camp!!

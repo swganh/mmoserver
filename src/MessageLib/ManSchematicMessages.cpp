@@ -70,6 +70,7 @@ bool MessageLib::sendBaselinesMSCO_3(ManufacturingSchematic* manSchem,PlayerObje
 
 	gMessageFactory->StartMessage();
 	
+	//object count
 	gMessageFactory->addUint16(13);	
 	
 	gMessageFactory->addFloat(draftSchematic->getComplexity());
@@ -127,7 +128,7 @@ bool MessageLib::sendBaselinesMSCO_3(ManufacturingSchematic* manSchem,PlayerObje
 	part->setPendingDelete(true);
 
 
-	(playerObject->getClient())->SendChannelA(message,playerObject->getAccountId(),CR_Client,5,false);
+	(playerObject->getClient())->SendChannelA(message,playerObject->getAccountId(),CR_Client,5);
 
 	return(true);
 }
@@ -165,7 +166,7 @@ bool MessageLib::sendBaselinesMSCO_6(ManufacturingSchematic* manSchem,PlayerObje
 
 	message = gMessageFactory->EndMessage();
 
-	(playerObject->getClient())->SendChannelA(message,playerObject->getAccountId(),CR_Client,5,false);
+	(playerObject->getClient())->SendChannelA(message,playerObject->getAccountId(),CR_Client,5);
 
 	return(true);
 }
@@ -181,46 +182,22 @@ bool MessageLib::sendBaselinesMSCO_7(ManufacturingSchematic* manSchem,PlayerObje
 	if(!(playerObject->isConnected()))
 		return(false);
 
-	Message*					message;
-	ManufactureSlots*			manSlots			= manSchem->getManufactureSlots();
-	ManufactureSlots::iterator	manSlotIt			= manSlots->begin();
-	CraftingAttributes*				craftAtts			= manSchem->getCraftingAttributes();
-	CraftingAttributes::iterator	caIt				= craftAtts->begin();
+	Message*							message;
+	Message*							finalMessage;
 
-	CustomizationList*				custList			= manSchem->getCustomizationList();
-	CustomizationList::iterator		custIt				= custList->begin();
+	ManufactureSlots*					manSlots			= manSchem->getManufactureSlots();
+	ManufactureSlots::iterator			manSlotIt			= manSlots->begin();
+	ExperimentationProperties*			exProp				= manSchem->getExperimentationProperties();
+	ExperimentationProperties::iterator	epIt				= exProp->begin();
+
+	CustomizationList*					custList			= manSchem->getCustomizationList();
+	CustomizationList::iterator			custIt				= custList->begin();
 	
-	uint32						slotDataByteCount	= 0;
-	uint32						caByteCount			= 0;
-	uint32						custByteCount		= 0;
+	//start with the messagebody
 
-	// get total size
-	while(manSlotIt != manSlots->end())
-	{
-		slotDataByteCount += 32 + (*manSlotIt)->mDraftSlot->getComponentFile().getLength() + (*manSlotIt)->mDraftSlot->getComponentName().getLength();
-		++manSlotIt;
-	}
-	while(caIt != craftAtts->end())
-	{
-		caByteCount += 32 + (*caIt)->mExpAttributeName.getLength();
-		++caIt;
-	}
+	gMessageFactory->StartMessage();   
 
-	//customizationSize
-	while(custIt != custList->end())
-	{
-		custByteCount += 14 + (*custIt)->attribute.getLength();
-		++custIt;
-	}
-
-	gMessageFactory->StartMessage();         
-	gMessageFactory->addUint32(opBaselinesMessage);   
-	gMessageFactory->addUint64(manSchem->getId()); 
-	gMessageFactory->addUint32(opMSCO);
-	gMessageFactory->addUint8(7);  
-
-	uint32 length = 145 + slotDataByteCount+caByteCount+custByteCount;
-	gMessageFactory->addUint32(length);
+	//object count
 	gMessageFactory->addUint16(21);	
 
 	// slot description
@@ -260,7 +237,6 @@ bool MessageLib::sendBaselinesMSCO_7(ManufacturingSchematic* manSchem,PlayerObje
 	//		-3-
 	gMessageFactory->addUint32(manSlots->size());
 	gMessageFactory->addUint32(manSchem->mUpdateCounter[2]);
-	//printf("\n baseline counter 2 : %u\n",manSchem->mUpdateCounter[2]);
 	manSlotIt = manSlots->begin();
 
 	while(manSlotIt != manSlots->end())
@@ -342,93 +318,93 @@ bool MessageLib::sendBaselinesMSCO_7(ManufacturingSchematic* manSchem,PlayerObje
 	// experimentation
 	///8
 	//we need to send them so that they are shown on assembly!!!
-	gMessageFactory->addUint32(craftAtts->size());
+	gMessageFactory->addUint32(exProp->size());
 	gMessageFactory->addUint32(manSchem->mUpdateCounter[8]);
 
-	caIt			= craftAtts->begin();
+	epIt			= exProp->begin();
 
-	while(caIt != craftAtts->end())
+	while(epIt != exProp->end())
 	{
 		gMessageFactory->addString(BString("crafting"));
 		gMessageFactory->addUint32(0);
-		gMessageFactory->addString((*caIt)->mExpAttributeName);
-		++caIt;
+		gMessageFactory->addString((*epIt)->mExpAttributeName);
+		++epIt;
 	}
 
 	//9
 	//CurrentExperimentationValueList 
 
-	gMessageFactory->addUint32(craftAtts->size());
+	gMessageFactory->addUint32(exProp->size());
 
 	//annoyingly the craftattributeslist is still zero at this time so we need to reinitialize them !!!!
-	manSchem->mUpdateCounter[9] = craftAtts->size();
+	manSchem->mUpdateCounter[9] = exProp->size();
 	gMessageFactory->addUint32(manSchem->mUpdateCounter[9]);
 
-	caIt			= craftAtts->begin();
+	epIt			= exProp->begin();
 
-	while(caIt != craftAtts->end())
+	while(epIt != exProp->end())
 	{
-		gMessageFactory->addFloat(0);//(*caIt)->mExpAttributeValue);
-		(*caIt)->mExpAttributeValue = 0;
-		(*caIt)->mExpAttributeValueOld = 0;
+		gMessageFactory->addFloat(0);//(*epIt)->mExpAttributeValue);
+		(*epIt)->mExpAttributeValue = 0;
+		(*epIt)->mExpAttributeValueOld = 0;
 
-		++caIt;
+		++epIt;
 	} 
 
 	// 10
 	//exp offset leave as 0
 
-	gMessageFactory->addUint32(craftAtts->size());
+	gMessageFactory->addUint32(exProp->size());
 	//annoyingly the craftattributeslist is still zero at this time so we need to reinitialize them !!!!
-	manSchem->mUpdateCounter[10] = craftAtts->size();
+	manSchem->mUpdateCounter[10] = exProp->size();
 	gMessageFactory->addUint32(manSchem->mUpdateCounter[10]);
 
-	caIt			= craftAtts->begin();
+	epIt			= exProp->begin();
 
-	while(caIt != craftAtts->end())
+	while(epIt != exProp->end())
 	{
 
-		gMessageFactory->addUint32(0);//(*caIt)->mExpUnknown);
+		gMessageFactory->addUint32(0);//(*epIt)->mExpUnknown);
 
-		++caIt;
+		++epIt;
 	}
 
 	//11
 	// bluebar / exp bar value
 
-	gMessageFactory->addUint32(craftAtts->size());
+	gMessageFactory->addUint32(exProp->size());
 	//annoyingly the craftattributeslist is still zero at this time so we need to reinitialize them !!!!
-	manSchem->mUpdateCounter[11] = craftAtts->size();
+	manSchem->mUpdateCounter[11] = exProp->size();
 	gMessageFactory->addUint32(manSchem->mUpdateCounter[11]);
 
-	caIt			= craftAtts->begin();
+	epIt			= exProp->begin();
 
-	while(caIt != craftAtts->end())
+	while(epIt != exProp->end())
 	{
-		(*caIt)->mBlueBarSizeOld = 1.0;
-		(*caIt)->mBlueBarSize = 1.0;
-		gMessageFactory->addFloat((*caIt)->mBlueBarSize);//
+		(*epIt)->mBlueBarSizeOld = 1.0;
+		(*epIt)->mBlueBarSize = 1.0;
+		gMessageFactory->addFloat((*epIt)->mBlueBarSize);//
 
-		++caIt;
+		++epIt;
 	}
 
 	//12 (c)
 	// max experimentation
-	gMessageFactory->addUint32(craftAtts->size());
+	gMessageFactory->addUint32(exProp->size());
 	//annoyingly the craftattributeslist is still zero at this time so we need to reinitialize them !!!!
-	manSchem->mUpdateCounter[12] = craftAtts->size();
+	manSchem->mUpdateCounter[12] = exProp->size();
 	gMessageFactory->addUint32(manSchem->mUpdateCounter[12]);
 
-	caIt			= craftAtts->begin();
+	epIt			= exProp->begin();
 
-	while(caIt != craftAtts->end())
+	while(epIt != exProp->end())
 	{
 
-		(*caIt)->mMaxExpValue = 0;
-		(*caIt)->mMaxExpValueOld = 0;
-		gMessageFactory->addFloat(0);//(*caIt)->mMaxExpValue);
+		(*epIt)->mMaxExpValue = 0;
+		(*epIt)->mMaxExpValueOld = 0;
+		gMessageFactory->addFloat(0);//(*epIt)->mMaxExpValue);
 
-		++caIt;
+		++epIt;
 	}
 	
 	// 13 customization attribute name (d)	
@@ -489,7 +465,20 @@ bool MessageLib::sendBaselinesMSCO_7(ManufacturingSchematic* manSchem,PlayerObje
 
 	message = gMessageFactory->EndMessage();
 
-	(playerObject->getClient())->SendChannelA(message,playerObject->getAccountId(),CR_Client,5,false);
+
+	gMessageFactory->StartMessage();         
+	gMessageFactory->addUint32(opBaselinesMessage);   
+	gMessageFactory->addUint64(manSchem->getId()); 
+	gMessageFactory->addUint32(opMSCO);
+	gMessageFactory->addUint8(7);  
+
+	gMessageFactory->addUint32(message->getSize());
+	gMessageFactory->addData(message->getData(),message->getSize());
+
+	finalMessage = gMessageFactory->EndMessage();
+	message->setPendingDelete(true);
+
+	(playerObject->getClient())->SendChannelA(finalMessage,playerObject->getAccountId(),CR_Client,5);
 
 	return(true);
 }
@@ -501,14 +490,14 @@ bool MessageLib::sendDeltasMSCO_7(ManufacturingSchematic* manSchem,PlayerObject*
 	if(!(playerObject->isConnected()))
 		return(false);
 
-	Message*						message;
-	ManufactureSlots*				manSlots			= manSchem->getManufactureSlots();
-	ManufactureSlots::iterator		manSlotIt			= manSlots->begin();
-	CraftingAttributes*				craftAtts			= manSchem->getCraftingAttributes();
-	CraftingAttributes::iterator	caIt				= craftAtts->begin();
-	uint32							slotDataByteCount	= 0;
+	Message*							message;
+	ManufactureSlots*					manSlots			= manSchem->getManufactureSlots();
+	ManufactureSlots::iterator			manSlotIt			= manSlots->begin();
+	ExperimentationProperties*			exProp				= manSchem->getExperimentationProperties();
+	ExperimentationProperties::iterator	epIt				= exProp->begin();
+	uint32								slotDataByteCount	= 0;
 	//uint32							caByteCount			= 0;
-	uint16							elementIndex		= 0;
+	uint16								elementIndex		= 0;
 
 	// get total size
 	while(manSlotIt != manSlots->end())
@@ -801,7 +790,7 @@ bool MessageLib::sendDeltasMSCO_7(ManufacturingSchematic* manSchem,PlayerObject*
 
 	message = gMessageFactory->EndMessage();
 
-	(playerObject->getClient())->SendChannelA(message,playerObject->getAccountId(),CR_Client,5,false);
+	(playerObject->getClient())->SendChannelA(message,playerObject->getAccountId(),CR_Client,5);
 
 	return(true);
 }
@@ -826,7 +815,7 @@ bool MessageLib::sendBaselinesMSCO_8(ManufacturingSchematic* manSchem,PlayerObje
 
 	message = gMessageFactory->EndMessage();
 
-	(playerObject->getClient())->SendChannelA(message,playerObject->getAccountId(),CR_Client,5,false);
+	(playerObject->getClient())->SendChannelA(message,playerObject->getAccountId(),CR_Client,5);
 
 	return(true);
 }
@@ -851,7 +840,7 @@ bool MessageLib::sendBaselinesMSCO_9(ManufacturingSchematic* manSchem,PlayerObje
 
 	message = gMessageFactory->EndMessage();
 
-	(playerObject->getClient())->SendChannelA(message,playerObject->getAccountId(),CR_Client,5,false);
+	(playerObject->getClient())->SendChannelA(message,playerObject->getAccountId(),CR_Client,5);
 
 	return(true);
 }
@@ -878,7 +867,7 @@ bool MessageLib::sendUpdateFilledManufactureSlots(ManufacturingSchematic* manSch
 
 	newMessage = gMessageFactory->EndMessage();
 
-	(playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 5, false);
+	(playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 5);
 
 	return(true);
 }
@@ -956,7 +945,7 @@ bool MessageLib::sendManufactureSlotUpdateSmall(ManufacturingSchematic* manSchem
 
 	newMessage = gMessageFactory->EndMessage();
 
-	(playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 5, false);
+	(playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 5);
 
 	return(true);
 }
@@ -1071,7 +1060,7 @@ bool MessageLib::sendManufactureSlotUpdate(ManufacturingSchematic* manSchem,uint
 
 	newMessage = gMessageFactory->EndMessage();
 
-	(playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 5, false);
+	(playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 5);
 
 	return(true);
 }
@@ -1125,7 +1114,7 @@ bool MessageLib::sendDeltasMSCO_3(ManufacturingSchematic* manSchem,PlayerObject*
 
 	newMessage = gMessageFactory->EndMessage();
 
-	(playerObject->getClient())->SendChannelA(newMessage,playerObject->getAccountId(),CR_Client,5,false);
+	(playerObject->getClient())->SendChannelA(newMessage,playerObject->getAccountId(),CR_Client,5);
 
 	return(true);
 }
@@ -1134,72 +1123,70 @@ bool MessageLib::sendDeltasMSCO_3(ManufacturingSchematic* manSchem,PlayerObject*
 
 bool MessageLib::sendAttributeDeltasMSCO_7(ManufacturingSchematic* manSchem,PlayerObject* playerObject)
 {
+	// this updates the attributes properties when they have changed on experimentation
+	// updated are the attributes value, the bluebarsize or the attribute(indicator of the % of the max value reached)
+	// as well as the maxvalue in theory reachable
+
 	if(!(playerObject->isConnected()))
 		return(false);
 
-	Message*						newMessage;
-	CraftingAttributes*				craftAtts			= manSchem->getCraftingAttributes();
-	CraftingAttributes::iterator	caIt				= craftAtts->begin();
-	uint32							caByteCount			= 0;//craftAtts->size() * 15;
-	uint32							size				= 8;
-	uint32							objectcount			= 1;
+	Message*							newMessage;
+	Message*							finalMessage ;
+
+	ExperimentationProperties*			expProp				= manSchem->getExperimentationProperties();
+	ExperimentationProperties::iterator	epIt				= expProp->begin();
+	
+	uint32								objectcount			= 1;
 
 	manSchem->mExpAttributeValueChange = false;
 	manSchem->mMaxExpValueChange = false;
 	manSchem->mBlueBarSizeChange = false;
 
-	caIt	= craftAtts->begin();
-	while(caIt != craftAtts->end())
+	//we MUST make sure that we only update values which have changed!!!
+	//otherwise we will desynchronize our list and are stuck without being able to update the client
+
+	epIt	= expProp->begin();
+	while(epIt != expProp->end())
 	{
 		
-		if ((*caIt)->mExpAttributeValueOld != (*caIt)->mExpAttributeValue)
+		if ((*epIt)->mExpAttributeValueOld != (*epIt)->mExpAttributeValue)
 		{
 			manSchem->mExpAttributeValueChange = true;
-			printf("\n old value : %f\n",(*caIt)->mExpAttributeValueOld);
-			printf("\n new value : %f\n",(*caIt)->mExpAttributeValue);
+			
 		}
 	
-		if ((*caIt)->mBlueBarSizeOld != (*caIt)->mBlueBarSize)
+		if ((*epIt)->mBlueBarSizeOld != (*epIt)->mBlueBarSize)
 			manSchem->mBlueBarSizeChange = true;
 	
-		if ((*caIt)->mMaxExpValueOld != (*caIt)->mMaxExpValue)
+		if ((*epIt)->mMaxExpValueOld != (*epIt)->mMaxExpValue)
 		{
 			manSchem->mMaxExpValueChange = true;
-			printf("\n experimentation old value : %f\n",(*caIt)->mMaxExpValueOld);
-			printf("\n experimentation new value : %f\n",(*caIt)->mMaxExpValue);
+			
 		}
 			
-		++caIt;
+		++epIt;
 	}
 
+	//that is the attribute - not the experimental property!!!
 	if(manSchem->mExpAttributeValueChange)
 	{
-		caByteCount += craftAtts->size() * 4;
-		size		+= 13;
 		objectcount ++;
 	}
 
 	if(manSchem->mBlueBarSizeChange)
 	{
-		caByteCount += craftAtts->size() * 4;
-		size		+= 13;
 		objectcount ++;
 	}
 
 	if(manSchem->mMaxExpValueChange)
 	{
-		caByteCount += craftAtts->size() * 4;
-		size		+= 13;
 		objectcount ++;
 	}
 
-	gMessageFactory->StartMessage();  
-	gMessageFactory->addUint32(opDeltasMessage);
-	gMessageFactory->addUint64(manSchem->getId());
-	gMessageFactory->addUint32(opMSCO);
-	gMessageFactory->addUint8(7);
 
-	gMessageFactory->addUint32(size + caByteCount);
+	//start writing the messages body
+	gMessageFactory->StartMessage();  
+
 	gMessageFactory->addUint16(objectcount);
 
 	// experimentation/assembly percentage
@@ -1207,25 +1194,24 @@ bool MessageLib::sendAttributeDeltasMSCO_7(ManufacturingSchematic* manSchem,Play
 	{
 		gMessageFactory->addUint16(9);
 
-		manSchem->mUpdateCounter[9] += (craftAtts->size());
-		gMessageFactory->addUint32(craftAtts->size());
+		manSchem->mUpdateCounter[9] += (expProp->size());
+		gMessageFactory->addUint32(expProp->size());
 		
 		gMessageFactory->addUint32(manSchem->mUpdateCounter[9]);
-		printf("\nmExpAttributeValue counter : %u \n",manSchem->mUpdateCounter[9] );
 		
 		manSchem->mUpdateCounter[9] += 1;//(craftAtts->size());
 		
 
 		gMessageFactory->addUint8(3);//3 as in write new 2 was change
-		gMessageFactory->addUint16(craftAtts->size());
+		gMessageFactory->addUint16(expProp->size());
 
-		caIt	= craftAtts->begin();
-		while(caIt != craftAtts->end())
+		epIt	= expProp->begin();
+		while(epIt != expProp->end())
 		{
 
-			(*caIt)->mExpAttributeValueOld = (*caIt)->mExpAttributeValue; 
-			gMessageFactory->addFloat((*caIt)->mExpAttributeValue);
-			++caIt;
+			(*epIt)->mExpAttributeValueOld = (*epIt)->mExpAttributeValue; 
+			gMessageFactory->addFloat((*epIt)->mExpAttributeValue);
+			++epIt;
 		}
 	}
 
@@ -1234,24 +1220,24 @@ bool MessageLib::sendAttributeDeltasMSCO_7(ManufacturingSchematic* manSchem,Play
 	{
 		gMessageFactory->addUint16(11);
 
-		gMessageFactory->addUint32(craftAtts->size());
+		gMessageFactory->addUint32(expProp->size());
 		
-		manSchem->mUpdateCounter[11] += craftAtts->size();
+		manSchem->mUpdateCounter[11] += expProp->size();
 		gMessageFactory->addUint32(manSchem->mUpdateCounter[11]);
-		//manSchem->mUpdateCounter[11] += 1;//(craftAtts->size());
+		//manSchem->mUpdateCounter[11] += 1;//(exProp->size());
 		
 
 		gMessageFactory->addUint8(3);//3 as in write new 2 was change
-		gMessageFactory->addUint16(craftAtts->size());
+		gMessageFactory->addUint16(expProp->size());
 
-		caIt	= craftAtts->begin();
+		epIt	= expProp->begin();
 
-		while(caIt != craftAtts->end())
+		while(epIt != expProp->end())
 		{
-			gMessageFactory->addFloat((*caIt)->mBlueBarSize);
-			(*caIt)->mBlueBarSizeOld = (*caIt)->mBlueBarSize;
+			gMessageFactory->addFloat((*epIt)->mBlueBarSize);
+			(*epIt)->mBlueBarSizeOld = (*epIt)->mBlueBarSize;
 
-			++caIt;
+			++epIt;
 		}
 	}
 
@@ -1260,24 +1246,24 @@ bool MessageLib::sendAttributeDeltasMSCO_7(ManufacturingSchematic* manSchem,Play
 	{
 		gMessageFactory->addUint16(12);
 
-		gMessageFactory->addUint32(craftAtts->size());
+		gMessageFactory->addUint32(expProp->size());
 
-		manSchem->mUpdateCounter[12] += craftAtts->size();
+		manSchem->mUpdateCounter[12] += expProp->size();
 		gMessageFactory->addUint32(manSchem->mUpdateCounter[12]);
 		//manSchem->mUpdateCounter[12] += 1;
 		
 
 		gMessageFactory->addUint8(3);//3 as in write new; 2 was change
-		gMessageFactory->addUint16(craftAtts->size());
+		gMessageFactory->addUint16(expProp->size());
 
-		caIt			= craftAtts->begin();
+		epIt			= expProp->begin();
 		
-		while(caIt != craftAtts->end())
+		while(epIt != expProp->end())
 		{
 
-			(*caIt)->mMaxExpValueOld = (*caIt)->mMaxExpValue;
-			gMessageFactory->addFloat((*caIt)->mMaxExpValue);
-			++caIt;
+			(*epIt)->mMaxExpValueOld = (*epIt)->mMaxExpValue;
+			gMessageFactory->addFloat((*epIt)->mMaxExpValue);
+			++epIt;
 		}
 	}
 
@@ -1288,10 +1274,27 @@ bool MessageLib::sendAttributeDeltasMSCO_7(ManufacturingSchematic* manSchem,Play
 
 	newMessage = gMessageFactory->EndMessage();
 
-	(playerObject->getClient())->SendChannelA(newMessage,playerObject->getAccountId(),CR_Client,5,false);
+
+
+	gMessageFactory->StartMessage();  
+	gMessageFactory->addUint32(opDeltasMessage);
+	gMessageFactory->addUint64(manSchem->getId());
+	gMessageFactory->addUint32(opMSCO);
+	gMessageFactory->addUint8(7);
+
+	gMessageFactory->addUint32(newMessage->getSize());
+	gMessageFactory->addData(newMessage->getData(),newMessage->getSize());
+	
+	finalMessage = gMessageFactory->EndMessage();
+
+	newMessage->setPendingDelete(true);
+
+	(playerObject->getClient())->SendChannelA(finalMessage ,playerObject->getAccountId(),CR_Client,5);
 
 	return(true);
 }
+
+
 
 //======================================================================================================================
 

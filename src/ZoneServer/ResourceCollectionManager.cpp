@@ -81,10 +81,15 @@ void ResourceCollectionManager::_destroyDatabindings()
 }
 
 //======================================================================================================================
+static int printed = false; //file scope
 void ResourceCollectionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 {
 	RCMAsyncContainer* asyncContainer = reinterpret_cast<RCMAsyncContainer*>(ref);
-
+	if(!printed) 
+	{
+		gLogger->logMsg("ResourceCollectionManager::Loading costs:\n");
+		printed=true;
+	}
 	switch (asyncContainer->mQueryType)
 	{
 		case RCMQuery_SampleCosts:
@@ -93,7 +98,7 @@ void ResourceCollectionManager::handleDatabaseJobComplete(void* ref,DatabaseResu
 
 				if (result->getRowCount())
 				{
-					gLogger->logMsg("ResourceCollectionManager:: Loaded dosample command costs");
+					printf("\tLoaded dosample command costs\n");
 					result->GetNextRow(mCommandCostBinding, cCommand);
 					this->sampleActionCost = cCommand->getActionCost();
 					this->sampleHealthCost = cCommand->getHealthCost();
@@ -102,7 +107,7 @@ void ResourceCollectionManager::handleDatabaseJobComplete(void* ref,DatabaseResu
 					
 				}
 
-				gLogger->logMsgF("ResourceManager: loaded sample costs",MSG_HIGH);
+				printf("\tLoaded sample costs\n");
 			}
 			break;
 
@@ -111,7 +116,7 @@ void ResourceCollectionManager::handleDatabaseJobComplete(void* ref,DatabaseResu
 				ResourceCollectionCommand* cCommand = new ResourceCollectionCommand();
 				if (result->getRowCount())
 				{
-					gLogger->logMsg("ResourceCollectionManager:: Loaded requestSurvey command costs");
+					printf("\tLoaded requestSurvey command costs\n");
 					result->GetNextRow(mCommandCostBinding, cCommand);
 
 					
@@ -120,7 +125,8 @@ void ResourceCollectionManager::handleDatabaseJobComplete(void* ref,DatabaseResu
 					this->surveyMindCost = cCommand->getMindCost();
 					
 				}
-				gLogger->logMsgF("ResourceManager: loaded survey costs",MSG_HIGH);
+				printf("\tLoaded survey costs");
+				gLogger->logMsgOk(48);
 			}
 			break;
 

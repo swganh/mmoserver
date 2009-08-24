@@ -70,7 +70,7 @@ void Weapon::sendAttributes(PlayerObject* playerObject)
 
 	newMessage = gMessageFactory->EndMessage();
 
-	(playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 9, true);
+	(playerObject->getClient())->SendChannelAUnreliable(newMessage, playerObject->getAccountId(), CR_Client, 9);
 }
 
 //=============================================================================

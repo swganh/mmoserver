@@ -64,7 +64,7 @@ void MissionBag::spawnNAdd()
 {
 	if(mCapacity <= 0)
 	{
-		gLogger->logMsgF("ERROR: Mission Bag full.", MSG_HIGH);
+		gLogger->logMsgF("ERROR: Mission Bag full.\n", MSG_HIGH);
 	}
 
 	//create a new mission

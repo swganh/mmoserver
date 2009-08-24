@@ -131,7 +131,7 @@ uint64 NpcManager::handleNpc(NPCObject* npc, uint64 timeOverdue)
 		}
 		else
 		{
-			gLogger->logMsgF("NpcManager::handleNpc() Invalid AI state.", MSG_NORMAL);
+			gLogger->logMsgF("NpcManager::handleNpc() Invalid AI state.\n", MSG_NORMAL);
 			assert(false);
 		}
 	}

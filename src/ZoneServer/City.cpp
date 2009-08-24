@@ -90,7 +90,7 @@ void City::onObjectEnter(Object* object)
 
 	addKnownObject(object);
 
-	gLogger->logMsgF("%s entered %s (%u players in city)",MSG_HIGH,player->getFirstName().getAnsi(),mCityName.getAnsi(),mKnownPlayers.size());
+	gLogger->logMsgF("%s entered %s (%u players in city)\n",MSG_HIGH,player->getFirstName().getAnsi(),mCityName.getAnsi(),mKnownPlayers.size());
 }
 
 //=============================================================================
@@ -105,7 +105,7 @@ void City::onObjectLeave(Object* object)
 
 	removeKnownObject(object);
 
-	gLogger->logMsgF("%s left %s (%u players in city)",MSG_HIGH,player->getFirstName().getAnsi(),mCityName.getAnsi(),mKnownPlayers.size());
+	gLogger->logMsgF("%s left %s (%u players in city)\n",MSG_HIGH,player->getFirstName().getAnsi(),mCityName.getAnsi(),mKnownPlayers.size());
 }
 
 //=============================================================================

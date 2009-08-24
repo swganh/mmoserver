@@ -18,8 +18,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 //======================================================================================================================
 
-Log::Log(const std::string& name,LogLevel level,GlobalLogLevel levelGlobal,bool fileOut,bool consoleOut,bool append)
-		:mName(name),mLogLevel(level),mGlobalLogLevel(levelGlobal),mFileOut(fileOut),mConsoleOut(consoleOut)
+Log::Log(const std::string& name,LogLevel level,GlobalLogLevel levelGlobal,bool fileOut,bool consoleOut,bool append, Database* database)
+		:mName(name),mLogLevel(level),mGlobalLogLevel(levelGlobal),mFileOut(fileOut),mConsoleOut(consoleOut), mDatabase(database)
 {
 	if(mFileOut)
 	{
@@ -34,7 +34,10 @@ Log::Log(const std::string& name,LogLevel level,GlobalLogLevel levelGlobal,bool 
 		else
 			mLogStream.open(file.c_str(),std::ios::out|std::ios::trunc);
 	}
+
+	
 }
+
 
 
 //======================================================================================================================
@@ -107,6 +110,7 @@ void Log::logMsg(const std::string& msg, MsgPriority priority, va_list args)
   // format our string with all the optional args.
   vsprintf(buf, msg.c_str(), args);
 
+
 	if(mLogLevel + priority > mGlobalLogLevel)
 	{
 		std::string tstring;
@@ -137,6 +141,211 @@ void Log::logMsg(const std::string& msg, MsgPriority priority, va_list args)
 		}
 	}
 }
+
+void Log::logMsg(const std::string& zone, const std::string& system, const std::string& msg, MsgPriority priority, va_list args)
+{
+  int8    buf[8192];
+
+  std::string text;
+  //text += system;
+  text += msg;
+
+  // format our string with all the optional args.
+  int length = vsprintf(buf, text.c_str(), args);
+
+	//dblogging enabled??
+	if(mDatabase)
+	{
+		//zone
+		int8 sql[500];
+		int8 escstring1[64];
+		int8 escstring2[64];
+		int8 escstring3[1024];
+		mDatabase->Escape_String(escstring1,zone.c_str(),zone.length());
+		mDatabase->Escape_String(escstring2,system.c_str(),system.length());
+		mDatabase->Escape_String(escstring3,buf,length);
+		sprintf(sql,"call sp_ErrorLogHandler('%s','%s','%s')", escstring1, escstring2, escstring3);
+		mDatabase->ExecuteSqlAsync(0,0,sql);
+		//mDatabase->ExecuteSqlAsync(0,0,"INSERT INTO %s VALUES (%I64u,173,'%s',1,0)",mName.c_str(),);
+	}
+
+
+	if((mLogLevel + priority > mGlobalLogLevel)&&(mFileOut||mConsoleOut))
+	{
+		mGlobalLogMutex.acquire();
+		std::string tstring;
+
+		std::ostringstream tstream;
+		struct tm *ts;
+		time_t t;
+		time(&t);
+		ts = localtime(&t);
+		
+		tstream << "[" << std::setw(2) << std::setfill('0') << ts->tm_hour
+				<< ":" << std::setw(2) << std::setfill('0') << ts->tm_min
+				<< ":" << std::setw(2) << std::setfill('0') << ts->tm_sec 
+				<< "] ";
+
+		tstring = tstream.str();
+
+		if(mFileOut)
+		{
+			mLogStream << tstring << buf << std::endl;
+			mLogStream.flush();
+		}
+
+		if(mConsoleOut)
+		{
+			std::cout << tstring << buf << std::endl;
+			std::cout.flush();
+		}
+		mGlobalLogMutex.release();
+	}
+}
+
+void Log::logMsgNolf(const std::string& msg,MsgPriority mp,bool fileOut,bool consoleOut,bool timestamp, int Color, va_list args)
+{
+	int8    buf[8192];
+
+  // format our string with all the optional args.
+  vsprintf(buf, msg.c_str(), args);
+
+	if(mLogLevel + mp > mGlobalLogLevel)
+	{
+		std::string tstring;
+
+		if(timestamp)
+		{
+			std::ostringstream tstream;
+			struct tm *ts;
+			time_t t;
+			time(&t);
+			ts = localtime(&t);
+			
+			tstream << "[" << std::setw(2) << std::setfill('0') << ts->tm_hour
+					<< ":" << std::setw(2) << std::setfill('0') << ts->tm_min
+					<< ":" << std::setw(2) << std::setfill('0') << ts->tm_sec 
+					<< "] ";
+
+			tstring = tstream.str();
+		}
+
+
+		if(mFileOut && fileOut)
+		{
+			mLogStream << tstring << buf;// << std::endl;
+			mLogStream.flush();
+		}
+
+		if(mConsoleOut && consoleOut)
+		{
+			#ifdef ANH_PLATFORM_WIN32
+			HANDLE Console;
+			Console = GetStdHandle(STD_OUTPUT_HANDLE);
+			SetConsoleTextAttribute(Console, Color);
+			#endif
+
+			std::cout << tstring << buf;// << std::endl;
+			std::cout.flush();
+
+			#ifdef ANH_PLATFORM_WIN32
+			SetConsoleTextAttribute(Console, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+			#endif
+		}
+	}
+}
+
+//======================================================================================================================
+//
+
+void Log::logMsgNolf(const std::string& msg,MsgPriority mp,bool fileOut,bool consoleOut,bool timestamp, int Color)
+{
+
+	if(mLogLevel + mp > mGlobalLogLevel)
+	{
+		std::string tstring;
+
+		if(timestamp)
+		{
+			std::ostringstream tstream;
+			struct tm *ts;
+			time_t t;
+			time(&t);
+			ts = localtime(&t);
+			
+			tstream << "[" << std::setw(2) << std::setfill('0') << ts->tm_hour
+					<< ":" << std::setw(2) << std::setfill('0') << ts->tm_min
+					<< ":" << std::setw(2) << std::setfill('0') << ts->tm_sec 
+					<< "] ";
+
+			tstring = tstream.str();
+		}
+
+
+		if(mFileOut && fileOut)
+		{
+			mLogStream << tstring << msg;// << std::endl;
+			mLogStream.flush();
+		}
+
+		if(mConsoleOut && consoleOut)
+		{
+			#ifdef ANH_PLATFORM_WIN32
+			HANDLE Console;
+			Console = GetStdHandle(STD_OUTPUT_HANDLE);
+			SetConsoleTextAttribute(Console, Color);
+			#endif
+
+			std::cout << tstring << msg;// << std::endl;
+			std::cout.flush();
+
+			#ifdef ANH_PLATFORM_WIN32
+			SetConsoleTextAttribute(Console, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+			#endif
+		}
+	}
+}
+
+//======================================================================================================================
+
+void Log::logMsgNolf(const std::string& msg, MsgPriority priority, va_list args)
+{
+  int8    buf[8192];
+
+  // format our string with all the optional args.
+  vsprintf(buf, msg.c_str(), args);
+
+	if(mLogLevel + priority > mGlobalLogLevel)
+	{
+		std::string tstring;
+
+		std::ostringstream tstream;
+		struct tm *ts;
+		time_t t;
+		time(&t);
+		ts = localtime(&t);
+		
+		tstream << "[" << std::setw(2) << std::setfill('0') << ts->tm_hour
+				<< ":" << std::setw(2) << std::setfill('0') << ts->tm_min
+				<< ":" << std::setw(2) << std::setfill('0') << ts->tm_sec 
+				<< "] ";
+
+		tstring = tstream.str();
+
+		if(mFileOut)
+		{
+			mLogStream << tstring << buf;// << std::endl;
+			mLogStream.flush();
+		}
+
+		if(mConsoleOut)
+		{
+			std::cout << tstring << buf;// << std::endl;
+			std::cout.flush();
+		}
+	}
+}
+
 
 //======================================================================================================================
 

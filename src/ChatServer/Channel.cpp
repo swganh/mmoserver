@@ -87,10 +87,10 @@ void Channel::removeUser(Player* player)
 	if(mapiter != mUserMap.end())
 	{
 		mUserMap.erase(mapiter);
-		gLogger->logMsgF("Channel::remove user : removing player from channel user map : %s",MSG_NORMAL, player->getName().getAnsi());
+		gLogger->logMsgF("Channel::remove user : removing player from channel user map : %s\n",MSG_NORMAL, player->getName().getAnsi());
 	}
 	else
-		gLogger->logMsgF("Channel::remove user : Can't find player on channel user map : %s",MSG_NORMAL,  player->getName().getAnsi());
+		gLogger->logMsgF("Channel::remove user : Can't find player on channel user map : %s\n",MSG_NORMAL,  player->getName().getAnsi());
 }
 
 //======================================================================================================================

@@ -35,7 +35,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 
 	if (!player)
 	{
-		gLogger->logMsgF("ObjectController::handleDataTransform Object id NOT A PLAYER, id = %llu", MSG_HIGH, mObject->getId());
+		gLogger->logMsgF("ObjectController::handleDataTransform Object id NOT A PLAYER, id = %llu\n", MSG_HIGH, mObject->getId());
 		return;
 	}
 
@@ -110,7 +110,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 		}
 		else
 		{
-			gLogger->logMsgF("Error removing %llu from cell(%lld)",MSG_HIGH,player->getId(),player->getParentId());
+			gLogger->logMsgF("Error removing %llu from cell(%lld)\n",MSG_HIGH,player->getId(),player->getParentId());
 		}
 
 		// we are outside again
@@ -129,8 +129,8 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 		else
 		{
 			// we should never get here !
-			gLogger->logMsg("ObjController::handleDataTransform: could not find zone region in map");
-			gLogger->logMsg("ObjController:: probably a bot : %i64u",player->getId());
+			gLogger->logMsg("ObjController::handleDataTransform: could not find zone region in map\n");
+			gLogger->logMsg("ObjController:: probably a bot : %i64u\n",player->getId());
 
 			// hammertime !
 			//muglies botter sometimes sends us weird positions
@@ -167,7 +167,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 			{
 				updateAll = true;
 
-				gLogger->logMsg("ObjController::DataTransform: Changing subzone");
+				gLogger->logMsg("ObjController::DataTransform: Changing subzone\n");
 				// remove from old
 				if(QTRegion* oldRegion = gWorldManager->getQTRegion(player->getSubZoneId()))
 				{
@@ -202,9 +202,9 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 		else
 		{
 			// we should never get here !
-			gLogger->logMsg("ObjController::DataTransform: could not find zone region in map");
+			gLogger->logMsg("ObjController::DataTransform: could not find zone region in map\n");
 
-			gLogger->logMsg("ObjController:: probably a bot : %I64u",player->getId());
+			gLogger->logMsg("ObjController:: probably a bot : %I64u\n",player->getId());
 
 			// hammertime !
 			// muglies botter sometimes sends us weird positions  with X or Y far out of possible regions
@@ -365,7 +365,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 				}
 				else
 				{
-					gLogger->logMsgF("Error removing %lld from cell(%lld)",MSG_NORMAL,player->getId(),oldParentId);
+					gLogger->logMsgF("Error removing %lld from cell(%lld)\n",MSG_NORMAL,player->getId(),oldParentId);
 				}
 			}
 			else
@@ -416,7 +416,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 			}
 			else
 			{
-				gLogger->logMsgF("Error adding %lld to cell(%lld)",MSG_NORMAL,player->getId(),parentId);
+				gLogger->logMsgF("Error adding %lld to cell(%lld)\n",MSG_NORMAL,player->getId(),parentId);
 			}
 		}
 
@@ -628,7 +628,7 @@ void ObjectController::_findInRangeObjectsInside(bool updateAll)
 	// make sure we got a cell
 	if (!playerCell)
 	{
-		gLogger->logMsg("ERROR: No playerCell.");		
+		gLogger->logMsg("ERROR: No playerCell.\n");		
 		return;
 	}
 
@@ -637,7 +637,7 @@ void ObjectController::_findInRangeObjectsInside(bool updateAll)
 	// make sure we got a building
 	if (!building)
 	{
-		gLogger->logMsg("ERROR: No building.");		
+		gLogger->logMsg("ERROR: No building.\n");		
 		return;
 	}	
 	
@@ -700,7 +700,7 @@ bool ObjectController::_updateInRangeObjectsInside()
 	// make sure we got a cell
 	if (!playerCell)
 	{
-		gLogger->logMsgF("Error getting cell %lld for %lld type %u",MSG_NORMAL,player->getParentId(),player->getId(),player->getType());
+		gLogger->logMsgF("Error getting cell %lld for %lld type %u\n",MSG_NORMAL,player->getParentId(),player->getId(),player->getType());
 		return true;	// We are done, nothing we can do...
 	}
 
@@ -739,7 +739,7 @@ bool ObjectController::_updateInRangeObjectsInside()
 				}
 				else
 				{
-					gLogger->logMsgF("Error getting cell %lld for %lld type %u",MSG_NORMAL,object->getParentId(),object->getId(),object->getType());
+					gLogger->logMsgF("Error getting cell %lld for %lld type %u\n",MSG_NORMAL,object->getParentId(),object->getId(),object->getType());
 				}
 			}
 			if (validObject)

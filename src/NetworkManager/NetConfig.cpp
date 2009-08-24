@@ -29,8 +29,8 @@ NetConfig::NetConfig()
 	 mUnReliableSizeServerServer	= gConfig->read<int>("UnReliablePacketSizeServerServer",1000);
 	 //gLogger->logMsgF("NetConfig::UNReliable server server size :  %u ",MSG_NORMAL,mUnReliableSizeServerServer);
 
-	 mReliableSizeServerClient		= gConfig->read<int>("ReliablePacketSizeServerClient",495);
-	 mUnReliableSizeServerClient	= gConfig->read<int>("UnReliablePacketSizeServerClient",495);
+	 mReliableSizeServerClient		= gConfig->read<int>("ReliablePacketSizeServerClient",496);
+	 mUnReliableSizeServerClient	= gConfig->read<int>("UnReliablePacketSizeServerClient",496);
 
 	 mServerPacketWindow			= gConfig->read<int>("ServerPacketWindowSize",800);
 	 mClientPacketWindow			= gConfig->read<int>("ClientPacketWindowSize",80);

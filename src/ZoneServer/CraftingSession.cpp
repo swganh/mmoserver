@@ -293,7 +293,8 @@ void CraftingSession::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 
 		default: 
 		{
-			gLogger->logMsg("CraftSession: unhandled DatabaseQuery");
+			//gLogger->logMsg("CraftSession: unhandled DatabaseQuery");
+			gLogger->logErrorF("Crafting","CraftSession: unhandled DatabaseQuery",MSG_NORMAL);
 		}
 		break;
 	}
@@ -369,15 +370,15 @@ bool CraftingSession::selectDraftSchematic(uint32 schematicIndex)
 
 	if(!mDraftSchematic)
 	{
-		gLogger->logMsgF("CraftingSession::selectDraftSchematic: not found %u",MSG_NORMAL,schemCrc);
+		//gLogger->logMsgF("CraftingSession::selectDraftSchematic: not found %u",MSG_NORMAL,schemCrc);
+		gLogger->logErrorF("Crafting","CraftingSession::selectDraftSchematic: not found crc:%u",MSG_NORMAL,schemCrc);
 		return(false);
 	}
-
-	//gLogger->logMsgF("%u",MSG_NORMAL,schemCrc);
 
 	// temporary check until all items are craftable
 	if(!mDraftSchematic->isCraftEnabled())
 	{
+		gLogger->logErrorF("Crafting","CraftingSession::selectDraftSchematic: schematic not craftable crc:%u",MSG_NORMAL,schemCrc);
 		gMessageLib->sendSystemMessage(mOwner,L"This item is currently not craftable.");
 		return(true);
 	}
@@ -1064,28 +1065,34 @@ uint8 CraftingSession::_assembleRoll()
 
 	
 	float rating	= 50.0f + (ma - 500.0f) / 40.0f +  mOwnerAssSkillMod - 5.0f + (mToolEffectivity/10);
-	gLogger->logMsgF("CraftingSession:: relevant rating %f",MSG_NORMAL,rating);
+	//gLogger->logMsgF("CraftingSession:: relevant rating %f",MSG_NORMAL,rating);
+	gLogger->logErrorF("Crafting","CraftingSession::_assembleRoll() relevant rating %f",MSG_NORMAL,rating);
+	
 	rating	+= (mToolEffectivity/10);
-	gLogger->logMsgF("CraftingSession:: relevant rating tool effectivity modified%f",MSG_NORMAL,rating);
+	
+	gLogger->logErrorF("Crafting","CraftingSession::_assembleRoll() relevant rating modified with tool %f",MSG_NORMAL,rating);
 
 	float risk		= 100.0f - rating;
-	gLogger->logMsgF("CraftingSession:: relevant Skill Mod %u",MSG_NORMAL,mOwnerAssSkillMod);
-	gLogger->logMsgF("CraftingSession:: relevant rating %f",MSG_NORMAL,rating);
-	gLogger->logMsgF("CraftingSession:: relevant risk %f",MSG_NORMAL,risk);
+	
+	gLogger->logErrorF("Crafting","CraftingSession::_assembleRoll() relevant Skill Mod %u",MSG_NORMAL,mOwnerAssSkillMod);
+	gLogger->logErrorF("Crafting","CraftingSession::_assembleRoll() relevant risk %f",MSG_NORMAL,risk);
+	
 
 	mManufacturingSchematic->setExpFailureChance(risk);
 
 	riskRoll		= (int32)(floor(((double)gRandom->getRand() / (RAND_MAX  + 1.0f) * (100.0f - 1.0f) + 1.0f)));
 
-	gLogger->logMsgF("CraftingSession:: relevant riskroll %u",MSG_NORMAL,riskRoll);
+	gLogger->logErrorF("Crafting","CraftingSession::_assembleRoll() relevant riskroll %u",MSG_NORMAL,riskRoll);
 
 
 	// ensure that every critical makes the nect critical less likely
 	// we dont want to have more than 3 criticals in a row
 
-	gLogger->logMsgF("CraftingSession:: relevant criticalCount %u",MSG_NORMAL,mCriticalCount);
+	gLogger->logErrorF("Crafting","CraftingSession::_assembleRoll() relevant criticalCount %u",MSG_NORMAL,mCriticalCount);
+	
 	riskRoll += (mCriticalCount*5);
-	gLogger->logMsgF("CraftingSession:: modified riskroll %u",MSG_NORMAL,riskRoll);
+	gLogger->logErrorF("Crafting","CraftingSession::_assembleRoll() modified riskroll %u",MSG_NORMAL,riskRoll);
+	
 	if(mCriticalCount = 3)
 		riskRoll = risk+1;
 
@@ -1136,8 +1143,8 @@ uint8 CraftingSession::_assembleRoll()
 
 void CraftingSession::assemble(uint32 counter)
 {
-	CraftingAttributes*				craftAttributes		= mManufacturingSchematic->getCraftingAttributes();
-	CraftingAttributes::iterator	craftAttsIt			= craftAttributes->begin();
+	ExperimentationProperties*			expPropertiesList	= mManufacturingSchematic->getExperimentationProperties();
+	ExperimentationProperties::iterator	expIt				= expPropertiesList->begin();
 
 	int8 assRoll = _assembleRoll();
 
@@ -1153,11 +1160,11 @@ void CraftingSession::assemble(uint32 counter)
 		//the client forces us to stay in stage 2!!!
 		mStage = 2;
 
-		while(craftAttsIt != craftAttributes->end())
+		while(expIt!= expPropertiesList->end())
 		{
-			(*craftAttsIt )->mBlueBarSize = ((*craftAttsIt )->mBlueBarSize * 0.9f);
+			(*expIt)->mBlueBarSize = ((*expIt)->mBlueBarSize * 0.9f);
 			
-			++craftAttsIt;
+			++expIt;
 		}
 
 		//now empty the slots
@@ -1195,30 +1202,30 @@ void CraftingSession::assemble(uint32 counter)
 	
 	float	wrv;
 
-	craftAttsIt	= craftAttributes->begin();
+	expIt	= expPropertiesList->begin();
 
-	while(craftAttsIt != craftAttributes->end())
+	while(expIt != expPropertiesList->end())
 	{
-		CraftingAttribute*	craftAtt = (*craftAttsIt);
+		ExperimentationProperty*	expProperty = (*expIt);
 
-		wrv = _calcWeightedResourceValue(craftAtt->mWeights);
+		wrv = _calcWeightedResourceValue(expProperty->mWeights);
 
 		// max reachable percentage
-		craftAtt->mMaxExpValue = wrv * 0.001f;
+		expProperty->mMaxExpValue = wrv * 0.001f;
 		mManufacturingSchematic->mMaxExpValueChange = true;
 
 		// initial assembly percentage
-		craftAtt->mExpAttributeValue = ((0.00000015f * (wrv*wrv)) + (0.00015f * wrv)); 
+		expProperty->mExpAttributeValue = ((0.00000015f * (wrv*wrv)) + (0.00015f * wrv)); 
 
 		// update the items attributes
-		CraftAttributes::iterator caIt = craftAtt->mAttributes->begin();
+		CraftAttributes::iterator caIt = expProperty->mAttributes->begin();
 
 		//one exp attribute can have several item attributes!!!
-		while(caIt != craftAtt->mAttributes->end())
+		while(caIt != expProperty->mAttributes->end())
 		{
 			CraftAttribute* att = (*caIt);
 
-			float attValue	= att->getMin() + ((att->getMax() - att->getMin()) * craftAtt->mExpAttributeValue);
+			float attValue	= att->getMin() + ((att->getMax() - att->getMin()) * expProperty->mExpAttributeValue);
 			// ceil and cut off, when it needs to be an integer
 			if(att->getType())
 			{
@@ -1238,7 +1245,7 @@ void CraftingSession::assemble(uint32 counter)
 			++caIt;
 		}
 
-		++craftAttsIt;
+		++expIt;
 	}
 
 	// send assembly attributes and results
@@ -1464,14 +1471,14 @@ uint8 CraftingSession::_experimentRoll(uint32 expPoints)
 	//ok we have some sort of success
 	assRoll = (int32) floor( (double)gRandom->getRand() / (RAND_MAX  + 1.0f) * (100.0f - 1.0f) + 1.0f) ;
 
-	gLogger->logMsgF("CraftingSession:: assembly Roll preMod %u",MSG_NORMAL,assRoll);
+	gLogger->logErrorF("crafting","CraftingSession:: assembly Roll preMod %u",MSG_NORMAL,assRoll);
 
 	int32 modRoll = (int32)((assRoll - (rating * 0.4f)) / 15.0f) - (mToolEffectivity / 50.0f);
 
 	++modRoll;
 
 	//int32 modRoll = (gRandom->getRand() - (rating*0.2))/15;
-	gLogger->logMsgF("CraftingSession:: assembly Roll postMod %u",MSG_NORMAL,modRoll);
+	gLogger->logErrorF("crafting","CraftingSession:: assembly Roll postMod %u",MSG_NORMAL,modRoll);
 
 	//0 is amazing success
 	//1 is great success
@@ -1498,7 +1505,8 @@ uint8 CraftingSession::_experimentRoll(uint32 expPoints)
 
 void CraftingSession::experiment(uint8 counter,std::vector<std::pair<uint32,uint32> > properties)
 {
-	CraftingAttributes* craftAtts = mManufacturingSchematic->getCraftingAttributes();
+	ExperimentationProperties*		expPropList = mManufacturingSchematic->getExperimentationProperties();
+	
 	uint32				expPoints = 0;
 	std::vector<std::pair<uint32,uint32> >::iterator it = properties.begin();
 	
@@ -1531,32 +1539,36 @@ void CraftingSession::experiment(uint8 counter,std::vector<std::pair<uint32,uint
 
 	while(it != properties.end())
 	{
-		CraftingAttribute* attribute = craftAtts->at((*it).second);
+		ExperimentationProperty* expProperty = expPropList->at((*it).second);
 
 		if((roll < 1) || (roll >4))
 		{
 			float malus = 1.0f + percentage;
-			attribute->mBlueBarSize = (attribute->mBlueBarSize * malus);
+			expProperty->mBlueBarSize = (expProperty->mBlueBarSize * malus);
 		}
 
 		float add = percentage;// attribute->mExpAttributeValue * percentage;
 
-		attribute->mExpAttributeValue += add * (*it).first;
+		expProperty->mExpAttributeValue += add * (*it).first;
 
 		expPoints += (*it).first;
 
 		// update item attributes
-		CraftAttributes::iterator caIt = attribute->mAttributes->begin();
+		CraftAttributes::iterator caIt = expProperty->mAttributes->begin();
 
 		//one exp attribute can have several item attributes!!!
-		while(caIt != attribute->mAttributes->end())
+		while(caIt != expProperty->mAttributes->end())
 		{
 			CraftAttribute* att = (*caIt);
 			
-			gLogger->logMsgF("CraftingSession:: experiment attribute ID %u",MSG_NORMAL,att->getAttributeId());
+			//gLogger->logMsgF("CraftingSession:: experiment attribute ID %u",MSG_NORMAL,att->getAttributeId());
 
-			float attValue	= att->getMin() + ((att->getMax() - att->getMin()) * attribute->mExpAttributeValue);
-			gLogger->logMsgF("CraftingSession:: experiment attribute value %f",MSG_NORMAL,attValue);
+			float attValue	= att->getMin() + ((att->getMax() - att->getMin()) * expProperty->mExpAttributeValue);
+			
+			if(attValue > att->getMax())
+				attValue = att->getMax();
+
+			//gLogger->logMsgF("CraftingSession:: experiment attribute value %f",MSG_NORMAL,attValue);
 			// ceil and cut off, when it needs to be an integer
 			if(att->getType())
 			{
@@ -1732,7 +1744,12 @@ void CraftingSession::createManufactureSchematic(uint32 counter)
 	mManufacturingSchematic->setParentId(datapad->getId());
 	mManufacturingSchematic->mDataPadId = datapad->getId();
 
-	datapad->addManufacturingSchematic(mManufacturingSchematic);
+	if(!datapad->addManufacturingSchematic(mManufacturingSchematic))
+	{
+		//TODO
+		//delete the man schem from the objectlist and the db
+		return;
+	}
 
 	mManufacturingSchematic->setCustomName(mItem->getCustomName().getAnsi());
 

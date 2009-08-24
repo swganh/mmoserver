@@ -82,7 +82,7 @@ bool MessageLib::sendBaselinesPLAY_3(PlayerObject* playerObject,PlayerObject* ta
 	gMessageFactory->addUint32(0x000018d8); // Total Playtime in seconds
 	gMessageFactory->addUint32(0);
 
-	(targetObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 5, false);
+	(targetObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 5);
 
 	return(true);
 }
@@ -110,7 +110,7 @@ bool MessageLib::sendBaselinesPLAY_6(PlayerObject* playerObject,PlayerObject* ta
 	gMessageFactory->addUint32(playerObject->getSubZoneId()); 
 	gMessageFactory->addUint8(playerObject->getCsrTag());
 
-	(targetObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 5, false);
+	(targetObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 5);
 
 	return(true);
 }
@@ -234,7 +234,7 @@ bool MessageLib::sendBaselinesPLAY_8(PlayerObject* playerObject,PlayerObject* ta
 	gMessageFactory->addUint32(0);
 	gMessageFactory->addUint16(0);
 
-	(targetObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 5, false);
+	(targetObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 5);
 
 	return(true);
 }
@@ -360,7 +360,7 @@ bool MessageLib::sendBaselinesPLAY_9(PlayerObject* playerObject,PlayerObject* ta
 	// jedi state
 	gMessageFactory->addUint32(playerObject->getJediState());
 
-	(targetObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 5, false);
+	(targetObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 5);
 
 	return(true);
 }
@@ -387,7 +387,7 @@ void MessageLib::sendFoodUpdate(PlayerObject* playerObject)
 	gMessageFactory->addUint16(0x0a);
 	gMessageFactory->addUint32(stomach->getFood());
 	
-	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 5, false);
+	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 5);
 }
 
 //======================================================================================================================
@@ -412,7 +412,7 @@ void MessageLib::sendDrinkUpdate(PlayerObject* playerObject)
 	gMessageFactory->addUint16(0x0c);
 	gMessageFactory->addUint32(stomach->getDrink());
 	
-	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 5, false);
+	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 5);
 }
 
 //======================================================================================================================
@@ -525,7 +525,7 @@ bool MessageLib::sendWaypointsUpdate(PlayerObject* playerObject)
 		++waypointIt;
 	}
 
-	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5,false);
+	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5);
 
 	return(true);
 }
@@ -584,7 +584,7 @@ bool MessageLib::sendUpdateWaypoint(WaypointObject* waypoint,ObjectUpdate update
 	gMessageFactory->addUint8(waypoint->getWPType());
 	gMessageFactory->addUint8((uint8)waypoint->getActive());
 
-	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5,false);
+	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5);
 
 	return(true);
 }
@@ -638,7 +638,7 @@ bool MessageLib::sendSkillCmdDeltasPLAY_9(PlayerObject* playerObject)
 		++scIt;
 	}
 
-	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5,false);
+	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5);
 
 	return(true);
 }
@@ -655,17 +655,11 @@ bool MessageLib::sendSchematicDeltasPLAY_9(PlayerObject* playerObject)
 		return(false);
 
 	SchematicsIdList*			sList		= playerObject->getSchematicsIdList();
-	uint32						sByteCount	= sList->size() * 8;
 	SchematicsIdList::iterator	sIt			= sList->begin();
 	Datapad*					datapad		= dynamic_cast<Datapad*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
 
 	gMessageFactory->StartMessage();               
-	gMessageFactory->addUint32(opDeltasMessage);  
-	gMessageFactory->addUint64(playerObject->getPlayerObjId());          
-	gMessageFactory->addUint32(opPLAY);           
-	gMessageFactory->addUint8(9);
-
-	gMessageFactory->addUint32(15 + sByteCount);
+	
 	gMessageFactory->addUint16(1); 
 
 	gMessageFactory->addUint16(4);
@@ -679,32 +673,28 @@ bool MessageLib::sendSchematicDeltasPLAY_9(PlayerObject* playerObject)
 	
 	gMessageFactory->addUint32(datapad->mSchematicUpdateCounter);
 	
-	gMessageFactory->addUint8(3);
+	gMessageFactory->addUint8(3);	 //this looks a little strange to me
+	// basically I think we are resetting the list (3 = reset all 0 = new list size)
+	// and then adding all the entries from scratch
+	// however it works nicely :)
 
-	gMessageFactory->addUint16(sList->size());
+	gMessageFactory->addUint16(0);
+	uint16 count = 1;
 
 	sIt = sList->begin();
 
 	while(sIt != sList->end())
 	{
+		gMessageFactory->addUint8(1);
+		gMessageFactory->addUint16(count);
 		gMessageFactory->addUint64((*sIt));
+		count += 1;
 		++sIt;
 	}
 
-	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5,false);
+	Message* data = gMessageFactory->EndMessage(); 
 
-	return(true);
-}
 
-bool MessageLib::sendSchematicDeltasAddPLAY_9(PlayerObject* playerObject)
-{
-	if(!(playerObject->isConnected()))
-		return(false);
-
-	SchematicsIdList*			sList		= playerObject->getSchematicsAddList();
-	uint32						sByteCount	= sList->size() * 9;
-	SchematicsIdList::iterator	sIt			= sList->begin();
-	Datapad*					datapad		= dynamic_cast<Datapad*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
 
 	gMessageFactory->StartMessage();               
 	gMessageFactory->addUint32(opDeltasMessage);  
@@ -712,37 +702,17 @@ bool MessageLib::sendSchematicDeltasAddPLAY_9(PlayerObject* playerObject)
 	gMessageFactory->addUint32(opPLAY);           
 	gMessageFactory->addUint8(9);
 
-	gMessageFactory->addUint32(12 + sByteCount);
-	gMessageFactory->addUint16(1); 
+	gMessageFactory->addUint32(data->getSize());
+	gMessageFactory->addData(data->getData(),data->getSize());
 
-	gMessageFactory->addUint16(4);
+	data->setPendingDelete(true);
 
-	gMessageFactory->addUint32(sList->size()+1);
-
-	gLogger->logMsgF("Yalp9 Baseline Schematicslist::Listsize %u",MSG_HIGH,sList->size());
-
-	datapad->mSchematicUpdateCounter += sList->size()+1;
-	gLogger->logMsgF("Yalp9 Baseline Schematicslist::UpdateCounter %u",MSG_HIGH,datapad->mSchematicUpdateCounter);
-	
-	gMessageFactory->addUint32(datapad->mSchematicUpdateCounter);
-
-	sIt = sList->begin();
-	uint16 index = 1;
-
-	while(sIt != sList->end())
-	{
-		gMessageFactory->addUint8(2);
-		printf("index : %u",index);
-		//gMessageFactory->addUint16(index);
-		gMessageFactory->addUint64((*sIt));
-		++sIt;
-		index++;
-	}
-
-	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5,false);
+	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5);
 
 	return(true);
 }
+
+
 
 //======================================================================================================================
 //
@@ -777,7 +747,7 @@ bool MessageLib::sendXpUpdate(uint32 xpType,PlayerObject* playerObject)
 	gMessageFactory->addString(xpTypeName);
 	gMessageFactory->addInt32(playerObject->getXpAmount(xpType));
 
-	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5,false);
+	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5);
 
 	return(true);
 }
@@ -828,7 +798,7 @@ bool MessageLib::sendUpdateXpTypes(SkillXpTypesList newXpTypes,uint8 remove,Play
 		++it;
 	}
 
-	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5,false);
+	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5);
 
 	return(true);
 }
@@ -883,7 +853,7 @@ bool MessageLib::sendFriendListPlay9(PlayerObject* playerObject)
 		++nameIt;
 	}
 
-	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5,false);
+	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5);
 
 	return(true);
 }
@@ -939,7 +909,7 @@ bool MessageLib::sendIgnoreListPlay9(PlayerObject* playerObject)
 		++nameIt;
 	}
 
-	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5,false);
+	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5);
 
 	return(true);
 }
@@ -971,7 +941,7 @@ bool MessageLib::sendMatchPlay3(PlayerObject* playerObject)
 	gMessageFactory->addUint32(playerObject->getPlayerMatch(2)); 
 	gMessageFactory->addUint32(playerObject->getPlayerMatch(3)); 
 
-	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5,false);
+	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5);
 
 	return(true);
 }
@@ -998,7 +968,7 @@ bool MessageLib::sendUpdateCraftingStage(PlayerObject* playerObject)
 	gMessageFactory->addUint16(2);
 	gMessageFactory->addUint32(playerObject->getCraftingStage());
 
-	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5,false);
+	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5);
 
 	return(true);
 }
@@ -1025,7 +995,7 @@ bool MessageLib::sendUpdateExperimentationFlag(PlayerObject* playerObject)
 	gMessageFactory->addUint16(1);
 	gMessageFactory->addUint32(playerObject->getExperimentationFlag());
 
-	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5,false);
+	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5);
 
 	return(true);
 }
@@ -1052,7 +1022,7 @@ bool MessageLib::sendUpdateExperimentationPoints(PlayerObject* playerObject)
 	gMessageFactory->addUint16(5);
 	gMessageFactory->addUint32(playerObject->getExperimentationPoints());
 
-	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5,false);
+	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5);
 
 	return(true);
 }
@@ -1079,7 +1049,7 @@ bool MessageLib::sendUpdateNearestCraftingStation(PlayerObject* playerObject)
 	gMessageFactory->addUint16(3);
 	gMessageFactory->addUint64(playerObject->getNearestCraftingStation());
 
-	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5,false);
+	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5);
 
 	return(true);
 }
@@ -1129,7 +1099,7 @@ bool MessageLib::sendUpdateCurrentForce(PlayerObject* playerObject)
 	gMessageFactory->addUint16(2);
 	gMessageFactory->addUint32(playerObject->getHam()->getCurrentForce());
 
-	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5,false);
+	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5);
 
 	return(true);
 }
@@ -1156,7 +1126,7 @@ bool MessageLib::sendUpdateMaxForce(PlayerObject* playerObject)
 	gMessageFactory->addUint16(3);
 	gMessageFactory->addUint32(playerObject->getHam()->getMaxForce());
 
-	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5,false);
+	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5);
 
 	return(true);
 }

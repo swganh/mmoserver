@@ -46,6 +46,7 @@ LoginServer::~LoginServer(void)
 void LoginServer::Startup(void)
 {
 	// log msg to default log
+  gLogger->printSmallLogo();
   gLogger->logMsg("LoginServer Startup");
   gLogger->logMsg(GetBuildString());
 
@@ -67,6 +68,15 @@ void LoginServer::Startup(void)
 										 (char*)(gConfig->read<std::string>("DBPass")).c_str(),
 										 (char*)(gConfig->read<std::string>("DBName")).c_str());
 
+	gLogger->connecttoDB(mDatabaseManager);
+	gLogger->createErrorLog("LoginServer",(LogLevel)(gConfig->read<int>("LogLevel",2)),
+										(bool)(gConfig->read<bool>("LogToFile", true)),
+										(bool)(gConfig->read<bool>("ConsoleOut",true)),
+										(bool)(gConfig->read<bool>("LogAppend",true)));
+
+
+  mDatabase->ExecuteSqlAsync(0,0,"UPDATE config_process_list SET serverstartID = serverstartID+1 WHERE name like 'login'");
+
   // In case of a crash, we need to cleanup the DB a little.
 	mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE account SET authenticated=0 WHERE authenticated=1;"));
 
@@ -79,15 +89,18 @@ void LoginServer::Startup(void)
 
 	// Let our network Service know about our callbacks
 	mService->AddNetworkCallback(mLoginManager);
-
-	gLogger->logMsg("LoginServer Startup complete");
+	gLogger->logMsg("LoginServer Startup complete\n");
+	gLogger->printLogo();
+	std::string BuildString(GetBuildString());	
+	gLogger->logMsgF("LoginServer %s",MSG_NORMAL,BuildString.substr(11,BuildString.size()).c_str());
+	gLogger->logMsg("Welcome to your SWGANH Experience!\n");
 }
 
 
 //======================================================================================================================
 void LoginServer::Shutdown(void)
 {
-	gLogger->logMsg("LoginServer shutting down...");
+	gLogger->logMsg("LoginServer shutting down...\n");
 
 	mLoginManager->Shutdown();
 	delete(mLoginManager);
@@ -101,7 +114,7 @@ void LoginServer::Shutdown(void)
 	delete mNetworkManager;
 	delete mDatabaseManager;
 
-	gLogger->logMsg("LoginServer Shutdown complete");
+	gLogger->logMsg("LoginServer Shutdown complete\n");
 }
 
 

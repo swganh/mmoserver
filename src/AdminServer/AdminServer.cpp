@@ -33,6 +33,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 //======================================================================================================================
 AdminServer* gAdminServer;
 
+
 //======================================================================================================================
 AdminServer::AdminServer(void) :
 mNetworkManager(0),
@@ -54,13 +55,15 @@ AdminServer::~AdminServer(void)
 //======================================================================================================================
 void AdminServer::Startup(void)
 {
-  gLogger->logMsg("AdminServer Startup");
-  gLogger->logMsg(GetBuildString());
+  gLogger->printSmallLogo();
+  gLogger->logMsgF("AdminServer Startup : %s",MSG_HIGH,GetBuildString());
+  //gLogger->logMsg(GetBuildString());
 
   // Create and startup our core services.
   mDatabaseManager = new DatabaseManager();
   mDatabaseManager->Startup();
 
+  
   mNetworkManager = new NetworkManager();
   mNetworkManager->Startup();
 
@@ -73,6 +76,14 @@ void AdminServer::Startup(void)
 									   (char*)(gConfig->read<std::string>("DBPass")).c_str(),
 									   (char*)(gConfig->read<std::string>("DBName")).c_str());
 
+  gLogger->connecttoDB(mDatabaseManager);
+  gLogger->createErrorLog("AdminServer",(LogLevel)(gConfig->read<int>("LogLevel",2)),
+										(bool)(gConfig->read<bool>("LogToFile", true)),
+										(bool)(gConfig->read<bool>("ConsoleOut",true)),
+										(bool)(gConfig->read<bool>("LogAppend",true)));
+
+
+  mDatabase->ExecuteSqlAsync(0,0,"UPDATE config_process_list SET serverstartID = serverstartID+1 WHERE name like 'admin'");
   mRouterService = mNetworkManager->CreateService((char*)gConfig->read<std::string>("BindAddress").c_str(), gConfig->read<uint16>("BindPort"),gConfig->read<uint32>("ServiceMessageHeap")*1024, true);
 
   // We need to register our IP and port in the DB so the connection server can connect to us.
@@ -96,13 +107,17 @@ void AdminServer::Startup(void)
   _updateDBServerList(2);
 
   gLogger->logMsg("AdminServer::Startup Complete");
+  gLogger->printLogo();
+  std::string BuildString(GetBuildString());	
+  gLogger->logMsgF("AdminServer %s",MSG_NORMAL,BuildString.substr(11,BuildString.size()).c_str());
+  gLogger->logMsg("Welcome to your SWGANH Experience!");
 }
 
 
 //======================================================================================================================
 void AdminServer::Shutdown(void)
 {
-  gLogger->logMsg("AdminServer shutting down...");
+  gLogger->logMsg("AdminServer shutting down...\n");
 
    // We're shutting down, so update the DB again.
   _updateDBServerList(0);
@@ -124,7 +139,7 @@ void AdminServer::Shutdown(void)
   delete mNetworkManager;
   delete mDatabaseManager;
 
-  gLogger->logMsg("AdminServer Shutdown Complete");
+  gLogger->logMsg("AdminServer Shutdown Complete\n");
 }
 
 
@@ -199,7 +214,6 @@ void handleExit(void)
 int main(int argc, char* argv)
 {
 	bool exit = false;
-
 	LogManager::Init(G_LEVEL_NORMAL, "AdminServer.log", LEVEL_NORMAL, true, true);
 
 	// init out configmanager singleton (access configvariables with gConfig Macro,like: gConfig->readInto(test,"test");)

@@ -155,7 +155,7 @@ void NPCObject::updatePosition(uint64 parentId, Anh_Math::Vector3 newPosition)
 			}
 			else
 			{
-				gLogger->logMsgF("Error removing %llu from cell(%lld)",MSG_HIGH,this->getId(),this->getParentId());
+				gLogger->logMsgF("Error removing %llu from cell(%lld)\n",MSG_HIGH,this->getId(),this->getParentId());
 			}
 
 			// we are outside again
@@ -178,7 +178,7 @@ void NPCObject::updatePosition(uint64 parentId, Anh_Math::Vector3 newPosition)
 			else
 			{
 				// we should never get here !
-				gLogger->logMsg("NPCObject::updatePosition: could not find zone region in map");
+				gLogger->logMsg("NPCObject::updatePosition: could not find zone region in map\n");
 			}
 		}
 		else
@@ -236,7 +236,7 @@ void NPCObject::updatePosition(uint64 parentId, Anh_Math::Vector3 newPosition)
 				}
 				else
 				{
-					gLogger->logMsgF("Error removing %lld from cell(%lld)",MSG_NORMAL,this->getId(),oldParentId);
+					gLogger->logMsgF("Error removing %lld from cell(%lld)\n",MSG_NORMAL,this->getId(),oldParentId);
 				}
 			}
 			else
@@ -264,7 +264,7 @@ void NPCObject::updatePosition(uint64 parentId, Anh_Math::Vector3 newPosition)
 			}
 			else
 			{
-				gLogger->logMsgF("Error adding %lld to cell(%lld)",MSG_NORMAL,this->getId(),parentId);
+				gLogger->logMsgF("Error adding %lld to cell(%lld)\n",MSG_NORMAL,this->getId(),parentId);
 			}
 			// update the player
 			this->setParentId(parentId);

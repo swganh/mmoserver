@@ -125,7 +125,7 @@ ResourceContainer* ResourceContainerFactory::_createResourceContainer(DatabaseRe
 		resourceContainer->setModelString((resource->getType())->getContainerModel().getAnsi());
 	}
 	else
-		gLogger->logMsgF("ResourceContainerFactory::_createResourceContainer: Resource not found %lld",MSG_HIGH,resourceContainer->mResourceId);
+		gLogger->logMsgF("ResourceContainerFactory::_createResourceContainer: Resource not found %lld\n",MSG_HIGH,resourceContainer->mResourceId);
 
 	resourceContainer->mMaxCondition = 100;
 

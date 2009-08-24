@@ -199,7 +199,7 @@ void ScriptSupport::npcSpawnPersistent(NPCObject* npc, uint64 npcId, uint64 cell
 	}
 	else
 	{
-		gLogger->logMsgF("ScriptSupport::npcSpawnPersistent: Heightmap is missing, can NOT use dynamic spawned npc's.", MSG_NORMAL);
+		gLogger->logMsgF("ScriptSupport::npcSpawnPersistent: Heightmap is missing, can NOT use dynamic spawned npc's.\n", MSG_NORMAL);
 	}
 }
 
@@ -253,7 +253,7 @@ void ScriptSupport::npcSpawnGeneral(NPCObject* npc, uint64 npcId, uint64 npcPriv
 		}
 		else
 		{
-			gLogger->logMsgF("ScriptSupport::npcSpawn: couldn't find cell %llu",MSG_HIGH,npc->getParentId());
+			gLogger->logMsgF("ScriptSupport::npcSpawn: couldn't find cell %llu\n",MSG_HIGH,npc->getParentId());
 		}
 	}
 	else

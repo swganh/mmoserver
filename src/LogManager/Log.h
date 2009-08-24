@@ -16,6 +16,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include <fstream>
 #include <iostream>
 #include <string>
+#include "DatabaseManager/Database.h"
 
 #ifdef ANH_PLATFORM_WIN32
 
@@ -64,12 +65,16 @@ class Log
 {
 	public:
 
-		Log(const std::string& name, LogLevel level, GlobalLogLevel globalLevel, bool fileOut, bool consoleOut, bool append);
+		Log(const std::string& name, LogLevel level, GlobalLogLevel globalLevel, bool fileOut, bool consoleOut, bool append, Database* database);
 		~Log();
 
+		void	logMsg(const std::string& zone, const std::string& system, const std::string& msg, MsgPriority priority, va_list args);
 		void	logMsg(const std::string& msg, MsgPriority mp, bool fileOut, bool consoleOut, bool timestamp);
 		void	logMsg(const std::string& msg, MsgPriority mp, bool fileOut, bool consoleOut, bool timestamp, int Color);
 		void    logMsg(const std::string& msg, MsgPriority mp, va_list args);
+		void	logMsgNolf(const std::string& msg, MsgPriority mp, bool fileOut, bool consoleOut, bool timestamp, int Color, va_list args);
+		void	logMsgNolf(const std::string& msg, MsgPriority mp, bool fileOut, bool consoleOut, bool timestamp, int Color);
+		void    logMsgNolf(const std::string& msg, MsgPriority mp, va_list args);
 		void	hexDump(int8* data,uint32 len,MsgPriority mp);
 		void    hexDump(int8* data,uint32 len,const char* filename);
 
@@ -80,10 +85,14 @@ class Log
 
 		std::ofstream	mLogStream;
 		std::string		mName;
+		std::string		mZone;
 		bool			mFileOut;
+		bool			mDBOut;
 		bool			mConsoleOut;
 		LogLevel		mLogLevel;
 		GlobalLogLevel	mGlobalLogLevel;
+		ZThread::Mutex  mGlobalLogMutex;
+		Database*		mDatabase;
 };
 
 //======================================================================================================================

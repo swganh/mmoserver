@@ -55,7 +55,7 @@ void ObjectController::_handleResourceContainerTransfer(uint64 targetId,Message*
 
 		if(!elementCount)
 		{
-			gLogger->logMsg("ObjectController::_handleResourceContainerTransfer: Error in requestStr");
+			gLogger->logMsg("ObjectController::_handleResourceContainerTransfer: Error in requestStr\n");
 			return;
 		}
 
@@ -68,7 +68,7 @@ void ObjectController::_handleResourceContainerTransfer(uint64 targetId,Message*
 			uint32	maxAmount		= targetContainer->getMaxAmount();
 			uint32	newAmount;
 
-			gLogger->logMsg("transfer  resi");
+			gLogger->logMsg("transfer  resi\n");
 			// all fits
 			if((newAmount = targetAmount + selectedAmount) <= maxAmount)
 			{
@@ -114,7 +114,7 @@ void ObjectController::_handleResourceContainerSplit(uint64 targetId,Message* me
 	PlayerObject*		playerObject		= dynamic_cast<PlayerObject*>(mObject);
 	ResourceContainer*	selectedContainer	= dynamic_cast<ResourceContainer*>(gWorldManager->getObjectById(targetId));
 
-	gLogger->logMsgF("ObjectController::_handleResourceContainerSplit: Container : %I64u",MSG_NORMAL,targetId);
+	gLogger->logMsgF("ObjectController::_handleResourceContainerSplit: Container : %I64u\n",MSG_NORMAL,targetId);
 
 	if(selectedContainer)
 	{
@@ -128,7 +128,7 @@ void ObjectController::_handleResourceContainerSplit(uint64 targetId,Message* me
 
 		if(!elementCount)
 		{
-			gLogger->logMsg("ObjectController::_handleResourceContainerSplit: Error in requestStr");
+			gLogger->logMsg("ObjectController::_handleResourceContainerSplit: Error in requestStr\n");
 			return;
 		}
 

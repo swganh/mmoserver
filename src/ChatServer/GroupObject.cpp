@@ -41,7 +41,7 @@ GroupObject::GroupObject(Player* leader, uint64 groupId)
 
 	mMembers.push_back(leader);
 
-	gLogger->logMsgF("New group created by %s with id %lld.", MSG_NORMAL,leader->getName().getAnsi(),groupId);
+	gLogger->logMsgF("New group created by %s with id %lld.\n", MSG_NORMAL,leader->getName().getAnsi(),groupId);
 }
 
 
@@ -53,9 +53,9 @@ GroupObject::~GroupObject()
 	{
 		gChatManager->unregisterChannel(mChannel);
 		delete mChannel;
-		gLogger->logMsg("Group Channel destroyed.");
+		gLogger->logMsg("Group Channel destroyed.\n");
 	}
-	gLogger->logMsg("Group destroyed.");
+	gLogger->logMsg("Group destroyed.\n");
 }
 
 //======================================================================================================================
@@ -307,7 +307,7 @@ void GroupObject::createChannel()
 	tmpValueStr.setLength(swprintf(tmpValueStr.getUnicode16(),L"%lld",mId));
 	channel->setTitle(tmpValueStr);
 
-	gLogger->logMsgF("Group channel created: '%s' with id %u.", MSG_NORMAL, channel->getName().getAnsi(), channel->getId());
+	gLogger->logMsgF("Group channel created: '%s' with id %u.\n", MSG_NORMAL, channel->getName().getAnsi(), channel->getId());
 	channel->setOwner(gSystemAvatar);
 	mChannel = channel;
 	gChatManager->registerChannel(mChannel);
@@ -326,7 +326,7 @@ void GroupObject::broadcastMessage(Message* message, bool ignoreLeader)
 		gMessageFactory->StartMessage();
 		gMessageFactory->addData(message->getData(),message->getSize());
 		Message* messageCopy = gMessageFactory->EndMessage();
-		(*listIt)->getClient()->SendChannelA(messageCopy, (*listIt)->getClient()->getAccountId(), CR_Client, 5, false);
+		(*listIt)->getClient()->SendChannelA(messageCopy, (*listIt)->getClient()->getAccountId(), CR_Client, 5);
 		++listIt;
 	}
 	gMessageFactory->DestroyMessage(message);
@@ -374,7 +374,7 @@ void GroupObject::broadcastPlayerPositionNotification(Player* player)
 			gMessageFactory->StartMessage();
 			gMessageFactory->addData(newMessage->getData(),newMessage->getSize());
 			Message* messageCopy = gMessageFactory->EndMessage();
-			(*listIt)->getClient()->SendChannelA(messageCopy, (*listIt)->getClient()->getAccountId(), CR_Client, 5, false);		
+			(*listIt)->getClient()->SendChannelA(messageCopy, (*listIt)->getClient()->getAccountId(), CR_Client, 5);		
 		}
 		++listIt;
 	}
@@ -413,7 +413,7 @@ void GroupObject::broadcastPlayerZoneNotification(Player* player)
 			gMessageFactory->StartMessage();
 			gMessageFactory->addData(newMessage->getData(),newMessage->getSize());
 			Message* messageCopy = gMessageFactory->EndMessage();
-			(*listIt)->getClient()->SendChannelA(messageCopy, (*listIt)->getClient()->getAccountId(), CR_Client, 5, false);		
+			(*listIt)->getClient()->SendChannelA(messageCopy, (*listIt)->getClient()->getAccountId(), CR_Client, 5);		
 		}
 		++listIt;
 	}
@@ -441,7 +441,7 @@ void GroupObject::sendGroupLocationNotification(Player* player)
 			gMessageFactory->addFloat(0); 
 			gMessageFactory->addFloat(player->getPositionZ()); 
 			Message* message = gMessageFactory->EndMessage();
-			player->getClient()->SendChannelA(message, player->getClient()->getAccountId(), CR_Client, 5, false);
+			player->getClient()->SendChannelA(message, player->getClient()->getAccountId(), CR_Client, 5);
 		}
 		++listIt;
 	}
@@ -517,7 +517,7 @@ void GroupObject::sendBaseline(Player* player)
 
 	gMessageFactory->DestroyMessage(baselineBody);
 
-	player->getClient()->SendChannelA(newMessage, player->getClient()->getAccountId(), CR_Client, 5, false);	
+	player->getClient()->SendChannelA(newMessage, player->getClient()->getAccountId(), CR_Client, 5);	
 
 }
 

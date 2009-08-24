@@ -172,12 +172,12 @@ void QuadTreeNode::getObjectsInRange(Object* object,ObjectSet* resultSet,uint32 
 				}
 				else
 				{
-					gLogger->logMsgF("QuadTreeNode::getObjectsInRange INVALID DATA and ID", MSG_NORMAL);		
+					gLogger->logMsgF("QuadTreeNode::getObjectsInRange INVALID DATA and ID\n", MSG_NORMAL);		
 				}
 			}
 			else
 			{
-				gLogger->logMsgF("QuadTreeNode::getObjectsInRange INVALID ID", MSG_NORMAL);		
+				gLogger->logMsgF("QuadTreeNode::getObjectsInRange INVALID ID\n", MSG_NORMAL);		
 				assert(false);
 			}
 			++it;

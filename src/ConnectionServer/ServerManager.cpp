@@ -95,7 +95,7 @@ void ServerManager::SendMessageToServer(Message* message)
 	}
 	else
 	{
-		gLogger->logMsgF("ServerManager: failed routing message to server %u",MSG_NORMAL,message->getDestinationId());
+		gLogger->logMsgF("ServerManager: failed routing message to server %u\n",MSG_NORMAL,message->getDestinationId());
 		gMessageFactory->DestroyMessage(message);
 	}
 }
@@ -113,6 +113,7 @@ NetworkClient* ServerManager::handleSessionConnect(Session* session, Service* se
 	sprintf(sql,"SELECT id, address, port, status, active FROM config_process_list WHERE address='%s' AND port=%u;", session->getAddressString(), session->getPortHost());
 	DatabaseResult* result = mDatabase->ExecuteSynchSql(sql);
 	gLogger->logMsgF(sql,MSG_HIGH);
+	gLogger->logMsg("\n");
 	// If we found them
 	if(result->getRowCount() == 1)
 	{
@@ -141,7 +142,7 @@ NetworkClient* ServerManager::handleSessionConnect(Session* session, Service* se
 	}
 	else
 	{
-		gLogger->logMsg("*** Backend server connect error - Server not found in DB");
+		gLogger->logMsg("*** Backend server connect error - Server not found in DB\n");
 	}
 
 	// Delete our DB objects.
@@ -174,7 +175,7 @@ void ServerManager::handleSessionDisconnect(NetworkClient* client)
 		mDatabase->ExecuteSqlAsync(0,0,"UPDATE galaxy SET status=1,last_update=NOW() WHERE galaxy_id=%u;", mClusterId);
 	}
 
-	gLogger->logMsgF("Servermanager handle server down", MSG_HIGH);
+	gLogger->logMsgF("Servermanager handle server down\n", MSG_HIGH);
 	mClientManager->handleServerDown(connClient->getServerId());
 
 	delete(client);

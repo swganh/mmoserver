@@ -20,6 +20,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Utils/utils.h"
 #include "DraftSchematic.h"
 
+
+
 #include <assert.h>
 
 //=============================================================================
@@ -83,7 +85,7 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			if(requestId)
 				mWaypointFactory->requestObject(asyncContainer->ofCallback,requestId,0,0,asyncContainer->client);
 			else
-				gLogger->logMsg("ObjFactory::createWaypoint failed");
+				gLogger->logMsg("ObjFactory::createWaypoint failed\n");
 		}
 		break;
 
@@ -98,7 +100,7 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			if(requestId)
 				mTangibleFactory->requestObject(asyncContainer->ofCallback,requestId,TanGroup_Item,0,asyncContainer->client);
 			else
-				gLogger->logMsg("ObjFactory::createItem failed");
+				gLogger->logMsg("ObjFactory::createItem failed\n");
 		}
 		break;
 
@@ -113,7 +115,7 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			if(requestId)
 				mTangibleFactory->requestObject(asyncContainer->ofCallback,requestId,TanGroup_ResourceContainer,0,asyncContainer->client);
 			else
-				gLogger->logMsg("ObjFactory::createResourceContainer failed");
+				gLogger->logMsg("ObjFactory::createResourceContainer failed\n");
 		}
 		break;
 
@@ -196,9 +198,11 @@ void ObjectFactory::requestNewResourceContainer(ObjectFactoryCallback* ofCallbac
 //=============================================================================
 //
 // create a new waypoint
+// never call this directly - always go over the datapad!!!!!  we need to check the capacity
 //
 void ObjectFactory::requestNewWaypoint(ObjectFactoryCallback* ofCallback,string name,const Anh_Math::Vector3 coords,uint16 planetId,uint64 ownerId,uint8 wpType)
 {
+
 	OFAsyncContainer* asyncContainer = new(mDbAsyncPool.ordered_malloc()) OFAsyncContainer(ofCallback,OFQuery_WaypointCreate,NULL);
 	int8 sql[512],*sqlPointer;
 	int8 restStr[128];
@@ -420,7 +424,7 @@ void ObjectFactory::requestObject(ObjectType objType,uint16 subGroup,uint16 subT
 		break;
 
 		default:
-			gLogger->logMsg("ObjectFactory::requestObject Unknown Object type");
+			gLogger->logMsg("ObjectFactory::requestObject Unknown Object type\n");
 		break;
 	}
 }

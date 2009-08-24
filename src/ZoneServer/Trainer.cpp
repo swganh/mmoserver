@@ -365,7 +365,7 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
 			if (!skill)
 			{
 				// This is a system error.
-				gLogger->logMsg("Trainer::conversationEvent: ERROR: It's no skill option");
+				gLogger->logMsg("Trainer::conversationEvent: ERROR: It's no skill option\n");
 			}
 			// no skill requirements, Novice Skills have no requirements.
 			/* 
@@ -379,12 +379,12 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
 			else if(player->checkSkill(skill->mId))
 			{
 				// This is a system failure.
-				gLogger->logMsg("Trainer::conversationEvent: ERROR: Player already have the skill");
+				gLogger->logMsg("Trainer::conversationEvent: ERROR: Player already have the skill\n");
 			}
 			else if (player->getXpAmount(skill->mXpType) < skill->mXpCost)
 			{
 				// This is a system failure.
-				gLogger->logMsgF("Trainer::conversationEvent: ERROR: Player need %u XP, but only have %u",MSG_NORMAL,player->getXpAmount(skill->mXpType), skill->mXpCost);
+				gLogger->logMsgF("Trainer::conversationEvent: ERROR: Player need %u XP, but only have %u\n",MSG_NORMAL,player->getXpAmount(skill->mXpType), skill->mXpCost);
 			}
 			// see if we got the required skills
 			else
@@ -397,7 +397,7 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
 					if (!player->checkSkill(*reqSkillIt))
 					{
 						// This is a system failure.
-						gLogger->logMsg("Trainer::conversationEvent: ERROR: Player does not have all requirements");
+						gLogger->logMsg("Trainer::conversationEvent: ERROR: Player does not have all requirements\n");
 						failed = true;
 						break;
 					}
@@ -546,17 +546,17 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
 			if (!skill)
 			{
 				// This is a system error.
-				gLogger->logMsg("Trainer::conversationEvent: ERROR: It's no skill option");
+				gLogger->logMsg("Trainer::conversationEvent: ERROR: It's no skill option\n");
 			}
 			else if(player->checkSkill(skill->mId))
 			{
 				// This is a system failure.
-				gLogger->logMsg("Trainer::conversationEvent: ERROR: Player already have the skill");
+				gLogger->logMsg("Trainer::conversationEvent: ERROR: Player already have the skill\n");
 			}
 			else if (player->getXpAmount(skill->mXpType) < skill->mXpCost)
 			{
 				// This is a system failure.
-				gLogger->logMsgF("Trainer::conversationEvent: ERROR: Player need %u XP, but only have %u",MSG_NORMAL,player->getXpAmount(skill->mXpType), skill->mXpCost);
+				gLogger->logMsgF("Trainer::conversationEvent: ERROR: Player need %u XP, but only have %u\n",MSG_NORMAL,player->getXpAmount(skill->mXpType), skill->mXpCost);
 			}
 			// see if we got the required skills
 			else
@@ -570,7 +570,7 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
 					if (!player->checkSkill(*reqSkillIt))
 					{
 						// This is a system failure.
-						gLogger->logMsg("Trainer::conversationEvent: ERROR: Player does not have all requirements");
+						gLogger->logMsg("Trainer::conversationEvent: ERROR: Player does not have all requirements\n");
 						failed = true;
 						break;
 					}
@@ -599,7 +599,7 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
 					{	
 						// This is a system error.
 						gMessageLib->sendSystemMessage(player,L"Error verifying credits, learning failed");
-						gLogger->logMsg("Trainer::conversationEvent: ERROR: Error verifying credits");
+						gLogger->logMsg("Trainer::conversationEvent: ERROR: Error verifying credits\n");
 						pageLink = 0;
 					}
 				}
@@ -628,18 +628,18 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
 			if (!skill)
 			{
 				// This is a system error.
-				gLogger->logMsg("Trainer::conversationEvent: ERROR: It's no skill option");
+				gLogger->logMsg("Trainer::conversationEvent: ERROR: It's no skill option\n");
 			}
 			// no skill requirements, Novice Skills have no requirements.
 			else if(player->checkSkill(skill->mId))
 			{
 				// This is a system failure.
-				gLogger->logMsg("Trainer::conversationEvent: ERROR: Player already have the skill");
+				gLogger->logMsg("Trainer::conversationEvent: ERROR: Player already have the skill\n");
 			}
 			else if (player->getXpAmount(skill->mXpType) < skill->mXpCost)
 			{
 				// This is a system failure.
-				gLogger->logMsgF("Trainer::conversationEvent: ERROR: Player need %u XP, but only have %u",MSG_NORMAL,player->getXpAmount(skill->mXpType), skill->mXpCost);
+				gLogger->logMsgF("Trainer::conversationEvent: ERROR: Player need %u XP, but only have %u\n",MSG_NORMAL,player->getXpAmount(skill->mXpType), skill->mXpCost);
 			}
 			// see if we got the required skills
 			else
@@ -653,7 +653,7 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
 					if (!player->checkSkill(*reqSkillIt))
 					{
 						// This is a system failure.
-						gLogger->logMsg("Trainer::conversationEvent: ERROR: Player does not have all requirements");
+						gLogger->logMsg("Trainer::conversationEvent: ERROR: Player does not have all requirements\n");
 						failed = true;
 						break;
 					}
@@ -663,7 +663,7 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
 			if (!failed)
 			{
 				// We do not charge any cost for training in the Tutorial.
-				gLogger->logMsg("Trainer::conversationEvent: No charge for training in Tutorial.");
+				gLogger->logMsg("Trainer::conversationEvent: No charge for training in Tutorial.\n");
 			}
 			else
 			{
@@ -747,7 +747,7 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
 			}
 			else
 			{
-				gLogger->logMsg("Trainer: No skill avaliable");
+				gLogger->logMsg("Trainer: No skill avaliable\n");
 			}
 		}
 		break;

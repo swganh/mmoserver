@@ -58,7 +58,7 @@ void AttackableStaticNpc::prepareCustomRadialMenu(CreatureObject* creatureObject
 
 	if (this->checkPvPState(CreaturePvPStatus_Attackable))
 	{
-		gLogger->logMsgF("AttackableStaticNpc::prepareCustomRadialMenu IS attackable" ,MSG_NORMAL);
+		gLogger->logMsgF("AttackableStaticNpc::prepareCustomRadialMenu IS attackable\n" ,MSG_NORMAL);
 
 		// mRadialMenu = RadialMenuPtr(new RadialMenu());
 		mRadialMenu->addItem(1,0,radId_combatAttack,radAction_Default); 
@@ -66,7 +66,7 @@ void AttackableStaticNpc::prepareCustomRadialMenu(CreatureObject* creatureObject
 	}
 	else
 	{
-		gLogger->logMsgF("AttackableStaticNpc::prepareCustomRadialMenu is NOT attackable" ,MSG_NORMAL);
+		gLogger->logMsgF("AttackableStaticNpc::prepareCustomRadialMenu is NOT attackable\n" ,MSG_NORMAL);
 		mRadialMenu->addItem(1,0,radId_examine,radAction_Default); 
 	}
 }

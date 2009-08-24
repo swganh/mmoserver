@@ -134,6 +134,7 @@ void ObjectController::_handleRequestCraftingSession(uint64 targetId,Message* me
 	ObjectSet			inRangeObjects;
 	float				range = 25.0;
 
+	//TODO we need to check if its static or playerowned and to match it to the tool
 	mSI->getObjectsInRange(playerObject,&inRangeObjects,(ObjType_Tangible),range);
 	station = playerObject->getCraftingStation(inRangeObjects);
 
@@ -152,7 +153,7 @@ void ObjectController::_handleRequestCraftingSession(uint64 targetId,Message* me
 
 	if(playerObject->checkState(CreatureState_Crafting) || playerObject->getCraftingSession())
 	{
-		gLogger->logMsgF("ObjController::handleRequestcraftingsession: state or session",MSG_NORMAL,targetId);
+		gLogger->logMsgF("ObjController::handleRequestcraftingsession: state or session",MSG_NORMAL);
 		gMessageLib->sendCraftAcknowledge(opCraftCancelResponse,0,0,playerObject);
 		return;
 	}
@@ -171,6 +172,7 @@ void ObjectController::_handleRequestCraftingSession(uint64 targetId,Message* me
 		return;
 	}
 
+	gLogger->logMsgF("ObjController::handleRequestcraftingsession: new session :)",MSG_NORMAL);
 	playerObject->setCraftingSession(gCraftingSessionFactory->createSession(Anh_Utils::Clock::getSingleton(),playerObject,tool,station,expFlag));
 }
 
@@ -363,6 +365,8 @@ void ObjectController::_handleNextCraftingStage(uint64 targetId,Message* message
 	if(swscanf(dataStr.getUnicode16(),L"%u",&counter) != 1)
 	{
 		gCraftingSessionFactory->destroySession(playerObject->getCraftingSession());
+
+		//cave this is probably where we get when its issued by the commandline
 		return;
 	}
 

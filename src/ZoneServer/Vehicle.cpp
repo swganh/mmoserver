@@ -172,7 +172,7 @@ void Vehicle::call()
 			mBody->addKnownObjectSafe(targetObject);
 			++it;
 		}	
-		gLogger->logMsgF(" 4 creating vehicle with id %lld", MSG_HIGH, mBody->getId());
+		gLogger->logMsgF(" 4 creating vehicle with id %lld\n", MSG_HIGH, mBody->getId());
 		gMessageLib->sendCreateObject(mBody,mOwner);
 		mOwner->addKnownObjectSafe(mBody);
 		mBody->addKnownObjectSafe(mOwner);
@@ -195,7 +195,7 @@ void Vehicle::store()
 {
 	if(!mBody)
 	{
-		gLogger->logMsg("Vehicle::Error: Store was called for a nonexistant body object!");
+		gLogger->logMsg("Vehicle::Error: Store was called for a nonexistant body object!\n");
 		return;
 	}
 
@@ -261,7 +261,7 @@ void Vehicle::dismountPlayer()
 
 void Vehicle::mountPlayer()
 {
-	gLogger->logMsg("mount player");
+	gLogger->logMsg("mount player\n");
 	if(mBody)
 	{
 		//Make the mount equip the player 

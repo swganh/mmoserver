@@ -17,15 +17,13 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 //======================================================================================================================
 
-void DispatchClient::SendChannelA(Message* message, uint32 accountId, uint8 serverId, uint8 priority, bool fastpath)
+void DispatchClient::SendChannelA(Message* message, uint32 accountId, uint8 serverId, uint8 priority)
 {
 	message->setRouted(true);
 	message->setAccountId(accountId);
 	message->setDestinationId(serverId);
-	if(!fastpath)
-		NetworkClient::SendChannelA(message, priority, fastpath);
-	else
-		NetworkClient::SendChannelAUnreliable(message, priority);
+	NetworkClient::SendChannelA(message, priority, false);
+	
 
 }
 

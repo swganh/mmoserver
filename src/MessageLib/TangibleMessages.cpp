@@ -82,7 +82,7 @@ bool MessageLib::sendBaselinesTANO_3(const TangibleObject* const tangibleObject,
 
 	message = gMessageFactory->EndMessage();
 
-	(targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5, false);
+	(targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5);
 
 	return(true);
 }
@@ -116,7 +116,7 @@ bool MessageLib::sendBaselinesTANO_6(const TangibleObject* const tangibleObject,
 
 	message = gMessageFactory->EndMessage();
 
-	(targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5, false);
+	(targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5);
 
 	return(true);
 }
@@ -145,7 +145,7 @@ bool MessageLib::sendBaselinesTANO_8(const TangibleObject* const tangibleObject,
 
 	message = gMessageFactory->EndMessage();
 
-	(targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5, false);
+	(targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5);
 
 	return(true);
 }
@@ -174,7 +174,7 @@ bool MessageLib::sendBaselinesTANO_9(const TangibleObject* const tangibleObject,
 
 	message = gMessageFactory->EndMessage();
 
-	(targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5, false);
+	(targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5);
 
 	return(true);
 }
@@ -202,7 +202,7 @@ bool MessageLib::sendUpdateComplexity(TangibleObject* tangibleObject,PlayerObjec
 	gMessageFactory->addUint16(0);
 	gMessageFactory->addFloat(tangibleObject->getComplexity());
 
-	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5,false);
+	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5);
 
 	return(true);
 }
@@ -262,7 +262,7 @@ bool MessageLib::sendUpdateTypeOption(TangibleObject* tangibleObject,PlayerObjec
 	gMessageFactory->addUint16(6);	   //nr 6 = type option.
 	gMessageFactory->addUint32(tangibleObject->getTypeOptions());
 
-	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5,false);
+	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5);
 	return(true);
 }
 
@@ -293,7 +293,7 @@ bool MessageLib::sendUpdateTimer(TangibleObject* tangibleObject,PlayerObject* pl
 
 	newMessage = gMessageFactory->EndMessage();
 
-	(playerObject->getClient())->SendChannelA(newMessage,playerObject->getAccountId(),CR_Client,5,false);
+	(playerObject->getClient())->SendChannelA(newMessage,playerObject->getAccountId(),CR_Client,5);
 
 	return(true);
 }
@@ -331,7 +331,7 @@ bool MessageLib::sendUpdateUses(TangibleObject* tangibleObject,PlayerObject* pla
 
 	newMessage = gMessageFactory->EndMessage();
 
-	(playerObject->getClient())->SendChannelA(newMessage,playerObject->getAccountId(),CR_Client,5,false);
+	(playerObject->getClient())->SendChannelA(newMessage,playerObject->getAccountId(),CR_Client,5);
 
 	return(true);
 }

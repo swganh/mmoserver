@@ -124,7 +124,7 @@ void PlanetMapHandler::handleDatabaseJobComplete(void* ref, DatabaseResult* resu
 	gMessageFactory->addUint32(opHeartBeat); 
 	newMessage = gMessageFactory->EndMessage();
 
-	client->SendChannelA(newMessage, client->getAccountId(), CR_Client, 1, false);
+	client->SendChannelAUnreliable(newMessage, client->getAccountId(), CR_Client, 1);
 
 	locationsCount = result->getRowCount();
 
@@ -162,7 +162,7 @@ void PlanetMapHandler::handleDatabaseJobComplete(void* ref, DatabaseResult* resu
 
 	newMessage = gMessageFactory->EndMessage();
 
-	client->SendChannelA(newMessage, client->getAccountId(), CR_Client, 8, false);
+	client->SendChannelA(newMessage, client->getAccountId(), CR_Client, 8);
 
   // Destroy our DB objects
   delete (container);

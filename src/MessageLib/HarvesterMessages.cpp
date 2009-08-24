@@ -60,7 +60,7 @@ bool MessageLib::sendBaselinesHINO_3(HarvesterObject* harvester,PlayerObject* pl
 
 	newMessage = gMessageFactory->EndMessage();
 
-	(player->getClient())->SendChannelA(newMessage, player->getAccountId(), CR_Client, 5, false);
+	(player->getClient())->SendChannelA(newMessage, player->getAccountId(), CR_Client, 5);
 
 	return(true);
 }
@@ -92,7 +92,7 @@ bool MessageLib::sendBaselinesHINO_6(HarvesterObject* harvester,PlayerObject* pl
 
 	newMessage = gMessageFactory->EndMessage();
 
-	(player->getClient())->SendChannelA(newMessage, player->getAccountId(), CR_Client, 5, false);
+	(player->getClient())->SendChannelA(newMessage, player->getAccountId(), CR_Client, 5);
 
 	return(true);
 }

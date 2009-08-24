@@ -64,7 +64,7 @@ enum SESSIONOP
 class Packet
 {
 public:
-                                Packet(void) : mTimeCreated(0), mTimeQueued(0), mTimeSent(0), mResends(0), mSize(0), mReadIndex(0), mWriteIndex(0), mCompressed(0), mEncrypted(0), mCRC(0) {};
+                                Packet(void) : mTimeCreated(0), mTimeQueued(0), mTimeSent(0), mResends(0), mSize(0), mReadIndex(0), mWriteIndex(0), mCompressed(0), mEncrypted(0), mCRC(0), mTimeOOHSent(0) {};
 
   void                          Reset(void);
                                  
@@ -77,6 +77,7 @@ public:
   uint64                        getTimeCreated(void)                { return mTimeCreated; }
   uint64                        getTimeQueued(void)                 { return mTimeQueued; }
   uint64                        getTimeSent(void)                   { return mTimeSent; }
+  uint64                        getTimeOOHSent(void)                { return mTimeOOHSent; }
   uint32                        getResends(void)                    { return mResends; }
   uint16                        getSize(void)                       { return mSize; }
   int8*                         getData(void)                       { return mData; }
@@ -90,6 +91,7 @@ public:
   void                          setTimeCreated(uint64 time)         { mTimeCreated = time; }
   void                          setTimeQueued(uint64 time)          { mTimeQueued = time; }
   void                          setTimeSent(uint64 time)            { mTimeSent = time; }
+  void                          setTimeOOHSent(uint64 time)         { mTimeOOHSent = time; }
   void                          setResends(uint32 resends)          { mResends = resends; }
   void                          setSize(uint16 size)                { mSize = size; assert(size <= mMaxPayLoad); }
   void                          setPacketType(uint16 type)          { *((int16*)mData) = type; }
@@ -140,6 +142,7 @@ protected:
   int8                          mData[MAX_SERVER_PACKET_SIZE];
   uint64                        mTimeCreated;
   uint64                        mTimeQueued;
+  uint64						mTimeOOHSent;
   uint64                        mTimeSent;
   uint32                        mResends;
   uint16                        mSize;

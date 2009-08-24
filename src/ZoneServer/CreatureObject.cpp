@@ -483,7 +483,7 @@ void CreatureObject::AddBuff(Buff* buff,  bool stackable, bool overwrite)
 		if(player != 0)
 		{
 			//gMessageLib->sendSystemMessage(player, "You appear to have attempted to stack Buffs. The server has prevented this");
-			gLogger->logMsg("Attempt to duplicate buffs prevented.");
+			gLogger->logMsg("Attempt to duplicate buffs prevented.\n");
 		}
 		SAFE_DELETE(buff);
 		return; 
@@ -667,7 +667,7 @@ void CreatureObject::incap()
 	}
 	else
 	{
-		gLogger->logMsgF("CreatureObject::incap Incapped unsupported type %u", MSG_NORMAL, this->getType());
+		gLogger->logMsgF("CreatureObject::incap Incapped unsupported type %u\n", MSG_NORMAL, this->getType());
 	}
 
 }
@@ -822,7 +822,7 @@ void CreatureObject::die()
 		}
 		else
 		{
-			gLogger->logMsg("No cloning facility available");
+			gLogger->logMsg("No cloning facility available\n");
 		}
 	}
 	else // if(CreatureObject* creature = dynamic_cast<CreatureObject*>(this))
@@ -886,7 +886,7 @@ void CreatureObject::addDefender(uint64 defenderId)
 	{
 		if((*it) == defenderId)
 		{
-			gLogger->logMsg("CreatureObject:: defender already added :(");
+			gLogger->logMsg("CreatureObject:: defender already added :(\n");
 			return;
 		}
 
@@ -906,7 +906,7 @@ void CreatureObject::clearDefenders()
 		mDefenders.clear(); 
 	}
 	else
-		gLogger->logMsg("CreatureObject::clearing defenders albeit empty :(");
+		gLogger->logMsg("CreatureObject::clearing defenders albeit empty :(\n");
 }
 
 //=============================================================================
@@ -1118,7 +1118,7 @@ void CreatureObject::makePeaceWithDefender(uint64 defenderId)
 	}
 	else
 	{
-		gLogger->logMsgF("Defender is of unknown type...", MSG_NORMAL);
+		gLogger->logMsgF("Defender is of unknown type...\n", MSG_NORMAL);
 		return;
 	}
 	

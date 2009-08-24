@@ -214,11 +214,11 @@ T	Object::getAttribute(uint32 keyCrc) const
 		}
 		catch(boost::bad_lexical_cast &)
 		{
-			gLogger->logMsgF("Object::getAttribute: cast failed (%s)",MSG_HIGH,key.getAnsi());
+			gLogger->logMsgF("Object::getAttribute: cast failed (%s)\n",MSG_HIGH,key.getAnsi());
 		}
 	}
 	else
-		gLogger->logMsgF("Object::getAttribute: could not find %s",MSG_HIGH,key.getAnsi());
+		gLogger->logMsgF("Object::getAttribute: could not find %s\n",MSG_HIGH,key.getAnsi());
 
 	return(T());
 }
@@ -239,11 +239,11 @@ T	Object::getInternalAttribute(string key)
 		}
 		catch(boost::bad_lexical_cast &)
 		{
-			gLogger->logMsgF("Object::getInternalAttribute: cast failed (%s)",MSG_HIGH,key.getAnsi());
+			gLogger->logMsgF("Object::getInternalAttribute: cast failed (%s)\n",MSG_HIGH,key.getAnsi());
 		}
 	}
 	else
-		gLogger->logMsgF("Object::getInternalAttribute: could not find %s",MSG_HIGH,key.getAnsi());
+		gLogger->logMsgF("Object::getInternalAttribute: could not find %s\n",MSG_HIGH,key.getAnsi());
 
 	return(T());
 }

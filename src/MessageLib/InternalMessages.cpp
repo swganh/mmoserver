@@ -40,7 +40,7 @@ bool MessageLib::sendClusterZoneTransferRequestByTicket(PlayerObject* playerObje
 	gMessageFactory->addUint64(ticketId);
 	newMessage = gMessageFactory->EndMessage();
 
-	(playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Connection, 0, false);
+	(playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Connection, 0);
 
 	return(true);
 }
@@ -64,7 +64,7 @@ bool MessageLib::sendClusterZoneTransferRequestByPosition(PlayerObject* playerOb
 	gMessageFactory->addFloat(position.mZ);
 	newMessage = gMessageFactory->EndMessage();
 
-	(playerObject->getClient())->SendChannelA(newMessage,playerObject->getAccountId(),CR_Connection,0,false);
+	(playerObject->getClient())->SendChannelA(newMessage,playerObject->getAccountId(),CR_Connection,0);
 
 	return(true);
 }
@@ -87,7 +87,7 @@ bool MessageLib::sendClusterZoneTransferCharacter(PlayerObject* playerObject, ui
 	gMessageFactory->addUint32(destinationPlanet);
 	newMessage = gMessageFactory->EndMessage();
 
-	(playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Connection, 0, false);
+	(playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Connection, 0);
 
 	return(true);
 }
@@ -107,7 +107,7 @@ void MessageLib::sendIsmGroupBaselineRequest(PlayerObject* targetPlayer)
 	gMessageFactory->addFloat(targetPlayer->mPosition.mX);
 	gMessageFactory->addFloat(targetPlayer->mPosition.mZ);
 	Message* newMessage = gMessageFactory->EndMessage();
-	targetPlayer->getClient()->SendChannelA(newMessage,targetPlayer->getAccountId(), CR_Chat, 2,false);
+	targetPlayer->getClient()->SendChannelA(newMessage,targetPlayer->getAccountId(), CR_Chat, 2);
 }
 
 //======================================================================================================================
@@ -124,7 +124,7 @@ void MessageLib::sendIsmGroupLeave(PlayerObject* player)
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opIsmGroupLeave);  
 	newMessage = gMessageFactory->EndMessage();
-	player->getClient()->SendChannelA(newMessage,player->getAccountId(),CR_Chat,2,false);
+	player->getClient()->SendChannelA(newMessage,player->getAccountId(),CR_Chat,2);
 }
 
 //======================================================================================================================
@@ -142,7 +142,7 @@ void MessageLib::sendIsmGroupPositionNotification(PlayerObject* targetPlayer)
 	gMessageFactory->addFloat(targetPlayer->mPosition.mX);
 	gMessageFactory->addFloat(targetPlayer->mPosition.mZ);
 	Message* newMessage = gMessageFactory->EndMessage();
-	targetPlayer->getClient()->SendChannelA(newMessage,targetPlayer->getAccountId(), CR_Chat, 2,false);
+	targetPlayer->getClient()->SendChannelA(newMessage,targetPlayer->getAccountId(), CR_Chat, 2);
 }
 
 //======================================================================================================================
@@ -163,7 +163,7 @@ void MessageLib::sendFindFriendLocation(PlayerObject* friendPlayer, uint64 frien
 	gMessageFactory->addFloat(Z);  
 	
 
-	(friendPlayer->getClient())->SendChannelA(gMessageFactory->EndMessage(), friendPlayer->getAccountId(), CR_Chat, 4, false);
+	(friendPlayer->getClient())->SendChannelA(gMessageFactory->EndMessage(), friendPlayer->getAccountId(), CR_Chat, 4);
 
 	return;
 }
@@ -185,7 +185,7 @@ void MessageLib::sendBankTipDustOff(PlayerObject* playerObject, uint64 tipRecipi
 	gMessageFactory->addUint32(amount);  
 	gMessageFactory->addString(recipientName);  
 	
-	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Chat, 4, false);
+	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Chat, 4);
 
 	return;
 }
@@ -206,7 +206,7 @@ bool MessageLib::sendGroupLootModeResponse(PlayerObject* playerObject,uint32 sel
 	gMessageFactory->addUint32(opIsmGroupLootModeResponse);
 	gMessageFactory->addUint32(selection);
 
-	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), playerObject->getAccountId(),CR_Chat,2,false);
+	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), playerObject->getAccountId(),CR_Chat,2);
 
 	return(true);
 }

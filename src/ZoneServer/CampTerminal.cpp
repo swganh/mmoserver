@@ -88,7 +88,7 @@ void CampTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 		return;
 	}
 	
-	gLogger->logMsgF("CampTerminal: Unhandled MenuSelect: %u",MSG_HIGH,messageType);
+	gLogger->logMsgF("CampTerminal: Unhandled MenuSelect: %u\n",MSG_HIGH,messageType);
 	
 }
 

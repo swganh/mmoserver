@@ -172,7 +172,7 @@ void ObjectController::_handleNPCConversationStart(uint64 targetId,Message* mess
 		}
 	}
 	else
-		gLogger->logMsgF("ObjController::_handleNPCConversationStart: Couldn't find object %lld",MSG_HIGH,targetId);
+		gLogger->logMsgF("ObjController::_handleNPCConversationStart: Couldn't find object %lld\n",MSG_HIGH,targetId);
 }
 
 //=============================================================================
@@ -202,7 +202,7 @@ void ObjectController::_handleNPCConversationSelect(uint64 targetId,Message* mes
 
 	if(swscanf(dataStr.getUnicode16(),L"%u",&selectId) != 1)
 	{
-		gLogger->logMsg("ObjController::handleNPCConversationSelect: Error in parameters");
+		gLogger->logMsg("ObjController::handleNPCConversationSelect: Error in parameters\n");
 		return;
 	}
 

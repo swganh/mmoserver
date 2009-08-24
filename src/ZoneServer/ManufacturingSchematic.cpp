@@ -43,13 +43,13 @@ ManufacturingSchematic::~ManufacturingSchematic()
 		manIt = mManufactureSlots.begin();
 	}
 
-	CraftingAttributes::iterator caIt = mCraftingAttributes.begin();
+	ExperimentationProperties::iterator caIt = mExperimentationProperties.begin();
 
-	while(caIt != mCraftingAttributes.end())
+	while(caIt != mExperimentationProperties.end())
 	{
 		delete(*caIt);
-		mCraftingAttributes.erase(caIt);
-		caIt = mCraftingAttributes.begin();
+		mExperimentationProperties.erase(caIt);
+		caIt = mExperimentationProperties.begin();
 	}
 
 	CustomizationList::iterator	custIt = mCustomizationList.begin();
@@ -81,11 +81,11 @@ void ManufacturingSchematic::prepareManufactureSlots()
 		mUpdateCounter[i] = mManufactureSlots.size();
 
 	//annoyingly the craftattributeslist is still zero at this time so we need to reinitialize them !!!!
-	mUpdateCounter[8]	=	mCraftingAttributes.size();
-	mUpdateCounter[9]	=	mCraftingAttributes.size();
-	mUpdateCounter[10]	=	mCraftingAttributes.size();
-	mUpdateCounter[11]	=	mCraftingAttributes.size();
-	mUpdateCounter[12]	=	mCraftingAttributes.size();
+	mUpdateCounter[8]	=	mExperimentationProperties.size();
+	mUpdateCounter[9]	=	mExperimentationProperties.size();
+	mUpdateCounter[10]	=	mExperimentationProperties.size();
+	mUpdateCounter[11]	=	mExperimentationProperties.size();
+	mUpdateCounter[12]	=	mExperimentationProperties.size();
 	mUpdateCounter[13]	=	0;
 	mUpdateCounter[14]	=	0;
 	mUpdateCounter[15]	=	0;
@@ -106,16 +106,16 @@ void ManufacturingSchematic::prepareCraftingAttributes()
 
 	while(expCraftBatchIt != expCraftBatches->end())
 	{
-		string				attName		= gSchematicManager->getExpGroup((*expCraftBatchIt)->getExpGroup());
-		CraftingAttribute*	craftAtt	= new CraftingAttribute(attName.getAnsi(),(*expCraftBatchIt)->getCraftWeights(),(*expCraftBatchIt)->getCraftAttributes(),0.0f,0.0f,0.0f);
+		string						attName		= gSchematicManager->getExpGroup((*expCraftBatchIt)->getExpGroup());
+		ExperimentationProperty*	craftAtt	= new ExperimentationProperty(attName.getAnsi(),(*expCraftBatchIt)->getCraftWeights(),(*expCraftBatchIt)->getCraftAttributes(),0.0f,0.0f,0.0f);
 
-		mCraftingAttributes.push_back(craftAtt);
+		mExperimentationProperties.push_back(craftAtt);
 
 		++expCraftBatchIt;
 	}
 
 	//for(uint32 i = 8;i < 15;i++)
-	//	mUpdateCounter[i] = mCraftingAttributes.size();
+	//	mUpdateCounter[i] = mExperimentationProperties.size();
 
 	mExpFailureChance = 90.0f;
 }
@@ -208,6 +208,6 @@ void ManufacturingSchematic::sendAttributes(PlayerObject* playerObject)
 
 	newMessage = gMessageFactory->EndMessage();
 		
-	(playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(),CR_Client,9,true);
+	(playerObject->getClient())->SendChannelAUnreliable(newMessage, playerObject->getAccountId(),CR_Client,9);
 	
 }

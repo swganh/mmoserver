@@ -60,7 +60,7 @@ bool MessageLib::sendBaselinesBUIO_3(BuildingObject* buildingObject,PlayerObject
 
 	newMessage = gMessageFactory->EndMessage();
 
-	(playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 5, false);
+	(playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 5);
 
 	return(true);
 }
@@ -92,7 +92,7 @@ bool MessageLib::sendBaselinesBUIO_6(BuildingObject* buildingObject,PlayerObject
 
 	newMessage = gMessageFactory->EndMessage();
 
-	(playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 5, false);
+	(playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 5);
 
 	return(true);
 }
@@ -128,7 +128,7 @@ bool MessageLib::sendBaselinesSCLT_3(CellObject* cellObject,uint64 cellNr,Player
 
 	newMessage = gMessageFactory->EndMessage();
 
-	(playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 5, false);
+	(playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 5);
 
 	return(true);
 }
@@ -160,7 +160,7 @@ bool MessageLib::sendBaselinesSCLT_6(CellObject* cellObject,PlayerObject* player
 
 	newMessage = gMessageFactory->EndMessage();
 
-	(playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 5, false);
+	(playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 5);
 
 	return(true);
 }
@@ -190,7 +190,7 @@ bool MessageLib::sendEnterStructurePlacement(Object* deed, string objectString, 
 	
 	gLogger->logMsgF("placement mode : %s",MSG_HIGH,objectString.getAnsi());
 
-	(playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 5, false);
+	(playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 5);
 
 	return(true);
 }

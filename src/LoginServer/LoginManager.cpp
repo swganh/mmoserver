@@ -143,7 +143,7 @@ void LoginManager::handleSessionMessage(NetworkClient* client, Message* message)
     case opLoginClientId:  // sent username and password.
     {
       // Start the login process
-		gLogger->logMsgF("opLoginClientId",MSG_HIGH);
+		gLogger->logMsgF("opLoginClientId\n",MSG_HIGH);
       _handleLoginClientId(loginClient, message);
       break;
     }
@@ -243,7 +243,7 @@ void LoginManager::_handleLoginClientId(LoginClient* client, Message* message)
 
 	if(strcmp("SWGANHVER00001",clientId.getAnsi()) != 0)
 	{
-		gLogger->logMsgF("illegal client: %s",MSG_NORMAL,clientId.getAnsi());
+		gLogger->logMsgF("illegal client: %s\n",MSG_NORMAL,clientId.getAnsi());
 		client->Disconnect(0);
 		return;
 	}
@@ -303,7 +303,7 @@ void LoginManager::_authenticateClient(LoginClient* client, DatabaseResult* resu
     client->setAccountId(data.mId);
 	  client->setCharsAllowed(data.mCharsAllowed);
 
-    gLogger->logMsgF("Login: AccountId: %u Name: %s",MSG_NORMAL,data.mId,data.mUsername);
+    gLogger->logErrorF("login","void LoginManager::_authenticateClient Login: AccountId: %u Name: %s",MSG_NORMAL,data.mId,data.mUsername);
     _sendAuthSucceeded(client);
   }
   else 
@@ -314,7 +314,7 @@ void LoginManager::_authenticateClient(LoginClient* client, DatabaseResult* resu
     errType = "@cpt_login_fail";
     errMsg = "@msg_login_fail";
 
-    gLogger->logMsgF("Login failed for username: %s, password: %s", MSG_NORMAL, client->getUsername().getAnsi(), client->getPassword().getAnsi());
+    gLogger->logErrorF("login","Login failed for username: %s, password: %s", MSG_NORMAL, client->getUsername().getAnsi(), client->getPassword().getAnsi());
 
 	  gMessageFactory->StartMessage();      
 	  gMessageFactory->addUint32(opErrorMessage);  
@@ -324,7 +324,7 @@ void LoginManager::_authenticateClient(LoginClient* client, DatabaseResult* resu
                    
 	  newMessage = gMessageFactory->EndMessage();
 
-    client->SendChannelA(newMessage, 3, false);
+    client->SendChannelA(newMessage, 3,false);
     client->Disconnect(6);
   }
 
@@ -356,7 +356,7 @@ void LoginManager::_sendAuthSucceeded(LoginClient* client)
   gMessageFactory->addString(client->getUsername());
 
   Message* message = gMessageFactory->EndMessage();
-  client->SendChannelA(message, 4, false);
+  client->SendChannelA(message, 4,false);
 
   // Update the account record so we know they authenticated properly.
   mDatabase->ExecuteSqlAsync(0, 0, "UPDATE account SET authenticated=1 WHERE account_id=%u;", client->getAccountId());

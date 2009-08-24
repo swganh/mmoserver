@@ -61,7 +61,7 @@ bool MessageLib::sendBaselinesBUIO_3(TangibleObject* structure,PlayerObject* pla
 
 	newMessage = gMessageFactory->EndMessage();
 
-	(player->getClient())->SendChannelA(newMessage, player->getAccountId(), CR_Client, 5, false);
+	(player->getClient())->SendChannelA(newMessage, player->getAccountId(), CR_Client, 5);
 
 	return(true);
 }
@@ -93,7 +93,7 @@ bool MessageLib::sendBaselinesBUIO_6(TangibleObject* structure,PlayerObject* pla
 
 	newMessage = gMessageFactory->EndMessage();
 
-	(player->getClient())->SendChannelA(newMessage, player->getAccountId(), CR_Client, 5, false);
+	(player->getClient())->SendChannelA(newMessage, player->getAccountId(), CR_Client, 5);
 
 	return(true);
 }

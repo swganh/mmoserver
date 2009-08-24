@@ -87,6 +87,12 @@ SkillManager::~SkillManager()
 
 void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 {
+
+	if(mLoadCounter == 5)
+	{
+		gLogger->logMsg("SkillManager::Loading... ");
+	}
+
 	SMAsyncContainer* asyncContainer = reinterpret_cast<SMAsyncContainer*>(ref);
 
 	switch(asyncContainer->mQueryType)
@@ -155,6 +161,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 		case SMQuery_Skills:
 		{
+			gLogger->logMsg("SkillManager::Loading skills...");
 			Skill* skill;
 			DataBinding* binding = mDatabase->CreateDataBinding(13);
 			binding->addField(DFT_uint32,offsetof(Skill,mId),4,0);
@@ -174,7 +181,8 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			uint64 count = result->getRowCount();
 			mTotalLoadCount += count * 6;
 			
-			gLogger->logMsgF("SkillManager::Loading %lld skills...",MSG_NORMAL,count);
+			printf(" %lld loaded",count);
+			gLogger->logMsgOk(21);
 
 			for(uint64 i = 0;i < count;i++)
 			{
@@ -385,7 +393,8 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 	if(++mLoadCounter == mTotalLoadCount)
 	{
-		gLogger->logMsg("SkillManager::Load complete");
+		printf("Complete!");
+		gLogger->logMsgOk(30);
 	}
 
 	mDBAsyncPool.ordered_free(asyncContainer);
@@ -403,13 +412,13 @@ bool SkillManager::learnSkill(uint32 skillId,CreatureObject* creatureObject,bool
 
 	if (skill == NULL)
 	{
-		gLogger->logMsgF("SkillManager::learnSkill: could not find skill %u",MSG_NORMAL,skillId);
+		gLogger->logMsgF("SkillManager::learnSkill: could not find skill %u\n",MSG_NORMAL,skillId);
 		return false;
 	}
 
 	if (creatureObject->checkSkill(skillId))
 	{
-		gLogger->logMsgF("SkillManager::learnSkill: %lld already got skill %u",MSG_NORMAL,creatureObject->getId(),skillId);
+		gLogger->logMsgF("SkillManager::learnSkill: %lld already got skill %u\n",MSG_NORMAL,creatureObject->getId(),skillId);
 		return false;
 	}
 
@@ -445,8 +454,8 @@ bool SkillManager::learnSkill(uint32 skillId,CreatureObject* creatureObject,bool
 		// The order we do this is important for the client side messages.
 		gMessageLib->sendSkillDeltasCreo1(skill,SMSkillAdd,player);
 		
-		//gMessageLib->sendSkillModUpdateCreo4(player);
-		gMessageLib->sendBaselinesCREO_4(player);
+		gMessageLib->sendSkillModUpdateCreo4(player);
+		//gMessageLib->sendBaselinesCREO_4(player);
 		gMessageLib->sendSkillCmdDeltasPLAY_9(player);
 		gMessageLib->sendSchematicDeltasPLAY_9(player);
 		//gMessageLib->sendSchematicDeltasAddPLAY_9(player);
@@ -472,7 +481,7 @@ bool SkillManager::learnSkill(uint32 skillId,CreatureObject* creatureObject,bool
 		// We don't wanna miss any "You now qualify for the skill: ..."
 		(void)player->UpdateXp(skill->mXpType, newXpCost);
 
-		// gLogger->logMsgF("SkillManager::learnSkill: Removing %i xp of type %u",MSG_NORMAL, -newXpCost, skill->mXpType);
+		// gLogger->logMsgF("SkillManager::learnSkill: Removing %i xp of type %u\n",MSG_NORMAL, -newXpCost, skill->mXpType);
 		mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE character_xp SET value=value+%i WHERE xp_id=%u AND character_id=%lld",newXpCost, skill->mXpType, player->getId());
 		gMessageLib->sendXpUpdate(skill->mXpType,player);
 	}
@@ -732,18 +741,18 @@ void SkillManager::dropSkill(uint32 skillId,CreatureObject* creatureObject)
 
 	if(skill == NULL)
 	{
-		gLogger->logMsgF("SkillManager::dropSkill: could not find skill %u",MSG_NORMAL,skillId);
+		gLogger->logMsgF("SkillManager::dropSkill: could not find skill %u\n",MSG_NORMAL,skillId);
 		return;
 	}
 
 	if(!(creatureObject->checkSkill(skillId)))
 	{
-		gLogger->logMsgF("SkillManager::dropSkill: %lld hasn't got skill %u",MSG_NORMAL,creatureObject->getId(),skillId);
+		gLogger->logMsgF("SkillManager::dropSkill: %lld hasn't got skill %u\n",MSG_NORMAL,creatureObject->getId(),skillId);
 		return;
 	}
 
 	if(!(creatureObject->removeSkill(skill)))
-		gLogger->logMsgF("SkillManager::dropSkill: failed removing %u from %lld",MSG_NORMAL,skillId,creatureObject->getId());
+		gLogger->logMsgF("SkillManager::dropSkill: failed removing %u from %lld\n",MSG_NORMAL,skillId,creatureObject->getId());
 
 	creatureObject->prepareSkillMods();
 	creatureObject->prepareSkillCommands();
@@ -1040,7 +1049,7 @@ void SkillManager::addExperience(uint32 xpType,int32 valueDiff,PlayerObject* pla
 
 		if (!(playerObject->UpdateXp(xpType, newXpBoost)))
 		{
-			gLogger->logMsgF("SkillManager::addExperience: could not find xptype %u for %lld",MSG_NORMAL,xpType,playerObject->getId());
+			gLogger->logMsgF("SkillManager::addExperience: could not find xptype %u for %lld\n",MSG_NORMAL,xpType,playerObject->getId());
 			return;
 		}
 		// gLogger->logMsgF("SkillManager::addExperience: XP cap = %u",MSG_NORMAL, xpCap);

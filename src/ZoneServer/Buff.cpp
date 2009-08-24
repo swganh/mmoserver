@@ -182,7 +182,7 @@ void Buff::FinalChanges()
 	CreatureObject*	creature = dynamic_cast<PlayerObject*>(mTarget);
 	if(!creature)
 	{
-		gLogger->logMsgF("Buff::FinalChanges :Creature Object nonexistant)",MSG_HIGH);
+		gLogger->logMsgF("Buff::FinalChanges :Creature Object nonexistant)\n",MSG_HIGH);
 		mMarkedForDeletion =true;
 		EraseAttributes();
 		return;

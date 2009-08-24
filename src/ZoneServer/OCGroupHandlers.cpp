@@ -57,7 +57,7 @@ void ObjectController::_handleInvite(uint64 targetId,Message* message,ObjectCont
 	gMessageFactory->addUint32(opIsmGroupInviteRequest);
 	gMessageFactory->addUint32(target_player->getAccountId());
 	newMessage = gMessageFactory->EndMessage();
-	player->getClient()->SendChannelA(newMessage,player->getAccountId(),CR_Chat,2,false);	
+	player->getClient()->SendChannelA(newMessage,player->getAccountId(),CR_Chat,2);	
 }
 
 //======================================================================================================================
@@ -87,7 +87,7 @@ void ObjectController::_handleUninvite(uint64 targetId,Message* message,ObjectCo
 	gMessageFactory->addUint32(opIsmGroupUnInvite);  
 	gMessageFactory->addUint32(targetPlayer->getAccountId());
 	newMessage = gMessageFactory->EndMessage();
-	player->getClient()->SendChannelA(newMessage,player->getAccountId(),CR_Chat,2,false);
+	player->getClient()->SendChannelA(newMessage,player->getAccountId(),CR_Chat,2);
 }
 
 //======================================================================================================================
@@ -110,7 +110,7 @@ void ObjectController::_handleJoin(uint64 targetId,Message* message,ObjectContro
 	gMessageFactory->addFloat(player->mPosition.mX);
 	gMessageFactory->addFloat(player->mPosition.mZ);
 	newMessage = gMessageFactory->EndMessage();
-	player->getClient()->SendChannelA(newMessage,player->getAccountId(),CR_Chat,2,false);
+	player->getClient()->SendChannelA(newMessage,player->getAccountId(),CR_Chat,2);
 }
 
 //======================================================================================================================
@@ -133,7 +133,7 @@ void ObjectController::_handleDecline(uint64 targetId,Message* message,ObjectCon
 	gMessageFactory->addUint32(opIsmGroupInviteResponse);  
 	gMessageFactory->addUint8(0);
 	newMessage = gMessageFactory->EndMessage();
-	player->getClient()->SendChannelA(newMessage,player->getAccountId(),CR_Chat,2,false);
+	player->getClient()->SendChannelA(newMessage,player->getAccountId(),CR_Chat,2);
 	player->setGroupId(0);
 }
 
@@ -156,7 +156,7 @@ void ObjectController::_handleDisband(uint64 targetId,Message* message,ObjectCon
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opIsmGroupDisband);  
 	newMessage = gMessageFactory->EndMessage();
-	player->getClient()->SendChannelA(newMessage,player->getAccountId(),CR_Chat,2,false);
+	player->getClient()->SendChannelA(newMessage,player->getAccountId(),CR_Chat,2);
 }
 
 //======================================================================================================================
@@ -209,7 +209,7 @@ void ObjectController::_handleMakeLeader(uint64 targetId,Message* message,Object
 	gMessageFactory->addUint32(opIsmGroupMakeLeader);
 	gMessageFactory->addUint32(targetPlayer->getAccountId());
 	newMessage = gMessageFactory->EndMessage();
-	player->getClient()->SendChannelA(newMessage,player->getAccountId(),CR_Chat,2,false);
+	player->getClient()->SendChannelA(newMessage,player->getAccountId(),CR_Chat,2);
 }
 
 //======================================================================================================================
@@ -245,7 +245,7 @@ void ObjectController::_handleDismissGroupMember(uint64 targetId,Message* messag
 	gMessageFactory->addUint32(opIsmGroupDismissGroupMember);
 	gMessageFactory->addUint32(targetPlayer->getAccountId());
 	newMessage = gMessageFactory->EndMessage();
-	player->getClient()->SendChannelA(newMessage,player->getAccountId(),CR_Chat,2,false);
+	player->getClient()->SendChannelA(newMessage,player->getAccountId(),CR_Chat,2);
 }
 
 //=============================================================================================================================
@@ -286,7 +286,7 @@ void ObjectController::_handleGroupChat(uint64 targetId,Message* message,ObjectC
 	// make sure its a fully grouped player
 	if (!player)
 	{
-		gLogger->logMsg("ObjectController::_handleGroupChat NO PLAYER");
+		gLogger->logMsg("ObjectController::_handleGroupChat NO PLAYER\n");
 	}
 
 	if(!player->getGroupId())
@@ -302,7 +302,7 @@ void ObjectController::_handleGroupChat(uint64 targetId,Message* message,ObjectC
 	gMessageFactory->addUint32(0);
 	gMessageFactory->addString(msgText);
 	newMessage = gMessageFactory->EndMessage();
-	player->getClient()->SendChannelA(newMessage,player->getAccountId(),CR_Chat,2,true); 
+	player->getClient()->SendChannelA(newMessage,player->getAccountId(),CR_Chat,2); 
 	//this should be fastpath as not being Mission critical and we want to prevent the communication protocol overhead with Acks and resends
 
 	// Convert since we are going to print it.
@@ -322,7 +322,7 @@ void ObjectController::_handleGroupLootMode(uint64 targetId,Message* message,Obj
 	// disabled for now
 	//return;
 
-	gLogger->logMsg("_handleGroupLootMode");
+	gLogger->logMsg("_handleGroupLootMode\n");
 	PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
 
 	// make sure its a fully grouped player
@@ -336,7 +336,7 @@ void ObjectController::_handleGroupLootMode(uint64 targetId,Message* message,Obj
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opIsmGroupLootModeRequest);
 	newMessage = gMessageFactory->EndMessage();
-	player->getClient()->SendChannelA(newMessage,player->getAccountId(),CR_Chat,2,false);
+	player->getClient()->SendChannelA(newMessage,player->getAccountId(),CR_Chat,2);
 }
 
 //=============================================================================================================================
@@ -364,7 +364,7 @@ void ObjectController::_handleMakeMasterLooter(uint64 targetId,Message* message,
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opIsmGroupLootMasterRequest);
 	newMessage = gMessageFactory->EndMessage();
-	player->getClient()->SendChannelA(newMessage,player->getAccountId(),CR_Chat,2,false);
+	player->getClient()->SendChannelA(newMessage,player->getAccountId(),CR_Chat,2);
 }
 
 //=============================================================================================================================

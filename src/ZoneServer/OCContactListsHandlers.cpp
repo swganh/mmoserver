@@ -324,7 +324,7 @@ void ObjectController::_handleAddFriendDBReply(uint32 retCode,string friendName)
 				gMessageFactory->addString(friendName);
 				Message* message = gMessageFactory->EndMessage();
 
-				player->getClient()->SendChannelA(message,player->getAccountId(),CR_Chat,2,false);
+				player->getClient()->SendChannelA(message,player->getAccountId(),CR_Chat,2);
 			}
 		}
 		break;
@@ -367,7 +367,7 @@ void ObjectController::_handleFindFriendDBReply(uint64 retCode,string friendName
 
 	if(thePad && thePad->getCapacity())
 	{
-		gObjectFactory->requestNewWaypoint(thePad,searchObject->getFirstName().getAnsi(),searchObject->mPosition,gWorldManager->getZoneId(),player->getId(),Waypoint_blue);
+		thePad->requestNewWaypoint(searchObject->getFirstName().getAnsi(),searchObject->mPosition,gWorldManager->getZoneId(),Waypoint_blue);
 	}
 }
 
@@ -410,7 +410,7 @@ void ObjectController::_handleRemoveFriendDBReply(uint32 retCode,string friendNa
 				gMessageFactory->addString(friendName);
 				Message* message = gMessageFactory->EndMessage();
 
-				player->getClient()->SendChannelA(message,player->getAccountId(),CR_Chat,2,false);
+				player->getClient()->SendChannelA(message,player->getAccountId(),CR_Chat,2);
 			}
 		}
 		break;
@@ -462,7 +462,7 @@ void ObjectController::_handleAddIgnoreDBReply(uint32 retCode,string ignoreName)
 				gMessageFactory->addString(ignoreName);
 				Message* message = gMessageFactory->EndMessage();
 
-				player->getClient()->SendChannelA(message,player->getAccountId(),CR_Chat,2,false);
+				player->getClient()->SendChannelA(message,player->getAccountId(),CR_Chat,2);
 			}
 		}
 		break;
@@ -511,7 +511,7 @@ void ObjectController::_handleRemoveIgnoreDBReply(uint32 retCode,string ignoreNa
 				gMessageFactory->addString(ignoreName);
 				Message* message = gMessageFactory->EndMessage();
 
-				player->getClient()->SendChannelA(message,player->getAccountId(),CR_Chat,2,false);
+				player->getClient()->SendChannelA(message,player->getAccountId(),CR_Chat,2);
 			}
 		}
 		break;
@@ -551,7 +551,7 @@ void ObjectController::_handlefindfriend(uint64 targetId,Message* message,Object
 		gMessageFactory->addString(friendName);
 		Message* message = gMessageFactory->EndMessage();
 
-		playerObject->getClient()->SendChannelA(message,playerObject->getAccountId(),CR_Chat,2,false);
+		playerObject->getClient()->SendChannelA(message,playerObject->getAccountId(),CR_Chat,2);
 		
 	}
 	return;

@@ -59,11 +59,15 @@ ConversationManager::~ConversationManager()
 }
 
 //=========================================================================================
-
+static int printed = false;
 void ConversationManager::handleDatabaseJobComplete(void* ref, DatabaseResult* result)
 {
 	CVAsyncContainer* asyncContainer = reinterpret_cast<CVAsyncContainer*>(ref);
-
+	if(!printed)
+	{
+		gLogger->logMsgStartUp("ConversationManager::Loading Conversations...");
+		printed = true;
+	}
 	switch(asyncContainer->mQuery)
 	{
 		case ConvQuery_Conversations:
@@ -91,7 +95,8 @@ void ConversationManager::handleDatabaseJobComplete(void* ref, DatabaseResult* r
 				mDatabase->ExecuteSqlAsync(this,asCont,"SELECT * FROM conversation_pages WHERE conversation_id=%u ORDER BY page",insertId);
 			}
 
-			gLogger->logMsgF("ConversationManager: loaded %I64u conversations",MSG_HIGH,count);
+			printf(" %I64u loaded",count);
+			gLogger->logMsgOk(9);
 			mDatabase->DestroyDataBinding(binding);
 		}
 		break;
@@ -293,7 +298,7 @@ void ConversationManager::updateConversation(uint32 selectId,PlayerObject* playe
 	
 	if(!av)
 	{
-		gLogger->logMsgF("ConversationManager::updateConversation: could not find conversation for %lld",MSG_NORMAL,player->getId());
+		gLogger->logMsgF("ConversationManager::updateConversation: could not find conversation for %lld\n",MSG_NORMAL,player->getId());
 		return;
 	}
 

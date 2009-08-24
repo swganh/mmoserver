@@ -103,16 +103,23 @@ MissionManager::~MissionManager()
 }
 
 //======================================================================================================================
-
+static bool printed = false;
+static bool failed = false;
 void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 {
     MissionManagerAsyncContainer* asynContainer = (MissionManagerAsyncContainer*)ref;
-
+	if(!printed)
+	{
+		gLogger->logMsg("MissionManager::Loading missions:\n");
+		printed = true;
+	}
     switch(asynContainer->mQueryType)
     {
 
 		case MissionQuery_Load_Names_File:
 		{
+			gLogger->logMsg("MissionManager::Loading Mission Specific Names...");
+
 			// m_t.mission_type, m_t.mission_name, m_t.mission_text FROM swganh.mission_text m_t INNER JOIN swganh.mission_types mty ON mty.id = m_t.mission_type WHERE mission_name like 'm%o' AND (mty.type NOT like 'mission_npc_%')", zone);
 
 			DataBinding* binding = mDatabase->CreateDataBinding(3);
@@ -123,7 +130,6 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 			uint64 count;
 			count = result->getRowCount();
-			gLogger->logMsgF("MissionManager : loading %I64u Mission specific Names",MSG_HIGH,count);
 			Mission_Names* names;
 
 			MissionMap::iterator it;
@@ -142,13 +148,16 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 						(*it).second->names.insert(std::make_pair(names->id,names));
 					}
 					else
-						gLogger->logMsgF("MissionManager : specific names missionmap %u not found",MSG_HIGH,names->type);
+					{
+						printf("\tSpecific names missionmap %u not found\n",names->type);
+						failed=true;
+					}
 				}
 				//mNameMap.insert(std::make_pair(i,names));
 			}
 
-			gLogger->logMsgF("MissionManager : loaded %I64u Mission specific Names",MSG_HIGH,count);
-
+			printf(" %3I64u loaded ",count);
+			failed ? gLogger->logMsgFailed(1) : gLogger->logMsgOk(1);
 
 		}
 		break;
@@ -171,7 +180,9 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				mNameMap.insert(std::make_pair(i,names));
 			}
 
-			gLogger->logMsgF("MissionManager : loaded %I64u Mission generic Names",MSG_HIGH,count);
+			printf("\tLoaded %I64u Mission generic Names",count);
+			failed ? gLogger->logMsgFailed(35) : gLogger->logMsgOk(37);
+
 
 		}
 		break;
@@ -203,7 +214,7 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			asyncContainer = new MissionManagerAsyncContainer(MissionQuery_Load_Names_File, 0);
 			mDatabase->ExecuteSqlAsyncNoArguments(this,asyncContainer,"SELECT m_t.mission_type, m_t.mission_name, m_t.mission_text FROM swganh.mission_text m_t INNER JOIN swganh.mission_types mty ON mty.id = m_t.mission_type WHERE mission_name like 'm%o' AND (mty.type NOT like 'mission_npc_%')");
 
-			gLogger->logMsgF("MissionManager : loaded %I64u Mission STFs",MSG_HIGH,count);
+			printf("\tLoaded %I64u Mission STFs\n",count);
 
 		}
 		break;
@@ -233,7 +244,8 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					terminalMissionLink->missiontype = (*it).second;
 				else
 				{
-					gLogger->logMsgF("MissionManager : couldnt find corresponding mission type",MSG_HIGH);
+					printf("Could not find corresponding mission type");
+					failed=true;
 					continue;
 				}
 
@@ -354,9 +366,8 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 				}
 			}
-		
-			gLogger->logMsgF("MissionManager : loaded %I64u Mission Terminal Links",MSG_HIGH,count);
-
+			gLogger->logMsgF("MissionManager:: Loaded %3I64u Mission Terminal Links",MSG_NORMAL,count);
+			gLogger->logMsgOk(14);
 		}
 		break;
 
@@ -380,7 +391,7 @@ void MissionManager::listRequest(PlayerObject* player, uint64 terminal_id,uint8 
 	int8		terminal_name[255];
 	strcpy(terminal_name,terminal->getName().getAnsi());
 
-	gLogger->logMsgF("Terminal id %lld is type '%s'", MSG_NORMAL, terminal_id, terminal_name);
+	gLogger->logMsgF("Terminal id %lld is type '%s'\n", MSG_NORMAL, terminal_id, terminal_name);
    
  	int count = 0;
 	int len = strlen(terminal_name);
@@ -409,7 +420,7 @@ void MissionManager::listRequest(PlayerObject* player, uint64 terminal_id,uint8 
 				generateEntertainerMission(mission,count);
 			break;
 			default:
-				gLogger->logMsgF("Terminal id %lld is type '%s'", MSG_NORMAL, terminal_id, terminal_name);
+				gLogger->logMsgF("Terminal id %lld is type '%s'\n", MSG_NORMAL, terminal_id, terminal_name);
 				mission->setRefreshCount(0);
 		}
 
@@ -426,7 +437,7 @@ void MissionManager::listRequest(PlayerObject* player, uint64 terminal_id,uint8 
 
 void MissionManager::detailsRequest(PlayerObject* player)
 {
-    gLogger->logMsgF("Player id %lld requested mission details", MSG_NORMAL, player->getId());
+    gLogger->logMsgF("Player id %lld requested mission details\n", MSG_NORMAL, player->getId());
 
     // this request likely requires a MissionDetailsResponse (000000F8) packet response
 }
@@ -435,7 +446,7 @@ void MissionManager::detailsRequest(PlayerObject* player)
 
 void MissionManager::createRequest(PlayerObject* player)
 {
-    gLogger->logMsgF("Player id %lld accepted mission", MSG_NORMAL, player->getId());
+    gLogger->logMsgF("Player id %lld accepted mission\n", MSG_NORMAL, player->getId());
 }
 
 //======================================================================================================================
@@ -447,13 +458,6 @@ void MissionManager::missionRequest(PlayerObject* player, uint64 mission_id)
 {
 	Datapad* datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
 	
-	//Check to see if max mission capacity has been reached
-	if(datapad->getMissionCapacity() <=0)
-	{
-		gMessageLib->sendSystemMessage(player,L"You cannot accept any more missions.");
-		return;
-	}
-
 	//Move the mission from the player's mission bag to his datapad.
 	MissionBag* mission_bag = dynamic_cast<MissionBag*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_MissionBag));
 	MissionObject* mission =  mission_bag->getMissionById(mission_id);
@@ -462,9 +466,14 @@ void MissionManager::missionRequest(PlayerObject* player, uint64 mission_id)
 		gLogger->logMsgF("ERROR: Failed to retrieve mission with id %lld. Unable to accept mission!", MSG_HIGH, mission_id);
 		return;
 	}
-     
+ 
+	//automatically checks the datapads capacity
+	if(!datapad->addMission(mission))
+	{
+		gMessageLib->sendSystemMessage(player,L"You cannot accept any more missions.");
+		return;
+	}
 	mission_bag->removeMission(mission);
-	datapad->addMission(mission);
 	gMessageLib->sendContainmentMessage(mission->getId(), datapad->getId(), 0xffffffff, player);
 
 
@@ -555,7 +564,7 @@ return;
 void MissionManager::missionCompleteEntertainer(PlayerObject* player)
 {
 	Datapad* datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
-	if(datapad->getMissionCapacity() != DATAPAD_MAX_MISSIONS) //player has a mission
+	if(datapad->hasMission()) //player has a mission
 	{
 		MissionList::iterator it = datapad->getMissions()->begin();
 		while(it != datapad->getMissions()->end())
@@ -626,8 +635,9 @@ void MissionManager::missionFailed(PlayerObject* player, MissionObject* mission)
 void MissionManager::missionFailedEntertainer(PlayerObject* player)
 {
 	Datapad* datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
-	if(datapad->getMissionCapacity() != DATAPAD_MAX_MISSIONS) //player has a mission
-	{
+
+	if(datapad->hasMission()) //player has a mission
+	{						
 		MissionList::iterator it = datapad->getMissions()->begin();
 		while(it != datapad->getMissions()->end())
 		{
@@ -653,7 +663,7 @@ void MissionManager::missionFailedEntertainer(PlayerObject* player)
 bool MissionManager::checkDeliverMission(PlayerObject* player,NPCObject* npc)
 {
 	Datapad* datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
-	if(datapad->getMissionCapacity() != DATAPAD_MAX_MISSIONS) //player has a mission
+	if(datapad->hasMission()) //player has a mission
 	{
 		MissionList::iterator it = datapad->getMissions()->begin();
 		while(it != datapad->getMissions()->end())
@@ -708,7 +718,8 @@ return false;
 void MissionManager::checkMusicianMission(PlayerObject* player)
 {
 	Datapad* datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
-	if(datapad->getMissionCapacity() != DATAPAD_MAX_MISSIONS) //player has a mission
+
+	if(datapad->hasMission()) //player has a mission
 	{
 		MissionList::iterator it = datapad->getMissions()->begin();
 		while(it != datapad->getMissions()->end())
@@ -736,7 +747,8 @@ void MissionManager::checkMusicianMission(PlayerObject* player)
 void MissionManager::checkDancerMission(PlayerObject* player)
 {
 	Datapad* datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
-	if(datapad->getMissionCapacity() != DATAPAD_MAX_MISSIONS) //player has a mission
+
+	if(datapad->hasMission()) //player has a mission
 	{
 		MissionList::iterator it = datapad->getMissions()->begin();
 		while(it != datapad->getMissions()->end())
@@ -766,7 +778,7 @@ return;
 void MissionManager::checkSurveyMission(PlayerObject* player,CurrentResource* resource,ResourceLocation highestDist)
 {
 	Datapad* datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
-	if(datapad->getMissionCapacity() < DATAPAD_MAX_MISSIONS) //player has a mission
+	if(datapad->hasMission()) //player has a mission
 	{
 		MissionList::iterator it = datapad->getMissions()->begin();
 		while(it != datapad->getMissions()->end())
@@ -780,7 +792,7 @@ void MissionManager::checkSurveyMission(PlayerObject* player,CurrentResource* re
 					{
 						if(!mission->getIssuingTerminal()->mPosition.inRange2D(highestDist.position,1024))
 						{
-							gLogger->logMsg("PE > 500: ready to apply new BF/wound dmg");
+							gLogger->logMsg("PE > 500: ready to apply new BF/wound dmg\n");
 							missionComplete(player,mission);
 							it = datapad->removeMission(it);
 							delete mission;
@@ -814,7 +826,7 @@ void MissionManager::checkSurveyMission(PlayerObject* player,CurrentResource* re
 bool MissionManager::checkCraftingMission(PlayerObject* player,NPCObject* npc)
 {
 	Datapad* datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
-	if(datapad->getMissionCapacity() != DATAPAD_MAX_MISSIONS) //player has a mission
+	if(datapad->hasMission()) //player has a mission
 	{
 		MissionList::iterator it = datapad->getMissions()->begin();
 		while(it != datapad->getMissions()->end())
@@ -899,20 +911,20 @@ MissionObject* MissionManager::generateDestroyMission(MissionObject* mission, ui
 	TerminalMap::iterator terminalMapIt = mTerminalMap.find(terminal);
 	if(terminalMapIt != mTerminalMap.end())
 	{
-		gLogger->logMsgF("MissionManager : found the terminal",MSG_HIGH);
+		gLogger->logMsgF("MissionManager : found the terminal\n",MSG_HIGH);
 		Terminal_Type* terminal = (*terminalMapIt).second;
 		
 		//now get the amount of stfs and get one per chance
 		uint32 amount = terminal->list.size();
 		uint32 chosen = gRandom->getRand() % amount;
 
-		gLogger->logMsgF("MissionManager : random : %u",MSG_HIGH,chosen);
+		gLogger->logMsgF("MissionManager : random : %u\n",MSG_HIGH,chosen);
 		
 		bool found = false;
 		uint32 counter = 0;
 		while(!found)
 		{
-			gLogger->logMsgF("MissionManager : != found ",MSG_HIGH);
+			gLogger->logMsgF("MissionManager : != found \n",MSG_HIGH);
 			MissionLinkList::iterator it = 	terminal->list.begin();
 			while(it != terminal->list.end())
 			{
@@ -939,7 +951,7 @@ MissionObject* MissionManager::generateDestroyMission(MissionObject* mission, ui
 
 	if(link)
 	{
-		gLogger->logMsgF("MissionManager : found db destroy missions",MSG_HIGH);
+		gLogger->logMsgF("MissionManager : found db destroy missions\n",MSG_HIGH);
 
 		//now set the stf
 		char s[255];
@@ -965,7 +977,7 @@ MissionObject* MissionManager::generateDestroyMission(MissionObject* mission, ui
 	}
 	else
 	{
-		gLogger->logMsgF("MissionManager : No mission file associated :(",MSG_HIGH);
+		gLogger->logMsgF("MissionManager : No mission file associated :(\n",MSG_HIGH);
 		return NULL;
 		
 	}
@@ -999,7 +1011,7 @@ MissionObject* MissionManager::generateDestroyMission(MissionObject* mission, ui
 
 	sprintf(mo,"m%do",mission_num);
 	string moS(mo);
-	gLogger->logMsgF("MissionManager : creator :%s",MSG_HIGH,moS.getAnsi());
+	gLogger->logMsgF("MissionManager : creator :%s\n",MSG_HIGH,moS.getAnsi());
 	NameMap nameMap = link->missiontype->names;
 	NameMap::iterator NameMapIt = nameMap.find(moS.getCrc());
 	if(NameMapIt != nameMap.end())

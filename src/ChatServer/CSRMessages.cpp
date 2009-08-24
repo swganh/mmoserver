@@ -24,7 +24,7 @@ void ChatMessageLib::sendConnectPlayerResponseMessage(DispatchClient* client)
 	gMessageFactory->addUint32(0);
 	Message* message = gMessageFactory->EndMessage();
 
-	client->SendChannelA(message, client->getAccountId(), CR_Client, 2, false);
+	client->SendChannelA(message, client->getAccountId(), CR_Client, 2);
 }
 
 //======================================================================================================================
@@ -61,7 +61,7 @@ void ChatMessageLib::sendRequestCategoriesResponseMessage(DispatchClient *client
 		++iter;
 	}
 	Message* message = gMessageFactory->EndMessage();
-	client->SendChannelA(message, client->getAccountId(), CR_Client, 3, false);
+	client->SendChannelA(message, client->getAccountId(), CR_Client, 3);
 }
 
 //======================================================================================================================
@@ -89,7 +89,7 @@ void ChatMessageLib::sendGetTicketsResponseMessage(DispatchClient* client, Ticke
 	Message* message = gMessageFactory->EndMessage();
 	delete(ticket); //Cleanup
 
-	client->SendChannelA(message, client->getAccountId(), CR_Client, 4, false);
+	client->SendChannelA(message, client->getAccountId(), CR_Client, 4);
 }
 
 //======================================================================================================================
@@ -116,7 +116,7 @@ void ChatMessageLib::sendSearchKnowledgeBaseResponseMessage(DispatchClient* clie
 	Message* message = gMessageFactory->EndMessage();
 	delete(list); //Delete the list
 
-	client->SendChannelA(message, client->getAccountId(), CR_Client, 3, false);
+	client->SendChannelA(message, client->getAccountId(), CR_Client, 3);
 }
 
 //======================================================================================================================
@@ -138,7 +138,7 @@ void ChatMessageLib::sendGetArticleResponseMessage(DispatchClient* client, Artic
 	Message* message = gMessageFactory->EndMessage();
 	delete(article); //Cleanup
 
-	client->SendChannelA(message, client->getAccountId(), CR_Client, 3, false);
+	client->SendChannelA(message, client->getAccountId(), CR_Client, 3);
 }
 
 //======================================================================================================================
@@ -165,5 +165,5 @@ void ChatMessageLib::sendGetCommentsResponseMessage(DispatchClient* client, Comm
 	Message* message = gMessageFactory->EndMessage();
 	delete(list); //Then delete the lsit
 
-	client->SendChannelA(message, client->getAccountId(), CR_Client	, 3, false);
+	client->SendChannelA(message, client->getAccountId(), CR_Client	, 3);
 }

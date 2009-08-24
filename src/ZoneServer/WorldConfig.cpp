@@ -175,10 +175,11 @@ void WorldConfig::buildAttributeMap(DatabaseResult* result)
 	mConfigurationBinding->addField(DFT_bstring,offsetof(Configuration_QueryContainer,mKey),64,0);
 	mConfigurationBinding->addField(DFT_bstring,offsetof(Configuration_QueryContainer,mValue),128,1);
 
+	gLogger->logMsg("WorldConfig::adding Configuration: ");
 	for(uint64 i = 0;i < count;i++)
 	{
 		result->GetNextRow(mConfigurationBinding,(void*)&attribute);
-		gLogger->logMsgF("WorldConfig::added Configuration: %s : %s",MSG_HIGH,attribute.mKey.getAnsi(),attribute.mValue.getAnsi());
+		printf("\n\t%s: %s",attribute.mKey.getAnsi(),attribute.mValue.getAnsi());
 		if(hasConfiguration(attribute.mKey))
 		{
 			setConfiguration(attribute.mKey,std::string(attribute.mValue.getAnsi()));
@@ -187,6 +188,15 @@ void WorldConfig::buildAttributeMap(DatabaseResult* result)
 		{
 			addConfiguration(attribute.mKey,std::string(attribute.mValue.getAnsi()));
 		}
+	}
+
+	if(count > 0)
+	{
+		gLogger->logMsgOk(65-(attribute.mKey.getLength()+attribute.mValue.getLength()));
+	}
+	else
+	{
+		gLogger->logMsgFailed(61-(attribute.mKey.getLength()+attribute.mValue.getLength()));
 	}
 
 }
@@ -199,7 +209,7 @@ void WorldConfig::setConfiguration(string key,std::string value)
 
 	if(it == mConfigurationMap.end())
 	{
-		gLogger->logMsgF("WorldConfig::setConfiguration: could not find %s",MSG_HIGH,key.getAnsi());
+		gLogger->logMsgF("WorldConfig::setConfiguration: could not find %s\n",MSG_HIGH,key.getAnsi());
 		return;
 	}
 
@@ -232,7 +242,7 @@ void WorldConfig::removeConfiguration(string key)
 	if(it != mConfigurationMap.end())
 		mConfigurationMap.erase(it);
 	else
-		gLogger->logMsgF("WorldConfig::removeConfiguration: could not find %s",MSG_HIGH,key.getAnsi());
+		gLogger->logMsgF("WorldConfig::removeConfiguration: could not find %s\n",MSG_HIGH,key.getAnsi());
 }
 
 //=========================================================================

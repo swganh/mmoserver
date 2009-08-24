@@ -89,7 +89,7 @@ SpawnData::SpawnData(const SpawnData& spawn)
 */
 CreatureSpawnRegion::~CreatureSpawnRegion()
 {
-	gLogger->logMsgF("CreatureSpawnRegion::~CreatureSpawnRegion()", MSG_NORMAL);
+	gLogger->logMsgF("CreatureSpawnRegion::~CreatureSpawnRegion()\n", MSG_NORMAL);
 }
 
 

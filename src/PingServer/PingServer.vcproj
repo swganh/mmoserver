@@ -62,7 +62,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib winmm.lib zthreadd.lib"
+				AdditionalDependencies="ws2_32.lib winmm.lib libmysql.lib zthreadd.lib"
 				OutputFile="&quot;$(SolutionDir)bin\$(ConfigurationName)\$(ProjectName).exe&quot;"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;$(SolutionDir)deps\boost\stage\lib&quot;;&quot;$(SolutionDir)deps\mysql\lib\debug&quot;;&quot;$(SolutionDir)deps\zlib\projects\visualc6\Win32_LIB_Debug&quot;;&quot;$(SolutionDir)deps\zthread\Debug&quot;"
@@ -146,7 +146,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib winmm.lib zthread.lib"
+				AdditionalDependencies="ws2_32.lib winmm.lib libmysql.lib zthread.lib"
 				OutputFile="&quot;$(SolutionDir)bin\$(ConfigurationName)\$(ProjectName).exe&quot;"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;$(SolutionDir)deps\boost\stage\lib&quot;;&quot;$(SolutionDir)deps\mysql\lib\opt&quot;;&quot;$(SolutionDir)deps\zlib\projects\visualc6\Win32_LIB_Release&quot;;&quot;$(SolutionDir)deps\zthread\Release&quot;"

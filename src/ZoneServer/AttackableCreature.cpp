@@ -264,7 +264,7 @@ void AttackableCreature::handleObjectMenuSelect(uint8 messageType,Object* srcObj
 
 			default:
 			{
-				gLogger->logMsgF("AttackableCreature::handleObjectMenuSelect Unhandled messageType = %u", MSG_NORMAL, messageType);
+				gLogger->logMsgF("AttackableCreature::handleObjectMenuSelect Unhandled messageType = %u\n", MSG_NORMAL, messageType);
 			}
 			break;
 
@@ -350,7 +350,7 @@ bool AttackableCreature::setTargetInAttackRange(void)
 						}
 						else
 						{
-							gLogger->logMsgF("Attacking WRONG TARGET = %s", MSG_NORMAL,(*it)->getFirstName().getAnsi());
+							gLogger->logMsgF("Attacking WRONG TARGET = %s\n", MSG_NORMAL,(*it)->getFirstName().getAnsi());
 						}
 					}
 					// We have a new target in range etc.. But we may need him to be visible for a while before we attack.
@@ -1355,7 +1355,7 @@ void AttackableCreature::equipPrimaryWeapon(void)
 		}
 		else
 		{
-			gLogger->logMsgF("AttackableCreature::equipPrimaryWeapon() Can't equip primary weapon", MSG_NORMAL);
+			gLogger->logMsgF("AttackableCreature::equipPrimaryWeapon() Can't equip primary weapon\n", MSG_NORMAL);
 		}
 	}
 }	
@@ -1372,7 +1372,7 @@ void AttackableCreature::equipSecondaryWeapon(void)
 		}
 		else
 		{
-			gLogger->logMsgF("AttackableCreature::equipWeapon() Can't equip secondary weapon", MSG_NORMAL);
+			gLogger->logMsgF("AttackableCreature::equipWeapon() Can't equip secondary weapon\n", MSG_NORMAL);
 		}
 	}
 }	
@@ -1890,7 +1890,7 @@ uint64 AttackableCreature::handleState(uint64 timeOverdue)
 		case State_Unspawned:
 		{
 			// This is not a valid state.
-			gLogger->logMsgF("AttackableCreature::handleState Invalid state State_Unspawned.", MSG_NORMAL);
+			gLogger->logMsgF("AttackableCreature::handleState Invalid state State_Unspawned.\n", MSG_NORMAL);
 			// It's a serious isse that we need to investigate.
 			assert(false);
 
@@ -2097,7 +2097,7 @@ uint64 AttackableCreature::handleState(uint64 timeOverdue)
 
 
 		default:
-			gLogger->logMsgF("AttackableCreature::handleState Invalid state", MSG_NORMAL);
+			gLogger->logMsgF("AttackableCreature::handleState Invalid state\n", MSG_NORMAL);
 			// waitTime = 0;
 		break;
 	}
@@ -2130,7 +2130,7 @@ void AttackableCreature::spawn(void)
 		}
 		else
 		{
-			gLogger->logMsgF("AttackableCreature::spawnCreature: couldn't find cell %llu", MSG_HIGH, this->getParentId());
+			gLogger->logMsgF("AttackableCreature::spawnCreature: couldn't find cell %llu\n", MSG_HIGH, this->getParentId());
 			
 			// It's a serious isse that we need to investigate.
 			assert(cell);

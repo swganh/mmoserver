@@ -111,7 +111,7 @@ void CharacterAdminHandler::_processRandomNameRequest(Message* message, Dispatch
   newMessage = gMessageFactory->EndMessage();
 
   // Send our message to the client.
-  client->SendChannelA(newMessage, client->getAccountId(), CR_Client, 1, false);
+  client->SendChannelAUnreliable(newMessage, client->getAccountId(), CR_Client, 1);
 
   // set our object type string.
   string objectType;
@@ -403,7 +403,7 @@ void CharacterAdminHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* 
 			gMessageFactory->addString(state); 
 			newMessage = gMessageFactory->EndMessage();
 
-			asyncContainer->mClient->SendChannelA(newMessage, asyncContainer->mClient->getAccountId(), CR_Client, 4, false);
+			asyncContainer->mClient->SendChannelA(newMessage, asyncContainer->mClient->getAccountId(), CR_Client, 4);
 
 			mDatabase->DestroyDataBinding(binding);
 		}
@@ -423,7 +423,7 @@ void CharacterAdminHandler::_parseHairData(Message* message, CharacterCreateInfo
 
 	  // Get the size of the data block
 	  uint16 dataSize = message->getUint16();
-	  gLogger->logMsgF("datasize : %u ", MSG_NORMAL, dataSize);
+	  gLogger->logMsgF("datasize : %u \n", MSG_NORMAL, dataSize);
 	  
 	  uint8 startindex = 0;
 	  uint8 endindex = 0;
@@ -437,7 +437,7 @@ void CharacterAdminHandler::_parseHairData(Message* message, CharacterCreateInfo
 
 			  startindex = message->getUint8();
 			  endindex = message->getUint8();
-			  gLogger->logMsgF("StartIndex : %u   : EndIndex %u", MSG_NORMAL, startindex, endindex);
+			  gLogger->logMsgF("StartIndex : %u   : EndIndex %u\n", MSG_NORMAL, startindex, endindex);
 			  dataIndex = 2; 
 		  }
 
@@ -471,7 +471,7 @@ void CharacterAdminHandler::_parseHairData(Message* message, CharacterCreateInfo
 
 			// Set our attribute value
 			info->mHairCustomization[attributeIndex] = ((uint16)valueHighByte << 8) | valueLowByte;
-			gLogger->logMsgF("Hair Customization Index : %u   : data %u", MSG_NORMAL, attributeIndex,info->mHairCustomization[attributeIndex]);
+			gLogger->logMsgF("Hair Customization Index : %u   : data %u\n", MSG_NORMAL, attributeIndex,info->mHairCustomization[attributeIndex]);
 		  }
 	
 		  uint16 end2  = message->getUint16();
@@ -576,14 +576,14 @@ void CharacterAdminHandler::_sendCreateCharacterSuccess(uint64 characterId,Dispa
 	gMessageFactory->addUint32(opHeartBeat);
 	Message* newMessage = gMessageFactory->EndMessage();
 
-	client->SendChannelA(newMessage, client->getAccountId(), CR_Client, 1, false);
+	client->SendChannelAUnreliable(newMessage, client->getAccountId(), CR_Client, 1);
 
 	gMessageFactory->StartMessage();         
 	gMessageFactory->addUint32(opClientCreateCharacterSuccess);  
 	gMessageFactory->addUint64(characterId);
 	newMessage = gMessageFactory->EndMessage();
 
-	client->SendChannelA(newMessage, client->getAccountId(), CR_Client, 2, false);
+	client->SendChannelA(newMessage, client->getAccountId(), CR_Client, 2);
 }
 
 //======================================================================================================================
@@ -673,7 +673,7 @@ void CharacterAdminHandler::_sendCreateCharacterFailed(uint32 errorCode,Dispatch
 
 		default:
 			errorString = "name_declined_internal_error";
-			gLogger->logMsgF("Unknown Errorcode in CharacterCreation: %u",MSG_HIGH,errorCode);
+			gLogger->logErrorF("charcreation","CharacterAdminHandler::_sendCreateCharacterFailed Unknown Errorcode in CharacterCreation: %u",MSG_HIGH,errorCode);
 			break;
 	}
 
@@ -681,7 +681,7 @@ void CharacterAdminHandler::_sendCreateCharacterFailed(uint32 errorCode,Dispatch
 	gMessageFactory->addUint32(opHeartBeat); 
 	Message* newMessage = gMessageFactory->EndMessage();
 
-	client->SendChannelA(newMessage, client->getAccountId(), CR_Client, 1, false);
+	client->SendChannelAUnreliable(newMessage, client->getAccountId(), CR_Client, 1);
 
 	gMessageFactory->StartMessage();    
 	gMessageFactory->addUint32(opClientCreateCharacterFailed);  
@@ -691,7 +691,7 @@ void CharacterAdminHandler::_sendCreateCharacterFailed(uint32 errorCode,Dispatch
 	gMessageFactory->addString(errorString);
 	newMessage = gMessageFactory->EndMessage();
 
-	client->SendChannelA(newMessage, client->getAccountId(), CR_Client, 3, false);
+	client->SendChannelA(newMessage, client->getAccountId(), CR_Client, 3);
 }
 
 //======================================================================================================================

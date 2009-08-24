@@ -54,7 +54,7 @@ void ElevatorTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObjec
 		}
 		else
 		{
-			gLogger->logMsgF("could not find cell %lld",MSG_HIGH,playerObject->getParentId());
+			gLogger->logMsgF("could not find cell %lld\n",MSG_HIGH,playerObject->getParentId());
 		}
 
 		// put him into new one
@@ -70,7 +70,7 @@ void ElevatorTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObjec
 		}
 		else
 		{
-			gLogger->logMsgF("could not find cell %lld",MSG_HIGH,mDstCellUp);
+			gLogger->logMsgF("could not find cell %lld\n",MSG_HIGH,mDstCellUp);
 		}
 
 		gMessageLib->sendDataTransformWithParent(playerObject);
@@ -89,7 +89,7 @@ void ElevatorTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObjec
 		}
 		else
 		{
-			gLogger->logMsgF("could not find cell %lld",MSG_HIGH,playerObject->getParentId());
+			gLogger->logMsgF("could not find cell %lld\n",MSG_HIGH,playerObject->getParentId());
 		}
 
 		// put him into new one
@@ -105,14 +105,14 @@ void ElevatorTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObjec
 		}
 		else
 		{
-			gLogger->logMsgF("could not find cell %lld",MSG_HIGH,mDstCellDown);
+			gLogger->logMsgF("could not find cell %lld\n",MSG_HIGH,mDstCellDown);
 		}
 
 		gMessageLib->sendDataTransformWithParent(playerObject);
 	}
 	else
 	{
-		gLogger->logMsgF("ElevatorTerminal: Unhandled MenuSelect: %u",MSG_HIGH,messageType);
+		gLogger->logMsgF("ElevatorTerminal: Unhandled MenuSelect: %u\n",MSG_HIGH,messageType);
 	}
 }
 

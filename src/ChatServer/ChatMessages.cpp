@@ -35,7 +35,7 @@ void ChatMessageLib::sendChatPersistantMessagetoClient(DispatchClient* client,Ma
 	gMessageFactory->addUint32(mail->mTime);	
 	newMessage = gMessageFactory->EndMessage();
 
-	client->SendChannelA(newMessage,client->getAccountId(),CR_Client,2,false);
+	client->SendChannelA(newMessage,client->getAccountId(),CR_Client,2);
 }
 
 //======================================================================================================================
@@ -56,7 +56,7 @@ void ChatMessageLib::sendChatPersistantMessagetoClient(DispatchClient* client,Ma
 	gMessageFactory->addUint32(mail->mTime);
 	newMessage = gMessageFactory->EndMessage();
 
-	client->SendChannelA(newMessage,client->getAccountId(),CR_Client,2,false);
+	client->SendChannelA(newMessage,client->getAccountId(),CR_Client,2);
 }
 
 //=======================================================================================================================
@@ -69,7 +69,7 @@ void ChatMessageLib::sendChatonPersistantMessage(DispatchClient* client, uint64 
 	gMessageFactory->addUint32(4);
 	gMessageFactory->addUint32(mailCounter);
 	newMessage = gMessageFactory->EndMessage();
-	client->SendChannelA(newMessage, client->getAccountId(), CR_Chat, 6, false);
+	client->SendChannelA(newMessage, client->getAccountId(), CR_Chat, 6);
 }
 
 //======================================================================================================================
@@ -97,7 +97,7 @@ void ChatMessageLib::sendCancelAuctionMail(DispatchClient* client, uint64 Sender
 	gMessageFactory->addString(aMS->assemble());
 
 	Message* newMessage = gMessageFactory->EndMessage();
-	client->SendChannelA(newMessage, client->getAccountId(), CR_Chat, 6, false);
+	client->SendChannelA(newMessage, client->getAccountId(), CR_Chat, 6);
 
 	delete(aMS);
 }
@@ -124,7 +124,7 @@ void ChatMessageLib::sendBidderCancelAuctionMail(DispatchClient* client, uint64 
 	gMessageFactory->addString(aMS->assemble());
 
 	Message* newMessage = gMessageFactory->EndMessage();
-	client->SendChannelA(newMessage, client->getAccountId(), CR_Chat, 6, false);
+	client->SendChannelA(newMessage, client->getAccountId(), CR_Chat, 6);
 
 	delete(aMS);
 
@@ -139,7 +139,7 @@ void ChatMessageLib::SendRetrieveAuctionItemResponseMessage(DispatchClient* clie
 	gMessageFactory->addUint64(mItemId);
 	gMessageFactory->addUint32(error);
 	Message* newMessage = gMessageFactory->EndMessage();
-	client->SendChannelA(newMessage, client->getAccountId(),  CR_Client, 6, false);
+	client->SendChannelA(newMessage, client->getAccountId(),  CR_Client, 6);
 }
 
 //=======================================================================================================================
@@ -168,7 +168,7 @@ void ChatMessageLib::sendSoldInstantMail(DispatchClient* client,uint64 Sender, u
 
 
 	Message* newMessage = gMessageFactory->EndMessage();
-	client->SendChannelA(newMessage, client->getAccountId(), CR_Chat, 6, false);
+	client->SendChannelA(newMessage, client->getAccountId(), CR_Chat, 6);
 
 }
 
@@ -199,7 +199,7 @@ void ChatMessageLib::ItemExpiredMail(DispatchClient* client, uint64 Receiver, in
 
 
 	Message* newMessage = gMessageFactory->EndMessage();
-	client->SendChannelA(newMessage, client->getAccountId(), CR_Chat, 6, false);
+	client->SendChannelA(newMessage, client->getAccountId(), CR_Chat, 6);
 
 }
 
@@ -237,7 +237,7 @@ void ChatMessageLib::sendSoldAuctionMail(DispatchClient* client,uint64 Sender, u
 
 
 	Message* newMessage = gMessageFactory->EndMessage();
-	client->SendChannelA(newMessage, client->getAccountId(), CR_Chat, 6, false);
+	client->SendChannelA(newMessage, client->getAccountId(), CR_Chat, 6);
 
 }
 
@@ -262,7 +262,7 @@ void ChatMessageLib::sendAuctionOutbidMail(DispatchClient* client, uint64 Sender
 	delete(aMS);
 
 	Message* newMessage = gMessageFactory->EndMessage();
-	client->SendChannelA(newMessage, client->getAccountId(), CR_Chat, 6, false);
+	client->SendChannelA(newMessage, client->getAccountId(), CR_Chat, 6);
 
 }
 
@@ -291,7 +291,7 @@ void ChatMessageLib::sendAuctionWonMail(DispatchClient* client, uint64 Sender, u
 
 
 	Message* newMessage = gMessageFactory->EndMessage();
-	client->SendChannelA(newMessage, client->getAccountId(), CR_Chat, 6, false);
+	client->SendChannelA(newMessage, client->getAccountId(), CR_Chat, 6);
 
 }
 
@@ -358,7 +358,7 @@ void ChatMessageLib::sendSystemMessageProper(Player* playerObject,uint8 system, 
 			gMessageFactory->addUint8(0);
 	}
 
-	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), playerObject->getClient()->getAccountId(), CR_Client, 5, false);
+	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), playerObject->getClient()->getAccountId(), CR_Client, 5);
 }
 
 //======================================================================================================================
@@ -374,7 +374,7 @@ void ChatMessageLib::sendSystemMessage(Player* target, string message)
 	gMessageFactory->addUint32(0);				 
 	newMessage = gMessageFactory->EndMessage();
 
-	target->getClient()->SendChannelA(newMessage, target->getClient()->getAccountId(), CR_Client, 5, false);
+	target->getClient()->SendChannelA(newMessage, target->getClient()->getAccountId(), CR_Client, 5);
 }
 
 //======================================================================================================================
@@ -445,7 +445,7 @@ void ChatMessageLib::sendGroupSystemMessage(string name, string pointer, Player*
 
 	if(group == NULL)
 	{
-		target->getClient()->SendChannelA(newMessage, target->getClient()->getAccountId(), CR_Client, 5, false);
+		target->getClient()->SendChannelA(newMessage, target->getClient()->getAccountId(), CR_Client, 5);
 	}
 	else
 	{
@@ -466,7 +466,7 @@ void ChatMessageLib::sendFriendOnlineStatus(Player* player,Player* playerFriend,
 
 	Message* newMessage = gMessageFactory->EndMessage();
 
-	player->getClient()->SendChannelA(newMessage,player->getClient()->getAccountId(),CR_Client,3,false);
+	player->getClient()->SendChannelA(newMessage,player->getClient()->getAccountId(),CR_Client,3);
 }
 
 //======================================================================================================================
@@ -495,7 +495,7 @@ void ChatMessageLib::sendBanktipMail(DispatchClient* client, Player*  playerObje
 	gMessageFactory->addString(aMS->assemble());
 
 	Message* newMessage = gMessageFactory->EndMessage();
-	client->SendChannelA(newMessage, client->getAccountId(), CR_Chat, 6, false);
+	client->SendChannelA(newMessage, client->getAccountId(), CR_Chat, 6);
 
 	delete(aMS);
 
@@ -517,7 +517,7 @@ void ChatMessageLib::sendBanktipMail(DispatchClient* client, Player*  playerObje
 	gMessageFactory->addString(aMS->assemble());
 
 	newMessage = gMessageFactory->EndMessage();
-	client->SendChannelA(newMessage, client->getAccountId(), CR_Chat, 6, false);
+	client->SendChannelA(newMessage, client->getAccountId(), CR_Chat, 6);
 
 	delete(aMS);
 }
@@ -582,7 +582,7 @@ void ChatMessageLib::sendChatRoomList(DispatchClient* client, ChannelList* list)
 	}
 	Message* message = gMessageFactory->EndMessage();
 
-	client->SendChannelA(message, client->getAccountId(), CR_Client, 2, false);
+	client->SendChannelA(message, client->getAccountId(), CR_Client, 2);
 }
 
 //======================================================================================================================
@@ -608,7 +608,7 @@ void ChatMessageLib::sendChatOnEnteredRoom(DispatchClient* client, ChatAvatarId*
 		gMessageFactory->addUint32(((*iter) == player) ? requestId : 0);
 		Message* message = gMessageFactory->EndMessage();
 
-		(*iter)->getPlayer()->getClient()->SendChannelA(message, (*iter)->getPlayer()->getClient()->getAccountId(), CR_Client, 5, false);
+		(*iter)->getPlayer()->getClient()->SendChannelA(message, (*iter)->getPlayer()->getClient()->getAccountId(), CR_Client, 5);
 		++iter;
 	}
 }
@@ -632,7 +632,7 @@ void ChatMessageLib::sendChatFailedToEnterRoom(DispatchClient* client, ChatAvata
 	gMessageFactory->addUint32(requestId);
 	Message* message = gMessageFactory->EndMessage();
 
-	client->SendChannelA(message, client->getAccountId(), CR_Client, 5, false);
+	client->SendChannelA(message, client->getAccountId(), CR_Client, 5);
 }
 
 //======================================================================================================================
@@ -684,7 +684,7 @@ void ChatMessageLib::sendChatOnCreateRoom(DispatchClient* client, Channel* chann
 	gMessageFactory->addUint32(requestId);
 	Message* message = gMessageFactory->EndMessage();
 
-	client->SendChannelA(message, client->getAccountId(), CR_Client, 4, false);
+	client->SendChannelA(message, client->getAccountId(), CR_Client, 4);
 }
 
 //======================================================================================================================
@@ -717,12 +717,12 @@ void ChatMessageLib::sendChatOnDestroyRoom(DispatchClient* client, Channel* chan
 		gMessageFactory->addUint32(requestId);
 		Message* message = gMessageFactory->EndMessage();
 
-		client->SendChannelA(message, client->getAccountId(), CR_Client, 4, false);
+		client->SendChannelA(message, client->getAccountId(), CR_Client, 4);
 	}
 	else
 	{
 		// For debugging purpose
-		gLogger->logMsg("ChatMessageLib::sendChatOnDestroyRoom: ERROR: channel is NULL");
+		gLogger->logErrorF("chat","ChatMessageLib::sendChatOnDestroyRoom: ERROR: channel is NULL",MSG_NORMAL);
 	}
 }
 
@@ -749,7 +749,7 @@ void ChatMessageLib::sendChatOnLeaveRoom(DispatchClient* client, ChatAvatarId* a
 		gMessageFactory->addUint32(channel->getId());
 		gMessageFactory->addUint32(((*iter) == avatar) ? requestId : 0);
 		Message* message = gMessageFactory->EndMessage();
-		(*iter)->getPlayer()->getClient()->SendChannelA(message, (*iter)->getPlayer()->getClient()->getAccountId(), CR_Client, 5, false);
+		(*iter)->getPlayer()->getClient()->SendChannelA(message, (*iter)->getPlayer()->getClient()->getAccountId(), CR_Client, 5);
 		++iter;
 	}
 }
@@ -776,7 +776,7 @@ void ChatMessageLib::sendChatOnInviteToRoom(DispatchClient* client, string galax
 	gMessageFactory->addUint32(requestId);
 	Message* message = gMessageFactory->EndMessage();
 
-	client->SendChannelA(message, client->getAccountId(), CR_Client, 6, false);
+	client->SendChannelA(message, client->getAccountId(), CR_Client, 6);
 
 }
 
@@ -809,7 +809,7 @@ void ChatMessageLib::sendChatFailedToInvite(DispatchClient* client, string galax
 	gMessageFactory->addUint32(requestId);
 	Message* message = gMessageFactory->EndMessage();
 
-	client->SendChannelA(message, client->getAccountId(), CR_Client, 6, false);
+	client->SendChannelA(message, client->getAccountId(), CR_Client, 6);
 }
 
 //======================================================================================================================
@@ -836,7 +836,7 @@ void ChatMessageLib::sendChatOnUninviteFromRoom(DispatchClient* client, string g
 	gMessageFactory->addUint32(requestId);
 	Message* message = gMessageFactory->EndMessage();
 
-	client->SendChannelA(message, client->getAccountId(), CR_Client, 6, false);
+	client->SendChannelA(message, client->getAccountId(), CR_Client, 6);
 }
 
 //======================================================================================================================
@@ -868,7 +868,7 @@ void ChatMessageLib::sendChatFailedToUninviteFromRoom(DispatchClient* client, st
 	gMessageFactory->addUint32(requestId);
 	Message* message = gMessageFactory->EndMessage();
 
-	client->SendChannelA(message, client->getAccountId(), CR_Client, 6, false);
+	client->SendChannelA(message, client->getAccountId(), CR_Client, 6);
 }
 
 //======================================================================================================================
@@ -902,7 +902,7 @@ void ChatMessageLib::sendChatOnBanAvatarFromRoom(DispatchClient* client, string 
 		gMessageFactory->addUint32(((*iter)->getPlayer()->getClient() == client) ? requestId : 0);
 		Message* message = gMessageFactory->EndMessage();
 
-		(*iter)->getPlayer()->getClient()->SendChannelA(message, (*iter)->getPlayer()->getClient()->getAccountId(), CR_Client, 6, false);
+		(*iter)->getPlayer()->getClient()->SendChannelA(message, (*iter)->getPlayer()->getClient()->getAccountId(), CR_Client, 6);
 		++iter;
 	}
 }
@@ -936,7 +936,7 @@ void ChatMessageLib::sendChatFailedToBan(DispatchClient* client, string galaxy, 
 	gMessageFactory->addUint32(requestId);
 	Message* message = gMessageFactory->EndMessage();
 
-	client->SendChannelA(message, client->getAccountId(), CR_Client, 6, false);
+	client->SendChannelA(message, client->getAccountId(), CR_Client, 6);
 }
 
 //======================================================================================================================
@@ -970,7 +970,7 @@ void ChatMessageLib::sendChatOnUnBanAvatarFromRoom(DispatchClient* client, strin
 		gMessageFactory->addUint32(((*iter)->getPlayer()->getClient() == client) ? requestId : 0);
 		Message* message = gMessageFactory->EndMessage();
 
-		(*iter)->getPlayer()->getClient()->SendChannelA(message, (*iter)->getPlayer()->getClient()->getAccountId(), CR_Client, 6, false);
+		(*iter)->getPlayer()->getClient()->SendChannelA(message, (*iter)->getPlayer()->getClient()->getAccountId(), CR_Client, 6);
 		++iter;
 	}
 }
@@ -1004,7 +1004,7 @@ void ChatMessageLib::sendChatFailedToUnban(DispatchClient* client, string galaxy
 	gMessageFactory->addUint32(requestId);
 	Message* message = gMessageFactory->EndMessage();
 
-	client->SendChannelA(message, client->getAccountId(), CR_Client, 6, false);
+	client->SendChannelA(message, client->getAccountId(), CR_Client, 6);
 }
 
 //======================================================================================================================
@@ -1118,7 +1118,7 @@ void ChatMessageLib::sendChatQueryRoomResults(DispatchClient* client, Channel* c
 	gMessageFactory->addUint32(0);
 	Message* message = gMessageFactory->EndMessage();
 
-	client->SendChannelA(message, client->getAccountId(), CR_Client, 7, false);
+	client->SendChannelA(message, client->getAccountId(), CR_Client, 7);
 }
 
 //======================================================================================================================
@@ -1151,7 +1151,7 @@ void ChatMessageLib::sendChatOnRemoveModeratorFromRoom(DispatchClient* client, s
 		gMessageFactory->addUint32(((*iter)->getPlayer()->getClient() == client) ? requestId : 0);
 		Message* message = gMessageFactory->EndMessage();
 
-		(*iter)->getPlayer()->getClient()->SendChannelA(message, (*iter)->getPlayer()->getClient()->getAccountId(), CR_Client, 6, false);
+		(*iter)->getPlayer()->getClient()->SendChannelA(message, (*iter)->getPlayer()->getClient()->getAccountId(), CR_Client, 6);
 		++iter;
 	}
 
@@ -1185,7 +1185,7 @@ void ChatMessageLib::sendChatFailedToRemoveMod(DispatchClient* client, string ga
 	gMessageFactory->addUint32(requestId);
 	Message* message = gMessageFactory->EndMessage();
 
-	client->SendChannelA(message, client->getAccountId(), CR_Client, 6, false);
+	client->SendChannelA(message, client->getAccountId(), CR_Client, 6);
 }
 
 //======================================================================================================================
@@ -1218,7 +1218,7 @@ void ChatMessageLib::sendChatOnAddModeratorToRoom(DispatchClient* client, string
 		gMessageFactory->addUint32(((*iter)->getPlayer()->getClient() == client) ? requestId : 0);
 		Message* message = gMessageFactory->EndMessage();
 
-		(*iter)->getPlayer()->getClient()->SendChannelA(message, (*iter)->getPlayer()->getClient()->getAccountId(), CR_Client, 6, false);
+		(*iter)->getPlayer()->getClient()->SendChannelA(message, (*iter)->getPlayer()->getClient()->getAccountId(), CR_Client, 6);
 		++iter;
 	}
 	
@@ -1252,7 +1252,7 @@ void ChatMessageLib::sendChatFailedToAddMod(DispatchClient* client, string galax
 	gMessageFactory->addUint32(requestId);
 	Message* message = gMessageFactory->EndMessage();
 
-	client->SendChannelA(message, client->getAccountId(), CR_Client, 6, false);
+	client->SendChannelA(message, client->getAccountId(), CR_Client, 6);
 }
 
 //======================================================================================================================
@@ -1285,7 +1285,7 @@ void ChatMessageLib::sendChatRoomMessage(Channel* channel, string galaxy, string
 			
 			if (client == NULL)
 			{
-				gLogger->logMsgF("sendChatRoomMessage: Client not found for channel %u", MSG_NORMAL, channel->getId());	
+				gLogger->logErrorF("chat","sendChatRoomMessage: Client not found for channel %u", MSG_NORMAL, channel->getId());	
 			}
 			else
 			{
@@ -1300,7 +1300,7 @@ void ChatMessageLib::sendChatRoomMessage(Channel* channel, string galaxy, string
 				gMessageFactory->addString(message);
 				gMessageFactory->addUint32(0);
 				Message* response = gMessageFactory->EndMessage();
-				client->SendChannelA(response, client->getAccountId(), CR_Client, 5, false);
+				client->SendChannelA(response, client->getAccountId(), CR_Client, 5);
 
 			}
 		}
@@ -1318,5 +1318,5 @@ void ChatMessageLib::sendChatOnSendRoomMessage(DispatchClient *client, uint32 er
 	gMessageFactory->addUint32(requestId);
 	Message* message = gMessageFactory->EndMessage();
 
-	client->SendChannelA(message, client->getAccountId(), CR_Client, 3, false);
+	client->SendChannelA(message, client->getAccountId(), CR_Client, 3);
 }

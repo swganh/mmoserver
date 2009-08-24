@@ -64,7 +64,7 @@ class Heightmap
 				Connect();
 				if(!Open()) 
 				{
-					gLogger->logMsg("Heightmap::ERROR: Unable to retrieve height. A connection to the zone heightmap was not established!",FOREGROUND_RED);
+					gLogger->logMsg("Heightmap::ERROR: Unable to retrieve height. A connection to the zone heightmap was not established!\n",FOREGROUND_RED);
 					return FLT_MIN;
 				}
 			}
@@ -86,7 +86,7 @@ class Heightmap
 				Connect();
 				if(!Open()) 
 				{
-					gLogger->logMsg("Heightmap::ERROR: Unable to retrieve height row. A connection to the zone heightmap was not established!",FOREGROUND_RED);
+					gLogger->logMsg("Heightmap::ERROR: Unable to retrieve height row. A connection to the zone heightmap was not established!\n",FOREGROUND_RED);
 					return false;
 				}
 			}
@@ -116,7 +116,7 @@ class Heightmap
 				Connect();
 				if(!Open()) 
 				{
-					gLogger->logMsg("Heightmap::ERROR: Unable to tell if position has water. A connection to the zone heightmap was not established!",FOREGROUND_RED | BACKGROUND_BLUE);
+					gLogger->logMsg("Heightmap::ERROR: Unable to tell if position has water. A connection to the zone heightmap was not established!\n",FOREGROUND_RED | BACKGROUND_BLUE);
 					return false;
 				}
 			}
@@ -133,16 +133,19 @@ class Heightmap
 		bool Open() { if(hmp) return true; else return false;  }
 		void Connect()
 		{
+			gLogger->logMsgF("Esablishing connection to Heightmap: %s",MSG_NORMAL,mFilename.c_str());
 			hmp = fopen(mFilename.c_str(),"r+b");
 			if(!hmp)
 			{
+				gLogger->logMsgFailed(23-(mFilename.length()));
 				char err[255];
-				sprintf(err,"Heightmap::ERROR: Unable to open the heightmap file: %s!",mFilename.c_str());
+				sprintf(err,"\tHeightmap::ERROR: Unable to open the heightmap file: %s!\n",mFilename.c_str());
 				gLogger->logMsg(err,FOREGROUND_RED);
 			}
 			else
 			{
-				gLogger->logMsgF("Heightmap::Successfully opened %s.",MSG_NORMAL, mFilename.c_str());
+				gLogger->logMsgOk(27-(mFilename.length()));
+				//gLogger->logMsgF("Heightmap::Successfully opened %s.",MSG_NORMAL, mFilename.c_str());
 			}
 		  return;
 		}

@@ -13,16 +13,35 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Datapad.h"
 #include "MessageLib/MessageLib.h"
 #include "WorldManager.h"
+#include "WorldConfig.h"
 
 
 //=============================================================================
 
-Datapad::Datapad() : TangibleObject(),mCapacity(100),mMissionCapacity(DATAPAD_MAX_MISSIONS)
+Datapad::Datapad() : TangibleObject()
 {
 	mTanGroup					= TanGroup_Datapad;
 	mTanType					= TanType_CharacterDatapad;
 	mSchematicUpdateCounter		= 0;
+	mWayPointCapacity			= gWorldConfig->getConfiguration("Player_DataPad_WayPointCapacity",(uint8)100);
+	mCapacity					= gWorldConfig->getConfiguration("Player_Datapad_Capacity",(uint8)100);
+	mMissionCapacity			= gWorldConfig->getConfiguration("Player_Datapad_MissionCapacity",(uint8)2);
+
+	if(mMissionCapacity	>6)
+	{
+		gLogger->logErrorF("Configuration","Datapad::Datapad() : mMissionCapacity	was bigger than 6 - bigger entries are not supported due to the way Mission IDs are handled",MSG_NORMAL);
+		//gLogger->logMsgF("Datapad::Datapad() : mMissionCapacity	was bigger than 6 - bigger entries are not supported due to the way Mission IDs are handled",MSG_NORMAL);
+		mMissionCapacity = 6;
+	}
+	
+	/*
+	  //Absoulte max of 6! To raise this change the 
+//mission ID system from uint16 to uint32/uint64
+#define DATAPAD_MAX_MISSIONS 2
+	*/
+
 }
+
 
 //=============================================================================
 
@@ -189,13 +208,51 @@ bool Datapad::removeManufacturingSchematic(ManufacturingSchematic* ms)
 
 //=============================================================================
 
+bool Datapad::addWaypoint(WaypointObject* waypoint)
+{ 
+	if(mWayPointCapacity)
+	{
+		mWaypoints.push_back(waypoint); 
+		mWayPointCapacity--; 
+		return true;
+	}
+	else
+	{
+		PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getParentId()));					
+		gMessageLib->sendSystemMessage(player,L"Error datapad at max capacity ");
+		return false;
+	}
+}
+
+bool Datapad::addData(IntangibleObject* Data) 
+{ 
+	if(mCapacity)
+	{
+		mData.push_back(Data); 
+		mCapacity--; 
+		return true;
+	}
+	else
+	{
+		PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getParentId()));					
+		gMessageLib->sendSystemMessage(player,L"Error datapad at max capacity ");
+		return false;
+
+	}
+}
+
+//=============================================================================
+
 void Datapad::handleObjectReady(Object* object,DispatchClient* client)
 {
 	if(WaypointObject* waypoint = dynamic_cast<WaypointObject*>(object))
 	{
-		addWaypoint(waypoint);
-
-		gMessageLib->sendWaypointsUpdate(mOwner);
+		if(addWaypoint(waypoint))
+			gMessageLib->sendWaypointsUpdate(mOwner);
+		else
+		{
+			//remove it from db ...
+		}
 	}
 }
 
@@ -317,3 +374,54 @@ return it;
 //=============================================================================
 
 
+void Datapad::requestNewWaypoint(string name,const Anh_Math::Vector3 coords,uint16 planetId,uint8 wpType)
+{
+	
+	if(!mCapacity)
+	{
+		PlayerObject*	player			= dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getParentId()));					
+		gMessageLib->sendSystemMessage(player,L"Error datapad at max capacity Couldnt create the wp");
+		return;
+	}
+
+	gObjectFactory->requestNewWaypoint(this,name,coords,planetId, mOwner->getId(),wpType);
+}
+
+//=============================================================================
+
+bool Datapad::addManufacturingSchematic(ManufacturingSchematic* ms)
+{ 
+	if(mCapacity)
+	{
+		mManufacturingSchematics.push_back(ms); 
+		mCapacity--; 
+		return true;
+	}
+	else
+	{
+		PlayerObject*	player			= dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getParentId()));					
+		gMessageLib->sendSystemMessage(player,L"Error datapad at max capacity Couldnt create the manufacturing schematic");
+		return false;
+	}
+}
+
+//=============================================================================
+
+bool Datapad::addMission(MissionObject* mission) 
+{ 
+	PlayerObject*	player			= dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getParentId()));					
+	if(!mCapacity)
+	{
+		gMessageLib->sendSystemMessage(player,L"Error datapad at max capacity Couldnt create the mission");
+		return false;
+	}
+	if(!mMissionCapacity)
+	{
+		gMessageLib->sendSystemMessage(player,L"Error datapadmissionsystem at max capacity Couldnt create the mission");
+		return false;
+	}
+	mMissions.push_back(mission); 
+	mCapacity--; 
+	mMissionCapacity--; 
+	return true;
+}

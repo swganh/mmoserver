@@ -743,7 +743,7 @@ void PlayerObject::addBadge(uint32 badgeId)
 
 		(gWorldManager->getDatabase())->ExecuteSqlAsync(0,0,"INSERT INTO character_badges VALUES (%lld,%u)",mId,badgeId);
 
-		gLogger->logMsgF("Badge %u granted to %lld",MSG_NORMAL,badgeId,mId);
+		gLogger->logMsgF("Badge %u granted to %lld\n",MSG_NORMAL,badgeId,mId);
 
 		_verifyBadges();
 
@@ -755,7 +755,7 @@ void PlayerObject::addBadge(uint32 badgeId)
 	else
 	{
 		// This is an unexpected condition.
-		gLogger->logMsgF("Badge %u already exists for player with id %lld",MSG_NORMAL,badgeId,mId);
+		gLogger->logMsgF("Badge %u already exists for player with id %lld\n",MSG_NORMAL,badgeId,mId);
 	}
 }
 
@@ -1012,7 +1012,7 @@ void PlayerObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
 	default:
 		{
-			gLogger->logMsgF("PlayerObject: Unhandled MenuSelect: %u",MSG_HIGH,messageType);
+			gLogger->logMsgF("PlayerObject: Unhandled MenuSelect: %u\n",MSG_HIGH,messageType);
 		}
 		break;
 	}
@@ -1173,7 +1173,7 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,string inputStr,UIW
 
 			if(!skill)
 			{
-				gLogger->logMsg("PlayerObject: teach skill : skill list surprisingly empty");
+				gLogger->logMsg("PlayerObject: teach skill : skill list surprisingly empty\n");
 				return;
 			}
 
@@ -1343,7 +1343,7 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,string inputStr,UIW
 			gMessageFactory->addUint32(opIsmGroupLootMasterResponse);
 			gMessageFactory->addUint32(selectedPlayer->getAccountId());
 			newMessage = gMessageFactory->EndMessage();
-			this->getClient()->SendChannelA(newMessage,this->getAccountId(),CR_Chat,2,false);	
+			this->getClient()->SendChannelA(newMessage,this->getAccountId(),CR_Chat,2);	
 		}
 		break;
 
@@ -1352,7 +1352,7 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,string inputStr,UIW
 		{
 			if(action == 1)
 			{				
-				gLogger->logMsg("sampling radioactive box: No");
+				gLogger->logMsg("sampling radioactive box: No\n");
 				mPassRadioactive = false;
 				mPendingSample = false;
 				mPosture	   = CreaturePosture_Upright;
@@ -1361,8 +1361,8 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,string inputStr,UIW
 				gMessageLib->sendSelfPostureUpdate(this);
 				return;
 			}else{		
-				gLogger->logMsg("sampling radioactive box: Yes");
-				gLogger->logMsg("Please hit 'get sample' to continue.");
+				gLogger->logMsg("sampling radioactive box: Yes\n");
+				gLogger->logMsg("Please hit 'get sample' to continue.\n");
 				mPassRadioactive = true;
 				mPendingSample = true;
 				//TODO:invoke sample action
@@ -1381,7 +1381,7 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,string inputStr,UIW
 		{
 			if(action == 1)
 			{				
-				gLogger->logMsg("sampling gamble box action=1 (continue?)");
+				gLogger->logMsg("sampling gamble box action=1 (continue?)\n");
 				mPendingSample = true;
 				mSampleGambleFlag = false;
 
@@ -1396,7 +1396,7 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,string inputStr,UIW
 			}
 			else
 			{		
-				gLogger->logMsg("sampling gamble box action != 1 (chance?)");
+				gLogger->logMsg("sampling gamble box action != 1 (chance?)\n");
 				//action costs				
 				mHam.updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints,300);
 				mPendingSample = true;
@@ -1430,7 +1430,7 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,string inputStr,UIW
 		{
 			if(action == 1)
 			{				
-				gLogger->logMsg("sampling wayp node box action=1 (continue?)");
+				gLogger->logMsg("sampling wayp node box action=1 (continue?)\n");
 				mPendingSample = true;
 				//TODO:need to create wayp obj
 				mSampleNodeFlag = true;
@@ -1438,7 +1438,7 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,string inputStr,UIW
 			}
 			else
 			{		
-				gLogger->logMsg("sampling wayp node box action != 1 (stay here?)");
+				gLogger->logMsg("sampling wayp node box action != 1 (stay here?)\n");
 				mPendingSample = true;
 				mSampleNodeFlag = false;
 				//TODO:need to invoke sample action
@@ -1455,7 +1455,7 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,string inputStr,UIW
 
 	default:
 		{
-			gLogger->logMsgF("handleUIEvent:Default: %u, %u, %s,",MSG_NORMAL, action, element, inputStr.getAnsi());
+			gLogger->logMsgF("handleUIEvent:Default: %u, %u, %s,\n",MSG_NORMAL, action, element, inputStr.getAnsi());
 		}
 		break;
 	}

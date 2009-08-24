@@ -39,8 +39,7 @@ ZoneTree::~ZoneTree(void)
 
 void ZoneTree::Init(double fillFactor,uint32 indexCap,uint32 leafCap,uint32 dimensions,double horizon)
 {
-	gLogger->logMsg("SpatialIndex initializing...");
-	gLogger->logMsgF("FillFactor:%.2f,IndexCap:%u,LeafCap:%u,Dimensions:%u,Horizon:%.2f",MSG_NORMAL,fillFactor,indexCap,leafCap,dimensions,horizon);
+	gLogger->logMsgF("SpatialIndex initializing...\n\tFillFactor:%.2f,\n\tIndexCap:%u,\n\tLeafCap:%u,\n\tDimensions:%u,\n\tHorizon:%.2f",MSG_NORMAL,fillFactor,indexCap,leafCap,dimensions,horizon);
 
 	try
 	{
@@ -50,14 +49,16 @@ void ZoneTree::Init(double fillFactor,uint32 indexCap,uint32 leafCap,uint32 dime
 		mTree = RTree::createNewRTree(*mStorageBuffer,fillFactor,indexCap,leafCap,dimensions,SpatialIndex::RTree::RV_RSTAR,mIndexIdentifier);
 
 		mResourceUsage.start();
+		gLogger->logMsgOk(54);
 	}
 	catch(Tools::Exception& e)
 	{
-		gLogger->logMsg("*** ERROR: " + e.what() + " ***");
+		gLogger->logMsgFailed(54);
+		gLogger->logMsg("*** ERROR: " + e.what() + " ***\n");
 	}
 	catch(...)
 	{
-		gLogger->logMsg("*** ERROR: Unknown Exception ***");
+		gLogger->logMsg("*** ERROR: Unknown Exception ***\n");
 	}
 }
 
@@ -236,13 +237,13 @@ void ZoneTree::getObjectsInRangeIntersection(Object* object,ObjectSet* resultSet
 		}
 		else
 		{
-			gLogger->logMsgF("SI could not find cell %lld",MSG_HIGH,object->getParentId());
+			gLogger->logMsgF("SI could not find cell %lld\n",MSG_HIGH,object->getParentId());
 			return;
 		}
 
 		if(!buildingObject)
 		{
-			gLogger->logMsgF("SI could not find building %lld",MSG_HIGH,cell->getParentId());
+			gLogger->logMsgF("SI could not find building %lld\n",MSG_HIGH,cell->getParentId());
 			return;
 		}
 
@@ -408,13 +409,13 @@ void ZoneTree::getObjectsInRange(const Object* const object,ObjectSet* resultSet
 		}
 		else
 		{
-			gLogger->logMsgF("SI could not find cell %lld",MSG_HIGH,object->getParentId());
+			gLogger->logMsgF("SI could not find cell %lld\n",MSG_HIGH,object->getParentId());
 			return;
 		}
 
 		if(!buildingObject)
 		{
-			gLogger->logMsgF("SI could not find building %lld",MSG_HIGH,cell->getParentId());
+			gLogger->logMsgF("SI could not find building %lld\n",MSG_HIGH,cell->getParentId());
 			return;
 		}
 
@@ -566,7 +567,7 @@ void ZoneTree::DumpStats()
 
 void ZoneTree::ShutDown()
 {
-	gLogger->logMsg("SpatialIndex Shutdown");
+	gLogger->logMsg("SpatialIndex Shutdown\n");
 
 	try
 	{
@@ -574,11 +575,11 @@ void ZoneTree::ShutDown()
 	}
 	catch(Tools::Exception& e)
 	{
-		gLogger->logMsg("*** ERROR: " + e.what() + " ***");	
+		gLogger->logMsg("*** ERROR: " + e.what() + " ***\n");	
 	}
 	catch(...)
 	{
-		gLogger->logMsg("*** ERROR: Unknown Exception ***");
+		gLogger->logMsg("*** ERROR: Unknown Exception ***\n");
 	}
 
 	delete(mTree);
@@ -587,7 +588,7 @@ void ZoneTree::ShutDown()
 
 	mIndexIdentifier = 0;
 
-	gLogger->logMsg("SpatialIndex Shutdown complete");
+	gLogger->logMsg("SpatialIndex Shutdown complete\n");
 }
 //=============================================================================
 
@@ -677,13 +678,13 @@ void ZoneTree::getObjectsInRangeEx(Object* object,ObjectSet* resultSet,uint32 ob
 		}
 		else
 		{
-			gLogger->logMsgF("SI could not find cell %lld",MSG_HIGH,object->getParentId());
+			gLogger->logMsgF("SI could not find cell %lld\n",MSG_HIGH,object->getParentId());
 			return;
 		}
 
 		if(!buildingObject)
 		{
-			gLogger->logMsgF("SI could not find building %lld",MSG_HIGH,cell->getParentId());
+			gLogger->logMsgF("SI could not find building %lld\n",MSG_HIGH,cell->getParentId());
 			return;
 		}
 

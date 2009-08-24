@@ -102,7 +102,7 @@ void CharSheetManager::handleDispatchMessage(uint32 opcode,Message* message,Disp
 	if(it != mCommandMap.end())
 		(this->*((*it).second))(message,client);
 	else
-		gLogger->logMsgF("CharSheetManager: Unhandled DispatchMsg %u",MSG_NORMAL,opcode);
+		gLogger->logMsgF("CharSheetManager: Unhandled DispatchMsg %u\n",MSG_NORMAL,opcode);
 }
 
 //=========================================================================================
@@ -115,6 +115,8 @@ void CharSheetManager::handleDatabaseJobComplete(void* ref, DatabaseResult* resu
 	{
 		case CharSheetQuery_Factions:
 		{
+			gLogger->logMsg("CharSheetManager::loading factions...");
+
 			string name;
 			DataBinding* binding = mDatabase->CreateDataBinding(1);
 			binding->addField(DFT_bstring,0,255,1);
@@ -127,8 +129,8 @@ void CharSheetManager::handleDatabaseJobComplete(void* ref, DatabaseResult* resu
 				mvFactions.push_back(BString(name.getAnsi()));
 			}
 
-			gLogger->logMsgF("CharSheetManager::loaded %lld factions",MSG_NORMAL,count);
-
+			printf(" %lld loaded",count);
+			gLogger->logMsgOk(17);
 			mDatabase->DestroyDataBinding(binding);
 
 			// load badge categories
@@ -178,6 +180,7 @@ void CharSheetManager::handleDatabaseJobComplete(void* ref, DatabaseResult* resu
 			mDatabase->DestroyDataBinding(binding);
 
 			gLogger->logMsgF("CharSheetManager::loaded %lld badges",MSG_NORMAL,count);
+			gLogger->logMsgOk(29);
 		}
 		break;
 
@@ -230,7 +233,7 @@ void CharSheetManager::_processFactionRequest(Message* message,DispatchClient* c
 
 	Message* newMessage = gMessageFactory->EndMessage();
 
-	client->SendChannelA(newMessage,client->getAccountId(),CR_Client,6,false);
+	client->SendChannelA(newMessage,client->getAccountId(),CR_Client,6);
 }
 
 //=========================================================================================
@@ -252,7 +255,7 @@ void CharSheetManager::_processPlayerMoneyRequest(Message* message,DispatchClien
 
 	Message* newMessage = gMessageFactory->EndMessage();
 
-	client->SendChannelA(newMessage,client->getAccountId(),CR_Client,3,false);
+	client->SendChannelA(newMessage,client->getAccountId(),CR_Client,3);
 }
 
 //=========================================================================================

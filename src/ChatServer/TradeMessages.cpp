@@ -25,7 +25,7 @@ void ChatMessageLib::sendCanceLiveAuctionResponseMessage(DispatchClient* client,
 	gMessageFactory->addUint32(error);
 	gMessageFactory->addUint8(0);// ??
 	Message* newMessage = gMessageFactory->EndMessage();
-	client->SendChannelA(newMessage, client->getAccountId(),  CR_Client, 6, false);
+	client->SendChannelA(newMessage, client->getAccountId(),  CR_Client, 6);
 }
 
 //=======================================================================================================================
@@ -38,7 +38,7 @@ void ChatMessageLib::sendBidAuctionResponse(DispatchClient* client, uint32 mErro
 	gMessageFactory->addUint64(mAuctionID);
 	gMessageFactory->addUint32(mError);
 	newMessage = gMessageFactory->EndMessage();
-	client->SendChannelA(newMessage,client->getAccountId(),CR_Client,6,false);
+	client->SendChannelA(newMessage,client->getAccountId(),CR_Client,6);
 }
 
 //=======================================================================================================================
@@ -64,7 +64,7 @@ void ChatMessageLib::sendIsVendorOwnerResponseMessage(DispatchClient* client, st
 
 
 	Message* newMessage = gMessageFactory->EndMessage();
-	client->SendChannelA(newMessage,client->getAccountId(),  CR_Client, 6, false);
+	client->SendChannelA(newMessage,client->getAccountId(),  CR_Client, 6);
 
 }
 
@@ -80,7 +80,7 @@ void ChatMessageLib::processSendCreateItem(DispatchClient* client, uint64 mPlaye
 	gMessageFactory->addUint32(mItemGroup);
 	Message* newMessage = gMessageFactory->EndMessage();
 	//planetID+8 is the zones ID 
-	client->SendChannelA(newMessage, client->getAccountId(), mPlanetID+8, 6, false);
+	client->SendChannelA(newMessage, client->getAccountId(), mPlanetID+8, 6);
 
 }
 
@@ -119,7 +119,7 @@ void ChatMessageLib::SendGetAuctionDetailsResponse(TradeManagerAsyncContainer* a
 	gMessageFactory->addUint32(0);
 
 	Message* newMessage = gMessageFactory->EndMessage();
-	asynContainer->mClient->SendChannelA(newMessage, asynContainer->mClient->getAccountId(),  CR_Client, 4, false);
+	asynContainer->mClient->SendChannelA(newMessage, asynContainer->mClient->getAccountId(),  CR_Client, 4);
 
 }
 
@@ -135,7 +135,7 @@ void ChatMessageLib::sendBankTipDeductMessage(DispatchClient* client, uint64 rec
 	gMessageFactory->addUint32(amount);	
 
 	Message* newMessage = gMessageFactory->EndMessage();
-	client->SendChannelA(newMessage, client->getAccountId(), mPlayer->getPlanetId()+8 , 6, false);
+	client->SendChannelA(newMessage, client->getAccountId(), mPlayer->getPlanetId()+8 , 6);
 
 
 }
@@ -157,7 +157,7 @@ void ChatMessageLib::sendBazaarTransactionMessage(DispatchClient* client, Auctio
 		x = "";
 		y = "";
 		region = "";
-		gLogger->logMsgF("ChatMessageLib :: Bazaar not found",MSG_NORMAL);
+		gLogger->logMsgF("ChatMessageLib :: Bazaar not found\n",MSG_NORMAL);
 	}
 	else
 	{
@@ -196,7 +196,7 @@ void ChatMessageLib::sendBazaarTransactionMessage(DispatchClient* client, Auctio
 	gMessageFactory->addString(y);//y
 
 	Message* newMessage = gMessageFactory->EndMessage();
-	client->SendChannelA(newMessage, client->getAccountId(), mPlayer->getPlanetId()+8 , 6, false);
+	client->SendChannelA(newMessage, client->getAccountId(), mPlayer->getPlanetId()+8 , 6);
 
 }
 

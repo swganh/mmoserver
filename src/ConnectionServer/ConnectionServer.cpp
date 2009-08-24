@@ -28,6 +28,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include <stdio.h>
 #include <conio.h>
+#include <string.h>
 
 //======================================================================================================================
 
@@ -62,7 +63,8 @@ ConnectionServer::~ConnectionServer(void)
 void ConnectionServer::Startup(void)
 {
 	// log msg to default log
-	gLogger->logMsg("ConnectionServer Startup", FOREGROUND_GREEN | FOREGROUND_RED);
+	gLogger->printSmallLogo();
+	gLogger->logMsg("ConnectionServer Startup\n", FOREGROUND_GREEN | FOREGROUND_RED);
 	gLogger->logMsg(GetBuildString());
 
 	// Startup our core modules
@@ -86,8 +88,16 @@ void ConnectionServer::Startup(void)
 									   (char*)(gConfig->read<std::string>("DBName")).c_str());
 
 	mClusterId = gConfig->read<uint32>("ClusterId");
+	
 	mDatabase->ExecuteSqlAsync(0, 0, "UPDATE galaxy SET status=1, last_update=NOW() WHERE galaxy_id=%u;", mClusterId);
 
+	gLogger->connecttoDB(mDatabaseManager);
+	gLogger->createErrorLog("connection",(LogLevel)(gConfig->read<int>("LogLevel",2)),
+										(bool)(gConfig->read<bool>("LogToFile", true)),
+										(bool)(gConfig->read<bool>("ConsoleOut",true)),
+										(bool)(gConfig->read<bool>("LogAppend",true)));
+
+	mDatabase->ExecuteSqlAsync(0,0,"UPDATE config_process_list SET serverstartID = serverstartID+1 WHERE name like 'connection'");
 	// In case of a crash, we need to cleanup the DB a little.
 	DatabaseResult* result = mDatabase->ExecuteSynchSql("UPDATE account SET loggedin=0 WHERE loggedin=%u;", mClusterId);
 	mDatabase->DestroyResult(result);
@@ -114,15 +124,20 @@ void ConnectionServer::Startup(void)
 
 	// We're done initiailizing.
 	_updateDBServerList(2);
-
-	gLogger->logMsg("ConnectionServer::Startup Complete", FOREGROUND_GREEN);
+	gLogger->logMsg("ConnectionServer::Server Boot Complete\n", FOREGROUND_GREEN);
+	gLogger->printLogo();
+	std::string BuildString(GetBuildString());	
+	gLogger->logMsgF("ConnectionServer %s",MSG_NORMAL,BuildString.substr(11,BuildString.size()).c_str());
+	gLogger->logMsg("Welcome to your SWGANH Experience!\n");
+	
+	
 }
 
 //======================================================================================================================
 
 void ConnectionServer::Shutdown(void)
 {
-	gLogger->logMsg("ConnectionServer Shutting down...");
+	gLogger->logMsg("ConnectionServer Shutting down...\n");
 
 	// Update our status for the LoginServer
 	mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE galaxy SET status=0 WHERE galaxy_id=%u;",mClusterId));
@@ -155,7 +170,7 @@ void ConnectionServer::Shutdown(void)
 	delete mDatabaseManager;
 	delete mNetworkManager;
 
-	gLogger->logMsg("ConnectionServer Shutdown Complete");
+	gLogger->logMsg("ConnectionServer Shutdown Complete\n");
 }
 
 //======================================================================================================================

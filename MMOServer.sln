@@ -53,6 +53,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ConnectionServer", "src\Con
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DatabaseManager", "src\DatabaseManager\DatabaseManager.vcproj", "{A5639F60-42C1-4FDA-97CE-BC2D5AD7184D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{EC58D023-5E29-4A07-9757-D6DB011D7ADA} = {EC58D023-5E29-4A07-9757-D6DB011D7ADA}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LoginServer", "src\LoginServer\LoginServer.vcproj", "{FDE22AF5-E13B-4B15-A18F-F4F238671408}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -65,6 +68,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LoginServer", "src\LoginSer
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LogManager", "src\LogManager\LogManager.vcproj", "{28B3C683-1A5B-4EF6-B91B-5626E60327F5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A5639F60-42C1-4FDA-97CE-BC2D5AD7184D} = {A5639F60-42C1-4FDA-97CE-BC2D5AD7184D}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MathLib", "src\MathLib\MathLib.vcproj", "{779550D9-FCF1-4A40-A49D-C8E68CFBB6B6}"
 EndProject

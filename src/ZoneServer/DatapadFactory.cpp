@@ -250,7 +250,7 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
 								
 			if(!mIlc)
 			{
-				gLogger->logMsg("DatapadFactory: Failed getting ilc");
+				gLogger->logMsg("DatapadFactory: Failed getting ilc\n");
 				return;
 			}
 			mIlc->mLoadCounter--;
@@ -271,7 +271,7 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
 									
 				if(!mIlc)
 				{
-					gLogger->logMsg("DatapadFactory: Failed getting ilc");
+					gLogger->logMsg("DatapadFactory: Failed getting ilc\n");
 					return;
 				}
 			
@@ -301,7 +301,7 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
 				InLoadingContainer*mIlcDPad		= _getObject(id);
 				if(!mIlcDPad)
 				{
-					gLogger->logMsg("DatapadFactory: Failed getting ilc");
+					gLogger->logMsg("DatapadFactory: Failed getting ilc\n");
 					return;
 				}
 				datapad							= dynamic_cast<Datapad*>(mIlcDPad->mObject);
@@ -314,7 +314,7 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
 									
 				if(!mIlc)
 				{
-					gLogger->logMsg("DatapadFactory: Failed getting ilc");
+					gLogger->logMsg("DatapadFactory: Failed getting ilc\n");
 					return;
 				}
 
@@ -338,17 +338,25 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
 			{								
 				if(!mIlc)
 				{
-					gLogger->logMsg("DatapadFactory: Failed getting ilc");
+					gLogger->logMsg("DatapadFactory: Failed getting ilc\n");
 					return;
 				}
 				mIlc->mLoadCounter--;
 				
 				if(IntangibleObject* itno = dynamic_cast<IntangibleObject*>(object))
 				{
-					datapad->addData(itno);
-					Object* ob = gWorldManager->getObjectById(object->getId());
-					if(!ob)
-						gWorldManager->addObject(object,true);
+					if(datapad->getCapacity())
+					{
+						datapad->addData(itno);
+						Object* ob = gWorldManager->getObjectById(object->getId());
+						if(!ob)
+							gWorldManager->addObject(object,true);
+					}
+					else
+					{
+						gLogger->logMsg("DatapadFactory: Datapad at max Capacity!!!");
+						delete(object);
+					}
 				}			
 			}
 

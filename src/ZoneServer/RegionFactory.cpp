@@ -66,7 +66,7 @@ void RegionFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,ui
 		case Region_Zone:	mQTRegionFactory->requestObject(ofCallback,id,subGroup,subType,client); break;
 	
 		default:
-			gLogger->logMsg("RegionFactory::requestObject Unknown Group");
+			gLogger->logMsg("RegionFactory::requestObject Unknown Group\n");
 		break;
 	}
 }

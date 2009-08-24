@@ -94,7 +94,7 @@ void CharacterBuilderTerminal::handleObjectMenuSelect(uint8 messageType,Object* 
 	}
 	else
 	{
-		gLogger->logMsgF("TravelTerminal: Unhandled MenuSelect: %u",MSG_HIGH,messageType);
+		gLogger->logMsgF("TravelTerminal: Unhandled MenuSelect: %u\n",MSG_HIGH,messageType);
 	}
 }
 
@@ -344,7 +344,7 @@ void CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string 
 				if(rParent->getChildren()->size())
 				{
 					gLogger->logMsgF("\n",MSG_HIGH);
-					gLogger->logMsgF("has children ",MSG_HIGH);
+					gLogger->logMsgF("has children \n",MSG_HIGH);
 					//iterate through the children categories and display them
 					ResourceCategoryList*			rcList				= rParent->getChildren();
 					ResourceCategoryList::iterator	rcIt				= rcList->begin();
@@ -619,7 +619,7 @@ void CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string 
 				return;
 			}
 
-			gLogger->logMsgF("input: %u", MSG_NORMAL, mInputBoxAmount);
+			gLogger->logMsgF("input: %u\n", MSG_NORMAL, mInputBoxAmount);
 
 			// bank or inv?
 			if(window->getWindowType() == SUI_Window_CharacterBuilderCreditsMenuInventory_InputBox)

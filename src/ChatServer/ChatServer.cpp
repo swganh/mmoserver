@@ -53,7 +53,8 @@ ChatServer::~ChatServer()
 
 void ChatServer::Startup()
 {
-	gLogger->logMsg("ChatServer Startup");
+	gLogger->printSmallLogo();
+	gLogger->logMsg("ChatServer Startup\n");
 	gLogger->logMsg(GetBuildString());
 
 	// Create and startup our core services.
@@ -71,6 +72,15 @@ void ChatServer::Startup()
 		(char*)(gConfig->read<std::string>("DBUser")).c_str(),
 		(char*)(gConfig->read<std::string>("DBPass")).c_str(),
 		(char*)(gConfig->read<std::string>("DBName")).c_str());
+
+
+	mDatabase->ExecuteSqlAsync(0,0,"UPDATE config_process_list SET serverstartID = serverstartID+1 WHERE name like 'chat'");
+
+	gLogger->connecttoDB(mDatabaseManager);
+	gLogger->createErrorLog("chatserver",(LogLevel)(gConfig->read<int>("LogLevel",2)),
+										(bool)(gConfig->read<bool>("LogToFile", true)),
+										(bool)(gConfig->read<bool>("ConsoleOut",true)),
+										(bool)(gConfig->read<bool>("LogAppend",true)));
 
 	mRouterService = mNetworkManager->CreateService((char*)gConfig->read<std::string>("BindAddress").c_str(), gConfig->read<uint16>("BindPort"),gConfig->read<uint32>("ServiceMessageHeap")*1024,true);
 
@@ -102,14 +112,18 @@ void ChatServer::Startup()
 	// We're done initializing.
 	_updateDBServerList(2);
 
-	gLogger->logMsg("ChatServer::Startup Complete");
+	gLogger->logMsg("ChatServer::Startup Complete\n");
+	gLogger->printLogo();
+	std::string BuildString(GetBuildString());	
+	gLogger->logMsgF("ChatServer %s",MSG_NORMAL,BuildString.substr(11,BuildString.size()).c_str());
+	gLogger->logMsg("Welcome to your SWGANH Experience!\n");
 }
 
 //======================================================================================================================
 
 void ChatServer::Shutdown()
 {
-	gLogger->logMsg("ChatServer shutting down...");
+	gLogger->logMsg("ChatServer shutting down...\n");
 
 	// We're shutting down, so update the DB again.
 	_updateDBServerList(0);
@@ -135,7 +149,7 @@ void ChatServer::Shutdown()
 	delete mNetworkManager;
 	delete mDatabaseManager;
 
-	gLogger->logMsg("ChatServer Shutdown Complete");
+	gLogger->logMsg("ChatServer Shutdown Complete\n");
 }
 
 //======================================================================================================================

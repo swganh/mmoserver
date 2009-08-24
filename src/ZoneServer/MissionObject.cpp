@@ -190,7 +190,7 @@ void MissionObject::sendAttributes(PlayerObject* playerObject)
 
 	message = gMessageFactory->EndMessage();
 
-	(playerObject->getClient())->SendChannelA(message, playerObject->getAccountId(),CR_Client,8,true);
+	(playerObject->getClient())->SendChannelAUnreliable(message, playerObject->getAccountId(),CR_Client,8);
 
 return;
 }

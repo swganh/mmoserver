@@ -225,7 +225,6 @@ void GroupManager::_processIsmGroupLootModeResponse(Message* message)
 	}
 
 	//send the SUI
-	gLogger->logMsg("ok");
 
 	BStringVector availableLootModes;
 	availableLootModes.push_back("Free for all");
@@ -249,7 +248,7 @@ void GroupManager::_processIsmGroupLootMasterResponse(Message* message)
 	}
 
 	//send the SUI
-	gLogger->logMsg("ok");
+	gLogger->logMsg("ok\n");
 
 	PlayerList inRangeMembers	= playerObject->getInRangeGroupMembers(true);
 	PlayerList::iterator it		= inRangeMembers.begin();
@@ -302,7 +301,7 @@ void GroupManager::sendGroupMissionUpdate(GroupObject* group)
 		// create a new one
 		if(datapad->getCapacity())
 		{
-			gObjectFactory->requestNewWaypoint(datapad,"@group:groupwaypoint",mission->getDestination().Coordinates,gWorldManager->getZoneId(),player->getId(),Waypoint_blue);
+			datapad->requestNewWaypoint("@group:groupwaypoint",mission->getDestination().Coordinates,gWorldManager->getZoneId(),Waypoint_blue);
 			gMessageLib->sendSystemMessage(player,L"","group","groupwaypoint");
 		}
 

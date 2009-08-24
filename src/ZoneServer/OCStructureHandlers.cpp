@@ -53,7 +53,7 @@ void	ObjectController::_handleStructurePlacement(uint64 targetId,Message* messag
 
 	swscanf(dataStr.getUnicode16(),L"%I64u %d %d %d",&deedId, &x, &z, &dir);
 
-	gLogger->logMsgF(" ID %I64u x %d y %d dir %d",MSG_HIGH, deedId, x, z, dir);
+	gLogger->logMsgF(" ID %I64u x %d y %d dir %d\n",MSG_HIGH, deedId, x, z, dir);
 
 	
 }

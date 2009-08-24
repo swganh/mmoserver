@@ -43,7 +43,10 @@ void ObjectController::_handleRequestWaypointAtPosition(uint64 targetId,Message*
 	Datapad*		datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
 
 	if(!datapad->getCapacity())
+	{
+		gMessageLib->sendSystemMessage(player,L"Error datapad at max capacity");
 		return;
+	}
 
 	BStringVector	dataElements;
 	string			dataStr;
@@ -57,7 +60,7 @@ void ObjectController::_handleRequestWaypointAtPosition(uint64 targetId,Message*
 	{
 		if(elementCount < 4)
 		{
-			gLogger->logMsgF("ObjController::handleCreateWaypointAtPosition: Error in parameters(count %u)",MSG_NORMAL,elementCount);
+			gLogger->logMsgF("ObjController::handleCreateWaypointAtPosition: Error in parameters(count %u)\n",MSG_NORMAL,elementCount);
 			return;
 		}
 		else
@@ -78,7 +81,7 @@ void ObjectController::_handleRequestWaypointAtPosition(uint64 targetId,Message*
 	}
 
 	string	planetStr	= dataElements[0].getAnsi();
-	gLogger->logMsgF("ObjController::handleCreateWaypointAtPosition: planet %s",MSG_NORMAL,planetStr.getAnsi());
+	gLogger->logMsgF("ObjController::handleCreateWaypointAtPosition: planet %s\n",MSG_NORMAL,planetStr.getAnsi());
 	float	x			= atof(dataElements[1].getAnsi());
 	float	y			= atof(dataElements[2].getAnsi());
 	float	z			= atof(dataElements[3].getAnsi());
@@ -87,11 +90,11 @@ void ObjectController::_handleRequestWaypointAtPosition(uint64 targetId,Message*
 
 	if(planetId == -1)
 	{
-		gLogger->logMsgF("ObjController::handleCreateWaypointAtPosition: could not find planet id for %s",MSG_NORMAL,planetStr.getAnsi());
+		gLogger->logMsgF("ObjController::handleCreateWaypointAtPosition: could not find planet id for %s\n",MSG_NORMAL,planetStr.getAnsi());
 		return;
 	}
 
-	gObjectFactory->requestNewWaypoint(datapad,nameStr,Anh_Math::Vector3(x,y,z),planetId,player->getId(),Waypoint_blue);
+	datapad->requestNewWaypoint(nameStr,Anh_Math::Vector3(x,y,z),planetId,Waypoint_blue);
 }
 
 //======================================================================================================================
@@ -114,7 +117,7 @@ void ObjectController::_handleSetWaypointActiveStatus(uint64 targetId,Message* m
 	}
 	else
 	{
-		gLogger->logMsgF("ObjController::handleSetWaypointStatus: could not find waypoint %lld",MSG_LOW,targetId);
+		gLogger->logMsgF("ObjController::handleSetWaypointStatus: could not find waypoint %lld\n",MSG_LOW,targetId);
 	}
 }
 
@@ -126,10 +129,20 @@ void ObjectController::_handleSetWaypointActiveStatus(uint64 targetId,Message* m
 void ObjectController::_handleWaypoint(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
 	PlayerObject*	player			= dynamic_cast<PlayerObject*>(mObject);
+	Datapad*		datapad			= dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
 	string			name;
 	int32			x,y,z;
 	uint32			elementCount	= 0;
 	bool			verified		= false;
+
+	
+					
+	if(!datapad->getCapacity())
+	{
+		gMessageLib->sendSystemMessage(player,L"Error datapad at max capacity Couldnt create the wp");
+		return;
+	}
+					
 
 	// create waypoint for current target, don't care about passed parameters
 	
@@ -354,7 +367,8 @@ void ObjectController::_handleWaypoint(uint64 targetId,Message* message,ObjectCo
 
 	if(verified)
 	{
-		gObjectFactory->requestNewWaypoint(dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad)),"Waypoint",Anh_Math::Vector3((float)x,(float)y,(float)z),gWorldManager->getZoneId(),player->getId(),Waypoint_blue);
+
+		datapad->requestNewWaypoint("Waypoint",Anh_Math::Vector3((float)x,(float)y,(float)z),gWorldManager->getZoneId(),Waypoint_blue);
 	}
 	else
 	{
@@ -377,7 +391,7 @@ void ObjectController::_handleSetWaypointName(uint64 targetId,Message* message,O
 
 	if(waypoint == NULL)
 	{
-		gLogger->logMsgF("ObjController::handlesetwaypointname: could not find waypoint %lld",MSG_NORMAL,targetId);
+		gLogger->logMsgF("ObjController::handlesetwaypointname: could not find waypoint %lld\n",MSG_NORMAL,targetId);
 		return;
 	}
 

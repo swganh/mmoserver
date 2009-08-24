@@ -53,17 +53,26 @@ void Deed::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 					gScoutManager->createCamp(this->getItemType(),0,player->mPosition,"",player);
 
 				} 
-				else if(this->getItemType() >= 1736 && this->getItemType() <= 1738) //landspeeder x34, speederbike, swoop
+				else if(this->getItemType() >= ItemType_Deed_X34 && this->getItemType() <= ItemType_Deed_Swoop) //landspeeder x34, speederbike, swoop
 				{
 					// create the vehicle and put in datapad
-					gVehicleFactory->createVehicle(this->getItemType(),player);	
+					Datapad*		datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+					
+					if(datapad->getCapacity())
+					{
+						gVehicleFactory->createVehicle(this->getItemType(),player);	
 
-					// delete the deed
-					Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-					inventory->removeObject(this);
-					gMessageLib->sendDestroyObject(this->getId(),player);
-					gObjectFactory->deleteObjectFromDB(this);
-					gWorldManager->destroyObject(this);
+						// delete the deed
+						Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+						inventory->removeObject(this);
+						gMessageLib->sendDestroyObject(this->getId(),player);
+						gObjectFactory->deleteObjectFromDB(this);
+						gWorldManager->destroyObject(this);
+					}
+					else
+					{
+						gMessageLib->sendSystemMessage(player,L"Error datapad at max capacity Couldnt create the vehicle");
+					}
 				}
 				else
 				{
@@ -123,7 +132,7 @@ void Deed::sendAttributes(PlayerObject* playerObject)
                   
 	newMessage = gMessageFactory->EndMessage();
 
-	(playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 9,true);
+	(playerObject->getClient())->SendChannelAUnreliable(newMessage, playerObject->getAccountId(), CR_Client, 9);
 }
 
 //=============================================================================

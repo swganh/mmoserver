@@ -76,7 +76,7 @@ DatabaseResult* DatabaseImplementationMySql::ExecuteSql(int8* sql,bool procedure
   
   if(mysql_errno(mConnection) != 0)
   {
-    gLogger->logMsgF("DatabaseError: %s", MSG_HIGH, mysql_error(mConnection));
+    gLogger->logMsgF("DatabaseError: %s\n", MSG_HIGH, mysql_error(mConnection));
 	
 
   }

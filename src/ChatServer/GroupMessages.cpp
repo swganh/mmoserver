@@ -28,7 +28,7 @@ void ChatMessageLib::sendIsmInviteRequest(Player* sender, Player* target)
 	gMessageFactory->addUint64(sender->getGroupId()); // the group id
 	newMessage = gMessageFactory->EndMessage();
 
-	target->getClient()->SendChannelA(newMessage,target->getClient()->getAccountId(),target->getPlanetId()+8, 3, false);
+	target->getClient()->SendChannelA(newMessage,target->getClient()->getAccountId(),target->getPlanetId()+8, 3);
 }
 
 //======================================================================================================================
@@ -41,7 +41,7 @@ void ChatMessageLib::sendIsmGroupLootModeResponse(Player* target)
 	gMessageFactory->addUint32(opIsmGroupLootModeResponse);
 	gMessageFactory->addUint32(target->getClient()->getAccountId());  // the sender's id
 	newMessage = gMessageFactory->EndMessage();
-	target->getClient()->SendChannelA(newMessage,target->getClient()->getAccountId(),target->getPlanetId()+8, 3, false);
+	target->getClient()->SendChannelA(newMessage,target->getClient()->getAccountId(),target->getPlanetId()+8, 3);
 }
 
 //======================================================================================================================
@@ -54,7 +54,7 @@ void ChatMessageLib::sendIsmGroupLootMasterResponse(Player* target)
 	gMessageFactory->addUint32(opIsmGroupLootMasterResponse);
 	gMessageFactory->addUint32(target->getClient()->getAccountId());  // the sender's id
 	newMessage = gMessageFactory->EndMessage();
-	target->getClient()->SendChannelA(newMessage,target->getClient()->getAccountId(),target->getPlanetId()+8, 3, false);
+	target->getClient()->SendChannelA(newMessage,target->getClient()->getAccountId(),target->getPlanetId()+8, 3);
 }
 
 //======================================================================================================================
@@ -72,7 +72,7 @@ void ChatMessageLib::sendIsmGroupCREO6deltaGroupId(uint64 groupId, Player* targe
 	gMessageFactory->addUint64(groupId); // the new group id
 	newMessage = gMessageFactory->EndMessage();
 	
-	target->getClient()->SendChannelA(newMessage,target->getClient()->getAccountId(),target->getPlanetId()+8, 3, false);
+	target->getClient()->SendChannelA(newMessage,target->getClient()->getAccountId(),target->getPlanetId()+8, 3);
 }
 
 //======================================================================================================================

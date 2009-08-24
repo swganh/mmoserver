@@ -206,5 +206,5 @@ void UITransferBox::sendCreate()
 
 	newMessage = gMessageFactory->EndMessage();
 
-	(mOwner->getClient())->SendChannelA(newMessage,mOwner->getAccountId(),CR_Client,2,false);
+	(mOwner->getClient())->SendChannelA(newMessage,mOwner->getAccountId(),CR_Client,2);
 }

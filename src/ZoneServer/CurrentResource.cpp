@@ -47,7 +47,7 @@ void CurrentResource::buildDistributionMap()
 	mapBuilder.SetDestSize(512,512); 
 	mapBuilder.SetBounds(mNoiseMapBoundsX1,mNoiseMapBoundsX2,mNoiseMapBoundsY1,mNoiseMapBoundsY2);
 
-	gLogger->logMsgF("Building DistributionMap for %s(%s)",MSG_LOW,mName.getAnsi(),mType->getName().getAnsi());
+	gLogger->logMsgF("Building DistributionMap for %s(%s)\n",MSG_LOW,mName.getAnsi(),mType->getName().getAnsi());
 	mapBuilder.Build();
 
 	if(gConfig->read<int>("writeResourceMaps"))
@@ -55,7 +55,7 @@ void CurrentResource::buildDistributionMap()
 		string fileName = (int8*)(gConfig->read<std::string>("ZoneName")).c_str();
 		fileName << "_" << mName.getAnsi() << ".bmp";
 
-		gLogger->logMsgF("Writing File %s",MSG_LOW,fileName.getAnsi());
+		gLogger->logMsgF("Writing File %s\n",MSG_LOW,fileName.getAnsi());
 
 		noise::utils::RendererImage renderer;
 		noise::utils::Image image;

@@ -62,6 +62,7 @@ class SocketWriteThread
 		uint64			    lasttime;
 		uint32				unCount;
 		uint32				reCount;
+		bool				mServerService;
 		// Anh_Utils::Clock*	mClock;
 
 		SessionQueue		mSessionQueue;

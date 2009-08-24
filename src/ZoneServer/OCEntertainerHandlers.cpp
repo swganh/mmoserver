@@ -71,7 +71,7 @@ void ObjectController::_handlewatch(uint64 targetId,Message* message,ObjectContr
 	PlayerObject* target_player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(message->getInt64()));
 	if(!target_player)
 	{
-		gLogger->logMsgF("OC :: handle startwatch No entertainer", MSG_NORMAL);
+		gLogger->logMsgF("OC :: handle startwatch No entertainer\n", MSG_NORMAL);
 		return;
 	}
 	gEntertainerManager->startWatching((PlayerObject*)mObject, target_player);
@@ -93,7 +93,7 @@ void ObjectController::_handlelisten(uint64 targetId,Message* message,ObjectCont
 	
 	if(!target_player)
 	{
-		gLogger->logMsgF("OC :: handle startwatch No entertainer", MSG_NORMAL);
+		gLogger->logMsgF("OC :: handle startwatch No entertainer\n", MSG_NORMAL);
 		return;
 	}
 	

@@ -137,7 +137,7 @@ void SurveyTool::StartUsing(PlayerObject* player)
     
 	message = gMessageFactory->EndMessage();
 
-	(player->getClient())->SendChannelA(message, player->getAccountId(),CR_Client,4,false);
+	(player->getClient())->SendChannelA(message, player->getAccountId(),CR_Client,4);
 }
 
 //=============================================================================

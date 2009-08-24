@@ -169,7 +169,7 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult
 			}
 			else
 			{
-				gLogger->logMsgF("NonPersistentNpcFactory::handleDatabaseJobComplete() Attempting NOTHING", MSG_NORMAL);
+				gLogger->logMsgF("NonPersistentNpcFactory::handleDatabaseJobComplete() Attempting NOTHING\n", MSG_NORMAL);
 			}
 		}
 		break;
@@ -199,14 +199,14 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult
 			}
 			else
 			{
-				gLogger->logMsgF("NonPersistentNpcFactory::handleDatabaseJobComplete() Attempting NOTHING", MSG_NORMAL);
+				gLogger->logMsgF("NonPersistentNpcFactory::handleDatabaseJobComplete() Attempting NOTHING\n", MSG_NORMAL);
 			}
 		}
 		break;
 
 		default:
 		{
-			gLogger->logMsgF("NonPersistentNpcFactory::handleDatabaseJobComplete() UNKNOWN query = %u", MSG_NORMAL, asyncContainer->mQueryType);
+			gLogger->logMsgF("NonPersistentNpcFactory::handleDatabaseJobComplete() UNKNOWN query = %u\n", MSG_NORMAL, asyncContainer->mQueryType);
 		}
 		break;
 	}
@@ -330,7 +330,7 @@ NPCObject* NonPersistentNpcFactory::_createNonPersistentNpc(DatabaseResult* resu
 		default:
 		{
 			npc = new NPCObject();
-			gLogger->logMsgF("NonPersistentNpcFactory::createNonPersistent unknown Family %u",MSG_HIGH,npcIdentifier.mFamilyId);
+			gLogger->logMsgF("NonPersistentNpcFactory::createNonPersistent unknown Family %u\n",MSG_HIGH,npcIdentifier.mFamilyId);
 		}
 		break;
 	}

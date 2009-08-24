@@ -380,7 +380,7 @@ void ClientManager::_processClusterZoneTransferCharacter(ConnectionClient* clien
   else 
   {
     // client may have disconnected right in the middle of the transfer
-    gLogger->logMsg("*** Client not found during zone transfer.");
+    gLogger->logMsg("*** Client not found during zone transfer.\n");
   }
   mServiceMutex.release();
 }

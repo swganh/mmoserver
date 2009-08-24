@@ -135,7 +135,7 @@ void MessageDispatch::handleSessionMessage(NetworkClient* client, Message* messa
 			dispatchClient = (*iter).second;
 			mAccountClientMap.erase(iter);
 
-			gLogger->logMsgF("Destroying DispatchClient for account %u.", MSG_NORMAL, message->getAccountId());
+			gLogger->logMsgF("Destroying DispatchClient for account %u.\n", MSG_NORMAL, message->getAccountId());
 
 			// Mark it for deletion
 			deleteClient = true;
@@ -143,7 +143,7 @@ void MessageDispatch::handleSessionMessage(NetworkClient* client, Message* messa
 		}
 		else
 		{
-			gLogger->logMsgF("*** Could not find DispatchClient for account %u to be deleted.", MSG_NORMAL, message->getAccountId());
+			gLogger->logMsgF("*** Could not find DispatchClient for account %u to be deleted.\n", MSG_NORMAL, message->getAccountId());
 			gLogger->hexDump(message->getData(),message->getSize());
 
 			client->getSession()->DestroyIncomingMessage(message);

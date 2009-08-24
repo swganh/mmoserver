@@ -87,7 +87,9 @@ ZoneServer::~ZoneServer(void)
 
 void ZoneServer::Startup(int8* zoneName)
 {
-	gLogger->logMsg(GetBuildString());
+	gLogger->printSmallLogo();
+	gLogger->logMsgF("ZoneServer - %s Startup %s",MSG_NORMAL,zoneName,GetBuildString());
+	//gLogger->logMsg(GetBuildString());
 	mZoneName = zoneName;
 
 	// Create and startup our core services.
@@ -105,11 +107,24 @@ void ZoneServer::Startup(int8* zoneName)
 										   (int8*)(gConfig->read<std::string>("DBPass")).c_str(),
 										   (int8*)(gConfig->read<std::string>("DBName")).c_str());
 
+	//make sure our logger has db access
+	gLogger->connecttoDB(mDatabaseManager);
+
+	//create an error log
+	gLogger->createErrorLog(zoneName,(LogLevel)(gConfig->read<int>("LogLevel",2)),
+										(bool)(gConfig->read<bool>("LogToFile", true)),
+										(bool)(gConfig->read<bool>("ConsoleOut",true)),
+										(bool)(gConfig->read<bool>("LogAppend",true)));
+
+	//increase the server start that will help us to organize our logs to the corresponding serverstarts (mostly for errors)
+	mDatabase->ExecuteSqlAsync(0,0,"UPDATE config_process_list SET serverstartID = serverstartID+1 WHERE name like '%s'",zoneName);
+
 	mRouterService = mNetworkManager->CreateService((char*)gConfig->read<std::string>("BindAddress").c_str(), gConfig->read<uint16>("BindPort"),gConfig->read<uint32>("ServiceMessageHeap")*1024,true);
 
 	// Grab our zoneId out of the DB for this zonename.
 	uint32 zoneId = 0;
 	DatabaseResult* result = mDatabase->ExecuteSynchSql("SELECT planet_id FROM planet WHERE name=\'%s\';", zoneName);
+	
 	if (!result->getRowCount())
 	{
 		gLogger->logMsgF("FATAL: Map \'%s\' not found.  Aborting startup.", MSG_HIGH, zoneName);
@@ -118,6 +133,7 @@ void ZoneServer::Startup(int8* zoneName)
 
 	//  Yea, I'm getting annoyed with the DataBinding for such simple tasks.  Will implement a simple interface soon.
 	gLogger->logMsgF("ZoneServer initializing for zone %s", MSG_NORMAL, zoneName);
+
 
 	DataBinding* binding = mDatabase->CreateDataBinding(1);
 	binding->addField(DFT_uint32, 0, 4);
@@ -130,7 +146,7 @@ void ZoneServer::Startup(int8* zoneName)
 	// We need to register our IP and port in the DB so the connection server can connect to us.
 	// Status:  0=offline, 1=loading, 2=online
 	_updateDBServerList(1);
-
+	
 	// Place all startup code here.
 	mMessageDispatch = new MessageDispatch();
 	mMessageDispatch->Startup(mRouterService);
@@ -142,7 +158,7 @@ void ZoneServer::Startup(int8* zoneName)
 	ObjectFactory::Init(mDatabase);
 	FoodCommandMapClass::Init();
 	WorldManager::Init(zoneId,this,mDatabase);
-
+//printf("1");
 	// Init the non persistent factories. For now we take them one-by-one here, until we have a collection of them.
 	// We can NOT create these factories among the already existing ones, if we want to have any kind of "ownership structure",
 	// since the existing factories are impossible to delete without crashing the server.
@@ -177,6 +193,7 @@ void ZoneServer::Startup(int8* zoneName)
 
 	mObjectControllerDispatch = new ObjectControllerDispatch();
 	mObjectControllerDispatch->Startup(mDatabase,mMessageDispatch);
+
 }
 
 //======================================================================================================================
@@ -184,7 +201,11 @@ void ZoneServer::Startup(int8* zoneName)
 void ZoneServer::handleWMReady()
 {
 	_updateDBServerList(2);
-	gLogger->logMsg("ZoneServer::Startup Complete");
+	gLogger->logMsg("ZoneServer::Startup Complete\n");
+	gLogger->printLogo();
+	std::string BuildString(GetBuildString());	
+	gLogger->logMsgF("ZoneServer:%s %s",MSG_NORMAL,getZoneName().getAnsi(),BuildString.substr(11,BuildString.size()).c_str());
+	gLogger->logMsg("Welcome to your SWGANH Experience!\n");
 
 	// Connect to the ConnectionServer;
 	_connectToConnectionServer();
@@ -194,7 +215,7 @@ void ZoneServer::handleWMReady()
 
 void ZoneServer::Shutdown(void)
 {
-	gLogger->logMsg("ZoneServer shutting down...");
+	gLogger->logMsg("ZoneServer shutting down...\n");
 
 	// We're shutting down, so update the DB again.
 	_updateDBServerList(0);
@@ -240,7 +261,7 @@ void ZoneServer::Shutdown(void)
 	// NOW, I can feel that it should be safe to delete the data holding messages.
 	gMessageFactory->destroySingleton();
 
-	gLogger->logMsg("ZoneServer::Shutdown Complete");
+	gLogger->logMsg("ZoneServer::Shutdown Complete\n");
 }
 
 //======================================================================================================================
@@ -311,7 +332,7 @@ void ZoneServer::_connectToConnectionServer(void)
 	gMessageFactory->addString(mZoneName);
 
 	Message* message = gMessageFactory->EndMessage();
-	client->SendChannelA(message, 0, CR_Connection, 1, false);
+	client->SendChannelA(message, 0, CR_Connection, 1);
 }
 
 //======================================================================================================================

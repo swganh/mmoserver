@@ -58,8 +58,8 @@ namespace noise
     inline noise::uint8 BlendChannel (const uint8 channel0,
       const uint8 channel1, float alpha)
     {
-      float c0 = static_cast<float>(channel0 / 255.0);
-      float c1 = static_cast<float>(channel1 / 255.0);
+      float c0 = static_cast<float>(channel0) / static_cast<float>(255.0);
+      float c1 = static_cast<float>(channel1) / static_cast<float>(255.0);
       return (noise::uint8)(((c1 * alpha) + (c0 * (1.0f - alpha))) * 255.0f);
     }
 

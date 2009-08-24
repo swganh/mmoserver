@@ -14,6 +14,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "ZoneOpcodes.h"
 #include "Worldmanager.h"
 #include "Instrument.h"
+#include "WorldConfig.h"
 
 //=============================================================================
 
@@ -36,11 +37,13 @@ void Instrument::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 	{	
 		switch(messageType)
 		{
+			case radId_itemDrop:// we need to handle this separately when we come to housing
 			case radId_itemUse: 
 			{
 				if (player->getPlacedInstrumentId() == this->getId())
 				{
-					if (!gWorldManager->objectsInRange(player->getId(), this->getId(), 6.0))
+					float range = gWorldConfig->getConfiguration("Zone_Player_ItemUse",(float)6.0);
+					if (!gWorldManager->objectsInRange(player->getId(), this->getId(), range))
 					{
 						// We where out of range. (using 6.0 m as default range,this value not verified).
 						// TODO: Find the proper error-message, the one below is a "made up".
@@ -165,7 +168,7 @@ void Instrument::sendAttributes(PlayerObject* playerObject)
                   
 	newMessage = gMessageFactory->EndMessage();
 
-	(playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 9,true);
+	(playerObject->getClient())->SendChannelAUnreliable(newMessage, playerObject->getAccountId(), CR_Client, 9);
 }
 
 //=============================================================================

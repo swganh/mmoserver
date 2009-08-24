@@ -22,7 +22,7 @@ class DispatchClient : public NetworkClient
 {
 	public:
   
-		virtual void	SendChannelA(Message* message, uint32 accountId, uint8 serverId, uint8 priority, bool fastpath = false);
+		virtual void	SendChannelA(Message* message, uint32 accountId, uint8 serverId, uint8 priority);
 		virtual void	SendChannelAUnreliable(Message* message, uint32 accountId, uint8 serverId, uint8 priority);
 		void			setAccountId(uint32 id){ mAccountId = id; };
 

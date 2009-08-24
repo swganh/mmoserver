@@ -283,7 +283,7 @@ void ObjectController::_handleDeathBlow(uint64 targetId,Message* message,ObjectC
 
 void ObjectController::_handleLoot(uint64 targetId, Message *message, ObjectControllerCmdProperties *cmdProperties)
 {
-	// gLogger->logMsgF("ObjectController::_handleLoot: targetId = %llu",MSG_NORMAL, targetId);
+	// gLogger->logMsgF("ObjectController::_handleLoot: targetId = %llu\n",MSG_NORMAL, targetId);
 	
 	PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
 	Datapad* datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));

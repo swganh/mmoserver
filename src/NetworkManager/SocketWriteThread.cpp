@@ -39,13 +39,17 @@ void SocketWriteThread::Startup(SOCKET socket, Service* service, bool serverserv
 	
 	if(serverservice)
 	{
+
+		mServerService = true;
 		mMessageMaxSize = gNetConfig->getServerServerReliableSize();
 		
 	}
 	else
 	{
+		mServerService = false;
 		mMessageMaxSize = gNetConfig->getServerClientReliableSize();
 	}
+
 
 	// We do have a global clock object, don't use seperate clock and times for every process.
 	// mClock = new Anh_Utils::Clock();
@@ -65,6 +69,8 @@ void SocketWriteThread::Startup(SOCKET socket, Service* service, bool serverserv
 
 void SocketWriteThread::Shutdown(void)
 {
+	gLogger->logMsg("SocketWriteThread ended");
+
 	// shutdown our thread
 	mExit = true;
 
@@ -76,8 +82,6 @@ void SocketWriteThread::Shutdown(void)
 	{
 		std::cerr << e.what() << std::endl; 
 	}
-
-	gLogger->logMsg("SocketWriteThread ended");
 
 	mCompCryptor->Shutdown();
 	delete(mCompCryptor);
@@ -134,30 +138,6 @@ void SocketWriteThread::run()
 				//might it make sense to put it on a session queue for later deletion in the session to avoid threading issues?
 				session->DestroyPacket(packet);
 			}
-
-			/*
-			uint64 sessionend =   Anh_Utils::Clock::getSingleton()->getLocalTime();
-
-			if(unCount>0)
-				unCount = (uint32) (ucount+ unCount)/2;
-			else
-				unCount = (uint32) (ucount);
-			
-			if(reCount>0)
-				reCount = (uint32) (rcount+ reCount)/2;
-			else
-				reCount = (uint32) (rcount);
-			
-
-			bool say = (sessionend - lasttime > 10000);
-			if(say)
-			{
-				lasttime =	sessionend;
-				gLogger->logMsgF("SocketWriteThread :: UNReliablePackets() Send last loop : %u On average : %u ", MSG_HIGH, ucount, unCount);
-				gLogger->logMsgF("SocketWriteThread :: ReliablePackets() Send last loop : %u On average : %u ", MSG_HIGH, rcount, reCount);
-			}
-			*/
-
 			
 
 			// If the session is still in a connected state, Put us back in the queue.
@@ -254,7 +234,7 @@ void SocketWriteThread::_sendPacket(Packet* packet, Session* session)
 			if(packetTypeLow == 0)
 			{
 				mSendBuffer[outLen + 2] = 1;
-				outLen += 3;
+				outLen += 3;  //thats 2 (uncompressed) headerbytes plus the encryption flag
 			}
 			else
 			{
@@ -262,7 +242,7 @@ void SocketWriteThread::_sendPacket(Packet* packet, Session* session)
 				outLen += 2;
 			}
 		}
-		// else a 0
+		// else a 0 - so no compression
 		else 
 		{
 		  memcpy(mSendBuffer, packet->getData(), packet->getSize());
@@ -304,17 +284,27 @@ void SocketWriteThread::_sendPacket(Packet* packet, Session* session)
 		//assert(packetTypeLow < 0x0d);
 
 		packet->setCRC(mCompCryptor->GenerateCRC(mSendBuffer, outLen, session->getEncryptKey()));        
+														 
+
 		mSendBuffer[outLen] = (uint8)(packet->getCRC() >> 8);
 		mSendBuffer[outLen + 1] = (uint8)packet->getCRC();
 		outLen += 2;
-	}
 
+
+	}
+	
 	sent = sendto(mSocket, mSendBuffer, outLen, 0, &toAddr, toLen);
 
+	if((outLen > mMessageMaxSize) )
+	  {
+		  gLogger->logMsgF("Cave Wrote Packetsize : %u Max Allowed Size : %u", MSG_HIGH, outLen,mMessageMaxSize);
+		  gLogger->hexDump(mSendBuffer,outLen);
+	  }
+	
 	if (sent < 0)
 	{
 		int error = WSAGetLastError();
-		gLogger->logMsgF("*** Unkown error from socket sendto: %u", MSG_NORMAL, error);
+		gLogger->logMsgF("*** Unkown error from socket sendto: %u", MSG_HIGH, error);
 	}
 }
 

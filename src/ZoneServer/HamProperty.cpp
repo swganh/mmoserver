@@ -185,11 +185,11 @@ bool HamProperty::updateWounds(int32 wounds)
 //
 void HamProperty::log()
 {
-	gLogger->logMsgF("mCurrentHitPoints: %i", MSG_NORMAL,mCurrentHitPoints);
-	gLogger->logMsgF("mModifiedHitPoints: %i", MSG_NORMAL,mModifiedHitPoints);
-	gLogger->logMsgF("mMaxHitPoints: %i", MSG_NORMAL,mMaxHitPoints);
-	gLogger->logMsgF("mEncumbrance: %i", MSG_NORMAL,mEncumbrance);
-	gLogger->logMsgF("mWounds: %i", MSG_NORMAL,mWounds);
+	gLogger->logMsgF("mCurrentHitPoints: %i\n", MSG_NORMAL,mCurrentHitPoints);
+	gLogger->logMsgF("mModifiedHitPoints: %i\n", MSG_NORMAL,mModifiedHitPoints);
+	gLogger->logMsgF("mMaxHitPoints: %i\n", MSG_NORMAL,mMaxHitPoints);
+	gLogger->logMsgF("mEncumbrance: %i\n", MSG_NORMAL,mEncumbrance);
+	gLogger->logMsgF("mWounds: %i\n", MSG_NORMAL,mWounds);
 }
 
 //===============================================================

@@ -145,7 +145,7 @@ void ScriptEngine::removeScript(Script* script)
 	{
 		if((*it) == script)
 		{
-			gLogger->logMsg("ScriptEngine::removeScript found a script");
+			gLogger->logMsg("ScriptEngine::removeScript found a script\n");
 			(*it)->mState = SS_Not_Loaded;
 			mScriptPool.free(*it);
 			mScripts.erase(it);

@@ -93,7 +93,7 @@ void ObjectController::_handleSitServer(uint64 targetId,Message* message,ObjectC
 				else
 				{
 					// we should never get here !
-					gLogger->logMsg("SitOnObject: could not find zone region in map");
+					gLogger->logMsg("SitOnObject: could not find zone region in map\n");
 
 					// hammertime !
 					exit(-1);
@@ -110,7 +110,7 @@ void ObjectController::_handleSitServer(uint64 targetId,Message* message,ObjectC
 					if(cell)
 						cell->removeChild(playerObject);
 					else
-						gLogger->logMsgF("Error removing %lld from cell %lld",MSG_NORMAL,playerObject->getId(),playerObject->getParentId());
+						gLogger->logMsgF("Error removing %lld from cell %lld\n",MSG_NORMAL,playerObject->getId(),playerObject->getParentId());
 
 					playerObject->setParentId(chairCell);
 
@@ -119,7 +119,7 @@ void ObjectController::_handleSitServer(uint64 targetId,Message* message,ObjectC
 					if(cell)
 						cell->addChild(playerObject);
 					else
-						gLogger->logMsgF("Error adding %lld to cell %lld",MSG_NORMAL,playerObject->getId(),chairCell);
+						gLogger->logMsgF("Error adding %lld to cell %lld\n",MSG_NORMAL,playerObject->getId(),chairCell);
 				}
 
 				playerObject->mPosition = Anh_Math::Vector3(chairX,chairY,chairZ);

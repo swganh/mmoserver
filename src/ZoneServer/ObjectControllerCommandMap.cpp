@@ -79,6 +79,7 @@ ObjectControllerCommandMap::~ObjectControllerCommandMap()
 
 void ObjectControllerCommandMap::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 {
+	gLogger->logMsg("Mapping ObjectController functions\n");
 	ObjectControllerCmdProperties* commandProperties;
 
 	DataBinding* binding = mDatabase->CreateDataBinding(28);
@@ -143,7 +144,8 @@ void ObjectControllerCommandMap::handleDatabaseJobComplete(void* ref,DatabaseRes
 
 	mDatabase->DestroyDataBinding(binding);
 
-	gLogger->logMsgF("ObjController: mapped %u active functions(Total: %u)",MSG_NORMAL,mCommandMap.size(),mCmdPropertyMap.size());
+	printf("\t%u active functions(Total: %u) mapped",mCommandMap.size(),mCmdPropertyMap.size());
+	gLogger->logMsgOk(28);
 }
 
 //======================================================================================================================

@@ -17,6 +17,11 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Utils/typedefs.h"
 #include "zthread/ZThread.h"
 
+#include "DatabaseManager/DatabaseManager.h"
+#include "DatabaseManager/Database.h"
+#include "ConfigManager/ConfigManager.h"
+
+
 #include <map>
 
 
@@ -36,7 +41,9 @@ class LogManager
 
 		~LogManager();
 
+		Log*		  createErrorLog(const std::string& zone, LogLevel level = LEVEL_NORMAL,bool fileOut = true,bool consoleOut = false,bool append = false);
 		Log*		  createLog(const std::string& name,LogLevel level = LEVEL_NORMAL,bool fileOut = true,bool consoleOut = false,bool append = false);
+		void		  connecttoDB(DatabaseManager* dbManager);
 		Log*		  getLog(const std::string& name);
 		Log*		  setDefaultLog(Log* log);
 		Log*		  getDefaultLog(){ return mDefaultLog; }
@@ -45,8 +52,14 @@ class LogManager
 		void		  logMsg(const std::string& logname,const std::string& msg,MsgPriority mp = MSG_NORMAL,bool fileOut = true,bool consoleOut = true,bool timestamp = true);
 		void		  logMsg(Log* log,const std::string& msg,MsgPriority mp = MSG_NORMAL,bool fileOut = true,bool consoleOut = true,bool timestamp = true);
 		void		  logMsg(const std::string& msg,MsgPriority mp = MSG_NORMAL,bool fileOut = true,bool consoleOut = true,bool timestamp = true, int Color = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+		void		  logMsgStartUp(const std::string& msg, MsgPriority priority  = MSG_NORMAL, ...);
+		void		  logMsgFollowUp(const std::string& msg, MsgPriority priority, ...);
+
+		//void		  logMsgStartUp(const std::string& msg,MsgPriority mp = MSG_NORMAL,bool fileOut,bool consoleOut,bool timestamp, int Color);
 		void		  logMsgF(const std::string& msg, MsgPriority mp, ...);
 		void		  logMsgF(Log* log, const std::string& msg, MsgPriority mp, ...);
+		void		  logMsgFailed(int width);
+		void		  logMsgOk(int width);
 		void		  hexDump(int8* data,uint32 len,MsgPriority mp = MSG_NORMAL);
 		void		  hexDump(int8* data,uint32 len,const char* filename);
 
@@ -55,6 +68,14 @@ class LogManager
 		void		  setLogLevel(LogLevel level);
 
 		void		  setGlobalLogLevel(GlobalLogLevel glevel);
+		void		  printLogo();
+		void		  printSmallLogo();
+
+		//Errorlogging
+		//void		  logError(const std::string& msg, int Color);
+		void		  logErrorF(const std::string& system, const std::string& msg, MsgPriority priority, ...);
+
+
 
 	private:
 
@@ -62,10 +83,16 @@ class LogManager
 
 		static LogManager*	mSingleton;
 
+		Database*			mDatabase;
 		LogList				mLogs;
 		Log*				mDefaultLog;
+		Log*				mDefaultErrorLog;
+		Log*				mDefaultAdminLog;
+		Log*				mDefaultTransactionLog;
 		GlobalLogLevel		mGlobalLogLevel;
 		ZThread::Mutex      mGlobalLogMutex;
+		std::string			mZone;
+
 };
 
 #endif

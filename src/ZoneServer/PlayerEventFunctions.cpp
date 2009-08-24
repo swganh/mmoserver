@@ -57,7 +57,7 @@ void PlayerObject::onSurvey(const SurveyEvent* event)
 			// create a new one
 			if(datapad->getCapacity())
 			{
-				gObjectFactory->requestNewWaypoint(datapad,"Resource Survey",Anh_Math::Vector3(highestDist.position.mX,0.0f,highestDist.position.mZ),gWorldManager->getZoneId(),this->getId(),Waypoint_blue);
+				datapad->requestNewWaypoint("Resource Survey",Anh_Math::Vector3(highestDist.position.mX,0.0f,highestDist.position.mZ),gWorldManager->getZoneId(),Waypoint_blue);
 			}
 
 			gMessageLib->sendSystemMessage(this,L"","survey","survey_waypoint");
@@ -116,14 +116,14 @@ void PlayerObject::onSample(const SampleEvent* event)
 				uint32 bfDmg    = 0.075*resPE;
 				uint32 hamReduc = 100*(2+ (resPE/1000));
 
-				gLogger->logMsgF("woundDmg is: %u", MSG_NORMAL, woundDmg);
-				gLogger->logMsgF("bfDmg is: %u", MSG_NORMAL, bfDmg);
-				gLogger->logMsgF("hamReduc is: %u", MSG_NORMAL, hamReduc);
+				gLogger->logMsgF("woundDmg is: %u\n", MSG_NORMAL, woundDmg);
+				gLogger->logMsgF("bfDmg is: %u\n", MSG_NORMAL, bfDmg);
+				gLogger->logMsgF("hamReduc is: %u\n", MSG_NORMAL, hamReduc);
 
 				if(resPE >= 500)
 				{
 					//wound and BF dmg
-					gLogger->logMsg("PE > 500: ready to apply new BF/wound dmg");
+					gLogger->logMsg("PE > 500: ready to apply new BF/wound dmg\n");
 					mHam.updateBattleFatigue(bfDmg);
 					mHam.updatePropertyValue(HamBar_Health,HamProperty_Wounds, woundDmg); //does not function
 					mHam.updatePropertyValue(HamBar_Action,HamProperty_Wounds, woundDmg);
@@ -333,9 +333,9 @@ void PlayerObject::onSample(const SampleEvent* event)
 		int32 myHealth = mHam.mHealth.getCurrentHitPoints();
 		int32 myAction = mHam.mAction.getCurrentHitPoints();
 		int32 myMind = mHam.mMind.getCurrentHitPoints();
-		gLogger->logMsgF("here is myHealth: %i", MSG_NORMAL, myHealth);
-		gLogger->logMsgF("here is myAction: %i", MSG_NORMAL, myAction);
-		gLogger->logMsgF("here is myMind: %i", MSG_NORMAL, myMind);
+		gLogger->logMsgF("here is myHealth: %i\n", MSG_NORMAL, myHealth);
+		gLogger->logMsgF("here is myAction: %i\n", MSG_NORMAL, myAction);
+		gLogger->logMsgF("here is myMind: %i\n", MSG_NORMAL, myMind);
 		//return message for sampling cancel based on HAM
 		if(myAction < 150)
 		{

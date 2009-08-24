@@ -83,6 +83,7 @@ void Shuttle::useShuttle(PlayerObject* playerObject)
 		u.convert(BSTRType_Unicode16);
 		gMessageLib->sendSystemMessage(playerObject,u.getUnicode16());
 		gLogger->logMsgF(sql,MSG_HIGH);
+		gLogger->logMsg("\n");
 		return;
 	}
 	ShuttleState shuttleState = getShuttleState();

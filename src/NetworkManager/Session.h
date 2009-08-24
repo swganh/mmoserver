@@ -76,6 +76,7 @@ class Session
 	  void                        ProcessWriteThread(void);
 
 	  void                        HandleSessionPacket(Packet* packet);
+	  void                        SortSessionPacket(Packet* packet, uint16 type);
 	  void                        HandleFastpathPacket(Packet* packet);
 	  
 	  void                        SendChannelA(Message* message);
@@ -156,6 +157,7 @@ private:
 	  void						  _buildRoutedMultiDataPacket();
 	  void						  _buildUnreliableMultiDataPacket();
 	  void                        _buildOutgoingReliablePackets(Message* message);
+	  void						  _buildOutgoingReliableRoutedPackets(Message* message);
 	  void                        _buildOutgoingUnreliablePackets(Message* message);
 	  void                        _addOutgoingReliablePacket(Packet* packet);
 	  void                        _addOutgoingUnreliablePacket(Packet* packet);
@@ -248,6 +250,7 @@ private:
 	  PacketWindowList            mNewWindowPacketList;				
 
 	  PacketQueue                 mIncomingFragmentedPacketQueue;
+	  PacketWindowList            mIncomingPacketList;				
 	  
 	  ZThread::RecursiveMutex	  mSessionMutex;
 	 
@@ -260,6 +263,8 @@ private:
 	  uint64					  mLastWriteThreadTime;
 
 	  uint32					  endCount;
+	  uint16					  lowest;// the lowest packet requested from the server
+	  uint16					  lowestCount;// counts the requests up
 	  
 };
 

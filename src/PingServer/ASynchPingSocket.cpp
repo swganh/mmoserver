@@ -41,7 +41,7 @@ void ASynchPingSocket::StartServer(boost::asio::ip::address address, int port)
 	if(!Started)
 	{
 		server_ip = udp::endpoint(address, port);
-		gLogger->logMsgF("Asynch Start receive : %s %u", MSG_HIGH, address.to_string().c_str(),port);   
+		gLogger->logMsgF("Asynch Start receive : %s %u\n", MSG_HIGH, address.to_string().c_str(),port);   
 		StartServer();
 	}
 }
@@ -114,7 +114,7 @@ void ASynchPingSocket::HandleSent(const boost::system::error_code &error, std::s
 //Sent a packet to the Client
 void ASynchPingSocket::SendPacket(char	message[8192], uint32 size, udp::endpoint remote_ip)
 {
-	gLogger->logMsgF("Asynch Send Packet", MSG_HIGH);   
+	gLogger->logMsgF("Asynch Send Packet\n", MSG_HIGH);   
 	gLogger->hexDump(message,size);
 	socket->async_send_to(
 		boost::asio::buffer(message,size),

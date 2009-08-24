@@ -98,7 +98,7 @@ void BuffManager::handleDatabaseJobComplete(void *ref, DatabaseResult *result)
 }
 void BuffManager::LoadBuffsFromResult(buffAsyncContainer* asyncContainer, DatabaseResult* result)
 {
-	gLogger->logMsg("now load buffs from our results");
+	gLogger->logMsg("now load buffs from our results\n");
 	DataBinding*	buffBinding = mDatabase->CreateDataBinding(9);
 	buffBinding->addField(DFT_uint64,offsetof(BuffDBItem,mBuffId),8,0);
 	buffBinding->addField(DFT_uint64,offsetof(BuffDBItem,mTargetId),8,1);
@@ -114,7 +114,7 @@ void BuffManager::LoadBuffsFromResult(buffAsyncContainer* asyncContainer, Databa
 
 	if(rowCount == 0)
 	{
-		gLogger->logMsgF("BuffManager : Couldn't find any Buffs for player : %I64u",MSG_NORMAL,asyncContainer->player->getId());
+		gLogger->logMsgF("BuffManager : Couldn't find any Buffs for player : %I64u\n",MSG_NORMAL,asyncContainer->player->getId());
 		
 		SAFE_DELETE(asyncContainer);
 		mDatabase->DestroyDataBinding(buffBinding);
@@ -275,7 +275,7 @@ void BuffManager::LoadBuffs(PlayerObject* playerObject, uint64 currenttime)
 	//check we don't have ghosted buffs
 	if(playerObject->GetNoOfBuffs() > 0)
 	{
-		gLogger->logMsg("PlayerObject has ghosted Buffs. Inform Lloydyboy", FOREGROUND_RED);
+		gLogger->logMsg("PlayerObject has ghosted Buffs. Inform Lloydyboy\n", FOREGROUND_RED);
 		gMessageLib->sendSystemMessage(playerObject, "You appear to have Ghosted Buffs (Bug #958). Please inform Lloydyboy you saw this message");
 		return;
 	}

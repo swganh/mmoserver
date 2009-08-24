@@ -42,7 +42,7 @@ void Transaction::addQuery(int8* query,...)
 	int8	localSql[2048],escapedSql[2500];
 	int32	len = vsnprintf(localSql,sizeof(localSql),query,va_start(args,query));
 
-	gLogger->logMsgF("transaction add query",MSG_NORMAL);
+	gLogger->logMsgF("transaction add query\n",MSG_NORMAL);
 	// need to escape
 	mDatabase->Escape_String(escapedSql,localSql,len);
 

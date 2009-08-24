@@ -93,7 +93,7 @@ void CloningTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject
 		break;
 
 		default:
-			gLogger->logMsgF("CloningTerminal::handleObjectMenuSelect Unhandled MenuSelect: %u",MSG_HIGH,messageType);
+			gLogger->logMsgF("CloningTerminal::handleObjectMenuSelect Unhandled MenuSelect: %u\n",MSG_HIGH,messageType);
 		
 		break;
 	}
@@ -197,7 +197,7 @@ void CloningTerminal::handleUIEvent(uint32 action,int32 element,string inputStr,
 				
 				// You lack the bank funds to complete this transaction request
 				gMessageLib->sendSystemMessage(playerObject, L"", "error_message", "insufficient_funds_bank", "", "", L"");
-				gLogger->logMsg("CloningTerminal::handleUIEvent: ERROR: Error verifying credits");
+				gLogger->logMsg("CloningTerminal::handleUIEvent: ERROR: Error verifying credits\n");
 			}
 		}
 	}

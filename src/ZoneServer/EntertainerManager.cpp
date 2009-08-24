@@ -378,11 +378,10 @@ PerformanceStruct* EntertainerManager::getPerformance(string performance)
 
 
 //=======================================================================================================================
-
 void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 {
 	EntertainerManagerAsyncContainer* asynContainer = (EntertainerManagerAsyncContainer*)ref;
-	
+
 	switch(asynContainer->mQueryType)
 	{
 		case EMQuery_IDFinances:
@@ -402,7 +401,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
 			} 
 			else 
 			{
-				gLogger->logMsgF("Image Designer : transaction failed",MSG_NORMAL);
+				gLogger->logMsgF("Image Designer : transaction failed\n",MSG_NORMAL);
 				// oh woe we need to rollback :(
 				// (ie do nothing)
 
@@ -412,6 +411,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
 
 		case EMQuery_LoadHoloEmotes:
 		{
+			gLogger->logMsg("EntertainerManager::Loading HoloEmotes...");
 			HoloStruct* holo;
 		
 			DataBinding* binding = mDatabase->CreateDataBinding(3);
@@ -429,7 +429,8 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
 				mHoloList.push_back(holo);
 			}
 
-			gLogger->logMsgF("EntertainerManager : loaded %I64u HoloEmotes",MSG_HIGH,count);
+			printf(" %I64u Loaded",count);
+			gLogger->logMsgOk(14);
 		}
 		break;
 
@@ -524,7 +525,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
 				else
 				{
 					//somebodies trying to cheat here
-					gLogger->logMsgF("EntertainerManager: CHEATER : newHamCount != oldHamCount : %I64u",MSG_HIGH,asynContainer->customer->getId());
+					gLogger->logMsgF("EntertainerManager: CHEATER : newHamCount != oldHamCount : %I64u\n",MSG_HIGH,asynContainer->customer->getId());
 
 				}
 
@@ -620,7 +621,11 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
 
 		case EMQuery_LoadIDAttributes:
 		{
+			gLogger->logMsg("EntertainerManager::Loading Image Designer Attributes... ");
+
+
 			//SELECT CRC, Atr1ID, Atr1Name, Atr2ID, Atr2Name FROM swganh.id_attributes
+
 			DataBinding* binding;
 			binding = mDatabase->CreateDataBinding(9);
 			binding->addField(DFT_uint32,offsetof(IDStruct,CustomizationCRC),4,0);
@@ -641,14 +646,15 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
 				result->GetNextRow(binding,idData);			
 				mIDList.push_back(idData);
 			}
-			gLogger->logMsgF("EntertainerManager : loaded %I64u Image Designer Attributes",MSG_HIGH,count);
+			printf("%I64u loaded\n",count);
 		}
 		break;
 
 		
 		case EMQuery_LoadPerformances:
 		{
-							
+			gLogger->logMsg("EntertainerManager::Loading Performances... ");
+
 			DataBinding* binding;
 			binding = mDatabase->CreateDataBinding(10);
 			binding->addField(DFT_string,offsetof(PerformanceStruct,performanceName),32,0);
@@ -673,7 +679,8 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
 	
 			}
 			
-			gLogger->logMsgF("EntertainerManager : loaded %I64u Performances",MSG_HIGH,count);
+			printf(" %I64u loaded",count);
+			gLogger->logMsgOk(9);
 		}
 		break;
 
@@ -774,7 +781,7 @@ void	EntertainerManager::startMusicPerformance(PlayerObject* entertainer,string 
 		{
 			entertainer->setPerformingState(PlayerPerformance_None);
 			gMessageLib->sendSystemMessage(entertainer,L"your instrument cannot be initialized");
-			gLogger->logMsgF("EntertainerManager::startMusicPerformance() This I don't understand", MSG_NORMAL);
+			gLogger->logMsgF("EntertainerManager::startMusicPerformance() This I don't understand\n", MSG_NORMAL);
 			
 			return;
 		}
@@ -1367,7 +1374,7 @@ void EntertainerManager::CheckDistances(PlayerObject* entertainer)
 
 	if(!entertainer->getAudienceList())
 	{
-		gLogger->logMsgF("CheckDistances(PlayerObject* entertainer) getAudienceList does not exist !!!!!", MSG_NORMAL);
+		gLogger->logMsgF("CheckDistances(PlayerObject* entertainer) getAudienceList does not exist !!!!!\n", MSG_NORMAL);
 		return;
 	}
 
@@ -1866,7 +1873,7 @@ bool EntertainerManager::handlePerformanceTick(CreatureObject* mObject)
 	if(!entertainer)
 		return false;
 
-	gLogger->logMsgF("handle performance tick %I64u",MSG_HIGH,entertainer->getId());
+	gLogger->logMsgF("handle performance tick %I64u\n",MSG_HIGH,entertainer->getId());
 	//check if we need to stop the performance or if it already has been stopped
 	//Mind the pausing dancer though
 	handlePerformancePause(entertainer);
@@ -1878,7 +1885,7 @@ bool EntertainerManager::handlePerformanceTick(CreatureObject* mObject)
 	}
 
 	//check distance and remove offending audience
-	gLogger->logMsgF("check the audience distances %I64u",MSG_HIGH,entertainer->getId());
+	gLogger->logMsgF("check the audience distances %I64u\n",MSG_HIGH,entertainer->getId());
 	CheckDistances(entertainer);
 
 	//heal BF and Mindwounds
@@ -1919,11 +1926,11 @@ bool EntertainerManager::handlePerformanceTick(CreatureObject* mObject)
 		aMS->addTextModule();
 		gMessageLib->sendMacroSystemMessage(entertainer,L"",aMS->assemble());
 		delete aMS;
-		gLogger->logMsgF("end tick %I64u",MSG_HIGH,entertainer->getId());
+		gLogger->logMsgF("end tick %I64u\n",MSG_HIGH,entertainer->getId());
 		return (false);
 
 	}
-	gLogger->logMsgF("end tick %I64u",MSG_HIGH,entertainer->getId());
+	gLogger->logMsgF("end tick %I64u\n",MSG_HIGH,entertainer->getId());
 	return (true);
 }
 
@@ -2109,7 +2116,7 @@ void EntertainerManager::handleObjectReady(Object* object,DispatchClient* client
 
 			if(!permanentinstrument)
 			{
-				gLogger->logMsg("EntertainerManager::handleObjectReady: no permanent instrument");
+				gLogger->logMsg("EntertainerManager::handleObjectReady: no permanent instrument\n");
 				assert(false);
 				return;
 			}

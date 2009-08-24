@@ -169,7 +169,7 @@ void CharacterLoginHandler::handleDispatchMessage(uint32 opcode, Message* messag
 		else 
 		if(playerObject  && playerObject->isBeingDestroyed())
 		{
-			gLogger->logMsgF("were being destroyed but want to log in again ",MSG_NORMAL);
+			gLogger->logMsgF("were being destroyed but want to log in again \n",MSG_NORMAL);
 			//dont quite understand this one - the player is about to be destroyed
 			//so just ignore it ????
 			
@@ -184,7 +184,7 @@ void CharacterLoginHandler::handleDispatchMessage(uint32 opcode, Message* messag
 		else if((playerObject = gWorldManager->getPlayerByAccId(client->getAccountId())))
 		{
 
-			gLogger->logMsgF("same account : new player ",MSG_NORMAL);
+			gLogger->logMsgF("same account : new player \n",MSG_NORMAL);
 			// remove old char immidiately
 			gWorldManager->removePlayerFromDisconnectedList(playerObject);
 			
@@ -203,8 +203,8 @@ void CharacterLoginHandler::handleDispatchMessage(uint32 opcode, Message* messag
 		// request a load from db
 		else
 		{
-			gLogger->logMsgF("all other cases",MSG_NORMAL);
-//			gLogger->logMsgF("New Player: %lld, Total Players on zone : %i",MSG_NORMAL,playerId,(gWorldManager->getPlayerAccMap())->size() + 1);
+			gLogger->logMsgF("all other cases\n",MSG_NORMAL);
+//			gLogger->logMsgF("New Player: %lld, Total Players on zone : %i\n",MSG_NORMAL,playerId,(gWorldManager->getPlayerAccMap())->size() + 1);
 			gObjectFactory->requestObject(ObjType_Player,0,0,this,playerId,client);
 		}
 	
@@ -266,7 +266,7 @@ void CharacterLoginHandler::handleDispatchMessage(uint32 opcode, Message* messag
 			// If we send this info to client as soon as we get connected, client will miss the info most of the time.
 			// In this case client will end up with an empty "Ignore List" even if the Ignore-list should be populated.
 
-			gLogger->logMsg("CharacterLoginHandler::handleDispatchMessage: opCmdSceneReady",MSG_NORMAL);
+			gLogger->logMsg("CharacterLoginHandler::handleDispatchMessage: opCmdSceneReady\n",MSG_NORMAL);
 
 			// Update: The same apply to frindsList.
 			gMessageLib->sendFriendListPlay9(player);
@@ -302,7 +302,7 @@ void CharacterLoginHandler::handleDispatchMessage(uint32 opcode, Message* messag
 		}
 		else
 		{
-			gLogger->logMsg("CharacterLoginHandler::handleDispatchMessage: Invalid Player object",MSG_NORMAL);
+			gLogger->logMsg("CharacterLoginHandler::handleDispatchMessage: Invalid Player object\n",MSG_NORMAL);
 		}
 	}
     break;
@@ -318,7 +318,7 @@ void CharacterLoginHandler::handleDispatchMessage(uint32 opcode, Message* messag
 		{
 			string tutorialEventString;
 			message->getStringAnsi(tutorialEventString);
-			gLogger->logMsgF("%s",MSG_NORMAL,tutorialEventString.getAnsi());
+			gLogger->logMsgF("%s\n",MSG_NORMAL,tutorialEventString.getAnsi());
 			if (gWorldConfig->isTutorial())
 			{
 				// Notify tutorial
@@ -329,7 +329,7 @@ void CharacterLoginHandler::handleDispatchMessage(uint32 opcode, Message* messag
 	break;
 
 	default:
-		gLogger->logMsgF("CharacterLoginHandler::handleDispatchMessage: Unhandled opcode %u",MSG_NORMAL,opcode);
+		gLogger->logMsgF("CharacterLoginHandler::handleDispatchMessage: Unhandled opcode %u\n",MSG_NORMAL,opcode);
 	break;
   }
 }
@@ -359,7 +359,7 @@ void CharacterLoginHandler::handleObjectReady(Object* object,DispatchClient* cli
 		break;
 
 		default:
-			gLogger->logMsgF("CharacterLoginHandler::ObjectFactoryCallback: Unhandled object: %i",MSG_HIGH,object->getType());
+			gLogger->logMsgF("CharacterLoginHandler::ObjectFactoryCallback: Unhandled object: %i\n",MSG_HIGH,object->getType());
 		break;
 	}
 }
@@ -375,7 +375,7 @@ void CharacterLoginHandler::_processClusterClientDisconnect(Message* message, Di
 
   if (reason == 1)
   {
-		gLogger->logMsgF("Removed Player: Total Players on zone : %i",MSG_NORMAL,(gWorldManager->getPlayerAccMap())->size());
+		gLogger->logMsgF("Removed Player: Total Players on zone : %i\n",MSG_NORMAL,(gWorldManager->getPlayerAccMap())->size());
   }
   else
   {

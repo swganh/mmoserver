@@ -58,7 +58,7 @@ void ChatMessageLib::sendSceneCreateObjectByCrc(uint64 objectId, uint32 objectCr
 	gMessageFactory->addUint32(objectCrc);
 	gMessageFactory->addUint8(0);     
 	message = gMessageFactory->EndMessage();
-	player->getClient()->SendChannelA(message, player->getClient()->getAccountId(), CR_Client, 5, false);	
+	player->getClient()->SendChannelA(message, player->getClient()->getAccountId(), CR_Client, 5);	
 }
 
 //======================================================================================================================
@@ -73,7 +73,7 @@ void ChatMessageLib::sendSceneDestroyObject(uint64 objectId, Player* player)
 	gMessageFactory->addUint8(0);
 	message = gMessageFactory->EndMessage();
 
-	player->getClient()->SendChannelA(message, player->getClient()->getAccountId(), CR_Client, 5, false);		
+	player->getClient()->SendChannelA(message, player->getClient()->getAccountId(), CR_Client, 5);		
 }
 //======================================================================================================================
 
@@ -86,7 +86,7 @@ void ChatMessageLib::sendSceneEndBaselines(uint64 objectId, Player* player)
 	gMessageFactory->addUint64(objectId);   
 	message = gMessageFactory->EndMessage();
 
-	player->getClient()->SendChannelA(message, player->getClient()->getAccountId(), CR_Client, 5, false);	
+	player->getClient()->SendChannelA(message, player->getClient()->getAccountId(), CR_Client, 5);	
 }
 //======================================================================================================================
 
@@ -106,7 +106,7 @@ void ChatMessageLib::sendFindFriendCreateWaypoint(DispatchClient* client, Player
 	gMessageFactory->addFloat(friendPlayer->getPositionZ());
 	Message* newMessage = gMessageFactory->EndMessage();
 	//planetID+8 is the zones ID 
-	client->SendChannelA(newMessage, client->getAccountId(),player->getPlanetId()+8, 6, false);
+	client->SendChannelA(newMessage, client->getAccountId(),player->getPlanetId()+8, 6);
 
 }
 
@@ -123,7 +123,7 @@ void ChatMessageLib::sendFindFriendRequestPosition(DispatchClient* client, Playe
 	
 	Message* newMessage = gMessageFactory->EndMessage();
 	//planetID+8 is the zones ID 
-	client->SendChannelA(newMessage, client->getAccountId(), playersFriend->getPlanetId()+8, 6, false);
+	client->SendChannelA(newMessage, client->getAccountId(), playersFriend->getPlanetId()+8, 6);
 
 }
 

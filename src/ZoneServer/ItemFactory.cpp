@@ -166,7 +166,7 @@ Item* ItemFactory::_createItem(DatabaseResult* result)
 		default:
 		{
 			item = new Item();
-			gLogger->logMsgF("ItemFactory::createItem unknown Family %u",MSG_HIGH,itemIdentifier.mFamilyId);
+			gLogger->logMsgF("ItemFactory::createItem unknown Family %u\n",MSG_HIGH,itemIdentifier.mFamilyId);
 		}
 		break;
 	}

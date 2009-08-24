@@ -56,7 +56,7 @@ mServerTime(0),
 mState(WMState_StartUp),
 mWM_DB_AsyncPool(sizeof(WMAsyncContainer))
 {
-	gLogger->logMsg("WorldManager::StartUp");
+	gLogger->logMsg("WorldManager::StartUp\n");
 
 	// set up spatial index
 	mSpatialIndex = new ZoneTree();
@@ -208,7 +208,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					binding->addField(DFT_uint32,0,4);
 					result->GetNextRow(binding,&mTotalObjectCount);
 	
-					gLogger->logMsgF("WorldManager::Loading %u Objects...",MSG_NORMAL,mTotalObjectCount);
+					gLogger->logMsgStartUp("WorldManager::Loading Objects...");
 
 					if(mTotalObjectCount > 0)
 					{
@@ -256,7 +256,11 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 						//load creature spawn regions, and optionally heightmaps cache.
 						mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_CreatureSpawnRegions),"SELECT id, spawn_x, spawn_z, spawn_width, spawn_length FROM spawns WHERE spawn_planet=%u ORDER BY id;",mZoneId);
 
-					}
+						//printf isnt threadsafe ...
+						gLogger->logMsgFollowUp(" %u loaded",MSG_NORMAL,mTotalObjectCount);
+						//printf();
+						gLogger->logMsgOk(20);
+					}					
 					// no objects to load, so we are done
 					else
 					{
@@ -270,6 +274,8 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				// zone regions
 				case WMQuery_ZoneRegions:
 				{
+					gLogger->logMsgStartUp("WorldManager::Loading zone region...");
+
 					DataBinding* regionBinding = mDatabase->CreateDataBinding(1);
 					regionBinding->addField(DFT_int64,0,8);
 
@@ -283,7 +289,8 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 						gObjectFactory->requestObject(ObjType_Region,Region_Zone,0,this,regionId,asyncContainer->mClient);
 					}
 
-					gLogger->logMsgF("WorldManager::Loaded %lld zone regions",MSG_HIGH,count);
+					gLogger->logMsgFollowUp(" %3lld loaded",MSG_NORMAL,count);
+					gLogger->logMsgOk(17);
 					mDatabase->DestroyDataBinding(regionBinding);
 				}
 				break;
@@ -337,8 +344,9 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 						mObjectAttributeKeyMap.insert(std::make_pair(tmp.getCrc(),BString(tmp.getAnsi())));
 					}
 
-					gLogger->logMsgF("WorldManager::Loaded %lld AttributeKeys",MSG_HIGH,attributeCount);
-
+					
+					gLogger->logMsgStartUp("WorldManager::Loaded %lld Attribute Keys",MSG_NORMAL,attributeCount);
+					gLogger->logMsgOk(24);
 					mDatabase->DestroyDataBinding(binding);
 				}
 				break;
@@ -358,8 +366,9 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 						mvClientEffects.push_back(BString(tmp.getAnsi()));
 					}
-
-					gLogger->logMsgF("WorldManager::Loaded %lld Client Effects",MSG_HIGH,effectCount);
+					
+					gLogger->logMsgStartUp("WorldManager::Loaded %lld Client Effects",MSG_NORMAL,effectCount);
+					gLogger->logMsgOk(25);
 
 					mDatabase->DestroyDataBinding(binding);
 				}
@@ -379,10 +388,10 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 						result->GetNextRow(binding,&tmp);
 
 						mvSounds.push_back(BString(tmp.getAnsi()));
-					}
+					}					
 
-					gLogger->logMsgF("WorldManager::Loaded %lld Sound Effects",MSG_HIGH,effectCount);
-
+					gLogger->logMsgStartUp("WorldManager::Loaded %lld Sound Effects",MSG_NORMAL,effectCount);
+					gLogger->logMsgOk(25);
 					mDatabase->DestroyDataBinding(binding);
 				}
 				break;
@@ -403,7 +412,8 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 						mvMoods.push_back(BString(tmp.getAnsi()));
 					}
 
-					gLogger->logMsgF("WorldManager::Loaded %lld moods",MSG_HIGH,effectCount);
+					gLogger->logMsgStartUp("WorldManager::Loaded %lld moods",MSG_NORMAL,effectCount);
+					gLogger->logMsgOk(34);
 					mDatabase->DestroyDataBinding(binding);
 				}
 				break;
@@ -424,7 +434,8 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 						mvNpcConverseAnimations.push_back(BString(tmp.getAnsi()));
 					}
 
-					gLogger->logMsgF("WorldManager::Loaded %lld Npc Converse Animations",MSG_HIGH,animCount);
+					gLogger->logMsgStartUp("WorldManager::Loaded %lld Npc Converse Animations",MSG_NORMAL,animCount);
+					gLogger->logMsgOk(17);
 
 					mDatabase->DestroyDataBinding(binding);
 				}
@@ -454,7 +465,8 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 						mvNpcChatter.push_back(std::make_pair(BString(tmp.getUnicode16()),animId));
 					}
 
-					gLogger->logMsgF("WorldManager::Loaded %lld Npc Phrases",MSG_HIGH,phraseCount);
+					gLogger->logMsgStartUp("WorldManager::Loaded %lld Npc Phrases",MSG_NORMAL,phraseCount);
+					gLogger->logMsgOk(28);
 
 					mDatabase->DestroyDataBinding(binding);
 					mDatabase->DestroyDataBinding(animbinding);
@@ -478,7 +490,8 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 						mWorldScripts.push_back(script);
 					}
-					gLogger->logMsgF("WorldManager::Loaded %lld world scripts",MSG_HIGH,scriptCount);
+					gLogger->logMsgStartUp("WorldManager::Loaded %3lld world scripts",MSG_NORMAL,scriptCount);
+					gLogger->logMsgOk(26);
 					mDatabase->DestroyDataBinding(scriptBinding);
 				}
 				break;
@@ -486,6 +499,8 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				// buildings
 				case WMQuery_All_Buildings:
 				{
+					gLogger->logMsgStartUp("WorldManager::Loading buildings...");
+
 					uint64			buildingCount;
 					uint64			buildingId;
 					DataBinding*	buildingBinding = mDatabase->CreateDataBinding(1);
@@ -500,7 +515,8 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 						gObjectFactory->requestObject(ObjType_Building,0,0,this,buildingId,asyncContainer->mClient);
 					}
 
-					gLogger->logMsgF("WorldManager::Loaded %lld buildings",MSG_HIGH,buildingCount);
+					gLogger->logMsgFollowUp(" %4lld loaded",MSG_NORMAL, buildingCount);
+					gLogger->logMsgOk(18);
 					mDatabase->DestroyDataBinding(buildingBinding);
 				}
 				break;
@@ -521,7 +537,8 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 						gObjectFactory->requestObject(ObjType_Region,Region_City,0,this,cityId,asyncContainer->mClient);
 					}
 
-					gLogger->logMsgF("WorldManager::Loaded %lld city regions",MSG_HIGH,count);
+					gLogger->logMsgStartUp("WorldManager::Loaded %3lld city regions",MSG_NORMAL,count);
+					gLogger->logMsgOk(27);
 					mDatabase->DestroyDataBinding(cityBinding);
 				}
 				break;
@@ -542,7 +559,8 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 						gObjectFactory->requestObject(ObjType_Region,Region_Badge,0,this,badgeId,asyncContainer->mClient);
 					}
 
-					gLogger->logMsgF("WorldManager::Loaded %lld badge regions",MSG_HIGH,count);
+					gLogger->logMsgStartUp("WorldManager::Loaded %2lld badge regions",MSG_NORMAL,count);
+					gLogger->logMsgOk(27);
 					mDatabase->DestroyDataBinding(badgeBinding);
 				}
 				break;
@@ -563,7 +581,8 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 						gObjectFactory->requestObject(ObjType_Region,Region_Spawn,0,this,regionId,asyncContainer->mClient);
 					}
 
-					gLogger->logMsgF("WorldManager::Loaded %lld spawn regions",MSG_HIGH,count);
+					gLogger->logMsgStartUp("WorldManager::Loaded %4lld spawn regions",MSG_NORMAL,count);
+					gLogger->logMsgOk(25);
 					mDatabase->DestroyDataBinding(spawnBinding);
 				}
 				break;
@@ -587,7 +606,8 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 						mCreatureSpawnRegionMap.insert(std::make_pair(creatureSpawnRegion->mId,creatureSpawnRegion));
 					}
 
-					gLogger->logMsgF("WorldManager::Loaded %lld creature spawn regions.", MSG_HIGH, count);
+					gLogger->logMsgStartUp("WorldManager::Loaded %I64u creature spawn regions.", MSG_NORMAL,count);
+					gLogger->logMsgOk(15);
 					mDatabase->DestroyDataBinding(creatureSpawnBinding);
 				}
 				break;
@@ -624,7 +644,8 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 							gObjectFactory->requestObject(ObjType_Tangible,TanGroup_ResourceContainer,0,this,queryContainer.mId,asyncContainer->mClient);
 					}
 
-					gLogger->logMsgF("WorldManager::Loaded %lld cell children",MSG_LOW,count);
+					gLogger->logMsgStartUp("WorldManager::Loaded %I64u cell children",MSG_NORMAL,count);
+					gLogger->logMsgOk(20);
 					mDatabase->DestroyDataBinding(binding);
 				}
 				break;
@@ -784,7 +805,7 @@ RegionObject* WorldManager::getRegionById(uint64 regionId)
 	if(it != mRegionMap.end())
 		return((*it).second);
 	else
-		gLogger->logMsgF("Worldmanager::getRegionById: Could not find region %lld",MSG_NORMAL,regionId);
+		gLogger->logMsgF("Worldmanager::getRegionById: Could not find region %lld\n",MSG_NORMAL,regionId);
 
 	return(NULL);
 }
@@ -1011,7 +1032,7 @@ void WorldManager::LoadCurrentGlobalTick()
 	mDatabase->DestroyResult(temp);
 
 	char strtemp[100];
-	sprintf(strtemp, "Current Global Tick Count = %u",Tick);
+	sprintf(strtemp, "Current Global Tick Count = %u\n",Tick);
 	gLogger->logMsg(strtemp, FOREGROUND_GREEN);
 	mTick = Tick;
 	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleTick),7,1000,NULL);
@@ -1064,7 +1085,7 @@ void WorldManager::addDisconnectedPlayer(PlayerObject* playerObject)
 	//uint32 timeOut = gWorldConfig->getLoggedTime();
 	uint32 timeOut = gWorldConfig->getConfiguration("Zone_Player_Logout",300);
 
-	gLogger->logMsgF("Player(%lld) disconnected,reconnect timeout in %u seconds",MSG_NORMAL,playerObject->getId(),timeOut);
+	gLogger->logMsgF("Player(%lld) disconnected,reconnect timeout in %u seconds\n",MSG_NORMAL,playerObject->getId(),timeOut);
 
 	// Halt the tutorial scripts, if running.
 	playerObject->stopTutorial();
@@ -1132,7 +1153,7 @@ void WorldManager::addReconnectedPlayer(PlayerObject* playerObject)
 	playerObject->setInMoveCount(0);
 	playerObject->setClientTickCount(0);
 
-	gLogger->logMsgF("Player(%lld) reconnected",MSG_NORMAL,playerObject->getId());
+	gLogger->logMsgF("Player(%lld) reconnected\n",MSG_NORMAL,playerObject->getId());
 
 	removePlayerFromDisconnectedList(playerObject);
 }
@@ -1145,7 +1166,7 @@ void WorldManager::removePlayerFromDisconnectedList(PlayerObject* playerObject)
 
 	if((it = std::find(mPlayersToRemove.begin(),mPlayersToRemove.end(),playerObject)) == mPlayersToRemove.end())
 	{
-		gLogger->logMsgF("WorldManager::addReconnectedPlayer: Error removing Player from Disconnected List: %lld",MSG_HIGH,playerObject->getId());
+		gLogger->logMsgF("WorldManager::addReconnectedPlayer: Error removing Player from Disconnected List: %lld\n",MSG_HIGH,playerObject->getId());
 	}
 	else
 	{
@@ -1339,7 +1360,7 @@ void WorldManager::warpPlanet(PlayerObject* playerObject,Anh_Math::Vector3 desti
 		}
 		else
 		{
-			gLogger->logMsgF("WorldManager::removePlayer: couldn't find cell %lld",MSG_HIGH,playerObject->getParentId());
+			gLogger->logMsgF("WorldManager::removePlayer: couldn't find cell %lld\n",MSG_HIGH,playerObject->getParentId());
 		}
 	}
 	else
@@ -1381,7 +1402,7 @@ void WorldManager::warpPlanet(PlayerObject* playerObject,Anh_Math::Vector3 desti
 		}
 		else
 		{
-			gLogger->logMsgF("WorldManager::warpPlanet: couldn't find cell %lld",MSG_HIGH,parentId);
+			gLogger->logMsgF("WorldManager::warpPlanet: couldn't find cell %lld\n",MSG_HIGH,parentId);
 		}
 	}
 	else
@@ -1394,7 +1415,7 @@ void WorldManager::warpPlanet(PlayerObject* playerObject,Anh_Math::Vector3 desti
 		else
 		{
 			// we should never get here !
-			gLogger->logMsg("WorldManager::addObject: could not find zone region in map");
+			gLogger->logMsg("WorldManager::addObject: could not find zone region in map\n");
 			return;
 		}
 	}
@@ -1896,7 +1917,7 @@ void WorldManager::_handleLoadComplete()
 	// register script hooks
 	_startWorldScripts();
 
-	gLogger->logMsg("WorldManager::Load complete");
+	gLogger->logMsg("WorldManager::Load complete\n");
 
 	// switch into running state
 	mState = WMState_Running;
@@ -2047,7 +2068,7 @@ bool WorldManager::existObject(Object* object)
 // This function is not used yet.
 uint64 WorldManager::getObjectOwnedBy(uint64 theOwner)
 {
-	gLogger->logMsgF("WorldManager::getObjectOwnedBy: Invoked",MSG_NORMAL);
+	gLogger->logMsgF("WorldManager::getObjectOwnedBy: Invoked\n",MSG_NORMAL);
 	ObjectMap::iterator it = mObjectMap.begin();
 	uint64 ownerId = 0;
 
@@ -2109,7 +2130,7 @@ void WorldManager::addObject(Object* object,bool manual)
 		{
 			
 			PlayerObject* player = dynamic_cast<PlayerObject*>(object);
-			gLogger->logMsgF("New Player: %lld, Total Players on zone : %i",MSG_NORMAL,player->getId(),(getPlayerAccMap())->size() + 1);
+			gLogger->logMsgF("New Player: %lld, Total Players on zone : %i\n",MSG_NORMAL,player->getId(),(getPlayerAccMap())->size() + 1);
 			// insert into the player map
 			mPlayerAccMap.insert(std::make_pair(player->getAccountId(),player));
 
@@ -2416,7 +2437,7 @@ void WorldManager::destroyObject(Object* object)
 				}
 				else
 				{
-					gLogger->logMsgF("WorldManager::removePlayer: couldn't find cell %lld",MSG_HIGH,object->getParentId());
+					gLogger->logMsgF("WorldManager::removePlayer: couldn't find cell %lld\n",MSG_HIGH,object->getParentId());
 				}
 			}
 			else
@@ -2502,12 +2523,12 @@ void WorldManager::destroyObject(Object* object)
 
 			if(playerAccIt != mPlayerAccMap.end())
 			{
-				gLogger->logMsgF("Player left: %lld, Total Players on zone : %i",MSG_NORMAL,player->getId(),(getPlayerAccMap())->size() -1);
+				gLogger->logMsgF("Player left: %lld, Total Players on zone : %i\n",MSG_NORMAL,player->getId(),(getPlayerAccMap())->size() -1);
 				mPlayerAccMap.erase(playerAccIt);
 			}
 			else
 			{
-				gLogger->logMsgF("WorldManager::destroyObject: error removing from playeraccmap : %u",MSG_HIGH,player->getAccountId());
+				gLogger->logMsgF("WorldManager::destroyObject: error removing from playeraccmap : %u\n",MSG_HIGH,player->getAccountId());
 			}
 
 			// onPlayerLeft event, notify scripts
@@ -2553,7 +2574,7 @@ void WorldManager::destroyObject(Object* object)
 				}
 				else
 				{
-					gLogger->logMsgF("WorldManager::destroyObject: couldn't find cell %lld",MSG_HIGH,object->getParentId());
+					gLogger->logMsgF("WorldManager::destroyObject: couldn't find cell %lld\n",MSG_HIGH,object->getParentId());
 				}
 			}
 
@@ -2622,7 +2643,7 @@ void WorldManager::destroyObject(Object* object)
 			}
 			else
 			{
-				gLogger->logMsgF("WorldManager::destroyObject: error removing : %lld",MSG_HIGH,object->getId());
+				gLogger->logMsgF("WorldManager::destroyObject: error removing : %lld\n",MSG_HIGH,object->getId());
 			}
 		}
 		break;
@@ -2637,7 +2658,7 @@ void WorldManager::destroyObject(Object* object)
 			}
 			else
 			{
-				gLogger->logMsgF("Worldmanager::destroyObject: Could not find region %lld",MSG_NORMAL,object->getId());
+				gLogger->logMsgF("Worldmanager::destroyObject: Could not find region %lld\n",MSG_NORMAL,object->getId());
 			}
 
 			//camp regions are in here, too
@@ -2708,7 +2729,7 @@ std::pair<string,uint32> WorldManager::getRandNpcChatter()
 
 void WorldManager::_startWorldScripts()
 {
-	gLogger->logMsg("Loading world scripts...");
+	gLogger->logMsg("Loading world scripts...\n");
 
 	ScriptList::iterator scriptIt = mWorldScripts.begin();
 
@@ -2835,7 +2856,7 @@ uint64 WorldManager::getRandomNpId()
 	if (found == false)
 	{
 		id = 0;
-		gLogger->logMsg("WorldManager::getRandomNpId() SYSTEM FAILURE");
+		gLogger->logMsg("WorldManager::getRandomNpId() SYSTEM FAILURE\n");
 	}
 	return id;
 
@@ -2875,7 +2896,7 @@ uint64 WorldManager::getRandomNpNpcIdSequence()
 		if (counter++ > 1000)
 		{
 			// TODO: Better handling of this...
-			gLogger->logMsg("This place gonna blow...");
+			gLogger->logMsg("This place gonna blow...\n");
 			randomNpIdPair = 0;
 			break;
 		}

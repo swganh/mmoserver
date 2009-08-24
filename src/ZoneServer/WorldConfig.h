@@ -164,11 +164,11 @@ T	WorldConfig::getConfiguration(string key, T fallback) const
 		}
 		catch(boost::bad_lexical_cast &)
 		{
-			gLogger->logMsgF("WorldConfig::getConfiguration: cast failed (%s)",MSG_HIGH,key.getAnsi());
+			gLogger->logErrorF("configuration","WorldConfig::getConfiguration: cast failed (%s)",MSG_HIGH,key.getAnsi());
 		}
 	}
 	else
-		gLogger->logMsgF("WorldConfig::getConfiguration: could not find %s",MSG_HIGH,key.getAnsi());
+		gLogger->logErrorF("configuration","WorldConfig::getConfiguration: could not find %s - returning fallback",MSG_HIGH,key.getAnsi());
 
 	return(T(fallback));
 }
@@ -186,11 +186,11 @@ T	WorldConfig::getConfiguration(string key) const
 		}
 		catch(boost::bad_lexical_cast &)
 		{
-			gLogger->logMsgF("WorldConfig::getConfiguration: cast failed (%s)",MSG_HIGH,key.getAnsi());
+			gLogger->logErrorF("configuration","WorldConfig::getConfiguration: cast failed ('%s')",MSG_HIGH,key.getAnsi());
 		}
 	}
 	else
-		gLogger->logMsgF("WorldConfig::getConfiguration: could not find %s",MSG_HIGH,key.getAnsi());
+		gLogger->logErrorF("configuration","WorldConfig::getConfiguration: couldn't find '%s'",MSG_HIGH,key.getAnsi());
 
 	return(T());
 }
@@ -210,11 +210,11 @@ T	WorldConfig::getConfiguration(uint32 keyCrc) const
 		}
 		catch(boost::bad_lexical_cast &)
 		{
-			gLogger->logMsgF("Object::getAttribute: cast failed (%s)",MSG_HIGH,key.getAnsi());
+			gLogger->logErrorF("configuration","Object::getAttribute: cast failed ('%s')",MSG_HIGH,key.getAnsi());
 		}
 	}
 	else
-		gLogger->logMsgF("Object::getAttribute: could not find %s",MSG_HIGH,key.getAnsi());
+		gLogger->logErrorF("configuration","Object::getAttribute: couldn't find '%s'",MSG_HIGH,key.getAnsi());
 
 	return(T());
 }

@@ -46,7 +46,7 @@ void MessageLib::sendBanktipMail(PlayerObject* playerObject, PlayerObject* targe
 
 
 	Message* newMessage = gMessageFactory->EndMessage();
-	playerObject->getClient()->SendChannelA(newMessage, playerObject->getAccountId(), CR_Chat, 6, false);
+	playerObject->getClient()->SendChannelA(newMessage, playerObject->getAccountId(), CR_Chat, 6);
 
 
 
@@ -70,7 +70,7 @@ void MessageLib::sendBanktipMail(PlayerObject* playerObject, PlayerObject* targe
 
 
 	newMessage = gMessageFactory->EndMessage();
-	playerObject->getClient()->SendChannelA(newMessage, playerObject->getAccountId(), CR_Chat, 6, false);
+	playerObject->getClient()->SendChannelA(newMessage, playerObject->getAccountId(), CR_Chat, 6);
 
 }
 
@@ -94,7 +94,6 @@ void MessageLib::sendBoughtInstantMail(PlayerObject* newOwner, string ItemName, 
 	aMS->addTO(planet);
 	aMS->addTextModule();
 
-	gLogger->logMsgF("send EMail : %s",MSG_NORMAL,planet.getAnsi());
 	aMS->setPlanetString(planet);
 	aMS->setWP(mX,mY,0,ItemName);
 	aMS->addWaypoint();
@@ -112,7 +111,7 @@ void MessageLib::sendBoughtInstantMail(PlayerObject* newOwner, string ItemName, 
 	Message* newMessage = gMessageFactory->EndMessage();
 
 	
-	newOwner->getClient()->SendChannelA(newMessage, newOwner->getAccountId(), CR_Chat, 6, false);
+	newOwner->getClient()->SendChannelA(newMessage, newOwner->getAccountId(), CR_Chat, 6);
 
 	delete aMS;
 
@@ -148,7 +147,7 @@ void MessageLib::sendSoldInstantMail(uint64 oldOwner, PlayerObject* newOwner, st
 	delete aMS;
 
 	Message* newMessage = gMessageFactory->EndMessage();
-	newOwner->getClient()->SendChannelA(newMessage, newOwner->getAccountId(), CR_Chat, 6, false);
+	newOwner->getClient()->SendChannelA(newMessage, newOwner->getAccountId(), CR_Chat, 6);
 
 }
 

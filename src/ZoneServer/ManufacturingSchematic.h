@@ -18,7 +18,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 //=============================================================================
 
 class ManufactureSlot;
-class CraftingAttribute;
+class ExperimentationProperty;
 class CraftWeight;
 class CraftAttribute;
 class DraftSlot;
@@ -34,7 +34,7 @@ struct CustomizationOption
 typedef std::vector<CustomizationOption*>	CustomizationList;
 
 typedef std::vector<ManufactureSlot*>			ManufactureSlots;
-typedef std::vector<CraftingAttribute*>			CraftingAttributes;
+typedef std::vector<ExperimentationProperty*>	ExperimentationProperties;
 typedef std::vector<CraftWeight*>				CraftWeights;
 typedef std::vector<CraftAttribute*>			CraftAttributes;
 typedef std::vector<std::pair<uint64,uint32> >	FilledResources;
@@ -77,8 +77,8 @@ class ManufacturingSchematic : public Item
 		void	prepareAttributes();
 		void	sendAttributes(PlayerObject* playerObject);
 
-		ManufactureSlots*	getManufactureSlots(){ return &mManufactureSlots; }
-		CraftingAttributes*	getCraftingAttributes(){ return &mCraftingAttributes; }
+		ManufactureSlots*			getManufactureSlots(){ return &mManufactureSlots; }
+		ExperimentationProperties*	getExperimentationProperties(){ return &mExperimentationProperties; }
 
 		CustomizationList*		getCustomizationList(){return &mCustomizationList;}
 
@@ -95,15 +95,15 @@ class ManufacturingSchematic : public Item
 
 	private:
 
-		string				mItemModel;
-		uint8				mSlotsFilled;
-		ManufactureSlots	mManufactureSlots;
-		CraftingAttributes	mCraftingAttributes;
-		uint8				mUnknown;
-		uint8				mCounter;
-		float				mExpFailureChance;
-		Item*				mItem;
-		string				mSerial;
+		string						mItemModel;
+		uint8						mSlotsFilled;
+		ManufactureSlots			mManufactureSlots;
+		ExperimentationProperties	mExperimentationProperties;
+		uint8						mUnknown;
+		uint8						mCounter;
+		float						mExpFailureChance;
+		Item*						mItem;
+		string						mSerial;
 		
 };
 
@@ -142,11 +142,15 @@ class ManufactureSlot
 
 //=============================================================================
 
-class CraftingAttribute
+// every experimentation property has a list of x attributes
+// we experiment per exp property!!
+// cave we might have several identical exp properties !!! in this case we treat them as one
+
+class ExperimentationProperty//CraftingAttribute
 {
 	public:
 
-		CraftingAttribute(const int8* expAttName,CraftWeights* craftWeights,CraftAttributes* craftAttributes,float expAttValue,float assAttValue,float maxExpValue)
+		ExperimentationProperty(const int8* expAttName,CraftWeights* craftWeights,CraftAttributes* craftAttributes,float expAttValue,float assAttValue,float maxExpValue)
 		: mExpAttributeValue(expAttValue),mWeights(craftWeights),mAttributes(craftAttributes),mExpUnknown(0),mBlueBarSize(assAttValue),mMaxExpValue(maxExpValue)
 		{ 
 			mExpAttributeName			=	expAttName;
@@ -154,7 +158,7 @@ class CraftingAttribute
 			
 		}
 
-		virtual ~CraftingAttribute(){}
+		virtual ~ExperimentationProperty(){}
 
 		CraftWeights*		mWeights;
 		CraftAttributes*	mAttributes;

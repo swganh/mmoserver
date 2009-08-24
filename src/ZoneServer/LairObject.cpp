@@ -166,7 +166,7 @@ void LairObject::setLairData(const LairData &lairData)
 LairObject::~LairObject()
 {
 	// mRadialMenu.reset();
-	gLogger->logMsgF("LairObject::~LairObject() DESTRUCTED", MSG_NORMAL);
+	gLogger->logMsgF("LairObject::~LairObject() DESTRUCTED\n", MSG_NORMAL);
 }
 
 //=============================================================================
@@ -393,7 +393,7 @@ uint64 LairObject::handleState(uint64 timeOverdue)
 
 		default:
 		{
-			gLogger->logMsgF("UNKNOWN state", MSG_NORMAL);
+			gLogger->logMsgF("UNKNOWN state\n", MSG_NORMAL);
 		}
 		break;
 
@@ -572,7 +572,7 @@ void LairObject::spawn(void)
 		}
 		else
 		{
-			gLogger->logMsgF("LairObject::spawn: couldn't find cell %llu",MSG_HIGH, this->getParentId());
+			gLogger->logMsgF("LairObject::spawn: couldn't find cell %llu\n",MSG_HIGH, this->getParentId());
 		}
 	}
 	else
@@ -1028,7 +1028,7 @@ void LairObject::reportedDead(uint64 deadCreatureId)
 	}
 	if (!found)
 	{
-		gLogger->logMsgF("LairObject::reportedDead() Will NOT respawn", MSG_NORMAL);
+		gLogger->logMsgF("LairObject::reportedDead() Will NOT respawn\n", MSG_NORMAL);
 	}
 }
 

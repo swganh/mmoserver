@@ -91,15 +91,21 @@ void StructureManager::Shutdown()
 
 
 //=======================================================================================================================
-
+static bool printed = false;
 void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 {
 	StructureManagerAsyncContainer* asynContainer = (StructureManagerAsyncContainer*)ref;
+	if(!printed)
+	{
+		gLogger->logMsg("StructureManager::Loading Datasets:\n");
+		printed=true;
+	}
 	
 	switch(asynContainer->mQueryType)
 	{
 		case Structure_Query_LoadDeedData:
 		{
+			gLogger->logMsg("StructureManager::Loading Structure Datasets...");
 			StructureDeedLink* deedLink;
 		
 			DataBinding* binding = mDatabase->CreateDataBinding(7);
@@ -122,13 +128,16 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 				mDeedLinkList.push_back(deedLink);
 			}
 			
-			gLogger->logMsgF("StructureManager : loaded %I64u structure datasets",MSG_HIGH,count);
+			printf(" %3I64u loaded",count);
+			gLogger->logMsgOk(6);
 			
 		}
 		break;
 
 		case Structure_Query_LoadstructureItem:
 		{
+			gLogger->logMsg("StructureManager::Loading Item Datasets...");
+
 			StructureItemTemplate* itemTemplate;
 		
 			DataBinding* binding = mDatabase->CreateDataBinding(14);
@@ -158,7 +167,8 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 				mItemTemplate.push_back(itemTemplate);
 			}
 			
-			gLogger->logMsgF("StructureManager : loaded %I64u structure Item datasets",MSG_HIGH,count);
+			printf(" %2I64u loaded",count);
+			gLogger->logMsgOk(12);
 
 		}
 		break;

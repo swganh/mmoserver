@@ -123,17 +123,15 @@ void TravelMapHandler::handleDispatchMessage(uint32 opcode, Message* message, Di
 		break;
 
 		default:
-			gLogger->logMsgF("TravelMapHandler::handleDispatchMessage: Unhandled opcode %u",MSG_NORMAL,opcode);
+			gLogger->logMsgF("TravelMapHandler::handleDispatchMessage: Unhandled opcode %u\n",MSG_NORMAL,opcode);
 		break;
 	} 
 }
 
 //=======================================================================================================================
-
 void TravelMapHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 {
 	TravelMapAsyncContainer* asynContainer = reinterpret_cast<TravelMapAsyncContainer*>(ref);
-
 	switch(asynContainer->mQueryType)
 	{
 		case TMQuery_PointsInWorld:
@@ -200,6 +198,7 @@ void TravelMapHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
 		case TMQuery_PlanetRoutes:
 		{
+		
 			TravelRoute route;
 
 			DataBinding* binding = mDatabase->CreateDataBinding(3);
@@ -233,7 +232,8 @@ void TravelMapHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 		mCellPointsLoaded = false;
 		mRoutesLoaded = false;
 
-		gLogger->logMsgF("Travelmap::Load complete (%u points %u routes)",MSG_NORMAL,mPointCount,mRouteCount);
+		gLogger->logMsgF("Loading Tavel Map... Loaded %u Points & %u Routes",MSG_NORMAL,mPointCount,mRouteCount);
+		gLogger->logMsgOk(15);
 	}
 }
 
@@ -429,7 +429,7 @@ void TravelMapHandler::_processTravelPointListRequest(Message* message,DispatchC
 
 		Message* newMessage = gMessageFactory->EndMessage();
 
-		client->SendChannelA(newMessage, playerObject->getAccountId(),  CR_Client, 6, false);
+		client->SendChannelA(newMessage, playerObject->getAccountId(),  CR_Client, 6);
 	}
 	else
 		gLogger->logMsgF("TravelMapHandler::_processTravelListRequest: Couldnt find player for %u",MSG_NORMAL,client->getAccountId());
@@ -645,7 +645,7 @@ void TravelMapHandler::handleUIEvent(uint32 action,int32 element,string inputStr
 					}
 					else
 					{
-						gLogger->logMsg("TicketCollector: Error getting TravelPoint");
+						gLogger->logMsg("TicketCollector: Error getting TravelPoint\n");
 					}
 					break;
 				}
@@ -724,7 +724,7 @@ void TravelMapHandler::useTicket(PlayerObject* playerObject, TravelTicket* ticke
 	}
 	else
 	{
-		gLogger->logMsg("TicketCollector: Error getting TravelPoint");
+		gLogger->logMsg("TicketCollector: Error getting TravelPoint\n");
 	}
 }
 

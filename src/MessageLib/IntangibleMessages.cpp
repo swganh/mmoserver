@@ -55,7 +55,7 @@ bool MessageLib::sendBaselinesITNO_3(IntangibleObject* intangibleObject,PlayerOb
 
 	message = gMessageFactory->EndMessage();
 
-	(targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5, false);
+	(targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5);
 
 return true;
 }
@@ -90,7 +90,7 @@ bool MessageLib::sendBaselinesITNO_6(IntangibleObject* intangibleObject,PlayerOb
 
 	message = gMessageFactory->EndMessage();
 
-	(targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5, false);
+	(targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5);
 
 return true;
 }
@@ -120,7 +120,7 @@ bool MessageLib::sendBaselinesITNO_8(IntangibleObject* intangibleObject,PlayerOb
 
 	message = gMessageFactory->EndMessage();
 
-	(targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5, false);
+	(targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5);
 
 return true;
 }
@@ -149,7 +149,7 @@ bool MessageLib::sendBaselinesITNO_9(IntangibleObject* intangibleObject,PlayerOb
 	gMessageFactory->addUint16(0);	//opperand count
 	message = gMessageFactory->EndMessage();
 
-	(targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5, false);
+	(targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5);
 
 return true;
 }

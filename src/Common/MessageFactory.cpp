@@ -150,7 +150,7 @@ Message* MessageFactory::EndMessage(void)
   if(currentUsed > mHeapWarnLevel)
   {
 	  mHeapWarnLevel = currentUsed+1.2;
-	  gLogger->logMsgF("WARNING: MessageFactory Heap at %2.2f usage",MSG_NORMAL,currentUsed);
+	  gLogger->logMsgF("WARNING: MessageFactory Heap at %2.2f usage\n",MSG_NORMAL,currentUsed);
   } else
   if (((currentUsed+2.2) < mHeapWarnLevel) && mHeapWarnLevel > 80.0)
 	  mHeapWarnLevel = currentUsed;
@@ -486,7 +486,7 @@ void MessageFactory::_adjustHeapStartBounds(uint32 size)
 
 		mCurrentMessage->setData(mMessageHeap + sizeof(Message));
 
-		gLogger->logMsgF("Heap Rollover Service %u STATS: MessageHeap - size: %u, maxUsed: %2.2f%, created: %u, destroyed: %u", MSG_HIGH, mServiceId,heapSize, mMaxHeapUsedPercent, mMessagesCreated, mMessagesDestroyed);
+		gLogger->logMsgF("Heap Rollover Service %u STATS: MessageHeap - size: %u, maxUsed: %2.2f%, created: %u, destroyed: %u\n", MSG_HIGH, mServiceId,heapSize, mMaxHeapUsedPercent, mMessagesCreated, mMessagesDestroyed);
 	}
 }
 

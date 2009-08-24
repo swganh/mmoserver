@@ -36,7 +36,7 @@ class BString
 {
 public:
                                       BString(void);
-									  BString::BString(BStringType type,uint16 length);
+									  BString(BStringType type,uint16 length);
                                       BString(int8* data);
                                       BString(uint16* data);
                                       BString(const BString& data);

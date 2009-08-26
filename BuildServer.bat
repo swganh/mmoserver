@@ -56,7 +56,8 @@ rem ----------------------------------------------------------------------------
 rem --- Start of SET_DEFAULTS --------------------------------------------------
 :SET_DEFAULTS
 
-set DEPENDENCIES_FILE=swganh-deps-1409.zip
+set DEPENDENCIES_VERSION=1409
+set DEPENDENCIES_FILE=swganh-deps-%DEPENDENCIES_VERSION%.zip
 set DEPENDENCIES_URL=http://share.swganh.org/gf.php?fid=200908110346158937
 set "PROJECT_BASE=%~dp0"
 set BUILD_TYPE=debug
@@ -218,6 +219,15 @@ echo.
 
 if not exist "%PROJECT_BASE%\deps" call :DOWNLOAD_DEPENDENCIES
 
+set /p current_version=<"%PROJECT_BASE%deps\VERSION"
+
+if not %current_version% == %DEPENDENCIES_VERSION% (
+    echo ** Dependencies out of date -- Updating now **
+    if exist "%PROJECT_BASE%deps" rmdir /S /Q "%PROJECT_BASE%deps" 
+    call :DOWNLOAD_DEPENDENCIES
+    echo ** Dependencies updated **
+)
+
 if exist "%PROJECT_BASE%\deps\boost" call :BUILD_BOOST     
 if exist "%PROJECT_BASE%\deps\gtest" call :BUILD_GTEST  
 if exist "%PROJECT_BASE%\deps\gmock" call :BUILD_GMOCK
@@ -250,6 +260,7 @@ if not exist "%PROJECT_BASE%\%DEPENDENCIES_FILE%" (
 if exist "%PROJECT_BASE%\%DEPENDENCIES_FILE%" (
     echo Extracting dependencies ...
     "%PROJECT_BASE%\tools\unzip.exe" "%PROJECT_BASE%\%DEPENDENCIES_FILE%" >NUL
+    echo %DEPENDENCIES_VERSION% >"%PROJECT_BASE%deps\VERSION"
     echo Complete!
     echo.
 )

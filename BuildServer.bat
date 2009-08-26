@@ -32,11 +32,17 @@ if not exist "%PROJECT_BASE%\deps" (
 
 call :BUILD_PROJECT     
 
-if not %ERRORLEVEL% == 0 exit /b %ERRORLEVEL%
+if not %ERRORLEVEL% == 0 (
+  if %HALT_ON_ERROR% == true (set /p halt=*** BUILD FAILED... PRESS ENTER TO CONTINUE ***)
+  exit /b %ERRORLEVEL% 
+)
 
 if "%DBINSTALL%" == "true" (
     call :INITIALIZE_DATABASE                  
-    if not %ERRORLEVEL% == 0 exit /b %ERRORLEVEL%
+    if not %ERRORLEVEL% == 0 (
+      if %HALT_ON_ERROR% == true (set /p halt=*** BUILD FAILED... PRESS ENTER TO CONTINUE ***)
+      exit /b %ERRORLEVEL% 
+    )
 )
 
 goto :eof
@@ -65,6 +71,8 @@ set MSVC_VERSION=vc9
 set REBUILD=build
 set DBINSTALL=false
 set BUILD_ERROR=false    
+set HALT_ON_ERROR=true   
+set halt= 
 
 goto :eof
 rem --- End of SET_DEFAULTS ----------------------------------------------------  
@@ -82,6 +90,7 @@ if "%~0" == "-h" (
     echo msvc_build.cmd Help
     echo.
 
+    echo "    /nohaltonerror                 Skips halting on errors"
     echo "    /nodbinstall                   Skips the database build process"
     echo "    /dbinstall                     Run the database build process"
     echo "    /rebuild                       Rebuilds the projects instead of incremental build"
@@ -97,6 +106,10 @@ if "%~0" == "/clean" (
 
 if "%~0" == "/nodbinstall" (
 	  set DBINSTALL=false
+)  
+
+if "%~0" == "/nohaltonerror" (
+	  set HALT_ON_ERROR=false
 )
 
 if "%~0" == "/dbinstall" (

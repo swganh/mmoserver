@@ -219,6 +219,13 @@ echo.
 
 if not exist "%PROJECT_BASE%\deps" call :DOWNLOAD_DEPENDENCIES
 
+if not exist "%PROJECT_BASE%deps\VERSION" (
+    echo ** Dependencies out of date -- Updating now **
+    if exist "%PROJECT_BASE%deps" rmdir /S /Q "%PROJECT_BASE%deps" 
+    call :DOWNLOAD_DEPENDENCIES
+    echo ** Dependencies updated **
+)
+
 set /p current_version=<"%PROJECT_BASE%deps\VERSION"
 
 if not %current_version% == %DEPENDENCIES_VERSION% (

@@ -120,7 +120,7 @@ enum zone_opcodes
 	opMISO								=   0x4d49534f,
 	opITNO								=   0x49544e4f,
 	opSecureTrade						=   0x00000115,
-
+	opSTAO								=	0x5354414F,
 	//ImageDesigner
 	opStatMigrationStart				=	0xefac38c4,
 

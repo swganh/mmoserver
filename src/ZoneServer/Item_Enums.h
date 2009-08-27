@@ -74,8 +74,19 @@ enum ItemType
 	ItemType_Camp_improved				= 1972,
 	ItemType_Camp_luxury				= 1973,
 	ItemType_Camp_multi					= 1974,
-	ItemType_Camp_quality				= 1975
+	ItemType_Camp_quality				= 1975,
+	ItemType_Firework_Type_1			= 1756,
+	ItemType_Firework_Type_2			= 1761,
+	ItemType_Firework_Type_3			= 1760,
+	ItemType_Firework_Type_4			= 1755,
+	ItemType_Firework_Type_5			= 1754,
+	ItemType_Firework_Type_10			= 1757,
+	ItemType_Firework_Type_11			= 1758,
+	ItemType_Firework_Type_18			= 1759,
+	ItemType_Firework_Show				= 1762
 
+
+	//Owen - changing the ids of the fireworks to be in order of the firework numbers would look cleaner, here and other places
 };
 
 //=============================================================================

@@ -68,7 +68,10 @@ enum ui_window_types
 	SUI_Window_Insurance_ListBox								= 32,
 	SUI_Window_InsureAll_Newbie_MessageBox						= 33,
 	SUI_Window_InsuranceAll_MessageBox							= 34,
-
+	SUI_Window_FireworkShow_Add									= 35,
+	SUI_Window_FireworkShow_Reorder								= 36,
+	SUI_Window_FireworkShow_Remove								= 37,
+	SUI_Window_FireworkShow_Modify								= 38,
 	
 };
 

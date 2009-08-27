@@ -264,7 +264,12 @@ enum RadialIdentifier
 	radId_bankDepositAll					= 236,
 	radId_bankWithdrawAll					= 237,
 	radId_bankTransfer						= 238,
-	radId_bankItems							= 239
+	radId_bankItems							= 239,
+	radId_fireworkshowAdd					= 240,
+	radId_fireworkshowRemove				= 241,
+	radId_fireworkshowModify				= 242,
+	radId_fireworkshowReorder				= 243,
+	radId_fireworkshowData					= 244
 };
 
 #endif

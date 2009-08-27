@@ -18,6 +18,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Food.h"
 #include "Deed.h"
 #include "Scout.h"
+#include "Firework.h"
 #include "Medicine.h"
 #include "Instrument.h"
 #include "Furniture.h"
@@ -161,7 +162,15 @@ Item* ItemFactory::_createItem(DatabaseResult* result)
 		case ItemFamily_Deed:					item	= new Deed();						break;
 		case ItemFamily_Medicine:				item	= new Medicine();					break;
 		case ItemFamily_Scout:					item	= new Scout();						break;
-			
+		case ItemFamily_FireWork:	
+			{
+				switch(itemIdentifier.mTypeId)
+				{
+					case ItemType_Firework_Show:	item	= new FireworkShow();				break;
+					default:						item	= new Firework();					break;
+				}
+			}			
+			break;						
 
 		default:
 		{

@@ -4,6 +4,7 @@
 	Version="9.00"
 	Name="MessageLib"
 	ProjectGUID="{9770A5AA-27F8-4818-9216-C6C1BE80FE2D}"
+	RootNamespace="MessageLib"
 	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
@@ -201,6 +202,10 @@
 			</File>
 			<File
 				RelativePath=".\ResourceContainerMessages.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\StaticMessages.cpp"
 				>
 			</File>
 			<File

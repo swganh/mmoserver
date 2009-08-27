@@ -263,7 +263,9 @@ public:
 	void				sendLanguagePlay9(PlayerObject* playerObject);
 	void				sendFoodUpdate(PlayerObject* playerObject);
 	void				sendDrinkUpdate(PlayerObject* playerObject);
-
+	// static object,	staticomessages.cpp
+	bool				sendBaselinesSTAO_3(const StaticObject* const staticObject, const PlayerObject* const targetObject) const;
+	bool				sendBaselinesSTAO_6(const StaticObject* const staticObject, const PlayerObject* const targetObject) const;
 	// tangible object, tangiblemessages.cpp
 	bool				sendBaselinesTANO_3(const TangibleObject* const tangibleObject,const PlayerObject* const targetObject) const;
 	bool				sendBaselinesTANO_6(const TangibleObject* const tangibleObject,const PlayerObject* const targetObject) const;

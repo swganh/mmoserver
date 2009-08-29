@@ -9,7 +9,7 @@ start ChatServer.exe
 
 start PingServer.exe
 
-rem start ZoneServer.exe tutorial
+start ZoneServer.exe tutorial
 start ZoneServer.exe tatooine
 rem start ZoneServer.exe naboo
 rem start ZoneServer.exe corellia

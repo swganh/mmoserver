@@ -177,7 +177,7 @@ if exist "%VS_BASE_DIR%\Common7\IDE\devenv.com" (
     set "DEVENV=%VS_BASE_DIR%\Common7\IDE\vcexpress.exe"
 )
 
-set DOTNET_BASE_DIR=C:\WINDOWS\Microsoft.NET\Framework\v3.5
+set DOTNET_BASE_DIR=%WINDIR%\Microsoft.NET\Framework\v3.5
 if not exist "%DOTNET_BASE_DIR%" (
     echo ***** Microsoft .NET Framework 3.5 required *****
     exit /b 1
@@ -199,9 +199,9 @@ rem ----------------------------------------------------------------------------
 rem --- Start of BUILD_ENVIRONMENT_FOR_vc9 -------------------------------------
 :BUILD_ENVIRONMENT_FOR_vc9
 
-set "VS_BASE_DIR=C:\Program Files (x86)\Microsoft Visual Studio 9.0"
+set "VS_BASE_DIR=%SYSTEMDRIVE%\%PROGRAMFILES(X86)%\Microsoft Visual Studio 9.0"
 if not exist "%VS_BASE_DIR%" (
-	  set "VS_BASE_DIR=C:\Program Files\Microsoft Visual Studio 9.0"
+	  set "VS_BASE_DIR=%SYSTEMDRIVE%\%PROGRAMFILES%\Microsoft Visual Studio 9.0"
 	  if not exist "%VS_BASE_DIR%" (          
 		    rem TODO: Allow user to enter a path to their base visual Studio directory.
        
@@ -210,7 +210,7 @@ if not exist "%VS_BASE_DIR%" (
 	  )
 )
 
-set "DOTNET_BASE_DIR=C:\WINDOWS\Microsoft.NET\Framework\v3.5"
+set "DOTNET_BASE_DIR=%WINDIR%\Microsoft.NET\Framework\v3.5"
 if not exist "%DOTNET_BASE_DIR%" (
     echo ***** Microsoft .NET Framework 3.5 required *****
     exit /b 1

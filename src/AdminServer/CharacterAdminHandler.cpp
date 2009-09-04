@@ -697,6 +697,8 @@ void CharacterAdminHandler::_sendCreateCharacterFailed(uint32 errorCode,Dispatch
 			break;
 	}
 
+	gLogger->logMsgF("CharacterAdminHandler::_sendCreateCharacterFailed errorString = %s", MSG_NORMAL, errorString.getAnsi());
+
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opHeartBeat); 
 	Message* newMessage = gMessageFactory->EndMessage();

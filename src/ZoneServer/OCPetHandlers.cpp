@@ -27,7 +27,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 
 //specific includes
+#include "Vehicle.h"
 #include "VehicleFactory.h"
+
 
 void ObjectController::_handleMount(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {

@@ -12,10 +12,13 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_ZONESERVER_INTANGIBLE_FACTORY_H
 #define ANH_ZONESERVER_INTANGIBLE_FACTORY_H
 
-#include "IntangibleObject.h"
-#include "DatabaseManager/DatabaseCallback.h"
-#include "FactoryBase.h"
-#include "VehicleFactory.h"
+
+//Forward Declerations
+class DatabaseCallback;
+class FactoryBase;
+class IntangibleObject;
+class VehicleFactory;
+
 
 #define		gIntangibleFactory	IntangibleFactory::getSingletonPtr()
 

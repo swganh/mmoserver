@@ -12,10 +12,6 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_DATABASEMANAGER_DATABASECALLBACK_H
 #define ANH_DATABASEMANAGER_DATABASECALLBACK_H
 
-//#include "Utils/typedefs.h"
-//#include <stdio.h>
-
-
 //======================================================================================================================
 class DatabaseResult;
 

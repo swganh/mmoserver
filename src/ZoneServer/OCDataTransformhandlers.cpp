@@ -24,6 +24,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Activeconversation.h"
 #include "NPCObject.h"
 #include "ZoneServer/Tutorial.h"
+#include "Vehicle.h"
 
 //=============================================================================
 //

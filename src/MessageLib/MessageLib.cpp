@@ -31,6 +31,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include <boost/lexical_cast.hpp>
 #include "Common/atMacroString.h"
 #include "ZoneServer/WorldConfig.h"
+#include "ZoneServer/Vehicle.h"
 
 //======================================================================================================================
 

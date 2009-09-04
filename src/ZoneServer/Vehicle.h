@@ -12,8 +12,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_ZONESERVER_VEHICLE_H
 #define ANH_ZONESERVER_VEHICLE_H
 
-#include "IntangibleObject.h"
-#include "CreatureObject.h"
+//Forward Declerations
+class IntangibleObject;
+class Creatureobject;
 
 //This reflects the vehicle types id from the database
 enum vehicle_types

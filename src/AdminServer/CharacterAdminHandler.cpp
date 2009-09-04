@@ -170,6 +170,7 @@ void CharacterAdminHandler::_processCreateCharacter(Message* message, DispatchCl
   // we must have a firstname
   if(characterInfo.mFirstName.getLength() < 3)
   {
+	  characterInfo.mFirstName.convert(BSTRType_ANSI);
 	  gLogger->logMsgF("Invalid first name, %s less than 3 characters", MSG_NORMAL, characterInfo.mFirstName.getAnsi());
 	_sendCreateCharacterFailed(1,client);
 	return;
@@ -177,6 +178,7 @@ void CharacterAdminHandler::_processCreateCharacter(Message* message, DispatchCl
   // we dont want large names
   else if(characterInfo.mFirstName.getLength() > 16)
   {
+	  characterInfo.mFirstName.convert(BSTRType_ANSI);
 	  gLogger->logMsgF("Invalid first name, %s more than 16 characters", MSG_NORMAL, characterInfo.mFirstName.getAnsi());
 	  _sendCreateCharacterFailed(11,client);
 	  return;
@@ -356,7 +358,7 @@ void CharacterAdminHandler::_processCreateCharacter(Message* message, DispatchCl
   strcat(sql, sql2);
 
   // Logging the character create sql for debugging purposes,beware this contains binary data
-  //gLogger->logMsgF("CharacterCreate: %s", MSG_NORMAL, sql);
+  gLogger->logMsgF("CharacterCreate: %s", MSG_NORMAL, sql);
 
   CAAsyncContainer* asyncContainer = new CAAsyncContainer(CAQuery_CreateCharacter,client);
   mDatabase->ExecuteProcedureAsync(this,asyncContainer,sql);

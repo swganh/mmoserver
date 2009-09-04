@@ -618,6 +618,17 @@ void Ham::updateRegenRates()
 	mActionRegenRate	= (int32)((mStamina.getCurrentHitPoints() / gWorldConfig->mActionRegenDivider) * regenModifier);
 	mMindRegenRate		= (int32)((mWillpower.getCurrentHitPoints() / gWorldConfig->mMindRegenDivider) * regenModifier);
 	mForceRegenRate		= (int32)(25.0f * regenModifier);
+
+	// Test for creatures
+	if (this->getParent())
+	{
+		if (this->getParent()->getType() == ObjType_Creature)
+		{
+			mHealthRegenRate = (mHealthRegenRate/10) + 1;
+			mActionRegenRate = (mActionRegenRate/10) + 1;
+			mMindRegenRate = (mMindRegenRate/10) + 1;
+		}
+	}
 }
 
 //===========================================================================

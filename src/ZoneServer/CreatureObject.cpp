@@ -12,6 +12,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "MathLib/Quaternion.h"
 #include "CreatureObject.h"
 #include "EntertainerManager.h"
+#include "Vehicle.h"
 #include "Buff.h"
 #include "WorldManager.h"
 #include "WorldConfig.h"
@@ -22,7 +23,6 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "ZoneServer/Tutorial.h"
 #include "AttackableStaticNpc.h"
 #include "AttackableCreature.h"
-#include "ZoneServer/Vehicle.h"
 
 //=============================================================================
 
@@ -48,7 +48,13 @@ mCurrentIncapTime(0),
 mFirstIncapTime(0),
 mReady(false),
 mTargetId(0),
-mOwner(0)
+mOwner(0),
+mPosture(0),
+mState(0),
+mCL(1),
+// mFaction(1),
+mMoodId(0),
+mScale(1.0)
 {
 	mType = ObjType_Creature;
 
@@ -867,13 +873,19 @@ void CreatureObject::die()
 				creature->unequipWeapon();
 
 				// Give XP to the one(s) attacking me.
-				creature->updateAttackersXp();
+				// creature->updateAttackersXp();
 			}
+		}
+
+		if (NPCObject* npc = dynamic_cast<NPCObject*>(this))
+		{
+			// Give XP to the one(s) attacking me.
+			npc->updateAttackersXp();
 		}
 
 		// Put this creature in the pool of delayed destruction.
 		gWorldManager->addCreatureObjectForTimedDeletion(this->getId(), timeBeforeDeletion);
-		this->killEvent();
+		// this->killEvent();
 	}
 }
 

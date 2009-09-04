@@ -39,13 +39,17 @@ table.insert(npcMembers, spawnPosZ);
 
 
 -- Insert leader.
-local npc = MM.createAndSpawnNpc(47513075899, "", "", spawnPosX, defaultYPos, spawnPosZ);
+-- local npc = MM.createAndSpawnNpc(47513075899, "", "", spawnPosX, defaultYPos, spawnPosZ);
+local npc = MM.createAndSpawnNpc(1, "", "", spawnPosX, defaultYPos, spawnPosZ);
 table.insert(npcMembers, npc);
 
 -- Insert our stormie
-local npc = MM.createAndSpawnNpc(47513075899, "", "", spawnPosX, defaultYPos, spawnPosZ);
+-- local npc = MM.createAndSpawnNpc(47513075899, "", "", spawnPosX, defaultYPos, spawnPosZ);
+local npc = MM.createAndSpawnNpc(1, "", "", spawnPosX, defaultYPos, spawnPosZ);
 table.insert(npcMembers, npc);
 table.insert(npcMembers, none);
+
+-- print("Starting to move gang");
 
 while (1) do
 	local temp;

@@ -54,14 +54,7 @@ class ScriptSupport
 												uint64 respawnPeriod,
 												uint64 templateId);
 
-		void				lairSpawn(NPCObject* npc, uint64 npcId,	uint64 cellForSpawn,
-										float dirY,	float dirW,
-										float posX,	float posY,	float posZ,
-										float xWidth, float zWidth,
-										bool isFixedPosition,
-										uint64 respawnPeriod,
-										uint64 templateId);
-												
+		void				lairSpawn(uint64 lairTypeId);												
 
 		void				npcDirection(NPCObject* npc, float deltaX, float deltaZ);
 		void				npcMove(NPCObject* npc, float posX, float posY, float posZ);

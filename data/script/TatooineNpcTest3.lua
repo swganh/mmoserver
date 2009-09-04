@@ -1,7 +1,6 @@
 -- Tatooine NPC test
 -- This script will not start until Zoneserver is ready.
 
-
 print("Tatooine NPC test");
 LuaScriptEngine.WaitMSec(1000);
 
@@ -44,8 +43,11 @@ table.insert(npcMembers, spawnPosZ);
 table.insert(npcMembers, none);
 
 -- Insert our stormie
-local npc = MM.createAndSpawnNpc(47513075899, "", "", spawnPosX, defaultYPos, spawnPosZ);
+-- local npc = MM.createAndSpawnNpc(47513075899, "", "", spawnPosX, defaultYPos, spawnPosZ);
+local npc = MM.createAndSpawnNpc(1, "", "", spawnPosX, defaultYPos, spawnPosZ);
 table.insert(npcMembers, npc);
+
+-- print("Starting to move on-man-gang");
 
 while (1) do
 	local temp;

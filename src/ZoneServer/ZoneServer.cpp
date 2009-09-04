@@ -183,7 +183,8 @@ void ZoneServer::Startup(int8* zoneName)
 	EntertainerManager::Init(mDatabase,mMessageDispatch);
 	GroupManager::Init(mDatabase,mMessageDispatch);
 	StructureManager::Init(mDatabase,mMessageDispatch);
-	(void)NpcManager::Instance();
+	// Invoked when all creature regions for spawning of lairs are loaded
+	// (void)NpcManager::Instance();
 
 	
 	ScriptEngine::Init();

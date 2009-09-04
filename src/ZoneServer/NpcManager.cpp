@@ -7,9 +7,16 @@ For more information, see http://www.swganh.org
 Copyright (c) 2006 - 2009 The swgANH Team
 
 ---------------------------------------------------------------------------------------
+
+// NOTE: This file is now under re-construction, implementing the real non-persistent database interface.
+// So we have to live with duplicate code for a while.
+
 */
 #include "Utils/utils.h"
+#include "DatabaseManager/DataBinding.h"
+#include "DatabaseManager/DatabaseResult.h"
 #include "NpcManager.h"
+#include "ZoneServer/NonPersistentNpcFactory.h"
 #include "LogManager/LogManager.h"
 #include "WorldManager.h"
 #include "AttackableCreature.h"
@@ -19,6 +26,22 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "CreatureObject.h"
 #include "AttackableCreature.h"
 #include <assert.h>
+
+
+//=============================================================================
+
+// Basic lair data when loading from DB.
+
+class NpcLairEntity
+{
+	public:
+		NpcLairEntity(){}
+		
+		uint64	mLairsId;
+		uint64	mLairTemplateId;
+		uint32	mNumberOfLairs;
+};
+
 
 //=============================================================================
 
@@ -50,6 +73,8 @@ NpcManager::NpcManager()
 NpcManager::NpcManager(Database* database) :mDatabase(database)
 {
 	// _setupDatabindings();
+	// gLogger->logMsgF("NpcManager::loadLairs()", MSG_NORMAL);
+	this->loadLairs();
 }
 
 
@@ -69,6 +94,7 @@ NpcManager::~NpcManager()
 //	Here we start the real stuff.
 //
 
+/*
 void NpcManager::addCreature(uint64 creatureId, const SpawnData *spawn)
 {
 	// gLogger->logMsgF("NpcManager::addCreature Attempting to add creature with id = %llu", MSG_NORMAL, creatureId);
@@ -90,6 +116,7 @@ void NpcManager::addCreature(uint64 creatureId, const SpawnData *spawn)
 	// gLogger->logMsgF("Npc will spawn at %.0f, %.0f, %.0f in %lld seconds", MSG_NORMAL, npc->mPosition.mX, npc->mPosition.mY, npc->mPosition.mZ, spawn->mBasic.timeToFirstSpawn/1000);
 	gWorldManager->addDormantNpc(creatureId, spawn->mBasic.timeToFirstSpawn);
 }
+*/
 
 //=============================================================================
 // 
@@ -144,7 +171,7 @@ void NpcManager::handleExpiredCreature(uint64 creatureId)
 	CreatureObject* creature = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(creatureId));
 	if (creature)
 	{
-		// creature->killEvent();
+		creature->killEvent();
 	}
 }
 
@@ -155,11 +182,79 @@ void NpcManager::handleObjectReady(Object* object)
 	CreatureObject* creature = dynamic_cast<CreatureObject*>(object);
 	if (creature)
 	{
+		// gLogger->logMsgF("Spawn using the new DataBase version, this is still for testing.", MSG_NORMAL);
 		creature->respawn();
 	}
 }
 
 
+//=============================================================================================================================
+//
+// This part is where the natural lairs are loaded from DB.
+//
+//=============================================================================================================================
+void NpcManager::loadLairs(void)
+{
+	//load lair and creature spawn, and optionally heightmaps cache.
+	// NpcFamily_NaturalLairs
+
+	mDatabase->ExecuteSqlAsync(this,new NpcAsyncContainer(NpcQuery_Lairs),
+								"SELECT lairs.id, lairs.lair_template, lairs.count "
+								"FROM lairs "
+								"INNER JOIN spawns ON (lairs.creature_spawn_region = spawns.id) "
+								"WHERE spawns.spawn_planet=%u AND lairs.family=%u ORDER BY lairs.id;",gWorldManager->getZoneId(), NpcFamily_NaturalLairs);
+	// gLogger->logMsgF("NpcManager::loadLairs() DONE", MSG_NORMAL);
+}
+
+void NpcManager::handleDatabaseJobComplete(void* ref, DatabaseResult* result)
+{
+	NpcAsyncContainer* asyncContainer = reinterpret_cast<NpcAsyncContainer*>(ref);
+	switch(asyncContainer->mQuery)
+	{
+		case NpcQuery_Lairs:
+		{
+			// warning... this assumes that someone has called the Init()-function before we execute the line below.
+			// For now, it's done at ZoneServer::Startup().
+			NonPersistentNpcFactory* nonPersistentNpcFactory = NonPersistentNpcFactory::Instance();
+
+			NpcLairEntity lair;
+
+			// Here we will get the lair type.
+			DataBinding* lairSpawnBinding = mDatabase->CreateDataBinding(3);
+			lairSpawnBinding->addField(DFT_uint64,offsetof(NpcLairEntity,mLairsId),8,0);
+			lairSpawnBinding->addField(DFT_uint64,offsetof(NpcLairEntity,mLairTemplateId),8,1);
+			lairSpawnBinding->addField(DFT_uint32,offsetof(NpcLairEntity,mNumberOfLairs),4,2);
+
+			uint64 count = result->getRowCount();
+
+			for (uint64 i = 0;i < count;i++)
+			{
+				result->GetNextRow(lairSpawnBinding,&lair);
+				// gLogger->logMsgF("Requesting %d lair(s) of type = %llu from line %llu", MSG_NORMAL, lair.mNumberOfLairs, lair.mLairTemplateId, lair.mLairsId);
+
+				for (uint64 lairs = 0; lairs < lair.mNumberOfLairs; lairs++)
+				{
+					// We need two id's in sequence, since nps'c have an inventory.
+					uint64 npcNewId = gWorldManager->getRandomNpNpcIdSequence();	
+
+					if (npcNewId != 0)
+					{
+						// gLogger->logMsgF("Requesting lair of type = %llu with id %llu", MSG_NORMAL, lair.mLairTemplateId, npcNewId);
+						nonPersistentNpcFactory->requestLairObject(this, lair.mLairsId, npcNewId);
+					}
+				}
+			}
+			mDatabase->DestroyDataBinding(lairSpawnBinding);
+		}
+		break;
+
+		default:
+		{
+		}
+		break;
+	}
+
+}
 
 
 //=============================================================================================================================
@@ -484,7 +579,10 @@ uint8 NpcManager::_executeAttack(CreatureObject* attacker,CreatureObject* defend
 		}
 
 		int32 baseMinDamage	= attackerNpc->getMinDamage();
+		// gLogger->logMsgF("baseMinDamage = %d", MSG_NORMAL, baseMinDamage);
 		int32 baseMaxDamage	= attackerNpc->getMaxDamage();
+		// gLogger->logMsgF("baseMaxDamage = %d", MSG_NORMAL, baseMaxDamage);
+
 		int32 baseDamage	= -((gRandom->getRand()%(baseMaxDamage - baseMinDamage)) + baseMinDamage);
 		
 		// apply damage multiplier
@@ -746,6 +844,7 @@ uint8 NpcManager::_executeAttack(CreatureObject* attacker,CreatureObject* defend
 		default:break;
 	}
 	gMessageLib->sendCombatSpam(attacker,defender,-multipliedDamage,"cbt_spam",combatSpam);
+	// gLogger->logMsgF("multipliedDamage = %d", MSG_NORMAL, multipliedDamage);
 	
 	return(0);
 }

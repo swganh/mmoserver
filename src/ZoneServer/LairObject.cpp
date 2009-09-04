@@ -19,78 +19,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 static const int64 dormantDefaultPeriodTime = 10000;
 static const int64 readyDefaultPeriodTime = 1000;
 
-
-
-LairData::LairData() :
-mSpawnPositionFixed(true),
-mActiveWaves(0),
-mPassiveWaves(0),
-mWaveSize(0)
-{
-}
-
-
-// Copy constructor
-LairData::LairData(const LairData& lairData)
-{
-	this->mSpawnCell = lairData.mSpawnCell;
-	this->mSpawnPosition = lairData.mSpawnPosition;
-	this->mSpawnDirection = lairData.mSpawnDirection;
-
-	this->mTemplateId = lairData.mTemplateId;
-	this->mSpawnPositionFixed = lairData.mSpawnPositionFixed;
-	this->mSpawnArea = lairData.mSpawnArea;
-	this->mActiveWaves = lairData.mActiveWaves;
-	this->mPassiveWaves = lairData.mPassiveWaves;
-	this->mWaveSize = lairData.mWaveSize;
-
-	for (int8 i = 0; i < MaxCreatureTypes; i++)
-	{
-		this->mCreatureTemplates[i] = lairData.mCreatureTemplates[i];
-		this->mCreatureSpawnRate[i] = lairData.mCreatureSpawnRate[i];
-	}
-	for (int8 i = 0; i < MaxWaveSize; i++)
-	{
-		this->mCreatureId[i] = lairData.mCreatureId[i];
-		this->mPassiveCreature[i] = lairData.mPassiveCreature[i];
-	}
-
-	this->mCreatureBabySpawnRate = lairData.mCreatureBabySpawnRate;
-
-	this->mRespawnPeriod = lairData.mRespawnPeriod;
-	this->mInitialSpawnPeriod = lairData.mInitialSpawnPeriod;
-}
-
-LairData& LairData::operator=(const LairData& lairData)
-{
-	this->mSpawnCell = lairData.mSpawnCell;
-	this->mSpawnPosition = lairData.mSpawnPosition;
-	this->mSpawnDirection = lairData.mSpawnDirection;
-
-	this->mTemplateId = lairData.mTemplateId;
-	this->mSpawnPositionFixed = lairData.mSpawnPositionFixed;
-	this->mSpawnArea = lairData.mSpawnArea;
-	this->mActiveWaves = lairData.mActiveWaves;
-	this->mPassiveWaves = lairData.mPassiveWaves;
-	this->mWaveSize = lairData.mWaveSize;
-
-	for (int8 i = 0; i < MaxCreatureTypes; i++)
-	{
-		this->mCreatureTemplates[i] = lairData.mCreatureTemplates[i];
-		this->mCreatureSpawnRate[i] = lairData.mCreatureSpawnRate[i];
-	}
-	for (int8 i = 0; i < MaxWaveSize; i++)
-	{
-		this->mCreatureId[i] = lairData.mCreatureId[i];
-		this->mPassiveCreature[i] = lairData.mPassiveCreature[i];
-	}
-
-	this->mCreatureBabySpawnRate = lairData.mCreatureBabySpawnRate;
-
-	this->mRespawnPeriod = lairData.mRespawnPeriod;
-	this->mInitialSpawnPeriod = lairData.mInitialSpawnPeriod;
-	return *this;
-}
+// For test.
+static int64 gLairSpawnCounter = 0;
+static int64 gLairDeathCounter = 0;
 
 
 //=============================================================================
@@ -99,8 +30,12 @@ LairObject::LairObject() : AttackableStaticNpc(),
 mLairState(State_LairUnspawned),
 mSpawned(false)
 {
+	assert(false);	// We should not use this constructor.
+
 	mNpcFamily	= NpcFamily_NaturalLairs;
 	mType = ObjType_Lair;
+
+	// this->mInitialized = false;
 	
 	// Use default radial.
 	// mRadialMenu = RadialMenuPtr(new RadialMenu());
@@ -111,55 +46,25 @@ mSpawned(false)
 
 //=============================================================================
 
-/*
-LairObject::LairObject(const LairObject &lair) : AttackableStaticNpc(),
+LairObject::LairObject(uint64 templateId) : AttackableStaticNpc(),
 mLairState(State_LairUnspawned),
-mSpawned(false)
+mLairsTypeId(templateId),
+mInitialized(false),
+mSpawned(false),
+mSpawnPositionFixed(true),
+mActiveWaves(0),
+mPassiveWaves(0),
+mWaveSize(0)
 {
 	mNpcFamily	= NpcFamily_NaturalLairs;
 	mType = ObjType_Lair;
-	
-	// Use default radial.
-	mRadialMenu = RadialMenuPtr(new RadialMenu());
-
-	this->setParentId(lair.getParentId());
-	this->mDirection = lair.mDirection;
-	this->mPosition = lair.mPosition;
-
-	this->mTemplateId = lair.mTemplateId;
-	this->mSpawnPositionFixed = lair.mSpawnPositionFixed;
-	this->mSpawnArea = lair.mSpawnArea;
-	this->mActiveWaves = lair.mActiveWaves;
-	this->mPassiveWaves = lair.mPassiveWaves;
-	this->mWaveSize = lair.mWaveSize;
 
 	for (int8 i = 0; i < MaxCreatureTypes; i++)
 	{
-		this->mCreatureTemplates[i] = lair.mCreatureTemplates[i];
-		this->mCreatureSpawnRate[i] = lair.mCreatureSpawnRate[i];
+		this->mCreatureTemplates[i] = 0;
+		this->mCreatureSpawnRate[i] = 100;
 	}
-
-	this->mCreatureBabySpawnRate = lair.mCreatureBabySpawnRate;
-
-	mSpawned = false;
-	mRespawnPeriod = lair.mRespawnPeriod;
-	// mInitialSpawnPeriod = mInitialSpawnPeriod;
-
-	mLairState = State_LairUnspawned;
 }
-*/
-
-//=============================================================================
-//
-//
-void LairObject::setLairData(const LairData &lairData)
-{
-	this->mLairData = lairData;
-
-	this->mSpawned = false;
-	this->mLairState = State_LairUnspawned;
-}
-
 
 //=============================================================================
 
@@ -202,7 +107,7 @@ void LairObject::addKnownObject(Object* object)
 
 		if ((this->getAiState() == NpcIsDormant))
 		{
-			// gLogger->logMsgF("AttackableCreature::addKnownObject() Wakie-wakie!", MSG_NORMAL);
+			// gLogger->logMsgF("LairObject::addKnownObject Wakie-wakie!", MSG_NORMAL);
 			gWorldManager->forceHandlingOfDormantNpc(this->getId());
 		}
 	}
@@ -236,9 +141,10 @@ void LairObject::handleEvents(void)
 				// gLogger->logMsgF("Players within spawn range", MSG_NORMAL);
 				
 				// Yes, we have to spawn, if the initial spawn timer has expired.
-				if (mLairData.mInitialSpawnPeriod <= 0)
+				if (this->mInitialSpawnDelay <= 0)
 				{
 					this->spawn();
+					// gLogger->logMsgF("Spawned this lair.", MSG_NORMAL);
 					this->spawnInitialWave();
 					this->mLairState = State_LairAlerted;
 					this->setAiState(NpcIsReady);
@@ -359,7 +265,7 @@ uint64 LairObject::handleState(uint64 timeOverdue)
 		{
 			// gLogger->logMsgF("State_LairUnspawned", MSG_NORMAL);
 			waitTime = dormantDefaultPeriodTime - timeOverdue;
-			mLairData.mInitialSpawnPeriod -= dormantDefaultPeriodTime;
+			this->mInitialSpawnDelay -= dormantDefaultPeriodTime;
 		}
 		break;
 
@@ -425,13 +331,13 @@ bool LairObject::requestAssistance(uint64 targetId, uint64 sourceId) const
 	// gLogger->logMsgF("LairObject::requestAssistance() Entering", MSG_NORMAL);
 	bool found = false;
 
-	for (int32 i = 0; i < mLairData.mWaveSize; i++)
+	for (int32 i = 0; i < this->mWaveSize; i++)
 	{
 		// Creature alive? (and it's not I)
-		if ((this->mLairData.mPassiveCreature[i] > 0) && (sourceId != this->mLairData.mCreatureId[i]))
+		if ((this->mPassiveCreature[i] > 0) && (sourceId != this->mCreatureId[i]))
 		{
 			// Yes. Is creature reference valid.?
-			if (AttackableCreature* creature = dynamic_cast<AttackableCreature*>(gWorldManager->getObjectById(this->mLairData.mCreatureId[i])))
+			if (AttackableCreature* creature = dynamic_cast<AttackableCreature*>(gWorldManager->getObjectById(this->mCreatureId[i])))
 			{
 				// Yes. Is creature still alive and not in combat?
 				if (!creature->isDead() && (creature->getDefenders()->empty()))
@@ -439,7 +345,7 @@ bool LairObject::requestAssistance(uint64 targetId, uint64 sourceId) const
 					if (creature->isGroupAssist())
 					{
 						// Creature in range?
-						if (gWorldManager->objectsInRange(sourceId, this->mLairData.mCreatureId[i], 45.0))
+						if (gWorldManager->objectsInRange(sourceId, this->mCreatureId[i], 45.0))
 						{
 							// Would be lovley if this creature could help me.
 							// gLogger->logMsgF("LairObject::requestAssistance() Asking creature %llu for help.", MSG_NORMAL, creature->getId());
@@ -466,13 +372,13 @@ void LairObject::requestLairAssistance(void) const
 	// Set the first defender as target.
 	uint64 targetId = this->getTarget()->getId();
 
-	for (int32 i = 0; i < mLairData.mWaveSize; i++)
+	for (int32 i = 0; i < this->mWaveSize; i++)
 	{
 		// Creature alive?
-		if (this->mLairData.mPassiveCreature[i] > 0)
+		if (this->mPassiveCreature[i] > 0)
 		{
 			// Yes. Is creature reference valid.?
-			if (AttackableCreature* creature = dynamic_cast<AttackableCreature*>(gWorldManager->getObjectById(this->mLairData.mCreatureId[i])))
+			if (AttackableCreature* creature = dynamic_cast<AttackableCreature*>(gWorldManager->getObjectById(this->mCreatureId[i])))
 			{
 				// Yes. Is creature still alive?
 				if (!creature->isDead())
@@ -559,6 +465,9 @@ void LairObject::makePeaceWithDefendersOutOfRange(void)
 
 void LairObject::spawn(void)
 {
+	gLairSpawnCounter++;
+	gLogger->logMsgF("Spawned lair # %lld (%lld)", MSG_NORMAL, gLairSpawnCounter, gLairSpawnCounter - gLairDeathCounter);
+
 	// Update the world about my presence.
 	if (this->getParentId())
 	{
@@ -617,15 +526,15 @@ void LairObject::spawnInitialWave(void)
 	// First we need X creatures :)
 	uint8 creatureTypeIndex;
 	uint64 creatureTemplate;
-	for (int32 i = 0; i < mLairData.mWaveSize; i++)
+	for (int32 i = 0; i < this->mWaveSize; i++)
 	{
 		// lair->mInitialSpawnPeriod = (uint64)(gRandom->getRand() % (int32)lair->mRespawnPeriod);
 		creatureTypeIndex = gRandom->getRand() % (int32)100;	// Better to add all values...
 		for (int32 y = 0; y < MaxCreatureTypes; y++)
 		{
-			if (creatureTypeIndex <= mLairData.mCreatureSpawnRate[y])
+			if (creatureTypeIndex <= this->mCreatureSpawnRate[y])
 			{
-				creatureTemplate = mLairData.mCreatureTemplates[y];
+				creatureTemplate = this->mCreatureTemplates[y];
 				break;
 			}
 		}
@@ -638,134 +547,12 @@ void LairObject::spawnInitialWave(void)
 
 		if (npcNewId != 0)
 		{
-			// Save the id.
-			this->mLairData.mCreatureId[i] = npcNewId;
-
-			// Let us get an object from/via the WRONG database (the Persistent... one).
-			// gLogger->logMsgF("LairObject::spawnInitialWave: Creating NPC with template = %llu and new id = %llu", MSG_NORMAL, creatureTemplate, npcNewId);
-			
-			Anh_Math::Vector3 position;
-
-			// Let us get the spawn point. It's x meters from the lair :)
-			position.mX = (this->mPosition.mX - 60.0) + (float)(gRandom->getRand() % (int32)(120));
-			position.mZ = (this->mPosition.mZ - 60.0) + (float)(gRandom->getRand() % (int32)(120));
-			position.mY = this->getHeightAt2DPosition(position.mX, position.mZ);
-			
-			// gLogger->logMsgF("Setting up spawn of creature at %.0f %.0f %.0f", MSG_NORMAL, position.mX, position.mY, position.mZ);
-
-			// The data used below should be taken from DB, not hard coded as it is now.
-			// We have to live with the hard coding, as this is still "under construction".
-
-			SpawnData* spawn = new SpawnData;
-
-			spawn->mBasic.templateId = creatureTemplate;
-
-			spawn->mBasic.cellForSpawn = this->getParentId();		// Same cell as the lair.
-			// spawn->mBasic.timeToFirstSpawn = 1000;		// Will not be used, since the creature class will think this is a respawn.
-			
-			// TODO: Do not use this for respawn or not....
-			// spawn->mBasic.respawnPeriod = 0;  // Should be 0, since this creature will never respawn himself.
-
-			spawn->mBasic.respawnPeriod = 120000;// 2 min max.
-			spawn->mBasic.timeToFirstSpawn = (uint64)(gRandom->getRand() % (int32)spawn->mBasic.respawnPeriod);
-
-			spawn->mBasic.spawnDirection = this->mDirection;	// TODO: Give them a random dir.
-			spawn->mBasic.spawnPosition = position;
-			spawn->mBasic.spawned = false;
-			spawn->mBasic.lairId = this->getId();
-			spawn->mBasic.homePosition = this->mPosition;
-
-			// Hard coded test data.
-			if (this->mLairData.mTemplateId == pileOfRocksTemplateId)
-			{
-				// Womp Rats.
-				spawn->mWeapon.minDamage = 90;
-				spawn->mWeapon.maxDamage = 110;
-				spawn->mWeapon.weaponMaxRange = 6;
-				spawn->mWeapon.attackSpeed = 2000;
-				spawn->mWeapon.weaponXp = 356;			// a womp rat.
-
-				spawn->mProfile.agressiveMode = true;
-				spawn->mProfile.roaming = true;
-				spawn->mProfile.stalker = true;
-				spawn->mProfile.killer = false;
-
-				spawn->mProfile.attackWarningRange = 20;
-				spawn->mProfile.attackRange = 15;
-				spawn->mProfile.maxAggroRange = 65;
-				spawn->mProfile.attackWarningMessage = "";
-				spawn->mProfile.attackStartMessage = "";
-				spawn->mProfile.attackedMessage = "";
-
-				spawn->mProfile.roamingPeriodTime = 120000;
-				spawn->mProfile.roamingSteps = -1;
-				spawn->mProfile.roamingSpeed = 0.5;
-				spawn->mProfile.roamingDistanceMax = 32;
-
-				spawn->mProfile.stalkerSpeed = 4.0;
-				spawn->mProfile.stalkerDistanceMax = 64;
-				// spawn->mProfile.groupAssist = true;
-				spawn->mProfile.groupAssist = false;
-			}
-			else if (this->mLairData.mTemplateId == nestTemplateId)
-			{
-				// Rills.
-				spawn->mWeapon.minDamage = 50;
-				spawn->mWeapon.maxDamage = 55;
-				spawn->mWeapon.weaponMaxRange = 6;
-				spawn->mWeapon.attackSpeed = 2000;
-				spawn->mWeapon.weaponXp = 113;			// a womp rat.
-
-				spawn->mProfile.agressiveMode = true;
-				spawn->mProfile.roaming = true;
-				spawn->mProfile.stalker = true;
-				spawn->mProfile.killer = false;
-
-				spawn->mProfile.attackWarningRange = 35;
-				spawn->mProfile.attackRange = 25;
-				spawn->mProfile.maxAggroRange = 65;
-				spawn->mProfile.attackWarningMessage = "";
-				spawn->mProfile.attackStartMessage = "";
-				spawn->mProfile.attackedMessage = "";
-
-				spawn->mProfile.roamingPeriodTime = 120000;
-				spawn->mProfile.roamingSteps = -1;
-				spawn->mProfile.roamingSpeed = 0.75;
-				spawn->mProfile.roamingDistanceMax = 32;
-
-				spawn->mProfile.stalkerSpeed = 4.5;
-				spawn->mProfile.stalkerDistanceMax = 75;
-				spawn->mProfile.groupAssist = true;
-			}
-			nonPersistentNpcFactory->requestObject(NpcManager::Instance(), creatureTemplate, npcNewId, (const SpawnData) (*spawn));
-			delete spawn;
+			// Save the id of the creatures in my lair.
+			this->mCreatureId[i] = npcNewId;
+			nonPersistentNpcFactory->requestNpcObject(NpcManager::Instance(), creatureTemplate, npcNewId, this->getParentId(), this->mPosition, this->mDirection, 0, this->getId());
 		}
 	}
 }
-
-//=============================================================================
-//
-//	Check if we have any player near us.
-
-/*
-bool LairObject::playerInRange(float range)
-{
-	bool playerFound = false;
-
-	PlayerObjectSet* knownPlayers = this->getKnownPlayers();
-	PlayerObjectSet::iterator it = knownPlayers->begin();
-	while(it != knownPlayers->end())
-	{
-		if (gWorldManager->objectsInRange(this->getId(), (*it)->getId(), range))
-		{
-			playerFound = true;
-			break;
-		}
-		++it;
-	}
-	return playerFound;
-}
-*/
 
 //=============================================================================
 //
@@ -795,98 +582,235 @@ bool LairObject::playerInRange(float range)
 
 void LairObject::killEvent(void)
 {
+	// One lair less in the system.
+	gLairDeathCounter++;
+
 	// gLogger->logMsgF("LairObject::killEvent: Entering", MSG_NORMAL);
-	if (mLairData.mRespawnPeriod != 0)
+	if (this->getRespawnDelay() != 0)
 	{
-		// gLogger->logMsgF("LairObject::killEvent: Creating a new lair with template = %llu", MSG_NORMAL, mLairData.mTemplateId);
+		// gLogger->logMsgF("LairObject::killEvent: Creating a new lair with template = %llu", MSG_NORMAL, this->mTemplateId);
 
 		uint64 npcNewId = gWorldManager->getRandomNpNpcIdSequence();	
 		if (npcNewId != 0)
 		{
 			// Let's put this sucker into play again.
-			NonPersistentNpcFactory::Instance()->requestObject(NpcManager::Instance(), mLairData.mTemplateId, npcNewId, mLairData);
+			// gLogger->logMsgF("Requesting lair of type = %llu with id %llu", MSG_NORMAL, mLairsTypeId, npcNewId);
+			NonPersistentNpcFactory::Instance()->requestLairObject(NpcManager::Instance(), mLairsTypeId, npcNewId);
 		}
 	}
 }
+
+// This will become the standard create and spawn routine...
 
 void LairObject::respawn(void)
 {
 	// gLogger->logMsgF("LairObject::respawn() Entering", MSG_NORMAL);
 
-	Anh_Math::Quaternion	direction;
-	Anh_Math::Vector3		position;
+	// The data used below ARE taken from DB, not hard coded as the script version above.
 
-	// The data used below should be taken from DB, not hard coded as it is now.
-	// We have to live with the hard coding, as this is still "under construction".
-
-	// Create a lair, passive style in the wilderness.
-
-	// Spawn position. Can be fixed or random within given "region".
-
-	this->setParentId(mLairData.mSpawnCell);
-
-	if (mLairData.mSpawnPositionFixed)
+	// What kind of lair?
+	if (this->mNpcFamily == NpcFamily_NaturalLairs)
 	{
-		// Use the existing position.
-		position = mLairData.mSpawnPosition;
-		direction = mLairData.mSpawnDirection;
+		// Create a lair, passive style.
+
+		// Spawn position. Can be fixed or random within given "region".
+		this->mSpawnPositionFixed = false;
+		if (this->hasInternalAttribute("lair_fix_position"))
+		{
+			this->mSpawnPositionFixed = this->getInternalAttribute<bool>("lair_fix_position");					
+			// gLogger->logMsgF("lair_fix_position = %d", MSG_NORMAL, this->mSpawnPositionFixed);
+		}
+		// We only support lair spawning outside, for now.
+		this->mSpawnCell = 0;
+
+		this->setParentId(this->mSpawnCell);
+
+		if (this->mSpawnPositionFixed)
+		{
+			// Use the existing position, read from DB.
+			// position = this->mSpawnPosition;
+			// direction = this->mSpawnDirection;
+		}
+		else
+		{
+			// Rectangle(float lowX,float lowZ,float width,float height) : Shape(lowX,0.0f,lowZ),mWidth(width),mHeight(height){}
+			Anh_Math::Vector3		position;
+
+			Anh_Math::Vector3 *pos = this->mSpawnArea.getPosition();
+			position.mX = pos->mX;
+			position.mZ = pos->mZ;
+
+			float xWidth = this->mSpawnArea.getHeight();
+			float zHeight = this->mSpawnArea.getWidth();
+
+			// Ge a random position withing given region.
+			// Note that creature can spawn outside the region, since thay have a radius from the lair where thet are allowed to spawn.
+			this->mPosition.mX = position.mX + (gRandom->getRand() % (int32)(xWidth+1));
+			this->mPosition.mZ = position.mZ + (gRandom->getRand() % (int32)(zHeight+1));
+			if (this->getParentId() == 0)
+			{
+				// Heightmap only works outside.
+				this->mPosition.mY = this->getHeightAt2DPosition(this->mPosition.mX, this->mPosition.mZ);
+			}
+
+			// Random direction.
+			this->setRandomDirection();
+		}
+		// gLogger->logMsgF("Lair spawn at pos: %.0f %.0f %.0f", MSG_NORMAL, this->mPosition.mX, this->mPosition.mY, this->mPosition.mZ);
+
+		if (this->hasInternalAttribute("lair_wave_size"))
+		{
+			this->mWaveSize = this->getInternalAttribute<int32>("lair_wave_size");					
+			// gLogger->logMsgF("lair_wave_size = %d", MSG_NORMAL, this->mWaveSize);
+		}
+		else
+		{
+			assert(false);
+			this->mWaveSize = 3;
+		}
+
+		if (this->hasInternalAttribute("lair_passive_waves"))
+		{
+			this->mPassiveWaves = this->getInternalAttribute<int32>("lair_passive_waves");					
+			// gLogger->logMsgF("lair_passive_waves = %d", MSG_NORMAL, this->mPassiveWaves);
+		}
+		else
+		{
+			assert(false);
+			this->mPassiveWaves = 3;
+		}
+
+		// We do not spawn any babys yet.
+
+		for (int32 i = 0; i < this->mWaveSize; i++)
+		{
+			this->mPassiveCreature[i] = this->mPassiveWaves;
+		}
+		for (int32 i = this->mWaveSize; i < MaxWaveSize; i++)
+		{
+			this->mPassiveCreature[i] = 0;
+		}
+		
+
+		// Lair respawn period.
+		if (this->hasInternalAttribute("lair_respawn_delay"))
+		{
+			this->setRespawnDelay(this->getInternalAttribute<uint64>("lair_respawn_delay"));					
+			// gLogger->logMsgF("lair_respawn_delay = %llu", MSG_NORMAL, this->getRespawnDelay());
+		}
+		else
+		{
+			assert(false);
+			this->setRespawnDelay(5*60*1000);
+		}
+
+
+		// Max spawn distance for creatures belonging to the lair.
+		if (this->hasInternalAttribute("lair_creatures_max_spawn_distance"))
+		{
+			this->mMaxSpawnDistance = this->getInternalAttribute<float>("lair_creatures_max_spawn_distance");					
+			// gLogger->logMsgF("lair_creatures_max_spawn_distance = %.0f", MSG_NORMAL, this->mMaxSpawnDistance);
+		}
+		else
+		{
+			assert(false);
+			this->mMaxSpawnDistance = 10;
+		}
+
+		if (this->hasInternalAttribute("creature_xp"))
+		{
+			uint32 xp = this->getInternalAttribute<uint32>("creature_xp");					
+			// gLogger->logMsgF("creature_xp = %u", MSG_NORMAL, xp);
+			this->setWeaponXp(xp);
+		}
+		else
+		{
+			// assert(false);
+			this->setWeaponXp(0);
+		}
+
+		if (this->hasAttribute("creature_health"))
+		{
+			int32 health = this->getAttribute<int32>("creature_health");					
+			// gLogger->logMsgF("creature_health = %d", MSG_NORMAL, health);
+			this->mHam.mHealth.setCurrentHitPoints(health);
+			this->mHam.mHealth.setMaxHitPoints(health);
+			this->mHam.mHealth.setBaseHitPoints(health);
+		}
+		else
+		{
+			assert(false);
+			this->mHam.mHealth.setCurrentHitPoints(500);
+			this->mHam.mHealth.setMaxHitPoints(500);
+			this->mHam.mHealth.setBaseHitPoints(500);
+		}
+
+		if (this->hasAttribute("creature_strength"))
+		{
+			int32 strength = this->getAttribute<int32>("creature_strength");					
+			// gLogger->logMsgF("creature_strength = %d", MSG_NORMAL, strength);
+			this->mHam.mStrength.setCurrentHitPoints(strength);
+			this->mHam.mStrength.setMaxHitPoints(strength);
+			this->mHam.mStrength.setBaseHitPoints(strength);
+		}
+		else
+		{
+			assert(false);
+			this->mHam.mStrength.setCurrentHitPoints(500);
+			this->mHam.mStrength.setMaxHitPoints(500);
+			this->mHam.mStrength.setBaseHitPoints(500);
+		}
+
+		if (this->hasAttribute("creature_constitution"))
+		{
+			int32 constitution = this->getAttribute<int32>("creature_constitution");					
+			// gLogger->logMsgF("creature_constitution = %d", MSG_NORMAL, constitution);
+			this->mHam.mConstitution.setCurrentHitPoints(constitution);
+			this->mHam.mConstitution.setMaxHitPoints(constitution);
+			this->mHam.mConstitution.setBaseHitPoints(constitution);
+		}
+		else
+		{
+			assert(false);
+			this->mHam.mConstitution.setCurrentHitPoints(500);
+			this->mHam.mConstitution.setMaxHitPoints(500);
+			this->mHam.mConstitution.setBaseHitPoints(500);
+		}
+		this->mHam.calcAllModifiedHitPoints();
+
+		/*
+		if (this->hasAttribute("challenge_level"))	// Difficulty Level
+		{
+			int32 challenge_level = this->getAttribute<int32>("challenge_level");					
+			// gLogger->logMsgF("Difficulty Level (challenge_level) = %d", MSG_NORMAL, challenge_level);
+		}
+
+		if (this->hasAttribute("consider"))	// Combat Difficulty
+		{
+			int32 consider = this->getAttribute<int32>("consider");					
+			// gLogger->logMsgF("Combat Difficulty (consider) = %d", MSG_NORMAL, consider);
+		}
+		*/
+
+
+
+		// Register object with WorldManager.
+		// Done when creating the object.
+		// gWorldManager->addObject(this, true);
+
+		// Put the lair in the Dormant queue. 
+		// I do not want all lair running at same respawn period to do their initial spawn at the same time.
+		this->mInitialSpawnDelay = (int64)this->getRespawnDelay() + (int64)(((uint64)gRandom->getRand() * 1000) % (this->getRespawnDelay() + 1));
+
+		// When spawning, the lair awaits activation in the dormant queue, so we load the lair instantly and have a wait timer running before the spawn.
+		// Since we can force a lair (any object) out of the dormant queue, we have to do the actual spwan countdown with a created object.
+		gWorldManager->addDormantNpc(getId(), 0);
 	}
 	else
 	{
-		// Rectangle(float lowX,float lowZ,float width,float height) : Shape(lowX,0.0f,lowZ),mWidth(width),mHeight(height){}
-		Anh_Math::Vector3 *pos = mLairData.mSpawnArea.getPosition();
-		position.mX = pos->mX;
-		// position.mY = pos->mY;
-		position.mZ = pos->mZ;
-
-		float xWidth = mLairData.mSpawnArea.getHeight();
-		float zHeight = mLairData.mSpawnArea.getWidth();
-
-		// Ge a random position withing given region.
-		// Note that creature can spawn outside the region, since thay have a radius from the lair where thet are allowed to spawn.
-		// position.mX = position.mX + (gRandom->getRand() % (int32)(mSpawnArea.getHeight()));
-		// position.mZ = position.mZ + (gRandom->getRand() % (int32)(mSpawnArea.getWidth()));
-		position.mX = position.mX + (gRandom->getRand() % (int32)(xWidth));
-		position.mZ = position.mZ + (gRandom->getRand() % (int32)(zHeight));
-
-		position.mY = this->getHeightAt2DPosition(position.mX, position.mZ);
-
-		direction = mDirection;	// TODO: Random direction.
+		assert(false);
 	}
-	// gLogger->logMsgF("Spawn at %.0f %.0f %.0f", MSG_NORMAL, position.mX, position.mY, position.mZ);
-
-	mDirection = direction;
-	mPosition = position;
-
-	// We do not spawn any babys yet.
-
-	for (int32 i = 0; i < mLairData.mWaveSize; i++)
-	{
-		mLairData.mPassiveCreature[i] = mLairData.mPassiveWaves;
-	}
-	for (int32 i = mLairData.mWaveSize; i < MaxWaveSize; i++)
-	{
-		mLairData.mPassiveCreature[i] = 0;
-	}
-	
-	// Register object with WorldManager.
-	gWorldManager->addObject(this, true);
-
-	// Put the lair in the Dormant queue. 
-	// I do not want all lair running at same respawn period to do their initial spawn at the same time.
-	mLairData.mInitialSpawnPeriod = mLairData.mRespawnPeriod + (int64)(gRandom->getRand() % (int32)mLairData.mRespawnPeriod);
-	// gLogger->logMsgF("LairObject::respawn: Respawning in %lld seconds", MSG_NORMAL, mLairData.mInitialSpawnPeriod/1000);
-
-	// When re-spawning, the lair awaits activation in the dormant queue, so we either load the lair instantly and have a wait timer running before the spawn,
-	// or let the lair wait in the timed queue system, and then spawn instantly at activation.
-
-	// Since we can force a lair (any object) out of the dormant queue, we have to do the actual spwan countdown with a created object.
-	// gWorldManager->addDormantNpc(getId(), mLairData.mInitialSpawnPeriod);
-	gWorldManager->addDormantNpc(getId(), 0);
-	
-
-
-	}
+}
 
 void LairObject::reportedDead(uint64 deadCreatureId)
 {
@@ -894,142 +818,63 @@ void LairObject::reportedDead(uint64 deadCreatureId)
 	bool found = false;
 
 	// this->mCreatureId[i] = npcNewId;
-	for (int32 i = 0; i < mLairData.mWaveSize; i++)
+	for (int32 i = 0; i < this->mWaveSize; i++)
 	{
-		if ((deadCreatureId == this->mLairData.mCreatureId[i]) && (this->mLairData.mPassiveCreature[i] > 0))
+		if ((deadCreatureId == this->mCreatureId[i]) && (this->mPassiveCreature[i] > 0))
 		{
 			found = true;
 
-			// We have to make a new passive spawn.
-			this->mLairData.mPassiveCreature[i]--;
+			// We have to make a new passive spawn( of the same kind of creature ??).
+			this->mPassiveCreature[i]--;
 
-			uint64 creatureTemplate;
+			uint64 creatureTemplate = 0;
 			uint8 creatureTypeIndex = gRandom->getRand() % (int32)100;	// Better to add all values...
 			for (int32 y = 0; y < MaxCreatureTypes; y++)
 			{
-				if (creatureTypeIndex <= mLairData.mCreatureSpawnRate[y])
+				if (creatureTypeIndex <= this->mCreatureSpawnRate[y])
 				{
-					creatureTemplate = mLairData.mCreatureTemplates[y];
+					creatureTemplate = this->mCreatureTemplates[y];
 					break;
 				}
 			}
+			assert(creatureTemplate != 0);
+
 			// Here we have the type of creature to spawn.
+
 			// But first we have to create him.
 			NonPersistentNpcFactory* nonPersistentNpcFactory = gNonPersistentNpcFactory;
 
 			// We need two id's in sequence, since nps'c have an inventory.
 			uint64 npcNewId = gWorldManager->getRandomNpNpcIdSequence();	
-
 			if (npcNewId != 0)
 			{
-				// Save the id.
-				this->mLairData.mCreatureId[i] = npcNewId;
-
-				// Let us get an object from/via the WRONG database (the Persistent... one).
-				// gLogger->logMsgF("LairObject::reportedDead: Creating NPC with template = %llu and new id = %llu", MSG_NORMAL, creatureTemplate, npcNewId);
-				
-				Anh_Math::Vector3 position;
-
-				// Let us get the spawn point. It's x meters from the lair :)
-				position.mX = (this->mPosition.mX - 60.0) + (float)(gRandom->getRand() % (int32)(120));
-				position.mZ = (this->mPosition.mZ - 60.0) + (float)(gRandom->getRand() % (int32)(120));
-				position.mY = this->getHeightAt2DPosition(position.mX, position.mZ);
-				
-				// gLogger->logMsgF("Setting up spawn of creature at %.0f %.0f %.0f", MSG_NORMAL, position.mX, position.mY, position.mZ);
-				// gLogger->logMsgF("This creature will spawn %d more times.", MSG_NORMAL, this->mLairData.mPassiveCreature[i]);
-
-				// The data used below should be taken from DB, not hard coded as it is now.
-				// We have to live with the hard coding, as this is still "under construction".
-
-				SpawnData* spawn = new SpawnData;
-
-				spawn->mBasic.templateId = creatureTemplate;
-
-				spawn->mBasic.cellForSpawn = this->getParentId();		// Same cell as the lair.
-				// spawn->mBasic.timeToFirstSpawn = 1000;		// Will not be used, since the creature class will think this is a respawn.
-				
-				// TODO: Do not use this for respawn or not....
-				// spawn->mBasic.respawnPeriod = 0;  // Should be 0, since this creature will never respawn himself.
-				// Well, problem is that this spawn will be handled like a respawn...
-				spawn->mBasic.respawnPeriod = 120000;// 2 min max.
-				spawn->mBasic.timeToFirstSpawn = (uint64)(gRandom->getRand() % (int32)spawn->mBasic.respawnPeriod);
-
-				spawn->mBasic.spawnDirection = this->mDirection;	// TODO: Give them a random dir.
-				spawn->mBasic.spawnPosition = position;
-				spawn->mBasic.spawned = false;
-				spawn->mBasic.lairId = this->getId();
-				spawn->mBasic.homePosition = this->mPosition;
-
-				// Hard coded test data.
-				if (this->mLairData.mTemplateId == pileOfRocksTemplateId)
-				{
-					spawn->mWeapon.minDamage = 90;
-					spawn->mWeapon.maxDamage = 110;
-					spawn->mWeapon.weaponMaxRange = 6;
-					spawn->mWeapon.attackSpeed = 2000;
-					spawn->mWeapon.weaponXp = 356;			// a womp rat.
-
-					spawn->mProfile.agressiveMode = true;
-					spawn->mProfile.roaming = true;
-					spawn->mProfile.stalker = true;
-					spawn->mProfile.killer = false;
-
-					spawn->mProfile.attackWarningRange = 20;
-					spawn->mProfile.attackRange = 15;
-					spawn->mProfile.maxAggroRange = 65;
-					spawn->mProfile.attackWarningMessage = "";
-					spawn->mProfile.attackStartMessage = "";
-					spawn->mProfile.attackedMessage = "";
-
-					spawn->mProfile.roamingPeriodTime = 120000;
-					spawn->mProfile.roamingSteps = -1;
-					spawn->mProfile.roamingSpeed = 0.5;
-					spawn->mProfile.roamingDistanceMax = 32;
-
-					spawn->mProfile.stalkerSpeed = 4.0;
-					spawn->mProfile.stalkerDistanceMax = 64;
-					spawn->mProfile.groupAssist = false;
-				}
-				else if (this->mLairData.mTemplateId == nestTemplateId)
-				{
-					// Rills.
-					spawn->mWeapon.minDamage = 50;
-					spawn->mWeapon.maxDamage = 55;
-					spawn->mWeapon.weaponMaxRange = 6;
-					spawn->mWeapon.attackSpeed = 2000;
-					spawn->mWeapon.weaponXp = 113;			// a womp rat.
-
-					spawn->mProfile.agressiveMode = true;
-					spawn->mProfile.roaming = true;
-					spawn->mProfile.stalker = true;
-					spawn->mProfile.killer = false;
-
-					spawn->mProfile.attackWarningRange = 35;
-					spawn->mProfile.attackRange = 25;
-					spawn->mProfile.maxAggroRange = 65;
-					spawn->mProfile.attackWarningMessage = "";
-					spawn->mProfile.attackStartMessage = "";
-					spawn->mProfile.attackedMessage = "";
-
-					spawn->mProfile.roamingPeriodTime = 120000;
-					spawn->mProfile.roamingSteps = -1;
-					spawn->mProfile.roamingSpeed = 0.75;
-					spawn->mProfile.roamingDistanceMax = 32;
-
-					spawn->mProfile.stalkerSpeed = 4.5;
-					spawn->mProfile.stalkerDistanceMax = 75;
-					spawn->mProfile.groupAssist = true;
-				}
-						
-				nonPersistentNpcFactory->requestObject(NpcManager::Instance(), creatureTemplate, npcNewId, (const SpawnData) (*spawn));
-				delete spawn;
+				// Save the id of the creatures in my lair.
+				this->mCreatureId[i] = npcNewId;
+				// nonPersistentNpcFactory->requestNpcObject(NpcManager::Instance(), creatureTemplate, npcNewId, this->getId());
+				nonPersistentNpcFactory->requestNpcObject(NpcManager::Instance(), creatureTemplate, npcNewId, this->getParentId(), this->mPosition, this->mDirection, 0, this->getId());
 			}
 		}
 	}
 	if (!found)
 	{
-		gLogger->logMsgF("LairObject::reportedDead() Will NOT respawn\n", MSG_NORMAL);
+		// gLogger->logMsgF("LairObject::reportedDead() Creature will NOT respawn\n", MSG_NORMAL);
 	}
 }
 
 
+void LairObject::setSpawnArea(const Anh_Math::Rectangle &mSpawnArea)
+{
+	this->mSpawnArea = mSpawnArea;
+}
+
+void LairObject::setCreatureTemplate(uint32 index, uint64 creatureTemplateId)
+{
+	assert(index < MaxCreatureTypes);
+	this->mCreatureTemplates[index] = creatureTemplateId;
+}
+
+void LairObject::setCreatureSpawnRate(uint32 index, uint32 spawnRate)
+{
+	assert(index < MaxCreatureTypes);
+	this->mCreatureSpawnRate[index] = spawnRate;
+}

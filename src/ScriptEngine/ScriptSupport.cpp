@@ -15,12 +15,12 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "ZoneServer/NonPersistentItemFactory.h"
 #include "ZoneServer/WorldConfig.h"
 #include "ZoneServer/NpcManager.h"
-#include "ZoneServer/SpawnData.h"
+// #include "ZoneServer/SpawnData.h"
 #include "ZoneServer/LairObject.h"
+#include "ZoneServer/AttackableCreature.h"
 
-const uint64 wompratTemplateId = 47513085687;
-const uint64 rillTemplateId = 47513085693;
-
+// const uint64 wompratTemplateId = 47513085687;
+// const uint64 rillTemplateId = 47513085693;
 //======================================================================================================================
 
 ScriptSupport*	ScriptSupport::mInstance = NULL;
@@ -165,25 +165,23 @@ NPCObject* ScriptSupport::npcGetObject(uint64 id)
 	return dynamic_cast<NPCObject*>(getObject(id));
 }
 
-uint64 ScriptSupport::npcCreate(uint64 npcId)
+uint64 ScriptSupport::npcCreate(uint64 templateId) //, uint64 npcPrivateOwnerId, uint64 cellForSpawn, std::string firstname, std::string lastname, float dirY, float dirW, float posX, float posY, float posZ, uint64 respawnDelay)
 {
-	// warning... this assumes that someone has called the Init()-function before we execute the line below.
-	// For now, it's done at ZoneServer::Startup().
-	NonPersistentNpcFactory* nonPersistentNpcFactory = gNonPersistentNpcFactory;
-
-	// We need two id's in sequence, since nps'c have an inventory.
-	uint64 npcNewId = gWorldManager->getRandomNpNpcIdSequence();	
-
-	if (npcNewId != 0)
+	// gLogger->logMsgF("ScriptSupport::npcCreate Entering", MSG_NORMAL);
+	uint64 npcId = gWorldManager->getRandomNpNpcIdSequence();	
+	if (npcId != 0)
 	{
-		// Let us get an object from/via the WRONG database (the Persistent... one).
-		// gLogger->logMsgF("ScriptSupport::npcGetObject: Creating NPC with template = %llu and new id = %llu", MSG_NORMAL, npcId, npcNewId);
-		nonPersistentNpcFactory->requestObject(this, npcId, npcNewId);
+		// Let's create a npc.
+		// gLogger->logMsgF("ScriptSupport::npcCreate Requesting npc from template %llu with id = %llu", MSG_NORMAL, templateId, npcId);
+		NonPersistentNpcFactory::Instance()->requestNpcObject(this, templateId, npcId, 0, 0, 0, 0);
 	}
-
-	// We need two id's in sequence, since nps'c have an inventory.
-	return npcNewId;	
+	else
+	{
+		assert(false);
+	}
+	return npcId;
 }
+
 
 void ScriptSupport::npcSpawnPersistent(NPCObject* npc, uint64 npcId, uint64 cellForSpawn, std::string firstname, std::string lastname, float dirY, float dirW, float posX, float posY, float posZ,
 									   uint64 respawnPeriod, uint64 templateId)
@@ -195,25 +193,25 @@ void ScriptSupport::npcSpawnPersistent(NPCObject* npc, uint64 npcId, uint64 cell
 	{
 		// Test
 		// respawnPeriod = 15000;
-		npcSpawnGeneral(npc, npcId, 0, cellForSpawn, firstname, lastname, dirY, dirW, posX, posY, posZ, respawnPeriod, templateId);
+		npcSpawnGeneral(npcId, 0, cellForSpawn, firstname, lastname, dirY, dirW, posX, posY, posZ, respawnPeriod);
 	}
 	else
 	{
-		gLogger->logMsgF("ScriptSupport::npcSpawnPersistent: Heightmap is missing, can NOT use dynamic spawned npc's.\n", MSG_NORMAL);
+		gLogger->logMsgF("ScriptSupport::npcSpawnPersistent: Heightmap is missing, can NOT use dynamic spawned npc's.", MSG_NORMAL);
 	}
 }
 
 void ScriptSupport::npcSpawn(NPCObject* npc, uint64 npcId, uint64 cellForSpawn, std::string firstname, std::string lastname, float dirY, float dirW, float posX, float posY, float posZ)
 {
-	npcSpawnGeneral(npc, npcId, 0, cellForSpawn, firstname, lastname, dirY, dirW, posX, posY, posZ, 0, 0);
+	npcSpawnGeneral(npcId, 0, cellForSpawn, firstname, lastname, dirY, dirW, posX, posY, posZ, 0);
 }
 
 void ScriptSupport::npcSpawnPrivate(NPCObject* npc, uint64 npcId, uint64 npcPrivateOwnerId, uint64 cellForSpawn, std::string firstname, std::string lastname, float dirY, float dirW, float posX, float posY, float posZ)
 {
-	npcSpawnGeneral(npc, npcId, npcPrivateOwnerId, cellForSpawn, firstname, lastname, dirY, dirW, posX, posY, posZ, 0, 0);
+	npcSpawnGeneral(npcId, npcPrivateOwnerId, cellForSpawn, firstname, lastname, dirY, dirW, posX, posY, posZ, 0);
 }
 
-void ScriptSupport::npcSpawnGeneral(NPCObject* npc, uint64 npcId, uint64 npcPrivateOwnerId, uint64 cellForSpawn, std::string firstname, std::string lastname, float dirY, float dirW, float posX, float posY, float posZ, uint64 respawnPeriod, uint64 templateId)
+void ScriptSupport::npcSpawnGeneral(uint64 npcId, uint64 npcPrivateOwnerId, uint64 cellForSpawn, std::string firstname, std::string lastname, float dirY, float dirW, float posX, float posY, float posZ, uint64 respawnDelay) // , uint64 templateId)
 {
 	Anh_Math::Quaternion	direction;
 	Anh_Math::Vector3		position;
@@ -227,19 +225,43 @@ void ScriptSupport::npcSpawnGeneral(NPCObject* npc, uint64 npcId, uint64 npcPriv
 	position.mY = posY;
 	position.mZ = posZ;
 
-	// gLogger->logMsgF("ScriptSupport::npcSpawnGeneral: NPC with template = %llu, ID = %llu", MSG_NORMAL, templateId, npcId);
+	NPCObject* npc = dynamic_cast<NPCObject*>(gWorldManager->getObjectById(npcId));
+	assert(npc);
+	if (!npc)
+	{
+		// Fallback for running in release mode.
+		gLogger->logMsgF("ScriptSupport::npcSpawnGeneral: Failed to access NPC id %llu", MSG_NORMAL, npcId);
+		return;
+	}
 
-	npc->setId(npcId);
+	// gLogger->logMsgF("ScriptSupport::npcSpawnGeneral: Spawning NPC with template = %llu, ID = %llu", MSG_NORMAL, npc->getTemplateId(), npcId);
+
+	// npc->setId(npcId);
 	npc->setParentId(cellForSpawn);	// The cell we will spawn in.
+	npc->setCellIdForSpawn(cellForSpawn);
+	
+
+
+	// THESE TWO ARE NOT GENERALLY FIXED YET.
 	npc->setFirstName((int8*)firstname.c_str());
 	npc->setLastName((int8*)lastname.c_str());
-	npc->mDirection = direction;
-	npc->mPosition = position;
-	// npc->setType(ObjType_NPC);
+
+	// THIS ONE IS NOT GENERALLY FIXED YET.
+	// If used for re-spawning npc's, add this id as an internal attribute.
 	npc->setPrivateOwner(npcPrivateOwnerId);
 
+
+	npc->mPosition = position;
+	npc->setSpawnPosition(position);
+
+	npc->mDirection = direction;
+	npc->setSpawnDirection(direction);
+	npc->setRespawnDelay(respawnDelay);
+
+	// gLogger->logMsgF("ScriptSupport::npcSpawnGeneral: Pos and Dir set!", MSG_NORMAL);
+
 	// Register object with WorldManager.
-	gWorldManager->addObject(npc, true);
+	// gWorldManager->addObject(npc, true);
 
 	// Update the world about my presence.
 	if (npc->getParentId())
@@ -253,7 +275,7 @@ void ScriptSupport::npcSpawnGeneral(NPCObject* npc, uint64 npcId, uint64 npcPriv
 		}
 		else
 		{
-			gLogger->logMsgF("ScriptSupport::npcSpawn: couldn't find cell %llu\n",MSG_HIGH,npc->getParentId());
+			gLogger->logMsgF("ScriptSupport::npcSpawn: couldn't find cell %llu",MSG_HIGH,npc->getParentId());
 		}
 	}
 	else
@@ -271,195 +293,18 @@ void ScriptSupport::npcSpawnGeneral(NPCObject* npc, uint64 npcId, uint64 npcPriv
 
 	Inventory* inventory = dynamic_cast<Inventory*>(npc->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 
-	SpawnData* spawn = new SpawnData;
+	// SpawnData* spawn = new SpawnData;
 
-	spawn->mBasic.templateId = templateId;
-
-	spawn->mBasic.cellForSpawn = cellForSpawn;
-	spawn->mBasic.timeToFirstSpawn = 1000;		
-	spawn->mBasic.respawnPeriod = respawnPeriod;
-	spawn->mBasic.spawnDirection = direction;
-	spawn->mBasic.spawnPosition = position;
-	spawn->mBasic.homePosition = position;
-	spawn->mBasic.spawned = true;
-	spawn->mWeapon.weaponXp = 250;
-
+	// AttackableCreature* creature = dynamic_cast<AttackableCreature*>(npc);
+	// assert(creature);
+	
 	// Register the NPC with the NPC AI-manager.
-	if (gWorldConfig->isTutorial())
+	if (npc->getTemplateId() == 0)
 	{
-		// This hardcoded stuff sucks.
-		spawn->mWeapon.minDamage = 25;
-		spawn->mWeapon.maxDamage = 75;
-		spawn->mWeapon.weaponMaxRange = 35;
-		spawn->mWeapon.attackSpeed = 2000;
-		spawn->mWeapon.weaponXp = 250;
-
-		spawn->mProfile.agressiveMode = true;
-		spawn->mProfile.roaming = false;
-		spawn->mProfile.stalker = false;
-
-		spawn->mProfile.attackWarningRange = 25;
-		spawn->mProfile.attackRange = 20;
-		spawn->mProfile.maxAggroRange = 42;
-		spawn->mProfile.attackWarningMessage = "Come any closer and I'll shoot!";
-		spawn->mProfile.attackStartMessage = "I'll kill ya!";
-		spawn->mProfile.attackedMessage = "You'll never take me alive!";
-
-		spawn->mProfile.roamingPeriodTime = 60000;
-		spawn->mProfile.roamingSteps = -1;
-		spawn->mProfile.roamingSpeed = 1.0;
-		spawn->mProfile.roamingDistanceMax = 1;
-
-		spawn->mProfile.stalkerSpeed = 3.0;
-		spawn->mProfile.stalkerDistanceMax = 125;
+		assert(false);
 	}
-	else
-	{
-		if (templateId == 0)
-		{
-			// This are for the "old" npcs.
-			spawn->mWeapon.minDamage = 25;
-			spawn->mWeapon.maxDamage = 75;
-			spawn->mWeapon.weaponMaxRange = 20;
-			spawn->mWeapon.attackSpeed = 2000;
-			spawn->mWeapon.weaponXp = 100;
-
-			spawn->mProfile.agressiveMode = false;
-			spawn->mProfile.roaming = true;
-			spawn->mProfile.stalker = false;
-
-			spawn->mProfile.attackWarningRange = 15;
-			spawn->mProfile.attackRange = 12;
-			spawn->mProfile.maxAggroRange = 64;
-			spawn->mProfile.attackWarningMessage = "";
-			spawn->mProfile.attackStartMessage = "";
-			spawn->mProfile.attackedMessage = "";
-
-			spawn->mProfile.roamingPeriodTime = 120000;
-			spawn->mProfile.roamingSteps = -1;
-			spawn->mProfile.roamingSpeed = 1.0;
-			spawn->mProfile.roamingDistanceMax = 50;
-			
-			spawn->mProfile.stalkerSpeed = 3.0;
-			spawn->mProfile.stalkerDistanceMax = 125;
-
-		}
-		else if (templateId == wompratTemplateId)
-		{
-			if (inventory)
-			{
-				inventory->setCredits((gRandom->getRand()%50) + 20);	// all other Womp Rat's.
-			}
-
-			Ham * ham = npc->getHam();
-			ham->mHealth.setCurrentHitPoints(1000);
-			ham->mHealth.setMaxHitPoints(1000);
-			ham->mHealth.setBaseHitPoints(1000);
-
-			ham->mAction.setCurrentHitPoints(1000);
-			ham->mAction.setMaxHitPoints(1000);
-			ham->mAction.setBaseHitPoints(1000);
-
-			ham->mMind.setCurrentHitPoints(1000);
-			ham->mMind.setMaxHitPoints(1000);
-			ham->mMind.setBaseHitPoints(1000);
-
-			ham->calcAllModifiedHitPoints();
-
-
-			spawn->mWeapon.minDamage = 90;
-			spawn->mWeapon.maxDamage = 110;
-			spawn->mWeapon.weaponMaxRange = 6;
-			spawn->mWeapon.attackSpeed = 2000;
-			spawn->mWeapon.weaponXp = 356;			// a womp rat.
-
-			spawn->mProfile.agressiveMode = true;
-			spawn->mProfile.roaming = true;
-			spawn->mProfile.stalker = true;
-			spawn->mProfile.killer = false;
-
-			spawn->mProfile.attackWarningRange = 20;
-			spawn->mProfile.attackRange = 15;
-			spawn->mProfile.maxAggroRange = 128;
-			spawn->mProfile.attackWarningMessage = "";
-			spawn->mProfile.attackStartMessage = "";
-			spawn->mProfile.attackedMessage = "";
-
-			spawn->mProfile.roamingPeriodTime = 120000;
-			spawn->mProfile.roamingSteps = -1;
-			spawn->mProfile.roamingSpeed = 0.5;
-			spawn->mProfile.roamingDistanceMax = 50;
-
-			spawn->mProfile.stalkerSpeed = 4.0;
-			spawn->mProfile.stalkerDistanceMax = 125;
-
-		}
-		else if (templateId == rillTemplateId)
-		{
-			if (inventory)
-			{
-				inventory->setCredits((gRandom->getRand()%25) + 10);
-			}
-
-			spawn->mWeapon.minDamage = 50;
-			spawn->mWeapon.maxDamage = 55;
-			spawn->mWeapon.weaponMaxRange = 6;
-			spawn->mWeapon.attackSpeed = 2000;
-			spawn->mWeapon.weaponXp = 113;		// a rill.
-
-			spawn->mProfile.agressiveMode = true;
-			spawn->mProfile.roaming = true;
-			spawn->mProfile.stalker = true;
-			spawn->mProfile.killer = true;
-
-			spawn->mProfile.attackWarningRange = 35;
-			spawn->mProfile.attackRange = 25;
-			spawn->mProfile.maxAggroRange = 128;
-			spawn->mProfile.attackWarningMessage = "";
-			spawn->mProfile.attackStartMessage = "";
-			spawn->mProfile.attackedMessage = "";
-
-			spawn->mProfile.roamingPeriodTime = 60000;
-			spawn->mProfile.roamingSteps = -1;
-			spawn->mProfile.roamingSpeed = 0.75;
-			spawn->mProfile.roamingDistanceMax = 50;
-
-			spawn->mProfile.stalkerSpeed = 4.5;
-			spawn->mProfile.stalkerDistanceMax = 140;
-		}
-
-		else
-		{
-			// Not defined template id's.
-			spawn->mWeapon.minDamage = 90;
-			spawn->mWeapon.maxDamage = 110;
-			spawn->mWeapon.weaponMaxRange = 6;
-			spawn->mWeapon.attackSpeed = 2000;
-			spawn->mWeapon.weaponXp = 356;			// a womp rat.
-
-			spawn->mProfile.agressiveMode = true;
-			spawn->mProfile.roaming = true;
-			spawn->mProfile.stalker = true;
-			spawn->mProfile.killer = false;
-
-			spawn->mProfile.attackWarningRange = 20;
-			spawn->mProfile.attackRange = 15;
-			spawn->mProfile.maxAggroRange = 65;
-			spawn->mProfile.attackWarningMessage = "";
-			spawn->mProfile.attackStartMessage = "";
-			spawn->mProfile.attackedMessage = "";
-
-			spawn->mProfile.roamingPeriodTime = 120000;
-			spawn->mProfile.roamingSteps = -1;
-			spawn->mProfile.roamingSpeed = 0.5;
-			spawn->mProfile.roamingDistanceMax = 64;
-
-			spawn->mProfile.stalkerSpeed = 4.0;
-			spawn->mProfile.stalkerDistanceMax = 64;
-		}
-	}
-	NpcManager::Instance()->addCreature(npcId, spawn);
-	delete spawn;
+	// gLogger->logMsgF("ScriptSupport::npcSpawnGeneral: Calling respawn()", MSG_NORMAL);
+	npc->respawn();
 
 	// Now we can remove this object from our internal list. WorldManager will handle the destruction.
 	// Except for the npc's used in tutorial, they are spawned-despawned with the player.
@@ -478,14 +323,6 @@ void ScriptSupport::npcSpawnGeneral(NPCObject* npc, uint64 npcId, uint64 npcPriv
 	// from being called is just ridicules, it's not like we going to spwan a npc from script every second or so.
 
 	// So please stop messing with this code!!!
-
-	/* 
-	if (npc->getKnownPlayers()->empty())
-	{
-		// gLogger->logMsgF("ScriptSupport::npcSpawn: getKnownPlayers()->empty()", MSG_NORMAL);
-		return;
-	}
-	*/
 
 	// Add us to the world.
 	gMessageLib->broadcastContainmentMessage(npc->getId(),npc->getParentId(),-1,npc);
@@ -539,26 +376,13 @@ void ScriptSupport::npcMove(NPCObject* npc, float posX, float posY, float posZ)
 {
 	// gLogger->logMsgF("ScriptSupport::npcMove() this = %ld, NPC is: %ld",MSG_HIGH, this, mSpawnedNpc);
 
-	// New destination.
-	// npc->mPosition.mX = posX;
-	// npc->mPosition.mY = posY;
-	// npc->mPosition.mZ = posZ;
-
 	// send out position updates to known players
 	npc->updatePosition(npc->getParentId(), Anh_Math::Vector3(posX, posY, posZ));
 }
 
 void ScriptSupport::npcMoveToZone(NPCObject* npc, uint64 zoneId, float posX, float posY, float posZ)
 {
-	// gLogger->logMsgF("ScriptSupport::npcMove() this = %ld, NPC is: %ld",MSG_HIGH, this, mSpawnedNpc);
-	// Anh_Math::Quaternion	direction;
-	// Anh_Math::Vector3		position;
-
-	// New destination.
-	// npc->mPosition.mX = posX;
-	// npc->mPosition.mY = posY;
-	// npc->mPosition.mZ = posZ;
-
+	// gLogger->logMsgF("ScriptSupport::npcMoveToZone() %.0f %.0f %.0f", MSG_NORMAL, posX, posY, posZ);
 	// send out position updates to known players
 	npc->updatePosition(zoneId, Anh_Math::Vector3(posX, posY, posZ));
 }
@@ -585,9 +409,11 @@ void ScriptSupport::npcDirection(NPCObject* npc, float deltaX, float deltaZ)
 	float z = deltaZ;
 	float h = sqrt(x*x + z*z);
 
-	if ((z/h) < 0.0)
+	// if ((z/h) < 0.0)
+	if ((z) < 0.0)
 	{	
-		if (x/h < 0.0)
+		// if (x/h < 0.0)
+		if (x < 0.0)
 		{
 			npc->mDirection.mW = cos((3.14159354 * 0.5) + 0.5f*acos(-z/h));
 			npc->mDirection.mY = sin((3.14159354 * 0.5) + 0.5f*acos(-z/h));
@@ -712,10 +538,6 @@ void ScriptSupport::npcFormationMove(NPCObject* npc, float posX, float posY, flo
 	// New destination, and take care of any offset from formation leader.
 	npc->mPosition = npc->getPositionOffset();
 	 
-	// npc->mPosition.mX += posX;
-	// npc->mPosition.mY += posY;
-	// npc->mPosition.mZ += posZ;
-
 	// send out position updates to known players
 	npc->updatePosition(npc->getParentId(), npc->mPosition + Anh_Math::Vector3(posX, posY, posZ));
 }
@@ -910,12 +732,6 @@ void ScriptSupport::itemPopulateInventory(uint64 itemId, uint64 npcId, uint64 pl
 	}
 }
 
-/*
-Item* ScriptSupport::itemGetObject(uint64 id)
-{
-	return dynamic_cast<Item*>(getObject(id));
-}
-*/
 
 /*
 void ScriptSupport::itemSpawn(Item* item,
@@ -1127,147 +943,14 @@ void ScriptSupport::setPlayerPosition(uint64 playerId, uint64 cellId, float posX
 	}
 }
 
-
-
-
-void ScriptSupport::lairSpawn(NPCObject* npc, uint64 npcId, uint64 cellForSpawn,
-							  float dirY, float dirW, 
-							  float posX, float posY, float posZ, 
-							  float xWidth, float zWidth,
-							  bool	isFixedPosition,
-							  uint64 respawnPeriod, uint64 templateId)
+void ScriptSupport::lairSpawn(uint64 lairTypeId)
 {
-	// gLogger->logMsg("ScriptSupport::lairSpawn Entering");
-
-	Anh_Math::Quaternion	direction;
-	Anh_Math::Vector3		position;
-
-	npc->setId(npcId);
-	npc->setParentId(cellForSpawn);	// The cell we will spawn in.
-
-	// The data used below should be taken from DB, not hard coded as it is now.
-	// We have to live with the hard coding, as this is still "under construction".
-
-	LairObject* lair = dynamic_cast<LairObject*>(npc);
-	assert(lair != NULL);
-
-	// Create a lair, passive style in the wilderness.
-	lair->mLairData.mSpawnCell = cellForSpawn;
-
-	lair->mLairData.mTemplateId = templateId;
-
-	if (respawnPeriod == 0)
+	// gLogger->logMsgF("ScriptSupport::lairSpawn Entering", MSG_NORMAL);
+	uint64 npcNewId = gWorldManager->getRandomNpNpcIdSequence();	
+	if (npcNewId != 0)
 	{
-		respawnPeriod = 1;
+		// Let's put this sucker into play again.
+		// gLogger->logMsgF("ScriptSupport::lairSpawn Requesting lair of type = %llu with id %llu", MSG_NORMAL, lairTypeId, npcNewId);
+		NonPersistentNpcFactory::Instance()->requestLairObject(NpcManager::Instance(), lairTypeId, npcNewId);
 	}
-	lair->mLairData.mRespawnPeriod = respawnPeriod;
-
-
-	// Spawn position. Can be fixed or random within given "region".
-	lair->mLairData.mSpawnPositionFixed = isFixedPosition;
-	if (lair->mLairData.mSpawnPositionFixed)
-	{
-		direction.mX = 0.0;
-		direction.mY = dirY;
-		direction.mZ = 0.0;
-		direction.mW = dirW;
-	
-		position.mX = posX;
-
-		// Get height from heightmap.
-		position.mY = npc->getHeightAt2DPosition(posX, posZ);
-		position.mZ = posZ;
-	}
-	else
-	{
-		Anh_Math::Rectangle spawnArea(posX, posZ, xWidth, zWidth);
-		lair->mLairData.mSpawnArea = spawnArea;
-		// Rectangle(float lowX,float lowZ,float width,float height) : Shape(lowX,0.0f,lowZ),mWidth(width),mHeight(height){}
-		// Ge a random position withing given region.
-		// Note that creature can spawn outside the region, since thay have a radius from the lair where thet are allowed to spawn.
-		position.mX = posX + (gRandom->getRand() % (int32)(xWidth));
-		position.mZ = posZ + (gRandom->getRand() % (int32)(zWidth));
-		position.mY = npc->getHeightAt2DPosition(position.mX, position.mZ);
-		// gLogger->logMsgF("Spawn at %.0f %.0f %.0f", MSG_NORMAL, position.mX, position.mY, position.mZ);
-	}
-
-	lair->mDirection = direction;
-	lair->mPosition = position;
-
-	lair->mLairData.mSpawnPosition = position;
-	lair->mLairData.mSpawnDirection = direction;
-
-
-	lair->mLairData.mActiveWaves = 0;
-	lair->mLairData.mPassiveWaves = 3;
-
-	lair->mLairData.mWaveSize = 5;		// Five creatures in each wave.
-	// lair->mLairData.mWaveSize = 3;		// Five creatures in each wave.
-
-	// Some hardcoded stuff for test.
-	if (templateId == pileOfRocksTemplateId)
-	{
-		// Create Womp Rats.
-		lair->mLairData.mCreatureTemplates[0] = 47513085687;		// Womp Rat.
-		lair->mLairData.mCreatureTemplates[1] = 47513085719;		// Dessert Womp Rat.
-		lair->mLairData.mCreatureTemplates[2] = 47513085721;		// Lesser desert Womp Rat.
-		lair->mLairData.mCreatureTemplates[3] = 47513085723;		// Variegated Womp Rat.
-		lair->mLairData.mCreatureTemplates[4] = 47513085725;		// Womp Rat hue??.
-
-		// This gives 20% to each creature type.
-		lair->mLairData.mCreatureSpawnRate[0] = 19;
-		lair->mLairData.mCreatureSpawnRate[1] = 39;
-		lair->mLairData.mCreatureSpawnRate[2] = 59;
-		lair->mLairData.mCreatureSpawnRate[3] = 79;
-		lair->mLairData.mCreatureSpawnRate[4] = 99;
-	}
-	else if (templateId == nestTemplateId)
-	{
-		// Create Rills.
-		lair->mLairData.mCreatureTemplates[0] = 47513085693;		// a Rill.
-		lair->mLairData.mCreatureTemplates[1] = 47513085693;		// a Rill.
-		lair->mLairData.mCreatureTemplates[2] = 47513085693;		// a Rill.
-		lair->mLairData.mCreatureTemplates[3] = 47513085693;		// a Rill.
-		lair->mLairData.mCreatureTemplates[4] = 47513085693;		// a Rill.
-
-		// This gives 20% to each creature type.
-		lair->mLairData.mCreatureSpawnRate[0] = 19;
-		lair->mLairData.mCreatureSpawnRate[1] = 39;
-		lair->mLairData.mCreatureSpawnRate[2] = 59;
-		lair->mLairData.mCreatureSpawnRate[3] = 79;
-		lair->mLairData.mCreatureSpawnRate[4] = 99;
-	}
-	// We do not spawn any babies yet.
-
-	for (int32 i = 0; i < lair->mLairData.mWaveSize; i++)
-	{
-		lair->mLairData.mPassiveCreature[i] = lair->mLairData.mPassiveWaves;
-	}
-	for (int32 i = lair->mLairData.mWaveSize; i < MaxWaveSize; i++)
-	{
-		lair->mLairData.mPassiveCreature[i] = 0;
-	}
-
-	lair->mSpawned = false;
-
-	// Register object with WorldManager.
-	gWorldManager->addObject(npc, true);
-
-	// Now we can remove this object from our internal list. WorldManager will handle the destruction.
-	// Except for the npc's used in tutorial, they are spawned-despawned with the player.
-	if (!gWorldConfig->isTutorial())
-	{
-		this->eraseObject(npcId);
-	}
-
-	// Put the lair in the Dormant queue. 
-	// I do not want all lair running at same respawn period to do their initial spawn at the same time.
-	// lair->setAiState(NpcIsDormant); / Done on construction.
-	lair->mLairData.mInitialSpawnPeriod = (uint64)(gRandom->getRand() % (int32)lair->mLairData.mRespawnPeriod);
-	// gWorldManager->addDormantNpc(lair->getId(), lair->mLairData.mInitialSpawnPeriod);
-
-	// Since we can force a lair (any object) out of the dormant queue, we have to do the actual spawn countdown with a created object.
-	// gWorldManager->addDormantNpc(getId(), mLairData.mInitialSpawnPeriod);
-	gWorldManager->addDormantNpc(lair->getId(), 0);
-
 }

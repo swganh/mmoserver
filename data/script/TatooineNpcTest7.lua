@@ -62,23 +62,28 @@ local destination = "CANTINA";
 
 -- Create the npc, "an elit imperial security guard".
 
-local npc = MM.createAndSpawnNpc(47513075719, "", "", routeX[index], routeY[index], routeZ[index]);
+-- local npc = MM.createAndSpawnNpc(47513075719, "", "", routeX[index], routeY[index], routeZ[index]);
+local npc = MM.createAndSpawnNpc(2, "", "", routeX[index], routeY[index], routeZ[index]);
 table.insert(npcMembers, npc);
 table.insert(npcMembers,routeX[index]);
 table.insert(npcMembers,routeY[index]);
 table.insert(npcMembers,routeZ[index]);
 table.insert(npcMembers,Zone[index]);
 
+-- print("Starting to move officer");
+
 while (1) do
 	if (index == 1) then 
 		destination = "CANTINA";
-		LuaScriptEngine.WaitMSec(30000);
 		-- print("Setting destination to " .. destination);
+		LuaScriptEngine.WaitMSec(30000);
+		-- print("Done waiting");
 
 	elseif (index == #routeX) then 
 		destination = "BANK";
-		LuaScriptEngine.WaitMSec(10000);
 		-- print("Setting destination to " .. destination);
+		LuaScriptEngine.WaitMSec(10000);
+		-- print("Done waiting");
 	end;
 	
 	-- print("Calling executeRoutes with index " .. index);

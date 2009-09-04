@@ -4,7 +4,7 @@ This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emu
 For more information, see http://www.swganh.org
 
 
-Copyright (c) 2006 - 2008 The swgANH Team
+Copyright (c) 2006 - 2009 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
@@ -25,46 +25,6 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #define MaxWaveSize 6
 #define MaxCreatureTypes 5
 
-// Some hardcoded stuff for test.
-const uint64 pileOfRocksTemplateId = 47513085701;		// A pile of rocks.
-const uint64 nestTemplateId = 47513085709;		// A nest.
-
-
-
-class LairData
-{
-	public:
-		LairData::LairData();
-		LairData::~LairData() { }
-
-		// Copy constructor
-		LairData::LairData(const LairData& data);		
-
-		// Assignment operator
-		LairData& operator=(const LairData& lairData);
-		
-		uint64 mSpawnCell;
-		Anh_Math::Vector3 mSpawnPosition;
-		Anh_Math::Quaternion mSpawnDirection;
-
-		uint64	mTemplateId;
-		bool	mSpawnPositionFixed;
-		Anh_Math::Rectangle mSpawnArea;
-		int32	mActiveWaves;
-		int32	mPassiveWaves;
-		int32	mWaveSize;
-
-		uint64	mCreatureTemplates[MaxCreatureTypes];
-		int32	mCreatureSpawnRate[MaxCreatureTypes];
-		int32	mCreatureBabySpawnRate;
-
-		uint64	mCreatureId[MaxWaveSize];
-		int32	mPassiveCreature[MaxWaveSize];
-		
-		uint64	mRespawnPeriod;
-		int64	mInitialSpawnPeriod;
-};
-
 
 typedef enum _Lair_State
 {
@@ -81,8 +41,7 @@ class LairObject :	public AttackableStaticNpc, ObjectFactoryCallback
 	friend class NonPersistentNpcFactory;
 
 	public:
-		LairObject();
-		// LairObject::LairObject(const LairObject &lair);
+		LairObject(uint64 templateId);
 		virtual ~LairObject();
 
 		virtual void prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
@@ -96,24 +55,55 @@ class LairObject :	public AttackableStaticNpc, ObjectFactoryCallback
 		virtual void	killEvent(void);
 		virtual void	respawn(void);
 
-		void	setLairData(const LairData &lairData);
 		void	spawn(void);
 		void	reportedDead(uint64 deadCreatureId);
 		bool	requestAssistance(uint64 targetId, uint64 sourceId) const;
 		void	requestLairAssistance(void) const;
 
-		bool	mSpawned;
-		LairData mLairData;
+		void	setSpawnArea(const Anh_Math::Rectangle &mSpawnArea);
+		void	setCreatureTemplate(uint32 index, uint64 creatureTemplateId);
+		void	setCreatureSpawnRate(uint32 index, uint32 spawnRate);
+		virtual float getMaxSpawnDistance(void) {  return mMaxSpawnDistance;}
+
+		uint64	mCreatureId[MaxWaveSize];
+		int32	mPassiveCreature[MaxWaveSize];
 
 	private:
+		LairObject();
+
 		bool	playerInRange(float range);
 		void	spawnInitialWave(void);
 		bool	getLairTarget(void);
 		void	makePeaceWithDefendersOutOfRange(void);
 
-		Lair_State	mLairState;
+		
+		uint64	mLairsTypeId;
+		bool	mInitialized;
+		bool	mSpawned;
 
-	// health, content
+		uint64 mSpawnCell;
+		Anh_Math::Rectangle mSpawnArea;
+
+		// Attribute related data
+		bool	mSpawnPositionFixed;
+		int32	mActiveWaves;
+		int32	mPassiveWaves;
+		int32	mWaveSize;
+
+		// This is the max stalking distance from the spawn point or other central point, like lair.
+		// Will be used when calculating spawn positions within a region. We do not allow the creatures to move outside the region.
+		float	mMaxStalkerDistance;	// Raduis from lair.
+		float	mMaxSpawnDistance;		// Max distance from lair where creature should spawn.
+
+		int32	mCreatureBabySpawnRate;		// Not uses yet.
+
+		int64	mInitialSpawnDelay;			// in ms
+
+		// Creature templates and spwan rate to be used by lair.
+		uint64	mCreatureTemplates[MaxCreatureTypes];
+		int32	mCreatureSpawnRate[MaxCreatureTypes];
+
+		Lair_State	mLairState;
 };
 
 //=============================================================================

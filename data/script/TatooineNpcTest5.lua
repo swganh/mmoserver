@@ -1,7 +1,6 @@
 -- Tatooine NPC test
 -- This script will not start until Zoneserver is ready.
 
-
 local MM = require 'Script/TatooineNpcTest2'
 
 local routeX = { -1445, -1457, -1458, -1422, -1371, -1345, -1333, -1276, -1244, -1236, -1250, -1269, -1286, -1318, -1312, -1321, -1347, -1371, -1401, -1401, -1396, -1385, -1381, -1367, -1364, -1356, -1350, -1342, -1343, -1339, -1340, -1370}
@@ -70,9 +69,12 @@ table.insert(npcMembers, none);
 -- Create the formation
 local npc
 for count = 1,(noOfLines * columnWidth) do
-	npc = MM.createAndSpawnNpc(47513075899, "", "", routeX[index], routeY[index], routeZ[index]);
+	-- npc = MM.createAndSpawnNpc(47513075899, "", "", routeX[index], routeY[index], routeZ[index]);
+	npc = MM.createAndSpawnNpc(1, "", "", routeX[index], routeY[index], routeZ[index]);
 	table.insert(npcMembers, npc);
 end
+
+-- print("Starting to move plutoon");
 
 while (1) do
 	if (index == 1) then 

@@ -99,7 +99,7 @@ uint64 FillerNPC::handleState(uint64 timeOverdue)
 			{
 				// Handle the player
 				this->randomChatWithPlayer(player, (*it).second);
-				((*it).second)->when += (((*it).second)->tauntBasePeriodTime) + (gRandom->getRand() % (int32) ((*it).second)->tauntBasePeriodTime);
+				((*it).second)->when += (((*it).second)->tauntBasePeriodTime) + (gRandom->getRand() % (int32) ((*it).second)->tauntBasePeriodTime+1);
 			}
 			else
 			{
@@ -205,7 +205,7 @@ void FillerNPC::setupTutorialTaunts(uint64 playerId, uint64 maxTauntPeriod, stri
 	// Let's setup the taunt time.
 	configData->tauntBasePeriodTime = maxTauntPeriod;
 
-	configData->when = (maxTauntPeriod) + (gRandom->getRand() % (int32) (maxTauntPeriod));
+	configData->when = (maxTauntPeriod) + (gRandom->getRand() % (int32) (maxTauntPeriod+1));
 	this->addTutorialPlayer(playerId, configData);
 }
 

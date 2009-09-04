@@ -387,6 +387,7 @@ uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* def
 			// gLogger->logMsgF("CombatManager::_executeAttack Weapon baseMaxDamage = %d", MSG_NORMAL, baseMaxDamage);
 		}
 
+		/*
 		if (!gWorldConfig->isTutorial())
 		{
 			// We need some boost when testing PVE.
@@ -413,6 +414,7 @@ uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* def
 				}
 			}
 		}
+		*/
 
 		int32 baseDamage	= -((gRandom->getRand()%(baseMaxDamage - baseMinDamage)) + baseMinDamage);
 		
@@ -434,6 +436,17 @@ uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* def
 
 
 		// Here is the deal. When a player makes damage to a npc, we have to register the player, its group, damage done and what (kind of) weapon used.
+		NPCObject* npc = dynamic_cast<NPCObject*>(defender);
+		if (!defender->isDead() && npc)
+		{
+			PlayerObject* player = dynamic_cast<PlayerObject*>(attacker);
+			if (player)
+			{
+				npc->updateDamage(player->getId(), player->getGroupId(), weapon->getGroup(), -multipliedDamage, player->getPosture(), defender->mPosition.distance2D(player->mPosition));
+			}				
+		}
+
+		/*
 		AttackableCreature* creature = dynamic_cast<AttackableCreature*>(defender);
 		if (!defender->isDead() && creature && (creature->getNpcFamily() == NpcFamily_AttackableCreatures))
 		{
@@ -443,6 +456,7 @@ uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* def
 				creature->updateDamage(player->getId(), player->getGroupId(), weapon->getGroup(), -multipliedDamage, player->getPosture(), defender->mPosition.distance2D(player->mPosition));
 			}				
 		}
+		*/
 
 		// ham damage
 		// if no target pool set, pick a random one

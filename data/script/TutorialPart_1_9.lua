@@ -125,7 +125,8 @@ local npcShoutPanic = 47513085661;
 local npcNervousGuy = 47513085663;
 local npcCovardOfficer = 47513085665;
 
-local npcDebrisTypeId = 47513085667;
+-- local npcDebrisTypeId = 47513085667;
+local npcDebrisTypeId = 4;
 local cellDebris = 2203318222973;
 local yDirDebris = 0;
 local wDirDebris = 1;
@@ -133,7 +134,8 @@ local xPosDebris = 76.9;
 local yPosDebris = -4.0;
 local zPosDebris = -94.3;
 
-local npcBanditTypeId = 47513085669;
+local npcBanditTypeId = 5;
+-- local npcBanditTypeId = 47513085669;
 local cellBandit = 2203318222967;
 local yDirBandit = 0.707;
 local wDirBandit = 0.707;

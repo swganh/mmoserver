@@ -14,6 +14,8 @@ Copyright (c) 2006 - 2009 The swgANH Team
 
 // #include "DatabaseManager/DatabaseCallback.h"
 #include "ZoneServer/ObjectFactoryCallback.h"
+#include "DatabaseManager/DatabaseCallback.h"
+#include "DatabaseManager/Database.h"
 #include "MathLib/Vector3.h"
 #include "MathLib/Quaternion.h"
 
@@ -25,10 +27,27 @@ class Weapon;
 class SpawnData;
 class NPCObject;
 
+//======================================================================================================================
+//
+// Container for asyncronous database queries
+//
+enum NpcQuery
+{
+	NpcQuery_Lairs = 0,
+};
+
+class NpcAsyncContainer
+{
+	public:
+		NpcAsyncContainer(NpcQuery query){ mQuery = query;}
+		NpcQuery mQuery;
+};
+
+
 //=============================================================================
 
 
-class NpcManager  : public ObjectFactoryCallback
+class NpcManager  : public ObjectFactoryCallback, public DatabaseCallback
 {
 	public:
 
@@ -45,13 +64,16 @@ class NpcManager  : public ObjectFactoryCallback
 
 		// Inherited  interface that we have to provide.
 		virtual void	handleObjectReady(Object* object);
+		virtual void    handleDatabaseJobComplete(void* ref, DatabaseResult* result);
 
-		void	addCreature(uint64 creatureId, const SpawnData *spawn);
+		// void	addCreature(uint64 creatureId, const SpawnData *spawn);
 		void	handleExpiredCreature(uint64 creatureId);
 		// void	removeNpc(uint64 npcId);
 		bool	handleAttack(CreatureObject *attacker, uint64 targetId);
 
 		uint64	handleNpc(NPCObject* npc, uint64 timeOverdue);
+
+		void	loadLairs(void);
 		
 
 	protected:

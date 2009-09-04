@@ -3,10 +3,25 @@
 
 -- This script file is a placeholder, and free to be used for any testing.
 
+
+-- Start of new code
 local script = LuaScriptEngine.getScriptObj();
 local SE = ScriptEngine:Init();
 
 local scriptSupport = ScriptSupport:Instance();
+
+scriptSupport:lairSpawn(1);
+print("LUA spawned a random lair");
+
+scriptSupport:lairSpawn(2);
+print("LUA spawned a random lair");
+-- End of new code
+
+
+-- local script = LuaScriptEngine.getScriptObj();
+-- local SE = ScriptEngine:Init();
+
+-- local scriptSupport = ScriptSupport:Instance();
 
 local function createAndReSpawnNpc(npcTypeId, npcFirstName, npcLastName, cellId, respawnPeriod, ySpawnDir, wSpawnDir, xSpawnPos, ySpawnPos, zSpawnPos)
 
@@ -52,8 +67,6 @@ end;
 
 local function createAndSpawnLair(npcTypeId, cellId, respawnPeriod, ySpawnDir, wSpawnDir, xSpawnPos, ySpawnPos, zSpawnPos, xWidth, zWidth, fixedPosition)
 
-	-- print("Attempt to create a WompRat");
-	
 	-- Create the npc, of type "npcTypeId".
 	local npcId = scriptSupport:npcCreate(npcTypeId);
 
@@ -118,7 +131,7 @@ end;
 
 LuaScriptEngine.WaitMSec(6000);
 
-local wompratTypeId = 47513085687;
+local wompratTypeId = 101;
 local npcWompRat;
 local npcWompRatId;
 local wompRatCellId = 0;
@@ -135,7 +148,7 @@ npcWompRat, npcWompRatId = createAndReSpawnNpc(wompratTypeId, "", "", wompRatCel
 
 wompRatSpawnDirY = 1;
 wompRatSpawnDirW = 0;
-wompRatRespawnPeriod = wompRatRespawnPeriod + 5000;
+wompRatRespawnPeriod = wompRatRespawnPeriod;
 wompRatSpawnPosX = -1617;
 wompRatSpawnPosY = 69;
 wompRatSpawnPosZ = -3545;
@@ -144,7 +157,7 @@ npcWompRat, npcWompRatId = createAndReSpawnNpc(wompratTypeId, "", "", wompRatCel
 
 wompRatSpawnDirY = 0.707;
 wompRatSpawnDirW = 0.707;
-wompRatRespawnPeriod = wompRatRespawnPeriod + 5000;
+wompRatRespawnPeriod = wompRatRespawnPeriod;
 wompRatSpawnPosX = -1606;
 wompRatSpawnPosY = 61;
 wompRatSpawnPosZ = -3564;
@@ -153,7 +166,7 @@ npcWompRat, npcWompRatId = createAndReSpawnNpc(wompratTypeId, "", "", wompRatCel
 
 wompRatSpawnDirY = -0.707;
 wompRatSpawnDirW = 0.707;
-wompRatRespawnPeriod = wompRatRespawnPeriod + 5000;
+wompRatRespawnPeriod = wompRatRespawnPeriod;
 wompRatSpawnPosX = -1612;
 wompRatSpawnPosY = 51;
 wompRatSpawnPosZ = -3588;
@@ -162,7 +175,7 @@ npcWompRat, npcWompRatId = createAndReSpawnNpc(wompratTypeId, "", "", wompRatCel
 
 wompRatSpawnDirY = 0.707;
 wompRatSpawnDirW = -0.707;
-wompRatRespawnPeriod = wompRatRespawnPeriod + 5000;
+wompRatRespawnPeriod = wompRatRespawnPeriod;
 wompRatSpawnPosX = -1609;
 wompRatSpawnPosY = 43;
 wompRatSpawnPosZ = -3619;
@@ -171,7 +184,7 @@ npcWompRat, npcWompRatId = createAndReSpawnNpc(wompratTypeId, "", "", wompRatCel
 
 wompRatSpawnDirY = -1;
 wompRatSpawnDirW = 0;
-wompRatRespawnPeriod = wompRatRespawnPeriod + 5000;
+wompRatRespawnPeriod = wompRatRespawnPeriod;
 wompRatSpawnPosX = -1598;
 wompRatSpawnPosY = 62;
 wompRatSpawnPosZ = -3543;
@@ -180,7 +193,7 @@ npcWompRat, npcWompRatId = createAndReSpawnNpc(wompratTypeId, "", "", wompRatCel
 
 wompRatSpawnDirY = 0;
 wompRatSpawnDirW = -1;
-wompRatRespawnPeriod = wompRatRespawnPeriod + 5000;
+wompRatRespawnPeriod = wompRatRespawnPeriod;
 wompRatSpawnPosX = -1601;
 wompRatSpawnPosY = 39;
 wompRatSpawnPosZ = -3651;
@@ -189,14 +202,14 @@ npcWompRat, npcWompRatId = createAndReSpawnNpc(wompratTypeId, "", "", wompRatCel
 
 wompRatSpawnDirY = 0.707;
 wompRatSpawnDirW = 0.707;
-wompRatRespawnPeriod = wompRatRespawnPeriod + 5000;
+wompRatRespawnPeriod = wompRatRespawnPeriod;
 wompRatSpawnPosX = -1586;
 wompRatSpawnPosY = 37;
 wompRatSpawnPosZ = -3678;
 npcWompRat, npcWompRatId = createAndReSpawnNpc(wompratTypeId, "", "", wompRatCellId, wompRatRespawnPeriod, wompRatSpawnDirY, wompRatSpawnDirW, wompRatSpawnPosX, wompRatSpawnPosY, wompRatSpawnPosZ);
 -- LuaScriptEngine.WaitMSec(1000);
 
-local creatureTemplateId = 47513085693;		-- a rill
+local creatureTemplateId = 106;		-- a rill
 local creatureObject;
 local creatureId;
 local creatureCellId = 0;
@@ -210,7 +223,7 @@ local creatureSpawnPosZ = -3483;
 creatureObject, creatureId = createAndReSpawnNpc(creatureTemplateId, "", "", creatureCellId, creatureRespawnPeriod, creatureSpawnDirY, creatureSpawnDirW, creatureSpawnPosX, creatureSpawnPosY, creatureSpawnPosZ);
 -- LuaScriptEngine.WaitMSec(1000);
 
-creatureTemplateId = 47513085693;		-- a rill
+ -- creatureTemplateId = 47513085693;		-- a rill
 creatureCellId = 0;
 creatureRespawnPeriod = 120000;
 creatureSpawnDirY = 0;
@@ -223,7 +236,7 @@ creatureObject, creatureId = createAndReSpawnNpc(creatureTemplateId, "", "", cre
 -- LuaScriptEngine.WaitMSec(1000);
 
 
-creatureTemplateId = 47513085693;		-- a rill
+ -- creatureTemplateId = 47513085693;		-- a rill
 creatureCellId = 0;
 creatureRespawnPeriod = 120000;
 creatureSpawnDirY = 0;
@@ -236,7 +249,7 @@ creatureObject, creatureId = createAndReSpawnNpc(creatureTemplateId, "", "", cre
 -- LuaScriptEngine.WaitMSec(1000);
 
 
-creatureTemplateId = 47513085693;		-- a rill
+ -- creatureTemplateId = 47513085693;		-- a rill
 creatureCellId = 0;
 creatureRespawnPeriod = 120000;
 creatureSpawnDirY = 0;
@@ -249,7 +262,7 @@ creatureObject, creatureId = createAndReSpawnNpc(creatureTemplateId, "", "", cre
 -- LuaScriptEngine.WaitMSec(1000);
 
 
-creatureTemplateId = 47513085693;		-- a rill
+ -- creatureTemplateId = 47513085693;		-- a rill
 creatureCellId = 0;
 creatureRespawnPeriod = 120000;
 creatureSpawnDirY = 0;
@@ -261,7 +274,7 @@ creatureSpawnPosZ = -3427;
 creatureObject, creatureId = createAndReSpawnNpc(creatureTemplateId, "", "", creatureCellId, creatureRespawnPeriod, creatureSpawnDirY, creatureSpawnDirW, creatureSpawnPosX, creatureSpawnPosY, creatureSpawnPosZ);
 -- LuaScriptEngine.WaitMSec(1000);
 
-creatureTemplateId = 47513085693;		-- a rill
+ -- creatureTemplateId = 47513085693;		-- a rill
 creatureCellId = 0;
 creatureRespawnPeriod = 120000;
 creatureSpawnDirY = 0;
@@ -274,7 +287,7 @@ creatureObject, creatureId = createAndReSpawnNpc(creatureTemplateId, "", "", cre
 -- LuaScriptEngine.WaitMSec(1000);
 
 
-creatureTemplateId = 47513085693;		-- a rill
+ -- creatureTemplateId = 47513085693;		-- a rill
 creatureCellId = 0;
 creatureRespawnPeriod = 120000;
 creatureSpawnDirY = 0;
@@ -287,7 +300,7 @@ creatureObject, creatureId = createAndReSpawnNpc(creatureTemplateId, "", "", cre
 -- LuaScriptEngine.WaitMSec(1000);
 
 
-creatureTemplateId = 47513085693;		-- a rill
+ -- creatureTemplateId = 47513085693;		-- a rill
 creatureCellId = 0;
 creatureRespawnPeriod = 120000;
 creatureSpawnDirY = 0;
@@ -300,7 +313,7 @@ creatureObject, creatureId = createAndReSpawnNpc(creatureTemplateId, "", "", cre
 -- LuaScriptEngine.WaitMSec(1000);
 
 
-creatureTemplateId = 47513085693;		-- a rill
+ -- creatureTemplateId = 47513085693;		-- a rill
 creatureCellId = 0;
 creatureRespawnPeriod = 120000;
 creatureSpawnDirY = 0;
@@ -313,7 +326,7 @@ creatureObject, creatureId = createAndReSpawnNpc(creatureTemplateId, "", "", cre
 -- LuaScriptEngine.WaitMSec(1000);
 
 
-creatureTemplateId = 47513085693;		-- a rill
+ -- creatureTemplateId = 47513085693;		-- a rill
 creatureCellId = 0;
 creatureRespawnPeriod = 120000;
 creatureSpawnDirY = 0;
@@ -326,7 +339,7 @@ creatureObject, creatureId = createAndReSpawnNpc(creatureTemplateId, "", "", cre
 -- LuaScriptEngine.WaitMSec(1000);
 
 
-creatureTemplateId = 47513085693;		-- a rill
+ -- creatureTemplateId = 47513085693;		-- a rill
 creatureCellId = 0;
 creatureRespawnPeriod = 120000;
 creatureSpawnDirY = 0;
@@ -339,7 +352,7 @@ creatureObject, creatureId = createAndReSpawnNpc(creatureTemplateId, "", "", cre
 -- LuaScriptEngine.WaitMSec(1000);
 
 
-creatureTemplateId = 47513085693;		-- a rill
+ -- creatureTemplateId = 47513085693;		-- a rill
 creatureCellId = 0;
 creatureRespawnPeriod = 120000;
 creatureSpawnDirY = 0;
@@ -352,7 +365,7 @@ creatureObject, creatureId = createAndReSpawnNpc(creatureTemplateId, "", "", cre
 -- LuaScriptEngine.WaitMSec(1000);
 
 
-creatureTemplateId = 47513085693;		-- a rill
+ -- creatureTemplateId = 47513085693;		-- a rill
 creatureCellId = 0;
 creatureRespawnPeriod = 120000;
 creatureSpawnDirY = 0;
@@ -365,7 +378,7 @@ creatureObject, creatureId = createAndReSpawnNpc(creatureTemplateId, "", "", cre
 -- LuaScriptEngine.WaitMSec(1000);
 
 
-creatureTemplateId = 47513085693;		-- a rill
+ -- creatureTemplateId = 47513085693;		-- a rill
 creatureCellId = 0;
 creatureRespawnPeriod = 120000;
 creatureSpawnDirY = 0;
@@ -378,7 +391,7 @@ creatureObject, creatureId = createAndReSpawnNpc(creatureTemplateId, "", "", cre
 -- LuaScriptEngine.WaitMSec(1000);
 
 
-creatureTemplateId = 47513085693;		-- a rill
+ -- creatureTemplateId = 47513085693;		-- a rill
 creatureCellId = 0;
 creatureRespawnPeriod = 120000;
 creatureSpawnDirY = 0;
@@ -391,7 +404,7 @@ creatureObject, creatureId = createAndReSpawnNpc(creatureTemplateId, "", "", cre
 -- LuaScriptEngine.WaitMSec(1000);
 
 
-creatureTemplateId = 47513085693;		-- a rill
+ -- creatureTemplateId = 47513085693;		-- a rill
 creatureCellId = 0;
 creatureRespawnPeriod = 120000;
 creatureSpawnDirY = 0;
@@ -404,7 +417,7 @@ creatureObject, creatureId = createAndReSpawnNpc(creatureTemplateId, "", "", cre
 -- LuaScriptEngine.WaitMSec(1000);
 
 
-creatureTemplateId = 47513085693;		-- a rill
+ -- creatureTemplateId = 47513085693;		-- a rill
 creatureCellId = 0;
 creatureRespawnPeriod = 120000;
 creatureSpawnDirY = 0;
@@ -417,7 +430,7 @@ creatureObject, creatureId = createAndReSpawnNpc(creatureTemplateId, "", "", cre
 -- LuaScriptEngine.WaitMSec(1000);
 
 
-creatureTemplateId = 47513085693;		-- a rill
+ -- creatureTemplateId = 47513085693;		-- a rill
 creatureCellId = 0;
 creatureRespawnPeriod = 120000;
 creatureSpawnDirY = 0;
@@ -431,7 +444,7 @@ creatureObject, creatureId = createAndReSpawnNpc(creatureTemplateId, "", "", cre
 
 
 
-creatureTemplateId = 47513085693;		-- a rill
+ -- creatureTemplateId = 47513085693;		-- a rill
 creatureCellId = 0;
 creatureRespawnPeriod = 120000;
 creatureSpawnDirY = 0;
@@ -443,68 +456,41 @@ creatureSpawnPosZ = -3445;
 creatureObject, creatureId = createAndReSpawnNpc(creatureTemplateId, "", "", creatureCellId, creatureRespawnPeriod, creatureSpawnDirY, creatureSpawnDirW, creatureSpawnPosX, creatureSpawnPosY, creatureSpawnPosZ);
 -- LuaScriptEngine.WaitMSec(1000);
 
-
-
-
-local pileOfRocksTemplateId = 47513085701;
-local nestTemplateId = 47513085709;
-
-local lairObject;
-local lairId;
-local lairCellId = 0;
-local lairRespawnPeriod = 60000;
-local lairSpawnDirY = 0.707;
-local lairSpawnDirW = 0.707;
-local lairSpawnPosX = -2100;
-local lairSpawnPosY = 18;
-local lairSpawnPosZ = -4600;
-local lairXwidth = 500;
-local lairYwidth = 500;
-local fixedPosition = false;
-
 local count;
 
-for count = 1,15 do 
-	lairObject, lairId = createAndSpawnLair(pileOfRocksTemplateId, lairCellId, lairRespawnPeriod, lairSpawnDirY, lairSpawnDirW, lairSpawnPosX, lairSpawnPosY, lairSpawnPosZ, lairXwidth, lairYwidth, fixedPosition);
-end;
+-- for count = 25 do 
+-- 	scriptSupport:lairSpawn(3);
+-- end;
 
-for count = 1,15 do 
-	lairObject, lairId = createAndSpawnLair(nestTemplateId, lairCellId, lairRespawnPeriod, lairSpawnDirY, lairSpawnDirW, lairSpawnPosX, lairSpawnPosY, lairSpawnPosZ, lairXwidth, lairYwidth, fixedPosition);
-end;
-
+-- for count = 1,25 do 
+-- 	scriptSupport:lairSpawn(4);
+-- end;
 
 -- a single womp rat lair.
-local lairSpawnPosX = -1631;
-local lairSpawnPosY = 33;
-local lairSpawnPosZ = -4031;
-local fixedPosition = true;
-lairObject, lairId = createAndSpawnLair(pileOfRocksTemplateId, lairCellId, lairRespawnPeriod, lairSpawnDirY, lairSpawnDirW, lairSpawnPosX, lairSpawnPosY, lairSpawnPosZ, lairXwidth, lairYwidth, fixedPosition);
+-- local lairSpawnPosX = -1631;
+-- local lairSpawnPosY = 33;
+-- local lairSpawnPosZ = -4031;
+-- local fixedPosition = true;
+-- lairObject, lairId = createAndSpawnLair(pileOfRocksTemplateId, lairCellId, lairRespawnPeriod, lairSpawnDirY, lairSpawnDirW, lairSpawnPosX, lairSpawnPosY, lairSpawnPosZ, lairXwidth, lairYwidth, fixedPosition);
 
 
 -- a single rill lair.
-local lairSpawnPosX = -1377;
-local lairSpawnPosY = 60;
-local lairSpawnPosZ = -4235;
-local fixedPosition = true;
-lairObject, lairId = createAndSpawnLair(nestTemplateId, lairCellId, lairRespawnPeriod, lairSpawnDirY, lairSpawnDirW, lairSpawnPosX, lairSpawnPosY, lairSpawnPosZ, lairXwidth, lairYwidth, fixedPosition);
+-- local lairSpawnPosX = -1377;
+-- local lairSpawnPosY = 60;
+-- local lairSpawnPosZ = -4235;
+-- local fixedPosition = true;
+-- lairObject, lairId = createAndSpawnLair(nestTemplateId, lairCellId, lairRespawnPeriod, lairSpawnDirY, lairSpawnDirW, lairSpawnPosX, lairSpawnPosY, lairSpawnPosZ, lairXwidth, lairYwidth, fixedPosition);
 
 
--- lairObject, lairId = createAndSpawnLair(lairTemplateId, lairCellId, lairRespawnPeriod, lairSpawnDirY, lairSpawnDirW, lairSpawnPosX, lairSpawnPosY, lairSpawnPosZ, lairXwidth, lairYwidth, fixedPosition);
--- LuaScriptEngine.WaitMSec(1000);
 
 
--- lairObject, lairId = createAndSpawnLair(lairTemplateId, lairCellId, lairRespawnPeriod, lairSpawnDirY, lairSpawnDirW, lairSpawnPosX, lairSpawnPosY, lairSpawnPosZ, lairXwidth, lairYwidth, fixedPosition);
--- LuaScriptEngine.WaitMSec(1000);
 
 
--- lairObject, lairId = createAndSpawnLair(lairTemplateId, lairCellId, lairRespawnPeriod, lairSpawnDirY, lairSpawnDirW, lairSpawnPosX, lairSpawnPosY, lairSpawnPosZ, lairXwidth, lairYwidth, fixedPosition);
--- LuaScriptEngine.WaitMSec(1000);
 
--- lairObject, lairId = createAndSpawnLair(lairTemplateId, lairCellId, lairRespawnPeriod, lairSpawnDirY, lairSpawnDirW, lairSpawnPosX, lairSpawnPosY, lairSpawnPosZ, lairXwidth, lairYwidth, fixedPosition);
--- LuaScriptEngine.WaitMSec(1000);
 
--- lairObject, lairId = createAndSpawnLair(lairTemplateId, lairCellId, lairRespawnPeriod, lairSpawnDirY, lairSpawnDirW, lairSpawnPosX, lairSpawnPosY, lairSpawnPosZ, lairXwidth, lairYwidth, fixedPosition);LuaScriptEngine.WaitMSec(1000);
--- LuaScriptEngine.WaitMSec(1000);
+
+
+
 
 
 -- local npcDarthVaderTypeId = 47513085691;
@@ -516,3 +502,4 @@ lairObject, lairId = createAndSpawnLair(nestTemplateId, lairCellId, lairRespawnP
 -- 89 equals a melon :)
 -- createAndPopulateLoot(89, npcWompRatId, playerId);
 	
+

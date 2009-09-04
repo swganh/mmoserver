@@ -248,6 +248,8 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		void					removeActiveNpc(uint64 creature);
 
 
+		const					Anh_Math::Rectangle getSpawnArea(uint64 spawnRegionId);
+
 		// retrieve object maps
 		ObjectMap*				getWorldObjectMap(){ return &mObjectMap; }
 		const PlayerAccMap*		getPlayerAccMap(){ return &mPlayerAccMap; }

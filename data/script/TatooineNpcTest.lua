@@ -3,6 +3,8 @@
 
 -- math.pi
 
+local MM = require 'Script/TatooineNpcTest2'
+
 local baseUpdateTime = 750
 
 -- local spawnPosX = -1197
@@ -295,24 +297,23 @@ end;
 math.randomseed( os.time() );
 
 ss = ScriptSupport:Instance();
-LuaScriptEngine.WaitMSec(45000);
+-- LuaScriptEngine.WaitMSec(45000);
 
 -- Create the npc
-local npcId = ss:npcCreate(47513075777);
+-- local npcId = ss:npcCreate(47513075777);
 
-if npcId == 0 then
-	print("Failed creating NPC");
-end;
+-- if npcId == 0 then
+-- 	print("Failed creating NPC");
+-- end;
 
-while ss:objectIsReady(npcId) == false do
-	LuaScriptEngine.WaitMSec(1000);
-end
+-- while ss:objectIsReady(npcId) == false do
+-- 	LuaScriptEngine.WaitMSec(1000);
+-- end
 
-npc = ss:npcGetObject(npcId);
-
+-- npc = ss:npcGetObject(npcId);
 
 -- print("Tatooine-Bestine: an ace Imperial storm commando is spawning");
-ss:npcSpawn(npc, npcId, 0, "", "", 0.71, 0.71, xPos, yPos, zPos)
+-- ss:npcSpawn(npc, npcId, 0, "", "", 0.71, 0.71, xPos, yPos, zPos)
 
 
 local routeFromB2 = {routeB2ToA6};
@@ -339,9 +340,10 @@ local destFromX2 = {"X5", "X1", "A7", "A7"};
 local routeFromX1 = {routeX1ToX2};
 local destFromX1 = {"X2", "", "", ""};
 
--- First we have a "run" to known position, since we obvioulsy can't reach to far from spwan point. Has to be investigated....
+-- npc = MM.createAndSpawnNpc(47513075777, "", "", xPos, yPos, zPos);
+npc = MM.createAndSpawnNpc(3, "", "", xPos, yPos, zPos);
 
--- ss:npcDirection(npc, spawnPosB1X, yPos, spawnPosB1Z);
+-- print("Starting to move that crackdown_storm_commando_hard");
 
 moveTo(spawnPosB1X, yPos, spawnPosB1Z);
 moveTo(spawnPosB2X, yPos, spawnPosB2Z);

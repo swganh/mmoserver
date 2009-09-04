@@ -85,13 +85,7 @@ class ScriptSupport : public ObjectFactoryCallback
 												uint64 respawnPeriod,
 												uint64 templateId);
 
-		void				lairSpawn(NPCObject* npc, uint64 npcId,	uint64 cellForSpawn,
-										float dirY,	float dirW,
-										float posX,	float posY,	float posZ,
-										float xWidth, float zWidth,
-										bool isFixedPosition,
-										uint64 respawnPeriod,
-										uint64 templateId);
+		void				lairSpawn(uint64 lairTypeId);
 
 		void				npcDirection(NPCObject* npc, float deltaX, float deltaZ);
 		void				npcMove(NPCObject* npc, float posX, float posY, float posZ);
@@ -164,10 +158,8 @@ class ScriptSupport : public ObjectFactoryCallback
 		void				handleObjectReady(Object* object);
 		uint64				getObjectOwnedBy(uint64 theOwner);
 		
-	
 	private:
-		void				npcSpawnGeneral(NPCObject* npc,
-											uint64 npcId,
+		void				npcSpawnGeneral(uint64 npcId,
 											uint64 npcPrivateOwnerId,
 											uint64 cellForSpawn,
 											std::string firstname,
@@ -177,9 +169,7 @@ class ScriptSupport : public ObjectFactoryCallback
 											float posX,
 											float posY,
 											float posZ,
-											uint64 respawnPeriod,
-											uint64 templateId);
-
+											uint64 respawnPeriod);
 
 
 		static ScriptSupport*	mInstance;

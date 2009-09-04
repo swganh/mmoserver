@@ -60,7 +60,9 @@ const uint64 StartingRoom = 2203318222960;
 
 // This is a type of CDEF-Pistol
 const uint32 DefaultQuestWeaponFamily = 10;
-const uint32 DefaultQuestWeaponType = 2755;
+// const uint32 DefaultQuestWeaponType = 2755;
+const uint32 DefaultQuestWeaponType = 2326; // A even more useless gun for the tutorial :)
+
 
 // const uint64 ItemOfficerRoom = (StartingRoom + 1);
 // const uint64 BankAndBazzzarOfficerRoom = (ItemOfficerRoom + 1);
@@ -859,12 +861,21 @@ uint64 Tutorial::getSkillTrainerTypeId(void)
 }
 
 
+static const uint64 MedicTrainerId[3] = {10, 11, 12};
+static const uint64 ArtisanTrainerId[3] = {13, 14, 15};
+static const uint64 BrawlerTrainerId[3] = {16, 17, 18};
+static const uint64 EntertainerTrainerId[3] = {19, 20, 21};
+static const uint64 MarksmanTrainerId[3] = {22, 23, 24};
+static const uint64 ScoutTrainerId[3] = {25, 26, 27};
+
+/*
 static const uint64 MedicTrainerId[3] = {47244640305, 47244640307, 47244640397};
 static const uint64 ArtisanTrainerId[3] = {47244640497, 47244640261, 47244640351};
 static const uint64 BrawlerTrainerId[3] = {47244640429, 47244640571, 47244640601};
 static const uint64 EntertainerTrainerId[3] = {47244640277, 47244640333, 47244640299};
 static const uint64 MarksmanTrainerId[3] = {47244640339, 47244640363, 47244640451};
 static const uint64 ScoutTrainerId[3] = {47244640311, 47244640461, 47244640525};
+*/
 
 uint64 Tutorial::getSkillTrainerTypeId(string startingProfession)
 {

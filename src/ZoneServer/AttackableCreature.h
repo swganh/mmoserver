@@ -14,8 +14,9 @@ Copyright (c) 2006 - 2009 The swgANH Team
 
 #include "NPCObject.h"
 #include "NpcManager.h"
-#include "SpawnData.h"
+// #include "SpawnData.h"
 
+/*
 class DamageDealer
 {
 	public:
@@ -31,6 +32,7 @@ class DamageDealer
 };
 
 typedef std::vector<DamageDealer*> DamageDealers;
+*/
 
 typedef enum _Npc_Combat_State
 {
@@ -54,7 +56,7 @@ class AttackableCreature : public NPCObject
 	friend class NonPersistentNpcFactory;
 
 	public:
-		AttackableCreature();
+		AttackableCreature(uint64 templateId);
 		virtual ~AttackableCreature();
 		virtual void prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
 		virtual void handleObjectMenuSelect(uint8 messageType,Object* srcObject);
@@ -67,6 +69,7 @@ class AttackableCreature : public NPCObject
 		virtual void	inPeace(void);
 		virtual void	killEvent(void);
 		virtual void	respawn(void);
+		virtual float	getMaxSpawnDistance(void);
 
 		void	assistCreature(uint64 targetId);
 		void	assistLair(uint64 targetId);
@@ -74,9 +77,9 @@ class AttackableCreature : public NPCObject
 		// void					haltAllActions(void) {mCombatState = State_Halted;}
 
 		// void					getSpawnData(SpawnData &spawn);
-		const SpawnData&	getSpawnData(void) const;
-		void				setSpawnData(const SpawnData *spawn);
-		void				setSpawnData(const SpawnData &spawn);
+		// const SpawnData&	getSpawnData(void) const;
+		// void				setSpawnData(const SpawnData *spawn);
+		// void				setSpawnData(const SpawnData &spawn);
 
 		const Weapon* getPrimaryWeapon(void) const {return mPrimaryWeapon;}
 		void	setPrimaryWeapon(Weapon* primaryWeapon) {mPrimaryWeapon = primaryWeapon;}
@@ -88,29 +91,26 @@ class AttackableCreature : public NPCObject
 		void	equipSecondaryWeapon(void);
 		void	unequipWeapon(void);
 
-		int32	getMinDamage(void) const {return mSpawn.mWeapon.minDamage;}
-		int32	getMaxDamage(void) const {return mSpawn.mWeapon.maxDamage;}
+		int32	getMinDamage(void) const {return mMinDamage;}
+		int32	getMaxDamage(void) const {return mMaxDamage;}
 
-		uint64	getRespawnPeriod(void) const {return mSpawn.mBasic.respawnPeriod;}
-		uint64	getTemplateId(void) const {return mSpawn.mBasic.templateId;}
+		uint64	getLairId(void) { return mLairId;}
+		void	setSpawned(void) {mSpawned = true;}
+		void	clearSpawned(void) {mSpawned = false;}
+
+		bool	isSpawned(void) const {return mSpawned;}
+		bool	isAgressive(void) const {return mIsAgressive;}
+		bool	isRoaming(void) const {return mIsRoaming;}
+
+		bool	isKiller(void) const {return mIsKiller;}
+		bool	isGroupAssist(void) const {return mIsGroupAssist;}
 		
-		uint64	getLairId(void) { return mSpawn.mBasic.lairId;}
-		void	setSpawned(void) {mSpawn.mBasic.spawned = true;}
-		void	clearSpawned(void) {mSpawn.mBasic.spawned = false;}
-
-		bool	isSpawned(void) const {return mSpawn.mBasic.spawned;}
-		bool	isAgressiveMode(void) const {return mSpawn.mProfile.agressiveMode;}
-		bool	isRoaming(void) const {return mSpawn.mProfile.roaming;}
-
-		bool	isKiller(void) const {return mSpawn.mProfile.killer;}
-		bool	isGroupAssist(void) const {return mSpawn.mProfile.groupAssist;}
-		
-		Anh_Math::Vector3 getDestination(void) const {return mSpawn.mProfile.destination;} 
-		void	setDestination(Anh_Math::Vector3 destination) {mSpawn.mProfile.destination = destination;} 
-		float	getRoamingSpeed(void) const {return mSpawn.mProfile.roamingSpeed;}
+		Anh_Math::Vector3 getDestination(void) const {return mDestination;} 
+		void	setDestination(Anh_Math::Vector3 destination) {mDestination = destination;} 
+		float	getRoamingSpeed(void) const {return mRoamingSpeed;}
 		
 
-		int32	getStalkerSteps(void) const {return mSpawn.mProfile.stalkerSteps;}
+		int32	getStalkerSteps(void) const {return mStalkerSteps;}
 
 
 		/*
@@ -118,8 +118,6 @@ class AttackableCreature : public NPCObject
 
 		void	setMaxDamage(int32 maxDamage) {mMaxDamage = maxDamage;}
 
-		float	getAttackRange(void) {return mAttackRange;}
-		void	setAttackRange(float attackRange) {mAttackRange = attackRange;}
 
 		void	setWeaponMaxRange(int32 weaponMaxRange) {mWeaponMaxRange = weaponMaxRange;}
 
@@ -153,22 +151,25 @@ class AttackableCreature : public NPCObject
 
 		void	setSpawnPosition(Anh_Math::Vector3 spawnPosition) {mSpawnPosition = spawnPosition;}
 		*/
-		void	updateDamage(uint64 playerId, uint64 groupId, uint32 weaponGroup, int32 damage, uint8 attackerPosture, float attackerDistance);
-		bool	attackerHaveAggro(uint64 attackerId);
-		void	updateAggro(uint64 playerId, uint64 groupId, uint8 attackerPosture);
-		void	updateAttackersXp(void);
-		bool	allowedToLoot(uint64 targetId, uint64 groupId);
+		// void	updateDamage(uint64 playerId, uint64 groupId, uint32 weaponGroup, int32 damage, uint8 attackerPosture, float attackerDistance);
+		// bool	attackerHaveAggro(uint64 attackerId);
+		// void	updateAggro(uint64 playerId, uint64 groupId, uint8 attackerPosture);
+		// void	updateAttackersXp(void);
+		void	setLairId(uint64 lairId) {mLairId = lairId;}
 
 
 	private:
+		// Default constructor, should not be used.
+		AttackableCreature() { assert(false);}
+
 		bool	needAssist(void);
 		void	executeAssist(void);
 		bool	needToAssistLair(void);
 		void	executeLairAssist(void);
 
-		void	updateGroupDamage(DamageDealer* damageDealer);
-		void	sendAttackersWeaponXp(PlayerObject* playerObject, uint32 weaponMask, int32 xp);
-		void	updateAttackersWeaponAndCombatXp(uint64 playerId, uint64 groupId, int32 damageDone, int32 weaponUsedMask);
+		// void	updateGroupDamage(DamageDealer* damageDealer);
+		// void	sendAttackersWeaponXp(PlayerObject* playerObject, uint32 weaponMask, int32 xp);
+		// void	updateAttackersWeaponAndCombatXp(uint64 playerId, uint64 groupId, int32 damageDone, int32 weaponUsedMask);
 		void	setupRoaming(int32 maxRangeX, int32 maxRangeZ);
 		void	stalk(void);
 		bool	atStalkLimit() const;
@@ -176,16 +177,16 @@ class AttackableCreature : public NPCObject
 		bool	targetOutsideRoamingLimit(void) const;
 		bool	isTargetWithinMaxRange(uint64 targetId);
 
-		float	getWeaponMaxRange(void) const {return mSpawn.mWeapon.weaponMaxRange;}
-		float	getMaxAggroRange(void) const {return mSpawn.mProfile.maxAggroRange;}
-		float	getAttackRange(void) const {return mSpawn.mProfile.attackRange;}
-		float	getAttackWarningRange(void) const {return mSpawn.mProfile.attackWarningRange;}
-		bool	isStalker(void) const {return mSpawn.mProfile.stalker;}
-		float	getStalkerSpeed(void) const {return mSpawn.mProfile.stalkerSpeed;}
-		float	getStalkerDistanceMax(void) const {return mSpawn.mProfile.stalkerDistanceMax;}
-		Anh_Math::Vector3 getSpawnPosition(void) const {return mSpawn.mBasic.spawnPosition;}
-		Anh_Math::Vector3 getHomePosition(void) const {return mSpawn.mBasic.homePosition;}
-		void	setStalkerSteps(int32 stalkerSteps) {mSpawn.mProfile.stalkerSteps = stalkerSteps;}
+		float	getWeaponMaxRange(void) const {return mWeaponMaxRange;}
+		float	getMaxAggroRange(void) const {return mMaxAggroRange;}
+		// float	getAttackRange(void) const {return mAttackRange;}
+		float	getAttackWarningRange(void) const {return mAttackWarningRange;}
+		bool	isStalker(void) const {return mIsStalker;}
+		float	getStalkerSpeed(void) const {return mStalkerSpeed;}
+		float	getStalkerDistanceMax(void) const {return mStalkerDistanceMax;}
+		// Anh_Math::Vector3 getSpawnPosition(void) const {return mSpawn.mBasic.spawnPosition;}
+		Anh_Math::Vector3 getHomePosition(void) const {return mHomePosition;}
+		void	setStalkerSteps(int32 stalkerSteps) {mStalkerSteps = stalkerSteps;}
 		bool	setTargetInAttackRange(void);
 		uint64	getDefenderOutOfAggroRange(void);
 		bool	showWarningInRange(void);
@@ -193,28 +194,28 @@ class AttackableCreature : public NPCObject
 		bool	isTargetWithinWeaponRange(void) const;
 		int64	getCombatTimer(void) const {return mCombatTimer;}
 		void	setCombatTimer(int64 combatTimer) {mCombatTimer = combatTimer;}
-		uint64	getAttackSpeed(void) const {return mSpawn.mWeapon.attackSpeed;}
-		uint64	getRoamingPeriodTime(void) const {return mSpawn.mProfile.roamingPeriodTime;}
-		float	getRoamingDistanceMax(void) const {return mSpawn.mProfile.roamingDistanceMax;}
+		int64	getAttackSpeed(void) const {return mAttackSpeed;}
+		uint64	getRoamingDelay(void) const {return mRoamingDelay;}
+		float	getRoamingDistanceMax(void) const {return mRoamingDistanceMax;}
 		bool	isHoming(void) const {return mHoming;}
 		void	enableHoming(void) {mHoming = true;}
 		void	disableHoming(void) {mHoming = false;}
 		int64	getReadyDelay(void) const {return mReadyDelay;}
 		void	SetReadyDelay(int64 readyDelay) {mReadyDelay = readyDelay;}
-		int32	getRoamingSteps(void) const {return mSpawn.mProfile.roamingSteps;}
-		void	setRoamingSteps(int32 roamingSteps) {mSpawn.mProfile.roamingSteps = roamingSteps;}
-		uint64	getCellForSpawn(void) const {return mSpawn.mBasic.cellForSpawn;}
+		int32	getRoamingSteps(void) const {return mRoamingSteps;}
+		void	setRoamingSteps(int32 roamingSteps) {mRoamingSteps = roamingSteps;}
+		
 
-		int32	getWeaponXp(void) const {return mSpawn.mWeapon.weaponXp;}
+		// int32	getWeaponXp(void) const {return mWeaponXp;}
 		bool	isAttackTauntSent(void) const;
 		void	setAttackTauntSent(void);
 		bool	isWarningTauntSent(void) const;
 		void	setWarningTauntSent(void);
 		void	clearWarningTauntSent(void);
 
-		const string getAttackStartMessage(void) const {return mSpawn.mProfile.attackStartMessage;}
-		const string getAttackWarningMessage(void) const {return mSpawn.mProfile.attackWarningMessage;}
-		const string getAttackedMessage(void) const {return mSpawn.mProfile.attackedMessage;}
+		const string getAttackStartMessage(void) const {return mAttackStartMessage;}
+		const string getAttackWarningMessage(void) const {return mAttackWarningMessage;}
+		const string getAttackedMessage(void) const {return mAttackedMessage;}
 
 		// The transfered functions are placed here.
 		void	spawn(void);
@@ -222,6 +223,99 @@ class AttackableCreature : public NPCObject
 		bool	setTargetDefenderWithinMaxRange(void);
 		void	setupStalking(uint64 updatePeriodTime);
 		
+		// Data from attributes.
+
+public:
+		// Delay from creation to first spawn.
+		uint64 mTimeToFirstSpawn;
+
+		// True if the object is spawned in the world.
+		bool	mSpawned;
+
+		// Home position for object, often a lair or POI.
+		Anh_Math::Vector3 mHomePosition;
+
+		// Id of controling unit (lair), or 0 if none.
+		uint64	mLairId;
+
+		// Min damage made by equipped weapon
+		int32 mMinDamage;
+	
+		// Man damage made by equipped weapon
+		int32 mMaxDamage;
+
+		// Damage range.
+		float mWeaponMaxRange;
+
+		// Speed of weapon fire.
+		int64 mAttackSpeed;
+
+		// Weapon XP.
+		// int32	mWeaponXp;
+
+
+
+		// If object shall attack other objects (for now players) when they get inside "attackRange".
+		bool mIsAgressive;
+
+		// Default aggro, without any modifiers.
+		// float mBaseAggro;
+
+		// If creature should be "roaming" around when idle in the dormant queue.
+		bool mIsRoaming;
+
+		// If the creature moves forward to the target and stalk him to his "max stalk range".
+		bool mIsStalker;
+
+		bool mIsKiller;
+
+		// Range where "attackWarningMessage" will be sent.
+		float	mAttackWarningRange;
+
+		// Players that come within this range will (may) be attacked.
+		// float mAttackRange;
+
+		// Max range of enemy to hold aggro (be in combat).
+		float mMaxAggroRange;
+		
+		// Taunt message, to be used when enemy comes near the "attackRange" when in "aggressiveMode".
+		string mAttackWarningMessage;
+
+		// Taunt message, to be used when creature initiates combat.
+		string mAttackStartMessage;
+
+		// Taunt message, to be used when enemy initiates combat with this creature.
+		string mAttackedMessage;
+
+		// Position we are moving towards. Used by roaming among others...
+		Anh_Math::Vector3 mDestination;
+
+		// Roaming, we go from point A to point B. The movement may be divided in several updates.
+		// We chose a new romaing point (can use some rand) and calculates the direction and speed.
+
+		// Speed in m/s when "roaming"
+		float mRoamingSpeed;
+
+		// Delay until starting a new roaming.
+		uint64 mRoamingDelay;
+
+		// This is the max roaming distance from the spawn point or other central point, like lair
+		float mRoamingDistanceMax;	
+
+		// Speed in m/s when "stalking"
+		float mStalkerSpeed;
+
+		// Number of updates before we are near the target.
+		int32 mStalkerSteps;
+
+		// This is the max stalking distance from the spawn point or other central point, like lair
+		float mStalkerDistanceMax;	
+
+		bool mIsGroupAssist;	
+
+
+private:
+		// Internals, caluclated when needed.
 		int64	mReadyDelay;
 		int64	mCombatTimer;
 		bool	mHoming;
@@ -234,16 +328,19 @@ class AttackableCreature : public NPCObject
 		uint64	mLairNeedAsssistanceWithId;
 		bool	mIsAssistingLair;
 
-		uint64	mLootAllowedById;
+		// Number of updates before we are done roaming.
+		int32	mRoamingSteps;
+
+		// uint64	mParentObjectId;		// Could be the controlling lair id.
 
 		// uint32 mDeathEffectId;
 
 		Npc_Combat_State	mCombatState;
 		
-		SpawnData	mSpawn;
+		// SpawnData	mSpawn;
 
-		DamageDealers	mDamageDealers;
-		DamageDealers	mDamageByGroups;
+		// DamageDealers	mDamageDealers;
+		// DamageDealers	mDamageByGroups;
 
 		Weapon* mPrimaryWeapon;
 		Weapon* mSecondaryWeapon;

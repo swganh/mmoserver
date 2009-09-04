@@ -1,6 +1,6 @@
 /*
 ** Lua binding: LuaInterface
-** Generated automatically by tolua++-1.0.92 on 04/23/09 22:41:38.
+** Generated automatically by tolua++-1.0.92 on 08/28/09 02:28:22.
 */
 
 #ifndef __cplusplus
@@ -2335,44 +2335,20 @@ static int tolua_LuaInterface_ScriptSupport_lairSpawn00(lua_State* tolua_S)
  tolua_Error tolua_err;
  if (
      !tolua_isusertype(tolua_S,1,"ScriptSupport",0,&tolua_err) ||
-     !tolua_isusertype(tolua_S,2,"NPCObject",0,&tolua_err) ||
-     !tolua_isnumber(tolua_S,3,0,&tolua_err) ||
-     !tolua_isnumber(tolua_S,4,0,&tolua_err) ||
-     !tolua_isnumber(tolua_S,5,0,&tolua_err) ||
-     !tolua_isnumber(tolua_S,6,0,&tolua_err) ||
-     !tolua_isnumber(tolua_S,7,0,&tolua_err) ||
-     !tolua_isnumber(tolua_S,8,0,&tolua_err) ||
-     !tolua_isnumber(tolua_S,9,0,&tolua_err) ||
-     !tolua_isnumber(tolua_S,10,0,&tolua_err) ||
-     !tolua_isnumber(tolua_S,11,0,&tolua_err) ||
-     !tolua_isboolean(tolua_S,12,0,&tolua_err) ||
-     !tolua_isnumber(tolua_S,13,0,&tolua_err) ||
-     !tolua_isnumber(tolua_S,14,0,&tolua_err) ||
-     !tolua_isnoobj(tolua_S,15,&tolua_err)
+     !tolua_isnumber(tolua_S,2,0,&tolua_err) ||
+     !tolua_isnoobj(tolua_S,3,&tolua_err)
  )
   goto tolua_lerror;
  else
 #endif
  {
   ScriptSupport* self = (ScriptSupport*)  tolua_tousertype(tolua_S,1,0);
-  NPCObject* npc = ((NPCObject*)  tolua_tousertype(tolua_S,2,0));
-  unsigned long long npcId = (( unsigned long long)  tolua_tonumber(tolua_S,3,0));
-  unsigned long long cellForSpawn = (( unsigned long long)  tolua_tonumber(tolua_S,4,0));
-  float dirY = ((float)  tolua_tonumber(tolua_S,5,0));
-  float dirW = ((float)  tolua_tonumber(tolua_S,6,0));
-  float posX = ((float)  tolua_tonumber(tolua_S,7,0));
-  float posY = ((float)  tolua_tonumber(tolua_S,8,0));
-  float posZ = ((float)  tolua_tonumber(tolua_S,9,0));
-  float xWidth = ((float)  tolua_tonumber(tolua_S,10,0));
-  float zWidth = ((float)  tolua_tonumber(tolua_S,11,0));
-  bool isFixedPosition = (tolua_toboolean(tolua_S,12,0) != 0);
-  unsigned long long respawnPeriod = (( unsigned long long)  tolua_tonumber(tolua_S,13,0));
-  unsigned long long templateId = (( unsigned long long)  tolua_tonumber(tolua_S,14,0));
+  unsigned long long lairTypeId = (( unsigned long long)  tolua_tonumber(tolua_S,2,0));
 #ifndef TOLUA_RELEASE
   if (!self) tolua_error(tolua_S,"invalid 'self' in function 'lairSpawn'",NULL);
 #endif
   {
-   self->lairSpawn(npc,npcId,cellForSpawn,dirY,dirW,posX,posY,posZ,xWidth,zWidth,isFixedPosition,respawnPeriod,templateId);
+   self->lairSpawn(lairTypeId);
   }
  }
  return 0;

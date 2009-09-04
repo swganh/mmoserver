@@ -1938,6 +1938,9 @@ void WorldManager::_handleLoadComplete()
 	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleGroupObjectTimers),5,gWorldConfig->getGroupMissionUpdateTime(),NULL);
 	
 
+	// Init NPC Manager, will load lairs from the DB.
+	(void)NpcManager::Instance();
+
 	// Initialize the queues for NPC-Manager.
 	mNpcManagerScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleDormantNpcs),5,2500,NULL);
 	mNpcManagerScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleReadyNpcs),5,1000,NULL);
@@ -3043,8 +3046,9 @@ bool WorldManager::objectsInRange(Anh_Math::Vector3 obj1Position,  uint64 obj1Pa
 
 void WorldManager::addDormantNpc(uint64 creature, uint64 when)
 {
-	uint64 expireTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
+	// gLogger->logMsgF("Adding dormant NPC handler... %llu", MSG_NORMAL, creature);
 
+	uint64 expireTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
 	mNpcDormantHandlers.insert(std::make_pair(creature, expireTime + when));
 }
 
@@ -3106,16 +3110,17 @@ bool WorldManager::_handleDormantNpcs(uint64 callTime, void* ref)
 				}
 				else
 				{
+					// gLogger->logMsgF("Removed dormant NPC handler... %llu", MSG_NORMAL, (*it).first);
+
 					// Requested to remove the handler.
 					it = mNpcDormantHandlers.erase(it);
-					// gLogger->logMsg("Removed dormant NPC handler...");
 				}
 			}
 			else
 			{
 				// Remove the expired object...
 				it = mNpcDormantHandlers.erase(it);
-				// gLogger->logMsg("Removed expired dormant NPC handler...");
+				gLogger->logMsg("Removed expired dormant NPC handler...");
 			}
 		}
 		else
@@ -3291,3 +3296,21 @@ bool WorldManager::_handleActiveNpcs(uint64 callTime, void* ref)
 	return true;
 }
 
+//======================================================================================================================
+// 
+//	Get the spawn area for a region.
+// 
+
+const Anh_Math::Rectangle WorldManager::getSpawnArea(uint64 spawnRegionId)
+{
+	Anh_Math::Rectangle spawnArea(0,0,0,0);
+
+	CreatureSpawnRegionMap::iterator it = mCreatureSpawnRegionMap.find(spawnRegionId);
+	if (it != mCreatureSpawnRegionMap.end())
+	{
+		const CreatureSpawnRegion *creatureSpawnRegion = (*it).second;
+		Anh_Math::Rectangle sa(creatureSpawnRegion->mPosX, creatureSpawnRegion->mPosZ, creatureSpawnRegion->mWidth ,creatureSpawnRegion->mLength);
+		spawnArea = sa;
+	}
+	return spawnArea;
+}

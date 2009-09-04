@@ -101,7 +101,10 @@ void CharacterAdminHandler::handleDispatchMessage(uint32 opcode, Message* messag
 void CharacterAdminHandler::_processRandomNameRequest(Message* message, DispatchClient* client)
 {
 	if(!client)
+	{
+		gLogger->logMsgF("CharacterAdminHandler::_processRandomNameRequest Missing Client", MSG_NORMAL);
 		return;
+	}
 
   Message* newMessage;
 
@@ -126,6 +129,7 @@ void CharacterAdminHandler::_processRandomNameRequest(Message* message, Dispatch
 //======================================================================================================================
 void CharacterAdminHandler::_processCreateCharacter(Message* message, DispatchClient* client)
 {
+	gLogger->logMsgF("CharacterAdminHandler::_processCreateCharacter Entering", MSG_NORMAL);
   CharacterCreateInfo characterInfo;
   memset(&characterInfo, 0, sizeof(characterInfo));
 
@@ -166,12 +170,14 @@ void CharacterAdminHandler::_processCreateCharacter(Message* message, DispatchCl
   // we must have a firstname
   if(characterInfo.mFirstName.getLength() < 3)
   {
+	  gLogger->logMsgF("Invalid first name, %s less than 3 characters", MSG_NORMAL, characterInfo.mFirstName.getAnsi());
 	_sendCreateCharacterFailed(1,client);
 	return;
   }
   // we dont want large names
   else if(characterInfo.mFirstName.getLength() > 16)
   {
+	  gLogger->logMsgF("Invalid first name, %s more than 16 characters", MSG_NORMAL, characterInfo.mFirstName.getAnsi());
 	  _sendCreateCharacterFailed(11,client);
 	  return;
   }
@@ -205,6 +211,7 @@ void CharacterAdminHandler::_processCreateCharacter(Message* message, DispatchCl
 
 			if(++specialCount > 2)
 			{
+				gLogger->logMsgF("specialCount > 2 in name", MSG_NORMAL);
 				_sendCreateCharacterFailed(10,client);
 				return;
 			}
@@ -217,6 +224,7 @@ void CharacterAdminHandler::_processCreateCharacter(Message* message, DispatchCl
 		}
 		else
 		{
+			gLogger->logMsgF("Invalid chars in name", MSG_NORMAL);
 			_sendCreateCharacterFailed(10,client);
 			return;
 		}
@@ -352,6 +360,7 @@ void CharacterAdminHandler::_processCreateCharacter(Message* message, DispatchCl
 
   CAAsyncContainer* asyncContainer = new CAAsyncContainer(CAQuery_CreateCharacter,client);
   mDatabase->ExecuteProcedureAsync(this,asyncContainer,sql);
+  gLogger->logMsgF("CharacterAdminHandler::_processCreateCharacter Leaving", MSG_NORMAL);
 }
 
 //======================================================================================================================
@@ -359,7 +368,7 @@ void CharacterAdminHandler::_processCreateCharacter(Message* message, DispatchCl
 void CharacterAdminHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 {
 	CAAsyncContainer* asyncContainer = reinterpret_cast<CAAsyncContainer*>(ref);
-
+	gLogger->logMsgF("CharacterAdminHandler::handleDatabaseJobComplete Entering", MSG_NORMAL);
 	switch(asyncContainer->mQueryType)
 	{
 		case CAQuery_CreateCharacter:
@@ -372,10 +381,14 @@ void CharacterAdminHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* 
 
 			if(queryResult >= 0x0000000200000000)
 			{
+				gLogger->logMsgF("CAQuery_CreateCharacter Success", MSG_NORMAL);
 				_sendCreateCharacterSuccess(queryResult,asyncContainer->mClient);
 			}
 			else
+			{
+				gLogger->logMsgF("CAQuery_CreateCharacter Failed", MSG_NORMAL);
 				_sendCreateCharacterFailed(queryResult,asyncContainer->mClient);
+			}
 
 			mDatabase->DestroyDataBinding(binding);
 		}
@@ -412,6 +425,7 @@ void CharacterAdminHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* 
 		default:break;
 	}
 	SAFE_DELETE(asyncContainer);
+	gLogger->logMsgF("CharacterAdminHandler::handleDatabaseJobComplete Leaving", MSG_NORMAL);
 }
 
 //======================================================================================================================
@@ -570,7 +584,10 @@ void CharacterAdminHandler::_parseAppearanceData(Message* message, CharacterCrea
 void CharacterAdminHandler::_sendCreateCharacterSuccess(uint64 characterId,DispatchClient* client)
 {
 	if(!client)
+	{
+		gLogger->logMsgF("CharacterAdminHandler::_sendCreateCharacterSuccess Missing Client", MSG_NORMAL);
 		return;
+	}
 
 	gMessageFactory->StartMessage();       
 	gMessageFactory->addUint32(opHeartBeat);
@@ -591,7 +608,10 @@ void CharacterAdminHandler::_sendCreateCharacterSuccess(uint64 characterId,Dispa
 void CharacterAdminHandler::_sendCreateCharacterFailed(uint32 errorCode,DispatchClient* client)
 {
 	if(!client)
+	{
+		gLogger->logMsgF("CharacterAdminHandler::_sendCreateCharacterFailed Missing Client", MSG_NORMAL);
 		return;
+	}
 
 	string unknown = L"o_O";
 	string stfFile = "ui";

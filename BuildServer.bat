@@ -62,9 +62,9 @@ rem ----------------------------------------------------------------------------
 rem --- Start of SET_DEFAULTS --------------------------------------------------
 :SET_DEFAULTS
 
-set DEPENDENCIES_VERSION=1409
+set DEPENDENCIES_VERSION=1443
 set DEPENDENCIES_FILE=swganh-deps-%DEPENDENCIES_VERSION%.zip
-set DEPENDENCIES_URL=http://share.swganh.org/gf.php?fid=200908110346158937
+set DEPENDENCIES_URL=http://swganh.com/!!deps!!/%DEPENDENCIES_FILE%
 set "PROJECT_BASE=%~dp0"
 set BUILD_TYPE=debug
 set MSVC_VERSION=vc9
@@ -199,9 +199,9 @@ rem ----------------------------------------------------------------------------
 rem --- Start of BUILD_ENVIRONMENT_FOR_vc9 -------------------------------------
 :BUILD_ENVIRONMENT_FOR_vc9
 
-set "VS_BASE_DIR=%SYSTEMDRIVE%\%PROGRAMFILES(X86)%\Microsoft Visual Studio 9.0"
+set "VS_BASE_DIR=%PROGRAMFILES(X86)%\Microsoft Visual Studio 9.0"
 if not exist "%VS_BASE_DIR%" (
-	  set "VS_BASE_DIR=%SYSTEMDRIVE%\%PROGRAMFILES%\Microsoft Visual Studio 9.0"
+	  set "VS_BASE_DIR=%PROGRAMFILES%\Microsoft Visual Studio 9.0"
 	  if not exist "%VS_BASE_DIR%" (          
 		    rem TODO: Allow user to enter a path to their base visual Studio directory.
        

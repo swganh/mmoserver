@@ -63,8 +63,14 @@ class CreatureObject : public MovingObject
 		
 		uint8				getPosture() const { return mPosture; }
 		void				setPosture(uint8 posture){ mPosture = posture; }
-		bool				checkPostures(uint8 postures) const { return((mPosture & postures) == postures); }
-		bool				checkPosturesEither(uint8 postures){ return((mPosture & postures) != 0); }
+		
+		// Postures are NOT bitwise constants.
+		// Can NOT use bitwise operation on non bitwise constants.
+		// bool				checkPostures(uint8 postures) const { return((mPosture & postures) == postures); }
+		bool				checkPosture(uint8 postures) const { return (mPosture == postures); }
+
+		// Can NOT use bitwise operation on non bitwise constants.
+		// bool				checkPosturesEither(uint8 postures){ return((mPosture & postures) != 0); }
 		
 		float				getScale(){ return mScale; }
 		void				setScale(float scale){ mScale = scale; }

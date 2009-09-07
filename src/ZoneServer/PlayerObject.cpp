@@ -170,10 +170,11 @@ void PlayerObject::resetProperties()
 	mPendingSample						= false;
 	mDefenderUpdateCounter				= 0;
 	mReady								= false;
-	mIncapCount							= 0;
-	mFirstIncapTime						= 0;
-	mCurrentIncapTime					= 0;
-	mState								= 0;
+	// No. no... not that's too easy exploit...
+	// mIncapCount							= 0;
+	// mFirstIncapTime						= 0;
+	// mCurrentIncapTime					= 0;
+	// mState								= 0;
 
 	if(Datapad* datapad = dynamic_cast<Datapad*>(mEquipManager.getEquippedObject(CreatureEquipSlot_Datapad)))
 	{
@@ -182,9 +183,12 @@ void PlayerObject::resetProperties()
 
 	updateMovementProperties();
 
-	mHam.resetCounters();
+	// We should not need to mess with HAM here, when doing intra planet (local on planet) travel.
+	// mHam.resetCounters();
 	mHam.updateRegenRates();
 
+	// We should not be allowed to travel when in combat or in duel, if we are.. I want to see the bug happening so we can fix the cause of it.
+	/*
 	// clear duel lists
 	PlayerList::iterator duelIt = mDuelList.begin();
 
@@ -218,6 +222,7 @@ void PlayerObject::resetProperties()
 		++defenderIt;
 	}
 	mDefenders.clear();
+	*/
 }
 
 //=============================================================================

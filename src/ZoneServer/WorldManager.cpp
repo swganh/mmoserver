@@ -2172,6 +2172,7 @@ void WorldManager::addObject(Object* object,bool manual)
 			gMessageLib->sendCreatePlayer(player,player);
 			
 			// add ham to regeneration scheduler
+			player->getHam()->updateRegenRates();	// ERU: Note sure if this is needed here.
 			player->getHam()->checkForRegen();
 
 			// onPlayerEntered event, notify scripts

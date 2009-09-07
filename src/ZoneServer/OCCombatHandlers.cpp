@@ -147,23 +147,23 @@ void ObjectController::_handleEndDuel(uint64 targetId,Message* message,ObjectCon
 							//At some point negative states should be handled either by the buff manager as short duration buffs or via a new manager for debuffs
 		
 							//not in combat clear all temp combat states from player
-							player->toggleStateOff(CreatureState_Dizzy);
-							gMessageLib->sendStateUpdate(player);
+							// player->toggleStateOff(CreatureState_Dizzy);
+							// gMessageLib->sendStateUpdate(player);
 
-							player->toggleStateOff(CreatureState_Blinded);
-							gMessageLib->sendStateUpdate(player);
+							// player->toggleStateOff(CreatureState_Blinded);
+							// gMessageLib->sendStateUpdate(player);
 
-							player->toggleStateOff(CreatureState_Stunned);
-							gMessageLib->sendStateUpdate(player);
+							// player->toggleStateOff(CreatureState_Stunned);
+							// gMessageLib->sendStateUpdate(player);
 
-							player->toggleStateOff(CreatureState_Intimidated);
-							gMessageLib->sendStateUpdate(player);
+							// player->toggleStateOff(CreatureState_Intimidated);
+							// gMessageLib->sendStateUpdate(player);
 
-							player->setPosture(CreaturePosture_Upright);
-							gMessageLib->sendPostureUpdate(player);
-							gMessageLib->sendSelfPostureUpdate(player);
+							// player->setPosture(CreaturePosture_Upright);
+							// gMessageLib->sendPostureUpdate(player);
+							// gMessageLib->sendSelfPostureUpdate(player);
 
-							gMessageLib->sendSystemMessage(player,L"All states cleared - dirty hack - will fix later");
+							// gMessageLib->sendSystemMessage(player,L"All states cleared - dirty hack - will fix later");
 
 							//END OF DIRTY COMBAT STATE HACK
 					}
@@ -184,23 +184,23 @@ void ObjectController::_handleEndDuel(uint64 targetId,Message* message,ObjectCon
 							//At some point negative states should be handled either by the buff manager as short duration buffs or via a new manager for debuffs
 
 							//not in combat clear all temp combat states from target player
-							targetPlayer->toggleStateOff(CreatureState_Dizzy);
-							gMessageLib->sendStateUpdate(targetPlayer);
+							// targetPlayer->toggleStateOff(CreatureState_Dizzy);
+							// gMessageLib->sendStateUpdate(targetPlayer);
 
-							targetPlayer->toggleStateOff(CreatureState_Blinded);
-							gMessageLib->sendStateUpdate(targetPlayer);
+							// targetPlayer->toggleStateOff(CreatureState_Blinded);
+							// gMessageLib->sendStateUpdate(targetPlayer);
 
-							targetPlayer->toggleStateOff(CreatureState_Stunned);
-							gMessageLib->sendStateUpdate(targetPlayer);
+							// targetPlayer->toggleStateOff(CreatureState_Stunned);
+							// gMessageLib->sendStateUpdate(targetPlayer);
 
-							targetPlayer->toggleStateOff(CreatureState_Intimidated);
-							gMessageLib->sendStateUpdate(targetPlayer);
+							// targetPlayer->toggleStateOff(CreatureState_Intimidated);
+							// gMessageLib->sendStateUpdate(targetPlayer);
 
-							targetPlayer->setPosture(CreaturePosture_Upright);
-							gMessageLib->sendPostureUpdate(targetPlayer);
-							gMessageLib->sendSelfPostureUpdate(targetPlayer);
+							// targetPlayer->setPosture(CreaturePosture_Upright);
+							// gMessageLib->sendPostureUpdate(targetPlayer);
+							// gMessageLib->sendSelfPostureUpdate(targetPlayer);
 
-							gMessageLib->sendSystemMessage(targetPlayer,L"All states cleared - dirty hack - will fix later");
+							// gMessageLib->sendSystemMessage(targetPlayer,L"All states cleared - dirty hack - will fix later");
 							//END OF DIRTY COMBAT STATE HACK
 
 					}

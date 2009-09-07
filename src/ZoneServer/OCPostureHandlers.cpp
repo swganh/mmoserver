@@ -41,6 +41,8 @@ void ObjectController::_handleSitServer(uint64 targetId,Message* message,ObjectC
 	uint64			chairCell		= 0;
 	uint32			elementCount	= 0;
 
+	// gLogger->logMsg("ObjectController::_handleSitServer: Entering");
+
 	if(playerObject->isConnected())
 		gMessageLib->sendHeartBeat(playerObject->getClient());
 
@@ -164,6 +166,8 @@ void ObjectController::_handleSitServer(uint64 targetId,Message* message,ObjectC
 
 void ObjectController::_handleStand(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
+	// gLogger->logMsg("ObjectController::_handleStand: Entering");
+
 	// FIXME: for now assume only players send chat
 	PlayerObject*	playerObject = dynamic_cast<PlayerObject*>(mObject);
 
@@ -178,7 +182,10 @@ void ObjectController::_handleStand(uint64 targetId,Message* message,ObjectContr
 	}
 
 	//Get whether player is seated on a chair before we toggle it
-	bool IsSeatedOnChair = (playerObject->getState() == CreatureState_SittingOnChair);
+
+	// Can not compare bitwise data with equality... the test below will only work if ALL other states = 0.
+	// bool IsSeatedOnChair = (playerObject->getState() == CreatureState_SittingOnChair);
+	bool IsSeatedOnChair = playerObject->checkState(CreatureState_SittingOnChair);
 
 	// reset sitonchair state
 	playerObject->toggleStateOff(CreatureState_SittingOnChair);
@@ -216,8 +223,12 @@ void ObjectController::_handleProne(uint64 targetId,Message* message,ObjectContr
 		playerObject->setSamplingState(false);
 	}
 
+
 	//Get whether player is seated on a chair before we toggle it
-	bool IsSeatedOnChair = (playerObject->getState() == CreatureState_SittingOnChair);
+
+	// Can not compare bitwise data with equality... the test below will only work if ALL other states = 0.
+	// bool IsSeatedOnChair = (playerObject->getState() == CreatureState_SittingOnChair);
+	bool IsSeatedOnChair = playerObject->checkState(CreatureState_SittingOnChair);
 
 	playerObject->setPosture(CreaturePosture_Prone);
 	playerObject->getHam()->updateRegenRates();
@@ -248,7 +259,9 @@ void ObjectController::_handleKneel(uint64 targetId,Message* message,ObjectContr
 		gMessageLib->sendHeartBeat(playerObject->getClient());
 
 	//Get whether player is seated on a chair before we toggle it
-	bool IsSeatedOnChair = (playerObject->getState() == CreatureState_SittingOnChair);
+	// Can not compare bitwise data with equality... the test below will only work if ALL other states = 0.
+	// bool IsSeatedOnChair = (playerObject->getState() == CreatureState_SittingOnChair);
+	bool IsSeatedOnChair = playerObject->checkState(CreatureState_SittingOnChair);
 
 	playerObject->setPosture(CreaturePosture_Crouched);
 	playerObject->getHam()->updateRegenRates();

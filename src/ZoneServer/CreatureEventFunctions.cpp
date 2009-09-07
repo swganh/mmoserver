@@ -42,7 +42,10 @@ void CreatureObject::onIncapRecovery(const IncapRecoveryEvent* event)
 
 		// reset ham regeneration
 		mHam.updateRegenRates();
-		mHam.setTaskId(gWorldManager->addCreatureHamToProccess(&mHam));
+		if (mHam.getTaskId() == 0)
+		{
+			mHam.setTaskId(gWorldManager->addCreatureHamToProccess(&mHam));
+		}
 
 		updateMovementProperties();
 

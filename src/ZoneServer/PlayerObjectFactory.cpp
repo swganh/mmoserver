@@ -551,20 +551,47 @@ PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
 	
 	// just making sure
 	playerObject->togglePlayerFlagOff(PlayerFlag_LinkDead);
+	
+	// A note by Eruptor: Do we really want to clear combat states here, like Dizzy etc...
+	// 
+	/*
 	playerObject->toggleStateOff(CreatureState_Crafting);
 	playerObject->toggleStateOff(CreatureState_Combat);
 	playerObject->toggleStateOff(CreatureState_Dizzy);
 	playerObject->toggleStateOff(CreatureState_Stunned);
 	playerObject->toggleStateOff(CreatureState_Blinded);
 	playerObject->toggleStateOff(CreatureState_Intimidated);
+	*/
 
 	// logging in dead or incapped, shouldn't happen. (player is moved to cloning facility when disconnecting in those states
+	
+	// gLogger->logMsgF("PlayerObjectFactory::_createPlayer Posture = %u",MSG_NORMAL, playerObject->getPosture());
+	// gLogger->logMsgF("PlayerObjectFactory::_createPlayer State = %llu",MSG_NORMAL, playerObject->getState());
+
 	if(playerObject->getPosture() == CreaturePosture_SkillAnimating
 	|| playerObject->getPosture() == CreaturePosture_Incapacitated
 	|| playerObject->getPosture() == CreaturePosture_Dead)
 	{
 		playerObject->setPosture(CreaturePosture_Upright);
 	}
+
+	// We also have quite a lot of state possibilities that we should not let our character have at startup.
+	// We may have to take ceratin actions on these, and then this is not the best placce to do the validation etc...
+	playerObject->toggleStateOff((CreatureState)(CreatureState_Cover | 
+								 CreatureState_Combat | 
+								 CreatureState_Aiming |
+								 CreatureState_Berserk |
+								 CreatureState_FeignDeath | 
+								 CreatureState_CombatAttitudeEvasive | 
+								 CreatureState_CombatAttitudeNormal |
+								 CreatureState_CombatAttitudeAggressive |
+								 CreatureState_Swimming |
+								 CreatureState_Crafting |
+								 CreatureState_RidingMount |
+								 CreatureState_MountedCreature));
+
+	playerObject->mHam.updateRegenRates();
+	playerObject->mHam.checkForRegen();
 
 	// setup controller validators 
 	playerObject->mObjectController.initEnqueueValidators();

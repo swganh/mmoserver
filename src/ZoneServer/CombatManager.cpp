@@ -153,10 +153,24 @@ bool CombatManager::_verifyCombatState(CreatureObject* attacker, uint64 defender
 	PlayerObject* playerAttacker = dynamic_cast<PlayerObject*>(attacker);
 	CreatureObject* defender = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(defenderId));
 
+	if (!defender)
+	{
+		// No such object.
+		return(false);
+	}
+
 	// If the target (defender) is already on our list, we should not bother.
 	if (attacker->checkDefenderList(defender->getId()))
 	{
-		return(true);
+		// Do not try to attack already incapped or dead objects.
+		if (defender->isIncapacitated() || defender->isDead())
+		{
+			return false;
+		}
+		else
+		{
+			return true;
+		}
 	}
 
 	// make sure we got both objects

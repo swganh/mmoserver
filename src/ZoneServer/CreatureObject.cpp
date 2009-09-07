@@ -618,6 +618,8 @@ void CreatureObject::incap()
 
 	if (this->getType() == ObjType_Player)
 	{
+		// gLogger->logMsgF("Player incapped, mIncapCount = %u.", MSG_NORMAL, mIncapCount);
+
 		// first incap, update the initial time
 		uint64 localTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
 		if(!mIncapCount)
@@ -627,26 +629,39 @@ void CreatureObject::incap()
 		// reset the counter if the reset time has passed
 		else if(mIncapCount != 0 && (localTime - mFirstIncapTime) >= gWorldConfig->getIncapResetTime() * 1000)
 		{
+			// gLogger->logMsgF("Time since first incap = %lld", MSG_NORMAL, localTime - mFirstIncapTime);
+			// gLogger->logMsgF("Resetting mFirstIncapTime", MSG_NORMAL);
+
 			mIncapCount = 0;
 			mFirstIncapTime = localTime;
 		}
+		/*
+		if (mIncapCount != 0)
+		{
+			gLogger->logMsgF("Time since first incap = %lld", MSG_NORMAL, localTime - mFirstIncapTime);
+		}
+		*/
 
 		// advance incaps counter
 		if(++mIncapCount < gWorldConfig->getConfiguration("Player_Incapacitation",3))
 		{
+			// gLogger->logMsgF("Player incapped, mIncapCount set to = %u, setting timer..", MSG_NORMAL, mIncapCount);
+
+			// update the posture
+			mPosture = CreaturePosture_Incapacitated;
+
 			// send timer updates
 			mCurrentIncapTime = gWorldConfig->getBaseIncapTime() * 1000;
 			gMessageLib->sendIncapTimerUpdate(this);
 
 			// schedule recovery event
 			mObjectController.addEvent(new IncapRecoveryEvent(),mCurrentIncapTime);
-
-			// update the posture
-			mPosture = CreaturePosture_Incapacitated;
-
+		
+			// Wan't to know what states the player had when he disconnected.
+			// Any issues with initial states should be solved at startup. 
 			// reset states
-			mState = 0;
-
+			// mState = 0;
+			
 			// reset ham regeneration
 			mHam.updateRegenRates();
 			gWorldManager->removeCreatureHamToProcess(mHam.getTaskId());
@@ -665,6 +680,7 @@ void CreatureObject::incap()
 		// we hit the max -> death
 		else
 		{
+			// gLogger->logMsgF("Player died.", MSG_NORMAL);
 			die();
 		}
 	}

@@ -1,5 +1,5 @@
 @echo off
-SETLOCAL
+SETLOCAL EnableDelayedExpansion
 
 rem msvc_build.cmd
 rem
@@ -64,7 +64,7 @@ rem --- Start of SET_DEFAULTS --------------------------------------------------
 
 set DEPENDENCIES_VERSION=1443
 set DEPENDENCIES_FILE=swganh-deps-%DEPENDENCIES_VERSION%.zip
-set DEPENDENCIES_URL=http://swganh.com/!!deps!!/%DEPENDENCIES_FILE%
+set DEPENDENCIES_URL=http://swganh.com/^^!^^!deps^^!^^!/%DEPENDENCIES_FILE%
 set "PROJECT_BASE=%~dp0"
 set BUILD_TYPE=debug
 set MSVC_VERSION=vc9
@@ -200,9 +200,9 @@ rem --- Start of BUILD_ENVIRONMENT_FOR_vc9 -------------------------------------
 :BUILD_ENVIRONMENT_FOR_vc9
 
 set "VS_BASE_DIR=%PROGRAMFILES(X86)%\Microsoft Visual Studio 9.0"
-if not exist "%VS_BASE_DIR%" (
+if not exist "!VS_BASE_DIR!" (
 	  set "VS_BASE_DIR=%PROGRAMFILES%\Microsoft Visual Studio 9.0"
-	  if not exist "%VS_BASE_DIR%" (          
+	  if not exist "!VS_BASE_DIR!" (          
 		    rem TODO: Allow user to enter a path to their base visual Studio directory.
        
   	    echo ***** Microsoft Visual Studio 9.0 required *****
@@ -274,7 +274,7 @@ rem --- Downloads the dependency package for the current version of the source -
 cd "%PROJECT_BASE%"
 
 if not exist "%PROJECT_BASE%\%DEPENDENCIES_FILE%" (
-    "%PROJECT_BASE%\tools\wget.exe" %DEPENDENCIES_URL% -O "%PROJECT_BASE%\%DEPENDENCIES_FILE%"
+    "%PROJECT_BASE%\tools\wget.exe" !DEPENDENCIES_URL! -O "%PROJECT_BASE%\%DEPENDENCIES_FILE%"
 )
 
 if exist "%PROJECT_BASE%\%DEPENDENCIES_FILE%" (
@@ -286,7 +286,7 @@ if exist "%PROJECT_BASE%\%DEPENDENCIES_FILE%" (
 )
                                                       
 goto :eof
-rem --- End of DOWNLOAD_DEPENDENCIES ----------------------------------------------
+rem --- End of DOWNLOAD_DEPENDENCIES -------------------------------------------
 rem ----------------------------------------------------------------------------
 
 rem ----------------------------------------------------------------------------

@@ -160,6 +160,7 @@ void CharacterLoginHandler::handleDispatchMessage(uint32 opcode, Message* messag
 
 			//playerObject->toggleStateOff(CreatureState_Crafting);
 			// resend our objects
+			playerObject->destroyKnownObjects();
 			gWorldManager->initObjectsInRange(playerObject);
 			gMessageLib->sendCreatePlayer(playerObject,playerObject);
 			gMessageLib->sendUpdatePlayerFlags(playerObject);

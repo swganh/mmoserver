@@ -44,7 +44,6 @@ bool			WorldManager::mInsFlag    = false;
 WorldManager*	WorldManager::mSingleton  = NULL;
 bool			Heightmap::mInsFlag		  = false;
 Heightmap*      Heightmap::mSingleton	  = NULL;
-
 //======================================================================================================================
 
 WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* database) :
@@ -2283,9 +2282,18 @@ void WorldManager::addObject(Object* object,bool manual)
 		}
 		break;
 
+		case ObjType_Intangible:
+		{
+			gLogger->logMsgF("Object of type ObjType_Intangible UNHANDLED in WorldManager::addObject: %ld",MSG_HIGH);
+		}
+		break;
+
 		default:
 		{
 			gLogger->logMsgF("Unhandled ObjectType in WorldManager::addObject: %ld",MSG_HIGH,object->getType());
+			// Please, when adding new stufff, at least take the time to add a stub for that type.
+			// Better fail always, than have random crashes.
+			assert(false);
 		}
 		break;
 	}
@@ -2676,9 +2684,22 @@ void WorldManager::destroyObject(Object* object)
 		}
 		break;
 
+		case ObjType_Intangible:
+		{
+			gLogger->logMsgF("Object of type ObjType_Intangible almost UNHANDLED in WorldManager::destroyObject: %ld",MSG_HIGH);
+
+			// destroy known objects
+			object->destroyKnownObjects();	
+		}
+		break;
+
 		default:
 		{
 			gLogger->logMsgF("Unhandled ObjectType in WorldManager::destroyObject: %I64u",MSG_HIGH,object->getType());
+
+			// Please, when adding new stufff, at least take the time to add a stub for that type.
+			// Better fail always, than have random crashes.
+			assert(false);
 		}
 		break;
 	}
@@ -3315,3 +3336,4 @@ const Anh_Math::Rectangle WorldManager::getSpawnArea(uint64 spawnRegionId)
 	}
 	return spawnArea;
 }
+

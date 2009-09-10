@@ -37,13 +37,13 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "AttackableCreature.h"
 #include "NpcManager.h"
 #include "GroupManager.h"
+#include "Heightmap.h"
+#include "CreatureSpawnRegion.h"
 
 //======================================================================================================================
 
 bool			WorldManager::mInsFlag    = false;
 WorldManager*	WorldManager::mSingleton  = NULL;
-bool			Heightmap::mInsFlag		  = false;
-Heightmap*      Heightmap::mSingleton	  = NULL;
 //======================================================================================================================
 
 WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* database) :
@@ -87,7 +87,7 @@ mWM_DB_AsyncPool(sizeof(WMAsyncContainer))
 	mShuttleList.reserve(50);
 
 	// load up subsystems
-	Heightmap::Init((zoneServer->getZoneName()).getRawData());
+
 	SkillManager::Init(database);
 	SchematicManager::Init(database);
 	ResourceManager::Init(database,mZoneId);
@@ -167,6 +167,9 @@ void WorldManager::Shutdown()
 		it = mCreatureSpawnRegionMap.erase(it);
 	}
 	mCreatureSpawnRegionMap.clear();
+
+	NpcManager::deleteManager();
+	Heightmap::deleter();
 
 	// finally delete them
 	mObjectMap.clear();
@@ -1913,6 +1916,28 @@ void WorldManager::_handleLoadComplete()
 	gSchematicManager->releaseAllPoolsMemory();
 	gSkillManager->releaseAllPoolsMemory();
 
+	if (!Heightmap::Instance())
+	{
+		assert(false);
+	}
+
+	// create a height-map cashe.
+	int16 resolution = 0;
+	if (gConfig->keyExists("heightMapResolution"))
+	{
+		resolution = gConfig->read<int>("heightMapResolution");
+	}
+	gLogger->logMsgF("WorldManager::_handleLoadComplete heightMapResolution = %d", MSG_NORMAL, resolution);
+
+	if (Heightmap::Instance()->setupCache(resolution))
+	{
+		gLogger->logMsgF("WorldManager::_handleLoadComplete heigthmap cache setup successfully with resolution %d", MSG_NORMAL, resolution);
+	}
+	else
+	{
+		gLogger->logMsgF("WorldManager::_handleLoadComplete heigthmap cache setup FAILED", MSG_NORMAL);
+	}
+
 	// register script hooks
 	_startWorldScripts();
 
@@ -2284,7 +2309,7 @@ void WorldManager::addObject(Object* object,bool manual)
 
 		case ObjType_Intangible:
 		{
-			gLogger->logMsgF("Object of type ObjType_Intangible UNHANDLED in WorldManager::addObject: %ld",MSG_HIGH);
+			gLogger->logMsgF("Object of type ObjType_Intangible UNHANDLED in WorldManager::addObject:",MSG_HIGH);
 		}
 		break;
 
@@ -2686,7 +2711,7 @@ void WorldManager::destroyObject(Object* object)
 
 		case ObjType_Intangible:
 		{
-			gLogger->logMsgF("Object of type ObjType_Intangible almost UNHANDLED in WorldManager::destroyObject: %ld",MSG_HIGH);
+			gLogger->logMsgF("Object of type ObjType_Intangible almost UNHANDLED in WorldManager::destroyObject:",MSG_HIGH);
 
 			// destroy known objects
 			object->destroyKnownObjects();	

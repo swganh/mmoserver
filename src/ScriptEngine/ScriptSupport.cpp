@@ -15,7 +15,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "ZoneServer/NonPersistentItemFactory.h"
 #include "ZoneServer/WorldConfig.h"
 #include "ZoneServer/NpcManager.h"
-// #include "ZoneServer/SpawnData.h"
+#include "ZoneServer/Heightmap.h"
 #include "ZoneServer/LairObject.h"
 #include "ZoneServer/AttackableCreature.h"
 
@@ -189,7 +189,7 @@ void ScriptSupport::npcSpawnPersistent(NPCObject* npc, uint64 npcId, uint64 cell
 	// gLogger->logMsgF("ScriptSupport::npcSpawnPersistent: Added NPC with ID = %llu with template = %llu", MSG_NORMAL, npcId, templateId);
 
 	// Do not allow any spwans if not heightmap avaliable.
-	if (Heightmap::getSingletonPtr()->Open())
+	if (Heightmap::Instance()->Open())
 	{
 		// Test
 		// respawnPeriod = 15000;

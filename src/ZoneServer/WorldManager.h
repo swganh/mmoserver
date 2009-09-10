@@ -28,7 +28,6 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "MessageLib/MessageLib.h"
 #include "ZoneServer.h"
 #include "WorldManagerEnums.h"
-#include "Heightmap.h"
 #include "RegionObject.h"
 #include "Weather.h"
 #include "Utils/Scheduler.h"
@@ -40,7 +39,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "MissionObject.h"
 #include "GroupObject.h"
 #include "CharacterLoginHandler.h"
-#include "CreatureSpawnRegion.h"
+
 
 //#include "BuffManager.h"
 //======================================================================================================================
@@ -53,6 +52,7 @@ class Anh_Utils::Clock;
 class WMAsyncContainer;
 class Script;
 class NPCObject;
+class CreatureSpawnRegion;
 
 // pwns all objects
 typedef boost::ptr_map<uint64,Object>			ObjectMap;

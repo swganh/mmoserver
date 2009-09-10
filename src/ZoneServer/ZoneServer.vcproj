@@ -539,6 +539,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Heightmap.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Stackwalker.cpp"
 				>
 			</File>
@@ -1669,6 +1673,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Heightmap.h"
+				>
+			</File>
+			<File
 				RelativePath=".\WorldManager.h"
 				>
 			</File>
@@ -2024,10 +2032,6 @@
 		<Filter
 			Name="WorldSubsystems"
 			>
-			<File
-				RelativePath=".\Heightmap.h"
-				>
-			</File>
 			<File
 				RelativePath=".\Weather.h"
 				>

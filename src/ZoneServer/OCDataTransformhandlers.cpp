@@ -25,11 +25,13 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "NPCObject.h"
 #include "ZoneServer/Tutorial.h"
 #include "Vehicle.h"
+#include "Heightmap.h"
 
 //=============================================================================
 //
 // position update in world
 //
+
 void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 {
 	PlayerObject*			player = dynamic_cast<PlayerObject*>(mObject);
@@ -86,7 +88,14 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 	pos.mZ = message->getFloat();
 	speed  = message->getFloat();
 
-	// gLogger->logMsgF("Position outside = %f, %f, %f",MSG_NORMAL, pos.mX,  pos.mY, pos.mZ);
+	// gLogger->logMsgF("Position outside = %.2f, %.2f, %.2f",MSG_NORMAL, pos.mX,  pos.mY, pos.mZ);
+	/*
+	if (Heightmap::isHeightmapCacheAvaliable())
+	{
+	gLogger->logMsgF("Heightmap value = %.2f",MSG_NORMAL, Heightmap::Instance()->getCachedHeightAt2DPosition(pos.mX, pos.mZ));
+	}
+	*/
+
 	// gLogger->logMsgF("Direction = %f, %f, %f, %f",MSG_NORMAL, dir.mX, dir.mY, dir.mZ, dir.mW);
 
 	// stop entertaining, if we were

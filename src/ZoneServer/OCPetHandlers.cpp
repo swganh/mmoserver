@@ -33,16 +33,23 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 void ObjectController::_handleMount(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-
-	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
-	CreatureObject* pet		= dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(targetId));
-	
-	if(player->getMount())
+	// The very idea with using ID's instead of object refs are that you can TEST them without using the object itself.
+	// And some parameter validation...
+	if (targetId == 0)
 	{
-		if(!player->checkIfMounted())
+		return;
+	}
+
+	PlayerObject* player	= dynamic_cast<PlayerObject*>(mObject);
+
+	if (player && player->getMount() && (player->getParentId() == 0))
+	{
+		// Do we have a valid target?
+		if (!player->checkIfMounted())
 		{
 			// verify its player's mount
-			if(pet->getOwner() == player->getId())
+			CreatureObject* pet	= dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(targetId));
+			if (pet && (pet->getOwner() == player->getId()))
 			{
 				// get the mount Vehicle object by the id (Creature object id - 1 )
 				if(Vehicle* vehicle = dynamic_cast<Vehicle*>(gWorldManager->getObjectById(pet->getId() - 1)))
@@ -60,33 +67,41 @@ void ObjectController::_handleMount(uint64 targetId,Message* message,ObjectContr
 			gMessageLib->sendSystemMessage(player,L"You cannot mount this because you are already mounted.");
 		}
 	}
-
-	
 }
 
 //===============================================================================================
 
 void ObjectController::_handleDismount(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
+	// The very idea with using ID's instead of object refs are that you can TEST them without using the object itself.
+	// And some parameter validation...
 
 	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
-	CreatureObject* pet		= dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(targetId));
 
-	if(player->getMount())
+	if (player && player->getMount() && (player->getParentId() == 0))
 	{
-		if(player->checkIfMounted())
+		if (player->checkIfMounted())
 		{
 			// verify its player's mount
-			if(pet->getOwner() == player->getId())
+			CreatureObject* pet = NULL;
+			if (targetId == 0)
+			{
+				// No object targeted, assume the one we are riding.
+				pet	= player->getMount();
+			}
+			else
+			{
+				pet = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(targetId));
+			}
+
+			if (pet && (pet->getOwner() == player->getId()))
 			{
 				// get the mount Vehicle object by the id (Creature object id - 1 )
 				if(Vehicle* vehicle = dynamic_cast<Vehicle*>(gWorldManager->getObjectById(pet->getId() - 1)))
 				{
 					vehicle->dismountPlayer();
 				}
-				
 			}
-			 
 		}
 		else
 		{

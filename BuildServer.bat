@@ -45,6 +45,11 @@ if "%DBINSTALL%" == "true" (
     )
 )
 
+echo.
+echo Server Successfully Built^^!
+echo This window will close shortly.
+call :SLEEP 10
+
 goto :eof
 rem --- End of Main Execution -------------------------------------------------- 
 rem ----------------------------------------------------------------------------
@@ -940,5 +945,14 @@ start /w cmd /C "%PROJECT_BASE%\data\schema\install.bat"
 goto :eof
 rem --- End of INITIALIZE_DATABASE ---------------------------------------------
 rem ----------------------------------------------------------------------------
-
+               
+rem ----------------------------------------------------------------------------
+rem --- Start of SLEEP ---------------------------------------------------------
+rem --- Waits some seconds before returning.                                 ---     
+:SLEEP
+ping -n %1 -w 1 127.0.0.1>NUL
+goto :eof  
+rem --- End of SLEEP -----------------------------------------------------------
+rem ----------------------------------------------------------------------------
+               
 ENDLOCAL

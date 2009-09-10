@@ -1581,6 +1581,32 @@ void PlayerObject::clone(uint64 parentId,Anh_Math::Quaternion dir,Anh_Math::Vect
 			}
 		}
 	}
+
+	// Update defenders, if any,  NOW when I'm gone...
+	ObjectIDList::iterator defenderIt = mDefenders.begin();
+	while (defenderIt != mDefenders.end())
+	{
+		if (CreatureObject* defenderCreature = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById((*defenderIt))))
+		{
+			defenderCreature->removeDefenderAndUpdateList(this->getId());
+
+			if (PlayerObject* defenderPlayer = dynamic_cast<PlayerObject*>(defenderCreature))
+			{
+				gMessageLib->sendUpdatePvpStatus(this,defenderPlayer);
+				gMessageLib->sendDefenderUpdate(defenderPlayer,0,0,this->getId());
+			}
+
+			// if no more defenders, clear combat state
+			if (!defenderCreature->getDefenders()->size())
+			{
+				defenderCreature->toggleStateOff((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
+				gMessageLib->sendStateUpdate(defenderCreature);
+			}
+		}
+		// If we remove self from all defenders, then we should remove all defenders from self. Remember, we are dead.
+		defenderIt = mDefenders.erase(defenderIt);
+	}
+
 	gWorldManager->warpPlanet(this,pos,parentId,dir);
 
 

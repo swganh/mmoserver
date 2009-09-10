@@ -426,8 +426,8 @@ bool NpcManager::_verifyCombatState(CreatureObject* attacker, uint64 defenderId)
 				{
 					// gLogger->logMsgF("NPC updates combat state at self.", MSG_NORMAL);
 
-					attackerNpc->togglePvPStateOn((CreaturePvPStatus)(CreaturePvPStatus_Attackable + CreaturePvPStatus_Aggressive + CreaturePvPStatus_Enemy));
-					gMessageLib->sendUpdatePvpStatus(attackerNpc,defenderPlayer);
+					// attackerNpc->togglePvPStateOn((CreaturePvPStatus)(CreaturePvPStatus_Attackable + CreaturePvPStatus_Aggressive + CreaturePvPStatus_Enemy));
+					gMessageLib->sendUpdatePvpStatus(attackerNpc,defenderPlayer, attackerNpc->getPvPStatus() + CreaturePvPStatus_Attackable + CreaturePvPStatus_Aggressive + CreaturePvPStatus_Enemy);
 
 					// Update player and all his group mates currently in range.
 					/*
@@ -453,8 +453,8 @@ bool NpcManager::_verifyCombatState(CreatureObject* attacker, uint64 defenderId)
 				// put our target in combat state
 				// if (!defenderPlayer->checkState((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal)))
 				{
-					defenderPlayer->togglePvPStateOn((CreaturePvPStatus)(CreaturePvPStatus_Attackable + CreaturePvPStatus_Aggressive + CreaturePvPStatus_Enemy));
-					gMessageLib->sendUpdatePvpStatus(defenderPlayer,defenderPlayer);
+					// defenderPlayer->togglePvPStateOn((CreaturePvPStatus)(CreaturePvPStatus_Attackable + CreaturePvPStatus_Aggressive + CreaturePvPStatus_Enemy));
+					gMessageLib->sendUpdatePvpStatus(defenderPlayer,defenderPlayer, defenderPlayer->getPvPStatus() + CreaturePvPStatus_Attackable + CreaturePvPStatus_Aggressive + CreaturePvPStatus_Enemy);
 
 					defenderPlayer->toggleStateOn((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
 					gMessageLib->sendStateUpdate(defenderPlayer);

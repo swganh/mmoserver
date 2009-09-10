@@ -380,8 +380,9 @@ bool AttackableCreature::setTargetInAttackRange(void)
 			}
 			else
 			{
-				// Handle incapped targets, for now we remove any aggro to them.
+				// Handle incapped and dead targets, for now we remove any aggro to them.
 				this->updateAggro((*it)->getId(), (*it)->getGroupId(), (*it)->getPosture());
+
 
 				// Let's this player rebuild is aggro before we attack him again.
 				if (this->mLairNeedAsssistanceWithId == (*it)->getId())
@@ -729,16 +730,16 @@ uint64 AttackableCreature::getDefenderOutOfAggroRange(void)
 		if (CreatureObject* defenderCreature = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById((*defenderIt))))
 		{
 			// if (!defenderCreature->isIncapacitated() && !defenderCreature->isDead())
-			if (!defenderCreature->isDead())
+			//if (!defenderCreature->isDead())
+			//{
+			if (defenderCreature->isIncapacitated() || defenderCreature->isDead() ||
+			   (!gWorldManager->objectsInRange(this->getId(), defenderCreature->getId(), this->getMaxAggroRange())))
 			{
-				if (defenderCreature->isIncapacitated() || 
-				   (!gWorldManager->objectsInRange(this->getId(), defenderCreature->getId(), this->getMaxAggroRange())))
-				{
-					// gLogger->logMsgF("AttackableCreature::getDefenderOutOfAggroRange()", MSG_NORMAL);
-					targetOutOfRange = defenderCreature->getId();
-					break;
-				}
+				// gLogger->logMsgF("AttackableCreature::getDefenderOutOfAggroRange()", MSG_NORMAL);
+				targetOutOfRange = defenderCreature->getId();
+				break;
 			}
+			// }
 		}
 		++defenderIt;
 	}

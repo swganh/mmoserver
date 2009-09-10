@@ -248,8 +248,8 @@ bool CombatManager::_verifyCombatState(CreatureObject* attacker, uint64 defender
 			// put us in combat state
 			// if (!playerAttacker->checkState((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal)))
 			{
-				playerAttacker->togglePvPStateOn((CreaturePvPStatus)(CreaturePvPStatus_Attackable + CreaturePvPStatus_Aggressive + CreaturePvPStatus_Enemy));
-				gMessageLib->sendUpdatePvpStatus(playerAttacker,playerAttacker);
+				// playerAttacker->togglePvPStateOn((CreaturePvPStatus)(CreaturePvPStatus_Attackable + CreaturePvPStatus_Aggressive + CreaturePvPStatus_Enemy));
+				gMessageLib->sendUpdatePvpStatus(playerAttacker,playerAttacker, playerAttacker->getPvPStatus() + CreaturePvPStatus_Attackable + CreaturePvPStatus_Aggressive + CreaturePvPStatus_Enemy);
 
 				playerAttacker->toggleStateOn((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
 				gMessageLib->sendStateUpdate(playerAttacker);
@@ -267,8 +267,8 @@ bool CombatManager::_verifyCombatState(CreatureObject* attacker, uint64 defender
 				gWorldManager->forceHandlingOfReadyNpc(defender->getId());
 			}
 
-			defender->togglePvPStateOn((CreaturePvPStatus)(CreaturePvPStatus_Attackable + CreaturePvPStatus_Aggressive + CreaturePvPStatus_Enemy));
-			gMessageLib->sendUpdatePvpStatus(defender, playerAttacker);
+			// defender->togglePvPStateOn((CreaturePvPStatus)(CreaturePvPStatus_Attackable + CreaturePvPStatus_Aggressive + CreaturePvPStatus_Enemy));
+			gMessageLib->sendUpdatePvpStatus(defender, playerAttacker, defender->getPvPStatus() + CreaturePvPStatus_Attackable + CreaturePvPStatus_Aggressive + CreaturePvPStatus_Enemy);
 
 			defender->toggleStateOn((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
 			gMessageLib->sendStateUpdate(defender);

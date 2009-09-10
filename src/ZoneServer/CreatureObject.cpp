@@ -657,10 +657,8 @@ void CreatureObject::incap()
 			// schedule recovery event
 			mObjectController.addEvent(new IncapRecoveryEvent(),mCurrentIncapTime);
 		
-			// Wan't to know what states the player had when he disconnected.
-			// Any issues with initial states should be solved at startup. 
 			// reset states
-			// mState = 0;
+			mState = 0;
 			
 			// reset ham regeneration
 			mHam.updateRegenRates();
@@ -750,6 +748,10 @@ void CreatureObject::die()
 		}
 
 		// update defender lists
+
+		// Actually, remove defenders when we clone or get revived. 
+		// Reason: Other objects like Players or Creatures need to ake care of some housekeeping.
+		/*
 		ObjectIDList::iterator defenderIt = mDefenders.begin();
 		while (defenderIt != mDefenders.end())
 		{
@@ -766,13 +768,14 @@ void CreatureObject::die()
 				// if no more defenders, clear combat state
 				if (!defenderCreature->getDefenders()->size())
 				{
-					defenderCreature->toggleStateOff(CreatureState_Combat);
+					defenderCreature->toggleStateOff((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
 					gMessageLib->sendStateUpdate(defenderCreature);
 				}
 			}
 			// If we remove self from all defenders, then we should remove all defenders from self. Remember, we are dead.
 			defenderIt = mDefenders.erase(defenderIt);
 		}
+		*/
 
 		// bring up the clone selection window
 		ObjectSet inRangeBuildings;
@@ -1139,7 +1142,11 @@ void CreatureObject::makePeaceWithDefender(uint64 defenderId)
 
 	if (defenderPlayer)
 	{
-		// gLogger->logMsgF("Defender is a Player", MSG_NORMAL);
+		if (attackerPlayer)
+		{
+			// Players do not make peace with other players. 
+			return;
+		}
 	}
 	else if (defenderCreature)
 	{
@@ -1151,18 +1158,7 @@ void CreatureObject::makePeaceWithDefender(uint64 defenderId)
 		return;
 	}
 	
-
-	// if (defenderCreature) // covered by the above assert( ).. or not, we need to be able to handle objects that go out of scope.
-	// {
-		// (void)this->removeDefender(defenderCreature);
-	// }
-	
 	// Remove defender from my list.
-	// THIS is not correct. need to know WHAT object to remove, it is not always the "first" (the 0).
-	// gMessageLib->sendDefenderUpdate(this,0,0,defenderId);
-	// gMessageLib->sendDefenderUpdate(this,0,0);
-	
-	// Let's fix this issue. Get the the index of my defender. How hard can it be?
 	if (defenderCreature)
 	{
 		this->removeDefenderAndUpdateList(defenderCreature->getId());
@@ -1173,10 +1169,10 @@ void CreatureObject::makePeaceWithDefender(uint64 defenderId)
 		// I have no more defenders.
 		// gLogger->logMsgF("Attacker: My last defender", MSG_NORMAL);
 		
-		this->togglePvPStateOff((CreaturePvPStatus)(CreaturePvPStatus_Aggressive + CreaturePvPStatus_Enemy));
+		// this->togglePvPStateOff((CreaturePvPStatus)(CreaturePvPStatus_Aggressive + CreaturePvPStatus_Enemy));
 		if (attackerPlayer)
 		{
-			this->togglePvPStateOff(CreaturePvPStatus_Attackable);
+			// this->togglePvPStateOff(CreaturePvPStatus_Attackable);
 			gMessageLib->sendUpdatePvpStatus(this,attackerPlayer);	// Use current pvpStatus.
 		}
 		else
@@ -1206,25 +1202,18 @@ void CreatureObject::makePeaceWithDefender(uint64 defenderId)
 
 	if (defenderCreature)
 	{
-		// defenderCreature->removeDefender(this);
-
 		// Remove us from defenders list.
-		// THIS is not correct. need to know WHAT object to remove, it is not always the "first" (the 0).
-		// gMessageLib->sendDefenderUpdate(defenderCreature,0,0,this->getId());
-
-		// Let's fix this issue. Get the the index of my defender. How hard can it be?
 		defenderCreature->removeDefenderAndUpdateList(this->getId());
 		
-		// gMessageLib->sendDefenderUpdate(defenderCreature,0,0);
 		if (defenderCreature->getDefenders()->size() == 0)
 		{
 			// He have no more defenders.
 			// gLogger->logMsgF("Defender: My last defender", MSG_NORMAL);
 			
-			defenderCreature->togglePvPStateOff((CreaturePvPStatus)(CreaturePvPStatus_Aggressive + CreaturePvPStatus_Enemy));
+			// defenderCreature->togglePvPStateOff((CreaturePvPStatus)(CreaturePvPStatus_Aggressive + CreaturePvPStatus_Enemy));
 			if (defenderPlayer)
 			{
-				defenderCreature->togglePvPStateOff(CreaturePvPStatus_Attackable);
+				// defenderCreature->togglePvPStateOff(CreaturePvPStatus_Attackable);
 				gMessageLib->sendUpdatePvpStatus(defenderCreature,defenderPlayer);
 			}
 			else

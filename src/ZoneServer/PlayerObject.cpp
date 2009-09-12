@@ -1583,6 +1583,7 @@ void PlayerObject::clone(uint64 parentId,Anh_Math::Quaternion dir,Anh_Math::Vect
 	}
 
 	// Update defenders, if any,  NOW when I'm gone...
+	/* 
 	ObjectIDList::iterator defenderIt = mDefenders.begin();
 	while (defenderIt != mDefenders.end())
 	{
@@ -1606,7 +1607,7 @@ void PlayerObject::clone(uint64 parentId,Anh_Math::Quaternion dir,Anh_Math::Vect
 		// If we remove self from all defenders, then we should remove all defenders from self. Remember, we are dead.
 		defenderIt = mDefenders.erase(defenderIt);
 	}
-
+	*/
 	gWorldManager->warpPlanet(this,pos,parentId,dir);
 
 

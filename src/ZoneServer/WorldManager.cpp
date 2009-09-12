@@ -2720,7 +2720,7 @@ void WorldManager::destroyObject(Object* object)
 
 		default:
 		{
-			gLogger->logMsgF("Unhandled ObjectType in WorldManager::destroyObject: %I64u",MSG_HIGH,object->getType());
+			gLogger->logMsgF("Unhandled ObjectType in WorldManager::destroyObject: %u",MSG_HIGH,(uint32)(object->getType()));
 
 			// Please, when adding new stufff, at least take the time to add a stub for that type.
 			// Better fail always, than have random crashes.

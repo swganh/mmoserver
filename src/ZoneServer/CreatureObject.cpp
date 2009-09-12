@@ -748,10 +748,6 @@ void CreatureObject::die()
 		}
 
 		// update defender lists
-
-		// Actually, remove defenders when we clone or get revived. 
-		// Reason: Other objects like Players or Creatures need to ake care of some housekeeping.
-		/*
 		ObjectIDList::iterator defenderIt = mDefenders.begin();
 		while (defenderIt != mDefenders.end())
 		{
@@ -765,6 +761,9 @@ void CreatureObject::die()
 					gMessageLib->sendDefenderUpdate(defenderPlayer,0,0,this->getId());
 				}
 
+				// Defender not hostile to me any more.
+				gMessageLib->sendUpdatePvpStatus(defenderCreature, player);
+
 				// if no more defenders, clear combat state
 				if (!defenderCreature->getDefenders()->size())
 				{
@@ -775,7 +774,6 @@ void CreatureObject::die()
 			// If we remove self from all defenders, then we should remove all defenders from self. Remember, we are dead.
 			defenderIt = mDefenders.erase(defenderIt);
 		}
-		*/
 
 		// bring up the clone selection window
 		ObjectSet inRangeBuildings;
@@ -1129,7 +1127,11 @@ void CreatureObject::makePeaceWithDefender(uint64 defenderId)
 
 	CreatureObject* defenderCreature = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(defenderId));
 	// assert(defenderCreature)
-	PlayerObject* defenderPlayer = dynamic_cast<PlayerObject*>(defenderCreature);
+	PlayerObject* defenderPlayer = NULL;
+	if (defenderCreature)
+	{
+		defenderPlayer = dynamic_cast<PlayerObject*>(defenderCreature);
+	}
 
 	if (attackerPlayer)
 	{
@@ -1163,17 +1165,21 @@ void CreatureObject::makePeaceWithDefender(uint64 defenderId)
 	{
 		this->removeDefenderAndUpdateList(defenderCreature->getId());
 	}
+	
+	if (defenderPlayer)
+	{
+		// Update defender about attacker pvp status.
+		gMessageLib->sendUpdatePvpStatus(this, defenderPlayer);
+	}
 
 	if (this->getDefenders()->size() == 0)
 	{
 		// I have no more defenders.
 		// gLogger->logMsgF("Attacker: My last defender", MSG_NORMAL);
-		
-		// this->togglePvPStateOff((CreaturePvPStatus)(CreaturePvPStatus_Aggressive + CreaturePvPStatus_Enemy));
 		if (attackerPlayer)
 		{
-			// this->togglePvPStateOff(CreaturePvPStatus_Attackable);
-			gMessageLib->sendUpdatePvpStatus(this,attackerPlayer);	// Use current pvpStatus.
+			// Update player (my self) with the new status.
+			gMessageLib->sendUpdatePvpStatus(this,attackerPlayer);
 		}
 		else
 		{
@@ -1181,13 +1187,6 @@ void CreatureObject::makePeaceWithDefender(uint64 defenderId)
 			// Inform npc about this event.
 			this->inPeace();
 		}
-
-		if (defenderPlayer)
-		{
-			// Update defender about attacker pvp status.
-			gMessageLib->sendUpdatePvpStatus(this,defenderPlayer);
-		}
-
 		this->toggleStateOff((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
 		gMessageLib->sendStateUpdate(this);
 	}
@@ -1199,21 +1198,24 @@ void CreatureObject::makePeaceWithDefender(uint64 defenderId)
 	// gMessageLib->sendNewDefenderList(this);
 
 
-
 	if (defenderCreature)
 	{
 		// Remove us from defenders list.
 		defenderCreature->removeDefenderAndUpdateList(this->getId());
-		
+
+		if (attackerPlayer)
+		{
+			// Update attacker about defender pvp status.
+			gMessageLib->sendUpdatePvpStatus(defenderCreature, attackerPlayer);
+		}
+
 		if (defenderCreature->getDefenders()->size() == 0)
 		{
 			// He have no more defenders.
 			// gLogger->logMsgF("Defender: My last defender", MSG_NORMAL);
 			
-			// defenderCreature->togglePvPStateOff((CreaturePvPStatus)(CreaturePvPStatus_Aggressive + CreaturePvPStatus_Enemy));
 			if (defenderPlayer)
 			{
-				// defenderCreature->togglePvPStateOff(CreaturePvPStatus_Attackable);
 				gMessageLib->sendUpdatePvpStatus(defenderCreature,defenderPlayer);
 			}
 			else
@@ -1221,12 +1223,6 @@ void CreatureObject::makePeaceWithDefender(uint64 defenderId)
 				// We are a npc, and we have no more defenders (for whatever reason).
 				// Inform npc about this event.
 				defenderCreature->inPeace();
-			}
-
-			if (attackerPlayer)
-			{
-				// Update attacker about defender pvp status.
-				gMessageLib->sendUpdatePvpStatus(defenderCreature,attackerPlayer);
 			}
 			defenderCreature->toggleStateOff((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
 			gMessageLib->sendStateUpdate(defenderCreature);

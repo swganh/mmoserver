@@ -249,7 +249,7 @@ bool CombatManager::_verifyCombatState(CreatureObject* attacker, uint64 defender
 			// if (!playerAttacker->checkState((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal)))
 			{
 				// playerAttacker->togglePvPStateOn((CreaturePvPStatus)(CreaturePvPStatus_Attackable + CreaturePvPStatus_Aggressive + CreaturePvPStatus_Enemy));
-				gMessageLib->sendUpdatePvpStatus(playerAttacker,playerAttacker, playerAttacker->getPvPStatus() + CreaturePvPStatus_Attackable + CreaturePvPStatus_Aggressive + CreaturePvPStatus_Enemy);
+				gMessageLib->sendUpdatePvpStatus(playerAttacker,playerAttacker, playerAttacker->getPvPStatus() | CreaturePvPStatus_Attackable);
 
 				playerAttacker->toggleStateOn((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
 				gMessageLib->sendStateUpdate(playerAttacker);
@@ -259,7 +259,7 @@ bool CombatManager::_verifyCombatState(CreatureObject* attacker, uint64 defender
 			}
 
 			// put our target in combat state
-			if (!defender->checkState((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal)))
+			if (!defender->checkState((CreatureState_Combat)))
 			{
 				// Creature was NOT in combat before, and may very well be dormant.
 				// Wake him up.
@@ -267,8 +267,13 @@ bool CombatManager::_verifyCombatState(CreatureObject* attacker, uint64 defender
 				gWorldManager->forceHandlingOfReadyNpc(defender->getId());
 			}
 
+			// WTF
+			// gLogger->logMsgF("Creature (defender) PvpStatus = 0x%x", MSG_NORMAL, (uint32)defender->getPvPStatus());
+			// uint32 pvpStatus = defender->getPvPStatus() + CreaturePvPStatus_Attackable + CreaturePvPStatus_Enemy;
+			// gLogger->logMsgF("Sendind PvpStatus 0x%x", MSG_NORMAL, pvpStatus);
+
 			// defender->togglePvPStateOn((CreaturePvPStatus)(CreaturePvPStatus_Attackable + CreaturePvPStatus_Aggressive + CreaturePvPStatus_Enemy));
-			gMessageLib->sendUpdatePvpStatus(defender, playerAttacker, defender->getPvPStatus() + CreaturePvPStatus_Attackable + CreaturePvPStatus_Aggressive + CreaturePvPStatus_Enemy);
+			gMessageLib->sendUpdatePvpStatus(defender, playerAttacker, defender->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Enemy);
 
 			defender->toggleStateOn((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
 			gMessageLib->sendStateUpdate(defender);

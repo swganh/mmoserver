@@ -61,8 +61,8 @@ void ObjectController::_handleDuel(uint64 targetId,Message* message,ObjectContro
 				player->addToDuelList(targetPlayer);
 
 				// start the duel
-				gMessageLib->sendUpdatePvpStatus(player,targetPlayer,player->getPvPStatus() + CreaturePvPStatus_Attackable + CreaturePvPStatus_Aggressive);
-				gMessageLib->sendUpdatePvpStatus(targetPlayer,player,targetPlayer->getPvPStatus() + CreaturePvPStatus_Attackable + CreaturePvPStatus_Aggressive);
+				gMessageLib->sendUpdatePvpStatus(player,targetPlayer,player->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Aggressive);
+				gMessageLib->sendUpdatePvpStatus(targetPlayer,player,targetPlayer->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Aggressive);
 
 				gMessageLib->sendSystemMessage(player,L"","duel","accept_self","","",L"",0,"","",L"",targetId);
 				gMessageLib->sendSystemMessage(targetPlayer,L"","duel","accept_target","","",L"",0,"","",L"",player->getId());
@@ -265,14 +265,33 @@ void ObjectController::setTarget(Message* message)
 //
 // death blow
 //
+//	Right now, we will only DeathBlow players that are incapacitated and active duelling.
+// 
 
 void ObjectController::_handleDeathBlow(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
+	// gLogger->logMsgF("ObjectController::_handleDeathBlow: targetId = %llu", MSG_NORMAL, targetId);
 	PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
 
-	if(CreatureObject* target = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(targetId)))
+	if (player && targetId)	// Any object targeted?
 	{
-		target->die();
+		// Do we have a valid target?
+		if (PlayerObject* target = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetId)))
+		{
+			if (target->isIncapacitated())
+			{
+				// Are we able to perform the DB?
+				if (!player->isIncapacitated() && !player->isDead())
+				{
+					// Do we have the executioner in targets duel list?
+					if (target->checkDuelList(player))
+					{
+						// here we go... KILL HIM!
+						target->die();
+					}
+				}
+			}
+		}
 	}
 }
 

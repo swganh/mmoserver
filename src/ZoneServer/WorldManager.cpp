@@ -171,6 +171,19 @@ void WorldManager::Shutdown()
 	NpcManager::deleteManager();
 	Heightmap::deleter();
 
+	// Let's get REAL dirty here, since we have no solutions to the deletion-race of containers content.
+	// Done by Eruptor. I got tired of the unhandled problem.
+	if (getObjectById((uint64)(2533274790395904)))
+	{
+		Container* container = dynamic_cast<Container*>(getObjectById((uint64)(2533274790395904)));
+		if (container)
+		{
+			gLogger->logMsg("WorldManager::Shutdown(): Deleting the Tutorial container");
+			this->destroyObject(container);
+			gLogger->logMsg("WorldManager::Shutdown(): Delete done!");
+		}
+	}
+
 	// finally delete them
 	mObjectMap.clear();
 	mQTRegionMap.clear();

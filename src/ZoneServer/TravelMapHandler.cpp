@@ -665,7 +665,7 @@ void TravelMapHandler::useTicket(PlayerObject* playerObject, TravelTicket* ticke
 	// in range check
 	if(playerObject->getParentId() !=  shuttle->getParentId() )
 	{
-		gMessageLib->sendSystemMessage(playerObject,L"There is no shuttle nearby");
+		gMessageLib->sendSystemMessage(playerObject,L"","travel","shuttle_not_available");
 		return;
 	}
 
@@ -691,7 +691,7 @@ void TravelMapHandler::useTicket(PlayerObject* playerObject, TravelTicket* ticke
 	// see if we are at the right location
 	if(srcPlanetId != zoneId || strcmp(srcPoint.getAnsi(),port.getAnsi()) != 0)
 	{
-		gMessageLib->sendSystemMessage(playerObject,L"There is no shuttle nearby for that ticket's departure location.");
+		gMessageLib->sendSystemMessage(playerObject,L"","travel","wrong_shuttle");
 		return;
 	}
 

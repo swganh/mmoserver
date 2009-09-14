@@ -2019,7 +2019,7 @@ void EntertainerManager::useInstrument(PlayerObject* entertainer, Item* usedInst
 	//we dont want to do this inmidst a performance
 	if(entertainer->getPerformingState() != PlayerPerformance_None)
 	{
-		gMessageLib->sendSystemMessage(entertainer,L"You cannot do this at this time");
+		gMessageLib->sendSystemMessage(entertainer,L"","performance","music_fail");
 		return;
 		
 	}
@@ -2039,7 +2039,7 @@ void EntertainerManager::useInstrument(PlayerObject* entertainer, Item* usedInst
 		if(entertainer->getId() != usedInstrument->getOwner())
 		{
 			// Nope.
-			gMessageLib->sendSystemMessage(entertainer,L"You cannot do this at this time");
+			gMessageLib->sendSystemMessage(entertainer,L"","performance","music_fail");
 			return;
 		}
 
@@ -2066,7 +2066,7 @@ void EntertainerManager::useInstrument(PlayerObject* entertainer, Item* usedInst
 	// we have an other instrument placed already
 	if(entertainer->getPlacedInstrumentId())
 	{
-		gMessageLib->sendSystemMessage(entertainer,L"You cannot place more than one instrument");
+		gMessageLib->sendSystemMessage(entertainer,L"","performance","music_must_unequip");
 		return;
 	}
 	

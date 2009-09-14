@@ -101,7 +101,7 @@ void ObjectController::_handleBoardTransport(uint64 targetId,Message* message,Ob
 		++it;
 	}
 	
-	gMessageLib->sendSystemMessage(playerObject,L"What shuttle do you wish to board");
+	gMessageLib->sendSystemMessage(playerObject,L"","structure/structure_messages","boarding_what_shuttle");
 }
 
 //=============================================================================

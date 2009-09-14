@@ -72,7 +72,7 @@ void Deed::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 					}
 					else
 					{
-						gMessageLib->sendSystemMessage(player,L"Error datapad at max capacity Couldnt create the vehicle");
+						gMessageLib->sendSystemMessage(player,L"Error datapad at max capacity. Couldnt create the vehicle.");
 					}
 				}
 				else

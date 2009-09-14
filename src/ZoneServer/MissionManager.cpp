@@ -470,7 +470,7 @@ void MissionManager::missionRequest(PlayerObject* player, uint64 mission_id)
 	//automatically checks the datapads capacity
 	if(!datapad->addMission(mission))
 	{
-		gMessageLib->sendSystemMessage(player,L"You cannot accept any more missions.");
+		gMessageLib->sendSystemMessage(player,L"","mission/mission_generic","too_many_missions");
 		return;
 	}
 	mission_bag->removeMission(mission);
@@ -602,7 +602,7 @@ void MissionManager::missionAbort(PlayerObject* player, uint64 mission_id)
 	if(mission)
 	{
 		datapad->removeMission(mission);
-		gMessageLib->sendSystemMessage(player,L"Mission incomplete");
+		gMessageLib->sendSystemMessage(player,L"","mission/mission_generic","incomplete");
 		gMessageLib->sendSetWaypointActiveStatus(mission->getWaypoint(),false,player);
 		gMessageLib->sendMissionAbort(mission,player);
 		gMessageLib->sendContainmentMessage(mission->getId(), datapad->getId(), 4, player);
@@ -622,7 +622,7 @@ return;
 
 void MissionManager::missionFailed(PlayerObject* player, MissionObject* mission)
 {
-	gMessageLib->sendSystemMessage(player,L"Mission failed");
+	gMessageLib->sendSystemMessage(player,L"","mission/mission_generic","failed");
 	
 	//remove mission
 	gMessageLib->sendSetWaypointActiveStatus(mission->getWaypoint(),false,player);
@@ -678,7 +678,7 @@ bool MissionManager::checkDeliverMission(PlayerObject* player,NPCObject* npc)
 					sprintf(mp,"m%dp",mission->getNum());
 					gMessageLib->sendSpatialChat(npc,player,L"",mission->getTitleFile(),mp); 
 					mission->setStartNPC(NULL);
-					gMessageLib->sendSystemMessage(player,L"Data Recieved.");
+					gMessageLib->sendSystemMessage(player,L"","mission/mission_generic","deliver_received_data");
 					MissionObject* updater = new MissionObject();
 					updater->clear();
 					updater->setId(mission->getId());
@@ -841,7 +841,7 @@ bool MissionManager::checkCraftingMission(PlayerObject* player,NPCObject* npc)
 					sprintf(mp,"m%dp",mission->getNum());
 					gMessageLib->sendSpatialChat(npc,player,L"",mission->getTitleFile(),mp); 
 					mission->setStartNPC(NULL);
-					gMessageLib->sendSystemMessage(player,L"Data Recieved.");
+					gMessageLib->sendSystemMessage(player,L"","mission/mission_generic","deliver_received_data");
 					MissionObject* updater = new MissionObject();
 					updater->clear();
 					updater->setId(mission->getId());

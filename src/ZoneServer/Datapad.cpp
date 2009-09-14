@@ -219,7 +219,7 @@ bool Datapad::addWaypoint(WaypointObject* waypoint)
 	else
 	{
 		PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getParentId()));					
-		gMessageLib->sendSystemMessage(player,L"Error datapad at max capacity ");
+		gMessageLib->sendSystemMessage(player,L"","base_player","too_many_waypoints");
 		return false;
 	}
 }
@@ -235,7 +235,7 @@ bool Datapad::addData(IntangibleObject* Data)
 	else
 	{
 		PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getParentId()));					
-		gMessageLib->sendSystemMessage(player,L"Error datapad at max capacity ");
+		gMessageLib->sendSystemMessage(player,L"","base_player","too_many_waypoints");
 		return false;
 
 	}
@@ -380,7 +380,7 @@ void Datapad::requestNewWaypoint(string name,const Anh_Math::Vector3 coords,uint
 	if(!mCapacity)
 	{
 		PlayerObject*	player			= dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getParentId()));					
-		gMessageLib->sendSystemMessage(player,L"Error datapad at max capacity Couldnt create the wp");
+		gMessageLib->sendSystemMessage(player,L"","base_player","too_many_waypoints");
 		return;
 	}
 
@@ -400,7 +400,7 @@ bool Datapad::addManufacturingSchematic(ManufacturingSchematic* ms)
 	else
 	{
 		PlayerObject*	player			= dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getParentId()));					
-		gMessageLib->sendSystemMessage(player,L"Error datapad at max capacity Couldnt create the manufacturing schematic");
+		gMessageLib->sendSystemMessage(player,L"Error datapad at max capacity. Couldn't create the manufacturing schematic.");
 		return false;
 	}
 }
@@ -412,12 +412,12 @@ bool Datapad::addMission(MissionObject* mission)
 	PlayerObject*	player			= dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getParentId()));					
 	if(!mCapacity)
 	{
-		gMessageLib->sendSystemMessage(player,L"Error datapad at max capacity Couldnt create the mission");
+		gMessageLib->sendSystemMessage(player,L"Error datapad at max capacity. Couldn't create the mission.");
 		return false;
 	}
 	if(!mMissionCapacity)
 	{
-		gMessageLib->sendSystemMessage(player,L"Error datapadmissionsystem at max capacity Couldnt create the mission");
+		gMessageLib->sendSystemMessage(player,L"Error datapad mission system at max capacity. Couldn't create the mission.");
 		return false;
 	}
 	mMissions.push_back(mission); 

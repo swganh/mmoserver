@@ -61,7 +61,7 @@ void Firework::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 					{
 						if(playerObject->getParentId())
 						{
-							gMessageLib->sendSystemMessage(playerObject,L"Launching fireworks indoors? Sorry, but something might catch fire!");
+							gMessageLib->sendSystemMessage(playerObject,L"You can not do this while indoors.");
 							return;
 						}
 						//Create the Firework in the world

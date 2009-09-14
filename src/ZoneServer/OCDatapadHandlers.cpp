@@ -44,7 +44,7 @@ void ObjectController::_handleRequestWaypointAtPosition(uint64 targetId,Message*
 
 	if(!datapad->getCapacity())
 	{
-		gMessageLib->sendSystemMessage(player,L"Error datapad at max capacity");
+		gMessageLib->sendSystemMessage(player,L"","base_player","too_many_waypoints");
 		return;
 	}
 
@@ -139,7 +139,7 @@ void ObjectController::_handleWaypoint(uint64 targetId,Message* message,ObjectCo
 					
 	if(!datapad->getCapacity())
 	{
-		gMessageLib->sendSystemMessage(player,L"Error datapad at max capacity Couldnt create the wp");
+		gMessageLib->sendSystemMessage(player,L"","base_player","too_many_waypoints");
 		return;
 	}
 					

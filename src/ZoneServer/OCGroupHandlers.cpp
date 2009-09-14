@@ -199,7 +199,7 @@ void ObjectController::_handleMakeLeader(uint64 targetId,Message* message,Object
 	// if  target is valid
 	if(targetPlayer == NULL || targetPlayer->getGroupId() != player->getGroupId())
 	{
-		gMessageLib->sendSystemMessage(player,L"invalid target");
+		gMessageLib->sendSystemMessage(player,L"Invalid Target.");
 		return;
 	}
 
@@ -235,7 +235,7 @@ void ObjectController::_handleDismissGroupMember(uint64 targetId,Message* messag
 	// if  target is valid
 	if(targetPlayer == NULL || targetPlayer->getGroupId() != player->getGroupId())
 	{
-		gMessageLib->sendSystemMessage(player,L"invalid target");
+		gMessageLib->sendSystemMessage(player,L"Invalid Target.");
 		return;
 	}
 

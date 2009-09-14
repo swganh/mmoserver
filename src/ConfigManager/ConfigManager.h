@@ -27,6 +27,9 @@ class ConfigManager
 
 		static ConfigManager*	getSingletonPtr() { return mSingleton; }
 		static ConfigManager*	Init(const std::string& name);
+		static const char*		getBuildString(void);
+		static const char*		getBuildNumber(void);
+		static const char*		getBuildTime(void);
 
 		ConfigFile*				getConfigFile() { return mConfigFile; }
 		~ConfigManager();

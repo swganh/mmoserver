@@ -12,8 +12,10 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "ConfigManager.h"
 #include "LogManager/LogManager.h"
 #include <string>
+#include "Common/BuildInfo.h"
 
 //======================================================================================================================
+
 
 bool			ConfigManager::mInsFlag    = false;
 ConfigManager*  ConfigManager::mSingleton  = NULL;
@@ -66,6 +68,28 @@ ConfigManager::~ConfigManager()
 	mInsFlag = false;
 	SAFE_DELETE(mConfigFile);
 	//SAFE_DELETE(mSingleton);
+}
+
+//======================================================================================================================
+
+const char* ConfigManager::getBuildString(void)
+{
+	return GetBuildString();
+}
+
+
+//======================================================================================================================
+
+const char* ConfigManager::getBuildNumber(void)
+{
+	return GetBuildNumber();
+}
+
+//======================================================================================================================
+
+const char* ConfigManager::getBuildTime(void)
+{
+	return GetBuildTime();
 }
 
 //======================================================================================================================

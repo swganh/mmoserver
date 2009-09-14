@@ -15,6 +15,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include <vector>
 #include <set>
 #include <algorithm>
+#include <deque>
 #include "Utils/PriorityVector.h"
 #include "Utils/Clock.h"
 #include "ObjControllerCommandMessage.h"
@@ -49,7 +50,8 @@ typedef std::set<Object*>				ObjectSet;
 typedef std::vector<EnqueueValidator*>	EnqueueValidators;
 typedef std::vector<ProcessValidator*>	ProcessValidators;
 
-typedef Anh_Utils::priority_vector<ObjControllerCommandMessage*,CompareCommandMsg >	CommandQueue;
+// typedef Anh_Utils::priority_vector<ObjControllerCommandMessage*,CompareCommandMsg >	CommandQueue;
+typedef std::deque<ObjControllerCommandMessage*>	CommandQueue;
 typedef Anh_Utils::priority_vector<ObjControllerEvent*,CompareEvent >				EventQueue;
 
 //=======================================================================
@@ -206,7 +208,8 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback
 								// Utility
 		bool					objectsInRange(uint64 obj1Id, uint64 obj2Id, float range);
 
-
+		// Auto attack
+		void					enqueueAutoAttack(uint64 targetId);
 
 		ObjectSet*				getInRangeObjects(){return(&mInRangeObjects);}
 		ObjectSet::iterator		getInRangeObjectsIterator(){return mObjectSetIt;}
@@ -538,8 +541,6 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback
 		// ham
 		bool	_consumeHam(ObjectControllerCmdProperties* cmdProperties);
 
-
-
 		uint64				mTaskId;
 		Database*			mDatabase;
 		ZoneTree*			mSI;
@@ -554,7 +555,8 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback
 		uint64				mCommandQueueProcessTimeLimit;
 		uint64				mEventQueueProcessTimeLimit;
 		uint64				mNextCommandExecution;
-		uint64				mNextCombatCmdExecution;
+		// uint64				mNextCombatCmdExecution;
+		uint64				mUnderrunTime;			// time "missed" due to late arrival of command queue.
 		
 		bool				mUpdatingObjects;
 		bool				mDestroyOutOfRangeObjects;

@@ -642,6 +642,12 @@ void CreatureObject::incap()
 		}
 		*/
 
+		PlayerObject* player = dynamic_cast<PlayerObject*>(this);
+		if (player)
+		{
+			player->disableAutoAttack();
+		}
+
 		// advance incaps counter
 		if(++mIncapCount < gWorldConfig->getConfiguration("Player_Incapacitation",3))
 		{
@@ -708,6 +714,7 @@ void CreatureObject::die()
 	if(PlayerObject* player = dynamic_cast<PlayerObject*>(this))
 	{
 		gMessageLib->sendSystemMessage(player,L"","base_player","victim_dead");
+		player->disableAutoAttack();
 	}
 
 	mPosture = CreaturePosture_Dead;
@@ -1007,6 +1014,36 @@ bool CreatureObject::checkDefenderList(uint64 defenderId)
 
 //=============================================================================
 
+uint64 CreatureObject::getNearestDefender(void)
+{
+	uint64 defenederId = 0;
+	float minLenght = FLT_MAX;
+
+	ObjectIDList::iterator it = mDefenders.begin();
+
+	while(it != mDefenders.end())
+	{
+		if((*it) != 0)
+		{
+			CreatureObject* defender = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById((*it)));
+			if (defender && !defender->isDead() && !defender->isIncapacitated())
+			{
+				float len = (this->mPosition - defender->mPosition).getLength();
+				if (len < minLenght)
+				{
+					minLenght = len;
+					defenederId = (*it);
+				}
+			}
+		}
+		++it;
+	}
+
+	return defenederId;
+}
+
+//=============================================================================
+
 void CreatureObject::buildCustomization(uint16 customization[])
 {
 	uint8 len = 0x73;
@@ -1116,6 +1153,132 @@ void CreatureObject::buildCustomization(uint16 customization[])
 	setCustomizationStr((int8*)playerCustomization);
 }
 
+//=============================================================================
+//
+//	Make peace with everything, stop auto-attack.
+//	Remove all defenders from player defender list.
+// 
+//	Current enemies can very well start attcking this player again.
+// 
+// 
+
+/*
+	PlayerObject* attackerPlayer = dynamic_cast<PlayerObject*>(this);
+
+	CreatureObject* defenderCreature = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(defenderId));
+
+	PlayerObject* defenderPlayer = NULL;
+	if (defenderCreature)
+	{
+		defenderPlayer = dynamic_cast<PlayerObject*>(defenderCreature);
+	}
+
+	if (attackerPlayer)
+	{
+		// gLogger->logMsgF("Attacker is a Player", MSG_NORMAL);
+	}
+	else
+	{
+		// gLogger->logMsgF("Attacker is a Npc", MSG_NORMAL);
+	}
+
+	if (defenderPlayer)
+	{
+	}
+	else if (defenderCreature)
+	{
+		// gLogger->logMsgF("Defender is a Npc", MSG_NORMAL);
+	}
+	else
+	{
+		gLogger->logMsgF("Defender is of unknown type...\n", MSG_NORMAL);
+		return;
+	}
+	
+	// Remove defender from my list.
+	if (defenderCreature)
+	{
+		this->removeDefenderAndUpdateList(defenderCreature->getId());
+	}
+	
+	if (defenderPlayer)
+	{
+		// Update defender about attacker pvp status.
+		gMessageLib->sendUpdatePvpStatus(this, defenderPlayer);
+	}
+
+	if (this->getDefenders()->size() == 0)
+	{
+		// I have no more defenders.
+		// gLogger->logMsgF("Attacker: My last defender", MSG_NORMAL);
+		if (attackerPlayer)
+		{
+			// Update player (my self) with the new status.
+			gMessageLib->sendUpdatePvpStatus(this,attackerPlayer);
+		}
+		else
+		{
+			// We are a npc, and we have no more defenders (for whatever reason).
+			// Inform npc about this event.
+			this->inPeace();
+		}
+		this->toggleStateOff((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
+		gMessageLib->sendStateUpdate(this);
+	}
+	else
+	{
+		// gLogger->logMsgF("Attacker: Have more defenders", MSG_NORMAL);
+		// gMessageLib->sendNewDefenderList(this);
+	}
+	// gMessageLib->sendNewDefenderList(this);
+
+
+	if (defenderCreature)
+	{
+		// Remove us from defenders list.
+		defenderCreature->removeDefenderAndUpdateList(this->getId());
+
+		if (attackerPlayer)
+		{
+			// Update attacker about defender pvp status.
+			gMessageLib->sendUpdatePvpStatus(defenderCreature, attackerPlayer);
+		}
+
+		if (defenderCreature->getDefenders()->size() == 0)
+		{
+			// He have no more defenders.
+			// gLogger->logMsgF("Defender: My last defender", MSG_NORMAL);
+			
+			if (defenderPlayer)
+			{
+				gMessageLib->sendUpdatePvpStatus(defenderCreature,defenderPlayer);
+			}
+			else
+			{
+				// We are a npc, and we have no more defenders (for whatever reason).
+				// Inform npc about this event.
+				defenderCreature->inPeace();
+			}
+			defenderCreature->toggleStateOff((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
+			gMessageLib->sendStateUpdate(defenderCreature);
+		}
+		else
+		{
+			// gLogger->logMsgF("Defender: Have more defenders", MSG_NORMAL);
+			//gMessageLib->sendNewDefenderList(defenderCreature);
+		}
+		// gMessageLib->sendNewDefenderList(defenderCreature);
+	}
+}
+*/
+
+//=============================================================================
+//
+//	Make peace with a creature or player.
+//
+//	This is the prefered method for creatures to handle peace.
+//	Remove both themself and defender from each others defender list and eventually clear combat state and pvp status.
+//
 
 void CreatureObject::makePeaceWithDefender(uint64 defenderId)
 {
@@ -1235,6 +1398,9 @@ void CreatureObject::makePeaceWithDefender(uint64 defenderId)
 		// gMessageLib->sendNewDefenderList(defenderCreature);
 	}
 }
+
+
+
 
 uint32	CreatureObject::UpdatePerformanceCounter()
 {

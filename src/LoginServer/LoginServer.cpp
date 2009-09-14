@@ -17,7 +17,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "DatabaseManager/Database.h"
 #include "LogManager/LogManager.h"
 #include "ConfigManager/ConfigManager.h"
-#include "Common/BuildInfo.h"
+
 #include "Common/MessageFactory.h"
 
 #include <conio.h>
@@ -48,7 +48,8 @@ void LoginServer::Startup(void)
 	// log msg to default log
   gLogger->printSmallLogo();
   gLogger->logMsg("LoginServer Startup");
-  gLogger->logMsg(GetBuildString());
+  // gLogger->logMsg(GetBuildString());
+  gLogger->logMsg(ConfigManager::getBuildString());
 
 	// Initialize our modules.
 
@@ -91,7 +92,9 @@ void LoginServer::Startup(void)
 	mService->AddNetworkCallback(mLoginManager);
 	gLogger->logMsg("LoginServer Startup complete\n");
 	gLogger->printLogo();
-	std::string BuildString(GetBuildString());	
+	// std::string BuildString(GetBuildString());	
+	std::string BuildString(ConfigManager::getBuildString());	
+
 	gLogger->logMsgF("LoginServer %s",MSG_NORMAL,BuildString.substr(11,BuildString.size()).c_str());
 	gLogger->logMsg("Welcome to your SWGANH Experience!\n");
 }

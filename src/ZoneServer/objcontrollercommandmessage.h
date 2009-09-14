@@ -25,12 +25,15 @@ class ObjControllerCommandMessage
 	public:
 
 		ObjControllerCommandMessage(uint32 opcode,const uint64 executionTime,uint64 targetId)
-									: mOpcode(opcode),mData(NULL),mExecutionTime(executionTime),mTargetId(targetId),
+											: mOpcode(opcode),mData(NULL),mExecutionTime(executionTime),mTargetId(targetId),
 									  mSequence(0),mProperties(NULL){}
 
 		virtual ~ObjControllerCommandMessage()
 		{
-			gMessageFactory->DestroyMessage(mData);
+			if (mData)
+			{
+				gMessageFactory->DestroyMessage(mData);
+			}
 		}
 
 		virtual inline uint32	getOpcode() const { return mOpcode; }
@@ -48,11 +51,11 @@ class ObjControllerCommandMessage
 		virtual inline uint64	getExecutionTime() const { return mExecutionTime; }
 		virtual inline void		setExecutionTime(uint64 time){ mExecutionTime = time; }
 
-		virtual inline uint64	getQueuesTime() const { return mQueuedTime; }
-		virtual inline void		setQueuedTime(uint64 time){ mQueuedTime = time; }
+		// virtual inline uint64	getQueuesTime() const { return mQueuedTime; }
+		// virtual inline void		setQueuedTime(uint64 time){ mQueuedTime = time; }
 
 		virtual inline ObjectControllerCmdProperties*	getCmdProperties(){ return mProperties; }
-		virtual inline void								setCmdProperties(ObjectControllerCmdProperties*	properties){ mProperties = properties; }
+		virtual inline void	setCmdProperties(ObjectControllerCmdProperties*	properties){ mProperties = properties; }
 
 	protected:
 
@@ -67,7 +70,8 @@ class ObjControllerCommandMessage
 };
 
 //===============================================================================================================
-
+/*
+// Not used
 class CompareCommandMsg
 {
 	public:
@@ -77,9 +81,11 @@ class CompareCommandMsg
 			return(left->getExecutionTime() > right->getExecutionTime());
 		} 
 };
-
+*/
 //===============================================================================================================
 
+/*
+// Not used
 class CompareCombatMsg
 {
 	public:
@@ -89,7 +95,7 @@ class CompareCombatMsg
 			return(left->getSequence() > right->getSequence());
 		} 
 };
-
+*/
 
 #endif
 

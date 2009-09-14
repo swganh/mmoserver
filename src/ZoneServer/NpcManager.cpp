@@ -280,11 +280,13 @@ bool NpcManager::_verifyCombatState(CreatureObject* attacker, uint64 defenderId)
 	CreatureObject* defender = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(defenderId));
 
 	// If the target (defender) is already on our list, we should not bother.
+	// Actually, we should...
+	/*
 	if (attacker->checkDefenderList(defenderId))
 	{
 		return(true);
 	}
-
+	*/
 
 	// make sure we got both objects
 	if (playerAttacker && defender)
@@ -421,13 +423,42 @@ bool NpcManager::_verifyCombatState(CreatureObject* attacker, uint64 defenderId)
 				*/
 
 				// put us in combat state
-				// if (!attackerNpc->checkState((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal)))
-				// if (!attackerNpc->checkState(CreatureState_Combat))
+				if (!attackerNpc->checkState(CreatureState_Combat))
 				{
 					// gLogger->logMsgF("NPC updates combat state at self.", MSG_NORMAL);
+					attackerNpc->toggleStateOn((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
 
-					// attackerNpc->togglePvPStateOn((CreaturePvPStatus)(CreaturePvPStatus_Attackable + CreaturePvPStatus_Aggressive + CreaturePvPStatus_Enemy));
+					// attackerNpc->toggleStateOn(CreatureState_Combat);
+					gMessageLib->sendStateUpdate(attackerNpc);
+				}
+
+				// put our target in combat stance
+				if (!defenderPlayer->checkState(CreatureState_Combat))
+				{
+					// gLogger->logMsgF("Player was not in combat, updating player pvp-status and combat state", MSG_NORMAL);
+
+					gMessageLib->sendUpdatePvpStatus(defenderPlayer,defenderPlayer, defenderPlayer->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Aggressive); //  | CreaturePvPStatus_Enemy);
+
+					defenderPlayer->toggleStateOn((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
+					gMessageLib->sendStateUpdate(defenderPlayer);
+
+					// Player can start auto-attack.
+					// defenderPlayer->getController()->enqueueAutoAttack(attackerNpc->getId());
+				}
+
+				// If the target (defender) is not on our list, update pvp-status.
+
+				if (!attackerNpc->checkDefenderList(defenderPlayer->getId()))
+				{
+					// gLogger->logMsgF("Player was not in NPC defender list, updating NPC pvp-status", MSG_NORMAL);
 					gMessageLib->sendUpdatePvpStatus(attackerNpc,defenderPlayer, attackerNpc->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Aggressive | CreaturePvPStatus_Enemy);
+
+					// update our defender list
+					attackerNpc->addDefender(defenderPlayer->getId());
+					gMessageLib->sendDefenderUpdate(attackerNpc,1,attackerNpc->getDefenders()->size() - 1,defenderPlayer->getId());
+
+					// Player can start auto-attack.
+					defenderPlayer->getController()->enqueueAutoAttack(attackerNpc->getId());
 
 					// Update player and all his group mates currently in range.
 					/*
@@ -444,27 +475,6 @@ bool NpcManager::_verifyCombatState(CreatureObject* attacker, uint64 defenderId)
 						}
 					}
 					*/
-
-					attackerNpc->toggleStateOn((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
-					// attackerNpc->toggleStateOn(CreatureState_Combat);
-					gMessageLib->sendStateUpdate(attackerNpc);
-				}
-
-				// put our target in combat state
-				// if (!defenderPlayer->checkState((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal)))
-				{
-					// defenderPlayer->togglePvPStateOn((CreaturePvPStatus)(CreaturePvPStatus_Attackable + CreaturePvPStatus_Aggressive + CreaturePvPStatus_Enemy));
-					gMessageLib->sendUpdatePvpStatus(defenderPlayer,defenderPlayer, defenderPlayer->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Aggressive); //  | CreaturePvPStatus_Enemy);
-
-					defenderPlayer->toggleStateOn((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
-					gMessageLib->sendStateUpdate(defenderPlayer);
-				}
-
-				// update our defender list
-				if (!attackerNpc->checkDefenderList(defenderPlayer->getId()))
-				{
-					attackerNpc->addDefender(defenderPlayer->getId());
-					gMessageLib->sendDefenderUpdate(attackerNpc,1,attackerNpc->getDefenders()->size() - 1,defenderPlayer->getId());
 				}
 
 				// update our targets defender list

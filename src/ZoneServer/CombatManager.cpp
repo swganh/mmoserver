@@ -159,25 +159,17 @@ bool CombatManager::_verifyCombatState(CreatureObject* attacker, uint64 defender
 		return(false);
 	}
 
-	// If the target (defender) is already on our list, we should not bother.
-	if (attacker->checkDefenderList(defender->getId()))
+	// Do not try to attack already incapped or dead objects.
+	if (defender->isIncapacitated() || defender->isDead())
 	{
-		// Do not try to attack already incapped or dead objects.
-		if (defender->isIncapacitated() || defender->isDead())
-		{
-			return false;
-		}
-		else
-		{
-			return true;
-		}
+		return false;
 	}
 
 	// make sure we got both objects
-	if(playerAttacker && defender)
+	if (playerAttacker && defender)
 	{
 		// if our target is a player, he must be dueling us or both need to be overt(TODO)
-		if(PlayerObject* defenderPlayer = dynamic_cast<PlayerObject*>(defender))
+		if (PlayerObject* defenderPlayer = dynamic_cast<PlayerObject*>(defender))
 		{
 			// also return, if our target is incapacitated or dead
 			if(!playerAttacker->checkDuelList(defenderPlayer) || !defenderPlayer->checkDuelList(playerAttacker)
@@ -200,14 +192,14 @@ bool CombatManager::_verifyCombatState(CreatureObject* attacker, uint64 defender
 			// put us in combat state
 			if (!playerAttacker->checkState(CreatureState_Combat))
 			{
-				playerAttacker->toggleStateOn(CreatureState_Combat);
+				playerAttacker->toggleStateOn((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
 				gMessageLib->sendStateUpdate(playerAttacker);
 			}
 
 			// put our target in combat state
 			if(!defenderPlayer->checkState(CreatureState_Combat))
 			{
-				defenderPlayer->toggleStateOn(CreatureState_Combat);
+				defenderPlayer->toggleStateOn((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
 				gMessageLib->sendStateUpdate(defenderPlayer);
 			}
 
@@ -216,6 +208,9 @@ bool CombatManager::_verifyCombatState(CreatureObject* attacker, uint64 defender
 			{
 				playerAttacker->addDefender(defenderPlayer->getId());
 				gMessageLib->sendDefenderUpdate(playerAttacker,1,playerAttacker->getDefenders()->size() - 1,defenderPlayer->getId());
+
+				// Player can start auto-attack.
+				defenderPlayer->getController()->enqueueAutoAttack(playerAttacker->getId());
 			}
 
 			// update our targets defender list
@@ -358,7 +353,9 @@ bool CombatManager::handleAttack(CreatureObject *attacker, uint64 targetId, Obje
 		{
 			gMessageLib->sendSystemMessage(playerAttacker,L"","error_message","target_out_of_range", "", "", L"", 0, "", "");
 		}
-		return false;
+		// It's like you shoot but missed, maintain cooldown.
+		return true;
+		// return false;
 	}
 
 	if(_verifyCombatState(attacker,defender->getId()))
@@ -406,35 +403,6 @@ uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* def
 			// gLogger->logMsgF("CombatManager::_executeAttack Weapon baseMaxDamage = %d", MSG_NORMAL, baseMaxDamage);
 		}
 
-		/*
-		if (!gWorldConfig->isTutorial())
-		{
-			// We need some boost when testing PVE.
-			PlayerObject* player = dynamic_cast<PlayerObject*>(defender);
-			if (!player)
-			{
-				if (weapon->getGroup() == WeaponGroup_Unarmed)
-				{
-					// gLogger->logMsgF("CombatManager::_executeAttack Boosting unarmed damage", MSG_NORMAL);
-					baseMinDamage *= 1;
-					baseMaxDamage *= 2;
-				}
-				else if ((weapon->getGroup() == WeaponGroup_1h) || (weapon->getGroup() == WeaponGroup_2h) || (weapon->getGroup() == WeaponGroup_Polearm))
-				{
-					// gLogger->logMsgF("CombatManager::_executeAttack Boosting melee damage", MSG_NORMAL);
-					baseMinDamage *= 2;
-					baseMaxDamage *= 2.5;
-				}
-				else
-				{
-					// gLogger->logMsgF("CombatManager::_executeAttack Boosting ranged damage", MSG_NORMAL);
-					baseMinDamage *= 1;
-					baseMaxDamage *= 1.5;
-				}
-			}
-		}
-		*/
-
 		int32 baseDamage	= -((gRandom->getRand()%(baseMaxDamage - baseMinDamage)) + baseMinDamage);
 		
 		// apply damage multiplier
@@ -464,18 +432,6 @@ uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* def
 				npc->updateDamage(player->getId(), player->getGroupId(), weapon->getGroup(), -multipliedDamage, player->getPosture(), defender->mPosition.distance2D(player->mPosition));
 			}				
 		}
-
-		/*
-		AttackableCreature* creature = dynamic_cast<AttackableCreature*>(defender);
-		if (!defender->isDead() && creature && (creature->getNpcFamily() == NpcFamily_AttackableCreatures))
-		{
-			PlayerObject* player = dynamic_cast<PlayerObject*>(attacker);
-			if (player)
-			{
-				creature->updateDamage(player->getId(), player->getGroupId(), weapon->getGroup(), -multipliedDamage, player->getPosture(), defender->mPosition.distance2D(player->mPosition));
-			}				
-		}
-		*/
 
 		// ham damage
 		// if no target pool set, pick a random one

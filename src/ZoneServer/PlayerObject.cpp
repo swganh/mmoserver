@@ -81,7 +81,9 @@ mPreDesignatedCloningFacilityId(0),
 mMounted(false),
 mMountCalled(false),
 mMount(NULL),
-mLastGroupMissionUpdateTime(0)
+mLastGroupMissionUpdateTime(0),
+mCombatTargetId(0),
+mAutoAttack(false)
 {
 	mDuelList.reserve(10);
 
@@ -1728,4 +1730,35 @@ EMLocationType PlayerObject::getPlayerLocation()
 	}
 
 	return EMLocation_NULL;
+}
+
+//=============================================================================
+void PlayerObject::setCombatTargetId(uint64 targetId)
+{
+	this->mCombatTargetId = targetId;
+}
+
+
+//=============================================================================
+uint64 PlayerObject::getCombatTargetId(void)
+{
+	return this->mCombatTargetId;
+}
+
+//=============================================================================
+void PlayerObject::enableAutoAttack(void)
+{
+	mAutoAttack = true;
+}
+
+//=============================================================================
+void PlayerObject::disableAutoAttack(void)
+{
+	mAutoAttack = false;
+}
+
+//=============================================================================
+bool PlayerObject::autoAttackEnabled(void)
+{
+	return mAutoAttack;
 }

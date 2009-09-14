@@ -169,7 +169,7 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		void					initPlayersInRange(Object* object,PlayerObject* player);
 
 		// adds a creatures commandqueue to the main process queue
-		uint64					addObjControllerToProcess(ObjectController* objController){ return((mObjControllerScheduler->addTask(fastdelegate::MakeDelegate(objController,&ObjectController::process),1,0,NULL))); }
+		uint64					addObjControllerToProcess(ObjectController* objController){ return((mObjControllerScheduler->addTask(fastdelegate::MakeDelegate(objController,&ObjectController::process),1,125,NULL))); }
 		void					removeObjControllerToProcess(uint64 taskId);
 
 		// adds a creatures ham which needs regeneration

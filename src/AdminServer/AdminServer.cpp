@@ -16,7 +16,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 // External references
 #include "Common/MessageDispatch.h"
 #include "Common/DispatchClient.h"
-#include "Common/BuildInfo.h"
+
 #include "NetworkManager/NetworkManager.h"
 #include "NetworkManager/Service.h"
 #include "DatabaseManager/DatabaseManager.h"
@@ -56,7 +56,9 @@ AdminServer::~AdminServer(void)
 void AdminServer::Startup(void)
 {
   gLogger->printSmallLogo();
-  gLogger->logMsgF("AdminServer Startup : %s",MSG_HIGH,GetBuildString());
+  // gLogger->logMsgF("AdminServer Startup : %s",MSG_HIGH,GetBuildString());
+  gLogger->logMsgF("AdminServer Startup : %s",MSG_HIGH,ConfigManager::getBuildString());
+  
   //gLogger->logMsg(GetBuildString());
 
   // Create and startup our core services.
@@ -108,7 +110,9 @@ void AdminServer::Startup(void)
 
   gLogger->logMsg("AdminServer::Startup Complete");
   gLogger->printLogo();
-  std::string BuildString(GetBuildString());	
+  // std::string BuildString(GetBuildString());	
+  std::string BuildString(ConfigManager::getBuildString());	
+  
   gLogger->logMsgF("AdminServer %s",MSG_NORMAL,BuildString.substr(11,BuildString.size()).c_str());
   gLogger->logMsg("Welcome to your SWGANH Experience!");
 }

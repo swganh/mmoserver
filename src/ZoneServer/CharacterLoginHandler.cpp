@@ -24,7 +24,6 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "BuffManager.h"
 #include "Tutorial.h"
 
-
 //======================================================================================================================
 
 CharacterLoginHandler::CharacterLoginHandler(void)
@@ -283,6 +282,15 @@ void CharacterLoginHandler::handleDispatchMessage(uint32 opcode, Message* messag
 
 			//Initialise the buffs
 			gBuffManager->InitBuffs(player);
+
+			// Some info about the current build
+			int8 rawData[128];
+			// sprintf(rawData,"Running %s",ConfigManager::getBuildString());
+			sprintf(rawData,"Running build %s created %s", ConfigManager::getBuildNumber(), ConfigManager::getBuildTime());
+			
+			string buildString(rawData);
+			buildString.convert(BSTRType_Unicode16);
+			gMessageLib->sendSystemMessage(player,buildString.getUnicode16());
 
 			// Temp fix for testing instances at normal planets (Corellia).
 			/*

@@ -20,7 +20,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "DatabaseManager/Database.h"
 #include "LogManager/LogManager.h"
 #include "ConfigManager/ConfigManager.h"
-#include "Common/BuildInfo.h"
+
 #include "Common/MessageFactory.h"
 
 //#include "ZoneServer/Stackwalker.h" // removing so that we can get back proper debugging
@@ -65,8 +65,9 @@ void ConnectionServer::Startup(void)
 	// log msg to default log
 	gLogger->printSmallLogo();
 	gLogger->logMsg("ConnectionServer Startup\n", FOREGROUND_GREEN | FOREGROUND_RED);
-	gLogger->logMsg(GetBuildString());
-
+	// gLogger->logMsg(GetBuildString());
+	gLogger->logMsg(ConfigManager::getBuildString());
+	
 	// Startup our core modules
 	mNetworkManager = new NetworkManager();
 	mNetworkManager->Startup();
@@ -126,7 +127,8 @@ void ConnectionServer::Startup(void)
 	_updateDBServerList(2);
 	gLogger->logMsg("ConnectionServer::Server Boot Complete\n", FOREGROUND_GREEN);
 	gLogger->printLogo();
-	std::string BuildString(GetBuildString());	
+	// std::string BuildString(GetBuildString());	
+	std::string BuildString(ConfigManager::getBuildString());	
 	gLogger->logMsgF("ConnectionServer %s",MSG_NORMAL,BuildString.substr(11,BuildString.size()).c_str());
 	gLogger->logMsg("Welcome to your SWGANH Experience!\n");
 	

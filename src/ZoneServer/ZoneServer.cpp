@@ -39,7 +39,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "Common/MessageOpcodes.h"
 #include "Common/Message.h"
 #include "Common/DispatchClient.h"
-#include "Common/BuildInfo.h"
+
 #include "NetworkManager/NetworkManager.h"
 #include "NetworkManager/Service.h"
 #include "DatabaseManager/DatabaseManager.h"
@@ -88,7 +88,8 @@ ZoneServer::~ZoneServer(void)
 void ZoneServer::Startup(int8* zoneName)
 {
 	gLogger->printSmallLogo();
-	gLogger->logMsgF("ZoneServer - %s Startup %s",MSG_NORMAL,zoneName,GetBuildString());
+	// gLogger->logMsgF("ZoneServer - %s Startup %s",MSG_NORMAL,zoneName,GetBuildString());
+	gLogger->logMsgF("ZoneServer - %s Startup %s",MSG_NORMAL,zoneName,ConfigManager::getBuildString());
 	//gLogger->logMsg(GetBuildString());
 	mZoneName = zoneName;
 
@@ -204,7 +205,8 @@ void ZoneServer::handleWMReady()
 	_updateDBServerList(2);
 	gLogger->logMsg("ZoneServer::Startup Complete\n");
 	gLogger->printLogo();
-	std::string BuildString(GetBuildString());	
+	// std::string BuildString(GetBuildString());	
+	std::string BuildString(ConfigManager::getBuildString());	
 	gLogger->logMsgF("ZoneServer:%s %s",MSG_NORMAL,getZoneName().getAnsi(),BuildString.substr(11,BuildString.size()).c_str());
 	gLogger->logMsg("Welcome to your SWGANH Experience!\n");
 

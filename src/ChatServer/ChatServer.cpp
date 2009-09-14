@@ -14,7 +14,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 // External references
 #include "Common/MessageDispatch.h"
 #include "Common/DispatchClient.h"
-#include "Common/BuildInfo.h"
+
 #include "NetworkManager/NetworkManager.h"
 #include "NetworkManager/Service.h"
 #include "DatabaseManager/DatabaseManager.h"
@@ -55,7 +55,8 @@ void ChatServer::Startup()
 {
 	gLogger->printSmallLogo();
 	gLogger->logMsg("ChatServer Startup\n");
-	gLogger->logMsg(GetBuildString());
+	// gLogger->logMsg(GetBuildString());
+	gLogger->logMsg(ConfigManager::getBuildString());
 
 	// Create and startup our core services.
 	mDatabaseManager = new DatabaseManager();
@@ -114,7 +115,8 @@ void ChatServer::Startup()
 
 	gLogger->logMsg("ChatServer::Startup Complete\n");
 	gLogger->printLogo();
-	std::string BuildString(GetBuildString());	
+	// std::string BuildString(GetBuildString());
+	std::string BuildString(ConfigManager::getBuildString());
 	gLogger->logMsgF("ChatServer %s",MSG_NORMAL,BuildString.substr(11,BuildString.size()).c_str());
 	gLogger->logMsg("Welcome to your SWGANH Experience!\n");
 }

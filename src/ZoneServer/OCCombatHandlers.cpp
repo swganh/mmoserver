@@ -214,34 +214,14 @@ void ObjectController::_handleEndDuel(uint64 targetId,Message* message,ObjectCon
 //
 // peace
 //
+// Stop auto-attack
 
 void ObjectController::_handlePeace(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
 	PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
-
-	if (player->checkState(CreatureState_Combat))
+	if (player)
 	{
-		// We can't just clear everything when attempting peace.
-		// There may be several objects that we are in combat with, and clearing their defender-list like "woops", is not good.
-
-		if (CreatureObject* defender = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(targetId)))
-		{
-			player->makePeaceWithDefender(targetId);
-
-			/*
-			player->toggleStateOff(CreatureState_Combat);
-			gMessageLib->sendStateUpdate(player);
-
-			player->clearDefenders();
-			gMessageLib->sendDefenderUpdate(player,0,0,defender->getId());
-
-			defender->toggleStateOff(CreatureState_Combat);
-			gMessageLib->sendStateUpdate(defender);
-
-			defender->clearDefenders();
-			gMessageLib->sendDefenderUpdate(defender,0,0,player->getId());
-			*/
-		}
+		player->disableAutoAttack();
 	}
 }
 

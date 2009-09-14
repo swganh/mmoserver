@@ -17,7 +17,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "ASynchPingSocket.h"
 #include <conio.h>
-#include "Common/BuildInfo.h"
+
 
 
 #define RECEIVE_BUFFER 512
@@ -56,7 +56,8 @@ void PingServer::start()
 	mAsynchPingThread = new ASynchPingSocket();
 	mAsynchPingThread->StartServer(pingAddress,(int)port);
 	gLogger->printLogo();
-	std::string BuildString(GetBuildString());	
+	// std::string BuildString(GetBuildString());	
+	std::string BuildString(ConfigManager::getBuildString());	
 	gLogger->logMsgF("PingServer %s",MSG_NORMAL,BuildString.substr(11,BuildString.size()).c_str());
 	gLogger->logMsg("Welcome to your SWGANH Experience!\n");
 

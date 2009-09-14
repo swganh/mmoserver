@@ -322,6 +322,13 @@ class PlayerObject : public CreatureObject
 		uint16 *			getMissionIdMask() { return &mMissionIdMask; }
 		void				setmissionIdMask(uint16 mask) { mMissionIdMask = mask; }
 
+		// Targetting
+		uint64				getCombatTargetId(void);
+		void				setCombatTargetId(uint64 targetId);
+		void				enableAutoAttack(void);
+		void				disableAutoAttack(void);
+		bool				autoAttackEnabled(void);
+
 	private:
 		
 		void				_verifyBadges();
@@ -436,6 +443,10 @@ class PlayerObject : public CreatureObject
 		bool				mMounted;
 		bool				mMountCalled;
 		CreatureObject*		mMount;
+
+		// The actual target player are hitting, not always the same as the "look-at" target.
+		uint64				mCombatTargetId;
+		bool				mAutoAttack;
 
 		
 };

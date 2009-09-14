@@ -237,6 +237,8 @@ class CreatureObject : public MovingObject
 		virtual void		prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
 
 		void				makePeaceWithDefender(uint64 targetId);
+		uint64				getNearestDefender(void);
+
 		virtual void		inPeace(void) { }
 		virtual void		killEvent(void) { }
 		virtual void		respawn(void) { }

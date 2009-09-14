@@ -140,7 +140,7 @@ void TicketCollector::handleUIEvent(uint32 action,int32 element,string inputStr,
 		// in range check
 		if(playerObject->getParentId() != mParentId || !playerObject->mPosition.inRange2D(this->mPosition,10.0f))
 		{
-			//gMessageLib->sendSystemMessage(playerObject,L"You are out of range.");
+			//gMessageLib->sendSystemMessage(playerObject,L"","system_msg","out_of_range");
 			gMessageLib->sendSystemMessage(playerObject,L"","travel","boarding_too_far");
 			return;
 		}

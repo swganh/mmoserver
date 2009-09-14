@@ -798,7 +798,7 @@ void	EntertainerManager::startMusicPerformance(PlayerObject* entertainer,string 
 		{
 			// We where out of range. (using 6.0 m as default range,this value not verified).
 			// TODO: Find the proper error-message, the one below is a "made up".
-			gMessageLib->sendSystemMessage(entertainer,L"You are out of range.");
+			gMessageLib->sendSystemMessage(entertainer,L"","system_msg","out_of_range");
 			return;
 		}
 

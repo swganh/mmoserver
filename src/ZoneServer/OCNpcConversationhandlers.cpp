@@ -81,7 +81,7 @@ void ObjectController::_handleNPCConversationStart(uint64 targetId,Message* mess
 			string msg(buffer);
 			msg.convert(BSTRType_Unicode16);
 			gMessageLib->sendSystemMessage(player,msg);
-			// gMessageLib->sendSystemMessage(player,L"You are out of range.");
+			// gMessageLib->sendSystemMessage(player,L"","system_msg","out_of_range");
 			return;
 		}
 

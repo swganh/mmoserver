@@ -79,7 +79,7 @@ void ActiveConversation::updateCurrentPage(uint32 selectId)
 	{
 		// We are out of range.
 		mCurrentPage = NULL;
-		gMessageLib->sendSystemMessage(player,L"You are out of range.");
+		gMessageLib->sendSystemMessage(player,L"","system_msg","out_of_range");
 		return;
 	}
 

@@ -1644,28 +1644,28 @@ void EntertainerManager::startListening(PlayerObject* audience, PlayerObject* en
 	// is the entertainer valid???
 	if(entertainer == NULL || entertainer == audience)
 	{
-		gMessageLib->sendSystemMessage(audience,L"@performance:music_fail");
+		gMessageLib->sendSystemMessage(audience,L"","performance","music_fail");
 		return;
 	}
 
 	//is the entertainer near enough???
 	if(!entertainer->mPosition.inRange2D(audience->mPosition,60))
 	{
-		gMessageLib->sendSystemMessage(audience,L"@performance:music_fail");
+		gMessageLib->sendSystemMessage(audience,L"","performance","music_fail");
 		return;
 	}
 
 	if(entertainer->getPerformingState() != PlayerPerformance_Music)
 	{
 		//we only can watch entertainers who are dancing!!!!
-		gMessageLib->sendSystemMessage(audience,L"@performance:dance_fail");
+		gMessageLib->sendSystemMessage(audience,L"","performance","dance_fail");
 		return;
 	}
 
 	if(audience->getPerformingState() != PlayerPerformance_None)
 	{
 		//we only can watch when we are not performing ourselves
-		gMessageLib->sendSystemMessage(audience,L"@performance:dance_fail");
+		gMessageLib->sendSystemMessage(audience,L"","performance","dance_fail");
 		return;
 	}
 

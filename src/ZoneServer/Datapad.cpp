@@ -400,7 +400,7 @@ bool Datapad::addManufacturingSchematic(ManufacturingSchematic* ms)
 	else
 	{
 		PlayerObject*	player			= dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getParentId()));					
-		gMessageLib->sendSystemMessage(player,L"Error datapad at max capacity. Couldn't create the manufacturing schematic.");
+		gMessageLib->sendSystemMessage(player,L"","ui_craft","err_datapad_full_prose");
 		return false;
 	}
 }

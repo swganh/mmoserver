@@ -351,7 +351,7 @@ uint32 QuestGiver::handleConversationEvent(ActiveConversation* av,ConversationPa
 
 				// Give player his quest gun.
 				player->getTutorial()->addQuestWeapon(0, 0); // Use default weapon.
-				gMessageLib->sendSystemMessage(player, L"@newbie_tutorial/system_messages:receive_weapon");
+				gMessageLib->sendSystemMessage(player, L"","newbie_tutorial/system_messages","receive_weapon");
 			}
 		}
 		else if (this->mId == 47513085683)	// The officer in the mission terminal room

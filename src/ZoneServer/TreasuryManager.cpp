@@ -259,7 +259,7 @@ void TreasuryManager::bankQuit(PlayerObject* playerObject)
 		mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE banks SET planet_id = -1 WHERE id=%lld",bank->getId());
 		
 
-		gMessageLib->sendSystemMessage(playerObject, L"@system_msg:succesfully_quit_bank");
+		gMessageLib->sendSystemMessage(playerObject, L"","system_msg","succesfully_quit_bank");
 	}
 }
 
@@ -272,14 +272,14 @@ void TreasuryManager::bankJoin(PlayerObject* playerObject)
 		// check if we're not already binded here
 		if(bank->getPlanet() == gWorldManager->getZoneId())
 		{
-			gMessageLib->sendSystemMessage(playerObject, L"@system_msg:already_member_of_bank");
+			gMessageLib->sendSystemMessage(playerObject, L"","system_msg","already_member_of_bank");
 			return;
 		}
 
 		// check if we are not binded to any other bank
 		if(!(bank->getPlanet() < 0))
 		{
-			gMessageLib->sendSystemMessage(playerObject, L"@system_msg:member_of_different_bank");
+			gMessageLib->sendSystemMessage(playerObject, L"","system_msg","member_of_different_bank");
 			return;
 		}
 
@@ -288,7 +288,7 @@ void TreasuryManager::bankJoin(PlayerObject* playerObject)
 		// save to db 
 		mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE banks SET planet_id=%i WHERE id=%lld",bank->getPlanet(),bank->getId());
 
-		gMessageLib->sendSystemMessage(playerObject, L"@system_msg:succesfully_joined_bank");
+		gMessageLib->sendSystemMessage(playerObject, L"","system_msg","succesfully_joined_bank");
 	}
 }
 
@@ -444,7 +444,7 @@ void TreasuryManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 
 			   break;
 			}
-			gMessageLib->sendSystemMessage(asynContainer->player, L"You may only tip to valid player targets");
+			gMessageLib->sendSystemMessage(asynContainer->player, L"You may only /tip or /tip bank to other players.");
 		}
 		break;
 		
@@ -468,7 +468,7 @@ void TreasuryManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 			}
 			else
 			{
-				gMessageLib->sendSystemMessage(asynContainer->player, L"Transaction error");
+				gMessageLib->sendSystemMessage(asynContainer->player, L"","error_message","bank_error");
 			}
 		}
 		break;

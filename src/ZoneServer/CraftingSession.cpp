@@ -87,7 +87,7 @@ CraftingSession::~CraftingSession()
 
 	// send cancel session
 	gMessageLib->sendSharedNetworkMessage(mOwner,0,1);
-	gMessageLib->sendSystemMessage(mOwner,L"@ui_craft:session_ended");
+	gMessageLib->sendSystemMessage(mOwner,L"","ui_craft","session_ended");
 
 	// send player updates
 	gMessageLib->sendStateUpdate(mOwner);

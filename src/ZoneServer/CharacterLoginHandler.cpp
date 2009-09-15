@@ -479,6 +479,6 @@ void CharacterLoginHandler::_processClusterZoneTransferDenied(Message* message, 
 	// put it to the disconnected list
 	if((playerObject = gWorldManager->getPlayerByAccId(message->getAccountId())) != NULL)
 	{
-		gMessageLib->sendSystemMessage(playerObject,L"That planet has been blown to bits.");
+		gMessageLib->sendSystemMessage(playerObject,L"The Emperor has restricted travel to this planet at this time.");
 	}
 }

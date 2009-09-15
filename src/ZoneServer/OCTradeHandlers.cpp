@@ -229,8 +229,8 @@ void ObjectController::_handleTip(uint64 targetId,Message* message,ObjectControl
 
 		if(targetId && (!havetarget))
 		{
-			//please note that this is rather cokplex as we have a targetid even if we explicitely name a target
-			gMessageLib->sendSystemMessage(player, L"you may only /tip valid player targets");
+			//please note that this is rather complex as we have a targetid even if we explicitly names a target
+			gMessageLib->sendSystemMessage(player, L"You may only /tip valid players.");
 			return;
 		}
 	}
@@ -254,7 +254,7 @@ void ObjectController::_handleTip(uint64 targetId,Message* message,ObjectControl
 	if(targetId && (!target))
 	{
 		//please note that this is rather cokplex as we have a targetid even if we explicitely name a target
-		gMessageLib->sendSystemMessage(player, L"you can only /tip players");
+		gMessageLib->sendSystemMessage(player, L"You can only /tip valid players.");
 		return;
 	}
 

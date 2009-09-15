@@ -105,7 +105,7 @@ void ObjectController::_handleDismount(uint64 targetId,Message* message,ObjectCo
 		}
 		else
 		{
-			gMessageLib->sendSystemMessage(player,L"You are not drivng a vehicle at this time.");
+			gMessageLib->sendSystemMessage(player,L"You are not mounted to perform this action.");
 		}
 	}
 }

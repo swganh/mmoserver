@@ -542,7 +542,7 @@ return;
 void MissionManager::missionComplete(PlayerObject* player, MissionObject* mission)
 {
 	wchar_t sm[100];
-	wsprintf(sm,L"Mission complete! Your reward of %d credits has been placed in your bank account.",mission->getReward());
+	wsprintf(sm,L"","mission/mission_generic","success_w_amount",mission->getReward());
 	gMessageLib->sendSystemMessage(player,sm);
 	
 	//remove mission
@@ -803,7 +803,7 @@ void MissionManager::checkSurveyMission(PlayerObject* player,CurrentResource* re
 							
 
 							int8 sm[500];
-							sprintf(sm,"That resource pocket is too close (%d meters) to the mission giver to be useful to them. Go find one at least %d meters away to complete your survey mission.",									
+							sprintf(sm,L"","mission/mission_generic","survey_too_close",									
 										(int)mission->getIssuingTerminal()->mPosition.distance2D(highestDist.position),
 										(1024 - (int)mission->getIssuingTerminal()->mPosition.distance2D(highestDist.position))
 										);

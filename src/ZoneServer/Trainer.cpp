@@ -407,7 +407,7 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
 			if (failed)
 			{
 				// This is a system failure.
-				gMessageLib->sendSystemMessage(player,L"Learning failed");
+				gMessageLib->sendSystemMessage(player,L"","teaching","learning_failed");
 				pageLink = 0;
 				break;
 			}
@@ -598,7 +598,7 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
 					if (!(dynamic_cast<Bank*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->updateCredits(-skill->mMoneyRequired)))
 					{	
 						// This is a system error.
-						gMessageLib->sendSystemMessage(player,L"Error verifying credits, learning failed");
+						gMessageLib->sendSystemMessage(player,L"","skill_teacher","prose_nsf");
 						gLogger->logMsg("Trainer::conversationEvent: ERROR: Error verifying credits\n");
 						pageLink = 0;
 					}
@@ -607,7 +607,7 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
 			else
 			{
 				// This is a system error.
-				gMessageLib->sendSystemMessage(player,L"Learning failed");
+				gMessageLib->sendSystemMessage(player,L"","teaching","learning_failed");
 				// gLogger->logMsg("Trainer::conversationEvent: Error verifying credits");
 				pageLink = 0;
 			}
@@ -668,7 +668,7 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
 			else
 			{
 				// This is a system error.
-				gMessageLib->sendSystemMessage(player,L"Learning failed");
+				gMessageLib->sendSystemMessage(player,L"","teaching","learning_failed");
 				// gLogger->logMsg("Trainer::conversationEvent: Error verifying credits");
 				pageLink = 0;
 			}

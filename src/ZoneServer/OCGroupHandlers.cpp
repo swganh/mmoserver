@@ -48,7 +48,7 @@ void ObjectController::_handleInvite(uint64 targetId,Message* message,ObjectCont
 	// if  target is valid
 	if(target_player == NULL || target_player == player)
 	{
-		gMessageLib->sendSystemMessage(player,L"@group:invite_no_target_self");
+		gMessageLib->sendSystemMessage(player,L"","group","invite_no_target_self");
 		return;
 	}
 
@@ -77,7 +77,7 @@ void ObjectController::_handleUninvite(uint64 targetId,Message* message,ObjectCo
 	// if  target is valid
 	if(targetPlayer == NULL || targetPlayer == player)
 	{
-		gMessageLib->sendSystemMessage(player,L"@group:uninvite_no_target_self");
+		gMessageLib->sendSystemMessage(player,L"","group","uninvite_no_target_self");
 		return;
 	}
 
@@ -125,7 +125,7 @@ void ObjectController::_handleDecline(uint64 targetId,Message* message,ObjectCon
 	// resetting the sender's id 
 	gMessageLib->sendInviteSenderUpdateDeltasCreo6(0,player);
 
-	gMessageLib->sendSystemMessage(player, L"@group:decline_self");
+	gMessageLib->sendSystemMessage(player, L"","group","decline_self");
 
 	// we advise the chat server that he refused
 	Message* newMessage;

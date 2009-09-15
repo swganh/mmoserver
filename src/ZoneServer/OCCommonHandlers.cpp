@@ -219,7 +219,7 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 			{
 				if(item->getPersistantCopy())
 				{
-					gMessageLib->sendSystemMessage(playerObject,L"you cannot pick this up");
+					gMessageLib->sendSystemMessage(playerObject,L"You cannot pick this up.");
 					return;
 				}
 			}
@@ -884,7 +884,7 @@ void ObjectController::_handlePurchaseTicket(uint64 targetId,Message* message,Ob
 
 	if(playerObject->getPosture() == CreaturePosture_SkillAnimating)
 	{
-		gMessageLib->sendSystemMessage(playerObject,L"You cannot do that at this time");
+		gMessageLib->sendSystemMessage(playerObject,L"You cannot do that at this time.");
 		return;
 	}
 

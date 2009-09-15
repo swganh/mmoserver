@@ -137,7 +137,7 @@ void Food::handleFoodUse(Object* srcObject)
 		//do we still have place for it ?
 		if(!playerObject->getStomach()->checkFood(filling))
 		{
-			gMessageLib->sendSystemMessage(playerObject, L"Your stomach is bursting already.");
+			gMessageLib->sendSystemMessage(playerObject, L"","error_message","full_food");
 			return;
 		}
 		
@@ -158,7 +158,7 @@ void Food::handleFoodUse(Object* srcObject)
 		//do we still have place for it ?
 		if(!playerObject->getStomach()->checkDrink(filling))
 		{
-			gMessageLib->sendSystemMessage(playerObject, L"Your stomach is bursting already.");
+			gMessageLib->sendSystemMessage(playerObject, L"","error_message","full_drink");
 			return;
 		}
 

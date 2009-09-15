@@ -156,7 +156,7 @@ void ObjectController::_handleSitServer(uint64 targetId,Message* message,ObjectC
 	}
 
 	//hack-fix clientside bug by manually sending client message
-	gMessageLib->sendSystemMessage(playerObject,L"You sit.");
+	gMessageLib->sendSystemMessage(playerObject,L"","shared","player_sit");
 }
 
 //=============================================================================
@@ -200,7 +200,7 @@ void ObjectController::_handleStand(uint64 targetId,Message* message,ObjectContr
 	//if player is seated on an a chair, hack-fix clientside bug by manually sending client message
 	if(IsSeatedOnChair)
 	{
-		gMessageLib->sendSystemMessage(playerObject,L"You stand up.");
+		gMessageLib->sendSystemMessage(playerObject,L"","shared","player_stand");
 	}
 }
 
@@ -242,7 +242,7 @@ void ObjectController::_handleProne(uint64 targetId,Message* message,ObjectContr
 	//if player is seated on an a chair, hack-fix clientside bug by manually sending client message
 	if(IsSeatedOnChair)
 	{
-		gMessageLib->sendSystemMessage(playerObject,L"You go prone.");
+		gMessageLib->sendSystemMessage(playerObject,L"","shared","player_prone");
 	}
 }
 
@@ -275,7 +275,7 @@ void ObjectController::_handleKneel(uint64 targetId,Message* message,ObjectContr
 	//if player is seated on an a chair, hack-fix clientside bug by manually sending client message
 	if(IsSeatedOnChair)
 	{
-		gMessageLib->sendSystemMessage(playerObject,L"You kneel.");
+		gMessageLib->sendSystemMessage(playerObject,L"","shared","player_kneel");
 	}
 }
 

@@ -794,7 +794,7 @@ void MissionManager::checkSurveyMission(PlayerObject* player,CurrentResource* re
 					{
 						if(!mission->getIssuingTerminal()->mPosition.inRange2D(highestDist.position,1024))
 						{
-							gLogger->logMsg("PE > 500: ready to apply new BF/wound dmg\n");
+							gLogger->logMsg("PE > 500: ready to apply new BF/wound dmg");
 							missionComplete(player,mission);
 							it = datapad->removeMission(it);
 							delete mission;

@@ -46,7 +46,7 @@ LoginServer::~LoginServer(void)
 void LoginServer::Startup(void)
 {
 	// log msg to default log
-  gLogger->printSmallLogo();
+  //gLogger->printSmallLogo();
   gLogger->logMsg("LoginServer Startup");
   // gLogger->logMsg(GetBuildString());
   gLogger->logMsg(ConfigManager::getBuildString());
@@ -90,20 +90,20 @@ void LoginServer::Startup(void)
 
 	// Let our network Service know about our callbacks
 	mService->AddNetworkCallback(mLoginManager);
-	gLogger->logMsg("LoginServer Startup complete\n");
-	gLogger->printLogo();
+	gLogger->logMsg("LoginServer Startup complete");
+	//gLogger->printLogo();
 	// std::string BuildString(GetBuildString());	
 	std::string BuildString(ConfigManager::getBuildString());	
 
 	gLogger->logMsgF("LoginServer %s",MSG_NORMAL,BuildString.substr(11,BuildString.size()).c_str());
-	gLogger->logMsg("Welcome to your SWGANH Experience!\n");
+	gLogger->logMsg("Welcome to your SWGANH Experience!");
 }
 
 
 //======================================================================================================================
 void LoginServer::Shutdown(void)
 {
-	gLogger->logMsg("LoginServer shutting down...\n");
+	gLogger->logMsg("LoginServer shutting down...");
 
 	mLoginManager->Shutdown();
 	delete(mLoginManager);

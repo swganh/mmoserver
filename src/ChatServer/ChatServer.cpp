@@ -53,8 +53,8 @@ ChatServer::~ChatServer()
 
 void ChatServer::Startup()
 {
-	gLogger->printSmallLogo();
-	gLogger->logMsg("ChatServer Startup\n");
+	//gLogger->printSmallLogo();
+	gLogger->logMsg("ChatServer Startup");
 	// gLogger->logMsg(GetBuildString());
 	gLogger->logMsg(ConfigManager::getBuildString());
 
@@ -113,19 +113,19 @@ void ChatServer::Startup()
 	// We're done initializing.
 	_updateDBServerList(2);
 
-	gLogger->logMsg("ChatServer::Startup Complete\n");
-	gLogger->printLogo();
+	gLogger->logMsg("ChatServer::Startup Complete");
+	//gLogger->printLogo();
 	// std::string BuildString(GetBuildString());
 	std::string BuildString(ConfigManager::getBuildString());
 	gLogger->logMsgF("ChatServer %s",MSG_NORMAL,BuildString.substr(11,BuildString.size()).c_str());
-	gLogger->logMsg("Welcome to your SWGANH Experience!\n");
+	gLogger->logMsg("Welcome to your SWGANH Experience!");
 }
 
 //======================================================================================================================
 
 void ChatServer::Shutdown()
 {
-	gLogger->logMsg("ChatServer shutting down...\n");
+	gLogger->logMsg("ChatServer shutting down...");
 
 	// We're shutting down, so update the DB again.
 	_updateDBServerList(0);

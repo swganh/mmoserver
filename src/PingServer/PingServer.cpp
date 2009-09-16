@@ -44,7 +44,7 @@ void PingServer::start()
 
 	gConfig->readInto(address,"BindAddress");
 	gConfig->readInto(port,"BindPort");
-	gLogger->logMsgF("PingServer listening at %s:%d\n",MSG_NORMAL,address.c_str(),port);
+	gLogger->logMsgF("PingServer listening at %s:%d",MSG_NORMAL,address.c_str(),port);
 
 
 	//strcpy(mLocalAddressName,localAddress);
@@ -55,11 +55,11 @@ void PingServer::start()
 	
 	mAsynchPingThread = new ASynchPingSocket();
 	mAsynchPingThread->StartServer(pingAddress,(int)port);
-	gLogger->printLogo();
+	//gLogger->printLogo();
 	// std::string BuildString(GetBuildString());	
 	std::string BuildString(ConfigManager::getBuildString());	
 	gLogger->logMsgF("PingServer %s",MSG_NORMAL,BuildString.substr(11,BuildString.size()).c_str());
-	gLogger->logMsg("Welcome to your SWGANH Experience!\n");
+	gLogger->logMsg("Welcome to your SWGANH Experience!");
 
 	}
 

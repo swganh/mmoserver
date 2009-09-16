@@ -87,7 +87,7 @@ ZoneServer::~ZoneServer(void)
 
 void ZoneServer::Startup(int8* zoneName)
 {
-	gLogger->printSmallLogo();
+	//gLogger->printSmallLogo();
 	// gLogger->logMsgF("ZoneServer - %s Startup %s",MSG_NORMAL,zoneName,GetBuildString());
 	gLogger->logMsgF("ZoneServer - %s Startup %s",MSG_NORMAL,zoneName,ConfigManager::getBuildString());
 	//gLogger->logMsg(GetBuildString());
@@ -206,7 +206,7 @@ void ZoneServer::handleWMReady()
 {
 	_updateDBServerList(2);
 	gLogger->logMsg("ZoneServer::Startup Complete");
-	gLogger->printLogo();
+	//gLogger->printLogo();
 	// std::string BuildString(GetBuildString());	
 	std::string BuildString(ConfigManager::getBuildString());	
 	gLogger->logMsgF("ZoneServer:%s %s",MSG_NORMAL,getZoneName().getAnsi(),BuildString.substr(11,BuildString.size()).c_str());

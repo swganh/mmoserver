@@ -55,7 +55,7 @@ AdminServer::~AdminServer(void)
 //======================================================================================================================
 void AdminServer::Startup(void)
 {
-  gLogger->printSmallLogo();
+  //gLogger->printSmallLogo();
   // gLogger->logMsgF("AdminServer Startup : %s",MSG_HIGH,GetBuildString());
   gLogger->logMsgF("AdminServer Startup : %s",MSG_HIGH,ConfigManager::getBuildString());
   
@@ -109,7 +109,7 @@ void AdminServer::Startup(void)
   _updateDBServerList(2);
 
   gLogger->logMsg("AdminServer::Startup Complete");
-  gLogger->printLogo();
+  //gLogger->printLogo();
   // std::string BuildString(GetBuildString());	
   std::string BuildString(ConfigManager::getBuildString());	
   
@@ -121,7 +121,7 @@ void AdminServer::Startup(void)
 //======================================================================================================================
 void AdminServer::Shutdown(void)
 {
-  gLogger->logMsg("AdminServer shutting down...\n");
+  gLogger->logMsg("AdminServer shutting down...");
 
    // We're shutting down, so update the DB again.
   _updateDBServerList(0);

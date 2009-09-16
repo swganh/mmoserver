@@ -63,7 +63,7 @@ ConnectionServer::~ConnectionServer(void)
 void ConnectionServer::Startup(void)
 {
 	// log msg to default log
-	gLogger->printSmallLogo();
+	//gLogger->printSmallLogo();
 	gLogger->logMsg("ConnectionServer Startup", FOREGROUND_GREEN | FOREGROUND_RED);
 	// gLogger->logMsg(GetBuildString());
 	gLogger->logMsg(ConfigManager::getBuildString());
@@ -125,12 +125,12 @@ void ConnectionServer::Startup(void)
 
 	// We're done initiailizing.
 	_updateDBServerList(2);
-	gLogger->logMsg("ConnectionServer::Server Boot Complete\n", FOREGROUND_GREEN);
-	gLogger->printLogo();
+	gLogger->logMsg("ConnectionServer::Server Boot Complete", FOREGROUND_GREEN);
+	//gLogger->printLogo();
 	// std::string BuildString(GetBuildString());	
 	std::string BuildString(ConfigManager::getBuildString());	
 	gLogger->logMsgF("ConnectionServer %s",MSG_NORMAL,BuildString.substr(11,BuildString.size()).c_str());
-	gLogger->logMsg("Welcome to your SWGANH Experience!\n");
+	gLogger->logMsg("Welcome to your SWGANH Experience!");
 	
 	
 }

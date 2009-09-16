@@ -983,7 +983,7 @@ void ObjectController::_handlePurchaseTicket(uint64 targetId,Message* message,Ob
 		if(!(bank->updateCredits(-ticketProperties.price)))
 		{
 			//gMessageLib->sendSystemMessage(entertainer,L"","travel","route_not_available");
-			gUIManager->createNewMessageBox(NULL,"ticketPurchaseFailed","swgANH","Not enough money!",playerObject);
+			gUIManager->createNewMessageBox(NULL,"ticketPurchaseFailed","The Galactic Travel Commission","You do not have enough money to complete the ticket purchase.",playerObject);
 			return;
 		}
 	}

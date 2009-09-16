@@ -74,7 +74,7 @@ class Log
 		void    logMsg(const std::string& msg, MsgPriority mp, va_list args);
 		void	logMsgNolf(const std::string& msg, MsgPriority mp, bool fileOut, bool consoleOut, bool timestamp, int Color, va_list args);
 		void	logMsgNolf(const std::string& msg, MsgPriority mp, bool fileOut, bool consoleOut, bool timestamp, int Color);
-		void    logMsgNolf(const std::string& msg, MsgPriority mp, va_list args);
+		uint16  logMsgNolf(const std::string& msg, MsgPriority mp, va_list args);
 		void	hexDump(int8* data,uint32 len,MsgPriority mp);
 		void    hexDump(int8* data,uint32 len,const char* filename);
 

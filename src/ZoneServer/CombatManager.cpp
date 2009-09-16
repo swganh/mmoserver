@@ -74,7 +74,6 @@ CombatManager::~CombatManager()
 
 void CombatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 {
-	gLogger->logMsg("CombatManager::Loading Weapon Groups...");
 	CMWeaponGroup*	weaponGroup;
 	DataBinding*	binding = mDatabase->CreateDataBinding(3);
 
@@ -92,8 +91,11 @@ void CombatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 		mWeaponGroups.push_back(weaponGroup);
 	}
-	printf(" %I64u loaded",count);
-	gLogger->logMsgOk(15);
+	if(result->getRowCount())
+		gLogger->logMsgLoadSuccess("CombatManager::Loading %u weapon groups...",MSG_NORMAL,result->getRowCount());
+	else
+		gLogger->logMsgLoadFailure("CombatManager::Loading weapon groups...",MSG_NORMAL);					
+
 	mDatabase->DestroyDataBinding(binding);
 }
 

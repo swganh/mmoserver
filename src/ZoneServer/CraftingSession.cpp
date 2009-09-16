@@ -853,6 +853,7 @@ void CraftingSession::handleFillSlotResource(uint64 resContainerId,uint32 slotId
 		}
 
 		// update the slot contents, send all slots on first fill
+		// we need to make sure we only update lists with changes, so the lists dont desynchronize!
 		if(!mFirstFill)
 		{
 			mFirstFill = true;
@@ -1154,6 +1155,8 @@ void CraftingSession::assemble(uint32 counter)
 	else
 		mStage = 4;
 
+	// --------------------------------------------------
+	// --------------------------------------------------
 	//this is a critical error
 	if(assRoll == 8)
 	{
@@ -1189,6 +1192,9 @@ void CraftingSession::assemble(uint32 counter)
 		gMessageLib->sendGenericIntResponse(assRoll,counter,mOwner);
 		return;
 	}
+
+	// ---------------------------------------------
+	// it wasnt a critical so go on
 		
 	mOwner->setCraftingStage(mStage);
 	gMessageLib->sendUpdateCraftingStage(mOwner);
@@ -1204,6 +1210,10 @@ void CraftingSession::assemble(uint32 counter)
 
 	expIt	= expPropertiesList->begin();
 
+	// ------------------------------------------------
+	// to do it properly we would have to roll for every experimentation property  ???
+	// in assembly, too or only for experimentation ??
+
 	while(expIt != expPropertiesList->end())
 	{
 		ExperimentationProperty*	expProperty = (*expIt);
@@ -1212,6 +1222,7 @@ void CraftingSession::assemble(uint32 counter)
 
 		// max reachable percentage
 		expProperty->mMaxExpValue = wrv * 0.001f;
+		// we need to mark changed values so we now what list to update when we send our deltas
 		mManufacturingSchematic->mMaxExpValueChange = true;
 
 		// initial assembly percentage
@@ -1220,7 +1231,9 @@ void CraftingSession::assemble(uint32 counter)
 		// update the items attributes
 		CraftAttributes::iterator caIt = expProperty->mAttributes->begin();
 
-		//one exp attribute can have several item attributes!!!
+		// one exp attribute can have several item attributes!!!
+		// however if the itemattributes have different weights we will introduce an additional
+		// exp attribute - the msco code will sort that out so that the exp attribute is only send once!
 		while(caIt != expProperty->mAttributes->end())
 		{
 			CraftAttribute* att = (*caIt);
@@ -1505,11 +1518,21 @@ uint8 CraftingSession::_experimentRoll(uint32 expPoints)
 
 void CraftingSession::experiment(uint8 counter,std::vector<std::pair<uint32,uint32> > properties)
 {
-	ExperimentationProperties*		expPropList = mManufacturingSchematic->getExperimentationProperties();
+	// a list containing every exp property ONCE (the first if one is represented several times)
+	ExperimentationPropertiesStore*		expPropList = mManufacturingSchematic->getExperimentationPropertiesStore();
+
+	// a list containing ALL exp properties - including the ones appearing more often than once
+	ExperimentationProperties*			expAllProps = mManufacturingSchematic->getExperimentationProperties();
+	ExperimentationProperties::iterator itAll =	 expAllProps->begin();
+
+	
 	
 	uint32				expPoints = 0;
+
+	//this is the list containing the assigned experimentation points
 	std::vector<std::pair<uint32,uint32> >::iterator it = properties.begin();
 	
+	// collect the total of spend exp points
 	while(it != properties.end())
 	{
 		expPoints +=(*it).first; 
@@ -1517,29 +1540,79 @@ void CraftingSession::experiment(uint8 counter,std::vector<std::pair<uint32,uint
 		++it;
 	}
 
-	uint8 roll			= _experimentRoll(expPoints);
-	float percentage	= 0.0f;
+	// here we accumulate our experimentation rolls
+	uint16	accumulatedRoll = 0;
+	uint8	rollCount = 0;
 
-	switch(roll)
+	// initialize our storage value so we know what we already experimented on
+	// use the list containing ALL properties
+	itAll =	 expAllProps->begin();
+	while(itAll != expAllProps->end())
 	{
-		case 0 :	percentage = 0.08f;	break;
-		case 1 :	percentage = 0.07f;	break;
-		case 2 :	percentage = 0.06f;	break;
-		case 3 :	percentage = 0.02f;	break;
-		case 4 :	percentage = 0.01f;	break;
-		case 5 :	percentage = -0.0175f;	break; //failure
-		case 6 :	percentage = -0.035f;	break;//moderate failure
-		case 7 :	percentage = -0.07f;	break;//big failure
-		case 8 :	percentage = -0.14f;	break;//critical failure
+		ExperimentationProperty* expProperty = (*itAll);
+		expProperty->mRoll = -1;
+		itAll++;
 	}
+
 
 	// update expAttributes
 	it			= properties.begin();
 	expPoints	= 0;
 
+	uint8 roll;
 	while(it != properties.end())
 	{
-		ExperimentationProperty* expProperty = expPropList->at((*it).second);
+		ExperimentationProperty* expProperty = expPropList->at((*it).second).second;
+		gLogger->logMsgF("CraftingSession:: experiment expProperty : %s",MSG_NORMAL,expProperty->mExpAttributeName.getAnsi());
+
+		// make sure that we only experiment once for exp properties that might be entered twice in our list !!!!
+		if(expProperty->mRoll == -1)
+		{
+			gLogger->logMsgF("CraftingSession:: expProperty is a Virgin!",MSG_NORMAL);
+			// get our Roll and take into account the relevant modifiers
+			roll			= _experimentRoll(expPoints);
+			
+			// now go through all properties and mark them when its this one!
+			// so we dont experiment two times on it!
+			itAll =	 expAllProps->begin();
+			while(itAll != expAllProps->end())
+			{
+				ExperimentationProperty* tempProperty = (*itAll);
+				
+				gLogger->logMsgF("CraftingSession:: now testing expProperty : %s",MSG_NORMAL,tempProperty->mExpAttributeName.getAnsi());
+				if(expProperty->mExpAttributeName.getCrc() == tempProperty->mExpAttributeName.getCrc())
+				{
+					gLogger->logMsgF("CraftingSession:: yay :) lets assign it our roll : %u",MSG_NORMAL,roll);
+					tempProperty->mRoll = roll;
+				}
+				
+				itAll++;
+			}
+			
+		}
+		else
+		{
+			roll = expProperty->mRoll;
+			gLogger->logMsgF("CraftingSession:: experiment expProperty isnt a virgin anymore ...(roll:%u)",MSG_NORMAL,roll);
+		}
+
+		
+		accumulatedRoll += roll;
+		rollCount++;
+		float percentage	= 0.0f;
+
+		switch(roll)
+		{
+			case 0 :	percentage = 0.08f;	break;
+			case 1 :	percentage = 0.07f;	break;
+			case 2 :	percentage = 0.06f;	break;
+			case 3 :	percentage = 0.02f;	break;
+			case 4 :	percentage = 0.01f;	break;
+			case 5 :	percentage = -0.0175f;	break; //failure
+			case 6 :	percentage = -0.035f;	break;//moderate failure
+			case 7 :	percentage = -0.07f;	break;//big failure
+			case 8 :	percentage = -0.14f;	break;//critical failure
+		}
 
 		if((roll < 1) || (roll >4))
 		{
@@ -1591,6 +1664,9 @@ void CraftingSession::experiment(uint8 counter,std::vector<std::pair<uint32,uint
 		++it;
 	}
 
+	// get the gross of our exp rolls for the message
+	roll = (uint8)   accumulatedRoll/rollCount;
+	
 	// update left exp points
 	mOwner->setExperimentationPoints(mOwner->getExperimentationPoints() - expPoints);
 

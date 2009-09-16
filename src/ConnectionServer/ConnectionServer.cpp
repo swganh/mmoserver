@@ -64,7 +64,7 @@ void ConnectionServer::Startup(void)
 {
 	// log msg to default log
 	gLogger->printSmallLogo();
-	gLogger->logMsg("ConnectionServer Startup\n", FOREGROUND_GREEN | FOREGROUND_RED);
+	gLogger->logMsg("ConnectionServer Startup", FOREGROUND_GREEN | FOREGROUND_RED);
 	// gLogger->logMsg(GetBuildString());
 	gLogger->logMsg(ConfigManager::getBuildString());
 	
@@ -93,7 +93,7 @@ void ConnectionServer::Startup(void)
 	mDatabase->ExecuteSqlAsync(0, 0, "UPDATE galaxy SET status=1, last_update=NOW() WHERE galaxy_id=%u;", mClusterId);
 
 	gLogger->connecttoDB(mDatabaseManager);
-	gLogger->createErrorLog("connection",(LogLevel)(gConfig->read<int>("LogLevel",2)),
+	gLogger->createErrorLog("connection.log",(LogLevel)(gConfig->read<int>("LogLevel",2)),
 										(bool)(gConfig->read<bool>("LogToFile", true)),
 										(bool)(gConfig->read<bool>("ConsoleOut",true)),
 										(bool)(gConfig->read<bool>("LogAppend",true)));

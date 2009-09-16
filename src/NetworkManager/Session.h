@@ -141,6 +141,7 @@ private:
 	  void                        _processDataChannelB(Packet* packet, bool fastPath);
 	  
 	  void                        _processDataOrderPacket(Packet* packet);
+	  void                        _processDataOrderChannelB(Packet* packet);
 	  void                        _processDataChannelAck(Packet* packet);
 	  void                        _processFragmentedPacket(Packet* packet);
 	  void                        _processPingPacket(Packet* packet);

@@ -55,7 +55,7 @@ mServerTime(0),
 mState(WMState_StartUp),
 mWM_DB_AsyncPool(sizeof(WMAsyncContainer))
 {
-	gLogger->logMsg("WorldManager::StartUp\n");
+	gLogger->logMsg("WorldManager::StartUp");
 
 	// set up spatial index
 	mSpatialIndex = new ZoneTree();
@@ -222,8 +222,11 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					DataBinding*	binding = mDatabase->CreateDataBinding(1);
 					binding->addField(DFT_uint32,0,4);
 					result->GetNextRow(binding,&mTotalObjectCount);
-	
-					gLogger->logMsgStartUp("WorldManager::Loading Objects...");
+
+					if(result->getRowCount())
+						gLogger->logMsgLoadSuccess("WorldManager::Loading %u Objects...",MSG_NORMAL,mTotalObjectCount);
+					else
+						gLogger->logMsgLoadFailure("WorldManager::Loading Objects...",MSG_NORMAL);
 
 					if(mTotalObjectCount > 0)
 					{
@@ -271,10 +274,6 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 						//load creature spawn regions, and optionally heightmaps cache.
 						mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_CreatureSpawnRegions),"SELECT id, spawn_x, spawn_z, spawn_width, spawn_length FROM spawns WHERE spawn_planet=%u ORDER BY id;",mZoneId);
 
-						//printf isnt threadsafe ...
-						gLogger->logMsgFollowUp(" %u loaded",MSG_NORMAL,mTotalObjectCount);
-						//printf();
-						gLogger->logMsgOk(20);
 					}					
 					// no objects to load, so we are done
 					else
@@ -289,13 +288,17 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				// zone regions
 				case WMQuery_ZoneRegions:
 				{
-					gLogger->logMsgStartUp("WorldManager::Loading zone region...");
 
 					DataBinding* regionBinding = mDatabase->CreateDataBinding(1);
 					regionBinding->addField(DFT_int64,0,8);
 
 					uint64 regionId;
 					uint64 count = result->getRowCount();
+
+					if(result->getRowCount())
+						gLogger->logMsgLoadSuccess("WorldManager::Loading %u Zone Regions...",MSG_NORMAL,count);
+					else
+						gLogger->logMsgLoadFailure("WorldManager::Loading Zone Regions...",MSG_NORMAL);
 
 					for(uint64 i = 0;i < count;i++)
 					{
@@ -304,8 +307,6 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 						gObjectFactory->requestObject(ObjType_Region,Region_Zone,0,this,regionId,asyncContainer->mClient);
 					}
 
-					gLogger->logMsgFollowUp(" %3lld loaded",MSG_NORMAL,count);
-					gLogger->logMsgOk(17);
 					mDatabase->DestroyDataBinding(regionBinding);
 				}
 				break;
@@ -359,9 +360,11 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 						mObjectAttributeKeyMap.insert(std::make_pair(tmp.getCrc(),BString(tmp.getAnsi())));
 					}
 
+					if(result->getRowCount())
+						gLogger->logMsgLoadSuccess("WorldManager::Loading %u Attribute Keys...",MSG_NORMAL,attributeCount);
+					else
+						gLogger->logMsgLoadFailure("WorldManager::Loading Attribute Keys...",MSG_NORMAL);
 					
-					gLogger->logMsgStartUp("WorldManager::Loaded %lld Attribute Keys",MSG_NORMAL,attributeCount);
-					gLogger->logMsgOk(24);
 					mDatabase->DestroyDataBinding(binding);
 				}
 				break;
@@ -382,8 +385,11 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 						mvClientEffects.push_back(BString(tmp.getAnsi()));
 					}
 					
-					gLogger->logMsgStartUp("WorldManager::Loaded %lld Client Effects",MSG_NORMAL,effectCount);
-					gLogger->logMsgOk(25);
+					if(result->getRowCount())
+						gLogger->logMsgLoadSuccess("WorldManager::Loading %u Client Effects...",MSG_NORMAL,effectCount);
+					else
+						gLogger->logMsgLoadFailure("WorldManager::Loading Client Effects...",MSG_NORMAL);					
+
 
 					mDatabase->DestroyDataBinding(binding);
 				}
@@ -405,8 +411,11 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 						mvSounds.push_back(BString(tmp.getAnsi()));
 					}					
 
-					gLogger->logMsgStartUp("WorldManager::Loaded %lld Sound Effects",MSG_NORMAL,effectCount);
-					gLogger->logMsgOk(25);
+					if(result->getRowCount())
+						gLogger->logMsgLoadSuccess("WorldManager::Loading %u Sound Effects...",MSG_NORMAL,effectCount);
+					else
+						gLogger->logMsgLoadFailure("WorldManager::Loading Sound Effects...",MSG_NORMAL);					
+					
 					mDatabase->DestroyDataBinding(binding);
 				}
 				break;
@@ -427,8 +436,12 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 						mvMoods.push_back(BString(tmp.getAnsi()));
 					}
 
-					gLogger->logMsgStartUp("WorldManager::Loaded %lld moods",MSG_NORMAL,effectCount);
-					gLogger->logMsgOk(34);
+					if(result->getRowCount())
+						gLogger->logMsgLoadSuccess("WorldManager::Loading %u moods...",MSG_NORMAL,effectCount);
+					else
+						gLogger->logMsgLoadFailure("WorldManager::Loading moods...",MSG_NORMAL);					
+
+				
 					mDatabase->DestroyDataBinding(binding);
 				}
 				break;
@@ -449,8 +462,10 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 						mvNpcConverseAnimations.push_back(BString(tmp.getAnsi()));
 					}
 
-					gLogger->logMsgStartUp("WorldManager::Loaded %lld Npc Converse Animations",MSG_NORMAL,animCount);
-					gLogger->logMsgOk(17);
+					if(result->getRowCount())
+						gLogger->logMsgLoadSuccess("WorldManager::Loading %u  Npc Converse Animations...",MSG_NORMAL,animCount);
+					else
+						gLogger->logMsgLoadFailure("WorldManager::Loading  Npc Converse Animations...",MSG_NORMAL);					
 
 					mDatabase->DestroyDataBinding(binding);
 				}
@@ -480,8 +495,10 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 						mvNpcChatter.push_back(std::make_pair(BString(tmp.getUnicode16()),animId));
 					}
 
-					gLogger->logMsgStartUp("WorldManager::Loaded %lld Npc Phrases",MSG_NORMAL,phraseCount);
-					gLogger->logMsgOk(28);
+					if(result->getRowCount())
+						gLogger->logMsgLoadSuccess("WorldManager::Loading %u  Npc Phrases...",MSG_NORMAL,phraseCount);
+					else
+						gLogger->logMsgLoadFailure("WorldManager::Loading  Npc Phrases...",MSG_NORMAL);					
 
 					mDatabase->DestroyDataBinding(binding);
 					mDatabase->DestroyDataBinding(animbinding);
@@ -505,8 +522,12 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 						mWorldScripts.push_back(script);
 					}
-					gLogger->logMsgStartUp("WorldManager::Loaded %3lld world scripts",MSG_NORMAL,scriptCount);
-					gLogger->logMsgOk(26);
+
+					if(result->getRowCount())
+						gLogger->logMsgLoadSuccess("WorldManager::Loading %u   world scripts...",MSG_NORMAL,scriptCount);
+					else
+						gLogger->logMsgLoadFailure("WorldManager::Loading   world scripts...",MSG_NORMAL);					
+
 					mDatabase->DestroyDataBinding(scriptBinding);
 				}
 				break;
@@ -514,7 +535,6 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				// buildings
 				case WMQuery_All_Buildings:
 				{
-					gLogger->logMsgStartUp("WorldManager::Loading buildings...");
 
 					uint64			buildingCount;
 					uint64			buildingId;
@@ -530,8 +550,11 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 						gObjectFactory->requestObject(ObjType_Building,0,0,this,buildingId,asyncContainer->mClient);
 					}
 
-					gLogger->logMsgFollowUp(" %4lld loaded",MSG_NORMAL, buildingCount);
-					gLogger->logMsgOk(18);
+					if(result->getRowCount())
+						gLogger->logMsgLoadSuccess("WorldManager::Loading %u buildings...",MSG_NORMAL,buildingCount);
+					else
+						gLogger->logMsgLoadFailure("WorldManager::Loading buildings...",MSG_NORMAL);					
+
 					mDatabase->DestroyDataBinding(buildingBinding);
 				}
 				break;
@@ -552,8 +575,11 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 						gObjectFactory->requestObject(ObjType_Region,Region_City,0,this,cityId,asyncContainer->mClient);
 					}
 
-					gLogger->logMsgStartUp("WorldManager::Loaded %3lld city regions",MSG_NORMAL,count);
-					gLogger->logMsgOk(27);
+					if(result->getRowCount())
+						gLogger->logMsgLoadSuccess("WorldManager::Loading %u city regions...",MSG_NORMAL,count);
+					else
+						gLogger->logMsgLoadFailure("WorldManager::Loading city regions...",MSG_NORMAL);					
+
 					mDatabase->DestroyDataBinding(cityBinding);
 				}
 				break;
@@ -574,8 +600,11 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 						gObjectFactory->requestObject(ObjType_Region,Region_Badge,0,this,badgeId,asyncContainer->mClient);
 					}
 
-					gLogger->logMsgStartUp("WorldManager::Loaded %2lld badge regions",MSG_NORMAL,count);
-					gLogger->logMsgOk(27);
+					if(result->getRowCount())
+						gLogger->logMsgLoadSuccess("WorldManager::Loading %u badge regions...",MSG_NORMAL,count);
+					else
+						gLogger->logMsgLoadFailure("WorldManager::Loading badge regions...",MSG_NORMAL);					
+
 					mDatabase->DestroyDataBinding(badgeBinding);
 				}
 				break;
@@ -596,8 +625,11 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 						gObjectFactory->requestObject(ObjType_Region,Region_Spawn,0,this,regionId,asyncContainer->mClient);
 					}
 
-					gLogger->logMsgStartUp("WorldManager::Loaded %4lld spawn regions",MSG_NORMAL,count);
-					gLogger->logMsgOk(25);
+					if(result->getRowCount())
+						gLogger->logMsgLoadSuccess("WorldManager::Loading %u spawn regions...",MSG_NORMAL,count);
+					else
+						gLogger->logMsgLoadFailure("WorldManager::Loading spawn regions...",MSG_NORMAL);					
+
 					mDatabase->DestroyDataBinding(spawnBinding);
 				}
 				break;
@@ -621,8 +653,11 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 						mCreatureSpawnRegionMap.insert(std::make_pair(creatureSpawnRegion->mId,creatureSpawnRegion));
 					}
 
-					gLogger->logMsgStartUp("WorldManager::Loaded %I64u creature spawn regions.", MSG_NORMAL,count);
-					gLogger->logMsgOk(15);
+					if(result->getRowCount())
+						gLogger->logMsgLoadSuccess("WorldManager::Loading %u creture spawn regions...",MSG_NORMAL,count);
+					else
+						gLogger->logMsgLoadFailure("WorldManager::Loading creature spawn regions...",MSG_NORMAL);					
+
 					mDatabase->DestroyDataBinding(creatureSpawnBinding);
 				}
 				break;
@@ -659,8 +694,11 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 							gObjectFactory->requestObject(ObjType_Tangible,TanGroup_ResourceContainer,0,this,queryContainer.mId,asyncContainer->mClient);
 					}
 
-					gLogger->logMsgStartUp("WorldManager::Loaded %I64u cell children",MSG_NORMAL,count);
-					gLogger->logMsgOk(20);
+					if(result->getRowCount())
+						gLogger->logMsgLoadSuccess("WorldManager::Loading %u cell children...",MSG_NORMAL,count);
+					else
+						gLogger->logMsgLoadFailure("WorldManager::Loading cell children...",MSG_NORMAL);					
+
 					mDatabase->DestroyDataBinding(binding);
 				}
 				break;
@@ -2170,7 +2208,7 @@ void WorldManager::addObject(Object* object,bool manual)
 		{
 			
 			PlayerObject* player = dynamic_cast<PlayerObject*>(object);
-			gLogger->logMsgF("New Player: %lld, Total Players on zone : %i\n",MSG_NORMAL,player->getId(),(getPlayerAccMap())->size() + 1);
+			gLogger->logMsgF("New Player: %lld, Total Players on zone : %i",MSG_NORMAL,player->getId(),(getPlayerAccMap())->size() + 1);
 			// insert into the player map
 			mPlayerAccMap.insert(std::make_pair(player->getAccountId(),player));
 

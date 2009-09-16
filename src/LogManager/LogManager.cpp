@@ -308,6 +308,54 @@ void LogManager::logMsgOk(int width)
 	mGlobalLogMutex.release();
 }
 
+
+void LogManager::logMsgLoadSuccess(const std::string& msg, MsgPriority priority, ...)
+{
+	mGlobalLogMutex.acquire();
+
+	va_list args;
+	va_start(args, priority);
+
+	uint16 textLength = 0;
+	if(mDefaultLog != NULL)
+	{
+		textLength = mDefaultLog->logMsgNolf(msg, priority, args);
+	}
+						  	
+	mGlobalLogMutex.release();
+
+	int16 length = 80 - textLength;
+	
+	if(length < 0)
+		length = 80;
+
+	logMsgOk(length);
+}
+
+
+void LogManager::logMsgLoadFailure(const std::string& msg, MsgPriority priority, ...)
+{
+	mGlobalLogMutex.acquire();
+
+	va_list args;
+	va_start(args, priority);
+
+	uint16 textLength = 0;
+	if(mDefaultLog != NULL)
+	{
+		textLength = mDefaultLog->logMsgNolf(msg, priority, args);
+	}
+	
+	mGlobalLogMutex.release();
+
+	int16 length = 80 - textLength;
+	
+	if(length < 0)
+		length = 80;
+
+	logMsgOk(length);
+}
+
 //======================================================================================================================
 
 void LogManager::logMsgFailed(int width)
@@ -315,7 +363,7 @@ void LogManager::logMsgFailed(int width)
 	mGlobalLogMutex.acquire();	
 
 	std::cout.width(width);
-	std::cout<<"[ ";
+	std::cout.write("[ ",3);
 	#ifdef ANH_PLATFORM_WIN32
 		HANDLE Console;
 		Console = GetStdHandle(STD_OUTPUT_HANDLE);

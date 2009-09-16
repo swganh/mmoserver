@@ -59,15 +59,11 @@ ConversationManager::~ConversationManager()
 }
 
 //=========================================================================================
-static int printed = false;
+
 void ConversationManager::handleDatabaseJobComplete(void* ref, DatabaseResult* result)
 {
 	CVAsyncContainer* asyncContainer = reinterpret_cast<CVAsyncContainer*>(ref);
-	if(!printed)
-	{
-		gLogger->logMsgStartUp("ConversationManager::Loading Conversations...");
-		printed = true;
-	}
+	
 	switch(asyncContainer->mQuery)
 	{
 		case ConvQuery_Conversations:
@@ -95,8 +91,12 @@ void ConversationManager::handleDatabaseJobComplete(void* ref, DatabaseResult* r
 				mDatabase->ExecuteSqlAsync(this,asCont,"SELECT * FROM conversation_pages WHERE conversation_id=%u ORDER BY page",insertId);
 			}
 
-			printf(" %I64u loaded",count);
-			gLogger->logMsgOk(9);
+			if(result->getRowCount())
+				gLogger->logMsgLoadSuccess("ConversationManager::loading %u Conversations...",MSG_NORMAL,result->getRowCount());
+			else
+				gLogger->logMsgLoadFailure("ConversationManager::loading Conversations...",MSG_NORMAL);					
+
+			
 			mDatabase->DestroyDataBinding(binding);
 		}
 		break;

@@ -107,9 +107,9 @@ void ManufacturingSchematic::prepareCraftingAttributes()
 	while(expCraftBatchIt != expCraftBatches->end())
 	{
 		string						attName		= gSchematicManager->getExpGroup((*expCraftBatchIt)->getExpGroup());
-		ExperimentationProperty*	craftAtt	= new ExperimentationProperty(attName.getAnsi(),(*expCraftBatchIt)->getCraftWeights(),(*expCraftBatchIt)->getCraftAttributes(),0.0f,0.0f,0.0f);
+		ExperimentationProperty*	expProperty	= new ExperimentationProperty(attName.getAnsi(),(*expCraftBatchIt)->getCraftWeights(),(*expCraftBatchIt)->getCraftAttributes(),0.0f,0.0f,0.0f);
 
-		mExperimentationProperties.push_back(craftAtt);
+		mExperimentationProperties.push_back(expProperty);
 
 		++expCraftBatchIt;
 	}
@@ -118,6 +118,27 @@ void ManufacturingSchematic::prepareCraftingAttributes()
 	//	mUpdateCounter[i] = mExperimentationProperties.size();
 
 	mExpFailureChance = 90.0f;
+
+	// ----------------------------------------------------------------
+	// collect the *unique* exp properties in a list for easy reference
+	// so we can bundle them on sending the deltas / baseline
+
+	ExperimentationProperties*			expProp				= getExperimentationProperties();
+	ExperimentationProperties::iterator	epIt				= expProp->begin();
+
+	epIt	= expProp->begin();
+	while(epIt != expProp->end())
+	{
+		// do we have this exp property already??
+
+		if(!expPropStorefind((*epIt)->mExpAttributeName.getCrc()))
+		{
+			// add it
+			expPropStore.push_back(std::make_pair((*epIt)->mExpAttributeName.getCrc(),(*epIt)));
+		}
+
+		++epIt;
+	}
 }
 
 //=============================================================================

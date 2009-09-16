@@ -112,13 +112,15 @@ void ZoneServer::Startup(int8* zoneName)
 	gLogger->connecttoDB(mDatabaseManager);
 
 	//create an error log
-	gLogger->createErrorLog(zoneName,(LogLevel)(gConfig->read<int>("LogLevel",2)),
+	int8 log[128];
+	sprintf(log,"%s.log",zoneName);
+	gLogger->createErrorLog(log,(LogLevel)(gConfig->read<int>("LogLevel",2)),
 										(bool)(gConfig->read<bool>("LogToFile", true)),
 										(bool)(gConfig->read<bool>("ConsoleOut",true)),
 										(bool)(gConfig->read<bool>("LogAppend",true)));
 
 	//increase the server start that will help us to organize our logs to the corresponding serverstarts (mostly for errors)
-	mDatabase->ExecuteSqlAsync(0,0,"UPDATE config_process_list SET serverstartID = serverstartID+1 WHERE name like '%s'",zoneName);
+	mDatabase->ExecuteSqlAsync(0,0,"UPDATE config_process_list SET serverstartID = serverstartID+1 WHERE name like \'%s\'",zoneName);
 
 	mRouterService = mNetworkManager->CreateService((char*)gConfig->read<std::string>("BindAddress").c_str(), gConfig->read<uint16>("BindPort"),gConfig->read<uint32>("ServiceMessageHeap")*1024,true);
 
@@ -203,12 +205,12 @@ void ZoneServer::Startup(int8* zoneName)
 void ZoneServer::handleWMReady()
 {
 	_updateDBServerList(2);
-	gLogger->logMsg("ZoneServer::Startup Complete\n");
+	gLogger->logMsg("ZoneServer::Startup Complete");
 	gLogger->printLogo();
 	// std::string BuildString(GetBuildString());	
 	std::string BuildString(ConfigManager::getBuildString());	
 	gLogger->logMsgF("ZoneServer:%s %s",MSG_NORMAL,getZoneName().getAnsi(),BuildString.substr(11,BuildString.size()).c_str());
-	gLogger->logMsg("Welcome to your SWGANH Experience!\n");
+	gLogger->logMsg("Welcome to your SWGANH Experience!");
 
 	// Connect to the ConnectionServer;
 	_connectToConnectionServer();
@@ -218,7 +220,7 @@ void ZoneServer::handleWMReady()
 
 void ZoneServer::Shutdown(void)
 {
-	gLogger->logMsg("ZoneServer shutting down...\n");
+	gLogger->logMsg("ZoneServer shutting down...");
 
 	// We're shutting down, so update the DB again.
 	_updateDBServerList(0);

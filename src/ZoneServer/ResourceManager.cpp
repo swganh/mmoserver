@@ -254,6 +254,11 @@ void ResourceManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 				else
 					delete(resource);
 			}
+			if(result->getRowCount())
+				gLogger->logMsgLoadSuccess("ResourceManager::loading %u Ressources...",MSG_NORMAL,result->getRowCount());
+			else
+				gLogger->logMsgLoadFailure("ResourceManager::loading Ressources...",MSG_NORMAL);					
+
 		}
 		break;
 
@@ -262,8 +267,6 @@ void ResourceManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 			CurrentResource* resource;
 
 			uint64 count = result->getRowCount();
-
-			gLogger->logMsgF("ResourceManager::generating %3u maps...",MSG_NORMAL,count);
 
 			for(uint64 i = 0;i < count;i++)
 			{
@@ -278,8 +281,10 @@ void ResourceManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 				(getResourceCategoryById(resource->mType->mCatId))->insertResource(resource);
 			}
 
-			printf(" Complete!");
-			gLogger->logMsgOk(15);
+			if(result->getRowCount())
+				gLogger->logMsgLoadSuccess("ResourceManager::generating %u Maps...",MSG_NORMAL,result->getRowCount());
+			else
+				gLogger->logMsgLoadFailure("ResourceManager::generating Maps...",MSG_NORMAL);					
 
 			// query old and current resources not from this planet
 			mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) RMAsyncContainer(RMQuery_OldResources),"SELECT * FROM resources");

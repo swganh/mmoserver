@@ -315,7 +315,7 @@ bool ObjectController::_processCommandQueue()
 						}
 						else
 						{
-							gLogger->logMsgF("ObjectController::processCommandQueue: ObjControllerCmdGroup_Common Unhandled Cmd 0x%x for %lld\n",MSG_NORMAL,command,mObject->getId());
+							gLogger->logMsgF("ObjectController::processCommandQueue: ObjControllerCmdGroup_Common Unhandled Cmd 0x%x for %lld",MSG_NORMAL,command,mObject->getId());
 							//gLogger->hexDump(message->getData(),message->getSize());
 
 							consumeHam = false;
@@ -348,7 +348,7 @@ bool ObjectController::_processCommandQueue()
 
 					default:
 					{
-						gLogger->logMsgF("ObjectController::processCommandQueue: Default Unhandled CmdGroup %u for %lld\n",MSG_NORMAL,cmdProperties->mCmdGroup,mObject->getId());
+						gLogger->logMsgF("ObjectController::processCommandQueue: Default Unhandled CmdGroup %u for %lld",MSG_NORMAL,cmdProperties->mCmdGroup,mObject->getId());
 
 						consumeHam = false;
 					}

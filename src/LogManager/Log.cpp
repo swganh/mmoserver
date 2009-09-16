@@ -55,6 +55,7 @@ void Log::logMsg(const std::string& msg,MsgPriority mp,bool fileOut,bool console
 //======================================================================================================================
 void Log::logMsg(const std::string& msg,MsgPriority mp,bool fileOut,bool consoleOut,bool timestamp, int Color)
 {
+	char tStringBuffer[32];
 
 	if(mLogLevel + mp > mGlobalLogLevel)
 	{
@@ -68,12 +69,23 @@ void Log::logMsg(const std::string& msg,MsgPriority mp,bool fileOut,bool console
 			time(&t);
 			ts = localtime(&t);
 			
+			tstring.append("[");
+			tstring.append(itoa(ts->tm_hour,tStringBuffer,10));
+			tstring.append(":");
+			tstring.append(itoa(ts->tm_min,tStringBuffer,10));
+			tstring.append(":");
+			tstring.append(itoa(ts->tm_sec,tStringBuffer,10));
+			tstring.append("]");
+			/*
+
 			tstream << "[" << std::setw(2) << std::setfill('0') << ts->tm_hour
 					<< ":" << std::setw(2) << std::setfill('0') << ts->tm_min
 					<< ":" << std::setw(2) << std::setfill('0') << ts->tm_sec 
 					<< "] ";
 
 			tstring = tstream.str();
+			  */
+
 		}
 
 
@@ -110,6 +122,7 @@ void Log::logMsg(const std::string& msg, MsgPriority priority, va_list args)
   // format our string with all the optional args.
   vsprintf(buf, msg.c_str(), args);
 
+  char tStringBuffer[32];
 
 	if(mLogLevel + priority > mGlobalLogLevel)
 	{
@@ -121,12 +134,22 @@ void Log::logMsg(const std::string& msg, MsgPriority priority, va_list args)
 		time(&t);
 		ts = localtime(&t);
 		
+		tstring.append("[");
+		tstring.append(itoa(ts->tm_hour,tStringBuffer,10));
+		tstring.append(":");
+		tstring.append(itoa(ts->tm_min,tStringBuffer,10));
+		tstring.append(":");
+		tstring.append(itoa(ts->tm_sec,tStringBuffer,10));
+		tstring.append("]");
+		/*
+
 		tstream << "[" << std::setw(2) << std::setfill('0') << ts->tm_hour
 				<< ":" << std::setw(2) << std::setfill('0') << ts->tm_min
 				<< ":" << std::setw(2) << std::setfill('0') << ts->tm_sec 
 				<< "] ";
 
 		tstring = tstream.str();
+		  */
 
 		if(mFileOut)
 		{
@@ -181,12 +204,25 @@ void Log::logMsg(const std::string& zone, const std::string& system, const std::
 		time(&t);
 		ts = localtime(&t);
 		
+		char tStringBuffer[32];
+
+		tstring.append("[");
+		tstring.append(itoa(ts->tm_hour,tStringBuffer,10));
+		tstring.append(":");
+		tstring.append(itoa(ts->tm_min,tStringBuffer,10));
+		tstring.append(":");
+		tstring.append(itoa(ts->tm_sec,tStringBuffer,10));
+		tstring.append("]");
+		/*
+
 		tstream << "[" << std::setw(2) << std::setfill('0') << ts->tm_hour
 				<< ":" << std::setw(2) << std::setfill('0') << ts->tm_min
 				<< ":" << std::setw(2) << std::setfill('0') << ts->tm_sec 
 				<< "] ";
 
 		tstring = tstream.str();
+		  */
+
 
 		if(mFileOut)
 		{
@@ -221,19 +257,25 @@ void Log::logMsgNolf(const std::string& msg,MsgPriority mp,bool fileOut,bool con
 			time_t t;
 			time(&t);
 			ts = localtime(&t);
-			
-			tstream << "[" << std::setw(2) << std::setfill('0') << ts->tm_hour
-					<< ":" << std::setw(2) << std::setfill('0') << ts->tm_min
-					<< ":" << std::setw(2) << std::setfill('0') << ts->tm_sec 
-					<< "] ";
+		
+			char tStringBuffer[32];
 
-			tstring = tstream.str();
+			tstring.append("[");
+			tstring.append(itoa(ts->tm_hour,tStringBuffer,10));
+			tstring.append(":");
+			tstring.append(itoa(ts->tm_min,tStringBuffer,10));
+			tstring.append(":");
+			tstring.append(itoa(ts->tm_sec,tStringBuffer,10));
+			tstring.append("]");
+
 		}
+
+		tstring.append(buf);
 
 
 		if(mFileOut && fileOut)
 		{
-			mLogStream << tstring << buf;// << std::endl;
+			mLogStream << tstring;// << std::endl;
 			mLogStream.flush();
 		}
 
@@ -245,7 +287,7 @@ void Log::logMsgNolf(const std::string& msg,MsgPriority mp,bool fileOut,bool con
 			SetConsoleTextAttribute(Console, Color);
 			#endif
 
-			std::cout << tstring << buf;// << std::endl;
+			std::cout << tstring;// << std::endl;
 			std::cout.flush();
 
 			#ifdef ANH_PLATFORM_WIN32
@@ -273,12 +315,25 @@ void Log::logMsgNolf(const std::string& msg,MsgPriority mp,bool fileOut,bool con
 			time(&t);
 			ts = localtime(&t);
 			
+			char tStringBuffer[32];
+
+			tstring.append("[");
+			tstring.append(itoa(ts->tm_hour,tStringBuffer,10));
+			tstring.append(":");
+			tstring.append(itoa(ts->tm_min,tStringBuffer,10));
+			tstring.append(":");
+			tstring.append(itoa(ts->tm_sec,tStringBuffer,10));
+			tstring.append("]");
+			/*
+
 			tstream << "[" << std::setw(2) << std::setfill('0') << ts->tm_hour
 					<< ":" << std::setw(2) << std::setfill('0') << ts->tm_min
 					<< ":" << std::setw(2) << std::setfill('0') << ts->tm_sec 
 					<< "] ";
 
 			tstring = tstream.str();
+			  */
+
 		}
 
 
@@ -308,7 +363,7 @@ void Log::logMsgNolf(const std::string& msg,MsgPriority mp,bool fileOut,bool con
 
 //======================================================================================================================
 
-void Log::logMsgNolf(const std::string& msg, MsgPriority priority, va_list args)
+uint16 Log::logMsgNolf(const std::string& msg, MsgPriority priority, va_list args)
 {
   int8    buf[8192];
 
@@ -319,31 +374,37 @@ void Log::logMsgNolf(const std::string& msg, MsgPriority priority, va_list args)
 	{
 		std::string tstring;
 
-		std::ostringstream tstream;
 		struct tm *ts;
 		time_t t;
 		time(&t);
 		ts = localtime(&t);
 		
-		tstream << "[" << std::setw(2) << std::setfill('0') << ts->tm_hour
-				<< ":" << std::setw(2) << std::setfill('0') << ts->tm_min
-				<< ":" << std::setw(2) << std::setfill('0') << ts->tm_sec 
-				<< "] ";
+		char tStringBuffer[32];
 
-		tstring = tstream.str();
+		tstring.append("[");
+		tstring.append(itoa(ts->tm_hour,tStringBuffer,10));
+		tstring.append(":");
+		tstring.append(itoa(ts->tm_min,tStringBuffer,10));
+		tstring.append(":");
+		tstring.append(itoa(ts->tm_sec,tStringBuffer,10));
+		tstring.append("]");
+		tstring.append(buf);
+
 
 		if(mFileOut)
 		{
-			mLogStream << tstring << buf;// << std::endl;
+			mLogStream << tstring;// << std::endl;
 			mLogStream.flush();
 		}
 
 		if(mConsoleOut)
 		{
-			std::cout << tstring << buf;// << std::endl;
+			std::cout << tstring;// << std::endl;
 			std::cout.flush();
 		}
+		return tstring.length();
 	}
+	return 0;
 }
 
 

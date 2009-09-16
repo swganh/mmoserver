@@ -637,11 +637,16 @@ void Session::HandleSessionPacket(Packet* packet)
 	}
 
 	case SESSIONOP_DataOrder1:
-	case SESSIONOP_DataOrder2:
 	case SESSIONOP_DataOrder3:
 	case SESSIONOP_DataOrder4:
 	{
 	  _processDataOrderPacket(packet);
+	  return;
+	}
+
+	case SESSIONOP_DataOrder2:
+	{
+	  _processDataOrderChannelB(packet);
 	  return;
 	}
 
@@ -693,11 +698,36 @@ void Session::HandleSessionPacket(Packet* packet)
 
    //gLogger->logMsgF("Incoming data - seq: %i expect: %u Session:0x%x%.4x", MSG_LOW, sequence, mInSequenceNext, mService->getId(), getId());
 
-   if (mInSequenceNext < sequence)
+   if (mInSequenceNext != sequence)
    {
+	   //test if we have a rollover
+	   int32 overflowTest = sequence - 50000;
+	   if((overflowTest > mInSequenceNext)||(sequence<mInSequenceNext))
+	   {
+		   gLogger->logErrorF("Netcode","Session::HandleSessionPacket :: Double Packet!!! Incoming data - seq: %i expect: %u Session:0x%x%.4x", MSG_HIGH, sequence, mInSequenceNext, mService->getId(), getId());
+		   //case 
+		   //sequence 65500 (25500)
+		   //mInSequenceNext 500
+		   //packet is send twice - ack and delete
+		   // ack our sequence - we might have a lost ack ...
+			Packet* ackPacket = mPacketFactory->CreatePacket();
+			ackPacket->addUint16(SESSIONOP_DataAck1);
+			ackPacket->addUint16(htons(mInSequenceNext - 1));
+		    
+			// Acks only need encryption
+			ackPacket->setIsCompressed(false);
+			ackPacket->setIsEncrypted(true);
+		  
+			// Push the packet on our outgoing queue
+			_addOutgoingUnreliablePacket(ackPacket);
+
+			mPacketFactory->DestroyPacket(packet);
+			return;
+
+	   }
+
 	   //were missing something
 	   gLogger->logMsgF("Session::HandleSessionPacket :: Incoming data - seq: %i expect: %u Session:0x%x%.4x", MSG_HIGH, sequence, mInSequenceNext, mService->getId(), getId());
-	   mIncomingPacketList.push_back(packet);
 
 	   // now send an out of order
 		//gLogger->logMsgF("OO %u < %u",MSG_NORMAL,mInSequenceNext,sequence);
@@ -725,146 +755,35 @@ void Session::HandleSessionPacket(Packet* packet)
 					orderPacket = mPacketFactory->CreatePacket();
 					orderPacket->addUint16(SESSIONOP_DataOrder2);
 					orderPacket->addUint16(htons(sequence));
+					orderPacket->addUint16(htons(mInSequenceNext-1));
 					orderPacket->setIsCompressed(false);
 					orderPacket->setIsEncrypted(true);
 
 					_addOutgoingUnreliablePacket(orderPacket);
+
 			  }
 			  break;
 
 			default:
 			{
 				gLogger->logMsgF("Session::HandleSessionPacket :: *** wanted to send Out-of-Order packet with weird opcode - Sequence: %i, Service %u Session:0x%.4x", MSG_HIGH, sequence, mService->getId(), getId());
-				//mPacketFactory->DestroyPacket(packet);
+				mPacketFactory->DestroyPacket(packet);
 				return;
 			}
 		}
+		mPacketFactory->DestroyPacket(packet);
 		return;
 	   
    }
 
-   if (mInSequenceNext > sequence)
-   {
-	   //its double ?? cave we might be short of a rollover
-	   if((mInSequenceNext > 65500)&& (sequence < 100))
-	   {
-		   gLogger->logMsgF("Session::HandleSessionPacket :: Incoming data near Rollover ???- seq: %i expect: %u Session:0x%x%.4x", MSG_HIGH, sequence, mInSequenceNext, mService->getId(), getId());
-		   mIncomingPacketList.push_back(packet);
-
-		   // now send an out of order
-			gLogger->logMsgF("Session::HandleSessionPacket ::  Near RolloverOO %u < %u",MSG_NORMAL,mInSequenceNext,sequence);
-			
-			switch(packetType )
-		{
-			case SESSIONOP_DataFrag1:
-			case SESSIONOP_DataChannel1:
-			  {
-					Packet* orderPacket;
-					orderPacket = mPacketFactory->CreatePacket();
-					orderPacket->addUint16(SESSIONOP_DataOrder1);
-					orderPacket->addUint16(htons(sequence));
-					orderPacket->setIsCompressed(false);
-					orderPacket->setIsEncrypted(true);
-
-					_addOutgoingUnreliablePacket(orderPacket);
-			  }
-			  break;
-			
-			case SESSIONOP_DataFrag2:
-			case SESSIONOP_DataChannel2:
-			  {
-					Packet* orderPacket;
-					orderPacket = mPacketFactory->CreatePacket();
-					orderPacket->addUint16(SESSIONOP_DataOrder2);
-					orderPacket->addUint16(htons(sequence));
-					orderPacket->setIsCompressed(false);
-					orderPacket->setIsEncrypted(true);
-
-					_addOutgoingUnreliablePacket(orderPacket);
-			  }
-			  break;
-
-			default:
-			{
-				gLogger->logMsgF("Session::HandleSessionPacket :: *** wanted to send Out-of-Order packet with weird opcode - Sequence: %i, Service %u Session:0x%.4x", MSG_HIGH, sequence, mService->getId(), getId());
-				//mPacketFactory->DestroyPacket(packet);
-				return;
-			}
-		}
-
-	   }
-	   else
-		 mPacketFactory->DestroyPacket(packet);
-	   
-	   return;
-   }
+   
 
    // What type of SessionPacket is it?
    // let the specialist handle it
    if (mInSequenceNext == sequence)
 		SortSessionPacket(packet,packetType);
- 
-  //housekeeping
-  //iterate through the ouotof order packet list and see if our next packet is on there
 
   
-
-  PacketWindowList::iterator IterIn = mIncomingPacketList.begin();
-  while(IterIn != mIncomingPacketList.end())
-  {
- 
-	  Packet* listPacket = *IterIn;
-	  listPacket->setReadIndex(2);
-
-	  //check if we are in sequence
-	  uint16 sequence = ntohs(listPacket->getUint16());
-	  //gLogger->logMsgF("Session::HandleSessionPacket ::  HouseKeeping - Sequence: %u, SupposedUpcomingSequence: %u", MSG_HIGH, sequence, mInSequenceNext);
-
-	  if(mInSequenceNext == sequence)
-	  {
-		  
-		  listPacket->setReadIndex(0);
-		  uint16 packetType = listPacket->getUint16();
-		  IterIn = mIncomingPacketList.erase(IterIn);
-		  SortSessionPacket(listPacket,packetType);
-		 // IterIn = mIncomingPacketList.begin();
-		 
-		  continue;
-		  //return;
-	  }
-
-	  if(mInSequenceNext > sequence)
-	  {
-		  if((mInSequenceNext > 65500)&& (sequence < 100))
-		  {
-			  IterIn++;
-			  continue;
-		  }
-		  else
-		  {
-			  IterIn = mIncomingPacketList.erase(IterIn);
-			  mPacketFactory->DestroyPacket(listPacket);
-			  //gLogger->logMsgF("Session::HandleSessionPacket ::  HouseKeeping - destroy packet %u > (<) SupposedUpcomingSequence: %u", MSG_HIGH, sequence, mInSequenceNext);
-			  continue;
-		  }
-	  }
-	  if(mInSequenceNext < sequence)
-	  {
-		  // dont iterate to excessively
-		  // I wonder if we should do that anyway
-		  // but in the end these packets are out of order arnt they ?
-		  if((mInSequenceNext < 100)&& (sequence > 65500))
-		  {
-			  IterIn = mIncomingPacketList.erase(IterIn);
-			  mPacketFactory->DestroyPacket(listPacket);
-			  //gLogger->logMsgF("Session::HandleSessionPacket ::  HouseKeeping - destroy packet %u < SupposedUpcomingSequence: %u", MSG_HIGH, sequence, mInSequenceNext);
-			  continue;
-		  }	  
-	  }
-
-	  if(IterIn != mIncomingPacketList.end())
-		IterIn++;
-  }
 }
 
 
@@ -1408,7 +1327,7 @@ void Session::_processDataChannelAck(Packet* packet)
 		else if((sequence < (0xFFFF - (mRolloverWindowPacketList.size()+mNewRolloverWindowPacketList.size()))))
 		{
 		
-			gLogger->logMsgF("Rollover complete Windowsize %u ack seq new queue %u",MSG_HIGH,mWindowSizeCurrent,sequence);
+			gLogger->logMsgF("_processDataChannelAck::Rollover complete Windowsize %u ack seq new queue %u",MSG_HIGH,mWindowSizeCurrent,sequence);
 			mLastRemotePacketAckReceived = Anh_Utils::Clock::getSingleton()->getLocalTime();
 
 			mOutSequenceRollover = false;
@@ -1468,7 +1387,7 @@ void Session::_processDataChannelAck(Packet* packet)
 					// If the list is empty, break out
 					if(mRolloverWindowPacketList.size() == 0)
 					{
-						gLogger->logMsgF("Rollover complete Windowsize %u ack seq %u",MSG_HIGH,mWindowSizeCurrent,sequence);
+						gLogger->logMsgF("_processDataChannelAck::Rollover complete Windowsize %u ack seq %u",MSG_HIGH,mWindowSizeCurrent,sequence);
 						windowPacket = 0;
 						windowPacketSequence = 0;
 						
@@ -1493,7 +1412,7 @@ void Session::_processDataChannelAck(Packet* packet)
 			mSessionMutex.release();
 
 			mPacketFactory->DestroyPacket(packet);
-			gLogger->logMsgF("Rollover Ack Windowsize %u ack seq new queue %u",MSG_HIGH,mWindowSizeCurrent,sequence);
+			gLogger->logMsgF("_processDataChannelAck::Rollover Ack Windowsize %u ack seq new queue %u",MSG_HIGH,mWindowSizeCurrent,sequence);
 
 			return;
 		}//else if(sequence < 0xFFFF - mRolloverWindowPacketList.size())
@@ -1521,7 +1440,7 @@ void Session::_processDataChannelAck(Packet* packet)
 	else if (sequence > windowPacketSequence + mWindowPacketList.size())
 	{
 		// This ack is way out of bounds, log a message and drop it. 
-		gLogger->logMsgF("*** Ack out of bounds - ackSeq: %u, expect: %u, Session:0x%x%.4x", MSG_HIGH, sequence, windowPacketSequence, mService->getId(), getId());
+		gLogger->logMsgF("_processDataChannelAck::*** Ack out of bounds - ackSeq: %u, expect: %u, Session:0x%x%.4x", MSG_HIGH, sequence, windowPacketSequence, mService->getId(), getId());
 	}
 	else
 	{
@@ -1576,7 +1495,7 @@ void Session::_processDataOrderPacket(Packet* packet)
   uint16 windowSequence = ntohs(windowPacket->getUint16());
 
   //check if its just an increase in the sequence as new packets arrive or quite a new request
-  
+  /*
   if((lowestCount +1)== sequence)
   {
 	  lowestCount++;
@@ -1588,95 +1507,232 @@ void Session::_processDataOrderPacket(Packet* packet)
 	  lowest = sequence;
 	  lowestCount = sequence;
   }
- 
-  gLogger->logMsgF("Out-Of-order packet session 0x%x%.4x seq: %u, windowsequ : %u", MSG_HIGH, mService->getId(), mId, sequence, windowSequence);
+	*/
+  gLogger->logErrorF("Netcode","_processDataOrderPacket::Out-Of-order packet session 0x%x%.4x seq: %u, windowsequ : %u", MSG_HIGH, mService->getId(), mId, sequence, windowSequence);
 
   //Do some bounds checking
   if (sequence < windowSequence)
   {
-		gLogger->logMsgF("*** Order packet sequence too small, may be a duplicate or we handled our acks wrong.  seq: %u, expect >: %u", MSG_HIGH, sequence, windowSequence);
+	  gLogger->logErrorF("Netcode","_processDataOrderPacket::*** Order packet sequence too small, may be a duplicate or we handled our acks wrong.  seq: %u, expect >: %u", MSG_HIGH, sequence, windowSequence);
   }
-  else if (sequence > windowSequence + mWindowPacketList.size())
+
+  if (sequence > windowSequence + mWindowPacketList.size())
   {
-	  //cave might be on the rollover list!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	  if(mRolloverWindowPacketList.size()&& (sequence > (65535-mRolloverWindowPacketList.size())))
-	  {
-		  //jupp its on the rolloverlist
-		  mSessionMutex.acquire(); //			   mRolloverWindowPacketList and WindowPacketList get accessed by the socketwritethread and by the socketreadthread both through the session
-
-		  uint16 count = 0;
-		  for (iterRoll = mRolloverWindowPacketList.begin(); iterRoll != mWindowPacketList.end(); iterRoll++)
-		  {
-			  // Grab our window packet
-			  windowPacket = (*iterRoll);
-			  windowPacket->setReadIndex(2);
-			  uint16 windowRollSequence = ntohs(windowPacket->getUint16());
-
-			  // If it's smaller than the order packet send it, otherwise break;
-			  if (windowRollSequence < sequence )
-			  {
-					//count++;
-					//if(count > 50)
-					//	break;
-					
-					if(Anh_Utils::Clock::getSingleton()->getLocalTime() - windowPacket->getTimeOOHSent() < 200)
-						break;
-				
-					_addOutgoingReliablePacket(windowPacket);
-					
-					windowPacket->setTimeOOHSent(Anh_Utils::Clock::getSingleton()->getLocalTime());
-
-					if (mWindowSizeCurrent > (mWindowResendSize/10))
-						mWindowSizeCurrent--;
-
-			  }
-		  }
-		  mSessionMutex.release();
-
-	  }
-	  else
-	  
-		gLogger->logMsgF("*** Order packet sequence too large. Sequence was not sent yet.  seq: %u, expect <: %u", MSG_LOW, sequence, windowSequence);
-	
-	  return;
-
-
+	  gLogger->logErrorF("Netcode","_processDataOrderPacket::*** Rollover Order packet  seq: %u, expect >: %u", MSG_HIGH, sequence, windowSequence);
   }
-  // We need to resend the packets before this one.
-  else
-  {	
-	  mSessionMutex.acquire();//			   mRolloverWindowPacketList and WindowPacketList get accessed by the socketwritethread and by the socketreadthread both through the session
-	  uint16 count = 0;
-	  for (iter = mWindowPacketList.begin(); iter != mWindowPacketList.end(); iter++)
-	  {
+	
+	//The location of the packetsequence out of order has NOBEARING on the question on which list we will find the last properly received Packet!!!
+
+
+	if(mRolloverWindowPacketList.size()&& (sequence > (65535-mRolloverWindowPacketList.size())))
+	{
+		//jupp its on the rolloverlist
+		mSessionMutex.acquire(); //			   mRolloverWindowPacketList and WindowPacketList get accessed by the socketwritethread and by the socketreadthread both through the session
+
+		uint16 count = 0;
+		for (iterRoll = mRolloverWindowPacketList.begin(); iterRoll != mWindowPacketList.end(); iterRoll++)
+		{
 			// Grab our window packet
-			windowPacket = (*iter);
+			windowPacket = (*iterRoll);
 			windowPacket->setReadIndex(2);
-			uint16 windowSequence = ntohs(windowPacket->getUint16());
+			uint16 windowRollSequence = ntohs(windowPacket->getUint16());
 
 			// If it's smaller than the order packet send it, otherwise break;
-			// do we want to throttle the amount of packets being send to 10 or 50 or 100 ???
-			if (windowSequence < sequence )
+			if (windowRollSequence < sequence )
 			{
-			        
-				//gLogger->logMsgF("Resending reliable packet.  seq: %u, order: %u", MSG_HIGH, windowSequence, sequence);
+				//count++;
+				//if(count > 50)
+				//	break;
+					
+				if(Anh_Utils::Clock::getSingleton()->getLocalTime() - windowPacket->getTimeOOHSent() < 200)
+					break;
 				
 				_addOutgoingReliablePacket(windowPacket);
-					
+				
 				windowPacket->setTimeOOHSent(Anh_Utils::Clock::getSingleton()->getLocalTime());
 
 				if (mWindowSizeCurrent > (mWindowResendSize/10))
 					mWindowSizeCurrent--;
-		
-			}
-			else
-			{
-				mSessionMutex.release();
-				return;
+
 			}
 		}
 		mSessionMutex.release();
+
+	 }
+ 
+ 
+	 mSessionMutex.acquire();//			   mRolloverWindowPacketList and WindowPacketList get accessed by the socketwritethread and by the socketreadthread both through the session
+	 uint16 count = 0;
+	 for (iter = mWindowPacketList.begin(); iter != mWindowPacketList.end(); iter++)
+	 {
+		// Grab our window packet
+		windowPacket = (*iter);
+		windowPacket->setReadIndex(2);
+		uint16 windowSequence = ntohs(windowPacket->getUint16());
+
+		// If it's smaller than the order packet send it, otherwise break;
+		// do we want to throttle the amount of packets being send to 10 or 50 or 100 ???
+		// if we receive a sequence on the rolloverlist (65530 for example) we will
+		// always send ALL packets on the regular list - I dont anticipate a big deal here though!!!
+		if (windowSequence < sequence )
+		{
+			        
+			//gLogger->logMsgF("Resending reliable packet.  seq: %u, order: %u", MSG_HIGH, windowSequence, sequence);
+				
+			_addOutgoingReliablePacket(windowPacket);
+					
+			windowPacket->setTimeOOHSent(Anh_Utils::Clock::getSingleton()->getLocalTime());
+
+			if (mWindowSizeCurrent > (mWindowResendSize/10))
+				mWindowSizeCurrent--;
+		
+		}
+		else
+		{
+			mSessionMutex.release();
+			return;
+		}
+	}
+	mSessionMutex.release();
+  
+
+  // Destroy our incoming packet, it's not needed any longer.
+  mPacketFactory->DestroyPacket(packet);
+}
+
+
+//======================================================================================================================
+void Session::_processDataOrderChannelB(Packet* packet)
+{
+  packet->setReadIndex(2);
+  uint16 sequence = ntohs(packet->getUint16());
+  uint16 bottomSequence = ntohs(packet->getUint16());
+
+  PacketWindowList::iterator iter = mWindowPacketList.begin();
+  PacketWindowList::iterator iterRoll = mRolloverWindowPacketList.begin();
+  Packet* windowPacket = *iter;
+  windowPacket->setReadIndex(2);
+  uint16 windowSequence = ntohs(windowPacket->getUint16());
+  
+
+  if(bottomSequence > sequence)
+  {
+	  if(bottomSequence > (65535-mRolloverWindowPacketList.size()))
+	  {
+		  //rollover - all is well
+	  }
+	  else
+	  {
+		  //shit
+		  gLogger->logErrorF("Netcode","_processDataOrderChannelB::Out-Of-order packet session 0x%x%.4x seq: %u, windowsequ : %u, bottom %u", MSG_HIGH, mService->getId(), mId, sequence, windowSequence, bottomSequence);
+		  assert(false);
+	  }
+	  
+	  //either we have screwed up majestically *or* we have a rollover at our hands
+
   }
+
+  //check if its just an increase in the sequence as new packets arrive or quite a new request
+  /*
+  if((lowestCount +1)== sequence)
+  {
+	  lowestCount++;
+	  if(Anh_Utils::Clock::getSingleton()->getLocalTime() - windowPacket->getTimeOOHSent() < 100)
+	  	  return;
+  }
+  else
+  {
+	  lowest = sequence;
+	  lowestCount = sequence;
+  }
+	*/
+  gLogger->logErrorF("Netcode","_processDataOrderChannelB::Out-Of-order packet session 0x%x%.4x seq: %u, windowsequ : %u, bottom %u", MSG_HIGH, mService->getId(), mId, sequence, windowSequence, bottomSequence);
+
+  //Do some bounds checking
+  if (sequence < windowSequence)
+  {
+	  gLogger->logErrorF("Netcode","_processDataOrderChannelB::*** Order packet sequence too small, may be a duplicate or we handled our acks wrong.  seq: %u, expect >: %u", MSG_HIGH, sequence, windowSequence);
+  }
+
+  if (sequence > windowSequence + mWindowPacketList.size())
+  {
+	  gLogger->logErrorF("Netcode","_processDataOrderChannelB::*** Rollover Order packet  seq: %u, expect >: %u", MSG_HIGH, sequence, windowSequence);
+  }
+	
+	//The location of the packetsequence out of order has NOBEARING on the question on which list we will find the last properly received Packet!!!
+
+
+	if(mRolloverWindowPacketList.size()&& (sequence > (65535-mRolloverWindowPacketList.size())))
+	{
+		//jupp its on the rolloverlist
+		mSessionMutex.acquire(); //			   mRolloverWindowPacketList and WindowPacketList get accessed by the socketwritethread and by the socketreadthread both through the session
+
+		uint16 count = 0;
+		for (iterRoll = mRolloverWindowPacketList.begin(); iterRoll != mWindowPacketList.end(); iterRoll++)
+		{
+			// Grab our window packet
+			windowPacket = (*iterRoll);
+			windowPacket->setReadIndex(2);
+			uint16 windowRollSequence = ntohs(windowPacket->getUint16());
+
+			// If it's smaller than the order packet send it, otherwise break;
+			if ((windowRollSequence < sequence) && (windowRollSequence >= bottomSequence))
+			{
+				//count++;
+				//if(count > 50)
+				//	break;
+					
+				if(Anh_Utils::Clock::getSingleton()->getLocalTime() - windowPacket->getTimeOOHSent() < 200)
+					break;
+				
+				_addOutgoingReliablePacket(windowPacket);
+				
+				windowPacket->setTimeOOHSent(Anh_Utils::Clock::getSingleton()->getLocalTime());
+
+				if (mWindowSizeCurrent > (mWindowResendSize/10))
+					mWindowSizeCurrent--;
+
+			}
+		}
+		mSessionMutex.release();
+
+	 }
+ 
+ 
+	 mSessionMutex.acquire();//			   mRolloverWindowPacketList and WindowPacketList get accessed by the socketwritethread and by the socketreadthread both through the session
+	 uint16 count = 0;
+	 for (iter = mWindowPacketList.begin(); iter != mWindowPacketList.end(); iter++)
+	 {
+		// Grab our window packet
+		windowPacket = (*iter);
+		windowPacket->setReadIndex(2);
+		uint16 windowSequence = ntohs(windowPacket->getUint16());
+
+		// If it's smaller than the order packet send it, otherwise break;
+		// do we want to throttle the amount of packets being send to 10 or 50 or 100 ???
+		// if we receive a sequence on the rolloverlist (65530 for example) we will
+		// always send ALL packets on the regular list - I dont anticipate a big deal here though!!!
+		if ((windowSequence < sequence) && (windowSequence >= bottomSequence))
+		{
+			        
+			//gLogger->logMsgF("Resending reliable packet.  seq: %u, order: %u", MSG_HIGH, windowSequence, sequence);
+				
+			_addOutgoingReliablePacket(windowPacket);
+					
+			windowPacket->setTimeOOHSent(Anh_Utils::Clock::getSingleton()->getLocalTime());
+
+			if (mWindowSizeCurrent > (mWindowResendSize/10))
+				mWindowSizeCurrent--;
+		
+		}
+		else
+		{
+			mSessionMutex.release();
+			return;
+		}
+	}
+	mSessionMutex.release();
+  
 
   // Destroy our incoming packet, it's not needed any longer.
   mPacketFactory->DestroyPacket(packet);

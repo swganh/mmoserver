@@ -401,7 +401,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
 			} 
 			else 
 			{
-				gLogger->logMsgF("Image Designer : transaction failed\n",MSG_NORMAL);
+				gLogger->logMsgF("Image Designer : transaction failed",MSG_NORMAL);
 				// oh woe we need to rollback :(
 				// (ie do nothing)
 
@@ -411,7 +411,6 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
 
 		case EMQuery_LoadHoloEmotes:
 		{
-			gLogger->logMsg("EntertainerManager::Loading HoloEmotes...");
 			HoloStruct* holo;
 		
 			DataBinding* binding = mDatabase->CreateDataBinding(3);
@@ -429,8 +428,10 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
 				mHoloList.push_back(holo);
 			}
 
-			printf(" %I64u Loaded",count);
-			gLogger->logMsgOk(14);
+			if(result->getRowCount())
+				gLogger->logMsgLoadSuccess("EntertainerManager::loaded %u HoloEmotes...",MSG_NORMAL,result->getRowCount());
+			else
+				gLogger->logMsgLoadFailure("EntertainerManager::loaded HoloEmotes...",MSG_NORMAL);					
 		}
 		break;
 
@@ -621,11 +622,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
 
 		case EMQuery_LoadIDAttributes:
 		{
-			gLogger->logMsg("EntertainerManager::Loading Image Designer Attributes... ");
-
-
-			//SELECT CRC, Atr1ID, Atr1Name, Atr2ID, Atr2Name FROM swganh.id_attributes
-
+		
 			DataBinding* binding;
 			binding = mDatabase->CreateDataBinding(9);
 			binding->addField(DFT_uint32,offsetof(IDStruct,CustomizationCRC),4,0);
@@ -646,15 +643,18 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
 				result->GetNextRow(binding,idData);			
 				mIDList.push_back(idData);
 			}
-			printf("%I64u loaded\n",count);
+			
+			if(result->getRowCount())
+				gLogger->logMsgLoadSuccess("EntertainerManager::loaded %u ID-Attributes...",MSG_NORMAL,result->getRowCount());
+			else
+				gLogger->logMsgLoadFailure("EntertainerManager::loaded ID-Attributes...",MSG_NORMAL);					
+
 		}
 		break;
 
 		
 		case EMQuery_LoadPerformances:
 		{
-			gLogger->logMsg("EntertainerManager::Loading Performances... ");
-
 			DataBinding* binding;
 			binding = mDatabase->CreateDataBinding(10);
 			binding->addField(DFT_string,offsetof(PerformanceStruct,performanceName),32,0);
@@ -679,8 +679,10 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
 	
 			}
 			
-			printf(" %I64u loaded",count);
-			gLogger->logMsgOk(9);
+			if(result->getRowCount())
+				gLogger->logMsgLoadSuccess("EntertainerManager::loaded %u performances...",MSG_NORMAL,result->getRowCount());
+			else
+				gLogger->logMsgLoadFailure("EntertainerManager::loaded performances...",MSG_NORMAL);					
 		}
 		break;
 

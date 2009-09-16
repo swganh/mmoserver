@@ -81,15 +81,10 @@ void ResourceCollectionManager::_destroyDatabindings()
 }
 
 //======================================================================================================================
-static int printed = false; //file scope
 void ResourceCollectionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 {
 	RCMAsyncContainer* asyncContainer = reinterpret_cast<RCMAsyncContainer*>(ref);
-	if(!printed) 
-	{
-		gLogger->logMsg("ResourceCollectionManager::Loading costs:\n");
-		printed=true;
-	}
+	
 	switch (asyncContainer->mQueryType)
 	{
 		case RCMQuery_SampleCosts:
@@ -98,7 +93,6 @@ void ResourceCollectionManager::handleDatabaseJobComplete(void* ref,DatabaseResu
 
 				if (result->getRowCount())
 				{
-					printf("\tLoaded dosample command costs\n");
 					result->GetNextRow(mCommandCostBinding, cCommand);
 					this->sampleActionCost = cCommand->getActionCost();
 					this->sampleHealthCost = cCommand->getHealthCost();
@@ -107,7 +101,11 @@ void ResourceCollectionManager::handleDatabaseJobComplete(void* ref,DatabaseResu
 					
 				}
 
-				printf("\tLoaded sample costs\n");
+				if(result->getRowCount())
+					gLogger->logMsgLoadSuccess("ResourceCollectionManager::Loading sample costs...",MSG_NORMAL);
+				else
+					gLogger->logMsgLoadFailure("ResourceCollectionManager::Loading sample costs...",MSG_NORMAL);					
+
 			}
 			break;
 
@@ -116,7 +114,7 @@ void ResourceCollectionManager::handleDatabaseJobComplete(void* ref,DatabaseResu
 				ResourceCollectionCommand* cCommand = new ResourceCollectionCommand();
 				if (result->getRowCount())
 				{
-					printf("\tLoaded requestSurvey command costs\n");
+				
 					result->GetNextRow(mCommandCostBinding, cCommand);
 
 					
@@ -125,8 +123,11 @@ void ResourceCollectionManager::handleDatabaseJobComplete(void* ref,DatabaseResu
 					this->surveyMindCost = cCommand->getMindCost();
 					
 				}
-				printf("\tLoaded survey costs");
-				gLogger->logMsgOk(48);
+				
+				if(result->getRowCount())
+					gLogger->logMsgLoadSuccess("ResourceCollectionManager::Loading %u survey costs...",MSG_NORMAL,result->getRowCount());
+				else
+					gLogger->logMsgLoadFailure("ResourceCollectionManager::Loading survey costs...",MSG_NORMAL);					
 			}
 			break;
 

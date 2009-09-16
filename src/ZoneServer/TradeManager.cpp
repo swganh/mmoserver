@@ -66,8 +66,8 @@ TradeManager::TradeManager(Database* database, MessageDispatch* dispatch)
 										
 
 	//load the itemtable for the character builder terminal
-	asyncContainer = new TradeManagerAsyncContainer(TRMQuery_ItemTableFrogQuery, 0);
-	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT * FROM frog_items fi INNER JOIN item_families i_f on fi.family = i_f.id");
+	//asyncContainer = new TradeManagerAsyncContainer(TRMQuery_ItemTableFrogQuery, 0);
+	//mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT * FROM frog_items fi INNER JOIN item_families i_f on fi.family = i_f.id");
 }
 
 
@@ -144,28 +144,28 @@ void TradeManager::handleDispatchMessage(uint32 opcode, Message* message, Dispat
 		case opDeductMoneyMessage:
 		{
 			_processDeductMoneyMessage(message,client);
-			gLogger->logMsgF("opDeductMoneyMessage::handleDispatchMessage: handled opcode %u\n",MSG_NORMAL,opcode);
+			gLogger->logMsgF("opDeductMoneyMessage::handleDispatchMessage: handled opcode %u",MSG_NORMAL,opcode);
 		}
 		break;
 		
 		case opProcessSendCreateItem:
 		{
 			_processCreateItemMessage(message,client);
-			gLogger->logMsgF("ZoneServer Create Item in Inventory\n",MSG_NORMAL);
+			gLogger->logMsgF("ZoneServer Create Item in Inventory",MSG_NORMAL);
 		}
 		break;
 
 		case opCreateAuctionMessage:
 		{
 			_processHandleAuctionCreateMessage(message,client,TRMVendor_Auction);
-			gLogger->logMsgF("opIsVendorMessage::handleDispatchMessage: handled opcode %u\n",MSG_NORMAL,opcode);
+			gLogger->logMsgF("opIsVendorMessage::handleDispatchMessage: handled opcode %u",MSG_NORMAL,opcode);
 		}
 		break;
 
 		case opCreateImmediateAuctionMessage:
 		{
 			_processHandleAuctionCreateMessage(message,client,TRMVendor_Instant);
-			gLogger->logMsgF("opIsVendorMessage::handleDispatchMessage: handled opcode %u\n",MSG_NORMAL,opcode);
+			gLogger->logMsgF("opIsVendorMessage::handleDispatchMessage: handled opcode %u",MSG_NORMAL,opcode);
 
 		}
 		break;
@@ -173,7 +173,7 @@ void TradeManager::handleDispatchMessage(uint32 opcode, Message* message, Dispat
 		case opAbortTradeMessage:
 		{
 			_processAbortTradeMessage(message,client);
-			gLogger->logMsgF("opAbortTradeMessage::handleDispatchMessage: handled opcode %u\n",MSG_NORMAL,opcode);
+			gLogger->logMsgF("opAbortTradeMessage::handleDispatchMessage: handled opcode %u",MSG_NORMAL,opcode);
 		}
 		break;
 
@@ -198,40 +198,40 @@ void TradeManager::handleDispatchMessage(uint32 opcode, Message* message, Dispat
 		case opAcceptTransactionMessage:
 		{
 			_processAcceptTransactionMessage(message,client);
-			gLogger->logMsgF("TradeManager AcceptTransactionMessage\n",MSG_HIGH);
+			gLogger->logMsgF("TradeManager AcceptTransactionMessage",MSG_HIGH);
 		}
 		break;
 
 		case opBeginVerificationMessage:
 		{
 			_processBeginVerificationMessage(message,client);
-			gLogger->logMsgF("TradeManager BeginVerificationMessage\n",MSG_HIGH);
+			gLogger->logMsgF("TradeManager BeginVerificationMessage",MSG_HIGH);
 		}
 		break;
 
 		case opVerifyTradeMessage:
 		{
 			_processVerificationMessage(message,client);
-			gLogger->logMsgF("TradeManager VerificationMessage\n",MSG_HIGH);
+			gLogger->logMsgF("TradeManager VerificationMessage",MSG_HIGH);
 		}
 		break;
 
 		case opUnacceptTransactionMessage:
 		{
 			_processUnacceptTransactionMessage(message,client);
-			gLogger->logMsgF("TradeManager UnacceptTransactionMessage\n",MSG_HIGH);
+			gLogger->logMsgF("TradeManager UnacceptTransactionMessage",MSG_HIGH);
 		}
 		break;
 
 		case opGiveMoneyMessage:
 		{
 			_processGiveMoneyMessage(message,client);
-			gLogger->logMsgF("TradeManager GiveMoneyMessage\n",MSG_HIGH);
+			gLogger->logMsgF("TradeManager GiveMoneyMessage",MSG_HIGH);
 		}
 		break;
 
 		default:
-			gLogger->logMsgF("TradeManagerMessage::handleDispatchMessage: Unhandled opcode %u\n",MSG_NORMAL,opcode);
+			gLogger->logMsgF("TradeManagerMessage::handleDispatchMessage: Unhandled opcode %u",MSG_NORMAL,opcode);
 		break;
 	} 
 }
@@ -416,7 +416,6 @@ void TradeManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 		case TRMQuery_ItemTableFrogQuery:
 			{
-				gLogger->logMsg("TradeManager::Loading FrogItems...");
 				
 				DataBinding* binding = mDatabase->CreateDataBinding(6);
 				binding->addField(DFT_uint64,offsetof(ItemFrogItemClass,id),8,0);
@@ -445,8 +444,11 @@ void TradeManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					type->InsertItem(item);
 
 				}
-				printf("%u loaded ",count);
-				gLogger->logMsgOk(18);
+				if(result->getRowCount())
+					gLogger->logMsgLoadSuccess("TradeManager::Loading %u FrogItems...",MSG_NORMAL,result->getRowCount());
+				else
+					gLogger->logMsgLoadFailure("TradeManager::Loading FrogItems...",MSG_NORMAL);					
+
 			}
 		break;
 

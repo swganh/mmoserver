@@ -102,7 +102,7 @@ void CharSheetManager::handleDispatchMessage(uint32 opcode,Message* message,Disp
 	if(it != mCommandMap.end())
 		(this->*((*it).second))(message,client);
 	else
-		gLogger->logMsgF("CharSheetManager: Unhandled DispatchMsg %u\n",MSG_NORMAL,opcode);
+		gLogger->logMsgF("CharSheetManager: Unhandled DispatchMsg %u",MSG_NORMAL,opcode);
 }
 
 //=========================================================================================
@@ -115,7 +115,6 @@ void CharSheetManager::handleDatabaseJobComplete(void* ref, DatabaseResult* resu
 	{
 		case CharSheetQuery_Factions:
 		{
-			gLogger->logMsg("CharSheetManager::loading factions...");
 
 			string name;
 			DataBinding* binding = mDatabase->CreateDataBinding(1);
@@ -129,8 +128,11 @@ void CharSheetManager::handleDatabaseJobComplete(void* ref, DatabaseResult* resu
 				mvFactions.push_back(BString(name.getAnsi()));
 			}
 
-			printf(" %lld loaded",count);
-			gLogger->logMsgOk(17);
+			if(result->getRowCount())
+				gLogger->logMsgLoadSuccess("CharSheetManager::loaded %u Factions...",MSG_NORMAL,result->getRowCount());
+			else
+				gLogger->logMsgLoadFailure("CharSheetManager::loaded Factions...",MSG_NORMAL);					
+
 			mDatabase->DestroyDataBinding(binding);
 
 			// load badge categories
@@ -179,8 +181,10 @@ void CharSheetManager::handleDatabaseJobComplete(void* ref, DatabaseResult* resu
 
 			mDatabase->DestroyDataBinding(binding);
 
-			gLogger->logMsgF("CharSheetManager::loaded %lld badges",MSG_NORMAL,count);
-			gLogger->logMsgOk(29);
+			if(result->getRowCount())
+				gLogger->logMsgLoadSuccess("CombatManager::Loading %u weapon groups...",MSG_NORMAL,result->getRowCount());
+			else
+				gLogger->logMsgLoadFailure("CombatManager::Loading weapon groups...",MSG_NORMAL);					
 		}
 		break;
 

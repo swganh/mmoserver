@@ -210,19 +210,15 @@ bool Heightmap::hasWater(float x, float y)
 
 void Heightmap::Connect(void)
 {
-	gLogger->logMsgF("Establishing connection to Heightmap: %s",MSG_NORMAL,mFilename.c_str());
 	hmp = fopen(mFilename.c_str(),"r+b");
 	if(!hmp)
 	{
-		gLogger->logMsgFailed(23-(mFilename.length()));
-		char err[255];
-		sprintf(err,"\tHeightmap::ERROR: Unable to open the heightmap file: %s!\n",mFilename.c_str());
-		gLogger->logMsg(err,FOREGROUND_RED);
+		gLogger->logMsgLoadFailure("Heightmap::Heightmap not found [ %s ], exiting...",MSG_HIGH,mFilename.c_str());
+
 	}
 	else
 	{
-		gLogger->logMsgOk(27-(mFilename.length()));
-		//gLogger->logMsgF("Heightmap::Successfully opened %s.",MSG_NORMAL, mFilename.c_str());
+		gLogger->logMsgLoadSuccess("Heightmap::succesfully loaded Heightmap...",MSG_NORMAL);
 	}
   return;
 }

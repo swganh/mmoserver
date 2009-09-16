@@ -179,7 +179,8 @@ void WorldConfig::buildAttributeMap(DatabaseResult* result)
 	for(uint64 i = 0;i < count;i++)
 	{
 		result->GetNextRow(mConfigurationBinding,(void*)&attribute);
-		printf("\n\t%s: %s",attribute.mKey.getAnsi(),attribute.mValue.getAnsi());
+		gLogger->logMsgF("WorldConfig::adding Attribute %s :: %s ",MSG_NORMAL,attribute.mKey.getAnsi(),attribute.mValue.getAnsi());
+
 		if(hasConfiguration(attribute.mKey))
 		{
 			setConfiguration(attribute.mKey,std::string(attribute.mValue.getAnsi()));
@@ -192,11 +193,11 @@ void WorldConfig::buildAttributeMap(DatabaseResult* result)
 
 	if(count > 0)
 	{
-		gLogger->logMsgOk(65-(attribute.mKey.getLength()+attribute.mValue.getLength()));
+		gLogger->logMsgLoadSuccess("WorldConfig:: %u attributes mapped...",MSG_NORMAL,count);
 	}
 	else
 	{
-		gLogger->logMsgFailed(61-(attribute.mKey.getLength()+attribute.mValue.getLength()));
+		gLogger->logMsgLoadFailure("WorldConfig::mapping attributes...",MSG_NORMAL);					
 	}
 
 }
@@ -209,7 +210,7 @@ void WorldConfig::setConfiguration(string key,std::string value)
 
 	if(it == mConfigurationMap.end())
 	{
-		gLogger->logMsgF("WorldConfig::setConfiguration: could not find %s\n",MSG_HIGH,key.getAnsi());
+		gLogger->logMsgF("WorldConfig::setConfiguration: could not find %s",MSG_HIGH,key.getAnsi());
 		return;
 	}
 

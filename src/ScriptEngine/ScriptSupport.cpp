@@ -172,7 +172,7 @@ uint64 ScriptSupport::npcCreate(uint64 templateId) //, uint64 npcPrivateOwnerId,
 	if (npcId != 0)
 	{
 		// Let's create a npc.
-		// gLogger->logMsgF("ScriptSupport::npcCreate Requesting npc from template %llu with id = %llu", MSG_NORMAL, templateId, npcId);
+		//gLogger->logMsgF("ScriptSupport::npcCreate Requesting npc from template %llu with id = %llu", MSG_NORMAL, templateId, npcId);
 		NonPersistentNpcFactory::Instance()->requestNpcObject(this, templateId, npcId, 0, 0, 0, 0);
 	}
 	else

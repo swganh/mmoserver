@@ -88,11 +88,6 @@ SkillManager::~SkillManager()
 void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 {
 
-	if(mLoadCounter == 5)
-	{
-		gLogger->logMsg("SkillManager::Loading... ");
-	}
-
 	SMAsyncContainer* asyncContainer = reinterpret_cast<SMAsyncContainer*>(ref);
 
 	switch(asyncContainer->mQueryType)
@@ -161,7 +156,6 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 		case SMQuery_Skills:
 		{
-			gLogger->logMsg("SkillManager::Loading skills...");
 			Skill* skill;
 			DataBinding* binding = mDatabase->CreateDataBinding(13);
 			binding->addField(DFT_uint32,offsetof(Skill,mId),4,0);
@@ -181,8 +175,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			uint64 count = result->getRowCount();
 			mTotalLoadCount += count * 6;
 			
-			printf(" %lld loaded",count);
-			gLogger->logMsgOk(21);
+		
 
 			for(uint64 i = 0;i < count;i++)
 			{
@@ -219,6 +212,9 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			}
 
 			mDatabase->DestroyDataBinding(binding);
+
+			if(!result->getRowCount())
+				gLogger->logMsgLoadFailure("SkillManager::loading Skills...",MSG_NORMAL);					
 		}
 		break;
 
@@ -393,8 +389,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 	if(++mLoadCounter == mTotalLoadCount)
 	{
-		printf("Complete!");
-		gLogger->logMsgOk(30);
+		gLogger->logMsgLoadSuccess("SkillManager::loading %u Skilldatasets...",MSG_NORMAL,mTotalLoadCount);
 	}
 
 	mDBAsyncPool.ordered_free(asyncContainer);

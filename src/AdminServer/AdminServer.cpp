@@ -79,7 +79,7 @@ void AdminServer::Startup(void)
 									   (char*)(gConfig->read<std::string>("DBName")).c_str());
 
   gLogger->connecttoDB(mDatabaseManager);
-  gLogger->createErrorLog("AdminServer",(LogLevel)(gConfig->read<int>("LogLevel",2)),
+  gLogger->createErrorLog("AdminServer.log",(LogLevel)(gConfig->read<int>("LogLevel",2)),
 										(bool)(gConfig->read<bool>("LogToFile", true)),
 										(bool)(gConfig->read<bool>("ConsoleOut",true)),
 										(bool)(gConfig->read<bool>("LogAppend",true)));

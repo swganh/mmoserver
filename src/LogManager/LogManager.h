@@ -60,6 +60,9 @@ class LogManager
 		void		  logMsgF(Log* log, const std::string& msg, MsgPriority mp, ...);
 		void		  logMsgFailed(int width);
 		void		  logMsgOk(int width);
+		void		  logMsgLoadSuccess(const std::string& msg, MsgPriority priority, ...);
+		void		  logMsgLoadFailure(const std::string& msg, MsgPriority priority, ...);
+
 		void		  hexDump(int8* data,uint32 len,MsgPriority mp = MSG_NORMAL);
 		void		  hexDump(int8* data,uint32 len,const char* filename);
 

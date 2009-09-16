@@ -232,8 +232,11 @@ void TravelMapHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 		mCellPointsLoaded = false;
 		mRoutesLoaded = false;
 
-		gLogger->logMsgF("Loading Tavel Map... Loaded %u Points & %u Routes",MSG_NORMAL,mPointCount,mRouteCount);
-		gLogger->logMsgOk(15);
+		if(result->getRowCount())
+			gLogger->logMsgLoadSuccess("TravelMapHandler::Loading %u TravelRoutes and %u TravelPoints...",MSG_NORMAL,mPointCount,mRouteCount);
+		else
+			gLogger->logMsgLoadFailure("TravelMapHandler::Loading Travel Routes/Points...",MSG_NORMAL);	
+
 	}
 }
 

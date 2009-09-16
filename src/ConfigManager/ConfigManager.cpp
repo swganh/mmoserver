@@ -24,27 +24,18 @@ ConfigManager*  ConfigManager::mSingleton  = NULL;
 
 ConfigManager::ConfigManager(const std::string& name)
 {
-	gLogger->logMsgF("Loading ConfgFile [ %s ]",MSG_NORMAL,name.c_str());
 	try
 	{
 		mConfigFile = new ConfigFile(CONFIG_DIR + name);
 	}
 	catch(file_not_found)
 	{
-		gLogger->logMsgFailed(15);
-		gLogger->logMsgF("ConfigFile not found [ %s ], exiting...\n",MSG_HIGH,name.c_str());
+		gLogger->logMsgLoadFailure("ConfigManager::ConfigFile not found [ %s ], exiting...",MSG_HIGH,name.c_str());
 		exit(-1);
 	}
 
-	if(name.length() <= 1)
-	{
-		gLogger->logMsgFailed(38-name.length());
-	}
-	else
-	{
-		gLogger->logMsgOk(42-name.length());	
-	}
-	//gLogger->logMsg("Successfully Loaded [" + name + "]");
+	gLogger->logMsgLoadSuccess("ConfigManager::loaded Configuration...",MSG_NORMAL);
+
 }
 
 //======================================================================================================================

@@ -183,8 +183,14 @@ void SocketWriteThread::_sendPacket(Packet* packet, Session* session)
 	struct sockaddr     toAddr;
 	uint32              sent, toLen = sizeof(toAddr), outLen;
 
+	
 	// Some basic bounds checking.
-	assert(packet->getSize() <= mMessageMaxSize);
+	if(packet->getSize() > mMessageMaxSize)
+	{
+		gLogger->logErrorF("Netcode","packet (%u) is longer than mMessageMaxSize (%u)",MSG_HIGH,packet->getSize(),mMessageMaxSize);
+		return;
+	}
+	//assert(packet->getSize() <= mMessageMaxSize);
 
 	// Want a fresh send buffer for debugging purposes.
 	memset(mSendBuffer, 0xcd, sizeof(mSendBuffer));

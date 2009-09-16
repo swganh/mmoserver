@@ -108,18 +108,12 @@ static bool failed = false;
 void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 {
     MissionManagerAsyncContainer* asynContainer = (MissionManagerAsyncContainer*)ref;
-	if(!printed)
-	{
-		gLogger->logMsg("MissionManager::Loading missions:\n");
-		printed = true;
-	}
+	
     switch(asynContainer->mQueryType)
     {
 
 		case MissionQuery_Load_Names_File:
 		{
-			gLogger->logMsg("MissionManager::Loading Mission Specific Names...");
-
 			// m_t.mission_type, m_t.mission_name, m_t.mission_text FROM swganh.mission_text m_t INNER JOIN swganh.mission_types mty ON mty.id = m_t.mission_type WHERE mission_name like 'm%o' AND (mty.type NOT like 'mission_npc_%')", zone);
 
 			DataBinding* binding = mDatabase->CreateDataBinding(3);
@@ -149,15 +143,17 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					}
 					else
 					{
-						printf("\tSpecific names missionmap %u not found\n",names->type);
 						failed=true;
 					}
 				}
 				//mNameMap.insert(std::make_pair(i,names));
 			}
 
-			printf(" %3I64u loaded ",count);
-			failed ? gLogger->logMsgFailed(1) : gLogger->logMsgOk(1);
+			// not all missions have associated names ...
+			if(result->getRowCount())
+				gLogger->logMsgLoadSuccess("MissionManager::Loading %u Mission stfs...",MSG_NORMAL,count);
+			else
+				gLogger->logMsgLoadFailure("MissionManager::Loading Mission stfs...",MSG_NORMAL);					
 
 		}
 		break;
@@ -180,9 +176,10 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				mNameMap.insert(std::make_pair(i,names));
 			}
 
-			printf("\tLoaded %I64u Mission generic Names",count);
-			failed ? gLogger->logMsgFailed(35) : gLogger->logMsgOk(37);
-
+			if(result->getRowCount())
+				gLogger->logMsgLoadSuccess("MissionManager::Loading %u Mission Names...",MSG_NORMAL,count);
+			else
+				gLogger->logMsgLoadFailure("MissionManager::Loading Mission Names...",MSG_NORMAL);					
 
 		}
 		break;
@@ -214,7 +211,10 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			asyncContainer = new MissionManagerAsyncContainer(MissionQuery_Load_Names_File, 0);
 			mDatabase->ExecuteSqlAsyncNoArguments(this,asyncContainer,"SELECT m_t.mission_type, m_t.mission_name, m_t.mission_text FROM swganh.mission_text m_t INNER JOIN swganh.mission_types mty ON mty.id = m_t.mission_type WHERE mission_name like 'm%o' AND (mty.type NOT like 'mission_npc_%')");
 
-			printf("\tLoaded %I64u Mission STFs\n",count);
+			if(result->getRowCount())
+				gLogger->logMsgLoadSuccess("MissionManager::Loading %u Mission Types...",MSG_NORMAL,result->getRowCount());
+			else
+				gLogger->logMsgLoadFailure("MissionManager::Loading Mission Types...",MSG_NORMAL);					
 
 		}
 		break;
@@ -244,8 +244,6 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					terminalMissionLink->missiontype = (*it).second;
 				else
 				{
-					printf("Could not find corresponding mission type");
-					failed=true;
 					continue;
 				}
 
@@ -366,8 +364,12 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 				}
 			}
-			gLogger->logMsgF("MissionManager:: Loaded %3I64u Mission Terminal Links",MSG_NORMAL,count);
-			gLogger->logMsgOk(14);
+
+			if(result->getRowCount())
+				gLogger->logMsgLoadSuccess("MissionManager::Loading %u Mission Terminal Links...",MSG_NORMAL,result->getRowCount());
+			else
+				gLogger->logMsgLoadFailure("MissionManager::Loading Mission Terminal Links...",MSG_NORMAL);					
+
 		}
 		break;
 

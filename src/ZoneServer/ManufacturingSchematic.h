@@ -34,7 +34,8 @@ struct CustomizationOption
 typedef std::vector<CustomizationOption*>	CustomizationList;
 
 typedef std::vector<ManufactureSlot*>			ManufactureSlots;
-typedef std::vector<ExperimentationProperty*>	ExperimentationProperties;
+typedef std::vector<ExperimentationProperty*>	ExperimentationProperties; // stores all properties
+typedef std::vector<std::pair<uint32,ExperimentationProperty*>>	ExperimentationPropertiesStore;	//stores the reference list of unique exp properties
 typedef std::vector<CraftWeight*>				CraftWeights;
 typedef std::vector<CraftAttribute*>			CraftAttributes;
 typedef std::vector<std::pair<uint64,uint32> >	FilledResources;
@@ -77,8 +78,21 @@ class ManufacturingSchematic : public Item
 		void	prepareAttributes();
 		void	sendAttributes(PlayerObject* playerObject);
 
+		bool	expPropStorefind(uint32 crc)
+		{
+			ExperimentationPropertiesStore::iterator	epStoreIt	= expPropStore.begin();
+			while(epStoreIt != expPropStore.end())
+			{
+				if((*epStoreIt).first == crc)
+					return true;
+				epStoreIt++;
+			}
+			return false;
+		}
+
 		ManufactureSlots*			getManufactureSlots(){ return &mManufactureSlots; }
 		ExperimentationProperties*	getExperimentationProperties(){ return &mExperimentationProperties; }
+		ExperimentationPropertiesStore*	getExperimentationPropertiesStore(){ return &expPropStore; }
 
 		CustomizationList*		getCustomizationList(){return &mCustomizationList;}
 
@@ -92,6 +106,8 @@ class ManufacturingSchematic : public Item
 		uint32	mPaletteSize;
 
 		CustomizationList		mCustomizationList;
+
+		ExperimentationPropertiesStore				expPropStore;
 
 	private:
 
@@ -178,6 +194,8 @@ class ExperimentationProperty//CraftingAttribute
 		float				mMaxExpValue;
 		float				mMaxExpValueOld;
 		bool				mMaxExpValueChange;
+
+		int32				mRoll;
 };
 
 //=============================================================================

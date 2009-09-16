@@ -95,17 +95,11 @@ static bool printed = false;
 void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 {
 	StructureManagerAsyncContainer* asynContainer = (StructureManagerAsyncContainer*)ref;
-	if(!printed)
-	{
-		gLogger->logMsg("StructureManager::Loading Datasets:\n");
-		printed=true;
-	}
 	
 	switch(asynContainer->mQueryType)
 	{
 		case Structure_Query_LoadDeedData:
 		{
-			gLogger->logMsg("StructureManager::Loading Structure Datasets...");
 			StructureDeedLink* deedLink;
 		
 			DataBinding* binding = mDatabase->CreateDataBinding(7);
@@ -127,16 +121,17 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 				result->GetNextRow(binding,deedLink);
 				mDeedLinkList.push_back(deedLink);
 			}
-			
-			printf(" %3I64u loaded",count);
-			gLogger->logMsgOk(6);
+		
+			if(result->getRowCount())
+				gLogger->logMsgLoadSuccess("StructureManager::Loading %u Structures...",MSG_NORMAL,result->getRowCount());
+			else
+				gLogger->logMsgLoadFailure("StructureManager::Loading Structures...",MSG_NORMAL);					
 			
 		}
 		break;
 
 		case Structure_Query_LoadstructureItem:
-		{
-			gLogger->logMsg("StructureManager::Loading Item Datasets...");
+			{
 
 			StructureItemTemplate* itemTemplate;
 		
@@ -167,22 +162,13 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 				mItemTemplate.push_back(itemTemplate);
 			}
 			
-			printf(" %2I64u loaded",count);
-			gLogger->logMsgOk(12);
+			if(result->getRowCount())
+				gLogger->logMsgLoadSuccess("StructureManager::Loading %u Structure Items...",MSG_NORMAL,result->getRowCount());
+			else
+				gLogger->logMsgLoadFailure("StructureManager::Loading Structure Items...",MSG_NORMAL);					
 
 		}
 		break;
-		struct StructureItemTemplate
-{
-
-	string	name;
-	string	file;
-
-};
-
-		//SELECT sit.structure_id, sid.cell, sid.item_type , sid.relX, sid.relY, sid.relZ, "
-			//			"it.object_string, it.stf_name, it.stf_file from swganh.structure_item_template sit INNER JOIN item_types it ON it.id = sit.item_type");
-
 		
 		default:break;
 

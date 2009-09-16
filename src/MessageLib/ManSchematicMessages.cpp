@@ -175,9 +175,6 @@ bool MessageLib::sendBaselinesMSCO_6(ManufacturingSchematic* manSchem,PlayerObje
 
 bool MessageLib::sendBaselinesMSCO_7(ManufacturingSchematic* manSchem,PlayerObject* playerObject)
 {
-	//string cust,cust2;
-	//cust = "private/index_color_1";
-	//cust2 = "private/index_color_2";
 
 	if(!(playerObject->isConnected()))
 		return(false);
@@ -187,8 +184,11 @@ bool MessageLib::sendBaselinesMSCO_7(ManufacturingSchematic* manSchem,PlayerObje
 
 	ManufactureSlots*					manSlots			= manSchem->getManufactureSlots();
 	ManufactureSlots::iterator			manSlotIt			= manSlots->begin();
-	ExperimentationProperties*			exProp				= manSchem->getExperimentationProperties();
-	ExperimentationProperties::iterator	epIt				= exProp->begin();
+	
+	//ExperimentationProperties*			exProp				= manSchem->getExperimentationProperties();
+	//ExperimentationProperties::iterator	epIt				= exProp->begin();
+
+	ExperimentationPropertiesStore::iterator	epStoreIt	= manSchem->expPropStore.begin();
 
 	CustomizationList*					custList			= manSchem->getCustomizationList();
 	CustomizationList::iterator			custIt				= custList->begin();
@@ -318,93 +318,93 @@ bool MessageLib::sendBaselinesMSCO_7(ManufacturingSchematic* manSchem,PlayerObje
 	// experimentation
 	///8
 	//we need to send them so that they are shown on assembly!!!
-	gMessageFactory->addUint32(exProp->size());
+	gMessageFactory->addUint32(manSchem->expPropStore.size());
 	gMessageFactory->addUint32(manSchem->mUpdateCounter[8]);
 
-	epIt			= exProp->begin();
+	epStoreIt			= manSchem->expPropStore.begin();
 
-	while(epIt != exProp->end())
+	while(epStoreIt != manSchem->expPropStore.end())
 	{
 		gMessageFactory->addString(BString("crafting"));
 		gMessageFactory->addUint32(0);
-		gMessageFactory->addString((*epIt)->mExpAttributeName);
-		++epIt;
+		gMessageFactory->addString((*epStoreIt).second->mExpAttributeName);
+		++epStoreIt;
 	}
 
 	//9
 	//CurrentExperimentationValueList 
 
-	gMessageFactory->addUint32(exProp->size());
+	gMessageFactory->addUint32(manSchem->expPropStore.size());
 
 	//annoyingly the craftattributeslist is still zero at this time so we need to reinitialize them !!!!
-	manSchem->mUpdateCounter[9] = exProp->size();
+	manSchem->mUpdateCounter[9] = manSchem->expPropStore.size();
 	gMessageFactory->addUint32(manSchem->mUpdateCounter[9]);
 
-	epIt			= exProp->begin();
+	epStoreIt			= manSchem->expPropStore.begin();
 
-	while(epIt != exProp->end())
+	while(epStoreIt != manSchem->expPropStore.end())
 	{
 		gMessageFactory->addFloat(0);//(*epIt)->mExpAttributeValue);
-		(*epIt)->mExpAttributeValue = 0;
-		(*epIt)->mExpAttributeValueOld = 0;
+		(*epStoreIt).second->mExpAttributeValue = 0;
+		(*epStoreIt).second->mExpAttributeValueOld = 0;
 
-		++epIt;
+		++epStoreIt;
 	} 
 
 	// 10
 	//exp offset leave as 0
 
-	gMessageFactory->addUint32(exProp->size());
+	gMessageFactory->addUint32(manSchem->expPropStore.size());
 	//annoyingly the craftattributeslist is still zero at this time so we need to reinitialize them !!!!
-	manSchem->mUpdateCounter[10] = exProp->size();
+	manSchem->mUpdateCounter[10] = manSchem->expPropStore.size();
 	gMessageFactory->addUint32(manSchem->mUpdateCounter[10]);
 
-	epIt			= exProp->begin();
+	epStoreIt			= manSchem->expPropStore.begin();
 
-	while(epIt != exProp->end())
+	while(epStoreIt != manSchem->expPropStore.end())
 	{
 
 		gMessageFactory->addUint32(0);//(*epIt)->mExpUnknown);
 
-		++epIt;
+		++epStoreIt;
 	}
 
 	//11
 	// bluebar / exp bar value
 
-	gMessageFactory->addUint32(exProp->size());
+	gMessageFactory->addUint32(manSchem->expPropStore.size());
 	//annoyingly the craftattributeslist is still zero at this time so we need to reinitialize them !!!!
-	manSchem->mUpdateCounter[11] = exProp->size();
+	manSchem->mUpdateCounter[11] = manSchem->expPropStore.size();
 	gMessageFactory->addUint32(manSchem->mUpdateCounter[11]);
 
-	epIt			= exProp->begin();
+	epStoreIt			= manSchem->expPropStore.begin();
 
-	while(epIt != exProp->end())
+	while(epStoreIt != manSchem->expPropStore.end())
 	{
-		(*epIt)->mBlueBarSizeOld = 1.0;
-		(*epIt)->mBlueBarSize = 1.0;
-		gMessageFactory->addFloat((*epIt)->mBlueBarSize);//
+		(*epStoreIt).second->mBlueBarSizeOld = 1.0;
+		(*epStoreIt).second->mBlueBarSize = 1.0;
+		gMessageFactory->addFloat((*epStoreIt).second->mBlueBarSize);//
 
-		++epIt;
+		++epStoreIt;
 	}
 
 	//12 (c)
 	// max experimentation
-	gMessageFactory->addUint32(exProp->size());
+	gMessageFactory->addUint32(manSchem->expPropStore.size());
 	//annoyingly the craftattributeslist is still zero at this time so we need to reinitialize them !!!!
-	manSchem->mUpdateCounter[12] = exProp->size();
+	manSchem->mUpdateCounter[12] = manSchem->expPropStore.size();
 	gMessageFactory->addUint32(manSchem->mUpdateCounter[12]);
 
-	epIt			= exProp->begin();
+	epStoreIt			= manSchem->expPropStore.begin();
 
-	while(epIt != exProp->end())
+	while(epStoreIt != manSchem->expPropStore.end())
 	{
 
-		(*epIt)->mMaxExpValue = 0;
-		(*epIt)->mMaxExpValueOld = 0;
+		(*epStoreIt).second->mMaxExpValue = 0;
+		(*epStoreIt).second->mMaxExpValueOld = 0;
 		gMessageFactory->addFloat(0);//(*epIt)->mMaxExpValue);
 
-		++epIt;
+		++epStoreIt;
 	}
 	
 	// 13 customization attribute name (d)	
@@ -493,8 +493,7 @@ bool MessageLib::sendDeltasMSCO_7(ManufacturingSchematic* manSchem,PlayerObject*
 	Message*							message;
 	ManufactureSlots*					manSlots			= manSchem->getManufactureSlots();
 	ManufactureSlots::iterator			manSlotIt			= manSlots->begin();
-	ExperimentationProperties*			exProp				= manSchem->getExperimentationProperties();
-	ExperimentationProperties::iterator	epIt				= exProp->begin();
+	
 	uint32								slotDataByteCount	= 0;
 	//uint32							caByteCount			= 0;
 	uint16								elementIndex		= 0;
@@ -1077,6 +1076,7 @@ bool MessageLib::sendDeltasMSCO_3(ManufacturingSchematic* manSchem,PlayerObject*
 	AttributeMap::iterator	it				= attributes->begin();
 	uint32					attByteCount	= 0;
 
+	// attributes we update here are the attrivutes the final object will have on completion
 	while(it != attributes->end())
 	{
 		attByteCount += 21 + gWorldManager->getAttributeKey((*it).first).getLength();
@@ -1135,6 +1135,8 @@ bool MessageLib::sendAttributeDeltasMSCO_7(ManufacturingSchematic* manSchem,Play
 
 	ExperimentationProperties*			expProp				= manSchem->getExperimentationProperties();
 	ExperimentationProperties::iterator	epIt				= expProp->begin();
+
+	ExperimentationPropertiesStore::iterator	epStoreIt	= manSchem->expPropStore.begin();
 	
 	uint32								objectcount			= 1;
 
@@ -1202,16 +1204,19 @@ bool MessageLib::sendAttributeDeltasMSCO_7(ManufacturingSchematic* manSchem,Play
 		manSchem->mUpdateCounter[9] += 1;//(craftAtts->size());
 		
 
-		gMessageFactory->addUint8(3);//3 as in write new 2 was change
-		gMessageFactory->addUint16(expProp->size());
+		// ´send the *unique* exp properties
+		// we send the values of the first of the propertie(s) that comes our way - so the experiment code needs to sort that
 
-		epIt	= expProp->begin();
-		while(epIt != expProp->end())
+		gMessageFactory->addUint8(3);//3 as in write new 2 was change
+		gMessageFactory->addUint16(manSchem->expPropStore.size());
+
+		epStoreIt	= manSchem->expPropStore.begin();
+		while(epStoreIt != manSchem->expPropStore.end())
 		{
 
-			(*epIt)->mExpAttributeValueOld = (*epIt)->mExpAttributeValue; 
-			gMessageFactory->addFloat((*epIt)->mExpAttributeValue);
-			++epIt;
+			(*epStoreIt).second->mExpAttributeValueOld = (*epStoreIt).second->mExpAttributeValue; 
+			gMessageFactory->addFloat((*epStoreIt).second->mExpAttributeValue);
+			++epStoreIt;
 		}
 	}
 
@@ -1228,16 +1233,16 @@ bool MessageLib::sendAttributeDeltasMSCO_7(ManufacturingSchematic* manSchem,Play
 		
 
 		gMessageFactory->addUint8(3);//3 as in write new 2 was change
-		gMessageFactory->addUint16(expProp->size());
+		gMessageFactory->addUint16(manSchem->expPropStore.size());
 
-		epIt	= expProp->begin();
+		epStoreIt	= manSchem->expPropStore.begin();
 
-		while(epIt != expProp->end())
+		while(epStoreIt != manSchem->expPropStore.end())
 		{
-			gMessageFactory->addFloat((*epIt)->mBlueBarSize);
-			(*epIt)->mBlueBarSizeOld = (*epIt)->mBlueBarSize;
+			gMessageFactory->addFloat((*epStoreIt).second->mBlueBarSize);
+			(*epIt)->mBlueBarSizeOld = (*epStoreIt).second->mBlueBarSize;
 
-			++epIt;
+			++epStoreIt;
 		}
 	}
 
@@ -1256,14 +1261,14 @@ bool MessageLib::sendAttributeDeltasMSCO_7(ManufacturingSchematic* manSchem,Play
 		gMessageFactory->addUint8(3);//3 as in write new; 2 was change
 		gMessageFactory->addUint16(expProp->size());
 
-		epIt			= expProp->begin();
+		epStoreIt			= manSchem->expPropStore.begin();
 		
-		while(epIt != expProp->end())
+		while(epStoreIt != manSchem->expPropStore.end())
 		{
 
-			(*epIt)->mMaxExpValueOld = (*epIt)->mMaxExpValue;
-			gMessageFactory->addFloat((*epIt)->mMaxExpValue);
-			++epIt;
+			(*epStoreIt).second->mMaxExpValueOld = (*epStoreIt).second->mMaxExpValue;
+			gMessageFactory->addFloat((*epStoreIt).second->mMaxExpValue);
+			++epStoreIt;
 		}
 	}
 

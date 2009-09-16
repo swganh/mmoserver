@@ -78,7 +78,7 @@ void ChatServer::Startup()
 	mDatabase->ExecuteSqlAsync(0,0,"UPDATE config_process_list SET serverstartID = serverstartID+1 WHERE name like 'chat'");
 
 	gLogger->connecttoDB(mDatabaseManager);
-	gLogger->createErrorLog("chatserver",(LogLevel)(gConfig->read<int>("LogLevel",2)),
+	gLogger->createErrorLog("chatserver.log",(LogLevel)(gConfig->read<int>("LogLevel",2)),
 										(bool)(gConfig->read<bool>("LogToFile", true)),
 										(bool)(gConfig->read<bool>("ConsoleOut",true)),
 										(bool)(gConfig->read<bool>("LogAppend",true)));

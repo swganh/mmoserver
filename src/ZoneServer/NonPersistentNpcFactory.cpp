@@ -659,7 +659,6 @@ void NonPersistentNpcFactory::requestNpcObject(ObjectFactoryCallback* ofCallback
 											   uint64 respawnDelay,
 											   uint64 parentLairId)
 {
-	// gLogger->logMsgF("NonPersistentNpcFactory::requestNpcObject() creatureTemplateId = %llu, ObjectId = %llu will be controlled by = %llu", MSG_NORMAL, creatureTemplateId, npcNewId, parentLairId);
 
 	mDatabase->ExecuteSqlAsync(this,new QueryNonPersistentNpcFactory(ofCallback, NonPersistentNpcQuery_NpcTemplate, creatureTemplateId, npcNewId, spawnCellId, spawnPosition, spawnDirection, respawnDelay, parentLairId),
 								"SELECT non_persistent_npcs.species_id, non_persistent_npcs.loot_group_id, "

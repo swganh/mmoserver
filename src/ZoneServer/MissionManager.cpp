@@ -805,7 +805,7 @@ void MissionManager::checkSurveyMission(PlayerObject* player,CurrentResource* re
 							
 
 							int8 sm[500];
-							sprintf(sm,L"","mission/mission_generic","survey_too_close",									
+							sprintf(sm,"That resource pocket is too close (%DF meters) to the mission giver to be useful to them. Go find one at least %DI meters away to complete your survey mission. ",									
 										(int)mission->getIssuingTerminal()->mPosition.distance2D(highestDist.position),
 										(1024 - (int)mission->getIssuingTerminal()->mPosition.distance2D(highestDist.position))
 										);

@@ -846,8 +846,8 @@ void Trainer::postProcessfilter(ActiveConversation* av, PlayerObject* player, ui
 			{
 				char elements[5][32];
 				memset(elements, 0, sizeof(elements));
-				char *masterStringSingleName = {"WOW! You have learned everything I have to teach... I suppose that now it's time for you to find your own path. Farewell %s."};
-				char *masterStringDoubleName = {"WOW! You have learned everything I have to teach... I suppose that now it's time for you to find your own path. Farewell %s %s."};
+				char *masterStringSingleName = {"WOW! You have learned everything I have to teach... I suppose that now it's time for you to find your own path. Farewell, %s."};
+				char *masterStringDoubleName = {"WOW! You have learned everything I have to teach... I suppose that now it's time for you to find your own path. Farewell, %s %s."};
 
 				// string aMess("@skill_teacher:no_qualify");
 				char *buffer = new char[strlen(masterStringDoubleName) + player->getFirstName().getLength() + player->getLastName().getLength()];

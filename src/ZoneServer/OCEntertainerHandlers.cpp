@@ -825,9 +825,21 @@ void ObjectController::_handleImageDesign(uint64 targetId,Message* message,Objec
 		gMessageLib->sendSystemMessage(imageDesigner,L"you cannot do this at this time");
 		return;
 	}
+	
+	if(imageDesigner->getImageDesignSession() != IDSessionNONE)
+	{
+		gMessageLib->sendSystemMessage(imageDesigner,L"you cannot do this at this time");
+		return;
+	}
 
 	PlayerObject* designObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetId));
 	
+	if(designObject->getImageDesignSession() != IDSessionNONE)
+	{
+		gMessageLib->sendSystemMessage(designObject,L"you cannot do this at this time");
+		return;
+	}
+
 	if(!designObject)
 		return;
 
@@ -992,6 +1004,9 @@ void ObjectController::handleImageDesignStopMessage(Message* message,uint64 targ
 		
 	if(imageDesigner->getImageDesignSession() == IDSessionID)
 		gMessageLib->sendIDEndMessage(idObject,imageDesigner,idObject,hair, counter2,creditsOffered, 0,unknown2,flag2,flag3,counter1);
+
+	imageDesigner->SetImageDesignSession(IDSessionNONE);
+	customer->SetImageDesignSession(IDSessionNONE);
 	
 	
 

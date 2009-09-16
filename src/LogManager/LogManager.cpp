@@ -353,7 +353,7 @@ void LogManager::logMsgLoadFailure(const std::string& msg, MsgPriority priority,
 	if(length < 0)
 		length = 80;
 
-	logMsgOk(length);
+	logMsgFailed(length);
 }
 
 //======================================================================================================================
@@ -363,7 +363,7 @@ void LogManager::logMsgFailed(int width)
 	mGlobalLogMutex.acquire();	
 
 	std::cout.width(width);
-	std::cout.write("[ ",3);
+	std::cout<<std::right<<"[ ";
 	#ifdef ANH_PLATFORM_WIN32
 		HANDLE Console;
 		Console = GetStdHandle(STD_OUTPUT_HANDLE);

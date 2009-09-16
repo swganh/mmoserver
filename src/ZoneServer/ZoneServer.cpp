@@ -51,7 +51,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "MessageLib/MessageLib.h"
 #include "ScriptEngine/ScriptEngine.h"
 #include "ScriptEngine/ScriptSupport.h"
-//#include "ZoneServer/Stackwalker.h"
+#include "ZoneServer/Stackwalker.h"
 
 #include <conio.h>
 #include <windows.h>
@@ -161,7 +161,7 @@ void ZoneServer::Startup(int8* zoneName)
 	ObjectFactory::Init(mDatabase);
 	FoodCommandMapClass::Init();
 	WorldManager::Init(zoneId,this,mDatabase);
-//printf("1");
+
 	// Init the non persistent factories. For now we take them one-by-one here, until we have a collection of them.
 	// We can NOT create these factories among the already existing ones, if we want to have any kind of "ownership structure",
 	// since the existing factories are impossible to delete without crashing the server.
@@ -345,7 +345,7 @@ void ZoneServer::_connectToConnectionServer(void)
 int main(int argc, char* argv[])
 {
 	// The second argument on the command line should be the zone name.
-	// OnlyInstallUnhandeldExceptionFilter(); // Part of stackwalker
+	//OnlyInstallUnhandeldExceptionFilter(); // Part of stackwalker
 	char zone[50];
 	if(argc < 2)
 	{

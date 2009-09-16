@@ -134,32 +134,41 @@ void Log::logMsg(const std::string& msg, MsgPriority priority, va_list args)
 		time(&t);
 		ts = localtime(&t);
 		
+
+		int16 time;
+	
 		tstring.append("[");
+		time = ts->tm_hour;	
+		if(time<9)
+			tstring.append(itoa(0,tStringBuffer,10));
+
 		tstring.append(itoa(ts->tm_hour,tStringBuffer,10));
 		tstring.append(":");
+
+		time = ts->tm_min;
+		if(time<9)
+			tstring.append(itoa(0,tStringBuffer,10));
+		
 		tstring.append(itoa(ts->tm_min,tStringBuffer,10));
 		tstring.append(":");
+
+		time = ts->tm_sec;
+		if(time<9)
+			tstring.append(itoa(0,tStringBuffer,10));
+
 		tstring.append(itoa(ts->tm_sec,tStringBuffer,10));
 		tstring.append("]");
-		/*
-
-		tstream << "[" << std::setw(2) << std::setfill('0') << ts->tm_hour
-				<< ":" << std::setw(2) << std::setfill('0') << ts->tm_min
-				<< ":" << std::setw(2) << std::setfill('0') << ts->tm_sec 
-				<< "] ";
-
-		tstring = tstream.str();
-		  */
-
+		
+		tstring.append(buf);
 		if(mFileOut)
 		{
-			mLogStream << tstring << buf << std::endl;
+			mLogStream << tstring << std::endl;
 			mLogStream.flush();
 		}
 
 		if(mConsoleOut)
 		{
-			std::cout << tstring << buf << std::endl;
+			std::cout << tstring << std::endl;
 			std::cout.flush();
 		}
 	}

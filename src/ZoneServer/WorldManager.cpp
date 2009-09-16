@@ -142,7 +142,17 @@ void WorldManager::Shutdown()
 	delete(mBuffScheduler);
 
 	// objects
-	mPlayerAccMap.clear();
+	PlayerAccMap::iterator playerIt = mPlayerAccMap.begin();
+	while(! mPlayerAccMap.empty())
+	{
+		const PlayerObject* player = (*playerIt).second;
+		destroyObject((Object*)player);
+
+		playerIt = mPlayerAccMap.begin();
+	}
+
+	mPlayerAccMap.clear(); //shouldnt we delete the players first ?
+
 	mPlayersToRemove.clear();
 	mRegionMap.clear();
 
@@ -1138,7 +1148,7 @@ void WorldManager::addDisconnectedPlayer(PlayerObject* playerObject)
 	//uint32 timeOut = gWorldConfig->getLoggedTime();
 	uint32 timeOut = gWorldConfig->getConfiguration("Zone_Player_Logout",300);
 
-	gLogger->logMsgF("Player(%lld) disconnected,reconnect timeout in %u seconds\n",MSG_NORMAL,playerObject->getId(),timeOut);
+	gLogger->logMsgF("Player(%lld) disconnected,reconnect timeout in %u seconds",MSG_NORMAL,playerObject->getId(),timeOut);
 
 	// Halt the tutorial scripts, if running.
 	playerObject->stopTutorial();
@@ -2146,7 +2156,7 @@ bool WorldManager::existObject(Object* object)
 // This function is not used yet.
 uint64 WorldManager::getObjectOwnedBy(uint64 theOwner)
 {
-	gLogger->logMsgF("WorldManager::getObjectOwnedBy: Invoked\n",MSG_NORMAL);
+	gLogger->logMsgF("WorldManager::getObjectOwnedBy: Invoked",MSG_NORMAL);
 	ObjectMap::iterator it = mObjectMap.begin();
 	uint64 ownerId = 0;
 
@@ -2611,12 +2621,12 @@ void WorldManager::destroyObject(Object* object)
 
 			if(playerAccIt != mPlayerAccMap.end())
 			{
-				gLogger->logMsgF("Player left: %lld, Total Players on zone : %i\n",MSG_NORMAL,player->getId(),(getPlayerAccMap())->size() -1);
+				gLogger->logMsgF("Player left: %lld, Total Players on zone : %i",MSG_NORMAL,player->getId(),(getPlayerAccMap())->size() -1);
 				mPlayerAccMap.erase(playerAccIt);
 			}
 			else
 			{
-				gLogger->logMsgF("WorldManager::destroyObject: error removing from playeraccmap : %u\n",MSG_HIGH,player->getAccountId());
+				gLogger->logMsgF("WorldManager::destroyObject: error removing from playeraccmap : %u",MSG_HIGH,player->getAccountId());
 			}
 
 			// onPlayerLeft event, notify scripts
@@ -2662,7 +2672,7 @@ void WorldManager::destroyObject(Object* object)
 				}
 				else
 				{
-					gLogger->logMsgF("WorldManager::destroyObject: couldn't find cell %lld\n",MSG_HIGH,object->getParentId());
+					gLogger->logMsgF("WorldManager::destroyObject: couldn't find cell %lld",MSG_HIGH,object->getParentId());
 				}
 			}
 

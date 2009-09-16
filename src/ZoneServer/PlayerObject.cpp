@@ -39,39 +39,52 @@ PlayerObject::PlayerObject() : CreatureObject(),
 mAccountId(0),
 mClient(NULL),
 mTravelPoint(NULL),
-mBazaarPoint(NULL),
 mPlayerObjId(0),
 mClientTickCount(0),
 mDConnTime(60),
 mMotdReceived(false),
-mPendingSample(false),
-mPendingSurvey(false),
 mPlayerFlags(0),
 mBindPlanet(-1),
 mHomePlanet(-1),
 mLots(10),
-mTrading(false),
-mTradePartner(NULL),
 mFriendsListUpdateCounter(0),
 mIgnoresListUpdateCounter(0),
 mContactListUpdatePending(false),
+
+//======================
+//trade
+mTrading(false),
+mTradePartner(NULL),
+mBazaarPoint(NULL),
+
+//======================
+//survey/sample
+mPendingSample(false),
+mPendingSurvey(false),
+mNextSampleTime(0),
+mSampleEventFlag(false),//rav
+mPassRadioactive(false),//rav
+mSampleGambleFlag(false),//rav
+mSampleNodeFlag(false),//rav
+
+//======================
+//crafting
 mCraftingStage(0),
 mExperimentationFlag(0),
 mCraftingSession(NULL),
 mExperimentationPoints(0),
 mNearestCraftingStation(0),
+//======================
+//ENTERTAINER
 mEntertainerWatchToId(0),
 mEntertainerTaskId(0),
 mEntertainerPauseId(0),
-mNextSampleTime(0),
+mIDSession(IDSessionNONE),
 mPlacedInstrument(0),
 mSelectedInstrument(0),
 mHoloEmote(0),
 mHoloCharge(0),
-mSampleEventFlag(false),//rav
-mPassRadioactive(false),//rav
-mSampleGambleFlag(false),//rav
-mSampleNodeFlag(false),//rav
+
 mMissionIdMask(0),
 mTutorial(NULL),
 mNewPlayerExemptions(0),
@@ -108,23 +121,22 @@ PlayerObject::~PlayerObject()
 	stopTutorial();
 	// delete mTutorial;	// It's safe to delete a NULL-object.
 
-	// delete missionBag
 	Object* missionBag = mEquipManager.getEquippedObject(CreatureEquipSlot_MissionBag);
 	mEquipManager.removeEquippedObject(CreatureEquipSlot_MissionBag);
-	delete(missionBag);
+	SAFE_DELETE(missionBag);
 
 	// delete datapad
 	Object* datapad = mEquipManager.getEquippedObject(CreatureEquipSlot_Datapad);
 	mEquipManager.removeEquippedObject(CreatureEquipSlot_Datapad);
-	delete(datapad);
+	SAFE_DELETE(datapad);
 
 	// delete bank
 	Object* bank = mEquipManager.getEquippedObject(CreatureEquipSlot_Bank);
 	mEquipManager.removeEquippedObject(CreatureEquipSlot_Bank);
-	delete(bank);
+	SAFE_DELETE(bank);
 
-	delete(mStomach);
-	delete(mTrade);
+	SAFE_DELETE(mStomach);
+	SAFE_DELETE(mTrade);
 }
 
 //=============================================================================

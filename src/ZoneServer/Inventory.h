@@ -57,6 +57,7 @@ class Inventory : public TangibleObject, public ObjectFactoryCallback
 		bool			updateCredits(int32 amount);
 
 		uint8			getMaxSlots(){ return mMaxSlots; }
+		bool			checkSlots(uint8 amount);
 		void			setMaxSlots(uint8 slots){ mMaxSlots = slots; }
 		void			unEquipItem(Object* object);
 		bool			EquipItem(Object* object);

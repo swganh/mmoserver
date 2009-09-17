@@ -866,7 +866,7 @@ RegionObject* WorldManager::getRegionById(uint64 regionId)
 	if(it != mRegionMap.end())
 		return((*it).second);
 	else
-		gLogger->logMsgF("Worldmanager::getRegionById: Could not find region %lld\n",MSG_NORMAL,regionId);
+		gLogger->logMsgF("Worldmanager::getRegionById: Could not find region %lld",MSG_NORMAL,regionId);
 
 	return(NULL);
 }
@@ -1214,7 +1214,7 @@ void WorldManager::addReconnectedPlayer(PlayerObject* playerObject)
 	playerObject->setInMoveCount(0);
 	playerObject->setClientTickCount(0);
 
-	gLogger->logMsgF("Player(%lld) reconnected\n",MSG_NORMAL,playerObject->getId());
+	gLogger->logMsgF("Player(%lld) reconnected",MSG_NORMAL,playerObject->getId());
 
 	removePlayerFromDisconnectedList(playerObject);
 }
@@ -1227,7 +1227,7 @@ void WorldManager::removePlayerFromDisconnectedList(PlayerObject* playerObject)
 
 	if((it = std::find(mPlayersToRemove.begin(),mPlayersToRemove.end(),playerObject)) == mPlayersToRemove.end())
 	{
-		gLogger->logMsgF("WorldManager::addReconnectedPlayer: Error removing Player from Disconnected List: %lld\n",MSG_HIGH,playerObject->getId());
+		gLogger->logMsgF("WorldManager::addReconnectedPlayer: Error removing Player from Disconnected List: %lld",MSG_HIGH,playerObject->getId());
 	}
 	else
 	{
@@ -1421,7 +1421,7 @@ void WorldManager::warpPlanet(PlayerObject* playerObject,Anh_Math::Vector3 desti
 		}
 		else
 		{
-			gLogger->logMsgF("WorldManager::removePlayer: couldn't find cell %lld\n",MSG_HIGH,playerObject->getParentId());
+			gLogger->logMsgF("WorldManager::removePlayer: couldn't find cell %lld",MSG_HIGH,playerObject->getParentId());
 		}
 	}
 	else
@@ -1463,7 +1463,7 @@ void WorldManager::warpPlanet(PlayerObject* playerObject,Anh_Math::Vector3 desti
 		}
 		else
 		{
-			gLogger->logMsgF("WorldManager::warpPlanet: couldn't find cell %lld\n",MSG_HIGH,parentId);
+			gLogger->logMsgF("WorldManager::warpPlanet: couldn't find cell %lld",MSG_HIGH,parentId);
 		}
 	}
 	else
@@ -1476,7 +1476,7 @@ void WorldManager::warpPlanet(PlayerObject* playerObject,Anh_Math::Vector3 desti
 		else
 		{
 			// we should never get here !
-			gLogger->logMsg("WorldManager::addObject: could not find zone region in map\n");
+			gLogger->logMsg("WorldManager::addObject: could not find zone region in map");
 			return;
 		}
 	}
@@ -1620,7 +1620,7 @@ bool WorldManager::_handleNpcConversionTimers(uint64 callTime,void* ref)
 			}
 
 			// Remove npc from list.
-			// gLogger->logMsgF("\nActivated and deleted %lld\n",MSG_NORMAL, ((*it).second)->mTargetId);
+			// gLogger->logMsgF("\nActivated and deleted %lld",MSG_NORMAL, ((*it).second)->mTargetId);
 			delete ((*it).second);
 			it = mNpcConversionTimers.erase(it);
 			continue;
@@ -2530,7 +2530,7 @@ void WorldManager::destroyObject(Object* object)
 			}
 			else
 			{
-				gLogger->logMsgF("WorldManager::destroyObject: error removing : %lld\n",MSG_HIGH,object->getId());
+				gLogger->logMsgF("WorldManager::destroyObject: error removing : %lld",MSG_HIGH,object->getId());
 			}
 		}
 		break;
@@ -2545,7 +2545,7 @@ void WorldManager::destroyObject(Object* object)
 			}
 			else
 			{
-				gLogger->logMsgF("Worldmanager::destroyObject: Could not find region %lld\n",MSG_NORMAL,object->getId());
+				gLogger->logMsgF("Worldmanager::destroyObject: Could not find region %lld",MSG_NORMAL,object->getId());
 			}
 
 			//camp regions are in here, too
@@ -2561,6 +2561,8 @@ void WorldManager::destroyObject(Object* object)
 
 		case ObjType_Intangible:
 		{
+			//we shouldnt get any intangibles here anymore!
+
 			gLogger->logMsgF("Object of type ObjType_Intangible almost UNHANDLED in WorldManager::destroyObject:",MSG_HIGH);
 
 			// intangibles are controllers / pets in the datapad

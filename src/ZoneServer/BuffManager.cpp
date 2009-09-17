@@ -114,7 +114,7 @@ void BuffManager::LoadBuffsFromResult(buffAsyncContainer* asyncContainer, Databa
 
 	if(rowCount == 0)
 	{
-		gLogger->logMsgF("BuffManager : Couldn't find any Buffs for player : %I64u\n",MSG_NORMAL,asyncContainer->player->getId());
+		gLogger->logMsgF("BuffManager : Couldn't find any Buffs for player : %I64u",MSG_NORMAL,asyncContainer->player->getId());
 		
 		SAFE_DELETE(asyncContainer);
 		mDatabase->DestroyDataBinding(buffBinding);

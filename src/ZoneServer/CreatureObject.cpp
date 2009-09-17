@@ -1318,7 +1318,7 @@ void CreatureObject::makePeaceWithDefender(uint64 defenderId)
 	}
 	else
 	{
-		gLogger->logMsgF("Defender is of unknown type...\n", MSG_NORMAL);
+		gLogger->logMsgF("Defender is of unknown type...", MSG_NORMAL);
 		return;
 	}
 	
@@ -1474,8 +1474,9 @@ void CreatureObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 			case radId_serverVehicleEnter: //An associated packet is sent			
 			case radId_serverVehicleExit: //mount and dismount logic is contained within OCPetHandlers.cpp
 			break;
+
 			default:
-				printf("CreatureObject::Error: unknown radial selection: %d\n",messageType);
+				gLogger->logErrorF("radials","CreatureObject::Error: unknown radial selection: %d",MSG_NORMAL,messageType);
 			break;
 		}
 	}

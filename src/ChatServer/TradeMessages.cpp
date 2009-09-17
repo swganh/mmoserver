@@ -157,7 +157,7 @@ void ChatMessageLib::sendBazaarTransactionMessage(DispatchClient* client, Auctio
 		x = "";
 		y = "";
 		region = "";
-		gLogger->logMsgF("ChatMessageLib :: Bazaar not found\n",MSG_NORMAL);
+		gLogger->logMsgF("ChatMessageLib :: Bazaar not found",MSG_NORMAL);
 	}
 	else
 	{

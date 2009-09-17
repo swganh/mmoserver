@@ -237,13 +237,13 @@ void ZoneTree::getObjectsInRangeIntersection(Object* object,ObjectSet* resultSet
 		}
 		else
 		{
-			gLogger->logMsgF("SI could not find cell %lld\n",MSG_HIGH,object->getParentId());
+			gLogger->logMsgF("SI could not find cell %lld",MSG_HIGH,object->getParentId());
 			return;
 		}
 
 		if(!buildingObject)
 		{
-			gLogger->logMsgF("SI could not find building %lld\n",MSG_HIGH,cell->getParentId());
+			gLogger->logMsgF("SI could not find building %lld",MSG_HIGH,cell->getParentId());
 			return;
 		}
 
@@ -409,13 +409,13 @@ void ZoneTree::getObjectsInRange(const Object* const object,ObjectSet* resultSet
 		}
 		else
 		{
-			gLogger->logMsgF("SI could not find cell %lld\n",MSG_HIGH,object->getParentId());
+			gLogger->logMsgF("SI could not find cell %lld",MSG_HIGH,object->getParentId());
 			return;
 		}
 
 		if(!buildingObject)
 		{
-			gLogger->logMsgF("SI could not find building %lld\n",MSG_HIGH,cell->getParentId());
+			gLogger->logMsgF("SI could not find building %lld",MSG_HIGH,cell->getParentId());
 			return;
 		}
 
@@ -678,13 +678,13 @@ void ZoneTree::getObjectsInRangeEx(Object* object,ObjectSet* resultSet,uint32 ob
 		}
 		else
 		{
-			gLogger->logMsgF("SI could not find cell %lld\n",MSG_HIGH,object->getParentId());
+			gLogger->logMsgF("SI could not find cell %lld",MSG_HIGH,object->getParentId());
 			return;
 		}
 
 		if(!buildingObject)
 		{
-			gLogger->logMsgF("SI could not find building %lld\n",MSG_HIGH,cell->getParentId());
+			gLogger->logMsgF("SI could not find building %lld",MSG_HIGH,cell->getParentId());
 			return;
 		}
 

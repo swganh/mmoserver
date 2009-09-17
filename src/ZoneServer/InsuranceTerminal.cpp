@@ -186,7 +186,7 @@ void InsuranceTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObje
 
 				default:
 				{
-					gLogger->logMsgF("InsuranceTerminal::handleObjectMenuSelect Unhandled MenuSelect: %u\n",MSG_NORMAL,messageType);
+					gLogger->logMsgF("InsuranceTerminal::handleObjectMenuSelect Unhandled MenuSelect: %u",MSG_NORMAL,messageType);
 				}
 				break;
 			}
@@ -243,7 +243,7 @@ void InsuranceTerminal::handleUIEvent(uint32 action,int32 element,string inputSt
 
 				default:
 				{
-					gLogger->logMsgF("SUI_Window_Insurance_Newbie_MessageBox Invalid selection!\n",MSG_NORMAL);
+					gLogger->logMsgF("SUI_Window_Insurance_Newbie_MessageBox Invalid selection!",MSG_NORMAL);
 				}
 				break;
 			}
@@ -380,7 +380,7 @@ void InsuranceTerminal::handleUIEvent(uint32 action,int32 element,string inputSt
 
 				default:
 				{
-					gLogger->logMsgF("SUI_Window_InsureAll_Newbie_MessageBox Invalid selection!\n",MSG_NORMAL);
+					gLogger->logMsgF("SUI_Window_InsureAll_Newbie_MessageBox Invalid selection!",MSG_NORMAL);
 				}
 				break;
 			}
@@ -517,7 +517,7 @@ void InsuranceTerminal::handleUIEvent(uint32 action,int32 element,string inputSt
 
 				default:
 				{
-					gLogger->logMsgF("SUI_Window_InsuranceAll_MessageBox Invalid selection!\n",MSG_NORMAL);
+					gLogger->logMsgF("SUI_Window_InsuranceAll_MessageBox Invalid selection!",MSG_NORMAL);
 				}
 				break;
 			}

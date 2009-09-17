@@ -203,7 +203,7 @@ void CharacterLoginHandler::handleDispatchMessage(uint32 opcode, Message* messag
 		else
 		{
 			gLogger->logMsgF("all other cases",MSG_NORMAL);
-//			gLogger->logMsgF("New Player: %lld, Total Players on zone : %i\n",MSG_NORMAL,playerId,(gWorldManager->getPlayerAccMap())->size() + 1);
+//			gLogger->logMsgF("New Player: %lld, Total Players on zone : %i",MSG_NORMAL,playerId,(gWorldManager->getPlayerAccMap())->size() + 1);
 			gObjectFactory->requestObject(ObjType_Player,0,0,this,playerId,client);
 		}
 	
@@ -326,7 +326,7 @@ void CharacterLoginHandler::handleDispatchMessage(uint32 opcode, Message* messag
 		{
 			string tutorialEventString;
 			message->getStringAnsi(tutorialEventString);
-			gLogger->logMsgF("%s\n",MSG_NORMAL,tutorialEventString.getAnsi());
+			gLogger->logMsgF("%s",MSG_NORMAL,tutorialEventString.getAnsi());
 			if (gWorldConfig->isTutorial())
 			{
 				// Notify tutorial

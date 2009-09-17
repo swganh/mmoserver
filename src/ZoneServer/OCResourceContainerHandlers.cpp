@@ -55,7 +55,7 @@ void ObjectController::_handleResourceContainerTransfer(uint64 targetId,Message*
 
 		if(!elementCount)
 		{
-			gLogger->logMsg("ObjectController::_handleResourceContainerTransfer: Error in requestStr\n");
+			gLogger->logMsg("ObjectController::_handleResourceContainerTransfer: Error in requestStr");
 			return;
 		}
 
@@ -68,7 +68,7 @@ void ObjectController::_handleResourceContainerTransfer(uint64 targetId,Message*
 			uint32	maxAmount		= targetContainer->getMaxAmount();
 			uint32	newAmount;
 
-			gLogger->logMsg("transfer  resi\n");
+			gLogger->logMsg("transfer  resi");
 			// all fits
 			if((newAmount = targetAmount + selectedAmount) <= maxAmount)
 			{
@@ -114,37 +114,50 @@ void ObjectController::_handleResourceContainerSplit(uint64 targetId,Message* me
 	PlayerObject*		playerObject		= dynamic_cast<PlayerObject*>(mObject);
 	ResourceContainer*	selectedContainer	= dynamic_cast<ResourceContainer*>(gWorldManager->getObjectById(targetId));
 
-	gLogger->logMsgF("ObjectController::_handleResourceContainerSplit: Container : %I64u\n",MSG_NORMAL,targetId);
+	Inventory* inventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 
-	if(selectedContainer)
+	gLogger->logMsgF("ObjectController::_handleResourceContainerSplit: Container : %I64u",MSG_NORMAL,targetId);
+
+	if(!selectedContainer)
 	{
-		string dataStr;
-
-		message->getStringUnicode16(dataStr);
-		dataStr.convert(BSTRType_ANSI);
-
-		BStringVector dataElements;
-		uint16 elementCount = dataStr.split(dataElements,' ');
-
-		if(!elementCount)
-		{
-			gLogger->logMsg("ObjectController::_handleResourceContainerSplit: Error in requestStr\n");
-			return;
-		}
-
-		uint32	splitOffAmount	= _atoi64(dataElements[0].getAnsi());
-		uint64	parentId		= _atoi64(dataElements[1].getAnsi());
-
-		// update selected container contents
-		selectedContainer->setAmount(selectedContainer->getAmount() - splitOffAmount);
-
-		gMessageLib->sendResourceContainerUpdateAmount(selectedContainer,playerObject);
-
-		mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%lld",selectedContainer->getAmount(),selectedContainer->getId());
-
-		// create a new one
-		gObjectFactory->requestNewResourceContainer(dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)),(selectedContainer->getResource())->getId(),parentId,99,splitOffAmount);
+		gLogger->logMsg("ObjectController::_handleResourceContainerSplit: Container does not exist!");
+		return;
 	}
+
+	//check if we can fit an additional resource container in our inventory
+	if(!inventory->checkSlots(1))
+	{
+		gMessageLib->sendSystemMessage(playerObject,L"","error_message","inv_full");
+		return;
+	}
+
+	string dataStr;
+
+	message->getStringUnicode16(dataStr);
+	dataStr.convert(BSTRType_ANSI);
+
+	BStringVector dataElements;
+	uint16 elementCount = dataStr.split(dataElements,' ');
+
+	if(!elementCount)
+	{
+		gLogger->logMsg("ObjectController::_handleResourceContainerSplit: Error in requestStr");
+		return;
+	}
+
+	uint32	splitOffAmount	= _atoi64(dataElements[0].getAnsi());
+	uint64	parentId		= _atoi64(dataElements[1].getAnsi());
+
+	// update selected container contents
+	selectedContainer->setAmount(selectedContainer->getAmount() - splitOffAmount);
+
+	gMessageLib->sendResourceContainerUpdateAmount(selectedContainer,playerObject);
+
+	mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%lld",selectedContainer->getAmount(),selectedContainer->getId());
+
+	// create a new one
+	gObjectFactory->requestNewResourceContainer(inventory,(selectedContainer->getResource())->getId(),parentId,99,splitOffAmount);
+	
 }
 
 //======================================================================================================================

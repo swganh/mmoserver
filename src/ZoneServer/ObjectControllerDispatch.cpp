@@ -69,7 +69,7 @@ void ObjectControllerDispatch::handleDispatchMessage(uint32 opcode,Message* mess
 		_dispatchObjectMenuSelect(message,client);
 
 	else
-		gLogger->logMsgF("ObjectControllerDispatch: Unhandled opcode %u\n",MSG_HIGH,opcode);
+		gLogger->logMsgF("ObjectControllerDispatch: Unhandled opcode %u",MSG_HIGH,opcode);
 }
 
 //======================================================================================================================
@@ -107,7 +107,7 @@ void ObjectControllerDispatch::_dispatchMessage(Message* message, DispatchClient
 					break;
 
 					default:
-						gLogger->logMsgF("ObjectControllerDispatch: Unhandled Cmd(0x00000021) %x\n",MSG_HIGH,subOp2);
+						gLogger->logMsgF("ObjectControllerDispatch: Unhandled Cmd(0x00000021) %x",MSG_HIGH,subOp2);
 					break;
 				}
 			}
@@ -172,7 +172,7 @@ void ObjectControllerDispatch::_dispatchMessage(Message* message, DispatchClient
 					break;
 
 					default:
-						gLogger->logMsgF("ObjectControllerDispatch: Unhandled Cmd(0x00000023) %x\n",MSG_HIGH,subOp2);
+						gLogger->logMsgF("ObjectControllerDispatch: Unhandled Cmd(0x00000023) %x",MSG_HIGH,subOp2);
 					break;
 				}
 			}
@@ -238,19 +238,19 @@ void ObjectControllerDispatch::_dispatchMessage(Message* message, DispatchClient
 						break;
 
 					default:
-						gLogger->logMsgF("ObjectControllerDispatch: Unhandled Cmd(0x00000083) %x\n",MSG_HIGH,subOp2);
+						gLogger->logMsgF("ObjectControllerDispatch: Unhandled Cmd(0x00000083) %x",MSG_HIGH,subOp2);
 					break;
 				}
 			}
 			break;
 
 			default:
-				gLogger->logMsgF("ObjectControllerDispatch: Unhandled Cmd(op1) %x %x\n",MSG_HIGH,subOp1,subOp2);
+				gLogger->logMsgF("ObjectControllerDispatch: Unhandled Cmd(op1) %x %x",MSG_HIGH,subOp1,subOp2);
 			break;
 		}
 	}
 	else
-		gLogger->logMsgF("ObjectControllerDispatch: Couldn't find Object %lld\n",MSG_HIGH,objId);
+		gLogger->logMsgF("ObjectControllerDispatch: Couldn't find Object %lld",MSG_HIGH,objId);
 }
 
 //======================================================================================================================
@@ -263,7 +263,7 @@ void ObjectControllerDispatch::_dispatchObjectMenuSelect(Message* message,Dispat
 	if(object != NULL)
 		object->handleObjectMenuSelect(message->getUint8(),gWorldManager->getPlayerByAccId(client->getAccountId()));
 	else
-		gLogger->logMsgF("ObjController::handleRadialSelect: Object not found %lld\n",MSG_HIGH,objectId);
+		gLogger->logMsgF("ObjController::handleRadialSelect: Object not found %lld",MSG_HIGH,objectId);
 
 }
 

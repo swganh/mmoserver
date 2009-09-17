@@ -103,7 +103,7 @@ void BuildingFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 
 			if(!spawnCount)
 			{
-				gLogger->logMsgF("BuildingFactory: Cloning facility %lld has no spawn points\n",MSG_NORMAL,building->getId());
+				gLogger->logMsgF("BuildingFactory: Cloning facility %lld has no spawn points",MSG_NORMAL,building->getId());
 			}
 
 			for(uint64 i = 0;i < spawnCount;i++)

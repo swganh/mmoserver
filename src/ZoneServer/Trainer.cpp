@@ -384,7 +384,7 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
 			else if (player->getXpAmount(skill->mXpType) < skill->mXpCost)
 			{
 				// This is a system failure.
-				gLogger->logMsgF("Trainer::conversationEvent: ERROR: Player need %u XP, but only have %u\n",MSG_NORMAL,player->getXpAmount(skill->mXpType), skill->mXpCost);
+				gLogger->logMsgF("Trainer::conversationEvent: ERROR: Player need %u XP, but only have %u",MSG_NORMAL,player->getXpAmount(skill->mXpType), skill->mXpCost);
 			}
 			// see if we got the required skills
 			else
@@ -556,7 +556,7 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
 			else if (player->getXpAmount(skill->mXpType) < skill->mXpCost)
 			{
 				// This is a system failure.
-				gLogger->logMsgF("Trainer::conversationEvent: ERROR: Player need %u XP, but only have %u\n",MSG_NORMAL,player->getXpAmount(skill->mXpType), skill->mXpCost);
+				gLogger->logMsgF("Trainer::conversationEvent: ERROR: Player need %u XP, but only have %u",MSG_NORMAL,player->getXpAmount(skill->mXpType), skill->mXpCost);
 			}
 			// see if we got the required skills
 			else
@@ -639,7 +639,7 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
 			else if (player->getXpAmount(skill->mXpType) < skill->mXpCost)
 			{
 				// This is a system failure.
-				gLogger->logMsgF("Trainer::conversationEvent: ERROR: Player need %u XP, but only have %u\n",MSG_NORMAL,player->getXpAmount(skill->mXpType), skill->mXpCost);
+				gLogger->logMsgF("Trainer::conversationEvent: ERROR: Player need %u XP, but only have %u",MSG_NORMAL,player->getXpAmount(skill->mXpType), skill->mXpCost);
 			}
 			// see if we got the required skills
 			else
@@ -1186,7 +1186,7 @@ void Trainer::prepareConversation(PlayerObject* player)
 			gMessageLib->sendUpdateTransformMessage(this, player);
 		}
 	}
-	// gLogger->logMsgF("%f %f %f %f\n",MSG_NORMAL, this->mDirection.mX, this->mDirection.mY, this->mDirection.mZ, this->mDirection.mW);
+	// gLogger->logMsgF("%f %f %f %f",MSG_NORMAL, this->mDirection.mX, this->mDirection.mY, this->mDirection.mZ, this->mDirection.mW);
 
 	setLastConversationTarget(player->getId());
 

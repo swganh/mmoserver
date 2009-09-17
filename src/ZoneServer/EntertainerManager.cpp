@@ -526,7 +526,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
 				else
 				{
 					//somebodies trying to cheat here
-					gLogger->logMsgF("EntertainerManager: CHEATER : newHamCount != oldHamCount : %I64u\n",MSG_HIGH,asynContainer->customer->getId());
+					gLogger->logMsgF("EntertainerManager: CHEATER : newHamCount != oldHamCount : %I64u",MSG_HIGH,asynContainer->customer->getId());
 
 				}
 
@@ -1875,7 +1875,7 @@ bool EntertainerManager::handlePerformanceTick(CreatureObject* mObject)
 	if(!entertainer)
 		return false;
 
-	gLogger->logMsgF("handle performance tick %I64u\n",MSG_HIGH,entertainer->getId());
+	gLogger->logMsgF("handle performance tick %I64u",MSG_HIGH,entertainer->getId());
 	//check if we need to stop the performance or if it already has been stopped
 	//Mind the pausing dancer though
 	handlePerformancePause(entertainer);
@@ -1887,7 +1887,7 @@ bool EntertainerManager::handlePerformanceTick(CreatureObject* mObject)
 	}
 
 	//check distance and remove offending audience
-	gLogger->logMsgF("check the audience distances %I64u\n",MSG_HIGH,entertainer->getId());
+	gLogger->logMsgF("check the audience distances %I64u",MSG_HIGH,entertainer->getId());
 	CheckDistances(entertainer);
 
 	//heal BF and Mindwounds
@@ -1928,11 +1928,11 @@ bool EntertainerManager::handlePerformanceTick(CreatureObject* mObject)
 		aMS->addTextModule();
 		gMessageLib->sendMacroSystemMessage(entertainer,L"",aMS->assemble());
 		delete aMS;
-		gLogger->logMsgF("end tick %I64u\n",MSG_HIGH,entertainer->getId());
+		gLogger->logMsgF("end tick %I64u",MSG_HIGH,entertainer->getId());
 		return (false);
 
 	}
-	gLogger->logMsgF("end tick %I64u\n",MSG_HIGH,entertainer->getId());
+	gLogger->logMsgF("end tick %I64u",MSG_HIGH,entertainer->getId());
 	return (true);
 }
 

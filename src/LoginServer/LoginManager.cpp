@@ -143,7 +143,7 @@ void LoginManager::handleSessionMessage(NetworkClient* client, Message* message)
     case opLoginClientId:  // sent username and password.
     {
       // Start the login process
-		gLogger->logMsgF("opLoginClientId\n",MSG_HIGH);
+		gLogger->logMsgF("opLoginClientId",MSG_HIGH);
       _handleLoginClientId(loginClient, message);
       break;
     }
@@ -243,7 +243,7 @@ void LoginManager::_handleLoginClientId(LoginClient* client, Message* message)
 
 	if(strcmp("SWGANHVER00001",clientId.getAnsi()) != 0)
 	{
-		gLogger->logMsgF("illegal client: %s\n",MSG_NORMAL,clientId.getAnsi());
+		gLogger->logMsgF("illegal client: %s",MSG_NORMAL,clientId.getAnsi());
 		client->Disconnect(0);
 		return;
 	}

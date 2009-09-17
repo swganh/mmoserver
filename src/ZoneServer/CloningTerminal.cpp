@@ -93,7 +93,7 @@ void CloningTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject
 		break;
 
 		default:
-			gLogger->logMsgF("CloningTerminal::handleObjectMenuSelect Unhandled MenuSelect: %u\n",MSG_HIGH,messageType);
+			gLogger->logMsgF("CloningTerminal::handleObjectMenuSelect Unhandled MenuSelect: %u",MSG_HIGH,messageType);
 		
 		break;
 	}

@@ -298,7 +298,7 @@ void ConversationManager::updateConversation(uint32 selectId,PlayerObject* playe
 	
 	if(!av)
 	{
-		gLogger->logMsgF("ConversationManager::updateConversation: could not find conversation for %lld\n",MSG_NORMAL,player->getId());
+		gLogger->logMsgF("ConversationManager::updateConversation: could not find conversation for %lld",MSG_NORMAL,player->getId());
 		return;
 	}
 

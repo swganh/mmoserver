@@ -95,7 +95,7 @@ void ServerManager::SendMessageToServer(Message* message)
 	}
 	else
 	{
-		gLogger->logMsgF("ServerManager: failed routing message to server %u\n",MSG_NORMAL,message->getDestinationId());
+		gLogger->logMsgF("ServerManager: failed routing message to server %u",MSG_NORMAL,message->getDestinationId());
 		gMessageFactory->DestroyMessage(message);
 	}
 }

@@ -243,7 +243,7 @@ void WorldConfig::removeConfiguration(string key)
 	if(it != mConfigurationMap.end())
 		mConfigurationMap.erase(it);
 	else
-		gLogger->logMsgF("WorldConfig::removeConfiguration: could not find %s\n",MSG_HIGH,key.getAnsi());
+		gLogger->logMsgF("WorldConfig::removeConfiguration: could not find %s",MSG_HIGH,key.getAnsi());
 }
 
 //=========================================================================

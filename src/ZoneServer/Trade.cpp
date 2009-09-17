@@ -152,19 +152,17 @@ bool Trade::checkTradeListtoInventory()
 	
 	if(!inventory)
 	{
-		gLogger->logMsgF("Trade::checkTradeListtoInventory():: No inventory for %I64u\n",MSG_NORMAL,getPlayerObject()->getId());
+		gLogger->logMsgF("Trade::checkTradeListtoInventory():: No inventory for %I64u",MSG_NORMAL,getPlayerObject()->getId());
 		return(false);
 	}
 
-	if(mItemTradeList.size() > (inventory->getMaxSlots()- inventory->getObjects()->size()))
+	if(!inventory->checkSlots(mItemTradeList.size()))
 	{
-		// Uh Oh!!!!! we have not enough room in our inventory !!!
-		return(false);
+		gMessageLib->sendSystemMessage(getPlayerObject(),L"","error_message","inv_full");
+		return false;
 	}
-	else
-	{
-		return(true);
-	}
+	
+	return(true);
 }
 
 //=============================================================================
@@ -287,7 +285,7 @@ bool Trade::ItemTradeCheck(uint64 ItemId)
 	{
 		if ((*it)->getObject()->getId() == ItemId)
 		{
-			gLogger->logMsgF("PlayerObject: Item already on the tradeList\n",MSG_HIGH);
+			gLogger->logMsgF("PlayerObject: Item already on the tradeList",MSG_HIGH);
 			return(true);
 		}
 

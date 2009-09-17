@@ -154,7 +154,7 @@ Item* NonPersistentItemFactory::_createItem(DatabaseResult* result, uint64 newId
 		default:
 		{
 			item = new Item();
-			gLogger->logMsgF("ItemFactory::NonPersistentItemFactory::_createItem unknown Family %u\n",MSG_NORMAL,itemIdentifier.mFamilyId);
+			gLogger->logMsgF("ItemFactory::NonPersistentItemFactory::_createItem unknown Family %u",MSG_NORMAL,itemIdentifier.mFamilyId);
 		}
 		break;
 	}

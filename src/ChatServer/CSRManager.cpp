@@ -197,13 +197,13 @@ void CSRManager::handleDispatchMessage(uint32 opcode,Message* message,DispatchCl
 {
 	CSRCommandMap::iterator it = mCommandMap.find(opcode);
 
-	gLogger->logMsgF("Incomming CSR Command: %u\n",MSG_NORMAL, opcode);
+	gLogger->logMsgF("Incomming CSR Command: %u",MSG_NORMAL, opcode);
 
 
 	if(it != mCommandMap.end())
 		(this->*((*it).second))(message,client);
 	else
-		gLogger->logMsgF("Unhandled DispatchMsg %u\n",MSG_NORMAL,opcode);
+		gLogger->logMsgF("Unhandled DispatchMsg %u",MSG_NORMAL,opcode);
 }
 
 //======================================================================================================================

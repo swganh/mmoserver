@@ -407,13 +407,13 @@ bool SkillManager::learnSkill(uint32 skillId,CreatureObject* creatureObject,bool
 
 	if (skill == NULL)
 	{
-		gLogger->logMsgF("SkillManager::learnSkill: could not find skill %u\n",MSG_NORMAL,skillId);
+		gLogger->logMsgF("SkillManager::learnSkill: could not find skill %u",MSG_NORMAL,skillId);
 		return false;
 	}
 
 	if (creatureObject->checkSkill(skillId))
 	{
-		gLogger->logMsgF("SkillManager::learnSkill: %lld already got skill %u\n",MSG_NORMAL,creatureObject->getId(),skillId);
+		gLogger->logMsgF("SkillManager::learnSkill: %lld already got skill %u",MSG_NORMAL,creatureObject->getId(),skillId);
 		return false;
 	}
 
@@ -476,7 +476,7 @@ bool SkillManager::learnSkill(uint32 skillId,CreatureObject* creatureObject,bool
 		// We don't wanna miss any "You now qualify for the skill: ..."
 		(void)player->UpdateXp(skill->mXpType, newXpCost);
 
-		// gLogger->logMsgF("SkillManager::learnSkill: Removing %i xp of type %u\n",MSG_NORMAL, -newXpCost, skill->mXpType);
+		// gLogger->logMsgF("SkillManager::learnSkill: Removing %i xp of type %u",MSG_NORMAL, -newXpCost, skill->mXpType);
 		mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE character_xp SET value=value+%i WHERE xp_id=%u AND character_id=%lld",newXpCost, skill->mXpType, player->getId());
 		gMessageLib->sendXpUpdate(skill->mXpType,player);
 	}
@@ -736,18 +736,18 @@ void SkillManager::dropSkill(uint32 skillId,CreatureObject* creatureObject)
 
 	if(skill == NULL)
 	{
-		gLogger->logMsgF("SkillManager::dropSkill: could not find skill %u\n",MSG_NORMAL,skillId);
+		gLogger->logMsgF("SkillManager::dropSkill: could not find skill %u",MSG_NORMAL,skillId);
 		return;
 	}
 
 	if(!(creatureObject->checkSkill(skillId)))
 	{
-		gLogger->logMsgF("SkillManager::dropSkill: %lld hasn't got skill %u\n",MSG_NORMAL,creatureObject->getId(),skillId);
+		gLogger->logMsgF("SkillManager::dropSkill: %lld hasn't got skill %u",MSG_NORMAL,creatureObject->getId(),skillId);
 		return;
 	}
 
 	if(!(creatureObject->removeSkill(skill)))
-		gLogger->logMsgF("SkillManager::dropSkill: failed removing %u from %lld\n",MSG_NORMAL,skillId,creatureObject->getId());
+		gLogger->logMsgF("SkillManager::dropSkill: failed removing %u from %lld",MSG_NORMAL,skillId,creatureObject->getId());
 
 	creatureObject->prepareSkillMods();
 	creatureObject->prepareSkillCommands();
@@ -1044,7 +1044,7 @@ void SkillManager::addExperience(uint32 xpType,int32 valueDiff,PlayerObject* pla
 
 		if (!(playerObject->UpdateXp(xpType, newXpBoost)))
 		{
-			gLogger->logMsgF("SkillManager::addExperience: could not find xptype %u for %lld\n",MSG_NORMAL,xpType,playerObject->getId());
+			gLogger->logMsgF("SkillManager::addExperience: could not find xptype %u for %lld",MSG_NORMAL,xpType,playerObject->getId());
 			return;
 		}
 		// gLogger->logMsgF("SkillManager::addExperience: XP cap = %u",MSG_NORMAL, xpCap);

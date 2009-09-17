@@ -150,7 +150,7 @@ Message* MessageFactory::EndMessage(void)
   if(currentUsed > mHeapWarnLevel)
   {
 	  mHeapWarnLevel = currentUsed+1.2;
-	  gLogger->logMsgF("WARNING: MessageFactory Heap at %2.2f usage\n",MSG_NORMAL,currentUsed);
+	  gLogger->logMsgF("WARNING: MessageFactory Heap at %2.2f usage",MSG_NORMAL,currentUsed);
   } else
   if (((currentUsed+2.2) < mHeapWarnLevel) && mHeapWarnLevel > 80.0)
 	  mHeapWarnLevel = currentUsed;

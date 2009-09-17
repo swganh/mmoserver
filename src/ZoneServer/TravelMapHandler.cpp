@@ -123,7 +123,7 @@ void TravelMapHandler::handleDispatchMessage(uint32 opcode, Message* message, Di
 		break;
 
 		default:
-			gLogger->logMsgF("TravelMapHandler::handleDispatchMessage: Unhandled opcode %u\n",MSG_NORMAL,opcode);
+			gLogger->logMsgF("TravelMapHandler::handleDispatchMessage: Unhandled opcode %u",MSG_NORMAL,opcode);
 		break;
 	} 
 }

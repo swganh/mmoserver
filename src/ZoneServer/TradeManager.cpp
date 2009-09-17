@@ -616,7 +616,8 @@ void TradeManager::_processDeductMoneyMessage(Message* message,DispatchClient* c
 }
 
 //=======================================================================================================================
-
+// send by the client to have us create the item we just received from the vendor
+//
 void TradeManager::_processCreateItemMessage(Message* message,DispatchClient* client)
 {
 	uint64			PlayerID		= message->getUint64();
@@ -625,6 +626,7 @@ void TradeManager::_processCreateItemMessage(Message* message,DispatchClient* cl
 	PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(PlayerID));
 	Inventory*		inventory		= dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 
+	
 	if(playerObject && playerObject->isConnected())
 	{
 		gObjectFactory->requestTanoNewParent(inventory,ItemID,inventory->getId(),(TangibleGroup)Group);
@@ -818,7 +820,7 @@ void TradeManager::_processAbortTradeMessage(Message* message,DispatchClient* cl
 
 			playerObject->getTrade()->cancelTradeSession();
 
-			gLogger->logMsgF("TradeManager Canceled Trade\n",MSG_NORMAL);
+			gLogger->logMsgF("TradeManager Canceled Trade",MSG_NORMAL);
 		}
 	}
 }
@@ -873,7 +875,7 @@ void TradeManager::_processTradeCompleteMessage(Message* message,DispatchClient*
 		}
 		else
 		{
-			gLogger->logMsgF("TradeManager Trade finished without Accept !!!!!\n",MSG_HIGH);
+			gLogger->logMsgF("TradeManager Trade finished without Accept !!!!!",MSG_HIGH);
 		}
 	}
 }
@@ -916,15 +918,15 @@ void TradeManager::TradeTransaction(DispatchClient* client,PlayerObject* player1
 		player1->getTrade()->cancelTradeSession();
 		player2->getTrade()->cancelTradeSession();
 
-		gLogger->logMsgF("TradeManager Trade likely to have been tampered with\n",MSG_HIGH);
+		gLogger->logMsgF("TradeManager Trade likely to have been tampered with",MSG_HIGH);
 
 		if (!player1->testCash(asyncContainer->amount1) )
 		{
-			gLogger->logMsgF("Player : %S, id %I64u wanted to trade %u credits but had only %u left\n",MSG_HIGH,player1->getFirstName().getAnsi(),player1->getId(),asyncContainer->amount1,dynamic_cast<Inventory*>(player1->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits());
+			gLogger->logMsgF("Player : %S, id %I64u wanted to trade %u credits but had only %u left",MSG_HIGH,player1->getFirstName().getAnsi(),player1->getId(),asyncContainer->amount1,dynamic_cast<Inventory*>(player1->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits());
 		}
 		if (!player2->testCash(asyncContainer->amount2) )
 		{
-			gLogger->logMsgF("Player : %S, id %I64u wanted to trade %u credits but had only %u left\n",MSG_HIGH,player2->getFirstName().getAnsi(),player2->getId(),asyncContainer->amount2,dynamic_cast<Inventory*>(player2->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits());
+			gLogger->logMsgF("Player : %S, id %I64u wanted to trade %u credits but had only %u left",MSG_HIGH,player2->getFirstName().getAnsi(),player2->getId(),asyncContainer->amount2,dynamic_cast<Inventory*>(player2->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits());
 		}
 	}
 }
@@ -1055,7 +1057,7 @@ void TradeManager::_processAddItemMessage(Message* message,DispatchClient* clien
 	
 	if (!addedItem)
 	{
-		gLogger->logMsgF("TradeManager::_processAddItemMessage:: No (tangible) Item\n",MSG_NORMAL);
+		gLogger->logMsgF("TradeManager::_processAddItemMessage:: No (tangible) Item",MSG_NORMAL);
 		return;
 	}
 

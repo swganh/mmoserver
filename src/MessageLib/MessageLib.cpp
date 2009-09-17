@@ -81,7 +81,7 @@ bool MessageLib::_checkPlayer(const PlayerObject* const player) const
 	PlayerObject* tested = gWorldManager->getPlayerByAccId(player->getAccountId());
 	if(!tested)	
 	{
-		gLogger->logMsgF("Player account (%u) invalid\n",MSG_NORMAL,player->getAccountId());
+		gLogger->logMsgF("Player account (%u) invalid",MSG_NORMAL,player->getAccountId());
 		return false;
 	}
 
@@ -93,7 +93,7 @@ bool MessageLib::_checkPlayer(uint64 playerId) const
 	PlayerObject* tested = dynamic_cast <PlayerObject*> (gWorldManager->getObjectById(playerId));
 	if(!tested)	
 	{
-		gLogger->logMsgF("Player Id (%I64u) invalid\n",MSG_NORMAL,playerId);
+		gLogger->logMsgF("Player Id (%I64u) invalid",MSG_NORMAL,playerId);
 		return false;
 	}
 	return((tested->isConnected())&&(tested->getClient()));
@@ -304,7 +304,7 @@ bool MessageLib::sendEquippedItems(PlayerObject* srcObject,PlayerObject* targetO
 				}
 				else
 				{
-					gLogger->logMsgF("MssageLib send equipped objects: Its not equipped ... %I64u\n",MSG_NORMAL,item->getId());
+					gLogger->logMsgF("MssageLib send equipped objects: Its not equipped ... %I64u",MSG_NORMAL,item->getId());
 				}
 			}
 		}
@@ -956,7 +956,7 @@ void MessageLib::sendCreateObject(Object* object,PlayerObject* player,bool sendS
 		// unknown types
 	default:
 		{
-			gLogger->logMsgF("MessageLib::createObject: Unhandled object type: %i\n",MSG_HIGH,object->getType());
+			gLogger->logMsgF("MessageLib::createObject: Unhandled object type: %i",MSG_HIGH,object->getType());
 		}
 		break;
 	}

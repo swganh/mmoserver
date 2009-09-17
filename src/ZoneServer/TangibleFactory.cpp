@@ -68,7 +68,7 @@ void TangibleFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,
 		case TanGroup_ResourceContainer:	mResourceContainerFactory->requestObject(ofCallback,id,subGroup,subType,client);	break;
 
 		default:
-			gLogger->logMsg("TangibleFactory::requestObject Unknown Group\n");
+			gLogger->logMsg("TangibleFactory::requestObject Unknown Group");
 		break;
 	}
 }

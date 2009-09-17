@@ -94,7 +94,7 @@ void CharacterBuilderTerminal::handleObjectMenuSelect(uint8 messageType,Object* 
 	}
 	else
 	{
-		gLogger->logMsgF("TravelTerminal: Unhandled MenuSelect: %u\n",MSG_HIGH,messageType);
+		gLogger->logMsgF("TravelTerminal: Unhandled MenuSelect: %u",MSG_HIGH,messageType);
 	}
 }
 
@@ -343,8 +343,8 @@ void CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string 
 				//do we have children categories or children resources?
 				if(rParent->getChildren()->size())
 				{
-					gLogger->logMsgF("\n",MSG_HIGH);
-					gLogger->logMsgF("has children \n",MSG_HIGH);
+					gLogger->logMsgF("",MSG_HIGH);
+					gLogger->logMsgF("has children ",MSG_HIGH);
 					//iterate through the children categories and display them
 					ResourceCategoryList*			rcList				= rParent->getChildren();
 					ResourceCategoryList::iterator	rcIt				= rcList->begin();

@@ -185,7 +185,7 @@ bool EquipManager::addEquippedObject(Object* object)
 	// make sure we have a slot descriptor
 	if(!slotMask)
 	{
-		gLogger->logMsgF("EquipManager::addEquippedObject: Character: %lld Object: %lld : no slot mask set\n",MSG_NORMAL,mParent->getId(),object->getId());
+		gLogger->logMsgF("EquipManager::addEquippedObject: Character: %lld Object: %lld : no slot mask set",MSG_NORMAL,mParent->getId(),object->getId());
 
 		return(false);
 	}

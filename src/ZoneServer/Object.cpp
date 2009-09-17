@@ -227,7 +227,7 @@ void Object::removeAttribute(string key)
 	if(it != mAttributeMap.end())
 		mAttributeMap.erase(it);
 	else
-		gLogger->logMsgF("Object::removeAttribute: could not find %s\n",MSG_HIGH,key.getAnsi());
+		gLogger->logMsgF("Object::removeAttribute: could not find %s",MSG_HIGH,key.getAnsi());
 }
 
 //=========================================================================
@@ -238,7 +238,7 @@ void	Object::setInternalAttribute(string key,std::string value)
 
 	if(it == mInternalAttributeMap.end())
 	{
-		gLogger->logMsgF("Object::setInternalAttribute: could not find %s\n",MSG_HIGH,key.getAnsi());
+		gLogger->logMsgF("Object::setInternalAttribute: could not find %s",MSG_HIGH,key.getAnsi());
 		return;
 	}
 
@@ -271,7 +271,7 @@ void Object::removeInternalAttribute(string key)
 	if(it != mInternalAttributeMap.end())
 		mInternalAttributeMap.erase(it);
 	else
-		gLogger->logMsgF("Object::removeInternalAttribute: could not find %s\n",MSG_HIGH,key.getAnsi());
+		gLogger->logMsgF("Object::removeInternalAttribute: could not find %s",MSG_HIGH,key.getAnsi());
 }
 
 

@@ -981,7 +981,7 @@ void PlayerObject::addBadge(uint32 badgeId)
 
 		(gWorldManager->getDatabase())->ExecuteSqlAsync(0,0,"INSERT INTO character_badges VALUES (%lld,%u)",mId,badgeId);
 
-		gLogger->logMsgF("Badge %u granted to %lld\n",MSG_NORMAL,badgeId,mId);
+		gLogger->logMsgF("Badge %u granted to %lld",MSG_NORMAL,badgeId,mId);
 
 		_verifyBadges();
 
@@ -993,7 +993,7 @@ void PlayerObject::addBadge(uint32 badgeId)
 	else
 	{
 		// This is an unexpected condition.
-		gLogger->logMsgF("Badge %u already exists for player with id %lld\n",MSG_NORMAL,badgeId,mId);
+		gLogger->logMsgF("Badge %u already exists for player with id %lld",MSG_NORMAL,badgeId,mId);
 	}
 }
 
@@ -1250,7 +1250,7 @@ void PlayerObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
 	default:
 		{
-			gLogger->logMsgF("PlayerObject: Unhandled MenuSelect: %u\n",MSG_HIGH,messageType);
+			gLogger->logMsgF("PlayerObject: Unhandled MenuSelect: %u",MSG_HIGH,messageType);
 		}
 		break;
 	}
@@ -1693,7 +1693,7 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,string inputStr,UIW
 
 	default:
 		{
-			gLogger->logMsgF("handleUIEvent:Default: %u, %u, %s,\n",MSG_NORMAL, action, element, inputStr.getAnsi());
+			gLogger->logMsgF("handleUIEvent:Default: %u, %u, %s,",MSG_NORMAL, action, element, inputStr.getAnsi());
 		}
 		break;
 	}

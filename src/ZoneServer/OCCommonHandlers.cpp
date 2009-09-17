@@ -155,7 +155,7 @@ void ObjectController::_handleOpenContainer(uint64 targetId,Message* message,Obj
 	}
 	else
 	{
-		gLogger->logMsgF("ObjectController::_handleOpenContainer: INVALID Object id %lld\n",MSG_NORMAL,targetId);
+		gLogger->logMsgF("ObjectController::_handleOpenContainer: INVALID Object id %lld",MSG_NORMAL,targetId);
 	}
 }
 
@@ -200,7 +200,7 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 
 	if(swscanf(dataStr.getUnicode16(),L" %lld %u %f %f %f",&targetContainerId,&linkType,&x,&y,&z) != 5)
 	{
-		gLogger->logMsg("ObjController::handleTransferItem: Error in parameters\n");
+		gLogger->logMsg("ObjController::handleTransferItem: Error in parameters");
 		return;
 	}
 	// gLogger->logMsgF("Parameters:  %lld %d %.1f %.1f %.1f", MSG_NORMAL, targetContainerId, linkType, x, y, z);
@@ -226,7 +226,7 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 		}
 		else
 		{
-			gLogger->logMsg("ObjController::_handleTransferItem: This is not an item\n");
+			gLogger->logMsg("ObjController::_handleTransferItem: This is not an item");
 			return;
 		}
 
@@ -251,7 +251,7 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 				}
 				else
 				{
-					gLogger->logMsgF("ObjectController::_handleTransferItem: couldn't find cell %lld\n",MSG_HIGH,targetContainerId);
+					gLogger->logMsgF("ObjectController::_handleTransferItem: couldn't find cell %lld",MSG_HIGH,targetContainerId);
 				}
 			}
 			else
@@ -264,7 +264,7 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 				else
 				{
 					// we should never get here !
-					gLogger->logMsg("ObjectController::_handleTransferItem: could not find zone region in map\n");
+					gLogger->logMsg("ObjectController::_handleTransferItem: could not find zone region in map");
 					return;
 				}
 			}
@@ -415,7 +415,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 
 	if(swscanf(dataStr.getUnicode16(),L" %lld %u %f %f %f",&targetContainerId,&linkType,&x,&y,&z) != 5)
 	{
-		gLogger->logMsg("ObjController::_handleTransferItemMisc: Error in parameters\n");
+		gLogger->logMsg("ObjController::_handleTransferItemMisc: Error in parameters");
 		return;
 	}
 
@@ -728,7 +728,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 					if (creatureInventory && item)
 					{
 						// Fully validated, continue the operation...
-						gLogger->logMsg("Transfer item from creature inventory to player inventory (looting)\n");
+						gLogger->logMsg("Transfer item from creature inventory to player inventory (looting)");
 						// gMessageLib->sendContainmentMessage(targetId,itemObject->getParentId(),-1,playerObject);
 
 						gMessageLib->sendDestroyObject(targetId,playerObject);
@@ -860,7 +860,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 
 			default:
 			{
-				gLogger->logMsgF("ObjectController::_handleTransferItemMisc: Unhandled object type: %d\n", MSG_NORMAL, itemObject->getType());
+				gLogger->logMsgF("ObjectController::_handleTransferItemMisc: Unhandled object type: %d", MSG_NORMAL, itemObject->getType());
 			}
 			break;
 		}
@@ -962,12 +962,8 @@ void ObjectController::_handlePurchaseTicket(uint64 targetId,Message* message,Ob
 	Inventory*	inventory	= dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 	Bank*		bank		= dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
 
-	uint32 maxSize	= inventory->getMaxSlots();
-	uint32 load		= inventory->getObjects()->size();
-
-	//check whether we have enough place in our inventory
-	if ((maxSize - load ) < amount)
-	{ 
+	if(!inventory->checkSlots(amount))
+	{
 		gMessageLib->sendSystemMessage(playerObject,L"","error_message","inv_full");
 		return;
 	}
@@ -1107,7 +1103,7 @@ void ObjectController::_handleGetAttributesBatch(uint64 targetId,Message* messag
 			{
 				if(playerObject->getCraftingSession()->getItem()&&playerObject->getCraftingSession()->getItem()->getId() == itemId)
 				{
-					gLogger->logMsgF("ObjectController::_handleAttributesBatch for crafted Item: ID %I64u\n",MSG_HIGH,itemId);
+					gLogger->logMsgF("ObjectController::_handleAttributesBatch for crafted Item: ID %I64u",MSG_HIGH,itemId);
 					playerObject->getCraftingSession()->getItem()->sendAttributes(playerObject);
 				}
 			}
@@ -1195,7 +1191,7 @@ void ObjectController::_handleSurrenderSkill(uint64 targetId,Message* message,Ob
 
 	if(skill == NULL)
 	{
-		gLogger->logMsgF("ObjectController::handleSurrenderSkill: could not find skill %s\n",MSG_NORMAL,skillStr.getAnsi());
+		gLogger->logMsgF("ObjectController::handleSurrenderSkill: could not find skill %s",MSG_NORMAL,skillStr.getAnsi());
 		return;
 	}
 
@@ -1263,7 +1259,7 @@ void ObjectController::handleObjectMenuRequest(Message* message)
 
 		//the list is cleared and items are destroyes in the message lib
 		//for the default response
-		gLogger->logMsgF("ObjController::handleObjectMenuRequest: Couldn't find object %llu\n",MSG_HIGH,requestedObjectId);
+		gLogger->logMsgF("ObjController::handleObjectMenuRequest: Couldn't find object %llu",MSG_HIGH,requestedObjectId);
 		return;		
 	}
 

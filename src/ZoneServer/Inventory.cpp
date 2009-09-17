@@ -125,6 +125,23 @@ void Inventory::addObject(Object* object)
 	mObjects.push_back(object); 
 }
 
+//============================================================================
+// checks whether we have enough space in the inventory to accomodate
+// amount items
+bool Inventory::checkSlots(uint8 amount)
+{
+	// please note that just counting the amount of items is bound to be faulty as certain items
+	// can (in theory) occupy more than one slot
+	// we should iterate the list and count each items volume!
+	// please note too, that Im not certain of the clients involvement of this
+	// at this point the inventories max capacity is stored in the db table inventory_types
+	if((mMaxSlots - getObjects()->size()) >= amount)
+		return true;
+
+	gLogger->logMsgF("Inventory::checkslots(): Inventory full : max Inv capacity :%u, current capacity %u, nr of items we tried to add", MSG_NORMAL, mMaxSlots,getObjects()->size(),amount);
+	return false;
+}
+
 //=============================================================================
 
 void Inventory::removeEquippedObject(Object* object)

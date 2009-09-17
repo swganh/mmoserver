@@ -120,7 +120,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 		}
 		else
 		{
-			gLogger->logMsgF("Error removing %llu from cell(%lld)\n",MSG_HIGH,player->getId(),player->getParentId());
+			gLogger->logMsgF("Error removing %llu from cell(%lld)",MSG_HIGH,player->getId(),player->getParentId());
 		}
 
 		// we are outside again
@@ -375,7 +375,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 				}
 				else
 				{
-					gLogger->logMsgF("Error removing %lld from cell(%lld)\n",MSG_NORMAL,player->getId(),oldParentId);
+					gLogger->logMsgF("Error removing %lld from cell(%lld)",MSG_NORMAL,player->getId(),oldParentId);
 				}
 			}
 			else
@@ -426,7 +426,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 			}
 			else
 			{
-				gLogger->logMsgF("Error adding %lld to cell(%lld)\n",MSG_NORMAL,player->getId(),parentId);
+				gLogger->logMsgF("Error adding %lld to cell(%lld)",MSG_NORMAL,player->getId(),parentId);
 			}
 		}
 
@@ -710,7 +710,7 @@ bool ObjectController::_updateInRangeObjectsInside()
 	// make sure we got a cell
 	if (!playerCell)
 	{
-		gLogger->logMsgF("Error getting cell %lld for %lld type %u\n",MSG_NORMAL,player->getParentId(),player->getId(),player->getType());
+		gLogger->logMsgF("Error getting cell %lld for %lld type %u",MSG_NORMAL,player->getParentId(),player->getId(),player->getType());
 		return true;	// We are done, nothing we can do...
 	}
 
@@ -749,7 +749,7 @@ bool ObjectController::_updateInRangeObjectsInside()
 				}
 				else
 				{
-					gLogger->logMsgF("Error getting cell %lld for %lld type %u\n",MSG_NORMAL,object->getParentId(),object->getId(),object->getType());
+					gLogger->logMsgF("Error getting cell %lld for %lld type %u",MSG_NORMAL,object->getParentId(),object->getId(),object->getType());
 				}
 			}
 			if (validObject)

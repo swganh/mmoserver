@@ -119,7 +119,7 @@ GroupObject* GroupManager::getGroupById(uint64 groupId)
 	if(it !=  mGroups.end())
 		return((*it).second);
 	else
-		gLogger->logMsgF("GroupManager::getGroupById: Could not find group %lld\n",MSG_NORMAL,groupId);
+		gLogger->logMsgF("GroupManager::getGroupById: Could not find group %lld",MSG_NORMAL,groupId);
 
 	return(NULL);
 }
@@ -138,7 +138,7 @@ void GroupManager::removeGroup(uint64 groupId)
 	}
 	else
 	{
-		gLogger->logMsgF("GroupManager::removeGroup: Could not find group for removing %lld\n",MSG_NORMAL,groupId);
+		gLogger->logMsgF("GroupManager::removeGroup: Could not find group for removing %lld",MSG_NORMAL,groupId);
 	}
 
 }
@@ -230,7 +230,7 @@ void GroupManager::handleDispatchMessage(uint32 opcode, Message* message, Dispat
 		break;
 
 		default:
-		gLogger->logMsgF("GroupManager::handleDispatchMessage: Unhandled opcode %u\n",MSG_NORMAL,opcode);
+		gLogger->logMsgF("GroupManager::handleDispatchMessage: Unhandled opcode %u",MSG_NORMAL,opcode);
 		break;
 	} 
 }

@@ -162,7 +162,7 @@ void ObjectController::_handleRequestBadges(uint64 targetId,Message* message,Obj
 
 	if(targetObject == NULL)
 	{
-		gLogger->logMsgF("ObjController::_handleRequestbages: could not find %lld\n",MSG_NORMAL,targetId);
+		gLogger->logMsgF("ObjController::_handleRequestbages: could not find %lld",MSG_NORMAL,targetId);
 		return;
 	}
 
@@ -193,7 +193,7 @@ void ObjectController::_handleRequestBiography(uint64 targetId,Message* message,
 
 	if(targetObject == NULL)
 	{
-		gLogger->logMsgF("ObjController::_handleRequestBiography: could not find %lld\n",MSG_NORMAL,targetId);
+		gLogger->logMsgF("ObjController::_handleRequestBiography: could not find %lld",MSG_NORMAL,targetId);
 		return;
 	}
 
@@ -263,7 +263,7 @@ void ObjectController::_handleRequestCharacterMatch(uint64 targetId,Message* mes
 
 	if(elementCount != 9)
 	{
-		gLogger->logMsgF("ObjController::_handleRequestCharacterMatch: argument mismatch %lld\n",MSG_NORMAL,player->getId());
+		gLogger->logMsgF("ObjController::_handleRequestCharacterMatch: argument mismatch %lld",MSG_NORMAL,player->getId());
 		return;
 	}
 
@@ -273,7 +273,7 @@ void ObjectController::_handleRequestCharacterMatch(uint64 targetId,Message* mes
 
 		if(skill == NULL)
 		{
-			gLogger->logMsgF("ObjController::_handleRequestCharacterMatch: could not find matching skill for %s\n",MSG_NORMAL,titleStr);
+			gLogger->logMsgF("ObjController::_handleRequestCharacterMatch: could not find matching skill for %s",MSG_NORMAL,titleStr);
 			return;
 		}
 	}

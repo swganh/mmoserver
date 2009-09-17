@@ -119,7 +119,7 @@ Tutorial::~Tutorial()
 
 void Tutorial::warpToStartingLocation(string startingLocation)
 {
-	gLogger->logMsgF("Tutorial::warpToStartingLocation: Starting city = %s\n",MSG_NORMAL, startingLocation.getAnsi());
+	gLogger->logMsgF("Tutorial::warpToStartingLocation: Starting city = %s",MSG_NORMAL, startingLocation.getAnsi());
 
 	TutorialQueryContainer* asContainer = new TutorialQueryContainer();
 	asContainer->mQueryType = TutorialQuery_PlanetLocation;
@@ -147,7 +147,7 @@ void Tutorial::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			if (count == 1)
 			{
 				result->GetNextRow(binding,this);
-				gLogger->logMsgF("Tutorial::handleDatabaseJobComplete: Starting profession = %s\n",MSG_NORMAL, mStartingProfession.getAnsi());
+				gLogger->logMsgF("Tutorial::handleDatabaseJobComplete: Starting profession = %s",MSG_NORMAL, mStartingProfession.getAnsi());
 			}
 			else if (count == 0)
 			{
@@ -184,7 +184,7 @@ void Tutorial::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				startingLocation.destX += (gRandom->getRand()%5 - 2);
 				startingLocation.destZ += (gRandom->getRand()%5 - 2);
 
-				gLogger->logMsgF("Tutorial::handleDatabaseJobComplete: New destination planet = %u\n",MSG_NORMAL, startingLocation.destinationPlanet);
+				gLogger->logMsgF("Tutorial::handleDatabaseJobComplete: New destination planet = %u",MSG_NORMAL, startingLocation.destinationPlanet);
 
 				gMessageLib->sendClusterZoneTransferRequestByPosition(player, 
 																	  Anh_Math::Vector3(startingLocation.destX, startingLocation.destY, startingLocation.destZ), 
@@ -192,7 +192,7 @@ void Tutorial::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			}
 			else
 			{
-				gLogger->logMsgF("Tutorial::handleDatabaseJobComplete: Player gone!\n",MSG_NORMAL);
+				gLogger->logMsgF("Tutorial::handleDatabaseJobComplete: Player gone!",MSG_NORMAL);
 			}
 		}
 		break;
@@ -855,7 +855,7 @@ uint64 Tutorial::getSkillTrainerTypeId(void)
 	uint64 typeId = getSkillTrainerTypeId(this->mStartingProfession);
 	if (typeId == 0)
 	{
-		gLogger->logMsgF("Tutorial::getSkillTrainerTypeId WARNING: Player have no starting profession set.\n",MSG_NORMAL);
+		gLogger->logMsgF("Tutorial::getSkillTrainerTypeId WARNING: Player have no starting profession set.",MSG_NORMAL);
 	}
 	return typeId;
 }

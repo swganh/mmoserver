@@ -439,7 +439,7 @@ NPCObject* NonPersistentNpcFactory::createNonPersistentNpc(DatabaseResult* resul
 
 		default:
 		{
-			gLogger->logMsgF("NonPersistentNpcFactory::createNonPersistent unknown Family %u\n",MSG_HIGH,familyId);
+			gLogger->logMsgF("NonPersistentNpcFactory::createNonPersistent unknown Family %u",MSG_HIGH,familyId);
 			assert(false);
 			npc = new NPCObject();
 		}

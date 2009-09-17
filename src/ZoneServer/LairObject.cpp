@@ -481,7 +481,7 @@ void LairObject::spawn(void)
 		}
 		else
 		{
-			gLogger->logMsgF("LairObject::spawn: couldn't find cell %llu\n",MSG_HIGH, this->getParentId());
+			gLogger->logMsgF("LairObject::spawn: couldn't find cell %llu",MSG_HIGH, this->getParentId());
 		}
 	}
 	else

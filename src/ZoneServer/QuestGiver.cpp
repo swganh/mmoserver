@@ -236,7 +236,7 @@ void QuestGiver::prepareConversation(PlayerObject* player)
 			gMessageLib->sendUpdateTransformMessage(this, player);
 		}
 	}
-	// gLogger->logMsgF("%f %f %f %f\n",MSG_NORMAL, this->mDirection.mX, this->mDirection.mY, this->mDirection.mZ, this->mDirection.mW);
+	// gLogger->logMsgF("%f %f %f %f",MSG_NORMAL, this->mDirection.mX, this->mDirection.mY, this->mDirection.mZ, this->mDirection.mW);
 
 	setLastConversationTarget(player->getId());
 

@@ -35,9 +35,8 @@ Datapad::Datapad() : TangibleObject()
 	}
 	
 	/*
-	  //Absoulte max of 6! To raise this change the 
-//mission ID system from uint16 to uint32/uint64
-#define DATAPAD_MAX_MISSIONS 2
+		//Absolute max of 6! To raise this change the 
+		//mission ID system from uint16 to uint32/uint64
 	*/
 
 }
@@ -60,10 +59,11 @@ Datapad::~Datapad()
 		ite = mMissions.erase(ite);	
 	}
 	//--------------------------------------------
+
+	mData.clear();
 	DataList::iterator iter = mData.begin(); 	
 	while(iter != mData.end())
 	{
-		gWorldManager->destroyObject(*iter);
 		iter = mData.erase(iter);
 	}
 	//--------------------------------------------

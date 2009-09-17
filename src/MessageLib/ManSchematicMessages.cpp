@@ -596,7 +596,7 @@ bool MessageLib::sendDeltasMSCO_7(ManufacturingSchematic* manSchem,PlayerObject*
 	gMessageFactory->addUint32(manSlots->size() + 1);
 
 	gMessageFactory->addUint32(++manSchem->mUpdateCounter[2]);
-	//printf("\nsendDeltasMSCO_7 counter 2 : %u\n",manSchem->mUpdateCounter[2]);
+	//printf("\nsendDeltasMSCO_7 counter 2 : %u",ManSchem->mUpdateCounter[2]);
 
 	manSlotIt		= manSlots->begin();
 	elementIndex	= 0;

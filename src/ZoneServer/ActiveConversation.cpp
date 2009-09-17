@@ -70,7 +70,7 @@ void ActiveConversation::updateCurrentPage(uint32 selectId)
 {
 	ConversationOption* option = mSelectOptionMap[selectId];
 	
-	// gLogger->logMsgF("ActiveConversation::updateCurrentPage: selectId = %u\n",MSG_NORMAL,selectId);
+	// gLogger->logMsgF("ActiveConversation::updateCurrentPage: selectId = %u",MSG_NORMAL,selectId);
 	uint32 pageLink = option->mPageLinkId;	// The state we are going to enter as default.
 
 	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mPlayer);
@@ -85,7 +85,7 @@ void ActiveConversation::updateCurrentPage(uint32 selectId)
 
 	if(option->mEvent)
 	{
-		// gLogger->logMsgF("ActiveConversation::updateCurrentPage: option->mEvent = %u\n",MSG_NORMAL,option->mEvent);
+		// gLogger->logMsgF("ActiveConversation::updateCurrentPage: option->mEvent = %u",MSG_NORMAL,option->mEvent);
 
 		int32 DI = 0;
 

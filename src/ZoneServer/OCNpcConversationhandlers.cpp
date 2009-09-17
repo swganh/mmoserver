@@ -172,7 +172,7 @@ void ObjectController::_handleNPCConversationStart(uint64 targetId,Message* mess
 		}
 	}
 	else
-		gLogger->logMsgF("ObjController::_handleNPCConversationStart: Couldn't find object %lld\n",MSG_HIGH,targetId);
+		gLogger->logMsgF("ObjController::_handleNPCConversationStart: Couldn't find object %lld",MSG_HIGH,targetId);
 }
 
 //=============================================================================

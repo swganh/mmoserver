@@ -97,7 +97,7 @@ bool Datapad::removeWaypoint(WaypointObject* waypoint)
 		if((*it) == waypoint)
 		{
 			mWaypoints.erase(it);
-			mCapacity++;
+			mWayPointCapacity++;
 			return(true);
 		}
 
@@ -118,7 +118,7 @@ bool Datapad::removeWaypoint(uint64 id)
 		if((*it)->getId() == id)
 		{
 			mWaypoints.erase(it);
-			mCapacity++;
+			mWayPointCapacity++;
 			return(true);
 		}
 

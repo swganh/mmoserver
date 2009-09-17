@@ -150,6 +150,7 @@ void TradeManager::handleDispatchMessage(uint32 opcode, Message* message, Dispat
 		
 		case opProcessSendCreateItem:
 		{
+			//send by the chatserver when we try to get an item from the bazaar!
 			_processCreateItemMessage(message,client);
 			gLogger->logMsgF("ZoneServer Create Item in Inventory",MSG_NORMAL);
 		}
@@ -616,8 +617,9 @@ void TradeManager::_processDeductMoneyMessage(Message* message,DispatchClient* c
 }
 
 //=======================================================================================================================
-// send by the client to have us create the item we just received from the vendor
-//
+// send by the chatserver to have us create the item we just received from the vendor
+// we still need to figure out how to handle the inventory issue
+//   probably just set movement down
 void TradeManager::_processCreateItemMessage(Message* message,DispatchClient* client)
 {
 	uint64			PlayerID		= message->getUint64();
@@ -685,7 +687,7 @@ void TradeManager::_processHandleAuctionCreateMessage(Message* message,DispatchC
 	if(!requestedObject)
 	{
 		//cave we might sell datapad schematics, too
-		gLogger->logMsg("TradeManager::_processHandleCreateAuction could not find object\n");
+		gLogger->logMsg("TradeManager::_processHandleCreateAuction could not find object");
 
 		return;
 	}

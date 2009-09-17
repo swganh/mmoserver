@@ -1017,7 +1017,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
 
 				Player* player = gChatManager->getPlayerbyId(asynContainer->BuyerID);
 
-				Bazaar* bazaarInfo = getBazaarInfo(AuctionTemp->AuctionTyp);
+				Bazaar* bazaarInfo = getBazaarInfo(AuctionTemp->BazaarID);
 
 				//is it an auction or an instant
 				if (AuctionTemp->AuctionTyp == 0){
@@ -1490,7 +1490,15 @@ void TradeManagerChatHandler::processBidAuctionMessage(Message* message,Dispatch
 	asyncContainer->MyProxy = MyProxy;
 	asyncContainer->AuctionID = ItemID;
 	asyncContainer->BuyerID = player->getCharId();
-	asyncContainer->BazaarID = 0;//
+	
+	Bazaar* bazaar = player->getBazaar();
+	if(bazaar)
+	{
+		asyncContainer->BazaarID = bazaar->id;//
+	}
+	else
+		asyncContainer->BazaarID = 0;//
+
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);	
 	//client checks if we have enough money
 	//cheaters (bot/ modified client )will be flagged in the zoneserver

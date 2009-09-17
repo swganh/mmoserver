@@ -82,6 +82,12 @@ void ObjectController::handleSecureTradeInvitation(uint64 targetId,Message* mess
 		}
 	}
 
+	if(!invitedPlayer)
+	{
+		gMessageLib->sendSystemMessage(invitingPlayer,L"","ui_trade","start_fail_target_not_player");
+		return;
+	}
+
 	if(invitedPlayer->checkStatesEither(CreatureState_Combat | CreatureState_Tumbling | CreatureState_Swimming))
 	{
 		gMessageLib->sendSystemMessage(invitingPlayer,L"you cannot do this at this time");
@@ -107,13 +113,6 @@ void ObjectController::handleSecureTradeInvitation(uint64 targetId,Message* mess
 	if (invitingPlayer->checkPosture(CreaturePosture_Dead) || invitingPlayer->checkPosture(CreaturePosture_Incapacitated))
 	{
 		gMessageLib->sendSystemMessage(invitingPlayer,L"you cannot do this at this time");
-		return;
-	}
-
-
-	if(!invitedPlayer)
-	{
-		gMessageLib->sendSystemMessage(invitingPlayer,L"","ui_trade","start_fail_target_not_player");
 		return;
 	}
 

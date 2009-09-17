@@ -191,12 +191,14 @@ class CreatureObject : public MovingObject
 
 		uint32				UpdatePerformanceCounter();
 
-		// ObjectList*			getDefenders(){ return &mDefenders; }
+
 		ObjectIDList*		getDefenders(){ return &mDefenders; }
-		// void				addDefender(Object* defender);
 		void				addDefender(uint64 defenderId);
-		// bool				removeDefender(Object* defender);
-		bool				removeDefenderAndUpdateList(uint64 defenderId);
+		void				removeAllDefender(void);
+
+		void				removeDefenderAndUpdateList(uint64 defenderId);
+		bool				setAsActiveDefenderAndUpdateList(uint64 defenderId);
+
 		void				clearDefenders();
 		bool				checkDefenderList(uint64 defenderId);
 
@@ -238,6 +240,7 @@ class CreatureObject : public MovingObject
 
 		void				makePeaceWithDefender(uint64 targetId);
 		uint64				getNearestDefender(void);
+		uint64				getNearestAttackingDefender(void);
 
 		virtual void		inPeace(void) { }
 		virtual void		killEvent(void) { }

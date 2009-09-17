@@ -1271,3 +1271,135 @@ void Trainer::restorePosition(PlayerObject* player)
 		}
 	}
 }
+
+
+void Trainer::respawn(void)
+{
+	gLogger->logMsgF("Trainer::respawn: Added new trainer for spawn, with id = %llu", MSG_NORMAL, this->getId());
+
+	// The cell we will spawn in.
+	this->setParentId(getCellIdForSpawn());
+
+	// Default spawn position.
+	Anh_Math::Vector3 position(getSpawnPosition());
+
+	// Respawn delay. If the creature have an unique delay, use that. Else use the one provided by the parent object.
+	this->setRespawnDelay(0);
+	if (this->hasInternalAttribute("creature_respawn_delay"))
+	{
+		uint64 respawnDelay = this->getInternalAttribute<uint64>("creature_respawn_delay");					
+		// gLogger->logMsgF("creature_respawn_delay = %llu", MSG_NORMAL, respawnDelay);
+		// mRespawnDelay = respawnDelay;
+		this->setRespawnDelay(respawnDelay);
+	}
+
+	// Let us get the spawn point.
+	// Use the supplied direction?
+	this->mDirection = getSpawnDirection();
+
+	if (this->getParentId() == 0)
+	{
+		// Heightmap only works outside.
+		position.mY = this->getHeightAt2DPosition(position.mX, position.mZ, true);
+	}
+	
+	// gLogger->logMsgF("Setting up spawn of creature at %.0f %.0f %.0f", MSG_NORMAL, position.mX, position.mY, position.mZ);
+	this->mPosition = this->getSpawnPosition();		// Default spawn position.
+
+	// mSpawned = false;
+	
+	this->mHam.calcAllModifiedHitPoints();
+
+
+	// All init is done, just the spawn in the world is left.
+	this->spawn();
+}
+
+//=============================================================================
+//
+//	Spawn.
+//
+
+void Trainer::spawn(void)
+{
+	// gLogger->logMsgF("AttackableStaticNpc::spawn: Spawning creature %llu", MSG_NORMAL, this->getId());
+	// gLogger->logMsgF("Spawned static objects # %lld (%lld)", MSG_NORMAL, gCreatureSpawnCounter, gCreatureSpawnCounter - gCreatureDeathCounter);
+
+	// Update the world about my presence.
+	
+	if (this->getParentId())
+	{
+		// insert into cell
+		this->setSubZoneId(0);
+
+		if (CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(this->getParentId())))
+		{
+			cell->addChild(this);
+		}
+		else
+		{
+			gLogger->logMsgF("Trainer::spawn: couldn't find cell %llu\n", MSG_HIGH, this->getParentId());
+			
+			// It's a serious isse that we need to investigate.
+			assert(cell);
+		}
+	}
+	else
+	{
+		if (QTRegion* region = gWorldManager->getSI()->getQTRegion(this->mPosition.mX, this->mPosition.mZ))
+		{
+			this->setSubZoneId((uint32)region->getId());
+			region->mTree->addObject(this);
+		}
+	}
+
+	// Add us to the world.
+	gMessageLib->broadcastContainmentMessage(this->getId(),this->getParentId(),4,this);
+
+	// send out position updates to known players
+	this->setInMoveCount(this->getInMoveCount() + 1);
+
+	if (gWorldConfig->isTutorial())
+	{
+		// We need to get the player object that is the owner of this npc.
+		if (this->getPrivateOwner() != 0)
+		{
+			PlayerObject* playerObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getPrivateOwner()));
+			if (playerObject)
+			{
+				gLogger->logMsgF("Trainer::spawn: Spawned a private skill trainer.", MSG_NORMAL);
+				if (this->getParentId())
+				{
+					// We are inside a cell.
+					gMessageLib->sendDataTransformWithParent(this, playerObject);
+					gMessageLib->sendUpdateTransformMessageWithParent(this, playerObject);
+				}
+				else
+				{
+					gMessageLib->sendDataTransform(this, playerObject);
+					gMessageLib->sendUpdateTransformMessage(this, playerObject);
+				}
+			}
+			else
+			{
+				assert(false);
+				gLogger->logMsgF("Trainer::spawn: Failed to spawn a private skill trainer.", MSG_NORMAL);
+			}
+		}
+	}
+	else
+	{
+		gLogger->logMsgF("Trainer::spawn: Spawned a trainer.", MSG_NORMAL);
+		if (this->getParentId())
+		{
+			// We are inside a cell.
+			gMessageLib->sendDataTransformWithParent(this);
+			gMessageLib->sendUpdateTransformMessageWithParent(this);
+		}
+		else
+		{
+			gMessageLib->sendDataTransform(this);
+			gMessageLib->sendUpdateTransformMessage(this);
+		}
+	}
+}

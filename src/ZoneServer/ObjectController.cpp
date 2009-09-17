@@ -42,7 +42,6 @@ Copyright (c) 2006 - 2008 The swgANH Team
 ObjectController::ObjectController() :
 mObject(NULL),
 mTaskId(0),
-mCommandQueueProcessTimeLimit(2),
 mEventQueueProcessTimeLimit(2),
 mNextCommandExecution(0),
 mUnderrunTime(0),
@@ -68,7 +67,6 @@ mFullUpdateTrigger(0)
 ObjectController::ObjectController(Object* object) :
 mObject(object),
 mTaskId(0),
-mCommandQueueProcessTimeLimit(2),
 mEventQueueProcessTimeLimit(2),
 mNextCommandExecution(0),
 mUnderrunTime(0),
@@ -109,6 +107,35 @@ ObjectController::~ObjectController()
 		pIt = mProcessValidators.erase(pIt);
 	}
 }
+
+//=============================================================================
+//
+// clear queues
+//
+
+/*
+void ObjectController::emptyCommandQueue()
+{
+	// command queue
+
+	CommandQueue::iterator cmdIt = mCommandQueue.begin();
+
+	while(cmdIt != mCommandQueue.end())
+	{
+		ObjControllerCommandMessage* cmdMsg = (*cmdIt);
+
+			else if(PlayerObject* player = dynamic_cast<PlayerObject*>(mObject))
+	{
+		gMessageLib->sendCommandQueueRemove(sequence,0.0f,reply1,reply2,player);
+	}
+
+		cmdMsg->~ObjControllerCommandMessage();
+		mCmdMsgPool.free(cmdMsg);
+
+		cmdIt = mCommandQueue.erase(cmdIt);
+	}
+}
+*/
 
 //=============================================================================
 //
@@ -195,9 +222,11 @@ bool ObjectController::_processCommandQueue()
 {
 	mHandlerCompleted = false;
 	// init timers
-	uint64	startTime		= Anh_Utils::Clock::getSingleton()->getLocalTime();
-	uint64	currentTime		= startTime;
-	uint64	processTime		= 0;
+	// uint64	startTime		= Anh_Utils::Clock::getSingleton()->getLocalTime();
+	// uint64	currentTime		= startTime;
+	// uint64	processTime		= 0;
+	
+	uint64 currentTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
 	
 	PlayerObject* player  = dynamic_cast<PlayerObject*>(mObject);
 	if (!player)
@@ -208,9 +237,8 @@ bool ObjectController::_processCommandQueue()
 	}
 
 	// gLogger->logMsgF("ObjectController::_processCommandQueue() Entering at  = %llu", MSG_NORMAL, currentTime);
-
-	// If queue empty and we are in combat, insert autoattack.
-	if (mCommandQueue.empty() &&  player->autoAttackEnabled())
+	// If queue empty and we are in combat, insert autoattack when the previous command has run out it's cooldown.
+	if (mCommandQueue.empty() &&  player->autoAttackEnabled() && (mNextCommandExecution <= currentTime))
 	{
 		// Auto attack current target.
 		uint64 autoTargetId = player->getCombatTargetId();
@@ -218,7 +246,7 @@ bool ObjectController::_processCommandQueue()
 		{
 			// We lost current target.
 			// gLogger->logMsgF("We lost current target.", MSG_NORMAL);
-			autoTargetId = player->getNearestDefender();
+			// autoTargetId = player->getNearestAttackingDefender();
 			/*
 			if (autoTargetId != 0)
 			{
@@ -232,18 +260,27 @@ bool ObjectController::_processCommandQueue()
 		}
 		if (autoTargetId != 0)
 		{
+			// gLogger->logMsgF("Player generated auto target with id %llu", MSG_NORMAL, autoTargetId);
 			this->enqueueAutoAttack(autoTargetId);
+		}
+		else
+		{
+			// gLogger->logMsgF("No more targets avaliable, stop auto-attacking.", MSG_NORMAL);
+			player->disableAutoAttack();
 		}
 	}
 
+
 	// loop until empty or our time is up
-	while (mCommandQueue.size() && processTime < mCommandQueueProcessTimeLimit)
+	if (!mCommandQueue.empty())
 	{
 		// see if we got something to execute yet
 		ObjControllerCommandMessage* cmdMsg = mCommandQueue.front();
 
 		if (cmdMsg && mNextCommandExecution <= currentTime)
 		{
+			// gLogger->logMsgF("Have %u defenders", MSG_NORMAL, player->getDefenders()->size());
+			
 			// gLogger->logMsgF("Executing command at = %llu", MSG_NORMAL, currentTime);
 
 			// gLogger->logMsgF("Execution time = %llu", MSG_NORMAL, mNextCommandExecution);
@@ -327,22 +364,71 @@ bool ObjectController::_processCommandQueue()
 					{
 						// gLogger->logMsgF("ObjectController::processCommandQueue: ObjControllerCmdGroup_Attack Handled Cmd 0x%x for %lld",MSG_NORMAL,command,mObject->getId());
 						// If player activated combat or me returning fire, the peace is ended, and auto-attack allowed.
+
+						player->toggleStateOff(CreatureState_Peace);
+						gMessageLib->sendStateUpdate(player);
 						player->enableAutoAttack();
 
-						cmdExecutedOk = gCombatManager->handleAttack(player, targetId, cmdProperties);
-						if (!cmdExecutedOk)
+						// CreatureObject* creature = NULL;
+						if (targetId != 0)
 						{
-							// gLogger->logMsg("ObjectController::processCommandQueue: handleAttack error");
-							// reset current combat target.
-							player->setCombatTargetId(0);
+							// gLogger->logMsg("ObjectController::processCommandQueue: We have a New target");
 
-							consumeHam = mHandlerCompleted;
+							cmdExecutedOk = gCombatManager->handleAttack(player, targetId, cmdProperties);
+
+							if (!cmdExecutedOk)
+							{
+								// gLogger->logMsg("ObjectController::processCommandQueue: handleAttack error");
+								// reset current combat target.
+
+								// We have lost our target.
+								// Refresh list to get around targeting rectile problems with corpse
+								// gMessageLib->sendNewDefenderList(player);
+								// gLogger->logMsg("setAsActiveDefenderAndUpdateList: Lost target, refreshing defender list.");
+
+								player->setCombatTargetId(0);
+								player->disableAutoAttack();
+
+								consumeHam = mHandlerCompleted;
+							}
+							else
+							{
+								// All is well in la-la-land
+								// player->setCombatTargetId(targetId);
+
+								// Keep track of the target we are attacking, it's not always your "look-at" target.
+								if (targetId != player->getCombatTargetId() && (targetId != 0))
+								{
+									// We have a new target
+									// new target still valid?
+									if (player->setAsActiveDefenderAndUpdateList(targetId))
+									{
+										// gLogger->logMsgF("We have a new valid target %llu",MSG_NORMAL,targetId);
+										player->setCombatTargetId(targetId);
+									}
+									else
+									{
+										// gLogger->logMsgF("We have a NEW and INVALID target %llu",MSG_NORMAL,targetId);	// One shot kill :)
+										player->disableAutoAttack();
+										player->setCombatTargetId(0);
+									}
+								}
+								else
+								{
+									// gLogger->logMsgF("We have same target as before %llu",MSG_NORMAL,targetId);
+									player->setCombatTargetId(targetId);
+								}
+							}
 						}
 						else
 						{
-							// Keep track of the target we are attacking, it's not always your "look-at" target.
-							player->setCombatTargetId(targetId);
+							cmdExecutedOk = false;
+							player->setCombatTargetId(0);
 						}
+						// For test
+						// player->setTarget(targetId);
+						// gMessageLib->sendTargetUpdateDeltasCreo6(player);
+
 					}
 					break;
 
@@ -363,11 +449,13 @@ bool ObjectController::_processCommandQueue()
 				else if (internalCommand)
 				{
 					// we will not spam the command queue if auto-attack is set to an invalid target.
-					mNextCommandExecution = currentTime + timeToNextCommand;
+					mNextCommandExecution = currentTime;
+					// mNextCommandExecution = currentTime + timeToNextCommand;
 					// gLogger->logMsgF("Skipped internal command, setting up next command in %llu, at %llu", MSG_NORMAL, (uint64)0, mNextCommandExecution);
 				}
 				else
 				{
+					mNextCommandExecution = currentTime;
 					// gLogger->logMsgF("Skipped current command, setting up next command in %llu, at %llu", MSG_NORMAL, (uint64)0, mNextCommandExecution);
 				}
 
@@ -390,7 +478,7 @@ bool ObjectController::_processCommandQueue()
 			else
 			{
 				// Command not allowed.
-				gLogger->logMsgF("Dumping command at = %llu", MSG_NORMAL, currentTime);
+				// gLogger->logMsgF("Dumping command at = %llu", MSG_NORMAL, currentTime);
 			}
 		
 			//its processed, so ack and delete it
@@ -406,21 +494,11 @@ bool ObjectController::_processCommandQueue()
 			// cmdMsg->~ObjControllerCommandMessage();
 			mCmdMsgPool.free(cmdMsg);
 		}
-		// break out, if we dont get to execute something this frame
-		else if((cmdMsg->getExecutionTime() - currentTime) > (mCommandQueueProcessTimeLimit - processTime))
-		{
-			// gLogger->logMsgF("Re-schedule Task", MSG_NORMAL);
-			break;
-		}
-
-		// update timers
-		currentTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
-		processTime = currentTime - startTime;
 	}
 
 	// if we didn't manage to process all or theres an event still waiting, don't remove us from the scheduler
 	// We need to keep the queue as long as we are in combat.
-	return ((mCommandQueue.size() ||  player->autoAttackEnabled())? true : false);
+	return ((!mCommandQueue.empty() ||  player->autoAttackEnabled())? true : false);
 }
 
 //=============================================================================
@@ -560,6 +638,7 @@ void ObjectController::enqueueCommandMessage(Message* message)
 
 void ObjectController::enqueueAutoAttack(uint64 targetId)
 {
+
 	// gLogger->logMsgF("ObjectController::enqueueAutoAttack() Entering...", MSG_NORMAL);
 	if (mCommandQueue.empty())
 	{
@@ -625,6 +704,7 @@ void ObjectController::enqueueAutoAttack(uint64 targetId)
 			}
 		}
 	}
+
 }
 
 

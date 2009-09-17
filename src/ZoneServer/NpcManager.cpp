@@ -276,17 +276,30 @@ void NpcManager::handleDatabaseJobComplete(void* ref, DatabaseResult* result)
 
 bool NpcManager::_verifyCombatState(CreatureObject* attacker, uint64 defenderId)
 {
-	PlayerObject* playerAttacker = dynamic_cast<PlayerObject*>(attacker);
-	CreatureObject* defender = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(defenderId));
 
-	// If the target (defender) is already on our list, we should not bother.
-	// Actually, we should...
-	/*
-	if (attacker->checkDefenderList(defenderId))
+	if (!attacker || !defenderId)
 	{
-		return(true);
+		gLogger->logMsgF("NpcManager::_verifyCombatState() Invalid attacker or defender", MSG_NORMAL);
+		return false;
+	}
+
+	CreatureObject* defender = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(defenderId));
+	if (!defender)
+	{
+		gLogger->logMsgF("NpcManager::_verifyCombatState() Invalid attacker", MSG_NORMAL);
+		return false;
+	}
+
+	// If the target (defender) do have me in his defender list, we should not bother.
+	/*
+	if (defender->checkDefenderList(attacker->getId()))
+	{
+		gLogger->logMsgF("NpcManager::_verifyCombatState() Attacker already in combat with defender", MSG_NORMAL);
+		return true;
 	}
 	*/
+
+	PlayerObject* playerAttacker = dynamic_cast<PlayerObject*>(attacker);
 
 	// make sure we got both objects
 	if (playerAttacker && defender)
@@ -315,14 +328,14 @@ bool NpcManager::_verifyCombatState(CreatureObject* attacker, uint64 defenderId)
 			// put us in combat state
 			if(!playerAttacker->checkState(CreatureState_Combat))
 			{
-				playerAttacker->toggleStateOn(CreatureState_Combat);
+				playerAttacker->toggleStateOn((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
 				gMessageLib->sendStateUpdate(playerAttacker);
 			}
 
 			// put our target in combat state
 			if(!defenderPlayer->checkState(CreatureState_Combat))
 			{
-				defenderPlayer->toggleStateOn(CreatureState_Combat);
+				defenderPlayer->toggleStateOn((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
 				gMessageLib->sendStateUpdate(defenderPlayer);
 			}
 
@@ -363,14 +376,14 @@ bool NpcManager::_verifyCombatState(CreatureObject* attacker, uint64 defenderId)
 			// put us in combat state
 			if (!playerAttacker->checkState(CreatureState_Combat))
 			{
-				playerAttacker->toggleStateOn(CreatureState_Combat);
+				playerAttacker->toggleStateOn((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
 				gMessageLib->sendStateUpdate(playerAttacker);
 			}
 
 			// put our target in combat state
 			if (!defender->checkState(CreatureState_Combat))
 			{
-				defender->toggleStateOn(CreatureState_Combat);
+				defender->toggleStateOn((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
 				gMessageLib->sendStateUpdate(defender);
 			}
 
@@ -451,14 +464,13 @@ bool NpcManager::_verifyCombatState(CreatureObject* attacker, uint64 defenderId)
 				if (!attackerNpc->checkDefenderList(defenderPlayer->getId()))
 				{
 					// gLogger->logMsgF("Player was not in NPC defender list, updating NPC pvp-status", MSG_NORMAL);
-					gMessageLib->sendUpdatePvpStatus(attackerNpc,defenderPlayer, attackerNpc->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Aggressive | CreaturePvPStatus_Enemy);
+					
+					// May not be neeeded, since the pvp-status is changed when getting enough aggro.
+					// gMessageLib->sendUpdatePvpStatus(attackerNpc,defenderPlayer, attackerNpc->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Aggressive | CreaturePvPStatus_Enemy);
 
 					// update our defender list
 					attackerNpc->addDefender(defenderPlayer->getId());
 					gMessageLib->sendDefenderUpdate(attackerNpc,1,attackerNpc->getDefenders()->size() - 1,defenderPlayer->getId());
-
-					// Player can start auto-attack.
-					defenderPlayer->getController()->enqueueAutoAttack(attackerNpc->getId());
 
 					// Update player and all his group mates currently in range.
 					/*
@@ -484,6 +496,12 @@ bool NpcManager::_verifyCombatState(CreatureObject* attacker, uint64 defenderId)
 					gMessageLib->sendDefenderUpdate(defenderPlayer,1,defenderPlayer->getDefenders()->size() - 1, attackerNpc->getId());
 				}
 
+				// Player can/may start auto-attack if idle.
+				if (!defenderPlayer->autoAttackEnabled())
+				{
+					// gLogger->logMsgF("Creature generated auto target with id %llu", MSG_NORMAL, attackerNpc->getId());
+					defenderPlayer->getController()->enqueueAutoAttack(attackerNpc->getId());
+				}
 			}
 			else if (AttackableCreature* defenderNpc = dynamic_cast<AttackableCreature*>(defender))
 			{
@@ -505,14 +523,14 @@ bool NpcManager::_verifyCombatState(CreatureObject* attacker, uint64 defenderId)
 				// put us in combat state
 				if (!attackerNpc->checkState(CreatureState_Combat))
 				{
-					attackerNpc->toggleStateOn(CreatureState_Combat);
+					attackerNpc->toggleStateOn((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
 					gMessageLib->sendStateUpdate(attackerNpc);
 				}
 
 				// put our target in combat state
 				if (!defenderPlayer->checkState(CreatureState_Combat))
 				{
-					defenderPlayer->toggleStateOn(CreatureState_Combat);
+					defenderPlayer->toggleStateOn((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
 					gMessageLib->sendStateUpdate(defenderPlayer);
 				}
 

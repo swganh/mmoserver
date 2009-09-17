@@ -87,19 +87,22 @@ int32 QuadTreeNode::addObject(Object* object)
 	assert(object);
 	assert(object->getId());
 
+	// gLogger->logMsgF("Trying to add Object %llu @ %.2f %.2f ", MSG_NORMAL, object->getId(), object->mPosition.mX, object->mPosition.mZ);		
+
 	// its a leaf, add it
 	if(!mSubNodes)
 	{
 		// make sure it doesn't already exists
 		StdObjectMap::iterator it = mObjects.find(object->getId());
 
-		if(it == mObjects.end())
+		if (it == mObjects.end())
 		{
 			mObjects.insert(std::make_pair(object->getId(),object));
 			// gLogger->logMsgF("QuadTreeNode::addObject: INSERTED OBJECT with id = %llu", MSG_NORMAL, object->getId());	
 		}
 		else
 		{
+			gLogger->logMsgF("QuadTreeNode::addObject: INSERTED OBJECT already exist = %llu", MSG_NORMAL, object->getId());	
 			return(2);
 		}
 
@@ -120,7 +123,7 @@ int32 QuadTreeNode::addObject(Object* object)
 			}
 		}
 	}
-
+	assert(false);
 	return(0);
 }
 
@@ -172,12 +175,13 @@ void QuadTreeNode::getObjectsInRange(Object* object,ObjectSet* resultSet,uint32 
 				}
 				else
 				{
-					gLogger->logMsgF("QuadTreeNode::getObjectsInRange INVALID DATA and ID. ID = %llu", MSG_NORMAL, (*it).first);		
+					// The object is gone... we need figure out why it's not deleted properly.
+					gLogger->logMsgF("QuadTreeNode::getObjectsInRange ERROR INVALID DATA and ID. ID = %llu", MSG_NORMAL, (*it).first);		
 				}
 			}
 			else
 			{
-				gLogger->logMsgF("QuadTreeNode::getObjectsInRange INVALID ID\n", MSG_NORMAL);		
+				gLogger->logMsgF("QuadTreeNode::getObjectsInRange ERROR INVALID ID\n", MSG_NORMAL);		
 				assert(false);
 			}
 			++it;
@@ -307,7 +311,7 @@ int32 QuadTreeNode::removeObject(Object* object)
 		// make sure it doesn't already exists
 		StdObjectMap::iterator it = mObjects.find(object->getId());
 
-		if(it != mObjects.end())
+		if (it != mObjects.end())
 		{
 			// gLogger->logMsgF("QuadTreeNode::removeObject REMOVE object with id = %llu", MSG_NORMAL, object->getId());		
 
@@ -315,7 +319,7 @@ int32 QuadTreeNode::removeObject(Object* object)
 
 			return(1);
 		}
-
+		gLogger->logMsgF("QuadTreeNode::removeObject ERROR FAILED to REMOVE object with id = %llu", MSG_NORMAL, object->getId());		
 		return(2);
 	}
 	// traverse our children
@@ -333,7 +337,7 @@ int32 QuadTreeNode::removeObject(Object* object)
 			}
 		}
 	}
-
+	assert(false);
 	return(0);
 }
 
@@ -341,6 +345,8 @@ int32 QuadTreeNode::removeObject(Object* object)
 //
 // update an objects position in the tree, TODO: optimize
 //
+
+// int32 QuadTreeNode::addMyObject(Object* object);
 
 int32 QuadTreeNode::updateObject(Object* object,Anh_Math::Vector3 newPosition)
 {
@@ -351,14 +357,69 @@ int32 QuadTreeNode::updateObject(Object* object,Anh_Math::Vector3 newPosition)
 	// shouldnt be called on leafs
 	if(mSubNodes)
 	{
+		// gLogger->logMsgF("Remove Object %llu @ %.2f %.2f ", MSG_NORMAL, object->getId(), object->mPosition.mX, object->mPosition.mZ);		
 		removeObject(object);
 	
 		object->mPosition = newPosition;
 
+		// gLogger->logMsgF("Add Object %llu @ %.2f %.2f ", MSG_NORMAL, object->getId(), object->mPosition.mX, object->mPosition.mZ);		
 		addObject(object);
+		// addMyObject(object);
 	}
 
 	return(0);
 }
 
 //======================================================================================================================
+
+//======================================================================================================================
+//
+// FOR TEST
+// insert an object
+//
+
+/*
+int32 QuadTreeNode::addMyObject(Object* object)
+{
+	// Validate input. Should be interesting to see.
+	assert(object);
+	assert(object->getId());
+
+	// its a leaf, add it
+	if(!mSubNodes)
+	{
+		// make sure it doesn't already exists
+		StdObjectMap::iterator it = mObjects.find(object->getId());
+
+		if (it == mObjects.end())
+		{
+			mObjects.insert(std::make_pair(object->getId(),object));
+			gLogger->logMsgF("QuadTreeNode::addMyObject: INSERTED OBJECT with id = %llu", MSG_NORMAL, object->getId());	
+		}
+		else
+		{
+			gLogger->logMsgF("QuadTreeNode::addMyObject: ERROR INSERTED OBJECT already exist = %llu", MSG_NORMAL, object->getId());	
+			return(2);
+		}
+
+		return(1);
+	}
+	// its a branch, see to which children it goes
+	else
+	{
+		for(uint8 i = 0;i < 4;i++)
+		{
+			// found the one it belongs in
+			if(mSubNodes[i]->checkBounds(object))
+			{
+				// add it and break out
+				mSubNodes[i]->addMyObject(object);
+
+				return(0);
+			}
+		}
+	}
+	assert(false);
+	return(0);
+}
+*/

@@ -212,7 +212,7 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult
 			if (npc->getParentId() == 0)
 			{
 				// Heightmap only works outside.
-				npc->mPosition.mY = npc->getHeightAt2DPosition(lair.mSpawnPosX, lair.mSpawnPosZ);
+				npc->mPosition.mY = npc->getHeightAt2DPosition(lair.mSpawnPosX, lair.mSpawnPosZ, true);
 			}
 			else
 			{

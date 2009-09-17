@@ -27,13 +27,14 @@ class AttackableStaticNpc : public NPCObject
 		virtual ~AttackableStaticNpc();
 
 		virtual void prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
-		// void	filterConversationOptions(ConversationPage* page,std::vector<ConversationOption*>* filteredOptions,PlayerObject* player);
-		// bool	preProcessfilterConversation(ActiveConversation* av, Conversation* conversation, PlayerObject* player);
-		// void	postProcessfilterConversation(ActiveConversation* av, ConversationPage* page, PlayerObject* player);
+		virtual void respawn(void);
+
 		void	setDeathEffect(uint32 effectId) {mDeathEffectId = effectId;}
 		void	playDeathAnimation(void);
 
 	private:
+		void	spawn(void);
+
 		uint32 mDeathEffectId;
 
 };

@@ -218,7 +218,7 @@ void Heightmap::Connect(void)
 	}
 	else
 	{
-		gLogger->logMsgLoadSuccess("Heightmap::succesfully loaded Heightmap...",MSG_NORMAL);
+		gLogger->logMsgLoadSuccess("Heightmap::Heightmap succesfully opened...",MSG_NORMAL);
 	}
   return;
 }

@@ -180,6 +180,7 @@ public:
 
 	// deltas
 	void				sendDefenderUpdate(CreatureObject* creatureObject,uint8 updateType,uint16 index,uint64 defenderId);
+	void				sendNewDefenderList(CreatureObject* creatureObject);
 	bool				sendDeltasCREO_3(CreatureObject* creatureObject,PlayerObject* targetObject);
 	bool				sendEquippedListUpdate_InRange(CreatureObject* creatureObject);
 	bool				sendEquippedItemUpdate_InRange(CreatureObject* creatureObject, uint64 itemId);

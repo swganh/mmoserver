@@ -92,10 +92,13 @@ void CombatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 		mWeaponGroups.push_back(weaponGroup);
 	}
 	if(result->getRowCount())
-		gLogger->logMsgLoadSuccess("CombatManager::Loading %u weapon groups...",MSG_NORMAL,result->getRowCount());
+	{
+		gLogger->logMsgLoadSuccess("CombatManager::Loading %llu weapon groups...",MSG_NORMAL, count);
+	}
 	else
+	{
 		gLogger->logMsgLoadFailure("CombatManager::Loading weapon groups...",MSG_NORMAL);					
-
+	}
 	mDatabase->DestroyDataBinding(binding);
 }
 
@@ -210,9 +213,6 @@ bool CombatManager::_verifyCombatState(CreatureObject* attacker, uint64 defender
 			{
 				playerAttacker->addDefender(defenderPlayer->getId());
 				gMessageLib->sendDefenderUpdate(playerAttacker,1,playerAttacker->getDefenders()->size() - 1,defenderPlayer->getId());
-
-				// Player can start auto-attack.
-				defenderPlayer->getController()->enqueueAutoAttack(playerAttacker->getId());
 			}
 
 			// update our targets defender list
@@ -221,6 +221,13 @@ bool CombatManager::_verifyCombatState(CreatureObject* attacker, uint64 defender
 				defenderPlayer->addDefender(playerAttacker->getId());
 				gMessageLib->sendDefenderUpdate(defenderPlayer,1,defenderPlayer->getDefenders()->size() - 1,playerAttacker->getId());
 			}
+	
+			if (!defenderPlayer->autoAttackEnabled())
+			{
+				// Player can/may start auto-attack if idle.
+				defenderPlayer->getController()->enqueueAutoAttack(playerAttacker->getId());
+			}
+
 		}
 		else
 		{
@@ -255,28 +262,19 @@ bool CombatManager::_verifyCombatState(CreatureObject* attacker, uint64 defender
 				// gMessageLib->sendStateUpdate(playerAttacker);
 			}
 
-			// put our target in combat state
 			if (!defender->checkState((CreatureState_Combat)))
 			{
 				// Creature was NOT in combat before, and may very well be dormant.
 				// Wake him up.
 				gWorldManager->forceHandlingOfDormantNpc(defender->getId());
 				gWorldManager->forceHandlingOfReadyNpc(defender->getId());
+
+				// Creature may need some aggro built up before going into combat state?? 
+				defender->toggleStateOn((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
+				gMessageLib->sendStateUpdate(defender);
 			}
 
-			// WTF
-			// gLogger->logMsgF("Creature (defender) PvpStatus = 0x%x", MSG_NORMAL, (uint32)defender->getPvPStatus());
-			// uint32 pvpStatus = defender->getPvPStatus() + CreaturePvPStatus_Attackable + CreaturePvPStatus_Enemy;
-			// gLogger->logMsgF("Sendind PvpStatus 0x%x", MSG_NORMAL, pvpStatus);
-
-			// defender->togglePvPStateOn((CreaturePvPStatus)(CreaturePvPStatus_Attackable + CreaturePvPStatus_Aggressive + CreaturePvPStatus_Enemy));
 			gMessageLib->sendUpdatePvpStatus(defender, playerAttacker, defender->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Enemy);
-
-			defender->toggleStateOn((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
-			gMessageLib->sendStateUpdate(defender);
-
-			// defender->toggleStateOn(CreatureState_Combat);
-			// gMessageLib->sendStateUpdate(defender);
 
 			// update our defender list
 			if (!playerAttacker->checkDefenderList(defender->getId()))
@@ -289,7 +287,6 @@ bool CombatManager::_verifyCombatState(CreatureObject* attacker, uint64 defender
 			if (!defender->checkDefenderList(playerAttacker->getId()))
 			{
 				defender->addDefender(playerAttacker->getId());
-				// gMessageLib->sendDefenderUpdate(defender,1,playerAttacker->getDefenders()->size() - 1,playerAttacker->getId());
 				gMessageLib->sendDefenderUpdate(defender,1, defender->getDefenders()->size() - 1,playerAttacker->getId());
 			}
 		}
@@ -356,14 +353,14 @@ bool CombatManager::handleAttack(CreatureObject *attacker, uint64 targetId, Obje
 			gMessageLib->sendSystemMessage(playerAttacker,L"","error_message","target_out_of_range", "", "", L"", 0, "", "");
 		}
 		// It's like you shoot but missed, maintain cooldown.
-		return true;
-		// return false;
+		// return true;
+		return false;
 	}
 
 	if(_verifyCombatState(attacker,defender->getId()))
 	{
 
-		// do the attack
+		// Execute the attack
 		uint8 attackResult = _executeAttack(attacker,defender,cmdProperties,weapon);
 
 		return(true);

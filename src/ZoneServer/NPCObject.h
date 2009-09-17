@@ -88,7 +88,7 @@ class NPCObject : public CreatureObject
 		Anh_Math::Vector3	getPositionOffset() const {return mPositionOffset;}
 
 		Anh_Math::Vector3 getRandomPosition(Anh_Math::Vector3& currentPos, int32 offsetX, int32 offsetZ) const;
-		float			getHeightAt2DPosition(float xPos, float zPos) const;
+		float			getHeightAt2DPosition(float xPos, float zPos, bool bestOffer = false) const;
 		void			setDirection(float deltaX, float deltaZ);
 		
 		void			moveAndUpdatePosition(void);

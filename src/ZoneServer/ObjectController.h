@@ -552,7 +552,7 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback
 		EnqueueValidators	mEnqueueValidators;
 		ProcessValidators	mProcessValidators;
 
-		uint64				mCommandQueueProcessTimeLimit;
+		// uint64				mCommandQueueProcessTimeLimit;
 		uint64				mEventQueueProcessTimeLimit;
 		uint64				mNextCommandExecution;
 		// uint64				mNextCombatCmdExecution;

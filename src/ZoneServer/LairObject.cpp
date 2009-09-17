@@ -650,7 +650,7 @@ void LairObject::respawn(void)
 			if (this->getParentId() == 0)
 			{
 				// Heightmap only works outside.
-				this->mPosition.mY = this->getHeightAt2DPosition(this->mPosition.mX, this->mPosition.mZ);
+				this->mPosition.mY = this->getHeightAt2DPosition(this->mPosition.mX, this->mPosition.mZ, true);
 			}
 
 			// Random direction.

@@ -52,6 +52,7 @@ class Heightmap
 		bool Open(void) { if(hmp) return true; else return false;  }
 		bool setupCache(int16 cacheResoulutionDivider);
 		static inline bool isHeightmapCacheAvaliable(void) { return mCacheAvaliable;}
+		inline bool isHighResCache(void) { return (mCacheResoulutionDivider == 1);}
 
 	protected:
 		Heightmap(const char* planet_name);

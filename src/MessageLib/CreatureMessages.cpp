@@ -640,10 +640,32 @@ void MessageLib::sendDefenderUpdate(CreatureObject* creatureObject,uint8 updateT
 	gMessageFactory->addUint32(opCREO);
 	gMessageFactory->addUint8(6);  
 
-	if(updateType == 0)
-		gMessageFactory->addUint32(15);
-	else
-		gMessageFactory->addUint32(23);
+	uint32	payloadSize = 0;
+	
+	if (updateType == 0)
+	{
+		// Clear defender
+		payloadSize = 15;
+	}
+	else if ((updateType == 1) || (updateType == 2))
+	{
+		// Add or change defender
+		payloadSize = 23;
+	}
+	else if (updateType == 4)
+	{
+		// Clear all
+		payloadSize = 13;
+	}
+	else // if (updateType == 3)
+	{
+		// Reset all
+		// Not suported yet
+		gLogger->logMsgF("MessageLib::sendDefenderUpdate Invalid option = %u", MSG_NORMAL,updateType);
+		assert(false);
+	}
+
+	gMessageFactory->addUint32(payloadSize);
 
 	gMessageFactory->addUint16(1);
 	gMessageFactory->addUint16(1);
@@ -653,11 +675,15 @@ void MessageLib::sendDefenderUpdate(CreatureObject* creatureObject,uint8 updateT
 
 	gMessageFactory->addUint8(updateType);
 
-	gMessageFactory->addUint16(index);
-
-	if(updateType)
+	if (updateType == 0)
+	{	
+		gMessageFactory->addUint16(index);
+	}
+	else if ((updateType == 1) || (updateType == 2))
+	{
+		gMessageFactory->addUint16(index);
 		gMessageFactory->addUint64(defenderId);
-
+	}
 	_sendToInRange(gMessageFactory->EndMessage(),creatureObject,5);
 
 }
@@ -668,63 +694,63 @@ void MessageLib::sendDefenderUpdate(CreatureObject* creatureObject,uint8 updateT
 // updates: defenders full
 //
 
-// For now, this function is not needed, and therefore disabled.
-/*
 
 void MessageLib::sendNewDefenderList(CreatureObject* creatureObject)
 {
-ObjectList*	defenders = creatureObject->getDefenders();
-uint32		byteCount = 15;
+	ObjectIDList* defenders = creatureObject->getDefenders();
+	uint32 byteCount = 15;
 
-if (!defenders->size())
-{
-byteCount = 13;
+	if (defenders->empty())
+	{
+		// Doing a reset if 0 defenders.
+		byteCount = 13;
+	}
+
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opDeltasMessage);   
+	gMessageFactory->addUint64(creatureObject->getId()); 
+	gMessageFactory->addUint32(opCREO);
+	gMessageFactory->addUint8(6);  
+
+	gMessageFactory->addUint32(byteCount + (defenders->size() * 8));
+	gMessageFactory->addUint16(1);
+	gMessageFactory->addUint16(1);
+
+	ObjectIDList::iterator defenderIt = defenders->begin();
+	// Shall we not advance the updatecounter if we send a reset, where size() is 0? 
+
+	// I'm pretty sure the idea of update counters is to let the client know that somethings have changed, 
+	// and to know in what order, given several messages "at once".
+	// creatureObject->mDefenderUpdateCounter = creatureObject->mDefenderUpdateCounter + defenders->size();
+	// gMessageFactory->addUint32(++creatureObject->mDefenderUpdateCounter);
+
+	if(!defenders->size())
+	{
+		// Even an update with zero defenders is a new update.
+		gMessageFactory->addUint32(1);
+		
+		gMessageFactory->addUint32(++creatureObject->mDefenderUpdateCounter);
+		gMessageFactory->addUint8(4);
+	}
+	else
+	{
+		gMessageFactory->addUint32(defenders->size());
+		// gMessageFactory->addUint32(1);
+
+		gMessageFactory->addUint32(++creatureObject->mDefenderUpdateCounter);
+		gMessageFactory->addUint8(3);
+		gMessageFactory->addUint16(defenders->size());
+
+		while (defenderIt != defenders->end())
+		{
+			gMessageFactory->addUint64((*defenderIt));
+			++defenderIt;
+		}
+	}
+
+	_sendToInRange(gMessageFactory->EndMessage(),creatureObject,5);
 }
 
-gMessageFactory->StartMessage();
-gMessageFactory->addUint32(opDeltasMessage);   
-gMessageFactory->addUint64(creatureObject->getId()); 
-gMessageFactory->addUint32(opCREO);
-gMessageFactory->addUint8(6);  
-
-gMessageFactory->addUint32(byteCount + (defenders->size() * 8));
-gMessageFactory->addUint16(1);
-gMessageFactory->addUint16(1);
-
-ObjectList::iterator defenderIt = defenders->begin();
-// Shall we not advance the updatecounter if we send a reset, where size() is 0? 
-
-// I'm pretty sure the idea of update counters is to let the client know that somethings have changed, 
-// and to know in what order, given several messages "at once".
-creatureObject->mDefenderUpdateCounter = creatureObject->mDefenderUpdateCounter + defenders->size();
-
-if(!defenders->size())
-{
-// Even an update with zero defenders is a new update.
-creatureObject->mDefenderUpdateCounter++;
-
-gMessageFactory->addUint32(1);
-gMessageFactory->addUint32(creatureObject->mDefenderUpdateCounter);
-gMessageFactory->addUint8(4);
-}
-else
-{
-gMessageFactory->addUint32(defenders->size());
-gMessageFactory->addUint32(creatureObject->mDefenderUpdateCounter);
-gMessageFactory->addUint8(3);
-gMessageFactory->addUint16(defenders->size());
-
-while(defenderIt != defenders->end())
-{
-gMessageFactory->addUint64((*defenderIt)->getId());
-
-++defenderIt;
-}
-}
-
-_sendToInRange(gMessageFactory->EndMessage(),creatureObject,5);
-}
-*/
 
 //======================================================================================================================
 //

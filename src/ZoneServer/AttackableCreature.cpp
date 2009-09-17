@@ -308,7 +308,7 @@ void AttackableCreature::addKnownObject(Object* object)
 //=============================================================================
 //
 //	Set new active target, if any in range.
-//  Object already in defender list is not set.
+//  Object already in defender list is not set. hmmm
 //
 //	Taunt message or flytext "!" when attempting an attack, will only be shown once.
 //  Peace will enable taunt/flytext again.
@@ -334,6 +334,7 @@ bool AttackableCreature::setTargetInAttackRange(void)
 			if (!(*it)->isIncapacitated() && !(*it)->isDead())
 			{
 				// We only accepts new targets.
+				/*
 				ObjectIDList::iterator defenderIt = this->getDefenders()->begin();
 				bool newTarget = true;
 				while (defenderIt != this->getDefenders()->end())
@@ -346,8 +347,10 @@ bool AttackableCreature::setTargetInAttackRange(void)
 					}
 					defenderIt++;
 				}
+				*/
+				// Only test players not having aggro.
 
-				if (newTarget && gWorldManager->objectsInRange(this->getId(), (*it)->getId(), this->getAttackRange()))
+				if ((!this->attackerHaveAggro((*it)->getId())) && gWorldManager->objectsInRange(this->getId(), (*it)->getId(), this->getAttackRange()))
 				{
 					// gLogger->logMsgF("AttackableCreature::setTargetInAttackRange() attacking player = %s", MSG_NORMAL, (*it)->getFirstName().getAnsi());
 					if (gWorldConfig->isInstance())
@@ -364,17 +367,22 @@ bool AttackableCreature::setTargetInAttackRange(void)
 					// We have a new target in range etc.. But we may need him to be visible for a while before we attack.
 					this->updateAggro((*it)->getId(), (*it)->getGroupId(), (*it)->getPosture());
 
-					if (this->attackerHaveAggro((*it)->getId()))
+					if (!targetSet)
 					{
-						// gLogger->logMsgF("AttackableCreature::setTargetInAttackRange: Target have aggro!", MSG_NORMAL);
-						this->setTarget((*it)->getId());
-						targetSet = true;
-						gMessageLib->sendTargetUpdateDeltasCreo6(this);
-						break;
-					}
-					else
-					{
-						// gLogger->logMsgF("AttackableCreature::setTargetInAttackRange: Target have NO aggro!", MSG_NORMAL);
+						if (this->attackerHaveAggro((*it)->getId()))
+						{
+							// gLogger->logMsgF("AttackableCreature::setTargetInAttackRange: Target have aggro!", MSG_NORMAL);
+							this->setTarget((*it)->getId());
+							targetSet = true;
+							// TEST ERU gMessageLib->sendTargetUpdateDeltasCreo6(this);
+
+							// No break, cycle all targets in range, since we are building up aggro.
+							// break;
+						}
+						else
+						{
+							// gLogger->logMsgF("AttackableCreature::setTargetInAttackRange: Target have NO aggro!", MSG_NORMAL);
+						}
 					}
 				}
 			}
@@ -478,7 +486,7 @@ bool AttackableCreature::showWarningInRange(void)
 					{
 						this->setTarget((*it)->getId());
 						targetSet = true;
-						gMessageLib->sendTargetUpdateDeltasCreo6(this);
+						// TEST ERU gMessageLib->sendTargetUpdateDeltasCreo6(this);
 						break;
 					}
 					else
@@ -561,7 +569,7 @@ bool AttackableCreature::setTargetDefenderWithinWeaponRange(void)
 						if (this->getTargetId() != *defenderIt)
 						{
 							this->setTarget(*defenderIt);
-							gMessageLib->sendTargetUpdateDeltasCreo6(this);
+							// TEST ERU gMessageLib->sendTargetUpdateDeltasCreo6(this);
 						}
 						foundTarget = true;
 						break;
@@ -637,7 +645,7 @@ bool AttackableCreature::setTargetDefenderWithinMaxRange(void)
 						if (this->getTargetId() != (*defenderIt))
 						{
 							this->setTarget(*defenderIt);
-							gMessageLib->sendTargetUpdateDeltasCreo6(this);
+							// TEST ERU gMessageLib->sendTargetUpdateDeltasCreo6(this);
 						}
 						foundTarget = true;
 						break;
@@ -879,7 +887,7 @@ void AttackableCreature::handleEvents(void)
 			if (this->getParentId() == 0)
 			{
 				// Heightmap only works outside.
-				newPosition.mY = getHeightAt2DPosition(newPosition.mX, newPosition.mZ);
+				newPosition.mY = getHeightAt2DPosition(newPosition.mX, newPosition.mZ, true);
 				this->updatePosition(this->getParentId(), newPosition);
 			}
 		}
@@ -968,6 +976,13 @@ void AttackableCreature::handleEvents(void)
 					mCombatState = State_Combat;
 					this->setAiState(NpcIsActive);
 
+					// Change pvp-status to agressive.
+					PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(this->getTarget());
+					if (targetPlayer)
+					{
+						gMessageLib->sendUpdatePvpStatus(this,targetPlayer, this->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Aggressive | CreaturePvPStatus_Enemy);
+					}
+
 					// We may need to chase the target.
 					this->setupStalking(activeDefaultPeriodTime);
 				}
@@ -977,6 +992,13 @@ void AttackableCreature::handleEvents(void)
 					// Yes.
 					mCombatState = State_Combat;
 					this->setAiState(NpcIsActive);
+
+					// Change pvp-status to agressive.
+					PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(this->getTarget());
+					if (targetPlayer)
+					{
+						gMessageLib->sendUpdatePvpStatus(this,targetPlayer, this->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Aggressive | CreaturePvPStatus_Enemy);
+					}
 
 					// We may need to chase the target.
 					this->setupStalking(activeDefaultPeriodTime);
@@ -996,6 +1018,13 @@ void AttackableCreature::handleEvents(void)
 					// Yes.
 					mCombatState = State_Combat;
 					this->setAiState(NpcIsActive);
+
+					// Change pvp-status to agressive.
+					PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(this->getTarget());
+					if (targetPlayer)
+					{
+						gMessageLib->sendUpdatePvpStatus(this,targetPlayer, this->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Aggressive | CreaturePvPStatus_Enemy);
+					}
 
 					// We may need to chase the target.
 					this->setupStalking(activeDefaultPeriodTime);
@@ -1032,7 +1061,7 @@ void AttackableCreature::handleEvents(void)
 			{
 				// We lost our target.
 				this->setTarget(NULL);
-				gMessageLib->sendTargetUpdateDeltasCreo6(this);
+				// TEST ERU gMessageLib->sendTargetUpdateDeltasCreo6(this);
 
 				// gLogger->logMsgF("AttackableCreature::handleEvents Lost target", MSG_HIGH);
 				mCombatState = State_Alerted;
@@ -1078,6 +1107,13 @@ void AttackableCreature::handleEvents(void)
 					mCombatState = State_Combat;
 					this->setAiState(NpcIsActive);
 
+					// Change pvp-status to agressive.
+					PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(this->getTarget());
+					if (targetPlayer)
+					{
+						gMessageLib->sendUpdatePvpStatus(this,targetPlayer, this->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Aggressive | CreaturePvPStatus_Enemy);
+					}
+
 					// We may need to chase the target.
 					this->setupStalking(activeDefaultPeriodTime);
 				}
@@ -1089,6 +1125,13 @@ void AttackableCreature::handleEvents(void)
 					mCombatState = State_Combat;
 					this->setAiState(NpcIsActive);
 
+					// Change pvp-status to agressive.
+					PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(this->getTarget());
+					if (targetPlayer)
+					{
+						gMessageLib->sendUpdatePvpStatus(this,targetPlayer, this->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Aggressive | CreaturePvPStatus_Enemy);
+					}
+
 					// We may need to chase the target.
 					this->setupStalking(activeDefaultPeriodTime);
 				}
@@ -1099,6 +1142,13 @@ void AttackableCreature::handleEvents(void)
 					// Yes.
 					mCombatState = State_Combat;
 					this->setAiState(NpcIsActive);
+
+					// Change pvp-status to agressive.
+					PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(this->getTarget());
+					if (targetPlayer)
+					{
+						gMessageLib->sendUpdatePvpStatus(this,targetPlayer, this->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Aggressive | CreaturePvPStatus_Enemy);
+					}
 
 					// We may need to chase the target.
 					this->setupStalking(activeDefaultPeriodTime);
@@ -1133,7 +1183,7 @@ void AttackableCreature::handleEvents(void)
 					{
 						// We lost our target.
 						this->setTarget(NULL);
-						gMessageLib->sendTargetUpdateDeltasCreo6(this);
+						// TEST ERU gMessageLib->sendTargetUpdateDeltasCreo6(this);
 					}
 				}
 				else
@@ -1152,7 +1202,7 @@ void AttackableCreature::handleEvents(void)
 			{
 				// We lost our target.
 				this->setTarget(NULL);
-				gMessageLib->sendTargetUpdateDeltasCreo6(this);
+				// TEST ERU gMessageLib->sendTargetUpdateDeltasCreo6(this);
 
 				// gLogger->logMsgF("AttackableCreature::handleEvents Lost target", MSG_HIGH);
 				mCombatState = State_CombatReady;
@@ -1169,7 +1219,7 @@ void AttackableCreature::handleEvents(void)
 			{
 				this->executeLairAssist(); 
 			}
-			else if (!this->checkState((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal)))
+			else if (!this->checkState((CreatureState)(CreatureState_Combat)))
 			{
 				// We are not in combat.
 				// We may be stalking a target....
@@ -1182,6 +1232,13 @@ void AttackableCreature::handleEvents(void)
 					// mCombatState = State_Combat;
 					// this->setAiState(NpcIsActive);
 
+					// Change pvp-status to agressive.
+					PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(this->getTarget());
+					if (targetPlayer)
+					{
+						gMessageLib->sendUpdatePvpStatus(this,targetPlayer, this->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Aggressive | CreaturePvPStatus_Enemy);
+					}
+
 					// We may need to chase the target.
 					this->setupStalking(activeDefaultPeriodTime);
 				}
@@ -1192,6 +1249,13 @@ void AttackableCreature::handleEvents(void)
 					// Yes.
 					// mCombatState = State_Combat;
 					// this->setAiState(NpcIsActive);
+
+					// Change pvp-status to agressive.
+					PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(this->getTarget());
+					if (targetPlayer)
+					{
+						gMessageLib->sendUpdatePvpStatus(this,targetPlayer, this->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Aggressive | CreaturePvPStatus_Enemy);
+					}
 
 					// We may need to chase the target.
 					this->setupStalking(activeDefaultPeriodTime);
@@ -1206,7 +1270,7 @@ void AttackableCreature::handleEvents(void)
 
 					// We drop the target, it's out of range.
 					this->setTarget(NULL);
-					gMessageLib->sendTargetUpdateDeltasCreo6(this);
+					// TEST ERU gMessageLib->sendTargetUpdateDeltasCreo6(this);
 
 					mCombatState = State_CombatReady;
 					this->setAiState(NpcIsReady);
@@ -1593,16 +1657,41 @@ void AttackableCreature::spawn(void)
 	// send out position updates to known players
 	this->setInMoveCount(this->getInMoveCount() + 1);
 
-	if (this->getParentId())
+	if (gWorldConfig->isTutorial())
 	{
-		// We are inside a cell.
-		gMessageLib->sendDataTransformWithParent(this);
-		gMessageLib->sendUpdateTransformMessageWithParent(this);
+		// We need to get the player object that is the owner of this npc.
+		if (this->getPrivateOwner() != 0)
+		{
+			PlayerObject* playerObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getPrivateOwner()));
+			if (playerObject)
+			{
+				if (this->getParentId())
+				{
+					// We are inside a cell.
+					gMessageLib->sendDataTransformWithParent(this, playerObject);
+					gMessageLib->sendUpdateTransformMessageWithParent(this, playerObject);
+				}
+				else
+				{
+					gMessageLib->sendDataTransform(this, playerObject);
+					gMessageLib->sendUpdateTransformMessage(this, playerObject);
+				}
+			}
+		}
 	}
 	else
 	{
-		gMessageLib->sendDataTransform(this);
-		gMessageLib->sendUpdateTransformMessage(this);
+		if (this->getParentId())
+		{
+			// We are inside a cell.
+			gMessageLib->sendDataTransformWithParent(this);
+			gMessageLib->sendUpdateTransformMessageWithParent(this);
+		}
+		else
+		{
+			gMessageLib->sendDataTransform(this);
+			gMessageLib->sendUpdateTransformMessage(this);
+		}
 	}
 }
 
@@ -1983,7 +2072,7 @@ void AttackableCreature::respawn(void)
 	if (this->getParentId() == 0)
 	{
 		// Heightmap only works outside.
-		position.mY = this->getHeightAt2DPosition(position.mX, position.mZ);
+		position.mY = this->getHeightAt2DPosition(position.mX, position.mZ, true);
 	}
 	
 	// gLogger->logMsgF("Setting up spawn of creature at %.0f %.0f %.0f", MSG_NORMAL, position.mX, position.mY, position.mZ);
@@ -2506,7 +2595,7 @@ void AttackableCreature::executeAssist(void)
 		// gLogger->logMsgF("AttackableCreature::assist Assisting", MSG_NORMAL);
 
 		this->setTarget(object->getId());
-		gMessageLib->sendTargetUpdateDeltasCreo6(this);
+		// TEST ERU gMessageLib->sendTargetUpdateDeltasCreo6(this);
 
 		mCombatState = State_Combat;
 		this->setAiState(NpcIsActive);
@@ -2528,7 +2617,7 @@ void AttackableCreature::executeLairAssist(void)
 		// gLogger->logMsgF("AttackableCreature::executeLairAssist Assisting", MSG_NORMAL);
 
 		this->setTarget(object->getId());
-		gMessageLib->sendTargetUpdateDeltasCreo6(this);
+		// TEST ERU gMessageLib->sendTargetUpdateDeltasCreo6(this);
 
 		mCombatState = State_Combat;
 		this->setAiState(NpcIsActive);

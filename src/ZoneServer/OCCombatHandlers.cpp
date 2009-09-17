@@ -141,7 +141,7 @@ void ObjectController::_handleEndDuel(uint64 targetId,Message* message,ObjectCon
 					// no more defenders, end combat
 					if(player->getDefenders()->empty())
 					{
-						player->toggleStateOff(CreatureState_Combat);
+						player->toggleStateOff((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
 						gMessageLib->sendStateUpdate(player);
 						//WARNING WHAT FOLLOWS IS A DIRTY HACK TO GET STATES CLEARING ON COMBAT END
 							//At some point negative states should be handled either by the buff manager as short duration buffs or via a new manager for debuffs
@@ -178,7 +178,7 @@ void ObjectController::_handleEndDuel(uint64 targetId,Message* message,ObjectCon
 					// no more defenders, end combat
 					if(targetPlayer->getDefenders()->empty())
 					{
-						targetPlayer->toggleStateOff(CreatureState_Combat);
+						targetPlayer->toggleStateOff((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
 						gMessageLib->sendStateUpdate(targetPlayer);
 						//WARNING WHAT FOLLOWS IS A DIRTY HACK TO GET STATES CLEARING ON COMBAT END
 							//At some point negative states should be handled either by the buff manager as short duration buffs or via a new manager for debuffs
@@ -212,15 +212,31 @@ void ObjectController::_handleEndDuel(uint64 targetId,Message* message,ObjectCon
 
 //=============================================================================================================================
 //
-// peace
-//
-// Stop auto-attack
+//	Make peace with everything, stop auto-attack.
+//	Remove all defenders from player defender list.
+// 
+//	Current enemies can very well start attcking this player again.
+// 
+// 
 
 void ObjectController::_handlePeace(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
 	PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
 	if (player)
 	{
+		// player->removeAllDefender();
+		player->mDefenders.clear();
+
+		gMessageLib->sendBaselinesCREO_6(player,player);
+		gMessageLib->sendEndBaselines(player->getPlayerObjId(),player);
+		
+		// gMessageLib->sendDefenderUpdate(player,4,0,0);
+
+		player->setCombatTargetId(0);
+
+		player->toggleStateOff((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
+		player->toggleStateOn(CreatureState_Peace);
+		gMessageLib->sendStateUpdate(player);
 		player->disableAutoAttack();
 	}
 }
@@ -237,6 +253,8 @@ void ObjectController::setTarget(Message* message)
 	//creatureObject->setTarget(gWorldManager->getObjectById(message->getUint64()));
 	creatureObject->setTarget(message->getUint64());	
 	// There is a reason we get data like targets from the client, as handlers (id's) instead of references (pointers).
+
+	// gLogger->logMsgF("ObjectController::setTarget: Object %llu targets = %llu", MSG_NORMAL, creatureObject->getId(), creatureObject->getTargetId());
 
 	gMessageLib->sendTargetUpdateDeltasCreo6(creatureObject);
 } 

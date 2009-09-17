@@ -1540,7 +1540,7 @@ while state == 1 do
 		-- if player HAM goes below 50%, let the Bandit use his grenade.
 		-- if player pulls out of the fight, restart the time to completion.
 
-		local combatMaxDuration = 180000;	-- 3 minute max to fight and have fun!
+		local combatMaxDuration = 300000;	-- 5 minutes max to fight uninterrupted and have fun!
 		-- local combatMaxDuration = 15000;	-- 1 minute to fight and have fun!
 
 		local combatTimer = combatMaxDuration;
@@ -1552,7 +1552,7 @@ while state == 1 do
 				combatTimer = 0;
 			end;
 			
-			if (scriptSupport:npcInCombat(npcBanditId) == true) then
+			if ((scriptSupport:npcInCombat(npcBanditId) == true) and (scriptSupport:npcInCombat(playerId) == true)) then
 				if (combatTimer > 0) then
 					combatTimer = combatTimer - 500;
 					LuaScriptEngine.WaitMSec(500);
@@ -1561,12 +1561,13 @@ while state == 1 do
 					tutorial:npcStopFight(npcBanditId);
 				
 					tutorial:spatialChat(npcBanditId, "Well I bet you weren't expecting.... A GRENADE!");
-					LuaScriptEngine.WaitMSec(4000);
+					LuaScriptEngine.WaitMSec(3000);
 				
 
 					tutorial:spatialChat(npcBanditId, "What the...?  This grenade is defective!  Oh no!");
+					LuaScriptEngine.WaitMSec(250);
 					scriptSupport:npcKill(npcBanditId);					
-					LuaScriptEngine.WaitMSec(4000);
+					LuaScriptEngine.WaitMSec(3750);
 					scriptSupport:scriptSystemMessage(playerId, npcBanditId, "clienteffect/combat_grenade_proton.cef");
 
 					-- scriptSupport:npcKill(npcBanditId);
@@ -1574,6 +1575,7 @@ while state == 1 do
 				end;
 			else
 				-- We pulled out of combat, to bad.
+				-- print("Out of combat");			
 				combatTimer = combatMaxDuration;
 				LuaScriptEngine.WaitMSec(500);
 			end;

@@ -26,6 +26,8 @@ class Trainer : public NPCObject
 		Trainer();
 		virtual ~Trainer();
 
+		virtual void respawn(void);
+
 		void	filterConversationOptions(ConversationPage* page,std::vector<ConversationOption*>* filteredOptions,PlayerObject* player);
 		uint32	handleConversationEvent(ActiveConversation* av,ConversationPage* page,ConversationOption* option,PlayerObject* player);
 		bool	preProcessfilterConversation(ActiveConversation* av, Conversation* conversation, PlayerObject* player);
@@ -35,6 +37,7 @@ class Trainer : public NPCObject
 		void	restorePosition(PlayerObject* player);
 
 	private:
+		void	spawn(void);
 		void	postProcessfilter(ActiveConversation* av, /* ConversationPage* page ,*/ PlayerObject* player, uint32 pageId);
 		bool	mPlayerGotRequirementsForMasterSkill;
 

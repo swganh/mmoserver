@@ -264,6 +264,7 @@ void ScriptSupport::npcSpawnGeneral(uint64 npcId, uint64 npcPrivateOwnerId, uint
 	// gWorldManager->addObject(npc, true);
 
 	// Update the world about my presence.
+	/*
 	if (npc->getParentId())
 	{
 		// insert into cell
@@ -287,20 +288,14 @@ void ScriptSupport::npcSpawnGeneral(uint64 npcId, uint64 npcPrivateOwnerId, uint
 			region->mTree->addObject(npc);
 		}
 	}
-
-	// The data used below should be taken from DB, not hard coded as it is now.
-	// We have to live with the hard coding, as this is still "under construction".
+	*/
 
 	Inventory* inventory = dynamic_cast<Inventory*>(npc->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 
-	// SpawnData* spawn = new SpawnData;
-
-	// AttackableCreature* creature = dynamic_cast<AttackableCreature*>(npc);
-	// assert(creature);
-	
 	// Register the NPC with the NPC AI-manager.
 	if (npc->getTemplateId() == 0)
 	{
+		// Just to make sure we do not have any old scripts running.
 		assert(false);
 	}
 	// gLogger->logMsgF("ScriptSupport::npcSpawnGeneral: Calling respawn()", MSG_NORMAL);
@@ -312,7 +307,7 @@ void ScriptSupport::npcSpawnGeneral(uint64 npcId, uint64 npcPrivateOwnerId, uint
 	{
 		this->eraseObject(npcId);
 	}
-
+/*
 	// The dynamic spawned private owned npc MUST register with their owner.
 	// It's not always the case that the player have had time to track this newly spawned objects,
 	
@@ -370,6 +365,7 @@ void ScriptSupport::npcSpawnGeneral(uint64 npcId, uint64 npcPrivateOwnerId, uint
 			gMessageLib->sendUpdateTransformMessage(npc);
 		}
 	}
+	*/
 }
 
 void ScriptSupport::npcMove(NPCObject* npc, float posX, float posY, float posZ)
@@ -536,10 +532,10 @@ void ScriptSupport::npcFormationMoveEx(NPCObject* npc, float posX, float posY, f
 void ScriptSupport::npcFormationMove(NPCObject* npc, float posX, float posY, float posZ)
 {
 	// New destination, and take care of any offset from formation leader.
-	npc->mPosition = npc->getPositionOffset();
+	// npc->mPosition = npc->getPositionOffset();
 	 
 	// send out position updates to known players
-	npc->updatePosition(npc->getParentId(), npc->mPosition + Anh_Math::Vector3(posX, posY, posZ));
+	npc->updatePosition(npc->getParentId(), Anh_Math::Vector3(posX, posY, posZ) + npc->getPositionOffset());
 }
 
 void ScriptSupport::npcClonePosition(NPCObject* npcDest, NPCObject* npcSrc)

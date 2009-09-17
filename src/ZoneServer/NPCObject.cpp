@@ -69,6 +69,9 @@ Anh_Math::Vector3 NPCObject::getRandomPosition(Anh_Math::Vector3& currentPos, in
 	v.mX = (float)(v.mX - (offsetX/2)) + gRandom->getRand() % (int)(offsetX+1);
 	v.mZ = (float)(v.mZ - (offsetZ/2)) + gRandom->getRand() % (int)(offsetZ+1);
 
+	v.mY = this->getHeightAt2DPosition(v.mX, v.mZ);
+
+	/*
 	if (Heightmap::isHeightmapCacheAvaliable())
 	{
 		v.mY = Heightmap::Instance()->getCachedHeightAt2DPosition(v.mX, v.mZ);
@@ -81,28 +84,7 @@ Anh_Math::Vector3 NPCObject::getRandomPosition(Anh_Math::Vector3& currentPos, in
 	{
 		assert(false);
 	}
-
-
-	// TESTING
-	/*
-	if (Heightmap::isHeightmapCacheAvaliable())
-	{
-		float yPosCached = Heightmap::Instance()->getCachedHeightAt2DPosition(v.mX, v.mZ);
-		if (yPosCached == FLT_MIN)
-		{
-			assert(false);
-		}
-		gLogger->logMsgF("Height from file compared with cached: %.1f, %.1f", MSG_NORMAL, v.mY, yPosCached);
-
-		float fDiff = v.mY - yPosCached;
-		if (fabs(fDiff) > 3.0)
-		{
-			gLogger->logMsg("Check the above difference",FOREGROUND_RED);
-			
-		}
-	}
 	*/
-
 	// gLogger->logMsgF("NPCObject::getRandomPosition: %.0f, %.0f, %.0f ", MSG_NORMAL, v.mX, v.mY, v.mZ);
 	return v;
 }
@@ -112,11 +94,11 @@ Anh_Math::Vector3 NPCObject::getRandomPosition(Anh_Math::Vector3& currentPos, in
 //	Retrieve the height for a given 2D x,z position.
 //
 
-float NPCObject::getHeightAt2DPosition(float xPos, float zPos) const
+float NPCObject::getHeightAt2DPosition(float xPos, float zPos, bool bestOffer) const
 {
 	float yPos = FLT_MIN;
 
-	if (Heightmap::isHeightmapCacheAvaliable())
+	if (Heightmap::isHeightmapCacheAvaliable() && (Heightmap::Instance()->isHighResCache() || !bestOffer))
 	{
 		yPos = Heightmap::Instance()->getCachedHeightAt2DPosition(xPos, zPos);
 	}
@@ -128,26 +110,6 @@ float NPCObject::getHeightAt2DPosition(float xPos, float zPos) const
 	{
 		assert(false);
 	}
-
-	// TESTING
-	/*
-	if (Heightmap::isHeightmapCacheAvaliable())
-	{
-		float yPosCached = Heightmap::Instance()->getCachedHeightAt2DPosition(xPos, zPos);
-		if (yPosCached == FLT_MIN)
-		{
-			assert(false);
-		}
-		gLogger->logMsgF("Height from file compared with cached: %.1f, %.1f", MSG_NORMAL, yPos, yPosCached);
-
-		float fDiff = yPos - yPosCached;
-		if (fabs(fDiff) > 3.0)
-		{
-			gLogger->logMsg("Check the above difference",FOREGROUND_RED);
-			
-		}
-	}
-	*/
 	return yPos;
 }
 
@@ -225,7 +187,6 @@ void NPCObject::moveAndUpdatePosition(void)
 		position.mX += this->getPositionOffset().mX;
 		position.mZ += this->getPositionOffset().mZ;
 		position.mY = Heightmap::Instance()->getCachedHeightAt2DPosition(position.mX, position.mZ);
-		// position.mY = this->getHeightAt2DPosition(position.mX, position.mZ);
 	}
 	// send out position updates to known players
 	this->updatePosition(this->getParentId(),position);

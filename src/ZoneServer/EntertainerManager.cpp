@@ -1875,7 +1875,7 @@ bool EntertainerManager::handlePerformanceTick(CreatureObject* mObject)
 	if(!entertainer)
 		return false;
 
-	gLogger->logMsgF("handle performance tick %I64u",MSG_HIGH,entertainer->getId());
+	//gLogger->logMsgF("handle performance tick %I64u",MSG_HIGH,entertainer->getId());
 	//check if we need to stop the performance or if it already has been stopped
 	//Mind the pausing dancer though
 	handlePerformancePause(entertainer);

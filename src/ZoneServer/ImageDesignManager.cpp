@@ -618,6 +618,14 @@ void EntertainerManager::applyMoney(PlayerObject* customer,PlayerObject* designe
 //
 void EntertainerManager::commitIdChanges(PlayerObject* customer,PlayerObject* designer, string hair, uint32 amount,uint8 statMigration, string holoEmote,uint8 flagHair)
 {
+	Ham* ham = designer->getHam();
+	if(ham->checkMainPools(0,0,66))
+	{
+		int32 mindCost = 66;
+		designer->getHam()->updatePropertyValue(HamBar_Mind,HamProperty_CurrentHitpoints,-(66));
+	}
+	
+
 	const PlayerObjectSet* const inRangePlayers	= customer->getKnownPlayers();
 	PlayerObjectSet::const_iterator	itiR			= inRangePlayers->begin();
 	

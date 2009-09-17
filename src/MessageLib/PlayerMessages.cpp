@@ -511,7 +511,7 @@ bool MessageLib::sendWaypointsUpdate(PlayerObject* playerObject)
 
 		gMessageFactory->addUint8(0);
 		gMessageFactory->addUint64(waypoint->getId());
-		gMessageFactory->addUint32(0);
+		gMessageFactory->addUint32(1); //perhaps volume ???
 		gMessageFactory->addFloat(waypoint->getCoords().mX);
 		gMessageFactory->addFloat(waypoint->getCoords().mY);
 		gMessageFactory->addFloat(waypoint->getCoords().mZ);

@@ -339,7 +339,7 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
 			{								
 				if(!mIlc)
 				{
-					gLogger->logMsg("DatapadFactory: Failed getting ilc\n");
+					gLogger->logMsg("DatapadFactory: Failed getting ilc");
 					return;
 				}
 				mIlc->mLoadCounter--;

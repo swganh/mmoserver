@@ -521,6 +521,9 @@ bool MessageLib::sendEnterTicketPurchaseModeMessage(TravelTerminal* terminal,Pla
 
 bool MessageLib::sendSystemMessage(PlayerObject* playerObject,string customMessage,string mainFile,string mainVar,string toFile,string toVar,string toCustom,int32 di,string ttFile,string ttVar,string ttCustom,uint64 ttId,uint64 toId,uint64 tuId,string tuFile,string tuVar,string tuCustom )
 {
+	if(!playerObject)
+		return(false);
+
 	if(!(playerObject->isConnected()))
 		return(false);
 

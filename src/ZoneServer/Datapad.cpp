@@ -229,7 +229,14 @@ bool Datapad::addData(IntangibleObject* Data)
 	if(mCapacity)
 	{
 		mData.push_back(Data); 
+		//PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getParentId()));					
 		mCapacity--; 
+
+		// the datapads (or inventories) client volume counters are clientside updated
+		// items being contained by the inventory (or datapad) do count as made out
+		// by the objects volume count (in the tano 3)
+		// please make sure that the containment isnt send by the factory before the item is even created
+
 		return true;
 	}
 	else
@@ -380,7 +387,10 @@ void Datapad::requestNewWaypoint(string name,const Anh_Math::Vector3 coords,uint
 	if(!mCapacity)
 	{
 		PlayerObject*	player			= dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getParentId()));					
-		gMessageLib->sendSystemMessage(player,L"","base_player","too_many_waypoints");
+		
+		if(player)
+			gMessageLib->sendSystemMessage(player,L"","base_player","too_many_waypoints");
+		
 		return;
 	}
 
@@ -400,7 +410,8 @@ bool Datapad::addManufacturingSchematic(ManufacturingSchematic* ms)
 	else
 	{
 		PlayerObject*	player			= dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getParentId()));					
-		gMessageLib->sendSystemMessage(player,L"","ui_craft","err_datapad_full_prose");
+		if(player)
+			gMessageLib->sendSystemMessage(player,L"","ui_craft","err_datapad_full_prose");
 		return false;
 	}
 }

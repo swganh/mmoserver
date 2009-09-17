@@ -36,9 +36,9 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "Utils/Scheduler.h"
 #include "AttackableCreature.h"
 #include "NpcManager.h"
-#include "GroupManager.h"
 #include "Heightmap.h"
 #include "CreatureSpawnRegion.h"
+#include "GroupManager.h"
 
 //======================================================================================================================
 
@@ -147,11 +147,9 @@ void WorldManager::Shutdown()
 	{
 		const PlayerObject* player = (*playerIt).second;
 		destroyObject((Object*)player);
-
+		// destroying the referenced object seems to invalidate our iterator
 		playerIt = mPlayerAccMap.begin();
 	}
-
-	mPlayerAccMap.clear(); //shouldnt we delete the players first ?
 
 	mPlayersToRemove.clear();
 	mRegionMap.clear();
@@ -2415,220 +2413,11 @@ void WorldManager::destroyObject(Object* object)
 		case ObjType_Player:
 		{
 			PlayerObject* player = dynamic_cast<PlayerObject*>(object);
+
+			// moved most of the code to the players destructor
+				
+
 			
-			// make sure we stop entertaining if we are an entertainer
-			gEntertainerManager->stopEntertaining(player);
-
-			// delete instanced instrument
-			if(uint64 itemId = player->getPlacedInstrumentId())
-			{
-				if(Item* item = dynamic_cast<Item*>(gWorldManager->getObjectById(itemId)))
-				{
-					player->getController()->destroyObject(item->getId());
-				}
-			}
-			
-			// make sure we are deleted out of entertainer Ticks when entertained
-			if(player->getEntertainerWatchToId())
-			{
-				if(PlayerObject* entertainer = dynamic_cast<PlayerObject*>(getObjectById(player->getEntertainerWatchToId())))
-				{
-					if(entertainer)
-						gEntertainerManager->removeAudience(entertainer,player); 
-				}
-			}
-
-			if(player->getEntertainerListenToId())
-			{
-				if(PlayerObject* entertainer = dynamic_cast<PlayerObject*>(getObjectById(player->getEntertainerListenToId())))
-				{
-					if(entertainer)
-						gEntertainerManager->removeAudience(entertainer,player); 
-				}
-			}
-
-			// make sure we don't leave a craft session open
-			gCraftingSessionFactory->destroySession(player->getCraftingSession());
-			player->setCraftingSession(NULL);
-			player->toggleStateOff(CreatureState_Crafting);
-			player->setCraftingStage(0);
-			player->setExperimentationFlag(0);
-
-			// remove any timers we got running
-			removeObjControllerToProcess(player->getController()->getTaskId());
-			removeCreatureHamToProcess(player->getHam()->getTaskId());
-			player->getController()->setTaskId(0);
-			player->getHam()->setTaskId(0);
-
-			// remove player from movement update timer.
-			removePlayerMovementUpdateTime(player);
-
-			//remove the player out of his group - if any
-			GroupObject* group = gGroupManager->getGroupObject(player->getGroupId());
-			
-			if(group)
-				group->removePlayer(player->getId());
-
-			// can't zone or logout while in combat
-			player->toggleStateOff(CreatureState_Combat);
-			player->toggleStateOff(CreatureState_Dizzy);
-			player->toggleStateOff(CreatureState_Stunned);
-			player->toggleStateOff(CreatureState_Blinded);
-			player->toggleStateOff(CreatureState_Intimidated);
-
-			// update duel lists
-			PlayerList::iterator duelIt = player->getDuelList()->begin();
-
-			while(duelIt != player->getDuelList()->end())
-			{
-				if((*duelIt)->checkDuelList(player))
-				{
-					PlayerObject* duelPlayer = (*duelIt);
-
-					duelPlayer->removeFromDuelList(player);
-
-					gMessageLib->sendUpdatePvpStatus(player,duelPlayer);
-					gMessageLib->sendUpdatePvpStatus(duelPlayer,player);
-				}
-
-				++duelIt;
-			}
-
-			// update defender lists
-			ObjectIDList::iterator defenderIt = player->getDefenders()->begin();
-
-			while (defenderIt != player->getDefenders()->end())
-			{
-				if (CreatureObject* defenderCreature = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById((*defenderIt))))
-				{
-					// defenderCreature->removeDefender(player);
-					defenderCreature->removeDefenderAndUpdateList(player->getId());
-
-					if(PlayerObject* defenderPlayer = dynamic_cast<PlayerObject*>(defenderCreature))
-					{
-						gMessageLib->sendUpdatePvpStatus(player,defenderPlayer);
-					}
-
-					// gMessageLib->sendNewDefenderList(defenderCreature);
-
-					// if no more defenders, clear combat state
-					if(!defenderCreature->getDefenders()->size())
-					{
-						defenderCreature->toggleStateOff(CreatureState_Combat);
-
-						gMessageLib->sendStateUpdate(defenderCreature);
-					}
-				}
-
-				++defenderIt;
-			}
-
-			// destroy known objects
-			object->destroyKnownObjects();				
-
-			// remove us from cell / SI
-			if(player->getParentId())
-			{
-				if(CellObject* cell = dynamic_cast<CellObject*>(getObjectById(object->getParentId())))
-				{
-					cell->removeChild(object);
-				}
-				else
-				{
-					gLogger->logMsgF("WorldManager::removePlayer: couldn't find cell %lld\n",MSG_HIGH,object->getParentId());
-				}
-			}
-			else
-			{
-				if(player->getSubZoneId())
-				{
-					if(QTRegion* region = getQTRegion(player->getSubZoneId()))
-					{
-						player->setSubZoneId(0);
-						region->mTree->removeObject(player);
-					}
-				}
-			}
-
-			// remove us from active regions we are in
-			ObjectSet regions;
-			mSpatialIndex->getObjectsInRange(object,&regions,ObjType_Region,20);
-
-			ObjectSet::iterator objListIt = regions.begin();
-
-			while(objListIt != regions.end())
-			{
-				RegionObject* region = dynamic_cast<RegionObject*>(*objListIt);
-
-				if(region->getActive())
-				{
-					region->onObjectLeave(object);
-				}
-
-				++objListIt;
-			}
-
-			// move to the nearest cloning center, if we are incapped or dead
-			if(player->getPosture() == CreaturePosture_Incapacitated
-			|| player->getPosture() == CreaturePosture_Dead)
-			{
-				// bring up the clone selection window
-				ObjectSet						inRangeBuildings;
-				BStringVector					buildingNames;
-				std::vector<BuildingObject*>	buildings;
-				BuildingObject*					nearestBuilding = NULL;
-
-				mSpatialIndex->getObjectsInRange(player,&inRangeBuildings,ObjType_Building,8192);
-
-				ObjectSet::iterator buildingIt = inRangeBuildings.begin();
-
-				while(buildingIt != inRangeBuildings.end())
-				{
-					BuildingObject* building = dynamic_cast<BuildingObject*>(*buildingIt);
-
-					// TODO: This code is not working as intended if player dies inside, since buildings use world coordinates and players inside have cell coordinates.
-					// Tranformation is needed before the correct distance can be calculated.
-					if(building && building->getBuildingFamily() == BuildingFamily_Cloning_Facility)
-					{
-						if(!nearestBuilding
-						|| (nearestBuilding != building && (player->mPosition.distance2D(building->mPosition) < player->mPosition.distance2D(nearestBuilding->mPosition))))
-						{
-							nearestBuilding = building;
-						}
-					}
-
-					++buildingIt;
-				}
-
-				if(nearestBuilding)
-				{
-					if(nearestBuilding->getSpawnPoints()->size())
-					{
-						if(SpawnPoint* sp = nearestBuilding->getRandomSpawnPoint())
-						{
-							// update the database with the new values
-							mDatabase->ExecuteSqlAsync(0,0,"UPDATE characters SET parent_id=%lld,oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f WHERE id=%lld",sp->mCellId
-								,sp->mDirection.mX,sp->mDirection.mY,sp->mDirection.mZ,sp->mDirection.mW
-								,sp->mPosition.mX,sp->mPosition.mY,sp->mPosition.mZ
-								,player->getId());
-						}
-					}
-				}
-			}
-
-			// remove us from the player map
-			PlayerAccMap::iterator playerAccIt = mPlayerAccMap.find(player->getAccountId());
-
-			if(playerAccIt != mPlayerAccMap.end())
-			{
-				gLogger->logMsgF("Player left: %lld, Total Players on zone : %i",MSG_NORMAL,player->getId(),(getPlayerAccMap())->size() -1);
-				mPlayerAccMap.erase(playerAccIt);
-			}
-			else
-			{
-				gLogger->logMsgF("WorldManager::destroyObject: error removing from playeraccmap : %u",MSG_HIGH,player->getAccountId());
-			}
-
 			// onPlayerLeft event, notify scripts
 			string params;
 			params.setLength(sprintf(params.getAnsi(),"%s %s %u",getPlanetNameThis(),player->getFirstName().getAnsi(),mPlayerAccMap.size()));
@@ -2774,6 +2563,9 @@ void WorldManager::destroyObject(Object* object)
 		{
 			gLogger->logMsgF("Object of type ObjType_Intangible almost UNHANDLED in WorldManager::destroyObject:",MSG_HIGH);
 
+			// intangibles are controllers / pets in the datapad
+			//   they are NOT in the world
+
 			// destroy known objects
 			object->destroyKnownObjects();	
 		}
@@ -2840,7 +2632,7 @@ std::pair<string,uint32> WorldManager::getRandNpcChatter()
 
 void WorldManager::_startWorldScripts()
 {
-	gLogger->logMsg("Loading world scripts...\n");
+	gLogger->logMsg("Loading world scripts...");
 
 	ScriptList::iterator scriptIt = mWorldScripts.begin();
 
@@ -3423,3 +3215,24 @@ const Anh_Math::Rectangle WorldManager::getSpawnArea(uint64 spawnRegionId)
 	return spawnArea;
 }
 
+//======================================================================================================================
+// 
+//	Remove player from accountmap
+// 
+
+void WorldManager::removePlayerfromAccountMap(uint64 playerID)
+{
+	PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerID));
+
+	PlayerAccMap::iterator playerAccIt = mPlayerAccMap.find(player->getAccountId());
+
+	if(playerAccIt != mPlayerAccMap.end())
+	{
+		gLogger->logMsgF("Player left: %lld, Total Players on zone : %i",MSG_NORMAL,player->getId(),(getPlayerAccMap())->size() -1);
+		mPlayerAccMap.erase(playerAccIt);
+	}
+	else
+	{
+		gLogger->logErrorF("Worldmanager","WorldManager::destroyObject: error removing from playeraccmap : %u",MSG_HIGH,player->getAccountId());
+	}
+}

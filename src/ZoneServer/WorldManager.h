@@ -255,6 +255,9 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		const PlayerAccMap*		getPlayerAccMap(){ return &mPlayerAccMap; }
 		ShuttleList*			getShuttleList(){ return &mShuttleList; }
 
+		// delete Player off of the accountmap
+		void					removePlayerfromAccountMap(uint64 playerID);
+
 		// retrieve spatial index for this zone
 		ZoneTree*				getSI(){ return mSpatialIndex; }
 
@@ -320,6 +323,8 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 
 		bool					_handleTick(uint64 callTime,void* ref);
 
+
+		void					removePlayerMovementUpdateTime(PlayerObject* player);
 		~WorldManager();
 
 		AttributeKeyMap				mObjectAttributeKeyMap;
@@ -346,7 +351,6 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		bool	_handleFireworkLaunchTimers(uint64 callTime,void* ref);
 
 		bool	_handlePlayerMovementUpdateTimers(uint64 callTime, void* ref);
-		void	removePlayerMovementUpdateTime(PlayerObject* player);
 
 		bool	_handleGeneralObjectTimers(uint64 callTime, void* ref);
 		bool	_handleGroupObjectTimers(uint64 callTime, void* ref);

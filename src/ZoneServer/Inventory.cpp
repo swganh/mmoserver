@@ -106,7 +106,7 @@ void Inventory::removeObject(Object* object)
 		}
 		++it;
 	}
-	gLogger->logMsgF("cant find object %s\n",MSG_HIGH,object->getModelString().getAnsi());
+	gLogger->logMsgF("cant find object %s",MSG_HIGH,object->getModelString().getAnsi());
 }
 
 void Inventory::addObject(Object* object)
@@ -116,7 +116,7 @@ void Inventory::addObject(Object* object)
 	{
 		if((*it) == object)
 		{
-			gLogger->logMsgF(" object %s already in list\n",MSG_HIGH,object->getModelString().getAnsi());
+			gLogger->logMsgF(" object %s already in list",MSG_HIGH,object->getModelString().getAnsi());
 			return;
 		}
 		++it;
@@ -139,7 +139,7 @@ void Inventory::removeEquippedObject(Object* object)
 		}
 		++it;
 	}
-	gLogger->logMsgF("cant find equipped object %s\n",MSG_HIGH,object->getModelString().getAnsi());
+	gLogger->logMsgF("cant find equipped object %s",MSG_HIGH,object->getModelString().getAnsi());
 }
 
 //=============================================================================
@@ -243,13 +243,13 @@ bool Inventory::EquipItem(Object* object)
 {
 	if(!object->hasInternalAttribute("equipped"))
 	{
-		gLogger->logMsgF("Inventory::EquipItem : object not equipable object ID : %I64u\n", MSG_NORMAL,object->getId());
+		gLogger->logMsgF("Inventory::EquipItem : object not equipable object ID : %I64u", MSG_NORMAL,object->getId());
 		return(false);
 	}
 
 	if(object->getInternalAttribute<bool>("equipped"))
 	{
-		gLogger->logMsgF("Inventory::EquipItem : object is already equipped object ID : %I64u\n", MSG_NORMAL,object->getId());
+		gLogger->logMsgF("Inventory::EquipItem : object is already equipped object ID : %I64u", MSG_NORMAL,object->getId());
 		return(false);
 	}
 
@@ -257,7 +257,7 @@ bool Inventory::EquipItem(Object* object)
 	
 	if(!item)
 	{
-		gLogger->logMsgF("Inventory::EquipItem : No Item object ID : %I64u\n", MSG_NORMAL,object->getId());
+		gLogger->logMsgF("Inventory::EquipItem : No Item object ID : %I64u", MSG_NORMAL,object->getId());
 		return(false);
 	}
 
@@ -265,7 +265,7 @@ bool Inventory::EquipItem(Object* object)
 	
 	if(!owner)
 	{
-		gLogger->logMsgF("Inventory::EquipItem : No owner Inventory ID : %I64u\n", MSG_NORMAL,this->getId());
+		gLogger->logMsgF("Inventory::EquipItem : No owner Inventory ID : %I64u", MSG_NORMAL,this->getId());
 		return(false);
 	}
 
@@ -363,13 +363,13 @@ void Inventory::unEquipItem(Object* object)
 {
 	if(!object->hasInternalAttribute("equipped"))
 	{
-		gLogger->logMsgF("Inventory::unEquipItem : object not equipable object ID : %I64u\n", MSG_NORMAL,object->getId());
+		gLogger->logMsgF("Inventory::unEquipItem : object not equipable object ID : %I64u", MSG_NORMAL,object->getId());
 		return;
 	}
 
 	if(!object->getInternalAttribute<bool>("equipped"))
 	{
-		gLogger->logMsgF("Inventory::unEquipItem : object is unequiped object ID : %I64u\n", MSG_NORMAL,object->getId());
+		gLogger->logMsgF("Inventory::unEquipItem : object is unequiped object ID : %I64u", MSG_NORMAL,object->getId());
 		return;
 	}
 
@@ -377,7 +377,7 @@ void Inventory::unEquipItem(Object* object)
 	
 	if(!item)
 	{
-		gLogger->logMsgF("Inventory::unEquipItem : No Item object ID : %I64u\n", MSG_NORMAL,object->getId());
+		gLogger->logMsgF("Inventory::unEquipItem : No Item object ID : %I64u", MSG_NORMAL,object->getId());
 		return;
 	}
 
@@ -385,7 +385,7 @@ void Inventory::unEquipItem(Object* object)
 	
 	if(!owner)
 	{
-		gLogger->logMsgF("Inventory::unEquipItem : No owner Inventory ID : %I64u\n", MSG_NORMAL,this->getId());
+		gLogger->logMsgF("Inventory::unEquipItem : No owner Inventory ID : %I64u", MSG_NORMAL,this->getId());
 		return;
 	}
 
@@ -396,7 +396,7 @@ void Inventory::unEquipItem(Object* object)
 	}
 
 
-	gLogger->logMsgF("Inventory::unEquipItem : owner ID : %I64u\n", MSG_NORMAL,owner->getId());
+	gLogger->logMsgF("Inventory::unEquipItem : owner ID : %I64u", MSG_NORMAL,owner->getId());
 	//equipped objects are always contained by the Player
 	//unequipped ones by the inventory!
 

@@ -31,6 +31,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "ScriptEngine/ScriptEngine.h"
 #include "Tutorial.h"
 #include "Structuremanager.h"
+#include "CraftingSessionFactory.h"
+#include "GroupManager.h"
 
 
 //=============================================================================
@@ -74,6 +76,7 @@ mExperimentationFlag(0),
 mCraftingSession(NULL),
 mExperimentationPoints(0),
 mNearestCraftingStation(0),
+
 //======================
 //ENTERTAINER
 mEntertainerWatchToId(0),
@@ -85,18 +88,22 @@ mSelectedInstrument(0),
 mHoloEmote(0),
 mHoloCharge(0),
 
+//======================
+//COMBAT
+mCombatTargetId(0),
+mAutoAttack(false),
+mPreDesignatedCloningFacilityId(0),
+
 mMissionIdMask(0),
 mTutorial(NULL),
 mNewPlayerExemptions(0),
 mNewPlayerMessage(false),
 mNearestCloningFacility(NULL),
-mPreDesignatedCloningFacilityId(0),
 mMounted(false),
 mMountCalled(false),
 mMount(NULL),
-mLastGroupMissionUpdateTime(0),
-mCombatTargetId(0),
-mAutoAttack(false)
+mLastGroupMissionUpdateTime(0)
+
 {
 	mDuelList.reserve(10);
 
@@ -116,6 +123,218 @@ mAutoAttack(false)
 
 PlayerObject::~PlayerObject()
 {
+
+	// make sure we stop entertaining if we are an entertainer
+	gEntertainerManager->stopEntertaining(this);
+
+	// remove any timers we got running
+	gWorldManager->removeObjControllerToProcess(this->getController()->getTaskId());
+	gWorldManager->removeCreatureHamToProcess(this->getHam()->getTaskId());
+	this->getController()->setTaskId(0);
+	this->getHam()->setTaskId(0);
+
+	// remove player from movement update timer.
+	gWorldManager->removePlayerMovementUpdateTime(this);
+
+	// remove us from the player map
+	gWorldManager->removePlayerfromAccountMap(this->getId());
+
+	// delete instanced instrument - this Instrument is in the world!!!!!
+	if(uint64 itemId = this->getPlacedInstrumentId())
+	{
+		if(Item* item = dynamic_cast<Item*>(gWorldManager->getObjectById(itemId)))
+		{
+			this->getController()->destroyObject(item->getId());
+		}
+	}
+
+	// remove us from active regions we are in
+	ObjectSet regions;
+	gWorldManager->getSI()->getObjectsInRange((Object*)this,&regions,ObjType_Region,20);
+
+	ObjectSet::iterator objListIt = regions.begin();
+
+	while(objListIt != regions.end())
+	{
+		RegionObject* region = dynamic_cast<RegionObject*>(*objListIt);
+
+		if(region->getActive())
+		{
+			region->onObjectLeave((Object*)this);
+		}
+
+		++objListIt;
+	}
+
+	// make sure we are deleted out of entertainer Ticks when entertained
+	if(this->getEntertainerWatchToId())
+	{
+		if(PlayerObject* entertainer = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getEntertainerWatchToId())))
+		{
+			if(entertainer)
+				gEntertainerManager->removeAudience(entertainer,this); 
+		}
+	}
+
+	if(this->getEntertainerListenToId())
+	{
+		if(PlayerObject* entertainer = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getEntertainerListenToId())))
+		{
+			if(entertainer)
+				gEntertainerManager->removeAudience(entertainer,this); 
+		}
+	}
+
+	// make sure we don't leave a craft session open
+	gCraftingSessionFactory->destroySession(this->getCraftingSession());
+	this->setCraftingSession(NULL);
+	this->toggleStateOff(CreatureState_Crafting);
+	this->setCraftingStage(0);
+	this->setExperimentationFlag(0);
+
+	//remove the player out of his group - if any
+	GroupObject* group = gGroupManager->getGroupObject(this->getGroupId());
+	
+	if(group)
+		group->removePlayer(this->getId());
+
+	// ?????????????? why do we need to alter these States ?
+
+
+	// can't zone or logout while in combat
+	this->toggleStateOff(CreatureState_Combat);
+	this->toggleStateOff(CreatureState_Dizzy);
+	this->toggleStateOff(CreatureState_Stunned);
+	this->toggleStateOff(CreatureState_Blinded);
+	this->toggleStateOff(CreatureState_Intimidated);
+
+	// update duel lists
+	PlayerList::iterator duelIt = this->getDuelList()->begin();
+
+	while(duelIt != this->getDuelList()->end())
+	{
+		if((*duelIt)->checkDuelList(this))
+		{
+			PlayerObject* duelPlayer = (*duelIt);
+
+			duelPlayer->removeFromDuelList(this);
+
+			gMessageLib->sendUpdatePvpStatus(this,duelPlayer);
+			gMessageLib->sendUpdatePvpStatus(duelPlayer,this);
+		}
+
+		++duelIt;
+	}
+
+
+	// move to the nearest cloning center, if we are incapped or dead
+	if(this->getPosture() == CreaturePosture_Incapacitated
+	|| this->getPosture() == CreaturePosture_Dead)
+	{
+		// bring up the clone selection window
+		ObjectSet						inRangeBuildings;
+		BStringVector					buildingNames;
+		std::vector<BuildingObject*>	buildings;
+		BuildingObject*					nearestBuilding = NULL;
+
+		gWorldManager->getSI()->getObjectsInRange(this,&inRangeBuildings,ObjType_Building,8192);
+
+		ObjectSet::iterator buildingIt = inRangeBuildings.begin();
+
+		while(buildingIt != inRangeBuildings.end())
+		{
+			BuildingObject* building = dynamic_cast<BuildingObject*>(*buildingIt);
+
+			// TODO: This code is not working as intended if player dies inside, since buildings use world coordinates and players inside have cell coordinates.
+			// Tranformation is needed before the correct distance can be calculated.
+			if(building && building->getBuildingFamily() == BuildingFamily_Cloning_Facility)
+			{
+				if(!nearestBuilding
+				|| (nearestBuilding != building && (this->mPosition.distance2D(building->mPosition) < this->mPosition.distance2D(nearestBuilding->mPosition))))
+				{
+					nearestBuilding = building;
+				}
+			}
+
+			++buildingIt;
+		}
+
+		if(nearestBuilding)
+		{
+			if(nearestBuilding->getSpawnPoints()->size())
+			{
+				if(SpawnPoint* sp = nearestBuilding->getRandomSpawnPoint())
+				{
+					// update the database with the new values
+					gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE characters SET parent_id=%lld,oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f WHERE id=%lld",sp->mCellId
+						,sp->mDirection.mX,sp->mDirection.mY,sp->mDirection.mZ,sp->mDirection.mW
+						,sp->mPosition.mX,sp->mPosition.mY,sp->mPosition.mZ
+						,this->getId());
+				}
+			}
+		}
+	}
+
+
+
+	// update defender lists
+	ObjectIDList::iterator defenderIt = this->getDefenders()->begin();
+
+	while (defenderIt != this->getDefenders()->end())
+	{
+		if (CreatureObject* defenderCreature = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById((*defenderIt))))
+		{
+			// defenderCreature->removeDefender(player);
+			defenderCreature->removeDefenderAndUpdateList(this->getId());
+
+			if(PlayerObject* defenderPlayer = dynamic_cast<PlayerObject*>(defenderCreature))
+			{
+				gMessageLib->sendUpdatePvpStatus(this,defenderPlayer);
+			}
+
+			// gMessageLib->sendNewDefenderList(defenderCreature);
+
+			// if no more defenders, clear combat state
+			if(!defenderCreature->getDefenders()->size())
+			{
+				defenderCreature->toggleStateOff(CreatureState_Combat);
+
+				gMessageLib->sendStateUpdate(defenderCreature);
+			}
+		}
+
+		++defenderIt;
+	}
+
+
+	// destroy known objects
+	this->destroyKnownObjects();				
+
+	// remove us from cell / SI
+	if(this->getParentId())
+	{
+		if(CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(this->getParentId())))
+		{
+			cell->removeChild((Object*)this);
+		}
+		else
+		{
+			gLogger->logMsgF("PlayerObject::destructor: couldn't find cell %lld",MSG_HIGH,this->getParentId());
+		}
+	}
+	else
+	{
+		if(this->getSubZoneId())
+		{
+			if(QTRegion* region = gWorldManager->getQTRegion(this->getSubZoneId()))
+			{
+				this->setSubZoneId(0);
+				region->mTree->removeObject(this);
+			}
+		}
+	}
+
+
 	clearAllUIWindows();
 
 	stopTutorial();

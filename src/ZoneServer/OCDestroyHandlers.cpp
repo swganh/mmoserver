@@ -58,7 +58,7 @@ void ObjectController::destroyObject(uint64 objectId)
 	// or something else
 	if(object == NULL)
 	{
-		gLogger->logMsgF("ObjController::destroyObject: could not find object %lld\n",MSG_NORMAL,objectId);
+		gLogger->logMsgF("ObjController::destroyObject: could not find object %lld",MSG_NORMAL,objectId);
 
 		return;
 	}
@@ -69,7 +69,7 @@ void ObjectController::destroyObject(uint64 objectId)
 		// update our datapad
 		if(!(datapad->removeWaypoint(objectId)))
 		{
-			gLogger->logMsgF("ObjController::handleDestroyObject: Error removing Waypoint from datapad %lld\n",MSG_NORMAL,objectId);
+			gLogger->logMsgF("ObjController::handleDestroyObject: Error removing Waypoint from datapad %lld",MSG_NORMAL,objectId);
 		}
 
 		gMessageLib->sendUpdateWaypoint(dynamic_cast<WaypointObject*>(object),ObjectUpdateDelete,playerObject);
@@ -86,7 +86,7 @@ void ObjectController::destroyObject(uint64 objectId)
 		//update the datapad
 		if(!(datapad->removeData(objectId)))
 		{
-			gLogger->logMsgF("ObjController::handleDestroyObject: Error removing Data from datapad %lld\n",MSG_NORMAL,objectId);
+			gLogger->logMsgF("ObjController::handleDestroyObject: Error removing Data from datapad %lld",MSG_NORMAL,objectId);
 		}
 
 		gObjectFactory->deleteObjectFromDB(object);
@@ -172,7 +172,7 @@ void ObjectController::destroyObject(uint64 objectId)
 		else
 		if(ResourceContainer* container = dynamic_cast<ResourceContainer*>(object))
 		{
-			gLogger->logMsg("destroy resi\n");
+			//gLogger->logMsg("destroy ressourcecontainer");
 			gMessageLib->sendDestroyObject(object->getId(),playerObject);
 		}
 

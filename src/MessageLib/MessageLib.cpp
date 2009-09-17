@@ -577,7 +577,7 @@ bool MessageLib::sendCreateTangible(TangibleObject* tangibleObject,const PlayerO
 					}
 					else
 					{
-						gLogger->logMsgF("Inventory:: cant find parent for equipped item\n",MSG_NORMAL);
+						gLogger->logMsgF("Inventory:: cant find parent for equipped item",MSG_NORMAL);
 					}
 				}
 				else

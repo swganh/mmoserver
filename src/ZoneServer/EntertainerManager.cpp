@@ -1376,7 +1376,7 @@ void EntertainerManager::CheckDistances(PlayerObject* entertainer)
 
 	if(!entertainer->getAudienceList())
 	{
-		gLogger->logMsgF("CheckDistances(PlayerObject* entertainer) getAudienceList does not exist !!!!!\n", MSG_NORMAL);
+		gLogger->logErrorF("Entertainer","CheckDistances(PlayerObject* entertainer) getAudienceList does not exist !!!!!", MSG_NORMAL);
 		return;
 	}
 
@@ -1449,7 +1449,7 @@ void EntertainerManager::stopWatching(PlayerObject* audience,bool ooRange)
 		}
 
 		if(ooRange)
-			gMessageLib->sendSystemMessage(audience,L"","performance","dance_watch_out_of_range","","",L"it",0,"","",L"",entertainer->getId());
+			gMessageLib->sendSystemMessage(audience,L"","performance","dance_watch_out_of_range","","",L"",0,"","",L"",entertainer->getId());
 		else
 			gMessageLib->sendSystemMessage(audience,L"","performance","dance_watch_stop_self");
 

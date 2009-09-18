@@ -38,7 +38,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 
 	if (!player)
 	{
-		gLogger->logMsgF("ObjectController::handleDataTransform Object id NOT A PLAYER, id = %llu\n", MSG_HIGH, mObject->getId());
+		gLogger->logMsgF("ObjectController::handleDataTransform Object id NOT A PLAYER, id = %llu", MSG_HIGH, mObject->getId());
 		return;
 	}
 
@@ -139,8 +139,8 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 		else
 		{
 			// we should never get here !
-			gLogger->logMsg("ObjController::handleDataTransform: could not find zone region in map\n");
-			gLogger->logMsg("ObjController:: probably a bot : %i64u\n",player->getId());
+			gLogger->logMsg("ObjController::handleDataTransform: could not find zone region in map");
+			gLogger->logMsg("ObjController:: probably a bot : %i64u",player->getId());
 
 			// hammertime !
 			//muglies botter sometimes sends us weird positions
@@ -177,7 +177,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 			{
 				updateAll = true;
 
-				gLogger->logMsg("ObjController::DataTransform: Changing subzone\n");
+				gLogger->logMsg("ObjController::DataTransform: Changing subzone");
 				// remove from old
 				if(QTRegion* oldRegion = gWorldManager->getQTRegion(player->getSubZoneId()))
 				{
@@ -212,9 +212,9 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 		else
 		{
 			// we should never get here !
-			gLogger->logMsg("ObjController::DataTransform: could not find zone region in map\n");
+			gLogger->logMsg("ObjController::DataTransform: could not find zone region in map");
 
-			gLogger->logMsg("ObjController:: probably a bot : %I64u\n",player->getId());
+			gLogger->logMsg("ObjController:: probably a bot : %I64u",player->getId());
 
 			// hammertime !
 			// muglies botter sometimes sends us weird positions  with X or Y far out of possible regions

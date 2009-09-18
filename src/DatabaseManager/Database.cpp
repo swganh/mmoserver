@@ -151,7 +151,7 @@ void Database::Process(void)
 DatabaseResult* Database::ExecuteSynchSql(int8* sql, ...)
 {
 	int8 message[8192];
-	sprintf(message, "WARNING: SYNCHRONOUS SQL STATEMENT: %s\n",sql);
+	sprintf(message, "WARNING: SYNCHRONOUS SQL STATEMENT: %s",sql);
 	gLogger->logMsg(message, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | BACKGROUND_RED);
 
 	// format our sql string

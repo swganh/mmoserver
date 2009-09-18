@@ -70,6 +70,7 @@ public:
   int                                 split(BStringVector& retVec,char delimiter);
   void                                toLower();
   void                                toUpper();
+  void                                toUpperFirst();
   bool								  isNumber();
 
   void                                setLength(uint16 length);

@@ -165,6 +165,7 @@ void ChatMessageLib::sendBazaarTransactionMessage(DispatchClient* client, Auctio
 
 		token = strtok(mString.getRawData(),separation); //
 		planet = BString(token);
+		planet.toUpperFirst();
 		token = strtok( NULL,separation); 
 		region = BString(token);
 		//thats now the terminal name part

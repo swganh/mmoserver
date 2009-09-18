@@ -423,6 +423,19 @@ void BString::toUpper()
 
 //======================================================================================================================
 
+void BString::toUpperFirst()
+{
+	if(mType == BSTRType_Unicode16)
+		convert(BSTRType_ANSI);
+
+	int8* data = mString;
+
+	*data = toupper(*data);
+
+}
+
+//======================================================================================================================
+
 bool BString::isNumber()
 {
 	if(mType == BSTRType_Unicode16)

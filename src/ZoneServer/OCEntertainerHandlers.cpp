@@ -817,8 +817,14 @@ void ObjectController::_handleBandFlourish(uint64 targetId,Message* message,Obje
 
 void ObjectController::_handleImageDesign(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
+	PlayerObject* designObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetId));
 	PlayerObject*	imageDesigner	= dynamic_cast<PlayerObject*>(mObject);
-	//gMessageLib->sendSystemMessage(performer,L"","performance","music_stop_band_self");
+
+	if(!designObject)
+		return;
+
+	if(!imageDesigner)
+		return;
 	
 	if(imageDesigner->checkStatesEither(CreatureState_Combat | CreatureState_Tumbling | CreatureState_Swimming))
 	{
@@ -831,20 +837,12 @@ void ObjectController::_handleImageDesign(uint64 targetId,Message* message,Objec
 		gMessageLib->sendSystemMessage(imageDesigner,L"you cannot do this at this time");
 		return;
 	}
-
-	PlayerObject* designObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetId));
 	
 	if(designObject->getImageDesignSession() != IDSessionNONE)
 	{
 		gMessageLib->sendSystemMessage(designObject,L"you cannot do this at this time");
 		return;
 	}
-
-	if(!designObject)
-		return;
-
-	if(!imageDesigner)
-		return;
 
 	designObject->SetImageDesignSession(IDSessionPREY);
 	imageDesigner->SetImageDesignSession(IDSessionID);

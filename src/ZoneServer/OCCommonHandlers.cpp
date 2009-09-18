@@ -1003,7 +1003,7 @@ void ObjectController::_handlePurchaseTicket(uint64 targetId,Message* message,Ob
 			gObjectFactory->requestNewTravelTicket(inventory,ticketProperties,inventory->getId(),99);
 		}
 
-		gUIManager->createNewMessageBox(NULL,"handleSUI","swgANH","@travel:ticket_purchase_complete",playerObject);
+		gUIManager->createNewMessageBox(NULL,"handleSUI","The Galactic Travel Commission","@travel:ticket_purchase_complete",playerObject);
 	}
 }
 

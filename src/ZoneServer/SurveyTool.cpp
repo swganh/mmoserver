@@ -202,7 +202,7 @@ void SurveyTool::_createRangeMenu(PlayerObject* playerObject, bool sample)
 	else
 		mSampleAfterSet = true;
 
-	gUIManager->createNewListBox(this,"handleSetRange","swgANH","@survey:select_range",availableRanges,playerObject);
+	gUIManager->createNewListBox(this,"handleSetRange","Survey Device","@survey:select_range",availableRanges,playerObject);
 }
 
 //=============================================================================

@@ -1073,6 +1073,10 @@ void ObjectController::_handlePlayHoloEmote(uint64 targetId,Message* message,Obj
 	//or we have a request for a specific emote
 	string dataStr;
 	message->getStringUnicode16(dataStr);
+
+	// Have to convert BEFORE using toLower, since the conversion done there is removed It will assert().
+	// Either do the conversion HERE, or better fix the toLower so it handles unicode also.
+	dataStr.convert(BSTRType_ANSI);
 	dataStr.toLower();
 
 	PlayerObject*	we	= dynamic_cast<PlayerObject*>(mObject);
@@ -1156,6 +1160,9 @@ void ObjectController::_handleDistract(uint64 targetId,Message* message,ObjectCo
 	//or we have a request for a specific emote
 	string dataStr;
 	message->getStringUnicode16(dataStr);
+	// Have to convert BEFORE using toLower, since the conversion done there is removed It will assert().
+	// Either do the conversion HERE, or better fix the toLower so it handles unicode also.
+	dataStr.convert(BSTRType_ANSI);
 	dataStr.toLower();
 
 	PlayerObject*	we	= dynamic_cast<PlayerObject*>(mObject);
@@ -1218,6 +1225,10 @@ void ObjectController::_handleFireJet(uint64 targetId,Message* message,ObjectCon
 	//or we have a request for a specific emote
 	string dataStr;
 	message->getStringUnicode16(dataStr);
+
+	// Have to convert BEFORE using toLower, since the conversion done there is removed It will assert().
+	// Either do the conversion HERE, or better fix the toLower so it handles unicode also.
+	dataStr.convert(BSTRType_ANSI);
 	dataStr.toLower();
 
 	PlayerObject*	we	= dynamic_cast<PlayerObject*>(mObject);
@@ -1278,6 +1289,10 @@ void ObjectController::_handleDazzle(uint64 targetId,Message* message,ObjectCont
 	//or we have a request for a specific emote
 	string dataStr;
 	message->getStringUnicode16(dataStr);
+
+	// Have to convert BEFORE using toLower, since the conversion done there is removed It will assert().
+	// Either do the conversion HERE, or better fix the toLower so it handles unicode also.
+	dataStr.convert(BSTRType_ANSI);
 	dataStr.toLower();
 
 	PlayerObject*	we	= dynamic_cast<PlayerObject*>(mObject);
@@ -1338,6 +1353,10 @@ void ObjectController::_handleColorLights(uint64 targetId,Message* message,Objec
 	//or we have a request for a specific emote
 	string dataStr;
 	message->getStringUnicode16(dataStr);
+
+	// Have to convert BEFORE using toLower, since the conversion done there is removed It will assert().
+	// Either do the conversion HERE, or better fix the toLower so it handles unicode also.
+	dataStr.convert(BSTRType_ANSI);
 	dataStr.toLower();
 
 	PlayerObject*	we	= dynamic_cast<PlayerObject*>(mObject);
@@ -1398,6 +1417,10 @@ void ObjectController::_handleSmokeBomb(uint64 targetId,Message* message,ObjectC
 	//or we have a request for a specific emote
 	string dataStr;
 	message->getStringUnicode16(dataStr);
+
+	// Have to convert BEFORE using toLower, since the conversion done there is removed It will assert().
+	// Either do the conversion HERE, or better fix the toLower so it handles unicode also.
+	dataStr.convert(BSTRType_ANSI);
 	dataStr.toLower();
 
 	PlayerObject*	we	= dynamic_cast<PlayerObject*>(mObject);
@@ -1458,6 +1481,9 @@ void ObjectController::_handleSpotLight(uint64 targetId,Message* message,ObjectC
 	//or we have a request for a specific emote
 	string dataStr;
 	message->getStringUnicode16(dataStr);
+	// Have to convert BEFORE using toLower, since the conversion done there is removed It will assert().
+	// Either do the conversion HERE, or better fix the toLower so it handles unicode also.
+	dataStr.convert(BSTRType_ANSI);
 	dataStr.toLower();
 
 	PlayerObject*	we	= dynamic_cast<PlayerObject*>(mObject);
@@ -1518,6 +1544,10 @@ void ObjectController::_handleVentriloquism(uint64 targetId,Message* message,Obj
 	//or we have a request for a specific emote
 	string dataStr;
 	message->getStringUnicode16(dataStr);
+
+	// Have to convert BEFORE using toLower, since the conversion done there is removed It will assert().
+	// Either do the conversion HERE, or better fix the toLower so it handles unicode also.
+	dataStr.convert(BSTRType_ANSI);
 	dataStr.toLower();
 
 	PlayerObject*	we	= dynamic_cast<PlayerObject*>(mObject);

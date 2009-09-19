@@ -198,6 +198,10 @@ void ObjectController::_handleTip(uint64 targetId,Message* message,ObjectControl
 	}
 
 	string lower = dataElements[elementCount-1];
+
+	// Have to convert BEFORE using toLower, since the conversion done there is removed It will assert().
+	// Either do the conversion HERE, or better fix the toLower so it handles unicode also.
+	dataStr.convert(BSTRType_ANSI);
 	lower.toLower();
 
 	//check for banktip

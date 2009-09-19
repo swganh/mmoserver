@@ -15,7 +15,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include <memory.h>
 #include <string.h>
 #include <mbstring.h>
-
+#include <assert.h>
 
 //======================================================================================================================
 
@@ -391,10 +391,20 @@ void BString::convert(BStringType type)
 
 //======================================================================================================================
 
+	// BS code,
+	// an internal data modifier as toLower(), toUpper() etc ... should NEVER change anything else of the string.
+	// In this case, the string is FORCED to BSTRType_ANSI. 
+
+	// Implemeting hidden side effects in a function is never good, on a STANDARD object like stings is a disaster.
+	// Better halt controlled than CTD or server crash.
+	
 void BString::toLower()
 {
 	if(mType == BSTRType_Unicode16)
+	{
+		assert(false);
 		convert(BSTRType_ANSI);
+	}
 
 	int8* data = mString;
 
@@ -410,7 +420,10 @@ void BString::toLower()
 void BString::toUpper()
 {
 	if(mType == BSTRType_Unicode16)
+	{
+		assert(false);
 		convert(BSTRType_ANSI);
+	}
 
 	int8* data = mString;
 
@@ -426,7 +439,10 @@ void BString::toUpper()
 void BString::toUpperFirst()
 {
 	if(mType == BSTRType_Unicode16)
+	{
+		assert(false);
 		convert(BSTRType_ANSI);
+	}
 
 	int8* data = mString;
 
@@ -439,7 +455,10 @@ void BString::toUpperFirst()
 bool BString::isNumber()
 {
 	if(mType == BSTRType_Unicode16)
+	{
+		assert(false);
 		convert(BSTRType_ANSI);
+	}
 
 	int8* data = mString;
 
@@ -461,7 +480,10 @@ int BString::split(BStringVector& retVec,char delimiter)
 	retVec.clear();
 
 	if(mType == BSTRType_Unicode16)
+	{
+		assert(false);
 		convert(BSTRType_ANSI);
+	}
 
 	int8* data = mString;
 	uint16 beginIndex = 0;

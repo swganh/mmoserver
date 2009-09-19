@@ -54,6 +54,9 @@ void ObjectController::_handleRequestWaypointAtPosition(uint64 targetId,Message*
 
 	message->getStringUnicode16(dataStr);
 
+	// Have to convert BEFORE using split, since the conversion done there is removed It will assert().. evil grin...
+	// Either do the conversion HERE, or better fix the split so it handles unicoe also.
+	dataStr.convert(BSTRType_ANSI);
 	uint32 elementCount = dataStr.split(dataElements,' ');
 
 	if(elementCount < 5)

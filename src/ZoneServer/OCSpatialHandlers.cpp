@@ -111,6 +111,10 @@ void ObjectController::_handleSocialInternal(uint64 targetId,Message* message,Ob
 	BStringVector	emoteElement;
 
 	message->getStringUnicode16(emoteData);
+
+	// Have to convert BEFORE using split, since the conversion done there is removed It will assert().. evil grin...
+	// Either do the conversion HERE, or better fix the split so it handles unicoe also.
+	emoteData.convert(BSTRType_ANSI);
 	emoteData.split(emoteElement,' ');
 
 	uint64 emoteTarget = _atoi64(emoteElement[0].getAnsi());

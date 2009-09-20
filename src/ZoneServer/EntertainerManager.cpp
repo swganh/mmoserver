@@ -2641,6 +2641,7 @@ void EntertainerManager::flourish(PlayerObject* entertainer, uint32 mFlourishId)
 	entertainer->setFlourishCount(entertainer->getFlourishCount()+1);
 	if (entertainer->getFlourishCount()>5)
 	{
+		gMessageLib->sendSystemMessage(entertainer,L"","performance","flourish_wait_self");
 		return;
 	}
 
@@ -2700,10 +2701,6 @@ void EntertainerManager::entertainInRangeNPCs(PlayerObject* entertainer)
 		++it;
 	}
 }
-
-
-
-
 
 
 // NOTE: THIS CODE AS ADDED BECAUSE DID NOT WANT TO BREAK CODE FOR OTHER INSTRUMENTS (by Eruptor)

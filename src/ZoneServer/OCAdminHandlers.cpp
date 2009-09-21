@@ -126,7 +126,7 @@ void ObjectController::_handleAdminWarpSelf(uint64 targetId,Message* message,Obj
 		return;
 	}
 
-	gMessageLib->sendSystemMessage(player,L"Error parsing parameters");
+	gMessageLib->sendSystemMessage(player,L"Error parsing parameters.");
 }
 
 //======================================================================================================================

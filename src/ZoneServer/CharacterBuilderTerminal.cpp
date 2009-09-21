@@ -615,7 +615,7 @@ void CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string 
 			
 			if(mInputBoxAmount < 0)
 			{
-				gMessageLib->sendSystemMessage(playerObject, L"Invalid amount");
+				gMessageLib->sendSystemMessage(playerObject, L"Invalid amount.");
 				return;
 			}
 
@@ -804,7 +804,7 @@ void CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string 
 		{
 			if (element > (int32)playerObject->getXpList()->size() - 1 || element < 0)
 			{
-				gMessageLib->sendSystemMessage(playerObject, L"Error while giving Xp");
+				gMessageLib->sendSystemMessage(playerObject, L"Error while giving Xp!");
 			}
 			else if (mSortedList)
 			{	// Get the xp type for the selection.

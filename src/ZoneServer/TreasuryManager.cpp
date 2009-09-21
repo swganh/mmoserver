@@ -258,8 +258,8 @@ void TreasuryManager::bankQuit(PlayerObject* playerObject)
 		// save to db 
 		mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE banks SET planet_id = -1 WHERE id=%lld",bank->getId());
 		
-
-		gMessageLib->sendSystemMessage(playerObject, L"","system_msg","succesfully_quit_bank");
+		//This message has a period added to the end as it was missing from client.
+		gMessageLib->sendSystemMessage(playerObject, L"","system_msg","succesfully_quit_bank","","",L"",".");
 	}
 }
 
@@ -288,7 +288,8 @@ void TreasuryManager::bankJoin(PlayerObject* playerObject)
 		// save to db 
 		mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE banks SET planet_id=%i WHERE id=%lld",bank->getPlanet(),bank->getId());
 
-		gMessageLib->sendSystemMessage(playerObject, L"","system_msg","succesfully_joined_bank");
+		//This message period added at the end as its missing from client.
+		gMessageLib->sendSystemMessage(playerObject, L"","system_msg","succesfully_joined_bank","","",L"",".");
 	}
 }
 

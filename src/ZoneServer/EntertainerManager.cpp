@@ -156,7 +156,7 @@ void EntertainerManager::showOutcastList(PlayerObject* entertainer)
 	}
 	else
 	{
-		gMessageLib->sendSystemMessage(entertainer,L"Your deny service list is empty");
+		gMessageLib->sendSystemMessage(entertainer,L"Your deny service list is empty.");
 	}
 }
 
@@ -782,7 +782,7 @@ void	EntertainerManager::startMusicPerformance(PlayerObject* entertainer,string 
 		if(performanceStuct == NULL)
 		{
 			entertainer->setPerformingState(PlayerPerformance_None);
-			gMessageLib->sendSystemMessage(entertainer,L"your instrument cannot be initialized");
+			gMessageLib->sendSystemMessage(entertainer,L"Your instrument cannot be initialized.");
 			gLogger->logMsgF("EntertainerManager::startMusicPerformance() This I don't understand\n", MSG_NORMAL);
 			
 			return;
@@ -1626,13 +1626,13 @@ void EntertainerManager::startListening(PlayerObject* audience, PlayerObject* en
 	if(checkAudience(entertainer,audience))
 	{
 		//we shouldnt be able to watch him several times or listen / watch at the same time
-		gMessageLib->sendSystemMessage(audience,L"this entertainer is already entertaining you");
+		gMessageLib->sendSystemMessage(audience,L"You are already being entertained by this player.");
 		return;
 	}
 
 	if(audience->getEntertainerListenToId()== entertainer->getId())
 	{
-		gMessageLib->sendSystemMessage(audience,L"this entertainer is already entertaining you");
+		gMessageLib->sendSystemMessage(audience,L"You are already being entertained by this player.");
 		return;
 	}
 
@@ -1738,7 +1738,7 @@ void EntertainerManager::startWatching(PlayerObject* audience, PlayerObject* ent
 	// is the entertainer valid???
 	if(entertainer == NULL || entertainer == audience)
 	{
-		gMessageLib->sendSystemMessage(audience,L"@performance:dance_fail");
+		gMessageLib->sendSystemMessage(audience,L"","performance","dance_fail");
 		return;
 	}
 
@@ -1753,21 +1753,21 @@ void EntertainerManager::startWatching(PlayerObject* audience, PlayerObject* ent
 	//is the entertainer near enough???
 	if(!entertainer->mPosition.inRange2D(audience->mPosition,60))
 	{
-		gMessageLib->sendSystemMessage(audience,L"@performance:dance_fail");
+		gMessageLib->sendSystemMessage(audience,L"","performance","dance_fail");
 		return;
 	}
 
 	if(entertainer->getPerformingState() != PlayerPerformance_Dance)
 	{
 		//we only can watch entertainers who are dancing!!!!
-		gMessageLib->sendSystemMessage(audience,L"@performance:dance_fail");
+		gMessageLib->sendSystemMessage(audience,L"","performance","dance_fail");
 		return;
 	}
 
 	if(audience->getPerformingState() != PlayerPerformance_None)
 	{
 		//we only can watch when we are not performing ourselves
-		gMessageLib->sendSystemMessage(audience,L"@performance:dance_fail");
+		gMessageLib->sendSystemMessage(audience,L"","performance","dance_fail");
 		return;
 	}
 

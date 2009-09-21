@@ -60,7 +60,7 @@ void TravelTicket::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
 		if(player->getPosture() == CreaturePosture_SkillAnimating)
 		{
-			gMessageLib->sendSystemMessage(player,L"You cannot do that at this time");
+			gMessageLib->sendSystemMessage(player,L"You cannot do that at this time.");
 			return;
 			//gEntertainerManager->stopEntertaining(player);
 		}

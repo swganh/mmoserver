@@ -295,7 +295,7 @@ void GroupManager::_processGroupInviteRequest(Message* message, DispatchClient* 
 	{
 		if(targetPlayer->getGroupId() == groupId)
 		{
-			gChatMessageLib->sendSystemMessage(player,L"This dude is already in your group");
+			gChatMessageLib->sendSystemMessage(player,L"This player is already in your group.");
 		}
 		else
 		{

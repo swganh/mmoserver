@@ -423,7 +423,7 @@ void ObjectController::_handlestartdance(uint64 targetId,Message* message,Object
 
 	if(performer->checkStatesEither(CreatureState_Combat | CreatureState_Tumbling | CreatureState_Swimming))
 	{
-		gMessageLib->sendSystemMessage(performer,L"you cannot do this at this time");
+		gMessageLib->sendSystemMessage(performer,L"You cannot do this at this time.");
 		return;
 	}
 
@@ -507,7 +507,7 @@ void ObjectController::_handlestartmusic(uint64 targetId,Message* message,Object
 
 	if(performer->checkStatesEither(CreatureState_Combat | CreatureState_Tumbling | CreatureState_Swimming))
 	{
-		gMessageLib->sendSystemMessage(performer,L"you cannot do this at this time");
+		gMessageLib->sendSystemMessage(performer,L"You cannot do this at this time.");
 		return;
 	}
 
@@ -615,7 +615,7 @@ void ObjectController::_handleStartBand(uint64 targetId,Message* message,ObjectC
 
 	if(performer->checkStatesEither(CreatureState_Combat | CreatureState_Tumbling | CreatureState_Swimming))
 	{
-		gMessageLib->sendSystemMessage(performer,L"you cannot do this at this time");
+		gMessageLib->sendSystemMessage(performer,L"You cannot do this at this time.");
 		return;
 	}
 
@@ -628,7 +628,7 @@ void ObjectController::_handleStartBand(uint64 targetId,Message* message,ObjectC
 
 	if(performer->getGroupId() == 0)
 	{
-		gMessageLib->sendSystemMessage(performer,L"you are not in a band");
+		gMessageLib->sendSystemMessage(performer,L"You are not in a band.");
 		return;
 
 	}
@@ -828,19 +828,19 @@ void ObjectController::_handleImageDesign(uint64 targetId,Message* message,Objec
 	
 	if(imageDesigner->checkStatesEither(CreatureState_Combat | CreatureState_Tumbling | CreatureState_Swimming))
 	{
-		gMessageLib->sendSystemMessage(imageDesigner,L"you cannot do this at this time");
+		gMessageLib->sendSystemMessage(imageDesigner,L"You cannot do this at this time.");
 		return;
 	}
 	
 	if(imageDesigner->getImageDesignSession() != IDSessionNONE)
 	{
-		gMessageLib->sendSystemMessage(imageDesigner,L"you cannot do this at this time");
+		gMessageLib->sendSystemMessage(imageDesigner,L"You cannot do this at this time.");
 		return;
 	}
 	
 	if(designObject->getImageDesignSession() != IDSessionNONE)
 	{
-		gMessageLib->sendSystemMessage(designObject,L"you cannot do this at this time");
+		gMessageLib->sendSystemMessage(designObject,L"You cannot do this at this time.");
 		return;
 	}
 

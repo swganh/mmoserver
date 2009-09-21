@@ -375,7 +375,7 @@ void ObjectController::_handleWaypoint(uint64 targetId,Message* message,ObjectCo
 	}
 	else
 	{
-		gMessageLib->sendSystemMessage(player,L"Error parsing coordinates");
+		gMessageLib->sendSystemMessage(player,L"Error parsing coordinates.");
 	}
 }
 

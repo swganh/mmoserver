@@ -43,7 +43,7 @@ void ObjectController::_handleBoardTransport(uint64 targetId,Message* message,Ob
 
 	if(playerObject->getPosture() == CreaturePosture_SkillAnimating)
 	{
-		gMessageLib->sendSystemMessage(playerObject,L"You cannot do that at this time");
+		gMessageLib->sendSystemMessage(playerObject,L"You cannot do that at this time.");
 		return;
 		//gEntertainerManager->stopEntertaining(player);
 	}

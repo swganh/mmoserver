@@ -165,8 +165,7 @@ void ChatMessageLib::sendBazaarTransactionMessage(DispatchClient* client, Auctio
 
 		token = strtok(mString.getRawData(),separation); //
 		planet = BString(token);
-		// No, no.. as long as toUpperFisrt change the type of data of the BString object, this is a disaster... 
-		// planet.toUpperFirst();
+		planet.toUpperFirst();
 
 		token = strtok( NULL,separation); 
 		region = BString(token);

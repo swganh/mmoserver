@@ -619,6 +619,43 @@ bool MessageLib::sendMacroSystemMessage(PlayerObject* playerObject,string messag
 
 //======================================================================================================================
 //
+// system message,
+//
+// Option: Can be directed to chat only.
+
+bool MessageLib::sendSystemMessage(PlayerObject* playerObject, string message, bool chatOnly)
+{
+	if ((!playerObject) || (!(playerObject->isConnected())))
+	{
+		return(false);
+	}
+
+	if (message.getLength())
+	{
+		// User requested to send no data, and we managed to accomplish that.
+		// return true;
+	}
+
+	gMessageFactory->StartMessage(); 
+	gMessageFactory->addUint32(opChatSystemMessage);  
+	if (chatOnly)
+	{
+		gMessageFactory->addUint8(2);
+	}
+	else
+	{
+		gMessageFactory->addUint8(0);
+	}
+	gMessageFactory->addString(message);
+	gMessageFactory->addUint32(0);				 
+
+	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 5);
+	return(true);
+}
+
+
+//======================================================================================================================
+//
 // error message
 //
 

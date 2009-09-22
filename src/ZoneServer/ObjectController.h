@@ -26,7 +26,8 @@ Copyright (c) 2006 - 2009 The swgANH Team
 
 // maximum commands allowed to be queued
 #define COMMAND_QUEUE_MAX_SIZE 10
-
+		
+// typedef void (ObjectController::*adminFuncPointer)(string message);
 //=======================================================================
 
 class Message;
@@ -529,6 +530,29 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback
 		// admin
 		void	_handleAdminSysMsg(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleAdminWarpSelf(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
+		void	_handleBroadcast(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties);
+		void	_handleBroadcastPlanet(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties);
+		void	_handleBroadcastGalaxy(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties);
+		void	_handleShutdownGalaxy(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties);
+		void	_handleCancelShutdownGalaxy(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties);
+		
+
+		string	handleBroadcast(string message) const;
+		string	handleBroadcastPlanet(string message) const;
+		string	handleBroadcastGalaxy(string message) const;
+		string	handleShutdownGalaxy(string message) const;
+		string handleCancelShutdownGalaxy(string message) const;
+
+		// Admin
+		int32	getAdminCommandFunction(string command) const;
+		int32	indexOfFirstField(const string message) const;
+		int32	indexOfNextField(const string message) const;
+		void	broadcastGalaxyMessage(string theBroadcast, int32 planetId) const; 
+		void	scheduleShutdown(int32 scheduledTime, string shutdownReason) const;
+		void	cancelScheduledShutdown(string cancelShutdownReason) const;
+		void	sendAdminFeedback(string reply) const;
+		string	removeWhiteSpace(string str) const;
+		string	skipToNextField(string str) const;
 
 		// spatial object updates
 		void	_findInRangeObjectsOutside(bool updateAll);
@@ -552,7 +576,7 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback
 		EnqueueValidators	mEnqueueValidators;
 		ProcessValidators	mProcessValidators;
 
-		// uint64				mCommandQueueProcessTimeLimit;
+		uint64				mCommandQueueProcessTimeLimit;
 		uint64				mEventQueueProcessTimeLimit;
 		uint64				mNextCommandExecution;
 		// uint64				mNextCombatCmdExecution;
@@ -566,9 +590,13 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback
 		uint32				mFullUpdateTrigger;
 		int32				mMovementInactivityTrigger;
 
+		bool				mInUseCommandQueue;
+		bool				mRemoveCommandQueue;
+
 		boost::pool<boost::default_user_allocator_malloc_free>		mCmdMsgPool;
 		boost::pool<boost::default_user_allocator_malloc_free>		mEventPool;
 		boost::pool<boost::default_user_allocator_malloc_free>		mDBAsyncContainerPool;
+
 };
 
 //=======================================================================

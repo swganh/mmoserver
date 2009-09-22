@@ -553,7 +553,7 @@ int BString::split(BStringVector& retVec,char delimiter)
 void BString::substring(BString& dest, uint16 start, uint16 end)
 {
   // Validate our parameters
-  if (start > mLength || end > mLength || end <= start)
+  if (start > mLength || end > mLength || end < start)
     return;
 
   // Setup our destination string

@@ -32,6 +32,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "NonPersistentItemFactory.h"
 #include "NonPersistentNpcFactory.h"
 #include "NpcManager.h"
+#include "AdminManager.h"
 
 // External references
 #include "Common/MessageDispatch.h"
@@ -181,6 +182,7 @@ void ZoneServer::Startup(int8* zoneName)
 	TradeManager::Init(mDatabase,mMessageDispatch);
 	BuffManager::Init(mDatabase);
 	MedicManager::Init(mMessageDispatch);
+	AdminManager::Init(mMessageDispatch);
 	
 
 	EntertainerManager::Init(mDatabase,mMessageDispatch);
@@ -230,6 +232,7 @@ void ZoneServer::Shutdown(void)
 	gTravelMapHandler->Shutdown();
 	gTradeManager->Shutdown();
 	mObjectControllerDispatch->Shutdown();
+	AdminManager::deleteManager();
 
 	gWorldManager->Shutdown();	// Should be closed before script engine and script support, due to halting of scripts.
 	gScriptEngine->shutdown();
@@ -376,8 +379,10 @@ int main(int argc, char* argv[])
 	// Main loop
 	while(1)
 	{
-		if(kbhit())
+		if (kbhit() || AdminManager::Instance()->shutdownZone())
+		{
 			break;
+		}
 
 		gZoneServer->Process();
 		gMessageFactory->Process();

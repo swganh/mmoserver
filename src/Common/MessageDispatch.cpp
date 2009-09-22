@@ -103,6 +103,9 @@ void MessageDispatch::handleSessionDisconnect(NetworkClient* client)
 
 //======================================================================================================================
 
+// Why is the session mutex used?
+// Can we get called more than once at the same time?
+
 void MessageDispatch::handleSessionMessage(NetworkClient* client, Message* message)
 {
 	DispatchClient* dispatchClient = 0;
@@ -212,9 +215,47 @@ void MessageDispatch::handleSessionMessage(NetworkClient* client, Message* messa
 }
 
 //======================================================================================================================
+//
+//	Create a sessionless dispatch client.
+//
+//	Clients created here may only receive data. Do NOT use when sending (the session is missing, you know).
+// 
+//======================================================================================================================
+
+void MessageDispatch::registerSessionlessDispatchClient(uint32 accountId)
+{
+	// Verify not allready registred.
+	AccountClientMap::iterator iter = mAccountClientMap.find(accountId);
+
+	if (iter == mAccountClientMap.end())
+	{
+		DispatchClient* dispatchClient = new DispatchClient();
+		dispatchClient->setAccountId(accountId);
+		mAccountClientMap.insert(std::make_pair(accountId,dispatchClient));
+	}
+}
 
 
+//======================================================================================================================
+//
+//	Remove a sessionless dispatch client.
+//
+// 
+//======================================================================================================================
+void MessageDispatch::unregisterSessionlessDispatchClient(uint32 accountId)
+{
+	// Verify not allready registred.
+	AccountClientMap::iterator iter = mAccountClientMap.find(accountId);
 
+	if (iter != mAccountClientMap.end())
+	{
+		// Delete the object referenced (pointed at).
+		delete (*iter).second;
+
+		// Delete actual storage and the items contained in the map.
+		mAccountClientMap.erase(iter);
+	}
+}
 
 
 

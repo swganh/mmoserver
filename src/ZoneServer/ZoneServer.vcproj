@@ -2692,6 +2692,26 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="AdminManager"
+				>
+				<Filter
+					Name="header"
+					>
+					<File
+						RelativePath=".\AdminManager.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="source"
+					>
+					<File
+						RelativePath=".\AdminManager.cpp"
+						>
+					</File>
+				</Filter>
+			</Filter>
 		</Filter>
 		<File
 			RelativePath=".\ClassDiagram1.cd"

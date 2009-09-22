@@ -86,6 +86,7 @@ typedef std::map<uint64, const CreatureSpawnRegion*>	CreatureSpawnRegionMap;
 typedef std::map<uint64, uint64>				NpcDormantHandlers;
 typedef std::map<uint64, uint64>				NpcReadyHandlers;
 typedef std::map<uint64, uint64>				NpcActiveHandlers;
+typedef std::map<uint64, uint64>				AdminRequestHandlers;
 
 // AttributeKey map
 typedef std::map<uint32,string>					AttributeKeyMap;
@@ -247,6 +248,8 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		void					addActiveNpc(uint64 creature, uint64 when);
 		void					removeActiveNpc(uint64 creature);
 
+		void					addAdminRequest(uint64 requestId, uint64 when);
+		void					cancelAdminRequest(int32 requestId);
 
 		const					Anh_Math::Rectangle getSpawnArea(uint64 spawnRegionId);
 
@@ -285,6 +288,7 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		int8*					getPlanetNameThis(){ return mvPlanetNames[mZoneId].getAnsi(); }
 		int8*					getPlanetNameById(uint8 planetId){ return mvPlanetNames[planetId].getAnsi(); }
 		int32					getPlanetIdByName(string name);
+		int32					getPlanetIdByNameLike(string name);
 
 		int8*					getTrnFileThis(){ return mvTrnFileNames[mZoneId].getAnsi(); }
 		int8*					getTrnFileById(uint8 trnId){ return mvTrnFileNames[trnId].getAnsi(); }
@@ -358,6 +362,8 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		bool	_handleDormantNpcs(uint64 callTime, void* ref);
 		bool	_handleReadyNpcs(uint64 callTime, void* ref);
 		bool	_handleActiveNpcs(uint64 callTime, void* ref);
+
+		bool	_handleAdminRequests(uint64 callTime, void* ref);
 				
 		void	_startWorldScripts();
 
@@ -378,6 +384,7 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 
 		Database*					mDatabase;
 		ZoneTree*					mSpatialIndex;
+		Anh_Utils::Scheduler*		mAdminScheduler;
 		Anh_Utils::Scheduler*		mNpcManagerScheduler;
 		Anh_Utils::Scheduler*		mSubsystemScheduler;
 		Anh_Utils::Scheduler*		mObjControllerScheduler;
@@ -403,6 +410,7 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		NpcDormantHandlers			mNpcDormantHandlers;
 		NpcReadyHandlers			mNpcReadyHandlers;
 		NpcActiveHandlers			mNpcActiveHandlers;
+		AdminRequestHandlers		mAdminRequestHandlers;
 
 		NpIdSet						mUsedTmpIds;
 

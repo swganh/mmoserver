@@ -42,6 +42,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 ObjectController::ObjectController() :
 mObject(NULL),
 mTaskId(0),
+mCommandQueueProcessTimeLimit(5),
 mEventQueueProcessTimeLimit(2),
 mNextCommandExecution(0),
 mUnderrunTime(0),
@@ -52,7 +53,9 @@ mDBAsyncContainerPool(sizeof(ObjControllerAsyncContainer)),
 mUpdatingObjects(false),
 mDestroyOutOfRangeObjects(false),
 mMovementInactivityTrigger(5),
-mFullUpdateTrigger(0)
+mFullUpdateTrigger(0),
+mInUseCommandQueue(false),
+mRemoveCommandQueue(false)
 {
 	mSI		= gWorldManager->getSI();
 	// We do have a global clock object, don't use seperate clock and times for every process.
@@ -67,6 +70,7 @@ mFullUpdateTrigger(0)
 ObjectController::ObjectController(Object* object) :
 mObject(object),
 mTaskId(0),
+mCommandQueueProcessTimeLimit(5),
 mEventQueueProcessTimeLimit(2),
 mNextCommandExecution(0),
 mUnderrunTime(0),
@@ -77,7 +81,9 @@ mDBAsyncContainerPool(sizeof(ObjControllerAsyncContainer)),
 mUpdatingObjects(false),
 mDestroyOutOfRangeObjects(false),
 mMovementInactivityTrigger(5),
-mFullUpdateTrigger(0)
+mFullUpdateTrigger(0),
+mInUseCommandQueue(false),
+mRemoveCommandQueue(false)
 {
 	mSI		= gWorldManager->getSI();
 }
@@ -89,6 +95,8 @@ mFullUpdateTrigger(0)
 
 ObjectController::~ObjectController()
 {
+	// Have to kill whats in there...
+	mInUseCommandQueue = false;
 	clearQueues();
 
 	EnqueueValidators::iterator it = mEnqueueValidators.begin();
@@ -146,16 +154,24 @@ void ObjectController::clearQueues()
 {
 	// command queue
 
-	CommandQueue::iterator cmdIt = mCommandQueue.begin();
-
-	while(cmdIt != mCommandQueue.end())
+	if (!mInUseCommandQueue)
 	{
-		ObjControllerCommandMessage* cmdMsg = (*cmdIt);
+		CommandQueue::iterator cmdIt = mCommandQueue.begin();
 
-		cmdMsg->~ObjControllerCommandMessage();
-		mCmdMsgPool.free(cmdMsg);
+		while(cmdIt != mCommandQueue.end())
+		{
+			ObjControllerCommandMessage* cmdMsg = (*cmdIt);
 
-		cmdIt = mCommandQueue.erase(cmdIt);
+			cmdMsg->~ObjControllerCommandMessage();
+			mCmdMsgPool.free(cmdMsg);
+
+			cmdIt = mCommandQueue.erase(cmdIt);
+		}
+		mRemoveCommandQueue = false;
+	}
+	else
+	{
+		mRemoveCommandQueue = true;
 	}
 
 	// mCommandQueue.clear(); // Will not free the boost shit used (mCmdMsgPool).
@@ -222,11 +238,11 @@ bool ObjectController::_processCommandQueue()
 {
 	mHandlerCompleted = false;
 	// init timers
-	// uint64	startTime		= Anh_Utils::Clock::getSingleton()->getLocalTime();
-	// uint64	currentTime		= startTime;
-	// uint64	processTime		= 0;
+	uint64	startTime		= Anh_Utils::Clock::getSingleton()->getLocalTime();
+	uint64	currentTime		= startTime;
+	uint64	processTime		= 0;
 	
-	uint64 currentTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
+	// uint64 currentTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
 	
 	PlayerObject* player  = dynamic_cast<PlayerObject*>(mObject);
 	if (!player)
@@ -236,28 +252,11 @@ bool ObjectController::_processCommandQueue()
 		return false;
 	}
 
-	// gLogger->logMsgF("ObjectController::_processCommandQueue() Entering at  = %llu", MSG_NORMAL, currentTime);
-	// If queue empty and we are in combat, insert autoattack when the previous command has run out it's cooldown.
+	// If queue empty and we are in combat, insert player initiated auto-attack when the previous command has run out it's cooldown.
 	if (mCommandQueue.empty() &&  player->autoAttackEnabled() && (mNextCommandExecution <= currentTime))
 	{
 		// Auto attack current target.
 		uint64 autoTargetId = player->getCombatTargetId();
-		if (autoTargetId == 0)
-		{
-			// We lost current target.
-			// gLogger->logMsgF("We lost current target.", MSG_NORMAL);
-			// autoTargetId = player->getNearestAttackingDefender();
-			/*
-			if (autoTargetId != 0)
-			{
-				// We got us a new target.
-				gLogger->logMsgF("We got us a new target, %llu", MSG_NORMAL, autoTargetId);
-				// player->setTarget(NULL);
-				player->setTarget(autoTargetId);
-				gMessageLib->sendTargetUpdateDeltasCreo6(player);
-			}
-			*/
-		}
 		if (autoTargetId != 0)
 		{
 			// gLogger->logMsgF("Player generated auto target with id %llu", MSG_NORMAL, autoTargetId);
@@ -270,30 +269,35 @@ bool ObjectController::_processCommandQueue()
 		}
 	}
 
+	// For debug
+	int16 loopCounter = 0;
 
 	// loop until empty or our time is up
-	if (!mCommandQueue.empty())
+	while (!mCommandQueue.empty() && (processTime < mCommandQueueProcessTimeLimit))
 	{
+		mInUseCommandQueue = true;
+	
+		if (++loopCounter > 1)
+		{
+			// gLogger->logMsgF("ObjectController::_processCommandQueue() Doing loop # %d at single request", MSG_NORMAL, loopCounter);
+		}
+
 		// see if we got something to execute yet
 		ObjControllerCommandMessage* cmdMsg = mCommandQueue.front();
 
-		if (cmdMsg && mNextCommandExecution <= currentTime)
+		// No, no, my smartass....We HAVE to handle normal command messages as fast as possible.
+		assert(cmdMsg);
+
+		if ((mNextCommandExecution <= currentTime) || !cmdMsg->getCmdProperties()->mAddToCombatQueue)
 		{
-			// gLogger->logMsgF("Have %u defenders", MSG_NORMAL, player->getDefenders()->size());
-			
-			// gLogger->logMsgF("Executing command at = %llu", MSG_NORMAL, currentTime);
-
-			// gLogger->logMsgF("Execution time = %llu", MSG_NORMAL, mNextCommandExecution);
-			// gLogger->logMsgF("Current time   = %llu", MSG_NORMAL, currentTime);
-
-			// Compensate for any lag, i.e. command arriving late.
-			mUnderrunTime += (currentTime - mNextCommandExecution);
-
-			//gLogger->logMsgF("Current Time %lld ExecTime %lld",MSG_LOW,currentTime,cmdMsg->getExecutionTime());
-			// gLogger->logMsgF("Lag compensation will be = %llu", MSG_NORMAL, mUnderrunTime);
+			if (cmdMsg->getCmdProperties()->mAddToCombatQueue)
+			{
+				// Compensate combat command for any lag, i.e. command arriving late.
+				mUnderrunTime += (currentTime - mNextCommandExecution);
+			}
 
 			// get the commands data
-			Message*	message		= cmdMsg->getData();	// Be aware, internally created messages are NULL.
+			Message*	message		= cmdMsg->getData();	// Be aware, internally created messages are NULL (auto-attack)
 			uint32		command		= cmdMsg->getOpcode();
 			uint64		targetId	= cmdMsg->getTargetId();
 			uint32		reply1		= 0;
@@ -305,21 +309,25 @@ bool ObjectController::_processCommandQueue()
 			// validate if we are still able to execute
 			if (cmdProperties && _validateProcessCommand(reply1,reply2,targetId,command,cmdProperties))
 			{
-				// gLogger->logMsgF("Executing command at = %llu", MSG_NORMAL, currentTime);
+				// gLogger->logMsgF("ObjectController::processCommandQueue: ObjController Cmd = 0x%x",MSG_NORMAL, command);
 
+				// Do not mess with cooldowns for non combat commands, those timer values are for preventing spam of the same message,
+				// and spam preventing is not implemented yet.
 				uint64 timeToNextCommand = 0;
-
-				// Set up the cooldown time.
-				if (mUnderrunTime < cmdProperties->mDefaultTime)
+				if (cmdMsg->getCmdProperties()->mAddToCombatQueue)
 				{
-					timeToNextCommand = (cmdProperties->mDefaultTime - mUnderrunTime);
-					mUnderrunTime = 0;
-				}
-				else
-				{
-					// Compensate as much as we can.
-					timeToNextCommand = cmdProperties->mDefaultTime / 2;
-					mUnderrunTime -= timeToNextCommand;
+					// Set up the cooldown time.
+					if (mUnderrunTime < cmdProperties->mDefaultTime)
+					{
+						timeToNextCommand = (cmdProperties->mDefaultTime - mUnderrunTime);
+						mUnderrunTime = 0;
+					}
+					else
+					{
+						// Compensate as much as we can.
+						timeToNextCommand = cmdProperties->mDefaultTime / 2;
+						mUnderrunTime -= timeToNextCommand;
+					}
 				}
 
 				bool internalCommand = false;
@@ -364,7 +372,6 @@ bool ObjectController::_processCommandQueue()
 					{
 						// gLogger->logMsgF("ObjectController::processCommandQueue: ObjControllerCmdGroup_Attack Handled Cmd 0x%x for %lld",MSG_NORMAL,command,mObject->getId());
 						// If player activated combat or me returning fire, the peace is ended, and auto-attack allowed.
-
 						player->toggleStateOff(CreatureState_Peace);
 						gMessageLib->sendStateUpdate(player);
 						player->enableAutoAttack();
@@ -373,19 +380,11 @@ bool ObjectController::_processCommandQueue()
 						if (targetId != 0)
 						{
 							// gLogger->logMsg("ObjectController::processCommandQueue: We have a New target");
-
 							cmdExecutedOk = gCombatManager->handleAttack(player, targetId, cmdProperties);
-
 							if (!cmdExecutedOk)
 							{
 								// gLogger->logMsg("ObjectController::processCommandQueue: handleAttack error");
-								// reset current combat target.
-
 								// We have lost our target.
-								// Refresh list to get around targeting rectile problems with corpse
-								// gMessageLib->sendNewDefenderList(player);
-								// gLogger->logMsg("setAsActiveDefenderAndUpdateList: Lost target, refreshing defender list.");
-
 								player->setCombatTargetId(0);
 								player->disableAutoAttack();
 
@@ -394,8 +393,6 @@ bool ObjectController::_processCommandQueue()
 							else
 							{
 								// All is well in la-la-land
-								// player->setCombatTargetId(targetId);
-
 								// Keep track of the target we are attacking, it's not always your "look-at" target.
 								if (targetId != player->getCombatTargetId() && (targetId != 0))
 								{
@@ -425,10 +422,6 @@ bool ObjectController::_processCommandQueue()
 							cmdExecutedOk = false;
 							player->setCombatTargetId(0);
 						}
-						// For test
-						// player->setTarget(targetId);
-						// gMessageLib->sendTargetUpdateDeltasCreo6(player);
-
 					}
 					break;
 
@@ -441,22 +434,19 @@ bool ObjectController::_processCommandQueue()
 					break;
 				}
 			
-				if (cmdExecutedOk)
+				// Do not mess with cooldowns for non combat commands... 
+				if (cmdMsg->getCmdProperties()->mAddToCombatQueue)
 				{
-					mNextCommandExecution = currentTime + timeToNextCommand;
-					// gLogger->logMsgF("Setting up next command in %llu, at %llu", MSG_NORMAL, timeToNextCommand, mNextCommandExecution);
-				}
-				else if (internalCommand)
-				{
-					// we will not spam the command queue if auto-attack is set to an invalid target.
-					mNextCommandExecution = currentTime;
-					// mNextCommandExecution = currentTime + timeToNextCommand;
-					// gLogger->logMsgF("Skipped internal command, setting up next command in %llu, at %llu", MSG_NORMAL, (uint64)0, mNextCommandExecution);
-				}
-				else
-				{
-					mNextCommandExecution = currentTime;
-					// gLogger->logMsgF("Skipped current command, setting up next command in %llu, at %llu", MSG_NORMAL, (uint64)0, mNextCommandExecution);
+					if (cmdExecutedOk)
+					{
+						mNextCommandExecution = currentTime + timeToNextCommand;
+						// gLogger->logMsgF("Setting up next command in %llu, at %llu", MSG_NORMAL, timeToNextCommand, mNextCommandExecution);
+					}
+					else
+					{
+						// we will not spam the command queue if auto-attack is set to an invalid target.
+						mNextCommandExecution = currentTime;
+					}
 				}
 
 				if(consumeHam && !_consumeHam(cmdProperties))
@@ -465,7 +455,7 @@ bool ObjectController::_processCommandQueue()
 				}
 
 				// execute any attached scripts
-				if (message)	// Internally generated commands have no message body
+				if (message)	// Auto-attack commands have no message body.
 				{
 					string params;
 					message->setIndex(paramsIndex);
@@ -482,7 +472,7 @@ bool ObjectController::_processCommandQueue()
 			}
 		
 			//its processed, so ack and delete it
-			if (message)
+			if (message && cmdMsg->getSequence())
 			{
 				// if (PlayerObject* player = dynamic_cast<PlayerObject*>(mObject))
 				gMessageLib->sendCommandQueueRemove(cmdMsg->getSequence(),0.0f,reply1,reply2,player);
@@ -494,10 +484,26 @@ bool ObjectController::_processCommandQueue()
 			// cmdMsg->~ObjControllerCommandMessage();
 			mCmdMsgPool.free(cmdMsg);
 		}
+		else
+		{
+			// Make it simple, the time was not up yet, just leave, let other instances have the cpu, and handle it the next cycle.
+			break;
+		}
+
+		// update timers
+		currentTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
+		processTime = currentTime - startTime;
 	}
 
 	// if we didn't manage to process all or theres an event still waiting, don't remove us from the scheduler
 	// We need to keep the queue as long as we are in combat.
+
+	mInUseCommandQueue = false;
+	
+	if (mRemoveCommandQueue)
+	{
+		this->clearQueues();
+	}
 	return ((!mCommandQueue.empty() ||  player->autoAttackEnabled())? true : false);
 }
 
@@ -561,6 +567,7 @@ void ObjectController::enqueueCommandMessage(Message* message)
 
 	// gLogger->logMsgF("ObjController enqueue tick: %u counter: 0x%4x",MSG_NORMAL,clientTicks,sequence);
 	
+	// gLogger->logMsgF("ObjController enqueue opcode = 0x%8x",MSG_NORMAL,opcode);
 	if (_validateEnqueueCommand(reply1,reply2,targetId,opcode,cmdProperties))
 	{
 		// schedule it for immidiate execution initially
@@ -606,15 +613,35 @@ void ObjectController::enqueueCommandMessage(Message* message)
 			}
 		}
 		// add it
-		if (sequence && cmdProperties->mAddToCombatQueue)
+		if ((sequence && cmdProperties->mAddToCombatQueue) || (mCommandQueue.empty()))
 		{
-			// gLogger->logMsgF("Command with cooldown = %llu", MSG_NORMAL, cmdProperties->mDefaultTime);
 			mCommandQueue.push_back(cmdMsg);
 		}
 		else
 		{
-			// gLogger->logMsgF("Command with priority, cooldown = %llu", MSG_NORMAL, cmdProperties->mDefaultTime);
-			mCommandQueue.push_front(cmdMsg);
+			// We may have prio command already scheduled at top, and we should not reverse the order of them.
+			// Plus, loop-backed admin messsages would be picked and destroyed in the wrong order.
+
+			// Note .insert(..) may invalidate all iterators if not inserted at top or back.
+			CommandQueue::iterator cmdIt = mCommandQueue.begin();
+			bool inserted = false;
+			while(cmdIt != mCommandQueue.end())
+			{
+				if ((*cmdIt)->getSequence() && (*cmdIt)->getCmdProperties()->mAddToCombatQueue)
+				{
+					mCommandQueue.insert(cmdIt, cmdMsg);
+					inserted = true;
+					break;
+				}
+				else
+				{
+					cmdIt++;
+				}
+			}
+			if (!inserted)
+			{
+				mCommandQueue.push_back(cmdMsg);
+			}
 		}
 
 		// add us to the scheduler, if we aren't queued already
@@ -624,9 +651,14 @@ void ObjectController::enqueueCommandMessage(Message* message)
 		}
 	}
 	// not qualified for this command, so remove it
-	else if(PlayerObject* player = dynamic_cast<PlayerObject*>(mObject))
+	// Internally generated commands, like auto-attack and admin commands does not have a sequence number, and should not be acked with the client.
+	else
 	{
-		gMessageLib->sendCommandQueueRemove(sequence,0.0f,reply1,reply2,player);
+		PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
+		if (sequence && player)
+		{
+			gMessageLib->sendCommandQueueRemove(sequence,0.0f,reply1,reply2,player);
+		}
 	}
 }
 

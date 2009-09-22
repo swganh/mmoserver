@@ -194,6 +194,11 @@ class ChatManager : public MessageDispatchCallback, public DatabaseCallback
 		// instant messages
 		void			_processInstantMessageToCharacter(Message* message,DispatchClient* client);
 
+		// admin
+		void			_processBroadcastGalaxy(Message* message,DispatchClient* client);
+		void			_processScheduleShutdown(Message* message,DispatchClient* client);
+		void			_processCancelScheduledShutdown(Message* message, DispatchClient* client);
+		
 		static bool				mInsFlag;
 		static ChatManager*		mSingleton;
 

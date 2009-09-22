@@ -29,6 +29,12 @@ class Message;
 typedef std::map<uint32, MessageDispatchCallback*>   MessageCallbackMap;
 typedef std::map<uint32, DispatchClient*>            AccountClientMap;
 
+
+// This should be defined as a pre-set in DB account table.
+// Maybe reserv the first 10 or 100 id's for internal usage?
+// TODO: Find a better place to store stuff like this...
+#define AdminAccountId ((uint32)(3000))
+
 //======================================================================================================================
 
 class MessageDispatch : public NetworkCallback
@@ -51,6 +57,9 @@ class MessageDispatch : public NetworkCallback
 		virtual void				handleSessionDisconnect(NetworkClient* client);
 		virtual void				handleSessionMessage(NetworkClient* client, Message* message);
 
+		// Sessionless clients
+		void						registerSessionlessDispatchClient(uint32 accountId);
+		void						unregisterSessionlessDispatchClient(uint32 accountId);
 	private:
 
 		Service*					mRouterService;

@@ -39,6 +39,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "Heightmap.h"
 #include "CreatureSpawnRegion.h"
 #include "GroupManager.h"
+#include "AdminManager.h"
 
 //======================================================================================================================
 
@@ -74,8 +75,8 @@ mWM_DB_AsyncPool(sizeof(WMAsyncContainer))
 	mBuffScheduler			= new Anh_Utils::VariableTimeScheduler(100, 100);
 	mMissionScheduler		= new Anh_Utils::Scheduler();
 	mNpcManagerScheduler	= new Anh_Utils::Scheduler();
+	mAdminScheduler			= new Anh_Utils::Scheduler();
 	
-
 	LoadCurrentGlobalTick();
 
 
@@ -132,7 +133,8 @@ void WorldManager::Shutdown()
 	}
 
 	// timers
-	delete (mNpcManagerScheduler);
+	delete(mAdminScheduler);
+	delete(mNpcManagerScheduler);
 	delete(mSubsystemScheduler);
 	delete(mObjControllerScheduler);
 	delete(mHamRegenScheduler);
@@ -166,6 +168,7 @@ void WorldManager::Shutdown()
 	mNpcDormantHandlers.clear();
 	mNpcReadyHandlers.clear();
 	mNpcActiveHandlers.clear();
+	mAdminRequestHandlers.clear();
 
 	// Handle creature spawn regions. These objects are not registred in the normal object map.
 	CreatureSpawnRegionMap::iterator it = mCreatureSpawnRegionMap.begin();
@@ -177,6 +180,7 @@ void WorldManager::Shutdown()
 	mCreatureSpawnRegionMap.clear();
 
 	NpcManager::deleteManager();
+
 	Heightmap::deleter();
 
 	// Let's get REAL dirty here, since we have no solutions to the deletion-race of containers content.
@@ -1254,6 +1258,7 @@ void WorldManager::_processSchedulers()
 	mBuffScheduler->process();
 	mMissionScheduler->process();
 	mNpcManagerScheduler->process();
+	mAdminScheduler->process();
 }
 
 //======================================================================================================================
@@ -1953,6 +1958,75 @@ void WorldManager::updateWeather(float cloudX,float cloudY,float cloudZ,uint32 w
 }
 
 //======================================================================================================================
+// 
+//	Add an admin request.
+// 
+
+void WorldManager::addAdminRequest(uint64 requestId, uint64 when)
+{
+	gLogger->logMsgF("Adding admin request %d for schedule in %lld minutes(s) and %lld second(s)", MSG_NORMAL, requestId, when/60000, when % 60000);
+
+	uint64 expireTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
+	mAdminRequestHandlers.insert(std::make_pair(requestId, expireTime + when));
+
+}
+
+//======================================================================================================================
+// 
+//	Cancel an admin request.
+// 
+
+void WorldManager::cancelAdminRequest(int32 requestId)
+{
+	AdminRequestHandlers::iterator it = mAdminRequestHandlers.find(requestId);
+
+	if (it != mAdminRequestHandlers.end())
+	{
+		// Cancel shutdown.
+		mAdminRequestHandlers.erase(it);
+	}
+}
+
+//======================================================================================================================
+//
+// Handle the queue with admin requests.
+//
+
+bool WorldManager::_handleAdminRequests(uint64 callTime, void* ref)
+{
+
+	// callTime = callTime - (callTime % 1000)
+	AdminRequestHandlers::iterator it = mAdminRequestHandlers.begin();
+	while (it != mAdminRequestHandlers.end())
+	{
+		//  The timer has expired?
+		if (callTime >= ((*it).second))
+		{
+			// Yes, handle it.
+			uint64 waitTime = AdminManager::Instance()->handleAdminRequest(((*it).first), callTime - ((*it).second));
+
+			if (waitTime)
+			{
+				// Set next execution time. 
+				(*it).second = callTime + waitTime;
+			}
+			else
+			{
+				gLogger->logMsgF("Removed expired handler for admin request %d", MSG_NORMAL, (*it).first);
+
+				// Requested to remove the handler.
+				it = mAdminRequestHandlers.erase(it);
+				continue;
+			}
+		}
+		++it;
+	}
+
+	return true;
+}
+
+
+//======================================================================================================================
 
 void WorldManager::handleTimer(uint32 id, void* container)
 {
@@ -2030,7 +2104,9 @@ void WorldManager::_handleLoadComplete()
 	mNpcManagerScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleActiveNpcs),5,250,NULL);
 
 	// Initialize static creature lairs.
+	mAdminScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleAdminRequests),5,5000,NULL);
 
+	
 
 }
 
@@ -2100,6 +2176,32 @@ int32 WorldManager::getPlanetIdByName(string name)
 
 	return(-1);
 }
+
+//======================================================================================================================
+
+int32 WorldManager::getPlanetIdByNameLike(string name)
+{
+	uint8	id = 0;
+	name.toLower();
+
+	BStringVector::iterator it = mvPlanetNames.begin();
+
+	while(it != mvPlanetNames.end())
+	{
+		// gLogger->logMsgF("Comparing: %s", MSG_NORMAL, name.getAnsi());				
+		// gLogger->logMsgF("with     : %s", MSG_NORMAL, (*it).getAnsi());				
+		if(_strnicmp((*it).getAnsi(),name.getAnsi(), 3) == 0)
+		{
+			// gLogger->logMsgF("Matched with planet id = %d", MSG_NORMAL, id);				
+			return (id);
+		}
+		++it;
+		id++;
+	}
+	// gLogger->logMsgF("No match, compared %d planet names", MSG_NORMAL, id);				
+	return(-1);
+}
+
 
 //======================================================================================================================
 //

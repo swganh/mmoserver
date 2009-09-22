@@ -306,9 +306,7 @@ void ObjectController::_handleGroupChat(uint64 targetId,Message* message,ObjectC
 	//this should be fastpath as not being Mission critical and we want to prevent the communication protocol overhead with Acks and resends
 
 	// Convert since we are going to print it.
-	msgText.convert(BSTRType_ANSI);
-
-
+	// msgText.convert(BSTRType_ANSI);
 }
 
 

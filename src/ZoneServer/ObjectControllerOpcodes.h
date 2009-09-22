@@ -212,6 +212,11 @@ enum object_controller_admin_functions
 {
 	opOCAdminSysMsg						= 0xa0cb8ed,
 	opOCAdminWarpSelf					= 0x523daa6c,
+	opOCAdminBroadcast					= 0x99bd8693,
+	opOCAdminBroadcastPlanet			= 0xEB0B6D6B,
+	opOCAdminBroadcastGalaxy			= 0x5AD7B5CE,
+	opOCAdminShutdownGalaxy				= 0xFC96BB5C,
+	opOCAdminCancelShutdownGalaxy		= 0x72790D12,
 };
 
 //=======================================================================

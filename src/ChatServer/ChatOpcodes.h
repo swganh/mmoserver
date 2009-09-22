@@ -175,6 +175,11 @@ enum chat_opcodes
 	opIsmGroupSay					= 0x39360616,	//[ZO->CH] 
 	opChatNotifySceneReady			= 0x75C4DD84,	//[ZO->CH]  // Fake code, crc-based on the word "chatcmdsceneready". 
 
+	// admin inter server messages
+	opIsmBroadcastPlanet			= 0x3F9D6D6E,	//[ZO->CH] 
+	opIsmBroadcastGalaxy			= 0x8E41B5CB,	//[ZO->CH] 
+	opIsmScheduleShutdown			= 0xF2477D2C,	//[ZO <-> CH] 
+	opIsmCancelShutdown				= 0x5E43AC09,	//[ZO <-> CH] 
 
 };
 

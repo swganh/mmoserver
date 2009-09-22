@@ -129,8 +129,9 @@ void ChatManager::_loadCommandMap()
 	mCommandMap.insert(std::make_pair(opFindFriendSendPosition,&ChatManager::_processFindFriendGotPosition));
 
 	mCommandMap.insert(std::make_pair(opIsmGroupSay,&ChatManager::_processGroupSaySend));
-	
-	
+	mCommandMap.insert(std::make_pair(opIsmBroadcastGalaxy,&ChatManager::_processBroadcastGalaxy));
+	mCommandMap.insert(std::make_pair(opIsmScheduleShutdown,&ChatManager::_processScheduleShutdown));
+	mCommandMap.insert(std::make_pair(opIsmCancelShutdown,&ChatManager::_processCancelScheduledShutdown));
 
 }
 
@@ -314,6 +315,9 @@ void ChatManager::_registerCallbacks()
 	mMessageDispatch->RegisterMessageCallback(opSendSystemMailMessage,this);
 
 	mMessageDispatch->RegisterMessageCallback(opIsmGroupSay,this);
+	mMessageDispatch->RegisterMessageCallback(opIsmBroadcastGalaxy,this);
+	mMessageDispatch->RegisterMessageCallback(opIsmScheduleShutdown,this);
+	mMessageDispatch->RegisterMessageCallback(opIsmCancelShutdown,this);
 }
 
 //======================================================================================================================
@@ -361,6 +365,9 @@ void ChatManager::_unregisterCallbacks()
 
 	//mMessageDispatch->UnregisterMessageCallback(opConnectPlayerMessage);
 	mMessageDispatch->UnregisterMessageCallback(opIsmGroupSay);
+	mMessageDispatch->UnregisterMessageCallback(opIsmBroadcastGalaxy);
+	mMessageDispatch->UnregisterMessageCallback(opIsmScheduleShutdown);
+	mMessageDispatch->UnregisterMessageCallback(opIsmCancelShutdown);
 }
 
 //======================================================================================================================
@@ -3160,7 +3167,7 @@ void ChatManager::_processGroupSaySend(Message* message,DispatchClient* client)
 {
 	//gLogger->logMsg("_processGroupSaySend");
 
-	gLogger->hexDump(message->getData(), message->getSize());
+	// gLogger->hexDump(message->getData(), message->getSize());
 	message->ResetIndex();
 
 	Player*		player = getPlayerByAccId(client->getAccountId());
@@ -3217,4 +3224,137 @@ void ChatManager::_processGroupSaySend(Message* message,DispatchClient* client)
 	// Convert since we are going to print it.
 	// msg.convert(BSTRType_ANSI);
 	// gLogger->logMsgF("Groupchat from player %s with id [%lld] -> : %s",MSG_NORMAL, player->getName().getAnsi(), player->mCharId, msg.getAnsi());
+}
+
+
+//======================================================================================================================
+void ChatManager::_processBroadcastGalaxy(Message* message,DispatchClient* client)
+{
+	gLogger->logMsg("_processBroadcastGalaxy");
+
+	// gLogger->hexDump(message->getData(), message->getSize());
+	message->ResetIndex();
+
+	Player*	player = getPlayerByAccId(client->getAccountId());
+
+	if (player == NULL)
+	{
+		gLogger->logErrorF("chat","ChatManager::_processBroadcastGalaxy() Error getting player from account map %u",MSG_NORMAL,client->getAccountId());
+		return;
+	}
+
+	string msg;
+	msg.setType(BSTRType_Unicode16);
+	msg.setLength(512);
+
+	uint32 opCode = message->getUint32();	// op-code for this command.
+	uint32 planetId = message->getUint32(); 
+	message->getStringUnicode16(msg);
+
+
+	PlayerList::iterator listIt = mPlayerList.begin();
+	while(listIt != mPlayerList.end())
+	{
+		if ((planetId == -1) || (planetId == player->getPlanetId()))
+		{
+			gChatMessageLib->sendSystemMessage((*listIt), msg.getUnicode16());
+		}
+		++listIt;
+	}
+
+	// Convert since we are going to print it.
+	// msg.convert(BSTRType_ANSI);
+	// gLogger->logMsgF("ChatManager::_processBroadcastGalaxy() Message = %s", MSG_NORMAL, msg.getAnsi());
+		
+}
+
+
+//======================================================================================================================
+void ChatManager::_processScheduleShutdown(Message* message, DispatchClient* client)
+{
+	gLogger->logMsg("_processScheduleShutdown");
+
+	message->ResetIndex();
+
+	string msg;
+	msg.setType(BSTRType_Unicode16);
+	msg.setLength(512);
+
+	uint32 opCode = message->getUint32();	// op-code for this command.
+	uint32 scheduledTime = message->getUint32(); 
+	message->getStringUnicode16(msg);
+
+	uint8 planetId;
+	for (planetId = CR_Corellia; planetId <= CR_Yavin4; planetId++)
+	{
+		Message* newMessage;
+		gMessageFactory->StartMessage();
+		gMessageFactory->addUint32(opIsmScheduleShutdown);
+		gMessageFactory->addUint32(scheduledTime);	
+		gMessageFactory->addString(msg);
+		newMessage = gMessageFactory->EndMessage();
+		client->SendChannelA(newMessage, AdminAccountId, planetId, 2); 
+	}
+	// gLogger->logMsg("_processScheduleShutdown() Have invoked the 10 standard planets");
+
+	planetId = CR_Corellia + 41; // Huuu
+
+	Message* newMessage;
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opIsmScheduleShutdown);
+	gMessageFactory->addUint32(scheduledTime);	
+	gMessageFactory->addString(msg);
+	newMessage = gMessageFactory->EndMessage();
+	client->SendChannelA(newMessage, AdminAccountId, planetId, 2); 
+
+	// gLogger->logMsg("_processScheduleShutdown() Have also invoked Tutorial");
+
+
+	// Convert since we are going to print it.
+	// msg.convert(BSTRType_ANSI);
+	// gLogger->logMsgF("ChatManager::_processBroadcastGalaxy() Message = %s", MSG_NORMAL, msg.getAnsi());
+		
+}
+
+//======================================================================================================================
+//
+//
+//
+//
+
+void ChatManager::_processCancelScheduledShutdown(Message* message, DispatchClient* client)
+{
+	gLogger->logMsg("_processCancelScheduledShutdown");
+
+	message->ResetIndex();
+
+	string msg;
+	msg.setType(BSTRType_Unicode16);
+	msg.setLength(512);
+
+	uint32 opCode = message->getUint32();
+	uint32 option = message->getUint32(); 
+	message->getStringUnicode16(msg);
+
+	uint8 planetId;
+	for (planetId = CR_Corellia; planetId <= CR_Yavin4; planetId++)
+	{
+		Message* newMessage;
+		gMessageFactory->StartMessage();
+		gMessageFactory->addUint32(opIsmCancelShutdown);
+		gMessageFactory->addUint32(0);	
+		gMessageFactory->addString(msg);
+		newMessage = gMessageFactory->EndMessage();
+		client->SendChannelA(newMessage, AdminAccountId, planetId, 2); 
+	}
+
+	planetId = CR_Corellia + 41; // Huuu
+
+	Message* newMessage;
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opIsmCancelShutdown);
+	gMessageFactory->addUint32(0);	
+	gMessageFactory->addString(msg);
+	newMessage = gMessageFactory->EndMessage();
+	client->SendChannelA(newMessage, AdminAccountId, planetId, 2); 
 }

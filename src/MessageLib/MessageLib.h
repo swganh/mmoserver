@@ -87,6 +87,8 @@ public:
 		string tuFile = "",string tuVar = "",string tuCustom = L"");
 
 	bool				sendMacroSystemMessage(PlayerObject* playerObject,string message,string macro);
+	bool				sendSystemMessage(PlayerObject* playerObject, string message, bool chatOnly);
+
 	ResourceLocation	sendSurveyMessage(uint16 range,uint16 points,CurrentResource* resource,PlayerObject* targetObject);
 	bool				sendPlayMusicMessage(uint32 soundId,PlayerObject* targetObject);
 	bool				sendPlayMusicMessage(uint32 soundId,Object* creatureObject);	// To be used by non-player objects.

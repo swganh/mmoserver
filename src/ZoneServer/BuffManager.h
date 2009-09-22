@@ -13,7 +13,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #define ANH_BUFFMANAGER_H
 
 #define	 gBuffManager	BuffManager::getSingletonPtr()
-#define	 gMessageLib	MessageLib::getSingletonPtr()
+// WTF This is already defined where it should be.... in the message lib
+// #define	 gMessageLib	MessageLib::getSingletonPtr()
+
 //======================================================================================================================
 #include "DatabaseManager/DatabaseCallback.h"
 #include "BuffEvent.h"

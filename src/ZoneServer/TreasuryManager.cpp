@@ -416,36 +416,40 @@ void TreasuryManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 
 		case TREMQuery_BankTipgetId:
 		{
+			if(!result->getRowCount())
+			{
+				gMessageLib->sendSystemMessage(asynContainer->player, L"You may only /tip or /tip bank to other players.");
+				return;
+			}
+
 			uint64 id;
 			DataBinding* binding = mDatabase->CreateDataBinding(1);
 			binding->addField(DFT_uint64,0,8);
 			result->GetNextRow(binding,&id);
 
 			uint32 amount = asynContainer->amount;
+		
+			//ok we just established that our target exists
+			//we now need to update the bank on the db side
+			TreasuryManagerAsyncContainer* asyncContainer = new TreasuryManagerAsyncContainer(TREMQuery_BankTipTransaction,asynContainer->player->getClient());
 
-			if (id != 0)
-			{
-				//ok we just established that our target exists
-				//we now need to update the bank on the db side
-				TreasuryManagerAsyncContainer* asyncContainer = new TreasuryManagerAsyncContainer(TREMQuery_BankTipTransaction,asynContainer->player->getClient());
+			asyncContainer->amount = asynContainer->amount;
+			asyncContainer->player = asynContainer->player;
+			asyncContainer->targetId = id;
+			asyncContainer->targetName = asynContainer->targetName;
 
-				asyncContainer->amount = asynContainer->amount;
-				asyncContainer->player = asynContainer->player;
-				asyncContainer->targetId = id;
-				asyncContainer->targetName = asynContainer->targetName;
+			Transaction* mTransaction = mDatabase->startTransaction(this,asyncContainer);
+			int8 sql[256];
+			sprintf(sql,"UPDATE banks SET credits=credits-%i WHERE id=%lld",asynContainer->amount, asynContainer->player->getId()+4);
+			mTransaction->addQuery(sql);
+			sprintf(sql,"UPDATE banks SET credits=credits+%i WHERE id=%lld",asynContainer->amount, id+4);
+			mTransaction->addQuery(sql);
 
-				Transaction* mTransaction = mDatabase->startTransaction(this,asyncContainer);
-				int8 sql[256];
-				sprintf(sql,"UPDATE banks SET credits=credits-%i WHERE id=%lld",asynContainer->amount, asynContainer->player->getId()+4);
-				mTransaction->addQuery(sql);
-				sprintf(sql,"UPDATE banks SET credits=credits+%i WHERE id=%lld",asynContainer->amount, id+4);
-				mTransaction->addQuery(sql);
+			mTransaction->execute();
 
-				mTransaction->execute();
-
-			   break;
-			}
-			gMessageLib->sendSystemMessage(asynContainer->player, L"You may only /tip or /tip bank to other players.");
+		   break;
+			
+			
 		}
 		break;
 		

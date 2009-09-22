@@ -144,7 +144,6 @@ void TradeManager::handleDispatchMessage(uint32 opcode, Message* message, Dispat
 		case opDeductMoneyMessage:
 		{
 			_processDeductMoneyMessage(message,client);
-			gLogger->logMsgF("opDeductMoneyMessage::handleDispatchMessage: handled opcode %u",MSG_NORMAL,opcode);
 		}
 		break;
 		
@@ -152,21 +151,18 @@ void TradeManager::handleDispatchMessage(uint32 opcode, Message* message, Dispat
 		{
 			//send by the chatserver when we try to get an item from the bazaar!
 			_processCreateItemMessage(message,client);
-			gLogger->logMsgF("ZoneServer Create Item in Inventory",MSG_NORMAL);
 		}
 		break;
 
 		case opCreateAuctionMessage:
 		{
 			_processHandleAuctionCreateMessage(message,client,TRMVendor_Auction);
-			gLogger->logMsgF("opIsVendorMessage::handleDispatchMessage: handled opcode %u",MSG_NORMAL,opcode);
 		}
 		break;
 
 		case opCreateImmediateAuctionMessage:
 		{
 			_processHandleAuctionCreateMessage(message,client,TRMVendor_Instant);
-			gLogger->logMsgF("opIsVendorMessage::handleDispatchMessage: handled opcode %u",MSG_NORMAL,opcode);
 
 		}
 		break;
@@ -174,7 +170,6 @@ void TradeManager::handleDispatchMessage(uint32 opcode, Message* message, Dispat
 		case opAbortTradeMessage:
 		{
 			_processAbortTradeMessage(message,client);
-			gLogger->logMsgF("opAbortTradeMessage::handleDispatchMessage: handled opcode %u",MSG_NORMAL,opcode);
 		}
 		break;
 
@@ -295,14 +290,18 @@ void TradeManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				DataBinding* binding = mDatabase->CreateDataBinding(1);
 				binding->addField(DFT_uint32,0,4);
 				result->GetNextRow(binding,&error);
-				if (error == 0){
-					if(asynContainer->player1 != NULL && asynContainer->player1->getConnectionState() == PlayerConnState_Connected){
+				if (error == 0)
+				{
+					// no errors : lets move the money
+					if(asynContainer->player1 != NULL && asynContainer->player1->getConnectionState() == PlayerConnState_Connected)
+					{
 						asynContainer->player1->giveInventoryCredits(-asynContainer->amountcash);
 						asynContainer->player1->giveBankCredits(-asynContainer->amountbank);
 					}
 
 					//CAVE player2 does NOT exist if the seller is NOT online
-					if(asynContainer->player2 != NULL && asynContainer->player2->getConnectionState() == PlayerConnState_Connected){
+					if(asynContainer->player2 != NULL && asynContainer->player2->getConnectionState() == PlayerConnState_Connected)
+					{
 						asynContainer->player2->giveBankCredits(asynContainer->amount1);
 					}
 

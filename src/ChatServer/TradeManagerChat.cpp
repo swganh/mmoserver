@@ -1020,7 +1020,8 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
 				Bazaar* bazaarInfo = getBazaarInfo(AuctionTemp->BazaarID);
 
 				//is it an auction or an instant
-				if (AuctionTemp->AuctionTyp == 0){
+				if (AuctionTemp->AuctionTyp == 0)
+				{
 					//now get additional Information - do we have an actual high bidder? - Who is it? and 
 					//what is the highbid and the highproxy
 					//_processAuctionBid(AuctionTemp,asynContainer,player);
@@ -1054,7 +1055,8 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
 					break;
 				}
 						
-				if (AuctionTemp->AuctionTyp == 1){
+				if (AuctionTemp->AuctionTyp == 1)
+				{
 					//instant
 					//the client checks for the money so we will check for cheating later in the zoneserver
 					//the client sends a retrieve message hereafter so this is only to buy the item
@@ -1075,7 +1077,6 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
 		break;
 		case TRMQuery_NULL:
 				{
-					//printf("\nQuery Null\n");
 					break;
 				}
 		
@@ -1470,8 +1471,6 @@ void TradeManagerChatHandler::processBidAuctionMessage(Message* message,Dispatch
 		return;
 	}
 
-
-	//squeeze our Packet for all usefull information
 	//ID of the Auction that gets retrieved
 	uint64	ItemID	= message->getUint64();
 	uint32	MyBid	= message->getUint32();

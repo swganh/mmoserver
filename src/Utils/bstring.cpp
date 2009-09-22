@@ -247,7 +247,7 @@ BString& BString::operator =(const BString& data)
     delete [] mString;
 	mString = new int8[mAllocated];
 
-  // Cpoy our string into the new buffer.
+  // Copy our string into the new buffer.
   memcpy(mString, data.getRawData(), mAllocated);
 
 	return *this;
@@ -403,7 +403,16 @@ void BString::toLower()
 	if(mType == BSTRType_Unicode16)
 	{
 		assert(false);
-		convert(BSTRType_ANSI);
+		//convert(BSTRType_ANSI);
+		uint16* data = (uint16*)mString;
+
+		while(*data)
+		{
+			*data = towlower(*data);
+			data+=2;
+		}
+		return;
+
 	}
 
 	int8* data = mString;
@@ -440,13 +449,33 @@ void BString::toUpperFirst()
 {
 	if(mType == BSTRType_Unicode16)
 	{
-		assert(false);
-		convert(BSTRType_ANSI);
+		uint16* data = (uint16*)mString;
+
+		*data = towupper(*data);
+		return;
 	}
 
 	int8* data = mString;
 
 	*data = toupper(*data);
+
+}
+
+//======================================================================================================================
+
+void BString::toLowerFirst()
+{
+	if(mType == BSTRType_Unicode16)
+	{
+		uint16* data = (uint16*)mString;
+
+		*data = towlower(*data);
+		return;
+	}
+
+	int8* data = mString;
+
+	*data = tolower(*data);
 
 }
 

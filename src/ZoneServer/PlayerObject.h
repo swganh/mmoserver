@@ -263,7 +263,7 @@ class PlayerObject : public CreatureObject
 		
 
 		// crafting
-		CraftingStation*	getCraftingStation(ObjectSet	inRangeObjects);
+		CraftingStation*	getCraftingStation(ObjectSet	inRangeObjects, ItemType	toolType);
 		uint32				getCraftingStage(){ return mCraftingStage; }
 		void				setCraftingStage(uint32 stage){ mCraftingStage = stage; }
 		uint32				getExperimentationFlag(){ return mExperimentationFlag; }

@@ -277,7 +277,7 @@ void ServerManager::_processClusterZoneTransferRequestByTicket(ConnectionClient*
     gMessageFactory->addUint64(ticketId);
     Message* newMessage = gMessageFactory->EndMessage();
 
-    // This one goes to
+    // This one goes to the originating zone
     newMessage->setAccountId(message->getAccountId());
     newMessage->setDestinationId(client->getServerId());
     newMessage->setRouted(true);

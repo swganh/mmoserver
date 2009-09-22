@@ -91,9 +91,11 @@ void MessageLib::sendBoughtInstantMail(PlayerObject* newOwner, string ItemName, 
 
 	aMS->addMBstf("auction","buyer_success_location");
 	aMS->addTT(region);
+	planet.toUpperFirst();
 	aMS->addTO(planet);
 	aMS->addTextModule();
 
+	planet.toLowerFirst();
 	aMS->setPlanetString(planet);
 	aMS->setWP(mX,mY,0,ItemName);
 	aMS->addWaypoint();
@@ -133,6 +135,7 @@ void MessageLib::sendSoldInstantMail(uint64 oldOwner, PlayerObject* newOwner, st
 
 	aMS->addMBstf("auction","seller_success_location");
 	aMS->addTT(region);
+	planet.toUpperFirst();
 	aMS->addTO(planet);
 	aMS->addTextModule();
 

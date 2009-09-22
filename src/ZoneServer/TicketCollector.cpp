@@ -194,7 +194,7 @@ void TicketCollector::handleUIEvent(uint32 action,int32 element,string inputStr,
 					}
 					else
 					{
-						gLogger->logMsg("TicketCollector: Error getting TravelPoint\n");
+						gLogger->logMsg("TicketCollector: Error getting TravelPoint");
 					}
 					break;
 				}

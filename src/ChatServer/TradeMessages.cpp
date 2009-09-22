@@ -165,7 +165,10 @@ void ChatMessageLib::sendBazaarTransactionMessage(DispatchClient* client, Auctio
 
 		token = strtok(mString.getRawData(),separation); //
 		planet = BString(token);
-		planet.toUpperFirst();
+		
+		//we need the first character capped for the EMail but lower case for the waypoint!!
+		//so I scrapped it here and move it to the zone where the EMail gets send
+		//planet.toUpperFirst();
 
 		token = strtok( NULL,separation); 
 		region = BString(token);

@@ -71,6 +71,7 @@ public:
   void                                toLower();
   void                                toUpper();
   void                                toUpperFirst();
+  void								  toLowerFirst();
   bool								  isNumber();
 
   void                                setLength(uint16 length);

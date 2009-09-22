@@ -1744,26 +1744,109 @@ void PlayerObject::removeFromDuelList(PlayerObject* player)
 
 //=============================================================================
 
-CraftingStation* PlayerObject::getCraftingStation(ObjectSet	inRangeObjects)
+CraftingStation* PlayerObject::getCraftingStation(ObjectSet	inRangeObjects, ItemType	toolType)
 {
 	// iterate through the results
+	// and return a fitting crafting station depending on the tool we used
+	// return NULL in case no fitting station is near
+
 	ObjectSet::iterator it = inRangeObjects.begin();
+
+	setNearestCraftingStation(NULL);
 
 	while(it != inRangeObjects.end())
 	{
 		if(CraftingStation*	station = dynamic_cast<CraftingStation*>(*it))
 		{
-			setNearestCraftingStation(station->getId());
+			//check whether the station fits to our tool!!
+			switch(toolType)
+			{
+				case ItemType_ClothingTool:
+				{
+					if(station->getItemType() == ItemType_ClothingStation)
+						setNearestCraftingStation(station->getId());
 
-			return(station);
+					if(station->getItemType() == ItemType_ClothingStationPublic)
+					{
+						//if()
+						setNearestCraftingStation(station->getId());
+						return(station);
+					}
+				}
+				break;
+
+				case ItemType_GenericTool:
+				{
+					return(NULL);
+				}
+				break;
+
+				case ItemType_WeaponTool:
+				{
+					if(station->getItemType() == ItemType_WeaponStation)
+						setNearestCraftingStation(station->getId());
+
+					if(station->getItemType() == ItemType_WeaponStationPublic)
+					{
+						setNearestCraftingStation(station->getId());
+						return(station);
+					}
+				}
+				break;
+
+				case ItemType_FoodTool:
+				{
+					if(station->getItemType() == ItemType_FoodStation)
+						setNearestCraftingStation(station->getId());
+
+					if(station->getItemType() == ItemType_FoodStationPublic)
+					{
+						setNearestCraftingStation(station->getId());
+						return(station);
+					}
+				}
+				break;
+
+				case ItemType_StructureTool:
+				{
+					if(station->getItemType() == ItemType_StructureStation)
+						setNearestCraftingStation(station->getId());
+
+					if(station->getItemType() == ItemType_StructureStationPublic)
+					{
+						setNearestCraftingStation(station->getId());
+						return(station);
+					}
+				}
+				break;
+
+				case ItemType_JediTool:
+				{
+					return(NULL);
+				}
+				break;
+
+				case ItemType_SpaceTool:
+				{
+					if(station->getItemType() == ItemType_SpaceStation)
+						setNearestCraftingStation(station->getId());
+
+					if(station->getItemType() == ItemType_SpaceStationPublic)
+					{
+						setNearestCraftingStation(station->getId());
+						return(station);
+					}
+				}
+				break;
+			}
 		}
 
 		++it;
 	}
 
-	setNearestCraftingStation(0);
+	CraftingStation*	station = dynamic_cast<CraftingStation*>(gWorldManager->getObjectById(getNearestCraftingStation()));
 
-	return(NULL);
+	return(station);
 }
 
 //=============================================================================

@@ -40,8 +40,31 @@ enum ItemFamily
 
 enum ItemType
 {
+	//====================================================
+	// cafting tools / stations
 	ItemType_ClothingTool				= 11,
+	ItemType_GenericTool				= 12,
+	ItemType_WeaponTool					= 13,
+	ItemType_FoodTool					= 14,
+	ItemType_StructureTool				= 15,
+	ItemType_JediTool					= 16,
+	ItemType_SpaceTool					= 17,
+
+	ItemType_StructureStationPublic		= 18,
+	ItemType_ClothingStation			= 19,
+	ItemType_FoodStationPublic			= 20,
+	ItemType_WeaponStationPublic		= 22,
+	ItemType_WeaponStation				= 23,
+	ItemType_StructureStation			= 24,
+	ItemType_ClothingStationPublic		= 29,
+	ItemType_FoodStation				= 30,
+	ItemType_SpaceStationPublic			= 31,
+	ItemType_SpaceStation				= 32,
+
 	ItemType_ManSchematic				= 1312,
+	
+	//====================================================
+	// Music Instruments
 	ItemType_Slitherhorn				= 1313,
 	ItemType_Kloo_Horn					= 1314,
 	ItemType_fizzz						= 1315,
@@ -56,10 +79,19 @@ enum ItemType
 	ItemType_organ						= 1324,
 	ItemType_drums						= 1325,
 	ItemType_dual_wave_synthesizer		= 1326,
+
+
+	//====================================================
+	// Harvesters
 	ItemType_personal_flora_harvester	= 1601,
+
+	//====================================================
+	// bikes
 	ItemType_Deed_X34					= 1736,
 	ItemType_Deed_Speederbike			= 1737,
 	ItemType_Deed_Swoop					= 1738,
+	
+	
 	ItemType_Stimpack_A					= 1768,
 	ItemType_Stimpack_B					= 1769,
 	ItemType_Stimpack_C					= 1770,

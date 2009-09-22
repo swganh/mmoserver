@@ -134,21 +134,22 @@ void ObjectController::_handleRequestCraftingSession(uint64 targetId,Message* me
 	ObjectSet			inRangeObjects;
 	float				range = 25.0;
 
-	//TODO we need to check if its static or playerowned and to match it to the tool
-	mSI->getObjectsInRange(playerObject,&inRangeObjects,(ObjType_Tangible),range);
-	station = playerObject->getCraftingStation(inRangeObjects);
-
-	if(!station)
-	{
-		expFlag = false;
-	}
-
-		
 	if(!tool)
 	{
 		gLogger->logMsgF("ObjController::handleRequestcraftingsession: could not find tool %lld",MSG_NORMAL,targetId);
 		gMessageLib->sendCraftAcknowledge(opCraftCancelResponse,0,0,playerObject);
 		return;
+	}
+
+	// get the tangible objects in range
+	mSI->getObjectsInRange(playerObject,&inRangeObjects,(ObjType_Tangible),range);
+
+	//and see if a fitting crafting station is near
+	station = playerObject->getCraftingStation(inRangeObjects,(ItemType) tool->getItemType());
+
+	if(!station)
+	{
+		expFlag = false;
 	}
 
 	if(playerObject->checkState(CreatureState_Crafting) || playerObject->getCraftingSession())

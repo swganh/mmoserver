@@ -50,6 +50,8 @@ mCriticalCount(0)
 	mOwner->setExperimentationFlag(mExpFlag);
 	mOwner->setExperimentationPoints(0);
 
+	// we do not properly check for crafting stations at this point !!!
+	// we need to check for crafting stations compatible with our crafting tools!!!!!
 	if(station)
 		mOwner->setNearestCraftingStation(station->getId());
 	else

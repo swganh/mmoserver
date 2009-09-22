@@ -420,6 +420,8 @@ void CharacterLoginHandler::_processClusterZoneTransferApprovedByTicket(Message*
 		destination.mY = dstPoint->spawnY;
 		destination.mZ = dstPoint->spawnZ + (gRandom->getRand()%5 - 2);
 
+		gLogger->logMsgF(" CharacterLoginHandler::_processClusterZoneTransferApprovedByTicket : (x)%f:(z)%f:(y)%f",MSG_NORMAL,destination.mX,destination.mY,destination.mZ);
+
 		// reset to standing
 		playerObject->setPosture(CreaturePosture_Upright);
 		playerObject->updateMovementProperties();

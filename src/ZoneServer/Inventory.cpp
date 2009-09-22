@@ -189,6 +189,7 @@ Object* Inventory::getObjectById(uint64 objId)
 			return(*it);
 		++it;
 	}
+	gLogger->logMsgF("Inventory::getObjectById Item %I64u not found",MSG_HIGH,objId);
 	return(NULL);
 }
 
@@ -258,6 +259,14 @@ void Inventory::handleObjectReady(Object* object,DispatchClient* client)
 
 bool Inventory::EquipItem(Object* object)
 {
+	Item* item = dynamic_cast<Item*>(object);
+	
+	if(!item)
+	{
+		gLogger->logMsgF("Inventory::EquipItem : No Item object ID : %I64u", MSG_NORMAL,object->getId());
+		return(false);
+	}
+
 	if(!object->hasInternalAttribute("equipped"))
 	{
 		gLogger->logMsgF("Inventory::EquipItem : object not equipable object ID : %I64u", MSG_NORMAL,object->getId());
@@ -267,14 +276,6 @@ bool Inventory::EquipItem(Object* object)
 	if(object->getInternalAttribute<bool>("equipped"))
 	{
 		gLogger->logMsgF("Inventory::EquipItem : object is already equipped object ID : %I64u", MSG_NORMAL,object->getId());
-		return(false);
-	}
-
-	Item* item = dynamic_cast<Item*>(object);
-	
-	if(!item)
-	{
-		gLogger->logMsgF("Inventory::EquipItem : No Item object ID : %I64u", MSG_NORMAL,object->getId());
 		return(false);
 	}
 

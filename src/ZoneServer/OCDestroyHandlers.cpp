@@ -268,7 +268,7 @@ void ObjectController::_handleDestroyInstrument(Item* item)
 		
 		if(!permanentInstrument)
 		{
-			gLogger->logMsg("ObjectController::handleDestroyInstrument : no parent Instrument\n");
+			gLogger->logMsg("ObjectController::handleDestroyInstrument : no parent Instrument");
 			return;
 		}
 
@@ -279,6 +279,7 @@ void ObjectController::_handleDestroyInstrument(Item* item)
 			permanentInstrument->setPlaced(false);
 			permanentInstrument->setNonPersistantCopy(0);
 			playerObject->setPlacedInstrumentId(0);
+			playerObject->setPermanentInstrumentId(0);
 		}
 		// it is the permanent Instrument delete the temporary copy too
 		else if(permanentInstrument == item)

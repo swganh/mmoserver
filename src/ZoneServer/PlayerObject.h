@@ -204,8 +204,12 @@ class PlayerObject : public CreatureObject
 		// Entertainment
 
 		EMLocationType		getPlayerLocation();
-		uint64				getPlacedInstrumentId(){return mPlacedInstrument;}
+		uint64				getPermanentInstrumentId(){return mPermanentInstrument;}
+		void				setPermanentInstrumentId(uint64 id){mPermanentInstrument = id;}
+		
+		uint64			getPlacedInstrumentId(){return mPlacedInstrument;}
 		void				setPlacedInstrumentId(uint64 id){mPlacedInstrument = id;}
+
 		uint64				getEntertainerWatchToId(){return mEntertainerWatchToId;}
 		void				setEntertainerWatchToId(uint64 entertainer){mEntertainerWatchToId = entertainer;}
 		uint64				getEntertainerTaskId(){return mEntertainerTaskId;}
@@ -346,6 +350,7 @@ class PlayerObject : public CreatureObject
 		
 		// Entertainer
 		uint64				mPlacedInstrument;
+		uint64				mPermanentInstrument;
 		uint64				mSelectedInstrument;
 		uint64				mEntertainerWatchToId;
 		uint64				mEntertainerTaskId;

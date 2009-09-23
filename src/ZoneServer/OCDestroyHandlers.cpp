@@ -4,7 +4,7 @@ This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emu
 For more information, see http://www.swganh.org
 
 
-Copyright (c) 2006 - 2008 The swgANH Team
+Copyright (c) 2006 - 2009 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
@@ -268,7 +268,7 @@ void ObjectController::_handleDestroyInstrument(Item* item)
 		
 		if(!permanentInstrument)
 		{
-			gLogger->logMsg("ObjectController::handleDestroyInstrument : no parent Instrument");
+			gLogger->logMsg("ObjectController::handleDestroyInstrument : no parent Instrument\n");
 			return;
 		}
 
@@ -279,7 +279,6 @@ void ObjectController::_handleDestroyInstrument(Item* item)
 			permanentInstrument->setPlaced(false);
 			permanentInstrument->setNonPersistantCopy(0);
 			playerObject->setPlacedInstrumentId(0);
-			playerObject->setPermanentInstrumentId(0);
 		}
 		// it is the permanent Instrument delete the temporary copy too
 		else if(permanentInstrument == item)

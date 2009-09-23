@@ -37,16 +37,15 @@ void Instrument::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 	{	
 		switch(messageType)
 		{
-			case radId_itemDrop:// we need to handle this separately when we come to housing
 			case radId_itemUse: 
 			{
-				//placedInstrument() is the placed copy 
 				if (player->getPlacedInstrumentId() == this->getId())
 				{
 					float range = gWorldConfig->getConfiguration("Zone_Player_ItemUse",(float)6.0);
 					if (!gWorldManager->objectsInRange(player->getId(), this->getId(), range))
 					{
 						// We where out of range. (using 6.0 m as default range,this value not verified).
+						// TODO: Find the proper error-message, the one below is a "made up".
 						gMessageLib->sendSystemMessage(player,L"","system_msg","out_of_range");
 						return;
 					}
@@ -63,55 +62,55 @@ void Instrument::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 							gEntertainerManager->usePlacedInstrument(player,this);
 						}
 					}
-					return;
-					
+					else
+					{
+						// Create a new copy of the instrument.
+						// gEntertainerManager->useInstrument(player,this);
+					}
 				}
 				else
 				{
 					// We are handling the original instrument.
 					Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-					if(!inventory)
+					if (inventory)
 					{
-						assert(false);
-						return;
-					}
-
-					if (inventory->getId() == this->getParentId())
-					{
-						if (player->getPlacedInstrumentId() == 0)
+						if (inventory->getId() == this->getParentId())
 						{
-							// Create a new copy of the instrument.
-							gEntertainerManager->useInstrument(player,this);
-						}
-						else
-						{
-							gMessageLib->sendSystemMessage(player,L"You cannot do this at this time.");
-						}
-					}
-					else if (CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(this->getParentId())))
-					{
-						// Is this my instrument?
-						if (this->getOwner() == player->getId())
-						{
-							if (!gWorldManager->objectsInRange(player->getId(), this->getId(), 6.0))
+							if (player->getPlacedInstrumentId() == 0)
 							{
-								// We where out of range. (using 6.0 m as default range,this value not verified).
-								gMessageLib->sendSystemMessage(player,L"","system_msg","out_of_range");
-								return;
-							}
-
-							if ((player->getPerformingState() == PlayerPerformance_Music))
-							{
-								gEntertainerManager->stopEntertaining(player);
+								// Create a new copy of the instrument.
+								gEntertainerManager->useInstrument(player,this);
 							}
 							else
 							{
-								// Start to play the original.
-								gEntertainerManager->usePlacedInstrument(player,this);
+								gMessageLib->sendSystemMessage(player,L"You cannot do this at this time.");
+							}
+						}
+						else if (CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(this->getParentId())))
+						{
+							// Is this my instrument?
+							if (this->getOwner() == player->getId())
+							{
+								if (!gWorldManager->objectsInRange(player->getId(), this->getId(), 6.0))
+								{
+									// We where out of range. (using 6.0 m as default range,this value not verified).
+									// TODO: Find the proper error-message, the one below is a "made up".
+									gMessageLib->sendSystemMessage(player,L"","system_msg","out_of_range");
+									return;
+								}
+
+								if ((player->getPerformingState() == PlayerPerformance_Music))
+								{
+									gEntertainerManager->stopEntertaining(player);
+								}
+								else
+								{
+									// Start to play the original.
+									gEntertainerManager->usePlacedInstrument(player,this);
+								}
 							}
 						}
 					}
-					
 				}
 			}
 			break;

@@ -4,7 +4,7 @@ This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emu
 For more information, see http://www.swganh.org
 
 
-Copyright (c) 2006 - 2008 The swgANH Team
+Copyright (c) 2006 - 2009 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
@@ -1928,11 +1928,11 @@ bool EntertainerManager::handlePerformanceTick(CreatureObject* mObject)
 		aMS->addTextModule();
 		gMessageLib->sendMacroSystemMessage(entertainer,L"",aMS->assemble());
 		delete aMS;
-//		gLogger->logMsgF("end tick %I64u",MSG_HIGH,entertainer->getId());
+		gLogger->logMsgF("end tick %I64u",MSG_HIGH,entertainer->getId());
 		return (false);
 
 	}
-//	gLogger->logMsgF("end tick %I64u",MSG_HIGH,entertainer->getId());
+	gLogger->logMsgF("end tick %I64u",MSG_HIGH,entertainer->getId());
 	return (true);
 }
 
@@ -2082,7 +2082,7 @@ void EntertainerManager::useInstrument(PlayerObject* entertainer, Item* usedInst
 	usedInstrument->setNonPersistantCopy(0);
 
 	//mark the object we are placing right now its the permant one(!)
-	entertainer->setPermanentInstrumentId(usedInstrument->getId());
+	entertainer->setPlacedInstrumentId(usedInstrument->getId());
 		
 	//TODO
 	//check if we are somewhere where we may place our instrument ?
@@ -2103,84 +2103,85 @@ void EntertainerManager::useInstrument(PlayerObject* entertainer, Item* usedInst
 
 void EntertainerManager::handleObjectReady(Object* object,DispatchClient* client)
 {
-	Item* placedInstrument = dynamic_cast<Item*>(object);
-	if (!placedInstrument)
+	if (Item* placedInstrument = dynamic_cast<Item*>(object))
 	{
-		assert(false);
+		// Due to ugly hack, the newly created instrumment have the entertainer as parent.
+		// Parent should be Inventory, cell or in world, as long as it's not equipped.
 
-	}
-	// Due to ugly hack, the newly created instrumment have the entertainer as parent.
-	// Parent should be Inventory, cell or in world, as long as it's not equipped.
+		// This kind of hack does not make the code eaiser to handle and maintain.
+		// Why not use the client, already provided to this method, to get the actual player handling this object?
+		PlayerObject* player = gWorldManager->getPlayerByAccId(client->getAccountId());
+		if (player)
+		{
+			//link the inventory object to the placed temporary object and vice versa
+			Item* permanentinstrument = dynamic_cast<Item*>(gWorldManager->getObjectById(player->getPlacedInstrumentId()));
 
-	// This kind of hack does not make the code eaiser to handle and maintain.
-	// Why not use the client, already provided to this method, to get the actual player handling this object?
-	PlayerObject* player = gWorldManager->getPlayerByAccId(client->getAccountId());
-	if (!player)
-	{
-		assert(false);
-	}
+			if(!permanentinstrument)
+			{
+				gLogger->logMsg("EntertainerManager::handleObjectReady: no permanent instrument\n");
+				assert(false);
+				return;
+			}
 
-	//link the inventory object to the placed temporary object and vice versa
-	Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-	Item* permanentinstrument = dynamic_cast<Item*>(inventory->getObjectById(player->getPermanentInstrumentId()));
+			placedInstrument->setPersistantCopy(permanentinstrument->getId());	
+			permanentinstrument->setNonPersistantCopy(placedInstrument->getId());
+			placedInstrument->setPlaced(true);
 
-	if(!permanentinstrument)
-	{
-		gLogger->logMsg("EntertainerManager::handleObjectReady: no permanent instrument");
-		assert(false);
-		return;
-	}
+			//now set the nonpersistant Instrument in the playerObject
+			player->setPlacedInstrumentId(placedInstrument->getId());
 
-	placedInstrument->setPersistantCopy(permanentinstrument->getId());	
-	permanentinstrument->setNonPersistantCopy(placedInstrument->getId());
-	placedInstrument->setPlaced(true);
+			//place it in the gameworld
+			placedInstrument->setParentId(player->getParentId());
+			placedInstrument->setOwner(player->getId());
 
-	//now set the nonpersistant Instrument in the playerObject
-	player->setPlacedInstrumentId(placedInstrument->getId());
+			placedInstrument->mPosition  = player->mPosition;
+			placedInstrument->mDirection = player->mDirection;
+			
+			gWorldManager->addObject(object);
+						
+			//gWorldManager->initPlayersInRange(itemObject);
+			TangibleObject* tangible = dynamic_cast<TangibleObject*>(object);
+			
+			PlayerObjectSet*			inRangePlayers	= player->getKnownPlayers();
+			PlayerObjectSet::iterator	it				= inRangePlayers->begin();
+			while(it != inRangePlayers->end())
+			{
+				PlayerObject* targetObject = (*it);
+				gMessageLib->sendCreateTangible(tangible,targetObject);
+				targetObject->addKnownObjectSafe(object);
+				object->addKnownObjectSafe(targetObject);
+				++it;
+			}
 
-	//place it in the gameworld
-	placedInstrument->setParentId(player->getParentId());
-	placedInstrument->setOwner(player->getId());
+			gMessageLib->sendCreateTangible(tangible,player);
+			player->addKnownObjectSafe(object);
+			object->addKnownObjectSafe(player);
 
-	placedInstrument->mPosition  = player->mPosition;
-	placedInstrument->mDirection = player->mDirection;
-	
-	gWorldManager->addObject(object);
-				
-	//gWorldManager->initPlayersInRange(itemObject);
-
-	TangibleObject* tangible = dynamic_cast<TangibleObject*>(object);
-	
-	PlayerObjectSet*			inRangePlayers	= player->getKnownPlayers();
-	PlayerObjectSet::iterator	it				= inRangePlayers->begin();
-	while(it != inRangePlayers->end())
-	{
-		PlayerObject* targetObject = (*it);
-		gMessageLib->sendCreateTangible(tangible,targetObject);
-		targetObject->addKnownObjectSafe(object);
-		object->addKnownObjectSafe(targetObject);
-		++it;
-	}
-
-	gMessageLib->sendCreateTangible(tangible,player);
-	player->addKnownObjectSafe(object);
-	object->addKnownObjectSafe(player);
-
-	// We move the player, not the instrument.
-	if (player->getParentId())
-	{
-		// We are inside a cell.
-		gMessageLib->sendDataTransformWithParent(player);
-		gMessageLib->sendUpdateTransformMessageWithParent(player);
+			// We move the player, not the instrument.
+			if (player->getParentId())
+			{
+				// We are inside a cell.
+				gMessageLib->sendDataTransformWithParent(player);
+				gMessageLib->sendUpdateTransformMessageWithParent(player);
+			}
+			else
+			{
+				gMessageLib->sendDataTransform(player);
+				gMessageLib->sendUpdateTransformMessage(player);
+			}
+			// gMessageLib->sendDataTransform(placedInstrument);
+		}
+		else
+		{
+			// I wan't to when if this happens
+			assert(false);
+		}
 	}
 	else
 	{
-		gMessageLib->sendDataTransform(player);
-		gMessageLib->sendUpdateTransformMessage(player);
+		// I wan't to when if this happens
+		assert(false);
 	}
-	// gMessageLib->sendDataTransform(placedInstrument);
-
-	
 }
 
 //=======================================================================================================================
@@ -2411,7 +2412,7 @@ uint64 EntertainerManager::getInstrument(PlayerObject* entertainer)
 			Instrument* instrument = dynamic_cast<Instrument*>(gWorldManager->getObjectById(instrumentId));
 			if (instrument)
 			{
-				// We have a instrument targeted, but it can be ANY instrument I have or anyone elses laying around.
+				// We have a instrument targeted, but it can be ANY instrument I have or anyone elses laying at the floor.
 				uint32 instrumentType = instrument->getItemType();
 				if ((instrumentType == ItemType_Nalargon) || (instrumentType == ItemType_omni_box) || (instrumentType == ItemType_nalargon_max_reebo))
 				{			

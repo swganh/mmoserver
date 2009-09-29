@@ -18,6 +18,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "CraftingStation.h"
 #include "ObjectFactoryCallback.h"
 #include "Item.h"
+#include "Inventory.h"
 #include "ManufacturingSchematic.h"
 #include "Utils/rand.h"
 
@@ -53,6 +54,8 @@ class CraftingSession : public DatabaseCallback, public ObjectFactoryCallback
 		void					handleFillSlot(uint64 resContainerId,uint32 slotId,uint32 unknown,uint8 counter);
 		void					handleFillSlotResource(uint64 resContainerId,uint32 slotId,uint32 unknown,uint8 counter);
 		void					handleFillSlotComponent(uint64 componentId,uint32 slotId,uint32 unknown,uint8 counter);
+		uint32					getComponentSerial(ManufactureSlot*	manSlot, Inventory* inventory);
+		bool					AdjustComponentStack(Item* item, Inventory* inventory, uint32 uses);
 
 		void					handleEmptySlot(uint32 slotId,uint64 containerId,uint8 counter);
 		void					emptySlot(uint32 slotId,ManufactureSlot* manSlot,uint64 containerId);

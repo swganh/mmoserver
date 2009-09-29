@@ -1562,7 +1562,15 @@ bool MessageLib::sendDraftSchematicsList(CraftingTool* tool,PlayerObject* player
 
 	// filter by tool / station properties
 	uint32 toolGroupMask		= tool->getInternalAttribute<uint32>("craft_tool_typemask");
-	uint32 availableComplexity	= tool->getInternalAttribute<uint32>("complexity"); // + station complexity
+
+	uint32 availableComplexity	= tool->getInternalAttribute<uint32>("complexity"); // + stationComplexity
+	if(playerObject->getNearestCraftingStation())
+	{
+		//TODO check for private stations!!
+		availableComplexity = 25;
+	}
+
+	
 	uint32 filteredCount		= 0;
 	uint32 subCategory			= 0;
 

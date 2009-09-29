@@ -83,7 +83,19 @@ enum ItemType
 
 	//====================================================
 	// Harvesters
+	ItemType_personal_fusion_generator	= 1594,
+	ItemType_personal_solar_generator	= 1595,
+	ItemType_personal_wind_generator	= 1596,
+
 	ItemType_personal_flora_harvester	= 1601,
+
+
+	//====================================================
+	// Guild Halls
+	ItemType_deed_guildhall_corellian	= 1597,
+	ItemType_deed_guildhall_generic		= 1598,
+	ItemType_deed_guildhall_naboo		= 1599,
+	ItemType_deed_guildhall_tatooine	= 1600,
 
 	//====================================================
 	// bikes

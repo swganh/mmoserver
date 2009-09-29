@@ -14,14 +14,15 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 //=============================================================================
 
-StaticObject::StaticObject() : Object()
+//Cells are going to contain quite some stuff in our houses
+StaticObject::StaticObject() : ObjectContainer()
 {
 }
 
 //=============================================================================
 
 StaticObject::StaticObject(uint64 id,uint64 parentId,string model,ObjectType type)
-			 :Object(id,parentId,model,type)
+			 :ObjectContainer(id,parentId,model,type)
 {
 }
 

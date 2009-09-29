@@ -17,7 +17,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 //=============================================================================
 
-TangibleObject::TangibleObject() : Object(),
+TangibleObject::TangibleObject() : ObjectContainer(),
 mMaxCondition(100),
 mDamage(0),
 mComplexity(1.0f),
@@ -43,7 +43,7 @@ mTimerInterval(1000)
 //=============================================================================
 
 TangibleObject::TangibleObject(uint64 id,uint64 parentId,string model,TangibleGroup tanGroup,TangibleType tanType,string name,string nameFile,string detailFile) 
-			  : Object(id,parentId,model,ObjType_Tangible),mName(name),mNameFile(nameFile),mDetailFile(detailFile),mTanGroup(tanGroup),mTanType(tanType)
+			  : ObjectContainer(id,parentId,model,ObjType_Tangible),mName(name),mNameFile(nameFile),mDetailFile(detailFile),mTanGroup(tanGroup),mTanType(tanType)
 {
 	mColorStr			= "";
 	mUnknownStr1		= "";

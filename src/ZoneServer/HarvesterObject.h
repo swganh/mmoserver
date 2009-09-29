@@ -40,7 +40,6 @@ class HarvesterObject :	public TangibleObject
 		uint32			getLoadCount(){ return mTotalLoadCount; }
 		uint32			decLoadCount(){ return (mTotalLoadCount-1); }
 		void			setLoadCount(uint32 count){ mTotalLoadCount = count; }
-
 		
 
 	private:

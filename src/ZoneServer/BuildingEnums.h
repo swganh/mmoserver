@@ -69,6 +69,10 @@ enum HarvesterFamily
 	HarvesterFamily_small_Gas				= 7,
 	HarvesterFamily_medium_Gas				= 8,
 	HarvesterFamily_large_Gas				= 9,
+
+	HarvesterFamily_small_Chemical			= 10,
+	HarvesterFamily_medium_Chemical			= 11,
+	HarvesterFamily_large_Chemical			= 12,
 	
 };
 

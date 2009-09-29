@@ -15,6 +15,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "DatabaseManager/DataBinding.h"
 #include "LogManager/LogManager.h"
 #include "WorldManager.h"
+#include "Deed.h"
 #include "Utils/utils.h"
 
 #include <assert.h>
@@ -99,7 +100,7 @@ void HarvesterFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 								"SELECT harvesters.id,harvesters.oX,harvesters.oY,harvesters.oZ,harvesters.oW,harvesters.x,"
 								"harvesters.y,harvesters.z,structure_type_data.type,structure_type_data.object_string,"
 								"harvesters.name"
-								"FROM harvesters INNER JOIN structure_type_data ON (harvesters.type_id = structure_type_data.type) "
+								"FROM harvesters INNER JOIN structure_type_data ON (harvesters.type = structure_type_data.type) "
 								"WHERE (harvesters.id = %lld)",asyncContainer->mId);
 		}
 		break;
@@ -122,9 +123,10 @@ void HarvesterFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
 void HarvesterFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client)
 {
+	//start by requesting the associated resource container count
 	mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,HFQuery_ResourceData,client,id),
 								"SELECT id FROM swganh.resource_containers WHERE parent_id = %I64u",id);
-	//start by requesting the associated resource container count
+	
 	/*
 	mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,BFQuery_MainData,client),
 								"SELECT buildings.id,buildings.oX,buildings.oY,buildings.oZ,buildings.oW,buildings.x,"
@@ -137,9 +139,11 @@ void HarvesterFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id
 
 //=============================================================================
 
+
+//=============================================================================
+
 void HarvesterFactory::_createHarvester(DatabaseResult* result, HarvesterObject* harvester)
 {
-	//HarvesterObject*	harvester = new HarvesterObject();
 
 	uint64 count = result->getRowCount();
 	assert(count == 1);
@@ -181,7 +185,7 @@ void HarvesterFactory::_destroyDatabindings()
 
 void HarvesterFactory::handleObjectReady(Object* object,DispatchClient* client)
 {
-	//used to load resource containers
+	//*ONLY* used to load resource containers
 	InLoadingContainer* ilc = _getObject(object->getParentId());
 	HarvesterObject*		harvester = dynamic_cast<HarvesterObject*>(ilc->mObject);
 	

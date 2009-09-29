@@ -12,12 +12,12 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_ZONESERVER_STATIC_OBJECT_H
 #define ANH_ZONESERVER_STATIC_OBJECT_H
 
-#include "object.h"
+#include "ObjectContainer.h"
 
 
 //=============================================================================
 
-class StaticObject : public Object
+class StaticObject : public ObjectContainer
 {
 	friend class ObjectFactory;
 

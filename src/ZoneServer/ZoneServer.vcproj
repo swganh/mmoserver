@@ -953,6 +953,10 @@
 						>
 					</File>
 					<File
+						RelativePath=".\ObjectContainer.cpp"
+						>
+					</File>
+					<File
 						RelativePath=".\StaticObject.cpp"
 						>
 					</File>
@@ -970,6 +974,10 @@
 					</File>
 					<File
 						RelativePath=".\Object_Enums.h"
+						>
+					</File>
+					<File
+						RelativePath=".\ObjectContainer.h"
 						>
 					</File>
 					<File

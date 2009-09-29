@@ -684,6 +684,30 @@ bool MessageLib::sendCreateBuilding(BuildingObject* buildingObject,PlayerObject*
 	return(true);
 }
 
+
+//======================================================================================================================
+//
+// create a harvester
+//
+
+bool MessageLib::sendCreateHarvester(HarvesterObject* harvester,PlayerObject* player)
+{
+	if(!_checkPlayer(player))
+		return(false);
+
+	sendCreateObjectByCRC(harvester,player,false);
+
+	sendBaselinesHINO_3(harvester,player);
+	sendBaselinesHINO_6(harvester,player);
+
+	
+	sendEndBaselines(harvester->getId(),player);
+
+	return(true);
+}
+
+
+
 //======================================================================================================================
 //
 // create camp
@@ -702,24 +726,6 @@ bool MessageLib::sendCreateCamp(TangibleObject* camp,PlayerObject* player)
 
 	uint64 campId = camp->getId();
 
-	/*
-	CellObjectList*				cellList	= buildingObject->getCellList();
-	CellObjectList::iterator	cellIt		= cellList->begin();
-
-	while(cellIt != cellList->end())
-	{
-	CellObject* cell = (*cellIt);
-	uint64 cellId = cell->getId();
-
-	sendCreateObjectByCRC(cell,playerObject,false);
-	sendContainmentMessage(cellId,buildingId,0xffffffff,playerObject);
-	sendBaselinesSCLT_3(cell,cellId - buildingId,playerObject);
-	sendBaselinesSCLT_6(cell,playerObject);
-	sendUpdateCellPermissionMessage(cell,1,playerObject);
-	sendEndBaselines(cellId,playerObject);
-
-	++cellIt;
-	}  */
 
 	sendEndBaselines(campId,player);
 

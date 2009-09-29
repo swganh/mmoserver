@@ -13,11 +13,12 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #define ANH_ZONESERVER_TANGIBLE_OBJECT_H
 
 #include "object.h"
+#include "ObjectContainer.h"
 #include "TangibleEnums.h"
 
 //=============================================================================
 
-class TangibleObject :	public Object
+class TangibleObject :	public ObjectContainer
 {
 	friend class ObjectFactory;
 	friend class PlayerObjectFactory;

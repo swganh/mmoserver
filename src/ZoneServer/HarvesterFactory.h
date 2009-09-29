@@ -17,6 +17,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "ObjectFactoryCallback.h"
 #include "DatabaseManager/DatabaseCallback.h"
 #include "FactoryBase.h"
+#include "Deed.h"
 
 #define 	gHarvesterFactory	HarvesterFactory::getSingletonPtr()
 
@@ -34,6 +35,7 @@ enum HFQuery
 {
 	HFQuery_MainData		= 1,
 	HFQuery_ResourceData	= 2,
+	HFQuery_byDeed			= 3,
 	
 };
 

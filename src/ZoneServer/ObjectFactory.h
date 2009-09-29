@@ -43,6 +43,7 @@ enum OFQuery
 	OFQuery_ResourceContainerCreate		= 1,
 	OFQuery_WaypointCreate				= 2,
 	OFQuery_Item						= 3,
+	OFQuery_Harvester					= 4,
 };
 
 //=============================================================================
@@ -67,6 +68,7 @@ class ObjectFactory : public DatabaseCallback
 		void					requestNewWaypoint(ObjectFactoryCallback* ofCallback,string name,const Anh_Math::Vector3 coords,uint16 planetId,uint64 ownerId,uint8 wpType);
 		void					requestNewTravelTicket(ObjectFactoryCallback* ofCallback,TicketProperties ticketProperties,uint64 parentId,uint16 planetId);
 		void					requestNewResourceContainer(ObjectFactoryCallback* ofCallback,uint64 resourceId,uint64 parentId,uint16 planetId,uint32 amount);
+		void					requestnewHarvesterbyDeed(ObjectFactoryCallback* ofCallback,Deed* deed,DispatchClient* client, float x, float z, float dir, string customName);
 
 
 		void					requestTanoNewParent(ObjectFactoryCallback* ofCallback,uint64 ObjectId,uint64 parentId, TangibleGroup  Group);
@@ -94,6 +96,7 @@ class ObjectFactory : public DatabaseCallback
 		BuildingFactory*		mBuildingFactory;
 		RegionFactory*			mRegionFactory;
 		WaypointFactory*		mWaypointFactory;
+		HarvesterFactory*		mHarvesterFactory;
 
 		boost::pool<boost::default_user_allocator_malloc_free>	mDbAsyncPool;
 };

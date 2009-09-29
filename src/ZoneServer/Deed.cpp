@@ -80,7 +80,17 @@ void Deed::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 					//enter deed placement mode
 					StructureDeedLink* data = gStructureManager->getDeedData(this->getItemType());
 					if(data)
+					{
+						if(player->getParentId())
+						{
+							gMessageLib->sendSystemMessage(player,L"You can only place structures in the outside.");
+							return;
+						}
+
+						//TODO
+						//check for city boundaries
 						gMessageLib->sendEnterStructurePlacement(this,data->structureObjectString,player);
+					}
 				}
 			}
 			break;

@@ -56,6 +56,7 @@ mDbAsyncPool(sizeof(OFAsyncContainer))
 	mBuildingFactory		= BuildingFactory::Init(mDatabase);
 	mRegionFactory			= RegionFactory::Init(mDatabase);
 	mWaypointFactory		= WaypointFactory::Init(mDatabase);
+	mHarvesterFactory		= HarvesterFactory::Init(mDatabase);
 }
 
 //=============================================================================
@@ -74,6 +75,26 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 	
 	switch(asyncContainer->query)
 	{
+		case OFQuery_Harvester:
+		{
+			if(!result->getRowCount())
+			{
+				gLogger->logMsg("ObjFactory::handleDatabaseJobComplete   :  create Harvester failed");
+			}
+
+			uint64 requestId = 0;
+			DataBinding* binding = mDatabase->CreateDataBinding(1);
+			binding->addField(DFT_uint64,0,8);
+			result->GetNextRow(binding,&requestId);
+			mDatabase->DestroyDataBinding(binding);
+
+			if(requestId)
+				mHarvesterFactory->requestObject(asyncContainer->ofCallback,requestId,0,0,asyncContainer->client);
+			else
+				gLogger->logMsg("ObjFactory::handleDatabaseJobComplete   :  create Harvester failed");
+		}
+		break;
+
 		case OFQuery_WaypointCreate:
 		{
 			uint64 requestId = 0;
@@ -85,7 +106,7 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			if(requestId)
 				mWaypointFactory->requestObject(asyncContainer->ofCallback,requestId,0,0,asyncContainer->client);
 			else
-				gLogger->logMsg("ObjFactory::createWaypoint failed\n");
+				gLogger->logMsg("ObjFactory::createWaypoint failed");
 		}
 		break;
 
@@ -100,7 +121,7 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			if(requestId)
 				mTangibleFactory->requestObject(asyncContainer->ofCallback,requestId,TanGroup_Item,0,asyncContainer->client);
 			else
-				gLogger->logMsg("ObjFactory::createItem failed\n");
+				gLogger->logMsg("ObjFactory::createItem failed");
 		}
 		break;
 
@@ -115,7 +136,7 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			if(requestId)
 				mTangibleFactory->requestObject(asyncContainer->ofCallback,requestId,TanGroup_ResourceContainer,0,asyncContainer->client);
 			else
-				gLogger->logMsg("ObjFactory::createResourceContainer failed\n");
+				gLogger->logMsg("ObjFactory::createResourceContainer failed");
 		}
 		break;
 
@@ -193,6 +214,15 @@ void ObjectFactory::requestNewResourceContainer(ObjectFactoryCallback* ofCallbac
 {
 	OFAsyncContainer* asyncContainer = new(mDbAsyncPool.ordered_malloc()) OFAsyncContainer(ofCallback,OFQuery_ResourceContainerCreate,NULL);
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sf_ResourceContainerCreate(%lld,%lld,0,0,0,%u,%u)",resourceId,parentId,planetId,amount);
+}
+
+void ObjectFactory::requestnewHarvesterbyDeed(ObjectFactoryCallback* ofCallback,Deed* deed,DispatchClient* client, float x, float z, float dir, string customName)
+{
+	//create a new Harvester Object with the attributes as specified by the deed
+	OFAsyncContainer* asyncContainer = new(mDbAsyncPool.ordered_malloc()) OFAsyncContainer(ofCallback,OFQuery_Harvester,NULL);
+	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sf_DefaultHarvesterCreate(%u,0,%I64u,%u,0,0,0,0,%f,0,%f,'%s')",deed->getItemType(), deed->getOwner(), gWorldManager->getZoneId(),x,z,customName.getAnsi());
+
+
 }
 
 //=============================================================================

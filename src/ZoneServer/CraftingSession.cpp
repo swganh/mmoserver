@@ -478,19 +478,92 @@ void CraftingSession::handleFillSlot(uint64 resContainerId,uint32 slotId,uint32 
 
 //=============================================================================
 //
-// an component gets put into a manufacturing slot
+// get the serials crc for a (filled)crafting slot
+//
+
+uint32 CraftingSession::getComponentSerial(ManufactureSlot*	manSlot, Inventory* inventory)
+{
+
+	Item*		filledComponent;
+	FilledResources::iterator filledResIt = manSlot->mFilledResources.begin();
+	while(filledResIt != manSlot->mFilledResources.end())
+	{
+		uint64		itemId = (*filledResIt).first;
+		string filledSerial;
+
+		filledComponent = dynamic_cast<Item*>(inventory->getObjectById(itemId));
+		if(filledComponent->hasAttribute("serial"))
+			filledSerial = filledComponent->getAttribute<std::string>("serial").c_str();
+		else
+			filledSerial ="";
+		
+		return(filledSerial.getCrc());
+		++filledResIt;
+	
+	}
+	return(0);
+}
+
+//=============================================================================
+//
+// Adjust an Items amount / delete it
+//
+
+bool CraftingSession::AdjustComponentStack(Item* item, Inventory* inventory, uint32 uses)
+{
+	//is this a stack ???
+	if(item->hasAttribute("stacksize"))
+	{
+		//alter stacksize, delete if necessary
+
+		uint32 stackSize;
+		stackSize = item->getAttribute<uint32>("stacksize");
+
+		if(stackSize > uses)
+		{
+			//just adjust the stacks size
+		}
+		return true;
+	}
+
+	//no stack, just a singular item
+	if(uses == 1)
+	{
+		//remove the item out of the inventory
+		inventory->removeObject(item);
+
+		//and add it to the manufacturing schematic
+		item->setParentId(mManufacturingSchematic->getId());
+		mManufacturingSchematic->addData(item);
+		//the link will update the inventories item count
+		gMessageLib->sendContainmentMessage(item->getId(),item->getParentId(),4,mOwner);
+
+		//the db will only be updated if we really use the ´component!!
+		//at this point we might still put it out again or cancel the crafting session!!!!
+
+		return true;
+	}
+
+	return false;
+
+}
+
+
+
+//=============================================================================
+//
+// a component gets put into a manufacturing slot
 //
 
 void CraftingSession::handleFillSlotComponent(uint64 componentId,uint32 slotId,uint32 unknown,uint8 counter)
 {
-	//how to treat components???
 
-	//delete the component out of the inventory and attach it to the schematic
-	//??
-
-	// update resource container
-	Item*				theComponent	= dynamic_cast<Item*>(gWorldManager->getObjectById(componentId));
 	ManufactureSlot*	manSlot			= mManufacturingSchematic->getManufactureSlots()->at(slotId);	
+
+	Inventory* inventory = dynamic_cast<Inventory*>(mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+
+	//remove the component out of the inventory and attach it to the man schematic
+
 
 	//hardcoded to 1 until stacks are in
 	uint32				availableAmount		= 1;
@@ -501,16 +574,16 @@ void CraftingSession::handleFillSlotComponent(uint64 componentId,uint32 slotId,u
 	string				componentSerial	= "";
 	string				filledSerial	= "";
 
-	if(theComponent->hasAttribute("serial"))
-		componentSerial = theComponent->getAttribute<std::string>("serial").c_str();
-
-	Item*		filledComponent	= dynamic_cast<Item*>(gWorldManager->getObjectById(componentId));
-
+	Item*		component	= dynamic_cast<Item*>(inventory->getObjectById(componentId));
 	
+	if(component->hasAttribute("serial"))
+		componentSerial = component->getAttribute<std::string>("serial").c_str();
+
+						 	
 //	bool resourceBool = false;
 	bool smallupdate = false;
 	
-	if((!theComponent) || (!manSlot))
+	if((!component) || (!manSlot))
 	{
 		gMessageLib->sendCraftAcknowledge(opCraftFillSlot,CraftError_Ingredient_Not_In_Inventory,counter,mOwner);
 		return;
@@ -546,73 +619,39 @@ void CraftingSession::handleFillSlotComponent(uint64 componentId,uint32 slotId,u
 
 		filledResIt				= manSlot->mFilledResources.begin();
 		
-		while(filledResIt != manSlot->mFilledResources.end())
+		if(manSlot->mFilledResources.size()&&(getComponentSerial(manSlot, inventory) == componentSerial.getCrc()))
 		{
-			uint64		itemId = (*filledResIt).first;
-			
-			if(filledComponent->hasAttribute("serial"))
-				filledSerial = filledComponent->getAttribute<std::string>("serial").c_str();
-			else
-				filledSerial ="";
-			
-			// already got something with that serial filled ??
-			if(filledSerial.getCrc() == componentSerial.getCrc())
-			{
-
-				manSlot->mFilledResources.push_back(std::make_pair(theComponent->getId(),totalNeededAmount));
-				filledResIt				= manSlot->mFilledResources.begin();
-				manSlot->setmFilledIndicator(manSlot->mDraftSlot->getType());
-				
-				smallupdate = true;
-				break;
-			}
-
-			++filledResIt;
+			manSlot->mFilledResources.push_back(std::make_pair(component->getId(),totalNeededAmount));
+			filledResIt				= manSlot->mFilledResources.begin();
+			manSlot->setmFilledIndicator(manSlot->mDraftSlot->getType());
+			manSlot->mFilledIndicatorChange = true;
+			smallupdate = true;
 		}
-
-		// nothing of that resource filled, add a new entry
-		if(filledResIt == manSlot->mFilledResources.end())
+		else
+		if(manSlot->mFilledResources.size())
+		{
+			gMessageLib->sendCraftAcknowledge(opCraftFillSlot,CraftError_Internal_Invalid_Ingredient,counter,mOwner);
+			return;
+		}
+		else
+		if(manSlot->mFilledResources.empty())
 		{
 			//resourceBool = true;
 			// only allow one unique type
-			if(manSlot->mFilledResources.empty())
-			{
-				manSlot->mFilledResources.push_back(std::make_pair(theComponent->getId(),totalNeededAmount));
-				manSlot->setmFilledIndicator(manSlot->mDraftSlot->getType());
-				//link it to the schematic ?
-	
 			
-			}
-			else
-			{
-				gMessageLib->sendCraftAcknowledge(opCraftFillSlot,CraftError_Bad_Resource_Chosen,counter,mOwner);
-				return;
-			}
+			manSlot->mFilledResources.push_back(std::make_pair(component->getId(),totalNeededAmount));
+			manSlot->setmFilledIndicator(manSlot->mDraftSlot->getType());
+			manSlot->mFilledIndicatorChange = true;
+			//link it to the schematic ?
+	
 		}
 	
-		//either delete the just added component or adjust the stacksize
-		uint32 newContainerAmount = availableAmount - totalNeededAmount;
-
-		// destroy if its empty out of inventory only
-		//destroy completely after assembly
-		if(!newContainerAmount)
+		if(!AdjustComponentStack(component,inventory,totalNeededAmount))
 		{
-			//gMessageLib->sendDestroyObject(componentId,mOwner);
-			//gObjectFactory->deleteObjectFromDB(theComponent);
-			dynamic_cast<Inventory*>(mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->removeObject(theComponent);
-			theComponent->setParentId(mManufacturingSchematic->getId());
-			
-			//link it to the schematic 
-
-			//gMessageLib->sendContainmentMessage(theComponent->getId(),theComponent->getParentId(),4,mOwner);
+			gMessageLib->sendCraftAcknowledge(opCraftFillSlot,CraftError_Internal_Invalid_Ingredient_Size,counter,mOwner);
+			return;
 		}
-		// update it
-		else//if(availableAmount >= totalNeededAmount)
-		{
-			
-			//gMessageLib->sendItemUpdateAmount(theComponent,mOwner);
-			//mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%lld",newContainerAmount,resContainer->getId());
-		}
+		
 
 		// update the slot total resource amount
 		manSlot->mFilled = manSlot->mDraftSlot->getAmount();
@@ -627,50 +666,38 @@ void CraftingSession::handleFillSlotComponent(uint64 componentId,uint32 slotId,u
 		// add a new entry
 		filledResIt				= manSlot->mFilledResources.begin();
 
-		while(filledResIt != manSlot->mFilledResources.end())
+		if((getComponentSerial(manSlot, inventory) == componentSerial.getCrc())&&manSlot->mFilledResources.size())
 		{
-			if(filledComponent->hasAttribute("serial"))
-				filledSerial = filledComponent->getAttribute<std::string>("serial").c_str();
-			else
-				filledSerial ="";
-
-			// already got something of that type filled
-			if(filledSerial.getCrc() == componentSerial.getCrc())
-			{
-				//(*filledResIt).second += availableAmount;
-				manSlot->mFilledResources.push_back(std::make_pair(componentId,availableAmount));
-				filledResIt				= manSlot->mFilledResources.begin();
-				manSlot->setmFilledIndicator(4);
-				smallupdate = true;
-				break;
-			}
-
-			++filledResIt;
+			//(*filledResIt).second += availableAmount;
+			manSlot->mFilledResources.push_back(std::make_pair(componentId,availableAmount));
+			filledResIt				= manSlot->mFilledResources.begin();
+			manSlot->setmFilledIndicator(manSlot->mDraftSlot->getType());
+			manSlot->mFilledIndicatorChange = true;
+			smallupdate = true;
 		}
 
+		else
+		if(!manSlot->mFilledResources.empty())
+		{
+			gMessageLib->sendCraftAcknowledge(opCraftFillSlot,CraftError_Bad_Resource_Chosen,counter,mOwner);
+			return;
+		}
 		// nothing of that resource filled, add a new entry
-		if(filledResIt == manSlot->mFilledResources.end())
+		else
+		if(manSlot->mFilledResources.empty())
 		{
-			// only allow one unique type
-			if(manSlot->mFilledResources.empty())
-			{
-				manSlot->mFilledResources.push_back(std::make_pair(componentId,availableAmount));
-				manSlot->setmFilledIndicator(manSlot->mDraftSlot->getType());
-			}
-			else
-			{
-				gMessageLib->sendCraftAcknowledge(opCraftFillSlot,CraftError_Bad_Resource_Chosen,counter,mOwner);
-				return;
-			}
+			
+			manSlot->mFilledResources.push_back(std::make_pair(componentId,availableAmount));
+			manSlot->setmFilledIndicator(manSlot->mDraftSlot->getType());
+			manSlot->mFilledIndicatorChange = true;
+			
 		}
 
-		// link the item to the man schematic until assembly
-		//then we can delete it
-		dynamic_cast<Inventory*>(mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->removeObject(theComponent);
-		theComponent->setParentId(mManufacturingSchematic->getId());
-			
-		//link it to the schematic 
-		//gMessageLib->sendContainmentMessage(theComponent->getId(),theComponent->getParentId(),4,mOwner);
+		if(!AdjustComponentStack(component,inventory,totalNeededAmount))
+		{
+			gMessageLib->sendCraftAcknowledge(opCraftFillSlot,CraftError_Internal_Invalid_Ingredient_Size,counter,mOwner);
+			return;
+		}
 
 		// update the slot total resource amount
 		manSlot->mFilled += availableAmount;
@@ -890,15 +917,21 @@ void CraftingSession::handleFillSlotResource(uint64 resContainerId,uint32 slotId
 void CraftingSession::bagComponents(ManufactureSlot* manSlot,uint64 containerId)
 {
 	//add the components back to the inventory
-	FilledResources::iterator resIt = manSlot->mFilledResources.begin();
-
 	manSlot->setmFilledIndicator(0);
 
 	Inventory* inventory = dynamic_cast<Inventory*>(mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 
+	FilledResources::iterator resIt = manSlot->mFilledResources.begin();
 	while(resIt != manSlot->mFilledResources.end())
 	{
-		Item*	filledComponent	= dynamic_cast<Item*>(gWorldManager->getObjectById((*resIt).first));
+		Item*	filledComponent	= dynamic_cast<Item*>(mManufacturingSchematic->getDataById((*resIt).first));
+
+		if(!filledComponent)
+		{
+			gLogger->logMsgF("CraftingSession::bagComponents filledComponent not found",MSG_HIGH);
+			return;
+		}
+		mManufacturingSchematic->removeData((*resIt).first);
 		
 		//add to inventory
 		inventory->addObject(filledComponent);
@@ -1112,8 +1145,6 @@ uint8 CraftingSession::_assembleRoll()
 	assRoll = (int32)floor((double)gRandom->getRand() / (RAND_MAX  + 1.0f) * (100.0f - 1.0f) + 1.0f) ;
 
 	//gLogger->logMsgF("CraftingSession:: assembly Roll preMod %u",MSG_NORMAL,assRoll);
-
-	//printf("\ntool effectivity /50 = : %f\n",(mToolEffectivity/50));
 
 	int32 modRoll = (int32)((assRoll - (rating * 0.4f)) / 15.0f) - (mToolEffectivity / 50.0f);
 	
@@ -1358,6 +1389,9 @@ void CraftingSession::createPrototype(uint32 noPractice,uint32 counter)
 		int8 sql[1024],restStr[128],*sqlPointer;
 
 		Transaction* t = mDatabase->startTransaction(this,new CraftSessionQueryContainer(CraftSessionQuery_Prototype,counter));
+
+		// we need to alter / add attributes affected by attributes of components
+
 
 		// update the custom name and parent
 		sprintf(sql,"UPDATE items SET parent_id=%lld, customName='",mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)->getId());

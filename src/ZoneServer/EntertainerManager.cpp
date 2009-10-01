@@ -10,19 +10,18 @@ Copyright (c) 2006 - 2009 The swgANH Team
 */
 
 #include "EntertainerManager.h"
-#include "Common/MessageDispatch.h"
-#include "Common/MessageFactory.h"
-#include "Common/MessageOpcodes.h"
-#include "Common/Message.h"
-#include "Common/DispatchClient.h"
+//#include "Common/MessageDispatch.h"
+//#include "Common/MessageFactory.h"
+//#include "Common/MessageOpcodes.h"
+//#include "Common/Message.h"
+//#include "Common/DispatchClient.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
-#include "LogManager/LogManager.h"
 #include "WorldManager.h"
 #include "Utils/utils.h"
 #include "DatabaseManager/Transaction.h"
-#include "ObjectFactory.h"
+//#include "ObjectFactory.h"
 #include "Common/atMacroString.h"
 #include "UIManager.h"
 #include "NonPersistantObjectFactory.h"
@@ -2174,13 +2173,13 @@ void EntertainerManager::handleObjectReady(Object* object,DispatchClient* client
 		}
 		else
 		{
-			// I wan't to when if this happens
+			// I wan't to know when this happens
 			assert(false);
 		}
 	}
 	else
 	{
-		// I wan't to when if this happens
+		// I wan't to know when this happens
 		assert(false);
 	}
 }

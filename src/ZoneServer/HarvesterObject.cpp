@@ -69,8 +69,8 @@ void HarvesterObject::prepareCustomRadialMenu(CreatureObject* creatureObject, ui
 	RadialMenu* radial	= new RadialMenu();
 			
 	radial->addItem(1,0,radId_examine,radAction_Default,"");
-	radial->addItem(2,0,radId_serverHarvesterManage,radAction_ObjCallback,"Management");
-	radial->addItem(3,0,radId_serverTerminalManagement,radAction_ObjCallback,"Administration");
+	radial->addItem(2,0,radId_serverHarvesterManage,radAction_ObjCallback,"Structure Management");
+	radial->addItem(3,0,radId_serverTerminalManagement,radAction_ObjCallback,"Structure Permissions");
 	
 	radial->addItem(4,2,radId_serverTerminalManagementDestroy,radAction_ObjCallback,"destroy");//destroy
 

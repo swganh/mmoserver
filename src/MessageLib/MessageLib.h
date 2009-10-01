@@ -12,11 +12,36 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_ZONESERVER_MESSAGELIB_H
 #define ANH_ZONESERVER_MESSAGELIB_H
 
+#include "Utils/typedefs.h"
 //#include "Utils/typedefs.h"
-#include "ZoneServer/ObjectFactory.h"
+//#include "ZoneServer/ObjectFactory.h"
+#include "ZoneServer/ObjectController.h"
+#include "ZoneServer/Skill.h"   //for skillmodslist
+
 #include "common/bytebuffer.h"
+#include <vector>
+#include "MathLib/Vector3.h"
 
 #define	 gMessageLib	MessageLib::getSingletonPtr()
+
+class Item;
+class IntangibleObject;
+class BuildingObject;
+class TravelTerminal;
+class WaypointObject;
+class NPCObject;
+class CreatureObject;
+class Object;
+class Skill;
+class ResourceContainer;
+class TangibleObject;
+class HarvesterObject;
+class ManufacturingSchematic;
+class PlayerObject;
+class MovingObject;
+class MissionObject;
+class CellObject;
+class StaticObject;
 
 class DispatchClient;
 class DraftSchematic;

@@ -29,7 +29,7 @@ typedef	std::vector<TangibleObject*>	ItemList;
 
 class PlayerStructure :	public TangibleObject
 {
-	//friend class PlayerStructure;
+	friend class HarvesterFactory;
 
 	public:
 
@@ -52,8 +52,27 @@ class PlayerStructure :	public TangibleObject
 		uint64					getOwner(){ return mOwner; }
 		void					setOwner(uint64 owner){ mOwner = owner; }
 
+		uint32					getCondition(){ return mCondition; }
+		void					setCondition(uint32 condition){ mCondition = condition; }
+		bool					decCondition(uint32 dec){int64 altered = mCondition-dec;if(altered <= 0) return false; else mCondition = altered;return true; }
+
+		uint32					getMaintenance(){ return mMaintenance; }
+		void					setMaintenance(uint32 maintenance){ mMaintenance = maintenance; }
+		bool					decMaintenance(uint32 dec){int64 altered = mMaintenance-dec;if(altered <= 0) return false; else mMaintenance= altered;return true; }
+
+		uint32					getMaxMaintenance();
+		void					setMaxMaintenance(uint32 maintenance);
+
+		uint32					getMaxCondition(){ return mMaxCondition; }
+		void					setMaxCondition(uint32 condition){ mMaxCondition = condition; }
+		bool					decMaxCondition(uint32 dec){int64 altered = mMaxCondition-dec;if(altered <= 0) return false; else mMaxCondition = altered;return true; }
+		
+		
+		bool					canRedeed();
+
 		//camps dont have cells
 		ObjectList				getAllCellChilds();
+
 
 		void					addItem(TangibleObject* tO)	{ mItemList.push_back(tO); }
 		ItemList*				getItemList()				{ return(&mItemList); }
@@ -76,6 +95,9 @@ class PlayerStructure :	public TangibleObject
 		//structures Owner
 		uint64						mOwner;
 		ItemList					mItemList;
+		uint32						mCondition;
+		uint32						mMaintenance;
+		uint32						mMaxCondition;
 };
 
 //=============================================================================

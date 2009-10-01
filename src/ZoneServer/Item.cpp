@@ -16,6 +16,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "WorldConfig.h"
 #include "ZoneServer/Tutorial.h"
 #include "MessageLib/MessageLib.h"
+#include "PlayerObject.h"
 
 
 //=============================================================================

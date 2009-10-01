@@ -10,15 +10,16 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "PlayerObject.h"
-#include "Item.h"
-#include "skill.h"
+//#include "Item.h"
+//#include "skill.h"
 #include "DatabaseManager/Transaction.h"
 
 #ifndef ANH_ZONESERVER_Trade_H
 #define ANH_ZONESERVER_Trade_H
 
 
-
+ class Skill;
+ class Item;
 //=============================================================================
 typedef std::map<uint32,Skill*>					mySkillList;
 

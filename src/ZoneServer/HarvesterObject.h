@@ -40,9 +40,6 @@ class HarvesterObject :	public PlayerStructure
 		uint32			decLoadCount(){ return (mTotalLoadCount-1); }
 		void			setLoadCount(uint32 count){ mTotalLoadCount = count; }
 
-		uint64			getOwner(){ return (mOwner); }
-		void			setOwner(uint64 owner){ mOwner = owner; }
-
 		void			prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
 		void			handleObjectMenuSelect(uint8 messageType,Object* srcObject);
 		void			handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window);
@@ -54,7 +51,6 @@ class HarvesterObject :	public PlayerStructure
 		uint32			mHoperSize;
 		uint64			mResourceType;
 		HarvesterFamily	mHarvesterFamily;
-		uint64			mOwner;
 
 		uint32			mTotalLoadCount;
 };

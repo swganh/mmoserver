@@ -417,11 +417,11 @@ void UIManager::createNewStructureDestroyBox(UICallback* callback,PlayerObject* 
 	BStringVector attributesMenu;
 
 	string text = "You have elected to destroy a structure. Petinent structure data can be found in the list below. Please complete the following steps to confirm structure deletion.\xa\xa";
-			text <<"If you wish to redeed your structure, all structure data must be GREEN To continue with structure deleteion, click YES. Otherwise, please click NO.\xa";
-			text <<"WILL REDEED: NO";			
+			text <<"If you wish to redeed your structure, all structure data must be GREEN To continue with structure deletion, click YES. Otherwise, please click NO.\xa";
+			text <<"WILL REDEED: \\#FF0000 NO \\#FFFFFF";			
 
 	int8 redeedText[32];
-	sprintf(redeedText,"CAN REDEED: YES");
+	sprintf(redeedText,"CAN REDEED: \\#006400 YES\\#FFFFFF");
 	attributesMenu.push_back(redeedText);
 
 	int8 condition[64];
@@ -435,7 +435,7 @@ void UIManager::createNewStructureDestroyBox(UICallback* callback,PlayerObject* 
 	string name = structure->getCustomName();			
 	name.convert(BSTRType_ANSI);
 	
-	createNewListBox(callback,"handleDiagnoseMenu",name.getAnsi(), text.getAnsi(), attributesMenu, player, SUI_Window_Structure_Delete,SUI_LB_OKCANCEL);
+	createNewListBox(callback,"handleStructure Destroy",name.getAnsi(), text.getAnsi(), attributesMenu, player, SUI_Window_Structure_Delete,SUI_LB_OKCANCEL);
 }
 
 

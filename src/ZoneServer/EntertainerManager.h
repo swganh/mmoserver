@@ -12,9 +12,11 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_ZONESERVER_ENTERTAINERMANAGER_H
 #define ANH_ZONESERVER_ENTERTAINERMANAGER_H
 
-#include "Common/MessageDispatchCallback.h"
+//#include "Common/MessageDispatchCallback.h"
 #include "DatabaseManager/DatabaseCallback.h"
-#include "ObjectFactory.h"
+#include "ObjectFactoryCallback.h"
+//#include "ObjectFactory.h"
+#include "LogManager/LogManager.h"
 #include "ZoneOpcodes.h"
 #include "PlayerEnums.h"
 #include <vector>

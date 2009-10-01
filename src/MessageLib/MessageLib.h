@@ -336,6 +336,7 @@ public:
 	//Harvester Messages
 	bool				sendBaselinesHINO_3(HarvesterObject* harvester,PlayerObject* player);
 	bool				sendBaselinesHINO_6(HarvesterObject* harvester,PlayerObject* player);
+	bool				sendBaselinesHINO_7(HarvesterObject* harvester,PlayerObject* player);
 
 	// deltas
 	bool				sendUpdateCellPermissionMessage(CellObject* cellObject,uint8 permission,PlayerObject* playerObject);

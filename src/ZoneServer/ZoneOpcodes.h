@@ -114,6 +114,7 @@ enum zone_opcodes
 	opPLAY								=	0x504c4159,
 	opTANO								=	0x54414e4f,
 	opBUIO								=	0x4255494f,
+	opHINO								=	0x48494E4F,
 	opSCLT								=	0x53434c54,
 	opRCNO								=	0x52434e4f,
 	opMSCO								=	0x4d53434f,

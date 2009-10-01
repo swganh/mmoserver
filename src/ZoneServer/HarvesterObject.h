@@ -12,10 +12,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_ZONESERVER_HARVESTER_OBJECT_H
 #define ANH_ZONESERVER_HARVESTER_OBJECT_H
 
-#include "tangibleobject.h"
-
+#include "PlayerStructure.h"
 #include "BuildingEnums.h"
-#include <vector>
+//#include <vector>
 
 
 //=============================================================================
@@ -24,7 +23,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 //=============================================================================
 
-class HarvesterObject :	public TangibleObject
+class HarvesterObject :	public PlayerStructure
 {
 	friend class HarvesterFactory;
 
@@ -40,6 +39,13 @@ class HarvesterObject :	public TangibleObject
 		uint32			getLoadCount(){ return mTotalLoadCount; }
 		uint32			decLoadCount(){ return (mTotalLoadCount-1); }
 		void			setLoadCount(uint32 count){ mTotalLoadCount = count; }
+
+		uint64			getOwner(){ return (mOwner); }
+		void			setOwner(uint64 owner){ mOwner = owner; }
+
+		void			prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
+		void			handleObjectMenuSelect(uint8 messageType,Object* srcObject);
+		void			handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window);
 		
 
 	private:
@@ -48,6 +54,7 @@ class HarvesterObject :	public TangibleObject
 		uint32			mHoperSize;
 		uint64			mResourceType;
 		HarvesterFamily	mHarvesterFamily;
+		uint64			mOwner;
 
 		uint32			mTotalLoadCount;
 };

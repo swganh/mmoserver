@@ -251,7 +251,7 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
 								
 			if(!mIlc)
 			{
-				gLogger->logMsg("DatapadFactory: Failed getting ilc\n");
+				gLogger->logMsg("DatapadFactory: Failed getting ilc");
 				return;
 			}
 			mIlc->mLoadCounter--;
@@ -272,7 +272,7 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
 									
 				if(!mIlc)
 				{
-					gLogger->logMsg("DatapadFactory: Failed getting ilc\n");
+					gLogger->logMsg("DatapadFactory: Failed getting ilc");
 					return;
 				}
 			
@@ -302,7 +302,7 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
 				InLoadingContainer*mIlcDPad		= _getObject(id);
 				if(!mIlcDPad)
 				{
-					gLogger->logMsg("DatapadFactory: Failed getting ilc\n");
+					gLogger->logMsg("DatapadFactory: Failed getting ilc");
 					return;
 				}
 				datapad							= dynamic_cast<Datapad*>(mIlcDPad->mObject);
@@ -315,7 +315,7 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
 									
 				if(!mIlc)
 				{
-					gLogger->logMsg("DatapadFactory: Failed getting ilc\n");
+					gLogger->logMsg("DatapadFactory: Failed getting ilc");
 					return;
 				}
 

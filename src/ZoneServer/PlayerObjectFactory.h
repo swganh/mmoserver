@@ -38,19 +38,20 @@ class DatapadFactory;
 
 enum POFQuery
 {
-	POFQuery_MainPlayerData	= 1,
-	POFQuery_Skills			= 2,
-	POFQuery_XP				= 3,
-	POFQuery_Inventory		= 4,
-	POFQuery_Datapad		= 5,
-	POFQuery_Badges			= 6,
-	POFQuery_Factions		= 7,
-	POFQuery_Friends		= 8,
-	POFQuery_Ignores		= 9,
-	POFQuery_DenyService	= 10,
-	POFQuery_HoloEmotes		= 11,
-	POFQuery_EquippedItems	= 12,
-	POFQuery_PreDefCloningFacility = 13,
+	POFQuery_MainPlayerData			= 1,
+	POFQuery_Skills					= 2,
+	POFQuery_XP						= 3,
+	POFQuery_Inventory				= 4,
+	POFQuery_Datapad				= 5,
+	POFQuery_Badges					= 6,
+	POFQuery_Factions				= 7,
+	POFQuery_Friends				= 8,
+	POFQuery_Ignores				= 9,
+	POFQuery_DenyService			= 10,
+	POFQuery_HoloEmotes				= 11,
+	POFQuery_EquippedItems			= 12,
+	POFQuery_PreDefCloningFacility	= 13,
+	POFQuery_Lots					= 14,
 };
 
 //=============================================================================

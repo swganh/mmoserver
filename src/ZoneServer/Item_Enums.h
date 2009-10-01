@@ -83,11 +83,29 @@ enum ItemType
 
 	//====================================================
 	// Harvesters
-	ItemType_personal_fusion_generator	= 1594,
-	ItemType_personal_solar_generator	= 1595,
-	ItemType_personal_wind_generator	= 1596,
+	ItemType_generator_fusion_personal	= 1594,
+	ItemType_generator_solar_personal	= 1595,
+	ItemType_generator_wind_personal	= 1596,
 
-	ItemType_personal_flora_harvester	= 1601,
+	ItemType_harvester_flora_personal	= 1601,
+	ItemType_harvester_flora_heavy		= 1602,
+	ItemType_harvester_flora_medium		= 1603,
+
+	ItemType_harvester_gas_personal		= 1604,
+	ItemType_harvester_gas_heavy		= 1605,
+	ItemType_harvester_gas_medium		= 1606,
+
+	ItemType_harvester_liquid_personal	= 1607,
+	ItemType_harvester_liquid_heavy		= 1608,
+	ItemType_harvester_liquid_medium	= 1609,
+
+	ItemType_harvester_moisture_personal	= 1610,
+	ItemType_harvester_moisture_heavy		= 1611,
+	ItemType_harvester_moisture_medium		= 1612,
+
+	ItemType_harvester_ore_personal		= 1613,
+	ItemType_harvester_ore_heavy		= 1614,
+	ItemType_harvester_ore_medium		= 1615,
 
 
 	//====================================================

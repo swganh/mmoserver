@@ -17,7 +17,6 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include <algorithm>
 #include <deque>
 #include "Utils/PriorityVector.h"
-#include "Utils/Clock.h"
 #include "ObjControllerCommandMessage.h"
 #include "ObjControllerEvent.h"
 #include "DatabaseManager/DatabaseCallback.h"

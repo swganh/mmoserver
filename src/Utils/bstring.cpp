@@ -409,7 +409,7 @@ void BString::toLower()
 		while(*data)
 		{
 			*data = towlower(*data);
-			data+=2;
+			data++;
 		}
 		return;
 

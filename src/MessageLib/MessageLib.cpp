@@ -694,6 +694,7 @@ bool MessageLib::sendCreateHarvester(HarvesterObject* harvester,PlayerObject* pl
 {
 	if(!_checkPlayer(player))
 		return(false);
+	gLogger->logMsgF("MessageLib::sendCreateHarvester:ID %I64u parentId %I64u x : %f   y : %f",MSG_HIGH,harvester->getId(),harvester->getParentId(),harvester->mPosition.mX,harvester->mPosition.mZ);
 
 	sendCreateObjectByCRC(harvester,player,false);
 
@@ -954,6 +955,20 @@ void MessageLib::sendCreateObject(Object* object,PlayerObject* player,bool sendS
 				if(BuildingObject* building = dynamic_cast<BuildingObject*>(object))
 				{
 					gMessageLib->sendCreateBuilding(building,player);
+				}
+			}
+		}
+		break;
+
+		// buildings
+		case ObjType_Harvester:
+		{
+			// skip, if its static
+			if(object->getId() > 0x0000000100000000)
+			{
+				if(HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(object))
+				{
+					gMessageLib->sendCreateHarvester(harvester,player);
 				}
 			}
 		}

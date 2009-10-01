@@ -286,6 +286,9 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 						//load creature spawn regions, and optionally heightmaps cache.
 						mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_CreatureSpawnRegions),"SELECT id, spawn_x, spawn_z, spawn_width, spawn_length FROM spawns WHERE spawn_planet=%u ORDER BY id;",mZoneId);
 
+						// load harvesters
+						mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_Harvesters),"SELECT id FROM harvesters WHERE zone=%u ORDER BY id;",mZoneId);
+
 					}					
 					// no objects to load, so we are done
 					else
@@ -296,6 +299,32 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					mDatabase->DestroyDataBinding(binding);
 				}
 				break;
+
+				//load harvesters
+				case WMQuery_Harvesters:
+				{
+					DataBinding* harvesterBinding = mDatabase->CreateDataBinding(1);
+					harvesterBinding->addField(DFT_int64,0,8);
+
+					uint64 harvesterId;
+					uint64 count = result->getRowCount();
+
+					if(result->getRowCount())
+						gLogger->logMsgLoadSuccess("WorldManager::Loading %u harvesters...",MSG_NORMAL,count);
+					else
+						gLogger->logMsgLoadFailure("WorldManager::Loading harvesters...",MSG_NORMAL);
+
+					for(uint64 i = 0;i < count;i++)
+					{
+						result->GetNextRow(harvesterBinding,&harvesterId);
+
+						gHarvesterFactory->requestObject(this,harvesterId,0,0,asyncContainer->mClient);
+					}
+
+					mDatabase->DestroyDataBinding(harvesterBinding);
+				}
+				break;
+				
 
 				// zone regions
 				case WMQuery_ZoneRegions:
@@ -936,7 +965,7 @@ void WorldManager::initObjectsInRange(PlayerObject* playerObject)
 {
 	// we still query for players here, cause they are found through the buildings and arent kept in a qtree
 	ObjectSet inRangeObjects;
-	mSpatialIndex->getObjectsInRange(playerObject,&inRangeObjects,(ObjType_Player | ObjType_Tangible | ObjType_NPC | ObjType_Creature | ObjType_Building),gWorldConfig->getPlayerViewingRange());
+	mSpatialIndex->getObjectsInRange(playerObject,&inRangeObjects,(ObjType_Player | ObjType_Tangible | ObjType_NPC | ObjType_Creature | ObjType_Building| ObjType_Harvester),gWorldConfig->getPlayerViewingRange());
 	
 	// query the according qtree, if we are in one
 	if(playerObject->getSubZoneId())
@@ -2285,7 +2314,10 @@ void WorldManager::addObject(Object* object,bool manual)
 
 	//make sure objects arnt added several times!!!!
 	if(getObjectById(key))
+	{
+		gLogger->logMsgF("WorldManager::addObject Object already existant added several times or ID messup ???",MSG_HIGH);
 		return;
+	}
 
 	mObjectMap.insert(key,object);
 
@@ -2368,6 +2400,14 @@ void WorldManager::addObject(Object* object,bool manual)
 
 			// Start player world position update. Used when player don't get any events from client (player not moving).
 			// addPlayerMovementUpdateTime(player, 1000);
+		}
+		break;
+
+		case ObjType_Harvester:
+		{
+			HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(object);
+			mSpatialIndex->InsertPoint(key,object->mPosition.mX,object->mPosition.mZ);
+			
 		}
 		break;
 

@@ -85,7 +85,7 @@ float Heightmap::getHeight(float x, float y)
 		Connect();
 		if(!Open()) 
 		{
-			gLogger->logMsg("Heightmap::ERROR: Unable to retrieve height. A connection to the zone heightmap was not established!\n",FOREGROUND_RED);
+			gLogger->logMsg("Heightmap::ERROR: Unable to retrieve height. A connection to the zone heightmap was not established!",FOREGROUND_RED);
 			return FLT_MIN;
 		}
 	}

@@ -23,6 +23,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "WorldConfig.h"
 #include "BuffManager.h"
 #include "Tutorial.h"
+#include "TravelMapHandler.h"
 
 //======================================================================================================================
 

@@ -79,18 +79,27 @@ void Deed::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 				{
 					//enter deed placement mode
 					StructureDeedLink* data = gStructureManager->getDeedData(this->getItemType());
-					if(data)
+					if(!data)
 					{
-						if(player->getParentId())
-						{
-							gMessageLib->sendSystemMessage(player,L"You can only place structures in the outside.");
-							return;
-						}
-
-						//TODO
-						//check for city boundaries
-						gMessageLib->sendEnterStructurePlacement(this,data->structureObjectString,player);
+						return;
 					}
+					if(player->getParentId())
+					{
+						gMessageLib->sendSystemMessage(player,L"","player_structure","not_inside");
+						return;
+					}
+					
+					//check available Lots
+					if(!player->usePlayerLots(data->requiredLots))
+					{
+						gMessageLib->sendSystemMessage(player, L"","player_structure","not_enough_lots");
+						return;
+					}
+
+					//TODO
+					//check for city boundaries
+					gMessageLib->sendEnterStructurePlacement(this,data->structureObjectString,player);
+					
 				}
 			}
 			break;

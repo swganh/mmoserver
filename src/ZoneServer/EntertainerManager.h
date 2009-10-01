@@ -16,10 +16,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "DatabaseManager/DatabaseCallback.h"
 #include "ObjectFactory.h"
 #include "ZoneOpcodes.h"
-#include "Item.h"
-#include "PlayerObject.h"
 #include "PlayerEnums.h"
 #include <vector>
+#include <map>
 #include "Utils/Scheduler.h"
 
 #define 	gEntertainerManager	EntertainerManager::getSingletonPtr()
@@ -30,6 +29,9 @@ class Message;
 class Database;
 class MessageDispatch;
 class PlayerObject;
+class CreatureObject;
+class Item;
+class Object;
 
 //======================================================================================================================
 

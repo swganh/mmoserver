@@ -53,13 +53,7 @@ void Scout::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 					gScoutManager->createCamp(this->getItemType(),0,player->mPosition,"",player);
 
 				}
-				else
-				{
-					//enter deed placement mode
-					StructureDeedLink* data = gStructureManager->getDeedData(this->getItemType());
-					if(data)
-						gMessageLib->sendEnterStructurePlacement(this,data->structureObjectString,player);
-				}
+				
 			}
 		}
 	}

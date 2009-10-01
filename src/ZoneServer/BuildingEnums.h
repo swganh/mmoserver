@@ -58,6 +58,11 @@ enum CampFamily
 enum HarvesterFamily
 {
 	HarvesterFamily_None					= 0,
+
+	HarvesterFamily_Fusion					= 41,
+	HarvesterFamily_Solar					= 42,
+	HarvesterFamily_Wind					= 43,
+
 	HarvesterFamily_small_Flora				= 1,
 	HarvesterFamily_medium_Flora			= 2,
 	HarvesterFamily_large_Flora				= 3,

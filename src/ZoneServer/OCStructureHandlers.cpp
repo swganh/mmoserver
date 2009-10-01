@@ -26,6 +26,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "HarvesterFactory.h"
 #include "Item.h"
 #include "Deed.h"
+#include "Heightmap.h"
 
 //specific includes
 
@@ -50,60 +51,53 @@ void	ObjectController::_handleStructurePlacement(uint64 targetId,Message* messag
 	string dataStr;
 	message->getStringUnicode16(dataStr);
 	
-	float x,z,dir;
+	float x,y,z,dir;
 	uint64 deedId;
 
-	swscanf(dataStr.getUnicode16(),L"%I64u %d %d %d",&deedId, &x, &z, &dir);
+	swscanf(dataStr.getUnicode16(),L"%I64u %f %f %f",&deedId, &x, &z, &dir);
 
-	gLogger->logMsgF(" ID %I64u x %d y %d dir %d",MSG_HIGH, deedId, x, z, dir);
+	gLogger->logMsgF(" ID %I64u x %f y %f dir %f",MSG_HIGH, deedId, x, z, dir);
+	
+	//slow query - use for building placement only
+	y = Heightmap::Instance()->getHeight(x,z);
 	
 	//now get our deed
 	Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 
 	Deed* deed = dynamic_cast<Deed*>(inventory->getObjectById(deedId));
 
-	//now check on how to proceed
+	//TODO
+	//still have to check the region whether were allowed to build
+	//still have to remove the deed out of the inventory (assign to harvester)
+
 	switch(deed->getItemType())
 	{
-		case	ItemType_personal_fusion_generator:
-		case	ItemType_personal_solar_generator:
-		case	ItemType_personal_wind_generator:
+		case	ItemType_generator_fusion_personal:
+		case	ItemType_generator_solar_personal:
+		case	ItemType_generator_wind_personal:
+
+		case	ItemType_harvester_flora_personal:
+		case	ItemType_harvester_flora_heavy:
+		case	ItemType_harvester_flora_medium:
+		case	ItemType_harvester_gas_personal:
+		case	ItemType_harvester_gas_heavy:
+		case	ItemType_harvester_gas_medium:
+		case	ItemType_harvester_liquid_personal:
+		case	ItemType_harvester_liquid_heavy:
+		case	ItemType_harvester_liquid_medium:
+
+		case	ItemType_harvester_moisture_personal:
+		case	ItemType_harvester_moisture_heavy:
+		case	ItemType_harvester_moisture_medium:
+
+		case	ItemType_harvester_ore_personal:
+		case	ItemType_harvester_ore_heavy:
+		case	ItemType_harvester_ore_medium:
 		{
-			gObjectFactory->requestnewHarvesterbyDeed(NULL,deed,player->getClient(),x,z,dir,"");
+			gObjectFactory->requestnewHarvesterbyDeed(gWorldManager,deed,player->getClient(),x,y,z,dir,"",player);
 		}
 		break;
 	}
-	//
-
-	//now place it
-	// call the factory
-	//1) send the messages to all players around
-
-	/*
-	gMessageLib->sendCreateHarvester(,player);
-
-	//create it in the world	
-	gWorldManager->addObject(camp);
-	
-	PlayerObjectSet*			inRangePlayers	= player->getKnownPlayers();
-	PlayerObjectSet::iterator	it				= inRangePlayers->begin();
-	while(it != inRangePlayers->end())
-	{
-		PlayerObject* targetObject = (*it);
-		gMessageLib->sendCreateTangible(camp,targetObject);
-		targetObject->addKnownObjectSafe(camp);
-		camp->addKnownObjectSafe(targetObject);
-		++it;
-	}
-
-	gMessageLib->sendCreateTangible(camp,player);
-	player->addKnownObjectSafe(camp);
-	camp->addKnownObjectSafe(player);
-	gMessageLib->sendDataTransform(camp);
-	  */
-	//2) put it in the db
-
-	//3) 
-
+		
 	
 }

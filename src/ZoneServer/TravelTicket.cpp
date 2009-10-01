@@ -17,6 +17,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "MessageLib/MessageLib.h"
 #include "LogManager/LogManager.h"
 #include "MathLib/Quaternion.h"
+#include "TravelMapHandler.h"
 
 
 //=============================================================================

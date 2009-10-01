@@ -14,10 +14,10 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 //#include "tangibleobject.h"
 #include "PlayerStructure.h"
-#include "CellObject.h"
+//#include "CellObject.h"
 
 
-typedef std::vector<CellObject*>	CellObjectList;
+//typedef std::vector<CellObject*>	CellObjectList;
 //=============================================================================
 class PlayerStructure;
 

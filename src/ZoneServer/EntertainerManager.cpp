@@ -1751,6 +1751,7 @@ void EntertainerManager::startWatching(PlayerObject* audience, PlayerObject* ent
 
 
 	//is the entertainer near enough???
+	//TODO range configureable ??
 	if(!entertainer->mPosition.inRange2D(audience->mPosition,60))
 	{
 		gMessageLib->sendSystemMessage(audience,L"","performance","dance_fail");

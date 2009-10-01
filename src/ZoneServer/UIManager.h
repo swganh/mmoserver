@@ -36,6 +36,7 @@ struct LBContainer
 //======================================================================================================================
 
 class Message;
+class Shuttle;
 class Database;
 class MessageDispatch;
 class DispatchClient;
@@ -45,6 +46,7 @@ class UIOfferTeachBox;
 class UIResourceSelectListBox;
 class BuildingObject;
 class UICloneSelectListBox;
+class PlayerStructure;
 
 //======================================================================================================================
 
@@ -76,6 +78,7 @@ class UIManager : public MessageDispatchCallback
 		void				createNewResourceSelectListBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* prompt,const BStringVector dataItems,ResourceIdList resourceIdList,PlayerObject* playerObject,uint8 windowType,uint8 lbType = SUI_LB_OK);
 		void				createNewCloneSelectListBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* prompt,const BStringVector dataItems,std::vector<BuildingObject*> buildingList,PlayerObject* playerObject,uint8 lbType = SUI_LB_OK);
 		void				createNewDiagnoseListBox(UICallback* callback,PlayerObject* Medic,PlayerObject* Patient);
+		void				createNewStructureDestroyBox(UICallback* callback,PlayerObject* player, PlayerStructure* structure, bool redeed);
 		// custom message boxes
 		void				createNewSkillTeachMessageBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* text,PlayerObject* playerObject,uint8 mbType,PlayerObject* pupil,Skill* skill);
 

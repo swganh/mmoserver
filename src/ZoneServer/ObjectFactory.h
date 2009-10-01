@@ -12,8 +12,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_ZONESERVER_OBJECT_FACTORY_H
 #define ANH_ZONESERVER_OBJECT_FACTORY_H
 
-#include "ZoneServer/TangibleObject.h"
-#include "TravelMapHandler.h"
+//#include "ZoneServer/TangibleObject.h"
 #include "DatabaseManager/DatabaseCallback.h"
 #include "PlayerObjectFactory.h"
 #include "TangibleFactory.h"
@@ -28,12 +27,14 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #define 	gObjectFactory	ObjectFactory::getSingletonPtr()
 
+//class TravelMapHandler;
 class Database;
 class DispatchClient;
 class OFAsyncContainer;
 class ObjectFactoryCallback;
 class TicketProperties;
 class DraftSchematic;
+class TangibleObject;
 
 //=============================================================================
 
@@ -68,7 +69,7 @@ class ObjectFactory : public DatabaseCallback
 		void					requestNewWaypoint(ObjectFactoryCallback* ofCallback,string name,const Anh_Math::Vector3 coords,uint16 planetId,uint64 ownerId,uint8 wpType);
 		void					requestNewTravelTicket(ObjectFactoryCallback* ofCallback,TicketProperties ticketProperties,uint64 parentId,uint16 planetId);
 		void					requestNewResourceContainer(ObjectFactoryCallback* ofCallback,uint64 resourceId,uint64 parentId,uint16 planetId,uint32 amount);
-		void					requestnewHarvesterbyDeed(ObjectFactoryCallback* ofCallback,Deed* deed,DispatchClient* client, float x, float z, float dir, string customName);
+		void					requestnewHarvesterbyDeed(ObjectFactoryCallback* ofCallback,Deed* deed,DispatchClient* client, float x, float y, float z, float dir, string customName, PlayerObject* player);
 
 
 		void					requestTanoNewParent(ObjectFactoryCallback* ofCallback,uint64 ObjectId,uint64 parentId, TangibleGroup  Group);
@@ -114,6 +115,8 @@ class OFAsyncContainer
 		OFQuery					query;
 		uint64					Id;
 		TangibleGroup			Group;
+		uint64					DeedId;
+		uint64					OwnerId;
 };
 
 #endif

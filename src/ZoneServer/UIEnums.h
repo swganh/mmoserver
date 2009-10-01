@@ -72,6 +72,8 @@ enum ui_window_types
 	SUI_Window_FireworkShow_Reorder								= 36,
 	SUI_Window_FireworkShow_Remove								= 37,
 	SUI_Window_FireworkShow_Modify								= 38,
+
+	SUI_Window_Structure_Delete									= 39,
 	
 };
 

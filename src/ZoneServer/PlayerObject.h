@@ -313,6 +313,14 @@ class PlayerObject : public CreatureObject
 		void				setNewPlayerExemptions(uint8 npe, bool displayMessage=false);
 		void				newPlayerMessage(void);
 
+		//Lots
+		uint8				getPlayerLots(){return mLots;}
+		void				setPlayerLots(uint8 set){mLots = set;}
+		bool				checkPlayerLots(uint8 check){int16 intCheck = mLots -check;return (intCheck>=0);}
+		bool				usePlayerLots(uint8 usedLots);
+		bool				regainPlayerLots(uint8 lots);
+
+
 		uint32				mXpUpdateCounter;
 
 		//Player Specific Buffs

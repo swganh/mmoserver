@@ -10,19 +10,10 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "EntertainerManager.h"
-#include "Common/MessageDispatch.h"
 #include "Common/MessageFactory.h"
-#include "Common/MessageOpcodes.h"
-#include "Common/Message.h"
-#include "Common/DispatchClient.h"
-#include "DatabaseManager/Database.h"
 #include "LogManager/LogManager.h"
 #include "WorldManager.h"
-
 #include "UIManager.h"
-#include "NonPersistantObjectFactory.h"
-#include "MissionManager.h"
-#include "Buff.h"
 
 //======================================================================================================================
 //gets the information on a holoemote from the loaded db data

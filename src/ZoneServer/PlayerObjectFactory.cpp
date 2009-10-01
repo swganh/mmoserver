@@ -284,6 +284,11 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
 			cloneDestIdContainer->mObject = playerObject;
 
 			mDatabase->ExecuteSqlAsync(this,cloneDestIdContainer,"SELECT spawn_facility_id, x, y, z, planet_id FROM character_clone WHERE character_id=%lld",playerObject->getId());
+
+			QueryContainerBase* LotsContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,POFQuery_Lots,asyncContainer->mClient);
+			LotsContainer->mObject = playerObject;
+
+			mDatabase->ExecuteSqlAsync(this,LotsContainer,"SELECT sf_getLotCount(%I64u)",playerObject->getId());
 		}
 		break;
 
@@ -372,6 +377,33 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
 			{
 				playerObject->mPreDesignatedCloningFacilityId = 0;
 			}
+
+			mDatabase->DestroyDataBinding(binding);
+		}
+		break;
+
+		case POFQuery_Lots:
+		{
+			PlayerObject* playerObject = dynamic_cast<PlayerObject*>(asyncContainer->mObject);
+
+			uint32 lotCount;
+			DataBinding* binding = mDatabase->CreateDataBinding(1);
+			binding->addField(DFT_uint32,0,4);
+			
+			uint64 count = result->getRowCount();
+			if(!count)
+			{
+				gLogger->logMsg("PlayerObjectFactory: sf_getLotCount did not return a value");
+				//now we have a problem ...
+				mDatabase->DestroyDataBinding(binding);
+				break;
+			}
+
+			result->GetNextRow(binding,&lotCount);
+			uint8 maxLots = gWorldConfig->getConfiguration("Player_Max_Lots",(uint8)10);
+
+			maxLots -=	lotCount;
+			playerObject->setPlayerLots((uint8)maxLots);
 
 			mDatabase->DestroyDataBinding(binding);
 		}
@@ -725,7 +757,7 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
 	mIlc = _getObject(object->getParentId());
 	if(!mIlc)
 	{
-		gLogger->logMsg("no mIlc :(\n");
+		gLogger->logMsg("no mIlc :(");
 		return;
 	}
 	mIlc->mLoadCounter--;
@@ -771,7 +803,7 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
 	}
 	else
 	{
-		gLogger->logMsg("no idea what this was\n");
+		gLogger->logMsg("PlayerObjectFactory: no idea what this was");
 	}
 
 	if(!mIlc->mLoadCounter)

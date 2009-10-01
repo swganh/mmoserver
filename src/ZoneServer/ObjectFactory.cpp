@@ -19,6 +19,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "ResourceManager.h"
 #include "Utils/utils.h"
 #include "DraftSchematic.h"
+#include "StructureManager.h"
+#include "TravelMapHandler.h"
 
 
 
@@ -80,6 +82,7 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			if(!result->getRowCount())
 			{
 				gLogger->logMsg("ObjFactory::handleDatabaseJobComplete   :  create Harvester failed");
+				break;
 			}
 
 			uint64 requestId = 0;
@@ -89,7 +92,11 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			mDatabase->DestroyDataBinding(binding);
 
 			if(requestId)
+			{
 				mHarvesterFactory->requestObject(asyncContainer->ofCallback,requestId,0,0,asyncContainer->client);
+
+				//now we need to update the Owners Lots
+			}
 			else
 				gLogger->logMsg("ObjFactory::handleDatabaseJobComplete   :  create Harvester failed");
 		}
@@ -216,12 +223,58 @@ void ObjectFactory::requestNewResourceContainer(ObjectFactoryCallback* ofCallbac
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sf_ResourceContainerCreate(%lld,%lld,0,0,0,%u,%u)",resourceId,parentId,planetId,amount);
 }
 
-void ObjectFactory::requestnewHarvesterbyDeed(ObjectFactoryCallback* ofCallback,Deed* deed,DispatchClient* client, float x, float z, float dir, string customName)
+void ObjectFactory::requestnewHarvesterbyDeed(ObjectFactoryCallback* ofCallback,Deed* deed,DispatchClient* client, float x, float y, float z, float dir, string customName, PlayerObject* player)
 {
 	//create a new Harvester Object with the attributes as specified by the deed
 	OFAsyncContainer* asyncContainer = new(mDbAsyncPool.ordered_malloc()) OFAsyncContainer(ofCallback,OFQuery_Harvester,NULL);
-	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sf_DefaultHarvesterCreate(%u,0,%I64u,%u,0,0,0,0,%f,0,%f,'%s')",deed->getItemType(), deed->getOwner(), gWorldManager->getZoneId(),x,z,customName.getAnsi());
 
+	asyncContainer->DeedId = deed->getId();
+	asyncContainer->OwnerId = deed->getOwner();
+	int8 sql[512];
+	//sf_DefaultHarvesterCreate`(type_id INT(11),parent_id BIGINT(20),privateowner_id BIGINT(20),inPlanet INT,oX FLOAT,oY FLOAT,oZ FLOAT, oW FLOAT,inX FLOAT,inY FLOAT,inZ FLOAT,custom_name CHAR(255)) RETURNS bigint(20)
+	
+	StructureDeedLink* deedLink;
+	deedLink = gStructureManager->getDeedData(deed->getItemType());
+
+	float oX, oY, oZ, oW;
+	if(dir== 0.0)
+	{		
+		gLogger->logMsgF("dir is %f",MSG_HIGH,dir);
+		oX = 0;
+		oY = 0;
+		oZ = 0;
+		oW = 1;
+	}
+	if(dir== 1.0)	 //ok
+	{
+		oX = 0.0;
+		oY = 0.71;
+		oZ = 0.0;
+		oW = 0.71;
+	}
+
+	if(dir== 2.0)
+	{
+		oX = 0;
+		oY = 1;
+		oZ = 0;
+		oW = 0;
+	}
+
+	if(dir== 3.0)
+	{
+		oX = 0;
+		oY = -0.71;
+		oZ = 0;
+		oW = 0.71;
+	}
+
+	
+	gLogger->logMsgF("dir is %f, x:%f, y:%f, z:%f, w:%f",MSG_HIGH,dir,oX, oY, oZ, oW);
+	
+	sprintf(sql,"SELECT sf_DefaultHarvesterCreate(%u,0,%I64u,%u,%f,%f,%f,%f,%f,%f,%f,'%s')",deedLink->structure_type, player->getPlayerObjId(), gWorldManager->getZoneId(),oX,oY,oZ,oW,x,y,z,customName.getAnsi());
+	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
+	gLogger->logMsgF(sql,MSG_HIGH);
 
 }
 

@@ -10,6 +10,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "UIManager.h"
+#include "HarvesterObject.h"
 #include "UIMessageBox.h"
 #include "UIListBox.h"
 #include "UIInputBox.h"
@@ -409,6 +410,32 @@ void UIManager::createNewDiagnoseListBox(UICallback* callback,PlayerObject* Medi
 	attributesMenu.push_back(BattleFatigue);
 
 	createNewListBox(callback,"handleDiagnoseMenu",title, desc, attributesMenu, Medic, SUI_Window_ListBox);
+}
+
+void UIManager::createNewStructureDestroyBox(UICallback* callback,PlayerObject* player, PlayerStructure* structure, bool redeed)
+{
+	BStringVector attributesMenu;
+
+	string text = "You have elected to destroy a structure. Petinent structure data can be found in the list below. Please complete the following steps to confirm structure deletion.\xa\xa";
+			text <<"If you wish to redeed your structure, all structure data must be GREEN To continue with structure deleteion, click YES. Otherwise, please click NO.\xa";
+			text <<"WILL REDEED: NO";			
+
+	int8 redeedText[32];
+	sprintf(redeedText,"CAN REDEED: YES");
+	attributesMenu.push_back(redeedText);
+
+	int8 condition[64];
+	sprintf(condition,"-CONDITION:%u/%u",1000,1000);
+	attributesMenu.push_back(condition);
+
+	int8 maintenance[128];
+	sprintf(maintenance,"-MAINTENANCE:%u/%u",-1,-1);
+	attributesMenu.push_back(maintenance);
+
+	string name = structure->getCustomName();			
+	name.convert(BSTRType_ANSI);
+	
+	createNewListBox(callback,"handleDiagnoseMenu",name.getAnsi(), text.getAnsi(), attributesMenu, player, SUI_Window_Structure_Delete,SUI_LB_OKCANCEL);
 }
 
 

@@ -1359,8 +1359,9 @@ void ObjectController::handleObjectReady(Object* object,DispatchClient* client)
 			}
 			++containerObjectIt;
 		}
+		gMessageLib->sendOpenedContainer(object->getId(), player);
 	}
-	gMessageLib->sendOpenedContainer(object->getId(), player);
+	
 }
 
 //======================================================================================================================

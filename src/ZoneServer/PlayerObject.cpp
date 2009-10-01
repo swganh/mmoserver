@@ -110,13 +110,15 @@ mLastGroupMissionUpdateTime(0)
 	mType				= ObjType_Player;
 	mCreoGroup			= CreoGroup_Player;
 	mStomach			= new Stomach();
-	// mMarriage			= L"Your Spouce";	// When testing
+	// mMarriage			= L"Your Spouse";	// When testing
 	mMarriage			= L"";					// Unmarried
 	mTrade				= new Trade(this);
 
 	// register event functions
 	registerEventFunction(this,&PlayerObject::onSurvey);
 	registerEventFunction(this,&PlayerObject::onSample);
+	
+	mLots = gWorldConfig->getConfiguration("Player_Max_Lots",(uint8)10);
 }
 
 //=============================================================================
@@ -2076,3 +2078,36 @@ bool PlayerObject::autoAttackEnabled(void)
 {
 	return mAutoAttack;
 }
+
+//=============================================================================
+//we check whether we have enough Lots and update them if so including the db
+//
+bool PlayerObject::usePlayerLots(uint8 usedLots)
+{
+	int32 lots = mLots-usedLots;
+	if(lots <0)
+	{
+		return false;
+	}
+	mLots -= usedLots;
+
+	return true;
+}
+
+//=============================================================================
+//we check whether the amount of lots regained is plausibel
+//and updatre the db
+//
+bool PlayerObject::regainPlayerLots(uint8 lots)
+{
+	uint8 maxLots = gWorldConfig->getConfiguration("Player_Max_Lots",(uint8)10);
+	if((mLots+lots)>maxLots)
+	{
+		return false;
+	}
+	
+	mLots += lots;
+
+	return true;
+}
+		

@@ -8,16 +8,17 @@ Copyright (c) 2006 - 2008 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
-#include "ChatMessageLib.h"
 #include "Common/MessageDispatch.h"
 #include "Common/MessageFactory.h"
 #include "Common/Message.h"
 #include "Common/DispatchClient.h"
 #include "Common/atMacroString.h"
+#include "ChatMessageLib.h"
 #include "ChatOpcodes.h"
+#include "Player.h"
 #include "TradeManagerHelp.h"
 
-void ChatMessageLib::sendCanceLiveAuctionResponseMessage(DispatchClient* client, uint32 error, uint64 mAuctionID)
+void ChatMessageLib::sendCanceLiveAuctionResponseMessage(DispatchClient* client, uint32 error, uint64 mAuctionID) const
 {
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opCanceLiveAuctionResponseMessage);
@@ -31,7 +32,7 @@ void ChatMessageLib::sendCanceLiveAuctionResponseMessage(DispatchClient* client,
 
 //=======================================================================================================================
 
-void ChatMessageLib::sendBidAuctionResponse(DispatchClient* client, uint32 mError, uint64 mAuctionID)
+void ChatMessageLib::sendBidAuctionResponse(DispatchClient* client, uint32 mError, uint64 mAuctionID) const
 {
 	Message* newMessage;
 	gMessageFactory->StartMessage();
@@ -44,7 +45,7 @@ void ChatMessageLib::sendBidAuctionResponse(DispatchClient* client, uint32 mErro
 
 //=======================================================================================================================
 
-void ChatMessageLib::sendIsVendorOwnerResponseMessage(DispatchClient* client, string mBazaarString, uint32 mPermission, uint32 mError, uint64 mId)
+void ChatMessageLib::sendIsVendorOwnerResponseMessage(DispatchClient* client, string mBazaarString, uint32 mPermission, uint32 mError, uint64 mId) const
 {
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opIsVendorOwnerResponseMessage);
@@ -72,7 +73,7 @@ void ChatMessageLib::sendIsVendorOwnerResponseMessage(DispatchClient* client, st
 
 //=======================================================================================================================
 
-void ChatMessageLib::processSendCreateItem(DispatchClient* client, uint64 mPlayerID, uint64 mItemID,uint32 mItemGroup, uint32 mPlanetID)
+void ChatMessageLib::processSendCreateItem(DispatchClient* client, uint64 mPlayerID, uint64 mItemID,uint32 mItemGroup, uint32 mPlanetID) const
 {
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opProcessSendCreateItem);
@@ -87,7 +88,7 @@ void ChatMessageLib::processSendCreateItem(DispatchClient* client, uint64 mPlaye
 
 //=======================================================================================================================
 
-void ChatMessageLib::SendGetAuctionDetailsResponse(TradeManagerAsyncContainer* asynContainer, AttributesList* mAttributesList)
+void ChatMessageLib::SendGetAuctionDetailsResponse(TradeManagerAsyncContainer* asynContainer, AttributesList* mAttributesList) const
 {
 
 	string mDescriptionString;
@@ -128,7 +129,7 @@ void ChatMessageLib::SendGetAuctionDetailsResponse(TradeManagerAsyncContainer* a
 //adds the amount for a banktip to a players bank account on the respective zone
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void ChatMessageLib::sendBankTipDeductMessage(DispatchClient* client, uint64 receiverId,   uint32 amount, Player*  mPlayer)
+void ChatMessageLib::sendBankTipDeductMessage(DispatchClient* client, uint64 receiverId,   uint32 amount, Player*  mPlayer) const
 {
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opBankTipDeduct);
@@ -145,7 +146,7 @@ void ChatMessageLib::sendBankTipDeductMessage(DispatchClient* client, uint64 rec
 //gives the zone server information on a won instant
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void ChatMessageLib::sendBazaarTransactionMessage(DispatchClient* client, AuctionItem mAuctionItem, uint64 mBuyerId,   uint32 mTime, Player*  mPlayer, Bazaar* mBazaarInfo)
+void ChatMessageLib::sendBazaarTransactionMessage(DispatchClient* client, AuctionItem mAuctionItem, uint64 mBuyerId,   uint32 mTime, Player*  mPlayer, Bazaar* mBazaarInfo) const
 {
 
 	char *token;

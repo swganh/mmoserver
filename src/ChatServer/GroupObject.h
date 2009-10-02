@@ -13,9 +13,11 @@ Copyright (c) 2006, 2007 The swgANH Team
 #define ANH_CHATSERVER_GROUPOBJECT_H
 
 #include <vector>
-#include "Player.h"
-#include "Channel.h"
+
 #include "Utils/typedefs.h"
+
+class Channel;
+class Player;
 
 //======================================================================================================================
 

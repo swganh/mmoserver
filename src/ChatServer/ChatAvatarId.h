@@ -13,9 +13,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #define ANH_CHATAVATARID_CHANNEL_H
 
 #include "Utils/typedefs.h"
-#include "Player.h"
 
 class ChatSystemAvatar;
+class Player;
 
 #define gSystemAvatar ChatSystemAvatar::GetSingleton()
 

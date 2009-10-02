@@ -8,16 +8,16 @@ Copyright (c) 2006 - 2008 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
-#include "ChatMessageLib.h"
 #include "Common/MessageDispatch.h"
 #include "Common/MessageFactory.h"
 #include "Common/Message.h"
 #include "Common/DispatchClient.h"
 #include "Common/atMacroString.h"
-#include "GroupObject.h"
-#include "CSROpcodes.h"
+#include "ChatMessageLib.h"
 #include "ChatOpcodes.h"
-
+#include "CSROpcodes.h"
+#include "GroupObject.h"
+#include "Player.h"
 
 
 bool			ChatMessageLib::mInsFlag    = false;
@@ -42,7 +42,7 @@ ChatMessageLib::ChatMessageLib(DispatchClient* client)
 
 //======================================================================================================================
 
-void ChatMessageLib::sendSceneCreateObjectByCrc(uint64 objectId, uint32 objectCrc, Player* player)
+void ChatMessageLib::sendSceneCreateObjectByCrc(uint64 objectId, uint32 objectCrc, Player* player) const
 {
 	Message*		message;
 
@@ -64,7 +64,7 @@ void ChatMessageLib::sendSceneCreateObjectByCrc(uint64 objectId, uint32 objectCr
 
 //======================================================================================================================
 
-void ChatMessageLib::sendSceneDestroyObject(uint64 objectId, Player* player)
+void ChatMessageLib::sendSceneDestroyObject(uint64 objectId, Player* player) const
 {
 	Message*		message;
 
@@ -78,7 +78,7 @@ void ChatMessageLib::sendSceneDestroyObject(uint64 objectId, Player* player)
 }
 //======================================================================================================================
 
-void ChatMessageLib::sendSceneEndBaselines(uint64 objectId, Player* player)
+void ChatMessageLib::sendSceneEndBaselines(uint64 objectId, Player* player) const
 {
 	Message*		message;
 
@@ -96,7 +96,7 @@ void ChatMessageLib::sendSceneEndBaselines(uint64 objectId, Player* player)
 ////////////////////////////////////////////////////////////////////////////////////////////
 //sends the zone the necessary information to create a waypoint for a friend
 ////////////////////////////////////////////////////////////////////////////////////////////
-void ChatMessageLib::sendFindFriendCreateWaypoint(DispatchClient* client, Player* player, Player* friendPlayer)
+void ChatMessageLib::sendFindFriendCreateWaypoint(DispatchClient* client, Player* player, Player* friendPlayer) const
 {
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opFindFriendCreateWaypoint);
@@ -114,7 +114,7 @@ void ChatMessageLib::sendFindFriendCreateWaypoint(DispatchClient* client, Player
 ////////////////////////////////////////////////////////////////////////////////////////////
 //requests the position of a char for a friend from the chatserver
 ////////////////////////////////////////////////////////////////////////////////////////////
-void ChatMessageLib::sendFindFriendRequestPosition(DispatchClient* client, Player* playersFriend, Player* player)
+void ChatMessageLib::sendFindFriendRequestPosition(DispatchClient* client, Player* playersFriend, Player* player) const
 {
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opFindFriendRequestPosition);

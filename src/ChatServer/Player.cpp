@@ -11,7 +11,6 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "Player.h"
 
-
 //======================================================================================================================
 
 void Player::removeFriend(uint32 nameCrc)

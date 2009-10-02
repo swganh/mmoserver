@@ -8,19 +8,23 @@ Copyright (c) 2006 - 2008 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
-#include "ChatMessageLib.h"
+#include <math.h>
+
 #include "Common/MessageDispatch.h"
 #include "Common/MessageFactory.h"
 #include "Common/Message.h"
 #include "Common/DispatchClient.h"
 #include "Common/atMacroString.h"
-#include "ChatOpcodes.h"
+#include "Channel.h"
+#include "ChatAvatarId.h"
 #include "ChatManager.h"
+#include "ChatMessageLib.h"
+#include "ChatOpcodes.h"
 #include "GroupObject.h"
 #include "Mail.h"
-#include <math.h>
+#include "Player.h"
 
-void ChatMessageLib::sendChatPersistantMessagetoClient(DispatchClient* client,Mail* mail,uint32 mailId,uint32 mailCounter,uint8 status)
+void ChatMessageLib::sendChatPersistantMessagetoClient(DispatchClient* client,Mail* mail,uint32 mailId,uint32 mailCounter,uint8 status) const
 {
 
 	Message* newMessage;
@@ -43,7 +47,7 @@ void ChatMessageLib::sendChatPersistantMessagetoClient(DispatchClient* client,Ma
 
 //======================================================================================================================
 
-void ChatMessageLib::sendChatPersistantMessagetoClient(DispatchClient* client,Mail* mail)
+void ChatMessageLib::sendChatPersistantMessagetoClient(DispatchClient* client,Mail* mail) const
 {
 	Message* newMessage;
 	gMessageFactory->StartMessage();                                 
@@ -64,7 +68,7 @@ void ChatMessageLib::sendChatPersistantMessagetoClient(DispatchClient* client,Ma
 
 //=======================================================================================================================
 
-void ChatMessageLib::sendChatonPersistantMessage(DispatchClient* client, uint64 mailCounter)
+void ChatMessageLib::sendChatonPersistantMessage(DispatchClient* client, uint64 mailCounter) const
 {
 	Message* newMessage;
 	gMessageFactory->StartMessage();     
@@ -77,7 +81,7 @@ void ChatMessageLib::sendChatonPersistantMessage(DispatchClient* client, uint64 
 
 //======================================================================================================================
 
-void ChatMessageLib::sendCancelAuctionMail(DispatchClient* client, uint64 Sender, uint64 Receiver, int8 ItemName[128])
+void ChatMessageLib::sendCancelAuctionMail(DispatchClient* client, uint64 Sender, uint64 Receiver, int8 ItemName[128]) const
 {
 
 	if(!client)
@@ -107,7 +111,7 @@ void ChatMessageLib::sendCancelAuctionMail(DispatchClient* client, uint64 Sender
 
 //=======================================================================================================================
 
-void ChatMessageLib::sendBidderCancelAuctionMail(DispatchClient* client, uint64 mSender, uint64 mReceiver, int8 mItemName[128])
+void ChatMessageLib::sendBidderCancelAuctionMail(DispatchClient* client, uint64 mSender, uint64 mReceiver, int8 mItemName[128]) const
 {	
 
 	atMacroString* aMS = new atMacroString();
@@ -135,7 +139,7 @@ void ChatMessageLib::sendBidderCancelAuctionMail(DispatchClient* client, uint64 
 
 //=======================================================================================================================
 
-void ChatMessageLib::SendRetrieveAuctionItemResponseMessage(DispatchClient* client, uint64 mItemId, uint32 error)
+void ChatMessageLib::SendRetrieveAuctionItemResponseMessage(DispatchClient* client, uint64 mItemId, uint32 error) const
 {
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opRetrieveAuctionItemResponseMessage);
@@ -147,7 +151,7 @@ void ChatMessageLib::SendRetrieveAuctionItemResponseMessage(DispatchClient* clie
 
 //=======================================================================================================================
 
-void ChatMessageLib::sendSoldInstantMail(DispatchClient* client,uint64 Sender, uint64 Receiver, int8 ItemName[128], int8 pBuyerName[128], int8 pRegion[128], uint32 pCredits)
+void ChatMessageLib::sendSoldInstantMail(DispatchClient* client,uint64 Sender, uint64 Receiver, int8 ItemName[128], int8 pBuyerName[128], int8 pRegion[128], uint32 pCredits) const
 {
 	//seller_success       Your auction of %TO has been sold to %TT for %DI credits
 
@@ -177,7 +181,7 @@ void ChatMessageLib::sendSoldInstantMail(DispatchClient* client,uint64 Sender, u
 
 //=======================================================================================================================
 
-void ChatMessageLib::ItemExpiredMail(DispatchClient* client, uint64 Receiver, int8 ItemName[128])     
+void ChatMessageLib::ItemExpiredMail(DispatchClient* client, uint64 Receiver, int8 ItemName[128]) const
 {
 	//seller_success       Your auction of %TO has been sold to %TT for %DI credits
 
@@ -208,7 +212,7 @@ void ChatMessageLib::ItemExpiredMail(DispatchClient* client, uint64 Receiver, in
 
 //=======================================================================================================================
 
-void ChatMessageLib::sendSoldAuctionMail(DispatchClient* client,uint64 Sender, uint64 Receiver, int8 ItemName[128], int8 BuyerName[128], int8 Region[128], uint32 Credits)     
+void ChatMessageLib::sendSoldAuctionMail(DispatchClient* client,uint64 Sender, uint64 Receiver, int8 ItemName[128], int8 BuyerName[128], int8 Region[128], uint32 Credits) const 
 {
 	//seller_success       Your auction of %TO has been sold to %TT for %DI credits
 
@@ -246,7 +250,7 @@ void ChatMessageLib::sendSoldAuctionMail(DispatchClient* client,uint64 Sender, u
 
 //=======================================================================================================================
 
-void ChatMessageLib::sendAuctionOutbidMail(DispatchClient* client, uint64 Sender, uint64 Receiver, int8 ItemName[128])
+void ChatMessageLib::sendAuctionOutbidMail(DispatchClient* client, uint64 Sender, uint64 Receiver, int8 ItemName[128]) const
 {
 	atMacroString* aMS = new atMacroString();
 
@@ -271,7 +275,7 @@ void ChatMessageLib::sendAuctionOutbidMail(DispatchClient* client, uint64 Sender
 
 //=======================================================================================================================
 
-void ChatMessageLib::sendAuctionWonMail(DispatchClient* client, uint64 Sender, uint64 Receiver,int8 ItemName[128],int8 Sellerame[32],uint32 Credits)
+void ChatMessageLib::sendAuctionWonMail(DispatchClient* client, uint64 Sender, uint64 Receiver,int8 ItemName[128],int8 Sellerame[32],uint32 Credits) const
 {
 
 	atMacroString* aMS = new atMacroString();
@@ -300,7 +304,7 @@ void ChatMessageLib::sendAuctionWonMail(DispatchClient* client, uint64 Sender, u
 
 //======================================================================================================================
 
-void ChatMessageLib::sendSystemMessageProper(Player* playerObject,uint8 system, string customMessage,string mainFile,string mainVar,string toFile,string toVar,string toCustom,int32 di,string ttFile,string ttVar,string ttCustom,uint64 ttId,uint64 toId,uint64 tuId,string tuFile,string tuVar,string tuCustom)
+void ChatMessageLib::sendSystemMessageProper(Player* playerObject,uint8 system, string customMessage,string mainFile,string mainVar,string toFile,string toVar,string toCustom,int32 di,string ttFile,string ttVar,string ttCustom,uint64 ttId,uint64 toId,uint64 tuId,string tuFile,string tuVar,string tuCustom) const
 {
 
 	gMessageFactory->StartMessage(); 
@@ -366,7 +370,7 @@ void ChatMessageLib::sendSystemMessageProper(Player* playerObject,uint8 system, 
 
 //======================================================================================================================
 
-void ChatMessageLib::sendSystemMessage(Player* target, string message)
+void ChatMessageLib::sendSystemMessage(Player* target, string message) const
 {
 	Message* newMessage;
 
@@ -382,7 +386,7 @@ void ChatMessageLib::sendSystemMessage(Player* target, string message)
 
 //======================================================================================================================
 
-void ChatMessageLib::sendGroupSystemMessage(string message, GroupObject* group, bool ignoreLeader)
+void ChatMessageLib::sendGroupSystemMessage(string message, GroupObject* group, bool ignoreLeader) const
 {
 	Message* newMessage;
 
@@ -398,7 +402,7 @@ void ChatMessageLib::sendGroupSystemMessage(string message, GroupObject* group, 
 
 //======================================================================================================================
 
-void ChatMessageLib::sendGroupSystemMessage(string name, string pointer, Player* target, GroupObject* group, bool unicode)
+void ChatMessageLib::sendGroupSystemMessage(string name, string pointer, Player* target, GroupObject* group, bool unicode) const
 {
 	name.convert(BSTRType_Unicode16);
 	uint32	pointerLength = (uint32)ceil((double)(pointer.getLength() / 2));
@@ -458,7 +462,7 @@ void ChatMessageLib::sendGroupSystemMessage(string name, string pointer, Player*
 
 //======================================================================================================================
 
-void ChatMessageLib::sendFriendOnlineStatus(Player* player,Player* playerFriend,uint8 status, string category, string name)
+void ChatMessageLib::sendFriendOnlineStatus(Player* player,Player* playerFriend,uint8 status, string category, string name) const
 {
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opChatFriendlistUpdate);
@@ -474,7 +478,7 @@ void ChatMessageLib::sendFriendOnlineStatus(Player* player,Player* playerFriend,
 
 //======================================================================================================================
 
-void ChatMessageLib::sendBanktipMail(DispatchClient* client, Player*  playerObject, string receiverName,uint64 receiverId, uint32 amount)
+void ChatMessageLib::sendBanktipMail(DispatchClient* client, Player*  playerObject, string receiverName,uint64 receiverId, uint32 amount) const
 {
 
 	if(!client)
@@ -527,7 +531,7 @@ void ChatMessageLib::sendBanktipMail(DispatchClient* client, Player*  playerObje
 
 //======================================================================================================================
 
-void ChatMessageLib::sendChatRoomList(DispatchClient* client, ChannelList* list)
+void ChatMessageLib::sendChatRoomList(DispatchClient* client, ChannelList* list) const
 {
 	ChannelList::iterator iter = list->begin();
 
@@ -590,7 +594,7 @@ void ChatMessageLib::sendChatRoomList(DispatchClient* client, ChannelList* list)
 
 //======================================================================================================================
 
-void ChatMessageLib::sendChatOnEnteredRoom(DispatchClient* client, ChatAvatarId* player, Channel* channel, uint32 requestId)
+void ChatMessageLib::sendChatOnEnteredRoom(DispatchClient* client, ChatAvatarId* player, Channel* channel, uint32 requestId) const
 {
 	ChatAvatarIdList::iterator iter = channel->getUserList()->begin();
 
@@ -618,7 +622,7 @@ void ChatMessageLib::sendChatOnEnteredRoom(DispatchClient* client, ChatAvatarId*
 
 //======================================================================================================================
 
-void ChatMessageLib::sendChatFailedToEnterRoom(DispatchClient* client, ChatAvatarId* player, uint32 errorcode, Channel* channel, uint32 requestId)
+void ChatMessageLib::sendChatFailedToEnterRoom(DispatchClient* client, ChatAvatarId* player, uint32 errorcode, Channel* channel, uint32 requestId) const
 {
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opChatOnEnteredRoom);
@@ -640,7 +644,7 @@ void ChatMessageLib::sendChatFailedToEnterRoom(DispatchClient* client, ChatAvata
 
 //======================================================================================================================
 
-void ChatMessageLib::sendChatOnCreateRoom(DispatchClient* client, Channel* channel, uint32 requestId)
+void ChatMessageLib::sendChatOnCreateRoom(DispatchClient* client, Channel* channel, uint32 requestId) const
 {
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opChatOnCreateRoom);
@@ -692,7 +696,7 @@ void ChatMessageLib::sendChatOnCreateRoom(DispatchClient* client, Channel* chann
 
 //======================================================================================================================
 
-void ChatMessageLib::sendChatOnDestroyRoom(DispatchClient* client, Channel* channel, uint32 requestId)
+void ChatMessageLib::sendChatOnDestroyRoom(DispatchClient* client, Channel* channel, uint32 requestId) const
 {
 	// For some odd reason we managed to come here from group::disband with a NULL-channel.
 	if (channel)
@@ -731,7 +735,7 @@ void ChatMessageLib::sendChatOnDestroyRoom(DispatchClient* client, Channel* chan
 
 //======================================================================================================================
 
-void ChatMessageLib::sendChatOnLeaveRoom(DispatchClient* client, ChatAvatarId* avatar, Channel* channel, uint32 requestId, uint32 errorCode)
+void ChatMessageLib::sendChatOnLeaveRoom(DispatchClient* client, ChatAvatarId* avatar, Channel* channel, uint32 requestId, uint32 errorCode) const
 {
 	ChatAvatarIdList::iterator iter = channel->getUserList()->begin();
 
@@ -759,7 +763,7 @@ void ChatMessageLib::sendChatOnLeaveRoom(DispatchClient* client, ChatAvatarId* a
 
 //======================================================================================================================
 
-void ChatMessageLib::sendChatOnInviteToRoom(DispatchClient* client, string galaxy, string sender, string target, Channel* channel, uint32 requestId)
+void ChatMessageLib::sendChatOnInviteToRoom(DispatchClient* client, string galaxy, string sender, string target, Channel* channel, uint32 requestId) const
 {
 	// We should not send this info to everyone in the channel, escpecially since we can invite non-online players
 	// Other users in channel will get "bla bla... %TO bla bla ...UNKNOWN"-spam.
@@ -785,7 +789,7 @@ void ChatMessageLib::sendChatOnInviteToRoom(DispatchClient* client, string galax
 
 //======================================================================================================================
 
-void ChatMessageLib::sendChatFailedToInvite(DispatchClient* client, string galaxy, string sender, string target, Channel* channel, uint32 errorcode, uint32 requestId)
+void ChatMessageLib::sendChatFailedToInvite(DispatchClient* client, string galaxy, string sender, string target, Channel* channel, uint32 errorcode, uint32 requestId) const
 {
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opChatOnInviteRoom);
@@ -817,7 +821,7 @@ void ChatMessageLib::sendChatFailedToInvite(DispatchClient* client, string galax
 
 //======================================================================================================================
 
-void ChatMessageLib::sendChatOnUninviteFromRoom(DispatchClient* client, string galaxy, string sender, string target, Channel* channel, uint32 requestId)
+void ChatMessageLib::sendChatOnUninviteFromRoom(DispatchClient* client, string galaxy, string sender, string target, Channel* channel, uint32 requestId) const
 {
 	// We should not send this info to everyone in the channel, escpecially since we can invite non-online players
 	// Other users in channel will get "bla bla... %TO bla bla ...UNKNOWN"-spam.
@@ -844,7 +848,7 @@ void ChatMessageLib::sendChatOnUninviteFromRoom(DispatchClient* client, string g
 
 //======================================================================================================================
 
-void ChatMessageLib::sendChatFailedToUninviteFromRoom(DispatchClient* client, string galaxy, string sender, string target, Channel* channel, uint32 errorcode, uint32 requestId)
+void ChatMessageLib::sendChatFailedToUninviteFromRoom(DispatchClient* client, string galaxy, string sender, string target, Channel* channel, uint32 errorcode, uint32 requestId) const
 {
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opChatOnUninviteFromRoom);
@@ -876,7 +880,7 @@ void ChatMessageLib::sendChatFailedToUninviteFromRoom(DispatchClient* client, st
 
 //======================================================================================================================
 
-void ChatMessageLib::sendChatOnBanAvatarFromRoom(DispatchClient* client, string galaxy, string sender, string target, Channel* channel, uint32 requestId)
+void ChatMessageLib::sendChatOnBanAvatarFromRoom(DispatchClient* client, string galaxy, string sender, string target, Channel* channel, uint32 requestId) const
 {
 	ChatAvatarIdList::iterator iter = channel->getUserList()->begin();
 
@@ -912,7 +916,7 @@ void ChatMessageLib::sendChatOnBanAvatarFromRoom(DispatchClient* client, string 
 
 //======================================================================================================================
 
-void ChatMessageLib::sendChatFailedToBan(DispatchClient* client, string galaxy, string sender, string target, Channel* channel, uint32 errorcode, uint32 requestId)
+void ChatMessageLib::sendChatFailedToBan(DispatchClient* client, string galaxy, string sender, string target, Channel* channel, uint32 errorcode, uint32 requestId) const
 {
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opChatOnBanAvatarFromRoom);
@@ -944,7 +948,7 @@ void ChatMessageLib::sendChatFailedToBan(DispatchClient* client, string galaxy, 
 
 //======================================================================================================================
 
-void ChatMessageLib::sendChatOnUnBanAvatarFromRoom(DispatchClient* client, string galaxy, string sender, string target, Channel* channel, uint32 requestId)
+void ChatMessageLib::sendChatOnUnBanAvatarFromRoom(DispatchClient* client, string galaxy, string sender, string target, Channel* channel, uint32 requestId) const
 {
 	ChatAvatarIdList::iterator iter = channel->getUserList()->begin();
 
@@ -980,7 +984,7 @@ void ChatMessageLib::sendChatOnUnBanAvatarFromRoom(DispatchClient* client, strin
 
 //======================================================================================================================
 
-void ChatMessageLib::sendChatFailedToUnban(DispatchClient* client, string galaxy, string sender, string target, Channel* channel, uint32 errorcode, uint32 requestId)
+void ChatMessageLib::sendChatFailedToUnban(DispatchClient* client, string galaxy, string sender, string target, Channel* channel, uint32 errorcode, uint32 requestId) const
 {
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opChatOnUnbanAvatarFromRoom);
@@ -1012,7 +1016,7 @@ void ChatMessageLib::sendChatFailedToUnban(DispatchClient* client, string galaxy
 
 //======================================================================================================================
 
-void ChatMessageLib::sendChatQueryRoomResults(DispatchClient* client, Channel* channel, uint32 requestId)
+void ChatMessageLib::sendChatQueryRoomResults(DispatchClient* client, Channel* channel, uint32 requestId) const
 {
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opChatQueryRoomResults);
@@ -1126,7 +1130,7 @@ void ChatMessageLib::sendChatQueryRoomResults(DispatchClient* client, Channel* c
 
 //======================================================================================================================
 
-void ChatMessageLib::sendChatOnRemoveModeratorFromRoom(DispatchClient* client, string galaxy, string sender, string target, Channel* channel, uint32 requestId)
+void ChatMessageLib::sendChatOnRemoveModeratorFromRoom(DispatchClient* client, string galaxy, string sender, string target, Channel* channel, uint32 requestId) const
 {
 	ChatAvatarIdList::iterator iter = channel->getUserList()->begin();
 
@@ -1162,7 +1166,7 @@ void ChatMessageLib::sendChatOnRemoveModeratorFromRoom(DispatchClient* client, s
 
 //======================================================================================================================
 
-void ChatMessageLib::sendChatFailedToRemoveMod(DispatchClient* client, string galaxy, string sender, string target, Channel* channel, uint32 errorcode, uint32 requestId)
+void ChatMessageLib::sendChatFailedToRemoveMod(DispatchClient* client, string galaxy, string sender, string target, Channel* channel, uint32 errorcode, uint32 requestId) const
 {
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opChatOnRemoveModFromRoom);
@@ -1193,7 +1197,7 @@ void ChatMessageLib::sendChatFailedToRemoveMod(DispatchClient* client, string ga
 
 //======================================================================================================================
 
-void ChatMessageLib::sendChatOnAddModeratorToRoom(DispatchClient* client, string galaxy, string sender, string target, Channel* channel, uint32 requestId)
+void ChatMessageLib::sendChatOnAddModeratorToRoom(DispatchClient* client, string galaxy, string sender, string target, Channel* channel, uint32 requestId) const
 {	
 	ChatAvatarIdList::iterator iter = channel->getUserList()->begin();
 
@@ -1229,7 +1233,7 @@ void ChatMessageLib::sendChatOnAddModeratorToRoom(DispatchClient* client, string
 
 //======================================================================================================================
 
-void ChatMessageLib::sendChatFailedToAddMod(DispatchClient* client, string galaxy, string sender, string target, Channel* channel, uint32 errorcode, uint32 requestId)
+void ChatMessageLib::sendChatFailedToAddMod(DispatchClient* client, string galaxy, string sender, string target, Channel* channel, uint32 errorcode, uint32 requestId) const
 {
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opChatOnModerateRoom);
@@ -1260,7 +1264,7 @@ void ChatMessageLib::sendChatFailedToAddMod(DispatchClient* client, string galax
 
 //======================================================================================================================
 
-void ChatMessageLib::sendChatRoomMessage(Channel* channel, string galaxy, string sender, string message)
+void ChatMessageLib::sendChatRoomMessage(Channel* channel, string galaxy, string sender, string message) const
 {
 	ChatAvatarIdList::iterator iter = channel->getUserList()->begin();
 
@@ -1313,7 +1317,7 @@ void ChatMessageLib::sendChatRoomMessage(Channel* channel, string galaxy, string
 
 //======================================================================================================================
 
-void ChatMessageLib::sendChatOnSendRoomMessage(DispatchClient *client, uint32 errorcode,uint32 requestId)
+void ChatMessageLib::sendChatOnSendRoomMessage(DispatchClient *client, uint32 errorcode,uint32 requestId) const
 {
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opChatOnSendRoomMessage);

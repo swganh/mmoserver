@@ -9,7 +9,6 @@ Copyright (c) 2006 - 2008 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
-#include "CSRManager.h"
 #include "Common/MessageDispatch.h"
 #include "Common/MessageFactory.h"
 #include "Common/Message.h"
@@ -19,7 +18,12 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "DatabaseManager/DatabaseResult.h"
 #include "LogManager/LogManager.h"
 #include "Utils/utils.h"
+#include "ChatManager.h"
+#include "ChatOpcodes.h"
+#include "CSRManager.h"
+#include "CSRObjects.h"
 #include "CSROpcodes.h"
+#include "Player.h"
 
 //======================================================================================================================
 

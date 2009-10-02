@@ -9,7 +9,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
-#include "TradeManagerchat.h"
+#include "Common/atMacroString.h"
 #include "Common/MessageDispatch.h"
 #include "Common/MessageFactory.h"
 #include "Common/Message.h"
@@ -19,9 +19,12 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "DatabaseManager/DatabaseResult.h"
 #include "LogManager/LogManager.h"
 #include "Utils/utils.h"
+#include "Utils/Timer.h"
 #include "ZoneServer/TangibleEnums.h"
-#include "Common/atMacroString.h"
-
+#include "ChatOpcodes.h"
+#include "Mail.h"
+#include "Player.h"
+#include "TradeManagerchat.h"
 
 bool						TradeManagerChatHandler::mInsFlag    = false;
 TradeManagerChatHandler*		TradeManagerChatHandler::mSingleton  = NULL;

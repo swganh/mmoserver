@@ -9,10 +9,11 @@ Copyright (c) 2006 - 2008 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
-#include "ChatAvatarId.h"
-#include "ChatManager.h"
 #include "Utils/typedefs.h"
 #include "LogManager/LogManager.h"
+#include "ChatAvatarId.h"
+#include "ChatManager.h"
+#include "Player.h"
 
 //======================================================================================================================
 

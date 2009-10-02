@@ -13,40 +13,27 @@ Copyright (c) 2006, 2007 The swgANH Team
 #define ANH_ZONESERVER_GroupManager_H
 
 
+#define	gGroupManager GroupManager::getSingletonPtr()
 
-#include "DatabaseManager/DatabaseCallback.h"
+#include <map>
 #include "Common/MessageDispatchCallback.h"
-
-#include <vector>
-#include <queue>
-#include "ChatOpcodes.h"
-#include "ChatManager.h"
-#include "Utils/typedefs.h"
-#include "TradeManagerHelp.h"
-#include "GroupObject.h"
-
-#define	gGroupManager	GroupManager::getSingletonPtr()
 
 //======================================================================================================================
 
-class Message;
 class Database;
+class GroupObject;
+class Message;
 class MessageDispatch;
 
 //======================================================================================================================
 
-typedef	std::map<uint64,GroupObject*>		GroupMap;
-
+typedef	std::map<uint64,GroupObject*> GroupMap;
 
 //======================================================================================================================
 
 class GroupManager : public MessageDispatchCallback
 {
-
-
 public:
-
-
 	static GroupManager*	getSingletonPtr() { return mSingleton; }
 	static GroupManager*	Init(MessageDispatch* dispatch);
 

@@ -12,16 +12,21 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_CHATSERVER_CHANNEL_H
 #define ANH_CHATSERVER_CHANNEL_H
 
+#include <map>
+#include <vector>
+
 #include "Utils/typedefs.h"
-#include "ChatAvatarId.h"
-#include "Player.h"
+
+class BString;
+class ChatAvatarId;
+class Player;
 
 //======================================================================================================================
 
-typedef std::vector<ChatAvatarId*> ChatAvatarIdList;
-typedef std::map<uint32,ChatAvatarId*> AvatarNameMap;
-typedef std::map<uint32, BString*> NameByCrcMap;
-typedef std::pair<uint32, BString*> CrcStringPair;
+typedef std::map<uint32,ChatAvatarId*>  AvatarNameMap;
+typedef std::vector<ChatAvatarId*>      ChatAvatarIdList;
+typedef std::pair<uint32, BString*>     CrcStringPair;
+typedef std::map<uint32, BString*>      NameByCrcMap;
 
 //======================================================================================================================
 

@@ -8,18 +8,19 @@ Copyright (c) 2006 - 2008 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
-#include "ChatMessageLib.h"
+#include <boost/lexical_cast.hpp>
+
 #include "Common/MessageDispatch.h"
 #include "Common/MessageFactory.h"
 #include "Common/Message.h"
 #include "Common/DispatchClient.h"
 #include "Common/atMacroString.h"
-#include "CSROpcodes.h"
+#include "ChatMessageLib.h"
 #include "ChatOpcodes.h"
 #include "CSRObjects.h"
-#include <boost/lexical_cast.hpp>
+#include "CSROpcodes.h"
 
-void ChatMessageLib::sendConnectPlayerResponseMessage(DispatchClient* client)
+void ChatMessageLib::sendConnectPlayerResponseMessage(DispatchClient* client) const
 {
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opConnectPlayerResponseMessage);
@@ -31,7 +32,7 @@ void ChatMessageLib::sendConnectPlayerResponseMessage(DispatchClient* client)
 
 //======================================================================================================================
 
-void ChatMessageLib::sendRequestCategoriesResponseMessage(DispatchClient *client, CategoryList* mCategoryList)
+void ChatMessageLib::sendRequestCategoriesResponseMessage(DispatchClient *client, CategoryList* mCategoryList) const
 {
 	std::vector<Category*>::iterator iter = mCategoryList->begin();
 
@@ -68,7 +69,7 @@ void ChatMessageLib::sendRequestCategoriesResponseMessage(DispatchClient *client
 
 //======================================================================================================================
 
-void ChatMessageLib::sendGetTicketsResponseMessage(DispatchClient* client, Ticket* ticket)
+void ChatMessageLib::sendGetTicketsResponseMessage(DispatchClient* client, Ticket* ticket) const
 {
 
 	gMessageFactory->StartMessage();
@@ -96,7 +97,7 @@ void ChatMessageLib::sendGetTicketsResponseMessage(DispatchClient* client, Ticke
 
 //======================================================================================================================
 
-void ChatMessageLib::sendSearchKnowledgeBaseResponseMessage(DispatchClient* client, ArticleList* list)
+void ChatMessageLib::sendSearchKnowledgeBaseResponseMessage(DispatchClient* client, ArticleList* list) const
 {
 	ArticleList::iterator iter = list->begin();
 	gMessageFactory->StartMessage();
@@ -123,7 +124,7 @@ void ChatMessageLib::sendSearchKnowledgeBaseResponseMessage(DispatchClient* clie
 
 //======================================================================================================================
 
-void ChatMessageLib::sendGetArticleResponseMessage(DispatchClient* client, Article* article)
+void ChatMessageLib::sendGetArticleResponseMessage(DispatchClient* client, Article* article) const
 {
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opGetArticleResponseMessage);
@@ -145,7 +146,7 @@ void ChatMessageLib::sendGetArticleResponseMessage(DispatchClient* client, Artic
 
 //======================================================================================================================
 
-void ChatMessageLib::sendGetCommentsResponseMessage(DispatchClient* client, CommentList* list)
+void ChatMessageLib::sendGetCommentsResponseMessage(DispatchClient* client, CommentList* list) const
 {
 	CommentList::iterator iter = list->begin();
 	gMessageFactory->StartMessage();

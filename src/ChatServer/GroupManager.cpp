@@ -9,7 +9,6 @@ Copyright (c) 2006, 2007 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
-
 #include "Common/MessageDispatch.h"
 #include "Common/MessageFactory.h"
 #include "Common/Message.h"
@@ -20,13 +19,17 @@ Copyright (c) 2006, 2007 The swgANH Team
 #include "LogManager/LogManager.h"
 #include "Utils/utils.h"
 #include "ZoneServer/TangibleEnums.h"
-#include "GroupManager.h"
 #include "Channel.h"
+#include "ChatAvatarId.h"
+#include "ChatOpcodes.h"
+#include "ChatManager.h"
 #include "ChatMessageLib.h"
+#include "GroupManager.h"
+#include "GroupObject.h"
+#include "Player.h"
 
-
-bool							GroupManager::mInsFlag    = false;
-GroupManager*					GroupManager::mSingleton  = NULL;
+bool            GroupManager::mInsFlag    = false;
+GroupManager*   GroupManager::mSingleton  = NULL;
 
 
 //======================================================================================================================

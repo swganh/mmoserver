@@ -9,29 +9,27 @@ Copyright (c) 2006 - 2008 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
-#include "ChatServer.h"
-
-// External references
-#include "Common/MessageDispatch.h"
-#include "Common/DispatchClient.h"
-
-#include "NetworkManager/NetworkManager.h"
-#include "NetworkManager/Service.h"
-#include "DatabaseManager/DatabaseManager.h"
-#include "DatabaseManager/Database.h"
-#include "DatabaseManager/DataBinding.h"
-#include "DatabaseManager/DatabaseResult.h"
-#include "LogManager/LogManager.h"
-#include "ConfigManager/ConfigManager.h"
-#include "ChatManager.h"
-#include "TradeManagerChat.h"
-#include "GroupManager.h"
-#include "CSRManager.h"
-#include "Common/MessageFactory.h"
-
 #include <conio.h>
 #include <stdio.h>
 #include <stddef.h>
+
+// External references
+#include "Common/DispatchClient.h"
+#include "Common/MessageDispatch.h"
+#include "Common/MessageFactory.h"
+#include "ConfigManager/ConfigManager.h"
+#include "DatabaseManager/Database.h"
+#include "DatabaseManager/DatabaseManager.h"
+#include "DatabaseManager/DatabaseResult.h"
+#include "DatabaseManager/DataBinding.h"
+#include "LogManager/LogManager.h"
+#include "NetworkManager/NetworkManager.h"
+#include "NetworkManager/Service.h"
+#include "ChatManager.h"
+#include "ChatServer.h"
+#include "CSRManager.h"
+#include "GroupManager.h"
+#include "TradeManagerChat.h"
 
 //======================================================================================================================
 

@@ -12,24 +12,24 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_CHATSERVER_CHATMANAGER_H
 #define ANH_CHATSERVER_CHATMANAGER_H
 
-#include "Channel.h"
-#include "Player.h"
-#include "Mail.h"
+#include <map>
+#include <vector>
+
 #include "Common/MessageDispatchCallback.h"
 #include "DatabaseManager/DatabaseCallback.h"
-#include "ChatMessageLib.h"
-#include <vector>
 
 
 //======================================================================================================================
 
-class Player;
-class Message;
+class Channel;
+class ChatManager;
 class Database;
-class MessageDispatch;
 class DataBinding;
 class DispatchClient;
-class ChatManager;
+class Player;
+class Mail;
+class Message;
+class MessageDispatch;
 
 //======================================================================================================================
 

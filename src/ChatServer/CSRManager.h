@@ -12,19 +12,20 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_ZONESERVER_CSRMANAGER_H
 #define ANH_ZONESERVER_CSRMANAGER_H
 
+#include <map>
+
 #include "DatabaseManager/DatabaseCallback.h"
 #include "Common/MessageDispatchCallback.h"
-#include "ChatOpcodes.h"
-#include "ChatManager.h"
-#include "Utils/typedefs.h"
 #include "ChatMessageLib.h"
-#include "CSRObjects.h"
 
 #define gCSRManager CSRManager::GetSingletonPtr()
 
-class Message;
 class Database;
+class DataBinding;
+class Message;
 class MessageDispatch;
+class Category;
+class ChatManager;
 class CSRManager;
 
 typedef void (CSRManager::*CSRFuncPointer)(Message*,DispatchClient*);

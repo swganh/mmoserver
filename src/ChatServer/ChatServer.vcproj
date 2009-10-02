@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="ChatServer"
 	ProjectGUID="{CDD46495-780F-480C-83EB-37CDDE3E40DE}"
 	RootNamespace="ChatServer"

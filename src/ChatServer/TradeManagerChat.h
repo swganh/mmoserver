@@ -12,22 +12,16 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_ZONESERVER_TradeManager_H
 #define ANH_ZONESERVER_TradeManager_H
 
-//#include "ObjectFactory.h"
-//#include "ZoneTree.h"
-//#include "SkillManager.h"
-
-#include "DatabaseManager/DatabaseCallback.h"
-#include "Common/MessageDispatchCallback.h"
 #include <vector>
 #include <queue>
-#include "ChatOpcodes.h"
-#include "ChatManager.h"
-#include "Utils/typedefs.h"
-#include "TradeManagerHelp.h"
-#include "ChatMessageLib.h"
-#include "Utils/Timer.h"
-#include "Utils/TimerCallback.h"
+
+#include "Common/MessageDispatchCallback.h"
+#include "DatabaseManager/DatabaseCallback.h"
 #include "Utils/mutex.h"
+#include "Utils/TimerCallback.h"
+#include "ChatManager.h"
+#include "ChatMessageLib.h"
+#include "TradeManagerHelp.h"
 
 #define	gTradeManager	TradeManager::getSingletonPtr()
 
@@ -35,11 +29,16 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 typedef std::queue<uint32>						TimerEventQueue;
 
-class Message;
+class AuctionClass;
+class AuctionItem;
+class Bazaar;
+class ChatManager;
+class CommoditiesClass;
 class Database;
+class Message;
 class MessageDispatch;
-
-//class ChatManager;
+class Player;
+class Timer;
 
 
 //typedef std::map<uint32,Player*>		PlayerAccountMap;

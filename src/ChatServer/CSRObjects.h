@@ -12,8 +12,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #define ANH_ZONESERVER_CSROBJECT_H
 
 class Category;
-class SubCategory;
 class Comment;
+class SubCategory;
 
 typedef std::vector<SubCategory*> SubCategoryList;
 

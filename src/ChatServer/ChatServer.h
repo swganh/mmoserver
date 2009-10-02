@@ -13,19 +13,19 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #define ANH_CHATSERVER_H
 
 #include "Utils/typedefs.h"
-#include "Common/DispatchClient.h"
 
 //======================================================================================================================
 
+class ChatManager;
+class CSRManager;
+class Database;
+class DatabaseManager;
+class DispatchClient;
+class GroupManager;
+class MessageDispatch;
 class NetworkManager;
 class Service;
-class DatabaseManager;
-class Database;
-class MessageDispatch;
-class ChatManager;
 class TradeManagerChatHandler;
-class GroupManager;
-class CSRManager;
 
 //======================================================================================================================
 

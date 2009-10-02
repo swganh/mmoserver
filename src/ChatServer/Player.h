@@ -13,9 +13,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #define ANH_CHATSERVER_PLAYER_H
 
 #include "Utils/typedefs.h"
-#include "Common/DispatchClient.h"
 #include <map>
 
+class DispatchClient;
 
 //======================================================================================================================
 
@@ -37,6 +37,7 @@ public:
 		int8			region[48];
 
 };
+
 class Player
 {
 	friend class ChatManager;

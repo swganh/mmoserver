@@ -8,16 +8,16 @@ Copyright (c) 2006 - 2008 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
-#include "ChatMessageLib.h"
 #include "Common/MessageDispatch.h"
 #include "Common/MessageFactory.h"
 #include "Common/Message.h"
 #include "Common/DispatchClient.h"
 #include "Common/atMacroString.h"
+#include "ChatMessageLib.h"
 #include "ChatOpcodes.h"
 #include "Player.h"
 
-void ChatMessageLib::sendIsmInviteRequest(Player* sender, Player* target)
+void ChatMessageLib::sendIsmInviteRequest(Player* sender, Player* target) const
 {
 	// lets tell the zone to pop the invite window
 	Message* newMessage;
@@ -34,7 +34,7 @@ void ChatMessageLib::sendIsmInviteRequest(Player* sender, Player* target)
 
 //======================================================================================================================
 
-void ChatMessageLib::sendIsmGroupLootModeResponse(Player* target)
+void ChatMessageLib::sendIsmGroupLootModeResponse(Player* target) const
 {
 	// lets tell the zone to pop the invite window
 	Message* newMessage;
@@ -47,7 +47,7 @@ void ChatMessageLib::sendIsmGroupLootModeResponse(Player* target)
 
 //======================================================================================================================
 
-void ChatMessageLib::sendIsmGroupLootMasterResponse(Player* target)
+void ChatMessageLib::sendIsmGroupLootMasterResponse(Player* target) const
 {
 	// lets tell the zone to pop the invite window
 	Message* newMessage;
@@ -60,7 +60,7 @@ void ChatMessageLib::sendIsmGroupLootMasterResponse(Player* target)
 
 //======================================================================================================================
 
-void ChatMessageLib::sendIsmGroupCREO6deltaGroupId(uint64 groupId, Player* target)
+void ChatMessageLib::sendIsmGroupCREO6deltaGroupId(uint64 groupId, Player* target) const
 {
 	if(!target)
 		return;

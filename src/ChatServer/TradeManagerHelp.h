@@ -12,14 +12,12 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_ZONESERVER_TRADEMANAGERHELP_H
 #define ANH_ZONESERVER_TRADEMANAGERHELP_H
 
-#include "DatabaseManager/DatabaseCallback.h"
-#include "Common/MessageDispatchCallback.h"
+#include <map>
 #include <vector>
-#include <queue>
-#include "ChatOpcodes.h"
-#include "ChatManager.h"
+
 #include "Utils/typedefs.h"
 
+class DispatchClient;
 
 //======================================================================================================================
 			  

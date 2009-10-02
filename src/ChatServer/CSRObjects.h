@@ -16,7 +16,6 @@ class SubCategory;
 class Comment;
 
 typedef std::vector<SubCategory*> SubCategoryList;
-typedef std::vector<Comment*> CommentList;
 
 //======================================================================================================================
 

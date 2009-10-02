@@ -16,6 +16,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Common/atMacroString.h"
 #include "GroupObject.h"
 #include "CSROpcodes.h"
+#include "ChatOpcodes.h"
 
 
 

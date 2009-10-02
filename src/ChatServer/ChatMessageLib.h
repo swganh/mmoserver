@@ -16,14 +16,20 @@ Copyright (c) 2006 - 2008 The swgANH Team
 // #define DISP_REAL_FIRST_NAME 1
 
 #include "Utils/typedefs.h"
-#include "TradeManagerHelp.h"
-#include "GroupObject.h"
-#include "CSRObjects.h"
-#include "LogManager/LogManager.h"
 
 #define	 gChatMessageLib	ChatMessageLib::getSingletonPtr()
 #define	 SWG				BString("SWG")
 
+class Mail;
+class GroupObject;
+class Ticket;
+class Category;
+class Comment;
+class Channel;
+class Player;
+class Bazaar;
+class Article;
+class ChatAvatarId;
 class DispatchClient;
 class Message;
 class MessageDispatch;
@@ -35,6 +41,7 @@ typedef std::vector<ItemDescriptionAttributes*>	AttributesList;
 typedef std::vector<Category*> CategoryList;
 typedef std::vector<Article*> ArticleList;
 typedef std::vector<Channel*> ChannelList;
+typedef std::vector<Comment*> CommentList;
 
 class ChatMessageLib
 {

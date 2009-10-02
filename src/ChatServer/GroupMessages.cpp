@@ -15,6 +15,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Common/DispatchClient.h"
 #include "Common/atMacroString.h"
 #include "ChatOpcodes.h"
+#include "Player.h"
 
 void ChatMessageLib::sendIsmInviteRequest(Player* sender, Player* target)
 {

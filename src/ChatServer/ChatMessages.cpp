@@ -15,6 +15,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Common/DispatchClient.h"
 #include "Common/atMacroString.h"
 #include "ChatOpcodes.h"
+#include "ChatManager.h"
+#include "GroupObject.h"
+#include "Mail.h"
 #include <math.h>
 
 void ChatMessageLib::sendChatPersistantMessagetoClient(DispatchClient* client,Mail* mail,uint32 mailId,uint32 mailCounter,uint8 status)

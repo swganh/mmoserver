@@ -15,6 +15,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Common/DispatchClient.h"
 #include "Common/atMacroString.h"
 #include "CSROpcodes.h"
+#include "ChatOpcodes.h"
+#include "CSRObjects.h"
 #include <boost/lexical_cast.hpp>
 
 void ChatMessageLib::sendConnectPlayerResponseMessage(DispatchClient* client)

@@ -13,6 +13,9 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "WorldManager.h"
 #include "MessageLib/MessageLib.h"
 #include "WorldConfig.h"
+#include "CellObject.h"
+#include "ZoneTree.h"
+#include "PlayerObject.h"
 
 //=============================================================================
 

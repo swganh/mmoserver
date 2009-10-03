@@ -1,6 +1,5 @@
 #include "FireworkManager.h"
-
-#include "WorldManager.h"
+#include "MessageLib/MessageLib.h"
 #include "UIManager.h"
 #include "Item_Enums.h"
 #include "nonPersistantObjectFactory.h"

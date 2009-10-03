@@ -15,7 +15,6 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "Item.h"
 #include "DatabaseManager/DatabaseCallback.h"
 #include "FactoryBase.h"
-#include "WorldManager.h"
 
 #define	 gNonPersistentItemFactory	NonPersistentItemFactory::Instance()
 

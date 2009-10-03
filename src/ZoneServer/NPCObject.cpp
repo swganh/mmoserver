@@ -13,8 +13,11 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "MathLib/Quaternion.h"
 #include "MathLib/Vector3.h"
 #include "MessageLib/MessageLib.h"
-#include "ZoneServer/WorldManager.h"
+#include "Utils/rand.h"
+#include "WorldManager.h"
 #include "Heightmap.h"
+#include "CellObject.h"
+#include "ZoneTree.h"
 
 class DamageDealer
 {

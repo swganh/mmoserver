@@ -27,11 +27,14 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "ZoneServer/Conversation.h"
 #include "ZoneServer/NPCObject.h"
 #include "ZoneServer/CraftingTool.h"
+#include "ZoneServer/DraftSchematic.h"
 #include "ZoneServer/ManufacturingSchematic.h"
 #include <boost/lexical_cast.hpp>
 #include "Common/atMacroString.h"
 #include "ZoneServer/ActiveConversation.h"
 #include "ZoneServer/Tutorial.h"
+#include "ZoneServer/SchematicManager.h"
+#include "ZoneServer/ZoneTree.h"
 #include "ZoneServer/WorldConfig.h"
 
 //======================================================================================================================

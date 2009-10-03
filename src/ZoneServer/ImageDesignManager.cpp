@@ -13,7 +13,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Common/MessageFactory.h"
 #include "DatabaseManager/Database.h"
 #include "LogManager/LogManager.h"
-#include "WorldManager.h"
+#include "MessageLib/MessageLib.h"
 #include "UIManager.h"
 
 //======================================================================================================================

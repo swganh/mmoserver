@@ -26,6 +26,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Item.h"
 #include "SurveyTool.h"
 #include "Common/atMacroString.h"
+#include "ResourceManager.h"
 
 
 //======================================================================================================================

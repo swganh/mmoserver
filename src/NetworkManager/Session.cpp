@@ -22,6 +22,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Common/MessageFactory.h"
 #include "Utils/rand.h"
 #include "Utils/utils.h"
+#include "LogManager/LogManager.h"
 
 #include <stdio.h>
 

@@ -17,6 +17,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Session.h"
 #include "Packet.h"
 #include "Utils/rand.h"
+#include "LogManager/LogManager.h"
 
 
 //======================================================================================================================

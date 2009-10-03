@@ -20,6 +20,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "Item_Enums.h"
 #include "nonPersistantObjectFactory.h"
 #include "VehicleFactory.h"
+#include "MessageLib/MessageLib.h"
 
 //=============================================================================
 

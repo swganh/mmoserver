@@ -16,7 +16,11 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "DatabaseManager/DatabaseCallback.h"
 #include "FactoryBase.h"
 #include "NpcIdentifier.h"
-#include "WorldManager.h"
+#include "MathLib/Vector3.h"
+#include "MathLib/Quaternion.h"
+
+class NPCObject;
+class DatabaseResult;
 
 #define	 gNonPersistentNpcFactory	NonPersistentNpcFactory::Instance()
 

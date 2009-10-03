@@ -12,9 +12,10 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_ZONESERVER_VEHICLE_FACTORY_H
 #define ANH_ZONESERVER_VEHICLE_FACTORY_H
 
+#include "FactoryBase.h"
+
 //Forward Declerations
 class DatabaseCallback;
-class FactoryBase;
 class IntangibleObject;
 class Vehicle;
 

@@ -11,12 +11,13 @@ Copyright (c) 2006 - 2009 The swgANH Team
 
 #include "MathLib/Quaternion.h"
 #include "PlayerObject.h"
-#include "WorldManager.h"
 #include "LogManager/LogManager.h"
 #include "MessageLib/MessageLib.h"
 #include "UIManager.h"
 #include "TreasuryManager.h"
 #include "BankTerminal.h"
+#include "Bank.h"
+
 //=============================================================================
 
 BankTerminal::BankTerminal() : Terminal()

@@ -15,6 +15,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "ElevatorTerminal.h"
 #include "ZoneServer/WorldManager.h"
 #include "LogManager/LogManager.h"
+#include "CellObject.h"
 
 
 //=============================================================================

@@ -9,6 +9,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
+#include "Common/DispatchClient.h"
 #include "ContainerObjectFactory.h"
 #include "ObjectFactoryCallback.h"
 #include "DatabaseManager/Database.h"
@@ -16,6 +17,8 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "DatabaseManager/DataBinding.h"
 #include "LogManager/LogManager.h"
 #include "Utils/utils.h"
+#include "CreatureObject.h"
+#include "PlayerObject.h"
 #include "WorldManager.h"
 #include "WorldConfig.h"
 #include <assert.h>

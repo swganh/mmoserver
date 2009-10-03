@@ -25,6 +25,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "CombatManager.h"
 #include "CreatureObject.h"
 #include "AttackableCreature.h"
+#include "PlayerObject.h"
 #include <assert.h>
 
 

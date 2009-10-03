@@ -19,6 +19,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "LogManager/LogManager.h"
+#include "MessageLib/MessageLib.h"
 #include "WorldManager.h"
 #include "Utils/utils.h"
 #include "UIManager.h"

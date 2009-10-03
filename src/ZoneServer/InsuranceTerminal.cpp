@@ -18,9 +18,10 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "UIManager.h"
 #include "TreasuryManager.h"
 #include "InsuranceTerminal.h"
-#include "ZoneServer/Tutorial.h"
-#include "ZoneServer/WorldConfig.h"
-#include "ZoneServer/TangibleObject.h"
+#include "Tutorial.h"
+#include "WorldConfig.h"
+#include "TangibleObject.h"
+#include "Bank.h"
 
 const int32 insuranceFee = 100;
 

@@ -13,7 +13,6 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "DatabaseManager/Database.h"
 #include "LogManager/LogManager.h"
 #include "PlayerObject.h"
-#include "WorldManager.h"
 #include "Utils/utils.h"
 
 //=============================================================================

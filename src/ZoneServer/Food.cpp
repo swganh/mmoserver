@@ -18,6 +18,9 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "WorldConfig.h"
 #include "ZoneServer/Tutorial.h"
 #include "DatabaseManager/Database.h"
+#include "MessageLib/MessageLib.h"
+#include "NPCObject.h"
+#include "ObjectFactory.h"
 
 
 //=============================================================================

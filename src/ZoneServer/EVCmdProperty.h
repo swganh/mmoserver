@@ -19,28 +19,11 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 class EVCmdProperty : public EnqueueValidator
 {
-	public:
+public:
+    explicit EVCmdProperty(ObjectController* controller);
+    virtual ~EVCmdProperty();
 
-		EVCmdProperty(ObjectController* controller) : EnqueueValidator(controller){}
-		virtual ~EVCmdProperty(){}
-
-		virtual bool validate(uint32 &reply1,uint32 &reply2,uint64 targetId,uint32 opcode,ObjectControllerCmdProperties*& cmdProperties)
-		{
-			// get the command properties
-			CmdPropertyMap::iterator it = gObjControllerCmdPropertyMap.find(opcode);
-
-			if(it == gObjControllerCmdPropertyMap.end())
-			{
-				reply1 = 0;
-				reply2 = 0;
-
-				return(false);
-			}
-
-			cmdProperties = ((*it).second);
-
-			return(true);
-		}
+    virtual bool validate(uint32 &reply1, uint32 &reply2, uint64 targetId, uint32 opcode, ObjectControllerCmdProperties*& cmdProperties);
 };
 
 //=======================================================================

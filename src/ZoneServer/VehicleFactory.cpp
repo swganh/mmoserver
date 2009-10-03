@@ -18,9 +18,11 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
+#include "MessageLib/MessageLib.h"
 //#include "LogManager/LogManager.h"
 //#include "Utils/utils.h"
 #include "CreatureObject.h"
+#include "PlayerObject.h"
 #include "Vehicle.h"
 
 //=============================================================================

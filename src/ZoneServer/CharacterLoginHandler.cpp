@@ -19,6 +19,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "DatabaseManager/Database.h"
 #include "ConfigManager/ConfigManager.h"
 #include "LogManager/LogManager.h"
+#include "MessageLib/MessageLib.h"
 #include "WorldManager.h"
 #include "WorldConfig.h"
 #include "BuffManager.h"

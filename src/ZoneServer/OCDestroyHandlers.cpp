@@ -12,6 +12,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "ObjectController.h"
 #include "ObjectControllerOpcodes.h"
 #include "ObjectControllerCommandMap.h"
+#include "ObjectFactory.h"
 #include "WorldManager.h"
 #include "MessageLib/MessageLib.h"
 #include "LogManager/LogManager.h"

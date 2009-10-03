@@ -10,6 +10,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 */
 
 #include "ScriptSupport.h"
+#include "MessageLib/MessageLib.h"
 #include "ZoneServer/WorldManager.h"
 #include "ZoneServer/NonPersistentNpcFactory.h"
 #include "ZoneServer/NonPersistentItemFactory.h"

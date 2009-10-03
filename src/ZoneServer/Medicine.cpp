@@ -1,8 +1,8 @@
 #include "Medicine.h"
 #include "MedicManager.h"
 #include "MessageLib/MessageLib.h"
-#include "WorldManager.h"
 #include "DatabaseManager/Database.h"
+#include "WorldManager.h"
 
 Medicine::Medicine(void)
 {

@@ -1,7 +1,6 @@
 #pragma once
 #include "Common/MessageDispatchCallback.h"
 #include "ObjectFactory.h"
-#include "WorldManager.h"
 #include "ZoneOpcodes.h"
 #include "Item.h"
 #include "PlayerObject.h"

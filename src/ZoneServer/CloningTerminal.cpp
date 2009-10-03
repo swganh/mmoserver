@@ -20,6 +20,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "CloningTerminal.h"
 #include "ZoneServer/Tutorial.h"
 #include "ZoneServer/WorldConfig.h"
+#include "Bank.h"
 
 // TODO: Make this a Var when we start use the 20% discount from player city with "Clone Lab" specializations.
 const int32 cloningCost = 1000;

@@ -31,7 +31,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "NPCObject.h"
 #include "CraftingTool.h"
 #include "CraftingSessionFactory.h"
-
+#include "SchematicManager.h"
+#include "ZoneTree.h"
 
 //=============================================================================
 //

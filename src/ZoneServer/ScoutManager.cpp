@@ -1,5 +1,5 @@
 #include "ScoutManager.h"
-
+#include "MessageLib/MessageLib.h"
 #include "WorldManager.h"
 #include "UIManager.h"
 #include "StructureManager.h"

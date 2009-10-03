@@ -12,7 +12,6 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "ObjectController.h"
 #include "ObjectControllerOpcodes.h"
 #include "ObjectControllerCommandMap.h"
-#include "WorldManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
@@ -20,6 +19,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Common/Message.h"
 #include "LogManager/LogManager.h"
 #include "MissionManager.h"
+#include "PlayerObject.h"
 
 //=============================================================================================================================
 //

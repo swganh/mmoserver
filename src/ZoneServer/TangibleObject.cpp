@@ -11,7 +11,6 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "MathLib/Quaternion.h"
 #include "TangibleObject.h"
-#include "WorldManager.h"
 #include "DatabaseManager/database.h"
 
 

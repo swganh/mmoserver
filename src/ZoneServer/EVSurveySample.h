@@ -14,34 +14,18 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "EnqueueValidator.h"
 
+class ObjectController;
+class ObjectControllerCmdProperties;
 
 //=======================================================================
 
 class EVSurveySample : public EnqueueValidator
 {
-	public:
+public:
+    explicit EVSurveySample(ObjectController* controller);
+    virtual ~EVSurveySample();
 
-		EVSurveySample(ObjectController* controller) : EnqueueValidator(controller){}
-		virtual ~EVSurveySample(){}
-
-		virtual bool validate(uint32 &reply1,uint32 &reply2,uint64 targetId,uint32 opcode,ObjectControllerCmdProperties*& cmdProperties)
-		{
-			PlayerObject* player = dynamic_cast<PlayerObject*>(mController->getObject());
-
-			//check survey/sampling states
-			if(player && (opcode == opOCrequestsurvey || opcode == opOCrequestcoresample))
-			{
-				if(player->getSurveyState() || player->getSamplingState())
-				{
-					reply1 = 0;
-					reply2 = 0;
-
-					return(false);
-				}
-			}
-
-			return(true);
-		}
+    virtual bool validate(uint32 &reply1, uint32 &reply2, uint64 targetId, uint32 opcode, ObjectControllerCmdProperties*& cmdProperties);
 };
 
 //=======================================================================

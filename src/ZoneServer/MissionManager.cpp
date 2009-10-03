@@ -24,6 +24,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Buff.h"
 #include "ResourceManager.h"
 #include "ResourceCollectionManager.h"
+#include "NPCObject.h"
+#include "CreatureObject.h"
+#include "ZoneTree.h"
 
 //======================================================================================================================
 

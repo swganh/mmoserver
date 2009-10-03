@@ -33,7 +33,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Structuremanager.h"
 #include "CraftingSessionFactory.h"
 #include "GroupManager.h"
-
+#include "ZoneTree.h"
 
 //=============================================================================
 

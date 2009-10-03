@@ -11,6 +11,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #ifndef ANH_UTILS_CLOCK_H
 #define ANH_UTILS_CLOCK_H
+
 #include <time.h> 
 #include "typedefs.h"
 

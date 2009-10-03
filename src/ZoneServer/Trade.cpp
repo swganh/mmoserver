@@ -9,11 +9,14 @@ Copyright (c) 2006 - 2008 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
+#include "MessageLib/MessageLib.h"
 #include "Trade.h"
 #include "Wearable.h"
 #include "PlayerObject.h"
 #include "WorldManager.h"
 #include "TangibleEnums.h"
+#include "Bank.h"
+#include "ObjectFactory.h"
 
 Trade::Trade(PlayerObject* playerobject)
 {

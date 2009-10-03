@@ -29,6 +29,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "ZoneServer/CraftingTool.h"
 #include "ZoneServer/ManufacturingSchematic.h"
 #include "ZoneServer/CraftingSession.h"
+#include "ZoneServer/SchematicManager.h"
 #include <boost/lexical_cast.hpp>
 #include "Common/atMacroString.h"
 

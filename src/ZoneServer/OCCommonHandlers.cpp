@@ -31,7 +31,9 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "NPCObject.h"
 #include "CraftingTool.h"
 #include "TreasuryManager.h"
-#include "ZoneServer/Tutorial.h"
+#include "ResourceManager.h"
+#include "Tutorial.h"
+#include "ZoneTree.h"
 
 
 void ObjectController::_handleBoardTransport(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)

@@ -12,10 +12,11 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_ZONESERVER_CHARACTERLOGINHANDLER_H
 #define ANH_ZONESERVER_CHARACTERLOGINHANDLER_H
 
+#include "zthread/RecursiveMutex.h"
 #include "Common/MessageDispatchCallback.h"
+#include "DatabaseManager/DatabaseCallback.h"
+#include "MathLib/Vector3.h"
 #include "ObjectFactoryCallback.h"
-#include "ObjectFactory.h"
-#include "ZoneOpcodes.h"
 
 
 //======================================================================================================================
@@ -23,6 +24,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 class Message;
 class Database;
 class MessageDispatch;
+class PlayerObject;
 
 //======================================================================================================================
 

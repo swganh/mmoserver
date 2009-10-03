@@ -39,6 +39,8 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "NonPersistentNpcFactory.h"
 #include "AttackableCreature.h"
 #include "FillerNPC.h"
+#include "Container.h"
+#include "ObjectFactory.h"
 
 class TutorialQueryContainer
 {

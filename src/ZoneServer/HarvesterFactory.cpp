@@ -17,6 +17,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "WorldManager.h"
 #include "Deed.h"
 #include "Utils/utils.h"
+#include "ResourceContainerFactory.h"
 
 #include <assert.h>
 

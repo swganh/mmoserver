@@ -11,8 +11,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "ObjectFactoryCallback.h"
 #include "LogManager/LogManager.h"
-#include "WorldManager.h"
 #include "Utils/utils.h"
+#include "MissionFactory.h"
 
 //=============================================================================
 

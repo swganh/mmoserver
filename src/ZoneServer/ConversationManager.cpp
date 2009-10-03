@@ -20,7 +20,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "LogManager/LogManager.h"
 #include "NPCObject.h"
 #include "WorldConfig.h"
-
+#include "PlayerObject.h"
 //=========================================================================================
 
 bool					ConversationManager::mInsFlag = false;

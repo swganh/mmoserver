@@ -14,29 +14,18 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "EnqueueValidator.h"
 
+class ObjectController;
+class ObjectControllerCmdProperties;
 
 //=======================================================================
 
 class EVQueueSize : public EnqueueValidator
 {
-	public:
+public:
+	explicit EVQueueSize(ObjectController* controller);
+	virtual ~EVQueueSize();
 
-		EVQueueSize(ObjectController* controller) : EnqueueValidator(controller){}
-		virtual ~EVQueueSize(){}
-
-		virtual bool validate(uint32 &reply1,uint32 &reply2,uint64 targetId,uint32 opcode,ObjectControllerCmdProperties*& cmdProperties)
-		{
-			// if we exceed the allowed queue size, drop it
-			if(mController->getCommandQueue()->size() >= COMMAND_QUEUE_MAX_SIZE)
-			{
-				reply1 = 0;
-				reply2 = 0;
-
-				return(false);
-			}
-
-			return(true);
-		}
+	virtual bool validate(uint32 &reply1, uint32 &reply2, uint64 targetId, uint32 opcode, ObjectControllerCmdProperties*& cmdProperties);
 };
 
 //=======================================================================

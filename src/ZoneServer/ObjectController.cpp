@@ -21,6 +21,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Common/Message.h"
 #include "MessageLib/MessageLib.h"
 #include "LogManager/LogManager.h"
+#include "Utils/Clock.h"
 #include "WorldConfig.h"
 #include "EVQueueSize.h"
 #include "EVCmdProperty.h"
@@ -32,6 +33,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "PVHam.h"
 #include "PVState.h"
 #include "PVPosture.h"
+#include "PlayerObject.h"
 
 
 //=============================================================================

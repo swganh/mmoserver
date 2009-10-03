@@ -23,6 +23,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "ZoneServer/Tutorial.h"
 #include "AttackableStaticNpc.h"
 #include "AttackableCreature.h"
+#include "ZoneTree.h"
 
 //=============================================================================
 

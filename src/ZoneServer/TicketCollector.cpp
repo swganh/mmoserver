@@ -19,6 +19,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "TravelTicket.h"
 #include "TravelMapHandler.h"
 #include <time.h>
+#include "MessageLib/MessageLib.h"
 
 
 //=============================================================================

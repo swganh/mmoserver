@@ -13,10 +13,11 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #define ANH_SCRIPT_EVENT_LISTENER_H
 
 #include "Utils/typedefs.h"
-#include "ScriptEngine/Script.h"
+
 #include <map>
 #include <vector>
 
+class Script;
 
 typedef std::vector<Script*>				ScriptList;
 typedef std::map<std::string,ScriptList*>	ScriptListMap;

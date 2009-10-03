@@ -23,9 +23,13 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "WorldConfig.h"
 #include "Activeconversation.h"
 #include "NPCObject.h"
-#include "ZoneServer/Tutorial.h"
+#include "Tutorial.h"
 #include "Vehicle.h"
 #include "Heightmap.h"
+#include "PlayerObject.h"
+#include "CellObject.h"
+#include "ZoneTree.h"
+#include "ConversationManager.h"
 
 //=============================================================================
 //

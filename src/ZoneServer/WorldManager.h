@@ -12,34 +12,18 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #ifndef ANH_ZONESERVER_WORLDMANAGER_H
 #define ANH_ZONESERVER_WORLDMANAGER_H
 
-#include "ObjectFactory.h"
-#include "ZoneTree.h"
-#include "ConversationManager.h"
-#include "SkillManager.h"
-#include "SchematicManager.h"
-#include "ResourceManager.h"
-#include "ResourceCollectionManager.h"
-#include "DatabaseManager/DatabaseCallback.h"
-#include "ScriptEngine/ScriptEventListener.h"
-#include "ObjectFactoryCallback.h"
-#include "Utils/Timer.h"
-#include "Utils/TimerCallback.h"
-//#include "Utils/mutex.h"
-#include "MessageLib/MessageLib.h"
-#include "ZoneServer.h"
-#include "WorldManagerEnums.h"
-#include "RegionObject.h"
-#include "Weather.h"
-#include "Utils/Scheduler.h"
-#include "Utils/VariableTimeScheduler.h"
-#include "NPCObject.h"
-#include <boost/ptr_container/ptr_map.hpp>
-#include <boost/pool/pool.hpp>
+#include <list>
+#include <map>
 #include <vector>
-#include "MissionObject.h"
-#include "GroupObject.h"
-#include "CharacterLoginHandler.h"
 
+#include <boost/ptr_container/ptr_map.hpp>
+
+#include "DatabaseManager/DatabaseCallback.h"
+#include "Utils/TimerCallback.h"
+#include "ObjectFactoryCallback.h"
+#include "QTRegion.h"
+#include "Weather.h"
+#include "WorldManagerEnums.h"
 
 //#include "BuffManager.h"
 //======================================================================================================================
@@ -48,11 +32,24 @@ Copyright (c) 2006 - 2009 The swgANH Team
 
 // forward declarations
 class DispatchClient;
-class Anh_Utils::Clock;
 class WMAsyncContainer;
 class Script;
 class NPCObject;
 class CreatureSpawnRegion;
+class Shuttle;
+class NpcConversionTime;
+class CharacterLoadingContainer;
+class ZoneServer;
+class Ham;
+class Buff;
+class MissionObject;
+
+namespace Anh_Utils 
+{
+    class Clock;
+    class Scheduler;
+    class VariableTimeScheduler;
+}
 
 // pwns all objects
 typedef boost::ptr_map<uint64,Object>			ObjectMap;
@@ -170,21 +167,21 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		void					initPlayersInRange(Object* object,PlayerObject* player);
 
 		// adds a creatures commandqueue to the main process queue
-		uint64					addObjControllerToProcess(ObjectController* objController){ return((mObjControllerScheduler->addTask(fastdelegate::MakeDelegate(objController,&ObjectController::process),1,125,NULL))); }
+		uint64					addObjControllerToProcess(ObjectController* objController);
 		void					removeObjControllerToProcess(uint64 taskId);
 
 		// adds a creatures ham which needs regeneration
-		uint64					addCreatureHamToProccess(Ham* ham){ return((mHamRegenScheduler->addTask(fastdelegate::MakeDelegate(ham,&Ham::regenerate),1,1000,NULL))); }
+		uint64					addCreatureHamToProccess(Ham* ham);
 		void					removeCreatureHamToProcess(uint64 taskId);
-		bool					checkTask(uint64 id){return mHamRegenScheduler->checkTask(id);}
+		bool					checkTask(uint64 id);
 
 		// adds a mission that needs checking
-		uint64					addMissionToProcess(MissionObject* mission){ return mMissionScheduler->addTask(fastdelegate::MakeDelegate(mission,&MissionObject::check),1,10000,NULL); }
-		void					removeMissionFromProcess(uint64 taskId) { mMissionScheduler->removeTask(taskId); }
-		bool					checkForMissionProcess(uint64 taskId) { return mMissionScheduler->checkTask(taskId); }
+		uint64					addMissionToProcess(MissionObject* mission);
+		void					removeMissionFromProcess(uint64 taskId);
+		bool					checkForMissionProcess(uint64 taskId);
 
 		// adds an performing entertainer which heals/gets exp
-		uint64					addEntertainerToProccess(CreatureObject* entertainerObject,uint32 tick){ return((mEntertainerScheduler->addTask(fastdelegate::MakeDelegate(entertainerObject,&CreatureObject::handlePerformanceTick),1,tick,NULL))); }
+		uint64					addEntertainerToProccess(CreatureObject* entertainerObject,uint32 tick);
 		void					removeEntertainerToProcess(uint64 taskId);
 
 		// adds a Buff which Ticks

@@ -20,6 +20,9 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "UIManager.h"
 #include "WorldConfig.h"
 #include "Tutorial.h"
+#include "Bank.h"
+#include "CellObject.h"
+#include "ZoneTree.h"
 
 //=============================================================================
 

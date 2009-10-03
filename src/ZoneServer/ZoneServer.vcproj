@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="ZoneServer"
 	ProjectGUID="{003C0A20-ACBE-498D-A674-3938FF4AF5AB}"
 	RootNamespace="Zoneserver"
@@ -1618,7 +1618,15 @@
 				Name="EnqueueValidators"
 				>
 				<File
+					RelativePath=".\EnqueueValidator.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\EnqueueValidator.h"
+					>
+				</File>
+				<File
+					RelativePath=".\EVAbility.cpp"
 					>
 				</File>
 				<File
@@ -1626,7 +1634,15 @@
 					>
 				</File>
 				<File
+					RelativePath=".\EVCmdProperty.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\EVCmdProperty.h"
+					>
+				</File>
+				<File
+					RelativePath=".\EVPosture.cpp"
 					>
 				</File>
 				<File
@@ -1634,7 +1650,15 @@
 					>
 				</File>
 				<File
+					RelativePath=".\EVQueueSize.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\EVQueueSize.h"
+					>
+				</File>
+				<File
+					RelativePath=".\EVState.cpp"
 					>
 				</File>
 				<File
@@ -1642,7 +1666,15 @@
 					>
 				</File>
 				<File
+					RelativePath=".\EVSurveySample.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\EVSurveySample.h"
+					>
+				</File>
+				<File
+					RelativePath=".\EVWeapon.cpp"
 					>
 				</File>
 				<File
@@ -1654,7 +1686,15 @@
 				Name="ProcessValidators"
 				>
 				<File
+					RelativePath=".\ProcessValidator.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\ProcessValidator.h"
+					>
+				</File>
+				<File
+					RelativePath=".\PVHam.cpp"
 					>
 				</File>
 				<File
@@ -1662,7 +1702,15 @@
 					>
 				</File>
 				<File
+					RelativePath=".\PVPosture.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\PVPosture.h"
+					>
+				</File>
+				<File
+					RelativePath=".\PVState.cpp"
 					>
 				</File>
 				<File
@@ -2723,6 +2771,10 @@
 		</Filter>
 		<File
 			RelativePath=".\ClassDiagram1.cd"
+			>
+		</File>
+		<File
+			RelativePath=".\ClassDiagram2.cd"
 			>
 		</File>
 	</Files>

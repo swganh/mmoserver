@@ -13,6 +13,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "ObjectController.h"
 #include "ObjectControllerOpcodes.h"
 #include "ObjectControllerCommandMap.h"
+#include "ObjectFactory.h"
 #include "WorldManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"

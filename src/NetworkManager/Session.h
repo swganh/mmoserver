@@ -12,16 +12,16 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_NETWORKMANAGER_SESSION_H
 #define ANH_NETWORKMANAGER_SESSION_H
 
-//#include "Utils/queue.h"
-#include "Utils/Clock.h"
-#include "zthread/ZThread.h"
-#include "Utils/typedefs.h"
-#include "LogManager/LogManager.h"
-#include "Common/Message.h"
-#include "NetConfig.h"
 #include <list>
 #include <queue>
+
+#include "Common/Message.h"
+#include "Utils/Clock.h"
+#include "Utils/typedefs.h"
+#include "NetConfig.h"
+
 #include <boost/asio.hpp>
+#include "zthread/ZThread.h"
 
 
 //======================================================================================================================

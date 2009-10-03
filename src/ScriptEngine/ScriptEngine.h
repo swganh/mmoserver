@@ -22,14 +22,13 @@ extern "C"
 }
 
 #include "Utils/typedefs.h"
-#include "Utils/Clock.h"
 #include "zthread/ZThread.h"
 #include <boost/pool/pool.hpp>
 #include <vector>
+#include "Script.h"
 
 #define	 gScriptEngine	ScriptEngine::getSingletonPtr()
 
-class Script;
 class Tutorial;
 
 typedef std::vector<Script*>	ScriptList;

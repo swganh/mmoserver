@@ -16,6 +16,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "DatabaseManager/DataBinding.h"
 #include "LogManager/LogManager.h"
 #include "Utils/utils.h"
+#include "Utils/rand.h"
 #include "Trainer.h"
 #include "FillerNPC.h"
 #include "NPCObject.h"
@@ -25,6 +26,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "AttackableCreature.h"
 #include "Inventory.h"
 #include "WorldConfig.h"
+#include "WorldManager.h"
 
 #include <assert.h>
 

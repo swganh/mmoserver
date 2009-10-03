@@ -19,6 +19,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "LogManager/LogManager.h"
+#include "ZoneOpcodes.h"
+#include "PlayerObject.h"
+#include "Bank.h"
 
 //=========================================================================================
 

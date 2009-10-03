@@ -24,7 +24,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Item.h"
 #include "QTRegion.h"
 #include "MathLib/Math.h"
-
+#include "PlayerObject.h"
+#include "ZoneTree.h"
 
 //=============================================================================
 //

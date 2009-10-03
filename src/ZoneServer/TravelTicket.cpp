@@ -18,6 +18,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "LogManager/LogManager.h"
 #include "MathLib/Quaternion.h"
 #include "TravelMapHandler.h"
+#include "ZoneTree.h"
 
 
 //=============================================================================

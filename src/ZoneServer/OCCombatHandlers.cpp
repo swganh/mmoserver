@@ -22,7 +22,8 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "LogManager/LogManager.h"
 #include "MissionManager.h"
 #include "AttackableCreature.h"
-
+#include "PlayerObject.h"
+#include "ObjectFactory.h"
 
 //=============================================================================================================================
 //

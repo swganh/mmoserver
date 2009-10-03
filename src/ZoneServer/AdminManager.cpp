@@ -12,13 +12,18 @@ Copyright (c) 2006 - 2009 The swgANH Team
 // So we have to live with duplicate code for a while.
 
 */
-#include "Utils/utils.h"
-#include "LogManager/LogManager.h"
-#include "WorldManager.h"
-#include "Common/MessageDispatch.h"
-#include <assert.h>
+
+#include <cassert>
 #include <map>
+
+#include "Common/MessageDispatch.h"
+#include "LogManager/LogManager.h"
+#include "MessageLib/MessageLib.h"
+#include "Utils/utils.h"
 #include "AdminManager.h"
+#include "PlayerObject.h"
+#include "WorldManager.h"
+#include "ZoneOpcodes.h"
 
 //======================================================================================================================
 //

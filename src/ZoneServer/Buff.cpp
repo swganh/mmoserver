@@ -1,11 +1,19 @@
-#include "Buff.h"
+/*
+---------------------------------------------------------------------------------------
+This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
+For more information, see http://www.swganh.org
+
+
+Copyright (c) 2006 - 2009 The swgANH Team
+
+---------------------------------------------------------------------------------------
+*/
+
 #include "MessageLib\MessageLib.h"
-#include "WorldManager.h"
+#include "Buff.h"
 #include "MissionManager.h"
-
-
-#define	 gWorldManager	WorldManager::getSingletonPtr()
-
+#include "PlayerObject.h"
+#include "WorldManager.h"
 
 Buff::	Buff(CreatureObject* Target, CreatureObject* Instigator, uint NoOfTicks, uint64 Tick, uint32 Icon, uint64 CurrentGlobalTick):mTarget(Target),mInstigator(Instigator),mNoTicks(NoOfTicks),mTick(Tick),mIcon(Icon),mStartTime(CurrentGlobalTick)
 {

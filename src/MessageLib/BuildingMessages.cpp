@@ -19,6 +19,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Common/MessageOpcodes.h"
 //#include "Common/Message.h"
 #include "Common/DispatchClient.h"
+#include "ZoneServer/BuildingObject.h"
+#include "ZoneServer/PlayerObject.h"
 
 //======================================================================================================================
 //

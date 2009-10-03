@@ -18,6 +18,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "DatabaseManager/DataBinding.h"
 #include "LogManager/LogManager.h"
 #include "WorldManager.h"
+#include "TangibleFactory.h"
 #include "Utils/utils.h"
 
 #include <assert.h>

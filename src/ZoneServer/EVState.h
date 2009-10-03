@@ -14,30 +14,18 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "EnqueueValidator.h"
 
+class ObjectController;
+class ObjectControllerCmdProperties;
 
 //=======================================================================
 
 class EVState : public EnqueueValidator
 {
-	public:
+public:
+    explicit EVState(ObjectController* controller);
+    virtual ~EVState();
 
-		EVState(ObjectController* controller) : EnqueueValidator(controller){}
-		virtual ~EVState(){}
-
-		virtual bool validate(uint32 &reply1,uint32 &reply2,uint64 targetId,uint32 opcode,ObjectControllerCmdProperties*& cmdProperties)
-		{
-			CreatureObject* creature = dynamic_cast<CreatureObject*>(mController->getObject());
-
-			// check our states
-			if(creature && cmdProperties && (creature->getState() & cmdProperties->mStates) != 0)
-			{
-				reply1 = 0;
-				reply2 = 0;
-				return(false);
-			}
-
-			return(true);
-		}
+    virtual bool validate(uint32 &reply1, uint32 &reply2, uint64 targetId, uint32 opcode, ObjectControllerCmdProperties*& cmdProperties);
 };
 
 //=======================================================================

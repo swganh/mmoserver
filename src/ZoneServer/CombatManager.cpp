@@ -19,6 +19,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "LogManager/LogManager.h"
 #include "AttackableCreature.h"
 #include "WorldConfig.h"
+#include "PlayerObject.h"
 
 //=========================================================================================
 

@@ -19,7 +19,6 @@ Copyright (c) 2006 - 2008 The swgANH Team
 //======================================================================================================================
 #include "DatabaseManager/DatabaseCallback.h"
 #include "BuffEvent.h"
-#include "Worldmanager.h"
 #include "Utils/EventHandler.h"
 
 //======================================================================================================================
@@ -29,6 +28,7 @@ class DatabaseResult;
 class CreatureObject;
 class PlayerObject;
 class QueryContainerBase;
+class WMAsyncContainer;
 struct buffAsyncContainer;
 
 enum BMQuery

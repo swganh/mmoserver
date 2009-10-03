@@ -3,7 +3,8 @@
 #include "MessageLib/MessageLib.h"
 #include "LogManager/LogManager.h"
 #include "WorldConfig.h"
-
+#include "CreatureObject.h"
+#include "PlayerObject.h"
 
 //===========================================================================
 

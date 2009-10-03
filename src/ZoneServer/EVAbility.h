@@ -14,35 +14,18 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "EnqueueValidator.h"
 
+class ObjectController;
+class ObjectControllerCmdProperties;
 
 //=======================================================================
 
 class EVAbility : public EnqueueValidator
 {
-	public:
+public:
+    explicit EVAbility(ObjectController* controller);
+    virtual ~EVAbility();
 
-		EVAbility(ObjectController* controller) : EnqueueValidator(controller){}
-		virtual ~EVAbility(){}
-
-		virtual bool validate(uint32 &reply1,uint32 &reply2,uint64 targetId,uint32 opcode,ObjectControllerCmdProperties*& cmdProperties)
-		{
-			CreatureObject* creature = dynamic_cast<CreatureObject*>(mController->getObject());
-
-			// check if we need to have an ability
-			if(creature && cmdProperties && cmdProperties->mAbilityCrc != 0)
-			{
-				// check if the player has it
-				if(!(creature->verifyAbility(cmdProperties->mAbilityCrc)))
-				{
-					reply1 = 2;
-					reply2 = 0;
-
-					return(false);
-				}
-			}
-
-			return(true);
-		}
+	virtual bool validate(uint32 &reply1, uint32 &reply2, uint64 targetId, uint32 opcode, ObjectControllerCmdProperties*& cmdProperties);
 };
 
 //=======================================================================

@@ -45,8 +45,8 @@ void ObjectController::handleSecureTradeInvitation(uint64 targetId,Message* mess
 
 	uint32 unknown,error; 
 	uint64 receiverId,unknown64;
-	const error0 = 0;
-	const error2 = 2;
+	const uint32 error0 = 0;
+	const uint32 error2 = 2;
 	message->getUint32(unknown);
 	message->getUint32(error);
 	message->getUint64(unknown64);//sender (target) id

@@ -21,6 +21,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "UIManager.h"
 #include "BankTerminal.h"
 #include "WorldConfig.h"
+#include "Bank.h"
 
 //======================================================================================================================
 

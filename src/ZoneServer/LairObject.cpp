@@ -13,8 +13,11 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "LairObject.h"
 #include "AttackableCreature.h"
 #include "PlayerObject.h"
+#include "CellObject.h"
 #include "WorldManager.h"
-#include "ZoneServer/NonPersistentNpcFactory.h"
+#include "MessageLib/MessageLib.h"
+#include "NonPersistentNpcFactory.h"
+#include "ZoneTree.h"
 
 static const int64 dormantDefaultPeriodTime = 10000;
 static const int64 readyDefaultPeriodTime = 1000;

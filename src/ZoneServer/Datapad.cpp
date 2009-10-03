@@ -14,7 +14,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "MessageLib/MessageLib.h"
 #include "WorldManager.h"
 #include "WorldConfig.h"
-
+#include "PlayerObject.h"
+#include "ObjectFactory.h"
 
 //=============================================================================
 

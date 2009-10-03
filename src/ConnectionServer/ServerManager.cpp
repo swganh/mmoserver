@@ -12,6 +12,7 @@
 #include "Common/MessageOpcodes.h"
 #include "Common/MessageFactory.h"
 #include "ConfigManager/ConfigManager.h"
+#include "LogManager/LogManager.h"
 #include "ClientManager.h"
 
 

@@ -18,6 +18,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "Utils/utils.h"
 #include "ItemFactory.h"
 #include "Food.h"
+#include "WorldManager.h"
 
 #include <assert.h>
 

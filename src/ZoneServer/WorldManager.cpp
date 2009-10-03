@@ -9,37 +9,35 @@ Copyright (c) 2006 - 2009 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
-#include "WorldManager.h"
-#include "ZoneOpcodes.h"
-#include "Common/MessageDispatch.h"
-#include "Common/MessageFactory.h"
-#include "Common/Message.h"
-#include "Common/DispatchClient.h"
-//#include "Utils/clock.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
-#include "DatabaseManager/Transaction.h"
-#include "LogManager/LogManager.h"
-#include "ConfigManager/ConfigManager.h"
-#include "TreasuryManager.h"
-#include "WorldConfig.h"
+#include "MessageLib/MessageLib.h"
 #include "ScriptEngine/ScriptEngine.h"
-#include "ScriptEngine/Script.h"
 #include "ScriptEngine/ScriptSupport.h"
-#include "CraftingSessionFactory.h"
-#include "CraftingTool.h"
-#include "EntertainerManager.h"
+#include "Utils/Scheduler.h"
+#include "Utils/VariableTimeScheduler.h"
+#include "AdminManager.h"
 #include "Buff.h"
 #include "BuffManager.h"
-#include "MissionManager.h"
-#include "Utils/Scheduler.h"
-#include "AttackableCreature.h"
-#include "NpcManager.h"
-#include "Heightmap.h"
+#include "CharacterLoginHandler.h"
+#include "ConversationManager.h"
+#include "CraftingSessionFactory.h"
 #include "CreatureSpawnRegion.h"
 #include "GroupManager.h"
-#include "AdminManager.h"
+#include "GroupObject.h"
+#include "Heightmap.h"
+#include "MissionManager.h"
+#include "NpcManager.h"
+#include "NPCObject.h"
+#include "ResourceCollectionManager.h"
+#include "ResourceManager.h"
+#include "SchematicManager.h"
+#include "TreasuryManager.h"
+#include "WorldConfig.h"
+#include "WorldManager.h"
+#include "ZoneServer.h"
+#include "ZoneTree.h"
 
 //======================================================================================================================
 
@@ -2242,6 +2240,17 @@ void WorldManager::removeEntertainerToProcess(uint64 taskId)
 	mEntertainerScheduler->removeTask(taskId);
 }
 
+
+//======================================================================================================================
+//
+// add a creature from the ham regeneration scheduler
+//
+uint64 WorldManager::addCreatureHamToProccess(Ham* ham)
+{ 
+    return((mHamRegenScheduler->addTask(fastdelegate::MakeDelegate(ham,&Ham::regenerate),1,1000,NULL))); 
+}
+
+
 //======================================================================================================================
 //
 // remove a creature from the ham regeneration scheduler
@@ -2252,6 +2261,26 @@ void WorldManager::removeCreatureHamToProcess(uint64 taskId)
 	mHamRegenScheduler->removeTask(taskId);
 }
 
+
+//======================================================================================================================
+
+bool WorldManager::checkTask(uint64 id)
+{
+    return mHamRegenScheduler->checkTask(id);
+}
+
+
+//======================================================================================================================
+//
+// add an object from the object controller scheduler
+//
+
+uint64 WorldManager::addObjControllerToProcess(ObjectController* objController)
+{ 
+    return((mObjControllerScheduler->addTask(fastdelegate::MakeDelegate(objController,&ObjectController::process),1,125,NULL))); 
+}
+		
+
 //======================================================================================================================
 //
 // remove an object from the object controller scheduler
@@ -2261,6 +2290,39 @@ void WorldManager::removeObjControllerToProcess(uint64 taskId)
 {
 	mObjControllerScheduler->removeTask(taskId);  
 }
+
+
+//======================================================================================================================
+
+uint64 WorldManager::addMissionToProcess(MissionObject* mission)
+{ 
+    return mMissionScheduler->addTask(fastdelegate::MakeDelegate(mission,&MissionObject::check),1,10000,NULL); 
+}
+
+
+//======================================================================================================================
+
+void WorldManager::removeMissionFromProcess(uint64 taskId) 
+{ 
+    mMissionScheduler->removeTask(taskId); 
+}
+
+
+//======================================================================================================================
+
+bool WorldManager::checkForMissionProcess(uint64 taskId) 
+{ 
+    return mMissionScheduler->checkTask(taskId); 
+}
+
+
+//======================================================================================================================
+
+uint64 WorldManager::addEntertainerToProccess(CreatureObject* entertainerObject,uint32 tick)
+{ 
+    return((mEntertainerScheduler->addTask(fastdelegate::MakeDelegate(entertainerObject,&CreatureObject::handlePerformanceTick),1,tick,NULL))); 
+}
+		
 
 //======================================================================================================================
 //

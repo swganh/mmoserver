@@ -15,6 +15,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include <iomanip>
 #include <time.h>
 
+#include "DatabaseManager/Database.h"
 
 //======================================================================================================================
 

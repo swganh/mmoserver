@@ -16,7 +16,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include <fstream>
 #include <iostream>
 #include <string>
-#include "DatabaseManager/Database.h"
+#include <zthread/Mutex.h>
+
+class Database;
 
 #ifdef ANH_PLATFORM_WIN32
 

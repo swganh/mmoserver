@@ -12,17 +12,14 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_LOGMANAGER_H
 #define ANH_LOGMANAGER_H
 
-#include "Log.h"
-
-#include "Utils/typedefs.h"
+#include <map>
 #include "zthread/ZThread.h"
 
-#include "DatabaseManager/DatabaseManager.h"
-#include "DatabaseManager/Database.h"
-#include "ConfigManager/ConfigManager.h"
+#include "Utils/typedefs.h"
+#include "Log.h"
 
-
-#include <map>
+class Database;
+class DatabaseManager;
 
 
 //======================================================================================================================

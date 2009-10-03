@@ -440,10 +440,6 @@
 				>
 			</File>
 		</Filter>
-		<File
-			RelativePath=".\makefile"
-			>
-		</File>
 	</Files>
 	<Globals>
 	</Globals>

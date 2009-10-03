@@ -15,7 +15,6 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Utils/typedefs.h"
 #include "ConfigFile.h"
 
-
 #define CONFIG_DIR "config//"
 #define	gConfig	ConfigManager::getSingletonPtr()->getConfigFile()
 

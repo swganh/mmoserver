@@ -15,7 +15,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "IntangibleObject.h"
 #include "VehicleFactory.h"
 #include "ObjectFactoryCallback.h"
-//#include "DatabaseManager/Database.h"
+#include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
 //#include "LogManager/LogManager.h"

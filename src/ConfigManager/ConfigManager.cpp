@@ -9,10 +9,12 @@ Copyright (c) 2006 - 2008 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
-#include "ConfigManager.h"
-#include "LogManager/LogManager.h"
 #include <string>
+
 #include "Common/BuildInfo.h"
+#include "LogManager/LogManager.h"
+
+#include "ConfigManager.h"
 
 //======================================================================================================================
 

@@ -15,6 +15,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Common/Message.h"
 #include "Common/DispatchClient.h"
 #include "Common/atMacroString.h"
+#include "LogManager/LogManager.h"
 #include "Channel.h"
 #include "ChatAvatarId.h"
 #include "ChatManager.h"

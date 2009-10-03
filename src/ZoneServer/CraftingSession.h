@@ -33,8 +33,12 @@ class ObjectFactoryCallback;
 class DispatchClient;
 class ManufacturingSchematic;
 class CraftSessionQueryContainer;
-class Clock;
 class CraftWeight;
+
+namespace Anh_Utils
+{
+    class Clock;
+}
 
 typedef std::vector<CraftWeight*>			CraftWeights;
 typedef std::map<uint64,uint32>				CheckResources;

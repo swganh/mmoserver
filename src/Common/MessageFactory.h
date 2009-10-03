@@ -13,9 +13,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #define ANH_LOGINSERVER_MESSAGEFACTORY_H
 
 #include "Utils/typedefs.h"
-#include "Utils/Clock.h"
 #include "ConfigManager/ConfigManager.h"
-#include "LogManager/LogManager.h"
 
 //======================================================================================================================
 

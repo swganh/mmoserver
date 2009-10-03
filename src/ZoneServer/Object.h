@@ -20,9 +20,11 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "Utils/EventHandler.h"
 #include "MathLib/Vector3.h"
 #include "MathLib/Quaternion.h"
+#include "LogManager/LogManager.h"
 #include <vector>
 #include <map>
 #include <set>
+#include <list>
 #include <boost/shared_ptr.hpp>
 #include <boost/lexical_cast.hpp>
 

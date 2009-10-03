@@ -15,6 +15,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include <memory.h>
 #include <assert.h>
 #include <new.h>
+#include "Utils/Clock.h"
 
 
 // TODO: There is no bounds checking on the heap yet.

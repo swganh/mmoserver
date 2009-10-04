@@ -46,7 +46,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)src&quot;;&quot;$(SolutionDir)deps&quot;;&quot;$(SolutionDir)deps\boost&quot;;&quot;$(SolutionDir)deps\lua\src&quot;;&quot;$(SolutionDir)deps\noise\src&quot;;&quot;$(SolutionDir)deps\spatialindex\tools\include&quot;;&quot;$(SolutionDir)deps\zthread\include&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)src&quot;;&quot;$(SolutionDir)deps&quot;;&quot;$(SolutionDir)deps\boost&quot;;&quot;$(SolutionDir)deps\lua\src&quot;;&quot;$(SolutionDir)deps\noise\src&quot;;&quot;$(SolutionDir)deps\spatialindex\include&quot;;&quot;$(SolutionDir)deps\spatialindex\tools\include&quot;;&quot;$(SolutionDir)deps\zthread\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_CRT_NON_CONFORMING_SWPRINTFS;_CRT_SECURE_NO_DEPRECATE;_WIN32_WINNT=0x0500"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="3"
@@ -140,7 +140,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="3"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)src&quot;;&quot;$(SolutionDir)deps&quot;;&quot;$(SolutionDir)deps\boost&quot;;&quot;$(SolutionDir)deps\lua\src&quot;;&quot;$(SolutionDir)deps\noise\src&quot;;&quot;$(SolutionDir)deps\spatialindex\tools\include&quot;;&quot;$(SolutionDir)deps\zthread\include&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)src&quot;;&quot;$(SolutionDir)deps&quot;;&quot;$(SolutionDir)deps\boost&quot;;&quot;$(SolutionDir)deps\lua\src&quot;;&quot;$(SolutionDir)deps\noise\src&quot;;&quot;$(SolutionDir)deps\spatialindex\include&quot;;&quot;$(SolutionDir)deps\spatialindex\tools\include&quot;;&quot;$(SolutionDir)deps\zthread\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_CRT_NON_CONFORMING_SWPRINTFS;_CRT_SECURE_NO_DEPRECATE;_WIN32_WINNT=0x0500"
 				ExceptionHandling="1"
 				RuntimeLibrary="0"

@@ -18,6 +18,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Heightmap.h"
 #include "CellObject.h"
 #include "ZoneTree.h"
+#include "PlayerObject.h"
 
 class DamageDealer
 {

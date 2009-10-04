@@ -82,9 +82,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include <WINSOCK2.h>
 #endif
 
-#ifndef _INC_WINDOWS
+#ifndef _WINDOWS_
 #include <windows.h>
-#endif /* _INC_WINDOWS */
+#endif /* _WINDOWS_ */
 	
 	#include <time.h>
 	

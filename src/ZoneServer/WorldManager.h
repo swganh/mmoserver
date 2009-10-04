@@ -20,6 +20,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 
 #include "DatabaseManager/DatabaseCallback.h"
 #include "Utils/TimerCallback.h"
+#include "Utils/typedefs.h"
 #include "ObjectFactoryCallback.h"
 #include "QTRegion.h"
 #include "Weather.h"

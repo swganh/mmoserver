@@ -8,13 +8,13 @@ Copyright (c) 2006 - 2009 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
-#ifndef _WINSOCK2API_
-#include <WINSOCK2.h>
-#endif
+
 #include "ZoneTree.h"
 #include "WorldManager.h"
-#include "Utils/clock.h"
+#include "BuildingObject.h"
+#include "CellObject.h"
 
+using namespace SpatialIndex;
 
 //=============================================================================
 

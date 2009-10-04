@@ -28,7 +28,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="subwcrev.exe ..\ ..\Common\BuildInfoSrc.h ..\Common\BuildInfo.h"
+				CommandLine=""
 			/>
 			<Tool
 				Name="VCCustomBuildTool"

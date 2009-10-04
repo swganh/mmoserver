@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="ConfigManager"
 	ProjectGUID="{10FA5325-05CF-44A7-B91D-2622DA13A62B}"
 	RootNamespace="ConfigManager"
@@ -24,7 +24,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="subwcrev.exe ..\ ..\Common\BuildInfoSrc.h ..\Common\BuildInfo.h"
+				CommandLine=""
 			/>
 			<Tool
 				Name="VCCustomBuildTool"

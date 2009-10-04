@@ -1,0 +1,50 @@
+/*
+---------------------------------------------------------------------------------------
+This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
+For more information, see http://www.swganh.org
+
+
+Copyright (c) 2006 - 2008 The swgANH Team
+
+---------------------------------------------------------------------------------------
+*/
+
+#ifndef ANH_COMMON_BUILDINFO_H
+#define ANH_COMMON_BUILDINFO_H
+
+#include <string>
+#include "Utils/typedefs.h"
+
+//======================================================================================================================
+
+std::string GetBuildNumber(void)
+{
+    static std::string build_num("$Revision$");
+	return build_num.substr(11, build_num.length()-13);
+}
+
+std::string GetBuildTime(void)
+{
+    static std::string build_time("$Date$");
+	return build_time.substr(7, build_time.length()-9);
+}
+
+static const char* GetBuildString(void)
+{
+    static std::string build_string;
+
+    if (build_string.length() == 0) 
+    {
+        build_string += "swgANH "ANH_VERSION_NAME" - "ANH_VERSION_MAJOR"."ANH_VERSION_MINOR".";
+        build_string += GetBuildNumber();
+        build_string += " - ";
+        build_string += GetBuildTime();
+        build_string += "\n";
+    }
+
+	return build_string.c_str();
+}
+
+#endif // ANH_COMMON_BUILDINFO_H
+
+

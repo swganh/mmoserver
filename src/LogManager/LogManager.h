@@ -13,7 +13,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #define ANH_LOGMANAGER_H
 
 #include <map>
-#include "zthread/ZThread.h"
+#include "zthread/Mutex.h"
 
 #include "Utils/typedefs.h"
 #include "Log.h"

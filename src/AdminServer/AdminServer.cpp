@@ -215,7 +215,7 @@ void handleExit(void)
 
 
 //======================================================================================================================
-int main(int argc, char* argv)
+int main(int argc, char* argv[])
 {
 	bool exit = false;
 	LogManager::Init(G_LEVEL_NORMAL, "AdminServer.log", LEVEL_NORMAL, true, true);

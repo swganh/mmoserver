@@ -21,6 +21,7 @@ class ManufactureSlot;
 class ExperimentationProperty;
 class CraftWeight;
 class CraftAttribute;
+class CraftAttributeWeight;
 class DraftSlot;
 
 struct CustomizationOption
@@ -38,6 +39,7 @@ typedef std::vector<ExperimentationProperty*>	ExperimentationProperties; // stor
 typedef std::vector<std::pair<uint32,ExperimentationProperty*>>	ExperimentationPropertiesStore;	//stores the reference list of unique exp properties
 typedef std::vector<CraftWeight*>				CraftWeights;
 typedef std::vector<CraftAttribute*>			CraftAttributes;
+typedef std::vector<CraftAttributeWeight*>		CraftAttributeWeights;
 typedef std::vector<std::pair<uint64,uint32> >	FilledResources;
 
 
@@ -178,6 +180,7 @@ class ExperimentationProperty//CraftingAttribute
 
 		CraftWeights*		mWeights;
 		CraftAttributes*	mAttributes;
+		
 
 		string				mExpAttributeName;
 		

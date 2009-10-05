@@ -214,8 +214,20 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 							" draft_weights"
 							" INNER JOIN draft_craft_batches ON (draft_weights.craft_batch_id = draft_craft_batches.id)"
 							" WHERE"
+
 							" (draft_weights.id = %u) ORDER BY draft_craft_batches.list_id",schematic->mWeightsBatchId);
 
+				/*
+				// craftingbatches
+				asContainer = new(mDBAsyncPool.ordered_malloc()) ScMAsyncContainer(ScMQuery_SchematicCraftBatches);
+				asContainer->mSchematic = schematic;
+				sprintf(sql,"SELECT draft_craft_batches.id,draft_craft_batches.list_id,draft_craft_batches.expGroup"
+							" FROM"
+							" draft_weights"
+							" INNER JOIN draft_craft_batches ON (draft_weights.craft_batch_id = draft_craft_batches.id)"
+							" WHERE"
+							" (draft_weights.id = %u) ORDER BY draft_craft_batches.list_id",schematic->mWeightsBatchId);
+				  */
 				mDatabase->ExecuteSqlAsync(this,asContainer,sql);
 			}
 
@@ -356,11 +368,56 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 															" FROM draft_craft_item_attribute_link as dcial"
 															" INNER JOIN attributes ON (dcial.item_attribute = attributes.id)"
 															" WHERE list_id=%u",asContainer->mBatchId);
+
+
+				// query attribute weighting for component crafting
+				asContainer = new(mDBAsyncPool.ordered_malloc()) ScMAsyncContainer(ScMQuery_SchematicCraftAttributeWeights);
+				asContainer->mSchematic = schematic;
+				asContainer->mBatchId = batch->getListId();
+
+				mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT dsam.Attribute, dsam.AffectedAttribute, dsam.Manipulation, a.name, b.name "
+															" FROM draft_schematic_attribute_manipulation as dsam"
+															" INNER JOIN attributes as a ON (dsam.attribute = a.id)"
+															" INNER JOIN attributes as b ON (dsam.affectedattribute = b.id)"
+															" WHERE Draft_Schematic=%u",asContainer->mBatchId);
 			}
 
 			mDatabase->DestroyDataBinding(binding);
 		}
 		break;
+
+		case ScMQuery_SchematicCraftAttributeWeights:
+		{
+			// "SELECT dsam.Attribute, dsam.AffectedAttribute, dsam.Manipulation, a.name, b.name "
+
+			DraftSchematic*	schematic = asyncContainer->mSchematic;
+			CraftAttributeWeight*	craftAttributeWeight;
+
+			DataBinding* binding = mDatabase->CreateDataBinding(5);
+			
+			binding->addField(DFT_uint32,offsetof(CraftAttributeWeight,mAttributeId),4,0);
+			binding->addField(DFT_uint32,offsetof(CraftAttributeWeight,mAffectedAttributeId),4,1);
+			binding->addField(DFT_uint32,offsetof(CraftAttributeWeight,mManipulation),4,2);
+			binding->addField(DFT_bstring,offsetof(CraftAttributeWeight,mAttributeKey),255,3);
+			binding->addField(DFT_bstring,offsetof(CraftAttributeWeight,mAffectedAttributeKey),255,4);
+
+			uint64 count = result->getRowCount();
+
+			for(uint64 i = 0;i < count;i++)
+			{
+				craftAttributeWeight = new CraftAttributeWeight();
+
+				result->GetNextRow(binding,craftAttributeWeight);
+
+				CraftBatch* batch = schematic->getCraftBatchByListId(asyncContainer->mBatchId);
+				batch->mAttributeWeights.push_back(craftAttributeWeight);
+			}
+
+			mDatabase->DestroyDataBinding(binding);
+		
+		}
+		break;
+
 
 		case ScMQuery_SchematicCraftAttributeLinks:
 		{

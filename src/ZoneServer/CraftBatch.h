@@ -16,9 +16,11 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 class CraftWeight;
 class CraftAttribute;
+class CraftAttributeWeight;
 
 typedef std::vector<CraftWeight*>		CraftWeights;
 typedef std::vector<CraftAttribute*>	CraftAttributes;
+typedef std::vector<CraftAttributeWeight*>	CraftAttributeWeights;
 
 //=============================================================================
 
@@ -31,19 +33,21 @@ class CraftBatch
 		CraftBatch();
 		~CraftBatch();
 
-		uint32				getId(){ return mId; }
-		uint32				getListId(){ return mListId; }
-		uint32				getExpGroup(){ return mExpGroup; }
-		CraftWeights*		getCraftWeights(){ return &mWeights; }
-		CraftAttributes*	getCraftAttributes(){ return &mAttributes; }
+		uint32					getId(){ return mId; }
+		uint32					getListId(){ return mListId; }
+		uint32					getExpGroup(){ return mExpGroup; }
+		CraftWeights*			getCraftWeights(){ return &mWeights; }
+		CraftAttributes*		getCraftAttributes(){ return &mAttributes; }
+		CraftAttributeWeights*	getCraftAttributeWeights(){ return &mAttributeWeights; }
 
 	private:
 
-		uint32			mId;
-		uint32			mListId;
-		uint32			mExpGroup;
-		CraftWeights	mWeights;
-		CraftAttributes	mAttributes;
+		uint32					mId;
+		uint32					mListId;
+		uint32					mExpGroup;
+		CraftWeights			mWeights;
+		CraftAttributes			mAttributes;
+		CraftAttributeWeights	mAttributeWeights;
 };
 
 //=============================================================================
@@ -91,6 +95,37 @@ class CraftAttribute
 		uint8	mType;
 		float	mMin;
 		float	mMax;
+};
+
+class CraftAttributeWeight
+{
+	friend class SchematicManager;
+
+	public:
+
+		CraftAttributeWeight(){}
+		~CraftAttributeWeight(){}
+
+		uint32	getAttributeId(){ return mAttributeId; }
+		string	getAttributeKey(){ return mAttributeKey; }
+
+		uint32	getAffectedAttributeId(){ return mAttributeId; }
+		string	getAffectedAttributeKey(){ return mAttributeKey; }
+
+		uint32	getManipulation(){ return mManipulation; }
+		
+
+	private:
+
+		uint32	mAttributeId;
+		string	mAttributeKey;
+		
+		uint32	mAffectedAttributeId;
+		string	mAffectedAttributeKey;
+		
+		uint8	mManipulation;
+		uint8	mType;
+		
 };
 
 //=============================================================================

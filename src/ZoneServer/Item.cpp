@@ -10,12 +10,6 @@ Copyright (c) 2006 - 2009 The swgANH Team
 */
 
 #include "Item.h"
-#include "food.h"
-#include "EntertainerManager.h"
-#include "LogManager/LogManager.h"
-#include "WorldConfig.h"
-#include "ZoneServer/Tutorial.h"
-#include "MessageLib/MessageLib.h"
 #include "PlayerObject.h"
 
 

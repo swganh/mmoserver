@@ -17,6 +17,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 
 //=============================================================================
 
+class PlayerObject;
 
 class Item : public TangibleObject
 {

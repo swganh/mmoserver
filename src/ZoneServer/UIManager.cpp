@@ -418,11 +418,25 @@ void UIManager::createNewStructureDestroyBox(UICallback* callback,PlayerObject* 
 
 	string text = "You have elected to destroy a structure. Petinent structure data can be found in the list below. Please complete the following steps to confirm structure deletion.\xa\xa";
 			text <<"If you wish to redeed your structure, all structure data must be GREEN To continue with structure deletion, click YES. Otherwise, please click NO.\xa";
-			text <<"WILL REDEED: \\#FF0000 NO \\#FFFFFF";			
+			
+	if(structure->canRedeed())
+	{
+		text <<"WILL REDEED: \\#006400 YES \\#FFFFFF";			
 
-	int8 redeedText[32];
-	sprintf(redeedText,"CAN REDEED: \\#006400 YES\\#FFFFFF");
-	attributesMenu.push_back(redeedText);
+		int8 redeedText[32];
+		sprintf(redeedText,"CAN REDEED: \\#006400 YES\\#FFFFFF");
+		attributesMenu.push_back(redeedText);
+	}
+	else
+	{
+		text <<"WILL REDEED: \\#FF0000 NO \\#FFFFFF";			
+
+		int8 redeedText[32];
+		sprintf(redeedText,"CAN REDEED: \\#FF0000 NO\\#FFFFFF");
+		attributesMenu.push_back(redeedText);
+	}
+			
+		
 
 	int8 condition[64];
 	sprintf(condition,"-CONDITION:%u/%u",1000,1000);

@@ -75,14 +75,14 @@ const char* ConfigManager::getBuildString(void)
 
 const char* ConfigManager::getBuildNumber(void)
 {
-	return GetBuildNumber().c_str();
+	return GetBuildNumber();
 }
 
 //======================================================================================================================
 
 const char* ConfigManager::getBuildTime(void)
 {
-	return GetBuildTime().c_str();
+	return GetBuildTime();
 }
 
 //======================================================================================================================

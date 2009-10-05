@@ -49,6 +49,7 @@ enum ScMQueryType
 	ScMQuery_SchematicCraftBatches			= 10,
 	ScMQuery_SchematicCraftWeights			= 11,
 	ScMQuery_SchematicCraftAttributeLinks	= 12,
+	ScMQuery_SchematicCraftAttributeWeights	= 13,
 };
 
 //======================================================================================================================

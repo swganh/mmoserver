@@ -330,10 +330,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\BuildInfoSrc.h"
-				>
-			</File>
-			<File
 				RelativePath=".\bytebuffer.cpp"
 				>
 			</File>

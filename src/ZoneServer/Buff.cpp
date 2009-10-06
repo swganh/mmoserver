@@ -11,17 +11,74 @@ Copyright (c) 2006 - 2009 The swgANH Team
 
 #include "MessageLib\MessageLib.h"
 #include "Buff.h"
+#include "BuffDBItem.h"
 #include "MissionManager.h"
 #include "PlayerObject.h"
+#include "CreatureObject.h"
 #include "WorldManager.h"
 
-Buff::	Buff(CreatureObject* Target, CreatureObject* Instigator, uint NoOfTicks, uint64 Tick, uint32 Icon, uint64 CurrentGlobalTick):mTarget(Target),mInstigator(Instigator),mNoTicks(NoOfTicks),mTick(Tick),mIcon(Icon),mStartTime(CurrentGlobalTick)
+BuffAttribute::BuffAttribute(BuffAttributeEnum Type, int32 InitialValue, int32	TickValue, int32 FinalValue)
+: mAttribute(Type)
+, mInitialValue(InitialValue)
+, mTickValue(TickValue)
+, mFinalValue(FinalValue)
+{}
+
+
+BuffAttribute::~BuffAttribute()
+{}
+
+
+BuffAttribute* BuffAttribute::FromDB(BuffAttributeDBItem* item)
+{ 
+    return new BuffAttribute((BuffAttributeEnum)item->mType, item->mInitialValue, item->mTickValue, item->mFinalValue);
+}
+
+
+BuffAttributeEnum BuffAttribute::GetType()			
+{ 
+    return mAttribute; 
+}
+
+
+int32 BuffAttribute::GetInitialValue()	
+{ 
+    return mInitialValue; 
+}
+
+
+int32 BuffAttribute::GetTickValue()		
+{ 
+    return mTickValue; 
+}
+
+
+int32 BuffAttribute::GetFinalValue()		
+{ 
+    return mFinalValue; 
+}
+
+
+Buff::Buff(CreatureObject* Target, CreatureObject* Instigator, uint NoOfTicks, uint64 Tick, uint32 Icon, uint64 CurrentGlobalTick):mTarget(Target),mInstigator(Instigator),mNoTicks(NoOfTicks),mTick(Tick),mIcon(Icon),mStartTime(CurrentGlobalTick)
 {
 	mCurrentTick = 0;
 	mMarkedForDeletion = false;
 	mChild = 0;
 	mDoInit = true;
 }
+
+
+Buff* Buff::SimpleBuff(CreatureObject* Target, CreatureObject* Instigator, uint64 Duration, uint32 Icon, uint64 CurrentGlobalTick)
+{ 
+    return new Buff(Target, Instigator, 0, Duration, Icon, CurrentGlobalTick); 
+}
+
+
+Buff* Buff::TickingBuff(CreatureObject* Target, CreatureObject* Instigator, uint NoOfTicks, uint64 Tick, uint32 Icon, uint64 CurrentGlobalTick)
+{ 
+    return new Buff(Target, Instigator, NoOfTicks, Tick, Icon, CurrentGlobalTick); 
+}
+
 
 //-------------------------------------------------------
 //a buff was loaded from the db on character load
@@ -55,8 +112,7 @@ Buff* Buff::FromDB(BuffDBItem* Item, uint64 CurrentGlobalTick)
 	temp->mDBID = Item->mBuffId;
 	return temp;
 }
-
-
+	
 
 //-------------------------------------------------------
 //an update event to our buff
@@ -112,6 +168,121 @@ void Buff::ReInit()
 	else
 		InitializeIcons();
 }
+
+
+void Buff::AddAttribute(BuffAttribute* Attribute)
+{
+    Attributes.push_back(Attribute);
+}
+	
+
+void Buff::SetID(uint64 value)
+{ 
+    mID=value; 
+}
+	
+
+void Buff::SetChildBuff(Buff* value)
+{ 
+    mChild=value; 
+    if(value!=0) value->SetParent(this); 
+}
+	
+
+void Buff::setTarget(CreatureObject* creature)
+{
+    mTarget=creature;
+}
+	
+
+bool Buff::GetIsMarkedForDeletion()
+{ 
+    return mMarkedForDeletion; 
+}
+
+
+uint64 Buff::GetID()		
+{ 
+    return mID;
+}
+	
+
+uint64 Buff::GetDBID()	
+{ 
+    return mDBID;
+}
+
+	
+CreatureObject*	Buff::GetTarget()	
+{ 
+    return mTarget; 
+}
+	
+
+CreatureObject*	Buff::GetInstigator()
+{ 
+    return mInstigator; 
+}
+	
+
+uint64 Buff::GetTickLength() 
+{ 
+    return mTick; 
+}
+	
+
+uint32 Buff::GetNoOfTicks()
+{ 
+    return mNoTicks;
+}
+	
+
+uint32 Buff::GetCurrentTickNumber()
+{ 
+    return mCurrentTick; 
+}
+	
+
+uint32 Buff::GetIcon()
+{ 
+    return mIcon; 
+}
+	
+
+string Buff::GetName()
+{ 
+    return mName; 
+}
+	
+
+uint64 Buff::GetStartGlobalTick()
+{ 
+    return mStartTime; 
+}
+	
+
+void Buff::SetInit(bool init)
+{
+    mDoInit = init;
+}
+
+
+void Buff::IncrementTick()
+{ 
+    mCurrentTick++;
+}
+	
+
+uint64 Buff::GetRemainingTime()
+{ 
+    if(mNoTicks > mCurrentTick)
+    {
+        return mTick *(mNoTicks - mCurrentTick); 
+    } 
+    
+    return 0;
+}	
+	
 
 //=============================================================================
 //
@@ -364,4 +535,9 @@ void Buff::ModifyAttribute(BuffAttributeEnum Type, int32 Value)
 void Buff::EraseAttributes()
 {
 	Attributes.clear();
+}
+
+void Buff::SetParent(Buff* value)
+{
+    mParent=value;
 }

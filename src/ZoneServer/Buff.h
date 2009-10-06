@@ -15,25 +15,27 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Utils\typedefs.h"
 #include "BuffAttributeEnums.h"
 #include "BuffIconsEnum.h"
-#include "BuffDBItem.h"
-#include "CreatureObject.h"
-//#define	 gMessageLib	MessageLib::getSingletonPtr();
 
 class CreatureObject;
+class BuffAttribute;
+class BuffAttributeDBItem;
+class BuffDBItem;
+
+typedef std::vector<BuffAttribute*>	AttributeList;
 
 class BuffAttribute
 {
 
 public:
-	BuffAttribute(BuffAttributeEnum Type, int32 InitialValue, int32	TickValue, int32 FinalValue):mAttribute(Type),mInitialValue(InitialValue), mTickValue(TickValue), mFinalValue(FinalValue){};
+	BuffAttribute(BuffAttributeEnum Type, int32 InitialValue, int32	TickValue, int32 FinalValue);
+	~BuffAttribute();
 	
-	static BuffAttribute* FromDB(BuffAttributeDBItem* item){ return new BuffAttribute((BuffAttributeEnum)item->mType, item->mInitialValue, item->mTickValue, item->mFinalValue);}
-	~BuffAttribute(){;}
+	static BuffAttribute* FromDB(BuffAttributeDBItem* item);
 	
-	BuffAttributeEnum	GetType()			{ return mAttribute; }
-	int32				GetInitialValue()	{ return mInitialValue; }
-	int32				GetTickValue()		{ return mTickValue; }
-	int32				GetFinalValue()		{ return mFinalValue; }
+	BuffAttributeEnum	GetType();
+	int32				GetInitialValue();
+	int32				GetTickValue();
+	int32				GetFinalValue();
 
 private:
 	BuffAttributeEnum	mAttribute;
@@ -42,7 +44,6 @@ private:
 	int32				mFinalValue;
 };
 
-typedef std::vector<BuffAttribute*>	AttributeList;
 
 class Buff
 {
@@ -53,37 +54,39 @@ public:
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	//Public Constructor/Destructor
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	static Buff*			SimpleBuff(CreatureObject* Target, CreatureObject* Instigator, uint64 Duration, uint32 Icon, uint64 CurrentGlobalTick){ return new Buff(Target, Instigator, 0, Duration, Icon, CurrentGlobalTick); }
-	static Buff*			TickingBuff(CreatureObject* Target, CreatureObject* Instigator, uint NoOfTicks, uint64 Tick, uint32 Icon, uint64 CurrentGlobalTick){ return new Buff(Target, Instigator, NoOfTicks, Tick, Icon, CurrentGlobalTick); }
-	static Buff*			FromDB(BuffDBItem* Item, uint64 CurrentGlobalTick);
+	static Buff* SimpleBuff(CreatureObject* Target, CreatureObject* Instigator, uint64 Duration, uint32 Icon, uint64 CurrentGlobalTick);
+	static Buff* TickingBuff(CreatureObject* Target, CreatureObject* Instigator, uint NoOfTicks, uint64 Tick, uint32 Icon, uint64 CurrentGlobalTick);
+	static Buff* FromDB(BuffDBItem* Item, uint64 CurrentGlobalTick);
+
 	~Buff();
+
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	//Public Methods
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	uint64				Update(uint64 CurrentTime, void* ref); //Callback for Tick
-	void				ReInit();
+	uint64 Update(uint64 CurrentTime, void* ref); //Callback for Tick
+	void ReInit();
 
-	void				AddAttribute(BuffAttribute* Attribute){Attributes.push_back(Attribute);}
-	void				SetID(uint64 value){ mID=value; }
-	void				SetChildBuff(Buff* value){ mChild=value; if(value!=0)value->SetParent(this); }
-	void				setTarget(CreatureObject* creature){mTarget=creature;}
-	void				EraseAttributes();
-	bool				GetIsMarkedForDeletion(){ return mMarkedForDeletion; }
+	void AddAttribute(BuffAttribute* Attribute);
+	void SetID(uint64 value);
+	void SetChildBuff(Buff* value);
+	void setTarget(CreatureObject* creature);
+	void EraseAttributes();
+	bool GetIsMarkedForDeletion();
 	
 	//mID is the process ID for the timer
-	uint64				GetID()		{ return mID;}
+	uint64 GetID();
 	//whereas dbId is the Id in the db
-	uint64				GetDBID()	{ return mDBID;}
+	uint64 GetDBID();
 
-	CreatureObject*		GetTarget()	{ return mTarget; }
-	CreatureObject*		GetInstigator(){ return mInstigator; }
-	uint64				GetTickLength() { return mTick; }
-	uint32				GetNoOfTicks(){ return mNoTicks;}
-	uint32				GetCurrentTickNumber(){ return mCurrentTick; }
-	uint32				GetIcon(){ return mIcon; }
-	string				GetName(){ return mName; }
-	uint64				GetStartGlobalTick(){ return mStartTime; }
-	void				SetInit(bool init){mDoInit = init;}
+	CreatureObject*	GetTarget();
+	CreatureObject*	GetInstigator();
+	uint64 GetTickLength();
+	uint32 GetNoOfTicks();
+	uint32 GetCurrentTickNumber();
+	uint32 GetIcon();
+	string GetName();
+	uint64 GetStartGlobalTick();
+	void SetInit(bool init);
 
 private:
 	///////////////////////////////////////////////////////////////////////////////////////////////
@@ -101,7 +104,7 @@ private:
 	bool					mMarkedForDeletion;
 	uint32					mNoTicks; //Total number of Ticks
 	uint32					mCurrentTick; //Current Tick Number
-	int64					mTick; //Length of Tick in ms
+	int64					mTick; //Length of Tick in ms 
 	AttributeList			Attributes;
 	uint64					mStartTime; //GlobalTickCount at Start of Buff
 	uint64					mNextTickLength; //Store the length of the next tick (for when reloading from DB)
@@ -110,8 +113,8 @@ private:
 	//Private Methods
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	void					ModifyAttribute(BuffAttributeEnum Type, int32 Value);
-	void					IncrementTick(){ mCurrentTick++;}
-	uint64					GetRemainingTime(){ if(mNoTicks > mCurrentTick)return mTick*(mNoTicks-mCurrentTick); else return 0; }	
+	void					IncrementTick();
+	uint64					GetRemainingTime();
 	bool					UpdateTick(uint64 CurrentTime);	
 	void					FinalChanges();		//last change of a buff before deletion
 	void					InitialChanges();	//resend icons and attribute changes
@@ -122,7 +125,7 @@ protected:
 	//Protected Methods
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	Buff(CreatureObject* Target, CreatureObject* Instigator, uint NoOfTicks, uint64 Tick, uint32 Icon, uint64 CurrentGlobalTick);
-	void SetParent(Buff* value){this->mParent=value;}
+	void SetParent(Buff* value);
 };
 
 #endif ANH_BUFF_H

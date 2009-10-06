@@ -10,6 +10,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include <assert.h>
+#include <ctime>
 
 #include "Common/atMacroString.h"
 #include "Common/DispatchClient.h"

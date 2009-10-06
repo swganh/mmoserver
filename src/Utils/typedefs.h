@@ -56,7 +56,6 @@ Copyright (c) 2006 - 2008 The swgANH Team
 //
 #ifdef _MSC_VER
 	#pragma warning(disable : 4244)	
-	#pragma warning(disable : 4267) 
 #endif
 
 //=====================================================================================
@@ -83,9 +82,6 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include <windows.h>
 #endif /* _WINDOWS_ */
 	
-	#include <time.h>
-	
-
 	#define WS_VERSION MAKEWORD(2,0)
 
 	//#define socklen_t int

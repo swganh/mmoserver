@@ -19,6 +19,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "Utils/VariableTimeScheduler.h"
 #include "AdminManager.h"
 #include "Buff.h"
+#include "BuffEvent.h"
 #include "BuffManager.h"
 #include "CharacterLoginHandler.h"
 #include "ConversationManager.h"

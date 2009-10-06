@@ -307,7 +307,7 @@ void GroupObject::createChannel()
 	channel->setGalaxy(gChatManager->getGalaxyName());
 
 	string tmpValueStr = string(BSTRType_Unicode16,64);
-	tmpValueStr.setLength(swprintf(tmpValueStr.getUnicode16(),L"%lld",mId));
+	tmpValueStr.setLength(swprintf(tmpValueStr.getUnicode16(), 1, L"%lld", mId));
 	channel->setTitle(tmpValueStr);
 
 	gLogger->logMsgF("Group channel created: '%s' with id %u.\n", MSG_NORMAL, channel->getName().getAnsi(), channel->getId());

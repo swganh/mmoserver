@@ -1239,7 +1239,7 @@ void ChatManager::_processCreateRoom(Message* message,DispatchClient* client)
 	ChannelList::iterator iter = mvChannels.begin();
 	while (iter != mvChannels.end())
 	{
-		if (strcmpi((*iter)->getName().getAnsi(), modpath.getAnsi()) == 0)
+		if (_strcmpi((*iter)->getName().getAnsi(), modpath.getAnsi()) == 0)
 		{
 			gLogger->logMsgF("Channel %s already exist\n", MSG_NORMAL, modpath.getAnsi());
 			delete playername;

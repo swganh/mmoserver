@@ -242,7 +242,7 @@ int main(int argc, char* argv)
 		gChatServer->Process();
 		msleep(1);
 
-		if(kbhit())
+		if(_kbhit())
 			break;
 	}
 

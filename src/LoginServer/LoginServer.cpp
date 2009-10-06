@@ -163,7 +163,7 @@ int main(int argc, char* argv)
 		gLoginServer->Process();
 		msleep(1);
 
-		if(kbhit())
+		if(_kbhit())
 			break;
 	}
 

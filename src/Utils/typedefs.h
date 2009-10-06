@@ -55,7 +55,6 @@ Copyright (c) 2006 - 2008 The swgANH Team
 // Disable unwanted warnings
 //
 #ifdef _MSC_VER
-	#pragma warning(disable : 4996)
 	#pragma warning(disable : 4244)	
 	#pragma warning(disable : 4267) 
 	#pragma warning(disable : 4099)

@@ -31,8 +31,8 @@ UITransferBox::UITransferBox(UICallback* callback,uint32 id,const int8* eventStr
 	mLeftTitle  = leftTitle;
 	mRightTitle = rightTitle;
 
-	mLeftValue	= itoa(leftValue,tStringBuffer,10);
-	mRightValue = itoa(rightValue,tStringBuffer,10);
+	mLeftValue	= _itoa(leftValue,tStringBuffer,10);
+	mRightValue = _itoa(rightValue,tStringBuffer,10);
 
 	mCaption.convert(BSTRType_Unicode16);
 	mPrompt.convert(BSTRType_Unicode16);

@@ -512,7 +512,7 @@ void Inventory::getUninsuredItems(SortedInventoryItemList* insuranceList)
 					string itemName((int8*)object->getAttribute<std::string>("original_name").c_str());
 					for (uint32 index = 0; index < insuranceList->size(); index++)
 					{
-						if (strcmpi(itemName.getAnsi(), (*it).first.getAnsi()) < 0)
+						if (_strcmpi(itemName.getAnsi(), (*it).first.getAnsi()) < 0)
 						{
 							break;
 						}
@@ -546,7 +546,7 @@ void Inventory::getUninsuredItems(SortedInventoryItemList* insuranceList)
 					string itemName((int8*)object->getAttribute<std::string>("original_name").c_str());
 					for (uint32 index = 0; index < insuranceList->size(); index++)
 					{
-						if (strcmpi(itemName.getAnsi(), (*it).first.getAnsi()) < 0)
+						if (_strcmpi(itemName.getAnsi(), (*it).first.getAnsi()) < 0)
 						{
 							break;
 						}
@@ -594,7 +594,7 @@ void Inventory::getInsuredItems(SortedInventoryItemList* insuranceList)
 					string itemName((int8*)object->getAttribute<std::string>("original_name").c_str());
 					for (uint32 index = 0; index < insuranceList->size(); index++)
 					{
-						if (strcmpi(itemName.getAnsi(), (*it).first.getAnsi()) < 0)
+						if (_strcmpi(itemName.getAnsi(), (*it).first.getAnsi()) < 0)
 						{
 							break;
 						}
@@ -628,7 +628,7 @@ void Inventory::getInsuredItems(SortedInventoryItemList* insuranceList)
 					string itemName((int8*)object->getAttribute<std::string>("original_name").c_str());
 					for (uint32 index = 0; index < insuranceList->size(); index++)
 					{
-						if (strcmpi(itemName.getAnsi(), (*it).first.getAnsi()) < 0)
+						if (_strcmpi(itemName.getAnsi(), (*it).first.getAnsi()) < 0)
 						{
 							break;
 						}

@@ -379,7 +379,7 @@ int main(int argc, char* argv[])
 	// Main loop
 	while(1)
 	{
-		if (kbhit() || AdminManager::Instance()->shutdownZone())
+		if (_kbhit() || AdminManager::Instance()->shutdownZone())
 		{
 			break;
 		}

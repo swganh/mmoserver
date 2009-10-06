@@ -71,11 +71,11 @@ void Log::logMsg(const std::string& msg,MsgPriority mp,bool fileOut,bool console
 			ts = localtime(&t);
 			
 			tstring.append("[");
-			tstring.append(itoa(ts->tm_hour,tStringBuffer,10));
+			tstring.append(_itoa(ts->tm_hour,tStringBuffer,10));
 			tstring.append(":");
-			tstring.append(itoa(ts->tm_min,tStringBuffer,10));
+			tstring.append(_itoa(ts->tm_min,tStringBuffer,10));
 			tstring.append(":");
-			tstring.append(itoa(ts->tm_sec,tStringBuffer,10));
+			tstring.append(_itoa(ts->tm_sec,tStringBuffer,10));
 			tstring.append("]");
 			/*
 
@@ -141,23 +141,23 @@ void Log::logMsg(const std::string& msg, MsgPriority priority, va_list args)
 		tstring.append("[");
 		time = ts->tm_hour;	
 		if(time<9)
-			tstring.append(itoa(0,tStringBuffer,10));
+			tstring.append(_itoa(0,tStringBuffer,10));
 
-		tstring.append(itoa(ts->tm_hour,tStringBuffer,10));
+		tstring.append(_itoa(ts->tm_hour,tStringBuffer,10));
 		tstring.append(":");
 
 		time = ts->tm_min;
 		if(time<9)
-			tstring.append(itoa(0,tStringBuffer,10));
+			tstring.append(_itoa(0,tStringBuffer,10));
 		
-		tstring.append(itoa(ts->tm_min,tStringBuffer,10));
+		tstring.append(_itoa(ts->tm_min,tStringBuffer,10));
 		tstring.append(":");
 
 		time = ts->tm_sec;
 		if(time<9)
-			tstring.append(itoa(0,tStringBuffer,10));
+			tstring.append(_itoa(0,tStringBuffer,10));
 
-		tstring.append(itoa(ts->tm_sec,tStringBuffer,10));
+		tstring.append(_itoa(ts->tm_sec,tStringBuffer,10));
 		tstring.append("]");
 		
 		tstring.append(buf);
@@ -217,11 +217,11 @@ void Log::logMsg(const std::string& zone, const std::string& system, const std::
 		char tStringBuffer[32];
 
 		tstring.append("[");
-		tstring.append(itoa(ts->tm_hour,tStringBuffer,10));
+		tstring.append(_itoa(ts->tm_hour,tStringBuffer,10));
 		tstring.append(":");
-		tstring.append(itoa(ts->tm_min,tStringBuffer,10));
+		tstring.append(_itoa(ts->tm_min,tStringBuffer,10));
 		tstring.append(":");
-		tstring.append(itoa(ts->tm_sec,tStringBuffer,10));
+		tstring.append(_itoa(ts->tm_sec,tStringBuffer,10));
 		tstring.append("]");
 		/*
 
@@ -271,11 +271,11 @@ void Log::logMsgNolf(const std::string& msg,MsgPriority mp,bool fileOut,bool con
 			char tStringBuffer[32];
 
 			tstring.append("[");
-			tstring.append(itoa(ts->tm_hour,tStringBuffer,10));
+			tstring.append(_itoa(ts->tm_hour,tStringBuffer,10));
 			tstring.append(":");
-			tstring.append(itoa(ts->tm_min,tStringBuffer,10));
+			tstring.append(_itoa(ts->tm_min,tStringBuffer,10));
 			tstring.append(":");
-			tstring.append(itoa(ts->tm_sec,tStringBuffer,10));
+			tstring.append(_itoa(ts->tm_sec,tStringBuffer,10));
 			tstring.append("]");
 
 		}
@@ -328,11 +328,11 @@ void Log::logMsgNolf(const std::string& msg,MsgPriority mp,bool fileOut,bool con
 			char tStringBuffer[32];
 
 			tstring.append("[");
-			tstring.append(itoa(ts->tm_hour,tStringBuffer,10));
+			tstring.append(_itoa(ts->tm_hour,tStringBuffer,10));
 			tstring.append(":");
-			tstring.append(itoa(ts->tm_min,tStringBuffer,10));
+			tstring.append(_itoa(ts->tm_min,tStringBuffer,10));
 			tstring.append(":");
-			tstring.append(itoa(ts->tm_sec,tStringBuffer,10));
+			tstring.append(_itoa(ts->tm_sec,tStringBuffer,10));
 			tstring.append("]");
 			/*
 
@@ -392,11 +392,11 @@ uint16 Log::logMsgNolf(const std::string& msg, MsgPriority priority, va_list arg
 		char tStringBuffer[32];
 
 		tstring.append("[");
-		tstring.append(itoa(ts->tm_hour,tStringBuffer,10));
+		tstring.append(_itoa(ts->tm_hour,tStringBuffer,10));
 		tstring.append(":");
-		tstring.append(itoa(ts->tm_min,tStringBuffer,10));
+		tstring.append(_itoa(ts->tm_min,tStringBuffer,10));
 		tstring.append(":");
-		tstring.append(itoa(ts->tm_sec,tStringBuffer,10));
+		tstring.append(_itoa(ts->tm_sec,tStringBuffer,10));
 		tstring.append("]");
 		tstring.append(buf);
 

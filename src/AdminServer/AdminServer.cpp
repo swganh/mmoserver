@@ -238,7 +238,7 @@ int main(int argc, char* argv[])
 	  gAdminServer->Process();
 	  msleep(1);
 
-	  if(kbhit())
+	  if(_kbhit())
 		  break;
   }
 

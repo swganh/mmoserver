@@ -137,7 +137,7 @@ void CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string 
 
 						for (uint32 index = 0; index < mSortedList->size(); index++)
 						{
-							if (strcmpi(gSkillManager->getXPTypeExById((*xpIt).first).getAnsi(), (*it).first.getAnsi()) < 0)
+							if (_strcmpi(gSkillManager->getXPTypeExById((*xpIt).first).getAnsi(), (*it).first.getAnsi()) < 0)
 							{
 								break;
 							}

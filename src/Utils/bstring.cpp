@@ -12,6 +12,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "typedefs.h"  // This must be first here to remove the dependency from the header.
 #include "bstring.h"
 
+#include <cctype>
 #include <memory.h>
 #include <string.h>
 #include <mbstring.h>

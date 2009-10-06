@@ -119,7 +119,7 @@ int main(int argc, char* argv[])
         ping_server.Poll();
 
         // Stop the ping server if a key is hit.
-        if (kbhit()) break;
+        if (_kbhit()) break;
 	}
 
 	return 0;

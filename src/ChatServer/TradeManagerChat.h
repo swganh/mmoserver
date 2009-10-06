@@ -30,7 +30,6 @@ Copyright (c) 2006 - 2008 The swgANH Team
 typedef std::queue<uint32>						TimerEventQueue;
 
 class AuctionClass;
-class AuctionItem;
 class Bazaar;
 class ChatManager;
 class CommoditiesClass;
@@ -40,6 +39,7 @@ class MessageDispatch;
 class Player;
 class Timer;
 
+struct AuctionItem;
 
 //typedef std::map<uint32,Player*>		PlayerAccountMap;
 typedef std::vector<Bazaar*>		BazaarList;

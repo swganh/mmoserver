@@ -14,22 +14,23 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #define gCharSheetManager	CharSheetManager::getSingletonPtr()
 
-#include "Utils/typedefs.h"
 #include <map>
-#include "Badge.h"
-#include "Common/MessageDispatchCallback.h"
-#include "DatabaseManager/DatabaseCallback.h"
 #include <boost/pool/pool.hpp>
 
+#include "Common/MessageDispatchCallback.h"
+#include "DatabaseManager/DatabaseCallback.h"
+#include "Utils/typedefs.h"
 
 //=========================================================================================#
 
+class Badge;
+class CharSheetManager;
+class CSAsyncContainer;
 class Database;
 class DatabaseResult;
+class DispatchClient;
 class Message;
 class MessageDispatch;
-class DispatchClient;
-class CSAsyncContainer;
 
 //=========================================================================================
 

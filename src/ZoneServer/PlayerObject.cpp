@@ -34,6 +34,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "CraftingSessionFactory.h"
 #include "GroupManager.h"
 #include "ZoneTree.h"
+#include "Badge.h"
 
 //=============================================================================
 

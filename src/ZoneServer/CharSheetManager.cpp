@@ -9,8 +9,6 @@ Copyright (c) 2006 - 2008 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
-#include "CharSheetManager.h"
-#include "WorldManager.h"
 #include "Common/MessageDispatch.h"
 #include "Common/MessageFactory.h"
 #include "Common/Message.h"
@@ -19,9 +17,12 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "LogManager/LogManager.h"
-#include "ZoneOpcodes.h"
-#include "PlayerObject.h"
+#include "Badge.h"
 #include "Bank.h"
+#include "CharSheetManager.h"
+#include "PlayerObject.h"
+#include "WorldManager.h"
+#include "ZoneOpcodes.h"
 
 //=========================================================================================
 

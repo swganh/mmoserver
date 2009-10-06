@@ -15,7 +15,6 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #define gCombatManager	CombatManager::getSingletonPtr()
 
 #include "Utils/typedefs.h"
-#include "CMWeaponGroup.h"
 #include "DatabaseManager/DatabaseCallback.h"
 
 
@@ -26,6 +25,7 @@ class DatabaseCallback;
 class DatabaseResult;
 class Weapon;
 class CreatureObject;
+class CMWeaponGroup;
 class ObjectControllerCmdProperties;
 
 typedef	std::vector<CMWeaponGroup*>	WeaponGroups;

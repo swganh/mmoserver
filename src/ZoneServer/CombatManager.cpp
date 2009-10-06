@@ -11,6 +11,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 
 #include "CombatManager.h"
 #include "WorldManager.h"
+#include "CMWeaponGroup.h"
 #include "ObjectControllerCommandMap.h"
 #include "MessageLib/MessageLib.h"
 #include "DatabaseManager/Database.h"

@@ -1,9 +1,24 @@
 #include "BuffEvent.h"
 #include "Buff.h"
 #include <iostream>
-BuffEvent::~BuffEvent(void)
-{
+		
+
+BuffEvent::BuffEvent(Buff* buff)
+{ 
+    mBuff = &buff; 
 }
+		
+
+BuffEvent::~BuffEvent()
+{}
+		
+
+Buff* BuffEvent::getBuff() const 
+{ 
+    return *mBuff; 
+}
+
+
 bool BuffEvent::Tick(uint64 CurrentTime, void *ref)
 {
 	Buff* temp = *mBuff;

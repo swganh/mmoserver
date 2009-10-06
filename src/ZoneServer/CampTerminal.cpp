@@ -61,7 +61,7 @@ void CampTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 		sprintf(text,"Owner: %s",region->getCampOwnerName().getAnsi());
 		mAttributesMenu.push_back(text);
 
-		uint32 time = region->getUpTime();
+		uint32 time = static_cast<uint32>(region->getUpTime());
 		uint32 hours = (uint32)time/3600;
 		
 		time -=(hours*3600);

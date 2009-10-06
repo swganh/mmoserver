@@ -31,7 +31,7 @@ Buff* Buff::FromDB(BuffDBItem* Item, uint64 CurrentGlobalTick)
 {
 	CreatureObject* target = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(Item->mTargetId));
 	CreatureObject* instigator = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(Item->mInstigatorId));
-	Buff* temp = new Buff(target, instigator, Item->mMaxTicks, Item->mTickLength, Item->mIconCRC, Item->mStartGlobalTick);
+	Buff* temp = new Buff(target, instigator, static_cast<uint>(Item->mMaxTicks), Item->mTickLength, Item->mIconCRC, Item->mStartGlobalTick);
 
 	if(temp->mNoTicks > 0)
 	{
@@ -39,7 +39,7 @@ Buff* Buff::FromDB(BuffDBItem* Item, uint64 CurrentGlobalTick)
 		//Take the time already ran off the buff
 		temp->mTick -= (Item->mStartGlobalTick - Item->mPausedGlobalTick) % temp->mTick;
 
-		temp->mNoTicks = Item->mMaxTicks-Item->mCurrentTick; //Remove Used Ticks
+		temp->mNoTicks = static_cast<uint32>(Item->mMaxTicks-Item->mCurrentTick); //Remove Used Ticks
 		temp->mCurrentTick = 0; //Set Tick to start
 		temp->mStartTime = CurrentGlobalTick; //Reset start time
 

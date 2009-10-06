@@ -145,7 +145,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 		{
 			// we should never get here !
 			gLogger->logMsg("ObjController::handleDataTransform: could not find zone region in map");
-			gLogger->logMsg("ObjController:: probably a bot : %i64u",player->getId());
+			gLogger->logMsg("ObjController:: probably a bot : %i64u",static_cast<int>(player->getId()));
 
 			// hammertime !
 			//muglies botter sometimes sends us weird positions
@@ -219,7 +219,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 			// we should never get here !
 			gLogger->logMsg("ObjController::DataTransform: could not find zone region in map");
 
-			gLogger->logMsg("ObjController:: probably a bot : %I64u",player->getId());
+			gLogger->logMsg("ObjController:: probably a bot : %I64u",static_cast<int>(player->getId()));
 
 			// hammertime !
 			// muglies botter sometimes sends us weird positions  with X or Y far out of possible regions

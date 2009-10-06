@@ -145,7 +145,7 @@ void ObjectController::_handleResourceContainerSplit(uint64 targetId,Message* me
 		return;
 	}
 
-	uint32	splitOffAmount	= _atoi64(dataElements[0].getAnsi());
+	uint32	splitOffAmount	= static_cast<uint32>(_atoi64(dataElements[0].getAnsi()));
 	uint64	parentId		= _atoi64(dataElements[1].getAnsi());
 
 	// update selected container contents

@@ -291,13 +291,13 @@ void MessageLib::sendUpdateTransformMessage(MovingObject* object)
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opUpdateTransformMessage);          
 	gMessageFactory->addUint64(object->getId());
-	gMessageFactory->addUint16(object->mPosition.mX * 4.0f + 0.5f);     
-	gMessageFactory->addUint16(object->mPosition.mY * 4.0f + 0.5f);      
-	gMessageFactory->addUint16(object->mPosition.mZ * 4.0f + 0.5f);      
+	gMessageFactory->addUint16(static_cast<uint16>(object->mPosition.mX * 4.0f + 0.5f));     
+	gMessageFactory->addUint16(static_cast<uint16>(object->mPosition.mY * 4.0f + 0.5f));      
+	gMessageFactory->addUint16(static_cast<uint16>(object->mPosition.mZ * 4.0f + 0.5f));      
 	gMessageFactory->addUint32(object->getInMoveCount()); 
 	long double mag = sqrt((object->mPosition.mX*object->mPosition.mX) + (object->mPosition.mY*object->mPosition.mY) + (object->mPosition.mZ*object->mPosition.mZ));
 	gMessageFactory->addUint8((uint8)(mag * 4.0f + 0.5f));                
-	gMessageFactory->addUint8(object->mDirection.getAnglesToSend()); 
+	gMessageFactory->addUint8(static_cast<uint8>(object->mDirection.getAnglesToSend())); 
 
 	_sendToInRangeUnreliable(gMessageFactory->EndMessage(),object,8,true);
 
@@ -315,13 +315,13 @@ void MessageLib::sendUpdateTransformMessageWithParent(MovingObject* object)
 	gMessageFactory->addUint32(opUpdateTransformMessageWithParent);   
 	gMessageFactory->addUint64(object->getParentId());
 	gMessageFactory->addUint64(object->getId());
-	gMessageFactory->addUint16(object->mPosition.mX * 8.0f + 0.5f);     
-	gMessageFactory->addUint16(object->mPosition.mY * 8.0f + 0.5f);    
-	gMessageFactory->addUint16(object->mPosition.mZ * 8.0f + 0.5f);    
+	gMessageFactory->addUint16(static_cast<uint16>(object->mPosition.mX * 8.0f + 0.5f));     
+	gMessageFactory->addUint16(static_cast<uint16>(object->mPosition.mY * 8.0f + 0.5f));    
+	gMessageFactory->addUint16(static_cast<uint16>(object->mPosition.mZ * 8.0f + 0.5f));    
 	gMessageFactory->addUint32(object->getInMoveCount()); 
 	long double mag = sqrt((object->mPosition.mX*object->mPosition.mX) + (object->mPosition.mY*object->mPosition.mY) + (object->mPosition.mZ*object->mPosition.mZ));
 	gMessageFactory->addUint8((uint8)(mag * 4.0f + 0.5f));                       
-	gMessageFactory->addUint8(object->mDirection.getAnglesToSend());          
+	gMessageFactory->addUint8(static_cast<uint8>(object->mDirection.getAnglesToSend()));          
 	_sendToInRangeUnreliable(gMessageFactory->EndMessage(),object,8,false);		
 }
 
@@ -335,13 +335,13 @@ void MessageLib::sendUpdateTransformMessage(MovingObject* object, PlayerObject* 
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opUpdateTransformMessage);          
 	gMessageFactory->addUint64(object->getId());
-	gMessageFactory->addUint16(object->mPosition.mX * 4.0f + 0.5f);     
-	gMessageFactory->addUint16(object->mPosition.mY * 4.0f + 0.5f);      
-	gMessageFactory->addUint16(object->mPosition.mZ * 4.0f + 0.5f);      
+	gMessageFactory->addUint16(static_cast<uint16>(object->mPosition.mX * 4.0f + 0.5f));     
+	gMessageFactory->addUint16(static_cast<uint16>(object->mPosition.mY * 4.0f + 0.5f));      
+	gMessageFactory->addUint16(static_cast<uint16>(object->mPosition.mZ * 4.0f + 0.5f));      
 	gMessageFactory->addUint32(object->getInMoveCount()); 
 	long double mag = sqrt((object->mPosition.mX*object->mPosition.mX) + (object->mPosition.mY*object->mPosition.mY) + (object->mPosition.mZ*object->mPosition.mZ));
 	gMessageFactory->addUint8((uint8)(mag * 4.0f + 0.5f));                
-	gMessageFactory->addUint8(object->mDirection.getAnglesToSend());    
+	gMessageFactory->addUint8(static_cast<uint8>(object->mDirection.getAnglesToSend()));    
 
 	_sendToInstancedPlayersUnreliable(gMessageFactory->EndMessage(), 8, player);
 }
@@ -357,13 +357,13 @@ void MessageLib::sendUpdateTransformMessageWithParent(MovingObject* object, Play
 	gMessageFactory->addUint32(opUpdateTransformMessageWithParent);   
 	gMessageFactory->addUint64(object->getParentId());
 	gMessageFactory->addUint64(object->getId());
-	gMessageFactory->addUint16(object->mPosition.mX * 8.0f + 0.5f);     
-	gMessageFactory->addUint16(object->mPosition.mY * 8.0f + 0.5f);    
-	gMessageFactory->addUint16(object->mPosition.mZ * 8.0f + 0.5f);    
+	gMessageFactory->addUint16(static_cast<uint16>(object->mPosition.mX * 8.0f + 0.5f));     
+	gMessageFactory->addUint16(static_cast<uint16>(object->mPosition.mY * 8.0f + 0.5f));    
+	gMessageFactory->addUint16(static_cast<uint16>(object->mPosition.mZ * 8.0f + 0.5f));    
 	gMessageFactory->addUint32(object->getInMoveCount()); 
 	long double mag = sqrt((object->mPosition.mX*object->mPosition.mX) + (object->mPosition.mY*object->mPosition.mY) + (object->mPosition.mZ*object->mPosition.mZ));
 	gMessageFactory->addUint8((uint8)(mag * 4.0f + 0.5f));                       
-	gMessageFactory->addUint8(object->mDirection.getAnglesToSend());  
+	gMessageFactory->addUint8(static_cast<uint8>(object->mDirection.getAnglesToSend()));  
 
 	//Movement is THE fastpathpacket!!!
 	_sendToInstancedPlayersUnreliable(gMessageFactory->EndMessage(), 8, player);
@@ -802,7 +802,7 @@ bool MessageLib::sendPlayClientEffectLocMessage(string effect,Anh_Math::Vector3 
 	gMessageFactory->addString(effect);
 	gMessageFactory->addString(planet);
 	gMessageFactory->addFloat(pos.mX);
-	gMessageFactory->addFloat(pos.mY - 0.2);
+	gMessageFactory->addFloat(static_cast<float>(pos.mY - 0.2));
 	gMessageFactory->addFloat(pos.mZ);
 	gMessageFactory->addUint64(0);
 	gMessageFactory->addUint32(0); 
@@ -979,9 +979,9 @@ bool MessageLib::sendCharacterSheetResponse(PlayerObject* playerObject)
 	{
 		Anh_Math::Vector3 bindLoc = playerObject->getBindCoords();
 
-		gMessageFactory->addFloat((int32)bindLoc.mX);
-		gMessageFactory->addFloat((int32)bindLoc.mY);
-		gMessageFactory->addFloat((int32)bindLoc.mZ);
+		gMessageFactory->addFloat(bindLoc.mX);
+		gMessageFactory->addFloat(bindLoc.mY);
+		gMessageFactory->addFloat(bindLoc.mZ);
 		string bindPlanet(gWorldManager->getPlanetNameById(playerObject->getBindPlanet()));
 		gMessageFactory->addString(bindPlanet);
 	}

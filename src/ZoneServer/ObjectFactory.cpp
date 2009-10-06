@@ -200,9 +200,9 @@ void ObjectFactory::requestNewTravelTicket(ObjectFactoryCallback* ofCallback,Tic
 	int8 sql[512],*sqlPointer;
 	int8 dstPlanetIdStr[64];
 	int8 restStr[128];
-	sprintf(dstPlanetIdStr,"','%s','",gWorldManager->getPlanetNameById(ticketProperties.dstPlanetId));
+	sprintf(dstPlanetIdStr,"','%s','",gWorldManager->getPlanetNameById(static_cast<uint8>(ticketProperties.dstPlanetId)));
 	sprintf(restStr,"',%lld,%f,%f,%f,%u)",parentId,0.0f,0.0f,0.0f,planetId);
-	sprintf(sql,"SELECT sf_TravelTicketCreate('%s','",gWorldManager->getPlanetNameById(ticketProperties.srcPlanetId));
+	sprintf(sql,"SELECT sf_TravelTicketCreate('%s','",gWorldManager->getPlanetNameById(static_cast<uint8>(ticketProperties.srcPlanetId)));
 	sqlPointer = sql + strlen(sql);
 	sqlPointer += mDatabase->Escape_String(sqlPointer,ticketProperties.srcPoint->descriptor,strlen(ticketProperties.srcPoint->descriptor));
 	strcat(sql,dstPlanetIdStr);

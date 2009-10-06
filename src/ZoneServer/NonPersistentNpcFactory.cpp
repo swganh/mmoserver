@@ -290,7 +290,7 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult
 
 			uint64 count = result->getRowCount();
 
-			int32	spawnRateInc = 100/count;
+			int32	spawnRateInc = 100/static_cast<uint32>(count);
 			int32	spawnRate = -1;
 
 			for (uint64 i = 0; i < count; i++)
@@ -304,7 +304,7 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult
 			}
 			if (count > 0 && spawnRate < 99)
 			{
-				npc->setCreatureSpawnRate(count - 1, 99);
+				npc->setCreatureSpawnRate(static_cast<uint32>(count) - 1, 99);
 			}
 			mDatabase->DestroyDataBinding(creatureTemplateBinding);
 

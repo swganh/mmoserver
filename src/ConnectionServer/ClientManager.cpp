@@ -170,7 +170,7 @@ void ClientManager::handleSessionDisconnect(NetworkClient* client)
 	message = gMessageFactory->EndMessage();
 
 	message->setAccountId(connClient->getAccountId());
-	message->setDestinationId(connClient->getServerId());  // zone server
+	message->setDestinationId(static_cast<uint8>(connClient->getServerId()));  // zone server
 	message->setRouted(true);
 	mMessageRouter->RouteMessage(message, connClient);
 
@@ -283,7 +283,7 @@ void ClientManager::_processSelectCharacter(ConnectionClient* client, Message* m
 
   // This one goes to the ZoneServer the client is currently on.
   zoneMessage->setAccountId(client->getAccountId());
-  zoneMessage->setDestinationId(serverId + 8);
+  zoneMessage->setDestinationId(static_cast<uint8>(serverId + 8));
   zoneMessage->setRouted(true);
   mMessageRouter->RouteMessage(zoneMessage, client);
 
@@ -306,7 +306,7 @@ void ClientManager::_processSelectCharacter(ConnectionClient* client, Message* m
   Message* selectMessage = gMessageFactory->EndMessage();
 
   selectMessage->setAccountId(client->getAccountId());
-  selectMessage->setDestinationId(serverId + 8);
+  selectMessage->setDestinationId(static_cast<uint8>(serverId + 8));
   selectMessage->setRouted(true);
   mMessageRouter->RouteMessage(selectMessage, client);
 }
@@ -338,7 +338,7 @@ void ClientManager::_processClusterZoneTransferCharacter(ConnectionClient* clien
 
     // This one goes to
     oldZoneMessage->setAccountId(connClient->getAccountId());
-    oldZoneMessage->setDestinationId(oldServerId);        // zoneIds are planetIds + 8
+    oldZoneMessage->setDestinationId(static_cast<uint8>(oldServerId));        // zoneIds are planetIds + 8
     oldZoneMessage->setRouted(true);
     mMessageRouter->RouteMessage(oldZoneMessage, client);
 
@@ -350,7 +350,7 @@ void ClientManager::_processClusterZoneTransferCharacter(ConnectionClient* clien
 
     // This one goes to
     newZoneMessage->setAccountId(connClient->getAccountId());
-    newZoneMessage->setDestinationId(newPlanetId + 8);   // zoneIds are planetIds + 8
+    newZoneMessage->setDestinationId(static_cast<uint8>(newPlanetId + 8));   // zoneIds are planetIds + 8
     newZoneMessage->setRouted(true);
     mMessageRouter->RouteMessage(newZoneMessage, client);
 
@@ -362,7 +362,7 @@ void ClientManager::_processClusterZoneTransferCharacter(ConnectionClient* clien
 
     // This one goes to
     newZoneMessage->setAccountId(connClient->getAccountId());
-    newZoneMessage->setDestinationId(newPlanetId + 8);   // zoneIds are planetIds + 8
+    newZoneMessage->setDestinationId(static_cast<uint8>(newPlanetId + 8));   // zoneIds are planetIds + 8
     newZoneMessage->setRouted(true);
     mMessageRouter->RouteMessage(newZoneMessage, client);
 

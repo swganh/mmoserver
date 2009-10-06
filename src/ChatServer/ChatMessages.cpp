@@ -75,7 +75,7 @@ void ChatMessageLib::sendChatonPersistantMessage(DispatchClient* client, uint64 
 	gMessageFactory->StartMessage();     
 	gMessageFactory->addUint32(opChatOnSendPersistentMessage);   
 	gMessageFactory->addUint32(4);
-	gMessageFactory->addUint32(mailCounter);
+	gMessageFactory->addUint32(static_cast<uint32>(mailCounter));
 	newMessage = gMessageFactory->EndMessage();
 	client->SendChannelA(newMessage, client->getAccountId(), CR_Chat, 6);
 }

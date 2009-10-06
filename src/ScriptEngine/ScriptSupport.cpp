@@ -412,8 +412,8 @@ void ScriptSupport::npcDirection(NPCObject* npc, float deltaX, float deltaZ)
 		// if (x/h < 0.0)
 		if (x < 0.0)
 		{
-			npc->mDirection.mW = cos((3.14159354 * 0.5) + 0.5f*acos(-z/h));
-			npc->mDirection.mY = sin((3.14159354 * 0.5) + 0.5f*acos(-z/h));
+			npc->mDirection.mW = static_cast<float>(cos((3.14159354 * 0.5) + 0.5f*acos(-z/h)));
+			npc->mDirection.mY = static_cast<float>(sin((3.14159354 * 0.5) + 0.5f*acos(-z/h)));
 		}
 		else
 		{
@@ -479,7 +479,7 @@ void ScriptSupport::npcFormationPosition(NPCObject* npcMember, float xOffset, fl
 	// gLogger->logMsgF("Heading: %d",MSG_NORMAL, (uint32)((angle / (2 * 3.1415936539)) * 360));
 	
 	// We assume all formation is following the leader, ie. located behind him.
-	angle += (alpha + 3.1415936539);	// alpha + 180
+	angle += static_cast<float>(alpha + 3.1415936539);	// alpha + 180
 
 	Anh_Math::Vector3		positionOffset;
 
@@ -516,7 +516,7 @@ void ScriptSupport::npcFormationMoveEx(NPCObject* npc, float posX, float posY, f
 	// gLogger->logMsgF("Heading: %d",MSG_NORMAL, (uint32)((angle / (2 * 3.1415936539)) * 360));
 	
 	// We assume all formation is following the leader, ie. located behind him.
-	angle += (alpha + 3.1415936539);	// alpha + 180
+	angle += static_cast<float>(alpha + 3.1415936539);	// alpha + 180
 
 	// npc->mPosition.mX = posX + (sin(angle) * length);
 	// npc->mPosition.mY = posY;

@@ -302,7 +302,7 @@ void GroupManager::sendGroupMissionUpdate(GroupObject* group)
 		// create a new one
 		if(datapad->getCapacity())
 		{
-			datapad->requestNewWaypoint("@group:groupwaypoint",mission->getDestination().Coordinates,gWorldManager->getZoneId(),Waypoint_blue);
+			datapad->requestNewWaypoint("@group:groupwaypoint",mission->getDestination().Coordinates,static_cast<uint16>(gWorldManager->getZoneId()),Waypoint_blue);
 			gMessageLib->sendSystemMessage(player,L"","group","groupwaypoint");
 		}
 

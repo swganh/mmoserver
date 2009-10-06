@@ -526,7 +526,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					for(uint64 i = 0;i < phraseCount;i++)
 					{
 						result->GetNextRow(binding,&tmp);
-						result->ResetRowIndex(i);
+						result->ResetRowIndex(static_cast<int>(i));
 						result->GetNextRow(animbinding,&animId);
 
 						tmp.convert(BSTRType_Unicode16);
@@ -2753,7 +2753,7 @@ void WorldManager::destroyObject(Object* object)
 			}
 
 			//camp regions are in here, too
-			QTRegionMap::iterator itQ = mQTRegionMap.find(object->getId());
+			QTRegionMap::iterator itQ = mQTRegionMap.find(static_cast<uint32>(object->getId()));
 			if(itQ != mQTRegionMap.end())
 			{
 				mQTRegionMap.erase(itQ);

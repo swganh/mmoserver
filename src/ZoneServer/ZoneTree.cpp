@@ -140,7 +140,7 @@ QTRegion* ZoneTree::getQTRegion(double x,double z)
 	ObjectIdList::iterator it = resultIdList.begin();
 	while(it != resultIdList.end())
 	{
-		if(QTRegion* region = gWorldManager->getQTRegion(*it))  
+		if(QTRegion* region = gWorldManager->getQTRegion(static_cast<uint32>(*it)))  
 		{
 			return(region);
 		}

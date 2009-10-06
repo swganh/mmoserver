@@ -97,7 +97,7 @@ void MessageLib::sendBoughtInstantMail(PlayerObject* newOwner, string ItemName, 
 
 	planet.toLowerFirst();
 	aMS->setPlanetString(planet);
-	aMS->setWP(mX,mY,0,ItemName);
+	aMS->setWP(static_cast<float>(mX), static_cast<float>(mY), 0, ItemName);
 	aMS->addWaypoint();
 
 	gMessageFactory->StartMessage();

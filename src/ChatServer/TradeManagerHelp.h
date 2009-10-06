@@ -335,9 +335,9 @@ public:
 	
 	uint64 GetOwnerID(){return(AuctionVar.OwnerID);}
 	uint64 GetAuctionID(){return(AuctionVar.ItemID);}
-	uint8 GetType(){return(AuctionVar.AuctionTyp);}
+	uint8 GetType(){return(static_cast<uint8>(AuctionVar.AuctionTyp));}
 	uint64 GetTime(){return(AuctionVar.EndTime);}
-	uint8 GetPremium(){return(AuctionVar.Premium);}
+	uint8 GetPremium(){return(static_cast<uint8>(AuctionVar.Premium));}
 	uint32 GetCategory()
 	{
 		if (AuctionVar.Category != 0)

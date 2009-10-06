@@ -657,7 +657,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
 				mBazaars.push_back(bazaar);
 			}
 
-			mBazaarCount += count;
+			mBazaarCount += static_cast<uint32>(count);
 			mBazaarsLoaded = true;
 			mDatabase->DestroyDataBinding(binding);
 		}
@@ -753,32 +753,32 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
 				//Item/AuctionID
 				gMessageFactory->addUint64((*itA)->GetAuctionID() );
 				//ListID of the Auctions name
-				gMessageFactory->addUint8((*itA)->GetNameListID()-1);
+				gMessageFactory->addUint8(static_cast<uint8>((*itA)->GetNameListID()-1));
 				
 				//the Items Price
 				gMessageFactory->addUint32((*itA)->GetPrice());
 				
 				//remaining time in seconds
-				uint32 time = (*itA)->GetTime()- (getGlobalTickCount()/1000);
+				uint32 time = static_cast<uint32>((*itA)->GetTime()- (getGlobalTickCount()/1000));
 				gMessageFactory->addUint32(time);
 				
 				//auction or instant??
 				gMessageFactory->addUint8((*itA)->GetType());
 
 				//List Id of the auctions bazaar string 
-				gMessageFactory->addUint16((*itA)->GetBazaarListID()-1);
+				gMessageFactory->addUint16(static_cast<uint16>((*itA)->GetBazaarListID()-1));
 				
 				//Auction Owner ID
 				gMessageFactory->addUint64((*itA)->GetOwnerID());
 				
 				//Auction Owner Namestring ID - first name is nr 1
-				gMessageFactory->addUint16((*itA)->GetSellerListID()-1);
+				gMessageFactory->addUint16(static_cast<uint16>((*itA)->GetSellerListID()-1));
 				
 				//Category
 				gMessageFactory->addUint32((*itA)->GetCategory());
 
 				//listplace of the highbidder
-				gMessageFactory->addUint16((*itA)->GetBidderListID());
+				gMessageFactory->addUint16(static_cast<uint16>((*itA)->GetBidderListID()));
 				
 
 				gMessageFactory->addUint32((*itA)->GetBid());//highbid My High Bid!!!!
@@ -818,13 +818,13 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
 				itA++;
 			}
 
-			gMessageFactory->addUint16(asynContainer->Itemsstart);
+			gMessageFactory->addUint16(static_cast<uint16>(asynContainer->Itemsstart));
 			
-			uint32 pages = asynContainer->Itemsstart +count;
+			uint32 pages = asynContainer->Itemsstart + static_cast<uint32>(count);
 			if ((pages-asynContainer->Itemsstart) < 100){
 				pages = 0;
 			}
-			gMessageFactory->addUint16(pages);
+			gMessageFactory->addUint16(static_cast<uint16>(pages));
 			
 			gMessageFactory->addUint32(0);
 			gMessageFactory->addUint32(0);
@@ -890,7 +890,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
 				
 				
 				AuctionItem* auctionTemp;
-				uint32 count = result->getRowCount();
+				uint32 count = static_cast<uint32>(result->getRowCount());
 				
 				for(uint32 i = 0;i < count;i++)
 				{
@@ -1066,7 +1066,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
 					//flag it as bought, change the owner and the remaining Time 
 					//retrieve is send by client after that 
 
-					uint32 time = (3600*24*30)+( getGlobalTickCount()/1000);
+					uint32 time = (3600*24*30)+( static_cast<uint32>(getGlobalTickCount())/1000);
 
 					//let the zoneserver deal with the transaction and send the relevant Emails
 					gChatMessageLib->sendBazaarTransactionMessage(asynContainer->mClient, *AuctionTemp, player->getCharId(), time, player, bazaarInfo);
@@ -1148,7 +1148,7 @@ void TradeManagerChatHandler::processAuctionEMails(AuctionItem* auctionTemp)
 		mail->setSubject(BString("@auction:subject_auction_unsuccessful"));
 		mail->setText(BString(""));
 		mail->setStatus(MailStatus_New);
-		mail->setTime(time(NULL));
+		mail->setTime(static_cast<uint32>(time(NULL)));
 		mail->setAttachments(aMS->assemble());
 		//attachment is already initialized with an empty string
 		//mail->setAttachments(attachment);
@@ -1177,7 +1177,7 @@ void TradeManagerChatHandler::processAuctionEMails(AuctionItem* auctionTemp)
 			mail->setSubject(BString("@auction:subject_auction_unsuccessful"));
 			mail->setText(BString(""));
 			mail->setStatus(MailStatus_New);
-			mail->setTime(time(NULL));
+			mail->setTime(static_cast<uint32>(time(NULL)));
 			mail->setAttachments(aMS->assemble());
 
 			gChatManager->sendSystemMailMessage(mail,auctionTemp->OwnerID);
@@ -1205,7 +1205,7 @@ void TradeManagerChatHandler::processAuctionEMails(AuctionItem* auctionTemp)
 			mail->setSubject(BString("@auction:subject_auction_seller"));
 			mail->setText(BString(""));
 			mail->setStatus(MailStatus_New);
-			mail->setTime(time(NULL));
+			mail->setTime(static_cast<uint32>(time(NULL)));
 			mail->setAttachments(aMS->assemble());
 
 			gChatManager->sendSystemMailMessage(mail,auctionTemp->OwnerID);
@@ -1234,7 +1234,7 @@ void TradeManagerChatHandler::processAuctionEMails(AuctionItem* auctionTemp)
 			mail->setSubject(BString("@auction:subject_auction_buyer"));
 			mail->setText(BString(""));
 			mail->setStatus(MailStatus_New);
-			mail->setTime(time(NULL));
+			mail->setTime(static_cast<uint32>(time(NULL)));
 			mail->setAttachments(aMS->assemble());
 
 			gChatManager->sendSystemMailMessage(mail,auctionTemp->BidderID);
@@ -1257,7 +1257,7 @@ void TradeManagerChatHandler::processAuctionEMails(AuctionItem* auctionTemp)
 		mail->setSubject(BString("@auction:subject_auction_item_expired"));
 		mail->setText(BString(""));
 		mail->setStatus(MailStatus_New);
-		mail->setTime(time(NULL));
+		mail->setTime(static_cast<uint32>(time(NULL)));
 		mail->setAttachments(aMS->assemble());
 
 		gChatManager->sendSystemMailMessage(mail,auctionTemp->BidderID);
@@ -1762,7 +1762,7 @@ void TradeManagerChatHandler::processHandleopAuctionQueryHeadersMessage(Message*
 
 	int8 Limit[64];
 	uint32 StopTime;
-	StopTime = (getGlobalTickCount()/1000);
+	StopTime = (static_cast<uint32>(getGlobalTickCount()) / 1000);
 	sprintf(Limit," AND (c.start > %u) LIMIT %u, %u",StopTime,query.start, query.start+100);
 
 	//region or bazaar id
@@ -1931,7 +1931,7 @@ void TradeManagerChatHandler::handleCheckAuctions()
 {
 	TradeManagerAsyncContainer* asyncContainer = new TradeManagerAsyncContainer(TRMQuery_ExpiredListing, NULL);
 	int8 sql[500];
-	uint32 time = getGlobalTickCount();
+	uint32 time = static_cast<uint32>(getGlobalTickCount());
 	//sprintf(sql," SELECT ca.auction_id, ca.owner_id,ca.type, ca.price, ca.name, ca.bidder_name, ca.bazaar_id, cc.firstname, c.id FROM swganh.characters AS c RIGHT JOIN swganh.commerce_auction AS ca ON (c.firstname = ca.bidder_name) INNER JOIN swganh.characters AS cc ON (cc.id = ca.owner_id) WHERE %u > start;",time/1000);
 	sprintf(sql," SELECT ca.auction_id, ca.owner_id,ca.type, ca.price, ca.name, ca.bidder_name, ca.bazaar_id, cc.firstname, c.id FROM swganh.characters AS c RIGHT JOIN swganh.commerce_auction AS ca ON (c.firstname = ca.bidder_name) INNER JOIN swganh.characters AS cc ON (cc.id = ca.owner_id) WHERE %u > start;",time/1000);
 	

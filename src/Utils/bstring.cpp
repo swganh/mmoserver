@@ -123,7 +123,7 @@ uint16 BString::initRawBSTR(int8* data, BStringType type)
 		if(mString)
 			delete [] mString;
 
-		mAllocated = (((charLen / BSTRING_ALLOC_BLOCK_SIZE) + 1) * BSTRING_ALLOC_BLOCK_SIZE);
+		mAllocated = (((static_cast<uint16>(charLen) / BSTRING_ALLOC_BLOCK_SIZE) + 1) * BSTRING_ALLOC_BLOCK_SIZE);
 		mString = new char[mAllocated];
 		
 		memset(mString,0,mAllocated);
@@ -240,9 +240,9 @@ BString& BString::operator =(int8* data)
 BString& BString::operator =(const BString& data)
 {
 	mType = data.getType();
-	mCharacterWidth = data.getCharacterWidth();
+	mCharacterWidth = static_cast<uint16>(data.getCharacterWidth());
 	mLength = data.getLength();
-  mAllocated = data.getAllocated();
+    mAllocated = static_cast<uint16>(data.getAllocated());
 
   if (mString)
     delete [] mString;

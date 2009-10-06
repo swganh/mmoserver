@@ -169,7 +169,7 @@ string EntertainerManager::commitIdheight(PlayerObject* customer, float value)
 			//bothan
 			//min 0.75
 			//max 0.83
-			float newVal = (0.08*value);
+			float newVal = static_cast<float>(0.08*value);
 			
 			minScale = 0.75F;
 			maxScale = 0.83F;
@@ -212,7 +212,7 @@ string EntertainerManager::commitIdheight(PlayerObject* customer, float value)
 			//min 0.92
 			//max 1.06
 			if (value > 0.0F)
-				addtoMinScale = 0.14 * value;
+				addtoMinScale = static_cast<float>(0.14 * value);
 			else 
 				addtoMinScale = 0.0F;
 
@@ -306,7 +306,7 @@ string EntertainerManager::commitIdColor(PlayerObject* customer, string attribut
 		//if(TangibleObject* hair = dynamic_cast<TangibleObject*>(customer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hair)))
 		if(TangibleObject* hair = dynamic_cast<TangibleObject*>(customer->getHair()))
 		{
-			hair->setCustomization(iDContainer->Atr1ID,value,3);
+			hair->setCustomization(static_cast<uint8>(iDContainer->Atr1ID),value,3);
 			
 			//update hair customization db side seperately
 			int8 sql[300];
@@ -345,7 +345,7 @@ string EntertainerManager::commitIdColor(PlayerObject* customer, string attribut
 	}
 	else
 	{
-		customer->setCustomization (iDContainer->Atr1ID,value);
+		customer->setCustomization(static_cast<uint8>(iDContainer->Atr1ID),value);
 	}
 	
 	int8 sql[50];
@@ -464,7 +464,7 @@ string EntertainerManager::commitIdAttribute(PlayerObject* customer, string attr
 		}
 		
 		sprintf(add,",%s = '%u'",iDContainer->Atr2Name,sk);
-		customer->setCustomization (iDContainer->Atr2ID,sk);
+		customer->setCustomization(static_cast<uint8>(iDContainer->Atr2ID),sk);
 	}
 
 	int8 sql[150];
@@ -741,7 +741,7 @@ void EntertainerManager::commitIdChanges(PlayerObject* customer,PlayerObject* de
 		it = aList->begin();
 		while(it != aList->end())
 		{
-			tempXP = getIdXP(it->first, it->second); 
+			tempXP = getIdXP(it->first, static_cast<uint16>(it->second)); 
 			if(tempXP > xP)
 				xP = tempXP;
 			

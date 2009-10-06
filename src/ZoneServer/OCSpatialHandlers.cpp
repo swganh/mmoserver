@@ -141,9 +141,9 @@ void ObjectController::_handleSetMoodInternal(uint64 targetId,Message* message,O
 
 	message->getStringUnicode16(moodStr);
 	moodStr.convert(BSTRType_ANSI);
-	uint32 mood = _atoi64(moodStr.getAnsi());
+	uint32 mood = static_cast<uint32>(_atoi64(moodStr.getAnsi()));
 
-	playerObject->setMoodId(mood);
+	playerObject->setMoodId(static_cast<uint8>(mood));
 
 	gMessageLib->sendMoodUpdate(playerObject);
 

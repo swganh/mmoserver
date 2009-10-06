@@ -968,7 +968,7 @@ void ObjectController::_handlePurchaseTicket(uint64 targetId,Message* message,Ob
 	Inventory*	inventory	= dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 	Bank*		bank		= dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
 
-	if(!inventory->checkSlots(amount))
+	if(!inventory->checkSlots(static_cast<uint8>(amount)))
 	{
 		gMessageLib->sendSystemMessage(playerObject,L"","error_message","inv_full");
 		return;
@@ -1003,7 +1003,7 @@ void ObjectController::_handlePurchaseTicket(uint64 targetId,Message* message,Ob
 
 			ticketProperties.srcPlanetId = ticketProperties.dstPlanetId;
 			ticketProperties.srcPoint = ticketProperties.dstPoint;
-			ticketProperties.dstPlanetId = tmpId;
+			ticketProperties.dstPlanetId = static_cast<uint16>(tmpId);
 			ticketProperties.dstPoint = tmpPoint;
 
 			gObjectFactory->requestNewTravelTicket(inventory,ticketProperties,inventory->getId(),99);
@@ -1269,7 +1269,7 @@ void ObjectController::handleObjectMenuRequest(Message* message)
 		return;		
 	}
 
-	requestedObject->prepareCustomRadialMenu(playerObject,itemCount);
+	requestedObject->prepareCustomRadialMenu(playerObject,static_cast<uint8>(itemCount));
 
 	if (requestedObject->getRadialMenu())
 	{

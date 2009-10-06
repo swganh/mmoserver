@@ -74,7 +74,7 @@ bool MessageLib::sendBaselinesMSCO_3(ManufacturingSchematic* manSchem,PlayerObje
 	//object count
 	gMessageFactory->addUint16(13);	
 	
-	gMessageFactory->addFloat(draftSchematic->getComplexity());
+	gMessageFactory->addFloat(static_cast<float>(draftSchematic->getComplexity()));
 	gMessageFactory->addString(manSchem->getNameFile());
 	gMessageFactory->addUint32(0);	
 	gMessageFactory->addString(manSchem->getName());
@@ -110,7 +110,7 @@ bool MessageLib::sendBaselinesMSCO_3(ManufacturingSchematic* manSchem,PlayerObje
 		gMessageFactory->addUint32(0);
 	}
 	gMessageFactory->addString(convPlayerName);
-	gMessageFactory->addUint32(manSchem->getComplexity());
+	gMessageFactory->addUint32(static_cast<uint32>(manSchem->getComplexity()));
 	gMessageFactory->addUint32(1);
 	
 	part = gMessageFactory->EndMessage();
@@ -155,7 +155,7 @@ bool MessageLib::sendBaselinesMSCO_6(ManufacturingSchematic* manSchem,PlayerObje
 
 	gMessageFactory->addUint32(16 + manSchem->getItemModel().getLength());
 	gMessageFactory->addUint16(6);
-	gMessageFactory->addFloat(draftSchematic->getComplexity());
+	gMessageFactory->addFloat(static_cast<float>(draftSchematic->getComplexity()));
 	//customization string
 	gMessageFactory->addUint16(0);
 
@@ -457,7 +457,7 @@ bool MessageLib::sendBaselinesMSCO_7(ManufacturingSchematic* manSchem,PlayerObje
 	}
 
 	// 17 customization counter
-	gMessageFactory->addUint8(custSize);
+	gMessageFactory->addUint8(static_cast<uint8>(custSize));
 	
 	gMessageFactory->addUint64(0);
 	gMessageFactory->addUint32(0);
@@ -587,7 +587,7 @@ bool MessageLib::sendDeltasMSCO_7(ManufacturingSchematic* manSchem,PlayerObject*
 	gMessageFactory->addUint8(2);
 	gMessageFactory->addUint16(elementIndex);
 
-	gMessageFactory->addUint32((*manSlotIt)->getmFilledIndicator());
+	gMessageFactory->addUint32(static_cast<uint32>((*manSlotIt)->getmFilledIndicator()));
 	//printf("\n Filled type  : %u\n",(*manSlotIt)->getmFilledIndicator());
 
 	//
@@ -993,7 +993,7 @@ bool MessageLib::sendManufactureSlotUpdate(ManufacturingSchematic* manSchem,uint
 	gMessageFactory->addUint8(2);
 	gMessageFactory->addUint16(slotId);
 
-	gMessageFactory->addUint32(manSlot->getmFilledIndicator());
+	gMessageFactory->addUint32(static_cast<uint32>(manSlot->getmFilledIndicator()));
 	
 
 	// resources filled
@@ -1190,7 +1190,7 @@ bool MessageLib::sendAttributeDeltasMSCO_7(ManufacturingSchematic* manSchem,Play
 	//start writing the messages body
 	gMessageFactory->StartMessage();  
 
-	gMessageFactory->addUint16(objectcount);
+	gMessageFactory->addUint16(static_cast<uint16>(objectcount));
 
 	// experimentation/assembly percentage
 	if(manSchem->mExpAttributeValueChange)

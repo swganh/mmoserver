@@ -136,19 +136,19 @@ void NPCObject::setDirection(float deltaX, float deltaZ)
 		// if (x/h < 0.0)
 		if (x < 0.0)
 		{
-			this->mDirection.mW = cos((3.14159354 * 0.5) + 0.5f*acos(-z/h));
-			this->mDirection.mY = sin((3.14159354 * 0.5) + 0.5f*acos(-z/h));
+			this->mDirection.mW = static_cast<float>(cos((3.14159354 * 0.5) + 0.5f*acos(-z/h)));
+			this->mDirection.mY = static_cast<float>(sin((3.14159354 * 0.5) + 0.5f*acos(-z/h)));
 		}
 		else
 		{
-			this->mDirection.mY = sin(0.5f*acos(z/h));
-			this->mDirection.mW = cos(0.5f*acos(z/h));
+			this->mDirection.mY = static_cast<float>(sin(0.5f*acos(z/h)));
+			this->mDirection.mW = static_cast<float>(cos(0.5f*acos(z/h)));
 		}
 	}
 	else
 	{
-		this->mDirection.mY = sin(0.5f*asin(x/h));	
-		this->mDirection.mW = cos(0.5f*acos(z/h));
+		this->mDirection.mY = static_cast<float>(sin(0.5f*asin(x/h)));	
+		this->mDirection.mW = static_cast<float>(cos(0.5f*acos(z/h)));
 	}
 
 	// send out position updates to known players
@@ -407,8 +407,8 @@ void NPCObject::setRandomDirection(void)
 		// if (x/h < 0.0) h always positive.
 		if (x < 0.0)
 		{
-			this->mDirection.mW = cos((3.14159354 * 0.5) + 0.5f*acos(-z/h));
-			this->mDirection.mY = sin((3.14159354 * 0.5) + 0.5f*acos(-z/h));
+			this->mDirection.mW = static_cast<float>(cos((3.14159354 * 0.5) + 0.5f*acos(-z/h)));
+			this->mDirection.mY = static_cast<float>(sin((3.14159354 * 0.5) + 0.5f*acos(-z/h)));
 		}
 		else
 		{
@@ -491,7 +491,7 @@ void NPCObject::updateDamage(uint64 playerId, uint64 groupId, uint32 weaponGroup
 				else
 				{
 					assert(attackerDistance != 0);
-					aggroPoints *= (64.0 / attackerDistance);
+					aggroPoints *= static_cast<float>(64.0 / attackerDistance);
 				}
 			}
 		}
@@ -562,11 +562,11 @@ void NPCObject::updateAggro(uint64 playerId, uint64 groupId, uint8 attackerPostu
 			if (attackerPosture == CreaturePosture_Prone)
 			{
 				// aggroPoints = 1.5;
-				aggroPoints = mBaseAggro * 0.5625;
+				aggroPoints = static_cast<float>(mBaseAggro * 0.5625);
 			}
 			else
 			{
-				aggroPoints = mBaseAggro * 0.75;
+				aggroPoints = static_cast<float>(mBaseAggro * 0.75);
 			}
 			damageDealer->mAggroPoints += aggroPoints;
 		}

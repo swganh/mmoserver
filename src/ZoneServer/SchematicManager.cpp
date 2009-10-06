@@ -102,7 +102,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 			binding->addField(DFT_uint32,offsetof(SchematicGroup,mId),4,0);
 			binding->addField(DFT_bstring,offsetof(SchematicGroup,mName),64,1);
 
-			uint64 count = mGroupCount = mGroupLoadCount = result->getRowCount();
+			uint64 count = mGroupCount = mGroupLoadCount = static_cast<uint32>(result->getRowCount());
 
 			for(uint64 i = 0;i < count;i++)
 			{
@@ -231,7 +231,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 				mDatabase->ExecuteSqlAsync(this,asContainer,sql);
 			}
 
-			mSchematicCount += count;
+			mSchematicCount += static_cast<uint32>(count);
 
 			if(!--mGroupLoadCount)
 			{				

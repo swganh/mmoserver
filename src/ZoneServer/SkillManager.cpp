@@ -173,7 +173,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			binding->addField(DFT_int32,offsetof(Skill,mBadgeId),4,12);
 
 			uint64 count = result->getRowCount();
-			mTotalLoadCount += count * 6;
+			mTotalLoadCount += static_cast<uint32>(count * 6);
 			
 		
 
@@ -947,7 +947,7 @@ int32 SkillManager::handleExperienceCap(uint32 xpType,int32 valueDiff, PlayerObj
 					gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_grant_xp","exp_n",getXPTypeById(xpType),L"",delta);
 				}
 				// Do we have the max cap?
-				if (xpCap == getMaxXpCap(xpType))
+				if (xpCap == getMaxXpCap(static_cast<uint8>(xpType)))
 				{
 					// Yes.
 					// You have achieved your limit of %DIpts for experience type '%TO'. 

@@ -411,7 +411,7 @@ void CharacterLoginHandler::_processClusterZoneTransferApprovedByTicket(Message*
 		// remove the ticket from the DB so they can't use it again.
 		TravelTicket* ticket	= dynamic_cast<TravelTicket*>(dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getObjectById(ticketId));
 		string dstPointStr		= (int8*)((ticket->getAttribute<std::string>("travel_arrival_point")).c_str());
-		uint16 dstPlanetId		= gWorldManager->getPlanetIdByName((int8*)((ticket->getAttribute<std::string>("travel_arrival_planet")).c_str()));
+		uint16 dstPlanetId		= static_cast<uint16>(gWorldManager->getPlanetIdByName((int8*)((ticket->getAttribute<std::string>("travel_arrival_planet")).c_str())));
     
 		TravelPoint* dstPoint = gTravelMapHandler->getTravelPoint(dstPlanetId,dstPointStr);
 

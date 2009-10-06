@@ -151,7 +151,7 @@ void DatapadFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			//InLoadingContainer* ilc = new(mILCPool.ordered_malloc()) InLoadingContainer(inventory,asyncContainer->mOfCallback,asyncContainer->mClient);
 			//ilc->mLoadCounter = count;
 
-			mObjectLoadMap.insert(std::make_pair(datapad->getId(),new(mILCPool.ordered_malloc()) InLoadingContainer(datapad,asyncContainer->mOfCallback,asyncContainer->mClient,count)));
+			mObjectLoadMap.insert(std::make_pair(datapad->getId(),new(mILCPool.ordered_malloc()) InLoadingContainer(datapad,asyncContainer->mOfCallback,asyncContainer->mClient,static_cast<uint32>(count))));
 
 			for(uint32 i = 0;i < count;i++)
 			{

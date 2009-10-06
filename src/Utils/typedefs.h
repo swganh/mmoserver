@@ -52,14 +52,6 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 //=====================================================================================
 //
-// Disable unwanted warnings
-//
-#ifdef _MSC_VER
-	#pragma warning(disable : 4244)	
-#endif
-
-//=====================================================================================
-//
 // Set the platform we are on
 //
 #if defined(__WIN32__) || defined(_WIN32)

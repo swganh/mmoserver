@@ -134,7 +134,7 @@ class ManufactureSlot
 		ManufactureSlot(DraftSlot* draftSlot) :	mDraftSlot(draftSlot),mFilled(0),mUnknown1(0),mUnknown2(0xffffffff),mUnknown3(0),mFilledIndicator(0),mFilledIndicatorChange(false){}
 			
 		virtual ~ManufactureSlot(){}
-		float	getmFilledIndicator(){ return mFilledIndicator; }
+		float	getmFilledIndicator(){ return static_cast<float>(mFilledIndicator); }
 		void	setmFilledIndicator(uint32 indicator){ mFilledIndicatorChange = (mFilledIndicator != indicator);mFilledIndicator= indicator; }
 		
 		// slots

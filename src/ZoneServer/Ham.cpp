@@ -189,7 +189,7 @@ void Ham::calcAllModifiedHitPoints()
 
 	for(uint32 i =0;i<9;i++)
 	{
-		setPropertyValue(i,HamProperty_BaseHitpoints,getPropertyValue(i,HamProperty_MaxHitpoints));
+		setPropertyValue(static_cast<uint8>(i),HamProperty_BaseHitpoints,getPropertyValue(static_cast<uint8>(i),HamProperty_MaxHitpoints));
 	}
 	
 	mHealth.calcModifiedHitPoints();

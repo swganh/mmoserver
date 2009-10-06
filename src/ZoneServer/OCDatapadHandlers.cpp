@@ -85,9 +85,9 @@ void ObjectController::_handleRequestWaypointAtPosition(uint64 targetId,Message*
 
 	string	planetStr	= dataElements[0].getAnsi();
 	gLogger->logMsgF("ObjController::handleCreateWaypointAtPosition: planet %s",MSG_NORMAL,planetStr.getAnsi());
-	float	x			= atof(dataElements[1].getAnsi());
-	float	y			= atof(dataElements[2].getAnsi());
-	float	z			= atof(dataElements[3].getAnsi());
+	float	x			= static_cast<float>(atof(dataElements[1].getAnsi()));
+	float	y			= static_cast<float>(atof(dataElements[2].getAnsi()));
+	float	z			= static_cast<float>(atof(dataElements[3].getAnsi()));
 
 	int32 planetId = gWorldManager->getPlanetIdByName(planetStr);
 
@@ -97,7 +97,7 @@ void ObjectController::_handleRequestWaypointAtPosition(uint64 targetId,Message*
 		return;
 	}
 
-	datapad->requestNewWaypoint(nameStr,Anh_Math::Vector3(x,y,z),planetId,Waypoint_blue);
+	datapad->requestNewWaypoint(nameStr,Anh_Math::Vector3(x,y,z),static_cast<uint16>(planetId),Waypoint_blue);
 }
 
 //======================================================================================================================
@@ -371,7 +371,7 @@ void ObjectController::_handleWaypoint(uint64 targetId,Message* message,ObjectCo
 	if(verified)
 	{
 
-		datapad->requestNewWaypoint("Waypoint",Anh_Math::Vector3((float)x,(float)y,(float)z),gWorldManager->getZoneId(),Waypoint_blue);
+		datapad->requestNewWaypoint("Waypoint",Anh_Math::Vector3((float)x,(float)y,(float)z),static_cast<uint16>(gWorldManager->getZoneId()),Waypoint_blue);
 	}
 	else
 	{

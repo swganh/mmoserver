@@ -367,7 +367,7 @@ void ObjectController::_handleFindFriendDBReply(uint64 retCode,string friendName
 
 	if(thePad && thePad->getCapacity())
 	{
-		thePad->requestNewWaypoint(searchObject->getFirstName().getAnsi(),searchObject->mPosition,gWorldManager->getZoneId(),Waypoint_blue);
+		thePad->requestNewWaypoint(searchObject->getFirstName().getAnsi(),searchObject->mPosition,static_cast<uint16>(gWorldManager->getZoneId()),Waypoint_blue);
 	}
 }
 

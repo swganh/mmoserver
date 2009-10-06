@@ -74,7 +74,7 @@ void ObjectController::_handleAdminWarpSelf(uint64 targetId,Message* message,Obj
 			if(x < -8192 || x > 8192 || z < -8192 || z > 8192)
 				break;
 
-			gWorldManager->warpPlanet(player,Anh_Math::Vector3(x,0.0f,z),0);
+			gWorldManager->warpPlanet(player,Anh_Math::Vector3(static_cast<float>(x),0.0f,static_cast<float>(z)),0);
 		}
 		return;
 
@@ -93,14 +93,14 @@ void ObjectController::_handleAdminWarpSelf(uint64 targetId,Message* message,Obj
 			// warp on this planet
 			if(planetId == gWorldManager->getZoneId())
 			{
-				gWorldManager->warpPlanet(player,Anh_Math::Vector3(x,0.0f,z),0);
+				gWorldManager->warpPlanet(player,Anh_Math::Vector3(static_cast<float>(x),0.0f,static_cast<float>(z)),0);
 			}
 			// zone transfer request
 			else
 			{
 				gMessageLib->sendSystemMessage(player,L"Requesting zone transfer...");
 
-				gMessageLib->sendClusterZoneTransferRequestByPosition(player,Anh_Math::Vector3(x,0.0f,z),planetId);
+				gMessageLib->sendClusterZoneTransferRequestByPosition(player,Anh_Math::Vector3(static_cast<float>(x),0.0f,static_cast<float>(z)),planetId);
 			}
 		}
 		return;
@@ -184,7 +184,7 @@ void ObjectController::_handleAdminSysMsg(uint64 targetId,Message* message,Objec
 				}
 				string ansiData;
 				ansiData.setLength(dataStr.getLength());
-				dataStr.substring(ansiData,index, dataStr.getLength());
+				dataStr.substring(ansiData,static_cast<uint16>(index), dataStr.getLength());
 
 				// Now ADD a proper spelled command. It HAS to match the crc.
 				string newCommandString;
@@ -346,7 +346,7 @@ string ObjectController::handleBroadcastPlanet(string message) const
 				// Remove planet name from message.
 				string ansiData;
 				ansiData.setLength(message.getLength());
-				message.substring(ansiData, index, message.getLength());
+				message.substring(ansiData, static_cast<uint16>(index), message.getLength());
 		
 				// Any valid message?
 				elementCount = sscanf(ansiData.getAnsi(), "%80s", rawData);
@@ -421,7 +421,7 @@ string ObjectController::handleBroadcastGalaxy(string message) const
 		// Remove white space from start of message.
 		string ansiData;
 		ansiData.setLength(message.getLength());
-		message.substring(ansiData, index, message.getLength());
+		message.substring(ansiData, static_cast<uint16>(index), message.getLength());
 	
 		// Any valid message?
 		int32 elementCount = sscanf(ansiData.getAnsi(), "%80s", rawData);
@@ -504,7 +504,7 @@ string ObjectController::handleShutdownGalaxy(string message) const
 				// Now we can get the broadcaste from the message.
 				// Remove first field from message.
 				ansiData.setLength(message.getLength());
-				message.substring(ansiData, index, message.getLength());
+				message.substring(ansiData, static_cast<uint16>(index), message.getLength());
 			}
 
 			// Validate the timeout.
@@ -592,7 +592,7 @@ string ObjectController::handleCancelShutdownGalaxy(string message) const
 			// Now we can get the broadcaste from the message.
 			// Remove first field from message.
 			ansiData.setLength(message.getLength());
-			message.substring(ansiData, index, message.getLength());
+			message.substring(ansiData, static_cast<uint16>(index), message.getLength());
 		}
 
 		// Send request to all zones, via chatserver.
@@ -800,7 +800,7 @@ string ObjectController::removeWhiteSpace(string str) const
 		// Remove white space from start of message.
 		string resultStr;
 		resultStr.setLength(str.getLength());
-		str.substring(resultStr, index, str.getLength());
+		str.substring(resultStr, static_cast<uint16>(index), str.getLength());
 		return resultStr;
 	}
 	// Nothing we can do about that string... good or bad.
@@ -821,7 +821,7 @@ string ObjectController::skipToNextField(string str) const
 	// Remove white space from start of message.
 	string resultStr;
 	resultStr.setLength(str.getLength());
-	str.substring(resultStr, index, str.getLength());
+	str.substring(resultStr, static_cast<uint16>(index), str.getLength());
 	return resultStr;
 }
 

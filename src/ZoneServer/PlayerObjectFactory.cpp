@@ -312,7 +312,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
 			// Skills that require Jedi or JTL will not be included if player do not have the prerequisites.
 			gSkillManager->initExperience(playerObject);
 
-			playerObject->mXpUpdateCounter = count;
+			playerObject->mXpUpdateCounter = static_cast<uint32>(count);
 
 			mDatabase->DestroyDataBinding(binding);
 
@@ -339,7 +339,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
 			binding->addField(DFT_uint64,0,8);
 			
 			uint64 count = result->getRowCount();
-			mIlc->mLoadCounter += count;
+			mIlc->mLoadCounter += static_cast<uint32>(count);
 
 			for(uint64 i = 0;i < count;i++)
 			{
@@ -402,7 +402,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
 			result->GetNextRow(binding,&lotCount);
 			uint8 maxLots = gWorldConfig->getConfiguration("Player_Max_Lots",(uint8)10);
 
-			maxLots -=	lotCount;
+			maxLots -= static_cast<uint8>(lotCount);
 			playerObject->setPlayerLots((uint8)maxLots);
 
 			mDatabase->DestroyDataBinding(binding);

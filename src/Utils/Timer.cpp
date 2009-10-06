@@ -33,7 +33,7 @@ Timer::~Timer()
 
 void Timer::Start()
 {
-	mLastTick = Anh_Utils::Clock::getSingleton()->getLocalTime();
+	mLastTick = static_cast<uint32>(Anh_Utils::Clock::getSingleton()->getLocalTime());
 	StartThread();
 }
 
@@ -50,7 +50,7 @@ void Timer::Run()
 		if(currentTick - mLastTick >= mInterval)
 		{
 			mCallback->handleTimer(mId,mContainer);
-			mLastTick = currentTick;
+			mLastTick = static_cast<uint32>(currentTick);
 		}
 		msleep(10);
 	}

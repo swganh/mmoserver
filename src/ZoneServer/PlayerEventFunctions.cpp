@@ -58,7 +58,7 @@ void PlayerObject::onSurvey(const SurveyEvent* event)
 			// create a new one
 			if(datapad->getCapacity())
 			{
-				datapad->requestNewWaypoint("Resource Survey",Anh_Math::Vector3(highestDist.position.mX,0.0f,highestDist.position.mZ),gWorldManager->getZoneId(),Waypoint_blue);
+				datapad->requestNewWaypoint("Resource Survey",Anh_Math::Vector3(highestDist.position.mX,0.0f,highestDist.position.mZ),static_cast<uint16>(gWorldManager->getZoneId()),Waypoint_blue);
 			}
 
 			gMessageLib->sendSystemMessage(this,L"","survey","survey_waypoint");
@@ -114,7 +114,7 @@ void PlayerObject::onSample(const SampleEvent* event)
 				}
 				uint32 playerBF = mHam.getBattleFatigue();
 				uint32 woundDmg = 50*(1 + (playerBF/100)) + (50*(1 + (resPE/1000)));
-				uint32 bfDmg    = 0.075*resPE;
+				uint32 bfDmg    = static_cast<uint32>(0.075*resPE);
 				uint32 hamReduc = 100*(2+ (resPE/1000));
 
 				gLogger->logMsgF("woundDmg is: %u\n", MSG_NORMAL, woundDmg);
@@ -150,17 +150,17 @@ void PlayerObject::onSample(const SampleEvent* event)
 	{
 		//original implementation sampleAmount = (uint32)floor((double)((15.0f * ratio) * (surveyMod / 100.0f)));
 		float ratio_100			= ratio*100;
-		float successChance	    = (surveyMod/4)+45;
+		float successChance	    = static_cast<float>((surveyMod/4)+45);
 		float maxSuccessChance  = 70;   // == 70, but showing the formula so it is obvious where it comes from
 		float failureChance		= 100-successChance;
-		float dieRoll			= (gRandom->getRand()%100)+1;        // random value from 1 to 100
+		float dieRoll			= static_cast<float>((gRandom->getRand()%100)+1);        // random value from 1 to 100
 		float adjSkill		    = surveyMod/successChance;  //100 skill == 1;  85 skill = 0.9464; etc
 		float minSample			= ratio_100/20*adjSkill;
 		float maxSample		    = ratio_100/10*adjSkill;
-		float minConcentration  = -1.12*successChance+88;   // attempting to simplify this to "-1*sC+90" or whatever will break it
+		float minConcentration  = static_cast<float>(-1.12*successChance+88);   // attempting to simplify this to "-1*sC+90" or whatever will break it
 		
 		//for checking abs minimum conc
-		float minConc100sk		= -1.12*maxSuccessChance+88; 
+		float minConc100sk		= static_cast<float>(-1.12*maxSuccessChance+88); 
 
 		// ////////////////////////////////////////
 		gLogger->logMsgF("here is the dieRoll: %f", MSG_NORMAL, dieRoll);

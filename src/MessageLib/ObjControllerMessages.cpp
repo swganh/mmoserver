@@ -68,7 +68,7 @@ void MessageLib::sendSpatialChat(CreatureObject* const srcObject,string chatMsg,
 	gMessageFactory->addUint16(chatElementMood1);   
 	gMessageFactory->addUint16(chatElementMood2);   
 	gMessageFactory->addUint8(0);              
-	gMessageFactory->addUint8(srcObject->getLanguage());              
+	gMessageFactory->addUint8(static_cast<uint8>(srcObject->getLanguage()));              
 	gMessageFactory->addUint64(0);                    // unknown
 
 	newMessage = gMessageFactory->EndMessage();
@@ -220,7 +220,7 @@ void MessageLib::sendSpatialChat(const CreatureObject* const srcObject,string ch
 	gMessageFactory->addUint16(chatElementMood1);   
 	gMessageFactory->addUint16(chatElementMood2);   
 	gMessageFactory->addUint8(0);              
-	gMessageFactory->addUint8(srcObject->getLanguage());              
+	gMessageFactory->addUint8(static_cast<uint8>(srcObject->getLanguage()));              
 	gMessageFactory->addUint64(0);                    // unknown
 
 	newMessage = gMessageFactory->EndMessage();
@@ -306,7 +306,7 @@ bool MessageLib::sendSpatialChat(const CreatureObject* const srcObject,const Pla
 	gMessageFactory->addUint16(0);   
 	gMessageFactory->addUint16(chatElementMood2);   
 	gMessageFactory->addUint8(0);              
-	gMessageFactory->addUint8(srcObject->getLanguage());              
+	gMessageFactory->addUint8(static_cast<uint8>(srcObject->getLanguage()));              
     
 	// simple message
 	if(customMessage.getLength())

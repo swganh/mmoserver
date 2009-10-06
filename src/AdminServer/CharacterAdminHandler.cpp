@@ -389,7 +389,7 @@ void CharacterAdminHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* 
 			else
 			{
 				// gLogger->logMsgF("CAQuery_CreateCharacter Failed", MSG_NORMAL);
-				_sendCreateCharacterFailed(queryResult,asyncContainer->mClient);
+				_sendCreateCharacterFailed(static_cast<uint32>(queryResult),asyncContainer->mClient);
 			}
 
 			mDatabase->DestroyDataBinding(binding);

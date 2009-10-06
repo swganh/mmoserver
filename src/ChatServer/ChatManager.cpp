@@ -155,10 +155,10 @@ void ChatManager::_loadChannels(DatabaseResult* result)
 		Channel* channel = new Channel();
 		result->GetNextRow(mChannelBinding,channel);
 
-		result->ResetRowIndex(i);
+		result->ResetRowIndex(static_cast<int>(i));
 		result->GetNextRow(mCreatorBinding,&creator);
 
-		result->ResetRowIndex(i);
+		result->ResetRowIndex(static_cast<int>(i));
 		result->GetNextRow(mOwnerBinding,&owner);
 
 		if (strcmp(creator.getRawData(), "SYSTEM") == 0)
@@ -642,7 +642,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 			memcpy(mail.mAttachments.getRawData(),mail.mAttachmentRaw,mail.mAttachmentSize);
 
-			mail.mAttachments.setLength(mail.mAttachmentSize >> 1);
+			mail.mAttachments.setLength(static_cast<uint16>(mail.mAttachmentSize >> 1));
 			mail.mSubject.convert(BSTRType_Unicode16);
 			mail.mText.convert(BSTRType_Unicode16);
 
@@ -1231,7 +1231,7 @@ void ChatManager::_processCreateRoom(Message* message,DispatchClient* client)
 
 	uint32 index = 5 + mGalaxyName.getLength();
 	string modpath;
-	path.substring(modpath, index, path.getLength());
+	path.substring(modpath, static_cast<uint16>(index), path.getLength());
 
 	// modpath.toLower();
 
@@ -1388,7 +1388,7 @@ void ChatManager::_processRoomQuery(Message* message,DispatchClient* client)
 	message->getStringAnsi(path);
 
 	uint32 index = 5 + mGalaxyName.getLength();
-	path.substring(roomname, index, path.getLength());
+	path.substring(roomname, static_cast<uint16>(index), path.getLength());
 	
 	Channel* channel = getChannelByName(roomname);
 	if (channel == NULL)
@@ -1639,7 +1639,7 @@ void ChatManager::_processAddModeratorToRoom(Message* message,DispatchClient* cl
 	uint32 requestId = message->getUint32();
 
 	uint32 index = 5 + mGalaxyName.getLength();
-	roompath.substring(roomname,index, roompath.getLength());
+	roompath.substring(roomname, static_cast<uint16>(index), roompath.getLength());
 
 	gLogger->logMsgF("Channel is %s\n", MSG_NORMAL, roomname.getAnsi());
 
@@ -1747,7 +1747,7 @@ void ChatManager::_processInviteAvatarToRoom(Message* message,DispatchClient* cl
 	uint32 requestId = message->getUint32();
 
 	uint32 index = 5 + mGalaxyName.getLength();
-	roompath.substring(roomname,index, roompath.getLength());
+	roompath.substring(roomname, static_cast<uint16>(index), roompath.getLength());
 
 	Channel* channel = getChannelByName(roomname);
 	if (channel == NULL)
@@ -1859,7 +1859,7 @@ void ChatManager::_processUninviteAvatarFromRoom(Message* message, DispatchClien
 	uint32 requestId = message->getUint32();
 
 	uint32 index = 5 + mGalaxyName.getLength();
-	roompath.substring(roomname,index, roompath.getLength());
+	roompath.substring(roomname, static_cast<uint16>(index), roompath.getLength());
 
 	Channel* channel = getChannelByName(roomname);
 	if (channel == NULL)
@@ -1968,7 +1968,7 @@ void ChatManager::_processRemoveModFromRoom(Message* message,DispatchClient* cli
 	uint32 requestId = message->getUint32();
 
 	uint32 index = 5 + mGalaxyName.getLength();
-	roompath.substring(roomname,index, roompath.getLength());
+	roompath.substring(roomname, static_cast<uint16>(index), roompath.getLength());
 
 	Channel* channel = getChannelByName(roomname);
 	if (channel == NULL)
@@ -2083,7 +2083,7 @@ void ChatManager::_processRemoveAvatarFromRoom(Message* message,DispatchClient* 
 	message->getStringAnsi(roompath);
 
 	uint32 index = 5 + mGalaxyName.getLength();
-	roompath.substring(roomname,index, roompath.getLength());
+	roompath.substring(roomname, static_cast<uint16>(index), roompath.getLength());
 
 	Channel* channel = getChannelByName(roomname);
 	if (channel == NULL)
@@ -2129,7 +2129,7 @@ void ChatManager::_processBanAvatarFromRoom(Message* message,DispatchClient* cli
 	uint32 requestId = message->getUint32();
 
 	uint32 index = 5 + mGalaxyName.getLength();
-	roompath.substring(roomname,index, roompath.getLength());
+	roompath.substring(roomname, static_cast<uint16>(index), roompath.getLength());
 
 	Channel* channel = getChannelByName(roomname);
 	if (channel == NULL)
@@ -2261,7 +2261,7 @@ void ChatManager::_processUnbanAvatarFromRoom(Message* message,DispatchClient* c
 	uint32 requestId = message->getUint32();
 
 	uint32 index = 5 + mGalaxyName.getLength();
-	roompath.substring(roomname,index, roompath.getLength());
+	roompath.substring(roomname, static_cast<uint16>(index), roompath.getLength());
 
 	Channel* channel = getChannelByName(roomname);
 	if (channel == NULL)
@@ -2398,7 +2398,7 @@ void ChatManager::_processSystemMailMessage(Message* message,DispatchClient* cli
 	mail->setSubject(msgSubject);
 	mail->setText(msgText);
 	mail->setStatus(MailStatus_New);
-	mail->setTime(time(NULL));
+	mail->setTime(static_cast<uint32>(time(NULL)));
 	mail->setAttachments(attachmentData);
 
 
@@ -2545,7 +2545,7 @@ void ChatManager::_processPersistentMessageToServer(Message* message,DispatchCli
 	mail->setText(msgText);
 	mail->mText.convert(BSTRType_ANSI);
 	mail->mStatus = MailStatus_New;
-	mail->mTime = time(NULL);
+	mail->mTime = static_cast<uint32>(time(NULL));
 	mail->setAttachments(attachmentData);
 
 	// See comment at _PersistentMessagebySystem for this part of the code.

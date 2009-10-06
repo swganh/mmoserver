@@ -172,7 +172,7 @@ void AdminManager::handleDispatchMessage(uint32 opcode,Message* message,Dispatch
 void AdminManager::addAdminRequest(uint64 requestType, string message, int32 ttl)
 {
 	// We will only handle one request at the time for each type.
-	gWorldManager->cancelAdminRequest(requestType);	// Even though map's fix duplicate issues, the lower level implementation may change.
+	gWorldManager->cancelAdminRequest(static_cast<uint32>(requestType));	// Even though map's fix duplicate issues, the lower level implementation may change.
 
 	AdminRequests::iterator adminRequestIterator = mAdminRequests.find(requestType);
 	if (adminRequestIterator != mAdminRequests.end())
@@ -221,7 +221,7 @@ void AdminManager::addAdminRequest(uint64 requestType, string message, int32 ttl
 void AdminManager::cancelAdminRequest(uint64 requestType, string message)
 {
 	// We will only handle one request at the time for each type.
-	gWorldManager->cancelAdminRequest(requestType);	// Even though map's fix duplicate issues, the lower level implementation may change.
+	gWorldManager->cancelAdminRequest(static_cast<uint8>(requestType));	// Even though map's fix duplicate issues, the lower level implementation may change.
 	
 	AdminRequests::iterator adminRequestIterator = mAdminRequests.find(requestType);
 	if (adminRequestIterator != mAdminRequests.end())

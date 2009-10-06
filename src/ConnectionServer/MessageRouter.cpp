@@ -90,7 +90,7 @@ void MessageRouter::RouteMessage(Message* message, ConnectionClient* client)
 
 		if(iter != mMessageRouteMap.end())
 		{
-			dest = (*iter).second;
+			dest = static_cast<uint8>((*iter).second);
 
 			// Set our destination server
 			message->setDestinationId(dest);
@@ -112,7 +112,7 @@ void MessageRouter::RouteMessage(Message* message, ConnectionClient* client)
 		else
 		{
 			// No route found so send it to the ZoneServer the client is on.
-			message->setDestinationId(client->getServerId());
+			message->setDestinationId(static_cast<uint8>(client->getServerId()));
 			message->setSourceId(0);
 			message->setRouted(true);
 			mServerManager->SendMessageToServer(message);
@@ -158,7 +158,7 @@ void MessageRouter::_loadMessageProcessMap(void)
 
 	// Execute our statement
 	DatabaseResult* result = mDatabase->ExecuteSynchSql("SELECT messageId, processId FROM config_message_routes;");
-	uint32 count = result->getRowCount();
+	uint32 count = static_cast<uint32>(result->getRowCount());
 
 	// Retrieve our routes and add them to the map.
 	for(uint32 i = 0; i < count; i++)

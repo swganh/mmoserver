@@ -125,7 +125,7 @@ bool MessageLib::sendBaselinesSCLT_3(CellObject* cellObject,uint64 cellNr,Player
 	gMessageFactory->addUint16(0);
 	gMessageFactory->addUint32(0);
 	gMessageFactory->addUint32(0);
-	gMessageFactory->addUint32(cellNr);
+	gMessageFactory->addUint32(static_cast<uint32>(cellNr));
 
 	newMessage = gMessageFactory->EndMessage();
 

@@ -114,7 +114,7 @@ void CraftingSession::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 			DataBinding*	binding = mDatabase->CreateDataBinding(1);
 			binding->addField(DFT_uint32,0,4);
 
-			uint32 count = result->getRowCount();
+			uint32 count = static_cast<uint32>(result->getRowCount());
 			
 			mOwnerExpSkillMod = 0;
 			if(count)
@@ -160,7 +160,7 @@ void CraftingSession::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 			DataBinding*	binding = mDatabase->CreateDataBinding(1);
 			binding->addField(DFT_uint32,0,4);
 
-			uint32 count = result->getRowCount();
+			uint32 count = static_cast<uint32>(result->getRowCount());
 			
 			mOwnerAssSkillMod = 0;
 			if(count)
@@ -206,7 +206,7 @@ void CraftingSession::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 			binding->addField(DFT_uint32,offsetof(CustomizationOption,paletteSize),4,2);
 			binding->addField(DFT_uint32,offsetof(CustomizationOption,defaultValue),4,3);
 
-			uint32 count = result->getRowCount();
+			uint32 count = static_cast<uint32>(result->getRowCount());
 			
 			for(uint32 i = 0;i<count;i++)
 			{
@@ -712,11 +712,11 @@ void CraftingSession::handleFillSlotComponent(uint64 componentId,uint32 slotId,u
 	}
 	else if(smallupdate == true)
 	{
-		gMessageLib->sendManufactureSlotUpdateSmall(mManufacturingSchematic,slotId,mOwner);
+		gMessageLib->sendManufactureSlotUpdateSmall(mManufacturingSchematic,static_cast<uint8>(slotId),mOwner);
 	}
 	else
 	{
-		gMessageLib->sendManufactureSlotUpdate(mManufacturingSchematic,slotId,mOwner);
+		gMessageLib->sendManufactureSlotUpdate(mManufacturingSchematic,static_cast<uint8>(slotId),mOwner);
 	}		
 
 	// done
@@ -890,11 +890,11 @@ void CraftingSession::handleFillSlotResource(uint64 resContainerId,uint32 slotId
 		}
 		else if(smallupdate == true)
 		{
-			gMessageLib->sendManufactureSlotUpdateSmall(mManufacturingSchematic,slotId,mOwner);
+			gMessageLib->sendManufactureSlotUpdateSmall(mManufacturingSchematic,static_cast<uint8>(slotId),mOwner);
 		}
 		else
 		{
-			gMessageLib->sendManufactureSlotUpdate(mManufacturingSchematic,slotId,mOwner);
+			gMessageLib->sendManufactureSlotUpdate(mManufacturingSchematic,static_cast<uint8>(slotId),mOwner);
 		}		
 
 		// done
@@ -1058,7 +1058,7 @@ void CraftingSession::emptySlot(uint32 slotId,ManufactureSlot* manSlot,uint64 co
 	{
 		manSlot->mFilled = 0;
 		//only send when changes !!!!!
-		gMessageLib->sendManufactureSlotUpdate(mManufacturingSchematic,slotId,mOwner);
+		gMessageLib->sendManufactureSlotUpdate(mManufacturingSchematic,static_cast<uint8>(slotId),mOwner);
 	}
 }
  
@@ -1130,7 +1130,7 @@ uint8 CraftingSession::_assembleRoll()
 	gLogger->logErrorF("Crafting","CraftingSession::_assembleRoll() modified riskroll %u",MSG_NORMAL,riskRoll);
 	
 	if(mCriticalCount = 3)
-		riskRoll = risk+1;
+		riskRoll = static_cast<uint32>(risk+1);
 
 	if(riskRoll <= risk)
 	{
@@ -1146,7 +1146,7 @@ uint8 CraftingSession::_assembleRoll()
 
 	//gLogger->logMsgF("CraftingSession:: assembly Roll preMod %u",MSG_NORMAL,assRoll);
 
-	int32 modRoll = (int32)((assRoll - (rating * 0.4f)) / 15.0f) - (mToolEffectivity / 50.0f);
+	int32 modRoll = static_cast<uint32>(((assRoll - (rating * 0.4f)) / 15.0f) - (mToolEffectivity / 50.0f));
 	
 	//gLogger->logMsgF("CraftingSession:: assembly Roll postMod %u",MSG_NORMAL,modRoll);
 
@@ -1167,7 +1167,7 @@ uint8 CraftingSession::_assembleRoll()
 	else if(modRoll > 7)
 		modRoll = 7;
 
-	return modRoll;
+	return static_cast<uint8>(modRoll);
 }
 
 //=============================================================================
@@ -1215,14 +1215,14 @@ void CraftingSession::assemble(uint32 counter)
 			{
 				emptySlot(i,manSlot,mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)->getId());
 
-				gMessageLib->sendCraftAcknowledge(opCraftEmptySlot,CraftError_None,counter,mOwner);
+				gMessageLib->sendCraftAcknowledge(opCraftEmptySlot,CraftError_None,static_cast<uint8>(counter),mOwner);
 
 			}
 		}
 		// done
 		
 
-		gMessageLib->sendGenericIntResponse(assRoll,counter,mOwner);
+		gMessageLib->sendGenericIntResponse(assRoll,static_cast<uint8>(counter),mOwner);
 		return;
 	}
 
@@ -1234,7 +1234,7 @@ void CraftingSession::assemble(uint32 counter)
 	
 	
 	// update item complexity
-	mItem->setComplexity(mDraftSchematic->getComplexity());
+	mItem->setComplexity(static_cast<float>(mDraftSchematic->getComplexity()));
 	gMessageLib->sendUpdateComplexity(mItem,mOwner);
 
 	// calc initial assembly percentages
@@ -1299,7 +1299,7 @@ void CraftingSession::assemble(uint32 counter)
 	gMessageLib->sendDeltasMSCO_3(mManufacturingSchematic,mOwner);
 	gMessageLib->sendAttributeDeltasMSCO_7(mManufacturingSchematic,mOwner);
 
-	gMessageLib->sendGenericIntResponse(assRoll,counter,mOwner);
+	gMessageLib->sendGenericIntResponse(assRoll,static_cast<uint8>(counter),mOwner);
 }
 
 //=============================================================================
@@ -1311,7 +1311,7 @@ void CraftingSession::customizationStage(uint32 counter)
 	mOwner->setCraftingStage(mStage);
 	gMessageLib->sendUpdateCraftingStage(mOwner);
 
-	gMessageLib->sendGenericIntResponse(4,counter,mOwner);
+	gMessageLib->sendGenericIntResponse(4,static_cast<uint8>(counter),mOwner);
 }
 
 //=============================================================================
@@ -1323,7 +1323,7 @@ void CraftingSession::creationStage(uint32 counter)
 	mOwner->setCraftingStage(mStage);
 	gMessageLib->sendUpdateCraftingStage(mOwner);
 
-	gMessageLib->sendGenericIntResponse(4,counter,mOwner);	
+	gMessageLib->sendGenericIntResponse(4,static_cast<uint8>(counter),mOwner);	
 }
 
 //=============================================================================
@@ -1335,7 +1335,7 @@ void CraftingSession::experimentationStage(uint32 counter)
 	mOwner->setCraftingStage(mStage);
 	gMessageLib->sendUpdateCraftingStage(mOwner);
 
-	gMessageLib->sendGenericIntResponse(4,counter,mOwner);	
+	gMessageLib->sendGenericIntResponse(4,static_cast<uint8>(counter),mOwner);	
 }
 
 //=============================================================================
@@ -1360,7 +1360,7 @@ string CraftingSession::getSerial()
 		while(!found)
 		{
 			found = true;
-			u = (double)gRandom->getRand() / (RAND_MAX + 1.0f) * (122.0f - 48.0f) + 48.0f;
+			u = static_cast<uint8>(static_cast<double>(gRandom->getRand()) / (RAND_MAX + 1.0f) * (122.0f - 48.0f) + 48.0f);
 
 			//only 1 to 9 or a to z
 			if((u >55)&&(u <97))
@@ -1388,7 +1388,7 @@ void CraftingSession::createPrototype(uint32 noPractice,uint32 counter)
 	{
 		int8 sql[1024],restStr[128],*sqlPointer;
 
-		Transaction* t = mDatabase->startTransaction(this,new CraftSessionQueryContainer(CraftSessionQuery_Prototype,counter));
+		Transaction* t = mDatabase->startTransaction(this,new CraftSessionQueryContainer(CraftSessionQuery_Prototype,static_cast<uint8>(counter)));
 
 		// we need to alter / add attributes affected by attributes of components
 
@@ -1468,7 +1468,7 @@ void CraftingSession::createPrototype(uint32 noPractice,uint32 counter)
 		gWorldManager->addBusyCraftTool(mTool);
 
 		// just ack
-		gMessageLib->sendCraftAcknowledge(opCreatePrototypeResponse,CraftCreate_Success,counter,mOwner);
+		gMessageLib->sendCraftAcknowledge(opCreatePrototypeResponse,CraftCreate_Success,static_cast<uint8>(counter),mOwner);
 
 		// grant some additional xp
 		xp *= 1.1f;
@@ -1512,7 +1512,7 @@ uint8 CraftingSession::_experimentRoll(uint32 expPoints)
 		else if(modRoll > 8)
 			modRoll = 8;
 		
-		return(modRoll);
+		return static_cast<uint8>(modRoll);
 	}
 
 	mManufacturingSchematic->setExpFailureChance(risk);
@@ -1522,7 +1522,7 @@ uint8 CraftingSession::_experimentRoll(uint32 expPoints)
 
 	gLogger->logErrorF("crafting","CraftingSession:: assembly Roll preMod %u",MSG_NORMAL,assRoll);
 
-	int32 modRoll = (int32)((assRoll - (rating * 0.4f)) / 15.0f) - (mToolEffectivity / 50.0f);
+	int32 modRoll = static_cast<int32>(((assRoll - (rating * 0.4f)) / 15.0f) - (mToolEffectivity / 50.0f));
 
 	++modRoll;
 
@@ -1547,7 +1547,7 @@ uint8 CraftingSession::_experimentRoll(uint32 expPoints)
 	else if(modRoll > 4)
 		modRoll = 4;
 
-	return modRoll;
+	return static_cast<uint8>(modRoll);
 }
 
 //=============================================================================
@@ -1628,7 +1628,7 @@ void CraftingSession::experiment(uint8 counter,std::vector<std::pair<uint32,uint
 		}
 		else
 		{
-			roll = expProperty->mRoll;
+			roll = static_cast<uint8>(expProperty->mRoll);
 			gLogger->logMsgF("CraftingSession:: experiment expProperty isnt a virgin anymore ...(roll:%u)",MSG_NORMAL,roll);
 		}
 
@@ -1760,7 +1760,7 @@ float CraftingSession::_calcAverageMalleability()
 		++manIt;
 	}
 
-	return(resAtt/slotCount);
+	return static_cast<float>(resAtt/slotCount);
 }
 
 //=============================================================================
@@ -2010,5 +2010,5 @@ void CraftingSession::createManufactureSchematic(uint32 counter)
 	sprintf(sql,"INSERT INTO item_attributes VALUES(%I64u,504,'%s',2,0)",mManufacturingSchematic->getId(),limit.getAnsi());
 
 
-	gMessageLib->sendCraftAcknowledge(opCreatePrototypeResponse,CraftCreate_2,counter,mOwner);
+	gMessageLib->sendCraftAcknowledge(opCreatePrototypeResponse,CraftCreate_2,static_cast<uint8>(counter),mOwner);
 }

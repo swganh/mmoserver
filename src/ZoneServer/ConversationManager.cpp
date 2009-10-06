@@ -117,7 +117,7 @@ void ConversationManager::handleDatabaseJobComplete(void* ref, DatabaseResult* r
 			DataBinding*	batchBinding = mDatabase->CreateDataBinding(1);
 			batchBinding->addField(DFT_uint32,0,4,5);
 
-			uint32 count = result->getRowCount();
+			uint32 count = static_cast<uint32>(result->getRowCount());
 
 			for(uint64 i = 0;i< count;i++)
 			{
@@ -126,7 +126,7 @@ void ConversationManager::handleDatabaseJobComplete(void* ref, DatabaseResult* r
 
 				page->mCustomText.convert(BSTRType_Unicode16);
 
-				result->ResetRowIndex(i);
+				result->ResetRowIndex(static_cast<int>(i));
 
 				result->GetNextRow(batchBinding,&batchId);
 

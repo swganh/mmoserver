@@ -408,7 +408,7 @@ uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* def
 		// apply damage multiplier
 		if(cmdProperties->mDamageMultiplier)
 		{
-			multipliedDamage = baseDamage * cmdProperties->mDamageMultiplier;
+			multipliedDamage = static_cast<uint32>(static_cast<float>(baseDamage) * cmdProperties->mDamageMultiplier);
 		}
 		else
 		{

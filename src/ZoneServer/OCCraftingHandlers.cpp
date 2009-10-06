@@ -62,7 +62,7 @@ void ObjectController::_handleRequestDraftslotsBatch(uint64 targetId,Message* me
 		// since we currently store everything in 1 schematic object, just look up by the crc
 		// lookup of weights is done in requestresourceweightsbatch
 		uint64 itemId = _atoi64(dataElements[i].getAnsi());
-		DraftSchematic* schematic = gSchematicManager->getSchematicBySlotId(itemId);
+		DraftSchematic* schematic = gSchematicManager->getSchematicBySlotId(static_cast<uint32>(itemId));
 
 		if(schematic)
 		{
@@ -97,7 +97,7 @@ void ObjectController::_handleRequestResourceWeightsBatch(uint64 targetId,Messag
 	for(uint16 i = 0;i < elementCount;i++)
 	{
 		uint64 itemId = _atoi64(dataElements[i].getAnsi());
-		DraftSchematic* schematic = gSchematicManager->getSchematicByWeightId(itemId);
+		DraftSchematic* schematic = gSchematicManager->getSchematicByWeightId(static_cast<uint32>(itemId));
 
 		if(schematic)
 		{
@@ -332,7 +332,7 @@ void ObjectController::handleCraftCustomization(Message* message)
 		gLogger->logMsgF("craft customization int1 : %u",MSG_HIGH,color);
 		message->getUint32(color);
 		gLogger->logMsgF("craft customization int2 : %u at index : %u",MSG_HIGH,color,(*custIt)->cutomizationIndex);
-		session->getItem()->setCustomization((*custIt)->cutomizationIndex,(uint16)color,3);
+		session->getItem()->setCustomization(static_cast<uint8>((*custIt)->cutomizationIndex),(uint16)color,3);
 
 		i++;
 		++custIt;

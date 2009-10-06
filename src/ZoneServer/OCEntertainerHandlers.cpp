@@ -931,7 +931,7 @@ void ObjectController::handleImageDesignChangeMessage(Message* message,uint64 ta
 		message->getStringAnsi(attribute);
 		colorvalue = message->getUint32();
 
-		idObject->UpdateIdColors(attribute,colorvalue);
+		idObject->UpdateIdColors(attribute,static_cast<uint16>(colorvalue));
 	}
 
 	message->getStringAnsi(holoEmote);

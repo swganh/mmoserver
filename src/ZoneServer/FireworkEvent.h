@@ -27,8 +27,8 @@ class FireworkEvent : public Anh_Utils::Event
 			this->typeId = _typeId;
 			this->playerObject=_playerObject;
 			this->mPosition = _position;
-			this->mPosition.mX +=(gRandom->getRand()%5)-2.5;
-			this->mPosition.mZ +=(gRandom->getRand()%5)-2.5;
+			this->mPosition.mX +=static_cast<float>((gRandom->getRand()%5)-2.5);
+			this->mPosition.mZ +=static_cast<float>((gRandom->getRand()%5)-2.5);
 		}
 
 		PlayerObject*		getPlayerObject() const { return playerObject; }

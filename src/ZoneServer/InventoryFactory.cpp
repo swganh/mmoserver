@@ -132,7 +132,7 @@ void InventoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 			//InLoadingContainer* ilc = new(mILCPool.ordered_malloc()) InLoadingContainer(inventory,asyncContainer->mOfCallback,asyncContainer->mClient);
 			//ilc->mLoadCounter = count;
 
-			mObjectLoadMap.insert(std::make_pair(inventory->getId(),new(mILCPool.ordered_malloc()) InLoadingContainer(inventory,asyncContainer->mOfCallback,asyncContainer->mClient,count)));
+			mObjectLoadMap.insert(std::make_pair(inventory->getId(),new(mILCPool.ordered_malloc()) InLoadingContainer(inventory,asyncContainer->mOfCallback,asyncContainer->mClient,static_cast<uint8>(count))));
 
 			for(uint32 i = 0;i < count;i++)
 			{

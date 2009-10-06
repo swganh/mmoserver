@@ -1008,7 +1008,7 @@ void EntertainerManager::grantXP(PlayerObject* entertainer)
 		FlourishCount = 2;
 	
 
-	mPerformXP = FlourishCount * ((PerformanceStruct*)entertainer->getPerformance())->florishXpMod;
+	mPerformXP = static_cast<float>(FlourishCount * ((PerformanceStruct*)entertainer->getPerformance())->florishXpMod);
 	entertainer->setFlourishCount(0);
 
 	if (mPerformXP == 0)
@@ -1044,8 +1044,8 @@ void EntertainerManager::grantXP(PlayerObject* entertainer)
 			memberIt++;
 		}	
 
-		uint32	bonusAudienceXp	=	(mPerformXP/20)*audienceNumbers;
-		uint32	bonusMembersXp	=	(mPerformXP/20)*performingMembers;
+		uint32	bonusAudienceXp	=	static_cast<uint32>((mPerformXP/20)*audienceNumbers);
+		uint32	bonusMembersXp	=	static_cast<uint32>((mPerformXP/20)*performingMembers);
 	
 		mPerformXP += bonusAudienceXp;
 		mPerformXP += bonusMembersXp;
@@ -1161,8 +1161,8 @@ void EntertainerManager::buff(PlayerObject* entertainer)
 			}
 
 			//now the amount we buff for
-			float buffPercentageDance = entertainer->getSkillModValue(SMod_healing_dance_mind);
-			float buffPercentageMusic = entertainer->getSkillModValue(SMod_healing_music_mind);
+			float buffPercentageDance = static_cast<float>(entertainer->getSkillModValue(SMod_healing_dance_mind));
+			float buffPercentageMusic = static_cast<float>(entertainer->getSkillModValue(SMod_healing_music_mind));
 
 			if(buffPercentageDance > 125)
 				buffPercentageDance = 125;
@@ -1237,19 +1237,19 @@ For information on buffing experience, see dancer and musician sections on the w
 		//total healed per tick = base healing amount x ( (100 + healingmodifier) / 100 )
 		
 		//Mindwound		//willpower		//focus
-		pTotalMindHeal = pBaseHealingMind * ((100+ modStruct.pHealingDanceWoundMod)/100);
+		pTotalMindHeal = static_cast<float>(pBaseHealingMind * ((100+ modStruct.pHealingDanceWoundMod)/100));
 
 		//bf
-		pTotalShockHeal = pBaseHealingShock * ((100+ modStruct.pHealingDanceShockMod)/100);
+		pTotalShockHeal = static_cast<float>(pBaseHealingShock * ((100+ modStruct.pHealingDanceShockMod)/100));
 		
 	}
 	else
 	{
 		//Mindwound		//willpower		//focus
-		pTotalMindHeal = pBaseHealingMind * ((100+ modStruct.pHealingMusicWoundMod)/100);
+		pTotalMindHeal = static_cast<float>(pBaseHealingMind * ((100+ modStruct.pHealingMusicWoundMod)/100));
 
 		//bf
-		pTotalShockHeal = pBaseHealingShock * ((100+ modStruct.pHealingMusicShockMod)/100);
+		pTotalShockHeal = static_cast<float>(pBaseHealingShock * ((100+ modStruct.pHealingMusicShockMod)/100));
 	}
 
 	//half the heal without flourishes
@@ -1269,24 +1269,24 @@ For information on buffing experience, see dancer and musician sections on the w
 	//Mind
 	if(entertainer->getHam()->mMind.getWounds() > 0)
 	{
-		entertainer->getHam()->updatePropertyValue(HamBar_Mind,HamProperty_Wounds, -pTotalMindHeal);
+		entertainer->getHam()->updatePropertyValue(HamBar_Mind,HamProperty_Wounds, static_cast<uint32>(-pTotalMindHeal));
 	}
 	//heal willpower
 	if(entertainer->getHam()->mWillpower.getWounds() > 0)
 	{
-		entertainer->getHam()->updatePropertyValue(HamBar_Willpower,HamProperty_Wounds, -pTotalMindHeal);
+		entertainer->getHam()->updatePropertyValue(HamBar_Willpower,HamProperty_Wounds, static_cast<uint32>(-pTotalMindHeal));
 	}
 
 	//heal focus
 	if(entertainer->getHam()->mFocus.getWounds() > 0)
 	{
-		entertainer->getHam()->updatePropertyValue(HamBar_Focus,HamProperty_Wounds, -pTotalMindHeal);
+		entertainer->getHam()->updatePropertyValue(HamBar_Focus,HamProperty_Wounds, static_cast<uint32>(-pTotalMindHeal));
 	}
 
 	//heal bf
 	if(entertainer->getHam()->getBattleFatigue() > 0)
 	{
-		entertainer->getHam()->updateBattleFatigue(-pTotalShockHeal);
+		entertainer->getHam()->updateBattleFatigue(static_cast<uint32>(-pTotalShockHeal));
 	}
 
 	//iterate through the audience
@@ -1306,29 +1306,29 @@ For information on buffing experience, see dancer and musician sections on the w
 			//heal Mind wound
 			if((*it)->getHam()->mMind.getWounds() > 0)
 			{
-				pCompleteMindHealAmount += pTotalMindHeal;
-				(*it)->getHam()->updatePropertyValue(HamBar_Mind,HamProperty_Wounds, -pTotalMindHeal);
+				pCompleteMindHealAmount += static_cast<uint32>(pTotalMindHeal);
+				(*it)->getHam()->updatePropertyValue(HamBar_Mind,HamProperty_Wounds, static_cast<uint32>(-pTotalMindHeal));
 			}
 
 			//heal willpower
 			if((*it)->getHam()->mWillpower.getWounds() > 0)
 			{
-				pCompleteSecondaryHealAmount += pTotalMindHeal;
-				(*it)->getHam()->updatePropertyValue(HamBar_Willpower,HamProperty_Wounds, -pTotalMindHeal);
+				pCompleteSecondaryHealAmount += static_cast<uint32>(pTotalMindHeal);
+				(*it)->getHam()->updatePropertyValue(HamBar_Willpower,HamProperty_Wounds, static_cast<uint32>(-pTotalMindHeal));
 			}
 
 			//heal focus
 			if((*it)->getHam()->mFocus.getWounds() > 0)
 			{
-				pCompleteSecondaryHealAmount += pTotalMindHeal;
-				(*it)->getHam()->updatePropertyValue(HamBar_Focus,HamProperty_Wounds, -pTotalMindHeal);
+				pCompleteSecondaryHealAmount += static_cast<uint32>(pTotalMindHeal);
+				(*it)->getHam()->updatePropertyValue(HamBar_Focus,HamProperty_Wounds, static_cast<uint32>(-pTotalMindHeal));
 			}
 
 			//heal bf
 			if((*it)->getHam()->getBattleFatigue() > 0)
 			{
-				pCompleteBFHealAmount += pTotalShockHeal;
-				(*it)->getHam()->updateBattleFatigue(-pTotalShockHeal);
+				pCompleteBFHealAmount += static_cast<uint32>(pTotalShockHeal);
+				(*it)->getHam()->updateBattleFatigue(static_cast<uint32>(-pTotalShockHeal));
 			}
 
 			++it;
@@ -1337,9 +1337,9 @@ For information on buffing experience, see dancer and musician sections on the w
 
 	float pHealingXP;
 	float pHealingXP2nd;
-	pHealingXP = pCompleteBFHealAmount * 2;
+	pHealingXP = static_cast<float>(pCompleteBFHealAmount * 2);
 	
-	pHealingXP2nd = pCompleteSecondaryHealAmount /10;
+	pHealingXP2nd = static_cast<float>(pCompleteSecondaryHealAmount /10);
 	pHealingXP2nd += pCompleteMindHealAmount /2;
 	
 	PlayerList members;
@@ -1487,8 +1487,8 @@ void EntertainerManager::stopWatching(PlayerObject* audience,bool ooRange)
 				
 				// apply it
 				int32	mind		= audience->getHam()->getPropertyValue(HamBar_Mind,HamProperty_BaseHitpoints);
-				mind				= (int)mind*percentage;
-				mind				= (int)mind*buffPercentageDance;
+				mind				= static_cast<uint32>(mind*percentage);
+				mind				= static_cast<uint32>(mind*buffPercentageDance);
 
 				//yay!!! we got ourselves a buff!!!
 				BuffAttribute* mindAttribute = new BuffAttribute(Mind, +mind,0,-(int)mind); 
@@ -1577,7 +1577,7 @@ void EntertainerManager::stopListening(PlayerObject* audience,bool ooRange)
 				
 				// SMod_healing_dance_mind determines how big the mindbuff is
 				// 100% is the mind the customer has
-				float	buffPercentageDance = (entertainer->getSkillModValue(SMod_healing_music_mind)/100);
+				float buffPercentageDance = static_cast<float>(entertainer->getSkillModValue(SMod_healing_music_mind)/100);
 				//gLogger->logMsgF(" Skillmod %i",MSG_HIGH,entertainer->getSkillModValue(SMod_healing_music_mind));
 
 
@@ -1589,12 +1589,12 @@ void EntertainerManager::stopListening(PlayerObject* audience,bool ooRange)
 				
 				// apply it
 				int32	focus		= audience->getHam()->getPropertyValue(HamBar_Focus,HamProperty_BaseHitpoints);
-				focus				= (int)(focus*percentage);
+				focus				= static_cast<uint8>((focus*percentage));
 				focus				= (int)(focus*buffPercentageDance);
 
 				int32	will		= audience->getHam()->getPropertyValue(HamBar_Willpower,HamProperty_BaseHitpoints);
-				will				= (int)will*percentage;
-				will				= (int)will*buffPercentageDance;
+				will				= static_cast<uint32>(will*percentage);
+				will				= static_cast<uint32>(will*buffPercentageDance);
 
 				//yay!!! we got ourselves a buff!!!
 				BuffAttribute* focusAttribute = new BuffAttribute(Focus, +focus,0,-(int)focus); 

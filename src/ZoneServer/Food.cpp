@@ -216,11 +216,11 @@ void Food::handleFoodUse(Object* srcObject)
 
 void Food::_handleHealth_Buff(PlayerObject* playerObject)
 {
-	uint32 amount = this->getAttribute<float>("attr_health");
+	uint32 amount = static_cast<uint32>(this->getAttribute<float>("attr_health"));
 	uint32 duration = 0;
 	if(this->hasAttribute("duration"))
 	{
-		duration = this->getAttribute<float>("duration");
+		duration = static_cast<uint32>(this->getAttribute<float>("duration"));
 		//get a stomach Buff to handle the filling
 		BuffAttribute* foodAttribute = new BuffAttribute(Health, +amount,0,-(int)amount); 
 		Buff* foodBuff = Buff::SimpleBuff(playerObject, playerObject, duration*10, mIcon, gWorldManager->GetCurrentGlobalTick());
@@ -236,11 +236,11 @@ void Food::_handleHealth_Buff(PlayerObject* playerObject)
 
 void Food::_handleMind_Buff(PlayerObject* playerObject)
 {
-	uint32 amount = this->getAttribute<float>("attr_health");
+	uint32 amount = static_cast<uint32>(this->getAttribute<float>("attr_health"));
 	uint32 duration = 0;
 	if(this->hasAttribute("duration"))
 	{
-		duration = this->getAttribute<float>("duration");
+		duration = static_cast<uint32>(this->getAttribute<float>("duration"));
 		//get a stomach Buff to handle the filling
 		BuffAttribute* foodAttribute = new BuffAttribute(Mind, +amount,0,-(int)amount); 
 		Buff* foodBuff = Buff::SimpleBuff(playerObject, playerObject, duration*10, mIcon, gWorldManager->GetCurrentGlobalTick());

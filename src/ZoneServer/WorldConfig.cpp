@@ -106,21 +106,21 @@ void WorldConfig::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 		mServerTimeSpeed = 5000;
 
 	// ham regen
-	mHealthRegenDivider = gWorldConfig->getConfiguration("Player_Health_RegenDivider",100);
+	mHealthRegenDivider = static_cast<float>(gWorldConfig->getConfiguration("Player_Health_RegenDivider",100));
 	
 	if(mHealthRegenDivider < 1.0f || mHealthRegenDivider > 500.0f)
 		mHealthRegenDivider = 100.0f;
 
-	mActionRegenDivider = gWorldConfig->getConfiguration("Player_Action_RegenDivider",100);
+	mActionRegenDivider = static_cast<float>(gWorldConfig->getConfiguration("Player_Action_RegenDivider",100));
 	if(mActionRegenDivider < 1.0f || mActionRegenDivider > 500.0f)
 		mActionRegenDivider = 100.0f;
 
-	mMindRegenDivider = gWorldConfig->getConfiguration("Player_Mind_RegenDivider",100);
+	mMindRegenDivider = static_cast<float>(gWorldConfig->getConfiguration("Player_Mind_RegenDivider",100));
 	if(mMindRegenDivider < 1.0f || mMindRegenDivider > 500.0f)
 		mMindRegenDivider = 100.0f;
 
 	// incapacitation
-	mPlayerMaxIncaps = gWorldConfig->getConfiguration("Player_Incapacitation",3);
+	mPlayerMaxIncaps = static_cast<uint8>(gWorldConfig->getConfiguration("Player_Incapacitation",3));
 	
 	if(mPlayerMaxIncaps < 1 || mPlayerMaxIncaps > 50)
 	{

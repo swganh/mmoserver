@@ -223,7 +223,7 @@ class PlayerObject : public CreatureObject
 		uint8				getFlourishCount(){return mFlourishCount;}
 		void				setFlourishCount(uint8 flourishCount){mFlourishCount = flourishCount;}
 
-		uint8				getGroupMusicXp(){return mGroupXp;}
+		uint8				getGroupMusicXp(){return static_cast<uint8>(mGroupXp);}
 		void				setGroupMusicXp(uint8 groupXp){mGroupXp = groupXp;}
 
 		// ID
@@ -236,7 +236,7 @@ class PlayerObject : public CreatureObject
 		uint32				getHoloEmote(){ return mHoloEmote; }
 		void				setHoloEmote(uint32 emote){ mHoloEmote = emote; }
 		uint32				getHoloCharge(){ return mHoloCharge; }
-		void				setHoloCharge(uint32 emote){ mHoloCharge = emote; }
+		void				setHoloCharge(uint32 emote){ mHoloCharge = static_cast<uint8>(emote); }
 		
 		// trade
 		void				giveBankCredits(uint32 amount);

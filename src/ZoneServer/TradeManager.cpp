@@ -528,7 +528,7 @@ void TradeManager::_processFindFriendCreateWaypointMessage(Message* message,Disp
 
 	if(thePad->getCapacity())
 	{
-		thePad->requestNewWaypoint(playerFriendName.getAnsi(),position,planet,Waypoint_blue);
+		thePad->requestNewWaypoint(playerFriendName.getAnsi(),position,static_cast<uint16>(planet),Waypoint_blue);
 	}
 }
 

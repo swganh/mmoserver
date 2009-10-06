@@ -175,8 +175,8 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			{
 				names = new(Mission_Names);
 				result->GetNextRow(binding,names);
-				names->id = i;
-				mNameMap.insert(std::make_pair(i,names));
+				names->id = static_cast<uint32>(i);
+				mNameMap.insert(std::make_pair(static_cast<uint32>(i),names));
 			}
 
 			if(result->getRowCount())
@@ -205,7 +205,7 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			{
 				mission = new(Mission_Types);
 				result->GetNextRow(binding,mission);
-				mMissionMap.insert(std::make_pair(mission->id,mission));
+				mMissionMap.insert(std::make_pair(static_cast<uint32>(mission->id),mission));
 			}
 
 			MissionManagerAsyncContainer*  asyncContainer = new MissionManagerAsyncContainer(MissionQuery_Load_Terminal_Type, 0);
@@ -617,7 +617,7 @@ void MissionManager::missionAbort(PlayerObject* player, uint64 mission_id)
 	}
 	else
 	{
-		gLogger->logMsg("ERROR: Attempt to abort an invalid mission, with id %.8X, from the datapad.", mission_id);
+		gLogger->logMsg("ERROR: Attempt to abort an invalid mission, with id %.8X, from the datapad.", static_cast<int>(mission_id));
 	}
 	
 return;

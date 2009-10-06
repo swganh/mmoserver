@@ -63,7 +63,7 @@ void ObjectController::_handleSetSpokenLanguage(uint64 targetId,Message* message
 	message->getStringUnicode16(tmpStr);
 	tmpStr.convert(BSTRType_ANSI);
 
-	uint32 languageId = _atoi64(tmpStr.getAnsi());
+	uint32 languageId = static_cast<uint32>(_atoi64(tmpStr.getAnsi()));
 	playerObject->setLanguage(languageId);
 	gMessageLib->sendLanguagePlay9(playerObject);
 }

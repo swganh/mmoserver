@@ -131,7 +131,7 @@ void ContainerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult*
 
 			uint64 count = result->getRowCount();
 
-			mObjectLoadMap.insert(std::make_pair(container->getId(),new(mILCPool.ordered_malloc()) InLoadingContainer(container,asyncContainer->mOfCallback,asyncContainer->mClient,count)));
+			mObjectLoadMap.insert(std::make_pair(container->getId(),new(mILCPool.ordered_malloc()) InLoadingContainer(container,asyncContainer->mOfCallback,asyncContainer->mClient,static_cast<uint32>(count))));
 
 			for(uint32 i = 0;i < count;i++)
 			{

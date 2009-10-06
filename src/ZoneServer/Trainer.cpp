@@ -1142,8 +1142,8 @@ void Trainer::prepareConversation(PlayerObject* player)
 	{	
 		if (x/h < 0.0)
 		{
-			this->mDirection.mW = cos((3.14159354 * 0.5) + 0.5f*acos(-z/h));
-			this->mDirection.mY = sin((3.14159354 * 0.5) + 0.5f*acos(-z/h));
+			this->mDirection.mW = static_cast<float>(cos((3.14159354 * 0.5) + 0.5f*acos(-z/h)));
+			this->mDirection.mY = static_cast<float>(sin((3.14159354 * 0.5) + 0.5f*acos(-z/h)));
 		}
 		else
 		{

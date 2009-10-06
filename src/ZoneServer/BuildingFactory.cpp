@@ -135,7 +135,7 @@ void BuildingFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 			// store us for later lookup
 			mObjectLoadMap.insert(std::make_pair(building->getId(),new(mILCPool.ordered_malloc()) InLoadingContainer(building,asyncContainer->mOfCallback,asyncContainer->mClient)));
 
-			cellCount = result->getRowCount();
+			cellCount = static_cast<uint32>(result->getRowCount());
 
 			building->setLoadCount(cellCount);
 

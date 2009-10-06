@@ -317,7 +317,7 @@ void ZoneServer::_connectToConnectionServer(void)
 
 	// Execute our statement
 	DatabaseResult* result = mDatabase->ExecuteSynchSql("SELECT id, address, port, status, active FROM config_process_list WHERE name='connection';");
-	uint32 count = result->getRowCount();
+	uint32 count = static_cast<uint32>(result->getRowCount());
 
 	// If we found them
 	if (count == 1)

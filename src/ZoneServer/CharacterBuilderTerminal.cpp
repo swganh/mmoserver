@@ -417,7 +417,7 @@ void CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string 
 					ResourceCRCNameMap::iterator	rCrcMapIt;
 					
 					ResourceTypeMap::iterator		rtIt				= rtMap->begin();
-					uint32							catId				= resourceIdList[element];
+					uint32							catId				= static_cast<uint32>(resourceIdList[element]);
 					ResourceCategory*				rCategory			= gResourceManager->getResourceCategoryById(catId);
 					BStringVector					resourceNameList;
 
@@ -500,7 +500,7 @@ void CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string 
 					break;
 				}
 
-				uint32							typeId		= resourceIdList[element];
+				uint32							typeId		= static_cast<uint8>(resourceIdList[element]);
 				ResourceType*					rType		= gResourceManager->getResourceTypeById(typeId);
 				ResourceTypeMap*				rtMap		= gResourceManager->getResourceTypeMap();
 				ResourceCRCNameMap*				rCRCMap		= gResourceManager->getResourceCRCNameMap();
@@ -543,7 +543,7 @@ void CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string 
 					break;
 				}
 
-				uint32		crc			= resourceIdList[element];
+				uint32		crc			= static_cast<uint32>(resourceIdList[element]);
 				Resource*	resource	= gResourceManager->getResourceByNameCRC(crc);
 
 				if(resource)

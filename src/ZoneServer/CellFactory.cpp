@@ -98,7 +98,7 @@ void CellFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			{
 				// store us for later lookup
 				mObjectLoadMap.insert(std::make_pair(cell->getId(),new(mILCPool.ordered_malloc()) InLoadingContainer(cell,asyncContainer->mOfCallback,asyncContainer->mClient)));
-				cell->setLoadCount(count);
+				cell->setLoadCount(static_cast<uint32>(count));
 
 				for(uint32 i = 0;i < count;i++)
 				{

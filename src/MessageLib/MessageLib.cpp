@@ -120,7 +120,7 @@ void MessageLib::_sendToInRangeUnreliable(Message* message, Object* const object
 			gMessageFactory->addData(message->getData(),message->getSize());
 			clonedMessage = gMessageFactory->EndMessage();
 
-			((*it)->getClient())->SendChannelAUnreliable(clonedMessage,(*it)->getAccountId(),CR_Client,priority);
+			((*it)->getClient())->SendChannelAUnreliable(clonedMessage,(*it)->getAccountId(),CR_Client,static_cast<uint8>(priority));
 		}
 
 		++it;
@@ -131,7 +131,7 @@ void MessageLib::_sendToInRangeUnreliable(Message* message, Object* const object
 		const PlayerObject* const srcPlayer = dynamic_cast<const PlayerObject*>(object);
 		if(_checkPlayer(srcPlayer))	
 		{
-			(srcPlayer->getClient())->SendChannelAUnreliable(message,srcPlayer->getAccountId(),CR_Client,priority);
+			(srcPlayer->getClient())->SendChannelAUnreliable(message,srcPlayer->getAccountId(),CR_Client,static_cast<uint8>(priority));
 			return;
 		}
 	}
@@ -155,7 +155,7 @@ void MessageLib::_sendToInRange(Message* message, Object* const object,uint16 pr
 			gMessageFactory->addData(message->getData(),message->getSize());
 			clonedMessage = gMessageFactory->EndMessage();
 
-			((*it)->getClient())->SendChannelA(clonedMessage,(*it)->getAccountId(),CR_Client,priority);
+			((*it)->getClient())->SendChannelA(clonedMessage,(*it)->getAccountId(),CR_Client,static_cast<uint8>(priority));
 		}
 
 		++it;
@@ -166,7 +166,7 @@ void MessageLib::_sendToInRange(Message* message, Object* const object,uint16 pr
 		const PlayerObject* const srcPlayer = dynamic_cast<const PlayerObject*>(object);
 		if(_checkPlayer(srcPlayer))	
 		{
-			(srcPlayer->getClient())->SendChannelA(message,srcPlayer->getAccountId(),CR_Client,priority);
+			(srcPlayer->getClient())->SendChannelA(message,srcPlayer->getAccountId(),CR_Client, static_cast<uint8>(priority));
 			return;
 		}
 	}
@@ -201,7 +201,7 @@ void MessageLib::_sendToInstancedPlayers(Message* message,uint16 priority, const
 			gMessageFactory->addData(message->getData(),message->getSize());
 			clonedMessage = gMessageFactory->EndMessage();
 
-			((*player)->getClient())->SendChannelA(clonedMessage,(*player)->getAccountId(),CR_Client,priority);
+			((*player)->getClient())->SendChannelA(clonedMessage,(*player)->getAccountId(),CR_Client,static_cast<uint8>(priority));
 		}
 		++player;
 	}
@@ -235,7 +235,7 @@ void MessageLib::_sendToInstancedPlayersUnreliable(Message* message,uint16 prior
 			clonedMessage = gMessageFactory->EndMessage();
 
 
-			((*player)->getClient())->SendChannelAUnreliable(clonedMessage,(*player)->getAccountId(),CR_Client,priority);
+			((*player)->getClient())->SendChannelAUnreliable(clonedMessage,(*player)->getAccountId(),CR_Client,static_cast<uint8>(priority));
 	
 		}
 		++player;
@@ -266,9 +266,9 @@ void MessageLib::_sendToAll(Message* message,uint16 priority,bool unreliable) co
 			clonedMessage = gMessageFactory->EndMessage();
 
 			if(unreliable)
-				(player->getClient())->SendChannelAUnreliable(clonedMessage,player->getAccountId(),CR_Client,priority);
+				(player->getClient())->SendChannelAUnreliable(clonedMessage,player->getAccountId(),CR_Client,static_cast<uint8>(priority));
 			else
-				(player->getClient())->SendChannelA(clonedMessage,player->getAccountId(),CR_Client,priority);
+				(player->getClient())->SendChannelA(clonedMessage,player->getAccountId(),CR_Client,static_cast<uint8>(priority));
 		}
 
 		++it;

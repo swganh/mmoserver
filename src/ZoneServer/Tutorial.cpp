@@ -584,7 +584,7 @@ uint32 Tutorial::getRoom()
 			mCellId = mPlayerObject->getParentId();
 		}
 	}
-	return (mCellId + 1 - StartingRoom); // First room is 1.
+	return static_cast<uint32>(mCellId + 1 - StartingRoom); // First room is 1.
 }
 
 void Tutorial::spatialChat(uint64 targetId, std::string chatMsg)

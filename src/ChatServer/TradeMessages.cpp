@@ -83,7 +83,7 @@ void ChatMessageLib::processSendCreateItem(DispatchClient* client, uint64 mPlaye
 	gMessageFactory->addUint32(mItemGroup);
 	Message* newMessage = gMessageFactory->EndMessage();
 	//planetID+8 is the zones ID 
-	client->SendChannelA(newMessage, client->getAccountId(), mPlanetID+8, 6);
+	client->SendChannelA(newMessage, client->getAccountId(), static_cast<uint8>(mPlanetID)+8, 6);
 
 }
 
@@ -138,7 +138,7 @@ void ChatMessageLib::sendBankTipDeductMessage(DispatchClient* client, uint64 rec
 	gMessageFactory->addUint32(amount);	
 
 	Message* newMessage = gMessageFactory->EndMessage();
-	client->SendChannelA(newMessage, client->getAccountId(), mPlayer->getPlanetId()+8 , 6);
+	client->SendChannelA(newMessage, client->getAccountId(), static_cast<uint8>(mPlayer->getPlanetId())+8 , 6);
 
 
 }
@@ -204,7 +204,7 @@ void ChatMessageLib::sendBazaarTransactionMessage(DispatchClient* client, Auctio
 	gMessageFactory->addString(y);//y
 
 	Message* newMessage = gMessageFactory->EndMessage();
-	client->SendChannelA(newMessage, client->getAccountId(), mPlayer->getPlanetId()+8 , 6);
+	client->SendChannelA(newMessage, client->getAccountId(), static_cast<uint8>(mPlayer->getPlanetId())+8 , 6);
 
 }
 

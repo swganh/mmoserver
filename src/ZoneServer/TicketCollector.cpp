@@ -109,7 +109,7 @@ void TicketCollector::_createTicketSelectMenu(PlayerObject* playerObject)
 		if(TravelTicket* ticket = dynamic_cast<TravelTicket*>(*it))
 		{
 			string srcPoint		= (int8*)((ticket->getAttribute<std::string>("travel_departure_point")).c_str());
-			uint16 srcPlanetId	= gWorldManager->getPlanetIdByName((int8*)((ticket->getAttribute<std::string>("travel_departure_planet")).c_str()));
+			uint16 srcPlanetId	= static_cast<uint16>(gWorldManager->getPlanetIdByName((int8*)((ticket->getAttribute<std::string>("travel_departure_planet")).c_str())));
 
 			if(srcPlanetId == zoneId && strcmp(srcPoint.getAnsi(),mPortDescriptor.getAnsi()) == 0)
 			{
@@ -155,8 +155,8 @@ void TicketCollector::handleUIEvent(uint32 action,int32 element,string inputStr,
 			{
 				string srcPoint		= (int8*)((ticket->getAttribute<std::string>("travel_departure_point")).c_str());
 				string dstPointStr	= (int8*)((ticket->getAttribute<std::string>("travel_arrival_point")).c_str());
-				uint16 srcPlanetId	= gWorldManager->getPlanetIdByName((int8*)((ticket->getAttribute<std::string>("travel_departure_planet")).c_str()));
-				uint16 dstPlanetId	= gWorldManager->getPlanetIdByName((int8*)((ticket->getAttribute<std::string>("travel_arrival_planet")).c_str()));
+				uint16 srcPlanetId	= static_cast<uint16>(gWorldManager->getPlanetIdByName((int8*)((ticket->getAttribute<std::string>("travel_departure_planet")).c_str())));
+				uint16 dstPlanetId	= static_cast<uint16>(gWorldManager->getPlanetIdByName((int8*)((ticket->getAttribute<std::string>("travel_arrival_planet")).c_str())));
 
 				BStringVector* items = (dynamic_cast<UIListBox*>(window))->getDataItems();
 				string selectedDst = items->at(element);
@@ -217,8 +217,8 @@ void TicketCollector::travelRequest(TravelTicket* ticket,PlayerObject* playerObj
 	uint32 zoneId		= gWorldManager->getZoneId();
 	string srcPoint		= (int8*)((ticket->getAttribute<std::string>("travel_departure_point")).c_str());
 	string dstPointStr	= (int8*)((ticket->getAttribute<std::string>("travel_arrival_point")).c_str());
-	uint16 srcPlanetId	= gWorldManager->getPlanetIdByName((int8*)((ticket->getAttribute<std::string>("travel_departure_planet")).c_str()));
-	uint16 dstPlanetId	= gWorldManager->getPlanetIdByName((int8*)((ticket->getAttribute<std::string>("travel_arrival_planet")).c_str()));
+	uint16 srcPlanetId	= static_cast<uint16>(gWorldManager->getPlanetIdByName((int8*)((ticket->getAttribute<std::string>("travel_departure_planet")).c_str())));
+	uint16 dstPlanetId	= static_cast<uint16>(gWorldManager->getPlanetIdByName((int8*)((ticket->getAttribute<std::string>("travel_arrival_planet")).c_str())));
 
 	if (mShuttle && mShuttle->avaliableInPort())
 	{

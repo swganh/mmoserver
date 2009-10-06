@@ -107,7 +107,7 @@ void ChatMessageLib::sendFindFriendCreateWaypoint(DispatchClient* client, Player
 	gMessageFactory->addFloat(friendPlayer->getPositionZ());
 	Message* newMessage = gMessageFactory->EndMessage();
 	//planetID+8 is the zones ID 
-	client->SendChannelA(newMessage, client->getAccountId(),player->getPlanetId()+8, 6);
+	client->SendChannelA(newMessage, client->getAccountId(),static_cast<uint8>(player->getPlanetId())+8, 6);
 
 }
 
@@ -124,7 +124,7 @@ void ChatMessageLib::sendFindFriendRequestPosition(DispatchClient* client, Playe
 	
 	Message* newMessage = gMessageFactory->EndMessage();
 	//planetID+8 is the zones ID 
-	client->SendChannelA(newMessage, client->getAccountId(), playersFriend->getPlanetId()+8, 6);
+	client->SendChannelA(newMessage, client->getAccountId(), static_cast<uint8>(playersFriend->getPlanetId())+8, 6);
 
 }
 

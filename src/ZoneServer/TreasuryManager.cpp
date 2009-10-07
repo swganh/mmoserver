@@ -22,6 +22,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "BankTerminal.h"
 #include "WorldConfig.h"
 #include "Bank.h"
+#include "Inventory.h"
 
 //======================================================================================================================
 

@@ -39,6 +39,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "WorldManager.h"
 #include "ZoneServer.h"
 #include "ZoneTree.h"
+#include "CraftingTool.h"
 
 //======================================================================================================================
 

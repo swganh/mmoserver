@@ -15,7 +15,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "MessageLib/MessageLib.h"
 #include "WorldManager.h"
 #include "WorldConfig.h"
-
+#include "Inventory.h"
 #include "Conversation.h"
 #include "ActiveConversation.h"
 #include "PlayerObject.h"

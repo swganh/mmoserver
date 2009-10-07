@@ -14,17 +14,15 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 //#include "Utils/typedefs.h"
 #include "CraftingEnums.h"
-#include "CraftingTool.h"
-#include "CraftingStation.h"
 #include "ObjectFactoryCallback.h"
-#include "Item.h"
-#include "Inventory.h"
 #include "ManufacturingSchematic.h"
 #include "Utils/rand.h"
 
 
 //=============================================================================
 
+class Item;
+class Inventory;
 class Database;
 class DatbaseCallback;
 class PlayerObject;
@@ -34,6 +32,8 @@ class DispatchClient;
 class ManufacturingSchematic;
 class CraftSessionQueryContainer;
 class CraftWeight;
+class CraftingTool;
+class CraftingStation;
 
 namespace Anh_Utils
 {

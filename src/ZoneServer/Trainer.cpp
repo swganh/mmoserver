@@ -23,6 +23,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "Bank.h"
 #include "CellObject.h"
 #include "ZoneTree.h"
+#include "Inventory.h"
 
 //=============================================================================
 

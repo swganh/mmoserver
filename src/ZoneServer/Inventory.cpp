@@ -16,6 +16,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "PlayerObject.h"
 #include "MessageLib/MessageLib.h"
 #include "ResourceContainer.h"
+#include "CraftingTool.h"
 
 
 //=============================================================================

@@ -17,6 +17,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "TreasuryManager.h"
 #include "BankTerminal.h"
 #include "Bank.h"
+#include "Inventory.h"
 
 //=============================================================================
 
@@ -31,7 +32,6 @@ BankTerminal::~BankTerminal()
 }
 
 //=============================================================================
-
 void BankTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 {
 	PlayerObject* playerObject = (PlayerObject*)srcObject;

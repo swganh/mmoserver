@@ -10,6 +10,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 */
 
 #include "ActiveConversation.h"
+#include "Conversation.h"
 #include "NPCObject.h"
 #include "SkillManager.h"
 #include "PlayerObject.h"

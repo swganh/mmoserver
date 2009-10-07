@@ -25,6 +25,10 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "ObjectFactory.h"
 #include "ManufacturingSchematic.h"
 #include "ResourceManager.h"
+#include "Inventory.h"
+#include "Item.h"
+#include "CraftingTool.h"
+#include "CraftingStation.h"
 
 //=============================================================================
 //

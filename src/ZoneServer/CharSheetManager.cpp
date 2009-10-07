@@ -22,6 +22,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "CharSheetManager.h"
 #include "PlayerObject.h"
 #include "WorldManager.h"
+#include "Inventory.h"
 #include "ZoneOpcodes.h"
 
 //=========================================================================================

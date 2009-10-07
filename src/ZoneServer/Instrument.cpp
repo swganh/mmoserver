@@ -17,6 +17,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "Instrument.h"
 #include "WorldConfig.h"
 #include "CellObject.h"
+#include "Inventory.h"
 
 //=============================================================================
 

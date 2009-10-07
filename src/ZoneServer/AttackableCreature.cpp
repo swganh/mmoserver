@@ -20,6 +20,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "ResourceContainer.h"
 #include "CellObject.h"
 #include "ZoneTree.h"
+#include "Inventory.h"
 
 // TODO: Implement by functionality.
 static const int64 readyDefaultPeriodTime = 1000;

@@ -12,17 +12,15 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_ZONESERVER_ACTIVE_CONVERSATION_H
 #define ANH_ZONESERVER_ACTIVE_CONVERSATION_H
 
-#include "Utils/typedefs.h"
-#include "Conversation.h"
 #include <vector>
 
+#include "Utils/typedefs.h"
+#include "Conversation.h"
 
 //=============================================================================
 
-class PlayerObject;
 class NPCObject;
-class ConversationPage;
-class ConversationOption;
+class PlayerObject;
 
 //=============================================================================
 

@@ -15,6 +15,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "LogManager/LogManager.h"
 #include "MessageLib/MessageLib.h"
 #include "UIManager.h"
+#include "Inventory.h"
 
 //======================================================================================================================
 //gets the information on a holoemote from the loaded db data

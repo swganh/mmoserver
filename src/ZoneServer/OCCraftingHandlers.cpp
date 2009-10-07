@@ -33,6 +33,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "CraftingSessionFactory.h"
 #include "SchematicManager.h"
 #include "ZoneTree.h"
+#include "Utils/clock.h"
 
 //=============================================================================
 //

@@ -13,7 +13,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "SchematicManager.h"
 #include "PlayerObject.h"
 #include "WorldManager.h"
-
+#include "ZoneOpcodes.h"
 
 
 //=============================================================================

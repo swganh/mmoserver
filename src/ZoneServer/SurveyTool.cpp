@@ -22,6 +22,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "LogManager/LogManager.h"
 #include "ObjectControllerOpcodes.h"
 #include <boost/lexical_cast.hpp>
+#include "ZoneOpcodes.h"
 
 
 //=============================================================================

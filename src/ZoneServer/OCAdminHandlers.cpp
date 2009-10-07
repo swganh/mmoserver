@@ -16,7 +16,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "AdminManager.h"
 #include "MessageLib/MessageLib.h"
 #include "LogManager/LogManager.h"
-
+#include "ZoneOpcodes.h"
 //=============================================================================================================================
 //
 // system message

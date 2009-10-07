@@ -10,11 +10,6 @@ Copyright (c) 2006 - 2009 The swgANH Team
 */
 
 #include "EntertainerManager.h"
-//#include "Common/MessageDispatch.h"
-//#include "Common/MessageFactory.h"
-//#include "Common/MessageOpcodes.h"
-//#include "Common/Message.h"
-//#include "Common/DispatchClient.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
@@ -22,7 +17,6 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "WorldManager.h"
 #include "Utils/utils.h"
 #include "DatabaseManager/Transaction.h"
-//#include "ObjectFactory.h"
 #include "Common/atMacroString.h"
 #include "UIManager.h"
 #include "NonPersistantObjectFactory.h"
@@ -31,9 +25,21 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "Instrument.h"
 #include "PlayerEnums.h"
 
-bool						EntertainerManager::mInsFlag    = false;
-EntertainerManager*	EntertainerManager::mSingleton  = NULL;
+bool EntertainerManager::mInsFlag = false;
+EntertainerManager*	EntertainerManager::mSingleton = NULL;
 
+//======================================================================================================================
+	
+EntertainerManagerAsyncContainer::EntertainerManagerAsyncContainer(EMQueryType qt,DispatchClient* client)
+{ 
+    mQueryType = qt;
+    mClient = client; 
+}
+
+//======================================================================================================================
+
+EntertainerManagerAsyncContainer::~EntertainerManagerAsyncContainer()
+{}
 
 //======================================================================================================================
 
@@ -58,6 +64,7 @@ EntertainerManager::EntertainerManager(Database* database,MessageDispatch* dispa
 
 
 //======================================================================================================================
+
 EntertainerManager::~EntertainerManager()
 {
 	mInsFlag = false;
@@ -65,6 +72,7 @@ EntertainerManager::~EntertainerManager()
 	
 }
 //======================================================================================================================
+
 EntertainerManager*	EntertainerManager::Init(Database* database, MessageDispatch* dispatch)
 {
 	if(!mInsFlag)

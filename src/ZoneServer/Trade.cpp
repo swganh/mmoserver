@@ -10,6 +10,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "MessageLib/MessageLib.h"
+#include "Utils/Scheduler.h"
 #include "Trade.h"
 #include "Wearable.h"
 #include "PlayerObject.h"

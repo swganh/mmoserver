@@ -15,6 +15,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "LogManager/LogManager.h"
 #include "WorldManager.h"
 #include "DatabaseManager/Database.h"
+#include "Utils/clock.h"
 
 #include "UIManager.h"
 #include "UIEnums.h"

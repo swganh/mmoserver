@@ -20,6 +20,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "DatabaseManager/DatabaseCallback.h"
 #include "WorldManager.h"
 #include "MessageLib/MessageLib.h"
+#include "Utils/clock.h"
 #include "ObjectControllerOpcodes.h"
 #include "SchematicManager.h"
 #include "ObjectFactory.h"

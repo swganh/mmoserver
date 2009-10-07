@@ -16,6 +16,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "WaypointObject.h"
 #include "NPCObject.h"
 #include "Terminal.h"
+#include "ZoneOpcodes.h"
 
 
 //=============================================================================

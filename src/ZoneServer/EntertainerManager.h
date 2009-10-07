@@ -12,18 +12,13 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_ZONESERVER_ENTERTAINERMANAGER_H
 #define ANH_ZONESERVER_ENTERTAINERMANAGER_H
 
-//#include "Common/MessageDispatchCallback.h"
+#include <map>
+#include <vector>
+
 #include "DatabaseManager/DatabaseCallback.h"
 #include "ObjectFactoryCallback.h"
-//#include "ObjectFactory.h"
-#include "LogManager/LogManager.h"
-#include "ZoneOpcodes.h"
-#include "PlayerEnums.h"
-#include <vector>
-#include <map>
-#include "Utils/Scheduler.h"
 
-#define 	gEntertainerManager	EntertainerManager::getSingletonPtr()
+#define gEntertainerManager	EntertainerManager::getSingletonPtr()
 
 //======================================================================================================================
 
@@ -34,6 +29,8 @@ class PlayerObject;
 class CreatureObject;
 class Item;
 class Object;
+
+struct BuffStruct;
 
 //======================================================================================================================
 
@@ -130,8 +127,8 @@ class EntertainerManagerAsyncContainer
 {
 public:
 
-	EntertainerManagerAsyncContainer(EMQueryType qt,DispatchClient* client){ mQueryType = qt; mClient = client; }
-	~EntertainerManagerAsyncContainer(){}
+	EntertainerManagerAsyncContainer(EMQueryType qt,DispatchClient* client);
+	~EntertainerManagerAsyncContainer();
 
 	EMQueryType			mQueryType;
 	DispatchClient*		mClient;	
@@ -145,7 +142,7 @@ public:
 
 //======================================================================================================================
 
-class EntertainerManager : public DatabaseCallback,public ObjectFactoryCallback
+class EntertainerManager : public DatabaseCallback, public ObjectFactoryCallback
 {
 	friend class ObjectFactory;
 	friend class PlayerObject;

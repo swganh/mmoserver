@@ -33,7 +33,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "FillerNPC.h"
 #include "CraftingTool.h"
 #include "MissionManager.h"
-
+#include "Utils/clock.h"
 
 //=============================================================================
 //

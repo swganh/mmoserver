@@ -31,6 +31,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "ZoneTree.h"
 #include "ConversationManager.h"
 #include "BuildingObject.h"
+#include "Utils/clock.h"
 
 //=============================================================================
 //

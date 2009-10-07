@@ -4,6 +4,7 @@
 #include "Medicine.h"
 #include "WorldManager.h"
 #include "UIManager.h"
+#include "Inventory.h"
 
 #ifndef min
 #define min(a,b)(((a)<(b))?(a):(b))
@@ -12,9 +13,18 @@
 bool			MedicManager::mInsFlag = false;
 MedicManager*	MedicManager::mSingleton = NULL;
 
-MedicManager::~MedicManager(void)
+	
+MedicManager::MedicManager(MessageDispatch* dispatch)
+{ 
+    Dispatch = dispatch; 
+}
+
+
+MedicManager::~MedicManager()
 {
 }
+
+
 bool MedicManager::Diagnose(PlayerObject* Medic, PlayerObject* Target)
 {
 	//TODO: Allow Pet Diagnosis
@@ -35,6 +45,14 @@ bool MedicManager::Diagnose(PlayerObject* Medic, PlayerObject* Target)
 	gUIManager->createNewDiagnoseListBox(Medic, Medic, Target);
 	return true;
 }
+
+	
+bool MedicManager::HealDamage(PlayerObject* Medic, CreatureObject* Target, ObjectControllerCmdProperties* cmdProperties)
+{ 
+    return HealDamage(Medic, Target, 0, cmdProperties); 
+}
+
+
 bool MedicManager::HealDamage(PlayerObject* Medic, CreatureObject* Target, uint64 StimPackObjectID, ObjectControllerCmdProperties* cmdProperties)
 {
 	//TODO: Major - Allow for Ranged Stims if we are beyond healing range of standard stims

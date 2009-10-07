@@ -12,18 +12,22 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_ZONESERVER_MISSIONMANAGER_H
 #define ANH_ZONESERVER_MISSIONMANAGER_H
 
-#define     gMissionManager    MissionManager::getSingletonPtr()
+#define gMissionManager MissionManager::getSingletonPtr()
 
+#include <map>
 #include "Utils/typedefs.h"
 #include "DatabaseManager/DatabaseCallback.h"
-#include "MissionObject.h"
 
 //======================================================================================================================
 
+class CurrentResource;
 class Database;
 class DatabaseCallback;
 class DatabaseResult;
-class CurrentResource;
+class DispatchClient;
+class MissionObject;
+class NPCObject;
+class PlayerObject;
 
 typedef struct tagResourceLocation ResourceLocation;
 

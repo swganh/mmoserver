@@ -3,6 +3,9 @@
 #include "MessageLib/MessageLib.h"
 #include "DatabaseManager/Database.h"
 #include "WorldManager.h"
+#include "PlayerObject.h"
+#include "Inventory.h"
+#include "ObjectFactory.h"
 
 Medicine::Medicine(void)
 {

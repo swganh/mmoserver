@@ -1,20 +1,11 @@
 #pragma once
-#include "Common/MessageDispatchCallback.h"
-#include "ObjectFactory.h"
-#include "ZoneOpcodes.h"
-#include "ObjectControllerOpcodes.h"
-#include "Item.h"
-#include "PlayerObject.h"
-#include <vector>
 
+#include "Common/MessageDispatchCallback.h"
+#include "MathLib/Vector3.h"
 
 #define gFireworkManager FireworkManager::getSingletonPtr()
 
-class Message;
-class Database;
-class MessageDispatch;
 class PlayerObject;
-class ObjectControllerCommandMap;
 
 class FireworkManager
 {

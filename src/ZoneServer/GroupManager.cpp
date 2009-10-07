@@ -24,6 +24,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "WorldManager.h"
 #include "WorldConfig.h"
 #include "Utils/utils.h"
+#include "ZoneOpcodes.h"
+#include "GroupObject.h"
+#include "ObjectFactory.h"
 
 bool						GroupManager::mInsFlag    = false;
 GroupManager*		GroupManager::mSingleton  = NULL;
@@ -316,7 +319,7 @@ void GroupManager::sendGroupMissionUpdate(GroupObject* group)
 // this function gets called everytime we accept/finish/delete a mission
 // and should be called every few seconds while were moving
 
-MissionObject* GroupManager::getZoneGroupMission(Uint64List* members)
+MissionObject* GroupManager::getZoneGroupMission(std::vector<uint64>* members)
 {
 
 	// we will iterate through all onZone groupmembers and compile a list of missions

@@ -36,6 +36,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "ZoneTree.h"
 #include "Badge.h"
 #include "CraftingStation.h"
+#include "GroupObject.h"
 
 //=============================================================================
 

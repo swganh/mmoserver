@@ -15,7 +15,8 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "LogManager/LogManager.h"
 #include "UIManager.h"
 #include "MessageLib/MessageLib.h"
-//#include "FireworkEvent.h"
+#include "Inventory.h"
+#include "ObjectFactory.h"
 
 
 //=============================================================================

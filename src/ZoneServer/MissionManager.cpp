@@ -27,6 +27,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "NPCObject.h"
 #include "CreatureObject.h"
 #include "ZoneTree.h"
+#include "MissionBag.h"
+#include "Bank.h"
 
 //======================================================================================================================
 

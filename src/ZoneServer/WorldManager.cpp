@@ -24,6 +24,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "CharacterLoginHandler.h"
 #include "ConversationManager.h"
 #include "CraftingSessionFactory.h"
+#include "CraftingTool.h"
 #include "CreatureSpawnRegion.h"
 #include "GroupManager.h"
 #include "GroupObject.h"
@@ -37,9 +38,9 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "TreasuryManager.h"
 #include "WorldConfig.h"
 #include "WorldManager.h"
+#include "ZoneOpcodes.h"
 #include "ZoneServer.h"
 #include "ZoneTree.h"
-#include "CraftingTool.h"
 
 //======================================================================================================================
 

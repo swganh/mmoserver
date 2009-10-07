@@ -12,8 +12,11 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_ZONESERVER_TANGIBLE_RESOURCECONTAINER_H
 #define ANH_ZONESERVER_TANGIBLE_RESOURCECONTAINER_H
 
+#include "Utils/typedefs.h"
 #include "TangibleObject.h"
-#include "Resource.h"
+
+class Resource;
+class PlayerObject;
 
 //=============================================================================
 
@@ -27,19 +30,19 @@ class ResourceContainer : public TangibleObject
 		ResourceContainer();
 		~ResourceContainer();
 
-		uint64		getResourceId(){ return mResourceId; }
-		void		setResourceId(uint64 id){ mResourceId = id; }
-		Resource*	getResource(){ return mResource; }
-		void		setResource(Resource* resource){ mResource = resource; }
-		uint32		getAmount(){ return mAmount; }
-		void		setAmount(uint32 amount){ mAmount = amount; }
-		uint32		getMaxAmount(){ return mMaxAmount; }
-		void		setMaxAmount(uint32 max){ mMaxAmount = max; }
+		uint64		getResourceId();
+		void		setResourceId(uint64 id);
+		Resource*	getResource();
+		void		setResource(Resource* resource);
+		uint32		getAmount();
+		void		setAmount(uint32 amount);
+		uint32		getMaxAmount();
+		void		setMaxAmount(uint32 max);
 
 		void		sendAttributes(PlayerObject* playerObject);
 		string		getBazaarName();
-		string		getBazaarTang(){ return getModelString(); }
-		uint32		getCategoryBazaar(){ return getResource()->getType()->getCategoryBazaar(); }
+		string		getBazaarTang();
+		uint32		getCategoryBazaar();
 
 	private:
 

@@ -17,6 +17,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "LogManager/LogManager.h"
 #include "Utils/utils.h"
 #include "ResourceManager.h"
+#include "ResourceType.h"
+#include "Resource.h"
 
 #include <assert.h>
 

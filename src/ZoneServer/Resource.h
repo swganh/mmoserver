@@ -13,7 +13,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #define ANH_ZONESERVER_RESOURCE_H
 
 #include "Utils/typedefs.h"
-#include "ResourceType.h"
+
+class ResourceType;
 
 //=============================================================================
 

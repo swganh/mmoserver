@@ -14,6 +14,12 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "LogManager/LogManager.h"
+#include "DraftSlot.h"
+#include "WeightsBatch.h"
+#include "CraftBatch.h"
+#include "SchematicGroup.h"
+#include "DraftWeight.h"
+#include "DraftSchematic.h"
 
 //======================================================================================================================
 

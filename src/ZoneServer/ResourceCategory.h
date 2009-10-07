@@ -13,11 +13,11 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #define ANH_ZONESERVER_RESOURCECATEGORY_H
 
 #include "Utils/typedefs.h"
-#include "Resource.h"
 #include <vector>
 
 //=============================================================================
 
+class Resource;
 class ResourceCategory;
 
 typedef std::vector<ResourceCategory*>	ResourceCategoryList;

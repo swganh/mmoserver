@@ -10,12 +10,13 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "ResourceManager.h"
-#include "CurrentResource.h"
+#include "ResourceType.h"
+#include "ResourceCategory.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "LogManager/LogManager.h"
-
+#include "CurrentResource.h"
 //======================================================================================================================
 
 bool				ResourceManager::mInsFlag	= false;
@@ -347,3 +348,32 @@ ResourceCategory* ResourceManager::getResourceCategoryById(uint32 id)
 
 //======================================================================================================================
 
+
+ResourceIdMap* ResourceManager::getResourceIdMap()
+{ 
+    return &mResourceIdMap; 
+}
+
+
+ResourceCRCNameMap* ResourceManager::getResourceCRCNameMap()
+{ 
+    return &mResourceCRCNameMap; 
+}
+
+
+ResourceTypeMap* ResourceManager::getResourceTypeMap()
+{ 
+    return &mResourceTypeMap; 
+}
+
+
+ResourceCategoryMap* ResourceManager::getResourceCategoryMap()
+{ 
+    return &mResourceCategoryMap; 
+}
+
+
+void ResourceManager::releaseAllPoolsMemory()
+{ 
+    mDBAsyncPool.release_memory(); 
+}

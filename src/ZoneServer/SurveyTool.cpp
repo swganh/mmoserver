@@ -23,7 +23,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "ObjectControllerOpcodes.h"
 #include <boost/lexical_cast.hpp>
 #include "ZoneOpcodes.h"
-
+#include "ResourceType.h"
+#include "ResourceCategory.h"
 
 //=============================================================================
 

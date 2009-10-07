@@ -22,7 +22,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "ZoneServer/CurrentResource.h"
 #include "ZoneServer/ResourceManager.h"
 #include <boost/lexical_cast.hpp>
-
+#include "ZoneServer/ResourceType.h"
 
 //======================================================================================================================
 //

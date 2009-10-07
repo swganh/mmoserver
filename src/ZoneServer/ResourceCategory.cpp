@@ -10,6 +10,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "ResourceCategory.h"
+#include "Resource.h"
 
 
 //=============================================================================

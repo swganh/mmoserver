@@ -1,6 +1,7 @@
 #include "CurrentResource.h"
 #include "LogManager/LogManager.h"
 #include "ConfigManager/ConfigManager.h"
+#include "ResourceType.h"
 
 //=============================================================================
 

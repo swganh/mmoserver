@@ -15,6 +15,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "LogManager/LogManager.h"
 #include "WorldManager.h"
 #include "MathLib/Quaternion.h"
+#include "Resource.h"
+#include "PlayerObject.h"
+#include "ResourceType.h"
 
 
 //=============================================================================
@@ -33,6 +36,60 @@ ResourceContainer::~ResourceContainer()
 {
 }
 
+
+uint64 ResourceContainer::getResourceId()
+{ 
+    return mResourceId; 
+}
+
+
+void ResourceContainer::setResourceId(uint64 id)
+{ 
+    mResourceId = id; 
+}
+
+
+Resource* ResourceContainer::getResource()
+{ 
+    return mResource; 
+}
+
+
+void ResourceContainer::setResource(Resource* resource)
+{ 
+    mResource = resource; 
+}
+
+
+uint32 ResourceContainer::getAmount()
+{ 
+    return mAmount; 
+}
+
+
+void ResourceContainer::setAmount(uint32 amount)
+{ 
+    mAmount = amount; 
+}
+
+
+uint32 ResourceContainer::getMaxAmount()
+{ 
+    return mMaxAmount; 
+}
+
+
+void ResourceContainer::setMaxAmount(uint32 max)
+{ 
+    mMaxAmount = max; 
+}
+
+
+string ResourceContainer::getBazaarTang()
+{ 
+    return getModelString(); 
+}
+
 //=============================================================================
 
 string	ResourceContainer::getBazaarName()
@@ -42,6 +99,12 @@ string	ResourceContainer::getBazaarName()
 	value.setLength(sprintf(value.getAnsi(),"%s (%s)",getResource()->getType()->getName().getAnsi(),getResource()->getName().getAnsi()));
 	
 	return value;
+}
+
+
+uint32 ResourceContainer::getCategoryBazaar()
+{ 
+    return getResource()->getType()->getCategoryBazaar(); 
 }
 
 //=============================================================================

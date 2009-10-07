@@ -25,6 +25,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "ResourceCollectionManager.h"
 #include "MissionManager.h"
 #include "ObjectFactory.h"
+#include "ResourceType.h"
 
 //=============================================================================
 //

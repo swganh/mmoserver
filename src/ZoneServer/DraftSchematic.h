@@ -13,9 +13,10 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #define ANH_ZONESERVER_DRAFTSCHEMATIC_H
 
 #include "Utils/typedefs.h"
-#include "DraftSlot.h"
-#include "WeightsBatch.h"
-#include "CraftBatch.h"
+
+class CraftBatch;
+class DraftSlot;
+class WeightsBatch;
 
 typedef std::vector<DraftSlot*>		DraftSlots;
 typedef std::vector<WeightsBatch*>	WeightsBatches;

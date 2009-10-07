@@ -16,8 +16,6 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "Utils/typedefs.h"
 #include <map>
-#include "SchematicGroup.h"
-#include "DraftSchematic.h"
 #include "DatabaseManager/DatabaseCallback.h"
 #include <boost/pool/pool.hpp>
 
@@ -28,6 +26,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 class Database;
 class DatabaseCallback;
 class DatabaseResult;
+class DraftSchematic;
+class SchematicGroup;
 class ScMAsyncContainer;
 
 typedef std::vector<SchematicGroup*>			SchematicGroupList;

@@ -29,6 +29,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "ZoneTree.h"
 #include "MissionBag.h"
 #include "Bank.h"
+#include "ResourceType.h"
 
 //======================================================================================================================
 

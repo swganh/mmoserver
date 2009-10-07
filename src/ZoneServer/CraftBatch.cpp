@@ -26,3 +26,38 @@ CraftBatch::~CraftBatch()
 
 //=============================================================================
 
+
+uint32 CraftBatch::getId()
+{ 
+    return mId; 
+}
+
+
+uint32 CraftBatch::getListId()
+{ 
+    return mListId; 
+}
+
+
+uint32 CraftBatch::getExpGroup()
+{ 
+    return mExpGroup; 
+}
+
+
+CraftWeights* CraftBatch::getCraftWeights()
+{ 
+    return &mWeights; 
+}
+
+
+CraftAttributes* CraftBatch::getCraftAttributes()
+{ 
+    return &mAttributes; 
+}
+
+
+CraftAttributeWeights* CraftBatch::getCraftAttributeWeights()
+{ 
+    return &mAttributeWeights; 
+}

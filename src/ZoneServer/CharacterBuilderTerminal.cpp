@@ -22,6 +22,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "SkillManager.h"
 #include "CharacterBuilderTerminal.h"
 #include "Buff.h"
+#include "ResourceType.h"
+#include "ResourceCategory.h"
 
 //=============================================================================
 

@@ -12,20 +12,19 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #ifndef ANH_ZONESERVER_NPC_MANAGER_H
 #define ANH_ZONESERVER_NPC_MANAGER_H
 
-// #include "DatabaseManager/DatabaseCallback.h"
-#include "ZoneServer/ObjectFactoryCallback.h"
+
 #include "DatabaseManager/DatabaseCallback.h"
-#include "DatabaseManager/Database.h"
-#include "MathLib/Vector3.h"
-#include "MathLib/Quaternion.h"
+#include "Utils/typedefs.h"
+#include "ObjectFactoryCallback.h"
 
 //=============================================================================
-class Database;
+
 class AttackableCreature;
 class CreatureObject;
-class Weapon;
-class SpawnData;
+class Database;
 class NPCObject;
+class SpawnData;
+class Weapon;
 
 //======================================================================================================================
 //

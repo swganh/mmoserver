@@ -36,6 +36,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "ZoneServer/SchematicManager.h"
 #include "ZoneServer/ZoneTree.h"
 #include "ZoneServer/WorldConfig.h"
+#include "ZoneServer/DraftSlot.h"
+#include "ZoneServer/WeightsBatch.h"
+#include "ZoneServer/DraftWeight.h"
 
 //======================================================================================================================
 //

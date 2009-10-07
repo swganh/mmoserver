@@ -37,6 +37,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Badge.h"
 #include "CraftingStation.h"
 #include "GroupObject.h"
+#include "SchematicGroup.h"
+#include "DraftSchematic.h"
 
 //=============================================================================
 

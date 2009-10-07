@@ -14,7 +14,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "PlayerObject.h"
 #include "WorldManager.h"
 #include "ZoneOpcodes.h"
-
+#include "CraftBatch.h"
+#include "DraftSchematic.h"
 
 //=============================================================================
 

@@ -16,9 +16,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "Utils/typedefs.h"
 #include <map>
-#include "ResourceCategory.h"
-#include "DatabaseManager/DatabaseCallback.h"
 #include <boost/pool/pool.hpp>
+#include "DatabaseManager/DatabaseCallback.h"
 
 
 //======================================================================================================================
@@ -27,6 +26,9 @@ class Database;
 class DatabaseCallback;
 class DatabaseResult;
 class DataBinding;
+class Resource;
+class ResourceCategory;
+class ResourceType;
 
 //======================================================================================================================
 
@@ -75,12 +77,12 @@ class ResourceManager : public DatabaseCallback
 		ResourceCategory*			getResourceCategoryById(uint32 id);
 
 		// get map references
-		ResourceIdMap*				getResourceIdMap(){ return &mResourceIdMap; }
-		ResourceCRCNameMap*			getResourceCRCNameMap(){ return &mResourceCRCNameMap; }
-		ResourceTypeMap*			getResourceTypeMap(){ return &mResourceTypeMap; }
-		ResourceCategoryMap*		getResourceCategoryMap(){ return &mResourceCategoryMap; }
+		ResourceIdMap*				getResourceIdMap();
+		ResourceCRCNameMap*			getResourceCRCNameMap();
+		ResourceTypeMap*			getResourceTypeMap();
+		ResourceCategoryMap*		getResourceCategoryMap();
 
-		void						releaseAllPoolsMemory(){ mDBAsyncPool.release_memory(); }
+		void						releaseAllPoolsMemory();
 
 	private:
 

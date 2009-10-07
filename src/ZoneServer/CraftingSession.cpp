@@ -30,6 +30,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Item.h"
 #include "CraftingTool.h"
 #include "CraftingStation.h"
+#include "DraftSlot.h"
+#include "CraftBatch.h"
 
 //=============================================================================
 //

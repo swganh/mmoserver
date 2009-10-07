@@ -9,11 +9,12 @@ Copyright (c) 2006 - 2008 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
-#include "CraftingSessionFactory.h"
 #include "DatabaseManager/Database.h"
 #include "LogManager/LogManager.h"
-#include "PlayerObject.h"
 #include "Utils/utils.h"
+#include "CraftingSessionFactory.h"
+#include "CraftingSession.h"
+#include "PlayerObject.h"
 
 //=============================================================================
 

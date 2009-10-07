@@ -12,17 +12,24 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_ZONESERVER_CRAFTINGSESSION_FACTORY_H
 #define ANH_ZONESERVER_CRAFTINGSESSION_FACTORY_H
 
-//#include "Utils/typedefs.h"
-#include "CraftingSession.h"
 #include <boost/pool/pool.hpp>
 
+#include "Utils/typedefs.h"
 
 //=============================================================================
 
 #define 	gCraftingSessionFactory	CraftingSessionFactory::getSingletonPtr()
 
+class CraftingSession;
+class CraftingStation;
+class CraftingTool;
 class Database;
 class PlayerObject;
+
+namespace Anh_Utils
+{
+    class Clock;
+}
 
 //=============================================================================
 

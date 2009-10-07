@@ -13,27 +13,29 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #define ANH_ZONESERVER_CRAFTINGSESSION_H
 
 //#include "Utils/typedefs.h"
-#include "CraftingEnums.h"
-#include "ObjectFactoryCallback.h"
-#include "ManufacturingSchematic.h"
+#include <map>
+#include <vector>
+#include "DatabaseManager/DatabaseCallback.h"
 #include "Utils/rand.h"
-
+#include "ObjectFactoryCallback.h"
+#include "CraftingEnums.h"
 
 //=============================================================================
 
-class Item;
-class Inventory;
-class Database;
-class DatbaseCallback;
-class PlayerObject;
-class DraftSchematic;
-class ObjectFactoryCallback;
-class DispatchClient;
-class ManufacturingSchematic;
-class CraftSessionQueryContainer;
-class CraftWeight;
 class CraftingTool;
 class CraftingStation;
+class CraftSessionQueryContainer;
+class CraftWeight;
+class Database;
+class DatbaseCallback;
+class DispatchClient;
+class DraftSchematic;
+class Inventory;
+class Item;
+class ManufacturingSchematic;
+class ManufactureSlot;
+class ObjectFactoryCallback;
+class PlayerObject;
 
 namespace Anh_Utils
 {

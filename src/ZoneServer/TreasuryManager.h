@@ -14,15 +14,21 @@ Copyright (c) 2006 - 2009 The swgANH Team
 
 #define 	gTreasuryManager	TreasuryManager::getSingletonPtr()
 
-#include "Utils/typedefs.h"
 #include "RadialMenu.h"
-#include "PlayerObject.h"
+
+#include "Utils/typedefs.h"
+#include "DatabaseManager/DatabaseCallback.h"
+
+#include <boost/shared_ptr.hpp>
 
 //======================================================================================================================
 
+class CreatureObject;
 class Database;
 class DatabaseCallback;
 class DatabaseResult;
+class DispatchClient;
+class PlayerObject;
 
 //======================================================================================================================
 
@@ -63,26 +69,26 @@ class TreasuryManager : public DatabaseCallback
 		TreasuryManager(Database* database);
 		~TreasuryManager();
 
-		static TreasuryManager*		Init(Database* database);
-		static TreasuryManager*		getSingletonPtr() { return mSingleton; }
+		static TreasuryManager*		    Init(Database* database);
+		static TreasuryManager*		    getSingletonPtr() { return mSingleton; }
 
-		virtual void				handleDatabaseJobComplete(void* ref,DatabaseResult* result);
+		virtual void				    handleDatabaseJobComplete(void* ref,DatabaseResult* result);
 
-		void						bankDepositAll(PlayerObject* playerObject);
-		void						bankWithdrawAll(PlayerObject* playerObject);
-		void						bankTransfer(int32 inventoryMoneyDelta, int32 bankMoneyDelta, PlayerObject* playerObject);
-		RadialMenuPtr				bankBuildTerminalRadialMenu(CreatureObject* creatureObject);
-		void						bankOpenSafetyDepositContainer(PlayerObject* playerObject);
-		void						bankQuit(PlayerObject* playerObject);
-		void						bankJoin(PlayerObject* playerObject);
+		void						    bankDepositAll(PlayerObject* playerObject);
+		void						    bankWithdrawAll(PlayerObject* playerObject);
+		void						    bankTransfer(int32 inventoryMoneyDelta, int32 bankMoneyDelta, PlayerObject* playerObject);
+        boost::shared_ptr<RadialMenu>   bankBuildTerminalRadialMenu(CreatureObject* creatureObject);
+		void						    bankOpenSafetyDepositContainer(PlayerObject* playerObject);
+		void						    bankQuit(PlayerObject* playerObject);
+		void						    bankJoin(PlayerObject* playerObject);
 
-		void						saveAndUpdateInventoryCredits(PlayerObject* playerObject);
-		void						saveAndUpdateBankCredits(PlayerObject* playerObject);
+		void						    saveAndUpdateInventoryCredits(PlayerObject* playerObject);
+		void						    saveAndUpdateBankCredits(PlayerObject* playerObject);
 
 		//handles bank tip to offline player
-		void						bankTipOffline(int32 amount, PlayerObject* playerObject, string targetName);
-		void						inventoryTipOnline(int32 amount, PlayerObject* playerObject, PlayerObject* targetObject );
-		void						bankTipOnline(int32 amount, PlayerObject* playerObject, PlayerObject* targetObject );
+		void						    bankTipOffline(int32 amount, PlayerObject* playerObject, string targetName);
+		void						    inventoryTipOnline(int32 amount, PlayerObject* playerObject, PlayerObject* targetObject );
+		void						    bankTipOnline(int32 amount, PlayerObject* playerObject, PlayerObject* targetObject );
 
 	private:
 

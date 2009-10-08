@@ -25,6 +25,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "BuffManager.h"
 #include "Tutorial.h"
 #include "TravelMapHandler.h"
+#include "ZoneOpcodes.h"
+#include "PlayerObject.h"
+#include "ObjectFactory.h"
 
 //======================================================================================================================
 

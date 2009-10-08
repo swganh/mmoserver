@@ -21,6 +21,8 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "nonPersistantObjectFactory.h"
 #include "VehicleFactory.h"
 #include "MessageLib/MessageLib.h"
+#include "Inventory.h"
+#include "ObjectFactory.h"
 
 //=============================================================================
 

@@ -24,7 +24,10 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Utils/utils.h"
 #include "UIManager.h"
 #include "UITicketSelectListBox.h"
-
+#include "ZoneOpcodes.h"
+#include "Inventory.h"
+#include "TravelTicket.h"
+#include "ObjectFactory.h"
 
 bool				TravelMapHandler::mInsFlag    = false;
 TravelMapHandler*	TravelMapHandler::mSingleton  = NULL;

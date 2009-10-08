@@ -19,6 +19,41 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Bank.h"
 #include "ObjectFactory.h"
 
+SkillTeachContainer::SkillTeachContainer()
+{}
+	
+
+SkillTeachContainer::~SkillTeachContainer()
+{
+    mTradeSkills.clear();
+}
+	
+
+void SkillTeachContainer::addSkill(uint32 nr, uint32 id)
+{
+    mTradeSkills.insert(
+        std::make_pair(nr, gSkillManager->getSkillById(id))
+        );
+}
+	
+
+mySkillList* SkillTeachContainer::getList()
+{
+    return &mTradeSkills;
+}
+	
+Skill* SkillTeachContainer::getEntry(uint32 nr)
+{
+    mySkillList::iterator it = mTradeSkills.find(nr);
+    
+    if(it != mTradeSkills.end())
+    {
+        return (*it).second;
+    }
+
+    return NULL;
+}
+
 Trade::Trade(PlayerObject* playerobject)
 {
 	mPlayerObject=playerobject;

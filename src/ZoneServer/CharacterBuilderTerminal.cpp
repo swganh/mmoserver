@@ -24,6 +24,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Buff.h"
 #include "ResourceType.h"
 #include "ResourceCategory.h"
+#include "Inventory.h"
+#include "ObjectFactory.h"
 
 //=============================================================================
 

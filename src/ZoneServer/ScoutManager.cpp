@@ -1,3 +1,4 @@
+#include "PlayerObject.h"
 #include "ScoutManager.h"
 #include "MessageLib/MessageLib.h"
 #include "WorldManager.h"

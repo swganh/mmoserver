@@ -1,8 +1,10 @@
+#include "PlayerObject.h"
 #include "FireworkManager.h"
 #include "MessageLib/MessageLib.h"
 #include "UIManager.h"
 #include "Item_Enums.h"
 #include "nonPersistantObjectFactory.h"
+#include "StaticObject.h"
 
 FireworkManager*	FireworkManager::mSingleton = NULL;
 

@@ -1,16 +1,13 @@
 #pragma once
-#include "Common/MessageDispatchCallback.h"
-#include "ObjectFactory.h"
-#include "ZoneOpcodes.h"
-#include "Item.h"
-#include "PlayerObject.h"
-#include <vector>
 
+#include <vector>
+#include "MathLib/Vector3.h"
+#include "Utils/typedefs.h"
 
 #define gScoutManager ScoutManager::getSingletonPtr()
 
-class Message;
 class Database;
+class Message;
 class MessageDispatch;
 class PlayerObject;
 class ObjectControllerCommandMap;

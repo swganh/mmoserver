@@ -12,18 +12,14 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_ZONESERVER_STRUCTUREMANAGER_H
 #define ANH_ZONESERVER_STRUCTUREMANAGER_H
 
-#include "Common/MessageDispatchCallback.h"
-#include "DatabaseManager/DatabaseCallback.h"
-#include "ObjectFactory.h"
-#include "ZoneOpcodes.h"
-#include "Item.h"
-#include "PlayerObject.h"
 #include <vector>
-#include "Utils/Scheduler.h"
 
+#include "DatabaseManager/DatabaseCallback.h"
+#include "MathLib/Vector3.h"
+#include "ObjectFactoryCallback.h"
+#include "TangibleEnums.h"
 
 #define 	gStructureManager	StructureManager::getSingletonPtr()
-
 
 //======================================================================================================================
 

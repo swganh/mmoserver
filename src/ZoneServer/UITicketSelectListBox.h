@@ -14,8 +14,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "Utils/typedefs.h"
 #include "UIListBox.h"
-#include "PlayerObject.h"
-#include "Shuttle.h"
+
+class PlayerObject;
+class Shuttle;
 
 
 //================================================================================

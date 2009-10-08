@@ -25,6 +25,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Common/atMacroString.h"
 #include "SampleEvent.h"
 #include "BuildingObject.h"
+#include "Utils/clock.h"
 #include "Utils/EventHandler.h"
 #include "WorldConfig.h"
 #include "Buff.h"
@@ -39,6 +40,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "GroupObject.h"
 #include "SchematicGroup.h"
 #include "DraftSchematic.h"
+#include "Bank.h"
+#include "Inventory.h"
+#include "ZoneOpcodes.h"
 
 //=============================================================================
 

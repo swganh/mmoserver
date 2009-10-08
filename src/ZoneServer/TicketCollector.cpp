@@ -9,6 +9,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
+#include "Inventory.h"
+#include "ObjectFactory.h"
 #include "MathLib/Quaternion.h"
 #include "LogManager/LogManager.h"
 #include "UIManager.h"

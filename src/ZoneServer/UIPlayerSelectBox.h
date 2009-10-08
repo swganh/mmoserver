@@ -14,7 +14,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "Utils/typedefs.h"
 #include "UIListBox.h"
-#include "PlayerObject.h"
+
+class PlayerObject;
 
 //================================================================================
 typedef std::vector<PlayerObject*>				PlayerList;

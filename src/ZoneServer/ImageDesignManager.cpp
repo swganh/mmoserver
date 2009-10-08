@@ -10,6 +10,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "EntertainerManager.h"
+#include "PlayerObject.h"
 #include "Common/MessageFactory.h"
 #include "DatabaseManager/Database.h"
 #include "LogManager/LogManager.h"

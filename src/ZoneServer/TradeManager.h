@@ -12,23 +12,20 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_ZONESERVER_TRADEMANAGER_H
 #define ANH_ZONESERVER_TRADEMANAGER_H
 
+#include <vector>
 #include "Common/MessageDispatchCallback.h"
 #include "DatabaseManager/DatabaseCallback.h"
-#include "ObjectFactory.h"
-#include "ZoneOpcodes.h"
 #include "CharacterBuilderTerminal.h"
-#include "TreasuryManager.h"
-
-#include <vector>
 
 #define 	gTradeManager	TradeManager::getSingletonPtr()
 
 //======================================================================================================================
 
-class Message;
 class Database;
+class Message;
 class MessageDispatch;
-
+class PlayerObject;
+class TangibleObject;
 
 enum TRMQueryType
 {

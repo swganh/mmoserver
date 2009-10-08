@@ -27,6 +27,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "ObjectFactory.h"
 #include "CharacterBuilderTerminal.h"
 #include "WorldConfig.h"
+#include "ZoneOpcodes.h"
+#include "TreasuryManager.h"
 
 bool				TradeManager::mInsFlag    = false;
 TradeManager*		TradeManager::mSingleton  = NULL;

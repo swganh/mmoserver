@@ -14,11 +14,11 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "Utils/typedefs.h"
 #include "UIElement.h"
-#include "ZoneServer/PlayerObject.h"
 
 //================================================================================
 
 class Message;
+class PlayerObject;
 class UICallback;
 
 typedef std::vector<UIElement*>	Children;

@@ -12,13 +12,20 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef	ANH_ZONESERVER_QUADTREE_H
 #define	ANH_ZONESERVER_QUADTREE_H
 
+#include "MathLib/Rectangle.h"
 #include "Utils/typedefs.h"
-#include "Object.h"
-#include "Mathlib/Shape.h"
-#include "Mathlib/Rectangle.h"
 #include <map>
+#include <set>
 
-typedef std::map<uint64,Object*>	StdObjectMap;
+class Object;
+
+namespace Anh_Math
+{
+    class Space;
+}
+
+typedef std::map<uint64,Object*> StdObjectMap;
+typedef std::set<Object*> ObjectSet;
 
 //======================================================================================================================
 

@@ -11,6 +11,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "SkillManager.h"
 #include "CreatureObject.h"
+#include "PlayerObject.h"
 #include "MessageLib/MessageLib.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"

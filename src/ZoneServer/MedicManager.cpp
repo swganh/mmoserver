@@ -1,3 +1,4 @@
+#include "PlayerObject.h"
 #include "MedicManager.h"
 #include "MessageLib/MessageLib.h"
 #include "ObjectControllerCommandMap.h"

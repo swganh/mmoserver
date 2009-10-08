@@ -14,9 +14,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "Utils/typedefs.h"
 #include "UIMessageBox.h"
-#include "PlayerObject.h"
-#include "Skill.h"
 
+class PlayerObject;
+class Skill;
 
 //================================================================================
 

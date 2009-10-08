@@ -14,6 +14,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "UIManager.h"
 #include "UIButton.h"
 #include "UICallback.h"
+#include "PlayerObject.h"
 #include "Common/MessageDispatch.h"
 #include "Common/MessageFactory.h"
 #include "Common/Message.h"

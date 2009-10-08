@@ -9,40 +9,30 @@ Copyright (c) 2006 - 2008 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
-#include "PlayerObject.h"
-//#include "Item.h"
-//#include "skill.h"
-#include "DatabaseManager/Transaction.h"
-
 #ifndef ANH_ZONESERVER_Trade_H
 #define ANH_ZONESERVER_Trade_H
 
+#include "DatabaseManager/Transaction.h"
 
- class Skill;
- class Item;
+class Item;
+class PlayerObject;
+class Skill;
+
 //=============================================================================
 typedef std::map<uint32,Skill*>					mySkillList;
 
 class SkillTeachContainer
 {
 public:
+	SkillTeachContainer();
+	~SkillTeachContainer();
 
-	SkillTeachContainer(){}
-	~SkillTeachContainer(){mTradeSkills.clear();}
-	void				addSkill(uint32 nr, uint32 id){mTradeSkills.insert(std::make_pair(nr,gSkillManager->getSkillById(id)));}
-	//	mPlayerAccountMap.insert(accountId,player);
-	mySkillList*		getList(){return &mTradeSkills;}
-	Skill*				getEntry(uint32 nr){mySkillList::iterator it = mTradeSkills.find(nr);
-											if(it != mTradeSkills.end()){
-												return (*it).second;
-											}else
-												return NULL;
-											}
+	void            addSkill(uint32 nr, uint32 id);
+	mySkillList*    getList();
+	Skill*          getEntry(uint32 nr);
 	
 private:
-
-	mySkillList			mTradeSkills;
-	
+	mySkillList mTradeSkills;	
 };
 
 

@@ -12,13 +12,10 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_ZONESERVER_TRAVELMAPHANDLER_H
 #define ANH_ZONESERVER_TRAVELMAPHANDLER_H
 
+#include "UICallback.h"
 #include "Common/MessageDispatchCallback.h"
 #include "DatabaseManager/DatabaseCallback.h"
-#include "ObjectFactory.h"
-#include "ZoneOpcodes.h"
-#include "Shuttle.h"
 #include <boost/pool/pool.hpp>
-#include "TravelTicket.h"
 
 #include <vector>
 
@@ -26,10 +23,13 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 //======================================================================================================================
 
-class Message;
 class Database;
+class Message;
 class MessageDispatch;
+class PlayerObject;
+class Shuttle;
 class TravelMapAsyncContainer;
+class TravelTicket;
 
 //======================================================================================================================
 
@@ -112,7 +112,7 @@ typedef std::vector<std::pair<uint16,int32> > TravelRoutes;
 
 class TravelMapHandler : public MessageDispatchCallback, public DatabaseCallback, public UICallback
 {
-	public:
+public:
 
 		static TravelMapHandler*	getSingletonPtr() { return mSingleton; }
 		static TravelMapHandler*	Init(Database* database,MessageDispatch* dispatch,uint32 zoneId);

@@ -9,6 +9,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
+#include "UIOpcodes.h"
 #include "UIManager.h"
 #include "HarvesterObject.h"
 #include "UIMessageBox.h"
@@ -21,6 +22,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "UITicketSelectListBox.h"
 #include "UIResourceSelectListBox.h"
 #include "UICloneSelectListBox.h"
+#include "PlayerObject.h"
 #include "Common/MessageDispatch.h"
 #include "Common/MessageFactory.h"
 #include "Common/Message.h"
@@ -251,7 +253,7 @@ void UIManager::createNewSkillTeachMessageBox(UICallback* callback,const int8* e
 // create a player select list box(group loot master)
 //
 
-void UIManager::createNewPlayerSelectListBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* prompt,const BStringVector dataItems,PlayerList playerList,  PlayerObject* playerObject,uint8 lbType)
+void UIManager::createNewPlayerSelectListBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* prompt,const BStringVector dataItems, std::vector<PlayerObject*> playerList,  PlayerObject* playerObject,uint8 lbType)
 {
 	uint32 lbId = _getFreeId();
 

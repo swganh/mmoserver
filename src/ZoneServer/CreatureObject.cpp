@@ -19,6 +19,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "BuildingObject.h"
 #include "SpawnPoint.h"
 #include "UIManager.h"
+#include "PlayerObject.h"
 #include "MessageLib/MessageLib.h"
 #include "ZoneServer/Tutorial.h"
 #include "AttackableStaticNpc.h"

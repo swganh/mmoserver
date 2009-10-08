@@ -34,7 +34,12 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "ResourceManager.h"
 #include "Tutorial.h"
 #include "ZoneTree.h"
-
+#include "Shuttle.h"
+#include "ContainerObjectFactory.h"
+#include "Inventory.h"
+#include "CellObject.h"
+#include "ObjectFactory.h"
+#include "ZoneOpcodes.h"
 
 void ObjectController::_handleBoardTransport(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {

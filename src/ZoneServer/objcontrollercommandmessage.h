@@ -13,10 +13,10 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #define ANH_OBJCONTROLLER_COMMAND_MESSAGE_H
 
 #include "Utils/typedefs.h"
-#include "ObjectControllerCommandMap.h"
-#include "Common/Message.h"
 #include "Common/MessageFactory.h"
 
+class Message;
+class ObjectControllerCmdProperties;
 
 //======================================================================================================================
 
@@ -24,38 +24,28 @@ class ObjControllerCommandMessage
 {
 	public:
 
-		ObjControllerCommandMessage(uint32 opcode,const uint64 executionTime,uint64 targetId)
-											: mOpcode(opcode),mData(NULL),mExecutionTime(executionTime),mTargetId(targetId),
-									  mSequence(0),mProperties(NULL){}
+		ObjControllerCommandMessage(uint32 opcode,const uint64 executionTime,uint64 targetId);
 
-		virtual ~ObjControllerCommandMessage()
-		{
-			if (mData)
-			{
-				gMessageFactory->DestroyMessage(mData);
-			}
-		}
+		virtual ~ObjControllerCommandMessage();
+		virtual inline uint32	getOpcode() const;
+		virtual inline void		setOpcode(uint32 opcode);
+		virtual inline uint64	getTargetId() const;
+		virtual inline void		setTargetId(uint32 targetId);
 
-		virtual inline uint32	getOpcode() const { return mOpcode; }
-		virtual inline void		setOpcode(uint32 opcode){ mOpcode = opcode; }
+		virtual inline uint32	getSequence() const;
+		virtual inline void		setSequence(uint32 sequence);
 
-		virtual inline uint64	getTargetId() const { return mTargetId; }
-		virtual inline void		setTargetId(uint32 targetId){ mTargetId = targetId; }
+		virtual inline Message*	getData();
+		virtual inline void		setData(Message* message);
 
-		virtual inline uint32	getSequence() const { return mSequence; }
-		virtual inline void		setSequence(uint32 sequence){ mSequence = sequence; }
-
-		virtual inline Message*	getData(){ return mData; }
-		virtual inline void		setData(Message* message){ mData = message; }
-
-		virtual inline uint64	getExecutionTime() const { return mExecutionTime; }
-		virtual inline void		setExecutionTime(uint64 time){ mExecutionTime = time; }
+		virtual inline uint64	getExecutionTime() const;
+		virtual inline void		setExecutionTime(uint64 time);
 
 		// virtual inline uint64	getQueuesTime() const { return mQueuedTime; }
 		// virtual inline void		setQueuedTime(uint64 time){ mQueuedTime = time; }
 
-		virtual inline ObjectControllerCmdProperties*	getCmdProperties(){ return mProperties; }
-		virtual inline void	setCmdProperties(ObjectControllerCmdProperties*	properties){ mProperties = properties; }
+		virtual inline ObjectControllerCmdProperties*	getCmdProperties();
+		virtual inline void	setCmdProperties(ObjectControllerCmdProperties*	properties);
 
 	protected:
 

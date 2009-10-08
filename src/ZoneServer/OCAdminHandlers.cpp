@@ -10,6 +10,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "ZoneServer.h"
+#include "ObjectControllerCommandMap.h"
 #include "ObjectController.h"
 #include "PlayerObject.h"
 #include "WorldManager.h"

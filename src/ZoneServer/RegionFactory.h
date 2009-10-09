@@ -12,21 +12,21 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_ZONESERVER_REGION_FACTORY_H
 #define ANH_ZONESERVER_REGION_FACTORY_H
 
-#include "RegionObject.h"
-#include "CityFactory.h"
-#include "BadgeRegionFactory.h"
-#include "SpawnRegionFactory.h"
-#include "QTRegionFactory.h"
 #include "FactoryBase.h"
 
 #define	 gRegionFactory	RegionFactory::getSingletonPtr()
 
 //=============================================================================
 
+class BadgeRegionFactory;
+class CityFactory;
 class Database;
+class DatabaseResult;
 class DataBinding;
 class DispatchClient;
 class ObjectFactoryCallback;
+class QTRegionFactory;
+class SpawnRegionFactory;
 
 //=============================================================================
 

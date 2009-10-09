@@ -10,6 +10,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "SurveyTool.h"
+#include "PlayerObject.h"
 #include "MathLib/Quaternion.h"
 #include "ResourceManager.h"
 #include "WorldManager.h"

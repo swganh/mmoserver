@@ -12,12 +12,11 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_ZONESERVER_PLAYERSTRUCTURE_OBJECT_H
 #define ANH_ZONESERVER_PLAYERSTRUCTURE_OBJECT_H
 
-#include "tangibleobject.h"
-//#include "StructureManager.h"
+#include "TangibleObject.h"
 #include "BuildingEnums.h"
-#include "CellObject.h"
 #include <vector>
 
+class CellObject;
 
 //=============================================================================
 

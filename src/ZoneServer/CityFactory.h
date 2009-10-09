@@ -12,14 +12,13 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_ZONESERVER_CITY_FACTORY_H
 #define ANH_ZONESERVER_CITY_FACTORY_H
 
-#include "City.h"
-#include "DatabaseManager/DatabaseCallback.h"
 #include "FactoryBase.h"
 
 #define 	gCityFactory	CityFactory::getSingletonPtr()
 
 //=============================================================================
 
+class City;
 class Database;
 class DataBinding;
 class DispatchClient;

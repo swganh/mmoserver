@@ -10,6 +10,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "TicketCollectorFactory.h"
+#include "TicketCollector.h"
 #include "ObjectFactoryCallback.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"

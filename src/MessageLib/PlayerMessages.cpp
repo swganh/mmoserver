@@ -28,8 +28,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "ZoneServer/NPCObject.h"
 #include "ZoneServer/CraftingTool.h"
 #include "ZoneServer/ManufacturingSchematic.h"
-#include <boost/lexical_cast.hpp>
+#include "ZoneServer/PlayerObject.h"
 #include "Common/atMacroString.h"
+#include <boost/lexical_cast.hpp>
 
 
 //======================================================================================================================

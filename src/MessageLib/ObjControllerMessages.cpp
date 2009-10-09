@@ -39,6 +39,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "ZoneServer/DraftSlot.h"
 #include "ZoneServer/WeightsBatch.h"
 #include "ZoneServer/DraftWeight.h"
+#include "ZoneServer/PlayerObject.h"
+#include "ZoneServer/Weapon.h"
 
 //======================================================================================================================
 //

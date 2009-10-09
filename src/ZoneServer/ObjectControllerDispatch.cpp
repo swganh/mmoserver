@@ -11,7 +11,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "ObjectControllerDispatch.h"
 #include "ObjectFactory.h"
+#include "PlayerObject.h"
 #include "WorldManager.h"
+#include "ZoneOpcodes.h"
 #include "ObjectControllerOpcodes.h"
 #include "Common/MessageDispatch.h"
 #include "Common/MessageFactory.h"

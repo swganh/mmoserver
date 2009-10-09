@@ -12,20 +12,17 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_ZONESERVER_CONTAINER_OBJECT_FACTORY_H
 #define ANH_ZONESERVER_CONTAINER_OBJECT_FACTORY_H
 
-#include "Container.h"
-#include "ZoneServer/TangibleObject.h"
-#include "DatabaseManager/DatabaseCallback.h"
-#include "TangibleFactory.h"
 #include "FactoryBase.h"
+#include "ObjectFactoryCallback.h"
 
 #define	 gContainerFactory	ContainerObjectFactory::getSingletonPtr()
 
 //=============================================================================
 
+class Container;
 class Database;
 class DataBinding;
 class DispatchClient;
-class ObjectFactoryCallback;
 class TangibleFactory;
 
 //=============================================================================

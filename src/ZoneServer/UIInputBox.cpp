@@ -19,6 +19,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "PlayerObject.h"
 #include "LogManager/LogManager.h"
 #include "Common/Message.h"
+#include "Common/MessageFactory.h"
 
 //================================================================================
 

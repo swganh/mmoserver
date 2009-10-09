@@ -12,9 +12,6 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_ZONESERVER_MISSION_FACTORY_H
 #define ANH_ZONESERVER_MISSION_FACTORY_H
 
-#include "MissionObject.h"
-#include "FactoryBase.h"
-
 #define		gMissionFactory	MissionFactory::getSingletonPtr()
 
 //=============================================================================

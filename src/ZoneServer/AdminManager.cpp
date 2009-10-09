@@ -19,6 +19,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "Common/MessageDispatch.h"
 #include "LogManager/LogManager.h"
 #include "MessageLib/MessageLib.h"
+#include "Common/Message.h"
 #include "Utils/utils.h"
 #include "AdminManager.h"
 #include "PlayerObject.h"

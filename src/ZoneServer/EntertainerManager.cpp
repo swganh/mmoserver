@@ -11,6 +11,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 
 #include "EntertainerManager.h"
 #include "PlayerObject.h"
+#include "Weapon.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"

@@ -10,12 +10,17 @@ Copyright (c) 2006 - 2009 The swgANH Team
 */
 
 #include "ObjectController.h"
+#include "ResourceContainer.h"
 #include "ObjectControllerOpcodes.h"
 #include "ObjectControllerCommandMap.h"
 #include "ObjectFactory.h"
+#include "Inventory.h"
+#include "PlayerObject.h"
 #include "WorldManager.h"
 #include "MessageLib/MessageLib.h"
 #include "LogManager/LogManager.h"
+#include "Common/Message.h"
+#include "Common/MessageFactory.h"
 #include "WorldConfig.h"
 #include "UIManager.h"
 #include "Item.h"

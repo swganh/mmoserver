@@ -12,12 +12,12 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_ZONESERVER_BUILDING_OBJECT_H
 #define ANH_ZONESERVER_BUILDING_OBJECT_H
 
-#include "tangibleobject.h"
-#include "CellObject.h"
-#include "SpawnPoint.h"
+#include "TangibleObject.h"
 #include "BuildingEnums.h"
 #include <vector>
 
+class CellObject;
+class SpawnPoint;
 
 //=============================================================================
 

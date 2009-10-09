@@ -12,6 +12,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Object.h"
 #include "WorldManager.h"
 #include "MessageLib/MessageLib.h"
+#include "Common/Message.h"
+#include "Common/MessageFactory.h"
 #include "PlayerObject.h"
 #include "ZoneOpcodes.h"
 
@@ -124,6 +126,24 @@ bool Object::checkKnownPlayer(PlayerObject* player)
 {
 	PlayerObjectSet::iterator it = mKnownPlayers.find(player);
 	return (it != mKnownPlayers.end());
+}
+
+
+string Object::getBazaarName()
+{ 
+    return ""; 
+}
+
+
+string Object::getBazaarTang()
+{ 
+    return ""; 
+}
+
+		
+ObjectController* Object::getController()
+{ 
+    return &mObjectController; 
 }
 
 //=============================================================================

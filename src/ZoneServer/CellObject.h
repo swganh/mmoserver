@@ -12,8 +12,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_ZONESERVER_CELL_OBJECT_H
 #define ANH_ZONESERVER_CELL_OBJECT_H
 
-#include "staticobject.h"
-#include "LogManager/LogManager.h"
+#include "StaticObject.h"
 
 //=============================================================================
 

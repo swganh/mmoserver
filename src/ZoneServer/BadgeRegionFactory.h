@@ -12,14 +12,13 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_ZONESERVER_BADGEREGION_FACTORY_H
 #define ANH_ZONESERVER_BADGEREGION_FACTORY_H
 
-#include "BadgeRegion.h"
-#include "DatabaseManager/DatabaseCallback.h"
 #include "FactoryBase.h"
 
 #define	 gBadgeRegionFactory	BadgeRegionFactory::getSingletonPtr()
 
 //=============================================================================
 
+class BadgeRegion;
 class Database;
 class DataBinding;
 class DispatchClient;

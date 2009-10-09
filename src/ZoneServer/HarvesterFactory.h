@@ -12,14 +12,10 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_ZONESERVER_HARVESTER_OBJECT_FACTORY_H
 #define ANH_ZONESERVER_HARVESTER_OBJECT_FACTORY_H
 
-#include "HarvesterObject.h"
-#include "ZoneServer/PlayerStructure.h"
 #include "ObjectFactoryCallback.h"
-#include "DatabaseManager/DatabaseCallback.h"
 #include "FactoryBase.h"
-#include "Deed.h"
 
-#define 	gHarvesterFactory	HarvesterFactory::getSingletonPtr()
+#define gHarvesterFactory HarvesterFactory::getSingletonPtr()
 
 
 //=============================================================================
@@ -27,7 +23,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 class Database;
 class DataBinding;
 class DispatchClient;
-
+class HarvesterObject;
 
 //=============================================================================
 

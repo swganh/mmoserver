@@ -10,6 +10,16 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "ObjectFactory.h"
+#include "BuildingFactory.h"
+#include "CreatureFactory.h"
+#include "HarvesterFactory.h"
+#include "IntangibleFactory.h"
+#include "PlayerObject.h"
+#include "PlayerObjectFactory.h"
+#include "RegionFactory.h"
+#include "TangibleFactory.h"
+#include "WaypointFactory.h"
+#include "Deed.h"
 #include "ObjectFactoryCallback.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"

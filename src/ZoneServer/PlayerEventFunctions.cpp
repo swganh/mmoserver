@@ -9,8 +9,10 @@ Copyright (c) 2006 - 2008 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
-#include "MathLib/Quaternion.h"
 #include "PlayerObject.h"
+#include "ResourceContainer.h"
+#include "MathLib/Quaternion.h"
+#include "Inventory.h"
 #include "MessageLib/MessageLib.h"
 #include "LogManager/LogManager.h"
 #include "WorldManager.h"

@@ -9,6 +9,17 @@ Copyright (c) 2006 - 2009 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
+#include "WorldManager.h"
+#include "BuildingObject.h"
+#include "CellObject.h"
+#include "Container.h"
+#include "HarvesterFactory.h"
+#include "HarvesterObject.h"
+#include "Inventory.h"
+#include "ObjectFactory.h"
+#include "Shuttle.h"
+#include "TicketCollector.h"
+#include "ConfigManager/ConfigManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
@@ -37,7 +48,6 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "SchematicManager.h"
 #include "TreasuryManager.h"
 #include "WorldConfig.h"
-#include "WorldManager.h"
 #include "ZoneOpcodes.h"
 #include "ZoneServer.h"
 #include "ZoneTree.h"

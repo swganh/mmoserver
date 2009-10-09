@@ -15,21 +15,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "Utils/typedefs.h"
 #include "Object_Enums.h"
 #include "Object.h"
-#include "ObjectController.h"
-#include "RadialMenu.h"
-#include "Common/MessageFactory.h"
-#include "Common/Message.h"
-#include "UICallback.h"
-#include "LogManager/LogManager.h"
-#include "Utils/EventHandler.h"
-#include "MathLib/Vector3.h"
-#include "MathLib/Quaternion.h"
 #include <vector>
-#include <string>
-#include <map>
-#include <set>
-#include <boost/shared_ptr.hpp>
-#include <boost/lexical_cast.hpp>
 
 
 //=============================================================================

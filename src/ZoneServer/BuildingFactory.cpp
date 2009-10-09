@@ -11,6 +11,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "BuildingFactory.h"
 #include "CellFactory.h"
+#include "BuildingObject.h"
+#include "CellObject.h"
+#include "SpawnPoint.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"

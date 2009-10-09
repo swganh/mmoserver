@@ -12,11 +12,13 @@ Copyright (c) 2006 - 2009 The swgANH Team
 // So we have to live with duplicate code for a while.
 
 */
+
+#include "NpcManager.h"
+#include "Weapon.h"
 #include "Utils/utils.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
-#include "NpcManager.h"
 #include "ZoneServer/NonPersistentNpcFactory.h"
 #include "LogManager/LogManager.h"
 #include "WorldManager.h"

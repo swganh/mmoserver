@@ -9,12 +9,15 @@ Copyright (c) 2006 - 2008 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
-#include "MathLib/Quaternion.h"
 #include "PlayerObject.h"
+#include "CellObject.h"
 #include "SchematicManager.h"
+#include "SpawnPoint.h"
 #include "MessageLib/MessageLib.h"
 #include "LogManager/LogManager.h"
 #include "DatabaseManager/Database.h"
+#include "Common/Message.h"
+#include "Common/MessageFactory.h"
 #include "WorldManager.h"
 #include "CharSheetManager.h"
 #include "UIManager.h"
@@ -27,6 +30,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "BuildingObject.h"
 #include "Utils/clock.h"
 #include "Utils/EventHandler.h"
+#include "MathLib/Quaternion.h"
 #include "WorldConfig.h"
 #include "Buff.h"
 #include "ScriptEngine/ScriptEngine.h"

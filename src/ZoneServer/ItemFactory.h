@@ -12,7 +12,6 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_ZONESERVER_ITEM_FACTORY_H
 #define ANH_ZONESERVER_ITEM_FACTORY_H
 
-#include "DatabaseManager/DatabaseCallback.h"
 #include "FactoryBase.h"
 
 #define		gItemFactory	ItemFactory::getSingletonPtr()

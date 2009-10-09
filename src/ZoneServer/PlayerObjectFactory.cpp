@@ -10,7 +10,12 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "PlayerObjectFactory.h"
+#include "TangibleFactory.h"
 #include "InventoryFactory.h"
+#include "Bank.h"
+#include "Inventory.h"
+#include "MissionBag.h"
+#include "PlayerObject.h"
 #include "DatapadFactory.h"
 #include "ObjectFactoryCallback.h"
 #include "DatabaseManager/Database.h"

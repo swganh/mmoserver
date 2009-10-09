@@ -13,10 +13,13 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #define ANH_SCRIPT_SUPPORT_H
 
 #include "utils/typedefs.h"
-#include "ZoneServer/Object.h"
-#include "ZoneServer/ObjectFactory.h"
 #include "MathLib/Vector3.h"
 #include "MathLib/Quaternion.h"
+#include "ZoneServer/ObjectFactoryCallback.h"
+#include <map>
+
+class Object;
+class NPCObject;
 
 typedef std::map<uint64,Object*>	ScriptSupportObjectMap;
 

@@ -10,6 +10,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "InventoryFactory.h"
+#include "TangibleFactory.h"
+#include "Inventory.h"
 #include "ObjectFactoryCallback.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"

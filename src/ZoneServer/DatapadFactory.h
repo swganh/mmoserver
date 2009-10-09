@@ -12,7 +12,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_ZONESERVER_DATAPAD_FACTORY_H
 #define ANH_ZONESERVER_DATAPAD_FACTORY_H
 
-#include "ZoneServer/Datapad.h"
+#include "ObjectFactoryCallback.h"
 #include "DatabaseManager/DatabaseCallback.h"
 #include "FactoryBase.h"
 
@@ -22,8 +22,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 class Database;
 class DataBinding;
+class Datapad;
 class DispatchClient;
-class ObjectFactoryCallback;
 class WaypointFactory;
 
 //=============================================================================

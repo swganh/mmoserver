@@ -8,12 +8,13 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
+
+#include "VehicleFactory.h"
 #include "Object.h"
 #include "WorldManager.h"
 #include "DatabaseManager/DatabaseCallback.h"
 #include "FactoryBase.h"
 #include "IntangibleObject.h"
-#include "VehicleFactory.h"
 #include "ObjectFactoryCallback.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"

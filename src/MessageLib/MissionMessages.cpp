@@ -4,6 +4,8 @@
 #include "ZoneServer/ObjectControllerOpcodes.h"
 #include "ZoneServer/WorldManager.h"
 #include "ZoneServer/ObjectFactory.h"
+#include "ZoneServer/PlayerObject.h"
+#include "ZoneServer/MissionObject.h"
 #include "Common/MessageDispatch.h"
 #include "Common/MessageFactory.h"
 #include "Common/MessageOpcodes.h"

@@ -12,8 +12,6 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #ifndef ANH_ZONESERVER_NON_PERSISTENT_ITEM_FACTORY_H
 #define ANH_ZONESERVER_NON_PERSISTENT_ITEM_FACTORY_H
 
-#include "Item.h"
-#include "DatabaseManager/DatabaseCallback.h"
 #include "FactoryBase.h"
 
 #define	 gNonPersistentItemFactory	NonPersistentItemFactory::Instance()

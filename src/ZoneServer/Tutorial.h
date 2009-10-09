@@ -13,7 +13,10 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #define ANH_ZONESERVER_TUTORIAL_H
 
 #include "ScriptEngine/ScriptEventListener.h"
+#include "DatabaseManager/DatabaseCallback.h"
 #include <map>
+
+class PlayerObject;
 
 //=============================================================================
 

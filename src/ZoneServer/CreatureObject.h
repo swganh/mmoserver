@@ -12,19 +12,17 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_ZONESERVER_CREATURE_OBJECT_H
 #define ANH_ZONESERVER_CREATURE_OBJECT_H
 
-#include "SkillManager.h"
-#include "movingobject.h"
-#include "TangibleObject.h"
-#include "Weapon.h"
-#include "Ham.h"
-#include "CreatureEnums.h"
 #include "EquipManager.h"
-#include "IncapRecoveryEvent.h"
+#include "Ham.h"
+#include "MovingObject.h"
+#include "SkillManager.h"
+#include "CreatureEnums.h"
 #include <map>
 
 //=============================================================================
 
 class Buff;
+class IncapRecoveryEvent;
 
 //=============================================================================
 

@@ -12,11 +12,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_ZONESERVER_INVENTORY_FACTORY_H
 #define ANH_ZONESERVER_INVENTORY_FACTORY_H
 
-#include "ZoneServer/Inventory.h"
-#include "ZoneServer/TangibleObject.h"
-#include "DatabaseManager/DatabaseCallback.h"
-#include "TangibleFactory.h"
 #include "FactoryBase.h"
+#include "ObjectFactoryCallback.h"
 
 #define	gInventoryFactory	InventoryFactory::getSingletonPtr()
 
@@ -25,7 +22,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 class Database;
 class DataBinding;
 class DispatchClient;
-class ObjectFactoryCallback;
+class Inventory;
+class TangibleFactory;
 
 //=============================================================================
 

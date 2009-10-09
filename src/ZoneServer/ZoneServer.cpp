@@ -15,6 +15,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "CharSheetManager.h"
 #include "TradeManager.h"
 #include "ScoutManager.h"
+#include "SkillManager.h"
 #include "EntertainerManager.h"
 #include "GroupManager.h"
 #include "ObjectControllerDispatch.h"

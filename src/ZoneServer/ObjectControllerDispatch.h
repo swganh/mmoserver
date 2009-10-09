@@ -13,8 +13,6 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #define ANH_ZONESERVER_OBJECTCONTROLLERDISPATCH_H
 
 #include "Common/MessageDispatchCallback.h"
-#include "ZoneOpcodes.h"
-
 
 #define ObjController object->getController()
 

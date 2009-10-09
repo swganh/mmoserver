@@ -12,15 +12,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_ZONESERVER_PLAYER_OBJECT_FACTORY_H
 #define ANH_ZONESERVER_PLAYER_OBJECT_FACTORY_H
 
-#include "ZoneServer/PlayerObject.h"
-#include "ZoneServer/TangibleObject.h"
-#include "ZoneServer/CreatureObject.h"
-#include "ZoneServer/Inventory.h"
-#include "ZoneServer/Bank.h"
-#include "ZoneServer/Datapad.h"
-#include "ZoneServer/MissionBag.h"
-#include "DatabaseManager/DatabaseCallback.h"
 #include "FactoryBase.h"
+#include "ObjectFactoryCallback.h"
 
 #define 	gPlayerObjectFactory	PlayerObjectFactory::getSingletonPtr()
 
@@ -28,11 +21,11 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 class Database;
 class DataBinding;
-class DispatchClient;
-class ObjectFactoryCallback;
-class XPContainer;
-class InventoryFactory;
 class DatapadFactory;
+class DispatchClient;
+class InventoryFactory;
+class PlayerObject;
+class XPContainer;
 
 //=============================================================================
 

@@ -10,6 +10,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "EVWeapon.h"
+#include "Weapon.h"
 #include "MessageLib/MessageLib.h"
 #include "CreatureObject.h"
 #include "PlayerObject.h"

@@ -17,10 +17,9 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include <algorithm>
 #include <deque>
 #include "Utils/PriorityVector.h"
-#include "ObjControllerCommandMessage.h"
-#include "ObjControllerEvent.h"
 #include "DatabaseManager/DatabaseCallback.h"
 #include "ObjectFactoryCallback.h"
+#include "ObjControllerEvent.h"
 #include <boost/pool/pool.hpp>
 
 // maximum commands allowed to be queued
@@ -31,7 +30,9 @@ Copyright (c) 2006 - 2009 The swgANH Team
 
 class Message;
 class Object;
+class ObjectControllerCmdProperties;
 class ObjectControllerCommandMap;
+class ObjControllerCommandMessage;
 class ObjectFactory;
 class Database;
 class DatabaseResult;

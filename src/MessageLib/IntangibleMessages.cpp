@@ -14,6 +14,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "ZoneServer/ZoneOpcodes.h"
 #include "ZoneServer/WorldManager.h"
 #include "ZoneServer/ObjectFactory.h"
+#include "ZoneServer/PlayerObject.h"
 #include "Common/MessageDispatch.h"
 #include "Common/MessageFactory.h"
 #include "Common/MessageOpcodes.h"

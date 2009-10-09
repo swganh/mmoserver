@@ -15,6 +15,8 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "ZoneServer/NonPersistentNpcFactory.h"
 #include "ZoneServer/NonPersistentItemFactory.h"
 #include "ZoneServer/WorldConfig.h"
+#include "ZoneServer/Inventory.h"
+#include "ZoneServer/PlayerObject.h"
 #include "ZoneServer/NpcManager.h"
 #include "ZoneServer/Heightmap.h"
 #include "ZoneServer/LairObject.h"

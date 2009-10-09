@@ -12,21 +12,21 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #ifndef ANH_ZONESERVER_OBJECT_H
 #define ANH_ZONESERVER_OBJECT_H
 
-#include "Utils/typedefs.h"
-#include "Object_Enums.h"
 #include "ObjectController.h"
 #include "RadialMenu.h"
 #include "UICallback.h"
-#include "Utils/EventHandler.h"
+#include "Object_Enums.h"
+#include "LogManager/LogManager.h" // @todo: this needs to go.
 #include "MathLib/Vector3.h"
 #include "MathLib/Quaternion.h"
-#include "LogManager/LogManager.h"
+#include "Utils/EventHandler.h"
+#include "Utils/typedefs.h"
+#include <boost/shared_ptr.hpp>
+#include <boost/lexical_cast.hpp>
 #include <vector>
 #include <map>
 #include <set>
 #include <list>
-#include <boost/shared_ptr.hpp>
-#include <boost/lexical_cast.hpp>
 
 
 //=============================================================================
@@ -98,10 +98,10 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 		virtual	void				handleObjectMenuSelect(uint8 messageType,Object* srcObject){}
 
 		virtual void				sendAttributes(PlayerObject* playerObject);
-		virtual string				getBazaarName(){ return ""; }
-		virtual string				getBazaarTang(){ return ""; }
+		virtual string				getBazaarName();
+		virtual string				getBazaarTang();
 
-		ObjectController*			getController(){ return &mObjectController; }
+		ObjectController*			getController();
 
 		// common attributes, send to the client
 		AttributeMap*				getAttributeMap(){ return &mAttributeMap; }

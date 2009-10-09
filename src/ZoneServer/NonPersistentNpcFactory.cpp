@@ -11,6 +11,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 
 #include "NonPersistentNpcFactory.h"
 #include "ObjectFactoryCallback.h"
+#include "Weapon.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"

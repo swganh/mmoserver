@@ -12,6 +12,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "MissionObject.h"
 #include "MissionManager.h" //circular dependency ohmy!
 #include "MathLib/Quaternion.h"
+#include "Common/Message.h"
+#include "Common/MessageFactory.h"
 #include "PlayerObject.h"
 #include "WaypointObject.h"
 #include "NPCObject.h"

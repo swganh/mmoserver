@@ -13,44 +13,41 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #define ANH_OBJCONTROLLER_EVENT_H
 
 #include "Utils/typedefs.h"
-#include "Utils/EventHandler.h"
 
+namespace Anh_Utils
+{
+    class Event;
+}
 
 //======================================================================================================================
 
 class ObjControllerEvent
 {
-	public:
+public:
+    ObjControllerEvent(const uint64 executionTime, Anh_Utils::Event* event);
 
-		ObjControllerEvent(const uint64 executionTime,Anh_Utils::Event* event) : mExecutionTime(executionTime),mEvent(event){}
+    virtual ~ObjControllerEvent();
 
-		virtual ~ObjControllerEvent()
-		{
-			delete(mEvent);
-		}
+    virtual uint64 getExecutionTime() const;
+    virtual void setExecutionTime(uint64 time);
 
-		virtual inline uint64				getExecutionTime() const { return mExecutionTime; }
-		virtual inline void					setExecutionTime(uint64 time){ mExecutionTime = time; }
+    virtual Anh_Utils::Event* getEvent() const;
+    virtual void setEvent(Anh_Utils::Event* event);
 
-		virtual inline Anh_Utils::Event*	getEvent() const { return mEvent; }
-		virtual inline void					setEvent(Anh_Utils::Event* event){ mEvent = event; }
-
-	protected:
-
-		uint64				mExecutionTime;
-		Anh_Utils::Event*	mEvent;
+protected:
+    uint64				mExecutionTime;
+    Anh_Utils::Event*	mEvent;
 };
 
 //===============================================================================================================
 
 class CompareEvent
 {
-	public:
-
-		bool operator () (const ObjControllerEvent* left, const ObjControllerEvent* right)
-		{
-			return(left->getExecutionTime() > right->getExecutionTime());
-		} 
+public:
+    bool operator () (const ObjControllerEvent* left, const ObjControllerEvent* right)
+    {
+        return(left->getExecutionTime() > right->getExecutionTime());
+    } 
 };
 
 //===============================================================================================================

@@ -12,6 +12,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "CraftingSession.h"
 #include "CraftingSessionFactory.h"
+#include "PlayerObject.h"
 #include "DraftSchematic.h"
 #include "ResourceContainer.h"
 #include "DatabaseManager/Database.h"

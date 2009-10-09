@@ -18,6 +18,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "MessageLib/MessageLib.h"
 #include "LogManager/LogManager.h"
 #include "ZoneOpcodes.h"
+#include "Common/Message.h"
+#include "Common/MessageFactory.h"
+
 //=============================================================================================================================
 //
 // system message

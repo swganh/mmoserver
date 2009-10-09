@@ -10,6 +10,8 @@ Copyright (c) 2006 - 2009 The swgANH Team
 */
 
 
+#include "Tutorial.h"
+#include "Inventory.h"
 #include "MathLib/Quaternion.h"
 #include "PlayerObject.h"
 #include "SchematicManager.h"
@@ -35,7 +37,6 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "MessageLib/MessageLib.h"
 #include "ZoneServer/WorldManager.h"
 #include "ScriptEngine/ScriptEngine.h"
-#include "Tutorial.h"
 #include "NonPersistentNpcFactory.h"
 #include "AttackableCreature.h"
 #include "FillerNPC.h"

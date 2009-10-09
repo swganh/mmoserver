@@ -9,15 +9,17 @@ Copyright (c) 2006 - 2009 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
+#include "Instrument.h"
 #include "MathLib/Quaternion.h"
 #include "MessageLib/MessageLib.h"
 #include "PlayerObject.h"
 #include "ZoneOpcodes.h"
 #include "Worldmanager.h"
-#include "Instrument.h"
 #include "WorldConfig.h"
 #include "CellObject.h"
 #include "Inventory.h"
+#include "Common/Message.h"
+#include "Common/MessageFactory.h"
 
 //=============================================================================
 

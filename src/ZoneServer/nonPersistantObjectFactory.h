@@ -12,21 +12,22 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_ZONESERVER_NON_PERSISTANT_H
 #define ANH_ZONESERVER_NON_PERSISTANT_H
 
-#include "ZoneServer/TangibleObject.h"
-#include "ZoneServer/StructureManager.h"
-#include "DatabaseManager/DatabaseCallback.h"
-#include <boost/pool/pool.hpp>
 #include "FactoryBase.h"
-#include "CampTerminal.h"
+#include "MathLib/Vector3.h"
+#include <boost/pool/pool.hpp>
 
 #define 	gNonPersistantObjectFactory	NonPersistantObjectFactory::getSingletonPtr()
 
-class Item;
+class CampTerminal;
 class Database;
 class DataBinding;
 class DispatchClient;
 class ObjectFactoryCallback;
+class PlayerObject;
+class TangibleObject;
 
+struct StructureDeedLink;
+struct StructureItemTemplate;
 
 //=============================================================================
 

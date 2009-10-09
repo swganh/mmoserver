@@ -11,6 +11,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "NonPersistantObjectFactory.h"
 #include "ObjectFactory.h"
+#include "PlayerObject.h"
+#include "ItemFactory.h"
 #include "Item.h"
 #include "CampRegion.h"
 #include "ObjectFactoryCallback.h"

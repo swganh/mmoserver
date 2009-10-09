@@ -9,8 +9,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
-#include "TravelTicket.h"
 #include "CharacterLoginHandler.h"
+#include "Inventory.h"
+#include "TravelTicket.h"
 #include "Common/MessageDispatch.h"
 #include "Common/MessageFactory.h"
 #include "Common/MessageOpcodes.h"

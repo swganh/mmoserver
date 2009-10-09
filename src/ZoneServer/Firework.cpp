@@ -9,8 +9,9 @@ Copyright (c) 2006 - 2009 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
-#include "Item.h"
 #include "Firework.h"
+#include "PlayerObject.h"
+#include "Item.h"
 #include "FireworkManager.h"
 #include "LogManager/LogManager.h"
 #include "UIManager.h"

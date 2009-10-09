@@ -12,23 +12,21 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_ZONESERVER_TANGIBLE_FACTORY_H
 #define ANH_ZONESERVER_TANGIBLE_FACTORY_H
 
-#include "TangibleObject.h"
-#include "ContainerObjectFactory.h"
-#include "TerminalFactory.h"
-#include "TicketCollectorFactory.h"
-#include "ItemFactory.h"
-#include "ResourceContainerFactory.h"
-
 #include "FactoryBase.h"
 
 #define		gTangibleFactory	TangibleFactory::getSingletonPtr()
 
 //=============================================================================
 
+class ContainerObjectFactory;
 class Database;
 class DataBinding;
 class DispatchClient;
+class ItemFactory;
 class ObjectFactoryCallback;
+class ResourceContainerFactory;
+class TerminalFactory;
+class TicketCollectorFactory;
 
 //=============================================================================
 

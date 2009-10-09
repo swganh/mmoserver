@@ -12,14 +12,10 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_ZONESERVER_CAMP_H
 #define ANH_ZONESERVER_CAMP_H
 
-//#include "tangibleobject.h"
 #include "PlayerStructure.h"
-//#include "CellObject.h"
+#include "BuildingEnums.h"
 
-
-//typedef std::vector<CellObject*>	CellObjectList;
 //=============================================================================
-class PlayerStructure;
 
 
 //=============================================================================

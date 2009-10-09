@@ -9,11 +9,13 @@ Copyright (c) 2006 - 2008 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
+#include "Weapon.h"
 #include "MathLib/Quaternion.h"
 #include "PlayerObject.h"
 #include "ZoneOpcodes.h"
 #include "Worldmanager.h"
-#include "Weapon.h"
+#include "Common/Message.h"
+#include "Common/MessageFactory.h"
 
 //=============================================================================
 

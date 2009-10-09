@@ -32,6 +32,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "ZoneServer/SchematicManager.h"
 #include "ZoneServer/DraftSlot.h"
 #include "ZoneServer/DraftSchematic.h"
+#include "ZoneServer/PlayerObject.h"
 #include <boost/lexical_cast.hpp>
 #include "Common/atMacroString.h"
 

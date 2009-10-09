@@ -9,8 +9,10 @@ Copyright (c) 2006 - 2008 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
-#include "MathLib/Quaternion.h"
 #include "BuildingObject.h"
+#include "CellObject.h"
+#include "SpawnPoint.h"
+#include "MathLib/Quaternion.h"
 #include "Utils/rand.h"
 
 //=============================================================================

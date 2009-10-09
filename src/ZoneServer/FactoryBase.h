@@ -14,7 +14,6 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "Utils/typedefs.h"
 #include "DatabaseManager/DatabaseCallback.h"
-// #include "ZoneServer/SpawnData.h"
 #include <boost/pool/pool.hpp>
 #include <map>
 

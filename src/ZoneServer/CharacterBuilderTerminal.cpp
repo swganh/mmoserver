@@ -9,6 +9,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
+#include "CharacterBuilderTerminal.h"
+#include "Bank.h"
 #include "MathLib/Quaternion.h"
 #include "PlayerObject.h"
 #include "WorldManager.h"
@@ -20,7 +22,6 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "TreasuryManager.h"
 #include "TradeManager.h"
 #include "SkillManager.h"
-#include "CharacterBuilderTerminal.h"
 #include "Buff.h"
 #include "ResourceType.h"
 #include "ResourceCategory.h"

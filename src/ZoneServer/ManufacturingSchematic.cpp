@@ -16,6 +16,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "ZoneOpcodes.h"
 #include "CraftBatch.h"
 #include "DraftSchematic.h"
+#include "Common/Message.h"
+#include "Common/MessageFactory.h"
 
 //=============================================================================
 

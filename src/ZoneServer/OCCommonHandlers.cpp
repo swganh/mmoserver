@@ -9,9 +9,14 @@ Copyright (c) 2006 - 2009 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
+
 #include "ObjectController.h"
+#include "Bank.h"
+#include "Container.h"
+#include "ResourceContainer.h"
 #include "ObjectControllerOpcodes.h"
 #include "ObjectControllerCommandMap.h"
+#include "PlayerObject.h"
 #include "WorldManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"

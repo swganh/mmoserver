@@ -12,8 +12,6 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_ZONESERVER_WAYPOINT_OBJECT_FACTORY_H
 #define ANH_ZONESERVER_WAYPOINT_OBJECT_FACTORY_H
 
-#include "WaypointObject.h"
-#include "DatabaseManager/DatabaseCallback.h"
 #include "FactoryBase.h"
 
 #define	 gWaypointFactory	WaypointFactory::getSingletonPtr()
@@ -24,6 +22,7 @@ class Database;
 class DataBinding;
 class DispatchClient;
 class ObjectFactoryCallback;
+class WaypointObject;
 
 //=============================================================================
 

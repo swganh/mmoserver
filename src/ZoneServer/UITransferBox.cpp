@@ -9,9 +9,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
+#include "UITransferBox.h"
 #include "UIOpcodes.h"
 #include "UIManager.h"
-#include "UITransferBox.h"
 #include "UIButton.h"
 #include "UIInputField.h"
 #include "UIDropdownBox.h"
@@ -19,6 +19,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "PlayerObject.h"
 #include "LogManager/LogManager.h"
 #include "Common/Message.h"
+#include "Common/MessageFactory.h"
 
 //================================================================================
 

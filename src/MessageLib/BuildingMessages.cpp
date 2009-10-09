@@ -20,6 +20,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 //#include "Common/Message.h"
 #include "Common/DispatchClient.h"
 #include "ZoneServer/BuildingObject.h"
+#include "ZoneServer/CellObject.h"
 #include "ZoneServer/PlayerObject.h"
 
 //======================================================================================================================

@@ -9,8 +9,9 @@ Copyright (c) 2006 - 2009 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
-#include "MathLib/Quaternion.h"
 #include "CreatureObject.h"
+#include "IncapRecoveryEvent.h"
+#include "MathLib/Quaternion.h"
 #include "EntertainerManager.h"
 #include "Vehicle.h"
 #include "Buff.h"

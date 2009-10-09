@@ -21,6 +21,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Common/DispatchClient.h"
 #include "ZoneServer/Wearable.h"
 #include "ZoneServer/CraftingTool.h"
+#include "ZoneServer/PlayerObject.h"
 #include "ZoneServer/ManufacturingSchematic.h"
 
 

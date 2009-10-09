@@ -13,20 +13,21 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #define ANH_ZONESERVER_VEHICLE_FACTORY_H
 
 #include "FactoryBase.h"
+#include "ObjectFactoryCallback.h"
 
 //Forward Declerations
+class Database;
 class DatabaseCallback;
+class DataBinding;
+class DispatchClient;
 class IntangibleObject;
+class PlayerObject;
 class Vehicle;
 
 #define	 gVehicleFactory	VehicleFactory::getSingletonPtr()
 
 //=============================================================================
 
-class Database;
-class DataBinding;
-class DispatchClient;
-class ObjectFactoryCallback;
 
 //=============================================================================
 

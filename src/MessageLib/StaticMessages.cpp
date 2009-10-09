@@ -19,9 +19,11 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Common/MessageOpcodes.h"
 #include "Common/Message.h"
 #include "Common/DispatchClient.h"
+#include "ZoneServer/StaticObject.h"
 #include "ZoneServer/Wearable.h"
 #include "ZoneServer/CraftingTool.h"
 #include "ZoneServer/ManufacturingSchematic.h"
+#include "ZoneServer/PlayerObject.h"
 
 
 //======================================================================================================================

@@ -10,6 +10,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "StructureManager.h"
+#include "PlayerObject.h"
 //#include "Common/MessageDispatch.h"
 //#include "Common/MessageFactory.h"
 //#include "Common/MessageOpcodes.h"
@@ -23,7 +24,6 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "ObjectFactory.h"
 #include "UIManager.h"
 #include "ZoneTree.h"
-
 
 bool						StructureManager::mInsFlag    = false;
 StructureManager*			StructureManager::mSingleton  = NULL;

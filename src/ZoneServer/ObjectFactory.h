@@ -12,29 +12,33 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_ZONESERVER_OBJECT_FACTORY_H
 #define ANH_ZONESERVER_OBJECT_FACTORY_H
 
-//#include "ZoneServer/TangibleObject.h"
+#include "Object_Enums.h"
+#include "TangibleEnums.h"
 #include "DatabaseManager/DatabaseCallback.h"
-#include "PlayerObjectFactory.h"
-#include "TangibleFactory.h"
-#include "CreatureFactory.h"
-#include "BuildingFactory.h"
-#include "HarvesterFactory.h"
-#include "RegionFactory.h"
-#include "WaypointFactory.h"
-#include "MissionFactory.h"
-#include "IntangibleFactory.h"
+#include "MathLib/Vector3.h"
+#include "Utils/typedefs.h"
 #include <boost/pool/pool.hpp>
 
 #define 	gObjectFactory	ObjectFactory::getSingletonPtr()
 
-//class TravelMapHandler;
+class BuildingFactory;
+class CreatureFactory;
 class Database;
+class Deed;
 class DispatchClient;
-class OFAsyncContainer;
-class ObjectFactoryCallback;
-class TicketProperties;
 class DraftSchematic;
+class HarvesterFactory;
+class IntangibleFactory;
+class OFAsyncContainer;
+class Object;
+class ObjectFactoryCallback;	
+class PlayerObject;
+class PlayerObjectFactory;	
+class RegionFactory;
+class TangibleFactory;
 class TangibleObject;
+class TicketProperties;
+class WaypointFactory;
 
 //=============================================================================
 

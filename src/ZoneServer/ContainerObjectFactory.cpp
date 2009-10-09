@@ -9,8 +9,10 @@ Copyright (c) 2006 - 2009 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
-#include "Common/DispatchClient.h"
 #include "ContainerObjectFactory.h"
+#include "TangibleFactory.h"
+#include "Container.h"
+#include "Common/DispatchClient.h"
 #include "ObjectFactoryCallback.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"

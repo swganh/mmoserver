@@ -12,15 +12,14 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_ZONESERVER_CELL_OBJECT_FACTORY_H
 #define ANH_ZONESERVER_CELL_OBJECT_FACTORY_H
 
-#include "CellObject.h"
 #include "ObjectFactoryCallback.h"
-#include "DatabaseManager/DatabaseCallback.h"
 #include "FactoryBase.h"
 
 #define 	gCellFactory	CellFactory::getSingletonPtr()
 
 //=============================================================================
 
+class CellObject;
 class Database;
 class DataBinding;
 class DispatchClient;

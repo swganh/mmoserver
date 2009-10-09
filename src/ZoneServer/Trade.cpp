@@ -9,9 +9,10 @@ Copyright (c) 2006 - 2008 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
+#include "Trade.h"
+#include "Inventory.h"
 #include "MessageLib/MessageLib.h"
 #include "Utils/Scheduler.h"
-#include "Trade.h"
 #include "Wearable.h"
 #include "PlayerObject.h"
 #include "WorldManager.h"

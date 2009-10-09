@@ -12,9 +12,6 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #ifndef ANH_ZONESERVER_CREATURE_FACTORY_H
 #define ANH_ZONESERVER_CREATURE_FACTORY_H
 
-#include "CreatureObject.h"
-#include "PersistentNpcFactory.h"
-#include "ShuttleFactory.h"
 #include "FactoryBase.h"
 
 #define	 gCreatureFactory	CreatureFactory::getSingletonPtr()
@@ -25,6 +22,8 @@ class Database;
 class DataBinding;
 class DispatchClient;
 class ObjectFactoryCallback;
+class PersistentNpcFactory;
+class ShuttleFactory;
 
 //=============================================================================
 

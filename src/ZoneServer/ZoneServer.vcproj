@@ -1362,10 +1362,6 @@
 				Name="header"
 				>
 				<File
-					RelativePath=".\ObjControllerCommandMessage.cpp"
-					>
-				</File>
-				<File
 					RelativePath=".\objcontrollercommandmessage.h"
 					>
 				</File>
@@ -1606,6 +1602,14 @@
 				Name="source"
 				>
 				<File
+					RelativePath=".\ObjControllerCommandMessage.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ObjControllerEvent.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\ObjectController.cpp"
 					>
 				</File>
@@ -1820,10 +1824,6 @@
 					>
 					<File
 						RelativePath=".\NonPersistentNpcFactory.h"
-						>
-					</File>
-					<File
-						RelativePath=".\NpcFamily.h"
 						>
 					</File>
 					<File

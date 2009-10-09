@@ -9,11 +9,11 @@ Copyright (c) 2006 - 2009 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
+#include "Deed.h"
 #include "MathLib/Quaternion.h"
 #include "PlayerObject.h"
 #include "ZoneOpcodes.h"
 #include "Worldmanager.h"
-#include "Deed.h"
 #include "ScoutManager.h"
 #include "Camp.h"
 #include "StructureManager.h"
@@ -23,6 +23,8 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "MessageLib/MessageLib.h"
 #include "Inventory.h"
 #include "ObjectFactory.h"
+#include "Common/Message.h"
+#include "Common/MessageFactory.h"
 
 //=============================================================================
 

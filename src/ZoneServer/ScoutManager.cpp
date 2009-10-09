@@ -1,5 +1,7 @@
-#include "PlayerObject.h"
 #include "ScoutManager.h"
+#include "CampTerminal.h"
+#include "TangibleObject.h"
+#include "PlayerObject.h"
 #include "MessageLib/MessageLib.h"
 #include "WorldManager.h"
 #include "UIManager.h"

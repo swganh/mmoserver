@@ -10,18 +10,21 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "MessageLib.h"
-//#include "ZoneServer/Deed.h"
-#include "LogManager/LogManager.h"
-#include "ZoneServer/ZoneOpcodes.h"
-#include "ZoneServer/WorldManager.h"
-//#include "ZoneServer/ObjectFactory.h"
-#include "Common/MessageFactory.h"
-#include "Common/MessageOpcodes.h"
-//#include "Common/Message.h"
-#include "Common/DispatchClient.h"
+
 #include "ZoneServer/BuildingObject.h"
 #include "ZoneServer/CellObject.h"
 #include "ZoneServer/PlayerObject.h"
+#include "ZoneServer/WorldManager.h"
+#include "ZoneServer/ZoneOpcodes.h"
+
+#include "LogManager/LogManager.h"
+
+#include "Common/DispatchClient.h"
+#include "Common/MessageFactory.h"
+#include "Common/MessageOpcodes.h"
+
+
+
 
 //======================================================================================================================
 //

@@ -9,19 +9,6 @@ Copyright (c) 2006 - 2008 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
-#include <assert.h>
-#include <ctime>
-
-#include "Common/atMacroString.h"
-#include "Common/DispatchClient.h"
-#include "Common/Message.h"
-#include "Common/MessageDispatch.h"
-#include "Common/MessageFactory.h"
-#include "DatabaseManager/Database.h"
-#include "DatabaseManager/DatabaseResult.h"
-#include "DatabaseManager/DataBinding.h"
-#include "LogManager/LogManager.h"
-#include "Utils/utils.h"
 #include "Channel.h"
 #include "ChatAvatarId.h"
 #include "ChatManager.h"
@@ -31,6 +18,23 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "GroupObject.h"
 #include "Mail.h"
 #include "Player.h"
+
+#include "LogManager/LogManager.h"
+
+#include "DatabaseManager/Database.h"
+#include "DatabaseManager/DatabaseResult.h"
+#include "DatabaseManager/DataBinding.h"
+
+#include "Common/atMacroString.h"
+#include "Common/DispatchClient.h"
+#include "Common/Message.h"
+#include "Common/MessageDispatch.h"
+#include "Common/MessageFactory.h"
+
+#include "Utils/utils.h"
+
+#include <assert.h>
+#include <ctime>
 
 //======================================================================================================================
 

@@ -8,24 +8,26 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
-
-#include "Common/atMacroString.h"
-#include "Common/MessageDispatch.h"
-#include "Common/MessageFactory.h"
-#include "Common/Message.h"
-#include "Common/DispatchClient.h"
-#include "DatabaseManager/Database.h"
-#include "DatabaseManager/DataBinding.h"
-#include "DatabaseManager/DatabaseResult.h"
-#include "LogManager/LogManager.h"
-#include "Utils/utils.h"
-#include "Utils/Timer.h"
-#include "ZoneServer/TangibleEnums.h"
 #include "ChatOpcodes.h"
 #include "Mail.h"
 #include "Player.h"
 #include "TradeManagerchat.h"
 
+#include "ZoneServer/TangibleEnums.h"
+
+#include "LogManager/LogManager.h"
+#include "DatabaseManager/Database.h"
+#include "DatabaseManager/DataBinding.h"
+#include "DatabaseManager/DatabaseResult.h"
+
+#include "Common/atMacroString.h"
+#include "Common/DispatchClient.h"
+#include "Common/Message.h"
+#include "Common/MessageDispatch.h"
+#include "Common/MessageFactory.h"
+
+#include "Utils/utils.h"
+#include "Utils/Timer.h"
 bool						TradeManagerChatHandler::mInsFlag    = false;
 TradeManagerChatHandler*		TradeManagerChatHandler::mSingleton  = NULL;
 

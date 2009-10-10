@@ -1,20 +1,34 @@
+/*
+---------------------------------------------------------------------------------------
+This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
+For more information, see http://www.swganh.org
+
+
+Copyright (c) 2006 - 2009 The swgANH Team
+
+---------------------------------------------------------------------------------------
+*/
 #include "ServerManager.h"
-#include "MessageRouter.h"
+
+#include "ClientManager.h"
 #include "ConnectionClient.h"
 #include "ConnectionDispatch.h"
 #include "ConnectionDispatchClient.h"
-#include "DatabaseManager/Database.h"
-#include "DatabaseManager/DataBinding.h"
-#include "DatabaseManager/DatabaseResult.h"
+#include "MessageRouter.h"
+
 #include "NetworkManager/Session.h"
 #include "NetworkManager/Service.h"
+
+#include "LogManager/LogManager.h"
+
+#include "DatabaseManager/DataBinding.h"
+#include "DatabaseManager/Database.h"
+#include "DatabaseManager/DatabaseResult.h"
+
 #include "Common/Message.h"
 #include "Common/MessageOpcodes.h"
 #include "Common/MessageFactory.h"
 #include "ConfigManager/ConfigManager.h"
-#include "LogManager/LogManager.h"
-#include "ClientManager.h"
-
 
 //======================================================================================================================
 

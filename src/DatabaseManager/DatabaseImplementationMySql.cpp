@@ -10,8 +10,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "DatabaseImplementationMySql.h"
-#include "DataBinding.h"
 #include "DatabaseResult.h"
+#include "DataBinding.h"
+
 #include "LogManager/LogManager.h"
 
 #include <boost/lexical_cast.hpp>

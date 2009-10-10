@@ -10,21 +10,22 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "Database.h"
+
 #include "DataBindingFactory.h"
-#include "DatabaseWorkerThread.h"
+#include "DatabaseCallback.h"
 #include "DatabaseImplementation.h"
 #include "DatabaseImplementationMySql.h"
-#include "DatabaseCallback.h"
-#include "DatabaseType.h"
 #include "DatabaseJob.h"
-#include "LogManager/LogManager.h"
-#include "ConfigManager/ConfigManager.h"
+#include "DatabaseType.h"
+#include "DatabaseWorkerThread.h"
 #include "Transaction.h"
+
+#include "LogManager/LogManager.h"
+
+#include "ConfigManager/ConfigManager.h"
 
 #include <stdlib.h>
 #include <stdio.h>
-
-
 
 //======================================================================================================================
 Database::Database(DBType type) :

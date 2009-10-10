@@ -4,14 +4,13 @@ This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emu
 For more information, see http://www.swganh.org
 
 
-Copyright (c) 2006 - 2008 The swgANH Team
+Copyright (c) 2006 - 2009 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
 
 #include "Vector3.h"
 #include <math.h>
-#include <stdlib.h>
 #include "Utils/rand.h"
 
 const Anh_Math::Vector3 Anh_Math::Vector3::ZERO(0,0,0);

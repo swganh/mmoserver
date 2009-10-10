@@ -95,6 +95,12 @@ class CraftAttribute
 		float	mMax;
 };
 
+enum AttributePPME_Enum
+{
+	AttributePPME_AddValue = 1,
+	AttributePPME_AddAttribute = 2,
+};
+
 class CraftAttributeWeight
 {
 	friend class SchematicManager;
@@ -121,7 +127,7 @@ class CraftAttributeWeight
 		uint32	mAffectedAttributeId;
 		string	mAffectedAttributeKey;
 		
-		uint8	mManipulation;
+		AttributePPME_Enum	mManipulation;
 		uint8	mType;
 		
 };

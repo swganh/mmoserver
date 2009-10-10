@@ -8,13 +8,6 @@ Copyright (c) 2006, 2007 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
-
-#include "Common/MessageDispatch.h"
-#include "Common/MessageFactory.h"
-#include "Common/Message.h"
-#include "Common/DispatchClient.h"
-#include "LogManager/LogManager.h"
-#include "Utils/utils.h"
 #include "Channel.h"
 #include "ChatAvatarId.h"
 #include "ChatManager.h"
@@ -24,6 +17,17 @@ Copyright (c) 2006, 2007 The swgANH Team
 #include "GroupObject.h"
 #include "Math.h"
 #include "Player.h"
+
+#include "LogManager/LogManager.h"
+
+#include "Common/DispatchClient.h"
+#include "Common/Message.h"
+#include "Common/MessageDispatch.h"
+#include "Common/MessageFactory.h"
+
+#include "Utils/utils.h"
+
+
 
 //======================================================================================================================
 

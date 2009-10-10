@@ -1,16 +1,33 @@
+/*
+---------------------------------------------------------------------------------------
+This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
+For more information, see http://www.swganh.org
+
+
+Copyright (c) 2006 - 2008 The swgANH Team
+
+---------------------------------------------------------------------------------------
+*/
+
 #include "MessageLib.h"
-#include "LogManager/LogManager.h"
-#include "ZoneServer/ZoneOpcodes.h"
+
+#include "ZoneServer/MissionObject.h"
+
 #include "ZoneServer/ObjectControllerOpcodes.h"
-#include "ZoneServer/WorldManager.h"
 #include "ZoneServer/ObjectFactory.h"
 #include "ZoneServer/PlayerObject.h"
-#include "ZoneServer/MissionObject.h"
+#include "ZoneServer/WorldManager.h"
+#include "ZoneServer/ZoneOpcodes.h"
+
+#include "LogManager/LogManager.h"
+
+#include "Common/DispatchClient.h"
+#include "Common/Message.h"
 #include "Common/MessageDispatch.h"
 #include "Common/MessageFactory.h"
 #include "Common/MessageOpcodes.h"
-#include "Common/Message.h"
-#include "Common/DispatchClient.h"
+
+
 
 //
 // Mission Baselines Type 6

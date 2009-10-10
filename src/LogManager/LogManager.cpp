@@ -8,16 +8,19 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
+#include "LogManager.h"
 
+#include "DatabaseManager/Database.h"
+#include "DatabaseManager/DatabaseManager.h"
+
+#include "ConfigManager/ConfigManager.h"
+#include "Utils/StreamColors.h"
+
+#include <iomanip>
 #include <string>
 #include <stdarg.h>
 #include <stdio.h> 
-#include <iomanip>
-#include "ConfigManager/ConfigManager.h"
-#include "DatabaseManager/DatabaseManager.h"
-#include "DatabaseManager/Database.h"
-#include "Utils/StreamColors.h"
-#include "LogManager.h"
+
 
 //======================================================================================================================
 LogManager*   LogManager::mSingleton  = NULL;

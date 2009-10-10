@@ -13,20 +13,26 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #endif
 
 #include "LoginManager.h"
-#include "LoginClient.h"
+
 #include "AccountData.h"
+#include "LoginClient.h"
+
+#include "NetworkManager/Session.h"
+
 #include "LogManager/LogManager.h"
+
+#include "DatabaseManager/Database.h"
+#include "DatabaseManager/DatabaseResult.h"
+#include "DatabaseManager/DataBinding.h"
+
+#include "Common/Message.h"
 #include "Common/MessageFactory.h"
 #include "Common/MessageOpcodes.h"
-#include "Common/Message.h"
-#include "DatabaseManager/Database.h"
-#include "DatabaseManager/DataBinding.h"
-#include "DatabaseManager/DatabaseResult.h"
-#include "NetworkManager/Session.h"
+
 #include "Utils/bstring.h"
 
-#include <stdio.h>
 #include <stddef.h>
+#include <stdio.h>
 #include <string.h>
 
 

@@ -11,11 +11,13 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "Log.h"
 
-#include <sstream>
+#include "DatabaseManager/Database.h"
+
 #include <iomanip>
+#include <sstream>
 #include <time.h>
 
-#include "DatabaseManager/Database.h"
+
 
 //======================================================================================================================
 

@@ -8,9 +8,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
+#include "DatabaseWorkerThread.h"
 
 #include "Database.h"
-#include "DatabaseWorkerThread.h"
 #include "DatabaseImplementation.h"
 #include "DatabaseImplementationMySql.h"
 #include "DatabaseJob.h"

@@ -8,13 +8,16 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
-
 #include "ConnectionDispatch.h"
-#include "ConnectionDispatchCallback.h"
+
 #include "ConnectionClient.h"
-#include "Common/Message.h"
-#include "NetworkManager/Session.h"
+#include "ConnectionDispatchCallback.h"
+
 #include "LogManager/LogManager.h"
+
+#include "NetworkManager/Session.h"
+
+#include "Common/Message.h"
 
 #include <stdio.h>
 

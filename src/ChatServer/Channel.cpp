@@ -4,19 +4,21 @@ This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emu
 For more information, see http://www.swganh.org
 
 
-Copyright (c) 2006 - 2008 The swgANH Team
+Copyright (c) 2006 - 2009 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
 
-#include "Common/MessageFactory.h"
-#include "Common/Message.h"
-#include "Common/DispatchClient.h"
-#include "LogManager/LogManager.h"
 #include "Channel.h"
 #include "ChatManager.h"
 #include "ChatAvatarId.h"
 #include "Player.h"
+
+#include "LogManager/LogManager.h"
+
+#include "Common/DispatchClient.h"
+#include "Common/Message.h"
+#include "Common/MessageFactory.h"
 
 //======================================================================================================================
 

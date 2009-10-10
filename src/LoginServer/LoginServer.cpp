@@ -10,15 +10,19 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "LoginServer.h"
+
 #include "LoginManager.h"
+
 #include "NetworkManager/NetworkManager.h"
 #include "NetworkManager/Service.h"
-#include "DatabaseManager/DatabaseManager.h"
-#include "DatabaseManager/Database.h"
+
 #include "LogManager/LogManager.h"
-#include "ConfigManager/ConfigManager.h"
+
+#include "DatabaseManager/Database.h"
+#include "DatabaseManager/DatabaseManager.h"
 
 #include "Common/MessageFactory.h"
+#include "ConfigManager/ConfigManager.h"
 
 #include <conio.h>
 

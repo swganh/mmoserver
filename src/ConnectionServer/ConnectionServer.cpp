@@ -10,25 +10,28 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "ConnectionServer.h"
+
 #include "ClientManager.h"
+#include "ConnectionDispatch.h"
 #include "ServerManager.h"
 #include "MessageRouter.h"
-#include "ConnectionDispatch.h"
+
 #include "NetworkManager/NetworkManager.h"
 #include "NetworkManager/Service.h"
-#include "DatabaseManager/DatabaseManager.h"
-#include "DatabaseManager/Database.h"
+
 #include "LogManager/LogManager.h"
-#include "ConfigManager/ConfigManager.h"
+
+#include "DatabaseManager/Database.h"
+#include "DatabaseManager/DatabaseManager.h"
 
 #include "Common/MessageFactory.h"
+#include "ConfigManager/ConfigManager.h"
 
 //#include "ZoneServer/Stackwalker.h" // removing so that we can get back proper debugging
-#include <windows.h>
-
-#include <stdio.h>
 #include <conio.h>
+#include <stdio.h>
 #include <string.h>
+#include <windows.h>
 
 //======================================================================================================================
 

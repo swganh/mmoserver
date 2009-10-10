@@ -4,32 +4,38 @@ This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emu
 For more information, see http://www.swganh.org
 
 
-Copyright (c) 2006 - 2008 The swgANH Team
+Copyright (c) 2006 - 2009 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
 
-#include <conio.h>
-#include <stdio.h>
-#include <stddef.h>
 
 // External references
-#include "Common/DispatchClient.h"
-#include "Common/MessageDispatch.h"
-#include "Common/MessageFactory.h"
-#include "ConfigManager/ConfigManager.h"
-#include "DatabaseManager/Database.h"
-#include "DatabaseManager/DatabaseManager.h"
-#include "DatabaseManager/DatabaseResult.h"
-#include "DatabaseManager/DataBinding.h"
-#include "LogManager/LogManager.h"
-#include "NetworkManager/NetworkManager.h"
-#include "NetworkManager/Service.h"
 #include "ChatManager.h"
 #include "ChatServer.h"
 #include "CSRManager.h"
 #include "GroupManager.h"
 #include "TradeManagerChat.h"
+
+#include "NetworkManager/NetworkManager.h"
+#include "NetworkManager/Service.h"
+
+#include "LogManager/LogManager.h"
+
+#include "DatabaseManager/DataBinding.h"
+#include "DatabaseManager/Database.h"
+#include "DatabaseManager/DatabaseManager.h"
+#include "DatabaseManager/DatabaseResult.h"
+
+#include "Common/DispatchClient.h"
+#include "Common/MessageDispatch.h"
+#include "Common/MessageFactory.h"
+#include "ConfigManager/ConfigManager.h"
+
+#include <conio.h>
+#include <stdio.h>
+#include <stddef.h>
+
 
 //======================================================================================================================
 

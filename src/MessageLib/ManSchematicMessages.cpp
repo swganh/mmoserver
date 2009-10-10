@@ -4,39 +4,41 @@ This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emu
 For more information, see http://www.swganh.org
 
 
-Copyright (c) 2006 - 2008 The swgANH Team
+Copyright (c) 2006 - 2009 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
 
 #include "MessageLib.h"
-#include "LogManager/LogManager.h"
-#include "ZoneServer/ZoneOpcodes.h"
-#include "ZoneServer/WorldManager.h"
-#include "ZoneServer/UIOpcodes.h"
+
+#include "ZoneServer/CharSheetManager.h"
+#include "ZoneServer/Conversation.h"
+#include "ZoneServer/CraftingSession.h"
+#include "ZoneServer/CraftingTool.h"
+#include "ZoneServer/CurrentResource.h"
+#include "ZoneServer/DraftSchematic.h"
+#include "ZoneServer/DraftSlot.h"
+#include "ZoneServer/ManufacturingSchematic.h"
+#include "ZoneServer/NPCObject.h"
+#include "ZoneServer/ObjectControllerOpcodes.h"
 #include "ZoneServer/ObjectFactory.h"
+#include "ZoneServer/PlayerObject.h"
+#include "ZoneServer/SchematicManager.h"
+#include "ZoneServer/UIOpcodes.h"
+#include "ZoneServer/Wearable.h"
+#include "ZoneServer/WorldManager.h"
+#include "ZoneServer/ZoneOpcodes.h"
+
+#include "LogManager/LogManager.h"
+
+#include "Common/atMacroString.h"
+#include "Common/DispatchClient.h"
+#include "Common/Message.h"
 #include "Common/MessageDispatch.h"
 #include "Common/MessageFactory.h"
 #include "Common/MessageOpcodes.h"
-#include "Common/Message.h"
-#include "Common/DispatchClient.h"
-#include "ZoneServer/ObjectControllerOpcodes.h"
-#include "ZoneServer/CurrentResource.h"
-#include "ZoneServer/CharSheetManager.h"
-#include "ZoneServer/Wearable.h"
-#include "ZoneServer/Conversation.h"
-#include "ZoneServer/NPCObject.h"
-#include "ZoneServer/CraftingTool.h"
-#include "ZoneServer/ManufacturingSchematic.h"
-#include "ZoneServer/CraftingSession.h"
-#include "ZoneServer/SchematicManager.h"
-#include "ZoneServer/PlayerObject.h"
+
 #include <boost/lexical_cast.hpp>
-#include "Common/atMacroString.h"
-#include "ZoneServer/DraftSchematic.h"
-#include "ZoneServer/DraftSlot.h"
-
-
 
 //======================================================================================================================
 

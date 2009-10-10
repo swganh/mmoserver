@@ -8,22 +8,25 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
-
-#include "Common/MessageDispatch.h"
-#include "Common/MessageFactory.h"
-#include "Common/Message.h"
-#include "Common/DispatchClient.h"
-#include "DatabaseManager/Database.h"
-#include "DatabaseManager/DataBinding.h"
-#include "DatabaseManager/DatabaseResult.h"
-#include "LogManager/LogManager.h"
-#include "Utils/utils.h"
 #include "ChatManager.h"
 #include "ChatOpcodes.h"
 #include "CSRManager.h"
 #include "CSRObjects.h"
 #include "CSROpcodes.h"
 #include "Player.h"
+
+#include "LogManager/LogManager.h"
+#include "DatabaseManager/Database.h"
+#include "DatabaseManager/DataBinding.h"
+#include "DatabaseManager/DatabaseResult.h"
+
+#include "Common/DispatchClient.h"
+#include "Common/Message.h"
+#include "Common/MessageDispatch.h"
+#include "Common/MessageFactory.h"
+
+#include "Utils/utils.h"
+
 
 //======================================================================================================================
 

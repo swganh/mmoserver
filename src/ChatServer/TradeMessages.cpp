@@ -8,16 +8,20 @@ Copyright (c) 2006 - 2008 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
-#include "Common/MessageDispatch.h"
-#include "Common/MessageFactory.h"
-#include "Common/Message.h"
-#include "Common/DispatchClient.h"
-#include "Common/atMacroString.h"
-#include "LogManager/LogManager.h"
+
 #include "ChatMessageLib.h"
 #include "ChatOpcodes.h"
 #include "Player.h"
 #include "TradeManagerHelp.h"
+
+#include "LogManager/LogManager.h"
+
+#include "Common/atMacroString.h"
+#include "Common/DispatchClient.h"
+#include "Common/Message.h"
+#include "Common/MessageDispatch.h"
+#include "Common/MessageFactory.h"
+
 
 void ChatMessageLib::sendCanceLiveAuctionResponseMessage(DispatchClient* client, uint32 error, uint64 mAuctionID) const
 {

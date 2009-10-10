@@ -3,22 +3,23 @@ This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emu
 For more information, see http://www.swganh.org
 
 
-Copyright (c) 2006 - 2008 The swgANH Team
+Copyright (c) 2006 - 2009 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
-
-#include <boost/lexical_cast.hpp>
-
-#include "Common/MessageDispatch.h"
-#include "Common/MessageFactory.h"
-#include "Common/Message.h"
-#include "Common/DispatchClient.h"
-#include "Common/atMacroString.h"
 #include "ChatMessageLib.h"
 #include "ChatOpcodes.h"
 #include "CSRObjects.h"
 #include "CSROpcodes.h"
+
+#include "Common/Message.h"
+#include "Common/MessageDispatch.h"
+#include "Common/MessageFactory.h"
+
+#include "Common/atMacroString.h"
+#include "Common/DispatchClient.h"
+
+#include <boost/lexical_cast.hpp>
 
 void ChatMessageLib::sendConnectPlayerResponseMessage(DispatchClient* client) const
 {

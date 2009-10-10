@@ -418,14 +418,14 @@ void UIManager::createNewStructureDestroyBox(UICallback* callback,PlayerObject* 
 {
 	BStringVector attributesMenu;
 
-	string text = "You have elected to destroy a structure. Petinent structure data can be found in the list below. Please complete the following steps to confirm structure deletion.\xa\xa";
-			text <<"If you wish to redeed your structure, all structure data must be GREEN To continue with structure deletion, click YES. Otherwise, please click NO.\xa";
+	string text = "You have elected to destroy a structure. Pertinent structure data can be found in the list below. Please complete the following steps to confirm structure deletion.\xa\xa";
+			text <<"If you wish to redeed your structure, all structure data must be GREEN. \xa To continue with structure deletion, click YES. Otherwise, please click NO.\xa";
 			
 	if(structure->canRedeed())
 	{
 		text <<"WILL REDEED: \\#006400 YES \\#FFFFFF";			
 
-		int8 redeedText[32];
+		int8 redeedText[64];
 		sprintf(redeedText,"CAN REDEED: \\#006400 YES\\#FFFFFF");
 		attributesMenu.push_back(redeedText);
 	}
@@ -433,20 +433,34 @@ void UIManager::createNewStructureDestroyBox(UICallback* callback,PlayerObject* 
 	{
 		text <<"WILL REDEED: \\#FF0000 NO \\#FFFFFF";			
 
-		int8 redeedText[32];
+		int8 redeedText[64];
 		sprintf(redeedText,"CAN REDEED: \\#FF0000 NO\\#FFFFFF");
 		attributesMenu.push_back(redeedText);
 	}
 			
 		
 
+
 	int8 condition[64];
-	sprintf(condition,"-CONDITION:%u/%u",1000,1000);
+	sprintf(condition,"-CONDITION:\\#006400%u/%u\\#FFFFFF",1000,1000);
 	attributesMenu.push_back(condition);
 
-	int8 maintenance[128];
-	sprintf(maintenance,"-MAINTENANCE:%u/%u",-1,-1);
-	attributesMenu.push_back(maintenance);
+	uint32 maintIs = structure->getCurrentMaintenance();
+	uint32 maintNeed = structure->getMaintenanceRate()*50;
+
+	if(maintIs >= maintNeed)
+	{
+		int8 maintenance[128];
+		sprintf(maintenance,"-MAINTENANCE:\\#006400%u/%u\\#FFFFFF",maintIs,maintNeed);
+		attributesMenu.push_back(maintenance);
+	}
+	else
+	{
+		int8 maintenance[128];
+		sprintf(maintenance,"-MAINTENANCE:\\#FF0000%u/%u\\#FFFFFF",maintIs,maintNeed);
+		attributesMenu.push_back(maintenance);
+	}
+
 
 	string name = structure->getCustomName();			
 	name.convert(BSTRType_ANSI);

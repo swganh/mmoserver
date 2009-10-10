@@ -30,11 +30,11 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "ZoneServer/ManufacturingSchematic.h"
 #include "ZoneServer/CraftingSession.h"
 #include "ZoneServer/SchematicManager.h"
-#include "ZoneServer/DraftSlot.h"
-#include "ZoneServer/DraftSchematic.h"
 #include "ZoneServer/PlayerObject.h"
 #include <boost/lexical_cast.hpp>
 #include "Common/atMacroString.h"
+#include "ZoneServer/DraftSchematic.h"
+#include "ZoneServer/DraftSlot.h"
 
 
 
@@ -102,7 +102,19 @@ bool MessageLib::sendBaselinesMSCO_3(ManufacturingSchematic* manSchem,PlayerObje
 			gMessageFactory->addUint32(0);
 			gMessageFactory->addString(gWorldManager->getAttributeKey((*it).first));
 			
-			gMessageFactory->addFloat(boost::lexical_cast<float,std::string>((*it).second));
+			//=============================0
+			// see whether the attribute has any component values which need adding in the preview
+
+			if(manSchem->hasPPAttribute(gWorldManager->getAttributeKey((*it).first)))
+			{
+				float attributeValue = boost::lexical_cast<float,std::string>((*it).second);
+				float attributeAddValue = manSchem->getPPAttribute<float>(gWorldManager->getAttributeKey((*it).first));
+				gLogger->logMsgF("MessageLib::sendBaselinesMSCO_3 Attribute Add Value",MSG_NORMAL);
+				gLogger->logMsgF("MessageLib::sendBaselinesMSCO_3 we will add %f to %S",MSG_NORMAL,attributeAddValue,gWorldManager->getAttributeKey((*it).first));
+				gMessageFactory->addFloat(attributeValue+attributeAddValue);	
+			}
+			else
+				gMessageFactory->addFloat(boost::lexical_cast<float,std::string>((*it).second));			
 
 			++it;
 		}
@@ -348,7 +360,7 @@ bool MessageLib::sendBaselinesMSCO_7(ManufacturingSchematic* manSchem,PlayerObje
 
 	while(epStoreIt != manSchem->expPropStore.end())
 	{
-		gMessageFactory->addFloat(0);//(*epIt)->mExpAttributeValue);
+		gMessageFactory->addFloat(0);//(*epStoreIt)->mExpAttributeValue);
 		(*epStoreIt).second->mExpAttributeValue = 0;
 		(*epStoreIt).second->mExpAttributeValueOld = 0;
 
@@ -368,7 +380,7 @@ bool MessageLib::sendBaselinesMSCO_7(ManufacturingSchematic* manSchem,PlayerObje
 	while(epStoreIt != manSchem->expPropStore.end())
 	{
 
-		gMessageFactory->addUint32(0);//(*epIt)->mExpUnknown);
+		gMessageFactory->addUint32(0);//(*epStoreIt)->mExpUnknown);
 
 		++epStoreIt;
 	}
@@ -406,7 +418,7 @@ bool MessageLib::sendBaselinesMSCO_7(ManufacturingSchematic* manSchem,PlayerObje
 
 		(*epStoreIt).second->mMaxExpValue = 0;
 		(*epStoreIt).second->mMaxExpValueOld = 0;
-		gMessageFactory->addFloat(0);//(*epIt)->mMaxExpValue);
+		gMessageFactory->addFloat(0);//(*epStoreIt)->mMaxExpValue);
 
 		++epStoreIt;
 	}
@@ -591,7 +603,7 @@ bool MessageLib::sendDeltasMSCO_7(ManufacturingSchematic* manSchem,PlayerObject*
 	gMessageFactory->addUint16(elementIndex);
 
 	gMessageFactory->addUint32(static_cast<uint32>((*manSlotIt)->getmFilledIndicator()));
-	//printf("\n Filled type  : %u\n",(*manSlotIt)->getmFilledIndicator());
+	
 
 	//
 	// resources filled
@@ -688,6 +700,7 @@ bool MessageLib::sendDeltasMSCO_7(ManufacturingSchematic* manSchem,PlayerObject*
 
 	gMessageFactory->addUint32((*manSlotIt)->mFilledResources.size());
 
+	filledResIt = (*manSlotIt)->mFilledResources.begin();
 	while(filledResIt != (*manSlotIt)->mFilledResources.end())
 	{
 		gMessageFactory->addUint32((*filledResIt).second);
@@ -915,6 +928,7 @@ bool MessageLib::sendManufactureSlotUpdateSmall(ManufacturingSchematic* manSchem
 
 	gMessageFactory->addUint32(manSlot->mFilledResources.size());
 
+	filledResIt = manSlot->mFilledResources.begin();
 	while(filledResIt != manSlot->mFilledResources.end())
 	{
 		gMessageFactory->addUint64((*filledResIt).first);
@@ -934,7 +948,6 @@ bool MessageLib::sendManufactureSlotUpdateSmall(ManufacturingSchematic* manSchem
 	gMessageFactory->addUint32(manSlot->mFilledResources.size());
 
 	filledResIt = manSlot->mFilledResources.begin();
-
 	while(filledResIt != manSlot->mFilledResources.end())
 	{
 		gMessageFactory->addUint32((*filledResIt).second);
@@ -1010,6 +1023,7 @@ bool MessageLib::sendManufactureSlotUpdate(ManufacturingSchematic* manSchem,uint
 
 	gMessageFactory->addUint32(manSlot->mFilledResources.size());
 
+	filledResIt = manSlot->mFilledResources.begin();
 	while(filledResIt != manSlot->mFilledResources.end())
 	{
 		gMessageFactory->addUint64((*filledResIt).first);
@@ -1111,7 +1125,16 @@ bool MessageLib::sendDeltasMSCO_3(ManufacturingSchematic* manSchem,PlayerObject*
 
 		gMessageFactory->addString(gWorldManager->getAttributeKey((*it).first));
 
-		gMessageFactory->addFloat(boost::lexical_cast<float,std::string>((*it).second));
+		if(manSchem->hasPPAttribute(gWorldManager->getAttributeKey((*it).first)))
+		{
+			float attributeValue = boost::lexical_cast<float,std::string>((*it).second);
+			float attributeAddValue = manSchem->getPPAttribute<float>(gWorldManager->getAttributeKey((*it).first));
+			gMessageFactory->addFloat(attributeValue+attributeAddValue);	
+		}
+		else
+			gMessageFactory->addFloat(boost::lexical_cast<float,std::string>((*it).second));
+
+		//gMessageFactory->addFloat(boost::lexical_cast<float,std::string>((*it).second));
 
 		++it;
 	}
@@ -1210,6 +1233,7 @@ bool MessageLib::sendAttributeDeltasMSCO_7(ManufacturingSchematic* manSchem,Play
 
 		// ´send the *unique* exp properties
 		// we send the values of the first of the propertie(s) that comes our way - so the experiment code needs to sort that
+		// the reason we do this is that we might have exp properties with attributes affected by differing resource weights
 
 		gMessageFactory->addUint8(3);//3 as in write new 2 was change
 		gMessageFactory->addUint16(manSchem->expPropStore.size());
@@ -1219,7 +1243,17 @@ bool MessageLib::sendAttributeDeltasMSCO_7(ManufacturingSchematic* manSchem,Play
 		{
 
 			(*epStoreIt).second->mExpAttributeValueOld = (*epStoreIt).second->mExpAttributeValue; 
-			gMessageFactory->addFloat((*epStoreIt).second->mExpAttributeValue);
+			
+			if(manSchem->hasPPAttribute(gWorldManager->getAttributeKey((*epStoreIt).first)))
+			{
+				float attributeValue = (*epStoreIt).second->mExpAttributeValue;
+				float attributeAddValue = manSchem->getPPAttribute<float>(gWorldManager->getAttributeKey((*epStoreIt).first));
+				gMessageFactory->addFloat(attributeValue+attributeAddValue);	
+			}
+			else
+				gMessageFactory->addFloat((*epStoreIt).second->mExpAttributeValue);
+
+			//gMessageFactory->addFloat((*epStoreIt).second->mExpAttributeValue);
 			++epStoreIt;
 		}
 	}
@@ -1244,7 +1278,7 @@ bool MessageLib::sendAttributeDeltasMSCO_7(ManufacturingSchematic* manSchem,Play
 		while(epStoreIt != manSchem->expPropStore.end())
 		{
 			gMessageFactory->addFloat((*epStoreIt).second->mBlueBarSize);
-			(*epIt)->mBlueBarSizeOld = (*epStoreIt).second->mBlueBarSize;
+			(*epStoreIt).second->mBlueBarSizeOld = (*epStoreIt).second->mBlueBarSize;
 
 			++epStoreIt;
 		}

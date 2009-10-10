@@ -32,6 +32,15 @@ struct CustomizationOption
 	uint32		defaultValue;
 };
 
+enum SlotIndicatorEnum
+{
+	SlotIndicator_None		= 0,
+	SlotIndicator_Identical	= 2,
+	SlotIndicator_Resource	= 4,
+	SlotIndicator_Similar	= 5,
+
+};
+
 typedef std::vector<CustomizationOption*>	CustomizationList;
 
 typedef std::vector<ManufactureSlot*>			ManufactureSlots;
@@ -80,21 +89,28 @@ class ManufacturingSchematic : public Item
 		void	prepareAttributes();
 		void	sendAttributes(PlayerObject* playerObject);
 
-		bool	expPropStorefind(uint32 crc)
-		{
-			ExperimentationPropertiesStore::iterator	epStoreIt	= expPropStore.begin();
-			while(epStoreIt != expPropStore.end())
-			{
-				if((*epStoreIt).first == crc)
-					return true;
-				epStoreIt++;
-			}
-			return false;
-		}
-
 		ManufactureSlots*			getManufactureSlots(){ return &mManufactureSlots; }
-		ExperimentationProperties*	getExperimentationProperties(){ return &mExperimentationProperties; }
+		
+
+		//===============================================================================0
+		// necessary to keep track on the same experimental propertie added to a schematic several times
+		// because its attributes have differing resource weights
+		// they need to still be send in the MSCOs as one experimental propertie
+		bool							expPropStorefind(uint32 crc);
+		ExperimentationProperties*		getExperimentationProperties(){ return &mExperimentationProperties; }
 		ExperimentationPropertiesStore*	getExperimentationPropertiesStore(){ return &expPropStore; }
+
+
+		//===============================================================================0
+		// the mPPAttributeMap stores relevant additions to be added to the final attributes from components AFTER experimentation
+		// see implementation for details
+		AttributeMap*				getPPAttributeMap(){ return &mPPAttributeMap; }
+		template<typename T> T		getPPAttribute(string key) const;
+		template<typename T> T		getPPAttribute(uint32 keyCrc) const;
+		void						setPPAttribute(string key,std::string value);
+		void						addPPAttribute(string key,std::string value);
+		bool						hasPPAttribute(string key) const;
+		void						removePPAttribute(string key);
 
 		CustomizationList*		getCustomizationList(){return &mCustomizationList;}
 
@@ -123,6 +139,7 @@ class ManufacturingSchematic : public Item
 		Item*						mItem;
 		string						mSerial;
 		
+		AttributeMap				mPPAttributeMap;
 };
 
 //=============================================================================
@@ -202,6 +219,57 @@ class ExperimentationProperty//CraftingAttribute
 };
 
 //=============================================================================
+
+//=============================================================================
+
+template<typename T>
+T	ManufacturingSchematic::getPPAttribute(string key) const
+{
+	AttributeMap::const_iterator it = mPPAttributeMap.find(key.getCrc());
+
+	if(it != mPPAttributeMap.end())
+	{
+		try
+		{
+			return(boost::lexical_cast<T>((*it).second));
+		}
+		catch(boost::bad_lexical_cast &)
+		{
+			gLogger->logMsgF("ManufacturingSchematic::getPPAttribute: cast failed (%s)",MSG_HIGH,key.getAnsi());
+		}
+	}
+	else
+		gLogger->logMsgF("ManufacturingSchematic::getPPAttribute: could not find %s",MSG_HIGH,key.getAnsi());
+
+	return(T());
+}
+//=============================================================================
+
+template<typename T>
+T	ManufacturingSchematic::getPPAttribute(uint32 keyCrc) const
+{
+	AttributeMap::iterator it = mPPAttributeMap.find(keyCrc);
+
+	if(it != mPPAttributeMap.end())
+	{
+		try
+		{
+			return(boost::lexical_cast<T>((*it).second));
+		}
+		catch(boost::bad_lexical_cast &)
+		{
+			gLogger->logMsgF("ManufacturingSchematic::getPPAttribute: cast failed (%s)",MSG_HIGH,key.getAnsi());
+		}
+	}
+	else
+		gLogger->logMsgF("ManufacturingSchematic::getPPAttribute: could not find %s",MSG_HIGH,key.getAnsi());
+
+	return(T());
+}
+
+
+//=============================================================================
+
 
 #endif
 

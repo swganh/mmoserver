@@ -63,7 +63,8 @@ bool MessageLib::sendBaselinesTANO_3(const TangibleObject* const tangibleObject,
 
 	if(tangibleObject->hasAttribute("counter_uses_remaining"))
 	{
-		uses = tangibleObject->getAttribute<int>("counter_uses_remaining");
+		float fUses = tangibleObject->getAttribute<float>("counter_uses_remaining");
+		uses = (int) fUses;
 	}
 
 	if(tangibleObject->hasAttribute("stacksize"))

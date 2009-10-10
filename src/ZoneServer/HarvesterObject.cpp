@@ -12,6 +12,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "MathLib/Quaternion.h"
 #include "HarvesterObject.h"
+#include "StructureManager.h"
 #include "UIManager.h"
 #include "PlayerObject.h"
 
@@ -47,7 +48,8 @@ void HarvesterObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject
 	{
 		case radId_serverTerminalManagementDestroy: 
 		{
-			gUIManager->createNewStructureDestroyBox(this,player, this, true);
+			gStructureManager->getDeleteStructureMaintenanceData(this->getId(), player->getId());
+			//gUIManager->createNewStructureDestroyBox(this,player, this, true);
 		}
 	}
 }

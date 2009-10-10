@@ -10,7 +10,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "StructureManager.h"
-#include "PlayerObject.h"
+#include "PlayerObject.h"	  
+#include "PlayerStructure.h"	  
 //#include "Common/MessageDispatch.h"
 //#include "Common/MessageFactory.h"
 //#include "Common/MessageOpcodes.h"
@@ -99,6 +100,69 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 	
 	switch(asynContainer->mQueryType)
 	{
+
+		case Structure_Query_delete:
+		{
+
+			PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(asynContainer->mStructureId));
+			
+			attributeDetail detail;
+
+			DataBinding* binding = mDatabase->CreateDataBinding(2);
+			binding->addField(DFT_bstring,offsetof(attributeDetail,value),128,0);
+			binding->addField(DFT_uint32,offsetof(attributeDetail,attributeId),4,1);
+			
+			
+			uint64 count;
+			count = result->getRowCount();
+
+			if(!count)
+			{
+				gLogger->logMsgF("StructureManager::Structure %I64u without maintenance attributes",MSG_HIGH,asynContainer->mStructureId);
+				break;
+			}
+
+			if(!structure)
+			{
+				gLogger->logMsgF("StructureManager::Structure %I64u not found",MSG_HIGH,asynContainer->mStructureId);
+				break;
+			}
+	
+			for(uint64 i = 0;i < count;i++)
+			{
+				result->GetNextRow(binding,&detail);
+
+				if(detail.attributeId == 322)
+				{
+					//322 = energy_maintenance
+					if (structure->hasAttribute("energy_maintenance"))
+					{
+						structure->setAttribute("energy_maintenance",detail.value.getAnsi());
+						
+					}
+
+					structure->addAttribute("energy_maintenance",detail.value.getAnsi());
+				}
+
+				if(detail.attributeId == 382)
+				{
+					//382 = examine_maintenance
+					if (structure->hasAttribute("examine_maintenance"))
+					{
+						structure->setAttribute("examine_maintenance",detail.value.getAnsi());
+						
+					}
+
+					structure->addAttribute("examine_maintenance",detail.value.getAnsi());
+				}
+
+			}	
+			structure->deleteStructureDBDataRead(asynContainer->mPlayerId);
+
+			mDatabase->DestroyDataBinding(binding);
+		}
+		break;
+
 		case Structure_Query_LoadDeedData:
 		{
 			StructureDeedLink* deedLink;
@@ -128,11 +192,12 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 			else
 				gLogger->logMsgLoadFailure("StructureManager::Loading Structures...",MSG_NORMAL);					
 			
+			mDatabase->DestroyDataBinding(binding);
 		}
 		break;
 
 		case Structure_Query_LoadstructureItem:
-			{
+		{
 
 			StructureItemTemplate* itemTemplate;
 		
@@ -168,6 +233,7 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 			else
 				gLogger->logMsgLoadFailure("StructureManager::Loading Structure Items...",MSG_NORMAL);					
 
+			mDatabase->DestroyDataBinding(binding);
 		}
 		break;
 		
@@ -175,6 +241,28 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
 	}
 	SAFE_DELETE(asynContainer);
+}
+
+//=======================================================================================================================
+//handles callbacks of db creation of items
+//=======================================================================================================================
+
+void StructureManager::getDeleteStructureMaintenanceData(uint64 structureId, uint64 playerId)
+{
+	// load our structures maintenance data
+	// that means the maintenance attribute and the energy attribute
+	//
+
+	StructureManagerAsyncContainer* asyncContainer;
+
+	asyncContainer = new StructureManagerAsyncContainer(Structure_Query_delete, 0);
+	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sa.value, sa.attribute_id FROM structure_attributes sa where attribute_id = 382 or attribute_id = 322 and structure_id = %I64u",structureId);
+	asyncContainer->mStructureId = structureId;
+	asyncContainer->mPlayerId = playerId;
+
+	//322 = energy_maintenance
+	//382 = examine_maintenance
+//mDatabase->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%.2f' WHERE item_id=%lld AND attribute_id=%u",attValue,mItem->getId(),att->getAttributeId());
 }
 
 

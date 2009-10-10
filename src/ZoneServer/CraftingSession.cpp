@@ -58,8 +58,9 @@ mCriticalCount(0)
 	mOwner->setExperimentationFlag(mExpFlag);
 	mOwner->setExperimentationPoints(0);
 
-	// we do not properly check for crafting stations at this point !!!
-	// we need to check for crafting stations compatible with our crafting tools!!!!!
+	
+	// the station given is the crafting station compatible with our tool in a set radius
+	//
 	if(station)
 		mOwner->setNearestCraftingStation(station->getId());
 	else
@@ -426,12 +427,13 @@ void CraftingSession::_cleanUp()
 
 		while(manSlotIt != mManufacturingSchematic->getManufactureSlots()->end())
 		{
-			if((*manSlotIt)->getmFilledIndicator()==4)
+			if((*manSlotIt)->getmFilledIndicator()== SlotIndicator_Resource)
 				bagResource((*manSlotIt),mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)->getId());
 			else
+			if(((*manSlotIt)->getmFilledIndicator()== SlotIndicator_Similar)||((*manSlotIt)->getmFilledIndicator()== SlotIndicator_Identical))
 				bagComponents((*manSlotIt),mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)->getId());
 
-			(*manSlotIt)->setmFilledIndicator(0);
+			(*manSlotIt)->setmFilledIndicator(SlotIndicator_None);
 
 			++manSlotIt;
 		}
@@ -474,9 +476,9 @@ void CraftingSession::handleFillSlot(uint64 resContainerId,uint32 slotId,uint32 
 
 	//4 is resource
 	//2 is identical component 
-	//3 is like component
+	//5 is similar component
 
-	if (manSlot->mDraftSlot->getType() == 4)
+	if (manSlot->mDraftSlot->getType() == SlotIndicator_Resource)
 	{
 		handleFillSlotResource(resContainerId, slotId, unknown, counter);
 	}
@@ -787,7 +789,7 @@ void CraftingSession::handleFillSlotResource(uint64 resContainerId,uint32 slotId
 					//hark in live the same resource gets added to a second slot
 					manSlot->mFilledResources.push_back(std::make_pair(containerResId,totalNeededAmount));
 					filledResIt				= manSlot->mFilledResources.begin();
-					manSlot->setmFilledIndicator(4);//4  resource has been filled
+					manSlot->setmFilledIndicator(SlotIndicator_Resource);//4  resource has been filled
 					smallupdate = true;
 					break;
 				}
@@ -803,7 +805,7 @@ void CraftingSession::handleFillSlotResource(uint64 resContainerId,uint32 slotId
 				if(manSlot->mFilledResources.empty())
 				{
 					manSlot->mFilledResources.push_back(std::make_pair(containerResId,totalNeededAmount));
-					manSlot->setmFilledIndicator(4);
+					manSlot->setmFilledIndicator(SlotIndicator_Resource);
 					manSlot->mFilledIndicatorChange = true;
 				}
 				else
@@ -856,7 +858,7 @@ void CraftingSession::handleFillSlotResource(uint64 resContainerId,uint32 slotId
 					//(*filledResIt).second += availableAmount;
 					manSlot->mFilledResources.push_back(std::make_pair(containerResId,availableAmount));
 					filledResIt				= manSlot->mFilledResources.begin();
-					manSlot->setmFilledIndicator(4);
+					manSlot->setmFilledIndicator(SlotIndicator_Resource);
 					smallupdate = true;
 					break;
 				}
@@ -871,7 +873,7 @@ void CraftingSession::handleFillSlotResource(uint64 resContainerId,uint32 slotId
 				if(manSlot->mFilledResources.empty())
 				{
 					manSlot->mFilledResources.push_back(std::make_pair(containerResId,availableAmount));
-					manSlot->setmFilledIndicator(4);
+					manSlot->setmFilledIndicator(SlotIndicator_Resource);
 				}
 				else
 				{
@@ -1046,14 +1048,14 @@ void CraftingSession::emptySlot(uint32 slotId,ManufactureSlot* manSlot,uint64 co
 	//get ressources back in their stack
 	//or components back in the inventory
 
-	if(manSlot->getmFilledIndicator() == 4)
+	if(manSlot->getmFilledIndicator() == SlotIndicator_Resource)
 		bagResource(manSlot,containerId);
 	else
 		bagComponents(manSlot,containerId);
 	
 	// update the slot
 	manSlot->mFilledResources.clear();
-	manSlot->setmFilledIndicator(0);
+	manSlot->setmFilledIndicator(SlotIndicator_None);
 
 	// if it was completely filled, update the total amount of filled slots
 	if(manSlot->mFilled == manSlot->mDraftSlot->getAmount())
@@ -1178,6 +1180,135 @@ uint8 CraftingSession::_assembleRoll()
 	return static_cast<uint8>(modRoll);
 }
 
+
+//=============================================================================
+//
+// initialize attribue post Processing on Assembly
+// that means we possibly want to add certain attributes to our final product
+// and we want to have some fixed additions to other attributes values
+// please note though, that we annot experiment on these additions and that added values do not count
+// towards the upper attributes cap
+
+void CraftingSession::addComponentAttribute()
+{
+	// attributemanipulation through a component might be 
+	// 1) the manipulation of an attributes value
+	// 2) the addition of an attribute
+	
+
+	//iterate through all Slots - in case we have several components in ONE slot only the attributes of one component apply
+	uint8 amount = mManufacturingSchematic->getManufactureSlots()->size();
+
+	for (uint8 i = 0; i < amount; i++)
+	{
+		//iterate through our manslots which contain components
+		ManufactureSlot* manSlot = mManufacturingSchematic->getManufactureSlots()->at(i);
+		if(manSlot && ((manSlot->getmFilledIndicator() == SlotIndicator_Identical) || (manSlot->getmFilledIndicator() == SlotIndicator_Similar)))
+		{
+			//in case a slot is not obligate it might be empty
+			if(manSlot->mFilledResources.empty())
+				continue;
+			
+			//in case a slot has several components in it were just interested in the first
+			//that at least one item is in it we already established
+			FilledResources::iterator resIt = manSlot->mFilledResources.begin();
+			Item*	filledComponent	= dynamic_cast<Item*>(mManufacturingSchematic->getDataById((*resIt).first));
+
+			if(!filledComponent)
+			{
+				// uh  oh what did I just say ???
+				gLogger->logMsgF("CraftingSession::addComponentAttribute component not found :( ",MSG_NORMAL);
+				continue;
+			}
+
+			// now that we have our component we need to check for the relevant attributes
+			CraftAttributeWeights* cAPP = mDraftSchematic->getCraftAttributeWeights();
+			CraftAttributeWeights::iterator cAPPiT = cAPP->begin();
+
+			while(cAPPiT != cAPP->end())
+			{
+				// see whether our filled component has the relevant attribute
+				gLogger->logMsgF("CraftingSession::addComponentAttribute checking component for attribute %s ",MSG_NORMAL,(*cAPPiT)->getAttributeKey().getAnsi() );
+				if(!filledComponent->hasAttribute( (*cAPPiT)->getAttributeKey() ))
+				{
+					gLogger->logMsgF("CraftingSession::addComponentAttribute : attribute %s not found :(",MSG_NORMAL,(*cAPPiT)->getAttributeKey().getAnsi() );
+					cAPPiT++;
+					continue;
+				}
+				gLogger->logMsgF("CraftingSession::addComponentAttribute : attribute %s has been found :)",MSG_NORMAL,(*cAPPiT)->getAttributeKey().getAnsi() );
+
+				// now that we have the attribute lets check how we want to manipulate what attribute of our final item
+				// here we are during the items assembly so we want to initialize value additions or add new attributes to the final item
+
+				if((*cAPPiT)->getManipulation() == AttributePPME_AddValue)
+				{
+					gLogger->logMsgF("CraftingSession::addComponentAttribute : Manipulation : AttributePPME_AddValue",MSG_NORMAL);
+					// just add our value to the items attribute in case the attribute on the item exists
+					// do NOT add the attribute in case it wont exist
+					if(mItem->hasAttribute( (*cAPPiT)->getAffectedAttributeKey() ))
+					{
+						gLogger->logMsgF("CraftingSession::addComponentAttribute AttributePPME_AddValue",MSG_NORMAL);
+						gLogger->logMsgF("CraftingSession::addComponentAttribute %s will affect %S",MSG_NORMAL,(*cAPPiT)->getAttributeKey().getAnsi() ,(*cAPPiT)->getAffectedAttributeKey().getAnsi() );
+						
+						// add the attribute (to the schematic) if it doesnt exist already to the relevant list for storage
+						// on sending the msco deltas respective producing the final items the values will be added to the attributes
+						if(mManufacturingSchematic->hasPPAttribute((*cAPPiT)->getAffectedAttributeKey()))
+						{
+							float attributeValue = filledComponent->getAttribute<float>((*cAPPiT)->getAttributeKey());
+							float attributeAddValue = mManufacturingSchematic->getPPAttribute<float>((*cAPPiT)->getAffectedAttributeKey());
+							
+							mManufacturingSchematic->setPPAttribute((*cAPPiT)->getAffectedAttributeKey(),boost::lexical_cast<std::string>(attributeValue+attributeAddValue));
+						}
+						
+						if(!mManufacturingSchematic->hasPPAttribute((*cAPPiT)->getAffectedAttributeKey()))
+						{
+							std::string attributeValue = filledComponent->getAttribute<std::string>((*cAPPiT)->getAttributeKey());
+							mManufacturingSchematic->addPPAttribute((*cAPPiT)->getAffectedAttributeKey(),attributeValue);
+						}
+						
+					}
+					else
+					{
+						gLogger->logMsgF("CraftingSession::addComponentAttribute  : Attribute %s is not part of the item :(",MSG_NORMAL,(*cAPPiT)->getAffectedAttributeKey().getAnsi() );
+					}
+
+				}
+
+				if((*cAPPiT)->getManipulation() == AttributePPME_AddAttribute)
+				{
+					// just add our Attribute to the item and take over the value
+					// In case the attribute exists it might already have been added by another component
+					
+					if(!mItem->hasAttribute( (*cAPPiT)->getAffectedAttributeKey() ))
+					{
+						std::string attributeValue = filledComponent->getAttribute<std::string>((*cAPPiT)->getAttributeKey());
+						mItem->addAttribute((*cAPPiT)->getAffectedAttributeKey(),attributeValue);
+					}
+
+					if(mItem->hasAttribute( (*cAPPiT)->getAffectedAttributeKey() ))
+					{
+						
+						float attributeValue = mItem->getAttribute<float>((*cAPPiT)->getAffectedAttributeKey());
+						float attributeAddValue = filledComponent->getAttribute<float>((*cAPPiT)->getAttributeKey());
+							
+						mItem->setAttribute((*cAPPiT)->getAffectedAttributeKey(),boost::lexical_cast<std::string>(attributeValue+attributeAddValue));
+						
+					}
+
+				}
+
+
+				cAPPiT++;
+			}
+
+			
+	
+
+		}
+	}
+
+}
+
 //=============================================================================
 //
 // assemble the item(s)
@@ -1236,7 +1367,12 @@ void CraftingSession::assemble(uint32 counter)
 
 	// ---------------------------------------------
 	// it wasnt a critical so go on
+
+	// ---------------------------------------------
+	// if we have components which add attributes these should now be added to the item
 		
+	addComponentAttribute();
+
 	mOwner->setCraftingStage(mStage);
 	gMessageLib->sendUpdateCraftingStage(mOwner);
 	
@@ -1283,14 +1419,27 @@ void CraftingSession::assemble(uint32 counter)
 			// ceil and cut off, when it needs to be an integer
 			if(att->getType())
 			{
-				int32 intAtt = (int32)(ceil(attValue));
+				int32 intAtt = 0;
+				if(mManufacturingSchematic->hasPPAttribute(att->getAttributeKey()))
+				{
+					float attributeAddValue = mManufacturingSchematic->getPPAttribute<float>(att->getAttributeKey());
+					intAtt = (int32)(ceil(attributeAddValue));
+				}
+				
+				intAtt += (int32)(ceil(attValue));
 
 				mItem->setAttribute(att->getAttributeKey(),boost::lexical_cast<std::string>(intAtt));
 				mDatabase->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%i' WHERE item_id=%lld AND attribute_id=%u",intAtt,mItem->getId(),att->getAttributeId());
 			}
 			else
 			{
-				//attValue = Anh_Math::roundF(attValue,2);
+				attValue = roundF(attValue,2);
+
+				if(mManufacturingSchematic->hasPPAttribute(att->getAttributeKey()))
+				{
+					float attributeAddValue = mManufacturingSchematic->getPPAttribute<float>(att->getAttributeKey());
+					attValue += roundF(attributeAddValue,2);
+				}
 
 				mItem->setAttribute(att->getAttributeKey(),boost::lexical_cast<std::string>(attValue));
 				mDatabase->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%.2f' WHERE item_id=%lld AND attribute_id=%u",attValue,mItem->getId(),att->getAttributeId());
@@ -1689,14 +1838,27 @@ void CraftingSession::experiment(uint8 counter,std::vector<std::pair<uint32,uint
 			// ceil and cut off, when it needs to be an integer
 			if(att->getType())
 			{
-				int32 intAtt = (int32)(ceil(attValue));
+				int32 intAtt = 0;
+				if(mManufacturingSchematic->hasPPAttribute(att->getAttributeKey()))
+				{
+					float attributeAddValue = mManufacturingSchematic->getPPAttribute<float>(att->getAttributeKey());
+					intAtt = (int32)(ceil(attributeAddValue));
+				}
+				
+				intAtt += (int32)(ceil(attValue));
 
 				mItem->setAttribute(att->getAttributeKey(),boost::lexical_cast<std::string>(intAtt));
 				mDatabase->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%i' WHERE item_id=%lld AND attribute_id=%u",intAtt,mItem->getId(),att->getAttributeId());
 			}
 			else
 			{
-				//attValue = Anh_Math::roundF(attValue,2);
+				attValue = roundF(attValue,2);
+
+				if(mManufacturingSchematic->hasPPAttribute(att->getAttributeKey()))
+				{
+					float attributeAddValue = mManufacturingSchematic->getPPAttribute<float>(att->getAttributeKey());
+					attValue += roundF(attributeAddValue,2);
+				}
 
 				mItem->setAttribute(att->getAttributeKey(),boost::lexical_cast<std::string>(attValue));
 				mDatabase->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%.2f' WHERE item_id=%lld AND attribute_id=%u",attValue,mItem->getId(),att->getAttributeId());

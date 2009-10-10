@@ -55,12 +55,11 @@ class PlayerStructure :	public TangibleObject
 		void					setCondition(uint32 condition){ mCondition = condition; }
 		bool					decCondition(uint32 dec){int64 altered = static_cast<int64>(mCondition-dec);if(altered <= 0) return false; else mCondition = static_cast<uint32>(altered);return true; }
 
-		uint32					getMaintenance(){ return mMaintenance; }
-		void					setMaintenance(uint32 maintenance){ mMaintenance = maintenance; }
-		bool					decMaintenance(uint32 dec){int64 altered = static_cast<int64>(mMaintenance-dec);if(altered <= 0) return false; else mMaintenance= static_cast<uint32>(altered);return true; }
+		uint32					getCurrentMaintenance();
+		void					setCurrentMaintenance(uint32 maintenance);
 
-		uint32					getMaxMaintenance();
-		void					setMaxMaintenance(uint32 maintenance);
+		uint32					getMaintenanceRate();
+		void					setMaintenanceRate(uint32 maintenance);
 
 		uint32					getMaxCondition(){ return mMaxCondition; }
 		void					setMaxCondition(uint32 condition){ mMaxCondition = condition; }
@@ -68,6 +67,9 @@ class PlayerStructure :	public TangibleObject
 		
 		
 		bool					canRedeed();
+
+		// is called by the structuremanager after reading maintenance data from the db
+		void					deleteStructureDBDataRead(uint64 playerId);
 
 		//camps dont have cells
 		ObjectList				getAllCellChilds();

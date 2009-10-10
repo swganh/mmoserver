@@ -17,10 +17,12 @@ Copyright (c) 2006 - 2008 The swgANH Team
 class CraftBatch;
 class DraftSlot;
 class WeightsBatch;
+class CraftAttributeWeight;
 
 typedef std::vector<DraftSlot*>		DraftSlots;
 typedef std::vector<WeightsBatch*>	WeightsBatches;
 typedef std::vector<CraftBatch*>	CraftBatches;
+typedef std::vector<CraftAttributeWeight*>	CraftAttributeWeights;
 
 //=============================================================================
 
@@ -72,6 +74,8 @@ class DraftSchematic
 		uint32				getDraftSlotsUpdate(){ return(mDraftSlotsUpdate+=1); }
 
 		uint8				isCraftEnabled(){ return mCraftEnabled; }
+		
+		CraftAttributeWeights*	getCraftAttributeWeights(){ return &mAttributeWeights; }
 
 	private:
 
@@ -90,6 +94,8 @@ class DraftSchematic
 		uint32				mSubCategory;
 		uint32				mDraftSlotsUpdate;
 		uint8				mCraftEnabled;
+
+		CraftAttributeWeights	mAttributeWeights;
 };
 
 //=============================================================================

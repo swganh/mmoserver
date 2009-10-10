@@ -249,7 +249,6 @@ void ObjectFactory::requestnewHarvesterbyDeed(ObjectFactoryCallback* ofCallback,
 	float oX, oY, oZ, oW;
 	if(dir== 0.0)
 	{		
-		gLogger->logMsgF("dir is %f",MSG_HIGH,dir);
 		oX = 0;
 		oY = 0;
 		oZ = 0;

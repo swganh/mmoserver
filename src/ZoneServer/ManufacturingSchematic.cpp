@@ -235,3 +235,74 @@ void ManufacturingSchematic::sendAttributes(PlayerObject* playerObject)
 	(playerObject->getClient())->SendChannelAUnreliable(newMessage, playerObject->getAccountId(),CR_Client,9);
 	
 }
+
+
+bool	ManufacturingSchematic::expPropStorefind(uint32 crc)
+{
+	ExperimentationPropertiesStore::iterator	epStoreIt	= expPropStore.begin();
+	while(epStoreIt != expPropStore.end())
+	{
+		if((*epStoreIt).first == crc)
+			return true;
+		epStoreIt++;
+	}
+	return false;
+}
+
+//=============================================================================
+// PostProcess Attribute Map stores additions to attribute values
+// that need to be added to the attribute value AFTER the experimentation
+// on the component part of the attribute have been made.
+// take a biological effect controller used in a B-Stim as example
+// the B-Stim can be experimented to say 200 MAX with excellent resources
+// Now if we add the effect controllers power to the B-Stims Power, 
+// the max experimentation value in the weights would not change to something 
+// different than the mentioned 200 
+// by adding the effect controllers Power AFTER the experimentation process the B-Stim typical values can be achieved.
+// however the relevant Attributes need to be displayed with the final values on crafting
+
+// the PP AttributeMap stores the additions to the attributes the final object already has
+// which will be changed through the component
+
+// attrivbutes which will be added through the component get added to the item on assembly
+// and can not be experimented on
+
+
+void ManufacturingSchematic::setPPAttribute(string key,std::string value)
+{
+	AttributeMap::iterator it = mPPAttributeMap.find(key.getCrc());
+
+	if(it == mPPAttributeMap.end())
+	{
+		gLogger->logMsgF("ManufacturingSchematic::setPPAttribute: could not find %s",MSG_HIGH,key.getAnsi());
+		return;
+	}
+
+	(*it).second = value;
+}
+
+bool ManufacturingSchematic::hasPPAttribute(string key) const
+{
+	if(mPPAttributeMap.find(key.getCrc()) != mPPAttributeMap.end())
+		return(true);
+
+	return(false);
+}
+
+void ManufacturingSchematic::addPPAttribute(string key,std::string value)
+{
+	mPPAttributeMap.insert(std::make_pair(key.getCrc(),value));
+}
+
+void ManufacturingSchematic::removePPAttribute(string key)
+{
+	AttributeMap::iterator it = mPPAttributeMap.find(key.getCrc());
+
+	if(it != mPPAttributeMap.end())
+		mPPAttributeMap.erase(it);
+	else
+		gLogger->logMsgF("ManufacturingSchematic::removePostProcessAttribute: could not find %s",MSG_HIGH,key.getAnsi());
+}
+
+
+

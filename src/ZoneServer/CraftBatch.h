@@ -33,12 +33,11 @@ class CraftBatch
 		CraftBatch();
 		~CraftBatch();
 
-		uint32					getId();
-		uint32					getListId();
-		uint32					getExpGroup();
-		CraftWeights*			getCraftWeights();
-		CraftAttributes*		getCraftAttributes();
-		CraftAttributeWeights*	getCraftAttributeWeights();
+		uint32					getId(){ return mId; }
+		uint32					getListId(){ return mListId; }
+		uint32					getExpGroup(){ return mExpGroup; }
+		CraftWeights*			getCraftWeights(){ return &mWeights; }
+		CraftAttributes*		getCraftAttributes(){ return &mAttributes; }
 
 	private:
 
@@ -47,7 +46,6 @@ class CraftBatch
 		uint32					mExpGroup;
 		CraftWeights			mWeights;
 		CraftAttributes			mAttributes;
-		CraftAttributeWeights	mAttributeWeights;
 };
 
 //=============================================================================

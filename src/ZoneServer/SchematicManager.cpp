@@ -385,7 +385,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 															" FROM draft_schematic_attribute_manipulation as dsam"
 															" INNER JOIN attributes as a ON (dsam.attribute = a.id)"
 															" INNER JOIN attributes as b ON (dsam.affectedattribute = b.id)"
-															" WHERE Draft_Schematic=%u",asContainer->mBatchId);
+															" WHERE Draft_Schematic=%u",schematic->getWeightsBatchId());
 			}
 
 			mDatabase->DestroyDataBinding(binding);
@@ -415,8 +415,8 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
 				result->GetNextRow(binding,craftAttributeWeight);
 
-				CraftBatch* batch = schematic->getCraftBatchByListId(asyncContainer->mBatchId);
-				batch->mAttributeWeights.push_back(craftAttributeWeight);
+				//CraftBatch* batch = schematic->getCraftBatchByListId(asyncContainer->mBatchId);
+				schematic->mAttributeWeights.push_back(craftAttributeWeight);
 			}
 
 			mDatabase->DestroyDataBinding(binding);

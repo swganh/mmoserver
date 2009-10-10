@@ -15,6 +15,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 //#include "Utils/typedefs.h"
 #include <map>
 #include <vector>
+#include "math.h"
 #include "DatabaseManager/DatabaseCallback.h"
 #include "Utils/rand.h"
 #include "ObjectFactoryCallback.h"
@@ -95,6 +96,8 @@ class CraftingSession : public DatabaseCallback, public ObjectFactoryCallback
 		void					createPrototype(uint32 noPractice,uint32 counter);
 		string					getSerial();
 
+		void					addComponentAttribute();
+
 		//sets/retrieves the amounts a man schematic can produce
 		void					setProductionAmount(uint32 amount){mProductionAmount = amount;}
 		uint32					getProductionAmount(){return mProductionAmount;}
@@ -106,6 +109,14 @@ class CraftingSession : public DatabaseCallback, public ObjectFactoryCallback
 		void					createManufactureSchematic(uint32 counter);
 		
 	private:
+
+
+		float roundF(float x,const int places)
+		{
+			const float shift = pow(10.0f,places);
+
+			return floorf(x * shift + 0.5f) / shift;
+		}
 
 		float					_calcWeightedResourceValue(CraftWeights* weights);
 		void					_cleanUp();

@@ -36,11 +36,19 @@ enum Structure_QueryType
 	Structure_Query_LoadDeedData		=	1,
 	Structure_Query_LoadstructureItem	=	2,
 	
+	Structure_Query_delete				=	3,
+	
 };
 
 //======================================================================================================================
 
-//links deds to structuredata
+struct attributeDetail
+{
+	string	value;
+	uint32	attributeId;
+};
+
+//links deeds to structuredata
 //TODO still needs to be updated to support several structure types for some placeables
 //depending on customization
 
@@ -96,7 +104,10 @@ public:
 	~StructureManagerAsyncContainer(){}
 
 	Structure_QueryType			mQueryType;
-	DispatchClient*				mClient;	
+	DispatchClient*				mClient;
+
+	uint64						mStructureId;
+	uint64						mPlayerId;
 
 	PlayerObject*				builder;
 	
@@ -136,6 +147,9 @@ class StructureManager : public DatabaseCallback,public ObjectFactoryCallback
 		bool					checkCampRadius(PlayerObject* player);
 		bool					checkCityRadius(PlayerObject* player);
 		bool					checkinCamp(PlayerObject* player);
+
+		//PlayerStructures
+		void					getDeleteStructureMaintenanceData(uint64 structureId, uint64 playerId);
 
 
 

@@ -8,15 +8,16 @@ Copyright (c) 2006 - 2009 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
-
-#include "MessageFactory.h"
 #include "Message.h"
+#include "MessageFactory.h"
+
 #include "LogManager/LogManager.h"
-#include <memory.h>
-#include <assert.h>
-#include <new.h>
+
 #include "Utils/Clock.h"
 
+#include <assert.h>
+#include <memory.h>
+#include <new.h>
 
 // TODO: There is no bounds checking on the heap yet.
 //======================================================================================================================

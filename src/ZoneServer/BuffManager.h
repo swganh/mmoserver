@@ -15,8 +15,10 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #define	 gBuffManager	BuffManager::getSingletonPtr()
 
 //======================================================================================================================
-
+#include "Buff.h"
 #include "DatabaseManager/DatabaseCallback.h"
+#include "Utils/EventHandler.h"
+#include "Utils/typedefs.h"
 
 //======================================================================================================================
 class Database;

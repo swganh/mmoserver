@@ -8,18 +8,21 @@ Copyright (c) 2006 - 2009 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
-
-#include "DatabaseManager/DatabaseManager.h"
-#include "DatabaseManager/Database.h"
-#include "DatabaseManager/DataBinding.h"
-#include "DatabaseManager/DatabaseResult.h"
-#include "MessageLib/MessageLib.h"
-#include "Utils/EventHandler.h"
-#include "Buff.h"
-#include "BuffDBItem.h"
 #include "BuffManager.h"
+
+#include "BuffDBItem.h"
 #include "PlayerObject.h"
 #include "WorldManager.h"
+
+#include "MessageLib/MessageLib.h"
+
+#include "DatabaseManager/Database.h"
+#include "DatabaseManager/DatabaseManager.h"
+#include "DatabaseManager/DatabaseResult.h"
+#include "DatabaseManager/DataBinding.h"
+
+
+
 
 bool			BuffManager::mInsFlag = false;
 BuffManager*	BuffManager::mSingleton = NULL;

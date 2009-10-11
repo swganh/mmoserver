@@ -13,7 +13,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #define ANH_ZONESERVER_ADMIN_MANAGER_H
 
 #include "Common/MessageDispatchCallback.h"
-
+#include <map>
 //=============================================================================
 
 class AdminRequestObject;

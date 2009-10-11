@@ -4,36 +4,39 @@ This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emu
 For more information, see http://www.swganh.org
 
 
-Copyright (c) 2006 - 2008 The swgANH Team
+Copyright (c) 2006 - 2009 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
 
 
 #include "CraftingSession.h"
+
+#include "CraftBatch.h"
 #include "CraftingSessionFactory.h"
-#include "PlayerObject.h"
+#include "CraftingStation.h"
+#include "CraftingTool.h"
 #include "DraftSchematic.h"
-#include "ResourceContainer.h"
-#include "DatabaseManager/Database.h"
-#include "DatabaseManager/DatabaseResult.h"
-#include "DatabaseManager/DataBinding.h"
-#include "DatabaseManager/DatabaseCallback.h"
-#include "WorldManager.h"
-#include "MessageLib/MessageLib.h"
-#include "Utils/clock.h"
-#include "ObjectControllerOpcodes.h"
-#include "SchematicManager.h"
-#include "ObjectFactory.h"
-#include "ManufacturingSchematic.h"
-#include "ResourceManager.h"
+#include "DraftSlot.h"
 #include "Inventory.h"
 #include "Item.h"
-#include "CraftingTool.h"
-#include "CraftingStation.h"
-#include "DraftSlot.h"
-#include "CraftBatch.h"
+#include "ManufacturingSchematic.h"
+#include "ObjectControllerOpcodes.h"
+#include "ObjectFactory.h"
+#include "PlayerObject.h"
+#include "ResourceContainer.h"
+#include "ResourceManager.h"
+#include "SchematicManager.h"
+#include "WorldManager.h"
 
+#include "MessageLib/MessageLib.h"
+
+#include "DatabaseManager/Database.h"
+#include "DatabaseManager/DatabaseCallback.h"
+#include "DatabaseManager/DatabaseResult.h"
+#include "DatabaseManager/DataBinding.h"
+
+#include "Utils/clock.h"
 //=============================================================================
 //
 // initiates a crafting session, we usually start at stage 1

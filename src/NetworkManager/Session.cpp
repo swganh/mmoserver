@@ -13,16 +13,20 @@ Copyright (c) 2006 - 2008 The swgANH Team
 //#define SEND_OUT_OF_ORDERS 
 
 #include "Session.h"
+
+#include "NetworkClient.h"
+#include "Packet.h"
+#include "PacketFactory.h"
 #include "Service.h"
 #include "SocketReadThread.h"
 #include "SocketWriteThread.h"
-#include "NetworkClient.h"
-#include "PacketFactory.h"
-#include "Packet.h"
+
+#include "LogManager/LogManager.h"
+
 #include "Common/MessageFactory.h"
+
 #include "Utils/rand.h"
 #include "Utils/utils.h"
-#include "LogManager/LogManager.h"
 
 #include <stdio.h>
 

@@ -10,17 +10,20 @@ Copyright (c) 2006 - 2009 The swgANH Team
 */
 
 #include "ScriptSupport.h"
-#include "MessageLib/MessageLib.h"
-#include "ZoneServer/WorldManager.h"
-#include "ZoneServer/NonPersistentNpcFactory.h"
-#include "ZoneServer/NonPersistentItemFactory.h"
-#include "ZoneServer/WorldConfig.h"
+
+#include "ZoneServer/AttackableCreature.h"
 #include "ZoneServer/Inventory.h"
-#include "ZoneServer/PlayerObject.h"
-#include "ZoneServer/NpcManager.h"
 #include "ZoneServer/Heightmap.h"
 #include "ZoneServer/LairObject.h"
-#include "ZoneServer/AttackableCreature.h"
+#include "ZoneServer/NonPersistentItemFactory.h"
+#include "ZoneServer/NonPersistentNpcFactory.h"
+#include "ZoneServer/NpcManager.h"
+#include "ZoneServer/PlayerObject.h"
+#include "ZoneServer/WorldConfig.h"
+#include "ZoneServer/WorldManager.h"
+
+#include "MessageLib/MessageLib.h"
+
 
 // const uint64 wompratTemplateId = 47513085687;
 // const uint64 rillTemplateId = 47513085693;

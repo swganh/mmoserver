@@ -10,15 +10,17 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "SocketReadThread.h"
-#include "SocketWriteThread.h"
-#include "SessionFactory.h"
-#include "PacketFactory.h"
+
 #include "CompCryptor.h"
 #include "NetworkClient.h"
-#include "Session.h"
 #include "Packet.h"
-#include "Socket.h"
+#include "PacketFactory.h"
 #include "Service.h"
+#include "Session.h"
+#include "SessionFactory.h"
+#include "Socket.h"
+#include "SocketWriteThread.h"
+
 #include "LogManager/LogManager.h"
 #include "Common/MessageFactory.h"
 

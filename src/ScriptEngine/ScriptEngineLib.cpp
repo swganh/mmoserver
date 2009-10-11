@@ -9,6 +9,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
+#include    "ScriptEngineLib.h"
+#include    "Script.h"
+#include    "ScriptEngine.h"
 #include    <stdio.h>
 #include    <string.h>
 
@@ -19,9 +22,7 @@ extern "C"
 	#include "lauxlib.h"
 }
 
-#include    "Script.h"
-#include    "ScriptEngineLib.h"
-#include    "ScriptEngine.h"
+
 
 
 //======================================================================================================================

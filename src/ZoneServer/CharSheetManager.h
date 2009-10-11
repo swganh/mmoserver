@@ -14,12 +14,13 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #define gCharSheetManager	CharSheetManager::getSingletonPtr()
 
+
+#include "DatabaseManager/DatabaseCallback.h"
+#include "Common/MessageDispatchCallback.h"
+#include "Utils/typedefs.h"
+
 #include <map>
 #include <boost/pool/pool.hpp>
-
-#include "Common/MessageDispatchCallback.h"
-#include "DatabaseManager/DatabaseCallback.h"
-#include "Utils/typedefs.h"
 
 //=========================================================================================#
 

@@ -4,26 +4,30 @@ This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emu
 For more information, see http://www.swganh.org
 
 
-Copyright (c) 2006 - 2008 The swgANH Team
+Copyright (c) 2006 - 2009 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
+#include "CharSheetManager.h"
 
-#include "Common/MessageDispatch.h"
-#include "Common/MessageFactory.h"
-#include "Common/Message.h"
-#include "Common/DispatchClient.h"
-#include "DatabaseManager/Database.h"
-#include "DatabaseManager/DataBinding.h"
-#include "DatabaseManager/DatabaseResult.h"
-#include "LogManager/LogManager.h"
 #include "Badge.h"
 #include "Bank.h"
-#include "CharSheetManager.h"
 #include "PlayerObject.h"
 #include "WorldManager.h"
 #include "Inventory.h"
 #include "ZoneOpcodes.h"
+
+#include "LogManager/LogManager.h"
+
+#include "DatabaseManager/Database.h"
+#include "DatabaseManager/DatabaseResult.h"
+#include "DatabaseManager/DataBinding.h"
+
+#include "Common/DispatchClient.h"
+#include "Common/Message.h"
+#include "Common/MessageDispatch.h"
+#include "Common/MessageFactory.h"
+
 
 //=========================================================================================
 

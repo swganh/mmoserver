@@ -10,20 +10,22 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "MessageLib.h"
-#include "LogManager/LogManager.h"
-#include "ZoneServer/ZoneOpcodes.h"
-#include "ZoneServer/WorldManager.h"
+
+#include "ZoneServer/CraftingTool.h"
+#include "ZoneServer/ManufacturingSchematic.h"
 #include "ZoneServer/ObjectFactory.h"
+#include "ZoneServer/PlayerObject.h"
+#include "ZoneServer/Wearable.h"
+#include "ZoneServer/WorldManager.h"
+#include "ZoneServer/ZoneOpcodes.h"
+
+#include "LogManager/LogManager.h"
+
+#include "Common/DispatchClient.h"
+#include "Common/Message.h"
 #include "Common/MessageDispatch.h"
 #include "Common/MessageFactory.h"
 #include "Common/MessageOpcodes.h"
-#include "Common/Message.h"
-#include "Common/DispatchClient.h"
-#include "ZoneServer/Wearable.h"
-#include "ZoneServer/CraftingTool.h"
-#include "ZoneServer/PlayerObject.h"
-#include "ZoneServer/ManufacturingSchematic.h"
-
 
 //======================================================================================================================
 //

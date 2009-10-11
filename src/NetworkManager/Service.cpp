@@ -10,20 +10,24 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "Service.h"
-#include "Session.h"
-#include "Packet.h"
-#include "SocketReadThread.h"
-#include "SocketWriteThread.h"
-#include "NetworkManager.h"
+
 #include "NetworkCallback.h"
 #include "NetworkClient.h"
-#include "Common/Message.h"
+#include "NetworkManager.h"
+#include "Packet.h"
+#include "Session.h"
+#include "SocketReadThread.h"
+#include "SocketWriteThread.h"
+
 #include "LogManager/LogManager.h"
+
+#include "Common/Message.h"
 
 #include "Utils/typedefs.h"
 
-#include <stdio.h>
 #include <assert.h>
+#include <stdio.h>
+
 
 
 //======================================================================================================================

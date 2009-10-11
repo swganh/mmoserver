@@ -1,4 +1,4 @@
-#include "VariableTimeScheduler.h"
+
 /*
 ---------------------------------------------------------------------------------------
 This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
@@ -9,7 +9,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
-
+#include "VariableTimeScheduler.h"
 namespace Anh_Utils
 {
 	//======================================================================================================================

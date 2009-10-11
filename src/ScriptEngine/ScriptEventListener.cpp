@@ -10,8 +10,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "ScriptEventListener.h"
-#include "LogManager/LogManager.h"
 #include "Script.h"
+#include "LogManager/LogManager.h"
+
 
 //======================================================================================================================
 

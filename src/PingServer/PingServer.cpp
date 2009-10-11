@@ -9,11 +9,15 @@ Copyright (c) 2006 - 2008 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
-#include <conio.h>
+
 
 #include "PingServer.h"
-#include "ConfigManager/ConfigManager.h"
+
 #include "LogManager/LogManager.h"
+
+#include "ConfigManager/ConfigManager.h"
+
+#include <conio.h>
 
 #define RECEIVE_BUFFER 512
 

@@ -10,18 +10,20 @@ Copyright (c) 2006 - 2009 The swgANH Team
 */
 
 #include "CombatManager.h"
-#include "WorldManager.h"
+
+#include "AttackableCreature.h"
 #include "CMWeaponGroup.h"
 #include "ObjectControllerCommandMap.h"
-#include "Weapon.h"
-#include "MessageLib/MessageLib.h"
-#include "DatabaseManager/Database.h"
-#include "DatabaseManager/DataBinding.h"
-#include "DatabaseManager/DatabaseResult.h"
-#include "LogManager/LogManager.h"
-#include "AttackableCreature.h"
-#include "WorldConfig.h"
 #include "PlayerObject.h"
+#include "Weapon.h"
+#include "WorldManager.h"
+#include "WorldConfig.h"
+
+#include "MessageLib/MessageLib.h"
+#include "LogManager/LogManager.h"
+#include "DatabaseManager/Database.h"
+#include "DatabaseManager/DatabaseResult.h"
+#include "DatabaseManager/DataBinding.h"
 
 //=========================================================================================
 

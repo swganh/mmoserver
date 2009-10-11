@@ -10,9 +10,10 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "SessionFactory.h"
+#include "NetConfig.h"
 #include "Session.h"
 #include "LogManager/LogManager.h"
-#include "NetConfig.h"
+
 
 
 

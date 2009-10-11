@@ -74,6 +74,7 @@ enum ui_window_types
 	SUI_Window_FireworkShow_Modify								= 38,
 
 	SUI_Window_Structure_Delete									= 39,
+	SUI_Window_Structure_Delete_Confirm							= 40,
 	
 };
 

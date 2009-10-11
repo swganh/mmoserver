@@ -14,6 +14,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "TangibleObject.h"
 #include "BuildingEnums.h"
+#include "StructureManager.h"
+#include "UICallback.h"
 #include <vector>
 
 class CellObject;
@@ -68,8 +70,16 @@ class PlayerStructure :	public TangibleObject
 		
 		bool					canRedeed();
 
+		void					setRedeed(bool yesORno){mWillRedeed = yesORno;}
+		bool					getRedeed(){return mWillRedeed;}
+
+		string					getCode(){return mCode;}
+		void					setCode(){mCode = gStructureManager->getCode();}
+
 		// is called by the structuremanager after reading maintenance data from the db
 		void					deleteStructureDBDataRead(uint64 playerId);
+
+		void					handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window);
 
 		//camps dont have cells
 		ObjectList				getAllCellChilds();
@@ -99,7 +109,10 @@ class PlayerStructure :	public TangibleObject
 		uint32						mCondition;
 		uint32						mMaintenance;
 		uint32						mMaxCondition;
+		bool						mWillRedeed;
+		string						mCode;
 };
+
 
 //=============================================================================
 

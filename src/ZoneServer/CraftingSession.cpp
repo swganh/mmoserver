@@ -1523,7 +1523,7 @@ string CraftingSession::getSerial()
 			u = static_cast<uint8>(static_cast<double>(gRandom->getRand()) / (RAND_MAX + 1.0f) * (122.0f - 48.0f) + 48.0f);
 
 			//only 1 to 9 or a to z
-			if((u >55)&&(u <97))
+			if((u >57)&&(u <97))
 				found = false;
 
 			if((u < 48)||(u >122))
@@ -1842,6 +1842,7 @@ void CraftingSession::experiment(uint8 counter,std::vector<std::pair<uint32,uint
 			if(att->getType())
 			{
 				int32 intAtt = 0;
+
 				if(mManufacturingSchematic->hasPPAttribute(att->getAttributeKey()))
 				{
 					float attributeAddValue = mManufacturingSchematic->getPPAttribute<float>(att->getAttributeKey());
@@ -1849,7 +1850,7 @@ void CraftingSession::experiment(uint8 counter,std::vector<std::pair<uint32,uint
 				}
 				
 				intAtt += (int32)(ceil(attValue));
-
+			
 				mItem->setAttribute(att->getAttributeKey(),boost::lexical_cast<std::string>(intAtt));
 				mDatabase->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%i' WHERE item_id=%lld AND attribute_id=%u",intAtt,mItem->getId(),att->getAttributeId());
 			}
@@ -1862,6 +1863,8 @@ void CraftingSession::experiment(uint8 counter,std::vector<std::pair<uint32,uint
 					float attributeAddValue = mManufacturingSchematic->getPPAttribute<float>(att->getAttributeKey());
 					attValue += roundF(attributeAddValue,2);
 				}
+
+				//attValue =  round2ptPrecision(float x) { char falpha[128]; sprintf(falpha,"%0.2f",x); return atof(falpha); }
 
 				mItem->setAttribute(att->getAttributeKey(),boost::lexical_cast<std::string>(attValue));
 				mDatabase->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%.2f' WHERE item_id=%lld AND attribute_id=%u",attValue,mItem->getId(),att->getAttributeId());

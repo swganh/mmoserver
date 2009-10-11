@@ -23,7 +23,6 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "LogManager/LogManager.h"
 #include "WorldManager.h"
 #include "ObjectFactory.h"
-#include "UIManager.h"
 #include "ZoneTree.h"
 
 bool						StructureManager::mInsFlag    = false;
@@ -434,4 +433,39 @@ bool StructureManager::checkinCamp(PlayerObject* player)
 
 	return false;
 
+}
+
+
+//=========================================================================================0
+// gets the code to confirm structure destruction
+//
+string StructureManager::getCode()
+{
+	int8	serial[12],chance[9];
+	bool	found = false;
+	uint8	u;
+
+	for(uint8 i = 0; i < 6; i++)
+	{
+		while(!found)
+		{
+			found = true;
+			u = static_cast<uint8>(static_cast<double>(gRandom->getRand()) / (RAND_MAX + 1.0f) * (122.0f - 48.0f) + 48.0f);
+
+			//only 1 to 9 or a to z
+			if(u >57)
+				found = false;
+
+			if(u < 48)
+				found = false;
+			
+		}
+		chance[i] = u;
+		found = false;
+	}
+	chance[6] = 0;
+
+	sprintf(serial,"(%s)",chance);
+
+	return(BString(serial));
 }

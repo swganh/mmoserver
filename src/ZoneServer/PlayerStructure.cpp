@@ -15,12 +15,16 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "PlayerObject.h"
 #include "UIManager.h"
 #include "WorldManager.h"
+#include "UICallback.h"
 
 
 //=============================================================================
 
 PlayerStructure::PlayerStructure() : TangibleObject()
 {
+	mMaxCondition	= 1000;
+	mCondition		= 1000;
+	mWillRedeed		= false;
 	
 }
 
@@ -107,13 +111,16 @@ bool PlayerStructure::canRedeed()
 {
 	if(!(this->getCondition() == this->getMaxCondition()))
 	{
+		setRedeed(false);
 		return(false);
 	}
 
 	if(!(this->getCurrentMaintenance() >= (this->getMaintenanceRate()*45)))
 	{
+		setRedeed(false);
 		return(false);
 	}
+	setRedeed(true);
 	return true;
 }
 
@@ -127,3 +134,42 @@ void PlayerStructure::deleteStructureDBDataRead(uint64 playerId)
 	gUIManager->createNewStructureDestroyBox(this,player, this, canRedeed());
 
 }
+
+
+//=============================================================================
+// 
+
+void PlayerStructure::handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window)
+{
+
+	PlayerObject* playerObject = window->getOwner();
+
+	// action is zero for ok !!!
+
+	if(!playerObject || action || playerObject->getSurveyState() || playerObject->getSamplingState() || playerObject->isIncapacitated() || playerObject->isDead())
+	{
+		return;
+	}
+
+	switch(window->getWindowType())
+	{
+
+		case SUI_Window_Structure_Delete:
+		{
+			//================================
+			// now that a decision has been made get confirmation
+			gUIManager->createNewStructureDeleteConfirmBox(this,playerObject,this );
+		
+
+			
+		}
+		break;
+
+		case SUI_Window_Structure_Delete_Confirm:
+		{
+			//we need to get the input
+		}
+	}
+}
+
+

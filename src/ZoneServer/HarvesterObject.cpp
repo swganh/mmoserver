@@ -82,6 +82,7 @@ void HarvesterObject::prepareCustomRadialMenu(CreatureObject* creatureObject, ui
 	mRadialMenu = radialPtr;
 }
 
+/*
 
 void HarvesterObject::handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window)
 {
@@ -103,3 +104,4 @@ void HarvesterObject::handleUIEvent(uint32 action,int32 element,string inputStr,
 
 	}
 }
+*/

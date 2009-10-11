@@ -27,6 +27,7 @@ class Message;
 class Database;
 class MessageDispatch;
 class PlayerObject;
+class UIWindow;
 
 //======================================================================================================================
 
@@ -132,6 +133,7 @@ class StructureManager : public DatabaseCallback,public ObjectFactoryCallback
 
 		virtual void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
 		void					handleObjectReady(Object* object,DispatchClient* client);
+		void					handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window);
 
 		//=========================================================
 
@@ -150,6 +152,9 @@ class StructureManager : public DatabaseCallback,public ObjectFactoryCallback
 
 		//PlayerStructures
 		void					getDeleteStructureMaintenanceData(uint64 structureId, uint64 playerId);
+
+		//returns a confirmatioon code for structure destruction
+		string					getCode();
 
 
 

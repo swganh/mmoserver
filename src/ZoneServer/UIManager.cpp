@@ -437,13 +437,24 @@ void UIManager::createNewStructureDestroyBox(UICallback* callback,PlayerObject* 
 		sprintf(redeedText,"CAN REDEED: \\#FF0000 NO\\#FFFFFF");
 		attributesMenu.push_back(redeedText);
 	}
-			
+	
+	uint32 maxCond = structure->getMaxCondition();
+	uint32 cond = structure->getCondition();
 		
+	if( cond < maxCond)
+	{
+		int8 condition[64];
+		sprintf(condition,"-CONDITION:\\#FF0000%u/%u\\#FFFFFF",cond,maxCond);
+		attributesMenu.push_back(condition);
+		
+	}
+	else
+	{
+		int8 condition[64];
+		sprintf(condition,"-CONDITION:\\#006400%u/%u\\#FFFFFF",cond,maxCond);
+		attributesMenu.push_back(condition);
+	}
 
-
-	int8 condition[64];
-	sprintf(condition,"-CONDITION:\\#006400%u/%u\\#FFFFFF",1000,1000);
-	attributesMenu.push_back(condition);
 
 	uint32 maintIs = structure->getCurrentMaintenance();
 	uint32 maintNeed = structure->getMaintenanceRate()*50;
@@ -461,11 +472,50 @@ void UIManager::createNewStructureDestroyBox(UICallback* callback,PlayerObject* 
 		attributesMenu.push_back(maintenance);
 	}
 
+	int8 sName[128];
 
 	string name = structure->getCustomName();			
 	name.convert(BSTRType_ANSI);
+	sprintf(sName,"%s",name.getAnsi());
+	if(!name.getLength())
+	{
+		sprintf(sName,"@%s:%s",structure->getNameFile().getAnsi(),structure->getName().getAnsi());
+		
+	}
+
+	//answer = x/(total/100);
+	// total = 100%
 	
-	createNewListBox(callback,"handleStructure Destroy",name.getAnsi(), text.getAnsi(), attributesMenu, player, SUI_Window_Structure_Delete,SUI_LB_OKCANCEL);
+	createNewListBox(callback,"handle Structure Destroy",sName, text.getAnsi(), attributesMenu, player, SUI_Window_Structure_Delete,SUI_LB_OKCANCEL);
+}
+
+
+
+void UIManager::createNewStructureDeleteConfirmBox(UICallback* callback,PlayerObject* player, PlayerStructure* structure)
+{
+
+	string text = "Your structure";
+	if(structure->getRedeed())
+	{
+		text <<"\\#006400WILL\\#FFFFFF ";
+	}
+	else
+		text <<"\\#FF0000WILL NOT \\#FFFFFF";
+
+	text <<"be redeeded. If you wish to continue with destroying your structure, please enter the following code into the input box.\xa\xa";
+	
+	int8 code [32];
+	structure->setCode();
+	sprintf(code,"code:%s",structure->getCode().getAnsi());
+	text << code;
+
+	int8 caption[32];
+	sprintf(caption,"CONFIRM STRUCTURE DESTRUCTION");
+
+	BStringVector vector;
+
+	createNewInputBox(callback,"",caption,text.getAnsi(),vector,player,SUI_IB_NODROPDOWN_OKCANCEL,SUI_Window_Structure_Delete_Confirm,6);
+	
 }
 
 

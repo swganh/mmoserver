@@ -8,14 +8,15 @@ Copyright (c) 2006 - 2009 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
-
-#include "MessageLib\MessageLib.h"
 #include "Buff.h"
+
 #include "BuffDBItem.h"
+#include "CreatureObject.h"
 #include "MissionManager.h"
 #include "PlayerObject.h"
-#include "CreatureObject.h"
 #include "WorldManager.h"
+
+#include "MessageLib\MessageLib.h"
 
 BuffAttribute::BuffAttribute(BuffAttributeEnum Type, int32 InitialValue, int32	TickValue, int32 FinalValue)
 : mAttribute(Type)

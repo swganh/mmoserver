@@ -10,15 +10,16 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "SocketWriteThread.h"
-#include "Service.h"
+
 #include "CompCryptor.h"
-#include "Service.h"
 #include "NetConfig.h"
-#include "Session.h"
 #include "Packet.h"
-#include "Utils/rand.h"
+#include "Service.h"
+#include "Session.h"
+
 #include "LogManager/LogManager.h"
 
+#include "Utils/rand.h"
 
 //======================================================================================================================
 

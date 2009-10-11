@@ -10,17 +10,19 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "ConversationManager.h"
-#include "Conversation.h"
 #include "ActiveConversation.h"
+#include "Conversation.h"
+#include "NPCObject.h"
+#include "PlayerObject.h"
+#include "WorldConfig.h"
 #include "WorldManager.h"
-#include "DatabaseManager/Database.h"
-#include "DatabaseManager/DataBinding.h"
-#include "DatabaseManager/DatabaseResult.h"
+
 #include "MessageLib/MessageLib.h"
 #include "LogManager/LogManager.h"
-#include "NPCObject.h"
-#include "WorldConfig.h"
-#include "PlayerObject.h"
+#include "DatabaseManager/Database.h"
+#include "DatabaseManager/DatabaseResult.h"
+#include "DatabaseManager/DataBinding.h"
+
 //=========================================================================================
 
 bool					ConversationManager::mInsFlag = false;

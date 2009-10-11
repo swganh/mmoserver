@@ -10,12 +10,18 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "ScriptEngine.h"
-#include "ScriptEngineLib.h"
+
 #include "Script.h"
-#include "Utils/clock.h"
-#include "LogManager/LogManager.h"
+#include "ScriptEngineLib.h"
+
 #include "glue_files/tolua++.h"
 #include "glue_files/LuaInterface.h"
+
+#include "LogManager/LogManager.h"
+
+#include "Utils/clock.h"
+
+
 
 
 //======================================================================================================================

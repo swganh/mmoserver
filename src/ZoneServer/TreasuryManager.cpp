@@ -10,20 +10,19 @@ Copyright (c) 2006 - 2009 The swgANH Team
 */
 
 #include "TreasuryManager.h"
-#include "MathLib/Quaternion.h"
+#include "Bank.h"
+#include "BankTerminal.h"
+#include "Inventory.h"
 #include "PlayerObject.h"
+#include "UIManager.h"
+#include "WorldConfig.h"
 #include "WorldManager.h"
+#include "MessageLib/MessageLib.h"
 #include "LogManager/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
-#include "MessageLib/MessageLib.h"
-#include "UIManager.h"
-#include "BankTerminal.h"
-#include "WorldConfig.h"
-#include "Bank.h"
-#include "Inventory.h"
-
+#include "MathLib/Quaternion.h"
 //======================================================================================================================
 
 bool TreasuryManager::mInsFlag = false;

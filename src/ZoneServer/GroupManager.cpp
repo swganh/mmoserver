@@ -10,26 +10,33 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "GroupManager.h"
+
 #include "Datapad.h"
+#include "GroupObject.h"
 #include "MissionObject.h"
+#include "ObjectFactory.h"
+#include "UIManager.h"
 #include "WaypointObject.h"
+#include "WorldConfig.h"
+#include "WorldManager.h"
+#include "ZoneOpcodes.h"
+
+#include "MessageLib/MessageLib.h"
+
+#include "LogManager/LogManager.h"
+
+#include "DatabaseManager/Database.h"
+#include "DatabaseManager/DatabaseResult.h"
+#include "DatabaseManager/DataBinding.h"
+
+#include "Common/DispatchClient.h"
+#include "Common/Message.h"
 #include "Common/MessageDispatch.h"
 #include "Common/MessageFactory.h"
 #include "Common/MessageOpcodes.h"
-#include "Common/Message.h"
-#include "Common/DispatchClient.h"
-#include "DatabaseManager/Database.h"
-#include "DatabaseManager/DataBinding.h"
-#include "DatabaseManager/DatabaseResult.h"
-#include "UIManager.h"
-#include "LogManager/LogManager.h"
-#include "MessageLib/MessageLib.h"
-#include "WorldManager.h"
-#include "WorldConfig.h"
+
 #include "Utils/utils.h"
-#include "ZoneOpcodes.h"
-#include "GroupObject.h"
-#include "ObjectFactory.h"
+
 
 bool						GroupManager::mInsFlag    = false;
 GroupManager*		GroupManager::mSingleton  = NULL;

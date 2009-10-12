@@ -10,21 +10,20 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "StructureManager.h"
+#include "ObjectFactory.h"
 #include "PlayerObject.h"	  
 #include "PlayerStructure.h"	 
 #include "QuadTree.h"
-//#include "Common/MessageDispatch.h"
-//#include "Common/MessageFactory.h"
-//#include "Common/MessageOpcodes.h"
-//#include "Common/Message.h"
-#include "Common/DispatchClient.h"
-#include "DatabaseManager/Database.h"
-#include "DatabaseManager/DataBinding.h"
-#include "DatabaseManager/DatabaseResult.h"
-#include "LogManager/LogManager.h"
 #include "WorldManager.h"
-#include "ObjectFactory.h"
 #include "ZoneTree.h"
+
+#include "LogManager/LogManager.h"
+#include "DatabaseManager/Database.h"
+#include "DatabaseManager/DatabaseResult.h"
+#include "DatabaseManager/DataBinding.h"
+
+#include "Common/DispatchClient.h"
+
 
 bool						StructureManager::mInsFlag    = false;
 StructureManager*			StructureManager::mSingleton  = NULL;

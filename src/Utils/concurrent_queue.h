@@ -12,7 +12,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_UTILS_CONCURRENT_QUEUE_H
 #define ANH_UTILS_CONCURRENT_QUEUE_H
 
-#include "zthread/ZThread.h"
+#include "zthread/Mutex.h"
 #include <queue>
 
 

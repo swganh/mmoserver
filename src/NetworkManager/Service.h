@@ -14,8 +14,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "Utils/typedefs.h"
 #include "Utils/concurrent_queue.h"
+#include "zthread/RecursiveMutex.h"
 #include <list>
-#include "zthread/ZThread.h"
 
 
 //======================================================================================================================

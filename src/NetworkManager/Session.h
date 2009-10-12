@@ -21,7 +21,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "NetConfig.h"
 
 #include <boost/asio.hpp>
-#include "zthread/ZThread.h"
+#include "zthread/RecursiveMutex.h"
 
 
 //======================================================================================================================

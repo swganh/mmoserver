@@ -14,7 +14,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "Utils/mutex.h"
 #include "Utils/typedefs.h"
-#include "zthread/ZThread.h"
+#include "zthread/Mutex.h"
+#include "zthread/Thread.h"
 
 //======================================================================================================================
 class Database;

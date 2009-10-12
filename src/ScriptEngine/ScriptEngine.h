@@ -21,11 +21,11 @@ extern "C"
 	#include "lualib.h"
 }
 
+#include "Script.h"
 #include "Utils/typedefs.h"
-#include "zthread/ZThread.h"
+#include "zthread/Mutex.h"
 #include <boost/pool/pool.hpp>
 #include <vector>
-#include "Script.h"
 
 #define	 gScriptEngine	ScriptEngine::getSingletonPtr()
 

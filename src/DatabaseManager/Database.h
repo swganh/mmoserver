@@ -15,7 +15,6 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Utils/typedefs.h"
 #include "Utils/concurrent_queue.h"
 #include <queue>
-#include "zthread/ZThread.h"
 #include "DataBindingFactory.h"
 #include <boost/pool/pool.hpp>
 

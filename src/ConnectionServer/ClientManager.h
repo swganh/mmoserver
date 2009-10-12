@@ -14,7 +14,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "ConnectionDispatchCallback.h"
 #include "NetworkManager/NetworkCallback.h"
-#include "zthread/ZThread.h"
+#include "zthread/RecursiveMutex.h"
 #include "DatabaseManager/DatabaseCallback.h"
 #include <map>
 

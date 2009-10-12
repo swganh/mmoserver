@@ -16,7 +16,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Utils/typedefs.h"
 #include "NetworkManager/NetworkCallback.h"
 #include <map>
-#include "zthread/ZThread.h"
+#include "zthread/RecursiveMutex.h"
 
 
 //======================================================================================================================

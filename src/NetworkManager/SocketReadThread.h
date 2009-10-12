@@ -12,7 +12,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_NETWORKMANAGER_SOCKETREADTHREAD_H
 #define ANH_NETWORKMANAGER_SOCKETREADTHREAD_H
 
-#include "zthread/ZThread.h"
+#include "zthread/Mutex.h"
+#include "zthread/Thread.h"
 #include "Utils/typedefs.h"
 #include <list>
 #include <map>

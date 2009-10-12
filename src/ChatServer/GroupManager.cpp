@@ -32,6 +32,8 @@ Copyright (c) 2006, 2009 The swgANH Team
 
 #include "Utils/utils.h"
 
+#include <cassert>
+
 bool            GroupManager::mInsFlag    = false;
 GroupManager*   GroupManager::mSingleton  = NULL;
 

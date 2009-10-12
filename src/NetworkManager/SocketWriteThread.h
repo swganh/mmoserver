@@ -12,10 +12,11 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_NETWORKMANAGER_SOCKETWRITETHREAD_H
 #define ANH_NETWORKMANAGER_SOCKETWRITETHREAD_H
 
-#include "zthread/ZThread.h"
 #include "Utils/typedefs.h"
 #include "Utils/Clock.h"
 #include "Utils/concurrent_queue.h"
+
+#include "zthread/Thread.h"
 
 #define SEND_BUFFER_SIZE 8192
 

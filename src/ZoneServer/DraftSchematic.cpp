@@ -10,10 +10,12 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "DraftSchematic.h"
-#include "DraftSlot.h"
-#include "WeightsBatch.h"
 #include "CraftBatch.h"
+#include "DraftSlot.h"
 #include "DraftWeight.h"
+#include "WeightsBatch.h"
+
+
 
 //=============================================================================
 

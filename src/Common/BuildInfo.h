@@ -35,7 +35,7 @@ std::string GetBuildTime(void)
 	return build_time.substr(7, build_time.length()-9);
 }
 
-static const char* GetBuildString(void)
+std::string GetBuildString(void)
 {
     static std::string build_string;
 
@@ -45,10 +45,9 @@ static const char* GetBuildString(void)
         build_string += GetBuildNumber();
         build_string += " - ";
         build_string += GetBuildTime();
-        build_string += "\n";
     }
 
-	return build_string.c_str();
+	return build_string;
 }
 
 #endif // ANH_COMMON_BUILDINFO_H

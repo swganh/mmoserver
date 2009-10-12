@@ -65,7 +65,7 @@ ConfigManager::~ConfigManager()
 
 //======================================================================================================================
 
-const char* ConfigManager::getBuildString(void)
+std::string ConfigManager::getBuildString(void)
 {
 	return GetBuildString();
 }
@@ -73,14 +73,14 @@ const char* ConfigManager::getBuildString(void)
 
 //======================================================================================================================
 
-const char* ConfigManager::getBuildNumber(void)
+std::string ConfigManager::getBuildNumber(void)
 {
 	return GetBuildNumber().c_str();
 }
 
 //======================================================================================================================
 
-const char* ConfigManager::getBuildTime(void)
+std::string ConfigManager::getBuildTime(void)
 {
 	return GetBuildTime().c_str();
 }

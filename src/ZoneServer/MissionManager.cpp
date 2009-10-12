@@ -10,29 +10,31 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "MissionManager.h"
+
+#include "Bank.h"
+#include "Buff.h"
+#include "CreatureObject.h"
 #include "Datapad.h"
-#include "MissionObject.h"
 #include "GroupManager.h"
+#include "MissionBag.h"
+#include "MissionObject.h"
+#include "NPCObject.h"
 #include "PlayerObject.h"
+#include "ResourceCollectionManager.h"
+#include "ResourceManager.h"
+#include "ResourceType.h"
 #include "Terminal.h"
+#include "TreasuryManager.h"
+#include "UIManager.h"
 #include "WaypointObject.h"
 #include "WorldManager.h"
+#include "ZoneTree.h"
+
 #include "LogManager/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "MessageLib/MessageLib.h"
-#include "UIManager.h"
-#include "TreasuryManager.h"
-#include "Buff.h"
-#include "ResourceManager.h"
-#include "ResourceCollectionManager.h"
-#include "NPCObject.h"
-#include "CreatureObject.h"
-#include "ZoneTree.h"
-#include "MissionBag.h"
-#include "Bank.h"
-#include "ResourceType.h"
 
 //======================================================================================================================
 

@@ -10,8 +10,10 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "ObjectController.h"
+#include "Datapad.h"
 #include "ObjectControllerOpcodes.h"
 #include "ObjectControllerCommandMap.h"
+#include "WaypointObject.h"
 #include "WorldManager.h"
 #include "PlayerObject.h"
 #include "DatabaseManager/Database.h"

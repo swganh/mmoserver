@@ -12,20 +12,25 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #ifndef ANH_ZONESERVER_WORLDMANAGER_H
 #define ANH_ZONESERVER_WORLDMANAGER_H
 
-#include <list>
-#include <map>
-#include <vector>
-
-#include <boost/ptr_container/ptr_map.hpp>
-
-#include "DatabaseManager/DatabaseCallback.h"
-#include "Utils/TimerCallback.h"
-#include "Utils/typedefs.h"
-#include "ScriptEngine/ScriptEventListener.h"
 #include "ObjectFactoryCallback.h"
 #include "QTRegion.h"
 #include "Weather.h"
 #include "WorldManagerEnums.h"
+
+#include "ScriptEngine/ScriptEventListener.h"
+
+#include "DatabaseManager/DatabaseCallback.h"
+
+#include "MathLib/Rectangle.h"
+
+#include "Utils/TimerCallback.h"
+#include "Utils/typedefs.h"
+
+#include <boost/ptr_container/ptr_map.hpp>
+
+#include <list>
+#include <map>
+#include <vector>
 
 //#include "BuffManager.h"
 //======================================================================================================================

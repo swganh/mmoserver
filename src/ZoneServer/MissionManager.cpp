@@ -10,9 +10,12 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "MissionManager.h"
+#include "Datapad.h"
 #include "MissionObject.h"
 #include "GroupManager.h"
 #include "PlayerObject.h"
+#include "Terminal.h"
+#include "WaypointObject.h"
 #include "WorldManager.h"
 #include "LogManager/LogManager.h"
 #include "DatabaseManager/Database.h"

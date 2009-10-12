@@ -14,7 +14,6 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "Object.h"
 
-
 //=============================================================================
 
 enum RegionType

@@ -14,7 +14,6 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "NPCObject.h"
 
-
 //=============================================================================
 
 // This is so very special, that I can't find word....

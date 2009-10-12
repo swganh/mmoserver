@@ -16,6 +16,8 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "TangibleObject.h"
 #include "ObjectFactoryCallback.h"
 
+#include <vector>
+
 typedef std::vector<std::pair<string,uint64> >	SortedInventoryItemList;
 class CreatureObject;
 

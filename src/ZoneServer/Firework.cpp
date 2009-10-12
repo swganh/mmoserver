@@ -10,6 +10,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 */
 
 #include "Firework.h"
+#include "FireworkEvent.h"
 #include "PlayerObject.h"
 #include "Item.h"
 #include "FireworkManager.h"
@@ -18,7 +19,6 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "MessageLib/MessageLib.h"
 #include "Inventory.h"
 #include "ObjectFactory.h"
-
 
 //=============================================================================
 

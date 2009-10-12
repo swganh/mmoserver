@@ -10,6 +10,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "NPCObject.h"
+#include "QuadTree.h"
 #include "Weapon.h"
 #include "MathLib/Quaternion.h"
 #include "MathLib/Vector3.h"

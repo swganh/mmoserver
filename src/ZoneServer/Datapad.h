@@ -13,16 +13,16 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #define ANH_ZONESERVER_TANGIBLE_DATAPAD_H
 
 #include "TangibleObject.h"
-#include "WaypointObject.h"
-#include "MissionObject.h"
-#include "IntangibleObject.h"
 #include "ObjectFactoryCallback.h"
-#include "ManufacturingSchematic.h"
 
 
 //=============================================================================
 
+class IntangibleObject;
+class ManufacturingSchematic;
+class MissionObject;
 class PlayerObject;
+class WaypointObject;
 
 typedef std::vector<WaypointObject*>			WaypointList;
 typedef std::vector<ManufacturingSchematic*>	ManufacturingSchematicList;

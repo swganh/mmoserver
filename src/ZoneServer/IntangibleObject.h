@@ -12,9 +12,10 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_ZONESERVER_INTANGIBLE_OBJECT_H
 #define ANH_ZONESERVER_INTANGIBLE_OBJECT_H
 
+#include "Object.h"
+
 //Forward Declerations
 class PlayerObject;
-class Object;
 
 //=============================================================================
 //

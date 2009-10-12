@@ -13,7 +13,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #define ANH_ZONESERVER_TANGIBLE_MISSIONBAG_H
 
 #include "TangibleObject.h"
-#include "MissionObject.h"
+#include <vector>
+
+class MissionObject;
 
 typedef std::vector<MissionObject*>		MissionList;
 

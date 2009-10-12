@@ -10,6 +10,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "GroupManager.h"
+#include "Datapad.h"
+#include "MissionObject.h"
+#include "WaypointObject.h"
 #include "Common/MessageDispatch.h"
 #include "Common/MessageFactory.h"
 #include "Common/MessageOpcodes.h"

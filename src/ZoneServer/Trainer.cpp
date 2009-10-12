@@ -10,6 +10,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 */
 
 #include "Trainer.h"
+#include "QuadTree.h"
 #include "MathLib/Quaternion.h"
 #include "Conversation.h"
 #include "SkillManager.h"

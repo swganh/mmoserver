@@ -12,11 +12,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #ifndef ANH_ZONESERVER_PLAYER_OBJECT_H
 #define ANH_ZONESERVER_PLAYER_OBJECT_H
 
-#include "Common/DispatchClient.h"
 #include "CreatureObject.h"
-#include "Datapad.h"
-#include "TravelTerminal.h"
-#include "BazaarTerminal.h"
 #include "EntertainerManager.h"
 #include "Stomach.h"
 #include "Trade.h"
@@ -24,9 +20,13 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "CraftingSession.h"
 #include "SurveyEvent.h"
 #include "SampleEvent.h"
+#include "Common/DispatchClient.h"
 #include <map>
 
-
+class BazaarTerminal;
+class BuildingObject;
+class Tutorial;
+class TravelTerminal;
 
 //=============================================================================
 
@@ -45,9 +45,6 @@ typedef std::vector<uint32>						UIWindowList;
 typedef std::map<uint32,BString>				ContactMap;
 
 //=============================================================================
-
-class Tutorial;
-class BuildingObject;
 
 class PlayerObject : public CreatureObject
 {

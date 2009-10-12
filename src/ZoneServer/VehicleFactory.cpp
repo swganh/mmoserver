@@ -10,6 +10,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "VehicleFactory.h"
+#include "Datapad.h"
 #include "Object.h"
 #include "WorldManager.h"
 #include "DatabaseManager/DatabaseCallback.h"

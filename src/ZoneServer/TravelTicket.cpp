@@ -10,6 +10,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "WorldManager.h"
+#include "Shuttle.h"
 #include "TicketCollector.h"
 #include "TravelTicket.h"
 #include "PlayerObject.h"

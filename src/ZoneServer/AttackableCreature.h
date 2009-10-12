@@ -13,7 +13,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #define ANH_ZONESERVER_ATTACKABLECREATURE_H
 
 #include "NPCObject.h"
-#include "NpcManager.h"
+
 // #include "SpawnData.h"
 
 /*

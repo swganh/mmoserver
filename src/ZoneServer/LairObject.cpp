@@ -9,8 +9,10 @@ Copyright (c) 2006 - 2008 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
-#include "MathLib/Quaternion.h"
 #include "LairObject.h"
+#include "NpcManager.h"
+#include "QuadTree.h"
+#include "MathLib/Quaternion.h"
 #include "AttackableCreature.h"
 #include "PlayerObject.h"
 #include "CellObject.h"

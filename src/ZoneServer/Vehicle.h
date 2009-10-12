@@ -11,6 +11,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #ifndef ANH_ZONESERVER_VEHICLE_H
 #define ANH_ZONESERVER_VEHICLE_H
+
 #include "IntangibleObject.h"
 
 //Forward Declerations

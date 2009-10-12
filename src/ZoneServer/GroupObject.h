@@ -14,9 +14,6 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "PlayerObject.h"
 
-
-
-
 //=============================================================================
 
 typedef std::vector<uint64>				Uint64List;

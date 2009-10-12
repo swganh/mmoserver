@@ -27,6 +27,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "ZoneServer/SchematicManager.h"
 #include "ZoneServer/Tutorial.h"
 #include "ZoneServer/UIOpcodes.h"
+#include "ZoneServer/WaypointObject.h"
 #include "ZoneServer/Weapon.h"
 #include "ZoneServer/Wearable.h"
 #include "ZoneServer/WeightsBatch.h"

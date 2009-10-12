@@ -11,6 +11,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "SpawnRegion.h"
 #include "QTRegion.h"
+#include "QuadTree.h"
 #include "WorldManager.h"
 #include "PlayerObject.h"
 #include "ZoneTree.h"

@@ -12,10 +12,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_ZONESERVER_CITY_H
 #define ANH_ZONESERVER_CITY_H
 
-#include "Utils/typedefs.h"
-#include "Mathlib/Rectangle.h"
 #include "RegionObject.h"
-
+#include "Mathlib/Rectangle.h"
+#include "Utils/typedefs.h"
 
 //=============================================================================
 

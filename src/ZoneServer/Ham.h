@@ -12,9 +12,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_ZONESERVER_HAM_H
 #define ANH_ZONESERVER_HAM_H
 
-#include "Utils/typedefs.h"
 #include "HamProperty.h"
-
+#include "Utils/typedefs.h"
 
 //=============================================================================
 

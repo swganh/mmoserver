@@ -13,7 +13,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #define ANH_ZONESERVER_SHUTTLE_H
 
 #include "CreatureObject.h"
-
+#include "Utils/typedefs.h"
 
 #define SHUTTLE_LANDING_ANIMATION_TIME 25000
 

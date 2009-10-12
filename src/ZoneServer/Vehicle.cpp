@@ -8,10 +8,11 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
+
+#include "Vehicle.h"
 #include "Object.h"
 #include "IntangibleObject.h"
 #include "CreatureObject.h"
-#include "Vehicle.h"
 #include "PlayerObject.h"
 #include "MessageLib/MessageLib.h"
 #include "WorldManager.h"

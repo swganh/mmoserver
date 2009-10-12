@@ -11,6 +11,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "PlayerObject.h"
 #include "CellObject.h"
+#include "Datapad.h"
+#include "QuadTree.h"
 #include "SchematicManager.h"
 #include "SpawnPoint.h"
 #include "MessageLib/MessageLib.h"

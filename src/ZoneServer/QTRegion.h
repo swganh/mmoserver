@@ -13,8 +13,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #define ANH_ZONESERVER_QTREGION_H
 
 #include "RegionObject.h"
-#include "QuadTree.h"
 
+class QuadTree;
 
 //=============================================================================
 

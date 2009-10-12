@@ -15,7 +15,6 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "CreatureObject.h"
 #include "NPC_Enums.h"
 
-
 #define NPC_CHAT_SPAM_PROTECTION_TIME	10000
 
 //=============================================================================

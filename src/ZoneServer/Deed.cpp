@@ -10,6 +10,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 */
 
 #include "Deed.h"
+#include "Datapad.h"
 #include "MathLib/Quaternion.h"
 #include "PlayerObject.h"
 #include "ZoneOpcodes.h"

@@ -13,8 +13,9 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #define ANH_ZONESERVER_TANGIBLE_FIREWORK_H
 
 #include "Item.h"
-#include "FireworkEvent.h"
+#include <vector>
 
+class FireworkEvent;
 
 //=============================================================================
 struct _fireworkShowEvent

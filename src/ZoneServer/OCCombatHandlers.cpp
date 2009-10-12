@@ -10,7 +10,9 @@ Copyright (c) 2006 - 2009 The swgANH Team
 */
 
 #include "ObjectController.h"
+#include "Datapad.h"
 #include "Inventory.h"
+#include "MissionObject.h"
 #include "ObjectControllerOpcodes.h"
 #include "ObjectControllerCommandMap.h"
 #include "WorldManager.h"

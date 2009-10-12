@@ -12,6 +12,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "CampRegion.h"
 #include "Camp.h"
 #include "QTRegion.h"
+#include "QuadTree.h"
 #include "WorldManager.h"
 #include "PlayerObject.h"
 #include "ZoneTree.h"

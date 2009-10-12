@@ -10,6 +10,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "PlayerObjectFactory.h"
+#include "Datapad.h"
 #include "TangibleFactory.h"
 #include "InventoryFactory.h"
 #include "Bank.h"

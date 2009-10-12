@@ -10,6 +10,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 */
 
 #include "AttackableStaticNpc.h"
+#include "QuadTree.h"
 #include "WorldManager.h"
 #include "MessageLib/MessageLib.h"
 #include "WorldConfig.h"

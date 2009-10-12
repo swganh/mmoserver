@@ -9,9 +9,9 @@ Copyright (c) 2006 - 2009 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
+#include "Inventory.h"
 #include "MathLib/Quaternion.h"
 #include "WorldManager.h"
-#include "Inventory.h"
 #include "DatabaseManager/Database.h"
 #include "PlayerObject.h"
 #include "MessageLib/MessageLib.h"

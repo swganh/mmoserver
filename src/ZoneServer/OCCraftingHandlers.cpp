@@ -10,6 +10,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "ObjectController.h"
+#include "ManufacturingSchematic.h"
 #include "ObjectControllerOpcodes.h"
 #include "ObjectControllerCommandMap.h"
 #include "WorldManager.h"

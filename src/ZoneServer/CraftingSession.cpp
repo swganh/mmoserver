@@ -16,6 +16,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "CraftingSessionFactory.h"
 #include "CraftingStation.h"
 #include "CraftingTool.h"
+#include "Datapad.h"
 #include "DraftSchematic.h"
 #include "DraftSlot.h"
 #include "Inventory.h"

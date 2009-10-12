@@ -13,11 +13,10 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #define ANH_ZONESERVER_TANGIBLE_TICKETCOLLECTOR_H
 
 #include "TangibleObject.h"
-#include "Shuttle.h"
-
 
 //=============================================================================
 
+class Shuttle;
 class TravelTicket;
 
 //=============================================================================

@@ -9,9 +9,10 @@ Copyright (c) 2006 - 2008 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
+#include "MissionBag.h"
+#include "MissionObject.h"
 #include "MessageLib/MessageLib.h"
 #include "MathLib/Quaternion.h"
-#include "MissionBag.h"
 
 #include "PlayerObject.h"
 

@@ -14,7 +14,6 @@ Copyright (c) 2006 - 2009 The swgANH Team
 
 #include "Terminal.h"
 
-
 //=============================================================================
 
 class BankTerminal : public Terminal

@@ -11,7 +11,11 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "DatapadFactory.h"
 #include "Datapad.h"
+#include "IntangibleObject.h"
+#include "Item.h"
+#include "ManufacturingSchematic.h"
 #include "WaypointFactory.h"
+#include "WaypointObject.h"
 #include "VehicleFactory.h"
 #include "ObjectFactoryCallback.h"
 #include "DatabaseManager/Database.h"

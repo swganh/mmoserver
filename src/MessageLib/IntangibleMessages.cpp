@@ -11,6 +11,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "MessageLib.h"
 
+#include "ZoneServer/IntangibleObject.h"
 #include "ZoneServer/ObjectFactory.h"
 #include "ZoneServer/PlayerObject.h"
 #include "ZoneServer/WorldManager.h"

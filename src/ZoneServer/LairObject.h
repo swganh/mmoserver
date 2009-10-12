@@ -13,7 +13,6 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #define ANH_ZONESERVER_LAIR_OBJECT_H
 
 #include "AttackableStaticNpc.h"
-#include "NPCObject.h"
 #include "MathLib/Rectangle.h"
 
 //=============================================================================

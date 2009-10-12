@@ -16,6 +16,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "ZoneServer/ObjectControllerOpcodes.h"
 #include "ZoneServer/ObjectFactory.h"
 #include "ZoneServer/PlayerObject.h"
+#include "ZoneServer/WaypointObject.h"
 #include "ZoneServer/WorldManager.h"
 #include "ZoneServer/ZoneOpcodes.h"
 

@@ -13,6 +13,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "PlayerObject.h"
 #include "Shuttle.h"
 #include "TicketCollector.h"
+#include "TravelTerminal.h"
 #include "Common/MessageDispatch.h"
 #include "Common/MessageFactory.h"
 #include "Common/MessageOpcodes.h"

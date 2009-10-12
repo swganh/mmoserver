@@ -15,9 +15,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 //=============================================================================
 
 #include "CreatureEnums.h"
-#include "Utils/typedefs.h"
-#include "Object.h"
 #include "ObjectContainer.h"
+#include "Utils/typedefs.h"
 #include <map>
 
 //=============================================================================

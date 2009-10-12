@@ -9,9 +9,13 @@ Copyright (c) 2006 - 2008 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
-#include "MathLib/Quaternion.h"
 #include "Datapad.h"
+#include "IntangibleObject.h"
+#include "MissionObject.h"
+#include "MathLib/Quaternion.h"
+#include "ManufacturingSchematic.h"
 #include "MessageLib/MessageLib.h"
+#include "WaypointObject.h"
 #include "WorldManager.h"
 #include "WorldConfig.h"
 #include "PlayerObject.h"

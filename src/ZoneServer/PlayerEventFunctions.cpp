@@ -10,7 +10,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "PlayerObject.h"
+#include "Datapad.h"
 #include "ResourceContainer.h"
+#include "WaypointObject.h"
 #include "MathLib/Quaternion.h"
 #include "Inventory.h"
 #include "MessageLib/MessageLib.h"

@@ -13,6 +13,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #define ANH_ZONESERVER_TANGIBLE_CHARACTERBUILDERTERMINAL_H
 
 #include "Terminal.h"
+#include <vector>
+
 typedef std::vector<std::pair<string,uint32> >	SortedList;
 typedef std::vector<std::pair<uint32,uint32> >	ItemEntryList;
 typedef	std::vector<uint32>						ResCatLookupList;

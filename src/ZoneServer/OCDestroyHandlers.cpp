@@ -10,7 +10,10 @@ Copyright (c) 2006 - 2009 The swgANH Team
 */
 
 #include "ObjectController.h"
+#include "Datapad.h"
+#include "ManufacturingSchematic.h"
 #include "ResourceContainer.h"
+#include "WaypointObject.h"
 #include "ObjectControllerOpcodes.h"
 #include "ObjectControllerCommandMap.h"
 #include "ObjectFactory.h"

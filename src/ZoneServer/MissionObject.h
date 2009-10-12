@@ -12,7 +12,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_ZONESERVER_MISSION_OBJECT_H
 #define ANH_ZONESERVER_MISSION_OBJECT_H
 
-#include "object.h"
+#include "Object.h"
 
 class PlayerObject;
 class NPCObject;

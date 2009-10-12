@@ -9,8 +9,10 @@ Copyright (c) 2006 - 2009 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
-#include "MessageLib/MessageLib.h"
 #include "AttackableCreature.h"
+#include "NpcManager.h"
+#include "QuadTree.h"
+#include "MessageLib/MessageLib.h"
 #include "PlayerObject.h"
 #include "WorldManager.h"
 #include "WorldConfig.h"

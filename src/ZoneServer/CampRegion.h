@@ -12,10 +12,10 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_ZONESERVER_CAMPREGION_H
 #define ANH_ZONESERVER_CAMPREGION_H
 
-#include "Utils/typedefs.h"
-#include "Mathlib/Rectangle.h"
 #include "RegionObject.h"
 #include "WorldManager.h"
+#include "Mathlib/Rectangle.h"
+#include "Utils/typedefs.h"
 
 
 //=============================================================================

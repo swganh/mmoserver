@@ -23,6 +23,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "ZoneServer/ObjectFactory.h"
 #include "ZoneServer/PlayerObject.h"
 #include "ZoneServer/ResourceCollectionManager.h"
+#include "ZoneServer/TravelTerminal.h"
 #include "ZoneServer/UIOpcodes.h"
 #include "ZoneServer/Wearable.h"
 #include "ZoneServer/WorldManager.h"

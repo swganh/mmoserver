@@ -14,7 +14,6 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "Utils/EventHandler.h"
 
-
 //======================================================================================================================
 
 class IncapRecoveryEvent : public Anh_Utils::Event

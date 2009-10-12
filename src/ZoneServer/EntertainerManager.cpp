@@ -10,22 +10,25 @@ Copyright (c) 2006 - 2009 The swgANH Team
 */
 
 #include "EntertainerManager.h"
-#include "PlayerObject.h"
-#include "Weapon.h"
-#include "DatabaseManager/Database.h"
-#include "DatabaseManager/DataBinding.h"
-#include "DatabaseManager/DatabaseResult.h"
-#include "MessageLib/MessageLib.h"
-#include "WorldManager.h"
-#include "Utils/utils.h"
-#include "DatabaseManager/Transaction.h"
-#include "Common/atMacroString.h"
-#include "UIManager.h"
-#include "NonPersistantObjectFactory.h"
-#include "MissionManager.h"
+
 #include "Buff.h"
 #include "Instrument.h"
+#include "MissionManager.h"
+#include "NonPersistantObjectFactory.h"
+#include "PlayerObject.h"
 #include "PlayerEnums.h"
+#include "UIManager.h"
+#include "WorldManager.h"
+#include "Weapon.h"
+
+#include "MessageLib/MessageLib.h"
+#include "DatabaseManager/Database.h"
+#include "DatabaseManager/DatabaseResult.h"
+#include "DatabaseManager/DataBinding.h"
+#include "DatabaseManager/Transaction.h"
+#include "Common/atMacroString.h"
+#include "Utils/utils.h"
+
 
 bool EntertainerManager::mInsFlag = false;
 EntertainerManager*	EntertainerManager::mSingleton = NULL;

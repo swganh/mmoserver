@@ -9,14 +9,20 @@ Copyright (c) 2006 - 2008 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
+
 #include "EntertainerManager.h"
-#include "PlayerObject.h"
-#include "Common/MessageFactory.h"
-#include "DatabaseManager/Database.h"
-#include "LogManager/LogManager.h"
-#include "MessageLib/MessageLib.h"
-#include "UIManager.h"
 #include "Inventory.h"
+#include "PlayerObject.h"
+#include "UIManager.h"
+
+
+#include "MessageLib/MessageLib.h"
+
+#include "LogManager/LogManager.h"
+
+#include "DatabaseManager/Database.h"
+
+#include "Common/MessageFactory.h"
 
 //======================================================================================================================
 //gets the information on a holoemote from the loaded db data

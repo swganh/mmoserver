@@ -10,28 +10,32 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "TravelMapHandler.h"
+#include "Inventory.h"
+#include "ObjectFactory.h"
 #include "PlayerObject.h"
 #include "Shuttle.h"
 #include "TicketCollector.h"
 #include "TravelTerminal.h"
+#include "TravelTicket.h"
+#include "UIManager.h"
+#include "UITicketSelectListBox.h"
+#include "WorldManager.h"
+#include "ZoneOpcodes.h"
+
+#include "MessageLib/MessageLib.h"
+#include "LogManager/LogManager.h"
+
+#include "Common/DispatchClient.h"
+#include "Common/Message.h"
 #include "Common/MessageDispatch.h"
 #include "Common/MessageFactory.h"
 #include "Common/MessageOpcodes.h"
-#include "Common/Message.h"
-#include "Common/DispatchClient.h"
+
 #include "DatabaseManager/Database.h"
-#include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
-#include "LogManager/LogManager.h"
-#include "MessageLib/MessageLib.h"
-#include "WorldManager.h"
+#include "DatabaseManager/DataBinding.h"
+
 #include "Utils/utils.h"
-#include "UIManager.h"
-#include "UITicketSelectListBox.h"
-#include "ZoneOpcodes.h"
-#include "Inventory.h"
-#include "TravelTicket.h"
-#include "ObjectFactory.h"
 
 bool				TravelMapHandler::mInsFlag    = false;
 TravelMapHandler*	TravelMapHandler::mSingleton  = NULL;

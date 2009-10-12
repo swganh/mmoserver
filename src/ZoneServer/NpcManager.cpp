@@ -14,23 +14,24 @@ Copyright (c) 2006 - 2009 The swgANH Team
 */
 
 #include "NpcManager.h"
-#include "Weapon.h"
-#include "Utils/utils.h"
-#include "DatabaseManager/Database.h"
-#include "DatabaseManager/DataBinding.h"
-#include "DatabaseManager/DatabaseResult.h"
-#include "ZoneServer/NonPersistentNpcFactory.h"
-#include "LogManager/LogManager.h"
-#include "WorldManager.h"
 #include "AttackableCreature.h"
-#include "MessageLib/MessageLib.h"
-#include "WorldConfig.h"
 #include "CombatManager.h"
 #include "CreatureObject.h"
-#include "AttackableCreature.h"
 #include "PlayerObject.h"
-#include <assert.h>
+#include "Weapon.h"
+#include "WorldConfig.h"
+#include "WorldManager.h"
+#include "ZoneServer/NonPersistentNpcFactory.h"
+#include "MessageLib/MessageLib.h"
+#include "LogManager/LogManager.h"
 
+#include "DatabaseManager/Database.h"
+#include "DatabaseManager/DatabaseResult.h"
+#include "DatabaseManager/DataBinding.h"
+
+#include "Utils/utils.h"
+
+#include <assert.h>
 
 //=============================================================================
 

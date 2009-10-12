@@ -8,12 +8,13 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
-#include "UIOpcodes.h"
-#include "UIManager.h"
 #include "UIListBox.h"
+#include "PlayerObject.h"
 #include "UIButton.h"
 #include "UICallback.h"
-#include "PlayerObject.h"
+#include "UIOpcodes.h"
+#include "UIManager.h"
+
 #include "LogManager/LogManager.h"
 #include "Common/Message.h"
 #include "Common/MessageFactory.h"

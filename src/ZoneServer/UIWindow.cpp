@@ -10,8 +10,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "UIWindow.h"
-#include "Common/Message.h"
 #include "UICallback.h"
+#include "Common/Message.h"
+
 
 //================================================================================
 

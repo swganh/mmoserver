@@ -10,13 +10,14 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "ResourceManager.h"
-#include "ResourceType.h"
-#include "ResourceCategory.h"
-#include "DatabaseManager/Database.h"
-#include "DatabaseManager/DataBinding.h"
-#include "DatabaseManager/DatabaseResult.h"
-#include "LogManager/LogManager.h"
 #include "CurrentResource.h"
+#include "ResourceCategory.h"
+#include "ResourceType.h"
+#include "LogManager/LogManager.h"
+#include "DatabaseManager/Database.h"
+#include "DatabaseManager/DatabaseResult.h"
+#include "DatabaseManager/DataBinding.h"
+
 //======================================================================================================================
 
 bool				ResourceManager::mInsFlag	= false;

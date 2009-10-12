@@ -1,11 +1,24 @@
-#include "PlayerObject.h"
+/*
+---------------------------------------------------------------------------------------
+This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
+For more information, see http://www.swganh.org
+
+
+Copyright (c) 2006 - 2009 The swgANH Team
+
+---------------------------------------------------------------------------------------
+*/
 #include "MedicManager.h"
-#include "MessageLib/MessageLib.h"
-#include "ObjectControllerCommandMap.h"
-#include "Medicine.h"
-#include "WorldManager.h"
-#include "UIManager.h"
+
 #include "Inventory.h"
+#include "Medicine.h"
+#include "ObjectControllerCommandMap.h"
+#include "PlayerObject.h"
+#include "UIManager.h"
+#include "WorldManager.h"
+
+#include "MessageLib/MessageLib.h"
+
 
 #ifndef min
 #define min(a,b)(((a)<(b))?(a):(b))

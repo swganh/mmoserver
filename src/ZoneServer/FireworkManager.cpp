@@ -1,10 +1,23 @@
-#include "PlayerObject.h"
+/*
+---------------------------------------------------------------------------------------
+This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
+For more information, see http://www.swganh.org
+
+
+Copyright (c) 2006 - 2008 The swgANH Team
+
+---------------------------------------------------------------------------------------
+*/
 #include "FireworkManager.h"
-#include "MessageLib/MessageLib.h"
-#include "UIManager.h"
+
 #include "Item_Enums.h"
 #include "nonPersistantObjectFactory.h"
+#include "PlayerObject.h"
 #include "StaticObject.h"
+#include "UIManager.h"
+
+#include "MessageLib/MessageLib.h"
+
 
 FireworkManager*	FireworkManager::mSingleton = NULL;
 

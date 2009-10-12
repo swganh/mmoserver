@@ -13,7 +13,7 @@ std::string GetBuildNumber()
     if (build_num.length() == 0)
     {
         std::string build_string = GetBuildString();    
-        build_num = build_string.substr(0, build_string.find_first_of(" ")-1);
+        build_num = build_string.substr(0, build_string.find_first_of(" "));
     }
 
 	return build_num;

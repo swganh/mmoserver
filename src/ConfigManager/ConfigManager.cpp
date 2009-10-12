@@ -75,14 +75,14 @@ std::string ConfigManager::getBuildString(void)
 
 std::string ConfigManager::getBuildNumber(void)
 {
-	return GetBuildNumber().c_str();
+	return GetBuildNumber();
 }
 
 //======================================================================================================================
 
 std::string ConfigManager::getBuildTime(void)
 {
-	return GetBuildTime().c_str();
+	return GetBuildTime();
 }
 
 //======================================================================================================================

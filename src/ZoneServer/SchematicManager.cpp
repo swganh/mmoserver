@@ -4,22 +4,24 @@ This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emu
 For more information, see http://www.swganh.org
 
 
-Copyright (c) 2006 - 2008 The swgANH Team
+Copyright (c) 2006 - 2009 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
 
 #include "SchematicManager.h"
-#include "DatabaseManager/Database.h"
-#include "DatabaseManager/DataBinding.h"
-#include "DatabaseManager/DatabaseResult.h"
-#include "LogManager/LogManager.h"
-#include "DraftSlot.h"
-#include "WeightsBatch.h"
 #include "CraftBatch.h"
-#include "SchematicGroup.h"
-#include "DraftWeight.h"
 #include "DraftSchematic.h"
+#include "DraftSlot.h"
+#include "DraftWeight.h"
+#include "SchematicGroup.h"
+#include "WeightsBatch.h"
+
+#include "LogManager/LogManager.h"
+
+#include "DatabaseManager/Database.h"
+#include "DatabaseManager/DatabaseResult.h"
+#include "DatabaseManager/DataBinding.h"
 
 //======================================================================================================================
 

@@ -1,17 +1,27 @@
+/*
+---------------------------------------------------------------------------------------
+This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
+For more information, see http://www.swganh.org
+
+
+Copyright (c) 2006 - 2009 The swgANH Team
+
+---------------------------------------------------------------------------------------
+*/
 #include "ScoutManager.h"
-#include "CampTerminal.h"
-#include "TangibleObject.h"
-#include "PlayerObject.h"
-#include "MessageLib/MessageLib.h"
-#include "WorldManager.h"
-#include "UIManager.h"
-#include "StructureManager.h"
-#include "Scout.h"
-#include "CampRegion.h"
 #include "Camp.h"
+#include "CampRegion.h"
+#include "CampTerminal.h"
 #include "Item_Enums.h"
 #include "nonPersistantObjectFactory.h"
+#include "PlayerObject.h"
+#include "Scout.h"
+#include "StructureManager.h"
+#include "TangibleObject.h"
+#include "UIManager.h"
+#include "WorldManager.h"
 
+#include "MessageLib/MessageLib.h"
 ScoutManager*	ScoutManager::mSingleton = NULL;
 
 ScoutManager::~ScoutManager(void)

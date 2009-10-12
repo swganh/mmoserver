@@ -106,9 +106,8 @@ int main(int argc, char* argv[])
 {
 	LogManager::Init(G_LEVEL_NORMAL, "PingServer.log", LEVEL_NORMAL, false, true, false);
 	ConfigManager::Init("PingServer.cfg");
-
-	std::string BuildString(ConfigManager::getBuildString());	
-	gLogger->logMsgF("PingServer %s", MSG_NORMAL, BuildString.substr(11,BuildString.size()).c_str());
+	
+	gLogger->logMsgF("PingServer %s", MSG_NORMAL, ConfigManager::getBuildString().c_str());
 
     // Read in the address and port to start the ping server on.
     std::string address = gConfig->read<std::string>("BindAddress");

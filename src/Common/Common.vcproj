@@ -28,7 +28,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="subwcrev.exe &quot;$(SolutionDir).&quot; &quot;$(SolutionDir)data\VERSION.in&quot; &quot;$(SolutionDir)bin\$(ConfigurationName)\VERSION&quot;"
+				CommandLine="&quot;$(SolutionDir)tools\svn\subwcrev.exe&quot; &quot;$(SolutionDir).&quot; &quot;$(SolutionDir)data\VERSION.in&quot; &quot;$(SolutionDir)bin\$(ConfigurationName)\VERSION&quot;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -103,6 +103,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				CommandLine="&quot;$(SolutionDir)tools\svn\subwcrev.exe&quot; &quot;$(SolutionDir).&quot; &quot;$(SolutionDir)data\VERSION.in&quot; &quot;$(SolutionDir)bin\$(ConfigurationName)\VERSION&quot;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -302,6 +303,10 @@
 			>
 			<File
 				RelativePath=".\atMacroString.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\BuildInfo.cpp"
 				>
 			</File>
 			<File

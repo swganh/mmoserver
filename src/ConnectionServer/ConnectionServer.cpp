@@ -131,8 +131,8 @@ void ConnectionServer::Startup(void)
 	gLogger->logMsg("ConnectionServer::Server Boot Complete", FOREGROUND_GREEN);
 	//gLogger->printLogo();
 	// std::string BuildString(GetBuildString());	
-	std::string BuildString(ConfigManager::getBuildString());	
-	gLogger->logMsgF("ConnectionServer %s",MSG_NORMAL,BuildString.substr(11,BuildString.size()).c_str());
+
+	gLogger->logMsgF("ConnectionServer %s",MSG_NORMAL,ConfigManager::getBuildString().c_str());
 	gLogger->logMsg("Welcome to your SWGANH Experience!");
 	
 	

@@ -111,9 +111,8 @@ void AdminServer::Startup(void)
   gLogger->logMsg("AdminServer::Startup Complete");
   //gLogger->printLogo();
   // std::string BuildString(GetBuildString());	
-  std::string BuildString(ConfigManager::getBuildString());	
   
-  gLogger->logMsgF("AdminServer %s",MSG_NORMAL,BuildString.substr(11,BuildString.size()).c_str());
+  gLogger->logMsgF("AdminServer %s", MSG_NORMAL, ConfigManager::getBuildString().c_str());
   gLogger->logMsg("Welcome to your SWGANH Experience!");
 }
 

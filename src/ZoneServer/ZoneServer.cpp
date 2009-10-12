@@ -211,8 +211,8 @@ void ZoneServer::handleWMReady()
 	gLogger->logMsg("ZoneServer::Startup Complete");
 	//gLogger->printLogo();
 	// std::string BuildString(GetBuildString());	
-	std::string BuildString(ConfigManager::getBuildString());	
-	gLogger->logMsgF("ZoneServer:%s %s",MSG_NORMAL,getZoneName().getAnsi(),BuildString.substr(11,BuildString.size()).c_str());
+
+	gLogger->logMsgF("ZoneServer:%s %s",MSG_NORMAL,getZoneName().getAnsi(),ConfigManager::getBuildString().c_str());
 	gLogger->logMsg("Welcome to your SWGANH Experience!");
 
 	// Connect to the ConnectionServer;

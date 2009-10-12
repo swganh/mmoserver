@@ -120,8 +120,8 @@ void ChatServer::Startup()
 	gLogger->logMsg("ChatServer::Startup Complete");
 	//gLogger->printLogo();
 	// std::string BuildString(GetBuildString());
-	std::string BuildString(ConfigManager::getBuildString());
-	gLogger->logMsgF("ChatServer %s",MSG_NORMAL,BuildString.substr(11,BuildString.size()).c_str());
+
+	gLogger->logMsgF("ChatServer %s",MSG_NORMAL,ConfigManager::getBuildString().c_str());
 	gLogger->logMsg("Welcome to your SWGANH Experience!");
 }
 

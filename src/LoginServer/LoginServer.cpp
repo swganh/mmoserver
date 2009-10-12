@@ -97,9 +97,8 @@ void LoginServer::Startup(void)
 	gLogger->logMsg("LoginServer Startup complete");
 	//gLogger->printLogo();
 	// std::string BuildString(GetBuildString());	
-	std::string BuildString(ConfigManager::getBuildString());	
 
-	gLogger->logMsgF("LoginServer %s",MSG_NORMAL,BuildString.substr(11,BuildString.size()).c_str());
+	gLogger->logMsgF("LoginServer %s",MSG_NORMAL,ConfigManager::getBuildString().c_str());
 	gLogger->logMsg("Welcome to your SWGANH Experience!");
 }
 

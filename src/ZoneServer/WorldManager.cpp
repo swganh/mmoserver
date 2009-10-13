@@ -11,6 +11,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 
 #include "WorldManager.h"
 #include "BuildingObject.h"
+#include "PlayerStructure.h"
 #include "CellObject.h"
 #include "Container.h"
 #include "HarvesterFactory.h"
@@ -116,6 +117,8 @@ mWM_DB_AsyncPool(sizeof(WMAsyncContainer))
 
 	// initiate loading of objects
 	mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_ObjectCount),"SELECT sf_getZoneObjectCount(%i);",mZoneId);
+
+	mNonPersistantId =   422212465065984;
 }
 
 //======================================================================================================================
@@ -2116,7 +2119,7 @@ void WorldManager::_handleLoadComplete()
 	// register script hooks
 	_startWorldScripts();
 
-	gLogger->logMsg("WorldManager::Load complete\n");
+	gLogger->logMsg("WorldManager::Load complete");
 
 	// switch into running state
 	mState = WMState_Running;
@@ -2134,7 +2137,7 @@ void WorldManager::_handleLoadComplete()
 	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleNpcConversionTimers),8,1000,NULL);
 	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handlePlayerMovementUpdateTimers),4,1000,NULL);
 	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleGeneralObjectTimers),5,2000,NULL);
-	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleGroupObjectTimers),5,gWorldConfig->getGroupMissionUpdateTime(),NULL);
+	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleGroupObjectTimers),5,gWorldConfig->getGroupMissionUpdateTime(),NULL);	
 	
 
 	// Init NPC Manager, will load lairs from the DB.
@@ -2705,6 +2708,28 @@ void WorldManager::destroyObject(Object* object)
 		}
 		break;
 
+		case ObjType_Harvester:
+		{
+			// cave what do we do with player cities ??
+			// then the parent Id should be the region object. shouldnt it????
+
+			if(object->getSubZoneId())
+			{
+				if(QTRegion* region = getQTRegion(object->getSubZoneId()))
+				{
+					object->setSubZoneId(0);
+					region->mTree->removeObject(object);
+				}
+			}
+			else
+			{
+				mSpatialIndex->RemovePoint(object->getId(),object->mPosition.mX,object->mPosition.mZ);
+			}
+			
+			object->destroyKnownObjects();	
+		}
+		break;
+
 		case ObjType_Building:
 		{
 
@@ -2736,11 +2761,10 @@ void WorldManager::destroyObject(Object* object)
 					else
 					{
 						// Well, Tangible can have more kind of parents than just cells or SI. For example players or Inventory.
+						// the tangible is owned by its containing object (please note exeption of inventory / player with equipped stuff)
+					
 
-						// Here we have a method, destroyObject(), that in some cases handles the complete process of deleting a Tangible object,
-						// in case of a cell or SI as Parent. Object owned by Player or Inventory have to be handled outisde this method.
-
-						// gLogger->logMsgF("WorldManager::destroyObject couldn't find cell %lld",MSG_NORMAL,parentId);
+						//gLogger->logMsgF("WorldManager::destroyObject couldn't find cell %lld",MSG_NORMAL,parentId);
 					}
 				}
 
@@ -2956,10 +2980,10 @@ bool WorldManager::removeNpId(uint64 id)
 
 uint64 WorldManager::getRandomNpId()
 {
-	//why dont we just increase them ???
-	uint64 id;
+	
 	int32 watchDogCounter = 10000;
 	bool found = false;
+	uint64 id;
 	while ((found == false) && (watchDogCounter > 0))
 	{
 		id = (gRandom->getRand()%1000000) + 422212465065984;
@@ -2980,7 +3004,7 @@ uint64 WorldManager::getRandomNpId()
 	if (found == false)
 	{
 		id = 0;
-		gLogger->logMsg("WorldManager::getRandomNpId() SYSTEM FAILURE\n");
+		gLogger->logMsg("WorldManager::getRandomNpId() SYSTEM FAILURE");
 	}
 	return id;
 

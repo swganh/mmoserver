@@ -450,7 +450,11 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		boost::pool<boost::default_user_allocator_malloc_free>	mWM_DB_AsyncPool;
 		// ZThread::RecursiveMutex		mSessionMutex;
 
+		uint64						mNonPersistantId;
+
 };
+
+
 
 //======================================================================================================================
 

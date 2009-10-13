@@ -401,7 +401,7 @@ void Ham::updatePropertyValue(uint8 barIndex,uint8 valueIndex,int32 propertyDelt
 
 		case HamProperty_Encumbrance:
 		{
-			gLogger->logMsg("\ncouldnt update encumbrance\n");
+			gLogger->logMsg("couldnt update encumbrance");
 			// TODO
 		}
 		break;
@@ -455,7 +455,7 @@ void Ham::updateSingleHam(int32 propertyDelta, bool damage)
 
 		default:
 		{
-			gLogger->logMsgF("Ham::updateSingleHam Action = Default\n", MSG_NORMAL);
+			gLogger->logMsgF("Ham::updateSingleHam Action = Default", MSG_NORMAL);
 		}
 		break;
 	}

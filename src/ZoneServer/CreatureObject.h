@@ -253,6 +253,9 @@ class CreatureObject : public MovingObject
 		uint64				getOwner() { return mOwner; }
 		void				setOwner(uint64 owner_id) { mOwner = owner_id; }
 
+		uint64				getPetController(){ return mController;}
+		void				setPetController(uint64 c){mController = c;}
+
 
 	protected:
 
@@ -325,6 +328,7 @@ class CreatureObject : public MovingObject
 
 		virtual void	handleObjectMenuSelect(uint8 messageType,Object* srcObject);
 
+		uint64				mController;
 
 		//Buffs
 	public:

@@ -28,6 +28,25 @@ typedef	std::vector<TangibleObject*>	ItemList;
 
 //=============================================================================
 
+enum timerTodoEnum
+{
+	ttE_Nothing			= 1,
+	ttE_Delete			= 2,
+	ttE_BuildingFence	= 3,
+	ttE_UpdateHopper	= 4,
+	ttE_UpdateEnergy	= 5,
+
+};
+
+struct timerTodoStruct
+{
+	timerTodoEnum	todo;
+	uint64			buildingFence;
+
+};
+
+//=============================================================================
+
 class PlayerStructure :	public TangibleObject
 {
 	friend class HarvesterFactory;
@@ -88,6 +107,7 @@ class PlayerStructure :	public TangibleObject
 		void					addItem(TangibleObject* tO)	{ mItemList.push_back(tO); }
 		ItemList*				getItemList()				{ return(&mItemList); }
 
+		timerTodoStruct*		getTTS(){return &mTTS;}
 
 		
 
@@ -111,6 +131,7 @@ class PlayerStructure :	public TangibleObject
 		uint32						mMaxCondition;
 		bool						mWillRedeed;
 		string						mCode;
+		timerTodoStruct				mTTS;
 };
 
 

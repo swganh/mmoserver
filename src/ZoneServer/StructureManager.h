@@ -13,11 +13,14 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #define ANH_ZONESERVER_STRUCTUREMANAGER_H
 
 #include <vector>
+#include <list>
 
 #include "DatabaseManager/DatabaseCallback.h"
 #include "MathLib/Vector3.h"
 #include "ObjectFactoryCallback.h"
 #include "TangibleEnums.h"
+#include "WorldManager.h"
+#include "Utils/Scheduler.h"
 
 #define 	gStructureManager	StructureManager::getSingletonPtr()
 
@@ -29,7 +32,15 @@ class MessageDispatch;
 class PlayerObject;
 class UIWindow;
 
+namespace Anh_Utils 
+{
+   // class Clock;
+    class Scheduler;
+    //class VariableTimeScheduler;
+}
 //======================================================================================================================
+
+typedef std::list<uint64>				ObjectIDList;
 
 enum Structure_QueryType
 {
@@ -156,12 +167,22 @@ class StructureManager : public DatabaseCallback,public ObjectFactoryCallback
 		//returns a confirmatioon code for structure destruction
 		string					getCode();
 
+		ObjectIDList*			getStrucureDeleteList(){return &mStructureDeleteList;}
+		void					addStructureforDestruction(uint64 iD)
+		{
+			mStructureDeleteList.push_back(iD);
+			gWorldManager->getPlayerScheduler()->addTask(fastdelegate::MakeDelegate(this,&StructureManager::_handleStructureObjectTimers),7,1000,NULL);
+		}
+
 
 
 	private:
 
+
 		StructureManager(Database* database,MessageDispatch* dispatch);
-	
+		
+		bool	_handleStructureObjectTimers(uint64 callTime, void* ref);
+		
 		static StructureManager*	mSingleton;
 		static bool					mInsFlag;
 
@@ -170,6 +191,7 @@ class StructureManager : public DatabaseCallback,public ObjectFactoryCallback
 
 		DeedLinkList				mDeedLinkList;
 		StructureItemList			mItemTemplate;
+		ObjectIDList				mStructureDeleteList;
 	
 };
 

@@ -76,7 +76,7 @@ void Vehicle::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
 			default:
 			{
-				gLogger->logMsgF("Vehicle::Error: unknown radial selection: %d\n", MSG_NORMAL, messageType);
+				gLogger->logMsgF("Vehicle::Error: unknown radial selection: %d", MSG_NORMAL, messageType);
 			}
 			break;
 		}
@@ -131,8 +131,12 @@ void Vehicle::call()
 		mBody->setMoodId(0);
 		mBody->setCL(0);
 
-		mBody->setId(mId + 1);	// Ohh-noooo. As long as the vehicle ID's are incremented with one, this is a killer.
-		// mBody->setId(gWorldManager->getRandomNpId());
+		mBody->setId(mId + 1);	// Vehicles are created by the vehiclefactory with +2 step for IDs
+		
+		setBodyId(mBody->getId());
+		
+		//mBody->setId(gWorldManager->getRandomNpId());
+		mBody->setPetController(this->getId());
 
 		mBody->setOwner(mOwner->getId());
 		mBody->setParentId(0);
@@ -175,7 +179,7 @@ void Vehicle::call()
 			mBody->addKnownObjectSafe(targetObject);
 			++it;
 		}	
-		gLogger->logMsgF(" 4 creating vehicle with id %lld\n", MSG_HIGH, mBody->getId());
+		gLogger->logMsgF("void Vehicle::call() creating vehicle with id %lld", MSG_HIGH, mBody->getId());
 		gMessageLib->sendCreateObject(mBody,mOwner);
 		mOwner->addKnownObjectSafe(mBody);
 		mBody->addKnownObjectSafe(mOwner);
@@ -198,43 +202,43 @@ void Vehicle::store()
 {
 	if(!mBody)
 	{
-		gLogger->logMsg("Vehicle::Error: Store was called for a nonexistant body object!\n");
+		gLogger->logMsg("Vehicle::store() Error: Store was called for a nonexistant body object!");
 		return;
 	}
 
 	// todo auto dismount
-	/*
 	if(mOwner->checkIfMounted())
 	{
+		dismountPlayer();
 		return;
 	}
-	*/
+	
 
-	if(mOwner)
+	if(!mOwner)
 	{
-		if(mOwner->checkIfMountCalled())
-		{
-			dismountPlayer();
-		}
-
-		//the body is a creature_object!!!
-		gMessageLib->sendDestroyObject_InRangeofObject(mBody);
-
-		mOwner->setMount(NULL);
-
-
-		mOwner->setMounted(false);
-		mOwner->setMountCalled(false);
-
-		// finally unload & destroy the vehicle creature
-		gWorldManager->destroyObject(mBody);
-
-		// null the reference
-		mBody = NULL;
-
+		gLogger->logMsg("Vehicle::store() couldnt find owner");
+		return;
+	}
+	if(mOwner->checkIfMountCalled())
+	{
+		//dismountPlayer();
 	}
 
-	return;
+	//the body is a creature_object!!!
+	gMessageLib->sendDestroyObject_InRangeofObject(mBody);
+
+	mOwner->setMount(NULL);
+
+
+	mOwner->setMounted(false);
+	mOwner->setMountCalled(false);
+
+	// finally unload & destroy the vehicle creature
+	gWorldManager->destroyObject(mBody);
+
+	// null the reference
+	mBody = NULL;
+
 }
 
 
@@ -243,72 +247,93 @@ void Vehicle::store()
 
 void Vehicle::dismountPlayer()
 {
-	if(mBody)
+ 	if(!mBody)
 	{
-		gMessageLib->sendContainmentMessage_InRange(mOwner->getId(),mId, 4, mOwner);
-
-		//For safe measures make the player equipped by nothing
-		gMessageLib->sendContainmentMessage_InRange(mOwner->getId(), 0, 0xffffffff, mOwner);
-
-		mBody->toggleStateOff(CreatureState_MountedCreature);	
-		mOwner->toggleStateOff(CreatureState_RidingMount);
-		gMessageLib->sendStateUpdate(mBody);
-		gMessageLib->sendStateUpdate(mOwner);
-
-		mOwner->setMounted(false);
+		gLogger->logMsg("Vehicle::dismountPlayer() no Vehicle Body!!!");
+		return;
 	}
+
+	if(!mOwner->checkIfMounted())
+	{
+		gLogger->logMsg("Vehicle::dismountPlayer() not mounted");
+		return;
+	}
+
+	gMessageLib->sendContainmentMessage_InRange(mOwner->getId(),mId, 4, mOwner);
+
+	//For safe measures make the player equipped by nothing
+	gMessageLib->sendContainmentMessage_InRange(mOwner->getId(), 0, 0xffffffff, mOwner);
+
+	mBody->toggleStateOff(CreatureState_MountedCreature);	
+	mOwner->toggleStateOff(CreatureState_RidingMount);
+	gMessageLib->sendStateUpdate(mBody);
+	gMessageLib->sendStateUpdate(mOwner);
+
+	mOwner->setMounted(false);
+	
 }
 
 //===============================================================================================
-//mount the owner over the physical body (what a sentence!)
+//mount the owner on the physical body 
+//
 
 void Vehicle::mountPlayer()
 {
-	gLogger->logMsg("mount player\n");
-	if(mBody)
-	{
-		//Make the mount equip the player 
-
-		gMessageLib->sendContainmentMessage_InRange(mOwner->getId(), mBody->getId(), 0xffffffff, mOwner);
-		gMessageLib->sendUpdateTransformMessage(mBody);
-
-		mOwner->toggleStateOn(CreatureState_RidingMount);	
-		mBody->toggleStateOn(CreatureState_MountedCreature);
-		gMessageLib->sendStateUpdate(mOwner);
-		gMessageLib->sendStateUpdate(mBody);
-
-		mOwner->setMounted(true);
-
-		// TEST ERUPTOR
-		// This will ensure the Swoop is seen by other players.
-		// I'm sure this can be solved by identifying what's missing, instead of doing the complete sequense below.
-		// But as a starter, lets test this solution first.
-		PlayerObjectSet* inRangePlayers	= mOwner->getKnownPlayers();
-		PlayerObjectSet::iterator it = inRangePlayers->begin();
-
-		while (it != inRangePlayers->end())
-		{
-			if (!(*it))
-			{
-				++it;
-				continue;
-			}
-
-			PlayerObject* tested = gWorldManager->getPlayerByAccId((*it)->getAccountId());
-			if (!tested)	
-			{
-				++it;
-				continue;
-			}
-
-			if ((tested->isConnected()) && (tested->getClient()))
-			{
-				gMessageLib->sendCreateObject(mBody, *it);
-				gMessageLib->sendContainmentMessage(mOwner->getId(), mBody->getId(), 0xffffffff, *it);
-			}
-			++it;
-		}
+	if(!mBody)
+	{					   
+		gLogger->logMsg("Vehicle::mountPlayer() no Vehicle Body!!!");
 	}
+
+	CreatureObject* body = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(this->getId()+1));
+	if(!body)
+	{					   
+		gLogger->logMsg("Vehicle::mountPlayer() no Vehicle Body by Id :(!!!");
+	}
+
+	//Make the mount equip the player 
+
+	gMessageLib->sendContainmentMessage_InRange(mOwner->getId(), mBody->getId(), 0xffffffff, mOwner);
+	gMessageLib->sendUpdateTransformMessage(mBody);
+
+	mOwner->toggleStateOn(CreatureState_RidingMount);	
+	mBody->toggleStateOn(CreatureState_MountedCreature);
+	gMessageLib->sendStateUpdate(mOwner);
+	gMessageLib->sendStateUpdate(mBody);
+
+	mOwner->setMounted(true);
+
+	// TEST ERUPTOR
+	// This will ensure the Swoop is seen by other players.
+	// I'm sure this can be solved by identifying what's missing, instead of doing the complete sequense below.
+	// But as a starter, lets test this solution first.
+	PlayerObjectSet* inRangePlayers	= mOwner->getKnownPlayers();
+	PlayerObjectSet::iterator it = inRangePlayers->begin();
+
+	while (it != inRangePlayers->end())
+	{
+		if (!(*it))
+		{
+			++it;
+			gLogger->logMsg("Vehicle::mountPlayer() getObjects in Range :: PlayerObject invalid!!!");
+			continue;
+		}
+
+		PlayerObject* tested = gWorldManager->getPlayerByAccId((*it)->getAccountId());
+		if (!tested)	
+		{
+			++it;
+			gLogger->logMsg("Vehicle::mountPlayer() getObjects in Range :: PlayerObject invalid!!!");
+			continue;
+		}
+
+		if ((tested->isConnected()) && (tested->getClient()))
+		{
+			gMessageLib->sendCreateObject(mBody, *it);
+			gMessageLib->sendContainmentMessage(mOwner->getId(), mBody->getId(), 0xffffffff, *it);
+		}
+		++it;
+	}
+	
 }
 
 //===============================================================================================

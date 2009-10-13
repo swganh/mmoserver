@@ -16,6 +16,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "QuadTree.h"
 #include "WorldManager.h"
 #include "ZoneTree.h"
+#include "MessageLib/MessageLib.h"
 
 #include "LogManager/LogManager.h"
 #include "DatabaseManager/Database.h"
@@ -465,7 +466,36 @@ string StructureManager::getCode()
 	}
 	chance[6] = 0;
 
-	sprintf(serial,"(%s)",chance);
+	sprintf(serial,"%s",chance);
 
 	return(BString(serial));
+}
+
+//======================================================================================================================
+//
+// Handle deletion of destroyed Structures
+//
+
+bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
+{
+	//iterate through all harvesters to delete
+	ObjectIDList* objectList = gStructureManager->getStrucureDeleteList();
+	ObjectIDList::iterator it = objectList->begin();
+
+	while(it != objectList->end())
+	{
+		PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById((*it)));
+		
+		if(structure->getTTS()->todo == ttE_Delete)
+		{
+			gMessageLib->sendDestroyObject_InRangeofObject(structure);
+			gWorldManager->destroyObject(structure);
+		}
+
+
+		it = objectList->erase(it);
+		it = objectList->begin();
+	}
+
+	return (true);
 }

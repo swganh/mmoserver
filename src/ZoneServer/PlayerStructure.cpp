@@ -167,6 +167,13 @@ void PlayerStructure::handleUIEvent(uint32 action,int32 element,string inputStr,
 
 		case SUI_Window_Structure_Delete_Confirm:
 		{
+			inputStr.convert(BSTRType_ANSI);
+			if(inputStr.getCrc() == this->getCode().getCrc())
+			{
+				//delete it
+				mTTS.todo = ttE_Delete;
+				gStructureManager->addStructureforDestruction(this->getId());
+			}
 			//we need to get the input
 		}
 	}

@@ -253,8 +253,10 @@ class PlayerObject : public CreatureObject
 
 		bool				checkIfMounted() { return mMounted; }
 		void				setMounted(bool mounted) { mMounted = mounted; }
+
 		CreatureObject*		getMount() { return mMount; }
 		void				setMount(CreatureObject* mount) { mMount = mount; }
+
 		bool				checkIfMountCalled() { return mMountCalled; }
 		void				setMountCalled(bool mount_called) { mMountCalled = mount_called; } 
 		

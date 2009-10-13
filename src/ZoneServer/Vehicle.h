@@ -55,7 +55,11 @@ public:
 
 	PlayerObject*	getOwner() { return mOwner; }
 	void			setOwner(PlayerObject* owner) { mOwner = owner; }
+	
 	CreatureObject* getBody() { return mBody; }
+	uint64			getBodyId() { return mBodyId; }
+	void			setBodyId(uint64 id) { mBodyId = id; }
+	
 
 	bool			isCalled() { return mBody != NULL; }
 
@@ -75,6 +79,7 @@ protected:
 	int					mFlatAcceleration;
 	PlayerObject*		mOwner;
 	CreatureObject*		mBody;
+	uint64				mBodyId;
 
 private:
 

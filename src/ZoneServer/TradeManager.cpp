@@ -202,35 +202,35 @@ void TradeManager::handleDispatchMessage(uint32 opcode, Message* message, Dispat
 		case opAcceptTransactionMessage:
 		{
 			_processAcceptTransactionMessage(message,client);
-			gLogger->logMsgF("TradeManager AcceptTransactionMessage",MSG_HIGH);
+			//gLogger->logMsgF("TradeManager AcceptTransactionMessage",MSG_HIGH);
 		}
 		break;
 
 		case opBeginVerificationMessage:
 		{
 			_processBeginVerificationMessage(message,client);
-			gLogger->logMsgF("TradeManager BeginVerificationMessage",MSG_HIGH);
+			//gLogger->logMsgF("TradeManager BeginVerificationMessage",MSG_HIGH);
 		}
 		break;
 
 		case opVerifyTradeMessage:
 		{
 			_processVerificationMessage(message,client);
-			gLogger->logMsgF("TradeManager VerificationMessage",MSG_HIGH);
+			//gLogger->logMsgF("TradeManager VerificationMessage",MSG_HIGH);
 		}
 		break;
 
 		case opUnacceptTransactionMessage:
 		{
 			_processUnacceptTransactionMessage(message,client);
-			gLogger->logMsgF("TradeManager UnacceptTransactionMessage",MSG_HIGH);
+			//gLogger->logMsgF("TradeManager UnacceptTransactionMessage",MSG_HIGH);
 		}
 		break;
 
 		case opGiveMoneyMessage:
 		{
 			_processGiveMoneyMessage(message,client);
-			gLogger->logMsgF("TradeManager GiveMoneyMessage",MSG_HIGH);
+			//gLogger->logMsgF("TradeManager GiveMoneyMessage",MSG_HIGH);
 		}
 		break;
 

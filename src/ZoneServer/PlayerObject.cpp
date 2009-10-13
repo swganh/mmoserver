@@ -12,6 +12,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "PlayerObject.h"
 #include "CellObject.h"
 #include "Datapad.h"
+#include "Vehicle.h"
 #include "QuadTree.h"
 #include "SchematicManager.h"
 #include "SpawnPoint.h"
@@ -141,6 +142,19 @@ mLastGroupMissionUpdateTime(0)
 PlayerObject::~PlayerObject()
 {
 
+	// store any eventually spawned vehicle
+	Datapad* datapad = dynamic_cast<Datapad*>(mEquipManager.getEquippedObject(CreatureEquipSlot_Datapad));
+
+	CreatureObject* mount = this->getMount();
+	if(mount)
+	{
+		if(Vehicle* datapad_pet = dynamic_cast<Vehicle*>(datapad->getDataById(this->getMount()->getPetController())))
+		{
+			datapad_pet->dismountPlayer();
+			datapad_pet->store();
+		}
+
+	}
 	// make sure we stop entertaining if we are an entertainer
 	gEntertainerManager->stopEntertaining(this);
 
@@ -362,7 +376,7 @@ PlayerObject::~PlayerObject()
 	SAFE_DELETE(missionBag);
 
 	// delete datapad
-	Object* datapad = mEquipManager.getEquippedObject(CreatureEquipSlot_Datapad);
+	//Object* datapad = mEquipManager.getEquippedObject(CreatureEquipSlot_Datapad);
 	mEquipManager.removeEquippedObject(CreatureEquipSlot_Datapad);
 	SAFE_DELETE(datapad);
 

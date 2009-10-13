@@ -50,13 +50,14 @@ void ObjectController::_handleMount(uint64 targetId,Message* message,ObjectContr
 			if (pet && (pet->getOwner() == player->getId()))
 			{
 				// get the mount Vehicle object by the id (Creature object id - 1 )
-				if(Vehicle* vehicle = dynamic_cast<Vehicle*>(gWorldManager->getObjectById(pet->getId() - 1)))
+
+				if(Vehicle* vehicle = dynamic_cast<Vehicle*>(gWorldManager->getObjectById(pet->getPetController())))
 				{
 					vehicle->mountPlayer();
 				}
 				else
 				{
-					gLogger->logMsg("ObjectController::_handleMount : Cannot find vehicle\n");
+					gLogger->logMsg("ObjectController::_handleMount : Cannot find vehicle");
 				}
 			}
 		}
@@ -84,7 +85,7 @@ void ObjectController::_handleDismount(uint64 targetId,Message* message,ObjectCo
 			CreatureObject* pet = NULL;
 			if (targetId == 0)
 			{
-				// No object targeted, assume the one we are riding.
+				// No object targeted, assume the one we are riding.	- what else should we dismount ???
 				pet	= player->getMount();
 			}
 			else
@@ -94,8 +95,8 @@ void ObjectController::_handleDismount(uint64 targetId,Message* message,ObjectCo
 
 			if (pet && (pet->getOwner() == player->getId()))
 			{
-				// get the mount Vehicle object by the id (Creature object id - 1 )
-				if(Vehicle* vehicle = dynamic_cast<Vehicle*>(gWorldManager->getObjectById(pet->getId() - 1)))
+				// get the pets controller for a swoop its the vehicle
+				if(Vehicle* vehicle = dynamic_cast<Vehicle*>(gWorldManager->getObjectById(pet->getPetController())))
 				{
 					vehicle->dismountPlayer();
 				}

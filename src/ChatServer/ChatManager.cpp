@@ -2980,7 +2980,7 @@ void ChatManager::_processFindFriendGotPosition(Message* message,DispatchClient*
 	friendObject->setPositionZ(z);
 
 	//now create a waypoint for the querying player
-	gChatMessageLib->sendSystemMessageProper(playerObject,false,L"","ui_cmnty","friend_location","","",L"",0,"","",L"",0,0,0,"","",unicodeName.getUnicode16());
+	gChatMessageLib->sendSystemMessageProper(playerObject,false, "","ui_cmnty","friend_location","","","",0,"","","",0,0,0,"","",unicodeName.getUnicode16());
 	gChatMessageLib->sendFindFriendCreateWaypoint(playerObject->getClient(),playerObject, friendObject);
 
 
@@ -3043,14 +3043,14 @@ void ChatManager::_handleFindFriendDBReply(Player* player,uint64 retCode,string 
 	//name not existent
 	if(retCode == 0)
 	{
-		gChatMessageLib->sendSystemMessageProper(player,true,L"","ui_cmnty","friend_location_failed_noname","","",L"",0,"","",L"",0,0,0,"","",friendName.getUnicode16());
+		gChatMessageLib->sendSystemMessageProper(player,true,"","ui_cmnty","friend_location_failed_noname","","","",0,"","","",0,0,0,"","",friendName.getUnicode16());
 		return;
 	}
 
 	// check if he's our friend
 	if(!player->checkFriend(loweredNameCrc))
 	{
-		gChatMessageLib->sendSystemMessageProper(player,false,L"","ui_cmnty","friend_location_failed","","",L"",0,"","",L"",0,0,0,"","",friendName.getUnicode16());
+		gChatMessageLib->sendSystemMessageProper(player,false,"","ui_cmnty","friend_location_failed","","","",0,"","","",0,0,0,"","",friendName.getUnicode16());
 		return;
 	}
 	
@@ -3059,7 +3059,7 @@ void ChatManager::_handleFindFriendDBReply(Player* player,uint64 retCode,string 
 	//check whether he/she is online
 	if(!searchObject)
 	{
-		gChatMessageLib->sendSystemMessageProper(player,true,L"","ui_cmnty","friend_location_failed","","",L"",0,"","",L"",0,0,0,"","",friendName.getUnicode16());
+		gChatMessageLib->sendSystemMessageProper(player,true,"","ui_cmnty","friend_location_failed","","","",0,"","","",0,0,0,"","",friendName.getUnicode16());
 		return;
 	}
 
@@ -3071,7 +3071,7 @@ void ChatManager::_handleFindFriendDBReply(Player* player,uint64 retCode,string 
 	//are we on our targets friendlist???
 	if(!searchObject->checkFriend(loweredNameCrc))
 	{
-		gChatMessageLib->sendSystemMessageProper(player,true,L"","ui_cmnty","friend_location_failed","","",L"",0,"","",L"",0,0,0,"","",friendName.getUnicode16());
+		gChatMessageLib->sendSystemMessageProper(player,true,"","ui_cmnty","friend_location_failed","","","",0,"","","",0,0,0,"","",friendName.getUnicode16());
 		return;
 	}
 

@@ -28,7 +28,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="if not exist &quot;$(SolutionDir)bin&quot; (&#x0D;&#x0A;  md &quot;$(SolutionDir)bin&quot;&#x0D;&#x0A;)&#x0D;&#x0A;&#x0D;&#x0A;if not exist &quot;$(SolutionDir)bin\$(ConfigurationName)&quot; (&#x0D;&#x0A;  md &quot;$(SolutionDir)bin\$(ConfigurationName)&quot;&#x0D;&#x0A;)&#x0D;&#x0A;&#x0D;&#x0A;&quot;$(SolutionDir)tools\svn\subwcrev.exe&quot; &quot;$(SolutionDir).&quot; &quot;$(SolutionDir)data\VERSION.in&quot; &quot;$(SolutionDir)bin\$(ConfigurationName)\VERSION&quot;"
+				CommandLine="if not exist &quot;$(SolutionDir)bin&quot; (&#x0D;&#x0A;md &quot;$(SolutionDir)bin&quot;&#x0D;&#x0A;)&#x0D;&#x0A;&#x0D;&#x0A;if not exist &quot;$(SolutionDir)bin\$(ConfigurationName)&quot; (&#x0D;&#x0A;md &quot;$(SolutionDir)bin\$(ConfigurationName)&quot;&#x0D;&#x0A;)&#x0D;&#x0A;&#x0D;&#x0A;&quot;$(SolutionDir)tools\svn\subwcrev.exe&quot; &quot;$(SolutionDir).&quot; &quot;$(SolutionDir)data\VERSION.in&quot; &quot;$(SolutionDir)bin\$(ConfigurationName)\VERSION&quot;&#x0D;&#x0A;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -52,14 +52,13 @@
 				RuntimeLibrary="1"
 				StructMemberAlignment="3"
 				EnableEnhancedInstructionSet="0"
-				TreatWChar_tAsBuiltInType="false"
+				TreatWChar_tAsBuiltInType="true"
 				UsePrecompiledHeader="0"
 				BrowseInformation="0"
 				WarningLevel="3"
 				WarnAsError="true"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="4"
-				DisableSpecificWarnings="4244"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -103,7 +102,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="if not exist &quot;$(SolutionDir)bin&quot; (&#x0D;&#x0A;  md &quot;$(SolutionDir)bin&quot;&#x0D;&#x0A;)&#x0D;&#x0A;&#x0D;&#x0A;if not exist &quot;$(SolutionDir)bin\$(ConfigurationName)&quot; (&#x0D;&#x0A;  md &quot;$(SolutionDir)bin\$(ConfigurationName)&quot;&#x0D;&#x0A;)&#x0D;&#x0A;&#x0D;&#x0A;&quot;$(SolutionDir)tools\svn\subwcrev.exe&quot; &quot;$(SolutionDir).&quot; &quot;$(SolutionDir)data\VERSION.in&quot; &quot;$(SolutionDir)bin\$(ConfigurationName)\VERSION&quot;"
+				CommandLine="if not exist &quot;$(SolutionDir)bin&quot; (&#x0D;&#x0A;md &quot;$(SolutionDir)bin&quot;&#x0D;&#x0A;)&#x0D;&#x0A;&#x0D;&#x0A;if not exist &quot;$(SolutionDir)bin\$(ConfigurationName)&quot; (&#x0D;&#x0A;md &quot;$(SolutionDir)bin\$(ConfigurationName)&quot;&#x0D;&#x0A;)&#x0D;&#x0A;&#x0D;&#x0A;&quot;$(SolutionDir)tools\svn\subwcrev.exe&quot; &quot;$(SolutionDir).&quot; &quot;$(SolutionDir)data\VERSION.in&quot; &quot;$(SolutionDir)bin\$(ConfigurationName)\VERSION&quot;&#x0D;&#x0A;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -124,7 +123,7 @@
 				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;NDEBUG,WIN32;_LIB;_WIN32_WINNT=0x0500 "
 				RuntimeLibrary="0"
 				StructMemberAlignment="3"
-				TreatWChar_tAsBuiltInType="false"
+				TreatWChar_tAsBuiltInType="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				WarnAsError="true"

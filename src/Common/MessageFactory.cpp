@@ -151,7 +151,7 @@ Message* MessageFactory::EndMessage(void)
   // warn if we get near our boundaries
   if(currentUsed > mHeapWarnLevel)
   {
-	  mHeapWarnLevel = currentUsed+1.2;
+	  mHeapWarnLevel = static_cast<float>(currentUsed+1.2);
 	  gLogger->logMsgF("WARNING: MessageFactory Heap at %2.2f usage",MSG_NORMAL,currentUsed);
   } else
   if (((currentUsed+2.2) < mHeapWarnLevel) && mHeapWarnLevel > 80.0)
@@ -335,6 +335,14 @@ void MessageFactory::addString(const unsigned short* ustring)
 	ustr = ustring;
 	addString(ustr);
 return;
+}
+//======================================================================================================================
+
+void MessageFactory::addString(const wchar_t* ustring)
+{
+	BString ustr;
+	ustr = ustring;
+	addString(ustr);
 }
 //======================================================================================================================
 

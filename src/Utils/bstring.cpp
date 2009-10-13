@@ -12,9 +12,17 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "typedefs.h"  // This must be first here to remove the dependency from the header.
 #include "bstring.h"
 
+#include <algorithm>
+
 #include <cassert>
 #include <cctype>
 #include <cstdlib>
+#include <cstring>
+
+#include <wchar.h>
+#include <wctype.h>
+
+using std::min;
 
 //======================================================================================================================
 
@@ -82,6 +90,24 @@ mString(0)
 	else
 		*(uint32*)mString = 0;
 }
+
+//======================================================================================================================
+
+BString::BString(wchar_t* data) : 
+mLength(0), 
+mAllocated(0), 
+mCharacterWidth(2),
+mType(BSTRType_Unicode16), 
+mString(0)
+{
+	_allocate();
+	// we might get a null pointer from db queries
+	if(data != NULL)
+		*this = data;
+	else
+		*(uint32*)mString = 0;
+}
+
 
 //======================================================================================================================
 
@@ -200,7 +226,30 @@ BString& BString::operator =(const uint16* data)
 	{
 	  mType = BSTRType_Unicode16;
 	  mCharacterWidth = 2;
-	  mLength = (uint16)wcslen(data);
+	  mLength = static_cast<uint16>(wcslen(reinterpret_cast<const wchar_t*>(data)));
+
+	  // If we don't have enough room in our buffer, re-allocate a new one
+	  _allocate();
+
+	  // Cpoy our string into the new buffer.
+	  if (mAllocated)
+	  {
+		memcpy(mString, data, mLength*2);
+		memset(&mString[mLength*2], 0, 1);
+	  }
+	}
+  return *this;
+}
+
+//======================================================================================================================
+BString& BString::operator =(const wchar_t* data)
+{
+	// we might get a null pointer from db queries
+	if(data != NULL)
+	{
+	  mType = BSTRType_Unicode16;
+	  mCharacterWidth = 2;
+	  mLength = static_cast<uint16>(wcslen(data));
 
 	  // If we don't have enough room in our buffer, re-allocate a new one
 	  _allocate();
@@ -315,12 +364,24 @@ int8* BString::getAnsi()
 }
  
 //======================================================================================================================
-
+/*
 uint16* BString::getUnicode16()            
 { 
     if (mType == BSTRType_Unicode16) 
     { 
         return (uint16*)mString; 
+    } else {
+        return 0; 
+    }
+}
+ */
+//======================================================================================================================
+
+wchar_t* BString::getUnicode16()            
+{ 
+    if (mType == BSTRType_Unicode16) 
+    { 
+        return reinterpret_cast<wchar_t*>(mString); 
     } else {
         return 0; 
     }
@@ -367,7 +428,7 @@ void BString::convert(BStringType type)
 			// Convert the string if needed.
 			if(mType == BSTRType_Unicode16)
 			{
-				wcstombs(newBuffer, (uint16*)mString, __min(allocated, mAllocated));
+                wcstombs(newBuffer, reinterpret_cast<wchar_t*>(mString), min(allocated, mAllocated));
 			}
 			else if(mType == BSTRType_UTF8)
 			{
@@ -389,7 +450,7 @@ void BString::convert(BStringType type)
 
 			if(mType == BSTRType_ANSI || mType == BSTRType_UTF8)
 			{
-				mbstowcs((uint16*)newBuffer,mString,__min(allocated/2, mLength+1));
+                mbstowcs(reinterpret_cast<wchar_t*>(newBuffer),mString, min(allocated/2, mLength+1));
 			}
 		}
 		break;
@@ -411,7 +472,7 @@ void BString::convert(BStringType type)
 			}
 			else if(mType == BSTRType_Unicode16)
 			{
-				wcstombs((int8*)newBuffer, (uint16*)mString, mLength+1);
+				wcstombs((int8*)newBuffer, reinterpret_cast<wchar_t*>(mString), mLength+1);
 			}
 		}
 		break;
@@ -611,7 +672,7 @@ void BString::substring(BString& dest, uint16 start, uint16 end)
     case BSTRType_Unicode16:
       {
         uint16* destBuffer = (uint16*)dest.getRawData();
-        wcsncpy(destBuffer, (uint16*)mString + start, end - start);
+        wcsncpy(reinterpret_cast<wchar_t*>(destBuffer), reinterpret_cast<wchar_t*>(mString) + start, end - start);
         break;
       }
   }
@@ -639,7 +700,7 @@ void BString::_allocate()
 
 				if(mString)
 				{
-					memcpy(newString,mString, __min(mLength + mCharacterWidth,previousAllocated));
+                    memcpy(newString,mString, min(mLength + mCharacterWidth,previousAllocated));
 				}
 			}
 			break;
@@ -654,7 +715,7 @@ void BString::_allocate()
 
 				if(mString)
 				{
-					memcpy(newString, mString, __min((mLength + mCharacterWidth) * 2, previousAllocated));
+                    memcpy(newString, mString, min((mLength + mCharacterWidth) * 2, previousAllocated));
 				}
 			}
 			break;

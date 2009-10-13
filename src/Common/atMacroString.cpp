@@ -143,7 +143,7 @@ void	atMacroString::addWaypoint()
 void			atMacroString::addTextModule()
 {		
 	//byte 1 unknown
-	_addByte(mCounter);
+	_addByte(static_cast<uint8>(mCounter));
 	mCounter++;
 	_addByte(0);
 	_addByte(1);
@@ -234,9 +234,9 @@ string			atMacroString::assemble()
 	uint32 tempsize = mSize  >> 1;
 	string mContainer;
 	mContainer.convert(BSTRType_Unicode16);
-	mContainer.setLength(tempsize);
+	mContainer.setLength(static_cast<uint16>(tempsize));
 	memcpy(mContainer.getRawData(),mPoint,mSize);
-	mContainer.setLength(tempsize);
+	mContainer.setLength(static_cast<uint16>(tempsize));
 
 	//gLogger->hexDump(mContainer.getRawData(),mContainer.getDataLength());
 	return(mContainer);

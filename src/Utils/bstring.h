@@ -40,6 +40,7 @@ public:
 
     BString(int8* data);
     BString(uint16* data);
+    BString(wchar_t* data);
     BString(const BString& data);
 
     uint16 initRawBSTR(int8* data, BStringType type);
@@ -53,6 +54,7 @@ public:
   
     BString& operator =(int8* data);
     BString& operator =(const uint16* data);
+    BString& operator =(const wchar_t* data);
     BString& operator =(const BString& data);
   
     BString& operator <<(const int8* data);
@@ -60,7 +62,8 @@ public:
 
     // Accessor Methods
     int8*   getAnsi();
-    uint16* getUnicode16();
+   // uint16* getUnicode16();
+    wchar_t* getUnicode16();
     int8*   getUTF8();
 
     void convert(BStringType type);

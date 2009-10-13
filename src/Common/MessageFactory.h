@@ -57,6 +57,7 @@ class MessageFactory
 		void                    addDouble(double data);
 		void                    addString(string& data);
 		void					addString(const char* cstring);
+		void					addString(const wchar_t* ustring);
 		void					addString(const unsigned short* ustring);
 		void                    addData(int8* data, uint16 len);
 

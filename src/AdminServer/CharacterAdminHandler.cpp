@@ -145,24 +145,24 @@ void CharacterAdminHandler::_processCreateCharacter(Message* message, DispatchCl
 
   message->getStringUnicode16(characterName);
 
-  uint16* space = wcschr((uint16*)characterName.getRawData(),' ');
+  uint16* space = reinterpret_cast<uint16*>(wcschr(reinterpret_cast<wchar_t*>(characterName.getRawData()),' '));
 
   // If there is no last name, there is no space.
   if (space)
   {
     // Get our first name
     *space = 0; 
-    uint16 len = (uint16)wcslen((uint16*)characterName.getRawData());
+    uint16 len = (uint16)wcslen(reinterpret_cast<wchar_t*>(characterName.getRawData()));
     characterInfo.mFirstName.setType(BSTRType_Unicode16);
     characterInfo.mFirstName.setLength(len);
-    wcscpy((uint16*)characterInfo.mFirstName.getRawData(), (uint16*)characterName.getRawData());
+    wcscpy(reinterpret_cast<wchar_t*>(characterInfo.mFirstName.getRawData()), reinterpret_cast<wchar_t*>(characterName.getRawData()));
 
     // Get our last name
     *space = ' ';
-    len = (uint16)wcslen(space + 1);
+    len = (uint16)wcslen(reinterpret_cast<wchar_t*>(space) + 1);
     characterInfo.mLastName.setType(BSTRType_Unicode16);
     characterInfo.mLastName.setLength(len);
-    wcscpy((uint16*)characterInfo.mLastName.getRawData(), space + 1);
+    wcscpy(reinterpret_cast<wchar_t*>(characterInfo.mLastName.getRawData()), reinterpret_cast<wchar_t*>(space) + 1);
   }
   else
   {
@@ -195,10 +195,10 @@ void CharacterAdminHandler::_processCreateCharacter(Message* message, DispatchCl
   bool needsEscape = false;
   checkName.setType(BSTRType_Unicode16);
 
-  uint16 len = (uint16)wcslen((uint16*)characterName.getRawData());
+  uint16 len = (uint16)wcslen(reinterpret_cast<wchar_t*>(characterName.getRawData()));
   characterInfo.mFirstName.setType(BSTRType_Unicode16);
   characterInfo.mFirstName.setLength(len);
-  wcscpy((uint16*)checkName.getRawData(),(uint16*)characterName.getRawData());
+  wcscpy(reinterpret_cast<wchar_t*>(checkName.getRawData()),reinterpret_cast<wchar_t*>(characterName.getRawData()));
   checkName.convert(BSTRType_ANSI);
   int8* check = checkName.getAnsi();
 
@@ -619,7 +619,7 @@ void CharacterAdminHandler::_sendCreateCharacterFailed(uint32 errorCode,Dispatch
 		return;
 	}
 
-	string unknown = L"o_O";
+	string unknown = reinterpret_cast<uint16*>(L"o_O");
 	string stfFile = "ui";
 	string errorString;
 

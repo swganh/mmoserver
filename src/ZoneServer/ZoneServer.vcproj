@@ -55,7 +55,7 @@
 				StructMemberAlignment="3"
 				FloatingPointModel="2"
 				DisableLanguageExtensions="false"
-				TreatWChar_tAsBuiltInType="false"
+				TreatWChar_tAsBuiltInType="true"
 				UsePrecompiledHeader="0"
 				BrowseInformation="0"
 				WarningLevel="3"
@@ -147,7 +147,7 @@
 				StructMemberAlignment="3"
 				BufferSecurityCheck="false"
 				EnableEnhancedInstructionSet="2"
-				TreatWChar_tAsBuiltInType="false"
+				TreatWChar_tAsBuiltInType="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				WarnAsError="true"
@@ -224,6 +224,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				TreatWChar_tAsBuiltInType="true"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -280,6 +281,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				TreatWChar_tAsBuiltInType="true"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"

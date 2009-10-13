@@ -48,7 +48,7 @@
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
 				StructMemberAlignment="3"
-				TreatWChar_tAsBuiltInType="false"
+				TreatWChar_tAsBuiltInType="true"
 				ExpandAttributedSource="false"
 				BrowseInformation="1"
 				WarningLevel="3"
@@ -116,7 +116,7 @@
 				AdditionalIncludeDirectories="&quot;$(SolutionDir)src&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_WIN32_WINNT=0x0500 "
 				StructMemberAlignment="3"
-				TreatWChar_tAsBuiltInType="false"
+				TreatWChar_tAsBuiltInType="true"
 				WarningLevel="3"
 				WarnAsError="true"
 			/>

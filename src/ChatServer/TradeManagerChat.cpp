@@ -2034,12 +2034,12 @@ void TradeManagerChatHandler::ProcessBankTip(Message* message,DispatchClient* cl
 	{
 		//let the zone update the players bank account db is already updated at this point
 		gChatMessageLib->sendBankTipDeductMessage(client,recipient->getCharId(),amount,recipient);
-		gChatMessageLib->sendSystemMessageProper(recipient,0,L"","base_player","prose_tip_pass_target","","",L"",amount,"","",L"",player->getCharId(),0,0,"","",L"");
+		gChatMessageLib->sendSystemMessageProper(recipient,0,"","base_player","prose_tip_pass_target","","","",amount,"","","",player->getCharId(),0,0,"","","");
 		
 	}
 	receiverName.convert(BSTRType_Unicode16);
 
-	gChatMessageLib->sendSystemMessageProper(player,0,L"","base_player","prose_tip_pass_self","","",L"",amount,"","",receiverName.getUnicode16(),0,0,0,"","",L"");
+	gChatMessageLib->sendSystemMessageProper(player,0,"","base_player","prose_tip_pass_self","","","",amount,"","",receiverName.getUnicode16(),0,0,0,"","","");
 	
 	//send the respective sys messages
 

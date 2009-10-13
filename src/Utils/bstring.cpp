@@ -22,8 +22,6 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include <wchar.h>
 #include <wctype.h>
 
-using std::min;
-
 //======================================================================================================================
 
 BString::BString() : 
@@ -428,7 +426,7 @@ void BString::convert(BStringType type)
 			// Convert the string if needed.
 			if(mType == BSTRType_Unicode16)
 			{
-                wcstombs(newBuffer, reinterpret_cast<wchar_t*>(mString), min(allocated, mAllocated));
+                wcstombs(newBuffer, reinterpret_cast<wchar_t*>(mString), std::min(allocated, mAllocated));
 			}
 			else if(mType == BSTRType_UTF8)
 			{
@@ -450,7 +448,7 @@ void BString::convert(BStringType type)
 
 			if(mType == BSTRType_ANSI || mType == BSTRType_UTF8)
 			{
-                mbstowcs(reinterpret_cast<wchar_t*>(newBuffer),mString, min(allocated/2, mLength+1));
+                mbstowcs(reinterpret_cast<wchar_t*>(newBuffer),mString, std::min(allocated/2, mLength+1));
 			}
 		}
 		break;
@@ -700,7 +698,7 @@ void BString::_allocate()
 
 				if(mString)
 				{
-                    memcpy(newString,mString, min(mLength + mCharacterWidth,previousAllocated));
+                    memcpy(newString,mString, std::min<uint32>(mLength + mCharacterWidth,previousAllocated));
 				}
 			}
 			break;
@@ -715,7 +713,7 @@ void BString::_allocate()
 
 				if(mString)
 				{
-                    memcpy(newString, mString, min((mLength + mCharacterWidth) * 2, previousAllocated));
+                    memcpy(newString, mString, std::min<uint32>((mLength + mCharacterWidth) * 2, previousAllocated));
 				}
 			}
 			break;

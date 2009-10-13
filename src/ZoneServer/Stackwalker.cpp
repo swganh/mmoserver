@@ -45,6 +45,7 @@
 //#include "stdafx.h"  // should be uncommented for precompiled headers
 
 #include <windows.h>
+#include <algorithm>
 #include <string>
 #include <vector>
 #include <stdio.h>
@@ -695,7 +696,7 @@ static BOOL __stdcall ReadProcMemoryFromIMallocHash(HANDLE pData, DWORD64 lpBase
     // Speicher liegt im ESP:
     // Errechne den Offset
     DWORD dwOffset = (DWORD) lpBaseAddress - pHashEntry->dwESPOffset;
-    DWORD dwSize = __min(nSize, MAX_ESP_LEN_BUF-dwOffset);
+    DWORD dwSize = std::min<DWORD>(nSize, MAX_ESP_LEN_BUF-dwOffset);
     memcpy(lpBuffer, &(pHashEntry->pcESPAddr[dwOffset]), dwSize);
     *lpNumberOfBytesRead = dwSize;
     if (dwSize != nSize)
@@ -706,7 +707,7 @@ static BOOL __stdcall ReadProcMemoryFromIMallocHash(HANDLE pData, DWORD64 lpBase
     // Speicher liegt im EIP:
     // Errechne den Offset
     DWORD dwOffset = (DWORD) lpBaseAddress - pHashEntry->dwEIPOffset;
-    DWORD dwSize = __min(nSize, MAX_ESP_LEN_BUF-dwOffset);
+    DWORD dwSize = std::min<DWORD>(nSize, MAX_ESP_LEN_BUF-dwOffset);
     memcpy(lpBuffer, &(pHashEntry->pcEIPAddr[dwOffset]), dwSize);
     *lpNumberOfBytesRead = dwSize;
     if (dwSize != nSize)
@@ -1096,7 +1097,7 @@ static BOOL __stdcall ReadProcMemoryFromHash(HANDLE hRequestID, DWORD64 lpBaseAd
     // Memory is located in ESP:
     // Calculate the offset
     DWORD dwOffset = (DWORD) lpBaseAddress - pHashEntry->dwESPOffset;
-    DWORD dwSize = __min(nSize, MAX_ESP_LEN_BUF-dwOffset);
+    DWORD dwSize = std::min<DWORD>(nSize, MAX_ESP_LEN_BUF-dwOffset);
     memcpy(lpBuffer, &(pHashEntry->pcESPAddr[dwOffset]), dwSize);
     *lpNumberOfBytesRead = dwSize;
     if (dwSize != nSize)
@@ -1107,7 +1108,7 @@ static BOOL __stdcall ReadProcMemoryFromHash(HANDLE hRequestID, DWORD64 lpBaseAd
     // Memory is located in EIP:
     // Calculate the offset
     DWORD dwOffset = (DWORD) lpBaseAddress - pHashEntry->dwEIPOffset;
-    DWORD dwSize = __min(nSize, MAX_ESP_LEN_BUF-dwOffset);
+    DWORD dwSize = std::min<DWORD>(nSize, MAX_ESP_LEN_BUF-dwOffset);
     memcpy(lpBuffer, &(pHashEntry->pcEIPAddr[dwOffset]), dwSize);
     *lpNumberOfBytesRead = dwSize;
     if (dwSize != nSize)

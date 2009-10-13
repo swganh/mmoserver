@@ -28,6 +28,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Utils/rand.h"
 #include "Utils/utils.h"
 
+#include <algorithm>
 #include <stdio.h>
 
 
@@ -2145,7 +2146,7 @@ void Session::_buildOutgoingReliableRoutedPackets(Message* message)
 	  newPacket->addUint16(SESSIONOP_DataFrag2);
 	
       newPacket->addUint16(htons(mOutSequenceNext));
-      newPacket->addData(message->getData() + messageIndex, __min(mMaxPacketSize - 7, messageSize - messageIndex));
+      newPacket->addData(message->getData() + messageIndex, std::min<uint16>(mMaxPacketSize - 7, messageSize - messageIndex));
 
 	  //no new routing header necessary here
       messageIndex += mMaxPacketSize - 7;  // -2 header, -2 sequence, -3 comp/crc
@@ -2264,7 +2265,7 @@ void Session::_buildOutgoingReliablePackets(Message* message)
 	 newPacket->addUint16(SESSIONOP_DataFrag1);
 
       newPacket->addUint16(htons(mOutSequenceNext));
-      newPacket->addData(message->getData() + messageIndex, __min(mMaxPacketSize - 7, messageSize - messageIndex));
+      newPacket->addData(message->getData() + messageIndex, std::min<uint16>(mMaxPacketSize - 7, messageSize - messageIndex));
 
       messageIndex += mMaxPacketSize - 7;  // -2 header, -2 sequence, -3 comp/crc
 

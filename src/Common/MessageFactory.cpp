@@ -15,6 +15,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 
 #include "Utils/Clock.h"
 
+#include <algorithm>
 #include <assert.h>
 #include <memory.h>
 #include <new.h>
@@ -144,7 +145,7 @@ Message* MessageFactory::EndMessage(void)
   //Update our stats.
   mMessagesCreated++;
   float currentUsed = ((float)_getHeapSize() / (float)mHeapTotalSize)* 100.0f;
-  mMaxHeapUsedPercent = __max(mMaxHeapUsedPercent,  currentUsed);
+  mMaxHeapUsedPercent = std::max<float>(mMaxHeapUsedPercent,  currentUsed);
 
 
   

@@ -65,12 +65,15 @@ Copyright (c) 2006 - 2008 The swgANH Team
 // Set Windows specific stuff
 //
 #if(ANH_PLATFORM == ANH_PLATFORM_WIN32)
-	
-	#ifndef _WINSOCK2API_
+
+#define NOMINMAX
+
+#ifndef _WINSOCK2API_
 #include <WINSOCK2.h>
 #endif
 
 #ifndef _WINDOWS_
+
 #include <windows.h>
 #endif /* _WINDOWS_ */
 	

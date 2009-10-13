@@ -8,28 +8,28 @@ Copyright (c) 2006 - 2009 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
-
-#include "ObjectController.h"
+#include "CraftingTool.h"
 #include "Datapad.h"
+#include "Inventory.h"
+#include "Item.h"
 #include "ManufacturingSchematic.h"
-#include "ResourceContainer.h"
-#include "WaypointObject.h"
+#include "ObjectController.h"
 #include "ObjectControllerOpcodes.h"
 #include "ObjectControllerCommandMap.h"
 #include "ObjectFactory.h"
-#include "Inventory.h"
 #include "PlayerObject.h"
+#include "ResourceContainer.h"
+#include "SurveyTool.h"
+#include "WaypointObject.h"
+#include "Wearable.h"
 #include "WorldManager.h"
+#include "WorldConfig.h"
+#include "UIManager.h"
+
 #include "MessageLib/MessageLib.h"
 #include "LogManager/LogManager.h"
 #include "Common/Message.h"
 #include "Common/MessageFactory.h"
-#include "WorldConfig.h"
-#include "UIManager.h"
-#include "Item.h"
-#include "SurveyTool.h"
-#include "Wearable.h"
-#include "CraftingTool.h"
 
 
 //======================================================================================================================

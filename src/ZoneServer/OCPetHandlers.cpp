@@ -10,27 +10,24 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 //common includes
+
+#include "Item.h"
 #include "ObjectController.h"
 #include "ObjectControllerOpcodes.h"
 #include "ObjectControllerCommandMap.h"
-#include "WorldManager.h"
 #include "PlayerObject.h"
-#include "DatabaseManager/Database.h"
-#include "DatabaseManager/DataBinding.h"
-#include "DatabaseManager/DatabaseResult.h"
-#include "Common/MessageFactory.h"
-#include "Common/Message.h"
-#include "MessageLib/MessageLib.h"
-#include "LogManager/LogManager.h"
-#include "WorldConfig.h"
 #include "UIManager.h"
-#include "Item.h"
-
-
-//specific includes
 #include "Vehicle.h"
 #include "VehicleFactory.h"
-
+#include "WorldConfig.h"
+#include "WorldManager.h"
+#include "MessageLib/MessageLib.h"
+#include "LogManager/LogManager.h"
+#include "DatabaseManager/Database.h"
+#include "DatabaseManager/DatabaseResult.h"
+#include "DatabaseManager/DataBinding.h"
+#include "Common/Message.h"
+#include "Common/MessageFactory.h"
 
 void ObjectController::_handleMount(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {

@@ -10,26 +10,28 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 //common includes
-#include "ObjectController.h"
-#include "ObjectControllerOpcodes.h"
-#include "ObjectControllerCommandMap.h"
-#include "ObjectFactory.h"
+#include "Deed.h"
+#include "HarvesterFactory.h"
+#include "Heightmap.h"
 #include "Inventory.h"
+#include "Item.h"
+#include "ObjectController.h"
+#include "ObjectControllerCommandMap.h"
+#include "ObjectControllerOpcodes.h"
+#include "ObjectFactory.h"
 #include "PlayerObject.h"
+#include "UIManager.h"
+#include "WorldConfig.h"
 #include "WorldManager.h"
-#include "DatabaseManager/Database.h"
-#include "DatabaseManager/DataBinding.h"
-#include "DatabaseManager/DatabaseResult.h"
-#include "Common/MessageFactory.h"
-#include "Common/Message.h"
+
 #include "MessageLib/MessageLib.h"
 #include "LogManager/LogManager.h"
-#include "WorldConfig.h"
-#include "UIManager.h"
-#include "HarvesterFactory.h"
-#include "Item.h"
-#include "Deed.h"
-#include "Heightmap.h"
+#include "DatabaseManager/Database.h"
+#include "DatabaseManager/DatabaseResult.h"
+#include "DatabaseManager/DataBinding.h"
+#include "Common/Message.h"
+#include "Common/MessageFactory.h"
+
 
 //specific includes
 

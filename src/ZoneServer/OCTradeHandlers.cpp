@@ -8,12 +8,24 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
-
+#include "BankTerminal.h"
+#include "CraftingTool.h"
+#include "CurrentResource.h"
+#include "Item.h"
+#include "NPCObject.h"
+#include "PlayerObject.h"
 #include "ObjectController.h"
 #include "ObjectControllerOpcodes.h"
 #include "ObjectControllerCommandMap.h"
+#include "Wearable.h"
+#include "WorldConfig.h"
 #include "WorldManager.h"
-#include "PlayerObject.h"
+#include "TradeManager.h"
+#include "TravelMapHandler.h"
+#include "TreasuryManager.h"
+#include "SurveyTool.h"
+#include "UIManager.h"
+
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
@@ -21,19 +33,6 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Common/Message.h"
 #include "MessageLib/MessageLib.h"
 #include "LogManager/LogManager.h"
-#include "TravelMapHandler.h"
-#include "TradeManager.h"
-#include "BankTerminal.h"
-#include "CurrentResource.h"
-#include "WorldConfig.h"
-#include "UIManager.h"
-#include "Item.h"
-#include "SurveyTool.h"
-#include "Wearable.h"
-#include "NPCObject.h"
-#include "CraftingTool.h"
-#include "TreasuryManager.h"
-
 
 //======================================================================================================================
 //

@@ -19,13 +19,13 @@
 // The developer's email is jlbezigvins@gmzigail.com (for great email, take
 // off every 'zig'.)
 //
+#include "noiseutils.h"
 
-#include <fstream>
 
 #include "interp.h"
 #include "mathconsts.h"
+#include <fstream>
 
-#include "noiseutils.h"
 
 using namespace noise;
 using namespace noise::model;

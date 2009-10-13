@@ -8,25 +8,27 @@ Copyright (c) 2006 - 2009 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
-
-#include "ObjectController.h"
+#include "AttackableCreature.h"
 #include "Datapad.h"
 #include "Inventory.h"
+#include "MissionManager.h"
 #include "MissionObject.h"
+#include "ObjectController.h"
 #include "ObjectControllerOpcodes.h"
 #include "ObjectControllerCommandMap.h"
+#include "ObjectFactory.h"
+#include "PlayerObject.h"
 #include "WorldManager.h"
-#include "DatabaseManager/Database.h"
-#include "DatabaseManager/DataBinding.h"
-#include "DatabaseManager/DatabaseResult.h"
-#include "Common/MessageFactory.h"
-#include "Common/Message.h"
+
 #include "MessageLib/MessageLib.h"
 #include "LogManager/LogManager.h"
-#include "MissionManager.h"
-#include "AttackableCreature.h"
-#include "PlayerObject.h"
-#include "ObjectFactory.h"
+#include "DatabaseManager/Database.h"
+#include "DatabaseManager/DatabaseResult.h"
+#include "DatabaseManager/DataBinding.h"
+
+#include "Common/Message.h"
+#include "Common/MessageFactory.h"
+
 
 //=============================================================================================================================
 //

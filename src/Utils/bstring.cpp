@@ -12,15 +12,13 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "typedefs.h"  // This must be first here to remove the dependency from the header.
 #include "bstring.h"
 
+#include <cassert>
 #include <cctype>
-#include <memory.h>
-#include <string.h>
-#include <mbstring.h>
-#include <assert.h>
+#include <cstdlib>
 
 //======================================================================================================================
 
-BString::BString(void) : 
+BString::BString() : 
 mLength(0),
 mAllocated(0), 
 mCharacterWidth(1),
@@ -42,6 +40,13 @@ BString::BString(BStringType type,uint16 length) : mString(0),mType(type),mAlloc
 
 	_allocate();
 	*(uint32*)mString = 0; 
+}
+
+//======================================================================================================================
+
+BString::~BString()            
+{ 
+    if (mString) delete [] mString; 
 }
 
 //======================================================================================================================
@@ -298,8 +303,43 @@ BString& BString::operator <<(int8* data)
   return *this;
 }
 
+//======================================================================================================================
+
+int8* BString::getAnsi()                 
+{ 
+    if (mType == BSTRType_ANSI) {
+        return mString; 
+    } else {
+        return 0; 
+    }
+}
+ 
+//======================================================================================================================
+
+uint16* BString::getUnicode16()            
+{ 
+    if (mType == BSTRType_Unicode16) 
+    { 
+        return (uint16*)mString; 
+    } else {
+        return 0; 
+    }
+}
 
 //======================================================================================================================
+
+int8* BString::getUTF8()                 
+{ 
+    if (mType == BSTRType_UTF8) 
+    {
+        return mString; 
+    } else {
+        return 0; 
+    }
+}
+
+//======================================================================================================================
+
 void BString::convert(BStringType type)
 {
 	// Try not to use this often as it is slow.
@@ -347,11 +387,7 @@ void BString::convert(BStringType type)
 			//Initial null terminator
 			memset(newBuffer,0,allocated);
 
-			if(mType == BSTRType_ANSI)
-			{
-				mbstowcs((uint16*)newBuffer,mString,__min(allocated/2, mLength+1));
-			}
-			else if(mType == BSTRType_UTF8)
+			if(mType == BSTRType_ANSI || mType == BSTRType_UTF8)
 			{
 				mbstowcs((uint16*)newBuffer,mString,__min(allocated/2, mLength+1));
 			}
@@ -565,6 +601,7 @@ void BString::substring(BString& dest, uint16 start, uint16 end)
   // what's the target type and how much space will we need
   switch (mType)
   {
+    case BSTRType_UTF8:
     case BSTRType_ANSI:
       {
         int8* destBuffer = dest.getRawData();
@@ -577,18 +614,12 @@ void BString::substring(BString& dest, uint16 start, uint16 end)
         wcsncpy(destBuffer, (uint16*)mString + start, end - start);
         break;
       }
-    case BSTRType_UTF8:
-      {
-        uint8* destBuffer = (uint8*)dest.getRawData();
-        _mbsncpy(destBuffer, (const uint8*)mString + start, end - start);
-        break;
-      }
   }
 }
 
 //======================================================================================================================
 
-inline void BString::_allocate(void)
+void BString::_allocate()
 {
 	// If we don't have enough room in our buffer, re-allocate a new one
 	if(mLength * mCharacterWidth >= mAllocated)
@@ -636,6 +667,47 @@ inline void BString::_allocate(void)
 	}
 }
 
+//======================================================================================================================
+    
+uint16 BString::getLength() const         
+{ 
+    return mLength; 
+}
+
+//======================================================================================================================
+
+uint32 BString::getDataLength() const     
+{ 
+    return mLength * mCharacterWidth; 
+}
+
+//======================================================================================================================
+
+uint32 BString::getCharacterWidth() const 
+{ 
+    return mCharacterWidth; 
+}
+
+//======================================================================================================================
+
+BStringType BString::getType() const           
+{ 
+    return mType; 
+}
+
+//======================================================================================================================
+
+int8* BString::getRawData() const        
+{ 
+    return mString; 
+}
+
+//======================================================================================================================
+
+uint32 BString::getAllocated() const
+{ 
+    return mAllocated; 
+}
 
 //======================================================================================================================
 uint32 BString::CRC(char* data)
@@ -709,3 +781,42 @@ uint32 BString::mCrcTable[256] =
     0xA2F33668, 0xBCB4666D, 0xB8757BDA, 0xB5365D03, 0xB1F740B4,
 };
 
+
+
+
+//======================================================================================================================
+void BString::setLength(uint16 length)
+{
+  mLength = length;
+  _allocate();
+}
+
+
+//======================================================================================================================
+void BString::setType(BStringType type)   
+{ 
+  mType = type;     // what's the target type and how much space will we need
+  switch (mType)
+  {
+    case BSTRType_ANSI:
+      mCharacterWidth = 1;
+      break;
+    case BSTRType_Unicode16:
+    case BSTRType_UTF8:
+      mCharacterWidth = 2;
+      break;
+  }
+}
+
+
+//======================================================================================================================
+uint32 BString::getCrc(void)
+{
+  uint32 crc = 0xffffffff;  // starting seed
+  for (uint32 i = 0; i < mLength; i++)
+  {
+    crc = mCrcTable[mString[i] ^ (crc >> 24)] ^ (crc << 8);
+  }
+
+  return ~crc;
+}

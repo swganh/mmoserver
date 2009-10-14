@@ -386,10 +386,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\thread.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\Timer.cpp"
 				>
 			</File>
@@ -457,10 +453,6 @@
 			</File>
 			<File
 				RelativePath=".\StreamColors.h"
-				>
-			</File>
-			<File
-				RelativePath=".\thread.h"
 				>
 			</File>
 			<File

@@ -72,7 +72,7 @@ char* Clock::GetCurrentDateTimeString()
 
 uint64 Clock::getGlobalTime() const 
 { 
-    return getLocalTime() + mGlobalDrift; 
+	return getLocalTime() + mGlobalDrift; 
 } 
 
 //==============================================================================================================================
@@ -80,11 +80,11 @@ uint64 Clock::getGlobalTime() const
 uint64 Clock::getLocalTime() const 
 { 
 #if(ANH_PLATFORM == ANH_PLATFORM_WIN32)
-    return timeGetTime(); 
+	return timeGetTime(); 
 #else
-    struct timeval tv;
-    gettimeofday(&tv, NULL)
-    return tv.tv_usec / 1000;
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
+	return tv.tv_usec / 1000;
 #endif
 }
 
@@ -92,7 +92,7 @@ uint64 Clock::getLocalTime() const
 
 void Clock::setGlobalDrift(int64 drift) 
 { 
-    mGlobalDrift = drift; 
+	mGlobalDrift = drift; 
 }
 
 //==============================================================================================================================

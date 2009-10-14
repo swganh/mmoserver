@@ -8,20 +8,21 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
-
+#include "MedicManager.h"
 #include "ObjectController.h"
 #include "ObjectControllerOpcodes.h"
 #include "ObjectControllerCommandMap.h"
+#include "PlayerObject.h"
 #include "WorldManager.h"
+#include "MessageLib/MessageLib.h"
+#include "LogManager/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "Common/MessageFactory.h"
 #include "Common/Message.h"
-#include "MessageLib/MessageLib.h"
-#include "LogManager/LogManager.h"
-#include "MedicManager.h"
-#include "PlayerObject.h"
+
+
 
 //=============================================================================================================================
 //

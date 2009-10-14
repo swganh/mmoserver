@@ -8,28 +8,26 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
-
+#include "CurrentResource.h"
+#include "Item.h"
 #include "ObjectController.h"
 #include "ObjectControllerOpcodes.h"
 #include "ObjectControllerCommandMap.h"
-#include "WorldManager.h"
 #include "PlayerObject.h"
+#include "ResourceManager.h"
+#include "SurveyTool.h"
+#include "UIManager.h"
+#include "WorldConfig.h"
+#include "WorldManager.h"
+#include "MessageLib/MessageLib.h"
+#include "LogManager/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
-#include "Common/MessageFactory.h"
-#include "Common/Message.h"
-#include "MessageLib/MessageLib.h"
-#include "LogManager/LogManager.h"
-#include "CurrentResource.h"
-#include "WorldConfig.h"
-#include "UIManager.h"
-#include "Item.h"
-#include "SurveyTool.h"
 #include "Common/atMacroString.h"
+#include "Common/Message.h"
+#include "Common/MessageFactory.h"
 #include "Utils/clock.h"
-#include "ResourceManager.h"
-
 
 //======================================================================================================================
 //

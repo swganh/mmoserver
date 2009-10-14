@@ -8,31 +8,32 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
-
+#include "BankTerminal.h"
+#include "CraftingTool.h"
+#include "CurrentResource.h"
+#include "EntertainerManager.h"
+#include "Item.h"
+#include "NPCObject.h"
 #include "ObjectController.h"
 #include "ObjectControllerOpcodes.h"
 #include "ObjectControllerCommandMap.h"
-#include "WorldManager.h"
-#include "EntertainerManager.h"
 #include "PlayerObject.h"
+#include "SurveyTool.h"
+#include "TravelMapHandler.h"
+#include "UIManager.h"
+#include "Wearable.h"
+#include "WorldConfig.h"
+#include "WorldManager.h"
+#include "MessageLib/MessageLib.h"
+#include "LogManager/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
-#include "Common/MessageFactory.h"
-#include "Common/Message.h"
-#include "MessageLib/MessageLib.h"
-#include "LogManager/LogManager.h"
-#include "TravelMapHandler.h"
-#include "BankTerminal.h"
-#include "CurrentResource.h"
-#include "WorldConfig.h"
-#include "UIManager.h"
-#include "Item.h"
-#include "SurveyTool.h"
-#include "Wearable.h"
-#include "NPCObject.h"
-#include "CraftingTool.h"
 #include "Common/atMacroString.h"
+#include "Common/Message.h"
+#include "Common/MessageFactory.h"
+
+
 
 
 //======================================================================================================================

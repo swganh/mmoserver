@@ -8,16 +8,15 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
-
-#include "ZoneServer.h"
-#include "ObjectControllerCommandMap.h"
+#include "AdminManager.h"
 #include "ObjectController.h"
+#include "ObjectControllerCommandMap.h"
 #include "PlayerObject.h"
 #include "WorldManager.h"
-#include "AdminManager.h"
+#include "ZoneOpcodes.h"
+#include "ZoneServer.h"
 #include "MessageLib/MessageLib.h"
 #include "LogManager/LogManager.h"
-#include "ZoneOpcodes.h"
 #include "Common/Message.h"
 #include "Common/MessageFactory.h"
 

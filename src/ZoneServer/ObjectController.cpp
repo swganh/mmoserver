@@ -8,22 +8,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
-
-#include "ObjectController.h"
-#include "ObjectControllerOpcodes.h"
-#include "ObjectControllerCommandMap.h"
-#include "ObjControllerCommandMessage.h"
-#include "WorldManager.h"
 #include "CombatManager.h"
-#include "DatabaseManager/Database.h"
-#include "DatabaseManager/DataBinding.h"
-#include "DatabaseManager/DatabaseResult.h"
-#include "Common/MessageFactory.h"
-#include "Common/Message.h"
-#include "MessageLib/MessageLib.h"
-#include "LogManager/LogManager.h"
-#include "Utils/Clock.h"
-#include "WorldConfig.h"
 #include "EVQueueSize.h"
 #include "EVCmdProperty.h"
 #include "EVAbility.h"
@@ -31,11 +16,25 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "EVSurveySample.h"
 #include "EVWeapon.h"
 #include "EVPosture.h"
-#include "PVHam.h"
-#include "PVState.h"
-#include "PVPosture.h"
+#include "ObjectController.h"
+#include "ObjectControllerOpcodes.h"
+#include "ObjectControllerCommandMap.h"
+#include "ObjControllerCommandMessage.h"
 #include "PlayerObject.h"
+#include "PVHam.h"
+#include "PVPosture.h"
+#include "PVState.h"
+#include "WorldConfig.h"
+#include "WorldManager.h"
 
+#include "MessageLib/MessageLib.h"
+#include "LogManager/LogManager.h"
+#include "DatabaseManager/Database.h"
+#include "DatabaseManager/DataBinding.h"
+#include "DatabaseManager/DatabaseResult.h"
+#include "Common/MessageFactory.h"
+#include "Common/Message.h"
+#include "Utils/Clock.h"
 
 //=============================================================================
 //

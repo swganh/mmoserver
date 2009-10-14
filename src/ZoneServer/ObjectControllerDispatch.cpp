@@ -10,17 +10,17 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "ObjectControllerDispatch.h"
+#include "ObjectControllerOpcodes.h"
 #include "ObjectFactory.h"
 #include "PlayerObject.h"
 #include "WorldManager.h"
 #include "ZoneOpcodes.h"
-#include "ObjectControllerOpcodes.h"
+#include "MessageLib/MessageLib.h"
+#include "DatabaseManager/Database.h"
+#include "Common/DispatchClient.h"
+#include "Common/Message.h"
 #include "Common/MessageDispatch.h"
 #include "Common/MessageFactory.h"
-#include "Common/Message.h"
-#include "Common/DispatchClient.h"
-#include "DatabaseManager/Database.h"
-#include "MessageLib/MessageLib.h"
 
 //======================================================================================================================
 

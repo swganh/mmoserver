@@ -10,9 +10,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "PVHam.h"
-#include "ObjectController.h"
 #include "CreatureObject.h"
 #include "Ham.h"
+#include "ObjectController.h"
 #include "ObjectControllerCommandMap.h"
 
 PVHam::PVHam(ObjectController* controller)

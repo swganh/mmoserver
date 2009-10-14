@@ -10,8 +10,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "PVPosture.h"
-#include "ObjectController.h"
 #include "CreatureObject.h"
+#include "ObjectController.h"
 #include "ObjectControllerCommandMap.h"
 
 PVPosture::PVPosture(ObjectController* controller)

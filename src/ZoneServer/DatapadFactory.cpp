@@ -14,16 +14,17 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "IntangibleObject.h"
 #include "Item.h"
 #include "ManufacturingSchematic.h"
+#include "ObjectFactoryCallback.h"
+#include "TangibleFactory.h"
+#include "VehicleFactory.h"
 #include "WaypointFactory.h"
 #include "WaypointObject.h"
-#include "VehicleFactory.h"
-#include "ObjectFactoryCallback.h"
+#include "WorldManager.h"
+
+#include "LogManager/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
-#include "LogManager/LogManager.h"
-#include "WorldManager.h"
-#include "TangibleFactory.h"
 #include "Utils/utils.h"
 
 #include <assert.h>

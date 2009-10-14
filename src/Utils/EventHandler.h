@@ -13,7 +13,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #define ANH_UTILS_EVENTHANDLER_H
 
 #include <boost/ptr_container/ptr_map.hpp>
-#include <typeinfo.h>
+#include <typeinfo>
 
 
 //======================================================================================================================
@@ -118,7 +118,7 @@ class TypeInfo
 {
 	public:
 
-		explicit TypeInfo(const type_info& info) : mTypeInfo(info) {};
+        explicit TypeInfo(const std::type_info& info) : mTypeInfo(info) {};
 
 		bool operator < (const TypeInfo& rhs) const
 		{
@@ -127,7 +127,7 @@ class TypeInfo
 
 	private:
 
-		const type_info& mTypeInfo;
+        const std::type_info& mTypeInfo;
 };
 
 //======================================================================================================================

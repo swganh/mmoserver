@@ -20,7 +20,6 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Utils/typedefs.h"
 #include "NetConfig.h"
 
-#include <boost/asio.hpp>
 #include "zthread/RecursiveMutex.h"
 
 
@@ -35,7 +34,6 @@ class MessageFactory;
 class Packet;
 class SessionPacket;
 
-using boost::asio::ip::udp;
 //======================================================================================================================
 
 typedef std::list<Packet*,std::allocator<Packet*> >		PacketWindowList;
@@ -106,10 +104,8 @@ class Session
 	  bool                        getInOutgoingQueue(void)                        { return mInOutgoingQueue; }
 	  bool                        getInIncomingQueue(void)                        { return mInIncomingQueue; }
 	  uint32					  getResendWindowSize()							  { return mWindowResendSize; }
-	  udp::endpoint				  getEndpoint()									  { return mEndpoint;}
 
 
-	  void						  setEndpoint(udp::endpoint point)				  { mEndpoint = point;}
 	  void						  setResendWindowSize(uint32 resendWindowSize)	  { mWindowResendSize = resendWindowSize;  mWindowSizeCurrent = resendWindowSize; }
 	  void                        setClient(NetworkClient* client)                { mClient = client; }
 	  void                        setService(Service* service)                    { mService = service; }
@@ -183,7 +179,6 @@ private:
 	  // Anh_Utils::Clock*           mClock;
 	  
 
-	  udp::endpoint 			  mEndpoint;
 	  uint32                      mId;
 	  uint32                      mAddress;                 // stored in network order
 	  uint16                      mPort;                    // stored in network order

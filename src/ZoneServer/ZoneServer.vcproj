@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="ZoneServer"
 	ProjectGUID="{003C0A20-ACBE-498D-A674-3938FF4AF5AB}"
 	RootNamespace="Zoneserver"
@@ -52,7 +52,7 @@
 				BasicRuntimeChecks="3"
 				SmallerTypeCheck="false"
 				RuntimeLibrary="1"
-				StructMemberAlignment="3"
+				StructMemberAlignment="0"
 				FloatingPointModel="2"
 				DisableLanguageExtensions="false"
 				TreatWChar_tAsBuiltInType="true"
@@ -542,10 +542,6 @@
 			</File>
 			<File
 				RelativePath=".\Heightmap.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Stackwalker.cpp"
 				>
 			</File>
 			<File

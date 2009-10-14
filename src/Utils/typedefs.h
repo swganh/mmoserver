@@ -65,47 +65,16 @@ Copyright (c) 2006 - 2008 The swgANH Team
 // Set Windows specific stuff
 //
 #if(ANH_PLATFORM == ANH_PLATFORM_WIN32)
-
-#define NOMINMAX
-
-#ifndef _WINSOCK2API_
-#include <WINSOCK2.h>
-#endif
-
-#ifndef _WINDOWS_
-
-#include <windows.h>
-#endif /* _WINDOWS_ */
 	
-	#define WS_VERSION MAKEWORD(2,0)
-
-	//#define socklen_t int
-
 	typedef unsigned long		ulong;
 	typedef long long			int64;
 	typedef unsigned long long  uint64;
 	typedef signed long long	sint64;
 
-	#undef CreateService   // needed for mutex.h
 //
 // Set Linux specific stuff
 //
 #elif(ANH_PLATFORM == ANH_PLATFORM_LINUX)
-	#include <sys/timeb.h>
-	#include <unistd.h>
-	#include <sys/types.h>
-	#include <stdint.h>
-	#include <pthread.h>
-	#include <sys/socket.h>
-	#include <netinet/in.h>
-	#include <netdb.h>
-	#include <arpa/inet.h>
-	#include <errno.h>
-
-	#define INVALID_SOCKET	-1
-	#define SOCKET_ERROR	-1
-	#define closesocket		close
-
 	typedef int64_t		int64;
 	typedef uint64_t	uint64;
 	typedef int64_t		sint64;
@@ -146,17 +115,6 @@ typedef BString             string;
 
 typedef unsigned int        SOCKET;
 
-//=====================================================================================
-//
-// Platform specific Macros
-//
-#if(ANH_PLATFORM == ANH_PLATFORM_WIN32)
-	#define msleep(time) { Sleep(time); };
-	#define ssleep(time) { Sleep(time*1000); };
-#elif(ANH_PLATFORM == ANH_PLATFORM_LINUX)
-	#define msleep(time) { usleep(1000 * time); };
-	#define ssleep(time) { sleep(time); };
-#endif
 
 //
 // Common macros

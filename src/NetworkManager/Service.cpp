@@ -25,8 +25,14 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "Utils/typedefs.h"
 
-#include <assert.h>
-#include <stdio.h>
+#include <boost/thread/thread.hpp>
+
+#ifndef _WINSOCK2API_
+#include <WINSOCK2.h>
+#endif
+
+#include <cassert>
+#include <cstdio>
 
 
 
@@ -300,7 +306,7 @@ void Service::Connect(NetworkClient* client, int8* address, uint16 port)
 			}
 		}
 
-		msleep(1);
+        boost::this_thread::sleep(boost::posix_time::milliseconds(10));
 	}
 
 	client->setSession(mSocketReadThread->getNewConnectionInfo()->mSession);

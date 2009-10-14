@@ -53,10 +53,10 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "MessageLib/MessageLib.h"
 #include "ScriptEngine/ScriptEngine.h"
 #include "ScriptEngine/ScriptSupport.h"
-#include "ZoneServer/Stackwalker.h"
+
+#include <boost/thread/thread.hpp>
 
 #include <conio.h>
-#include <windows.h>
 #include <stdio.h>
 #include <stddef.h>
 #include <iostream>
@@ -124,7 +124,7 @@ void ZoneServer::Startup(int8* zoneName)
 	//increase the server start that will help us to organize our logs to the corresponding serverstarts (mostly for errors)
 	mDatabase->ExecuteSqlAsync(0,0,"UPDATE config_process_list SET serverstartID = serverstartID+1 WHERE name like \'%s\'",zoneName);
 
-	mRouterService = mNetworkManager->CreateService((char*)gConfig->read<std::string>("BindAddress").c_str(), gConfig->read<uint16>("BindPort"),gConfig->read<uint32>("ServiceMessageHeap")*1024,true);
+	mRouterService = mNetworkManager->GenerateService((char*)gConfig->read<std::string>("BindAddress").c_str(), gConfig->read<uint16>("BindPort"),gConfig->read<uint32>("ServiceMessageHeap")*1024,true);
 
 	// Grab our zoneId out of the DB for this zonename.
 	uint32 zoneId = 0;
@@ -387,7 +387,8 @@ int main(int argc, char* argv[])
 
 		gZoneServer->Process();
 		gMessageFactory->Process();
-		msleep(1);
+
+        boost::this_thread::sleep(boost::posix_time::milliseconds(1));
 		
 	}
 

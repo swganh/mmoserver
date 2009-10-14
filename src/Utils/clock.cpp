@@ -14,7 +14,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include <cassert>
 #include <ctime>
 
-#if(ANH_PLATFORM != ANH_PLATFORM_WIN32)
+#if(ANH_PLATFORM == ANH_PLATFORM_WIN32)
+#include <windows.h>
+#else
 #include <sys/time.h>
 #endif
 

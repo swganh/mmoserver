@@ -477,8 +477,8 @@ void Session::ProcessWriteThread(void)
   if (mStatus == SSTAT_Connected)
   {
     // If we haven't received a packet in 30s, disconnect us.
-	  uint32 t = Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastPacketReceived;
-	  t = uint32(t/1000);
+	  uint64 t = Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastPacketReceived;
+	  t = t/1000;
     if ((Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastPacketReceived) > 30000)
     {
 
@@ -900,7 +900,7 @@ void Session::_processSessionRequestPacket(Packet* packet)
   // If we're not a new session, then we should drop the packet.
   if (mStatus == SSTAT_Initialize)
   {
-    seed_rand_mwc1616(Anh_Utils::Clock::getSingleton()->getLocalTime());
+    seed_rand_mwc1616(static_cast<uint32>(Anh_Utils::Clock::getSingleton()->getLocalTime()));
     mEncryptKey = rand_mwc1616();
   }
 
@@ -1073,7 +1073,7 @@ void Session::_processDataChannelPacket(Packet* packet, bool fastPath)
 
 		  // Init a new message for this data.
 		  mMessageFactory->StartMessage();
-		  mMessageFactory->addData(packet->getData() + packet->getReadIndex(), size - 2); // -1 priority, -1 routing
+		  mMessageFactory->addData(packet->getData() + packet->getReadIndex(), static_cast<uint16>(size) - 2); // -1 priority, -1 routing
 		  Message* newMessage = mMessageFactory->EndMessage();
 
 		  // set our account and server id's
@@ -1089,7 +1089,7 @@ void Session::_processDataChannelPacket(Packet* packet, bool fastPath)
 		  _addIncomingMessage(newMessage, priority);
 
 		  // Advance the message index
-		  packet->setReadIndex(packet->getReadIndex() + size - 2); // -1 priority, -1 routing
+		  packet->setReadIndex(packet->getReadIndex() + static_cast<uint16>(size) - 2); // -1 priority, -1 routing
 
 		  size = packet->getUint8();
 		}
@@ -1238,7 +1238,7 @@ void Session::_processDataChannelB(Packet* packet, bool fastPath)
 
           // Init a new message for this data.
           mMessageFactory->StartMessage();
-          mMessageFactory->addData(packet->getData() + packet->getReadIndex(), size - 7); // -1 priority, -1 routing
+          mMessageFactory->addData(packet->getData() + packet->getReadIndex(), static_cast<uint16>(size) - 7); // -1 priority, -1 routing
           Message* newMessage = mMessageFactory->EndMessage();
 
           // set our account and server id's
@@ -1254,7 +1254,7 @@ void Session::_processDataChannelB(Packet* packet, bool fastPath)
           _addIncomingMessage(newMessage, priority);
 
           // Advance the message index
-          packet->setReadIndex(packet->getReadIndex() + size - 7); // -1 priority, -1 routing
+          packet->setReadIndex(packet->getReadIndex() + static_cast<uint16>(size) - 7); // -1 priority, -1 routing
 
           size = packet->getUint8();
 		
@@ -1955,7 +1955,7 @@ void Session::_processNetStatRequestPacket(Packet* packet)
   Packet* newPacket = mPacketFactory->CreatePacket();
   newPacket->addUint16(SESSIONOP_NetStatResponse);
   newPacket->addUint16(tick);
-  newPacket->addUint32(htonl(Anh_Utils::Clock::getSingleton()->getLocalTime() + tick));
+  newPacket->addUint32(htonl(static_cast<uint32>(Anh_Utils::Clock::getSingleton()->getLocalTime()) + tick));
   newPacket->addUint64(clientSent);
   newPacket->addUint64(clientReceived);
   newPacket->addUint64(serverSent);

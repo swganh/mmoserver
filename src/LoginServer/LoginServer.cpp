@@ -26,6 +26,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include <conio.h>
 
+#include <boost/thread/thread.hpp>
 
 //======================================================================================================================
 LoginServer* gLoginServer = 0;
@@ -59,7 +60,7 @@ void LoginServer::Startup(void)
 
 	mNetworkManager = new NetworkManager();
 	mNetworkManager->Startup();
-	mService = mNetworkManager->CreateService((char*)gConfig->read<std::string>("BindAddress").c_str(), gConfig->read<uint16>("BindPort"),gConfig->read<uint32>("ServiceMessageHeap")*1024,false);
+	mService = mNetworkManager->GenerateService((char*)gConfig->read<std::string>("BindAddress").c_str(), gConfig->read<uint16>("BindPort"),gConfig->read<uint32>("ServiceMessageHeap")*1024,false);
 
 
 	mDatabaseManager = new DatabaseManager();
@@ -164,10 +165,11 @@ int main(int argc, char* argv)
 	while (!exit)
 	{
 		gLoginServer->Process();
-		msleep(1);
 
 		if(_kbhit())
 			break;
+
+        boost::this_thread::sleep(boost::posix_time::milliseconds(10));
 	}
 
 	// Shutdown things

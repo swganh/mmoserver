@@ -21,6 +21,12 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "Utils/rand.h"
 
+#include <boost/thread/thread.hpp>
+
+#ifndef _WINSOCK2API_
+#include <WINSOCK2.h>
+#endif
+
 //======================================================================================================================
 
 SocketWriteThread::SocketWriteThread() :
@@ -154,7 +160,7 @@ void SocketWriteThread::run()
 			}
 		}
 
-		msleep(1);
+        boost::this_thread::sleep(boost::posix_time::milliseconds(1));
 	}
 
 	// Shutdown internally

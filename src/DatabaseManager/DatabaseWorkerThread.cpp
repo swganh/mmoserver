@@ -17,6 +17,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "DatabaseType.h"
 #include "LogManager/LogManager.h"
 
+#include <boost/thread/thread.hpp>
+
 
 //======================================================================================================================
 
@@ -139,7 +141,7 @@ void DatabaseWorkerThread::run()
 		mWorkerThreadMutex.release();
 
 		// and always sleep a little.
-		msleep(1);
+        boost::this_thread::sleep(boost::posix_time::milliseconds(10));
 	  }
 	 
 	 // internal shutdown method

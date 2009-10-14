@@ -14,11 +14,11 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "NetworkManager/NetworkCallback.h"
 #include "DatabaseManager/DatabaseCallback.h"
+#include "Utils/typedefs.h"
+
+#include <boost/pool/pool.hpp>
 
 #include <list>
-#include <boost/pool/pool.hpp>
-#include "Utils/typedefs.h"
-//#include "Utils/Clock.h"
 
 
 //======================================================================================================================

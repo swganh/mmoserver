@@ -26,6 +26,8 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "Common/MessageDispatch.h"
 #include "ConfigManager/ConfigManager.h"
 
+#include <boost/thread/thread.hpp>
+
 #include <conio.h>
 #include <stdio.h>
 #include <stddef.h>
@@ -86,7 +88,7 @@ void AdminServer::Startup(void)
 
 
   mDatabase->ExecuteSqlAsync(0,0,"UPDATE config_process_list SET serverstartID = serverstartID+1 WHERE name like 'admin'");
-  mRouterService = mNetworkManager->CreateService((char*)gConfig->read<std::string>("BindAddress").c_str(), gConfig->read<uint16>("BindPort"),gConfig->read<uint32>("ServiceMessageHeap")*1024, true);
+  mRouterService = mNetworkManager->GenerateService((char*)gConfig->read<std::string>("BindAddress").c_str(), gConfig->read<uint16>("BindPort"),gConfig->read<uint32>("ServiceMessageHeap")*1024, true);
 
   // We need to register our IP and port in the DB so the connection server can connect to us.
   // Status:  0=offline, 1=loading, 2=online
@@ -235,10 +237,11 @@ int main(int argc, char* argv[])
   while (!exit)
   {
 	  gAdminServer->Process();
-	  msleep(1);
 
 	  if(_kbhit())
 		  break;
+
+      boost::this_thread::sleep(boost::posix_time::milliseconds(1));
   }
 
 	// Shutdown things

@@ -11,6 +11,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "SocketReadThread.h"
 
+#ifndef _WINSOCK2API_
+#include <WINSOCK2.h>
+#endif
 #include "CompCryptor.h"
 #include "NetworkClient.h"
 #include "Packet.h"
@@ -24,6 +27,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "LogManager/LogManager.h"
 #include "Common/MessageFactory.h"
 
+#include <boost/thread/thread.hpp>
 
 //======================================================================================================================
 
@@ -115,7 +119,7 @@ void SocketReadThread::Shutdown(void)
 void SocketReadThread::run(void)
 {
 	struct sockaddr_in  from;
-	uint32              address, fromLen = sizeof(from), count;
+	int              address, fromLen = sizeof(from), count;
 	int16               recvLen;
 	uint16              port, decompressLen;
 	Session*            session;
@@ -169,7 +173,7 @@ void SocketReadThread::run(void)
 		if(count && FD_ISSET(mSocket, &socketSet))
 		{
 			// Read any incoming packets.
-			recvLen = recvfrom(mSocket, mReceivePacket->getData(),(int) mMessageMaxSize, 0, (sockaddr*)&from, (socklen_t*)&fromLen); 
+			recvLen = recvfrom(mSocket, mReceivePacket->getData(),(int) mMessageMaxSize, 0, (sockaddr*)&from, &fromLen); 
 			if (recvLen <= 2)
 			{
 				if (recvLen <= 2)
@@ -433,7 +437,8 @@ void SocketReadThread::run(void)
 				}
 			}
 		}
-		msleep(1);
+
+        boost::this_thread::sleep(boost::posix_time::milliseconds(1));
 	}
  
 	// Shutdown internally

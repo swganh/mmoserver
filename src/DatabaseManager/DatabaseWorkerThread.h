@@ -12,7 +12,6 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_DATABASEMANAGER_DATABASEWORKERTHREAD_H
 #define ANH_DATABASEMANAGER_DATABASEWORKERTHREAD_H
 
-#include "Utils/mutex.h"
 #include "Utils/typedefs.h"
 #include "zthread/Mutex.h"
 #include "zthread/Thread.h"

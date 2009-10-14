@@ -12,8 +12,6 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_NETWORKMANAGER_NETWORKCALLBACK_H
 #define ANH_NETWORKMANAGER_NETWORKCALLBACK_H
 
-
-
 //======================================================================================================================
 
 class Session;

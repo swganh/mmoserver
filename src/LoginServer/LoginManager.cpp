@@ -8,9 +8,6 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
-#ifndef _WINSOCK2API_
-#include <WINSOCK2.h>
-#endif
 
 #include "LoginManager.h"
 
@@ -78,7 +75,7 @@ void LoginManager::Process(void)
 	// Update our galaxy status list once in a while.
 	if (Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastStatusQuery > 5000)
 	{
-		mLastStatusQuery = Anh_Utils::Clock::getSingleton()->getLocalTime();
+		mLastStatusQuery = static_cast<uint32>(Anh_Utils::Clock::getSingleton()->getLocalTime());
 		mDatabase->ExecuteSqlAsync(this, (void*)1, "SELECT galaxy_id, name, address, port, pingport, population, status, UNIX_TIMESTAMP(last_update) FROM galaxy;");
 
 		if (mSendServerList)
@@ -391,7 +388,7 @@ void LoginManager::_sendServerList(LoginClient* client, DatabaseResult* result)
   binding->addField(DFT_uint32, offsetof(ServerData, mPopulation), 4);
   binding->addField(DFT_uint32, offsetof(ServerData, mStatus), 4);
 
-  serverCount = result->getRowCount();
+  serverCount = static_cast<uint32>(result->getRowCount());
 
   // Create our server list message
   gMessageFactory->StartMessage();                           // Group number
@@ -433,7 +430,7 @@ void LoginManager::_sendCharacterList(LoginClient* client, DatabaseResult* resul
   binding->addField(DFT_uint32, offsetof(CharacterInfo, mServerId), 4);
   binding->addField(DFT_string, offsetof(CharacterInfo, mBaseModel), 64);
 
-  uint32 charCount = result->getRowCount();
+  uint32 charCount = static_cast<uint32>(result->getRowCount());
   
   // Create our server list message
   gMessageFactory->StartMessage();                                 // Opcode group number
@@ -544,7 +541,7 @@ void LoginManager::_updateServerStatus(DatabaseResult* result)
   binding->addField(DFT_uint32, offsetof(ServerData, mStatus), 4);
   binding->addField(DFT_uint32, offsetof(ServerData, mLastUpdate), 4);
 
-  serverCount = result->getRowCount();
+  serverCount = static_cast<uint32>(result->getRowCount());
 
   for (uint32 i = 0; i < serverCount; i++)
   {

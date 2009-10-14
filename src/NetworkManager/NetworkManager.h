@@ -17,7 +17,6 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Utils/typedefs.h"
 #include "Service.h"
 
-
 //======================================================================================================================
 
 class Client;
@@ -42,7 +41,7 @@ class NetworkManager
 		void		Shutdown(void);
 		void		Process(void);
 
-		Service*	CreateService(int8* address, uint16 port,uint32 mfHeapSize, bool serverservice);
+		Service*	GenerateService(int8* address, uint16 port,uint32 mfHeapSize, bool serverservice);
 		void		DestroyService(Service* service);
 		Client*		Connect(void);
 

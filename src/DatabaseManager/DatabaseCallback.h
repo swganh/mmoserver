@@ -13,8 +13,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #define ANH_DATABASEMANAGER_DATABASECALLBACK_H
 
 //======================================================================================================================
-class DatabaseResult;
 
+class DatabaseResult;
 
 //======================================================================================================================
 class DatabaseCallback

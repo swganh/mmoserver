@@ -201,7 +201,7 @@ void ServerManager::handleSessionDisconnect(NetworkClient* client)
 void ServerManager::handleSessionMessage(NetworkClient* client, Message* message)
 {
   ConnectionClient* connClient = reinterpret_cast<ConnectionClient*>(client);
-  message->setSourceId(connClient->getServerId());
+  message->setSourceId(static_cast<uint8>(connClient->getServerId()));
 
   // Send the message off to the router.
   mMessageRouter->RouteMessage(message,connClient);
@@ -252,7 +252,7 @@ void ServerManager::_loadProcessAddressMap(void)
 	// retrieve our list of process addresses.
 	DatabaseResult* result = mDatabase->ExecuteSynchSql("SELECT id, address, port, status, active FROM config_process_list WHERE active=1 ORDER BY id;");
 
-	mTotalActiveServers = result->getRowCount();
+	mTotalActiveServers = static_cast<uint32>(result->getRowCount());
 
 	for(uint32 i = 0; i < mTotalActiveServers; i++)
 	{
@@ -294,7 +294,7 @@ void ServerManager::_processClusterZoneTransferRequestByTicket(ConnectionClient*
 
     // This one goes to the originating zone
     newMessage->setAccountId(message->getAccountId());
-    newMessage->setDestinationId(client->getServerId());
+    newMessage->setDestinationId(static_cast<uint8>(client->getServerId()));
     newMessage->setRouted(true);
     mMessageRouter->RouteMessage(newMessage, client);
   }
@@ -308,7 +308,7 @@ void ServerManager::_processClusterZoneTransferRequestByTicket(ConnectionClient*
 
     // This one goes to
     newMessage->setAccountId(message->getAccountId());
-    newMessage->setDestinationId(client->getServerId());
+    newMessage->setDestinationId(static_cast<uint8>(client->getServerId()));
     newMessage->setRouted(true);
     mMessageRouter->RouteMessage(newMessage, client);
   }
@@ -339,7 +339,7 @@ void ServerManager::_processClusterZoneTransferRequestByPosition(ConnectionClien
 
 		// This one goes to
 		newMessage->setAccountId(message->getAccountId());
-		newMessage->setDestinationId(client->getServerId());
+		newMessage->setDestinationId(static_cast<uint8>(client->getServerId()));
 		newMessage->setRouted(true);
 		mMessageRouter->RouteMessage(newMessage, client);
 	}
@@ -353,7 +353,7 @@ void ServerManager::_processClusterZoneTransferRequestByPosition(ConnectionClien
 
 		// This one goes to
 		newMessage->setAccountId(message->getAccountId());
-		newMessage->setDestinationId(client->getServerId());
+		newMessage->setDestinationId(static_cast<uint8>(client->getServerId()));
 		newMessage->setRouted(true);
 		mMessageRouter->RouteMessage(newMessage, client);
 	}

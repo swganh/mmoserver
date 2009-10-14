@@ -9,9 +9,6 @@ Copyright (c) 2006 - 2008 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
-#ifndef _WINSOCK2API_
-#include <WINSOCK2.h>
-#endif
 #include "NetworkManager.h"
 #include "NetConfig.h"
 #include "Service.h"
@@ -19,6 +16,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "Utils/typedefs.h"
 
+#ifndef _WINSOCK2API_
+#include <WINSOCK2.h>
+#endif
 
 //======================================================================================================================
 
@@ -78,15 +78,13 @@ void NetworkManager::Process(void)
 
 //======================================================================================================================
 
-Service* NetworkManager::CreateService(int8* address, uint16 port,uint32 mfHeapSize,  bool serverservice)
+Service* NetworkManager::GenerateService(int8* address, uint16 port,uint32 mfHeapSize,  bool serverservice)
 {
 	Service* newService = 0;
 
 	newService = new Service(this, serverservice);
 	newService->setId(mServiceIdIndex++);
 	newService->Startup(address, port,mfHeapSize);
-
-	
 	
 	return newService;
 }

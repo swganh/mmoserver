@@ -17,6 +17,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 //======================================================================================================================
 
 PacketFactory::PacketFactory(void)
+: mPacketPool(sizeof(Packet))
 {
 
 }
@@ -48,7 +49,7 @@ void PacketFactory::Shutdown(void)
 	// Destory our clock
 	// delete mClock;
 
-	PacketPool::purge_memory();
+	mPacketPool.purge_memory();
 }
 
 //======================================================================================================================
@@ -64,7 +65,7 @@ void PacketFactory::Process(void)
 
 Packet* PacketFactory::CreatePacket(void)
 {
-	Packet* newPacket = new(PacketPool::malloc()) Packet();
+	Packet* newPacket = new(mPacketPool.malloc()) Packet();
 
 	newPacket->setTimeCreated(Anh_Utils::Clock::getSingleton()->getLocalTime());
 	newPacket->setMaxPayload(mMaxPayLoad);
@@ -76,7 +77,7 @@ Packet* PacketFactory::CreatePacket(void)
 
 void PacketFactory::DestroyPacket(Packet* packet)
 {
-	PacketPool::free(packet);
+	mPacketPool.free(packet);
 }
 
 //======================================================================================================================

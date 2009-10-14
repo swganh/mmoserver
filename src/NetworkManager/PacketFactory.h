@@ -15,12 +15,12 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Utils/typedefs.h"
 #include "Utils/Clock.h"
 #include "Packet.h"
-#include <boost/pool/singleton_pool.hpp>
+#include <boost/pool/pool.hpp>
 
 
 //======================================================================================================================
 
-typedef boost::singleton_pool<Packet,sizeof(Packet),boost::default_user_allocator_malloc_free>	PacketPool;
+typedef boost::pool<boost::default_user_allocator_malloc_free> PacketPool;
 
 //======================================================================================================================
 
@@ -41,7 +41,7 @@ class PacketFactory
 		uint16		mMaxPayLoad;
 
 	private:
-
+        PacketPool mPacketPool;
 	  // Anh_Utils::Clock*	mClock;
 };
 

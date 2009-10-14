@@ -51,6 +51,14 @@ void HarvesterObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject
 			gStructureManager->getDeleteStructureMaintenanceData(this->getId(), player->getId());
 			//gUIManager->createNewStructureDestroyBox(this,player, this, true);
 		}
+		break;
+		case radId_serverTerminalManagement:
+		{
+			gStructureManager->OpenStructureAdminList(this->getId(), player->getId());
+
+		}
+		break;
+
 	}
 }
 

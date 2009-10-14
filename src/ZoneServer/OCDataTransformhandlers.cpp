@@ -405,10 +405,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 							//Can't ride into a building with a mount! :-p 
 							//However, its easy to do so we have handling incase the client is tricked.							
 					
-							// How has this ever been able to compile ??????????????????????????y
-							//player->getMount()->dismountPlayer();
-
-					
+							
 							// the vehicle is the INTANGIBLE Datapad Controller
 							// the *vehicle* itself is the BODY
 							if(Vehicle* datapad_pet = dynamic_cast<Vehicle*>(gWorldManager->getObjectById(player->getMount()->getPetController())))

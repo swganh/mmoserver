@@ -30,7 +30,7 @@ mVolume(1)
 IntangibleObject::~IntangibleObject()
 {
 	// do we have a swoop spawned ???
-	// if so we need to remove it
+	// if so we need to remove it  - done by ~player() 
 	// the intangible is just the control device in the datapad! it is not in the world itself
 
 

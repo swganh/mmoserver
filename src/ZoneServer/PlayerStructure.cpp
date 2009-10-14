@@ -13,6 +13,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "MathLib/Quaternion.h"
 #include "PlayerStructure.h"
 #include "PlayerObject.h"
+#include "MessageLib/MessageLib.h"
 #include "UIManager.h"
 #include "WorldManager.h"
 #include "UICallback.h"
@@ -125,13 +126,24 @@ bool PlayerStructure::canRedeed()
 }
 
 //=============================================================================
-//
+// now we have the maintenance data we can proceed with the delete UI
 //
 void PlayerStructure::deleteStructureDBDataRead(uint64 playerId)
 {
 	PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId));
 
 	gUIManager->createNewStructureDestroyBox(this,player, this, canRedeed());
+
+}
+
+//=============================================================================
+// now we have the adminlist we can proceed to display it
+//
+void PlayerStructure::sendStructureAdminList(uint64 playerId)
+{
+	PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId));
+
+	gUIManager->createNewStructureAdminListBox(this,player, this);
 
 }
 
@@ -160,8 +172,6 @@ void PlayerStructure::handleUIEvent(uint32 action,int32 element,string inputStr,
 			// now that a decision has been made get confirmation
 			gUIManager->createNewStructureDeleteConfirmBox(this,playerObject,this );
 		
-
-			
 		}
 		break;
 
@@ -173,6 +183,13 @@ void PlayerStructure::handleUIEvent(uint32 action,int32 element,string inputStr,
 				//delete it
 				mTTS.todo = ttE_Delete;
 				gStructureManager->addStructureforDestruction(this->getId());
+				gMessageLib->sendSystemMessage(playerObject,L"","player_structure","deed_reclaimed");
+			}
+			else
+			{
+				int8 text[255];
+				sprintf(text,"@player_structure:incorrect_destroy_code");
+				gUIManager->createNewMessageBox(NULL,"","SWG::ANH",text,playerObject);
 			}
 			//we need to get the input
 		}

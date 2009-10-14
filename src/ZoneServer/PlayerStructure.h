@@ -92,11 +92,15 @@ class PlayerStructure :	public TangibleObject
 		void					setRedeed(bool yesORno){mWillRedeed = yesORno;}
 		bool					getRedeed(){return mWillRedeed;}
 
+		// the code we need to enter to destroy a structure
 		string					getCode(){return mCode;}
 		void					setCode(){mCode = gStructureManager->getCode();}
 
 		// is called by the structuremanager after reading maintenance data from the db
 		void					deleteStructureDBDataRead(uint64 playerId);
+
+		// sends an UI List with the Admin list
+		void					sendStructureAdminList(uint64 playerId);
 
 		void					handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window);
 
@@ -104,10 +108,15 @@ class PlayerStructure :	public TangibleObject
 		ObjectList				getAllCellChilds();
 
 
+		// thats the camps / structures lit of additionally created item like signs and stuff and fires and chairs
 		void					addItem(TangibleObject* tO)	{ mItemList.push_back(tO); }
 		ItemList*				getItemList()				{ return(&mItemList); }
 
 		timerTodoStruct*		getTTS(){return &mTTS;}
+
+		// thats the structures admin list
+		BStringVector			getStrucureAdminList(){return mStructureAdminList;}
+		void					addStructureAdmin(string name){mStructureAdminList.push_back(name);}
 
 		
 
@@ -132,6 +141,8 @@ class PlayerStructure :	public TangibleObject
 		bool						mWillRedeed;
 		string						mCode;
 		timerTodoStruct				mTTS;
+
+		BStringVector				mStructureAdminList;
 };
 
 

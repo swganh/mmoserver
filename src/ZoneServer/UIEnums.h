@@ -75,6 +75,7 @@ enum ui_window_types
 
 	SUI_Window_Structure_Delete									= 39,
 	SUI_Window_Structure_Delete_Confirm							= 40,
+	SUI_Window_Structure_Admin_List								= 41,
 	
 };
 
@@ -93,6 +94,7 @@ enum ui_lb_types
 {
 	SUI_LB_OK			= 1,
 	SUI_LB_OKCANCEL		= 2,
+	SUI_LB_ADDOKCANCEL	= 3,
 };
 
 //================================================================================

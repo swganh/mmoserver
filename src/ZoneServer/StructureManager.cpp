@@ -100,6 +100,30 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 	
 	switch(asynContainer->mQueryType)
 	{
+		case Structure_Query_Admin_Data:
+		{
+			PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(asynContainer->mStructureId));
+
+			string playerName;
+			DataBinding* binding = mDatabase->CreateDataBinding(1);
+			binding->addField(DFT_bstring,0,64);
+
+			uint64 count;
+			count = result->getRowCount();
+
+			for(uint64 i = 0;i < count;i++)
+			{
+				result->GetNextRow(binding,&playerName);
+
+				structure->addStructureAdmin(playerName);
+
+			}	
+
+			structure->sendStructureAdminList(asynContainer->mPlayerId);
+
+			mDatabase->DestroyDataBinding(binding);
+		}
+		break;
 
 		case Structure_Query_delete:
 		{
@@ -245,8 +269,7 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
 //=======================================================================================================================
 //handles callbacks of db creation of items
-//=======================================================================================================================
-
+//=======================================================================================================================												
 void StructureManager::getDeleteStructureMaintenanceData(uint64 structureId, uint64 playerId)
 {
 	// load our structures maintenance data
@@ -488,14 +511,37 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 		
 		if(structure->getTTS()->todo == ttE_Delete)
 		{
+			// TODO
+			// get the deed to the inventory
+			// update the deeds attributes
+			gObjectFactory->deleteObjectFromDB(structure);
 			gMessageLib->sendDestroyObject_InRangeofObject(structure);
 			gWorldManager->destroyObject(structure);
+		
 		}
-
 
 		it = objectList->erase(it);
 		it = objectList->begin();
 	}
 
-	return (true);
+	return (false);
+}
+
+//=======================================================================================================================
+//handles callbacks of db creation of items
+//
+
+void StructureManager::OpenStructureAdminList(uint64 structureId, uint64 playerId)
+{
+	// load our structures Admin data
+	//
+
+	StructureManagerAsyncContainer* asyncContainer;
+	asyncContainer = new StructureManagerAsyncContainer(Structure_Query_Admin_Data, 0);
+	asyncContainer->mStructureId = structureId;
+	asyncContainer->mPlayerId = playerId;
+
+	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT c.firstname FROM structure_admin_data sad  INNER JOIN characters c ON (sad.PlayerID = c.ID)where sad.StructureID = %I64u",structureId);
+	
+	
 }

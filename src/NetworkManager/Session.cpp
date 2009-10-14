@@ -2315,6 +2315,7 @@ void Session::_buildOutgoingReliablePackets(Message* message)
 
     mSessionMutex.release();
   }
+  mMessageFactory->DestroyMessage(message);
 }
 
 

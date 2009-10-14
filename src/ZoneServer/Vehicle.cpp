@@ -206,22 +206,22 @@ void Vehicle::store()
 		return;
 	}
 
-	// todo auto dismount
-	if(mOwner->checkIfMounted())
-	{
-		dismountPlayer();
-		return;
-	}
-	
-
 	if(!mOwner)
 	{
 		gLogger->logMsg("Vehicle::store() couldnt find owner");
 		return;
 	}
-	if(mOwner->checkIfMountCalled())
+
+	// todo auto dismount
+	if(mOwner->checkIfMounted())
 	{
-		//dismountPlayer();
+		dismountPlayer();
+	}
+	
+	if(!mOwner->checkIfMountCalled())
+	{
+		gLogger->logMsg("Vehicle::store() Mount wasnt called !!!");
+		return;		
 	}
 
 	//the body is a creature_object!!!
@@ -282,12 +282,14 @@ void Vehicle::mountPlayer()
 	if(!mBody)
 	{					   
 		gLogger->logMsg("Vehicle::mountPlayer() no Vehicle Body!!!");
+		 return;
 	}
 
 	CreatureObject* body = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(this->getId()+1));
 	if(!body)
 	{					   
 		gLogger->logMsg("Vehicle::mountPlayer() no Vehicle Body by Id :(!!!");
+		return;
 	}
 
 	//Make the mount equip the player 

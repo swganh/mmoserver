@@ -49,6 +49,7 @@ enum Structure_QueryType
 	Structure_Query_LoadstructureItem	=	2,
 	
 	Structure_Query_delete				=	3,
+	Structure_Query_Admin_Data			=	4,
 	
 };
 
@@ -167,12 +168,16 @@ class StructureManager : public DatabaseCallback,public ObjectFactoryCallback
 		//returns a confirmatioon code for structure destruction
 		string					getCode();
 
+		//
 		ObjectIDList*			getStrucureDeleteList(){return &mStructureDeleteList;}
 		void					addStructureforDestruction(uint64 iD)
 		{
 			mStructureDeleteList.push_back(iD);
 			gWorldManager->getPlayerScheduler()->addTask(fastdelegate::MakeDelegate(this,&StructureManager::_handleStructureObjectTimers),7,1000,NULL);
 		}
+
+		void					OpenStructureAdminList(uint64 structureId, uint64 playerId);
+		
 
 
 

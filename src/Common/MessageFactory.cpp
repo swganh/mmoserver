@@ -445,7 +445,13 @@ void MessageFactory::_processGarbageCollection(void)
 
 			}//pending delete
 		
-			else
+			else if(Anh_Utils::Clock::getSingleton()->getLocalTime() - message->getCreateTime() > MESSAGE_MAX_LIFE_TIME)
+			{
+				further = false;
+				gLogger->logMsgF("MessageFactory::_processGarbageCollection : stuck Message ",MSG_HIGH);
+				gLogger->hexDump(message->getData(), message->getSize());
+			}
+			else 
 				further = false;
 			
 			time = Anh_Utils::Clock::getSingleton()->getLocalTime();

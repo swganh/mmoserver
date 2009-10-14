@@ -483,6 +483,7 @@ void UIManager::createNewStructureDestroyBox(UICallback* callback,PlayerObject* 
 	}
 
 	//answer = x/(total/100);
+	//answer = x*(total/100);
 	// total = 100%
 	
 	createNewListBox(callback,"handle Structure Destroy",sName, text.getAnsi(), attributesMenu, player, SUI_Window_Structure_Delete,SUI_LB_OKCANCEL);
@@ -517,4 +518,18 @@ void UIManager::createNewStructureDeleteConfirmBox(UICallback* callback,PlayerOb
 	
 }
 
+
+void UIManager::createNewStructureAdminListBox(UICallback* callback,PlayerObject* player, PlayerStructure* structure)
+{
+		
+	string text;
+
+
+
+	int8 sName[32];
+	sprintf(sName,"PermissionList:Admin");
+
+	
+	createNewListBox(callback,"",sName, text.getAnsi(), structure->getStrucureAdminList(), player, SUI_Window_Structure_Admin_List,SUI_LB_ADDOKCANCEL);
+}
 

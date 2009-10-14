@@ -433,6 +433,7 @@ void SocketReadThread::run(void)
 				}
 			}
 		}
+		msleep(1);
 	}
  
 	// Shutdown internally

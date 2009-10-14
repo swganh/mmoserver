@@ -455,11 +455,20 @@ void ObjectFactory::deleteObjectFromDB(Object* object)
 					sprintf(sql,"DELETE FROM vehicle_attributes WHERE vehicles_id = %lld",object->getId());
 					mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
 					sprintf(sql,"DELETE FROM vehicles WHERE id = %lld",object->getId());
+					mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
 				}
 				break;
 
 				default: break;
 			}
+		}
+		break;
+
+		case ObjType_Harvester:
+		{
+			sprintf(sql,"DELETE FROM Harvesters WHERE ID = %lld",object->getId());
+			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
+
 		}
 		break;
 

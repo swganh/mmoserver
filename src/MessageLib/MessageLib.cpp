@@ -198,6 +198,7 @@ void MessageLib::_sendToInstancedPlayers(Message* message,uint16 priority, const
 {
 	if (!_checkPlayer(playerObject)) 
 	{
+		gMessageFactory->DestroyMessage(message);
 		return;
 	}
 
@@ -231,6 +232,7 @@ void MessageLib::_sendToInstancedPlayersUnreliable(Message* message,uint16 prior
 {
 	if (!_checkPlayer(playerObject)) 
 	{
+		gMessageFactory->DestroyMessage(message);
 		return;
 	}
 

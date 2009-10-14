@@ -1963,9 +1963,8 @@ void TradeManagerChatHandler::handleGlobalTickUpdate()
 //=======================================================================================================================
 void TradeManagerChatHandler::handleTimer(uint32 id, void* container)
 {
-	LockTimerEventQueue();
+    boost::mutex::scoped_lock (mTimerMutex);
 	mTimerEventQueue.push(id);
-	UnlockTimerEventQueue();
 }
 
 //=======================================================================================================================
@@ -1975,10 +1974,10 @@ void TradeManagerChatHandler::processTimerEvents()
 	uint64	processTime = 0;
 	while(mTimerEventQueue.size() && processTime < mTimerQueueProcessTimeLimit)
 	{
-		LockTimerEventQueue();
+        boost::mutex::scoped_lock lock(mTimerMutex);
 		uint32 id = mTimerEventQueue.front();
 		mTimerEventQueue.pop();
-		UnlockTimerEventQueue();
+        lock.unlock();
 
 		switch(id)
 		{

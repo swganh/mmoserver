@@ -432,10 +432,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\mutex.h"
-				>
-			</File>
-			<File
 				RelativePath=".\PriorityVector.h"
 				>
 			</File>

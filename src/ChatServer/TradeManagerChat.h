@@ -20,8 +20,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "Common/MessageDispatchCallback.h"
 
-#include "Utils/mutex.h"
 #include "Utils/TimerCallback.h"
+
+#include <boost/thread/mutex.hpp>
 
 #include <memory>
 #include <queue>
@@ -95,12 +96,7 @@ class TradeManagerChatHandler : public MessageDispatchCallback, public DatabaseC
 
 		void				ProcessBankTip(Message* message,DispatchClient* client);
 		void				processAuctionEMails(AuctionItem* AuctionTemp);
-			
-
-		void				LockTimerEventQueue(){ mTimerMutex.Lock(); }
-		void				UnlockTimerEventQueue(){ mTimerMutex.Unlock(); }
-		
-		
+					
 		// process chat timers
 		void				handleGlobalTickPreserve();
 		void				processTimerEvents();
@@ -133,7 +129,7 @@ class TradeManagerChatHandler : public MessageDispatchCallback, public DatabaseC
 		uint64      				mGlobalTickCount;
 		TimerList					mTimers;
 		TimerEventQueue				mTimerEventQueue;
-		Mutex						mTimerMutex;
+        boost::mutex                mTimerMutex;
 		uint64						mTimerQueueProcessTimeLimit;
 		uint32						mBazaarMaxBid;
 

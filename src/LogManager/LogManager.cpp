@@ -294,7 +294,7 @@ void LogManager::logMsgOk(int width)
 {
 	mGlobalLogMutex.acquire();
 
-	std::cout<<std::setw(width);
+	std::cout<<std::setw(width-6); // Width minus the [ OK ] message length.
 	std::cout<<std::right<<"[ ";
 	#ifdef ANH_PLATFORM_WIN32
 			HANDLE Console;
@@ -366,7 +366,7 @@ void LogManager::logMsgFailed(int width)
 {
 	mGlobalLogMutex.acquire();	
 
-	std::cout.width(width);
+	std::cout.width(width-10); // Width minus the [ FAILED ] message length.
 	std::cout<<std::right<<"[ ";
 	#ifdef ANH_PLATFORM_WIN32
 		HANDLE Console;

@@ -11,18 +11,19 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "utils.h"
 #include <string>
+#include <cstring>
 
 //==========================================================================
 
 uint64 swap64(uint64 value)
 {
-	BYTE arr[8];
+	uint8 arr[8];
 
 	memcpy(arr, &value, 8);
 
 	for(int x = 0; x < 4; x++)
 	{
-		BYTE temp = arr[x];
+		uint8 temp = arr[x];
 		arr[x] = arr[7-x];
 		arr[7-x] = temp;
 	}

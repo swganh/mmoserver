@@ -13,6 +13,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #define ANH_UTILS_UTILS_H
 
 #include "typedefs.h"
+#include <string>
 
 
 //==============================================================================================================================

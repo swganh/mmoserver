@@ -8,7 +8,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
-
+#include "MessageLib/MessageLib.h"
+#include "LogManager/LogManager.h"
 #include "ObjectController.h"
 #include "ObjectControllerOpcodes.h"
 #include "ObjectControllerCommandMap.h"
@@ -17,6 +18,5 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "DatabaseManager/DatabaseResult.h"
 #include "Common/MessageFactory.h"
 #include "Common/Message.h"
-#include "MessageLib/MessageLib.h"
-#include "LogManager/LogManager.h"
+
 

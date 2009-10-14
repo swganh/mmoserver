@@ -108,6 +108,8 @@ void MessageDispatch::handleSessionDisconnect(NetworkClient* client)
 
 void MessageDispatch::handleSessionMessage(NetworkClient* client, Message* message)
 {
+	message->mSourceId = 60;
+
 	DispatchClient* dispatchClient = 0;
 	bool deleteClient = false;
 	mSessionMutex.acquire();
@@ -138,7 +140,7 @@ void MessageDispatch::handleSessionMessage(NetworkClient* client, Message* messa
 			dispatchClient = (*iter).second;
 			mAccountClientMap.erase(iter);
 
-			gLogger->logMsgF("Destroying DispatchClient for account %u.\n", MSG_NORMAL, message->getAccountId());
+			gLogger->logMsgF("Destroying DispatchClient for account %u.", MSG_NORMAL, message->getAccountId());
 
 			// Mark it for deletion
 			deleteClient = true;
@@ -146,7 +148,7 @@ void MessageDispatch::handleSessionMessage(NetworkClient* client, Message* messa
 		}
 		else
 		{
-			gLogger->logMsgF("*** Could not find DispatchClient for account %u to be deleted.\n", MSG_NORMAL, message->getAccountId());
+			gLogger->logMsgF("*** Could not find DispatchClient for account %u to be deleted.", MSG_NORMAL, message->getAccountId());
 			gLogger->hexDump(message->getData(),message->getSize());
 
 			client->getSession()->DestroyIncomingMessage(message);
@@ -192,6 +194,7 @@ void MessageDispatch::handleSessionMessage(NetworkClient* client, Message* messa
 		message->setIndex(4);
 
 		// Call our handler
+		message->mSourceId = 61;
 		(*iter).second->handleDispatchMessage(opcode, message, dispatchClient);
 	}
 	else
@@ -211,7 +214,7 @@ void MessageDispatch::handleSessionMessage(NetworkClient* client, Message* messa
 	// We need to destroy the incoming message for the session here
 	// We want the application to decide whether the message is needed further or not.
 	// This is mainly used in the ConnectionServer since routing messages need a longer life than normal
-	client->getSession()->DestroyIncomingMessage(message);
+	message->setPendingDelete(true);
 }
 
 //======================================================================================================================

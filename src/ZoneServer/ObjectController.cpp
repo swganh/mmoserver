@@ -480,6 +480,8 @@ bool ObjectController::_processCommandQueue()
 				gMessageLib->sendCommandQueueRemove(cmdMsg->getSequence(),0.0f,reply1,reply2,player);
 			}
 
+			message->mSourceId = 99;
+			message->setPendingDelete(true);
 			// Remove the command from queue. Note: pop() invokes object destructor.
 			mCommandQueue.pop_front();
 
@@ -488,6 +490,8 @@ bool ObjectController::_processCommandQueue()
 		}
 		else
 		{
+			Message*	message		= cmdMsg->getData();	// Be aware, internally created messages are NULL (auto-attack)
+			message->mSourceId = 98;
 			// Make it simple, the time was not up yet, just leave, let other instances have the cpu, and handle it the next cycle.
 			break;
 		}
@@ -581,6 +585,7 @@ void ObjectController::enqueueCommandMessage(Message* message)
 
 		Message* newMessage = gMessageFactory->EndMessage();
 		newMessage->setIndex(message->getIndex());	
+		newMessage->mSourceId = 80;
 
 		// create the queued message, need setters since boost pool constructor templates take 3 params max
 
@@ -769,7 +774,10 @@ void ObjectController::addEvent(Anh_Utils::Event* event,uint64 timeDelta)
 void ObjectController::removeCommandMessage(Message* message)
 {
 	// skip tickcount
+	// please note that sometimes messages did not seem to be deleted
+	// this *might* have been due to the command having had no sequence ???
 	message->getUint32();
+	message->setPendingDelete(true);
 
 	// pass sequence
 	removeMsgFromCommandQueueBySequence(message->getUint32());
@@ -790,6 +798,7 @@ void ObjectController::removeMsgFromCommandQueueBySequence(uint32 sequence)
 	// sanity check
 	if (!sequence)
 	{
+		gLogger->logMsgF("ObjectController::removeMsgFromCommandQueueBySequence No sequence :(!!!!", MSG_NORMAL);
 		return;
 	}
 

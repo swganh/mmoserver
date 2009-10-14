@@ -42,6 +42,7 @@ class MovingObject;
 class MissionObject;
 class CellObject;
 class StaticObject;
+class PlayerStructure;
 
 class DispatchClient;
 class DraftSchematic;
@@ -366,8 +367,10 @@ public:
 	// deltas
 	bool				sendUpdateCellPermissionMessage(CellObject* cellObject,uint8 permission,PlayerObject* playerObject);
 
-	//placement
+	//===========================================================
+	// Structures admin / placement
 	bool				sendEnterStructurePlacement(Object* deed, string objectString, PlayerObject* playerObject);
+	bool				sendAdminList(PlayerStructure* structure, PlayerObject* playerObject);
 
 	// resource container, resourcecontainermessages.cpp
 	bool				sendBaselinesRCNO_3(ResourceContainer* resourceContainer,PlayerObject* targetObject);

@@ -143,7 +143,8 @@ void PlayerStructure::sendStructureAdminList(uint64 playerId)
 {
 	PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId));
 
-	gUIManager->createNewStructureAdminListBox(this,player, this);
+	gMessageLib->sendAdminList(this,player);
+
 
 }
 

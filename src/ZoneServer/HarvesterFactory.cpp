@@ -123,6 +123,8 @@ void HarvesterFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 			mDatabase->ExecuteSqlAsync(this,asynContainer,
 				"SELECT id FROM swganh.resource_containers WHERE parent_id = %I64u",harvester->getId());
 
+			asynContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,HFQuery_ResourceData,asyncContainer->mClient,asyncContainer->mId);
+
 		}
 		break;
 		

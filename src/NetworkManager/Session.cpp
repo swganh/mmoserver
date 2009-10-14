@@ -118,7 +118,7 @@ Session::~Session(void)
       mOutgoingMessageQueue.pop();
 
       // We're done with this message.
-      mMessageFactory->DestroyMessage(message);
+	  message->setPendingDelete(true);
     }
 
 	while(!mIncomingMessageQueue.empty())
@@ -127,7 +127,7 @@ Session::~Session(void)
 		mIncomingMessageQueue.pop();
 
 		// We're done with this message.
-		mMessageFactory->DestroyMessage(message);
+		message->setPendingDelete(true);
 	}
 	
 
@@ -806,7 +806,7 @@ void Session::HandleFastpathPacket(Packet* packet)
 
 void Session::DestroyIncomingMessage(Message* message)      
 { 
-	mMessageFactory->DestroyMessage(message); 
+	message->setPendingDelete(true);
 }
 
 //======================================================================================================================
@@ -2096,6 +2096,7 @@ void Session::_buildOutgoingReliableRoutedPackets(Message* message)
   uint16	messageSize = message->getSize();
 
   // fragments envelope sizes
+  message->mSourceId = 2;
   
   envelopeSize = 18; // -2 header -2 seq -4 size -1 priority -1 routed flag -1 route destination -4 account id -3 comp/CRC 
 
@@ -2128,8 +2129,6 @@ void Session::_buildOutgoingReliableRoutedPackets(Message* message)
     // Push the packet on our outgoing queue
     mSessionMutex.acquire();
 
-	assert((newPacket->getSize()+3)<= mMaxPacketSize);
-
     mNewWindowPacketList.push_back(newPacket);
 
 	if(!++mOutSequenceNext)
@@ -2160,7 +2159,6 @@ void Session::_buildOutgoingReliableRoutedPackets(Message* message)
       // Push the packet on our outgoing queue
       mSessionMutex.acquire();
 
-	  assert((newPacket->getSize()+3)<= mMaxPacketSize);
       mNewWindowPacketList.push_back(newPacket);
 
 	  if(!++mOutSequenceNext)
@@ -2190,7 +2188,6 @@ void Session::_buildOutgoingReliableRoutedPackets(Message* message)
     // Push the packet on our outgoing queue
     mSessionMutex.acquire();
 
-	assert((newPacket->getSize()+3)<= mMaxPacketSize);
     mNewWindowPacketList.push_back(newPacket);
 
 	if(!++mOutSequenceNext)
@@ -2198,27 +2195,23 @@ void Session::_buildOutgoingReliableRoutedPackets(Message* message)
 
     mSessionMutex.release();
   }
+  message->setPendingDelete(true);
 }
 
 
 
 //======================================================================================================================
+// reliable NOT Routed Packets
+
 void Session::_buildOutgoingReliablePackets(Message* message)
 {
-  //NOT routed
+
   Packet*	newPacket = 0;
   uint16	messageIndex = 0;
-  uint16	envelopeSize = 0;
+  uint16	envelopeSize = 13;// -2 header -2 seq -4 size -1 priority -1 routed flag -3 comp/CRC 
   uint16	messageSize = message->getSize();
 
-  // fragments envelope sizes
-  if (message->getRouted())
-  {
-	  gLogger->logMsgF("_buildOutgoingReliablePackets::routed packet faultily sorted", MSG_HIGH);
-	  _buildOutgoingReliableRoutedPackets(message);
-  }
-
-  envelopeSize = 13; // -2 header -2 seq -4 size -1 priority -1 routed flag -3 comp/CRC 
+  message->mSourceId = 1;
   
   // If we're too large to fit in a single packet, split us up.
   if(messageSize + envelopeSize >= mMaxPacketSize) 
@@ -2233,17 +2226,14 @@ void Session::_buildOutgoingReliablePackets(Message* message)
     newPacket->addUint32(htonl(messageSize + 2));
 
 	newPacket->addUint8(message->getPriority());
-
-    // Do we need to add the routing header
     
     newPacket->addUint8(0);                                       // This byte is always 0 on the client
     newPacket->addData(message->getData(), mMaxPacketSize - envelopeSize); // -2 header, -2 sequence, -4 size, -2 priority/routing, -2 crc
     messageIndex += mMaxPacketSize - envelopeSize;                         // -2 header, -2 sequence, -4 size, -2 priority/routing, -2 crc
     
     // Data channels need compression and encryption
-	// no compression in server server communication!
+	// as this is server client communication
 	newPacket->setIsCompressed(true);
-
     newPacket->setIsEncrypted(true);
     
     // Push the packet on our outgoing queue
@@ -2315,21 +2305,17 @@ void Session::_buildOutgoingReliablePackets(Message* message)
 
     mSessionMutex.release();
   }
-  mMessageFactory->DestroyMessage(message);
+  message->setPendingDelete(true);
 }
 
 
 //======================================================================================================================
+// Unreliable Packet Routed or server / client
+
 void Session::_buildOutgoingUnreliablePackets(Message* message)
 {
   Packet* newPacket = 0;
   uint16 messageIndex = 0;
-
-
-  //if (mService->getId() == 1)
-  {
-    //gLogger->logMsgF("Building unreliable packet - Sequence: %u, Session:0x%x%.4x", MSG_LOW, mOutSequenceNext, mService->getId(), getId());
-  }
 
   // Create a new packet and push the data into it.
   newPacket = mPacketFactory->CreatePacket();
@@ -2350,6 +2336,8 @@ void Session::_buildOutgoingUnreliablePackets(Message* message)
   
   // Push the packet on our outgoing queue
   _addOutgoingUnreliablePacket(newPacket);
+  
+  message->setPendingDelete(true);
   
 }
 
@@ -2412,24 +2400,23 @@ uint32 Session::_buildPackets()
 	// 1st try to make as few packets as possible !!!
 	// thats a must for server server communication - the soe protocol is extremely expensive in cpu cycles
 
-	// 2nd are there any ways a session can have to generate routed and not routed packets ?????
+	// 2nd are there any ways a session can have to generate routed and not routed packets ????? - No its either or
 
 	uint32 packetsbuild = 0;
 	mSessionMutex.acquire();
 
-	//gLogger->logMsgF("session build packets queue size : %u ",MSG_NORMAL,mOutgoingMessageQueue.size());
+	//get our message
 
 	Message* message = mOutgoingMessageQueue.front();
 	mOutgoingMessageQueue.pop();
 
-	if((mOutgoingMessageQueue.size())&&(message->getRouted() ^ mOutgoingMessageQueue.front()->getRouted())	) 
-		gLogger->logMsgF("this session contains routed AND notrouted packets",MSG_HIGH);		
+
+	//=================================
+	// messages need to be of a certain size to make multimessages viable
+	// so sort out the big ones or those which are alone in the queue and make a single packet if necessary
 
 	if(!mOutgoingMessageQueue.size()
-
-	//question are there any possibilities that a networklayer encounters mixed routed and unrouted packets ??? I do not think so
-	|| (message->getRouted() ^ mOutgoingMessageQueue.front()->getRouted())	 
-//	|| message->getSize() > 247 || mOutgoingMessageQueue.front()->getSize() > 247
+	//|| (message->getRouted() ^ mOutgoingMessageQueue.front()->getRouted())	 
 	|| message->getFastpath()
 	|| message->getSize() + mOutgoingMessageQueue.front()->getSize() > mMaxPacketSize - 21)
 	
@@ -2449,7 +2436,7 @@ uint32 Session::_buildPackets()
 				_buildOutgoingReliablePackets(message);
 		}
 
-		mMessageFactory->DestroyMessage(message);
+		message->setPendingDelete(true);
 	}
 	else 
 	{
@@ -2492,6 +2479,7 @@ uint32 Session::_buildPackets()
 
 				mOutgoingMessageQueue.pop();
 				mMultiMessageQueue.push(message);
+		
 			}
 
 			_buildMultiDataPacket();
@@ -2500,6 +2488,7 @@ uint32 Session::_buildPackets()
 		{
 			packetsbuild++;
 			_buildOutgoingReliablePackets(message);
+			message->setPendingDelete(true);
 		}
 	}
 
@@ -2529,7 +2518,7 @@ uint32 Session::_buildPacketsUnreliable()
 		packetsbuild++;
 		_buildOutgoingUnreliablePackets(message);
 	
-		mMessageFactory->DestroyMessage(message);
+		message->setPendingDelete(true);
 	}
 	else 
 	{
@@ -2586,22 +2575,24 @@ void Session::_buildMultiDataPacket()
 		newPacket->addUint8(0);	//Routing byte -> zero for channel1
 		newPacket->addData(message->getData(), message->getSize()); 
 
-		mMessageFactory->DestroyMessage(message);
+		message->setPendingDelete(true);
 	}
 
 	newPacket->setIsCompressed(true);
 	newPacket->setIsEncrypted(true);
 
 	mNewWindowPacketList.push_back(newPacket);
+	
 	assert(newPacket->getSize() <= (mMaxPacketSize-3));
+	
 	//sequence of packets uint16 +1 for every packet rollover from 0xffff to 0
 	if(!++mOutSequenceNext)
 		_handleOutSequenceRollover();
 }
 
-//-----------------------------------------------------------------------------
+//======================================================================
 // Routed multidatas for server server communication only !!!!
-//-----------------------------------------------------------------------------
+
 
 void Session::_buildRoutedMultiDataPacket()
 {
@@ -2638,7 +2629,7 @@ void Session::_buildRoutedMultiDataPacket()
 
 		newPacket->addData(message->getData(), message->getSize()); 
 
-		mMessageFactory->DestroyMessage(message);
+		message->setPendingDelete(true);
 	}
 
 	newPacket->setIsCompressed(false); //server server !!! save the cycles!!!
@@ -2651,7 +2642,8 @@ void Session::_buildRoutedMultiDataPacket()
 		_handleOutSequenceRollover();
 }
 
-//need to get in multis /00 03s
+//======================================================================
+// Unreliable Multi DataPacket
 // thats server client communication
 void Session::_buildUnreliableMultiDataPacket()
 {
@@ -2676,7 +2668,7 @@ void Session::_buildUnreliableMultiDataPacket()
 		newPacket->addUint8(0);
 		newPacket->addData(message->getData(), message->getSize()); 
 
-		mMessageFactory->DestroyMessage(message);
+		message->setPendingDelete(true);
 	}
 
 	newPacket->setIsCompressed(true);

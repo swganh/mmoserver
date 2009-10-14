@@ -214,14 +214,6 @@ void UIListBox::_initChildren()
 		}
 		break;
 
-		case SUI_LB_ADDOKCANCEL:
-		{
-			mChildElements.push_back(new UIButton(0,"btnAdd",true,"@add"));
-			mChildElements.push_back(new UIButton(0,"btnCancel",true,"@cancel"));
-			mChildElements.push_back(new UIButton(0,"btnOk",true,"@ok"));
-		}
-		break;
-
 		default:break;
 	}
 }

@@ -412,7 +412,7 @@ void MessageFactory::_processGarbageCollection(void)
 	uint64 timestart, time;
 	bool further = true;
 	timestart = time = Anh_Utils::Clock::getSingleton()->getLocalTime();
-    while(((time - timestart ) < 5) && further)
+    while(((time - timestart ) < 1) && further)
 	{
 		if (mHeapEnd != mHeapStart)
 		{
@@ -448,8 +448,11 @@ void MessageFactory::_processGarbageCollection(void)
 			else if(Anh_Utils::Clock::getSingleton()->getLocalTime() - message->getCreateTime() > MESSAGE_MAX_LIFE_TIME)
 			{
 				further = false;
-				gLogger->logMsgF("MessageFactory::_processGarbageCollection : stuck Message ",MSG_HIGH);
-				gLogger->hexDump(message->getData(), message->getSize());
+				gLogger->logMsgF("MessageFactory::_processGarbageCollection : stuck Message fastpasth : %u ",MSG_HIGH, message->getFastpath());
+				gLogger->logMsgF("age : %u ",MSG_HIGH, uint32((Anh_Utils::Clock::getSingleton()->getLocalTime() - message->getCreateTime())/1000));
+				gLogger->logMsgF("Source : %u ",MSG_HIGH, message->mSourceId);
+				
+				//gLogger->hexDump(message->getData(), message->getSize());
 			}
 			else 
 				further = false;

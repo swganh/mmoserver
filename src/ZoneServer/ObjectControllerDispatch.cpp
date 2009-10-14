@@ -73,6 +73,9 @@ void ObjectControllerDispatch::handleDispatchMessage(uint32 opcode,Message* mess
 
 	else
 		gLogger->logMsgF("ObjectControllerDispatch: Unhandled opcode %u",MSG_HIGH,opcode);
+
+	message->setPendingDelete(true);
+	message->mSourceId = 55;
 }
 
 //======================================================================================================================
@@ -254,6 +257,9 @@ void ObjectControllerDispatch::_dispatchMessage(Message* message, DispatchClient
 	}
 	else
 		gLogger->logMsgF("ObjectControllerDispatch: Couldn't find Object %lld",MSG_HIGH,objId);
+
+	message->setPendingDelete(true);
+	message->mSourceId = 56;
 }
 
 //======================================================================================================================
@@ -268,6 +274,8 @@ void ObjectControllerDispatch::_dispatchObjectMenuSelect(Message* message,Dispat
 	else
 		gLogger->logMsgF("ObjController::handleRadialSelect: Object not found %lld",MSG_HIGH,objectId);
 
+	message->setPendingDelete(true);
+	message->mSourceId = 57;
 }
 
 //======================================================================================================================

@@ -261,10 +261,6 @@ void Service::Process(uint32 loop)
 			for(uint32 j = 0; j < messageCount; j++)
 			{
 				Message* message = session->getIncomingQueueMessage();
-
-				//actually had a few messages of sessions pending delete
-				//as the socketwrite thread sets the status and in busy situations we can get problems
-				//fixed with that ???
 			
 				message->ResetIndex();
 

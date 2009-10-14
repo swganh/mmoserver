@@ -18,6 +18,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "ZoneServer/ZoneOpcodes.h"
 
 #include "LogManager/LogManager.h"
+#include "ZoneServer/PlayerStructure.h"
 
 #include "Common/DispatchClient.h"
 #include "Common/MessageFactory.h"
@@ -194,6 +195,49 @@ bool MessageLib::sendEnterStructurePlacement(Object* deed, string objectString, 
 	newMessage = gMessageFactory->EndMessage();
 	
 	//gLogger->logMsgF("placement mode : %s",MSG_HIGH,objectString.getAnsi());
+
+	(playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 5);
+
+	return(true);
+}
+
+
+//======================================================================================================================
+//
+// Building Baselines Type 6
+// contain: unknown
+//
+
+bool MessageLib::sendAdminList(PlayerStructure* structure, PlayerObject* playerObject)
+{
+	if(!(playerObject->isConnected()))
+		return(false);
+
+	Message* newMessage;
+
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opSendPermissionList);  
+	gMessageFactory->addUint32(structure->getStrucureAdminList().size() );
+
+	string name;
+	BStringVector vector = 	structure->getStrucureAdminList();
+	BStringVector::iterator it = vector.begin();
+	while(it != vector.end())
+	{
+		name = (*it);
+		name.convert(BSTRType_Unicode16);
+		gMessageFactory->addString(name);
+
+		it++;
+	}
+
+	gMessageFactory->addUint32(97); // ???
+	gMessageFactory->addUint16(0);	// unknown
+	name = "ADMIN";
+	name.convert(BSTRType_Unicode16);
+	gMessageFactory->addString(name);
+	
+	newMessage = gMessageFactory->EndMessage();
 
 	(playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 5);
 

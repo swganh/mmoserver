@@ -83,7 +83,6 @@ class UIManager : public MessageDispatchCallback
 		// Structures
 		void				createNewStructureDestroyBox(UICallback* callback,PlayerObject* player, PlayerStructure* structure, bool redeed);
 		void				createNewStructureDeleteConfirmBox(UICallback* callback,PlayerObject* player, PlayerStructure* structure);
-		void				createNewStructureAdminListBox(UICallback* callback,PlayerObject* player, PlayerStructure* structure);
 		
 		// custom message boxes
 		void				createNewSkillTeachMessageBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* text,PlayerObject* playerObject,uint8 mbType,PlayerObject* pupil,Skill* skill);

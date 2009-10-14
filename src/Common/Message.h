@@ -85,6 +85,8 @@ public:
   uint16                      getStringAnsi(BString& data)       { data.initRawBSTR(&mData[mIndex], BSTRType_ANSI); mIndex += data.getLength()+2; return data.getLength(); }
   uint16                      getStringUnicode16(BString& data)  { data.initRawBSTR(&mData[mIndex], BSTRType_Unicode16); mIndex += data.getLength() * 2 + 4; return data.getLength(); }
  
+  uint8                       mSourceId;
+
 private:
   uint64                      mCreateTime;
   uint64                      mQueueTime;
@@ -93,7 +95,7 @@ private:
   uint16                      mIndex;
   uint8                       mPriority;
   
-  uint8                       mSourceId;
+  
   uint8                       mDestinationId;
   bool                        mRouted;
   bool                        mFastpath;

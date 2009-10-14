@@ -10,16 +10,15 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "HarvesterFactory.h"
+#include "Deed.h"
 #include "HarvesterObject.h"
+#include "ResourceContainerFactory.h"
+#include "WorldManager.h"
+#include "LogManager/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
-#include "LogManager/LogManager.h"
-#include "WorldManager.h"
-#include "Deed.h"
 #include "Utils/utils.h"
-#include "ResourceContainerFactory.h"
-
 #include <assert.h>
 
 //=============================================================================

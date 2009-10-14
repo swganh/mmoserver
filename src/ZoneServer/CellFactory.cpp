@@ -11,17 +11,16 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "CellFactory.h"
 #include "CellObject.h"
-#include "ObjectFactory.h"
-#include "CreatureObject.h"
 #include "CreatureEnums.h"
+#include "CreatureObject.h"
+#include "ObjectFactory.h"
 #include "Shuttle.h"
+#include "WorldManager.h"
+#include "LogManager/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
-#include "LogManager/LogManager.h"
-#include "WorldManager.h"
 #include "Utils/utils.h"
-
 #include <assert.h>
 
 //=============================================================================

@@ -10,65 +10,58 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "clock.h"
-#include <assert.h>
 
+#include <cassert>
+#include <ctime>
+
+#if(ANH_PLATFORM != ANH_PLATFORM_WIN32)
+#include <sys/time.h>
+#endif
+
+using namespace Anh_Utils;
 
 //======================================================================================================================
 
-Anh_Utils::Clock*	Anh_Utils::Clock::mSingleton = NULL;
+Clock* Clock::mSingleton = NULL;
 
 //======================================================================================================================
 
-/*
-Anh_Utils::Clock* Anh_Utils::Clock::getSingleton()
+Clock::Clock()
+{
+#if(ANH_PLATFORM == ANH_PLATFORM_WIN32)
+	timeBeginPeriod(1);
+#endif
+}
+
+//======================================================================================================================
+
+Clock::~Clock()
+{
+
+}
+//======================================================================================================================
+
+Clock* Anh_Utils::Clock::getSingleton()
 {
 	if(!mSingleton)
 	{
-		mSingleton = new Anh_Utils::Clock();
+		mSingleton = new Clock();
 	}
+
 	return mSingleton;
 }
-*/
+
 //==============================================================================================================================
 
-void Anh_Utils::Clock::destroySingleton()
+void Clock::destroySingleton()
 {
   delete mSingleton;
   mSingleton = 0;
 }
 
-//======================================================================================================================
-
-Anh_Utils::Clock::~Clock()
-{
-
-}
-
-//======================================================================================================================
-//
-// Windows
-//
-#if(ANH_PLATFORM == ANH_PLATFORM_WIN32)
-
-Anh_Utils::Clock::Clock()
-{
-	timeBeginPeriod(1);
-	// Update();
-}
-
 //==============================================================================================================================
 
-/*
-void Anh_Utils::Clock::Update(void)
-{
-	mLocalTime = timeGetTime();
-	mGlobalTime = mLocalTime + mGlobalDrift;
-}
-*/
-
-//==============================================================================================================================
-
-char* Anh_Utils::Clock::GetCurrentDateTimeString(void)
+char* Clock::GetCurrentDateTimeString()
 {
   time_t ltime;
   time( &ltime);
@@ -76,40 +69,30 @@ char* Anh_Utils::Clock::GetCurrentDateTimeString(void)
 }
 
 //==============================================================================================================================
-//
-// Linux
-//
-#elif(ANH_PLATFORM == ANH_PLATFORM_LINUX)
 
-uint Anh_Utils::Clock::mTime = 0;
+uint64 Clock::getGlobalTime() const 
+{ 
+    return getLocalTime() + mGlobalDrift; 
+} 
 
 //==============================================================================================================================
 
-Anh_Utils::Clock::Clock()
-{
-	Update();
+uint64 Clock::getLocalTime() const 
+{ 
+#if(ANH_PLATFORM == ANH_PLATFORM_WIN32)
+    return timeGetTime(); 
+#else
+    struct timeval tv;
+    gettimeofday(&tv, NULL)
+    return tv.tv_usec / 1000;
+#endif
 }
 
 //==============================================================================================================================
 
-void Anh_Utils::Clock::Update(void)
-{
-	assert(mInsFlag);
-
-	ftime(&mTimeVal);
-	mTime = (mTimeVal.time * 1000) + mTimeVal.millitm;
+void Clock::setGlobalDrift(int64 drift) 
+{ 
+    mGlobalDrift = drift; 
 }
 
 //==============================================================================================================================
-
-void Anh_Utils::Clock::GetTimeString(char* str)
-{
-  //time_t ltime;
-  //time( &ltime);
-  //str = ctime(&ltime);
-}
-
-//==============================================================================================================================
-
-#endif // Linux
-

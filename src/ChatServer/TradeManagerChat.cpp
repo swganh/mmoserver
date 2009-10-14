@@ -28,6 +28,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "Utils/utils.h"
 #include "Utils/Timer.h"
+
+#include <ctime>
+
 bool						TradeManagerChatHandler::mInsFlag    = false;
 TradeManagerChatHandler*		TradeManagerChatHandler::mSingleton  = NULL;
 

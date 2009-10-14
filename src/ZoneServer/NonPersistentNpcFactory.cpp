@@ -10,25 +10,26 @@ Copyright (c) 2006 - 2009 The swgANH Team
 */
 
 #include "NonPersistentNpcFactory.h"
-#include "ObjectFactoryCallback.h"
-#include "Weapon.h"
-#include "DatabaseManager/Database.h"
-#include "DatabaseManager/DatabaseResult.h"
-#include "DatabaseManager/DataBinding.h"
-#include "LogManager/LogManager.h"
-#include "Utils/utils.h"
-#include "Utils/rand.h"
-#include "Trainer.h"
-#include "FillerNPC.h"
-#include "NPCObject.h"
-#include "QuestGiver.h"
-#include "AttackableStaticNpc.h"
-#include "LairObject.h"
 #include "AttackableCreature.h"
+#include "AttackableStaticNpc.h"
+#include "FillerNPC.h"
 #include "Inventory.h"
+#include "LairObject.h"
+#include "NPCObject.h"
+#include "ObjectFactoryCallback.h"
+#include "QuestGiver.h"
+#include "Trainer.h"
+#include "Weapon.h"
 #include "WorldConfig.h"
 #include "WorldManager.h"
 
+#include "LogManager/LogManager.h"
+#include "DatabaseManager/Database.h"
+#include "DatabaseManager/DatabaseResult.h"
+#include "DatabaseManager/DataBinding.h"
+
+#include "Utils/utils.h"
+#include "Utils/rand.h"
 #include <assert.h>
 
 //=============================================================================

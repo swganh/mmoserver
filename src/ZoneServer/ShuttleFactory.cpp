@@ -10,16 +10,15 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "ShuttleFactory.h"
-#include "Shuttle.h"
+#include "Inventory.h"
 #include "ObjectFactoryCallback.h"
+#include "Shuttle.h"
+#include "LogManager/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
-#include "LogManager/LogManager.h"
-#include "Inventory.h"
-#include "Utils/utils.h"
 #include "Utils/rand.h"
-
+#include "Utils/utils.h"
 #include <assert.h>
 
 //=============================================================================

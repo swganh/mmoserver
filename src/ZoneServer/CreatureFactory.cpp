@@ -10,10 +10,10 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "CreatureFactory.h"
-#include "PersistentNpcFactory.h"
-#include "ShuttleFactory.h"
 #include "CreatureEnums.h"
 #include "ObjectFactoryCallback.h"
+#include "PersistentNpcFactory.h"
+#include "ShuttleFactory.h"
 #include "LogManager/LogManager.h"
 #include "Utils/utils.h"
 

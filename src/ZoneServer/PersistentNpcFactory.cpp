@@ -4,24 +4,23 @@ This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emu
 For more information, see http://www.swganh.org
 
 
-Copyright (c) 2006 - 2008 The swgANH Team
+Copyright (c) 2006 - 2009 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
 
 #include "PersistentNpcFactory.h"
+#include "FillerNPC.h"
+#include "Inventory.h"
+#include "NPCObject.h"
 #include "ObjectFactoryCallback.h"
+#include "QuestGiver.h"
+#include "Trainer.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
 #include "LogManager/LogManager.h"
 #include "Utils/utils.h"
-#include "Trainer.h"
-#include "FillerNPC.h"
-#include "NPCObject.h"
-#include "QuestGiver.h"
-
-#include "Inventory.h"
 
 #include <assert.h>
 

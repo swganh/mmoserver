@@ -207,7 +207,7 @@ void Log::logMsg(const std::string& zone, const std::string& system, const std::
 
 	if((mLogLevel + priority > mGlobalLogLevel)&&(mFileOut||mConsoleOut))
 	{
-		mGlobalLogMutex.acquire();
+        boost::mutex::scoped_lock lock(mGlobalLogMutex);
 		std::string tstring;
 
 		std::ostringstream tstream;
@@ -247,7 +247,6 @@ void Log::logMsg(const std::string& zone, const std::string& system, const std::
 			std::cout << tstring << buf << std::endl;
 			std::cout.flush();
 		}
-		mGlobalLogMutex.release();
 	}
 }
 

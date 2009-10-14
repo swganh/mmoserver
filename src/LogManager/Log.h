@@ -13,10 +13,10 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #define ANH_LOGMANAGER_LOG_H
 
 #include "Utils/typedefs.h"
+#include <boost/thread/mutex.hpp>
 #include <fstream>
 #include <iostream>
 #include <string>
-#include <zthread/Mutex.h>
 
 class Database;
 
@@ -93,7 +93,7 @@ class Log
 		bool			mConsoleOut;
 		LogLevel		mLogLevel;
 		GlobalLogLevel	mGlobalLogLevel;
-		ZThread::Mutex  mGlobalLogMutex;
+		boost::mutex    mGlobalLogMutex;
 		Database*		mDatabase;
 };
 

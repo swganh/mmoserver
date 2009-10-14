@@ -125,18 +125,22 @@ TradeManagerChatHandler::TradeManagerChatHandler(Database* database, MessageDisp
 
 	//move to Handle dispatch message at some time
 	uint32 ServerTimeInterval = 1;
-	mTimers.push_back(new Timer(CMTimer_GlobalTick,this,ServerTimeInterval*1000,NULL));
-	mTimers.push_back(new Timer(CMTimer_TickPreserve,this,ServerTimeInterval*10000,NULL));
-	mTimers.push_back(new Timer(CMTimer_CheckAuctions,this,ServerTimeInterval*10000,NULL));
 	
+    std::tr1::shared_ptr<Timer> global_tick_timer(new Timer(CMTimer_GlobalTick,this,ServerTimeInterval*1000,NULL));
+    std::tr1::shared_ptr<Timer> tick_preserve_timer(new Timer(CMTimer_TickPreserve,this,ServerTimeInterval*10000,NULL));
+    std::tr1::shared_ptr<Timer> check_auctions_timer(new Timer(CMTimer_CheckAuctions,this,ServerTimeInterval*10000,NULL));
 
+    mTimers.push_back(global_tick_timer);
+    mTimers.push_back(tick_preserve_timer);
+    mTimers.push_back(check_auctions_timer);
+    /*
 	TimerList::iterator timerIt = mTimers.begin();
 	while(timerIt != mTimers.end())
 	{
 		(*timerIt)->Start();
 		++timerIt;
 	}
-												
+	*/										
 }
 
 
@@ -185,7 +189,7 @@ void TradeManagerChatHandler::Shutdown()
 
 
 	mBazaars.clear();
-	
+	/*
 	// timers
 	// clear our eventqueue
 	TimerList::iterator timerIt = mTimers.begin();
@@ -200,6 +204,7 @@ void TradeManagerChatHandler::Shutdown()
 		// delete(timer);
 		timerIt = mTimers.erase(timerIt);
 	}
+    */
 }
 
 //======================================================================================================================

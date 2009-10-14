@@ -12,16 +12,20 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_ZONESERVER_TradeManager_H
 #define ANH_ZONESERVER_TradeManager_H
 
-#include <vector>
-#include <queue>
-
-#include "Common/MessageDispatchCallback.h"
-#include "DatabaseManager/DatabaseCallback.h"
-#include "Utils/mutex.h"
-#include "Utils/TimerCallback.h"
 #include "ChatManager.h"
 #include "ChatMessageLib.h"
 #include "TradeManagerHelp.h"
+
+#include "DatabaseManager/DatabaseCallback.h"
+
+#include "Common/MessageDispatchCallback.h"
+
+#include "Utils/mutex.h"
+#include "Utils/TimerCallback.h"
+
+#include <memory>
+#include <queue>
+#include <vector>
 
 #define	gTradeManager	TradeManager::getSingletonPtr()
 
@@ -43,11 +47,9 @@ struct AuctionItem;
 
 //typedef std::map<uint32,Player*>		PlayerAccountMap;
 typedef std::vector<Bazaar*>		BazaarList;
-typedef std::vector<Timer*>			TimerList;
+//typedef std::vector<Timer*>			TimerList;
+typedef std::vector<std::tr1::shared_ptr<Timer>> TimerList;
 typedef std::vector<AuctionItem*>	AuctionList;
-
-
-
 
 //======================================================================================================================
 

@@ -12,29 +12,29 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Timer.h"
 #include "TimerCallback.h"
 
-
 //==============================================================================================================================
 
-Timer::Timer(uint32 id,TimerCallback* callback,uint32 interval, void* container) : mId(id),mCallback(callback),mInterval(interval),mContainer(container)
+Timer::Timer(uint32 id,TimerCallback* callback,uint32 interval, void* container) 
+: mId(id)
+, mCallback(callback)
+, mInterval(interval)
+, mContainer(container)
 {
-	// mClock = Anh_Utils::Clock::getSingleton();
-
 	if(mInterval < 100)
 		mInterval = 100;
+    
+	mLastTick = static_cast<uint32>(Anh_Utils::Clock::getSingleton()->getLocalTime());
+
+    boost::thread t(&Timer::Run, this);
+    mThread = boost::move(t);
 }
 
 //==============================================================================================================================
 
 Timer::~Timer()
 {
-}
-
-//==============================================================================================================================
-
-void Timer::Start()
-{
-	mLastTick = static_cast<uint32>(Anh_Utils::Clock::getSingleton()->getLocalTime());
-	StartThread();
+    mThread.interrupt();
+    mThread.join();
 }
 
 //==============================================================================================================================
@@ -43,7 +43,7 @@ void Timer::Run()
 {
 	uint64 currentTick;
 
-	while(IsRunning())
+	while(true)
 	{
 		currentTick = Anh_Utils::Clock::getSingleton()->getLocalTime();
 
@@ -52,7 +52,8 @@ void Timer::Run()
 			mCallback->handleTimer(mId,mContainer);
 			mLastTick = static_cast<uint32>(currentTick);
 		}
-		msleep(10);
+
+        boost::this_thread::sleep(boost::posix_time::milliseconds(10));
 	}
 }
 

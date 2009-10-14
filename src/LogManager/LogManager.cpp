@@ -328,7 +328,7 @@ void LogManager::logMsgLoadSuccess(const std::string& msg, MsgPriority priority,
 						  	
 	mGlobalLogMutex.release();
 
-	int16 length = 80 - textLength;
+	int16 length = 80 - textLength + 1; // Add an extra 1 for the null terminator at the end of the string.
 	
 	if(length < 0)
 		length = 80;
@@ -352,7 +352,7 @@ void LogManager::logMsgLoadFailure(const std::string& msg, MsgPriority priority,
 	
 	mGlobalLogMutex.release();
 
-	int16 length = 80 - textLength;
+	int16 length = 80 - textLength + 1; // Add an extra 1 for the null terminator at the end of the string.
 	
 	if(length < 0)
 		length = 80;

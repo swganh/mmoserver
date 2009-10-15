@@ -51,8 +51,8 @@ void DatabaseWorkerThread::Startup(char* host, uint16 port, char* user, char* pa
   mExit = false;
 
   // start our thread
-  mThread = new ZThread::Thread(new WorkerThreadRunnable(this));
-  mThread->setPriority(ZThread::Medium);
+  boost::thread t(std::tr1::bind(&DatabaseWorkerThread::run, this));
+  mThread = boost::move(t);
 }
 
 //======================================================================================================================
@@ -61,14 +61,8 @@ void DatabaseWorkerThread::Shutdown(void)
 {
 	mExit = true;
 
-	try
-	{
-		mThread->wait();
-	}
-	catch(ZThread::Synchronization_Exception& e)
-	{
-		std::cerr << e.what() << std::endl; 
-	}
+    mThread.interrupt();
+    mThread.join();
 
 	// Shutdown our DBImplementation
 	mDatabaseImplementation->Shutdown();
@@ -113,11 +107,10 @@ void DatabaseWorkerThread::run()
 	  // Main loop
 	  while(!mExit)
 	  {
-		// Is there a job waiting?
-		 mWorkerThreadMutex.acquire();
-
+          // Is there a job waiting?
 		if(mCurrentJob)
 		{
+            boost::mutex::scoped_lock lk(mWorkerThreadMutex);
 		  // Execute our query
 		  DatabaseResult* result = mDatabaseImplementation->ExecuteSql(mCurrentJob->getSql(),mCurrentJob->isMultiJob());
 
@@ -137,8 +130,6 @@ void DatabaseWorkerThread::run()
 
 		  mCurrentJob = 0;
 		} 
-
-		mWorkerThreadMutex.release();
 
 		// and always sleep a little.
         boost::this_thread::sleep(boost::posix_time::milliseconds(10));

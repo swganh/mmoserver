@@ -13,8 +13,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #define ANH_DATABASEMANAGER_DATABASEWORKERTHREAD_H
 
 #include "Utils/typedefs.h"
-#include "zthread/Mutex.h"
-#include "zthread/Thread.h"
+#include <boost/thread/thread.hpp>
 
 //======================================================================================================================
 class Database;
@@ -36,8 +35,6 @@ public:
 
   void                        ExecuteJob(DatabaseJob* job);
 
-  void                        Lock(void)              { mWorkerThreadMutex.acquire(); }
-  void                        Unlock(void)            { mWorkerThreadMutex.release(); }
   void						  requestExit(){ mExit = true; }
 
 protected:
@@ -58,8 +55,8 @@ private:
   DatabaseJob*                mCurrentJob;
   DBType                      mDatabaseImplementationType;
 
-  ZThread::Mutex              mWorkerThreadMutex;
-  ZThread::Thread*			  mThread;
+  boost::mutex              mWorkerThreadMutex;
+  boost::thread			    mThread;
   bool						  mExit;
 };
 
@@ -69,27 +66,10 @@ private:
 
 inline void DatabaseWorkerThread::ExecuteJob(DatabaseJob* job)
 {
-  mCurrentJob = job;
+    boost::mutex::scoped_lock lk(mWorkerThreadMutex);
+    mCurrentJob = job;
 }
 
 //======================================================================================================================
 
-class WorkerThreadRunnable : public ZThread::Runnable
-{
-	public:
-
-		WorkerThreadRunnable(DatabaseWorkerThread* r){ mWorkerThread = r; }
-		~WorkerThreadRunnable(){}
-
-		virtual void run(){ mWorkerThread->run(); }
-
-		DatabaseWorkerThread* mWorkerThread;
-};
-
-//======================================================================================================================
-
 #endif // ANH_DATABASEMANAGER_DATABASEWORKERTHREAD_H
-
-
-
-

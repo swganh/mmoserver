@@ -120,11 +120,7 @@ void Database::Process(void)
 		job		= mJobPendingQueue.pop();
 
 		// Hand The job to the worker.
-		worker->Lock();
-
 		worker->ExecuteJob(job);
-
-		worker->Unlock();
 	}
 
 	// Now process any completed jobs.

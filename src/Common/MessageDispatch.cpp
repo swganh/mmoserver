@@ -112,7 +112,8 @@ void MessageDispatch::handleSessionMessage(NetworkClient* client, Message* messa
 
 	DispatchClient* dispatchClient = 0;
 	bool deleteClient = false;
-	mSessionMutex.acquire();
+
+    boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
 	message->ResetIndex();
 
@@ -152,7 +153,7 @@ void MessageDispatch::handleSessionMessage(NetworkClient* client, Message* messa
 			gLogger->hexDump(message->getData(),message->getSize());
 
 			client->getSession()->DestroyIncomingMessage(message);
-			mSessionMutex.release();
+            lk.unlock();
 
 			return;
 		}
@@ -171,7 +172,7 @@ void MessageDispatch::handleSessionMessage(NetworkClient* client, Message* messa
 			//gLogger->hexDump(message->getData(),message->getSize());
 			client->getSession()->DestroyIncomingMessage(message);
 
-			mSessionMutex.release();
+			lk.unlock();
 			return;
 		}
 		/*
@@ -184,7 +185,7 @@ void MessageDispatch::handleSessionMessage(NetworkClient* client, Message* messa
 		}
 		*/
 	}
-	mSessionMutex.release();
+	lk.unlock();
 
 	MessageCallbackMap::iterator iter = mMessageCallbackMap.find(opcode);
 

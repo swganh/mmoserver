@@ -12,11 +12,11 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_COMMON_MESSAGEDISPATCH_H
 #define ANH_COMMON_MESSAGEDISPATCH_H
 
-//#include <winsock2.h>
-#include "Utils/typedefs.h"
 #include "NetworkManager/NetworkCallback.h"
+#include "Utils/typedefs.h"
+
+#include <boost/thread/recursive_mutex.hpp>
 #include <map>
-#include "zthread/RecursiveMutex.h"
 
 
 //======================================================================================================================
@@ -65,7 +65,7 @@ class MessageDispatch : public NetworkCallback
 		Service*					mRouterService;
 		MessageCallbackMap			mMessageCallbackMap;
 		AccountClientMap			mAccountClientMap;
-		ZThread::RecursiveMutex		mSessionMutex;
+        boost::recursive_mutex		mSessionMutex;
 };
 
 //======================================================================================================================

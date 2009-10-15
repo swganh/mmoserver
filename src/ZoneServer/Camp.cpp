@@ -9,10 +9,10 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
-
+#include "Camp.h"
 #include "MathLib/Quaternion.h"
 //#include "HarvesterObject.h"
-#include "Camp.h"
+
 
 
 //=============================================================================

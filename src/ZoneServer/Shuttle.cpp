@@ -8,15 +8,13 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
-
-#include "PlayerObject.h"
 #include "Shuttle.h"
-#include "WorldManager.h"
+#include "PlayerObject.h"
 #include "TicketCollector.h"
-#include "MathLib/Quaternion.h"
 #include "TravelMapHandler.h"
+#include "WorldManager.h"
 #include "MessageLib/MessageLib.h"
-
+#include "MathLib/Quaternion.h"
 
 //=============================================================================
 

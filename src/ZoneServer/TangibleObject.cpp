@@ -4,14 +4,14 @@ This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emu
 For more information, see http://www.swganh.org
 
 
-Copyright (c) 2006 - 2008 The swgANH Team
+Copyright (c) 2006 - 2009 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
-
-#include "MathLib/Quaternion.h"
 #include "TangibleObject.h"
 #include "DatabaseManager/database.h"
+#include "MathLib/Quaternion.h"
+
 
 
 //=============================================================================

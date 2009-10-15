@@ -10,12 +10,11 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "EquipManager.h"
-#include "Inventory.h"
-#include "LogManager/LogManager.h"
 #include "CreatureObject.h"
-#include "Weapon.h"
+#include "Inventory.h"
 #include "Object.h"
-
+#include "Weapon.h"
+#include "LogManager/LogManager.h"
 
 //=============================================================================
 

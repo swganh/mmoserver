@@ -4,26 +4,24 @@ This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emu
 For more information, see http://www.swganh.org
 
 
-Copyright (c) 2006 - 2008 The swgANH Team
+Copyright (c) 2006 - 2009 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
-
+#include "TicketCollector.h"
 #include "Inventory.h"
+#include "PlayerObject.h"
 #include "ObjectFactory.h"
 #include "Shuttle.h"
-#include "MathLib/Quaternion.h"
-#include "LogManager/LogManager.h"
-#include "UIManager.h"
-#include "UIListBox.h"
-#include "TicketCollector.h"
-#include "WorldManager.h"
-#include "PlayerObject.h"
-#include "TravelTicket.h"
 #include "TravelMapHandler.h"
-#include <time.h>
+#include "TravelTicket.h"
+#include "UIListBox.h"
+#include "UIManager.h"
+#include "WorldManager.h"
 #include "MessageLib/MessageLib.h"
-
+#include "LogManager/LogManager.h"
+#include "MathLib/Quaternion.h"
+#include <time.h>
 
 //=============================================================================
 

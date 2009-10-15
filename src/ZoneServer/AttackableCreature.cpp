@@ -10,19 +10,19 @@ Copyright (c) 2006 - 2009 The swgANH Team
 */
 
 #include "AttackableCreature.h"
-#include "NpcManager.h"
-#include "QuadTree.h"
+#include "CellObject.h"
+#include "Inventory.h"
+#include "LairObject.h"
 #include "MessageLib/MessageLib.h"
+#include "NpcManager.h"
 #include "PlayerObject.h"
+#include "QuadTree.h"
+#include "ResourceContainer.h"
+#include "Weapon.h"
 #include "WorldManager.h"
 #include "WorldConfig.h"
-#include "Weapon.h"
-#include "ZoneServer/NonPersistentNpcFactory.h"
-#include "LairObject.h"
-#include "ResourceContainer.h"
-#include "CellObject.h"
 #include "ZoneTree.h"
-#include "Inventory.h"
+#include "ZoneServer/NonPersistentNpcFactory.h"
 
 // TODO: Implement by functionality.
 static const int64 readyDefaultPeriodTime = 1000;

@@ -10,19 +10,22 @@ Copyright (c) 2006 - 2009 The swgANH Team
 */
 
 #include "ContainerObjectFactory.h"
-#include "TangibleFactory.h"
 #include "Container.h"
-#include "Common/DispatchClient.h"
+#include "CreatureObject.h"
 #include "ObjectFactoryCallback.h"
+#include "PlayerObject.h"
+#include "TangibleFactory.h"
+#include "WorldConfig.h"
+#include "WorldManager.h"
+
+#include "LogManager/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
-#include "LogManager/LogManager.h"
+#include "Common/DispatchClient.h"
+
 #include "Utils/utils.h"
-#include "CreatureObject.h"
-#include "PlayerObject.h"
-#include "WorldManager.h"
-#include "WorldConfig.h"
+
 #include <assert.h>
 
 //=============================================================================

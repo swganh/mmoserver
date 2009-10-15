@@ -10,25 +10,27 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "NonPersistantObjectFactory.h"
-#include "ObjectFactory.h"
-#include "PlayerObject.h"
-#include "ItemFactory.h"
-#include "Item.h"
 #include "CampRegion.h"
+#include "CampTerminal.h"
+#include "DraftSchematic.h"
+#include "Instrument.h"
+#include "Item.h"
+#include "ItemFactory.h"
+#include "ObjectFactory.h"
 #include "ObjectFactoryCallback.h"
+#include "PlayerObject.h"
+#include "ResourceManager.h"
+#include "StructureManager.h"
+#include "WorldManager.h"
+
+#include "MessageLib/MessageLib.h"
+#include "LogManager/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
-#include "LogManager/LogManager.h"
-#include "MessageLib/MessageLib.h"
-#include "WorldManager.h"
-#include "ResourceManager.h"
 #include "Utils/utils.h"
-#include "DraftSchematic.h"
 #include "Utils/typedefs.h"
-#include "StructureManager.h"
-#include "CampTerminal.h"
-#include "Instrument.h"
+
 #include <assert.h>
 
 //=============================================================================

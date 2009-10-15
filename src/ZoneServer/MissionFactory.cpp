@@ -8,11 +8,11 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
-
+#include "MissionFactory.h"
 #include "ObjectFactoryCallback.h"
 #include "LogManager/LogManager.h"
 #include "Utils/utils.h"
-#include "MissionFactory.h"
+
 
 //=============================================================================
 

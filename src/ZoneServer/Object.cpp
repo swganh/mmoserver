@@ -10,12 +10,13 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "Object.h"
+#include "PlayerObject.h"
 #include "WorldManager.h"
+#include "ZoneOpcodes.h"
 #include "MessageLib/MessageLib.h"
 #include "Common/Message.h"
 #include "Common/MessageFactory.h"
-#include "PlayerObject.h"
-#include "ZoneOpcodes.h"
+
 
 //=============================================================================
 

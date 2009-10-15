@@ -12,30 +12,27 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "ObjectFactory.h"
 #include "BuildingFactory.h"
 #include "CreatureFactory.h"
+#include "Deed.h"
+#include "DraftSchematic.h"
 #include "HarvesterFactory.h"
 #include "IntangibleObject.h"
 #include "IntangibleFactory.h"
 #include "ManufacturingSchematic.h"
+#include "ObjectFactoryCallback.h"
 #include "PlayerObject.h"
 #include "PlayerObjectFactory.h"
 #include "RegionFactory.h"
+#include "ResourceManager.h"
+#include "StructureManager.h"
 #include "TangibleFactory.h"
+#include "TravelMapHandler.h"
 #include "WaypointFactory.h"
-#include "Deed.h"
-#include "ObjectFactoryCallback.h"
+#include "WorldManager.h"
+#include "LogManager/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
-#include "LogManager/LogManager.h"
-#include "WorldManager.h"
-#include "ResourceManager.h"
 #include "Utils/utils.h"
-#include "DraftSchematic.h"
-#include "StructureManager.h"
-#include "TravelMapHandler.h"
-
-
-
 #include <assert.h>
 
 //=============================================================================

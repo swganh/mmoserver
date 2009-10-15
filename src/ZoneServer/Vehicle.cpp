@@ -10,12 +10,13 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "Vehicle.h"
-#include "Object.h"
-#include "IntangibleObject.h"
 #include "CreatureObject.h"
+#include "IntangibleObject.h"
 #include "PlayerObject.h"
-#include "MessageLib/MessageLib.h"
+#include "Object.h"
 #include "WorldManager.h"
+#include "MessageLib/MessageLib.h"
+
 
 //very temp
 unsigned char Swoop_Customization[99] =	{ 0x61, 0x00, 0x02, 0x11, 0xC3, //customization data

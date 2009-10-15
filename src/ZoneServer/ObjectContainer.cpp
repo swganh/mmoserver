@@ -10,8 +10,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "ObjectContainer.h"
-#include "MessageLib/MessageLib.h"
 #include "PlayerObject.h"
+#include "MessageLib/MessageLib.h"
+
 
 //=============================================================================
 

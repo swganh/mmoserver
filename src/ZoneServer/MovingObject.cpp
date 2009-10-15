@@ -8,9 +8,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
-
-#include "MathLib/Quaternion.h"
 #include "MovingObject.h"
+#include "MathLib/Quaternion.h"
+
 
 //=============================================================================
 

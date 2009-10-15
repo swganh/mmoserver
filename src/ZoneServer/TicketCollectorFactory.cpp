@@ -10,14 +10,13 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "TicketCollectorFactory.h"
-#include "TicketCollector.h"
 #include "ObjectFactoryCallback.h"
+#include "TicketCollector.h"
+#include "LogManager/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
-#include "LogManager/LogManager.h"
 #include "Utils/utils.h"
-
 #include <assert.h>
 
 //=============================================================================

@@ -10,21 +10,22 @@ Copyright (c) 2006 - 2009 The swgANH Team
 */
 
 #include "Trainer.h"
-#include "QuadTree.h"
-#include "MathLib/Quaternion.h"
-#include "Conversation.h"
-#include "SkillManager.h"
-#include "PlayerObject.h"
-#include "WorldManager.h"
 #include "ActiveConversation.h"
-#include "MessageLib/MessageLib.h"
+#include "Bank.h"
+#include "CellObject.h"
+#include "Conversation.h"
+#include "Inventory.h"
+#include "PlayerObject.h"
+#include "QuadTree.h"
+#include "SkillManager.h"
+#include "WorldManager.h"
 #include "UIManager.h"
 #include "WorldConfig.h"
 #include "Tutorial.h"
-#include "Bank.h"
-#include "CellObject.h"
 #include "ZoneTree.h"
-#include "Inventory.h"
+
+#include "MessageLib/MessageLib.h"
+#include "MathLib/Quaternion.h"
 
 //=============================================================================
 

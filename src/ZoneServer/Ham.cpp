@@ -1,10 +1,22 @@
+/*
+---------------------------------------------------------------------------------------
+This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
+For more information, see http://www.swganh.org
+
+
+Copyright (c) 2006 - 2009 The swgANH Team
+
+---------------------------------------------------------------------------------------
+*/
 #include "Ham.h"
+#include "CreatureObject.h"
+#include "PlayerObject.h"
+#include "WorldConfig.h"
 #include "WorldManager.h"
 #include "MessageLib/MessageLib.h"
 #include "LogManager/LogManager.h"
-#include "WorldConfig.h"
-#include "CreatureObject.h"
-#include "PlayerObject.h"
+
+
 
 //===========================================================================
 

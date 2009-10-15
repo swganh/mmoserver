@@ -4,22 +4,22 @@ This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emu
 For more information, see http://www.swganh.org
 
 
-Copyright (c) 2006 - 2008 The swgANH Team
+Copyright (c) 2006 - 2009 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
 
 #include "MissionObject.h"
 #include "MissionManager.h" //circular dependency ohmy!
-#include "MathLib/Quaternion.h"
-#include "Common/Message.h"
-#include "Common/MessageFactory.h"
-#include "PlayerObject.h"
-#include "WaypointObject.h"
 #include "NPCObject.h"
+#include "PlayerObject.h"
 #include "Terminal.h"
+#include "WaypointObject.h"
 #include "ZoneOpcodes.h"
 
+#include "Common/Message.h"
+#include "Common/MessageFactory.h"
+#include "MathLib/Quaternion.h"
 
 //=============================================================================
 

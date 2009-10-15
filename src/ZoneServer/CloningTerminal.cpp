@@ -4,23 +4,22 @@ This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emu
 For more information, see http://www.swganh.org
 
 
-Copyright (c) 2006 - 2008 The swgANH Team
+Copyright (c) 2006 - 2009 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
-
-#include "MathLib/Quaternion.h"
-#include "PlayerObject.h"
-#include "WorldManager.h"
-#include "DatabaseManager/Database.h"
-#include "LogManager/LogManager.h"
-#include "MessageLib/MessageLib.h"
-#include "UIManager.h"
-#include "TreasuryManager.h"
 #include "CloningTerminal.h"
-#include "ZoneServer/Tutorial.h"
-#include "ZoneServer/WorldConfig.h"
 #include "Bank.h"
+#include "PlayerObject.h"
+#include "TreasuryManager.h"
+#include "ZoneServer/Tutorial.h"
+#include "UIManager.h"
+#include "ZoneServer/WorldConfig.h"
+#include "WorldManager.h"
+#include "MessageLib/MessageLib.h"
+#include "LogManager/LogManager.h"
+#include "DatabaseManager/Database.h"
+#include "MathLib/Quaternion.h"
 
 // TODO: Make this a Var when we start use the 20% discount from player city with "Clone Lab" specializations.
 const int32 cloningCost = 1000;

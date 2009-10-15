@@ -10,9 +10,10 @@ Copyright (c) 2006 - 2009 The swgANH Team
 */
 
 #include "ZoneTree.h"
-#include "WorldManager.h"
 #include "BuildingObject.h"
 #include "CellObject.h"
+#include "WorldManager.h"
+
 
 using namespace SpatialIndex;
 

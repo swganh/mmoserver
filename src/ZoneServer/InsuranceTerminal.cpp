@@ -8,20 +8,20 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
-
-#include "MathLib/Quaternion.h"
-#include "PlayerObject.h"
-#include "WorldManager.h"
-#include "DatabaseManager/Database.h"
-#include "LogManager/LogManager.h"
-#include "MessageLib/MessageLib.h"
-#include "UIManager.h"
-#include "TreasuryManager.h"
 #include "InsuranceTerminal.h"
-#include "Tutorial.h"
-#include "WorldConfig.h"
-#include "TangibleObject.h"
 #include "Bank.h"
+
+#include "PlayerObject.h"
+#include "TangibleObject.h"
+#include "TreasuryManager.h"
+#include "Tutorial.h"
+#include "UIManager.h"
+#include "WorldConfig.h"
+#include "WorldManager.h"
+#include "MessageLib/MessageLib.h"
+#include "LogManager/LogManager.h"
+#include "DatabaseManager/Database.h"
+#include "MathLib/Quaternion.h"
 
 const int32 insuranceFee = 100;
 

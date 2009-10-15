@@ -4,20 +4,19 @@ This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emu
 For more information, see http://www.swganh.org
 
 
-Copyright (c) 2006 - 2008 The swgANH Team
+Copyright (c) 2006 - 2009 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
 
 #include "FillerNPC.h"
-#include "MathLib/Quaternion.h"
-
-#include "MessageLib/MessageLib.h"
-#include "WorldManager.h"
-#include "WorldConfig.h"
-
 #include "Conversation.h"
 #include "PlayerObject.h"
+#include "WorldConfig.h"
+#include "WorldManager.h"
+
+#include "MessageLib/MessageLib.h"
+#include "MathLib/Quaternion.h"
 
 static const int64	tutorialPlayersPeriodUpdateTime = 5000;		// 5000ms
 

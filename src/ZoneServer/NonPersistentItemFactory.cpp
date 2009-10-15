@@ -10,16 +10,15 @@ Copyright (c) 2006 - 2009 The swgANH Team
 */
 
 #include "NonPersistentItemFactory.h"
+#include "Food.h"
+#include "ItemFactory.h"
 #include "ObjectFactoryCallback.h"
+#include "WorldManager.h"
+#include "LogManager/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
-#include "LogManager/LogManager.h"
 #include "Utils/utils.h"
-#include "ItemFactory.h"
-#include "Food.h"
-#include "WorldManager.h"
-
 #include <assert.h>
 
 //=============================================================================

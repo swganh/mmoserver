@@ -4,22 +4,23 @@ This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emu
 For more information, see http://www.swganh.org
 
 
-Copyright (c) 2006 - 2008 The swgANH Team
+Copyright (c) 2006 - 2009 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
 
 #include "Datapad.h"
 #include "IntangibleObject.h"
-#include "MissionObject.h"
-#include "MathLib/Quaternion.h"
 #include "ManufacturingSchematic.h"
-#include "MessageLib/MessageLib.h"
-#include "WaypointObject.h"
-#include "WorldManager.h"
-#include "WorldConfig.h"
-#include "PlayerObject.h"
+#include "MissionObject.h"
 #include "ObjectFactory.h"
+#include "PlayerObject.h"
+#include "WaypointObject.h"
+#include "WorldConfig.h"
+#include "WorldManager.h"
+
+#include "MessageLib/MessageLib.h"
+#include "MathLib/Quaternion.h"
 
 //=============================================================================
 

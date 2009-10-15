@@ -4,22 +4,22 @@ This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emu
 For more information, see http://www.swganh.org
 
 
-Copyright (c) 2006 - 2008 The swgANH Team
+Copyright (c) 2006 - 2009 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
 
 #include "LairObject.h"
-#include "NpcManager.h"
-#include "QuadTree.h"
-#include "MathLib/Quaternion.h"
 #include "AttackableCreature.h"
-#include "PlayerObject.h"
 #include "CellObject.h"
-#include "WorldManager.h"
-#include "MessageLib/MessageLib.h"
 #include "NonPersistentNpcFactory.h"
+#include "NpcManager.h"
+#include "PlayerObject.h"
+#include "QuadTree.h"
+#include "WorldManager.h"
 #include "ZoneTree.h"
+#include "MessageLib/MessageLib.h"
+#include "MathLib/Quaternion.h"
 
 static const int64 dormantDefaultPeriodTime = 10000;
 static const int64 readyDefaultPeriodTime = 1000;

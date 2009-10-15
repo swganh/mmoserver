@@ -4,23 +4,21 @@ This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emu
 For more information, see http://www.swganh.org
 
 
-Copyright (c) 2006 - 2008 The swgANH Team
+Copyright (c) 2006 - 2009 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
 
 #include "ResourceContainer.h"
 #include "PlayerObject.h"
+#include "Resource.h"
+#include "ResourceType.h"
+#include "WorldManager.h"
 #include "ZoneServer/ZoneOpcodes.h"
 #include "LogManager/LogManager.h"
-#include "WorldManager.h"
-#include "MathLib/Quaternion.h"
-#include "Resource.h"
-#include "PlayerObject.h"
-#include "ResourceType.h"
 #include "Common/Message.h"
 #include "Common/MessageFactory.h"
-
+#include "MathLib/Quaternion.h"
 
 //=============================================================================
 

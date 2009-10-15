@@ -1,11 +1,23 @@
+/*
+---------------------------------------------------------------------------------------
+This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
+For more information, see http://www.swganh.org
+
+
+Copyright (c) 2006 - 2009 The swgANH Team
+
+---------------------------------------------------------------------------------------
+*/
 #include "FactoryBase.h"
 #include "Object.h"
+#include "WorldManager.h"
+#include "LogManager/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/Databaseresult.h"
 #include "DatabaseManager/DataBinding.h"
 #include "Utils/utils.h"
-#include "LogManager/LogManager.h"
-#include "WorldManager.h"
+
+
 
 
 //=============================================================================

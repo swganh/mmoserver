@@ -8,11 +8,10 @@ Copyright (c) 2006 - 2009 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
-
-#include "Utils/utils.h"
+#include "Heightmap.h"
 #include "ZoneServer/WorldManager.h"
 #include "LogManager/LogManager.h"
-#include "Heightmap.h"
+#include "Utils/utils.h"
 #include <assert.h>
 #include <float.h>
 

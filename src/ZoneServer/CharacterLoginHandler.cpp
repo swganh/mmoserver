@@ -4,31 +4,32 @@ This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emu
 For more information, see http://www.swganh.org
 
 
-Copyright (c) 2006 - 2008 The swgANH Team
+Copyright (c) 2006 - 2009 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
 
 #include "CharacterLoginHandler.h"
+#include "BuffManager.h"
 #include "Inventory.h"
+#include "ObjectFactory.h"
+#include "PlayerObject.h"
+#include "TravelMapHandler.h"
 #include "TravelTicket.h"
+#include "Tutorial.h"
+#include "WorldConfig.h"
+#include "WorldManager.h"
+#include "ZoneOpcodes.h"
+#include "MessageLib/MessageLib.h"
+#include "LogManager/LogManager.h"
+#include "DatabaseManager/Database.h"
+#include "Common/DispatchClient.h"
+#include "Common/Message.h"
 #include "Common/MessageDispatch.h"
 #include "Common/MessageFactory.h"
 #include "Common/MessageOpcodes.h"
-#include "Common/Message.h"
-#include "Common/DispatchClient.h"
-#include "DatabaseManager/Database.h"
 #include "ConfigManager/ConfigManager.h"
-#include "LogManager/LogManager.h"
-#include "MessageLib/MessageLib.h"
-#include "WorldManager.h"
-#include "WorldConfig.h"
-#include "BuffManager.h"
-#include "Tutorial.h"
-#include "TravelMapHandler.h"
-#include "ZoneOpcodes.h"
-#include "PlayerObject.h"
-#include "ObjectFactory.h"
+
 
 //======================================================================================================================
 

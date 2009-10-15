@@ -8,16 +8,16 @@ Copyright (c) 2006 - 2009 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
-
-#include "MathLib/Quaternion.h"
-#include "PlayerObject.h"
-#include "MessageLib/MessageLib.h"
 #include "CampTerminal.h"
 #include "Camp.h"
 #include "CampRegion.h"
-#include "ZoneServer/WorldManager.h"
-#include "LogManager/LogManager.h"
+#include "PlayerObject.h"
 #include "UIManager.h"
+#include "ZoneServer/WorldManager.h"
+#include "MessageLib/MessageLib.h"
+#include "LogManager/LogManager.h"
+#include "MathLib/Quaternion.h"
+
 
 
 //=============================================================================

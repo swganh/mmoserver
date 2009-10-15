@@ -10,15 +10,16 @@ Copyright (c) 2006 - 2009 The swgANH Team
 */
 
 #include "Scout.h"
-#include "MathLib/Quaternion.h"
-#include "PlayerObject.h"
-#include "ZoneOpcodes.h"
-#include "Worldmanager.h"
-#include "ScoutManager.h"
 #include "Camp.h"
-#include "StructureManager.h"
 #include "Item_Enums.h"
 #include "nonPersistantObjectFactory.h"
+#include "PlayerObject.h"
+#include "ScoutManager.h"
+#include "StructureManager.h"
+#include "Worldmanager.h"
+#include "ZoneOpcodes.h"
+
+#include "MathLib/Quaternion.h"
 #include "Common/Message.h"
 #include "Common/MessageFactory.h"
 

@@ -12,11 +12,11 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "TangibleFactory.h"
 #include "ContainerObjectFactory.h"
 #include "ItemFactory.h"
+
 #include "ResourceContainerFactory.h"
+#include "TangibleEnums.h"
 #include "TerminalFactory.h"
 #include "TicketCollectorFactory.h"
-#include "TangibleEnums.h"
-#include "ObjectFactoryCallback.h"
 #include "LogManager/LogManager.h"
 #include "Utils/utils.h"
 

@@ -11,14 +11,14 @@ Copyright (c) 2006 - 2009 The swgANH Team
 
 #include "Firework.h"
 #include "FireworkEvent.h"
-#include "PlayerObject.h"
-#include "Item.h"
 #include "FireworkManager.h"
-#include "LogManager/LogManager.h"
+#include "Inventory.h"
+#include "Item.h"
+#include "ObjectFactory.h"
+#include "PlayerObject.h"
 #include "UIManager.h"
 #include "MessageLib/MessageLib.h"
-#include "Inventory.h"
-#include "ObjectFactory.h"
+#include "LogManager/LogManager.h"
 
 //=============================================================================
 

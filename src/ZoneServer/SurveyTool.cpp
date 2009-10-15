@@ -10,22 +10,23 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "SurveyTool.h"
-#include "PlayerObject.h"
-#include "MathLib/Quaternion.h"
-#include "ResourceManager.h"
-#include "WorldManager.h"
-#include "DatabaseManager/Database.h"
+#include "ObjectControllerOpcodes.h"
 #include "ObjectFactory.h"
+#include "PlayerObject.h"
+#include "ResourceCategory.h"
+#include "ResourceManager.h"
+#include "ResourceType.h"
 #include "UIManager.h"
-#include "Common/MessageFactory.h"
-#include "Common/MessageOpcodes.h"
+#include "WorldManager.h"
+#include "ZoneOpcodes.h"
 #include "MessageLib/MessageLib.h"
 #include "LogManager/LogManager.h"
-#include "ObjectControllerOpcodes.h"
+#include "DatabaseManager/Database.h"
+#include "Common/MessageFactory.h"
+#include "Common/MessageOpcodes.h"
+#include "MathLib/Quaternion.h"
 #include <boost/lexical_cast.hpp>
-#include "ZoneOpcodes.h"
-#include "ResourceType.h"
-#include "ResourceCategory.h"
+
 
 //=============================================================================
 

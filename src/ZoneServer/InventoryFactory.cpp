@@ -10,14 +10,15 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "InventoryFactory.h"
-#include "TangibleFactory.h"
 #include "Inventory.h"
 #include "ObjectFactoryCallback.h"
+#include "TangibleFactory.h"
+#include "WorldManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
 #include "LogManager/LogManager.h"
-#include "WorldManager.h"
+
 #include "Utils/utils.h"
 
 #include <assert.h>

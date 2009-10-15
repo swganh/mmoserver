@@ -4,17 +4,17 @@ This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emu
 For more information, see http://www.swganh.org
 
 
-Copyright (c) 2006 - 2008 The swgANH Team
+Copyright (c) 2006 - 2009 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
 
 #include "CampRegion.h"
 #include "Camp.h"
+#include "PlayerObject.h"
 #include "QTRegion.h"
 #include "QuadTree.h"
 #include "WorldManager.h"
-#include "PlayerObject.h"
 #include "ZoneTree.h"
 #include "MessageLib/MessageLib.h"
 

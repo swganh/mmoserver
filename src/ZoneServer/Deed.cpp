@@ -10,23 +10,24 @@ Copyright (c) 2006 - 2009 The swgANH Team
 */
 
 #include "Deed.h"
-#include "Datapad.h"
-#include "MathLib/Quaternion.h"
-#include "PlayerObject.h"
-#include "ZoneOpcodes.h"
-#include "Worldmanager.h"
-#include "ScoutManager.h"
 #include "Camp.h"
-#include "StructureManager.h"
+#include "Datapad.h"
+#include "Inventory.h"
 #include "Item_Enums.h"
 #include "nonPersistantObjectFactory.h"
-#include "VehicleFactory.h"
-#include "MessageLib/MessageLib.h"
-#include "Inventory.h"
 #include "ObjectFactory.h"
+#include "PlayerObject.h"
+#include "ScoutManager.h"
+#include "StructureManager.h"
+#include "VehicleFactory.h"
+#include "Worldmanager.h"
+#include "ZoneOpcodes.h"
+
+#include "MessageLib/MessageLib.h"
+
 #include "Common/Message.h"
 #include "Common/MessageFactory.h"
-
+#include "MathLib/Quaternion.h"
 //=============================================================================
 
 Deed::Deed() : Item()

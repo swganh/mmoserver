@@ -8,20 +8,18 @@ Copyright (c) 2006 - 2009 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
-
-#include "MathLib/Quaternion.h"
 #include "Food.h"
-#include "PlayerObject.h"
-#include "Inventory.h"
 #include "Buff.h"
-#include "WorldManager.h"
+#include "Inventory.h"
+#include "NPCObject.h"
+#include "ObjectFactory.h"
+#include "PlayerObject.h"
 #include "WorldConfig.h"
+#include "WorldManager.h"
 #include "ZoneServer/Tutorial.h"
 #include "DatabaseManager/Database.h"
 #include "MessageLib/MessageLib.h"
-#include "NPCObject.h"
-#include "ObjectFactory.h"
-
+#include "MathLib/Quaternion.h"
 
 //=============================================================================
 

@@ -12,10 +12,11 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "RegionFactory.h"
 #include "BadgeRegionFactory.h"
 #include "CityFactory.h"
+#include "ObjectFactoryCallback.h"
 #include "QTRegionFactory.h"
 #include "RegionObject.h"
 #include "SpawnRegionFactory.h"
-#include "ObjectFactoryCallback.h"
+
 #include "LogManager/LogManager.h"
 #include "Utils/utils.h"
 

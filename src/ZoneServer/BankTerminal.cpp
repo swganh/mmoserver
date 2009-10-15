@@ -8,16 +8,16 @@ Copyright (c) 2006 - 2009 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
-
-#include "MathLib/Quaternion.h"
-#include "PlayerObject.h"
-#include "LogManager/LogManager.h"
-#include "MessageLib/MessageLib.h"
-#include "UIManager.h"
-#include "TreasuryManager.h"
 #include "BankTerminal.h"
 #include "Bank.h"
 #include "Inventory.h"
+#include "PlayerObject.h"
+#include "TreasuryManager.h"
+#include "UIManager.h"
+#include "MessageLib/MessageLib.h"
+#include "LogManager/LogManager.h"
+#include "MathLib/Quaternion.h"
+
 
 //=============================================================================
 

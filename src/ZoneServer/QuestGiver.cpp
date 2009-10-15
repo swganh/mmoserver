@@ -10,17 +10,15 @@ Copyright (c) 2006 - 2009 The swgANH Team
 */
 
 #include "QuestGiver.h"
-#include "MathLib/Quaternion.h"
-
-#include "MessageLib/MessageLib.h"
-#include "WorldManager.h"
-#include "WorldConfig.h"
-#include "Inventory.h"
-#include "Conversation.h"
 #include "ActiveConversation.h"
+#include "Conversation.h"
+#include "Inventory.h"
 #include "PlayerObject.h"
 #include "Tutorial.h"
-
+#include "WorldManager.h"
+#include "WorldConfig.h"
+#include "MessageLib/MessageLib.h"
+#include "MathLib/Quaternion.h"
 //=============================================================================
 
 QuestGiver::QuestGiver() : NPCObject()

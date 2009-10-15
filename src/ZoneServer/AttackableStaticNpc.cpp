@@ -10,14 +10,14 @@ Copyright (c) 2006 - 2009 The swgANH Team
 */
 
 #include "AttackableStaticNpc.h"
-#include "QuadTree.h"
-#include "WorldManager.h"
-#include "MessageLib/MessageLib.h"
-#include "WorldConfig.h"
 #include "CellObject.h"
-#include "ZoneTree.h"
 #include "PlayerObject.h"
+#include "QuadTree.h"
+#include "WorldConfig.h"
+#include "WorldManager.h"
+#include "ZoneTree.h"
 
+#include "MessageLib/MessageLib.h"
 //=============================================================================
 
 AttackableStaticNpc::AttackableStaticNpc() : NPCObject(), mDeathEffectId(144)

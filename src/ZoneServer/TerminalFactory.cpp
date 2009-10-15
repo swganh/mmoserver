@@ -8,21 +8,22 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
+#include "TerminalFactory.h"
 
-#include "ElevatorTerminal.h"
-#include "TravelTerminal.h"
 #include "BankTerminal.h"
-#include "CharacterBuilderTerminal.h"
 #include "BazaarTerminal.h"
+#include "CharacterBuilderTerminal.h"
 #include "CloningTerminal.h"
+#include "ElevatorTerminal.h"
 #include "InsuranceTerminal.h"
 #include "MissionTerminal.h"
-#include "TerminalFactory.h"
 #include "ObjectFactoryCallback.h"
+#include "TravelTerminal.h"
+#include "LogManager/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
-#include "LogManager/LogManager.h"
+
 #include "Utils/utils.h"
 
 #include <assert.h>

@@ -60,8 +60,6 @@ void Log::logMsg(const std::string& msg,MsgPriority mp,bool fileOut,bool console
 //======================================================================================================================
 void Log::logMsg(const std::string& msg,MsgPriority mp,bool fileOut,bool consoleOut,bool timestamp, int Color)
 {
-	char tStringBuffer[32];
-
 	if(mLogLevel + mp > mGlobalLogLevel)
 	{
 		std::string tstring;
@@ -77,22 +75,8 @@ void Log::logMsg(const std::string& msg,MsgPriority mp,bool fileOut,bool console
 			ts = localtime(&t);
 			
 			tstring.append("[");
-			tstring.append(_itoa(ts->tm_hour,tStringBuffer,10));
-			tstring.append(":");
-			tstring.append(_itoa(ts->tm_min,tStringBuffer,10));
-			tstring.append(":");
-			tstring.append(_itoa(ts->tm_sec,tStringBuffer,10));
+			tstring.append(timestamp_());
 			tstring.append("]");
-			/*
-
-			tstream << "[" << std::setw(2) << std::setfill('0') << ts->tm_hour
-					<< ":" << std::setw(2) << std::setfill('0') << ts->tm_min
-					<< ":" << std::setw(2) << std::setfill('0') << ts->tm_sec 
-					<< "] ";
-
-			tstring = tstream.str();
-			  */
-
 		}
 
 
@@ -129,43 +113,14 @@ void Log::logMsg(const std::string& msg, MsgPriority priority, va_list args)
   // format our string with all the optional args.
   vsprintf(buf, msg.c_str(), args);
 
-  char tStringBuffer[32];
-
 	if(mLogLevel + priority > mGlobalLogLevel)
 	{  
         boost::mutex::scoped_lock lock(mGlobalLogMutex);
 
 		std::string tstring;
 
-		std::ostringstream tstream;
-		struct tm *ts;
-		time_t t;
-		time(&t);
-		ts = localtime(&t);
-		
-
-		int16 time;
-	
 		tstring.append("[");
-		time = ts->tm_hour;	
-		if(time<9)
-			tstring.append(_itoa(0,tStringBuffer,10));
-
-		tstring.append(_itoa(ts->tm_hour,tStringBuffer,10));
-		tstring.append(":");
-
-		time = ts->tm_min;
-		if(time<9)
-			tstring.append(_itoa(0,tStringBuffer,10));
-		
-		tstring.append(_itoa(ts->tm_min,tStringBuffer,10));
-		tstring.append(":");
-
-		time = ts->tm_sec;
-		if(time<9)
-			tstring.append(_itoa(0,tStringBuffer,10));
-
-		tstring.append(_itoa(ts->tm_sec,tStringBuffer,10));
+		tstring.append(timestamp_());
 		tstring.append("]");
 		
 		tstring.append(buf);
@@ -214,33 +169,12 @@ void Log::logMsg(const std::string& zone, const std::string& system, const std::
 	if((mLogLevel + priority > mGlobalLogLevel)&&(mFileOut||mConsoleOut))
 	{
         boost::mutex::scoped_lock lock(mGlobalLogMutex);
+
 		std::string tstring;
 
-		std::ostringstream tstream;
-		struct tm *ts;
-		time_t t;
-		time(&t);
-		ts = localtime(&t);
-		
-		char tStringBuffer[32];
-
 		tstring.append("[");
-		tstring.append(_itoa(ts->tm_hour,tStringBuffer,10));
-		tstring.append(":");
-		tstring.append(_itoa(ts->tm_min,tStringBuffer,10));
-		tstring.append(":");
-		tstring.append(_itoa(ts->tm_sec,tStringBuffer,10));
+		tstring.append(timestamp_());
 		tstring.append("]");
-		/*
-
-		tstream << "[" << std::setw(2) << std::setfill('0') << ts->tm_hour
-				<< ":" << std::setw(2) << std::setfill('0') << ts->tm_min
-				<< ":" << std::setw(2) << std::setfill('0') << ts->tm_sec 
-				<< "] ";
-
-		tstring = tstream.str();
-		  */
-
 
 		if(mFileOut)
 		{
@@ -265,26 +199,13 @@ void Log::logMsgNolf(const std::string& msg,MsgPriority mp,bool fileOut,bool con
 
 	if(mLogLevel + mp > mGlobalLogLevel)
 	{
-		std::string tstring;
-
         boost::mutex::scoped_lock lock(mGlobalLogMutex);
+
+		std::string tstring;
 
 		if(timestamp)
 		{
-			std::ostringstream tstream;
-			struct tm *ts;
-			time_t t;
-			time(&t);
-			ts = localtime(&t);
-		
-			char tStringBuffer[32];
-
-			tstring.append("[");
-			tstring.append(_itoa(ts->tm_hour,tStringBuffer,10));
-			tstring.append(":");
-			tstring.append(_itoa(ts->tm_min,tStringBuffer,10));
-			tstring.append(":");
-			tstring.append(_itoa(ts->tm_sec,tStringBuffer,10));
+			tstring.append(timestamp_());
 			tstring.append("]");
 
 		}
@@ -324,39 +245,16 @@ void Log::logMsgNolf(const std::string& msg,MsgPriority mp,bool fileOut,bool con
 
 	if(mLogLevel + mp > mGlobalLogLevel)
 	{
-		std::string tstring;
-
         boost::mutex::scoped_lock lock(mGlobalLogMutex);
+
+		std::string tstring;
 
 		if(timestamp)
 		{
-			std::ostringstream tstream;
-			struct tm *ts;
-			time_t t;
-			time(&t);
-			ts = localtime(&t);
-			
-			char tStringBuffer[32];
-
 			tstring.append("[");
-			tstring.append(_itoa(ts->tm_hour,tStringBuffer,10));
-			tstring.append(":");
-			tstring.append(_itoa(ts->tm_min,tStringBuffer,10));
-			tstring.append(":");
-			tstring.append(_itoa(ts->tm_sec,tStringBuffer,10));
+			tstring.append(timestamp_());
 			tstring.append("]");
-			/*
-
-			tstream << "[" << std::setw(2) << std::setfill('0') << ts->tm_hour
-					<< ":" << std::setw(2) << std::setfill('0') << ts->tm_min
-					<< ":" << std::setw(2) << std::setfill('0') << ts->tm_sec 
-					<< "] ";
-
-			tstring = tstream.str();
-			  */
-
 		}
-
 
 		if(mFileOut && fileOut)
 		{
@@ -397,19 +295,8 @@ uint16 Log::logMsgNolf(const std::string& msg, MsgPriority priority, va_list arg
 
         boost::mutex::scoped_lock lock(mGlobalLogMutex);
 
-		struct tm *ts;
-		time_t t;
-		time(&t);
-		ts = localtime(&t);
-		
-		char tStringBuffer[32];
-
 		tstring.append("[");
-		tstring.append(_itoa(ts->tm_hour,tStringBuffer,10));
-		tstring.append(":");
-		tstring.append(_itoa(ts->tm_min,tStringBuffer,10));
-		tstring.append(":");
-		tstring.append(_itoa(ts->tm_sec,tStringBuffer,10));
+		tstring.append(timestamp_());
 		tstring.append("]");
 		tstring.append(buf);
 
@@ -469,6 +356,22 @@ void Log::hexDump(int8* data,uint32 len,const char* filename)
 	}
 	fprintf(out,"\n\n-----------------------------------------------------------\n\n");
 	fclose(out);
+}
+
+//======================================================================================================================
+
+std::string Log::timestamp_()
+{
+    time_t raw_time;  
+    struct tm * time_info;  
+  
+    time(&raw_time);  
+    time_info = localtime(&raw_time);
+    
+    std::ostringstream os;
+    os << std::setw(2) << std::setfill('0') << time_info->tm_hour << ":" << std::setw(2) << std::setfill('0') << time_info->tm_min << ":" << std::setw(2) << std::setfill('0') << time_info->tm_sec;
+    
+    return os.str();
 }
 
 //======================================================================================================================

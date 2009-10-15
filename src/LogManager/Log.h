@@ -84,6 +84,7 @@ class Log
 		void	setGlobalLogLevel(GlobalLogLevel level) { mGlobalLogLevel = level; }
 
 	private:
+        std::string     timestamp_();
 
 		std::ofstream	mLogStream;
 		std::string		mName;
@@ -95,6 +96,8 @@ class Log
 		GlobalLogLevel	mGlobalLogLevel;
 		boost::mutex    mGlobalLogMutex;
 		Database*		mDatabase;
+
+
 };
 
 //======================================================================================================================

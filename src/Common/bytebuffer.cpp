@@ -17,6 +17,7 @@
 //
 #include "bytebuffer.h"
 #include <iostream>
+#include <cstring>
 
 //-------------------------------------------------------------------------------------------------------------------
 bytebuffer::bytebuffer()

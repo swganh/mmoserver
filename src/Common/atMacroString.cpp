@@ -1,4 +1,5 @@
 #include "atMacroString.h"
+#include <cstring>
 
 atMacroString::atMacroString(void)
 {

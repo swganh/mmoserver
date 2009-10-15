@@ -167,7 +167,7 @@ void HarvesterFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id
 
 								*/
 	int8 hmm[1024];
-	sprintf(hmm, "SELECT harvesters.id,harvesters.owner,harvesters.oX,harvesters.oY,harvesters.oZ,harvesters.oW,harvesters.x,harvesters.y,harvesters.z,structure_type_data.type,structure_type_data.object_string,structure_type_data.stf_name, structure_type_data.stf_file, harvesters.name FROM harvesters INNER JOIN structure_type_data ON (harvesters.type = structure_type_data.type) WHERE (harvesters.id = %I64u)",id);
+	sprintf(hmm, "SELECT s.id,s.owner,s.oX,s.oY,s.oZ,s.oW,s.x,s.y,s.z,structure_type_data.type,structure_type_data.object_string,structure_type_data.stf_name, structure_type_data.stf_file, s.name FROM structures s INNER JOIN structure_type_data ON (s.type = structure_type_data.type) WHERE (s.id = %I64u)",id);
 	QueryContainerBase* asynContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,HFQuery_MainData,client,id);
 
 	mDatabase->ExecuteSqlAsync(this,asynContainer,hmm);

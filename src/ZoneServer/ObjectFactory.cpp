@@ -280,7 +280,7 @@ void ObjectFactory::requestnewHarvesterbyDeed(ObjectFactoryCallback* ofCallback,
 	
 	gLogger->logMsgF("dir is %f, x:%f, y:%f, z:%f, w:%f",MSG_HIGH,dir,oX, oY, oZ, oW);
 	
-	sprintf(sql,"SELECT sf_DefaultHarvesterCreate(%u,0,%I64u,%u,%f,%f,%f,%f,%f,%f,%f,'%s')",deedLink->structure_type, player->getPlayerObjId(), gWorldManager->getZoneId(),oX,oY,oZ,oW,x,y,z,customName.getAnsi());
+	sprintf(sql,"SELECT sf_DefaultHarvesterCreate(%u,0,%I64u,%u,%f,%f,%f,%f,%f,%f,%f,'%s')",deedLink->structure_type, player->getId(), gWorldManager->getZoneId(),oX,oY,oZ,oW,x,y,z,customName.getAnsi());
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
 	gLogger->logMsgF(sql,MSG_HIGH);
 
@@ -465,6 +465,8 @@ void ObjectFactory::deleteObjectFromDB(Object* object)
 		{
 			sprintf(sql,"DELETE FROM Harvesters WHERE ID = %lld",object->getId());
 			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
+
+			// admin lists //update attributes
 
 		}
 		break;

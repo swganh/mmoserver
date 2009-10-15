@@ -46,12 +46,24 @@ void HarvesterObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject
 	{
 		case radId_serverTerminalManagementDestroy: 
 		{
+			if(this->getOwner() != player->getId())
+			{
+				gLogger->logMsgF("HarvesterObject::handleObjectMenuSelect::Not the Owner",MSG_HIGH);
+				return;
+			}
+
 			gStructureManager->getDeleteStructureMaintenanceData(this->getId(), player->getId());
 			//gUIManager->createNewStructureDestroyBox(this,player, this, true);
 		}
 		break;
 		case radId_serverTerminalManagement:
 		{
+			if(this->getOwner() != player->getId())
+			{
+				gLogger->logMsgF("HarvesterObject::handleObjectMenuSelect::Not the Owner",MSG_HIGH);
+				return;
+			}
+
 			gStructureManager->OpenStructureAdminList(this->getId(), player->getId());
 
 		}
@@ -66,12 +78,6 @@ void HarvesterObject::prepareCustomRadialMenu(CreatureObject* creatureObject, ui
 	if(!player)
 	{	
 		gLogger->logMsgF("HarvesterObject::handleObjectMenuSelect::could not find player",MSG_HIGH);
-		return;
-	}
-
-	if(this->getOwner() != player->getPlayerObjId())
-	{
-		gLogger->logMsgF("HarvesterObject::handleObjectMenuSelect::No Owner",MSG_HIGH);
 		return;
 	}
 	

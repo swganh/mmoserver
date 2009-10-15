@@ -66,6 +66,9 @@ void	ObjectController::_handleModifyPermissionList(uint64 targetId,Message* mess
 
 	if(action == "add")
 		gStructureManager->addNametoPermissionList(targetId, player->getId(), playerStr, list);
+
+	if(action == "remove")
+		gStructureManager->addNametoPermissionList(targetId, player->getId(), playerStr, list);
 }
 //======================================================================================================================
 //

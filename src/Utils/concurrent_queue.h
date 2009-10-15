@@ -12,7 +12,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_UTILS_CONCURRENT_QUEUE_H
 #define ANH_UTILS_CONCURRENT_QUEUE_H
 
-#include "zthread/Mutex.h"
+#include <boost/thread/mutex.hpp>
 #include <queue>
 
 
@@ -20,61 +20,51 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 namespace Anh_Utils
 {
-	template<class T,class Container = std::deque<T>,class QueueMutex = ZThread::Mutex >
+	template<class T,class Container = std::deque<T>,class QueueMutex = boost::mutex >
 	class concurrent_queue
 	{
 		public:
 
 			void push(const T& item)
 			{
-				mMutex.acquire();
+                boost::mutex::scoped_lock lk(mMutex);
 
 				mContainer.push_back(item);
-
-				mMutex.release();
 			}
 
 			T pop()
 			{
-				mMutex.acquire();
+                boost::mutex::scoped_lock lk(mMutex);
 
 				T item = mContainer.front();
 				mContainer.pop_front();
-
-				mMutex.release();
 
 				return(item);
 			}
 
 			bool empty() const
 			{
-				mMutex.acquire();
+                boost::mutex::scoped_lock lk(mMutex);
 
 				bool result = mContainer.empty();
-
-				mMutex.release();
 
 				return(result);
 			}
 
 			typename Container::size_type size()
 			{
-				mMutex.acquire();
+                boost::mutex::scoped_lock lk(mMutex);
 
 				size_t result = mContainer.size();
-
-				mMutex.release();
 
 				return(result);
 			}
 
 			T& front()
 			{
-				mMutex.acquire();
+                boost::mutex::scoped_lock lk(mMutex);
 
 				T item = mContainer.front();
-
-				mMutex.release();
 
 				return(item);
 			}

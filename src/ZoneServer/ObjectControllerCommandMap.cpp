@@ -461,6 +461,8 @@ void ObjectControllerCommandMap::_registerCppHooks()
 
 	//Structures
 	mCommandMap.insert(std::make_pair(opOCPlaceStructure,&ObjectController::_handleStructurePlacement));
+	mCommandMap.insert(std::make_pair(opPermissionListModify,&ObjectController::_handleModifyPermissionList));
+	
 }
 
 //======================================================================================================================

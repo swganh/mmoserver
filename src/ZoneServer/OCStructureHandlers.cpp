@@ -21,6 +21,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "ObjectFactory.h"
 #include "PlayerObject.h"
 #include "UIManager.h"
+#include "StructureManager.h"
 #include "WorldConfig.h"
 #include "WorldManager.h"
 
@@ -35,7 +36,37 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 //specific includes
 
+//======================================================================================================================
+//
+// Modifies the Admin List
+//
+void	ObjectController::_handleModifyPermissionList(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 
+{
+	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+
+	if(!player)
+	{
+		//gMessageLib->sendSystemMessage(entertainer,L"","performance","flourish_not_performing");
+		return;
+	}
+	
+	//find out where our structure is
+	string dataStr;
+	gLogger->hexDump(message->getData(), message->getSize());
+	message->getStringUnicode16(dataStr);
+	
+	string playerStr,list,action;
+	
+	dataStr.convert(BSTRType_ANSI);
+
+	sscanf(dataStr.getAnsi(),"%s %s %s",playerStr.getAnsi(), list.getAnsi(), action.getAnsi());
+
+	gLogger->logMsgF(" %s %s %s",MSG_HIGH, playerStr.getAnsi(), list.getAnsi(), action.getAnsi());
+
+	if(action == "add")
+		gStructureManager->addNametoPermissionList(targetId, player->getId(), playerStr, list);
+}
 //======================================================================================================================
 //
 // Places a structure in the game world

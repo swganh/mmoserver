@@ -220,6 +220,66 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 		}
 		break;
 
+		case Structure_Query_Add_Permission:
+		{
+			PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(asynContainer->mStructureId));
+			
+			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
+
+			uint32 returnValue;
+			DataBinding* binding = mDatabase->CreateDataBinding(1);
+			binding->addField(DFT_uint32,0,4);
+
+			uint64 count;
+			count = result->getRowCount();
+
+			if (!count)
+			{
+				gLogger->logMsgLoadFailure("StructureManager::add Permission no return value...",MSG_NORMAL);					
+			}
+			result->GetNextRow(binding,&returnValue);
+			// 0 is sucess
+			// 1 name doesnt exist
+			// 2 name already on list
+
+			if(returnValue == 0)
+			{
+				string name;
+				name = asynContainer->name;
+				//name.convert(BSTRType_Unicode16);
+				gMessageLib->sendSystemMessage(player,L"","player_structure","player_added","",name.getAnsi());
+			}
+			
+			if(returnValue == 1)
+			{
+				string name;
+				name = asynContainer->name;
+				gLogger->logMsgF("StructurManager add %s failed ", MSG_HIGH,name.getAnsi());
+				name.convert(BSTRType_Unicode16);
+				//name.convert(BSTRType_ANSI);				
+
+				
+				gMessageLib->sendSystemMessage(player,L"","player_structure","modify_list_invalid_player","","",name.getUnicode16());
+			}
+
+			if(returnValue == 2)
+			{
+				string name;
+				name = asynContainer->name;
+				//name.convert(BSTRType_Unicode16);
+				name.convert(BSTRType_ANSI);				
+				name << " is already on the list";
+				name.convert(BSTRType_Unicode16);
+				gMessageLib->sendSystemMessage(player,L"","","","","",name.getUnicode16());
+			}
+
+
+			//sendStructureAdminList(asynContainer->mPlayerId);
+
+			mDatabase->DestroyDataBinding(binding);
+		}
+		break;
+
 		case Structure_Query_LoadstructureItem:
 		{
 
@@ -266,6 +326,33 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 	}
 	SAFE_DELETE(asynContainer);
 }
+
+//=======================================================================================================================
+//adds a name to a permission list
+//=======================================================================================================================												
+void StructureManager::addNametoPermissionList(uint64 structureId, uint64 playerId, string name, string list)
+{
+	// load our structures maintenance data
+	// that means the maintenance attribute and the energy attribute
+	//
+
+	StructureManagerAsyncContainer* asyncContainer;
+
+	asyncContainer = new StructureManagerAsyncContainer(Structure_Query_Add_Permission, 0);
+	mDatabase->ExecuteSqlAsync(this,asyncContainer,"select sf_AddPermissionList(%I64u,'%s','%s')",structureId,name.getAnsi(),list.getAnsi());
+	asyncContainer->mStructureId = structureId;
+	asyncContainer->mPlayerId = playerId;
+	sprintf(asyncContainer->name,"%s",name.getAnsi());
+
+
+	// 0 is sucess
+	// 1 name doesnt exist
+	// 2 name already on list
+
+//mDatabase->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%.2f' WHERE item_id=%lld AND attribute_id=%u",attValue,mItem->getId(),att->getAttributeId());
+}
+
+
 
 //=======================================================================================================================
 //handles callbacks of db creation of items

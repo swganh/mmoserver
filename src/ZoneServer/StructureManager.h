@@ -50,6 +50,7 @@ enum Structure_QueryType
 	
 	Structure_Query_delete				=	3,
 	Structure_Query_Admin_Data			=	4,
+	Structure_Query_Add_Permission		=	5,
 	
 };
 
@@ -122,6 +123,8 @@ public:
 	uint64						mStructureId;
 	uint64						mPlayerId;
 
+	int8						name[64];
+
 	PlayerObject*				builder;
 	
 };
@@ -164,6 +167,8 @@ class StructureManager : public DatabaseCallback,public ObjectFactoryCallback
 
 		//PlayerStructures
 		void					getDeleteStructureMaintenanceData(uint64 structureId, uint64 playerId);
+
+		void					addNametoPermissionList(uint64 structureId, uint64 playerId, string name, string list);
 
 		//returns a confirmatioon code for structure destruction
 		string					getCode();

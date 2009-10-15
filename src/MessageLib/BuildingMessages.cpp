@@ -231,11 +231,12 @@ bool MessageLib::sendAdminList(PlayerStructure* structure, PlayerObject* playerO
 		it++;
 	}
 
-	gMessageFactory->addUint32(97); // ???
-	gMessageFactory->addUint16(0);	// unknown
+	gMessageFactory->addUint32(0); // ???
+	//gMessageFactory->addUint16(0);	// unknown
 	name = "ADMIN";
 	name.convert(BSTRType_Unicode16);
 	gMessageFactory->addString(name);
+	gMessageFactory->addUint32(0); // ???
 	
 	newMessage = gMessageFactory->EndMessage();
 

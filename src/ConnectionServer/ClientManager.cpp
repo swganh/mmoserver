@@ -83,8 +83,8 @@ void ClientManager::Process(void)
 void ClientManager::SendMessageToClient(Message* message)
 {
 	// Find our client from the accountId.
-	
-	mServiceMutex.acquire();
+    boost::recursive_mutex::scoped_lock lk(mServiceMutex);
+
 	PlayerClientMap::iterator iter = mPlayerClientMap.find(message->getAccountId());
 
 	// We're headed to the client, don't use the routing header.
@@ -106,7 +106,6 @@ void ClientManager::SendMessageToClient(Message* message)
 
 		gMessageFactory->DestroyMessage(message);
 	}
-	mServiceMutex.release();
 }
 
 //======================================================================================================================
@@ -119,7 +118,8 @@ void ClientManager::handleServerDown(uint32 serverId)
 	// disconnect all clients that were on this server, if its a zone
 	if(serverId >= 8)
 	{
-		mServiceMutex.acquire();
+        boost::recursive_mutex::scoped_lock lk(mServiceMutex);
+
 		PlayerClientMap::iterator it = mPlayerClientMap.begin();
 
 		while(it != mPlayerClientMap.end())
@@ -133,7 +133,6 @@ void ClientManager::handleServerDown(uint32 serverId)
 
 			++it;
 		}
-		mServiceMutex.release();
 	}
 	
 }
@@ -181,14 +180,13 @@ void ClientManager::handleSessionDisconnect(NetworkClient* client)
 	mDatabase->ExecuteSqlAsync(0, 0, "UPDATE account SET loggedin=0 WHERE account_id=%u;", connClient->getAccountId());
 
 	// Client has disconnected.
-	mServiceMutex.acquire();
+    boost::recursive_mutex::scoped_lock lk(mServiceMutex);
 	PlayerClientMap::iterator iter = mPlayerClientMap.find(connClient->getAccountId());
 
 	if(iter != mPlayerClientMap.end())
 	{
 		mPlayerClientMap.erase(iter);
 	}
-	mServiceMutex.release();
 }
 
 
@@ -323,7 +321,7 @@ void ClientManager::_processClusterZoneTransferCharacter(ConnectionClient* clien
   uint32 oldServerId = 0;
 
   // Update our client
-  mServiceMutex.acquire();
+    boost::recursive_mutex::scoped_lock lk(mServiceMutex);
   PlayerClientMap::iterator iter;
   iter = mPlayerClientMap.find(message->getAccountId());
   if (iter != mPlayerClientMap.end())
@@ -385,7 +383,6 @@ void ClientManager::_processClusterZoneTransferCharacter(ConnectionClient* clien
     // client may have disconnected right in the middle of the transfer
     gLogger->logMsg("*** Client not found during zone transfer.\n");
   }
-  mServiceMutex.release();
 }
 
 
@@ -399,9 +396,9 @@ void ClientManager::_handleQueryAuth(ConnectionClient* client, DatabaseResult* r
     mDatabase->ExecuteSqlAsync(0, 0, "UPDATE account SET lastlogin=NOW(), loggedin=%u WHERE account_id=%u;", gConfig->read<uint32>("ClusterId"), client->getAccountId());
 
     // finally add them to our accountId map.
-	mServiceMutex.acquire();
+    boost::recursive_mutex::scoped_lock lk(mServiceMutex);
 	mPlayerClientMap.insert(std::make_pair(client->getAccountId(), client));
-	mServiceMutex.release();
+	lk.unlock();
 
     // send an opClusterClientConnect message to admin server.
     gMessageFactory->StartMessage();

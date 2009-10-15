@@ -14,8 +14,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "ConnectionDispatchCallback.h"
 #include "NetworkManager/NetworkCallback.h"
-#include "zthread/RecursiveMutex.h"
 #include "DatabaseManager/DatabaseCallback.h"
+
+#include <boost/thread/recursive_mutex.hpp>
 #include <map>
 
 
@@ -74,7 +75,7 @@ class ClientManager : public NetworkCallback, public ConnectionDispatchCallback,
 		MessageRouter*              mMessageRouter;
 		ConnectionDispatch*         mConnectionDispatch;
 
-		ZThread::RecursiveMutex		mServiceMutex;
+        boost::recursive_mutex		mServiceMutex;
 		PlayerClientMap             mPlayerClientMap;
 };
 

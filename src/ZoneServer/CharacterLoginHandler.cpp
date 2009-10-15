@@ -135,7 +135,7 @@ void CharacterLoginHandler::handleDispatchMessage(uint32 opcode, Message* messag
   {
 	case opSelectCharacter: 
 	{
-		mSessionMutex.acquire();
+        boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
 		PlayerObject*	playerObject;
 		uint64			playerId = message->getUint64();
@@ -213,8 +213,6 @@ void CharacterLoginHandler::handleDispatchMessage(uint32 opcode, Message* messag
 //			gLogger->logMsgF("New Player: %lld, Total Players on zone : %i",MSG_NORMAL,playerId,(gWorldManager->getPlayerAccMap())->size() + 1);
 			gObjectFactory->requestObject(ObjType_Player,0,0,this,playerId,client);
 		}
-	
-		mSessionMutex.release();
 	}
     break;
 

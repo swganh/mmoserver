@@ -12,12 +12,12 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_ZONESERVER_CHARACTERLOGINHANDLER_H
 #define ANH_ZONESERVER_CHARACTERLOGINHANDLER_H
 
-#include "zthread/RecursiveMutex.h"
-#include "Common/MessageDispatchCallback.h"
+#include "ObjectFactoryCallback.h"
 #include "DatabaseManager/DatabaseCallback.h"
 #include "MathLib/Vector3.h"
-#include "ObjectFactoryCallback.h"
+#include "Common/MessageDispatchCallback.h"
 
+#include <boost/thread/recursive_mutex.hpp>
 
 //======================================================================================================================
 
@@ -79,7 +79,7 @@ class CharacterLoginHandler : public MessageDispatchCallback,public ObjectFactor
 		MessageDispatch*			mMessageDispatch;
 
 		uint32						mZoneId;
-		ZThread::RecursiveMutex		mSessionMutex;
+        boost::recursive_mutex		mSessionMutex;
 };
 
 

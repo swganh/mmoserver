@@ -19,7 +19,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "Utils/typedefs.h"
 #include "DatabaseManager/DatabaseCallback.h"
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 //======================================================================================================================
 
@@ -77,7 +77,7 @@ class TreasuryManager : public DatabaseCallback
 		void						    bankDepositAll(PlayerObject* playerObject);
 		void						    bankWithdrawAll(PlayerObject* playerObject);
 		void						    bankTransfer(int32 inventoryMoneyDelta, int32 bankMoneyDelta, PlayerObject* playerObject);
-        boost::shared_ptr<RadialMenu>   bankBuildTerminalRadialMenu(CreatureObject* creatureObject);
+        std::tr1::shared_ptr<RadialMenu>   bankBuildTerminalRadialMenu(CreatureObject* creatureObject);
 		void						    bankOpenSafetyDepositContainer(PlayerObject* playerObject);
 		void						    bankQuit(PlayerObject* playerObject);
 		void						    bankJoin(PlayerObject* playerObject);

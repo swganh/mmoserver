@@ -21,10 +21,11 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "MathLib/Quaternion.h"
 #include "Utils/EventHandler.h"
 #include "Utils/typedefs.h"
-#include <boost/shared_ptr.hpp>
+
 #include <boost/lexical_cast.hpp>
 #include <vector>
 #include <map>
+#include <memory>
 #include <set>
 #include <list>
 
@@ -36,7 +37,7 @@ class PlayerObject;
 class CreatureObject;
 
 typedef std::map<uint32,std::string>	AttributeMap;
-typedef boost::shared_ptr<RadialMenu>	RadialMenuPtr;
+typedef std::tr1::shared_ptr<RadialMenu>	RadialMenuPtr;
 // typedef std::vector<uint64>				ObjectIDList;
 typedef std::list<uint64>				ObjectIDList;
 typedef std::set<Object*>				ObjectSet;

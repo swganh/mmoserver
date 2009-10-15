@@ -60,9 +60,10 @@ TreasuryManager::~TreasuryManager()
 
 //======================================================================================================================
 
-boost::shared_ptr<RadialMenu> TreasuryManager::bankBuildTerminalRadialMenu(CreatureObject* creatureObject)
-{
-	RadialMenu* radial	= new RadialMenu();
+std::tr1::shared_ptr<RadialMenu> TreasuryManager::bankBuildTerminalRadialMenu(CreatureObject* creatureObject)
+{    
+    std::tr1::shared_ptr<RadialMenu> radial(new RadialMenu());
+
 	Bank*		bank	= dynamic_cast<Bank*>(creatureObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
 
 	radial->addItem(1,0,radId_itemUse,radAction_ObjCallback);
@@ -93,9 +94,7 @@ boost::shared_ptr<RadialMenu> TreasuryManager::bankBuildTerminalRadialMenu(Creat
 		radial->addItem(4,1,radId_bankDepositAll,radAction_ObjCallback,"@sui:bank_depositall");
 	}
 	
-	boost::shared_ptr<RadialMenu> radialPtr(radial);
-
-	return(radialPtr);
+	return radial;
 }
 
 //======================================================================================================================

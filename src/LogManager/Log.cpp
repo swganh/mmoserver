@@ -88,7 +88,7 @@ void Log::logMsg(const std::string& msg,MsgPriority mp,bool fileOut,bool console
 
 		if(mConsoleOut && consoleOut)
 		{
-			#ifdef ANH_PLATFORM_WIN32
+			#ifdef _MSC_VER
 			HANDLE Console;
 			Console = GetStdHandle(STD_OUTPUT_HANDLE);
 			SetConsoleTextAttribute(Console, Color);
@@ -97,7 +97,7 @@ void Log::logMsg(const std::string& msg,MsgPriority mp,bool fileOut,bool console
 			std::cout << tstring << msg << std::endl;
 			std::cout.flush();
 
-			#ifdef ANH_PLATFORM_WIN32
+			#ifdef _MSC_VER
 			SetConsoleTextAttribute(Console, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
 			#endif
 		}
@@ -221,7 +221,7 @@ void Log::logMsgNolf(const std::string& msg,MsgPriority mp,bool fileOut,bool con
 
 		if(mConsoleOut && consoleOut)
 		{
-			#ifdef ANH_PLATFORM_WIN32
+			#ifdef _MSC_VER
 			HANDLE Console;
 			Console = GetStdHandle(STD_OUTPUT_HANDLE);
 			SetConsoleTextAttribute(Console, Color);
@@ -230,7 +230,7 @@ void Log::logMsgNolf(const std::string& msg,MsgPriority mp,bool fileOut,bool con
 			std::cout << tstring;// << std::endl;
 			std::cout.flush();
 
-			#ifdef ANH_PLATFORM_WIN32
+			#ifdef _MSC_VER
 			SetConsoleTextAttribute(Console, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
 			#endif
 		}
@@ -264,7 +264,7 @@ void Log::logMsgNolf(const std::string& msg,MsgPriority mp,bool fileOut,bool con
 
 		if(mConsoleOut && consoleOut)
 		{
-			#ifdef ANH_PLATFORM_WIN32
+			#ifdef _MSC_VER
 			HANDLE Console;
 			Console = GetStdHandle(STD_OUTPUT_HANDLE);
 			SetConsoleTextAttribute(Console, Color);
@@ -273,7 +273,7 @@ void Log::logMsgNolf(const std::string& msg,MsgPriority mp,bool fileOut,bool con
 			std::cout << tstring << msg;// << std::endl;
 			std::cout.flush();
 
-			#ifdef ANH_PLATFORM_WIN32
+			#ifdef _MSC_VER
 			SetConsoleTextAttribute(Console, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
 			#endif
 		}

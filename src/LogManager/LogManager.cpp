@@ -195,25 +195,27 @@ void LogManager::logMsg(const std::string& msg,MsgPriority mp,bool fileOut,bool 
 void LogManager::logMsgStartUp(const std::string& msg, MsgPriority priority, ...)
 {
 	va_list args;
-
-    boost::mutex::scoped_lock lk(mGlobalLogMutex);
+	va_start(args, priority);
+	
+	boost::mutex::scoped_lock lk(mGlobalLogMutex);
 
 	if(mDefaultLog != NULL)
 	{
-		mDefaultLog->logMsgNolf(msg, priority, true, true, true, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE, va_start(args, priority));
+		mDefaultLog->logMsgNolf(msg, priority, true, true, true, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE, args);
 	}
 }
 
 void LogManager::logMsgFollowUp(const std::string& msg, MsgPriority priority, ...)
 {
 	va_list args;
+	va_start(args, priority);
 
-    boost::mutex::scoped_lock lk(mGlobalLogMutex);
+	boost::mutex::scoped_lock lk(mGlobalLogMutex);
 
 	if(mDefaultLog != NULL)
 	{
 
-		mDefaultLog->logMsgNolf(msg, priority, true, true, false,FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE, va_start(args, priority));
+		mDefaultLog->logMsgNolf(msg, priority, true, true, false,FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE, args);
 	}
 }
 
@@ -222,12 +224,13 @@ void LogManager::logMsgFollowUp(const std::string& msg, MsgPriority priority, ..
 void LogManager::logMsgF(const std::string& msg, MsgPriority priority, ...)
 {
 	va_list args;
-
-    boost::mutex::scoped_lock lk(mGlobalLogMutex);
+	va_start(args, priority);
+	
+	boost::mutex::scoped_lock lk(mGlobalLogMutex);
 
 	if(mDefaultLog != NULL)
 	{
-		mDefaultLog->logMsg(msg, priority, va_start(args, priority));
+		mDefaultLog->logMsg(msg, priority, args);
 	}
 }
 
@@ -265,22 +268,10 @@ void LogManager::logMsgF(Log* log, const std::string& msg, MsgPriority priority,
 
 void LogManager::logMsgOk(int width)
 {
-    boost::mutex::scoped_lock lk(mGlobalLogMutex);
+	boost::mutex::scoped_lock lk(mGlobalLogMutex);
 
-	std::cout<<std::setw(width-6); // Width minus the [ OK ] message length.
-	std::cout<<std::right<<"[ ";
-	#ifdef ANH_PLATFORM_WIN32
-			HANDLE Console;
-			Console = GetStdHandle(STD_OUTPUT_HANDLE);
-			SetConsoleTextAttribute(Console, FOREGROUND_GREEN);
-	#endif
-	std::cout<<"OK";
-
-	#ifdef ANH_PLATFORM_WIN32
-		SetConsoleTextAttribute(Console, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
-	#endif
-
-	std::cout<<" ]"<< std::endl;
+	std::cout << std::setw(width-6); // Width minus the [ OK ] message length.
+	std::cout << std::right << "[ " << green << "OK" << white << " ]" << std::endl;
 }
 
 
@@ -329,19 +320,8 @@ void LogManager::logMsgFailed(int width)
 {
     boost::mutex::scoped_lock lk(mGlobalLogMutex);	
 
-	std::cout.width(width-10); // Width minus the [ FAILED ] message length.
-	std::cout<<std::right<<"[ ";
-	#ifdef ANH_PLATFORM_WIN32
-		HANDLE Console;
-		Console = GetStdHandle(STD_OUTPUT_HANDLE);
-		SetConsoleTextAttribute(Console, FOREGROUND_RED);
-	#endif
-	std::cout<<"FAILED";
-
-	#ifdef ANH_PLATFORM_WIN32
-		SetConsoleTextAttribute(Console, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
-	#endif
-	std::cout<<" ]"<< std::endl;
+		std::cout << std::setw(width-10); // Width minus the [ OK ] message length.
+		std::cout << std::right << "[ " << red << "FAILED" << white << " ]" << std::endl;
 }
 
 //======================================================================================================================
@@ -377,7 +357,7 @@ void LogManager::setLogLevel(LogLevel level)
 
 Log* LogManager::setDefaultLog(Log* log)
 {
-    boost::mutex::scoped_lock lk(mGlobalLogMutex);
+	boost::mutex::scoped_lock lk(mGlobalLogMutex);
 
 	Log* old = mDefaultLog;
 	mDefaultLog = log;
@@ -389,7 +369,7 @@ Log* LogManager::setDefaultLog(Log* log)
 
 void LogManager::setGlobalLogLevel(GlobalLogLevel glevel)
 {
-    boost::mutex::scoped_lock lk(mGlobalLogMutex);
+	boost::mutex::scoped_lock lk(mGlobalLogMutex);
 
 	LogList::iterator it = mLogs.begin();
 

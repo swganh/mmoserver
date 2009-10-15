@@ -12,6 +12,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_DATABASEMANAGER_DATABASE_H
 #define ANH_DATABASEMANAGER_DATABASE_H
 
+#include "DatabaseType.h"
 #include "Utils/typedefs.h"
 #include "Utils/concurrent_queue.h"
 #include <queue>
@@ -28,8 +29,6 @@ class DatabaseCallback;
 class DatabaseResult;
 class DatabaseJob;
 class Transaction;
-
-enum  DBType;
 
 typedef Anh_Utils::concurrent_queue<DatabaseJob*>				DatabaseJobQueue;
 typedef Anh_Utils::concurrent_queue<DatabaseWorkerThread*>		DatabaseWorkerThreadQueue;

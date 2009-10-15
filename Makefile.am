@@ -10,7 +10,6 @@ libutils_la_SOURCES = src/Utils/bstring.cpp \
   src/Utils/EventHandler.cpp \
   src/Utils/rand.cpp \
   src/Utils/Scheduler.cpp \
-  src/Utils/thread.cpp \
   src/Utils/Timer.cpp \
   src/Utils/utils.cpp \
   src/Utils/VariableTimeScheduler.cpp

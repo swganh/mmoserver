@@ -62,26 +62,6 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 //=====================================================================================
 //
-// Set Windows specific stuff
-//
-#if(ANH_PLATFORM == ANH_PLATFORM_WIN32)
-	
-	typedef unsigned long		ulong;
-	typedef long long			int64;
-	typedef unsigned long long  uint64;
-	typedef signed long long	sint64;
-
-//
-// Set Linux specific stuff
-//
-#elif(ANH_PLATFORM == ANH_PLATFORM_LINUX)
-	typedef int64_t		int64;
-	typedef uint64_t	uint64;
-	typedef int64_t		sint64;
-#endif 
-
-//=====================================================================================
-//
 // Common definitions
 //
 
@@ -104,6 +84,11 @@ typedef unsigned long       uint32;
 typedef signed char         sint8;
 typedef signed short        sint16;
 typedef signed long         sint32;
+
+typedef unsigned long		ulong;
+typedef long long			int64;
+typedef unsigned long long  uint64;
+typedef signed long long	sint64;
 
 #include "bstring.h"  // Bad bad bad.  Don't include headers in headers if at all possible.  
 // unfotunately, this is needed here for base type funtionality.

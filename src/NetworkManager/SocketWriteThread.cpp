@@ -67,8 +67,9 @@ void SocketWriteThread::Startup(SOCKET socket, Service* service, bool serverserv
 	mCompCryptor->Startup();
 
 	// start our thread
-	mThread = new ZThread::Thread(new SocketWriteThreadRunnable(this));
-	mThread->setPriority(ZThread::High);
+    boost::thread t(std::tr1::bind(&SocketWriteThread::run, this));
+    mThread = boost::move(t);
+
 	lasttime =   Anh_Utils::Clock::getSingleton()->getLocalTime();
 	unCount = 	reCount = 0;
 }
@@ -82,14 +83,8 @@ void SocketWriteThread::Shutdown(void)
 	// shutdown our thread
 	mExit = true;
 
-	try
-	{
-		mThread->wait();
-	}
-	catch(ZThread::Synchronization_Exception& e)
-	{
-		std::cerr << e.what() << std::endl; 
-	}
+    mThread.interrupt();
+    mThread.join();
 
 	mCompCryptor->Shutdown();
 	delete(mCompCryptor);

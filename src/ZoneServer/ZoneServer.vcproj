@@ -28,7 +28,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine=""
+				CommandLine="if not exist &quot;$(SolutionDir)bin&quot; (&#x0D;&#x0A;md &quot;$(SolutionDir)bin&quot;&#x0D;&#x0A;)&#x0D;&#x0A;&#x0D;&#x0A;if not exist &quot;$(SolutionDir)bin\$(ConfigurationName)&quot; (&#x0D;&#x0A;md &quot;$(SolutionDir)bin\$(ConfigurationName)&quot;&#x0D;&#x0A;)&#x0D;&#x0A;&#x0D;&#x0A;&quot;$(SolutionDir)tools\svn\subwcrev.exe&quot; &quot;$(SolutionDir).&quot; &quot;$(SolutionDir)data\VERSION.in&quot; &quot;$(SolutionDir)bin\$(ConfigurationName)\VERSION&quot;&#x0D;&#x0A;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -46,7 +46,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)src&quot;;&quot;$(SolutionDir)deps&quot;;&quot;$(SolutionDir)deps\boost&quot;;&quot;$(SolutionDir)deps\lua\src&quot;;&quot;$(SolutionDir)deps\noise\src&quot;;&quot;$(SolutionDir)deps\spatialindex\include&quot;;&quot;$(SolutionDir)deps\spatialindex\tools\include&quot;;&quot;$(SolutionDir)deps\zthread\include&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)src&quot;;&quot;$(SolutionDir)deps&quot;;&quot;$(SolutionDir)deps\boost&quot;;&quot;$(SolutionDir)deps\lua\src&quot;;&quot;$(SolutionDir)deps\noise\src&quot;;&quot;$(SolutionDir)deps\spatialindex\include&quot;;&quot;$(SolutionDir)deps\spatialindex\tools\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_CRT_NON_CONFORMING_SWPRINTFS;_CRT_SECURE_NO_DEPRECATE;_WIN32_WINNT=0x0500"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="3"
@@ -74,7 +74,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib libmysql.lib zlibd.lib winmm.lib libnoise.lib spatialindex_d.lib zthreadd.lib lua5.1d.lib toluapp.lib"
+				AdditionalDependencies="ws2_32.lib libmysql.lib zlibd.lib winmm.lib libnoise.lib spatialindex_d.lib lua5.1d.lib toluapp.lib"
 				OutputFile="&quot;$(SolutionDir)bin\$(ConfigurationName)\$(ProjectName).exe&quot;"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;$(SolutionDir)deps\boost\stage\lib&quot;;&quot;$(SolutionDir)deps\lua\lib&quot;;&quot;$(SolutionDir)deps\mysql\lib\debug&quot;;&quot;$(SolutionDir)deps\noise\win32\Debug&quot;;&quot;$(SolutionDir)deps\spatialindex\Debug&quot;;&quot;$(SolutionDir)deps\tolua++\win32\vc9\withLua51_Debug&quot;;&quot;$(SolutionDir)deps\zlib\projects\visualc6\Win32_LIB_Debug&quot;;&quot;$(SolutionDir)deps\zthread\Debug&quot;"
@@ -123,7 +123,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="subwcrev.exe ..\ ..\Common\BuildInfoSrc.h ..\Common\BuildInfo.h"
+				CommandLine="if not exist &quot;$(SolutionDir)bin&quot; (&#x0D;&#x0A;md &quot;$(SolutionDir)bin&quot;&#x0D;&#x0A;)&#x0D;&#x0A;&#x0D;&#x0A;if not exist &quot;$(SolutionDir)bin\$(ConfigurationName)&quot; (&#x0D;&#x0A;md &quot;$(SolutionDir)bin\$(ConfigurationName)&quot;&#x0D;&#x0A;)&#x0D;&#x0A;&#x0D;&#x0A;&quot;$(SolutionDir)tools\svn\subwcrev.exe&quot; &quot;$(SolutionDir).&quot; &quot;$(SolutionDir)data\VERSION.in&quot; &quot;$(SolutionDir)bin\$(ConfigurationName)\VERSION&quot;&#x0D;&#x0A;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -140,7 +140,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="3"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)src&quot;;&quot;$(SolutionDir)deps&quot;;&quot;$(SolutionDir)deps\boost&quot;;&quot;$(SolutionDir)deps\lua\src&quot;;&quot;$(SolutionDir)deps\noise\src&quot;;&quot;$(SolutionDir)deps\spatialindex\include&quot;;&quot;$(SolutionDir)deps\spatialindex\tools\include&quot;;&quot;$(SolutionDir)deps\zthread\include&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)src&quot;;&quot;$(SolutionDir)deps&quot;;&quot;$(SolutionDir)deps\boost&quot;;&quot;$(SolutionDir)deps\lua\src&quot;;&quot;$(SolutionDir)deps\noise\src&quot;;&quot;$(SolutionDir)deps\spatialindex\include&quot;;&quot;$(SolutionDir)deps\spatialindex\tools\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_CRT_NON_CONFORMING_SWPRINTFS;_CRT_SECURE_NO_DEPRECATE;_WIN32_WINNT=0x0500"
 				ExceptionHandling="1"
 				RuntimeLibrary="0"
@@ -166,7 +166,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				UseLibraryDependencyInputs="true"
-				AdditionalDependencies="ws2_32.lib libmysql.lib zlib.lib winmm.lib libnoise.lib spatialindex.lib zthread.lib lua5.1.lib toluapp.lib"
+				AdditionalDependencies="ws2_32.lib libmysql.lib zlib.lib winmm.lib libnoise.lib spatialindex.lib lua5.1.lib toluapp.lib"
 				OutputFile="&quot;$(SolutionDir)bin\$(ConfigurationName)\$(ProjectName).exe&quot;"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;$(SolutionDir)deps\boost\stage\lib&quot;;&quot;$(SolutionDir)deps\lua\lib&quot;;&quot;$(SolutionDir)deps\mysql\lib\opt&quot;;&quot;$(SolutionDir)deps\noise\win32\Release&quot;;&quot;$(SolutionDir)deps\spatialindex\Release&quot;;&quot;$(SolutionDir)deps\tolua++\win32\vc9\withLua51_Release&quot;;&quot;$(SolutionDir)deps\zlib\projects\visualc6\Win32_LIB_Release&quot;;&quot;$(SolutionDir)deps\zthread\Release&quot;"

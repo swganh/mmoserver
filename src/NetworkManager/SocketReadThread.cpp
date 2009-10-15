@@ -84,8 +84,8 @@ void SocketReadThread::Startup(SOCKET socket, SocketWriteThread* writeThread, Se
 	mDecompressPacket = mPacketFactory->CreatePacket();
 
 	// start our thread
-	mThread = new ZThread::Thread(new SocketReadThreadRunnable(this));
-	mThread->setPriority(ZThread::High);
+    boost::thread t(std::tr1::bind(&SocketReadThread::run, this));
+    mThread = boost::move(t);
 }
 
 //======================================================================================================================
@@ -94,14 +94,8 @@ void SocketReadThread::Shutdown(void)
 {
 	mExit = true;
 
-	try
-	{
-		mThread->wait();
-	}
-	catch(ZThread::Synchronization_Exception& e)
-	{
-		std::cerr << e.what() << std::endl; 
-	}
+    mThread.interrupt();
+    mThread.join();
 
 	mCompCryptor->Shutdown();
 	mPacketFactory->Shutdown(); 
@@ -149,12 +143,10 @@ void SocketReadThread::run(void)
 
 			// Add the new session to the main process list
 
-			mSocketReadMutex.acquire();
+            boost::mutex::scoped_lock lk(mSocketReadMutex);
 
 			mAddressSessionMap.insert(std::make_pair(hash,newSession));
 			mSocketWriteThread->NewSession(newSession);
-
-			mSocketReadMutex.release();
 		}
 
 		// Reset our internal members so we can use the packet again.
@@ -223,7 +215,7 @@ void SocketReadThread::run(void)
 
 			// TODO: Implement an IP blacklist so we can drop packets immediately.
 
-			mSocketReadMutex.acquire();
+            boost::mutex::scoped_lock lk(mSocketReadMutex);
 
 			AddressSessionMap::iterator i = mAddressSessionMap.find(hash);
 
@@ -253,12 +245,11 @@ void SocketReadThread::run(void)
 				{
 					//gLogger->logMsgF("*** Session not found.  Packet dropped. Type:0x%.4x", MSG_NORMAL, packetType);
 
-					mSocketReadMutex.release();
 					continue;
 				}
 			}
 
-			mSocketReadMutex.release();
+			lk.unlock();
 
 			// I don't like any of the code below, but it's going to take me a bit to work out a good way to handle decompression
 			// and decryption.  It's dependent on session layer protocol information, which should not be looked at here.  Should
@@ -466,7 +457,7 @@ void SocketReadThread::RemoveAndDestroySession(Session* session)
 	// Find and remove the session from the address map.
 	uint64 hash = session->getAddress() | (((uint64)session->getPort()) << 32);
 
-	mSocketReadMutex.acquire();
+    boost::mutex::scoped_lock lk(mSocketReadMutex);
 
 	AddressSessionMap::iterator iter = mAddressSessionMap.find(hash);
 
@@ -476,8 +467,6 @@ void SocketReadThread::RemoveAndDestroySession(Session* session)
 		gLogger->logMsgF("Service %i: Removing Session(%s, %u), AddressMap: %i",MSG_NORMAL,mSessionFactory->getService()->getId(), inet_ntoa(*((in_addr*)(&hash))), ntohs(session->getPort()), mAddressSessionMap.size());
 		mSessionFactory->DestroySession(session);
 	}
-
-	mSocketReadMutex.release();
 }
 
 //======================================================================================================================

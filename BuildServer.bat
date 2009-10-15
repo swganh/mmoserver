@@ -69,7 +69,7 @@ rem ----------------------------------------------------------------------------
 rem --- Start of SET_DEFAULTS --------------------------------------------------
 :SET_DEFAULTS
 
-set DEPENDENCIES_VERSION=1443
+set DEPENDENCIES_VERSION=1679
 set DEPENDENCIES_FILE=swganh-deps-%DEPENDENCIES_VERSION%.zip
 set DEPENDENCIES_URL=http://swganh.com/^^!^^!deps^^!^^!/%DEPENDENCIES_FILE%
 set "PROJECT_BASE=%~dp0"
@@ -263,7 +263,6 @@ if exist "deps\noise" call :BUILD_NOISE
 if exist "deps\spatialindex" call :BUILD_SPATIALINDEX
 if exist "deps\tolua++" call :BUILD_TOLUA
 if exist "deps\zlib" call :BUILD_ZLIB
-if exist "deps\zthread" call :BUILD_ZTHREAD
 
 echo ** Building dependencies complete **
 
@@ -867,75 +866,6 @@ cd "%PROJECT_BASE%"
 
 goto :eof
 rem --- End of BUILD_ZLIB ------------------------------------------------------
-rem ----------------------------------------------------------------------------
-
-
-
-rem ----------------------------------------------------------------------------
-rem --- Start of BUILD_ZTHREAD -------------------------------------------------
-rem --- Builds the zthread library for use with this project.                ---
-:BUILD_ZTHREAD
-
-echo BUILDING: ZThread - http://zthread.sourceforge.net/
-
-cd "%PROJECT_BASE%deps\zthread"
-
-rem Only build zthread if it hasn't been built already.
-if "%BUILD_TYPE%" == "debug" (
-    if exist "Debug\zthreadd.lib" (
-        echo ZThread already built ... skipping
-        echo.
-        cd "%PROJECT_BASE%"
-        goto :eof
-    )
-)
-if "%BUILD_TYPE%" == "release" (
-    if exist "Release\zthread.lib" (
-        echo ZThread already built ... skipping
-        echo.
-        cd "%PROJECT_BASE%"
-        goto :eof
-    )
-)
-if "%BUILD_TYPE%" == "all" (
-    if exist "Debug\zthreadd.lib" (
-        if exist "Release\zthread.lib" (
-            echo ZThread already built ... skipping
-            echo.
-            cd "%PROJECT_BASE%"
-            goto :eof
-        )
-    )
-)
-
-rem Build the zthread libraries we need.
-
-rem VS likes to create these .cache files and then complain about them existing afterwards.
-rem Removing it as it's not needed.
-if exist "*.cache" del /S /Q "*.cache" >NUL
-
-if "%BUILD_TYPE%" == "debug" (
-    "%MSBUILD%" "zthread.sln" /t:rebuild /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
-    if exist "*.cache" del /S /Q "*.cache" >NUL
-)
-
-if "%BUILD_TYPE%" == "release" (
-    "%MSBUILD%" "zthread.sln" /t:rebuild /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
-    if exist "*.cache" del /S /Q "*.cache" >NUL
-)
-
-if "%BUILD_TYPE%" == "all" (
-    "%MSBUILD%" "zthread.sln" /t:rebuild /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
-    if exist "*.cache" del /S /Q "*.cache" >NUL
-
-    "%MSBUILD%" "zthread.sln" /t:rebuild /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
-    if exist "*.cache" del /S /Q "*.cache" >NUL
-)
-
-cd "%PROJECT_BASE%"
-
-goto :eof
-rem --- End of BUILD_ZTHREAD ---------------------------------------------------
 rem ----------------------------------------------------------------------------
 
 

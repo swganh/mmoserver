@@ -14,7 +14,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "Utils/typedefs.h"
 #include "Utils/concurrent_queue.h"
-#include "zthread/RecursiveMutex.h"
+
 #include <list>
 
 
@@ -65,8 +65,6 @@ class Service
 	uint64						lasttime;
 	uint64						avgTime;
 	uint32                      avgPacketsbuild;
-
-	ZThread::RecursiveMutex		mServiceMutex;
 
 		NetworkManager*		mNetworkManager;
 		SocketReadThread*	mSocketReadThread;

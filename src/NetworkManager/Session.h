@@ -12,16 +12,16 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_NETWORKMANAGER_SESSION_H
 #define ANH_NETWORKMANAGER_SESSION_H
 
-#include <list>
-#include <queue>
+#include "NetConfig.h"
 
 #include "Common/Message.h"
 #include "Utils/Clock.h"
 #include "Utils/typedefs.h"
-#include "NetConfig.h"
 
-#include "zthread/RecursiveMutex.h"
+#include <boost/thread/recursive_mutex.hpp>
 
+#include <list>
+#include <queue>
 
 //======================================================================================================================
 
@@ -248,7 +248,7 @@ private:
 	  PacketQueue                 mIncomingFragmentedPacketQueue;
 	  PacketWindowList            mIncomingPacketList;				
 	  
-	  ZThread::RecursiveMutex	  mSessionMutex;
+      boost::recursive_mutex	  mSessionMutex;
 	 
 	  uint64					  lasttime;
 	  uint64					  avgTime;

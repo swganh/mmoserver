@@ -109,8 +109,7 @@ Session::~Session(void)
 	//gLogger->logMsgF("Session::~Session ",MSG_HIGH,this->getId());
 	Message* message = 0;
 
-	
-	mSessionMutex.acquire();
+    boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
     while(!mOutgoingMessageQueue.empty())
     {
@@ -129,11 +128,6 @@ Session::~Session(void)
 		// We're done with this message.
 		message->setPendingDelete(true);
 	}
-	
-
-	mSessionMutex.release();
-
-	// delete(mClock);
 }
 
 //======================================================================================================================
@@ -249,7 +243,7 @@ void Session::ProcessWriteThread(void)
 	//the old (< sequence = 0)packets go in the rolloverqueue and wait for being send and/or acknowledged and then deleted
 	if(mOutSequenceRollover)
 	{
-		mSessionMutex.acquire();
+        boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
 		iterRoll = mRolloverWindowPacketList.begin();
 		
@@ -336,17 +330,13 @@ void Session::ProcessWriteThread(void)
 			mRolloverWindowPacketList.push_back(windowPacket);
 			packetsSent++;
 
-			mNextPacketSequenceSent++;
-		
+			mNextPacketSequenceSent++;		
 		}
-
-
-		mSessionMutex.release();
 	}
 
 	resendPackets = 0;
 
-	mSessionMutex.acquire();
+    boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
 	iter = mWindowPacketList.begin();
 
@@ -452,7 +442,7 @@ void Session::ProcessWriteThread(void)
 		
 	}
 
-	mSessionMutex.release();
+	lk.unlock();
   
   // Handle any specific commands
   switch (mCommand)
@@ -515,7 +505,7 @@ void Session::SendChannelA(Message* message)
   
   //gLogger->logMsgF("Sending message - Session:0x%x%.4x", MSG_LOW, mService->getId(), getId());
 
-  mSessionMutex.acquire();
+    boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
   //the connectionserver puts a lot of fastpaths here  - so just put them were they belong
   //this alone takes roughly 5% cpu off of the connectionserver
@@ -524,8 +514,6 @@ void Session::SendChannelA(Message* message)
 	  mUnreliableMessageQueue.push(message);
   else
 	mOutgoingMessageQueue.push(message);
-
-  mSessionMutex.release();
 }
 
 void Session::SendChannelAUnreliable(Message* message)
@@ -543,13 +531,11 @@ void Session::SendChannelAUnreliable(Message* message)
   
   //gLogger->logMsgF("Sending message - Session:0x%x%.4x", MSG_LOW, mService->getId(), getId());
 
-  mSessionMutex.acquire();
+  boost::recursive_mutex::scoped_lock lk(mSessionMutex);
   if(message->getSize() > mMaxUnreliableSize)	//I send the attribute messages as unreliables	 but they can be to big!!
 	  mOutgoingMessageQueue.push(message);
   else
 	mUnreliableMessageQueue.push(message);
-
-  mSessionMutex.release();
 }
 
 
@@ -828,12 +814,12 @@ Packet* Session::getOutgoingReliablePacket(void)
   mServerPacketsSent++;
   
   // Get a new Outgoing packet
-  mSessionMutex.acquire();
+  boost::recursive_mutex::scoped_lock lk(mSessionMutex);
   
   packet =  mOutgoingReliablePacketQueue.front(); 
   mOutgoingReliablePacketQueue.pop(); 
 
-  mSessionMutex.release();
+  lk.unlock();
 
   mLastPacketSent = Anh_Utils::Clock::getSingleton()->getLocalTime();
 
@@ -856,12 +842,12 @@ Packet* Session::getOutgoingUnreliablePacket(void)
   mServerPacketsSent++;
   
   // Get a new Outgoing packet
-  mSessionMutex.acquire();
+  boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
   packet =  mOutgoingUnreliablePacketQueue.front(); 
   mOutgoingUnreliablePacketQueue.pop();
 
-  mSessionMutex.release();
+  lk.unlock();
 
   mLastPacketSent = Anh_Utils::Clock::getSingleton()->getLocalTime();
 
@@ -878,12 +864,10 @@ Message* Session::getIncomingQueueMessage()
 {
   Message* message = 0;
 
-  mSessionMutex.acquire();
+    boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
   message = mIncomingMessageQueue.front();
   mIncomingMessageQueue.pop();
-
-  mSessionMutex.release();
 
   return message;
 }
@@ -1319,7 +1303,7 @@ void Session::_processDataChannelAck(Packet* packet)
 
 	//gLogger->logMsgF("Received ACK  - Sequence: %u, Session:0x%x%.4x", MSG_HIGH, sequence, mService->getId(), getId());
 
-	mSessionMutex.acquire();
+    boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 	uint32 pDel = 0;
 
 	// If our windowQueue is empty, this is a dupe ack for the last packet that was on it.  Just return.
@@ -1415,8 +1399,6 @@ void Session::_processDataChannelAck(Packet* packet)
 			
 			}//if(sequence < windowPacketSequence)
 
-			mSessionMutex.release();
-
 			mPacketFactory->DestroyPacket(packet);
 			gLogger->logMsgF("_processDataChannelAck::Rollover Ack Windowsize %u ack seq new queue %u",MSG_HIGH,mWindowSizeCurrent,sequence);
 
@@ -1428,8 +1410,6 @@ void Session::_processDataChannelAck(Packet* packet)
 	{
 		//gLogger->logMsgF("Dupe ACK received - Nothing in resend window - seq: %u, Session:0x%x%.4x", MSG_LOW, sequence, mService->getId(), getId());
 		mPacketFactory->DestroyPacket(packet);
-
-		mSessionMutex.release();
 		return;
 	}
 
@@ -1480,11 +1460,8 @@ void Session::_processDataChannelAck(Packet* packet)
 
 	}
 
-	mSessionMutex.release();
-
 	// Destroy our incoming packet, it's not needed any longer.
 	mPacketFactory->DestroyPacket(packet);
-
 }
 
 
@@ -1533,7 +1510,7 @@ void Session::_processDataOrderPacket(Packet* packet)
 	if(mRolloverWindowPacketList.size()&& (sequence > (65535-mRolloverWindowPacketList.size())))
 	{
 		//jupp its on the rolloverlist
-		mSessionMutex.acquire(); //			   mRolloverWindowPacketList and WindowPacketList get accessed by the socketwritethread and by the socketreadthread both through the session
+        boost::recursive_mutex::scoped_lock lk(mSessionMutex); // mRolloverWindowPacketList and WindowPacketList get accessed by the socketwritethread and by the socketreadthread both through the session
 
 		uint16 count = 0;
 		for (iterRoll = mRolloverWindowPacketList.begin(); iterRoll != mWindowPacketList.end(); iterRoll++)
@@ -1562,15 +1539,13 @@ void Session::_processDataOrderPacket(Packet* packet)
 
 			}
 		}
-		mSessionMutex.release();
-
 	 }
- 
- 
-	 mSessionMutex.acquire();//			   mRolloverWindowPacketList and WindowPacketList get accessed by the socketwritethread and by the socketreadthread both through the session
-	 uint16 count = 0;
+  
+     uint16 count = 0;
 	 for (iter = mWindowPacketList.begin(); iter != mWindowPacketList.end(); iter++)
 	 {
+         boost::recursive_mutex::scoped_lock lk(mSessionMutex);//			   mRolloverWindowPacketList and WindowPacketList get accessed by the socketwritethread and by the socketreadthread both through the session
+	 
 		// Grab our window packet
 		windowPacket = (*iter);
 		windowPacket->setReadIndex(2);
@@ -1595,12 +1570,9 @@ void Session::_processDataOrderPacket(Packet* packet)
 		}
 		else
 		{
-			mSessionMutex.release();
 			return;
 		}
-	}
-	mSessionMutex.release();
-  
+	}  
 
   // Destroy our incoming packet, it's not needed any longer.
   mPacketFactory->DestroyPacket(packet);
@@ -1671,8 +1643,8 @@ void Session::_processDataOrderChannelB(Packet* packet)
 	if(mRolloverWindowPacketList.size()&& (sequence > (65535-mRolloverWindowPacketList.size())))
 	{
 		//jupp its on the rolloverlist
-		mSessionMutex.acquire(); //			   mRolloverWindowPacketList and WindowPacketList get accessed by the socketwritethread and by the socketreadthread both through the session
-
+		boost::recursive_mutex::scoped_lock lk(mSessionMutex);//			   mRolloverWindowPacketList and WindowPacketList get accessed by the socketwritethread and by the socketreadthread both through the session
+	 
 		uint16 count = 0;
 		for (iterRoll = mRolloverWindowPacketList.begin(); iterRoll != mWindowPacketList.end(); iterRoll++)
 		{
@@ -1700,15 +1672,13 @@ void Session::_processDataOrderChannelB(Packet* packet)
 
 			}
 		}
-		mSessionMutex.release();
 
 	 }
- 
- 
-	 mSessionMutex.acquire();//			   mRolloverWindowPacketList and WindowPacketList get accessed by the socketwritethread and by the socketreadthread both through the session
-	 uint16 count = 0;
+
+     uint16 count = 0;
 	 for (iter = mWindowPacketList.begin(); iter != mWindowPacketList.end(); iter++)
 	 {
+         boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 		// Grab our window packet
 		windowPacket = (*iter);
 		windowPacket->setReadIndex(2);
@@ -1733,11 +1703,9 @@ void Session::_processDataOrderChannelB(Packet* packet)
 		}
 		else
 		{
-			mSessionMutex.release();
 			return;
 		}
 	}
-	mSessionMutex.release();
   
 
   // Destroy our incoming packet, it's not needed any longer.
@@ -2075,11 +2043,11 @@ void Session::_addIncomingMessage(Message* message, uint8 priority)
   // simple bounds checking
   //assert(priority < 0x10);
 
-  mSessionMutex.acquire();
+    boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
   mIncomingMessageQueue.push(message);
 
-  mSessionMutex.release();
+  lk.unlock();
   
   // Let the service know we need to be processed.
   mService->AddSessionToProcessQueue(this);
@@ -2127,14 +2095,14 @@ void Session::_buildOutgoingReliableRoutedPackets(Message* message)
 	newPacket->setIsEncrypted(true);
     
     // Push the packet on our outgoing queue
-    mSessionMutex.acquire();
+    boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
     mNewWindowPacketList.push_back(newPacket);
 
 	if(!++mOutSequenceNext)
 		_handleOutSequenceRollover();
 
-    mSessionMutex.release();
+    lk.unlock();
 
     // Now build any remaining packets.
     while (messageSize > messageIndex)
@@ -2157,14 +2125,12 @@ void Session::_buildOutgoingReliableRoutedPackets(Message* message)
      newPacket->setIsEncrypted(true);
       
       // Push the packet on our outgoing queue
-      mSessionMutex.acquire();
+      boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
       mNewWindowPacketList.push_back(newPacket);
 
 	  if(!++mOutSequenceNext)
 		  _handleOutSequenceRollover();
-
-      mSessionMutex.release();
     }
   }
   else
@@ -2186,14 +2152,12 @@ void Session::_buildOutgoingReliableRoutedPackets(Message* message)
     newPacket->setIsEncrypted(true);
     
     // Push the packet on our outgoing queue
-    mSessionMutex.acquire();
+    boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
     mNewWindowPacketList.push_back(newPacket);
 
 	if(!++mOutSequenceNext)
 		_handleOutSequenceRollover();
-
-    mSessionMutex.release();
   }
   message->setPendingDelete(true);
 }
@@ -2237,14 +2201,12 @@ void Session::_buildOutgoingReliablePackets(Message* message)
     newPacket->setIsEncrypted(true);
     
     // Push the packet on our outgoing queue
-    mSessionMutex.acquire();
+    boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
     mNewWindowPacketList.push_back(newPacket);
 
 	if(!++mOutSequenceNext)
 		_handleOutSequenceRollover();
-
-    mSessionMutex.release();
 
     // Now build any remaining packets.
     while (messageSize > messageIndex)
@@ -2266,14 +2228,12 @@ void Session::_buildOutgoingReliablePackets(Message* message)
       newPacket->setIsEncrypted(true);
       
       // Push the packet on our outgoing queue
-      mSessionMutex.acquire();
+      boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
       mNewWindowPacketList.push_back(newPacket);
 
 	  if(!++mOutSequenceNext)
 		  _handleOutSequenceRollover();
-
-      mSessionMutex.release();
     }
   }
   else
@@ -2296,14 +2256,12 @@ void Session::_buildOutgoingReliablePackets(Message* message)
     newPacket->setIsEncrypted(true);
     
     // Push the packet on our outgoing queue
-    mSessionMutex.acquire();
+    boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
     mNewWindowPacketList.push_back(newPacket);
 
 	if(!++mOutSequenceNext)
 		_handleOutSequenceRollover();
-
-    mSessionMutex.release();
   }
   message->setPendingDelete(true);
 }
@@ -2346,14 +2304,12 @@ void Session::_buildOutgoingUnreliablePackets(Message* message)
 void Session::_addOutgoingReliablePacket(Packet* packet)
 {
   // Push the packet on our outgoing queue
-  mSessionMutex.acquire();
+  boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
   mOutgoingReliablePacketQueue.push(packet);
 
   // Set our last packet sent time index
   packet->setTimeQueued(Anh_Utils::Clock::getSingleton()->getLocalTime());
-
-  mSessionMutex.release();
 
   //gLogger->logMsgF("ReliableQueueAdd: Type:0x%.4x, Session:0x%x%.4x", MSG_LOW, packet->getPacketType(), mService->getId(), getId());
 }
@@ -2363,13 +2319,11 @@ void Session::_addOutgoingReliablePacket(Packet* packet)
 void Session::_addOutgoingUnreliablePacket(Packet* packet)
 {
   // Push the packet on our outgoing queue
-  mSessionMutex.acquire();
+  boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
   // Set our last packet sent time index
   packet->setTimeQueued(Anh_Utils::Clock::getSingleton()->getLocalTime());
   mOutgoingUnreliablePacketQueue.push(packet);
-
-  mSessionMutex.release();
 
   //gLogger->logMsgF("UnreliableQueueAdd: Type:0x%.4x, Session:0x%x%.4x", MSG_LOW, packet->getPacketType(), mService->getId(), getId());
 }
@@ -2403,7 +2357,7 @@ uint32 Session::_buildPackets()
 	// 2nd are there any ways a session can have to generate routed and not routed packets ????? - No its either or
 
 	uint32 packetsbuild = 0;
-	mSessionMutex.acquire();
+	boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
 	//get our message
 
@@ -2492,7 +2446,6 @@ uint32 Session::_buildPackets()
 		}
 	}
 
-	mSessionMutex.release();
 	return(packetsbuild);
 }
 
@@ -2502,7 +2455,7 @@ uint32 Session::_buildPacketsUnreliable()
 {
 
 	uint32 packetsbuild = 0;
-	mSessionMutex.acquire();
+	boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
 	//gLogger->logMsgF("session build packets queue size : %u ",MSG_NORMAL,mOutgoingMessageQueue.size());
 
@@ -2542,10 +2495,7 @@ uint32 Session::_buildPacketsUnreliable()
 		_buildUnreliableMultiDataPacket();
 	}
 
-	mSessionMutex.release();
 	return(packetsbuild);
-
-
 }
 
 

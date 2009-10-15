@@ -28,7 +28,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="if not exist &quot;$(SolutionDir)bin&quot; (&#x0D;&#x0A;md &quot;$(SolutionDir)bin&quot;&#x0D;&#x0A;)&#x0D;&#x0A;&#x0D;&#x0A;if not exist &quot;$(SolutionDir)bin\$(ConfigurationName)&quot; (&#x0D;&#x0A;md &quot;$(SolutionDir)bin\$(ConfigurationName)&quot;&#x0D;&#x0A;)&#x0D;&#x0A;&#x0D;&#x0A;&quot;$(SolutionDir)tools\svn\subwcrev.exe&quot; &quot;$(SolutionDir).&quot; &quot;$(SolutionDir)data\VERSION.in&quot; &quot;$(SolutionDir)bin\$(ConfigurationName)\VERSION&quot;&#x0D;&#x0A;"
+				CommandLine=""
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -45,7 +45,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)src&quot;;&quot;$(SolutionDir)deps\boost&quot;;&quot;$(SolutionDir)deps\zthread\include&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)src&quot;;&quot;$(SolutionDir)deps\boost&quot;"
 				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_DEBUG,WIN32;_LIB;_WIN32_WINNT=0x0500 "
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -102,7 +102,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="if not exist &quot;$(SolutionDir)bin&quot; (&#x0D;&#x0A;md &quot;$(SolutionDir)bin&quot;&#x0D;&#x0A;)&#x0D;&#x0A;&#x0D;&#x0A;if not exist &quot;$(SolutionDir)bin\$(ConfigurationName)&quot; (&#x0D;&#x0A;md &quot;$(SolutionDir)bin\$(ConfigurationName)&quot;&#x0D;&#x0A;)&#x0D;&#x0A;&#x0D;&#x0A;&quot;$(SolutionDir)tools\svn\subwcrev.exe&quot; &quot;$(SolutionDir).&quot; &quot;$(SolutionDir)data\VERSION.in&quot; &quot;$(SolutionDir)bin\$(ConfigurationName)\VERSION&quot;&#x0D;&#x0A;"
+				CommandLine=""
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -119,7 +119,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="3"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)src&quot;;&quot;$(SolutionDir)deps\boost&quot;;&quot;$(SolutionDir)deps\zthread\include&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)src&quot;;&quot;$(SolutionDir)deps\boost&quot;"
 				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;NDEBUG,WIN32;_LIB;_WIN32_WINNT=0x0500 "
 				RuntimeLibrary="0"
 				StructMemberAlignment="3"

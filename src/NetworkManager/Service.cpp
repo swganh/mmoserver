@@ -313,17 +313,12 @@ void Service::Connect(NetworkClient* client, int8* address, uint16 port)
 
 void Service::AddSessionToProcessQueue(Session* session)
 {
-	//do the mutexes here really cause a stall ????????
-	//mServiceMutex.acquire();
-
 	if(!session->getInIncomingQueue())
 	{
 		session->setInIncomingQueue(true);
 		mSessionProcessQueue.push(session);
 		
 	}
-
-	//mServiceMutex.release();
 
 	mNetworkManager->AddServiceToProcessQueue(this);
 }

@@ -12,9 +12,10 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_NETWORKMANAGER_SOCKETREADTHREAD_H
 #define ANH_NETWORKMANAGER_SOCKETREADTHREAD_H
 
-#include "zthread/Mutex.h"
-#include "zthread/Thread.h"
 #include "Utils/typedefs.h"
+
+#include <boost/thread/mutex.hpp>
+#include <boost/thread/thread.hpp>
 #include <list>
 #include <map>
 	
@@ -84,23 +85,10 @@ class SocketReadThread
 	  bool							mIsRunning;
 
 	  uint32						mSessionResendWindowSize;
-	  ZThread::Thread*				mThread;
-	  ZThread::Mutex                mSocketReadMutex;
+      boost::thread 				mThread;
+      boost::mutex                  mSocketReadMutex;
 	  AddressSessionMap             mAddressSessionMap;
 	  bool							mExit;
-};
-
-//======================================================================================================================
-
-class SocketReadThreadRunnable : public ZThread::Runnable
-{
-	public:
-		SocketReadThreadRunnable(SocketReadThread* r){ mReadThread = r; }
-		~SocketReadThreadRunnable(){}
-
-	virtual void run(){ mReadThread->run(); }
-
-	SocketReadThread* mReadThread;
 };
 
 //======================================================================================================================

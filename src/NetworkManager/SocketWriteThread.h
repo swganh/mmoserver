@@ -16,7 +16,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Utils/Clock.h"
 #include "Utils/concurrent_queue.h"
 
-#include "zthread/Thread.h"
+#include <boost/thread/thread.hpp>
 
 #define SEND_BUFFER_SIZE 8192
 
@@ -68,23 +68,8 @@ class SocketWriteThread
 
 		SessionQueue		mSessionQueue;
 
-		ZThread::Thread*	mThread;
+        boost::thread   	mThread;
 		bool				mExit;
-};
-
-
-//======================================================================================================================
-
-class SocketWriteThreadRunnable : public ZThread::Runnable
-{
-	public:
-
-		SocketWriteThreadRunnable(SocketWriteThread* r){ mWriteThread = r; }
-		~SocketWriteThreadRunnable(){}
-
-		virtual void run(){ mWriteThread->run(); }
-
-		SocketWriteThread* mWriteThread;
 };
 
 //======================================================================================================================

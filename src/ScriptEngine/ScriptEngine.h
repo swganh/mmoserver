@@ -23,8 +23,9 @@ extern "C"
 
 #include "Script.h"
 #include "Utils/typedefs.h"
-#include "zthread/Mutex.h"
+
 #include <boost/pool/pool.hpp>
+#include <boost/thread/mutex.hpp>
 #include <vector>
 
 #define	 gScriptEngine	ScriptEngine::getSingletonPtr()
@@ -64,7 +65,7 @@ class ScriptEngine
 		lua_State*				mMasterState;
 		// Anh_Utils::Clock*		mClock;
 		uint64					mLastProcessTime;
-		ZThread::Mutex			mScriptMutex;
+        boost::mutex			mScriptMutex;
 
 		ScriptList				mScripts;
 		boost::pool<boost::default_user_allocator_malloc_free>	mScriptPool;

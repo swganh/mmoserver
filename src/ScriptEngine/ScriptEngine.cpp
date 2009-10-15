@@ -78,7 +78,7 @@ ScriptEngine::~ScriptEngine()
 
 void ScriptEngine::shutdown()
 {
-	mScriptMutex.acquire();
+    boost::mutex::scoped_lock lk(mScriptMutex);
 
 	ScriptList::iterator it = mScripts.begin();
 
@@ -88,7 +88,7 @@ void ScriptEngine::shutdown()
 		it = mScripts.erase(it);
 	}
 
-	mScriptMutex.release();
+    lk.unlock();
 
 	if(mMasterState)
 	{
@@ -108,7 +108,7 @@ void ScriptEngine::process()
 	mLastProcessTime	= currentTime;
 
 
-	mScriptMutex.acquire();
+    boost::mutex::scoped_lock lk(mScriptMutex);
 
 	ScriptList::iterator it = mScripts.begin();
 
@@ -118,8 +118,6 @@ void ScriptEngine::process()
 
 		++it;
 	}
-
-	mScriptMutex.release();
 }
 
 //======================================================================================================================
@@ -128,13 +126,9 @@ Script* ScriptEngine::createScript()
 {
 	Script* script = new(mScriptPool.ordered_malloc()) Script(this);
 
-
-	mScriptMutex.acquire();
+    boost::mutex::scoped_lock lk(mScriptMutex);
 
 	mScripts.push_back(script);
-
-	mScriptMutex.release();
-
 
 	return(script);
 }
@@ -143,7 +137,7 @@ Script* ScriptEngine::createScript()
 
 void ScriptEngine::removeScript(Script* script)
 {
-	mScriptMutex.acquire();
+    boost::mutex::scoped_lock lk(mScriptMutex);
 
 	ScriptList::iterator it = mScripts.begin();
 
@@ -159,8 +153,6 @@ void ScriptEngine::removeScript(Script* script)
 		}
 		++it;
 	}
-
-	mScriptMutex.release();
 }
 
 //======================================================================================================================
@@ -173,7 +165,7 @@ Tutorial* ScriptEngine::getTutorial(void* script)
 {
 	Tutorial* tutorial = NULL;
 
-	mScriptMutex.acquire();
+    boost::mutex::scoped_lock lk(mScriptMutex);
 
 	ScriptList::iterator it = mScripts.begin();
 	while(it != mScripts.end())
@@ -186,7 +178,6 @@ Tutorial* ScriptEngine::getTutorial(void* script)
 		++it;
 	}
 
-	mScriptMutex.release();
 	return tutorial;
 }
 

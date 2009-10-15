@@ -28,6 +28,8 @@ Log::Log(const std::string& name,LogLevel level,GlobalLogLevel levelGlobal,bool 
 	{
 		std::string file = LOG_DIR + name;
 
+        boost::mutex::scoped_lock lock(mGlobalLogMutex);
+
 		if(append)
 		{
 			mLogStream.open(file.c_str(),std::ios::out|std::ios::app);
@@ -63,8 +65,10 @@ void Log::logMsg(const std::string& msg,MsgPriority mp,bool fileOut,bool console
 	if(mLogLevel + mp > mGlobalLogLevel)
 	{
 		std::string tstring;
+  
+        boost::mutex::scoped_lock lock(mGlobalLogMutex);
 
-		if(timestamp)
+        if(timestamp)
 		{
 			std::ostringstream tstream;
 			struct tm *ts;
@@ -121,14 +125,16 @@ void Log::logMsg(const std::string& msg,MsgPriority mp,bool fileOut,bool console
 void Log::logMsg(const std::string& msg, MsgPriority priority, va_list args)
 {
   int8    buf[8192];
-
+        
   // format our string with all the optional args.
   vsprintf(buf, msg.c_str(), args);
 
   char tStringBuffer[32];
 
 	if(mLogLevel + priority > mGlobalLogLevel)
-	{
+	{  
+        boost::mutex::scoped_lock lock(mGlobalLogMutex);
+
 		std::string tstring;
 
 		std::ostringstream tstream;
@@ -253,13 +259,15 @@ void Log::logMsg(const std::string& zone, const std::string& system, const std::
 void Log::logMsgNolf(const std::string& msg,MsgPriority mp,bool fileOut,bool consoleOut,bool timestamp, int Color, va_list args)
 {
 	int8    buf[8192];
-
-  // format our string with all the optional args.
-  vsprintf(buf, msg.c_str(), args);
+    
+    // format our string with all the optional args.
+    vsprintf(buf, msg.c_str(), args);
 
 	if(mLogLevel + mp > mGlobalLogLevel)
 	{
 		std::string tstring;
+
+        boost::mutex::scoped_lock lock(mGlobalLogMutex);
 
 		if(timestamp)
 		{
@@ -317,6 +325,8 @@ void Log::logMsgNolf(const std::string& msg,MsgPriority mp,bool fileOut,bool con
 	if(mLogLevel + mp > mGlobalLogLevel)
 	{
 		std::string tstring;
+
+        boost::mutex::scoped_lock lock(mGlobalLogMutex);
 
 		if(timestamp)
 		{
@@ -376,14 +386,16 @@ void Log::logMsgNolf(const std::string& msg,MsgPriority mp,bool fileOut,bool con
 
 uint16 Log::logMsgNolf(const std::string& msg, MsgPriority priority, va_list args)
 {
-  int8    buf[8192];
+    int8    buf[8192];
 
-  // format our string with all the optional args.
-  vsprintf(buf, msg.c_str(), args);
+    // format our string with all the optional args.
+    vsprintf(buf, msg.c_str(), args);
 
 	if(mLogLevel + priority > mGlobalLogLevel)
 	{
 		std::string tstring;
+
+        boost::mutex::scoped_lock lock(mGlobalLogMutex);
 
 		struct tm *ts;
 		time_t t;
@@ -425,6 +437,8 @@ void Log::hexDump(int8* data,uint32 len,MsgPriority mp)
 {
 	if(mLogLevel + mp > mGlobalLogLevel)
 	{
+        boost::mutex::scoped_lock lock(mGlobalLogMutex);
+
 		for(uint32 i = 1;i <= len;i++)
 		{
 			printf("%.2X ",data[i-1] & 0xFF);
@@ -432,6 +446,7 @@ void Log::hexDump(int8* data,uint32 len,MsgPriority mp)
 			if(i % 16 == 0)
 				printf("\n");
 		}
+
 		printf("\n");
 	}
 }
@@ -440,6 +455,8 @@ void Log::hexDump(int8* data,uint32 len,MsgPriority mp)
 
 void Log::hexDump(int8* data,uint32 len,const char* filename)
 {
+    boost::mutex::scoped_lock lock(mGlobalLogMutex);
+
 	FILE* out = fopen(filename, "a");
 
 	for(uint32 i = 1;i <= len;i++)

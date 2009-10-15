@@ -70,7 +70,8 @@ LogManager::~LogManager()
 
 Log* LogManager::createLog(const std::string& name,LogLevel level,bool fileOut,bool consoleOut,bool append)
 {
-	mGlobalLogMutex.acquire();
+    boost::mutex::scoped_lock lk(mGlobalLogMutex);
+
 	std::string zone = "";
 
 	Log* newLog = new Log(name, level, mGlobalLogLevel, fileOut,  consoleOut,append,NULL);
@@ -81,8 +82,6 @@ Log* LogManager::createLog(const std::string& name,LogLevel level,bool fileOut,b
 	{
 		mDefaultLog = newLog;
 	}
-
-	mGlobalLogMutex.release();
 
 	return newLog;
 }
@@ -118,7 +117,7 @@ Log* LogManager::createErrorLog(const std::string& zone, LogLevel level ,bool fi
 	std::string logname = "error_log ";
 	logname += zone;
 
-	mGlobalLogMutex.acquire();
+    boost::mutex::scoped_lock lk(mGlobalLogMutex);
 
 	Log* newLog = new Log(logname, level, mGlobalLogLevel, fileOut,  consoleOut,append,mDatabase);
 
@@ -128,8 +127,6 @@ Log* LogManager::createErrorLog(const std::string& zone, LogLevel level ,bool fi
 	{
 		mDefaultErrorLog = newLog;
 	}
-
-	mGlobalLogMutex.release();
 
 	return newLog;
 }
@@ -141,7 +138,7 @@ Log* LogManager::getLog(const std::string& name)
 {
 	Log* log = 0;
 
-	mGlobalLogMutex.acquire();
+    boost::mutex::scoped_lock lk(mGlobalLogMutex);
 
 	LogList::iterator it = mLogs.find(name);
 
@@ -150,8 +147,6 @@ Log* LogManager::getLog(const std::string& name)
 		log = it->second;
 	}
 
-	mGlobalLogMutex.release();
-
 	return log;
 }
 
@@ -159,7 +154,7 @@ Log* LogManager::getLog(const std::string& name)
 
 void LogManager::logMsg(const std::string& logname,const std::string& msg,MsgPriority mp,bool fileOut,bool consoleOut,bool timestamp)
 {
-	mGlobalLogMutex.acquire();
+    boost::mutex::scoped_lock lk(mGlobalLogMutex);
 
 	Log* tmpLog = getLog(logname);
 
@@ -167,19 +162,15 @@ void LogManager::logMsg(const std::string& logname,const std::string& msg,MsgPri
 	{
 		tmpLog->logMsg(msg, mp, fileOut, consoleOut, timestamp);
 	}
-
-	mGlobalLogMutex.release();
 }
 
 //======================================================================================================================
 
 void LogManager::logMsg(Log* log,const std::string& msg,MsgPriority mp,bool fileOut,bool consoleOut,bool timestamp)
 {
-	mGlobalLogMutex.acquire();
+    boost::mutex::scoped_lock lk(mGlobalLogMutex);
 
 	log->logMsg(msg, mp, fileOut, consoleOut, timestamp);
-
-	mGlobalLogMutex.release();
 }
 
 //======================================================================================================================
@@ -191,14 +182,12 @@ void LogManager::logMsg(const std::string& msg, int Color)
 
 void LogManager::logMsg(const std::string& msg,MsgPriority mp,bool fileOut,bool consoleOut,bool timestamp, int Color)
 {
-	mGlobalLogMutex.acquire();
+    boost::mutex::scoped_lock lk(mGlobalLogMutex);
 
 	if(mDefaultLog != NULL)
 	{
 		mDefaultLog->logMsg(msg, mp, fileOut, consoleOut, timestamp, Color);
 	}
-
-	mGlobalLogMutex.release();
 }
 
 //======================================================================================================================
@@ -206,29 +195,26 @@ void LogManager::logMsg(const std::string& msg,MsgPriority mp,bool fileOut,bool 
 void LogManager::logMsgStartUp(const std::string& msg, MsgPriority priority, ...)
 {
 	va_list args;
-	mGlobalLogMutex.acquire();
+
+    boost::mutex::scoped_lock lk(mGlobalLogMutex);
 
 	if(mDefaultLog != NULL)
 	{
 		mDefaultLog->logMsgNolf(msg, priority, true, true, true, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE, va_start(args, priority));
 	}
-
-	mGlobalLogMutex.release();
 }
 
 void LogManager::logMsgFollowUp(const std::string& msg, MsgPriority priority, ...)
 {
-
 	va_list args;
-	mGlobalLogMutex.acquire();
+
+    boost::mutex::scoped_lock lk(mGlobalLogMutex);
 
 	if(mDefaultLog != NULL)
 	{
 
 		mDefaultLog->logMsgNolf(msg, priority, true, true, false,FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE, va_start(args, priority));
 	}
-
-	mGlobalLogMutex.release();
 }
 
 //======================================================================================================================
@@ -237,62 +223,49 @@ void LogManager::logMsgF(const std::string& msg, MsgPriority priority, ...)
 {
 	va_list args;
 
-	mGlobalLogMutex.acquire();
+    boost::mutex::scoped_lock lk(mGlobalLogMutex);
 
 	if(mDefaultLog != NULL)
 	{
 		mDefaultLog->logMsg(msg, priority, va_start(args, priority));
 	}
-
-	mGlobalLogMutex.release();
 }
 
 //======================================================================================================================
 
 void LogManager::hexDump(int8* data,uint32 len,MsgPriority mp)
 {
-	mGlobalLogMutex.acquire();
+    boost::mutex::scoped_lock lk(mGlobalLogMutex);
 
 	if(mDefaultLog != NULL)
 	{
 		mDefaultLog->hexDump(data,len,mp);
 	}
-
-	mGlobalLogMutex.release();
 }
 
 void LogManager::hexDump(int8* data,uint32 len,const char* filename)
 {
-	mGlobalLogMutex.acquire();
-
 	if(mDefaultLog != NULL)
 	{
 		mDefaultLog->hexDump(data,len,filename);
 	}
-
-	mGlobalLogMutex.release();
-
 }
 
 //======================================================================================================================
 
 void LogManager::logMsgF(Log* log, const std::string& msg, MsgPriority priority, ...)
 {
-	mGlobalLogMutex.acquire();
-
 	va_list args;
 	va_start(args, priority);
 
 	log->logMsg(msg, priority, args);
-
-	mGlobalLogMutex.release();
 }
 
 //======================================================================================================================
 
 void LogManager::logMsgOk(int width)
 {
-	mGlobalLogMutex.acquire();
+    boost::mutex::scoped_lock lk(mGlobalLogMutex);
 
 	std::cout<<std::setw(width-6); // Width minus the [ OK ] message length.
 	std::cout<<std::right<<"[ ";
@@ -308,15 +281,11 @@ void LogManager::logMsgOk(int width)
 	#endif
 
 	std::cout<<" ]"<< std::endl;
-
-	mGlobalLogMutex.release();
 }
 
 
 void LogManager::logMsgLoadSuccess(const std::string& msg, MsgPriority priority, ...)
 {
-	mGlobalLogMutex.acquire();
-
 	va_list args;
 	va_start(args, priority);
 
@@ -325,8 +294,6 @@ void LogManager::logMsgLoadSuccess(const std::string& msg, MsgPriority priority,
 	{
 		textLength = mDefaultLog->logMsgNolf(msg, priority, args);
 	}
-						  	
-	mGlobalLogMutex.release();
 
 	int16 length = 80 - textLength + 1; // Add an extra 1 for the null terminator at the end of the string.
 	
@@ -339,8 +306,6 @@ void LogManager::logMsgLoadSuccess(const std::string& msg, MsgPriority priority,
 
 void LogManager::logMsgLoadFailure(const std::string& msg, MsgPriority priority, ...)
 {
-	mGlobalLogMutex.acquire();
-
 	va_list args;
 	va_start(args, priority);
 
@@ -349,8 +314,6 @@ void LogManager::logMsgLoadFailure(const std::string& msg, MsgPriority priority,
 	{
 		textLength = mDefaultLog->logMsgNolf(msg, priority, args);
 	}
-	
-	mGlobalLogMutex.release();
 
 	int16 length = 80 - textLength + 1; // Add an extra 1 for the null terminator at the end of the string.
 	
@@ -364,7 +327,7 @@ void LogManager::logMsgLoadFailure(const std::string& msg, MsgPriority priority,
 
 void LogManager::logMsgFailed(int width)
 {
-	mGlobalLogMutex.acquire();	
+    boost::mutex::scoped_lock lk(mGlobalLogMutex);	
 
 	std::cout.width(width-10); // Width minus the [ FAILED ] message length.
 	std::cout<<std::right<<"[ ";
@@ -379,61 +342,45 @@ void LogManager::logMsgFailed(int width)
 		SetConsoleTextAttribute(Console, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
 	#endif
 	std::cout<<" ]"<< std::endl;
-	
-	mGlobalLogMutex.release();
 }
 
 //======================================================================================================================
 
 void LogManager::setLogLevel(const std::string& logname,LogLevel level)
 {
-	mGlobalLogMutex.acquire();
-
 	Log* tmpLog = getLog(logname);
 
 	if(tmpLog != NULL)
 	{
 		tmpLog->setLogLevel(level);
 	}
-
-	mGlobalLogMutex.release();
 }
 
 //======================================================================================================================
 
 void LogManager::setLogLevel(Log* log,LogLevel level)
 {
-	mGlobalLogMutex.acquire();
-
 	log->setLogLevel(level);
-
-	mGlobalLogMutex.release();
 }
 
 //======================================================================================================================
 
 void LogManager::setLogLevel(LogLevel level)
 {
-	mGlobalLogMutex.acquire();
-
 	if(mDefaultLog)
 	{
 		mDefaultLog->setLogLevel(level);
 	}
-
-	mGlobalLogMutex.release();
 }
 
 //======================================================================================================================
 
 Log* LogManager::setDefaultLog(Log* log)
 {
-	mGlobalLogMutex.acquire();
+    boost::mutex::scoped_lock lk(mGlobalLogMutex);
 
 	Log* old = mDefaultLog;
 	mDefaultLog = log;
-
-	mGlobalLogMutex.release();
 
 	return old;
 }
@@ -442,7 +389,7 @@ Log* LogManager::setDefaultLog(Log* log)
 
 void LogManager::setGlobalLogLevel(GlobalLogLevel glevel)
 {
-	mGlobalLogMutex.acquire();
+    boost::mutex::scoped_lock lk(mGlobalLogMutex);
 
 	LogList::iterator it = mLogs.begin();
 
@@ -451,8 +398,6 @@ void LogManager::setGlobalLogLevel(GlobalLogLevel glevel)
 		it->second->setGlobalLogLevel(glevel);
 		++it;
 	}
-
-	mGlobalLogMutex.release();
 }
 
 //======================================================================================================================

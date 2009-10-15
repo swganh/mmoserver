@@ -12,11 +12,11 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_LOGMANAGER_H
 #define ANH_LOGMANAGER_H
 
-#include <map>
-#include "zthread/Mutex.h"
-
-#include "Utils/typedefs.h"
 #include "Log.h"
+#include "Utils/typedefs.h"
+
+#include <boost/thread/mutex.hpp>
+#include <map>
 
 class Database;
 class DatabaseManager;
@@ -90,9 +90,8 @@ class LogManager
 		Log*				mDefaultAdminLog;
 		Log*				mDefaultTransactionLog;
 		GlobalLogLevel		mGlobalLogLevel;
-		ZThread::Mutex      mGlobalLogMutex;
+        boost::mutex        mGlobalLogMutex;
 		std::string			mZone;
-
 };
 
 #endif

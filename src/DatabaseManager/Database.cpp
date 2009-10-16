@@ -181,7 +181,7 @@ DatabaseResult* Database::ExecuteSql(int8* sql, ...)
 
 //======================================================================================================================
 
-void Database::ExecuteSqlAsync(DatabaseCallback* callback, void* ref, int8* sql, ...)
+void Database::ExecuteSqlAsync(DatabaseCallback* callback, void* ref, const int8* sql, ...)
 {
 	// format our sql string
 	va_list args;
@@ -210,7 +210,7 @@ void Database::ExecuteSqlAsync(DatabaseCallback* callback, void* ref, int8* sql,
 //this gets interpreted as a formatting sign by vsnprintf() and subsequently is removed
 //which invalidates our binary data!!!!!!!!!!!
 //sch
-void Database::ExecuteSqlAsyncNoArguments(DatabaseCallback* callback, void* ref, int8* sql)
+void Database::ExecuteSqlAsyncNoArguments(DatabaseCallback* callback, void* ref, const int8* sql)
 {
 	int8    localSql[20192];
 	
@@ -228,7 +228,7 @@ void Database::ExecuteSqlAsyncNoArguments(DatabaseCallback* callback, void* ref,
 }
 //======================================================================================================================
 
-DatabaseResult* Database::ExecuteProcedure(int8* sql, ...)
+DatabaseResult* Database::ExecuteProcedure(const int8* sql, ...)
 {
 	DatabaseResult* newResult = 0;
 
@@ -249,7 +249,7 @@ DatabaseResult* Database::ExecuteProcedure(int8* sql, ...)
 
 //======================================================================================================================
 
-void Database::ExecuteProcedureAsync(DatabaseCallback* callback, void* ref, int8* sql, ...)
+void Database::ExecuteProcedureAsync(DatabaseCallback* callback, void* ref, const int8* sql, ...)
 {
 	// format our sql string
 	va_list args;

@@ -47,11 +47,11 @@ class Database
 
   DatabaseResult*                         ExecuteSynchSql(int8* sql, ...);
   //DatabaseResult*                         ExecuteSql(int8* sql, ...);
-  void                                    ExecuteSqlAsync(DatabaseCallback* callback, void* ref, int8* sql, ...);
-  void									  ExecuteSqlAsyncNoArguments(DatabaseCallback* callback, void* ref, int8* sql);
+  void                                    ExecuteSqlAsync(DatabaseCallback* callback, void* ref, const int8* sql, ...);
+  void									  ExecuteSqlAsyncNoArguments(DatabaseCallback* callback, void* ref, const int8* sql);
 
-  DatabaseResult*                         ExecuteProcedure(int8* sql, ...);
-  void                                    ExecuteProcedureAsync(DatabaseCallback* callback, void* ref, int8* sql, ...);
+  DatabaseResult*                         ExecuteProcedure(const int8* sql, ...);
+  void                                    ExecuteProcedureAsync(DatabaseCallback* callback, void* ref, const int8* sql, ...);
 
   uint32								  Escape_String(int8* target,const int8* source,uint32 length);
 

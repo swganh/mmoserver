@@ -34,7 +34,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include <functional>
 #endif
 
-#if !defined(_MSC_VER)
+#if defined(_MSC_VER)
+#define socklen_t int
+#else
 #include <sys/socket.h>
 #include <arpa/inet.h>
 

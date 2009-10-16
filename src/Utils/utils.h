@@ -21,6 +21,11 @@ Copyright (c) 2006 - 2008 The swgANH Team
 uint64 swap64(uint64 value);
 std::string strRep(std::string a,std::string b,std::string c);
 
+namespace Anh_Utils
+{
+	int kbhit(void);
+}
+
 //==============================================================================================================================
 
 #endif

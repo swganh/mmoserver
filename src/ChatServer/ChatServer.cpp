@@ -32,12 +32,9 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "Common/MessageFactory.h"
 #include "ConfigManager/ConfigManager.h"
 
+#include "Utils/utils.h"
+
 #include <boost/thread/thread.hpp>
-
-#include <conio.h>
-#include <stdio.h>
-#include <stddef.h>
-
 
 //======================================================================================================================
 
@@ -249,7 +246,7 @@ int main(int argc, char* argv)
 	{
 		gChatServer->Process();
 
-		if(_kbhit())
+		if(Anh_Utils::kbhit())
 			break;
 
         boost::this_thread::sleep(boost::posix_time::milliseconds(1));

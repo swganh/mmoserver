@@ -52,22 +52,9 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "Common/MessageFactory.h"
 #include "Common/MessageOpcodes.h"
 #include "ConfigManager/ConfigManager.h"
-
-
-
-
-
-
-
+#include "Utils/utils.h"
 
 #include <boost/thread/thread.hpp>
-
-#include <conio.h>
-#include <stdio.h>
-#include <stddef.h>
-#include <iostream>
-
-using namespace std; // just so you do not have to type std:: all the time.
 
 //======================================================================================================================
 
@@ -386,7 +373,7 @@ int main(int argc, char* argv[])
 	// Main loop
 	while(1)
 	{
-		if (_kbhit() || AdminManager::Instance()->shutdownZone())
+		if (Anh_Utils::kbhit() || AdminManager::Instance()->shutdownZone())
 		{
 			break;
 		}

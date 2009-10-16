@@ -23,8 +23,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "Common/MessageFactory.h"
 #include "ConfigManager/ConfigManager.h"
-
-#include <conio.h>
+#include "Utils/utils.h"
 
 #include <boost/thread/thread.hpp>
 
@@ -166,7 +165,7 @@ int main(int argc, char* argv)
 	{
 		gLoginServer->Process();
 
-		if(_kbhit())
+		if(Anh_Utils::kbhit())
 			break;
 
         boost::this_thread::sleep(boost::posix_time::milliseconds(10));

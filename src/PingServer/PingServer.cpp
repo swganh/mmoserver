@@ -17,7 +17,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "ConfigManager/ConfigManager.h"
 
-#include <conio.h>
+#include "Utils/utils.h"
 
 #define RECEIVE_BUFFER 512
 
@@ -109,20 +109,20 @@ int main(int argc, char* argv[])
 	
 	gLogger->logMsgF("PingServer %s", MSG_NORMAL, ConfigManager::getBuildString().c_str());
 
-    // Read in the address and port to start the ping server on.
-    std::string address = gConfig->read<std::string>("BindAddress");
+	// Read in the address and port to start the ping server on.
+	std::string address = gConfig->read<std::string>("BindAddress");
 	int port            = gConfig->read<int>("BindPort");
 
     // Start the ping server.
 	PingServer ping_server(address, port);
 	gLogger->logMsgF("PingServer listening at %s:%d", MSG_NORMAL, address.c_str(), port);
 
-    while (true) {
-        // Check for incoming messages and handle them.
-        ping_server.Poll();
+	while (true) {
+		// Check for incoming messages and handle them.
+		ping_server.Poll();
 
-        // Stop the ping server if a key is hit.
-        if (_kbhit()) break;
+		// Stop the ping server if a key is hit.
+		if (Anh_Utils::kbhit()) break;
 	}
 
 	return 0;

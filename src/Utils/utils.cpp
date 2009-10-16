@@ -13,6 +13,10 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include <string>
 #include <cstring>
 
+#if defined(_MSC_VER)
+#include <conio.h>
+#endif
+
 //==========================================================================
 
 uint64 swap64(uint64 value)
@@ -54,6 +58,39 @@ std::string strRep(std::string a,std::string b,std::string c)
 
 	return d;
 } 
+
+//==========================================================================
+
+int Anh_Utils::kbhit(void)
+{
+#if defined(_MSC_VER)
+    return _kbhit();
+#else
+  struct termios oldt, newt;
+  int ch;
+  int oldf;
+
+  tcgetattr(STDIN_FILENO, &oldt);
+  newt = oldt;
+  newt.c_lflag &= ~(ICANON | ECHO);
+  tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+  oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
+  fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
+
+  ch = getchar();
+
+  tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+  fcntl(STDIN_FILENO, F_SETFL, oldf);
+
+  if(ch != EOF)
+  {
+    ungetc(ch, stdin);
+    return 1;
+  }
+
+  return 0;
+#endif
+}
 
 //==========================================================================
 

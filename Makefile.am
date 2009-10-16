@@ -86,7 +86,7 @@ adminserver_SOURCES = src/AdminServer/AdminServer.cpp \
   src/AdminServer/PlanetMapHandler.cpp
 
 adminserver_CPPFLAGS = $(MYSQL_CFLAGS) -fpermissive -fshort-wchar 
-adminserver_LDADD = libutils.la liblogmanager.la libcommon.la libconfigmanager.la libdatabasemanager.la libnetworkmanager.la $(MYSQL_LDFLAGS)
+adminserver_LDADD = libutils.la liblogmanager.la libcommon.la libconfigmanager.la libdatabasemanager.la libnetworkmanager.la $(MYSQL_LDFLAGS) $(BOOST_THREAD_LIB) $(BOOST_SYSTEM_LIB)
 
 # ChatServer - executable
 bin_PROGRAMS += chatserver

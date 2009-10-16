@@ -20,6 +20,8 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "Common/Message.h"
 #include "Common/MessageFactory.h"
 
+#include <cstring>
+
 //======================================================================================================================
 
 Channel::Channel() :

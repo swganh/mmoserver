@@ -33,7 +33,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "Utils/utils.h"
 
-#include <assert.h>
+#include <cassert>
+#include <cstring>
 #include <ctime>
 
 //======================================================================================================================
@@ -213,8 +214,8 @@ void ChatManager::_loadChannels(DatabaseResult* result)
 void ChatManager::_loadDatabindings()
 {
 	mPlayerBinding = mDatabase->CreateDataBinding(2);
-	mPlayerBinding->addField(DFT_bstring,offsetof(Player,mName),64,0);
-	mPlayerBinding->addField(DFT_bstring,offsetof(Player,mLastName),64,1);
+	mPlayerBinding->addField(DFT_bstring,offsetof(Player, mName),64,0);
+	mPlayerBinding->addField(DFT_bstring,offsetof(Player, mLastName),64,1);
 
 	mChannelBinding = mDatabase->CreateDataBinding(7);
 	mChannelBinding->addField(DFT_uint32,	offsetof(Channel,mId)		,4	,0);

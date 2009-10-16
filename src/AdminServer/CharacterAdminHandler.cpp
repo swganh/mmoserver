@@ -27,9 +27,10 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include <boost/lexical_cast.hpp>
 
+#include <string>
 #include <cassert>
 #include <cstdlib>
-#include <string>
+#include <cstring>
 
 //======================================================================================================================
 CharacterAdminHandler::CharacterAdminHandler(void)

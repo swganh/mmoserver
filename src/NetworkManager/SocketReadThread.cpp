@@ -34,11 +34,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include <functional>
 #endif
 
-#if defined(_MSC_VER)
-	#ifndef _WINSOCK2API_
-#include <WINSOCK2.h>
-	#endif
-#else
+#if !defined(_MSC_VER)
 #include <sys/socket.h>
 #include <arpa/inet.h>
 

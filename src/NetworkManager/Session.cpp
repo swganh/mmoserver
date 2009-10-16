@@ -28,9 +28,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Utils/rand.h"
 #include "Utils/utils.h"
 
-#if defined(_MSC_VER)
-#include <WINSOCK2.h>
-#else
+#if !defined(_MSC_VER)
 #include <arpa/inet.h>
 #endif
 

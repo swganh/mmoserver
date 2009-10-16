@@ -21,8 +21,6 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "Utils/rand.h"
 
-#include <boost/thread/thread.hpp>
-
 #if defined(__GNUC__)
 // GCC implements tr1 in the <tr1/*> headers. This does not conform to the TR1
 // spec, which requires the header without the tr1/ prefix.
@@ -34,6 +32,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #if defined(_MSC_VER)
 	#ifndef _WINSOCK2API_
 #include <WINSOCK2.h>
+#undef errno
 #define errno WSAGetLastError()
 	#endif
 #else
@@ -45,6 +44,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #define SOCKET_ERROR	-1
 #define closesocket		close
 #endif
+
+#include <boost/thread/thread.hpp>
 
 //======================================================================================================================
 

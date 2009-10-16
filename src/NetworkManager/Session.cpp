@@ -28,6 +28,12 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Utils/rand.h"
 #include "Utils/utils.h"
 
+#if defined(_MSC_VER)
+#include <WINSOCK2.h>
+#else
+#include <arpa/inet.h>
+#endif
+
 #include <algorithm>
 #include <stdio.h>
 
@@ -2332,10 +2338,7 @@ void Session::_addOutgoingUnreliablePacket(Packet* packet)
 //======================================================================================================================
 int8* Session::getAddressString(void)
 {
-  in_addr address;
-  address.S_un.S_addr = mAddress;
-
-  return inet_ntoa(address); 
+  return inet_ntoa(*(struct in_addr *)&mAddress); 
 }
 
 

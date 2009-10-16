@@ -27,8 +27,17 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include <boost/thread/thread.hpp>
 
-#ifndef _WINSOCK2API_
+#if defined(_MSC_VER)
+	#ifndef _WINSOCK2API_
 #include <WINSOCK2.h>
+	#endif
+#else
+#include <sys/socket.h>
+#include <arpa/inet.h>
+
+#define INVALID_SOCKET	-1
+#define SOCKET_ERROR	-1
+#define closesocket		close
 #endif
 
 #include <cassert>
@@ -327,10 +336,7 @@ void Service::AddSessionToProcessQueue(Session* session)
 
 int8* Service::getLocalAddress(void)                             
 { 
-  in_addr address;
-  address.S_un.S_addr = mLocalAddress;
-
-  return inet_ntoa(address); 
+  return inet_ntoa(*(struct in_addr *)&mLocalAddress); 
 }
 
 //======================================================================================================================

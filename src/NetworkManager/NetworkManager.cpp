@@ -16,8 +16,10 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "Utils/typedefs.h"
 
-#ifndef _WINSOCK2API_
+#if defined(_MSC_VER)
+	#ifndef _WINSOCK2API_
 #include <WINSOCK2.h>
+	#endif
 #endif
 
 //======================================================================================================================

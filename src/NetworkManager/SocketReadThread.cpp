@@ -11,9 +11,6 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "SocketReadThread.h"
 
-#ifndef _WINSOCK2API_
-#include <WINSOCK2.h>
-#endif
 #include "CompCryptor.h"
 #include "NetworkClient.h"
 #include "Packet.h"
@@ -28,6 +25,27 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Common/MessageFactory.h"
 
 #include <boost/thread/thread.hpp>
+
+#if defined(__GNUC__)
+// GCC implements tr1 in the <tr1/*> headers. This does not conform to the TR1
+// spec, which requires the header without the tr1/ prefix.
+#include <tr1/functional>
+#else
+#include <functional>
+#endif
+
+#if defined(_MSC_VER)
+	#ifndef _WINSOCK2API_
+#include <WINSOCK2.h>
+	#endif
+#else
+#include <sys/socket.h>
+#include <arpa/inet.h>
+
+#define INVALID_SOCKET	-1
+#define SOCKET_ERROR	-1
+#define closesocket		close
+#endif
 
 //======================================================================================================================
 

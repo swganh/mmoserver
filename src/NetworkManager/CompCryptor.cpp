@@ -10,7 +10,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "CompCryptor.h"
-#include <zlib/zlib.h>
+#include <zlib.h>
 
 
 //======================================================================================================================

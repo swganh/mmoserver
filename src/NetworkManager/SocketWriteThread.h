@@ -27,7 +27,6 @@ class Packet;
 class Session;
 class CompCryptor;
 
-typedef unsigned int SOCKET;
 typedef Anh_Utils::concurrent_queue<Session*>    SessionQueue;
 
 //======================================================================================================================

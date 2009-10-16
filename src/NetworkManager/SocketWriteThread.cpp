@@ -23,8 +23,27 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include <boost/thread/thread.hpp>
 
-#ifndef _WINSOCK2API_
+#if defined(__GNUC__)
+// GCC implements tr1 in the <tr1/*> headers. This does not conform to the TR1
+// spec, which requires the header without the tr1/ prefix.
+#include <tr1/functional>
+#else
+#include <functional>
+#endif
+
+#if defined(_MSC_VER)
+	#ifndef _WINSOCK2API_
 #include <WINSOCK2.h>
+#define errno WSAGetLastError()
+	#endif
+#else
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <errno.h>
+
+#define INVALID_SOCKET	-1
+#define SOCKET_ERROR	-1
+#define closesocket		close
 #endif
 
 //======================================================================================================================
@@ -312,8 +331,7 @@ void SocketWriteThread::_sendPacket(Packet* packet, Session* session)
 	
 	if (sent < 0)
 	{
-		int error = WSAGetLastError();
-		gLogger->logMsgF("*** Unkown error from socket sendto: %u", MSG_HIGH, error);
+		gLogger->logMsgF("*** Unkown error from socket sendto: %u", MSG_HIGH, errno);
 	}
 }
 

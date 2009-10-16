@@ -84,7 +84,7 @@ AC_CHECK_FUNCS([atexit floor ftime inet_ntoa memset pow select socket sqrt strch
 AC_SUBST(SWGANH_CXXFLAGS)
 
 
-AC_CONFIG_FILES([makefile])
+AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
 
 echo "

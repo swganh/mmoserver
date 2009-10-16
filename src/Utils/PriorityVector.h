@@ -28,7 +28,7 @@ namespace Anh_Utils
 
 			priority_vector(const Compare& cmp = Compare()) : mCompare(cmp)
 			{
-				std::make_heap(begin(),end(),mCompare);
+				std::make_heap(this->begin(),this->end(),mCompare);
 				mSorted = false;
 			}
 
@@ -38,7 +38,7 @@ namespace Anh_Utils
 			{
 				if(mSorted || force) 
 				{
-					std::make_heap(begin(),end(),mCompare);
+					std::make_heap(this->begin(),this->end(),mCompare);
 					mSorted = false;
 				}
 			}
@@ -48,7 +48,7 @@ namespace Anh_Utils
 			const T& top()
 			{
 				assureHeap();
-				return front(); 
+				return this->front(); 
 			}
 
 	//======================================================================================================================
@@ -56,8 +56,8 @@ namespace Anh_Utils
 			void push(const T& x)
 			{
 				assureHeap();
-				push_back(x);
-				std::push_heap(begin(), end(),mCompare);
+				this->push_back(x);
+				std::push_heap(this->begin(), this->end(),mCompare);
 			}
 
 	//======================================================================================================================
@@ -65,8 +65,8 @@ namespace Anh_Utils
 			void pop()
 			{
 				assureHeap();
-				std::pop_heap(begin(), end(),mCompare);
-				pop_back();
+				std::pop_heap(this->begin(), this->end(),mCompare);
+				this->pop_back();
 			}
 
 	//======================================================================================================================
@@ -75,8 +75,8 @@ namespace Anh_Utils
 			{
 				if(!mSorted)
 				{
-					std::sort_heap(begin(),end(),mCompare);
-					std::reverse(begin(),end());
+					std::sort_heap(this->begin(),this->end(),mCompare);
+					std::reverse(this->begin(),this->end());
 					mSorted = true;
 				}
 			}

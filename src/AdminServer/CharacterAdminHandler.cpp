@@ -25,7 +25,10 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "Utils/utils.h"
 
-#include <assert.h>
+#include <boost/lexical_cast.hpp>
+
+#include <cassert>
+#include <cstdlib>
 #include <string>
 
 //======================================================================================================================
@@ -331,16 +334,15 @@ void CharacterAdminHandler::_processCreateCharacter(Message* message, DispatchCl
 	  strcat(sql,",NULL");
 
   // Iterate our appearance and append as necessary.
-  int8 buf[8];
   for (uint32 i = 0; i < 0x71; i++)
   {
     strcat(sql, ", ");
-    strcat(sql, _itoa(characterInfo.mAppearance[i], buf, 10));
+		strcat(sql, boost::lexical_cast<std::string>(characterInfo.mAppearance[i]).c_str());
   }
   strcat(sql, ", ");
-  strcat(sql, _itoa(characterInfo.mAppearance[171], buf, 10));
+	strcat(sql, boost::lexical_cast<std::string>(characterInfo.mAppearance[171]).c_str());
   strcat(sql, ", ");
-  strcat(sql, _itoa(characterInfo.mAppearance[172], buf, 10));
+	strcat(sql, boost::lexical_cast<std::string>(characterInfo.mAppearance[172]).c_str());
 
   if(characterInfo.mHairModel.getLength())
   {
@@ -619,7 +621,7 @@ void CharacterAdminHandler::_sendCreateCharacterFailed(uint32 errorCode,Dispatch
 		return;
 	}
 
-	string unknown = reinterpret_cast<uint16*>(L"o_O");
+	string unknown = L"o_O";
 	string stfFile = "ui";
 	string errorString;
 

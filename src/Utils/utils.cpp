@@ -15,6 +15,10 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #if defined(_MSC_VER)
 #include <conio.h>
+#else
+#include <termios.h>
+#include <unistd.h>
+#include <fcntl.h>
 #endif
 
 //==========================================================================

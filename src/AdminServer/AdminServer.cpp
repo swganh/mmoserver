@@ -29,6 +29,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 
 #include <boost/thread/thread.hpp>
 
+#include <cstring>
 
 //======================================================================================================================
 AdminServer* gAdminServer;
@@ -57,7 +58,7 @@ void AdminServer::Startup(void)
 {
   //gLogger->printSmallLogo();
   // gLogger->logMsgF("AdminServer Startup : %s",MSG_HIGH,GetBuildString());
-  gLogger->logMsgF("AdminServer Startup : %s",MSG_HIGH,ConfigManager::getBuildString());
+  gLogger->logMsgF("AdminServer Startup : %s",MSG_HIGH,ConfigManager::getBuildString().c_str());
   
   //gLogger->logMsg(GetBuildString());
 

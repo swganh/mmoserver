@@ -45,7 +45,7 @@ class Database
   void                                    Shutdown(void);
   void                                    Process(void);
 
-  DatabaseResult*                         ExecuteSynchSql(int8* sql, ...);
+  DatabaseResult*                         ExecuteSynchSql(const int8* sql, ...);
   //DatabaseResult*                         ExecuteSql(int8* sql, ...);
   void                                    ExecuteSqlAsync(DatabaseCallback* callback, void* ref, const int8* sql, ...);
   void									  ExecuteSqlAsyncNoArguments(DatabaseCallback* callback, void* ref, const int8* sql);
@@ -91,7 +91,7 @@ private:
   boost::pool<boost::default_user_allocator_malloc_free>							  mJobPool;
   boost::pool<boost::default_user_allocator_malloc_free>							  mTransactionPool;
 protected:
-	DatabaseResult*                         ExecuteSql(int8* sql, ...);
+	DatabaseResult*                         ExecuteSql(const int8* sql, ...);
 };
 
 //======================================================================================================================

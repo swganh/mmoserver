@@ -145,7 +145,7 @@ void Database::Process(void)
 }
 
 //======================================================================================================================
-DatabaseResult* Database::ExecuteSynchSql(int8* sql, ...)
+DatabaseResult* Database::ExecuteSynchSql(const int8* sql, ...)
 {
 	int8 message[8192];
 	sprintf(message, "WARNING: SYNCHRONOUS SQL STATEMENT: %s",sql);
@@ -159,7 +159,7 @@ DatabaseResult* Database::ExecuteSynchSql(int8* sql, ...)
 
 	return ExecuteSql(localSql);
 }
-DatabaseResult* Database::ExecuteSql(int8* sql, ...)
+DatabaseResult* Database::ExecuteSql(const int8* sql, ...)
 {
 	
 	DatabaseResult* newResult = 0;

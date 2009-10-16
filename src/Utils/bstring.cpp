@@ -57,7 +57,7 @@ BString::~BString()
 
 //======================================================================================================================
 
-BString::BString(int8* data) : 
+BString::BString(const int8* data) : 
 mLength(0), 
 mAllocated(0),
 mCharacterWidth(1),
@@ -74,7 +74,7 @@ mString(0)
 
 //======================================================================================================================
 
-BString::BString(uint16* data) : 
+BString::BString(const uint16* data) : 
 mLength(0), 
 mAllocated(0), 
 mCharacterWidth(2),
@@ -91,7 +91,7 @@ mString(0)
 
 //======================================================================================================================
 
-BString::BString(wchar_t* data) : 
+BString::BString(const wchar_t* data) : 
 mLength(0), 
 mAllocated(0), 
 mCharacterWidth(2),

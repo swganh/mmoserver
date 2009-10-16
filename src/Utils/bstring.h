@@ -38,9 +38,9 @@ public:
     BString(BStringType type, uint16 length);
     ~BString();
 
-    BString(int8* data);
-    BString(uint16* data);
-    BString(wchar_t* data);
+    BString(const int8* data);
+    BString(const uint16* data);
+    BString(const wchar_t* data);
     BString(const BString& data);
 
     uint16 initRawBSTR(int8* data, BStringType type);

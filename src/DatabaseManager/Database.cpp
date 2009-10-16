@@ -153,8 +153,9 @@ DatabaseResult* Database::ExecuteSynchSql(int8* sql, ...)
 
 	// format our sql string
 	va_list args;
+	va_start(args, sql);
 	int8    localSql[8192];
-	int32 len = vsnprintf(localSql, sizeof(localSql), sql, va_start(args, sql));
+	int32 len = vsnprintf(localSql, sizeof(localSql), sql, args);
 
 	return ExecuteSql(localSql);
 }
@@ -165,8 +166,9 @@ DatabaseResult* Database::ExecuteSql(int8* sql, ...)
 
 	// format our sql string
 	va_list args;
+	va_start(args, sql);
 	int8    localSql[8192];
-	int32 len = vsnprintf(localSql, sizeof(localSql), sql, va_start(args, sql));
+	int32 len = vsnprintf(localSql, sizeof(localSql), sql, args);
 
 	//gLogger->logMsgF("SqlDump: len:%u - %s", MSG_LOW, len, localSql);
 
@@ -183,8 +185,9 @@ void Database::ExecuteSqlAsync(DatabaseCallback* callback, void* ref, int8* sql,
 {
 	// format our sql string
 	va_list args;
+	va_start(args, sql);
 	int8    localSql[20192];
-	int32 len = vsnprintf(localSql, sizeof(localSql), sql, va_start(args, sql));
+	int32 len = vsnprintf(localSql, sizeof(localSql), sql, args);
 
 	//gLogger->logMsgF("SqlDump: len:%u - %s", MSG_LOW, len, localSql);
 
@@ -231,8 +234,9 @@ DatabaseResult* Database::ExecuteProcedure(int8* sql, ...)
 
 	// format our sql string
 	va_list args;
+	va_start(args, sql);
 	int8    localSql[20192];
-	int32 len = vsnprintf(localSql, sizeof(localSql), sql, va_start(args, sql));
+	int32 len = vsnprintf(localSql, sizeof(localSql), sql, args);
 
 	//gLogger->logMsgF("SqlDump: len:%u - %s", MSG_LOW, len, localSql);
 
@@ -249,8 +253,9 @@ void Database::ExecuteProcedureAsync(DatabaseCallback* callback, void* ref, int8
 {
 	// format our sql string
 	va_list args;
+	va_start(args, sql);
 	int8    localSql[20192];
-	int32 len = vsnprintf(localSql, sizeof(localSql), sql, va_start(args, sql));
+	int32 len = vsnprintf(localSql, sizeof(localSql), sql, args);
 
 	//gLogger->logMsgF("SqlDump: len:%u - %s", MSG_LOW, len, localSql);
 

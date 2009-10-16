@@ -10,39 +10,40 @@ libutils_la_SOURCES = src/Utils/bstring.cpp \
   src/Utils/EventHandler.cpp \
   src/Utils/rand.cpp \
   src/Utils/Scheduler.cpp \
+  src/Utils/StreamColors.cpp \
   src/Utils/Timer.cpp \
   src/Utils/utils.cpp \
   src/Utils/VariableTimeScheduler.cpp
 
-libutils_la_CPPFLAGS =  $(ZTHREAD_CXXFLAGS) -fpermissive -fshort-wchar 
-libutils_la_LIBADD = $(BOOST_LDFLAGS) $(BOOST_SYSTEM_LIB) $(ZTHREAD_LIBS)
+libutils_la_CPPFLAGS = -fpermissive -fshort-wchar 
+libutils_la_LIBADD = $(BOOST_LDFLAGS) $(BOOST_SYSTEM_LIB)
 
 # LogManager library - noinstall shared library
 noinst_LTLIBRARIES += liblogmanager.la
 liblogmanager_la_SOURCES = src/LogManager/Log.cpp \
   src/LogManager/LogManager.cpp
 	
-liblogmanager_la_CPPFLAGS = $(ZTHREAD_CXXFLAGS) -fpermissive -fshort-wchar 
-liblogmanager_la_LIBADD = $(BOOST_LDFLAGS) $(BOOST_SYSTEM_LIB) $(ZTHREAD_LIBS)
+liblogmanager_la_CPPFLAGS = -fpermissive -fshort-wchar 
+liblogmanager_la_LIBADD = $(BOOST_LDFLAGS) $(BOOST_SYSTEM_LIB)
 
 # Common library - noinstall shared library
 noinst_LTLIBRARIES += libcommon.la
 libcommon_la_SOURCES = src/Common/atMacroString.cpp \
+  src/Common/BuildInfo.cpp \
   src/Common/bytebuffer.cpp \
   src/Common/DispatchClient.cpp \
   src/Common/MessageDispatch.cpp \
   src/Common/MessageFactory.cpp 
     
-libcommon_la_CPPFLAGS = $(ZTHREAD_CXXFLAGS) -fpermissive -fshort-wchar 
-libcommon_la_LIBADD = $(BOOST_LDFLAGS) $(BOOST_SYSTEM_LIB) $(ZTHREAD_LIBS)
+libcommon_la_CPPFLAGS = -fpermissive -fshort-wchar 
+libcommon_la_LIBADD = $(BOOST_LDFLAGS) $(BOOST_SYSTEM_LIB)
 
 # ConfigManager library - noinstall shared library
 noinst_LTLIBRARIES += libconfigmanager.la
 libconfigmanager_la_SOURCES = src/ConfigManager/ConfigFile.cpp \
   src/ConfigManager/ConfigManager.cpp
     
-libconfigmanager_la_CPPFLAGS = $(ZTHREAD_CXXFLAGS) -fpermissive -fshort-wchar 
-libconfigmanager_la_LIBADD = $(ZTHREAD_LIBS)
+libconfigmanager_la_CPPFLAGS = -fpermissive -fshort-wchar 
 
 # Math library - noinstall shared library
 noinst_LTLIBRARIES += libmath.la
@@ -61,8 +62,7 @@ libdatabasemanager_la_SOURCES = src/DatabaseManager/Database.cpp \
   src/DatabaseManager/DataBindingFactory.cpp \
   src/DatabaseManager/Transaction.cpp
 
-libdatabasemanager_la_CPPFLAGS = $(ZTHREAD_CXXFLAGS) $(MYSQL_CFLAGS) -fpermissive -fshort-wchar 
-libdatabasemanager_la_LIBADD = $(ZTHREAD_LIBS) $(MYSQL_LDFLAGS)
+libdatabasemanager_la_CPPFLAGS = $(MYSQL_CFLAGS) -fpermissive -fshort-wchar 
 
 # NetworkManager library - noinstall shared library
 noinst_LTLIBRARIES += libnetworkmanager.la
@@ -77,8 +77,7 @@ libnetworkmanager_la_SOURCES = src/NetworkManager/CompCryptor.cpp \
   src/NetworkManager/SocketReadThread.cpp \
   src/NetworkManager/SocketWriteThread.cpp
 
-libnetworkmanager_la_CPPFLAGS = $(ZTHREAD_CXXFLAGS) -fpermissive -fshort-wchar 
-libnetworkmanager_la_LIBADD = $(ZTHREAD_LIBS)
+libnetworkmanager_la_CPPFLAGS = -fpermissive -fshort-wchar 
 
 # AdminServer - executable
 bin_PROGRAMS = adminserver
@@ -86,8 +85,8 @@ adminserver_SOURCES = src/AdminServer/AdminServer.cpp \
   src/AdminServer/CharacterAdminHandler.cpp \
   src/AdminServer/PlanetMapHandler.cpp
 
-adminserver_CPPFLAGS = -fpermissive $(MYSQL_CFLAGS) $(ZTHREAD_CXXFLAGS) -fshort-wchar 
-adminserver_LDADD = libutils.la liblogmanager.la libcommon.la libconfigmanager.la libdatabasemanager.la libnetworkmanager.la $(ZTHREAD_LIBS) $(MYSQL_LDFLAGS)
+adminserver_CPPFLAGS = $(MYSQL_CFLAGS) -fpermissive -fshort-wchar 
+adminserver_LDADD = libutils.la liblogmanager.la libcommon.la libconfigmanager.la libdatabasemanager.la libnetworkmanager.la $(MYSQL_LDFLAGS)
 
 # ChatServer - executable
 bin_PROGRAMS += chatserver
@@ -106,8 +105,8 @@ chatserver_SOURCES = src/ChatServer/Channel.cpp \
   src/ChatServer/TradeManagerHelp.cpp \
   src/ChatServer/TradeMessages.cpp
 
-chatserver_CPPFLAGS = -fpermissive $(MYSQL_CFLAGS) $(ZTHREAD_CXXFLAGS) -fshort-wchar 
-chatserver_LDADD = libutils.la liblogmanager.la libcommon.la libconfigmanager.la libdatabasemanager.la libnetworkmanager.la $(ZTHREAD_LIBS) $(MYSQL_LDFLAGS)
+chatserver_CPPFLAGS = $(MYSQL_CFLAGS) -fpermissive -fshort-wchar 
+chatserver_LDADD = libutils.la liblogmanager.la libcommon.la libconfigmanager.la libdatabasemanager.la libnetworkmanager.la $(MYSQL_LDFLAGS)
 
 # ScriptEngine library - noinstall shared library
 #noinst_LTLIBRARIES += libscriptengine.la

@@ -1,6 +1,8 @@
 #include "StreamColors.h"
-#include <windows.h>
 
+#ifdef _MSC_VER
+#include <windows.h>
+#endif
 
 std::ostream& blue(std::ostream &s)
 {

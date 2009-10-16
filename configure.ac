@@ -92,9 +92,9 @@ echo "
   ($PACKAGE_NAME) version $PACKAGE_VERSION
   Prefix.........: $prefix
   C++ Compiler...: $CXX $CXXFLAGS $CPPFLAGS $SWGANH_CXXFLAGS 
-                   $BOOST_CPPFLAGS $ZTHREAD_CXXFLAGS
+                   $BOOST_CPPFLAGS $MYSQL_CFLAGS
   Linker.........: $LD $LDFLAGS $BOOST_LDFLAGS 
                    $BOOST_SYSTEM_LIB
                    $BOOST_THREAD_LIB
-                   $ZTHREAD_LIBS
+                   $MYSQL_LDFLAGS
 "

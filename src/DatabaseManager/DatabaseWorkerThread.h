@@ -12,14 +12,15 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_DATABASEMANAGER_DATABASEWORKERTHREAD_H
 #define ANH_DATABASEMANAGER_DATABASEWORKERTHREAD_H
 
+#include "DatabaseType.h"
 #include "Utils/typedefs.h"
 #include <boost/thread/thread.hpp>
 
 //======================================================================================================================
+
 class Database;
 class DatabaseJob;
 class DatabaseImplementation;
-enum  DBType;
 
 
 //======================================================================================================================

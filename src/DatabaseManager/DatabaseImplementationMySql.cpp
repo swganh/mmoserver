@@ -17,9 +17,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include <boost/lexical_cast.hpp>
 #include <mysql.h>
-#include <stdlib.h>
-#include <stdio.h>
-
+#include <cstdlib>
+#include <cstdio>
+#include <cstring>
 
 //======================================================================================================================
 DatabaseImplementationMySql::DatabaseImplementationMySql(void)
@@ -177,12 +177,12 @@ void DatabaseImplementationMySql::GetNextRow(DatabaseResult* result, DataBinding
           }
         case DFT_int64:
           {
-            *((long long*)&((char*)object)[binding->mDataFields[i].mDataOffset]) = _atoi64(row[binding->mDataFields[i].mColumn]);
+            *((long long*)&((char*)object)[binding->mDataFields[i].mDataOffset]) = boost::lexical_cast<uint64>(row[binding->mDataFields[i].mColumn]);
             break;
           }
         case DFT_uint64:
           {
-            *((unsigned long long*)&((char*)object)[binding->mDataFields[i].mDataOffset]) = _atoi64(row[binding->mDataFields[i].mColumn]);
+            *((unsigned long long*)&((char*)object)[binding->mDataFields[i].mDataOffset]) = boost::lexical_cast<uint64>(row[binding->mDataFields[i].mColumn]);
             break;
           }
         case DFT_float:

@@ -13,7 +13,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #define ANH_DATABASEMANAGER_DATABASEJOB_H
 
 #include <stdlib.h>
-
+#include <cstring>
 
 //======================================================================================================================
 class DatabaseCallback;

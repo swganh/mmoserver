@@ -102,10 +102,10 @@ void PlayerObject::onSample(const SampleEvent* event)
 	uint16					resPE			= resource->getAttribute(ResAttr_PE);
 	bool					radioA			= false;
 	bool					successSample	= false;
-
+	bool					resAvailable	= true;
 	resName.convert(BSTRType_Unicode16);
 	// apply dmg/debuff if sampling rads
-			if(resType == 477 || resType == 476)
+			if(resType == 477 || resType == 476 /* || resType == 475*/) 
 			{
 				if(!mPassRadioactive)
 				{
@@ -140,10 +140,10 @@ void PlayerObject::onSample(const SampleEvent* event)
 				}
 				else
 				{
-					//this should be a timed debuff per instance
-				mHam.updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints,hamReduc);
-				mHam.updatePropertyValue(HamBar_Health,HamProperty_CurrentHitpoints,hamReduc); //does not function
-				gLogger->logMsgF("applied ham costs H/A w/ reduc: %u", MSG_NORMAL, hamReduc);
+					//this should be a timed debuff per instance -- Do not cause wounds unless potential energy >= 500?
+					mHam.updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints,hamReduc);
+					mHam.updatePropertyValue(HamBar_Health,HamProperty_CurrentHitpoints,hamReduc); //does not function
+					gLogger->logMsgF("applied ham costs H/A w/ reduc: %u", MSG_NORMAL, hamReduc);
 				}
 			}
 
@@ -178,26 +178,22 @@ void PlayerObject::onSample(const SampleEvent* event)
 		//If previous call triggered a sample event, set the roll to ensure critical success
 		if(mSampleEventFlag == true)
 		{
-			//set so a critical success happens
+			//set so a critical success happens -- A critical failure can also happen.  In either case, this took a significant amount of action (300 points???)
+			// This appears to have been what the commented out gambling code below was supposed to do.
 			dieRoll = 100;
 		}
 
 		if(ratio_100 >= minConcentration)
 		{
-			successSample = true;
+			// Bug fix -- were saying we found something, then not saying we didn't if the die roll was a failure.
+			// Now, say we found something only if we did in fact find something.
 			//inside calculation section
 			if(dieRoll <= failureChance)
 			{
 				// FAILED ATTEMPT
 				sampleAmount = 0;
 				gMessageLib->sendSystemMessage(this,L"","survey","sample_failed","","",resName);
-			}
-			else if(dieRoll >= 96)
-			{
-				//CRITICAL SUCCESS
-				sampleAmount = (static_cast<uint32>(2*maxSample));
-				gMessageLib->sendSystemMessage(this,L"","survey","critical_success","","",resName);
-			}
+			} 
 
 			//TODO: removed this code for now, as you would have to dcon and rcon to work with the gambles
 			//else if(dieRoll > 91)
@@ -235,15 +231,23 @@ void PlayerObject::onSample(const SampleEvent* event)
 			//}
 			else
 			{
-				//NORMAL SUCCESS
-				sampleAmount = (static_cast<uint32>(floor(static_cast<float>((maxSample-minSample)*(dieRoll-failureChance)/(90-failureChance)+minSample))));         // floor == round down, so 9.9 == 9
-				gMessageLib->sendSystemMessage(this,L"","survey","sample_located","","",resName,sampleAmount);
+				successSample = true;
+				if(dieRoll >= 96) {
+				//CRITICAL SUCCESS
+					sampleAmount = (static_cast<uint32>(2*maxSample));
+					gMessageLib->sendSystemMessage(this,L"","survey","critical_success","","",resName);
+				} else {
+					//NORMAL SUCCESS
+					sampleAmount = (static_cast<uint32>(floor(static_cast<float>((maxSample-minSample)*(dieRoll-failureChance)/(90-failureChance)+minSample))));         // floor == round down, so 9.9 == 9
+					gMessageLib->sendSystemMessage(this,L"","survey","sample_located","","",resName,sampleAmount);
+				}
 			}
 		}
 		else
 		{
 			gMessageLib->sendSystemMessage(this,L"","survey","density_below_threshold","","",resName);
 			successSample = false;
+			resAvailable = false;
 		}
 	}
 
@@ -251,7 +255,7 @@ void PlayerObject::onSample(const SampleEvent* event)
 	if(successSample && sampleAmount == 0)
 	{
 		sampleAmount = 1;
-	}
+	} 
 	
 	// show the effects
 	if (successSample) {
@@ -271,7 +275,7 @@ void PlayerObject::onSample(const SampleEvent* event)
 	if (sampleAmount > 0)
 	{
 		// grant some xp
-		gSkillManager->addExperience(XpType_resource_harvesting_inorganic,(int32)((gRandom->getRand()%20)+ 20),this); //grants 20xp -> 40xp inclusive
+		gSkillManager->addExperience(XpType_resource_harvesting_inorganic,(int32)((gRandom->getRand()%20)+ 20),this); //grants 20xp -> 40xp inclusive -- Feature suggestion:  Grant less XP for smaller samples, more xp for greater samples.  IE:  20 + X*sampleSize
 
 		// see if we can add it to an existing container
 		Inventory*	inventory	= dynamic_cast<Inventory*>(mEquipManager.getEquippedObject(CreatureEquipSlot_Inventory));
@@ -328,12 +332,12 @@ void PlayerObject::onSample(const SampleEvent* event)
 	}
 
 	// check our ham and keep sampling
-	if(mHam.checkMainPools(0,gResourceCollectionManager->sampleActionCost,0) && (successSample))
+	if(mHam.checkMainPools(0,gResourceCollectionManager->sampleActionCost,0) && (resAvailable))
 	{
 		mNextSampleTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 3000; //change back to 30000 after testing is finished
 		mObjectController.addEvent(new SampleEvent(tool,resource),10000);
 	}
-	// out of ham or not enough skill, stop sampling
+	// out of ham or not enough skill, or resource not spawned in current location, stop sampling
 	else
 	{
 		int32 myHealth = mHam.mHealth.getCurrentHitPoints();

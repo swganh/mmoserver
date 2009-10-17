@@ -748,6 +748,30 @@ bool MessageLib::sendCreateCamp(TangibleObject* camp,PlayerObject* player)
 	return(true);
 }
 
+//======================================================================================================================
+//
+// create Installation
+//
+
+
+bool MessageLib::sendCreateInstallation(PlayerStructure* structure,PlayerObject* player)
+{
+	if(!_checkPlayer(player))
+		return(false);
+
+	//sendCreateObjectByCRC(structure,player,false);
+
+	//sendBaselinesINSO_3(structure,player);
+	//sendBaselinesINSO_6(structure,player);
+
+	uint64 structureId = structure->getId();
+
+
+	//sendEndBaselines(structureId,player);
+
+	return(true);
+}
+
 
 //======================================================================================================================
 //

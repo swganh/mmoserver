@@ -11,7 +11,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "FireworkManager.h"
 
 #include "Item_Enums.h"
-#include "nonPersistantObjectFactory.h"
+#include "WorldManager.h"
 #include "PlayerObject.h"
 #include "StaticObject.h"
 #include "UIManager.h"
@@ -35,7 +35,7 @@ bool FireworkManager::createFirework(uint32 typeId, PlayerObject* player, Anh_Ma
 	firework->mDirection.mY = 0;
 	firework->mDirection.mZ = 0;
 	firework->mDirection.mW = 1;
-	firework->setId(gNonPersistantObjectFactory->getId());
+	firework->setId(gWorldManager->getRandomNpId());
 
 	switch(typeId)
 	{

@@ -480,8 +480,12 @@ bool ObjectController::_processCommandQueue()
 				gMessageLib->sendCommandQueueRemove(cmdMsg->getSequence(),0.0f,reply1,reply2,player);
 			}
 
-			message->mSourceId = 99;
-			message->setPendingDelete(true);
+			// Be aware, internally created messages are NULL (auto-attack)
+			if (message)
+			{
+				message->mSourceId = 99;
+				message->setPendingDelete(true);	
+			}
 			// Remove the command from queue. Note: pop() invokes object destructor.
 			mCommandQueue.pop_front();
 

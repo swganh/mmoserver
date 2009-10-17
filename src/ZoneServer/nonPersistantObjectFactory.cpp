@@ -14,6 +14,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "CampTerminal.h"
 #include "DraftSchematic.h"
 #include "Instrument.h"
+#include "Heightmap.h"
+#include "PlayerStructure.h"
 #include "Item.h"
 #include "ItemFactory.h"
 #include "ObjectFactory.h"
@@ -22,6 +24,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "ResourceManager.h"
 #include "StructureManager.h"
 #include "WorldManager.h"
+
 
 #include "MessageLib/MessageLib.h"
 #include "LogManager/LogManager.h"
@@ -143,7 +146,7 @@ void NonPersistantObjectFactory::createTangible(ObjectFactoryCallback* ofCallbac
 	newItem->setCustomName(customName.getAnsi());
 	newItem->setMaxCondition(100);
 	newItem->setTangibleGroup(TanGroup_Item);
-	newItem->setId(getId());
+	newItem->setId(gWorldManager->getRandomNpId());
 
 	int8 sql[256];
 	sprintf(sql,"SELECT item_types.object_string,item_types.stf_name,item_types.stf_file,item_types.stf_detail_name, item_types.stf_detail_file FROM item_types WHERE item_types.id = '%u'",typeId);
@@ -187,7 +190,7 @@ TangibleObject* NonPersistantObjectFactory::spawnTangible(StructureItemTemplate*
 	//see above notes
 	tangible->setTangibleType(TanType_None);
 
-	tangible->setId(this->getId());
+	tangible->setId(gWorldManager->getRandomNpId());
 
 	tangible->setModelString(placableTemplate->structureObjectString);
 
@@ -252,7 +255,7 @@ CampTerminal* NonPersistantObjectFactory::spawnTerminal(StructureItemTemplate* p
 	//see above notes
 	terminal->setTangibleType(TanType_CampTerminal);
 
-	terminal->setId(this->getId());
+	terminal->setId(gWorldManager->getRandomNpId());
 
 	//tangible->setOwner(player->getId());
 	
@@ -327,6 +330,59 @@ void NonPersistantObjectFactory::_destroyDatabindings()
 
 void NonPersistantObjectFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client)
 {
+}
+
+PlayerStructure* NonPersistantObjectFactory::requestBuildingFenceObject(float x, float y, float z, PlayerObject* player)
+{
+	
+	PlayerStructure* structure = new(PlayerStructure);
+	
+	structure->mPosition.mX = x;
+	structure->mPosition.mZ = z;	
+	//slow query - use for building placement only
+	structure->mPosition.mY = y;
+
+	structure->setName("player_structure");
+	structure->setNameFile("temporary_structure");
+	
+	structure->setParentId(0);
+	structure->setCustomName("");
+	structure->setMaxCondition(1000);
+
+	structure->setPlayerStructureFamily(PlayerStructure_Temporary);
+
+	structure->setId(gWorldManager->getRandomNpId());
+
+	//tangible->setOwner(player->getId());
+	
+	//gLogger->logMsgF("place %s",MSG_HIGH,placableTemplate->structureObjectString.getAnsi());
+	structure->setModelString("object/installation/base/shared_construction_installation_base.iff");
+
+	//create it in the world
+	
+	gWorldManager->addObject(structure);
+				
+	//gWorldManager->initPlayersInRange(itemObject);
+	//TangibleObject* tangible = dynamic_cast<TangibleObject*>(object);
+	
+	PlayerObjectSet*			inRangePlayers	= player->getKnownPlayers();
+	PlayerObjectSet::iterator	it				= inRangePlayers->begin();
+	while(it != inRangePlayers->end())
+	{
+		PlayerObject* targetObject = (*it);
+		gMessageLib->sendCreateInstallation(structure,targetObject);
+		targetObject->addKnownObjectSafe(structure);
+		structure->addKnownObjectSafe(targetObject);
+		++it;
+	}
+
+	gMessageLib->sendCreateInstallation(structure,player);
+	player->addKnownObjectSafe(structure);
+	structure->addKnownObjectSafe(player);
+	gMessageLib->sendDataTransform(structure);
+
+	return structure;
+
 }
 
 

@@ -75,7 +75,7 @@ void ScoutManager::createCamp(uint32 typeId,uint64 parentId,Anh_Math::Vector3 po
 	camp->setPlayerStructureFamily(PlayerStructure_Camp);					
 	camp->setTangibleGroup(TanGroup_Structure);
 	
-	camp->setId(gNonPersistantObjectFactory->getId());
+	camp->setId(gWorldManager->getRandomNpId());
 
 	camp->setOwner(player->getId());
 
@@ -139,7 +139,7 @@ void ScoutManager::createCamp(uint32 typeId,uint64 parentId,Anh_Math::Vector3 po
 	//add a camp region
 	//RegionObject* region = dynamic_cast<RegionObject*>(object);
 	CampRegion* region = new(CampRegion);
-	region->setId(gNonPersistantObjectFactory->getId());
+	region->setId(gWorldManager->getRandomNpId());
 	
 	if(terminal)
 		terminal->setCampRegion(region->getId());

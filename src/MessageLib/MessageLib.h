@@ -84,6 +84,7 @@ public:
 	bool				sendCreateTangible(TangibleObject* tangibleObject,const PlayerObject* const targetObject) const;
 	void				sendInventory(PlayerObject* playerObject);
 	bool				sendEquippedItems(PlayerObject* srcObject,PlayerObject* targetObject);
+	bool				sendCreateInstallation(PlayerStructure* structure,PlayerObject* player);
 
 	// common messages, commonmessages.cpp
 	bool				sendCreateObjectByCRC(Object* object,const PlayerObject* const targetObject,bool player) const;
@@ -363,6 +364,10 @@ public:
 	bool				sendBaselinesHINO_3(HarvesterObject* harvester,PlayerObject* player);
 	bool				sendBaselinesHINO_6(HarvesterObject* harvester,PlayerObject* player);
 	bool				sendBaselinesHINO_7(HarvesterObject* harvester,PlayerObject* player);
+
+	// Installation Messages
+	bool				sendBaselinesINSO_3(PlayerStructure* structure,PlayerObject* player);
+	bool				sendBaselinesINSO_6(PlayerStructure* structure,PlayerObject* player);
 
 	// deltas
 	bool				sendUpdateCellPermissionMessage(CellObject* cellObject,uint8 permission,PlayerObject* playerObject);

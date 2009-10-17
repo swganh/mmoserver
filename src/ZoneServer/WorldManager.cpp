@@ -305,7 +305,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 						mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_CreatureSpawnRegions),"SELECT id, spawn_x, spawn_z, spawn_width, spawn_length FROM spawns WHERE spawn_planet=%u ORDER BY id;",mZoneId);
 
 						// load harvesters
-						mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_Harvesters),"SELECT id FROM harvesters WHERE zone=%u ORDER BY id;",mZoneId);
+						mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_Harvesters),"SELECT id FROM structures WHERE zone=%u ORDER BY id;",mZoneId);
 
 					}					
 					// no objects to load, so we are done

@@ -2662,8 +2662,9 @@ void EntertainerManager::flourish(PlayerObject* entertainer, uint32 mFlourishId)
 	//being here means that we are performing and have enough ham
 
 	//update ham
-	if (entertainer->getFlourishCount()<2) {
-	ham->updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints,-pActionPoints);
+	if (entertainer->getFlourishCount()<2) 
+	{
+		ham->updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints,-pActionPoints);
 	}
 
 	if(entertainer->getPerformingState() == PlayerPerformance_Dance)

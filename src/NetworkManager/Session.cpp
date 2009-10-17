@@ -1233,6 +1233,14 @@ void Session::_processDataChannelB(Packet* packet, bool fastPath)
           newMessage->setAccountId(accountId);
           newMessage->setDestinationId(dest);
           newMessage->setPriority(priority);
+		  
+		  if(priority >= 0x10)
+		  {
+			  gLogger->logMsgF("packet messup message (!) size : %u!!!",MSG_HIGH, size);
+			  packet->Reset();
+			  gLogger->hexDump(packet->getData(),packet->getSize());
+
+		  }
 		  assert(newMessage->getPriority() < 0x10);
 
           // Need to specify whether this is routed or not here, so we know in the app
@@ -1247,7 +1255,7 @@ void Session::_processDataChannelB(Packet* packet, bool fastPath)
           size = packet->getUint8();
 		
         }
-        while (packet->getReadIndex() < packet->getSize() && size != 0);
+        while ((packet->getReadIndex() < packet->getSize()) && size != 0);
       }
       else
       {
@@ -2557,7 +2565,6 @@ void Session::_buildRoutedMultiDataPacket()
 	while(!mRoutedMultiMessageQueue.empty())
 	{
 		message = mRoutedMultiMessageQueue.front();
-		mRoutedMultiMessageQueue.pop();
 
 		//assert((message->getSize() + 7)< 255);
 		if((message->getSize() + 7) > 254)
@@ -2570,7 +2577,7 @@ void Session::_buildRoutedMultiDataPacket()
 
 
 		newPacket->addUint8(message->getPriority());
-		newPacket->addUint8(1);
+		newPacket->addUint8(1);		//routed
 		
 		newPacket->addUint8(message->getDestinationId());
 		newPacket->addUint32(message->getAccountId());
@@ -2581,6 +2588,7 @@ void Session::_buildRoutedMultiDataPacket()
 		newPacket->addData(message->getData(), message->getSize()); 
 
 		message->setPendingDelete(true);
+		mRoutedMultiMessageQueue.pop();
 	}
 
 	newPacket->setIsCompressed(false); //server server !!! save the cycles!!!

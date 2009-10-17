@@ -23,6 +23,7 @@ class Database;
 class DataBinding;
 class DispatchClient;
 class ObjectFactoryCallback;
+class PlayerStructure;
 class PlayerObject;
 class TangibleObject;
 
@@ -53,13 +54,13 @@ class NonPersistantObjectFactory : public FactoryBase
 		virtual void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
 		void					createTangible(ObjectFactoryCallback* ofCallback, uint32 familyId, uint32 typeId, uint64 parentId,Anh_Math::Vector3 position, string customName, DispatchClient* client);
 
+		PlayerStructure*		requestBuildingFenceObject(float x, float y, float z, PlayerObject* player);
+
 		//spawns temporary objects for camps
 		TangibleObject*			spawnTangible(StructureItemTemplate* placableTemplate, uint64 parentId, Anh_Math::Vector3 position, string customName, PlayerObject* player);
 		CampTerminal*			spawnTerminal(StructureItemTemplate* placableTemplate, uint64 parentId, Anh_Math::Vector3 position, string customName, PlayerObject* player, StructureDeedLink*	deedData);
 
 		void					_createItem(DatabaseResult* result,Item* item);
-
-		uint64					getId(){return ++mId;}
 
 	protected:
 		NonPersistantObjectFactory(Database* database);

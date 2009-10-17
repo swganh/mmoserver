@@ -232,13 +232,14 @@ void ObjectFactory::requestNewResourceContainer(ObjectFactoryCallback* ofCallbac
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sf_ResourceContainerCreate(%lld,%lld,0,0,0,%u,%u)",resourceId,parentId,planetId,amount);
 }
 
-void ObjectFactory::requestnewHarvesterbyDeed(ObjectFactoryCallback* ofCallback,Deed* deed,DispatchClient* client, float x, float y, float z, float dir, string customName, PlayerObject* player)
+void ObjectFactory::requestnewHarvesterbyDeed(ObjectFactoryCallback* ofCallback,Deed* deed,DispatchClient* client, float x, float y, float z, float dir, string customName, PlayerObject* player, uint64 fenceId)
 {
 	//create a new Harvester Object with the attributes as specified by the deed
 	OFAsyncContainer* asyncContainer = new(mDbAsyncPool.ordered_malloc()) OFAsyncContainer(ofCallback,OFQuery_Harvester,NULL);
 
 	asyncContainer->DeedId = deed->getId();
 	asyncContainer->OwnerId = deed->getOwner();
+	asyncContainer->FenceId = fenceId;
 	int8 sql[512];
 	//sf_DefaultHarvesterCreate`(type_id INT(11),parent_id BIGINT(20),privateowner_id BIGINT(20),inPlanet INT,oX FLOAT,oY FLOAT,oZ FLOAT, oW FLOAT,inX FLOAT,inY FLOAT,inZ FLOAT,custom_name CHAR(255)) RETURNS bigint(20)
 	

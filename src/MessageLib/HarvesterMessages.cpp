@@ -147,3 +147,94 @@ bool MessageLib::sendBaselinesHINO_7(HarvesterObject* harvester,PlayerObject* pl
 
 	return(true);
 }
+
+
+//======================================================================================================================
+//
+// Building Baselines Type 3
+// contain: name,
+//
+
+bool MessageLib::sendBaselinesINSO_3(PlayerStructure* structure,PlayerObject* player)
+{
+	if(!(player->isConnected()))
+		return(false);
+
+	Message* newMessage;
+
+	gMessageFactory->StartMessage();    
+	gMessageFactory->addUint32(opBaselinesMessage);  
+	gMessageFactory->addUint64(structure->getId());
+	gMessageFactory->addUint32(opINSO);
+	gMessageFactory->addUint8(3);
+
+	uint32 byteCount = 66 + structure->getNameFile().getLength() + structure->getName().getLength();
+	gMessageFactory->addUint32(byteCount);
+	gMessageFactory->addUint16(14);
+	gMessageFactory->addFloat(1.0);
+	gMessageFactory->addString(structure->getNameFile());
+	gMessageFactory->addUint32(0);
+	gMessageFactory->addString(structure->getName());
+	gMessageFactory->addString("");
+	
+	gMessageFactory->addUint32(1);//volume (in inventory)
+	gMessageFactory->addUint16(0);//customization
+	gMessageFactory->addUint32(0);//list
+	gMessageFactory->addUint32(0);//list
+	gMessageFactory->addUint32(0);//optionsbitmask
+	gMessageFactory->addUint32(0);//timer
+	gMessageFactory->addUint32(0);//condition damage
+	gMessageFactory->addUint32(0);   //maxcondition
+	gMessageFactory->addUint32(0);
+	gMessageFactory->addUint8(0);//active flag
+	gMessageFactory->addFloat(0);//power reserve
+	gMessageFactory->addFloat(0);//power cost
+	gMessageFactory->addUint64(0);
+	gMessageFactory->addUint64(0);
+	gMessageFactory->addUint64(0);
+	gMessageFactory->addUint64(0);
+
+	newMessage = gMessageFactory->EndMessage();
+
+	(player->getClient())->SendChannelA(newMessage, player->getAccountId(), CR_Client, 5);
+
+	return(true);
+}
+
+//======================================================================================================================
+//
+// Installation Baselines Type 6
+// contain: unknown
+//
+
+bool MessageLib::sendBaselinesINSO_6(PlayerStructure* structure,PlayerObject* player)
+{
+	if(!(player->isConnected()))
+		return(false);
+
+	Message* newMessage;
+
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opBaselinesMessage);  
+	gMessageFactory->addUint64(structure->getId());
+	gMessageFactory->addUint32(opINSO);
+	gMessageFactory->addUint8(6);
+
+	gMessageFactory->addUint32(43);
+	gMessageFactory->addUint16(0);	// unknown
+	gMessageFactory->addUint16(0); // unknown
+	gMessageFactory->addUint32(0);	// unknown
+	gMessageFactory->addUint32(0);
+	gMessageFactory->addUint32(0);
+	gMessageFactory->addUint64(0);
+	gMessageFactory->addUint64(0);
+	gMessageFactory->addUint64(0);
+	gMessageFactory->addUint64(0);
+	gMessageFactory->addUint64(0);
+
+	newMessage = gMessageFactory->EndMessage();
+
+	(player->getClient())->SendChannelA(newMessage, player->getAccountId(), CR_Client, 5);
+
+	return(true);
+}

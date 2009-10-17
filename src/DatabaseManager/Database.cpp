@@ -24,8 +24,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "ConfigManager/ConfigManager.h"
 
-#include <stdlib.h>
-#include <stdio.h>
+#include <cstdarg>
+#include <cstdlib>
+#include <cstdio>
 
 //======================================================================================================================
 Database::Database(DBType type) :

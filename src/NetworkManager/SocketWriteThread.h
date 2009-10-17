@@ -13,7 +13,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #define ANH_NETWORKMANAGER_SOCKETWRITETHREAD_H
 
 #include "Utils/typedefs.h"
-#include "Utils/Clock.h"
+#include "Utils/clock.h"
 #include "Utils/concurrent_queue.h"
 
 #include <boost/thread/thread.hpp>

@@ -63,6 +63,7 @@ libdatabasemanager_la_SOURCES = src/DatabaseManager/Database.cpp \
   src/DatabaseManager/Transaction.cpp
 
 libdatabasemanager_la_CPPFLAGS = $(MYSQL_CFLAGS) -fpermissive -fshort-wchar 
+libdatabasemanager_la_LIBADD = libutils.la
 
 # NetworkManager library - noinstall shared library
 noinst_LTLIBRARIES += libnetworkmanager.la
@@ -78,6 +79,7 @@ libnetworkmanager_la_SOURCES = src/NetworkManager/CompCryptor.cpp \
   src/NetworkManager/SocketWriteThread.cpp
 
 libnetworkmanager_la_CPPFLAGS = -fpermissive -fshort-wchar 
+libnetworkmanager_la_LIBADD = libutils.la libcommon.la liblogmanager.la
 
 # AdminServer - executable
 bin_PROGRAMS = adminserver
@@ -86,7 +88,7 @@ adminserver_SOURCES = src/AdminServer/AdminServer.cpp \
   src/AdminServer/PlanetMapHandler.cpp
 
 adminserver_CPPFLAGS = $(MYSQL_CFLAGS) -fpermissive -fshort-wchar 
-adminserver_LDADD = libutils.la liblogmanager.la libcommon.la libconfigmanager.la libdatabasemanager.la libnetworkmanager.la $(MYSQL_LDFLAGS) $(BOOST_THREAD_LIB) $(BOOST_SYSTEM_LIB)
+adminserver_LDADD = libutils.la liblogmanager.la libcommon.la libconfigmanager.la libdatabasemanager.la libnetworkmanager.la $(MYSQL_LDFLAGS) $(BOOST_LDFLAGS) $(BOOST_THREAD_LIB) $(BOOST_SYSTEM_LIB)
 
 # ChatServer - executable
 bin_PROGRAMS += chatserver

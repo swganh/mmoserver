@@ -388,7 +388,7 @@ void CharacterAdminHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* 
 			uint64 queryResult;
 			result->GetNextRow(binding,&queryResult);
 
-			if(queryResult >= 0x0000000200000000)
+			if(queryResult >= 0x0000000200000000ULL)
 			{
 				// gLogger->logMsgF("CAQuery_CreateCharacter Success", MSG_NORMAL);
 				_sendCreateCharacterSuccess(queryResult,asyncContainer->mClient);

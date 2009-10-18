@@ -192,7 +192,7 @@ void ObjectController::_handleAdminSysMsg(uint64 targetId,Message* message,Objec
 				// Now ADD a proper spelled command. It HAS to match the crc.
 				string newCommandString;
 				newCommandString.setLength(adminCommands[commandIndex].command.getLength() + ansiData.getLength() + 1);
-				sprintf(newCommandString,"%s %s", adminCommands[commandIndex].command.getAnsi(), ansiData.getAnsi());
+				sprintf(newCommandString.getAnsi(),"%s %s", adminCommands[commandIndex].command.getAnsi(), ansiData.getAnsi());
 
 				// gLogger->logMsgF("_handleAdminSysMsg() New message = %s", MSG_NORMAL, newCommandString.getAnsi());
 			

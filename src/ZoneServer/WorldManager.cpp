@@ -2476,7 +2476,7 @@ void WorldManager::addObject(Object* object,bool manual)
 
 			// onPlayerEntered event, notify scripts
 			string params;
-			params.setLength(sprintf(params,"%s %s %u",getPlanetNameThis(),player->getFirstName().getAnsi(),mPlayerAccMap.size()));
+			params.setLength(sprintf(params.getAnsi(),"%s %s %u",getPlanetNameThis(),player->getFirstName().getAnsi(),mPlayerAccMap.size()));
 
 			mWorldScriptsListener.handleScriptEvent("onPlayerEntered",params);
 
@@ -2644,7 +2644,7 @@ void WorldManager::destroyObject(Object* object)
 			
 			// onPlayerLeft event, notify scripts
 			string params;
-			params.setLength(sprintf(params,"%s %s %u",getPlanetNameThis(),player->getFirstName().getAnsi(),mPlayerAccMap.size()));
+			params.setLength(sprintf(params.getAnsi(),"%s %s %u",getPlanetNameThis(),player->getFirstName().getAnsi(),mPlayerAccMap.size()));
 
 			mWorldScriptsListener.handleScriptEvent("onPlayerLeft",params);
 			// gLogger->logMsg("WorldManager::destroyObject: Player Client set to NULL");

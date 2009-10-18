@@ -43,8 +43,6 @@ public:
     BString(const wchar_t* data);
     BString(const BString& data);
 
-		operator int8 * ();
-
     uint16 initRawBSTR(int8* data, BStringType type);
 
     // Operator overloads
@@ -63,7 +61,7 @@ public:
     BString& operator <<(int8* data);
 
     // Accessor Methods
-    const int8* getAnsi() const;
+    int8*   getAnsi();
    // uint16* getUnicode16();
     wchar_t* getUnicode16();
     int8*   getUTF8();

@@ -154,7 +154,7 @@ void UIListBox::sendCreate()
 	{
 		count ++;
 		string indexStr;
-		indexStr.setLength(sprintf(indexStr,"%u",index));
+		indexStr.setLength(sprintf(indexStr.getAnsi(),"%u",index));
 
 		string itemName = "List.dataList.";
 		itemName << indexStr.getAnsi();

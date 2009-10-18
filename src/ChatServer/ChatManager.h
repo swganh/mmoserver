@@ -118,7 +118,7 @@ class ChatManager : public MessageDispatchCallback, public DatabaseCallback
 		Player*				getPlayerByAccId(uint32 accId);
 		Player*				getPlayerbyId(uint64 id);
 		Player*				getPlayerByName(string name);
-		const int8* getPlanetNameById(uint32 planetId) const { return mvPlanetNames[planetId].getAnsi(); }
+		int8*				getPlanetNameById(uint32 planetId){ return mvPlanetNames[planetId].getAnsi(); }
 
 		void				sendFriendList(Player* player);
 

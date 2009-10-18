@@ -1224,8 +1224,7 @@ void ChatManager::_processCreateRoom(Message* message,DispatchClient* client)
 	string title;
 
 	Player* player = getPlayerByAccId(client->getAccountId());
-	string* playername = new BString(BSTRType_ANSI, player->getName().getLength());
-	strcpy(playername->getAnsi(), player->getName().getAnsi());
+	string* playername = new BString(player->getName());
 
 	uint8 publicFlag = message->getUint8();
 	uint8 moderatedFlag = message->getUint8();

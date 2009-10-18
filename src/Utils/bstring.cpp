@@ -352,7 +352,7 @@ BString& BString::operator <<(int8* data)
 
 //======================================================================================================================
 
-int8* BString::getAnsi()                 
+const int8* BString::getAnsi() const
 { 
     if (mType == BSTRType_ANSI) {
         return mString; 
@@ -360,7 +360,18 @@ int8* BString::getAnsi()
         return 0; 
     }
 }
- 
+
+//======================================================================================================================
+
+BString::operator int8 * ()
+{
+	if (mType == BSTRType_ANSI) {
+		return mString; 
+	} else {
+		return 0; 
+	}
+}
+
 //======================================================================================================================
 /*
 uint16* BString::getUnicode16()            

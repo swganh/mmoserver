@@ -75,7 +75,7 @@ void ObjectController::_handleRequestWaypointAtPosition(uint64 targetId,Message*
 		else
 		{
 			nameStr = gWorldManager->getPlanetNameThis();
-			nameStr.getAnsi()[0] = toupper(nameStr.getAnsi()[0]);
+			nameStr[0] = toupper(nameStr[0]);
 		}
 	}
 	else

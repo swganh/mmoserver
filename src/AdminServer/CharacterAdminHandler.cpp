@@ -204,7 +204,7 @@ void CharacterAdminHandler::_processCreateCharacter(Message* message, DispatchCl
   characterInfo.mFirstName.setLength(len);
   wcscpy(reinterpret_cast<wchar_t*>(checkName.getRawData()),reinterpret_cast<wchar_t*>(characterName.getRawData()));
   checkName.convert(BSTRType_ANSI);
-  int8* check = checkName.getAnsi();
+  const int8* check = checkName.getAnsi();
 
   while(*check)
   {

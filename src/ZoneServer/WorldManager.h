@@ -289,13 +289,13 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		std::pair<string,uint32>	getRandNpcChatter();
 
 		// get planet, trn file name
-		int8*					getPlanetNameThis(){ return mvPlanetNames[mZoneId].getAnsi(); }
-		int8*					getPlanetNameById(uint8 planetId){ return mvPlanetNames[planetId].getAnsi(); }
+		const int8* getPlanetNameThis() const { return mvPlanetNames[mZoneId].getAnsi(); }
+		const int8*	getPlanetNameById(uint8 planetId) const { return mvPlanetNames[planetId].getAnsi(); }
 		int32					getPlanetIdByName(string name);
 		int32					getPlanetIdByNameLike(string name);
 
-		int8*					getTrnFileThis(){ return mvTrnFileNames[mZoneId].getAnsi(); }
-		int8*					getTrnFileById(uint8 trnId){ return mvTrnFileNames[trnId].getAnsi(); }
+		const int8* getTrnFileThis() const { return mvTrnFileNames[mZoneId].getAnsi(); }
+		const int8* getTrnFileById(uint8 trnId) const { return mvTrnFileNames[trnId].getAnsi(); }
 
 		// get total count of planets
 		uint32					getPlanetCount(){ return mvPlanetNames.size(); }

@@ -42,6 +42,8 @@ struct timerTodoStruct
 {
 	timerTodoEnum	todo;
 	uint64			buildingFence;
+	uint64			playerId;
+	uint64			projectedTime;
 
 };
 

@@ -709,7 +709,8 @@ bool MessageLib::sendCreateHarvester(HarvesterObject* harvester,PlayerObject* pl
 {
 	if(!_checkPlayer(player))
 		return(false);
-	gLogger->logMsgF("MessageLib::sendCreateHarvester:ID %I64u parentId %I64u x : %f   y : %f",MSG_HIGH,harvester->getId(),harvester->getParentId(),harvester->mPosition.mX,harvester->mPosition.mZ);
+	
+	//gLogger->logMsgF("MessageLib::sendCreateHarvester:ID %I64u parentId %I64u x : %f   y : %f",MSG_HIGH,harvester->getId(),harvester->getParentId(),harvester->mPosition.mX,harvester->mPosition.mZ);
 
 	sendCreateObjectByCRC(harvester,player,false);
 
@@ -720,6 +721,30 @@ bool MessageLib::sendCreateHarvester(HarvesterObject* harvester,PlayerObject* pl
 	sendEndBaselines(harvester->getId(),player);
 
 	return(true);
+}
+
+
+//======================================================================================================================
+//
+// create a harvester
+//
+
+bool MessageLib::sendCreateStructure(PlayerStructure* structure,PlayerObject* player)
+{
+	if(!_checkPlayer(player))
+		return(false);
+
+	HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(structure);
+	
+	if(harvester)
+	{
+		
+		return(sendCreateHarvester(harvester, player));
+	}
+
+	gLogger->logMsgF("MessageLib::sendCreateStructure:ID %I64u : couldnt cast structure",MSG_HIGH,structure->getId());
+	return(false);
+
 }
 
 
@@ -759,15 +784,15 @@ bool MessageLib::sendCreateInstallation(PlayerStructure* structure,PlayerObject*
 	if(!_checkPlayer(player))
 		return(false);
 
-	//sendCreateObjectByCRC(structure,player,false);
+	sendCreateObjectByCRC(structure,player,false);
 
-	//sendBaselinesINSO_3(structure,player);
-	//sendBaselinesINSO_6(structure,player);
+	sendBaselinesINSO_3(structure,player);
+	sendBaselinesINSO_6(structure,player);
 
 	uint64 structureId = structure->getId();
 
 
-	//sendEndBaselines(structureId,player);
+	sendEndBaselines(structureId,player);
 
 	return(true);
 }

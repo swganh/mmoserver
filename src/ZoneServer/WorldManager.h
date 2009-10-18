@@ -297,6 +297,8 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		int8*					getTrnFileThis(){ return mvTrnFileNames[mZoneId].getAnsi(); }
 		int8*					getTrnFileById(uint8 trnId){ return mvTrnFileNames[trnId].getAnsi(); }
 
+		WMState					getWMState(){return mState;}
+
 		// get total count of planets
 		uint32					getPlanetCount(){ return mvPlanetNames.size(); }
 

@@ -183,6 +183,12 @@ class StructureManager : public DatabaseCallback,public ObjectFactoryCallback
 			gWorldManager->getPlayerScheduler()->addTask(fastdelegate::MakeDelegate(this,&StructureManager::_handleStructureObjectTimers),7,1000,NULL);
 		}
 
+		void					addStructureforConstruction(uint64 iD)
+		{
+			mStructureDeleteList.push_back(iD);
+			gWorldManager->getPlayerScheduler()->addTask(fastdelegate::MakeDelegate(this,&StructureManager::_handleStructureObjectTimers),7,mBuildingFenceInterval,NULL);
+		}
+
 		void					OpenStructureAdminList(uint64 structureId, uint64 playerId);
 		
 
@@ -204,6 +210,7 @@ class StructureManager : public DatabaseCallback,public ObjectFactoryCallback
 		DeedLinkList				mDeedLinkList;
 		StructureItemList			mItemTemplate;
 		ObjectIDList				mStructureDeleteList;
+		uint32						mBuildingFenceInterval;
 	
 };
 

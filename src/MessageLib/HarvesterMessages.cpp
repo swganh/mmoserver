@@ -168,14 +168,22 @@ bool MessageLib::sendBaselinesINSO_3(PlayerStructure* structure,PlayerObject* pl
 	gMessageFactory->addUint32(opINSO);
 	gMessageFactory->addUint8(3);
 
-	uint32 byteCount = 66 + structure->getNameFile().getLength() + structure->getName().getLength();
+	structure->getNameFile().convert(BSTRType_ANSI);
+	structure->getName().convert(BSTRType_ANSI);
+
+	printf(structure->getNameFile().getAnsi());
+	printf(structure->getName().getAnsi());
+
+	uint32 byteCount = 61 + structure->getNameFile().getLength() + structure->getName().getLength();
+	
 	gMessageFactory->addUint32(byteCount);
-	gMessageFactory->addUint16(14);
+	gMessageFactory->addUint16(10);
 	gMessageFactory->addFloat(1.0);
 	gMessageFactory->addString(structure->getNameFile());
 	gMessageFactory->addUint32(0);
 	gMessageFactory->addString(structure->getName());
-	gMessageFactory->addString("");
+	gMessageFactory->addUint32(0);
+	//gMessageFactory->addString("");
 	
 	gMessageFactory->addUint32(1);//volume (in inventory)
 	gMessageFactory->addUint16(0);//customization

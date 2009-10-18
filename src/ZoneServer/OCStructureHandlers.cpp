@@ -11,7 +11,6 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 //common includes
 #include "Deed.h"
-#include "nonPersistantObjectFactory.h"
 #include "HarvesterFactory.h"
 #include "Heightmap.h"
 #include "PlayerStructure.h"
@@ -135,8 +134,7 @@ void	ObjectController::_handleStructurePlacement(uint64 targetId,Message* messag
 		case	ItemType_harvester_ore_heavy:
 		case	ItemType_harvester_ore_medium:
 		{
-			PlayerStructure* structure =  gNonPersistantObjectFactory->requestBuildingFenceObject(x,y,z, player);
-			gObjectFactory->requestnewHarvesterbyDeed(gWorldManager,deed,player->getClient(),x,y,z,dir,"",player, structure->getId());
+			gObjectFactory->requestnewHarvesterbyDeed(gStructureManager,deed,player->getClient(),x,y,z,dir,"",player);
 		}
 		break;
 	}

@@ -76,6 +76,7 @@ public:
 	void				sendCreateObject(Object* object,PlayerObject* player,bool sendSelftoTarget = true);
 	bool				sendCreateManufacturingSchematic(ManufacturingSchematic* manSchem,PlayerObject* playerObject,bool attributes = true);
 	bool				sendCreateResourceContainer(ResourceContainer* resourceContainer,PlayerObject* targetObject);
+	bool				sendCreateStructure(PlayerStructure* structure,PlayerObject* player);
 	bool				sendCreateHarvester(HarvesterObject* harvester,PlayerObject* player);
 	bool				sendCreateBuilding(BuildingObject* buildingObject,PlayerObject* playerObject);
 	bool				sendCreateCamp(TangibleObject* camp,PlayerObject* player);

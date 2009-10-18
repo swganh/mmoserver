@@ -342,8 +342,8 @@ PlayerStructure* NonPersistantObjectFactory::requestBuildingFenceObject(float x,
 	//slow query - use for building placement only
 	structure->mPosition.mY = y;
 
-	structure->setName("player_structure");
-	structure->setNameFile("temporary_structure");
+	structure->setName("temporary_structure");
+	structure->setNameFile("player_structure");
 	
 	structure->setParentId(0);
 	structure->setCustomName("");

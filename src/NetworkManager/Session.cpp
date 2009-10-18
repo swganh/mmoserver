@@ -1773,9 +1773,16 @@ void Session::_processFragmentedPacket(Packet* packet)
 		mFragmentedPacketCurrentSize = packet->getSize() - 8;  // -2 header, -2 sequence, -4 size
 		mFragmentedPacketCurrentSequence = mFragmentedPacketStartSequence = sequence;
 
-		//if (mService->getId() == 1)
+		packet->setReadIndex(8);	//2opcode, 2 sequence and 4 size
+		priority = packet->getUint8();
+
+		if (priority > 0x10)
 		{
-			//gLogger->logMsgF("Start incoming fragged packets - total: %u seq:%u", MSG_LOW, mFragmentedPacketTotalSize, sequence);
+			// the packet has had a proper sequence .. otherwise we wouldnt be here ...
+			gLogger->logMsgF("Start incoming fragged packets - total: %u seq:%u", MSG_HIGH, mFragmentedPacketTotalSize, sequence);
+			gLogger->logMsgF("Session::_processFragmentedPacket priority messup!!!", MSG_HIGH );
+			gLogger->hexDump(packet->getData(), packet->getSize());
+
 		}
 
 		// Now push the packet into our fragmented queue
@@ -1842,6 +1849,14 @@ void Session::_processFragmentedPacket(Packet* packet)
 			newMessage->setRouted(true);
 		  }
 		  newMessage->setPriority(priority);
+		  if (priority > 0x10)
+			{
+	
+				gLogger->logMsgF("Session::_processFragmentedPacket priority messup!!!", MSG_HIGH );
+				gLogger->hexDump(newMessage->getData(), newMessage->getSize());
+
+			}
+
 		  assert(newMessage->getPriority() < 0x10);
 		  newMessage->setDestinationId(dest);
 		  newMessage->setAccountId(accountId);

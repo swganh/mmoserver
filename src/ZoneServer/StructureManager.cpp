@@ -8,8 +8,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
-
+#include "WorldConfig.h"
 #include "StructureManager.h"
+#include "nonPersistantObjectFactory.h"
 #include "ObjectFactory.h"
 #include "PlayerObject.h"	  
 #include "PlayerStructure.h"	 
@@ -34,6 +35,8 @@ StructureManager*			StructureManager::mSingleton  = NULL;
 
 StructureManager::StructureManager(Database* database,MessageDispatch* dispatch)
 {	
+	mBuildingFenceInterval = gWorldConfig->getConfiguration("Zone_BuildingFenceInterval",(uint16)10000);
+	
 	mDatabase = database;
 	mMessageDispatch = dispatch;
 	StructureManagerAsyncContainer* asyncContainer;
@@ -485,6 +488,38 @@ void StructureManager::getDeleteStructureMaintenanceData(uint64 structureId, uin
 
 void StructureManager::handleObjectReady(Object* object,DispatchClient* client)
 {
+	PlayerStructure* structure = dynamic_cast<PlayerStructure*>(object);
+
+	if(!structure)
+	{
+			gLogger->logMsg("StructureManager::handleObjectReady: No structure");
+	}
+
+	if(gWorldManager->getWMState() == WMState_Running)
+	{
+		// set timer for deletion of building fence
+		
+		uint32 account = client->getAccountId();
+		PlayerObject* player = gWorldManager->getPlayerByAccId(account);
+
+		PlayerStructure* fence =  gNonPersistantObjectFactory->requestBuildingFenceObject(structure->mPosition.mX,structure->mPosition.mY,structure->mPosition.mZ, player);
+		structure->getTTS()->todo = ttE_BuildingFence;
+		structure->getTTS()->buildingFence = fence->getId();
+		structure->getTTS()->playerId = player->getId();
+		structure->getTTS()->projectedTime = mBuildingFenceInterval + Anh_Utils::Clock::getSingleton()->getLocalTime();
+		
+		gWorldManager->handleObjectReady(structure,player->getClient());
+		
+		addStructureforConstruction(structure->getId());
+	}
+	else
+	{
+		gWorldManager->handleObjectReady(structure,NULL);
+	}
+
+	
+
+
 }
 
 
@@ -698,6 +733,12 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 	while(it != objectList->end())
 	{
 		PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById((*it)));
+
+		if(!structure)
+		{
+			gLogger->logMsg("StructureManager::_handleStructureObjectTimers: No structure");
+			continue;
+		}
 		
 		if(structure->getTTS()->todo == ttE_Delete)
 		{
@@ -709,6 +750,61 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 			gWorldManager->destroyObject(structure);
 		
 		}
+
+		if(structure->getTTS()->todo == ttE_BuildingFence)
+		{
+			if(Anh_Utils::Clock::getSingleton()->getLocalTime() < structure->getTTS()->projectedTime)
+			{
+				gLogger->logMsg("StructureManager::_handleStructureObjectTimers: intervall to short - delayed");
+				return false;
+			}
+
+			//gLogger->logMsg("StructureManager::_handleStructureObjectTimers: building fence");
+			
+			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById( structure->getTTS()->playerId ));
+			PlayerStructure* fence = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(structure->getTTS()->buildingFence));
+			
+			if(!player)
+			{
+				gLogger->logMsg("StructureManager::_handleStructureObjectTimers: No Player");
+				gMessageLib->sendDestroyObject_InRangeofObject(fence);
+				gWorldManager->destroyObject(fence);
+				gWorldManager->handleObjectReady(structure,player->getClient());
+
+
+				return false;
+			}
+
+			if(!fence)
+			{
+				gLogger->logMsg("StructureManager::_handleStructureObjectTimers: No fence");
+				return false;
+			}
+			
+			//delete the fence
+			gMessageLib->sendDestroyObject_InRangeofObject(fence);
+			gWorldManager->destroyObject(fence);
+
+			PlayerObjectSet*			inRangePlayers	= player->getKnownPlayers();
+			PlayerObjectSet::iterator	it				= inRangePlayers->begin();
+			while(it != inRangePlayers->end())
+			{
+				PlayerObject* targetObject = (*it);
+				gMessageLib->sendCreateStructure(structure,targetObject);
+				targetObject->addKnownObjectSafe(structure);
+				structure->addKnownObjectSafe(targetObject);
+				++it;
+			}
+
+			gMessageLib->sendCreateStructure(structure,player);
+			player->addKnownObjectSafe(structure);
+			structure->addKnownObjectSafe(player);
+			gMessageLib->sendDataTransform(structure);
+
+
+		
+		}
+		
 
 		it = objectList->erase(it);
 		it = objectList->begin();

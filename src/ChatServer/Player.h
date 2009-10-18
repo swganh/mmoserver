@@ -67,12 +67,12 @@ class Player
 		uint64			getCharId(){ return mCharId; }
 		void			setCharId(uint64 charId){ mCharId = charId; }
 
-		string			getName(){ return mPlayerData.name; }
+		string&			getName(){ return mPlayerData.name; }
 		void			setName(const string name){ mPlayerData.name = name; }
 
 		PlayerData* getPlayerData() { return &mPlayerData; }
 
-		string			getLastName(){ return mPlayerData.last_name; }
+		string&			getLastName(){ return mPlayerData.last_name; }
 		void			setLastName(const string lastName){ mPlayerData.last_name = lastName; }
 
 		DispatchClient*	getClient(){ return mClient; }

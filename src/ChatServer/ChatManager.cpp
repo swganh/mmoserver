@@ -2882,15 +2882,18 @@ void ChatManager::updateFriendsOnline(Player* player,bool action)
 			// Get UNIX-style time and display as number and string. 
 			time_t ltime;
 			time( &ltime );
+			/*
 			int8 timebuf[64];
 			uint32 err;
+
 
 			err = ctime_s(timebuf, 32, &ltime);
 			if (err)
 			{
 			   sprintf(timebuf,"%s","");
 			}
-			string time = timebuf;
+			*/
+			string time = ctime(&ltime);
 
 			string name = player->getName();
 			name.convert(BSTRType_Unicode16);

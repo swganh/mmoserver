@@ -214,8 +214,8 @@ void ChatManager::_loadChannels(DatabaseResult* result)
 void ChatManager::_loadDatabindings()
 {
 	mPlayerBinding = mDatabase->CreateDataBinding(2);
-	mPlayerBinding->addField(DFT_bstring,offsetof(Player, mName),64,0);
-	mPlayerBinding->addField(DFT_bstring,offsetof(Player, mLastName),64,1);
+	mPlayerBinding->addField(DFT_bstring,offsetof(PlayerData, name),64,0);
+	mPlayerBinding->addField(DFT_bstring,offsetof(PlayerData, last_name),64,1);
 
 	mChannelBinding = mDatabase->CreateDataBinding(7);
 	mChannelBinding->addField(DFT_uint32,	offsetof(Channel,mId)		,4	,0);
@@ -434,7 +434,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			{
 				Player* player = (*it).second;
 
-				result->GetNextRow(mPlayerBinding,player);
+				result->GetNextRow(mPlayerBinding,player->getPlayerData());
 			
 				player->setKey();
 
@@ -527,7 +527,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			else
 			{
 				if(asyncContainer->mSender)
-					gChatMessageLib->sendChatonPersistantMessage((asyncContainer->mSender)->mClient,asyncContainer->mMailCounter);
+					gChatMessageLib->sendChatonPersistantMessage((asyncContainer->mSender)->getClient(),asyncContainer->mMailCounter);
 				
 				SAFE_DELETE(asyncContainer->mMail);
 			}
@@ -610,7 +610,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				// send out new mail notification, if not receiving mail from Ignored player.
 				asyncContainer->mMail->mSubject.convert(BSTRType_Unicode16);
 				// Note: asyncContainer->mRequestId is the mailId... 
-				gChatMessageLib->sendChatPersistantMessagetoClient(receiver->mClient,asyncContainer->mMail, asyncContainer->mRequestId,asyncContainer->mMailCounter,MailStatus_New);
+				gChatMessageLib->sendChatPersistantMessagetoClient(receiver->getClient(),asyncContainer->mMail, asyncContainer->mRequestId,asyncContainer->mMailCounter,MailStatus_New);
 			}
 
 			//when we send a system Mail there will be no sender
@@ -625,7 +625,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				newMessage = gMessageFactory->EndMessage();
 
 			
-				((asyncContainer->mSender)->mClient)->SendChannelA(newMessage,((asyncContainer->mSender)->mClient)->getAccountId(),CR_Client,3);
+				((asyncContainer->mSender)->getClient())->SendChannelA(newMessage,((asyncContainer->mSender)->getClient())->getAccountId(),CR_Client,3);
 			}
 
 			SAFE_DELETE(asyncContainer->mMail);
@@ -696,7 +696,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			{
 				result->GetNextRow(binding,&name);
 				name.toLower();
-				player->mFriendsList.insert(std::make_pair(name.getCrc(),name.getAnsi()));
+				player->getFriendsList()->insert(std::make_pair(name.getCrc(),name.getAnsi()));
 			}
 
 			mDatabase->DestroyDataBinding(binding);
@@ -736,7 +736,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				result->GetNextRow(binding,&name);
 				name.toLower();
 				// gLogger->logMsgF(" %s AddIgnore [%s]",MSG_NORMAL,player->getName().getAnsi(), name.getAnsi());
-				player->mIgnoreList.insert(std::make_pair(name.getCrc(),name.getAnsi()));
+				player->getIgnoreList()->insert(std::make_pair(name.getCrc(),name.getAnsi()));
 			}
 
 			mDatabase->DestroyDataBinding(binding);
@@ -1129,7 +1129,7 @@ void ChatManager::_processWhenLoaded(Message* message,DispatchClient* client)
 
 				mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT chat_mail.id,chat_mail.from,chat_mail.subject,chat_mail.status,chat_mail.time"
 															" FROM chat_mail"
-															" WHERE	(chat_mail.to = %lld)",asContainer->mReceiver->mCharId);
+															" WHERE	(chat_mail.to = %lld)",asContainer->mReceiver->getCharId());
 			}
 		}
 		GroupObject* group = gGroupManager->getGroupById(player->getGroupId());
@@ -2454,7 +2454,7 @@ void ChatManager::_PersistentMessagebySystem(Mail* mail,DispatchClient* client, 
 		int8 sql[20000],*sqlPointer;
 		int8 footer[64];
 		int8 receiverStr[64];
-		sprintf(receiverStr,"',%lld,'",receiver->mCharId);
+		sprintf(receiverStr,"',%lld,'",receiver->getCharId());
 		sprintf(footer,",%u,%u)",(mail->mAttachments.getLength() << 1),mail->mTime);
 		sprintf(sql,"SELECT sf_MailCreate('",mail->getSender().getAnsi());
 		sqlPointer = sql + strlen(sql);
@@ -2565,11 +2565,11 @@ void ChatManager::_processPersistentMessageToServer(Message* message,DispatchCli
 		int8 sql[20000],*sqlPointer;
 		int8 footer[64];
 		int8 receiverStr[64];
-		sprintf(receiverStr,"',%lld,'",receiver->mCharId);
+		sprintf(receiverStr,"',%lld,'",receiver->getCharId());
 		sprintf(footer,",%u,%u)",(mail->mAttachments.getLength() << 1),mail->mTime);
-		sprintf(sql,"SELECT sf_MailCreate('",sender->mName.getAnsi());
+		sprintf(sql,"SELECT sf_MailCreate('",sender->getName().getAnsi());
 		sqlPointer = sql + strlen(sql);
-		sqlPointer += mDatabase->Escape_String(sqlPointer,sender->mName.getAnsi(),sender->mName.getLength());
+		sqlPointer += mDatabase->Escape_String(sqlPointer,sender->getName().getAnsi(),sender->getName().getLength());
 		strcat(sql,receiverStr);
 		sqlPointer = sql + strlen(sql);
 		sqlPointer += mDatabase->Escape_String(sqlPointer,mail->mSubject.getAnsi(),mail->mSubject.getLength());

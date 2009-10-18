@@ -38,23 +38,42 @@ public:
 
 };
 
+struct PlayerData
+{
+		string name;
+		string last_name;
+};
+
 class Player
 {
-	friend class ChatManager;
-
 	public:
 
-		Player(uint64 charId,DispatchClient* client,uint32 planetId) : mCharId(charId),mClient(client),mPlanetId(planetId),mAddPending(true),mKey(NULL), mGroupMemberIndex(0), mGroupId(0), mX(0), mZ(0),mBazaar(NULL) {}
-		~Player(){  }
+		Player(uint64 charId,DispatchClient* client,uint32 planetId) 
+			: mCharId(charId)
+			, mClient(client)
+			, mPlanetId(planetId)
+			, mAddPending(true)
+			, mKey(NULL)
+			, mGroupMemberIndex(0)
+			, mGroupId(0)
+			, mX(0)
+			, mZ(0)
+			,mBazaar(NULL) 
+		{}
+
+		~Player()
+		{}
 
 		uint64			getCharId(){ return mCharId; }
 		void			setCharId(uint64 charId){ mCharId = charId; }
 
-		string			getName(){ return mName; }
-		void			setName(const string name){ mName = name; }
+		string			getName(){ return mPlayerData.name; }
+		void			setName(const string name){ mPlayerData.name = name; }
 
-		string			getLastName(){ return mLastName; }
-		void			setLastName(const string lastName){ mLastName = lastName; }
+		PlayerData* getPlayerData() { return &mPlayerData; }
+
+		string			getLastName(){ return mPlayerData.last_name; }
+		void			setLastName(const string lastName){ mPlayerData.last_name = lastName; }
 
 		DispatchClient*	getClient(){ return mClient; }
 		void			setClient(DispatchClient* client){ mClient = client; }
@@ -66,7 +85,7 @@ class Player
 		void			setAddPending(bool b){ mAddPending = b; }
 
 		uint32			getKey(){ return mKey; }
-		void			setKey() { string name = mName; name.toLower(); mKey = name.getCrc(); }
+		void			setKey() { string name = getName(); name.toLower(); mKey = name.getCrc(); }
 
 		ContactMap*		getFriendsList(){ return &mFriendsList; }
 		void			addFriend(string name){ mFriendsList.insert(std::make_pair(name.getCrc(),name.getAnsi())); }
@@ -94,11 +113,9 @@ class Player
 		float			getPositionZ() {return mZ;}
 
 	private:
-
+		PlayerData  mPlayerData;
 		uint32			mPlanetId;
 		uint64			mCharId;
-		string			mName;
-		string			mLastName;
 		DispatchClient*	mClient;
 		bool			mAddPending;
 		uint32			mKey;

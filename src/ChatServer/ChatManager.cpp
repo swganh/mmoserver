@@ -158,7 +158,7 @@ void ChatManager::_loadChannels(DatabaseResult* result)
 
 		string owner;
 		Channel* channel = new Channel();
-		result->GetNextRow(mChannelBinding,channel);
+		result->GetNextRow(mChannelBinding,channel->getChannelData());
 
 		result->ResetRowIndex(static_cast<int>(i));
 		result->GetNextRow(mCreatorBinding,&creator);
@@ -214,15 +214,15 @@ void ChatManager::_loadChannels(DatabaseResult* result)
 void ChatManager::_loadDatabindings()
 {
 	mPlayerBinding = mDatabase->CreateDataBinding(2);
-	mPlayerBinding->addField(DFT_bstring,offsetof(PlayerData, name),64,0);
-	mPlayerBinding->addField(DFT_bstring,offsetof(PlayerData, last_name),64,1);
+	mPlayerBinding->addField(DFT_bstring, offsetof(PlayerData, name),				64, 0);
+	mPlayerBinding->addField(DFT_bstring, offsetof(PlayerData, last_name),	64, 1);
 
 	mChannelBinding = mDatabase->CreateDataBinding(7);
-	mChannelBinding->addField(DFT_uint32,	offsetof(Channel,mId)		,4	,0);
-	mChannelBinding->addField(DFT_bstring,	offsetof(Channel,mName)		,65	,1);
-	mChannelBinding->addField(DFT_uint8,	offsetof(Channel,mPrivate)	,1	,2);
-	mChannelBinding->addField(DFT_uint8,	offsetof(Channel,mModerated),1	,3);
-	mChannelBinding->addField(DFT_bstring,	offsetof(Channel,mTitle)	,256,6);
+	mChannelBinding->addField(DFT_uint32,		offsetof(ChannelData,id),						4,		0);
+	mChannelBinding->addField(DFT_bstring,	offsetof(ChannelData,name),					65,		1);
+	mChannelBinding->addField(DFT_uint8,		offsetof(ChannelData,is_private),		1,		2);
+	mChannelBinding->addField(DFT_uint8,		offsetof(ChannelData,is_moderated),	1,		3);
+	mChannelBinding->addField(DFT_bstring,	offsetof(ChannelData,title),				256,	6);
 
 	mCreatorBinding = mDatabase->CreateDataBinding(1);
 	mCreatorBinding->addField(DFT_bstring, 0, 33, 4);
@@ -231,20 +231,20 @@ void ChatManager::_loadDatabindings()
 	mOwnerBinding->addField(DFT_bstring, 0, 33, 5);
 
 	mMailBinding = mDatabase->CreateDataBinding(7);
-	mMailBinding->addField(DFT_uint32,offsetof(Mail,mId),4,0);
-	mMailBinding->addField(DFT_bstring,offsetof(Mail,mSender),64,1);
-	mMailBinding->addField(DFT_bstring,offsetof(Mail,mSubject),256,2);
-	mMailBinding->addField(DFT_bstring,offsetof(Mail,mText),8192,3);
-	mMailBinding->addField(DFT_uint32,offsetof(Mail,mTime),4,4);
-	mMailBinding->addField(DFT_raw,offsetof(Mail,mAttachmentRaw),2048,5);
-	mMailBinding->addField(DFT_uint32,offsetof(Mail,mAttachmentSize),4,6);
+	mMailBinding->addField(DFT_uint32,	offsetof(Mail,mId),							4,		0);
+	mMailBinding->addField(DFT_bstring,	offsetof(Mail,mSender),					64,		1);
+	mMailBinding->addField(DFT_bstring,	offsetof(Mail,mSubject),				256,	2);
+	mMailBinding->addField(DFT_bstring,	offsetof(Mail,mText),						8192,	3);
+	mMailBinding->addField(DFT_uint32,	offsetof(Mail,mTime),						4,		4);
+	mMailBinding->addField(DFT_raw,			offsetof(Mail,mAttachmentRaw),	2048,	5);
+	mMailBinding->addField(DFT_uint32,	offsetof(Mail,mAttachmentSize),	4,		6);
 
 	mMailHeaderBinding = mDatabase->CreateDataBinding(5);
-	mMailHeaderBinding->addField(DFT_uint32,offsetof(Mail,mId),4,0);
-	mMailHeaderBinding->addField(DFT_bstring,offsetof(Mail,mSender),128,1);
-	mMailHeaderBinding->addField(DFT_bstring,offsetof(Mail,mSubject),256,2);
-	mMailHeaderBinding->addField(DFT_uint8,offsetof(Mail,mStatus),1,3);
-	mMailHeaderBinding->addField(DFT_uint32,offsetof(Mail,mTime),4,4);
+	mMailHeaderBinding->addField(DFT_uint32,	offsetof(Mail,mId),				4,0);
+	mMailHeaderBinding->addField(DFT_bstring,	offsetof(Mail,mSender),		128,	1);
+	mMailHeaderBinding->addField(DFT_bstring,	offsetof(Mail,mSubject),	256,	2);
+	mMailHeaderBinding->addField(DFT_uint8,		offsetof(Mail,mStatus),		1,		3);
+	mMailHeaderBinding->addField(DFT_uint32,	offsetof(Mail,mTime),			4,		4);
 
 
 
@@ -1245,7 +1245,7 @@ void ChatManager::_processCreateRoom(Message* message,DispatchClient* client)
 	ChannelList::iterator iter = mvChannels.begin();
 	while (iter != mvChannels.end())
 	{
-		if (_strcmpi((*iter)->getName().getAnsi(), modpath.getAnsi()) == 0)
+		if (Anh_Utils::cmpistr((*iter)->getName().getAnsi(), modpath.getAnsi()) == 0)
 		{
 			gLogger->logMsgF("Channel %s already exist\n", MSG_NORMAL, modpath.getAnsi());
 			delete playername;

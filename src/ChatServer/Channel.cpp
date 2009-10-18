@@ -24,9 +24,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 
 //======================================================================================================================
 
-Channel::Channel() :
-mPrivate(0),
-mModerated(0)
+Channel::Channel()
 {
 }
 
@@ -34,6 +32,156 @@ mModerated(0)
 
 Channel::~Channel()
 {
+}
+
+//======================================================================================================================
+
+
+ChannelData* Channel::getChannelData()
+{ 
+	return &mChannelData; 
+}
+
+//======================================================================================================================
+	
+uint32 Channel::getId() const
+{ 
+	return mChannelData.id; 
+}
+
+//======================================================================================================================
+	
+void Channel::setId(uint32 id)
+{ 
+	mChannelData.id = id; 
+}
+
+//======================================================================================================================
+	
+string Channel::getName() const
+{ 
+	return mChannelData.name; 
+}
+
+//======================================================================================================================
+	
+void Channel::setName(const string name)
+{ 
+	mChannelData.name = name; 
+}
+
+//======================================================================================================================
+	
+string Channel::getGalaxy() const
+{ 
+	return mGalaxy;
+}
+
+//======================================================================================================================
+	
+void Channel::setGalaxy(const string galaxy)
+{ 
+	mGalaxy = galaxy; 
+}
+
+//======================================================================================================================
+
+string Channel::getTitle() const
+{ 
+	string title = mChannelData.title;
+	title.convert(BSTRType_Unicode16);
+	return title; 
+}
+
+//======================================================================================================================
+	
+void Channel::setTitle(const string title)
+{ 
+	mChannelData.title = title; 
+}
+
+//======================================================================================================================
+
+ChatAvatarId* Channel::getOwner() const
+{ 
+	return mOwner; 
+}
+
+//======================================================================================================================
+	
+void Channel::setOwner(ChatAvatarId* owner)
+{ 
+	mOwner = owner; 
+}
+
+//======================================================================================================================
+	
+ChatAvatarId* Channel::getCreator() const
+{ 
+	return mCreator; 
+}
+
+//======================================================================================================================
+	
+void Channel::setCreator(ChatAvatarId* creator)
+{ 
+	mCreator = creator; 
+}
+
+//======================================================================================================================
+	
+uint8 Channel::isPrivate() const
+{
+	return mChannelData.is_private; 
+}
+
+//======================================================================================================================
+	
+void Channel::setPrivate(uint8 priv)
+{
+	mChannelData.is_private = priv; 
+}
+
+//======================================================================================================================
+
+uint8 Channel::isModerated() const
+{ 
+	return mChannelData.is_moderated;
+}
+
+//======================================================================================================================
+	
+void Channel::setModerated(uint8 moderated)
+{
+	mChannelData.is_moderated = moderated;
+}
+
+//======================================================================================================================
+
+ChatAvatarIdList* Channel::getUserList()
+{
+	return &mUsers;
+}
+
+//======================================================================================================================
+	
+NameByCrcMap* Channel::getModeratorList()
+{
+	return &mModerators;
+}
+
+//======================================================================================================================
+	
+NameByCrcMap* Channel::getBanned()
+{ 
+	return &mBanned; 
+}
+
+//======================================================================================================================
+	
+NameByCrcMap* Channel::getInvited()
+{ 
+	return &mInvited;
 }
 
 //======================================================================================================================
@@ -156,16 +304,16 @@ string* Channel::removeModerator(string name)
 
 //======================================================================================================================
 
-bool Channel::isModerator(string name)
+bool Channel::isModerator(string name) const
 {
 	// name.toLower(); // Always handle search-able names (data) as lowercase. 
-	NameByCrcMap::iterator iter = mModerators.find(name.getCrc());
+	NameByCrcMap::const_iterator iter = mModerators.find(name.getCrc());
 	return iter != mModerators.end();
 }
 
 //======================================================================================================================
 
-bool Channel::isOwner(string name)
+bool Channel::isOwner(string name) const
 {
 	return (strcmp(name.getAnsi(), mOwner->getLoweredName().getAnsi()) == 0);
 }
@@ -187,10 +335,10 @@ string* Channel::removeInvitedUser(string name)
 
 //======================================================================================================================
 
-bool Channel::isInvited(string name)
+bool Channel::isInvited(string name) const
 {
 	// name.toLower(); // Always handle search-able names (data) as lowercase. 
-	NameByCrcMap::iterator iter = mInvited.find(name.getCrc());
+	NameByCrcMap::const_iterator iter = mInvited.find(name.getCrc());
 	return iter != mInvited.end();
 }
 
@@ -220,9 +368,9 @@ void Channel::banUser(string* name)
 
 //======================================================================================================================
 
-bool Channel::isBanned(string name)
+bool Channel::isBanned(string name) const
 {
-	NameByCrcMap::iterator iter = mBanned.find(name.getCrc());
+	NameByCrcMap::const_iterator iter = mBanned.find(name.getCrc());
 	return iter != mBanned.end();
 }
 
@@ -237,11 +385,11 @@ void Channel::addInvitedUser(string* name)
 
 //======================================================================================================================
 
-string Channel::getFullPath()
+string Channel::getFullPath() const
 {
 	string path = "SWG.";
-	path << mGalaxy.getAnsi() << ".";
-	path << mName.getAnsi();
+	path << getGalaxy().getAnsi() << ".";
+	path << getName().getAnsi();
 	return path;
 }
 

@@ -32,88 +32,92 @@ typedef std::map<uint32, BString*>      NameByCrcMap;
 
 struct ChannelData
 {
+	ChannelData()
+		: is_private(0)
+		, is_moderated(0)
+	{}
+	
+	string	name;
+	string	title;
+	uint32	id;
+	uint8		is_moderated;
+	uint8		is_private;
 };
 
 //======================================================================================================================
 
 class Channel
 {
-	friend class ChatManager;
+public:
+	Channel();
+	~Channel();
 
-	public:
+	ChannelData* getChannelData();
 
-		Channel();
-		~Channel();
+	uint32 getId() const;
+	void setId(uint32 id);
 
-		uint32				getId(){ return mId; }
-		void				setId(uint32 id){ mId = id; }
+	string getName() const;
+	void setName(const string name);
 
-		string				getName(){ return mName; }
-		void				setName(const string name){ mName = name; }
+	string getFullPath() const;
 
-		string				getFullPath();
+	string getGalaxy() const;
+	void setGalaxy(const string galaxy);
 
-		string				getGalaxy() { return mGalaxy; }
-		void				setGalaxy(const string galaxy){ mGalaxy = galaxy; }
+	string getTitle() const;
+	void setTitle(const string title);
 
-		string				getTitle(){ mTitle.convert(BSTRType_Unicode16); return mTitle; }
-		void				setTitle(const string title){ mTitle = title; }
+	ChatAvatarId* getOwner() const;
+	void setOwner(ChatAvatarId* owner);
 
-		ChatAvatarId*		getOwner(){ return mOwner; }
-		void				setOwner(ChatAvatarId* owner){ mOwner = owner; }
+	ChatAvatarId* getCreator() const;
+	void setCreator(ChatAvatarId* creator);
 
-		ChatAvatarId*		getCreator(){ return mCreator; }
-		void				setCreator(ChatAvatarId* creator){ mCreator = creator; }
+	uint8 isPrivate() const;
+	void setPrivate(uint8 priv);
 
-		uint8				isPrivate(){ return mPrivate; }
-		void				setPrivate(uint8 priv){ mPrivate = priv; }
+	uint8 isModerated() const;
+	void setModerated(uint8 moderated);
 
-		uint8				isModerated(){ return mModerated; }
-		void				setModerated(uint8 moderated){ mModerated = moderated; }
+	void addUser(ChatAvatarId* avatar);
+	void removeUser(Player* player);
 
-		void				addUser(ChatAvatarId* avatar);
-		void				removeUser(Player* player);
-		ChatAvatarId*		removeUser(string name);
-		ChatAvatarId*		findUser(string name);
-		ChatAvatarId*		findUser(Player* player);
+	ChatAvatarId*	removeUser(string name);
+	ChatAvatarId*	findUser(string name);
+	ChatAvatarId*	findUser(Player* player);
 
-		void				addInvitedUser(string* name);
+	void addInvitedUser(string* name);
 		
-		string*				removeInvitedUser(string name);
-		bool				isInvited(string name);
+	string* removeInvitedUser(string name);
+	bool isInvited(string name) const;
 
-		void				addModerator(string* name);
-		string*				removeModerator(string name);
-		bool				isModerator(string name);
-		bool				isOwner(string name);
+	void addModerator(string* name);
+	string* removeModerator(string name);
+	bool isModerator(string name) const;
+	bool isOwner(string name) const;
 
-		void				banUser(string* name);
-		string*				unBanUser(string name);
-		bool				isBanned(string name);
+	void banUser(string* name);
+	string* unBanUser(string name);
+	bool isBanned(string name) const;
 
-		void				clearChannel();
+	void clearChannel();
 
-		ChatAvatarIdList*	getUserList(){ return &mUsers; }
-		NameByCrcMap*		getModeratorList() { return &mModerators; }
-		NameByCrcMap*		getBanned() { return &mBanned; }
-		NameByCrcMap*		getInvited() { return &mInvited; }
+	ChatAvatarIdList* getUserList();
+	NameByCrcMap* getModeratorList();
+	NameByCrcMap* getBanned();
+	NameByCrcMap* getInvited();
 
-	private:
-
-		uint32				mId;
-		string				mName;
-		ChatAvatarId*		mOwner;
-		ChatAvatarId*		mCreator;
-		string				mTitle;
-		string				mGalaxy;
-		uint8				mPrivate;
-		uint8				mModerated;
-
-		ChatAvatarIdList	mUsers;
-		AvatarNameMap		mUserMap;
-		NameByCrcMap		mModerators;
-		NameByCrcMap		mBanned;
-		NameByCrcMap		mInvited;
+private:
+	ChannelData				mChannelData;
+	ChatAvatarId*			mOwner;
+	ChatAvatarId*			mCreator;
+	string						mGalaxy;
+	ChatAvatarIdList	mUsers;
+	AvatarNameMap			mUserMap;
+	NameByCrcMap			mModerators;
+	NameByCrcMap			mBanned;
+	NameByCrcMap			mInvited;
 };
 
 #endif

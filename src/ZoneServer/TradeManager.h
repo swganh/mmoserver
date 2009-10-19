@@ -44,6 +44,15 @@ enum TRMQueryType
 	TRMQuery_CreateAuctionTransaction	= 12,
 	TRMQuery_ItemTableFrogQuery			= 13,
 	TRMQuery_CheckListingsBazaar		= 14,
+	
+	TRMQuery_LoadGlobalTick =	15,
+	TRMQuery_SaveGlobalTick =	16,
+	TRMQuery_CancelAuction_BidderMail	= 17,
+	TRMQuery_ExpiredListing				= 18,
+	TRMQuery_GetAttributeDetails		= 19,
+	TRMQuery_ProcessBidAuction			= 20,
+	TRMQuery_ProcessAuctionRefund		= 21,
+	TRMQuery_GetResAttributeDetails		= 22,
 };
 enum TRMVendorType
 {
@@ -52,15 +61,19 @@ enum TRMVendorType
 	
 };
 
+//======================================================================================================================
+
 enum TRMAuctionType: uint32
 {
 	TRMVendor_Auction   	=	0,
 	TRMVendor_Instant       =   1,
-	TRMVendor_Cancelled		=   2,
-	TRMVendor_Offer 		=   3,
-	TRMVendor_Sold  		=   4,
-	TRMVendor_NotSold 		=   5,
-	
+	TRMVendor_Ended			=   2,
+	TRMVendor_Deleted 		=   3,
+	TRMVendor_Offer 		=   4,
+	TRMVendor_Cancelled		=   5,
+	TRMVendor_Sold  		=   6,
+	TRMVendor_NotSold 		=   7,
+
 };
 
 
@@ -97,12 +110,63 @@ enum TRMRegionType
 
 //======================================================================================================================
 
+struct DescriptionItem
+{
+		uint64			ItemID;
+		int8			Description[1024];
+		int8			tang[128];
+		int8			details[1024];
+};
+
+//======================================================================================================================
+
+
+//thats were the raw Auction db data goes
+struct AuctionItem
+{
+		uint64			ItemID;
+		uint64			OwnerID;
+		uint64			BazaarID;
+		uint32          AuctionTyp;
+		uint64			EndTime;
+		uint32          Premium;
+		uint32			Category;
+		uint32			ItemTyp;
+		uint32			Price;
+		int8			Name[128];
+		int8			Description[1024];
+		uint16			RegionID;
+		uint64			BidderID;
+		uint16			PlanetID;
+		int8			SellerName[32];
+		int8			BazaarName[128];
+		uint32			MyBid;
+		uint32			MyProxy;
+
+		int8			bidder_name[32];
+		uint32			HighProxy;
+		uint32			HighBid;
+		int8			HighProxyRaw[32];
+		int8			HighBidRaw[32];
+		int8			BidderIDRaw[32];
+		int8			Owner[32];
+		uint32			itemcategory;
+		
+};
+
 class TradeManagerAsyncContainer
 {
 public:
 
 	TradeManagerAsyncContainer(TRMQueryType qt,DispatchClient* client){ mQueryType = qt; mClient = client; }
 	~TradeManagerAsyncContainer(){}
+
+	
+	uint64				BuyerID;
+	uint32				Itemsstart;
+	uint32				Itemsstop;
+	DescriptionItem*	mItemDescription;
+	AuctionItem*		AuctionTemp;
 
 	TRMQueryType		mQueryType;
 	DispatchClient*		mClient;	
@@ -141,41 +205,6 @@ public:
 	string				description;
 	string				tang;
 };
-
-//======================================================================================================================
-
-struct DescriptionItem
-{
-		uint64			ItemID;
-		int8			Description[1024];
-		int8			tang[128];
-		int8			details[1024];
-};
-
-//thats were the raw Auction db data goes
-struct AuctionItem
-{
-		uint64			ItemID;
-		uint64			OwnerID;
-		uint64			BazaarID;
-		uint32          AuctionTyp;
-		uint64			EndTime;
-		uint32          Premium;
-		uint32			Category;
-		uint32			ItemTyp;
-		uint32			Price;
-		int8			Name[128];
-		int8			Description[1024];
-		uint16			RegionID;
-		uint64			BidderID;
-		uint16			PlanetID;
-		int8			SellerName[32];
-		int8			BazaarName[128];
-		uint32			MyBid;
-		uint32			MyProxy;
-		
-};
-
 
 class Vendor
 {

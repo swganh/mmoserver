@@ -17,14 +17,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "Utils/typedefs.h"
 #include "ZoneServer/TradeManager.h"
-class DispatchClient;
 
-//======================================================================================================================
-			  
-enum OCQueryType 
-{
-	p = 0,
-};
+class DispatchClient;
 
 //======================================================================================================================
 
@@ -33,87 +27,6 @@ enum TRMTimer
 	CMTimer_GlobalTick		=	0,
 	CMTimer_TickPreserve	=	1,
 	CMTimer_CheckAuctions	=	2,
-};
-
-//======================================================================================================================
-
-enum TRMQueryType
-{
-	TRMQuery_NULL			=	0,
-	TRMQuery_LoadBazaar		=	1,
-	TRMQuery_AuctionQuery  	=	2,
-	TRMQuery_CreateAuction	=	3,
-	TRMQuery_GetDetails		=	4,
-	TRMQuery_CancelAuction	=	5,
-	TRMQuery_RetrieveAuction=	6,
-	TRMQuery_DeleteAuction	=	7,
-	TRMQuery_BidAuction		=	8,
-	TRMQuery_ACKRetrieval   =	9,
-	TRMQuery_LoadGlobalTick =	10,
-	TRMQuery_SaveGlobalTick =	11,
-	TRMQuery_CancelAuction_BidderMail	= 13,
-	TRMQuery_ExpiredListing				= 14,
-	TRMQuery_GetAttributeDetails		= 15,
-	TRMQuery_ProcessBidAuction			= 16,
-	TRMQuery_ProcessAuctionRefund		= 17,
-	TRMQuery_GetResAttributeDetails		= 18,
-};
-
-//======================================================================================================================
-
-enum TRMVendorType
-{
-	TRMVendor_bazaar	=	1,
-	TRMVendor_player    =   2,
-	
-};
-
-//======================================================================================================================
-
-enum TRMAuctionType: uint32
-{
-	TRMVendor_Auction   	=	0,
-	TRMVendor_Instant       =   1,
-	TRMVendor_Ended			=   2,
-	TRMVendor_Deleted 		=   3,
-	TRMVendor_Offer 		=   4,
-
-};
-
-//======================================================================================================================
-
-enum TRMAuctionWindowType
-{
-	TRMVendor_AllAuctions	=	2,
-	TRMVendor_MySales       =   3,
-	TRMVendor_MyBids		=   4,
-	TRMVendor_AvailableItems=   5,
-	TRMVendor_Offers		=   6,
-	TRMVendor_ForSale		=   7,
-	TRMVendor_Stockroom		=   8,
-
-};
-
-//======================================================================================================================
-
-enum TRMPermissionType
-{
-	TRMOwner        	=	0,
-	TRMNotOwner         =   1,
-	TRMBazaar           =   2,
-	TRMBazaarQuery		=	3,
-
-};
-
-//======================================================================================================================
-
-enum TRMRegionType
-{
-	TRMGalaxy        	=	0,
-	TRMPlanet	        =   1,
-	TRMRegion           =   2,
-	TRMVendor			=	3,
-
 };
 
 //======================================================================================================================
@@ -146,73 +59,6 @@ struct ResItemDescriptionAttributes
 };
 
 //======================================================================================================================
-
-struct DescriptionItem
-{
-		uint64			ItemID;
-		int8			Description[1025];
-		int8			tang[129];
-};
-
-//======================================================================================================================
-
-struct AuctionItem
-{
-		uint64			ItemID;
-		uint64			OwnerID;
-		uint64			BazaarID;
-		uint64			BidderID;
-		uint32          AuctionTyp;
-		uint64			EndTime;
-		uint32          Premium;
-		uint32			Category;
-		uint32			ItemTyp;
-		uint32			Price;
-		int8			Name[128];
-		int8			Description[1024];
-		uint16			RegionID;
-		int8			bidder_name[32];
-		uint16			PlanetID;
-		int8			SellerName[32];
-		int8			BazaarName[128];
-		uint32			HighProxy;
-		uint32			HighBid;
-		int8			HighProxyRaw[32];
-		int8			HighBidRaw[32];
-		int8			BidderIDRaw[32];
-		uint32			MyBid;
-		uint32			MyProxy;
-		int8			Owner[32];
-		uint32			itemcategory;
-		
-};
-
-//======================================================================================================================
-
-class TradeManagerAsyncContainer
-{
-	public:
-
-	TradeManagerAsyncContainer(TRMQueryType qt,DispatchClient* client){ mQueryType = qt; mClient = client; }
-	~TradeManagerAsyncContainer(){}
-
-	TRMQueryType		mQueryType;
-	DispatchClient*		mClient;	
-
-	uint64				AuctionID;
-	uint32				BazaarWindow;
-	uint32				BazaarPage;
-	uint64				BazaarID;
-	uint64				BuyerID;
-	uint32				MyBid;
-	uint32				MyProxy;
-	uint32				Itemsstart;
-	uint32				Itemsstop;
-	DescriptionItem*	mItemDescription;
-	AuctionItem*		AuctionTemp;
-};
-
-//======================================================================================================================
 //
 //thats were the raw Auction db data goes
 //
@@ -222,18 +68,6 @@ struct TypeListItem
 		uint32			mask;
 		int8			directory[40];
 		int8			name[60];
-};
-
-//======================================================================================================================
-
-class Vendor
-{
-		long			ownerid;
-		long			id;
-		uint32			regionid;
-		uint32			planetid;
-		int8			string[128];
-
 };
 
 //======================================================================================================================

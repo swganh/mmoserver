@@ -14,6 +14,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "TradeManagerChat.h"
 
 #include "ZoneServer/TangibleEnums.h"
+#include "ZoneServer/TradeManager.h"
 
 #include "LogManager/LogManager.h"
 #include "DatabaseManager/Database.h"

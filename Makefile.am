@@ -134,6 +134,14 @@ connserver_SOURCES = src/ConnectionServer/ClientManager.cpp \
 connserver_CPPFLAGS = $(MYSQL_CFLAGS) -fpermissive -fshort-wchar
 connserver_LDADD = libutils.la liblogmanager.la libcommon.la libconfigmanager.la libdatabasemanager.la libnetworkmanager.la $(MYSQL_LDFLAGS) $(BOOST_LDFLAGS) $(BOOST_THREAD_LIB) $(BOOST_SYSTEM_LIB)
 
+# LoginServer - executable
+bin_PROGRAMS += loginserver
+loginserver_SOURCES = src/LoginServer/LoginManager.cpp \
+	src/LoginServer/LoginServer.cpp
+	
+loginserver_CPPFLAGS = $(MYSQL_CFLAGS) -fpermissive -fshort-wchar -Wno-invalid-offsetof
+loginserver_LDADD = libutils.la liblogmanager.la libcommon.la libconfigmanager.la libdatabasemanager.la libnetworkmanager.la $(MYSQL_LDFLAGS) $(BOOST_LDFLAGS) $(BOOST_THREAD_LIB) $(BOOST_SYSTEM_LIB)
+
 # Keep documentation files when creating a distributable version of the source.
 doc_DATA = AUTHORS ChangeLog COPYING INSTALL NEWS README
 

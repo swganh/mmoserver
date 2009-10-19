@@ -350,9 +350,18 @@ BString& BString::operator <<(int8* data)
   return *this;
 }
 
+int8* BString::getAnsi()
+{ 
+    if (mType == BSTRType_ANSI) {
+        return mString; 
+    } else {
+        return 0; 
+    }
+}
+
 //======================================================================================================================
 
-int8* BString::getAnsi()                 
+const int8* BString::getAnsi() const               
 { 
     if (mType == BSTRType_ANSI) {
         return mString; 
@@ -375,7 +384,17 @@ uint16* BString::getUnicode16()
  */
 //======================================================================================================================
 
-wchar_t* BString::getUnicode16()            
+wchar_t* BString::getUnicode16()
+{ 
+    if (mType == BSTRType_Unicode16) 
+    { 
+        return reinterpret_cast<wchar_t*>(mString); 
+    } else {
+        return 0; 
+    }
+}
+
+const wchar_t* BString::getUnicode16() const
 { 
     if (mType == BSTRType_Unicode16) 
     { 

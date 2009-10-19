@@ -346,7 +346,7 @@ void MessageFactory::addString(const wchar_t* ustring)
 }
 //======================================================================================================================
 
-void MessageFactory::addString(string& data)
+void MessageFactory::addString(const string& data)
 {
 	// Make sure we've called StartMessage()
 	assert(mCurrentMessage);

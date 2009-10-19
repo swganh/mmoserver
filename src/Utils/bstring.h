@@ -61,9 +61,11 @@ public:
     BString& operator <<(int8* data);
 
     // Accessor Methods
-    int8*   getAnsi();
+    int8* getAnsi();
+    const int8* getAnsi() const;
    // uint16* getUnicode16();
     wchar_t* getUnicode16();
+    const wchar_t* getUnicode16() const;
     int8*   getUTF8();
 
     void convert(BStringType type);

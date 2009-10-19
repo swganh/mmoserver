@@ -55,7 +55,7 @@ class MessageFactory
 		void                    addUint64(uint64 data);
 		void                    addFloat(float data);
 		void                    addDouble(double data);
-		void                    addString(string& data);
+		void                    addString(const string& data);
 		void					addString(const char* cstring);
 		void					addString(const wchar_t* ustring);
 		void					addString(const unsigned short* ustring);

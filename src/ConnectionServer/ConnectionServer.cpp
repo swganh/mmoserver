@@ -204,7 +204,7 @@ void ConnectionServer::_updateDBServerList(uint32 status)
 
 //======================================================================================================================
 
-int main(int argc, char* argv)
+int main(int argc, char* argv[])
 {
 	//OnlyInstallUnhandeldExceptionFilter();
 

@@ -30,6 +30,8 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "Common/MessageFactory.h"
 #include "ConfigManager/ConfigManager.h"
 
+#include <cstring>
+
 //======================================================================================================================
 
 ServerManager::ServerManager(void) :

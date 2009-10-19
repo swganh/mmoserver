@@ -81,6 +81,18 @@ libnetworkmanager_la_SOURCES = src/NetworkManager/CompCryptor.cpp \
 libnetworkmanager_la_CPPFLAGS = -fpermissive -fshort-wchar 
 libnetworkmanager_la_LIBADD = libutils.la libcommon.la liblogmanager.la
 
+# ScriptEngine library - noinstall shared library
+#noinst_LTLIBRARIES += libscriptengine.la
+#libscriptengine_la_SOURCES = src/ScriptEngine/Script.cpp \
+#  src/ScriptEngine/ScriptEngine.cpp \
+#  src/ScriptEngine/ScriptEngineLib.cpp \
+#  src/ScriptEngine/ScriptEventListener.cpp \
+#  src/ScriptEngine/ScriptSupport.cpp \
+#  src/ScriptEngine/glue_files/LuaInterface.cpp
+
+#libscriptengine_la_CPPFLAGS = $(LUA_INCLUDE) -I$(top_srcdir)/deps/noise/src -fpermissive -fshort-wchar 
+#libscriptengine_la_LIBADD = $(LUA_LIB) $(top_srcdir)/deps/noise/src/libnoise.la
+
 # AdminServer - executable
 bin_PROGRAMS = adminserver
 adminserver_SOURCES = src/AdminServer/AdminServer.cpp \
@@ -111,17 +123,16 @@ chatserver_SOURCES = src/ChatServer/Channel.cpp \
 chatserver_CPPFLAGS = $(MYSQL_CFLAGS) -fpermissive -fshort-wchar -Wno-invalid-offsetof
 chatserver_LDADD = libutils.la liblogmanager.la libcommon.la libconfigmanager.la libdatabasemanager.la libnetworkmanager.la $(MYSQL_LDFLAGS) $(BOOST_LDFLAGS) $(BOOST_THREAD_LIB) $(BOOST_SYSTEM_LIB)
 
-# ScriptEngine library - noinstall shared library
-#noinst_LTLIBRARIES += libscriptengine.la
-#libscriptengine_la_SOURCES = src/ScriptEngine/Script.cpp \
-#  src/ScriptEngine/ScriptEngine.cpp \
-#  src/ScriptEngine/ScriptEngineLib.cpp \
-#  src/ScriptEngine/ScriptEventListener.cpp \
-#  src/ScriptEngine/ScriptSupport.cpp \
-#  src/ScriptEngine/glue_files/LuaInterface.cpp
-
-#libscriptengine_la_CPPFLAGS = $(LUA_INCLUDE) -I$(top_srcdir)/deps/noise/src -fpermissive -fshort-wchar 
-#libscriptengine_la_LIBADD = $(LUA_LIB) $(top_srcdir)/deps/noise/src/libnoise.la
+# ConnectionServer - executable
+bin_PROGRAMS += connserver
+connserver_SOURCES = src/ConnectionServer/ClientManager.cpp \
+	src/ConnectionServer/ConnectionDispatch.cpp \
+	src/ConnectionServer/ConnectionServer.cpp \
+	src/ConnectionServer/MessageRouter.cpp \
+	src/ConnectionServer/ServerManager.cpp
+	
+connserver_CPPFLAGS = $(MYSQL_CFLAGS) -fpermissive -fshort-wchar
+connserver_LDADD = libutils.la liblogmanager.la libcommon.la libconfigmanager.la libdatabasemanager.la libnetworkmanager.la $(MYSQL_LDFLAGS) $(BOOST_LDFLAGS) $(BOOST_THREAD_LIB) $(BOOST_SYSTEM_LIB)
 
 # Keep documentation files when creating a distributable version of the source.
 doc_DATA = AUTHORS ChangeLog COPYING INSTALL NEWS README

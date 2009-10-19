@@ -19,6 +19,15 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "Utils/utils.h"
 
+#if defined(__GNUC__)
+// GCC implements tr1 in the <tr1/*> headers. This does not conform to the TR1
+// spec, which requires the header without the tr1/ prefix.
+#include <tr1/functional>
+#else
+#include <functional>
+#endif
+
+
 #define RECEIVE_BUFFER 512
 
 PingServer::PingServer(int port)

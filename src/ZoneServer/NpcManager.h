@@ -50,7 +50,7 @@ class NpcManager  : public ObjectFactoryCallback, public DatabaseCallback
 {
 	public:
 
-		static NpcManager* NpcManager::Instance(void);
+		static NpcManager* Instance(void);
 
 		static inline void deleteManager(void)    
 		{ 

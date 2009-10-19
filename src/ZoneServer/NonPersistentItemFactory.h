@@ -24,7 +24,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 class NonPersistentItemFactory : public FactoryBase
 {
 	public:
-		static NonPersistentItemFactory* NonPersistentItemFactory::Instance(void);
+		static NonPersistentItemFactory* Instance(void);
 		/*
 		static inline NonPersistentItemFactory*	Instance(void)
 		{
@@ -60,7 +60,7 @@ class NonPersistentItemFactory : public FactoryBase
 		void			_setupDatabindings();
 		void			_destroyDatabindings();
 
-		Item* NonPersistentItemFactory::_createItem(DatabaseResult* result, uint64 newId);
+		Item* _createItem(DatabaseResult* result, uint64 newId);
 
 		static NonPersistentItemFactory*	mSingleton;
 		DataBinding*	mItemIdentifierBinding;

@@ -14,8 +14,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "Utils/typedefs.h"
 #include "Resource.h"
-#include "noise.h"
-#include "noiseutils.h"
+#include "ZoneServer/noiseutils.h"
+#include <noise.h>
+#include <string>
 
 
 //=============================================================================

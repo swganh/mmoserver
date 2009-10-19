@@ -210,11 +210,11 @@ T	WorldConfig::getConfiguration(uint32 keyCrc) const
 		}
 		catch(boost::bad_lexical_cast &)
 		{
-			gLogger->logErrorF("configuration","Object::getAttribute: cast failed ('%s')",MSG_HIGH,key.getAnsi());
+			gLogger->logErrorF("configuration","Object::getAttribute: cast failed ('%s')",MSG_HIGH,keyCrc);
 		}
 	}
 	else
-		gLogger->logErrorF("configuration","Object::getAttribute: couldn't find '%s'",MSG_HIGH,key.getAnsi());
+		gLogger->logErrorF("configuration","Object::getAttribute: couldn't find '%s'",MSG_HIGH,keyCrc);
 
 	return(T());
 }

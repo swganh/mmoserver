@@ -23,12 +23,19 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "Utils/typedefs.h"
 
 #include <boost/lexical_cast.hpp>
+
 #include <vector>
 #include <map>
-#include <memory>
 #include <set>
 #include <list>
 
+#if defined(__GNUC__)
+// GCC implements tr1 in the <tr1/*> headers. This does not conform to the TR1
+// spec, which requires the header without the tr1/ prefix.
+#include <tr1/memory>
+#else
+#include <memory>
+#endif
 
 //=============================================================================
 
@@ -213,11 +220,11 @@ T	Object::getAttribute(uint32 keyCrc) const
 		}
 		catch(boost::bad_lexical_cast &)
 		{
-			gLogger->logMsgF("Object::getAttribute: cast failed (%s)",MSG_HIGH,key.getAnsi());
+			gLogger->logMsgF("Object::getAttribute: cast failed (%s)",MSG_HIGH,keyCrc);
 		}
 	}
 	else
-		gLogger->logMsgF("Object::getAttribute: could not find %s",MSG_HIGH,key.getAnsi());
+		gLogger->logMsgF("Object::getAttribute: could not find %s",MSG_HIGH,keyCrc);
 
 	return(T());
 }

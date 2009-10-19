@@ -12,12 +12,12 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #ifndef ANH_SCRIPT_SUPPORT_H
 #define ANH_SCRIPT_SUPPORT_H
 
-#include "utils/typedefs.h"
+#include "Utils/typedefs.h"
 #include "MathLib/Vector3.h"
 #include "MathLib/Quaternion.h"
 #include "ZoneServer/ObjectFactoryCallback.h"
 #include <map>
-
+#include <string>
 class Object;
 class NPCObject;
 

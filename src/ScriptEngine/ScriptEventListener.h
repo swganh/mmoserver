@@ -15,12 +15,13 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Utils/typedefs.h"
 
 #include <map>
+#include <string>
 #include <vector>
 
 class Script;
 
 typedef std::vector<Script*>				ScriptList;
-typedef std::map<std::string,ScriptList*>	ScriptListMap;
+typedef std::map<std::string, ScriptList*>	ScriptListMap;
 
 //======================================================================================================================
 

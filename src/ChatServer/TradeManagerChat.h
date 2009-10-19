@@ -24,9 +24,16 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include <boost/thread/mutex.hpp>
 
-#include <memory>
 #include <queue>
 #include <vector>
+
+#if defined(__GNUC__)
+// GCC implements tr1 in the <tr1/*> headers. This does not conform to the TR1
+// spec, which requires the header without the tr1/ prefix.
+#include <tr1/memory>
+#else
+#include <memory>
+#endif
 
 #define	gTradeManager	TradeManager::getSingletonPtr()
 

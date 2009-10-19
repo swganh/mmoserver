@@ -11,6 +11,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "TradeManagerHelp.h"
 
+#include <cstring>
 
 void AuctionStringClass::InsertAuction(AuctionItem Auction,uint32 BazaarStrNr,uint32 SellerStrNr, uint32 NameStrNr,uint32 BidderStrNr)
 {

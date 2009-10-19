@@ -22,6 +22,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Common/MessageDispatch.h"
 #include "Common/MessageFactory.h"
 
+#include <cstring>
 
 void ChatMessageLib::sendCanceLiveAuctionResponseMessage(DispatchClient* client, uint32 error, uint64 mAuctionID) const
 {

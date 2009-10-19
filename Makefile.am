@@ -99,6 +99,7 @@ chatserver_SOURCES = src/ChatServer/Channel.cpp \
   src/ChatServer/ChatMessages.cpp \
   src/ChatServer/ChatServer.cpp \
   src/ChatServer/CSRManager.cpp \
+  src/ChatServer/CSRMessages.cpp \
   src/ChatServer/GroupManager.cpp \
   src/ChatServer/GroupMessages.cpp \
   src/ChatServer/GroupObject.cpp \
@@ -107,8 +108,8 @@ chatserver_SOURCES = src/ChatServer/Channel.cpp \
   src/ChatServer/TradeManagerHelp.cpp \
   src/ChatServer/TradeMessages.cpp
 
-chatserver_CPPFLAGS = $(MYSQL_CFLAGS) -fpermissive -fshort-wchar 
-chatserver_LDADD = libutils.la liblogmanager.la libcommon.la libconfigmanager.la libdatabasemanager.la libnetworkmanager.la $(MYSQL_LDFLAGS)
+chatserver_CPPFLAGS = $(MYSQL_CFLAGS) -fpermissive -fshort-wchar -Wno-invalid-offsetof
+chatserver_LDADD = libutils.la liblogmanager.la libcommon.la libconfigmanager.la libdatabasemanager.la libnetworkmanager.la $(MYSQL_LDFLAGS) $(BOOST_LDFLAGS) $(BOOST_THREAD_LIB) $(BOOST_SYSTEM_LIB)
 
 # ScriptEngine library - noinstall shared library
 #noinst_LTLIBRARIES += libscriptengine.la

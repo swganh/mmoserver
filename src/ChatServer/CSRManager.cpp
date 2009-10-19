@@ -217,155 +217,6 @@ void CSRManager::handleDispatchMessage(uint32 opcode,Message* message,DispatchCl
 
 //======================================================================================================================
 
-void CSRManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
-{
-	CSRAsyncContainer* asyncContainer = (CSRAsyncContainer*)ref;
-
-	switch (asyncContainer->mQueryType)
-	{
-		case CSRQuery_Tickets:
-			{
-				uint64 count = result->getRowCount();
-
-				if (count == 1) //There should only be one result
-				{
-					Ticket* ticket = new Ticket();
-					result->GetNextRow(mTicketBinding, ticket);
-					ticket->mComment.convert(BSTRType_Unicode16);
-					
-					gChatMessageLib->sendGetTicketsResponseMessage(asyncContainer->mClient, ticket);
-				}
-			}
-			break;
-
-		case CSRQuery_CommentsByTicket:
-			{
-				uint64 count = result->getRowCount();
-
-				CommentList* list = new CommentList();
-				for (int i = 0; i < count; i++)
-				{
-					Comment* comment = new Comment();
-					result->GetNextRow(mCommentBinding, comment);
-					comment->mText.convert(BSTRType_Unicode16);
-
-					list->push_back(comment);
-				}
-				gChatMessageLib->sendGetCommentsResponseMessage(asyncContainer->mClient, list);
-			}
-			break;
-
-		case CSRQuery_TicketActivity:
-			{
-				uint64 count = result->getRowCount();
-				assert(count < 2);
-		
-				gMessageFactory->StartMessage();
-				gMessageFactory->addUint32(opNewTicketActivityResponseMessage);
-				gMessageFactory->addUint32((uint32)count);
-				gMessageFactory->addUint32((uint32)count);
-				Message* message = gMessageFactory->EndMessage();
-
-				asyncContainer->mClient->SendChannelA(message, asyncContainer->mClient->getAccountId(), CR_Client, 3);
-			}
-			break;
-
-		case CSRQuery_NewTicket:
-			{
-				uint64 count = result->getRowCount();
-				assert(count == 1);
-
-				uint32 id;
-				DataBinding* binding = mDatabase->CreateDataBinding(1);
-				binding->addField(DFT_uint32, 0, 4, 0);
-
-				result->GetNextRow(binding, &id);
-
-				gMessageFactory->StartMessage();
-				gMessageFactory->addUint32(opCreateTicketResponseMessage);
-				gMessageFactory->addUint32(0);
-				gMessageFactory->addUint32(id);
-				Message* message = gMessageFactory->EndMessage();
-
-				asyncContainer->mClient->SendChannelA(message, asyncContainer->mClient->getAccountId(), CR_Client, 3);
-			}
-			break;
-
-		case CSRQuery_Categories:
-			{
-				uint64 count = result->getRowCount();
-
-				for (int i = 0; i < count; i++)
-				{
-					Category* category = new Category();
-
-					result->GetNextRow(mCategoryBinding, category);
-					category->mName.convert(BSTRType_Unicode16);
-					mCategoryList.push_back(category);
-
-					CSRAsyncContainer* asContainer = new CSRAsyncContainer(CSRQuery_SubCategories);
-					asContainer->mCategory = category;
-					mDatabase->ExecuteSqlAsync(this, asContainer, "SELECT subcategory_id, name FROM csr_subcategories WHERE category_id = %u;", category->mId);
-				}
-			}
-			break;
-
-		case CSRQuery_SubCategories:
-			{
-				uint64 count = result->getRowCount();
-
-				for (int i = 0; i < count; i++)
-				{
-					SubCategory* subcategory = new SubCategory();
-
-					result->GetNextRow(mSubCategoryBinding, subcategory);
-					subcategory->mName.convert(BSTRType_Unicode16);
-					asyncContainer->mCategory->GetSubCategories()->push_back(subcategory);
-				}
-			}
-			break;
-
-		case CSRQuery_SearchKB:
-			{
-				uint64 count = result->getRowCount();
-
-				ArticleList* list = new ArticleList();
-				for (int i = 0; i < count; i++)
-				{
-					Article* article = new Article();
-					result->GetNextRow(mArticleSearchBinding, article);
-					article->mTitle.convert(BSTRType_Unicode16);
-					list->push_back(article);
-				}
-				gChatMessageLib->sendSearchKnowledgeBaseResponseMessage(asyncContainer->mClient, list);
-			}
-			break;
-
-		case CSRQuery_FullArticle:
-			{
-				uint64 count = result->getRowCount();
-				
-				if (count == 1)
-				{
-					Article* article = new Article();
-					result->GetNextRow(mFullArticleBinding, article);
-					article->mBody.convert(BSTRType_Unicode16);
-					gChatMessageLib->sendGetArticleResponseMessage(asyncContainer->mClient, article);
-				}
-				else
-					gChatMessageLib->sendGetArticleResponseMessage(asyncContainer->mClient, NULL);
-				
-			}
-			break;
-
-		default: break;
-	}
-
-	SAFE_DELETE(asyncContainer);
-}
-
-//======================================================================================================================
-
 void CSRManager::_processConnectPlayerMessage(Message* message, DispatchClient* client)
 {
 	uint32 errorcode = message->getUint32();
@@ -540,6 +391,155 @@ void CSRManager::_processSearchKnowledgeBaseMessage(Message *message, DispatchCl
 	asynccontainer->mClient = client;
 
 	mDatabase->ExecuteSqlAsync(this, asynccontainer, "SELECT id, title FROM csr_knowledgebase WHERE body LIKE ('%s') OR title LIKE ('%s');", sql.getAnsi(), sql.getAnsi());
+}
+
+//======================================================================================================================
+
+void CSRManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
+{
+	CSRAsyncContainer* asyncContainer = (CSRAsyncContainer*)ref;
+
+	switch (asyncContainer->mQueryType)
+	{
+		case CSRQuery_Tickets:
+			{
+				uint64 count = result->getRowCount();
+
+				if (count == 1) //There should only be one result
+				{
+					Ticket* ticket = new Ticket();
+					result->GetNextRow(mTicketBinding, ticket);
+					ticket->mComment.convert(BSTRType_Unicode16);
+
+					gChatMessageLib->sendGetTicketsResponseMessage(asyncContainer->mClient, ticket);
+				}
+			}
+			break;
+
+		case CSRQuery_CommentsByTicket:
+			{
+				uint64 count = result->getRowCount();
+
+				CommentList* list = new CommentList();
+				for (int i = 0; i < count; i++)
+				{
+					Comment* comment = new Comment();
+					result->GetNextRow(mCommentBinding, comment);
+					comment->mText.convert(BSTRType_Unicode16);
+
+					list->push_back(comment);
+				}
+				gChatMessageLib->sendGetCommentsResponseMessage(asyncContainer->mClient, list);
+			}
+			break;
+
+		case CSRQuery_TicketActivity:
+			{
+				uint64 count = result->getRowCount();
+				assert(count < 2);
+
+				gMessageFactory->StartMessage();
+				gMessageFactory->addUint32(opNewTicketActivityResponseMessage);
+				gMessageFactory->addUint32((uint32)count);
+				gMessageFactory->addUint32((uint32)count);
+				Message* message = gMessageFactory->EndMessage();
+
+				asyncContainer->mClient->SendChannelA(message, asyncContainer->mClient->getAccountId(), CR_Client, 3);
+			}
+			break;
+
+		case CSRQuery_NewTicket:
+			{
+				uint64 count = result->getRowCount();
+				assert(count == 1);
+
+				uint32 id;
+				DataBinding* binding = mDatabase->CreateDataBinding(1);
+				binding->addField(DFT_uint32, 0, 4, 0);
+
+				result->GetNextRow(binding, &id);
+
+				gMessageFactory->StartMessage();
+				gMessageFactory->addUint32(opCreateTicketResponseMessage);
+				gMessageFactory->addUint32(0);
+				gMessageFactory->addUint32(id);
+				Message* message = gMessageFactory->EndMessage();
+
+				asyncContainer->mClient->SendChannelA(message, asyncContainer->mClient->getAccountId(), CR_Client, 3);
+			}
+			break;
+
+		case CSRQuery_Categories:
+			{
+				uint64 count = result->getRowCount();
+
+				for (int i = 0; i < count; i++)
+				{
+					Category* category = new Category();
+
+					result->GetNextRow(mCategoryBinding, category);
+					category->mName.convert(BSTRType_Unicode16);
+					mCategoryList.push_back(category);
+
+					CSRAsyncContainer* asContainer = new CSRAsyncContainer(CSRQuery_SubCategories);
+					asContainer->mCategory = category;
+					mDatabase->ExecuteSqlAsync(this, asContainer, "SELECT subcategory_id, name FROM csr_subcategories WHERE category_id = %u;", category->mId);
+				}
+			}
+			break;
+
+		case CSRQuery_SubCategories:
+			{
+				uint64 count = result->getRowCount();
+
+				for (int i = 0; i < count; i++)
+				{
+					SubCategory* subcategory = new SubCategory();
+
+					result->GetNextRow(mSubCategoryBinding, subcategory);
+					subcategory->mName.convert(BSTRType_Unicode16);
+					asyncContainer->mCategory->GetSubCategories()->push_back(subcategory);
+				}
+			}
+			break;
+
+		case CSRQuery_SearchKB:
+			{
+				uint64 count = result->getRowCount();
+
+				ArticleList* list = new ArticleList();
+				for (int i = 0; i < count; i++)
+				{
+					Article* article = new Article();
+					result->GetNextRow(mArticleSearchBinding, article);
+					article->mTitle.convert(BSTRType_Unicode16);
+					list->push_back(article);
+				}
+				gChatMessageLib->sendSearchKnowledgeBaseResponseMessage(asyncContainer->mClient, list);
+			}
+			break;
+
+		case CSRQuery_FullArticle:
+			{
+				uint64 count = result->getRowCount();
+
+				if (count == 1)
+				{
+					Article* article = new Article();
+					result->GetNextRow(mFullArticleBinding, article);
+					article->mBody.convert(BSTRType_Unicode16);
+					gChatMessageLib->sendGetArticleResponseMessage(asyncContainer->mClient, article);
+				}
+				else
+					gChatMessageLib->sendGetArticleResponseMessage(asyncContainer->mClient, NULL);
+
+			}
+			break;
+
+		default: break;
+	}
+
+	SAFE_DELETE(asyncContainer);
 }
 
 //======================================================================================================================

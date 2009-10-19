@@ -29,6 +29,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Utils/utils.h"
 #include "Utils/Timer.h"
 
+#include <boost/lexical_cast.hpp>
+
+#include <cstring>
 #include <ctime>
 
 bool						TradeManagerChatHandler::mInsFlag    = false;
@@ -911,7 +914,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
 					auctionTemp->BidderID=0;
 
 					result->GetNextRow(binding,auctionTemp);
-					auctionTemp->BidderID=_atoi64(auctionTemp->BidderIDRaw);
+					auctionTemp->BidderID=boost::lexical_cast<uint64>(auctionTemp->BidderIDRaw);
 					processAuctionEMails(auctionTemp);
 
 					mAuction.push_back(auctionTemp);

@@ -25,7 +25,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "Common/MessageDispatch.h"
 #include "Common/MessageFactory.h"
 
-#include <math.h>
+#include <cmath>
 #include <cassert>
 
 void ChatMessageLib::sendChatPersistantMessagetoClient(DispatchClient* client,Mail* mail,uint32 mailId,uint32 mailCounter,uint8 status) const

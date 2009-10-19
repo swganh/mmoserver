@@ -36,6 +36,8 @@ Copyright (c) 2006 - 2009 The swgANH Team
 
 #include <boost/thread/thread.hpp>
 
+#include <cstring>
+
 //======================================================================================================================
 
 ChatServer* gChatServer;

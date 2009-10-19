@@ -15,7 +15,6 @@ Copyright (c) 2006, 2007 The swgANH Team
 #include "ChatOpcodes.h"
 #include "GroupManager.h"
 #include "GroupObject.h"
-#include "Math.h"
 #include "Player.h"
 
 #include "LogManager/LogManager.h"
@@ -27,7 +26,7 @@ Copyright (c) 2006, 2007 The swgANH Team
 
 #include "Utils/utils.h"
 
-
+#include <cmath>
 
 //======================================================================================================================
 

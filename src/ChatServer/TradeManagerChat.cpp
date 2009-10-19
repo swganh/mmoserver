@@ -11,7 +11,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "ChatOpcodes.h"
 #include "Mail.h"
 #include "Player.h"
-#include "TradeManagerchat.h"
+#include "TradeManagerChat.h"
 
 #include "ZoneServer/TangibleEnums.h"
 

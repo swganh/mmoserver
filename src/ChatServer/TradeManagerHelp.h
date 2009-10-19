@@ -16,7 +16,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include <vector>
 
 #include "Utils/typedefs.h"
-
+#include "ZoneServer/TradeManager.h"
 class DispatchClient;
 
 //======================================================================================================================

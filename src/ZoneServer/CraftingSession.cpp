@@ -38,6 +38,9 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "DatabaseManager/DataBinding.h"
 
 #include "Utils/clock.h"
+
+#include <boost/lexical_cast.hpp>
+
 //=============================================================================
 //
 // initiates a crafting session, we usually start at stage 1
@@ -62,7 +65,7 @@ mCriticalCount(0)
 	mOwner->setExperimentationFlag(mExpFlag);
 	mOwner->setExperimentationPoints(0);
 
-	
+
 	// the station given is the crafting station compatible with our tool in a set radius
 	//
 	if(station)
@@ -80,7 +83,7 @@ mCriticalCount(0)
 	gMessageLib->sendUpdateExperimentationPoints(mOwner);
 	gMessageLib->sendDraftSchematicsList(mTool,mOwner);
 	mToolEffectivity = mTool->getAttribute<float>("craft_tool_effectiveness");
-		
+
 
 }
 
@@ -128,7 +131,7 @@ void CraftingSession::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 			binding->addField(DFT_uint32,0,4);
 
 			uint32 count = static_cast<uint32>(result->getRowCount());
-			
+
 			mOwnerExpSkillMod = 0;
 			if(count)
 			{
@@ -146,7 +149,7 @@ void CraftingSession::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 						mOwnerExpSkillMod = resultInt;
 					}
 				}
-	
+
 				mOwner->setExperimentationPoints(mOwnerExpSkillMod / 10);
 				gMessageLib->sendUpdateExperimentationPoints(mOwner);
 			}
@@ -159,10 +162,10 @@ void CraftingSession::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 
 			int8 sql[550];
 			sprintf(sql,"SELECT DISTINCT skills_skillmods.skillmod_id FROM draft_schematics INNER JOIN skills_schematicsgranted ON draft_schematics.group_id = skills_schematicsgranted.schem_group_id INNER JOIN skills_skillmods ON skills_schematicsgranted.skill_id = skills_skillmods.skill_id INNER JOIN skillmods ON skills_skillmods.skillmod_id = skillmods.skillmod_id WHERE draft_schematics.weightsbatch_id = %u AND skillmods.skillmod_name LIKE %s",groupId,"'%%asse%%'");
-		
+
 			mDatabase->ExecuteSqlAsyncNoArguments(this,container,sql);
 			//mDatabase->ExecuteSqlAsync(this,container,sql);
-		
+
 
 		}
 		break;
@@ -174,7 +177,7 @@ void CraftingSession::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 			binding->addField(DFT_uint32,0,4);
 
 			uint32 count = static_cast<uint32>(result->getRowCount());
-			
+
 			mOwnerAssSkillMod = 0;
 			if(count)
 			{
@@ -193,9 +196,9 @@ void CraftingSession::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 						mOwnerAssSkillMod = resultInt;
 					}
 				}
-	
+
 			}
-			
+
 
 			mDatabase->DestroyDataBinding(binding);
 
@@ -206,7 +209,7 @@ void CraftingSession::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 			int8 sql[550];
 			sprintf(sql,"SELECT dsc.attribute, dsc.cust_attribute, dsc.palette_size, dsc.default_value FROM draft_schematic_customization dsc WHERE dsc.batchId = %u",groupId);
 			mDatabase->ExecuteSqlAsync(this,container,sql);
-			
+
 
 		}
 		break;
@@ -220,28 +223,28 @@ void CraftingSession::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 			binding->addField(DFT_uint32,offsetof(CustomizationOption,defaultValue),4,3);
 
 			uint32 count = static_cast<uint32>(result->getRowCount());
-			
+
 			for(uint32 i = 0;i<count;i++)
 			{
 				CustomizationOption* cO = new(CustomizationOption);
 				result->GetNextRow(binding,cO);
-			
+
 				cO->paletteSize =  (uint32)(cO->paletteSize /200)* getCustomization();
-		
+
 				mManufacturingSchematic->mCustomizationList.push_back(cO);
 			}
 			mDatabase->DestroyDataBinding(binding);
 
 			// lets move on to stage 2, send the updates
-		
+
 
 			gMessageLib->sendCreateManufacturingSchematic(mManufacturingSchematic,mOwner);
 			gMessageLib->sendCreateTangible(mItem,mOwner);
 			gMessageLib->sendManufactureSlots(mManufacturingSchematic,mTool,mItem,mOwner);
 			gMessageLib->sendUpdateCraftingStage(mOwner);
 			gMessageLib->sendBaselinesMSCO_7(mManufacturingSchematic,mOwner);
-		
-		
+
+
 		}
 		break;
 
@@ -265,7 +268,7 @@ void CraftingSession::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 
 				mTool->setAttribute("craft_tool_status","@crafting:tool_status_working");
 				mDatabase->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='@crafting:tool_status_working' WHERE item_id=%lld AND attribute_id=18",mTool->getId());
-				
+
 				gMessageLib->sendUpdateTimer(mTool,mOwner);
 				gWorldManager->addBusyCraftTool(mTool);
 
@@ -306,7 +309,7 @@ void CraftingSession::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 		}
 		break;
 
-		default: 
+		default:
 		{
 			//gLogger->logMsg("CraftSession: unhandled DatabaseQuery");
 			gLogger->logErrorF("Crafting","CraftSession: unhandled DatabaseQuery",MSG_NORMAL);
@@ -321,7 +324,7 @@ void CraftingSession::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 
 void CraftingSession::handleObjectReady(Object* object,DispatchClient* client)
 {
-	
+
 	Item* item = dynamic_cast<Item*>(object);
 
 	// its the manufacturing schematic
@@ -351,16 +354,16 @@ void CraftingSession::handleObjectReady(Object* object,DispatchClient* client)
 		CraftSessionQueryContainer* container = new CraftSessionQueryContainer(CraftSessionQuery_SkillmodExp,0);
 		uint32 groupId = mDraftSchematic->getWeightsBatchId();
 
-		
+
 		int8 sql[550];
 		sprintf(sql,"SELECT DISTINCT skills_skillmods.skillmod_id FROM draft_schematics INNER JOIN skills_schematicsgranted ON draft_schematics.group_id = skills_schematicsgranted.schem_group_id INNER JOIN skills_skillmods ON skills_schematicsgranted.skill_id = skills_skillmods.skill_id INNER JOIN skillmods ON skills_skillmods.skillmod_id = skillmods.skillmod_id WHERE draft_schematics.weightsbatch_id = %u AND skillmods.skillmod_name LIKE %s",groupId,"'%%exper%%'");
-		
+
 		//% just upsets the standard query
 		mDatabase->ExecuteSqlAsyncNoArguments(this,container,sql);
 		//mDatabase->ExecuteSqlAsync(this,container,sql);
-		
-		
-		
+
+
+
 	}
 }
 
@@ -479,7 +482,7 @@ void CraftingSession::handleFillSlot(uint64 resContainerId,uint32 slotId,uint32 
 	ManufactureSlot*	manSlot			= mManufacturingSchematic->getManufactureSlots()->at(slotId);
 
 	//4 is resource
-	//2 is identical component 
+	//2 is identical component
 	//5 is similar component
 
 	if (manSlot->mDraftSlot->getType() == SlotIndicator_Resource)
@@ -510,10 +513,10 @@ uint32 CraftingSession::getComponentSerial(ManufactureSlot*	manSlot, Inventory* 
 			filledSerial = filledComponent->getAttribute<std::string>("serial").c_str();
 		else
 			filledSerial ="";
-		
+
 		return(filledSerial.getCrc());
 		++filledResIt;
-	
+
 	}
 	return(0);
 }
@@ -572,7 +575,7 @@ bool CraftingSession::AdjustComponentStack(Item* item, Inventory* inventory, uin
 void CraftingSession::handleFillSlotComponent(uint64 componentId,uint32 slotId,uint32 unknown,uint8 counter)
 {
 
-	ManufactureSlot*	manSlot			= mManufacturingSchematic->getManufactureSlots()->at(slotId);	
+	ManufactureSlot*	manSlot			= mManufacturingSchematic->getManufactureSlots()->at(slotId);
 
 	Inventory* inventory = dynamic_cast<Inventory*>(mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 
@@ -589,14 +592,14 @@ void CraftingSession::handleFillSlotComponent(uint64 componentId,uint32 slotId,u
 	string				filledSerial	= "";
 
 	Item*		component	= dynamic_cast<Item*>(inventory->getObjectById(componentId));
-	
+
 	if(component->hasAttribute("serial"))
 		componentSerial = component->getAttribute<std::string>("serial").c_str();
 
-						 	
+
 //	bool resourceBool = false;
 	bool smallupdate = false;
-	
+
 	if((!component) || (!manSlot))
 	{
 		gMessageLib->sendCraftAcknowledge(opCraftFillSlot,CraftError_Ingredient_Not_In_Inventory,counter,mOwner);
@@ -606,11 +609,11 @@ void CraftingSession::handleFillSlotComponent(uint64 componentId,uint32 slotId,u
 	// components need the same serial
 	// see if something is filled already
 	FilledResources::iterator filledResIt = manSlot->mFilledResources.begin();
-	
+
 	//get the amount of already filled components
 	while(filledResIt != manSlot->mFilledResources.end())
 	{
-		
+
 		existingAmount += (*filledResIt).second;
 		++filledResIt;
 	}
@@ -632,7 +635,7 @@ void CraftingSession::handleFillSlotComponent(uint64 componentId,uint32 slotId,u
 		// add to the already filled components
 
 		filledResIt				= manSlot->mFilledResources.begin();
-		
+
 		if(manSlot->mFilledResources.size()&&(getComponentSerial(manSlot, inventory) == componentSerial.getCrc()))
 		{
 			manSlot->mFilledResources.push_back(std::make_pair(component->getId(),totalNeededAmount));
@@ -652,20 +655,20 @@ void CraftingSession::handleFillSlotComponent(uint64 componentId,uint32 slotId,u
 		{
 			//resourceBool = true;
 			// only allow one unique type
-			
+
 			manSlot->mFilledResources.push_back(std::make_pair(component->getId(),totalNeededAmount));
 			manSlot->setmFilledIndicator(manSlot->mDraftSlot->getType());
 			manSlot->mFilledIndicatorChange = true;
 			//link it to the schematic ?
-	
+
 		}
-	
+
 		if(!AdjustComponentStack(component,inventory,totalNeededAmount))
 		{
 			gMessageLib->sendCraftAcknowledge(opCraftFillSlot,CraftError_Internal_Invalid_Ingredient_Size,counter,mOwner);
 			return;
 		}
-		
+
 
 		// update the slot total resource amount
 		manSlot->mFilled = manSlot->mDraftSlot->getAmount();
@@ -700,11 +703,11 @@ void CraftingSession::handleFillSlotComponent(uint64 componentId,uint32 slotId,u
 		else
 		if(manSlot->mFilledResources.empty())
 		{
-			
+
 			manSlot->mFilledResources.push_back(std::make_pair(componentId,availableAmount));
 			manSlot->setmFilledIndicator(manSlot->mDraftSlot->getType());
 			manSlot->mFilledIndicatorChange = true;
-			
+
 		}
 
 		if(!AdjustComponentStack(component,inventory,totalNeededAmount))
@@ -715,7 +718,7 @@ void CraftingSession::handleFillSlotComponent(uint64 componentId,uint32 slotId,u
 
 		// update the slot total resource amount
 		manSlot->mFilled += availableAmount;
-		
+
 	}
 
 	// update the slot contents, send all slots on first fill
@@ -731,11 +734,11 @@ void CraftingSession::handleFillSlotComponent(uint64 componentId,uint32 slotId,u
 	else
 	{
 		gMessageLib->sendManufactureSlotUpdate(mManufacturingSchematic,static_cast<uint8>(slotId),mOwner);
-	}		
+	}
 
 	// done
 	gMessageLib->sendCraftAcknowledge(opCraftFillSlot,CraftError_None,counter,mOwner);
-	
+
 }
 
 //=============================================================================
@@ -747,7 +750,7 @@ void CraftingSession::handleFillSlotResource(uint64 resContainerId,uint32 slotId
 {
 	// update resource container
 	ResourceContainer*	resContainer	= dynamic_cast<ResourceContainer*>(gWorldManager->getObjectById(resContainerId));
-	ManufactureSlot*	manSlot			= mManufacturingSchematic->getManufactureSlots()->at(slotId);	
+	ManufactureSlot*	manSlot			= mManufacturingSchematic->getManufactureSlots()->at(slotId);
 
 	//bool resourceBool = false;
 	bool smallupdate = false;
@@ -762,7 +765,7 @@ void CraftingSession::handleFillSlotResource(uint64 resContainerId,uint32 slotId
 
 		while(filledResIt != manSlot->mFilledResources.end())
 		{
-			
+
 			existingAmount += (*filledResIt).second;
 			++filledResIt;
 		}
@@ -784,7 +787,7 @@ void CraftingSession::handleFillSlotResource(uint64 resContainerId,uint32 slotId
 			// add to the filled resources
 			uint64 containerResId	= resContainer->getResourceId();
 			filledResIt				= manSlot->mFilledResources.begin();
-			
+
 			while(filledResIt != manSlot->mFilledResources.end())
 			{
 				// already got something of that type filled
@@ -818,7 +821,7 @@ void CraftingSession::handleFillSlotResource(uint64 resContainerId,uint32 slotId
 					return;
 				}
 			}
-		
+
 			// update the container amount
 			uint32 newContainerAmount = availableAmount - totalNeededAmount;
 
@@ -827,8 +830,8 @@ void CraftingSession::handleFillSlotResource(uint64 resContainerId,uint32 slotId
 			{
 				//now destroy it client side
 				gMessageLib->sendDestroyObject(resContainerId,mOwner);
-				
-				
+
+
 				gObjectFactory->deleteObjectFromDB(resContainer);
 				dynamic_cast<Inventory*>(mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->deleteObject(resContainer);
 			}
@@ -909,7 +912,7 @@ void CraftingSession::handleFillSlotResource(uint64 resContainerId,uint32 slotId
 		else
 		{
 			gMessageLib->sendManufactureSlotUpdate(mManufacturingSchematic,static_cast<uint8>(slotId),mOwner);
-		}		
+		}
 
 		// done
 		gMessageLib->sendCraftAcknowledge(opCraftFillSlot,CraftError_None,counter,mOwner);
@@ -946,7 +949,7 @@ void CraftingSession::bagComponents(ManufactureSlot* manSlot,uint64 containerId)
 			return;
 		}
 		mManufacturingSchematic->removeData((*resIt).first);
-		
+
 		//add to inventory
 		inventory->addObject(filledComponent);
 
@@ -956,7 +959,7 @@ void CraftingSession::bagComponents(ManufactureSlot* manSlot,uint64 containerId)
 		resIt++;
 
 	}
-	
+
 }
 
 //=============================================================================
@@ -970,12 +973,12 @@ void CraftingSession::bagResource(ManufactureSlot* manSlot,uint64 containerId)
 	//iterates through the slots filled resources
 	//respectively create a new one if necessary
 
-	//TODO : what happens if the container is full ? 
-	
+	//TODO : what happens if the container is full ?
+
 	FilledResources::iterator resIt = manSlot->mFilledResources.begin();
-	
+
 	manSlot->setmFilledIndicator(0);
-	
+
 	while(resIt != manSlot->mFilledResources.end())
 	{
 		uint32 amount = (*resIt).second;
@@ -1038,7 +1041,7 @@ void CraftingSession::bagResource(ManufactureSlot* manSlot,uint64 containerId)
 
 		++resIt;
 	}
-	
+
 }
 
 //=============================================================================
@@ -1056,7 +1059,7 @@ void CraftingSession::emptySlot(uint32 slotId,ManufactureSlot* manSlot,uint64 co
 		bagResource(manSlot,containerId);
 	else
 		bagComponents(manSlot,containerId);
-	
+
 	// update the slot
 	manSlot->mFilledResources.clear();
 	manSlot->setmFilledIndicator(SlotIndicator_None);
@@ -1075,7 +1078,7 @@ void CraftingSession::emptySlot(uint32 slotId,ManufactureSlot* manSlot,uint64 co
 		gMessageLib->sendManufactureSlotUpdate(mManufacturingSchematic,static_cast<uint8>(slotId),mOwner);
 	}
 }
- 
+
 //=============================================================================
 
 void CraftingSession::handleEmptySlot(uint32 slotId,uint64 containerId,uint8 counter)
@@ -1104,7 +1107,7 @@ uint8 CraftingSession::_assembleRoll()
 
 	int32 assRoll;
 	int32 riskRoll;
-	
+
 	float ma		= _calcAverageMalleability();
 
 	// make sure the values are valid and dont crash us
@@ -1113,20 +1116,20 @@ uint8 CraftingSession::_assembleRoll()
 		mOwnerAssSkillMod = 0;
 	}
 
-	
+
 	float rating	= 50.0f + (ma - 500.0f) / 40.0f +  mOwnerAssSkillMod - 5.0f + (mToolEffectivity/10);
 	//gLogger->logMsgF("CraftingSession:: relevant rating %f",MSG_NORMAL,rating);
 	gLogger->logErrorF("Crafting","CraftingSession::_assembleRoll() relevant rating %f",MSG_NORMAL,rating);
-	
+
 	rating	+= (mToolEffectivity/10);
-	
+
 	gLogger->logErrorF("Crafting","CraftingSession::_assembleRoll() relevant rating modified with tool %f",MSG_NORMAL,rating);
 
 	float risk		= 100.0f - rating;
-	
+
 	gLogger->logErrorF("Crafting","CraftingSession::_assembleRoll() relevant Skill Mod %u",MSG_NORMAL,mOwnerAssSkillMod);
 	gLogger->logErrorF("Crafting","CraftingSession::_assembleRoll() relevant risk %f",MSG_NORMAL,risk);
-	
+
 
 	mManufacturingSchematic->setExpFailureChance(risk);
 
@@ -1139,10 +1142,10 @@ uint8 CraftingSession::_assembleRoll()
 	// we dont want to have more than 3 criticals in a row
 
 	gLogger->logErrorF("Crafting","CraftingSession::_assembleRoll() relevant criticalCount %u",MSG_NORMAL,mCriticalCount);
-	
+
 	riskRoll += (mCriticalCount*5);
 	gLogger->logErrorF("Crafting","CraftingSession::_assembleRoll() modified riskroll %u",MSG_NORMAL,riskRoll);
-	
+
 	if(mCriticalCount = 3)
 		riskRoll = static_cast<uint32>(risk+1);
 
@@ -1161,7 +1164,7 @@ uint8 CraftingSession::_assembleRoll()
 	//gLogger->logMsgF("CraftingSession:: assembly Roll preMod %u",MSG_NORMAL,assRoll);
 
 	int32 modRoll = static_cast<uint32>(((assRoll - (rating * 0.4f)) / 15.0f) - (mToolEffectivity / 50.0f));
-	
+
 	//gLogger->logMsgF("CraftingSession:: assembly Roll postMod %u",MSG_NORMAL,modRoll);
 
 	//0 is amazing success
@@ -1173,7 +1176,7 @@ uint8 CraftingSession::_assembleRoll()
 	//6 ok
 	//7 barely succesfull
 	//8 critical failure
-	
+
 	// make sure we are in valid range
 	if(modRoll < 0)
 		modRoll = 0;
@@ -1195,10 +1198,10 @@ uint8 CraftingSession::_assembleRoll()
 
 void CraftingSession::addComponentAttribute()
 {
-	// attributemanipulation through a component might be 
+	// attributemanipulation through a component might be
 	// 1) the manipulation of an attributes value
 	// 2) the addition of an attribute
-	
+
 
 	//iterate through all Slots - in case we have several components in ONE slot only the attributes of one component apply
 	uint8 amount = mManufacturingSchematic->getManufactureSlots()->size();
@@ -1212,7 +1215,7 @@ void CraftingSession::addComponentAttribute()
 			//in case a slot is not obligate it might be empty
 			if(manSlot->mFilledResources.empty())
 				continue;
-			
+
 			//in case a slot has several components in it were just interested in the first
 			//that at least one item is in it we already established
 			FilledResources::iterator resIt = manSlot->mFilledResources.begin();
@@ -1253,23 +1256,23 @@ void CraftingSession::addComponentAttribute()
 					{
 						gLogger->logMsgF("CraftingSession::addComponentAttribute AttributePPME_AddValue",MSG_NORMAL);
 						gLogger->logMsgF("CraftingSession::addComponentAttribute %s will affect %S",MSG_NORMAL,(*cAPPiT)->getAttributeKey().getAnsi() ,(*cAPPiT)->getAffectedAttributeKey().getAnsi() );
-						
+
 						// add the attribute (to the schematic) if it doesnt exist already to the relevant list for storage
 						// on sending the msco deltas respective producing the final items the values will be added to the attributes
 						if(mManufacturingSchematic->hasPPAttribute((*cAPPiT)->getAffectedAttributeKey()))
 						{
 							float attributeValue = filledComponent->getAttribute<float>((*cAPPiT)->getAttributeKey());
 							float attributeAddValue = mManufacturingSchematic->getPPAttribute<float>((*cAPPiT)->getAffectedAttributeKey());
-							
+
 							mManufacturingSchematic->setPPAttribute((*cAPPiT)->getAffectedAttributeKey(),boost::lexical_cast<std::string>(attributeValue+attributeAddValue));
 						}
-						
+
 						if(!mManufacturingSchematic->hasPPAttribute((*cAPPiT)->getAffectedAttributeKey()))
 						{
 							std::string attributeValue = filledComponent->getAttribute<std::string>((*cAPPiT)->getAttributeKey());
 							mManufacturingSchematic->addPPAttribute((*cAPPiT)->getAffectedAttributeKey(),attributeValue);
 						}
-						
+
 					}
 					else
 					{
@@ -1282,7 +1285,7 @@ void CraftingSession::addComponentAttribute()
 				{
 					// just add our Attribute to the item and take over the value
 					// In case the attribute exists it might already have been added by another component
-					
+
 					if(!mItem->hasAttribute( (*cAPPiT)->getAffectedAttributeKey() ))
 					{
 						std::string attributeValue = filledComponent->getAttribute<std::string>((*cAPPiT)->getAttributeKey());
@@ -1291,12 +1294,12 @@ void CraftingSession::addComponentAttribute()
 
 					if(mItem->hasAttribute( (*cAPPiT)->getAffectedAttributeKey() ))
 					{
-						
+
 						float attributeValue = mItem->getAttribute<float>((*cAPPiT)->getAffectedAttributeKey());
 						float attributeAddValue = filledComponent->getAttribute<float>((*cAPPiT)->getAttributeKey());
-							
+
 						mItem->setAttribute((*cAPPiT)->getAffectedAttributeKey(),boost::lexical_cast<std::string>(attributeValue+attributeAddValue));
-						
+
 					}
 
 				}
@@ -1305,8 +1308,8 @@ void CraftingSession::addComponentAttribute()
 				cAPPiT++;
 			}
 
-			
-	
+
+
 
 		}
 	}
@@ -1342,7 +1345,7 @@ void CraftingSession::assemble(uint32 counter)
 		while(expIt!= expPropertiesList->end())
 		{
 			(*expIt)->mBlueBarSize = ((*expIt)->mBlueBarSize * 0.9f);
-			
+
 			++expIt;
 		}
 
@@ -1363,7 +1366,7 @@ void CraftingSession::assemble(uint32 counter)
 			}
 		}
 		// done
-		
+
 
 		gMessageLib->sendGenericIntResponse(assRoll,static_cast<uint8>(counter),mOwner);
 		return;
@@ -1374,19 +1377,19 @@ void CraftingSession::assemble(uint32 counter)
 
 	// ---------------------------------------------
 	// if we have components which add attributes these should now be added to the item
-		
+
 	addComponentAttribute();
 
 	mOwner->setCraftingStage(mStage);
 	gMessageLib->sendUpdateCraftingStage(mOwner);
-	
-	
+
+
 	// update item complexity
 	mItem->setComplexity(static_cast<float>(mDraftSchematic->getComplexity()));
 	gMessageLib->sendUpdateComplexity(mItem,mOwner);
 
 	// calc initial assembly percentages
-	
+
 	float	wrv;
 
 	expIt	= expPropertiesList->begin();
@@ -1407,7 +1410,7 @@ void CraftingSession::assemble(uint32 counter)
 		mManufacturingSchematic->mMaxExpValueChange = true;
 
 		// initial assembly percentage
-		expProperty->mExpAttributeValue = ((0.00000015f * (wrv*wrv)) + (0.00015f * wrv)); 
+		expProperty->mExpAttributeValue = ((0.00000015f * (wrv*wrv)) + (0.00015f * wrv));
 
 		// update the items attributes
 		CraftAttributes::iterator caIt = expProperty->mAttributes->begin();
@@ -1429,7 +1432,7 @@ void CraftingSession::assemble(uint32 counter)
 					float attributeAddValue = mManufacturingSchematic->getPPAttribute<float>(att->getAttributeKey());
 					intAtt = (int32)(ceil(attributeAddValue));
 				}
-				
+
 				intAtt += (int32)(ceil(attValue));
 
 				mItem->setAttribute(att->getAttributeKey(),boost::lexical_cast<std::string>(intAtt));
@@ -1484,7 +1487,7 @@ void CraftingSession::creationStage(uint32 counter)
 	mOwner->setCraftingStage(mStage);
 	gMessageLib->sendUpdateCraftingStage(mOwner);
 
-	gMessageLib->sendGenericIntResponse(4,static_cast<uint8>(counter),mOwner);	
+	gMessageLib->sendGenericIntResponse(4,static_cast<uint8>(counter),mOwner);
 }
 
 //=============================================================================
@@ -1496,7 +1499,7 @@ void CraftingSession::experimentationStage(uint32 counter)
 	mOwner->setCraftingStage(mStage);
 	gMessageLib->sendUpdateCraftingStage(mOwner);
 
-	gMessageLib->sendGenericIntResponse(4,static_cast<uint8>(counter),mOwner);	
+	gMessageLib->sendGenericIntResponse(4,static_cast<uint8>(counter),mOwner);
 }
 
 //=============================================================================
@@ -1529,7 +1532,7 @@ string CraftingSession::getSerial()
 
 			if((u < 48)||(u >122))
 				found = false;
-			
+
 		}
 		chance[i] = u;
 		found = false;
@@ -1574,7 +1577,7 @@ void CraftingSession::createPrototype(uint32 noPractice,uint32 counter)
 		else
 		{
 			mItem->addAttribute("crafter",mOwner->getFirstName().getAnsi());
-		
+
 			sprintf(sql,"INSERT INTO item_attributes VALUES(%I64u,%u,'",mItem->getId(),AttrType_crafter);
 			sqlPointer = sql + strlen(sql);
 			sqlPointer += mDatabase->Escape_String(sqlPointer,mOwner->getFirstName().getAnsi(),mOwner->getFirstName().getLength());
@@ -1593,7 +1596,7 @@ void CraftingSession::createPrototype(uint32 noPractice,uint32 counter)
 			mItem->setAttribute("serial_number",serial.getAnsi());
 			sprintf(sql,"UPDATE item_attributes SET value='%s' WHERE item_id=%lld AND attribute_id=%u",serial.getAnsi(),mItem->getId(),AttrType_serial_number);
 		}
-		else		
+		else
 		{
 
 			sprintf(sql,"INSERT INTO item_attributes VALUES(%I64u,%u,'",mItem->getId(),AttrType_serial_number);
@@ -1603,7 +1606,7 @@ void CraftingSession::createPrototype(uint32 noPractice,uint32 counter)
 			strcat(sql,restStr);
 			mItem->addAttribute("serial_number",serial.getAnsi());
 		}
-		
+
 		t->addQuery(sql);
 		t->execute();
 
@@ -1651,7 +1654,7 @@ uint8 CraftingSession::_experimentRoll(uint32 expPoints)
 
 	int32 assRoll;
 	int32 riskRoll;
-	
+
 	float ma		= _calcAverageMalleability();
 
 	float rating	= 50.0f + (ma - 500.0f) / 40.0f +  assMod - (5.0f * expPoints);
@@ -1664,20 +1667,20 @@ uint8 CraftingSession::_experimentRoll(uint32 expPoints)
 	{
 		//ok we have some sort of failure
 		assRoll = (int32)(floor((double)gRandom->getRand() / (RAND_MAX  + 1.0f) * (100.0f - 1.0f) + 1.0f));
-		
+
 		int32 modRoll = (int32)(floor((double)(assRoll / 25)) + 4);
-		
+
 		if(modRoll < 4)
 			modRoll = 4;
 
 		else if(modRoll > 8)
 			modRoll = 8;
-		
+
 		return static_cast<uint8>(modRoll);
 	}
 
 	mManufacturingSchematic->setExpFailureChance(risk);
-	
+
 	//ok we have some sort of success
 	assRoll = (int32) floor( (double)gRandom->getRand() / (RAND_MAX  + 1.0f) * (100.0f - 1.0f) + 1.0f) ;
 
@@ -1699,8 +1702,8 @@ uint8 CraftingSession::_experimentRoll(uint32 expPoints)
 	//6 moderate failure
 	//7 big failure
 	//8 critical failure
-	
-	
+
+
 	// make sure we are in valid range
 	if(modRoll < 0)
 		modRoll = 0;
@@ -1722,17 +1725,17 @@ void CraftingSession::experiment(uint8 counter,std::vector<std::pair<uint32,uint
 	ExperimentationProperties*			expAllProps = mManufacturingSchematic->getExperimentationProperties();
 	ExperimentationProperties::iterator itAll =	 expAllProps->begin();
 
-	
-	
+
+
 	uint32				expPoints = 0;
 
 	//this is the list containing the assigned experimentation points
 	std::vector<std::pair<uint32,uint32> >::iterator it = properties.begin();
-	
+
 	// collect the total of spend exp points
 	while(it != properties.end())
 	{
-		expPoints +=(*it).first; 
+		expPoints +=(*it).first;
 
 		++it;
 	}
@@ -1768,24 +1771,24 @@ void CraftingSession::experiment(uint8 counter,std::vector<std::pair<uint32,uint
 			gLogger->logMsgF("CraftingSession:: expProperty is a Virgin!",MSG_NORMAL);
 			// get our Roll and take into account the relevant modifiers
 			roll			= _experimentRoll(expPoints);
-			
+
 			// now go through all properties and mark them when its this one!
 			// so we dont experiment two times on it!
 			itAll =	 expAllProps->begin();
 			while(itAll != expAllProps->end())
 			{
 				ExperimentationProperty* tempProperty = (*itAll);
-				
+
 				gLogger->logMsgF("CraftingSession:: now testing expProperty : %s",MSG_NORMAL,tempProperty->mExpAttributeName.getAnsi());
 				if(expProperty->mExpAttributeName.getCrc() == tempProperty->mExpAttributeName.getCrc())
 				{
 					gLogger->logMsgF("CraftingSession:: yay :) lets assign it our roll : %u",MSG_NORMAL,roll);
 					tempProperty->mRoll = roll;
 				}
-				
+
 				itAll++;
 			}
-			
+
 		}
 		else
 		{
@@ -1793,7 +1796,7 @@ void CraftingSession::experiment(uint8 counter,std::vector<std::pair<uint32,uint
 			gLogger->logMsgF("CraftingSession:: experiment expProperty isnt a virgin anymore ...(roll:%u)",MSG_NORMAL,roll);
 		}
 
-		
+
 		accumulatedRoll += roll;
 		rollCount++;
 		float percentage	= 0.0f;
@@ -1830,11 +1833,11 @@ void CraftingSession::experiment(uint8 counter,std::vector<std::pair<uint32,uint
 		while(caIt != expProperty->mAttributes->end())
 		{
 			CraftAttribute* att = (*caIt);
-			
+
 			//gLogger->logMsgF("CraftingSession:: experiment attribute ID %u",MSG_NORMAL,att->getAttributeId());
 
 			float attValue	= att->getMin() + ((att->getMax() - att->getMin()) * expProperty->mExpAttributeValue);
-			
+
 			if(attValue > att->getMax())
 				attValue = att->getMax();
 
@@ -1849,9 +1852,9 @@ void CraftingSession::experiment(uint8 counter,std::vector<std::pair<uint32,uint
 					float attributeAddValue = mManufacturingSchematic->getPPAttribute<float>(att->getAttributeKey());
 					intAtt = (int32)(ceil(attributeAddValue));
 				}
-				
+
 				intAtt += (int32)(ceil(attValue));
-			
+
 				mItem->setAttribute(att->getAttributeKey(),boost::lexical_cast<std::string>(intAtt));
 				mDatabase->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%i' WHERE item_id=%lld AND attribute_id=%u",intAtt,mItem->getId(),att->getAttributeId());
 			}
@@ -1879,7 +1882,7 @@ void CraftingSession::experiment(uint8 counter,std::vector<std::pair<uint32,uint
 
 	// get the gross of our exp rolls for the message
 	roll = (uint8)   accumulatedRoll/rollCount;
-	
+
 	// update left exp points
 	mOwner->setExperimentationPoints(mOwner->getExperimentationPoints() - expPoints);
 
@@ -1921,7 +1924,7 @@ float CraftingSession::_calcAverageMalleability()
 
 		// we limit it so that only the same resource can go into one slot, so grab only the first entry
 		filledResIt		= manSlot->mFilledResources.begin();
-		
+
 		if(manSlot->mFilledResources.empty())
 		{
 			//in case we can leave resource slots optionally emptymanSlot->mFilledResources
@@ -1930,7 +1933,7 @@ float CraftingSession::_calcAverageMalleability()
 		}
 
 		resource		= gResourceManager->getResourceById((*filledResIt).first);
-		
+
 		resAtt			+= resource->getAttribute(ResAttr_MA);
 
 		++slotCount;
@@ -2053,12 +2056,12 @@ void CraftingSession::createManufactureSchematic(uint32 counter)
 	map = mManufacturingSchematic->getInternalAttributeMap();
 	map->empty();
 
-	AttributeOrderList*	list = 	mManufacturingSchematic->getAttributeOrder(); 
+	AttributeOrderList*	list = 	mManufacturingSchematic->getAttributeOrder();
 	list->empty();
 
 	mDatabase->ExecuteSqlAsync(0,0,"DELETE FROM item_attributes WHERE item_id=%I64u",mManufacturingSchematic->getId());
-	
-	
+
+
 	//save the datapad as the Owner Id in the db
 	mDatabase->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id=%I64u WHERE id=%lld",datapad->getId(),mManufacturingSchematic->getId());
 
@@ -2068,7 +2071,7 @@ void CraftingSession::createManufactureSchematic(uint32 counter)
 		sqlPointer = sql + strlen(sql);
 		sqlPointer += mDatabase->Escape_String(sqlPointer,mItem->getCustomName().getAnsi(),mItem->getCustomName().getLength());
 		sprintf(restStr,"' WHERE id=%lld ",mManufacturingSchematic->getId());
-		
+
 	strcat(sql,restStr);
 
 	mDatabase->ExecuteSqlAsync(0,0,sql);
@@ -2083,12 +2086,12 @@ void CraftingSession::createManufactureSchematic(uint32 counter)
 	//add datapadsize
 	//data size - hardcode to 1 for now
 	//244 is id of attribute data_volume!!!
-	mManufacturingSchematic->addAttribute("data_volume","1");	
+	mManufacturingSchematic->addAttribute("data_volume","1");
 	sprintf(sql,"INSERT INTO item_attributes VALUES(%I64u,244,'1',0,0)",mManufacturingSchematic->getId());
 	mDatabase->ExecuteSqlAsync(0,0,sql);
 
 	//add creator
-	mItem->addAttribute("crafter",mOwner->getFirstName().getAnsi());	
+	mItem->addAttribute("crafter",mOwner->getFirstName().getAnsi());
 	sprintf(sql,"INSERT INTO item_attributes VALUES(%I64u,17,'%s',0,0)",mItem->getId(),mOwner->getFirstName().getAnsi());
 	mDatabase->ExecuteSqlAsync(0,0,sql);
 
@@ -2104,9 +2107,9 @@ void CraftingSession::createManufactureSchematic(uint32 counter)
 	CheckResources::iterator checkResIt = checkRes.begin();
 	string			name;
 	while(manIt != mManufacturingSchematic->getManufactureSlots()->end())
-	{		
+	{
 		//is it a resource??
-	
+
 		if((*manIt)->mDraftSlot->getType() == 4)
 		{
 			//get resource name and amount
@@ -2114,7 +2117,7 @@ void CraftingSession::createManufactureSchematic(uint32 counter)
 
 			FilledResources::iterator filledResIt = (*manIt)->mFilledResources.begin();
 			uint64 resID	= (*filledResIt).first;
-			
+
 
 			checkResIt = checkRes.find(resID);
 			if(checkResIt == checkRes.end())
@@ -2128,11 +2131,11 @@ void CraftingSession::createManufactureSchematic(uint32 counter)
 				uint64 id		= (*checkResIt).first;
 				checkRes.erase(checkResIt);
 				checkRes.insert(std::make_pair(id,amount));
-				
+
 			}
 
 		}
-		
+
 		manIt++;
 	}
 
@@ -2145,31 +2148,31 @@ void CraftingSession::createManufactureSchematic(uint32 counter)
 		string attrName = BString(attr);
 
 		sprintf(str,"%u",(*checkResIt).second);
-				
+
 		//add to the public attribute list
 		mManufacturingSchematic->addAttribute(attrName.getAnsi(),str);
-		
-		//now add to the db		
+
+		//now add to the db
 		sprintf(str,"%s %u",name.getAnsi(),(*checkResIt).second);
-		
+
 		//update db
 		//enter it slotdependent as we dont want to clot our attributes table with resources
 		//173  is cat_manf_schem_resource
 		mDatabase->ExecuteSqlAsync(0,0,"INSERT INTO item_attributes VALUES (%I64u,173,'%s',1,0)",mManufacturingSchematic->getId(),str);
 
 		//enter attribute in list
-		
+
 		checkResIt  ++;
 	}
 
-	
+
 
 	// now the serial
 	string serial;
 	serial = getSerial();
 
 	mItem->addAttribute("serial_number",serial.getAnsi());
-	
+
 	//16 is id of attribute serial number!!!
 	sprintf(sql,"INSERT INTO item_attributes VALUES(%I64u,16,'",mItem->getId());
 	sqlPointer = sql + strlen(sql);
@@ -2179,10 +2182,9 @@ void CraftingSession::createManufactureSchematic(uint32 counter)
 	mDatabase->ExecuteSqlAsync(0,0,sql);
 
 	//manufacturing limit
-	int8 buf[8];
-	string limit = _itoa(this->getProductionAmount(),buf,10);
+	string limit = boost::lexical_cast<std::string>(this->getProductionAmount()).c_str();
 	mManufacturingSchematic->addAttribute("manf_limit",limit.getAnsi());
-	
+
 	//504 is id of manf_limit number!!!
 	sprintf(sql,"INSERT INTO item_attributes VALUES(%I64u,504,'%s',2,0)",mManufacturingSchematic->getId(),limit.getAnsi());
 

@@ -54,8 +54,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "ScriptEngine/ScriptSupport.h"
 #include "Utils/Scheduler.h"
 #include "Utils/VariableTimeScheduler.h"
-
-
+#include "Utils/utils.h"
 
 //======================================================================================================================
 
@@ -92,7 +91,7 @@ mWM_DB_AsyncPool(sizeof(WMAsyncContainer))
 	mMissionScheduler		= new Anh_Utils::Scheduler();
 	mNpcManagerScheduler	= new Anh_Utils::Scheduler();
 	mAdminScheduler			= new Anh_Utils::Scheduler();
-	
+
 	LoadCurrentGlobalTick();
 
 
@@ -193,7 +192,7 @@ void WorldManager::Shutdown()
 	while (it != mCreatureSpawnRegionMap.end())
 	{
 		delete (*it).second;
-		it = mCreatureSpawnRegionMap.erase(it);
+		mCreatureSpawnRegionMap.erase(it++);
 	}
 	mCreatureSpawnRegionMap.clear();
 
@@ -307,7 +306,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 						// load harvesters
 						mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_Harvesters),"SELECT id FROM structures WHERE zone=%u ORDER BY id;",mZoneId);
 
-					}					
+					}
 					// no objects to load, so we are done
 					else
 					{
@@ -342,7 +341,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					mDatabase->DestroyDataBinding(harvesterBinding);
 				}
 				break;
-				
+
 
 				// zone regions
 				case WMQuery_ZoneRegions:
@@ -423,7 +422,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 						gLogger->logMsgLoadSuccess("WorldManager::Loading %u Attribute Keys...",MSG_NORMAL,attributeCount);
 					else
 						gLogger->logMsgLoadFailure("WorldManager::Loading Attribute Keys...",MSG_NORMAL);
-					
+
 					mDatabase->DestroyDataBinding(binding);
 				}
 				break;
@@ -443,11 +442,11 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 						mvClientEffects.push_back(BString(tmp.getAnsi()));
 					}
-					
+
 					if(result->getRowCount())
 						gLogger->logMsgLoadSuccess("WorldManager::Loading %u Client Effects...",MSG_NORMAL,effectCount);
 					else
-						gLogger->logMsgLoadFailure("WorldManager::Loading Client Effects...",MSG_NORMAL);					
+						gLogger->logMsgLoadFailure("WorldManager::Loading Client Effects...",MSG_NORMAL);
 
 
 					mDatabase->DestroyDataBinding(binding);
@@ -468,13 +467,13 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 						result->GetNextRow(binding,&tmp);
 
 						mvSounds.push_back(BString(tmp.getAnsi()));
-					}					
+					}
 
 					if(result->getRowCount())
 						gLogger->logMsgLoadSuccess("WorldManager::Loading %u Sound Effects...",MSG_NORMAL,effectCount);
 					else
-						gLogger->logMsgLoadFailure("WorldManager::Loading Sound Effects...",MSG_NORMAL);					
-					
+						gLogger->logMsgLoadFailure("WorldManager::Loading Sound Effects...",MSG_NORMAL);
+
 					mDatabase->DestroyDataBinding(binding);
 				}
 				break;
@@ -498,9 +497,9 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					if(result->getRowCount())
 						gLogger->logMsgLoadSuccess("WorldManager::Loading %u moods...",MSG_NORMAL,effectCount);
 					else
-						gLogger->logMsgLoadFailure("WorldManager::Loading moods...",MSG_NORMAL);					
+						gLogger->logMsgLoadFailure("WorldManager::Loading moods...",MSG_NORMAL);
 
-				
+
 					mDatabase->DestroyDataBinding(binding);
 				}
 				break;
@@ -524,7 +523,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					if(result->getRowCount())
 						gLogger->logMsgLoadSuccess("WorldManager::Loading %u  Npc Converse Animations...",MSG_NORMAL,animCount);
 					else
-						gLogger->logMsgLoadFailure("WorldManager::Loading  Npc Converse Animations...",MSG_NORMAL);					
+						gLogger->logMsgLoadFailure("WorldManager::Loading  Npc Converse Animations...",MSG_NORMAL);
 
 					mDatabase->DestroyDataBinding(binding);
 				}
@@ -557,7 +556,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					if(result->getRowCount())
 						gLogger->logMsgLoadSuccess("WorldManager::Loading %u  Npc Phrases...",MSG_NORMAL,phraseCount);
 					else
-						gLogger->logMsgLoadFailure("WorldManager::Loading  Npc Phrases...",MSG_NORMAL);					
+						gLogger->logMsgLoadFailure("WorldManager::Loading  Npc Phrases...",MSG_NORMAL);
 
 					mDatabase->DestroyDataBinding(binding);
 					mDatabase->DestroyDataBinding(animbinding);
@@ -585,7 +584,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					if(result->getRowCount())
 						gLogger->logMsgLoadSuccess("WorldManager::Loading %u   world scripts...",MSG_NORMAL,scriptCount);
 					else
-						gLogger->logMsgLoadFailure("WorldManager::Loading   world scripts...",MSG_NORMAL);					
+						gLogger->logMsgLoadFailure("WorldManager::Loading   world scripts...",MSG_NORMAL);
 
 					mDatabase->DestroyDataBinding(scriptBinding);
 				}
@@ -612,7 +611,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					if(result->getRowCount())
 						gLogger->logMsgLoadSuccess("WorldManager::Loading %u buildings...",MSG_NORMAL,buildingCount);
 					else
-						gLogger->logMsgLoadFailure("WorldManager::Loading buildings...",MSG_NORMAL);					
+						gLogger->logMsgLoadFailure("WorldManager::Loading buildings...",MSG_NORMAL);
 
 					mDatabase->DestroyDataBinding(buildingBinding);
 				}
@@ -637,7 +636,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					if(result->getRowCount())
 						gLogger->logMsgLoadSuccess("WorldManager::Loading %u city regions...",MSG_NORMAL,count);
 					else
-						gLogger->logMsgLoadFailure("WorldManager::Loading city regions...",MSG_NORMAL);					
+						gLogger->logMsgLoadFailure("WorldManager::Loading city regions...",MSG_NORMAL);
 
 					mDatabase->DestroyDataBinding(cityBinding);
 				}
@@ -662,7 +661,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					if(result->getRowCount())
 						gLogger->logMsgLoadSuccess("WorldManager::Loading %u badge regions...",MSG_NORMAL,count);
 					else
-						gLogger->logMsgLoadFailure("WorldManager::Loading badge regions...",MSG_NORMAL);					
+						gLogger->logMsgLoadFailure("WorldManager::Loading badge regions...",MSG_NORMAL);
 
 					mDatabase->DestroyDataBinding(badgeBinding);
 				}
@@ -687,7 +686,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					if(result->getRowCount())
 						gLogger->logMsgLoadSuccess("WorldManager::Loading %u spawn regions...",MSG_NORMAL,count);
 					else
-						gLogger->logMsgLoadFailure("WorldManager::Loading spawn regions...",MSG_NORMAL);					
+						gLogger->logMsgLoadFailure("WorldManager::Loading spawn regions...",MSG_NORMAL);
 
 					mDatabase->DestroyDataBinding(spawnBinding);
 				}
@@ -715,7 +714,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					if(result->getRowCount())
 						gLogger->logMsgLoadSuccess("WorldManager::Loading %u creture spawn regions...",MSG_NORMAL,count);
 					else
-						gLogger->logMsgLoadFailure("WorldManager::Loading creature spawn regions...",MSG_NORMAL);					
+						gLogger->logMsgLoadFailure("WorldManager::Loading creature spawn regions...",MSG_NORMAL);
 
 					mDatabase->DestroyDataBinding(creatureSpawnBinding);
 				}
@@ -729,7 +728,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					DataBinding*	binding = mDatabase->CreateDataBinding(2);
 					binding->addField(DFT_bstring,offsetof(WMQueryContainer,mString),64,0);
 					binding->addField(DFT_uint64,offsetof(WMQueryContainer,mId),8,1);
-					
+
 					uint64 count = result->getRowCount();
 
 					for(uint32 i = 0;i < count;i++)
@@ -737,7 +736,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 						result->GetNextRow(binding,&queryContainer);
 
 						// now to the ugly part
-						if(strcmp(queryContainer.mString.getAnsi(),"terminals") == 0)	
+						if(strcmp(queryContainer.mString.getAnsi(),"terminals") == 0)
 							gObjectFactory->requestObject(ObjType_Tangible,TanGroup_Terminal,0,this,queryContainer.mId,asyncContainer->mClient);
 						else if(strcmp(queryContainer.mString.getAnsi(),"containers") == 0)
 							gObjectFactory->requestObject(ObjType_Tangible,TanGroup_Container,0,this,queryContainer.mId,asyncContainer->mClient);
@@ -756,7 +755,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					if(result->getRowCount())
 						gLogger->logMsgLoadSuccess("WorldManager::Loading %u cell children...",MSG_NORMAL,count);
 					else
-						gLogger->logMsgLoadFailure("WorldManager::Loading cell children...",MSG_NORMAL);					
+						gLogger->logMsgLoadFailure("WorldManager::Loading cell children...",MSG_NORMAL);
 
 					mDatabase->DestroyDataBinding(binding);
 				}
@@ -811,20 +810,20 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 						//are we to load a new character???
 						if(asyncContainer->mLogout == WMLogOut_Char_Load)
-						{							
+						{
 							gObjectFactory->requestObject(ObjType_Player,0,0,asyncContainer->clContainer->ofCallback,asyncContainer->clContainer->mPlayerId,asyncContainer->clContainer->mClient);
 
 							//now destroy the asyncContainer->clContainer
 							SAFE_DELETE(asyncContainer->clContainer);
-		
+
 						}
-						
+
 					}
 					if(asyncContainer->mLogout == WMLogOut_Zone_Transfer)
-					{							
+					{
 						//update the position to the new planets position
 						Anh_Math::Vector3		destination = asyncContainer->clContainer->destination;
-						
+
 						//in this case we retain the asynccontainer and let it be destroyed by the clientlogin handler
 						mDatabase->ExecuteSqlAsync(asyncContainer->clContainer->dbCallback,asyncContainer->clContainer,"UPDATE characters SET parent_id=0,x='%f', y='%f', z='%f', planet_id='%u' WHERE id='%I64u';", destination.mX, destination.mY, destination.mZ, asyncContainer->clContainer->planet, asyncContainer->clContainer->player->getId());
 					}
@@ -929,7 +928,7 @@ void  WorldManager::initPlayersInRange(Object* object,PlayerObject* player)
 	// we still query for players here, cause they are found through the buildings and arent kept in a qtree
 	ObjectSet inRangeObjects;
 	mSpatialIndex->getObjectsInRange(object,&inRangeObjects,(ObjType_Player),gWorldConfig->getPlayerViewingRange());
-	
+
 	// query the according qtree, if we are in one
 	if(object->getSubZoneId())
 	{
@@ -955,7 +954,7 @@ void  WorldManager::initPlayersInRange(Object* object,PlayerObject* player)
 	}
 
 	// iterate through the results
-	ObjectSet::iterator it = inRangeObjects.begin(); 
+	ObjectSet::iterator it = inRangeObjects.begin();
 
 	while(it != inRangeObjects.end())
 	{
@@ -969,7 +968,7 @@ void  WorldManager::initPlayersInRange(Object* object,PlayerObject* player)
 				pObject->addKnownObjectSafe(object);
 				object->addKnownObjectSafe(pObject);
 			}
-	
+
 		}
 
 		++it;
@@ -984,7 +983,7 @@ void WorldManager::initObjectsInRange(PlayerObject* playerObject)
 	// we still query for players here, cause they are found through the buildings and arent kept in a qtree
 	ObjectSet inRangeObjects;
 	mSpatialIndex->getObjectsInRange(playerObject,&inRangeObjects,(ObjType_Player | ObjType_Tangible | ObjType_NPC | ObjType_Creature | ObjType_Building| ObjType_Harvester),gWorldConfig->getPlayerViewingRange());
-	
+
 	// query the according qtree, if we are in one
 	if(playerObject->getSubZoneId())
 	{
@@ -1010,14 +1009,14 @@ void WorldManager::initObjectsInRange(PlayerObject* playerObject)
 	}
 
 	// iterate through the results
-	ObjectSet::iterator it = inRangeObjects.begin(); 
+	ObjectSet::iterator it = inRangeObjects.begin();
 
 	while(it != inRangeObjects.end())
 	{
 		Object* object = (*it);
 
 		// send create for the type of object
-		if (object->getPrivateOwner()) 
+		if (object->getPrivateOwner())
 		{
 			if (object->isOwnedBy(playerObject))
 			{
@@ -1069,8 +1068,8 @@ void WorldManager::savePlayer(uint32 accId,bool remove, WMLogOut mLogout, Charac
 							,playerObject->mPosition.mX,playerObject->mPosition.mY,playerObject->mPosition.mZ
 							,mZoneId,playerObject->getJediState(),playerObject->getId());
 	}
-	
-	
+
+
 }
 
 //======================================================================================================================
@@ -1110,8 +1109,8 @@ void WorldManager::savePlayerSync(uint32 accId,bool remove)
 								playerObject->getLanguage(),
 								playerObject->getGroupId(),
 								playerObject->getId()));
-	
-	
+
+
 	gBuffManager->SaveBuffs(playerObject, GetCurrentGlobalTick());
 
 	if(remove)
@@ -1119,7 +1118,7 @@ void WorldManager::savePlayerSync(uint32 accId,bool remove)
 }
 
 //======================================================================================================================
-//get the current tick 
+//get the current tick
 //
 
 uint64 WorldManager::GetCurrentGlobalTick()
@@ -1135,10 +1134,10 @@ void WorldManager::LoadCurrentGlobalTick()
 {
 	uint64 Tick;
 	DatabaseResult* temp = mDatabase->ExecuteSynchSql("SELECT Global_Tick_Count FROM galaxy WHERE galaxy_id = '2'");
-	
+
 	DataBinding*	tickbinding = mDatabase->CreateDataBinding(1);
 	tickbinding->addField(DFT_uint64,0,8,0);
-	
+
 	temp->GetNextRow(tickbinding,&Tick);
 	mDatabase->DestroyDataBinding(tickbinding);
 	mDatabase->DestroyResult(temp);
@@ -1230,7 +1229,7 @@ void WorldManager::addDisconnectedPlayer(PlayerObject* playerObject)
 	gCraftingSessionFactory->destroySession(playerObject->getCraftingSession());
 	playerObject->setCraftingSession(NULL);
 	playerObject->toggleStateOff(CreatureState_Crafting);
-		
+
 	//any speeder out?
 
 	//despawn camps ??? - every reference is over id though
@@ -1319,9 +1318,9 @@ bool WorldManager::_handleDisconnectUpdate(uint64 callTime,void* ref)
 	{
 		PlayerObject* playerObject = (*it);
 
-		// we timed out, so save + remove it 
+		// we timed out, so save + remove it
 		if(--*(playerObject->getDisconnectTime()) <= 0 && playerObject->isLinkDead())
-		{			
+		{
 			// reset link dead state
 			playerObject->togglePlayerFlagOff(PlayerFlag_LinkDead);
 			playerObject->setConnectionState(PlayerConnState_Destroying);
@@ -1333,16 +1332,16 @@ bool WorldManager::_handleDisconnectUpdate(uint64 callTime,void* ref)
 			GroupObject* group = gGroupManager->getGroupObject(playerObject->getGroupId());
 			if(group)
 				group->removePlayer(playerObject->getId());
-		
+
 			//asynch save
 			savePlayer(playerObject->getAccountId(),true,WMLogOut_LogOut);
-			
-			
+
+
 			it = mPlayersToRemove.erase(it);
 		}
 		else
 			it++;
-		
+
 	}
 	return(true);
 }
@@ -1355,7 +1354,7 @@ bool WorldManager::_handleShuttleUpdate(uint64 callTime,void* ref)
 	while(shuttleIt != mShuttleList.end())
 	{
 		Shuttle* shuttle = (*shuttleIt);
-		
+
 		// The Ticket Collector need a valid shuttle-object.
 		if (!shuttle->ticketCollectorEnabled())
 		{
@@ -1381,7 +1380,7 @@ bool WorldManager::_handleShuttleUpdate(uint64 callTime,void* ref)
 					shuttle->setPosture(0);
 					shuttle->setAwayTime(0);
 					shuttle->setShuttleState(ShuttleState_AboutBoarding);
-					
+
 					gMessageLib->sendPostureUpdate(shuttle);
 					gMessageLib->sendCombatAction(shuttle,NULL,opChange_Posture);
 				}
@@ -1458,12 +1457,12 @@ void WorldManager::warpPlanet(PlayerObject* playerObject,Anh_Math::Vector3 desti
 
 	//remove the player out of his group - if any
 	GroupObject* group = gGroupManager->getGroupObject(playerObject->getGroupId());
-	
+
 	if(group)
 		group->removePlayer(playerObject->getId());
 
 	playerObject->destroyKnownObjects();
-	
+
 	// remove from cell / SI
 	if(playerObject->getParentId())
 	{
@@ -1494,10 +1493,10 @@ void WorldManager::warpPlanet(PlayerObject* playerObject,Anh_Math::Vector3 desti
 	playerObject->getController()->clearQueues();
 	playerObject->getController()->setTaskId(0);
 	playerObject->getHam()->setTaskId(0);
-	
+
 	// reset player properties
 	playerObject->resetProperties();
-		
+
 	playerObject->setParentId(parentId);
 	playerObject->mPosition		= destination;
 	playerObject->mDirection	= direction;
@@ -1505,7 +1504,7 @@ void WorldManager::warpPlanet(PlayerObject* playerObject,Anh_Math::Vector3 desti
 	// start the new scene
 	gMessageLib->sendStartScene(mZoneId,playerObject);
 	gMessageLib->sendServerTime(gWorldManager->getServerTime(),playerObject->getClient());
-	
+
 	// add us to cell / SI
 	if(parentId)
 	{
@@ -1578,7 +1577,7 @@ bool WorldManager::_handleCraftToolTimers(uint64 callTime,void* ref)
 	while(it != mBusyCraftTools.end())
 	{
 		CraftingTool*	tool	= (*it);
-		PlayerObject*	player	= dynamic_cast<PlayerObject*>(getObjectById(tool->getParentId() - 1)); 
+		PlayerObject*	player	= dynamic_cast<PlayerObject*>(getObjectById(tool->getParentId() - 1));
 		Item*			item	= tool->getCurrentItem();
 
 		if(player)
@@ -1600,14 +1599,14 @@ bool WorldManager::_handleCraftToolTimers(uint64 callTime,void* ref)
 				//in case of logout/in interplanetary travel it will be in the inventory already
 
 				gMessageLib->sendUpdateTimer(tool,player);
-				
+
 				it = mBusyCraftTools.erase(it);
 				tool->setAttribute("craft_tool_status","@crafting:tool_status_ready");
 				mDatabase->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='@crafting:tool_status_ready' WHERE item_id=%lld AND attribute_id=18",tool->getId());
 
 				tool->setAttribute("craft_tool_time",boost::lexical_cast<std::string>(tool->getTimer()));
 				gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%i' WHERE item_id=%lld AND attribute_id=%u",tool->getId(),tool->getTimer(),AttrType_CraftToolTime);
-				
+
 				continue;
 			}
 			// update the time display
@@ -1697,7 +1696,7 @@ void WorldManager::addNpcConversation(uint64 interval, NPCObject* npc)
 	{
 		target->mGroupId = player->getGroupId();
 	}
-	
+
 	if (gWorldConfig->isInstance())
 	{
 		// We are running in an instance.
@@ -1719,7 +1718,7 @@ void WorldManager::addNpcConversation(uint64 interval, NPCObject* npc)
 						continue;
 					}
 				}
-				else 
+				else
 				{
 
 					if (target->mTargetId == ((*it).second)->mTargetId)
@@ -1784,9 +1783,9 @@ bool WorldManager::_handlePlayerMovementUpdateTimers(uint64 callTime, void* ref)
 					// gLogger->logMsg("Calling UPDATEPOSITION-bla-ha ()");
 
 					ObjectController* ObjCtl = player->getController();
-				
+
 					uint64 next = ObjCtl->playerWorldUpdate(false);
-					it = mPlayerMovementUpdateMap.erase(it);
+					mPlayerMovementUpdateMap.erase(it++);
 					if (next)
 					{
 						// Add next scheduled update.
@@ -1801,13 +1800,13 @@ bool WorldManager::_handlePlayerMovementUpdateTimers(uint64 callTime, void* ref)
 			else
 			{
 				// Remove the disconnected...
-				it = mPlayerMovementUpdateMap.erase(it);
+				mPlayerMovementUpdateMap.erase(it++);
 			}
 		}
 		else
 		{
 			// Remove the disconnected...
-			it = mPlayerMovementUpdateMap.erase(it);
+			mPlayerMovementUpdateMap.erase(it++);
 		}
 	}
 	return (true);
@@ -1815,9 +1814,9 @@ bool WorldManager::_handlePlayerMovementUpdateTimers(uint64 callTime, void* ref)
 
 
 //======================================================================================================================
-// 
+//
 //	Add a timer entry for updating of players known objects.
-// 
+//
 
 void WorldManager::addPlayerMovementUpdateTime(PlayerObject* player, uint64 when)
 {
@@ -1827,9 +1826,9 @@ void WorldManager::addPlayerMovementUpdateTime(PlayerObject* player, uint64 when
 }
 
 //======================================================================================================================
-// 
+//
 //	Remove timer entry for player.
-// 
+//
 
 void WorldManager::removePlayerMovementUpdateTime(PlayerObject* player)
 {
@@ -1847,9 +1846,9 @@ void WorldManager::removePlayerMovementUpdateTime(PlayerObject* player)
 
 
 //======================================================================================================================
-// 
+//
 //	Add a timed entry for deletion of dead creature objects.
-// 
+//
 
 void WorldManager::addCreatureObjectForTimedDeletion(uint64 creatureId, uint64 when)
 {
@@ -1878,9 +1877,9 @@ void WorldManager::addCreatureObjectForTimedDeletion(uint64 creatureId, uint64 w
 
 
 //======================================================================================================================
-// 
+//
 //	Add a timed entry for cloning of dead player objects.
-// 
+//
 
 void WorldManager::addPlayerObjectForTimedCloning(uint64 playerId, uint64 when)
 {
@@ -1890,9 +1889,9 @@ void WorldManager::addPlayerObjectForTimedCloning(uint64 playerId, uint64 when)
 }
 
 //======================================================================================================================
-// 
+//
 //	Remove a timed entry for cloning of dead player objects.
-// 
+//
 
 void WorldManager::removePlayerObjectForTimedCloning(uint64 playerId)
 {
@@ -1945,12 +1944,12 @@ bool WorldManager::_handleGeneralObjectTimers(uint64 callTime, void* ref)
 				// Yes, handle it. We may put up a copy of this npc...
 				NpcManager::Instance()->handleExpiredCreature((*it).first);
 				this->destroyObject(creature);
-				it = mCreatureObjectDeletionMap.erase(it);
+				mCreatureObjectDeletionMap.erase(it++);
 			}
 			else
 			{
 				// Remove the invalid object...from this list.
-				it = mCreatureObjectDeletionMap.erase(it);
+				mCreatureObjectDeletionMap.erase(it++);
 			}
 		}
 		else
@@ -1979,7 +1978,7 @@ bool WorldManager::_handleGeneralObjectTimers(uint64 callTime, void* ref)
 			else
 			{
 				// Remove the invalid object...
-				reviveIt = mPlayerObjectReviveMap.erase(reviveIt);
+				mPlayerObjectReviveMap.erase(reviveIt++);
 			}
 		}
 		else
@@ -2005,9 +2004,9 @@ void WorldManager::updateWeather(float cloudX,float cloudY,float cloudZ,uint32 w
 }
 
 //======================================================================================================================
-// 
+//
 //	Add an admin request.
-// 
+//
 
 void WorldManager::addAdminRequest(uint64 requestId, uint64 when)
 {
@@ -2019,9 +2018,9 @@ void WorldManager::addAdminRequest(uint64 requestId, uint64 when)
 }
 
 //======================================================================================================================
-// 
+//
 //	Cancel an admin request.
-// 
+//
 
 void WorldManager::cancelAdminRequest(int32 requestId)
 {
@@ -2054,7 +2053,7 @@ bool WorldManager::_handleAdminRequests(uint64 callTime, void* ref)
 
 			if (waitTime)
 			{
-				// Set next execution time. 
+				// Set next execution time.
 				(*it).second = callTime + waitTime;
 			}
 			else
@@ -2062,7 +2061,7 @@ bool WorldManager::_handleAdminRequests(uint64 callTime, void* ref)
 				gLogger->logMsgF("Removed expired handler for admin request %d", MSG_NORMAL, (*it).first);
 
 				// Requested to remove the handler.
-				it = mAdminRequestHandlers.erase(it);
+				mAdminRequestHandlers.erase(it++);
 				continue;
 			}
 		}
@@ -2139,8 +2138,8 @@ void WorldManager::_handleLoadComplete()
 	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleNpcConversionTimers),8,1000,NULL);
 	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handlePlayerMovementUpdateTimers),4,1000,NULL);
 	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleGeneralObjectTimers),5,2000,NULL);
-	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleGroupObjectTimers),5,gWorldConfig->getGroupMissionUpdateTime(),NULL);	
-	
+	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleGroupObjectTimers),5,gWorldConfig->getGroupMissionUpdateTime(),NULL);
+
 
 	// Init NPC Manager, will load lairs from the DB.
 	(void)NpcManager::Instance();
@@ -2153,7 +2152,7 @@ void WorldManager::_handleLoadComplete()
 	// Initialize static creature lairs.
 	mAdminScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleAdminRequests),5,5000,NULL);
 
-	
+
 
 }
 
@@ -2196,7 +2195,7 @@ bool WorldManager::_handleRegionUpdate(uint64 callTime,void* ref)
 
 		destroyObject(*itR);
 		//delete(*itR);
-		itR++;  
+		itR++;
 	}
 
 	mRegionDeleteList.clear();
@@ -2235,17 +2234,17 @@ int32 WorldManager::getPlanetIdByNameLike(string name)
 
 	while(it != mvPlanetNames.end())
 	{
-		// gLogger->logMsgF("Comparing: %s", MSG_NORMAL, name.getAnsi());				
-		// gLogger->logMsgF("with     : %s", MSG_NORMAL, (*it).getAnsi());				
-		if(_strnicmp((*it).getAnsi(),name.getAnsi(), 3) == 0)
+		// gLogger->logMsgF("Comparing: %s", MSG_NORMAL, name.getAnsi());
+		// gLogger->logMsgF("with     : %s", MSG_NORMAL, (*it).getAnsi());
+		if(Anh_Utils::cmpnistr((*it).getAnsi(),name.getAnsi(), 3) == 0)
 		{
-			// gLogger->logMsgF("Matched with planet id = %d", MSG_NORMAL, id);				
+			// gLogger->logMsgF("Matched with planet id = %d", MSG_NORMAL, id);
 			return (id);
 		}
 		++it;
 		id++;
 	}
-	// gLogger->logMsgF("No match, compared %d planet names", MSG_NORMAL, id);				
+	// gLogger->logMsgF("No match, compared %d planet names", MSG_NORMAL, id);
 	return(-1);
 }
 
@@ -2266,8 +2265,8 @@ void WorldManager::removeEntertainerToProcess(uint64 taskId)
 // add a creature from the ham regeneration scheduler
 //
 uint64 WorldManager::addCreatureHamToProccess(Ham* ham)
-{ 
-    return((mHamRegenScheduler->addTask(fastdelegate::MakeDelegate(ham,&Ham::regenerate),1,1000,NULL))); 
+{
+    return((mHamRegenScheduler->addTask(fastdelegate::MakeDelegate(ham,&Ham::regenerate),1,1000,NULL)));
 }
 
 
@@ -2296,10 +2295,10 @@ bool WorldManager::checkTask(uint64 id)
 //
 
 uint64 WorldManager::addObjControllerToProcess(ObjectController* objController)
-{ 
-    return((mObjControllerScheduler->addTask(fastdelegate::MakeDelegate(objController,&ObjectController::process),1,125,NULL))); 
+{
+    return((mObjControllerScheduler->addTask(fastdelegate::MakeDelegate(objController,&ObjectController::process),1,125,NULL)));
 }
-		
+
 
 //======================================================================================================================
 //
@@ -2308,41 +2307,41 @@ uint64 WorldManager::addObjControllerToProcess(ObjectController* objController)
 
 void WorldManager::removeObjControllerToProcess(uint64 taskId)
 {
-	mObjControllerScheduler->removeTask(taskId);  
+	mObjControllerScheduler->removeTask(taskId);
 }
 
 
 //======================================================================================================================
 
 uint64 WorldManager::addMissionToProcess(MissionObject* mission)
-{ 
-    return mMissionScheduler->addTask(fastdelegate::MakeDelegate(mission,&MissionObject::check),1,10000,NULL); 
+{
+    return mMissionScheduler->addTask(fastdelegate::MakeDelegate(mission,&MissionObject::check),1,10000,NULL);
 }
 
 
 //======================================================================================================================
 
-void WorldManager::removeMissionFromProcess(uint64 taskId) 
-{ 
-    mMissionScheduler->removeTask(taskId); 
+void WorldManager::removeMissionFromProcess(uint64 taskId)
+{
+    mMissionScheduler->removeTask(taskId);
 }
 
 
 //======================================================================================================================
 
-bool WorldManager::checkForMissionProcess(uint64 taskId) 
-{ 
-    return mMissionScheduler->checkTask(taskId); 
+bool WorldManager::checkForMissionProcess(uint64 taskId)
+{
+    return mMissionScheduler->checkTask(taskId);
 }
 
 
 //======================================================================================================================
 
 uint64 WorldManager::addEntertainerToProccess(CreatureObject* entertainerObject,uint32 tick)
-{ 
-    return((mEntertainerScheduler->addTask(fastdelegate::MakeDelegate(entertainerObject,&CreatureObject::handlePerformanceTick),1,tick,NULL))); 
+{
+    return((mEntertainerScheduler->addTask(fastdelegate::MakeDelegate(entertainerObject,&CreatureObject::handlePerformanceTick),1,tick,NULL)));
 }
-		
+
 
 //======================================================================================================================
 //
@@ -2416,7 +2415,7 @@ void WorldManager::addObject(Object* object,bool manual)
 
 		if(item)
 		{
-			if(!(item->getItemFamily() == ItemFamily_CraftingStations)) 
+			if(!(item->getItemFamily() == ItemFamily_CraftingStations))
 				return;
 		}
 		else
@@ -2430,7 +2429,7 @@ void WorldManager::addObject(Object* object,bool manual)
 		// player, when a player enters a planet
 		case ObjType_Player:
 		{
-			
+
 			PlayerObject* player = dynamic_cast<PlayerObject*>(object);
 			gLogger->logMsgF("New Player: %lld, Total Players on zone : %i",MSG_NORMAL,player->getId(),(getPlayerAccMap())->size() + 1);
 			// insert into the player map
@@ -2469,7 +2468,7 @@ void WorldManager::addObject(Object* object,bool manual)
 			// initialize
 			initObjectsInRange(player);
 			gMessageLib->sendCreatePlayer(player,player);
-			
+
 			// add ham to regeneration scheduler
 			player->getHam()->updateRegenRates();	// ERU: Note sure if this is needed here.
 			player->getHam()->checkForRegen();
@@ -2489,7 +2488,7 @@ void WorldManager::addObject(Object* object,bool manual)
 		{
 			HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(object);
 			mSpatialIndex->InsertPoint(key,object->mPosition.mX,object->mPosition.mZ);
-			
+
 		}
 		break;
 
@@ -2545,7 +2544,7 @@ void WorldManager::addObject(Object* object,bool manual)
 			}
 			else
 			{
-				
+
 				switch(creature->getCreoGroup())
 				{
 					// moving creature, add to QT
@@ -2571,8 +2570,8 @@ void WorldManager::addObject(Object* object,bool manual)
 						mSpatialIndex->InsertPoint(key,creature->mPosition.mX,creature->mPosition.mZ);
 					}
 				}
-	
-				
+
+
 			}
 		}
 		break;
@@ -2639,9 +2638,9 @@ void WorldManager::destroyObject(Object* object)
 			PlayerObject* player = dynamic_cast<PlayerObject*>(object);
 
 			// moved most of the code to the players destructor
-				
 
-			
+
+
 			// onPlayerLeft event, notify scripts
 			string params;
 			params.setLength(sprintf(params.getAnsi(),"%s %s %u",getPlanetNameThis(),player->getFirstName().getAnsi(),mPlayerAccMap.size()));
@@ -2690,7 +2689,7 @@ void WorldManager::destroyObject(Object* object)
 			}
 
 			// destroy known objects
-			object->destroyKnownObjects();	
+			object->destroyKnownObjects();
 
 			// if its a shuttle, remove it from the shuttle list
 			if(creature->getCreoGroup() == CreoGroup_Shuttle)
@@ -2727,8 +2726,8 @@ void WorldManager::destroyObject(Object* object)
 			{
 				mSpatialIndex->RemovePoint(object->getId(),object->mPosition.mX,object->mPosition.mZ);
 			}
-			
-			object->destroyKnownObjects();	
+
+			object->destroyKnownObjects();
 		}
 		break;
 
@@ -2764,14 +2763,14 @@ void WorldManager::destroyObject(Object* object)
 					{
 						// Well, Tangible can have more kind of parents than just cells or SI. For example players or Inventory.
 						// the tangible is owned by its containing object (please note exeption of inventory / player with equipped stuff)
-					
+
 
 						//gLogger->logMsgF("WorldManager::destroyObject couldn't find cell %lld",MSG_NORMAL,parentId);
 					}
 				}
 
 				// destroy known objects
-				object->destroyKnownObjects();	
+				object->destroyKnownObjects();
 			}
 			else
 			{
@@ -2800,7 +2799,7 @@ void WorldManager::destroyObject(Object* object)
 				mQTRegionMap.erase(itQ);
 				gLogger->logMsgF("Worldmanager::destroyObject: qt region %lld",MSG_HIGH,object->getId());
 			}
-			
+
 		}
 		break;
 
@@ -2814,7 +2813,7 @@ void WorldManager::destroyObject(Object* object)
 			//   they are NOT in the world
 
 			// destroy known objects
-			object->destroyKnownObjects();	
+			object->destroyKnownObjects();
 		}
 		break;
 
@@ -2865,7 +2864,7 @@ string WorldManager::getAttributeKey(uint32 keyId)
 
 std::pair<string,uint32> WorldManager::getRandNpcChatter()
 {
-	
+
 	if(mvNpcChatter.size())
 		return(mvNpcChatter[gRandom->getRand()%mvNpcChatter.size()]);
 	else
@@ -2982,7 +2981,7 @@ bool WorldManager::removeNpId(uint64 id)
 
 uint64 WorldManager::getRandomNpId()
 {
-	
+
 	int32 watchDogCounter = 10000;
 	bool found = false;
 	uint64 id;
@@ -3002,7 +3001,7 @@ uint64 WorldManager::getRandomNpId()
 
 		}
 	}
-	
+
 	if (found == false)
 	{
 		id = 0;
@@ -3026,7 +3025,7 @@ uint64 WorldManager::getRandomNpNpcIdSequence()
 	{
 		randomNpIdPair = getRandomNpId();
 		// gLogger->logMsgF("Got %lld", MSG_NORMAL, randomNpIdPair);
-		
+
 		// if (checkdNpId(randomNpIdPair) && checkdNpId(randomNpIdPair + 1))
 		// Check if next id is free to use
 		if (checkdNpId(randomNpIdPair + 1))
@@ -3042,7 +3041,7 @@ uint64 WorldManager::getRandomNpNpcIdSequence()
 			// Release the current id.
 			removeNpId(randomNpIdPair);
 		}
-		
+
 		if (counter++ > 1000)
 		{
 			// TODO: Better handling of this...
@@ -3079,10 +3078,10 @@ uint64 WorldManager::addBuffToProcess(Buff* buff)
 
 	//Add Callback to Scheduler
 	uint64 temp = mBuffScheduler->addTask(callback,1,buff->GetTickLength(),NULL);
-	
+
 	//Give Buff the ID from Scheduler
 	buff->SetID(temp);
-	return temp;	
+	return temp;
 }
 
 
@@ -3187,9 +3186,9 @@ bool WorldManager::objectsInRange(Anh_Math::Vector3 obj1Position,  uint64 obj1Pa
 
 
 //======================================================================================================================
-// 
+//
 //	Add a npc to the Dormant queue.
-// 
+//
 
 void WorldManager::addDormantNpc(uint64 creature, uint64 when)
 {
@@ -3200,9 +3199,9 @@ void WorldManager::addDormantNpc(uint64 creature, uint64 when)
 }
 
 //======================================================================================================================
-// 
+//
 //	Remove a npc from the Dormant queue.
-// 
+//
 
 void WorldManager::removeDormantNpc(uint64 creature)
 {
@@ -3215,9 +3214,9 @@ void WorldManager::removeDormantNpc(uint64 creature)
 }
 
 //======================================================================================================================
-// 
+//
 //	Force a npc from the Dormant queue to be handled at next tick.
-// 
+//
 
 void WorldManager::forceHandlingOfDormantNpc(uint64 creature)
 {
@@ -3249,10 +3248,10 @@ bool WorldManager::_handleDormantNpcs(uint64 callTime, void* ref)
 				// uint64 waitTime = NpcManager::Instance()->handleDormantNpc(creature, callTime - (*it).second);
 				// gLogger->logMsgF("Dormant... ID = %llu", MSG_NORMAL, (*it).first);
 				uint64 waitTime = NpcManager::Instance()->handleNpc(npc, callTime - (*it).second);
-				
+
 				if (waitTime)
 				{
-					// Set next execution time. 
+					// Set next execution time.
 					(*it).second = callTime + waitTime;
 				}
 				else
@@ -3260,13 +3259,13 @@ bool WorldManager::_handleDormantNpcs(uint64 callTime, void* ref)
 					// gLogger->logMsgF("Removed dormant NPC handler... %llu", MSG_NORMAL, (*it).first);
 
 					// Requested to remove the handler.
-					it = mNpcDormantHandlers.erase(it);
+					mNpcDormantHandlers.erase(it++);
 				}
 			}
 			else
 			{
 				// Remove the expired object...
-				it = mNpcDormantHandlers.erase(it);
+				mNpcDormantHandlers.erase(it++);
 				gLogger->logMsg("Removed expired dormant NPC handler...");
 			}
 		}
@@ -3279,9 +3278,9 @@ bool WorldManager::_handleDormantNpcs(uint64 callTime, void* ref)
 }
 
 //======================================================================================================================
-// 
+//
 //	Add a npc to the Ready queue.
-// 
+//
 
 void WorldManager::addReadyNpc(uint64 creature, uint64 when)
 {
@@ -3291,9 +3290,9 @@ void WorldManager::addReadyNpc(uint64 creature, uint64 when)
 }
 
 //======================================================================================================================
-// 
+//
 //	Remove a npc from the Ready queue.
-// 
+//
 
 void WorldManager::removeReadyNpc(uint64 creature)
 {
@@ -3306,9 +3305,9 @@ void WorldManager::removeReadyNpc(uint64 creature)
 }
 
 //======================================================================================================================
-// 
+//
 //	Force a npc from the Ready queue to be handled at next tick.
-// 
+//
 
 void WorldManager::forceHandlingOfReadyNpc(uint64 creature)
 {
@@ -3344,20 +3343,20 @@ bool WorldManager::_handleReadyNpcs(uint64 callTime, void* ref)
 				uint64 waitTime = NpcManager::Instance()->handleNpc(npc, callTime - (*it).second);
 				if (waitTime)
 				{
-					// Set next execution time. 
+					// Set next execution time.
 					(*it).second = callTime + waitTime;
 				}
 				else
 				{
 					// Requested to remove the handler.
-					it = mNpcReadyHandlers.erase(it);
+					mNpcReadyHandlers.erase(it++);
 					// gLogger->logMsg("Removed ready NPC handler...");
 				}
 			}
 			else
 			{
 				// Remove the expired object...
-				it = mNpcReadyHandlers.erase(it);
+				mNpcReadyHandlers.erase(it++);
 				// gLogger->logMsg("Removed ready NPC handler...");
 			}
 		}
@@ -3370,9 +3369,9 @@ bool WorldManager::_handleReadyNpcs(uint64 callTime, void* ref)
 }
 
 //======================================================================================================================
-// 
+//
 //	Add a npc to the Active queue.
-// 
+//
 
 void WorldManager::addActiveNpc(uint64 creature, uint64 when)
 {
@@ -3382,9 +3381,9 @@ void WorldManager::addActiveNpc(uint64 creature, uint64 when)
 }
 
 //======================================================================================================================
-// 
+//
 //	Remove a npc from the Active queue.
-// 
+//
 
 void WorldManager::removeActiveNpc(uint64 creature)
 {
@@ -3418,20 +3417,20 @@ bool WorldManager::_handleActiveNpcs(uint64 callTime, void* ref)
 				uint64 waitTime = NpcManager::Instance()->handleNpc(npc, callTime - (*it).second);
 				if (waitTime)
 				{
-					// Set next execution time. 
+					// Set next execution time.
 					(*it).second = callTime + waitTime;
 				}
 				else
 				{
 					// Requested to remove the handler.
-					it = mNpcActiveHandlers.erase(it);
+					mNpcActiveHandlers.erase(it++);
 					// gLogger->logMsg("Removed active NPC handler...");
 				}
 			}
 			else
 			{
 				// Remove the expired object...
-				it = mNpcActiveHandlers.erase(it);
+				mNpcActiveHandlers.erase(it++);
 				// gLogger->logMsg("Removed active NPC handler...");
 			}
 		}
@@ -3444,9 +3443,9 @@ bool WorldManager::_handleActiveNpcs(uint64 callTime, void* ref)
 }
 
 //======================================================================================================================
-// 
+//
 //	Get the spawn area for a region.
-// 
+//
 
 const Anh_Math::Rectangle WorldManager::getSpawnArea(uint64 spawnRegionId)
 {
@@ -3463,9 +3462,9 @@ const Anh_Math::Rectangle WorldManager::getSpawnArea(uint64 spawnRegionId)
 }
 
 //======================================================================================================================
-// 
+//
 //	Remove player from accountmap
-// 
+//
 
 void WorldManager::removePlayerfromAccountMap(uint64 playerID)
 {

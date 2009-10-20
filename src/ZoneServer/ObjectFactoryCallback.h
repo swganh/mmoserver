@@ -21,10 +21,13 @@ class DispatchClient;
 
 class ObjectFactoryCallback
 {
-	public:
-		virtual void	handleObjectReady(Object* object,DispatchClient* client) {};
-		virtual void	handleObjectReady(Object* object) {};
+public:
+	ObjectFactoryCallback();
+	virtual ~ObjectFactoryCallback();
+
+	virtual void	handleObjectReady(Object* object,DispatchClient* client) {};
+	virtual void	handleObjectReady(Object* object) {};
 };
 
-#endif 
+#endif
 

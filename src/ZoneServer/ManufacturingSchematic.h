@@ -44,7 +44,7 @@ typedef std::vector<CustomizationOption*>	CustomizationList;
 
 typedef std::vector<ManufactureSlot*>			ManufactureSlots;
 typedef std::vector<ExperimentationProperty*>	ExperimentationProperties; // stores all properties
-typedef std::vector<std::pair<uint32,ExperimentationProperty*>>	ExperimentationPropertiesStore;	//stores the reference list of unique exp properties
+typedef std::vector<std::pair<uint32,ExperimentationProperty*> >	ExperimentationPropertiesStore;	//stores the reference list of unique exp properties
 typedef std::vector<CraftWeight*>				CraftWeights;
 typedef std::vector<CraftAttribute*>			CraftAttributes;
 typedef std::vector<CraftAttributeWeight*>		CraftAttributeWeights;
@@ -67,7 +67,7 @@ class ManufacturingSchematic : public Item
 
 		uint8	getCounter(){ return mCounter += (mManufactureSlots).size(); }
 		void	setCounter(uint8 count){ mCounter = count; }
-		
+
 		void	addFilledSlot(){ mSlotsFilled++; }
 		void	removeFilledSlot(){ mSlotsFilled--; }
 
@@ -89,7 +89,7 @@ class ManufacturingSchematic : public Item
 		void	sendAttributes(PlayerObject* playerObject);
 
 		ManufactureSlots*			getManufactureSlots(){ return &mManufactureSlots; }
-		
+
 
 		//===============================================================================0
 		// necessary to keep track on the same experimental propertie added to a schematic several times
@@ -137,7 +137,7 @@ class ManufacturingSchematic : public Item
 		float						mExpFailureChance;
 		Item*						mItem;
 		string						mSerial;
-		
+
 		AttributeMap				mPPAttributeMap;
 };
 
@@ -148,16 +148,16 @@ class ManufactureSlot
 	public:
 
 		ManufactureSlot(DraftSlot* draftSlot) :	mDraftSlot(draftSlot),mFilled(0),mUnknown1(0),mUnknown2(0xffffffff),mUnknown3(0),mFilledIndicator(0),mFilledIndicatorChange(false){}
-			
+
 		virtual ~ManufactureSlot(){}
 		float	getmFilledIndicator(){ return static_cast<float>(mFilledIndicator); }
 		void	setmFilledIndicator(uint32 indicator){ mFilledIndicatorChange = (mFilledIndicator != indicator);mFilledIndicator= indicator; }
-		
+
 		// slots
 		DraftSlot*		mDraftSlot;
 		uint32			mFilled;
 		FilledResources	mFilledResources;
-		
+
 		// SlotContent filled
 		// 0 nothing
 		// 1 ??
@@ -186,20 +186,20 @@ class ExperimentationProperty//CraftingAttribute
 
 		ExperimentationProperty(const int8* expAttName,CraftWeights* craftWeights,CraftAttributes* craftAttributes,float expAttValue,float assAttValue,float maxExpValue)
 		: mExpAttributeValue(expAttValue),mWeights(craftWeights),mAttributes(craftAttributes),mExpUnknown(0),mBlueBarSize(assAttValue),mMaxExpValue(maxExpValue)
-		{ 
+		{
 			mExpAttributeName			=	expAttName;
 			mBlueBarSize				=	1.0;
-			
+
 		}
 
 		virtual ~ExperimentationProperty(){}
 
 		CraftWeights*		mWeights;
 		CraftAttributes*	mAttributes;
-		
+
 
 		string				mExpAttributeName;
-		
+
 		float				mExpAttributeValue;
 		float				mExpAttributeValueOld;
 		bool				mExpAttributeValueChange;
@@ -257,11 +257,11 @@ T	ManufacturingSchematic::getPPAttribute(uint32 keyCrc) const
 		}
 		catch(boost::bad_lexical_cast &)
 		{
-			gLogger->logMsgF("ManufacturingSchematic::getPPAttribute: cast failed (%s)",MSG_HIGH,key.getAnsi());
+			gLogger->logMsgF("ManufacturingSchematic::getPPAttribute: cast failed (%u)",MSG_HIGH,keyCrc);
 		}
 	}
 	else
-		gLogger->logMsgF("ManufacturingSchematic::getPPAttribute: could not find %s",MSG_HIGH,key.getAnsi());
+		gLogger->logMsgF("ManufacturingSchematic::getPPAttribute: could not find %u",MSG_HIGH,keyCrc);
 
 	return(T());
 }

@@ -29,6 +29,8 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "MathLib/Quaternion.h"
 #include "Utils/clock.h"
 
+#include <cfloat>
+
 //=============================================================================
 
 CreatureObject::CreatureObject() : MovingObject(),
@@ -101,10 +103,10 @@ CreatureObject::~CreatureObject()
 	//in which case we need the creatureobjectreference to hair to delete it without crashing
 	Object* hair = getHair();
 	mEquipManager.removeEquippedObject(CreatureEquipSlot_Hair);
-	
+
 	//hair is not added to the world object list so just delete
 	SAFE_DELETE(hair); //not everyone has hair
-	
+
 
 	this->Buffs.clear();
 }
@@ -265,7 +267,7 @@ bool CreatureObject::modifySkillModValue(uint32 modId,int32 modifier)
 		++it;
 	}
 
-	
+
 
 	return(false);
 }
@@ -497,9 +499,9 @@ void CreatureObject::AddBuff(Buff* buff,  bool stackable, bool overwrite)
 			gLogger->logMsg("Attempt to duplicate buffs prevented.\n");
 		}
 		SAFE_DELETE(buff);
-		return; 
+		return;
 		//TODO Currently, no overwrites - need to make it so certain buffs replace older ones
-		//which will be important for doctor buffs 
+		//which will be important for doctor buffs
 	}
 
 	//Set the target to this creature, in case it isn't already
@@ -546,22 +548,22 @@ void CreatureObject::RemoveBuff(Buff* buff)
 //
 
 void CreatureObject::CleanUpBuffs()
-{	
+{
 	std::vector<Buff*>::iterator it = Buffs.begin();
 	while(it != Buffs.end())
 	{
-		if(!(*it)) 
+		if(!(*it))
 		{
 			it++;
-		} 
-		else 
-		if((*it)->GetIsMarkedForDeletion()) 
+		}
+		else
+		if((*it)->GetIsMarkedForDeletion())
 		{
 			((Buff*)(*it))->EraseAttributes();
 			it = Buffs.erase(it);
-		} 
-		else 
-		{	
+		}
+		else
+		{
 			it++;
 		}
 	}
@@ -666,15 +668,15 @@ void CreatureObject::incap()
 
 			// schedule recovery event
 			mObjectController.addEvent(new IncapRecoveryEvent(),mCurrentIncapTime);
-		
+
 			// reset states
 			mState = 0;
-			
+
 			// reset ham regeneration
 			mHam.updateRegenRates();
 			gWorldManager->removeCreatureHamToProcess(mHam.getTaskId());
 			mHam.setTaskId(0);
-			
+
 			updateMovementProperties();
 
 			gMessageLib->sendPostureAndStateUpdate(this);
@@ -684,7 +686,7 @@ void CreatureObject::incap()
 				gMessageLib->sendUpdateMovementProperties(player);
 				gMessageLib->sendSelfPostureUpdate(player);
 			}
-		} 
+		}
 		// we hit the max -> death
 		else
 		{
@@ -722,7 +724,7 @@ void CreatureObject::die()
 	}
 
 	mPosture = CreaturePosture_Dead;
-	
+
 	// reset ham regeneration
 	mHam.updateRegenRates();
 	gWorldManager->removeCreatureHamToProcess(mHam.getTaskId());
@@ -797,7 +799,7 @@ void CreatureObject::die()
 		gWorldManager->getSI()->getObjectsInRange(this,&inRangeBuildings,ObjType_Building,8192);
 
 		ObjectSet::iterator buildingIt = inRangeBuildings.begin();
-		
+
 		while (buildingIt != inRangeBuildings.end())
 		{
 			BuildingObject* building = dynamic_cast<BuildingObject*>(*buildingIt);
@@ -815,7 +817,7 @@ void CreatureObject::die()
 					// gLogger->logMsg("Found a cloning facility");
 					// TODO: This code is not working as intended if player dies inside, since buildings use world coordinates and players inside have cell coordinates.
 					// Tranformation is needed before the correct distance can be calculated.
-					if(!nearestBuilding	|| 
+					if(!nearestBuilding	||
 					   (nearestBuilding != building && (mPosition.distance2D(building->mPosition) < mPosition.distance2D(nearestBuilding->mPosition))))
 					{
 						nearestBuilding = building;
@@ -868,7 +870,7 @@ void CreatureObject::die()
 		// Who killed me
 		// this->prepareCustomRadialMenu(this,0);
 
-		// 
+		//
 		// update defender lists
 		ObjectIDList::iterator defenderIt = mDefenders.begin();
 
@@ -934,7 +936,7 @@ void CreatureObject::addDefender(uint64 defenderId)
 		++it;
 	}
 
-	mDefenders.push_back(defenderId); 
+	mDefenders.push_back(defenderId);
 }
 
 
@@ -944,7 +946,7 @@ void CreatureObject::clearDefenders()
 {
 	if (mDefenders.size())
 	{
-		mDefenders.clear(); 
+		mDefenders.clear();
 	}
 	else
 	{
@@ -1010,14 +1012,14 @@ bool CreatureObject::setAsActiveDefenderAndUpdateList(uint64 defenderId)
 		if (index != 0)
 		{
 			// gLogger->logMsg("setAsActiveDefenderAndUpdateList: Moved defender to active.");
-			
+
 			// Move the defender to top of list.
 			(void)mDefenders.erase(it);
 			mDefenders.push_front(defenderId);
 			// gMessageLib->sendDefenderUpdate(this,2,0,defenderId);
-			
+
 			// gMessageLib->sendNewDefenderList(this);
-			
+
 			// THIS code should be in player, not creature, for obvious reasons.
 			PlayerObject* player = dynamic_cast<PlayerObject*>(this);
 			assert(player);
@@ -1025,7 +1027,7 @@ bool CreatureObject::setAsActiveDefenderAndUpdateList(uint64 defenderId)
 			gMessageLib->sendBaselinesCREO_6(player,player);
 			gMessageLib->sendEndBaselines(player->getPlayerObjId(),player);
 
-			// gMessageLib->sendDefenderUpdate(this,0,0,0);			
+			// gMessageLib->sendDefenderUpdate(this,0,0,0);
 			// gMessageLib->sendDefenderUpdate(this,1,0,defenderId);		// Overwrite whatever we have there
 		}
 		else
@@ -1150,14 +1152,14 @@ uint64 CreatureObject::getNearestAttackingDefender(void)
 void CreatureObject::buildCustomization(uint16 customization[])
 {
 	uint8 len = 0x73;
-	
+
 	uint8* playerCustomization = new uint8[512];
 
 	uint16 byteCount = 4; // 2 byte header + footer
 	uint8 elementCount = 0;
 
 	// get absolute bytecount(1 byte index + value)
-	for(uint8 i = 1;i < len;i++) 
+	for(uint8 i = 1;i < len;i++)
 	{
 		if((customization[i] != 0))
 		{
@@ -1172,22 +1174,22 @@ void CreatureObject::buildCustomization(uint16 customization[])
 	//get additional bytes for female chest
 	bool			female = false;
 	PlayerObject*	player = dynamic_cast<PlayerObject*>(this);
-	
+
 	if(player)
 		female = player->getGender();
-			
+
 	if(female)
 	{
 		//please note its 1 index with 2 attribute values!!!!
 		byteCount += 1;
 		elementCount++;
 
-		for(uint8 i = 171;i < 173;i++) 
+		for(uint8 i = 171;i < 173;i++)
 		{
-			if(customization[i] == 0) 
+			if(customization[i] == 0)
 				customization[i] = 511;
-		
-			if(customization[i] == 255) 
+
+			if(customization[i] == 255)
 				customization[i] = 767;
 
 			if((customization[i] < 255)&&(customization[i] > 0))
@@ -1200,7 +1202,7 @@ void CreatureObject::buildCustomization(uint16 customization[])
 	// elements count
 	playerCustomization[0] = 0x01;
 	playerCustomization[1] = elementCount;
-	
+
 	uint16 j = 2;
 	//get additional bytes for female chest
 	if(female)
@@ -1221,11 +1223,11 @@ void CreatureObject::buildCustomization(uint16 customization[])
 				playerCustomization[j+1] = (uint8)((customization[i] >> 8) & 0xff);
 				j += 2;
 			}
-		
+
 		}
 	}
 
-	
+
 
 	// fill our string
 	for(uint8 i = 1;i < len;i++)
@@ -1268,7 +1270,7 @@ void CreatureObject::buildCustomization(uint16 customization[])
 void CreatureObject::makePeaceWithDefender(uint64 defenderId)
 {
 	// gLogger->logMsgF("CreatureObject::makePeaceWithDefender()", MSG_NORMAL);
-	
+
 	// Atempting a forced peace is no good.
 
 	PlayerObject* attackerPlayer = dynamic_cast<PlayerObject*>(this);
@@ -1294,7 +1296,7 @@ void CreatureObject::makePeaceWithDefender(uint64 defenderId)
 	{
 		if (attackerPlayer)
 		{
-			// Players do not make peace with other players. 
+			// Players do not make peace with other players.
 			return;
 		}
 	}
@@ -1307,13 +1309,13 @@ void CreatureObject::makePeaceWithDefender(uint64 defenderId)
 		gLogger->logMsgF("Defender is of unknown type...", MSG_NORMAL);
 		return;
 	}
-	
+
 	// Remove defender from my list.
 	if (defenderCreature)
 	{
 		this->removeDefenderAndUpdateList(defenderCreature->getId());
 	}
-	
+
 	if (defenderPlayer)
 	{
 		// Update defender about attacker pvp status.
@@ -1361,7 +1363,7 @@ void CreatureObject::makePeaceWithDefender(uint64 defenderId)
 		{
 			// He have no more defenders.
 			// gLogger->logMsgF("Defender: My last defender", MSG_NORMAL);
-			
+
 			if (defenderPlayer)
 			{
 				gMessageLib->sendUpdatePvpStatus(defenderCreature,defenderPlayer);
@@ -1394,19 +1396,19 @@ uint32	CreatureObject::UpdatePerformanceCounter()
 
 Object* CreatureObject::getTarget() const
 {
-	return gWorldManager->getObjectById(mTargetId); 
+	return gWorldManager->getObjectById(mTargetId);
 }
 
 //=============================================================================
-//handles building custom radials 
+//handles building custom radials
 void CreatureObject::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount)
 {
 
 	if(getCreoGroup() == CreoGroup_Vehicle)
 	{
 
-		RadialMenu* radial = new RadialMenu();		
-	
+		RadialMenu* radial = new RadialMenu();
+
 		radial->addItem(1,0,radId_examine,radAction_Default);
 
 		if(creatureObject->getId() == mOwner)
@@ -1424,7 +1426,7 @@ void CreatureObject::prepareCustomRadialMenu(CreatureObject* creatureObject, uin
 
 			//TODO: Check if near a garage then add repair
 		}
-	
+
 		mRadialMenu = RadialMenuPtr(radial);
 	}
 
@@ -1439,7 +1441,7 @@ void CreatureObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 {
 
 	if(PlayerObject* player = dynamic_cast<PlayerObject*>(srcObject))
-	{	
+	{
 		switch(messageType)
 		{
 			case radId_vehicleStore:
@@ -1457,7 +1459,7 @@ void CreatureObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 				}
 			}
 			break;
-			case radId_serverVehicleEnter: //An associated packet is sent			
+			case radId_serverVehicleEnter: //An associated packet is sent
 			case radId_serverVehicleExit: //mount and dismount logic is contained within OCPetHandlers.cpp
 			break;
 

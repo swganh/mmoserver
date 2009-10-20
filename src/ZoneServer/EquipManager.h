@@ -21,7 +21,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 //=============================================================================
 
-typedef std::map<CreatureEquipSlot,Object*> SlotMap;
+typedef std::map<const CreatureEquipSlot,Object*> SlotMap;
 
 //=============================================================================
 
@@ -62,7 +62,7 @@ class EquipManager
 
 		// clear the map
 		void				clearSlotMap(){ mSlotMap.clear(); }
-		
+
 		// flow control
 		uint32				getEquippedObjectsUpdateCounter(){ return mEquippedObjectsUpdateCounter; }
 		uint32				advanceEquippedObjectsUpdateCounter(uint32 c){ mEquippedObjectsUpdateCounter += c; return mEquippedObjectsUpdateCounter; }

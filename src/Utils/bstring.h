@@ -48,15 +48,16 @@ public:
     // Operator overloads
     bool operator ==(char* string);
     bool operator ==(const char* data);
-    bool operator ==(BString& data);
+    bool operator ==(const BString& data);
+    bool operator ==(BString data);
 
     BString& operator =(const int8* data);
-  
+
     BString& operator =(int8* data);
     BString& operator =(const uint16* data);
     BString& operator =(const wchar_t* data);
     BString& operator =(const BString& data);
-  
+
     BString& operator <<(const int8* data);
     BString& operator <<(int8* data);
 
@@ -88,7 +89,7 @@ public:
     BStringType getType() const;
     int8* getRawData() const;
     uint32 getAllocated() const;
-    uint32 getCrc();
+    uint32 getCrc() const;
 
     static uint32 CRC(char* data);
 

@@ -35,7 +35,7 @@ EquipManager::~EquipManager()
 }
 
 //=============================================================================
-// 
+//
 // remove an object from all slots it occupies, returns nr of occurances removed
 //
 
@@ -52,8 +52,8 @@ uint8 EquipManager::removeEquippedObject(Object* object)
 		if((*it).second == object)
 		{
 			freeEquipSlot((*it).first);
-			it = mSlotMap.erase(it);
-			
+			mSlotMap.erase(it++);
+
 			++occurance;
 		}
 		else
@@ -70,7 +70,7 @@ uint8 EquipManager::removeEquippedObject(Object* object)
 		if((*eqIt) == object)
 		{
 			mEquippedObjects.erase(eqIt);
-			
+
 			break;
 		}
 
@@ -108,7 +108,7 @@ uint8 EquipManager::removeEquippedObject(uint32 slotMask)
 
 				++occurance;
 			}
-			
+
 		}
 	}
 
@@ -146,7 +146,7 @@ Object* EquipManager::getEquippedObject(CreatureEquipSlot slot)
 	{
 		return((*it).second);
 	}
-	
+
 	return(NULL);
 }
 
@@ -209,7 +209,7 @@ bool EquipManager::addEquippedObject(Object* object)
 			++occurance;
 		}
 	}
-	
+
 	setEquipSlots(slotMask);
 
 	// add to equiplist
@@ -227,7 +227,7 @@ uint8 EquipManager::addEquippedObject(uint32 slotMask,Object* object)
 {
 	SlotMap::iterator	it;
 	uint8				occurance = 0;
-	
+
 	for(uint32 slot = 1; slot < CREATURE_MAX_SLOT;slot = slot << 1)
 	{
 		if((slotMask & slot) == slot)

@@ -28,6 +28,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Inventory.h"
 #include "ObjectFactory.h"
 
+#include "Utils/utils.h"
+
 //=============================================================================
 
 CharacterBuilderTerminal::CharacterBuilderTerminal() : Terminal(), mSortedList(NULL)
@@ -48,7 +50,7 @@ CharacterBuilderTerminal::CharacterBuilderTerminal() : Terminal(), mSortedList(N
 	mCreditsMenu.push_back("Inventory credits");
 	mCreditsMenu.push_back("Bank credits");
 
-	
+
 	mAttributesMenu.push_back("Battle fatigue   (50)");
 	mAttributesMenu.push_back("Battle fatigue  (250)");
 	mAttributesMenu.push_back("Mind Wounds      (50)");
@@ -75,7 +77,7 @@ CharacterBuilderTerminal::~CharacterBuilderTerminal()
 
 
 void CharacterBuilderTerminal::prepareRadialMenu()
-{	
+{
 }
 
 //=============================================================================
@@ -86,7 +88,7 @@ void CharacterBuilderTerminal::handleObjectMenuSelect(uint8 messageType,Object* 
 	{
 		PlayerObject* playerObject = dynamic_cast<PlayerObject*>(srcObject);
 
-		// bring up the terminal window 
+		// bring up the terminal window
 		if(playerObject && playerObject->isConnected())
 		{
 			if(playerObject->getSurveyState() || playerObject->getSamplingState() || playerObject->isIncapacitated() || playerObject->isDead())
@@ -123,7 +125,7 @@ void CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string 
 
 		case SUI_Window_CharacterBuilderMainMenu_ListBox:
 		{
-			
+
 			switch(element)
 			{
 				case 0: //manage xp
@@ -142,14 +144,14 @@ void CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string 
 
 						for (uint32 index = 0; index < mSortedList->size(); index++)
 						{
-							if (_strcmpi(gSkillManager->getXPTypeExById((*xpIt).first).getAnsi(), (*it).first.getAnsi()) < 0)
+							if (Anh_Utils::cmpistr(gSkillManager->getXPTypeExById((*xpIt).first).getAnsi(), (*it).first.getAnsi()) < 0)
 							{
 								break;
 							}
 							it++;
 						}
 						mSortedList->insert(it, std::make_pair(gSkillManager->getXPTypeExById((*xpIt).first),(*xpIt).first));
-						
+
 						++xpIt;
 					}
 
@@ -201,9 +203,9 @@ void CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string 
 															"handleInputItemId",
 															"Get Item",
 															"Enter the item ID",
-															dropDowns, 
-															playerObject, 
-															SUI_IB_NODROPDOWN_OKCANCEL, 
+															dropDowns,
+															playerObject,
+															SUI_IB_NODROPDOWN_OKCANCEL,
 															SUI_Window_CharacterBuilderItemIdInputBox,
 															8);
 						/*
@@ -220,8 +222,8 @@ void CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string 
 								itemIdList.push_back((*it)->family);
 								nameList.push_back((*it)->f_name);
 							}
-								
-							it++;	
+
+							it++;
 						}
 
 						gUIManager->createNewResourceSelectListBox(this,"","Item family","Select",nameList,itemIdList,playerObject,SUI_Window_CharacterBuilderItemType_ListBox);
@@ -279,7 +281,7 @@ void CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string 
 									resourceNameList.push_back((*(*rcIt).second).getName());
 									break;
 								}
-								
+
 								++rtIt;
 							}
 
@@ -291,7 +293,7 @@ void CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string 
 				}
 				break;
 
-				
+
 				default:{}break;
 			}
 		}
@@ -311,7 +313,7 @@ void CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string 
 				if(item)
 				{
 					Inventory* inventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-					gObjectFactory->requestNewDefaultItem(inventory,item->family,item->type,inventory->getId(),99,Anh_Math::Vector3(),"");	
+					gObjectFactory->requestNewDefaultItem(inventory,item->family,item->type,inventory->getId(),99,Anh_Math::Vector3(),"");
 					gMessageLib->sendSystemMessage(playerObject, L"The item has been placed in your inventory.");
 				}
 				else
@@ -353,7 +355,7 @@ void CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string 
 					//iterate through the children categories and display them
 					ResourceCategoryList*			rcList				= rParent->getChildren();
 					ResourceCategoryList::iterator	rcIt				= rcList->begin();
-					
+
 					bool found = false;
 					//iterate through the children and add them as necessary
 					while(rcIt != rcList->end())
@@ -361,7 +363,7 @@ void CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string 
 						if((*(*rcIt)).getChildren()->size())
 						{
 							resourceIdList.push_back((*(*rcIt)).getId());
-							resourceNameList.push_back((*(*rcIt)).getName());	
+							resourceNameList.push_back((*(*rcIt)).getName());
 							rcIt++;
 							continue;
 						}
@@ -389,7 +391,7 @@ void CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string 
 								break;
 
 							}
-								
+
 							if((*(*rcIt)).getParentId() == rParent->getId())
 							{
 								resourceIdList.push_back((*(*rcIt)).getId());
@@ -399,7 +401,7 @@ void CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string 
 								break;
 								//}
 							}
-							
+
 							++rtIt;
 						}
 						if(rcIt != rcList->end())
@@ -409,7 +411,7 @@ void CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string 
 				}
 				else//if(rParent->getChildren()->size())
 				{				//it was a resource - create
-					
+
 					ResourceIdList resourceIdList = dynamic_cast<UIResourceSelectListBox*>(window)->getResourceIdList();
 
 					if(element > (int32)resourceIdList.size()|| element < 0)
@@ -420,7 +422,7 @@ void CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string 
 
 					ResourceCRCNameMap*				rCRCMap				= gResourceManager->getResourceCRCNameMap();
 					ResourceCRCNameMap::iterator	rCrcMapIt;
-					
+
 					ResourceTypeMap::iterator		rtIt				= rtMap->begin();
 					uint32							catId				= static_cast<uint32>(resourceIdList[element]);
 					ResourceCategory*				rCategory			= gResourceManager->getResourceCategoryById(catId);
@@ -432,9 +434,9 @@ void CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string 
 					while(rtIt != rtMap->end())
 					{
 						if((*(*rtIt).second).getCategoryId() == catId)
-						{							
+						{
 							// check whether we have associated resources
-							
+
 							rCrcMapIt	= rCRCMap->begin();
 							while(rCrcMapIt != rCRCMap->end())
 							{
@@ -452,7 +454,7 @@ void CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string 
 
 						++rtIt;
 					}
-					
+
 					// is the list filled? if not we might have resources already on our hand!
 					if(resourceIdList.size())
 					{
@@ -479,7 +481,7 @@ void CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string 
 					}
 				}
 			}
-		}	
+		}
 		break;
 
 
@@ -490,11 +492,11 @@ void CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string 
 		{
 			ResourceIdList resourceIdList = dynamic_cast<UIResourceSelectListBox*>(window)->getResourceIdList();
 			if(element < 0)
-			{ 
+			{
 				resourceIdList.clear();
 				break;
 			}
-			
+
 			// now have the category we need the type
 			if(playerObject->isConnected())
 			{
@@ -534,10 +536,10 @@ void CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string 
 		{
 
 			if(element < 0)
-			{ 
+			{
 				break;
 			}
-			
+
 			// now have the type we need the resource
 			if(playerObject->isConnected())
 			{
@@ -554,12 +556,12 @@ void CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string 
 				if(resource)
 				{
 					Inventory* inventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-					gObjectFactory->requestNewResourceContainer(inventory ,resource->getId(),inventory ->getId(),99,100000);	
+					gObjectFactory->requestNewResourceContainer(inventory ,resource->getId(),inventory ->getId(),99,100000);
 				}
 			}
 		}
 		break;
-		
+
 		//================================
 		// credits type selection
 
@@ -575,9 +577,9 @@ void CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string 
 						"handleInputInventoryCredits",
 						"Inventory Credits",
 						"Enter amount",
-						dropDowns, 
-						playerObject, 
-						SUI_IB_NODROPDOWN_OKCANCEL, 
+						dropDowns,
+						playerObject,
+						SUI_IB_NODROPDOWN_OKCANCEL,
 						SUI_Window_CharacterBuilderCreditsMenuInventory_InputBox,
 						8);
 				}
@@ -591,13 +593,13 @@ void CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string 
 						"handleInputInventoryCredits",
 						"Bank Credits",
 						"Enter amount",
-						dropDowns, 
-						playerObject, 
-						SUI_IB_NODROPDOWN_OKCANCEL, 
+						dropDowns,
+						playerObject,
+						SUI_IB_NODROPDOWN_OKCANCEL,
 						SUI_Window_CharacterBuilderCreditsMenuBank_InputBox,
 						8);
 				}
-				break; 
+				break;
 
 				default:{}break;
 			}
@@ -611,13 +613,13 @@ void CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string 
 		case SUI_Window_CharacterBuilderCreditsMenuInventory_InputBox:
 		case SUI_Window_CharacterBuilderCreditsMenuBank_InputBox:
 		{
-			
+
 			// parse the input value
 			if(swscanf(inputStr.getUnicode16(),L"%i",&mInputBoxAmount) != 1)
 			{
 				mInputBoxAmount = -1;
 			}
-			
+
 			if(mInputBoxAmount < 0)
 			{
 				gMessageLib->sendSystemMessage(playerObject, L"Invalid amount.");
@@ -631,7 +633,7 @@ void CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string 
 			{
 				dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->setCredits(mInputBoxAmount);
 				gTreasuryManager->saveAndUpdateInventoryCredits(playerObject);
-				
+
 			}
 			else
 			{
@@ -667,19 +669,19 @@ void CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string 
 				{
 					playerObject->getHam()->updatePropertyValue(HamBar_Mind, HamProperty_Wounds, 50);
 				}
-				break; 
+				break;
 
 				case 3: // get 250 mind wounds
 				{
 					playerObject->getHam()->updatePropertyValue(HamBar_Mind, HamProperty_Wounds, 250);
 				}
-				break; 
+				break;
 
 				case 4: //test heal bf
 				{
 					playerObject->getHam()->updateBattleFatigue(-123);
 				}
-				break; 
+				break;
 
 				case 5: //test heal wounds
 				{
@@ -687,7 +689,7 @@ void CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string 
 					playerObject->getHam()->updatePropertyValue(HamBar_Action, HamProperty_Wounds, -123);
 					playerObject->getHam()->updatePropertyValue(HamBar_Mind, HamProperty_Wounds, -123);
 				}
-				break; 
+				break;
 
 				case 6: //random
 				{
@@ -716,70 +718,70 @@ void CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string 
 				case 7: //Lloyd's Health Buffs
 				{
 					gMessageLib->sendSystemMessage(playerObject, L"Attempting to Add Blue Frog Doc Health Buffs");
-					
-					BuffAttribute* tempAttribute1 = new BuffAttribute(Health, +2400,0,-2400); 
+
+					BuffAttribute* tempAttribute1 = new BuffAttribute(Health, +2400,0,-2400);
 					Buff* tempBuff1 = Buff::SimpleBuff(playerObject, playerObject, 600000, medical_enhance_health, gWorldManager->GetCurrentGlobalTick());
-					tempBuff1->AddAttribute(tempAttribute1);	
+					tempBuff1->AddAttribute(tempAttribute1);
 					playerObject->AddBuff(tempBuff1);
 
-					BuffAttribute* tempAttribute2 = new BuffAttribute(Strength, +2400,0,-2400); 
+					BuffAttribute* tempAttribute2 = new BuffAttribute(Strength, +2400,0,-2400);
 					Buff* tempBuff2 = Buff::SimpleBuff(playerObject, playerObject, 600000, medical_enhance_strength, gWorldManager->GetCurrentGlobalTick());
-					tempBuff2->AddAttribute(tempAttribute2);	
+					tempBuff2->AddAttribute(tempAttribute2);
 					playerObject->AddBuff(tempBuff2);
 
-					BuffAttribute* tempAttribute3 = new BuffAttribute(Constitution, +2400,0,-2400); 
+					BuffAttribute* tempAttribute3 = new BuffAttribute(Constitution, +2400,0,-2400);
 					Buff* tempBuff3 = Buff::SimpleBuff(playerObject, playerObject, 600000, medical_enhance_constitution, gWorldManager->GetCurrentGlobalTick());
-					tempBuff3->AddAttribute(tempAttribute3);	
+					tempBuff3->AddAttribute(tempAttribute3);
 					playerObject->AddBuff(tempBuff3);
 				}
 				break;
 				case 8: //Lloyd's Action Buffs
 				{
 					gMessageLib->sendSystemMessage(playerObject, L"Attempting to Add Blue Frog Doc Action Buffs");
-					
-					BuffAttribute* tempAttribute1 = new BuffAttribute(Action, +2400,0,-2400); 
+
+					BuffAttribute* tempAttribute1 = new BuffAttribute(Action, +2400,0,-2400);
 					Buff* tempBuff1 = Buff::SimpleBuff(playerObject, playerObject, 600000, medical_enhance_action, gWorldManager->GetCurrentGlobalTick());
-					tempBuff1->AddAttribute(tempAttribute1);	
+					tempBuff1->AddAttribute(tempAttribute1);
 					playerObject->AddBuff(tempBuff1);
 
-					BuffAttribute* tempAttribute2 = new BuffAttribute(Quickness, +2400,0,-2400); 
+					BuffAttribute* tempAttribute2 = new BuffAttribute(Quickness, +2400,0,-2400);
 					Buff* tempBuff2 = Buff::SimpleBuff(playerObject, playerObject, 600000, medical_enhance_quickness, gWorldManager->GetCurrentGlobalTick());
-					tempBuff2->AddAttribute(tempAttribute2);	
+					tempBuff2->AddAttribute(tempAttribute2);
 					playerObject->AddBuff(tempBuff2);
 
-					BuffAttribute* tempAttribute3 = new BuffAttribute(Stamina, +2400,0,-2400); 
+					BuffAttribute* tempAttribute3 = new BuffAttribute(Stamina, +2400,0,-2400);
 					Buff* tempBuff3 = Buff::SimpleBuff(playerObject, playerObject, 600000, medical_enhance_stamina, gWorldManager->GetCurrentGlobalTick());
-					tempBuff3->AddAttribute(tempAttribute3);	
+					tempBuff3->AddAttribute(tempAttribute3);
 					playerObject->AddBuff(tempBuff3);
 				}
 				break;
 				case 9: //Lloyd's Mind Buffs
 				{
 					gMessageLib->sendSystemMessage(playerObject, L"Attempting to Add Blue Frog Ent Mind Buffs");
-					
-					BuffAttribute* tempAttribute1 = new BuffAttribute(Mind, +600,0,-600); 
+
+					BuffAttribute* tempAttribute1 = new BuffAttribute(Mind, +600,0,-600);
 					Buff* tempBuff1 = Buff::SimpleBuff(playerObject, playerObject, 600000, performance_enhance_dance_mind, gWorldManager->GetCurrentGlobalTick());
-					tempBuff1->AddAttribute(tempAttribute1);	
+					tempBuff1->AddAttribute(tempAttribute1);
 					playerObject->AddBuff(tempBuff1);
 
-					BuffAttribute* tempAttribute2 = new BuffAttribute(Focus, +600,0,-600); 
+					BuffAttribute* tempAttribute2 = new BuffAttribute(Focus, +600,0,-600);
 					Buff* tempBuff2 = Buff::SimpleBuff(playerObject, playerObject, 600000, performance_enhance_music_focus, gWorldManager->GetCurrentGlobalTick());
-					tempBuff2->AddAttribute(tempAttribute2);	
+					tempBuff2->AddAttribute(tempAttribute2);
 					playerObject->AddBuff(tempBuff2);
 
-					BuffAttribute* tempAttribute3 = new BuffAttribute(Willpower, +600,0,-600); 
+					BuffAttribute* tempAttribute3 = new BuffAttribute(Willpower, +600,0,-600);
 					Buff* tempBuff3 = Buff::SimpleBuff(playerObject, playerObject, 600000, performance_enhance_music_willpower, gWorldManager->GetCurrentGlobalTick());
-					tempBuff3->AddAttribute(tempAttribute3);	
+					tempBuff3->AddAttribute(tempAttribute3);
 					playerObject->AddBuff(tempBuff3);
 				}
 				break;
 				case 10: //Lloyd's Jawa Beer
 				{
 					gMessageLib->sendSystemMessage(playerObject, L"Attempting to Add Jawa Beer +15 Mask Scent");
-					
-					BuffAttribute* tempAttribute1 = new BuffAttribute(Mask_Scent, +15,0,-15); 
+
+					BuffAttribute* tempAttribute1 = new BuffAttribute(Mask_Scent, +15,0,-15);
 					Buff* tempBuff1 = Buff::SimpleBuff(playerObject, playerObject, 600000, food_drink_jawa_beer, gWorldManager->GetCurrentGlobalTick());
-					tempBuff1->AddAttribute(tempAttribute1);	
+					tempBuff1->AddAttribute(tempAttribute1);
 					playerObject->AddBuff(tempBuff1);
 				}
 				break;
@@ -787,14 +789,14 @@ void CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string 
 				{
 					gMessageLib->sendSystemMessage(playerObject, L"Take That Sucker!");
 					playerObject->getHam()->updatePropertyValue(HamBar_Health, HamProperty_CurrentHitpoints, -200);
-					
+
 				}
 				break;
 				case 12: //Action Damage
 				{
 					gMessageLib->sendSystemMessage(playerObject, L"Take That Sucker!");
 					playerObject->getHam()->updatePropertyValue(HamBar_Action, HamProperty_CurrentHitpoints, -200);
-					
+
 				}
 				break;
 				default:{}break;
@@ -828,7 +830,7 @@ void CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string 
 			gObjectFactory->requestNewDefaultItem(dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)),mItemsTypes[element].second,mItemsTypes[element].first,dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getId(),99,Anh_Math::Vector3(),"");
 		}
 		break;
-		
+
 		case SUI_Window_CharacterBuilderProfessionMastery_ListBox:
 		{
 			if(element < 0)
@@ -839,7 +841,7 @@ void CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string 
 			SkillList* skillList = gSkillManager->getMasterProfessionList();
 			SkillList::iterator skillIt = skillList->begin();
 			skillIt+=element;
-			gSkillManager->learnSkillLine((*skillIt)->mId, playerObject, false);		
+			gSkillManager->learnSkillLine((*skillIt)->mId, playerObject, false);
 		}
 		break;
 

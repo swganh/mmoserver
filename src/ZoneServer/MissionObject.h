@@ -26,7 +26,7 @@ typedef struct
 {
 	Anh_Math::Vector3	Coordinates;
 	uint64				CellID;
-	uint32				PlanetCRC;   
+	uint32				PlanetCRC;
 } Location;
 
 
@@ -58,7 +58,7 @@ class MissionObject : public Object
 		void				clear();
 		bool				check(uint64 callTime,void*);
 		void				sendAttributes(PlayerObject* playerObject);
-		
+
 
 		PlayerObject*		getOwner() { return mOwner; }
 		void				setOwner(PlayerObject* owner) { mOwner = owner; }
@@ -101,7 +101,7 @@ class MissionObject : public Object
 		void				setDetail(const char* detail) { mDetail = detail; }
 
 		int					getRefreshCount() { return mRefreshCount; }
-		void				setRefreshCount(int refresh_count) { mRefreshCount = refresh_count; }
+		int				setRefreshCount(int refresh_count) { mRefreshCount = refresh_count; return mRefreshCount; }
 
 		uint32				getMissionType() { return mMissionType; }
 		void				setMissionType(uint32 mission_type) { mMissionType = mission_type; }
@@ -122,7 +122,7 @@ class MissionObject : public Object
 
 		uint64				getTaskId() { return mTaskId; }
 		void				setTaskId(uint64 task_id) { mTaskId = task_id; }
-		
+
 
 	protected:
 
@@ -141,9 +141,9 @@ class MissionObject : public Object
 		Location				mStart;					//Start Location
 		Location				mDestination;			//End Location
 
-		int						mReward;				//Credit amount to reward upon mission complete		
-		int						mDifficulty;            //Diffaculty\Efficiency		
-		string					mCreator;				//UNICODE	
+		int						mReward;				//Credit amount to reward upon mission complete
+		int						mDifficulty;            //Diffaculty\Efficiency
+		string					mCreator;				//UNICODE
 
 		string					mDetailFile;			//ASCII
 		string					mDetail;				//Description - ASCII
@@ -151,12 +151,12 @@ class MissionObject : public Object
 		int						mRefreshCount;			//Counter Provided By the Terminal
 		uint32					mMissionType;			//CRC Value
 
-		bool					external;				//if true mission was not assigned an id via id_mask 
+		bool					external;				//if true mission was not assigned an id via id_mask
 		WaypointObject*			mWaypoint;
 
 		int						mNum;					//The mission entry in the stf file ex: m3t num=3
 
-		NPCObject*				mStartNPC;		
+		NPCObject*				mStartNPC;
 		NPCObject*				mDestinationNPC;
 
 		bool					mInProgress;			//set to true when the player starts the buff
@@ -165,17 +165,17 @@ class MissionObject : public Object
 
 	private:
 
-		inline uint64 getNewMissionId(uint16 * id_mask, uint64 player_id) { 
-						 for(int i=0; i<16; ++i) 
-                    	   if(!(*id_mask & (1 << i))) { 
-                    	     *id_mask |= (1 << i); 
+		inline uint64 getNewMissionId(uint16 * id_mask, uint64 player_id) {
+						 for(int i=0; i<16; ++i)
+                    	   if(!(*id_mask & (1 << i))) {
+                    	     *id_mask |= (1 << i);
 							 return (player_id + 700) + (i << 1);
-						   } return NULL; 
+						   } return NULL;
 					  }
 		inline void   freeMissionId(uint16 * id_mask, uint64 player_id) {
                          *id_mask &= ~(1<<((this->mId-(player_id + 700))>>1));
 					  }
-						
+
 
 };
 

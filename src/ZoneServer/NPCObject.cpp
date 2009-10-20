@@ -25,6 +25,8 @@ Copyright (c) 2006 - 2009 The swgANH Team
 
 #include "Utils/rand.h"
 
+#include <cfloat>
+
 class DamageDealer
 {
 	public:
@@ -70,10 +72,10 @@ NPCObject::~NPCObject()
 //	Returns a new random position given the rectangle of +- offsetX and +- offsetY.
 //
 
-Anh_Math::Vector3 NPCObject::getRandomPosition(Anh_Math::Vector3& currentPos, int32 offsetX, int32 offsetZ) const
+Anh_Math::Vector3 NPCObject::getRandomPosition(const Anh_Math::Vector3& currentPos, int32 offsetX, int32 offsetZ) const
 {
 	Anh_Math::Vector3 v(currentPos);
-	
+
 	// TODO: Validate map bounderies.
 	v.mX = (float)(v.mX - (offsetX/2)) + gRandom->getRand() % (int)(offsetX+1);
 	v.mZ = (float)(v.mZ - (offsetZ/2)) + gRandom->getRand() % (int)(offsetZ+1);
@@ -87,7 +89,7 @@ Anh_Math::Vector3 NPCObject::getRandomPosition(Anh_Math::Vector3& currentPos, in
 	}
 	else
 	{
-		v.mY = Heightmap::Instance()->getHeight(v.mX, v.mZ ); 
+		v.mY = Heightmap::Instance()->getHeight(v.mX, v.mZ );
 	}
 	if (v.mY == FLT_MIN)
 	{
@@ -113,7 +115,7 @@ float NPCObject::getHeightAt2DPosition(float xPos, float zPos, bool bestOffer) c
 	}
 	else
 	{
-		yPos = Heightmap::Instance()->getHeight(xPos, zPos); 
+		yPos = Heightmap::Instance()->getHeight(xPos, zPos);
 	}
 	if (yPos == FLT_MIN)
 	{
@@ -137,7 +139,7 @@ void NPCObject::setDirection(float deltaX, float deltaZ)
 
 	// if ((z/h) < 0.0)
 	if ((z) < 0.0)
-	{	
+	{
 		// if (x/h < 0.0)
 		if (x < 0.0)
 		{
@@ -152,7 +154,7 @@ void NPCObject::setDirection(float deltaX, float deltaZ)
 	}
 	else
 	{
-		this->mDirection.mY = static_cast<float>(sin(0.5f*asin(x/h)));	
+		this->mDirection.mY = static_cast<float>(sin(0.5f*asin(x/h)));
 		this->mDirection.mW = static_cast<float>(cos(0.5f*acos(z/h)));
 	}
 
@@ -280,7 +282,7 @@ void NPCObject::updatePosition(uint64 parentId, Anh_Math::Vector3 newPosition)
 					this->mPosition = newPosition;
 					this->setSubZoneId((uint32)newRegion->getId());
 					newRegion->mTree->addObject(this);
-				}			
+				}
 			}
 		}
 	}
@@ -300,7 +302,7 @@ void NPCObject::updatePosition(uint64 parentId, Anh_Math::Vector3 newPosition)
 			// gLogger->logMsgF("NPC changed cell from (%lld) to (%lld)",MSG_NORMAL, oldParentId, parentId);
 
 			// only remove us from si, if we just entered the building
-			if (oldParentId != 0) 
+			if (oldParentId != 0)
 			{
 				// We are still inside.
 				if (cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(oldParentId)))
@@ -325,7 +327,7 @@ void NPCObject::updatePosition(uint64 parentId, Anh_Math::Vector3 newPosition)
 					}
 				}
 			}
-				
+
 			// put us into new one
 			if (!this->getKnownPlayers()->empty())
 			{
@@ -347,7 +349,7 @@ void NPCObject::updatePosition(uint64 parentId, Anh_Math::Vector3 newPosition)
 
 	// send out position updates to known players
 	this->setInMoveCount(this->getInMoveCount() + 1);
-	
+
 	//check whether updates are necessary before building the packet and then destroying it
 	if (this->getKnownPlayers()->empty())
 	{
@@ -401,14 +403,14 @@ void NPCObject::setRandomDirection(void)
 	// Let's turn to the direction we are heading.
 	float x = (float)(ux - 100);	// -100.0 <= x <= 100.0
 	float z = (float)(uz - 100);	// -100.0 <= z <= 100.0
-	
+
 	// gLogger->logMsgF("NPCObject::setRandomDirection: %.0f, %.0f", MSG_NORMAL, x, z);
-	
+
 	float h = sqrt(x*x + z*z);
 
 	// if ((z/h) < 0.0) h always positive.
 	if (z < 0.0)
-	{	
+	{
 		// if (x/h < 0.0) h always positive.
 		if (x < 0.0)
 		{
@@ -423,7 +425,7 @@ void NPCObject::setRandomDirection(void)
 	}
 	else
 	{
-		this->mDirection.mY = sin(0.5f*asin(x/h));	
+		this->mDirection.mY = sin(0.5f*asin(x/h));
 		this->mDirection.mW = cos(0.5f*acos(z/h));
 	}
 	// gLogger->logMsgF("Translates to: %.3f, %.3f", MSG_NORMAL, this->mDirection.mY, this->mDirection.mW);
@@ -453,7 +455,7 @@ void NPCObject::updateDamage(uint64 playerId, uint64 groupId, uint32 weaponGroup
 		}
 		it++;
 	}
-	
+
 	if (it == mDamageDealers.end())
 	{
 		// Add this attacker.
@@ -527,7 +529,7 @@ void NPCObject::updateAggro(uint64 playerId, uint64 groupId, uint8 attackerPostu
 		}
 		it++;
 	}
-	
+
 	if (it == mDamageDealers.end())
 	{
 		// Add aggro for this attacker.
@@ -627,8 +629,8 @@ void NPCObject::updateAttackersXp(void)
 {
 	// gLogger->logMsgF("NPCObject::updateAttackersXp() Entering", MSG_NORMAL);
 
-	// First we need to figure out who has done most damage. 
-	
+	// First we need to figure out who has done most damage.
+
 	// It can be an individual player or a group of players.
 	// If a player has made damage before or after he was a group member, that damage will not count into the group damage.
 	// It will be added to his damage as an individual player.
@@ -681,7 +683,7 @@ void NPCObject::updateAttackersXp(void)
 		groupIt++;
 	}
 
-	// The weapon xp will be dived equally between your weapons used, 
+	// The weapon xp will be dived equally between your weapons used,
 	// (and the rest is a comlete made up rule... )
 	// mapped to the average HAM value of this creature, lol.
 
@@ -757,7 +759,7 @@ void NPCObject::updateGroupDamage(DamageDealer* damageDealer)
 		}
 		it++;
 	}
-	
+
 	if (it == mDamageByGroups.end())
 	{
 		// gLogger->logMsgF("New group as damage dealer, group = %llu, damage = %u", MSG_NORMAL, damageDealer->mGroupId, damageDealer->mDamage);
@@ -791,7 +793,7 @@ void NPCObject::updateAttackersWeaponAndCombatXp(uint64 playerId, uint64 groupId
 	}
 
 	// Here is the XP to grant for each type of damage done.
-	if (noOfWeaponsUsed)	
+	if (noOfWeaponsUsed)
 	{
 		int32 weaponXp = damageDone/(noOfWeaponsUsed);
 

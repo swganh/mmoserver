@@ -12,9 +12,10 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_BUFF_H
 #define ANH_BUFF_H
 
-#include "Utils\typedefs.h"
 #include "BuffAttributeEnums.h"
 #include "BuffIconsEnum.h"
+
+#include "Utils/typedefs.h"
 
 class CreatureObject;
 class BuffAttribute;
@@ -29,9 +30,9 @@ class BuffAttribute
 public:
 	BuffAttribute(BuffAttributeEnum Type, int32 InitialValue, int32	TickValue, int32 FinalValue);
 	~BuffAttribute();
-	
+
 	static BuffAttribute* FromDB(BuffAttributeDBItem* item);
-	
+
 	BuffAttributeEnum	GetType();
 	int32				GetInitialValue();
 	int32				GetTickValue();
@@ -72,7 +73,7 @@ public:
 	void setTarget(CreatureObject* creature);
 	void EraseAttributes();
 	bool GetIsMarkedForDeletion();
-	
+
 	//mID is the process ID for the timer
 	uint64 GetID();
 	//whereas dbId is the Id in the db
@@ -91,7 +92,7 @@ public:
 private:
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	//Private Member Variables
-	///////////////////////////////////////////////////////////////////////////////////////////////	
+	///////////////////////////////////////////////////////////////////////////////////////////////
 	uint64					mID;
 	uint64					mDBID;
 	string					mName;
@@ -104,7 +105,7 @@ private:
 	bool					mMarkedForDeletion;
 	uint32					mNoTicks; //Total number of Ticks
 	uint32					mCurrentTick; //Current Tick Number
-	int64					mTick; //Length of Tick in ms 
+	int64					mTick; //Length of Tick in ms
 	AttributeList			Attributes;
 	uint64					mStartTime; //GlobalTickCount at Start of Buff
 	uint64					mNextTickLength; //Store the length of the next tick (for when reloading from DB)
@@ -115,7 +116,7 @@ private:
 	void					ModifyAttribute(BuffAttributeEnum Type, int32 Value);
 	void					IncrementTick();
 	uint64					GetRemainingTime();
-	bool					UpdateTick(uint64 CurrentTime);	
+	bool					UpdateTick(uint64 CurrentTime);
 	void					FinalChanges();		//last change of a buff before deletion
 	void					InitialChanges();	//resend icons and attribute changes
 	void					InitializeIcons();	//just resend the icons when we rezone before char delete
@@ -128,4 +129,4 @@ protected:
 	void SetParent(Buff* value);
 };
 
-#endif ANH_BUFF_H
+#endif // ANH_BUFF_H

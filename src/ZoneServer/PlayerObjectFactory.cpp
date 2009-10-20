@@ -83,7 +83,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
 	{
 		case POFQuery_MainPlayerData:
 		{
-			
+
 			PlayerObject* playerObject = _createPlayer(result);
 
 			playerObject->setClient(asyncContainer->mClient);
@@ -207,10 +207,10 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
 
 			mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT characters.firstname FROM chat_ignorelist "
 														"INNER JOIN characters ON (chat_ignorelist.ignore_id = characters.id) "
-														"WHERE (chat_ignorelist.character_id = %lld)",playerObject->getId());	
+														"WHERE (chat_ignorelist.character_id = %lld)",playerObject->getId());
 		}
 		break;
-		
+
 		case POFQuery_DenyService:
 		{
 			PlayerObject* playerObject = dynamic_cast<PlayerObject*>(asyncContainer->mObject);
@@ -234,14 +234,14 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
 			QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,POFQuery_HoloEmotes,asyncContainer->mClient);
 			asContainer->mObject = playerObject;
 
-			mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT  emote_id, charges FROM character_holoemotes WHERE character_id = %I64u",playerObject->getId());	
+			mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT  emote_id, charges FROM character_holoemotes WHERE character_id = %I64u",playerObject->getId());
 		}
 		break;
 
 		case POFQuery_HoloEmotes:
 		{
 			PlayerObject*	playerObject = dynamic_cast<PlayerObject*>(asyncContainer->mObject);
-		
+
 
 			DataBinding* binding = mDatabase->CreateDataBinding(2);
 			binding->addField(DFT_uint32,offsetof(PlayerObject,mHoloEmote),4,0);
@@ -257,7 +257,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
 			mDatabase->DestroyDataBinding(binding);
 		}
 		break;
-		
+
 		case POFQuery_Ignores:
 		{
 			PlayerObject* playerObject = dynamic_cast<PlayerObject*>(asyncContainer->mObject);
@@ -315,7 +315,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
 				result->GetNextRow(binding,&xpCont);
 				playerObject->mXpList.push_back(std::make_pair(xpCont.mId,xpCont.mValue));
 			}
-			// Initiate all XP caps and optionally any missing skills. 
+			// Initiate all XP caps and optionally any missing skills.
 			// Skills that require Jedi or JTL will not be included if player do not have the prerequisites.
 			gSkillManager->initExperience(playerObject);
 
@@ -326,12 +326,12 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
 			// store us for later lookup
 			InLoadingContainer* ilc = new(mILCPool.ordered_malloc()) InLoadingContainer(playerObject,asyncContainer->mOfCallback,asyncContainer->mClient,2);
 			ilc->mLoadCounter = 2;
-			
+
 			mObjectLoadMap.insert(std::make_pair(playerObject->getId(),ilc));
 
 			// request inventory
 			mInventoryFactory->requestObject(this,playerObject->mId + 1,TanGroup_Inventory,TanType_CharInventory,asyncContainer->mClient);
-		
+
 		}
 		break;
 
@@ -339,12 +339,12 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
 		{
 			PlayerObject* playerObject = dynamic_cast<PlayerObject*>(asyncContainer->mObject);
 
-			InLoadingContainer*	mIlc = _getObject(playerObject->getId());			
+			InLoadingContainer*	mIlc = _getObject(playerObject->getId());
 
 			uint64 id;
 			DataBinding* binding = mDatabase->CreateDataBinding(1);
 			binding->addField(DFT_uint64,0,8);
-			
+
 			uint64 count = result->getRowCount();
 			mIlc->mLoadCounter += static_cast<uint32>(count);
 
@@ -352,7 +352,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
 			{
 				result->GetNextRow(binding,&id);
 				gTangibleFactory->requestObject(this,id,TanGroup_Item,0,asyncContainer->mClient);
-			
+
 			}
 			mDatabase->DestroyDataBinding(binding);
 
@@ -366,7 +366,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
 		case POFQuery_PreDefCloningFacility:
 		{
 			PlayerObject* playerObject = dynamic_cast<PlayerObject*>(asyncContainer->mObject);
-	
+
 			DataBinding* binding = mDatabase->CreateDataBinding(5);
 			binding->addField(DFT_uint64,offsetof(PlayerObject,mPreDesignatedCloningFacilityId),8,0);
 			binding->addField(DFT_float,offsetof(PlayerObject,mBindCoords.mX),4,1);
@@ -396,7 +396,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
 			uint32 lotCount;
 			DataBinding* binding = mDatabase->CreateDataBinding(1);
 			binding->addField(DFT_uint32,0,4);
-			
+
 			uint64 count = result->getRowCount();
 			if(!count)
 			{
@@ -522,7 +522,7 @@ PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
 	playerObject->setModelString(tmpModel);
 
 	playerObject->buildCustomization(playerObject->mCustomization);
-		
+
 	playerObject->setFactionRank(0);
 	// playerObject->setPvPStatus(16);
 	playerObject->setPvPStatus(CreaturePvPStatus_Player);
@@ -548,7 +548,7 @@ PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
 		playerHair->setName("hair");
 		playerHair->setNameFile("hair_name");
 		playerHair->setEquipSlotMask(CreatureEquipSlot_Hair);
-	
+
 		playerHair->buildTanoCustomization(3);
 
 		playerObject->mEquipManager.addEquippedObject(CreatureEquipSlot_Hair,playerHair);
@@ -559,7 +559,7 @@ PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
 		playerObject->setHair(NULL);
 		delete playerHair;
 	}
-		
+
 	// mission bag
 	playerMissionBag = new MissionBag(playerObject->mId + 2,playerObject,"object/tangible/mission_bag/shared_mission_bag.iff","item_n","mission_bag");
 	playerMissionBag->setEquipSlotMask(CreatureEquipSlot_MissionBag);
@@ -587,12 +587,12 @@ PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
 	playerWeapon->addInternalAttribute("weapon_group","1");
 
 	playerObject->mEquipManager.setDefaultWeapon(playerWeapon);
-	
+
 	// just making sure
 	playerObject->togglePlayerFlagOff(PlayerFlag_LinkDead);
-	
+
 	// A note by Eruptor: Do we really want to clear combat states here, like Dizzy etc...
-	// 
+	//
 	/*
 	playerObject->toggleStateOff(CreatureState_Crafting);
 	playerObject->toggleStateOff(CreatureState_Combat);
@@ -603,7 +603,7 @@ PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
 	*/
 
 	// logging in dead or incapped, shouldn't happen. (player is moved to cloning facility when disconnecting in those states
-	
+
 	// gLogger->logMsgF("PlayerObjectFactory::_createPlayer Posture = %u",MSG_NORMAL, playerObject->getPosture());
 	// gLogger->logMsgF("PlayerObjectFactory::_createPlayer State = %llu",MSG_NORMAL, playerObject->getState());
 
@@ -616,12 +616,12 @@ PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
 
 	// We also have quite a lot of state possibilities that we should not let our character have at startup.
 	// We may have to take ceratin actions on these, and then this is not the best placce to do the validation etc...
-	playerObject->toggleStateOff((CreatureState)(CreatureState_Cover | 
-								 CreatureState_Combat | 
+	playerObject->toggleStateOff((CreatureState)(CreatureState_Cover |
+								 CreatureState_Combat |
 								 CreatureState_Aiming |
 								 CreatureState_Berserk |
-								 CreatureState_FeignDeath | 
-								 CreatureState_CombatAttitudeEvasive | 
+								 CreatureState_FeignDeath |
+								 CreatureState_CombatAttitudeEvasive |
 								 CreatureState_CombatAttitudeNormal |
 								 CreatureState_CombatAttitudeAggressive |
 								 CreatureState_Swimming |
@@ -632,7 +632,7 @@ PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
 	playerObject->mHam.updateRegenRates();
 	playerObject->mHam.checkForRegen();
 
-	// setup controller validators 
+	// setup controller validators
 	playerObject->mObjectController.initEnqueueValidators();
 	playerObject->mObjectController.initProcessValidators();
 
@@ -697,7 +697,7 @@ void PlayerObjectFactory::_setupDatabindings()
 	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mCurrentForce),4,187);
 	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mMaxForce),4,188);
 	mPlayerBinding->addField(DFT_uint8,offsetof(PlayerObject,mNewPlayerExemptions),1,189);
-	
+
 	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mHealth.mMaxHitPoints),4,132);
 	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mStrength.mMaxHitPoints),4,133);
 	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mConstitution.mMaxHitPoints),4,134);
@@ -707,7 +707,7 @@ void PlayerObjectFactory::_setupDatabindings()
 	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mMind.mMaxHitPoints),4,138);
 	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mFocus.mMaxHitPoints),4,139);
 	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mWillpower.mMaxHitPoints),4,140);
-	
+
 	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mHealth.mCurrentHitPoints),4,141);
 	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mStrength.mCurrentHitPoints),4,142);
 	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mConstitution.mCurrentHitPoints),4,143);
@@ -732,7 +732,8 @@ void PlayerObjectFactory::_setupDatabindings()
 	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mBattleFatigue),4,162);
 
 	for(uint16 i = 0;i < 0x71;i++)
-		mPlayerBinding->addField(DFT_uint16,offsetof(PlayerObject,mCustomization[i]),2,i + 17);
+		mPlayerBinding->addField(DFT_uint16,offsetof(PlayerObject,mCustomization)+i,2,i + 17);
+
 	mPlayerBinding->addField(DFT_uint16,offsetof(PlayerObject,mCustomization[171]),2,130);
 	mPlayerBinding->addField(DFT_uint16,offsetof(PlayerObject,mCustomization[172]),2,131);
 
@@ -772,10 +773,10 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
 	PlayerObject*		playerObject = dynamic_cast<PlayerObject*>(mIlc->mObject);
 	TangibleObject*		tangibleObject = dynamic_cast<TangibleObject*>(object);
 
-	
+
 	if(Inventory* inventory = dynamic_cast<Inventory*>(object))
 	{
-		
+
 		inventory->setEquipSlotMask(CreatureEquipSlot_Inventory);
 
 		playerObject->mEquipManager.addEquippedObject(CreatureEquipSlot_Inventory,inventory);
@@ -787,7 +788,7 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
 		mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT id  FROM items WHERE parent_id=%lld",playerObject->getId());
 
 	}
-	else 
+	else
 	if(Datapad* datapad = dynamic_cast<Datapad*>(object))
 	{
 		datapad->setEquipSlotMask(CreatureEquipSlot_Datapad);
@@ -802,11 +803,11 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
 		gWorldManager->addObject(item,true);
 
 		playerObject->mEquipManager.addEquippedObject(item);
-		
+
 		Inventory* inventory = dynamic_cast<Inventory*>(playerObject->mEquipManager.getEquippedObject(CreatureEquipSlot_Inventory));
-		
+
 		inventory->addEquippedObject(item);
-		
+
 	}
 	else
 	{

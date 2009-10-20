@@ -71,7 +71,7 @@ ResourceManager::~ResourceManager()
 	{
 		delete((*catIt).second);
 
-		catIt = mResourceCategoryMap.erase(catIt);
+		mResourceCategoryMap.erase(catIt++);
 	}
 
 	ResourceTypeMap::iterator typeIt = mResourceTypeMap.begin();
@@ -80,7 +80,7 @@ ResourceManager::~ResourceManager()
 	{
 		delete((*typeIt).second);
 
-		typeIt = mResourceTypeMap.erase(typeIt);
+		mResourceTypeMap.erase(typeIt++);
 	}
 
 	ResourceIdMap::iterator resIt = mResourceIdMap.begin();
@@ -89,7 +89,7 @@ ResourceManager::~ResourceManager()
 	{
 		delete((*resIt).second);
 
-		resIt = mResourceIdMap.erase(resIt);
+		mResourceIdMap.erase(resIt++);
 	}
 
 	mInsFlag = false;
@@ -259,7 +259,7 @@ void ResourceManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 			if(result->getRowCount())
 				gLogger->logMsgLoadSuccess("ResourceManager::loading %u Ressources...",MSG_NORMAL,result->getRowCount());
 			else
-				gLogger->logMsgLoadFailure("ResourceManager::loading Ressources...",MSG_NORMAL);					
+				gLogger->logMsgLoadFailure("ResourceManager::loading Ressources...",MSG_NORMAL);
 
 		}
 		break;
@@ -286,7 +286,7 @@ void ResourceManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 			if(result->getRowCount())
 				gLogger->logMsgLoadSuccess("ResourceManager::generating %u Maps...",MSG_NORMAL,result->getRowCount());
 			else
-				gLogger->logMsgLoadFailure("ResourceManager::generating Maps...",MSG_NORMAL);					
+				gLogger->logMsgLoadFailure("ResourceManager::generating Maps...",MSG_NORMAL);
 
 			// query old and current resources not from this planet
 			mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) RMAsyncContainer(RMQuery_OldResources),"SELECT * FROM resources");
@@ -351,30 +351,30 @@ ResourceCategory* ResourceManager::getResourceCategoryById(uint32 id)
 
 
 ResourceIdMap* ResourceManager::getResourceIdMap()
-{ 
-    return &mResourceIdMap; 
+{
+    return &mResourceIdMap;
 }
 
 
 ResourceCRCNameMap* ResourceManager::getResourceCRCNameMap()
-{ 
-    return &mResourceCRCNameMap; 
+{
+    return &mResourceCRCNameMap;
 }
 
 
 ResourceTypeMap* ResourceManager::getResourceTypeMap()
-{ 
-    return &mResourceTypeMap; 
+{
+    return &mResourceTypeMap;
 }
 
 
 ResourceCategoryMap* ResourceManager::getResourceCategoryMap()
-{ 
-    return &mResourceCategoryMap; 
+{
+    return &mResourceCategoryMap;
 }
 
 
 void ResourceManager::releaseAllPoolsMemory()
-{ 
-    mDBAsyncPool.release_memory(); 
+{
+    mDBAsyncPool.release_memory();
 }

@@ -35,7 +35,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Common/Message.h"
 #include "Common/MessageFactory.h"
 
-
+#include <boost/lexical_cast.hpp>
 
 //======================================================================================================================
 //
@@ -64,7 +64,7 @@ void ObjectController::_handleResourceContainerTransfer(uint64 targetId,Message*
 			return;
 		}
 
-		ResourceContainer* targetContainer = dynamic_cast<ResourceContainer*>(gWorldManager->getObjectById(_atoi64(dataElements[0].getAnsi())));
+		ResourceContainer* targetContainer = dynamic_cast<ResourceContainer*>(gWorldManager->getObjectById(boost::lexical_cast<uint64>(dataElements[0].getAnsi())));
 
 		if(targetContainer && targetContainer->getResourceId() == selectedContainer->getResourceId())
 		{
@@ -89,8 +89,8 @@ void ObjectController::_handleResourceContainerTransfer(uint64 targetId,Message*
 
 				gObjectFactory->deleteObjectFromDB(selectedContainer);
 				dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->deleteObject(selectedContainer);
-				
-				
+
+
 			}
 			// target container full, update both contents
 			else if(newAmount > maxAmount)
@@ -150,8 +150,8 @@ void ObjectController::_handleResourceContainerSplit(uint64 targetId,Message* me
 		return;
 	}
 
-	uint32	splitOffAmount	= static_cast<uint32>(_atoi64(dataElements[0].getAnsi()));
-	uint64	parentId		= _atoi64(dataElements[1].getAnsi());
+	uint32	splitOffAmount	= boost::lexical_cast<uint32>(dataElements[0].getAnsi());
+	uint64	parentId		= boost::lexical_cast<uint64>(dataElements[1].getAnsi());
 
 	// update selected container contents
 	selectedContainer->setAmount(selectedContainer->getAmount() - splitOffAmount);
@@ -162,7 +162,7 @@ void ObjectController::_handleResourceContainerSplit(uint64 targetId,Message* me
 
 	// create a new one
 	gObjectFactory->requestNewResourceContainer(inventory,(selectedContainer->getResource())->getId(),parentId,99,splitOffAmount);
-	
+
 }
 
 //======================================================================================================================

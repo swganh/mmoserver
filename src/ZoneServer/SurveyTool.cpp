@@ -64,7 +64,7 @@ void SurveyTool::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 			// verify we are able to use this
 			if(!(playerObject->verifyAbility(opOCsurvey)))
 			{
-				gMessageLib->sendSystemMessage(playerObject,L"You lack the skill to use thís tool.");
+				gMessageLib->sendSystemMessage(playerObject,L"You lack the skill to use this tool.");
 
 				return;
 			}
@@ -73,7 +73,7 @@ void SurveyTool::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 			{
 				gMessageLib->sendSystemMessage(playerObject,L"","error_message","survey_in_structure");
 				return;
-			}	
+			}
 
 			//check whether the tool is initialized already - if not initialize
 
@@ -94,7 +94,7 @@ void SurveyTool::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 		{
 			if(!(playerObject->verifyAbility(opOCsurvey)))
 			{
-				gMessageLib->sendSystemMessage(playerObject,L"You lack the skill to use thís tool.");
+				gMessageLib->sendSystemMessage(playerObject,L"You lack the skill to use this tool.");
 
 				return;
 			}
@@ -117,10 +117,10 @@ void SurveyTool::StartUsing(PlayerObject* player)
 	ResourceList		resourceList;
 
 	mainCat->getResources(resourceList,true);
-	
-	gMessageFactory->StartMessage();       
-	gMessageFactory->addUint32(opResourceListForSurveyMessage);   
-	
+
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opResourceListForSurveyMessage);
+
 	gMessageFactory->addUint32(resourceList.size());
 
 	ResourceList::iterator resourceIt = resourceList.begin();
@@ -129,16 +129,16 @@ void SurveyTool::StartUsing(PlayerObject* player)
 	{
 		Resource* tmpResource = (*resourceIt);
 
-		gMessageFactory->addString(tmpResource->getName());  
+		gMessageFactory->addString(tmpResource->getName());
 		gMessageFactory->addUint64(tmpResource->getId());
-		gMessageFactory->addString((tmpResource->getType())->getDescriptor());	
+		gMessageFactory->addString((tmpResource->getType())->getDescriptor());
 
 		++resourceIt;
 	}
 
 	gMessageFactory->addString(mainCat->getName());
 	gMessageFactory->addUint64(mId);
-    
+
 	message = gMessageFactory->EndMessage();
 
 	(player->getClient())->SendChannelA(message, player->getAccountId(),CR_Client,4);
@@ -167,11 +167,11 @@ void SurveyTool::handleUIEvent(uint32 action,int32 element,string inputStr,UIWin
 		gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE item_attributes SET value=%u WHERE item_id=%lld AND attribute_id=6",range,mId);
 		gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE item_attributes SET value=%u WHERE item_id=%lld AND attribute_id=7",points,mId);
 
-		
+
 	}
 
 	PlayerObject*			playerObject	= window->getOwner();
-	
+
 	if(mSampleAfterSet)
 	{
 		StartUsing(playerObject);
@@ -202,7 +202,7 @@ void SurveyTool::_createRangeMenu(PlayerObject* playerObject, bool sample)
 		availableRanges.push_back("320m x 5pts");
 
 	if(!sample)
-		mSampleAfterSet = false;	
+		mSampleAfterSet = false;
 	else
 		mSampleAfterSet = true;
 

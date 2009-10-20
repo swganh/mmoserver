@@ -36,7 +36,7 @@ static int64 gCreatureDeathCounter = 0;
 //=============================================================================
 
 
-AttackableCreature::AttackableCreature(uint64 templateId) : NPCObject(), 
+AttackableCreature::AttackableCreature(uint64 templateId) : NPCObject(),
 mReadyDelay(0),
 mCombatTimer(0),
 mHoming(false),
@@ -57,8 +57,8 @@ mLairId(0)
 	this->setTemplateId(templateId);
 
 	mRadialMenu = RadialMenuPtr(new RadialMenu());
-	mRadialMenu->addItem(1,0,radId_combatAttack,radAction_Default); 
-	mRadialMenu->addItem(2,0,radId_examine,radAction_Default); 
+	mRadialMenu->addItem(1,0,radId_combatAttack,radAction_Default);
+	mRadialMenu->addItem(2,0,radId_examine,radAction_Default);
 }
 
 //=============================================================================
@@ -90,8 +90,8 @@ void AttackableCreature::prepareCustomRadialMenu(CreatureObject* creatureObject,
 		{
 			// gLogger->logMsgF("Targeting Creature is alive", MSG_NORMAL);
 			// mRadialMenu = RadialMenuPtr(new RadialMenu());
-			mRadialMenu->addItem(1,0,radId_lootAll,radAction_ObjCallback, "@ui_radial:loot_all"); 
-			mRadialMenu->addItem(2,1,radId_loot,radAction_ObjCallback, "@ui_radial:loot"); 
+			mRadialMenu->addItem(1,0,radId_lootAll,radAction_ObjCallback, "@ui_radial:loot_all");
+			mRadialMenu->addItem(2,1,radId_loot,radAction_ObjCallback, "@ui_radial:loot");
 		}
 		else
 		{
@@ -111,10 +111,10 @@ void AttackableCreature::handleObjectMenuSelect(uint8 messageType,Object* srcObj
 	// gLogger->logMsgF("AttackableCreature::handleObjectMenuSelect Entering", MSG_NORMAL);
 
 	if (PlayerObject* playerObject = dynamic_cast<PlayerObject*>(srcObject))
-	{	
+	{
 		switch(messageType)
 		{
-			case radId_lootAll: 
+			case radId_lootAll:
 			{
 				// First, we have to have a connected player..
 				// if (playerObject->isConnected() && !playerObject->isDead() && !playerObject->isIncapacitated() && this->isDead())
@@ -124,7 +124,7 @@ void AttackableCreature::handleObjectMenuSelect(uint8 messageType,Object* srcObj
 			}
 			break;
 
-			case radId_loot: 
+			case radId_loot:
 			{
 				// gLogger->logMsgF("AttackableCreature::handleObjectMenuSelect Handle for loot, creature id = %llu", MSG_NORMAL, this->getId());
 
@@ -144,14 +144,14 @@ void AttackableCreature::handleObjectMenuSelect(uint8 messageType,Object* srcObj
 							while (containerObjectIt != objList->end())
 							{
 								Object* object = (*containerObjectIt);
-								
+
 								if (TangibleObject* tangibleObject = dynamic_cast<TangibleObject*>(object))
 								{
 									// reminder: objects are owned by the global map, containers only keeps references
 									// send the creates, if we are not owned by any player OR by exactly this player.
 									if (playerObject)
 									{
-										if (!object->getPrivateOwner() || (object->isOwnedBy(playerObject))) 
+										if (!object->getPrivateOwner() || (object->isOwnedBy(playerObject)))
 										{
 											// could be a resource container, need to check this first, since it inherits from tangible
 											if (ResourceContainer* resCont = dynamic_cast<ResourceContainer*>(object))
@@ -184,7 +184,7 @@ void AttackableCreature::handleObjectMenuSelect(uint8 messageType,Object* srcObj
 									// Number of additional members.
 									int32 noOfMembers = inRangeMembers.size();
 									int32 splittedCredits = lootedCredits/(noOfMembers + 1);
-													
+
 									int8 str[64];
 									sprintf(str,"%u", lootedCredits);
 									string lootCreditsString(str);
@@ -206,7 +206,7 @@ void AttackableCreature::handleObjectMenuSelect(uint8 messageType,Object* srcObj
 										{
 											// "[GROUP] You receive %DI credits as your share."
 											gMessageLib->sendSystemMessage((*it), L"", "group", "prose_split", "", "", L"", splittedCredits);
-											
+
 											// Now we need to add the credits to player inventory.
 											Inventory* playerInventory = dynamic_cast<Inventory*>((*it)->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 											if (playerInventory)
@@ -252,7 +252,7 @@ void AttackableCreature::handleObjectMenuSelect(uint8 messageType,Object* srcObj
 									}
 								}
 							}
-							
+
 							// @error_message:corpse_empty "You find nothing else of value on the selected corpse."
 							if (objList->size() == 0)
 							{
@@ -318,8 +318,8 @@ void AttackableCreature::addKnownObject(Object* object)
 //
 //	Taunt message or flytext "!" when attempting an attack, will only be shown once.
 //  Peace will enable taunt/flytext again.
-//	
-// 
+//
+//
 //	Return true if target set.
 //
 
@@ -333,7 +333,7 @@ bool AttackableCreature::setTargetInAttackRange(void)
 	{
 		PlayerObjectSet* knownPlayers = this->getKnownPlayers();
 		PlayerObjectSet::iterator it = knownPlayers->begin();
-		
+
 		// For now, we attack the first target we see, that have we enough aggro towards.
 		while(it != knownPlayers->end())
 		{
@@ -463,7 +463,7 @@ bool AttackableCreature::showWarningInRange(void)
 	{
 		PlayerObjectSet* knownPlayers = this->getKnownPlayers();
 		PlayerObjectSet::iterator it = knownPlayers->begin();
-		
+
 		// For now, we attack the first target we see.
 		bool isOldTarget = false;
 		while(it != knownPlayers->end())
@@ -484,7 +484,7 @@ bool AttackableCreature::showWarningInRange(void)
 				}
 
 				// We only accepts new targets.
-				// if ((!this->getTarget() || ((*it) != this->getTarget())) && 
+				// if ((!this->getTarget() || ((*it) != this->getTarget())) &&
 				// 	(newTarget && gWorldManager->objectsInRange(this->getId(), (*it)->getId(), this->getAttackWarningRange())))
 				if (newTarget && gWorldManager->objectsInRange(this->getId(), (*it)->getId(), this->getAttackWarningRange()))
 				{
@@ -639,8 +639,8 @@ bool AttackableCreature::setTargetDefenderWithinMaxRange(void)
 		{
 			if (!defenderCreature->isIncapacitated() && !defenderCreature->isDead())
 			{
-				if (gWorldManager->objectsInRange(this->getHomePosition(), this->getCellIdForSpawn(), *defenderIt, 
-												  this->getStalkerDistanceMax() + this->getWeaponMaxRange()))		
+				if (gWorldManager->objectsInRange(this->getHomePosition(), this->getCellIdForSpawn(), *defenderIt,
+												  this->getStalkerDistanceMax() + this->getWeaponMaxRange()))
 				{
 					// Do only attack objects that have build up enough aggro.
 					if (this->attackerHaveAggro(defenderCreature->getId()))
@@ -681,8 +681,8 @@ bool AttackableCreature::isTargetWithinMaxRange(uint64 targetId)
 	{
 		if (!creature->isIncapacitated() && !creature->isDead())
 		{
-			if (gWorldManager->objectsInRange(this->getHomePosition(), this->getCellIdForSpawn(), targetId, 
-											  this->getStalkerDistanceMax() + this->getWeaponMaxRange()))		
+			if (gWorldManager->objectsInRange(this->getHomePosition(), this->getCellIdForSpawn(), targetId,
+											  this->getStalkerDistanceMax() + this->getWeaponMaxRange()))
 			{
 				// gLogger->logMsgF("AttackableCreature::isTargetWithinMaxRange()", MSG_NORMAL);
 				foundTarget = true;
@@ -766,7 +766,7 @@ bool AttackableCreature::isTargetWithinWeaponRange(void) const
 	bool inRange = false;
 	if (CreatureObject* targetCreature = dynamic_cast<CreatureObject*>(this->getTarget()))
 	{
-		inRange = gWorldManager->objectsInRange(this->getId(), targetCreature->getId(), this->getWeaponMaxRange());	
+		inRange = gWorldManager->objectsInRange(this->getId(), targetCreature->getId(), this->getWeaponMaxRange());
 	}
 	/*
 	if (inRange)
@@ -822,7 +822,7 @@ void AttackableCreature::equipPrimaryWeapon(void)
 			gLogger->logMsgF("AttackableCreature::equipPrimaryWeapon() Can't equip primary weapon\n", MSG_NORMAL);
 		}
 	}
-}	
+}
 
 
 void AttackableCreature::equipSecondaryWeapon(void)
@@ -839,7 +839,7 @@ void AttackableCreature::equipSecondaryWeapon(void)
 			gLogger->logMsgF("AttackableCreature::equipWeapon() Can't equip secondary weapon\n", MSG_NORMAL);
 		}
 	}
-}	
+}
 
 void AttackableCreature::unequipWeapon(void)
 {
@@ -853,7 +853,7 @@ void AttackableCreature::unequipWeapon(void)
 		gMessageLib->sendEquippedListUpdate_InRange(this);
 
 		// The weapon is now owned by the npc inventory. But we have not put it there, yet.
-		// In fact, we keep these npc-weapons outside inventory, until we need to loot the them, 
+		// In fact, we keep these npc-weapons outside inventory, until we need to loot the them,
 		// they are setup as "default weopons" during npc creation.
 		/*
 		Inventory* inventory = dynamic_cast<Inventory*>(this->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
@@ -935,7 +935,7 @@ void AttackableCreature::handleEvents(void)
 		break;
 
 		case State_Idle:
-		{	
+		{
 			// gLogger->logMsgF("State_Idle ", MSG_NORMAL);
 
 			if (!this->getKnownPlayers()->empty())
@@ -1012,7 +1012,7 @@ void AttackableCreature::handleEvents(void)
 				// Anyone need our help?
 				if (this->needToAssistLair())
 				{
-					this->executeLairAssist(); 
+					this->executeLairAssist();
 				}
 				else if (this->needAssist())
 				{
@@ -1045,9 +1045,9 @@ void AttackableCreature::handleEvents(void)
 		break;
 
 		case State_CombatReady:
-		{	
+		{
 			// gLogger->logMsgF("State_CombatReady", MSG_NORMAL);
-			// 
+			//
 			if (this->getKnownPlayers()->empty())
 			{
 				if (this->insideRoamingLimit())
@@ -1080,7 +1080,7 @@ void AttackableCreature::handleEvents(void)
 
 			if (this->needToAssistLair())
 			{
-				this->executeLairAssist(); 
+				this->executeLairAssist();
 			}
 			else if (this->isTargetWithinWeaponRange())
 			{
@@ -1094,7 +1094,7 @@ void AttackableCreature::handleEvents(void)
 			{
 				if (this->needToAssistLair())
 				{
-					this->executeLairAssist(); 
+					this->executeLairAssist();
 				}
 				// Continue until I'm home.
 				// Anyone need our help?
@@ -1223,7 +1223,7 @@ void AttackableCreature::handleEvents(void)
 			}
 			else if (this->needToAssistLair())
 			{
-				this->executeLairAssist(); 
+				this->executeLairAssist();
 			}
 			else if (!this->checkState((CreatureState)(CreatureState_Combat)))
 			{
@@ -1412,7 +1412,7 @@ uint64 AttackableCreature::handleState(uint64 timeOverdue)
 		break;
 
 		case State_Alerted:
-		{	
+		{
 			// Hm... check this state fairly often.
 			waitTime = (uint64)readyDefaultPeriodTime;
 
@@ -1422,7 +1422,7 @@ uint64 AttackableCreature::handleState(uint64 timeOverdue)
 			// Are we supposed to do any roaming?
 			if (this->isRoaming())
 			{
-				// Yes, continue roaming 
+				// Yes, continue roaming
 				int32 movementCounter = this->getRoamingSteps();
 				if (movementCounter > 0)
 				{
@@ -1453,7 +1453,7 @@ uint64 AttackableCreature::handleState(uint64 timeOverdue)
 					}
 					this->setRoamingSteps(movementCounter);
 				}
-				else 
+				else
 				{
 					// We are set to roaming, but ends up here when the roaming sequence is done and we have players nearby.
 					// gLogger->logMsgF("State_Alerted Attempting to roam", MSG_NORMAL);
@@ -1467,7 +1467,7 @@ uint64 AttackableCreature::handleState(uint64 timeOverdue)
 						if (roamingReadyTicksDelay == 0)
 						{
 							// gLogger->logMsgF("State_Alerted Started roaming", MSG_NORMAL);
-							
+
 							// Start roaming again.
 							setupRoaming(15, 15);
 						}
@@ -1491,7 +1491,7 @@ uint64 AttackableCreature::handleState(uint64 timeOverdue)
 		break;
 
 		case State_CombatReady:
-		{	
+		{
 			// Hm... check this state fairly often.
 			waitTime = (uint64)readyDefaultPeriodTime;
 
@@ -1586,7 +1586,7 @@ uint64 AttackableCreature::handleState(uint64 timeOverdue)
 				}
 			}
 			this->setCombatTimer(activation);
-		
+
 			if (this->isStalker())
 			{
 				// gLogger->logMsgF("State_Combat Stalking", MSG_NORMAL);
@@ -1625,7 +1625,7 @@ void AttackableCreature::spawn(void)
 	gLogger->logMsgF("Spawned creature # %lld (%lld)", MSG_NORMAL, gCreatureSpawnCounter, gCreatureSpawnCounter - gCreatureDeathCounter);
 
 	// Update the world about my presence.
-	
+
 	this->setSpawned();
 	if (this->getParentId())
 	{
@@ -1639,7 +1639,7 @@ void AttackableCreature::spawn(void)
 		else
 		{
 			gLogger->logMsgF("AttackableCreature::spawnCreature: couldn't find cell %llu\n", MSG_HIGH, this->getParentId());
-			
+
 			// It's a serious isse that we need to investigate.
 			assert(cell);
 		}
@@ -1702,7 +1702,7 @@ void AttackableCreature::spawn(void)
 }
 
 //=============================================================================
-// 
+//
 //	Setup stalking target sequence.
 //
 
@@ -1721,7 +1721,7 @@ void AttackableCreature::setupStalking(uint64 updatePeriodTime)
 			{
 				// gLogger->logMsgF("Npc stalking target %s at %.0f, %.0f, %.0f", MSG_NORMAL, attacker->getFirstName().getAnsi(), destination.mX, destination.mY, destination.mZ);
 				// gLogger->logMsgF("AttackableCreature::setupStalking of target %s", MSG_NORMAL, attacker->getFirstName().getAnsi());
-				
+
 				this->disableHoming();
 
 				float distanceToMove = this->mPosition.distance2D(attacker->mPosition);
@@ -1758,7 +1758,7 @@ void AttackableCreature::setupStalking(uint64 updatePeriodTime)
 					// gLogger->logMsgF("Npc stalking target %s at %.0f, %.0f, %.0f", MSG_NORMAL, attacker->getFirstName().getAnsi(), destination.mX, destination.mY, destination.mZ);
 				}
 
-				this->setDestination(destination);	
+				this->setDestination(destination);
 				this->setStalkerSteps((int32)steps);
 
 				// Save the offset for each movement request.
@@ -1770,7 +1770,7 @@ void AttackableCreature::setupStalking(uint64 updatePeriodTime)
 }
 
 //=============================================================================
-// 
+//
 //	Setup a new roaming sequence.
 //
 
@@ -1780,53 +1780,53 @@ void AttackableCreature::setupRoaming(int32 maxRangeX, int32 maxRangeZ)
 	Anh_Math::Vector3 destination;
 
 	// If we already outside roaming area, get back home. We may get here when we stalk other objects.
-	if (this->mPosition.distance2D(this->getHomePosition()) >= this->getRoamingDistanceMax())
+	if (mPosition.distance2D(getHomePosition()) >= getRoamingDistanceMax())
 	{
 		// gLogger->logMsgF("NPC is outside roaming area, going home.", MSG_NORMAL);
-		this->enableHoming();
-		this->SetReadyDelay(1);	// Want to start the homing asap.
-		destination = this->getRandomPosition(this->getHomePosition(), 2*maxRangeX, 2*maxRangeZ);
+		enableHoming();
+		SetReadyDelay(1);	// Want to start the homing asap.
+		destination = getRandomPosition(getHomePosition(), 2*maxRangeX, 2*maxRangeZ);
 	}
 	else
 	{
 		// Verify that we don't roam outside given area.
-		destination = this->getRandomPosition(this->mPosition, 2*maxRangeX, 2*maxRangeZ);
-		while (this->getHomePosition().distance2D(destination) > this->getRoamingDistanceMax())
+		destination = getRandomPosition(mPosition, 2*maxRangeX, 2*maxRangeZ);
+		while (getHomePosition().distance2D(destination) > getRoamingDistanceMax())
 		{
 			// gLogger->logMsgF("Trying to find a position in range", MSG_NORMAL);
-			destination = this->getRandomPosition(this->mPosition, 2*maxRangeX, 2*maxRangeZ);
+			destination = getRandomPosition(mPosition, 2*maxRangeX, 2*maxRangeZ);
 		}
 	}
 	// gLogger->logMsgF("Npc going to %.0f, %.0f, %.0f", MSG_NORMAL, destination.mX, destination.mY, destination.mZ);
 
-	this->setDestination(destination);
+	setDestination(destination);
 
 	// Update the direction of the npc in the world.
-	this->setDirection(destination.mX - this->mPosition.mX, destination.mZ - this->mPosition.mZ);
+	setDirection(destination.mX - mPosition.mX, destination.mZ - mPosition.mZ);
 
 	// How many updates do we have to do before npc is at new target position?
-	float distanceToMove = this->mPosition.distance2D(destination);
+	float distanceToMove = mPosition.distance2D(destination);
 
 	// Dirty hack
 	float steps;
-	if (this->isHoming())
+	if (isHoming())
 	{
-		steps = distanceToMove/(this->getRoamingSpeed() * 3);
+		steps = distanceToMove/(getRoamingSpeed() * 3);
 	}
 	else
 	{
-		steps = distanceToMove/this->getRoamingSpeed();
+		steps = distanceToMove/getRoamingSpeed();
 	}
 
-	float xOffset = (destination.mX - this->mPosition.mX) / steps;
-	float yOffset = (destination.mY - this->mPosition.mY) / steps;
-	float zOffset = (destination.mZ - this->mPosition.mZ) / steps;
-	
-	this->setRoamingSteps((int32)steps);
+	float xOffset = (destination.mX - mPosition.mX) / steps;
+	float yOffset = (destination.mY - mPosition.mY) / steps;
+	float zOffset = (destination.mZ - mPosition.mZ) / steps;
+
+	setRoamingSteps((int32)steps);
 
 	// Calculate and save the offset for each movement request.
 	Anh_Math::Vector3 positionOffset(xOffset, yOffset, zOffset);
-	this->setPositionOffset(positionOffset);
+	setPositionOffset(positionOffset);
 }
 
 
@@ -1873,7 +1873,7 @@ bool AttackableCreature::targetOutsideRoamingLimit(void) const
 
 
 //=============================================================================
-// 
+//
 //	Stalk (follow your target).
 //
 
@@ -1927,7 +1927,7 @@ void AttackableCreature::stalk()
 }
 
 //=============================================================================
-// 
+//
 //	We have no more defenders.
 //	This method should be called as an "event" when we gets compleatly out of combat.
 //
@@ -1990,13 +1990,13 @@ void AttackableCreature::killEvent(void)
 		{
 			// gLogger->logMsgF("AttackableCreature::killEvent: Creating a new creature with template = %llu", MSG_NORMAL, this->getTemplateId());
 
-			uint64 npcNewId = gWorldManager->getRandomNpNpcIdSequence();	
+			uint64 npcNewId = gWorldManager->getRandomNpNpcIdSequence();
 			if (npcNewId != 0)
 			{
 				// Let's put this sucker into play again.
 				this->mTimeToFirstSpawn = ((uint64)gRandom->getRand() * 1000) % (this->getRespawnDelay() + 1);
-				NonPersistentNpcFactory::Instance()->requestNpcObject(NpcManager::Instance(), 
-																		this->getTemplateId(), 
+				NonPersistentNpcFactory::Instance()->requestNpcObject(NpcManager::Instance(),
+																		this->getTemplateId(),
 																		npcNewId,
 																		this->getCellIdForSpawn(),
 																		this->getSpawnPosition(),
@@ -2036,14 +2036,14 @@ void AttackableCreature::respawn(void)
 		// Respawn delay. If the creature have an unique delay, use that. Else use the one provided by the parent object.
 		if (this->hasInternalAttribute("creature_respawn_delay"))
 		{
-			uint64 respawnDelay = this->getInternalAttribute<uint64>("creature_respawn_delay");					
+			uint64 respawnDelay = this->getInternalAttribute<uint64>("creature_respawn_delay");
 			// gLogger->logMsgF("creature_respawn_delay = %llu", MSG_NORMAL, respawnDelay);
 			// mRespawnDelay = respawnDelay;
 			this->setRespawnDelay(respawnDelay);
 		}
 		else if (parent->hasInternalAttribute("lair_creatures_respawn_delay"))	// Note: parent may be the creature if spawning without a lair.
 		{
-			uint64 respawnDelay = parent->getInternalAttribute<uint64>("lair_creatures_respawn_delay");					
+			uint64 respawnDelay = parent->getInternalAttribute<uint64>("lair_creatures_respawn_delay");
 			// gLogger->logMsgF("lair_creatures_respawn_delay = %llu", MSG_NORMAL, respawnDelay);
 			// mRespawnDelay = respawnDelay;
 			this->setRespawnDelay(respawnDelay);
@@ -2080,18 +2080,18 @@ void AttackableCreature::respawn(void)
 		// Heightmap only works outside.
 		position.mY = this->getHeightAt2DPosition(position.mX, position.mZ, true);
 	}
-	
+
 	// gLogger->logMsgF("Setting up spawn of creature at %.0f %.0f %.0f", MSG_NORMAL, position.mX, position.mY, position.mZ);
 	this->mHomePosition = position;
 	this->mPosition = position;
 
 	mSpawned = false;
-	
+
 	// Already set by factory. mSpawn.mBasic.lairId = this->getLairId();
-	
+
 	if (this->hasInternalAttribute("creature_damage_min"))
 	{
-		int32 minDamage = this->getInternalAttribute<int32>("creature_damage_min");					
+		int32 minDamage = this->getInternalAttribute<int32>("creature_damage_min");
 		// gLogger->logMsgF("creature_damage_min = %d", MSG_NORMAL, minDamage);
 		mMinDamage = minDamage;
 	}
@@ -2103,7 +2103,7 @@ void AttackableCreature::respawn(void)
 
 	if (this->hasInternalAttribute("creature_damage_max"))
 	{
-		int32 maxDamage = this->getInternalAttribute<int32>("creature_damage_max");					
+		int32 maxDamage = this->getInternalAttribute<int32>("creature_damage_max");
 		// gLogger->logMsgF("creature_damage_max = %d", MSG_NORMAL, maxDamage);
 		mMaxDamage = maxDamage;
 	}
@@ -2115,7 +2115,7 @@ void AttackableCreature::respawn(void)
 
 	if (this->hasInternalAttribute("creature_damage_max_range"))
 	{
-		float maxDamageRange = this->getInternalAttribute<float>("creature_damage_max_range");					
+		float maxDamageRange = this->getInternalAttribute<float>("creature_damage_max_range");
 		// gLogger->logMsgF("creature_damage_max_range = %.1f", MSG_NORMAL, maxDamageRange);
 		mWeaponMaxRange = maxDamageRange;
 	}
@@ -2127,7 +2127,7 @@ void AttackableCreature::respawn(void)
 
 	if (this->hasAttribute("creature_attack"))
 	{
-		float attackSpeed = this->getAttribute<float>("creature_attack");					
+		float attackSpeed = this->getAttribute<float>("creature_attack");
 		// gLogger->logMsgF("creature_attack = %.1f", MSG_NORMAL, attackSpeed);
 		mAttackSpeed = (int64)(attackSpeed * 1000.0);
 	}
@@ -2139,7 +2139,7 @@ void AttackableCreature::respawn(void)
 
 	if (this->hasInternalAttribute("creature_xp"))
 	{
-		uint32 xp = this->getInternalAttribute<uint32>("creature_xp");					
+		uint32 xp = this->getInternalAttribute<uint32>("creature_xp");
 		// gLogger->logMsgF("creature_xp = %u", MSG_NORMAL, xp);
 		this->setWeaponXp(xp);
 	}
@@ -2151,7 +2151,7 @@ void AttackableCreature::respawn(void)
 
 	if (this->hasAttribute("aggro"))
 	{
-		float aggro = this->getAttribute<float>("aggro");					
+		float aggro = this->getAttribute<float>("aggro");
 		// gLogger->logMsgF("aggro = %.0f", MSG_NORMAL, aggro);
 		this->setBaseAggro(aggro);
 	}
@@ -2163,7 +2163,7 @@ void AttackableCreature::respawn(void)
 
 	if (this->hasInternalAttribute("creature_is_aggressive"))
 	{
-		bool isAggressive = this->getInternalAttribute<bool>("creature_is_aggressive");					
+		bool isAggressive = this->getInternalAttribute<bool>("creature_is_aggressive");
 		// gLogger->logMsgF("creature_is_aggressive = %d", MSG_NORMAL, isAggressive);
 		mIsAgressive = isAggressive;
 	}
@@ -2175,7 +2175,7 @@ void AttackableCreature::respawn(void)
 
 	if (this->hasAttribute("stalking"))
 	{
-		bool isStalker = this->getAttribute<bool>("stalking");					
+		bool isStalker = this->getAttribute<bool>("stalking");
 		// gLogger->logMsgF("stalking = %d", MSG_NORMAL, isStalker);
 		mIsStalker = isStalker;
 	}
@@ -2187,7 +2187,7 @@ void AttackableCreature::respawn(void)
 
 	if (this->hasInternalAttribute("creature_is_roaming"))
 	{
-		bool isRoaming = this->getInternalAttribute<bool>("creature_is_roaming");					
+		bool isRoaming = this->getInternalAttribute<bool>("creature_is_roaming");
 		// gLogger->logMsgF("creature_is_roaming = %d", MSG_NORMAL, isRoaming);
 		mIsRoaming = isRoaming;
 	}
@@ -2199,7 +2199,7 @@ void AttackableCreature::respawn(void)
 
 	if (this->hasAttribute("killer"))
 	{
-		bool isKiller = this->getAttribute<bool>("killer");					
+		bool isKiller = this->getAttribute<bool>("killer");
 		// gLogger->logMsgF("killer = %d", MSG_NORMAL, isKiller);
 		mIsKiller = isKiller;
 	}
@@ -2211,7 +2211,7 @@ void AttackableCreature::respawn(void)
 
 	if (this->hasInternalAttribute("creature_warning_range"))
 	{
-		float attackWarningRange = this->getInternalAttribute<float>("creature_warning_range");					
+		float attackWarningRange = this->getInternalAttribute<float>("creature_warning_range");
 		// gLogger->logMsgF("creature_warning_range = %.0f", MSG_NORMAL, attackWarningRange);
 		mAttackWarningRange = attackWarningRange;
 	}
@@ -2225,7 +2225,7 @@ void AttackableCreature::respawn(void)
 	{
 		if (this->hasInternalAttribute("creature_attack_range"))
 		{
-			float attackRange = this->getInternalAttribute<float>("creature_attack_range");					
+			float attackRange = this->getInternalAttribute<float>("creature_attack_range");
 			// gLogger->logMsgF("creature_attack_range = %.0f", MSG_NORMAL, attackRange);
 			this->setAttackRange(attackRange);
 		}
@@ -2238,7 +2238,7 @@ void AttackableCreature::respawn(void)
 
 	if (this->hasInternalAttribute("creature_aggro_range"))
 	{
-		float aggroRange = this->getInternalAttribute<float>("creature_aggro_range");					
+		float aggroRange = this->getInternalAttribute<float>("creature_aggro_range");
 		// gLogger->logMsgF("creature_aggro_range = %.0f", MSG_NORMAL, aggroRange);
 		mMaxAggroRange = aggroRange;
 	}
@@ -2250,7 +2250,7 @@ void AttackableCreature::respawn(void)
 
 	if (this->hasInternalAttribute("creature_warning_message"))
 	{
-		string warningMessage = (int8*)(this->getInternalAttribute<std::string>("creature_warning_message").c_str());					
+		string warningMessage = (int8*)(this->getInternalAttribute<std::string>("creature_warning_message").c_str());
 		// gLogger->logMsgF("creature_warning_message = %s", MSG_NORMAL, warningMessage.getAnsi());
 		mAttackWarningMessage = warningMessage;
 	}
@@ -2262,7 +2262,7 @@ void AttackableCreature::respawn(void)
 
 	if (this->hasInternalAttribute("creature_attacking_message"))
 	{
-		string attackingMessage = (int8*)(this->getInternalAttribute<std::string>("creature_attacking_message").c_str());					
+		string attackingMessage = (int8*)(this->getInternalAttribute<std::string>("creature_attacking_message").c_str());
 		// gLogger->logMsgF("creature_attacking_message = %s", MSG_NORMAL, attackingMessage.getAnsi());
 		mAttackStartMessage = attackingMessage;
 	}
@@ -2275,7 +2275,7 @@ void AttackableCreature::respawn(void)
 
 	if (this->hasInternalAttribute("creature_attacked_message"))
 	{
-		string attackedMessage = (int8*)(this->getInternalAttribute<std::string>("creature_attacked_message").c_str());					
+		string attackedMessage = (int8*)(this->getInternalAttribute<std::string>("creature_attacked_message").c_str());
 		// gLogger->logMsgF("creature_attacked_message = %s", MSG_NORMAL, attackedMessage.getAnsi());
 		mAttackedMessage = attackedMessage;
 	}
@@ -2289,7 +2289,7 @@ void AttackableCreature::respawn(void)
 	{
 		if (this->hasInternalAttribute("creature_roaming_delay"))
 		{
-			uint64 roamingDelay = this->getInternalAttribute<uint64>("creature_roaming_delay");					
+			uint64 roamingDelay = this->getInternalAttribute<uint64>("creature_roaming_delay");
 			// gLogger->logMsgF("creature_roaming_delay = %llu", MSG_NORMAL, roamingDelay);
 			mRoamingDelay = roamingDelay;
 		}
@@ -2301,7 +2301,7 @@ void AttackableCreature::respawn(void)
 
 		if (this->hasInternalAttribute("creature_roaming_speed"))
 		{
-			float roamingSpeed = this->getInternalAttribute<float>("creature_roaming_speed");					
+			float roamingSpeed = this->getInternalAttribute<float>("creature_roaming_speed");
 			// gLogger->logMsgF("creature_roaming_speed = %.0f", MSG_NORMAL, roamingSpeed);
 			mRoamingSpeed = roamingSpeed;
 		}
@@ -2313,7 +2313,7 @@ void AttackableCreature::respawn(void)
 
 		if (this->hasInternalAttribute("creature_roaming_max_distance"))
 		{
-			float roamingMaxDistance = this->getInternalAttribute<float>("creature_roaming_max_distance");					
+			float roamingMaxDistance = this->getInternalAttribute<float>("creature_roaming_max_distance");
 			// gLogger->logMsgF("creature_roaming_max_distance = %.0f", MSG_NORMAL, roamingMaxDistance);
 			mRoamingDistanceMax = roamingMaxDistance;
 		}
@@ -2322,13 +2322,13 @@ void AttackableCreature::respawn(void)
 			assert(false);
 			mRoamingDistanceMax = 64.0;
 		}
-	}	
+	}
 
 	if (mIsStalker)
 	{
 		if (this->hasInternalAttribute("creature_stalking_speed"))
 		{
-			float stalkingSpeed = this->getInternalAttribute<float>("creature_stalking_speed");					
+			float stalkingSpeed = this->getInternalAttribute<float>("creature_stalking_speed");
 			// gLogger->logMsgF("creature_stalking_speed = %.0f", MSG_NORMAL, stalkingSpeed);
 			mStalkerSpeed = stalkingSpeed;
 		}
@@ -2340,7 +2340,7 @@ void AttackableCreature::respawn(void)
 
 		if (this->hasInternalAttribute("creature_stalking_max_distance"))
 		{
-			float stalkingMaxDistance = this->getInternalAttribute<float>("creature_stalking_max_distance");					
+			float stalkingMaxDistance = this->getInternalAttribute<float>("creature_stalking_max_distance");
 			// gLogger->logMsgF("creature_stalking_max_distance = %.0f", MSG_NORMAL, stalkingMaxDistance);
 			mStalkerDistanceMax = stalkingMaxDistance;
 		}
@@ -2353,7 +2353,7 @@ void AttackableCreature::respawn(void)
 
 	if (this->hasInternalAttribute("creature_group_assist"))
 	{
-		bool groupAssist = this->getInternalAttribute<bool>("creature_group_assist");					
+		bool groupAssist = this->getInternalAttribute<bool>("creature_group_assist");
 		// gLogger->logMsgF("creature_group_assist = %d", MSG_NORMAL, groupAssist);
 		mIsGroupAssist = groupAssist;
 	}
@@ -2365,7 +2365,7 @@ void AttackableCreature::respawn(void)
 
 	if (this->hasAttribute("creature_health"))
 	{
-		int32 health = this->getAttribute<int32>("creature_health");					
+		int32 health = this->getAttribute<int32>("creature_health");
 		// gLogger->logMsgF("creature_health = %d", MSG_NORMAL, health);
 		this->mHam.mHealth.setCurrentHitPoints(health);
 		this->mHam.mHealth.setMaxHitPoints(health);
@@ -2381,7 +2381,7 @@ void AttackableCreature::respawn(void)
 
 	if (this->hasAttribute("creature_strength"))
 	{
-		int32 strength = this->getAttribute<int32>("creature_strength");					
+		int32 strength = this->getAttribute<int32>("creature_strength");
 		// gLogger->logMsgF("creature_strength = %d", MSG_NORMAL, strength);
 		this->mHam.mStrength.setCurrentHitPoints(strength);
 		this->mHam.mStrength.setMaxHitPoints(strength);
@@ -2397,7 +2397,7 @@ void AttackableCreature::respawn(void)
 
 	if (this->hasAttribute("creature_constitution"))
 	{
-		int32 constitution = this->getAttribute<int32>("creature_constitution");					
+		int32 constitution = this->getAttribute<int32>("creature_constitution");
 		// gLogger->logMsgF("creature_constitution = %d", MSG_NORMAL, constitution);
 		this->mHam.mConstitution.setCurrentHitPoints(constitution);
 		this->mHam.mConstitution.setMaxHitPoints(constitution);
@@ -2415,7 +2415,7 @@ void AttackableCreature::respawn(void)
 
 	if (this->hasAttribute("creature_action"))
 	{
-		int32 action = this->getAttribute<int32>("creature_action");					
+		int32 action = this->getAttribute<int32>("creature_action");
 		// gLogger->logMsgF("creature_action = %d", MSG_NORMAL, action);
 		this->mHam.mAction.setCurrentHitPoints(action);
 		this->mHam.mAction.setMaxHitPoints(action);
@@ -2431,7 +2431,7 @@ void AttackableCreature::respawn(void)
 
 	if (this->hasAttribute("creature_quickness"))
 	{
-		int32 quickness = this->getAttribute<int32>("creature_quickness");					
+		int32 quickness = this->getAttribute<int32>("creature_quickness");
 		// gLogger->logMsgF("creature_quickness = %d", MSG_NORMAL, quickness);
 		this->mHam.mQuickness.setCurrentHitPoints(quickness);
 		this->mHam.mQuickness.setMaxHitPoints(quickness);
@@ -2447,7 +2447,7 @@ void AttackableCreature::respawn(void)
 
 	if (this->hasAttribute("creature_stamina"))
 	{
-		int32 stamina = this->getAttribute<int32>("creature_stamina");					
+		int32 stamina = this->getAttribute<int32>("creature_stamina");
 		// gLogger->logMsgF("creature_stamina = %d", MSG_NORMAL, stamina);
 		this->mHam.mStamina.setCurrentHitPoints(stamina);
 		this->mHam.mStamina.setMaxHitPoints(stamina);
@@ -2464,7 +2464,7 @@ void AttackableCreature::respawn(void)
 
 	if (this->hasAttribute("creature_mind"))
 	{
-		int32 mind = this->getAttribute<int32>("creature_mind");					
+		int32 mind = this->getAttribute<int32>("creature_mind");
 		// gLogger->logMsgF("creature_mind = %d", MSG_NORMAL, mind);
 		this->mHam.mMind.setCurrentHitPoints(mind);
 		this->mHam.mMind.setMaxHitPoints(mind);
@@ -2480,7 +2480,7 @@ void AttackableCreature::respawn(void)
 
 	if (this->hasAttribute("creature_focus"))
 	{
-		int32 focus = this->getAttribute<int32>("creature_focus");					
+		int32 focus = this->getAttribute<int32>("creature_focus");
 		// gLogger->logMsgF("creature_focus = %d", MSG_NORMAL, focus);
 		this->mHam.mFocus.setCurrentHitPoints(focus);
 		this->mHam.mFocus.setMaxHitPoints(focus);
@@ -2496,7 +2496,7 @@ void AttackableCreature::respawn(void)
 
 	if (this->hasAttribute("creature_willpower"))
 	{
-		int32 willpower = this->getAttribute<int32>("creature_willpower");					
+		int32 willpower = this->getAttribute<int32>("creature_willpower");
 		// gLogger->logMsgF("creature_willpower = %d", MSG_NORMAL, willpower);
 		this->mHam.mWillpower.setCurrentHitPoints(willpower);
 		this->mHam.mWillpower.setMaxHitPoints(willpower);
@@ -2523,11 +2523,11 @@ void AttackableCreature::respawn(void)
 }
 
 //=============================================================================
-// 
+//
 //	Assist some from my "group"
 //
 
-void AttackableCreature::assistCreature(uint64 targetId) 
+void AttackableCreature::assistCreature(uint64 targetId)
 {
 	// if (this->isGroupAssist())
 	{
@@ -2539,11 +2539,11 @@ void AttackableCreature::assistCreature(uint64 targetId)
 }
 
 //=============================================================================
-// 
+//
 //	Assist my lair.
 //
 
-void AttackableCreature::assistLair(uint64 targetId) 
+void AttackableCreature::assistLair(uint64 targetId)
 {
 	// if (this->mLairNeedAsssistanceWithId == 0)
 	{
@@ -2553,18 +2553,18 @@ void AttackableCreature::assistLair(uint64 targetId)
 }
 
 //=============================================================================
-// 
+//
 //	Anyone need assistance?
 //
 
-bool AttackableCreature::needAssist(void) 
+bool AttackableCreature::needAssist(void)
 {
 	bool assistNeeded = false;
 	if (this->mAsssistanceNeededWithId != 0)
 	{
 		// Will not assist if target is outside stalking limit.
 		assistNeeded = isTargetWithinMaxRange(this->mAsssistanceNeededWithId);
-		
+
 		if (!assistNeeded)
 		{
 			// Clear the current assist target.
@@ -2575,11 +2575,11 @@ bool AttackableCreature::needAssist(void)
 }
 
 //=============================================================================
-// 
+//
 //	Lair need assistance?
 //
 
-bool AttackableCreature::needToAssistLair(void) 
+bool AttackableCreature::needToAssistLair(void)
 {
 	bool status = ((this->mLairNeedAsssistanceWithId != 0) && !this->mIsAssistingLair);
 	if (status)
@@ -2589,7 +2589,7 @@ bool AttackableCreature::needToAssistLair(void)
 	return status;
 }
 
-void AttackableCreature::executeAssist(void) 
+void AttackableCreature::executeAssist(void)
 {
 	// Are we interested to help?
 	// gLogger->logMsgF("AttackableCreature::executeAssist Entering", MSG_NORMAL);
@@ -2611,7 +2611,7 @@ void AttackableCreature::executeAssist(void)
 	}
 }
 
-void AttackableCreature::executeLairAssist(void) 
+void AttackableCreature::executeLairAssist(void)
 {
 	// Are we interested to help?
 	// gLogger->logMsgF("AttackableCreature::executeLairAssist Entering", MSG_NORMAL);
@@ -2640,7 +2640,7 @@ float AttackableCreature::getMaxSpawnDistance(void)
 	// Max spawn distance for creatures.
 	if (this->hasInternalAttribute("creature_max_spawn_distance"))
 	{
-		maxSpawnDistance = this->getInternalAttribute<float>("creature_max_spawn_distance");					
+		maxSpawnDistance = this->getInternalAttribute<float>("creature_max_spawn_distance");
 		// gLogger->logMsgF("Creature max spawn distance = %.0f", MSG_NORMAL, maxSpawnDistance);
 	}
 	else

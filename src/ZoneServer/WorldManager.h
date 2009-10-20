@@ -51,7 +51,7 @@ class Ham;
 class Buff;
 class MissionObject;
 
-namespace Anh_Utils 
+namespace Anh_Utils
 {
     class Clock;
     class Scheduler;
@@ -75,7 +75,7 @@ typedef std::vector<Shuttle*>					ShuttleList;
 typedef std::vector<RegionObject*>				ActiveRegions;
 typedef std::list<CreatureObject*>				CreatureQueue;
 typedef std::vector<CraftingTool*>				CraftTools;
-typedef std::vector<std::pair<uint64, NpcConversionTime*>>	NpcConversionTimers;
+typedef std::vector<std::pair<uint64, NpcConversionTime*> >	NpcConversionTimers;
 typedef std::map<uint64, uint64>				PlayerMovementUpdateMap;
 typedef std::map<uint64, uint64>				CreatureObjectDeletionMap;
 typedef std::map<uint64, uint64>				PlayerObjectReviveMap;
@@ -145,7 +145,7 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		void					Shutdown();
 
 		void					Process();
-		
+
 		uint32					getZoneId() { return mZoneId; }
 		WMState					getState(){ return mState; }
 		uint64					getServerTime(){ return mServerTime; }
@@ -212,10 +212,10 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 
 		// adds dead creature object to the pool of objects with delayed destruction.
 		void					addCreatureObjectForTimedDeletion(uint64 creatureId, uint64 when);
-		
+
 		// adds dead object to the pool of objects to be send to nearest cloning facility.
 		void					addPlayerObjectForTimedCloning(uint64 playerId, uint64 when);
-		
+
 		// remove dead player object from the pool of objects to be send to nearest cloning facility.
 		void					removePlayerObjectForTimedCloning(uint64 playerId);
 
@@ -232,7 +232,7 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		// add / remove expired npc conversations.
 		void					addNpcConversation(uint64 interval, NPCObject* npc);
 
-		// add player update of known objects and position in world. 
+		// add player update of known objects and position in world.
 		void					addPlayerMovementUpdateTime(PlayerObject* player, uint64 when);
 
 
@@ -244,7 +244,7 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		void					addDormantNpc(uint64 creature, uint64 when);
 		void					removeDormantNpc(uint64 creature);
 		void					forceHandlingOfDormantNpc(uint64 creature);
-		
+
 		void					addReadyNpc(uint64 creature, uint64 when);
 		void					removeReadyNpc(uint64 creature);
 		void					forceHandlingOfReadyNpc(uint64 creature);
@@ -280,7 +280,7 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		string					getMood(uint32 moodId){ return mvMoods[moodId]; }
 		// get an attribute key
 		string					getAttributeKey(uint32 keyId);
-		// get an attribute ID		
+		// get an attribute ID
 		uint64					getAttributeId(uint32 keyId);
 		// get a npc animation
 		string					getNpcConverseAnimation(uint32 animId){ return mvNpcConverseAnimations[animId - 1]; }
@@ -351,7 +351,7 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 
 		bool					addNpId(uint64 id);
 
-		// timed subsystems 
+		// timed subsystems
 		bool	_handleServerTimeUpdate(uint64 callTime,void* ref);
 		bool	_handleShuttleUpdate(uint64 callTime,void* ref);
 		bool	_handleDisconnectUpdate(uint64 callTime,void* ref);
@@ -370,7 +370,7 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		bool	_handleActiveNpcs(uint64 callTime, void* ref);
 
 		bool	_handleAdminRequests(uint64 callTime, void* ref);
-				
+
 		void	_startWorldScripts();
 
 		// process schedulers
@@ -436,7 +436,7 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		uint64						mTick;
 		uint64						mServerTime;
 		Weather						mCurrentWeather;
-		
+
 		BStringVector				mvClientEffects;
 		BStringVector				mvPlanetNames;
 		BStringVector				mvTrnFileNames;
@@ -448,7 +448,7 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 
 		ScriptList					mWorldScripts;
 		ScriptEventListener			mWorldScriptsListener;
-		
+
 		boost::pool<boost::default_user_allocator_malloc_free>	mWM_DB_AsyncPool;
 
 		uint64						mNonPersistantId;

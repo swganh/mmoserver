@@ -15,15 +15,16 @@ Copyright (c) 2006 - 2008 The swgANH Team
 // #define     gHeightmap    Heightmap::getSingletonPtr()
 
 #include "Utils/typedefs.h"
-// #include "MathLib/Vector3.h"
+
+#include <string>
 
 class Heightmap
 {
 
 	public:
 		static Heightmap*  Instance(void);
-		static void deleter(void)    
-		{ 
+		static void deleter(void)
+		{
 			if (mInstance)
 			{
 				delete mInstance;
@@ -63,7 +64,7 @@ class Heightmap
 		Heightmap();
 
 		const char* getFilename() const { return mFilename.c_str(); }
-		
+
 		void setFilename(std::string filename) { mFilename = filename; }
 
 		unsigned long getOffset(float x, float y) const ;
@@ -78,7 +79,7 @@ class Heightmap
 
 
 	protected:
-	
+
 		static Heightmap*  mInstance;
 		// static bool        mInsFlag;
 		FILE * hmp; //file pointer to the highmap
@@ -86,7 +87,7 @@ class Heightmap
 
 		int32		WIDTH;
 		int32     HEIGHT;
-	    
+
 
 };
 

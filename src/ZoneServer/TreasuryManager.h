@@ -19,7 +19,13 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "Utils/typedefs.h"
 #include "DatabaseManager/DatabaseCallback.h"
 
+#if defined(__GNUC__)
+// GCC implements tr1 in the <tr1/*> headers. This does not conform to the TR1
+// spec, which requires the header without the tr1/ prefix.
+#include <tr1/memory>
+#else
 #include <memory>
+#endif
 
 //======================================================================================================================
 
@@ -33,11 +39,11 @@ class PlayerObject;
 //======================================================================================================================
 
 enum TREMQueryType
-{	  
+{
 	TREMQuery_NULL					=	0,
 	TREMQuery_BankTipgetId			=	1,
 	TREMQuery_BankTipTransaction	=	2,
-	
+
 };
 
 //======================================================================================================================
@@ -51,7 +57,7 @@ class TreasuryManagerAsyncContainer
 		~TreasuryManagerAsyncContainer(){}
 
 		TREMQueryType		mQueryType;
-		DispatchClient*		mClient;	
+		DispatchClient*		mClient;
 
 		uint32				amount;
 		PlayerObject*		player;

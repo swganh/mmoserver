@@ -1803,6 +1803,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ObjectFactoryCallback.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\ObjectFactoryCallback.h"
 				>
 			</File>

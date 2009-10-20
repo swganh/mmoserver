@@ -85,17 +85,17 @@ void ObjectController::_handleBoardTransport(uint64 targetId,Message* message,Ob
 	while(it != inRangeObjects.end())
 	{
 		CreatureObject* creature = dynamic_cast<CreatureObject*> (*it);
-	   
+
 		if(creature)
 		{
 
-			if(creature->getCreoGroup() == CreoGroup_Shuttle) 
+			if(creature->getCreoGroup() == CreoGroup_Shuttle)
 			{
 				Shuttle* shuttle = dynamic_cast<Shuttle*> (creature);
-	   
+
 				if(shuttle)
 				{
-				
+
 					// in range check
 					if(playerObject->getParentId() !=  shuttle->getParentId() )
 					{
@@ -118,7 +118,7 @@ void ObjectController::_handleBoardTransport(uint64 targetId,Message* message,Ob
 
 		++it;
 	}
-	
+
 	gMessageLib->sendSystemMessage(playerObject,L"","structure/structure_messages","boarding_what_shuttle");
 }
 
@@ -206,7 +206,7 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 	PlayerObject*	playerObject	=	dynamic_cast<PlayerObject*>(mObject);
 	Object*			itemObject		=	gWorldManager->getObjectById(targetId);
 	Inventory*		inventory		=	dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-	
+
 	string			dataStr;
 	uint64			targetContainerId;
 	uint32			linkType;
@@ -255,7 +255,7 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 		// drop in cell
 		CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(targetContainerId));
 		if(cell)
-		{	
+		{
 			itemObject->setParentId(targetContainerId);
 			//gMessageLib->sendContainmentMessage(targetId,targetContainerId,linkType,playerObject);
 
@@ -291,7 +291,7 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 
 			TangibleObject* tangible = dynamic_cast<TangibleObject*>(itemObject);
 			//gWorldManager->initPlayersInRange(itemObject);
-			
+
 			PlayerObjectSet*			inRangePlayers	= playerObject->getKnownPlayers();
 			PlayerObjectSet::iterator	it				= inRangePlayers->begin();
 			while(it != inRangePlayers->end())
@@ -308,8 +308,8 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 			gMessageLib->sendDestroyObject(tangible->getId(),playerObject);
 			tangible->mPosition = playerObject->mPosition;
 			tangible->mDirection = playerObject->mDirection;
-		
-			gMessageLib->sendCreateTangible(tangible,playerObject);			
+
+			gMessageLib->sendCreateTangible(tangible,playerObject);
 			//gMessageLib->sendDataTransformWithParent(tangible);
 			playerObject->addKnownObjectSafe(tangible);
 			tangible->addKnownObjectSafe(playerObject);
@@ -341,7 +341,7 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 			{
 				uint64 parentId = itemObject->getParentId();
 				cell->removeChild(itemObject);
-				
+
 				//update known players
 				PlayerObjectSet*			inRangePlayers	= playerObject->getKnownPlayers();
 				PlayerObjectSet::iterator	it				= inRangePlayers->begin();
@@ -352,7 +352,7 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 					targetObject->removeKnownObject(tangible);
 					++it;
 				}
-				itemObject->destroyKnownObjects();	
+				itemObject->destroyKnownObjects();
 				//mDatabase->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id=%I64u WHERE item_id=%I64u",itemObject->getParentId() ,itemObject->getId());
 				gMessageLib->sendDestroyObject(tangible->getId(),playerObject);
 				gMessageLib->sendCreateTangible(tangible,playerObject);
@@ -364,7 +364,7 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 
 
 				// destroy known objects
-				
+
 			//if (itemObject->getType() ==)
 			//itemObject->setInternalAttribute("instrument_placed","0");
 			//remove from the sis
@@ -411,7 +411,7 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 //	Transfer items between player inventories, containers and cells. Also handles transfer from  creature inventories (looting).
 //	Also handles trandfer between player inventory and player (equipping items).
 //	We don't handle transfer to the world outside.
-//  
+//
 
 void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
@@ -480,16 +480,16 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 		{
 			CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(targetContainerId));
 			if (cell)
-			{	
+			{
 				// TODO: THIS WILL BE EVALUATED WHEN WE CAN HAVE ACCESS TO PLAYER BUILDINGS.
 
 				// drop in a cell
 				// gLogger->logMsgF("ObjectController::_handleTransferItemMisc: Drop into cell %llu", MSG_NORMAL, targetContainerId);
-			
+
 				// Remove the object from whatever contains it.
 				// Item* item = dynamic_cast<Item*>(itemObject);
 				TangibleObject* tangible = dynamic_cast<TangibleObject*>(itemObject);
-				
+
 				if (inventory && item && tangible)
 				{
 					// Fully validated, continue the operation...
@@ -558,7 +558,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 						++it;
 					}
 				}
-				else 
+				else
 				{
 					// We do not allow to drop items from conatiners directly to cells (yet).
 					// gLogger->logMsg("Can't drop items from that container into the cell.");
@@ -572,7 +572,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 
 
 				// pick up - check whether target object is a container or an inventory
-	
+
 				// If we are picking up, it's to the players inventory.
 
 // Pick up from cell (into player inventory).
@@ -583,7 +583,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 					if (cell)
 					{
 						// gLogger->logMsgF("ObjectController::_handleTransferItemMisc: pick up from cell %llu", MSG_NORMAL, itemObject->getParentId());
-					
+
 						// Remove object from cell.
 						TangibleObject* tangible = dynamic_cast<TangibleObject*>(itemObject);
 						if (item && tangible)
@@ -600,8 +600,8 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 							if (item->getOwner() != playerObject->getId())
 							{
 								// We should not pickup what we don't own.
-								
-								// But, as long as we allow people to drop items in all buildings, 
+
+								// But, as long as we allow people to drop items in all buildings,
 								// we allow to pickup items not owned, i.e. been left during a server restart.
 								if (item->getOwner() != 0)
 								{
@@ -639,7 +639,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 									targetObject->removeKnownObject(tangible);
 									++it;
 								}
-								itemObject->destroyKnownObjects();	
+								itemObject->destroyKnownObjects();
 
 								// Add object to inventory.
 								itemObject->setParentId(targetContainerId);
@@ -678,7 +678,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 			// gLogger->logMsg("Transfer item to player inventory");
 			bool removedFailed = false;
 
-			// Remove it from the container. 
+			// Remove it from the container.
 			// We dont have any access validations yet.
 			uint64 sourceId = itemObject->getParentId();
 			Container* container = dynamic_cast<Container*>(gWorldManager->getObjectById(sourceId));
@@ -712,7 +712,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 
 				// Get objects parent.
 				unit64 parentId = itemObject->getParentId();
-				
+
 				if (parentId)
 				{
 					// Assuming this is an Inventory, it's parent would have the if of parentId - 1.
@@ -801,7 +801,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 				// TangibleObject* tangible = dynamic_cast<TangibleObject*>(itemObject);
 
 				if (container && item)
-				{		
+				{
 					// Unequipp
 					if (itemObject->getParentId() == playerObject->getId())
 					{
@@ -820,7 +820,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 					// Remove object from inventory.
 					dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->removeObject(itemObject);
 
-					// Add it to the container. 
+					// Add it to the container.
 					// We dont have any access validations yet.
 					container->addObject(itemObject);
 
@@ -851,12 +851,12 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 
 					if (item->getTangibleGroup() == TanGroup_Item && itemObject->hasInternalAttribute("equipped"))
 					{
-						
+
 						// unequip it
 						if(item->getInternalAttribute<bool>("equipped"))
 						{
 							// gLogger->logMsgF("it is equipped  - unequip it", MSG_NORMAL);
-							
+
 							inventory->unEquipItem(item);
 							return;
 
@@ -868,9 +868,9 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 							// don't equip music instruments or weapons while performing
 							inventory->EquipItem(item);
 							return;
-							
+
 						}
-						
+
 					}
 				}
 			}
@@ -896,7 +896,7 @@ void ObjectController::_handlePurchaseTicket(uint64 targetId,Message* message,Ob
 	string			dataStr;
 	BStringVector	dataElements;
 	uint16			elements;
-	
+
 	ObjectSet		inRangeObjects;
 	float			purchaseRange = 10.0;
 
@@ -907,18 +907,18 @@ void ObjectController::_handlePurchaseTicket(uint64 targetId,Message* message,Ob
 	}
 
 	mSI->getObjectsInRange(playerObject,&inRangeObjects,ObjType_Tangible,purchaseRange);
-	
+
 	//however we are able to use the purchaseticket command in starports
 	//without having to use a ticketvendor by just giving commandline parameters
 	//when we are *near* a ticket vendor
 
 	// iterate through the results
 	ObjectSet::iterator it = inRangeObjects.begin();
-	bool found = false;	
+	bool found = false;
 
 	while(it != inRangeObjects.end())
 	{
-			
+
 		TravelTerminal* terminal = dynamic_cast<TravelTerminal*> (*it);
 
 		if(terminal)
@@ -932,8 +932,8 @@ void ObjectController::_handlePurchaseTicket(uint64 targetId,Message* message,Ob
 					playerObject->setTravelPoint(terminal);
 				}
 			}
-		}	
-		
+		}
+
 		++it;
 	}
 
@@ -992,7 +992,7 @@ void ObjectController::_handlePurchaseTicket(uint64 targetId,Message* message,Ob
 
 	if(roundTrip == 1)
 	{
-		ticketProperties.price *= 2;	
+		ticketProperties.price *= 2;
 	}
 
 	// update bank or inventory credits
@@ -1048,7 +1048,7 @@ void ObjectController::_handleGetAttributesBatch(uint64 targetId,Message* messag
 	requestStr.getRawData()[requestStr.getLength()] = 0;
 
 	elementCount = requestStr.split(dataElements,' ');
-	
+
 	if(!elementCount)
 	{
 		gLogger->logMsg("ObjectController::_handleAttributesBatch: Error in requestStr\n");
@@ -1060,7 +1060,7 @@ void ObjectController::_handleGetAttributesBatch(uint64 targetId,Message* messag
 	for(uint16 i = 0;i < elementCount;i++)
 	{
 
-		uint64 itemId	= _atoi64(dataElements[i].getAnsi());
+		uint64 itemId	= boost::lexical_cast<uint64>(dataElements[i].getAnsi());
 		Object* object	= gWorldManager->getObjectById(itemId);
 
 		//gLogger->logMsgF("ObjectController::_handleAttributesBatch: ID %I64u",MSG_HIGH,itemId);
@@ -1079,7 +1079,7 @@ void ObjectController::_handleGetAttributesBatch(uint64 targetId,Message* messag
 			//could be a schematic!
 			Datapad* datapad				= dynamic_cast<Datapad*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
 			ManufacturingSchematic* schem	= datapad->getManufacturingSchematicById(itemId);
-			
+
 			if(schem != NULL)
 			{
 				schem->sendAttributes(playerObject);
@@ -1099,14 +1099,14 @@ void ObjectController::_handleGetAttributesBatch(uint64 targetId,Message* messag
 				data->sendAttributes(playerObject);
 				continue;
 			}
-		
+
 			//gLogger->logMsgF("ObjectController::_handleAttributesBatch: get info for %lld",MSG_HIGH,itemId);
-			
+
 			// TODO: check our datapad items
 			if(playerObject->isConnected())
 			{
 				// default reply for schematics
-				gMessageFactory->StartMessage();           
+				gMessageFactory->StartMessage();
 				gMessageFactory->addUint32(opAttributeListMessage);
 				gMessageFactory->addUint64(itemId);
 				gMessageFactory->addUint32(0);
@@ -1153,9 +1153,9 @@ void ObjectController::_handleGetAttributesBatch(uint64 targetId,Message* messag
 							playerObject->getTutorial()->tutorialResponse("foodSelected");
 						}
 					}
-				}			
+				}
 			}
-			
+
 			object->sendAttributes(playerObject);
 		}
 	}
@@ -1217,7 +1217,7 @@ void ObjectController::_handleSurrenderSkill(uint64 targetId,Message* message,Ob
 		return;
 	}
 
-	gSkillManager->dropSkill(skill->mId,player);	
+	gSkillManager->dropSkill(skill->mId,player);
 }
 
 //======================================================================================================================
@@ -1256,8 +1256,8 @@ void ObjectController::handleObjectMenuRequest(Message* message)
 
 	string extendedDescription;
 	MenuItemList menuItemList;
-	
-	MenuItem* menuItem;	
+
+	MenuItem* menuItem;
 	for(uint32 i = 0; i < itemCount;i++)
 	{
 		menuItem = new(MenuItem);
@@ -1269,7 +1269,7 @@ void ObjectController::handleObjectMenuRequest(Message* message)
 		message->getStringUnicode16(extendedDescription);
 		menuItemList.push_back(menuItem);
 	}
-		
+
 	uint8 responseNr = message->getUint8();
 
 	// gLogger->logMsgF("ObjController::handleObjectMenuRequest: Entered, responseNr = %u, itemCount = %u", MSG_NORMAL, responseNr, itemCount);
@@ -1282,7 +1282,7 @@ void ObjectController::handleObjectMenuRequest(Message* message)
 		//the list is cleared and items are destroyes in the message lib
 		//for the default response
 		gLogger->logMsgF("ObjController::handleObjectMenuRequest: Couldn't find object %llu",MSG_HIGH,requestedObjectId);
-		return;		
+		return;
 	}
 
 	requestedObject->prepareCustomRadialMenu(playerObject,static_cast<uint8>(itemCount));
@@ -1304,7 +1304,7 @@ void ObjectController::handleObjectMenuRequest(Message* message)
 
 		if(playerObject->isConnected())
 		 	gMessageLib->sendEmptyObjectMenuResponse(requestedObjectId,playerObject,responseNr,menuItemList);
-		
+
 		//the list is cleared and items are destroyes in the message lib
 		//for the default response
 	}
@@ -1319,7 +1319,7 @@ void ObjectController::handleObjectReady(Object* object,DispatchClient* client)
 {
 	PlayerObject* player = gWorldManager->getPlayerByAccId(client->getAccountId());
 	PlayerObject* playerObject = dynamic_cast<PlayerObject*>(mObject);
-	
+
 	/*
 	if (!playerObject)
 	{
@@ -1338,7 +1338,7 @@ void ObjectController::handleObjectReady(Object* object,DispatchClient* client)
 	*/
 
 	// gLogger->logMsgF("ObjectController::handleObjectReady: targetId = %lld for %s",MSG_NORMAL,object->getId(), player->getFirstName().getAnsi());
-	
+
 
 	// Get the container object.
 	Container* container = dynamic_cast<Container*>(object);
@@ -1346,21 +1346,21 @@ void ObjectController::handleObjectReady(Object* object,DispatchClient* client)
 	{
 		// uint32 counter = container->getObjectLoadCounter();
 		// gLogger->logMsgF("We have %d objects in the container", MSG_NORMAL, counter);
-		
+
 		ObjectList*	objList = container->getObjects();
 		ObjectList::iterator containerObjectIt = objList->begin();
 
 		while(containerObjectIt != objList->end())
 		{
 			Object* object = (*containerObjectIt);
-			
+
 			if (TangibleObject* tangibleObject = dynamic_cast<TangibleObject*>(object))
 			{
 				// reminder: objects are owned by the global map, containers only keeps references
 				// send the creates, if we are not owned by any player OR by exactly this player.
 				if (playerObject)
 				{
-					if (!object->getPrivateOwner() || (object->isOwnedBy(playerObject))) 
+					if (!object->getPrivateOwner() || (object->isOwnedBy(playerObject)))
 					{
 						// could be a resource container, need to check this first, since it inherits from tangible
 						if (ResourceContainer* resCont = dynamic_cast<ResourceContainer*>(object))
@@ -1379,7 +1379,7 @@ void ObjectController::handleObjectReady(Object* object,DispatchClient* client)
 		}
 		gMessageLib->sendOpenedContainer(object->getId(), player);
 	}
-	
+
 }
 
 //======================================================================================================================

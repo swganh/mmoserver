@@ -104,11 +104,11 @@ class AttackableCreature : public NPCObject
 
 		bool	isKiller(void) const {return mIsKiller;}
 		bool	isGroupAssist(void) const {return mIsGroupAssist;}
-		
-		Anh_Math::Vector3 getDestination(void) const {return mDestination;} 
-		void	setDestination(Anh_Math::Vector3 destination) {mDestination = destination;} 
+
+		Anh_Math::Vector3 getDestination(void) const {return mDestination;}
+		void	setDestination(Anh_Math::Vector3 destination) {mDestination = destination;}
 		float	getRoamingSpeed(void) const {return mRoamingSpeed;}
-		
+
 
 		int32	getStalkerSteps(void) const {return mStalkerSteps;}
 
@@ -136,10 +136,10 @@ class AttackableCreature : public NPCObject
 
 		void	setAttackedMessage(string theMessage) {mAttackedMessage = theMessage;}
 
-		
+
 		void	setRespawnPeriod(uint64 respawnPeriod) {mRespawnPeriod = respawnPeriod;}
 
-		
+
 		void	setTemplateId(uint64 templateId) {mTemplateId = templateId;}
 
 
@@ -185,7 +185,7 @@ class AttackableCreature : public NPCObject
 		float	getStalkerSpeed(void) const {return mStalkerSpeed;}
 		float	getStalkerDistanceMax(void) const {return mStalkerDistanceMax;}
 		// Anh_Math::Vector3 getSpawnPosition(void) const {return mSpawn.mBasic.spawnPosition;}
-		Anh_Math::Vector3 getHomePosition(void) const {return mHomePosition;}
+		const Anh_Math::Vector3& getHomePosition(void) const {return mHomePosition;}
 		void	setStalkerSteps(int32 stalkerSteps) {mStalkerSteps = stalkerSteps;}
 		bool	setTargetInAttackRange(void);
 		uint64	getDefenderOutOfAggroRange(void);
@@ -204,7 +204,7 @@ class AttackableCreature : public NPCObject
 		void	SetReadyDelay(int64 readyDelay) {mReadyDelay = readyDelay;}
 		int32	getRoamingSteps(void) const {return mRoamingSteps;}
 		void	setRoamingSteps(int32 roamingSteps) {mRoamingSteps = roamingSteps;}
-		
+
 
 		// int32	getWeaponXp(void) const {return mWeaponXp;}
 		bool	isAttackTauntSent(void) const;
@@ -222,7 +222,7 @@ class AttackableCreature : public NPCObject
 		bool	setTargetDefenderWithinWeaponRange(void);
 		bool	setTargetDefenderWithinMaxRange(void);
 		void	setupStalking(uint64 updatePeriodTime);
-		
+
 		// Data from attributes.
 
 public:
@@ -240,7 +240,7 @@ public:
 
 		// Min damage made by equipped weapon
 		int32 mMinDamage;
-	
+
 		// Man damage made by equipped weapon
 		int32 mMaxDamage;
 
@@ -277,7 +277,7 @@ public:
 
 		// Max range of enemy to hold aggro (be in combat).
 		float mMaxAggroRange;
-		
+
 		// Taunt message, to be used when enemy comes near the "attackRange" when in "aggressiveMode".
 		string mAttackWarningMessage;
 
@@ -300,7 +300,7 @@ public:
 		uint64 mRoamingDelay;
 
 		// This is the max roaming distance from the spawn point or other central point, like lair
-		float mRoamingDistanceMax;	
+		float mRoamingDistanceMax;
 
 		// Speed in m/s when "stalking"
 		float mStalkerSpeed;
@@ -309,9 +309,9 @@ public:
 		int32 mStalkerSteps;
 
 		// This is the max stalking distance from the spawn point or other central point, like lair
-		float mStalkerDistanceMax;	
+		float mStalkerDistanceMax;
 
-		bool mIsGroupAssist;	
+		bool mIsGroupAssist;
 
 
 private:
@@ -336,7 +336,7 @@ private:
 		// uint32 mDeathEffectId;
 
 		Npc_Combat_State	mCombatState;
-		
+
 		// SpawnData	mSpawn;
 
 		// DamageDealers	mDamageDealers;

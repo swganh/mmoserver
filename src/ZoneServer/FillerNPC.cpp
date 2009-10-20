@@ -28,8 +28,8 @@ FillerNPC::FillerNPC() : NPCObject()
 
 	mRadialMenu = RadialMenuPtr(new RadialMenu());
 
-	mRadialMenu->addItem(1,0,radId_converseStart,radAction_Default); 
-	mRadialMenu->addItem(2,0,radId_examine,radAction_Default); 
+	mRadialMenu->addItem(1,0,radId_converseStart,radAction_Default);
+	mRadialMenu->addItem(2,0,radId_examine,radAction_Default);
 }
 
 //=============================================================================
@@ -102,10 +102,10 @@ uint64 FillerNPC::handleState(uint64 timeOverdue)
 			}
 			else
 			{
-				// Remove the expired player, and his data, please... 
+				// Remove the expired player, and his data, please...
 				// gLogger->logMsgF("FillerNPC::handleState: Remove the expired player with id %llu",MSG_NORMAL, (*it).first);
 				delete ((*it).second);
-				it = mTutorialPlayers.erase(it);
+				mTutorialPlayers.erase(it++);
 			}
 		}
 		else
@@ -130,9 +130,9 @@ uint64 FillerNPC::handleState(uint64 timeOverdue)
 
 
 //======================================================================================================================
-// 
+//
 //	Add a player to the queue with players from the tutorial.
-// 
+//
 
 void FillerNPC::addTutorialPlayer(uint64 playerId, TutorialTauntConfigData* configData)
 {
@@ -147,16 +147,16 @@ void FillerNPC::addTutorialPlayer(uint64 playerId, TutorialTauntConfigData* conf
 }
 
 //======================================================================================================================
-// 
+//
 //	Remove a player from the queue with players from the tutorial.
-// 
+//
 
 void FillerNPC::removeTutorialPlayer(uint64 playerId)
 {
 	TutorialPlayers::iterator it = mTutorialPlayers.find(playerId);
 	if (it != mTutorialPlayers.end())
 	{
-		// Remove him, and his data, please... 
+		// Remove him, and his data, please...
 		delete ((*it).second);
 		mTutorialPlayers.erase(it);
 	}

@@ -15,11 +15,13 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "UIButton.h"
 #include "UIInputField.h"
 #include "UIDropdownBox.h"
-#include "UICallback.h"	
+#include "UICallback.h"
 #include "PlayerObject.h"
 #include "LogManager/LogManager.h"
 #include "Common/Message.h"
 #include "Common/MessageFactory.h"
+
+#include <boost/lexical_cast.hpp>
 
 //================================================================================
 
@@ -27,16 +29,14 @@ UITransferBox::UITransferBox(UICallback* callback,uint32 id,const int8* eventStr
 					   ,const int8* leftTitle,const int8* rightTitle, uint32 leftValue, uint32 rightValue, PlayerObject* playerObject)
 : UIWindow(callback,id,SUI_Window_InputBox,"Script.transfer",eventStr)
 {
-	char tStringBuffer[32];
-
 	mOwner		= playerObject;
 	mCaption	= caption;
 	mPrompt		= text;
 	mLeftTitle  = leftTitle;
 	mRightTitle = rightTitle;
 
-	mLeftValue	= _itoa(leftValue,tStringBuffer,10);
-	mRightValue = _itoa(rightValue,tStringBuffer,10);
+	mLeftValue	= boost::lexical_cast<std::string>(leftValue).c_str();
+	mRightValue = boost::lexical_cast<std::string>(rightValue).c_str();
 
 	mCaption.convert(BSTRType_Unicode16);
 	mPrompt.convert(BSTRType_Unicode16);
@@ -81,14 +81,14 @@ void UITransferBox::handleEvent(Message* message)
 
 void UITransferBox::sendCreate()
 {
-	
+
 	if(!mOwner || mOwner->getConnectionState() != PlayerConnState_Connected)
 		return;
 
 	Message*	newMessage;
 
-	gMessageFactory->StartMessage();             
-	gMessageFactory->addUint32(opSuiCreatePageMessage);  
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opSuiCreatePageMessage);
 
 	gMessageFactory->addUint32(mId);
 

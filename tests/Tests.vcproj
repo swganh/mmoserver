@@ -170,6 +170,14 @@
 	<References>
 	</References>
 	<Files>
+		<Filter
+			Name="Utils"
+			>
+			<File
+				RelativePath=".\Utils\TestCmpistr.cpp"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\main.cpp"
 			>

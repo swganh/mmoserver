@@ -32,6 +32,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Common/Message.h"
 #include "Common/MessageFactory.h"
 
+#include <boost/lexical_cast.hpp>
+
 //======================================================================================================================
 //
 // set title
@@ -63,7 +65,7 @@ void ObjectController::_handleSetSpokenLanguage(uint64 targetId,Message* message
 	message->getStringUnicode16(tmpStr);
 	tmpStr.convert(BSTRType_ANSI);
 
-	uint32 languageId = static_cast<uint32>(_atoi64(tmpStr.getAnsi()));
+	uint32 languageId = boost::lexical_cast<uint32>(tmpStr.getAnsi());
 	playerObject->setLanguage(languageId);
 	gMessageLib->sendLanguagePlay9(playerObject);
 }

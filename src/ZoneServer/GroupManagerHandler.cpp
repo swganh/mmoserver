@@ -10,6 +10,10 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "GroupManagerHandler.h"
+#include "UIManager.h"
+#include "WorldManager.h"
+#include "PlayerObject.h"
+#include "MessageLib/MessageLib.h"
 #include "Common/MessageDispatch.h"
 #include "Common/MessageFactory.h"
 #include "Common/MessageOpcodes.h"
@@ -18,9 +22,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
-#include "UIManager.h"
 #include "LogManager/LogManager.h"
-#include "WorldManager.h"
 #include "Utils/utils.h"
 
 bool						GroupManagerHandler::mInsFlag    = false;
@@ -30,14 +32,14 @@ GroupManagerHandler*		GroupManagerHandler::mSingleton  = NULL;
 //======================================================================================================================
 
 GroupManagerHandler::GroupManagerHandler(Database* database, MessageDispatch* dispatch)
-{	
+{
 	mDatabase = database;
 	mMessageDispatch = dispatch;
-	
-	mMessageDispatch->RegisterMessageCallback(opIsmGroupInviteRequest,this);  
-	mMessageDispatch->RegisterMessageCallback(opIsmGroupCREO6deltaGroupId,this);  
-	mMessageDispatch->RegisterMessageCallback(opIsmGroupLootModeResponse,this); 
-	mMessageDispatch->RegisterMessageCallback(opIsmGroupLootMasterResponse,this); 
+
+	mMessageDispatch->RegisterMessageCallback(opIsmGroupInviteRequest,this);
+	mMessageDispatch->RegisterMessageCallback(opIsmGroupCREO6deltaGroupId,this);
+	mMessageDispatch->RegisterMessageCallback(opIsmGroupLootModeResponse,this);
+	mMessageDispatch->RegisterMessageCallback(opIsmGroupLootMasterResponse,this);
 }
 
 
@@ -61,7 +63,7 @@ GroupManagerHandler*	GroupManagerHandler::Init(Database* database, MessageDispat
 	}
 	else
 		return mSingleton;
-	
+
 }
 
 //======================================================================================================================
@@ -80,7 +82,7 @@ void GroupManagerHandler::handleDispatchMessage(uint32 opcode, Message* message,
 {
 	switch(opcode)
 	{
-	
+
 		case opIsmGroupInviteRequest:
 		{
 			_processIsmInviteRequest(message);
@@ -108,7 +110,7 @@ void GroupManagerHandler::handleDispatchMessage(uint32 opcode, Message* message,
 		default:
 			gLogger->logMsgF("GroupManagerHandlerMessage::handleDispatchMessage: Unhandled opcode %u",MSG_NORMAL,opcode);
 		break;
-	} 
+	}
 }
 
 //=======================================================================================================================
@@ -116,20 +118,20 @@ void GroupManagerHandler::handleDispatchMessage(uint32 opcode, Message* message,
 
 void GroupManagerHandler::_processIsmInviteRequest(Message* message)
 {
-	
+
 	PlayerObject* sender = gWorldManager->getPlayerByAccId(message->getUint32()); // the player who sent the invite
 	PlayerObject* target = gWorldManager->getPlayerByAccId(message->getUint32());  // the player who will recieve it
 
 	if(sender == NULL || target == NULL)
 	{
 		gLogger->logMsg("GroupManagerHandler::_processIsmInviteRequest PlayerAccId not found");
-		return;	
+		return;
 	}
 
 	//target->setGroupId(message->getUint64()); // the group id provided by the chatserver
 
 	gMessageLib->sendInviteSenderUpdateDeltasCreo6(sender->getId(),target);
-	
+
 }
 
 //=======================================================================================================================
@@ -145,14 +147,14 @@ void GroupManagerHandler::_processIsmGroupCREO6deltaGroupId(Message* message)
 		gLogger->logMsg("GroupManagerHandler::_processIsmGroupCREO6deltaGroupId PlayerAccId not found");
 		return;
 	}
-	
+
 	player->setGroupId(message->getUint64());
 
 
 	// to in-range folks
 	const PlayerObjectSet*	const inRangePlayers	= player->getKnownPlayers();
 	PlayerObjectSet::const_iterator	it				= inRangePlayers->begin();
-	
+
 	while(it != inRangePlayers->end())
 	{
 		const PlayerObject* const targetObject = (*it);

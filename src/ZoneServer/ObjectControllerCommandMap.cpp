@@ -63,13 +63,13 @@ ObjectControllerCommandMap* ObjectControllerCommandMap::Init(Database* database)
 ObjectControllerCommandMap::~ObjectControllerCommandMap()
 {
 	mCommandMap.clear();
-	
+
 	CmdPropertyMap::iterator it = mCmdPropertyMap.begin();
 
 	while(it != mCmdPropertyMap.end())
 	{
 		delete((*it).second);
-		it = mCmdPropertyMap.erase(it);
+		mCmdPropertyMap.erase(it++);
 	}
 
 	mInsFlag = false;
@@ -136,7 +136,7 @@ void ObjectControllerCommandMap::handleDatabaseJobComplete(void* ref,DatabaseRes
 		{
 			commandProperties->mScript = gScriptEngine->createScript();
 			commandProperties->mScript->setFileName(commandProperties->mScriptHook.getAnsi());
-			commandProperties->mScript->run();			
+			commandProperties->mScript->run();
 		}
 
 		mCmdPropertyMap.insert(std::make_pair(commandProperties->mCmdCrc,commandProperties));
@@ -147,7 +147,7 @@ void ObjectControllerCommandMap::handleDatabaseJobComplete(void* ref,DatabaseRes
 	if(result->getRowCount())
 		gLogger->logMsgLoadSuccess("ObjectController::mapping %u functions...",MSG_NORMAL,result->getRowCount());
 	else
-		gLogger->logMsgLoadFailure("ObjectController::mapping functions...",MSG_NORMAL);					
+		gLogger->logMsgLoadFailure("ObjectController::mapping functions...",MSG_NORMAL);
 
 }
 
@@ -215,7 +215,7 @@ void ObjectControllerCommandMap::_registerCppHooks()
 	//pets,mounts
 	mCommandMap.insert(std::make_pair(opOCmount,&ObjectController::_handleMount));
 	mCommandMap.insert(std::make_pair(opOCdismount,&ObjectController::_handleDismount));
-	
+
 	//social
 	mCommandMap.insert(std::make_pair(opOCrequestcharactermatch,&ObjectController::_handleRequestCharacterMatch));
 	mCommandMap.insert(std::make_pair(opOCtip,&ObjectController::_handleTip));
@@ -225,24 +225,24 @@ void ObjectControllerCommandMap::_registerCppHooks()
 	mCommandMap.insert(std::make_pair(opOCremoveignore,&ObjectController::_handleRemoveIgnore));
 	mCommandMap.insert(std::make_pair(opOCmatch,&ObjectController::_handleMatch));
 	mCommandMap.insert(std::make_pair(opOCfiendfriend,&ObjectController::_handlefindfriend));
-	
+
 	//crafting
 	mCommandMap.insert(std::make_pair(opOCCancelCraftingSession,&ObjectController::_handleCancelCraftingSession));
 	mCommandMap.insert(std::make_pair(opOCSelectDraftSchematic,&ObjectController::_handleSelectDraftSchematic));
 	mCommandMap.insert(std::make_pair(opOCnextcraftingstage,&ObjectController::_handleNextCraftingStage));
 	mCommandMap.insert(std::make_pair(opOCcreateprototype,&ObjectController::_handleCreatePrototype));
 	mCommandMap.insert(std::make_pair(opOCcreatemanfschematic,&ObjectController::_handleCreateManufactureSchematic));
-	
+
 	// combat
 	mCommandMap.insert(std::make_pair(opOCduel,&ObjectController::_handleDuel));
 	mCommandMap.insert(std::make_pair(opOCendduel,&ObjectController::_handleEndDuel));
 	mCommandMap.insert(std::make_pair(opOCpeace,&ObjectController::_handlePeace));
 	mCommandMap.insert(std::make_pair(opOCdeathblow,&ObjectController::_handleDeathBlow));
 	mCommandMap.insert(std::make_pair(opOCloot,&ObjectController::_handleLoot));
-	
+
 	//attackhandler are NOT par of the commandMap!!!
-	
-	
+
+
 	// brawler
 	mCommandMap.insert(std::make_pair(opOCberserk1,&ObjectController::_handleBerserk1));
 	mCommandMap.insert(std::make_pair(opOCcenterofbeing,&ObjectController::_handleCenterOfBeing));
@@ -329,7 +329,7 @@ void ObjectControllerCommandMap::_registerCppHooks()
 
 	// smuggler
 	mCommandMap.insert(std::make_pair(opOCfeigndeath,&ObjectController::_handleFeignDeath));
-	
+
 	// squad leader
 	mCommandMap.insert(std::make_pair(opOCsysgroup,&ObjectController::_handleSysGroup));
 	mCommandMap.insert(std::make_pair(opOCsteadyaim,&ObjectController::_handleSteadyAim));
@@ -338,12 +338,12 @@ void ObjectControllerCommandMap::_registerCppHooks()
 	mCommandMap.insert(std::make_pair(opOCboostmorale,&ObjectController::_handleBoostMorale));
 	mCommandMap.insert(std::make_pair(opOCrally,&ObjectController::_handleRally));
 	mCommandMap.insert(std::make_pair(opOCretreat,&ObjectController::_handleRetreat));
-	
+
 	// teras kasi
 	mCommandMap.insert(std::make_pair(opOCmeditate,&ObjectController::_handleMeditate));
 	mCommandMap.insert(std::make_pair(opOCpowerboost,&ObjectController::_handlePowerBoost));
 	mCommandMap.insert(std::make_pair(opOCforceofwill,&ObjectController::_handleForceOfWill));
-	
+
 	// force defense
 	mCommandMap.insert(std::make_pair(opOCavoidincapacitation,&ObjectController::_handleAvoidIncapacitation));
 
@@ -370,7 +370,7 @@ void ObjectControllerCommandMap::_registerCppHooks()
 	mCommandMap.insert(std::make_pair(opOCforceshield2,&ObjectController::_handleForceShield2));
 	mCommandMap.insert(std::make_pair(opOCforcemeditate,&ObjectController::_handleForceMeditate));
 	mCommandMap.insert(std::make_pair(opOCregainconsciousness,&ObjectController::_handleRegainConsciousness));
-	
+
 	// force healing
 	mCommandMap.insert(std::make_pair(opOChealallself1,&ObjectController::_handleHealAllSelf1));
 	mCommandMap.insert(std::make_pair(opOChealallself2,&ObjectController::_handleHealAllSelf2));
@@ -425,8 +425,8 @@ void ObjectControllerCommandMap::_registerCppHooks()
 	mCommandMap.insert(std::make_pair(opOCforceknockdown3,&ObjectController::_handleForceKnockdown3));
 	mCommandMap.insert(std::make_pair(opOCforcechoke,&ObjectController::_handleForceChoke));
 	mCommandMap.insert(std::make_pair(opOCjedimindtrick,&ObjectController::_handleJediMindTrick));
-	
-	
+
+
 	// groups
 	mCommandMap.insert(std::make_pair(opOCinvite,&ObjectController::_handleInvite));
 	mCommandMap.insert(std::make_pair(opOCuninvite,&ObjectController::_handleUninvite));
@@ -462,7 +462,7 @@ void ObjectControllerCommandMap::_registerCppHooks()
 	//Structures
 	mCommandMap.insert(std::make_pair(opOCPlaceStructure,&ObjectController::_handleStructurePlacement));
 	mCommandMap.insert(std::make_pair(opPermissionListModify,&ObjectController::_handleModifyPermissionList));
-	
+
 }
 
 //======================================================================================================================

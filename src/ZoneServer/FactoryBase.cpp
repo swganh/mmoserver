@@ -13,7 +13,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "WorldManager.h"
 #include "LogManager/LogManager.h"
 #include "DatabaseManager/Database.h"
-#include "DatabaseManager/Databaseresult.h"
+#include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
 #include "Utils/utils.h"
 
@@ -81,15 +81,15 @@ void FactoryBase::_buildAttributeMap(Object* object,DatabaseResult* result)
 	{
 		result->GetNextRow(mAttributeBinding,(void*)&attribute);
 		if(attribute.mKey.getCrc() == BString("cat_manf_schem_ing_resource").getCrc())
-		{			
+		{
 			uint32 elementCount = attribute.mValue.split(dataElements,' ');
 			sprintf(str,"cat_manf_schem_ing_resource.\"%s",dataElements[0].getAnsi());
-		
+
 			attribute.mKey		= BString(str);
 			attribute.mValue	= dataElements[1].getAnsi();
 
 			//add key to the worldmanager
-			if(gWorldManager->getAttributeKey(attribute.mKey.getCrc()) == BString())
+			if(gWorldManager->getAttributeKey(attribute.mKey.getCrc()) == "")
 			{
 				gWorldManager->mObjectAttributeKeyMap.insert(std::make_pair(attribute.mKey.getCrc(),attribute.mKey));
 			}

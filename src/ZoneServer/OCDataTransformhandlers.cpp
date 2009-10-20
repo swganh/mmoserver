@@ -8,7 +8,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
-#include "Activeconversation.h"
+#include "ActiveConversation.h"
 #include "BuildingObject.h"
 #include "CellObject.h"
 #include "ConversationManager.h"
@@ -70,17 +70,17 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 	}
 	//uint32 ticks = tickCount - player->getClientTickCount();
 
-	// update tick and move counters... 
+	// update tick and move counters...
 	player->setLastMoveTick(tickCount);
 	player->setClientTickCount(tickCount);
 
-	player->setInMoveCount(inMoveCount); 
+	player->setInMoveCount(inMoveCount);
 
 	if(player->checkIfMounted() && player->getMount())
 	{
-		//Player is mounted lets update his mount too 
+		//Player is mounted lets update his mount too
 		player->getMount()->setLastMoveTick(tickCount);
-		//player->getMount()->setInMoveCount((inMoveCount+1)); 
+		//player->getMount()->setInMoveCount((inMoveCount+1));
 		player->getMount()->setInMoveCount((inMoveCount)); // + 1 or nor does not matter, as long as we update inMoveCount.
 	}
 
@@ -106,7 +106,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 	// gLogger->logMsgF("Direction = %f, %f, %f, %f",MSG_NORMAL, dir.mX, dir.mY, dir.mZ, dir.mW);
 
 	// stop entertaining, if we were
-	if(player->getPerformingState() != PlayerPerformance_None && player->getPosture() != CreaturePosture_SkillAnimating) 
+	if(player->getPerformingState() != PlayerPerformance_None && player->getPosture() != CreaturePosture_SkillAnimating)
 	{
 		gEntertainerManager->stopEntertaining(player);
 	}
@@ -214,7 +214,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 					newRegion->mTree->addObject(player->getMount());
 				}
 
-			}			
+			}
 		}
 		else
 		{
@@ -226,9 +226,9 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 			// hammertime !
 			// muglies botter sometimes sends us weird positions  with X or Y far out of possible regions
 			// however other 3rd party tools might do the same
-			// we need to get rid of the client at this point nad probably should ban the player / add him to 
+			// we need to get rid of the client at this point nad probably should ban the player / add him to
 			// a monitoring list when the coordinates were indeed out of bounds
-			
+
 			gWorldManager->addDisconnectedPlayer(player);
 			return;
 		}
@@ -265,7 +265,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 		if (!gWorldManager->objectsInRange(player->getId(), (ac->getNpc())->getId(), 11.0))
 		{
 			// Terminate conversation, since we are out of range.
-			gMessageLib->sendSystemMessage(player,L"","system_msg","out_of_range"); 
+			gMessageLib->sendSystemMessage(player,L"","system_msg","out_of_range");
 			gConversationManager->stopConversation(player, true);			// We will get the current dialog text in a chat bubble, only seen by me. Impressive :)
 		}
 	}
@@ -281,7 +281,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 	else
 	{
 		if (!gWorldConfig->isInstance())
-		{				
+		{
 
 			//If player is mounted... move his mount too!
 			if(player->checkIfMounted() && player->getMount())
@@ -295,7 +295,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 				gMessageLib->sendUpdateTransformMessage(player);
 
 			}
-			
+
 		}
 		else
 		{
@@ -338,7 +338,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 
 		// update tick and move counters
 		player->setClientTickCount(tickCount);
-		player->setInMoveCount(inMoveCount);  
+		player->setInMoveCount(inMoveCount);
 
 		// get new direction, position, parent and speed
 		parentId = message->getUint64();
@@ -356,7 +356,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 		// gLogger->logMsgF("Direction = %f, %f, %f, %f",MSG_NORMAL, dir.mX, dir.mY, dir.mZ, dir.mW);
 
 		// stop entertaining, if we were
-		if(player->getPerformingState() != PlayerPerformance_None && player->getPosture() != CreaturePosture_SkillAnimating) 
+		if(player->getPerformingState() != PlayerPerformance_None && player->getPosture() != CreaturePosture_SkillAnimating)
 		{
 			gEntertainerManager->stopEntertaining(player);
 		}
@@ -373,7 +373,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 			gMessageLib->broadcastContainmentMessage(player->getId(),oldParentId,0,player);
 
 			// only remove us from si, if we just entered the building
-			if (oldParentId != 0) 
+			if (oldParentId != 0)
 			{
 				if(cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(oldParentId)))
 				{
@@ -402,10 +402,10 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 							player->getMount()->setSubZoneId(0);
 							region->mTree->removeObject(player->getMount());
 
-							//Can't ride into a building with a mount! :-p 
-							//However, its easy to do so we have handling incase the client is tricked.							
-					
-							
+							//Can't ride into a building with a mount! :-p
+							//However, its easy to do so we have handling incase the client is tricked.
+
+
 							// the vehicle is the INTANGIBLE Datapad Controller
 							// the *vehicle* itself is the BODY
 							if(Vehicle* datapad_pet = dynamic_cast<Vehicle*>(gWorldManager->getObjectById(player->getMount()->getPetController())))
@@ -417,7 +417,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 					}
 				}
 			}
-				
+
 			// put us into new one
 			gMessageLib->broadcastContainmentMessage(player->getId(),parentId,4,player);
 			if(cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(parentId)))
@@ -463,7 +463,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 			if (!gWorldManager->objectsInRange(player->getId(), (ac->getNpc())->getId(), 11.0))
 			{
 				// Terminate conversation, since we are out of range.
-				gMessageLib->sendSystemMessage(player,L"","system_msg","out_of_range"); 
+				gMessageLib->sendSystemMessage(player,L"","system_msg","out_of_range");
 				gConversationManager->stopConversation(player, true);			// We will get the current dialog text in a chat bubble, only seen by me. Impressive :)
 			}
 		}
@@ -500,7 +500,7 @@ void ObjectController::_findInRangeObjectsOutside(bool updateAll)
 	PlayerObject*	player			= dynamic_cast<PlayerObject*>(mObject);
 	float			viewingRange	= (float)gWorldConfig->getPlayerViewingRange();
 
-	// gLogger->logMsg("... _findInRangeObjectsOutside.");	
+	// gLogger->logMsg("... _findInRangeObjectsOutside.");
 
 	// query the rtree for non moving objects/objects in buildings
 	// ObjectSet		inRangeObjects;
@@ -509,7 +509,7 @@ void ObjectController::_findInRangeObjectsOutside(bool updateAll)
 	// Using intersectsWithQuery(..)
 	// NOTE: THIS USEAGE OF intersectsWithQuery(..) MUST BE CHECKED, SINCE IT SEEMS THAT WE GET TO MUCH / TO MANY OBJECTS !!!
 	// mSI->getObjectsInRangeEx(player,&inRangeObjects,(ObjType_Player | ObjType_Tangible | ObjType_Creature | ObjType_NPC | ObjType_Building),viewingRange);
-	
+
 	// Make Set ready,
 	mInRangeObjects.clear();
 	mObjectSetIt = mInRangeObjects.begin();	// Will point to end of Set
@@ -518,7 +518,7 @@ void ObjectController::_findInRangeObjectsOutside(bool updateAll)
 	{
 		if(QTRegion* region = gWorldManager->getQTRegion(player->getSubZoneId()))
 		{
-			// gLogger->logMsg("... in a region.");	
+			// gLogger->logMsg("... in a region.");
 			Anh_Math::Rectangle qRect = Anh_Math::Rectangle(player->mPosition.mX - viewingRange,player->mPosition.mZ - viewingRange,viewingRange * 2,viewingRange * 2);
 
 			// We need to find moving creatures also...
@@ -528,7 +528,7 @@ void ObjectController::_findInRangeObjectsOutside(bool updateAll)
 
 	if (updateAll)
 	{
-		// gLogger->logMsg("UpdateAll.");	
+		// gLogger->logMsg("UpdateAll.");
 
 		// Doing this because we need the players from inside buildings too.
 		mSI->getObjectsInRangeEx(player,&mInRangeObjects,(ObjType_Player | ObjType_NPC | ObjType_Creature), viewingRange);
@@ -554,7 +554,7 @@ void ObjectController::_findInRangeObjectsOutside(bool updateAll)
 bool ObjectController::_updateInRangeObjectsOutside()
 {
 	PlayerObject*	player = dynamic_cast<PlayerObject*>(mObject);
-	
+
 	// We may wan't to limit the amount of messages sent in one session.
 	uint32 updatedObjects = 0;
 	const uint32 objectSendLimit = 5000;
@@ -574,7 +574,7 @@ bool ObjectController::_updateInRangeObjectsOutside()
 			// send the according create for the type of object
 			if (object->getId() > 0x0000000100000000)
 			{
-				if (object->getPrivateOwner()) 
+				if (object->getPrivateOwner())
 				{
 					if (object->isOwnedBy(player))
 					{
@@ -645,7 +645,7 @@ void ObjectController::_findInRangeObjectsInside(bool updateAll)
 	// make sure we got a cell
 	if (!playerCell)
 	{
-		gLogger->logMsg("ERROR: No playerCell.\n");		
+		gLogger->logMsg("ERROR: No playerCell.\n");
 		return;
 	}
 
@@ -654,10 +654,10 @@ void ObjectController::_findInRangeObjectsInside(bool updateAll)
 	// make sure we got a building
 	if (!building)
 	{
-		gLogger->logMsg("ERROR: No building.\n");		
+		gLogger->logMsg("ERROR: No building.\n");
 		return;
-	}	
-	
+	}
+
 
 	// mInRangeObjectIndex = 0;
 
@@ -665,7 +665,7 @@ void ObjectController::_findInRangeObjectsInside(bool updateAll)
 	{
 		// This is good to use when entering a building.
 
-		// gLogger->logMsg("INSIDE updateAll.");		
+		// gLogger->logMsg("INSIDE updateAll.");
 
 		// We want the players first.
 		mSI->getObjectsInRange(player,&mInRangeObjects,(ObjType_Player),viewingRange);
@@ -675,7 +675,7 @@ void ObjectController::_findInRangeObjectsInside(bool updateAll)
 		if (QTRegion* region = mSI->getQTRegion(building->mPosition.mX,building->mPosition.mZ))
 		{
 			Anh_Math::Rectangle qRect = Anh_Math::Rectangle(building->mPosition.mX - viewingRange,building->mPosition.mZ - viewingRange,viewingRange * 2,viewingRange * 2);
-			
+
 			// We need to find moving creatures outside...
 			region->mTree->getObjectsInRange(player,&mInRangeObjects,ObjType_Player | ObjType_NPC | ObjType_Creature, &qRect);
 		}
@@ -694,7 +694,7 @@ void ObjectController::_findInRangeObjectsInside(bool updateAll)
 		if (QTRegion* region = mSI->getQTRegion(building->mPosition.mX,building->mPosition.mZ))
 		{
 			Anh_Math::Rectangle qRect = Anh_Math::Rectangle(building->mPosition.mX - viewingRange,building->mPosition.mZ - viewingRange,viewingRange * 2,viewingRange * 2);
-			
+
 			// We need to find moving creatures outside...
 			region->mTree->getObjectsInRange(player,&mInRangeObjects,ObjType_Player | ObjType_NPC | ObjType_Creature,&qRect);
 		}
@@ -764,7 +764,7 @@ bool ObjectController::_updateInRangeObjectsInside()
 				// send the according create for the type of object
 				if (object->getId() > 0x0000000100000000)
 				{
-					if (object->getPrivateOwner()) 
+					if (object->getPrivateOwner())
 					{
 						if (object->isOwnedBy(player))
 						{
@@ -820,7 +820,7 @@ bool ObjectController::_destroyOutOfRangeObjects(ObjectSet *inRangeObjects)
 		{
 			// send a destroy to us
 			gMessageLib->sendDestroyObject(playerObject->getId(),player);
-			
+
 			//If player is mounted destory his mout too
 			if(playerObject->checkIfMounted() && playerObject->getMount())
 			{
@@ -845,7 +845,7 @@ bool ObjectController::_destroyOutOfRangeObjects(ObjectSet *inRangeObjects)
 			}
 
 			// we don't know each other anymore
-			playerIt = knownPlayers->erase(playerIt);
+			knownPlayers->erase(playerIt++);
 			playerObject->removeKnownObject(player);
 
 
@@ -870,7 +870,7 @@ bool ObjectController::_destroyOutOfRangeObjects(ObjectSet *inRangeObjects)
 			// gLogger->logMsgF("RemoveObject: %llu", MSG_NORMAL, object->getId());
 
 			// we don't know each other anymore
-			objIt = knownObjects->erase(objIt);
+			knownObjects->erase(objIt++);
 			object->removeKnownObject(player);
 
 			if (++messageCount >= objectDestroyLimit)
@@ -894,12 +894,12 @@ bool ObjectController::_destroyOutOfRangeObjects(ObjectSet *inRangeObjects)
 }
 
 //=============================================================================
-// 
-//	Update the world around the player. 
-// 
-//	NOTE (by ERU): This code need to be re-written, 
+//
+//	Update the world around the player.
+//
+//	NOTE (by ERU): This code need to be re-written,
 //	right now it's hard to follow and very difficult to do changes without getting secondary effects not wanted...
-// 
+//
 //	THIS IS AN EXAMPLE OF HOW NOT TO WRITE CODE, MIXING EVERYTHING ETC....
 
 uint64 ObjectController::playerWorldUpdate(bool forcedUpdate)
@@ -933,7 +933,7 @@ uint64 ObjectController::playerWorldUpdate(bool forcedUpdate)
 		if (mUpdatingObjects || forcedUpdate)
 		{
 			// Just entered the building?
-			// if (!mUpdatingObjects)	
+			// if (!mUpdatingObjects)
 			// We need to abort any pending operation if we get a forcedUpdate (meaning entered, changed or left a cell or subzone).
 			if (forcedUpdate)
 			{
@@ -1009,7 +1009,7 @@ uint64 ObjectController::playerWorldUpdate(bool forcedUpdate)
 
 		// Position check for SI-update.
 		OutOfUpdateRange |= !(player->mPosition.inRange2D(player->getLastUpdatePosition(),64.0f));
-		
+
 		// gLogger->logMsgF("Distance = %f",MSG_NORMAL, player->mPosition.distance2D(player->getLastUpdatePosition()));
 
 		if (mUpdatingObjects || forcedUpdate || OutOfUpdateRange)
@@ -1102,7 +1102,7 @@ uint64 ObjectController::playerWorldUpdate(bool forcedUpdate)
 			{
 				// send out position updates to known players in group or self only
 				gMessageLib->sendUpdateTransformMessage(player, player);
-			}		
+			}
 		}
 	}
 

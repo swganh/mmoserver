@@ -31,7 +31,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Common/Message.h"
 #include "Common/MessageFactory.h"
 
-
+#include <boost/lexical_cast.hpp>
 
 //=============================================================================
 //
@@ -118,7 +118,7 @@ void ObjectController::_handleSocialInternal(uint64 targetId,Message* message,Ob
 	emoteData.convert(BSTRType_ANSI);
 	emoteData.split(emoteElement,' ');
 
-	uint64 emoteTarget = _atoi64(emoteElement[0].getAnsi());
+	uint64 emoteTarget = boost::lexical_cast<uint64>(emoteElement[0].getAnsi());
 	uint16 emoteId		= atoi(emoteElement[1].getAnsi());
 	uint16 sendType		= 0x0100;
 
@@ -143,7 +143,7 @@ void ObjectController::_handleSetMoodInternal(uint64 targetId,Message* message,O
 
 	message->getStringUnicode16(moodStr);
 	moodStr.convert(BSTRType_ANSI);
-	uint32 mood = static_cast<uint32>(_atoi64(moodStr.getAnsi()));
+	uint32 mood = boost::lexical_cast<uint32>(moodStr.getAnsi());
 
 	playerObject->setMoodId(static_cast<uint8>(mood));
 
@@ -151,9 +151,9 @@ void ObjectController::_handleSetMoodInternal(uint64 targetId,Message* message,O
 
 	ObjControllerAsyncContainer* asyncContainer = new(mDBAsyncContainerPool.malloc()) ObjControllerAsyncContainer(OCQuery_Nope);
 	sprintf(sql,"UPDATE swganh.character_attributes SET moodId = %u where character_id = %I64u",mood,playerObject->getId());
-	
+
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
-	
+
 }
 
 //=============================================================================

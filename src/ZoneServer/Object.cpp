@@ -38,7 +38,7 @@ mPrivateOwner(0)
 
 //=============================================================================
 
-Object::Object(uint64 id,uint64 parentId,string model,ObjectType type) : 
+Object::Object(uint64 id,uint64 parentId,string model,ObjectType type) :
 mId(id),
 mParentId(parentId),
 mModel(model),
@@ -131,20 +131,20 @@ bool Object::checkKnownPlayer(PlayerObject* player)
 
 
 string Object::getBazaarName()
-{ 
-    return ""; 
+{
+    return "";
 }
 
 
 string Object::getBazaarTang()
-{ 
-    return ""; 
+{
+    return "";
 }
 
-		
+
 ObjectController* Object::getController()
-{ 
-    return &mObjectController; 
+{
+    return &mObjectController;
 }
 
 //=============================================================================
@@ -160,11 +160,11 @@ void Object::sendAttributes(PlayerObject* playerObject)
 	Message*	newMessage;
 	string		value;
 
-	gMessageFactory->StartMessage();   
+	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opAttributeListMessage);
 	gMessageFactory->addUint64(mId);
 
-	gMessageFactory->addUint32(mAttributeMap.size()); 
+	gMessageFactory->addUint32(mAttributeMap.size());
 
 	AttributeMap::iterator			mapIt;
 	AttributeOrderList::iterator	orderIt = mAttributeOrderList.begin();
@@ -173,13 +173,13 @@ void Object::sendAttributes(PlayerObject* playerObject)
 	{
 		mapIt = mAttributeMap.find(*orderIt);
 		//see if we have to format it properly
-		
+
 		gMessageFactory->addString(gWorldManager->getAttributeKey((*mapIt).first));
 		value = (*mapIt).second.c_str();
 		if(gWorldManager->getAttributeKey((*mapIt).first).getCrc() == BString("duration").getCrc())
 		{
 			uint32 time;
-			sscanf(value.getAnsi(),"%u",&time);	
+			sscanf(value.getAnsi(),"%u",&time);
 			//uint32 hour = (uint32)time/3600;
 			//time = time - hour*3600;
 			uint32 minutes = (uint32)time/60;
@@ -189,9 +189,9 @@ void Object::sendAttributes(PlayerObject* playerObject)
 			value = valueInt;
 
 		}
-			//gLogger->logMsgF("Object::sendAttribute: %s : %s",MSG_HIGH,gWorldManager->getAttributeKey((*mapIt).first).getAnsi(),value.getAnsi());	
-		
-		
+			//gLogger->logMsgF("Object::sendAttribute: %s : %s",MSG_HIGH,gWorldManager->getAttributeKey((*mapIt).first).getAnsi(),value.getAnsi());
+
+
 		value.convert(BSTRType_Unicode16);
 		gMessageFactory->addString(value);
 
@@ -336,7 +336,7 @@ void Object::destroyKnownObjects()
 	while(objIt != mKnownObjects.end())
 	{
 		(*objIt)->removeKnownObject(this);
-		objIt = mKnownObjects.erase(objIt);
+		mKnownObjects.erase(objIt++);
 	}
 
 	// players
@@ -347,7 +347,7 @@ void Object::destroyKnownObjects()
 		gMessageLib->sendDestroyObject(mId,targetPlayer);
 
 		targetPlayer->removeKnownObject(this);
-		playerIt = mKnownPlayers.erase(playerIt);
+		mKnownPlayers.erase(playerIt++);
 
 		// (by Eru)
 		// When I see a call to destroyKnownObjects(), I do NOT expect that code to delete or manipulate data belonging to other objects,
@@ -356,14 +356,14 @@ void Object::destroyKnownObjects()
 
 		//we need to update the mInRangeObjects too as the list is potentially old
 		//and we might be on it
-		
+
 		// CODE REMOVED BY ERU
 		/*
 		ObjectSet* set =	targetPlayer->getController()->getInRangeObjects();
 		ObjectSet::iterator osetsave = targetPlayer->getController()->getInRangeObjectsIterator();
 		ObjectSet::iterator osetIt = set->find(this);
-		
-		
+
+
 		if(osetIt != set->end())
 		{
 			if(osetsave == osetIt)

@@ -36,6 +36,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "DatabaseManager/DatabaseResult.h"
 #include "MessageLib/MessageLib.h"
 
+#include <cstdio>
+
 //======================================================================================================================
 
 bool MissionManager::mInsFlag = false;
@@ -47,15 +49,15 @@ MissionManager* MissionManager::mSingleton = NULL;
 //This is here only for testing purposes
 
     //Generic
-	struct missionData 
+	struct missionData
 	{
-		char* mSTF; 
+		char* mSTF;
 		int num;
 	};
 
-	struct missionTargets 
+	struct missionTargets
 	{
-		unsigned int crc; 
+		unsigned int crc;
 		char* name;
 	};
 
@@ -119,7 +121,7 @@ static bool failed = false;
 void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 {
     MissionManagerAsyncContainer* asynContainer = (MissionManagerAsyncContainer*)ref;
-	
+
     switch(asynContainer->mQueryType)
     {
 
@@ -131,7 +133,7 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			binding->addField(DFT_uint32,offsetof(Mission_Names,type),4,0);
 			binding->addField(DFT_bstring,offsetof(Mission_Names,mission_name),64,1);
 			binding->addField(DFT_bstring,offsetof(Mission_Names,name),64,2);
-			
+
 
 			uint64 count;
 			count = result->getRowCount();
@@ -142,7 +144,7 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			{
 				names = new(Mission_Names);
 				result->GetNextRow(binding,names);
-				
+
 				if(names->name.getLength() > 2)
 				{
 					names->id = names->mission_name.getCrc();
@@ -164,7 +166,7 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			if(result->getRowCount())
 				gLogger->logMsgLoadSuccess("MissionManager::Loading %u Mission stfs...",MSG_NORMAL,count);
 			else
-				gLogger->logMsgLoadFailure("MissionManager::Loading Mission stfs...",MSG_NORMAL);					
+				gLogger->logMsgLoadFailure("MissionManager::Loading Mission stfs...",MSG_NORMAL);
 
 		}
 		break;
@@ -173,12 +175,12 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 		{
 			DataBinding* binding = mDatabase->CreateDataBinding(1);
 			binding->addField(DFT_bstring,offsetof(Mission_Names,name),64,0);
-			
-		
+
+
 			uint64 count;
 			count = result->getRowCount();
 			Mission_Names* names;
-	
+
 			for(uint64 i = 0;i < count;i++)
 			{
 				names = new(Mission_Names);
@@ -190,7 +192,7 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			if(result->getRowCount())
 				gLogger->logMsgLoadSuccess("MissionManager::Loading %u Mission Names...",MSG_NORMAL,count);
 			else
-				gLogger->logMsgLoadFailure("MissionManager::Loading Mission Names...",MSG_NORMAL);					
+				gLogger->logMsgLoadFailure("MissionManager::Loading Mission Names...",MSG_NORMAL);
 
 		}
 		break;
@@ -198,17 +200,17 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 		case MissionQuery_Load_Types:
 		{
 			//these is the list of the stf files together with the amount of entries they have
-			
+
 			DataBinding* binding = mDatabase->CreateDataBinding(4);
 			binding->addField(DFT_uint32,offsetof(Mission_Types,id),4,0);
 			binding->addField(DFT_bstring,offsetof(Mission_Types,stf),128,1);
 			binding->addField(DFT_uint32,offsetof(Mission_Types,content),4,2);
 			binding->addField(DFT_uint32,offsetof(Mission_Types,nameprovided),4,3);
-		
+
 			uint64 count;
 			count = result->getRowCount();
 			Mission_Types* mission;
-	
+
 			for(uint64 i = 0;i < count;i++)
 			{
 				mission = new(Mission_Types);
@@ -225,7 +227,7 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			if(result->getRowCount())
 				gLogger->logMsgLoadSuccess("MissionManager::Loading %u Mission Types...",MSG_NORMAL,result->getRowCount());
 			else
-				gLogger->logMsgLoadFailure("MissionManager::Loading Mission Types...",MSG_NORMAL);					
+				gLogger->logMsgLoadFailure("MissionManager::Loading Mission Types...",MSG_NORMAL);
 
 		}
 		break;
@@ -243,14 +245,14 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			uint64 count;
 			count = result->getRowCount();
 			Terminal_Mission_Link* terminalMissionLink;
-	
+
 			for(uint64 i = 0;i < count;i++)
 			{
 				terminalMissionLink = new(Terminal_Mission_Link);
 				result->GetNextRow(binding,terminalMissionLink);
 
 				MissionMap::iterator it = mMissionMap.find(terminalMissionLink->mission_type);
-				
+
 				if(it != mMissionMap.end())
 					terminalMissionLink->missiontype = (*it).second;
 				else
@@ -329,7 +331,7 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				{
 					terminalMissionLink->difficulty = MissionDifficulty_Easy;
 				}
-				else					
+				else
 				if(strstr(terminalMissionLink->missiontype->stf.getAnsi(),"medium")!= NULL)
 				{
 					terminalMissionLink->difficulty = MissionDifficulty_Medium;
@@ -345,7 +347,7 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				{
 					terminalMissionLink->faction = MissionFaction_Rebel;
 				}
-				else					
+				else
 				if(strstr(terminalMissionLink->missiontype->stf.getAnsi(),"neutral")!= NULL)
 				{
 					terminalMissionLink->faction = MissionFaction_Neutral;
@@ -364,7 +366,7 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				{
 					Terminal_Type* terminal = (*terminalMapIt).second;
 					terminal->list.push_back(terminalMissionLink);
-					
+
 				}
 				else
 				{
@@ -379,7 +381,7 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			if(result->getRowCount())
 				gLogger->logMsgLoadSuccess("MissionManager::Loading %u Mission Terminal Links...",MSG_NORMAL,result->getRowCount());
 			else
-				gLogger->logMsgLoadFailure("MissionManager::Loading Mission Terminal Links...",MSG_NORMAL);					
+				gLogger->logMsgLoadFailure("MissionManager::Loading Mission Terminal Links...",MSG_NORMAL);
 
 		}
 		break;
@@ -405,11 +407,11 @@ void MissionManager::listRequest(PlayerObject* player, uint64 terminal_id,uint8 
 	strcpy(terminal_name,terminal->getName().getAnsi());
 
 	gLogger->logMsgF("Terminal id %lld is type '%s'\n", MSG_NORMAL, terminal_id, terminal_name);
-   
+
  	int count = 0;
 	int len = strlen(terminal_name);
 	MissionBag* mission_bag = dynamic_cast<MissionBag*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_MissionBag));
-	
+
 	MissionList::iterator it = mission_bag->getMissions()->begin();
 	while(it != mission_bag->getMissions()->end())
 	{
@@ -419,15 +421,19 @@ void MissionManager::listRequest(PlayerObject* player, uint64 terminal_id,uint8 
 		mission->setRefreshCount(refresh_count);
 		switch(len)
 		{
-			case 16: //terminal_mission			  
+			case 16: //terminal_mission
 				count < 5 ? generateDestroyMission(mission,terminal_id) : generateDeliverMission(mission);
 			break;
 			case 22: //terminal_mission_scout
-				count < 5 ? mission->setRefreshCount(0) : generateReconMission(mission);
+				if (count < 5) {
+					mission->setRefreshCount(0);
+				} else {
+					generateReconMission(mission);
+				}
 			break;
 			case 24: //terminal_mission_artisan
 				count < 5 ? generateCraftingMission(mission) : generateSurveyMission(mission);
-			
+
 			break;
 			case 28: //terminal_mission_entertainer
 				generateEntertainerMission(mission,count);
@@ -443,7 +449,7 @@ void MissionManager::listRequest(PlayerObject* player, uint64 terminal_id,uint8 
 		++it;
 	}
 
-    
+
 }
 
 //======================================================================================================================
@@ -470,7 +476,7 @@ void MissionManager::createRequest(PlayerObject* player)
 void MissionManager::missionRequest(PlayerObject* player, uint64 mission_id)
 {
 	Datapad* datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
-	
+
 	//Move the mission from the player's mission bag to his datapad.
 	MissionBag* mission_bag = dynamic_cast<MissionBag*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_MissionBag));
 	MissionObject* mission =  mission_bag->getMissionById(mission_id);
@@ -479,7 +485,7 @@ void MissionManager::missionRequest(PlayerObject* player, uint64 mission_id)
 		gLogger->logMsgF("ERROR: Failed to retrieve mission with id %lld. Unable to accept mission!", MSG_HIGH, mission_id);
 		return;
 	}
- 
+
 	//automatically checks the datapads capacity
 	if(!datapad->addMission(mission))
 	{
@@ -508,7 +514,7 @@ void MissionManager::missionRequest(PlayerObject* player, uint64 mission_id)
 		if(mission->getMissionType() == deliver || mission->getMissionType() == crafting)
 		{
 			updater->getWaypoint()->setCoords(mission->getStart().Coordinates);
-			updater->getWaypoint()->setPlanetCRC(mission->getStart().PlanetCRC);		
+			updater->getWaypoint()->setPlanetCRC(mission->getStart().PlanetCRC);
 		}
 		else
 		{
@@ -538,7 +544,7 @@ void MissionManager::missionRequest(PlayerObject* player, uint64 mission_id)
 
 
 	//check if we need to inform our group
-	if((mission->getMissionType() == destroy)&&(player->getGroupId() != 0))	
+	if((mission->getMissionType() == destroy)&&(player->getGroupId() != 0))
 	{
 		// we are in a group and just accepted a destroy mission
 		// check the missions and update the nearest waypoint
@@ -546,7 +552,7 @@ void MissionManager::missionRequest(PlayerObject* player, uint64 mission_id)
 		gGroupManager->sendGroupMissionUpdate(group);
 
 	}
- 
+
 return;
 }
 //======================================================================================================================
@@ -555,9 +561,9 @@ return;
 void MissionManager::missionComplete(PlayerObject* player, MissionObject* mission)
 {
 	wchar_t sm[100];
-	wsprintf(sm,L"","mission/mission_generic","success_w_amount",mission->getReward());
+	swprintf(sm,100, L"","mission/mission_generic",L"success_w_amount",mission->getReward());
 	gMessageLib->sendSystemMessage(player,sm);
-	
+
 	//remove mission
 	gMessageLib->sendSetWaypointActiveStatus(mission->getWaypoint(),false,player);
 	gMessageLib->sendDestroyObject(mission->getId(),player);
@@ -593,7 +599,7 @@ void MissionManager::missionCompleteEntertainer(PlayerObject* player)
 						delete mission;
 						return;
 				}
-			}				
+			}
 			++it;
 		}
 	}
@@ -610,7 +616,7 @@ void MissionManager::missionAbort(PlayerObject* player, uint64 mission_id)
 {
 	gLogger->logMsg("ABORT MISSION");
 	Datapad* datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
-	
+
 	MissionObject* mission = datapad->getMissionById(mission_id);
 	if(mission)
 	{
@@ -627,7 +633,7 @@ void MissionManager::missionAbort(PlayerObject* player, uint64 mission_id)
 	{
 		gLogger->logMsg("ERROR: Attempt to abort an invalid mission, with id %.8X, from the datapad.", static_cast<int>(mission_id));
 	}
-	
+
 return;
 }
 //======================================================================================================================
@@ -636,7 +642,7 @@ return;
 void MissionManager::missionFailed(PlayerObject* player, MissionObject* mission)
 {
 	gMessageLib->sendSystemMessage(player,L"","mission/mission_generic","failed");
-	
+
 	//remove mission
 	gMessageLib->sendSetWaypointActiveStatus(mission->getWaypoint(),false,player);
 	gMessageLib->sendDestroyObject(mission->getId(),player);
@@ -650,7 +656,7 @@ void MissionManager::missionFailedEntertainer(PlayerObject* player)
 	Datapad* datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
 
 	if(datapad->hasMission()) //player has a mission
-	{						
+	{
 		MissionList::iterator it = datapad->getMissions()->begin();
 		while(it != datapad->getMissions()->end())
 		{
@@ -665,7 +671,7 @@ void MissionManager::missionFailedEntertainer(PlayerObject* player)
 						delete mission;
 						return;
 				}
-			}				
+			}
 			++it;
 		}
 	}
@@ -689,7 +695,7 @@ bool MissionManager::checkDeliverMission(PlayerObject* player,NPCObject* npc)
 					//This is the start npc for the deliver mission
 					char mp[10];
 					sprintf(mp,"m%dp",mission->getNum());
-					gMessageLib->sendSpatialChat(npc,player,L"",mission->getTitleFile(),mp); 
+					gMessageLib->sendSpatialChat(npc,player,L"",mission->getTitleFile(),mp);
 					mission->setStartNPC(NULL);
 					gMessageLib->sendSystemMessage(player,L"","mission/mission_generic","deliver_received_data");
 					MissionObject* updater = new MissionObject();
@@ -719,7 +725,7 @@ bool MissionManager::checkDeliverMission(PlayerObject* player,NPCObject* npc)
 					return true;
 				}
 			}
-			
+
 			++it;
 		}
 	}
@@ -743,13 +749,13 @@ void MissionManager::checkMusicianMission(PlayerObject* player)
 				if(mission->getInProgress()) { ++it; continue; }
 				if(player->mPosition.inRange2D(mission->getDestination().Coordinates,20))
 				{
-					BuffAttribute* performance_timer = new BuffAttribute(Mission_Timer, 0,0,0); 
+					BuffAttribute* performance_timer = new BuffAttribute(Mission_Timer, 0,0,0);
 					Buff* timer = Buff::SimpleBuff(player, player, 600000, 0, gWorldManager->GetCurrentGlobalTick());
-					timer->AddAttribute(performance_timer);	
+					timer->AddAttribute(performance_timer);
 					player->AddBuff(timer);
 					mission->setInProgress(true);
 				}
-			}				
+			}
 			++it;
 		}
 	}
@@ -772,13 +778,13 @@ void MissionManager::checkDancerMission(PlayerObject* player)
 				if(mission->getInProgress()) { ++it; continue; }
 				if(player->mPosition.inRange2D(mission->getDestination().Coordinates,20))
 				{
-					BuffAttribute* performance_timer = new BuffAttribute(Mission_Timer, 0,0,0); 
+					BuffAttribute* performance_timer = new BuffAttribute(Mission_Timer, 0,0,0);
 					Buff* timer = Buff::SimpleBuff(player, player, 600000, 0, gWorldManager->GetCurrentGlobalTick());
-					timer->AddAttribute(performance_timer);	
+					timer->AddAttribute(performance_timer);
 					player->AddBuff(timer);
 					mission->setInProgress(true);
 				}
-			}				
+			}
 			++it;
 		}
 	}
@@ -813,10 +819,10 @@ void MissionManager::checkSurveyMission(PlayerObject* player,CurrentResource* re
 						}
 						else
 						{
-							
+
 
 							int8 sm[500];
-							sprintf(sm,"That resource pocket is too close (%DF meters) to the mission giver to be useful to them. Go find one at least %DI meters away to complete your survey mission. ",									
+							sprintf(sm,"That resource pocket is too close (%DF meters) to the mission giver to be useful to them. Go find one at least %DI meters away to complete your survey mission. ",
 										(int)mission->getIssuingTerminal()->mPosition.distance2D(highestDist.position),
 										(1024 - (int)mission->getIssuingTerminal()->mPosition.distance2D(highestDist.position))
 										);
@@ -825,11 +831,11 @@ void MissionManager::checkSurveyMission(PlayerObject* player,CurrentResource* re
 							gMessageLib->sendSystemMessage(player,s);
 						}
 					}
-				}		
+				}
 			}
 			++it;
-		}				
-		
+		}
+
 	}
 
 }
@@ -852,7 +858,7 @@ bool MissionManager::checkCraftingMission(PlayerObject* player,NPCObject* npc)
 					//This is the start npc for the deliver mission
 					char mp[10];
 					sprintf(mp,"m%dp",mission->getNum());
-					gMessageLib->sendSpatialChat(npc,player,L"",mission->getTitleFile(),mp); 
+					gMessageLib->sendSpatialChat(npc,player,L"",mission->getTitleFile(),mp);
 					mission->setStartNPC(NULL);
 					gMessageLib->sendSystemMessage(player,L"","mission/mission_generic","deliver_received_data");
 					MissionObject* updater = new MissionObject();
@@ -882,7 +888,7 @@ bool MissionManager::checkCraftingMission(PlayerObject* player,NPCObject* npc)
 					return true;
 				}
 			}
-			
+
 			++it;
 		}
 	}
@@ -920,19 +926,19 @@ MissionObject* MissionManager::generateDestroyMission(MissionObject* mission, ui
 
 	//find the missiondata for the respective terminal
 	Terminal_Mission_Link* link = NULL;
-	
+
 	TerminalMap::iterator terminalMapIt = mTerminalMap.find(terminal);
 	if(terminalMapIt != mTerminalMap.end())
 	{
 		gLogger->logMsgF("MissionManager : found the terminal",MSG_HIGH);
 		Terminal_Type* terminal = (*terminalMapIt).second;
-		
+
 		//now get the amount of stfs and get one per chance
 		uint32 amount = terminal->list.size();
 		uint32 chosen = gRandom->getRand() % amount;
 
 		gLogger->logMsgF("MissionManager : random : %u",MSG_HIGH,chosen);
-		
+
 		bool found = false;
 		uint32 counter = 0;
 		while(!found)
@@ -952,14 +958,14 @@ MissionObject* MissionManager::generateDestroyMission(MissionObject* mission, ui
 				}
 				counter++;
 				it++;
-			
+
 			}
 			it = terminal->list.begin();
-	
+
 		}
 
 	}
-	
+
 	int mission_num;
 
 	if(link)
@@ -992,28 +998,28 @@ MissionObject* MissionManager::generateDestroyMission(MissionObject* mission, ui
 	{
 		gLogger->logMsgF("MissionManager : No mission file associated :(",MSG_HIGH);
 		return NULL;
-		
-	}
-    
 
-	missionTargets missionTarget[4] = 
+	}
+
+
+	missionTargets missionTarget[4] =
 	{
 			{0xB9BA5440, "@lair_n:naboo_otolla_gungan_camp_neutral_large_theater"},
 			{0x6D4C33E5, "@lair_n:naboo_capper_spineflap_nest_neutral_large"},
 			{0xA0057DAE, "@lair_n:naboo_kaadu_lair_neutral_medium_boss_01"},
 			{0xFA6FD53A, "@lair_n:lair_base"},
 	};
-	
+
 
 	//Randomly choose a target
 	int target = gRandom->getRand() % 4;
-		
+
 	//END TEMP
 
 	//Position
 	int radius = 500; //500m radius
 	Location destination;
-	destination.Coordinates = mission->getOwner()->mPosition.new2DVectorNRadius(500); 
+	destination.Coordinates = mission->getOwner()->mPosition.new2DVectorNRadius(500);
 	destination.CellID = 0;
 	destination.PlanetCRC = BString(gWorldManager->getPlanetNameThis()).getCrc();
 
@@ -1062,7 +1068,7 @@ MissionObject* MissionManager::generateDeliverMission(MissionObject* mission)
 
 	//TEMP
 
-	missionData mission_deliver_hard[2] =  
+	missionData mission_deliver_hard[2] =
 	{
 		{"mission/mission_deliver_neutral_hard",25},
 		{"mission/mission_deliver_neutral_hard_non_persistent_from_npc",15},
@@ -1070,7 +1076,7 @@ MissionObject* MissionManager::generateDeliverMission(MissionObject* mission)
 
 	//Randomly choose a stf file
 	int stf_file = gRandom->getRand() % 2;
-    
+
 	//Randomly choose a mission in that file
 	int mission_num = (gRandom->getRand() % mission_deliver_hard[stf_file].num)+1;
 	mission->setNum(mission_num);
@@ -1085,7 +1091,7 @@ MissionObject* MissionManager::generateDeliverMission(MissionObject* mission)
 	Location mission_start;
     Location mission_dest;
 	ObjectSet::iterator it = inRangeNPCs.begin();
-	
+
 	//we may stall the main thread with the way it was done ???? however often enough the mission generation never finished!!!!!!!!!!!!!!!
 
 
@@ -1127,7 +1133,7 @@ MissionObject* MissionManager::generateDeliverMission(MissionObject* mission)
 					mission->setStart(mission_start);
 					found = true;
 				}
-				
+
 			}
 		}
 	}
@@ -1183,9 +1189,9 @@ MissionObject* MissionManager::generateEntertainerMission(MissionObject* mission
 	{
 		cntLoop++;
 		++it;
-		if(it == inRangeNPCs.end()) 
+		if(it == inRangeNPCs.end())
 			it = inRangeNPCs.begin();
-		
+
 		NPCObject* npc = dynamic_cast<NPCObject*>(*it);
 		if(npc->getNpcFamily() == NpcFamily_Filler)
 		{
@@ -1220,7 +1226,7 @@ MissionObject* MissionManager::generateEntertainerMission(MissionObject* mission
 	//Mission Description
 	sprintf(md,"m%do",mission_num);
 
-	count < 5 ? 
+	count < 5 ?
 		mission->setDetailFile("mission/mission_npc_musician_neutral_easy") :
 		mission->setDetailFile("mission/mission_npc_dancer_neutral_easy");
 	mission->setDetail(md);
@@ -1232,7 +1238,7 @@ MissionObject* MissionManager::generateEntertainerMission(MissionObject* mission
 	mission->setReward((gRandom->getRand() % 2500)+500);
 
 	//Target Name
-	mission->setTarget("Entertainer"); 
+	mission->setTarget("Entertainer");
 
 	//Mission Target
 	mission->setTargetModel(0x491099A6); //crc = object/tangible/instrument/shared_organ_max_rebo.iff
@@ -1253,7 +1259,7 @@ MissionObject* MissionManager::generateSurveyMission(MissionObject* mission)
 
 	//Creator
 	mission->setCreator(creators[gRandom->getRand() % 9]);
-		
+
 	//Title
 	sprintf(mt,"m%dt",mission_num);
 	mission->setTitleFile("mission/mission_npc_survey_neutral_easy");
@@ -1268,31 +1274,31 @@ MissionObject* MissionManager::generateSurveyMission(MissionObject* mission)
 
 	ResourceTypeMap*	rtMap = gResourceManager->getResourceTypeMap();
 	ResourceTypeMap::iterator it = rtMap->begin();
-	
+
 	uint32 cntLoop = 0;
 	while(!found && !rtMap->empty())//?????
 	{
 		cntLoop ++;
-		
+
 		++it;
 		if(it == rtMap->end())
 			it = rtMap->begin();
-		
+
 		if(!strcmp((*it->second).getResourceType().getRawData(),"mineral_resource"))/* ||
 		   !strcmp((*(*it).second).getResourceType().getRawData(),"energy_resource")) */
 		{
 			uint32 roll		= (gRandom->getRand() / (RAND_MAX  + 1) * (9 - 1) + 1);
-			
+
 			if((roll == 5)||(cntLoop > rtMap->size()))
-			{			
+			{
 				mission->setTarget((*it->second).getName().getRawData());
 				mission->setTargetModel((*it->second).getContainerModel().getCrc());
 				mission->setTargetResource(((*it).second));
 				found = true;
 				break;
-			} 
+			}
 		}
-	
+
 	}
 
 	//efficiency - A range from 30 - 70 is the best I can do without
@@ -1304,7 +1310,7 @@ MissionObject* MissionManager::generateSurveyMission(MissionObject* mission)
 	mission->setReward(mission->getDifficulty() * ((gRandom->getRand() % 14) + 15)); //Difficulty * rand: 15-28
 
 	Location destination;
-	destination.Coordinates = mission->getOwner()->mPosition; 
+	destination.Coordinates = mission->getOwner()->mPosition;
 	destination.CellID = 0;
 	destination.PlanetCRC = BString(gWorldManager->getPlanetNameThis()).getCrc();
 	mission->setStart(destination);
@@ -1320,7 +1326,7 @@ MissionObject* MissionManager::generateCraftingMission(MissionObject* mission)
 	mission->setMissionType(crafting);
 
 	//TEMP!
-	string targets[8][2] = 
+	string targets[8][2] =
 	{
 		{"@item_n:output_governor","object/tangible/mission/quest_item/shared_attunement_grid.iff"},
 		{"@item_n:current_alternator","object/tangible/mission/quest_item/shared_current_alternator.iff"},
@@ -1342,7 +1348,7 @@ MissionObject* MissionManager::generateCraftingMission(MissionObject* mission)
 
 	//Creator
 	mission->setCreator(creators[gRandom->getRand() % 9]);
-		
+
 	//Title
 	sprintf(mt,"m%dt",mission_num);
 	mission->setTitleFile("mission/mission_npc_crafting_neutral_easy");
@@ -1368,10 +1374,10 @@ MissionObject* MissionManager::generateCraftingMission(MissionObject* mission)
 	{
 		cntLoop++;
 		++it;
-		
-		if(it == inRangeNPCs.end()) 
+
+		if(it == inRangeNPCs.end())
 			it = inRangeNPCs.begin();
-		
+
 		NPCObject* npc = dynamic_cast<NPCObject*>(*it);
 		if(npc->getNpcFamily() == NpcFamily_Filler)
 		{
@@ -1421,12 +1427,12 @@ return mission;
 
 MissionObject* MissionManager::generateReconMission(MissionObject* mission)
 {
-	mission->setMissionType(recon); 
+	mission->setMissionType(recon);
 
 	//TEMP
 
 	//First is a stf file, second is number of missions in that file
-	missionData mission_recon[3] =  
+	missionData mission_recon[3] =
 	{
 			{"mission/mission_npc_recon_neutral_easy",25},
 			{"mission/mission_npc_recon_neutral_medium",50},
@@ -1435,7 +1441,7 @@ MissionObject* MissionManager::generateReconMission(MissionObject* mission)
 
 	//Randomly choose a stf file
 	int stf_file = gRandom->getRand() % 3;
-    
+
 	//Randomly choose a mission in that file
 	int mission_num = (gRandom->getRand() % mission_recon[stf_file].num)+1;
 	mission->setNum(mission_num);
@@ -1445,7 +1451,7 @@ MissionObject* MissionManager::generateReconMission(MissionObject* mission)
 	//Position
 	int radius = 500; //500m radius
 	Location destination;
-	destination.Coordinates = mission->getOwner()->mPosition.new2DVectorNRadius(500); 
+	destination.Coordinates = mission->getOwner()->mPosition.new2DVectorNRadius(500);
 	destination.CellID = 0;
 	destination.PlanetCRC = BString(gWorldManager->getPlanetNameThis()).getCrc();
 	mission->setDestination(destination);

@@ -62,12 +62,12 @@ class MemberFunctionHandler : public HandlerFunctionBase
 {
 	public:
 
-		typedef void (T::*MemberFunc)(EventT*);
+		typedef void (T::*MemberFunc)(const EventT*);
 		MemberFunctionHandler(T* instance,MemberFunc memFn) : mInstance(instance),mFunction(memFn){}
 
 		void call(const Event* event)
 		{
-			(mInstance->*mFunction)(static_cast<EventT*>(event));
+			(mInstance->*mFunction)(static_cast<const EventT*>(event));
 		}
 
 	private:
@@ -83,19 +83,17 @@ class MemberFunctionHandler : public HandlerFunctionBase
 
 class EventHandler
 {
-	public:
+public:
+	virtual ~EventHandler();
 
-		~EventHandler();
-		void handleEvent(const Event*);
+	void handleEvent(const Event*);
 
-		template <class T,class EventT>
-		void registerEventFunction(T*,void(T::*memFn)(EventT*));
+	template <class T,class EventT>
+	void registerEventFunction(T*,void(T::*memFn)(const EventT*));
 
-	private:
-
-		typedef boost::ptr_map<TypeInfo,HandlerFunctionBase> Handlers;
-
-		Handlers mHandlers;
+private:
+	typedef boost::ptr_map<const TypeInfo, HandlerFunctionBase> Handlers;
+	Handlers mHandlers;
 };
 
 //======================================================================================================================
@@ -104,9 +102,9 @@ class EventHandler
 //
 
 template <class T,class EventT>
-void EventHandler::registerEventFunction(T* obj,void (T::*memFn)(EventT*))
+void EventHandler::registerEventFunction(T* obj,void (T::*memFn)(const EventT*))
 {
-	mHandlers.insert(TypeInfo(typeid(EventT)),new MemberFunctionHandler<T,EventT>(obj,memFn));
+	mHandlers.insert(TypeInfo(typeid(EventT)), new MemberFunctionHandler<T,EventT>(obj,memFn));
 }
 
 //======================================================================================================================

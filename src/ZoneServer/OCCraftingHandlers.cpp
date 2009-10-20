@@ -37,6 +37,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Common/MessageFactory.h"
 #include "Utils/clock.h"
 
+#include <boost/lexical_cast.hpp>
+
 //=============================================================================
 //
 // request draftslots batch
@@ -64,7 +66,7 @@ void ObjectController::_handleRequestDraftslotsBatch(uint64 targetId,Message* me
 	{
 		// since we currently store everything in 1 schematic object, just look up by the crc
 		// lookup of weights is done in requestresourceweightsbatch
-		uint64 itemId = _atoi64(dataElements[i].getAnsi());
+		uint64 itemId = boost::lexical_cast<uint64>(dataElements[i].getAnsi());
 		DraftSchematic* schematic = gSchematicManager->getSchematicBySlotId(static_cast<uint32>(itemId));
 
 		if(schematic)
@@ -99,7 +101,7 @@ void ObjectController::_handleRequestResourceWeightsBatch(uint64 targetId,Messag
 
 	for(uint16 i = 0;i < elementCount;i++)
 	{
-		uint64 itemId = _atoi64(dataElements[i].getAnsi());
+		uint64 itemId = boost::lexical_cast<uint64>(dataElements[i].getAnsi());
 		DraftSchematic* schematic = gSchematicManager->getSchematicByWeightId(static_cast<uint32>(itemId));
 
 		if(schematic)
@@ -219,7 +221,7 @@ void ObjectController::_handleCancelCraftingSession(uint64 targetId,Message* mes
 	uint32			counter			= message->getUint32();
 
 	gCraftingSessionFactory->destroySession(playerObject->getCraftingSession());
-	
+
 	gLogger->logMsg("session canceled");
 	//client complains over crafting tool already hacing an item when we go out of the slot screen!!!!!
 }
@@ -319,18 +321,18 @@ void ObjectController::handleCraftCustomization(Message* message)
 	itemName.convert(BSTRType_ANSI);
 
 	message->getUint8(hmmm1);
-	
+
 	message->getUint32(amount);
 	message->getUint8(hmmm2);
 
 	CustomizationList* cList;
-	
+
 	cList = session->getManufacturingSchematic()->getCustomizationList();
 	CustomizationList::iterator	custIt = cList->begin();
-	
+
 	uint32 i = 0;
 	while((custIt != cList->end())&&(i < hmmm2))
-	{		
+	{
 		message->getUint32(color);
 		gLogger->logMsgF("craft customization int1 : %u",MSG_HIGH,color);
 		message->getUint32(color);
@@ -340,12 +342,12 @@ void ObjectController::handleCraftCustomization(Message* message)
 		i++;
 		++custIt;
 	}
-	
+
 
 	int8 sql[550];
 	sprintf(sql,"INSERT INTO item_customization VALUES(%I64u, %u, %u)",session->getItem()->getId(),session->getItem()->getCustomization(1),session->getItem()->getCustomization(2));
 	mDatabase->ExecuteSqlAsync(0,0,sql);
-			
+
 	session->setProductionAmount(amount);
 	session->customize(itemName.getAnsi());
 }
@@ -386,7 +388,7 @@ void ObjectController::_handleNextCraftingStage(uint64 targetId,Message* message
 		case 3:
 		{
 			session->experimentationStage(counter);
-				
+
 		}
 		break;
 

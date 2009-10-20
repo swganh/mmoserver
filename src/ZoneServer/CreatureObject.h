@@ -58,10 +58,10 @@ class CreatureObject : public MovingObject
 		void				setFirstName(string name){ mFirstName = name; }
 		string				getLastName() const { return mLastName; }
 		void				setLastName(string name){ mLastName = name; }
-		
+
 		uint8				getPosture() const { return mPosture; }
 		void				setPosture(uint8 posture){ mPosture = posture; }
-		
+
 		// Postures are NOT bitwise constants.
 		// Can NOT use bitwise operation on non bitwise constants.
 		// bool				checkPostures(uint8 postures) const { return((mPosture & postures) == postures); }
@@ -69,7 +69,7 @@ class CreatureObject : public MovingObject
 
 		// Can NOT use bitwise operation on non bitwise constants.
 		// bool				checkPosturesEither(uint8 postures){ return((mPosture & postures) != 0); }
-		
+
 		float				getScale(){ return mScale; }
 		void				setScale(float scale){ mScale = scale; }
 		uint16				getCL(){ return mCL; }
@@ -100,21 +100,21 @@ class CreatureObject : public MovingObject
 
 		CreatureGroup		getCreoGroup(){ return mCreoGroup; }
 		void				setCreoGroup(CreatureGroup group){ mCreoGroup = group; }
-		
+
 		uint8				getMoodId() const { return mMoodId; }
 		void				setMoodId(uint8 id){ mMoodId = id; }
 
 		// skills
 		void				addSkill(Skill* skill){ mSkills.push_back(skill); }
 		bool				removeSkill(Skill* skill);
-		
+
 		//whether we have a certain skill as found in skillenums.h SMSkillType or the skills table
 		bool				checkSkill(uint32 skillId);
 		uint32				getSkillPointsLeft();
 		SkillList*			getSkills(){ return &mSkills; }
 		SkillModsList*		getSkillMods(){ return &mSkillMods; }
 		SkillCommandList*	getSkillCommands(){ return &mSkillCommands; }
-		
+
 		//the values of a skillmod with the skillmod as in skillenums.h SMSkillMod
 		int32				getSkillModValue(uint32 modId);
 		bool				setSkillModValue(uint32 modId,int32 value);
@@ -140,7 +140,7 @@ class CreatureObject : public MovingObject
 		void				togglePvPStateOff(CreaturePvPStatus state){ mPvPStatus = (CreaturePvPStatus)(mPvPStatus & ~state); }
 		void				togglePvPState(CreaturePvPStatus state){ mPvPStatus = (CreaturePvPStatus)(mPvPStatus ^ state); }
 		bool				checkPvPState(CreaturePvPStatus state){ return((CreaturePvPStatus)(mPvPStatus & state) == state); }
-		
+
 		// states
 		uint64				getState(){ return mState; }
 		//void				setState(uint64 state){ mState = state; }
@@ -177,10 +177,10 @@ class CreatureObject : public MovingObject
 		void				setLastEntertainerXP(float lastEntertainerXP){mLastEntertainerXP = lastEntertainerXP;}
 
 		bool				handlePerformanceTick(uint64 time,void* ref);
-		
+
 		PerformingState		getPerformingState() const { return mPendingPerform; }
 		void				setPerformingState(PerformingState state){ mPendingPerform = state; }
-		
+
 		uint32				getPerformanceId(){ return mPerformanceId; }
 		void				setPerformanceId(uint32 Id){ mPerformanceId = Id; }
 
@@ -302,7 +302,7 @@ class CreatureObject : public MovingObject
 		CreaturePvPStatus	mPvPStatus;
 
 		EquipManager		mEquipManager;
-				
+
 		// Object*				mTargetObject;
 
 		SkillList			mSkills;
@@ -310,7 +310,7 @@ class CreatureObject : public MovingObject
 		SkillCommandList	mSkillCommands;
 		SkillCommandMap		mSkillCommandMap;
 		uint32				mSkillUpdateCounter;
-		
+
 		FactionList			mFactionList;
 
 		uint64				mGroupId;
@@ -347,7 +347,7 @@ class CreatureObject : public MovingObject
 		void				SetAsyncCount(uint32 count){mAsyncCount = count;}
 		void				IncAsyncCount(){mAsyncCount++;}
 		void				DecAsyncCount(){mAsyncCount--;}
-	
+
 	protected:
 		BuffList			Buffs;
 		uint32				mAsyncCount;

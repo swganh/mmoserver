@@ -62,7 +62,7 @@ class NPCObject : public CreatureObject
 		void			setSpawnDirection(Anh_Math::Quaternion spawnDirection) {mSpawnDirection = spawnDirection;}
 		Anh_Math::Quaternion getSpawnDirection() const {return mSpawnDirection;}
 
-	
+
 		string			getTitle() const { return mTitle; }
 		void			setTitle(string title){ mTitle = title; }
 
@@ -86,10 +86,10 @@ class NPCObject : public CreatureObject
 		void			setPositionOffset(Anh_Math::Vector3 positionOffset) {mPositionOffset = positionOffset;}
 		Anh_Math::Vector3	getPositionOffset() const {return mPositionOffset;}
 
-		Anh_Math::Vector3 getRandomPosition(Anh_Math::Vector3& currentPos, int32 offsetX, int32 offsetZ) const;
+		Anh_Math::Vector3 getRandomPosition(const Anh_Math::Vector3& currentPos, int32 offsetX, int32 offsetZ) const;
 		float			getHeightAt2DPosition(float xPos, float zPos, bool bestOffer = false) const;
 		void			setDirection(float deltaX, float deltaZ);
-		
+
 		void			moveAndUpdatePosition(void);
 		void			updatePosition(uint64 parentId, Anh_Math::Vector3 newPosition);
 
@@ -116,7 +116,7 @@ class NPCObject : public CreatureObject
 		void	sendAttackersWeaponXp(PlayerObject* playerObject, uint32 weaponMask, int32 xp);
 		void	updateAttackersWeaponAndCombatXp(uint64 playerId, uint64 groupId, int32 damageDone, int32 weaponUsedMask);
 		int32	getWeaponXp(void) const {return mWeaponXp;}
-	
+
 
 	protected:
 		float	getAttackRange(void) {return mAttackRange;}
@@ -124,14 +124,14 @@ class NPCObject : public CreatureObject
 		void	setWeaponXp(int32 weaponXp) {mWeaponXp = weaponXp;}
 
 		void			setAiState(Npc_AI_State state);
-		
+
 		uint32	mNpcFamily;
 		uint64  mSpeciesId;
-		string	mTitle; 
+		string	mTitle;
 
 		uint64	mLastConversationTarget;
 		uint64	mLastConversationRequest;
-		
+
 
 	private:
 		// Spawn info.

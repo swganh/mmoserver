@@ -33,11 +33,11 @@ class AdminManager : public MessageDispatchCallback
 {
 	public:
 
-		static AdminManager* AdminManager::Instance(void);
+		static AdminManager* Instance(void);
 		static AdminManager* Init(MessageDispatch* messageDispatch);
 
-		static inline void deleteManager(void)    
-		{ 
+		static inline void deleteManager(void)
+		{
 			if (mInstance)
 			{
 				delete mInstance;
@@ -66,7 +66,7 @@ class AdminManager : public MessageDispatchCallback
 	private:
 		// This constructor prevents the default constructor to be used, since it is private.
 		AdminManager();
-	
+
 		static AdminManager* mInstance;
 		bool	mPendingShutdown;
 		bool	mTerminateServer;

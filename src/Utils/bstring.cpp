@@ -24,14 +24,14 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 //======================================================================================================================
 
-BString::BString() : 
+BString::BString() :
 mLength(0),
-mAllocated(0), 
+mAllocated(0),
 mCharacterWidth(1),
-mType(BSTRType_ANSI), 
-mString(0) 
-{ 
-  _allocate(); 
+mType(BSTRType_ANSI),
+mString(0)
+{
+  _allocate();
   *(uint32*)mString = 0;   // Make sure a new empty string is null terminated.
 }
 
@@ -45,23 +45,23 @@ BString::BString(BStringType type,uint16 length) : mString(0),mType(type),mAlloc
 		mCharacterWidth = 2;
 
 	_allocate();
-	*(uint32*)mString = 0; 
+	*(uint32*)mString = 0;
 }
 
 //======================================================================================================================
 
-BString::~BString()            
-{ 
-    if (mString) delete [] mString; 
+BString::~BString()
+{
+    if (mString) delete [] mString;
 }
 
 //======================================================================================================================
 
-BString::BString(const int8* data) : 
-mLength(0), 
+BString::BString(const int8* data) :
+mLength(0),
 mAllocated(0),
 mCharacterWidth(1),
-mType(BSTRType_ANSI), 
+mType(BSTRType_ANSI),
 mString(0)
 {
 	_allocate();
@@ -74,11 +74,11 @@ mString(0)
 
 //======================================================================================================================
 
-BString::BString(const uint16* data) : 
-mLength(0), 
-mAllocated(0), 
+BString::BString(const uint16* data) :
+mLength(0),
+mAllocated(0),
 mCharacterWidth(2),
-mType(BSTRType_Unicode16), 
+mType(BSTRType_Unicode16),
 mString(0)
 {
 	_allocate();
@@ -91,11 +91,11 @@ mString(0)
 
 //======================================================================================================================
 
-BString::BString(const wchar_t* data) : 
-mLength(0), 
-mAllocated(0), 
+BString::BString(const wchar_t* data) :
+mLength(0),
+mAllocated(0),
 mCharacterWidth(2),
-mType(BSTRType_Unicode16), 
+mType(BSTRType_Unicode16),
 mString(0)
 {
 	_allocate();
@@ -109,11 +109,11 @@ mString(0)
 
 //======================================================================================================================
 
-BString::BString(const BString& data) : 
-mLength(0), 
-mAllocated(0), 
+BString::BString(const BString& data) :
+mLength(0),
+mAllocated(0),
 mCharacterWidth(1),
-mType(BSTRType_ANSI), 
+mType(BSTRType_ANSI),
 mString(0)
 {
 	_allocate();
@@ -125,7 +125,7 @@ mString(0)
 uint16 BString::initRawBSTR(int8* data, BStringType type)
 {
 	uint16	totalLen = *(uint16*)data;
-	
+
 	mType = type;
 
 	switch(type)
@@ -154,7 +154,7 @@ uint16 BString::initRawBSTR(int8* data, BStringType type)
 
 		mAllocated = (((static_cast<uint16>(charLen) / BSTRING_ALLOC_BLOCK_SIZE) + 1) * BSTRING_ALLOC_BLOCK_SIZE);
 		mString = new char[mAllocated];
-		
+
 		memset(mString,0,mAllocated);
 	}
 
@@ -186,7 +186,14 @@ bool BString::operator ==(const char* data) // compare against const ansi null t
 
 //======================================================================================================================
 
-bool BString::operator ==(BString& data)
+bool BString::operator ==(const BString& data)
+{
+	return (strcmp(mString, data.getAnsi()) == 0);
+}
+
+//======================================================================================================================
+
+bool BString::operator ==(BString data)
 {
 	return (strcmp(mString, data.getAnsi()) == 0);
 }
@@ -351,68 +358,68 @@ BString& BString::operator <<(int8* data)
 }
 
 int8* BString::getAnsi()
-{ 
+{
     if (mType == BSTRType_ANSI) {
-        return mString; 
+        return mString;
     } else {
-        return 0; 
+        return 0;
     }
 }
 
 //======================================================================================================================
 
-const int8* BString::getAnsi() const               
-{ 
+const int8* BString::getAnsi() const
+{
     if (mType == BSTRType_ANSI) {
-        return mString; 
+        return mString;
     } else {
-        return 0; 
+        return 0;
     }
 }
- 
+
 //======================================================================================================================
 /*
-uint16* BString::getUnicode16()            
-{ 
-    if (mType == BSTRType_Unicode16) 
-    { 
-        return (uint16*)mString; 
+uint16* BString::getUnicode16()
+{
+    if (mType == BSTRType_Unicode16)
+    {
+        return (uint16*)mString;
     } else {
-        return 0; 
+        return 0;
     }
 }
  */
 //======================================================================================================================
 
 wchar_t* BString::getUnicode16()
-{ 
-    if (mType == BSTRType_Unicode16) 
-    { 
-        return reinterpret_cast<wchar_t*>(mString); 
+{
+    if (mType == BSTRType_Unicode16)
+    {
+        return reinterpret_cast<wchar_t*>(mString);
     } else {
-        return 0; 
+        return 0;
     }
 }
 
 const wchar_t* BString::getUnicode16() const
-{ 
-    if (mType == BSTRType_Unicode16) 
-    { 
-        return reinterpret_cast<wchar_t*>(mString); 
+{
+    if (mType == BSTRType_Unicode16)
+    {
+        return reinterpret_cast<wchar_t*>(mString);
     } else {
-        return 0; 
+        return 0;
     }
 }
 
 //======================================================================================================================
 
-int8* BString::getUTF8()                 
-{ 
-    if (mType == BSTRType_UTF8) 
+int8* BString::getUTF8()
+{
+    if (mType == BSTRType_UTF8)
     {
-        return mString; 
+        return mString;
     } else {
-        return 0; 
+        return 0;
     }
 }
 
@@ -436,11 +443,11 @@ void BString::convert(BStringType type)
 		{
 			mCharacterWidth = 1;
 			allocated = ((((mLength+1) / BSTRING_ALLOC_BLOCK_SIZE) + 1) * BSTRING_ALLOC_BLOCK_SIZE);
-	
+
 			// Allocate a new buffer for the converted string.
 			newBuffer = new int8[allocated];
 			//Initial null terminator
-			memset(newBuffer,0,allocated); 
+			memset(newBuffer,0,allocated);
 
 			// Convert the string if needed.
 			if(mType == BSTRType_Unicode16)
@@ -480,7 +487,7 @@ void BString::convert(BStringType type)
 			// Allocate a new buffer for the converted string.
 			newBuffer = new int8[allocated];
 			//Initial null terminator
-			*(uint32*)newBuffer = 0;  
+			*(uint32*)newBuffer = 0;
 
 			if(mType == BSTRType_ANSI)
 			{
@@ -508,11 +515,11 @@ void BString::convert(BStringType type)
 
 	// BS code,
 	// an internal data modifier as toLower(), toUpper() etc ... should NEVER change anything else of the string.
-	// In this case, the string is FORCED to BSTRType_ANSI. 
+	// In this case, the string is FORCED to BSTRType_ANSI.
 
 	// Implemeting hidden side effects in a function is never good, on a STANDARD object like stings is a disaster.
 	// Better halt controlled than CTD or server crash.
-	
+
 void BString::toLower()
 {
 	if(mType == BSTRType_Unicode16)
@@ -632,7 +639,7 @@ int BString::split(BStringVector& retVec,char delimiter)
 	int8* data = mString;
 	uint16 beginIndex = 0;
 	uint16 endIndex = 0;
-	
+
 	while(1)
 	{
 		string tmpStr;
@@ -649,10 +656,10 @@ int BString::split(BStringVector& retVec,char delimiter)
 
 		substring(tmpStr,beginIndex,endIndex);
 		tmpStr.getRawData()[endIndex - beginIndex] = 0;
-		
+
 		retVec.push_back(BString(tmpStr.getAnsi()));
 
-		if(!*data) 
+		if(!*data)
 			break;
 
 		if(!*++data)
@@ -661,7 +668,7 @@ int BString::split(BStringVector& retVec,char delimiter)
 		++endIndex;
 	}
 	return retVec.size();
-} 
+}
 
 //======================================================================================================================
 
@@ -673,9 +680,9 @@ void BString::substring(BString& dest, uint16 start, uint16 end)
 
   // Setup our destination string
   dest.setType(mType);
-  // dest.setLength(mLength); 
-  dest.setLength(end - start); 
-  
+  // dest.setLength(mLength);
+  dest.setLength(end - start);
+
   // what's the target type and how much space will we need
   switch (mType)
   {
@@ -746,45 +753,45 @@ void BString::_allocate()
 }
 
 //======================================================================================================================
-    
-uint16 BString::getLength() const         
-{ 
-    return mLength; 
+
+uint16 BString::getLength() const
+{
+    return mLength;
 }
 
 //======================================================================================================================
 
-uint32 BString::getDataLength() const     
-{ 
-    return mLength * mCharacterWidth; 
+uint32 BString::getDataLength() const
+{
+    return mLength * mCharacterWidth;
 }
 
 //======================================================================================================================
 
-uint32 BString::getCharacterWidth() const 
-{ 
-    return mCharacterWidth; 
+uint32 BString::getCharacterWidth() const
+{
+    return mCharacterWidth;
 }
 
 //======================================================================================================================
 
-BStringType BString::getType() const           
-{ 
-    return mType; 
+BStringType BString::getType() const
+{
+    return mType;
 }
 
 //======================================================================================================================
 
-int8* BString::getRawData() const        
-{ 
-    return mString; 
+int8* BString::getRawData() const
+{
+    return mString;
 }
 
 //======================================================================================================================
 
 uint32 BString::getAllocated() const
-{ 
-    return mAllocated; 
+{
+    return mAllocated;
 }
 
 //======================================================================================================================
@@ -803,9 +810,9 @@ uint32 BString::CRC(char* data)
 
 
 //======================================================================================================================
-uint32 BString::mCrcTable[256] = 
+uint32 BString::mCrcTable[256] =
 {
-    0x0000000,       
+    0x0000000,
     0x04C11DB7, 0x09823B6E, 0x0D4326D9, 0x130476DC, 0x17C56B6B,
     0x1A864DB2, 0x1E475005, 0x2608EDB8, 0x22C9F00F, 0x2F8AD6D6,
     0x2B4BCB61, 0x350C9B64, 0x31CD86D3, 0x3C8EA00A, 0x384FBDBD,
@@ -871,8 +878,8 @@ void BString::setLength(uint16 length)
 
 
 //======================================================================================================================
-void BString::setType(BStringType type)   
-{ 
+void BString::setType(BStringType type)
+{
   mType = type;     // what's the target type and how much space will we need
   switch (mType)
   {
@@ -888,7 +895,7 @@ void BString::setType(BStringType type)
 
 
 //======================================================================================================================
-uint32 BString::getCrc(void)
+uint32 BString::getCrc() const
 {
   uint32 crc = 0xffffffff;  // starting seed
   for (uint32 i = 0; i < mLength; i++)

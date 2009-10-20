@@ -1,9 +1,9 @@
 #include "ObjectFactoryCallback.h"
 
-ObjectFactoryCallback::ObjectFactoryCallback(void)
+ObjectFactoryCallback::ObjectFactoryCallback()
 {
 }
 
-ObjectFactoryCallback::~ObjectFactoryCallback(void)
+ObjectFactoryCallback::~ObjectFactoryCallback()
 {
 }

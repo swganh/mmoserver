@@ -105,6 +105,45 @@ int Anh_Utils::cmpistr(const char* s1, const char* s2)
 
 //==========================================================================
 
+int Anh_Utils::cmpnistr(const char* s1, const char* s2, size_t length)
+{
+    int    c1, c2;
+    int    cmp = 0;
+
+    if (s1 && s2)
+    for (size_t i = 0; i < length; ++i)
+    {
+        c1 = *s1++;
+        c2 = *s2++;
+        if (c1 && c2)
+        {
+            c1 = tolower(c1)&0xFF; // 8 bits
+            c2 = tolower(c2)&0xFF; // only
+            if (c1 < c2)
+            {
+                cmp = -1;
+                break;
+            }
+            else if (c1 > c2)
+            {
+                cmp = 1;
+                break;
+            }
+        }
+        else
+        {
+            if (c1)
+                cmp = 1;
+            else if (c2)
+                cmp = -1;
+            break;
+        }
+    }
+    return cmp;
+}
+
+//==========================================================================
+
 int Anh_Utils::kbhit(void)
 {
 #if defined(_MSC_VER)

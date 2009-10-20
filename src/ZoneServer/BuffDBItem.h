@@ -3,7 +3,8 @@
 #ifndef ANH_BUFFDBITEM_H
 #define ANH_BUFFDBITEM_H
 
-#include "Utils\typedefs.h"
+#include "Utils/typedefs.h"
+
 class BuffDBItem
 {
 public:
@@ -23,11 +24,11 @@ public:
 class BuffAttributeDBItem
 {
 public:
-	
+
 	BuffAttributeDBItem(void){;}
 	~BuffAttributeDBItem(void){;}
 	int32 mType, mInitialValue, mTickValue, mFinalValue;
 };
 
 
-#endif ANH_BUFFDBITEM_H
+#endif // ANH_BUFFDBITEM_H

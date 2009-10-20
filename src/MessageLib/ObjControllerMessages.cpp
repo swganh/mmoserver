@@ -52,13 +52,13 @@ Copyright (c) 2006 - 2008 The swgANH Team
 //======================================================================================================================
 //
 // Spatial Chat
-// 
+//
 
 void MessageLib::sendSpatialChat(CreatureObject* const srcObject,string chatMsg,char chatElement[5][32])
 {
 	//TODO Is chat really unreliable ??
 
-	uint64 chatElementTarget	= _atoi64(chatElement[0]);
+	uint64 chatElementTarget	= boost::lexical_cast<uint64>(chatElement[0]);
 	uint16 chatElementMood1		= atoi(chatElement[1]);
 	uint16 chatElementMood2		= atoi(chatElement[2]);
 
@@ -68,19 +68,19 @@ void MessageLib::sendSpatialChat(CreatureObject* const srcObject,string chatMsg,
 	Message*	newMessage;
 
 	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opObjControllerMessage);          
-	gMessageFactory->addUint32(0x0000000B);          
-	gMessageFactory->addUint32(opSpatialChat);         
+	gMessageFactory->addUint32(opObjControllerMessage);
+	gMessageFactory->addUint32(0x0000000B);
+	gMessageFactory->addUint32(opSpatialChat);
 	gMessageFactory->addUint64(srcObject->getId());
-	gMessageFactory->addUint32(0);                   
-	gMessageFactory->addUint64(srcObject->getId());   
+	gMessageFactory->addUint32(0);
+	gMessageFactory->addUint64(srcObject->getId());
 	gMessageFactory->addUint64(chatElementTarget);
-	gMessageFactory->addString(chatMsg);			 
-	gMessageFactory->addUint16(0x32);               
-	gMessageFactory->addUint16(chatElementMood1);   
-	gMessageFactory->addUint16(chatElementMood2);   
-	gMessageFactory->addUint8(0);              
-	gMessageFactory->addUint8(static_cast<uint8>(srcObject->getLanguage()));              
+	gMessageFactory->addString(chatMsg);
+	gMessageFactory->addUint16(0x32);
+	gMessageFactory->addUint16(chatElementMood1);
+	gMessageFactory->addUint16(chatElementMood2);
+	gMessageFactory->addUint8(0);
+	gMessageFactory->addUint8(static_cast<uint8>(srcObject->getLanguage()));
 	gMessageFactory->addUint64(0);                    // unknown
 
 	newMessage = gMessageFactory->EndMessage();
@@ -148,9 +148,9 @@ void MessageLib::sendSpatialChat(CreatureObject* const srcObject,string chatMsg,
 			return;
 		}
 	}
-	
+
 	gMessageFactory->DestroyMessage(newMessage);
-	
+
 }
 
 
@@ -158,7 +158,7 @@ void MessageLib::sendSpatialChat(CreatureObject* const srcObject,string chatMsg,
 //
 // Spatial Chat, used for tutorial
 // We do send NPC chat to "player", or "player" is talking to himself.
-// 
+//
 /* Not good enough when we run instanced groups
 
 void MessageLib::sendSpatialChat(CreatureObject* srcObject,string chatMsg,char chatElement[5][32], PlayerObject* player)
@@ -173,19 +173,19 @@ void MessageLib::sendSpatialChat(CreatureObject* srcObject,string chatMsg,char c
 	Message*	newMessage;
 
 	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opObjControllerMessage);          
-	gMessageFactory->addUint32(0x0000000B);          
-	gMessageFactory->addUint32(opSpatialChat);         
+	gMessageFactory->addUint32(opObjControllerMessage);
+	gMessageFactory->addUint32(0x0000000B);
+	gMessageFactory->addUint32(opSpatialChat);
 	gMessageFactory->addUint64(srcObject->getId());
-	gMessageFactory->addUint32(0);                   
-	gMessageFactory->addUint64(srcObject->getId());   
+	gMessageFactory->addUint32(0);
+	gMessageFactory->addUint64(srcObject->getId());
 	gMessageFactory->addUint64(chatElementTarget);
-	gMessageFactory->addString(chatMsg);			 
-	gMessageFactory->addUint16(0x32);               
-	gMessageFactory->addUint16(chatElementMood1);   
-	gMessageFactory->addUint16(chatElementMood2);   
-	gMessageFactory->addUint8(0);              
-	gMessageFactory->addUint8(srcObject->getLanguage());              
+	gMessageFactory->addString(chatMsg);
+	gMessageFactory->addUint16(0x32);
+	gMessageFactory->addUint16(chatElementMood1);
+	gMessageFactory->addUint16(chatElementMood2);
+	gMessageFactory->addUint8(0);
+	gMessageFactory->addUint8(srcObject->getLanguage());
 	gMessageFactory->addUint64(0);                    // unknown
 
 	newMessage = gMessageFactory->EndMessage();
@@ -210,7 +210,7 @@ void MessageLib::sendSpatialChat(CreatureObject* srcObject,string chatMsg,char c
 
 void MessageLib::sendSpatialChat(const CreatureObject* const srcObject,string chatMsg,char chatElement[5][32], const PlayerObject* const playerObject) const
 {
-	uint64 chatElementTarget	= _atoi64(chatElement[0]);
+	uint64 chatElementTarget	= boost::lexical_cast<uint64>(chatElement[0]);
 	uint16 chatElementMood1		= atoi(chatElement[1]);
 	uint16 chatElementMood2		= atoi(chatElement[2]);
 
@@ -220,19 +220,19 @@ void MessageLib::sendSpatialChat(const CreatureObject* const srcObject,string ch
 	Message*	newMessage;
 
 	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opObjControllerMessage);          
-	gMessageFactory->addUint32(0x0000000B);          
-	gMessageFactory->addUint32(opSpatialChat);         
+	gMessageFactory->addUint32(opObjControllerMessage);
+	gMessageFactory->addUint32(0x0000000B);
+	gMessageFactory->addUint32(opSpatialChat);
 	gMessageFactory->addUint64(srcObject->getId());
-	gMessageFactory->addUint32(0);                   
-	gMessageFactory->addUint64(srcObject->getId());   
+	gMessageFactory->addUint32(0);
+	gMessageFactory->addUint64(srcObject->getId());
 	gMessageFactory->addUint64(chatElementTarget);
-	gMessageFactory->addString(chatMsg);			 
-	gMessageFactory->addUint16(0x32);               
-	gMessageFactory->addUint16(chatElementMood1);   
-	gMessageFactory->addUint16(chatElementMood2);   
-	gMessageFactory->addUint8(0);              
-	gMessageFactory->addUint8(static_cast<uint8>(srcObject->getLanguage()));              
+	gMessageFactory->addString(chatMsg);
+	gMessageFactory->addUint16(0x32);
+	gMessageFactory->addUint16(chatElementMood1);
+	gMessageFactory->addUint16(chatElementMood2);
+	gMessageFactory->addUint8(0);
+	gMessageFactory->addUint8(static_cast<uint8>(srcObject->getLanguage()));
 	gMessageFactory->addUint64(0);                    // unknown
 
 	newMessage = gMessageFactory->EndMessage();
@@ -261,7 +261,7 @@ void MessageLib::sendSpatialChat(const CreatureObject* const srcObject,string ch
 		{
 			// Update tutorial about "chatActive"
 			playerObject->getTutorial()->tutorialResponse("chatActive");
-		}	
+		}
 
 		PlayerList inRangeMembers = playerObject->getInRangeGroupMembers(true);
 		PlayerList::iterator it	= inRangeMembers.begin();
@@ -306,24 +306,24 @@ bool MessageLib::sendSpatialChat(const CreatureObject* const srcObject,const Pla
 	Message*	newMessage;
 
 	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opObjControllerMessage);          
-	gMessageFactory->addUint32(0x0000000B);          
-	gMessageFactory->addUint32(opSpatialChat);         
+	gMessageFactory->addUint32(opObjControllerMessage);
+	gMessageFactory->addUint32(0x0000000B);
+	gMessageFactory->addUint32(opSpatialChat);
 	gMessageFactory->addUint64(srcObject->getId());
-	gMessageFactory->addUint32(0);                   
-	gMessageFactory->addUint64(srcObject->getId());   
+	gMessageFactory->addUint32(0);
+	gMessageFactory->addUint64(srcObject->getId());
 	gMessageFactory->addUint64(playerObject->getId());
-	gMessageFactory->addString(L"");			 
-	gMessageFactory->addUint16(0x32);               
-	gMessageFactory->addUint16(0);   
-	gMessageFactory->addUint16(chatElementMood2);   
-	gMessageFactory->addUint8(0);              
-	gMessageFactory->addUint8(static_cast<uint8>(srcObject->getLanguage()));              
-    
+	gMessageFactory->addString(L"");
+	gMessageFactory->addUint16(0x32);
+	gMessageFactory->addUint16(0);
+	gMessageFactory->addUint16(chatElementMood2);
+	gMessageFactory->addUint8(0);
+	gMessageFactory->addUint8(static_cast<uint8>(srcObject->getLanguage()));
+
 	// simple message
 	if(customMessage.getLength())
 	{
-		gMessageFactory->addString(customMessage);				 
+		gMessageFactory->addString(customMessage);
 	}
 	// templated message
 	else
@@ -343,13 +343,13 @@ bool MessageLib::sendSpatialChat(const CreatureObject* const srcObject,const Pla
 		gMessageFactory->addUint32(0);
 		gMessageFactory->addString(mainVar);
 		gMessageFactory->addUint64(tuId);
-		
+
 		gMessageFactory->addUint16(0);
 		gMessageFactory->addUint32(0);
 		gMessageFactory->addUint16(0);
 
 		gMessageFactory->addUint32(0);
-		
+
 		gMessageFactory->addUint64(ttId);
 		gMessageFactory->addString(ttFile);
 		gMessageFactory->addUint32(0);
@@ -396,7 +396,7 @@ bool MessageLib::sendSpatialChat(const CreatureObject* const srcObject,const Pla
 		{
 			// Update tutorial about "chatActive"
 			playerObject->getTutorial()->tutorialResponse("chatActive");
-		}	
+		}
 
 		PlayerList inRangeMembers = playerObject->getInRangeGroupMembers(true);
 		PlayerList::iterator it	= inRangeMembers.begin();
@@ -438,21 +438,21 @@ return true;
 }
 
 //======================================================================================================================
-// 
+//
 // Spatial Emote
 //
 
 void MessageLib::sendSpatialEmote(CreatureObject* srcObject,uint16 emoteId,uint16 sendText,uint64 emoteTarget)
 {
 	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opObjControllerMessage);  
-	gMessageFactory->addUint32(0x0000000B);           
-	gMessageFactory->addUint32(opSpatialEmote);           
+	gMessageFactory->addUint32(opObjControllerMessage);
+	gMessageFactory->addUint32(0x0000000B);
+	gMessageFactory->addUint32(opSpatialEmote);
 	gMessageFactory->addUint64(srcObject->getId());
 	gMessageFactory->addUint32(0);                    // unknown
-	gMessageFactory->addUint64(srcObject->getId());   
-	gMessageFactory->addUint64(emoteTarget); 
-	gMessageFactory->addUint16(emoteId);	
+	gMessageFactory->addUint64(srcObject->getId());
+	gMessageFactory->addUint64(emoteTarget);
+	gMessageFactory->addUint16(emoteId);
 	gMessageFactory->addUint8(0);					  // unknown
 	gMessageFactory->addUint16(sendText);
 
@@ -519,78 +519,78 @@ void MessageLib::sendSpatialEmote(CreatureObject* srcObject,uint16 emoteId,uint1
 			return;
 		}
 	}
-	
+
 	gMessageFactory->DestroyMessage(newMessage);
-	
+
 }
 
 //======================================================================================================================
-// 
+//
 // sit on chair/bank
 //
 
 void MessageLib::sendSitOnObject(CreatureObject* creatureObject)
 {
-	gMessageFactory->StartMessage();        
-	gMessageFactory->addUint32(opObjControllerMessage);  
-	gMessageFactory->addUint32(0x0000001B);           
-	gMessageFactory->addUint32(opSitOnObject);           
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opObjControllerMessage);
+	gMessageFactory->addUint32(0x0000001B);
+	gMessageFactory->addUint32(opSitOnObject);
 	gMessageFactory->addUint64(creatureObject->getId());
-	gMessageFactory->addUint32(0);                    
-	gMessageFactory->addUint64(creatureObject->getParentId());					
-	gMessageFactory->addFloat(creatureObject->mPosition.mX);	
-	gMessageFactory->addFloat(creatureObject->mPosition.mY);				 
-	gMessageFactory->addFloat(creatureObject->mPosition.mZ);				 	
+	gMessageFactory->addUint32(0);
+	gMessageFactory->addUint64(creatureObject->getParentId());
+	gMessageFactory->addFloat(creatureObject->mPosition.mX);
+	gMessageFactory->addFloat(creatureObject->mPosition.mY);
+	gMessageFactory->addFloat(creatureObject->mPosition.mZ);
 
 	_sendToInRange(gMessageFactory->EndMessage(),creatureObject,5);
 }
 
 //======================================================================================================================
-// 
+//
 // watch entertainer
 //
 
 void MessageLib::sendWatchEntertainer(PlayerObject* playerObject)
 {
-	gMessageFactory->StartMessage();               
-	gMessageFactory->addUint32(opObjControllerMessage);  
-	gMessageFactory->addUint32(0x0000001b);           
-	gMessageFactory->addUint32(0x0000022B);           
-	gMessageFactory->addUint64(playerObject->getId()); 
-	gMessageFactory->addUint32(0);           
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opObjControllerMessage);
+	gMessageFactory->addUint32(0x0000001b);
+	gMessageFactory->addUint32(0x0000022B);
+	gMessageFactory->addUint64(playerObject->getId());
+	gMessageFactory->addUint32(0);
 
 	_sendToInRange(gMessageFactory->EndMessage(),playerObject,5);
 }
 
 //======================================================================================================================
-// 
+//
 // flourish
 //
 
 void MessageLib::sendperformFlourish(PlayerObject* playerObject,uint32 flourish)
 {
-	gMessageFactory->StartMessage();               
-	gMessageFactory->addUint32(opObjControllerMessage);  
-	gMessageFactory->addUint32(27);           
-	gMessageFactory->addUint32(opEntertainerFlourish);           
-	gMessageFactory->addUint64(playerObject->getId()); 
-	gMessageFactory->addUint32(0);           
-	gMessageFactory->addUint32(flourish);           
-	gMessageFactory->addUint32(0);           
-	gMessageFactory->addUint32(0);           
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opObjControllerMessage);
+	gMessageFactory->addUint32(27);
+	gMessageFactory->addUint32(opEntertainerFlourish);
+	gMessageFactory->addUint64(playerObject->getId());
+	gMessageFactory->addUint32(0);
+	gMessageFactory->addUint32(flourish);
+	gMessageFactory->addUint32(0);
+	gMessageFactory->addUint32(0);
 
 	_sendToInRange(gMessageFactory->EndMessage(),playerObject,5);
 }
 
 //======================================================================================================================
-// 
+//
 // animate a creature
 //
 
 void MessageLib::sendCreatureAnimation(CreatureObject* srcObject,string animation)
 {
-	gMessageFactory->StartMessage();      
-	gMessageFactory->addUint32(opObjControllerMessage);  
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opObjControllerMessage);
 	gMessageFactory->addUint32(0x0000001B);
 	gMessageFactory->addUint32(opSendAnimation);
 	gMessageFactory->addUint64(srcObject->getId());
@@ -601,15 +601,15 @@ void MessageLib::sendCreatureAnimation(CreatureObject* srcObject,string animatio
 }
 
 //======================================================================================================================
-// 
+//
 // animate a creature, used by tutorial
 //
 
 void MessageLib::sendCreatureAnimation(CreatureObject* srcObject,string animation, PlayerObject* player)
 {
 	// gLogger->logMsg("MessageLib::sendCreatureAnimation: For tutorial");
-	gMessageFactory->StartMessage();      
-	gMessageFactory->addUint32(opObjControllerMessage);  
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opObjControllerMessage);
 	gMessageFactory->addUint32(0x0000001B);
 	gMessageFactory->addUint32(opSendAnimation);
 	gMessageFactory->addUint64(srcObject->getId());
@@ -619,26 +619,26 @@ void MessageLib::sendCreatureAnimation(CreatureObject* srcObject,string animatio
 	_sendToInstancedPlayers(gMessageFactory->EndMessage(),5, player);
 }
 //======================================================================================================================
-// 
+//
 // posture update
 //
 
 void MessageLib::sendSelfPostureUpdate(PlayerObject* playerObject)
 {
-	gMessageFactory->StartMessage();        
-	gMessageFactory->addUint32(opObjControllerMessage);  
-	gMessageFactory->addUint32(0x0000001B);           
-	gMessageFactory->addUint32(opPosture);           
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opObjControllerMessage);
+	gMessageFactory->addUint32(0x0000001B);
+	gMessageFactory->addUint32(opPosture);
 	gMessageFactory->addUint64(playerObject->getId());
-	gMessageFactory->addUint32(0);                    
-	gMessageFactory->addUint8(playerObject->getPosture());					
-	gMessageFactory->addUint8(1);	
+	gMessageFactory->addUint32(0);
+	gMessageFactory->addUint8(playerObject->getPosture());
+	gMessageFactory->addUint8(1);
 
 	_sendToInRange(gMessageFactory->EndMessage(),playerObject,5);
 }
 
 //======================================================================================================================
-// 
+//
 // radial response
 //
 
@@ -648,12 +648,12 @@ bool MessageLib::sendObjectMenuResponse(Object* object,PlayerObject* targetObjec
 		return(false);
 
 	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opObjControllerMessage);  
-	gMessageFactory->addUint32(0x0000000B);           
-	gMessageFactory->addUint32(opObjectMenuResponse);           
+	gMessageFactory->addUint32(opObjControllerMessage);
+	gMessageFactory->addUint32(0x0000000B);
+	gMessageFactory->addUint32(opObjectMenuResponse);
 	gMessageFactory->addUint64(targetObject->getId());
-	gMessageFactory->addUint32(0);                    
-	gMessageFactory->addUint64(object->getId());	
+	gMessageFactory->addUint32(0);
+	gMessageFactory->addUint64(object->getId());
 	gMessageFactory->addUint64(targetObject->getId());
 
 	RadialMenuPtr radialMenu = object->getRadialMenu();
@@ -690,10 +690,10 @@ bool MessageLib::sendObjectMenuResponse(Object* object,PlayerObject* targetObjec
 	// no custom menu items
 	else
 	{
-		gMessageFactory->addUint32(0);  
+		gMessageFactory->addUint32(0);
 	}
 
-	gMessageFactory->addUint8(responseNr);  
+	gMessageFactory->addUint8(responseNr);
 
 	(targetObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 5);
 
@@ -701,7 +701,7 @@ bool MessageLib::sendObjectMenuResponse(Object* object,PlayerObject* targetObjec
 }
 
 //======================================================================================================================
-// 
+//
 // empty radial response
 //
 
@@ -711,12 +711,12 @@ bool MessageLib::sendEmptyObjectMenuResponse(uint64 requestedId,PlayerObject* ta
 		return(false);
 
 	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opObjControllerMessage);  
-	gMessageFactory->addUint32(0x0000000B);           
-	gMessageFactory->addUint32(opObjectMenuResponse);           
+	gMessageFactory->addUint32(opObjControllerMessage);
+	gMessageFactory->addUint32(0x0000000B);
+	gMessageFactory->addUint32(opObjectMenuResponse);
 	gMessageFactory->addUint64(targetObject->getId());
-	gMessageFactory->addUint32(0);                    
-	gMessageFactory->addUint64(requestedId);	
+	gMessageFactory->addUint32(0);
+	gMessageFactory->addUint64(requestedId);
 	gMessageFactory->addUint64(targetObject->getId());
 
 	gMessageFactory->addUint32(mMenuItemList.size());  // list counter
@@ -742,7 +742,7 @@ bool MessageLib::sendEmptyObjectMenuResponse(uint64 requestedId,PlayerObject* ta
 }
 
 //======================================================================================================================
-// 
+//
 // starting location list
 //
 
@@ -754,11 +754,11 @@ bool MessageLib::sendStartingLocationList(PlayerObject* player)
 	}
 
 	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opObjControllerMessage);  
-	gMessageFactory->addUint32(0x0000001B);           
-	gMessageFactory->addUint32(opStartingLocationList);           
+	gMessageFactory->addUint32(opObjControllerMessage);
+	gMessageFactory->addUint32(0x0000001B);
+	gMessageFactory->addUint32(opStartingLocationList);
 	gMessageFactory->addUint64(player->getId());
-	gMessageFactory->addUint32(0);           
+	gMessageFactory->addUint32(0);
 
 	gMessageFactory->addUint32(16);  // list counter
 
@@ -918,18 +918,18 @@ bool MessageLib::sendStartingLocationList(PlayerObject* player)
 
 
 //======================================================================================================================
-// 
+//
 // combat action
 //
 
 void MessageLib::sendCombatAction(CreatureObject* attacker,Object* defender,uint32 animation,uint8 trail1,uint8 trail2,uint8 hit)
 {
-	gMessageFactory->StartMessage();    
-	gMessageFactory->addUint32(opObjControllerMessage);  
-	gMessageFactory->addUint32(0x0000001B);           
-	gMessageFactory->addUint32(opCombatAction);           
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opObjControllerMessage);
+	gMessageFactory->addUint32(0x0000001B);
+	gMessageFactory->addUint32(opCombatAction);
 	gMessageFactory->addUint64(attacker->getId());
-	gMessageFactory->addUint32(0);  
+	gMessageFactory->addUint32(0);
 	gMessageFactory->addUint32(animation);
 	gMessageFactory->addUint64(attacker->getId());
 
@@ -939,7 +939,7 @@ void MessageLib::sendCombatAction(CreatureObject* attacker,Object* defender,uint
 	}
 	else
 	{
-		gMessageFactory->addUint64(0);  
+		gMessageFactory->addUint64(0);
 	}
 
 	gMessageFactory->addUint8(attacker->getPosture());
@@ -979,7 +979,7 @@ void MessageLib::sendCombatAction(CreatureObject* attacker,Object* defender,uint
 }
 
 //======================================================================================================================
-// 
+//
 // draftslots response
 //
 
@@ -988,17 +988,17 @@ bool MessageLib::sendDraftslotsResponse(DraftSchematic* schematic,PlayerObject* 
 	if(!(playerObject->isConnected()))
 		return(false);
 
-	gMessageFactory->StartMessage();          
-	gMessageFactory->addUint32(opObjControllerMessage);  
-	gMessageFactory->addUint32(0x0000000B);           
-	gMessageFactory->addUint32(opDraftSlotsQueryResponse);           
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opObjControllerMessage);
+	gMessageFactory->addUint32(0x0000000B);
+	gMessageFactory->addUint32(opDraftSlotsQueryResponse);
 	gMessageFactory->addUint64(playerObject->getId());
-	gMessageFactory->addUint32(0);  
+	gMessageFactory->addUint32(0);
 	gMessageFactory->addUint64(schematic->getId());
 
-	gMessageFactory->addUint32(schematic->getComplexity());  
+	gMessageFactory->addUint32(schematic->getComplexity());
 	gMessageFactory->addUint32(schematic->getDataSize());
-	gMessageFactory->addUint8(1); 
+	gMessageFactory->addUint8(1);
 
 	DraftSlots*	slots = schematic->getDraftSlots();
 
@@ -1013,7 +1013,7 @@ bool MessageLib::sendDraftslotsResponse(DraftSchematic* schematic,PlayerObject* 
 		gMessageFactory->addString(slot->getComponentFile());
 		gMessageFactory->addUint32(0);
 		gMessageFactory->addString(slot->getComponentName());
-		gMessageFactory->addUint8(slot->getOptional()); 
+		gMessageFactory->addUint8(slot->getOptional());
 		gMessageFactory->addUint32(1);
 		gMessageFactory->addString(slot->getComponentFile());
 		gMessageFactory->addUint32(0);
@@ -1042,7 +1042,7 @@ bool MessageLib::sendDraftslotsResponse(DraftSchematic* schematic,PlayerObject* 
 }
 
 //======================================================================================================================
-// 
+//
 // draftweights response
 //
 
@@ -1051,12 +1051,12 @@ bool MessageLib::sendDraftWeightsResponse(DraftSchematic* schematic,PlayerObject
 	if(!(playerObject->isConnected()))
 		return(false);
 
-	gMessageFactory->StartMessage();   
-	gMessageFactory->addUint32(opObjControllerMessage);  
-	gMessageFactory->addUint32(0x0000000B);           
-	gMessageFactory->addUint32(opResourceWeights);           
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opObjControllerMessage);
+	gMessageFactory->addUint32(0x0000000B);
+	gMessageFactory->addUint32(opResourceWeights);
 	gMessageFactory->addUint64(playerObject->getId());
-	gMessageFactory->addUint32(0);  
+	gMessageFactory->addUint32(0);
 	gMessageFactory->addUint64(schematic->getId());
 
 	// assembly list
@@ -1115,16 +1115,16 @@ bool MessageLib::sendDraftWeightsResponse(DraftSchematic* schematic,PlayerObject
 }
 
 //======================================================================================================================
-// 
+//
 // move object in world
 //
 
 void MessageLib::sendDataTransform(Object* object)
 {
-	gMessageFactory->StartMessage(); 
-	gMessageFactory->addUint32(opObjControllerMessage);  
-	gMessageFactory->addUint32(0x0000000B);           
-	gMessageFactory->addUint32(opDataTransform);           
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opObjControllerMessage);
+	gMessageFactory->addUint32(0x0000000B);
+	gMessageFactory->addUint32(opDataTransform);
 	gMessageFactory->addUint64(object->getId());
 	gMessageFactory->addUint32(0);
 	gMessageFactory->addUint32(0);
@@ -1142,16 +1142,16 @@ void MessageLib::sendDataTransform(Object* object)
 }
 
 //======================================================================================================================
-// 
+//
 // move object in cell
 //
 
 void MessageLib::sendDataTransformWithParent(Object* object)
 {
-	gMessageFactory->StartMessage();               
-	gMessageFactory->addUint32(opObjControllerMessage);  
-	gMessageFactory->addUint32(0x0000000B);           
-	gMessageFactory->addUint32(opDataTransformWithParent);           
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opObjControllerMessage);
+	gMessageFactory->addUint32(0x0000000B);
+	gMessageFactory->addUint32(opDataTransformWithParent);
 	gMessageFactory->addUint64(object->getId());
 	gMessageFactory->addUint32(0);
 	gMessageFactory->addUint32(0);
@@ -1171,16 +1171,16 @@ void MessageLib::sendDataTransformWithParent(Object* object)
 }
 
 //======================================================================================================================
-// 
+//
 // move object in world, used with Tutorial
 //
 
 void MessageLib::sendDataTransform(Object* object, PlayerObject* player)
 {
-	gMessageFactory->StartMessage(); 
-	gMessageFactory->addUint32(opObjControllerMessage);  
-	gMessageFactory->addUint32(0x0000000B);           
-	gMessageFactory->addUint32(opDataTransform);           
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opObjControllerMessage);
+	gMessageFactory->addUint32(0x0000000B);
+	gMessageFactory->addUint32(opDataTransform);
 	gMessageFactory->addUint64(object->getId());
 	gMessageFactory->addUint32(0);
 	gMessageFactory->addUint32(0);
@@ -1198,16 +1198,16 @@ void MessageLib::sendDataTransform(Object* object, PlayerObject* player)
 }	//so unreliable needs to be true!!!!!
 
 //======================================================================================================================
-// 
+//
 // move object in cell, used with Tutorial
 //
 
 void MessageLib::sendDataTransformWithParent(Object* object, PlayerObject* player)
 {
-	gMessageFactory->StartMessage();               
-	gMessageFactory->addUint32(opObjControllerMessage);  
-	gMessageFactory->addUint32(0x0000000B);           
-	gMessageFactory->addUint32(opDataTransformWithParent);           
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opObjControllerMessage);
+	gMessageFactory->addUint32(0x0000000B);
+	gMessageFactory->addUint32(opDataTransformWithParent);
 	gMessageFactory->addUint64(object->getId());
 	gMessageFactory->addUint32(0);
 	gMessageFactory->addUint32(0);
@@ -1221,12 +1221,12 @@ void MessageLib::sendDataTransformWithParent(Object* object, PlayerObject* playe
 	gMessageFactory->addFloat(object->mPosition.mY);
 	gMessageFactory->addFloat(object->mPosition.mZ);
 	gMessageFactory->addUint32(0);
-	
+
 	_sendToInstancedPlayersUnreliable(gMessageFactory->EndMessage(),5, player);
 }
 
 //======================================================================================================================
-// 
+//
 // send biography
 //
 
@@ -1235,10 +1235,10 @@ bool MessageLib::sendBiography(PlayerObject* playerObject,PlayerObject* targetOb
 	if(!(playerObject->isConnected()))
 		return(false);
 
-	gMessageFactory->StartMessage();               
-	gMessageFactory->addUint32(opObjControllerMessage);  
-	gMessageFactory->addUint32(0x0000000B);           
-	gMessageFactory->addUint32(opBiographyUpdate);           
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opObjControllerMessage);
+	gMessageFactory->addUint32(0x0000000B);
+	gMessageFactory->addUint32(opBiographyUpdate);
 	gMessageFactory->addUint64(playerObject->getId());
 	gMessageFactory->addUint32(0);
 	gMessageFactory->addUint64(targetObject->getId());
@@ -1250,7 +1250,7 @@ bool MessageLib::sendBiography(PlayerObject* playerObject,PlayerObject* targetOb
 }
 
 //======================================================================================================================
-// 
+//
 // character match results
 //
 
@@ -1262,10 +1262,10 @@ bool MessageLib::sendCharacterMatchResults(const PlayerList* const matchedPlayer
 	PlayerList::const_iterator	playersIt	= matchedPlayers->begin();
 	// PlayerObject*			player		= NULL;
 
-	gMessageFactory->StartMessage();               
-	gMessageFactory->addUint32(opObjControllerMessage);  
-	gMessageFactory->addUint32(0x0000000B);           
-	gMessageFactory->addUint32(opPlayersNearYou);           
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opObjControllerMessage);
+	gMessageFactory->addUint32(0x0000000B);
+	gMessageFactory->addUint32(opPlayersNearYou);
 	gMessageFactory->addUint64(targetObject->getId());
 	gMessageFactory->addUint32(0);
 
@@ -1336,7 +1336,7 @@ bool MessageLib::sendCharacterMatchResults(const PlayerList* const matchedPlayer
 }
 
 //======================================================================================================================
-// 
+//
 // trade
 //
 
@@ -1346,15 +1346,15 @@ bool MessageLib::sendSecureTrade(PlayerObject* targetPlayer,PlayerObject* srcObj
 		return(false);
 
 	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opObjControllerMessage);          
-	gMessageFactory->addUint32(0x0000000B);          
-	gMessageFactory->addUint32(opSecureTrade);     
+	gMessageFactory->addUint32(opObjControllerMessage);
+	gMessageFactory->addUint32(0x0000000B);
+	gMessageFactory->addUint32(opSecureTrade);
 	gMessageFactory->addUint64(targetPlayer->getId());
-	gMessageFactory->addUint32(0);                   
-	gMessageFactory->addUint32(error);          
+	gMessageFactory->addUint32(0);
+	gMessageFactory->addUint32(error);
 
 	gMessageFactory->addUint64(srcObject->getId());   // sender
-	gMessageFactory->addUint64(targetPlayer->getId());// recipient												  //  
+	gMessageFactory->addUint64(targetPlayer->getId());// recipient												  //
 
 	(targetPlayer->getClient())->SendChannelA(gMessageFactory->EndMessage(), targetPlayer->getAccountId(), CR_Client, 5);
 
@@ -1362,7 +1362,7 @@ bool MessageLib::sendSecureTrade(PlayerObject* targetPlayer,PlayerObject* srcObj
 }
 
 //======================================================================================================================
-// 
+//
 // open npc dialog
 //
 
@@ -1371,8 +1371,8 @@ bool MessageLib::sendStartNPCConversation(NPCObject* srcObject,PlayerObject* tar
 	if(!(targetObject->isConnected()))
 		return(false);
 
-	gMessageFactory->StartMessage();      
-	gMessageFactory->addUint32(opObjControllerMessage);  
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opObjControllerMessage);
 	gMessageFactory->addUint32(0x0000000B);
 	gMessageFactory->addUint32(opStartNpcConversation);
 	gMessageFactory->addUint64(targetObject->getId());
@@ -1388,7 +1388,7 @@ bool MessageLib::sendStartNPCConversation(NPCObject* srcObject,PlayerObject* tar
 }
 
 //======================================================================================================================
-// 
+//
 // stop a conversation
 //
 
@@ -1397,8 +1397,8 @@ bool MessageLib::sendStopNPCConversation(NPCObject* srcObject,PlayerObject* targ
 	if(!(targetObject->isConnected()))
 		return(false);
 
-	gMessageFactory->StartMessage();      
-	gMessageFactory->addUint32(opObjControllerMessage);  
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opObjControllerMessage);
 	gMessageFactory->addUint32(0x0000000B);
 	gMessageFactory->addUint32(opStopNpcConversation);
 	gMessageFactory->addUint64(targetObject->getId());
@@ -1412,7 +1412,7 @@ bool MessageLib::sendStopNPCConversation(NPCObject* srcObject,PlayerObject* targ
 }
 
 //======================================================================================================================
-// 
+//
 // update a conversations page text
 //
 
@@ -1423,8 +1423,8 @@ bool MessageLib::sendNPCDialogMessage(ActiveConversation* av,PlayerObject* targe
 
 	ConversationPage*	currentPage = av->getCurrentPage();
 
-	gMessageFactory->StartMessage();      
-	gMessageFactory->addUint32(opObjControllerMessage);  
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opObjControllerMessage);
 	gMessageFactory->addUint32(0x0000000B);
 	gMessageFactory->addUint32(opNpcConversationMessage);
 	gMessageFactory->addUint64(targetObject->getId());
@@ -1478,7 +1478,7 @@ bool MessageLib::sendNPCDialogMessage(ActiveConversation* av,PlayerObject* targe
 }
 
 //======================================================================================================================
-// 
+//
 // conversation options
 //
 
@@ -1490,14 +1490,14 @@ bool MessageLib::sendNPCDialogOptions(std::vector<ConversationOption*>* options,
 	ConversationOption* option;
 	uint32				realSize = 0;
 
-	gMessageFactory->StartMessage();      
-	gMessageFactory->addUint32(opObjControllerMessage);  
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opObjControllerMessage);
 	gMessageFactory->addUint32(0x0000000B);
 	gMessageFactory->addUint32(opNpcConversationOptions);
 	gMessageFactory->addUint64(targetObject->getId());
 	gMessageFactory->addUint32(0);
 
-	gMessageFactory->addUint8(options->size()); 
+	gMessageFactory->addUint8(options->size());
 
 	std::vector<ConversationOption*>::iterator it = options->begin();
 
@@ -1552,7 +1552,7 @@ bool MessageLib::sendNPCDialogOptions(std::vector<ConversationOption*>* options,
 }
 
 //======================================================================================================================
-// 
+//
 // filtered draft schematics list, send when starting a crafting session
 //
 
@@ -1566,8 +1566,8 @@ bool MessageLib::sendDraftSchematicsList(CraftingTool* tool,PlayerObject* player
 	SchematicsIdList::iterator	schemIt		= schemIdList->begin();
 	DraftSchematic*				schematic;
 
-	gMessageFactory->StartMessage();      
-	gMessageFactory->addUint32(opObjControllerMessage);  
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opObjControllerMessage);
 	gMessageFactory->addUint32(0x0000000B);
 	gMessageFactory->addUint32(opDraftSchematics);
 	gMessageFactory->addUint64(playerObject->getId());
@@ -1585,7 +1585,7 @@ bool MessageLib::sendDraftSchematicsList(CraftingTool* tool,PlayerObject* player
 		availableComplexity = 25;
 	}
 
-	
+
 	uint32 filteredCount		= 0;
 	uint32 subCategory			= 0;
 
@@ -1630,7 +1630,7 @@ bool MessageLib::sendDraftSchematicsList(CraftingTool* tool,PlayerObject* player
 }
 
 //======================================================================================================================
-// 
+//
 // shared net message
 //
 
@@ -1639,8 +1639,8 @@ bool MessageLib::sendSharedNetworkMessage(PlayerObject* playerObject,uint32 unkn
 	if(!(playerObject->isConnected()))
 		return(false);
 
-	gMessageFactory->StartMessage();      
-	gMessageFactory->addUint32(opObjControllerMessage);  
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opObjControllerMessage);
 	gMessageFactory->addUint32(0x0000000B);
 	gMessageFactory->addUint32(opSharedNetworkMessage);
 	gMessageFactory->addUint64(playerObject->getId());
@@ -1653,7 +1653,7 @@ bool MessageLib::sendSharedNetworkMessage(PlayerObject* playerObject,uint32 unkn
 }
 
 //======================================================================================================================
-// 
+//
 // manufacture slots
 //
 
@@ -1662,17 +1662,17 @@ bool MessageLib::sendManufactureSlots(ManufacturingSchematic* manSchem,CraftingT
 	if(!(playerObject->isConnected()))
 		return(false);
 
-	gMessageFactory->StartMessage();          
-	gMessageFactory->addUint32(opObjControllerMessage);  
-	gMessageFactory->addUint32(0x0000000B);           
-	gMessageFactory->addUint32(opManufactureSlots);           
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opObjControllerMessage);
+	gMessageFactory->addUint32(0x0000000B);
+	gMessageFactory->addUint32(opManufactureSlots);
 	gMessageFactory->addUint64(playerObject->getId());
-	gMessageFactory->addUint32(0);  
+	gMessageFactory->addUint32(0);
 	gMessageFactory->addUint64(tool->getId());
-	gMessageFactory->addUint64(manSchem->getId());  
+	gMessageFactory->addUint64(manSchem->getId());
 	gMessageFactory->addUint64(item->getId());
 	gMessageFactory->addUint32(1);
-	gMessageFactory->addUint8(1); 
+	gMessageFactory->addUint8(1);
 
 	ManufactureSlots*	slots = manSchem->getManufactureSlots();
 
@@ -1687,7 +1687,7 @@ bool MessageLib::sendManufactureSlots(ManufacturingSchematic* manSchem,CraftingT
 		gMessageFactory->addString(slot->getComponentFile());
 		gMessageFactory->addUint32(0);
 		gMessageFactory->addString(slot->getComponentName());
-		gMessageFactory->addUint8(slot->getOptional()); 
+		gMessageFactory->addUint8(slot->getOptional());
 		gMessageFactory->addUint32(1);
 		gMessageFactory->addString(slot->getComponentFile());
 		gMessageFactory->addUint32(0);
@@ -1715,7 +1715,7 @@ bool MessageLib::sendManufactureSlots(ManufacturingSchematic* manSchem,CraftingT
 }
 
 //======================================================================================================================
-// 
+//
 // craft acks
 //
 
@@ -1724,15 +1724,15 @@ bool MessageLib::sendCraftAcknowledge(uint32 ackType,uint32 errorId,uint8 counte
 	if(!(playerObject->isConnected()))
 		return(false);
 
-	gMessageFactory->StartMessage();          
-	gMessageFactory->addUint32(opObjControllerMessage);  
-	gMessageFactory->addUint32(0x0000000B);           
-	gMessageFactory->addUint32(opCraftAcknowledge);           
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opObjControllerMessage);
+	gMessageFactory->addUint32(0x0000000B);
+	gMessageFactory->addUint32(opCraftAcknowledge);
 	gMessageFactory->addUint64(playerObject->getId());
 	gMessageFactory->addUint32(0);
-	gMessageFactory->addUint32(ackType);  
+	gMessageFactory->addUint32(ackType);
 	gMessageFactory->addUint32(errorId);
-	gMessageFactory->addUint8(counter); 
+	gMessageFactory->addUint8(counter);
 
 	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 5);
 
@@ -1740,7 +1740,7 @@ bool MessageLib::sendCraftAcknowledge(uint32 ackType,uint32 errorId,uint8 counte
 }
 
 //======================================================================================================================
-// 
+//
 // craft experiment response
 //
 
@@ -1749,15 +1749,15 @@ bool MessageLib::sendCraftExperimentResponse(uint32 ackType,uint32 resultId,uint
 	if(!(playerObject->isConnected()))
 		return(false);
 
-	gMessageFactory->StartMessage();          
-	gMessageFactory->addUint32(opObjControllerMessage);  
-	gMessageFactory->addUint32(0x0000000B);           
-	gMessageFactory->addUint32(opCraftExperimentResponse);           
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opObjControllerMessage);
+	gMessageFactory->addUint32(0x0000000B);
+	gMessageFactory->addUint32(opCraftExperimentResponse);
 	gMessageFactory->addUint64(playerObject->getId());
 	gMessageFactory->addUint32(0);
-	gMessageFactory->addUint32(ackType);  
+	gMessageFactory->addUint32(ackType);
 	gMessageFactory->addUint32(resultId);
-	gMessageFactory->addUint8(counter); 
+	gMessageFactory->addUint8(counter);
 
 	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 5);
 
@@ -1765,7 +1765,7 @@ bool MessageLib::sendCraftExperimentResponse(uint32 ackType,uint32 resultId,uint
 }
 
 //======================================================================================================================
-// 
+//
 // generic response
 //
 
@@ -1774,15 +1774,15 @@ bool MessageLib::sendGenericIntResponse(uint32 value,uint8 counter,PlayerObject*
 	if(!(playerObject->isConnected()))
 		return(false);
 
-	gMessageFactory->StartMessage();          
-	gMessageFactory->addUint32(opObjControllerMessage);  
-	gMessageFactory->addUint32(0x0000000B);           
-	gMessageFactory->addUint32(opGenericIntResponse);           
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opObjControllerMessage);
+	gMessageFactory->addUint32(0x0000000B);
+	gMessageFactory->addUint32(opGenericIntResponse);
 	gMessageFactory->addUint64(playerObject->getId());
 	gMessageFactory->addUint32(0);
-	gMessageFactory->addUint32(0x00000109);  
+	gMessageFactory->addUint32(0x00000109);
 	gMessageFactory->addUint32(value);
-	gMessageFactory->addUint8(counter); 
+	gMessageFactory->addUint8(counter);
 
 	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 5);
 
@@ -1790,24 +1790,24 @@ bool MessageLib::sendGenericIntResponse(uint32 value,uint8 counter,PlayerObject*
 }
 
 //======================================================================================================================
-// 
+//
 // combat spam
 //
 
 void MessageLib::sendCombatSpam(Object* attacker,Object* defender,int32 damage,string stfFile,string stfVar,Item* item,uint8 colorFlag,string customText)
 {
-	gMessageFactory->StartMessage();               
-	gMessageFactory->addUint32(opObjControllerMessage);  
-	gMessageFactory->addUint32(0x0000000B);           
-	gMessageFactory->addUint32(opCombatSpam);       
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opObjControllerMessage);
+	gMessageFactory->addUint32(0x0000000B);
+	gMessageFactory->addUint32(opCombatSpam);
 	gMessageFactory->addUint64(attacker->getId());
 	gMessageFactory->addUint32(0);
 
-	gMessageFactory->addUint64(attacker->getId()); 
+	gMessageFactory->addUint64(attacker->getId());
 	gMessageFactory->addUint64(defender->getId());
 
 	if(!item)
-		gMessageFactory->addUint64(0); 
+		gMessageFactory->addUint64(0);
 	else
 		gMessageFactory->addUint64(item->getId());
 
@@ -1860,16 +1860,16 @@ void MessageLib::sendCombatSpam(Object* attacker,Object* defender,int32 damage,s
 			(srcPlayer->getClient())->SendChannelA(newMessage,srcPlayer->getAccountId(),CR_Client,5,false);
 			return;
 		}
-		
+
 	}
-	
+
 	gMessageFactory->DestroyMessage(newMessage);
 	*/
-	
+
 }
 
 //======================================================================================================================
-// 
+//
 // fly text
 //
 
@@ -1877,10 +1877,10 @@ void MessageLib::sendCombatSpam(Object* attacker,Object* defender,int32 damage,s
 // void MessageLib::sendFlyText(CreatureObject* srcCreature,string stfFile,string stfVar,uint8 red,uint8 green,uint8 blue,uint8 display)
 void MessageLib::sendFlyText(Object* srcCreature,string stfFile,string stfVar,uint8 red,uint8 green,uint8 blue,uint8 display)
 {
-	gMessageFactory->StartMessage();               
-	gMessageFactory->addUint32(opObjControllerMessage);  
-	gMessageFactory->addUint32(0x0000000B);           
-	gMessageFactory->addUint32(opShowFlyText); 
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opObjControllerMessage);
+	gMessageFactory->addUint32(0x0000000B);
+	gMessageFactory->addUint32(opShowFlyText);
 	gMessageFactory->addUint64(srcCreature->getId());
 	gMessageFactory->addUint32(0);
 
@@ -1931,24 +1931,24 @@ void MessageLib::sendFlyText(Object* srcCreature,string stfFile,string stfVar,ui
 			(srcPlayer->getClient())->SendChannelAUnreliable(newMessage,srcPlayer->getAccountId(),CR_Client,5);
 			return;
 		}
-		
+
 	}
-	
+
 	gMessageFactory->DestroyMessage(newMessage);
-	
+
 }
 
 //======================================================================================================================
-// 
+//
 // fly text, to be used by Tutorial or other instances
 //
 
 void MessageLib::sendFlyText(Object* srcCreature, PlayerObject* playerObject, string stfFile,string stfVar,uint8 red,uint8 green,uint8 blue,uint8 display)
 {
-	gMessageFactory->StartMessage();               
-	gMessageFactory->addUint32(opObjControllerMessage);  
-	gMessageFactory->addUint32(0x0000000B);           
-	gMessageFactory->addUint32(opShowFlyText); 
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opObjControllerMessage);
+	gMessageFactory->addUint32(0x0000000B);
+	gMessageFactory->addUint32(opShowFlyText);
 	gMessageFactory->addUint64(srcCreature->getId());
 	gMessageFactory->addUint32(0);
 
@@ -1970,7 +1970,7 @@ void MessageLib::sendFlyText(Object* srcCreature, PlayerObject* playerObject, st
 
 	while (player != inRangeMembers.end())
 	{
-		if ((*player)->isConnected()) 
+		if ((*player)->isConnected())
 		{
 			// Clone the message.
 			gMessageFactory->StartMessage();
@@ -1992,7 +1992,7 @@ void MessageLib::sendFlyText(Object* srcCreature, PlayerObject* playerObject, st
 
 
 //======================================================================================================================
-// 
+//
 // combat queue remove
 //
 
@@ -2001,16 +2001,16 @@ bool MessageLib::sendCommandQueueRemove(uint32 sequence,float tickCounter,uint32
 	if(!(playerObject->isConnected()))
 		return(false);
 
-	gMessageFactory->StartMessage();          
-	gMessageFactory->addUint32(opObjControllerMessage);  
-	gMessageFactory->addUint32(0x0000000B);           
-	gMessageFactory->addUint32(opCommandQueueRemove);           
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opObjControllerMessage);
+	gMessageFactory->addUint32(0x0000000B);
+	gMessageFactory->addUint32(opCommandQueueRemove);
 	gMessageFactory->addUint64(playerObject->getId());
 	gMessageFactory->addUint32(0);
 	gMessageFactory->addUint32(sequence);
 	gMessageFactory->addFloat(tickCounter);
-	gMessageFactory->addUint32(reply1); 
-	gMessageFactory->addUint32(reply2); 
+	gMessageFactory->addUint32(reply1);
+	gMessageFactory->addUint32(reply2);
 
 	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 5);
 
@@ -2025,13 +2025,13 @@ void MessageLib::sendImageDesignStartMessage(PlayerObject* srcObject,PlayerObjec
 		return;
 
 	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opObjControllerMessage);  
-	gMessageFactory->addUint32(0x0000000B);           
-	gMessageFactory->addUint32(opImageDesignStartMessage);           
+	gMessageFactory->addUint32(opObjControllerMessage);
+	gMessageFactory->addUint32(0x0000000B);
+	gMessageFactory->addUint32(opImageDesignStartMessage);
 	gMessageFactory->addUint64(targetObject->getId());
 	gMessageFactory->addUint32(0);                    // unknown
-	gMessageFactory->addUint64(srcObject->getId());   
-	gMessageFactory->addUint64(targetObject->getId()); 
+	gMessageFactory->addUint64(srcObject->getId());
+	gMessageFactory->addUint64(targetObject->getId());
 
 	uint64 parentID = 0;
 
@@ -2060,26 +2060,26 @@ void MessageLib::sendImageDesignStartMessage(PlayerObject* srcObject,PlayerObjec
 		}
 	}
 
-	gMessageFactory->addUint64(parentID); 
+	gMessageFactory->addUint64(parentID);
 	gMessageFactory->addUint16(0);                    // unknown
-	
+
 	(targetObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),targetObject->getAccountId(), CR_Client, 5);
-		
-	
+
+
 	if(srcObject != targetObject && srcObject->isConnected())
 	{
 		gMessageFactory->StartMessage();
-		gMessageFactory->addUint32(opObjControllerMessage);  
-		gMessageFactory->addUint32(0x0000000B);           
+		gMessageFactory->addUint32(opObjControllerMessage);
+		gMessageFactory->addUint32(0x0000000B);
 		//needs to be 0x0000000B otherwise window wont open..
-		gMessageFactory->addUint32(opImageDesignStartMessage);           
+		gMessageFactory->addUint32(opImageDesignStartMessage);
 		gMessageFactory->addUint64(srcObject->getId());
 		gMessageFactory->addUint32(0);                    // unknown
-		gMessageFactory->addUint64(srcObject->getId());   
-		gMessageFactory->addUint64(targetObject->getId()); 
+		gMessageFactory->addUint64(srcObject->getId());
+		gMessageFactory->addUint64(targetObject->getId());
 
-		gMessageFactory->addUint64(parentID); 
-		gMessageFactory->addUint16(0); 
+		gMessageFactory->addUint64(parentID);
+		gMessageFactory->addUint16(0);
 
 		(srcObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),srcObject->getAccountId(), CR_Client, 5);
 	}
@@ -2094,45 +2094,45 @@ void MessageLib::sendIDChangeMessage(PlayerObject* targetObject,PlayerObject* sr
 
 	// thats send in both directions
 	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opObjControllerMessage);  
-	gMessageFactory->addUint32(0x0000000B);           
-	gMessageFactory->addUint32(opImageDesignChangeMessage);           
+	gMessageFactory->addUint32(opObjControllerMessage);
+	gMessageFactory->addUint32(0x0000000B);
+	gMessageFactory->addUint32(opImageDesignChangeMessage);
 	gMessageFactory->addUint64(targetObject->getId());//the object were manipulating
 	gMessageFactory->addUint32(0);                    // unknown
-	
+
 	gMessageFactory->addUint64(srcObject->getId()); //the recipient
 	gMessageFactory->addUint64(otherObject->getId());   //the manipulator
 
-	gMessageFactory->addUint64(parentId); 
+	gMessageFactory->addUint64(parentId);
 
 	gMessageFactory->addUint8(flagHair); //flag
 
 	if(flagHair)
-		gMessageFactory->addString(hair); 
+		gMessageFactory->addString(hair);
 	else
 		gMessageFactory->addUint16(0);
-	
-	
-	gMessageFactory->addUint16(0);        
+
+
+	gMessageFactory->addUint16(0);
 	//not a list/string when send to customer???
 
 	//gMessageFactory->addUint64(1);        //
 	gMessageFactory->addUint32(smTimer); //timer
 	//in pub 14 only 4 minute timers for stat migration - bitmap timerlength set clientside
-	
-	
+
+
 	gMessageFactory->addUint32(iDsession);
-	gMessageFactory->addUint32(moneyDemanded); 
-	gMessageFactory->addUint32(moneyOffered);        
+	gMessageFactory->addUint32(moneyDemanded);
+	gMessageFactory->addUint32(moneyOffered);
 
 	gMessageFactory->addUint8(designerCommit);        //flag ID accepted
 	gMessageFactory->addUint32(customerAccept);        //flag customer accepted
-	gMessageFactory->addUint8(flag3);       //flag stat migration 
-	gMessageFactory->addUint32(srcObject->getSkillModValue(SMod_markings));        
-	gMessageFactory->addUint32(srcObject->getSkillModValue(SMod_hair));        
-	gMessageFactory->addUint32(srcObject->getSkillModValue(SMod_body));        
-	gMessageFactory->addUint32(srcObject->getSkillModValue(SMod_face));        
-		
+	gMessageFactory->addUint8(flag3);       //flag stat migration
+	gMessageFactory->addUint32(srcObject->getSkillModValue(SMod_markings));
+	gMessageFactory->addUint32(srcObject->getSkillModValue(SMod_hair));
+	gMessageFactory->addUint32(srcObject->getSkillModValue(SMod_body));
+	gMessageFactory->addUint32(srcObject->getSkillModValue(SMod_face));
+
 	//body options
 	AttributesList* aList = targetObject->getIdAttributesList();
 	AttributesList::iterator it = aList->begin();
@@ -2140,8 +2140,8 @@ void MessageLib::sendIDChangeMessage(PlayerObject* targetObject,PlayerObject* sr
 
 	while(it != aList->end())
 	{
-		gMessageFactory->addString((*it).first); 
-		gMessageFactory->addFloat((*it).second);        
+		gMessageFactory->addString((*it).first);
+		gMessageFactory->addFloat((*it).second);
 		++it;
 	}
 
@@ -2152,8 +2152,8 @@ void MessageLib::sendIDChangeMessage(PlayerObject* targetObject,PlayerObject* sr
 
 	while(cIt != cList->end())
 	{
-		gMessageFactory->addString((*cIt).first); 
-		gMessageFactory->addUint32((*cIt).second);         
+		gMessageFactory->addString((*cIt).first);
+		gMessageFactory->addUint32((*cIt).second);
 		++cIt;
 	}
 
@@ -2162,7 +2162,7 @@ void MessageLib::sendIDChangeMessage(PlayerObject* targetObject,PlayerObject* sr
 	gMessageFactory->addUint8(0);//xff);        //
 	gMessageFactory->addUint8(0);//xff);        //
 	gMessageFactory->addUint8(0);//xff);        //
-	
+
 	(targetObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 5);
 }
 
@@ -2175,37 +2175,37 @@ void MessageLib::sendIDEndMessage(PlayerObject* targetObject,PlayerObject* srcOb
 
 	//thats send in both directions
 	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opObjControllerMessage);  
-	gMessageFactory->addUint32(0x0000000B);           
-	gMessageFactory->addUint32(opImageDesignStopMessage);           
+	gMessageFactory->addUint32(opObjControllerMessage);
+	gMessageFactory->addUint32(0x0000000B);
+	gMessageFactory->addUint32(opImageDesignStopMessage);
 	gMessageFactory->addUint64(targetObject->getId());//the object were manipulating
 	gMessageFactory->addUint32(0);                    // unknown
-	
+
 	gMessageFactory->addUint64(srcObject->getId()); //the recipient
 	gMessageFactory->addUint64(otherObject->getId());   //the manipulator
-	gMessageFactory->addUint64(otherObject->getParentId()-1); 
+	gMessageFactory->addUint64(otherObject->getParentId()-1);
 
 	if(hair.getLength() > 0)
 		gMessageFactory->addUint8(0); //flag
 	else
 		gMessageFactory->addUint8(0); //flag
 
-	gMessageFactory->addString(hair); 
-	
-	gMessageFactory->addUint16(0);        
-	gMessageFactory->addUint32(counter1);        
-	gMessageFactory->addUint32(iDsession);
-	gMessageFactory->addUint32(moneyDemanded); 
-	gMessageFactory->addUint32(moneyOffered);        
+	gMessageFactory->addString(hair);
 
-	gMessageFactory->addUint8(flag2);        
-	gMessageFactory->addUint32(unknown2);        
-	gMessageFactory->addUint8(flag3);        
-	gMessageFactory->addUint32(srcObject->checkSkill(SMod_markings));        
-	gMessageFactory->addUint32(srcObject->checkSkill(SMod_hair));        
-	gMessageFactory->addUint32(srcObject->checkSkill(SMod_body));        
-	gMessageFactory->addUint32(srcObject->checkSkill(SMod_face));        
-		
+	gMessageFactory->addUint16(0);
+	gMessageFactory->addUint32(counter1);
+	gMessageFactory->addUint32(iDsession);
+	gMessageFactory->addUint32(moneyDemanded);
+	gMessageFactory->addUint32(moneyOffered);
+
+	gMessageFactory->addUint8(flag2);
+	gMessageFactory->addUint32(unknown2);
+	gMessageFactory->addUint8(flag3);
+	gMessageFactory->addUint32(srcObject->checkSkill(SMod_markings));
+	gMessageFactory->addUint32(srcObject->checkSkill(SMod_hair));
+	gMessageFactory->addUint32(srcObject->checkSkill(SMod_body));
+	gMessageFactory->addUint32(srcObject->checkSkill(SMod_face));
+
 	//body options
 	AttributesList* aList = srcObject->getIdAttributesList();
 	AttributesList::iterator it = aList->begin();
@@ -2213,8 +2213,8 @@ void MessageLib::sendIDEndMessage(PlayerObject* targetObject,PlayerObject* srcOb
 
 	while(it != aList->end())
 	{
-		gMessageFactory->addString((*it).first); 
-		gMessageFactory->addFloat((*it).second);        
+		gMessageFactory->addString((*it).first);
+		gMessageFactory->addFloat((*it).second);
 		++it;
 	}
 
@@ -2225,15 +2225,15 @@ void MessageLib::sendIDEndMessage(PlayerObject* targetObject,PlayerObject* srcOb
 
 	while(cIt != cList->end())
 	{
-		gMessageFactory->addString((*cIt).first); 
-		gMessageFactory->addUint32((*cIt).second);         
+		gMessageFactory->addString((*cIt).first);
+		gMessageFactory->addUint32((*cIt).second);
 		++cIt;
 	}
-	gMessageFactory->addUint16(77);   
-	gMessageFactory->addUint16(77);   
-	gMessageFactory->addUint16(77);   
-	gMessageFactory->addUint32(1);   
-	
+	gMessageFactory->addUint16(77);
+	gMessageFactory->addUint16(77);
+	gMessageFactory->addUint16(77);
+	gMessageFactory->addUint32(1);
+
 	(targetObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 5);
 }
 
@@ -2246,21 +2246,21 @@ void MessageLib::sendStatMigrationStartMessage(PlayerObject* targetObject)
 
 	//thats send in both directions
 	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opStatMigrationStart);  
-	gMessageFactory->addUint32(targetObject->getHam()->getTargetStatValue(HamBar_Health));           
-	gMessageFactory->addUint32(targetObject->getHam()->getTargetStatValue(HamBar_Strength));           
-	gMessageFactory->addUint32(targetObject->getHam()->getTargetStatValue(HamBar_Constitution));           
+	gMessageFactory->addUint32(opStatMigrationStart);
+	gMessageFactory->addUint32(targetObject->getHam()->getTargetStatValue(HamBar_Health));
+	gMessageFactory->addUint32(targetObject->getHam()->getTargetStatValue(HamBar_Strength));
+	gMessageFactory->addUint32(targetObject->getHam()->getTargetStatValue(HamBar_Constitution));
 
-	gMessageFactory->addUint32(targetObject->getHam()->getTargetStatValue(HamBar_Action));           
-	gMessageFactory->addUint32(targetObject->getHam()->getTargetStatValue(HamBar_Quickness));           
-	gMessageFactory->addUint32(targetObject->getHam()->getTargetStatValue(HamBar_Stamina));           
+	gMessageFactory->addUint32(targetObject->getHam()->getTargetStatValue(HamBar_Action));
+	gMessageFactory->addUint32(targetObject->getHam()->getTargetStatValue(HamBar_Quickness));
+	gMessageFactory->addUint32(targetObject->getHam()->getTargetStatValue(HamBar_Stamina));
 
-	gMessageFactory->addUint32(targetObject->getHam()->getTargetStatValue(HamBar_Mind));           
-	gMessageFactory->addUint32(targetObject->getHam()->getTargetStatValue(HamBar_Focus));           
-	gMessageFactory->addUint32(targetObject->getHam()->getTargetStatValue(HamBar_Willpower));            
+	gMessageFactory->addUint32(targetObject->getHam()->getTargetStatValue(HamBar_Mind));
+	gMessageFactory->addUint32(targetObject->getHam()->getTargetStatValue(HamBar_Focus));
+	gMessageFactory->addUint32(targetObject->getHam()->getTargetStatValue(HamBar_Willpower));
 	//remaining points need to be zero otherwise client messes up
-	gMessageFactory->addUint32(0);           
-	
+	gMessageFactory->addUint32(0);
+
 	(targetObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 5);
 }
 
@@ -2271,13 +2271,13 @@ void MessageLib::sendStatMigrationStartMessage(PlayerObject* targetObject)
 
 void MessageLib::sendPlayerAddBuff(PlayerObject* playerObject, int32 CRC, float Duration)
 {
-	gMessageFactory->StartMessage();          
-	gMessageFactory->addUint32(opObjControllerMessage);  
-	gMessageFactory->addUint32(0x0000000B);           
-	gMessageFactory->addUint32(opApplyBuff);           
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opObjControllerMessage);
+	gMessageFactory->addUint32(0x0000000B);
+	gMessageFactory->addUint32(opApplyBuff);
 	gMessageFactory->addUint64(playerObject->getId());
-	gMessageFactory->addUint32(0);  
-	
+	gMessageFactory->addUint32(0);
+
 	gMessageFactory->addUint32(CRC);
 	gMessageFactory->addFloat(Duration);
 
@@ -2290,13 +2290,13 @@ void MessageLib::sendPlayerAddBuff(PlayerObject* playerObject, int32 CRC, float 
 
 void MessageLib::sendPlayerRemoveBuff(PlayerObject* playerObject, int32 CRC)
 {
-	gMessageFactory->StartMessage();          
-	gMessageFactory->addUint32(opObjControllerMessage);  
-	gMessageFactory->addUint32(0x0000000B);           
-	gMessageFactory->addUint32(opRemoveBuff);           
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opObjControllerMessage);
+	gMessageFactory->addUint32(0x0000000B);
+	gMessageFactory->addUint32(opRemoveBuff);
 	gMessageFactory->addUint64(playerObject->getId());
-	gMessageFactory->addUint32(0);  
-	
+	gMessageFactory->addUint32(0);
+
 	gMessageFactory->addUint32(CRC);
 
 	_sendToInRange(gMessageFactory->EndMessage(),playerObject,1);
@@ -2310,12 +2310,12 @@ void MessageLib::sendSetWaypointActiveStatus(WaypointObject* waypointObject, boo
 	else if(!targetObject->isConnected()) return;
 
 	Message* message;
-	gMessageFactory->StartMessage();          
-	gMessageFactory->addUint32(opObjControllerMessage);  
-	gMessageFactory->addUint32(0x00000023);           
-	gMessageFactory->addUint32(opCommandQueueEnqueue);           
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opObjControllerMessage);
+	gMessageFactory->addUint32(0x00000023);
+	gMessageFactory->addUint32(opCommandQueueEnqueue);
 	gMessageFactory->addUint64(targetObject->getPlayerObjId());
-	gMessageFactory->addUint32(0);  
+	gMessageFactory->addUint32(0);
 	gMessageFactory->addUint32(0);
 	gMessageFactory->addUint32(opOCsetwaypointactivestatus);
 	gMessageFactory->addUint64(waypointObject->getId());

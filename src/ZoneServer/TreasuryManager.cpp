@@ -23,6 +23,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "MathLib/Quaternion.h"
+
 //======================================================================================================================
 
 bool TreasuryManager::mInsFlag = false;
@@ -33,7 +34,7 @@ TreasuryManager* TreasuryManager::mSingleton = NULL;
 TreasuryManager::TreasuryManager(Database* database) :
 mDatabase(database)
 {
-	
+
 }
 
 //======================================================================================================================
@@ -61,7 +62,7 @@ TreasuryManager::~TreasuryManager()
 //======================================================================================================================
 
 std::tr1::shared_ptr<RadialMenu> TreasuryManager::bankBuildTerminalRadialMenu(CreatureObject* creatureObject)
-{    
+{
     std::tr1::shared_ptr<RadialMenu> radial(new RadialMenu());
 
 	Bank*		bank	= dynamic_cast<Bank*>(creatureObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
@@ -93,7 +94,7 @@ std::tr1::shared_ptr<RadialMenu> TreasuryManager::bankBuildTerminalRadialMenu(Cr
 		radial->addItem(3,1,radId_bankWithdrawAll,radAction_ObjCallback,"@sui:bank_withdrawall");
 		radial->addItem(4,1,radId_bankDepositAll,radAction_ObjCallback,"@sui:bank_depositall");
 	}
-	
+
 	return radial;
 }
 
@@ -108,7 +109,7 @@ void TreasuryManager::bankDepositAll(PlayerObject* playerObject)
 			int32 credits = inventory->getCredits();
 			if(credits)
 			{
-				// bank credits = bank + inventory. 
+				// bank credits = bank + inventory.
 				// inventory = 0
 				bank->setCredits(bank->getCredits() + credits);
 				inventory->setCredits(0);
@@ -138,7 +139,7 @@ void TreasuryManager::bankWithdrawAll(PlayerObject* playerObject)
 			{
 				gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_withdraw_success","","",L"",bank->getCredits());
 
-				// inventory credits = bank + inventory. 
+				// inventory credits = bank + inventory.
 				// bank = 0
 				inventory->setCredits(inventory->getCredits() + bank->getCredits());
 				bank->setCredits(0);
@@ -169,7 +170,7 @@ void TreasuryManager::bankTransfer(int32 inventoryMoneyDelta, int32 bankMoneyDel
 		// in case our inventory cash
 		// changed since the window popped
 		bankMoneyDelta -= (bankMoneyDelta + inventoryMoneyDelta);
-		
+
 		// do we still have enough money?
 		if(bankMoneyDelta < 1)
 		{
@@ -188,7 +189,7 @@ void TreasuryManager::bankTransfer(int32 inventoryMoneyDelta, int32 bankMoneyDel
 				bank->setCredits(bank->getCredits() + bankMoneyDelta);
 			}
 		}
-		
+
 		// system message
 		gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_deposit_success","","",L"",bankMoneyDelta);
 
@@ -218,14 +219,14 @@ void TreasuryManager::bankTransfer(int32 inventoryMoneyDelta, int32 bankMoneyDel
 			{
 				bank->setCredits(bank->getCredits() - inventoryMoneyDelta);
 				inventory->setCredits(inventory->getCredits() + inventoryMoneyDelta);
-				
+
 			}
 		}
-	
+
 		// system message
 		gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_withdraw_success","","",L"",inventoryMoneyDelta);
 	}
-	
+
 	// save to the db
 	saveAndUpdateInventoryCredits(playerObject);
 	saveAndUpdateBankCredits(playerObject);
@@ -234,7 +235,7 @@ void TreasuryManager::bankTransfer(int32 inventoryMoneyDelta, int32 bankMoneyDel
 //======================================================================================================================
 
 void TreasuryManager::bankOpenSafetyDepositContainer(PlayerObject* playerObject)
-{	
+{
 }
 
 //======================================================================================================================
@@ -251,13 +252,13 @@ void TreasuryManager::bankQuit(PlayerObject* playerObject)
 		}
 
 		// check if the bank item box is empty
-		
-		// update the playerObject 
+
+		// update the playerObject
 		bank->setPlanet(-1);
 
-		// save to db 
+		// save to db
 		mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE banks SET planet_id = -1 WHERE id=%lld",bank->getId());
-		
+
 		//This message has a period added to the end as it was missing from client.
 		gMessageLib->sendSystemMessage(playerObject, L"","system_msg","succesfully_quit_bank","","",L"");
 	}
@@ -285,7 +286,7 @@ void TreasuryManager::bankJoin(PlayerObject* playerObject)
 
 		bank->setPlanet((int8)gWorldManager->getZoneId());
 
-		// save to db 
+		// save to db
 		mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE banks SET planet_id=%i WHERE id=%lld",bank->getPlanet(),bank->getId());
 
 		//This message period added at the end as its missing from client.
@@ -296,7 +297,7 @@ void TreasuryManager::bankJoin(PlayerObject* playerObject)
 //======================================================================================================================
 
 void TreasuryManager::saveAndUpdateInventoryCredits(PlayerObject* playerObject)
-{	
+{
 	mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE inventories SET credits=%u WHERE id=%lld",dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits(),playerObject->getId() + 1));
 	gMessageLib->sendInventoryCreditsUpdate(playerObject);
 }
@@ -304,7 +305,7 @@ void TreasuryManager::saveAndUpdateInventoryCredits(PlayerObject* playerObject)
 //======================================================================================================================
 
 void TreasuryManager::saveAndUpdateBankCredits(PlayerObject* playerObject)
-{	
+{
 	mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE banks SET credits=%u WHERE id=%lld",dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->getCredits(), playerObject->getId() + 4));
 	gMessageLib->sendBankCreditsUpdate(playerObject);
 }
@@ -333,7 +334,7 @@ void TreasuryManager::bankTipOffline(int32 amount,PlayerObject* playerObject,str
 	asyncContainer->amount = amount;
 	asyncContainer->targetName = targetName;
 	asyncContainer->player = playerObject;
-	
+
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
 }
 
@@ -373,7 +374,7 @@ void TreasuryManager::inventoryTipOnline(int32 amount, PlayerObject* playerObjec
 	{
 		gMessageLib->sendSystemMessage(playerObject, L"","base_player","tip_error");
 		return;
-	
+
 	}
 
 	//check if we have enough money
@@ -383,7 +384,7 @@ void TreasuryManager::inventoryTipOnline(int32 amount, PlayerObject* playerObjec
 		return;
 	}
 
-	float f = playerObject->mPosition.distance2D(targetObject->mPosition); 
+	float f = playerObject->mPosition.distance2D(targetObject->mPosition);
 
 	if( f > 10.0)
 	{
@@ -409,7 +410,7 @@ void TreasuryManager::inventoryTipOnline(int32 amount, PlayerObject* playerObjec
 void TreasuryManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 {
 	TreasuryManagerAsyncContainer* asynContainer = (TreasuryManagerAsyncContainer*)ref;
-		
+
 
 	switch(asynContainer->mQueryType)
 	{
@@ -428,7 +429,7 @@ void TreasuryManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 			result->GetNextRow(binding,&id);
 
 			uint32 amount = asynContainer->amount;
-		
+
 			//ok we just established that our target exists
 			//we now need to update the bank on the db side
 			TreasuryManagerAsyncContainer* asyncContainer = new TreasuryManagerAsyncContainer(TREMQuery_BankTipTransaction,asynContainer->player->getClient());
@@ -448,11 +449,11 @@ void TreasuryManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 			mTransaction->execute();
 
 		   break;
-			
-			
+
+
 		}
 		break;
-		
+
 		case TREMQuery_BankTipTransaction:
 		{
 			uint32 error;
@@ -479,7 +480,7 @@ void TreasuryManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 		break;
 		case TREMQuery_NULL:
 		{
-			
+
 		}
 		break;
 

@@ -16,7 +16,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "PlayerObject.h"
 #include "WorldManager.h"
 
-#include "MessageLib\MessageLib.h"
+#include "MessageLib/MessageLib.h"
 
 BuffAttribute::BuffAttribute(BuffAttributeEnum Type, int32 InitialValue, int32	TickValue, int32 FinalValue)
 : mAttribute(Type)
@@ -31,32 +31,32 @@ BuffAttribute::~BuffAttribute()
 
 
 BuffAttribute* BuffAttribute::FromDB(BuffAttributeDBItem* item)
-{ 
+{
     return new BuffAttribute((BuffAttributeEnum)item->mType, item->mInitialValue, item->mTickValue, item->mFinalValue);
 }
 
 
-BuffAttributeEnum BuffAttribute::GetType()			
-{ 
-    return mAttribute; 
+BuffAttributeEnum BuffAttribute::GetType()
+{
+    return mAttribute;
 }
 
 
-int32 BuffAttribute::GetInitialValue()	
-{ 
-    return mInitialValue; 
+int32 BuffAttribute::GetInitialValue()
+{
+    return mInitialValue;
 }
 
 
-int32 BuffAttribute::GetTickValue()		
-{ 
-    return mTickValue; 
+int32 BuffAttribute::GetTickValue()
+{
+    return mTickValue;
 }
 
 
-int32 BuffAttribute::GetFinalValue()		
-{ 
-    return mFinalValue; 
+int32 BuffAttribute::GetFinalValue()
+{
+    return mFinalValue;
 }
 
 
@@ -70,14 +70,14 @@ Buff::Buff(CreatureObject* Target, CreatureObject* Instigator, uint NoOfTicks, u
 
 
 Buff* Buff::SimpleBuff(CreatureObject* Target, CreatureObject* Instigator, uint64 Duration, uint32 Icon, uint64 CurrentGlobalTick)
-{ 
-    return new Buff(Target, Instigator, 0, Duration, Icon, CurrentGlobalTick); 
+{
+    return new Buff(Target, Instigator, 0, Duration, Icon, CurrentGlobalTick);
 }
 
 
 Buff* Buff::TickingBuff(CreatureObject* Target, CreatureObject* Instigator, uint NoOfTicks, uint64 Tick, uint32 Icon, uint64 CurrentGlobalTick)
-{ 
-    return new Buff(Target, Instigator, NoOfTicks, Tick, Icon, CurrentGlobalTick); 
+{
+    return new Buff(Target, Instigator, NoOfTicks, Tick, Icon, CurrentGlobalTick);
 }
 
 
@@ -101,8 +101,8 @@ Buff* Buff::FromDB(BuffDBItem* Item, uint64 CurrentGlobalTick)
 		temp->mCurrentTick = 0; //Set Tick to start
 		temp->mStartTime = CurrentGlobalTick; //Reset start time
 
-	} 
-	else 
+	}
+	else
 	{
 		//Take the time already ran off the buff
 		temp->mTick -= (Item->mPausedGlobalTick - Item->mStartGlobalTick);
@@ -113,7 +113,7 @@ Buff* Buff::FromDB(BuffDBItem* Item, uint64 CurrentGlobalTick)
 	temp->mDBID = Item->mBuffId;
 	return temp;
 }
-	
+
 
 //-------------------------------------------------------
 //an update event to our buff
@@ -138,20 +138,20 @@ uint64 Buff::Update(uint64 CurrentTime, void* ref)
 		//Recreate Timer
 		if(mNextTickLength != 0)
 			return mNextTickLength;
-		else 
+		else
 			return mTick;
-		
-	} 
-	else 
+
+	}
+	else
 	{ //If Buff is on final tick
-		
+
 		FinalChanges();
 		/*if(mDowner!=0)
 		{
 			gWorldManager->addBuffToProcess(&mDowner);
 		}*/
 		mMarkedForDeletion = true;
-		return 0;	
+		return 0;
 	}
 }
 
@@ -175,92 +175,92 @@ void Buff::AddAttribute(BuffAttribute* Attribute)
 {
     Attributes.push_back(Attribute);
 }
-	
+
 
 void Buff::SetID(uint64 value)
-{ 
-    mID=value; 
+{
+    mID=value;
 }
-	
+
 
 void Buff::SetChildBuff(Buff* value)
-{ 
-    mChild=value; 
-    if(value!=0) value->SetParent(this); 
+{
+    mChild=value;
+    if(value!=0) value->SetParent(this);
 }
-	
+
 
 void Buff::setTarget(CreatureObject* creature)
 {
     mTarget=creature;
 }
-	
+
 
 bool Buff::GetIsMarkedForDeletion()
-{ 
-    return mMarkedForDeletion; 
+{
+    return mMarkedForDeletion;
 }
 
 
-uint64 Buff::GetID()		
-{ 
+uint64 Buff::GetID()
+{
     return mID;
 }
-	
 
-uint64 Buff::GetDBID()	
-{ 
+
+uint64 Buff::GetDBID()
+{
     return mDBID;
 }
 
-	
-CreatureObject*	Buff::GetTarget()	
-{ 
-    return mTarget; 
+
+CreatureObject*	Buff::GetTarget()
+{
+    return mTarget;
 }
-	
+
 
 CreatureObject*	Buff::GetInstigator()
-{ 
-    return mInstigator; 
+{
+    return mInstigator;
 }
-	
 
-uint64 Buff::GetTickLength() 
-{ 
-    return mTick; 
+
+uint64 Buff::GetTickLength()
+{
+    return mTick;
 }
-	
+
 
 uint32 Buff::GetNoOfTicks()
-{ 
+{
     return mNoTicks;
 }
-	
+
 
 uint32 Buff::GetCurrentTickNumber()
-{ 
-    return mCurrentTick; 
+{
+    return mCurrentTick;
 }
-	
+
 
 uint32 Buff::GetIcon()
-{ 
-    return mIcon; 
+{
+    return mIcon;
 }
-	
+
 
 string Buff::GetName()
-{ 
-    return mName; 
+{
+    return mName;
 }
-	
+
 
 uint64 Buff::GetStartGlobalTick()
-{ 
-    return mStartTime; 
+{
+    return mStartTime;
 }
-	
+
 
 void Buff::SetInit(bool init)
 {
@@ -269,21 +269,21 @@ void Buff::SetInit(bool init)
 
 
 void Buff::IncrementTick()
-{ 
+{
     mCurrentTick++;
 }
-	
+
 
 uint64 Buff::GetRemainingTime()
-{ 
+{
     if(mNoTicks > mCurrentTick)
     {
-        return mTick *(mNoTicks - mCurrentTick); 
-    } 
-    
+        return mTick *(mNoTicks - mCurrentTick);
+    }
+
     return 0;
-}	
-	
+}
+
 
 //=============================================================================
 //
@@ -303,16 +303,16 @@ void Buff::InitialChanges()
 				{
 					gMessageLib->sendPlayerAddBuff(Player, mIcon, (float)(mTick/1000));
 				}
-			} 
-			else 
+			}
+			else
 			{
 				if(mIcon > 0) //if internal buff
 				{
 					gMessageLib->sendPlayerAddBuff(Player, mIcon, (float)((mNoTicks*mTick)/1000));
 				}
 			}
-		} 
-		else 
+		}
+		else
 		{
 			//if Creature/NPC
 		}
@@ -342,15 +342,15 @@ void Buff::InitializeIcons()
 			{
 				gMessageLib->sendPlayerAddBuff(Player, mIcon, (float)(mTick/1000));
 			}
-		} 
-		else 
+		}
+		else
 		{
 			if(mIcon > 0) //if internal buff
 			{
 				gMessageLib->sendPlayerAddBuff(Player, mIcon, (float)(((mNoTicks-mCurrentTick)*mTick)/1000));
 			}
 		}
-	} 
+	}
 }
 
 //=============================================================================
@@ -383,7 +383,7 @@ void Buff::FinalChanges()
 		{
 			gMessageLib->sendPlayerRemoveBuff(Player, mIcon);
 		}
-	} 
+	}
 
 	//Complete entertainer mission
 	gMissionManager->missionCompleteEntertainer(Player);
@@ -407,17 +407,17 @@ void Buff::ModifyAttribute(BuffAttributeEnum Type, int32 Value)
 {
 	switch(Type)
 	{
-	
+
 	case Health:
 		{
 			this->mTarget->getHam()->updatePropertyValue(HamBar_Health, HamProperty_Modifier, Value);
 		}
 	break;
-	
+
 	case Food_Filling:
 	{
 		if(PlayerObject* playerObject = dynamic_cast<PlayerObject*>(this->mTarget))
-		{	
+		{
 			playerObject->getStomach()->incFood(Value);
 			gMessageLib->sendFoodUpdate(playerObject);
 		}
@@ -427,37 +427,37 @@ void Buff::ModifyAttribute(BuffAttributeEnum Type, int32 Value)
 	case Drink_Filling:
 	{
 		if(PlayerObject* playerObject = dynamic_cast<PlayerObject*>(this->mTarget))
-		{	
+		{
 			playerObject->getStomach()->incDrink(Value);
 			gMessageLib->sendDrinkUpdate(playerObject);
 		}
 	}
 	break;
-	
+
 	case Strength:
 		{
 			this->mTarget->getHam()->updatePropertyValue(HamBar_Strength, HamProperty_Modifier, Value);
 		}
 	break;
-	
+
 	case Constitution:
 		{
 			this->mTarget->getHam()->updatePropertyValue(HamBar_Constitution, HamProperty_Modifier, Value);
 		}
 	break;
-	
+
 	case Action:
 		{
 			this->mTarget->getHam()->updatePropertyValue(HamBar_Action, HamProperty_Modifier, Value);
 		}
 	break;
-	
+
 	case Quickness:
 		{
 			this->mTarget->getHam()->updatePropertyValue(HamBar_Quickness, HamProperty_Modifier, Value);
 		}
 	break;
-	
+
 	case Stamina:
 		{
 			this->mTarget->getHam()->updatePropertyValue(HamBar_Stamina, HamProperty_Modifier, Value);
@@ -469,13 +469,13 @@ void Buff::ModifyAttribute(BuffAttributeEnum Type, int32 Value)
 			this->mTarget->getHam()->updatePropertyValue(HamBar_Mind, HamProperty_Modifier, Value);
 		}
 	break;
-	
+
 	case Focus:
 		{
 			this->mTarget->getHam()->updatePropertyValue(HamBar_Focus, HamProperty_Modifier, Value);
 		}
 	break;
-	
+
 	case Willpower:
 		{
 			this->mTarget->getHam()->updatePropertyValue(HamBar_Willpower, HamProperty_Modifier, Value);
@@ -507,7 +507,7 @@ void Buff::ModifyAttribute(BuffAttributeEnum Type, int32 Value)
 	case Mask_Scent:
 		{
 			this->mTarget->modifySkillModValue(16, Value);
-		} 
+		}
 	break;
 	case Onehandmelee_Accuracy:{}break;
 	case Onehandmelee_Speed:{}break;

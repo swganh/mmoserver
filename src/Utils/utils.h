@@ -24,6 +24,7 @@ std::string strRep(std::string a,std::string b,std::string c);
 namespace Anh_Utils
 {
 	int cmpistr(const char* s1, const char* s2);
+	int cmpnistr(const char* s1, const char* s2, size_t length);
 	int kbhit(void);
 }
 

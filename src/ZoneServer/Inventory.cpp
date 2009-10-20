@@ -17,6 +17,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "MessageLib/MessageLib.h"
 #include "DatabaseManager/Database.h"
 #include "MathLib/Quaternion.h"
+#include "Utils/utils.h"
 
 //=============================================================================
 
@@ -53,7 +54,7 @@ Inventory::~Inventory()
 		// As simple as that!
 
 		// There is  one good soultion to this: Store handles to objects (the id's) instead of object references (pointers).
-		
+
 		// A less good solution is to protects all code that can risk the use of dangling pointers with exception handling,
 		// but I doubt that code will be easier to read or more efficient than retrieving the object when we need access to it.
 
@@ -65,17 +66,17 @@ Inventory::~Inventory()
 
 				//save status is not necessary as the status already is in the db and updated on status change
 				//crafttool saves time to db on update
-			
-				
+
+
 			}
 
 			// todo: save left time and status to db
 		}
-	
+
 
 
 		gWorldManager->destroyObject(object);
-		
+
 		invObjectIt = mObjects.erase(invObjectIt);
 	}
 
@@ -87,7 +88,7 @@ Inventory::~Inventory()
 		Object* object = (*invObjectIt);
 
 		gWorldManager->destroyObject(object);
-		
+
 		invObjectIt = mEquippedObjects.erase(invObjectIt);
 	}
 }
@@ -122,7 +123,7 @@ void Inventory::addObject(Object* object)
 		++it;
 	}
 
-	mObjects.push_back(object); 
+	mObjects.push_back(object);
 }
 
 //============================================================================
@@ -164,7 +165,7 @@ void Inventory::removeEquippedObject(Object* object)
 void Inventory::deleteObject(Object* object)
 {
 	ObjectList::iterator it = mObjects.begin();
-	
+
 	while(it != mObjects.end())
 	{
 		if((*it) == object)
@@ -217,8 +218,8 @@ void Inventory::handleObjectReady(Object* object,DispatchClient* client)
 	if(TangibleObject* tangibleObject = dynamic_cast<TangibleObject*>(object))
 	{
 		// reminder: objects are owned by the global map, inventory only keeps references
-		
-		
+
+
 		//generally we presume that objects are created UNEQUIPPED
 		gWorldManager->addObject(object,true);
 
@@ -260,7 +261,7 @@ void Inventory::handleObjectReady(Object* object,DispatchClient* client)
 bool Inventory::EquipItem(Object* object)
 {
 	Item* item = dynamic_cast<Item*>(object);
-	
+
 	if(!item)
 	{
 		gLogger->logMsgF("Inventory::EquipItem : No Item object ID : %I64u", MSG_NORMAL,object->getId());
@@ -280,7 +281,7 @@ bool Inventory::EquipItem(Object* object)
 	}
 
 	PlayerObject*	owner		= dynamic_cast<PlayerObject*> (gWorldManager->getObjectById(this->getParentId()));
-	
+
 	if(!owner)
 	{
 		gLogger->logMsgF("Inventory::EquipItem : No owner Inventory ID : %I64u", MSG_NORMAL,this->getId());
@@ -288,7 +289,7 @@ bool Inventory::EquipItem(Object* object)
 	}
 
 	// don't equip music instruments or weapons while performing
-		
+
 	if((owner->getPerformingState())&&((item->getItemFamily() == ItemFamily_Instrument) || (item->getItemFamily() == ItemFamily_Weapon)))
 	{
 		return(false);
@@ -316,14 +317,14 @@ bool Inventory::EquipItem(Object* object)
 
 	// then faction
 	filter1 = item->getEquipRestrictions() & 0xF0000;
-	
+
 	if((filter1 == 0x10000 && strcmp(owner->getFaction().getAnsi(),"rebel") != 0)
 	|| (filter1 == 0x20000 && strcmp(owner->getFaction().getAnsi(),"imperial") != 0))
 	{
 		gMessageLib->sendSystemMessage(owner,L"You can't equip this item.");
 		return(false);
 	}
-						
+
 	//check whether the slot is already filled
 	if(!owner->getEquipManager()->addEquippedObject(item))
 	{
@@ -339,7 +340,7 @@ bool Inventory::EquipItem(Object* object)
 	this->removeObject(object);
 	//and add to inventories equipped list
 	this->addEquippedObject(object);
-	
+
 	uint64			parentId	= this->getParentId();
 
 	object->setParentId(parentId);
@@ -363,7 +364,7 @@ bool Inventory::EquipItem(Object* object)
 	{
 		gMessageLib->sendWeaponIdUpdate(owner);
 	}
-	
+
 	int8 sql[256];
 	//set the equipped attribute to unequipped
 	sprintf(sql,"UPDATE swganh.item_attributes ia INNER JOIN swganh.attributes a ON a.id = ia.attribute_id SET ia.value = '1' WHERE ia.item_id= %I64u AND a.name = 'equipped'", object->getId());
@@ -371,7 +372,7 @@ bool Inventory::EquipItem(Object* object)
 
 	sprintf(sql,"UPDATE swganh.items  SET parent_id = '%I64u' WHERE id= %I64u ", parentId, object->getId());
 	gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,sql);
-	
+
 	return(true);
 }
 
@@ -392,7 +393,7 @@ void Inventory::unEquipItem(Object* object)
 	}
 
 	Item* item = dynamic_cast<Item*>(object);
-	
+
 	if(!item)
 	{
 		gLogger->logMsgF("Inventory::unEquipItem : No Item object ID : %I64u", MSG_NORMAL,object->getId());
@@ -400,7 +401,7 @@ void Inventory::unEquipItem(Object* object)
 	}
 
 	PlayerObject*	owner		= dynamic_cast<PlayerObject*> (gWorldManager->getObjectById(this->getParentId()));
-	
+
 	if(!owner)
 	{
 		gLogger->logMsgF("Inventory::unEquipItem : No owner Inventory ID : %I64u", MSG_NORMAL,this->getId());
@@ -431,7 +432,7 @@ void Inventory::unEquipItem(Object* object)
 	this->addObject(object);
 
 	object->setInternalAttribute("equipped","0");
-	
+
 	owner->getEquipManager()->removeEquippedObject(object);
 
 	//check whether the hairslot is now free
@@ -448,7 +449,7 @@ void Inventory::unEquipItem(Object* object)
 	gMessageLib->sendDestroyObject_InRange(object->getId(),owner,false);
 	gMessageLib->sendEquippedListUpdate_InRange(owner);
 
-	
+
 	int8 sql[256];
 	//set the equipped attribute to unequipped
 	sprintf(sql,"UPDATE swganh.item_attributes ia INNER JOIN swganh.attributes a ON a.id = ia.attribute_id SET ia.value = '0' WHERE ia.item_id= %I64u AND a.name = 'equipped'", object->getId());
@@ -457,7 +458,7 @@ void Inventory::unEquipItem(Object* object)
 	sprintf(sql,"UPDATE swganh.items  SET parent_id = '%I64u' WHERE id= %I64u ", parentId, object->getId());
 	gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,sql);
 
-	if(item->getItemFamily() == ItemFamily_Instrument)	
+	if(item->getItemFamily() == ItemFamily_Instrument)
 	{
 		if(owner->getPerformingState() == PlayerPerformance_Music)
 		{
@@ -504,7 +505,7 @@ void Inventory::getUninsuredItems(SortedInventoryItemList* insuranceList)
 			{
 				// Add the item to the insurance list.
 				// gLogger->logMsgF("Inventory::insuranceListCreate: Found an uninsured item inside Inventory: %llu", MSG_NORMAL,object->getId());
-				
+
 				// Handle the list.
 				if (object->hasAttribute("original_name"))
 				{
@@ -512,7 +513,7 @@ void Inventory::getUninsuredItems(SortedInventoryItemList* insuranceList)
 					string itemName((int8*)object->getAttribute<std::string>("original_name").c_str());
 					for (uint32 index = 0; index < insuranceList->size(); index++)
 					{
-						if (_strcmpi(itemName.getAnsi(), (*it).first.getAnsi()) < 0)
+						if (Anh_Utils::cmpistr(itemName.getAnsi(), (*it).first.getAnsi()) < 0)
 						{
 							break;
 						}
@@ -538,7 +539,7 @@ void Inventory::getUninsuredItems(SortedInventoryItemList* insuranceList)
 			{
 				// Add the item to the insurance list.
 				// gLogger->logMsgF("Inventory::insuranceListCreate: Found an uninsured equipped item: %llu", MSG_NORMAL,object->getId());
-				
+
 				// Handle the list.
 				if (object->hasAttribute("original_name"))
 				{
@@ -546,7 +547,7 @@ void Inventory::getUninsuredItems(SortedInventoryItemList* insuranceList)
 					string itemName((int8*)object->getAttribute<std::string>("original_name").c_str());
 					for (uint32 index = 0; index < insuranceList->size(); index++)
 					{
-						if (_strcmpi(itemName.getAnsi(), (*it).first.getAnsi()) < 0)
+						if (Anh_Utils::cmpistr(itemName.getAnsi(), (*it).first.getAnsi()) < 0)
 						{
 							break;
 						}
@@ -586,7 +587,7 @@ void Inventory::getInsuredItems(SortedInventoryItemList* insuranceList)
 			{
 				// Add the item to the insurance list.
 				// gLogger->logMsgF("Inventory::insuranceListCreate: Found an insured item inside Inventory: %llu", MSG_NORMAL,object->getId());
-				
+
 				// Handle the list.
 				if (object->hasAttribute("original_name"))
 				{
@@ -594,7 +595,7 @@ void Inventory::getInsuredItems(SortedInventoryItemList* insuranceList)
 					string itemName((int8*)object->getAttribute<std::string>("original_name").c_str());
 					for (uint32 index = 0; index < insuranceList->size(); index++)
 					{
-						if (_strcmpi(itemName.getAnsi(), (*it).first.getAnsi()) < 0)
+						if (Anh_Utils::cmpistr(itemName.getAnsi(), (*it).first.getAnsi()) < 0)
 						{
 							break;
 						}
@@ -620,7 +621,7 @@ void Inventory::getInsuredItems(SortedInventoryItemList* insuranceList)
 			{
 				// Add the item to the insurance list.
 				// gLogger->logMsgF("Inventory::insuranceListCreate: Found an insured equipped item: %llu", MSG_NORMAL,object->getId());
-				
+
 				// Handle the list.
 				if (object->hasAttribute("original_name"))
 				{
@@ -628,7 +629,7 @@ void Inventory::getInsuredItems(SortedInventoryItemList* insuranceList)
 					string itemName((int8*)object->getAttribute<std::string>("original_name").c_str());
 					for (uint32 index = 0; index < insuranceList->size(); index++)
 					{
-						if (_strcmpi(itemName.getAnsi(), (*it).first.getAnsi()) < 0)
+						if (Anh_Utils::cmpistr(itemName.getAnsi(), (*it).first.getAnsi()) < 0)
 						{
 							break;
 						}

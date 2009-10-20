@@ -19,6 +19,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "LogManager/LogManager.h"
 #include "Common/Message.h"
 #include "Common/MessageFactory.h"
+#include "Utils/utils.h"
 
 //=============================================================================================================================
 //
@@ -150,7 +151,7 @@ void ObjectController::_handleAdminSysMsg(uint64 targetId,Message* message,Objec
 
 	string dataStr;
 	message->getStringUnicode16(dataStr);
-	
+
 	PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
 	if ((player) && (player->isConnected()))
 	{
@@ -195,7 +196,7 @@ void ObjectController::_handleAdminSysMsg(uint64 targetId,Message* message,Objec
 				sprintf(newCommandString.getAnsi(),"%s %s", adminCommands[commandIndex].command.getAnsi(), ansiData.getAnsi());
 
 				// gLogger->logMsgF("_handleAdminSysMsg() New message = %s", MSG_NORMAL, newCommandString.getAnsi());
-			
+
 				// Execute the command.
 				string opcodeStr(adminCommands[commandIndex].command);
 				opcodeStr.toLower();
@@ -265,7 +266,7 @@ void ObjectController::_handleBroadcast(uint64 targetId, Message* message, Objec
 
 string ObjectController::handleBroadcast(string message) const
 {
-	
+
 	// gLogger->logMsgF("ObjectController::_handleBroadcast() Handling message <%s>", MSG_NORMAL, message.getAnsi());
 	int8 rawData[128];
 
@@ -306,7 +307,7 @@ string ObjectController::handleBroadcast(string message) const
 //	Broadcast system message to named planet
 //
 //	Syntax BroadcastPlanet planetName theBroadcast
-// 
+//
 void ObjectController::_handleBroadcastPlanet(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties)
 {
 	int8 rawData[128];
@@ -350,7 +351,7 @@ string ObjectController::handleBroadcastPlanet(string message) const
 				string ansiData;
 				ansiData.setLength(message.getLength());
 				message.substring(ansiData, static_cast<uint16>(index), message.getLength());
-		
+
 				// Any valid message?
 				elementCount = sscanf(ansiData.getAnsi(), "%80s", rawData);
 				if (elementCount > 0)
@@ -425,7 +426,7 @@ string ObjectController::handleBroadcastGalaxy(string message) const
 		string ansiData;
 		ansiData.setLength(message.getLength());
 		message.substring(ansiData, static_cast<uint16>(index), message.getLength());
-	
+
 		// Any valid message?
 		int32 elementCount = sscanf(ansiData.getAnsi(), "%80s", rawData);
 		if (elementCount > 0)
@@ -455,7 +456,7 @@ string ObjectController::handleBroadcastGalaxy(string message) const
 //	Syntax shutdownGalaxy timeToShutdown <theBroadcast>
 //	where	timeToShutdown is minutes
 //			theBroadcast is an optional message.
-// 
+//
 
 void ObjectController::_handleShutdownGalaxy(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties)
 {
@@ -487,7 +488,7 @@ string ObjectController::handleShutdownGalaxy(string message) const
 	{
 		sprintf(replyData,"OK");
 		// Get time for shutdown
-		// 
+		//
 		int32 minutesToShutdown;
 		int32 elementCount = sscanf(message.getAnsi(), "%3d", &minutesToShutdown);
 		// string planet(rawData);
@@ -549,7 +550,7 @@ string ObjectController::handleShutdownGalaxy(string message) const
 //
 //	Syntax cancelShutdownGalaxy <theBroadcast>
 //	where	theBroadcast is an optional message.
-// 
+//
 
 void ObjectController::_handleCancelShutdownGalaxy(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties)
 {
@@ -615,7 +616,7 @@ string ObjectController::handleCancelShutdownGalaxy(string message) const
 void ObjectController::broadcastGalaxyMessage(string theBroadcast, int32 planetId) const
 {
 	// gLogger->logMsgF("ObjectController::handleBroadcastGalaxy() Handling message %s", MSG_NORMAL, theBroadcast.getAnsi());
-	
+
 	if (theBroadcast.getLength())
 	{
 		PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
@@ -627,10 +628,10 @@ void ObjectController::broadcastGalaxyMessage(string theBroadcast, int32 planetI
 			Message* newMessage;
 			gMessageFactory->StartMessage();
 			gMessageFactory->addUint32(opIsmBroadcastGalaxy);
-			gMessageFactory->addUint32(planetId);	
+			gMessageFactory->addUint32(planetId);
 			gMessageFactory->addString(theBroadcast);
 			newMessage = gMessageFactory->EndMessage();
-			player->getClient()->SendChannelA(newMessage,player->getAccountId(),CR_Chat,2); 
+			player->getClient()->SendChannelA(newMessage,player->getAccountId(),CR_Chat,2);
 			//this should be fastpath as not being Mission critical and we want to prevent the communication protocol overhead with Acks and resends
 
 			// Convert since we are going to print it.
@@ -638,7 +639,7 @@ void ObjectController::broadcastGalaxyMessage(string theBroadcast, int32 planetI
 			// gLogger->logMsgF("ObjectController::handleBroadcastGalaxy() Sending System Message %s to the galaxy", MSG_NORMAL, theBroadcast.getAnsi());
 		}
 	}
-	
+
 }
 
 //=============================================================================================================================
@@ -650,7 +651,7 @@ void ObjectController::broadcastGalaxyMessage(string theBroadcast, int32 planetI
 void ObjectController::scheduleShutdown(int32 scheduledTime, string shutdownReason) const
 {
 	// gLogger->logMsgF("ObjectController::scheduleShutdown() Handling message %s", MSG_NORMAL, theBroadcast.getAnsi());
-	
+
 	PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
 	if (player)
 	{
@@ -660,10 +661,10 @@ void ObjectController::scheduleShutdown(int32 scheduledTime, string shutdownReas
 		Message* newMessage;
 		gMessageFactory->StartMessage();
 		gMessageFactory->addUint32(opIsmScheduleShutdown);
-		gMessageFactory->addUint32((uint32)scheduledTime);	
+		gMessageFactory->addUint32((uint32)scheduledTime);
 		gMessageFactory->addString(shutdownReason);
 		newMessage = gMessageFactory->EndMessage();
-		player->getClient()->SendChannelA(newMessage,player->getAccountId(),CR_Chat,2); 
+		player->getClient()->SendChannelA(newMessage,player->getAccountId(),CR_Chat,2);
 		//this should be fastpath as not being Mission critical and we want to prevent the communication protocol overhead with Acks and resends
 	}
 }
@@ -685,10 +686,10 @@ void ObjectController::cancelScheduledShutdown(string cancelShutdownReason) cons
 		Message* newMessage;
 		gMessageFactory->StartMessage();
 		gMessageFactory->addUint32(opIsmCancelShutdown);
-		gMessageFactory->addUint32(0);					// Can be used as an option in the future, 
+		gMessageFactory->addUint32(0);					// Can be used as an option in the future,
 		gMessageFactory->addString(cancelShutdownReason);
 		newMessage = gMessageFactory->EndMessage();
-		player->getClient()->SendChannelA(newMessage,player->getAccountId(),CR_Chat,2); 
+		player->getClient()->SendChannelA(newMessage,player->getAccountId(),CR_Chat,2);
 		//this should be fastpath as not being Mission critical and we want to prevent the communication protocol overhead with Acks and resends
 	}
 }
@@ -697,7 +698,7 @@ void ObjectController::cancelScheduledShutdown(string cancelShutdownReason) cons
 //
 // Find the start of the first field within a text message.
 //
-// 
+//
 
 int32 ObjectController::indexOfFirstField(const string message) const
 {
@@ -721,7 +722,7 @@ int32 ObjectController::indexOfFirstField(const string message) const
 //
 // Find the start of the second field within a text message.
 //
-// 
+//
 
 int32 ObjectController::indexOfNextField(const string message) const
 {
@@ -835,15 +836,15 @@ int32 ObjectController::getAdminCommandFunction(string command) const
 {
 	for (int i = 0; i < noOfAdminCommands; i++)
 	{
-		// gLogger->logMsgF("Comparing: %s", MSG_NORMAL, command.getAnsi());				
-		// gLogger->logMsgF("with     : %s", MSG_NORMAL, adminCommands[i].command.getAnsi());				
-		if(_strnicmp(command.getAnsi(),adminCommands[i].command.getAnsi(), adminCommands[i].testLength) == 0)
+		// gLogger->logMsgF("Comparing: %s", MSG_NORMAL, command.getAnsi());
+		// gLogger->logMsgF("with     : %s", MSG_NORMAL, adminCommands[i].command.getAnsi());
+		if(Anh_Utils::cmpnistr(command.getAnsi(),adminCommands[i].command.getAnsi(), adminCommands[i].testLength) == 0)
 		{
-			// gLogger->logMsgF("Found the command: %s", MSG_NORMAL, adminCommands[i].command.getAnsi());	
+			// gLogger->logMsgF("Found the command: %s", MSG_NORMAL, adminCommands[i].command.getAnsi());
 			return i;
 		}
 	}
-	// gLogger->logMsgF("No match, compared %d command names", MSG_NORMAL, id);				
-	// gLogger->logMsgF("No match", MSG_NORMAL);				
+	// gLogger->logMsgF("No match, compared %d command names", MSG_NORMAL, id);
+	// gLogger->logMsgF("No match", MSG_NORMAL);
 	return -1;
 }

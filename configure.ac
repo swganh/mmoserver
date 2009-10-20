@@ -32,6 +32,7 @@ AX_BOOST_THREAD
 CHECK_ZLIB
 AX_WITH_LUA
 AX_LUA_LIBS
+GTEST_LIB_CHECK
 
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h locale.h memory.h netdb.h netinet/in.h stddef.h stdint.h stdlib.h string.h sys/socket.h sys/timeb.h unistd.h])
@@ -102,8 +103,7 @@ AC_CONFIG_FILES([Makefile
 	src/ScriptEngine/Makefile
 	src/Utils/Makefile
 	src/ZoneServer/Makefile
-	tests/Makefile
-	tests/Utils/Makefile])
+	tests/Makefile])
 AC_OUTPUT
 
 echo "

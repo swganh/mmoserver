@@ -12,5 +12,5 @@ SUBDIRS = \
 	ChatServer \
 	ConnectionServer \
 	LoginServer \
-	PingServer \
-	ZoneServer
+	PingServer 
+#	ZoneServer

@@ -38,56 +38,56 @@ ResourceContainer::~ResourceContainer()
 
 
 uint64 ResourceContainer::getResourceId()
-{ 
-    return mResourceId; 
+{
+    return mResourceId;
 }
 
 
 void ResourceContainer::setResourceId(uint64 id)
-{ 
-    mResourceId = id; 
+{
+    mResourceId = id;
 }
 
 
 Resource* ResourceContainer::getResource()
-{ 
-    return mResource; 
+{
+    return mResource;
 }
 
 
 void ResourceContainer::setResource(Resource* resource)
-{ 
-    mResource = resource; 
+{
+    mResource = resource;
 }
 
 
 uint32 ResourceContainer::getAmount()
-{ 
-    return mAmount; 
+{
+    return mAmount;
 }
 
 
 void ResourceContainer::setAmount(uint32 amount)
-{ 
-    mAmount = amount; 
+{
+    mAmount = amount;
 }
 
 
 uint32 ResourceContainer::getMaxAmount()
-{ 
-    return mMaxAmount; 
+{
+    return mMaxAmount;
 }
 
 
 void ResourceContainer::setMaxAmount(uint32 max)
-{ 
-    mMaxAmount = max; 
+{
+    mMaxAmount = max;
 }
 
 
 string ResourceContainer::getBazaarTang()
-{ 
-    return getModelString(); 
+{
+    return getModelString();
 }
 
 //=============================================================================
@@ -97,14 +97,14 @@ string	ResourceContainer::getBazaarName()
 	string value = string(BSTRType_ANSI,256);
 
 	value.setLength(sprintf(value.getAnsi(),"%s (%s)",getResource()->getType()->getName().getAnsi(),getResource()->getName().getAnsi()));
-	
+
 	return value;
 }
 
 
 uint32 ResourceContainer::getCategoryBazaar()
-{ 
-    return getResource()->getType()->getCategoryBazaar(); 
+{
+    return getResource()->getType()->getCategoryBazaar();
 }
 
 //=============================================================================
@@ -118,7 +118,7 @@ void ResourceContainer::sendAttributes(PlayerObject* playerObject)
 	string		tmpValueStr = string(BSTRType_Unicode16,64);
 	string		value;
 
-	gMessageFactory->StartMessage();          
+	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opAttributeListMessage);
 	gMessageFactory->addUint64(mId);
 
@@ -132,7 +132,7 @@ void ResourceContainer::sendAttributes(PlayerObject* playerObject)
 
 	gMessageFactory->addUint32(attrCount + mAttributeMap.size());
 
-	tmpValueStr.setLength(swprintf(tmpValueStr.getUnicode16(),L"%u/%u",mMaxCondition-mDamage,mMaxCondition));
+	tmpValueStr.setLength(swprintf(tmpValueStr.getUnicode16(),20,L"%u/%u",mMaxCondition-mDamage,mMaxCondition));
 	gMessageFactory->addString(BString("condition"));
 	gMessageFactory->addString(tmpValueStr);
 
@@ -153,7 +153,7 @@ void ResourceContainer::sendAttributes(PlayerObject* playerObject)
 		++orderIt;
 	}
 
-	tmpValueStr.setLength(swprintf(tmpValueStr.getUnicode16(),L"%u/%u",mAmount,mMaxAmount));
+	tmpValueStr.setLength(swprintf(tmpValueStr.getUnicode16(),20,L"%u/%u",mAmount,mMaxAmount));
 	gMessageFactory->addString(BString("resource_contents"));
 	gMessageFactory->addString(tmpValueStr);
 
@@ -190,7 +190,7 @@ void ResourceContainer::sendAttributes(PlayerObject* playerObject)
 			}
 
 			tmpValueStr = string(BSTRType_Unicode16,64);
-			tmpValueStr.setLength(swprintf(tmpValueStr.getUnicode16(),L"%u",attrValue));
+			tmpValueStr.setLength(swprintf(tmpValueStr.getUnicode16(),10,L"%u",attrValue));
 
 			gMessageFactory->addString(attrName);
 			gMessageFactory->addString(tmpValueStr);
@@ -198,7 +198,7 @@ void ResourceContainer::sendAttributes(PlayerObject* playerObject)
 	}
 
 	//gMessageFactory->addUint32(0);
-                    
+
 	newMessage = gMessageFactory->EndMessage();
 
 	(playerObject->getClient())->SendChannelAUnreliable(newMessage, playerObject->getAccountId(),  CR_Client, 9);

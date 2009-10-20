@@ -16,7 +16,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "PlayerObject.h"
 #include "ScoutManager.h"
 #include "StructureManager.h"
-#include "Worldmanager.h"
+#include "WorldManager.h"
 #include "ZoneOpcodes.h"
 
 #include "MathLib/Quaternion.h"
@@ -41,22 +41,22 @@ Scout::~Scout()
 void Scout::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 {
 	if(PlayerObject* player = dynamic_cast<PlayerObject*>(srcObject))
-	{	
+	{
 		switch(messageType)
 		{
-			case radId_itemUse: 
+			case radId_itemUse:
 			{
 				//make sure it is a camp
 				if(this->getItemType() >= ItemType_Camp_basic || this->getItemType() <= ItemType_Camp_quality)
 				{
 					//place camp TODO check whether camp can be placed ie whether we are in an urban area
 					//ie create in the world for all known players
-					//Camps use BUIO 3 and 6				
-			
+					//Camps use BUIO 3 and 6
+
 					gScoutManager->createCamp(this->getItemType(),0,player->mPosition,"",player);
 
 				}
-				
+
 			}
 		}
 	}
@@ -71,7 +71,7 @@ void Scout::sendAttributes(PlayerObject* playerObject)
 
 	Message* newMessage;
 
-	gMessageFactory->StartMessage();           
+	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opAttributeListMessage);
 	gMessageFactory->addUint64(mId);
 
@@ -80,8 +80,8 @@ void Scout::sendAttributes(PlayerObject* playerObject)
 	string	tmpValueStr = string(BSTRType_Unicode16,64);
 	string	value;
 
-	tmpValueStr.setLength(swprintf(reinterpret_cast<wchar_t*>(tmpValueStr.getUnicode16()),L"%u/%u",mMaxCondition - mDamage,mMaxCondition));
-	
+	tmpValueStr.setLength(swprintf(reinterpret_cast<wchar_t*>(tmpValueStr.getUnicode16()),20,L"%u/%u",mMaxCondition - mDamage,mMaxCondition));
+
 	gMessageFactory->addString(BString("condition"));
 	gMessageFactory->addString(tmpValueStr);
 
@@ -101,7 +101,7 @@ void Scout::sendAttributes(PlayerObject* playerObject)
 
 		++orderIt;
 	}
-                  
+
 	newMessage = gMessageFactory->EndMessage();
 
 	(playerObject->getClient())->SendChannelAUnreliable(newMessage, playerObject->getAccountId(), CR_Client, 9);
@@ -111,9 +111,9 @@ void Scout::sendAttributes(PlayerObject* playerObject)
 
 void Scout::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount)
 {
-	
+
 	RadialMenu* radial	= new RadialMenu();
-			
+
 	radial->addItem(1,0,radId_itemUse,radAction_ObjCallback,"");
 	radial->addItem(2,0,radId_examine,radAction_ObjCallback,"");
 	radial->addItem(3,0,radId_itemDestroy,radAction_ObjCallback,"");

@@ -27,7 +27,6 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "DatabaseManager/DatabaseResult.h"
 #include "Common/Message.h"
 #include "Common/MessageFactory.h"
-#include "MathLib/Math.h"
 
 
 //=============================================================================
@@ -65,8 +64,8 @@ void ObjectController::_handleSitServer(uint64 targetId,Message* message,ObjectC
 	// sitting on chair
 	if(data.getLength())
 	{
-		elementCount = swscanf(data.getUnicode16(),L"%f,%f,%f,%lld",&chairX,&chairY,&chairZ,&chairCell);	
-		
+		elementCount = swscanf(data.getUnicode16(),L"%f,%f,%f,%lld",&chairX,&chairY,&chairZ,&chairCell);
+
 		if(elementCount == 4)
 		{
 			// outside
@@ -94,7 +93,7 @@ void ObjectController::_handleSitServer(uint64 targetId,Message* message,ObjectC
 						// put into new
 						playerObject->setSubZoneId((uint32)newRegion->getId());
 						newRegion->mTree->addObject(playerObject);
-					}				
+					}
 				}
 				else
 				{
@@ -242,7 +241,7 @@ void ObjectController::_handleProne(uint64 targetId,Message* message,ObjectContr
 	gMessageLib->sendUpdateMovementProperties(playerObject);
 	gMessageLib->sendPostureAndStateUpdate(playerObject);
 	gMessageLib->sendSelfPostureUpdate(playerObject);
-	
+
 	//if player is seated on an a chair, hack-fix clientside bug by manually sending client message
 	if(IsSeatedOnChair)
 	{
@@ -275,7 +274,7 @@ void ObjectController::_handleKneel(uint64 targetId,Message* message,ObjectContr
 	gMessageLib->sendUpdateMovementProperties(playerObject);
 	gMessageLib->sendPostureAndStateUpdate(playerObject);
 	gMessageLib->sendSelfPostureUpdate(playerObject);
-		
+
 	//if player is seated on an a chair, hack-fix clientside bug by manually sending client message
 	if(IsSeatedOnChair)
 	{

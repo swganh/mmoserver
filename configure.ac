@@ -84,7 +84,26 @@ AC_CHECK_FUNCS([atexit floor ftime inet_ntoa memset pow select socket sqrt strch
 AC_SUBST(SWGANH_CXXFLAGS)
 
 
-AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([Makefile
+	docs/Makefile
+	src/Makefile
+	src/AdminServer/Makefile
+	src/ChatServer/Makefile
+	src/Common/Makefile
+	src/ConfigManager/Makefile
+	src/ConnectionServer/Makefile
+	src/DatabaseManager/Makefile
+	src/LoginServer/Makefile
+	src/LogManager/Makefile
+	src/MathLib/Makefile
+	src/MessageLib/Makefile
+	src/NetworkManager/Makefile
+	src/PingServer/Makefile
+	src/ScriptEngine/Makefile
+	src/Utils/Makefile
+	src/ZoneServer/Makefile
+	tests/Makefile
+	tests/Utils/Makefile])
 AC_OUTPUT
 
 echo "

@@ -44,15 +44,15 @@ Shuttle::~Shuttle()
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 ShuttleState Shuttle::getShuttleState()
-{ 
-	return mShuttleState; 
+{
+	return mShuttleState;
 }
 //=============================================================================
 
 //returns true if shuttle avaliable in starport. Tthe shuttle is always available in theed spaceport
 
 bool Shuttle::avaliableInPort(void)
-{ 
+{
 	string port("");
 	TicketCollector* collector = (TicketCollector*) gWorldManager->getObjectById(getCollectorId());
 
@@ -108,7 +108,7 @@ void Shuttle::useShuttle(PlayerObject* playerObject)
 				gMessageLib->sendSystemMessage(playerObject,L"","travel","boarding_too_far");
 				return;
 			}
-			
+
 			if(noTicket)
 				gMessageLib->sendSystemMessage(playerObject,L"","travel","no_ticket");
 			else
@@ -130,10 +130,10 @@ void Shuttle::useShuttle(PlayerObject* playerObject)
 
 				if(minutes > 0)
 				{
-					awayMsg.setLength(swprintf(awayMsg.getUnicode16(),L"The next shuttle will be ready to board in %u minutes %u seconds.",minutes,seconds));
+					awayMsg.setLength(swprintf(awayMsg.getUnicode16(),80,L"The next shuttle will be ready to board in %u minutes %u seconds.",minutes,seconds));
 				}
 				else
-					awayMsg.setLength(swprintf(awayMsg.getUnicode16(),L"The next shuttle will be ready to board in %u seconds.",seconds));
+					awayMsg.setLength(swprintf(awayMsg.getUnicode16(),80,L"The next shuttle will be ready to board in %u seconds.",seconds));
 
 				gMessageLib->sendSystemMessage(playerObject,awayMsg);
 			}

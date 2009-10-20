@@ -39,7 +39,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 //======================================================================================================================
 
-typedef std::queue<uint32>						TimerEventQueue;
+typedef std::queue<uint32> TimerEventQueue;
 
 class AuctionClass;
 class Bazaar;
@@ -56,7 +56,7 @@ struct AuctionItem;
 //typedef std::map<uint32,Player*>		PlayerAccountMap;
 typedef std::vector<Bazaar*>		BazaarList;
 //typedef std::vector<Timer*>			TimerList;
-typedef std::vector<std::tr1::shared_ptr<Timer>> TimerList;
+typedef std::vector<std::tr1::shared_ptr<Timer> > TimerList;
 typedef std::vector<AuctionItem*>	AuctionList;
 
 //======================================================================================================================
@@ -86,7 +86,7 @@ class TradeManagerChatHandler : public MessageDispatchCallback, public DatabaseC
 		uint32				getBazaarRegion(uint64 ID);
 		string				getBazaarString(uint64 ID);
 		Bazaar*				getBazaarInfo(uint64 ID);
-		
+
 
 	private:
 
@@ -103,14 +103,14 @@ class TradeManagerChatHandler : public MessageDispatchCallback, public DatabaseC
 
 		void				ProcessBankTip(Message* message,DispatchClient* client);
 		void				processAuctionEMails(AuctionItem* AuctionTemp);
-					
+
 		// process chat timers
 		void				handleGlobalTickPreserve();
 		void				processTimerEvents();
 		void				handleGlobalTickUpdate();
 		void				handleCheckAuctions();
 		uint64				getGlobalTickCount(){return mGlobalTickCount;}
-		
+
 
 
 		static TradeManagerChatHandler*	mSingleton;
@@ -118,9 +118,9 @@ class TradeManagerChatHandler : public MessageDispatchCallback, public DatabaseC
 
 		BazaarList					mBazaars;
 		AttributesList				mAtrributesList;
-									
+
 		AuctionClass*				auction;
-	
+
 		ListStringStruct*			ListStringHandler;
 		ListStringList				mListStringList;
 
@@ -132,7 +132,7 @@ class TradeManagerChatHandler : public MessageDispatchCallback, public DatabaseC
 		PlayerAccountMap			mPlayerAccountMap;
 
 		ChatManager*				mChatManager;
-		
+
 		uint64      				mGlobalTickCount;
 		TimerList					mTimers;
 		TimerEventQueue				mTimerEventQueue;
@@ -143,8 +143,8 @@ class TradeManagerChatHandler : public MessageDispatchCallback, public DatabaseC
 		AuctionList					mAuction;
 
 
-		
+
 };
 
-#endif 
+#endif
 

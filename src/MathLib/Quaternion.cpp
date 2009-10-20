@@ -11,7 +11,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 
 #include "Quaternion.h"
-#include <math.h>
+#include <cmath>
 
 const Anh_Math::Quaternion Anh_Math::Quaternion::ZERO(0.0,0.0,0.0,0.0);
 const Anh_Math::Quaternion Anh_Math::Quaternion::IDENTITY(1.0,0.0,0.0,0.0);
@@ -87,7 +87,7 @@ float Anh_Math::Quaternion::normalize()
 float Anh_Math::Quaternion::getAnglesToSend() const
 {
 	float len = getNormal();
-	
+
 	float angleToSend = 0;
 	if (len > 0.0)
 	{
@@ -160,7 +160,7 @@ Anh_Math::Vector3 Anh_Math::Quaternion::getAnglesToSend()
 		angle = 2.0f*acos(mW);
 
 		t = (angle/6.283f)*100;
-	
+
 		v.mX = (mX/s)*t;
 		v.mY = (mY/s)*t;
 		v.mZ = (mZ/s)*t;

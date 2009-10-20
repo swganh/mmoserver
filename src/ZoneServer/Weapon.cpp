@@ -38,7 +38,7 @@ void Weapon::sendAttributes(PlayerObject* playerObject)
 
 	Message* newMessage;
 
-	gMessageFactory->StartMessage();           
+	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opAttributeListMessage);
 	gMessageFactory->addUint64(mId);
 
@@ -47,7 +47,7 @@ void Weapon::sendAttributes(PlayerObject* playerObject)
 	string	tmpValueStr = string(BSTRType_Unicode16,64);
 	string	value;
 
-	tmpValueStr.setLength(swprintf(tmpValueStr.getUnicode16(),L"%u/%u",mMaxCondition - mDamage,mMaxCondition));
+	tmpValueStr.setLength(swprintf(tmpValueStr.getUnicode16(), 20, L"%u/%u",mMaxCondition - mDamage,mMaxCondition));
 
 	gMessageFactory->addString(BString("condition"));
 	gMessageFactory->addString(tmpValueStr);

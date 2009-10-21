@@ -22,7 +22,6 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #define	 SWG				BString("SWG")
 
 class Article;
-class Bazaar;
 class Category;
 class Channel;
 class ChatAvatarId;
@@ -36,8 +35,9 @@ class Player;
 class Ticket;
 class TradeManagerAsyncContainer;
 
-struct ItemDescriptionAttributes;
 struct AuctionItem;
+struct Bazaar;
+struct ItemDescriptionAttributes;
 
 typedef std::vector<Article*>                   ArticleList;
 typedef std::vector<ItemDescriptionAttributes*>	AttributesList;

@@ -32,7 +32,6 @@ struct Bazaar
 		int8			string[128];
 		int8			planet[32];
 		int8			region[48];
-
 };
 
 struct PlayerData

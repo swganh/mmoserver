@@ -42,7 +42,6 @@ Copyright (c) 2006 - 2008 The swgANH Team
 typedef std::queue<uint32> TimerEventQueue;
 
 class AuctionClass;
-class Bazaar;
 class ChatManager;
 class CommoditiesClass;
 class Database;
@@ -52,6 +51,7 @@ class Player;
 class Timer;
 
 struct AuctionItem;
+struct Bazaar;
 
 //typedef std::map<uint32,Player*>		PlayerAccountMap;
 typedef std::vector<Bazaar*>		BazaarList;

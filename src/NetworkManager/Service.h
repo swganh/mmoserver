@@ -37,7 +37,7 @@ typedef std::list<NetworkCallback*>				NetworkCallbackList;
 class Service
 {
 	public:
-		
+
 		Service(NetworkManager* networkManager, bool serverservice);
 		~Service(void);
 
@@ -60,30 +60,24 @@ class Service
 
 	private:
 
-		//marks us as the serverservice / clientservice
-	bool						mServerService;
-	uint64						lasttime;
-	uint64						avgTime;
-	uint32                      avgPacketsbuild;
-
-		NetworkManager*		mNetworkManager;
-		SocketReadThread*	mSocketReadThread;
-		SocketWriteThread*	mSocketWriteThread;
-
-		static bool			mSocketsSubsystemInitComplete;
-		uint32				mId;
-
-		int8				mLocalAddressName[256];
-		uint32				mLocalAddress;
-		uint16				mLocalPort;
-		SOCKET				mLocalSocket;
-
-		SessionQueue		mSessionProcessQueue;
 		NetworkCallbackList	mNetworkCallbackList;
-		uint32				mSessionResendWindowSize;
+		SessionQueue				mSessionProcessQueue;
+		int8								mLocalAddressName[256];
+		NetworkManager*			mNetworkManager;
+		SocketReadThread*		mSocketReadThread;
+		SocketWriteThread*	mSocketWriteThread;
+		SOCKET				mLocalSocket;
+		uint64							avgTime;
+		uint64							lasttime;
+		uint32              avgPacketsbuild;
+		uint32							mId;
+		uint32							mLocalAddress;
+		uint32							mSessionResendWindowSize;
+		uint16							mLocalPort;
+		bool								mQueued;
+		bool								mServerService;	//marks us as the serverservice / clientservice
 
-		bool				mQueued;
-
+		static bool					mSocketsSubsystemInitComplete;
 };
 
 

@@ -58,9 +58,7 @@ AC_C_INLINE
 AC_C_RESTRICT
 AC_CXX_COMPILE_STDCXX_0X
 
-if test "$ac_cv_cxx_compile_cxx0x_native" = no &&
-   test "$ac_cv_cxx_compile_cxx0x_cxx" = no &&
-   test "$ac_cv_cxx_compile_cxx0x_gxx" = no; then
+if test "$ac_cv_cxx_compile_cxx0x_native" = no &&	test "$ac_cv_cxx_compile_cxx0x_cxx" = no && test "$ac_cv_cxx_compile_cxx0x_gxx" = no; then
   AC_MSG_ERROR([C++0x features required to build this application.])
 fi
 

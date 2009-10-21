@@ -67,7 +67,7 @@ public:
                                 Packet(void) : mTimeCreated(0), mTimeQueued(0), mTimeSent(0), mResends(0), mSize(0), mReadIndex(0), mWriteIndex(0), mCompressed(0), mEncrypted(0), mCRC(0), mTimeOOHSent(0) {};
 
   void                          Reset(void);
-                                 
+
   void                          setReadIndex(uint16 index)          { mReadIndex = index; }
   void                          setWriteIndex(uint16 index)         { mReadIndex = index; }
 
@@ -128,29 +128,29 @@ public:
   uint64                        peekUint64(void)                    { uint64 value = *(uint64*)&mData[mReadIndex]; return value; }
   float                         peekFloat(void)                     { float value = *(float*)&mData[mReadIndex]; return value; }
   double                        peekDouble(void)                    { double value = *(double*)&mData[mReadIndex]; return value; }
-  
-  
+
+
   Session*                      getSession(void)                    { return mSession; }
   void							setSession(Session* session)		{ mSession = session;}
 
 protected:
   Session*						mSession;
 
-  uint16						mMaxPayLoad;
-  
   //we want to have bigger packets for zone connection communication
   int8                          mData[MAX_SERVER_PACKET_SIZE];
   uint64                        mTimeCreated;
   uint64                        mTimeQueued;
-  uint64						mTimeOOHSent;
+  uint64												mTimeOOHSent;
   uint64                        mTimeSent;
+  uint32                        mCRC;.
+  2
   uint32                        mResends;
+  uint16												mMaxPayLoad;
   uint16                        mSize;
   uint16                        mReadIndex;
   uint16                        mWriteIndex;
-  bool                          mCompressed; 
-  bool                          mEncrypted; 
-  uint32                        mCRC;  
+  bool                          mCompressed;
+  bool                          mEncrypted;
 
 };
 
@@ -164,9 +164,9 @@ inline void Packet::Reset(void)
   mSize             = 0;
   mReadIndex        = 0;
   mWriteIndex       = 0;
-  mCompressed       = false; 
-  mEncrypted        = false; 
-  mCRC              = 0;  
+  mCompressed       = false;
+  mEncrypted        = false;
+  mCRC              = 0;
 }
 
 #endif //ANH_NETWORKMANAGER_PACKET_H

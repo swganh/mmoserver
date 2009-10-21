@@ -51,16 +51,35 @@ bool Service::mSocketsSubsystemInitComplete = false;
 
 //======================================================================================================================
 
+NetworkCallbackList	mNetworkCallbackList;
+SessionQueue				mSessionProcessQueue;
+int8								mLocalAddressName[256];
+NetworkManager*			mNetworkManager;
+SocketReadThread*		mSocketReadThread;
+SocketWriteThread*	mSocketWriteThread;
+SOCKET				mLocalSocket;
+uint64							avgTime;
+uint64							lasttime;
+uint32              avgPacketsbuild;
+uint32							mId;
+uint32							mLocalAddress;
+uint32							mSessionResendWindowSize;
+uint16							mLocalPort;
+bool								mQueued;
+bool								mServerService;	//marks us as the serverservice / clientservice
+
+static bool					mSocketsSubsystemInitComplete;
+
 Service::Service(NetworkManager* networkManager, bool serverservice) :
 mNetworkManager(networkManager),
 mSocketReadThread(0),
 mSocketWriteThread(0),
-mLocalAddress(0),
-mLocalPort(0),
 mLocalSocket(0),
-mQueued(false),
 avgTime(0),
 avgPacketsbuild (0),
+mLocalAddress(0),
+mLocalPort(0),
+mQueued(false),
 mServerService(serverservice)
 {
 
@@ -79,13 +98,13 @@ Service::~Service(void)
 void Service::Startup(int8* localAddress, uint16 localPort,uint32 mfHeapSize)
 {
 
-	lasttime = Anh_Utils::Clock::getSingleton()->getLocalTime(); 
+	lasttime = Anh_Utils::Clock::getSingleton()->getLocalTime();
 	assert(strlen(localAddress) < 256);
 	strcpy(mLocalAddressName, localAddress);
 	mLocalAddress = inet_addr(localAddress);
 	mLocalPort = htons(localPort);
 
-#if(ANH_PLATFORM == ANH_PLATFORM_WIN32) 
+#if(ANH_PLATFORM == ANH_PLATFORM_WIN32)
 	// Startup the windows socket layer if it's not already started.
 	if (!mSocketsSubsystemInitComplete)
 	{
@@ -177,7 +196,7 @@ void Service::Shutdown(void)
 void Service::Process(uint32 loop)
 {
 	//we only ever get here with a connected session
-	
+
 	// Get the current count of Sessions to be processed.  We can't just check to see if the queue is empty, since
 	// the other threads could keep placing more Packets in the queue, and this could cause a stall in the
 	// main thread.
@@ -188,7 +207,7 @@ void Service::Process(uint32 loop)
 
 	//prevent stalling the servers
 	//we really should shorten the thread by shortening packetwritetime and leave the sessioncount
-	//but we need to modify that for the server service 
+	//but we need to modify that for the server service
 	if(sessionCount>loop)
 		sessionCount =loop;
 
@@ -199,7 +218,7 @@ void Service::Process(uint32 loop)
 
 		if(!session)
 			continue;
-	
+
 		session->setInIncomingQueue(false);
 
 		// Check to see if we're in the process of connecting or disconnecting.
@@ -225,7 +244,7 @@ void Service::Process(uint32 loop)
 		}
 		else if(session->getStatus() == SSTAT_Disconnecting)
 		{
-	
+
 			NetworkCallbackList::iterator iter;
 
 			for(iter = mNetworkCallbackList.begin(); iter != mNetworkCallbackList.end(); ++iter)
@@ -253,7 +272,7 @@ void Service::Process(uint32 loop)
 
 		// Iterate through our priority queue's looking for messages.
 		uint32 messageCount = session->getIncomingQueueMessageCount();
-	
+
 		if(messageCount >avgPacketsbuild )
 			avgPacketsbuild = messageCount;
 
@@ -270,7 +289,7 @@ void Service::Process(uint32 loop)
 			for(uint32 j = 0; j < messageCount; j++)
 			{
 				Message* message = session->getIncomingQueueMessage();
-			
+
 				message->ResetIndex();
 
 				// At this point we can assume we have a client object, so send the data up.
@@ -282,7 +301,7 @@ void Service::Process(uint32 loop)
 					(*iter)->handleSessionMessage(session->getClient(), message);
 				}
 			}
-		}	
+		}
 
 		session->setInIncomingQueue(false);
 	}
@@ -326,7 +345,7 @@ void Service::AddSessionToProcessQueue(Session* session)
 	{
 		session->setInIncomingQueue(true);
 		mSessionProcessQueue.push(session);
-		
+
 	}
 
 	mNetworkManager->AddServiceToProcessQueue(this);
@@ -334,17 +353,17 @@ void Service::AddSessionToProcessQueue(Session* session)
 
 //======================================================================================================================
 
-int8* Service::getLocalAddress(void)                             
-{ 
-  return inet_ntoa(*(struct in_addr *)&mLocalAddress); 
+int8* Service::getLocalAddress(void)
+{
+  return inet_ntoa(*(struct in_addr *)&mLocalAddress);
 }
 
 //======================================================================================================================
 
 uint16 Service::getLocalPort(void)
-{ 
-  return ntohs(mLocalPort); 
-  
+{
+  return ntohs(mLocalPort);
+
 }
 
 //======================================================================================================================

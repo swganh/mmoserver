@@ -19,7 +19,20 @@ Copyright (c) 2006 - 2008 The swgANH Team
 class Message
 {
 public:
-                              Message(void) : mSize(0), mIndex(0), mPriority(0), mAccountId(0xffffffff), mSourceId(0), mDestinationId(0), mRouted(false), mCreateTime(0), mQueueTime(0), mFastpath(false), mPendingDelete(false), mData(0) {};
+                              Message(void)
+                              : mSourceId(0)
+                              , mCreateTime(0)
+                              , mQueueTime(0)
+                              , mAccountId(0xffffffff)
+                              , mSize(0)
+                              , mIndex(0)
+                              , mPriority(0)
+                              , mDestinationId(0)
+                              , mRouted(false)
+                              , mFastpath(false)
+                              , mPendingDelete(false)
+                              , mData(0)
+                              {}
 
   void                        Init(int8* data, uint16 len)      { mData = data; mSize = len; mIndex = 0;}
   void                        ResetIndex(void)                  { mIndex = 0; }
@@ -84,7 +97,7 @@ public:
   // Max length of a string is uint16 - 4 (two bytes for length at beginning of buffer, and 2 bytes at end for NULL terminator.)
   uint16                      getStringAnsi(BString& data)       { data.initRawBSTR(&mData[mIndex], BSTRType_ANSI); mIndex += data.getLength()+2; return data.getLength(); }
   uint16                      getStringUnicode16(BString& data)  { data.initRawBSTR(&mData[mIndex], BSTRType_Unicode16); mIndex += data.getLength() * 2 + 4; return data.getLength(); }
- 
+
   uint8                       mSourceId;
 
 private:
@@ -94,14 +107,12 @@ private:
   uint16                      mSize;
   uint16                      mIndex;
   uint8                       mPriority;
-  
-  
   uint8                       mDestinationId;
   bool                        mRouted;
   bool                        mFastpath;
   bool                        mPendingDelete;
   int8*                       mData;
-  
+
 };
 
 class CompareMsg
@@ -111,7 +122,7 @@ class CompareMsg
 		bool operator () (Message* left,Message* right)
 		{
 			return(left->getPriority() < right->getPriority());
-		} 
+		}
 };
 
 

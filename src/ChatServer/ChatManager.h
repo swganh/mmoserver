@@ -18,6 +18,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Common/MessageDispatchCallback.h"
 #include "DatabaseManager/DatabaseCallback.h"
 
+#include "Utils/typedefs.h"
 
 //======================================================================================================================
 
@@ -33,12 +34,12 @@ class MessageDispatch;
 
 //======================================================================================================================
 
-typedef std::map<uint32,Player*>		PlayerAccountMap;
-typedef	std::map<uint32,Player*>		PlayerNameMap;
-typedef	std::map<uint64,Player*>		PlayerIdMap;
+typedef std::map<uint32,Player*> 	PlayerAccountMap;
+typedef	std::map<uint32,Player*> 	PlayerNameMap;
+typedef	std::map<uint64,Player*> 	PlayerIdMap;
 typedef std::vector<Player*>			PlayerList;
-typedef std::map<uint32,Channel*>		ChannelMap;
-typedef std::map<uint32,Channel*>		ChannelNameMap;
+typedef std::map<uint32,Channel*>	ChannelMap;
+typedef std::map<uint32,Channel*>	ChannelNameMap;
 typedef std::vector<Channel*>			ChannelList;
 typedef void (ChatManager::*funcPointer)(Message*,DispatchClient*);
 typedef std::map<uint32,funcPointer>	CommandMap;
@@ -74,21 +75,27 @@ enum ChatQuery
 
 class ChatAsyncContainer
 {
-	public:
+public:
+	ChatAsyncContainer(ChatQuery qt)
+		: mQueryType(qt)
+		, mMail(NULL)
+		, mSender(NULL)
+		, mReceiver(NULL)
+		, mMailCounter(0)
+	{}
 
-		ChatAsyncContainer(ChatQuery qt) : mSender(NULL),mReceiver(NULL),mClient(NULL),mMail(NULL),mMailCounter(0) { mQueryType = qt;}
-		~ChatAsyncContainer(){}
+	~ChatAsyncContainer(){}
 
-		ChatQuery		mQueryType;
-		DispatchClient*	mClient;
-		Mail*			mMail;
-		Player*			mSender;
-		Player*			mReceiver;
-		Channel*		mChannel;
-		uint32			mRequestId;
-		uint64			mReceiverId;
-		uint32			mMailCounter;
-		string			mName;
+	ChatQuery		mQueryType;
+	DispatchClient*	mClient;
+	Channel*		mChannel;
+	Mail*			mMail;
+	Player*			mSender;
+	Player*			mReceiver;
+	uint64			mReceiverId;
+	uint32			mRequestId;
+	uint32			mMailCounter;
+	string			mName;
 };
 
 //======================================================================================================================
@@ -111,7 +118,7 @@ class ChatManager : public MessageDispatchCallback, public DatabaseCallback
 
 		Channel*			getChannelById(uint32 id);
 		Channel*			getChannelByName(string name);
-		
+
 		string				getMainCategory(){ return mMainCategory; }
 		string				getGalaxyName(){ return mGalaxyName; }
 
@@ -129,7 +136,7 @@ class ChatManager : public MessageDispatchCallback, public DatabaseCallback
 
 		//send a system EMail without the need of a logged in player
 		void				sendSystemMailMessage(Mail* mail,uint64 recipient);
-		
+
 
 		PlayerAccountMap	getPlayerAccountMap(){return mPlayerAccountMap;}
 
@@ -166,7 +173,7 @@ class ChatManager : public MessageDispatchCallback, public DatabaseCallback
 		void			_processUnbanAvatarFromRoom(Message* message,DispatchClient* client);
 		void			_processAvatarId(Message* message,DispatchClient* client);
 		void			_processLeaveRoom(Message*message, DispatchClient* client);
-		
+
 		void			_processGroupSaySend(Message* message,DispatchClient* client);
 
 		// mail
@@ -186,7 +193,7 @@ class ChatManager : public MessageDispatchCallback, public DatabaseCallback
 		void			_processNotifyChatRemoveIgnore(Message* message,DispatchClient* client);
 		void			_processFindFriendMessage(Message* message,DispatchClient* client);
 		void			_processFindFriendGotPosition(Message* message,DispatchClient* client);
-		
+
 		void			_handleFindFriendDBReply(Player* player,uint64 retCode,string friendName);
 
 		void			_processWhenLoaded(Message* message,DispatchClient* client);
@@ -198,7 +205,7 @@ class ChatManager : public MessageDispatchCallback, public DatabaseCallback
 		void			_processBroadcastGalaxy(Message* message,DispatchClient* client);
 		void			_processScheduleShutdown(Message* message,DispatchClient* client);
 		void			_processCancelScheduledShutdown(Message* message, DispatchClient* client);
-		
+
 		static bool				mInsFlag;
 		static ChatManager*		mSingleton;
 
@@ -212,8 +219,8 @@ class ChatManager : public MessageDispatchCallback, public DatabaseCallback
 		ChannelMap				mChannelMap;
 		ChannelNameMap			mChannelNameMap;
 
-		string					mMainCategory;   
-		string					mGalaxyName;    
+		string					mMainCategory;
+		string					mGalaxyName;
 		BStringVector			mvPlanetNames;
 
 		CommandMap				mCommandMap;

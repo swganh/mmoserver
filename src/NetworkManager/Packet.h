@@ -64,7 +64,20 @@ enum SESSIONOP
 class Packet
 {
 public:
-                                Packet(void) : mTimeCreated(0), mTimeQueued(0), mTimeSent(0), mResends(0), mSize(0), mReadIndex(0), mWriteIndex(0), mCompressed(0), mEncrypted(0), mCRC(0), mTimeOOHSent(0) {};
+  //we want to have bigger packets for zone connection communication
+                                Packet(void)
+                                : mTimeCreated(0)
+                                , mTimeQueued(0)
+                                , mTimeOOHSent(0)
+                                , mTimeSent(0)
+                                , mCRC(0)
+                                , mResends(0)
+                                , mSize(0)
+                                , mReadIndex(0)
+                                , mWriteIndex(0)
+                                , mCompressed(0)
+                                , mEncrypted(0)
+                                {}
 
   void                          Reset(void);
 
@@ -142,8 +155,7 @@ protected:
   uint64                        mTimeQueued;
   uint64												mTimeOOHSent;
   uint64                        mTimeSent;
-  uint32                        mCRC;.
-  2
+  uint32                        mCRC;
   uint32                        mResends;
   uint16												mMaxPayLoad;
   uint16                        mSize;

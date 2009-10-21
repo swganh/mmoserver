@@ -22,12 +22,9 @@ class DispatchClient;
 typedef std::map<uint32,string> ContactMap;
 
 //======================================================================================================================
-class Bazaar
-{
-public:
-	Bazaar () {}
-	~Bazaar () {}
 
+struct Bazaar
+{
 		uint64			ownerid;
 		uint64			id;
 		uint32			regionid;

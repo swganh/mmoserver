@@ -211,9 +211,8 @@ void SocketWriteThread::_sendPacket(Packet* packet, Session* session)
 	if(packet->getSize() > mMessageMaxSize)
 	{
 		gLogger->logErrorF("Netcode","packet (%u) is longer than mMessageMaxSize (%u)",MSG_HIGH,packet->getSize(),mMessageMaxSize);
-		return;
+		assert(false);
 	}
-	//assert(packet->getSize() <= mMessageMaxSize);
 
 	// Want a fresh send buffer for debugging purposes.
 	memset(mSendBuffer, 0xcd, sizeof(mSendBuffer));
@@ -321,18 +320,20 @@ void SocketWriteThread::_sendPacket(Packet* packet, Session* session)
 
 
 	}
-	
-	sent = sendto(mSocket, mSendBuffer, outLen, 0, &toAddr, toLen);
 
-	if((outLen > mMessageMaxSize) )
-	  {
-		  gLogger->logMsgF("Cave Wrote Packetsize : %u Max Allowed Size : %u", MSG_HIGH, outLen,mMessageMaxSize);
-		  gLogger->hexDump(mSendBuffer,outLen);
-	  }
+
+
+	boost::mutex::scoped_lock lk(mSocketReadMutex);
+	sent = sendto(mSocket, mSendBuffer, outLen, 0, &toAddr, toLen);
 	
-	if (sent < 0)
+	if (sent <  0)
 	{
-		gLogger->logMsgF("*** Unkown error from socket sendto: %u", MSG_HIGH, errno);
+		gLogger->logMsgF("SocketWriteThread::_sendPacket *** Unkown error from socket sendto: %u", MSG_HIGH, errno);
+	}
+
+	if (sent <  outLen)
+	{
+		gLogger->logMsgF("SocketWriteThread::_sendPacket *** discrepancy in send bytes socket sent %u should have sent %u", MSG_HIGH, sent,outLen);
 	}
 }
 

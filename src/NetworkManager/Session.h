@@ -134,12 +134,13 @@ private:
 	  void                        _processNetStatRequestPacket(Packet* packet);
 	  
 	  void                        _processDataChannelPacket(Packet* packet, bool fastPath);
-	  void                        _processDataChannelB(Packet* packet, bool fastPath);
+	  void                        _processDataChannelB(Packet* packet);
 	  
 	  void                        _processDataOrderPacket(Packet* packet);
 	  void                        _processDataOrderChannelB(Packet* packet);
 	  void                        _processDataChannelAck(Packet* packet);
 	  void                        _processFragmentedPacket(Packet* packet);
+	  void						  _processRoutedFragmentedPacket(Packet* packet);
 	  void                        _processPingPacket(Packet* packet);
 
 	  void                        _processConnectCommand(void);

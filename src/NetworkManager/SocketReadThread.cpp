@@ -174,36 +174,37 @@ void SocketReadThread::run(void)
 	    
 		// We're going to block for 250ms.
 		tv.tv_sec   = 0;
-		tv.tv_usec  = 350;
+		tv.tv_usec  = 150;
 		
 		count = select(mSocket, &socketSet, 0, 0, &tv);
 
 		if(count && FD_ISSET(mSocket, &socketSet))
 		{
 			// Read any incoming packets.
+			boost::mutex::scoped_lock lk(mSocketReadMutex);
 			recvLen = recvfrom(mSocket, mReceivePacket->getData(),(int) mMessageMaxSize, 0, (sockaddr*)&from, reinterpret_cast<socklen_t*>(&fromLen)); 
 			if (recvLen <= 2)
 			{
-				if (recvLen <= 2)
-				{
+			
 #if(ANH_PLATFORM == ANH_PLATFORM_WIN32)
 
-					int error = WSAGetLastError();
-					gLogger->logMsgF("*** Unkown error from socket recvFrom: %i recvL returned %i", MSG_NORMAL, error,recvLen);
-					gLogger->logMsgF("*** mMessageMaxSize: %i", MSG_NORMAL, mMessageMaxSize);
+				int error = WSAGetLastError();
+				gLogger->logMsgF("*** Unkown error from socket recvFrom: %i recvL returned %i", MSG_HIGH, error,recvLen);
+				gLogger->logMsgF("*** mMessageMaxSize: %i", MSG_HIGH, mMessageMaxSize);
 
 #elif(ANH_PLATFORM == ANH_PLATFORM_LINUX)
 
-					int error = errno;
+				int error = errno;
 
 #endif
-				}
+			
 				//if(error != 10040)
 				continue;
 				
 
 				recvLen = mMessageMaxSize;
 			}
+			lk.unlock();
 			if(recvLen > mMessageMaxSize)
 				gLogger->logMsgF("*** Received Size > mMessageMaxSize: %u", MSG_NORMAL, recvLen);
 
@@ -217,6 +218,7 @@ void SocketReadThread::run(void)
 			//the create calls themselves using boost_singleton in the factory should be threadsafe though
 			if(!mReceivePacket )
 			{
+				assert(false);
 				gLogger->logMsg("*** still happening :(",MSG_NORMAL);
 				mReceivePacket = mPacketFactory->CreatePacket();
 			}
@@ -232,7 +234,8 @@ void SocketReadThread::run(void)
 
 			// TODO: Implement an IP blacklist so we can drop packets immediately.
 
-            boost::mutex::scoped_lock lk(mSocketReadMutex);
+            //boost::mutex::scoped_lock lk(mSocketReadMutex);
+			lk.lock();
 
 			AddressSessionMap::iterator i = mAddressSessionMap.find(hash);
 
@@ -260,7 +263,7 @@ void SocketReadThread::run(void)
 				}
 				else 
 				{
-					//gLogger->logMsgF("*** Session not found.  Packet dropped. Type:0x%.4x", MSG_NORMAL, packetType);
+					gLogger->logMsgF("*** Session not found.  Packet dropped. Type:0x%.4x", MSG_HIGH, packetType);
 
 					continue;
 				}
@@ -276,7 +279,10 @@ void SocketReadThread::run(void)
 			// Validate our date header.  If it's not a valid header, drop it.
 			
 			if(session->getStatus() > SSTAT_Connected)
+			{
+				gLogger->logMsgF("*** Session not connected", MSG_HIGH);
 				continue;
+			}
 
 			if(packetType > 0x00ff && (packetType & 0x00ff) == 0 && session != NULL)
 			{
@@ -319,9 +325,6 @@ void SocketReadThread::run(void)
 					} 
 					break;
 
-					case SESSIONOP_MultiPacket: 
-					case SESSIONOP_NetStatRequest:    
-					case SESSIONOP_NetStatResponse:
 					case SESSIONOP_DataChannel1:
 					case SESSIONOP_DataChannel2:
 					case SESSIONOP_DataChannel3:
@@ -330,8 +333,11 @@ void SocketReadThread::run(void)
 					case SESSIONOP_DataFrag2:         
 					case SESSIONOP_DataFrag3:         
 					case SESSIONOP_DataFrag4:   
-					{
 
+					case SESSIONOP_MultiPacket: 
+					case SESSIONOP_NetStatRequest:    
+					case SESSIONOP_NetStatResponse:
+					 {
 						// Before we do anything else, check the CRC.
 						uint32 packetCrc = mCompCryptor->GenerateCRC(mReceivePacket->getData(), recvLen - 2, session->getEncryptKey());
 
@@ -344,7 +350,7 @@ void SocketReadThread::run(void)
 						{
 							// CRC mismatch.  Dropping packet.
 							
-							gLogger->logMsgF("*** Reliable Packet dropped. %X CRC mismatch.",MSG_NORMAL,packetType);
+							gLogger->logMsgF("*** Reliable Packet dropped. %X CRC mismatch.",MSG_HIGH,packetType);
 							mCompCryptor->Decrypt(mReceivePacket->getData() + 2, recvLen - 4, session->getEncryptKey());  // don't hardcode the header buffer or CRC len.
 
 							gLogger->hexDump(mReceivePacket->getData(),mReceivePacket->getSize());
@@ -370,6 +376,10 @@ void SocketReadThread::run(void)
 						else //tag packets can be not compressed --tmr
 						{
 							mReceivePacket->setSize(mReceivePacket->getSize()-3);//we have to remove comp/crc like the above does natrually -tmr
+							session->HandleSessionPacket(mReceivePacket);
+							mReceivePacket = mPacketFactory->CreatePacket();
+							break;
+
 						}
 			
 					}
@@ -444,11 +454,14 @@ void SocketReadThread::run(void)
 					mReceivePacket = mPacketFactory->CreatePacket(); 
 				}
 			}
+			else
+			{
+				gLogger->logMsgF("SocketReadThread: Dont know what todo with this packet! --sch",MSG_HIGH);
+			}
 		}
 
-		//doesnt make sense!
-		// the blocked socket waits for us already
-        //boost::this_thread::sleep(boost::posix_time::milliseconds(1));
+		
+        boost::this_thread::sleep(boost::posix_time::milliseconds(1));
 	}
  
 	// Shutdown internally

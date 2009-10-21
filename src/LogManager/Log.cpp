@@ -152,6 +152,7 @@ void Log::logMsg(const std::string& zone, const std::string& system, const std::
 	//dblogging enabled??
 	if(mDatabase)
 	{
+		boost::mutex::scoped_lock lock(mGlobalLogMutex);
 		//zone
 		int8 sql[500];
 		int8 escstring1[64];

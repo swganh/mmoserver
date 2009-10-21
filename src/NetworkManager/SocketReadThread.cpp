@@ -172,16 +172,15 @@ void SocketReadThread::run(void)
 		// Build a new fd_set structure
 		FD_SET(mSocket, &socketSet);
 	    
-		// We're going to block for 250ms.
+		// We're going to block for 50us. blocks DONOT SLEEP they just stall
 		tv.tv_sec   = 0;
-		tv.tv_usec  = 150;
+		tv.tv_usec  = 50;
 		
 		count = select(mSocket, &socketSet, 0, 0, &tv);
 
 		if(count && FD_ISSET(mSocket, &socketSet))
 		{
 			// Read any incoming packets.
-			boost::mutex::scoped_lock lk(mSocketReadMutex);
 			recvLen = recvfrom(mSocket, mReceivePacket->getData(),(int) mMessageMaxSize, 0, (sockaddr*)&from, reinterpret_cast<socklen_t*>(&fromLen)); 
 			if (recvLen <= 2)
 			{
@@ -189,8 +188,6 @@ void SocketReadThread::run(void)
 #if(ANH_PLATFORM == ANH_PLATFORM_WIN32)
 
 				int error = WSAGetLastError();
-				gLogger->logMsgF("*** Unkown error from socket recvFrom: %i recvL returned %i", MSG_HIGH, error,recvLen);
-				gLogger->logMsgF("*** mMessageMaxSize: %i", MSG_HIGH, mMessageMaxSize);
 
 #elif(ANH_PLATFORM == ANH_PLATFORM_LINUX)
 
@@ -198,13 +195,22 @@ void SocketReadThread::run(void)
 
 #endif
 			
-				//if(error != 10040)
+				if(error != 10054)
+				{
+					gLogger->logMsgF("*** The Connection has been forcefully closed", MSG_HIGH);
+
+				}
+				else
+				{
+					gLogger->logMsgF("*** Errro: %i", MSG_HIGH, error);
+				}
+
 				continue;
 				
 
 				recvLen = mMessageMaxSize;
 			}
-			lk.unlock();
+			
 			if(recvLen > mMessageMaxSize)
 				gLogger->logMsgF("*** Received Size > mMessageMaxSize: %u", MSG_NORMAL, recvLen);
 
@@ -234,8 +240,7 @@ void SocketReadThread::run(void)
 
 			// TODO: Implement an IP blacklist so we can drop packets immediately.
 
-            //boost::mutex::scoped_lock lk(mSocketReadMutex);
-			lk.lock();
+            boost::mutex::scoped_lock lk(mSocketReadMutex);
 
 			AddressSessionMap::iterator i = mAddressSessionMap.find(hash);
 
@@ -325,12 +330,14 @@ void SocketReadThread::run(void)
 					} 
 					break;
 
-					case SESSIONOP_DataChannel1:
+			
 					case SESSIONOP_DataChannel2:
+					case SESSIONOP_DataFrag2:   
+					
+					case SESSIONOP_DataChannel1:
 					case SESSIONOP_DataChannel3:
 					case SESSIONOP_DataChannel4:
 					case SESSIONOP_DataFrag1:         
-					case SESSIONOP_DataFrag2:         
 					case SESSIONOP_DataFrag3:         
 					case SESSIONOP_DataFrag4:   
 

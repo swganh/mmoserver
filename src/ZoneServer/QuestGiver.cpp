@@ -92,8 +92,14 @@ bool QuestGiver::preProcessfilterConversation(ActiveConversation* av, Conversati
 				// av->setCurrentPage(8);	// "Move along."
 				// gLogger->logMsgF("QuestGiver::preProcessfilterConversation: Returned modified pagelink %u",MSG_NORMAL, 8);
 				status = false;
-				char elements[5][32];
-				memset(elements, 0, sizeof(elements));
+				
+				BStringVector  elements;
+				elements.push_back("");
+				elements.push_back("");
+				elements.push_back("");
+				elements.push_back("");
+				elements.push_back("");
+
 				string aMess("Move along.");	// @newbie_convo:trooper_move_along
 				aMess.convert(BSTRType_Unicode16);
 				if (!gWorldConfig->isInstance())
@@ -119,8 +125,13 @@ bool QuestGiver::preProcessfilterConversation(ActiveConversation* av, Conversati
 					if (inventory->itemExist(player->getTutorial()->getQuestWeaponFamily(), player->getTutorial()->getQuestWeaponType()))
 					{
 						status = false;
-						char elements[5][32];
-						memset(elements, 0, sizeof(elements));
+						BStringVector  elements;
+						elements.push_back("");
+						elements.push_back("");
+						elements.push_back("");
+						elements.push_back("");
+						elements.push_back("");
+
 						string aMess("What are you doing here?  Get a move on.  I'm, uh, still guarding here."); // @newbie_convo:convo_4_repeat
 						aMess.convert(BSTRType_Unicode16);
 						if (!gWorldConfig->isInstance())
@@ -143,8 +154,14 @@ bool QuestGiver::preProcessfilterConversation(ActiveConversation* av, Conversati
 			else if (subState >= 19)	// We have killed the pirate.
 			{
 				status = false;
-				char elements[5][32];
-				memset(elements, 0, sizeof(elements));
+				
+				BStringVector  elements;
+				elements.push_back("");
+				elements.push_back("");
+				elements.push_back("");
+				elements.push_back("");
+				elements.push_back("");
+				
 				string aMess("Good job with that pirate, but what are you doing back here?  Go back through the big room where the pirate was."); // @newbie_convo:good_job
 				aMess.convert(BSTRType_Unicode16);
 				if (!gWorldConfig->isInstance())

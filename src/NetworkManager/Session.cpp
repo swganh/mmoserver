@@ -1940,9 +1940,10 @@ void Session::_processFragmentedPacket(Packet* packet)
 
 		  // Set our message variables.
 		  if (routed)
-		  {
 			newMessage->setRouted(true);
-		  }
+		  else
+		    newMessage->setRouted(false);
+
 		  newMessage->setPriority(priority);
 		  newMessage->setDestinationId(dest);
 		  newMessage->setAccountId(accountId);
@@ -2015,7 +2016,7 @@ void Session::_processRoutedFragmentedPacket(Packet* packet)
 		}
 
 		// Now push the packet into our fragmented queue
-		mIncomingFragmentedPacketQueue. push(packet);
+		mIncomingFragmentedPacketQueue.push(packet);
 	}
 	// This is the next packet in the multi-packet sequence.
 	else
@@ -2503,7 +2504,7 @@ void Session::_buildOutgoingReliablePackets(Message* message)
 	//newPacket->setSequence(mOutSequenceNext);
 	newPacket->addUint16(htons(mOutSequenceNext));
 	newPacket->addUint8(message->getPriority());
-	newPacket->addUint8(message->getRouted());
+	newPacket->addUint8(0);//NOT routed
 	newPacket->addData(message->getData(), message->getSize());  // -2 header, -2 sequence, -2 priority/routing, -5 routing, -2 crc
 	
 	// Data channels need compression and encryption 
@@ -2697,7 +2698,10 @@ uint32 Session::_buildPackets()
 		else
 		{
 			packetsbuild++;
-			_buildOutgoingReliablePackets(message);
+			if(!message->getRouted())
+				_buildOutgoingReliablePackets(message);
+			else
+			   _buildOutgoingReliableRoutedPackets(message);
 			message->setPendingDelete(true);
 		}
 	}

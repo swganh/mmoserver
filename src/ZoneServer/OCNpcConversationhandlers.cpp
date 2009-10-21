@@ -133,7 +133,12 @@ void ObjectController::_handleNPCConversationStart(uint64 targetId,Message* mess
 			// say a specific preset sentence
 			if(npc->hasInternalAttribute("npc_chat"))
 			{
-				char quack[5][32];
+				BStringVector  quack;
+				quack.push_back("");
+				quack.push_back("");
+				quack.push_back("");
+				quack.push_back("");
+				quack.push_back("");
 
 				string phrase = (int8*)(npc->getInternalAttribute<std::string>("npc_chat").c_str());
 				phrase.convert(BSTRType_Unicode16);
@@ -151,7 +156,12 @@ void ObjectController::_handleNPCConversationStart(uint64 targetId,Message* mess
 			// say a random phrase
 			else
 			{
-				char quack[5][32];
+				BStringVector  quack;
+				quack.push_back("");
+				quack.push_back("");
+				quack.push_back("");
+				quack.push_back("");
+				quack.push_back("");
 				std::pair<string,uint32> chat = gWorldManager->getRandNpcChatter();
 
 				// gLogger->logMsgF("NPC id %lld in cell(%lld)",MSG_NORMAL, npc->getId(),npcParentId);

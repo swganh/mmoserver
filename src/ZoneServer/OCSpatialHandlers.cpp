@@ -42,49 +42,26 @@ void ObjectController::_handleSpatialChatInternal(uint64 targetId,Message* messa
 	// FIXME: for now assume only players send chat
 	PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
 	string			chatData;
+	BStringVector	chatElement;
 
 
 	message->getStringUnicode16(chatData);
 	chatData.convert(BSTRType_ANSI);
 
-	int8* data = chatData.getRawData();
-	uint16 len = chatData.getLength();
-
-	char chatElement[5][32];
-
-	uint8 element		= 0;
-	uint8 elementIndex	= 0;
-	uint16 byteCount	= 0;
-
-	while(element < 5)
-	{
-		if(*data == ' ')
-		{
-			byteCount++;
-			element++;
-			data++;
-			elementIndex = 0;
-			continue;
-		}
-
-		chatElement[element][elementIndex] = *data;
-		elementIndex++;
-		byteCount++;
-		data++;
-	}
-
-	string chatMessage(data);
+	chatData.split(chatElement,' ');
+	
+	string chatMessage = chatElement[5];
+	
 
 	// need to truncate or we may get in trouble
-	if(len - byteCount > 256)
+	if(chatMessage.getLength() > 256)
 	{
 		chatMessage.setLength(256);
 		chatMessage.getRawData()[256] = 0;
 	}
 	else
 	{
-		chatMessage.setLength(len - byteCount);
-		chatMessage.getRawData()[len - byteCount] = 0;
+		chatMessage.getRawData()[chatMessage.getLength()] = 0;
 	}
 
 	chatMessage.convert(BSTRType_Unicode16);

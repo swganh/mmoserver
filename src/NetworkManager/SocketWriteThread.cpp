@@ -321,9 +321,26 @@ void SocketWriteThread::_sendPacket(Packet* packet, Session* session)
 
 	}
 
+	fd_set              socketSet;
+	struct              timeval tv;
 
+	FD_ZERO(&socketSet);
 
-	boost::mutex::scoped_lock lk(mSocketReadMutex);
+	// Build a new fd_set structure
+	FD_SET(mSocket, &socketSet);
+    
+	// We're going to block for 50us.
+	tv.tv_sec   = 0;
+	tv.tv_usec  = 150;
+	
+	int count = select(mSocket, 0, &socketSet, 0, &tv);
+
+	if(count <= 0)
+	{
+		int error = WSAGetLastError();
+		gLogger->logMsgF("SocketWriteThread::_sendPacket *** Unkown error from socket sendto: %u", MSG_HIGH, error);
+	}
+	
 	sent = sendto(mSocket, mSendBuffer, outLen, 0, &toAddr, toLen);
 	
 	if (sent <  0)

@@ -169,7 +169,7 @@ public:
 	void				sendSetWaypointActiveStatus(WaypointObject* waypointObject, bool active, PlayerObject* targetObject);
 
 	// spatial 
-	void				sendSpatialChat(CreatureObject* const srcObject, string chatMsg, char chatElement[5][32]);
+	void				sendSpatialChat(CreatureObject* const srcObject, string chatMsg, BStringVector chatElement);
 	bool				sendSpatialChat(const CreatureObject* const srcObject, const PlayerObject* const playerObject,string customMessage = L"",string mainFile = "",
 		string mainVar = "",string toFile = "",string toVar = "",string toCustom = L"",int32 di = 0,
 		string ttFile = "",string ttVar = "",string ttCustom = L"",uint64 ttId = 0,uint64 toId = 0,uint64 tuId = 0) const;
@@ -177,6 +177,7 @@ public:
 	void				sendCreatureAnimation(CreatureObject* srcObject,string animation);
 
 	// spatial for tutorial
+	void				sendSpatialChat(const CreatureObject* const srcObject,string chatMsg,BStringVector chatElement, const PlayerObject* const player) const ;
 	void				sendSpatialChat(const CreatureObject* const srcObject,string chatMsg,char chatElement[5][32], const PlayerObject* const player) const ;
 	void				sendCreatureAnimation(CreatureObject* srcObject,string animation, PlayerObject* player);
 

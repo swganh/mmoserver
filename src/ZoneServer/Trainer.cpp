@@ -850,8 +850,13 @@ void Trainer::postProcessfilter(ActiveConversation* av, PlayerObject* player, ui
 
 			if (pageId == 13)
 			{
-				char elements[5][32];
-				memset(elements, 0, sizeof(elements));
+				BStringVector  elements;
+				elements.push_back("");
+				elements.push_back("");
+				elements.push_back("");
+				elements.push_back("");
+				elements.push_back("");
+
 				char *masterStringSingleName = {"WOW! You have learned everything I have to teach... I suppose that now it's time for you to find your own path. Farewell, %s."};
 				char *masterStringDoubleName = {"WOW! You have learned everything I have to teach... I suppose that now it's time for you to find your own path. Farewell, %s %s."};
 
@@ -1019,8 +1024,13 @@ bool Trainer::preProcessfilterConversation(ActiveConversation* av,Conversation* 
 						gMessageLib->sendCreatureAnimation(av->getNpc(),gWorldManager->getNpcConverseAnimation(16), player); // giveup
 					}
 					
-					char elements[5][32];
-					memset(elements, 0, sizeof(elements));
+					BStringVector  elements;
+					elements.push_back("");
+					elements.push_back("");
+					elements.push_back("");
+					elements.push_back("");
+					elements.push_back("");
+
 					// string aMess("@skill_teacher:no_qualify");
 					string aMess("I'm sorry, but I cannot teach you anymore. You have already learned everything I have to teach.");
 					aMess.convert(BSTRType_Unicode16);
@@ -1066,8 +1076,12 @@ bool Trainer::preProcessfilterConversation(ActiveConversation* av,Conversation* 
 						gMessageLib->sendCreatureAnimation(av->getNpc(),gWorldManager->getNpcConverseAnimation(27), player); // poke
 					}
 
-					char elements[5][32];
-					memset(elements, 0, sizeof(elements));
+					BStringVector  elements;
+					elements.push_back("");
+					elements.push_back("");
+					elements.push_back("");
+					elements.push_back("");
+					elements.push_back("");
 
 					// string aMess("@skill_teacher:no_qualify");
 					string aMess("You do not qualify for any of my teachings. Come back and speak with me later if you acquire the following skills...");

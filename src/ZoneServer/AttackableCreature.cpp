@@ -367,7 +367,7 @@ bool AttackableCreature::setTargetInAttackRange(void)
 						}
 						else
 						{
-							gLogger->logMsgF("Attacking WRONG TARGET = %s\n", MSG_NORMAL,(*it)->getFirstName().getAnsi());
+							gLogger->logMsgF("Attacking WRONG TARGET = %s", MSG_NORMAL,(*it)->getFirstName().getAnsi());
 						}
 					}
 					// We have a new target in range etc.. But we may need him to be visible for a while before we attack.
@@ -420,8 +420,14 @@ bool AttackableCreature::setTargetInAttackRange(void)
 			// for now, let's just taunt him.
 			string msg(this->getAttackStartMessage());
 			msg.convert(BSTRType_Unicode16);
-			char quack[5][32];
-			memset(quack, 0, sizeof(quack));
+			
+			BStringVector  quack;
+			quack.push_back("");
+			quack.push_back("");
+			quack.push_back("");
+			quack.push_back("");
+			quack.push_back("");
+			
 
 			if (!gWorldConfig->isInstance())
 			{
@@ -519,8 +525,13 @@ bool AttackableCreature::showWarningInRange(void)
 		{
 			string msg(getAttackWarningMessage());
 			msg.convert(BSTRType_Unicode16);
-			char quack[5][32];
-			memset(quack, 0, sizeof(quack));
+			
+			BStringVector  quack;
+			quack.push_back("");
+			quack.push_back("");
+			quack.push_back("");
+			quack.push_back("");
+			quack.push_back("");
 
 			if (!gWorldConfig->isInstance())
 			{
@@ -598,8 +609,13 @@ bool AttackableCreature::setTargetDefenderWithinWeaponRange(void)
 			// for now, let's just taunt him.
 			string msg(getAttackedMessage());
 			msg.convert(BSTRType_Unicode16);
-			char quack[5][32];
-			memset(quack, 0, sizeof(quack));
+			
+			BStringVector  quack;
+			quack.push_back("");
+			quack.push_back("");
+			quack.push_back("");
+			quack.push_back("");
+			quack.push_back("");
 
 			if (!gWorldConfig->isInstance())
 			{

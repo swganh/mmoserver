@@ -154,10 +154,10 @@ void Service::Startup(int8* localAddress, uint16 localPort,uint32 mfHeapSize)
 	//mLocalPort = server.sin_port;
 
 	// Reset the connect call to universe.
-	toAddr.sa_family = AF_INET;
-	*((uint32*)&toAddr.sa_data[2]) = 0;
-	*((uint16*)&(toAddr.sa_data[0])) = 0;
-	sent = connect(mLocalSocket, &toAddr, toLen);
+	//toAddr.sa_family = AF_INET;
+	//*((uint32*)&toAddr.sa_data[2]) = 0;
+	//*((uint16*)&(toAddr.sa_data[0])) = 0;
+	//sent = connect(mLocalSocket, &toAddr, toLen);
 
 }
 

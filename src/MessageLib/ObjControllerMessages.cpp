@@ -54,13 +54,19 @@ Copyright (c) 2006 - 2008 The swgANH Team
 // Spatial Chat
 //
 
-void MessageLib::sendSpatialChat(CreatureObject* const srcObject,string chatMsg,char chatElement[5][32])
+void MessageLib::sendSpatialChat(CreatureObject* const srcObject,string chatMsg, BStringVector chatElement)
 {
 	//TODO Is chat really unreliable ??
 
-	uint64 chatElementTarget	= boost::lexical_cast<uint64>(chatElement[0]);
-	uint16 chatElementMood1		= atoi(chatElement[1]);
-	uint16 chatElementMood2		= atoi(chatElement[2]);
+	uint64 chatElementTarget;
+	if(chatElement[0].getLength())
+		chatElementTarget	= boost::lexical_cast<uint64>(chatElement[0].getAnsi());
+	else
+		chatElementTarget	= 0;
+	
+	
+	uint16 chatElementMood1		= atoi(chatElement[1].getAnsi());
+	uint16 chatElementMood2		= atoi(chatElement[2].getAnsi());
 
 	if(!chatElementMood2)
 		chatElementMood2 = srcObject->getMoodId();
@@ -213,6 +219,102 @@ void MessageLib::sendSpatialChat(const CreatureObject* const srcObject,string ch
 	uint64 chatElementTarget	= boost::lexical_cast<uint64>(chatElement[0]);
 	uint16 chatElementMood1		= atoi(chatElement[1]);
 	uint16 chatElementMood2		= atoi(chatElement[2]);
+
+	if(!chatElementMood2)
+		chatElementMood2 = srcObject->getMoodId();
+
+	Message*	newMessage;
+
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opObjControllerMessage);
+	gMessageFactory->addUint32(0x0000000B);
+	gMessageFactory->addUint32(opSpatialChat);
+	gMessageFactory->addUint64(srcObject->getId());
+	gMessageFactory->addUint32(0);
+	gMessageFactory->addUint64(srcObject->getId());
+	gMessageFactory->addUint64(chatElementTarget);
+	gMessageFactory->addString(chatMsg);
+	gMessageFactory->addUint16(0x32);
+	gMessageFactory->addUint16(chatElementMood1);
+	gMessageFactory->addUint16(chatElementMood2);
+	gMessageFactory->addUint8(0);
+	gMessageFactory->addUint8(static_cast<uint8>(srcObject->getLanguage()));
+	gMessageFactory->addUint64(0);                    // unknown
+
+	newMessage = gMessageFactory->EndMessage();
+
+	uint32 loweredNameCrc			= 0;
+	string loweredName;
+	bool crcValid = false;
+
+	// Get the source for this emote.
+	if (srcObject->getType() == ObjType_Player)
+	{
+		const PlayerObject* const srcPlayer = dynamic_cast<const PlayerObject*>(srcObject);
+
+		if (srcPlayer->isConnected())
+		{
+			loweredName = srcPlayer->getFirstName().getAnsi();
+			loweredName.toLower();
+			loweredNameCrc = loweredName.getCrc();
+			crcValid = true;	// crcValid true means that the source is a connected player.
+		}
+	}
+
+	if (_checkPlayer(playerObject))
+	{
+		if (gWorldConfig->isTutorial() && crcValid)		// Don't trig the Tutorial at npc talk.
+		{
+			// Update tutorial about "chatActive"
+			playerObject->getTutorial()->tutorialResponse("chatActive");
+		}
+
+		PlayerList inRangeMembers = playerObject->getInRangeGroupMembers(true);
+		PlayerList::iterator it	= inRangeMembers.begin();
+		Message* clonedMessage;
+
+		while (it != inRangeMembers.end())
+		{
+			const PlayerObject* const player = (*it);
+
+			// If player online, send emote.
+			if (_checkPlayer(player))
+			{
+				if ((crcValid) && (player->checkIgnoreList(loweredNameCrc)))
+ 				{
+					// I am at recivers ignore list.
+					// Don't send any message.
+				}
+				else
+				{
+					// clone our message
+					gMessageFactory->StartMessage();
+					gMessageFactory->addData(newMessage->getData(),newMessage->getSize());
+					clonedMessage = gMessageFactory->EndMessage();
+
+					// replace the target id
+					int8* data = clonedMessage->getData() + 12;
+					*((uint64*)data) = player->getId();
+
+					(player->getClient())->SendChannelAUnreliable(clonedMessage,player->getAccountId(),CR_Client,5);
+				}
+			}
+			++it;
+		}
+	}
+	gMessageFactory->DestroyMessage(newMessage);
+}
+
+void MessageLib::sendSpatialChat(const CreatureObject* const srcObject,string chatMsg,BStringVector chatElement, const PlayerObject* const playerObject) const
+{
+	uint64 chatElementTarget;
+
+	if(chatElement[0].getLength())
+		chatElementTarget	= boost::lexical_cast<uint64>(chatElement[0].getAnsi());
+	else
+		chatElementTarget	= 0;
+	uint16 chatElementMood1		= atoi(chatElement[1].getAnsi());
+	uint16 chatElementMood2		= atoi(chatElement[2].getAnsi());
 
 	if(!chatElementMood2)
 		chatElementMood2 = srcObject->getMoodId();

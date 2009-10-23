@@ -141,6 +141,13 @@ void Service::Startup(int8* localAddress, uint16 localPort,uint32 mfHeapSize)
 	//sent = sendto(mLocalSocket, mSendBuffer, 1, 0, &toAddr, toLen);
 	sent = connect(mLocalSocket, &toAddr, toLen);
 
+	//set the socketbuffer so we dont suffer internal dataloss
+	int value;
+	int valuelength = sizeof(value);
+	value = 100000;
+	setsockopt(mLocalSocket,SOL_SOCKET,SO_RCVBUF,(char*)&value,valuelength);
+
+
 	// Create our read/write socket classes
 	mSocketWriteThread = new SocketWriteThread();
 	mSocketReadThread = new SocketReadThread();

@@ -192,7 +192,7 @@ void ServerManager::handleSessionDisconnect(NetworkClient* client)
 		mDatabase->ExecuteSqlAsync(0,0,"UPDATE galaxy SET status=1,last_update=NOW() WHERE galaxy_id=%u;", mClusterId);
 	}
 
-	gLogger->logMsgF("Servermanager handle server down\n", MSG_HIGH);
+	gLogger->logMsgF("ServerManager::handleSessionDisconnect Servermanager handle server down", MSG_HIGH);
 	mClientManager->handleServerDown(connClient->getServerId());
 
 	delete(client);

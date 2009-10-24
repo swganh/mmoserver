@@ -664,6 +664,8 @@ void Session::HandleSessionPacket(Packet* packet)
 	// Remote side disconnceted
 	case SESSIONOP_Disconnect:
 	{
+	
+			gLogger->logMsgF("Session::remote side disconnected", MSG_HIGH);
 	  mStatus = SSTAT_Disconnecting;
 	  _processDisconnectPacket(packet);
 	  return;
@@ -704,10 +706,7 @@ void Session::HandleSessionPacket(Packet* packet)
    if (mInSequenceNext != sequence)
    {
 	   // is it a packet we already received ?
-	   if(sequence < mInSequenceNext)
-	   {
-	   }
-
+	  
 	   //were missing something
 	   gLogger->logMsgF("Session::HandleSessionPacket :: Incoming data - seq: %i expect: %u Session:0x%x%.4x", MSG_HIGH, sequence, mInSequenceNext, mService->getId(), getId());
 
@@ -737,7 +736,7 @@ void Session::HandleSessionPacket(Packet* packet)
 					orderPacket = mPacketFactory->CreatePacket();
 					orderPacket->addUint16(SESSIONOP_DataOrder2);
 					orderPacket->addUint16(htons(sequence));
-					orderPacket->addUint16(htons(mInSequenceNext-1));
+					orderPacket->addUint16(htons(mInSequenceNext));
 					orderPacket->setIsCompressed(false);
 					orderPacket->setIsEncrypted(true);
 
@@ -2003,18 +2002,6 @@ void Session::_processRoutedFragmentedPacket(Packet* packet)
 		mFragmentedPacketCurrentSize = packet->getSize() - 8;  // -2 header, -2 sequence, -4 size - 
 		mFragmentedPacketCurrentSequence = mFragmentedPacketStartSequence = sequence;
 
-		packet->setReadIndex(8);	//2opcode, 2 sequence and 4 size
-		priority = packet->getUint8();
-
-		if (priority > 0x10)
-		{
-			// the packet has had a proper sequence .. otherwise we wouldnt be here ...
-			gLogger->logMsgF("Start incoming fragged packets - total: %u seq:%u", MSG_HIGH, mFragmentedPacketTotalSize, sequence);
-			gLogger->logMsgF("Session::_processFragmentedPacket priority messup!!!", MSG_HIGH );
-			gLogger->hexDump(packet->getData(), packet->getSize());
-
-		}
-
 		// Now push the packet into our fragmented queue
 		mIncomingFragmentedPacketQueue.push(packet);
 	}
@@ -2266,6 +2253,7 @@ void Session::_processDisconnectCommand(void)
   mStatus = SSTAT_Disconnecting;
   mCommand = SCOM_None;
 
+  	gLogger->logMsgF("Session::_processDisconnectCommand ", MSG_HIGH);
   // Send a disconnect packet
   Packet* newPacket = mPacketFactory->CreatePacket();
   newPacket->addUint16(SESSIONOP_Disconnect);
@@ -2326,7 +2314,7 @@ void Session::_buildOutgoingReliableRoutedPackets(Message* message)
 
   if(messageSize + envelopeSize > mMaxPacketSize)		   //why >= ??
   {
-	gLogger->logMsgF("Session::_buildRoutedfragmentedPacket", MSG_HIGH);
+	  gLogger->logMsgF("Session::_buildRoutedfragmentedPacket sequence :  %u", MSG_HIGH,mOutSequenceNext);
 
     // Build our first packet with the total size.
     newPacket = mPacketFactory->CreatePacket(); 
@@ -2811,7 +2799,7 @@ void Session::_buildRoutedMultiDataPacket()
 
 	newPacket->addUint16(SESSIONOP_DataChannel2); //server server communication !!!!!
 	newPacket->addUint16(htons(mOutSequenceNext));
-	//gLogger->logMsgF("Session::_buildRoutedMultiDataPacket() sequence: %u", MSG_HIGH,mOutSequenceNext);
+	gLogger->logMsgF("Session::_buildRoutedMultiDataPacket() sequence: %u", MSG_HIGH,mOutSequenceNext);
 	newPacket->addUint16(0x1900);
 	//newPacket->addUint8(0);
 	//newPacket->addUint8(0x19);

@@ -151,9 +151,12 @@ private:
 
 	  uint32					  _buildPackets();
 	  uint32					  _buildPacketsUnreliable();
-	  void						  _buildMultiDataPacket();
+
+
+	  void						  _buildMultiDataPacket();//fastpath
 	  void						  _buildRoutedMultiDataPacket();
 	  void						  _buildUnreliableMultiDataPacket();
+
 	  void                        _buildOutgoingReliablePackets(Message* message);
 	  void						  _buildOutgoingReliableRoutedPackets(Message* message);
 	  void                        _buildOutgoingUnreliablePackets(Message* message);

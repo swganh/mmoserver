@@ -425,6 +425,7 @@ void ClientManager::_handleQueryAuth(ConnectionClient* client, DatabaseResult* r
   // They are not authenticated to the login server, so disconnect them.
   else
   {
+	 
     client->Disconnect(10);  // no idea if 10 is even a valid reason, just testing.
   }
 }

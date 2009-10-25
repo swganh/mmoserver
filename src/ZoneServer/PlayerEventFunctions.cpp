@@ -100,18 +100,18 @@ void PlayerObject::onSample(const SampleEvent* event)
 	string					resName			= resource->getName().getAnsi();
 	uint32					resType			= resource->getType()->getCategoryId();
 	uint16					resPE			= resource->getAttribute(ResAttr_PE);
-	bool					radioA			= false;
+	//bool					radioA			= false;
 	bool					successSample	= false;
 	bool					resAvailable	= true;
 	resName.convert(BSTRType_Unicode16);
 	// apply dmg/debuff if sampling rads
-			if(resType == 477 || resType == 476 /* || resType == 475*/) 
+			if(resType == 477 || resType == 476 /* || resType == 475*/)
 			{
 				if(!mPassRadioactive)
 				{
 					//UI Integration
 					//gUIManager->createNewMessageBox(this,"radioactiveSample","Radioactive Sample","This is a radioactive resource. You will incur penalties if you choose to continue sampling a resource of this type.",this,SUI_Window_SmplRadioactive_MsgBox, SUI_MB_YESNO);
-					
+
 					gUIManager->createNewMessageBox(this,"radioactiveSample","@survey:radioactive_sample_t","@survey:radioactive_sample_d",this,SUI_Window_SmplRadioactive_MsgBox, SUI_MB_YESNO);
 					//Pause Sampling
 					mPendingSample = false;
@@ -134,7 +134,7 @@ void PlayerObject::onSample(const SampleEvent* event)
 					mHam.updatePropertyValue(HamBar_Health,HamProperty_Wounds, woundDmg); //does not function
 					mHam.updatePropertyValue(HamBar_Action,HamProperty_Wounds, woundDmg);
 					mHam.updatePropertyValue(HamBar_Mind,HamProperty_Wounds, woundDmg);
-					//normal ham 
+					//normal ham
 					mHam.updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints,hamReduc);
 					mHam.updatePropertyValue(HamBar_Health,HamProperty_CurrentHitpoints,hamReduc); //does not function
 				}
@@ -156,16 +156,16 @@ void PlayerObject::onSample(const SampleEvent* event)
 		//original implementation sampleAmount = (uint32)floor((double)((15.0f * ratio) * (surveyMod / 100.0f)));
 		float ratio_100			= ratio*100;
 		float successChance	    = static_cast<float>((surveyMod/4)+45);
-		float maxSuccessChance  = 70;   // == 70, but showing the formula so it is obvious where it comes from
+	//	float maxSuccessChance  = 70;   // == 70, but showing the formula so it is obvious where it comes from
 		float failureChance		= 100-successChance;
 		float dieRoll			= static_cast<float>((gRandom->getRand()%100)+1);        // random value from 1 to 100
 		float adjSkill		    = surveyMod/successChance;  //100 skill == 1;  85 skill = 0.9464; etc
 		float minSample			= ratio_100/20*adjSkill;
 		float maxSample		    = ratio_100/10*adjSkill;
 		float minConcentration  = static_cast<float>(-1.12*successChance+88);   // attempting to simplify this to "-1*sC+90" or whatever will break it
-		
+
 		//for checking abs minimum conc
-		float minConc100sk		= static_cast<float>(-1.12*maxSuccessChance+88); 
+		//float minConc100sk		= static_cast<float>(-1.12*maxSuccessChance+88);
 
 		// ////////////////////////////////////////
 		gLogger->logMsgF("here is the dieRoll: %f", MSG_NORMAL, dieRoll);
@@ -193,7 +193,7 @@ void PlayerObject::onSample(const SampleEvent* event)
 				// FAILED ATTEMPT
 				sampleAmount = 0;
 				gMessageLib->sendSystemMessage(this,L"","survey","sample_failed","","",resName);
-			} 
+			}
 
 			//TODO: removed this code for now, as you would have to dcon and rcon to work with the gambles
 			//else if(dieRoll > 91)
@@ -220,7 +220,7 @@ void PlayerObject::onSample(const SampleEvent* event)
 			//		gLogger->logMsg("sampling: waypt concentration");
 			//		//TODO: Change UI integration
 			//		gUIManager->createNewMessageBox(this,"waypNodeSample","@survey:cnode_t","@survey:cnode_d",this,SUI_Window_SmplWaypNode_ListBox);
-			//		
+			//
 			//		//Pause sampling
 			//		mPendingSample = false;
 			//		mSampleEventFlag = true;
@@ -255,8 +255,8 @@ void PlayerObject::onSample(const SampleEvent* event)
 	if(successSample && sampleAmount == 0)
 	{
 		sampleAmount = 1;
-	} 
-	
+	}
+
 	// show the effects
 	if (successSample) {
 		gMessageLib->sendPlayClientEffectLocMessage(effect,mPosition,this);
@@ -302,7 +302,7 @@ void PlayerObject::onSample(const SampleEvent* event)
 
 						gMessageLib->sendResourceContainerUpdateAmount(resCont,this);
 
-						gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%lld",newAmount,resCont->getId());
+						gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRId64"",newAmount,resCont->getId());
 					}
 					// target container full, put in what fits, create a new one
 					else if(newAmount > maxAmount)
@@ -312,7 +312,7 @@ void PlayerObject::onSample(const SampleEvent* event)
 						resCont->setAmount(maxAmount);
 
 						gMessageLib->sendResourceContainerUpdateAmount(resCont,this);
-						gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%lld",maxAmount,resCont->getId());
+						gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRId64"",maxAmount,resCont->getId());
 
 						gObjectFactory->requestNewResourceContainer(inventory,resource->getId(),inventory->getId(),99,selectedNewAmount);
 					}

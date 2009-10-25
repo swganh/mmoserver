@@ -98,7 +98,7 @@ class CraftAttribute
 enum AttributePPME_Enum
 {
 	AttributePPME_AddValue = 1,
-	AttributePPME_AddAttribute = 2,
+	AttributePPME_AddAttribute = 2
 };
 
 class CraftAttributeWeight
@@ -117,19 +117,19 @@ class CraftAttributeWeight
 		string	getAffectedAttributeKey(){ return mAttributeKey; }
 
 		uint32	getManipulation(){ return mManipulation; }
-		
+
 
 	private:
 
 		uint32	mAttributeId;
 		string	mAttributeKey;
-		
+
 		uint32	mAffectedAttributeId;
 		string	mAffectedAttributeKey;
-		
+
 		AttributePPME_Enum	mManipulation;
 		uint8	mType;
-		
+
 };
 
 //=============================================================================

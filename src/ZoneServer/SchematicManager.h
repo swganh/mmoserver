@@ -49,7 +49,7 @@ enum ScMQueryType
 	ScMQuery_SchematicCraftBatches			= 10,
 	ScMQuery_SchematicCraftWeights			= 11,
 	ScMQuery_SchematicCraftAttributeLinks	= 12,
-	ScMQuery_SchematicCraftAttributeWeights	= 13,
+	ScMQuery_SchematicCraftAttributeWeights	= 13
 };
 
 //======================================================================================================================
@@ -98,6 +98,9 @@ class SchematicManager : public DatabaseCallback
 		static bool					mInsFlag;
 		static SchematicManager*	mSingleton;
 
+
+		boost::pool<boost::default_user_allocator_malloc_free>				mDBAsyncPool;
+		BStringVector				mvExpGroups;
 		Database*					mDatabase;
 
 		SchematicGroupList			mSchematicGroupList;
@@ -107,10 +110,6 @@ class SchematicManager : public DatabaseCallback
 		uint32						mGroupCount;
 		uint32						mGroupLoadCount;
 		uint32						mSchematicCount;
-
-		BStringVector				mvExpGroups;
-
-		boost::pool<boost::default_user_allocator_malloc_free>				mDBAsyncPool;
 };
 
 #endif

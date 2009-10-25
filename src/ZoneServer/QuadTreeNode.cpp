@@ -87,7 +87,7 @@ int32 QuadTreeNode::addObject(Object* object)
 	assert(object);
 	assert(object->getId());
 
-	// gLogger->logMsgF("Trying to add Object %llu @ %.2f %.2f ", MSG_NORMAL, object->getId(), object->mPosition.mX, object->mPosition.mZ);		
+	// gLogger->logMsgF("Trying to add Object %"PRIu64" @ %.2f %.2f ", MSG_NORMAL, object->getId(), object->mPosition.mX, object->mPosition.mZ);
 
 	// its a leaf, add it
 	if(!mSubNodes)
@@ -98,11 +98,11 @@ int32 QuadTreeNode::addObject(Object* object)
 		if (it == mObjects.end())
 		{
 			mObjects.insert(std::make_pair(object->getId(),object));
-			// gLogger->logMsgF("QuadTreeNode::addObject: INSERTED OBJECT with id = %llu", MSG_NORMAL, object->getId());	
+			// gLogger->logMsgF("QuadTreeNode::addObject: INSERTED OBJECT with id = %"PRIu64"", MSG_NORMAL, object->getId());
 		}
 		else
 		{
-			gLogger->logMsgF("QuadTreeNode::addObject: INSERTED OBJECT already exist = %llu", MSG_NORMAL, object->getId());	
+			gLogger->logMsgF("QuadTreeNode::addObject: INSERTED OBJECT already exist = %"PRIu64"", MSG_NORMAL, object->getId());
 			return(2);
 		}
 
@@ -167,21 +167,21 @@ void QuadTreeNode::getObjectsInRange(Object* object,ObjectSet* resultSet,uint32 
 					// Object* currentObject = (*it).second;
 
 					// don't add ourself
-					if(currentObject != object && ((currentObject->getType() & typeMask) == currentObject->getType()))
+					if(currentObject != object && ((currentObject->getType() & typeMask) == static_cast<uint32>(currentObject->getType())))
 					{
-						// gLogger->logMsgF("QuadTreeNode::getObjectsInRange FINDING object with id = %llu", MSG_NORMAL, currentObject->getId());		
+						// gLogger->logMsgF("QuadTreeNode::getObjectsInRange FINDING object with id = %"PRIu64"", MSG_NORMAL, currentObject->getId());
 						resultSet->insert(currentObject);
 					}
 				}
 				else
 				{
 					// The object is gone... we need figure out why it's not deleted properly.
-					gLogger->logMsgF("QuadTreeNode::getObjectsInRange ERROR INVALID DATA and ID. ID = %llu", MSG_NORMAL, (*it).first);		
+					gLogger->logMsgF("QuadTreeNode::getObjectsInRange ERROR INVALID DATA and ID. ID = %"PRIu64"", MSG_NORMAL, (*it).first);
 				}
 			}
 			else
 			{
-				gLogger->logMsgF("QuadTreeNode::getObjectsInRange ERROR INVALID ID\n", MSG_NORMAL);		
+				gLogger->logMsgF("QuadTreeNode::getObjectsInRange ERROR INVALID ID\n", MSG_NORMAL);
 				assert(false);
 			}
 			++it;
@@ -190,7 +190,7 @@ void QuadTreeNode::getObjectsInRange(Object* object,ObjectSet* resultSet,uint32 
 	// traverse the intersecting sub branches
 	else
 	{
-		for(uint8 i = 0;i < 4;i++)				
+		for(uint8 i = 0;i < 4;i++)
 		{
 			if(mSubNodes[i]->intersects(shape))
 			{
@@ -213,7 +213,7 @@ void QuadTreeNode::getObjectsInRangeContains(Object* object,ObjectSet* resultSet
 			Object* currentObject = (*it).second;
 
 			// don't add ourself
-			if(currentObject != object && ((currentObject->getType() & typeMask) == currentObject->getType()))
+			if(currentObject != object && ((currentObject->getType() & typeMask) == static_cast<uint32>(currentObject->getType())))
 			{
 				if(ObjectContained(shape,currentObject))
 					resultSet->insert(currentObject);
@@ -225,7 +225,7 @@ void QuadTreeNode::getObjectsInRangeContains(Object* object,ObjectSet* resultSet
 	// traverse the intersecting sub branches
 	else
 	{
-		for(uint8 i = 0;i < 4;i++)				
+		for(uint8 i = 0;i < 4;i++)
 		{
 			if(mSubNodes[i]->intersects(shape))
 			{
@@ -258,13 +258,13 @@ bool QuadTreeNode::intersects(Anh_Math::Shape* shape)
 		return(true);
 	}
 	// circle
-	else if(Anh_Math::Circle* circle = dynamic_cast<Anh_Math::Circle*>(shape))
+	else if(dynamic_cast<Anh_Math::Circle*>(shape))
 	{
 		// TODO
 		return(false);
-	}	
+	}
 
-	return(false);	
+	return(false);
 }
 
 bool QuadTreeNode::ObjectContained(Anh_Math::Shape* shape, Object* object)
@@ -284,13 +284,13 @@ bool QuadTreeNode::ObjectContained(Anh_Math::Shape* shape, Object* object)
 		return(true);
 	}
 	// circle
-	else if(Anh_Math::Circle* circle = dynamic_cast<Anh_Math::Circle*>(shape))
+	else if(dynamic_cast<Anh_Math::Circle*>(shape))
 	{
 		// TODO
 		return(false);
-	}	
+	}
 
-	return(false);	
+	return(false);
 }
 
 
@@ -313,13 +313,13 @@ int32 QuadTreeNode::removeObject(Object* object)
 
 		if (it != mObjects.end())
 		{
-			// gLogger->logMsgF("QuadTreeNode::removeObject REMOVE object with id = %llu", MSG_NORMAL, object->getId());		
+			// gLogger->logMsgF("QuadTreeNode::removeObject REMOVE object with id = %"PRIu64"", MSG_NORMAL, object->getId());
 
 			mObjects.erase(it);
 
 			return(1);
 		}
-		gLogger->logMsgF("QuadTreeNode::removeObject ERROR FAILED to REMOVE object with id = %llu", MSG_NORMAL, object->getId());		
+		gLogger->logMsgF("QuadTreeNode::removeObject ERROR FAILED to REMOVE object with id = %"PRIu64"", MSG_NORMAL, object->getId());
 		return(2);
 	}
 	// traverse our children
@@ -357,12 +357,12 @@ int32 QuadTreeNode::updateObject(Object* object,Anh_Math::Vector3 newPosition)
 	// shouldnt be called on leafs
 	if(mSubNodes)
 	{
-		// gLogger->logMsgF("Remove Object %llu @ %.2f %.2f ", MSG_NORMAL, object->getId(), object->mPosition.mX, object->mPosition.mZ);		
+		// gLogger->logMsgF("Remove Object %"PRIu64" @ %.2f %.2f ", MSG_NORMAL, object->getId(), object->mPosition.mX, object->mPosition.mZ);
 		removeObject(object);
-	
+
 		object->mPosition = newPosition;
 
-		// gLogger->logMsgF("Add Object %llu @ %.2f %.2f ", MSG_NORMAL, object->getId(), object->mPosition.mX, object->mPosition.mZ);		
+		// gLogger->logMsgF("Add Object %"PRIu64" @ %.2f %.2f ", MSG_NORMAL, object->getId(), object->mPosition.mX, object->mPosition.mZ);
 		addObject(object);
 		// addMyObject(object);
 	}
@@ -394,11 +394,11 @@ int32 QuadTreeNode::addMyObject(Object* object)
 		if (it == mObjects.end())
 		{
 			mObjects.insert(std::make_pair(object->getId(),object));
-			gLogger->logMsgF("QuadTreeNode::addMyObject: INSERTED OBJECT with id = %llu", MSG_NORMAL, object->getId());	
+			gLogger->logMsgF("QuadTreeNode::addMyObject: INSERTED OBJECT with id = %"PRIu64"", MSG_NORMAL, object->getId());
 		}
 		else
 		{
-			gLogger->logMsgF("QuadTreeNode::addMyObject: ERROR INSERTED OBJECT already exist = %llu", MSG_NORMAL, object->getId());	
+			gLogger->logMsgF("QuadTreeNode::addMyObject: ERROR INSERTED OBJECT already exist = %"PRIu64"", MSG_NORMAL, object->getId());
 			return(2);
 		}
 

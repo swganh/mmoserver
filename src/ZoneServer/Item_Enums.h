@@ -33,7 +33,7 @@ enum ItemFamily
 	ItemFamily_Medicine					= 22,
 	ItemFamily_Mission					= 23,
 	ItemFamily_Powerup					= 24,
-	ItemFamily_Scout					= 25,
+	ItemFamily_Scout					= 25
 };
 
 //=============================================================================
@@ -62,7 +62,7 @@ enum ItemType
 	ItemType_SpaceStation				= 32,
 
 	ItemType_ManSchematic				= 1312,
-	
+
 	//====================================================
 	// Music Instruments
 	ItemType_Slitherhorn				= 1313,
@@ -120,8 +120,8 @@ enum ItemType
 	ItemType_Deed_X34					= 1736,
 	ItemType_Deed_Speederbike			= 1737,
 	ItemType_Deed_Swoop					= 1738,
-	
-	
+
+
 	ItemType_Stimpack_A					= 1768,
 	ItemType_Stimpack_B					= 1769,
 	ItemType_Stimpack_C					= 1770,

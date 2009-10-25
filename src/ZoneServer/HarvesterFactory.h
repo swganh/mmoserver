@@ -32,8 +32,8 @@ enum HFQuery
 	HFQuery_MainData		= 1,
 	HFQuery_ResourceData	= 2,
 	HFQuery_byDeed			= 3,
-	HFQuery_AdminData		= 4,
-	
+	HFQuery_AdminData		= 4
+
 };
 
 //=============================================================================
@@ -67,7 +67,7 @@ class HarvesterFactory : public FactoryBase, public ObjectFactoryCallback
 
 
 		DataBinding*				mHarvesterBinding;
-	
+
 };
 
 //=============================================================================

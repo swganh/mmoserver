@@ -48,7 +48,7 @@ enum NonPersistentNpcQuery
 	NonPersistentNpcQuery_LairTemplate	= 5,			// Create the basic lair
 	NonPersistentNpcQuery_LairCreatureTemplates	= 6,	// Get templates for creatures that can be spawned by lair.
 	// NonPersistentNpcQuery_LairCreature = 7,				// Create creature from lair creature templates.
-	NonPersistentNpcQuery_NpcTemplate = 8,				// Create Npc from npc-template.
+	NonPersistentNpcQuery_NpcTemplate = 8				// Create Npc from npc-template.
 
 };
 
@@ -69,7 +69,7 @@ class NonPersistentNpcFactory : public FactoryBase
 		}
 		*/
 		static inline void deleteFactory(void)
-		{ 
+		{
 			if (mSingleton)
 			{
 				delete mSingleton;
@@ -86,11 +86,11 @@ class NonPersistentNpcFactory : public FactoryBase
 		// Upgraded versions
 		void			requestLairObject(ObjectFactoryCallback* ofCallback, uint64 templateId, uint64 npcNewId);
 		// void			requestNpcObject(ObjectFactoryCallback* ofCallback, uint64 creatureTemplateId, uint64 npcNewId, uint64 parentLairId);
-		void			requestNpcObject(ObjectFactoryCallback* ofCallback, 
-										   uint64 creatureTemplateId, 
+		void			requestNpcObject(ObjectFactoryCallback* ofCallback,
+										   uint64 creatureTemplateId,
 										   uint64 npcNewId,
 										   uint64 spawnCellId,
-										   Anh_Math::Vector3 spawnPosition, 
+										   Anh_Math::Vector3 spawnPosition,
 										   Anh_Math::Quaternion	spawnDirection,
 										   uint64 respawnDelay,
 										   uint64 parentLairId = 0);

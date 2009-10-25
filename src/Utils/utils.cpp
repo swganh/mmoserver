@@ -39,7 +39,7 @@ uint64 swap64(uint64 value)
 
 	memcpy(&value, arr, 8);
 	return value;
-} 
+}
 
 //==========================================================================
 
@@ -49,9 +49,9 @@ std::string strRep(std::string a,std::string b,std::string c)
 	std::string::size_type p;
 	bool found;
 
-	do 
+	do
 	{
-		if(found = (p = a.find(b)) != std::string::npos)
+		if((found = (p = a.find(b)) != std::string::npos))
 		{
 			d += a.substr(0,p) + c;
 			a = a.substr(p+b.size());
@@ -62,7 +62,7 @@ std::string strRep(std::string a,std::string b,std::string c)
 	d += a;
 
 	return d;
-} 
+}
 
 //==========================================================================
 

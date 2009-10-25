@@ -1,4 +1,4 @@
-AM_CXXFLAGS = -I$(top_srcdir)/src $(SWGANH_CXXFLAGS)
+AM_CXXFLAGS = -I$(top_srcdir)/src $(SWGANH_CXXFLAGS) $(BOOST_CPPFLAGS)
 
 # ZoneServer - executable
 bin_PROGRAMS = zoneserver
@@ -231,7 +231,7 @@ zoneserver_SOURCES = \
 	ZoneServer.cpp \
 	ZoneTree.cpp
 	
-zoneserver_CPPFLAGS = $(MYSQL_CFLAGS) -I$(top_srcdir)/deps/spatialindex/include -I$(top_srcdir)/deps/spatialindex/tools/include -I$(top_srcdir)/deps/noise/src -Wall -fshort-wchar -Wno-invalid-offsetof
+zoneserver_CPPFLAGS = $(MYSQL_CFLAGS) -I$(top_srcdir)/deps/spatialindex/include -I$(top_srcdir)/deps/spatialindex/tools/include -I$(top_srcdir)/deps/noise/src -Wall -pedantic-errors -Wfatal-errors -fshort-wchar -Wno-invalid-offsetof -Wno-long-long -Wno-write-strings
 zoneserver_LDADD = \
 	../Utils/libutils.la \
 	../LogManager/liblogmanager.la \

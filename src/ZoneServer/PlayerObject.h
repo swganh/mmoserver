@@ -106,7 +106,7 @@ class PlayerObject : public CreatureObject
 		bool				removeXpCapType(uint32 xpType);
 		void				addXpCapType(uint32 xpType,int32 value = 0);
 		bool				UpdateXpCap(uint32 xpType,int32 value);
-		
+
 		XPList*				getXpList(){ return &mXpList; }
 		XPList*				getXpCapList() { return &mXpCapList; };
 
@@ -140,7 +140,7 @@ class PlayerObject : public CreatureObject
 		uint32				getPlayerFlags() const { return mPlayerFlags; }
 		void				setPlayerFlags(uint32 flags){ mPlayerFlags = flags; }
 
-		BadgesList*			getBadges(){ return &mBadges;}
+		BadgesList*			getBadges(){ return &mBadgeList;}
 		bool				checkBadges(uint32 badgeId);
 		void				addBadge(uint32 badgeId);
 
@@ -181,13 +181,13 @@ class PlayerObject : public CreatureObject
 		void				addFriend(string name){ mFriendsList.insert(std::make_pair(name.getCrc(),name.getAnsi())); }
 		bool				removeFriend(uint32 nameCrc);
 		bool				checkFriendList(uint32 nameCrc);
-		
+
 		ContactMap*			getIgnoreList(){ return &mIgnoreList; }
 		void				addIgnore(string name){ mIgnoreList.insert(std::make_pair(name.getCrc(),name.getAnsi())); }
-		
+
 		bool				removeIgnore(uint32 nameCrc);
 		bool				checkIgnoreList(uint32 nameCrc) const;
-		
+
 		uint32				getFriendsListUpdateCounter(){ return mFriendsListUpdateCounter; }
 		void				advanceFriendsListUpdateCounter(uint32 count){ mFriendsListUpdateCounter += count; }
 		uint32				getIgnoresListUpdateCounter(){ return mIgnoresListUpdateCounter; }
@@ -209,7 +209,7 @@ class PlayerObject : public CreatureObject
 		void				setEntertainerTaskId(uint64 entertainerTaskId){mEntertainerTaskId = entertainerTaskId;}
 		uint64				getEntertainerPauseId(){return mEntertainerPauseId;}
 		void				setEntertainerPauseId(uint64 entertainerPauseId){mEntertainerPauseId = entertainerPauseId;}
-		
+
 		void				setActiveInstrumentId(uint64 instrumentId) {mSelectedInstrument = instrumentId;}
 		uint64				getActiveInstrumentId(void) {return mSelectedInstrument;}
 
@@ -234,7 +234,7 @@ class PlayerObject : public CreatureObject
 		void				setHoloEmote(uint32 emote){ mHoloEmote = emote; }
 		uint32				getHoloCharge(){ return mHoloCharge; }
 		void				setHoloCharge(uint32 emote){ mHoloCharge = static_cast<uint8>(emote); }
-		
+
 		// trade
 		void				giveBankCredits(uint32 amount);
 		void	            giveInventoryCredits(uint32 amount);
@@ -258,8 +258,8 @@ class PlayerObject : public CreatureObject
 		void				setMount(CreatureObject* mount) { mMount = mount; }
 
 		bool				checkIfMountCalled() { return mMountCalled; }
-		void				setMountCalled(bool mount_called) { mMountCalled = mount_called; } 
-		
+		void				setMountCalled(bool mount_called) { mMountCalled = mount_called; }
+
 
 		// crafting
 		CraftingStation*	getCraftingStation(ObjectSet	inRangeObjects, ItemType	toolType);
@@ -280,12 +280,12 @@ class PlayerObject : public CreatureObject
 		SchematicsIdList*	getFilteredSchematicsIdList(){ return &mFilteredSchematicIdList; }
 
 		SchematicsIdList*	getSchematicsAddList(){ return &mSchematicAddList; }
-	
+
 		// groups
 		PlayerList			getInRangeGroupMembers(bool self = false) const;
 		uint64				getLastGroupMissionUpdateTime(){return mLastGroupMissionUpdateTime;}
 		void				setLastGroupMissionUpdateTime(uint64 time){mLastGroupMissionUpdateTime = time;}
-		
+
 		// duels
 		PlayerList*			getDuelList(){ return &mDuelList; }
 		bool				checkDuelList(PlayerObject* player);
@@ -337,125 +337,96 @@ class PlayerObject : public CreatureObject
 		bool				autoAttackEnabled(void);
 
 	private:
-		
+
 		void				_verifyBadges();
 		void				_verifyExplorationBadges();
 
-		DispatchClient*		mClient;
-
-		uint64				mPlayerObjId;
-		uint32				mAccountId;
-		uint32				mClientTickCount;
-		PlayerConnState		mConnState;
-		uint32				mDConnTime;
-		uint8				mCsrTag;
-		uint32				mJediState;
-		
-		// Entertainer
-		uint64				mPlacedInstrument;
-		uint64				mSelectedInstrument;
-		uint64				mEntertainerWatchToId;
-		uint64				mEntertainerTaskId;
-		uint64				mEntertainerPauseId;
-		uint8				mFlourishCount;
-		uint16				mGroupXp;
-		AudienceList		mAudienceList;
+		AudienceList			mAudienceList;
+		BadgesList				mBadgeList;
 		DenyServiceList		mDenyAudienceList;
-		BuffMap 			mEntertainerBuffMap;
-
-		// ID
+		PlayerList				mDuelList;
+		SchematicsIdList	mFilteredSchematicIdList;
 		AttributesList		mIDAttributesList;
-		ColorList			mIDColorList;
-		IDSession			mIDSession;
-		uint32				mHoloEmote;
-		uint8				mHoloCharge;
-		
-		// Trade
-		Trade*				mTrade;
-		uint64				mTradePartner;
-		bool				mTrading;
+		ColorList					mIDColorList;
+		SchematicsIdList	mSchematicAddList;
+		SchematicsIdList	mSchematicIdList;
+		UIWindowList			mUIWindowList;
+		XPCapList					mXpCapList;
+		XPList						mXpList;
 
-		// character sheet
-		string				mTitle;
+		BuffMap 					mEntertainerBuffMap;
+		ContactMap				mFriendsList;
+		ContactMap 				mIgnoreList;
+
 		string				mBiography;
 		string				mMarriage;
-		uint8				mLots;
-		uint32				mBornyear;
-		int8				mBindPlanet;
+		string				mTitle;
+
 		Anh_Math::Vector3	mBindCoords;
-		int8				mHomePlanet;
 		Anh_Math::Vector3	mHomeCoords;
-		BadgesList			mBadges;
-		Stomach*			mStomach;
+
 		uint32				mPlayerMatch[4];
-		uint32				mPlayerFlags;
-		
-		TravelTerminal*		mTravelPoint;
+
 		BazaarTerminal*     mBazaarPoint;
+		DispatchClient*			mClient;
+		CraftingSession*		mCraftingSession;
+		CreatureObject*			mMount;
+		BuildingObject*			mNearestCloningFacility; // Default cloningfacility if revied timer expires.
+		Stomach*						mStomach;
+		Trade*							mTrade;
+		TravelTerminal*			mTravelPoint;
+		Tutorial*						mTutorial;
 
-		XPList				mXpList;
-		XPCapList			mXpCapList;
-		
-		bool				mMotdReceived;
+		PlayerConnState		mConnState;
+		IDSession					mIDSession;
 
-		// survey / sample
-		bool				mPendingSurvey;
-		bool				mPendingSample;
+		uint64				mCombatTargetId; // The actual target player are hitting, not always the same as the "look-at" target.
+		uint64				mEntertainerPauseId;
+		uint64				mEntertainerTaskId;
+		uint64				mEntertainerWatchToId;
+		uint64				mLastGroupMissionUpdateTime;
+		uint64				mNearestCraftingStation;
 		uint64				mNextSampleTime;
-		bool				mSampleEventFlag;//rav
-		bool				mPassRadioactive;//rav
-		bool				mSampleGambleFlag;//rav
-		bool				mSampleNodeFlag;//rav
-
-		UIWindowList		mUIWindowList;
-
-		PlayerList			mDuelList;
-
-		// contact lists
-		ContactMap			mFriendsList,mIgnoreList;
-		uint32				mFriendsListUpdateCounter,mIgnoresListUpdateCounter;
-		bool				mContactListUpdatePending;
-		bool				mFemale;
-
-		//crafting
+		uint64				mPlacedInstrument;
+		uint64				mPlayerObjId;
+		uint64				mPreDesignatedCloningFacilityId;
+		uint64				mSelectedInstrument;
+		uint64				mTradePartner;
+		uint32				mAccountId;
+		uint32				mBornyear;
+		uint32				mClientTickCount;
 		uint32				mCraftingStage;
+		uint32				mDConnTime;
 		uint32				mExperimentationFlag;
 		uint32				mExperimentationPoints;
-		CraftingSession*	mCraftingSession;
-		uint64				mNearestCraftingStation;
-		SchematicsIdList	mSchematicIdList;
-		SchematicsIdList	mFilteredSchematicIdList;
-		SchematicsIdList	mSchematicAddList;
-
-		// scripting
-		// ScriptList				mPlayerScripts;
-		// ScriptEventListener		mCmdScriptListener;
-
-		// Tutorial
-		Tutorial*			mTutorial;
-
-		// Default cloningfacility if revied timer expires.
-		BuildingObject*		mNearestCloningFacility;	
-
-		// New player exemptions
-		uint8				mNewPlayerExemptions;
-		bool				mNewPlayerMessage;
-
-		// Missions
+		uint32				mFriendsListUpdateCounter;
+		uint32				mHoloEmote;
+		uint32 				mIgnoresListUpdateCounter;
+		uint32				mJediState;
+		uint32				mPlayerFlags;
+		uint16				mGroupXp;
 		uint16				mMissionIdMask;
-		uint64				mLastGroupMissionUpdateTime;
-
-		uint64				mPreDesignatedCloningFacilityId;
-
-		bool				mMounted;
-		bool				mMountCalled;
-		CreatureObject*		mMount;
-
-		// The actual target player are hitting, not always the same as the "look-at" target.
-		uint64				mCombatTargetId;
+		int8					mBindPlanet;
+		int8					mHomePlanet;
+		uint8					mCsrTag;
+		uint8					mFlourishCount;
+		uint8					mHoloCharge;
+		uint8					mLots;
+		uint8					mNewPlayerExemptions;
 		bool				mAutoAttack;
-
-		
+		bool				mContactListUpdatePending;
+		bool				mFemale;
+		bool				mMotdReceived;
+		bool				mMountCalled;
+		bool				mMounted;
+		bool				mNewPlayerMessage;
+		bool				mPassRadioactive;//rav
+		bool				mPendingSample;
+		bool				mPendingSurvey;
+		bool				mSampleEventFlag;//rav
+		bool				mSampleGambleFlag;//rav
+		bool				mSampleNodeFlag;//rav
+		bool				mTrading;
 };
 
 

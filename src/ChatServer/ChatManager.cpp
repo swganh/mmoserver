@@ -31,6 +31,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Common/MessageDispatch.h"
 #include "Common/MessageFactory.h"
 
+#include "Utils/typedefs.h"
 #include "Utils/utils.h"
 
 #include <cassert>
@@ -128,7 +129,7 @@ void ChatManager::_loadCommandMap()
 	mCommandMap.insert(std::make_pair(opClusterClientDisconnect,&ChatManager::_processClusterClientDisconnect));
 	mCommandMap.insert(std::make_pair(opClusterZoneTransferCharacter,&ChatManager::_processZoneTransfer));
 	mCommandMap.insert(std::make_pair(opChatNotifySceneReady,&ChatManager::_processWhenLoaded));
-	
+
 
 	mCommandMap.insert(std::make_pair(opNotifyChatAddFriend,&ChatManager::_processNotifyChatAddFriend));
 	mCommandMap.insert(std::make_pair(opNotifyChatRemoveFriend,&ChatManager::_processNotifyChatRemoveFriend));
@@ -188,9 +189,9 @@ void ChatManager::_loadChannels(DatabaseResult* result)
 			channel->setOwner(avatar);
 		}
 		channel->setGalaxy(mGalaxyName);
-		
+
 		uint32 crc = channel->getName().getCrc();
-		
+
 		mChannelNameMap.insert(std::make_pair(crc, channel));
 		mChannelMap.insert(std::make_pair(channel->getId(),channel));
 		mvChannels.push_back(channel);
@@ -417,7 +418,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				count = ret;
 
 			mDatabase->DestroyDataBinding(binding);
-			
+
 			_handleFindFriendDBReply(asyncContainer->mSender,count,asyncContainer->mName);
 
 		}
@@ -435,7 +436,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				Player* player = (*it).second;
 
 				result->GetNextRow(mPlayerBinding,player->getPlayerData());
-			
+
 				player->setKey();
 
 				mPlayerNameMap.insert(std::make_pair(player->getKey(),player));
@@ -447,7 +448,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 				mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT characters.firstname FROM chat_friendlist "
 															"INNER JOIN characters ON (chat_friendlist.friend_id = characters.id) "
-															"WHERE (chat_friendlist.character_id = %lld)",asContainer->mReceiver->getCharId());
+															"WHERE (chat_friendlist.character_id = %"PRId64")",asContainer->mReceiver->getCharId());
 			}
 			else
 				gLogger->logMsgF("Could not find account %u",MSG_NORMAL,asyncContainer->mClient->getAccountId());
@@ -458,10 +459,10 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 		{
 			uint64 count = result->getRowCount();
 			if (count != 1)
-				gLogger->logMsg("Could not find Galaxy ",MSG_NORMAL);	
+				gLogger->logMsg("Could not find Galaxy ",MSG_NORMAL);
 			assert(count == 1);
-			
-			
+
+
 			DataBinding* binding = mDatabase->CreateDataBinding(1);
 			binding->addField(DFT_bstring,0,64);
 
@@ -496,15 +497,15 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				int8 sql[20000],*sqlPointer;
 				int8 footer[64];
 				int8 receiverStr[64];
-				sprintf(receiverStr,"',%lld,'",receiverId);
-				sprintf(footer,",%u,%u)",(asyncContainer->mMail->mAttachments.getLength() << 1),asyncContainer->mMail->mTime);
+				sprintf(receiverStr,"',%"PRId64",'",receiverId);
+				sprintf(footer,",%u,%"PRIu32")",(asyncContainer->mMail->mAttachments.getLength() << 1),asyncContainer->mMail->mTime);
 				sprintf(sql,"SELECT sf_MailCreate('");
-				
+
 				sqlPointer = sql + strlen(sql);
 
 				//if a system send Mail, the sender may be NULL
-			
-				
+
+
 				sqlPointer += mDatabase->Escape_String(sqlPointer,asyncContainer->mMail->getSender().getAnsi(),asyncContainer->mMail->getSender().getLength());
 
 				strcat(sql,receiverStr);
@@ -528,7 +529,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			{
 				if(asyncContainer->mSender)
 					gChatMessageLib->sendChatonPersistantMessage((asyncContainer->mSender)->getClient(),asyncContainer->mMailCounter);
-				
+
 				SAFE_DELETE(asyncContainer->mMail);
 			}
 
@@ -559,7 +560,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 			mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT characters.firstname FROM chat_ignorelist "
 														"INNER JOIN characters ON (chat_ignorelist.ignore_id = characters.id) "
-														"WHERE (chat_ignorelist.character_id = %lld)",asyncContainer->mReceiverId);
+														"WHERE (chat_ignorelist.character_id = %"PRId64")",asyncContainer->mReceiverId);
 			mDatabase->DestroyDataBinding(binding);
 		}
 		break;
@@ -573,7 +574,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			binding->addField(DFT_bstring,0,64);
 
 			uint64 count = result->getRowCount();
-	
+
 			Player*	receiver = getPlayerbyId(asyncContainer->mReceiverId);
 
 			ContactMap ignoreList;
@@ -596,7 +597,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			{
 				string ignoreName = asyncContainer->mSender->getName();
 				ignoreName.toLower();
-				
+
 				// check receivers ignorelist.
 				ContactMap::iterator it = ignoreList.find(ignoreName.getCrc());
 				bIgnore = (it != ignoreList.end());
@@ -609,7 +610,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			{
 				// send out new mail notification, if not receiving mail from Ignored player.
 				asyncContainer->mMail->mSubject.convert(BSTRType_Unicode16);
-				// Note: asyncContainer->mRequestId is the mailId... 
+				// Note: asyncContainer->mRequestId is the mailId...
 				gChatMessageLib->sendChatPersistantMessagetoClient(receiver->getClient(),asyncContainer->mMail, asyncContainer->mRequestId,asyncContainer->mMailCounter,MailStatus_New);
 			}
 
@@ -618,13 +619,13 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			{
 				//NEVER END A MESSAGE AND THEN DONT SEND IT !!!!!!!!!!!!!!!!!!!!!!!!!!!
 				// send status to sender
-				gMessageFactory->StartMessage();         
-				gMessageFactory->addUint32(opChatOnSendPersistentMessage);   
+				gMessageFactory->StartMessage();
+				gMessageFactory->addUint32(opChatOnSendPersistentMessage);
 				gMessageFactory->addUint32(0);
 				gMessageFactory->addUint32(asyncContainer->mMailCounter);
 				newMessage = gMessageFactory->EndMessage();
 
-			
+
 				((asyncContainer->mSender)->getClient())->SendChannelA(newMessage,((asyncContainer->mSender)->getClient())->getAccountId(),CR_Client,3);
 			}
 
@@ -639,7 +640,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			Mail mail = Mail();
 			mail.mSubject.setLength(512);
 			mail.mText.setLength(8192);
-			
+
 			uint64 count = result->getRowCount();
 			assert(count == 1);
 
@@ -667,9 +668,9 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			{
 				result->GetNextRow(mMailHeaderBinding,&mail);
 				mail.mSubject.convert(BSTRType_Unicode16);
-				
+
 				// gLogger->logMsg("ChatQuery_MailHeaders",MSG_NORMAL);
-				
+
 				if(!mail.mStatus)
 				{
 					gChatMessageLib->sendChatPersistantMessagetoClient(asyncContainer->mClient,&mail, mail.mId,1,MailStatus_New);
@@ -702,8 +703,8 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			mDatabase->DestroyDataBinding(binding);
 
 			// check for online friends
-			
-			
+
+
 			// We are actually sending this info from CharacterLoginHandler::handleDispatchMessage at the opCmdSceneReady event.
 			// updateFriendsOnline(player,true);
 
@@ -717,7 +718,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 			mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT characters.firstname FROM chat_ignorelist "
 														"INNER JOIN characters ON (chat_ignorelist.ignore_id = characters.id) "
-														"WHERE (chat_ignorelist.character_id = %lld)",asContainer->mReceiver->getCharId());
+														"WHERE (chat_ignorelist.character_id = %"PRId64")",asContainer->mReceiver->getCharId());
 		}
 		break;
 
@@ -740,20 +741,20 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			}
 
 			mDatabase->DestroyDataBinding(binding);
-			
+
 			// Update channel info.
 			ChatAsyncContainer* asContainer = new ChatAsyncContainer(ChatQuery_CharChannels);
 			asContainer->mClient = asyncContainer->mClient;
-			
+
 			Player* currentPlayer = getPlayerByAccId(asyncContainer->mClient->getAccountId());
 
 			mDatabase->ExecuteSqlAsync(this, asContainer,"SELECT channel_id"
 											" FROM chat_char_channels"
-											" WHERE	(character_id = %lld)", currentPlayer->getCharId());		
-						
+											" WHERE	(character_id = %"PRId64")", currentPlayer->getCharId());
+
 		}
 		break;
-		
+
 		case ChatQuery_CharChannels:
 		{
 			DataBinding* binding = mDatabase->CreateDataBinding(1);
@@ -804,7 +805,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 		case ChatQuery_QueryFirstName:
 		{
 			string	name;
-			Player*	mReceiver = asyncContainer->mReceiver;
+			//Player*	mReceiver = asyncContainer->mReceiver;
 
 			DataBinding* binding = mDatabase->CreateDataBinding(1);
 			binding->addField(DFT_bstring,0,64);
@@ -830,7 +831,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				DataBinding* binding = mDatabase->CreateDataBinding(1);
 				binding->addField(DFT_bstring, 0, 33);
 
-				for (int i = 0; i < count; i++)
+				for (uint i = 0; i < count; i++)
 				{
 					string* name = new string();
 					result->GetNextRow(binding, name);
@@ -849,7 +850,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				DataBinding* binding = mDatabase->CreateDataBinding(1);
 				binding->addField(DFT_bstring, 0, 33);
 
-				for (int i = 0; i < count; i++)
+				for (uint i = 0; i < count; i++)
 				{
 					string* name = new string();
 					result->GetNextRow(binding, name);
@@ -866,7 +867,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				DataBinding* binding = mDatabase->CreateDataBinding(1);
 				binding->addField(DFT_bstring, 0, 33);
 
-				for (int i = 0; i < count; i++)
+				for (uint i = 0; i < count; i++)
 				{
 					string* name = new string();
 					result->GetNextRow(binding, name);
@@ -883,10 +884,10 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				uint64 count = result->getRowCount();
 				assert(count == 1); //There should only be one Id
 
-				Player* player = getPlayerByAccId(asyncContainer->mClient->getAccountId());
+				/* Player* player = */getPlayerByAccId(asyncContainer->mClient->getAccountId());
 				DataBinding* binding = mDatabase->CreateDataBinding(1);
 				binding->addField(DFT_uint32, 0, 4, 0);
-				
+
 				uint32 id;
 				result->GetNextRow(binding, &id);
 				mDatabase->DestroyDataBinding(binding);
@@ -914,7 +915,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			{
 				result->GetNextRow(nameBinding,&tmp);
 				mvPlanetNames.push_back(BString(tmp.getAnsi()));
-				
+
 			}
 
 			mDatabase->DestroyDataBinding(nameBinding);
@@ -936,7 +937,7 @@ void ChatManager::_processClusterClientConnect(Message* message,DispatchClient* 
 
 	Player* player = new Player(charId,client,planetId);
 
-	gLogger->logMsgF("Connecting account %u with player id %lld\n", MSG_NORMAL, client->getAccountId(), charId);
+	gLogger->logMsgF("Connecting account %u with player id %"PRId64"\n", MSG_NORMAL, client->getAccountId(), charId);
 
 	mPlayerAccountMap.insert(std::make_pair(accountId,player));
 	mPlayerList.push_back(player);
@@ -949,14 +950,14 @@ void ChatManager::_processClusterClientConnect(Message* message,DispatchClient* 
 
 	mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT characters.firstname FROM chat_friendlist "
 												"INNER JOIN characters ON (chat_friendlist.friend_id = characters.id) "
-												"WHERE (chat_friendlist.character_id = %lld)",asContainer->mReceiver->getCharId());
+												"WHERE (chat_friendlist.character_id = %"PRId64")",asContainer->mReceiver->getCharId());
 
 
 	*/
 	ChatAsyncContainer* asyncContainer = new ChatAsyncContainer(ChatQuery_Player);
 	asyncContainer->mClient = client;
 
-	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT firstname,lastname FROM characters WHERE id=%lld",charId);
+	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT firstname,lastname FROM characters WHERE id=%"PRId64"",charId);
 
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opChatOnConnectAvatar);
@@ -1033,7 +1034,7 @@ void ChatManager::_processClusterClientDisconnect(Message* message,DispatchClien
 	// Remove user from user created channels.
 	ChannelList::iterator channelIt = mvChannels.begin();
 	// gLogger->logMsgF("Removing user %s from channel(s): ",MSG_NORMAL, player->getName().getAnsi());
-	
+
 	while (channelIt != mvChannels.end())
 	{
 		// User in channel?
@@ -1077,7 +1078,7 @@ void ChatManager::_processClusterClientDisconnect(Message* message,DispatchClien
 	{
 		gLogger->logMsgF("Error removing player %s from name map",MSG_NORMAL,player->getName().getAnsi());
 	}
-	
+
 	// For test
 	// gLogger->logMsgF("Player removed from name map",MSG_NORMAL);
 }
@@ -1109,7 +1110,7 @@ void ChatManager::_processWhenLoaded(Message* message,DispatchClient* client)
 				ChatAvatarId* avatar = new ChatAvatarId();
 				avatar->setGalaxy(mGalaxyName);
 				avatar->setPlayer(player);
-			
+
 				channel->addUser(avatar);
 				gChatMessageLib->sendChatOnEnteredRoom(client, avatar, channel, 0);
 			}
@@ -1129,13 +1130,13 @@ void ChatManager::_processWhenLoaded(Message* message,DispatchClient* client)
 
 				mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT chat_mail.id,chat_mail.from,chat_mail.subject,chat_mail.status,chat_mail.time"
 															" FROM chat_mail"
-															" WHERE	(chat_mail.to = %lld)",asContainer->mReceiver->getCharId());
+															" WHERE	(chat_mail.to = %"PRId64")",asContainer->mReceiver->getCharId());
 			}
 		}
 		GroupObject* group = gGroupManager->getGroupById(player->getGroupId());
 		if (group)
 		{
-			group->sendUpdate(player);		
+			group->sendUpdate(player);
 		}
 	}
 }
@@ -1167,7 +1168,7 @@ void ChatManager::_processZoneTransfer(Message* message,DispatchClient* client)
 			if(!avatar)
 			{
 				gLogger->logMsgF("ChatManager::_processZoneTransfer No avatar \n", MSG_NORMAL);
-		
+
 			}
 			else
 				gChatMessageLib->sendChatOnLeaveRoom(client, avatar, channel, 0);
@@ -1206,7 +1207,7 @@ void ChatManager::_processRoomlistRequest(Message* message,DispatchClient* clien
 	// gLogger->logMsg("RoomlistRequest");
 
 	gChatMessageLib->sendChatRoomList(client, &mvChannels);
-	
+
 	Player* player = getPlayerByAccId(client->getAccountId());
 	if(player == NULL)
 	{
@@ -1290,8 +1291,8 @@ void ChatManager::_processCreateRoom(Message* message,DispatchClient* client)
 	int8 sql_2[128];
 	mDatabase->Escape_String(sql_2, title.getAnsi(), title.getLength());
 	mDatabase->ExecuteSqlAsync(this, asyncContainer, "SELECT sf_CreateChannel('%s', %u, %u, '%s', '%s');", modpath.getAnsi(), channel->isPrivate(), moderatedFlag, sql /* playername->getAnsi() */, sql_2 /* title.getAnsi()*/ );
-	
-	// TEST 
+
+	// TEST
 	gLogger->logMsgF("Channel %s created at %s\n", MSG_NORMAL, title.getAnsi(), modpath.getAnsi());
 
 	delete playername;
@@ -1303,8 +1304,8 @@ void ChatManager::_processDestroyRoom(Message* message,DispatchClient* client)
 {
 	gLogger->logMsg("DestroyRoom\n");
 	uint32 roomId = message->getUint32();
-	uint32 requestId = message->getUint32();
-	
+	/* uint32 requestId = */message->getUint32();
+
 	Channel* channel = getChannelById(roomId);
 	if (channel == NULL)
 	{
@@ -1337,7 +1338,7 @@ void ChatManager::_processDestroyRoom(Message* message,DispatchClient* client)
 		assert(avatar != NULL);
 		gChatMessageLib->sendChatOnLeaveRoom(client, avatar, channel, 0);
 	}
-		
+
 	// Update all users that this channel is gone. And I mean ALL...
 	PlayerList::iterator listIt = mPlayerList.begin();
 	while(listIt != mPlayerList.end())
@@ -1367,13 +1368,13 @@ void ChatManager::_processDestroyRoom(Message* message,DispatchClient* client)
 	{
 		mChannelNameMap.erase(nameIter);
 	}
-	
+
 	// ChatMessageLib->sendChatQueryRoomResults(client, channel, 0);
 	delete(channel);
-	
+
 	// If we delete the channel, we need to delete all related objects too.
 	mDatabase->ExecuteSqlAsync(NULL, NULL, "DELETE FROM chat_channels WHERE id = %u", roomId);
-	
+
 	// Moderators, invited, banned and characters.
 	mDatabase->ExecuteSqlAsync(NULL, NULL, "DELETE FROM chat_channels_moderators WHERE channel_id = %u", roomId);
 	mDatabase->ExecuteSqlAsync(NULL, NULL, "DELETE FROM chat_channels_invited WHERE channel_id = %u;", roomId);
@@ -1394,7 +1395,7 @@ void ChatManager::_processRoomQuery(Message* message,DispatchClient* client)
 
 	uint32 index = 5 + mGalaxyName.getLength();
 	path.substring(roomname, static_cast<uint16>(index), path.getLength());
-	
+
 	Channel* channel = getChannelByName(roomname);
 	if (channel == NULL)
 	{
@@ -1415,7 +1416,7 @@ void ChatManager::_processRoomMessage(Message* message,DispatchClient* client)
 //======================================================================================================================
 //
 // Incoming tell
-// 
+//
 void ChatManager::_processInstantMessageToCharacter(Message* message,DispatchClient* client)
 {
 	// gLogger->logMsg("Instant message");
@@ -1436,7 +1437,7 @@ void ChatManager::_processInstantMessageToCharacter(Message* message,DispatchCli
 
 	// get our sender
 	sender = getPlayerByAccId(client->getAccountId());
-	
+
 	if(sender == NULL)
 	{
 		gLogger->logMsgF("Error finding sender %u",MSG_NORMAL,client->getAccountId());
@@ -1448,11 +1449,11 @@ void ChatManager::_processInstantMessageToCharacter(Message* message,DispatchCli
 	message->getStringAnsi(targetName);
 	targetName.toLower();
 	message->getStringUnicode16(msgText);
-	message->getUint32();					
-	tellId = message->getUint32();			
-	
+	message->getUint32();
+	tellId = message->getUint32();
+
 	receiver = getPlayerByName(targetName);
-	
+
 	if(receiver == NULL)
 	{
 		//4 is error code for player not online
@@ -1461,21 +1462,21 @@ void ChatManager::_processInstantMessageToCharacter(Message* message,DispatchCli
 
 	if(receiver != NULL)
 	{
-		gMessageFactory->StartMessage();            
-		gMessageFactory->addUint32(opChatInstantMessageToClient);   
+		gMessageFactory->StartMessage();
+		gMessageFactory->addUint32(opChatInstantMessageToClient);
 		gMessageFactory->addString(mainCategory);
 		gMessageFactory->addString(serverName);
 		gMessageFactory->addString(sender->getName());
 		gMessageFactory->addString(msgText);
-		gMessageFactory->addUint32(0);                            
+		gMessageFactory->addUint32(0);
 		newMessage = gMessageFactory->EndMessage();
 
 		(receiver->getClient())->SendChannelA(newMessage,(receiver->getClient())->getAccountId(),CR_Client,4);
 	}
 
 	// send status to sender
-	gMessageFactory->StartMessage();                  
-	gMessageFactory->addUint32(opChatOnSendInstantMessage);   
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opChatOnSendInstantMessage);
 	gMessageFactory->addUint32(targetStatus);
 	gMessageFactory->addUint32(tellId);
 	newMessage = gMessageFactory->EndMessage();
@@ -1525,7 +1526,7 @@ void ChatManager::_processEnterRoomById(Message* message,DispatchClient* client)
 
 	if (channel->isBanned(avatar->getLoweredName()))
 	{
-		// You cannot join '%TU (room name)' because you are not invted to the room 
+		// You cannot join '%TU (room name)' because you are not invted to the room
 		gChatMessageLib->sendChatFailedToEnterRoom(client, avatar, 16, channel, requestId);
 		gLogger->logMsg("Player was banned\n");
 		return;
@@ -1539,7 +1540,7 @@ void ChatManager::_processEnterRoomById(Message* message,DispatchClient* client)
 		}
 		else
 		{
-			// You cannot join '%TU (room name)' because you are not invted to the room 
+			// You cannot join '%TU (room name)' because you are not invted to the room
 			gChatMessageLib->sendChatFailedToEnterRoom(client, avatar, 16, channel, requestId);
 			gLogger->logMsg("Player was not invited\n");
 			return;
@@ -1548,12 +1549,12 @@ void ChatManager::_processEnterRoomById(Message* message,DispatchClient* client)
 	// Test Eruptor
 	// If we have not been fully loaded, the channel list is not complete.
 	// Removed again, since we screw up client sync and we end up see two duplicates of"player" in the same channel.
-	
+
 	/*
 	if (!player->getAddPending())
 	{
 		channel->addUser(avatar);
-		mDatabase->ExecuteSqlAsync(NULL, NULL, "INSERT INTO chat_char_channels VALUES (%lld, %u);", player->getCharId(), channel->getId());		
+		mDatabase->ExecuteSqlAsync(NULL, NULL, "INSERT INTO chat_char_channels VALUES (%"PRId64", %u);", player->getCharId(), channel->getId());
 		gChatMessageLib->sendChatOnEnteredRoom(client, avatar, channel, requestId);
 		gLogger->logMsg("Player added to channel");
 	}
@@ -1564,7 +1565,7 @@ void ChatManager::_processEnterRoomById(Message* message,DispatchClient* client)
 	*/
 	channel->addUser(avatar);
 	gChatMessageLib->sendChatOnEnteredRoom(client, avatar, channel, requestId);
-	mDatabase->ExecuteSqlAsync(NULL, NULL, "INSERT INTO chat_char_channels VALUES (%lld, %u);", player->getCharId(), channel->getId());		
+	mDatabase->ExecuteSqlAsync(NULL, NULL, "INSERT INTO chat_char_channels VALUES (%"PRId64", %u);", player->getCharId(), channel->getId());
 	// gLogger->logMsg("Player added to channel");
 }
 
@@ -1604,8 +1605,8 @@ void ChatManager::_processSendToRoom(Message* message,DispatchClient* client)
 	string realSenderName = sender;
 	sender.toLower();
 
-	uint32 errorCode = 0;
-	
+//	uint32 errorCode = 0;
+
 #ifdef DISP_REAL_FIRST_NAME
 #else
 	// Lowercase
@@ -1664,7 +1665,7 @@ void ChatManager::_processAddModeratorToRoom(Message* message,DispatchClient* cl
 	sender.toLower();
 
 	uint32 errorCode = 0;
-	
+
 #ifdef DISP_REAL_FIRST_NAME
 	// Get real first name.
 	string* newName = getFirstName(playerName);
@@ -1685,7 +1686,7 @@ void ChatManager::_processAddModeratorToRoom(Message* message,DispatchClient* cl
 	// Lowercase
 	string realPlayerName = playerName;
 	realSenderName.toLower();
-	
+
 	// Well, the player don't have to be online.
 	if (!isValidName(playerName))
 	{
@@ -1789,7 +1790,7 @@ void ChatManager::_processInviteAvatarToRoom(Message* message,DispatchClient* cl
 	// Lowercase
 	string realPlayerName = playerName;
 	realSenderName.toLower();
-	
+
 	// Well, the player don't have to be online.
 	if (!isValidName(playerName))
 	{
@@ -1902,7 +1903,7 @@ void ChatManager::_processUninviteAvatarFromRoom(Message* message, DispatchClien
 	// Lowercase
 	string realPlayerName = playerName;
 	realSenderName.toLower();
-	
+
 	// Well, the player don't have to be online.
 	if (!isValidName(playerName))
 	{
@@ -2011,7 +2012,7 @@ void ChatManager::_processRemoveModFromRoom(Message* message,DispatchClient* cli
 	// Lowercase
 	string realPlayerName = playerName;
 	realSenderName.toLower();
-	
+
 	// Well, the player don't have to be online.
 	if (!isValidName(playerName))
 	{
@@ -2110,7 +2111,7 @@ void ChatManager::_processRemoveAvatarFromRoom(Message* message,DispatchClient* 
 	else
 	{
 		assert(avatar != NULL);
-		mDatabase->ExecuteSqlAsync(NULL, NULL, "DELETE FROM chat_char_channels WHERE channel_id = %u AND character_id = %lld;", channel->getId(), avatar->getPlayer()->getCharId());
+		mDatabase->ExecuteSqlAsync(NULL, NULL, "DELETE FROM chat_char_channels WHERE channel_id = %u AND character_id = %"PRId64";", channel->getId(), avatar->getPlayer()->getCharId());
 		gChatMessageLib->sendChatOnLeaveRoom(client, avatar, channel, 0, errorCode);
 	}
 	channel->removeUser(playerName);
@@ -2172,7 +2173,7 @@ void ChatManager::_processBanAvatarFromRoom(Message* message,DispatchClient* cli
 	// Lowercase
 	string realPlayerName = playerName;
 	realSenderName.toLower();
-	
+
 	// Well, the player don't have to be online.
 	if (!isValidName(playerName))
 	{
@@ -2214,12 +2215,12 @@ void ChatManager::_processBanAvatarFromRoom(Message* message,DispatchClient* cli
 		ChatAvatarId* avatar = channel->findUser(playerName);
 		if (avatar)
 		{
-			mDatabase->ExecuteSqlAsync(NULL, NULL, "DELETE FROM chat_char_channels WHERE channel_id = %u AND character_id = %lld;", channel->getId(), avatar->getPlayer()->getCharId());
+			mDatabase->ExecuteSqlAsync(NULL, NULL, "DELETE FROM chat_char_channels WHERE channel_id = %u AND character_id = %"PRId64";", channel->getId(), avatar->getPlayer()->getCharId());
 			gChatMessageLib->sendChatOnLeaveRoom(client, avatar, channel, 0, errorCode);
 			// gChatMessageLib->sendChatQueryRoomResults(client, channel, 0);	// Update clients before we remove the poor banned one.
 			channel->removeUser(playerName);
 		}
-		
+
 		int8 sql[128];
 		// Un-invite player if invited.
 		if (channel->isPrivate() && channel->isInvited(playerName))
@@ -2304,7 +2305,7 @@ void ChatManager::_processUnbanAvatarFromRoom(Message* message,DispatchClient* c
 	// Lowercase
 	string realPlayerName = playerName;
 	realSenderName.toLower();
-	
+
 	// Well, the player don't have to be online.
 	if (!isValidName(playerName))
 	{
@@ -2365,14 +2366,14 @@ void ChatManager::sendSystemMailMessage(Mail* mail,uint64 recipient)
 	asyncContainer->mClient = NULL;
 
 	int8 sql[100];
-	sprintf(sql,"SELECT firstname FROM characters WHERE id LIKE %I64u",recipient);
-	
+	sprintf(sql,"SELECT firstname FROM characters WHERE id LIKE %"PRIu64"",recipient);
+
 	mDatabase->ExecuteSqlAsyncNoArguments(this,asyncContainer,sql);
 }
 
 
 //======================================================================================================================
-// 
+//
 // mail sent, checks if target exists, if target is online, sends only subject, contents are stored to db
 // and retrieved with RequestPersistentMessage
 // TODO: attachments
@@ -2382,8 +2383,8 @@ void ChatManager::sendSystemMailMessage(Mail* mail,uint64 recipient)
 void ChatManager::_processSystemMailMessage(Message* message,DispatchClient* client)
 {
 
-	uint64 PlayerID = message->getUint64();	
-	uint64 ReceiverID = message->getUint64();	
+	/* uint64 PlayerID = */message->getUint64();
+	uint64 ReceiverID = message->getUint64();
 	string Sender;
 	Sender.setLength(32);
 	message->getStringAnsi(Sender);
@@ -2416,8 +2417,8 @@ void ChatManager::_processSystemMailMessage(Message* message,DispatchClient* cli
 	asyncContainer->mClient = client;
 
 	int8 sql[100];
-	sprintf(sql,"SELECT firstname FROM characters WHERE id LIKE %I64u",ReceiverID);
-	
+	sprintf(sql,"SELECT firstname FROM characters WHERE id LIKE %"PRIu64"",ReceiverID);
+
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
 
 
@@ -2431,11 +2432,11 @@ void ChatManager::_PersistentMessagebySystem(Mail* mail,DispatchClient* client, 
 	// get our receiver
 
 	receiver = getPlayerByName(receiverStr);
-	
+
 	// Doing a change here, if not pleased with that, please fix the mail related addIgnore implementation.
 	// Reason for change:
 	// We must have the AddIgnore list and we can't be sure that a client that is online when we do out first test
-	// also is online when we do the next async sql, so better treat ALL mail receivers as OFFLINE, then we get a persistent behaviour. 
+	// also is online when we do the next async sql, so better treat ALL mail receivers as OFFLINE, then we get a persistent behaviour.
 
 	// Update: If receiver IS online we could take the charId and skip one database access.
 	// That have to be a TODO for optimizations when mail is stable.
@@ -2454,9 +2455,9 @@ void ChatManager::_PersistentMessagebySystem(Mail* mail,DispatchClient* client, 
 		int8 sql[20000],*sqlPointer;
 		int8 footer[64];
 		int8 receiverStr[64];
-		sprintf(receiverStr,"',%lld,'",receiver->getCharId());
-		sprintf(footer,",%u,%u)",(mail->mAttachments.getLength() << 1),mail->mTime);
-		sprintf(sql,"SELECT sf_MailCreate('",mail->getSender().getAnsi());
+		sprintf(receiverStr,"',%"PRId64",'",receiver->getCharId());
+		sprintf(footer,",%u,%"PRIu32")",(mail->mAttachments.getLength() << 1),mail->mTime);
+		sprintf(sql,"SELECT sf_MailCreate('%s",mail->getSender().getAnsi());
 		sqlPointer = sql + strlen(sql);
 		sqlPointer += mDatabase->Escape_String(sqlPointer,mail->getSender().getAnsi(),mail->getSender().getLength());
 		strcat(sql,receiverStr);
@@ -2478,7 +2479,7 @@ void ChatManager::_PersistentMessagebySystem(Mail* mail,DispatchClient* client, 
 
 	}
 	else
-	{									 
+	{
 
 		ChatAsyncContainer* asyncContainer = new ChatAsyncContainer(ChatQuery_CheckCharacter);
 		asyncContainer->mMail = mail;
@@ -2509,13 +2510,13 @@ void ChatManager::_processPersistentMessageToServer(Message* message,DispatchCli
 	string targetName;   // recipient
 	targetName.setLength(256);
 	uint32 mailId;       // mail count of sender, sent in this session
-	uint32 targetStatus = 0; // 0 = exists, 4 = doesn't exist
+	//uint32 targetStatus = 0; // 0 = exists, 4 = doesn't exist
 	Player* sender = NULL;
 	Player* receiver = NULL;
-	Message* newMessage; 
+	Message* newMessage;
 
-	gMessageFactory->StartMessage();  
-	gMessageFactory->addUint32(opHeartBeat); 
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opHeartBeat);
 	newMessage = gMessageFactory->EndMessage();
 
 	client->SendChannelA(newMessage,client->getAccountId(),CR_Client,1);
@@ -2539,7 +2540,7 @@ void ChatManager::_processPersistentMessageToServer(Message* message,DispatchCli
 	message->getUint32();
 	message->getStringAnsi(targetName);
 	targetName.toLower();
-	
+
 
 	receiver = getPlayerByName(targetName);
 
@@ -2565,9 +2566,9 @@ void ChatManager::_processPersistentMessageToServer(Message* message,DispatchCli
 		int8 sql[20000],*sqlPointer;
 		int8 footer[64];
 		int8 receiverStr[64];
-		sprintf(receiverStr,"',%lld,'",receiver->getCharId());
-		sprintf(footer,",%u,%u)",(mail->mAttachments.getLength() << 1),mail->mTime);
-		sprintf(sql,"SELECT sf_MailCreate('",sender->getName().getAnsi());
+		sprintf(receiverStr,"',%"PRId64",'",receiver->getCharId());
+		sprintf(footer,",%u,%"PRIu32")",(mail->mAttachments.getLength() << 1),mail->mTime);
+		sprintf(sql,"SELECT sf_MailCreate('%s",sender->getName().getAnsi());
 		sqlPointer = sql + strlen(sql);
 		sqlPointer += mDatabase->Escape_String(sqlPointer,sender->getName().getAnsi(),sender->getName().getLength());
 		strcat(sql,receiverStr);
@@ -2612,11 +2613,11 @@ void ChatManager::_processPersistentMessageToServer(Message* message,DispatchCli
 
 void ChatManager::_processRequestPersistentMessage(Message* message,DispatchClient* client)
 {
-	uint32 dbMailId;      
-	Message* newMessage;   
+	uint32 dbMailId;
+	Message* newMessage;
 
-	gMessageFactory->StartMessage();              
-	gMessageFactory->addUint32(opHeartBeat); 
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opHeartBeat);
 	newMessage = gMessageFactory->EndMessage();
 
 	client->SendChannelA(newMessage,client->getAccountId(),CR_Client,1);
@@ -2632,7 +2633,7 @@ void ChatManager::_processRequestPersistentMessage(Message* message,DispatchClie
 	int8 sql[256];
 	sprintf(sql,"SELECT chat_mail.id,chat_mail.from,chat_mail.subject,chat_mail.body,chat_mail.time,chat_mail.attachments,chat_mail.attachmentSize"
 				" FROM chat_mail"
-				" WHERE	(chat_mail.id = %u)",dbMailId);
+				" WHERE	(chat_mail.id = %"PRIu32")",dbMailId);
 
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
 }
@@ -2644,16 +2645,16 @@ void ChatManager::_processRequestPersistentMessage(Message* message,DispatchClie
 
 void ChatManager::_processDeletePersistentMessage(Message* message,DispatchClient* client)
 {
-	uint32 dbMailId = message->getUint32();       
-	Message* newMessage;  
+	uint32 dbMailId = message->getUint32();
+	Message* newMessage;
 
 	message->getUint8();             // unknown, attachments ?
 
 	mDatabase->ExecuteSqlAsync(NULL,NULL,"DELETE FROM chat_mail WHERE id=%u",dbMailId);
 
 	// acknowledge
-	gMessageFactory->StartMessage();                  
-	gMessageFactory->addUint32(opHeartBeat); 
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opHeartBeat);
 	newMessage = gMessageFactory->EndMessage();
 
 	client->SendChannelA(newMessage, client->getAccountId(), CR_Client, 1);
@@ -2710,7 +2711,7 @@ void ChatManager::_processNotifyChatAddFriend(Message* message,DispatchClient* c
 	name.convert(BSTRType_ANSI);
 
 	Player* player = getPlayerByAccId(message->getAccountId());
-	
+
 	if (player)
 	{
 		player->addFriend(name.getAnsi());
@@ -2879,7 +2880,7 @@ void ChatManager::updateFriendsOnline(Player* player,bool action)
 	{
 		if((*playerIt) != player && (*playerIt)->checkFriend(loweredNameCrc))
 		{
-			// Get UNIX-style time and display as number and string. 
+			// Get UNIX-style time and display as number and string.
 			time_t ltime;
 			time( &ltime );
 			/*
@@ -2977,7 +2978,7 @@ void ChatManager::_processFindFriendGotPosition(Message* message,DispatchClient*
 
 	Player* friendObject = getPlayerbyId(friendPlayer);
 	Player* playerObject = getPlayerbyId(player);
-	
+
 	string unicodeName = friendObject->getName();
 	unicodeName.convert(BSTRType_Unicode16);
 	friendObject->setPositionX(x);
@@ -3037,13 +3038,13 @@ Player* ChatManager::getPlayerbyId(uint64 id)
 
 void ChatManager::_handleFindFriendDBReply(Player* player,uint64 retCode,string friendName)
 {
-	
+
 	string loweredName = friendName.getAnsi();
 	loweredName.toLower();
 	uint32 loweredNameCrc = loweredName.getCrc();
-	
+
 	friendName.convert(BSTRType_Unicode16);
-	
+
 	//name not existent
 	if(retCode == 0)
 	{
@@ -3057,7 +3058,7 @@ void ChatManager::_handleFindFriendDBReply(Player* player,uint64 retCode,string 
 		gChatMessageLib->sendSystemMessageProper(player,false,"","ui_cmnty","friend_location_failed","","","",0,"","","",0,0,0,"","",friendName.getUnicode16());
 		return;
 	}
-	
+
 	Player*	searchObject	= getPlayerbyId(retCode);
     //now that s/he exists AND is on our friendlist
 	//check whether he/she is online
@@ -3079,11 +3080,11 @@ void ChatManager::_handleFindFriendDBReply(Player* player,uint64 retCode,string 
 		return;
 	}
 
-	
+
 	//query friend zone for the position
 	//handle the rest in the callback
 	gChatMessageLib->sendFindFriendRequestPosition(searchObject->getClient(),searchObject,player);
-	
+
 	return;
 	//inform the zone in order to create the waypoint
 	//will be handled in the trademanagger
@@ -3092,7 +3093,7 @@ void ChatManager::_handleFindFriendDBReply(Player* player,uint64 retCode,string 
 
 	//Datapad* thePad = searchObject->getDatapad();
 
-	
+
 	//if(thePad->getCapacity())
 	//{
 	//	gObjectFactory->requestNewWaypoint(thePad,searchObject->getFirstName().getAnsi(),searchObject->mPosition,gWorldManager->getZoneId(),player->getId(),Waypoint_blue);
@@ -3109,7 +3110,7 @@ bool ChatManager::isValidName(string name)
 	mDatabase->Escape_String(sql, name.getAnsi(), name.getLength());
 
 	DatabaseResult* result = mDatabase->ExecuteSynchSql("SELECT id FROM characters WHERE LCASE(firstname) = '%s';", sql);
-	
+
 	uint64 count = result->getRowCount();
 	assert(count <= 1);
 
@@ -3196,8 +3197,8 @@ void ChatManager::_processGroupSaySend(Message* message,DispatchClient* client)
 	msg.setType(BSTRType_Unicode16);
 	msg.setLength(512);
 
-	uint32 channelId = message->getUint32();	// op-code for this command.
-	uint32 requestId = message->getUint32(); 
+	/* uint32 channelId = */message->getUint32();	// op-code for this command.
+	uint32 requestId = message->getUint32();
 	message->getStringUnicode16(msg);
 
 	if (player->getGroupId() == 0)
@@ -3237,7 +3238,7 @@ void ChatManager::_processGroupSaySend(Message* message,DispatchClient* client)
 
 	// Convert since we are going to print it.
 	// msg.convert(BSTRType_ANSI);
-	// gLogger->logMsgF("Groupchat from player %s with id [%lld] -> : %s",MSG_NORMAL, player->getName().getAnsi(), player->mCharId, msg.getAnsi());
+	// gLogger->logMsgF("Groupchat from player %s with id [%"PRId64"] -> : %s",MSG_NORMAL, player->getName().getAnsi(), player->mCharId, msg.getAnsi());
 }
 
 
@@ -3261,15 +3262,16 @@ void ChatManager::_processBroadcastGalaxy(Message* message,DispatchClient* clien
 	msg.setType(BSTRType_Unicode16);
 	msg.setLength(512);
 
-	uint32 opCode = message->getUint32();	// op-code for this command.
-	uint32 planetId = message->getUint32(); 
+	/*uint32 opCode = */ message->getUint32();	// op-code for this command.
+	uint32 planetId = message->getUint32();
 	message->getStringUnicode16(msg);
 
 
 	PlayerList::iterator listIt = mPlayerList.begin();
 	while(listIt != mPlayerList.end())
 	{
-		if ((planetId == -1) || (planetId == player->getPlanetId()))
+		if (/*(planetId == -1) ||*/ // planetId is an unsigned int which means it can't be negative.
+				(planetId == player->getPlanetId()))
 		{
 			gChatMessageLib->sendSystemMessage((*listIt), msg.getUnicode16());
 		}
@@ -3279,7 +3281,7 @@ void ChatManager::_processBroadcastGalaxy(Message* message,DispatchClient* clien
 	// Convert since we are going to print it.
 	// msg.convert(BSTRType_ANSI);
 	// gLogger->logMsgF("ChatManager::_processBroadcastGalaxy() Message = %s", MSG_NORMAL, msg.getAnsi());
-		
+
 }
 
 
@@ -3294,8 +3296,8 @@ void ChatManager::_processScheduleShutdown(Message* message, DispatchClient* cli
 	msg.setType(BSTRType_Unicode16);
 	msg.setLength(512);
 
-	uint32 opCode = message->getUint32();	// op-code for this command.
-	uint32 scheduledTime = message->getUint32(); 
+	/*uint32 opCode = */message->getUint32();	// op-code for this command.
+	uint32 scheduledTime = message->getUint32();
 	message->getStringUnicode16(msg);
 
 	uint8 planetId;
@@ -3304,10 +3306,10 @@ void ChatManager::_processScheduleShutdown(Message* message, DispatchClient* cli
 		Message* newMessage;
 		gMessageFactory->StartMessage();
 		gMessageFactory->addUint32(opIsmScheduleShutdown);
-		gMessageFactory->addUint32(scheduledTime);	
+		gMessageFactory->addUint32(scheduledTime);
 		gMessageFactory->addString(msg);
 		newMessage = gMessageFactory->EndMessage();
-		client->SendChannelA(newMessage, AdminAccountId, planetId, 2); 
+		client->SendChannelA(newMessage, AdminAccountId, planetId, 2);
 	}
 	// gLogger->logMsg("_processScheduleShutdown() Have invoked the 10 standard planets");
 
@@ -3316,10 +3318,10 @@ void ChatManager::_processScheduleShutdown(Message* message, DispatchClient* cli
 	Message* newMessage;
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opIsmScheduleShutdown);
-	gMessageFactory->addUint32(scheduledTime);	
+	gMessageFactory->addUint32(scheduledTime);
 	gMessageFactory->addString(msg);
 	newMessage = gMessageFactory->EndMessage();
-	client->SendChannelA(newMessage, AdminAccountId, planetId, 2); 
+	client->SendChannelA(newMessage, AdminAccountId, planetId, 2);
 
 	// gLogger->logMsg("_processScheduleShutdown() Have also invoked Tutorial");
 
@@ -3327,7 +3329,7 @@ void ChatManager::_processScheduleShutdown(Message* message, DispatchClient* cli
 	// Convert since we are going to print it.
 	// msg.convert(BSTRType_ANSI);
 	// gLogger->logMsgF("ChatManager::_processBroadcastGalaxy() Message = %s", MSG_NORMAL, msg.getAnsi());
-		
+
 }
 
 //======================================================================================================================
@@ -3346,8 +3348,8 @@ void ChatManager::_processCancelScheduledShutdown(Message* message, DispatchClie
 	msg.setType(BSTRType_Unicode16);
 	msg.setLength(512);
 
-	uint32 opCode = message->getUint32();
-	uint32 option = message->getUint32(); 
+	/* uint32 opCode = */message->getUint32();
+	/* uint32 option = */message->getUint32();
 	message->getStringUnicode16(msg);
 
 	uint8 planetId;
@@ -3356,10 +3358,10 @@ void ChatManager::_processCancelScheduledShutdown(Message* message, DispatchClie
 		Message* newMessage;
 		gMessageFactory->StartMessage();
 		gMessageFactory->addUint32(opIsmCancelShutdown);
-		gMessageFactory->addUint32(0);	
+		gMessageFactory->addUint32(0);
 		gMessageFactory->addString(msg);
 		newMessage = gMessageFactory->EndMessage();
-		client->SendChannelA(newMessage, AdminAccountId, planetId, 2); 
+		client->SendChannelA(newMessage, AdminAccountId, planetId, 2);
 	}
 
 	planetId = CR_Corellia + 41; // Huuu
@@ -3367,8 +3369,8 @@ void ChatManager::_processCancelScheduledShutdown(Message* message, DispatchClie
 	Message* newMessage;
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opIsmCancelShutdown);
-	gMessageFactory->addUint32(0);	
+	gMessageFactory->addUint32(0);
 	gMessageFactory->addString(msg);
 	newMessage = gMessageFactory->EndMessage();
-	client->SendChannelA(newMessage, AdminAccountId, planetId, 2); 
+	client->SendChannelA(newMessage, AdminAccountId, planetId, 2);
 }

@@ -29,7 +29,7 @@ class ChatManager;
 class CSRManager;
 
 typedef void (CSRManager::*CSRFuncPointer)(Message*,DispatchClient*);
-typedef std::map<uint32, CSRFuncPointer> CSRCommandMap; 
+typedef std::map<uint32, CSRFuncPointer> CSRCommandMap;
 
 //======================================================================================================================
 
@@ -42,7 +42,7 @@ enum CSRQuery
 	CSRQuery_NewTicket			= 4,
 	CSRQuery_SearchKB			= 5,
 	CSRQuery_FullArticle		= 6,
-	CSRQuery_TicketActivity		= 7,
+	CSRQuery_TicketActivity		= 7
 };
 
 //======================================================================================================================
@@ -53,7 +53,7 @@ class CSRAsyncContainer
 
 		CSRAsyncContainer(CSRQuery cq): mCategory(NULL) { mQueryType = cq; }
 		~CSRAsyncContainer(){}
-		
+
 		CSRQuery		mQueryType;
 		Category*		mCategory;
 		DispatchClient*	mClient;

@@ -31,7 +31,7 @@ enum SMQueryType
 	SMQuery_SkillSkillSchematicGroups	= 10,
 	SMQuery_XpTypes						= 11,
 	SMQuery_SkillSkillXpTypes			= 12,
-	SMQuery_SkillDescriptions			= 13,
+	SMQuery_SkillDescriptions			= 13
 };
 
 enum SMSkillType
@@ -41,7 +41,7 @@ enum SMSkillType
 		SMSkill_EntertainerMusic1		= 17,
 		SMSkill_EntertainerMusic2		= 18,
 		SMSkill_EntertainerMusic3		= 19,
-		SMSkill_EntertainerMusic4		= 20,		
+		SMSkill_EntertainerMusic4		= 20,
 		SMSkill_MasterScout				= 32,
 		SMSkill_MasterMedic				= 52,
 		SMSkill_MasterArtisan			= 72,
@@ -96,7 +96,7 @@ enum SMSkillType
 		SMSkill_MasterCombatMedic		= 567,
 		SMSkill_MasterImageDesigner		= 586,
 		SMSkill_MasterSquadleader		= 605,
-		SMSkill_MasterPolitician		= 624,
+		SMSkill_MasterPolitician		= 624
 
 };
 
@@ -108,7 +108,7 @@ enum SMCreo1Action
 {
 	SMSkillRemove		= 0,
 	SMSkillAdd			= 1,
-	SMSkillClearAll		= 2,
+	SMSkillClearAll		= 2
 };
 
 //======================================================================================================================
@@ -412,7 +412,7 @@ enum SMSkillMod
 	SMod_private_polearmlightsaber_combat_difficulty	= 293,
 	SMod_private_carbine_difficulty						= 294,
 	SMod_private_pistol_difficulty						= 295,
-	SMod_private_innate_roar							= 296,
+	SMod_private_innate_roar							= 296
 };
 
 //======================================================================================================================
@@ -467,7 +467,7 @@ enum SMXpType
 	XpType_fs_reflex									= 46,
 	XpType_shipwright									= 47,
 	XpType_space_combat_general							= 48,
-	XpType_none											= 49,
+	XpType_none											= 49
 };
 
 #endif

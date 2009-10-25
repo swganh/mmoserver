@@ -83,10 +83,10 @@ void DatapadFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,DPFQuery_ObjectCount,asyncContainer->mClient);
 			asContainer->mObject = datapad;
 
-			mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT sf_getDatapadObjectCount(%lld)",datapad->getId());
-			
+			mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT sf_getDatapadObjectCount(%"PRId64")",datapad->getId());
+
 		}
-		break; 
+		break;
 
 		case DPFQuery_ObjectCount:
 		{
@@ -106,16 +106,16 @@ void DatapadFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 				datapad->setLoadState(LoadState_Loading);
 
-				// query contents				
+				// query contents
 				QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,DPFQuery_Objects,asyncContainer->mClient);
 				asContainer->mObject = datapad;
 
 				mDatabase->ExecuteSqlAsync(this,asContainer,
-						"(SELECT \'waypoints\',waypoints.waypoint_id FROM waypoints WHERE owner_id = %lld)"
-						" UNION (SELECT \'manschematics\',items.id FROM items WHERE (parent_id=%lld))"
-						" UNION (SELECT \'vehicles\',vehicles.id FROM vehicles WHERE (parent=%lld))"
+						"(SELECT \'waypoints\',waypoints.waypoint_id FROM waypoints WHERE owner_id = %"PRId64")"
+						" UNION (SELECT \'manschematics\',items.id FROM items WHERE (parent_id=%"PRId64"))"
+						" UNION (SELECT \'vehicles\',vehicles.id FROM vehicles WHERE (parent=%"PRId64"))"
 						,dtpId-3,dtpId,dtpId);
-				
+
 			}
 			else
 			{
@@ -135,7 +135,7 @@ void DatapadFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			binding->addField(DFT_uint64,0,8);
 			result->GetNextRow(binding,&id);
 
-			gTangibleFactory->requestObject(this,id,TanGroup_Item,0,asyncContainer->mClient);					
+			gTangibleFactory->requestObject(this,id,TanGroup_Item,0,asyncContainer->mClient);
 			mDatabase->DestroyDataBinding(binding);
 		}
 		break;
@@ -172,18 +172,18 @@ void DatapadFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				else if(strcmp(queryContainer.mString.getAnsi(),"manschematics") == 0)
 				{
 					++datapad->mManSUpdateCounter;
-					gTangibleFactory->requestObject(this,queryContainer.mId,TanGroup_Item,0,asyncContainer->mClient);					
+					gTangibleFactory->requestObject(this,queryContainer.mId,TanGroup_Item,0,asyncContainer->mClient);
 
 				}
 				else if(strcmp(queryContainer.mString.getAnsi(),"vehicles") == 0)
 				{
 					//datapad counter gets updated in vehicle factory
-					gVehicleFactory->requestObject(this,queryContainer.mId,0,0,asyncContainer->mClient);					
+					gVehicleFactory->requestObject(this,queryContainer.mId,0,0,asyncContainer->mClient);
 
 				}
-				
+
 			}
-			
+
 			mDatabase->DestroyDataBinding(binding);
 		}
 		break;
@@ -202,7 +202,7 @@ void DatapadFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,u
 	mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,DPFQuery_MainDatapadData,client),
 								"SELECT datapads.id,datapad_types.object_string,datapad_types.name,datapad_types.file"
 								" FROM datapads INNER JOIN datapad_types ON (datapads.datapad_type = datapad_types.id)"
-								" WHERE (datapads.id = %lld)",id);
+								" WHERE (datapads.id = %"PRId64")",id);
 }
 
 //=============================================================================
@@ -244,9 +244,9 @@ void DatapadFactory::_destroyDatabindings()
 
 void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
 {
-	
-	Datapad* datapad;
-	uint64 theID;	
+
+	Datapad* datapad(0);
+	uint64 theID(0);
 
 	switch(object->getType())
 	{
@@ -255,14 +255,14 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
 			theID	= object->getParentId()+3;
 			mIlc	= _getObject(theID);
 			datapad = dynamic_cast<Datapad*>(mIlc->mObject);
-								
+
 			if(!mIlc)
 			{
 				gLogger->logMsg("DatapadFactory: Failed getting ilc");
 				return;
 			}
 			mIlc->mLoadCounter--;
-			
+
 			datapad->addWaypoint(dynamic_cast<WaypointObject*>(object));
 		}
 		break;
@@ -276,28 +276,28 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
 				theID	= object->getParentId();
 				mIlc	= _getObject(theID);
 				datapad = dynamic_cast<Datapad*>(mIlc->mObject);
-									
+
 				if(!mIlc)
 				{
 					gLogger->logMsg("DatapadFactory: Failed getting ilc");
 					return;
 				}
-			
+
 				//parentId of schematics is the datapad!
 				//add the msco to the datapad
 
 				datapad->addManufacturingSchematic(dynamic_cast<ManufacturingSchematic*>(object));
-				
+
 				//now load the associated item
 				QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(this,DPFQuery_ItemId,mIlc->mClient);
 				asContainer->mObject = datapad;
 				asContainer->mId = item->getId();//queryContainer.mId;
 				int8 sql[256];
-				sprintf(sql,"SELECT items.id FROM items WHERE (parent_id=%lld)",item->getId());
+				sprintf(sql,"SELECT items.id FROM items WHERE (parent_id=%"PRId64")",item->getId());
 				mDatabase->ExecuteSqlAsync(this,asContainer,sql);
 
 				mObjectLoadMap.insert(std::make_pair(item->getId(),new(mILCPool.ordered_malloc()) InLoadingContainer(datapad,0,0,1)));
-		
+
 			}
 			else
 			{
@@ -319,7 +319,7 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
 				//regular mIlc
 				theID							= datapad->getId();
 				mIlc							= _getObject(theID);
-									
+
 				if(!mIlc)
 				{
 					gLogger->logMsg("DatapadFactory: Failed getting ilc");
@@ -327,7 +327,7 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
 				}
 
 				ManufacturingSchematic* schem	= datapad->getManufacturingSchematicById(id);
-			
+
 				//this is the item associated to the Man schematic
 				//set the man schematic pointer and decrease the loadcount
 				mIlc->mLoadCounter--;
@@ -342,15 +342,15 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
 		{
 			theID	= object->getParentId();
 			mIlc	= _getObject(theID);
-			if(datapad = dynamic_cast<Datapad*>(mIlc->mObject))
-			{								
+			if((datapad = dynamic_cast<Datapad*>(mIlc->mObject)))
+			{
 				if(!mIlc)
 				{
 					gLogger->logMsg("DatapadFactory: Failed getting ilc");
 					return;
 				}
 				mIlc->mLoadCounter--;
-				
+
 				if(IntangibleObject* itno = dynamic_cast<IntangibleObject*>(object))
 				{
 					if(datapad->getCapacity())
@@ -365,7 +365,7 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
 						gLogger->logMsg("DatapadFactory: Datapad at max Capacity!!!");
 						delete(object);
 					}
-				}			
+				}
 			}
 
 		}

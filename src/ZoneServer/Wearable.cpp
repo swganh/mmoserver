@@ -11,7 +11,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 
 #include "Wearable.h"
 #include "PlayerObject.h"
-#include "Worldmanager.h"
+#include "WorldManager.h"
 #include "ZoneOpcodes.h"
 #include "Common/Message.h"
 #include "Common/MessageFactory.h"

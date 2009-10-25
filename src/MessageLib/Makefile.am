@@ -1,4 +1,4 @@
-AM_CXXFLAGS = -I$(top_srcdir)/src $(SWGANH_CXXFLAGS)
+AM_CXXFLAGS = -I$(top_srcdir)/src $(SWGANH_CXXFLAGS) $(BOOST_CPPFLAGS)
   
 # MessageLib library - noinstall shared library
 noinst_LTLIBRARIES = libmessagelib.la
@@ -20,4 +20,5 @@ libmessagelib_la_SOURCES = \
 	SystemMessages.cpp \
 	TangibleMessages.cpp
 	
-libmessagelib_la_CPPFLAGS = -I$(top_srcdir)/deps/spatialindex/include -I$(top_srcdir)/deps/spatialindex/tools/include -I$(top_srcdir)/deps/noise/src -Wall -fshort-wchar 
+libmessagelib_la_CPPFLAGS = -I$(top_srcdir)/deps/spatialindex/include -I$(top_srcdir)/deps/spatialindex/tools/include -I$(top_srcdir)/deps/noise/src -Wall -pedantic-errors -Wfatal-errors -fshort-wchar 
+libmessagelib_la_LIBADD = ../Utils/libutils.la

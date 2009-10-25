@@ -31,9 +31,9 @@ class HarvesterFactory;
 class IntangibleFactory;
 class OFAsyncContainer;
 class Object;
-class ObjectFactoryCallback;	
+class ObjectFactoryCallback;
 class PlayerObject;
-class PlayerObjectFactory;	
+class PlayerObjectFactory;
 class RegionFactory;
 class TangibleFactory;
 class TangibleObject;
@@ -48,7 +48,7 @@ enum OFQuery
 	OFQuery_ResourceContainerCreate		= 1,
 	OFQuery_WaypointCreate				= 2,
 	OFQuery_Item						= 3,
-	OFQuery_Harvester					= 4,
+	OFQuery_Harvester					= 4
 };
 
 //=============================================================================

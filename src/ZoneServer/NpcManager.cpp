@@ -41,7 +41,7 @@ class NpcLairEntity
 {
 	public:
 		NpcLairEntity(){}
-		
+
 		uint64	mLairsId;
 		uint64	mLairTemplateId;
 		uint32	mNumberOfLairs;
@@ -95,21 +95,21 @@ NpcManager::~NpcManager()
 
 
 //=============================================================================
-// 
+//
 //	Here we start the real stuff.
 //
 
 /*
 void NpcManager::addCreature(uint64 creatureId, const SpawnData *spawn)
 {
-	// gLogger->logMsgF("NpcManager::addCreature Attempting to add creature with id = %llu", MSG_NORMAL, creatureId);
+	// gLogger->logMsgF("NpcManager::addCreature Attempting to add creature with id = %"PRIu64, MSG_NORMAL, creatureId);
 
 	AttackableCreature* npc = dynamic_cast<AttackableCreature*>(gWorldManager->getObjectById(creatureId));
 	if (!npc)
 	{
 		return;
 	}
-	// gLogger->logMsgF("NpcManager::addCreature Id = %llu", MSG_NORMAL, creatureId);
+	// gLogger->logMsgF("NpcManager::addCreature Id = %"PRIu64, MSG_NORMAL, creatureId);
 
 	// Update npc with spawn data. The Npc will be the owner of this data.
 	npc->setSpawnData(spawn);
@@ -118,13 +118,13 @@ void NpcManager::addCreature(uint64 creatureId, const SpawnData *spawn)
 	// Activate npc.
 	// gWorldManager->addReadyNpc(creatureId, spawn->mBasic.timeToFirstSpawn);
 
-	// gLogger->logMsgF("Npc will spawn at %.0f, %.0f, %.0f in %lld seconds", MSG_NORMAL, npc->mPosition.mX, npc->mPosition.mY, npc->mPosition.mZ, spawn->mBasic.timeToFirstSpawn/1000);
+	// gLogger->logMsgF("Npc will spawn at %.0f, %.0f, %.0f in %"PRId64" seconds", MSG_NORMAL, npc->mPosition.mX, npc->mPosition.mY, npc->mPosition.mZ, spawn->mBasic.timeToFirstSpawn/1000);
 	gWorldManager->addDormantNpc(creatureId, spawn->mBasic.timeToFirstSpawn);
 }
 */
 
 //=============================================================================
-// 
+//
 //	Handle npc.
 //
 //	Main purposes are to get the npc in suitable timer queue and handling generall issues
@@ -182,7 +182,7 @@ void NpcManager::handleExpiredCreature(uint64 creatureId)
 
 void NpcManager::handleObjectReady(Object* object)
 {
-	// gLogger->logMsgF("NpcManager::handleObjectReady: Created object with id = %llu", MSG_NORMAL, object->getId());
+	// gLogger->logMsgF("NpcManager::handleObjectReady: Created object with id = %"PRIu64, MSG_NORMAL, object->getId());
 
 	CreatureObject* creature = dynamic_cast<CreatureObject*>(object);
 	if (creature)
@@ -235,16 +235,16 @@ void NpcManager::handleDatabaseJobComplete(void* ref, DatabaseResult* result)
 			for (uint64 i = 0;i < count;i++)
 			{
 				result->GetNextRow(lairSpawnBinding,&lair);
-				// gLogger->logMsgF("Requesting %d lair(s) of type = %llu from line %llu", MSG_NORMAL, lair.mNumberOfLairs, lair.mLairTemplateId, lair.mLairsId);
+				//gLogger->logMsgF("Requesting %d lair(s) of type = %"PRIu64" from line %"PRIu64, MSG_NORMAL, lair.mNumberOfLairs, lair.mLairTemplateId, lair.mLairsId);
 
 				for (uint64 lairs = 0; lairs < lair.mNumberOfLairs; lairs++)
 				{
 					// We need two id's in sequence, since nps'c have an inventory.
-					uint64 npcNewId = gWorldManager->getRandomNpNpcIdSequence();	
+					uint64 npcNewId = gWorldManager->getRandomNpNpcIdSequence();
 
 					if (npcNewId != 0)
 					{
-						// gLogger->logMsgF("Requesting lair of type = %llu with id %llu", MSG_NORMAL, lair.mLairTemplateId, npcNewId);
+						// gLogger->logMsgF("Requesting lair of type = %llu with id %"PRIu64"", MSG_NORMAL, lair.mLairTemplateId, npcNewId);
 						nonPersistentNpcFactory->requestLairObject(this, lair.mLairsId, npcNewId);
 					}
 				}
@@ -431,7 +431,7 @@ bool NpcManager::_verifyCombatState(CreatureObject* attacker, uint64 defenderId)
 					// gLogger->logMsgF("NpcManager::_verifyCombatState() Player already dead", MSG_NORMAL);
 					return(false);
 				}
-		
+
 				/*
 				if (!defenderPlayer->checkPvPState(CreaturePvPStatus_Attackable))
 				{
@@ -469,7 +469,7 @@ bool NpcManager::_verifyCombatState(CreatureObject* attacker, uint64 defenderId)
 				if (!attackerNpc->checkDefenderList(defenderPlayer->getId()))
 				{
 					// gLogger->logMsgF("Player was not in NPC defender list, updating NPC pvp-status", MSG_NORMAL);
-					
+
 					// May not be neeeded, since the pvp-status is changed when getting enough aggro.
 					// gMessageLib->sendUpdatePvpStatus(attackerNpc,defenderPlayer, attackerNpc->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Aggressive | CreaturePvPStatus_Enemy);
 
@@ -504,11 +504,11 @@ bool NpcManager::_verifyCombatState(CreatureObject* attacker, uint64 defenderId)
 				// Player can/may start auto-attack if idle.
 				if (!defenderPlayer->autoAttackEnabled())
 				{
-					// gLogger->logMsgF("Creature generated auto target with id %llu", MSG_NORMAL, attackerNpc->getId());
+					// gLogger->logMsgF("Creature generated auto target with id %"PRIu64"", MSG_NORMAL, attackerNpc->getId());
 					defenderPlayer->getController()->enqueueAutoAttack(attackerNpc->getId());
 				}
 			}
-			else if (AttackableCreature* defenderNpc = dynamic_cast<AttackableCreature*>(defender))
+			else if (dynamic_cast<AttackableCreature*>(defender))
 			{
 				// The target (defender) is a npc. Kill him!
 				// Here I think some validation would be great, don't wanna kill you piket-brother?
@@ -578,10 +578,10 @@ bool NpcManager::handleAttack(CreatureObject *attacker, uint64 targetId) // , Ob
 		}
 
 		// do the attack
-		uint8 attackResult = _executeAttack(attacker, defender, weapon);
+		/*uint8 attackResult = */_executeAttack(attacker, defender, weapon);
 
 		return(true);
-	} 
+	}
 
 	return(false);
 }
@@ -592,8 +592,8 @@ bool NpcManager::handleAttack(CreatureObject *attacker, uint64 targetId) // , Ob
 uint8 NpcManager::_executeAttack(CreatureObject* attacker,CreatureObject* defender,Weapon* weapon)
 {
 	uint8	randomHitPool			= 100;
-	uint8	randomPoolHitChance		= 100;
-	uint8	stateApplied			= 0;
+	//uint8	randomPoolHitChance		= 100;
+	//uint8	stateApplied			= 0;
 	int32	multipliedDamage		= 0;
 	string	combatSpam				= "melee";
 
@@ -617,7 +617,7 @@ uint8 NpcManager::_executeAttack(CreatureObject* attacker,CreatureObject* defend
 		// gLogger->logMsgF("baseMaxDamage = %d", MSG_NORMAL, baseMaxDamage);
 
 		int32 baseDamage	= -((gRandom->getRand()%(baseMaxDamage - baseMinDamage)) + baseMinDamage);
-		
+
 		// apply damage multiplier
 		/*
 		if(cmdProperties->mDamageMultiplier)
@@ -760,11 +760,11 @@ uint8 NpcManager::_executeAttack(CreatureObject* attacker,CreatureObject* defend
 		}
 		// creature_attack_light 0xB6B8F58B (reversed from WIKI 0x8BF5B8B6)
 		// creature_attack_medium 0x48CBE352 ( 0x52E3CB48 )
-		// creature_attack_special_1_medium 0x24AEEF7A 
-		// creature_attack_special_1_light 0x13E6B2DE 
+		// creature_attack_special_1_medium 0x24AEEF7A
+		// creature_attack_special_1_light 0x13E6B2DE
 		// creature_attack_special_2_medium 0x7ACB0D96
-		// creature_attack_special_2_light 0x205E4B0F 
-		// creature_attack_ranged_light 0x8D49FC90 
+		// creature_attack_special_2_light 0x205E4B0F
+		// creature_attack_ranged_light 0x8D49FC90
 		// creature_attack_ranged_medium 0x59E0483C
 
 
@@ -816,7 +816,7 @@ uint8 NpcManager::_executeAttack(CreatureObject* attacker,CreatureObject* defend
 			// gLogger->logMsgF("NpcManager::_executeAttack() Npc hit!", MSG_NORMAL);
 		}
 		break;
-		
+
 		case 1:
 		{
 			// gLogger->logMsgF("NpcManager::_executeAttack() Npc miss", MSG_NORMAL);
@@ -878,7 +878,7 @@ uint8 NpcManager::_executeAttack(CreatureObject* attacker,CreatureObject* defend
 	}
 	gMessageLib->sendCombatSpam(attacker,defender,-multipliedDamage,"cbt_spam",combatSpam);
 	// gLogger->logMsgF("multipliedDamage = %d", MSG_NORMAL, multipliedDamage);
-	
+
 	return(0);
 }
 

@@ -24,7 +24,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 
 CampTerminal::CampTerminal() : Terminal ()
 {
-	
+
 }
 
 //=============================================================================
@@ -54,7 +54,7 @@ void CampTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 	if(messageType == radId_serverTerminalManagementStatus)
 	{
 		mAttributesMenu.clear();
-		Camp* camp = dynamic_cast<Camp*>(gWorldManager->getObjectById(this->mCampId));
+		//Camp* camp = dynamic_cast<Camp*>(gWorldManager->getObjectById(this->mCampId));
 		CampRegion* region = dynamic_cast<CampRegion*>(gWorldManager->getObjectById(this->mCampRegionId));
 
 		int8 text[64];
@@ -63,7 +63,7 @@ void CampTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
 		uint32 time = static_cast<uint32>(region->getUpTime());
 		uint32 hours = (uint32)time/3600;
-		
+
 		time -=(hours*3600);
 		uint32 minutes = (uint32)(time)/60;
 
@@ -87,9 +87,9 @@ void CampTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
 		return;
 	}
-	
+
 	gLogger->logMsgF("CampTerminal: Unhandled MenuSelect: %u",MSG_HIGH,messageType);
-	
+
 }
 
 //=============================================================================
@@ -97,14 +97,14 @@ void CampTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 void CampTerminal::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount)
 {
 	RadialMenu* radial = new RadialMenu();
-	
-	
+
+
 	radial->addItem(1,0,radId_examine,radAction_Default);
 	radial->addItem(2,0,radId_serverTerminalManagementStatus,radAction_ObjCallback,"status");
 	radial->addItem(3,0,radId_serverTerminalManagementDestroy,radAction_ObjCallback,"disband");
-	
+
 	mRadialMenu = RadialMenuPtr(radial);
-	
+
 }
 
 //=============================================================================

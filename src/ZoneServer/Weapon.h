@@ -27,7 +27,7 @@ enum WeaponGroup
 	WeaponGroup_Carbine			= 64,
 	WeaponGroup_Flamethrower	= 128,
 	WeaponGroup_Saber			= 256,
-	WeaponGroup_Launcher		= 512,
+	WeaponGroup_Launcher		= 512
 };
 
 //=============================================================================
@@ -40,7 +40,7 @@ class Weapon : public Item
 
 		Weapon();
 		virtual ~Weapon();
-		
+
 		void	setGroup(uint32 group){ mGroup = group; }
 		uint32	getGroup(){ return mGroup; }
 

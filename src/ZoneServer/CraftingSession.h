@@ -76,7 +76,7 @@ class CraftingSession : public DatabaseCallback, public ObjectFactoryCallback
 		Item*					getItem(){ return mItem; }
 		uint32					getOwnerExpSkillMod(){ return mOwnerExpSkillMod; }
 		uint32					getOwnerAssSkillMod(){ return mOwnerAssSkillMod; }
-		
+
 		uint32					isExperimentationAllowed(){ return mExpFlag; }
 
 		void					setStage(uint32 stage){ mStage = stage; }
@@ -107,7 +107,7 @@ class CraftingSession : public DatabaseCallback, public ObjectFactoryCallback
 		uint32					getCustomization(){return mCustomization;}
 
 		void					createManufactureSchematic(uint32 counter);
-		
+
 	private:
 
 
@@ -123,7 +123,7 @@ class CraftingSession : public DatabaseCallback, public ObjectFactoryCallback
 		//===========================
 		//gets the type of success failur for experimentation
 		uint8					_experimentRoll(uint32 expPoints);
-		
+
 		//===========================
 		//gets the type of success failur assembly
 		uint8					_assembleRoll();
@@ -131,30 +131,27 @@ class CraftingSession : public DatabaseCallback, public ObjectFactoryCallback
 		//===========================
 		//gets the average Malleability
 		float					_calcAverageMalleability();
-			
-		PlayerObject*			mOwner;
-		DraftSchematic*			mDraftSchematic;
+
+		Anh_Utils::Clock*				mClock;
+		Database*								mDatabase;
+		DraftSchematic*					mDraftSchematic;
+		Item*										mItem;
 		ManufacturingSchematic*	mManufacturingSchematic;
-		Item*					mItem;
-		Database*				mDatabase;
-		CraftingTool*			mTool;
-		float					mToolEffectivity;
-		uint32					mExpFlag;
-		uint32					mStage;
-		CraftingStation*		mStation;
-		bool					mFirstFill;
-		Anh_Utils::Clock*		mClock;
-		uint32					mExpSkillModId;
-		uint32					mAssSkillModId;
-		uint32					mOwnerExpSkillMod;
-		uint32					mOwnerAssSkillMod;
-
-		//sets the amount the schematic can produce
-		uint32					mProductionAmount;
-		uint32					mSubCategory;
-		uint32					mCustomization;
-		uint32					mCriticalCount;
-
+		PlayerObject*						mOwner;
+		CraftingStation*				mStation;
+		CraftingTool*						mTool;
+		float										mToolEffectivity;
+		uint32									mAssSkillModId;
+		uint32									mCriticalCount;
+		uint32									mCustomization;
+		uint32									mExpFlag;
+		uint32									mExpSkillModId;
+		uint32									mOwnerAssSkillMod;
+		uint32									mOwnerExpSkillMod;
+		uint32									mProductionAmount;
+		uint32									mStage;
+		uint32									mSubCategory;
+		bool										mFirstFill;
 };
 
 //=============================================================================

@@ -29,7 +29,7 @@ class Shuttle;
 
 enum SHFQuery
 {
-	SHFQuery_MainData	= 1,
+	SHFQuery_MainData	= 1
 };
 
 //=============================================================================

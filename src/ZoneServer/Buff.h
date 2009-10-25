@@ -93,23 +93,24 @@ private:
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	//Private Member Variables
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	uint64					mID;
-	uint64					mDBID;
+
+	AttributeList			Attributes;
 	string					mName;
-	uint32					mIcon;
-	CreatureObject*			mTarget;
-	CreatureObject*			mInstigator;
 	Buff*					mChild;
 	Buff*					mParent;
-	bool					mCancelled;
-	bool					mMarkedForDeletion;
-	uint32					mNoTicks; //Total number of Ticks
-	uint32					mCurrentTick; //Current Tick Number
+	CreatureObject*			mInstigator;
+	CreatureObject*			mTarget;
 	int64					mTick; //Length of Tick in ms
-	AttributeList			Attributes;
-	uint64					mStartTime; //GlobalTickCount at Start of Buff
+	uint64					mDBID;
+	uint64					mID;
 	uint64					mNextTickLength; //Store the length of the next tick (for when reloading from DB)
+	uint64					mStartTime; //GlobalTickCount at Start of Buff
+	uint32					mCurrentTick; //Current Tick Number
+	uint32					mIcon;
+	uint32					mNoTicks; //Total number of Ticks
+	bool					mCancelled;
 	bool					mDoInit; //Set whether we should do the Init straight away
+	bool					mMarkedForDeletion;
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	//Private Methods
 	///////////////////////////////////////////////////////////////////////////////////////////////

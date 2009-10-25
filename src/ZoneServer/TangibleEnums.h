@@ -30,7 +30,7 @@ enum TangibleGroup
 	TanGroup_Datapad				= 9,
 	TanGroup_ManufacturingSchematic	= 10,
 	TanGroup_Structure				= 11,
-	TanGroup_Static					= 12,
+	TanGroup_Static					= 12
 };
 
 
@@ -111,8 +111,8 @@ enum TangibleType
 //
 // Group: TicketCollector
 //
-	
-	TanType_TicketCollector	= 1,
+
+	TanType_TicketCollector	= 1
 
 //=============================================================================
 //

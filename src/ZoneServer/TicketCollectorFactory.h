@@ -28,7 +28,7 @@ class TicketCollector;
 
 enum TCFQuery
 {
-	TCFQuery_MainData	= 1,
+	TCFQuery_MainData	= 1
 };
 
 //=============================================================================

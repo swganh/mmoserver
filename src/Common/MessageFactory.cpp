@@ -26,39 +26,39 @@ MessageFactory* MessageFactory::mSingleton = 0;
 
 //======================================================================================================================
 
-MessageFactory::MessageFactory(void) :
-mCurrentMessage(0),
-mMessageHeap(NULL),
-mCurrentMessageStart(0),
-mCurrentMessageEnd(0),
-mHeapStart(0),
-mHeapEnd(0),
-mHeapRollover(0),
-mHeapTotalSize(0),
-mMessagesCreated(0),
-mMessagesDestroyed(0),
-mMaxHeapUsedPercent(0),
-mServiceId(0),
-mHeapWarnLevel(80.0)
+MessageFactory::MessageFactory()
+: mCurrentMessage(0)
+, mCurrentMessageEnd(0)
+, mCurrentMessageStart(0)
+, mHeapStart(0)
+, mHeapEnd(0)
+, mHeapRollover(0)
+, mMessageHeap(NULL)
+, mHeapTotalSize(0)
+, mMessagesCreated(0)
+, mMessagesDestroyed(0)
+, mServiceId(0)
+, mHeapWarnLevel(80.0)
+, mMaxHeapUsedPercent(0)
 {
 	// gLogger->logMsgF("MessageFactory::MessageFactory() CONSTRUCTED",MSG_NORMAL);
 }
 
 //======================================================================================================================
 
-MessageFactory::~MessageFactory(void)
+MessageFactory::~MessageFactory()
 {
 	// Here is the place for deletes of member data! Not in the Shutdown().
 	// But now start to pray that no one still uses these messages. Who knows in this mess?
 	// gLogger->logMsgF("MessageFactory::~MessageFactory() DESTRUCTED",MSG_NORMAL);
 	delete[] mMessageHeap;
 
-	// mSingleton = 0; 
-	// Actually, we can't null mSingleton since network manager calls this code directly, 
+	// mSingleton = 0;
+	// Actually, we can't null mSingleton since network manager calls this code directly,
 	// using instances created by new(), bypassing the singleton concept,
 	// and assign null to mSingleton would invalidate the possibility to delete the "singleton-version" used by zoneserver.
 
-	// mSingleton = 0; IS executed, but in destroySingleton(); 
+	// mSingleton = 0; IS executed, but in destroySingleton();
 
 	// Important to notice is please that message factory isnt threadsafe
 	// thus we need several instances of it !!!!!!
@@ -99,7 +99,7 @@ void MessageFactory::Shutdown(void)
 
 void MessageFactory::Process(void)
 {
-	// Do some garbage collection if we can.  
+	// Do some garbage collection if we can.
 	_processGarbageCollection();
 }
 
@@ -107,10 +107,10 @@ void MessageFactory::Process(void)
 
 void MessageFactory::StartMessage(void)
 {
-	// Do some garbage collection if we can.  
+	// Do some garbage collection if we can.
 	_processGarbageCollection();
 
-	// Initialize the message start and end.  
+	// Initialize the message start and end.
 	mCurrentMessageStart = mHeapStart;
 	assert(mCurrentMessage==0);	// Can't handle more than one message at once.
 	mCurrentMessage = new(mCurrentMessageStart) Message();
@@ -123,7 +123,7 @@ Message* MessageFactory::EndMessage(void)
 {
   assert(mCurrentMessage);
 
-  // Do some garbage collection if we can.  
+  // Do some garbage collection if we can.
   _processGarbageCollection();
 
   // Add one more zero byte at the end of the message
@@ -131,7 +131,7 @@ Message* MessageFactory::EndMessage(void)
 
   // Just cast the message start
   Message* message = mCurrentMessage;
-  
+
   message->setData(mCurrentMessageStart + sizeof(Message));
   message->setSize((uint16)(mCurrentMessageEnd - mCurrentMessageStart) - sizeof(Message));
   message->setCreateTime(Anh_Utils::Clock::getSingleton()->getLocalTime());
@@ -147,7 +147,7 @@ Message* MessageFactory::EndMessage(void)
   mMaxHeapUsedPercent = std::max<float>(mMaxHeapUsedPercent,  currentUsed);
 
 
-  
+
   // warn if we get near our boundaries
   if(currentUsed > mHeapWarnLevel)
   {
@@ -357,6 +357,7 @@ void MessageFactory::addString(const string& data)
 	// Insert our data and move our end pointer.
 	switch(data.getType())
 	{
+		case BSTRType_UTF8:
 		case BSTRType_ANSI:
 		{
 			// First insert the string length
@@ -417,11 +418,11 @@ void MessageFactory::_processGarbageCollection(void)
 		{
 			if (message->getPendingDelete())
 			{
-	
+
 				uint32 size = message->getSize();
 				message->~Message();
 				memset(mHeapEnd, 0xed, size + sizeof(Message));
-				mHeapEnd += size + sizeof(Message); 
+				mHeapEnd += size + sizeof(Message);
 
 				mMessagesDestroyed++;
 
@@ -436,33 +437,33 @@ void MessageFactory::_processGarbageCollection(void)
 					mHeapEnd		= mMessageHeap;
 					mHeapRollover	= 0;
 				}
-				
+
 				message = reinterpret_cast<Message*>(mHeapEnd);
 				assert(mHeapEnd < mMessageHeap + mHeapTotalSize);
-				
+
 				further = (mHeapEnd != mHeapStart) && message->getPendingDelete();
 
 			}//pending delete
-		
+
 			else if(Anh_Utils::Clock::getSingleton()->getLocalTime() - message->getCreateTime() > MESSAGE_MAX_LIFE_TIME)
 			{
 				further = false;
 				gLogger->logMsgF("MessageFactory::_processGarbageCollection : stuck Message fastpasth : %u ",MSG_HIGH, message->getFastpath());
 				gLogger->logMsgF("age : %u ",MSG_HIGH, uint32((Anh_Utils::Clock::getSingleton()->getLocalTime() - message->getCreateTime())/1000));
 				gLogger->logMsgF("Source : %u ",MSG_HIGH, message->mSourceId);
-				
+
 				//gLogger->hexDump(message->getData(), message->getSize());
 			}
-			else 
+			else
 				further = false;
-			
+
 			time = Anh_Utils::Clock::getSingleton()->getLocalTime();
 		}//Heap start != Heapend
 		else
 		{
 			further = false;
 		}
-		
+
 	}
 
 }
@@ -476,7 +477,7 @@ void MessageFactory::_adjustHeapStartBounds(uint32 size)
 
 	// _getHeapSize() returns the size of already constructed packets,
 	// but NOT the parts we already have been added for THIS message under construction.
-	
+
 	uint32 messageSize = (mCurrentMessageEnd - mCurrentMessageStart);
 
 	//assert(mHeapTotalSize > messageSize + heapSize + size);
@@ -486,8 +487,8 @@ void MessageFactory::_adjustHeapStartBounds(uint32 size)
 	if(mCurrentMessageEnd + size > mMessageHeap + mHeapTotalSize)
 	{
 		// We've gone past the end of our heap, copy this message to the front of the heap and continue
-	
-		memcpy(mMessageHeap, mCurrentMessageStart, messageSize); 
+
+		memcpy(mMessageHeap, mCurrentMessageStart, messageSize);
 
 		// Reset our main heap pointer(s)
 		if(mHeapStart == mHeapEnd)

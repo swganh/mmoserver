@@ -55,7 +55,7 @@ enum SESSIONOP
   SESSIONOP_FatalError            = 0x1900,
   SESSIONOP_FatalErrorResponse    = 0x1a00,
   SESSIONOP_Reset                 = 0x1d00,
-  SESSIONOP_CriticalError		  = 0x1e00,
+  SESSIONOP_CriticalError		  = 0x1e00
 };
 
 

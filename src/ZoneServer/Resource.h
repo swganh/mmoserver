@@ -30,8 +30,8 @@ enum ResourceAttribute
 	ResAttr_PE	= 7,
 	ResAttr_OQ	= 8,
 	ResAttr_SR	= 9,
-	ResAttr_UT	= 10,
-	
+	ResAttr_UT	= 10
+
 };
 
 class PlayerObject;

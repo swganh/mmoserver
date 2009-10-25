@@ -172,29 +172,29 @@ void ManufacturingSchematic::sendAttributes(PlayerObject* playerObject)
 	AttributeMap*				rAttributeMap		= getAttributeMap();
 	AttributeOrderList*			rAttributeOrderList	= getAttributeOrder();
 
-	DraftSchematic*				draftSchematic		= gSchematicManager->getSchematicBySlotId(mDynamicInt32);
-	DraftSlots*					draftSlots			= draftSchematic->getDraftSlots();
+	//DraftSchematic*				draftSchematic		= gSchematicManager->getSchematicBySlotId(mDynamicInt32);
+	//DraftSlots*					draftSlots			= draftSchematic->getDraftSlots();
 
 	Message*					newMessage;
 	string						value,aStr;
 	BStringVector				dataElements;
 
-	uint32	amountSlots		= draftSlots->size();
-	uint8	i				= 0;
+	//uint32	amountSlots		= draftSlots->size();
+	//uint8	i				= 0;
 
-	gMessageFactory->StartMessage();   
+	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opAttributeListMessage);
 	gMessageFactory->addUint64(mId);
-	
+
 	//add slots and resource/item requirements
-	
-	gMessageFactory->addUint32(iAttributeMap->size()+ rAttributeMap->size()+1); 
-	
+
+	gMessageFactory->addUint32(iAttributeMap->size()+ rAttributeMap->size()+1);
+
 	AttributeOrderList::iterator	orderIt = rAttributeOrderList->begin();
 
 	while(orderIt != rAttributeOrderList->end())
 	{
-		mapIt = rAttributeMap->find(*orderIt);		
+		mapIt = rAttributeMap->find(*orderIt);
 
 		gMessageFactory->addString(gWorldManager->getAttributeKey((*mapIt).first));
 
@@ -212,12 +212,12 @@ void ManufacturingSchematic::sendAttributes(PlayerObject* playerObject)
 	aStr.convert(BSTRType_Unicode16);
 	gMessageFactory->addString(aStr);
 
-	
+
 	orderIt = iAttributeOrderList->begin();
 
 	while(orderIt != iAttributeOrderList->end())
 	{
-		mapIt = iAttributeMap->find(*orderIt);		
+		mapIt = iAttributeMap->find(*orderIt);
 
 		gMessageFactory->addString(gWorldManager->getAttributeKey((*mapIt).first));
 
@@ -232,9 +232,9 @@ void ManufacturingSchematic::sendAttributes(PlayerObject* playerObject)
 	//gMessageFactory->addUint32(0xffffffff);
 
 	newMessage = gMessageFactory->EndMessage();
-		
+
 	(playerObject->getClient())->SendChannelAUnreliable(newMessage, playerObject->getAccountId(),CR_Client,9);
-	
+
 }
 
 
@@ -256,9 +256,9 @@ bool	ManufacturingSchematic::expPropStorefind(uint32 crc)
 // on the component part of the attribute have been made.
 // take a biological effect controller used in a B-Stim as example
 // the B-Stim can be experimented to say 200 MAX with excellent resources
-// Now if we add the effect controllers power to the B-Stims Power, 
-// the max experimentation value in the weights would not change to something 
-// different than the mentioned 200 
+// Now if we add the effect controllers power to the B-Stims Power,
+// the max experimentation value in the weights would not change to something
+// different than the mentioned 200
 // by adding the effect controllers Power AFTER the experimentation process the B-Stim typical values can be achieved.
 // however the relevant Attributes need to be displayed with the final values on crafting
 

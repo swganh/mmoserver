@@ -21,11 +21,11 @@ enum admin_opcodes
 	opClientCreateCharacterSuccess		=	0x1DB575CC,
 	opClientCreateCharacterFailed		=	0xdf333c6e,
 	opLagRequest						=	0x31805EE0,
-	
+
 	opGetMapLocationsMessage			=	0x1a7ab839,
 	opGetMapLocationsResponseMessage	=	0x9f80464c,
 
-	opHeartBeat							=	0xa16cf9af,
+	opHeartBeat							=	0xa16cf9af
 };
 
 #endif

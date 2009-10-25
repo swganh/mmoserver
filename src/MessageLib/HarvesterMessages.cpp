@@ -171,8 +171,8 @@ bool MessageLib::sendBaselinesINSO_3(PlayerStructure* structure,PlayerObject* pl
 	structure->getNameFile().convert(BSTRType_ANSI);
 	structure->getName().convert(BSTRType_ANSI);
 
-	printf(structure->getNameFile().getAnsi());
-	printf(structure->getName().getAnsi());
+	printf("%s", structure->getNameFile().getAnsi());
+	printf("%s", structure->getName().getAnsi());
 
 	uint32 byteCount = 61 + structure->getNameFile().getLength() + structure->getName().getLength();
 	

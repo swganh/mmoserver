@@ -18,7 +18,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "ZoneServer/ObjectController.h"
 #include "ZoneServer/Skill.h"   //for skillmodslist
 
-#include "common/bytebuffer.h"
+#include "Common/bytebuffer.h"
 #include <vector>
 #include "MathLib/Vector3.h"
 
@@ -53,14 +53,14 @@ class ActiveConversation;
 
 typedef struct tagResourceLocation ResourceLocation;
 
-typedef std::vector<PlayerObject*>				PlayerList; 
+typedef std::vector<PlayerObject*>				PlayerList;
 
 enum ObjectUpdate
 {
 	ObjectUpdateRewriteAll	= 0,
 	ObjectUpdateDelete		= 1,
 	ObjectUpdateAdd			= 2,
-	ObjectUpdateChange		= 3,
+	ObjectUpdateChange		= 3
 };
 
 //======================================================================================================================
@@ -168,8 +168,8 @@ public:
 	void				sendSelfPostureUpdate(PlayerObject* playerObject);
 	void				sendSetWaypointActiveStatus(WaypointObject* waypointObject, bool active, PlayerObject* targetObject);
 
-	// spatial 
-	void				sendSpatialChat(CreatureObject* const srcObject, string chatMsg, BStringVector chatElement);
+	// spatial
+	void				sendSpatialChat(CreatureObject* const srcObject, string chatMsg, char chatElement[5][32]);
 	bool				sendSpatialChat(const CreatureObject* const srcObject, const PlayerObject* const playerObject,string customMessage = L"",string mainFile = "",
 		string mainVar = "",string toFile = "",string toVar = "",string toCustom = L"",int32 di = 0,
 		string ttFile = "",string ttVar = "",string ttCustom = L"",uint64 ttId = 0,uint64 toId = 0,uint64 tuId = 0) const;
@@ -177,7 +177,6 @@ public:
 	void				sendCreatureAnimation(CreatureObject* srcObject,string animation);
 
 	// spatial for tutorial
-	void				sendSpatialChat(const CreatureObject* const srcObject,string chatMsg,BStringVector chatElement, const PlayerObject* const player) const ;
 	void				sendSpatialChat(const CreatureObject* const srcObject,string chatMsg,char chatElement[5][32], const PlayerObject* const player) const ;
 	void				sendCreatureAnimation(CreatureObject* srcObject,string animation, PlayerObject* player);
 
@@ -322,7 +321,7 @@ public:
 	// mission object, missionmessages.cpp
 	bool				sendBaselinesMISO_3(MissionObject* missionObject,PlayerObject* targetObject);
 	bool				sendBaselinesMISO_6(MissionObject* missionObject,PlayerObject* targetObject);
-	bool				sendBaselinesMISO_8(MissionObject* missionObject,PlayerObject* targetObject); 
+	bool				sendBaselinesMISO_8(MissionObject* missionObject,PlayerObject* targetObject);
 	bool				sendBaselinesMISO_9(MissionObject* missionObject,PlayerObject* targetObject);
 	bool				sendMISO_Delta(MissionObject* missionObject,PlayerObject* targetObject);
 	bool				sendMissionGenericResponse(MissionObject* missionObject,PlayerObject* targetObject);
@@ -339,10 +338,10 @@ public:
 	// deltas
 	bool				sendDeltasMSCO_3(ManufacturingSchematic* manSchem,PlayerObject* playerObject);
 	bool				sendDeltasMSCO_7(ManufacturingSchematic* manSchem,PlayerObject* playerObject);
-	
-	
+
+
 	bool				sendAttributeDeltasMSCO_7(ManufacturingSchematic* manSchem,PlayerObject* playerObject);
-	
+
 	bool				sendAttributeDeltasMSCO_7_New(ManufacturingSchematic* manSchem,PlayerObject* playerObject);
 
 

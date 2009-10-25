@@ -90,7 +90,7 @@ class SkillManager : public DatabaseCallback
 		string					getXPTypeById(uint32 xpId){ return mXpTypeList[xpId-1]; }
 		string					getXPTypeExById(uint32 xpId){ return mXpTypeListEx[xpId-1]; }
 		int32					getDefaultXPCapById(uint32 xpId){ return mDefaultXpCapList[xpId-1]; }
-				
+
 		bool					learnSkill(uint32 skillId,CreatureObject* creatureObject,bool subXp);
 		void					dropSkill(uint32 skillId,CreatureObject* creatureObject);
 		bool					learnSkillLine(uint32 skillId, CreatureObject* creatureObject, bool subXP);
@@ -108,7 +108,6 @@ class SkillManager : public DatabaseCallback
 		void					releaseAllPoolsMemory(){ mDBAsyncPool.release_memory(); }
 
 	private:
-
 		int32					getMaxXpCap(uint8 xpType);
 		int32					getXpCap(PlayerObject* playerObject, uint8 xpType);
 
@@ -119,20 +118,18 @@ class SkillManager : public DatabaseCallback
 		static bool			mInsFlag;
 		static SkillManager*	mSingleton;
 
-		Database*				mDatabase;
-
+		boost::pool<boost::default_user_allocator_malloc_free>			mDBAsyncPool;
+		XpCapList				mDefaultXpCapList;
 		SkillList				mMasterProfessionList;
+		CommandList				mSkillCommandList;
+		SkillInfoList			mSkillInfoList;
 		SkillList				mSkillList;
 		ModList					mSkillModList;
-		CommandList				mSkillCommandList;
-		XpCapList				mDefaultXpCapList;
 		XpTypeList				mXpTypeList;
 		XpTypeList				mXpTypeListEx;		// Reader friendly name of the xperience.
-		SkillInfoList			mSkillInfoList;
-		uint32					mTotalLoadCount;
+		Database*				mDatabase;
 		uint32					mLoadCounter;
-
-		boost::pool<boost::default_user_allocator_malloc_free>			mDBAsyncPool;
+		uint32					mTotalLoadCount;
 };
 
 #endif

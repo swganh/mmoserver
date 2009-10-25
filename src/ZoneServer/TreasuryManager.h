@@ -42,7 +42,7 @@ enum TREMQueryType
 {
 	TREMQuery_NULL					=	0,
 	TREMQuery_BankTipgetId			=	1,
-	TREMQuery_BankTipTransaction	=	2,
+	TREMQuery_BankTipTransaction	=	2
 
 };
 

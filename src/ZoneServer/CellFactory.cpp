@@ -75,13 +75,13 @@ void CellFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,CellFQuery_Objects,asyncContainer->mClient);
 			asContainer->mObject = cell;
 
-			mDatabase->ExecuteSqlAsync(this,asContainer,"(SELECT \'terminals\',id FROM terminals WHERE parent_id = %lld)"
-														" UNION (SELECT \'containers\',id FROM containers WHERE parent_id = %lld)"
-														" UNION (SELECT \'ticket_collectors\',id FROM ticket_collectors WHERE (parent_id=%lld))"
-														" UNION (SELECT \'persistent_npcs\',id FROM persistent_npcs WHERE parentId=%lld)"
-														" UNION (SELECT \'shuttles\',id FROM shuttles WHERE parentId=%lld)"
-														" UNION (SELECT \'items\',id FROM items WHERE parent_id=%lld)"
-														" UNION (SELECT \'resource_containers\',id FROM resource_containers WHERE parent_id=%lld)",
+			mDatabase->ExecuteSqlAsync(this,asContainer,"(SELECT \'terminals\',id FROM terminals WHERE parent_id = %"PRId64")"
+														" UNION (SELECT \'containers\',id FROM containers WHERE parent_id = %"PRId64")"
+														" UNION (SELECT \'ticket_collectors\',id FROM ticket_collectors WHERE (parent_id=%"PRId64"))"
+														" UNION (SELECT \'persistent_npcs\',id FROM persistent_npcs WHERE parentId=%"PRId64")"
+														" UNION (SELECT \'shuttles\',id FROM shuttles WHERE parentId=%"PRId64")"
+														" UNION (SELECT \'items\',id FROM items WHERE parent_id=%"PRId64")"
+														" UNION (SELECT \'resource_containers\',id FROM resource_containers WHERE parent_id=%"PRId64")",
 														cellId,cellId,cellId,cellId,cellId,cellId,cellId);
 		}
 		break;
@@ -107,7 +107,7 @@ void CellFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				{
 					result->GetNextRow(binding,&queryContainer);
 
-					if(strcmp(queryContainer.mString.getAnsi(),"terminals") == 0)	
+					if(strcmp(queryContainer.mString.getAnsi(),"terminals") == 0)
 						gObjectFactory->requestObject(ObjType_Tangible,TanGroup_Terminal,0,this,queryContainer.mId,asyncContainer->mClient);
 					else if(strcmp(queryContainer.mString.getAnsi(),"containers") == 0)
 						gObjectFactory->requestObject(ObjType_Tangible,TanGroup_Container,0,this,queryContainer.mId,asyncContainer->mClient);
@@ -140,7 +140,7 @@ void CellFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 void CellFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client)
 {
-	mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,CellFQuery_MainData,client),"SELECT id,parent_id FROM cells WHERE id = %lld",id);
+	mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,CellFQuery_MainData,client),"SELECT id,parent_id FROM cells WHERE id = %"PRId64"",id);
 }
 
 //=============================================================================
@@ -179,7 +179,7 @@ void CellFactory::handleObjectReady(Object* object,DispatchClient* client)
 {
 	InLoadingContainer* ilc = _getObject(object->getParentId());
 	CellObject*			cell = dynamic_cast<CellObject*>(ilc->mObject);
-	
+
 	gWorldManager->addObject(object,true);
 
 	switch(object->getType())
@@ -193,8 +193,24 @@ void CellFactory::handleObjectReady(Object* object,DispatchClient* client)
 				gWorldManager->addShuttle(dynamic_cast<Shuttle*>(creature));
 		}
 		break;
+
+		case ObjType_Building:
+		case ObjType_Cell:
+		case ObjType_DraftSchematic:
+		case ObjType_Harvester:
+		case ObjType_Intangible:
+		case ObjType_Lair:
+		case ObjType_Mission:
+		case ObjType_None:
+		case ObjType_NonPersistant:
+		case ObjType_Player:
+		case ObjType_Region:
+		case ObjType_Tangible:
+		case ObjType_Waypoint:
+		default:
+			break;
 	}
-	
+
 	cell->addChild(object);
 
 	if(cell->getLoadCount() == (cell->getChilds())->size())

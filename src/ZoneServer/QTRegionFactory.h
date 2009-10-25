@@ -28,7 +28,7 @@ class QTRegion;
 
 enum QTRFQuery
 {
-	QTRFQuery_MainData	= 1,
+	QTRFQuery_MainData	= 1
 };
 
 //=============================================================================

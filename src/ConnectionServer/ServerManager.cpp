@@ -192,7 +192,7 @@ void ServerManager::handleSessionDisconnect(NetworkClient* client)
 		mDatabase->ExecuteSqlAsync(0,0,"UPDATE galaxy SET status=1,last_update=NOW() WHERE galaxy_id=%u;", mClusterId);
 	}
 
-	gLogger->logMsgF("ServerManager::handleSessionDisconnect Servermanager handle server down", MSG_HIGH);
+	gLogger->logMsgF("Servermanager handle server down\n", MSG_HIGH);
 	mClientManager->handleServerDown(connClient->getServerId());
 
 	delete(client);
@@ -212,7 +212,7 @@ void ServerManager::handleSessionMessage(NetworkClient* client, Message* message
 //======================================================================================================================
 
 void ServerManager::handleDispatchMessage(uint32 opcode,Message* message,ConnectionClient* client)
-{ 
+{
 	switch(opcode)
 	{
 		case opClusterRegisterServer:
@@ -248,7 +248,7 @@ void ServerManager::handleDatabaseJobComplete(void* ref, DatabaseResult* result)
 
 void ServerManager::_loadProcessAddressMap(void)
 {
-	bool            serversOnline = false;
+	//bool            serversOnline = false;
 	ServerAddress   serverAddress;
 
 	// retrieve our list of process addresses.
@@ -261,7 +261,7 @@ void ServerManager::_loadProcessAddressMap(void)
 		// Retrieve our server data
 		result->GetNextRow(mServerBinding,&serverAddress);
 		memcpy(&mServerAddressMap[serverAddress.mId], &serverAddress, sizeof(ServerAddress));
-	}  
+	}
 
 	// Delete our DB objects.
 	mDatabase->DestroyResult(result);

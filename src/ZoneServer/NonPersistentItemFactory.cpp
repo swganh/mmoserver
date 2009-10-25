@@ -115,12 +115,12 @@ void NonPersistentItemFactory::requestObject(ObjectFactoryCallback* ofCallback,u
 
 void NonPersistentItemFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id, uint64 newId)
 {
-	// gLogger->logMsgF("NonPersistentItemFactory::requestObject: item_types = %lld",MSG_NORMAL, id);
+	// gLogger->logMsgF("NonPersistentItemFactory::requestObject: item_types = %"PRId64"",MSG_NORMAL, id);
 	mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryNonPersistentItemFactory(ofCallback,NPQuery_MainData,newId),
 							"SELECT item_family_attribute_defaults.family_id, item_family_attribute_defaults.item_type_id, item_types.object_string, item_types.stf_name, item_types.stf_file, item_types.stf_detail_file"
 							" FROM item_types"
 							" INNER JOIN item_family_attribute_defaults ON (item_types.id = item_family_attribute_defaults.item_type_id AND item_family_attribute_defaults.attribute_id = 1)"
-							" WHERE (item_types.id = %lld)",id);
+							" WHERE (item_types.id = %"PRId64")",id);
 }
 
 //=============================================================================

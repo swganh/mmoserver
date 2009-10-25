@@ -21,7 +21,7 @@ Item::Item() : TangibleObject(), mOwner(0)
 	mPlaced				= false;
 	mNonPersistantCopy	= 0;
 	mPersistantCopy		= 0;
-	
+
 }
 
 //=============================================================================
@@ -42,7 +42,7 @@ void Item::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCou
 	//	case ItemFamily_FireWork:
 	//	{
 	//		RadialMenu* radial	= new RadialMenu();
-	//		
+	//
 	//		radial->addItem(1,0,radId_itemUse,radAction_ObjCallback,"");
 	//		radial->addItem(2,0,radId_examine,radAction_ObjCallback,"");
 	//		radial->addItem(3,0,radId_itemDestroy,radAction_ObjCallback,"");
@@ -52,10 +52,10 @@ void Item::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCou
 
 	//		RadialMenuPtr radialPtr(radial);
 	//		mRadialMenu = radialPtr;
-	//		
+	//
 	//	}
 	//	break;
-	//	
+	//
 	//	default:
 	//	{
 	//	}
@@ -67,14 +67,14 @@ void Item::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCou
 
 void Item::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 {
-	if(PlayerObject* playerObject = dynamic_cast<PlayerObject*>(srcObject))
-	{	
+	if(dynamic_cast<PlayerObject*>(srcObject))
+	{
 		switch(messageType)
 		{
 			// When player hits launch on fireworks
-			case radId_itemUse: 
+			case radId_itemUse:
 			{
-				
+
 			}
 			break;
 

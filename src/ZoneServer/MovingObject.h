@@ -69,16 +69,16 @@ class MovingObject : public Object
 
 	protected:
 
-		uint32		mInMoveCount;
-		float		mBaseRunSpeedLimit;
+		uint32	mInMoveCount;
 		float		mBaseAcceleration;
-		float		mBaseTurnRate;
+		float		mBaseRunSpeedLimit;
 		float		mBaseTerrainNegotiation;
-		float		mCurrentRunSpeedLimit;
-		float		mCurrentTurnRate;
-		float		mCurrentSpeed;
+		float		mBaseTurnRate;
 		float		mCurrentAcceleration;
+		float		mCurrentRunSpeedLimit;
+		float		mCurrentSpeed;
 		float		mCurrentTerrainNegotiation;
+		float		mCurrentTurnRate;
 };
 
 //=============================================================================

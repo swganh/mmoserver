@@ -186,7 +186,7 @@ void Food::handleFoodUse(Object* srcObject)
 		}
 		else
 		{
-			//gLogger->logMsgF("Food::processAttribute: Unhandled Attribute 0x%x for %lld",MSG_NORMAL,key,this->getId());
+			//gLogger->logMsgF("Food::processAttribute: Unhandled Attribute 0x%x for %"PRId64"",MSG_NORMAL,key,this->getId());
 		
 		}
 		++orderIt;
@@ -264,7 +264,7 @@ void Food::_handleUses_Remaining(PlayerObject* playerObject)
 		toDelete = false;
 
 		this->setAttribute("counter_uses_remaining",boost::lexical_cast<std::string>(quantity));
-		gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%u' WHERE item_id=%lld AND attribute_id=%u",quantity,this->getId(),AttrType_CounterUsesRemaining);
+		gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%u' WHERE item_id=%"PRId64" AND attribute_id=%u",quantity,this->getId(),AttrType_CounterUsesRemaining);
 
 		//now update the uses display
 		gMessageLib->sendUpdateUses(this,playerObject);

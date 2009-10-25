@@ -309,7 +309,11 @@ uint32 UIManager::_getFreeId()
 
 	do
 	{
+#if defined(_MSC_VER)
 		id = gRandom->getRand()%4294967294 + 1;
+#else
+		id = gRandom->getRand()%4294967294LLU + 1;
+#endif
 	}
 	while(getUIWindow(id) != NULL);
 

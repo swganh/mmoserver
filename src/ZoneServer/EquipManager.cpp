@@ -43,7 +43,7 @@ uint8 EquipManager::removeEquippedObject(Object* object)
 {
 	// from slotmap
 	uint8 occurance = 0;
-	uint32 slotMask = object->getEquipSlotMask();
+	//uint32 slotMask = object->getEquipSlotMask();
 
 	SlotMap::iterator it = mSlotMap.begin();
 
@@ -161,7 +161,7 @@ bool EquipManager::addEquippedObject(Object* object)
 	uint8				occurance	= 0;
 	uint32				slotMask	= object->getEquipSlotMask();
 
-	if(Object* object = getEquippedObject(CreatureEquipSlot_Weapon))
+	if(getEquippedObject(CreatureEquipSlot_Weapon))
 	//if we want to equip a weapon we need to remove the default unarmed first
 	if(slotMask == CreatureEquipSlot_Weapon)
 	{
@@ -176,7 +176,7 @@ bool EquipManager::addEquippedObject(Object* object)
 
 	if (checkEquipSlots(slotMask))
 	{
-		//gLogger->logMsgF("EquipManager::addEquippedObject: Character: %lld Object: %lld : slot already taken!!!",MSG_NORMAL,mParent->getId(),object->getId());
+		//gLogger->logMsgF("EquipManager::addEquippedObject: Character: %"PRId64" Object: %"PRId64" : slot already taken!!!",MSG_NORMAL,mParent->getId(),object->getId());
 		//gLogger->logMsgF("Inventory::unEquipItem : object slot already filled slotmask : %u", MSG_NORMAL,slotMask);
 		//return(false);
 	}
@@ -184,7 +184,7 @@ bool EquipManager::addEquippedObject(Object* object)
 	// make sure we have a slot descriptor
 	if(!slotMask)
 	{
-		gLogger->logMsgF("EquipManager::addEquippedObject: Character: %lld Object: %lld : no slot mask set",MSG_NORMAL,mParent->getId(),object->getId());
+		gLogger->logMsgF("EquipManager::addEquippedObject: Character: %"PRId64" Object: %"PRId64" : no slot mask set",MSG_NORMAL,mParent->getId(),object->getId());
 
 		return(false);
 	}
@@ -279,7 +279,7 @@ bool EquipManager::addtoEquipList(Object* object)
 bool EquipManager::equipDefaultWeapon()
 {
 	// make sure slot is empty
-	if(Object* object = getEquippedObject(CreatureEquipSlot_Weapon))
+	if(getEquippedObject(CreatureEquipSlot_Weapon))
 	{
 		return(false);
 		//removeEquippedObject(CreatureEquipSlot_Weapon);

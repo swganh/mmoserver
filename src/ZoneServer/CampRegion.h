@@ -14,7 +14,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "RegionObject.h"
 #include "WorldManager.h"
-#include "Mathlib/Rectangle.h"
+#include "MathLib/Rectangle.h"
 #include "Utils/typedefs.h"
 
 

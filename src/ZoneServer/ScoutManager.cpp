@@ -33,11 +33,11 @@ void ScoutManager::createCamp(uint32 typeId,uint64 parentId,Anh_Math::Vector3 po
 //gObjectFactory->requestNewDefaultItem
 //(this,11,1320,entertainer->getId(),99,Anh_Math::Vector3(),"");
 {
-	
+
 	//get blueprint out of the db
 
-	StructureDeedLink*	deedData = 	gStructureManager->getDeedData(typeId);	
-	
+	StructureDeedLink*	deedData = 	gStructureManager->getDeedData(typeId);
+
 	if(!deedData)
 		return;
 
@@ -67,14 +67,14 @@ void ScoutManager::createCamp(uint32 typeId,uint64 parentId,Anh_Math::Vector3 po
 	camp->mDirection.mZ = 0;
 
 	camp->mDirection.mW = 1;
-	
+
 	camp->setParentId(parentId);
 	camp->setCustomName(customName.getAnsi());
 	camp->setMaxCondition(100);
 
-	camp->setPlayerStructureFamily(PlayerStructure_Camp);					
+	camp->setPlayerStructureFamily(PlayerStructure_Camp);
 	camp->setTangibleGroup(TanGroup_Structure);
-	
+
 	camp->setId(gWorldManager->getRandomNpId());
 
 	camp->setOwner(player->getId());
@@ -83,9 +83,9 @@ void ScoutManager::createCamp(uint32 typeId,uint64 parentId,Anh_Math::Vector3 po
 	camp->setName(deedData->stf_name.getAnsi());
 	camp->setNameFile(deedData->stf_file.getAnsi());
 
-	//create it in the world	
+	//create it in the world
 	gWorldManager->addObject(camp);
-	
+
 	PlayerObjectSet*			inRangePlayers	= player->getKnownPlayers();
 	PlayerObjectSet::iterator	it				= inRangePlayers->begin();
 	while(it != inRangePlayers->end())
@@ -107,7 +107,7 @@ void ScoutManager::createCamp(uint32 typeId,uint64 parentId,Anh_Math::Vector3 po
 	StructureItemList*	sIL = gStructureManager->getStructureItemList();
 	StructureItemList::iterator sILIt = sIL->begin();
 
-	CampTerminal* terminal;
+	CampTerminal* terminal(0);
 
 	while(sILIt != sIL->end())
 	{
@@ -121,7 +121,7 @@ void ScoutManager::createCamp(uint32 typeId,uint64 parentId,Anh_Math::Vector3 po
 				terminal = dynamic_cast<CampTerminal*>(tO);
 				terminal->setOwner(player->getId());
 				terminal->setCamp(camp->getId());
-				
+
 			}
 			else
 				tO = gNonPersistantObjectFactory->spawnTangible((*sILIt),0,player->mPosition,"",player);
@@ -135,19 +135,19 @@ void ScoutManager::createCamp(uint32 typeId,uint64 parentId,Anh_Math::Vector3 po
 		}
 		sILIt++;
 	}
-	
+
 	//add a camp region
 	//RegionObject* region = dynamic_cast<RegionObject*>(object);
 	CampRegion* region = new(CampRegion);
 	region->setId(gWorldManager->getRandomNpId());
-	
+
 	if(terminal)
 		terminal->setCampRegion(region->getId());
 
 	region->mPosition = player->mPosition;
 	region->setWidth(5.0);
 	region->setHeight(5.0);
-	
+
 	//important if !0 it will never get the relevant subzone!
 	region->setSubZoneId(0);
 	region->setOwner(player->getId());
@@ -160,6 +160,6 @@ void ScoutManager::createCamp(uint32 typeId,uint64 parentId,Anh_Math::Vector3 po
 	int8 name[64];
 	sprintf(name,"%s %s",player->getFirstName().getAnsi(),player->getLastName().getAnsi());
 	region->setCampOwnerName(BString(name));
-	
+
 
 }

@@ -78,7 +78,7 @@ void AttackableStaticNpc::prepareCustomRadialMenu(CreatureObject* creatureObject
 
 void AttackableStaticNpc::respawn(void)
 {
-	gLogger->logMsgF("AttackableStaticNpc::respawn: Added new static object for spawn, with id = %llu", MSG_NORMAL, this->getId());
+	gLogger->logMsgF("AttackableStaticNpc::respawn: Added new static object for spawn, with id = %"PRIu64"", MSG_NORMAL, this->getId());
 
 	// The cell we will spawn in.
 	this->setParentId(getCellIdForSpawn());
@@ -91,7 +91,7 @@ void AttackableStaticNpc::respawn(void)
 	if (this->hasInternalAttribute("creature_respawn_delay"))
 	{
 		uint64 respawnDelay = this->getInternalAttribute<uint64>("creature_respawn_delay");					
-		// gLogger->logMsgF("creature_respawn_delay = %llu", MSG_NORMAL, respawnDelay);
+		// gLogger->logMsgF("creature_respawn_delay = %"PRIu64"", MSG_NORMAL, respawnDelay);
 		// mRespawnDelay = respawnDelay;
 		this->setRespawnDelay(respawnDelay);
 	}
@@ -285,8 +285,8 @@ void AttackableStaticNpc::respawn(void)
 
 void AttackableStaticNpc::spawn(void)
 {
-	// gLogger->logMsgF("AttackableStaticNpc::spawn: Spawning creature %llu", MSG_NORMAL, this->getId());
-	// gLogger->logMsgF("Spawned static objects # %lld (%lld)", MSG_NORMAL, gCreatureSpawnCounter, gCreatureSpawnCounter - gCreatureDeathCounter);
+	// gLogger->logMsgF("AttackableStaticNpc::spawn: Spawning creature %"PRIu64"", MSG_NORMAL, this->getId());
+	// gLogger->logMsgF("Spawned static objects # %"PRId64" (%"PRId64")", MSG_NORMAL, gCreatureSpawnCounter, gCreatureSpawnCounter - gCreatureDeathCounter);
 
 	// Update the world about my presence.
 	
@@ -301,7 +301,7 @@ void AttackableStaticNpc::spawn(void)
 		}
 		else
 		{
-			gLogger->logMsgF("AttackableStaticNpc::spawn: couldn't find cell %llu\n", MSG_HIGH, this->getParentId());
+			gLogger->logMsgF("AttackableStaticNpc::spawn: couldn't find cell %"PRIu64"\n", MSG_HIGH, this->getParentId());
 			
 			// It's a serious isse that we need to investigate.
 			assert(cell);

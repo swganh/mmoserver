@@ -1,4 +1,4 @@
-AM_CXXFLAGS = -I$(top_srcdir)/src $(SWGANH_CXXFLAGS)
+AM_CXXFLAGS = -I$(top_srcdir)/src $(SWGANH_CXXFLAGS) $(BOOST_CPPFLAGS)
 
 # Utils library - noinstall shared library
 noinst_LTLIBRARIES = libutils.la
@@ -13,4 +13,4 @@ libutils_la_SOURCES = \
   utils.cpp \
   VariableTimeScheduler.cpp
 
-libutils_la_CPPFLAGS = -Wall -fshort-wchar 
+libutils_la_CPPFLAGS = -Wall -pedantic-errors -Wfatal-errors -fshort-wchar

@@ -206,7 +206,7 @@ bool Inventory::updateCredits(int32 amount)
 	if(mParent->getType() == ObjType_Player)
 		gMessageLib->sendInventoryCreditsUpdate(dynamic_cast<PlayerObject*>(mParent));
 
-	gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE inventories set credits=credits+%i WHERE id=%lld",amount,mId);
+	gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE inventories set credits=credits+%i WHERE id=%"PRId64"",amount,mId);
 
 	return(true);
 }
@@ -367,10 +367,10 @@ bool Inventory::EquipItem(Object* object)
 
 	int8 sql[256];
 	//set the equipped attribute to unequipped
-	sprintf(sql,"UPDATE swganh.item_attributes ia INNER JOIN swganh.attributes a ON a.id = ia.attribute_id SET ia.value = '1' WHERE ia.item_id= %I64u AND a.name = 'equipped'", object->getId());
+	sprintf(sql,"UPDATE swganh.item_attributes ia INNER JOIN swganh.attributes a ON a.id = ia.attribute_id SET ia.value = '1' WHERE ia.item_id= %"PRIu64" AND a.name = 'equipped'", object->getId());
 	gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,sql);
 
-	sprintf(sql,"UPDATE swganh.items  SET parent_id = '%I64u' WHERE id= %I64u ", parentId, object->getId());
+	sprintf(sql,"UPDATE swganh.items  SET parent_id = '%"PRIu64"' WHERE id= %"PRIu64" ", parentId, object->getId());
 	gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,sql);
 
 	return(true);
@@ -382,13 +382,13 @@ void Inventory::unEquipItem(Object* object)
 {
 	if(!object->hasInternalAttribute("equipped"))
 	{
-		gLogger->logMsgF("Inventory::unEquipItem : object not equipable object ID : %I64u", MSG_NORMAL,object->getId());
+		gLogger->logMsgF("Inventory::unEquipItem : object not equipable object ID : %"PRIu64"", MSG_NORMAL,object->getId());
 		return;
 	}
 
 	if(!object->getInternalAttribute<bool>("equipped"))
 	{
-		gLogger->logMsgF("Inventory::unEquipItem : object is unequiped object ID : %I64u", MSG_NORMAL,object->getId());
+		gLogger->logMsgF("Inventory::unEquipItem : object is unequiped object ID : %"PRIu64"", MSG_NORMAL,object->getId());
 		return;
 	}
 
@@ -396,7 +396,7 @@ void Inventory::unEquipItem(Object* object)
 
 	if(!item)
 	{
-		gLogger->logMsgF("Inventory::unEquipItem : No Item object ID : %I64u", MSG_NORMAL,object->getId());
+		gLogger->logMsgF("Inventory::unEquipItem : No Item object ID : %"PRIu64"", MSG_NORMAL,object->getId());
 		return;
 	}
 
@@ -404,7 +404,7 @@ void Inventory::unEquipItem(Object* object)
 
 	if(!owner)
 	{
-		gLogger->logMsgF("Inventory::unEquipItem : No owner Inventory ID : %I64u", MSG_NORMAL,this->getId());
+		gLogger->logMsgF("Inventory::unEquipItem : No owner Inventory ID : %"PRIu64"", MSG_NORMAL,this->getId());
 		return;
 	}
 
@@ -415,7 +415,7 @@ void Inventory::unEquipItem(Object* object)
 	}
 
 
-	gLogger->logMsgF("Inventory::unEquipItem : owner ID : %I64u", MSG_NORMAL,owner->getId());
+	gLogger->logMsgF("Inventory::unEquipItem : owner ID : %"PRIu64"", MSG_NORMAL,owner->getId());
 	//equipped objects are always contained by the Player
 	//unequipped ones by the inventory!
 
@@ -452,10 +452,10 @@ void Inventory::unEquipItem(Object* object)
 
 	int8 sql[256];
 	//set the equipped attribute to unequipped
-	sprintf(sql,"UPDATE swganh.item_attributes ia INNER JOIN swganh.attributes a ON a.id = ia.attribute_id SET ia.value = '0' WHERE ia.item_id= %I64u AND a.name = 'equipped'", object->getId());
+	sprintf(sql,"UPDATE swganh.item_attributes ia INNER JOIN swganh.attributes a ON a.id = ia.attribute_id SET ia.value = '0' WHERE ia.item_id= %"PRIu64" AND a.name = 'equipped'", object->getId());
 	gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,sql);
 
-	sprintf(sql,"UPDATE swganh.items  SET parent_id = '%I64u' WHERE id= %I64u ", parentId, object->getId());
+	sprintf(sql,"UPDATE swganh.items  SET parent_id = '%"PRIu64"' WHERE id= %"PRIu64" ", parentId, object->getId());
 	gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,sql);
 
 	if(item->getItemFamily() == ItemFamily_Instrument)
@@ -500,11 +500,11 @@ void Inventory::getUninsuredItems(SortedInventoryItemList* insuranceList)
 		Object* object = (*invObjectIt);
 		if (object->hasInternalAttribute("insured"))
 		{
-			// gLogger->logMsgF("Inventory::insuranceListCreate: Found item with insurance attribute inside the inventory: %llu", MSG_NORMAL,object->getId());
+			// gLogger->logMsgF("Inventory::insuranceListCreate: Found item with insurance attribute inside the inventory: %"PRIu64"", MSG_NORMAL,object->getId());
 			if (!object->getInternalAttribute<bool>("insured"))
 			{
 				// Add the item to the insurance list.
-				// gLogger->logMsgF("Inventory::insuranceListCreate: Found an uninsured item inside Inventory: %llu", MSG_NORMAL,object->getId());
+				// gLogger->logMsgF("Inventory::insuranceListCreate: Found an uninsured item inside Inventory: %"PRIu64"", MSG_NORMAL,object->getId());
 
 				// Handle the list.
 				if (object->hasAttribute("original_name"))
@@ -534,11 +534,11 @@ void Inventory::getUninsuredItems(SortedInventoryItemList* insuranceList)
 		Object* object = (*invObjectIt);
 		if (object->hasInternalAttribute("insured"))
 		{
-			// gLogger->logMsgF("Inventory::insuranceListCreate: Found equipped item with insurance attribute: %llu", MSG_NORMAL,object->getId());
+			// gLogger->logMsgF("Inventory::insuranceListCreate: Found equipped item with insurance attribute: %"PRIu64"", MSG_NORMAL,object->getId());
 			if (!object->getInternalAttribute<bool>("insured"))
 			{
 				// Add the item to the insurance list.
-				// gLogger->logMsgF("Inventory::insuranceListCreate: Found an uninsured equipped item: %llu", MSG_NORMAL,object->getId());
+				// gLogger->logMsgF("Inventory::insuranceListCreate: Found an uninsured equipped item: %"PRIu64"", MSG_NORMAL,object->getId());
 
 				// Handle the list.
 				if (object->hasAttribute("original_name"))
@@ -582,11 +582,11 @@ void Inventory::getInsuredItems(SortedInventoryItemList* insuranceList)
 		Object* object = (*invObjectIt);
 		if (object->hasInternalAttribute("insured"))
 		{
-			// gLogger->logMsgF("Inventory::insuranceListCreate: Found item with insurance attribute inside the inventory: %llu", MSG_NORMAL,object->getId());
+			// gLogger->logMsgF("Inventory::insuranceListCreate: Found item with insurance attribute inside the inventory: %"PRIu64"", MSG_NORMAL,object->getId());
 			if (object->getInternalAttribute<bool>("insured"))
 			{
 				// Add the item to the insurance list.
-				// gLogger->logMsgF("Inventory::insuranceListCreate: Found an insured item inside Inventory: %llu", MSG_NORMAL,object->getId());
+				// gLogger->logMsgF("Inventory::insuranceListCreate: Found an insured item inside Inventory: %"PRIu64"", MSG_NORMAL,object->getId());
 
 				// Handle the list.
 				if (object->hasAttribute("original_name"))
@@ -616,11 +616,11 @@ void Inventory::getInsuredItems(SortedInventoryItemList* insuranceList)
 		Object* object = (*invObjectIt);
 		if (object->hasInternalAttribute("insured"))
 		{
-			// gLogger->logMsgF("Inventory::insuranceListCreate: Found equipped item with insurance attribute: %llu", MSG_NORMAL,object->getId());
+			// gLogger->logMsgF("Inventory::insuranceListCreate: Found equipped item with insurance attribute: %"PRIu64"", MSG_NORMAL,object->getId());
 			if (object->getInternalAttribute<bool>("insured"))
 			{
 				// Add the item to the insurance list.
-				// gLogger->logMsgF("Inventory::insuranceListCreate: Found an insured equipped item: %llu", MSG_NORMAL,object->getId());
+				// gLogger->logMsgF("Inventory::insuranceListCreate: Found an insured equipped item: %"PRIu64"", MSG_NORMAL,object->getId());
 
 				// Handle the list.
 				if (object->hasAttribute("original_name"))

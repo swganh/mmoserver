@@ -31,7 +31,7 @@ typedef std::vector<ConversationOption*>	ConversationOptions;
 enum ConversationEvent
 {
 		ConvEvent_FilterOptions	= 1,
-		ConvEvent_TrainSkill	= 2,
+		ConvEvent_TrainSkill	= 2
 };
 
 //=============================================================================
@@ -58,7 +58,7 @@ class Conversation
 //=============================================================================
 
 class ConversationOption
-{	
+{
 	public:
 
 		uint32	mId;

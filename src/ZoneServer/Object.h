@@ -128,7 +128,7 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 		void						addInternalAttribute(string key,std::string value);
 		bool						hasInternalAttribute(string key);
 		void						removeInternalAttribute(string key);
-		
+
 		// subzone
 		uint32						getSubZoneId() const { return mSubZoneId; }
 		void						setSubZoneId(uint32 id){ mSubZoneId = id; }
@@ -143,43 +143,40 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 
 		Anh_Math::Quaternion	mDirection;
 		Anh_Math::Vector3		mPosition;
-	
+
 		inline uint64			getPrivateOwner() { return mPrivateOwner; }
 		inline void				setPrivateOwner(uint64 owner) { mPrivateOwner = owner; }
 		bool					isOwnedBy(PlayerObject* player);
 		Anh_Math::Vector3		getLastUpdatePosition(){ return mLastUpdatePosition; }
 		void					setLastUpdatePosition(Anh_Math::Vector3 pos ){mLastUpdatePosition = pos; }
-		
+
 
 	protected:
 
-		uint32					mInMoveCount;
-		ObjectLoadState			mLoadState;
-		ObjectController		mObjectController;
-	
-		uint64					mId;
-		uint64					mParentId;
-		uint32					mSubZoneId;
-
-		string					mModel;
-		ObjectType				mType;
-		uint32					mTypeOptions;
-
-		ObjectSet				mKnownObjects;
+		AttributeMap				mAttributeMap;
+		AttributeOrderList	mAttributeOrderList;
+		AttributeMap 				mInternalAttributeMap;
+		ObjectSet						mKnownObjects;
 		PlayerObjectSet			mKnownPlayers;
+		ObjectController		mObjectController;
+		string							mModel;
 
 		RadialMenuPtr			mRadialMenu;
 
-		AttributeMap			mAttributeMap,mInternalAttributeMap;
-		AttributeOrderList		mAttributeOrderList;
+		ObjectLoadState			mLoadState;
+		ObjectType				mType;
 
-		uint32					mEquipSlots;
+		uint64					mId;
+		uint64					mParentId;
+		uint64					mPrivateOwner; // If object is used as a private object, like in an Instance, we should only update the owner.
 		uint32					mEquipRestrictions;
-
-		uint64					mPrivateOwner;		// If object is used as a private object, like in an Instance, we should only update the owner.
+		uint32					mEquipSlots;
+		uint32					mInMoveCount;
+		uint32					mSubZoneId;
+		uint32					mTypeOptions;
 	private:
 		Anh_Math::Vector3		mLastUpdatePosition;	// Position where SI was updated.
-		
+
 };
 
 //=============================================================================

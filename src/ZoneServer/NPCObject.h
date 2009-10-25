@@ -42,7 +42,7 @@ class NPCObject : public CreatureObject
 		{
 			NpcIsDormant = 0,
 			NpcIsReady,
-			NpcIsActive,
+			NpcIsActive
 		} Npc_AI_State;
 
 		NPCObject();
@@ -125,44 +125,35 @@ class NPCObject : public CreatureObject
 
 		void			setAiState(Npc_AI_State state);
 
-		uint32	mNpcFamily;
-		uint64  mSpeciesId;
 		string	mTitle;
-
-		uint64	mLastConversationTarget;
 		uint64	mLastConversationRequest;
+		uint64	mLastConversationTarget;
+		uint64  mSpeciesId;
+		uint32	mNpcFamily;
 
 
 	private:
-		// Spawn info.
-		uint64	mNpcTemplateId;
-		uint64	mLootGroupId;
-		uint64  mCellIdForSpawn;
-		Anh_Math::Quaternion	mSpawnDirection;
-		Anh_Math::Vector3		mSpawnPosition;
-
-		// Delay before the object will respawn. Period time taken from time of destruction from world (not the same as when you "die").
-		uint64 mRespawnDelay;
-
-		Npc_AI_State	mAiState;
-		Anh_Math::Quaternion	mDefaultDirection;	// Default direction for npc-objects. Needed when players start turning the npc around.
-		Anh_Math::Vector3		mPositionOffset;
-
-		// Damage data
-
-		// Default aggro, without any modifiers.
-		float mBaseAggro;
-
-		// Players that come within this range will (may) be attacked.
-		float mAttackRange;
-
-		// Weapon XP.
-		int32	mWeaponXp;
-
-		uint64	mLootAllowedById;
 
 		DamageDealers	mDamageDealers;
 		DamageDealers	mDamageByGroups;
+
+		Anh_Math::Quaternion	mDefaultDirection;	// Default direction for npc-objects. Needed when players start turning the npc around.
+		Anh_Math::Vector3		mPositionOffset;
+		Anh_Math::Quaternion	mSpawnDirection;
+		Anh_Math::Vector3		mSpawnPosition;
+
+		Npc_AI_State	mAiState;
+
+		float mAttackRange; // Players that come within this range will (may) be attacked.
+		float mBaseAggro; // Default aggro, without any modifiers.
+
+		// Spawn info.
+		uint64  mCellIdForSpawn;
+		uint64	mLootAllowedById;
+		uint64	mLootGroupId;
+		uint64	mNpcTemplateId;
+		uint64 mRespawnDelay;		// Delay before the object will respawn. Period time taken from time of destruction from world (not the same as when you "die").
+		int32	mWeaponXp;
 };
 
 //=============================================================================

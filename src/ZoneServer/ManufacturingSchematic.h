@@ -36,7 +36,7 @@ enum SlotIndicatorEnum
 	SlotIndicator_None		= 0,
 	SlotIndicator_Identical	= 2,
 	SlotIndicator_Resource	= 4,
-	SlotIndicator_Similar	= 5,
+	SlotIndicator_Similar	= 5
 
 };
 
@@ -113,7 +113,7 @@ class ManufacturingSchematic : public Item
 
 		CustomizationList*		getCustomizationList(){return &mCustomizationList;}
 
-		uint32	mUpdateCounter[18];
+		uint32	mUpdateCounter[19];
 		uint32	mAttributesUpdateCounter;
 
 		bool	mExpAttributeValueChange;
@@ -147,31 +147,38 @@ class ManufactureSlot
 {
 	public:
 
-		ManufactureSlot(DraftSlot* draftSlot) :	mDraftSlot(draftSlot),mFilled(0),mUnknown1(0),mUnknown2(0xffffffff),mUnknown3(0),mFilledIndicator(0),mFilledIndicatorChange(false){}
+		ManufactureSlot(DraftSlot* draftSlot)
+		:	mDraftSlot(draftSlot)
+		, mFilled(0)
+		, mFilledIndicator(0)
+		, mUnknown1(0)
+		, mUnknown2(0xffffffff)
+		, mUnknown3(0)
+		, mFilledIndicatorChange(false)
+		{}
 
 		virtual ~ManufactureSlot(){}
 		float	getmFilledIndicator(){ return static_cast<float>(mFilledIndicator); }
 		void	setmFilledIndicator(uint32 indicator){ mFilledIndicatorChange = (mFilledIndicator != indicator);mFilledIndicator= indicator; }
 
+		FilledResources	mFilledResources;
 		// slots
 		DraftSlot*		mDraftSlot;
-		uint32			mFilled;
-		FilledResources	mFilledResources;
 
+		uint32			mFilled;
 		// SlotContent filled
 		// 0 nothing
 		// 1 ??
 		// 2 item
 		// 4 resource
 		uint32			mFilledIndicator;
-
+		uint32			mUnknown1;
+		uint32			mUnknown2;
+		uint32			mUnknown3;
 
 		// informs us whether there have been changes to know whether to update the counter
 		bool			mFilledIndicatorChange;
 
-		uint32			mUnknown1;
-		uint32			mUnknown2;
-		uint32			mUnknown3;
 };
 
 //=============================================================================
@@ -185,36 +192,31 @@ class ExperimentationProperty//CraftingAttribute
 	public:
 
 		ExperimentationProperty(const int8* expAttName,CraftWeights* craftWeights,CraftAttributes* craftAttributes,float expAttValue,float assAttValue,float maxExpValue)
-		: mExpAttributeValue(expAttValue),mWeights(craftWeights),mAttributes(craftAttributes),mExpUnknown(0),mBlueBarSize(assAttValue),mMaxExpValue(maxExpValue)
-		{
-			mExpAttributeName			=	expAttName;
-			mBlueBarSize				=	1.0;
-
-		}
+		: mExpAttributeName(expAttName)
+		, mWeights(craftWeights)
+		, mAttributes(craftAttributes)
+		, mBlueBarSize(assAttValue)
+		, mExpAttributeValue(expAttValue)
+		, mMaxExpValue(maxExpValue)
+		, mExpUnknown(0)
+		{}
 
 		virtual ~ExperimentationProperty(){}
 
-		CraftWeights*		mWeights;
+		string						mExpAttributeName;
+		CraftWeights*			mWeights;
 		CraftAttributes*	mAttributes;
-
-
-		string				mExpAttributeName;
-
-		float				mExpAttributeValue;
-		float				mExpAttributeValueOld;
-		bool				mExpAttributeValueChange;
-
-		uint32				mExpUnknown;//ExperimentationOffsetList
-
-		float				mBlueBarSize;
-		float				mBlueBarSizeOld;
-		bool				mBlueBarSizeChange;
-
-		float				mMaxExpValue;
-		float				mMaxExpValueOld;
-		bool				mMaxExpValueChange;
-
-		int32				mRoll;
+		float							mBlueBarSize;
+		float							mBlueBarSizeOld;
+		float							mExpAttributeValue;
+		float							mExpAttributeValueOld;
+		float							mMaxExpValue;
+		float							mMaxExpValueOld;
+		uint32						mExpUnknown;//ExperimentationOffsetList
+		int32							mRoll;
+		bool							mBlueBarSizeChange;
+		bool							mExpAttributeValueChange;
+		bool							mMaxExpValueChange;
 };
 
 //=============================================================================

@@ -1,14 +1,14 @@
 
-#include "ObjControllerCommandMessage.h"
+#include "objcontrollercommandmessage.h"
 #include "ObjectControllerCommandMap.h"
 
 ObjControllerCommandMessage::ObjControllerCommandMessage(uint32 opcode,const uint64 executionTime,uint64 targetId)
-: mOpcode(opcode)
-, mData(NULL)
+: mData(NULL)
+, mProperties(NULL)
 , mExecutionTime(executionTime)
 , mTargetId(targetId)
+, mOpcode(opcode)
 , mSequence(0)
-, mProperties(NULL)
 {}
 
 
@@ -20,63 +20,63 @@ ObjControllerCommandMessage::~ObjControllerCommandMessage()
     }
 }
 
-uint32 ObjControllerCommandMessage::getOpcode() const 
-{ 
-    return mOpcode; 
+uint32 ObjControllerCommandMessage::getOpcode() const
+{
+    return mOpcode;
 }
-		
+
 void ObjControllerCommandMessage::setOpcode(uint32 opcode)
-{ 
-    mOpcode = opcode; 
+{
+    mOpcode = opcode;
 }
 
-uint64 ObjControllerCommandMessage::getTargetId() const 
-{ 
-    return mTargetId; 
+uint64 ObjControllerCommandMessage::getTargetId() const
+{
+    return mTargetId;
 }
-		
+
 void ObjControllerCommandMessage::setTargetId(uint32 targetId)
-{ 
-    mTargetId = targetId; 
+{
+    mTargetId = targetId;
 }
 
-uint32 ObjControllerCommandMessage::getSequence() const 
-{ 
-    return mSequence; 
+uint32 ObjControllerCommandMessage::getSequence() const
+{
+    return mSequence;
 }
-		
+
 void ObjControllerCommandMessage::setSequence(uint32 sequence)
-{ 
-    mSequence = sequence; 
+{
+    mSequence = sequence;
 }
 
 Message* ObjControllerCommandMessage::getData()
-{ 
-    return mData; 
-}
-		
-void ObjControllerCommandMessage::setData(Message* message)
-{ 
-    mData = message; 
+{
+    return mData;
 }
 
-uint64 ObjControllerCommandMessage::getExecutionTime() const 
-{ 
-    return mExecutionTime; 
+void ObjControllerCommandMessage::setData(Message* message)
+{
+    mData = message;
 }
-		
+
+uint64 ObjControllerCommandMessage::getExecutionTime() const
+{
+    return mExecutionTime;
+}
+
 void ObjControllerCommandMessage::setExecutionTime(uint64 time)
-{ 
-    mExecutionTime = time; 
+{
+    mExecutionTime = time;
 }
 
 ObjectControllerCmdProperties* ObjControllerCommandMessage::getCmdProperties()
-{ 
-    return mProperties; 
+{
+    return mProperties;
 }
-		
+
 void ObjControllerCommandMessage::setCmdProperties(ObjectControllerCmdProperties* properties)
-{ 
-    mProperties = properties; 
+{
+    mProperties = properties;
 }
 

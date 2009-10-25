@@ -12,7 +12,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_BUFFICONSENUM_H
 #define ANH_BUFFICONSENUM_H
 
-enum BuffIconsEnum 
+enum BuffIconsEnum
 {
 	test_first	= 0x1967AF38,
 	test_second	= 0xA24A7A5B,
@@ -161,7 +161,7 @@ enum BuffIconsEnum
 	force_rank_suffering	= 0xF531B147,
 	force_rank_serenity	= 0xA09E5934,
 	skill_buff_polearm_accuracy	= 0xF0C5EEED,
-	skill_buff_polearm_speed	= 0x6F675FB6,
+	skill_buff_polearm_speed	= 0x6F675FB6
 };
 
 #endif //ANH_BUFFICONSENUM_H

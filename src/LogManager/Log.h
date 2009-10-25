@@ -65,37 +65,36 @@ enum MsgPriority
 
 class Log
 {
-	public:
+public:
+	Log(const std::string& name, LogLevel level, GlobalLogLevel globalLevel, bool fileOut, bool consoleOut, bool append, Database* database);
+	~Log();
 
-		Log(const std::string& name, LogLevel level, GlobalLogLevel globalLevel, bool fileOut, bool consoleOut, bool append, Database* database);
-		~Log();
+	void logMsg(const std::string& zone, const std::string& system, const std::string& msg, MsgPriority priority, va_list args);
+	void logMsg(const std::string& msg, MsgPriority mp, bool fileOut, bool consoleOut, bool timestamp);
+	void logMsg(const std::string& msg, MsgPriority mp, bool fileOut, bool consoleOut, bool timestamp, int Color);
+	void logMsg(const std::string& msg, MsgPriority mp, va_list args);
+	void logMsgNolf(const std::string& msg, MsgPriority mp, bool fileOut, bool consoleOut, bool timestamp, int Color, va_list args);
+	void logMsgNolf(const std::string& msg, MsgPriority mp, bool fileOut, bool consoleOut, bool timestamp, int Color);
+	uint16 logMsgNolf(const std::string& msg, MsgPriority mp, va_list args);
+	void hexDump(int8* data,uint32 len,MsgPriority mp);
+	void hexDump(int8* data,uint32 len,const char* filename);
 
-		void	logMsg(const std::string& zone, const std::string& system, const std::string& msg, MsgPriority priority, va_list args);
-		void	logMsg(const std::string& msg, MsgPriority mp, bool fileOut, bool consoleOut, bool timestamp);
-		void	logMsg(const std::string& msg, MsgPriority mp, bool fileOut, bool consoleOut, bool timestamp, int Color);
-		void    logMsg(const std::string& msg, MsgPriority mp, va_list args);
-		void	logMsgNolf(const std::string& msg, MsgPriority mp, bool fileOut, bool consoleOut, bool timestamp, int Color, va_list args);
-		void	logMsgNolf(const std::string& msg, MsgPriority mp, bool fileOut, bool consoleOut, bool timestamp, int Color);
-		uint16  logMsgNolf(const std::string& msg, MsgPriority mp, va_list args);
-		void	hexDump(int8* data,uint32 len,MsgPriority mp);
-		void    hexDump(int8* data,uint32 len,const char* filename);
+	void setLogLevel(LogLevel level) { mLogLevel = level; }
+	void setGlobalLogLevel(GlobalLogLevel level) { mGlobalLogLevel = level; }
 
-		void    setLogLevel(LogLevel level) { mLogLevel = level; }
-		void	setGlobalLogLevel(GlobalLogLevel level) { mGlobalLogLevel = level; }
+private:
+	std::string     timestamp_();
 
-	private:
-        std::string     timestamp_();
-
-		std::ofstream	mLogStream;
-		std::string		mName;
-		std::string		mZone;
-		bool			mFileOut;
-		bool			mDBOut;
-		bool			mConsoleOut;
-		LogLevel		mLogLevel;
-		GlobalLogLevel	mGlobalLogLevel;
-		boost::mutex    mGlobalLogMutex;
-		Database*		mDatabase;
+	std::ofstream		mLogStream;
+	std::string			mName;
+	std::string			mZone;
+	GlobalLogLevel	mGlobalLogLevel;
+	LogLevel				mLogLevel;
+	boost::mutex		mGlobalLogMutex;
+	Database*				mDatabase;
+	bool						mFileOut;
+	bool						mDBOut;
+	bool						mConsoleOut;
 
 
 };

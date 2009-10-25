@@ -29,7 +29,7 @@ class DispatchClient;
 enum CellFQuery
 {
 	CellFQuery_MainData	= 1,
-	CellFQuery_Objects	= 2,
+	CellFQuery_Objects	= 2
 };
 
 //=============================================================================

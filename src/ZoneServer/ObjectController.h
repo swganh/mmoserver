@@ -24,7 +24,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 
 // maximum commands allowed to be queued
 #define COMMAND_QUEUE_MAX_SIZE 10
-		
+
 // typedef void (ObjectController::*adminFuncPointer)(string message);
 //=======================================================================
 
@@ -66,7 +66,7 @@ enum OCQueryType
 	OCQuery_Nope			= 5,
 	OCQuery_StatRead		= 6,
 	OCQuery_FindFriend		= 7,
-	OCQuery_CloneAtPreDes	= 8,
+	OCQuery_CloneAtPreDes	= 8
 };
 
 //=======================================================================
@@ -75,7 +75,7 @@ enum OCCmdGroup
 {
 	ObjControllerCmdGroup_Common		= 0,
 	ObjControllerCmdGroup_Attack		= 1,
-	ObjControllerCmdGroup_Area_Attack	= 2,
+	ObjControllerCmdGroup_Area_Attack	= 2
 };
 
 //=======================================================================
@@ -99,7 +99,7 @@ struct MenuItem
 	uint8	sSubMenu;
 	uint8	sIdentifier;
 	uint8	sOption;
-	
+
 };
 
 typedef std::vector<MenuItem*>	MenuItemList;
@@ -184,12 +184,12 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback
 		void					handleCraftEmptySlot(Message* message);
 		void					handleCraftExperiment(Message* message);
 		void					handleCraftCustomization(Message* message);
-		
+
 		//Imagedesign
 		void					handleImageDesignChangeMessage(Message* message,uint64 targetId);
 		void					handleImageDesignStopMessage(Message* message,uint64 targetId);
 		void					handleStatMigrationMessage(Message* message,uint64 targetId);
-		
+
 		// destroy an object
 		void					destroyObject(uint64 objectId);
 
@@ -220,7 +220,7 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback
 		// validate command
 		bool	_validateEnqueueCommand(uint32 &reply1,uint32 &reply2,uint64 targetId,uint32 opcode,ObjectControllerCmdProperties*& cmdProperties);
 		bool	_validateProcessCommand(uint32 &reply1,uint32 &reply2,uint64 targetId,uint32 opcode,ObjectControllerCmdProperties*& cmdProperties);
-		
+
 		// process queues
 		bool	_processCommandQueue();
 		bool	_processEventQueue();
@@ -258,7 +258,7 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback
 		void	_handleNPCConversationStart(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleNPCConversationStop(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleNPCConversationSelect(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
-		
+
 		void	_handleGetAttributesBatch(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleTarget(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleRequestDraftslotsBatch(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
@@ -349,7 +349,7 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback
 		void	_handleflourish(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handlestopwatching(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handlestoplistening(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
-		
+
 		void	_handlewatch(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handlelisten(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handlePauseDance(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
@@ -367,13 +367,13 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback
 		void	_handleSmokeBomb(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleSpotLight(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleVentriloquism(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
-		
+
 		// ImageDesigner
 		void	_handleImageDesign(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleStatMigration(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleRequestStatMigrationData(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handlePlayHoloEmote(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
-	
+
 		//artisan
 		void	_handleRequestCraftingSession(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleCancelCraftingSession(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
@@ -425,7 +425,7 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback
 
 		// smuggler
 		void	_handleFeignDeath(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
-		
+
 		// squadleader
 		void	_handleSysGroup(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleSteadyAim(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
@@ -439,7 +439,7 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback
 		void	_handleMeditate(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handlePowerBoost(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleForceOfWill(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
-		
+
 		// force defense
 		void	_handleAvoidIncapacitation(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 
@@ -536,7 +536,7 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback
 		void	_handleBroadcastGalaxy(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties);
 		void	_handleShutdownGalaxy(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties);
 		void	_handleCancelShutdownGalaxy(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties);
-		
+
 
 		string	handleBroadcast(string message) const;
 		string	handleBroadcastPlanet(string message) const;
@@ -548,7 +548,7 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback
 		int32	getAdminCommandFunction(string command) const;
 		int32	indexOfFirstField(const string message) const;
 		int32	indexOfNextField(const string message) const;
-		void	broadcastGalaxyMessage(string theBroadcast, int32 planetId) const; 
+		void	broadcastGalaxyMessage(string theBroadcast, int32 planetId) const;
 		void	scheduleShutdown(int32 scheduledTime, string shutdownReason) const;
 		void	cancelScheduledShutdown(string cancelShutdownReason) const;
 		void	sendAdminFeedback(string reply) const;
@@ -561,42 +561,41 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback
 		void	_findInRangeObjectsInside(bool updateAll);
 		bool	_updateInRangeObjectsInside();
 		bool	_destroyOutOfRangeObjects(ObjectSet* inRangeObjects);
-		
-		
+
+
 		// ham
 		bool	_consumeHam(ObjectControllerCmdProperties* cmdProperties);
 
-		uint64				mTaskId;
-		Database*			mDatabase;
-		ZoneTree*			mSI;
-		Object*				mObject;
 
-		CommandQueue		mCommandQueue;
-		EventQueue			mEventQueue;
+		boost::pool<boost::default_user_allocator_malloc_free>		mCmdMsgPool;
+		boost::pool<boost::default_user_allocator_malloc_free>		mDBAsyncContainerPool;
+		boost::pool<boost::default_user_allocator_malloc_free>		mEventPool;
+
+		CommandQueue				mCommandQueue;
+		EventQueue					mEventQueue;
+		ObjectSet						mInRangeObjects;
+		ObjectSet::iterator mObjectSetIt;
 
 		EnqueueValidators	mEnqueueValidators;
 		ProcessValidators	mProcessValidators;
 
+		Database*			mDatabase;
+		ZoneTree*			mSI;
+		Object*				mObject;
+
 		uint64				mCommandQueueProcessTimeLimit;
 		uint64				mEventQueueProcessTimeLimit;
 		uint64				mNextCommandExecution;
-		// uint64				mNextCombatCmdExecution;
+		uint64				mTaskId;
 		uint64				mUnderrunTime;			// time "missed" due to late arrival of command queue.
-		
-		bool				mUpdatingObjects;
-		bool				mDestroyOutOfRangeObjects;
-		
-		ObjectSet			mInRangeObjects;
-		ObjectSet::iterator mObjectSetIt;
-		uint32				mFullUpdateTrigger;
 		int32				mMovementInactivityTrigger;
+		uint32				mFullUpdateTrigger;
 
+		bool				mDestroyOutOfRangeObjects;
 		bool				mInUseCommandQueue;
 		bool				mRemoveCommandQueue;
+		bool				mUpdatingObjects;
 
-		boost::pool<boost::default_user_allocator_malloc_free>		mCmdMsgPool;
-		boost::pool<boost::default_user_allocator_malloc_free>		mEventPool;
-		boost::pool<boost::default_user_allocator_malloc_free>		mDBAsyncContainerPool;
 
 };
 

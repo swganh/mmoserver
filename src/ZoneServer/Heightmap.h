@@ -70,6 +70,7 @@ class Heightmap
 		unsigned long getOffset(float x, float y) const ;
 
 		int32 round_coord(float coord) const;
+
 		float	**mHeightmapCache;
 		int32	mCacheHeight;
 		int32	mCacheWidth;
@@ -82,11 +83,11 @@ class Heightmap
 
 		static Heightmap*  mInstance;
 		// static bool        mInsFlag;
-		FILE * hmp; //file pointer to the highmap
 		std::string mFilename;
+		FILE * hmp; //file pointer to the highmap
 
 		int32		WIDTH;
-		int32     HEIGHT;
+		int32   HEIGHT;
 
 
 };

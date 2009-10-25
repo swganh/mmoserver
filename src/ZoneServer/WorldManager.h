@@ -388,71 +388,57 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		static WorldManager*		mSingleton;
 		static bool					mInsFlag;
 
-		Database*					mDatabase;
-		ZoneTree*					mSpatialIndex;
-		Anh_Utils::Scheduler*		mAdminScheduler;
-		Anh_Utils::Scheduler*		mNpcManagerScheduler;
-		Anh_Utils::Scheduler*		mSubsystemScheduler;
-		Anh_Utils::Scheduler*		mObjControllerScheduler;
-		Anh_Utils::Scheduler*		mHamRegenScheduler;
-		Anh_Utils::Scheduler*		mMissionScheduler;
-		Anh_Utils::Scheduler*		mPlayerScheduler;
-		Anh_Utils::Scheduler*		mEntertainerScheduler;
-		Anh_Utils::VariableTimeScheduler* mBuffScheduler;
-
-		ActiveRegions				mActiveRegions;
-		QTRegionMap					mQTRegionMap;
-		RegionMap					mRegionMap;
-		RegionDeleteList			mRegionDeleteList;
-		ObjectMap					mObjectMap;
-		PlayerAccMap				mPlayerAccMap;
-		ShuttleList					mShuttleList;
-		CraftTools					mBusyCraftTools;
-		NpcConversionTimers			mNpcConversionTimers;
-		PlayerMovementUpdateMap		mPlayerMovementUpdateMap;
-		CreatureObjectDeletionMap	mCreatureObjectDeletionMap;
-		PlayerObjectReviveMap		mPlayerObjectReviveMap;
-
-		NpcDormantHandlers			mNpcDormantHandlers;
-		NpcReadyHandlers			mNpcReadyHandlers;
-		NpcActiveHandlers			mNpcActiveHandlers;
-		AdminRequestHandlers		mAdminRequestHandlers;
-
-		NpIdSet						mUsedTmpIds;
-
-		CreatureSpawnRegionMap		mCreatureSpawnRegionMap;
-		uint32						mZoneId;
-		WMState						mState;
-
-		ZoneServer*					mZoneServer;
-
-		uint32						mTotalObjectCount;
-
-		PlayerList					mPlayersToRemove;
-
-		CreatureQueue				mObjControllersToProcess;
-		uint64						mObjControllersProcessTimeLimit;
-
-		uint64						mTick;
-		uint64						mServerTime;
-		Weather						mCurrentWeather;
-
-		BStringVector				mvClientEffects;
-		BStringVector				mvPlanetNames;
-		BStringVector				mvTrnFileNames;
-		BStringVector				mvMoods;
-		BStringVector				mvSounds;
-		BStringVector				mvNpcConverseAnimations;
-
-		std::vector<std::pair<string,uint32> >	mvNpcChatter;
-
-		ScriptList					mWorldScripts;
-		ScriptEventListener			mWorldScriptsListener;
-
 		boost::pool<boost::default_user_allocator_malloc_free>	mWM_DB_AsyncPool;
 
+		AdminRequestHandlers		mAdminRequestHandlers;
+		CreatureObjectDeletionMap	mCreatureObjectDeletionMap;
+		CreatureSpawnRegionMap		mCreatureSpawnRegionMap;
+		NpcActiveHandlers			mNpcActiveHandlers;
+		NpcDormantHandlers			mNpcDormantHandlers;
+		NpcReadyHandlers			mNpcReadyHandlers;
+		ObjectMap					mObjectMap;
+		PlayerAccMap				mPlayerAccMap;
+		PlayerMovementUpdateMap		mPlayerMovementUpdateMap;
+		PlayerObjectReviveMap		mPlayerObjectReviveMap;
+		QTRegionMap					mQTRegionMap;
+		RegionMap					mRegionMap;
+		NpIdSet						mUsedTmpIds;
+		BStringVector				mvClientEffects;
+		BStringVector				mvMoods;
+		BStringVector				mvNpcConverseAnimations;
+		BStringVector				mvPlanetNames;
+		BStringVector				mvSounds;
+		BStringVector				mvTrnFileNames;
+		ActiveRegions				mActiveRegions;
+		CraftTools					mBusyCraftTools;
+		std::vector<std::pair<string,uint32> >	mvNpcChatter;
+		NpcConversionTimers			mNpcConversionTimers;
+		PlayerList					mPlayersToRemove;
+		RegionDeleteList			mRegionDeleteList;
+		ShuttleList					mShuttleList;
+		ScriptList					mWorldScripts;
+		CreatureQueue				mObjControllersToProcess;
+		Weather									mCurrentWeather;
+		ScriptEventListener			mWorldScriptsListener;
+		Anh_Utils::Scheduler*		mAdminScheduler;
+		Anh_Utils::VariableTimeScheduler* mBuffScheduler;
+		Database*								mDatabase;
+		Anh_Utils::Scheduler*		mEntertainerScheduler;
+		Anh_Utils::Scheduler*		mHamRegenScheduler;
+		Anh_Utils::Scheduler*		mMissionScheduler;
+		Anh_Utils::Scheduler*		mNpcManagerScheduler;
+		Anh_Utils::Scheduler*		mObjControllerScheduler;
+		Anh_Utils::Scheduler*		mPlayerScheduler;
+		ZoneTree*								mSpatialIndex;
+		Anh_Utils::Scheduler*		mSubsystemScheduler;
+		ZoneServer*					mZoneServer;
+		WMState						mState;
 		uint64						mNonPersistantId;
-
+		uint64						mObjControllersProcessTimeLimit;
+		uint64						mServerTime;
+		uint64						mTick;
+		uint32						mTotalObjectCount;
+		uint32						mZoneId;
 };
 
 

@@ -12,8 +12,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "StructureManager.h"
 #include "nonPersistantObjectFactory.h"
 #include "ObjectFactory.h"
-#include "PlayerObject.h"	  
-#include "PlayerStructure.h"	 
+#include "PlayerObject.h"
+#include "PlayerStructure.h"
 #include "QuadTree.h"
 #include "WorldManager.h"
 #include "ZoneTree.h"
@@ -34,9 +34,9 @@ StructureManager*			StructureManager::mSingleton  = NULL;
 //======================================================================================================================
 
 StructureManager::StructureManager(Database* database,MessageDispatch* dispatch)
-{	
+{
 	mBuildingFenceInterval = gWorldConfig->getConfiguration("Zone_BuildingFenceInterval",(uint16)10000);
-	
+
 	mDatabase = database;
 	mMessageDispatch = dispatch;
 	StructureManagerAsyncContainer* asyncContainer;
@@ -51,18 +51,18 @@ StructureManager::StructureManager(Database* database,MessageDispatch* dispatch)
 	asyncContainer = new StructureManagerAsyncContainer(Structure_Query_LoadstructureItem, 0);
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sit.structure_id, sit.cell, sit.item_type , sit.relX, sit.relY, sit.relZ, sit.dirX, sit.dirY, sit.dirZ, sit.dirW, sit.tan_type, "
 													"it.object_string, it.stf_name, it.stf_file from swganh.structure_item_template sit INNER JOIN item_types it ON (it.id = sit.item_type) WHERE sit.tan_type = %u",TanGroup_Item);
-	
+
 	//statics
 	asyncContainer = new StructureManagerAsyncContainer(Structure_Query_LoadstructureItem, 0);
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sit.structure_id, sit.cell, sit.item_type , sit.relX, sit.relY, sit.relZ, sit.dirX, sit.dirY, sit.dirZ, sit.dirW, sit.tan_type,  "
 													"st.object_string, st.name, st.file from swganh.structure_item_template sit INNER JOIN static_types st ON (st.id = sit.item_type) WHERE sit.tan_type = %u",TanGroup_Static);
-													
-	
+
+
 	//terminals
 	asyncContainer = new StructureManagerAsyncContainer(Structure_Query_LoadstructureItem, 0);
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sit.structure_id, sit.cell, sit.item_type , sit.relX, sit.relY, sit.relZ, sit.dirX, sit.dirY, sit.dirZ, sit.dirW, sit.tan_type,  "
 													"tt.object_string, tt.name, tt.file from swganh.structure_item_template sit INNER JOIN terminal_types tt ON (tt.id = sit.item_type) WHERE sit.tan_type = %u",TanGroup_Terminal);
-	
+
 }
 
 
@@ -71,7 +71,7 @@ StructureManager::~StructureManager()
 {
 	mInsFlag = false;
 	delete(mSingleton);
-	
+
 }
 //======================================================================================================================
 StructureManager*	StructureManager::Init(Database* database, MessageDispatch* dispatch)
@@ -84,7 +84,7 @@ StructureManager*	StructureManager::Init(Database* database, MessageDispatch* di
 	}
 	else
 		return mSingleton;
-	
+
 }
 
 //======================================================================================================================
@@ -96,11 +96,11 @@ void StructureManager::Shutdown()
 
 
 //=======================================================================================================================
-static bool printed = false;
+//static bool printed = false;
 void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 {
 	StructureManagerAsyncContainer* asynContainer = (StructureManagerAsyncContainer*)ref;
-	
+
 	switch(asynContainer->mQueryType)
 	{
 		case Structure_Query_Admin_Data:
@@ -120,7 +120,7 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
 				structure->addStructureAdmin(playerName);
 
-			}	
+			}
 
 			structure->sendStructureAdminList(asynContainer->mPlayerId);
 
@@ -132,14 +132,14 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 		{
 
 			PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(asynContainer->mStructureId));
-			
+
 			attributeDetail detail;
 
 			DataBinding* binding = mDatabase->CreateDataBinding(2);
 			binding->addField(DFT_bstring,offsetof(attributeDetail,value),128,0);
 			binding->addField(DFT_uint32,offsetof(attributeDetail,attributeId),4,1);
-			
-			
+
+
 			uint64 count;
 			count = result->getRowCount();
 
@@ -154,7 +154,7 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 				gLogger->logMsgF("StructureManager::Structure %I64u not found",MSG_HIGH,asynContainer->mStructureId);
 				break;
 			}
-	
+
 			for(uint64 i = 0;i < count;i++)
 			{
 				result->GetNextRow(binding,&detail);
@@ -165,7 +165,7 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 					if (structure->hasAttribute("energy_maintenance"))
 					{
 						structure->setAttribute("energy_maintenance",detail.value.getAnsi());
-						
+
 					}
 
 					structure->addAttribute("energy_maintenance",detail.value.getAnsi());
@@ -177,13 +177,13 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 					if (structure->hasAttribute("examine_maintenance"))
 					{
 						structure->setAttribute("examine_maintenance",detail.value.getAnsi());
-						
+
 					}
 
 					structure->addAttribute("examine_maintenance",detail.value.getAnsi());
 				}
 
-			}	
+			}
 			structure->deleteStructureDBDataRead(asynContainer->mPlayerId);
 
 			mDatabase->DestroyDataBinding(binding);
@@ -193,7 +193,7 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 		case Structure_Query_LoadDeedData:
 		{
 			StructureDeedLink* deedLink;
-		
+
 			DataBinding* binding = mDatabase->CreateDataBinding(7);
 			binding->addField(DFT_uint32,offsetof(StructureDeedLink,structure_type),4,0);
 			binding->addField(DFT_uint32,offsetof(StructureDeedLink,item_type),4,1);
@@ -206,27 +206,27 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
 			uint64 count;
 			count = result->getRowCount();
-	
+
 			for(uint64 i = 0;i < count;i++)
 			{
 				deedLink	= new(StructureDeedLink);
 				result->GetNextRow(binding,deedLink);
 				mDeedLinkList.push_back(deedLink);
 			}
-		
+
 			if(result->getRowCount())
 				gLogger->logMsgLoadSuccess("StructureManager::Loading %u Structures...",MSG_NORMAL,result->getRowCount());
 			else
-				gLogger->logMsgLoadFailure("StructureManager::Loading Structures...",MSG_NORMAL);					
-			
+				gLogger->logMsgLoadFailure("StructureManager::Loading Structures...",MSG_NORMAL);
+
 			mDatabase->DestroyDataBinding(binding);
 		}
 		break;
 
 		case Structure_Query_Remove_Permission:
 		{
-			PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(asynContainer->mStructureId));
-			
+			//PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(asynContainer->mStructureId));
+
 			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
 
 			uint32 returnValue;
@@ -238,7 +238,7 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
 			if (!count)
 			{
-				gLogger->logMsgLoadFailure("StructureManager::add Permission no return value...",MSG_NORMAL);					
+				gLogger->logMsgLoadFailure("StructureManager::add Permission no return value...",MSG_NORMAL);
 			}
 			result->GetNextRow(binding,&returnValue);
 			// 0 is sucess
@@ -253,14 +253,14 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 				//name.convert(BSTRType_Unicode16);
 				gMessageLib->sendSystemMessage(player,L"","player_structure","player_removed","",name.getAnsi());
 			}
-			
+
 			if(returnValue == 1)
 			{
 				string name;
 				name = asynContainer->name;
 				gLogger->logMsgF("StructurManager add %s failed ", MSG_HIGH,name.getAnsi());
 				name.convert(BSTRType_Unicode16);
-				//name.convert(BSTRType_ANSI);				
+				//name.convert(BSTRType_ANSI);
 
 				gMessageLib->sendSystemMessage(player,L"","player_structure","modify_list_invalid_player","","",name.getUnicode16());
 			}
@@ -270,7 +270,7 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 				string name;
 				name = asynContainer->name;
 				//name.convert(BSTRType_Unicode16);
-				name.convert(BSTRType_ANSI);				
+				name.convert(BSTRType_ANSI);
 				name << " is not on the list";
 				name.convert(BSTRType_Unicode16);
 				gMessageLib->sendSystemMessage(player,name.getUnicode16());
@@ -281,7 +281,7 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 				string name;
 				name = asynContainer->name;
 				name.convert(BSTRType_Unicode16);
-				//name.convert(BSTRType_ANSI);				
+				//name.convert(BSTRType_ANSI);
 
 				gMessageLib->sendSystemMessage(player,L"","player_structure","cannot_remove_owner","","",name.getUnicode16());
 			}
@@ -297,8 +297,8 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
 		case Structure_Query_Add_Permission:
 		{
-			PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(asynContainer->mStructureId));
-			
+			//PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(asynContainer->mStructureId));
+
 			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
 
 			uint32 returnValue;
@@ -310,7 +310,7 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
 			if (!count)
 			{
-				gLogger->logMsgLoadFailure("StructureManager::add Permission no return value...",MSG_NORMAL);					
+				gLogger->logMsgLoadFailure("StructureManager::add Permission no return value...",MSG_NORMAL);
 			}
 			result->GetNextRow(binding,&returnValue);
 			// 0 is sucess
@@ -324,16 +324,16 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 				//name.convert(BSTRType_Unicode16);
 				gMessageLib->sendSystemMessage(player,L"","player_structure","player_added","",name.getAnsi());
 			}
-			
+
 			if(returnValue == 1)
 			{
 				string name;
 				name = asynContainer->name;
 				gLogger->logMsgF("StructurManager add %s failed ", MSG_HIGH,name.getAnsi());
 				name.convert(BSTRType_Unicode16);
-				//name.convert(BSTRType_ANSI);				
+				//name.convert(BSTRType_ANSI);
 
-				
+
 				gMessageLib->sendSystemMessage(player,L"","player_structure","modify_list_invalid_player","","",name.getUnicode16());
 			}
 
@@ -342,7 +342,7 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 				string name;
 				name = asynContainer->name;
 				//name.convert(BSTRType_Unicode16);
-				name.convert(BSTRType_ANSI);				
+				name.convert(BSTRType_ANSI);
 				name << " is already on the list";
 				name.convert(BSTRType_Unicode16);
 				gMessageLib->sendSystemMessage(player,name.getUnicode16());
@@ -359,7 +359,7 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 		{
 
 			StructureItemTemplate* itemTemplate;
-		
+
 			DataBinding* binding = mDatabase->CreateDataBinding(14);
 			binding->addField(DFT_uint32,offsetof(StructureItemTemplate,structure_id),4,0);
 			binding->addField(DFT_uint32,offsetof(StructureItemTemplate,CellNr),4,1);
@@ -372,30 +372,30 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 			binding->addField(DFT_float,offsetof(StructureItemTemplate,mDirection.mZ),4,8);
 			binding->addField(DFT_float,offsetof(StructureItemTemplate,dw),4,9);
 			binding->addField(DFT_uint32,offsetof(StructureItemTemplate,tanType),4,10);
-			
+
 			binding->addField(DFT_bstring,offsetof(StructureItemTemplate,structureObjectString),128,11);
 			binding->addField(DFT_bstring,offsetof(StructureItemTemplate,name),32,12);
 			binding->addField(DFT_bstring,offsetof(StructureItemTemplate,file),32,13);
 
 			uint64 count;
 			count = result->getRowCount();
-	
+
 			for(uint64 i = 0;i < count;i++)
 			{
 				itemTemplate = new(StructureItemTemplate);
 				result->GetNextRow(binding,itemTemplate);
 				mItemTemplate.push_back(itemTemplate);
 			}
-			
+
 			if(result->getRowCount())
 				gLogger->logMsgLoadSuccess("StructureManager::Loading %u Structure Items...",MSG_NORMAL,result->getRowCount());
 			else
-				gLogger->logMsgLoadFailure("StructureManager::Loading Structure Items...",MSG_NORMAL);					
+				gLogger->logMsgLoadFailure("StructureManager::Loading Structure Items...",MSG_NORMAL);
 
 			mDatabase->DestroyDataBinding(binding);
 		}
 		break;
-		
+
 		default:break;
 
 	}
@@ -407,7 +407,7 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
 //=======================================================================================================================
 //adds a name to a permission list
-//=======================================================================================================================												
+//=======================================================================================================================
 void StructureManager::removeNamefromPermissionList(uint64 structureId, uint64 playerId, string name, string list)
 {
 	// load our structures maintenance data
@@ -428,14 +428,14 @@ void StructureManager::removeNamefromPermissionList(uint64 structureId, uint64 p
 	// 2 name not on list
 	// 3 Owner cannot be removed
 
-//mDatabase->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%.2f' WHERE item_id=%lld AND attribute_id=%u",attValue,mItem->getId(),att->getAttributeId());
+//mDatabase->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%.2f' WHERE item_id=%"PRId64" AND attribute_id=%u",attValue,mItem->getId(),att->getAttributeId());
 }
 
 
 
 //=======================================================================================================================
 //adds a name to a permission list
-//=======================================================================================================================												
+//=======================================================================================================================
 void StructureManager::addNametoPermissionList(uint64 structureId, uint64 playerId, string name, string list)
 {
 	// load our structures maintenance data
@@ -455,14 +455,14 @@ void StructureManager::addNametoPermissionList(uint64 structureId, uint64 player
 	// 1 name doesnt exist
 	// 2 name already on list
 
-//mDatabase->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%.2f' WHERE item_id=%lld AND attribute_id=%u",attValue,mItem->getId(),att->getAttributeId());
+//mDatabase->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%.2f' WHERE item_id=%"PRId64" AND attribute_id=%u",attValue,mItem->getId(),att->getAttributeId());
 }
 
 
 
 //=======================================================================================================================
 //handles callbacks of db creation of items
-//=======================================================================================================================												
+//=======================================================================================================================
 void StructureManager::getDeleteStructureMaintenanceData(uint64 structureId, uint64 playerId)
 {
 	// load our structures maintenance data
@@ -478,7 +478,7 @@ void StructureManager::getDeleteStructureMaintenanceData(uint64 structureId, uin
 
 	//322 = energy_maintenance
 	//382 = examine_maintenance
-//mDatabase->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%.2f' WHERE item_id=%lld AND attribute_id=%u",attValue,mItem->getId(),att->getAttributeId());
+//mDatabase->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%.2f' WHERE item_id=%"PRId64" AND attribute_id=%u",attValue,mItem->getId(),att->getAttributeId());
 }
 
 
@@ -498,7 +498,7 @@ void StructureManager::handleObjectReady(Object* object,DispatchClient* client)
 	if(gWorldManager->getWMState() == WMState_Running)
 	{
 		// set timer for deletion of building fence
-		
+
 		uint32 account = client->getAccountId();
 		PlayerObject* player = gWorldManager->getPlayerByAccId(account);
 
@@ -507,9 +507,9 @@ void StructureManager::handleObjectReady(Object* object,DispatchClient* client)
 		structure->getTTS()->buildingFence = fence->getId();
 		structure->getTTS()->playerId = player->getId();
 		structure->getTTS()->projectedTime = mBuildingFenceInterval + Anh_Utils::Clock::getSingleton()->getLocalTime();
-		
+
 		gWorldManager->handleObjectReady(structure,player->getClient());
-		
+
 		addStructureforConstruction(structure->getId());
 	}
 	else
@@ -517,7 +517,7 @@ void StructureManager::handleObjectReady(Object* object,DispatchClient* client)
 		gWorldManager->handleObjectReady(structure,NULL);
 	}
 
-	
+
 
 
 }
@@ -530,7 +530,7 @@ void StructureManager::handleObjectReady(Object* object,DispatchClient* client)
 StructureDeedLink* StructureManager::getDeedData(uint32 type)
 {
 	DeedLinkList::iterator it = mDeedLinkList.begin();
-	bool found = false;
+	//bool found = false;
 	while(it != mDeedLinkList.end())
 	{
 		if ((*it)->item_type == type )
@@ -564,7 +564,7 @@ bool StructureManager::checkCampRadius(PlayerObject* player)
 
 	RegionObject*	object;
 	ObjectSet		objList;
-	
+
 	gWorldManager->getSI()->getObjectsInRange(player,&objList,ObjType_Region,width*2);
 
 	if(mQTRegion)
@@ -611,7 +611,7 @@ bool StructureManager::checkCityRadius(PlayerObject* player)
 
 	RegionObject*	object;
 	ObjectSet		objList;
-	
+
 	gWorldManager->getSI()->getObjectsInRangeIntersection(player,&objList,ObjType_Region,width*2);
 
 	if(mQTRegion)
@@ -658,7 +658,7 @@ bool StructureManager::checkinCamp(PlayerObject* player)
 
 	RegionObject*	object;
 	ObjectSet		objList;
-	
+
 	gWorldManager->getSI()->getObjectsInRange(player,&objList,ObjType_Region,width*2);
 
 	if(mQTRegion)
@@ -707,7 +707,7 @@ string StructureManager::getCode()
 
 			if(u < 48)
 				found = false;
-			
+
 		}
 		chance[i] = u;
 		found = false;
@@ -739,7 +739,7 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 			gLogger->logMsg("StructureManager::_handleStructureObjectTimers: No structure");
 			continue;
 		}
-		
+
 		if(structure->getTTS()->todo == ttE_Delete)
 		{
 			// TODO
@@ -748,7 +748,7 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 			gObjectFactory->deleteObjectFromDB(structure);
 			gMessageLib->sendDestroyObject_InRangeofObject(structure);
 			gWorldManager->destroyObject(structure);
-		
+
 		}
 
 		if(structure->getTTS()->todo == ttE_BuildingFence)
@@ -760,10 +760,10 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 			}
 
 			//gLogger->logMsg("StructureManager::_handleStructureObjectTimers: building fence");
-			
+
 			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById( structure->getTTS()->playerId ));
 			PlayerStructure* fence = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(structure->getTTS()->buildingFence));
-			
+
 			if(!player)
 			{
 				gLogger->logMsg("StructureManager::_handleStructureObjectTimers: No Player");
@@ -780,7 +780,7 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 				gLogger->logMsg("StructureManager::_handleStructureObjectTimers: No fence");
 				return false;
 			}
-			
+
 			//delete the fence
 			gMessageLib->sendDestroyObject_InRangeofObject(fence);
 			gWorldManager->destroyObject(fence);
@@ -802,9 +802,9 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 			gMessageLib->sendDataTransform(structure);
 
 
-		
+
 		}
-		
+
 
 		it = objectList->erase(it);
 		it = objectList->begin();
@@ -828,6 +828,6 @@ void StructureManager::OpenStructureAdminList(uint64 structureId, uint64 playerI
 	asyncContainer->mPlayerId = playerId;
 
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT c.firstname FROM structure_admin_data sad  INNER JOIN characters c ON (sad.PlayerID = c.ID)where sad.StructureID = %I64u",structureId);
-	
-	
+
+
 }

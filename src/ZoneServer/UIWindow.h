@@ -61,14 +61,13 @@ class UIWindow : public UIElement
 		void			setCallback(UICallback* callback){ mUICallback = callback; }
 
 	protected:
-
-		uint8			mWindowType;
-		string			mWindowTypeStr;
-		string			mEventStr;
-		PlayerObject*	mOwner;
-		uint64			mTimeOut;
 		Children		mChildElements;
+		string			mEventStr;
+		string			mWindowTypeStr;
+		PlayerObject*	mOwner;
 		UICallback*		mUICallback;
+		uint64			mTimeOut;
+		uint8			mWindowType;
 };
 
 #endif

@@ -68,7 +68,7 @@ enum ChatQuery
 	ChatQuery_Banned			= 15,
 	ChatQuery_Invited			= 16,
 	ChatQuery_CharChannels		= 17,
-	ChatMailQuery_PlayerIgnores = 18,
+	ChatMailQuery_PlayerIgnores = 18
 };
 
 //======================================================================================================================

@@ -32,7 +32,7 @@ class MessageDispatch;
 class PlayerObject;
 class UIWindow;
 
-namespace Anh_Utils 
+namespace Anh_Utils
 {
    // class Clock;
     class Scheduler;
@@ -47,12 +47,12 @@ enum Structure_QueryType
 	Structure_Query_NULL				=	0,
 	Structure_Query_LoadDeedData		=	1,
 	Structure_Query_LoadstructureItem	=	2,
-	
+
 	Structure_Query_delete				=	3,
 	Structure_Query_Admin_Data			=	4,
 	Structure_Query_Add_Permission		=	5,
-	Structure_Query_Remove_Permission	=	6,
-	
+	Structure_Query_Remove_Permission	=	6
+
 };
 
 //======================================================================================================================
@@ -127,7 +127,7 @@ public:
 	int8						name[64];
 
 	PlayerObject*				builder;
-	
+
 };
 
 //======================================================================================================================
@@ -135,7 +135,7 @@ public:
 class StructureManager : public DatabaseCallback,public ObjectFactoryCallback
 {
 	friend class ObjectFactory;
-	
+
 
 	public:
 		//System
@@ -190,7 +190,7 @@ class StructureManager : public DatabaseCallback,public ObjectFactoryCallback
 		}
 
 		void					OpenStructureAdminList(uint64 structureId, uint64 playerId);
-		
+
 
 
 
@@ -198,9 +198,9 @@ class StructureManager : public DatabaseCallback,public ObjectFactoryCallback
 
 
 		StructureManager(Database* database,MessageDispatch* dispatch);
-		
+
 		bool	_handleStructureObjectTimers(uint64 callTime, void* ref);
-		
+
 		static StructureManager*	mSingleton;
 		static bool					mInsFlag;
 
@@ -211,8 +211,8 @@ class StructureManager : public DatabaseCallback,public ObjectFactoryCallback
 		StructureItemList			mItemTemplate;
 		ObjectIDList				mStructureDeleteList;
 		uint32						mBuildingFenceInterval;
-	
+
 };
 
-#endif 
+#endif
 

@@ -31,7 +31,7 @@ enum IFQuery
 {
 	IFQuery_MainInventoryData	= 1,
 	IFQuery_ObjectCount			= 2,
-	IFQuery_Objects				= 3,
+	IFQuery_Objects				= 3
 };
 
 //=============================================================================

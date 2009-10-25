@@ -3394,6 +3394,6 @@ TOLUA_API int tolua_LuaInterface_open (lua_State* tolua_S)
 #if defined(LUA_VERSION_NUM) && LUA_VERSION_NUM >= 501
  TOLUA_API int luaopen_LuaInterface (lua_State* tolua_S) {
  return tolua_LuaInterface_open(tolua_S);
-};
+}
 #endif
 

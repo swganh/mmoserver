@@ -43,18 +43,19 @@ class DamageDealer
 
 //=============================================================================
 
-NPCObject::NPCObject() : CreatureObject(),
-mLastConversationTarget(0),
-mLastConversationRequest(0),
-mAiState(NpcIsDormant),
-mLootGroupId(0),
-mSpeciesId(0),
-mNpcTemplateId(0),
-mRespawnDelay(0),
-mCellIdForSpawn(0),
-mBaseAggro(0),
-mAttackRange(64),
-mLootAllowedById(0)
+NPCObject::NPCObject()
+: CreatureObject()
+, mLastConversationRequest(0)
+, mLastConversationTarget(0)
+, mSpeciesId(0)
+, mAiState(NpcIsDormant)
+, mAttackRange(64)
+, mBaseAggro(0)
+, mCellIdForSpawn(0)
+, mLootAllowedById(0)
+, mLootGroupId(0)
+, mNpcTemplateId(0)
+, mRespawnDelay(0)
 {
 	mType = ObjType_NPC;
 	mCreoGroup = CreoGroup_PersistentNpc;
@@ -230,7 +231,7 @@ void NPCObject::updatePosition(uint64 parentId, Anh_Math::Vector3 newPosition)
 			}
 			else
 			{
-				gLogger->logMsgF("Error removing %llu from cell(%lld)",MSG_HIGH,this->getId(),this->getParentId());
+				gLogger->logMsgF("Error removing %"PRIu64" from cell(%"PRId64")",MSG_HIGH,this->getId(),this->getParentId());
 			}
 
 			// we are outside again
@@ -299,19 +300,19 @@ void NPCObject::updatePosition(uint64 parentId, Anh_Math::Vector3 newPosition)
 			{
 				gMessageLib->broadcastContainmentMessage(this->getId(),oldParentId,0,this);
 			}
-			// gLogger->logMsgF("NPC changed cell from (%lld) to (%lld)",MSG_NORMAL, oldParentId, parentId);
+			// gLogger->logMsgF("NPC changed cell from (%"PRId64") to (%"PRId64")",MSG_NORMAL, oldParentId, parentId);
 
 			// only remove us from si, if we just entered the building
 			if (oldParentId != 0)
 			{
 				// We are still inside.
-				if (cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(oldParentId)))
+				if ((cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(oldParentId))))
 				{
 					cell->removeChild(this);
 				}
 				else
 				{
-					gLogger->logMsgF("Error removing %lld from cell(%lld)",MSG_NORMAL,this->getId(),oldParentId);
+					gLogger->logMsgF("Error removing %"PRId64" from cell(%"PRId64")",MSG_NORMAL,this->getId(),oldParentId);
 				}
 			}
 			else
@@ -333,13 +334,13 @@ void NPCObject::updatePosition(uint64 parentId, Anh_Math::Vector3 newPosition)
 			{
 				gMessageLib->broadcastContainmentMessage(this->getId(),parentId,4,this);
 			}
-			if (cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(parentId)))
+			if ((cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(parentId))))
 			{
 				cell->addChild(this);
 			}
 			else
 			{
-				gLogger->logMsgF("Error adding %lld to cell(%lld)",MSG_NORMAL,this->getId(),parentId);
+				gLogger->logMsgF("Error adding %"PRId64" to cell(%"PRId64")",MSG_NORMAL,this->getId(),parentId);
 			}
 			// update the player
 			this->setParentId(parentId);
@@ -459,7 +460,7 @@ void NPCObject::updateDamage(uint64 playerId, uint64 groupId, uint32 weaponGroup
 	if (it == mDamageDealers.end())
 	{
 		// Add this attacker.
-		// gLogger->logMsgF("New damage dealer, id = %llu, group %llu", MSG_NORMAL, playerId, groupId);
+		// gLogger->logMsgF("New damage dealer, id = %"PRIu64", group %"PRIu64"", MSG_NORMAL, playerId, groupId);
 		damageDealer = new DamageDealer();
 		damageDealer->mPlayerId = playerId;
 		damageDealer->mGroupId = groupId;
@@ -533,7 +534,7 @@ void NPCObject::updateAggro(uint64 playerId, uint64 groupId, uint8 attackerPostu
 	if (it == mDamageDealers.end())
 	{
 		// Add aggro for this attacker.
-		// gLogger->logMsgF("New aggro, id = %llu, group %llu", MSG_NORMAL, playerId, groupId);
+		// gLogger->logMsgF("New aggro, id = %"PRIu64", group %"PRIu64"", MSG_NORMAL, playerId, groupId);
 		damageDealer = new DamageDealer();
 		damageDealer->mPlayerId = playerId;
 		damageDealer->mGroupId = groupId;
@@ -648,10 +649,10 @@ void NPCObject::updateAttackersXp(void)
 	DamageDealers::iterator it = mDamageDealers.begin();
 	while (it != mDamageDealers.end())
 	{
-		// gLogger->logMsgF("Handling Player id %llu, group %llu, damage %u", MSG_NORMAL, (*it)->mPlayerId, (*it)->mGroupId, (*it)->mDamage);
+		// gLogger->logMsgF("Handling Player id %"PRIu64", group %"PRIu64", damage %u", MSG_NORMAL, (*it)->mPlayerId, (*it)->mGroupId, (*it)->mDamage);
 		if ((*it)->mGroupId == 0)
 		{
-			// gLogger->logMsgF("Player %llu hit with %u", MSG_NORMAL, (*it)->mPlayerId, (*it)->mDamage);
+			// gLogger->logMsgF("Player %"PRIu64" hit with %u", MSG_NORMAL, (*it)->mPlayerId, (*it)->mDamage);
 			if ((*it)->mDamage >= topDamageByPlayer)
 			{
 				topDamageByPlayer = (*it)->mDamage;
@@ -674,7 +675,7 @@ void NPCObject::updateAttackersXp(void)
 	DamageDealers::iterator groupIt = mDamageByGroups.begin();
 	while (groupIt != mDamageByGroups.end())
 	{
-		// gLogger->logMsgF("Group %llu hit with %u", MSG_NORMAL, (*groupIt)->mGroupId, (*groupIt)->mDamage);
+		// gLogger->logMsgF("Group %"PRIu64" hit with %u", MSG_NORMAL, (*groupIt)->mGroupId, (*groupIt)->mDamage);
 		if ((*groupIt)->mDamage >= topDamageByGroup)
 		{
 			topDamageByGroup = (*groupIt)->mDamage;
@@ -698,14 +699,14 @@ void NPCObject::updateAttackersXp(void)
 	// And the winner is....
 	if (topDamageByPlayer >= topDamageByGroup)
 	{
-		// gLogger->logMsgF("Player %llu did the most damage", MSG_NORMAL, topPlayerId);
+		// gLogger->logMsgF("Player %"PRIu64" did the most damage", MSG_NORMAL, topPlayerId);
 		// An individual player did the most damage.
 		this->updateAttackersWeaponAndCombatXp(topPlayerId, 0, weaponXp, topPlayerWeaponMasks);
 		this->mLootAllowedById = topPlayerId;
 	}
 	else
 	{
-		// gLogger->logMsgF("Group %llu did the most damage", MSG_NORMAL, groupTopId);
+		// gLogger->logMsgF("Group %"PRIu64" did the most damage", MSG_NORMAL, groupTopId);
 		// The players in this group have to divide the XP, any group bonuses are not implemented yet.
 		this->mLootAllowedById = groupTopId;
 
@@ -749,10 +750,10 @@ void NPCObject::updateGroupDamage(DamageDealer* damageDealer)
 	DamageDealers::iterator it = mDamageByGroups.begin();
 	while (it != mDamageByGroups.end())
 	{
-		// gLogger->logMsgF("Comparing group %llu with existing group %llu", MSG_NORMAL, (*it)->mGroupId, damageDealer->mGroupId);
+		// gLogger->logMsgF("Comparing group %"PRIu64" with existing group %"PRIu64"", MSG_NORMAL, (*it)->mGroupId, damageDealer->mGroupId);
 		if ((*it)->mGroupId == damageDealer->mGroupId)
 		{
-			// gLogger->logMsgF("Adding group %llu with damage %u", MSG_NORMAL, damageDealer->mGroupId, damageDealer->mDamage);
+			// gLogger->logMsgF("Adding group %"PRIu64" with damage %u", MSG_NORMAL, damageDealer->mGroupId, damageDealer->mDamage);
 			// Already have this group as an attacker in list. Let's update damage.
 			(*it)->mDamage += damageDealer->mDamage;
 			break;
@@ -762,7 +763,7 @@ void NPCObject::updateGroupDamage(DamageDealer* damageDealer)
 
 	if (it == mDamageByGroups.end())
 	{
-		// gLogger->logMsgF("New group as damage dealer, group = %llu, damage = %u", MSG_NORMAL, damageDealer->mGroupId, damageDealer->mDamage);
+		// gLogger->logMsgF("New group as damage dealer, group = %"PRIu64", damage = %u", MSG_NORMAL, damageDealer->mGroupId, damageDealer->mDamage);
 		// Add this attacker.
 		DamageDealer* groupDamageDealer = new DamageDealer();
 		groupDamageDealer->mGroupId = damageDealer->mGroupId;

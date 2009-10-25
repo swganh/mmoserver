@@ -116,7 +116,7 @@ MissionManager::~MissionManager()
 }
 
 //======================================================================================================================
-static bool printed = false;
+//static bool printed = false;
 static bool failed = false;
 void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 {
@@ -401,12 +401,12 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 void MissionManager::listRequest(PlayerObject* player, uint64 terminal_id,uint8 refresh_count)
 {
 	Terminal*	terminal		= dynamic_cast<Terminal*> (gWorldManager->getObjectById(terminal_id));
-    uint32		terminal_type	= terminal->getTerminalType();
+    //uint32		terminal_type	= terminal->getTerminalType();
 
 	int8		terminal_name[255];
 	strcpy(terminal_name,terminal->getName().getAnsi());
 
-	gLogger->logMsgF("Terminal id %lld is type '%s'\n", MSG_NORMAL, terminal_id, terminal_name);
+	gLogger->logMsgF("Terminal id %"PRId64" is type '%s'\n", MSG_NORMAL, terminal_id, terminal_name);
 
  	int count = 0;
 	int len = strlen(terminal_name);
@@ -439,7 +439,7 @@ void MissionManager::listRequest(PlayerObject* player, uint64 terminal_id,uint8 
 				generateEntertainerMission(mission,count);
 			break;
 			default:
-				gLogger->logMsgF("Terminal id %lld is type '%s'\n", MSG_NORMAL, terminal_id, terminal_name);
+				gLogger->logMsgF("Terminal id %"PRId64" is type '%s'\n", MSG_NORMAL, terminal_id, terminal_name);
 				mission->setRefreshCount(0);
 		}
 
@@ -456,7 +456,7 @@ void MissionManager::listRequest(PlayerObject* player, uint64 terminal_id,uint8 
 
 void MissionManager::detailsRequest(PlayerObject* player)
 {
-    gLogger->logMsgF("Player id %lld requested mission details\n", MSG_NORMAL, player->getId());
+    gLogger->logMsgF("Player id %"PRId64" requested mission details\n", MSG_NORMAL, player->getId());
 
     // this request likely requires a MissionDetailsResponse (000000F8) packet response
 }
@@ -465,7 +465,7 @@ void MissionManager::detailsRequest(PlayerObject* player)
 
 void MissionManager::createRequest(PlayerObject* player)
 {
-    gLogger->logMsgF("Player id %lld accepted mission\n", MSG_NORMAL, player->getId());
+    gLogger->logMsgF("Player id %"PRId64" accepted mission\n", MSG_NORMAL, player->getId());
 }
 
 //======================================================================================================================
@@ -482,7 +482,7 @@ void MissionManager::missionRequest(PlayerObject* player, uint64 mission_id)
 	MissionObject* mission =  mission_bag->getMissionById(mission_id);
 	if(mission == NULL)
 	{
-		gLogger->logMsgF("ERROR: Failed to retrieve mission with id %lld. Unable to accept mission!", MSG_HIGH, mission_id);
+		gLogger->logMsgF("ERROR: Failed to retrieve mission with id %"PRId64". Unable to accept mission!", MSG_HIGH, mission_id);
 		return;
 	}
 
@@ -822,8 +822,8 @@ void MissionManager::checkSurveyMission(PlayerObject* player,CurrentResource* re
 
 
 							int8 sm[500];
-							sprintf(sm,"That resource pocket is too close (%DF meters) to the mission giver to be useful to them. Go find one at least %DI meters away to complete your survey mission. ",
-										(int)mission->getIssuingTerminal()->mPosition.distance2D(highestDist.position),
+							sprintf(sm,"That resource pocket is too close (%"PRId64" meters) to the mission giver to be useful to them. Go find one at least %"PRId32" meters away to complete your survey mission. ",
+										static_cast<uint64>(mission->getIssuingTerminal()->mPosition.distance2D(highestDist.position)),
 										(1024 - (int)mission->getIssuingTerminal()->mPosition.distance2D(highestDist.position))
 										);
 							string s = BString(sm);
@@ -1017,7 +1017,7 @@ MissionObject* MissionManager::generateDestroyMission(MissionObject* mission, ui
 	//END TEMP
 
 	//Position
-	int radius = 500; //500m radius
+	//int radius = 500; //500m radius
 	Location destination;
 	destination.Coordinates = mission->getOwner()->mPosition.new2DVectorNRadius(500);
 	destination.CellID = 0;
@@ -1113,7 +1113,7 @@ MissionObject* MissionManager::generateDeliverMission(MissionObject* mission)
 		NPCObject* npc = dynamic_cast<NPCObject*>(*it);
 		if(npc->getNpcFamily() == NpcFamily_Filler)
 		{
-			uint32 roll		= (gRandom->getRand() / (RAND_MAX  + 1) * (9 - 1) + 1);
+			uint32 roll		= (gRandom->getRand() / (RAND_MAX  + 1ul) * (9 - 1) + 1);
 			if((roll = 5)||(count > inRangeNPCs.size()))
 			{
 				if(mission_dest.Coordinates.mX == 0)
@@ -1195,7 +1195,7 @@ MissionObject* MissionManager::generateEntertainerMission(MissionObject* mission
 		NPCObject* npc = dynamic_cast<NPCObject*>(*it);
 		if(npc->getNpcFamily() == NpcFamily_Filler)
 		{
-			uint32 roll		= (gRandom->getRand() / (RAND_MAX  + 1) * (9 - 1) + 1);
+			uint32 roll		= (gRandom->getRand() / (RAND_MAX  + 1ul) * (9 - 1) + 1);
 			if((roll = 5)||(cntLoop > inRangeNPCs.size()))
 			{
 				if(mission_dest.Coordinates.mX == 0 && mission->getDestinationNPC() != npc)
@@ -1287,7 +1287,7 @@ MissionObject* MissionManager::generateSurveyMission(MissionObject* mission)
 		if(!strcmp((*it->second).getResourceType().getRawData(),"mineral_resource"))/* ||
 		   !strcmp((*(*it).second).getResourceType().getRawData(),"energy_resource")) */
 		{
-			uint32 roll		= (gRandom->getRand() / (RAND_MAX  + 1) * (9 - 1) + 1);
+			uint32 roll		= (gRandom->getRand() / (RAND_MAX  + 1ul) * (9 - 1) + 1);
 
 			if((roll == 5)||(cntLoop > rtMap->size()))
 			{
@@ -1381,7 +1381,7 @@ MissionObject* MissionManager::generateCraftingMission(MissionObject* mission)
 		NPCObject* npc = dynamic_cast<NPCObject*>(*it);
 		if(npc->getNpcFamily() == NpcFamily_Filler)
 		{
-			uint32 roll		= (gRandom->getRand() / (RAND_MAX  + 1) * (9 - 1) + 1);
+			uint32 roll		= (gRandom->getRand() / (RAND_MAX  + 1ul) * (9 - 1) + 1);
 			if((roll = 5)||(cntLoop > inRangeNPCs.size()))
 			{
 				if(mission_dest.Coordinates.mX == 0)
@@ -1449,7 +1449,7 @@ MissionObject* MissionManager::generateReconMission(MissionObject* mission)
 	//END TEMP
 
 	//Position
-	int radius = 500; //500m radius
+	//int radius = 500; //500m radius
 	Location destination;
 	destination.Coordinates = mission->getOwner()->mPosition.new2DVectorNRadius(500);
 	destination.CellID = 0;

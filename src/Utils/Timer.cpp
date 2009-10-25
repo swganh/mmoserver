@@ -14,15 +14,15 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 //==============================================================================================================================
 
-Timer::Timer(uint32 id,TimerCallback* callback,uint32 interval, void* container) 
-: mId(id)
+Timer::Timer(uint32 id,TimerCallback* callback,uint32 interval, void* container)
+: mContainer(container)
 , mCallback(callback)
+, mId(id)
 , mInterval(interval)
-, mContainer(container)
 {
 	if(mInterval < 100)
 		mInterval = 100;
-    
+
 	mLastTick = static_cast<uint32>(Anh_Utils::Clock::getSingleton()->getLocalTime());
 
     boost::thread t(&Timer::Run, this);

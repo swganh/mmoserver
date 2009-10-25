@@ -132,18 +132,17 @@ namespace noise
         {
         }
 
-        /// Value of the alpha (transparency) channel.
-        noise::uint8 alpha;
-
-        /// Value of the blue channel.
-        noise::uint8 blue;
+        /// Value of the red channel.
+        noise::uint8 red;
 
         /// Value of the green channel.
         noise::uint8 green;
 
-        /// Value of the red channel.
-        noise::uint8 red;
+        /// Value of the blue channel.
+        noise::uint8 blue;
 
+        /// Value of the alpha (transparency) channel.
+        noise::uint8 alpha;
     };
 
     /// Defines a point used to build a color gradient.
@@ -1283,7 +1282,7 @@ namespace noise
         void WriteDestFile ();
 
       protected:
-    
+
         /// Calculates the width of one horizontal line in the file, in bytes.
         ///
         /// @param width The width of the noise map, in points.
@@ -1294,12 +1293,12 @@ namespace noise
         /// Name of the file to write.
         std::string m_destFilename;
 
+        /// A pointer to the noise map that will be written to the file.
+        NoiseMap* m_pSourceNoiseMap;
+
         /// The distance separating adjacent points in the noise map, in
         /// meters.
         float m_metersPerPoint;
-
-        /// A pointer to the noise map that will be written to the file.
-        NoiseMap* m_pSourceNoiseMap;
 
     };
 
@@ -1724,7 +1723,7 @@ namespace noise
     /// origin.
     ///
     /// The x coordinate in the noise map represents the longitude.  The y
-    /// coordinate in the noise map represents the latitude.  
+    /// coordinate in the noise map represents the latitude.
     ///
     /// The application must provide the southern, northern, western, and
     /// eastern bounds of the noise map, in degrees.
@@ -1880,14 +1879,14 @@ namespace noise
     /// To set the intensity of the light source, call the SetLightIntensity()
     /// method.  A good intensity value is 2.0, although that value tends to
     /// "wash out" very light colors from the image.
-    /// 
+    ///
     /// To set the contrast amount between areas in light and areas in shadow,
     /// call the SetLightContrast() method.  Determining the correct contrast
     /// amount requires some trial and error, but if your application
     /// interprets the noise map as a height map that has its elevation values
     /// measured in meters and has a horizontal resolution of @a h meters, a
     /// good contrast amount to use is ( 1.0 / @a h ).
-    /// 
+    ///
     /// <b>Specify the background image</b>
     ///
     /// To specify a background image, pass an Image object to the
@@ -2511,7 +2510,7 @@ namespace noise
         /// elevation resolution.  For example, if your noise map has a
         /// spatial resolution of 30 meters and an elevation resolution of one
         /// meter, set the bump height to 1.0 / 30.0.
-        /// 
+        ///
         /// The spatial resolution and elevation resolution are determined by
         /// the application.
         Color CalcNormalColor (double nc, double nr, double nu,

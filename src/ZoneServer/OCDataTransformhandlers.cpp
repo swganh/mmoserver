@@ -45,7 +45,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 
 	if (!player)
 	{
-		gLogger->logMsgF("ObjectController::handleDataTransform Object id NOT A PLAYER, id = %llu", MSG_HIGH, mObject->getId());
+		gLogger->logMsgF("ObjectController::handleDataTransform Object id NOT A PLAYER, id = %"PRIu64"", MSG_HIGH, mObject->getId());
 		return;
 	}
 
@@ -61,7 +61,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 	inMoveCount = message->getUint32();
 
 	// gLogger->logMsg("ObjectController::handleDataTransform");
-	uint64 localTimeStart = Anh_Utils::Clock::getSingleton()->getLocalTime();
+	//uint64 localTimeStart = Anh_Utils::Clock::getSingleton()->getLocalTime();
 
 	// only process if its in sequence
 	if(player->getInMoveCount() >= inMoveCount)
@@ -127,7 +127,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 		}
 		else
 		{
-			gLogger->logMsgF("Error removing %llu from cell(%lld)",MSG_HIGH,player->getId(),player->getParentId());
+			gLogger->logMsgF("Error removing %"PRIu64" from cell(%"PRId64")",MSG_HIGH,player->getId(),player->getParentId());
 		}
 
 		// we are outside again
@@ -305,7 +305,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 	}
 
 	 //uint64 localTimeEnd = Anh_Utils::Clock::getSingleton()->getLocalTime();
-	 //gLogger->logMsgF("Exec time %ld",MSG_NORMAL, localTimeEnd - localTimeStart);
+	 //gLogger->logMsgF("Exec time PRId32",MSG_NORMAL, localTimeEnd - localTimeStart);
 }
 
 //=============================================================================
@@ -334,7 +334,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 	{
 		uint64 oldParentId = player->getParentId();
 
-		uint32 ticks = tickCount - player->getClientTickCount();
+		//uint32 ticks = tickCount - player->getClientTickCount();
 
 		// update tick and move counters
 		player->setClientTickCount(tickCount);
@@ -366,7 +366,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 		{
 			CellObject* cell = NULL;
 
-			// gLogger->logMsgF("We changed cell from (%lld) to (%lld)",MSG_NORMAL, oldParentId, parentId);
+			// gLogger->logMsgF("We changed cell from (%"PRId64") to (%"PRId64")",MSG_NORMAL, oldParentId, parentId);
 
 			// Remove us from whatever we where in before.
 			// (4 for add and 0 for remove)
@@ -375,14 +375,14 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 			// only remove us from si, if we just entered the building
 			if (oldParentId != 0)
 			{
-				if(cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(oldParentId)))
+				if((cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(oldParentId))))
 				{
 					cell->removeChild(player);
 					// Done above.. gMessageLib->broadcastContainmentMessage(player->getId(),parentId,4,player);
 				}
 				else
 				{
-					gLogger->logMsgF("Error removing %lld from cell(%lld)",MSG_NORMAL,player->getId(),oldParentId);
+					gLogger->logMsgF("Error removing %"PRId64" from cell(%"PRId64")",MSG_NORMAL,player->getId(),oldParentId);
 				}
 			}
 			else
@@ -420,7 +420,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 
 			// put us into new one
 			gMessageLib->broadcastContainmentMessage(player->getId(),parentId,4,player);
-			if(cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(parentId)))
+			if((cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(parentId))))
 			{
 				cell->addChild(player);
 
@@ -428,12 +428,12 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 				if (gWorldConfig->isTutorial())
 				{
 					player->getTutorial()->setCellId(parentId);
-					// gLogger->logMsgF("handleDataTransformWithParent: Adding %lld to cell(%lld)",MSG_NORMAL,player->getId(),parentId);
+					// gLogger->logMsgF("handleDataTransformWithParent: Adding %"PRId64" to cell(%"PRId64")",MSG_NORMAL,player->getId(),parentId);
 				}
 			}
 			else
 			{
-				gLogger->logMsgF("Error adding %lld to cell(%lld)",MSG_NORMAL,player->getId(),parentId);
+				gLogger->logMsgF("Error adding %"PRId64" to cell(%"PRId64")",MSG_NORMAL,player->getId(),parentId);
 			}
 		}
 
@@ -572,7 +572,11 @@ bool ObjectController::_updateInRangeObjectsOutside()
 		if ((object) && (!player->checkKnownObjects(object)))
 		{
 			// send the according create for the type of object
+#if defined(_MSC_VER)
 			if (object->getId() > 0x0000000100000000)
+#else
+			if (object->getId() > 0x0000000100000000LLU)
+#endif
 			{
 				if (object->getPrivateOwner())
 				{
@@ -717,7 +721,7 @@ bool ObjectController::_updateInRangeObjectsInside()
 	// make sure we got a cell
 	if (!playerCell)
 	{
-		gLogger->logMsgF("Error getting cell %lld for %lld type %u",MSG_NORMAL,player->getParentId(),player->getId(),player->getType());
+		gLogger->logMsgF("Error getting cell %"PRId64" for %"PRId64" type %u",MSG_NORMAL,player->getParentId(),player->getId(),player->getType());
 		return true;	// We are done, nothing we can do...
 	}
 
@@ -756,13 +760,17 @@ bool ObjectController::_updateInRangeObjectsInside()
 				}
 				else
 				{
-					gLogger->logMsgF("Error getting cell %lld for %lld type %u",MSG_NORMAL,object->getParentId(),object->getId(),object->getType());
+					gLogger->logMsgF("Error getting cell %"PRId64" for %"PRId64" type %u",MSG_NORMAL,object->getParentId(),object->getId(),object->getType());
 				}
 			}
 			if (validObject)
 			{
 				// send the according create for the type of object
+#if defined(_MSC_VER)
 				if (object->getId() > 0x0000000100000000)
+#else
+				if (object->getId() > 0x0000000100000000LLU)
+#endif
 				{
 					if (object->getPrivateOwner())
 					{
@@ -775,7 +783,7 @@ bool ObjectController::_updateInRangeObjectsInside()
 						}
 						else
 						{
-							// gLogger->logMsgF("_updateInRangeObjectsInside %s DISMISSED calling sendCreateObject() for %lld",MSG_NORMAL, player->getFirstName().getAnsi(), object->getId());
+							// gLogger->logMsgF("_updateInRangeObjectsInside %s DISMISSED calling sendCreateObject() for %"PRId64"",MSG_NORMAL, player->getFirstName().getAnsi(), object->getId());
 						}
 					}
 					else
@@ -867,7 +875,7 @@ bool ObjectController::_destroyOutOfRangeObjects(ObjectSet *inRangeObjects)
 		{
 			// send a destroy to us
 			gMessageLib->sendDestroyObject(object->getId(),player);
-			// gLogger->logMsgF("RemoveObject: %llu", MSG_NORMAL, object->getId());
+			// gLogger->logMsgF("RemoveObject: %"PRIu64"", MSG_NORMAL, object->getId());
 
 			// we don't know each other anymore
 			knownObjects->erase(objIt++);

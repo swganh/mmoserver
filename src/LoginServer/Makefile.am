@@ -1,4 +1,4 @@
-AM_CXXFLAGS = -I$(top_srcdir)/src $(SWGANH_CXXFLAGS)
+AM_CXXFLAGS = -I$(top_srcdir)/src $(SWGANH_CXXFLAGS) $(BOOST_CPPFLAGS)
 
 # LoginServer - executable
 bin_PROGRAMS = loginserver
@@ -6,7 +6,7 @@ loginserver_SOURCES = \
 	LoginManager.cpp \
 	LoginServer.cpp
 	
-loginserver_CPPFLAGS = $(MYSQL_CFLAGS) -Wall -fshort-wchar -Wno-invalid-offsetof
+loginserver_CPPFLAGS = $(MYSQL_CFLAGS) -Wall -pedantic-errors -Wfatal-errors -fshort-wchar -Wno-invalid-offsetof
 loginserver_LDADD = \
 	../Utils/libutils.la \
 	../LogManager/liblogmanager.la \

@@ -55,8 +55,8 @@ void CharacterAdminHandler::Startup(Database* database, MessageDispatch* dispatc
 
   // Register our opcodes
   mMessageDispatch->RegisterMessageCallback(opClientCreateCharacter,this);
-  mMessageDispatch->RegisterMessageCallback(opLagRequest,this);               
-  mMessageDispatch->RegisterMessageCallback(opClientRandomNameRequest,this); 
+  mMessageDispatch->RegisterMessageCallback(opLagRequest,this);
+  mMessageDispatch->RegisterMessageCallback(opClientRandomNameRequest,this);
 
   // Load anything we need from the database
 }
@@ -66,9 +66,9 @@ void CharacterAdminHandler::Startup(Database* database, MessageDispatch* dispatc
 void CharacterAdminHandler::Shutdown(void)
 {
   // Unregister our callbacks
-  mMessageDispatch->UnregisterMessageCallback(opClientCreateCharacter);    
-  mMessageDispatch->UnregisterMessageCallback(opLagRequest);                    
-  mMessageDispatch->UnregisterMessageCallback(opClientRandomNameRequest);  
+  mMessageDispatch->UnregisterMessageCallback(opClientCreateCharacter);
+  mMessageDispatch->UnregisterMessageCallback(opLagRequest);
+  mMessageDispatch->UnregisterMessageCallback(opClientRandomNameRequest);
 }
 
 
@@ -84,21 +84,21 @@ void CharacterAdminHandler::handleDispatchMessage(uint32 opcode, Message* messag
 {
   switch(opcode)
   {
-    case opClientCreateCharacter:   
+    case opClientCreateCharacter:
       _processCreateCharacter(message, client);
       break;
-    case opLagRequest:    
+    case opLagRequest:
 	 break;
 
-    case opClientRandomNameRequest:   
+    case opClientRandomNameRequest:
       _processRandomNameRequest(message, client);
       break;
 
     default:
     {
       // Unhandled opcode
-      int jack = opcode;
-      int i = 0;
+  //    int jack = opcode;
+  //    int i = 0;
     }
   } //end switch(opcode)
 
@@ -117,8 +117,8 @@ void CharacterAdminHandler::_processRandomNameRequest(Message* message, Dispatch
   Message* newMessage;
 
   // If it's not, validate it to the client.
-  gMessageFactory->StartMessage();        
-  gMessageFactory->addUint32(opHeartBeat); 
+  gMessageFactory->StartMessage();
+  gMessageFactory->addUint32(opHeartBeat);
   newMessage = gMessageFactory->EndMessage();
 
   // Send our message to the client.
@@ -155,7 +155,7 @@ void CharacterAdminHandler::_processCreateCharacter(Message* message, DispatchCl
   if (space)
   {
     // Get our first name
-    *space = 0; 
+    *space = 0;
     uint16 len = (uint16)wcslen(reinterpret_cast<wchar_t*>(characterName.getRawData()));
     characterInfo.mFirstName.setType(BSTRType_Unicode16);
     characterInfo.mFirstName.setLength(len);
@@ -244,7 +244,7 @@ void CharacterAdminHandler::_processCreateCharacter(Message* message, DispatchCl
 
   // Base character model
   message->getStringAnsi(characterInfo.mBaseModel);
-  uint32 crc = characterInfo.mBaseModel.getCrc();
+  //uint32 crc = characterInfo.mBaseModel.getCrc();
 
   // Starting city
   message->getStringAnsi(characterInfo.mStartCity);
@@ -262,7 +262,7 @@ void CharacterAdminHandler::_processCreateCharacter(Message* message, DispatchCl
   message->getStringAnsi(characterInfo.mProfession);
 
   // Unknown attribute
-  uint8 unkown = message->getUint8();
+  /* uint8 unkown = */message->getUint8();
 
   // Character height
   characterInfo.mScale = message->getFloat();
@@ -302,7 +302,7 @@ void CharacterAdminHandler::_processCreateCharacter(Message* message, DispatchCl
 		characterInfo.mLastName = strRep(std::string(characterInfo.mLastName.getAnsi()),"'","''").c_str();
 
 	// Build our procedure call
-	sprintf(sql, "CALL sp_CharacterCreate(%u, 2,'%s','%s', '%s', '%s', %f",
+	sprintf(sql, "CALL sp_CharacterCreate(%"PRIu32", 2,'%s','%s', '%s', '%s', %f",
 		client->getAccountId(),
 		characterInfo.mFirstName.getAnsi(),
 		characterInfo.mLastName.getAnsi(),
@@ -312,7 +312,7 @@ void CharacterAdminHandler::_processCreateCharacter(Message* message, DispatchCl
   }
   else
   {
-	  sprintf(sql, "CALL sp_CharacterCreate(%u, 2, '%s',NULL , '%s', '%s', %f",
+	  sprintf(sql, "CALL sp_CharacterCreate(%"PRIu32", 2, '%s',NULL , '%s', '%s', %f",
 		  client->getAccountId(),
 		  characterInfo.mFirstName.getAnsi(),
 		  characterInfo.mProfession.getAnsi(),
@@ -417,12 +417,12 @@ void CharacterAdminHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* 
 			randomName.convert(BSTRType_Unicode16);
 
 			gMessageFactory->StartMessage();
-			gMessageFactory->addUint32(opClientRandomNameResponse); 
+			gMessageFactory->addUint32(opClientRandomNameResponse);
 			gMessageFactory->addString(asyncContainer->mObjBaseType);
-			gMessageFactory->addString(randomName);   
+			gMessageFactory->addString(randomName);
 			gMessageFactory->addString(ui);
 			gMessageFactory->addUint32(0);
-			gMessageFactory->addString(state); 
+			gMessageFactory->addString(state);
 			newMessage = gMessageFactory->EndMessage();
 
 			asyncContainer->mClient->SendChannelA(newMessage, asyncContainer->mClient->getAccountId(), CR_Client, 4);
@@ -447,13 +447,13 @@ void CharacterAdminHandler::_parseHairData(Message* message, CharacterCreateInfo
 	  // Get the size of the data block
 	  uint16 dataSize = message->getUint16();
 	  gLogger->logMsgF("datasize : %u \n", MSG_NORMAL, dataSize);
-	  
+
 	  uint8 startindex = 0;
 	  uint8 endindex = 0;
-		 
+
 	  if(dataSize!= 0)
 	  {
-		  uint16  dataIndex = 0; 
+		  uint16  dataIndex = 0;
 		  if(dataSize!= 5)
 		  {
 			  //cave the trandoshan - there we have no index!!!
@@ -461,12 +461,12 @@ void CharacterAdminHandler::_parseHairData(Message* message, CharacterCreateInfo
 			  startindex = message->getUint8();
 			  endindex = message->getUint8();
 			  gLogger->logMsgF("StartIndex : %u   : EndIndex %u\n", MSG_NORMAL, startindex, endindex);
-			  dataIndex = 2; 
+			  dataIndex = 2;
 		  }
 
 		  uint8 index =0;
 
-		  
+
 		  uint8   attributeIndex = 0, valueLowByte = 0, valueHighByte = 0;
 
 		  while (dataIndex != (dataSize -2))
@@ -496,8 +496,8 @@ void CharacterAdminHandler::_parseHairData(Message* message, CharacterCreateInfo
 			info->mHairCustomization[attributeIndex] = ((uint16)valueHighByte << 8) | valueLowByte;
 			gLogger->logMsgF("Hair Customization Index : %u   : data %u\n", MSG_NORMAL, attributeIndex,info->mHairCustomization[attributeIndex]);
 		  }
-	
-		  uint16 end2  = message->getUint16();
+
+		  /* uint16 end2  = */message->getUint16();
 	  }
 }
 
@@ -510,10 +510,10 @@ void CharacterAdminHandler::_parseAppearanceData(Message* message, CharacterCrea
 
   // Grab our first two bytes which are unknown at this point
   //byte 1 = start index; byte 2 = end index
-  uint8		startindex  = message->getUint8();
-  uint8		endindex	= message->getUint8();
+  /*uint8		startindex  = */message->getUint8();
+  /*uint8		endindex	= */message->getUint8();
   uint8		boobJob		= message->peekUint8();
-  uint16	dataIndex	= 2; 
+  uint16	dataIndex	= 2;
   uint8		index		= 0;
   uint8		attributeIndex = 0, valueLowByte = 0, valueHighByte = 0;
 
@@ -585,7 +585,7 @@ void CharacterAdminHandler::_parseAppearanceData(Message* message, CharacterCrea
   }
 
   //end is ff 03 - no data
-  uint16 end  = message->getUint16();
+  /* uint16 end  = */message->getUint16();
 }
 
 //======================================================================================================================
@@ -598,14 +598,14 @@ void CharacterAdminHandler::_sendCreateCharacterSuccess(uint64 characterId,Dispa
 		return;
 	}
 
-	gMessageFactory->StartMessage();       
+	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opHeartBeat);
 	Message* newMessage = gMessageFactory->EndMessage();
 
 	client->SendChannelAUnreliable(newMessage, client->getAccountId(), CR_Client, 1);
 
-	gMessageFactory->StartMessage();         
-	gMessageFactory->addUint32(opClientCreateCharacterSuccess);  
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opClientCreateCharacterSuccess);
 	gMessageFactory->addUint64(characterId);
 	newMessage = gMessageFactory->EndMessage();
 
@@ -709,13 +709,13 @@ void CharacterAdminHandler::_sendCreateCharacterFailed(uint32 errorCode,Dispatch
 	// gLogger->logMsgF("CharacterAdminHandler::_sendCreateCharacterFailed errorString = %s", MSG_NORMAL, errorString.getAnsi());
 
 	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opHeartBeat); 
+	gMessageFactory->addUint32(opHeartBeat);
 	Message* newMessage = gMessageFactory->EndMessage();
 
 	client->SendChannelAUnreliable(newMessage, client->getAccountId(), CR_Client, 1);
 
-	gMessageFactory->StartMessage();    
-	gMessageFactory->addUint32(opClientCreateCharacterFailed);  
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opClientCreateCharacterFailed);
 	gMessageFactory->addString(unknown);
 	gMessageFactory->addString(stfFile);
 	gMessageFactory->addUint32(0);            // unknown

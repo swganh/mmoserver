@@ -29,9 +29,9 @@ enum chat_opcodes
 	opBidAuctionResponseMessage			=   0x8FCBEF4A,
 	opRetrieveAuctionItemMessage		=	0x12B0D449,
 	opRetrieveAuctionItemResponseMessage=	0x9499EF8C,
-	opGetCommoditiesTypeList			=   0x48F493C5, 
-	opCommoditiesTypeListResponse		=   0xD4E937FC, 
-	
+	opGetCommoditiesTypeList			=   0x48F493C5,
+	opCommoditiesTypeListResponse		=   0xD4E937FC,
+
 	//inter Server Kommunikation
 	opDeductMoneyMessage				= 0x10000000,
 	opBidAuctionAcceptedMessage			= 0x8737A639,
@@ -60,7 +60,7 @@ enum chat_opcodes
 
 	opChatDestroyRoom				= 0x094b2a77,
 	opChatOnDestroyRoom				= 0xe8ec5877,
-	
+
 	opChatEnterRoomById				= 0xbc6bddf2,
 	opChatOnEnteredRoom				= 0xe69bdc0a,
 
@@ -121,7 +121,7 @@ enum chat_opcodes
 	// This one is not verified or explained in wiki (afaik)
 	// We get it when we log in after a Ctrl+escape (Disconnect).
 	// The ..Play9 handles the update so far, but we don't wanna see all these un-handled messages.
-	// TODO: Implement 
+	// TODO: Implement
 	opGetIgnorelist					= 0x788BA6A3,
 
 	// note: addfriend, addignore are sent through ObjControllerMessage
@@ -136,13 +136,13 @@ enum chat_opcodes
 	opNotifyChatAddIgnore			= 0xd387da5,
 	opNotifyChatRemoveIgnore		= 0xbb8f85f4,
 	opNotifyChatFindFriend			= 0xc447e379,
-	
+
 	// This one is not verified or explained in wiki (afaik)
 	opChatIgnoreList				= 0xea566326,
 
 	opHeartBeat						= 0xa16cf9af,
 
-	opChatSystemMessage				= 0x6D2A6413,	
+	opChatSystemMessage				= 0x6D2A6413,
 	opSceneCreateObjectByCrc		= 0xFE89DDEA,
 	opSceneDestroyObject			= 0x4D45D504,
 	opBaselinesMessage				= 0x68A75F0C,
@@ -160,7 +160,7 @@ enum chat_opcodes
 	opIsmGroupUnInvite				= 0x384CBE2C,	//[Both]	<uint32 target>
 	opIsmGroupCREO6deltaGroupId		= 0xF923A570,	//[CH->ZO]	<uint32 target><uint64 groupId>
 	opIsmGroupDisband				= 0xEFF47552,	//[ZO->CH]
-	opIsmGroupLeave					= 0x2629856B,	//[ZO->CH] 
+	opIsmGroupLeave					= 0x2629856B,	//[ZO->CH]
 	opIsmGroupLootModeRequest		= 0xAD02C6DA,	//[ZO->CH]	<>
 	opIsmGroupLootModeResponse		= 0xF0D065EE,	//[CH->ZO]	<uint8 allowed>
 	opIsmGroupLootMasterRequest		= 0xE91B2BBD,	//[ZO->CH]	<>
@@ -171,15 +171,15 @@ enum chat_opcodes
 	opIsmGroupBaselineRequest		= 0xB0CE545A,	//[ZO->CH]	<float x><float z>
 	opIsmGroupAlterMissions			= 0x2F46E3A3,
 
-	// Fake code, crc-based an the word "opIsmGroupSay". 
-	opIsmGroupSay					= 0x39360616,	//[ZO->CH] 
-	opChatNotifySceneReady			= 0x75C4DD84,	//[ZO->CH]  // Fake code, crc-based on the word "chatcmdsceneready". 
+	// Fake code, crc-based an the word "opIsmGroupSay".
+	opIsmGroupSay					= 0x39360616,	//[ZO->CH]
+	opChatNotifySceneReady			= 0x75C4DD84,	//[ZO->CH]  // Fake code, crc-based on the word "chatcmdsceneready".
 
 	// admin inter server messages
-	opIsmBroadcastPlanet			= 0x3F9D6D6E,	//[ZO->CH] 
-	opIsmBroadcastGalaxy			= 0x8E41B5CB,	//[ZO->CH] 
-	opIsmScheduleShutdown			= 0xF2477D2C,	//[ZO <-> CH] 
-	opIsmCancelShutdown				= 0x5E43AC09,	//[ZO <-> CH] 
+	opIsmBroadcastPlanet			= 0x3F9D6D6E,	//[ZO->CH]
+	opIsmBroadcastGalaxy			= 0x8E41B5CB,	//[ZO->CH]
+	opIsmScheduleShutdown			= 0xF2477D2C,	//[ZO <-> CH]
+	opIsmCancelShutdown				= 0x5E43AC09	//[ZO <-> CH]
 
 };
 
@@ -188,7 +188,7 @@ enum chat_opcodes
 enum mail_stats
 {
 	MailStatus_New				= 0x4e,  // 'N'
-	MailStatus_Read				= 0x52,  // 'R'
+	MailStatus_Read				= 0x52  // 'R'
 };
 
 //======================================================================================================================
@@ -196,7 +196,7 @@ enum mail_stats
 enum friend_stats
 {
 	FriendStatus_Online		= 1,
-	FriendStatus_Offline	= 0,
+	FriendStatus_Offline	= 0
 };
 
 //======================================================================================================================

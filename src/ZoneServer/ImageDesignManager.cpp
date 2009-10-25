@@ -31,7 +31,7 @@ HoloStruct* EntertainerManager::getHoloEmoteIdbyCRC(uint32 crc)
 {
 
 	HoloEmoteEffects::iterator it = mHoloList.begin();
-	bool found = false;
+	//bool found = false;
 	while(it != mHoloList.end())
 	{
 		if ((*it)->pCRC == crc)
@@ -41,7 +41,7 @@ HoloStruct* EntertainerManager::getHoloEmoteIdbyCRC(uint32 crc)
 		it++;
 	}
 
-	return NULL;	
+	return NULL;
 }
 
 //======================================================================================================================
@@ -49,7 +49,7 @@ HoloStruct* EntertainerManager::getHoloEmoteIdbyCRC(uint32 crc)
 string EntertainerManager::getHoloNames()
 {
 	int8 collection[512];
-	sprintf(collection,"");
+	//sprintf(collection,"");
 
 	HoloEmoteEffects::iterator it = mHoloList.begin();
 	while(it != mHoloList.end())
@@ -61,7 +61,7 @@ string EntertainerManager::getHoloNames()
 		it++;
 	}
 
-	return collection;	
+	return collection;
 }
 
 //======================================================================================================================
@@ -70,7 +70,7 @@ HoloStruct* EntertainerManager::getHoloEmoteIdbyName(string name)
 {
 
 	HoloEmoteEffects::iterator it = mHoloList.begin();
-	bool found = false;
+	//bool found = false;
 	while(it != mHoloList.end())
 	{
 		if (BString((*it)->pEmoteName).getCrc() == name.getCrc())
@@ -80,7 +80,7 @@ HoloStruct* EntertainerManager::getHoloEmoteIdbyName(string name)
 		it++;
 	}
 
-	return NULL;	
+	return NULL;
 }
 
 //=============================================================================
@@ -94,7 +94,7 @@ string EntertainerManager::commitIdheight(PlayerObject* customer, float value)
 	float minScale = 1.0F;
 	float totalScale = 0.0F;
 	float maxScale = 2.5F;
-	
+
 	switch(customer->getRaceId())
 	{
 		case 0:
@@ -104,7 +104,7 @@ string EntertainerManager::commitIdheight(PlayerObject* customer, float value)
 			//max 1.11
 			if (value > 0.0F)
 				addtoMinScale = 0.22F * value;
-			else 
+			else
 				addtoMinScale = 0.0F;
 
 			minScale = 0.89F;
@@ -119,7 +119,7 @@ string EntertainerManager::commitIdheight(PlayerObject* customer, float value)
 			//max 0.94
 			if (value > 0.0F)
 				addtoMinScale = 0.13F * value;
-			else 
+			else
 				addtoMinScale = 0.0F;
 
 			minScale = 0.81F;
@@ -134,7 +134,7 @@ string EntertainerManager::commitIdheight(PlayerObject* customer, float value)
 			//max 1.25
 			if (value > 0.0F)
 				addtoMinScale = 0.24F * value;
-			else 
+			else
 				addtoMinScale = 0.0F;
 
 			minScale = 1.01F;
@@ -149,7 +149,7 @@ string EntertainerManager::commitIdheight(PlayerObject* customer, float value)
 			//max 1.0
 			if (value > 0.0F)
 				addtoMinScale = 0.11F * value;
-			else 
+			else
 				addtoMinScale = 0.0F;
 
 			minScale = 0.89F;
@@ -164,28 +164,28 @@ string EntertainerManager::commitIdheight(PlayerObject* customer, float value)
 				//max 1.25
 				if (value > 0.0F)
 					addtoMinScale = 0.17F * value;
-				else 
+				else
 					addtoMinScale = 0.0F;
 
 				minScale = 1.08F;
 				totalScale = minScale + addtoMinScale;
 			}
 			break;
-		
+
 		case 5:
 		{
 			//bothan
 			//min 0.75
 			//max 0.83
 			float newVal = static_cast<float>(0.08*value);
-			
+
 			minScale = 0.75F;
 			maxScale = 0.83F;
 			totalScale = minScale + newVal;
-				
+
 		}
 		break;
-		
+
 		case 6:
 		{
 			//twilek
@@ -193,7 +193,7 @@ string EntertainerManager::commitIdheight(PlayerObject* customer, float value)
 			//max 1.11
 			if (value > 0.0F)
 				addtoMinScale = 0.19F * value;
-			else 
+			else
 				addtoMinScale = 0.0F;
 
 			minScale = 0.92F;
@@ -207,7 +207,7 @@ string EntertainerManager::commitIdheight(PlayerObject* customer, float value)
 			//max 1.06
 			if (value > 0.0F)
 				addtoMinScale = 0.14F * value;
-			else 
+			else
 				addtoMinScale = 0.0F;
 
 			minScale = 0.92F;
@@ -221,7 +221,7 @@ string EntertainerManager::commitIdheight(PlayerObject* customer, float value)
 			//max 1.06
 			if (value > 0.0F)
 				addtoMinScale = static_cast<float>(0.14 * value);
-			else 
+			else
 				addtoMinScale = 0.0F;
 
 			minScale = 0.92F;
@@ -235,7 +235,7 @@ string EntertainerManager::commitIdheight(PlayerObject* customer, float value)
 			//max 1.06
 			if (value > 0.0F)
 				addtoMinScale = 0.14F * value;
-			else 
+			else
 				addtoMinScale = 0.0F;
 
 			minScale = 0.92F;
@@ -245,7 +245,7 @@ string EntertainerManager::commitIdheight(PlayerObject* customer, float value)
 	}
 	if((totalScale)> maxScale)
 		totalScale = maxScale;
-	
+
 
 	customer->setScale(totalScale);
 
@@ -275,8 +275,8 @@ uint32 EntertainerManager::getIdXP(string attribute, uint16 value)
 //updates the indexvalue and prepares the attribute string to be added to the sql string
 //
 string EntertainerManager::commitIdColor(PlayerObject* customer, string attribute, uint16 value)
-{		
-	
+{
+
 	gLogger->logMsgF("ID : Color Attribute : %s", MSG_NORMAL,attribute.getAnsi());
 
 	string		genderrace;
@@ -286,9 +286,9 @@ string EntertainerManager::commitIdColor(PlayerObject* customer, string attribut
 
 	sprintf(mString,"%s",&customer->getModelString().getAnsi()[30]);
 
-	
-	
-	Token = strtok(mString,separation); 
+
+
+	Token = strtok(mString,separation);
 	genderrace = Token;
 
 	gLogger->logMsgF("ID commit color : gender / race crc : %u", MSG_NORMAL,genderrace.getCrc());
@@ -299,14 +299,14 @@ string EntertainerManager::commitIdColor(PlayerObject* customer, string attribut
 		gLogger->logMsgF("ID : Color Attribute : couldnt find attribute container", MSG_NORMAL);
 		return(BString(""));
 	}
-	
+
 	if (value == 0)
 		value = 511;
 
 	if (value == 255)
 		value = 767;
 
-	
+
 
 	//check whether we are modifying the hair object
 	if(iDContainer->hair)
@@ -315,16 +315,16 @@ string EntertainerManager::commitIdColor(PlayerObject* customer, string attribut
 		if(TangibleObject* hair = dynamic_cast<TangibleObject*>(customer->getHair()))
 		{
 			hair->setCustomization(static_cast<uint8>(iDContainer->Atr1ID),value,3);
-			
+
 			//update hair customization db side seperately
 			int8 sql[300];
-			sprintf(sql,"UPDATE character_appearance set %s = %u where character_id = '%I64u'",iDContainer->Atr1Name, value,customer->getId());
-			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);	
+			sprintf(sql,"UPDATE character_appearance set %s = %u where character_id = '%"PRIu64"'",iDContainer->Atr1Name, value,customer->getId());
+			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
 
 			//update object clientside
 			// now update the hair customization string
 			gMessageLib->sendUpdateCustomization_InRange(hair,customer);
-			
+
 			//Udate equiplist
 			//the equiplist is what makes us have the right hair and clothes in the ID ui
 			//additionally it updates the hair properly on the login ui after change
@@ -338,8 +338,8 @@ string EntertainerManager::commitIdColor(PlayerObject* customer, string attribut
 
 				customer->getEquipManager()->addEquippedObject(CreatureEquipSlot_Hair,hair);
 				gMessageLib->sendEquippedListUpdate_InRange(customer);
-			}			
-			//sends to inRange by default		
+			}
+			//sends to inRange by default
 			//cant get the update to work as intended :(
 			//gMessageLib->sendEquippedItemUpdate_InRange(customer,hair->getId());
 
@@ -355,7 +355,7 @@ string EntertainerManager::commitIdColor(PlayerObject* customer, string attribut
 	{
 		customer->setCustomization(static_cast<uint8>(iDContainer->Atr1ID),value);
 	}
-	
+
 	int8 sql[50];
 	sprintf(sql,"%s = '%u'",iDContainer->Atr1Name,value);
 
@@ -374,25 +374,25 @@ string EntertainerManager::commitIdColor(PlayerObject* customer, string attribut
 string EntertainerManager::commitIdAttribute(PlayerObject* customer, string attribute, float value)
 {
 	uint32	crc = attribute.getCrc();
-	int8	attrName[10],add[50],mString[64];
+	int8	add[50],mString[64];
 	uint16	uVal,sk;
 	string genderrace;
 
-	sprintf(attrName,"");
-	sprintf(add,"");
-	
+	//sprintf(attrName,"");
+	//sprintf(add,"");
+
 	// get our gender and race so we can get hold of our Information from the id_attribute table
 	sprintf(mString,"%s",&customer->getModelString().getAnsi()[30]);
 
 	char *Token;
 	char separation[] = ".";
-	
+
 	Token = strtok(mString,separation); //
 	genderrace = Token;
-	
+
 	gLogger->logMsgF("ID commit attribute : gender / race crc : %u", MSG_NORMAL,genderrace.getCrc());
 	IDStruct*	iDContainer = getIDAttribute(attribute.getCrc(),genderrace.getCrc());
-	
+
 	if(!iDContainer)
 	{
 		gLogger->logMsgF("couldnt find attribute container", MSG_NORMAL);
@@ -412,12 +412,12 @@ string EntertainerManager::commitIdAttribute(PlayerObject* customer, string attr
 
 	//CAVE chest is handled over 2 attributes I cant find the 2nd apart from 2b in the list
 	//however when you ahh 80h to the 2b (first attribute) you get to the so called 2 attribute version
-	//in case of chests we have then the attribute ID ABh followed by TWO values as returned by the client on 
+	//in case of chests we have then the attribute ID ABh followed by TWO values as returned by the client on
 	//char creation
 
 	if ((crc ==523041409)&(customer->getGender())) //chest
 	{
-		
+
 		//Slider goes from 1 to 100
 		uint16 v1,v2;
 		v1 = 0;
@@ -434,18 +434,18 @@ string EntertainerManager::commitIdAttribute(PlayerObject* customer, string attr
 		else
 		{
 			v2 = 255;
-			//v1 goes from 253 for 51 
+			//v1 goes from 253 for 51
 			//to 101 for 100
 			slider = slider-50;
 			uint8 amount = ((155/50)*slider);
 			v1 = 256 - amount;
 
 		}
-		
+
 		customer->setCustomization (171,v1);
-		
+
 		customer->setCustomization (172,v2);
-		
+
 		//overwrites 2 value version so set to zero (so it gets ignored)
 		customer->setCustomization (0x2b,0);
 
@@ -470,7 +470,7 @@ string EntertainerManager::commitIdAttribute(PlayerObject* customer, string attr
 		{
 			sk = 255 - uVal;
 		}
-		
+
 		sprintf(add,",%s = '%u'",iDContainer->Atr2Name,sk);
 		customer->setCustomization(static_cast<uint8>(iDContainer->Atr2ID),sk);
 	}
@@ -482,19 +482,19 @@ string EntertainerManager::commitIdAttribute(PlayerObject* customer, string attr
 
 }
 //=============================================================================
-//gets called by commitIdChanges to 
+//gets called by commitIdChanges to
 //apply the Hair changes
 //
 void EntertainerManager::applyHair(PlayerObject* customer,string newHairString)
 {
 	int8 sql[1024];
-	
+
 	const PlayerObjectSet* const inRangePlayers	= customer->getKnownPlayers();
 	PlayerObjectSet::const_iterator	itiR			= inRangePlayers->begin();
 	//hark the equiplist might contain a helmet at this spot
 	TangibleObject*				playerHair		= dynamic_cast<TangibleObject*>(customer->getHair());//dynamic_cast<TangibleObject*>(customer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hair));
 	TangibleObject*				playerHairSlot	= dynamic_cast<TangibleObject*>(customer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hair));
-	
+
 	bool hairEquipped;
 	//do we need to equip the hair or are we wearing a helmet????
 	if(!playerHairSlot)
@@ -503,7 +503,7 @@ void EntertainerManager::applyHair(PlayerObject* customer,string newHairString)
 		hairEquipped = (playerHairSlot->getTangibleType() == TanType_Hair);
 
 	string						customization	= "";
-	
+
 	if(playerHair)
 	{
 		//are we wearing a helmet ? if not we need to update the world
@@ -521,24 +521,24 @@ void EntertainerManager::applyHair(PlayerObject* customer,string newHairString)
 
 			//Update the db only if we remain bald
 			if(!newHairString.getLength())
-			{			
+			{
 				// update the db
-				sprintf(sql,"UPDATE character_appearance set hair = '' where character_id = '%I64u'",customer->getId());
-				mDatabase->ExecuteSqlAsync(NULL,NULL,sql);	
+				sprintf(sql,"UPDATE character_appearance set hair = '' where character_id = '%"PRIu64"'",customer->getId());
+				mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
 			}
 		}
 		//destroy serverside
-		delete(playerHair);	
+		delete(playerHair);
 		customer->setHair(NULL);
 
 	}
-	
+
 	//do we have new hair ??
 	if(newHairString.getLength())
 	{
 		playerHair		= new TangibleObject();
 		customer->setHair(playerHair);
-	
+
 		int8 tmpHair[128];
 		sprintf(tmpHair,"object/tangible/hair/%s/shared_%s",customer->getSpeciesString().getAnsi(),&newHairString.getAnsi()[22 + customer->getSpeciesString().getLength()]);
 		playerHair->setId(customer->getId() + 8);
@@ -550,11 +550,11 @@ void EntertainerManager::applyHair(PlayerObject* customer,string newHairString)
 		playerHair->setNameFile("hair_name");
 		playerHair->setCustomizationStr((uint8*)customization.getAnsi());
 
-		
+
 
 		// update the db
-		sprintf(sql,"UPDATE character_appearance set hair = '%s' where character_id = '%I64u'",newHairString.getAnsi(),customer->getId());
-		mDatabase->ExecuteSqlAsync(NULL,NULL,sql);	
+		sprintf(sql,"UPDATE character_appearance set hair = '%s' where character_id = '%"PRIu64"'",newHairString.getAnsi(),customer->getId());
+		mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
 
 		// now update the modelstring in the creo6 equipped list and the corresponding tano
 		//are we wearing a helmet ? if not we need to update the world
@@ -593,7 +593,7 @@ void EntertainerManager::applyMoney(PlayerObject* customer,PlayerObject* designe
 		amountcash = inventory->getCredits();
 		amountbank = (amount - amountcash);
 	}
-	
+
 	EntertainerManagerAsyncContainer* asyncContainer = new EntertainerManagerAsyncContainer(EMQuery_IDFinances,0);
 	Transaction* mTransaction = mDatabase->startTransaction(this,asyncContainer);
 
@@ -602,14 +602,14 @@ void EntertainerManager::applyMoney(PlayerObject* customer,PlayerObject* designe
 	asyncContainer->amountcash = amountcash;
 	asyncContainer->amountbank = amountbank;
 
-	
-	sprintf(sql,"UPDATE inventories SET credits=credits-%i WHERE id=%lld",amountcash, customer->getId()+1);
+
+	sprintf(sql,"UPDATE inventories SET credits=credits-%i WHERE id=%"PRId64"",amountcash, customer->getId()+1);
 	mTransaction->addQuery(sql);
-	sprintf(sql,"UPDATE banks SET credits=credits-%i WHERE id=%lld",amountbank, customer->getId()+4);
+	sprintf(sql,"UPDATE banks SET credits=credits-%i WHERE id=%"PRId64"",amountbank, customer->getId()+4);
 	mTransaction->addQuery(sql);
-	sprintf(sql,"UPDATE banks SET credits=credits+%i WHERE id=%lld",amount, designer->getId()+4);
+	sprintf(sql,"UPDATE banks SET credits=credits+%i WHERE id=%"PRId64"",amount, designer->getId()+4);
 	mTransaction->addQuery(sql);
-	
+
 	mTransaction->execute();
 }
 
@@ -621,14 +621,14 @@ void EntertainerManager::commitIdChanges(PlayerObject* customer,PlayerObject* de
 	Ham* ham = designer->getHam();
 	if(ham->checkMainPools(0,0,66))
 	{
-		int32 mindCost = 66;
+		//int32 mindCost = 66;
 		designer->getHam()->updatePropertyValue(HamBar_Mind,HamProperty_CurrentHitpoints,-(66));
 	}
-	
+
 
 	const PlayerObjectSet* const inRangePlayers	= customer->getKnownPlayers();
 	PlayerObjectSet::const_iterator	itiR			= inRangePlayers->begin();
-	
+
 	int8 sql[1024];
 	EntertainerManagerAsyncContainer* asyncContainer;
 
@@ -643,12 +643,12 @@ void EntertainerManager::commitIdChanges(PlayerObject* customer,PlayerObject* de
 	if(flagHair)
 		applyHair(customer,hair);
 
-	
 
-	////////////		
+
+	////////////
 	//attributes
 	///////////
-	int8						mySQL[2048];	
+	int8						mySQL[2048];
 	AttributesList*				aList			 = customer->getIdAttributesList();
 	AttributesList::iterator	it				 = aList->begin();
 	string						data;
@@ -677,7 +677,7 @@ void EntertainerManager::commitIdChanges(PlayerObject* customer,PlayerObject* de
 		}
 		else
 			sprintf(mySQL,"%s, %s",mySQL,data.getAnsi());
-		
+
 		++it;
 	}
 
@@ -687,7 +687,7 @@ void EntertainerManager::commitIdChanges(PlayerObject* customer,PlayerObject* de
 	while(cIt != cList->end())
 	{
 		gLogger->logMsgF("ID apply changes : attribute : %s crc : %u", MSG_NORMAL,cIt->first.getAnsi(),cIt->first.getCrc());
-		data = commitIdColor(customer, cIt->first, cIt->second); 
+		data = commitIdColor(customer, cIt->first, cIt->second);
 		if(data.getLength())
 		{
 			if (firstUpdate)
@@ -699,21 +699,21 @@ void EntertainerManager::commitIdChanges(PlayerObject* customer,PlayerObject* de
 				sprintf(mySQL,"%s, %s",mySQL,data.getAnsi());
 		}
 
-		
+
 		++cIt;
 	}
 
 	//do we have actual data or only the primer ??? "UPDATE character_appearance set "
 	if(strlen(mySQL) > 33)
 	{
-		sprintf(sql,"%s where character_id = '%I64u'",mySQL,customer->getId());
+		sprintf(sql,"%s where character_id = '%"PRIu64"'",mySQL,customer->getId());
 		gLogger->logMsgF("ID apply changes : sql: %s ", MSG_NORMAL,sql);
 		asyncContainer = new EntertainerManagerAsyncContainer(EMQuery_NULL,0);
 		mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
 	}
-	
-	
-	
+
+
+
 
 	//build plus send customization
 	//please note that hair object customizatio is send updated and maintained b ycommitIdColor
@@ -734,8 +734,8 @@ void EntertainerManager::commitIdChanges(PlayerObject* customer,PlayerObject* de
 		asyncContainer = new EntertainerManagerAsyncContainer(EMQuery_IDMigrateStats,0);
 		asyncContainer->customer = customer;
 		asyncContainer->performer = designer;
-		
-		sprintf(sql,"SELECT target_health, target_strength, target_constitution, target_action, target_quickness, target_stamina, target_mind, target_focus, target_willpower FROM swganh.character_stat_migration where character_id = %I64u", customer->getId());
+
+		sprintf(sql,"SELECT target_health, target_strength, target_constitution, target_action, target_quickness, target_stamina, target_mind, target_focus, target_willpower FROM swganh.character_stat_migration where character_id = %"PRIu64"", customer->getId());
 		mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
 	}
 	else
@@ -749,17 +749,17 @@ void EntertainerManager::commitIdChanges(PlayerObject* customer,PlayerObject* de
 		it = aList->begin();
 		while(it != aList->end())
 		{
-			tempXP = getIdXP(it->first, static_cast<uint16>(it->second)); 
+			tempXP = getIdXP(it->first, static_cast<uint16>(it->second));
 			if(tempXP > xP)
 				xP = tempXP;
-			
+
 			++it;
 		}
 
 		cIt = cList->begin();
 		while(cIt != cList->end())
 		{
-			tempXP = getIdXP(cIt->first, cIt->second); 
+			tempXP = getIdXP(cIt->first, cIt->second);
 			if(tempXP > xP)
 				xP = tempXP;
 
@@ -808,12 +808,12 @@ void EntertainerManager::applyHoloEmote(PlayerObject* customer,string holoEmote)
 	EntertainerManagerAsyncContainer* asyncContainer;
 	asyncContainer = new EntertainerManagerAsyncContainer(EMQuery_NULL,0);
 	asyncContainer->customer = customer;
-	
-	sprintf(sql,"call swganh.sp_CharacterHoloEmoteCreate(%I64u,%u,%u)", customer->getId(),myEmote->pCRC,20);
+
+	sprintf(sql,"call swganh.sp_CharacterHoloEmoteCreate(%"PRIu64",%u,%u)", customer->getId(),myEmote->pCRC,20);
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
 
 	//send message box holoemote bought
-	
+
 	sprintf(sql,"Your current Holo Emote is %s.\xa You have 20 charges remaining. \xa To play your Holoemote type \x2fHoloemote.\xa To delete your Holo Emote type \x2fHoloemote delete. \xa Purchasing a new Holo Emote will automatically delete your current Holo Emote.",myEmote->pEmoteName);
 
 	gUIManager->createNewMessageBox(NULL,"holoHelpOff","Holo Help",sql,customer);

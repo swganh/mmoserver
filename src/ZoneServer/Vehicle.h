@@ -32,7 +32,7 @@ enum vehicle_types
 	VehicleType_SpeederBike_base	= 8,
 	VehicleType_SpeederBike_flash	= 9,
 	VehicleType_SpeederBike_swoop	= 10,
-	VehicleType_shared				= 11,
+	VehicleType_shared				= 11
 };
 
 
@@ -44,7 +44,7 @@ public:
 	Vehicle();
 	~Vehicle();
 
-	int		getTypesId() { return mTypesId; } 
+	int		getTypesId() { return mTypesId; }
 	void	setTypesId(int types_id) { mTypesId = types_id; }
 	int		getHitPointLoss() { return mHitPointLoss; }
 	void    setHitPointLoss(int hitpoint_loss) { mHitPointLoss = hitpoint_loss; }
@@ -55,11 +55,11 @@ public:
 
 	PlayerObject*	getOwner() { return mOwner; }
 	void			setOwner(PlayerObject* owner) { mOwner = owner; }
-	
+
 	CreatureObject* getBody() { return mBody; }
 	uint64			getBodyId() { return mBodyId; }
 	void			setBodyId(uint64 id) { mBodyId = id; }
-	
+
 
 	bool			isCalled() { return mBody != NULL; }
 
@@ -75,7 +75,7 @@ protected:
 
 	int					mTypesId;
 	int					mHitPointLoss; //amount of hitpoints lost during travel
-	int					mInclineAcceleration; 
+	int					mInclineAcceleration;
 	int					mFlatAcceleration;
 	PlayerObject*		mOwner;
 	CreatureObject*		mBody;

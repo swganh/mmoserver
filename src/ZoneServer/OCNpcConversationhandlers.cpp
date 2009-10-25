@@ -133,12 +133,7 @@ void ObjectController::_handleNPCConversationStart(uint64 targetId,Message* mess
 			// say a specific preset sentence
 			if(npc->hasInternalAttribute("npc_chat"))
 			{
-				BStringVector  quack;
-				quack.push_back("");
-				quack.push_back("");
-				quack.push_back("");
-				quack.push_back("");
-				quack.push_back("");
+				char quack[5][32];
 
 				string phrase = (int8*)(npc->getInternalAttribute<std::string>("npc_chat").c_str());
 				phrase.convert(BSTRType_Unicode16);
@@ -156,15 +151,10 @@ void ObjectController::_handleNPCConversationStart(uint64 targetId,Message* mess
 			// say a random phrase
 			else
 			{
-				BStringVector  quack;
-				quack.push_back("");
-				quack.push_back("");
-				quack.push_back("");
-				quack.push_back("");
-				quack.push_back("");
+				char quack[5][32];
 				std::pair<string,uint32> chat = gWorldManager->getRandNpcChatter();
 
-				// gLogger->logMsgF("NPC id %lld in cell(%lld)",MSG_NORMAL, npc->getId(),npcParentId);
+				// gLogger->logMsgF("NPC id %"PRId64" in cell(%"PRId64")",MSG_NORMAL, npc->getId(),npcParentId);
 				if (!gWorldConfig->isInstance())
 				{
 					gMessageLib->sendSpatialChat(npc,chat.first,quack);
@@ -185,7 +175,7 @@ void ObjectController::_handleNPCConversationStart(uint64 targetId,Message* mess
 		}
 	}
 	else
-		gLogger->logMsgF("ObjController::_handleNPCConversationStart: Couldn't find object %lld",MSG_HIGH,targetId);
+		gLogger->logMsgF("ObjController::_handleNPCConversationStart: Couldn't find object %"PRId64"",MSG_HIGH,targetId);
 }
 
 //=============================================================================

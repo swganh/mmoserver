@@ -95,7 +95,7 @@ void ObjectController::_handleAdminWarpSelf(uint64 targetId,Message* message,Obj
 				break;
 
 			// warp on this planet
-			if(planetId == gWorldManager->getZoneId())
+			if(static_cast<uint32>(planetId) == gWorldManager->getZoneId())
 			{
 				gWorldManager->warpPlanet(player,Anh_Math::Vector3(static_cast<float>(x),0.0f,static_cast<float>(z)),0);
 			}
@@ -138,12 +138,12 @@ typedef struct _AdminCommands
 
 #define noOfAdminCommands 5
 static AdminCommands adminCommands[noOfAdminCommands] = {
-				"broadcast", 10, // &ObjectController::handleBroadcast,
-				"broadcastPlanet", 10, // &ObjectController::handleBroadcastPlanet,
-				"broadcastGalaxy", 10, // &ObjectController::handleBroadcastGalaxy,
-				"shutdownGalaxy", 9, // &ObjectController::handleShutdownGalaxy,
-				"cancelShutdownGalaxy", 15, // &ObjectController::handleCancelShutdownGalaxy,
-				};
+		{"broadcast", 10}, // &ObjectController::handleBroadcast,
+		{"broadcastPlanet", 10}, // &ObjectController::handleBroadcastPlanet,
+		{"broadcastGalaxy", 10}, // &ObjectController::handleBroadcastGalaxy,
+		{"shutdownGalaxy", 9}, // &ObjectController::handleShutdownGalaxy,
+		{"cancelShutdownGalaxy", 15}, // &ObjectController::handleCancelShutdownGalaxy
+};
 
 void ObjectController::_handleAdminSysMsg(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
@@ -704,8 +704,8 @@ int32 ObjectController::indexOfFirstField(const string message) const
 {
 	int32 index = -1;
 	int8 *ptr = message.getRawData();
-	bool foundStart = false;
-	bool foundEnd = false;
+	//bool foundStart = false;
+	//bool foundEnd = false;
 	for (int32 i = 0; i < (int32)message.getLength(); i++)
 	{
 		// Find the start of next field.

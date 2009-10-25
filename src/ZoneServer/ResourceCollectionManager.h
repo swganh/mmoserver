@@ -37,7 +37,7 @@ typedef struct tagResourceLocation
 enum RCMQueryType
 {
 	RCMQuery_SampleCosts		= 1,
-	RCMQuery_SurveyCosts		= 2,
+	RCMQuery_SurveyCosts		= 2
 };
 
 //======================================================================================================================
@@ -64,7 +64,7 @@ class ResourceCollectionManager : public DatabaseCallback
 		virtual void							handleDatabaseJobComplete(void* ref,DatabaseResult* result);
 
 		void									releaseAllPoolsMemory(){ mDBAsyncPool.release_memory(); }
-		
+
 		uint32									surveyHealthCost;
 		uint32									surveyActionCost;
 		uint32									surveyMindCost;

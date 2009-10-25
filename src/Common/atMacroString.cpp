@@ -28,6 +28,7 @@ void	atMacroString::_addString(string mString)
 	//start by adding the size
 	switch (mString.getType()) {
 		//2bytes for ascii
+		case BSTRType_UTF8:
 		case BSTRType_ANSI:{
 			_adduint16(mString.getLength());
 		}
@@ -36,7 +37,7 @@ void	atMacroString::_addString(string mString)
 		//4 for unicode16
 		case BSTRType_Unicode16:{
 			//_adduint32((uint32)mString.getLength());
-			memcpy(mPoint1,&length,4); 
+			memcpy(mPoint1,&length,4);
 			mPoint1 +=4;
 			mSize +=4;
 		}
@@ -44,10 +45,10 @@ void	atMacroString::_addString(string mString)
 	}
 
 	//now the String itself
-	memcpy(mPoint1,mString.getRawData(),mString.getDataLength()); 
+	memcpy(mPoint1,mString.getRawData(),mString.getDataLength());
 	mPoint1 += mString.getDataLength();
 	mSize	+= mString.getDataLength();
-	
+
 }
 
 //==============================================================================
@@ -57,17 +58,17 @@ void	atMacroString::_addString(string mString)
 void	atMacroString::_addByte(uint8 mByte)
 {
 
-	*mPoint1 = mByte; 
+	*mPoint1 = mByte;
 	mPoint1 ++;
 	mSize ++;
-	
-	
+
+
 }
 
 void	atMacroString::_adduint32(uint32 mInteger)
 {
 
-	memcpy(mPoint1,&mInteger,4); 
+	memcpy(mPoint1,&mInteger,4);
 	mPoint1 +=4;
 	mSize +=4;
 }
@@ -75,7 +76,7 @@ void	atMacroString::_adduint32(uint32 mInteger)
 void	atMacroString::_addfloat(float mFloat)
 {
 
-	memcpy(mPoint1,&mFloat,4); 
+	memcpy(mPoint1,&mFloat,4);
 	mPoint1 +=4;
 	mSize +=4;
 }
@@ -83,27 +84,27 @@ void	atMacroString::_addfloat(float mFloat)
 void	atMacroString::_adduint16(uint16 mWord)
 {
 
-	memcpy(mPoint1,&mWord,2); 
+	memcpy(mPoint1,&mWord,2);
 	mPoint1 +=2;
 	mSize +=2;
-	
-	
+
+
 }
 
 void	atMacroString::_adduint64(uint64 mLong)
 {
 
-	memcpy(mPoint1,&mLong,8); 
+	memcpy(mPoint1,&mLong,8);
 	mPoint1 +=8;
 	mSize +=8;
-	
+
 }
 
 void	atMacroString::setPlanetString(string planet)
 {
 
 	mPlanetCRC = planet.getCrc();
-	
+
 }
 
 void	atMacroString::addWaypoint()
@@ -120,7 +121,7 @@ void	atMacroString::addWaypoint()
 	//unknown integer must be 0xfffffffd for waypoints
 	_adduint32(0xfffffffd);
 
-	
+
 	_adduint32(0);//
 	_addfloat(mX);// x
 	_adduint32(0);//
@@ -128,31 +129,31 @@ void	atMacroString::addWaypoint()
 	_adduint32(0);//
 	_addfloat(mZ);//z
 
-	
+
 	_adduint32(mPlanetCRC);//crc planet
-	
+
 	mWPName.convert(BSTRType_Unicode16);
 	_addString(mWPName);
 	_adduint32(0);//
 	_adduint32(0);//
-	
+
 	_addByte(0);//
 	_addByte(0);//
-	
+
 }
 
 void			atMacroString::addTextModule()
-{		
+{
 	//byte 1 unknown
 	_addByte(static_cast<uint8>(mCounter));
 	mCounter++;
 	_addByte(0);
 	_addByte(1);
 
-	//unknown integer  -1 
+	//unknown integer  -1
 	_adduint32(0xffffffff);
 
-	
+
 	//MessageBody
 	//stf dir
 	mMBdir.convert(BSTRType_ANSI);
@@ -193,11 +194,11 @@ void			atMacroString::addTextModule()
 	//%TT custom string
 	mTT.convert(BSTRType_Unicode16);
 	_addString(mTT);
-	
 
-	//TO Id 
+
+	//TO Id
 	_adduint64(0);
-	
+
 	//%TO dir
 	mTOdir.convert(BSTRType_ANSI);
 	_addString(mTOdir);
@@ -210,8 +211,8 @@ void			atMacroString::addTextModule()
 	//%TO custom string
 	mTO.convert(BSTRType_Unicode16);
 	_addString(mTO);
-	
-	_adduint32(mDI); // 
+
+	_adduint32(mDI); //
 	_adduint32(0);
 	_addByte(0);
 
@@ -231,7 +232,7 @@ string			atMacroString::assemble()
 	if (sizeT == 1){
 		_addByte(0);
 	}
-	
+
 	uint32 tempsize = mSize  >> 1;
 	string mContainer;
 	mContainer.convert(BSTRType_Unicode16);
@@ -241,13 +242,13 @@ string			atMacroString::assemble()
 
 	//gLogger->hexDump(mContainer.getRawData(),mContainer.getDataLength());
 	return(mContainer);
-		
+
 /*	size = mContainer.getDataLength();
 	if (size){
 	}
-	memcpy(mPoint,mContainer.getRawData(),size); 
+	memcpy(mPoint,mContainer.getRawData(),size);
 	mPoint1 =mPoint + size;
-		
+
 	//byte 1 unknown
 	_addByte(mCounter);
 	mCounter++;
@@ -257,7 +258,7 @@ string			atMacroString::assemble()
 	//unknown integer
 	_adduint32(0xffffffff);
 
-	
+
 	//MessageBody
 	//stf dir
 	mMBdir.convert(BSTRType_ANSI);
@@ -269,13 +270,13 @@ string			atMacroString::assemble()
 	_addString(mMBstr);
 
 	//unknown int
-	
+
 	_adduint32(0);//not a string
 	_adduint32(0);//not a string
 	_adduint32(0);//probably string or list
 	_adduint32(0);//not a string
 	_adduint32(0);//probably string or list
-	
+
 	//some id??
 	_adduint64(0);
 
@@ -291,11 +292,11 @@ string			atMacroString::assemble()
 	//%TT custom string
 	mTT.convert(BSTRType_Unicode16);
 	_addString(mTT);
-	
+
 
 	//unknown Id maybe Id of the installation were talking about ???
 	_adduint64(0);
-	
+
 	//%TT dir
 	mTOdir.convert(BSTRType_ANSI);
 	_addString(mTOdir);
@@ -308,8 +309,8 @@ string			atMacroString::assemble()
 	//%TT custom string
 	mTO.convert(BSTRType_Unicode16);
 	_addString(mTO);
-	
-	_adduint32(mDI); // 
+
+	_adduint32(mDI); //
 	_adduint32(0);
 	_addByte(0);
 	//thats the length of the first EMail
@@ -321,7 +322,7 @@ string			atMacroString::assemble()
 	if (sizeT == 1){
 		_addByte(0);
 	}
-	
+
 	uint32 tempsize = size >> 1;
 	mContainer.convert(BSTRType_Unicode16);
 	mContainer.setLength(tempsize);

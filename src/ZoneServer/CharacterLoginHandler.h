@@ -32,7 +32,7 @@ enum CLHCallBack
 {
 	CLHCallBack_None				= 0,
 	CLHCallBack_Transfer_Ticket		= 1,
-	CLHCallBack_Transfer_Position	= 2,
+	CLHCallBack_Transfer_Position	= 2
 };
 
 class CharacterLoadingContainer
@@ -74,7 +74,7 @@ class CharacterLoginHandler : public MessageDispatchCallback,public ObjectFactor
 		void    _processClusterZoneTransferApprovedByTicket(Message* message, DispatchClient* client);
 		void    _processClusterZoneTransferApprovedByPosition(Message* message, DispatchClient* client);
 		void    _processClusterZoneTransferDenied(Message* message, DispatchClient* client);
-    
+
 		Database*					mDatabase;
 		MessageDispatch*			mMessageDispatch;
 

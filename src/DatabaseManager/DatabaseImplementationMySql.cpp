@@ -43,15 +43,15 @@ void  DatabaseImplementationMySql::Startup(char* host, uint16 port, char* user, 
   // Initialize mysql and make a connection to the server.
   mConnection = mysql_init(0);
   connect = mysql_real_connect(mConnection, (const char*)host, (const char*)user, (const char*)pass, (const char*)dbname, port, 0, CLIENT_MULTI_STATEMENTS);
-  int result = mysql_options(mConnection, MYSQL_OPT_RECONNECT, "true");
-  
+  mysql_options(mConnection, MYSQL_OPT_RECONNECT, "true");
+
   // Any errors from the connection attempt?
   if(mysql_errno(mConnection) != 0)
   {
     gLogger->logMsgF("DatabaseError: %s", MSG_HIGH, mysql_error(mConnection));
   }
 
-  int i = 0;
+ // int i = 0;
 }
 
 
@@ -68,17 +68,17 @@ void DatabaseImplementationMySql::Shutdown(void)
 DatabaseResult* DatabaseImplementationMySql::ExecuteSql(int8* sql,bool procedure)
 {
 	DatabaseResult* newResult = new(ResultPool::ordered_malloc()) DatabaseResult(procedure);
-  
+
   newResult->setDatabaseImplementation(this);
 
   // Execute the statement
   uint32 len = (uint32)strlen(sql);
   mysql_real_query(mConnection, sql, len);
-  
+
   if(mysql_errno(mConnection) != 0)
   {
     gLogger->logMsgF("DatabaseError: %s\n", MSG_HIGH, mysql_error(mConnection));
-	
+
 
   }
 
@@ -112,7 +112,7 @@ DatabaseWorkerThread* DatabaseImplementationMySql::DestroyResult(DatabaseResult*
 		while(mysql_next_result((MYSQL*)result->getConnectionReference()) == 0)
 		{
 			mysql_free_result(mysql_store_result((MYSQL*)result->getConnectionReference()));
-		} 
+		}
 
 		worker = result->getWorkerReference();
 	}
@@ -126,7 +126,7 @@ DatabaseWorkerThread* DatabaseImplementationMySql::DestroyResult(DatabaseResult*
 //======================================================================================================================
 void DatabaseImplementationMySql::GetNextRow(DatabaseResult* result, DataBinding* binding, void* object)
 {
-  unsigned int  i, numRows = 0;
+  unsigned int  i; //, numRows = 0;
   MYSQL_ROW     row;
   MYSQL_RES*    mySqlResult = (MYSQL_RES*)result->getResultSetReference();
 

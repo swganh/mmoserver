@@ -28,7 +28,7 @@ class ObjectFactoryCallback;
 
 enum BadgeFQuery
 {
-	BadgeFQuery_MainData	= 1,
+	BadgeFQuery_MainData	= 1
 };
 
 //=============================================================================

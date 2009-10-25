@@ -67,7 +67,6 @@ class SocketWriteThread
 
 		SessionQueue		mSessionQueue;
 
-		boost::mutex                  mSocketReadMutex;
         boost::thread   	mThread;
 		bool				mExit;
 };

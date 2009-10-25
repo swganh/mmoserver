@@ -44,7 +44,6 @@ class CreatureObject : public MovingObject
 
 		friend class PersistentNpcFactory;
 		friend class NonPersistentNpcFactory;
-		friend class BuffManager;
 
 		CreatureObject();
 		~CreatureObject();
@@ -244,11 +243,6 @@ class CreatureObject : public MovingObject
 		virtual void		killEvent(void) { }
 		virtual void		respawn(void) { }
 
-		// flow control vars
-		uint32				mSkillCmdUpdateCounter;
-		uint32				mSkillModUpdateCounter;
-		uint32				mDefenderUpdateCounter;
-
 		//pet,mount,vehicle
 		uint64				getOwner() { return mOwner; }
 		void				setOwner(uint64 owner_id) { mOwner = owner_id; }
@@ -256,83 +250,71 @@ class CreatureObject : public MovingObject
 		uint64				getPetController(){ return mController;}
 		void				setPetController(uint64 c){mController = c;}
 
+		// flow control vars
+		uint64				mTargetId;
+		uint32				mDefenderUpdateCounter;
+		uint32				mSkillCmdUpdateCounter;
+		uint32				mSkillModUpdateCounter;
+
 
 	protected:
 
-		bool				mReady;
-		// ObjectList			mDefenders;
-		ObjectIDList		mDefenders;
-
-		// entertaining
-		uint64				mEntertainerListenToId;
-		float				mLastEntertainerXP;
-		void*				mPerformance;
-		PerformingPause		mPerformancePaused;
-		PerformingState		mPendingPerform;
-		uint32				mPerformanceCounter;
-		string				mCurrentAnimation;
-		uint32				mPerformanceId;
-
-		uint32				mLanguage;
-		string				mFirstName;
-		string				mLastName;
-		uint8				mRaceId;
-		string				mSpecies;
-		string				mSpeciesGroup;
-
-		// incapacitation
-		uint8				mIncapCount;
-		uint64				mCurrentIncapTime;
-		uint64				mFirstIncapTime;
-
-		uint16				mCustomization[0xFF];
-		string				mCustomizationStr;
-
-		Ham					mHam;
-		CreatureGroup		mCreoGroup;
-
-		uint8				mMoodId;
-		uint16				mCL;
-		uint64				mState;
-		float				mScale;
-		uint8				mPosture;
-		string				mFaction;
-		uint8				mFactionRank;
-		// uint32				mPvPStatus;	// Why make a nice enum and then throw away the type checking the compiler provide???
-		CreaturePvPStatus	mPvPStatus;
-
-		EquipManager		mEquipManager;
-
-		// Object*				mTargetObject;
-
-		SkillList			mSkills;
-		SkillModsList		mSkillMods;
-		SkillCommandList	mSkillCommands;
+		BuffList					mBuffList;
+		FactionList				mFactionList;
+		ObjectIDList			mDefenders;
 		SkillCommandMap		mSkillCommandMap;
-		uint32				mSkillUpdateCounter;
-
-		FactionList			mFactionList;
-
-		uint64				mGroupId;
-		uint32				mLastMoveTick;
-
-		// race / gender mask for fast checking
-		uint32				mRaceGenderMask;
+		SkillCommandList	mSkillCommands;
+		SkillList					mSkills;
+		SkillModsList			mSkillMods;
+		EquipManager			mEquipManager;
+		Ham								mHam;
+		string						mCurrentAnimation;
+		string						mCustomizationStr;
+		string						mFaction;
+		string						mFirstName;
+		string						mLastName;
+		string						mSpecies;
+		string						mSpeciesGroup;
 
 		//reference Hair here so it is not lost when we put on a helmet that occupies the equipslot!!!
 		//on unequipping the helmet and on logout we use this reference to destroy the hair!!!!!
 		Object*				mHair;
+		void*				mPerformance;
 
-		//If creature is a mount,pet,or vehicle it has an owner
-		uint64				mOwner;
+		CreatureGroup		mCreoGroup;
+		CreaturePvPStatus	mPvPStatus;
+		PerformingPause		mPerformancePaused;
+		PerformingState		mPendingPerform;
+
+		uint64				mController;
+		uint64				mCurrentIncapTime;
+		uint64				mEntertainerListenToId;
+		uint64				mFirstIncapTime;
+		uint64				mGroupId;
+		uint64				mOwner; //If creature is a mount,pet,or vehicle it has an owner
+		uint64				mState;
+		float					mLastEntertainerXP;
+		float					mScale;
+		uint32				mAsyncCount;
+		uint32				mLanguage;
+		uint32				mLastMoveTick;
+		uint32				mPerformanceCounter;
+		uint32				mPerformanceId;
+		uint32				mRaceGenderMask;
+		uint32				mSkillUpdateCounter;
+		uint16				mCL;
+		uint16				mCustomization[0xFF];
+		uint8					mFactionRank;
+		uint8					mIncapCount;
+		uint8					mMoodId;
+		uint8					mPosture;
+		uint8					mRaceId;
+		bool					mReady;
+		// entertaining
 
 		virtual void	handleObjectMenuSelect(uint8 messageType,Object* srcObject);
 
-		uint64				mController;
-
-		//Buffs
 	public:
-		uint64				mTargetId;
 
 		void				AddBuff(Buff* buff,  bool stackable = false, bool overwrite = false);
 		void				RemoveBuff(Buff* buff);
@@ -340,17 +322,13 @@ class CreatureObject : public MovingObject
 		Buff*				GetBuff(uint32 BuffIcon);
 		bool				GetBuffExists(uint32 BuffIcon);
 		int					GetNoOfBuffs();
-		BuffList*			GetBufflist(){return(&Buffs);}
+		BuffList*			GetBuffList(){return(&mBuffList);}
 
 		//asynccount is our asyncquery counter when we store buffs async
 		uint32				GetAsyncCount(){return(mAsyncCount);}
 		void				SetAsyncCount(uint32 count){mAsyncCount = count;}
 		void				IncAsyncCount(){mAsyncCount++;}
 		void				DecAsyncCount(){mAsyncCount--;}
-
-	protected:
-		BuffList			Buffs;
-		uint32				mAsyncCount;
 };
 
 //=============================================================================

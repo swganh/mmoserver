@@ -24,7 +24,7 @@ enum RegionType
 	Region_Mission			= 4,
 	Region_Zone				= 5,
 	Region_Camp				= 6,
-	Region_MissionSpawn		= 7,
+	Region_MissionSpawn		= 7
 };
 
 //=============================================================================

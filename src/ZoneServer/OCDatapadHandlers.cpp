@@ -122,11 +122,11 @@ void ObjectController::_handleSetWaypointActiveStatus(uint64 targetId,Message* m
 	if(waypoint)
 	{
 		waypoint->toggleActive();
-		mDatabase->ExecuteSqlAsync(0,0,"UPDATE waypoints set active=%u WHERE waypoint_id=%lld",(uint8)waypoint->getActive(),targetId);
+		mDatabase->ExecuteSqlAsync(0,0,"UPDATE waypoints set active=%u WHERE waypoint_id=%"PRId64"",(uint8)waypoint->getActive(),targetId);
 	}
 	else
 	{
-		gLogger->logMsgF("ObjController::handleSetWaypointStatus: could not find waypoint %lld",MSG_LOW,targetId);
+		gLogger->logMsgF("ObjController::handleSetWaypointStatus: could not find waypoint %"PRId64"",MSG_LOW,targetId);
 	}
 }
 
@@ -400,7 +400,7 @@ void ObjectController::_handleSetWaypointName(uint64 targetId,Message* message,O
 
 	if(waypoint == NULL)
 	{
-		gLogger->logMsgF("ObjController::handlesetwaypointname: could not find waypoint %lld",MSG_NORMAL,targetId);
+		gLogger->logMsgF("ObjController::handlesetwaypointname: could not find waypoint %"PRId64"",MSG_NORMAL,targetId);
 		return;
 	}
 
@@ -416,7 +416,7 @@ void ObjectController::_handleSetWaypointName(uint64 targetId,Message* message,O
 	sprintf(sql,"UPDATE waypoints SET name='");
 	sqlPointer = sql + strlen(sql);
 	sqlPointer += mDatabase->Escape_String(sqlPointer,name.getAnsi(),name.getLength());
-	sprintf(restStr,"' WHERE waypoint_id=%lld",targetId);
+	sprintf(restStr,"' WHERE waypoint_id=%"PRId64"",targetId);
 	strcat(sql,restStr);
 
 	mDatabase->ExecuteSqlAsync(NULL,NULL,sql);

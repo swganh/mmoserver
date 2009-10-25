@@ -28,12 +28,12 @@ extern "C"
 
 //======================================================================================================================
 
-Script::Script(ScriptEngine* scriptEngine) : 
-mEngine(scriptEngine),
-mState(SS_Not_Loaded),
-mTime(0),
-mWaitTimeStamp(0),
-mWaitFrame(0)
+Script::Script(ScriptEngine* scriptEngine) :
+		mEngine(scriptEngine),
+		mState(SS_Not_Loaded),
+		mWaitTimeStamp(0),
+		mTime(0),
+		mWaitFrame(0)
 {
 	mThreadState = lua_newthread(mEngine->getMasterState());
 
@@ -62,7 +62,7 @@ void Script::run()
 	{
 		_resumeScript(0);
 	}
-	else 
+	else
 	{
 		_formatError();
 		gLogger->logMsgF("ScriptingEngine::Syntax Error: %s",MSG_NORMAL,mLastError);
@@ -80,7 +80,7 @@ void Script::runFile(const int8 *fileName)
 	{
 		_resumeScript(0);
 	}
-	else 
+	else
 	{
 		_formatError();
 		gLogger->logMsgF("ScriptingEngine::Syntax Error: %s",MSG_NORMAL,mLastError);
@@ -188,7 +188,7 @@ void Script::_formatError()
 
 //======================================================================================================================
 
-void Script::callFunction(const char *func,const char *sig,...) 
+void Script::callFunction(const char *func,const char *sig,...)
 {
 	va_list vl;
 	int narg,nres;
@@ -200,9 +200,9 @@ void Script::callFunction(const char *func,const char *sig,...)
 	{
 		narg = 0;
 
-		while(*sig) 
-		{  
-			switch (*sig++) 
+		while(*sig)
+		{
+			switch (*sig++)
 			{
 
 				case 'd':	lua_pushnumber(mThreadState,va_arg(vl,double));	break;
@@ -217,11 +217,11 @@ void Script::callFunction(const char *func,const char *sig,...)
 			narg++;
 
 			luaL_checkstack(mThreadState,1,"too many arguments");
-		} 
+		}
 
 		endwhile:
 
-		nres = strlen(sig); 
+		nres = strlen(sig);
 
 		if(lua_pcall(mThreadState,narg,nres,0) != 0)
 		{
@@ -229,13 +229,13 @@ void Script::callFunction(const char *func,const char *sig,...)
 			gLogger->logMsgF("ScriptingEngine::callFunction Runtime Error: %s",MSG_NORMAL,mLastError);
 		}
 
-		nres = -nres; 
+		nres = -nres;
 
-		while(*sig) 
-		{  
-			switch (*sig++) 
+		while(*sig)
+		{
+			switch (*sig++)
 			{
-				case 'd':  
+				case 'd':
 				{
 					if(!lua_isnumber(mThreadState,nres))
 					{
@@ -247,7 +247,7 @@ void Script::callFunction(const char *func,const char *sig,...)
 				}
 				break;
 
-				case 'i': 
+				case 'i':
 				{
 					if(!lua_isnumber(mThreadState,nres))
 					{
@@ -259,7 +259,7 @@ void Script::callFunction(const char *func,const char *sig,...)
 				}
 				break;
 
-				case 's': 
+				case 's':
 				{
 					if(!lua_isstring(mThreadState,nres))
 					{

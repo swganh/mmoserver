@@ -22,7 +22,12 @@ Copyright (c) 2006 - 2008 The swgANH Team
 //======================================================================================================================
 
 Log::Log(const std::string& name,LogLevel level,GlobalLogLevel levelGlobal,bool fileOut,bool consoleOut,bool append, Database* database)
-		:mName(name),mLogLevel(level),mGlobalLogLevel(levelGlobal),mFileOut(fileOut),mConsoleOut(consoleOut), mDatabase(database)
+	: mName(name)
+	, mGlobalLogLevel(levelGlobal)
+	, mLogLevel(level)
+	, mDatabase(database)
+	, mFileOut(fileOut)
+	, mConsoleOut(consoleOut)
 {
 	if(mFileOut)
 	{
@@ -40,7 +45,7 @@ Log::Log(const std::string& name,LogLevel level,GlobalLogLevel levelGlobal,bool 
 			mLogStream.open(file.c_str(),std::ios::out|std::ios::trunc);
 	}
 
-	
+
 }
 
 
@@ -63,7 +68,7 @@ void Log::logMsg(const std::string& msg,MsgPriority mp,bool fileOut,bool console
 	if(mLogLevel + mp > mGlobalLogLevel)
 	{
 		std::string tstring;
-  
+
         boost::mutex::scoped_lock lock(mGlobalLogMutex);
 
         if(timestamp)
@@ -73,7 +78,7 @@ void Log::logMsg(const std::string& msg,MsgPriority mp,bool fileOut,bool console
 			time_t t;
 			time(&t);
 			ts = localtime(&t);
-			
+
 			tstring.append("[");
 			tstring.append(timestamp_());
 			tstring.append("]");
@@ -109,12 +114,12 @@ void Log::logMsg(const std::string& msg,MsgPriority mp,bool fileOut,bool console
 void Log::logMsg(const std::string& msg, MsgPriority priority, va_list args)
 {
   int8    buf[8192];
-        
+
   // format our string with all the optional args.
   vsprintf(buf, msg.c_str(), args);
 
 	if(mLogLevel + priority > mGlobalLogLevel)
-	{  
+	{
         boost::mutex::scoped_lock lock(mGlobalLogMutex);
 
 		std::string tstring;
@@ -122,7 +127,7 @@ void Log::logMsg(const std::string& msg, MsgPriority priority, va_list args)
 		tstring.append("[");
 		tstring.append(timestamp_());
 		tstring.append("]");
-		
+
 		tstring.append(buf);
 		if(mFileOut)
 		{
@@ -152,7 +157,6 @@ void Log::logMsg(const std::string& zone, const std::string& system, const std::
 	//dblogging enabled??
 	if(mDatabase)
 	{
-		boost::mutex::scoped_lock lock(mGlobalLogMutex);
 		//zone
 		int8 sql[500];
 		int8 escstring1[64];
@@ -194,7 +198,7 @@ void Log::logMsg(const std::string& zone, const std::string& system, const std::
 void Log::logMsgNolf(const std::string& msg,MsgPriority mp,bool fileOut,bool consoleOut,bool timestamp, int Color, va_list args)
 {
 	int8    buf[8192];
-    
+
     // format our string with all the optional args.
     vsprintf(buf, msg.c_str(), args);
 
@@ -363,15 +367,15 @@ void Log::hexDump(int8* data,uint32 len,const char* filename)
 
 std::string Log::timestamp_()
 {
-    time_t raw_time;  
-    struct tm * time_info;  
-  
-    time(&raw_time);  
+    time_t raw_time;
+    struct tm * time_info;
+
+    time(&raw_time);
     time_info = localtime(&raw_time);
-    
+
     std::ostringstream os;
     os << std::setw(2) << std::setfill('0') << time_info->tm_hour << ":" << std::setw(2) << std::setfill('0') << time_info->tm_min << ":" << std::setw(2) << std::setfill('0') << time_info->tm_sec;
-    
+
     return os.str();
 }
 

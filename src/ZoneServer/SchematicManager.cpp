@@ -30,12 +30,12 @@ SchematicManager* SchematicManager::mSingleton = NULL;
 
 //======================================================================================================================
 
-SchematicManager::SchematicManager(Database* database) :
-mDatabase(database),
-mGroupCount(0),
-mSchematicCount(0),
-mGroupLoadCount(0),
-mDBAsyncPool(sizeof(ScMAsyncContainer))
+SchematicManager::SchematicManager(Database* database)
+: mDBAsyncPool(sizeof(ScMAsyncContainer))
+, mDatabase(database)
+, mGroupCount(0)
+, mGroupLoadCount(0)
+, mSchematicCount(0)
 {
 	mSchematicGroupList.reserve(350);
 
@@ -149,7 +149,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 				schematic = new DraftSchematic();
 
 				result->GetNextRow(binding,schematic);
-						
+
 				// gotta get shared_ into the name
 				BStringVector splits;
 				int elements = schematic->mModel.split(splits,'/');
@@ -160,15 +160,15 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 					break;
 				}
 
-				uint32 size =   schematic->mModel.getLength();
+				//uint32 size =   schematic->mModel.getLength();
 				schematic->mModel.setLength(256);
 				schematic->mModel = splits[0].getAnsi();
 
 				for(int i = 1;i < elements - 1;i++)
-					schematic->mModel << "/" << splits[i].getAnsi(); 
+					schematic->mModel << "/" << splits[i].getAnsi();
 
 				schematic->mModel << "/shared_" << splits[elements-1].getAnsi();
-				
+
 				// glue our ids and insert into maps
 				uint64 schemId = schematic->mModel.getCrc();
 				schematic->setId((schemId << 32) | (schematic->mWeightsBatchId));
@@ -185,7 +185,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 							" FROM	draft_slots"
 							" INNER JOIN draft_schematics_slots ON (draft_slots.id = draft_schematics_slots.draft_slot_id)"
 							" WHERE"
-							" (draft_schematics_slots.schematic_id = %lld)",schemId);
+							" (draft_schematics_slots.schematic_id = %"PRId64")",schemId);
 
 				mDatabase->ExecuteSqlAsync(this,asContainer,sql);
 
@@ -242,7 +242,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 			mSchematicCount += static_cast<uint32>(count);
 
 			if(!--mGroupLoadCount)
-			{				
+			{
 				gLogger->logMsgLoadSuccess("SchematicManager::Loaded %u Groups %u Schematics",MSG_NORMAL,mGroupCount,mSchematicCount);
 			}
 
@@ -402,7 +402,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 			CraftAttributeWeight*	craftAttributeWeight;
 
 			DataBinding* binding = mDatabase->CreateDataBinding(5);
-			
+
 			binding->addField(DFT_uint32,offsetof(CraftAttributeWeight,mAttributeId),4,0);
 			binding->addField(DFT_uint32,offsetof(CraftAttributeWeight,mAffectedAttributeId),4,1);
 			binding->addField(DFT_uint32,offsetof(CraftAttributeWeight,mManipulation),4,2);
@@ -422,7 +422,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 			}
 
 			mDatabase->DestroyDataBinding(binding);
-		
+
 		}
 		break;
 

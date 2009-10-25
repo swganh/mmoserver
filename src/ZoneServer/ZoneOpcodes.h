@@ -49,7 +49,7 @@ enum zone_opcodes
 	opPlayerMoneyRequest				=	0x9D105AA1,
 	opPlayerMoneyResponse				=	0x367E737E,
 	opGuildRequestMessage				=	0x81EB4EF7,
-	opGuildResponseMessage				=	0x32263F20, 
+	opGuildResponseMessage				=	0x32263F20,
 	opCharacterSheetResponseMessage		=	0x9B3A17C4,
 
 	//Trade
@@ -128,14 +128,14 @@ enum zone_opcodes
 	opStatMigrationStart				=	0xefac38c4,
 
 	// group ISM (inter-server-messages)
-	
+
 	opIsmSendSystemMailMessage		= 0x7B08578E,
 	opIsmGroupInviteRequest			= 0x944F2822,	//[Both]	<uint32 target>
 	opIsmGroupInviteResponse		= 0x3FDF93DF,	//[Both]	<bool success>
 	opIsmGroupUnInvite				= 0x384CBE2C,	//[Both]	<uint32 target>
 	opIsmGroupCREO6deltaGroupId		= 0xF923A570,	//[CH->ZO]	<uint32 target><uint64 groupId>
 	opIsmGroupDisband				= 0xEFF47552,	//[ZO->CH]
-	opIsmGroupLeave					= 0x2629856B,	//[ZO->CH] 
+	opIsmGroupLeave					= 0x2629856B,	//[ZO->CH]
 	opIsmGroupLootModeRequest		= 0xAD02C6DA,	//[ZO->CH]	<>
 	opIsmGroupLootModeResponse		= 0xF0D065EE,	//[Both]
 	opIsmGroupLootMasterRequest		= 0xE91B2BBD,	//[ZO->CH]	<>
@@ -144,17 +144,17 @@ enum zone_opcodes
 	opIsmGroupMakeLeader			= 0x9338ADA4,	//[ZO->CH]	<uint32 target>
 	opIsmGroupPositionNotification	= 0x2FB45F7B,	//[ZO->CH]	<float x><float z>
 	opIsmGroupBaselineRequest		= 0xB0CE545A,	//[ZO->CH]	<float x><float z>
-	opIsmGroupAlterMissions			= 0x2F46E3A3,	//[ZO->CH]	
-	// Fake code, crc-based an the word "opIsmGroupSay". 
-	opIsmGroupSay					= 0x39360616,	//[ZO->CH]  // Fake code, crc-based on the word "opIsmGroupSay". 
-	opChatNotifySceneReady			= 0x75C4DD84,	//[ZO ->CH] // Fake code, crc-based on the word "chatcmdsceneready". 
+	opIsmGroupAlterMissions			= 0x2F46E3A3,	//[ZO->CH]
+	// Fake code, crc-based an the word "opIsmGroupSay".
+	opIsmGroupSay					= 0x39360616,	//[ZO->CH]  // Fake code, crc-based on the word "opIsmGroupSay".
+	opChatNotifySceneReady			= 0x75C4DD84,	//[ZO ->CH] // Fake code, crc-based on the word "chatcmdsceneready".
 	opBankTipDeduct					= 0x723BF836,
 
 	// admin inter server messages
-	opIsmBroadcastPlanet			= 0x3F9D6D6E,	//[ZO->CH] 
-	opIsmBroadcastGalaxy			= 0x8E41B5CB,	//[ZO->CH] 
-	opIsmScheduleShutdown			= 0xF2477D2C,	//[ZO->CH] [CH->ZO] 
-	opIsmCancelShutdown				= 0x5E43AC09,	//[ZO->CH] 
+	opIsmBroadcastPlanet			= 0x3F9D6D6E,	//[ZO->CH]
+	opIsmBroadcastGalaxy			= 0x8E41B5CB,	//[ZO->CH]
+	opIsmScheduleShutdown			= 0xF2477D2C,	//[ZO->CH] [CH->ZO]
+	opIsmCancelShutdown				= 0x5E43AC09	//[ZO->CH]
 
 
 };

@@ -13,7 +13,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #define ANH_ZONESERVER_SPAWNREGION_H
 
 #include "RegionObject.h"
-#include "Mathlib/Rectangle.h"
+#include "MathLib/Rectangle.h"
 #include "Utils/typedefs.h"
 
 //=============================================================================
@@ -44,11 +44,11 @@ class SpawnRegion : public RegionObject
 
 	protected:
 
-		uint32				mSpawnType;
-		ZoneTree*			mSI;
-		QTRegion*			mQTRegion;
 		Anh_Math::Rectangle mQueryRect;
+		QTRegion*			mQTRegion;
+		ZoneTree*			mSI;
 		uint32				mMission;
+		uint32				mSpawnType;
 };
 
 

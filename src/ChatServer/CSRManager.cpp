@@ -37,7 +37,7 @@ CSRManager*		CSRManager::mSingleton = NULL;
 
 //======================================================================================================================
 
-CSRManager::CSRManager(Database* database, MessageDispatch* dispatch, ChatManager* chatManager) 
+CSRManager::CSRManager(Database* database, MessageDispatch* dispatch, ChatManager* chatManager)
 {
 
 	mMessageDispatch = dispatch;
@@ -285,7 +285,7 @@ void CSRManager::_processCreateTicketMessage( Message* message, DispatchClient* 
 	message->getStringUnicode16(info);
 	message->getStringUnicode16(harrassinguser);
 	message->getStringAnsi(language);
-	uint32 errorcode = message->getUint32();
+	/*uint32 errorcode = */message->getUint32();
 	uint8 bugreport = message->getUint8();
 
 	comment.convert(BSTRType_ANSI);
@@ -302,8 +302,8 @@ void CSRManager::_processCreateTicketMessage( Message* message, DispatchClient* 
 	mDatabase->Escape_String(cleanHarrasser, harrassinguser.getAnsi(), harrassinguser.getLength());
 	mDatabase->Escape_String(cleanLanguage, language.getAnsi(), language.getLength());
 
-	mDatabase->ExecuteSqlAsync(this, asyncContainer, 
-					"SELECT sf_NewTicket('%s', %u, %u, '%s', '%s', '%s', '%s', %d);", 
+	mDatabase->ExecuteSqlAsync(this, asyncContainer,
+					"SELECT sf_NewTicket('%s', %u, %u, '%s', '%s', '%s', '%s', %d);",
 					cleanPlayer, category, subcategory, cleanComment, cleanInfo, cleanHarrasser, cleanLanguage, bugreport);
 }
 
@@ -340,7 +340,7 @@ void CSRManager::_processGetTicketsMessage(Message *message, DispatchClient* cli
 	CSRAsyncContainer* asyncContainer = new CSRAsyncContainer(CSRQuery_Tickets);
 	asyncContainer->mClient = client;
 
-	mDatabase->ExecuteSqlAsync(this, asyncContainer, "SELECT csr_tickets.ticket_id, characters.firstname, csr_categories.category_id, csr_subcategories.subcategory_id, csr_tickets.comment, csr_tickets.info, csr_tickets.harrasing_user, csr_tickets.language, csr_tickets.bugreport, csr_tickets.activity, csr_tickets.closed, csr_tickets.lastmodified FROM csr_tickets JOIN characters ON (csr_tickets.character_id = characters.id) JOIN csr_subcategories ON (csr_tickets.subcategory_id = csr_subcategories.subcategory_index) JOIN csr_categories ON (csr_subcategories.category_id = csr_categories.category_id) WHERE (csr_tickets.bugreport = 0) && (csr_tickets.character_id = %lld);", mChatManager->getPlayerByAccId(client->getAccountId())->getCharId());
+	mDatabase->ExecuteSqlAsync(this, asyncContainer, "SELECT csr_tickets.ticket_id, characters.firstname, csr_categories.category_id, csr_subcategories.subcategory_id, csr_tickets.comment, csr_tickets.info, csr_tickets.harrasing_user, csr_tickets.language, csr_tickets.bugreport, csr_tickets.activity, csr_tickets.closed, csr_tickets.lastmodified FROM csr_tickets JOIN characters ON (csr_tickets.character_id = characters.id) JOIN csr_subcategories ON (csr_tickets.subcategory_id = csr_subcategories.subcategory_index) JOIN csr_categories ON (csr_subcategories.category_id = csr_categories.category_id) WHERE (csr_tickets.bugreport = 0) && (csr_tickets.character_id = %"PRId64");", mChatManager->getPlayerByAccId(client->getAccountId())->getCharId());
 }
 
 //======================================================================================================================
@@ -351,7 +351,7 @@ void CSRManager::_processNewTicketActivityMessage(Message *message, DispatchClie
 	CSRAsyncContainer* asyncContainer = new CSRAsyncContainer(CSRQuery_TicketActivity);
 	asyncContainer->mClient = client;
 
-	mDatabase->ExecuteSqlAsync(this, asyncContainer, "SELECT ticket_id FROM csr_tickets WHERE (csr_tickets.bugreport = 0) && (csr_tickets.character_id = %lld);", mChatManager->getPlayerByAccId(client->getAccountId())->getCharId());
+	mDatabase->ExecuteSqlAsync(this, asyncContainer, "SELECT ticket_id FROM csr_tickets WHERE (csr_tickets.bugreport = 0) && (csr_tickets.character_id = %"PRId64");", mChatManager->getPlayerByAccId(client->getAccountId())->getCharId());
 }
 
 //======================================================================================================================
@@ -376,7 +376,7 @@ void CSRManager::_processSearchKnowledgeBaseMessage(Message *message, DispatchCl
 	BStringVector splitstring;
 	search.split(splitstring, ' ');
 	BStringVector::iterator iter = splitstring.begin();
-	
+
 	string sql = "%";
 	while (iter != splitstring.end())
 	{
@@ -421,7 +421,7 @@ void CSRManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				uint64 count = result->getRowCount();
 
 				CommentList* list = new CommentList();
-				for (int i = 0; i < count; i++)
+				for (uint i = 0; i < count; i++)
 				{
 					Comment* comment = new Comment();
 					result->GetNextRow(mCommentBinding, comment);
@@ -473,7 +473,7 @@ void CSRManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			{
 				uint64 count = result->getRowCount();
 
-				for (int i = 0; i < count; i++)
+				for (uint i = 0; i < count; i++)
 				{
 					Category* category = new Category();
 
@@ -492,7 +492,7 @@ void CSRManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			{
 				uint64 count = result->getRowCount();
 
-				for (int i = 0; i < count; i++)
+				for (uint i = 0; i < count; i++)
 				{
 					SubCategory* subcategory = new SubCategory();
 
@@ -508,7 +508,7 @@ void CSRManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				uint64 count = result->getRowCount();
 
 				ArticleList* list = new ArticleList();
-				for (int i = 0; i < count; i++)
+				for (uint i = 0; i < count; i++)
 				{
 					Article* article = new Article();
 					result->GetNextRow(mArticleSearchBinding, article);

@@ -45,7 +45,7 @@ enum CharSheetQuery
 {
 	CharSheetQuery_Factions			=	1,
 	CharSheetQuery_BadgeCategories	=	2,
-	CharSheetQuery_Badges			=	3,
+	CharSheetQuery_Badges			=	3
 };
 
 //=========================================================================================

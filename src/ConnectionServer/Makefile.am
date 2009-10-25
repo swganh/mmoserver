@@ -1,4 +1,4 @@
-AM_CXXFLAGS = -I$(top_srcdir)/src $(SWGANH_CXXFLAGS)
+AM_CXXFLAGS = -I$(top_srcdir)/src $(SWGANH_CXXFLAGS) $(BOOST_CPPFLAGS)
 
 # ConnectionServer - executable
 bin_PROGRAMS = connserver
@@ -9,7 +9,7 @@ connserver_SOURCES = \
 	MessageRouter.cpp \
 	ServerManager.cpp
 	
-connserver_CPPFLAGS = $(MYSQL_CFLAGS) -Wall -fshort-wchar
+connserver_CPPFLAGS = $(MYSQL_CFLAGS) -Wall -pedantic -pedantic-errors -Wfatal-errors -fshort-wchar
 connserver_LDADD = \
 	../Utils/libutils.la \
 	../LogManager/liblogmanager.la \

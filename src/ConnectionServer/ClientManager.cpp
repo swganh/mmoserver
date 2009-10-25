@@ -99,7 +99,7 @@ void ClientManager::SendMessageToClient(Message* message)
 	else
 	{
 		//gLogger->logMsgF("ClientManager: failed routing message to client %u",MSG_NORMAL,message->getAccountId());
-		//happens when the client logs out 
+		//happens when the client logs out
 
 		//if(!message->getAccountId())
 			//gLogger->hexDump(message->getData(),message->getSize());
@@ -134,7 +134,7 @@ void ClientManager::handleServerDown(uint32 serverId)
 			++it;
 		}
 	}
-	
+
 }
 
 //======================================================================================================================
@@ -192,7 +192,7 @@ void ClientManager::handleSessionDisconnect(NetworkClient* client)
 
 //======================================================================================================================
 void ClientManager::handleSessionMessage(NetworkClient* client, Message* message)
-{ 
+{
   ConnectionClient* connClient = reinterpret_cast<ConnectionClient*>(client);
 
   // Assign our account info to this message, then route it.
@@ -206,7 +206,7 @@ void ClientManager::handleSessionMessage(NetworkClient* client, Message* message
 //======================================================================================================================
 void ClientManager::handleDispatchMessage(uint32 opcode, Message* message, ConnectionClient* client)
 {
-  switch(opcode)         
+  switch(opcode)
   {
   case opClientIdMsg:
     {
@@ -240,22 +240,24 @@ void ClientManager::handleDatabaseJobComplete(void* ref, DatabaseResult* result)
       _handleQueryAuth(client, result);
       break;
     }
+  default:
+  	break;
   }
 }
 
 
 //======================================================================================================================
 void ClientManager::_processClientIdMsg(ConnectionClient* client, Message* message)
-{ 
+{
   // We only need the account data that is at the end of the message.
   message->getUint32();  // unkown.
   uint32 dataSize = message->getUint32();
   message->setIndex(message->getIndex() + (uint16)dataSize - 4);
   client->setAccountId(message->getUint32());
-  
+
   // Start our auth query
   client->setState(CCSTATE_QueryAuth);
-  mDatabase->ExecuteSqlAsync(this, (void*)client, "SELECT * FROM account WHERE account_id=%u AND authenticated=1 AND loggedin=0;", client->getAccountId());  
+  mDatabase->ExecuteSqlAsync(this, (void*)client, "SELECT * FROM account WHERE account_id=%u AND authenticated=1 AND loggedin=0;", client->getAccountId());
 }
 
 
@@ -263,7 +265,7 @@ void ClientManager::_processClientIdMsg(ConnectionClient* client, Message* messa
 void ClientManager::_processSelectCharacter(ConnectionClient* client, Message* message)
 {
   uint64 characterId = message->getUint64();
-  
+
   DatabaseResult* result = mDatabase->ExecuteSynchSql("SELECT planet_id FROM characters WHERE id=%I64u;", characterId);
 
   uint32 serverId;
@@ -317,7 +319,7 @@ void ClientManager::_processSelectCharacter(ConnectionClient* client, Message* m
 void ClientManager::_processClusterZoneTransferCharacter(ConnectionClient* client, Message* message)
 {
   uint64 characterId = message->getUint64();
-  uint32 newPlanetId = message->getUint32(); 
+  uint32 newPlanetId = message->getUint32();
   uint32 oldServerId = 0;
 
   // Update our client
@@ -328,7 +330,7 @@ void ClientManager::_processClusterZoneTransferCharacter(ConnectionClient* clien
   {
     ConnectionClient* connClient = (*iter).second;
 
-    oldServerId = connClient->getServerId(); 
+    oldServerId = connClient->getServerId();
     connClient->setServerId(newPlanetId + 8);
 
     // send an opClusterClientDisconnnect message to the old zone server.
@@ -378,7 +380,7 @@ void ClientManager::_processClusterZoneTransferCharacter(ConnectionClient* clien
 	newZoneMessage->setRouted(true);
 	mMessageRouter->RouteMessage(newZoneMessage,client);
   }
-  else 
+  else
   {
     // client may have disconnected right in the middle of the transfer
     gLogger->logMsg("*** Client not found during zone transfer.\n");
@@ -413,7 +415,7 @@ void ClientManager::_handleQueryAuth(ConnectionClient* client, DatabaseResult* r
     mMessageRouter->RouteMessage(adminMessage, client);
 
     gMessageFactory->StartMessage();
-    gMessageFactory->addUint32(opClientPermissionsMessage);  
+    gMessageFactory->addUint32(opClientPermissionsMessage);
     gMessageFactory->addUint8(1);             // unknown
     gMessageFactory->addUint8(1);             // Character creation allowed?
     gMessageFactory->addUint8(1);
@@ -425,7 +427,6 @@ void ClientManager::_handleQueryAuth(ConnectionClient* client, DatabaseResult* r
   // They are not authenticated to the login server, so disconnect them.
   else
   {
-	 
     client->Disconnect(10);  // no idea if 10 is even a valid reason, just testing.
   }
 }

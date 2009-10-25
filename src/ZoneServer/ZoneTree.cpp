@@ -141,7 +141,7 @@ QTRegion* ZoneTree::getQTRegion(double x,double z)
 	ObjectIdList::iterator it = resultIdList.begin();
 	while(it != resultIdList.end())
 	{
-		if(QTRegion* region = gWorldManager->getQTRegion(static_cast<uint32>(*it)))  
+		if(QTRegion* region = gWorldManager->getQTRegion(static_cast<uint32>(*it)))
 		{
 			return(region);
 		}
@@ -151,7 +151,7 @@ QTRegion* ZoneTree::getQTRegion(double x,double z)
 
 	// We need a region for the Tutorial...
 	// gLogger->logMsgF("SI could not find qtregion at %f %f",MSG_HIGH,x,z);
-		
+
 	return(NULL);
 }
 
@@ -168,7 +168,7 @@ void ZoneTree::getObjectsInRangeIntersection(Object* object,ObjectSet* resultSet
 	double plow[2],phigh[2];
 
 	// we in world space, outside -> inside , outside -> outside checking
-	if(!object->getParentId()) 
+	if(!object->getParentId())
 	{
 		plow[0] = object->mPosition.mX - range;
 		plow[1] = object->mPosition.mZ - range;
@@ -185,19 +185,20 @@ void ZoneTree::getObjectsInRangeIntersection(Object* object,ObjectSet* resultSet
 		while(it != resultIdList.end())
 		{
 			// check if its us and the object still exists
-			if(((*it) != objectId) && ((tmpObject = gWorldManager->getObjectById((*it))) != NULL))  
+			if((static_cast<uint64>(*it) != objectId)
+					&& ((tmpObject = gWorldManager->getObjectById((*it))) != NULL))
 			{
 				// if we are in same parent
-				if(!tmpObject->getParentId())   
+				if(!tmpObject->getParentId())
 				{
 					tmpType = tmpObject->getType();
 					// add it
-					if((tmpType & objTypes) == tmpType)						
+					if((tmpType & objTypes) == static_cast<uint32>(tmpType))
 					{
-						resultSet->insert(tmpObject);					
+						resultSet->insert(tmpObject);
 					}
 					// if its a building, add objects of our types it contains
-					if(tmpType == ObjType_Building)       
+					if(tmpType == ObjType_Building)
 					{
 						// gLogger->logMsg("Found a building");
 
@@ -210,7 +211,7 @@ void ZoneTree::getObjectsInRangeIntersection(Object* object,ObjectSet* resultSet
 
 							tmpType = cellChild->getType();
 
-							if((tmpType & objTypes) == tmpType)
+							if((tmpType & objTypes) == static_cast<uint32>(tmpType))
 							{
 								// TODO: We could add a range check to every object...
 								resultSet->insert(cellChild);
@@ -227,7 +228,7 @@ void ZoneTree::getObjectsInRangeIntersection(Object* object,ObjectSet* resultSet
 	}
 	// we inside a building, inside -> outside, inside -> inside checking
 	// need to query based on buildings world position
-	else if(object->getParentId() != 0) 
+	else if(object->getParentId() != 0)
 	{
 		CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(object->getParentId()));
 		BuildingObject* buildingObject;
@@ -238,13 +239,13 @@ void ZoneTree::getObjectsInRangeIntersection(Object* object,ObjectSet* resultSet
 		}
 		else
 		{
-			gLogger->logMsgF("SI could not find cell %lld",MSG_HIGH,object->getParentId());
+			gLogger->logMsgF("SI could not find cell %"PRId64"",MSG_HIGH,object->getParentId());
 			return;
 		}
 
 		if(!buildingObject)
 		{
-			gLogger->logMsgF("SI could not find building %lld",MSG_HIGH,cell->getParentId());
+			gLogger->logMsgF("SI could not find building %"PRId64"",MSG_HIGH,cell->getParentId());
 			return;
 		}
 
@@ -254,7 +255,7 @@ void ZoneTree::getObjectsInRangeIntersection(Object* object,ObjectSet* resultSet
 
 		// adjusting inside -> outside viewing range
 		// we always want to see a bit outside
-		
+
 		// Comment by ERU
 		// "Max(range,buildingWidth + 32);"
 		// or in words: 'The "query range" is at least 32m outside building, or longer if range permits that.'
@@ -265,7 +266,7 @@ void ZoneTree::getObjectsInRangeIntersection(Object* object,ObjectSet* resultSet
 		}
 		else
 		{
-			queryWidth = buildingWidth + 32; 			
+			queryWidth = buildingWidth + 32;
 		}
 
 		if (range > (buildingHeight + 32))
@@ -274,10 +275,10 @@ void ZoneTree::getObjectsInRangeIntersection(Object* object,ObjectSet* resultSet
 		}
 		else
 		{
-			queryHeight = buildingHeight + 32; 			
+			queryHeight = buildingHeight + 32;
 		}
 
-		plow[0] = buildingObject->mPosition.mX - queryWidth; 
+		plow[0] = buildingObject->mPosition.mX - queryWidth;
 		plow[1] = buildingObject->mPosition.mZ - queryHeight;
 		phigh[0] = buildingObject->mPosition.mX + queryWidth;
 		phigh[1] = buildingObject->mPosition.mZ + queryHeight;
@@ -291,17 +292,17 @@ void ZoneTree::getObjectsInRangeIntersection(Object* object,ObjectSet* resultSet
 		while(it != resultIdList.end())
 		{
 			// check if its us and the object still exists
-			if((*it) != objectId && ((tmpObject = gWorldManager->getObjectById((*it))) != NULL))  
+			if(static_cast<uint64>(*it) != objectId && ((tmpObject = gWorldManager->getObjectById((*it))) != NULL))
 			{
 				tmpType = tmpObject->getType();
 
 				// add it
-				if((tmpType & objTypes) == tmpType)						
+				if((tmpType & objTypes) == static_cast<uint32>(tmpType))
 				{
-					resultSet->insert(tmpObject);					
+					resultSet->insert(tmpObject);
 				}
 				// if its a building, add objects of our types it contains
-				if(tmpType == ObjType_Building)  
+				if(tmpType == ObjType_Building)
 				{
 					ObjectList cellChilds = (dynamic_cast<BuildingObject*>(tmpObject))->getAllCellChilds();
 					ObjectList::iterator cellChildsIt = cellChilds.begin();
@@ -312,7 +313,7 @@ void ZoneTree::getObjectsInRangeIntersection(Object* object,ObjectSet* resultSet
 
 						tmpType = cellChild->getType();
 
-						if(((tmpType & objTypes) == tmpType) && cellChild->getId() != object->getId())
+						if(((tmpType & objTypes) == static_cast<uint32>(tmpType)) && cellChild->getId() != object->getId())
 						{
 							// TODO: We could add a range check to every object...
 							resultSet->insert(cellChild);
@@ -340,7 +341,7 @@ void ZoneTree::getObjectsInRange(const Object* const object,ObjectSet* resultSet
 	double plow[2],phigh[2];
 
 	// we in world space, outside -> inside , outside -> outside checking
-	if(!object->getParentId()) 
+	if(!object->getParentId())
 	{
 		plow[0] = object->mPosition.mX - range;
 		plow[1] = object->mPosition.mZ - range;
@@ -357,19 +358,19 @@ void ZoneTree::getObjectsInRange(const Object* const object,ObjectSet* resultSet
 		while(it != resultIdList.end())
 		{
 			// check if its us and the object still exists
-			if(((*it) != objectId) && ((tmpObject = gWorldManager->getObjectById((*it))) != NULL))  
+			if((static_cast<uint64>(*it) != objectId) && ((tmpObject = gWorldManager->getObjectById((*it))) != NULL))
 			{
 				// if we are in same parent
-				if(!tmpObject->getParentId())   
+				if(!tmpObject->getParentId())
 				{
 					tmpType = tmpObject->getType();
 					// add it
-					if((tmpType & objTypes) == tmpType)						
+					if((tmpType & objTypes) == static_cast<uint32>(tmpType))
 					{
-						resultSet->insert(tmpObject);					
+						resultSet->insert(tmpObject);
 					}
 					// if its a building, add objects of our types it contains
-					if(tmpType == ObjType_Building)       
+					if(tmpType == ObjType_Building)
 					{
 						// gLogger->logMsg("Found a building");
 
@@ -382,7 +383,7 @@ void ZoneTree::getObjectsInRange(const Object* const object,ObjectSet* resultSet
 
 							tmpType = cellChild->getType();
 
-							if((tmpType & objTypes) == tmpType)
+							if((tmpType & objTypes) == static_cast<uint32>(tmpType))
 							{
 								// TODO: We could add a range check to every object...
 								resultSet->insert(cellChild);
@@ -399,7 +400,7 @@ void ZoneTree::getObjectsInRange(const Object* const object,ObjectSet* resultSet
 	}
 	// we inside a building, inside -> outside, inside -> inside checking
 	// need to query based on buildings world position
-	else if(object->getParentId() != 0) 
+	else if(object->getParentId() != 0)
 	{
 		CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(object->getParentId()));
 		BuildingObject* buildingObject;
@@ -410,13 +411,13 @@ void ZoneTree::getObjectsInRange(const Object* const object,ObjectSet* resultSet
 		}
 		else
 		{
-			gLogger->logMsgF("SI could not find cell %lld",MSG_HIGH,object->getParentId());
+			gLogger->logMsgF("SI could not find cell %"PRId64"",MSG_HIGH,object->getParentId());
 			return;
 		}
 
 		if(!buildingObject)
 		{
-			gLogger->logMsgF("SI could not find building %lld",MSG_HIGH,cell->getParentId());
+			gLogger->logMsgF("SI could not find building %"PRId64"",MSG_HIGH,cell->getParentId());
 			return;
 		}
 
@@ -426,7 +427,7 @@ void ZoneTree::getObjectsInRange(const Object* const object,ObjectSet* resultSet
 
 		// adjusting inside -> outside viewing range
 		// we always want to see a bit outside
-		
+
 		// Comment by ERU
 		// "Max(range,buildingWidth + 32);"
 		// or in words: 'The "query range" is at least 32m outside building, or longer if range permits that.'
@@ -437,7 +438,7 @@ void ZoneTree::getObjectsInRange(const Object* const object,ObjectSet* resultSet
 		}
 		else
 		{
-			queryWidth = buildingWidth + 32; 			
+			queryWidth = buildingWidth + 32;
 		}
 
 		if (range > (buildingHeight + 32))
@@ -446,10 +447,10 @@ void ZoneTree::getObjectsInRange(const Object* const object,ObjectSet* resultSet
 		}
 		else
 		{
-			queryHeight = buildingHeight + 32; 			
+			queryHeight = buildingHeight + 32;
 		}
 
-		plow[0] = buildingObject->mPosition.mX - queryWidth; 
+		plow[0] = buildingObject->mPosition.mX - queryWidth;
 		plow[1] = buildingObject->mPosition.mZ - queryHeight;
 		phigh[0] = buildingObject->mPosition.mX + queryWidth;
 		phigh[1] = buildingObject->mPosition.mZ + queryHeight;
@@ -465,17 +466,17 @@ void ZoneTree::getObjectsInRange(const Object* const object,ObjectSet* resultSet
 		while(it != resultIdList.end())
 		{
 			// check if its us and the object still exists
-			if((*it) != objectId && ((tmpObject = gWorldManager->getObjectById((*it))) != NULL))  
+			if(static_cast<uint64>(*it) != objectId && ((tmpObject = gWorldManager->getObjectById((*it))) != NULL))
 			{
 				tmpType = tmpObject->getType();
 
 				// add it
-				if((tmpType & objTypes) == tmpType)						
+				if((tmpType & objTypes) == static_cast<uint32>(tmpType))
 				{
-					resultSet->insert(tmpObject);					
+					resultSet->insert(tmpObject);
 				}
 				// if its a building, add objects of our types it contains
-				if(tmpType == ObjType_Building)  
+				if(tmpType == ObjType_Building)
 				{
 					ObjectList cellChilds = (dynamic_cast<BuildingObject*>(tmpObject))->getAllCellChilds();
 					ObjectList::iterator cellChildsIt = cellChilds.begin();
@@ -486,7 +487,7 @@ void ZoneTree::getObjectsInRange(const Object* const object,ObjectSet* resultSet
 
 						tmpType = cellChild->getType();
 
-						if(((tmpType & objTypes) == tmpType) && cellChild->getId() != object->getId())
+						if(((tmpType & objTypes) == static_cast<uint32>(tmpType)) && cellChild->getId() != object->getId())
 						{
 							// TODO: We could add a range check to every object...
 							resultSet->insert(cellChild);
@@ -576,7 +577,7 @@ void ZoneTree::ShutDown()
 	}
 	catch(Tools::Exception& e)
 	{
-		gLogger->logMsg("*** ERROR: " + e.what() + " ***\n");	
+		gLogger->logMsg("*** ERROR: " + e.what() + " ***\n");
 	}
 	catch(...)
 	{
@@ -593,7 +594,7 @@ void ZoneTree::ShutDown()
 }
 //=============================================================================
 
-// NOTE: THIS USEAGE OF intersectsWithQuery(..) 
+// NOTE: THIS USEAGE OF intersectsWithQuery(..)
 
 void ZoneTree::getObjectsInRangeEx(Object* object,ObjectSet* resultSet,uint32 objTypes,float range)
 {
@@ -607,7 +608,7 @@ void ZoneTree::getObjectsInRangeEx(Object* object,ObjectSet* resultSet,uint32 ob
 	double plow[2],phigh[2];
 
 	// we in world space, outside -> inside , outside -> outside checking
-	if(!object->getParentId()) 
+	if(!object->getParentId())
 	{
 		plow[0] = object->mPosition.mX - range;
 		plow[1] = object->mPosition.mZ - range;
@@ -625,19 +626,19 @@ void ZoneTree::getObjectsInRangeEx(Object* object,ObjectSet* resultSet,uint32 ob
 		while(it != resultIdList.end())
 		{
 			// check if its us and the object still exists
-			if(((*it) != objectId) && ((tmpObject = gWorldManager->getObjectById((*it))) != NULL))  
+			if((static_cast<uint64>(*it) != objectId) && ((tmpObject = gWorldManager->getObjectById((*it))) != NULL))
 			{
 				// if we are in same parent
-				if(!tmpObject->getParentId())   
+				if(!tmpObject->getParentId())
 				{
 					tmpType = tmpObject->getType();
 					// add it
-					if((tmpType & objTypes) == tmpType)						
+					if((tmpType & objTypes) == static_cast<uint32>(tmpType))
 					{
-						resultSet->insert(tmpObject);					
+						resultSet->insert(tmpObject);
 					}
 					// if its a building, add objects of our types it contains
-					if(tmpType == ObjType_Building)       
+					if(tmpType == ObjType_Building)
 					{
 						// gLogger->logMsg("Found a building");
 
@@ -650,10 +651,10 @@ void ZoneTree::getObjectsInRangeEx(Object* object,ObjectSet* resultSet,uint32 ob
 
 							tmpType = cellChild->getType();
 
-							if((tmpType & objTypes) == tmpType)
+							if((tmpType & objTypes) == static_cast<uint32>(tmpType))
 							{
 								// TODO: We could add a range check to every object...
-								// gLogger->logMsgF("Found object %ld",MSG_NORMAL,cellChild->getId());
+								// gLogger->logMsgF("Found object PRId32",MSG_NORMAL,cellChild->getId());
 								resultSet->insert(cellChild);
 							}
 
@@ -668,7 +669,7 @@ void ZoneTree::getObjectsInRangeEx(Object* object,ObjectSet* resultSet,uint32 ob
 	}
 	// we inside a building, inside -> outside, inside -> inside checking
 	// need to query based on buildings world position
-	else if(object->getParentId() != 0) 
+	else if(object->getParentId() != 0)
 	{
 		CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(object->getParentId()));
 		BuildingObject* buildingObject;
@@ -679,13 +680,13 @@ void ZoneTree::getObjectsInRangeEx(Object* object,ObjectSet* resultSet,uint32 ob
 		}
 		else
 		{
-			gLogger->logMsgF("SI could not find cell %lld",MSG_HIGH,object->getParentId());
+			gLogger->logMsgF("SI could not find cell %"PRId64"",MSG_HIGH,object->getParentId());
 			return;
 		}
 
 		if(!buildingObject)
 		{
-			gLogger->logMsgF("SI could not find building %lld",MSG_HIGH,cell->getParentId());
+			gLogger->logMsgF("SI could not find building %"PRId64"",MSG_HIGH,cell->getParentId());
 			return;
 		}
 
@@ -695,7 +696,7 @@ void ZoneTree::getObjectsInRangeEx(Object* object,ObjectSet* resultSet,uint32 ob
 
 		// adjusting inside -> outside viewing range
 		// we always want to see a bit outside
-		
+
 		// ERU: No, no, no...NO!
 		// The solution is: "Max(range,buildingWidth + 32);"
 		// or in words: 'The "query range" is at least 32m outside building, or longer if range permits that.'
@@ -703,12 +704,12 @@ void ZoneTree::getObjectsInRangeEx(Object* object,ObjectSet* resultSet,uint32 ob
 		if(buildingWidth - range <= 0)
 			queryWidth = buildingWidth - (buildingWidth - range);
 			// ERU: ehh saying queryWidth = range; in a more complicated way :)
-		else 
-			queryWidth = buildingWidth + 32; 
+		else
+			queryWidth = buildingWidth + 32;
 
 		if(buildingHeight - range <= 0)
 			queryHeight = buildingHeight - (buildingHeight - range);
-		else 
+		else
 			queryHeight = buildingHeight + 32;
 		*/
 
@@ -718,7 +719,7 @@ void ZoneTree::getObjectsInRangeEx(Object* object,ObjectSet* resultSet,uint32 ob
 		}
 		else
 		{
-			queryWidth = buildingWidth + 32; 			
+			queryWidth = buildingWidth + 32;
 		}
 
 		if (range > (buildingHeight + 32))
@@ -727,34 +728,34 @@ void ZoneTree::getObjectsInRangeEx(Object* object,ObjectSet* resultSet,uint32 ob
 		}
 		else
 		{
-			queryHeight = buildingHeight + 32; 			
+			queryHeight = buildingHeight + 32;
 		}
 
-		plow[0] = buildingObject->mPosition.mX - queryWidth; 
+		plow[0] = buildingObject->mPosition.mX - queryWidth;
 		plow[1] = buildingObject->mPosition.mZ - queryHeight;
 		phigh[0] = buildingObject->mPosition.mX + queryWidth;
 		phigh[1] = buildingObject->mPosition.mZ + queryHeight;
 
 		Region r = Region(plow,phigh,2);
 		MyVisitor vis(&resultIdList);
-		
+
 		mTree->intersectsWithQuery(r,vis);
 
 		ObjectIdList::iterator it = resultIdList.begin();
 		while(it != resultIdList.end())
 		{
 			// check if its us and the object still exists
-			if((*it) != objectId && ((tmpObject = gWorldManager->getObjectById((*it))) != NULL))  
+			if(static_cast<uint64>(*it) != objectId && ((tmpObject = gWorldManager->getObjectById((*it))) != NULL))
 			{
 				tmpType = tmpObject->getType();
 
 				// add it
-				if((tmpType & objTypes) == tmpType)						
+				if((tmpType & objTypes) == static_cast<uint32>(tmpType))
 				{
-					resultSet->insert(tmpObject);					
+					resultSet->insert(tmpObject);
 				}
 				// if its a building, add objects of our types it contains
-				if(tmpType == ObjType_Building)  
+				if(tmpType == ObjType_Building)
 				{
 					ObjectList cellChilds = (dynamic_cast<BuildingObject*>(tmpObject))->getAllCellChilds();
 					ObjectList::iterator cellChildsIt = cellChilds.begin();
@@ -765,7 +766,7 @@ void ZoneTree::getObjectsInRangeEx(Object* object,ObjectSet* resultSet,uint32 ob
 
 						tmpType = cellChild->getType();
 
-						if(((tmpType & objTypes) == tmpType) && cellChild->getId() != object->getId())
+						if(((tmpType & objTypes) == static_cast<uint32>(tmpType)) && cellChild->getId() != object->getId())
 						{
 							// TODO: We could add a range check to every object...
 							resultSet->insert(cellChild);

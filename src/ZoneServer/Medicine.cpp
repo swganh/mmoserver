@@ -30,7 +30,7 @@ void Medicine::handleStimpackMenuSelect(uint8 messageType, PlayerObject* player)
 {
 	switch(messageType)
 	{
-		case radId_itemUse: 
+		case radId_itemUse:
 		{
 			//Check we have a valid target
 			if(CreatureObject* target = dynamic_cast<CreatureObject*>(player->getTarget()))
@@ -60,7 +60,7 @@ void Medicine::handleStimpackMenuSelect(uint8 messageType, PlayerObject* player)
 void Medicine::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 {
 	if(PlayerObject* player = dynamic_cast<PlayerObject*>(srcObject))
-	{	
+	{
 		switch(mItemType)
 		{
 		case ItemType_Stimpack_A:
@@ -123,11 +123,11 @@ bool Medicine::ConsumeUse(PlayerObject* playerObject)
 
 	uint32 quantity = this->getAttribute<uint32>("counter_uses_remaining");
 	quantity--;
-	
+
 	if(quantity)
 	{
 		this->setAttribute("counter_uses_remaining",boost::lexical_cast<std::string>(quantity));
-		gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%u' WHERE item_id=%lld AND attribute_id=%u",quantity,this->getId(),AttrType_CounterUsesRemaining);
+		gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%u' WHERE item_id=%"PRId64" AND attribute_id=%u",quantity,this->getId(),AttrType_CounterUsesRemaining);
 
 		//now update the uses display
 		gMessageLib->sendUpdateUses(this,playerObject);
@@ -135,13 +135,13 @@ bool Medicine::ConsumeUse(PlayerObject* playerObject)
 	}
 	else
 	{
-		Inventory* inventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+		//Inventory* inventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 		//the db
 		gObjectFactory->deleteObjectFromDB(this);
 
 		//destroy it in the client
 		gMessageLib->sendDestroyObject(this->getId(),playerObject);
-		
+
 		//delete it out of the inventory
 		//inventory->deleteObject(this);
 		return true;
@@ -158,9 +158,9 @@ void Medicine::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 ite
 	//uint32 StimType = this->getItemType();
 
 	//uint32 radId = 0;
-	
+
 	//RadialMenuPtr radialPtr(radial);
 
 	//mRadialMenu = radialPtr;
-	
+
 }

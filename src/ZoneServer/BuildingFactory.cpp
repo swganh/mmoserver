@@ -85,14 +85,14 @@ void BuildingFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 															"FROM  spawn_clone "
 															"INNER JOIN cells ON spawn_clone.parentid = cells.id "
 															"INNER JOIN buildings ON cells.parent_id = buildings.id "
-															"WHERE buildings.id = %lld;",building->getId());
+															"WHERE buildings.id = %"PRId64";",building->getId());
 			}
 			else
 			{
 				asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,BFQuery_Cells,asyncContainer->mClient);
 				asContainer->mObject = building;
 
-				mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT id FROM cells WHERE parent_id = %lld;",building->getId());
+				mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT id FROM cells WHERE parent_id = %"PRId64";",building->getId());
 			}
 		}
 		break;
@@ -105,7 +105,7 @@ void BuildingFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 
 			if(!spawnCount)
 			{
-				gLogger->logMsgF("BuildingFactory: Cloning facility %lld has no spawn points",MSG_NORMAL,building->getId());
+				gLogger->logMsgF("BuildingFactory: Cloning facility %"PRId64" has no spawn points",MSG_NORMAL,building->getId());
 			}
 
 			for(uint64 i = 0;i < spawnCount;i++)
@@ -121,7 +121,7 @@ void BuildingFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 			QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,BFQuery_Cells,asyncContainer->mClient);
 			asContainer->mObject = building;
 
-			mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT id FROM cells WHERE parent_id = %lld;",building->getId());
+			mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT id FROM cells WHERE parent_id = %"PRId64";",building->getId());
 		}
 		break;
 
@@ -167,7 +167,7 @@ void BuildingFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,
 								"buildings.y,buildings.z,building_types.model,building_types.width,building_types.height,"
 								"building_types.file,building_types.name,building_types.family "
 								"FROM buildings INNER JOIN building_types ON (buildings.type_id = building_types.id) "
-								"WHERE (buildings.id = %lld)",id);
+								"WHERE (buildings.id = %"PRId64")",id);
 }
 
 //=============================================================================

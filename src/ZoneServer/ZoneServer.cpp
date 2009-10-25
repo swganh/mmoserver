@@ -21,7 +21,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "MedicManager.h"
 #include "NonPersistentItemFactory.h"
 #include "NonPersistentNpcFactory.h"
-#include "NonPersistantObjectFactory.h"
+#include "nonPersistantObjectFactory.h"
 #include "NpcManager.h"
 #include "ObjectControllerCommandMap.h"
 #include "ObjectControllerDispatch.h"
@@ -84,7 +84,7 @@ void ZoneServer::Startup(int8* zoneName)
 {
 	//gLogger->printSmallLogo();
 	// gLogger->logMsgF("ZoneServer - %s Startup %s",MSG_NORMAL,zoneName,GetBuildString());
-	gLogger->logMsgF("ZoneServer - %s Startup %s",MSG_NORMAL,zoneName,ConfigManager::getBuildString());
+	gLogger->logMsgF("ZoneServer - %s Startup %s",MSG_NORMAL,zoneName,ConfigManager::getBuildString().c_str());
 	//gLogger->logMsg(GetBuildString());
 	mZoneName = zoneName;
 
@@ -122,7 +122,7 @@ void ZoneServer::Startup(int8* zoneName)
 	// Grab our zoneId out of the DB for this zonename.
 	uint32 zoneId = 0;
 	DatabaseResult* result = mDatabase->ExecuteSynchSql("SELECT planet_id FROM planet WHERE name=\'%s\';", zoneName);
-	
+
 	if (!result->getRowCount())
 	{
 		gLogger->logMsgF("FATAL: Map \'%s\' not found.  Aborting startup.", MSG_HIGH, zoneName);
@@ -144,11 +144,11 @@ void ZoneServer::Startup(int8* zoneName)
 	// We need to register our IP and port in the DB so the connection server can connect to us.
 	// Status:  0=offline, 1=loading, 2=online
 	_updateDBServerList(1);
-	
+
 	// Place all startup code here.
 	mMessageDispatch = new MessageDispatch();
 	mMessageDispatch->Startup(mRouterService);
-	
+
 
 	WorldConfig::Init(zoneId,mDatabase,zoneName);
 	ObjectControllerCommandMap::Init(mDatabase);
@@ -164,7 +164,7 @@ void ZoneServer::Startup(int8* zoneName)
 	(void)NonPersistentItemFactory::Instance();	// This call is just for clarity, when matching the deletion of classes.
 												// The object will create itself upon first usage,
 	(void)NonPersistentNpcFactory::Instance();
-	
+
 
 	(void)ScoutManager::Instance();
 	(void)NonPersistantObjectFactory::Instance();
@@ -177,7 +177,7 @@ void ZoneServer::Startup(int8* zoneName)
 	BuffManager::Init(mDatabase);
 	MedicManager::Init(mMessageDispatch);
 	AdminManager::Init(mMessageDispatch);
-	
+
 
 	EntertainerManager::Init(mDatabase,mMessageDispatch);
 	GroupManager::Init(mDatabase,mMessageDispatch);
@@ -185,7 +185,7 @@ void ZoneServer::Startup(int8* zoneName)
 	// Invoked when all creature regions for spawning of lairs are loaded
 	// (void)NpcManager::Instance();
 
-	
+
 	ScriptEngine::Init();
 
 	mCharacterLoginHandler = new CharacterLoginHandler();
@@ -203,7 +203,7 @@ void ZoneServer::handleWMReady()
 	_updateDBServerList(2);
 	gLogger->logMsg("ZoneServer::Startup Complete");
 	//gLogger->printLogo();
-	// std::string BuildString(GetBuildString());	
+	// std::string BuildString(GetBuildString());
 
 	gLogger->logMsgF("ZoneServer:%s %s",MSG_NORMAL,getZoneName().getAnsi(),ConfigManager::getBuildString().c_str());
 	gLogger->logMsg("Welcome to your SWGANH Experience!");
@@ -233,7 +233,7 @@ void ZoneServer::Shutdown(void)
 	ScriptSupport::Instance()->destroyInstance();
 
 	mMessageDispatch->Shutdown();
-	
+
 	// gMessageFactory->Shutdown(); // Nothing to do there yet, since deleting of the heap is done in the destructor.
 
 	delete mObjectControllerDispatch;
@@ -276,7 +276,7 @@ void ZoneServer::Process(void)
 	gWorldManager->Process();
 	gScriptEngine->process();
 	mMessageDispatch->Process();
-	
+
 	//is there stalling ?
 	mRouterService->Process(0xff);
 
@@ -348,7 +348,10 @@ int main(int argc, char* argv[])
 	{
 		printf("A list of Zones can be found in ZoneList.txt\n");
 		printf("Enter zone: ");
-		scanf("%s", zone);
+		int n = scanf("%s", zone);
+
+		if (n != 1)
+			std::exit(-1);
 
 		// Remove the // if it cause problems, This enables you to just type
 		// inn the zone insted of navigate using comand prompt.
@@ -382,7 +385,7 @@ int main(int argc, char* argv[])
 		gMessageFactory->Process();
 
         boost::this_thread::sleep(boost::posix_time::milliseconds(1));
-		
+
 	}
 
 	// Shut things down

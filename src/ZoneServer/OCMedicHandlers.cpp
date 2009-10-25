@@ -40,7 +40,7 @@ void ObjectController::_handleDiagnose(uint64 targetId, Message* message,ObjectC
 		gMessageLib->sendSystemMessage(Medic,L"","healing_response","healing_response_b6");
 		return;
 	}
-} 
+}
 
 //=============================================================================================================================
 //
@@ -58,7 +58,7 @@ void ObjectController::_handleHealDamage(uint64 targetId, Message* message,Objec
 	}
 
 	mHandlerCompleted = gMedicManager->HealDamage(Medic, Target, cmdProperties);
-} 
+}
 
 //=============================================================================================================================
 //
@@ -67,9 +67,9 @@ void ObjectController::_handleHealDamage(uint64 targetId, Message* message,Objec
 
 void ObjectController::_handleHealWound(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject* Medic = dynamic_cast<PlayerObject*>(mObject);
+	//PlayerObject* Medic = dynamic_cast<PlayerObject*>(mObject);
 	//gMessageLib->sendSystemMessage(Medic, "Heal Wound has not been implemented yet. Sorry.");
-} 
+}
 
 //=============================================================================================================================
 //
@@ -78,9 +78,9 @@ void ObjectController::_handleHealWound(uint64 targetId,Message* message,ObjectC
 
 void ObjectController::_handleMedicalForage(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject* Medic = dynamic_cast<PlayerObject*>(mObject);
+	//PlayerObject* Medic = dynamic_cast<PlayerObject*>(mObject);
 	//gMessageLib->sendSystemMessage(Medic, "Medical Forage has not been implemented yet. Sorry.");
-} 
+}
 
 //=============================================================================================================================
 //
@@ -89,9 +89,9 @@ void ObjectController::_handleMedicalForage(uint64 targetId,Message* message,Obj
 
 void ObjectController::_handleTendDamage(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject* Medic = dynamic_cast<PlayerObject*>(mObject);
+	//PlayerObject* Medic = dynamic_cast<PlayerObject*>(mObject);
 	//gMessageLib->sendSystemMessage(Medic, "Tend Damage has not been implemented yet. Sorry.");
-} 
+}
 
 //=============================================================================================================================
 //
@@ -100,9 +100,9 @@ void ObjectController::_handleTendDamage(uint64 targetId,Message* message,Object
 
 void ObjectController::_handleTendWound(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject* Medic = dynamic_cast<PlayerObject*>(mObject);
+	//PlayerObject* Medic = dynamic_cast<PlayerObject*>(mObject);
 	//gMessageLib->sendSystemMessage(Medic, "Tend Wound has not been implemented yet. Sorry.");
-} 
+}
 
 //=============================================================================================================================
 //
@@ -111,9 +111,9 @@ void ObjectController::_handleTendWound(uint64 targetId,Message* message,ObjectC
 
 void ObjectController::_handleFirstAid(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject* Medic = dynamic_cast<PlayerObject*>(mObject);
+	//PlayerObject* Medic = dynamic_cast<PlayerObject*>(mObject);
 	//gMessageLib->sendSystemMessage(Medic, "First Aid has not been implemented yet. Sorry.");
-} 
+}
 
 //=============================================================================================================================
 //
@@ -122,9 +122,9 @@ void ObjectController::_handleFirstAid(uint64 targetId,Message* message,ObjectCo
 
 void ObjectController::_handleQuickHeal(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject* Medic = dynamic_cast<PlayerObject*>(mObject);
+	//PlayerObject* Medic = dynamic_cast<PlayerObject*>(mObject);
 	//gMessageLib->sendSystemMessage(Medic, "Quick Heal has not been implemented yet. Sorry.");
-} 
+}
 
 //=============================================================================================================================
 //
@@ -133,9 +133,9 @@ void ObjectController::_handleQuickHeal(uint64 targetId,Message* message,ObjectC
 
 void ObjectController::_handleDragIncapacitatedPlayer(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject* Medic = dynamic_cast<PlayerObject*>(mObject);
+	//PlayerObject* Medic = dynamic_cast<PlayerObject*>(mObject);
 	//gMessageLib->sendSystemMessage(Medic, "Drag has not been implemented yet. Sorry.");
-} 
+}
 
 //=============================================================================================================================
 

@@ -147,7 +147,7 @@ void ObjectController::_handleToggleDisplayFactionRank(uint64 targetId,Message* 
 
 void ObjectController::_handleAnon(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject* playerObject = dynamic_cast<PlayerObject*>(mObject);
+	//PlayerObject* playerObject = dynamic_cast<PlayerObject*>(mObject);
 
 	// simple toggle, TODO: delta updates, figure and bitmask to playerobject, store to db
 }
@@ -164,7 +164,7 @@ void ObjectController::_handleRequestBadges(uint64 targetId,Message* message,Obj
 
 	if(targetObject == NULL)
 	{
-		gLogger->logMsgF("ObjController::_handleRequestbages: could not find %lld",MSG_NORMAL,targetId);
+		gLogger->logMsgF("ObjController::_handleRequestbages: could not find %"PRId64"",MSG_NORMAL,targetId);
 		return;
 	}
 
@@ -195,7 +195,7 @@ void ObjectController::_handleRequestBiography(uint64 targetId,Message* message,
 
 	if(targetObject == NULL)
 	{
-		gLogger->logMsgF("ObjController::_handleRequestBiography: could not find %lld",MSG_NORMAL,targetId);
+		gLogger->logMsgF("ObjController::_handleRequestBiography: could not find %"PRId64"",MSG_NORMAL,targetId);
 		return;
 	}
 
@@ -219,7 +219,7 @@ void ObjectController::_handleSetBiography(uint64 targetId,Message* message,Obje
 
 	bio.convert(BSTRType_ANSI);
 	sprintf(sql,"UPDATE character_biography SET biography ='");
-	sprintf(end,"' WHERE character_id = %lld",player->getId());
+	sprintf(end,"' WHERE character_id = %"PRId64"",player->getId());
 	sqlPointer = sql + strlen(sql);
 	sqlPointer += mDatabase->Escape_String(sqlPointer,bio.getAnsi(),bio.getLength());
 	strcat(sql,end);
@@ -265,7 +265,7 @@ void ObjectController::_handleRequestCharacterMatch(uint64 targetId,Message* mes
 
 	if(elementCount != 9)
 	{
-		gLogger->logMsgF("ObjController::_handleRequestCharacterMatch: argument mismatch %lld",MSG_NORMAL,player->getId());
+		gLogger->logMsgF("ObjController::_handleRequestCharacterMatch: argument mismatch %"PRId64"",MSG_NORMAL,player->getId());
 		return;
 	}
 

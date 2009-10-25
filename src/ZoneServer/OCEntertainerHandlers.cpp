@@ -45,7 +45,7 @@ void ObjectController::_handlestoplistening(uint64 targetId,Message* message,Obj
 {
 	//PlayerObject*	callingObject	= dynamic_cast<PlayerObject*>(mObject);
 	gEntertainerManager->stopListening((PlayerObject*)mObject);
-	
+
 }
 
 //======================================================================================================================
@@ -57,7 +57,7 @@ void ObjectController::_handlestopwatching(uint64 targetId,Message* message,Obje
 {
 	//PlayerObject*	callingObject	= dynamic_cast<PlayerObject*>(mObject);
 	gEntertainerManager->stopWatching((PlayerObject*)mObject);
-	
+
 }
 
 //======================================================================================================================
@@ -67,7 +67,7 @@ void ObjectController::_handlestopwatching(uint64 targetId,Message* message,Obje
 
 void ObjectController::_handlewatch(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+	//PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
 
 	// lets get the target player
 	message->setIndex(32);
@@ -78,7 +78,7 @@ void ObjectController::_handlewatch(uint64 targetId,Message* message,ObjectContr
 		return;
 	}
 	gEntertainerManager->startWatching((PlayerObject*)mObject, target_player);
-	
+
 }
 
 //======================================================================================================================
@@ -88,20 +88,20 @@ void ObjectController::_handlewatch(uint64 targetId,Message* message,ObjectContr
 
 void ObjectController::_handlelisten(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+	//PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
 
 	// lets get the target player
 	message->setIndex(32);
 	PlayerObject* target_player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(message->getInt64()));
-	
+
 	if(!target_player)
 	{
 		gLogger->logMsgF("OC :: handle startwatch No entertainer\n", MSG_NORMAL);
 		return;
 	}
-	
+
 	gEntertainerManager->startListening((PlayerObject*)mObject, target_player);
-	
+
 }
 
 //======================================================================================================================
@@ -159,8 +159,8 @@ void ObjectController::_handlePauseDance(uint64 targetId,Message* message,Object
 		gMessageLib->sendSystemMessage(entertainer,L"","performance","dance_fail");
 		return;
 	}
-	
-	entertainer->setPerformancePaused(Pause_Start);	
+
+	entertainer->setPerformancePaused(Pause_Start);
 }
 
 void ObjectController::_handlePauseMusic(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
@@ -207,7 +207,7 @@ void ObjectController::_handleflourish(uint64 targetId,Message* message,ObjectCo
 	}
 
 	//give notice
-	
+
 	gMessageLib->sendSystemMessage(entertainer,L"","performance","flourish_perform");
 	gEntertainerManager->flourish(entertainer,mFlourishId);
 }
@@ -284,7 +284,7 @@ void ObjectController::_handleChangeDance(uint64 targetId,Message* message,Objec
 		{
 			gMessageLib->sendSystemMessage(entertainer,L"","performance","dance_fail");
 		}
-	}	
+	}
 }
 
 //======================================================================================================================
@@ -317,7 +317,7 @@ void ObjectController::_handleDenyService(uint64 targetId,Message* message,Objec
 			return;
 		}
 
-	}	
+	}
 	else
 	if(outcast)
 	{
@@ -325,10 +325,10 @@ void ObjectController::_handleDenyService(uint64 targetId,Message* message,Objec
 		gEntertainerManager->toggleOutcastId(entertainer,outcast->getId(),outcast->getFirstName());
 		return;
 	}
-	
+
 	//No valid player : show us a list of all players on our List
 	gEntertainerManager->showOutcastList(entertainer);
-		
+
 }
 
 //======================================================================================================================
@@ -586,7 +586,7 @@ void ObjectController::_handleStopBand(uint64 targetId,Message* message,ObjectCo
 {
 	PlayerObject*	performer	= dynamic_cast<PlayerObject*>(mObject);
 	bool music = false;
-	
+
 	PlayerList members;
 	members = performer->getInRangeGroupMembers(true);
 	PlayerList::iterator memberIt = members.begin();
@@ -597,19 +597,19 @@ void ObjectController::_handleStopBand(uint64 targetId,Message* message,ObjectCo
 		{
 			music = true;
 			gEntertainerManager->stopEntertaining((*memberIt));
-			
+
 			if((*memberIt) != performer)
 				gMessageLib->sendSystemMessage((*memberIt),L"","performance","music_stop_band_members","","",L"",0,"","",L"",0,0,performer->getId());
 
 		}
 		memberIt++;
-	}	
+	}
 	if(music)
 			gMessageLib->sendSystemMessage(performer,L"","performance","music_stop_band_self");
 }
 
 //======================================================================================================================
-//starts the band (instruments) 
+//starts the band (instruments)
 //======================================================================================================================
 
 void ObjectController::_handleStartBand(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
@@ -640,7 +640,7 @@ void ObjectController::_handleStartBand(uint64 targetId,Message* message,ObjectC
 
 	members = performer->getInRangeGroupMembers(true);
 	bool music = true;
-	
+
 	//get song
 	string dataStr;
 	message->getStringUnicode16(dataStr);
@@ -700,7 +700,7 @@ void ObjectController::_handleStartBand(uint64 targetId,Message* message,ObjectC
 			}
 		}
 
-		
+
 	}
 
 	if (found == false)
@@ -795,7 +795,7 @@ void ObjectController::_handleBandFlourish(uint64 targetId,Message* message,Obje
 
 	//give notice
 	gMessageLib->sendSystemMessage(entertainer,L"","performance","flourish_perform_band_self");
-	
+
 	PlayerList members;
 	members = entertainer->getInRangeGroupMembers(true);
 	PlayerList::iterator memberIt = members.begin();
@@ -807,10 +807,10 @@ void ObjectController::_handleBandFlourish(uint64 targetId,Message* message,Obje
 			//give notice
 			gMessageLib->sendSystemMessage((*memberIt),L"","performance","flourish_perform_band_member","","",L"",0,"","",L"",entertainer->getId());
 			gEntertainerManager->flourish((*memberIt),mFlourishId);
-			
+
 		}
 		memberIt++;
-	}	
+	}
 }
 
 //=============================================================================================================================
@@ -828,19 +828,19 @@ void ObjectController::_handleImageDesign(uint64 targetId,Message* message,Objec
 
 	if(!imageDesigner)
 		return;
-	
+
 	if(imageDesigner->checkStatesEither(CreatureState_Combat | CreatureState_Tumbling | CreatureState_Swimming))
 	{
 		gMessageLib->sendSystemMessage(imageDesigner,L"You cannot do this at this time.");
 		return;
 	}
-	
+
 	if(imageDesigner->getImageDesignSession() != IDSessionNONE)
 	{
 		gMessageLib->sendSystemMessage(imageDesigner,L"You cannot do this at this time.");
 		return;
 	}
-	
+
 	if(designObject->getImageDesignSession() != IDSessionNONE)
 	{
 		gMessageLib->sendSystemMessage(designObject,L"You cannot do this at this time.");
@@ -852,29 +852,29 @@ void ObjectController::_handleImageDesign(uint64 targetId,Message* message,Objec
 		gMessageLib->sendSystemMessage(imageDesigner,L"","image_designer","out_of_range");
 		return;
 	}
-	
+
 
 	designObject->SetImageDesignSession(IDSessionPREY);
 	imageDesigner->SetImageDesignSession(IDSessionID);
 
 	gMessageLib->sendImageDesignStartMessage(imageDesigner,designObject);
-		
+
 }
 
 void ObjectController::handleImageDesignChangeMessage(Message* message,uint64 targetId)
 {
-	message->getUint32(); 
+	message->getUint32();
 
 	uint64 dsgObjectId = message->getUint64();//Id of the one being Ided
 	uint64 idObjectId = message->getUint64(); // our object id?
-	
+
 	uint64 buildingId = message->getUint64();//probably the buildings ID
-	
+
 	uint32 ColorCounter;
 	uint32 AttributeCounter;
 	string hair;
 	string holoEmote;
-	
+
 	PlayerObject*	imageDesigner	= dynamic_cast<PlayerObject*>(mObject);
 	PlayerObject*	customer	= dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(dsgObjectId));
 	PlayerObject*	idObject	= dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(idObjectId));
@@ -888,7 +888,7 @@ void ObjectController::handleImageDesignChangeMessage(Message* message,uint64 ta
 
 	uint8 designerCommit,statMigration,flagHair;
 	uint32 customerAccept;
-	
+
 	uint16 unknown1;
 	uint32 smTimer;//timer statMigration
 	uint32 sessionId;
@@ -898,14 +898,14 @@ void ObjectController::handleImageDesignChangeMessage(Message* message,uint64 ta
 
 	message->getUint8(flagHair);
 	message->getStringAnsi(hair);
-	
-	
-	message->getUint16(unknown1); //string only relevant to ID, plain uint16 for customer 
+
+
+	message->getUint16(unknown1); //string only relevant to ID, plain uint16 for customer
 	message->getUint32(smTimer);//bitmap timer for statMigration(only 4 minutes available)
 	message->getUint32(sessionId);//some sort of Id session identification?
 	message->getUint32(creditsDemanded);
 	message->getUint32(creditsOffered);
-	
+
 	message->getUint8(designerCommit);//comited by designer
 	message->getUint32(customerAccept);//comitted by customer
 	message->getUint8(statMigration);
@@ -949,11 +949,11 @@ void ObjectController::handleImageDesignChangeMessage(Message* message,uint64 ta
 		//changelists get deleted
 		gEntertainerManager->commitIdChanges(imageDesigner,customer,hair,creditsOffered, statMigration,holoEmote,flagHair);
 	}
-	
+
 
 	if(imageDesigner->getImageDesignSession() == IDSessionPREY)
 		gMessageLib->sendIDChangeMessage(customer,customer,imageDesigner,hair, sessionId,creditsOffered, creditsDemanded,customerAccept,designerCommit,statMigration,smTimer,flagHair,buildingId,holoEmote);
-		
+
 	if(imageDesigner->getImageDesignSession() == IDSessionID)
 	{
 		gMessageLib->sendIDChangeMessage(idObject,imageDesigner,idObject,hair, sessionId,creditsOffered, creditsDemanded,customerAccept,designerCommit,statMigration,smTimer,flagHair,buildingId,holoEmote);
@@ -968,7 +968,7 @@ void ObjectController::handleImageDesignStopMessage(Message* message,uint64 targ
 	uint64 dsgObjectId = message->getUint64();//Id of the one being Ided
 	uint64 idObjectId = message->getUint64(); // our object id?
 	message->getUint64();
-	
+
 	PlayerObject*	imageDesigner	= dynamic_cast<PlayerObject*>(mObject);
 	PlayerObject*	customer	= dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(dsgObjectId));
 	PlayerObject*	idObject	= dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(idObjectId));
@@ -981,27 +981,27 @@ void ObjectController::handleImageDesignStopMessage(Message* message,uint64 targ
 		return;
 	uint8 flag1,flag2,flag3;
 
-	
+
 	//always remember id and prey are swapped here
 	message->getUint8(flag1);
 	string hair;
 	message->getStringAnsi(hair);
 	uint16 unknown1;
 	uint32 counter1,counter2,creditsDemanded,creditsOffered;
-	
+
 	message->getUint16(unknown1);
 	message->getUint32(counter1);
 	message->getUint32(counter2);//some sort of Id session identification?
 	message->getUint32(creditsDemanded);
 	message->getUint32(creditsOffered);
-	
+
 	uint32 unknown2;
 	message->getUint8(flag2);
 	message->getUint32(unknown2);
 	message->getUint8(flag3);
-	
+
 	uint32 skillLevel1,skillLevel2,skillLevel3,skillLevel4;
-	
+
 	message->getUint32(skillLevel1);
 	message->getUint32(skillLevel2);
 	message->getUint32(skillLevel3);
@@ -1009,14 +1009,14 @@ void ObjectController::handleImageDesignStopMessage(Message* message,uint64 targ
 
 	if(imageDesigner->getImageDesignSession() == IDSessionPREY)
 		gMessageLib->sendIDEndMessage(customer,customer,imageDesigner,hair, counter2,creditsOffered, 0,unknown2,flag2,flag3,counter1);
-		
+
 	if(imageDesigner->getImageDesignSession() == IDSessionID)
 		gMessageLib->sendIDEndMessage(idObject,imageDesigner,idObject,hair, counter2,creditsOffered, 0,unknown2,flag2,flag3,counter1);
 
 	imageDesigner->SetImageDesignSession(IDSessionNONE);
 	customer->SetImageDesignSession(IDSessionNONE);
-	
-	
+
+
 
 }
 
@@ -1042,30 +1042,30 @@ void ObjectController::_handleRequestStatMigrationData(uint64 targetId,Message* 
 	we->getHam()->setTargetStatValue(HamBar_Mind,value7);
 	we->getHam()->setTargetStatValue(HamBar_Focus,value8);
 	we->getHam()->setTargetStatValue(HamBar_Willpower,value9);
-	
+
 	//add it to the db
 	int8 sql[400];
-	sprintf(sql,"call sp_CharacterStatMigrationCreate (%I64u,%u,%u,%u,%u,%u,%u,%u,%u,%u,0)",we->getId(),value1,value2,value3,value4,value5,value6,value7,value8,value9);
+	sprintf(sql,"call sp_CharacterStatMigrationCreate (%"PRIu64",%u,%u,%u,%u,%u,%u,%u,%u,%u,0)",we->getId(),value1,value2,value3,value4,value5,value6,value7,value8,value9);
 	ObjControllerAsyncContainer* asyncContainer;
 	asyncContainer = new ObjControllerAsyncContainer(OCQuery_Nope);
-	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);	
+	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
 }
 
 //=============================================================================================================================
 void ObjectController::_handleStatMigration(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
 	PlayerObject*	we	= dynamic_cast<PlayerObject*>(mObject);
-	
+
 	int8 sql[500];
-	
+
 	ObjControllerAsyncContainer* asyncContainer;
-	
+
 	asyncContainer = new ObjControllerAsyncContainer(OCQuery_StatRead);
 	asyncContainer->playerObject = we;
-	
-	sprintf(sql,"SELECT target_health, target_strength, target_constitution, target_action, target_quickness, target_stamina, target_mind, target_focus, target_willpower FROM swganh.character_stat_migration where character_id = %I64u", we->getId());
+
+	sprintf(sql,"SELECT target_health, target_strength, target_constitution, target_action, target_quickness, target_stamina, target_mind, target_focus, target_willpower FROM swganh.character_stat_migration where character_id = %"PRIu64, we->getId());
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
-	
+
 }
 
 
@@ -1083,12 +1083,12 @@ void ObjectController::_handlePlayHoloEmote(uint64 targetId,Message* message,Obj
 	dataStr.toLower();
 
 	PlayerObject*	we	= dynamic_cast<PlayerObject*>(mObject);
-	
+
 	if(!we)
 		return;
 
 	HoloStruct* myEmote = gEntertainerManager->getHoloEmoteIdbyCRC(we->getHoloEmote());
-	
+
 	if(!myEmote)
 	{
 		gMessageLib->sendSystemMessage(we,L"","image_designer","no_holoemote","","",L"",0,"","",L"");
@@ -1100,10 +1100,10 @@ void ObjectController::_handlePlayHoloEmote(uint64 targetId,Message* message,Obj
 		gMessageLib->sendSystemMessage(we,L"","image_designer","no_charges_holoemote","","",L"",0,"","",L"");
 		return;
 	}
-	
+
 	int8 cmdLine[32];
 	sscanf(dataStr.getAnsi(),"%s",cmdLine);
-	
+
 	if(!strcmp(cmdLine,"remove"))
 	{
 		//remove from playerObject
@@ -1169,7 +1169,7 @@ void ObjectController::_handleDistract(uint64 targetId,Message* message,ObjectCo
 	dataStr.toLower();
 
 	PlayerObject*	we	= dynamic_cast<PlayerObject*>(mObject);
-	
+
 	if(!we)
 		return;
 
@@ -1178,7 +1178,7 @@ void ObjectController::_handleDistract(uint64 targetId,Message* message,ObjectCo
 		gMessageLib->sendSystemMessage(we,L"","performance","effect_not_performing");
 		return;
 	}
-	
+
 	uint32 effect;
 	uint32 skill;
 	uint32 highest;
@@ -1189,7 +1189,7 @@ void ObjectController::_handleDistract(uint64 targetId,Message* message,ObjectCo
 	//check for skillmod - tied to Mind afaik
 	skill = we->getSkillModValue(SMod_healing_dance_mind);
 	highest = 0;
-	
+
 	if(skill>= 10)
 		highest = 1;
 
@@ -1235,7 +1235,7 @@ void ObjectController::_handleFireJet(uint64 targetId,Message* message,ObjectCon
 	dataStr.toLower();
 
 	PlayerObject*	we	= dynamic_cast<PlayerObject*>(mObject);
-	
+
 	if(!we)
 		return;
 
@@ -1244,7 +1244,7 @@ void ObjectController::_handleFireJet(uint64 targetId,Message* message,ObjectCon
 		gMessageLib->sendSystemMessage(we,L"","performance","effect_not_performing");
 		return;
 	}
-	
+
 	uint32 effect;
 	uint32 skill;
 	uint32 highest;
@@ -1255,7 +1255,7 @@ void ObjectController::_handleFireJet(uint64 targetId,Message* message,ObjectCon
 	//check for skillmod - tied to Mind afaik
 	skill = we->getSkillModValue(SMod_healing_dance_mind);
 	highest = 0;
-	
+
 	if(skill>= 10)
 		highest = 1;
 
@@ -1299,7 +1299,7 @@ void ObjectController::_handleDazzle(uint64 targetId,Message* message,ObjectCont
 	dataStr.toLower();
 
 	PlayerObject*	we	= dynamic_cast<PlayerObject*>(mObject);
-	
+
 	if(!we)
 		return;
 
@@ -1308,7 +1308,7 @@ void ObjectController::_handleDazzle(uint64 targetId,Message* message,ObjectCont
 		gMessageLib->sendSystemMessage(we,L"","performance","effect_not_performing");
 		return;
 	}
-	
+
 	uint32 effect;
 	uint32 skill;
 	uint32 highest;
@@ -1319,7 +1319,7 @@ void ObjectController::_handleDazzle(uint64 targetId,Message* message,ObjectCont
 	//check for skillmod - tied to Mind afaik
 	skill = we->getSkillModValue(SMod_healing_dance_mind);
 	highest = 0;
-	
+
 	if(skill>= 10)
 		highest = 1;
 
@@ -1363,7 +1363,7 @@ void ObjectController::_handleColorLights(uint64 targetId,Message* message,Objec
 	dataStr.toLower();
 
 	PlayerObject*	we	= dynamic_cast<PlayerObject*>(mObject);
-	
+
 	if(!we)
 		return;
 
@@ -1372,7 +1372,7 @@ void ObjectController::_handleColorLights(uint64 targetId,Message* message,Objec
 		gMessageLib->sendSystemMessage(we,L"","performance","effect_not_performing");
 		return;
 	}
-	
+
 	uint32 effect;
 	uint32 skill;
 	uint32 highest;
@@ -1383,7 +1383,7 @@ void ObjectController::_handleColorLights(uint64 targetId,Message* message,Objec
 	//check for skillmod - tied to Mind afaik
 	skill = we->getSkillModValue(SMod_healing_dance_mind);
 	highest = 0;
-	
+
 	if(skill>= 10)
 		highest = 1;
 
@@ -1427,7 +1427,7 @@ void ObjectController::_handleSmokeBomb(uint64 targetId,Message* message,ObjectC
 	dataStr.toLower();
 
 	PlayerObject*	we	= dynamic_cast<PlayerObject*>(mObject);
-	
+
 	if(!we)
 		return;
 
@@ -1436,7 +1436,7 @@ void ObjectController::_handleSmokeBomb(uint64 targetId,Message* message,ObjectC
 		gMessageLib->sendSystemMessage(we,L"","performance","effect_not_performing");
 		return;
 	}
-	
+
 	uint32 effect;
 	uint32 skill;
 	uint32 highest;
@@ -1447,7 +1447,7 @@ void ObjectController::_handleSmokeBomb(uint64 targetId,Message* message,ObjectC
 	//check for skillmod - tied to Mind afaik
 	skill = we->getSkillModValue(SMod_healing_dance_mind);
 	highest = 0;
-	
+
 	if(skill>= 10)
 		highest = 1;
 
@@ -1490,7 +1490,7 @@ void ObjectController::_handleSpotLight(uint64 targetId,Message* message,ObjectC
 	dataStr.toLower();
 
 	PlayerObject*	we	= dynamic_cast<PlayerObject*>(mObject);
-	
+
 	if(!we)
 		return;
 
@@ -1499,7 +1499,7 @@ void ObjectController::_handleSpotLight(uint64 targetId,Message* message,ObjectC
 		gMessageLib->sendSystemMessage(we,L"","performance","effect_not_performing");
 		return;
 	}
-	
+
 	uint32 effect;
 	uint32 skill;
 	uint32 highest;
@@ -1510,7 +1510,7 @@ void ObjectController::_handleSpotLight(uint64 targetId,Message* message,ObjectC
 	//check for skillmod - tied to Mind afaik
 	skill = we->getSkillModValue(SMod_healing_dance_mind);
 	highest = 0;
-	
+
 	if(skill>= 10)
 		highest = 1;
 
@@ -1554,7 +1554,7 @@ void ObjectController::_handleVentriloquism(uint64 targetId,Message* message,Obj
 	dataStr.toLower();
 
 	PlayerObject*	we	= dynamic_cast<PlayerObject*>(mObject);
-	
+
 	if(!we)
 		return;
 
@@ -1575,7 +1575,7 @@ void ObjectController::_handleVentriloquism(uint64 targetId,Message* message,Obj
 		gMessageLib->sendSystemMessage(we,L"","performance","effect_not_performing");
 		return;
 	}
-	
+
 	uint32 effect;
 	uint32 skill;
 	uint32 highest;
@@ -1586,7 +1586,7 @@ void ObjectController::_handleVentriloquism(uint64 targetId,Message* message,Obj
 	//check for skillmod - tied to Mind afaik
 	skill = we->getSkillModValue(SMod_healing_dance_mind);
 	highest = 0;
-	
+
 	if(skill>= 10)
 		highest = 1;
 

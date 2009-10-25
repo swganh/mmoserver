@@ -21,23 +21,23 @@ Copyright (c) 2006 - 2009 The swgANH Team
 //===========================================================================
 
 Ham::Ham()
-: mParent(NULL),
-mBattleFatigue(0),
-mBaseHitpointsUpdateCounter(9),
-mNextBaseHitpointsUpdateInterval(0),
-mCurrentHitpointsUpdateCounter(0),
-mNextCurrentHitpointsUpdateInterval(0),
-mMaxHitpointsUpdateCounter(0),
-mNextMaxHitpointsUpdateInterval(0),
-mWoundsUpdateCounter(9), 
-mNextWoundsUpdateInterval(0),
-mCurrentForce(0),
-mMaxForce(0),
-mRegenerating(false),
-mLastRegenTick(0),
-mFirstUpdateCounterChange(false),
-mTaskId(0)
-{ 
+: mParent(NULL)
+, mLastRegenTick(0)
+, mTaskId(0)
+, mBattleFatigue(0)
+, mCurrentForce(0)
+, mMaxForce(0)
+, mBaseHitpointsUpdateCounter(9)
+, mNextBaseHitpointsUpdateInterval(0)
+, mCurrentHitpointsUpdateCounter(0)
+, mNextCurrentHitpointsUpdateInterval(0)
+, mMaxHitpointsUpdateCounter(0)
+, mNextMaxHitpointsUpdateInterval(0)
+, mWoundsUpdateCounter(9)
+, mNextWoundsUpdateInterval(0)
+, mFirstUpdateCounterChange(false)
+, mRegenerating(false)
+{
 	HamProperty* p[] = {&mHealth,&mStrength,&mConstitution,&mAction,&mQuickness,&mStamina,&mMind,&mFocus,&mWillpower};
 	mHamBars = HamBars(p,p + 9);
 
@@ -48,22 +48,23 @@ mTaskId(0)
 //===========================================================================
 
 Ham::Ham(CreatureObject* parent,uint32 bf)
-: mParent(parent),
-mBattleFatigue(bf),
-mBaseHitpointsUpdateCounter(0),
-mNextBaseHitpointsUpdateInterval(0),
-mCurrentHitpointsUpdateCounter(0),
-mNextCurrentHitpointsUpdateInterval(0),
-mMaxHitpointsUpdateCounter(0),
-mNextMaxHitpointsUpdateInterval(0),
-mWoundsUpdateCounter(0), 
-mNextWoundsUpdateInterval(0),
-mRegenerating(false),
-mLastRegenTick(0),
-mCurrentForce(0),
-mMaxForce(0),
-mFirstUpdateCounterChange(false)
-{ 
+: mParent(parent)
+, mLastRegenTick(0)
+, mTaskId(0)
+, mBattleFatigue(bf)
+, mCurrentForce(0)
+, mMaxForce(0)
+, mBaseHitpointsUpdateCounter(0)
+, mNextBaseHitpointsUpdateInterval(0)
+, mCurrentHitpointsUpdateCounter(0)
+, mNextCurrentHitpointsUpdateInterval(0)
+, mMaxHitpointsUpdateCounter(0)
+, mNextMaxHitpointsUpdateInterval(0)
+, mWoundsUpdateCounter(9)
+, mNextWoundsUpdateInterval(0)
+, mFirstUpdateCounterChange(false)
+, mRegenerating(false)
+{
 	HamProperty* p[] = {&mHealth,&mStrength,&mConstitution,&mAction,&mQuickness,&mStamina,&mMind,&mFocus,&mWillpower};
 	mHamBars = HamBars(p,p + 9);
 
@@ -103,7 +104,7 @@ uint32 Ham::getBaseHitpointsUpdateCounter(uint32 nextInterval)
 
 void Ham::advanceCurrentHitpointsUpdateCounter(uint32 amount)
 {
-	mCurrentHitpointsUpdateCounter += amount;  
+	mCurrentHitpointsUpdateCounter += amount;
 }
 
 //===========================================================================
@@ -112,8 +113,8 @@ void Ham::advanceCurrentHitpointsUpdateCounter(uint32 amount)
 
 void Ham::advanceBaseHitpointsUpdateCounter(uint32 amount)
 {
-	mBaseHitpointsUpdateCounter += amount;  
-	mBaseHitpointsUpdateCounter += mNextBaseHitpointsUpdateInterval; 
+	mBaseHitpointsUpdateCounter += amount;
+	mBaseHitpointsUpdateCounter += mNextBaseHitpointsUpdateInterval;
 }
 
 //===========================================================================
@@ -128,8 +129,8 @@ uint32 Ham::getMaxHitpointsUpdateCounter(uint32 nextInterval)
 
 void Ham::advanceMaxHitpointsUpdateCounter(uint32 amount)
 {
-	mMaxHitpointsUpdateCounter += amount;  
-	mMaxHitpointsUpdateCounter += mNextMaxHitpointsUpdateInterval; 
+	mMaxHitpointsUpdateCounter += amount;
+	mMaxHitpointsUpdateCounter += mNextMaxHitpointsUpdateInterval;
 }
 
 //===========================================================================
@@ -144,15 +145,15 @@ uint32 Ham::getWoundsUpdateCounter(uint32 nextInterval)
 
 void Ham::advanceWoundsUpdateCounter(uint32 amount)
 {
-	mWoundsUpdateCounter += amount;  
-	mWoundsUpdateCounter += mNextWoundsUpdateInterval; 
+	mWoundsUpdateCounter += amount;
+	mWoundsUpdateCounter += mNextWoundsUpdateInterval;
 }
 
 //===========================================================================
 
 void Ham::updateBattleFatigue(int32 bf, bool sendUpdate)
-{ 
-	
+{
+
 	if(bf > 0 && mBattleFatigue == 1000)
 	{
 		return;
@@ -162,7 +163,7 @@ void Ham::updateBattleFatigue(int32 bf, bool sendUpdate)
 		return;
 	}
 
-	mBattleFatigue += bf; 
+	mBattleFatigue += bf;
 
 	if(mBattleFatigue > 1000)
 	{
@@ -181,8 +182,8 @@ void Ham::updateBattleFatigue(int32 bf, bool sendUpdate)
 // do we need this anyway ?
 
 void Ham::setBattleFatigue(int32 bf)
-{ 
-	mBattleFatigue = bf; 
+{
+	mBattleFatigue = bf;
 
 	if(mBattleFatigue > 1000)
 	{
@@ -203,7 +204,7 @@ void Ham::calcAllModifiedHitPoints()
 	{
 		setPropertyValue(static_cast<uint8>(i),HamProperty_BaseHitpoints,getPropertyValue(static_cast<uint8>(i),HamProperty_MaxHitpoints));
 	}
-	
+
 	mHealth.calcModifiedHitPoints();
 	mStrength.calcModifiedHitPoints();
 	mConstitution.calcModifiedHitPoints();
@@ -341,7 +342,7 @@ void Ham::updatePropertyValue(uint8 barIndex,uint8 valueIndex,int32 propertyDelt
 
 					default:break;
 				}
-			}	
+			}
 		}
 		break;
 
@@ -356,7 +357,7 @@ void Ham::updatePropertyValue(uint8 barIndex,uint8 valueIndex,int32 propertyDelt
 					break;
 				}
 
-				//are the wounds properly applied? 
+				//are the wounds properly applied?
 				//if yes modify current hitpoints accordingly
 				if(mHamBars[barIndex]->updateWounds(propertyDelta) && sendUpdate)
 				{
@@ -374,15 +375,15 @@ void Ham::updatePropertyValue(uint8 barIndex,uint8 valueIndex,int32 propertyDelt
 				}
 			}
 
-			//remove 
+			//remove
 			else
-			{	
+			{
 				// also need to check for lower limit
 				if(mHamBars[barIndex]->getWounds())
 				{
 					mHamBars[barIndex]->updateWounds(propertyDelta);
 					if(sendUpdate)
-						gMessageLib->sendWoundUpdateCreo3(mParent, barIndex);	
+						gMessageLib->sendWoundUpdateCreo3(mParent, barIndex);
 				}
 			}
 		}
@@ -458,7 +459,7 @@ void Ham::updateSingleHam(int32 propertyDelta, bool damage)
 
 			if(mParent)
 			{
-				// Npc's don't incap, they die. 
+				// Npc's don't incap, they die.
 				mParent->incap();	// Handles the incap-die selection depending of object type.
 				// mParent->die();
 			}
@@ -499,7 +500,7 @@ bool Ham::regenerate(uint64 time,void*)
 
 	if(mAction.getCurrentHitPoints() < mAction.getModifiedHitPoints())
 	{
-		
+
 		//returns true if regeneration complete
 		actionRegened = _regenAction();
 
@@ -622,7 +623,7 @@ void Ham::updateRegenRates()
 	{
 		case CreaturePosture_Crouched:			regenModifier = 1.25f;	break;
 		case CreaturePosture_Sitting:			regenModifier = 1.75f;	break;
-		case CreaturePosture_Incapacitated:	
+		case CreaturePosture_Incapacitated:
 		case CreaturePosture_Dead:				regenModifier = 0.0f;	break;
 		case CreaturePosture_KnockedDown:		regenModifier = 0.75f;	break;
 	}
@@ -733,7 +734,7 @@ bool Ham::updateMaxForce(int32 forceDelta,bool sendUpdate)
 	{
 		updateCurrentForce(newForce);
 	}
-	
+
 	mMaxForce = newForce;
 
 	if(sendUpdate)

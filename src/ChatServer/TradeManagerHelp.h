@@ -26,7 +26,7 @@ enum TRMTimer
 {
 	CMTimer_GlobalTick		=	0,
 	CMTimer_TickPreserve	=	1,
-	CMTimer_CheckAuctions	=	2,
+	CMTimer_CheckAuctions	=	2
 };
 
 //======================================================================================================================
@@ -113,15 +113,15 @@ typedef int8 str256[256];
 class ListStringClass
 {
 public:
-	ListStringClass () {ID = 0; Name = ""; Stringid = 0;}      
-	~ListStringClass () {}  
+	ListStringClass () {ID = 0; Name = ""; Stringid = 0;}
+	~ListStringClass () {}
 
 	uint64 GetID(){return(ID);}
 	string GetString(){return(Name);}
 	uint32 GetStringID(){return(Stringid);}
 
 	void   InsertString(uint64 id,string name,uint32 stringid){ID = id;Name = name;Stringid = stringid;}
-	
+
 private:
 		uint64			ID;
 		string			Name;
@@ -134,8 +134,8 @@ class NameStringClass
 {
 public:
 
-	NameStringClass () {}      
-	~NameStringClass (){}; 
+	NameStringClass () {}
+	~NameStringClass (){};
 
 	//hark! every Bazaarstring is followed by a list of sellers for it, so that everyAuctionBazaarObject
 	//owns a variable amount of AuctionSellerStrings
@@ -156,8 +156,8 @@ class AuctionStringClass
 {
 public:
 
-	AuctionStringClass () {}      
-	~AuctionStringClass (){}; 
+	AuctionStringClass () {}
+	~AuctionStringClass (){};
 
 	// oh and delete the lists in the destructor.....!!!
 
@@ -166,7 +166,7 @@ public:
 	uint32 GetBidderListID(){return(BidderListID);}
 	uint32 GetBazaarListID(){return(BazaarListID);}
 	uint32 GetNameListID(){return(NameID);}
-	
+
 	uint64 GetOwnerID(){return(AuctionVar.OwnerID);}
 	uint64 GetAuctionID(){return(AuctionVar.ItemID);}
 	uint8 GetType(){return(static_cast<uint8>(AuctionVar.AuctionTyp));}
@@ -178,9 +178,9 @@ public:
 		{
 			return(AuctionVar.Category);
 		}
-		else 
+		else
 		{
-			
+
 			return(AuctionVar.itemcategory);
 		}
 	}
@@ -190,13 +190,13 @@ public:
 	uint32 GetBid(){return(AuctionVar.HighBid);}
 	uint32 GetProxy(){return(AuctionVar.HighProxy);}
 	string GetHighBidder(){return(AuctionVar.bidder_name);}
-	
+
 	AuctionItem		AuctionVar;
 	uint32			SellerListID;
 	uint32			BidderListID;
 	uint32			BazaarListID;
 	uint32			NameID;
-	
+
 
 };
 
@@ -210,15 +210,15 @@ class AuctionClass
 
 		ListStringClass*		ListStringHandler;
 		ListStringList			mListStringList;
-		
+
 		NameStringClass*			NameStringHandler;
 		NameStringList				mNameStringList;
 
 		AuctionStringClass*			AuctionStringHandler;
 		AuctionStringList			mAuctionStringList;
-		
 
-		AuctionClass(){							
+
+		AuctionClass(){
 						AuctionStringCount = 0;
 						NameStringCount = 0;
 						SellerStringCount = 0;
@@ -228,26 +228,26 @@ class AuctionClass
 
 		void AddAuction(AuctionItem Auction);//adds an auction to the list
 		uint32 getStringCount(){return Stringid;}//count of bazaar and sellerstrings
-		
+
 		AuctionItem     AuctionItemVar;
 		uint32			Auctions;
 		uint32			AuctionStringCount;
 		uint32			SellerStringCount;
 		uint32			NameStringCount;
-		
+
 		uint32			BazaarStringNr;
 		uint32			AuctionStringNr;
 		uint32			SellerStringNr;
 		uint32			BidderStringNr;
-		uint32			NameStringNr;	
+		uint32			NameStringNr;
 		uint32			Stringid;
 };
 class CommoditiesItemClass
 {
 public:
 
-	CommoditiesItemClass () {};      
-	~CommoditiesItemClass (){}; 
+	CommoditiesItemClass () {};
+	~CommoditiesItemClass (){};
 
 	void AddCommoditie(TypeListItem theCommoditie){Commoditie = theCommoditie;}
 	string GetName() {return(Commoditie.name);}
@@ -269,8 +269,8 @@ class CommoditiesTypeClass
 {
 public:
 
-	CommoditiesTypeClass () {};      
-	~CommoditiesTypeClass (); 
+	CommoditiesTypeClass () {};
+	~CommoditiesTypeClass ();
 
 	CommoditiesItemClass*			CommoditiesItemHandler;
 	CommoditiesItemList				mCommoditiesItemList;
@@ -292,7 +292,7 @@ typedef std::vector<CommoditiesTypeClass*>			CommoditiesTypeList;
 class CommoditiesClass
 {
 	public:
-		
+
 		CommoditiesItemClass*			CommoditiesHashHandler;
 		CommoditiesItemHash				mCommoditiesHashList;
 
@@ -301,9 +301,9 @@ class CommoditiesClass
 
 		CommoditiesTypeClass*			CommoditiesTypeHandler;
 		CommoditiesTypeList				mCommoditiesTypeList;
-		
-		
-		
+
+
+
 
 		CommoditiesClass(){}
 
@@ -312,11 +312,11 @@ class CommoditiesClass
 		 void			AddCommoditie(TypeListItem Commoditie);//adds a Commoditie to the list
 		 TypeListItem	LookUpCommoditie(uint32 crc);
 		 uint32			getCategory(uint32 crc);
-		 
+
 		 uint32			GetCount(){return(CommoditiesTypeCount);}
 		 uint32			CommoditiesTypeCount;
-		
+
 };
 
-#endif 
+#endif
 

@@ -54,9 +54,9 @@ void CampRegion::update()
 
 		return;
 	}
-	
+
 	PlayerObject* owner = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(mOwnerId));
-	
+
 	if(owner->checkState(CreatureState_Combat))
 	{
 		//abandon
@@ -73,7 +73,7 @@ void CampRegion::update()
 
 	Object*		object;
 	ObjectSet	objList;
-	
+
 	if(mParentId)
 	{
 		mSI->getObjectsInRange(this,&objList,ObjType_Player,mWidth);
@@ -128,14 +128,14 @@ void CampRegion::onObjectEnter(Object* object)
 	{
 		//PlayerObject* player = (PlayerObject*)object;
 		addKnownObject(object);
-		
+
 		VisitorSet::iterator it = mVisitorSet.find(object->getId());
-		
+
 		if(it == mVisitorSet.end())
 			mVisitorSet.insert(object->getId());
-		
+
 		PlayerObject* owner = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(mOwnerId));
-		
+
 		if(owner && (owner->getId() != object->getId()))
 		{
 			PlayerObject* player = dynamic_cast<PlayerObject*>(object);
@@ -147,7 +147,7 @@ void CampRegion::onObjectEnter(Object* object)
 		}
 
 	}
-	
+
 }
 
 //=============================================================================
@@ -170,7 +170,7 @@ void CampRegion::onObjectLeave(Object* object)
 		uT.convert(BSTRType_Unicode16);
 		gMessageLib->sendSystemMessage(player, uT);
 	}
-		//check whether we are the owner and if yes set our abandoning timer	
+		//check whether we are the owner and if yes set our abandoning timer
 }
 
 //=============================================================================
@@ -183,11 +183,11 @@ void	CampRegion::despawnCamp()
 
 	gLogger->logMsg("destroy the camp\n");
 
-	PlayerObject* owner = NULL;//dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(mOwnerId));
+	//PlayerObject* owner = NULL;//dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(mOwnerId));
 	//we need to destroy our camp!!
 	Camp* camp = dynamic_cast<Camp*>(gWorldManager->getObjectById(mCampId));
 	ItemList* iL = camp->getItemList();
-	
+
 	ItemList::iterator iLiT = iL->begin();
 	while(iLiT != iL->end())
 	{
@@ -199,7 +199,7 @@ void	CampRegion::despawnCamp()
 
 	gMessageLib->sendDestroyObject_InRangeofObject(camp);
 	gWorldManager->destroyObject(camp);
-	
+
 	gWorldManager->addRemoveRegion(this);
 
 	//now grant xp

@@ -28,7 +28,7 @@ class ObjectFactoryCallback;
 
 enum CityFQuery
 {
-	CityFQuery_MainData	= 1,
+	CityFQuery_MainData	= 1
 };
 
 //=============================================================================

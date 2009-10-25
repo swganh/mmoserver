@@ -24,7 +24,7 @@ typedef std::map<uint64, AdminRequestObject*> AdminRequests;
 enum AdminRequestt
 {
 	AdminScheduledShutdown		= 0,
-	AdminEmergenyShutdown		= 1,
+	AdminEmergenyShutdown		= 1
 };
 
 //=============================================================================
@@ -68,11 +68,10 @@ class AdminManager : public MessageDispatchCallback
 		AdminManager();
 
 		static AdminManager* mInstance;
-		bool	mPendingShutdown;
-		bool	mTerminateServer;
-
 		AdminRequests mAdminRequests;
 		MessageDispatch* mMessageDispatch;
+		bool	mPendingShutdown;
+		bool	mTerminateServer;
 };
 
 //=============================================================================

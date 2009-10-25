@@ -20,7 +20,7 @@ enum ui_opcodes
 	opSuiForceClosePage					=	0x990b5de0,
 	opSuiUpdatePageMessage				=	0x5f3342f6,
 	opSuiSetProperty					=	0xe275798f,
-	opSuiClosedOk						=	0xe00cddba,
+	opSuiClosedOk						=	0xe00cddba
 };
 
 #endif

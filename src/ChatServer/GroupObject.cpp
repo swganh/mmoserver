@@ -47,7 +47,7 @@ GroupObject::GroupObject(Player* leader, uint64 groupId)
 
 	mMembers.push_back(leader);
 
-	gLogger->logMsgF("New group created by %s with id %lld.\n", MSG_NORMAL,leader->getName().getAnsi(),groupId);
+	gLogger->logMsgF("New group created by %s with id %"PRId64".\n", MSG_NORMAL,leader->getName().getAnsi(),groupId);
 }
 
 
@@ -305,12 +305,12 @@ void GroupObject::createChannel()
 	Channel* channel = new Channel();
 	channel->setId(((uint32)(mId)) + 0xf0000000);
 	channel->setCreator(gSystemAvatar);
-	sprintf(channelName, "%lld.GroupChat", mId);
+	sprintf(channelName, "%"PRId64".GroupChat", mId);
 	channel->setName(BString(channelName));
 	channel->setGalaxy(gChatManager->getGalaxyName());
 
 	string tmpValueStr = string(BSTRType_Unicode16,64);
-	tmpValueStr.setLength(swprintf(tmpValueStr.getUnicode16(), 1, L"%lld", mId));
+	tmpValueStr.setLength(swprintf(tmpValueStr.getUnicode16(), 1, L"" WidePRId64, mId));
 	channel->setTitle(tmpValueStr);
 
 	gLogger->logMsgF("Group channel created: '%s' with id %u.\n", MSG_NORMAL, channel->getName().getAnsi(), channel->getId());

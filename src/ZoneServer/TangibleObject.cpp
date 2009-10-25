@@ -9,20 +9,21 @@ Copyright (c) 2006 - 2009 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 #include "TangibleObject.h"
-#include "DatabaseManager/database.h"
+#include "DatabaseManager/Database.h"
 #include "MathLib/Quaternion.h"
 
 
 
 //=============================================================================
 
-TangibleObject::TangibleObject() : ObjectContainer(),
-mMaxCondition(100),
-mDamage(0),
-mComplexity(1.0f),
-mTimer(0),
-mLastTimerUpdate(0),
-mTimerInterval(1000)
+TangibleObject::TangibleObject()
+: ObjectContainer()
+, mComplexity(1.0f)
+, mLastTimerUpdate(0)
+, mTimer(0)
+, mDamage(0)
+, mMaxCondition(100)
+, mTimerInterval(1000)
 {
 	mType				= ObjType_Tangible;
 	mName				= "";
@@ -33,15 +34,15 @@ mTimerInterval(1000)
 	mUnknownStr2		= "";
 	mCustomName			= L"";
 	mCustomizationStr	= "";
-	
-	uint64 l = 0;
+
+	//uint64 l = 0;
 	for(uint16 i=0;i<256;i++)
 		mCustomization[i] = 0;
 }
 
 //=============================================================================
 
-TangibleObject::TangibleObject(uint64 id,uint64 parentId,string model,TangibleGroup tanGroup,TangibleType tanType,string name,string nameFile,string detailFile) 
+TangibleObject::TangibleObject(uint64 id,uint64 parentId,string model,TangibleGroup tanGroup,TangibleType tanType,string name,string nameFile,string detailFile)
 			  : ObjectContainer(id,parentId,model,ObjType_Tangible),mName(name),mNameFile(nameFile),mDetailFile(detailFile),mTanGroup(tanGroup),mTanType(tanType)
 {
 	mColorStr			= "";
@@ -73,7 +74,7 @@ bool TangibleObject::updateTimer(uint64 callTime)
 	if(callTime - mLastTimerUpdate >= mTimerInterval)
 	{
 		mTimer -= (int32)(mTimerInterval / 1000);
-		
+
 		if(mTimer < 0)
 			mTimer = 0;
 
@@ -102,14 +103,14 @@ void TangibleObject::buildTanoCustomization(uint8 len)
 	uint8 elementCount = 0;
 
 	// get absolute bytecount(1 byte index + value)
-	for(uint8 i = 1;i < len;i++) 
+	for(uint8 i = 1;i < len;i++)
 	{
 		if(mCustomization[i] != 0)
 		{
-			if(mCustomization[i] == 0) 
+			if(mCustomization[i] == 0)
 				mCustomization[i] = 511;
-		
-			if(mCustomization[i] == 255) 
+
+			if(mCustomization[i] == 255)
 				mCustomization[i] = 767;
 
 			if(mCustomization[i] < 255)

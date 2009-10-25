@@ -28,7 +28,7 @@ class WaypointObject;
 
 enum WaypointFQuery
 {
-	WaypointFQuery_MainData	= 1,
+	WaypointFQuery_MainData	= 1
 };
 
 //=============================================================================

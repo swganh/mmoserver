@@ -83,7 +83,11 @@ bool QuestGiver::preProcessfilterConversation(ActiveConversation* av, Conversati
 		player->getTutorial()->npcConversationHasStarted(this->getId());
 
 		// Have to do a dirty test of when the npc gives the player a weapon.
+#if defined(_MSC_VER)
 		if (this->mId == 47513085665)
+#else
+		if (this->mId == 47513085665LLU)
+#endif
 		{
 			Tutorial * tutorial = player->getTutorial();
 			uint32 subState = tutorial->getSubState();
@@ -92,14 +96,8 @@ bool QuestGiver::preProcessfilterConversation(ActiveConversation* av, Conversati
 				// av->setCurrentPage(8);	// "Move along."
 				// gLogger->logMsgF("QuestGiver::preProcessfilterConversation: Returned modified pagelink %u",MSG_NORMAL, 8);
 				status = false;
-				
-				BStringVector  elements;
-				elements.push_back("");
-				elements.push_back("");
-				elements.push_back("");
-				elements.push_back("");
-				elements.push_back("");
-
+				char elements[5][32];
+				memset(elements, 0, sizeof(elements));
 				string aMess("Move along.");	// @newbie_convo:trooper_move_along
 				aMess.convert(BSTRType_Unicode16);
 				if (!gWorldConfig->isInstance())
@@ -125,13 +123,8 @@ bool QuestGiver::preProcessfilterConversation(ActiveConversation* av, Conversati
 					if (inventory->itemExist(player->getTutorial()->getQuestWeaponFamily(), player->getTutorial()->getQuestWeaponType()))
 					{
 						status = false;
-						BStringVector  elements;
-						elements.push_back("");
-						elements.push_back("");
-						elements.push_back("");
-						elements.push_back("");
-						elements.push_back("");
-
+						char elements[5][32];
+						memset(elements, 0, sizeof(elements));
 						string aMess("What are you doing here?  Get a move on.  I'm, uh, still guarding here."); // @newbie_convo:convo_4_repeat
 						aMess.convert(BSTRType_Unicode16);
 						if (!gWorldConfig->isInstance())
@@ -154,14 +147,8 @@ bool QuestGiver::preProcessfilterConversation(ActiveConversation* av, Conversati
 			else if (subState >= 19)	// We have killed the pirate.
 			{
 				status = false;
-				
-				BStringVector  elements;
-				elements.push_back("");
-				elements.push_back("");
-				elements.push_back("");
-				elements.push_back("");
-				elements.push_back("");
-				
+				char elements[5][32];
+				memset(elements, 0, sizeof(elements));
 				string aMess("Good job with that pirate, but what are you doing back here?  Go back through the big room where the pirate was."); // @newbie_convo:good_job
 				aMess.convert(BSTRType_Unicode16);
 				if (!gWorldConfig->isInstance())
@@ -176,7 +163,11 @@ bool QuestGiver::preProcessfilterConversation(ActiveConversation* av, Conversati
 				}
 			}
 		}
+#if defined(_MSC_VER)
 		else if (this->mId == 47513085685)	// The Quatermaster
+#else
+		else if (this->mId == 47513085685LLU)	// The Quatermaster
+#endif
 		{
 			Tutorial * tutorial = player->getTutorial();
 			uint32 subState = tutorial->getSubState();
@@ -351,7 +342,11 @@ uint32 QuestGiver::handleConversationEvent(ActiveConversation* av,ConversationPa
 
 	if (gWorldConfig->isTutorial())
 	{
+#if defined(_MSC_VER)
 		if (this->mId == 47513085665)	// The covard Officer
+#else
+		if (this->mId == 47513085665LLU)	// The covard Officer
+#endif
 		{
 			// The npc gives the player a weapon, and we have to advance to next state.
 			if (page->mId == 5)
@@ -369,7 +364,11 @@ uint32 QuestGiver::handleConversationEvent(ActiveConversation* av,ConversationPa
 				gMessageLib->sendSystemMessage(player, L"","newbie_tutorial/system_messages","receive_weapon");
 			}
 		}
+#if defined(_MSC_VER)
 		else if (this->mId == 47513085683)	// The officer in the mission terminal room
+#else
+		else if (this->mId == 47513085683LLU)	// The officer in the mission terminal room
+#endif
 		{
 			Tutorial * tutorial = player->getTutorial();
 			uint32 subState = tutorial->getSubState();
@@ -378,7 +377,11 @@ uint32 QuestGiver::handleConversationEvent(ActiveConversation* av,ConversationPa
 				tutorial->setSubState(23);
 			}
 		}
+#if defined(_MSC_VER)
 		else if (this->mId == 47513085685)	// The Quatermaster
+#else
+		else if (this->mId == 47513085685LLU)	// The Quatermaster
+#endif
 		{
 			Tutorial * tutorial = player->getTutorial();
 			uint32 subState = tutorial->getSubState();

@@ -66,14 +66,14 @@ void SocketReadThread::Startup(SOCKET socket, SocketWriteThread* writeThread, Se
 	if(serverservice)
 	{
 		mMessageMaxSize = gNetConfig->getServerServerReliableSize();
-		mSessionResendWindowSize = gNetConfig->getServerPacketWindow();		
+		mSessionResendWindowSize = gNetConfig->getServerPacketWindow();
 	}
 	else
 	{
 		mMessageMaxSize = gNetConfig->getServerClientReliableSize();
 		mSessionResendWindowSize = gNetConfig->getClientPacketWindow();
 	}
-	
+
 	mSocket = socket;
 	mSocketWriteThread = writeThread;
 
@@ -84,7 +84,7 @@ void SocketReadThread::Startup(SOCKET socket, SocketWriteThread* writeThread, Se
 
 	// Startup our factories
 	mMessageFactory = new MessageFactory();
-	mMessageFactory->Startup(mfHeapSize,service->getId()); 
+	mMessageFactory->Startup(mfHeapSize,service->getId());
 
 	mPacketFactory = new PacketFactory();
 	mPacketFactory->Startup(serverservice);
@@ -114,7 +114,7 @@ void SocketReadThread::Shutdown(void)
     mThread.join();
 
 	mCompCryptor->Shutdown();
-	mPacketFactory->Shutdown(); 
+	mPacketFactory->Shutdown();
 	mSessionFactory->Shutdown();
 	mMessageFactory->Shutdown();
 
@@ -142,7 +142,7 @@ void SocketReadThread::run(void)
 	_startup();
 
 	while(!mExit)
-	{ 
+	{
 		// Check to see if we have a new request and process it.
 		if(mNewConnection.mPort != 0)
 		{
@@ -166,51 +166,44 @@ void SocketReadThread::run(void)
 		}
 
 		// Reset our internal members so we can use the packet again.
-		mReceivePacket->Reset();           
+		mReceivePacket->Reset();
 		mDecompressPacket->Reset();
 
 		// Build a new fd_set structure
 		FD_SET(mSocket, &socketSet);
-	    
-		// We're going to block for 50us. blocks DONOT SLEEP they just stall
+
+		// We're going to block for 250ms.
 		tv.tv_sec   = 0;
-		tv.tv_usec  = 50;
-		
+		tv.tv_usec  = 350;
+
 		count = select(mSocket, &socketSet, 0, 0, &tv);
 
 		if(count && FD_ISSET(mSocket, &socketSet))
 		{
 			// Read any incoming packets.
-			recvLen = recvfrom(mSocket, mReceivePacket->getData(),(int) mMessageMaxSize, 0, (sockaddr*)&from, reinterpret_cast<socklen_t*>(&fromLen)); 
+			recvLen = recvfrom(mSocket, mReceivePacket->getData(),(int) mMessageMaxSize, 0, (sockaddr*)&from, reinterpret_cast<socklen_t*>(&fromLen));
 			if (recvLen <= 2)
 			{
-			
+				if (recvLen <= 2)
+				{
 #if(ANH_PLATFORM == ANH_PLATFORM_WIN32)
 
-				int error = WSAGetLastError();
+					int error = WSAGetLastError();
+					gLogger->logMsgF("*** Unkown error from socket recvFrom: %i recvL returned %i", MSG_NORMAL, error,recvLen);
+					gLogger->logMsgF("*** mMessageMaxSize: %i", MSG_NORMAL, mMessageMaxSize);
 
 #elif(ANH_PLATFORM == ANH_PLATFORM_LINUX)
 
-				int error = errno;
+				//	int error = errno;
 
 #endif
-			
-				if(error == 10054)
-				{
-					gLogger->logMsgF("*** The Connection has been forcefully closed", MSG_HIGH);
-
 				}
-				else
-				{
-					gLogger->logMsgF("*** Errro: %i", MSG_HIGH, error);
-				}
-
+				//if(error != 10040)
 				continue;
-				
+
 
 				recvLen = mMessageMaxSize;
 			}
-			
 			if(recvLen > mMessageMaxSize)
 				gLogger->logMsgF("*** Received Size > mMessageMaxSize: %u", MSG_NORMAL, recvLen);
 
@@ -224,7 +217,6 @@ void SocketReadThread::run(void)
 			//the create calls themselves using boost_singleton in the factory should be threadsafe though
 			if(!mReceivePacket )
 			{
-				assert(false);
 				gLogger->logMsg("*** still happening :(",MSG_NORMAL);
 				mReceivePacket = mPacketFactory->CreatePacket();
 			}
@@ -256,7 +248,7 @@ void SocketReadThread::run(void)
 					session = mSessionFactory->CreateSession();
 					session->setSocketReadThread(this);
 					session->setPacketFactory(mPacketFactory);
-					session->setAddress(address);  // Store the address and port in network order so we don't have to 
+					session->setAddress(address);  // Store the address and port in network order so we don't have to
 					session->setPort(port);  // convert them all the time.  Only convert for humans.
 					session->setResendWindowSize(mSessionResendWindowSize);
 
@@ -266,9 +258,9 @@ void SocketReadThread::run(void)
 
 					//gLogger->logMsgF("Service %i: New Session(%s, %u), AddressMap: %i",MSG_NORMAL,mSessionFactory->getService()->getId(), inet_ntoa(from.sin_addr), ntohs(session->getPort()), mAddressSessionMap.size());
 				}
-				else 
+				else
 				{
-					gLogger->logMsgF("*** Session not found.  Packet dropped. Type:0x%.4x", MSG_HIGH, packetType);
+					//gLogger->logMsgF("*** Session not found.  Packet dropped. Type:0x%.4x", MSG_NORMAL, packetType);
 
 					continue;
 				}
@@ -282,32 +274,29 @@ void SocketReadThread::run(void)
 			// Set the size of the packet
 
 			// Validate our date header.  If it's not a valid header, drop it.
-			
+
 			if(session->getStatus() > SSTAT_Connected)
-			{
-				gLogger->logMsgF("*** Session not connected", MSG_HIGH);
 				continue;
-			}
 
 			if(packetType > 0x00ff && (packetType & 0x00ff) == 0 && session != NULL)
 			{
 				switch(packetType)
-				{             
-					case SESSIONOP_Disconnect:        
-					case SESSIONOP_DataAck1:          
-					case SESSIONOP_DataAck2:          
-					case SESSIONOP_DataAck3:          
-					case SESSIONOP_DataAck4: 
+				{
+					case SESSIONOP_Disconnect:
+					case SESSIONOP_DataAck1:
+					case SESSIONOP_DataAck2:
+					case SESSIONOP_DataAck3:
+					case SESSIONOP_DataAck4:
 					case SESSIONOP_DataOrder1:
 					case SESSIONOP_DataOrder2:
 					case SESSIONOP_DataOrder3:
-					case SESSIONOP_DataOrder4: 
-					case SESSIONOP_Ping: 
+					case SESSIONOP_DataOrder4:
+					case SESSIONOP_Ping:
 					{
-						
+
 						// Before we do anythign else, check the CRC.
 						uint32 packetCrc = mCompCryptor->GenerateCRC(mReceivePacket->getData(), recvLen - 2, session->getEncryptKey());  // - 2 crc
-			            
+
 						uint8 crcLow  = (uint8)*(mReceivePacket->getData() + recvLen - 1);
 						uint8 crcHigh = (uint8)*(mReceivePacket->getData() + recvLen - 2);
 						//gLogger->logMsgF("checking CRC. key:0x%.8x crc:0x%.4x low:0x%.2x high:0x%.2x len:%u", MSG_LOW, session->getEncryptKey(), packetCrc, crcLow, crcHigh, recvLen);
@@ -320,31 +309,29 @@ void SocketReadThread::run(void)
 							continue;
 						}
 
-						// Decrypt the packet 
+						// Decrypt the packet
 						mCompCryptor->Decrypt(mReceivePacket->getData() + 2, recvLen - 4, session->getEncryptKey());  // don't hardcode the header buffer or CRc len.
-		    
-						// Send the packet to the session. 
+
+						// Send the packet to the session.
 						//gLogger->logMsgF("DIS/ACK/ORDER size:%u",MSG_NORMAL,recvLen);
 						session->HandleSessionPacket(mReceivePacket);
 						mReceivePacket = mPacketFactory->CreatePacket();
-					} 
+					}
 					break;
 
-			
-					case SESSIONOP_DataChannel2:
-					case SESSIONOP_DataFrag2:   
-					
+					case SESSIONOP_MultiPacket:
+					case SESSIONOP_NetStatRequest:
+					case SESSIONOP_NetStatResponse:
 					case SESSIONOP_DataChannel1:
+					case SESSIONOP_DataChannel2:
 					case SESSIONOP_DataChannel3:
 					case SESSIONOP_DataChannel4:
-					case SESSIONOP_DataFrag1:         
-					case SESSIONOP_DataFrag3:         
-					case SESSIONOP_DataFrag4:   
+					case SESSIONOP_DataFrag1:
+					case SESSIONOP_DataFrag2:
+					case SESSIONOP_DataFrag3:
+					case SESSIONOP_DataFrag4:
+					{
 
-					case SESSIONOP_MultiPacket: 
-					case SESSIONOP_NetStatRequest:    
-					case SESSIONOP_NetStatResponse:
-					 {
 						// Before we do anything else, check the CRC.
 						uint32 packetCrc = mCompCryptor->GenerateCRC(mReceivePacket->getData(), recvLen - 2, session->getEncryptKey());
 
@@ -356,15 +343,15 @@ void SocketReadThread::run(void)
 						if (crcLow != (uint8)packetCrc || crcHigh != (uint8)(packetCrc >> 8))
 						{
 							// CRC mismatch.  Dropping packet.
-							
-							gLogger->logMsgF("*** Reliable Packet dropped. %X CRC mismatch.",MSG_HIGH,packetType);
+
+							gLogger->logMsgF("*** Reliable Packet dropped. %X CRC mismatch.",MSG_NORMAL,packetType);
 							mCompCryptor->Decrypt(mReceivePacket->getData() + 2, recvLen - 4, session->getEncryptKey());  // don't hardcode the header buffer or CRC len.
 
 							gLogger->hexDump(mReceivePacket->getData(),mReceivePacket->getSize());
 							continue;
 						}
 
-						// Decrypt the packet 
+						// Decrypt the packet
 						mCompCryptor->Decrypt(mReceivePacket->getData() + 2, recvLen - 4, session->getEncryptKey());  // don't hardcode the header buffer or CRC len.
 
 						// Decompress the packet
@@ -383,23 +370,19 @@ void SocketReadThread::run(void)
 						else //tag packets can be not compressed --tmr
 						{
 							mReceivePacket->setSize(mReceivePacket->getSize()-3);//we have to remove comp/crc like the above does natrually -tmr
-							session->HandleSessionPacket(mReceivePacket);
-							mReceivePacket = mPacketFactory->CreatePacket();
-							break;
-
 						}
-			
+
 					}
 
-					case SESSIONOP_SessionRequest:    
+					case SESSIONOP_SessionRequest:
 					case SESSIONOP_SessionResponse:
-					case SESSIONOP_FatalError:        
+					case SESSIONOP_FatalError:
 					case SESSIONOP_FatalErrorResponse:
 					//case SESSIONOP_Reset:
 					{
 						// Send the packet to the session.
 						//gLogger->logMsgF("SESSION size:%u",MSG_NORMAL,recvLen);
-					
+
 						session->HandleSessionPacket(mReceivePacket);
 						mReceivePacket = mPacketFactory->CreatePacket();
 					}
@@ -410,7 +393,7 @@ void SocketReadThread::run(void)
 						gLogger->logMsgF("SocketReadThread: Dont know what todo with this packet! --tmr",MSG_NORMAL);
 					}
 					break;
-          
+
 				} //end switch(sessionOp)
 			}
 			// Validate that our data is actually fastpath
@@ -458,19 +441,16 @@ void SocketReadThread::run(void)
 					// send the packet up the stack
 					mReceivePacket->setSize(mReceivePacket->getSize()-3);//we have to remove comp/crc like the above does natrually -tmr
 					session->HandleFastpathPacket(mReceivePacket);
-					mReceivePacket = mPacketFactory->CreatePacket(); 
+					mReceivePacket = mPacketFactory->CreatePacket();
 				}
-			}
-			else
-			{
-				gLogger->logMsgF("SocketReadThread: Dont know what todo with this packet! --sch",MSG_HIGH);
 			}
 		}
 
-		
-        boost::this_thread::sleep(boost::posix_time::milliseconds(1));
+		//doesnt make sense!
+		// the blocked socket waits for us already
+        //boost::this_thread::sleep(boost::posix_time::milliseconds(1));
 	}
- 
+
 	// Shutdown internally
 	_shutdown();
 }
@@ -479,7 +459,7 @@ void SocketReadThread::run(void)
 
 void SocketReadThread::NewOutgoingConnection(int8* address, uint16 port)
 {
-	// This will only handle a single connect call at a time right now.  At some point it would be good to make this a 
+	// This will only handle a single connect call at a time right now.  At some point it would be good to make this a
 	// queue so we can process these async.  This is NOT thread safe, and won't be.  Only should be called by the Service.
 
 	// Init our NewConnection object

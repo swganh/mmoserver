@@ -27,7 +27,7 @@ class DispatchClient;
 enum QueryType
 {
 	CAQuery_CreateCharacter	= 1,
-	CAQuery_RequestName		= 2,
+	CAQuery_RequestName		= 2
 };
 
 class CAAsyncContainer
@@ -53,7 +53,7 @@ public:
   string        mBaseModel;
   string        mProfession;
   string        mStartCity;
-  float         mScale; 
+  float         mScale;
   string        mBiography;
   uint16        mAppearance[0x255];
   uint16        mHairCustomization[0x71];

@@ -18,10 +18,11 @@ Copyright (c) 2006 - 2009 The swgANH Team
 
 //=============================================================================
 
-SpawnRegion::SpawnRegion() : RegionObject(),
-mSI(gWorldManager->getSI()),
-mMission(0),
-mQTRegion(NULL)
+SpawnRegion::SpawnRegion()
+: RegionObject()
+, mQTRegion(NULL)
+, mSI(gWorldManager->getSI())
+, mMission(0)
 {
 	mActive		= true;
 	mRegionType = Region_Spawn;
@@ -47,7 +48,7 @@ void SpawnRegion::update()
 
 	Object*		object;
 	ObjectSet	objList;
-	
+
 	if(mParentId)
 	{
 		mSI->getObjectsInRange(this,&objList,ObjType_Player,mWidth);
@@ -94,7 +95,7 @@ void SpawnRegion::onObjectEnter(Object* object)
 {
 	if(object->getParentId() == mParentId)
 	{
-		PlayerObject* player = (PlayerObject*)object;
+		//PlayerObject* player = (PlayerObject*)object;
 		addKnownObject(object);
 	}
 }
@@ -103,7 +104,7 @@ void SpawnRegion::onObjectEnter(Object* object)
 
 void SpawnRegion::onObjectLeave(Object* object)
 {
-	PlayerObject* player = (PlayerObject*)object;
+	//PlayerObject* player = (PlayerObject*)object;
 	removeKnownObject(object);
 }
 

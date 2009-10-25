@@ -44,7 +44,7 @@ enum ConversationQuery
 {
 	ConvQuery_Conversations		= 1,
 	ConvQuery_Pages				= 2,
-	ConvQuery_Page_OptionBatch	= 3,
+	ConvQuery_Page_OptionBatch	= 3
 };
 
 //=========================================================================================

@@ -32,7 +32,7 @@ class NPCObject;
 enum PersistentNpcQuery
 {
 	PersistentNpcQuery_MainData		= 1,
-	PersistentNpcQuery_Attributes	= 2,
+	PersistentNpcQuery_Attributes	= 2
 };
 
 //=============================================================================

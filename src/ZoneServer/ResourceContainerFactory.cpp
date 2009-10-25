@@ -81,7 +81,7 @@ void ResourceContainerFactory::handleDatabaseJobComplete(void* ref,DatabaseResul
 				mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT attributes.name,object_attributes.value,attributes.internal"
 															" FROM object_attributes"
 															" INNER JOIN attributes ON (object_attributes.attribute_id = attributes.id)"
-															" WHERE object_attributes.object_id = %lld ORDER BY object_attributes.order",container->getId());
+															" WHERE object_attributes.object_id = %"PRId64" ORDER BY object_attributes.order",container->getId());
 			}
 		}
 		break;
@@ -105,7 +105,7 @@ void ResourceContainerFactory::handleDatabaseJobComplete(void* ref,DatabaseResul
 
 void ResourceContainerFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client)
 {
-	mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,RCFQuery_MainData,client),"SELECT * FROM resource_containers WHERE id=%lld",id);
+	mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,RCFQuery_MainData,client),"SELECT * FROM resource_containers WHERE id=%"PRId64"",id);
 }
 
 //=============================================================================>>
@@ -127,7 +127,7 @@ ResourceContainer* ResourceContainerFactory::_createResourceContainer(DatabaseRe
 		resourceContainer->setModelString((resource->getType())->getContainerModel().getAnsi());
 	}
 	else
-		gLogger->logMsgF("ResourceContainerFactory::_createResourceContainer: Resource not found %lld",MSG_HIGH,resourceContainer->mResourceId);
+		gLogger->logMsgF("ResourceContainerFactory::_createResourceContainer: Resource not found %"PRId64"",MSG_HIGH,resourceContainer->mResourceId);
 
 	resourceContainer->mMaxCondition = 100;
 

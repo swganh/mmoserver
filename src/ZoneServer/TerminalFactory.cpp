@@ -82,7 +82,7 @@ void TerminalFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 			{
 				switch(terminal->getTangibleType())
 				{
-					case TanType_ElevatorTerminal: 
+					case TanType_ElevatorTerminal:
 					case TanType_ElevatorUpTerminal:
 					case TanType_ElevatorDownTerminal:
 					{
@@ -95,7 +95,7 @@ void TerminalFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 								QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,TFQuery_ElevatorData,asyncContainer->mClient);
 								asContainer->mObject = elTerminal;
 
-								mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT * FROM terminal_elevator_data WHERE id=%lld ORDER BY direction",elTerminal->getId());
+								mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT * FROM terminal_elevator_data WHERE id=%"PRId64" ORDER BY direction",elTerminal->getId());
 							}
 							break;
 
@@ -114,7 +114,7 @@ void TerminalFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 		{
 			ElevatorTerminal* terminal = dynamic_cast<ElevatorTerminal*>(asyncContainer->mObject);
 
-			uint64 count = result->getRowCount();
+			//uint64 count = result->getRowCount();
 			//assert(count < 3 && count > 0);
 
 			// we order by direction in select, though up is first
@@ -145,14 +145,14 @@ void TerminalFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,
 					"terminals.y,terminals.z,terminals.terminal_type,terminal_types.object_string,terminal_types.name,terminal_types.file,"
 					"terminals.dataStr,terminals.dataInt1,terminals.customName"
 					" FROM terminals INNER JOIN terminal_types ON (terminals.terminal_type = terminal_types.id)"
-					" WHERE (terminals.id = %lld)",id);
+					" WHERE (terminals.id = %"PRId64")",id);
 }
 
 //=============================================================================
 
 Terminal* TerminalFactory::_createTerminal(DatabaseResult* result)
 {
-	Terminal*		terminal;
+	Terminal*		terminal(0);
 	TangibleType	tanType;
 
 	DataBinding* typeBinding = mDatabase->CreateDataBinding(1);
@@ -177,7 +177,7 @@ Terminal* TerminalFactory::_createTerminal(DatabaseResult* result)
 		case TanType_NymCaveTerminal:				case TanType_GeoBunkerTerminal:
 		case TanType_Light_Enc_VotingTerminal:		case TanType_Dark_Enc_ChallengeTerminal:
 		case TanType_Dark_Enc_VotingTerminal:		case TanType_Light_Enc_ChallengeTerminal:
-		case TanType_PMRegisterTerminal:			
+		case TanType_PMRegisterTerminal:
 		case 14:
 		{
 			terminal = new Terminal();
@@ -207,7 +207,7 @@ Terminal* TerminalFactory::_createTerminal(DatabaseResult* result)
 		}
 		break;
 
-		
+
 		case TanType_BankTerminal:
 		{
 			terminal = new BankTerminal();
@@ -245,7 +245,7 @@ Terminal* TerminalFactory::_createTerminal(DatabaseResult* result)
 		}
 		break;
 
-		case TanType_InsuranceTerminal:	
+		case TanType_InsuranceTerminal:
 		{
 			terminal = new InsuranceTerminal();
 			terminal->setTangibleType(tanType);
@@ -424,7 +424,7 @@ void TerminalFactory::_setupDatabindings()
 	mBankMainDataBinding->addField(DFT_float,offsetof(BankTerminal,mPosition.mX),4,6);
 	mBankMainDataBinding->addField(DFT_float,offsetof(BankTerminal,mPosition.mY),4,7);
 	mBankMainDataBinding->addField(DFT_float,offsetof(BankTerminal,mPosition.mZ),4,8);
-	
+
 	// elevator terminal main data
 	mElevatorMainDataBinding = mDatabase->CreateDataBinding(13);
 	mElevatorMainDataBinding->addField(DFT_uint64,offsetof(ElevatorTerminal,mId),8,0);

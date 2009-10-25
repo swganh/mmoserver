@@ -173,7 +173,7 @@ void ObjectController::_handleOpenContainer(uint64 targetId,Message* message,Obj
 	}
 	else
 	{
-		gLogger->logMsgF("ObjectController::_handleOpenContainer: INVALID Object id %lld",MSG_NORMAL,targetId);
+		gLogger->logMsgF("ObjectController::_handleOpenContainer: INVALID Object id %"PRId64"",MSG_NORMAL,targetId);
 	}
 }
 
@@ -182,7 +182,7 @@ void ObjectController::_handleCloseContainer(uint64 targetId,Message* message,Ob
 	// gLogger->logMsg("ObjController::_handleCloseContainer:");
 
 	PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
-	Object*			itemObject		= gWorldManager->getObjectById(targetId);
+	//Object*			itemObject		= gWorldManager->getObjectById(targetId);
 
 	if (gWorldConfig->isTutorial())
 	{
@@ -191,7 +191,7 @@ void ObjectController::_handleCloseContainer(uint64 targetId,Message* message,Ob
 
 
 	// gLogger->hexDump(message->getData(),message->getSize());
-	// gLogger->logMsgF("ObjectController::_handleCloseContainer: targetId = %lld",MSG_NORMAL,targetId);
+	// gLogger->logMsgF("ObjectController::_handleCloseContainer: targetId = %"PRId64"",MSG_NORMAL,targetId);
 	// gMessageLib->sendOpenedContainer(targetId, playerObject);
 }
 
@@ -216,13 +216,13 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 
 	// gLogger->logMsg("ObjectController::_handleTransferItem() THIS IS (almost) UNSUPPORTED");
 
-	if(swscanf(dataStr.getUnicode16(),L" %lld %u %f %f %f",&targetContainerId,&linkType,&x,&y,&z) != 5)
+	if(swscanf(dataStr.getUnicode16(),L" %"WidePRId64 L" %u %f %f %f",&targetContainerId,&linkType,&x,&y,&z) != 5)
 	{
 		gLogger->logMsg("ObjController::handleTransferItem: Error in parameters");
 		return;
 	}
-	// gLogger->logMsgF("Parameters:  %lld %d %.1f %.1f %.1f", MSG_NORMAL, targetContainerId, linkType, x, y, z);
-	// gLogger->logMsgF("TargetId = %lld", MSG_NORMAL, targetId);
+	// gLogger->logMsgF("Parameters:  %"PRId64" %d %.1f %.1f %.1f", MSG_NORMAL, targetContainerId, linkType, x, y, z);
+	// gLogger->logMsgF("TargetId = %"PRId64"", MSG_NORMAL, targetId);
 
 	if(itemObject)
 	{
@@ -269,7 +269,7 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 				}
 				else
 				{
-					gLogger->logMsgF("ObjectController::_handleTransferItem: couldn't find cell %lld",MSG_HIGH,targetContainerId);
+					gLogger->logMsgF("ObjectController::_handleTransferItem: couldn't find cell %"PRId64"",MSG_HIGH,targetContainerId);
 				}
 			}
 			else
@@ -339,7 +339,7 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 
 			if(TangibleObject* tangible = dynamic_cast<TangibleObject*>(itemObject))
 			{
-				uint64 parentId = itemObject->getParentId();
+				//uint64 parentId = itemObject->getParentId();
 				cell->removeChild(itemObject);
 
 				//update known players
@@ -431,14 +431,14 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 
 	message->getStringUnicode16(dataStr);
 
-	if(swscanf(dataStr.getUnicode16(),L" %lld %u %f %f %f",&targetContainerId,&linkType,&x,&y,&z) != 5)
+	if(swscanf(dataStr.getUnicode16(),L" " WidePRId64 L" %u %f %f %f",&targetContainerId,&linkType,&x,&y,&z) != 5)
 	{
 		gLogger->logMsg("ObjController::_handleTransferItemMisc: Error in parameters");
 		return;
 	}
 
-	// gLogger->logMsgF("Parameters:  %llu %d %.1f %.1f %.1f", MSG_NORMAL, targetContainerId, linkType, x, y, z);
-	// gLogger->logMsgF("TargetId = %llu", MSG_NORMAL, targetId);
+	// gLogger->logMsgF("Parameters:  %"PRIu64" %d %.1f %.1f %.1f", MSG_NORMAL, targetContainerId, linkType, x, y, z);
+	// gLogger->logMsgF("TargetId = %"PRIu64"", MSG_NORMAL, targetId);
 	if (itemObject)
 	{
 		Item* item = dynamic_cast<Item*>(itemObject);
@@ -484,7 +484,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 				// TODO: THIS WILL BE EVALUATED WHEN WE CAN HAVE ACCESS TO PLAYER BUILDINGS.
 
 				// drop in a cell
-				// gLogger->logMsgF("ObjectController::_handleTransferItemMisc: Drop into cell %llu", MSG_NORMAL, targetContainerId);
+				// gLogger->logMsgF("ObjectController::_handleTransferItemMisc: Drop into cell %"PRIu64"", MSG_NORMAL, targetContainerId);
 
 				// Remove the object from whatever contains it.
 				// Item* item = dynamic_cast<Item*>(itemObject);
@@ -568,7 +568,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 			else
 			{
 				// Continue...
-				// gLogger->logMsgF("ObjectController::_handleTransferItemMisc: Target %llu was not a cell, continue...", MSG_NORMAL, targetContainerId);
+				// gLogger->logMsgF("ObjectController::_handleTransferItemMisc: Target %"PRIu64" was not a cell, continue...", MSG_NORMAL, targetContainerId);
 
 
 				// pick up - check whether target object is a container or an inventory
@@ -582,16 +582,20 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 					CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(itemObject->getParentId()));
 					if (cell)
 					{
-						// gLogger->logMsgF("ObjectController::_handleTransferItemMisc: pick up from cell %llu", MSG_NORMAL, itemObject->getParentId());
+						// gLogger->logMsgF("ObjectController::_handleTransferItemMisc: pick up from cell %"PRIu64"", MSG_NORMAL, itemObject->getParentId());
 
 						// Remove object from cell.
 						TangibleObject* tangible = dynamic_cast<TangibleObject*>(itemObject);
 						if (item && tangible)
 						{
+#if defined(_MSC_VER)
 							if (targetId <= uint64(0x0000000100000000))
+#else
+							if (targetId <= uint64(0x0000000100000000LLU))
+#endif
 							{
 								// Attempt to pickup one of our static items.
-								// gLogger->logMsgF("ObjectController::_handleTransferItemMisc: Item %llu is a static item owned by this galaxy.", MSG_NORMAL, targetId);
+								// gLogger->logMsgF("ObjectController::_handleTransferItemMisc: Item %"PRIu64" is a static item owned by this galaxy.", MSG_NORMAL, targetId);
 								gMessageLib->sendSystemMessage(playerObject,L"","error_message","insufficient_permissions");
 								return;
 							}
@@ -662,7 +666,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 						return;
 					}
 					// Continue...
-					// gLogger->logMsgF("ObjectController::_handleTransferItemMisc: Parent of item %llu was not a cell to pickup from, continue...", MSG_NORMAL, itemObject->getParentId());
+					// gLogger->logMsgF("ObjectController::_handleTransferItemMisc: Parent of item %"PRIu64" was not a cell to pickup from, continue...", MSG_NORMAL, itemObject->getParentId());
 				}
 			}
 		}
@@ -676,7 +680,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 		if (inventory && (inventory->getId() == targetContainerId))
 		{
 			// gLogger->logMsg("Transfer item to player inventory");
-			bool removedFailed = false;
+			//bool removedFailed = false;
 
 			// Remove it from the container.
 			// We dont have any access validations yet.
@@ -781,7 +785,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 		{
 			// It's an item in the inventory we are to manipulate.
 			// gLogger->logMsg("Source is an inventory");
-			// gLogger->logMsgF("Target container id = %lld", MSG_NORMAL, targetContainerId);
+			// gLogger->logMsgF("Target container id = %"PRId64"", MSG_NORMAL, targetContainerId);
 
 			if (inventory->getId() == targetContainerId)
 			{
@@ -1100,7 +1104,7 @@ void ObjectController::_handleGetAttributesBatch(uint64 targetId,Message* messag
 				continue;
 			}
 
-			//gLogger->logMsgF("ObjectController::_handleAttributesBatch: get info for %lld",MSG_HIGH,itemId);
+			//gLogger->logMsgF("ObjectController::_handleAttributesBatch: get info for %"PRId64"",MSG_HIGH,itemId);
 
 			// TODO: check our datapad items
 			if(playerObject->isConnected())
@@ -1118,7 +1122,7 @@ void ObjectController::_handleGetAttributesBatch(uint64 targetId,Message* messag
 				(playerObject->getClient())->SendChannelAUnreliable(newMessage, playerObject->getAccountId(),  CR_Client, 8);
 			}
 
-			//gLogger->logMsgF("ObjectController::_handleAttributesBatch: Object not found %lld",MSG_HIGH,itemId);
+			//gLogger->logMsgF("ObjectController::_handleAttributesBatch: Object not found %"PRId64"",MSG_HIGH,itemId);
 
 			//finally, when we are crafting this could be the new item, not yet added to the worldmanager??
 			if(playerObject->getCraftingSession())
@@ -1139,7 +1143,7 @@ void ObjectController::_handleGetAttributesBatch(uint64 targetId,Message* messag
 				if (dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getId() == object->getParentId())
 				{
 					// gLogger->logMsg("Selected an object in Inventory!!!");
-					uint64 id = object->getId();
+					//uint64 id = object->getId();
 
 					// Is it an Item?
 					Item* item = dynamic_cast<Item*>(object);
@@ -1178,7 +1182,7 @@ void ObjectController::_handleRequestQuestTimersAndCounters(uint64 targetId,Mess
 
 void ObjectController::_handleTarget(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject* playerObject = (PlayerObject*)mObject;
+	//PlayerObject* playerObject = (PlayerObject*)mObject;
 }
 //======================================================================================================================
 //
@@ -1281,7 +1285,7 @@ void ObjectController::handleObjectMenuRequest(Message* message)
 
 		//the list is cleared and items are destroyes in the message lib
 		//for the default response
-		gLogger->logMsgF("ObjController::handleObjectMenuRequest: Couldn't find object %llu",MSG_HIGH,requestedObjectId);
+		gLogger->logMsgF("ObjController::handleObjectMenuRequest: Couldn't find object %"PRIu64"",MSG_HIGH,requestedObjectId);
 		return;
 	}
 
@@ -1300,7 +1304,7 @@ void ObjectController::handleObjectMenuRequest(Message* message)
 		// send a default menu,so client stops flooding us with requests
 
 		//empty might just mean that the clients radial is sufficient
-		//gLogger->logMsgF("ObjController::handleObjectMenuRequest: Couldn't find object Radial %lld",MSG_HIGH,requestedObjectId);
+		//gLogger->logMsgF("ObjController::handleObjectMenuRequest: Couldn't find object Radial %"PRId64"",MSG_HIGH,requestedObjectId);
 
 		if(playerObject->isConnected())
 		 	gMessageLib->sendEmptyObjectMenuResponse(requestedObjectId,playerObject,responseNr,menuItemList);
@@ -1337,7 +1341,7 @@ void ObjectController::handleObjectReady(Object* object,DispatchClient* client)
 	}
 	*/
 
-	// gLogger->logMsgF("ObjectController::handleObjectReady: targetId = %lld for %s",MSG_NORMAL,object->getId(), player->getFirstName().getAnsi());
+	// gLogger->logMsgF("ObjectController::handleObjectReady: targetId = %"PRId64" for %s",MSG_NORMAL,object->getId(), player->getFirstName().getAnsi());
 
 
 	// Get the container object.

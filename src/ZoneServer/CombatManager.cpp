@@ -98,11 +98,11 @@ void CombatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 	}
 	if(result->getRowCount())
 	{
-		gLogger->logMsgLoadSuccess("CombatManager::Loading %llu weapon groups...",MSG_NORMAL, count);
+		gLogger->logMsgLoadSuccess("CombatManager::Loading %"PRIu64" weapon groups...",MSG_NORMAL, count);
 	}
 	else
 	{
-		gLogger->logMsgLoadFailure("CombatManager::Loading weapon groups...",MSG_NORMAL);					
+		gLogger->logMsgLoadFailure("CombatManager::Loading weapon groups...",MSG_NORMAL);
 	}
 	mDatabase->DestroyDataBinding(binding);
 }
@@ -226,7 +226,7 @@ bool CombatManager::_verifyCombatState(CreatureObject* attacker, uint64 defender
 				defenderPlayer->addDefender(playerAttacker->getId());
 				gMessageLib->sendDefenderUpdate(defenderPlayer,1,defenderPlayer->getDefenders()->size() - 1,playerAttacker->getId());
 			}
-	
+
 			if (!defenderPlayer->autoAttackEnabled())
 			{
 				// Player can/may start auto-attack if idle.
@@ -274,7 +274,7 @@ bool CombatManager::_verifyCombatState(CreatureObject* attacker, uint64 defender
 				gWorldManager->forceHandlingOfDormantNpc(defender->getId());
 				gWorldManager->forceHandlingOfReadyNpc(defender->getId());
 
-				// Creature may need some aggro built up before going into combat state?? 
+				// Creature may need some aggro built up before going into combat state??
 				defender->toggleStateOn((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
 				gMessageLib->sendStateUpdate(defender);
 			}
@@ -325,7 +325,7 @@ bool CombatManager::handleAttack(CreatureObject *attacker, uint64 targetId, Obje
 	// NOTE: Some weapon data just for tesing and to give the npc a fair chance...
 	uint32 weaponGroup = weapon->getGroup();
 	float weaponRange = 6.0;
-	
+
 	//if (weaponGroup <= WeaponGroup_Polearm)
 	//{
 	//	weaponRange = 6.0;
@@ -366,10 +366,10 @@ bool CombatManager::handleAttack(CreatureObject *attacker, uint64 targetId, Obje
 	{
 
 		// Execute the attack
-		uint8 attackResult = _executeAttack(attacker,defender,cmdProperties,weapon);
+		/*uint8 attackResult = */_executeAttack(attacker,defender,cmdProperties,weapon);
 
 		return(true);
-	} 
+	}
 
 	return(false);
 }
@@ -379,7 +379,7 @@ bool CombatManager::handleAttack(CreatureObject *attacker, uint64 targetId, Obje
 uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* defender,ObjectControllerCmdProperties *cmdProperties,Weapon* weapon)
 {
 	uint8	randomHitPool			= 100;
-	uint8	randomPoolHitChance		= 100;
+	//uint8	randomPoolHitChance		= 100;
 	uint8	stateApplied			= 0;
 	int32	multipliedDamage		= 0;
 	string	combatSpam				= "melee";
@@ -408,7 +408,7 @@ uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* def
 		}
 
 		int32 baseDamage	= -((gRandom->getRand()%(baseMaxDamage - baseMinDamage)) + baseMinDamage);
-		
+
 		// apply damage multiplier
 		if(cmdProperties->mDamageMultiplier)
 		{
@@ -434,7 +434,7 @@ uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* def
 			if (player)
 			{
 				npc->updateDamage(player->getId(), player->getGroupId(), weapon->getGroup(), -multipliedDamage, player->getPosture(), defender->mPosition.distance2D(player->mPosition));
-			}				
+			}
 		}
 
 		// ham damage
@@ -590,7 +590,7 @@ uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* def
 			// Defender got hit.
 		}
 		break;
-		
+
 		case 1:
 		{
 			gMessageLib->sendFlyText(defender,"combat_effects","miss",255,255,255);

@@ -30,11 +30,11 @@ Furniture::~Furniture()
 
 void Furniture::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 {
-	if(PlayerObject* player = dynamic_cast<PlayerObject*>(srcObject))
-	{	
+	if(dynamic_cast<PlayerObject*>(srcObject))
+	{
 		switch(messageType)
 		{
-			case radId_itemSit: 
+			case radId_itemSit:
 			{
 				//gMessageLib->sendSystemMessage(player,L"WE HIT THE radId_itemSit case");
 			}

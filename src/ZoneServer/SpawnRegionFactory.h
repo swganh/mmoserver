@@ -28,7 +28,7 @@ class SpawnRegion;
 
 enum SpawnFQuery
 {
-	SpawnFQuery_MainData	= 1,
+	SpawnFQuery_MainData	= 1
 };
 
 //=============================================================================

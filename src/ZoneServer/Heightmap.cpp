@@ -16,13 +16,13 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include <float.h>
 
 //=============================================================================
-Heightmap::Heightmap(const char* planet_name): 
-					WIDTH(15361),
-					HEIGHT(15361),
-					mCacheHeight(0),
-					mCacheWidth(0),
-					mHeightmapCache(NULL),
-					mCacheResoulutionDivider(3)
+Heightmap::Heightmap(const char* planet_name)
+: mHeightmapCache(NULL)
+, mCacheHeight(0)
+, mCacheWidth(0)
+, mCacheResoulutionDivider(3)
+, WIDTH(15361)
+, HEIGHT(15361)
 {
 	mFilename = planet_name;
 	mFilename += ".hmp";
@@ -75,14 +75,14 @@ Heightmap* Heightmap::Instance(void)
 //	DO NOT AND I REPEAT DO NOT USE THIS FOR ---ANYTHING---
 //	EXCEPT FOR ONE TIME READS LIKE GETTING THE HEIGHT FOR
 //	PLAYER BUILDING PLACEMENT!!!
-// 
-		
+//
+
 float Heightmap::getHeight(float x, float y)
-{			
+{
 	if(!Open())
 	{
 		Connect();
-		if(!Open()) 
+		if(!Open())
 		{
 			gLogger->logMsg("Heightmap::ERROR: Unable to retrieve height. A connection to the zone heightmap was not established!",FOREGROUND_RED);
 			return FLT_MIN;
@@ -90,9 +90,13 @@ float Heightmap::getHeight(float x, float y)
 	}
 
 	short height;
-	fseek(hmp,getOffset(x,y),SEEK_SET);				
-	fread(&height,2,1,hmp);
-	height &= 0x7FFF; 
+	fseek(hmp,getOffset(x,y),SEEK_SET);
+	size_t result = fread(&height,2,1,hmp);
+	if (! result) {
+		gLogger->logMsg("Heightmap::ERROR: Unable to read height!",FOREGROUND_RED);
+		return FLT_MIN;
+	}
+	height &= 0x7FFF;
 	return ((float)height)/10;
 }
 
@@ -104,7 +108,7 @@ float Heightmap::getHeight(float x, float y)
 //	see getHeight for an example how this is done.
 
 bool Heightmap::getRow(unsigned char* buffer, int32 x, int32 z, int32 length)
-{		
+{
 	if ((x < -(WIDTH - 1)/2) || (x > (WIDTH- 1)/2))
 	{
 		gLogger->logMsg("Heightmap::ERROR: Invalid input: x out of range",FOREGROUND_RED);
@@ -135,7 +139,7 @@ bool Heightmap::getRow(unsigned char* buffer, int32 x, int32 z, int32 length)
 	if(!Open())
 	{
 		Connect();
-		if(!Open()) 
+		if(!Open())
 		{
 			gLogger->logMsg("Heightmap::ERROR: Unable to retrieve height data.",FOREGROUND_RED);
 			assert(false);
@@ -167,7 +171,7 @@ bool Heightmap::getRow(unsigned char* buffer, int32 x, int32 z, int32 length)
 		return false;
 	}
 
-	size_t bytesRead = fread(buffer,1, len, hmp);
+	int32 bytesRead = fread(buffer,1, len, hmp);
 	if (bytesRead != len)
 	{
 		gLogger->logMsg("Heightmap::ERROR: File read error",FOREGROUND_RED);
@@ -188,7 +192,7 @@ bool Heightmap::hasWater(float x, float y)
 	if(!Open())
 	{
 		Connect();
-		if(!Open()) 
+		if(!Open())
 		{
 			gLogger->logMsg("Heightmap::ERROR: Unable to tell if position has water. A connection to the zone heightmap was not established!\n",FOREGROUND_RED | BACKGROUND_BLUE);
 			return false;
@@ -196,12 +200,17 @@ bool Heightmap::hasWater(float x, float y)
 	}
 
 	short height;
-	fseek(hmp,getOffset(x,y),SEEK_SET);				
-	fread(&height,2,1,hmp);
+	fseek(hmp,getOffset(x,y),SEEK_SET);
+	size_t result = fread(&height,2,1,hmp);
+	if (! result) {
+		gLogger->logMsg("Heightmap::ERROR: Unable to tell if position has water!",FOREGROUND_RED);
+		return false;
+	}
+
 	if(height & 0x4000)//15th bit
 		return true;
 
-	return false; 
+	return false;
 }
 
 //=============================================================================
@@ -310,7 +319,7 @@ bool Heightmap::setupCache(int16 cacheResoulutionDivider)
 		assert (heightMapRow != NULL);
 		return false;
 	}
-	
+
 	int32 zPos = 0;
 	int32 xPos = 0;
 
@@ -335,13 +344,13 @@ bool Heightmap::setupCache(int16 cacheResoulutionDivider)
 
 				// Remove the water bit.
 				uint16 unsignedFix = (heightMapRow[i] & 0x7FFF);
-				
+
 				// Shift all bits to the left.
 				unsignedFix = unsignedFix << 1;
 
 				// Now make the data signed.
 				int16 signedFix = (int16)unsignedFix;
-				
+
 				// Convert it to float.
 				float value = (float)(signedFix);
 
@@ -405,8 +414,8 @@ bool Heightmap::setupCache(int16 cacheResoulutionDivider)
 	{
 		gLogger->logMsgF("Min height = %.2f at position %d, %d", MSG_NORMAL, min, xPosMin, zPosMin);
 		gLogger->logMsgF("Max height = %.2f at position %d, %d", MSG_NORMAL, max, xPosMax, zPosMax);
-		// gLogger->logMsgF("noOfIgnored values are = %lld", MSG_NORMAL, noOfIgnored);
-		
+		// gLogger->logMsgF("noOfIgnored values are = %"PRId64"", MSG_NORMAL, noOfIgnored);
+
 	}
 	return status;
 }

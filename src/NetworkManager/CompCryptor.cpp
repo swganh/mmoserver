@@ -119,7 +119,7 @@ int CompCryptor::Encrypt(int8* data, uint32 len, uint32 seed)
 
   int retVal = 0;
 
-  uint32 tempSeed = 0;
+  //uint32 tempSeed = 0;
   uint32 blockCount = (len / 4);
   uint32 byteCount = (len % 4);
 

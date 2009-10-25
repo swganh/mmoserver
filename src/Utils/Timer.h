@@ -31,13 +31,12 @@ public:
     uint32			getId(){ return mId; }
 
 private:
-    void*				mContainer;
-    uint32				mId;
-    TimerCallback*		mCallback;
-    // Anh_Utils::Clock*	mClock;
-    uint32				mLastTick;
-    uint32				mInterval;
-    boost::thread       mThread;
+    boost::thread   mThread;
+    void*						mContainer;
+    TimerCallback*	mCallback;
+    uint32					mId;
+    uint32					mInterval;
+    uint32					mLastTick;
 };
 
 #endif

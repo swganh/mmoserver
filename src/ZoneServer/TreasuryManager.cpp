@@ -71,7 +71,7 @@ std::tr1::shared_ptr<RadialMenu> TreasuryManager::bankBuildTerminalRadialMenu(Cr
 	radial->addItem(2,1,radId_bankTransfer,radAction_ObjCallback,"@sui:bank_credits");
 
 	// case its our bank
-	if(bank->getPlanet() == gWorldManager->getZoneId())
+	if(static_cast<uint32>(bank->getPlanet()) == gWorldManager->getZoneId())
 	{
 		radial->addItem(3,1,radId_bankItems,radAction_ObjCallback,"@sui:bank_items");
 		radial->addItem(4,1,radId_bankQuit,radAction_ObjCallback,"@sui:bank_quit");
@@ -114,8 +114,8 @@ void TreasuryManager::bankDepositAll(PlayerObject* playerObject)
 				bank->setCredits(bank->getCredits() + credits);
 				inventory->setCredits(0);
 				// save to the db
-				mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE banks SET credits=%u WHERE id=%lld",bank->getCredits(),bank->getId()));
-				mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE inventories SET credits=%u WHERE id=%lld",inventory->getCredits(),inventory->getId()));
+				mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE banks SET credits=%u WHERE id=%"PRId64"",bank->getCredits(),bank->getId()));
+				mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE inventories SET credits=%u WHERE id=%"PRId64"",inventory->getCredits(),inventory->getId()));
 
 				//send the appropriate deltas.
 				gMessageLib->sendInventoryCreditsUpdate(playerObject);
@@ -146,8 +146,8 @@ void TreasuryManager::bankWithdrawAll(PlayerObject* playerObject)
 
 				// save to the db
 				// FIXME: will need to replace (playerID+4) by the real bankID
-				mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE banks SET credits=%u WHERE id=%lld",bank->getCredits(),bank->getId()));
-				mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE inventories SET credits=%u WHERE id=%lld",inventory->getCredits(),inventory->getId()));
+				mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE banks SET credits=%u WHERE id=%"PRId64"",bank->getCredits(),bank->getId()));
+				mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE inventories SET credits=%u WHERE id=%"PRId64"",inventory->getCredits(),inventory->getId()));
 
 				//send the appropriate deltas.
 				gMessageLib->sendInventoryCreditsUpdate(playerObject);
@@ -245,7 +245,7 @@ void TreasuryManager::bankQuit(PlayerObject* playerObject)
 	if(Bank* bank = dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank)))
 	{
 		// check if the player is really binded to this bank
-		if(bank->getPlanet() != gWorldManager->getZoneId())
+		if(static_cast<uint32>(bank->getPlanet()) != gWorldManager->getZoneId())
 		{
 			gMessageLib->sendSystemMessage(playerObject, L"You are not a member of this bank.");
 			return;
@@ -257,7 +257,7 @@ void TreasuryManager::bankQuit(PlayerObject* playerObject)
 		bank->setPlanet(-1);
 
 		// save to db
-		mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE banks SET planet_id = -1 WHERE id=%lld",bank->getId());
+		mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE banks SET planet_id = -1 WHERE id=%"PRId64"",bank->getId());
 
 		//This message has a period added to the end as it was missing from client.
 		gMessageLib->sendSystemMessage(playerObject, L"","system_msg","succesfully_quit_bank","","",L"");
@@ -271,7 +271,7 @@ void TreasuryManager::bankJoin(PlayerObject* playerObject)
 	if(Bank* bank = dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank)))
 	{
 		// check if we're not already binded here
-		if(bank->getPlanet() == gWorldManager->getZoneId())
+		if(static_cast<uint32>(bank->getPlanet()) == gWorldManager->getZoneId())
 		{
 			gMessageLib->sendSystemMessage(playerObject, L"","system_msg","already_member_of_bank");
 			return;
@@ -287,7 +287,7 @@ void TreasuryManager::bankJoin(PlayerObject* playerObject)
 		bank->setPlanet((int8)gWorldManager->getZoneId());
 
 		// save to db
-		mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE banks SET planet_id=%i WHERE id=%lld",bank->getPlanet(),bank->getId());
+		mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE banks SET planet_id=%i WHERE id=%"PRId64"",bank->getPlanet(),bank->getId());
 
 		//This message period added at the end as its missing from client.
 		gMessageLib->sendSystemMessage(playerObject, L"","system_msg","succesfully_joined_bank","","",L"");
@@ -298,7 +298,7 @@ void TreasuryManager::bankJoin(PlayerObject* playerObject)
 
 void TreasuryManager::saveAndUpdateInventoryCredits(PlayerObject* playerObject)
 {
-	mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE inventories SET credits=%u WHERE id=%lld",dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits(),playerObject->getId() + 1));
+	mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE inventories SET credits=%u WHERE id=%"PRId64"",dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits(),playerObject->getId() + 1));
 	gMessageLib->sendInventoryCreditsUpdate(playerObject);
 }
 
@@ -306,7 +306,7 @@ void TreasuryManager::saveAndUpdateInventoryCredits(PlayerObject* playerObject)
 
 void TreasuryManager::saveAndUpdateBankCredits(PlayerObject* playerObject)
 {
-	mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE banks SET credits=%u WHERE id=%lld",dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->getCredits(), playerObject->getId() + 4));
+	mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE banks SET credits=%u WHERE id=%"PRId64"",dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->getCredits(), playerObject->getId() + 4));
 	gMessageLib->sendBankCreditsUpdate(playerObject);
 }
 
@@ -428,7 +428,7 @@ void TreasuryManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 			binding->addField(DFT_uint64,0,8);
 			result->GetNextRow(binding,&id);
 
-			uint32 amount = asynContainer->amount;
+			//uint32 amount = asynContainer->amount;
 
 			//ok we just established that our target exists
 			//we now need to update the bank on the db side
@@ -441,9 +441,9 @@ void TreasuryManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 
 			Transaction* mTransaction = mDatabase->startTransaction(this,asyncContainer);
 			int8 sql[256];
-			sprintf(sql,"UPDATE banks SET credits=credits-%i WHERE id=%lld",asynContainer->amount, asynContainer->player->getId()+4);
+			sprintf(sql,"UPDATE banks SET credits=credits-%i WHERE id=%"PRId64"",asynContainer->amount, asynContainer->player->getId()+4);
 			mTransaction->addQuery(sql);
-			sprintf(sql,"UPDATE banks SET credits=credits+%i WHERE id=%lld",asynContainer->amount, id+4);
+			sprintf(sql,"UPDATE banks SET credits=credits+%i WHERE id=%"PRId64"",asynContainer->amount, id+4);
 			mTransaction->addQuery(sql);
 
 			mTransaction->execute();

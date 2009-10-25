@@ -22,10 +22,10 @@ Copyright (c) 2006 - 2009 The swgANH Team
 
 //=============================================================================
 
-FactoryBase::FactoryBase(Database* database) :
-mQueryContainerPool(sizeof(QueryContainerBase)),
-mILCPool(sizeof(InLoadingContainer)),
-mDatabase(database)
+FactoryBase::FactoryBase(Database* database)
+: mILCPool(sizeof(InLoadingContainer))
+, mQueryContainerPool(sizeof(QueryContainerBase))
+, mDatabase(database)
 {
 	mAttributeBinding = mDatabase->CreateDataBinding(3);
 	mAttributeBinding->addField(DFT_bstring,offsetof(Attribute_QueryContainer,mKey),64,0);
@@ -82,7 +82,7 @@ void FactoryBase::_buildAttributeMap(Object* object,DatabaseResult* result)
 		result->GetNextRow(mAttributeBinding,(void*)&attribute);
 		if(attribute.mKey.getCrc() == BString("cat_manf_schem_ing_resource").getCrc())
 		{
-			uint32 elementCount = attribute.mValue.split(dataElements,' ');
+			attribute.mValue.split(dataElements,' ');
 			sprintf(str,"cat_manf_schem_ing_resource.\"%s",dataElements[0].getAnsi());
 
 			attribute.mKey		= BString(str);

@@ -44,7 +44,7 @@ class Script
 		friend class WorldManager;
 
 
-		Script(ScriptEngine* scriptEngine);
+		explicit Script(ScriptEngine* scriptEngine);
 		~Script();
 
 		void			createThread();
@@ -77,14 +77,14 @@ class Script
 		void			_resumeScript(uint32 param);
 		void			_formatError();
 
-		uint32			mPriority;
-		int8			mFile[256];
-		lua_State*		mThreadState;
-		int8			mLastError[256];
-
 		// Since Dante is going to re-write the script engine, I feelt free to misuse it already when learning LUA (Eruptor).
 		// refs to other classes.
 		Tutorial*			mTutorial;
+
+		lua_State*		mThreadState;
+		uint32			mPriority;
+		int8			mFile[256];
+		int8			mLastError[256];
 };
 
 //======================================================================================================================

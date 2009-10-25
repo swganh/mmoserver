@@ -32,7 +32,7 @@ class Weapon;
 //
 enum NpcQuery
 {
-	NpcQuery_Lairs = 0,
+	NpcQuery_Lairs = 0
 };
 
 class NpcAsyncContainer
@@ -52,8 +52,8 @@ class NpcManager  : public ObjectFactoryCallback, public DatabaseCallback
 
 		static NpcManager* Instance(void);
 
-		static inline void deleteManager(void)    
-		{ 
+		static inline void deleteManager(void)
+		{
 			if (mInstance)
 			{
 				delete mInstance;
@@ -73,7 +73,7 @@ class NpcManager  : public ObjectFactoryCallback, public DatabaseCallback
 		uint64	handleNpc(NPCObject* npc, uint64 timeOverdue);
 
 		void	loadLairs(void);
-		
+
 
 	protected:
 		NpcManager(Database* database);
@@ -82,11 +82,11 @@ class NpcManager  : public ObjectFactoryCallback, public DatabaseCallback
 	private:
 		// This constructor prevents the default constructor to be used, since it is private.
 		NpcManager();
-		
+
 		// Simulated Combat Manager
 		uint8	_hitCheck(CreatureObject* attacker,CreatureObject* defender,Weapon* weapon);
 		bool	_verifyCombatState(CreatureObject* attacker, uint64 defenderId);
-		
+
 		uint8	_executeAttack(CreatureObject* attacker,CreatureObject* defender,Weapon* weapon);
 		void	setTargetDirection(AttackableCreature* npc);
 		// void			_setupDatabindings();

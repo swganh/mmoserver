@@ -265,7 +265,7 @@ void CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string 
 						ResourceCategoryMap::iterator	rcIt				= rcMap->begin();
 						BStringVector					resourceNameList;
 						ResourceIdList					resourceIdList;
-						uint32							counter = 0;
+						//uint32							counter = 0;
 
 						while(rcIt != rcMap->end())
 						{
@@ -356,7 +356,7 @@ void CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string 
 					ResourceCategoryList*			rcList				= rParent->getChildren();
 					ResourceCategoryList::iterator	rcIt				= rcList->begin();
 
-					bool found = false;
+					//bool found = false;
 					//iterate through the children and add them as necessary
 					while(rcIt != rcList->end())
 					{
@@ -425,7 +425,7 @@ void CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string 
 
 					ResourceTypeMap::iterator		rtIt				= rtMap->begin();
 					uint32							catId				= static_cast<uint32>(resourceIdList[element]);
-					ResourceCategory*				rCategory			= gResourceManager->getResourceCategoryById(catId);
+					//ResourceCategory*				rCategory			= gResourceManager->getResourceCategoryById(catId);
 					BStringVector					resourceNameList;
 
 					resourceIdList.clear();
@@ -508,8 +508,8 @@ void CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string 
 				}
 
 				uint32							typeId		= static_cast<uint8>(resourceIdList[element]);
-				ResourceType*					rType		= gResourceManager->getResourceTypeById(typeId);
-				ResourceTypeMap*				rtMap		= gResourceManager->getResourceTypeMap();
+				//ResourceType*					rType		= gResourceManager->getResourceTypeById(typeId);
+				//ResourceTypeMap*				rtMap		= gResourceManager->getResourceTypeMap();
 				ResourceCRCNameMap*				rCRCMap		= gResourceManager->getResourceCRCNameMap();
 				ResourceCRCNameMap::iterator	rCrcNameIt	= rCRCMap->begin();
 				BStringVector					resourceNameList;

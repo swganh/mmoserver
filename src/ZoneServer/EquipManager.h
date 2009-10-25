@@ -80,7 +80,7 @@ class EquipManager
 		void				occupyEquipSlot(CreatureEquipSlot slot){ mEquipSlots = mEquipSlots | slot; }
 		void				freeEquipSlot(CreatureEquipSlot slot){ mEquipSlots = mEquipSlots & ~slot; }
 		void				toggleEquipSlot(CreatureEquipSlot slot){ mEquipSlots = mEquipSlots ^ slot; }
-		bool				checkEquipSlot(CreatureEquipSlot slot){ return((mEquipSlots & slot) == slot); }
+		bool				checkEquipSlot(CreatureEquipSlot slot){ return((mEquipSlots & slot) == static_cast<uint32>(slot)); }
 		bool				checkEquipSlots(uint32 slots){ return((mEquipSlots & slots) == slots); }
 
 	private:

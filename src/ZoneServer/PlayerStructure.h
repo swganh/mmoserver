@@ -34,7 +34,7 @@ enum timerTodoEnum
 	ttE_Delete			= 2,
 	ttE_BuildingFence	= 3,
 	ttE_UpdateHopper	= 4,
-	ttE_UpdateEnergy	= 5,
+	ttE_UpdateEnergy	= 5
 
 };
 
@@ -87,8 +87,8 @@ class PlayerStructure :	public TangibleObject
 		uint32					getMaxCondition(){ return mMaxCondition; }
 		void					setMaxCondition(uint32 condition){ mMaxCondition = condition; }
 		bool					decMaxCondition(uint32 dec){int64 altered = static_cast<int64>(mMaxCondition-dec);if(altered <= 0) return false; else mMaxCondition = static_cast<uint32>(altered);return true; }
-		
-		
+
+
 		bool					canRedeed();
 
 		void					setRedeed(bool yesORno){mWillRedeed = yesORno;}
@@ -120,7 +120,7 @@ class PlayerStructure :	public TangibleObject
 		BStringVector			getStrucureAdminList(){return mStructureAdminList;}
 		void					addStructureAdmin(string name){mStructureAdminList.push_back(name);}
 
-		
+
 
 	private:
 
@@ -128,7 +128,7 @@ class PlayerStructure :	public TangibleObject
 		PlayerStructureFamily		mPlayerStructureFamily;
 
 		uint32						mTotalLoadCount;
-		
+
 		CellObjectList				mCells;
 
 		float						mWidth;

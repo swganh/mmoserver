@@ -30,8 +30,8 @@ class MessageFactory
 {
 	public:
 
-		MessageFactory(void);
-		~MessageFactory(void);
+		MessageFactory();
+		~MessageFactory();
 
 		void                    Startup(uint32 heapSize,uint32 serviceId = 0);
 		void                    Shutdown(void);
@@ -69,32 +69,32 @@ class MessageFactory
 		uint32                  _getHeapSize(void);
 
 		Message*                mCurrentMessage;
-		int8*                   mCurrentMessageStart;
 		int8*                   mCurrentMessageEnd;
+		int8*                   mCurrentMessageStart;
 
 		int8*                   mHeapStart;
-		int8*                   mHeapEnd; 
+		int8*                   mHeapEnd;
 		int8*                   mHeapRollover;
-		uint32                  mHeapTotalSize;		//total heapsize used AND unused
-
 		int8*                   mMessageHeap;
+		uint64									mLastTime; //last message about stuck messages
+		uint32                  mHeapTotalSize; //total heapsize used AND unused
+
 
 		// Statistics
 		uint32                  mMessagesCreated;
 		uint32                  mMessagesDestroyed;
+		uint32									mServiceId;
+		float										mHeapWarnLevel;
 		float                   mMaxHeapUsedPercent;
-		float					mHeapWarnLevel;
-		uint64					mLastTime;//last message about stuck messages
 
 		static MessageFactory*	mSingleton;
-		uint32					mServiceId;
 		// Anh_Utils::Clock*		mClock;
 };
 
 //======================================================================================================================
 
-inline MessageFactory* MessageFactory::getSingleton(void)    
-{ 
+inline MessageFactory* MessageFactory::getSingleton(void)
+{
 	if(!mSingleton)
 	{
 		// gLogger->logMsgF("MessageFactory::getSingleton()",MSG_NORMAL);
@@ -107,8 +107,8 @@ inline MessageFactory* MessageFactory::getSingleton(void)
 
 //======================================================================================================================
 
-inline void MessageFactory::destroySingleton(void)    
-{ 
+inline void MessageFactory::destroySingleton(void)
+{
 	if (mSingleton)
 	{
 		mSingleton->Shutdown();

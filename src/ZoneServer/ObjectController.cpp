@@ -19,7 +19,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "ObjectController.h"
 #include "ObjectControllerOpcodes.h"
 #include "ObjectControllerCommandMap.h"
-#include "ObjControllerCommandMessage.h"
+#include "objcontrollercommandmessage.h"
 #include "PlayerObject.h"
 #include "PVHam.h"
 #include "PVPosture.h"
@@ -34,30 +34,29 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "DatabaseManager/DatabaseResult.h"
 #include "Common/MessageFactory.h"
 #include "Common/Message.h"
-#include "Utils/Clock.h"
+#include "Utils/clock.h"
 
 //=============================================================================
 //
 // Constructor
 //
-
-ObjectController::ObjectController() :
-mObject(NULL),
-mTaskId(0),
-mCommandQueueProcessTimeLimit(5),
-mEventQueueProcessTimeLimit(2),
-mNextCommandExecution(0),
-mUnderrunTime(0),
-mDatabase(gWorldManager->getDatabase()),
-mCmdMsgPool(sizeof(ObjControllerCommandMessage)),
-mEventPool(sizeof(ObjControllerEvent)),
-mDBAsyncContainerPool(sizeof(ObjControllerAsyncContainer)),
-mUpdatingObjects(false),
-mDestroyOutOfRangeObjects(false),
-mMovementInactivityTrigger(5),
-mFullUpdateTrigger(0),
-mInUseCommandQueue(false),
-mRemoveCommandQueue(false)
+ObjectController::ObjectController()
+: mCmdMsgPool(sizeof(ObjControllerCommandMessage))
+, mDBAsyncContainerPool(sizeof(ObjControllerAsyncContainer))
+, mEventPool(sizeof(ObjControllerEvent))
+, mDatabase(gWorldManager->getDatabase())
+, mObject(NULL)
+, mCommandQueueProcessTimeLimit(5)
+, mEventQueueProcessTimeLimit(2)
+, mNextCommandExecution(0)
+, mTaskId(0)
+, mUnderrunTime(0)
+, mMovementInactivityTrigger(5)
+, mFullUpdateTrigger(0)
+, mDestroyOutOfRangeObjects(false)
+, mInUseCommandQueue(false)
+, mRemoveCommandQueue(false)
+, mUpdatingObjects(false)
 {
 	mSI		= gWorldManager->getSI();
 	// We do have a global clock object, don't use seperate clock and times for every process.
@@ -69,23 +68,23 @@ mRemoveCommandQueue(false)
 // Constructor
 //
 
-ObjectController::ObjectController(Object* object) :
-mObject(object),
-mTaskId(0),
-mCommandQueueProcessTimeLimit(5),
-mEventQueueProcessTimeLimit(2),
-mNextCommandExecution(0),
-mUnderrunTime(0),
-mDatabase(gWorldManager->getDatabase()),
-mCmdMsgPool(sizeof(ObjControllerCommandMessage)),
-mEventPool(sizeof(ObjControllerEvent)),
-mDBAsyncContainerPool(sizeof(ObjControllerAsyncContainer)),
-mUpdatingObjects(false),
-mDestroyOutOfRangeObjects(false),
-mMovementInactivityTrigger(5),
-mFullUpdateTrigger(0),
-mInUseCommandQueue(false),
-mRemoveCommandQueue(false)
+ObjectController::ObjectController(Object* object)
+: mCmdMsgPool(sizeof(ObjControllerCommandMessage))
+, mDBAsyncContainerPool(sizeof(ObjControllerAsyncContainer))
+, mEventPool(sizeof(ObjControllerEvent))
+, mDatabase(gWorldManager->getDatabase())
+, mObject(object)
+, mCommandQueueProcessTimeLimit(5)
+, mEventQueueProcessTimeLimit(2)
+, mNextCommandExecution(0)
+, mTaskId(0)
+, mUnderrunTime(0)
+, mMovementInactivityTrigger(5)
+, mFullUpdateTrigger(0)
+, mDestroyOutOfRangeObjects(false)
+, mInUseCommandQueue(false)
+, mRemoveCommandQueue(false)
+, mUpdatingObjects(false)
 {
 	mSI		= gWorldManager->getSI();
 }
@@ -243,9 +242,9 @@ bool ObjectController::_processCommandQueue()
 	uint64	startTime		= Anh_Utils::Clock::getSingleton()->getLocalTime();
 	uint64	currentTime		= startTime;
 	uint64	processTime		= 0;
-	
+
 	// uint64 currentTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
-	
+
 	PlayerObject* player  = dynamic_cast<PlayerObject*>(mObject);
 	if (!player)
 	{
@@ -261,7 +260,7 @@ bool ObjectController::_processCommandQueue()
 		uint64 autoTargetId = player->getCombatTargetId();
 		if (autoTargetId != 0)
 		{
-			// gLogger->logMsgF("Player generated auto target with id %llu", MSG_NORMAL, autoTargetId);
+			// gLogger->logMsgF("Player generated auto target with id %"PRIu64"", MSG_NORMAL, autoTargetId);
 			this->enqueueAutoAttack(autoTargetId);
 		}
 		else
@@ -278,7 +277,7 @@ bool ObjectController::_processCommandQueue()
 	while (!mCommandQueue.empty() && (processTime < mCommandQueueProcessTimeLimit))
 	{
 		mInUseCommandQueue = true;
-	
+
 		if (++loopCounter > 1)
 		{
 			// gLogger->logMsgF("ObjectController::_processCommandQueue() Doing loop # %d at single request", MSG_NORMAL, loopCounter);
@@ -362,7 +361,7 @@ bool ObjectController::_processCommandQueue()
 						}
 						else
 						{
-							gLogger->logMsgF("ObjectController::processCommandQueue: ObjControllerCmdGroup_Common Unhandled Cmd 0x%x for %lld",MSG_NORMAL,command,mObject->getId());
+							gLogger->logMsgF("ObjectController::processCommandQueue: ObjControllerCmdGroup_Common Unhandled Cmd 0x%x for %"PRId64"",MSG_NORMAL,command,mObject->getId());
 							//gLogger->hexDump(message->getData(),message->getSize());
 
 							consumeHam = false;
@@ -372,7 +371,7 @@ bool ObjectController::_processCommandQueue()
 
 					case ObjControllerCmdGroup_Attack:
 					{
-						// gLogger->logMsgF("ObjectController::processCommandQueue: ObjControllerCmdGroup_Attack Handled Cmd 0x%x for %lld",MSG_NORMAL,command,mObject->getId());
+						// gLogger->logMsgF("ObjectController::processCommandQueue: ObjControllerCmdGroup_Attack Handled Cmd 0x%x for %"PRId64"",MSG_NORMAL,command,mObject->getId());
 						// If player activated combat or me returning fire, the peace is ended, and auto-attack allowed.
 						player->toggleStateOff(CreatureState_Peace);
 						gMessageLib->sendStateUpdate(player);
@@ -402,19 +401,19 @@ bool ObjectController::_processCommandQueue()
 									// new target still valid?
 									if (player->setAsActiveDefenderAndUpdateList(targetId))
 									{
-										// gLogger->logMsgF("We have a new valid target %llu",MSG_NORMAL,targetId);
+										// gLogger->logMsgF("We have a new valid target %"PRIu64"",MSG_NORMAL,targetId);
 										player->setCombatTargetId(targetId);
 									}
 									else
 									{
-										// gLogger->logMsgF("We have a NEW and INVALID target %llu",MSG_NORMAL,targetId);	// One shot kill :)
+										// gLogger->logMsgF("We have a NEW and INVALID target %"PRIu64"",MSG_NORMAL,targetId);	// One shot kill :)
 										player->disableAutoAttack();
 										player->setCombatTargetId(0);
 									}
 								}
 								else
 								{
-									// gLogger->logMsgF("We have same target as before %llu",MSG_NORMAL,targetId);
+									// gLogger->logMsgF("We have same target as before %"PRIu64"",MSG_NORMAL,targetId);
 									player->setCombatTargetId(targetId);
 								}
 							}
@@ -429,20 +428,20 @@ bool ObjectController::_processCommandQueue()
 
 					default:
 					{
-						gLogger->logMsgF("ObjectController::processCommandQueue: Default Unhandled CmdGroup %u for %lld",MSG_NORMAL,cmdProperties->mCmdGroup,mObject->getId());
+						gLogger->logMsgF("ObjectController::processCommandQueue: Default Unhandled CmdGroup %u for %"PRId64"",MSG_NORMAL,cmdProperties->mCmdGroup,mObject->getId());
 
 						consumeHam = false;
 					}
 					break;
 				}
-			
-				// Do not mess with cooldowns for non combat commands... 
+
+				// Do not mess with cooldowns for non combat commands...
 				if (cmdMsg->getCmdProperties()->mAddToCombatQueue)
 				{
 					if (cmdExecutedOk)
 					{
 						mNextCommandExecution = currentTime + timeToNextCommand;
-						// gLogger->logMsgF("Setting up next command in %llu, at %llu", MSG_NORMAL, timeToNextCommand, mNextCommandExecution);
+						// gLogger->logMsgF("Setting up next command in %"PRIu64", at %"PRIu64"", MSG_NORMAL, timeToNextCommand, mNextCommandExecution);
 					}
 					else
 					{
@@ -470,9 +469,9 @@ bool ObjectController::_processCommandQueue()
 			else
 			{
 				// Command not allowed.
-				// gLogger->logMsgF("Dumping command at = %llu", MSG_NORMAL, currentTime);
+				// gLogger->logMsgF("Dumping command at = %"PRIu64"", MSG_NORMAL, currentTime);
 			}
-		
+
 			//its processed, so ack and delete it
 			if (message && cmdMsg->getSequence())
 			{
@@ -484,7 +483,7 @@ bool ObjectController::_processCommandQueue()
 			if (message)
 			{
 				message->mSourceId = 99;
-				message->setPendingDelete(true);	
+				message->setPendingDelete(true);
 			}
 			// Remove the command from queue. Note: pop() invokes object destructor.
 			mCommandQueue.pop_front();
@@ -509,7 +508,7 @@ bool ObjectController::_processCommandQueue()
 	// We need to keep the queue as long as we are in combat.
 
 	mInUseCommandQueue = false;
-	
+
 	if (mRemoveCommandQueue)
 	{
 		this->clearQueues();
@@ -566,17 +565,17 @@ bool ObjectController::_processEventQueue()
 //
 void ObjectController::enqueueCommandMessage(Message* message)
 {
-	uint32	clientTicks		= message->getUint32();
+	/* uint32	clientTicks		= */message->getUint32();
 	uint32	sequence		= message->getUint32();
 	uint32	opcode			= message->getUint32();
 	uint64	targetId		= message->getUint64();
 	uint32	reply1			= 0;
 	uint32	reply2			= 0;
-	
+
 	ObjectControllerCmdProperties* cmdProperties = NULL;
 
 	// gLogger->logMsgF("ObjController enqueue tick: %u counter: 0x%4x",MSG_NORMAL,clientTicks,sequence);
-	
+
 	// gLogger->logMsgF("ObjController enqueue opcode = 0x%8x",MSG_NORMAL,opcode);
 	if (_validateEnqueueCommand(reply1,reply2,targetId,opcode,cmdProperties))
 	{
@@ -588,7 +587,7 @@ void ObjectController::enqueueCommandMessage(Message* message)
 		gMessageFactory->addData(message->getData(),message->getSize());
 
 		Message* newMessage = gMessageFactory->EndMessage();
-		newMessage->setIndex(message->getIndex());	
+		newMessage->setIndex(message->getIndex());
 		newMessage->mSourceId = 80;
 
 		// create the queued message, need setters since boost pool constructor templates take 3 params max
@@ -697,7 +696,7 @@ void ObjectController::enqueueAutoAttack(uint64 targetId)
 
 		uint32	reply1 = 0;
 		uint32	reply2 = 0;
-		
+
 		ObjectControllerCmdProperties* cmdProperties = NULL;
 
 

@@ -18,7 +18,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "MessageLib/MessageLib.h"
 #include "MathLib/Quaternion.h"
 
-static const int64	tutorialPlayersPeriodUpdateTime = 5000;		// 5000ms
+static const uint64	tutorialPlayersPeriodUpdateTime = 5000;		// 5000ms
 
 //=============================================================================
 
@@ -103,7 +103,7 @@ uint64 FillerNPC::handleState(uint64 timeOverdue)
 			else
 			{
 				// Remove the expired player, and his data, please...
-				// gLogger->logMsgF("FillerNPC::handleState: Remove the expired player with id %llu",MSG_NORMAL, (*it).first);
+				// gLogger->logMsgF("FillerNPC::handleState: Remove the expired player with id %"PRIu64"",MSG_NORMAL, (*it).first);
 				delete ((*it).second);
 				mTutorialPlayers.erase(it++);
 			}

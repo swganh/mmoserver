@@ -156,20 +156,20 @@ DatabaseResult* Database::ExecuteSynchSql(const int8* sql, ...)
 	va_list args;
 	va_start(args, sql);
 	int8    localSql[8192];
-	int32 len = vsnprintf(localSql, sizeof(localSql), sql, args);
+	/*int32 len = */vsnprintf(localSql, sizeof(localSql), sql, args);
 
 	return ExecuteSql(localSql);
 }
 DatabaseResult* Database::ExecuteSql(const int8* sql, ...)
 {
-	
+
 	DatabaseResult* newResult = 0;
 
 	// format our sql string
 	va_list args;
 	va_start(args, sql);
 	int8    localSql[8192];
-	int32 len = vsnprintf(localSql, sizeof(localSql), sql, args);
+	/*int32 len = */vsnprintf(localSql, sizeof(localSql), sql, args);
 
 	//gLogger->logMsgF("SqlDump: len:%u - %s", MSG_LOW, len, localSql);
 
@@ -188,7 +188,7 @@ void Database::ExecuteSqlAsync(DatabaseCallback* callback, void* ref, const int8
 	va_list args;
 	va_start(args, sql);
 	int8    localSql[20192];
-	int32 len = vsnprintf(localSql, sizeof(localSql), sql, args);
+	/*int32 len = */vsnprintf(localSql, sizeof(localSql), sql, args);
 
 	//gLogger->logMsgF("SqlDump: len:%u - %s", MSG_LOW, len, localSql);
 
@@ -214,7 +214,7 @@ void Database::ExecuteSqlAsync(DatabaseCallback* callback, void* ref, const int8
 void Database::ExecuteSqlAsyncNoArguments(DatabaseCallback* callback, void* ref, const int8* sql)
 {
 	int8    localSql[20192];
-	
+
 	sprintf(localSql,"%s", sql);
 
 	// Setup our job.
@@ -237,7 +237,7 @@ DatabaseResult* Database::ExecuteProcedure(const int8* sql, ...)
 	va_list args;
 	va_start(args, sql);
 	int8    localSql[20192];
-	int32 len = vsnprintf(localSql, sizeof(localSql), sql, args);
+	//int32 len = vsnprintf(localSql, sizeof(localSql), sql, args);
 
 	//gLogger->logMsgF("SqlDump: len:%u - %s", MSG_LOW, len, localSql);
 
@@ -256,7 +256,7 @@ void Database::ExecuteProcedureAsync(DatabaseCallback* callback, void* ref, cons
 	va_list args;
 	va_start(args, sql);
 	int8    localSql[20192];
-	int32 len = vsnprintf(localSql, sizeof(localSql), sql, args);
+	/*int32 len = */vsnprintf(localSql, sizeof(localSql), sql, args);
 
 	//gLogger->logMsgF("SqlDump: len:%u - %s", MSG_LOW, len, localSql);
 

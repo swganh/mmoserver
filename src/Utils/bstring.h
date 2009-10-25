@@ -96,12 +96,11 @@ public:
 private:
     void _allocate();
 
-    uint16 mLength;          // Length of the string itself.  BStrings are NOT null terminated
-    uint16 mAllocated;       // Length of the allocated buffer which should be a multiple of
-                                                        // BSTRING_ALLOC_BLOCK_SIZE.
-    uint16 mCharacterWidth;  // Size of a single character in bytes
-    BStringType mType;            // What format is the current string in.
     int8* mString;          // Pointer to the allocated buffer
+    BStringType mType;            // What format is the current string in.
+    uint16 mAllocated;       // Length of the allocated buffer which should be a multiple of
+    uint16 mCharacterWidth;  // Size of a single character in bytes
+    uint16 mLength;          // Length of the string itself.  BStrings are NOT null terminated
 
     static uint32 mCrcTable[256];
 };

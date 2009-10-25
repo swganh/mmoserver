@@ -44,7 +44,7 @@ enum TRMQueryType
 	TRMQuery_CreateAuctionTransaction	= 12,
 	TRMQuery_ItemTableFrogQuery			= 13,
 	TRMQuery_CheckListingsBazaar		= 14,
-	
+
 	TRMQuery_LoadGlobalTick =	15,
 	TRMQuery_SaveGlobalTick =	16,
 	TRMQuery_CancelAuction_BidderMail	= 17,
@@ -52,18 +52,18 @@ enum TRMQueryType
 	TRMQuery_GetAttributeDetails		= 19,
 	TRMQuery_ProcessBidAuction			= 20,
 	TRMQuery_ProcessAuctionRefund		= 21,
-	TRMQuery_GetResAttributeDetails		= 22,
+	TRMQuery_GetResAttributeDetails		= 22
 };
 enum TRMVendorType
 {
 	TRMVendor_bazaar	=	1,
-	TRMVendor_player    =   2,
-	
+	TRMVendor_player    =   2
+
 };
 
 //======================================================================================================================
 
-enum TRMAuctionType: uint32
+enum TRMAuctionType
 {
 	TRMVendor_Auction   	=	0,
 	TRMVendor_Instant       =   1,
@@ -72,21 +72,20 @@ enum TRMAuctionType: uint32
 	TRMVendor_Offer 		=   4,
 	TRMVendor_Cancelled		=   5,
 	TRMVendor_Sold  		=   6,
-	TRMVendor_NotSold 		=   7,
-
+	TRMVendor_NotSold 		=   7
 };
 
 
 
 enum TRMAuctionWindowType
-{ 
+{
 	TRMVendor_AllAuctions	=	2,
 	TRMVendor_MySales       =   3,
 	TRMVendor_MyBids		=   4,
 	TRMVendor_AvailableItems=   5,
 	TRMVendor_Offers		=   6,
 	TRMVendor_ForSale		=   7,
-	TRMVendor_Stockroom		=   8,
+	TRMVendor_Stockroom		=   8
 
 };
 
@@ -95,7 +94,7 @@ enum TRMPermissionType
 	TRMOwner        	=	0,
 	TRMNotOwner         =   1,
 	TRMBazaar           =   2,
-	TRMBazaarQuery		=	3,
+	TRMBazaarQuery		=	3
 
 };
 
@@ -104,7 +103,7 @@ enum TRMRegionType
 	TRMGalaxy        	=	0,
 	TRMPlanet	        =   1,
 	TRMRegion           =   2,
-	TRMVendor			=	3,
+	TRMVendor			=	3
 
 };
 
@@ -151,7 +150,7 @@ struct AuctionItem
 		int8			BidderIDRaw[32];
 		int8			Owner[32];
 		uint32			itemcategory;
-		
+
 };
 
 class TradeManagerAsyncContainer
@@ -161,7 +160,7 @@ public:
 	TradeManagerAsyncContainer(TRMQueryType qt,DispatchClient* client){ mQueryType = qt; mClient = client; }
 	~TradeManagerAsyncContainer(){}
 
-	
+
 	uint64				BuyerID;
 	uint32				Itemsstart;
 	uint32				Itemsstop;
@@ -169,7 +168,7 @@ public:
 	AuctionItem*		AuctionTemp;
 
 	TRMQueryType		mQueryType;
-	DispatchClient*		mClient;	
+	DispatchClient*		mClient;
 
 	uint64				AuctionID;
 	uint32				BazaarWindow;
@@ -195,7 +194,7 @@ public:
 	uint64				sellerID;
 	int32				mX;
 	int32				mY;
-	
+
 	//TRMVendorType		mVendorType;
 	TRMAuctionType		auctionType;
 
@@ -216,7 +215,7 @@ class Vendor
 
 };
 
- 
+
 //======================================================================================================================
 
 class TradeManager : public MessageDispatchCallback, public DatabaseCallback
@@ -247,15 +246,15 @@ class TradeManager : public MessageDispatchCallback, public DatabaseCallback
 		void 				_processFindFriendRequestPositionMessage(Message* message,DispatchClient* client);
 
 		void				_processBanktipUpdate(Message* message,DispatchClient* client);
-		
+
 		void				_processHandleAuctionCreateMessage(Message* message,DispatchClient* client,TRMAuctionType auction);
 		void 				_processDeductMoneyMessage(Message* message,DispatchClient* client);
-		
+
 
 		void				_processCancelLiveAuctionMessage(Message* message,DispatchClient* client);
 		void				_processCreateItemMessage(Message* message,DispatchClient* client);
 		void				checkPlacedInstrument(Item* addedItem, DispatchClient* client);
-		
+
 		//Trade
 		void				_processAbortTradeMessage(Message* message,DispatchClient* client);
 		void				_processTradeCompleteMessage(Message* message,DispatchClient* client);
@@ -276,15 +275,15 @@ class TradeManager : public MessageDispatchCallback, public DatabaseCallback
 		Database*					mDatabase;
 		MessageDispatch*			mMessageDispatch;
 		TRMPermissionType			mPermissionTyp;
-		
+
 		uint32						mErrorCount;
-		
+
 		uint32						mZoneId;
 
-			
+
 };
 
 
 
-#endif 
+#endif
 

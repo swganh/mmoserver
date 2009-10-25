@@ -43,9 +43,11 @@ GroupManager*   GroupManager::mSingleton  = NULL;
 GroupManager::GroupManager(MessageDispatch* dispatch)
 {
 
-
+#if defined(_MSC_VER)
 	mNextGroupId				= 0x0000000F00000000; //groups range
-
+#else
+	mNextGroupId				= 0x0000000F00000000LLU; //groups range
+#endif
 	mLootModeMessages.push_back(L"@group:selected_free4all");
 	mLootModeMessages.push_back(L"@group:selected_master");
 	mLootModeMessages.push_back(L"@group:selected_lotto");
@@ -128,7 +130,7 @@ GroupObject* GroupManager::getGroupById(uint64 groupId)
 	if(it !=  mGroups.end())
 		return((*it).second);
 	else
-		gLogger->logMsgF("GroupManager::getGroupById: Could not find group %lld",MSG_NORMAL,groupId);
+		gLogger->logMsgF("GroupManager::getGroupById: Could not find group %"PRId64"",MSG_NORMAL,groupId);
 
 	return(NULL);
 }
@@ -147,7 +149,7 @@ void GroupManager::removeGroup(uint64 groupId)
 	}
 	else
 	{
-		gLogger->logMsgF("GroupManager::removeGroup: Could not find group for removing %lld",MSG_NORMAL,groupId);
+		gLogger->logMsgF("GroupManager::removeGroup: Could not find group for removing %"PRId64"",MSG_NORMAL,groupId);
 	}
 
 }

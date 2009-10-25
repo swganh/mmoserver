@@ -36,7 +36,7 @@ enum DPFQuery
 	DPFQuery_ManufactureSchematic	= 4,
 	DPFQuery_ObjectCount			= 5,
 	DPFQuery_ItemId					= 6,
-	DPFQuery_Item					= 7,
+	DPFQuery_Item					= 7
 };
 
 //=============================================================================

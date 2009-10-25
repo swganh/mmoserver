@@ -20,7 +20,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "ScoutManager.h"
 #include "StructureManager.h"
 #include "VehicleFactory.h"
-#include "Worldmanager.h"
+#include "WorldManager.h"
 #include "ZoneOpcodes.h"
 
 #include "MessageLib/MessageLib.h"
@@ -46,29 +46,29 @@ Deed::~Deed()
 void Deed::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 {
 	if(PlayerObject* player = dynamic_cast<PlayerObject*>(srcObject))
-	{	
+	{
 		switch(messageType)
 		{
-			case radId_itemUse: 
+			case radId_itemUse:
 			{
 				//make sure its a structure or a camp
 				if(this->getItemType() >= ItemType_Camp_basic && this->getItemType() <= ItemType_Camp_quality)
 				{
 					//place camp TODO check whether camp can be placed ie whether we are in an urban area
 					//ie create in the world for all known players
-					//Camps use BUIO 3 and 6				
-			
+					//Camps use BUIO 3 and 6
+
 					gScoutManager->createCamp(this->getItemType(),0,player->mPosition,"",player);
 
-				} 
+				}
 				else if(this->getItemType() >= ItemType_Deed_X34 && this->getItemType() <= ItemType_Deed_Swoop) //landspeeder x34, speederbike, swoop
 				{
 					// create the vehicle and put in datapad
 					Datapad*		datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
-					
+
 					if(datapad->getCapacity())
 					{
-						gVehicleFactory->createVehicle(this->getItemType(),player);	
+						gVehicleFactory->createVehicle(this->getItemType(),player);
 
 						// delete the deed
 						Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
@@ -95,7 +95,7 @@ void Deed::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 						gMessageLib->sendSystemMessage(player,L"","player_structure","not_inside");
 						return;
 					}
-					
+
 					//check available Lots
 					if(!player->usePlayerLots(data->requiredLots))
 					{
@@ -106,14 +106,14 @@ void Deed::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 					//TODO
 					//check for city boundaries
 					gMessageLib->sendEnterStructurePlacement(this,data->structureObjectString,player);
-					
+
 				}
 			}
 			break;
 			default: break;
 		}
 
-		
+
 	}
 }
 
@@ -126,7 +126,7 @@ void Deed::sendAttributes(PlayerObject* playerObject)
 
 	Message* newMessage;
 
-	gMessageFactory->StartMessage();           
+	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opAttributeListMessage);
 	gMessageFactory->addUint64(mId);
 
@@ -135,8 +135,8 @@ void Deed::sendAttributes(PlayerObject* playerObject)
 	string	tmpValueStr = string(BSTRType_Unicode16,64);
 	string	value;
 
-	tmpValueStr.setLength(swprintf(tmpValueStr.getUnicode16(),L"%u/%u",mMaxCondition - mDamage,mMaxCondition));
-	
+	tmpValueStr.setLength(swprintf(tmpValueStr.getUnicode16(),50,L"%u/%u",mMaxCondition - mDamage,mMaxCondition));
+
 	gMessageFactory->addString(BString("condition"));
 	gMessageFactory->addString(tmpValueStr);
 
@@ -156,7 +156,7 @@ void Deed::sendAttributes(PlayerObject* playerObject)
 
 		++orderIt;
 	}
-                  
+
 	newMessage = gMessageFactory->EndMessage();
 
 	(playerObject->getClient())->SendChannelAUnreliable(newMessage, playerObject->getAccountId(), CR_Client, 9);
@@ -166,9 +166,9 @@ void Deed::sendAttributes(PlayerObject* playerObject)
 
 void Deed::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount)
 {
-	
+
 	RadialMenu* radial	= new RadialMenu();
-			
+
 	radial->addItem(1,0,radId_itemUse,radAction_ObjCallback,"");
 	radial->addItem(2,0,radId_examine,radAction_ObjCallback,"");
 	radial->addItem(3,0,radId_itemDestroy,radAction_ObjCallback,"");

@@ -24,12 +24,12 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 //======================================================================================================================
 
-BString::BString() :
-mLength(0),
-mAllocated(0),
-mCharacterWidth(1),
-mType(BSTRType_ANSI),
-mString(0)
+BString::BString()
+: mString(0)
+, mType(BSTRType_ANSI)
+, mAllocated(0)
+, mCharacterWidth(1)
+, mLength(0)
 {
   _allocate();
   *(uint32*)mString = 0;   // Make sure a new empty string is null terminated.
@@ -37,7 +37,11 @@ mString(0)
 
 //======================================================================================================================
 
-BString::BString(BStringType type,uint16 length) : mString(0),mType(type),mAllocated(0),mLength(length)
+BString::BString(BStringType type,uint16 length)
+	: mString(0)
+  , mType(type)
+  , mAllocated(0)
+  , mLength(length)
 {
 	if(type == BSTRType_ANSI)
 		mCharacterWidth = 1;
@@ -57,12 +61,12 @@ BString::~BString()
 
 //======================================================================================================================
 
-BString::BString(const int8* data) :
-mLength(0),
-mAllocated(0),
-mCharacterWidth(1),
-mType(BSTRType_ANSI),
-mString(0)
+BString::BString(const int8* data)
+: mString(0)
+, mType(BSTRType_ANSI)
+, mAllocated(0)
+, mCharacterWidth(1)
+, mLength(0)
 {
 	_allocate();
 	// we might get a null pointer from db queries
@@ -74,12 +78,12 @@ mString(0)
 
 //======================================================================================================================
 
-BString::BString(const uint16* data) :
-mLength(0),
-mAllocated(0),
-mCharacterWidth(2),
-mType(BSTRType_Unicode16),
-mString(0)
+BString::BString(const uint16* data)
+: mString(0)
+, mType(BSTRType_Unicode16)
+, mAllocated(0)
+, mCharacterWidth(1)
+, mLength(0)
 {
 	_allocate();
 	// we might get a null pointer from db queries
@@ -91,12 +95,12 @@ mString(0)
 
 //======================================================================================================================
 
-BString::BString(const wchar_t* data) :
-mLength(0),
-mAllocated(0),
-mCharacterWidth(2),
-mType(BSTRType_Unicode16),
-mString(0)
+BString::BString(const wchar_t* data)
+: mString(0)
+, mType(BSTRType_Unicode16)
+, mAllocated(0)
+, mCharacterWidth(1)
+, mLength(0)
 {
 	_allocate();
 	// we might get a null pointer from db queries
@@ -109,12 +113,12 @@ mString(0)
 
 //======================================================================================================================
 
-BString::BString(const BString& data) :
-mLength(0),
-mAllocated(0),
-mCharacterWidth(1),
-mType(BSTRType_ANSI),
-mString(0)
+BString::BString(const BString& data)
+: mString(0)
+, mType(BSTRType_ANSI)
+, mAllocated(0)
+, mCharacterWidth(1)
+, mLength(0)
 {
 	_allocate();
 	*this = data;
@@ -153,7 +157,7 @@ uint16 BString::initRawBSTR(int8* data, BStringType type)
 			delete [] mString;
 
 		mAllocated = (((static_cast<uint16>(charLen) / BSTRING_ALLOC_BLOCK_SIZE) + 1) * BSTRING_ALLOC_BLOCK_SIZE);
-		mString = new char[mAllocated];
+		mString = new int8[mAllocated];
 
 		memset(mString,0,mAllocated);
 	}
@@ -457,7 +461,7 @@ void BString::convert(BStringType type)
 			else if(mType == BSTRType_UTF8)
 			{
 				// FIXME: Implement
-				int i = 0;
+				//int i = 0;
 			}
 		}
 		break;
@@ -492,7 +496,7 @@ void BString::convert(BStringType type)
 			if(mType == BSTRType_ANSI)
 			{
 				// FIXME: Implement, not sure if it needs to be though
-				int i = 0;
+				//int i = 0;
 			}
 			else if(mType == BSTRType_Unicode16)
 			{
@@ -645,8 +649,6 @@ int BString::split(BStringVector& retVec,char delimiter)
 		string tmpStr;
 
 		beginIndex = endIndex;
-
-		const char* begin = data;
 
 		while(*data != delimiter && *data)
 		{

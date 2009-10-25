@@ -9,7 +9,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
-#include "NonPersistantObjectFactory.h"
+#include "nonPersistantObjectFactory.h"
 #include "CampRegion.h"
 #include "CampTerminal.h"
 #include "DraftSchematic.h"
@@ -65,7 +65,11 @@ NonPersistantObjectFactory::NonPersistantObjectFactory() : FactoryBase(NULL)
 NonPersistantObjectFactory::NonPersistantObjectFactory(Database* database) : FactoryBase(database)
 {
 	mDatabase	= database;
+#if defined(_MSC_VER)
 	mId			= 0x0000100000000000;
+#else
+	mId			= 0x0000100000000000LLU;
+#endif
 	 _setupDatabindings();
 }
 

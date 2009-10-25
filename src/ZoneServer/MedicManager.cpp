@@ -27,10 +27,10 @@ Copyright (c) 2006 - 2009 The swgANH Team
 bool			MedicManager::mInsFlag = false;
 MedicManager*	MedicManager::mSingleton = NULL;
 
-	
+
 MedicManager::MedicManager(MessageDispatch* dispatch)
-{ 
-    Dispatch = dispatch; 
+{
+    Dispatch = dispatch;
 }
 
 
@@ -60,10 +60,10 @@ bool MedicManager::Diagnose(PlayerObject* Medic, PlayerObject* Target)
 	return true;
 }
 
-	
+
 bool MedicManager::HealDamage(PlayerObject* Medic, CreatureObject* Target, ObjectControllerCmdProperties* cmdProperties)
-{ 
-    return HealDamage(Medic, Target, 0, cmdProperties); 
+{
+    return HealDamage(Medic, Target, 0, cmdProperties);
 }
 
 
@@ -79,7 +79,7 @@ bool MedicManager::HealDamage(PlayerObject* Medic, CreatureObject* Target, uint6
 	if(cmdProperties == 0)
 	{
 		gLogger->logMsg("We need to get Object Properties\n", FOREGROUND_BLUE);
-		
+
 		CmdPropertyMap::iterator it = gObjControllerCmdPropertyMap.find(0x0A9F00A0);
 
 		if(it == gObjControllerCmdPropertyMap.end())
@@ -108,7 +108,7 @@ bool MedicManager::HealDamage(PlayerObject* Medic, CreatureObject* Target, uint6
 
 	//Get Medic Skill Mods
 	uint32 healingskill = Medic->getSkillModValue(SMod_healing_injury_treatment);
-	uint32 healingspeed = Medic->getSkillModValue(SMod_healing_injury_speed);
+	//uint32 healingspeed = Medic->getSkillModValue(SMod_healing_injury_speed);
 
 	//If Currently in Delay Period
 		//TODO
@@ -122,7 +122,7 @@ bool MedicManager::HealDamage(PlayerObject* Medic, CreatureObject* Target, uint6
 		return false;
 	}
 	gLogger->logMsg("Heal Target is within range\n", FOREGROUND_BLUE);
-		
+
 	//Does Medic have ability
 	if(!Medic->verifyAbility(cmdProperties->mAbilityCrc))
 	{
@@ -130,8 +130,8 @@ bool MedicManager::HealDamage(PlayerObject* Medic, CreatureObject* Target, uint6
 		gMessageLib->sendSystemMessage(Medic,L"","healing_response","cannot_heal");
 		return false;
 	}
-	gLogger->logMsg("Medic has Ability Rights\n", FOREGROUND_BLUE);	
-	
+	gLogger->logMsg("Medic has Ability Rights\n", FOREGROUND_BLUE);
+
 	//Do PVP Alignments Match
 	if(Medic->getPvPStatus() != Target->getPvPStatus())
 	{
@@ -142,7 +142,7 @@ bool MedicManager::HealDamage(PlayerObject* Medic, CreatureObject* Target, uint6
 	} else {
 		if(player)
 		{
-			//TODO: PVP Flags match, but Status is not correct 
+			//TODO: PVP Flags match, but Status is not correct
 			/*if(strcmp(Medic->getFaction(), Target->getFaction()) != 0)
 			{
 			}*/
@@ -173,7 +173,7 @@ bool MedicManager::HealDamage(PlayerObject* Medic, CreatureObject* Target, uint6
 	{
 		//Look through inventory to find a StimPack
 		Inventory* inventory = dynamic_cast<Inventory*>(Medic->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-		
+
 		ObjectList::iterator It = inventory->getObjects()->begin();
 		while(It != inventory->getObjects()->end())
 		{
@@ -227,9 +227,9 @@ bool MedicManager::HealDamage(PlayerObject* Medic, CreatureObject* Target, uint6
 	}
 	//Get Heal Strength
 	//maxheal = stimpower * [(100 + InjuryTreatSkill + BEClothes + food/buff) / 100] * MedCityBonus (1.1)
-	
+
 	uint Strength = Stim->getHealthHeal() * ((100 + healingskill) / 100);
-	
+
 	//Adjust for Target BF
 	int32 BF = Target->getHam()->getBattleFatigue();
 	if(BF > 250)
@@ -244,7 +244,7 @@ bool MedicManager::HealDamage(PlayerObject* Medic, CreatureObject* Target, uint6
 			gMessageLib->sendSystemMessage(Medic,L"","healing_response","shock_effect_low");
 		}
 	}
-	
+
 	int StrengthHealth = min((int)Strength, TargetMaxHealth-TargetHealth);
 	int StrengthAction = min((int)Strength, TargetMaxAction-TargetAction);
 
@@ -277,7 +277,7 @@ bool MedicManager::HealDamage(PlayerObject* Medic, CreatureObject* Target, uint6
 			{
 				gMessageLib->sendSystemMessage(Medic, L"", "healing_response", "healing_response_11", "", "", L"", StrengthAction, "", "", "", 0, 0, 0, "", "", L"");
 			}
-		}	
+		}
 		gMessageLib->sendCombatAction(Medic, Target, BString::CRC("heal_self"), 1, 1, 1);
 
 	} else { //if targetting something else
@@ -308,10 +308,10 @@ bool MedicManager::HealDamage(PlayerObject* Medic, CreatureObject* Target, uint6
 					gMessageLib->sendSystemMessage(PlayerTarget, L"", "healing_response", "healing_response_17", "", "", L"", StrengthAction, "", "", "", 0, 0, 0, "", "", L"");
 				}
 			}
-		}	
+		}
 		gMessageLib->sendCombatAction(Medic, Target, BString::CRC("heal_other"), 0, 0, 1);
 	}
-	
+
 	//Get Cooldown Timer (Minimum 4 secs)
 	//cooldown = max(4, ( ( 100-foodbuff)/100 ) x  ( ( 100 -  InjuryTreatmentSpeed  ) /100 ) x base healing speed )
 	return true;

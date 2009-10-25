@@ -47,10 +47,10 @@ bool MessageLib::sendBaselinesCREO_1(PlayerObject* player)
 	SkillList*	playerSkills	= player->getSkills();
 
 	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opBaselinesMessage);   
-	gMessageFactory->addUint64(player->getId()); 
+	gMessageFactory->addUint32(opBaselinesMessage);
+	gMessageFactory->addUint64(player->getId());
 	gMessageFactory->addUint32(opCREO);
-	gMessageFactory->addUint8(1);    
+	gMessageFactory->addUint8(1);
 
 	// compute the skill list size
 	uint32				skillByteCount	= 0;
@@ -64,7 +64,7 @@ bool MessageLib::sendBaselinesCREO_1(PlayerObject* player)
 	}
 
 	gMessageFactory->addUint32(62 + skillByteCount);
-	gMessageFactory->addUint16(4);     
+	gMessageFactory->addUint16(4);
 
 	// bank credits
 	if(Bank* bank = dynamic_cast<Bank*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank)))
@@ -161,10 +161,10 @@ bool MessageLib::sendBaselinesCREO_3(CreatureObject* creatureObject,PlayerObject
 
 	creoByteCount = byteCount + creatureObject->getSpeciesGroup().getLength() + (fullName.getLength() << 1) + creatureObject->getCustomizationStr().getLength() + creatureObject->getSpeciesString().getLength();
 	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opBaselinesMessage);   
-	gMessageFactory->addUint64(creatureObject->getId()); 
+	gMessageFactory->addUint32(opBaselinesMessage);
+	gMessageFactory->addUint64(creatureObject->getId());
 	gMessageFactory->addUint32(opCREO);
-	gMessageFactory->addUint8(3);    
+	gMessageFactory->addUint8(3);
 	gMessageFactory->addUint32(creoByteCount);
 	gMessageFactory->addUint16(12);
 	//0
@@ -200,7 +200,7 @@ bool MessageLib::sendBaselinesCREO_3(CreatureObject* creatureObject,PlayerObject
 	//10 posture updatecounter
 	gMessageFactory->addUint8(1); // unknown
 	//11 posture
-	gMessageFactory->addUint8(creatureObject->getPosture()); 
+	gMessageFactory->addUint8(creatureObject->getPosture());
 	//12
 	gMessageFactory->addUint8(creatureObject->getFactionRank());
 	//13 owner id
@@ -211,13 +211,13 @@ bool MessageLib::sendBaselinesCREO_3(CreatureObject* creatureObject,PlayerObject
 		gMessageFactory->addUint32(0);
 		gMessageFactory->addUint64(0);
 	}
-	else	
+	else
 	{
-		gMessageFactory->addUint64(0); 
+		gMessageFactory->addUint64(0);
 		gMessageFactory->addFloat(creatureObject->getScale());
 		gMessageFactory->addUint32(creatureHam->getBattleFatigue());
-		gMessageFactory->addUint64(creatureObject->getState()); 
-	}	
+		gMessageFactory->addUint64(creatureObject->getState());
+	}
 
 	// ham wounds
 
@@ -279,8 +279,8 @@ bool MessageLib::sendBaselinesCREO_4(PlayerObject* player)
 
 	//thats the message databody
 	gMessageFactory->StartMessage();
-	
-	gMessageFactory->addUint16(14); 
+
+	gMessageFactory->addUint16(14);
 
 	gMessageFactory->addFloat(1.0f); // acceleration base
 	gMessageFactory->addFloat(1.0f); // acceleration mod
@@ -296,7 +296,7 @@ bool MessageLib::sendBaselinesCREO_4(PlayerObject* player)
 	// skillmods
 	gMessageFactory->addUint32(playerSkillMods->size());
 	player->mSkillModUpdateCounter += playerSkillMods->size();
-	gMessageFactory->addUint32(player->mSkillModUpdateCounter);  
+	gMessageFactory->addUint32(player->mSkillModUpdateCounter);
 
 	SkillModsList::iterator it = playerSkillMods->begin();
 
@@ -314,22 +314,22 @@ bool MessageLib::sendBaselinesCREO_4(PlayerObject* player)
 	gMessageFactory->addFloat(1.0f);
 
 	//5
-	gMessageFactory->addFloat(1.0f); 
+	gMessageFactory->addFloat(1.0f);
 
 	//6 Listen to Id
 	gMessageFactory->addUint64(player->getEntertainerListenToId());
 
 	//7
-	gMessageFactory->addFloat(player->getCurrentRunSpeedLimit()); //RUN speed  
+	gMessageFactory->addFloat(player->getCurrentRunSpeedLimit()); //RUN speed
 
 	//8
 	gMessageFactory->addFloat(1.02f);	// unknown
 
 	//9
 	gMessageFactory->addFloat(player->getCurrentTerrainNegotiation());
-	
+
 	//10 (a)
-	gMessageFactory->addFloat(player->getCurrentTurnRate());	
+	gMessageFactory->addFloat(player->getCurrentTurnRate());
 
 	//11(b)
 	gMessageFactory->addFloat(player->getCurrentAcceleration()); // This is the walk speed, nothing else.
@@ -343,15 +343,15 @@ bool MessageLib::sendBaselinesCREO_4(PlayerObject* player)
 	//Now the Message header
 
 	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opBaselinesMessage);   
-	gMessageFactory->addUint64(player->getId()); 
+	gMessageFactory->addUint32(opBaselinesMessage);
+	gMessageFactory->addUint64(player->getId());
 	gMessageFactory->addUint32(opCREO);
-	gMessageFactory->addUint8(4);  
+	gMessageFactory->addUint8(4);
 
-	gMessageFactory->addUint32(data->getSize()); 
+	gMessageFactory->addUint32(data->getSize());
 	gMessageFactory->addData(data->getData(),data->getSize());
 	data->setPendingDelete(true);
-															  
+
 	(player->getClient())->SendChannelA(gMessageFactory->EndMessage(),player->getAccountId(),CR_Client,3);
 
 	return(true);
@@ -373,7 +373,7 @@ bool MessageLib::sendBaselinesCREO_6(CreatureObject* creatureObject,PlayerObject
 	uint32			byteCount;
 	uint32			cSize			= 0;
 	Ham*			creatureHam		= creatureObject->getHam();
-	// Test ERU 
+	// Test ERU
 	// If no mood is set, use neutral for avatar / npc, then they will look less angry as default.
 	// This will NOT affect the chat-mood
 	// string			moodStr			= gWorldManager->getMood(creatureObject->getMoodId());
@@ -422,19 +422,19 @@ bool MessageLib::sendBaselinesCREO_6(CreatureObject* creatureObject,PlayerObject
 	byteCount += cSize;
 
 	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opBaselinesMessage);   
-	gMessageFactory->addUint64(creatureObject->getId()); 
+	gMessageFactory->addUint32(opBaselinesMessage);
+	gMessageFactory->addUint64(creatureObject->getId());
 	gMessageFactory->addUint32(opCREO);
-	gMessageFactory->addUint8(6);  
+	gMessageFactory->addUint8(6);
 
 	gMessageFactory->addUint32(byteCount + (defenders->size() * 8) + (equippedObjects->size() * 18) + moodStr.getLength() + creatureObject->getCurrentAnimation().getLength());
-	gMessageFactory->addUint16(22); 
+	gMessageFactory->addUint16(22);
 
 	gMessageFactory->addUint32(creatureObject->getSubZoneId());
 
 	// defenders
-	gMessageFactory->addUint32(defenders->size());	
-	gMessageFactory->addUint32(creatureObject->mDefenderUpdateCounter); 
+	gMessageFactory->addUint32(defenders->size());
+	gMessageFactory->addUint32(creatureObject->mDefenderUpdateCounter);
 
 	ObjectIDList::iterator defenderIt = defenders->begin();
 
@@ -445,9 +445,9 @@ bool MessageLib::sendBaselinesCREO_6(CreatureObject* creatureObject,PlayerObject
 		++defenderIt;
 	}
 
-	gMessageFactory->addUint16(creatureObject->getCL());  
+	gMessageFactory->addUint16(creatureObject->getCL());
 	gMessageFactory->addString(creatureObject->getCurrentAnimation());   // music/dance string here - current animation
-	gMessageFactory->addString(moodStr);	
+	gMessageFactory->addString(moodStr);
 
 	if(Object* weapon = creatureObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Weapon))
 	{
@@ -459,13 +459,13 @@ bool MessageLib::sendBaselinesCREO_6(CreatureObject* creatureObject,PlayerObject
 	}
 
 	//6 Group Id
-	gMessageFactory->addUint64(creatureObject->getGroupId());  
+	gMessageFactory->addUint64(creatureObject->getGroupId());
 	gMessageFactory->addUint64(0);   // Invite sender Id
 	gMessageFactory->addUint64(0);   // Invite Counter
 	gMessageFactory->addUint32(0);   // guild Id
 
 	//9
-	gMessageFactory->addUint64(creatureObject->getTargetId());  
+	gMessageFactory->addUint64(creatureObject->getTargetId());
 
 	//a
 	gMessageFactory->addUint8(creatureObject->getMoodId());
@@ -621,7 +621,7 @@ bool MessageLib::sendPostureMessage(CreatureObject* creatureObject,PlayerObject*
 
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opUpdatePostureMessage);
-	gMessageFactory->addUint8(creatureObject->getPosture());      
+	gMessageFactory->addUint8(creatureObject->getPosture());
 	gMessageFactory->addUint64(creatureObject->getId());
 
 	message = gMessageFactory->EndMessage();
@@ -642,13 +642,13 @@ void MessageLib::sendDefenderUpdate(CreatureObject* creatureObject,uint8 updateT
 	// ObjectList*	defenders = creatureObject->getDefenders();
 
 	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opDeltasMessage);   
-	gMessageFactory->addUint64(creatureObject->getId()); 
+	gMessageFactory->addUint32(opDeltasMessage);
+	gMessageFactory->addUint64(creatureObject->getId());
 	gMessageFactory->addUint32(opCREO);
-	gMessageFactory->addUint8(6);  
+	gMessageFactory->addUint8(6);
 
 	uint32	payloadSize = 0;
-	
+
 	if (updateType == 0)
 	{
 		// Clear defender
@@ -683,7 +683,7 @@ void MessageLib::sendDefenderUpdate(CreatureObject* creatureObject,uint8 updateT
 	gMessageFactory->addUint8(updateType);
 
 	if (updateType == 0)
-	{	
+	{
 		gMessageFactory->addUint16(index);
 	}
 	else if ((updateType == 1) || (updateType == 2))
@@ -714,19 +714,19 @@ void MessageLib::sendNewDefenderList(CreatureObject* creatureObject)
 	}
 
 	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opDeltasMessage);   
-	gMessageFactory->addUint64(creatureObject->getId()); 
+	gMessageFactory->addUint32(opDeltasMessage);
+	gMessageFactory->addUint64(creatureObject->getId());
 	gMessageFactory->addUint32(opCREO);
-	gMessageFactory->addUint8(6);  
+	gMessageFactory->addUint8(6);
 
 	gMessageFactory->addUint32(byteCount + (defenders->size() * 8));
 	gMessageFactory->addUint16(1);
 	gMessageFactory->addUint16(1);
 
 	ObjectIDList::iterator defenderIt = defenders->begin();
-	// Shall we not advance the updatecounter if we send a reset, where size() is 0? 
+	// Shall we not advance the updatecounter if we send a reset, where size() is 0?
 
-	// I'm pretty sure the idea of update counters is to let the client know that somethings have changed, 
+	// I'm pretty sure the idea of update counters is to let the client know that somethings have changed,
 	// and to know in what order, given several messages "at once".
 	// creatureObject->mDefenderUpdateCounter = creatureObject->mDefenderUpdateCounter + defenders->size();
 	// gMessageFactory->addUint32(++creatureObject->mDefenderUpdateCounter);
@@ -735,7 +735,7 @@ void MessageLib::sendNewDefenderList(CreatureObject* creatureObject)
 	{
 		// Even an update with zero defenders is a new update.
 		gMessageFactory->addUint32(1);
-		
+
 		gMessageFactory->addUint32(++creatureObject->mDefenderUpdateCounter);
 		gMessageFactory->addUint8(4);
 	}
@@ -794,10 +794,10 @@ bool MessageLib::sendEquippedListUpdate_InRange(CreatureObject* creatureObject)
 	}
 
 	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opDeltasMessage);   
-	gMessageFactory->addUint64(creatureObject->getId()); 
+	gMessageFactory->addUint32(opDeltasMessage);
+	gMessageFactory->addUint64(creatureObject->getId());
 	gMessageFactory->addUint32(opCREO);
-	gMessageFactory->addUint8(6);  
+	gMessageFactory->addUint8(6);
 
 	gMessageFactory->addUint32(15 + (equippedObjects->size() * 18)+ cSize);
 	gMessageFactory->addUint16(1);   //one update
@@ -867,7 +867,7 @@ bool MessageLib::sendEquippedItemUpdate_InRange(CreatureObject* creatureObject, 
 	bool	found	= false;
 
 	while(eqIt != equippedObjects->end())
-	{		
+	{
 		if(TangibleObject* object = dynamic_cast<TangibleObject*>(*eqIt))
 		{
 			if(object->getId() == itemId)
@@ -889,7 +889,7 @@ bool MessageLib::sendEquippedItemUpdate_InRange(CreatureObject* creatureObject, 
 				break;
 			}
 		}
-		i++;				
+		i++;
 		++eqIt;
 	}
 
@@ -900,10 +900,10 @@ bool MessageLib::sendEquippedItemUpdate_InRange(CreatureObject* creatureObject, 
 	}
 
 	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opDeltasMessage);   
-	gMessageFactory->addUint64(creatureObject->getId()); 
+	gMessageFactory->addUint32(opDeltasMessage);
+	gMessageFactory->addUint64(creatureObject->getId());
 	gMessageFactory->addUint32(opCREO);
-	gMessageFactory->addUint8(6);  
+	gMessageFactory->addUint8(6);
 
 	gMessageFactory->addUint32(15 + (1 * 18)+ cSize);
 	gMessageFactory->addUint16(1);   //one update
@@ -972,7 +972,7 @@ bool MessageLib::sendUpdatePvpStatus(CreatureObject* creatureObject,PlayerObject
 	if (!statusMask)
 	{
 		gMessageFactory->addUint32(creatureObject->getPvPStatus());
-		// gLogger->logMsgF("MessageLib::sendUpdatePvpStatus: creatureObject = %llu, State = %x", MSG_NORMAL, creatureObject->getId(), (uint32)creatureObject->getPvPStatus());
+		// gLogger->logMsgF("MessageLib::sendUpdatePvpStatus: creatureObject = %"PRIu64", State = %x", MSG_NORMAL, creatureObject->getId(), (uint32)creatureObject->getPvPStatus());
 	}
 	else
 	{
@@ -1000,18 +1000,18 @@ bool MessageLib::sendUpdatePvpStatus(CreatureObject* creatureObject,PlayerObject
 
 void MessageLib::sendMoodUpdate(CreatureObject* srcObject)
 {
-	gMessageFactory->StartMessage();   
-	gMessageFactory->addUint32(opDeltasMessage);  
-	gMessageFactory->addUint64(srcObject->getId());           
-	gMessageFactory->addUint32(opCREO);           
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opDeltasMessage);
+	gMessageFactory->addUint64(srcObject->getId());
+	gMessageFactory->addUint32(opCREO);
 	gMessageFactory->addUint8(6);
 
-	gMessageFactory->addUint32(5);                 
-	gMessageFactory->addUint16(1);	
+	gMessageFactory->addUint32(5);
+	gMessageFactory->addUint16(1);
 	gMessageFactory->addUint16(10);
 	gMessageFactory->addUint8(srcObject->getMoodId());
 
-	_sendToInRange(gMessageFactory->EndMessage(),srcObject,5);	
+	_sendToInRange(gMessageFactory->EndMessage(),srcObject,5);
 }
 
 //======================================================================================================================
@@ -1022,15 +1022,15 @@ void MessageLib::sendMoodUpdate(CreatureObject* srcObject)
 
 void MessageLib::sendPostureUpdate(CreatureObject* creatureObject)
 {
-	gMessageFactory->StartMessage();   
-	gMessageFactory->addUint32(opDeltasMessage);  
-	gMessageFactory->addUint64(creatureObject->getId());           
-	gMessageFactory->addUint32(opCREO);           
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opDeltasMessage);
+	gMessageFactory->addUint64(creatureObject->getId());
+	gMessageFactory->addUint32(opCREO);
 	gMessageFactory->addUint8(3);
-	gMessageFactory->addUint32(5);                 
-	gMessageFactory->addUint16(1);	
-	gMessageFactory->addUint16(11);					 
-	gMessageFactory->addUint8(creatureObject->getPosture());	
+	gMessageFactory->addUint32(5);
+	gMessageFactory->addUint16(1);
+	gMessageFactory->addUint16(11);
+	gMessageFactory->addUint8(creatureObject->getPosture());
 
 	_sendToInRange(gMessageFactory->EndMessage(),creatureObject,5,true);
 }
@@ -1046,15 +1046,15 @@ void MessageLib::sendPostureAndStateUpdate(CreatureObject* creatureObject)
 	// Test code for npc combat with objects that can have no states, like debris.
 	if (creatureObject->getCreoGroup() != CreoGroup_AttackableObject)
 	{
-		gMessageFactory->StartMessage();   
-		gMessageFactory->addUint32(opDeltasMessage);  
-		gMessageFactory->addUint64(creatureObject->getId());           
-		gMessageFactory->addUint32(opCREO);           
+		gMessageFactory->StartMessage();
+		gMessageFactory->addUint32(opDeltasMessage);
+		gMessageFactory->addUint64(creatureObject->getId());
+		gMessageFactory->addUint32(opCREO);
 		gMessageFactory->addUint8(3);
-		gMessageFactory->addUint32(15);                 
-		gMessageFactory->addUint16(2);	
-		gMessageFactory->addUint16(11);					 
-		gMessageFactory->addUint8(creatureObject->getPosture());	
+		gMessageFactory->addUint32(15);
+		gMessageFactory->addUint16(2);
+		gMessageFactory->addUint16(11);
+		gMessageFactory->addUint8(creatureObject->getPosture());
 		gMessageFactory->addUint16(16);
 		gMessageFactory->addUint64(creatureObject->getState());
 
@@ -1070,18 +1070,18 @@ void MessageLib::sendPostureAndStateUpdate(CreatureObject* creatureObject)
 
 void MessageLib::sendStateUpdate(CreatureObject* creatureObject)
 {
-	// gLogger->logMsgF("MessageLib::sendStateUpdate: creatureObject = %llu, State = %llx", MSG_NORMAL, creatureObject->getId(), creatureObject->getState());
+	// gLogger->logMsgF("MessageLib::sendStateUpdate: creatureObject = %"PRIu64", State = %llx", MSG_NORMAL, creatureObject->getId(), creatureObject->getState());
 
 	// Test code for npc combat with objects that can have no states, like debris.
 	if (creatureObject->getCreoGroup() != CreoGroup_AttackableObject)
 	{
-		gMessageFactory->StartMessage();   
-		gMessageFactory->addUint32(opDeltasMessage);  
-		gMessageFactory->addUint64(creatureObject->getId());           
-		gMessageFactory->addUint32(opCREO);           
+		gMessageFactory->StartMessage();
+		gMessageFactory->addUint32(opDeltasMessage);
+		gMessageFactory->addUint64(creatureObject->getId());
+		gMessageFactory->addUint32(opCREO);
 		gMessageFactory->addUint8(3);
-		gMessageFactory->addUint32(12); 
-		gMessageFactory->addUint16(1);	
+		gMessageFactory->addUint32(12);
+		gMessageFactory->addUint16(1);
 		gMessageFactory->addUint16(16);
 		gMessageFactory->addUint64(creatureObject->getState());
 
@@ -1107,10 +1107,10 @@ void MessageLib::sendSingleBarUpdate(CreatureObject* creatureObject)
 			return;
 		}
 
-		gMessageFactory->StartMessage();   
-		gMessageFactory->addUint32(opDeltasMessage);  
-		gMessageFactory->addUint64(creatureObject->getId());           
-		gMessageFactory->addUint32(opCREO);           
+		gMessageFactory->StartMessage();
+		gMessageFactory->addUint32(opDeltasMessage);
+		gMessageFactory->addUint64(creatureObject->getId());
+		gMessageFactory->addUint32(opCREO);
 		gMessageFactory->addUint8(3);
 		gMessageFactory->addUint32(8); // bytes
 		gMessageFactory->addUint16(1);	// No of items
@@ -1135,18 +1135,18 @@ bool MessageLib::sendBankCreditsUpdate(PlayerObject* playerObject)
 	if(!(playerObject->isConnected()))
 		return(false);
 
-	gMessageFactory->StartMessage();        
-	gMessageFactory->addUint32(opDeltasMessage);  
-	gMessageFactory->addUint64(playerObject->getId());           
-	gMessageFactory->addUint32(opCREO);           
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opDeltasMessage);
+	gMessageFactory->addUint64(playerObject->getId());
+	gMessageFactory->addUint32(opCREO);
 	gMessageFactory->addUint8(1);
 	gMessageFactory->addUint32(8);
 	gMessageFactory->addUint16(1);
-	gMessageFactory->addUint16(0);	
+	gMessageFactory->addUint16(0);
 
 	if(Bank* bank = dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank)))
 	{
-		gMessageFactory->addUint32(bank->getCredits());					 
+		gMessageFactory->addUint32(bank->getCredits());
 	}
 	else
 	{
@@ -1169,18 +1169,18 @@ bool MessageLib::sendInventoryCreditsUpdate(PlayerObject* playerObject)
 	if(!(playerObject->isConnected()))
 		return(false);
 
-	gMessageFactory->StartMessage();        
-	gMessageFactory->addUint32(opDeltasMessage);  
-	gMessageFactory->addUint64(playerObject->getId());           
-	gMessageFactory->addUint32(opCREO);           
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opDeltasMessage);
+	gMessageFactory->addUint64(playerObject->getId());
+	gMessageFactory->addUint32(opCREO);
 	gMessageFactory->addUint8(1);
 	gMessageFactory->addUint32(8);
 	gMessageFactory->addUint16(1);
-	gMessageFactory->addUint16(1);	
+	gMessageFactory->addUint16(1);
 
 	if(Inventory* inventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)))
 	{
-		gMessageFactory->addUint32(inventory->getCredits());					 
+		gMessageFactory->addUint32(inventory->getCredits());
 	}
 	else
 	{
@@ -1203,10 +1203,10 @@ bool MessageLib::sendUpdateMovementProperties(PlayerObject* playerObject)
 	if(!(playerObject->isConnected()))
 		return(false);
 
-	gMessageFactory->StartMessage();             
-	gMessageFactory->addUint32(opDeltasMessage);  
-	gMessageFactory->addUint64(playerObject->getId());           
-	gMessageFactory->addUint32(opCREO);           
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opDeltasMessage);
+	gMessageFactory->addUint64(playerObject->getId());
+	gMessageFactory->addUint32(opCREO);
 	gMessageFactory->addUint8(4);
 	gMessageFactory->addUint32(20);
 
@@ -1237,10 +1237,10 @@ bool MessageLib::sendSkillDeltasCreo1(Skill* skill,uint8 action,PlayerObject* ta
 	if(!(targetObject->isConnected()))
 		return(false);
 
-	gMessageFactory->StartMessage();               
-	gMessageFactory->addUint32(opDeltasMessage);  
-	gMessageFactory->addUint64(targetObject->getId());          
-	gMessageFactory->addUint32(opCREO);           
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opDeltasMessage);
+	gMessageFactory->addUint64(targetObject->getId());
+	gMessageFactory->addUint32(opCREO);
 	gMessageFactory->addUint8(1);
 
 	gMessageFactory->addUint32(15 + skill->mName.getLength());
@@ -1248,7 +1248,7 @@ bool MessageLib::sendSkillDeltasCreo1(Skill* skill,uint8 action,PlayerObject* ta
 	gMessageFactory->addUint16(3);
 
 	gMessageFactory->addUint32(1); // listsize
-	gMessageFactory->addUint32(targetObject->getAndIncrementSkillUpdateCounter()); 
+	gMessageFactory->addUint32(targetObject->getAndIncrementSkillUpdateCounter());
 	gMessageFactory->addUint8(action);
 	gMessageFactory->addString(skill->mName);
 
@@ -1273,23 +1273,23 @@ bool MessageLib::sendSkillModDeltasCREO_4(SkillModsList smList,uint8 remove,Crea
 
 	while(it != smList.end())
 	{
-		skillModByteCount += (gSkillManager->getSkillModById((*it).first).getLength() + 11); 
+		skillModByteCount += (gSkillManager->getSkillModById((*it).first).getLength() + 11);
 		++it;
 	}
 
-	gMessageFactory->StartMessage();               
-	gMessageFactory->addUint32(opDeltasMessage);  
-	gMessageFactory->addUint64(creatureObject->getId());          
-	gMessageFactory->addUint32(opCREO);           
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opDeltasMessage);
+	gMessageFactory->addUint64(creatureObject->getId());
+	gMessageFactory->addUint32(opCREO);
 	gMessageFactory->addUint8(4);
 
 	gMessageFactory->addUint32(12 + skillModByteCount);
 	gMessageFactory->addUint16(1);
 	gMessageFactory->addUint16(3);
 
-	gMessageFactory->addUint32(smList.size());  
+	gMessageFactory->addUint32(smList.size());
 
-	gMessageFactory->addUint32(playerObject->getAndIncrementSkillModUpdateCounter(smList.size()));  
+	gMessageFactory->addUint32(playerObject->getAndIncrementSkillModUpdateCounter(smList.size()));
 	gMessageFactory->addUint8(remove);
 
 	it = smList.begin();
@@ -1322,10 +1322,10 @@ void MessageLib::sendCurrentHitpointDeltasCreo6_Single(CreatureObject* creatureO
 	if(ham == NULL)
 		return;
 
-	gMessageFactory->StartMessage();               
-	gMessageFactory->addUint32(opDeltasMessage);  
-	gMessageFactory->addUint64(creatureObject->getId());          
-	gMessageFactory->addUint32(opCREO);           
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opDeltasMessage);
+	gMessageFactory->addUint64(creatureObject->getId());
+	gMessageFactory->addUint32(opCREO);
 	gMessageFactory->addUint8(6);
 
 	gMessageFactory->addUint32(19);
@@ -1333,9 +1333,9 @@ void MessageLib::sendCurrentHitpointDeltasCreo6_Single(CreatureObject* creatureO
 	gMessageFactory->addUint16(13);
 
 	// advance by 1 (overload for bigger increment)
-	ham->advanceCurrentHitpointsUpdateCounter();  
-	gMessageFactory->addUint32(1);  
-	gMessageFactory->addUint32(ham->getCurrentHitpointsUpdateCounter());  
+	ham->advanceCurrentHitpointsUpdateCounter();
+	gMessageFactory->addUint32(1);
+	gMessageFactory->addUint32(ham->getCurrentHitpointsUpdateCounter());
 	//	gLogger->logMsgF("updatecounter : %u",MSG_NORMAL,ham->getCurrentHitpointsUpdateCounter());
 
 
@@ -1361,10 +1361,10 @@ void MessageLib::sendMaxHitpointDeltasCreo6_Single(CreatureObject* creatureObjec
 	if(ham == NULL)
 		return;
 
-	gMessageFactory->StartMessage();               
-	gMessageFactory->addUint32(opDeltasMessage);  
-	gMessageFactory->addUint64(creatureObject->getId());          
-	gMessageFactory->addUint32(opCREO);           
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opDeltasMessage);
+	gMessageFactory->addUint64(creatureObject->getId());
+	gMessageFactory->addUint32(opCREO);
 	gMessageFactory->addUint8(6);
 
 	gMessageFactory->addUint32(19);
@@ -1374,7 +1374,7 @@ void MessageLib::sendMaxHitpointDeltasCreo6_Single(CreatureObject* creatureObjec
 
 	gMessageFactory->addUint32(1);
 	ham->advanceMaxHitpointsUpdateCounter();  // increment list up counter by 1
-	gMessageFactory->addUint32(ham->getMaxHitpointsUpdateCounter());  
+	gMessageFactory->addUint32(ham->getMaxHitpointsUpdateCounter());
 
 	gMessageFactory->addUint8(2);
 	gMessageFactory->addUint16(barIndex);
@@ -1396,10 +1396,10 @@ void MessageLib::sendBaseHitpointDeltasCreo1_Single(CreatureObject* creatureObje
 	if(ham == NULL)
 		return;
 
-	gMessageFactory->StartMessage();               
-	gMessageFactory->addUint32(opDeltasMessage);  
-	gMessageFactory->addUint64(creatureObject->getId());          
-	gMessageFactory->addUint32(opCREO);           
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opDeltasMessage);
+	gMessageFactory->addUint64(creatureObject->getId());
+	gMessageFactory->addUint32(opCREO);
 	gMessageFactory->addUint8(1);
 
 	gMessageFactory->addUint32(19);
@@ -1408,7 +1408,7 @@ void MessageLib::sendBaseHitpointDeltasCreo1_Single(CreatureObject* creatureObje
 	gMessageFactory->addUint16(2);//delta nr
 
 	gMessageFactory->addUint32(1);
-	ham->advanceBaseHitpointsUpdateCounter();  
+	ham->advanceBaseHitpointsUpdateCounter();
 	gMessageFactory->addUint32(ham->getBaseHitpointsUpdateCounter());  // increment list up counter by 1
 
 	gMessageFactory->addUint8(2);
@@ -1431,10 +1431,10 @@ void MessageLib::sendWoundUpdateCreo3(CreatureObject* creatureObject,uint8 barIn
 	if(ham == NULL)
 		return;
 
-	gMessageFactory->StartMessage();               
-	gMessageFactory->addUint32(opDeltasMessage);  
-	gMessageFactory->addUint64(creatureObject->getId());          
-	gMessageFactory->addUint32(opCREO);           
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opDeltasMessage);
+	gMessageFactory->addUint64(creatureObject->getId());
+	gMessageFactory->addUint32(opCREO);
 	gMessageFactory->addUint8(3);
 
 	gMessageFactory->addUint32(19);
@@ -1442,8 +1442,8 @@ void MessageLib::sendWoundUpdateCreo3(CreatureObject* creatureObject,uint8 barIn
 	gMessageFactory->addUint16(17);
 
 	ham->advanceWoundsUpdateCounter();
-	gMessageFactory->addUint32(1);  
-	gMessageFactory->addUint32(ham->getWoundsUpdateCounter());  
+	gMessageFactory->addUint32(1);
+	gMessageFactory->addUint32(ham->getWoundsUpdateCounter());
 
 	gMessageFactory->addUint8(2);
 	gMessageFactory->addUint16(barIndex);
@@ -1465,21 +1465,21 @@ void MessageLib::sendCurrentHitpointDeltasCreo6_Full(CreatureObject* creatureObj
 	if(ham == NULL)
 		return;
 
-	gMessageFactory->StartMessage();               
-	gMessageFactory->addUint32(opDeltasMessage);  
-	gMessageFactory->addUint64(creatureObject->getId());          
-	gMessageFactory->addUint32(opCREO);           
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opDeltasMessage);
+	gMessageFactory->addUint64(creatureObject->getId());
+	gMessageFactory->addUint32(opCREO);
 	gMessageFactory->addUint8(6);
 
 	gMessageFactory->addUint32(33);
 	gMessageFactory->addUint16(1);
 	gMessageFactory->addUint16(13);
 
-	gMessageFactory->addUint32(3);  
+	gMessageFactory->addUint32(3);
 
 	ham->advanceCurrentHitpointsUpdateCounter(3);
 
-	gMessageFactory->addUint32(ham->getCurrentHitpointsUpdateCounter()); 
+	gMessageFactory->addUint32(ham->getCurrentHitpointsUpdateCounter());
 
 	gMessageFactory->addUint8(2);
 	gMessageFactory->addUint16(HamBar_Health);
@@ -1510,17 +1510,17 @@ void MessageLib::sendBFUpdateCreo3(CreatureObject* playerObject)
 	if(!ham || !pObject || !(pObject->isConnected()))
 		return;
 
-	gMessageFactory->StartMessage();               
-	gMessageFactory->addUint32(opDeltasMessage);  
-	gMessageFactory->addUint64(playerObject->getId());          
-	gMessageFactory->addUint32(opCREO);           
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opDeltasMessage);
+	gMessageFactory->addUint64(playerObject->getId());
+	gMessageFactory->addUint32(opCREO);
 	gMessageFactory->addUint8(3);
 
 	gMessageFactory->addUint32(8);
 	gMessageFactory->addUint16(1);
 	gMessageFactory->addUint16(15);
 
-	gMessageFactory->addInt32(ham->getBattleFatigue());  
+	gMessageFactory->addInt32(ham->getBattleFatigue());
 
 	(pObject)->getClient()->SendChannelA(gMessageFactory->EndMessage(),pObject->getAccountId(),CR_Client,5);
 }
@@ -1528,23 +1528,23 @@ void MessageLib::sendBFUpdateCreo3(CreatureObject* playerObject)
 //======================================================================================================================
 //
 // Creature Deltas Type 3
-// update: owner id 
+// update: owner id
 // used for mountable creatures (pets, vehicles..)
 
 
 void MessageLib::sendOwnerUpdateCreo3(CreatureObject* creatureObject)
 {
-	gMessageFactory->StartMessage();               
-	gMessageFactory->addUint32(opDeltasMessage);  
-	gMessageFactory->addUint64(creatureObject->getId());          
-	gMessageFactory->addUint32(opCREO);           
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opDeltasMessage);
+	gMessageFactory->addUint64(creatureObject->getId());
+	gMessageFactory->addUint32(opCREO);
 	gMessageFactory->addUint8(3);
 
 	gMessageFactory->addUint32(12);
 	gMessageFactory->addUint16(2);
 	gMessageFactory->addUint16(13); // CREO 3 owner id
 
-	gMessageFactory->addInt64(creatureObject->getOwner());  
+	gMessageFactory->addInt64(creatureObject->getOwner());
 
 	_sendToInRange(gMessageFactory->EndMessage(),creatureObject,5);
 	//(pObject)->getClient()->SendChannelA(gMessageFactory->EndMessage(),pObject->getAccountId(),CR_Client,5);
@@ -1558,10 +1558,10 @@ void MessageLib::sendOwnerUpdateCreo3(CreatureObject* creatureObject)
 
 void MessageLib::sendTargetUpdateDeltasCreo6(CreatureObject* creatureObject)
 {
-	gMessageFactory->StartMessage();               
-	gMessageFactory->addUint32(opDeltasMessage); 
-	gMessageFactory->addUint64(creatureObject->getId());         
-	gMessageFactory->addUint32(opCREO);           
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opDeltasMessage);
+	gMessageFactory->addUint64(creatureObject->getId());
+	gMessageFactory->addUint32(opCREO);
 	gMessageFactory->addUint8(6);
 	gMessageFactory->addUint32(12); // Size, short short long
 	gMessageFactory->addUint16(1);  // Update count
@@ -1569,7 +1569,7 @@ void MessageLib::sendTargetUpdateDeltasCreo6(CreatureObject* creatureObject)
 	gMessageFactory->addUint64(creatureObject->getTargetId());  // new target
 
 	_sendToInRange(gMessageFactory->EndMessage(),creatureObject,5);
-} 
+}
 
 //======================================================================================================================
 //
@@ -1582,9 +1582,9 @@ void MessageLib::sendInviteSenderUpdateDeltasCreo6(uint64 id, PlayerObject* targ
 	if(!(targetPlayer->isConnected()))
 		return;
 
-	gMessageFactory->StartMessage();               
-	gMessageFactory->addUint32(opDeltasMessage);  
-	gMessageFactory->addUint64(targetPlayer->getId());          
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opDeltasMessage);
+	gMessageFactory->addUint64(targetPlayer->getId());
 	gMessageFactory->addUint32(opCREO);
 	gMessageFactory->addUint8(6);
 
@@ -1595,7 +1595,7 @@ void MessageLib::sendInviteSenderUpdateDeltasCreo6(uint64 id, PlayerObject* targ
 	gMessageFactory->addUint64((uint64)targetPlayer->getClientTickCount());  // fake counter, otherwise window doesnt popup two times
 
 	(targetPlayer->getClient())->SendChannelA(gMessageFactory->EndMessage(),targetPlayer->getAccountId(),CR_Client,5);
-} 
+}
 
 //======================================================================================================================
 //
@@ -1608,10 +1608,10 @@ void MessageLib::sendGroupIdUpdateDeltasCreo6(uint64 groupId, const PlayerObject
 	if(!(target->isConnected()))
 		return;
 
-	gMessageFactory->StartMessage();               
-	gMessageFactory->addUint32(opDeltasMessage); 
-	gMessageFactory->addUint64(player->getId());         
-	gMessageFactory->addUint32(opCREO);           
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opDeltasMessage);
+	gMessageFactory->addUint64(player->getId());
+	gMessageFactory->addUint32(opCREO);
 	gMessageFactory->addUint8(6);
 	gMessageFactory->addUint32(12); // Size, short short long
 	gMessageFactory->addUint16(1);  // Update count
@@ -1619,26 +1619,26 @@ void MessageLib::sendGroupIdUpdateDeltasCreo6(uint64 groupId, const PlayerObject
 	gMessageFactory->addUint64(groupId);  // new id
 
 	(target->getClient())->SendChannelA(gMessageFactory->EndMessage(),target->getAccountId(),CR_Client,5);
-} 
+}
 
 //======================================================================================================================
 //
 // Creature Deltas Type 4
-// update: terrain negotiation 
+// update: terrain negotiation
 //
 
 void MessageLib::sendTerrainNegotiation(CreatureObject* creatureObject)
 {
-	gMessageFactory->StartMessage();               
-	gMessageFactory->addUint32(opDeltasMessage);  
-	gMessageFactory->addUint64(creatureObject->getId()); 
-	gMessageFactory->addUint32(opCREO);           
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opDeltasMessage);
+	gMessageFactory->addUint64(creatureObject->getId());
+	gMessageFactory->addUint32(opCREO);
 	gMessageFactory->addUint8(4);
-	gMessageFactory->addUint32(8); 
+	gMessageFactory->addUint32(8);
 
-	gMessageFactory->addUint16(1);           
-	gMessageFactory->addUint16(9);           
-	gMessageFactory->addFloat(creatureObject->getCurrentTerrainNegotiation());          
+	gMessageFactory->addUint16(1);
+	gMessageFactory->addUint16(9);
+	gMessageFactory->addFloat(creatureObject->getCurrentTerrainNegotiation());
 
 	_sendToInRange(gMessageFactory->EndMessage(),creatureObject,5);
 }
@@ -1651,15 +1651,15 @@ void MessageLib::sendTerrainNegotiation(CreatureObject* creatureObject)
 
 void MessageLib::sendListenToId(CreatureObject* creatureObject)
 {
-	gMessageFactory->StartMessage();               
-	gMessageFactory->addUint32(opDeltasMessage);  
-	gMessageFactory->addUint64(creatureObject->getId()); 
-	gMessageFactory->addUint32(opCREO);           
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opDeltasMessage);
+	gMessageFactory->addUint64(creatureObject->getId());
+	gMessageFactory->addUint32(opCREO);
 	gMessageFactory->addUint8(4);
-	gMessageFactory->addUint32(12);           
-	gMessageFactory->addUint16(1);           
-	gMessageFactory->addUint16(6);          
-	gMessageFactory->addUint64(creatureObject->getEntertainerListenToId());           
+	gMessageFactory->addUint32(12);
+	gMessageFactory->addUint16(1);
+	gMessageFactory->addUint16(6);
+	gMessageFactory->addUint64(creatureObject->getEntertainerListenToId());
 
 	_sendToInRange(gMessageFactory->EndMessage(),creatureObject,5);
 }
@@ -1672,15 +1672,15 @@ void MessageLib::sendListenToId(CreatureObject* creatureObject)
 
 void MessageLib::UpdateEntertainerPerfomanceCounter(CreatureObject* creatureObject)
 {
-	gMessageFactory->StartMessage();               
-	gMessageFactory->addUint32(opDeltasMessage);  
-	gMessageFactory->addUint64(creatureObject->getId()); 
-	gMessageFactory->addUint32(opCREO);           
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opDeltasMessage);
+	gMessageFactory->addUint64(creatureObject->getId());
+	gMessageFactory->addUint32(opCREO);
 	gMessageFactory->addUint8(6);
-	gMessageFactory->addUint32(8);           
-	gMessageFactory->addUint16(1);           
-	gMessageFactory->addUint16(11);          
-	gMessageFactory->addUint32(creatureObject->UpdatePerformanceCounter());           
+	gMessageFactory->addUint32(8);
+	gMessageFactory->addUint16(1);
+	gMessageFactory->addUint16(11);
+	gMessageFactory->addUint32(creatureObject->UpdatePerformanceCounter());
 
 	_sendToInRange(gMessageFactory->EndMessage(),creatureObject,5);
 }
@@ -1693,15 +1693,15 @@ void MessageLib::UpdateEntertainerPerfomanceCounter(CreatureObject* creatureObje
 
 void MessageLib::sendPerformanceId(CreatureObject* creatureObject)
 {
-	gMessageFactory->StartMessage();               
-	gMessageFactory->addUint32(opDeltasMessage);  
-	gMessageFactory->addUint64(creatureObject->getId()); 
-	gMessageFactory->addUint32(opCREO);           
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opDeltasMessage);
+	gMessageFactory->addUint64(creatureObject->getId());
+	gMessageFactory->addUint32(opCREO);
 	gMessageFactory->addUint8(6);
-	gMessageFactory->addUint32(8);           
-	gMessageFactory->addUint16(1);           
-	gMessageFactory->addUint16(12);          
-	gMessageFactory->addUint32(creatureObject->getPerformanceId());           
+	gMessageFactory->addUint32(8);
+	gMessageFactory->addUint16(1);
+	gMessageFactory->addUint16(12);
+	gMessageFactory->addUint32(creatureObject->getPerformanceId());
 
 	_sendToInRange(gMessageFactory->EndMessage(),creatureObject,5);
 }
@@ -1714,15 +1714,15 @@ void MessageLib::sendPerformanceId(CreatureObject* creatureObject)
 
 void MessageLib::sendAnimationString(CreatureObject* creatureObject)
 {
-	gMessageFactory->StartMessage();               
-	gMessageFactory->addUint32(opDeltasMessage);  
-	gMessageFactory->addUint64(creatureObject->getId()); 
-	gMessageFactory->addUint32(opCREO);           
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opDeltasMessage);
+	gMessageFactory->addUint64(creatureObject->getId());
+	gMessageFactory->addUint32(opCREO);
 	gMessageFactory->addUint8(6);
-	gMessageFactory->addUint32(6+creatureObject->getCurrentAnimation().getLength());           
-	gMessageFactory->addUint16(1);           
-	gMessageFactory->addUint16(3);          
-	gMessageFactory->addString(creatureObject->getCurrentAnimation());           
+	gMessageFactory->addUint32(6+creatureObject->getCurrentAnimation().getLength());
+	gMessageFactory->addUint16(1);
+	gMessageFactory->addUint16(3);
+	gMessageFactory->addString(creatureObject->getCurrentAnimation());
 
 	_sendToInRange(gMessageFactory->EndMessage(),creatureObject,5);
 }
@@ -1735,15 +1735,15 @@ void MessageLib::sendAnimationString(CreatureObject* creatureObject)
 
 void MessageLib::sendMoodString(CreatureObject* creatureObject,string animation)
 {
-	gMessageFactory->StartMessage();               
-	gMessageFactory->addUint32(opDeltasMessage);  
-	gMessageFactory->addUint64(creatureObject->getId()); 
-	gMessageFactory->addUint32(opCREO);           
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opDeltasMessage);
+	gMessageFactory->addUint64(creatureObject->getId());
+	gMessageFactory->addUint32(opCREO);
 	gMessageFactory->addUint8(6);
-	gMessageFactory->addUint32(6 + animation.getLength());           
-	gMessageFactory->addUint16(1);           
-	gMessageFactory->addUint16(4);          
-	gMessageFactory->addString(animation);           
+	gMessageFactory->addUint32(6 + animation.getLength());
+	gMessageFactory->addUint16(1);
+	gMessageFactory->addUint16(4);
+	gMessageFactory->addString(animation);
 
 	_sendToInRange(gMessageFactory->EndMessage(),creatureObject,5);
 }
@@ -1754,10 +1754,10 @@ void MessageLib::sendMoodString(CreatureObject* creatureObject,string animation)
 
 void MessageLib::sendCustomizationUpdateCreo3(CreatureObject* creatureObject)
 {
-	gMessageFactory->StartMessage();               
-	gMessageFactory->addUint32(opDeltasMessage);  
-	gMessageFactory->addUint64(creatureObject->getId());          
-	gMessageFactory->addUint32(opCREO);           
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opDeltasMessage);
+	gMessageFactory->addUint64(creatureObject->getId());
+	gMessageFactory->addUint32(opCREO);
 	gMessageFactory->addUint8(3);
 
 	gMessageFactory->addUint32(6 + creatureObject->getCustomizationStr().getLength());
@@ -1776,10 +1776,10 @@ void MessageLib::sendCustomizationUpdateCreo3(CreatureObject* creatureObject)
 
 void MessageLib::sendScaleUpdateCreo3(CreatureObject* creatureObject)
 {
-	gMessageFactory->StartMessage();               
-	gMessageFactory->addUint32(opDeltasMessage);  
-	gMessageFactory->addUint64(creatureObject->getId());          
-	gMessageFactory->addUint32(opCREO);           
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opDeltasMessage);
+	gMessageFactory->addUint64(creatureObject->getId());
+	gMessageFactory->addUint32(opCREO);
 	gMessageFactory->addUint8(3);
 
 	gMessageFactory->addUint32(8);
@@ -1798,14 +1798,14 @@ void MessageLib::sendScaleUpdateCreo3(CreatureObject* creatureObject)
 
 void MessageLib::sendWeaponIdUpdate(CreatureObject* creatureObject)
 {
-	gMessageFactory->StartMessage();               
-	gMessageFactory->addUint32(opDeltasMessage); 
-	gMessageFactory->addUint64(creatureObject->getId());         
-	gMessageFactory->addUint32(opCREO);           
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opDeltasMessage);
+	gMessageFactory->addUint64(creatureObject->getId());
+	gMessageFactory->addUint32(opCREO);
 	gMessageFactory->addUint8(6);
-	gMessageFactory->addUint32(12); 
-	gMessageFactory->addUint16(1);  
-	gMessageFactory->addUint16(5);  
+	gMessageFactory->addUint32(12);
+	gMessageFactory->addUint16(1);
+	gMessageFactory->addUint16(5);
 
 	if(Object* weapon = creatureObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Weapon))
 	{
@@ -1817,7 +1817,7 @@ void MessageLib::sendWeaponIdUpdate(CreatureObject* creatureObject)
 	}
 
 	_sendToInRange(gMessageFactory->EndMessage(),creatureObject,5);
-} 
+}
 
 //======================================================================================================================
 //
@@ -1827,19 +1827,19 @@ void MessageLib::sendWeaponIdUpdate(CreatureObject* creatureObject)
 
 void MessageLib::sendIncapTimerUpdate(CreatureObject* creatureObject)
 {
-	gMessageFactory->StartMessage();               
-	gMessageFactory->addUint32(opDeltasMessage); 
-	gMessageFactory->addUint64(creatureObject->getId());         
-	gMessageFactory->addUint32(opCREO);           
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opDeltasMessage);
+	gMessageFactory->addUint64(creatureObject->getId());
+	gMessageFactory->addUint32(opCREO);
 	gMessageFactory->addUint8(3);
-	gMessageFactory->addUint32(8); 
-	gMessageFactory->addUint16(1);  
-	gMessageFactory->addUint16(7);  
+	gMessageFactory->addUint32(8);
+	gMessageFactory->addUint16(1);
+	gMessageFactory->addUint16(7);
 
 	gMessageFactory->addUint32((uint32)(creatureObject->getCurrentIncapTime() / 1000));
 
 	_sendToInRange(gMessageFactory->EndMessage(),creatureObject,5);
-} 
+}
 
 //======================================================================================================================
 
@@ -1856,7 +1856,7 @@ bool MessageLib::sendSkillModUpdateCreo4(PlayerObject* playerObject)
 		return(false);
 
 	// compute skillmod list size
-	uint32			skillModByteCount	= 0;
+	//uint32			skillModByteCount	= 0;
 	SkillModsList*	playerSkillMods		= playerObject->getSkillMods();
 
 	SkillModsList::iterator it	= playerSkillMods->begin();
@@ -1864,16 +1864,16 @@ bool MessageLib::sendSkillModUpdateCreo4(PlayerObject* playerObject)
 
 	//start the data part
 	Message* data;
-	
-	gMessageFactory->StartMessage();             
+
+	gMessageFactory->StartMessage();
 
 	gMessageFactory->addUint16(1);						//nr of updates in the delta
 	gMessageFactory->addUint16(3);						//position nr
 
 	// skillmods
 
-	gMessageFactory->addUint32(playerSkillMods->size());  
-	gMessageFactory->addUint32(playerObject->getAndIncrementSkillModUpdateCounter(playerSkillMods->size()));  
+	gMessageFactory->addUint32(playerSkillMods->size());
+	gMessageFactory->addUint32(playerObject->getAndIncrementSkillModUpdateCounter(playerSkillMods->size()));
 	//playerObject->getAndIncrementSkillModUpdateCounter(1)
 
 	//gMessageFactory->addUint16(playerSkillMods->size());
@@ -1892,15 +1892,15 @@ bool MessageLib::sendSkillModUpdateCreo4(PlayerObject* playerObject)
 
 	//now the actual message
 
-	gMessageFactory->StartMessage();             
-	gMessageFactory->addUint32(opDeltasMessage);  
-	gMessageFactory->addUint64(playerObject->getId());           
-	gMessageFactory->addUint32(opCREO);           
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opDeltasMessage);
+	gMessageFactory->addUint64(playerObject->getId());
+	gMessageFactory->addUint32(opCREO);
 	gMessageFactory->addUint8(4);
 
 	gMessageFactory->addUint32(data->getSize());	//bytecount
 	gMessageFactory->addData(data->getData(),data->getSize());
-	
+
 	data->setPendingDelete(true);
 
 	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5);

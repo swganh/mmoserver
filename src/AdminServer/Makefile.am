@@ -1,4 +1,4 @@
-AM_CXXFLAGS = -I$(top_srcdir)/src $(SWGANH_CXXFLAGS)
+AM_CXXFLAGS = -I$(top_srcdir)/src $(SWGANH_CXXFLAGS) $(BOOST_CPPFLAGS)
   
 # AdminServer - executable
 bin_PROGRAMS = adminserver
@@ -7,11 +7,11 @@ adminserver_SOURCES = \
   CharacterAdminHandler.cpp \
   PlanetMapHandler.cpp
 
-adminserver_CPPFLAGS = $(MYSQL_CFLAGS) -Wall -fshort-wchar 
+adminserver_CPPFLAGS = $(MYSQL_CFLAGS) -Wall -pedantic-errors -Wfatal-errors -fshort-wchar 
 adminserver_LDADD = \
 	../Utils/libutils.la \
-	../LogManager/liblogmanager.la \
 	../Common/libcommon.la \
+	../LogManager/liblogmanager.la \
 	../ConfigManager/libconfigmanager.la \
 	../DatabaseManager/libdatabasemanager.la \
 	../NetworkManager/libnetworkmanager.la \

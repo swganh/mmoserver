@@ -18,7 +18,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 enum UI_Window_Name
 {
 	LB_teach_Select_Skill			= 1,
-	MB_teach_Ask_Learn_Skill		= 2,
+	MB_teach_Ask_Learn_Skill		= 2
 };
 
 //================================================================================
@@ -28,7 +28,7 @@ enum ui_element_types
 	SUI_Element_Window		= 1,
 	SUI_Element_Button		= 2,
 	SUI_Element_DropdownBox	= 3,
-	SUI_Element_InputField	= 4,
+	SUI_Element_InputField	= 4
 };
 
 //================================================================================
@@ -75,8 +75,8 @@ enum ui_window_types
 
 	SUI_Window_Structure_Delete									= 39,
 	SUI_Window_Structure_Delete_Confirm							= 40,
-	SUI_Window_Structure_Admin_List								= 41,
-	
+	SUI_Window_Structure_Admin_List								= 41
+
 };
 
 //================================================================================
@@ -85,7 +85,7 @@ enum ui_mb_types
 {
 	SUI_MB_OK			= 1,
 	SUI_MB_OKCANCEL		= 2,
-	SUI_MB_YESNO		= 3,
+	SUI_MB_YESNO		= 3
 };
 
 //================================================================================
@@ -93,7 +93,7 @@ enum ui_mb_types
 enum ui_lb_types
 {
 	SUI_LB_OK			= 1,
-	SUI_LB_OKCANCEL		= 2,
+	SUI_LB_OKCANCEL		= 2
 };
 
 //================================================================================
@@ -103,7 +103,7 @@ enum ui_ib_types
 	SUI_IB_NODROPDOWN_OK			= 1,
 	SUI_IB_DROPDOWN_OK				= 2,
 	SUI_IB_NODROPDOWN_OKCANCEL		= 3,
-	SUI_IB_DROPDOWN_OKCANCEL		= 4,
+	SUI_IB_DROPDOWN_OKCANCEL		= 4
 };
 
 //================================================================================

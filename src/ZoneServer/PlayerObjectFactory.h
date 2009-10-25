@@ -44,7 +44,7 @@ enum POFQuery
 	POFQuery_HoloEmotes				= 11,
 	POFQuery_EquippedItems			= 12,
 	POFQuery_PreDefCloningFacility	= 13,
-	POFQuery_Lots					= 14,
+	POFQuery_Lots					= 14
 };
 
 //=============================================================================

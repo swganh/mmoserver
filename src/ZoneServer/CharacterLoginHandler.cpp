@@ -56,12 +56,12 @@ void CharacterLoginHandler::Startup(Database* database, MessageDispatch* dispatc
 	mMessageDispatch = dispatch;
 
 	// Register our opcodes
-	mMessageDispatch->RegisterMessageCallback(opSelectCharacter, this);    
-	mMessageDispatch->RegisterMessageCallback(opCmdSceneReady, this);    
-	mMessageDispatch->RegisterMessageCallback(opClusterClientDisconnect, this); 
-	mMessageDispatch->RegisterMessageCallback(opClusterZoneTransferApprovedByTicket,this); 
-	mMessageDispatch->RegisterMessageCallback(opClusterZoneTransferApprovedByPosition,this); 
-	mMessageDispatch->RegisterMessageCallback(opClusterZoneTransferDenied, this); 
+	mMessageDispatch->RegisterMessageCallback(opSelectCharacter, this);
+	mMessageDispatch->RegisterMessageCallback(opCmdSceneReady, this);
+	mMessageDispatch->RegisterMessageCallback(opClusterClientDisconnect, this);
+	mMessageDispatch->RegisterMessageCallback(opClusterZoneTransferApprovedByTicket,this);
+	mMessageDispatch->RegisterMessageCallback(opClusterZoneTransferApprovedByPosition,this);
+	mMessageDispatch->RegisterMessageCallback(opClusterZoneTransferDenied, this);
 	mMessageDispatch->RegisterMessageCallback(opNewbieTutorialResponse, this);
 	mMessageDispatch->RegisterMessageCallback(opCmdSceneReady2, this);
 
@@ -75,8 +75,8 @@ void CharacterLoginHandler::Startup(Database* database, MessageDispatch* dispatc
 void CharacterLoginHandler::Shutdown(void)
 {
 	// Unregister our callbacks
-	mMessageDispatch->UnregisterMessageCallback(opSelectCharacter);    
-	mMessageDispatch->UnregisterMessageCallback(opCmdSceneReady);    
+	mMessageDispatch->UnregisterMessageCallback(opSelectCharacter);
+	mMessageDispatch->UnregisterMessageCallback(opCmdSceneReady);
 	mMessageDispatch->UnregisterMessageCallback(opClusterClientDisconnect);
 	mMessageDispatch->UnregisterMessageCallback(opClusterZoneTransferApprovedByTicket);
 	mMessageDispatch->UnregisterMessageCallback(opClusterZoneTransferApprovedByPosition);
@@ -97,7 +97,7 @@ void CharacterLoginHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* 
 		{
 			// Next step is save the player this call back goes to the worldmanager which will handle the rest
 			CharacterLoadingContainer* newContainer = new(CharacterLoadingContainer);
-			
+
 			newContainer->callBack		= CLHCallBack_Transfer_Position;
 			newContainer->destination	= asyncContainer->destination;
 			newContainer->planet		= asyncContainer->planet;
@@ -117,10 +117,14 @@ void CharacterLoginHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* 
 			gMessageLib->sendClusterZoneTransferCharacter(asyncContainer->player, asyncContainer->planet);
 
 			asyncContainer->player->setConnectionState(PlayerConnState_LinkDead);
-			
+
 			gWorldManager->destroyObject(asyncContainer->player);
 		}
 		break;
+
+		case CLHCallBack_None:
+		default:
+			break;
 	}
 }
 
@@ -133,7 +137,7 @@ void CharacterLoginHandler::handleDispatchMessage(uint32 opcode, Message* messag
 
   switch(opcode)
   {
-	case opSelectCharacter: 
+	case opSelectCharacter:
 	{
         boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
@@ -148,14 +152,14 @@ void CharacterLoginHandler::handleDispatchMessage(uint32 opcode, Message* messag
 		{
 			// Remove old client, if any.
 			delete playerObject->getClient();
-	
+
 			playerObject->setClient(client);
 
 			//gLogger->logMsgF("CharacterLoginHandler opselect character - relog %u.", MSG_NORMAL, playerObject->getAccountId());
 
 			gWorldManager->addReconnectedPlayer(playerObject);
 
-			gMessageLib->sendChatServerStatus(0x01,0x36,client);  
+			gMessageLib->sendChatServerStatus(0x01,0x36,client);
 			gMessageLib->sendParameters(900,client);
 			gMessageLib->sendStartScene(mZoneId,playerObject);
 			gMessageLib->sendServerTime(gWorldManager->getServerTime(),client);
@@ -172,15 +176,15 @@ void CharacterLoginHandler::handleDispatchMessage(uint32 opcode, Message* messag
 
 			playerObject->getHam()->checkForRegen();
 		}
-		else 
+		else
 		if(playerObject  && playerObject->isBeingDestroyed())
 		{
 			gLogger->logMsgF("were being destroyed but want to log in again ",MSG_NORMAL);
 			//dont quite understand this one - the player is about to be destroyed
 			//so just ignore it ????
-			
+
 			//we might want to wait and then reload the character
-			
+
 			// Remove old client, if any.
 			delete playerObject->getClient();
 
@@ -193,13 +197,13 @@ void CharacterLoginHandler::handleDispatchMessage(uint32 opcode, Message* messag
 			gLogger->logMsgF("same account : new player ",MSG_NORMAL);
 			// remove old char immidiately
 			gWorldManager->removePlayerFromDisconnectedList(playerObject);
-			
+
 			// need to make sure char is saved and removed, before requesting the new one
 			// so doing it sync
-			
+
 			//start async save with command character request and relevant ID
 			CharacterLoadingContainer* clContainer = new(CharacterLoadingContainer);
-			
+
 			clContainer->mClient		= client;
 			clContainer->mPlayerId		= playerId;
 			clContainer->ofCallback		= this;
@@ -210,52 +214,52 @@ void CharacterLoginHandler::handleDispatchMessage(uint32 opcode, Message* messag
 		else
 		{
 			gLogger->logMsgF("all other cases",MSG_NORMAL);
-//			gLogger->logMsgF("New Player: %lld, Total Players on zone : %i",MSG_NORMAL,playerId,(gWorldManager->getPlayerAccMap())->size() + 1);
+//			gLogger->logMsgF("New Player: %"PRId64", Total Players on zone : %i",MSG_NORMAL,playerId,(gWorldManager->getPlayerAccMap())->size() + 1);
 			gObjectFactory->requestObject(ObjType_Player,0,0,this,playerId,client);
 		}
 	}
     break;
 
-    case opClusterClientDisconnect:    
+    case opClusterClientDisconnect:
 	{
       _processClusterClientDisconnect(message, client);
 	}
     break;
 
-    case opClusterZoneTransferApprovedByTicket:    
+    case opClusterZoneTransferApprovedByTicket:
     {
       _processClusterZoneTransferApprovedByTicket(message, client);
     }
     break;
 
-	case opClusterZoneTransferApprovedByPosition:    
+	case opClusterZoneTransferApprovedByPosition:
 	{
 		_processClusterZoneTransferApprovedByPosition(message, client);
 	}
 	break;
 
-    case opClusterZoneTransferDenied:    
+    case opClusterZoneTransferDenied:
     {
       _processClusterZoneTransferDenied(message, client);
     }
     break;
 
-    case opCmdSceneReady:   
+    case opCmdSceneReady:
 	{
 		// Client has finished loading, acknowledge
 		gMessageLib->sendSceneReady(client);
-		
+
 		// get the according player object
 		PlayerObject* player = gWorldManager->getPlayerByAccId(message->getAccountId());
 		if (player)
 		{
-			player->setReady(true);	
+			player->setReady(true);
 
 			// send our message of the day
 			string moT = "welcome to swgAnh";
 			moT	= (int8*)((gWorldConfig->getConfiguration<std::string>("motD",moT.getAnsi())).c_str());
 			//moT = gWorldConfig->getConfiguration("motD",moT.getAnsi());
-				
+
 			moT.convert(BSTRType_Unicode16);
 			if(player && !(player->getMotdReceived()) && moT.getLength())
 			{
@@ -276,13 +280,13 @@ void CharacterLoginHandler::handleDispatchMessage(uint32 opcode, Message* messag
 			gMessageLib->sendFriendListPlay9(player);
 			gMessageLib->sendIgnoreListPlay9(player);
 			gMessageLib->sendSceneReadyToChat(client);	// will get any mails received when offline. The point is: Notidy about new mails AFTER the user have got the "logged in" message.
-			
+
 			// Init and start player world position updates.
 			ObjectController* ObjCtl = player->getController();
 			(void)ObjCtl->playerWorldUpdate(true);	// Force a world object update.
 
 			// This timed event will handle updates of world objects when no external events arrives (movement events from client).
-			gWorldManager->addPlayerMovementUpdateTime(player, 1000);	
+			gWorldManager->addPlayerMovementUpdateTime(player, 1000);
 
 			//Initialise the buffs
 			gBuffManager->InitBuffs(player);
@@ -291,7 +295,7 @@ void CharacterLoginHandler::handleDispatchMessage(uint32 opcode, Message* messag
 			int8 rawData[128];
 			// sprintf(rawData,"Running %s",ConfigManager::getBuildString());
 			sprintf(rawData,"Running build %s created %s", ConfigManager::getBuildNumber().c_str(), ConfigManager::getBuildTime().c_str());
-			
+
 			string buildString(rawData);
 			buildString.convert(BSTRType_Unicode16);
 			gMessageLib->sendSystemMessage(player,buildString.getUnicode16());
@@ -415,10 +419,10 @@ void CharacterLoginHandler::_processClusterZoneTransferApprovedByTicket(Message*
 		TravelTicket* ticket	= dynamic_cast<TravelTicket*>(dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getObjectById(ticketId));
 		string dstPointStr		= (int8*)((ticket->getAttribute<std::string>("travel_arrival_point")).c_str());
 		uint16 dstPlanetId		= static_cast<uint16>(gWorldManager->getPlanetIdByName((int8*)((ticket->getAttribute<std::string>("travel_arrival_planet")).c_str())));
-    
+
 		TravelPoint* dstPoint = gTravelMapHandler->getTravelPoint(dstPlanetId,dstPointStr);
 
-		uint64 playerId = playerObject->getId();
+//		uint64 playerId = playerObject->getId();
 
 		Anh_Math::Vector3 destination;
 		destination.mX = dstPoint->spawnX + (gRandom->getRand()%5 - 2);
@@ -440,9 +444,9 @@ void CharacterLoginHandler::_processClusterZoneTransferApprovedByTicket(Message*
 		asyncContainer->player		= playerObject;
 		asyncContainer->callBack	= CLHCallBack_Transfer_Ticket;
 
-		mDatabase->ExecuteSqlAsync(this,asyncContainer,"DELETE FROM items WHERE id = %lld", ticket->getId());
+		mDatabase->ExecuteSqlAsync(this,asyncContainer,"DELETE FROM items WHERE id = %"PRId64"", ticket->getId());
 
-		
+
 	}
 }
 
@@ -480,7 +484,7 @@ void CharacterLoginHandler::_processClusterZoneTransferApprovedByPosition(Messag
 void CharacterLoginHandler::_processClusterZoneTransferDenied(Message* message, DispatchClient* client)
 {
 	PlayerObject* playerObject;
-	uint32 reason = message->getUint32();
+	/*uint32 reason = */message->getUint32();
 
 	// put it to the disconnected list
 	if((playerObject = gWorldManager->getPlayerByAccId(message->getAccountId())) != NULL)

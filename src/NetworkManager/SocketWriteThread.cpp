@@ -64,13 +64,13 @@ void SocketWriteThread::Startup(SOCKET socket, Service* service, bool serverserv
 {
 	mSocket = socket;
 	mService = service;
-	
+
 	if(serverservice)
 	{
 
 		mServerService = true;
 		mMessageMaxSize = gNetConfig->getServerServerReliableSize();
-		
+
 	}
 	else
 	{
@@ -126,7 +126,7 @@ void SocketWriteThread::run()
 	while(!mExit)
 	{
 
-		uint32 sessionCount = mSessionQueue.size();	
+		uint32 sessionCount = mSessionQueue.size();
 
 		for(uint32 i = 0; i < sessionCount; i++)
 		{
@@ -140,14 +140,14 @@ void SocketWriteThread::run()
 
 			// Send any outgoing reliable packets
 			//uint32 rcount = 0;
-			
+
 			while (session->getOutgoingReliablePacketCount())
 			{
 			//	rcount++;
 				packet = session->getOutgoingReliablePacket();
 				_sendPacket(packet, session);
 			}
-			
+
 
 			// Send any outgoing unreliable packets
 			//uint32 ucount = 0;
@@ -156,12 +156,12 @@ void SocketWriteThread::run()
 			//	ucount++;
 				packet = session->getOutgoingUnreliablePacket();
 				_sendPacket(packet, session);
-				
+
 				//accessing the packetpool actually seems to crash regularly when we have a high load (around 150 bots in one bigger spot)
 				//might it make sense to put it on a session queue for later deletion in the session to avoid threading issues?
 				session->DestroyPacket(packet);
 			}
-			
+
 
 			// If the session is still in a connected state, Put us back in the queue.
 			if (session->getStatus() != SSTAT_Disconnected)
@@ -206,13 +206,14 @@ void SocketWriteThread::_sendPacket(Packet* packet, Session* session)
 	struct sockaddr     toAddr;
 	uint32              sent, toLen = sizeof(toAddr), outLen;
 
-	
+
 	// Some basic bounds checking.
 	if(packet->getSize() > mMessageMaxSize)
 	{
 		gLogger->logErrorF("Netcode","packet (%u) is longer than mMessageMaxSize (%u)",MSG_HIGH,packet->getSize(),mMessageMaxSize);
-		assert(false);
+		return;
 	}
+	//assert(packet->getSize() <= mMessageMaxSize);
 
 	// Want a fresh send buffer for debugging purposes.
 	memset(mSendBuffer, 0xcd, sizeof(mSendBuffer));
@@ -228,11 +229,11 @@ void SocketWriteThread::_sendPacket(Packet* packet, Session* session)
 	packet->setReadIndex(0);
 	uint16 packetType = packet->getUint16();
 	uint8  packetTypeLow = *(packet->getData());
-	uint8  packetTypeHigh = *(packet->getData()+1);
+	//uint8  packetTypeHigh = *(packet->getData()+1);
 
 	//gLogger->logMsgF("OnWire, Type:0x%.4x, Session:0x%x%.4x, IP: 0x%.8x, port:%u", MSG_LOW, packetType, session->getService()->getId(), session->getId(), session->getAddress(), ntohs(session->getPort()));
 
-	// Set our TimeSent 
+	// Set our TimeSent
 	packet->setTimeSent(Anh_Utils::Clock::getSingleton()->getLocalTime());
 
 	// Setup our to address
@@ -243,7 +244,7 @@ void SocketWriteThread::_sendPacket(Packet* packet, Session* session)
 	// Copy our 2 byte header.
 	*((uint16*)mSendBuffer) = *((uint16*)packet->getData());
 
-	// Compress the packet if needed.  
+	// Compress the packet if needed.
 	if(packet->getIsCompressed())
 	{
 		if(packetTypeLow == 0)
@@ -257,7 +258,7 @@ void SocketWriteThread::_sendPacket(Packet* packet, Session* session)
 		}
 
 		// If we compressed it, place a 1 at the end of the buffer.
-		if(outLen) 
+		if(outLen)
 		{
 			if(packetTypeLow == 0)
 			{
@@ -271,10 +272,10 @@ void SocketWriteThread::_sendPacket(Packet* packet, Session* session)
 			}
 		}
 		// else a 0 - so no compression
-		else 
+		else
 		{
 		  memcpy(mSendBuffer, packet->getData(), packet->getSize());
-		  outLen = packet->getSize(); 
+		  outLen = packet->getSize();
 
 		  mSendBuffer[outLen] = 0;
 		  outLen += 1;
@@ -301,7 +302,7 @@ void SocketWriteThread::_sendPacket(Packet* packet, Session* session)
 		{
 			mCompCryptor->Encrypt(mSendBuffer + 2, outLen - 2, session->getEncryptKey()); // -2 header is not encrypted
 		}
-		else if(packetTypeLow < 0x0d) 
+		else if(packetTypeLow < 0x0d)
 		{
 			mCompCryptor->Encrypt(mSendBuffer + 1, outLen - 1, session->getEncryptKey()); // - 1 header is not encrypted
 		}
@@ -311,8 +312,8 @@ void SocketWriteThread::_sendPacket(Packet* packet, Session* session)
 		}
 		//assert(packetTypeLow < 0x0d);
 
-		packet->setCRC(mCompCryptor->GenerateCRC(mSendBuffer, outLen, session->getEncryptKey()));        
-														 
+		packet->setCRC(mCompCryptor->GenerateCRC(mSendBuffer, outLen, session->getEncryptKey()));
+
 
 		mSendBuffer[outLen] = (uint8)(packet->getCRC() >> 8);
 		mSendBuffer[outLen + 1] = (uint8)packet->getCRC();
@@ -321,44 +322,25 @@ void SocketWriteThread::_sendPacket(Packet* packet, Session* session)
 
 	}
 
-	fd_set              socketSet;
-	struct              timeval tv;
-
-	FD_ZERO(&socketSet);
-
-	// Build a new fd_set structure
-	FD_SET(mSocket, &socketSet);
-    
-	// We're going to block for 50us.
-	tv.tv_sec   = 0;
-	tv.tv_usec  = 150;
-	
-	int count = select(mSocket, 0, &socketSet, 0, &tv);
-
-	if(count <= 0)
-	{
-		int error = WSAGetLastError();
-		gLogger->logMsgF("SocketWriteThread::_sendPacket *** Unkown error from socket sendto: %u", MSG_HIGH, error);
-	}
-	
 	sent = sendto(mSocket, mSendBuffer, outLen, 0, &toAddr, toLen);
-	
-	if (sent <  0)
-	{
-		gLogger->logMsgF("SocketWriteThread::_sendPacket *** Unkown error from socket sendto: %u", MSG_HIGH, errno);
-	}
 
-	if (sent <  outLen)
+	if((outLen > mMessageMaxSize) )
+	  {
+		  gLogger->logMsgF("Cave Wrote Packetsize : %u Max Allowed Size : %u", MSG_HIGH, outLen,mMessageMaxSize);
+		  gLogger->hexDump(mSendBuffer,outLen);
+	  }
+
+	if (sent < 0)
 	{
-		gLogger->logMsgF("SocketWriteThread::_sendPacket *** discrepancy in send bytes socket sent %u should have sent %u", MSG_HIGH, sent,outLen);
+		gLogger->logMsgF("*** Unkown error from socket sendto: %u", MSG_HIGH, errno);
 	}
 }
 
 //======================================================================================================================
 
-void SocketWriteThread::NewSession(Session* session) 
-{ 
-	mSessionQueue.push(session); 
+void SocketWriteThread::NewSession(Session* session)
+{
+	mSessionQueue.push(session);
 }
 
 //======================================================================================================================

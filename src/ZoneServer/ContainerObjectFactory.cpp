@@ -80,7 +80,7 @@ void ContainerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult*
 			QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,CFQuery_ObjectCount,asyncContainer->mClient);
 			asContainer->mObject = container;
 
-			mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT sf_getInventoryObjectCount(%lld)",container->getId());
+			mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT sf_getInventoryObjectCount(%"PRId64")",container->getId());
 		}
 		break;
 
@@ -108,9 +108,9 @@ void ContainerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult*
 
 				mDatabase->ExecuteSqlAsync(this,asContainer,
 						"(SELECT \'containers\',containers.id FROM containers INNER JOIN container_types ON (containers.container_type = container_types.id)"
-						" WHERE (container_types.name NOT LIKE 'unknown') AND (containers.parent_id = %lld))"
-						" UNION (SELECT \'items\',items.id FROM items WHERE (parent_id=%lld))"
-						" UNION (SELECT \'resource_containers\',resource_containers.id FROM resource_containers WHERE (parent_id=%lld))",
+						" WHERE (container_types.name NOT LIKE 'unknown') AND (containers.parent_id = %"PRId64"))"
+						" UNION (SELECT \'items\',items.id FROM items WHERE (parent_id=%"PRId64"))"
+						" UNION (SELECT \'resource_containers\',resource_containers.id FROM resource_containers WHERE (parent_id=%"PRId64"))",
 						containerId,containerId,containerId);
 				
 			}
@@ -173,7 +173,7 @@ void ContainerObjectFactory::requestObject(ObjectFactoryCallback* ofCallback,uin
 								"SELECT containers.id,containers.parent_id,containers.oX,containers.oY,containers.oZ,containers.oW,containers.x,"
 								"containers.y,containers.z,containers.container_type,container_types.object_string,container_types.name,container_types.file,container_types.details_file"
 								" FROM containers INNER JOIN container_types ON (containers.container_type = container_types.id)"
-								" WHERE (containers.id = %lld)",id);
+								" WHERE (containers.id = %"PRId64")",id);
 	}
 	else
 	{
@@ -198,7 +198,7 @@ void ContainerObjectFactory::requestObject(ObjectFactoryCallback* ofCallback,uin
 				QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,CFQuery_ObjectCount,client);
 				asContainer->mObject = container;
 
-				mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT sf_getInventoryObjectCount(%lld)",container->getId());
+				mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT sf_getInventoryObjectCount(%"PRId64")",container->getId());
 			}
 		}
 	}

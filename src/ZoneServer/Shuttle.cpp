@@ -18,11 +18,12 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 //=============================================================================
 
-Shuttle::Shuttle() : CreatureObject(),
-mAwayTime(0),
-mInPortTime(0),
-mLandingTime(0),
-mTicketCollectorEnabled(false)
+Shuttle::Shuttle()
+: CreatureObject()
+, mAwayTime(0)
+, mInPortTime(0)
+, mLandingTime(0)
+, mTicketCollectorEnabled(false)
 {
 	mCreoGroup		= CreoGroup_Shuttle;
 	mState			= 0;
@@ -79,7 +80,7 @@ void Shuttle::useShuttle(PlayerObject* playerObject)
 	if(!collector)
 	{
 		int8 sql[128];
-		sprintf(sql,"No ticket collector on duty error : %I64u",getCollectorId());
+		sprintf(sql,"No ticket collector on duty error : %"PRIu64,getCollectorId());
 		string u = BString(sql);
 		u.convert(BSTRType_Unicode16);
 		gMessageLib->sendSystemMessage(playerObject,u.getUnicode16());

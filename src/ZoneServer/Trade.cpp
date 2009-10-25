@@ -23,13 +23,13 @@ Copyright (c) 2006 - 2009 The swgANH Team
 
 SkillTeachContainer::SkillTeachContainer()
 {}
-	
+
 
 SkillTeachContainer::~SkillTeachContainer()
 {
     mTradeSkills.clear();
 }
-	
+
 
 void SkillTeachContainer::addSkill(uint32 nr, uint32 id)
 {
@@ -37,17 +37,17 @@ void SkillTeachContainer::addSkill(uint32 nr, uint32 id)
         std::make_pair(nr, gSkillManager->getSkillById(id))
         );
 }
-	
+
 
 mySkillList* SkillTeachContainer::getList()
 {
     return &mTradeSkills;
 }
-	
+
 Skill* SkillTeachContainer::getEntry(uint32 nr)
 {
     mySkillList::iterator it = mTradeSkills.find(nr);
-    
+
     if(it != mTradeSkills.end())
     {
         return (*it).second;
@@ -85,7 +85,7 @@ bool Trade::verifyInvitation(PlayerObject* player)
 void Trade::tradeInvitationAdded(PlayerObject* inviter)
 {
 	//gets called by the inviter -> We (this) are the invited
-	//check if already in 
+	//check if already in
 	if (verifyInvitation(inviter) == false)
 	{
 		mPlayerObjectList.push_back(inviter);
@@ -95,7 +95,7 @@ void Trade::tradeInvitationAdded(PlayerObject* inviter)
 		//30 second timer
 		(gWorldManager->getPlayerScheduler())->addTask(fastdelegate::MakeDelegate(this,&Trade::_handleCancelTradeInvitation),7,30000,asyncContainer);
 	}
-	
+
 }
 //=============================================================================
 void Trade::deleteTradeInvitation(PlayerObject* player)
@@ -122,11 +122,11 @@ void Trade::deleteTradeInvitation(PlayerObject* player)
 bool Trade::_handleCancelTradeInvitation(uint64 callTime, void* ref)
 {
 	TimerAsyncContainer* asynContainer = (TimerAsyncContainer*)ref;
-	
+
 	//get the player who will be deleted from our invitation list
 	PlayerObject* inviter = (PlayerObject*)asynContainer->mToBeRemoved;
 	deleteTradeInvitation(inviter);
-	
+
 	return false;//the invitation is removed no need to execute this again
 }
 
@@ -142,7 +142,7 @@ void Trade::cancelTradeSession()
 	while(it != mItemTradeList.end())
 	{
 		mItemTradeList.erase(it);
-		it = mItemTradeList.begin();	
+		it = mItemTradeList.begin();
 	}
 	mMoney = 0;
 	mTradingFin = false;
@@ -190,7 +190,7 @@ bool Trade::checkTradeListtoInventory()
 {
 	ItemTradeList::iterator it			= mItemTradeList.begin();
 	Inventory*				inventory	= dynamic_cast<Inventory*>(getPlayerObject()->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-	
+
 	if(!inventory)
 	{
 		gLogger->logMsgF("Trade::checkTradeListtoInventory():: No inventory for %I64u",MSG_NORMAL,getPlayerObject()->getId());
@@ -202,7 +202,7 @@ bool Trade::checkTradeListtoInventory()
 		gMessageLib->sendSystemMessage(getPlayerObject(),L"","error_message","inv_full");
 		return false;
 	}
-	
+
 	return(true);
 }
 
@@ -216,16 +216,16 @@ void  Trade::processTradeListPreTransaction(Transaction* mTransaction)
 
 	while(it != mItemTradeList.end())
 	{
-		uint64 itemId = (*it)->getObject()->getId();
-		TangibleGroup tanGroup = (*it)->getObject()->getTangibleGroup();
-		
+		//uint64 itemId = (*it)->getObject()->getId();
+		//TangibleGroup tanGroup = (*it)->getObject()->getTangibleGroup();
+
 		//make sure the item is not equipped
 		if (checkEquipped((Item*)(*it)->getObject()))
 			((Wearable*)(*it)->getObject())->setInternalAttribute("equipped","false");
 
 
 		//change Owner in the db via transaction
-		
+
 		switch((*it)->getObject()->getType())
 		{
 			case ObjType_Tangible:
@@ -236,13 +236,13 @@ void  Trade::processTradeListPreTransaction(Transaction* mTransaction)
 				{
 					case TanGroup_Item:
 					{
-						sprintf(sql,"UPDATE items SET parent_id = %I64u WHERE id = %I64u",(*it)->getNewOwner()->getId()+1,(*it)->getObject()->getId());
+						sprintf(sql,"UPDATE items SET parent_id = %"PRIu64" WHERE id = %"PRIu64"",(*it)->getNewOwner()->getId()+1,(*it)->getObject()->getId());
 					}
 					break;
 
 					case TanGroup_ResourceContainer:
 					{
-						sprintf(sql,"UPDATE resource_containers SET parent_id = %I64u WHERE id = %I64u",(*it)->getNewOwner()->getId()+1,(*it)->getObject()->getId());
+						sprintf(sql,"UPDATE resource_containers SET parent_id = %"PRIu64" WHERE id = %"PRIu64"",(*it)->getNewOwner()->getId()+1,(*it)->getObject()->getId());
 					}
 					break;
 
@@ -253,7 +253,7 @@ void  Trade::processTradeListPreTransaction(Transaction* mTransaction)
 
 			case ObjType_Waypoint:
 			{
-				sprintf(sql,"UPDATE waypoints SET parent_id = %I64u WHERE id = %I64u",(*it)->getNewOwner()->getId(),(*it)->getObject()->getId());
+				sprintf(sql,"UPDATE waypoints SET parent_id = %"PRIu64" WHERE id = %"PRIu64"",(*it)->getNewOwner()->getId(),(*it)->getObject()->getId());
 			}
 			break;
 
@@ -283,7 +283,7 @@ void  Trade::processTradeListPostTransaction()
 
 		//delete out of our inventory
 		gMessageLib->sendDestroyObject(itemId,getPlayerObject());
-		inventory->deleteObject((*it)->getObject());		
+		inventory->deleteObject((*it)->getObject());
 
 		//need to access new Owner over id to prevent problems with outlogging players
 		//or we need to put the logtime higher so that might be unnecessary after all
@@ -293,7 +293,7 @@ void  Trade::processTradeListPostTransaction()
 		{
 			gObjectFactory->createIteminInventory(dynamic_cast<Inventory*>((*it)->getNewOwner()->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)),itemId,tanGroup);
 		}
-			
+
 		it = mItemTradeList.erase(it);
 	}
 }

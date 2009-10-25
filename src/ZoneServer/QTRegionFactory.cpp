@@ -93,7 +93,7 @@ void QTRegionFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,
 		"planet_regions.width,planet_regions.height"
 		" FROM zone_regions"
 		" INNER JOIN planet_regions ON (zone_regions.region_id = planet_regions.region_id)"
-		" WHERE (zone_regions.id = %lld)",id);
+		" WHERE (zone_regions.id = %"PRId64")",id);
 }
 
 //=============================================================================

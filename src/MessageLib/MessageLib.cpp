@@ -92,7 +92,7 @@ bool MessageLib::_checkPlayer(const PlayerObject* const player) const
 		return false;
 
 	PlayerObject* tested = gWorldManager->getPlayerByAccId(player->getAccountId());
-	if(!tested)	
+	if(!tested)
 	{
 		gLogger->logMsgF("Player account (%u) invalid",MSG_NORMAL,player->getAccountId());
 		return false;
@@ -104,7 +104,7 @@ bool MessageLib::_checkPlayer(const PlayerObject* const player) const
 bool MessageLib::_checkPlayer(uint64 playerId) const
 {
 	PlayerObject* tested = dynamic_cast <PlayerObject*> (gWorldManager->getObjectById(playerId));
-	if(!tested)	
+	if(!tested)
 	{
 		gLogger->logMsgF("Player Id (%I64u) invalid",MSG_NORMAL,playerId);
 		return false;
@@ -126,7 +126,7 @@ void MessageLib::_sendToInRangeUnreliable(Message* message, Object* const object
 
 	while(it != inRangePlayers->end())
 	{
-		if(_checkPlayer((*it)))	
+		if(_checkPlayer((*it)))
 		{
 			// clone our message
 			gMessageFactory->StartMessage();
@@ -142,7 +142,7 @@ void MessageLib::_sendToInRangeUnreliable(Message* message, Object* const object
 	if(toSelf)
 	{
 		const PlayerObject* const srcPlayer = dynamic_cast<const PlayerObject*>(object);
-		if(_checkPlayer(srcPlayer))	
+		if(_checkPlayer(srcPlayer))
 		{
 			(srcPlayer->getClient())->SendChannelAUnreliable(message,srcPlayer->getAccountId(),CR_Client,static_cast<uint8>(priority));
 			return;
@@ -161,7 +161,7 @@ void MessageLib::_sendToInRange(Message* message, Object* const object,uint16 pr
 
 	while(it != inRangePlayers->end())
 	{
-		if(_checkPlayer((*it)))	
+		if(_checkPlayer((*it)))
 		{
 			// clone our message
 			gMessageFactory->StartMessage();
@@ -177,7 +177,7 @@ void MessageLib::_sendToInRange(Message* message, Object* const object,uint16 pr
 	if(toSelf)
 	{
 		const PlayerObject* const srcPlayer = dynamic_cast<const PlayerObject*>(object);
-		if(_checkPlayer(srcPlayer))	
+		if(_checkPlayer(srcPlayer))
 		{
 			(srcPlayer->getClient())->SendChannelA(message,srcPlayer->getAccountId(),CR_Client, static_cast<uint8>(priority));
 			return;
@@ -196,7 +196,7 @@ void MessageLib::_sendToInRange(Message* message, Object* const object,uint16 pr
 
 void MessageLib::_sendToInstancedPlayers(Message* message,uint16 priority, const PlayerObject* const playerObject) const
 {
-	if (!_checkPlayer(playerObject)) 
+	if (!_checkPlayer(playerObject))
 	{
 		gMessageFactory->DestroyMessage(message);
 		return;
@@ -208,7 +208,7 @@ void MessageLib::_sendToInstancedPlayers(Message* message,uint16 priority, const
 
 	while (player != inRangeMembers.end())
 	{
-		if (_checkPlayer(*player)) 
+		if (_checkPlayer(*player))
 		{
 			// Clone the message.
 			gMessageFactory->StartMessage();
@@ -230,7 +230,7 @@ void MessageLib::_sendToInstancedPlayers(Message* message,uint16 priority, const
 
 void MessageLib::_sendToInstancedPlayersUnreliable(Message* message,uint16 priority, const PlayerObject* const playerObject) const
 {
-	if (!_checkPlayer(playerObject)) 
+	if (!_checkPlayer(playerObject))
 	{
 		gMessageFactory->DestroyMessage(message);
 		return;
@@ -242,7 +242,7 @@ void MessageLib::_sendToInstancedPlayersUnreliable(Message* message,uint16 prior
 
 	while (player != inRangeMembers.end())
 	{
-		if (_checkPlayer(*player)) 
+		if (_checkPlayer(*player))
 		{
 			// Clone the message.
 			gMessageFactory->StartMessage();
@@ -251,7 +251,7 @@ void MessageLib::_sendToInstancedPlayersUnreliable(Message* message,uint16 prior
 
 
 			((*player)->getClient())->SendChannelAUnreliable(clonedMessage,(*player)->getAccountId(),CR_Client,static_cast<uint8>(priority));
-	
+
 		}
 		++player;
 	}
@@ -346,8 +346,8 @@ bool MessageLib::sendCreatePlayer(PlayerObject* playerObject,PlayerObject* targe
 
 	if(targetObject == playerObject)
 	{
-		sendBaselinesCREO_1(playerObject);   
-		sendBaselinesCREO_4(playerObject); 
+		sendBaselinesCREO_1(playerObject);
+		sendBaselinesCREO_4(playerObject);
 	}
 
 	sendBaselinesCREO_3(playerObject,targetObject);
@@ -387,7 +387,7 @@ bool MessageLib::sendCreatePlayer(PlayerObject* playerObject,PlayerObject* targe
 	if(targetObject == playerObject)
 	{
 		// create inventory and contents
-		if(TangibleObject* inventory = dynamic_cast<TangibleObject*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)))
+		if(dynamic_cast<TangibleObject*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)))
 		{
 			sendInventory(playerObject);
 		}
@@ -430,7 +430,7 @@ bool MessageLib::sendCreatePlayer(PlayerObject* playerObject,PlayerObject* targe
 
 			while(it != manufacturingSchematics->end())
 			{
-				gMessageLib->sendCreateManufacturingSchematic((dynamic_cast<ManufacturingSchematic*>(*it)),playerObject ,false);	
+				gMessageLib->sendCreateManufacturingSchematic((dynamic_cast<ManufacturingSchematic*>(*it)),playerObject ,false);
 				++it;
 			}
 
@@ -709,7 +709,7 @@ bool MessageLib::sendCreateHarvester(HarvesterObject* harvester,PlayerObject* pl
 {
 	if(!_checkPlayer(player))
 		return(false);
-	
+
 	//gLogger->logMsgF("MessageLib::sendCreateHarvester:ID %I64u parentId %I64u x : %f   y : %f",MSG_HIGH,harvester->getId(),harvester->getParentId(),harvester->mPosition.mX,harvester->mPosition.mZ);
 
 	sendCreateObjectByCRC(harvester,player,false);
@@ -717,7 +717,7 @@ bool MessageLib::sendCreateHarvester(HarvesterObject* harvester,PlayerObject* pl
 	sendBaselinesHINO_3(harvester,player);
 	sendBaselinesHINO_6(harvester,player);
 
-	
+
 	sendEndBaselines(harvester->getId(),player);
 
 	return(true);
@@ -735,10 +735,10 @@ bool MessageLib::sendCreateStructure(PlayerStructure* structure,PlayerObject* pl
 		return(false);
 
 	HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(structure);
-	
+
 	if(harvester)
 	{
-		
+
 		return(sendCreateHarvester(harvester, player));
 	}
 
@@ -835,7 +835,7 @@ void MessageLib::sendInventory(PlayerObject* playerObject)
 		return;
 
 	Inventory*	inventory	= dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-	uint64		parentId	= inventory->getParentId();
+	//uint64		parentId	= inventory->getParentId();
 
 	inventory->setTypeOptions(256);
 	//gLogger->logMsgF("MessageLib::inventory: ID %I64u parentId %I64u",MSG_HIGH,inventory->getId(),inventory->getParentId());
@@ -863,7 +863,7 @@ void MessageLib::sendInventory(PlayerObject* playerObject)
 			//gLogger->logMsgF("MessageLib::inventory:Resource %I64u parentId %I64u",MSG_HIGH,resContainer->getId(),resContainer->getParentId());
 			sendCreateResourceContainer(resContainer,playerObject);
 		}
-		else 
+		else
 			if(TangibleObject* tangible = dynamic_cast<TangibleObject*>(*objIt))
 			{
 				//gLogger->logMsgF("MessageLib::inventory:Tangible  %I64u parentId %I64u",MSG_HIGH,tangible->getId(),tangible->getParentId());
@@ -877,7 +877,7 @@ void MessageLib::sendInventory(PlayerObject* playerObject)
 	objIt			= invObjects->begin();
 
 	while(objIt != invObjects->end())
-	{ 
+	{
 		if(TangibleObject* tangible = dynamic_cast<TangibleObject*>(*objIt))
 		{
 			//gLogger->logMsgF("MessageLib::inventory: equipped tangible %I64u parentId %I64u",MSG_HIGH,tangible->getId(),tangible->getParentId());
@@ -916,7 +916,7 @@ void MessageLib::sendCreateObject(Object* object,PlayerObject* player,bool sendS
 			// If it's a creature owned by me or my group I want to see it.
 			if (CreatureObject* targetCreature = dynamic_cast<CreatureObject*>(object))
 			{
-			if (targetCreature->getPrivateOwner()) 
+			if (targetCreature->getPrivateOwner())
 			{
 			if (targetCreature->isOwnedBy(player))
 			{
@@ -934,7 +934,7 @@ void MessageLib::sendCreateObject(Object* object,PlayerObject* player,bool sendS
 			// If it's a creature owned by me or my group I want to see it.
 			if (CreatureObject* targetCreature = dynamic_cast<CreatureObject*>(object))
 			{
-				if (targetCreature->getPrivateOwner()) 
+				if (targetCreature->getPrivateOwner())
 				{
 					if (targetCreature->isOwnedBy(player))
 					{
@@ -991,7 +991,11 @@ void MessageLib::sendCreateObject(Object* object,PlayerObject* player,bool sendS
 		case ObjType_Tangible:
 		{
 			// skip, if its static
+#if defined(_MSC_VER)
 			if(object->getId() > 0x0000000100000000)
+#else
+			if(object->getId() > 0x0000000100000000LLU)
+#endif
 			{
 				if(TangibleObject* tangibleObject = dynamic_cast<TangibleObject*>(object))
 				{
@@ -1014,7 +1018,11 @@ void MessageLib::sendCreateObject(Object* object,PlayerObject* player,bool sendS
 		case ObjType_Building:
 		{
 			// skip, if its static
+#if defined(_MSC_VER)
 			if(object->getId() > 0x0000000100000000)
+#else
+			if(object->getId() > 0x0000000100000000LLU)
+#endif
 			{
 				if(BuildingObject* building = dynamic_cast<BuildingObject*>(object))
 				{
@@ -1028,7 +1036,11 @@ void MessageLib::sendCreateObject(Object* object,PlayerObject* player,bool sendS
 		case ObjType_Harvester:
 		{
 			// skip, if its static
+#if defined(_MSC_VER)
 			if(object->getId() > 0x0000000100000000)
+#else
+			if(object->getId() > 0x0000000100000000LLU)
+#endif
 			{
 				if(HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(object))
 				{

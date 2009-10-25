@@ -51,25 +51,6 @@ bool Service::mSocketsSubsystemInitComplete = false;
 
 //======================================================================================================================
 
-NetworkCallbackList	mNetworkCallbackList;
-SessionQueue				mSessionProcessQueue;
-int8								mLocalAddressName[256];
-NetworkManager*			mNetworkManager;
-SocketReadThread*		mSocketReadThread;
-SocketWriteThread*	mSocketWriteThread;
-SOCKET				mLocalSocket;
-uint64							avgTime;
-uint64							lasttime;
-uint32              avgPacketsbuild;
-uint32							mId;
-uint32							mLocalAddress;
-uint32							mSessionResendWindowSize;
-uint16							mLocalPort;
-bool								mQueued;
-bool								mServerService;	//marks us as the serverservice / clientservice
-
-static bool					mSocketsSubsystemInitComplete;
-
 Service::Service(NetworkManager* networkManager, bool serverservice) :
 mNetworkManager(networkManager),
 mSocketReadThread(0),
@@ -122,10 +103,9 @@ void Service::Startup(int8* localAddress, uint16 localPort,uint32 mfHeapSize)
 	server.sin_family   = AF_INET;
 	server.sin_port     = mLocalPort;
 	server.sin_addr.s_addr = INADDR_ANY;
-	int serverLen = sizeof(server);
 
 	// Attempt to bind to our socket
-	int32 result = bind(mLocalSocket, (sockaddr*)&server, sizeof(server));
+	bind(mLocalSocket, (sockaddr*)&server, sizeof(server));
 
 	// We need to call connect on the socket to an address before we can know which address we have.
 	// The address specified in the connect call determines which interface our socket is associated with
@@ -141,13 +121,6 @@ void Service::Startup(int8* localAddress, uint16 localPort,uint32 mfHeapSize)
 	//sent = sendto(mLocalSocket, mSendBuffer, 1, 0, &toAddr, toLen);
 	sent = connect(mLocalSocket, &toAddr, toLen);
 
-	//set the socketbuffer so we dont suffer internal dataloss
-	int value;
-	int valuelength = sizeof(value);
-	value = 100000;
-	setsockopt(mLocalSocket,SOL_SOCKET,SO_RCVBUF,(char*)&value,valuelength);
-
-
 	// Create our read/write socket classes
 	mSocketWriteThread = new SocketWriteThread();
 	mSocketReadThread = new SocketReadThread();
@@ -161,10 +134,10 @@ void Service::Startup(int8* localAddress, uint16 localPort,uint32 mfHeapSize)
 	//mLocalPort = server.sin_port;
 
 	// Reset the connect call to universe.
-	//toAddr.sa_family = AF_INET;
-	//*((uint32*)&toAddr.sa_data[2]) = 0;
-	//*((uint16*)&(toAddr.sa_data[0])) = 0;
-	//sent = connect(mLocalSocket, &toAddr, toLen);
+	toAddr.sa_family = AF_INET;
+	*((uint32*)&toAddr.sa_data[2]) = 0;
+	*((uint16*)&(toAddr.sa_data[0])) = 0;
+	sent = connect(mLocalSocket, &toAddr, toLen);
 
 }
 
@@ -208,7 +181,7 @@ void Service::Process(uint32 loop)
 	// the other threads could keep placing more Packets in the queue, and this could cause a stall in the
 	// main thread.
 	Session* session = 0;
-	Message* message = 0;
+	//Message* message = 0;
 	NetworkClient* newClient = 0;
 	uint32 sessionCount = mSessionProcessQueue.size();
 

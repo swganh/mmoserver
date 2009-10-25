@@ -54,17 +54,17 @@ class FactoryBase : public DatabaseCallback
 	protected:
 
 		void				_buildAttributeMap(Object* object,DatabaseResult* result);
-	
+
 		InLoadingContainer* _getObject(uint64 id);
 		bool				_removeFromObjectLoadMap(uint64 id);
 
-		Database*				mDatabase;
-		ObjectLoadMap			mObjectLoadMap;
-		DataBinding*			mAttributeBinding;
-
-
 		boost::pool<boost::default_user_allocator_malloc_free>		mILCPool;
 		boost::pool<boost::default_user_allocator_malloc_free>		mQueryContainerPool;
+
+		ObjectLoadMap			mObjectLoadMap;
+
+		DataBinding*			mAttributeBinding;
+		Database*				mDatabase;
 };
 
 //=============================================================================
@@ -74,14 +74,13 @@ class NonPersistantQueryContainerBase
 	public:
 
 		NonPersistantQueryContainerBase(ObjectFactoryCallback* ofCallback,uint32 queryType,DispatchClient* client,Item* newItem) :
-		  mOfCallback(ofCallback),mClient(client),mQueryType(queryType),mItem(newItem){}
+				mClient(client),mOfCallback(ofCallback),mQueryType(queryType),mItem(newItem){}
 
 		DispatchClient*			mClient;
 		ObjectFactoryCallback*	mOfCallback;
 		Object*					mObject;
 		uint32					mQueryType;
 		Item*					mItem;
-		
 };
 
 //=============================================================================
@@ -106,7 +105,7 @@ class QueryContainerBase
 	public:
 
 		QueryContainerBase(ObjectFactoryCallback* ofCallback,uint32 queryType,DispatchClient* client, uint64 id = 0) :
-		  mOfCallback(ofCallback),mClient(client),mQueryType(queryType),mId(id){}
+			mClient(client),mOfCallback(ofCallback),mQueryType(queryType),mId(id){}
 
 		DispatchClient*			mClient;
 		ObjectFactoryCallback*	mOfCallback;
@@ -122,12 +121,12 @@ class InLoadingContainer
 	public:
 
 		InLoadingContainer(Object* object,ObjectFactoryCallback* ofCallback,DispatchClient* client,uint32 loadCounter = 1)
-						  : mObject(object),mOfCallback(ofCallback),mClient(client),mLoadCounter(loadCounter){mManSchem = false;}
+						  : mObject(object),mOfCallback(ofCallback),mClient(client),mLoadCounter(loadCounter), mManSchem(false){}
 
-		uint32					mLoadCounter;
 		Object*					mObject;
 		ObjectFactoryCallback*	mOfCallback;
 		DispatchClient*			mClient;
+		uint32					mLoadCounter;
 		bool					mManSchem;
 };
 
@@ -161,7 +160,7 @@ class Attribute_QueryContainer
 enum NonPersistentQuery
 {
 	NPQuery_MainData	= 1,
-	NPQuery_Attributes	= 2,
+	NPQuery_Attributes	= 2
 };
 
 //=============================================================================

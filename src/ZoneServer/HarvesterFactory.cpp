@@ -68,18 +68,18 @@ void HarvesterFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 	{
 		case HFQuery_ResourceData:
 		{
-			
+
 			uint32 containerCount = static_cast<uint32>(result->getRowCount());
 
-			HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(asyncContainer->mObject);			
+			HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(asyncContainer->mObject);
 
 			if(!containerCount)
 			{
 				//no associated resources
-			
+
 				//gLogger->logMsgLoadSuccess("HarvesterFactory::Loaded Harvester %I64u",MSG_NORMAL, harvester->getId());
 				gLogger->logMsgF("HarvesterFactory: loaded Harvester %I64u", MSG_HIGH, harvester->getId());
-				asyncContainer->mOfCallback->handleObjectReady(harvester,asyncContainer->mClient);				
+				asyncContainer->mOfCallback->handleObjectReady(harvester,asyncContainer->mClient);
 				mQueryContainerPool.free(asyncContainer);
 				return;
 			}
@@ -88,7 +88,7 @@ void HarvesterFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
 			DataBinding*	resContBinding = mDatabase->CreateDataBinding(1);
 			resContBinding ->addField(DFT_int64,0,8);
-			
+
 
 			harvester->setLoadCount(containerCount);
 
@@ -99,13 +99,13 @@ void HarvesterFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 				result->GetNextRow(resContBinding ,&resContId);
 
 				gResourceContainerFactory->requestObject(this,resContId,0,0,asyncContainer->mClient);
-				
+
 			}
 
 			mDatabase->DestroyDataBinding(resContBinding );
 
 
-			
+
 		}
 		break;
 
@@ -113,24 +113,24 @@ void HarvesterFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 		{
 			gLogger->logMsgF("HarvesterFactory: HFQuery_MainData ", MSG_HIGH);
 			QueryContainerBase* asynContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,HFQuery_ResourceData,asyncContainer->mClient,asyncContainer->mId);
-			
+
 			HarvesterObject* harvester = new(HarvesterObject);
-			asynContainer->mObject = harvester;			
+			asynContainer->mObject = harvester;
 			asynContainer->mClient = asyncContainer->mClient;
-			
+
 			_createHarvester(result,harvester);
 
 			//now request the associated resource container count
-			
+
 			mDatabase->ExecuteSqlAsync(this,asynContainer,
 				"SELECT id FROM swganh.resource_containers WHERE parent_id = %I64u",harvester->getId());
-			
+
 		//	asynContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,HFQuery_ResourceData,asyncContainer->mClient,asyncContainer->mId);
-			
+
 
 		}
 		break;
-		
+
 		default:break;
 	}
 
@@ -170,7 +170,7 @@ void HarvesterFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id
 
 								*/
 	int8 hmm[1024];
-	sprintf(hmm, "SELECT s.id,s.owner,s.oX,s.oY,s.oZ,s.oW,s.x,s.y,s.z,structure_type_data.type,structure_type_data.object_string,structure_type_data.stf_name, structure_type_data.stf_file, s.name FROM structures s INNER JOIN structure_type_data ON (s.type = structure_type_data.type) WHERE (s.id = %I64u)",id);
+	sprintf(hmm, "SELECT s.id,s.owner,s.oX,s.oY,s.oZ,s.oW,s.x,s.y,s.z,structure_type_data.type,structure_type_data.object_string,structure_type_data.stf_name, structure_type_data.stf_file, s.name FROM structures s INNER JOIN structure_type_data ON (s.type = structure_type_data.type) WHERE (s.id = %"PRIu64")",id);
 	QueryContainerBase* asynContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,HFQuery_MainData,client,id);
 
 	mDatabase->ExecuteSqlAsync(this,asynContainer,hmm);
@@ -196,7 +196,7 @@ void HarvesterFactory::_setupDatabindings()
 	mHarvesterBinding->addField(DFT_bstring,offsetof(HarvesterObject,mName),256,11);
 	mHarvesterBinding->addField(DFT_bstring,offsetof(HarvesterObject,mNameFile),256,12);
 	mHarvesterBinding->addField(DFT_bstring,offsetof(HarvesterObject,mCustomName),256,13);
-	
+
 
 }
 
@@ -205,7 +205,7 @@ void HarvesterFactory::_setupDatabindings()
 void HarvesterFactory::_destroyDatabindings()
 {
 	mDatabase->DestroyDataBinding(mHarvesterBinding);
-	
+
 }
 
 //=============================================================================
@@ -215,11 +215,11 @@ void HarvesterFactory::handleObjectReady(Object* object,DispatchClient* client)
 	//*ONLY* used to load resource containers
 	InLoadingContainer* ilc = _getObject(object->getParentId());
 	HarvesterObject*		harvester = dynamic_cast<HarvesterObject*>(ilc->mObject);
-	
+
 	//add res containers
 	gWorldManager->addObject(object,true);
 
-	
+
 	if(harvester->decLoadCount() == 0)
 	{
 		if(!(_removeFromObjectLoadMap(harvester->getId())))

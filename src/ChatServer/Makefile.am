@@ -1,4 +1,4 @@
-AM_CXXFLAGS = -I$(top_srcdir)/src $(SWGANH_CXXFLAGS)
+AM_CXXFLAGS = -I$(top_srcdir)/src $(SWGANH_CXXFLAGS) $(BOOST_CPPFLAGS)
 
 # ChatServer - executable
 bin_PROGRAMS = chatserver
@@ -19,7 +19,7 @@ chatserver_SOURCES = \
   TradeManagerHelp.cpp \
   TradeMessages.cpp
 
-chatserver_CPPFLAGS = $(MYSQL_CFLAGS) -Wall -fshort-wchar -Wno-invalid-offsetof
+chatserver_CPPFLAGS = $(MYSQL_CFLAGS) -Wall -pedantic-errors -Wfatal-errors -fshort-wchar -Wno-invalid-offsetof -Wno-long-long
 chatserver_LDADD = \
 	../Utils/libutils.la \
 	../LogManager/liblogmanager.la \

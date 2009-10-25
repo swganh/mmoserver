@@ -45,19 +45,19 @@ Copyright (c) 2006 - 2009 The swgANH Team
 //
 // initiates a crafting session, we usually start at stage 1
 //
-CraftingSession::CraftingSession(Anh_Utils::Clock* clock,Database* database,PlayerObject* player,CraftingTool* tool,CraftingStation* station,uint32 expFlag) :
-mTool(tool),
-mStation(station),
-mExpFlag(expFlag),
-mStage(1),
-mDatabase(database),
-mOwner(player),
-mManufacturingSchematic(NULL),
-mDraftSchematic(NULL),
-mItem(NULL),
-mFirstFill(false),
-mClock(clock),
-mCriticalCount(0)
+CraftingSession::CraftingSession(Anh_Utils::Clock* clock,Database* database,PlayerObject* player,CraftingTool* tool,CraftingStation* station,uint32 expFlag)
+: mClock(clock)
+, mDatabase(database)
+, mDraftSchematic(NULL)
+, mItem(NULL)
+, mManufacturingSchematic(NULL)
+, mOwner(player)
+, mStation(station)
+, mTool(tool)
+, mCriticalCount(0)
+, mExpFlag(expFlag)
+, mStage(1)
+, mFirstFill(false)
 {
 
 	// update player variables
@@ -83,8 +83,6 @@ mCriticalCount(0)
 	gMessageLib->sendUpdateExperimentationPoints(mOwner);
 	gMessageLib->sendDraftSchematicsList(mTool,mOwner);
 	mToolEffectivity = mTool->getAttribute<float>("craft_tool_effectiveness");
-
-
 }
 
 //=============================================================================
@@ -267,7 +265,7 @@ void CraftingSession::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 				mTool->initTimer((int32)(mDraftSchematic->getComplexity() * 3.0f),3000,mClock->getLocalTime());
 
 				mTool->setAttribute("craft_tool_status","@crafting:tool_status_working");
-				mDatabase->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='@crafting:tool_status_working' WHERE item_id=%lld AND attribute_id=18",mTool->getId());
+				mDatabase->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='@crafting:tool_status_working' WHERE item_id=%"PRId64" AND attribute_id=18",mTool->getId());
 
 				gMessageLib->sendUpdateTimer(mTool,mOwner);
 				gWorldManager->addBusyCraftTool(mTool);
@@ -840,7 +838,7 @@ void CraftingSession::handleFillSlotResource(uint64 resContainerId,uint32 slotId
 			{
 				resContainer->setAmount(newContainerAmount);
 				gMessageLib->sendResourceContainerUpdateAmount(resContainer,mOwner);
-				mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%lld",newContainerAmount,resContainer->getId());
+				mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%%"PRId64"",newContainerAmount,resContainer->getId());
 			}
 
 			// update the slot total resource amount
@@ -1146,7 +1144,7 @@ uint8 CraftingSession::_assembleRoll()
 	riskRoll += (mCriticalCount*5);
 	gLogger->logErrorF("Crafting","CraftingSession::_assembleRoll() modified riskroll %u",MSG_NORMAL,riskRoll);
 
-	if(mCriticalCount = 3)
+	if((mCriticalCount = 3))
 		riskRoll = static_cast<uint32>(risk+1);
 
 	if(riskRoll <= risk)
@@ -1436,7 +1434,7 @@ void CraftingSession::assemble(uint32 counter)
 				intAtt += (int32)(ceil(attValue));
 
 				mItem->setAttribute(att->getAttributeKey(),boost::lexical_cast<std::string>(intAtt));
-				mDatabase->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%i' WHERE item_id=%lld AND attribute_id=%u",intAtt,mItem->getId(),att->getAttributeId());
+				mDatabase->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%i' WHERE item_id=%%"PRId64" AND attribute_id=%u",intAtt,mItem->getId(),att->getAttributeId());
 			}
 			else
 			{
@@ -1449,7 +1447,7 @@ void CraftingSession::assemble(uint32 counter)
 				}
 
 				mItem->setAttribute(att->getAttributeKey(),boost::lexical_cast<std::string>(attValue));
-				mDatabase->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%.2f' WHERE item_id=%lld AND attribute_id=%u",attValue,mItem->getId(),att->getAttributeId());
+				mDatabase->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%.2f' WHERE item_id=%%"PRId64" AND attribute_id=%u",attValue,mItem->getId(),att->getAttributeId());
 			}
 
 			++caIt;
@@ -1558,10 +1556,10 @@ void CraftingSession::createPrototype(uint32 noPractice,uint32 counter)
 
 
 		// update the custom name and parent
-		sprintf(sql,"UPDATE items SET parent_id=%lld, customName='",mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)->getId());
+		sprintf(sql,"UPDATE items SET parent_id=%"PRId64", customName='",mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)->getId());
 		sqlPointer = sql + strlen(sql);
 		sqlPointer += mDatabase->Escape_String(sqlPointer,mItem->getCustomName().getAnsi(),mItem->getCustomName().getLength());
-		sprintf(restStr,"' WHERE id=%lld ",mItem->getId());
+		sprintf(restStr,"' WHERE id=%"PRId64" ",mItem->getId());
 		strcat(sql,restStr);
 
 		t->addQuery(sql);
@@ -1572,16 +1570,16 @@ void CraftingSession::createPrototype(uint32 noPractice,uint32 counter)
 			int8 s[64];
 			mDatabase->Escape_String(s,mOwner->getFirstName().getAnsi(),mOwner->getFirstName().getLength());
 			mItem->setAttribute("crafter",mOwner->getFirstName().getAnsi());
-			sprintf(sql,"UPDATE item_attributes SET value='%s' WHERE item_id=%lld AND attribute_id=%u",s,mItem->getId(),AttrType_crafter);
+			sprintf(sql,"UPDATE item_attributes SET value='%s' WHERE item_id=%"PRId64" AND attribute_id=%u",s,mItem->getId(),AttrType_crafter);
 		}
 		else
 		{
 			mItem->addAttribute("crafter",mOwner->getFirstName().getAnsi());
 
-			sprintf(sql,"INSERT INTO item_attributes VALUES(%I64u,%u,'",mItem->getId(),AttrType_crafter);
+			sprintf(sql,"INSERT INTO item_attributes VALUES(%"PRIu64",%u,'",mItem->getId(),AttrType_crafter);
 			sqlPointer = sql + strlen(sql);
 			sqlPointer += mDatabase->Escape_String(sqlPointer,mOwner->getFirstName().getAnsi(),mOwner->getFirstName().getLength());
-			sprintf(restStr,"',%u,0)",mItem->getAttributeMap()->size());
+			sprintf(restStr,"',%u,0)",static_cast<uint32>(mItem->getAttributeMap()->size()));
 			strcat(sql,restStr);
 
 		}
@@ -1594,15 +1592,15 @@ void CraftingSession::createPrototype(uint32 noPractice,uint32 counter)
 		if(mItem->hasAttribute("serial_number"))
 		{
 			mItem->setAttribute("serial_number",serial.getAnsi());
-			sprintf(sql,"UPDATE item_attributes SET value='%s' WHERE item_id=%lld AND attribute_id=%u",serial.getAnsi(),mItem->getId(),AttrType_serial_number);
+			sprintf(sql,"UPDATE item_attributes SET value='%s' WHERE item_id=%"PRId64" AND attribute_id=%u",serial.getAnsi(),mItem->getId(),AttrType_serial_number);
 		}
 		else
 		{
 
-			sprintf(sql,"INSERT INTO item_attributes VALUES(%I64u,%u,'",mItem->getId(),AttrType_serial_number);
+			sprintf(sql,"INSERT INTO item_attributes VALUES(%"PRIu64",%u,'",mItem->getId(),AttrType_serial_number);
 			sqlPointer = sql + strlen(sql);
 			sqlPointer += mDatabase->Escape_String(sqlPointer,serial.getAnsi(),serial.getLength());
-			sprintf(restStr,"',%u,0)",mItem->getAttributeMap()->size());
+			sprintf(restStr,"',%u,0)",static_cast<uint32>(mItem->getAttributeMap()->size()));
 			strcat(sql,restStr);
 			mItem->addAttribute("serial_number",serial.getAnsi());
 		}
@@ -1626,7 +1624,7 @@ void CraftingSession::createPrototype(uint32 noPractice,uint32 counter)
 		mTool->initTimer((int32)(mDraftSchematic->getComplexity() * 2.0f),3000,mClock->getLocalTime());
 
 		mTool->setAttribute("craft_tool_status","@crafting:tool_status_working");
-		mDatabase->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='@crafting:tool_status_working' WHERE item_id=%lld AND attribute_id=%u",mTool->getId(),AttrType_CraftToolStatus);
+		mDatabase->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='@crafting:tool_status_working' WHERE item_id=%"PRId64" AND attribute_id=%u",mTool->getId(),AttrType_CraftToolStatus);
 
 		gMessageLib->sendUpdateTimer(mTool,mOwner);
 		gWorldManager->addBusyCraftTool(mTool);
@@ -1856,7 +1854,7 @@ void CraftingSession::experiment(uint8 counter,std::vector<std::pair<uint32,uint
 				intAtt += (int32)(ceil(attValue));
 
 				mItem->setAttribute(att->getAttributeKey(),boost::lexical_cast<std::string>(intAtt));
-				mDatabase->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%i' WHERE item_id=%lld AND attribute_id=%u",intAtt,mItem->getId(),att->getAttributeId());
+				mDatabase->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%i' WHERE item_id=%"PRId64" AND attribute_id=%u",intAtt,mItem->getId(),att->getAttributeId());
 			}
 			else
 			{
@@ -1871,7 +1869,7 @@ void CraftingSession::experiment(uint8 counter,std::vector<std::pair<uint32,uint
 				//attValue =  round2ptPrecision(float x) { char falpha[128]; sprintf(falpha,"%0.2f",x); return atof(falpha); }
 
 				mItem->setAttribute(att->getAttributeKey(),boost::lexical_cast<std::string>(attValue));
-				mDatabase->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%.2f' WHERE item_id=%lld AND attribute_id=%u",attValue,mItem->getId(),att->getAttributeId());
+				mDatabase->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%.2f' WHERE item_id=%"PRId64" AND attribute_id=%u",attValue,mItem->getId(),att->getAttributeId());
 			}
 
 			++caIt;
@@ -1960,9 +1958,9 @@ float CraftingSession::_calcWeightedResourceValue(CraftWeights* weights)
 	Resource*					resource;
 	uint16						resAtt;
 	float						totalQuantity	= 0.0f;
-	float						subQuantity		= 0.0f;
+	//float						subQuantity		= 0.0f;
 	float						totalResStat	= 0.0f;
-	float						validCount		= 0.0f;
+	//float						validCount		= 0.0f;
 	float						wrvResult		= 0.0f;
 	bool						slotCounted;
 	float						slotCount		= 0.0f;
@@ -2059,25 +2057,25 @@ void CraftingSession::createManufactureSchematic(uint32 counter)
 	AttributeOrderList*	list = 	mManufacturingSchematic->getAttributeOrder();
 	list->empty();
 
-	mDatabase->ExecuteSqlAsync(0,0,"DELETE FROM item_attributes WHERE item_id=%I64u",mManufacturingSchematic->getId());
+	mDatabase->ExecuteSqlAsync(0,0,"DELETE FROM item_attributes WHERE item_id=%"PRIu64"",mManufacturingSchematic->getId());
 
 
 	//save the datapad as the Owner Id in the db
-	mDatabase->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id=%I64u WHERE id=%lld",datapad->getId(),mManufacturingSchematic->getId());
+	mDatabase->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id=%"PRIu64" WHERE id=%"PRId64"",datapad->getId(),mManufacturingSchematic->getId());
 
 	//set the custom name of the object
 	int8 sql[1024],restStr[128],*sqlPointer;
 	sprintf(sql,"UPDATE items SET customName='");
 		sqlPointer = sql + strlen(sql);
 		sqlPointer += mDatabase->Escape_String(sqlPointer,mItem->getCustomName().getAnsi(),mItem->getCustomName().getLength());
-		sprintf(restStr,"' WHERE id=%lld ",mManufacturingSchematic->getId());
+		sprintf(restStr,"' WHERE id=%"PRId64" ",mManufacturingSchematic->getId());
 
 	strcat(sql,restStr);
 
 	mDatabase->ExecuteSqlAsync(0,0,sql);
 
 	//set the schematic as parent id for our item - we need it as dummy!!!
-	mDatabase->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id=%I64u WHERE id=%lld ",mManufacturingSchematic->getId(),mItem->getId());
+	mDatabase->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id=%"PRIu64" WHERE id=%"PRId64" ",mManufacturingSchematic->getId(),mItem->getId());
 	mItem->setParentId(mManufacturingSchematic->getId());
 	mManufacturingSchematic->setItem(mItem);
 
@@ -2087,12 +2085,12 @@ void CraftingSession::createManufactureSchematic(uint32 counter)
 	//data size - hardcode to 1 for now
 	//244 is id of attribute data_volume!!!
 	mManufacturingSchematic->addAttribute("data_volume","1");
-	sprintf(sql,"INSERT INTO item_attributes VALUES(%I64u,244,'1',0,0)",mManufacturingSchematic->getId());
+	sprintf(sql,"INSERT INTO item_attributes VALUES(%"PRIu64",244,'1',0,0)",mManufacturingSchematic->getId());
 	mDatabase->ExecuteSqlAsync(0,0,sql);
 
 	//add creator
 	mItem->addAttribute("crafter",mOwner->getFirstName().getAnsi());
-	sprintf(sql,"INSERT INTO item_attributes VALUES(%I64u,17,'%s',0,0)",mItem->getId(),mOwner->getFirstName().getAnsi());
+	sprintf(sql,"INSERT INTO item_attributes VALUES(%"PRIu64",17,'%s',0,0)",mItem->getId(),mOwner->getFirstName().getAnsi());
 	mDatabase->ExecuteSqlAsync(0,0,sql);
 
 	//save the resource Information as atributes
@@ -2158,7 +2156,7 @@ void CraftingSession::createManufactureSchematic(uint32 counter)
 		//update db
 		//enter it slotdependent as we dont want to clot our attributes table with resources
 		//173  is cat_manf_schem_resource
-		mDatabase->ExecuteSqlAsync(0,0,"INSERT INTO item_attributes VALUES (%I64u,173,'%s',1,0)",mManufacturingSchematic->getId(),str);
+		mDatabase->ExecuteSqlAsync(0,0,"INSERT INTO item_attributes VALUES (%"PRIu64",173,'%s',1,0)",mManufacturingSchematic->getId(),str);
 
 		//enter attribute in list
 
@@ -2174,10 +2172,10 @@ void CraftingSession::createManufactureSchematic(uint32 counter)
 	mItem->addAttribute("serial_number",serial.getAnsi());
 
 	//16 is id of attribute serial number!!!
-	sprintf(sql,"INSERT INTO item_attributes VALUES(%I64u,16,'",mItem->getId());
+	sprintf(sql,"INSERT INTO item_attributes VALUES(%"PRIu64",16,'",mItem->getId());
 	sqlPointer = sql + strlen(sql);
 	sqlPointer += mDatabase->Escape_String(sqlPointer,serial.getAnsi(),serial.getLength());
-	sprintf(restStr,"',%u,0)",mItem->getAttributeMap()->size());
+	sprintf(restStr,"',%u,0)",static_cast<uint32>(mItem->getAttributeMap()->size()));
 	strcat(sql,restStr);
 	mDatabase->ExecuteSqlAsync(0,0,sql);
 
@@ -2186,7 +2184,7 @@ void CraftingSession::createManufactureSchematic(uint32 counter)
 	mManufacturingSchematic->addAttribute("manf_limit",limit.getAnsi());
 
 	//504 is id of manf_limit number!!!
-	sprintf(sql,"INSERT INTO item_attributes VALUES(%I64u,504,'%s',2,0)",mManufacturingSchematic->getId(),limit.getAnsi());
+	sprintf(sql,"INSERT INTO item_attributes VALUES(%"PRIu64",504,'%s',2,0)",mManufacturingSchematic->getId(),limit.getAnsi());
 
 
 	gMessageLib->sendCraftAcknowledge(opCreatePrototypeResponse,CraftCreate_2,static_cast<uint8>(counter),mOwner);

@@ -850,13 +850,8 @@ void Trainer::postProcessfilter(ActiveConversation* av, PlayerObject* player, ui
 
 			if (pageId == 13)
 			{
-				BStringVector  elements;
-				elements.push_back("");
-				elements.push_back("");
-				elements.push_back("");
-				elements.push_back("");
-				elements.push_back("");
-
+				char elements[5][32];
+				memset(elements, 0, sizeof(elements));
 				char *masterStringSingleName = {"WOW! You have learned everything I have to teach... I suppose that now it's time for you to find your own path. Farewell, %s."};
 				char *masterStringDoubleName = {"WOW! You have learned everything I have to teach... I suppose that now it's time for you to find your own path. Farewell, %s %s."};
 
@@ -1024,13 +1019,8 @@ bool Trainer::preProcessfilterConversation(ActiveConversation* av,Conversation* 
 						gMessageLib->sendCreatureAnimation(av->getNpc(),gWorldManager->getNpcConverseAnimation(16), player); // giveup
 					}
 					
-					BStringVector  elements;
-					elements.push_back("");
-					elements.push_back("");
-					elements.push_back("");
-					elements.push_back("");
-					elements.push_back("");
-
+					char elements[5][32];
+					memset(elements, 0, sizeof(elements));
 					// string aMess("@skill_teacher:no_qualify");
 					string aMess("I'm sorry, but I cannot teach you anymore. You have already learned everything I have to teach.");
 					aMess.convert(BSTRType_Unicode16);
@@ -1076,12 +1066,8 @@ bool Trainer::preProcessfilterConversation(ActiveConversation* av,Conversation* 
 						gMessageLib->sendCreatureAnimation(av->getNpc(),gWorldManager->getNpcConverseAnimation(27), player); // poke
 					}
 
-					BStringVector  elements;
-					elements.push_back("");
-					elements.push_back("");
-					elements.push_back("");
-					elements.push_back("");
-					elements.push_back("");
+					char elements[5][32];
+					memset(elements, 0, sizeof(elements));
 
 					// string aMess("@skill_teacher:no_qualify");
 					string aMess("You do not qualify for any of my teachings. Come back and speak with me later if you acquire the following skills...");
@@ -1137,7 +1123,7 @@ void Trainer::prepareConversation(PlayerObject* player)
 	// Let's turn to the player asking for my attention.
 
 	/*
-	gLogger->logMsgF("%lld",MSG_NORMAL, this->getId());
+	gLogger->logMsgF("%"PRId64"",MSG_NORMAL, this->getId());
 	gLogger->logMsgF("%f %f %f",MSG_NORMAL, player->mPosition.mX, player->mPosition.mY, player->mPosition.mZ);
 	gLogger->logMsgF("\n%f %f %f",MSG_NORMAL, this->mPosition.mX, this->mPosition.mY, this->mPosition.mZ);
 	
@@ -1295,7 +1281,7 @@ void Trainer::restorePosition(PlayerObject* player)
 
 void Trainer::respawn(void)
 {
-	gLogger->logMsgF("Trainer::respawn: Added new trainer for spawn, with id = %llu", MSG_NORMAL, this->getId());
+	gLogger->logMsgF("Trainer::respawn: Added new trainer for spawn, with id = %"PRIu64"", MSG_NORMAL, this->getId());
 
 	// The cell we will spawn in.
 	this->setParentId(getCellIdForSpawn());
@@ -1308,7 +1294,7 @@ void Trainer::respawn(void)
 	if (this->hasInternalAttribute("creature_respawn_delay"))
 	{
 		uint64 respawnDelay = this->getInternalAttribute<uint64>("creature_respawn_delay");					
-		// gLogger->logMsgF("creature_respawn_delay = %llu", MSG_NORMAL, respawnDelay);
+		// gLogger->logMsgF("creature_respawn_delay = %"PRIu64"", MSG_NORMAL, respawnDelay);
 		// mRespawnDelay = respawnDelay;
 		this->setRespawnDelay(respawnDelay);
 	}
@@ -1342,8 +1328,8 @@ void Trainer::respawn(void)
 
 void Trainer::spawn(void)
 {
-	// gLogger->logMsgF("AttackableStaticNpc::spawn: Spawning creature %llu", MSG_NORMAL, this->getId());
-	// gLogger->logMsgF("Spawned static objects # %lld (%lld)", MSG_NORMAL, gCreatureSpawnCounter, gCreatureSpawnCounter - gCreatureDeathCounter);
+	// gLogger->logMsgF("AttackableStaticNpc::spawn: Spawning creature %"PRIu64"", MSG_NORMAL, this->getId());
+	// gLogger->logMsgF("Spawned static objects # %"PRId64" (%"PRId64")", MSG_NORMAL, gCreatureSpawnCounter, gCreatureSpawnCounter - gCreatureDeathCounter);
 
 	// Update the world about my presence.
 	
@@ -1358,7 +1344,7 @@ void Trainer::spawn(void)
 		}
 		else
 		{
-			gLogger->logMsgF("Trainer::spawn: couldn't find cell %llu\n", MSG_HIGH, this->getParentId());
+			gLogger->logMsgF("Trainer::spawn: couldn't find cell %"PRIu64"\n", MSG_HIGH, this->getParentId());
 			
 			// It's a serious isse that we need to investigate.
 			assert(cell);

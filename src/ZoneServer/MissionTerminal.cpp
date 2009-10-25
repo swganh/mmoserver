@@ -33,7 +33,11 @@ void MissionTerminal::prepareCustomRadialMenu(CreatureObject* creatureObject, ui
 {
 	if (gWorldConfig->isTutorial())
 	{
+#if defined(_MSC_VER)
 		if (this->getId() == 4294968328)
+#else
+		if (this->getId() == 4294968328LLU)
+#endif
 		{
 			// This is the Misson Terminal in the tutorial.
 			PlayerObject* player = dynamic_cast<PlayerObject*>(creatureObject);

@@ -29,7 +29,7 @@ class Terminal;
 enum TFQuery
 {
 	TFQuery_MainData		= 1,
-	TFQuery_ElevatorData	= 2,
+	TFQuery_ElevatorData	= 2
 };
 
 //=============================================================================

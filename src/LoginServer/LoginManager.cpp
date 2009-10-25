@@ -57,14 +57,14 @@ LoginManager::~LoginManager(void)
 void LoginManager::Startup(Database* database)
 {
 	mDatabase	= database;
-	
+
 }
 
 //======================================================================================================================
 
 void LoginManager::Shutdown(void)
 {
-	
+
 }
 
 //======================================================================================================================
@@ -159,7 +159,7 @@ void LoginManager::handleSessionMessage(NetworkClient* client, Message* message)
     default:
     {
       // Unknown or unhandled message sent from client.
-      int jack=0;
+   //   int jack=0;
       break;
     }
   }
@@ -220,10 +220,10 @@ void LoginManager::handleDatabaseJobComplete(void* ref, DatabaseResult* result)
 			uint32 deleteFailed = 1;
 			if (queryResult == 1)
 			{
-				deleteFailed = 0;	
+				deleteFailed = 0;
 			}
 			mDatabase->DestroyDataBinding(binding);
-			
+
 			_sendDeleteCharacterReply(deleteFailed,client);
 
 			// _sendDeleteCharacterReply(0,client);
@@ -257,15 +257,15 @@ void LoginManager::_handleLoginClientId(LoginClient* client, Message* message)
 	int8 sql[512],*sqlPointer;
 
   if (strlen(username.getAnsi()) == 0) //SessionID Login With ANH Launcher
-  { 
+  {
 	sprintf(sql,"SELECT account_id, username, password, station_id, banned, active,characters_allowed, session_key FROM account WHERE banned=0 AND authenticated=0 AND loggedin=0   AND session_key='");
 	sqlPointer = sql + strlen(sql);
 	sqlPointer += mDatabase->Escape_String(sqlPointer,password.getAnsi(),password.getLength());
   *sqlPointer++ = '\'';
   *sqlPointer++ = '\0';
-  } 
+  }
   else //regular login the client login screen
-  { 
+  {
 	sprintf(sql,"SELECT account_id, username, password, station_id, banned, active,characters_allowed FROM account WHERE banned=0 AND authenticated=0 AND loggedin=0   AND username='");
 	sqlPointer = sql + strlen(sql);
 	sqlPointer += mDatabase->Escape_String(sqlPointer,username.getAnsi(),username.getLength());
@@ -309,7 +309,7 @@ void LoginManager::_authenticateClient(LoginClient* client, DatabaseResult* resu
     gLogger->logErrorF("login","void LoginManager::_authenticateClient Login: AccountId: %u Name: %s",MSG_NORMAL,data.mId,data.mUsername);
     _sendAuthSucceeded(client);
   }
-  else 
+  else
   {
 	  Message* newMessage;
 
@@ -319,12 +319,12 @@ void LoginManager::_authenticateClient(LoginClient* client, DatabaseResult* resu
 
     gLogger->logErrorF("login","Login failed for username: %s, password: %s", MSG_NORMAL, client->getUsername().getAnsi(), client->getPassword().getAnsi());
 
-	  gMessageFactory->StartMessage();      
-	  gMessageFactory->addUint32(opErrorMessage);  
+	  gMessageFactory->StartMessage();
+	  gMessageFactory->addUint32(opErrorMessage);
 	  gMessageFactory->addString(errType);
 	  gMessageFactory->addString(errMsg);
-	  gMessageFactory->addUint8(0);				 
-                   
+	  gMessageFactory->addUint8(0);
+
 	  newMessage = gMessageFactory->EndMessage();
 
     client->SendChannelA(newMessage, 3,false);
@@ -339,7 +339,7 @@ void LoginManager::_authenticateClient(LoginClient* client, DatabaseResult* resu
 //======================================================================================================================
 void LoginManager::_sendAuthSucceeded(LoginClient* client)
 {
-  const uint8 data[56] = 
+  const uint8 data[56] =
   {
       0x20, 0x00, 0x00, 0x00, 0x15, 0x00, 0x00, 0x00,
 	  0x0E, 0xD6, 0x93, 0xDE, 0xD2, 0xEF, 0xBF, 0x8E,
@@ -355,7 +355,7 @@ void LoginManager::_sendAuthSucceeded(LoginClient* client)
   gMessageFactory->addUint32(60);                               // Size of the data
   gMessageFactory->addData((int8*)&data, sizeof(data));
   gMessageFactory->addUint32(client->getAccountId());
-  gMessageFactory->addUint32(0); 
+  gMessageFactory->addUint32(0);
   gMessageFactory->addString(client->getUsername());
 
   Message* message = gMessageFactory->EndMessage();
@@ -374,7 +374,7 @@ void LoginManager::_sendAuthSucceeded(LoginClient* client)
 void LoginManager::_sendServerList(LoginClient* client, DatabaseResult* result)
 {
   uint32 serverCount = 1;
-  
+
   ServerData data;
   memset(&data, 0, sizeof(ServerData));
 
@@ -392,9 +392,9 @@ void LoginManager::_sendServerList(LoginClient* client, DatabaseResult* result)
 
   // Create our server list message
   gMessageFactory->StartMessage();                           // Group number
-  gMessageFactory->addUint32(opLoginEnumCluster);  
+  gMessageFactory->addUint32(opLoginEnumCluster);
   gMessageFactory->addUint32(serverCount);                      // Number of servers in the list.
-  for (uint32 i = 0; i < serverCount; i++) 
+  for (uint32 i = 0; i < serverCount; i++)
   {
     result->GetNextRow(binding, (void*)&data);
     gMessageFactory->addUint32(data.mId);                       // Server Id.
@@ -431,10 +431,10 @@ void LoginManager::_sendCharacterList(LoginClient* client, DatabaseResult* resul
   binding->addField(DFT_string, offsetof(CharacterInfo, mBaseModel), 64);
 
   uint32 charCount = static_cast<uint32>(result->getRowCount());
-  
+
   // Create our server list message
   gMessageFactory->StartMessage();                                 // Opcode group number
-  gMessageFactory->addUint32(opEnumerateCharacterId);  
+  gMessageFactory->addUint32(opEnumerateCharacterId);
   gMessageFactory->addUint32(charCount);                            // Character count
   for (uint32 i = 0; i < charCount; i++)
   {
@@ -459,7 +459,7 @@ void LoginManager::_sendCharacterList(LoginClient* client, DatabaseResult* resul
     gMessageFactory->addUint32(baseModel.getCrc());                 // Base model
     gMessageFactory->addUint64(data.mCharacterId);                  // Character Id
     gMessageFactory->addUint32(data.mServerId);                     // Server Id
-    gMessageFactory->addUint32(1);                                  // Uknown 
+    gMessageFactory->addUint32(1);                                  // Uknown
   }
   Message* message = gMessageFactory->EndMessage();
   client->SendChannelA(message, 2, false);
@@ -472,19 +472,19 @@ void LoginManager::_sendCharacterList(LoginClient* client, DatabaseResult* resul
 
 void LoginManager::_processDeleteCharacter(Message* message,LoginClient* client)
 {
-	uint32 galaxyId = message->getUint32();
+	/*uint32 galaxyId = */message->getUint32();
 	uint64 characterId = message->getUint64();
-	
+
 	client->setState(LCSTATE_DeleteCharacter);
-	// mDatabase->ExecuteSqlAsync(this,(void*)client,"DELETE FROM characters WHERE id=%lld AND galaxy_id=%u AND account_id=%u",characterId,galaxyId,client->getAccountId());
-	mDatabase->ExecuteSqlAsync(this,(void*)client,"SELECT sf_CharacterDelete(\'%llu\')",characterId);
+	// mDatabase->ExecuteSqlAsync(this,(void*)client,"DELETE FROM characters WHERE id=%"PRId64" AND galaxy_id=%u AND account_id=%u",characterId,galaxyId,client->getAccountId());
+	mDatabase->ExecuteSqlAsync(this,(void*)client,"SELECT sf_CharacterDelete(\'%"PRIu64"\')",characterId);
 }
 
 //======================================================================================================================
 
 void LoginManager::_sendDeleteCharacterReply(uint32 result,LoginClient* client)
 {
-	gMessageFactory->StartMessage();                  
+	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opDeleteCharacterReplyMessage);
 	gMessageFactory->addUint32(result);
 	Message* newMessage = gMessageFactory->EndMessage();
@@ -498,11 +498,11 @@ void LoginManager::_sendServerStatus(LoginClient* client)
 {
   // Create our server list message
   gMessageFactory->StartMessage();                            // Opcode group number
-  gMessageFactory->addUint32(opLoginClusterStatus);  
+  gMessageFactory->addUint32(opLoginClusterStatus);
   gMessageFactory->addUint32(mServerDataList.size());                      // Server count
 
   ServerDataList::iterator iter;
-  for (iter = mServerDataList.begin(); iter != mServerDataList.end(); iter++) 
+  for (iter = mServerDataList.begin(); iter != mServerDataList.end(); iter++)
   {
     gMessageFactory->addUint32((*iter)->mId);                         // Server Id.
     gMessageFactory->addString((*iter)->mAddress);                    // server address
@@ -510,7 +510,7 @@ void LoginManager::_sendServerStatus(LoginClient* client)
     gMessageFactory->addUint16((*iter)->mPingPort);                   // ping port
     gMessageFactory->addUint32((*iter)->mPopulation);                 // population
     gMessageFactory->addUint32(0x00000cb2);
-    gMessageFactory->addUint32(client->getCharsAllowed());                    
+    gMessageFactory->addUint32(client->getCharsAllowed());
     gMessageFactory->addUint32(0xffff8f80);
     gMessageFactory->addUint32((*iter)->mStatus);                     // server status 0=offline, 1=loading, 2=online, 3=locked
     gMessageFactory->addUint8(0);
@@ -526,7 +526,7 @@ void LoginManager::_sendServerStatus(LoginClient* client)
 void LoginManager::_updateServerStatus(DatabaseResult* result)
 {
   uint32 serverCount = 1;
-  
+
   ServerData data;
   memset(&data, 0, sizeof(ServerData));
 

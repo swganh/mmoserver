@@ -22,7 +22,7 @@ enum AttributeType
 	AttrType_crafter					=	17,
 	AttrType_CraftToolStatus			=	18,
 	AttrType_CraftToolTime				=	22,
-	AttrType_CounterUsesRemaining		=	23,
+	AttrType_CounterUsesRemaining		=	23
 };
 
 enum ObjectType
@@ -42,7 +42,7 @@ enum ObjectType
 	ObjType_NonPersistant		=	2048,
 	ObjType_Harvester			=	4096,
 	//ObjType_Camp				=	8192,
-	ObjType_Intangible			=	16384,
+	ObjType_Intangible			=	16384
 
 	//might it make sense to put them together to object type structure ?
 };
@@ -58,7 +58,7 @@ enum ObjectLoadState
 	LoadState_Creature_Skills		= 5,
 	LoadState_Creature_XP			= 6,
 	LoadState_Creature_Badges		= 7,
-	LoadState_Creature_Factions		= 8,
+	LoadState_Creature_Factions		= 8
 };
 
 //=============================================================================
@@ -86,7 +86,7 @@ enum EquipSlot
 	EquipSlot_Inventory				= 262144,
 	EquipSlot_Datapad				= 524288,
 	EquipSlot_Bank					= 1048576,
-	EquipSlot_Wrists				= 2097152,
+	EquipSlot_Wrists				= 2097152
 };
 
 //=============================================================================

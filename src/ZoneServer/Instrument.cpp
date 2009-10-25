@@ -13,7 +13,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "CellObject.h"
 #include "Inventory.h"
 #include "PlayerObject.h"
-#include "Worldmanager.h"
+#include "WorldManager.h"
 #include "WorldConfig.h"
 #include "ZoneOpcodes.h"
 #include "MessageLib/MessageLib.h"
@@ -38,10 +38,10 @@ Instrument::~Instrument()
 void Instrument::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 {
 	if(PlayerObject* player = dynamic_cast<PlayerObject*>(srcObject))
-	{	
+	{
 		switch(messageType)
 		{
-			case radId_itemUse: 
+			case radId_itemUse:
 			{
 				if (player->getPlacedInstrumentId() == this->getId())
 				{
@@ -90,7 +90,7 @@ void Instrument::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 								gMessageLib->sendSystemMessage(player,L"You cannot do this at this time.");
 							}
 						}
-						else if (CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(this->getParentId())))
+						else if (dynamic_cast<CellObject*>(gWorldManager->getObjectById(this->getParentId())))
 						{
 							// Is this my instrument?
 							if (this->getOwner() == player->getId())
@@ -136,7 +136,7 @@ void Instrument::sendAttributes(PlayerObject* playerObject)
 
 	Message* newMessage;
 
-	gMessageFactory->StartMessage();           
+	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opAttributeListMessage);
 	gMessageFactory->addUint64(mId);
 
@@ -145,8 +145,8 @@ void Instrument::sendAttributes(PlayerObject* playerObject)
 	string	tmpValueStr = string(BSTRType_Unicode16,64);
 	string	value;
 
-	tmpValueStr.setLength(swprintf(tmpValueStr.getUnicode16(),L"%u/%u",mMaxCondition - mDamage,mMaxCondition));
-	
+	tmpValueStr.setLength(swprintf(tmpValueStr.getUnicode16(),50,L"%u/%u",mMaxCondition - mDamage,mMaxCondition));
+
 	gMessageFactory->addString(BString("condition"));
 	gMessageFactory->addString(tmpValueStr);
 
@@ -168,7 +168,7 @@ void Instrument::sendAttributes(PlayerObject* playerObject)
 	}
 
 	//gMessageFactory->addUint32(0xffffffff);
-                  
+
 	newMessage = gMessageFactory->EndMessage();
 
 	(playerObject->getClient())->SendChannelAUnreliable(newMessage, playerObject->getAccountId(), CR_Client, 9);
@@ -180,14 +180,14 @@ void Instrument::prepareCustomRadialMenu(CreatureObject* player, uint8 itemCount
 {
 	// gLogger->logMsgF("Instrument::prepareCustomRadialMenu() Entered", MSG_HIGH);
 
-	// NOTE: player is also of type CreatureObject* !!! 
+	// NOTE: player is also of type CreatureObject* !!!
 	PlayerObject* playerObject = dynamic_cast<PlayerObject*>(player);
 
 	mRadialMenu.reset();
 	mRadialMenu = RadialMenuPtr(new RadialMenu());
 
 	// RadialMenu* radial	= new RadialMenu();
-	
+
 	//string mInstrumentString = instrument->getName();
 	uint32 instrumentNr = this->getItemType();
 
@@ -205,7 +205,7 @@ void Instrument::prepareCustomRadialMenu(CreatureObject* player, uint8 itemCount
 				// gLogger->logMsgF("Radial: A placed instrument", MSG_NORMAL);
 				if ((playerObject->getPerformingState() == PlayerPerformance_Music))
 				{
-					mRadialMenu->addItem(static_cast<uint8>(radId++),0,radId_itemUse,radAction_ObjCallback, "@radial_performance:stop_playing");	
+					mRadialMenu->addItem(static_cast<uint8>(radId++),0,radId_itemUse,radAction_ObjCallback, "@radial_performance:stop_playing");
 				}
 				else
 				{
@@ -216,11 +216,11 @@ void Instrument::prepareCustomRadialMenu(CreatureObject* player, uint8 itemCount
 			{
 				// gLogger->logMsgF("Radial: Not our instrument, but is should be", MSG_NORMAL);
 				// radial->addItem(radId++,0,radId_examine,radAction_Default);
-				// radial->addItem(radId++,0,radId_itemPickup,radAction_Default);	
+				// radial->addItem(radId++,0,radId_itemPickup,radAction_Default);
 				return;
 			}
 			mRadialMenu->addItem(static_cast<uint8>(radId++),0,radId_examine,radAction_Default);
-			mRadialMenu->addItem(static_cast<uint8>(radId++),0,radId_itemPickup,radAction_Default);	
+			mRadialMenu->addItem(static_cast<uint8>(radId++),0,radId_itemPickup,radAction_Default);
 		}
 		else
 		{
@@ -243,7 +243,7 @@ void Instrument::prepareCustomRadialMenu(CreatureObject* player, uint8 itemCount
 					else
 					{
 						mRadialMenu->addItem(static_cast<uint8>(radId++),0,radId_examine,radAction_Default);
-						mRadialMenu->addItem(static_cast<uint8>(radId),0,radId_itemDrop,radAction_Default);	
+						mRadialMenu->addItem(static_cast<uint8>(radId),0,radId_itemDrop,radAction_Default);
 						mRadialMenu->addItem(static_cast<uint8>(radId),0,radId_itemDestroy, radAction_Default);
 					}
 
@@ -254,7 +254,7 @@ void Instrument::prepareCustomRadialMenu(CreatureObject* player, uint8 itemCount
 						mRadialMenu->addItem(static_cast<uint8>(radId++),0,radId_itemUse,radAction_ObjCallback,"Use");
 					}
 				}
-				else if (CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(this->getParentId())))
+				else if (dynamic_cast<CellObject*>(gWorldManager->getObjectById(this->getParentId())))
 				{
 					// It's either a original instrument, or someone else instrument, copy or original.
 
@@ -270,7 +270,7 @@ void Instrument::prepareCustomRadialMenu(CreatureObject* player, uint8 itemCount
 							// gLogger->logMsgF("Radial: Original instrument in a cell.", MSG_NORMAL);
 							if ((playerObject->getPerformingState() == PlayerPerformance_Music))
 							{
-								mRadialMenu->addItem(static_cast<uint8>(radId++),0,radId_itemUse,radAction_ObjCallback, "@radial_performance:stop_playing");	
+								mRadialMenu->addItem(static_cast<uint8>(radId++),0,radId_itemUse,radAction_ObjCallback, "@radial_performance:stop_playing");
 							}
 							else
 							{
@@ -278,7 +278,7 @@ void Instrument::prepareCustomRadialMenu(CreatureObject* player, uint8 itemCount
 							}
 
 							mRadialMenu->addItem(static_cast<uint8>(radId++),0,radId_examine,radAction_Default);
-							mRadialMenu->addItem(static_cast<uint8>(radId++),0,radId_itemPickup,radAction_Default);	
+							mRadialMenu->addItem(static_cast<uint8>(radId++),0,radId_itemPickup,radAction_Default);
 						}
 					}
 					else
@@ -286,8 +286,8 @@ void Instrument::prepareCustomRadialMenu(CreatureObject* player, uint8 itemCount
 						// This is not my instrument.
 						// gMessageLib->sendSystemMessage(playerObject,L"","error_message","insufficient_permissions");
 						mRadialMenu->addItem(static_cast<uint8>(radId++),0,radId_examine,radAction_Default);
-						// radial->addItem(radId++,0,radId_itemPickup,radAction_Default);	
-						// gLogger->logMsgF("Radial: Not my instrument", MSG_NORMAL);	
+						// radial->addItem(radId++,0,radId_itemPickup,radAction_Default);
+						// gLogger->logMsgF("Radial: Not my instrument", MSG_NORMAL);
 					}
 				}
 			}
@@ -297,5 +297,5 @@ void Instrument::prepareCustomRadialMenu(CreatureObject* player, uint8 itemCount
 
 	// RadialMenuPtr radialPtr(radial);
 	// mRadialMenu = radialPtr;
-	
+
 }

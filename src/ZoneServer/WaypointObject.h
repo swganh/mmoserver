@@ -24,7 +24,7 @@ enum waypoint_types
 	Waypoint_yellow	= 4,
 	Waypoint_red	= 5,
 	Waypoint_white	= 6,
-	Waypoint_JTL	= 7,
+	Waypoint_JTL	= 7
 };
 
 

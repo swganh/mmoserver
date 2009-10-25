@@ -35,22 +35,22 @@ static int64 gCreatureDeathCounter = 0;
 
 //=============================================================================
 
-
-AttackableCreature::AttackableCreature(uint64 templateId) : NPCObject(),
-mReadyDelay(0),
-mCombatTimer(0),
-mHoming(false),
-mCombatState(State_Unspawned),
-mAttackTauntSent(false),
-mWarningTauntSent(false),
-mPrimaryWeapon(NULL),
-mSecondaryWeapon(NULL),
-mAssistedTargetId(0),
-mAsssistanceNeededWithId(0),
-mLairNeedAsssistanceWithId(0),
-mIsAssistingLair(false),
-mRoamingSteps(-1),
-mLairId(0)
+AttackableCreature::AttackableCreature(uint64 templateId)
+: NPCObject()
+, mLairId(0)
+, mCombatState(State_Unspawned)
+, mPrimaryWeapon(NULL)
+, mSecondaryWeapon(NULL)
+, mReadyDelay(0)
+, mCombatTimer(0)
+, mRoamingSteps(-1)
+, mAssistanceNeededWithId(0)
+, mAssistedTargetId(0)
+, mLairNeedAssistanceWithId(0)
+, mAttackTauntSent(false)
+, mHoming(false)
+, mIsAssistingLair(false)
+, mWarningTauntSent(false)
 {
 	mNpcFamily	= NpcFamily_AttackableCreatures;
 	// mNpcTemplateId = templateId;
@@ -126,7 +126,7 @@ void AttackableCreature::handleObjectMenuSelect(uint8 messageType,Object* srcObj
 
 			case radId_loot:
 			{
-				// gLogger->logMsgF("AttackableCreature::handleObjectMenuSelect Handle for loot, creature id = %llu", MSG_NORMAL, this->getId());
+				// gLogger->logMsgF("AttackableCreature::handleObjectMenuSelect Handle for loot, creature id = %"PRIu64"", MSG_NORMAL, this->getId());
 
 				// First, we have to have a connected player..
 				if (playerObject->isConnected() && !playerObject->isDead() && !playerObject->isIncapacitated() && this->isDead())
@@ -367,7 +367,7 @@ bool AttackableCreature::setTargetInAttackRange(void)
 						}
 						else
 						{
-							gLogger->logMsgF("Attacking WRONG TARGET = %s", MSG_NORMAL,(*it)->getFirstName().getAnsi());
+							gLogger->logMsgF("Attacking WRONG TARGET = %s\n", MSG_NORMAL,(*it)->getFirstName().getAnsi());
 						}
 					}
 					// We have a new target in range etc.. But we may need him to be visible for a while before we attack.
@@ -399,10 +399,10 @@ bool AttackableCreature::setTargetInAttackRange(void)
 
 
 				// Let's this player rebuild is aggro before we attack him again.
-				if (this->mLairNeedAsssistanceWithId == (*it)->getId())
+				if (this->mLairNeedAssistanceWithId == (*it)->getId())
 				{
-					this->mAsssistanceNeededWithId = 0;
-					this->mLairNeedAsssistanceWithId = 0;
+					this->mAssistanceNeededWithId = 0;
+					this->mLairNeedAssistanceWithId = 0;
 					this->mIsAssistingLair = false;
 				}
 			}
@@ -420,14 +420,8 @@ bool AttackableCreature::setTargetInAttackRange(void)
 			// for now, let's just taunt him.
 			string msg(this->getAttackStartMessage());
 			msg.convert(BSTRType_Unicode16);
-			
-			BStringVector  quack;
-			quack.push_back("");
-			quack.push_back("");
-			quack.push_back("");
-			quack.push_back("");
-			quack.push_back("");
-			
+			char quack[5][32];
+			memset(quack, 0, sizeof(quack));
 
 			if (!gWorldConfig->isInstance())
 			{
@@ -525,13 +519,8 @@ bool AttackableCreature::showWarningInRange(void)
 		{
 			string msg(getAttackWarningMessage());
 			msg.convert(BSTRType_Unicode16);
-			
-			BStringVector  quack;
-			quack.push_back("");
-			quack.push_back("");
-			quack.push_back("");
-			quack.push_back("");
-			quack.push_back("");
+			char quack[5][32];
+			memset(quack, 0, sizeof(quack));
 
 			if (!gWorldConfig->isInstance())
 			{
@@ -609,13 +598,8 @@ bool AttackableCreature::setTargetDefenderWithinWeaponRange(void)
 			// for now, let's just taunt him.
 			string msg(getAttackedMessage());
 			msg.convert(BSTRType_Unicode16);
-			
-			BStringVector  quack;
-			quack.push_back("");
-			quack.push_back("");
-			quack.push_back("");
-			quack.push_back("");
-			quack.push_back("");
+			char quack[5][32];
+			memset(quack, 0, sizeof(quack));
 
 			if (!gWorldConfig->isInstance())
 			{
@@ -967,7 +951,7 @@ void AttackableCreature::handleEvents(void)
 					// Make the base delay time shorter than normal case, since we can assume we have been dormant.
 					// uint64 roamingPeriods = this->getRoamingDelay() / ((uint32)readyDefaultPeriodTime);
 					// int64 roamingReadyTicksDelay = (int64)((int64)(roamingPeriods/2) + gRandom->getRand() % (int32) (roamingPeriods));
-					// gLogger->logMsgF("Will wait for %llu seconds", MSG_NORMAL, (uint64)((readyDefaultPeriodTime * roamingReadyTicksDelay)/1000));
+					// gLogger->logMsgF("Will wait for %"PRIu64" seconds", MSG_NORMAL, (uint64)((readyDefaultPeriodTime * roamingReadyTicksDelay)/1000));
 
 					int64 roamingReadyTicksDelay = (int64)(this->getRoamingDelay()/2);
 					roamingReadyTicksDelay += (int64)(((uint64)gRandom->getRand() * 1000) % (this->getRoamingDelay() + 1));
@@ -1089,8 +1073,8 @@ void AttackableCreature::handleEvents(void)
 				mCombatState = State_Alerted;
 				this->setAiState(NpcIsReady);
 
-				this->mAsssistanceNeededWithId = 0;
-				this->mLairNeedAsssistanceWithId = 0;
+				this->mAssistanceNeededWithId = 0;
+				this->mLairNeedAssistanceWithId = 0;
 				this->mIsAssistingLair = false;
 			}
 
@@ -1230,8 +1214,8 @@ void AttackableCreature::handleEvents(void)
 				mCombatState = State_CombatReady;
 				this->setAiState(NpcIsReady);
 
-				this->mAsssistanceNeededWithId = 0;
-				this->mLairNeedAsssistanceWithId = 0;
+				this->mAssistanceNeededWithId = 0;
+				this->mLairNeedAssistanceWithId = 0;
 				this->mIsAssistingLair = false;
 
 				this->SetReadyDelay(1);	// Want to start the homing asap, if nothing better to do.
@@ -1298,8 +1282,8 @@ void AttackableCreature::handleEvents(void)
 					this->setAiState(NpcIsReady);
 
 					// Clear the current assist target.
-					this->mAsssistanceNeededWithId = 0;
-					this->mLairNeedAsssistanceWithId = 0;
+					this->mAssistanceNeededWithId = 0;
+					this->mLairNeedAssistanceWithId = 0;
 					this->mIsAssistingLair = false;
 
 				}
@@ -1315,8 +1299,8 @@ void AttackableCreature::handleEvents(void)
 			else
 			{
 				// Clear the current assist target.
-				this->mAsssistanceNeededWithId = 0;
-				// this->mLairNeedAsssistanceWithId = 0;
+				this->mAssistanceNeededWithId = 0;
+				// this->mLairNeedAssistanceWithId = 0;
 
 				CreatureObject* targetCreature = dynamic_cast<CreatureObject*>(this->getTarget());
 				if (targetCreature)
@@ -1423,7 +1407,7 @@ uint64 AttackableCreature::handleState(uint64 timeOverdue)
 
 			// Start roaming timer, then we will have them all running when we get players in range.
 			waitTime = this->getRoamingDelay() + (int64)(((uint64)gRandom->getRand() * 1000) % ((this->getRoamingDelay()/2)+1));
-			// gLogger->logMsgF("State_Idle, will wait for %llu seconds", MSG_NORMAL, waitTime/1000);
+			// gLogger->logMsgF("State_Idle, will wait for %"PRIu64" seconds", MSG_NORMAL, waitTime/1000);
 		}
 		break;
 
@@ -1478,7 +1462,7 @@ uint64 AttackableCreature::handleState(uint64 timeOverdue)
 					int64 roamingReadyTicksDelay = this->getReadyDelay();
 					if (roamingReadyTicksDelay > 0)
 					{
-						// gLogger->logMsgF("State_Alerted roamingReadyTicksDelay = %lld", MSG_NORMAL, roamingReadyTicksDelay);
+						// gLogger->logMsgF("State_Alerted roamingReadyTicksDelay = %"PRId64"", MSG_NORMAL, roamingReadyTicksDelay);
 						roamingReadyTicksDelay--;
 						if (roamingReadyTicksDelay == 0)
 						{
@@ -1494,7 +1478,7 @@ uint64 AttackableCreature::handleState(uint64 timeOverdue)
 						// gLogger->logMsgF("State_Alerted Setting up new roaming.", MSG_NORMAL);
 						// uint64 roamingPeriods = this->getRoamingDelay() / ((uint32)readyDefaultPeriodTime);
 						// roamingReadyTicksDelay = (int64)((int64)roamingPeriods + gRandom->getRand() % (int32) (roamingPeriods/2));
-						// gLogger->logMsgF("Will wait for %llu seconds", MSG_NORMAL, (uint64)((readyDefaultPeriodTime * roamingReadyTicksDelay)/1000));
+						// gLogger->logMsgF("Will wait for %"PRIu64" seconds", MSG_NORMAL, (uint64)((readyDefaultPeriodTime * roamingReadyTicksDelay)/1000));
 
 						roamingReadyTicksDelay = (int64)this->getRoamingDelay();
 						roamingReadyTicksDelay += (int64)(((uint64)gRandom->getRand() * 1000) % ((this->getRoamingDelay()/2)+1));
@@ -1637,8 +1621,8 @@ uint64 AttackableCreature::handleState(uint64 timeOverdue)
 void AttackableCreature::spawn(void)
 {
 	gCreatureSpawnCounter++;
-	// gLogger->logMsgF("AttackableCreature::spawn: Spawning creature %llu", MSG_NORMAL, this->getId());
-	gLogger->logMsgF("Spawned creature # %lld (%lld)", MSG_NORMAL, gCreatureSpawnCounter, gCreatureSpawnCounter - gCreatureDeathCounter);
+	// gLogger->logMsgF("AttackableCreature::spawn: Spawning creature %"PRIu64"", MSG_NORMAL, this->getId());
+	gLogger->logMsgF("Spawned creature # %"PRId64" (%"PRId64")", MSG_NORMAL, gCreatureSpawnCounter, gCreatureSpawnCounter - gCreatureDeathCounter);
 
 	// Update the world about my presence.
 
@@ -1654,7 +1638,7 @@ void AttackableCreature::spawn(void)
 		}
 		else
 		{
-			gLogger->logMsgF("AttackableCreature::spawnCreature: couldn't find cell %llu\n", MSG_HIGH, this->getParentId());
+			gLogger->logMsgF("AttackableCreature::spawnCreature: couldn't find cell %"PRIu64"\n", MSG_HIGH, this->getParentId());
 
 			// It's a serious isse that we need to investigate.
 			assert(cell);
@@ -1992,7 +1976,7 @@ void AttackableCreature::killEvent(void)
 		// Yes. Report in as dead!
 		if (LairObject* lair = dynamic_cast<LairObject*>(gWorldManager->getObjectById(this->getLairId())))
 		{
-			// gLogger->logMsgF("AttackableCreature::killEvent: Reporting in as dead %llu", MSG_NORMAL, this->getId());
+			// gLogger->logMsgF("AttackableCreature::killEvent: Reporting in as dead %"PRIu64"", MSG_NORMAL, this->getId());
 			lair->reportedDead(this->getId());
 		}
 		else
@@ -2004,7 +1988,7 @@ void AttackableCreature::killEvent(void)
 	{
 		if (this->getRespawnDelay() != 0)
 		{
-			// gLogger->logMsgF("AttackableCreature::killEvent: Creating a new creature with template = %llu", MSG_NORMAL, this->getTemplateId());
+			// gLogger->logMsgF("AttackableCreature::killEvent: Creating a new creature with template = %"PRIu64"", MSG_NORMAL, this->getTemplateId());
 
 			uint64 npcNewId = gWorldManager->getRandomNpNpcIdSequence();
 			if (npcNewId != 0)
@@ -2026,11 +2010,11 @@ void AttackableCreature::killEvent(void)
 void AttackableCreature::respawn(void)
 {
 	// gCreatureCounter++;
-	// gLogger->logMsgF("Spawn of new creature # %llu", MSG_NORMAL, gCreatureCounter);
+	// gLogger->logMsgF("Spawn of new creature # %"PRIu64"", MSG_NORMAL, gCreatureCounter);
 
 	// The data used below ARE taken from DB, not hard coded as the script version above.
 
-	// gLogger->logMsgF("AttackableCreature::respawn: Added new creature for spawn, with id = %llu", MSG_NORMAL, this->getId());
+	// gLogger->logMsgF("AttackableCreature::respawn: Added new creature for spawn, with id = %"PRIu64"", MSG_NORMAL, this->getId());
 
 	// The cell we will spawn in.
 	this->setParentId(getCellIdForSpawn());
@@ -2053,14 +2037,14 @@ void AttackableCreature::respawn(void)
 		if (this->hasInternalAttribute("creature_respawn_delay"))
 		{
 			uint64 respawnDelay = this->getInternalAttribute<uint64>("creature_respawn_delay");
-			// gLogger->logMsgF("creature_respawn_delay = %llu", MSG_NORMAL, respawnDelay);
+			// gLogger->logMsgF("creature_respawn_delay = %"PRIu64"", MSG_NORMAL, respawnDelay);
 			// mRespawnDelay = respawnDelay;
 			this->setRespawnDelay(respawnDelay);
 		}
 		else if (parent->hasInternalAttribute("lair_creatures_respawn_delay"))	// Note: parent may be the creature if spawning without a lair.
 		{
 			uint64 respawnDelay = parent->getInternalAttribute<uint64>("lair_creatures_respawn_delay");
-			// gLogger->logMsgF("lair_creatures_respawn_delay = %llu", MSG_NORMAL, respawnDelay);
+			// gLogger->logMsgF("lair_creatures_respawn_delay = %"PRIu64"", MSG_NORMAL, respawnDelay);
 			// mRespawnDelay = respawnDelay;
 			this->setRespawnDelay(respawnDelay);
 		}
@@ -2074,7 +2058,7 @@ void AttackableCreature::respawn(void)
 
 	// This will give a random spawn delay from 0 up to max delay.
 	mTimeToFirstSpawn = (((uint64)gRandom->getRand() * 1000) % (uint32)(this->getRespawnDelay() + 1));
-	// gLogger->logMsgF("timeToFirstSpawn = %llu", MSG_NORMAL, mTimeToFirstSpawn/1000);
+	// gLogger->logMsgF("timeToFirstSpawn = %"PRIu64"", MSG_NORMAL, mTimeToFirstSpawn/1000);
 
 	// Let us get the spawn point. It's 0 - maxSpawnDistance (2D) meters from the lair.
 	float maxSpawnDistance = parent->getMaxSpawnDistance();
@@ -2306,7 +2290,7 @@ void AttackableCreature::respawn(void)
 		if (this->hasInternalAttribute("creature_roaming_delay"))
 		{
 			uint64 roamingDelay = this->getInternalAttribute<uint64>("creature_roaming_delay");
-			// gLogger->logMsgF("creature_roaming_delay = %llu", MSG_NORMAL, roamingDelay);
+			// gLogger->logMsgF("creature_roaming_delay = %"PRIu64"", MSG_NORMAL, roamingDelay);
 			mRoamingDelay = roamingDelay;
 		}
 		else
@@ -2547,9 +2531,9 @@ void AttackableCreature::assistCreature(uint64 targetId)
 {
 	// if (this->isGroupAssist())
 	{
-		if (this->mAsssistanceNeededWithId == 0)
+		if (this->mAssistanceNeededWithId == 0)
 		{
-			this->mAsssistanceNeededWithId = targetId;
+			this->mAssistanceNeededWithId = targetId;
 		}
 	}
 }
@@ -2561,9 +2545,9 @@ void AttackableCreature::assistCreature(uint64 targetId)
 
 void AttackableCreature::assistLair(uint64 targetId)
 {
-	// if (this->mLairNeedAsssistanceWithId == 0)
+	// if (this->mLairNeedAssistanceWithId == 0)
 	{
-		this->mLairNeedAsssistanceWithId = targetId;
+		this->mLairNeedAssistanceWithId = targetId;
 		this->mIsAssistingLair = false;
 	}
 }
@@ -2576,15 +2560,15 @@ void AttackableCreature::assistLair(uint64 targetId)
 bool AttackableCreature::needAssist(void)
 {
 	bool assistNeeded = false;
-	if (this->mAsssistanceNeededWithId != 0)
+	if (this->mAssistanceNeededWithId != 0)
 	{
 		// Will not assist if target is outside stalking limit.
-		assistNeeded = isTargetWithinMaxRange(this->mAsssistanceNeededWithId);
+		assistNeeded = isTargetWithinMaxRange(this->mAssistanceNeededWithId);
 
 		if (!assistNeeded)
 		{
 			// Clear the current assist target.
-			this->mAsssistanceNeededWithId = 0;
+			this->mAssistanceNeededWithId = 0;
 		}
 	}
 	return assistNeeded;
@@ -2597,7 +2581,7 @@ bool AttackableCreature::needAssist(void)
 
 bool AttackableCreature::needToAssistLair(void)
 {
-	bool status = ((this->mLairNeedAsssistanceWithId != 0) && !this->mIsAssistingLair);
+	bool status = ((this->mLairNeedAssistanceWithId != 0) && !this->mIsAssistingLair);
 	if (status)
 	{
 		this->mIsAssistingLair = true;
@@ -2611,7 +2595,7 @@ void AttackableCreature::executeAssist(void)
 	// gLogger->logMsgF("AttackableCreature::executeAssist Entering", MSG_NORMAL);
 
 	// Yes. Go and get that sucker.
-	Object* object = gWorldManager->getObjectById(this->mAsssistanceNeededWithId );
+	Object* object = gWorldManager->getObjectById(this->mAssistanceNeededWithId );
 	if (object)
 	{
 		// gLogger->logMsgF("AttackableCreature::assist Assisting", MSG_NORMAL);
@@ -2633,7 +2617,7 @@ void AttackableCreature::executeLairAssist(void)
 	// gLogger->logMsgF("AttackableCreature::executeLairAssist Entering", MSG_NORMAL);
 
 	// Yes. Go and get that sucker.
-	Object* object = gWorldManager->getObjectById(this->mLairNeedAsssistanceWithId );
+	Object* object = gWorldManager->getObjectById(this->mLairNeedAssistanceWithId );
 	if (object)
 	{
 		// gLogger->logMsgF("AttackableCreature::executeLairAssist Assisting", MSG_NORMAL);

@@ -75,25 +75,24 @@ class TangibleObject :	public ObjectContainer
 		void				setTimer(int32 timer){ mTimer = timer; }
 	protected:
 
-		TangibleGroup		mTanGroup;
-		TangibleType		mTanType;
+		string				mCustomizationStr;
 		string				mCustomName;
 		string				mName;
 		string				mNameFile;
-		string				mDetailFile;
 		string				mColorStr;
-		//can probably be reduced in size
-		uint16				mCustomization[256];
-		string				mCustomizationStr;
-		uint32				mCustomizationSize;
+		string				mDetailFile;
 		string				mUnknownStr1;
 		string				mUnknownStr2;
-		uint32				mMaxCondition;
-		uint32				mDamage;
-		float				mComplexity;
-		int32				mTimer;
-		int32				mTimerInterval;
+		uint16				mCustomization[256];
+		TangibleGroup	mTanGroup;
+		TangibleType	mTanType;
+		float					mComplexity;
 		uint64				mLastTimerUpdate;
+		int32					mTimer;
+		uint32				mCustomizationSize;
+		uint32				mDamage;
+		uint32				mMaxCondition;
+		uint32				mTimerInterval;
 };
 
 //=============================================================================

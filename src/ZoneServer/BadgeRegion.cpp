@@ -45,7 +45,7 @@ void BadgeRegion::update()
 
 	Object*		object;
 	ObjectSet	objList;
-	
+
 	if(mParentId)
 	{
 		mSI->getObjectsInRange(this,&objList,ObjType_Player,mWidth);
@@ -104,7 +104,7 @@ void BadgeRegion::onObjectEnter(Object* object)
 
 void BadgeRegion::onObjectLeave(Object* object)
 {
-	PlayerObject* player = (PlayerObject*)object;
+//	PlayerObject* player = (PlayerObject*)object;
 	removeKnownObject(object);
 }
 

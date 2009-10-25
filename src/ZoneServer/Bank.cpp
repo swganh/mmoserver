@@ -50,7 +50,7 @@ bool Bank::updateCredits(int32 amount)
 	if(mParent->getType() == ObjType_Player)
 		gMessageLib->sendBankCreditsUpdate(dynamic_cast<PlayerObject*>(mParent));
 
-	gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE banks set credits=credits+%i WHERE id=%lld",amount,mId);
+	gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE banks set credits=credits+%i WHERE id=%"PRId64"",amount,mId);
 
 	return(true);
 }

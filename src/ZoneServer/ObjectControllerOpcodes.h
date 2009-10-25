@@ -65,7 +65,7 @@ enum object_controller_opcodes
 	opImageDesignStopMessage			= 0x00000239,
 	opApplyBuff							= 0x00000229,
 	opRemoveBuff						= 0x0000022A,
-	opMissionComplete					= 0x000004C5, //Actual name unknown
+	opMissionComplete					= 0x000004C5 //Actual name unknown
 
 };
 
@@ -104,7 +104,7 @@ enum object_controller_brawler_functions
 	opOCmelee1hlunge2					= 0x099f33a8,
 	opOCpolearmlunge2					= 0x72957e94,
 	opOCmelee2hlunge2					= 0xe57d56f6,
-	opOCwarcry2							= 0x6715ca1a,
+	opOCwarcry2							= 0x6715ca1a
 };
 
 //=======================================================================
@@ -114,7 +114,7 @@ enum object_controller_artisan_functions
 	opOCsample							= 0x8d0c1504,
 	opOCrequestcoresample				= 0x9223c634,
 	opOCsurvey							= 0x19c9fac1,
-	opOCrequestsurvey					= 0xc00cfa18,
+	opOCrequestsurvey					= 0xc00cfa18
 };
 
 //=======================================================================
@@ -148,7 +148,7 @@ enum object_controller_entertainer_functions
 	opOCColorLights						= 0xB008CBFA,
 	opOCSmokeBomb						= 0xD536B419,
 	opOCSpotLight						= 0xed4aa746,
-	opOCVentriloquism					= 0x6cb6978f,
+	opOCVentriloquism					= 0x6cb6978f
 };
 
 //=======================================================================
@@ -157,7 +157,7 @@ enum object_controller_scout_functions
 {
 	opOCharvestcorpse					= 0x029D0CC5,
 	opOCmaskscent						= 0xb0f4c4b6,
-	opOCforage							= 0x494f9f80,
+	opOCforage							= 0x494f9f80
 };
 
 //=======================================================================
@@ -188,7 +188,7 @@ enum object_controller_marksman_functions
 	opOCdiveshot						= 0x857fcdd0,
 	opOCkipupshot						= 0x5394d72d,
 	opOCrollshot						= 0x03250b4d,
-	opOCaim								= 0xa0a107f8,
+	opOCaim								= 0xa0a107f8
 };
 
 //=======================================================================
@@ -203,7 +203,7 @@ enum object_controller_medic_functions
 	opOCtendwound						= 0x31DD4C4B,
 	opOCfirstaid						= 0xD5F85133,
 	opOCquickheal						= 0x7AB1850D,
-	opOCdragincapacitatedplayer			= 0x273A06DA,
+	opOCdragincapacitatedplayer			= 0x273A06DA
 };
 
 //=======================================================================
@@ -216,7 +216,7 @@ enum object_controller_admin_functions
 	opOCAdminBroadcastPlanet			= 0xEB0B6D6B,
 	opOCAdminBroadcastGalaxy			= 0x5AD7B5CE,
 	opOCAdminShutdownGalaxy				= 0xFC96BB5C,
-	opOCAdminCancelShutdownGalaxy		= 0x72790D12,
+	opOCAdminCancelShutdownGalaxy		= 0x72790D12
 };
 
 //=======================================================================
@@ -225,13 +225,13 @@ enum object_controller_group_functions
 {
 	opOCinvite							= 0x88505D58,
 	opOCuninvite						= 0x2E26A47F,
-	opOCjoin							= 0xA99E6807,	
+	opOCjoin							= 0xA99E6807,
 	opOCdecline							= 0x43E1F84F,
 	opOCdisband							= 0x46D22D3A,
 	opOCleavegroup						= 0x5061D654,
 	opOCdismissgroupmember				= 0x2F50053B,
 	opOCmakeleader						= 0x939AD584,
-	
+
 	// GroupChat alias
 	opOCg								= 0x315D6D9,
 	opOCgc								= 0x8845FDC,
@@ -241,7 +241,7 @@ enum object_controller_group_functions
 	opOCgroupchat						= 0x68851C4F,
 
 	opOCgrouploot						= 0xe778c14f,
-	opOCmakemasterlooter				= 0x9707b934,
+	opOCmakemasterlooter				= 0x9707b934
 };
 
 //=======================================================================
@@ -254,8 +254,8 @@ enum object_controller_generic_functions
 	opOCdeathblow						= 0xE5F3B39B,
 	opOCloot							= 0xEF3CBEDB,
 
-	opOCteach							= 0x5041F83A, 
-	opOCmatch							= 0xD63286B8, 
+	opOCteach							= 0x5041F83A,
+	opOCmatch							= 0xD63286B8,
 
 	opOCspatialchatinternal				= 0x7C8D63D4,
 	opOCsocialinternal					= 0x32CF1BEE,
@@ -335,26 +335,26 @@ enum object_controller_generic_functions
 	opOCsetwaypointactivestatus			= 0xC3EDA6B6,
 	opOCwaypoint						= 0x640543FE,
 	opOCsetwaypointname					= 0x398f891a,
-	
-	// custom 
+
+	// custom
 	opOCEndBurstRun						= 0xc79ecec6,
 
 	opOCmount							= 0xE007BF31,
-	opOCdismount						= 0x06F978ED,
+	opOCdismount						= 0x06F978ED
 };
 
 //=======================================================================
 
 enum object_controller_bioengineer_functions
 {
-	opOCsampledna						= 0xD04917BE,
+	opOCsampledna						= 0xD04917BE
 };
 
 //=======================================================================
 
 enum object_controller_bountyhunter_functions
 {
-	opOCassigndroid						= 0x6B5C8AE3,
+	opOCassigndroid						= 0x6B5C8AE3
 };
 
 //=======================================================================
@@ -363,7 +363,7 @@ enum object_controller_combatmedic_functions
 {
 	opOCapplypoison						= 0xE08596DB,
 	opOCapplydisease					= 0xAF5E4D90,
-	opOChealmind						= 0xDFAC57EE,
+	opOChealmind						= 0xDFAC57EE
 };
 
 //=======================================================================
@@ -384,7 +384,7 @@ enum object_controller_carbineer_functions
 	opOCfullautoarea1					= 0x8D1B984E,
 	opOCchargeshot1						= 0x109F8ACF,
 	opOCfullautoarea2					= 0x8058BE97,
-	opOCchargeshot2						= 0x1DDCAC16,
+	opOCchargeshot2						= 0x1DDCAC16
 };
 
 //=======================================================================
@@ -405,7 +405,7 @@ enum object_controller_commando_functions
 	opOCfireacidcone1					= 0x3A5427FE,
 	opOCfireacidsingle2					= 0xE143B9C6,
 	opOCfireacidcone2					= 0x37170127,
-	opOCflamecone2						= 0xD8EFFF96,
+	opOCflamecone2						= 0xD8EFFF96
 };
 
 //=======================================================================
@@ -417,7 +417,7 @@ enum object_controller_doctor_functions
 	opOCextinguishfire					= 0xDF49EA58,
 	opOCcuredisease						= 0xE994DE9C,
 	opOChealenhance						= 0xEEE029CF,
-	opOCreviveplayer					= 0xC9759876,
+	opOCreviveplayer					= 0xC9759876
 };
 
 //=======================================================================
@@ -435,7 +435,7 @@ enum object_controller_fencer_functions
 	opOCmelee1hbodyhit3					= 0xC7D46091,
 	opOCmelee1hblindhit1				= 0x362CFC22,
 	opOCmelee1hblindhit2				= 0x3B6FDAFB,
-	opOCmelee1hhit3						= 0x51CC667F,
+	opOCmelee1hhit3						= 0x51CC667F
 };
 
 //=======================================================================
@@ -453,7 +453,7 @@ enum object_controller_pikeman_functions
 	opOCpolearmsweep2					= 0xD3163A1D,
 	opOCpolearmactionhit1				= 0x43162C1F,
 	opOCpolearmactionhit2				= 0x4E550AC6,
-	opOCpolearmhit3						= 0x8DCC0182,
+	opOCpolearmhit3						= 0x8DCC0182
 };
 
 //=======================================================================
@@ -471,7 +471,7 @@ enum object_controller_pistoleer_functions
 	opOCfanshot							= 0x10921EDB,
 	opOCpistolmeleedefense1				= 0x6E76C41F,
 	opOCpistolmeleedefense2				= 0x6335E2C6,
-	opOCmultitargetpistolshot			= 0x4000FC87,
+	opOCmultitargetpistolshot			= 0x4000FC87
 };
 
 //=======================================================================
@@ -480,7 +480,7 @@ enum object_controller_ranger_functions
 {
 	opOCareatrack						= 0xAA4E8A8C,
 	opOCconceal							= 0x1F0512D5,
-	opOCrescue							= 0x2F226EEE,
+	opOCrescue							= 0x2F226EEE
 };
 
 //=======================================================================
@@ -499,7 +499,7 @@ enum object_controller_rifleman_functions
 	opOCstartleshot1					= 0x04B23F7E,
 	opOCstartleshot2					= 0x09F119A7,
 	opOCflurryshot1						= 0x471EAC17,
-	opOCflurryshot2						= 0x4A5D8ACE,
+	opOCflurryshot2						= 0x4A5D8ACE
 };
 
 //=======================================================================
@@ -509,7 +509,7 @@ enum object_controller_smuggler_functions
 	opOCfeigndeath						= 0x4906C303,
 	opOCpanicshot						= 0x6AC22291,
 	opOClowblow							= 0xD4DBBC99,
-	opOClastditch						= 0x29D6FF40,
+	opOClastditch						= 0x29D6FF40
 };
 
 //=======================================================================
@@ -522,7 +522,7 @@ enum object_controller_squadleader_functions
 	opOCformup							= 0xAB9FFCA3,
 	opOCboostmorale						= 0xD29DEA7E,
 	opOCrally							= 0x637279EA,
-	opOCretreat							= 0x4871BBF4,
+	opOCretreat							= 0x4871BBF4
 };
 
 //=======================================================================
@@ -539,7 +539,7 @@ enum object_controller_swordsman_functions
 	opOCmelee2hspinattack2				= 0x8BE6D40B,
 	opOCmelee2hsweep2					= 0x44FE127F,
 	opOCmelee2hmindhit1					= 0xFAEE81FB,
-	opOCmelee2hmindhit2					= 0xF7ADA722,
+	opOCmelee2hmindhit2					= 0xF7ADA722
 };
 
 //=======================================================================
@@ -559,14 +559,14 @@ enum object_controller_teraskasi_functions
 	opOCunarmedspinattack2				= 0xD6075389,
 	opOCunarmedbodyhit1					= 0x57ECDE87,
 	opOCunarmedleghit1					= 0x638B5475,
-	opOCunarmedheadhit1					= 0x05FEC475,
+	opOCunarmedheadhit1					= 0x05FEC475
 };
 
 //=======================================================================
 
 enum object_controller_force_defense_functions
 {
-	opOCavoidincapacitation					= 0x000E0422,
+	opOCavoidincapacitation					= 0x000E0422
 };
 
 //=======================================================================
@@ -594,7 +594,7 @@ enum object_controller_force_enhancement_functions
 	opOCforceshield1						= 0x62A2B941,
 	opOCforceshield2						= 0x6FE19F98,
 	opOCforcemeditate						= 0xBD40A262,
-	opOCregainconsciousness					= 0xF279EA94,
+	opOCregainconsciousness					= 0xF279EA94
 };
 
 //=======================================================================
@@ -631,7 +631,7 @@ enum object_controller_force_healing_functions
 	opOCforcecurepoison						= 0x99EA3DC1,
 	opOChealstatesself						= 0x2E286256,
 	opOCtotalhealother						= 0x6B370958,
-	opOCtotalhealself						= 0x18E5D089,
+	opOCtotalhealself						= 0x18E5D089
 };
 
 //=======================================================================
@@ -657,7 +657,7 @@ enum object_controller_force_power_functions
 	opOCforceknockdown2						= 0x65A52830,
 	opOCforceknockdown3						= 0x61643587,
 	opOCforcechoke							= 0x4B0A9D33,
-	opOCjedimindtrick						= 0xED1E2488,
+	opOCjedimindtrick						= 0xED1E2488
 };
 
 //=======================================================================
@@ -701,7 +701,7 @@ enum object_controller_force_lightsaber_functions
 	opOCsaberthrow1							= 0xF8465559,
 	opOCsaberthrow2							= 0xF5057380,
 	opOCsaberthrow3							= 0xF1C46E37,
-	opOCsaber2hphantom						= 0x1712E1DD,
+	opOCsaber2hphantom						= 0x1712E1DD
 };
 
 //=======================================================================

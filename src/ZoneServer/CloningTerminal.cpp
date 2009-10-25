@@ -46,7 +46,7 @@ CloningTerminal::~CloningTerminal()
 void CloningTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 {
 	PlayerObject* playerObject = (PlayerObject*)srcObject;
-	
+
 	switch(messageType)
 	{
 		case radId_itemUse:
@@ -63,20 +63,20 @@ void CloningTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject
 
 							// Update player with pre-des cloning facility. It's a terminal in a cell in a building...
 							playerObject->setPreDesignatedCloningFacilityId(gWorldManager->getObjectById(this->getParentId())->getParentId());
-				
+
 							// store the location where we are bind
 							playerObject->setBindPlanet((uint8)gWorldManager->getZoneId());
-							
+
 							Anh_Math::Vector3 bindPosition = gWorldManager->getObjectById(playerObject->getPreDesignatedCloningFacilityId())->mPosition;
 							playerObject->setBindCoords(bindPosition);
-						
+
 							// TODO: We need to save the current data before creating the clone data.
 
 							int8 sql[128];
-							sprintf(sql,"call swganh.sp_CharacterCreateClone(%I64u,%I64u)", playerObject->getId(),playerObject->getPreDesignatedCloningFacilityId());
+							sprintf(sql,"call swganh.sp_CharacterCreateClone(%"PRIu64",%"PRIu64")", playerObject->getId(),playerObject->getPreDesignatedCloningFacilityId());
 							(gWorldManager->getDatabase())->ExecuteSqlAsync(NULL,NULL,sql);
 
-							// Clone location successfully updated 
+							// Clone location successfully updated
 							gMessageLib->sendSystemMessage(playerObject, L"", "base_player", "clone_success");
 
 							// Inform Tutorial about the cloning.
@@ -94,7 +94,7 @@ void CloningTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject
 
 		default:
 			gLogger->logMsgF("CloningTerminal::handleObjectMenuSelect Unhandled MenuSelect: %u",MSG_HIGH,messageType);
-		
+
 		break;
 	}
 }
@@ -168,20 +168,20 @@ void CloningTerminal::handleUIEvent(uint32 action,int32 element,string inputStr,
 
 				// Update player with pre-des cloning facility. It's a terminal in a cell in a building...
 				playerObject->setPreDesignatedCloningFacilityId(gWorldManager->getObjectById(this->getParentId())->getParentId());
-			
+
 				// store the location where we are bind
 				playerObject->setBindPlanet((uint8)gWorldManager->getZoneId());
-				
+
 				Anh_Math::Vector3 bindPosition = gWorldManager->getObjectById(playerObject->getPreDesignatedCloningFacilityId())->mPosition;
 				playerObject->setBindCoords(bindPosition);
-					
-				// gLogger->logMsgF("CloningTerminal::handleUIEvent Saving clone facility id %lld",MSG_HIGH,playerObject->getPreDesignatedCloningFacilityId());
+
+				// gLogger->logMsgF("CloningTerminal::handleUIEvent Saving clone facility id %"PRId64"",MSG_HIGH,playerObject->getPreDesignatedCloningFacilityId());
 
 				int8 sql[128];
-				sprintf(sql,"call swganh.sp_CharacterCreateClone(%I64u,%I64u)", playerObject->getId(),playerObject->getPreDesignatedCloningFacilityId());
+				sprintf(sql,"call swganh.sp_CharacterCreateClone(%"PRIu64",%"PRIu64")", playerObject->getId(),playerObject->getPreDesignatedCloningFacilityId());
 				(gWorldManager->getDatabase())->ExecuteSqlAsync(NULL,NULL,sql);
 
-				// Clone location successfully updated 
+				// Clone location successfully updated
 				gMessageLib->sendSystemMessage(playerObject, L"", "base_player", "clone_success");
 
 				// Re-enable when/if we starts to use the "coupon" for a free cloning in the Tutorial.
@@ -191,10 +191,10 @@ void CloningTerminal::handleUIEvent(uint32 action,int32 element,string inputStr,
 				// }
 			}
 			else
-			{	
+			{
 				// This is a system error.
 				// The player had no credits in his/her bank.
-				
+
 				// You lack the bank funds to complete this transaction request
 				gMessageLib->sendSystemMessage(playerObject, L"", "error_message", "insufficient_funds_bank", "", "", L"");
 				gLogger->logMsg("CloningTerminal::handleUIEvent: ERROR: Error verifying credits\n");

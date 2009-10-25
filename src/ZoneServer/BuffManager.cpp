@@ -35,7 +35,7 @@ struct buffAsyncContainer
 	BMQuery				mQueryType;
 	WMAsyncContainer*	asyncContainer;
 	void*				callBack;
-	
+
 };
 
 BuffManager::BuffManager(Database *database):mDatabase(database)
@@ -76,9 +76,9 @@ void BuffManager::handleDatabaseJobComplete(void *ref, DatabaseResult *result)
 
 				//the asynccontainer was prepared by the worldmanager
 				WMAsyncContainer* asContainer = asyncContainer->asyncContainer;
-				
+
 				// position save - the callback will be in the worldmanager to proceed with the rest of the safe
-				mDatabase->ExecuteSqlAsync(reinterpret_cast<DatabaseCallback*>(asyncContainer->callBack),asContainer,"UPDATE characters SET parent_id=%lld,oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f,planet_id=%u,jedistate=%u WHERE id=%lld",playerObject->getParentId()
+				mDatabase->ExecuteSqlAsync(reinterpret_cast<DatabaseCallback*>(asyncContainer->callBack),asContainer,"UPDATE characters SET parent_id=%"PRId64",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f,planet_id=%u,jedistate=%u WHERE id=%"PRId64"",playerObject->getParentId()
 									,playerObject->mDirection.mX,playerObject->mDirection.mY,playerObject->mDirection.mZ,playerObject->mDirection.mW
 									,playerObject->mPosition.mX,playerObject->mPosition.mY,playerObject->mPosition.mZ
 									,gWorldManager->getZoneId(),playerObject->getJediState(),playerObject->getId());
@@ -90,7 +90,7 @@ void BuffManager::handleDatabaseJobComplete(void *ref, DatabaseResult *result)
 		case BMQuery_Buffs:
 		{
 			LoadBuffsFromResult(asyncContainer, result);
-			
+
 		}
 		break;
 		case BMQuery_Buff_Attributes:
@@ -129,7 +129,7 @@ void BuffManager::LoadBuffsFromResult(buffAsyncContainer* asyncContainer, Databa
 	if(rowCount == 0)
 	{
 		gLogger->logMsgF("BuffManager : Couldn't find any Buffs for player : %I64u",MSG_NORMAL,asyncContainer->player->getId());
-		
+
 		SAFE_DELETE(asyncContainer);
 		mDatabase->DestroyDataBinding(buffBinding);
 		return;
@@ -150,9 +150,9 @@ void BuffManager::LoadBuffsFromResult(buffAsyncContainer* asyncContainer, Databa
 	mDatabase->DestroyDataBinding(buffBinding);
 
 
-	BuffList::iterator it = player->Buffs.begin();
+	BuffList::iterator it = player->GetBuffList()->begin();
 
-	while(it != player->Buffs.end())
+	while(it != player->GetBuffList()->end())
 	{
 		envelope->buff = *it;
 		envelope->mQueryType = BMQuery_Buff_Attributes;
@@ -160,7 +160,7 @@ void BuffManager::LoadBuffsFromResult(buffAsyncContainer* asyncContainer, Databa
 		it++;
 	}
 
-	
+
 	buffAsyncContainer* newenvelope = new buffAsyncContainer();
 	newenvelope->buff = envelope->buff;
 	newenvelope->currentTime = envelope->currentTime;
@@ -168,7 +168,7 @@ void BuffManager::LoadBuffsFromResult(buffAsyncContainer* asyncContainer, Databa
 	newenvelope->mQueryType = BMQuery_Delete;
 
 	int8 sql2[550];
-	sprintf(sql2, "delete from character_buffs where character_id = %I64u;", player->getId());
+	sprintf(sql2, "delete from character_buffs where character_id = %"PRIu64";", player->getId());
 	mDatabase->ExecuteSqlAsync(this,newenvelope,sql2);
 
 	SAFE_DELETE(envelope);
@@ -189,7 +189,7 @@ void BuffManager::LoadBuffAttributesFromResult(buffAsyncContainer* asyncContaine
 	buffBinding->addField(DFT_int32,offsetof(BuffAttributeDBItem,mFinalValue),4,3);
 
 	uint64 rowCount = result->getRowCount();
-	
+
 	BuffAttributeDBItem* tmp = new BuffAttributeDBItem();
 	for(uint64 i = 0;i < rowCount;i++)
 	{
@@ -203,7 +203,7 @@ void BuffManager::LoadBuffAttributesFromResult(buffAsyncContainer* asyncContaine
 	//asyncContainer->buff->ReInit();
 
 	int8 sql2[550];
-	sprintf(sql2, "delete from character_buff_attributes where character_id = %I64u and buff_id = %I64u;", asyncContainer->player->getId(), asyncContainer->buff->GetDBID());
+	sprintf(sql2, "delete from character_buff_attributes where character_id = %"PRIu64" and buff_id = %"PRIu64";", asyncContainer->player->getId(), asyncContainer->buff->GetDBID());
 	mDatabase->ExecuteSqlAsync(NULL,NULL,sql2);
 	SAFE_DELETE(asyncContainer);
 }
@@ -227,29 +227,29 @@ bool BuffManager::SaveBuffsAsync(WMAsyncContainer* asyncContainer,DatabaseCallba
 	playerObject->SetAsyncCount(0);
 
 	//count the calls necessary
-	BuffList::iterator it = playerObject->Buffs.begin();
-	while(it != playerObject->Buffs.end())
+	BuffList::iterator it = playerObject->GetBuffList()->begin();
+	while(it != playerObject->GetBuffList()->end())
 	{
 		Buff* buff = *it;
 		//Check if it is an active Buff
-		if(!buff->GetIsMarkedForDeletion()) 
+		if(!buff->GetIsMarkedForDeletion())
 		{
 			//TODO Check whether this is a buff that needs saving or just undoing or neither or both
 
-			gWorldManager->removeBuffToProcess(buff->GetID());	
-			
+			gWorldManager->removeBuffToProcess(buff->GetID());
+
 			//store the amount of async calls so we know when the last call finished
 			playerObject->IncAsyncCount(); //this is the buff
 
 			playerObject->IncAsyncCount(); //all attributes of a buff are stored in a single query
-			
+
 			//Save to DB, and remove from the Process Queue
 			if(AddBuffToDB(asyncContainer, callback, buff, currenttime))
 				buffCount++;
-		
+
 			//Free up Memory
 			buff->EraseAttributes();
-			it = playerObject->Buffs.erase(it);
+			it = playerObject->GetBuffList()->erase(it);
 		}
 	}
 
@@ -261,12 +261,12 @@ void BuffManager::SaveBuffs(PlayerObject* playerObject, uint64 currenttime)
 	//RemovedDeleted Buffs
 	playerObject->CleanUpBuffs();
 
-	BuffList::iterator it = playerObject->Buffs.begin();
-	while(it != playerObject->Buffs.end())
+	BuffList::iterator it = playerObject->GetBuffList()->begin();
+	while(it != playerObject->GetBuffList()->end())
 	{
 		Buff* temp = *it;
 		//Check if it is an active Buff
-		if(!temp->GetIsMarkedForDeletion()) 
+		if(!temp->GetIsMarkedForDeletion())
 		{
 			//Save to DB, and remove from the Process Queue
 			AddBuffToDB(temp, currenttime);
@@ -275,9 +275,9 @@ void BuffManager::SaveBuffs(PlayerObject* playerObject, uint64 currenttime)
 
 		//Free up Memory
 		temp->EraseAttributes();
-		it = playerObject->Buffs.erase(it);
+		it = playerObject->GetBuffList()->erase(it);
 	}
-	
+
 }
 
 //=============================================================================
@@ -304,7 +304,7 @@ void BuffManager::LoadBuffs(PlayerObject* playerObject, uint64 currenttime)
 	envelope->player		= playerObject;
 
 	int8 sql[550];
-	sprintf(sql, "SELECT buff_id,character_id,instigator_id,max_ticks,tick_length,current_tick,icon,current_global_tick,start_global_tick from character_buffs where character_id = %I64u", playerObject->getId());
+	sprintf(sql, "SELECT buff_id,character_id,instigator_id,max_ticks,tick_length,current_tick,icon,current_global_tick,start_global_tick from character_buffs where character_id = %"PRIu64"", playerObject->getId());
 	//gLogger->logMsg(sql,FOREGROUND_BLUE | FOREGROUND_GREEN);
 	mDatabase->ExecuteSqlAsync(this,envelope,sql);
 }
@@ -322,13 +322,13 @@ void BuffManager::LoadBuffAttributes(buffAsyncContainer* envelope)
 	newenvelope->mQueryType		= BMQuery_Buff_Attributes;
 
 	int8 sql[550];
-	sprintf(sql, "SELECT type,initial,tick,final from character_buff_attributes where character_id = %I64u and buff_id = %I64u;", envelope->player->getId(), envelope->buff->GetDBID());
+	sprintf(sql, "SELECT type,initial,tick,final from character_buff_attributes where character_id = %"PRIu64" and buff_id = %"PRIu64";", envelope->player->getId(), envelope->buff->GetDBID());
 	//gLogger->logMsg(sql,FOREGROUND_BLUE | FOREGROUND_GREEN);
 	mDatabase->ExecuteSqlAsync(this,newenvelope,sql);
 }
 
 //=============================================================================
-//saves the buff to db asynchronically and gives the callbackhandler 
+//saves the buff to db asynchronically and gives the callbackhandler
 //
 
 bool BuffManager::AddBuffToDB(WMAsyncContainer* asyncContainer,DatabaseCallback* callback, Buff* buff, uint64 currenttime)
@@ -348,7 +348,7 @@ bool BuffManager::AddBuffToDB(WMAsyncContainer* asyncContainer,DatabaseCallback*
 	//Get PlayerObjects from CreatureObjects
 	PlayerObject* player = dynamic_cast<PlayerObject*>(buff->GetTarget());
 	PlayerObject* target = dynamic_cast<PlayerObject*>(buff->GetInstigator());   //what is the difference ?
-	
+
 
 	//If target is a player, not Creature/NPC
 	if(player)
@@ -363,25 +363,25 @@ bool BuffManager::AddBuffToDB(WMAsyncContainer* asyncContainer,DatabaseCallback*
 		uint32 bufficon = buff->GetIcon();
 		int8 sql[550];
 		sprintf(sql, "INSERT INTO character_buffs (character_id, buff_id, instigator_id, max_ticks, tick_length, current_tick, icon, current_global_tick, start_global_tick) values(");
-		sprintf(sql+strlen(sql), "%I64u,", player->getId());
-		sprintf(sql+strlen(sql), "%I64u,", buff->GetID());
-		sprintf(sql+strlen(sql), "%I64u,", instigatorid);
+		sprintf(sql+strlen(sql), "%"PRIu64",", player->getId());
+		sprintf(sql+strlen(sql), "%"PRIu64",", buff->GetID());
+		sprintf(sql+strlen(sql), "%"PRIu64",", instigatorid);
 		sprintf(sql+strlen(sql), "%u,", buff->GetNoOfTicks());
-		sprintf(sql+strlen(sql), "%I64u,", buff->GetTickLength());
+		sprintf(sql+strlen(sql), "%"PRIu64",", buff->GetTickLength());
 		sprintf(sql+strlen(sql), "%u,", buff->GetCurrentTickNumber());
 		sprintf(sql+strlen(sql), "%u,", bufficon);
-		sprintf(sql+strlen(sql), "%I64u,", currenttime);
-		sprintf(sql+strlen(sql), "%I64u);", buff->GetStartGlobalTick());
-		
+		sprintf(sql+strlen(sql), "%"PRIu64",", currenttime);
+		sprintf(sql+strlen(sql), "%"PRIu64");", buff->GetStartGlobalTick());
+
 		buffAsyncContainer*	asContainer = new(buffAsyncContainer);
 		asContainer->mQueryType		= BMQuery_Safe_Async;
 		asContainer->player			= player;
 		asContainer->asyncContainer	= asyncContainer;
 		asContainer->callBack		= callback;
-		
+
 
 		mDatabase->ExecuteSqlAsync(this,asContainer,sql);
-		
+
 
 		int8 sql2[550];
 		sprintf(sql2, "INSERT INTO character_buff_attributes (buff_id,character_id,type,initial,tick,final) VALUES");
@@ -399,36 +399,36 @@ bool BuffManager::AddBuffToDB(WMAsyncContainer* asyncContainer,DatabaseCallback*
 			BuffAttribute* batemp = *it;
 
 			//undo the attribute pre safe - we will reapply this on login
-			buff->ModifyAttribute(batemp->GetType(), batemp->GetFinalValue());													  
-			
-			sprintf(sql2+strlen(sql2), "(%I64u,", buff->GetID());
-			sprintf(sql2+strlen(sql2), "%I64u,", player->getId());
+			buff->ModifyAttribute(batemp->GetType(), batemp->GetFinalValue());
+
+			sprintf(sql2+strlen(sql2), "(%"PRIu64",", buff->GetID());
+			sprintf(sql2+strlen(sql2), "%"PRIu64",", player->getId());
 			sprintf(sql2+strlen(sql2), "%d,", (int32)batemp->GetType());
 			sprintf(sql2+strlen(sql2), "%d,", batemp->GetInitialValue());
 			sprintf(sql2+strlen(sql2), "%d,", batemp->GetTickValue());
 			if(it+1 != buff->Attributes.end())
 			{
 				sprintf(sql2+strlen(sql2), "%d),", batemp->GetFinalValue());
-			} else 
+			} else
 			{
 				sprintf(sql2+strlen(sql2), "%d);", batemp->GetFinalValue());
 			}
 			it++;
 		}
-		
+
 		asContainer					= new(buffAsyncContainer);
 		asContainer->mQueryType		= BMQuery_Safe_Async;
 		asContainer->player			= player;
 		asContainer->asyncContainer	= asyncContainer;
 		asContainer->callBack		= callback;
-	
+
 		mDatabase->ExecuteSqlAsync(this,asContainer,sql2);
-		
+
 		return true;
 	}
-	else 
+	else
 		return false;
-		
+
 }
 
 //=============================================================================
@@ -450,14 +450,14 @@ void BuffManager::AddBuffToDB(Buff* buff, uint64 currenttime)
 	envelope->mQueryType	= BMQuery_Null;
 
 	/*TODO Should I Reset the Stat here on the player so it doesn't get double buffed
-		For now, this is dealt with by removing hte modifiers when saving Player HAM to DB, 
+		For now, this is dealt with by removing hte modifiers when saving Player HAM to DB,
 		but this might not be the best long term solution
 	*/
 
 	//Get PlayerObjects from CreatureObjects
 	PlayerObject* Player = dynamic_cast<PlayerObject*>(buff->GetTarget());
 	PlayerObject* target = dynamic_cast<PlayerObject*>(buff->GetInstigator());
-	
+
 	//If target is a player, not Creature/NPC
 	if(Player)
 	{
@@ -471,16 +471,16 @@ void BuffManager::AddBuffToDB(Buff* buff, uint64 currenttime)
 		uint32 bufficon = buff->GetIcon();
 		int8 sql[550];
 		sprintf(sql, "INSERT INTO character_buffs (character_id, buff_id, instigator_id, max_ticks, tick_length, current_tick, icon, current_global_tick, start_global_tick) values(");
-		sprintf(sql+strlen(sql), "%I64u,", Player->getId());
-		sprintf(sql+strlen(sql), "%I64u,", buff->GetID());
-		sprintf(sql+strlen(sql), "%I64u,", instigatorid);
+		sprintf(sql+strlen(sql), "%"PRIu64",", Player->getId());
+		sprintf(sql+strlen(sql), "%"PRIu64",", buff->GetID());
+		sprintf(sql+strlen(sql), "%"PRIu64",", instigatorid);
 		sprintf(sql+strlen(sql), "%u,", buff->GetNoOfTicks());
-		sprintf(sql+strlen(sql), "%I64u,", buff->GetTickLength());
+		sprintf(sql+strlen(sql), "%"PRIu64",", buff->GetTickLength());
 		sprintf(sql+strlen(sql), "%u,", buff->GetCurrentTickNumber());
 		sprintf(sql+strlen(sql), "%u,", bufficon);
-		sprintf(sql+strlen(sql), "%I64u,", currenttime);
-		sprintf(sql+strlen(sql), "%I64u);", buff->GetStartGlobalTick());
-		
+		sprintf(sql+strlen(sql), "%"PRIu64",", currenttime);
+		sprintf(sql+strlen(sql), "%"PRIu64");", buff->GetStartGlobalTick());
+
 		//gLogger->logMsg(sql,FOREGROUND_BLUE | FOREGROUND_GREEN);
 
 		//Lloydyboy Changed Save SQL back to Sync, not ASync to ensure this is saved, before new zone loads
@@ -503,10 +503,10 @@ void BuffManager::AddBuffToDB(Buff* buff, uint64 currenttime)
 			BuffAttribute* batemp = *it;
 
 			//undo the attribute pre safe - we will reapply this on login
-			buff->ModifyAttribute(batemp->GetType(), batemp->GetFinalValue());													  
+			buff->ModifyAttribute(batemp->GetType(), batemp->GetFinalValue());
 
-			sprintf(sql2+strlen(sql2), "(%I64u,", buff->GetID());
-			sprintf(sql2+strlen(sql2), "%I64u,", Player->getId());
+			sprintf(sql2+strlen(sql2), "(%"PRIu64",", buff->GetID());
+			sprintf(sql2+strlen(sql2), "%"PRIu64",", Player->getId());
 			sprintf(sql2+strlen(sql2), "%d,", (int32)batemp->GetType());
 			sprintf(sql2+strlen(sql2), "%d,", batemp->GetInitialValue());
 			sprintf(sql2+strlen(sql2), "%d,", batemp->GetTickValue());
@@ -519,7 +519,7 @@ void BuffManager::AddBuffToDB(Buff* buff, uint64 currenttime)
 			it++;
 		}
 		//gLogger->logMsg(sql2,FOREGROUND_BLUE | FOREGROUND_GREEN);
-		
+
 		//Lloydyboy Changed Save SQL back to Sync, not ASync to ensure this is saved, before new zone loads
 		//mDatabase->ExecuteSqlAsync(this,envelope,sql2);
 		mDatabase->DestroyResult(mDatabase->ExecuteSynchSql(sql2));
@@ -532,12 +532,12 @@ void BuffManager::AddBuffToDB(Buff* buff, uint64 currenttime)
 
 void BuffManager::InitBuffs(PlayerObject* Player)
 {
-	BuffList::iterator it = Player->Buffs.begin();
-	while(it != Player->Buffs.end())
+	BuffList::iterator it = Player->GetBuffList()->begin();
+	while(it != Player->GetBuffList()->end())
 	{
 		Buff* temp = *it;
 		temp->ReInit();
-		
+
 		it++;
 	}
 }

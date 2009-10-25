@@ -22,14 +22,14 @@ enum PerformingState
 {
 	PlayerPerformance_None		= 0,
 	PlayerPerformance_Dance		= 1,
-	PlayerPerformance_Music		= 2,
+	PlayerPerformance_Music		= 2
 };
 
 enum PerformingPause
 {
 	Pause_None					= 0,
 	Pause_Start					= 1,
-	Pause_Paused				= 2,
+	Pause_Paused				= 2
 };
 
 //=============================================================================
@@ -41,7 +41,7 @@ enum CreatureGroup
 	CreoGroup_Player		= 2,
 	CreoGroup_Shuttle		= 3,
 	CreoGroup_AttackableObject	= 4,	// Better naming?
-	CreoGroup_Vehicle		= 5,
+	CreoGroup_Vehicle		= 5
 };
 
 //=============================================================================
@@ -79,7 +79,7 @@ enum CreatureState
 	CreatureState_MountedCreature				=	0x0000000010000000,
 	CreatureState_PilotingShip					=	0x0000000020000000,
 	CreatureState_ShipOperations				=	0x0000000040000000,
-	CreatureState_ShipGunner					=	0x0000000080000000,
+	CreatureState_ShipGunner					=	0x0000000080000000
 	/*CreatureState_ShipInterior					=	0x0000000100000000,
 	CreatureState_PilotingPobShip				=	0x0000000200000000,*/
 };
@@ -102,7 +102,7 @@ enum CreaturePosture
 	CreaturePosture_RidingCreature		=	11,
 	CreaturePosture_KnockedDown			=	12,
 	CreaturePosture_Incapacitated		=	13,
-	CreaturePosture_Dead				=	14,
+	CreaturePosture_Dead				=	14
 };
 
 //=============================================================================
@@ -123,7 +123,7 @@ enum CreaturePvPStatus
 	CreaturePvPStatus_Tef			=	0x00000008,
 	CreaturePvPStatus_Player		=	0x00000010,
 	CreaturePvPStatus_Enemy			=	0x00000020,
-	CreaturePvPStatus_Duel			=	0x00000040,
+	CreaturePvPStatus_Duel			=	0x00000040
 };
 
 //=============================================================================
@@ -158,7 +158,7 @@ enum CreatureEquipSlot
 	CreatureEquipSlot_Mouth					= 0x02000000,
 	CreatureEquipSlot_RightWrist			= 0x04000000,
 	CreatureEquipSlot_LeftWrist				= 0x08000000,
-	CreatureEquipSlot_Rider					= 0x10000000,
+	CreatureEquipSlot_Rider					= 0x10000000
 };
 
 #define CREATURE_SLOT_COUNT	29

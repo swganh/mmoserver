@@ -71,14 +71,14 @@ VehicleFactory::~VehicleFactory()
 void VehicleFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client)
 {
 	mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,VehicleFactoryQuery_TypesId,client,id),
-		"SELECT vehicle_types_id FROM vehicles WHERE id = %lld",id);
+		"SELECT vehicle_types_id FROM vehicles WHERE id = %"PRId64"",id);
 
 }
 
 //=============================================================================
 
 void VehicleFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
-{	
+{
 	QueryContainerBase* asyncContainer = reinterpret_cast<QueryContainerBase*>(ref);
 	switch(asyncContainer->mQueryType)
 	{
@@ -106,7 +106,7 @@ void VehicleFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			uint32 vehicleType = 0;
 			DataBinding* binding = mDatabase->CreateDataBinding(1);
 			binding->addField(DFT_uint32,0,4);
-			
+
 			uint64	count = result->getRowCount();
 			assert(count == 1);
 
@@ -124,7 +124,7 @@ void VehicleFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 		{
 
 			Vehicle * vehicle = _createVehicle(result);
-						
+
 			result->GetNextRow(mVehicleItno_Binding,vehicle);
 
 			vehicle->setId(asyncContainer->mId);
@@ -133,14 +133,14 @@ void VehicleFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			QueryContainerBase* aContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,VehicleFactoryQuery_MainData,asyncContainer->mClient,asyncContainer->mId);
 			aContainer->mObject = (Object*)(IntangibleObject*)vehicle;
 
-			mDatabase->ExecuteSqlAsync(this,aContainer,"SELECT vehicle_types_id, parent, vehicle_hitpoint_loss,vehicle_incline_acceleration,vehicle_flat_acceleration FROM vehicles WHERE id = %lld",vehicle->getId());
+			mDatabase->ExecuteSqlAsync(this,aContainer,"SELECT vehicle_types_id, parent, vehicle_hitpoint_loss,vehicle_incline_acceleration,vehicle_flat_acceleration FROM vehicles WHERE id = %"PRId64"",vehicle->getId());
 
 
 		}
 		break;
 
 		case VehicleFactoryQuery_MainData:
-		{			
+		{
 
 			Vehicle* vehicle = dynamic_cast<Vehicle*>(asyncContainer->mObject);
 
@@ -153,10 +153,10 @@ void VehicleFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				QueryContainerBase* asyncrContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,VehicleFactoryQuery_Attributes,asyncContainer->mClient,asyncContainer->mId);
 				asyncrContainer->mObject = (Object*)(IntangibleObject*)vehicle;
 
-				mDatabase->ExecuteSqlAsync(this,asyncrContainer,"SELECT attributes.name, vehicle_attributes.attribute_value, attributes.internal" 
+				mDatabase->ExecuteSqlAsync(this,asyncrContainer,"SELECT attributes.name, vehicle_attributes.attribute_value, attributes.internal"
 					" FROM attributes"
 					" INNER JOIN vehicle_attributes ON (attributes.id = vehicle_attributes.attribute_id)"
-					" WHERE vehicle_attributes.vehicles_id = %lld ORDER BY vehicle_attributes.attribute_order",asyncContainer->mId);
+					" WHERE vehicle_attributes.vehicles_id = %"PRId64" ORDER BY vehicle_attributes.attribute_order",asyncContainer->mId);
 			}
 
 		}
@@ -167,10 +167,12 @@ void VehicleFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			_buildAttributeMap(asyncContainer->mObject,result);
 
 			if(asyncContainer->mOfCallback)
+			{
 				if(asyncContainer->mOfCallback == this)
-					handleObjectReady(asyncContainer->mObject,asyncContainer->mClient);				
+					handleObjectReady(asyncContainer->mObject,asyncContainer->mClient);
 				else
 					asyncContainer->mOfCallback->handleObjectReady(asyncContainer->mObject,asyncContainer->mClient);
+			}
 		}
 		break;
 
@@ -185,7 +187,7 @@ void VehicleFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 void VehicleFactory::createVehicle(uint32 vehicle_type,PlayerObject* targetPlayer)
 {
 	mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(this,VehicleFactoryQuery_Create,targetPlayer->getClient()),
-		"SELECT sf_DefaultVehicleCreate(%u, %lld)",vehicle_type,targetPlayer->getId());
+		"SELECT sf_DefaultVehicleCreate(%u, %"PRId64")",vehicle_type,targetPlayer->getId());
 }
 //=============================================================================
 
@@ -242,7 +244,7 @@ void VehicleFactory::handleObjectReady(Object* object,DispatchClient* client)
 	{
 
 		PlayerObject* player = gWorldManager->getPlayerByAccId(client->getAccountId());
-		if(player) 
+		if(player)
 		{
 			vehicle->setOwner(player);
 			if(Datapad* datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad)))

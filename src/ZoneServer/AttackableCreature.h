@@ -315,35 +315,20 @@ public:
 
 
 private:
-		// Internals, caluclated when needed.
-		int64	mReadyDelay;
-		int64	mCombatTimer;
-		bool	mHoming;
 		Anh_Math::Vector3	mStalkingTargetDestination;
-
-		bool	mAttackTauntSent;
-		bool	mWarningTauntSent;
-		uint64	mAssistedTargetId;
-		uint64	mAsssistanceNeededWithId;
-		uint64	mLairNeedAsssistanceWithId;
-		bool	mIsAssistingLair;
-
-		// Number of updates before we are done roaming.
-		int32	mRoamingSteps;
-
-		// uint64	mParentObjectId;		// Could be the controlling lair id.
-
-		// uint32 mDeathEffectId;
-
 		Npc_Combat_State	mCombatState;
-
-		// SpawnData	mSpawn;
-
-		// DamageDealers	mDamageDealers;
-		// DamageDealers	mDamageByGroups;
-
-		Weapon* mPrimaryWeapon;
-		Weapon* mSecondaryWeapon;
+		Weapon* 					mPrimaryWeapon;
+		Weapon* 					mSecondaryWeapon;
+		int64							mReadyDelay;
+		int64							mCombatTimer;
+		int32		mRoamingSteps; 		// Number of updates before we are done roaming.
+		uint64	mAssistanceNeededWithId;
+		uint64	mAssistedTargetId;
+		uint64	mLairNeedAssistanceWithId;
+		bool		mAttackTauntSent;
+		bool		mHoming;
+		bool		mIsAssistingLair;
+		bool		mWarningTauntSent;
 };
 
 //=============================================================================

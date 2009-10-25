@@ -49,7 +49,7 @@ void PlanetMapHandler::Startup(Database* database, MessageDispatch* dispatch)
 	mDatabase = database;
 	mMessageDispatch = dispatch;
 
-	mMessageDispatch->RegisterMessageCallback(opGetMapLocationsMessage,this);  
+	mMessageDispatch->RegisterMessageCallback(opGetMapLocationsMessage,this);
 
 
   // We're going to build our databinding here.
@@ -90,15 +90,15 @@ void PlanetMapHandler::handleDispatchMessage(uint32 opcode, Message* message, Di
 {
 	switch(opcode)
 	{
-		case opGetMapLocationsMessage:   
+		case opGetMapLocationsMessage:
 			_processMapLocationsRequest(message, client);
 			break;
-		
+
 		default:
 		{
 			// Unhandled opcode
-			int jack = opcode;
-			int i = 0;
+		//	int jack = opcode;
+		//	int i = 0;
 		}
 		break;
 	} //end switch(opcode)
@@ -115,16 +115,16 @@ void PlanetMapHandler::handleDatabaseJobComplete(void* ref, DatabaseResult* resu
 
 	// Get our container back
 	PlanetMapHandlerAsyncContainer* container = reinterpret_cast<PlanetMapHandlerAsyncContainer*>(ref);
-	DispatchClient* client = reinterpret_cast<DispatchClient*>(container->mClient);  
+	DispatchClient* client = reinterpret_cast<DispatchClient*>(container->mClient);
 
 	if(!client)
 	{
 		delete container;
 		return;
 	}
-	
-	gMessageFactory->StartMessage();         
-	gMessageFactory->addUint32(opHeartBeat); 
+
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opHeartBeat);
 	newMessage = gMessageFactory->EndMessage();
 
 	client->SendChannelAUnreliable(newMessage, client->getAccountId(), CR_Client, 1);
@@ -153,7 +153,7 @@ void PlanetMapHandler::handleDatabaseJobComplete(void* ref, DatabaseResult* resu
 		gMessageFactory->addFloat(location.mZ);
 		gMessageFactory->addUint8(location.mCategory);
 		gMessageFactory->addUint8(location.mSubCategory);
-		gMessageFactory->addUint8(location.mListIcon); 
+		gMessageFactory->addUint8(location.mListIcon);
 	}
 
 	gMessageFactory->addUint64(0);  // next location id , must be 0 for last item
@@ -184,7 +184,7 @@ void PlanetMapHandler::_processMapLocationsRequest(Message* message, DispatchCli
   message->getStringAnsi(container->mPlanetName);
 
   // Send our job in.
- 
+
   mDatabase->ExecuteSqlAsync(this, (void*)container, "select planetmap.id,planetmap.name,planetmap.x,planetmap.z,planetmapcategory.main,planetmapcategory.sub,planetmap.icon from planetmap inner join planetmapcategory on(planetmap.category_id = planetmapcategory.id) where planetmap.planet_id = (SELECT planet.planet_id from planet WHERE planet.name='%s')", container->mPlanetName.getAnsi());
 }
 

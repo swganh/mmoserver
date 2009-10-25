@@ -33,35 +33,44 @@ Copyright (c) 2006 - 2009 The swgANH Team
 
 //=============================================================================
 
-CreatureObject::CreatureObject() : MovingObject(),
-mFactionRank(0),
-mPvPStatus(CreaturePvPStatus_None),
-// mTargetObject(NULL),
-mSkillUpdateCounter(0),
-mLanguage(1),
-mSkillModUpdateCounter(0),
-mGroupId(0),
-mPerformanceCounter(0),
-mPendingPerform(PlayerPerformance_None),
-mPerformanceId(0),
-mPerformance(NULL),
-mLastEntertainerXP(0),
-mDefenderUpdateCounter(0),
-mEntertainerListenToId(0),
-mLastMoveTick(0),
-mRaceGenderMask(0),
-mIncapCount(0),
-mCurrentIncapTime(0),
-mFirstIncapTime(0),
-mReady(false),
-mTargetId(0),
-mOwner(0),
-mPosture(0),
-mState(0),
-mCL(1),
-// mFaction(1),
-mMoodId(0),
-mScale(1.0)
+CreatureObject::CreatureObject()
+: MovingObject()
+,	mTargetId(0)
+, mDefenderUpdateCounter(0)
+, mSkillModUpdateCounter(0)
+
+, mCurrentAnimation("")
+, mCustomizationStr("")
+, mFaction("")
+, mSpecies("")
+, mSpeciesGroup("")
+, mHair(NULL)
+, mPerformance(NULL)
+, mPvPStatus(CreaturePvPStatus_None)
+, mPendingPerform(PlayerPerformance_None)
+
+, mCurrentIncapTime(0)
+, mEntertainerListenToId(0)
+, mFirstIncapTime(0)
+, mGroupId(0)
+, mOwner(0)
+, mState(0)
+, mLastEntertainerXP(0)
+, mScale(1.0)
+
+, mLanguage(1)
+,	mLastMoveTick(0)
+, mPerformanceCounter(0)
+, mPerformanceId(0)
+, mRaceGenderMask(0)
+, mSkillUpdateCounter(0)
+, mCL(1)
+, mFactionRank(0)
+, mIncapCount(0)
+, mMoodId(0)
+, mPosture(0)
+
+,mReady(false)
 {
 	mType = ObjType_Creature;
 
@@ -72,14 +81,6 @@ mScale(1.0)
 
 	mHam.setParent(this);
 	mEquipManager.setParent(this);
-
-	mCurrentAnimation	= "";
-	mCustomizationStr	= "";
-	mFaction			= "";
-	mSpecies			= "";
-	mSpeciesGroup		= "";
-
-	mHair = NULL;
 
 	for(uint16 i = 1;i<256;i++)
 		mCustomization[i]=0;
@@ -108,7 +109,7 @@ CreatureObject::~CreatureObject()
 	SAFE_DELETE(hair); //not everyone has hair
 
 
-	this->Buffs.clear();
+	mBuffList.clear();
 }
 
 //=============================================================================
@@ -430,9 +431,9 @@ void CreatureObject::updateMovementProperties()
 Buff* CreatureObject::GetBuff(uint32 BuffIcon)
 {
 	//Cycle through all buffs for the creature
-	std::vector<Buff*>::iterator it = Buffs.begin();
+	std::vector<Buff*>::iterator it = mBuffList.begin();
 	//Check if the Icon CRCs Match (ie Duplication)
-	while(it != Buffs.end())
+	while(it != mBuffList.end())
 	{
 		Buff* temp = *it;
 		if(temp->GetIcon() == BuffIcon)
@@ -446,8 +447,8 @@ Buff* CreatureObject::GetBuff(uint32 BuffIcon)
 bool CreatureObject::GetBuffExists(uint32 BuffIcon)
 {
 	//Cycle through all buffs for the creature
-	std::vector<Buff*>::iterator it = Buffs.begin();
-	while(it != Buffs.end())
+	std::vector<Buff*>::iterator it = mBuffList.begin();
+	while(it != mBuffList.end())
 	{
 		//Check if the Icon CRCs Match (ie Duplication)
 		Buff* temp = *it;
@@ -508,7 +509,7 @@ void CreatureObject::AddBuff(Buff* buff,  bool stackable, bool overwrite)
 	buff->mTarget = this;
 
 	//Add to Buff List
-	Buffs.push_back(buff);
+	mBuffList.push_back(buff);
 
 	//Perform Inital Buff Changes
 	buff->InitialChanges();
@@ -521,8 +522,8 @@ void CreatureObject::AddBuff(Buff* buff,  bool stackable, bool overwrite)
 int CreatureObject::GetNoOfBuffs()
 {
 	int No =0;
-	std::vector<Buff*>::iterator it = Buffs.begin();
-	while(it != Buffs.end())
+	std::vector<Buff*>::iterator it = mBuffList.begin();
+	while(it != mBuffList.end())
 	{
 		No++;it++;
 	}
@@ -549,8 +550,8 @@ void CreatureObject::RemoveBuff(Buff* buff)
 
 void CreatureObject::CleanUpBuffs()
 {
-	std::vector<Buff*>::iterator it = Buffs.begin();
-	while(it != Buffs.end())
+	std::vector<Buff*>::iterator it = mBuffList.begin();
+	while(it != mBuffList.end())
 	{
 		if(!(*it))
 		{
@@ -560,7 +561,7 @@ void CreatureObject::CleanUpBuffs()
 		if((*it)->GetIsMarkedForDeletion())
 		{
 			((Buff*)(*it))->EraseAttributes();
-			it = Buffs.erase(it);
+			mBuffList.erase(it++);
 		}
 		else
 		{
@@ -635,7 +636,7 @@ void CreatureObject::incap()
 		// reset the counter if the reset time has passed
 		else if(mIncapCount != 0 && (localTime - mFirstIncapTime) >= gWorldConfig->getIncapResetTime() * 1000)
 		{
-			// gLogger->logMsgF("Time since first incap = %lld", MSG_NORMAL, localTime - mFirstIncapTime);
+			// gLogger->logMsgF("Time since first incap = %"PRId64"", MSG_NORMAL, localTime - mFirstIncapTime);
 			// gLogger->logMsgF("Resetting mFirstIncapTime", MSG_NORMAL);
 
 			mIncapCount = 0;
@@ -644,7 +645,7 @@ void CreatureObject::incap()
 		/*
 		if (mIncapCount != 0)
 		{
-			gLogger->logMsgF("Time since first incap = %lld", MSG_NORMAL, localTime - mFirstIncapTime);
+			gLogger->logMsgF("Time since first incap = %"PRId64"", MSG_NORMAL, localTime - mFirstIncapTime);
 		}
 		*/
 

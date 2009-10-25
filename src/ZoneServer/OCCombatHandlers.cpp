@@ -260,7 +260,7 @@ void ObjectController::setTarget(Message* message)
 	creatureObject->setTarget(message->getUint64());	
 	// There is a reason we get data like targets from the client, as handlers (id's) instead of references (pointers).
 
-	// gLogger->logMsgF("ObjectController::setTarget: Object %llu targets = %llu", MSG_NORMAL, creatureObject->getId(), creatureObject->getTargetId());
+	// gLogger->logMsgF("ObjectController::setTarget: Object %"PRIu64" targets = %"PRIu64"", MSG_NORMAL, creatureObject->getId(), creatureObject->getTargetId());
 
 	gMessageLib->sendTargetUpdateDeltasCreo6(creatureObject);
 } 
@@ -274,7 +274,7 @@ void ObjectController::setTarget(Message* message)
 
 void ObjectController::_handleDeathBlow(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	// gLogger->logMsgF("ObjectController::_handleDeathBlow: targetId = %llu", MSG_NORMAL, targetId);
+	// gLogger->logMsgF("ObjectController::_handleDeathBlow: targetId = %"PRIu64"", MSG_NORMAL, targetId);
 	PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
 
 	if (player && targetId)	// Any object targeted?
@@ -306,7 +306,7 @@ void ObjectController::_handleDeathBlow(uint64 targetId,Message* message,ObjectC
 
 void ObjectController::_handleLoot(uint64 targetId, Message *message, ObjectControllerCmdProperties *cmdProperties)
 {
-	// gLogger->logMsgF("ObjectController::_handleLoot: targetId = %llu",MSG_NORMAL, targetId);
+	// gLogger->logMsgF("ObjectController::_handleLoot: targetId = %"PRIu64"",MSG_NORMAL, targetId);
 	
 	PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
 	Datapad* datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
@@ -365,7 +365,7 @@ void ObjectController::cloneAtPreDesignatedFacility(PlayerObject* player, SpawnP
 			"stamina_wounds,mind_wounds,focus_wounds,willpower_wounds"
 			" FROM character_clone"
 			" WHERE"
-			" (character_id = %lld);",player->getId());
+			" (character_id = %"PRId64");",player->getId());
 
 		mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
 	}

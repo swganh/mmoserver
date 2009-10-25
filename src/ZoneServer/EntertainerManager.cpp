@@ -14,7 +14,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "Buff.h"
 #include "Instrument.h"
 #include "MissionManager.h"
-#include "NonPersistantObjectFactory.h"
+#include "nonPersistantObjectFactory.h"
 #include "PlayerObject.h"
 #include "PlayerEnums.h"
 #include "UIManager.h"
@@ -145,11 +145,11 @@ void EntertainerManager::showOutcastList(PlayerObject* entertainer)
 		uint64 id = (*denieIt);
 		if (nr == 0)
 		{
-			sprintf(str1,"%s %I64u",sql,id);
+			sprintf(str1,"%s %"PRIu64"",sql,id);
 		}
 		else
 		{
-			sprintf(str1,"%s or %I64u",sql,id);
+			sprintf(str1,"%s or %"PRIu64"",sql,id);
 		}
 		strcpy(sql,str1);
 		//outcastIteration	= dynamic_cast<PlayerObject*> (gWorldManager->getObjectById(id));
@@ -212,7 +212,7 @@ void EntertainerManager::toggleOutcastId(PlayerObject* entertainer,uint64 outCas
 
 		//remove it from the db
 		int8 sql[150];
-		sprintf(sql,"DELETE FROM entertainer_deny_service WHERE entertainer_id = '%I64u' and outcast_id = '%I64u'",entertainer->getId(),outCastId);
+		sprintf(sql,"DELETE FROM entertainer_deny_service WHERE entertainer_id = '%"PRIu64"' and outcast_id = '%"PRIu64"'",entertainer->getId(),outCastId);
 
 		EntertainerManagerAsyncContainer* asyncContainer = new EntertainerManagerAsyncContainer(EMQuery_NULL,0);
 		mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
@@ -234,7 +234,7 @@ void EntertainerManager::toggleOutcastId(PlayerObject* entertainer,uint64 outCas
 
 	//add it to the db
 	int8 sql[100];
-	sprintf(sql,"INSERT INTO entertainer_deny_service VALUES(%I64u,%I64u)",entertainer->getId(),outCastId);
+	sprintf(sql,"INSERT INTO entertainer_deny_service VALUES(%"PRIu64",%"PRIu64")",entertainer->getId(),outCastId);
 
 	EntertainerManagerAsyncContainer* asyncContainer = new EntertainerManagerAsyncContainer(EMQuery_NULL,0);
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
@@ -249,7 +249,7 @@ bool	EntertainerManager::checkDenyServiceList(PlayerObject* audience, PlayerObje
 	DenyServiceList*	deniedAudienceList	= entertainer->getDenyAudienceList();
 	DenyServiceList::iterator denieIt = deniedAudienceList->begin();
 
-	bool found = false;
+	//bool found = false;
 	while(denieIt != deniedAudienceList->end())
 	{
 		if (audience->getId() == (*denieIt))
@@ -313,7 +313,7 @@ void EntertainerManager::removeAudience(PlayerObject* mEntertainer,CreatureObjec
 PerformanceStruct* EntertainerManager::getPerformance(string performance,uint32 type)
 {
 	PerformanceList::iterator it = mPerformanceList.begin();
-	bool found = false;
+	//bool found = false;
 	while(it != mPerformanceList.end())
 	{
 		if (BString((*it)->performanceName).getCrc() == performance.getCrc() )
@@ -335,7 +335,7 @@ PerformanceStruct* EntertainerManager::getPerformance(string performance,uint32 
 IDStruct* EntertainerManager::getIDAttribute(uint32 CustomizationCRC,uint32 SpeciesCRC)
 {
 	IdList::iterator it = mIDList.begin();
-	bool found = false;
+	//bool found = false;
 	while(it != mIDList.end())
 	{
 		if (((*it)->CustomizationCRC == CustomizationCRC)&&((*it)->SpeciesCRC == SpeciesCRC))
@@ -351,7 +351,7 @@ IDStruct* EntertainerManager::getIDAttribute(uint32 CustomizationCRC,uint32 Spec
 IDStruct* EntertainerManager::getIDAttribute(uint32 CustomizationCRC)
 {
 	IdList::iterator it = mIDList.begin();
-	bool found = false;
+	//bool found = false;
 	while(it != mIDList.end())
 	{
 		if ((*it)->CustomizationCRC == CustomizationCRC)
@@ -372,7 +372,7 @@ PerformanceStruct* EntertainerManager::getPerformance(string performance)
 {
 
 	PerformanceList::iterator it = mPerformanceList.begin();
-	bool found = false;
+	//bool found = false;
 	while(it != mPerformanceList.end())
 	{
 		if (BString((*it)->performanceName).getCrc() == performance.getCrc() )
@@ -527,11 +527,11 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
 					EntertainerManagerAsyncContainer* asyncContainer;
 
 					asyncContainer = new EntertainerManagerAsyncContainer(EMQuery_NULL,0);
-					sprintf(sql,"UPDATE swganh.character_attributes SET health_max = %i, strength_max = %i, constitution_max = %i, action_max = %i, quickness_max = %i, stamina_max = %i, mind_max = %i, focus_max = %i, willpower_max = %i where character_id = %I64u",theTargets.TargetHealth,theTargets.TargetStrength,theTargets.TargetConstitution, theTargets.TargetAction,theTargets.TargetQuickness,theTargets.TargetStamina,theTargets.TargetMind ,theTargets.TargetFocus ,theTargets.TargetWillpower ,asynContainer->customer->getId());
+					sprintf(sql,"UPDATE swganh.character_attributes SET health_max = %i, strength_max = %i, constitution_max = %i, action_max = %i, quickness_max = %i, stamina_max = %i, mind_max = %i, focus_max = %i, willpower_max = %i where character_id = %"PRIu64"",theTargets.TargetHealth,theTargets.TargetStrength,theTargets.TargetConstitution, theTargets.TargetAction,theTargets.TargetQuickness,theTargets.TargetStamina,theTargets.TargetMind ,theTargets.TargetFocus ,theTargets.TargetWillpower ,asynContainer->customer->getId());
 					mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
 
 					asyncContainer = new EntertainerManagerAsyncContainer(EMQuery_NULL,0);
-					sprintf(sql,"UPDATE swganh.character_attributes SET health_current = %i, strength_current = %i, constitution_current = %i, action_current = %i, quickness_current = %i, stamina_current = %i, mind_current = %i, focus_current = %i, willpower_current = %i where character_id = %I64u",theTargets.TargetHealth,theTargets.TargetStrength,theTargets.TargetConstitution, theTargets.TargetAction,theTargets.TargetQuickness,theTargets.TargetStamina,theTargets.TargetMind ,theTargets.TargetFocus ,theTargets.TargetWillpower ,asynContainer->customer->getId());
+					sprintf(sql,"UPDATE swganh.character_attributes SET health_current = %i, strength_current = %i, constitution_current = %i, action_current = %i, quickness_current = %i, stamina_current = %i, mind_current = %i, focus_current = %i, willpower_current = %i where character_id = %"PRIu64"",theTargets.TargetHealth,theTargets.TargetStrength,theTargets.TargetConstitution, theTargets.TargetAction,theTargets.TargetQuickness,theTargets.TargetStamina,theTargets.TargetMind ,theTargets.TargetFocus ,theTargets.TargetWillpower ,asynContainer->customer->getId());
 					mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
 
 					gSkillManager->addExperience(XpType_imagedesigner,2000,asynContainer->performer);
@@ -539,7 +539,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
 				else
 				{
 					//somebodies trying to cheat here
-					gLogger->logMsgF("EntertainerManager: CHEATER : newHamCount != oldHamCount : %I64u",MSG_HIGH,asynContainer->customer->getId());
+					gLogger->logMsgF("EntertainerManager: CHEATER : newHamCount != oldHamCount : %"PRIu64"",MSG_HIGH,asynContainer->customer->getId());
 
 				}
 
@@ -1098,7 +1098,7 @@ ModifierStruct EntertainerManager::getGroupHealSkillValues(PlayerObject* enterta
 	modStruct.pHealingMusicShockMod   = 0;
 	modStruct.pHealingMusicWoundMod   = 0;
 
-	uint32 add;
+	int32 add;
 
 	//iterate through the audience
 	PlayerList members;
@@ -1785,7 +1785,7 @@ void EntertainerManager::startWatching(PlayerObject* audience, PlayerObject* ent
 		return;
 	}
 
-	atMacroString* aMS = new atMacroString();
+	//atMacroString* aMS = new atMacroString();
 
 	audience->setTarget(entertainer->getId());
 	gMessageLib->sendTargetUpdateDeltasCreo6(audience);
@@ -1889,7 +1889,7 @@ bool EntertainerManager::handlePerformanceTick(CreatureObject* mObject)
 	if(!entertainer)
 		return false;
 
-	//gLogger->logMsgF("handle performance tick %I64u",MSG_HIGH,entertainer->getId());
+	//gLogger->logMsgF("handle performance tick %"PRIu64"",MSG_HIGH,entertainer->getId());
 	//check if we need to stop the performance or if it already has been stopped
 	//Mind the pausing dancer though
 	handlePerformancePause(entertainer);
@@ -1901,7 +1901,7 @@ bool EntertainerManager::handlePerformanceTick(CreatureObject* mObject)
 	}
 
 	//check distance and remove offending audience
-	gLogger->logMsgF("check the audience distances %I64u",MSG_HIGH,entertainer->getId());
+	gLogger->logMsgF("check the audience distances %"PRIu64"",MSG_HIGH,entertainer->getId());
 	CheckDistances(entertainer);
 
 	//heal BF and Mindwounds
@@ -1942,11 +1942,11 @@ bool EntertainerManager::handlePerformanceTick(CreatureObject* mObject)
 		aMS->addTextModule();
 		gMessageLib->sendMacroSystemMessage(entertainer,L"",aMS->assemble());
 		delete aMS;
-		gLogger->logMsgF("end tick %I64u",MSG_HIGH,entertainer->getId());
+		gLogger->logMsgF("end tick %"PRIu64"",MSG_HIGH,entertainer->getId());
 		return (false);
 
 	}
-	gLogger->logMsgF("end tick %I64u",MSG_HIGH,entertainer->getId());
+	gLogger->logMsgF("end tick %"PRIu64"",MSG_HIGH,entertainer->getId());
 	return (true);
 }
 
@@ -2313,7 +2313,7 @@ bool EntertainerManager::checkInstrumentSkill(PlayerObject* entertainer,uint64 i
 //======================================================================================================
 bool EntertainerManager::checkInstrumentSkillbyType(PlayerObject* entertainer,uint32 instrumentType)
 {
-	bool check = true;
+	//bool check = true;
 
 	switch(instrumentType)
 	{
@@ -2400,7 +2400,7 @@ bool EntertainerManager::checkInstrumentSkillbyType(PlayerObject* entertainer,ui
 //======================================================================================================
 uint64 EntertainerManager::getInstrument(PlayerObject* entertainer)
 {
-	bool found = false;
+	//bool found = false;
 
 	// handles the instrumntselection
 
@@ -2578,7 +2578,7 @@ void EntertainerManager::handlestartmusic(PlayerObject* entertainer)
 	}
 
 	// check if the instrument slot is in use
-	if(Object* object = entertainer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Instrument))
+	if(entertainer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Instrument))
 	{
 		gMessageLib->sendSystemMessage(entertainer,L"","performance","music_must_unequip");
 
@@ -2794,7 +2794,7 @@ void EntertainerManager::playPlacedInstrument(PlayerObject* entertainer)
 	}
 
 	// check if the instrument slot is in use
-	if(Object* object = entertainer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Instrument))
+	if(entertainer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Instrument))
 	{
 		gMessageLib->sendSystemMessage(entertainer,L"","performance","music_must_unequip");
 		return;

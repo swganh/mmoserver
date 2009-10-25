@@ -46,17 +46,17 @@ enum MissionQueryType
 	MissionQuery_Load_Types			    =	1,
 	MissionQuery_Load_Terminal_Type		=	2,
 	MissionQuery_Load_Names			    =	3,
-	MissionQuery_Load_Names_File	    =	4,
-	
-	
+	MissionQuery_Load_Names_File	    =	4
+
+
 };
 
 enum MissionDifficultyEnum
 {
 	MissionDifficulty_Easy					=	0,
 	MissionDifficulty_Medium				=	1,
-	MissionDifficulty_Hard					=	2,
-	
+	MissionDifficulty_Hard					=	2
+
 };
 
 enum MissionTypeEnum
@@ -71,7 +71,7 @@ enum MissionTypeEnum
 	MissionTypeEscorttoCreator		=	7,
 	MissionTypeHunting				=	8,
 	MissionTypeRecon				=	9,
-	MissionTypeSurvey				=	10,
+	MissionTypeSurvey				=	10
 
 };
 
@@ -79,23 +79,23 @@ enum MissionFactionEnum
 {
 	MissionFaction_Neutral			=	0,
 	MissionFaction_Imperial			=	1,
-	MissionFaction_Rebel			=	2,
-	
+	MissionFaction_Rebel			=	2
+
 };
 
 enum MissionTarget
 {
 	MissionTarget_NPC				=	0,
-	MissionTarget_Creature			=	1,
-	
+	MissionTarget_Creature			=	1
+
 };
 
 enum MissionGiver
 {
 	MissionGiver_NPC				=	0,
-	MissionGiver_NameProvided		=	1,
-	
-	
+	MissionGiver_NameProvided		=	1
+
+
 };
 
 struct Mission_Names
@@ -139,7 +139,7 @@ struct Terminal_Type
 {
 	uint64				id;
 	MissionLinkList		list;
-	
+
 };
 
 typedef std::map<uint32,Mission_Types*>		MissionMap;
@@ -153,7 +153,7 @@ public:
     ~MissionManagerAsyncContainer() {}
 
 	MissionQueryType	mQueryType;
-	DispatchClient*		mClient;	
+	DispatchClient*		mClient;
 
 };
 
@@ -175,7 +175,7 @@ public:     // methods
 
     virtual void handleDatabaseJobComplete(void* ref,DatabaseResult* result);
 
-	void    createRequest(PlayerObject* player); 
+	void    createRequest(PlayerObject* player);
     ///  @short Mission list request
     ///
     ///  The player has opened a mission terminal, and the terminal now needs to
@@ -192,7 +192,7 @@ public:     // methods
     ///
     ///  @param[in] player The player who is requesting the action
     void    detailsRequest(PlayerObject* player);
- 
+
 	///  @short Mission create request
     ///
     ///  The player has elected to accept a specific mission.  We must activate
@@ -203,19 +203,19 @@ public:     // methods
 	void	missionRequest(PlayerObject* player, uint64 mission_id);
 	void    missionComplete(PlayerObject* player, MissionObject* mission);
 	void	missionCompleteEntertainer(PlayerObject* player);
-	void	missionAbort(PlayerObject* player, uint64 mission_id);	
+	void	missionAbort(PlayerObject* player, uint64 mission_id);
 	void	missionFailed(PlayerObject* player, MissionObject* mission);
 	void	missionFailedEntertainer(PlayerObject* player);
 
-	//Mission 
+	//Mission
 	bool	checkDeliverMission(PlayerObject* player,NPCObject* npc);
 	void	checkMusicianMission(PlayerObject* player);
 	void    checkDancerMission(PlayerObject* player);
 	void    checkSurveyMission(PlayerObject* player,CurrentResource* resource,ResourceLocation highestDist);
 	bool   checkCraftingMission(PlayerObject* player,NPCObject* npc);
 	bool	checkReconMission(MissionObject* mission);
-	
-	
+
+
 
 	//Mission Generation Functions
 	MissionObject* generateDestroyMission(MissionObject* mission, uint64 terminal);
@@ -225,7 +225,7 @@ public:     // methods
 	MissionObject* generateCraftingMission(MissionObject* mission);
 	MissionObject* generateReconMission(MissionObject* mission);
 
-private:    
+private:
     static bool             mInsFlag;
     static MissionManager*  mSingleton;
     Database*               mDatabase;

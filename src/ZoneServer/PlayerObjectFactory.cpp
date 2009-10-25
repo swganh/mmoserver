@@ -90,7 +90,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
 			QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,POFQuery_Skills,asyncContainer->mClient);
 			asContainer->mObject = playerObject;
 
-			mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT skill_id FROM character_skills WHERE character_id=%lld",playerObject->getId());
+			mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT skill_id FROM character_skills WHERE character_id=%"PRId64"",playerObject->getId());
 		}
 		break;
 
@@ -122,7 +122,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
 			QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,POFQuery_Badges,asyncContainer->mClient);
 			asContainer->mObject = playerObject;
 
-			mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT badge_id FROM character_badges WHERE character_id=%lld",playerObject->getId());
+			mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT badge_id FROM character_badges WHERE character_id=%"PRId64"",playerObject->getId());
 		}
 		break;
 
@@ -139,7 +139,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
 			for(uint64 i = 0;i < count;i++)
 			{
 				result->GetNextRow(binding,&badgeId);
-				playerObject->mBadges.push_back(badgeId);
+				playerObject->mBadgeList.push_back(badgeId);
 			}
 
 			mDatabase->DestroyDataBinding(binding);
@@ -147,7 +147,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
 			QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,POFQuery_Factions,asyncContainer->mClient);
 			asContainer->mObject = playerObject;
 
-			mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT faction_id,value FROM character_faction WHERE character_id=%lld ORDER BY faction_id",playerObject->getId());
+			mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT faction_id,value FROM character_faction WHERE character_id=%"PRId64" ORDER BY faction_id",playerObject->getId());
 		}
 		break;
 
@@ -176,7 +176,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
 
 			mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT characters.firstname FROM chat_friendlist "
 														"INNER JOIN characters ON (chat_friendlist.friend_id = characters.id) "
-														"WHERE (chat_friendlist.character_id = %lld)",playerObject->getId());
+														"WHERE (chat_friendlist.character_id = %"PRId64")",playerObject->getId());
 		}
 		break;
 
@@ -207,7 +207,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
 
 			mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT characters.firstname FROM chat_ignorelist "
 														"INNER JOIN characters ON (chat_ignorelist.ignore_id = characters.id) "
-														"WHERE (chat_ignorelist.character_id = %lld)",playerObject->getId());
+														"WHERE (chat_ignorelist.character_id = %"PRId64")",playerObject->getId());
 		}
 		break;
 
@@ -280,17 +280,17 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
 			QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,POFQuery_XP,asyncContainer->mClient);
 			asContainer->mObject = playerObject;
 
-			mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT xp_id,value FROM character_xp WHERE character_id=%lld",playerObject->getId());
+			mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT xp_id,value FROM character_xp WHERE character_id=%"PRId64"",playerObject->getId());
 
 			QueryContainerBase* outcastContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,POFQuery_DenyService,asyncContainer->mClient);
 			outcastContainer->mObject = playerObject;
 
-			mDatabase->ExecuteSqlAsync(this,outcastContainer,"SELECT outcast_id FROM entertainer_deny_service WHERE entertainer_id=%lld",playerObject->getId());
+			mDatabase->ExecuteSqlAsync(this,outcastContainer,"SELECT outcast_id FROM entertainer_deny_service WHERE entertainer_id=%"PRId64"",playerObject->getId());
 
 			QueryContainerBase* cloneDestIdContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,POFQuery_PreDefCloningFacility,asyncContainer->mClient);
 			cloneDestIdContainer->mObject = playerObject;
 
-			mDatabase->ExecuteSqlAsync(this,cloneDestIdContainer,"SELECT spawn_facility_id, x, y, z, planet_id FROM character_clone WHERE character_id=%lld",playerObject->getId());
+			mDatabase->ExecuteSqlAsync(this,cloneDestIdContainer,"SELECT spawn_facility_id, x, y, z, planet_id FROM character_clone WHERE character_id=%"PRId64"",playerObject->getId());
 
 			QueryContainerBase* LotsContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,POFQuery_Lots,asyncContainer->mClient);
 			LotsContainer->mObject = playerObject;
@@ -475,7 +475,7 @@ void PlayerObjectFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64
 		"character_attributes.force_current,character_attributes.force_max,character_attributes.new_player_exemptions"
 		" FROM characters"
 		" INNER JOIN account ON(characters.account_id = account.account_id)"
-		" INNER JOIN banks ON (%lld = banks.id)"
+		" INNER JOIN banks ON (%"PRId64" = banks.id)"
 		" INNER JOIN character_appearance ON (characters.id = character_appearance.character_id)"
 		" INNER JOIN race ON (characters.race_id = race.id)"
 		" INNER JOIN character_attributes ON (characters.id = character_attributes.character_id)"
@@ -484,7 +484,8 @@ void PlayerObjectFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64
 		" INNER JOIN character_biography ON (characters.id = character_biography.character_id)"
 		" INNER JOIN character_matchmaking ON (characters.id = character_matchmaking.character_id)"
 		" WHERE"
-		" (characters.id = %lld);",id + 4,id);
+
+		" (characters.id = %"PRId64");",id + 4,id);
 
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
 }
@@ -605,7 +606,7 @@ PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
 	// logging in dead or incapped, shouldn't happen. (player is moved to cloning facility when disconnecting in those states
 
 	// gLogger->logMsgF("PlayerObjectFactory::_createPlayer Posture = %u",MSG_NORMAL, playerObject->getPosture());
-	// gLogger->logMsgF("PlayerObjectFactory::_createPlayer State = %llu",MSG_NORMAL, playerObject->getState());
+	// gLogger->logMsgF("PlayerObjectFactory::_createPlayer State = %"PRIu64"",MSG_NORMAL, playerObject->getState());
 
 	if(playerObject->getPosture() == CreaturePosture_SkillAnimating
 	|| playerObject->getPosture() == CreaturePosture_Incapacitated
@@ -771,7 +772,7 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
 	mIlc->mLoadCounter--;
 
 	PlayerObject*		playerObject = dynamic_cast<PlayerObject*>(mIlc->mObject);
-	TangibleObject*		tangibleObject = dynamic_cast<TangibleObject*>(object);
+	//TangibleObject*		tangibleObject = dynamic_cast<TangibleObject*>(object);
 
 
 	if(Inventory* inventory = dynamic_cast<Inventory*>(object))
@@ -785,7 +786,7 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
 		QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(0,POFQuery_EquippedItems,client);
 		asContainer->mObject = playerObject;
 
-		mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT id  FROM items WHERE parent_id=%lld",playerObject->getId());
+		mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT id  FROM items WHERE parent_id=%"PRId64"",playerObject->getId());
 
 	}
 	else

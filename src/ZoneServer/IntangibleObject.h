@@ -27,7 +27,7 @@ enum IntangibleGroup
 	ItnoGroup_Vehicle				= 1,
 	ItnoGroup_Mount					= 2,
 	ItnoGroup_Pet					= 3,
-	ItnoGroup_Droid					= 4,
+	ItnoGroup_Droid					= 4
 };
 
 class IntangibleObject : public Object

@@ -44,7 +44,7 @@ void ObjectController::handleSecureTradeInvitation(uint64 targetId,Message* mess
 	//targetId is the Id of the one who IS INVITING
 	//receiverId is the Id of the one who GETS INVITED
 
-	uint32 unknown,error; 
+	uint32 unknown,error;
 	uint64 receiverId,unknown64;
 	const uint32 error0 = 0;
 	const uint32 error2 = 2;
@@ -54,7 +54,7 @@ void ObjectController::handleSecureTradeInvitation(uint64 targetId,Message* mess
 	message->getUint64(receiverId);
 
 	PlayerObject*	invitingPlayer = dynamic_cast<PlayerObject*>(mObject);
-	//PlayerObject*	invitingPlayer = 
+	//PlayerObject*	invitingPlayer =
 	PlayerObject*	invitedPlayer = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(receiverId));
 
 	switch(error)
@@ -77,7 +77,7 @@ void ObjectController::handleSecureTradeInvitation(uint64 targetId,Message* mess
 		default:
 		{
 			// Always use a default if message damaged....
-			gLogger->logMsgF("ObjController:: Error in trade invitation",MSG_LOW);		
+			gLogger->logMsgF("ObjController:: Error in trade invitation",MSG_LOW);
 			// Since receiver is default NULL, we can use the error message below
 			// return;
 		}
@@ -148,7 +148,7 @@ void ObjectController::handleSecureTradeInvitation(uint64 targetId,Message* mess
 	}
 	else
 	{
-		gLogger->logMsgF("ObjController:: Error in trade invitation",MSG_LOW);		
+		gLogger->logMsgF("ObjController:: Error in trade invitation",MSG_LOW);
 	}
 }
 
@@ -170,7 +170,7 @@ void ObjectController::_handleTip(uint64 targetId,Message* message,ObjectControl
 	// (string)playerName bank	<- banktip in case the client doesn't know the target
 	//
 	// can't inventory-tip someone out of range so we can assume
-	// the client will send the ID rather than the name in case 
+	// the client will send the ID rather than the name in case
 	// of an inventory tip.
 	string attribute, str;
 	message->getStringUnicode16(str);
@@ -182,8 +182,8 @@ void ObjectController::_handleTip(uint64 targetId,Message* message,ObjectControl
 
 	string			targetName;
 	string			dataStr;
-	int32			amount		 = 0;	
-	uint64			transferType = 0;
+	//int32			amount		 = 0;
+	//uint64			transferType = 0;
 	BStringVector	dataElements;
 	string			bank;
 
@@ -207,23 +207,23 @@ void ObjectController::_handleTip(uint64 targetId,Message* message,ObjectControl
 
 	//check for banktip
 	if((lower.getCrc() == BString("bank").getCrc())&&(elementCount > 1))
-	{	
+	{
 		uint32 amount	= atoi(dataElements[elementCount-2].getAnsi());
 		bool havetarget = false;
-		
+
 		string name;
 		if(target && (target != player))
 		{
 			havetarget = true;
 			name = target->getFirstName();
 		}
-		
+
 		if(elementCount == 3)
 		{
 			havetarget = true;
 			name = dataElements[0];
 		}
-		
+
 		if((amount >0)&& (amount < 999999999)&&(havetarget))
 		{
 			//now call the treasury, find that offline bloke and get going
@@ -265,6 +265,6 @@ void ObjectController::_handleTip(uint64 targetId,Message* message,ObjectControl
 	gMessageLib->sendSystemMessage(player, L"","base_player","prose_tip_invalid_param","","",str.getUnicode16());
 	return;
 
-	
+
 }
 

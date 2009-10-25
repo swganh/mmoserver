@@ -44,7 +44,7 @@ enum CraftError
 	CraftError_Internal_No_Test_Prototype_Found			= 24,
 	CraftError_Name_Reserved							= 25,
 	CraftError_Schematic_Cant_Be_Used					= 26,
-	CraftError_Failed_Transfer_Resources_To_Station		= 27,
+	CraftError_Failed_Transfer_Resources_To_Station		= 27
 };
 
 //=============================================================================
@@ -59,7 +59,7 @@ enum CraftExperimentResult
 	CraftExp_Failure			= 5,
 	CraftExp_Moderate_Failure	= 6,
 	CraftExp_Big_Failure		= 7,
-	CraftExp_Critical_Failure	= 8,
+	CraftExp_Critical_Failure	= 8
 };
 
 //=============================================================================
@@ -74,7 +74,7 @@ enum CraftAssemblyResult
 	CraftAss_Failure			= 5,
 	CraftAss_Moderate_Failure	= 6,
 	CraftAss_Big_Failure		= 7,
-	CraftAss_Critical_Failure	= 8,
+	CraftAss_Critical_Failure	= 8
 };
 
 //=============================================================================
@@ -83,7 +83,7 @@ enum CraftCreateResult
 {
 	CraftCreate_Failure	= 0,
 	CraftCreate_Success	= 1,
-	CraftCreate_2		= 2,
+	CraftCreate_2		= 2
 };
 
 //=============================================================================
@@ -91,9 +91,9 @@ enum CraftCreateResult
 enum CraftSessionQuery
 {
 	CraftSessionQuery_Prototype				= 1,
-	CraftSessionQuery_SkillmodExp			= 2,	
+	CraftSessionQuery_SkillmodExp			= 2,
 	CraftSessionQuery_SkillmodAss			= 3,
-	CraftSessionQuery_CustomizationData		= 4,
+	CraftSessionQuery_CustomizationData		= 4
 };
 
 //=============================================================================

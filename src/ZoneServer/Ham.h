@@ -36,7 +36,7 @@ enum BarIndex
 	HamBar_Stamina		=	5,
 	HamBar_Mind			=	6,
 	HamBar_Focus		=	7,
-	HamBar_Willpower	=	8,
+	HamBar_Willpower	=	8
 };
 
 //=============================================================================
@@ -82,7 +82,7 @@ class Ham
 
 		uint32			getMaxHitpointsUpdateCounter(uint32 nextInterval = 0);
 		void			advanceMaxHitpointsUpdateCounter(uint32 amount = 1);
-		
+
 		uint32			getWoundsUpdateCounter(uint32 nextInterval = 0);
 		void			advanceWoundsUpdateCounter(uint32 amount = 1);
 
@@ -117,7 +117,7 @@ class Ham
 		TargetStats		mTargetStats;
 
 		HamBars			mHamBars;
-		
+
 		HamProperty		mHealth;
 		HamProperty		mStrength;
 		HamProperty		mConstitution;
@@ -135,7 +135,19 @@ class Ham
 		bool			_regenMind();
 		bool			_regenForce();
 
+		CreatureObject*	mParent;
+
+		uint64			mLastRegenTick;
+		uint64			mTaskId;
+
 		//statmigration
+		int32			mActionRegenRate;
+		int32			mBattleFatigue;
+		int32			mCurrentForce;
+		int32			mForceRegenRate;
+		int32			mHealthRegenRate;
+		int32			mMaxForce;
+		int32			mMindRegenRate;
 		int32			mTargetHealth;
 		int32			mTargetStrength;
 		int32			mTargetConstitution;
@@ -152,26 +164,15 @@ class Ham
 
 		uint32			mCurrentHitpointsUpdateCounter;
 		uint32			mNextCurrentHitpointsUpdateInterval;
-		
+
 		uint32			mMaxHitpointsUpdateCounter;
 		uint32			mNextMaxHitpointsUpdateInterval;
-		
+
 		uint32			mWoundsUpdateCounter;
 		uint32			mNextWoundsUpdateInterval;
 
-		int32			mBattleFatigue;
-		bool			mRegenerating;
-		uint64			mLastRegenTick;
-		CreatureObject*	mParent;
-		int32			mHealthRegenRate;
-		int32			mActionRegenRate;
-		int32			mMindRegenRate;
-		int32			mForceRegenRate;
 		bool			mFirstUpdateCounterChange;
-		uint64			mTaskId;
-
-		int32			mCurrentForce;
-		int32			mMaxForce;
+		bool			mRegenerating;
 };
 
 #endif

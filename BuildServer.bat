@@ -69,12 +69,12 @@ rem ----------------------------------------------------------------------------
 rem --- Start of SET_DEFAULTS --------------------------------------------------
 :SET_DEFAULTS
 
-set DEPENDENCIES_VERSION=1679
+set DEPENDENCIES_VERSION=1788
 set DEPENDENCIES_FILE=swganh-deps-%DEPENDENCIES_VERSION%.zip
 set DEPENDENCIES_URL=http://swganh.com/^^!^^!deps^^!^^!/%DEPENDENCIES_FILE%
 set "PROJECT_BASE=%~dp0"
 set BUILD_TYPE=debug
-set MSVC_VERSION=vc9
+set MSVC_VERSION=9.0
 set REBUILD=build
 set DBINSTALL=false
 set BUILD_ERROR=false    
@@ -138,7 +138,7 @@ rem Check for /msvc-version:x format and then set MSVC_VERSION
 if "%~0" == "/msvc-version" (
 	  rem Only set if it's an allowed version
 	  if "%~1" == "vc9" (
-		    set MSVC_VERSION=%~1
+		set MSVC_VERSION=9.0
 	  )
   
     shift
@@ -203,8 +203,8 @@ rem ----------------------------------------------------------------------------
 
                                           
 rem ----------------------------------------------------------------------------
-rem --- Start of BUILD_ENVIRONMENT_FOR_vc9 -------------------------------------
-:BUILD_ENVIRONMENT_FOR_vc9
+rem --- Start of BUILD_ENVIRONMENT_FOR_9.0 -------------------------------------
+:BUILD_ENVIRONMENT_FOR_9.0
 
 set "VS_BASE_DIR=%PROGRAMFILES(X86)%\Microsoft Visual Studio 9.0"
 if not exist "!VS_BASE_DIR!" (
@@ -224,7 +224,7 @@ if not exist "%DOTNET_BASE_DIR%" (
 )
 
 goto :eof
-rem --- End of BUILD_ENVIRONMENT_FOR_vc9 --------------------------------------- 
+rem --- End of BUILD_ENVIRONMENT_FOR_9.0 --------------------------------------- 
 rem ----------------------------------------------------------------------------
 
 
@@ -340,15 +340,15 @@ if not exist "tools\jam\src\bin.ntx86\bjam.exe" (
 rem Build the boost libraries we need.
 
 if "%BUILD_TYPE%" == "debug" (
-    cmd /c "tools\jam\src\bin.ntx86\bjam.exe" --toolset=msvc --with-date_time --with-thread --with-regex --with-system variant=debug link=static runtime-link=static threading=multi >NUL
+    cmd /c "tools\jam\src\bin.ntx86\bjam.exe" --toolset=msvc-%MSVC_VERSION% --with-date_time --with-thread --with-regex --with-system variant=debug link=static runtime-link=static threading=multi >NUL
 )
 
 if "%BUILD_TYPE%" == "release" (
-    cmd /c "tools\jam\src\bin.ntx86\bjam.exe" --toolset=msvc --with-date_time --with-thread --with-regex --with-system variant=release link=static runtime-link=static threading=multi >NUL
+    cmd /c "tools\jam\src\bin.ntx86\bjam.exe" --toolset=msvc-%MSVC_VERSION% --with-date_time --with-thread --with-regex --with-system variant=release link=static runtime-link=static threading=multi >NUL
 )
 
 if "%BUILD_TYPE%" == "all" (
-    cmd /c "tools\jam\src\bin.ntx86\bjam.exe" --toolset=msvc --with-date_time --with-thread --with-regex --with-system variant=debug,release link=static runtime-link=static threading=multi >NUL
+    cmd /c "tools\jam\src\bin.ntx86\bjam.exe" --toolset=msvc-%MSVC_VERSION% --with-date_time --with-thread --with-regex --with-system variant=debug,release link=static runtime-link=static threading=multi >NUL
 )
 
 cd "%PROJECT_BASE%"

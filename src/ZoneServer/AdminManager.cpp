@@ -13,23 +13,21 @@ Copyright (c) 2006 - 2009 The swgANH Team
 
 */
 
-#include "AdminManager.h" 
- 
-#include "PlayerObject.h" 
-#include "WorldManager.h" 
-#include "ZoneOpcodes.h" 
- 
-#include "MessageLib/MessageLib.h" 
- 
-#include "LogManager/LogManager.h" 
- 
-#include "Common/Message.h" 
-#include "Common/MessageDispatch.h" 
-#include "Utils/utils.h" 
- 
-#include <cassert> 
+#include "AdminManager.h"
 
+#include "PlayerObject.h"
+#include "WorldManager.h"
+#include "ZoneOpcodes.h"
 
+#include "MessageLib/MessageLib.h"
+
+#include "LogManager/LogManager.h"
+
+#include "Common/Message.h"
+#include "Common/MessageDispatch.h"
+#include "Utils/utils.h"
+
+#include <cassert>
 
 
 //======================================================================================================================
@@ -66,7 +64,7 @@ AdminManager* AdminManager::mInstance = NULL;
 
 //======================================================================================================================
 
-AdminManager* AdminManager::Instance(void)
+AdminManager* AdminManager::Instance()
 {
 	if (!mInstance)
 	{
@@ -99,7 +97,7 @@ AdminManager::AdminManager()
 //======================================================================================================================
 //
 
-AdminManager::AdminManager(MessageDispatch* messageDispatch) : 
+AdminManager::AdminManager(MessageDispatch* messageDispatch) :
 							mMessageDispatch(messageDispatch),
 							mPendingShutdown(false),
 							mTerminateServer(false)
@@ -121,16 +119,16 @@ AdminManager::~AdminManager()
 	this->unregisterCallbacks();
 
 	AdminRequests::iterator adminRequestIterator = mAdminRequests.begin();
-	
+
 	while (adminRequestIterator != mAdminRequests.end())
 	{
 		delete ((*adminRequestIterator).second);
 		adminRequestIterator++;
-	}			
+	}
 	mAdminRequests.clear();
 	mInstance = NULL;
 }
- 
+
 
 //======================================================================================================================
 
@@ -169,7 +167,7 @@ void AdminManager::handleDispatchMessage(uint32 opcode,Message* message,Dispatch
 		break;
 
 		default: break;
-	} 
+	}
 }
 
 //======================================================================================================================
@@ -229,7 +227,7 @@ void AdminManager::cancelAdminRequest(uint64 requestType, string message)
 {
 	// We will only handle one request at the time for each type.
 	gWorldManager->cancelAdminRequest(static_cast<uint8>(requestType));	// Even though map's fix duplicate issues, the lower level implementation may change.
-	
+
 	AdminRequests::iterator adminRequestIterator = mAdminRequests.find(requestType);
 	if (adminRequestIterator != mAdminRequests.end())
 	{
@@ -299,7 +297,7 @@ uint64 AdminManager::handleAdminRequest(uint64 requestType, uint64 timeOverdue)
 					unit = "minute";
 				}
 				else
-				{	
+				{
 					unit = "seconds";
 					value = seconds;
 
@@ -316,8 +314,8 @@ uint64 AdminManager::handleAdminRequest(uint64 requestType, uint64 timeOverdue)
 						}
 					}
 				}
-				sprintf(rawData,"Server shutting down in %d %s.", value, unit.getAnsi());
-			}		
+				sprintf(rawData,"Server shutting down in %"PRId32" %s.", value, unit.getAnsi());
+			}
 
 			string broadcast(rawData);
 			string optReason(((*adminRequestIterator).second)->mReason);
@@ -355,7 +353,7 @@ uint64 AdminManager::handleAdminRequest(uint64 requestType, uint64 timeOverdue)
 
 			assert(((*adminRequestIterator).second)->mTimeToLive >= timeToNextEvent);
 			((*adminRequestIterator).second)->mTimeToLive -= timeToNextEvent;
-			
+
 			if (timeToNextEvent > 0)
 			{
 				timeToNextEvent *= 1000;
@@ -376,7 +374,7 @@ uint64 AdminManager::handleAdminRequest(uint64 requestType, uint64 timeOverdue)
 			}
 
 
-		}		
+		}
 	}
 	return waitTime;
 }
@@ -392,10 +390,10 @@ void AdminManager::_processScheduleShutdown(Message* message, DispatchClient* cl
 	msg.setType(BSTRType_Unicode16);
 	msg.setLength(512);
 
-	uint32 opCode = message->getUint32();
-	uint32 scheduledTime = message->getUint32(); 
+	/* uint32 opCode = */message->getUint32();
+	uint32 scheduledTime = message->getUint32();
 	message->getStringUnicode16(msg);
-	
+
 	msg.convert(BSTRType_ANSI);
 	this->addAdminRequest(AdminScheduledShutdown, msg, (int32)scheduledTime);
 }
@@ -410,10 +408,10 @@ void AdminManager::_processCancelScheduledShutdown(Message* message, DispatchCli
 	msg.setType(BSTRType_Unicode16);
 	msg.setLength(512);
 
-	uint32 opCode = message->getUint32();
-	uint32 option = message->getUint32(); 
+	/* uint32 opCode = */message->getUint32();
+	/* uint32 option = */message->getUint32();
 	message->getStringUnicode16(msg);
-	
+
 	msg.convert(BSTRType_ANSI);
 	this->cancelAdminRequest(AdminScheduledShutdown, msg);
 }

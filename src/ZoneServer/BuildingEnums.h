@@ -29,7 +29,7 @@ enum BuildingFamily
 	BuildingFamily_Theater				= 9,
 	BuildingFamily_Salon				= 10,
 	BuildingFamily_Cloning_Facility		= 11,
-	BuildingFamily_Player_House			= 12,
+	BuildingFamily_Player_House			= 12
 };
 
 //=============================================================================
@@ -43,7 +43,7 @@ enum PlayerStructureFamily
 	PlayerStructure_City_Municipal			= 4,
 	PlayerStructure_City_Deco				= 5,
 	PlayerStructure_Factory					= 6,
-	PlayerStructure_Temporary				= 7,
+	PlayerStructure_Temporary				= 7
 };
 
 enum CampFamily
@@ -53,7 +53,7 @@ enum CampFamily
 	Camp_Multi_Person						= 2,
 	Camp_Improved							= 3,
 	Camp_Field_Base							= 4,
-	Camp_High_Tech_Field_Base				= 5,
+	Camp_High_Tech_Field_Base				= 5
 };
 
 enum HarvesterFamily
@@ -78,8 +78,8 @@ enum HarvesterFamily
 
 	HarvesterFamily_small_Chemical			= 10,
 	HarvesterFamily_medium_Chemical			= 11,
-	HarvesterFamily_large_Chemical			= 12,
-	
+	HarvesterFamily_large_Chemical			= 12
+
 };
 
 

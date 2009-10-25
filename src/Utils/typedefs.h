@@ -68,29 +68,45 @@ Copyright (c) 2006 - 2008 The swgANH Team
 //495 client 1024 interserver
 #define MAX_PACKET_SIZE  2048  // TODO:  This needs to be changed to a configuration variable for the network module
 
-#define MAX_CLIENT_PACKET_SIZE  496  // 
-#define MAX_SERVER_PACKET_SIZE  2048  // 
-#define MAX_UNRELIABLE_PACKET_SIZE  1024  // 
+#define MAX_CLIENT_PACKET_SIZE  496  //
+#define MAX_SERVER_PACKET_SIZE  2048  //
+#define MAX_UNRELIABLE_PACKET_SIZE  1024  //
 
-typedef char				int8;
-typedef short				int16;
-typedef long				int32;
+#if defined(__WIN32__) || defined(_WIN32)
 
-typedef unsigned int        uint;
-typedef unsigned char       uint8;
-typedef unsigned short      uint16;
-typedef unsigned long       uint32;
+typedef __int8            int8;
+typedef __int16           int16;
+typedef __int32           int32;
+typedef __int64           int64;
+typedef unsigned __int32  uint;
+typedef unsigned __int8   uint8;
+typedef unsigned __int16  uint16;
+typedef unsigned __int32  uint32;
+typedef unsigned __int64  uint64;
 
-typedef signed char         sint8;
-typedef signed short        sint16;
-typedef signed long         sint32;
+#else
 
-typedef unsigned long		ulong;
-typedef long long			int64;
-typedef unsigned long long  uint64;
-typedef signed long long	sint64;
+#include <cstdint>
 
-#include "bstring.h"  // Bad bad bad.  Don't include headers in headers if at all possible.  
+typedef char		int8;
+typedef int16_t		int16;
+typedef int32_t		int32;
+
+typedef uint32_t    uint;
+typedef uint8_t     uint8;
+typedef uint16_t    uint16;
+typedef uint32_t    uint32;
+
+typedef int8_t		sint8;
+typedef int16_t		sint16;
+typedef int32_t		sint32;
+
+typedef int64_t		int64;
+typedef uint64_t  	uint64;
+typedef int64_t		sint64;
+#endif
+
+#include "bstring.h"  // Bad bad bad.  Don't include headers in headers if at all possible.
 // unfotunately, this is needed here for base type funtionality.
 // This is also a circular dependency between bstring.h and typedefs.h
 // do not move the order of this include.  Needs to be after all the standard
@@ -100,6 +116,66 @@ typedef BString             string;
 
 typedef unsigned int        SOCKET;
 
+// Windows and unix handle their long long specifiers differently since windows doesn't
+// fully support C99. To make everything play nicely across platforms we define our own
+// constants.
+#if defined(_MSC_VER) || defined(__MINGW32__) || defined(__MINGW64__)
+
+#if !defined(PRId32)
+#define PRId32 "I32d"
+#endif
+
+#if !defined(PRIu32)
+#define PRIu32 "I32u"
+#endif
+
+#if !defined(PRIx32)
+#define PRIx32 "I32x"
+#endif
+
+#if !defined(PRId64)
+#define PRId64 "I64d"
+#endif
+
+#if !defined(PRIu64)
+#define PRIu64 "I64u"
+#endif
+
+#if !defined(PRIx64)
+#define PRIx64 "I64x"
+#endif
+
+#define WidePRId32 L"I32d"
+#define WidePRIu32 L"I32u"
+#define WidePRIx32 L"I32x"
+#define WidePRId64 L"I64d"
+#define WidePRIu64 L"I64u"
+#define WidePRIx64 L"I64x"
+
+// Else we're on a platform that handles this stuff correctly.
+#else
+
+#if (defined(_INTTYPES_H) || defined(_INTTYPES_H_)) && !defined(PRId64)
+#error "inttypes.h has already been included before this header file, but "
+#error "without __STDC_FORMAT_MACROS defined."
+#endif
+
+#if !defined(__STDC_FORMAT_MACROS)
+#define __STDC_FORMAT_MACROS
+#endif
+
+#include <inttypes.h>
+
+// GCC will concatenate wide and narrow strings correctly, so nothing needs to
+// be done here.
+#define WidePRId32 PRId32
+#define WidePRIu32 PRIu32
+#define WidePRIx32 PRIx32
+#define WidePRId64 PRId64
+#define WidePRIu64 PRIu64
+#define WidePRIx64 PRIx64
+
+#endif
 
 //
 // Common macros

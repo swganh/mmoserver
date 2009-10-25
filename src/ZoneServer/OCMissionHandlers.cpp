@@ -32,13 +32,13 @@ void ObjectController::handleMissionListRequest(Message* message)
 {
     PlayerObject*   player  = dynamic_cast<PlayerObject*>(mObject);
 
-    uint8           unknown     = message->getUint8();
+    /*uint8           unknown     = */message->getUint8();
     uint8           stale_flag  = message->getUint8();
     uint64          terminal_id = message->getUint64();
 
-	gLogger->logMsgF("START :: Terminal id %lld \n", MSG_NORMAL, terminal_id);
+	gLogger->logMsgF("START :: Terminal id %"PRId64" \n", MSG_NORMAL, terminal_id);
     gMissionManager->listRequest(player, terminal_id,stale_flag);
-	gLogger->logMsgF("END :: Terminal id %lld \n", MSG_NORMAL, terminal_id);
+	gLogger->logMsgF("END :: Terminal id %"PRId64" \n", MSG_NORMAL, terminal_id);
 }
 
 //=============================================================================================================================

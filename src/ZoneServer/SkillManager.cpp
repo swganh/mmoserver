@@ -27,11 +27,11 @@ SkillManager*	SkillManager::mSingleton = NULL;
 
 //======================================================================================================================
 
-SkillManager::SkillManager(Database* database) :
-mDatabase(database),
-mLoadCounter(0),
-mTotalLoadCount(4),
-mDBAsyncPool(sizeof(SMAsyncContainer))
+SkillManager::SkillManager(Database* database)
+: mDBAsyncPool(sizeof(SMAsyncContainer))
+, mDatabase(database)
+, mLoadCounter(0)
+, mTotalLoadCount(4)
 {
 	mSkillList.reserve(1100);
 	mSkillModList.reserve(300);
@@ -175,8 +175,8 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 			uint64 count = result->getRowCount();
 			mTotalLoadCount += static_cast<uint32>(count * 6);
-			
-		
+
+
 
 			for(uint64 i = 0;i < count;i++)
 			{
@@ -215,7 +215,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			mDatabase->DestroyDataBinding(binding);
 
 			if(!result->getRowCount())
-				gLogger->logMsgLoadFailure("SkillManager::loading Skills...",MSG_NORMAL);					
+				gLogger->logMsgLoadFailure("SkillManager::loading Skills...",MSG_NORMAL);
 		}
 		break;
 
@@ -367,7 +367,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				uint32 skillId;
 				string skillInfo;
 			};
-						
+
 			DataBinding* binding = mDatabase->CreateDataBinding(2);
 			binding->addField(DFT_uint32,offsetof(SkillDescriptions,skillId),4,0);
 			binding->addField(DFT_bstring,offsetof(SkillDescriptions,skillInfo),512,1);
@@ -414,7 +414,7 @@ bool SkillManager::learnSkill(uint32 skillId,CreatureObject* creatureObject,bool
 
 	if (creatureObject->checkSkill(skillId))
 	{
-		gLogger->logMsgF("SkillManager::learnSkill: %lld already got skill %u",MSG_NORMAL,creatureObject->getId(),skillId);
+		gLogger->logMsgF("SkillManager::learnSkill: %"PRId64" already got skill %u",MSG_NORMAL,creatureObject->getId(),skillId);
 		return false;
 	}
 
@@ -431,11 +431,11 @@ bool SkillManager::learnSkill(uint32 skillId,CreatureObject* creatureObject,bool
 
 		// Continue with basic stuff, like adding the skill
 		creatureObject->addSkill(skill);
-		
+
 		//finding all the new schems for the skill!
 		//player->addSchematicIds(skill);
 
-		mDatabase->ExecuteSqlAsync(NULL,NULL,"INSERT INTO character_skills VALUES (%lld,%u)",player->getId(),skillId);
+		mDatabase->ExecuteSqlAsync(NULL,NULL,"INSERT INTO character_skills VALUES (%"PRId64",%u)",player->getId(),skillId);
 
 		creatureObject->prepareSkillMods();
 		creatureObject->prepareSkillCommands();
@@ -449,7 +449,7 @@ bool SkillManager::learnSkill(uint32 skillId,CreatureObject* creatureObject,bool
 
 		// The order we do this is important for the client side messages.
 		gMessageLib->sendSkillDeltasCreo1(skill,SMSkillAdd,player);
-		
+
 		gMessageLib->sendSkillModUpdateCreo4(player);
 		//gMessageLib->sendBaselinesCREO_4(player);
 		gMessageLib->sendSkillCmdDeltasPLAY_9(player);
@@ -473,12 +473,12 @@ bool SkillManager::learnSkill(uint32 skillId,CreatureObject* creatureObject,bool
 
 		// handle XP cap and system messages.
 		int32 newXpCost = handleExperienceCap(skill->mXpType, -xpCost, player);
-	
+
 		// We don't wanna miss any "You now qualify for the skill: ..."
 		(void)player->UpdateXp(skill->mXpType, newXpCost);
 
 		// gLogger->logMsgF("SkillManager::learnSkill: Removing %i xp of type %u",MSG_NORMAL, -newXpCost, skill->mXpType);
-		mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE character_xp SET value=value+%i WHERE xp_id=%u AND character_id=%lld",newXpCost, skill->mXpType, player->getId());
+		mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE character_xp SET value=value+%i WHERE xp_id=%u AND character_id=%"PRId64"",newXpCost, skill->mXpType, player->getId());
 		gMessageLib->sendXpUpdate(skill->mXpType,player);
 	}
 	else
@@ -496,7 +496,7 @@ bool SkillManager::learnSkill(uint32 skillId,CreatureObject* creatureObject,bool
 bool SkillManager::checkLearnSkill(uint32 skillId,PlayerObject* pupilObject)
 {
 	SkillsRequiredList::iterator reqSkillIt = getSkillById(skillId)->mSkillsRequired.begin();
-	bool requirementsMet = true;
+	//bool requirementsMet = true;
 
 	while(reqSkillIt != getSkillById(skillId)->mSkillsRequired.end())
 	{
@@ -565,7 +565,7 @@ bool SkillManager::learnSkillLine(uint32 skillId, CreatureObject* creatureObject
 			{
 				return false;
 			}
-		}		
+		}
 		++reqSkillIt;
 	}
 
@@ -579,7 +579,7 @@ bool SkillManager::learnSkillLine(uint32 skillId, CreatureObject* creatureObject
 void SkillManager::teach(PlayerObject* pupilObject,PlayerObject* teacherObject,string show)
 {
 	// pupil and teacher bozh exist and are grouped
-	// we will now compare the teachers skill list to the pupils skill list 
+	// we will now compare the teachers skill list to the pupils skill list
 	// and assemble a list with the skills the pupil does not have but were she/he has the prerequesits
 
 	BStringVector availableSkills;
@@ -588,7 +588,7 @@ void SkillManager::teach(PlayerObject* pupilObject,PlayerObject* teacherObject,s
 	BStringVector::iterator bStringIt = availableSkills.begin();
 
 	//SkillTeachContainer* teachContainer = new SkillTeachContainer();
-	
+
 	uint32 nr = 0;
 	while(teacherIt != teacherSkills->end())
 	{
@@ -602,11 +602,11 @@ void SkillManager::teach(PlayerObject* pupilObject,PlayerObject* teacherObject,s
 				if (checkTeachSkill((*teacherIt)->mId,pupilObject))
 				{
 					string str;
-			
+
 					//now get the corresponding profession
 					//languages or the profession provided are just returned as is
 					str = getSkillProfession((*teacherIt)->mId,show);
-					
+
 					//now check whether we have double entries
 					bStringIt = availableSkills.begin();
 					bool found = false;
@@ -646,8 +646,8 @@ bool SkillManager::checkTeachSkill(uint32 skillId,PlayerObject* pupilObject)
 {
 	Skill* theSkill= getSkillById(skillId);
 	string skillString = theSkill->mName.getAnsi();
-	
-	//make sure its no novice profession			
+
+	//make sure its no novice profession
 	if(strstr(skillString.getAnsi(),"novice"))
 	{
 		return false;
@@ -667,7 +667,7 @@ bool SkillManager::checkTeachSkill(uint32 skillId,PlayerObject* pupilObject)
 		{
 			return false;
 		}
-		
+
 		return true;
 	}
 
@@ -676,12 +676,12 @@ bool SkillManager::checkTeachSkill(uint32 skillId,PlayerObject* pupilObject)
 	{
 		return false;
 	}
-	
+
 	if ((pupilObject->getXpAmount(theSkill->mXpType) < theSkill->mXpCost))
 	{
 		return false;
 	}
-	
+
 	return true;
 
 }
@@ -703,7 +703,7 @@ bool SkillManager::checkRaceLearnSkill(uint32 skillId,CreatureObject* creatureOb
 				return false;
 		}
 		break;
-		 
+
 		case 667:{
 			if (creatureObject->getRaceId() == 6)
 			{
@@ -743,12 +743,12 @@ void SkillManager::dropSkill(uint32 skillId,CreatureObject* creatureObject)
 
 	if(!(creatureObject->checkSkill(skillId)))
 	{
-		gLogger->logMsgF("SkillManager::dropSkill: %lld hasn't got skill %u",MSG_NORMAL,creatureObject->getId(),skillId);
+		gLogger->logMsgF("SkillManager::dropSkill: %"PRId64" hasn't got skill %u",MSG_NORMAL,creatureObject->getId(),skillId);
 		return;
 	}
 
 	if(!(creatureObject->removeSkill(skill)))
-		gLogger->logMsgF("SkillManager::dropSkill: failed removing %u from %lld",MSG_NORMAL,skillId,creatureObject->getId());
+		gLogger->logMsgF("SkillManager::dropSkill: failed removing %u from %"PRId64"",MSG_NORMAL,skillId,creatureObject->getId());
 
 	creatureObject->prepareSkillMods();
 	creatureObject->prepareSkillCommands();
@@ -759,7 +759,7 @@ void SkillManager::dropSkill(uint32 skillId,CreatureObject* creatureObject)
 
 		player->prepareSchematicIds();
 
-		mDatabase->ExecuteSqlAsync(NULL,NULL,"DELETE FROM character_skills WHERE character_id=%lld AND skill_id=%u",player->getId(),skillId);
+		mDatabase->ExecuteSqlAsync(NULL,NULL,"DELETE FROM character_skills WHERE character_id=%"PRId64" AND skill_id=%u",player->getId(),skillId);
 
 		gMessageLib->sendSkillDeltasCreo1(skill,SMSkillRemove,player);
 
@@ -866,12 +866,12 @@ void SkillManager::initExperience(PlayerObject* playerObject)
 			if (!playerObject->restrictedXpType(xpType))
 			{
 				// gLogger->logMsgF("SkillManager::initExperience: Updating xpType %u",MSG_NORMAL, xpType);
-				
+
 				// Add this type of xp.
 				playerObject->addXpType(xpType);
 
 				// Create entry in DB.
-				mDatabase->ExecuteSqlAsync(NULL,NULL,"INSERT INTO character_xp VALUES (%lld,%u,0)",playerObject->getId(),xpType);
+				mDatabase->ExecuteSqlAsync(NULL,NULL,"INSERT INTO character_xp VALUES (%"PRId64",%u,0)",playerObject->getId(),xpType);
 
 				// Add this type of xp cap.
 				int32 newXpCap = getXpCap(playerObject, xpType);
@@ -895,10 +895,10 @@ void SkillManager::initExperience(PlayerObject* playerObject)
 int32 SkillManager::handleExperienceCap(uint32 xpType,int32 valueDiff, PlayerObject* playerObject)
 {
 	int32 delta = 0;
-	
+
 	int32 xpAmount = playerObject->getXpAmount(xpType);
 	int32 xpCap = playerObject->getXpCapAmount(xpType);
-		
+
 	if (valueDiff > 0)
 	{
 		// gLogger->logMsgF("SkillManager::handleExperienceCap: Request Add of %d xp, amount = %d, Cap = %u", MSG_NORMAL, valueDiff, xpAmount, xpCap);
@@ -922,13 +922,13 @@ int32 SkillManager::handleExperienceCap(uint32 xpType,int32 valueDiff, PlayerObj
 				}
 				else
 				{
-					// You lose %DI points of %TO experience. 
+					// You lose %DI points of %TO experience.
 					gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_revoke_xp","exp_n",getXPTypeById(xpType),L"",-delta);
 				}
 
-				// You have achieved your current limit for %TO experience. 
+				// You have achieved your current limit for %TO experience.
 				gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_hit_xp_cap","exp_n",getXPTypeById(xpType),L"",0);
-				
+
 				// gLogger->logMsgF("SkillManager::handleExperienceCap: Sub %u XP",MSG_NORMAL, -delta);
 			}
 			else // (xpAmount < xpCap)
@@ -939,24 +939,24 @@ int32 SkillManager::handleExperienceCap(uint32 xpType,int32 valueDiff, PlayerObj
 				delta = xpCap - xpAmount;	// Add a positive number to reach the cap level.
 				if (delta == 1)
 				{
-					// You receive 1 point of %TO experience. 
+					// You receive 1 point of %TO experience.
 					gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_grant_xp1","exp_n",getXPTypeById(xpType),L"",delta);
 				}
 				else
 				{
-					// You receive %DI points of %TO experience. 
+					// You receive %DI points of %TO experience.
 					gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_grant_xp","exp_n",getXPTypeById(xpType),L"",delta);
 				}
 				// Do we have the max cap?
 				if (xpCap == getMaxXpCap(static_cast<uint8>(xpType)))
 				{
 					// Yes.
-					// You have achieved your limit of %DIpts for experience type '%TO'. 
+					// You have achieved your limit of %DIpts for experience type '%TO'.
 					gMessageLib->sendSystemMessage(playerObject,L"","error_message","prose_hit_xp_limit","exp_n",getXPTypeById(xpType),L"",xpCap);
 				}
 				else
 				{
-					// You have achieved your current limit for %TO experience. 
+					// You have achieved your current limit for %TO experience.
 					gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_hit_xp_cap","exp_n",getXPTypeById(xpType));
 				}
 				// gLogger->logMsgF("SkillManager::handleExperienceCap: Adding %u XP",MSG_NORMAL, delta);
@@ -969,12 +969,12 @@ int32 SkillManager::handleExperienceCap(uint32 xpType,int32 valueDiff, PlayerObj
 			delta = valueDiff;	// Return amount of xp to add.
 			if (delta == 1)
 			{
-				// You receive 1 point of %TO experience. 
+				// You receive 1 point of %TO experience.
 				gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_grant_xp1","exp_n",getXPTypeById(xpType),L"",delta);
 			}
 			else
 			{
-				// You receive %DI points of %TO experience. 
+				// You receive %DI points of %TO experience.
 				gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_grant_xp","exp_n",getXPTypeById(xpType),L"",delta);
 			}
 		}
@@ -1000,13 +1000,13 @@ int32 SkillManager::handleExperienceCap(uint32 xpType,int32 valueDiff, PlayerObj
 				}
 				else
 				{
-					// You lose %DI points of %TO experience. 
+					// You lose %DI points of %TO experience.
 					gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_revoke_xp","exp_n",getXPTypeById(xpType),L"",-delta);
 				}
 
-				// You have achieved your current limit for %TO experience. 
+				// You have achieved your current limit for %TO experience.
 				gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_hit_xp_cap","exp_n",getXPTypeById(xpType),L"",0);
-				
+
 				// This is the value we should sub from DB (Everything down to the cap level.
 				delta = xpCap - xpAmount;
 				// gLogger->logMsgF("SkillManager::handleExperienceCap: Reduce XP with %d",MSG_NORMAL, -delta);
@@ -1014,7 +1014,7 @@ int32 SkillManager::handleExperienceCap(uint32 xpType,int32 valueDiff, PlayerObj
 			else if (xpAmount + valueDiff == xpCap)
 			{
 				// We landed at the cap level.
-				// You have achieved your current limit for %TO experience. 
+				// You have achieved your current limit for %TO experience.
 				gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_hit_xp_cap","exp_n",getXPTypeById(xpType),L"",0);
 				// gLogger->logMsgF("SkillManager::handleExperienceCap: At XP Cap limit, reduce XP with %d",MSG_NORMAL, -delta);
 			}
@@ -1045,13 +1045,13 @@ void SkillManager::addExperience(uint32 xpType,int32 valueDiff,PlayerObject* pla
 
 		if (!(playerObject->UpdateXp(xpType, newXpBoost)))
 		{
-			gLogger->logMsgF("SkillManager::addExperience: could not find xptype %u for %lld",MSG_NORMAL,xpType,playerObject->getId());
+			gLogger->logMsgF("SkillManager::addExperience: could not find xptype %u for %"PRId64"",MSG_NORMAL,xpType,playerObject->getId());
 			return;
 		}
 		// gLogger->logMsgF("SkillManager::addExperience: XP cap = %u",MSG_NORMAL, xpCap);
 		// gLogger->logMsgF("SkillManager::addExperience: Adding %u xp of type %u to database",MSG_NORMAL, newXpBoost, xpType);
-		
-		mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE character_xp SET value=value+%i WHERE character_id=%lld AND xp_id=%u", newXpBoost, playerObject->getId(), xpType);
+
+		mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE character_xp SET value=value+%i WHERE character_id=%"PRId64" AND xp_id=%u", newXpBoost, playerObject->getId(), xpType);
 
 		// ...THEN we get any messages of new skills qualifications.
 		gMessageLib->sendXpUpdate(xpType,playerObject);
@@ -1066,12 +1066,12 @@ void SkillManager::removeExperience(uint32 xpType,int32 valueDiff,PlayerObject* 
 {
 	if(!(playerObject->UpdateXp(xpType,-valueDiff)))
 	{
-		gLogger->logMsgF("SkillManager::gainXp: could not find xptype %u for %lld",MSG_NORMAL,xpType,playerObject->getId());
+		gLogger->logMsgF("SkillManager::gainXp: could not find xptype %u for %"PRId64"",MSG_NORMAL,xpType,playerObject->getId());
 		return;
 	}
 
 	gLogger->logMsgF("SkillManager::removeExperience: Removing %i xp of type %u",MSG_NORMAL, -valueDiff, xpType);
-	mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE character_xp SET value=value-%i WHERE character_id=%lld AND xp_id=%u",valueDiff,playerObject->getId(),xpType);
+	mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE character_xp SET value=value-%i WHERE character_id=%"PRId64" AND xp_id=%u",valueDiff,playerObject->getId(),xpType);
 
 	gMessageLib->sendXpUpdate(xpType,playerObject);
 }

@@ -32,7 +32,7 @@ enum SchematicLoadState
 	DSLoadState_Loaded				= 2,
 	DSLoadState_Slots				= 3,
 	DSLoadState_Assembly_Weights	= 4,
-	DSLoadState_Experiment_Weights	= 5,
+	DSLoadState_Experiment_Weights	= 5
 };
 
 //=============================================================================
@@ -74,7 +74,7 @@ class DraftSchematic
 		uint32				getDraftSlotsUpdate(){ return(mDraftSlotsUpdate+=1); }
 
 		uint8				isCraftEnabled(){ return mCraftEnabled; }
-		
+
 		CraftAttributeWeights*	getCraftAttributeWeights(){ return &mAttributeWeights; }
 
 	private:

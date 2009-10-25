@@ -96,7 +96,7 @@ void ShuttleFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,u
 								"shuttle_types.object_string,shuttle_types.name,shuttle_types.file,shuttles.awayTime,shuttles.inPortTime,shuttles.collectorId "
 								"FROM shuttles "
 								"INNER JOIN shuttle_types ON (shuttles.shuttle_type = shuttle_types.id) "
-								"WHERE (shuttles.id = %lld)",id);
+								"WHERE (shuttles.id = %"PRId64")",id);
 }
 
 //=============================================================================
@@ -136,16 +136,24 @@ Shuttle* ShuttleFactory::_createShuttle(DatabaseResult* result)
 
 	// Here we can handle the initializing of shuttle states
 
-	// First, a dirty test for the shuttles in Theed Spaceport. 
+	// First, a dirty test for the shuttles in Theed Spaceport.
 	// No need to randomize departure times, since we can always travel from there.
 	// We wan't them to go in sync, so one of them always are in the spaceport.
 	// if (shuttle->mParentId == 1692104)
+#if defined(_MSC_VER)
 	if (shuttle->mId == 47781511212)
+#else
+	if (shuttle->mId == 47781511212LLU)
+#endif
 	{
 		shuttle->setShuttleState(ShuttleState_InPort);
 		shuttle->setInPortTime(0);
 	}
+#if defined (_MSC_VER)
 	else if (shuttle->mId == 47781511214)	// This is the "extra" shuttle.
+#else
+	else if (shuttle->mId == 47781511214LLU)	// This is the "extra" shuttle.
+#endif
 	{
 		shuttle->setShuttleState(ShuttleState_Away);
 		shuttle->setAwayTime(0);
@@ -156,7 +164,7 @@ Shuttle* ShuttleFactory::_createShuttle(DatabaseResult* result)
 		// The rand value will land in either the InPort or in the Away part of the values.
 		// Use that state as initial state and set the value as time that have already expired.
 		uint32 maxInPortAndAwayIntervalTime = shuttle->getInPortInterval() + shuttle->getAwayInterval();
-		uint32 shuttleTimeExpired = static_cast<uint32>(gRandom->getRand() / (RAND_MAX + 1)) * (maxInPortAndAwayIntervalTime);
+		uint32 shuttleTimeExpired = static_cast<uint32>(gRandom->getRand() / RAND_MAX) * (maxInPortAndAwayIntervalTime);
 
 		if (shuttleTimeExpired <= shuttle->getInPortInterval())
 		{

@@ -45,7 +45,7 @@ void ObjectController::destroyObject(uint64 objectId)
 
 	//could be a schematic!
 	ManufacturingSchematic* schem	= datapad->getManufacturingSchematicById(objectId);
-	
+
 	if(schem != NULL)
 	{
 		//delete schematic
@@ -67,7 +67,7 @@ void ObjectController::destroyObject(uint64 objectId)
 	// or something else
 	if(object == NULL)
 	{
-		gLogger->logMsgF("ObjController::destroyObject: could not find object %lld",MSG_NORMAL,objectId);
+		gLogger->logMsgF("ObjController::destroyObject: could not find object %"PRId64"",MSG_NORMAL,objectId);
 
 		return;
 	}
@@ -78,7 +78,7 @@ void ObjectController::destroyObject(uint64 objectId)
 		// update our datapad
 		if(!(datapad->removeWaypoint(objectId)))
 		{
-			gLogger->logMsgF("ObjController::handleDestroyObject: Error removing Waypoint from datapad %lld",MSG_NORMAL,objectId);
+			gLogger->logMsgF("ObjController::handleDestroyObject: Error removing Waypoint from datapad %"PRId64"",MSG_NORMAL,objectId);
 		}
 
 		gMessageLib->sendUpdateWaypoint(dynamic_cast<WaypointObject*>(object),ObjectUpdateDelete,playerObject);
@@ -95,7 +95,7 @@ void ObjectController::destroyObject(uint64 objectId)
 		//update the datapad
 		if(!(datapad->removeData(objectId)))
 		{
-			gLogger->logMsgF("ObjController::handleDestroyObject: Error removing Data from datapad %lld",MSG_NORMAL,objectId);
+			gLogger->logMsgF("ObjController::handleDestroyObject: Error removing Data from datapad %"PRId64"",MSG_NORMAL,objectId);
 		}
 
 		gObjectFactory->deleteObjectFromDB(object);
@@ -104,7 +104,7 @@ void ObjectController::destroyObject(uint64 objectId)
 	}
 
 
-	// tangible 
+	// tangible
 	else if(object->getType() == ObjType_Tangible)
 	{
 		TangibleObject* tangibleObject = dynamic_cast<TangibleObject*>(object);
@@ -116,7 +116,7 @@ void ObjectController::destroyObject(uint64 objectId)
 			/*
 			if (item->getOwner() != 0)
 			{
-				gLogger->logMsgF("ObjController::handleDestroyObject: OwnerId = %llu, playerId = %llu", MSG_NORMAL, item->getOwner(), playerObject->getId());
+				gLogger->logMsgF("ObjController::handleDestroyObject: OwnerId = %"PRIu64", playerId = %"PRIu64"", MSG_NORMAL, item->getOwner(), playerObject->getId());
 				// Yes, is it my item?
 				if (item->getOwner() != playerObject->getId())
 				{
@@ -151,7 +151,7 @@ void ObjectController::destroyObject(uint64 objectId)
 					targetObject->removeKnownObject(tangibleObject);
 					++it;
 				}
-				tangibleObject->destroyKnownObjects();	
+				tangibleObject->destroyKnownObjects();
 			}
 
 			// update the equiplist, if its an equipable item
@@ -182,7 +182,7 @@ void ObjectController::destroyObject(uint64 objectId)
 		if(ResourceContainer* container = dynamic_cast<ResourceContainer*>(object))
 		{
 			//gLogger->logMsg("destroy ressourcecontainer");
-			gMessageLib->sendDestroyObject(object->getId(),playerObject);
+			gMessageLib->sendDestroyObject(container->getId(),playerObject);
 		}
 
 		// reset pending ui callbacks
@@ -213,7 +213,7 @@ void ObjectController::destroyObject(uint64 objectId)
 void ObjectController::_handleServerDestroyObject(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
 	string volume;
-	
+
 	message->getStringUnicode16(volume);
 
 	destroyObject(targetId);
@@ -274,7 +274,7 @@ void ObjectController::_handleDestroyInstrument(Item* item)
 		}
 
 		permanentInstrument = dynamic_cast<Item*>(gWorldManager->getObjectById(tempInstrument->getPersistantCopy()));
-		
+
 		if(!permanentInstrument)
 		{
 			gLogger->logMsg("ObjectController::handleDestroyInstrument : no parent Instrument\n");

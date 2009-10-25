@@ -59,14 +59,19 @@ int32 BuffAttribute::GetFinalValue()
     return mFinalValue;
 }
 
-
-Buff::Buff(CreatureObject* Target, CreatureObject* Instigator, uint NoOfTicks, uint64 Tick, uint32 Icon, uint64 CurrentGlobalTick):mTarget(Target),mInstigator(Instigator),mNoTicks(NoOfTicks),mTick(Tick),mIcon(Icon),mStartTime(CurrentGlobalTick)
-{
-	mCurrentTick = 0;
-	mMarkedForDeletion = false;
-	mChild = 0;
-	mDoInit = true;
-}
+Buff::Buff(CreatureObject* Target, CreatureObject* Instigator, uint NoOfTicks, uint64 Tick, uint32 Icon, uint64 CurrentGlobalTick)
+: mChild(0)
+, mParent(0)
+, mInstigator(Instigator)
+, mTarget(Target)
+, mTick(Tick)
+, mStartTime(CurrentGlobalTick)
+, mCurrentTick(0)
+, mIcon(Icon)
+, mNoTicks(NoOfTicks)
+, mDoInit(true)
+, mMarkedForDeletion(false)
+{}
 
 
 Buff* Buff::SimpleBuff(CreatureObject* Target, CreatureObject* Instigator, uint64 Duration, uint32 Icon, uint64 CurrentGlobalTick)

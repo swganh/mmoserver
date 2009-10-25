@@ -32,7 +32,7 @@ enum BFQuery
 {
 	BFQuery_MainData	= 1,
 	BFQuery_Cells		= 2,
-	BFQuery_CloneData	= 3,
+	BFQuery_CloneData	= 3
 };
 
 //=============================================================================

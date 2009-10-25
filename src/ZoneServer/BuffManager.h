@@ -36,7 +36,7 @@ enum BMQuery
 	BMQuery_Buffs			= 1,
 	BMQuery_Buff_Attributes	= 2,
 	BMQuery_Delete			= 3,
-	BMQuery_Safe_Async		= 4,
+	BMQuery_Safe_Async		= 4
 };
 //======================================================================================================================
 //======================================================================================================================
@@ -59,11 +59,11 @@ public:
 	void		InitBuffs(PlayerObject* Player);
 
 private:
-	
+
 	void		LoadBuffsFromResult(buffAsyncContainer* asyncContainer, DatabaseResult* result);
 	void		LoadBuffAttributesFromResult(buffAsyncContainer* asyncContainer, DatabaseResult* result);
-				
-	
+
+
 	bool		AddBuffToDB(WMAsyncContainer* asyncContainer,DatabaseCallback* callback, Buff* buff, uint64 currenttime);
 	void		AddBuffToDB(Buff* buff, uint64 currenttime);
 

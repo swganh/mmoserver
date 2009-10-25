@@ -83,7 +83,7 @@ void PersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* r
 				mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT attributes.name,persistent_npc_attributes.value,attributes.internal"
 					" FROM persistent_npc_attributes"
 					" INNER JOIN attributes ON (persistent_npc_attributes.attribute_id = attributes.id)"
-					" WHERE persistent_npc_attributes.npc_id = %lld ORDER BY persistent_npc_attributes.order",npc->getId());
+					" WHERE persistent_npc_attributes.npc_id = %"PRId64" ORDER BY persistent_npc_attributes.order",npc->getId());
 			}
 		}
 		break;
@@ -114,7 +114,7 @@ void PersistentNpcFactory::requestObject(ObjectFactoryCallback* ofCallback,uint6
 		"persistent_npcs.moodId,persistent_npcs.family,persistent_npcs.scale "
 		"FROM persistent_npcs "
 		"INNER JOIN faction ON (persistent_npcs.faction = faction.id) "
-		"WHERE (persistent_npcs.id = %lld)",id);
+		"WHERE (persistent_npcs.id = %"PRId64")",id);
 }
 
 //=============================================================================

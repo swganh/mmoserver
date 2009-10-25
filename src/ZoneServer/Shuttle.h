@@ -22,7 +22,7 @@ enum ShuttleState
 	ShuttleState_Away			= 0,
 	ShuttleState_InPort			= 1,
 	ShuttleState_Landing		= 2,
-	ShuttleState_AboutBoarding	= 3,
+	ShuttleState_AboutBoarding	= 3
 };
 
 //=============================================================================
@@ -57,13 +57,13 @@ class Shuttle : public CreatureObject
 
 	private:
 
-		uint32			mAwayInterval;
-		uint32			mInPortInterval;
-		uint32			mLandingTime;
-		uint32			mInPortTime;
-		uint32			mAwayTime;
 		ShuttleState	mShuttleState;
 		uint64			mTicketCollectorId;
+		uint32			mAwayInterval;
+		uint32			mAwayTime;
+		uint32			mInPortInterval;
+		uint32			mInPortTime;
+		uint32			mLandingTime;
 		bool			mTicketCollectorEnabled;
 
 };

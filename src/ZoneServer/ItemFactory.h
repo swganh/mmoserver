@@ -30,7 +30,7 @@ enum ItemFactoryQuery
 {
 	ItemFactoryQuery_MainData	= 1,
 	ItemFactoryQuery_Attributes	= 2,
-	NonPersistantItemFactoryQuery_MainData	= 3,
+	NonPersistantItemFactoryQuery_MainData	= 3
 };
 
 //=============================================================================

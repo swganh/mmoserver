@@ -29,7 +29,7 @@ class ResourceContainer;
 enum RCFQuery
 {
 	RCFQuery_MainData	= 1,
-	RCFQuery_Attributes	= 2,
+	RCFQuery_Attributes	= 2
 };
 
 //=============================================================================

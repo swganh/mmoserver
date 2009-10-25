@@ -34,7 +34,7 @@ enum csr_opcodes
 	opGetArticleResponseMessage				= 0x934BAEE0,
 	opCreateTicketResponseMessage			= 0x550A407A,
 	opCancelTicketResponseMessage			= 0xD6FBF318,
-	opAppendCommentResponseMessage			= 0xA04A3ECA,
+	opAppendCommentResponseMessage			= 0xA04A3ECA
 };
 
 #endif

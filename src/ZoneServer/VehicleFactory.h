@@ -37,7 +37,7 @@ enum VehicleQuery
 	VehicleFactoryQuery_TypesId		= 2,
 	VehicleFactoryQuery_ItnoData	= 3,
 	VehicleFactoryQuery_MainData	= 4,
-	VehicleFactoryQuery_Attributes	= 5,
+	VehicleFactoryQuery_Attributes	= 5
 };
 
 //=============================================================================

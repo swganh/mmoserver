@@ -52,7 +52,7 @@ void ObjectController::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 			binding->addField(DFT_uint32,offsetof(StatTargets,TargetMind),4,6);
 			binding->addField(DFT_uint32,offsetof(StatTargets,TargetFocus),4,7);
 			binding->addField(DFT_uint32,offsetof(StatTargets,TargetWillpower),4,8);
-			
+
 			uint64	count	= result->getRowCount();
 			//make sure we have some values set in case the statmigration table wont hold anything on us
 			if(count != 1)
@@ -68,7 +68,7 @@ void ObjectController::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 				ourHam->setTargetStatValue(HamBar_Mind,ourHam->getPropertyValue(HamBar_Mind,HamProperty_MaxHitpoints));
 				ourHam->setTargetStatValue(HamBar_Focus,ourHam->getPropertyValue(HamBar_Focus,HamProperty_MaxHitpoints));
 				ourHam->setTargetStatValue(HamBar_Willpower,ourHam->getPropertyValue(HamBar_Willpower,HamProperty_MaxHitpoints));
-				
+
 			}
 			else
 			{
@@ -117,7 +117,7 @@ void ObjectController::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 			binding->addField(DFT_uint32,0,4);
 
 			uint32	ret		= 0;
-			uint64	count	= result->getRowCount();
+			//uint64	count	= result->getRowCount();
 
 			result->GetNextRow(binding,&ret);
 
@@ -133,7 +133,7 @@ void ObjectController::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 			binding->addField(DFT_uint32,0,4);
 
 			uint32	ret		= 0;
-			uint64	count	= result->getRowCount();
+			//uint64	count	= result->getRowCount();
 
 			result->GetNextRow(binding,&ret);
 
@@ -149,7 +149,7 @@ void ObjectController::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 			binding->addField(DFT_uint32,0,4);
 
 			uint32	ret		= 0;
-			uint64	count	= result->getRowCount();
+			//uint64	count	= result->getRowCount();
 
 			result->GetNextRow(binding,&ret);
 
@@ -165,7 +165,7 @@ void ObjectController::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 			binding->addField(DFT_uint32,0,4);
 
 			uint32	ret		= 0;
-			uint64	count	= result->getRowCount();
+			//uint64	count	= result->getRowCount();
 
 			result->GetNextRow(binding,&ret);
 

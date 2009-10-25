@@ -42,18 +42,19 @@ TravelMapHandler*	TravelMapHandler::mSingleton  = NULL;
 
 //======================================================================================================================
 
-TravelMapHandler::TravelMapHandler(Database* database, MessageDispatch* dispatch,uint32 zoneId) :
-mWorldPointsLoaded(false),
-mCellPointsLoaded(false),
-mRoutesLoaded(false),
-mPointCount(0),
-mRouteCount(0),
-mDatabase(database),
-mMessageDispatch(dispatch),
-mZoneId(zoneId),
-mDBAsyncPool(sizeof(TravelMapAsyncContainer))
+TravelMapHandler::TravelMapHandler(Database* database, MessageDispatch* dispatch,uint32 zoneId)
+	: mDBAsyncPool(sizeof(TravelMapAsyncContainer))
+  , mDatabase(database)
+  , mMessageDispatch(dispatch)
+  , mPointCount(0)
+  , mRouteCount(0)
+  , mZoneId(zoneId)
+  , mCellPointsLoaded(false)
+  , mRoutesLoaded(false)
+  , mWorldPointsLoaded(false)
+
 {
-	mMessageDispatch->RegisterMessageCallback(opPlanetTravelPointListRequest,this);    
+	mMessageDispatch->RegisterMessageCallback(opPlanetTravelPointListRequest,this);
 
 	// load our points in world
 	mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.malloc()) TravelMapAsyncContainer(TMQuery_PointsInWorld),
@@ -108,7 +109,7 @@ TravelMapHandler*	TravelMapHandler::Init(Database* database, MessageDispatch* di
 
 void TravelMapHandler::Shutdown()
 {
-	mMessageDispatch->UnregisterMessageCallback(opPlanetTravelPointListRequest);   
+	mMessageDispatch->UnregisterMessageCallback(opPlanetTravelPointListRequest);
 
 	for(uint8 i = 0;i < 50;i++)
 	{
@@ -117,7 +118,7 @@ void TravelMapHandler::Shutdown()
 		{
 			delete(*it);
 			mTravelPoints[i].erase(it);
-			it = mTravelPoints[i].begin();			
+			it = mTravelPoints[i].begin();
 		}
 	}
 }
@@ -128,7 +129,7 @@ void TravelMapHandler::handleDispatchMessage(uint32 opcode, Message* message, Di
 {
 	switch(opcode)
 	{
-		case opPlanetTravelPointListRequest: 
+		case opPlanetTravelPointListRequest:
 		{
 			_processTravelPointListRequest(message,client);
 		}
@@ -137,7 +138,7 @@ void TravelMapHandler::handleDispatchMessage(uint32 opcode, Message* message, Di
 		default:
 			gLogger->logMsgF("TravelMapHandler::handleDispatchMessage: Unhandled opcode %u",MSG_NORMAL,opcode);
 		break;
-	} 
+	}
 }
 
 //=======================================================================================================================
@@ -210,7 +211,7 @@ void TravelMapHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
 		case TMQuery_PlanetRoutes:
 		{
-		
+
 			TravelRoute route;
 
 			DataBinding* binding = mDatabase->CreateDataBinding(3);
@@ -247,7 +248,7 @@ void TravelMapHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 		if(result->getRowCount())
 			gLogger->logMsgLoadSuccess("TravelMapHandler::Loading %u TravelRoutes and %u TravelPoints...",MSG_NORMAL,mPointCount,mRouteCount);
 		else
-			gLogger->logMsgLoadFailure("TravelMapHandler::Loading Travel Routes/Points...",MSG_NORMAL);	
+			gLogger->logMsgLoadFailure("TravelMapHandler::Loading Travel Routes/Points...",MSG_NORMAL);
 
 	}
 }
@@ -267,7 +268,7 @@ void TravelMapHandler::_processTravelPointListRequest(Message* message,DispatchC
 
 		if(terminal == NULL)
 		{
-			gLogger->logMsgF("TravelMapHandler::_processTravelListRequest: No TravelPosition set, player %lld",MSG_NORMAL,playerObject->getId());
+			gLogger->logMsgF("TravelMapHandler::_processTravelListRequest: No TravelPosition set, player %"PRId64"",MSG_NORMAL,playerObject->getId());
 			return;
 		}
 
@@ -311,10 +312,10 @@ void TravelMapHandler::_processTravelPointListRequest(Message* message,DispatchC
 		while(it != mTravelPoints[mZoneId].end())
 		{
 			TravelPoint* tp = (*it);
-			
+
 			if(strcmp(queryPoint,tp->descriptor) == 0)
 			{
-				qP = tp;	
+				qP = tp;
 				break;
 			}
 			++it;
@@ -494,7 +495,7 @@ void TravelMapHandler::getTicketInformation(BStringVector vQuery,TicketPropertie
 	while(tpIt != mTravelPoints[ticketProperties->dstPlanetId].end())
 	{
 		//tp = (*tpIt);
-		
+
 		string desc = (*tpIt)->descriptor;
 
 		if(strcmp(strRep(std::string(vQuery[3].getAnsi()),"_"," ").c_str(),desc.getAnsi()) == 0)
@@ -594,14 +595,14 @@ void TravelMapHandler::handleUIEvent(uint32 action,int32 element,string inputStr
 
 		if(playerObject->getSurveyState() || playerObject->getSamplingState() || !listBox)
 			return;
-		
+
 		Shuttle* shuttle = listBox->getShuttle();
 
 		if(!shuttle)
 		{
 			return;
 		}
-		
+
 		if (!shuttle->avaliableInPort())
 		{
 			gMessageLib->sendSystemMessage(playerObject,L"","travel","shuttle_not_available");
@@ -611,7 +612,7 @@ void TravelMapHandler::handleUIEvent(uint32 action,int32 element,string inputStr
 		if((playerObject->getParentId() != shuttle->getParentId()) || (!playerObject->mPosition.inRange2D(shuttle->mPosition,25.0f)))
 		{
 			gMessageLib->sendSystemMessage(playerObject,L"","travel","boarding_too_far");
-			
+
 			return;
 		}
 
@@ -667,7 +668,7 @@ void TravelMapHandler::handleUIEvent(uint32 action,int32 element,string inputStr
 			}
 			++it;
 		}
-	}	
+	}
 }
 
 //=======================================================================================================================

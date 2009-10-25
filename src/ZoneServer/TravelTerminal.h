@@ -19,7 +19,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 enum PortType
 {
 	portType_Starport		=	1,
-	portType_Shuttleport	=	2,
+	portType_Shuttleport	=	2
 };
 
 //=============================================================================

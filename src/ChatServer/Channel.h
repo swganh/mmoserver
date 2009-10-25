@@ -36,12 +36,12 @@ struct ChannelData
 		: is_private(0)
 		, is_moderated(0)
 	{}
-	
+
 	string	name;
 	string	title;
 	uint32	id;
-	uint8		is_moderated;
 	uint8		is_private;
+	uint8		is_moderated;
 };
 
 //======================================================================================================================
@@ -88,7 +88,7 @@ public:
 	ChatAvatarId*	findUser(Player* player);
 
 	void addInvitedUser(string* name);
-		
+
 	string* removeInvitedUser(string name);
 	bool isInvited(string name) const;
 

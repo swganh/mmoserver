@@ -27,36 +27,34 @@ class ObjControllerCommandMessage
 		ObjControllerCommandMessage(uint32 opcode,const uint64 executionTime,uint64 targetId);
 
 		virtual ~ObjControllerCommandMessage();
-		virtual inline uint32	getOpcode() const;
-		virtual inline void		setOpcode(uint32 opcode);
-		virtual inline uint64	getTargetId() const;
-		virtual inline void		setTargetId(uint32 targetId);
+		virtual uint32 getOpcode() const;
+		virtual void setOpcode(uint32 opcode);
+		virtual uint64 getTargetId() const;
+		virtual void setTargetId(uint32 targetId);
 
-		virtual inline uint32	getSequence() const;
-		virtual inline void		setSequence(uint32 sequence);
+		virtual uint32	getSequence() const;
+		virtual void		setSequence(uint32 sequence);
 
-		virtual inline Message*	getData();
-		virtual inline void		setData(Message* message);
+		virtual Message*	getData();
+		virtual void		setData(Message* message);
 
-		virtual inline uint64	getExecutionTime() const;
-		virtual inline void		setExecutionTime(uint64 time);
+		virtual uint64	getExecutionTime() const;
+		virtual void		setExecutionTime(uint64 time);
 
 		// virtual inline uint64	getQueuesTime() const { return mQueuedTime; }
 		// virtual inline void		setQueuedTime(uint64 time){ mQueuedTime = time; }
 
-		virtual inline ObjectControllerCmdProperties*	getCmdProperties();
-		virtual inline void	setCmdProperties(ObjectControllerCmdProperties*	properties);
+		virtual ObjectControllerCmdProperties*	getCmdProperties();
+		virtual void	setCmdProperties(ObjectControllerCmdProperties*	properties);
 
 	protected:
-
-		uint32		mOpcode;
-		uint64		mTargetId;
-		uint32		mSequence;
 		Message*	mData;
+		ObjectControllerCmdProperties*	mProperties;
 		uint64		mExecutionTime;
 		uint64		mQueuedTime;
-
-		ObjectControllerCmdProperties*	mProperties;
+		uint64		mTargetId;
+		uint32		mOpcode;
+		uint32		mSequence;
 };
 
 //===============================================================================================================
@@ -69,7 +67,7 @@ class CompareCommandMsg
 		bool operator () (const ObjControllerCommandMessage* left, const ObjControllerCommandMessage* right)
 		{
 			return(left->getExecutionTime() > right->getExecutionTime());
-		} 
+		}
 };
 */
 //===============================================================================================================
@@ -83,7 +81,7 @@ class CompareCombatMsg
 		bool operator () (const ObjControllerCommandMessage* left, const ObjControllerCommandMessage* right)
 		{
 			return(left->getSequence() > right->getSequence());
-		} 
+		}
 };
 */
 

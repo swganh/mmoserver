@@ -23,7 +23,7 @@ enum WMLogOut
 	WMLogOut_No_LogOut			= 0,
 	WMLogOut_LogOut				= 1,
 	WMLogOut_Zone_Transfer		= 2,
-	WMLogOut_Char_Load			= 3, //save the present char and load a new one
+	WMLogOut_Char_Load			= 3 //save the present char and load a new one
 
 };
 
@@ -64,7 +64,7 @@ enum WMQuery
 	WMQuery_SpawnRegions			= 32,
 	WMQuery_SavePlayer_Buff			= 33,
 	WMQuery_CreatureSpawnRegions	= 34,
-	WMQuery_Harvesters				= 35,
+	WMQuery_Harvesters				= 35
 };
 
 //======================================================================================================================
@@ -76,7 +76,7 @@ enum WMState
 	WMState_StartUp				= 0,
 	WMState_LoadReady			= 1,
 	WMState_Running				= 2,
-	WMState_ShutDown			= 3,
+	WMState_ShutDown			= 3
 };
 
 //======================================================================================================================

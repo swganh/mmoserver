@@ -37,7 +37,7 @@ enum TMQueryType
 {
 	TMQuery_PointsInWorld	=	1,
 	TMQuery_PointsInCells	=	2,
-	TMQuery_PlanetRoutes	=	3,
+	TMQuery_PlanetRoutes	=	3
 };
 
 //======================================================================================================================
@@ -141,22 +141,21 @@ public:
 		static TravelMapHandler*	mSingleton;
 		static bool					mInsFlag;
 
+		boost::pool<>					mDBAsyncPool;
 		TravelPointList				mTravelPoints[50];
-		TravelRoutes				mTravelRoutes[50];
-		Database*					mDatabase;
+		TravelRoutes					mTravelRoutes[50];
+		Database*							mDatabase;
 		MessageDispatch*			mMessageDispatch;
-		bool						mWorldPointsLoaded;
-		bool						mCellPointsLoaded;
-		bool						mRoutesLoaded;
-		uint32						mPointCount;
-		uint32						mRouteCount;
-		uint32						mZoneId;
-
-		boost::pool<>				mDBAsyncPool;
+		uint32								mPointCount;
+		uint32								mRouteCount;
+		uint32								mZoneId;
+		bool									mCellPointsLoaded;
+		bool									mRoutesLoaded;
+		bool									mWorldPointsLoaded;
 };
 
 //======================================================================================================================
 
-#endif 
+#endif
 
 

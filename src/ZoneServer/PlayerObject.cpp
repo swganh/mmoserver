@@ -28,7 +28,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "SchematicGroup.h"
 #include "SchematicManager.h"
 #include "SpawnPoint.h"
-#include "Structuremanager.h"
+#include "StructureManager.h"
 #include "Tutorial.h"
 #include "UIManager.h"
 #include "UISkillSelectBox.h"
@@ -53,73 +53,58 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "MathLib/Quaternion.h"
 //=============================================================================
 
-PlayerObject::PlayerObject() : CreatureObject(),
-mAccountId(0),
-mClient(NULL),
-mTravelPoint(NULL),
-mPlayerObjId(0),
-mClientTickCount(0),
-mDConnTime(60),
-mMotdReceived(false),
-mPlayerFlags(0),
-mBindPlanet(-1),
-mHomePlanet(-1),
-mLots(10),
-mFriendsListUpdateCounter(0),
-mIgnoresListUpdateCounter(0),
-mContactListUpdatePending(false),
+PlayerObject::PlayerObject()
+: CreatureObject()
+, mBazaarPoint(NULL)
+, mClient(NULL)
+, mCraftingSession(NULL)
+, mMount(NULL)
+, mNearestCloningFacility(NULL)
+, mTravelPoint(NULL)
+, mTutorial(NULL)
 
-//======================
-//trade
-mTrading(false),
-mTradePartner(NULL),
-mBazaarPoint(NULL),
+, mCombatTargetId(0)
+, mEntertainerPauseId(0)
+, mEntertainerTaskId(0)
+, mEntertainerWatchToId(0)
+, mLastGroupMissionUpdateTime(0)
+, mNearestCraftingStation(0)
+, mNextSampleTime(0)
+, mPlacedInstrument(0)
+, mPlayerObjId(0)
+, mPreDesignatedCloningFacilityId(0)
+, mSelectedInstrument(0)
+, mTradePartner(NULL)
+, mAccountId(0)
+, mClientTickCount(0)
+, mCraftingStage(0)
+, mDConnTime(60)
+, mExperimentationFlag(0)
+, mExperimentationPoints(0)
+, mFriendsListUpdateCounter(0)
+, mHoloEmote(0)
+, mIgnoresListUpdateCounter(0)
+, mPlayerFlags(0)
 
-//======================
-//survey/sample
-mPendingSample(false),
-mPendingSurvey(false),
-mNextSampleTime(0),
-mSampleEventFlag(false),//rav
-mPassRadioactive(false),//rav
-mSampleGambleFlag(false),//rav
-mSampleNodeFlag(false),//rav
-
-//======================
-//crafting
-mCraftingStage(0),
-mExperimentationFlag(0),
-mCraftingSession(NULL),
-mExperimentationPoints(0),
-mNearestCraftingStation(0),
-
-//======================
-//ENTERTAINER
-mEntertainerWatchToId(0),
-mEntertainerTaskId(0),
-mEntertainerPauseId(0),
-mIDSession(IDSessionNONE),
-mPlacedInstrument(0),
-mSelectedInstrument(0),
-mHoloEmote(0),
-mHoloCharge(0),
-
-//======================
-//COMBAT
-mCombatTargetId(0),
-mAutoAttack(false),
-mPreDesignatedCloningFacilityId(0),
-
-mMissionIdMask(0),
-mTutorial(NULL),
-mNewPlayerExemptions(0),
-mNewPlayerMessage(false),
-mNearestCloningFacility(NULL),
-mMounted(false),
-mMountCalled(false),
-mMount(NULL),
-mLastGroupMissionUpdateTime(0)
-
+, mMissionIdMask(0)
+, mBindPlanet(-1)
+, mHomePlanet(-1)
+, mHoloCharge(0)
+, mLots(10)
+, mNewPlayerExemptions(0)
+, mAutoAttack(false)
+, mContactListUpdatePending(false)
+, mMotdReceived(false)
+, mMountCalled(false)
+, mMounted(false)
+, mNewPlayerMessage(false)
+, mPassRadioactive(false)
+, mPendingSample(false)
+, mPendingSurvey(false)
+, mSampleEventFlag(false)
+, mSampleGambleFlag(false)
+, mSampleNodeFlag(false)
+, mTrading(false)
 {
 	mDuelList.reserve(10);
 
@@ -133,7 +118,7 @@ mLastGroupMissionUpdateTime(0)
 	// register event functions
 	registerEventFunction(this,&PlayerObject::onSurvey);
 	registerEventFunction(this,&PlayerObject::onSample);
-	
+
 	mLots = gWorldConfig->getConfiguration("Player_Max_Lots",(uint8)10);
 }
 
@@ -203,7 +188,7 @@ PlayerObject::~PlayerObject()
 		if(PlayerObject* entertainer = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getEntertainerWatchToId())))
 		{
 			if(entertainer)
-				gEntertainerManager->removeAudience(entertainer,this); 
+				gEntertainerManager->removeAudience(entertainer,this);
 		}
 	}
 
@@ -212,7 +197,7 @@ PlayerObject::~PlayerObject()
 		if(PlayerObject* entertainer = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getEntertainerListenToId())))
 		{
 			if(entertainer)
-				gEntertainerManager->removeAudience(entertainer,this); 
+				gEntertainerManager->removeAudience(entertainer,this);
 		}
 	}
 
@@ -225,7 +210,7 @@ PlayerObject::~PlayerObject()
 
 	//remove the player out of his group - if any
 	GroupObject* group = gGroupManager->getGroupObject(this->getGroupId());
-	
+
 	if(group)
 		group->removePlayer(this->getId());
 
@@ -297,7 +282,7 @@ PlayerObject::~PlayerObject()
 				if(SpawnPoint* sp = nearestBuilding->getRandomSpawnPoint())
 				{
 					// update the database with the new values
-					gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE characters SET parent_id=%lld,oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f WHERE id=%lld",sp->mCellId
+					gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE characters SET parent_id=%"PRId64",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f WHERE id=%"PRId64"",sp->mCellId
 						,sp->mDirection.mX,sp->mDirection.mY,sp->mDirection.mZ,sp->mDirection.mW
 						,sp->mPosition.mX,sp->mPosition.mY,sp->mPosition.mZ
 						,this->getId());
@@ -339,7 +324,7 @@ PlayerObject::~PlayerObject()
 
 
 	// destroy known objects
-	this->destroyKnownObjects();				
+	this->destroyKnownObjects();
 
 	// remove us from cell / SI
 	if(this->getParentId())
@@ -350,7 +335,7 @@ PlayerObject::~PlayerObject()
 		}
 		else
 		{
-			gLogger->logMsgF("PlayerObject::destructor: couldn't find cell %lld",MSG_HIGH,this->getParentId());
+			gLogger->logMsgF("PlayerObject::destructor: couldn't find cell %"PRId64"",MSG_HIGH,this->getParentId());
 		}
 	}
 	else
@@ -398,7 +383,7 @@ void PlayerObject::stopTutorial()
 		if (mTutorial)
 		{
 			// Save-update the state.
-			// (gWorldManager->getDatabase())->ExecuteSqlAsync(0,0,"UPDATE character_tutorial SET character_state=%u,character_substate=%u WHERE character_id=%lld",mTutorial->getState(), mTutorial->getSubState(),mId);
+			// (gWorldManager->getDatabase())->ExecuteSqlAsync(0,0,"UPDATE character_tutorial SET character_state=%u,character_substate=%u WHERE character_id=%"PRId64"",mTutorial->getState(), mTutorial->getSubState(),mId);
 
 			delete mTutorial;
 			mTutorial = NULL;
@@ -717,7 +702,7 @@ bool PlayerObject::deductCredits(int32 amount)
 					amount -= bank->getCredits();
 					bank->setCredits(0);
 					inventory->setCredits(inventory->getCredits() - amount);
-				} 
+				}
 				else
 				{
 					bank->setCredits(bank->getCredits() - amount);
@@ -982,9 +967,9 @@ void PlayerObject::prepareSchematicIds()
 
 bool PlayerObject::checkBadges(uint32 badgeId)
 {
-	BadgesList::iterator it = mBadges.begin();
+	BadgesList::iterator it = mBadgeList.begin();
 
-	while(it != mBadges.end())
+	while(it != mBadgeList.end())
 	{
 		if((*it) == badgeId)
 		{
@@ -1004,15 +989,15 @@ void PlayerObject::addBadge(uint32 badgeId)
 	// Since we use recursive calls to addBadge(), I would like to have an extra check for duplicates here.
 	if(!checkBadges(badgeId))
 	{
-		mBadges.push_back(badgeId);
+		mBadgeList.push_back(badgeId);
 		Badge* badge = gCharSheetManager->getBadgeById(badgeId);
 
 		gMessageLib->sendPlayMusicMessage(badge->getSoundId(),this);
 		gMessageLib->sendSystemMessage(this,L"","badge_n","prose_grant","badge_n",badge->getName(),L"");
 
-		(gWorldManager->getDatabase())->ExecuteSqlAsync(0,0,"INSERT INTO character_badges VALUES (%lld,%u)",mId,badgeId);
+		(gWorldManager->getDatabase())->ExecuteSqlAsync(0,0,"INSERT INTO character_badges VALUES (%"PRId64",%u)",mId,badgeId);
 
-		gLogger->logMsgF("Badge %u granted to %lld",MSG_NORMAL,badgeId,mId);
+		gLogger->logMsgF("Badge %u granted to %"PRId64"",MSG_NORMAL,badgeId,mId);
 
 		_verifyBadges();
 
@@ -1024,7 +1009,7 @@ void PlayerObject::addBadge(uint32 badgeId)
 	else
 	{
 		// This is an unexpected condition.
-		gLogger->logMsgF("Badge %u already exists for player with id %lld",MSG_NORMAL,badgeId,mId);
+		gLogger->logMsgF("Badge %u already exists for player with id %"PRId64"",MSG_NORMAL,badgeId,mId);
 	}
 }
 
@@ -1033,9 +1018,9 @@ void PlayerObject::addBadge(uint32 badgeId)
 void PlayerObject::_verifyExplorationBadges()
 {
 	uint16					count	= 0;
-	BadgesList::iterator	it		= mBadges.begin();
+	BadgesList::iterator	it		= mBadgeList.begin();
 
-	while(it != mBadges.end())
+	while(it != mBadgeList.end())
 	{
 		Badge* badge = gCharSheetManager->getBadgeById((*it));
 
@@ -1065,7 +1050,7 @@ void PlayerObject::_verifyExplorationBadges()
 
 void PlayerObject::_verifyBadges()
 {
-	uint32 count = mBadges.size();
+	uint32 count = mBadgeList.size();
 
 	switch(count)
 	{
@@ -1232,7 +1217,7 @@ void PlayerObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 		case radId_serverTeach:
 		{
 			// todo : In theory - if someone breaks our encryption - we might get a botter
-			// in which case our checks need to be better! At this time we can *assume* that the client provided 
+			// in which case our checks need to be better! At this time we can *assume* that the client provided
 			// us with a teacher and pupil!
 
 			//check if our pupil already gets taught
@@ -1258,7 +1243,7 @@ void PlayerObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 		}
 		break;
 
-		case radId_serverPerformanceWatchStop: 
+		case radId_serverPerformanceWatchStop:
 		{
 			// stop watching
 			gEntertainerManager->stopWatching(callingObject);
@@ -1326,11 +1311,11 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,string inputStr,UIW
 			// Handle non-selected response as if closest cloning facility was selected,
 			// until we learn how to restart the dialog when nothing selected.
 			if (element < 0 || element > 1)
-			{ 
+			{
 				element = 0;
 				// No selection made, re-open the dialog.
 				// window->sendCreate();
-				// break; 
+				// break;
 			}
 
 			UICloneSelectListBox* lb = dynamic_cast<UICloneSelectListBox*>(window);
@@ -1487,7 +1472,7 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,string inputStr,UIW
 			gMessageLib->sendSystemMessage(this,L"","teaching","teacher_skill_learned","skl_n",teachBox->getSkill()->mName,L"",0,"","",convName);
 
 			//add skill to our pupils repertoir and send mission accomplished to our pupil
-			gSkillManager->learnSkill(teachBox->getSkill()->mId,teachBox->getPupil(),true);	
+			gSkillManager->learnSkill(teachBox->getSkill()->mId,teachBox->getPupil(),true);
 		}
 		break;
 
@@ -1612,7 +1597,7 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,string inputStr,UIW
 			gMessageFactory->addUint32(opIsmGroupLootMasterResponse);
 			gMessageFactory->addUint32(selectedPlayer->getAccountId());
 			newMessage = gMessageFactory->EndMessage();
-			this->getClient()->SendChannelA(newMessage,this->getAccountId(),CR_Chat,2);	
+			this->getClient()->SendChannelA(newMessage,this->getAccountId(),CR_Chat,2);
 		}
 		break;
 
@@ -1620,7 +1605,7 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,string inputStr,UIW
 		case SUI_Window_SmplRadioactive_MsgBox:
 		{
 			if(action == 1)
-			{				
+			{
 				gLogger->logMsg("sampling radioactive box: No\n");
 				mPassRadioactive = false;
 				mPendingSample = false;
@@ -1629,7 +1614,7 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,string inputStr,UIW
 				gMessageLib->sendPostureAndStateUpdate(this);
 				gMessageLib->sendSelfPostureUpdate(this);
 				return;
-			}else{		
+			}else{
 				gLogger->logMsg("sampling radioactive box: Yes\n");
 				gLogger->logMsg("Please hit 'get sample' to continue.\n");
 				mPassRadioactive = true;
@@ -1649,7 +1634,7 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,string inputStr,UIW
 		case SUI_Window_SmplGamble_ListBox:
 		{
 			if(action == 1)
-			{				
+			{
 				gLogger->logMsg("sampling gamble box action=1 (continue?)\n");
 				mPendingSample = true;
 				mSampleGambleFlag = false;
@@ -1664,9 +1649,9 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,string inputStr,UIW
 				}
 			}
 			else
-			{		
+			{
 				gLogger->logMsg("sampling gamble box action != 1 (chance?)\n");
-				//action costs				
+				//action costs
 				mHam.updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints,300);
 				mPendingSample = true;
 
@@ -1698,7 +1683,7 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,string inputStr,UIW
 		case SUI_Window_SmplWaypNode_ListBox:
 		{
 			if(action == 1)
-			{				
+			{
 				gLogger->logMsg("sampling wayp node box action=1 (continue?)\n");
 				mPendingSample = true;
 				//TODO:need to create wayp obj
@@ -1706,7 +1691,7 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,string inputStr,UIW
 				return;
 			}
 			else
-			{		
+			{
 				gLogger->logMsg("sampling wayp node box action != 1 (stay here?)\n");
 				mPendingSample = true;
 				mSampleNodeFlag = false;
@@ -1806,12 +1791,6 @@ CraftingStation* PlayerObject::getCraftingStation(ObjectSet	inRangeObjects, Item
 				}
 				break;
 
-				case ItemType_GenericTool:
-				{
-					return(NULL);
-				}
-				break;
-
 				case ItemType_WeaponTool:
 				{
 					if(station->getItemType() == ItemType_WeaponStation)
@@ -1851,12 +1830,6 @@ CraftingStation* PlayerObject::getCraftingStation(ObjectSet	inRangeObjects, Item
 				}
 				break;
 
-				case ItemType_JediTool:
-				{
-					return(NULL);
-				}
-				break;
-
 				case ItemType_SpaceTool:
 				{
 					if(station->getItemType() == ItemType_SpaceStation)
@@ -1869,6 +1842,85 @@ CraftingStation* PlayerObject::getCraftingStation(ObjectSet	inRangeObjects, Item
 					}
 				}
 				break;
+
+				case ItemType_bandfill:
+				case ItemType_Camp_basic:
+				case ItemType_Camp_elite:
+				case ItemType_Camp_improved:
+				case ItemType_Camp_luxury:
+				case ItemType_Camp_multi:
+				case ItemType_Camp_quality:
+				case ItemType_ClothingStation:
+				case ItemType_ClothingStationPublic:
+				case ItemType_deed_guildhall_corellian:
+				case ItemType_deed_guildhall_generic:
+				case ItemType_deed_guildhall_naboo:
+				case ItemType_deed_guildhall_tatooine:
+				case ItemType_Deed_Speederbike:
+				case ItemType_Deed_Swoop:
+				case ItemType_Deed_X34:
+				case ItemType_drums:
+				case ItemType_fanfar:
+				case ItemType_Firework_Show:
+				case ItemType_Firework_Type_1:
+				case ItemType_Firework_Type_10:
+				case ItemType_Firework_Type_11:
+				case ItemType_Firework_Type_18:
+				case ItemType_Firework_Type_2:
+				case ItemType_Firework_Type_3:
+				case ItemType_Firework_Type_4:
+				case ItemType_Firework_Type_5:
+				case ItemType_fizzz:
+				case ItemType_flute_droopy:
+				case ItemType_FoodStation:
+				case ItemType_FoodStationPublic:
+				case ItemType_generator_fusion_personal:
+				case ItemType_generator_solar_personal:
+				case ItemType_generator_wind_personal:
+				case ItemType_harvester_flora_heavy:
+				case ItemType_harvester_flora_medium:
+				case ItemType_harvester_flora_personal:
+				case ItemType_harvester_gas_heavy:
+				case ItemType_harvester_gas_medium:
+				case ItemType_harvester_gas_personal:
+				case ItemType_harvester_liquid_heavy:
+				case ItemType_harvester_liquid_medium:
+				case ItemType_harvester_liquid_personal:
+				case ItemType_harvester_moisture_heavy:
+				case ItemType_harvester_moisture_medium:
+				case ItemType_harvester_moisture_personal:
+				case ItemType_harvester_ore_heavy:
+				case ItemType_harvester_ore_medium:
+				case ItemType_harvester_ore_personal:
+				case ItemType_Kloo_Horn:
+				case ItemType_mandoviol:
+				case ItemType_ManSchematic:
+				case ItemType_nalargon_max_reebo:
+				case ItemType_Nalargon:
+				case ItemType_omni_box:
+				case ItemType_organ:
+				case ItemType_Pet_Stimpack_A:
+				case ItemType_Pet_Stimpack_B:
+				case ItemType_Pet_Stimpack_C:
+				case ItemType_Pet_Stimpack_D:
+				case ItemType_Slitherhorn:
+				case ItemType_SpaceStation:
+				case ItemType_SpaceStationPublic:
+				case ItemType_Stimpack_A:
+				case ItemType_Stimpack_B:
+				case ItemType_Stimpack_C:
+				case ItemType_Stimpack_D:
+				case ItemType_Stimpack_E:
+				case ItemType_StructureStation:
+				case ItemType_StructureStationPublic:
+				case ItemType_traz:
+				case ItemType_WeaponStation:
+				case ItemType_WeaponStationPublic:
+
+				case ItemType_GenericTool:
+				case ItemType_JediTool:
+				default:
+					return(NULL);
 			}
 		}
 
@@ -1916,7 +1968,7 @@ void PlayerObject::clone(uint64 parentId,Anh_Math::Quaternion dir,Anh_Math::Vect
 					{
 						// Remove insurance.
 						tangibleObject->setInternalAttribute("insured","0");
-						gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE item_attributes SET value=0 WHERE item_id=%llu AND attribute_id=%u",tangibleObject->getId(), 1270);
+						gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE item_attributes SET value=0 WHERE item_id=%"PRIu64" AND attribute_id=%u",tangibleObject->getId(), 1270);
 
 						tangibleObject->setTypeOptions(tangibleObject->getTypeOptions() & ~((uint32)4));
 
@@ -1930,7 +1982,7 @@ void PlayerObject::clone(uint64 parentId,Anh_Math::Quaternion dir,Anh_Math::Vect
 	}
 
 	// Update defenders, if any,  NOW when I'm gone...
-	/* 
+	/*
 	ObjectIDList::iterator defenderIt = mDefenders.begin();
 	while (defenderIt != mDefenders.end())
 	{
@@ -2006,7 +2058,7 @@ void PlayerObject::newPlayerMessage(void)
 		}
 		else if (this->mNewPlayerExemptions == 0)
 		{
-			// New player exemption status has expired. You will now be required to insure your items if you wish to retain them after cloning. 
+			// New player exemption status has expired. You will now be required to insure your items if you wish to retain them after cloning.
 			gMessageLib->sendSystemMessage(this, L"", "base_player", "newbie_expired");
 		}
 		this->mNewPlayerMessage = false;
@@ -2134,9 +2186,9 @@ bool PlayerObject::regainPlayerLots(uint8 lots)
 	{
 		return false;
 	}
-	
+
 	mLots += lots;
 
 	return true;
 }
-		
+

@@ -45,15 +45,15 @@ enum EMQueryType
 	EMQuery_IDMoneyTransaction	=	5,
 	EMQuery_IDMigrateStats		=	6,
 	EMQuery_LoadHoloEmotes		=	7,
-	EMQuery_IDFinances			=	8,
-	
+	EMQuery_IDFinances			=	8
+
 };
 
 //======================================================================================================================
 
 enum EMTimer
 {
-	EMTimer_PerformanceTick		=	0,
+	EMTimer_PerformanceTick		=	0
 };
 
 
@@ -104,11 +104,11 @@ struct HoloStruct
 
 struct ModifierStruct
 {
-	uint32 pHealingDanceMindMod; 
-	int32 pHealingDanceShockMod; 
+	uint32 pHealingDanceMindMod;
+	int32 pHealingDanceShockMod;
 	uint32 pHealingDanceWoundMod;
-	uint32 pHealingMusicMindMod; 
-	int32 pHealingMusicShockMod; 
+	uint32 pHealingMusicMindMod;
+	int32 pHealingMusicShockMod;
 	uint32 pHealingMusicWoundMod;
 };
 
@@ -131,7 +131,7 @@ public:
 	~EntertainerManagerAsyncContainer();
 
 	EMQueryType			mQueryType;
-	DispatchClient*		mClient;	
+	DispatchClient*		mClient;
 
 	PlayerObject*		performer;
 	PlayerObject*		customer;
@@ -170,11 +170,11 @@ class EntertainerManager : public DatabaseCallback, public ObjectFactoryCallback
 		HoloStruct*				getHoloEmoteIdbyName(string name);
 		PerformanceStruct*		getPerformance(string performance);
 		PerformanceStruct*		getPerformance(string performance,uint32 type);
-		
+
 		//=========================================================
 		//=========================================================
 		// Entertainer
-		
+
 		//Music
 		void					startMusicPerformance(PlayerObject* pEntertainer,string performance);
 		void					changeMusic(PlayerObject* entertainer,string performance);
@@ -201,7 +201,7 @@ class EntertainerManager : public DatabaseCallback, public ObjectFactoryCallback
 
 		void					stopWatching(PlayerObject* audience,bool ooRange = false);
 		void					startWatching(PlayerObject* audience, PlayerObject* entertainer);
-		
+
 		//Audience
 		bool					checkAudience(PlayerObject* entertainer,CreatureObject* audience);
 		void					addAudience(PlayerObject* entertainer,CreatureObject* audience);
@@ -210,11 +210,11 @@ class EntertainerManager : public DatabaseCallback, public ObjectFactoryCallback
 		void					verifyOutcastName(PlayerObject* entertainer,string outCastName);
 		void					removeAudience(PlayerObject* entertainer,CreatureObject* mAudience);
 
-		bool					checkDenyServiceList(PlayerObject* audience, PlayerObject* entertainer);	
+		bool					checkDenyServiceList(PlayerObject* audience, PlayerObject* entertainer);
 		void					showOutcastList(PlayerObject* entertainer);
 
-		
-		
+
+
 		bool					handlePerformanceTick(CreatureObject* mObject);
 		void					handlePerformancePause(CreatureObject* mObject);
 		void					stopEntertaining(PlayerObject* entertainer);
@@ -222,7 +222,7 @@ class EntertainerManager : public DatabaseCallback, public ObjectFactoryCallback
 		void					heal(PlayerObject* entertainer);
 		void					buff(PlayerObject* entertainer);
 		ModifierStruct			getGroupHealSkillValues(PlayerObject* entertainer);
-		
+
 		void					CheckDistances(PlayerObject* entertainer);
 		void					flourish(PlayerObject* entertainer, uint32 mFlourishId);
 		void					entertainInRangeNPCs(PlayerObject* entertainer);
@@ -242,24 +242,24 @@ class EntertainerManager : public DatabaseCallback, public ObjectFactoryCallback
 	private:
 
 		EntertainerManager(Database* database,MessageDispatch* dispatch);
-		
+
 		void					playInstrument(PlayerObject* entertainer, Item* pInstrument);
 		uint64					getInstrument(PlayerObject* entertainer);
 		bool					approachInstrument(PlayerObject* entertainer, uint64 instrumentId);
 
 
-	
+
 		static EntertainerManager*	mSingleton;
 		static bool					mInsFlag;
 
 		Database*					mDatabase;
 		MessageDispatch*			mMessageDispatch;
-		
+
 		PerformanceStruct*			mPerformanceHandler;
 		PerformanceList				mPerformanceList;
 		IdList						mIDList;
 		HoloEmoteEffects			mHoloList;
 };
 
-#endif 
+#endif
 

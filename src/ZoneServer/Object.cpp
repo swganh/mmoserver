@@ -20,15 +20,15 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 //=============================================================================
 
-Object::Object() :
-mId(0),
-mParentId(0),
-mModel(""),
-mLoadState(LoadState_Loading),
-mTypeOptions(0),
-mSubZoneId(0),
-mEquipSlots(0),
-mPrivateOwner(0)
+Object::Object()
+: mModel("")
+, mLoadState(LoadState_Loading)
+, mId(0)
+, mParentId(0)
+, mPrivateOwner(0)
+, mEquipSlots(0)
+, mSubZoneId(0)
+, mTypeOptions(0)
 {
 	mDirection = Anh_Math::Quaternion();
 	mPosition  = Anh_Math::Vector3();
@@ -38,16 +38,16 @@ mPrivateOwner(0)
 
 //=============================================================================
 
-Object::Object(uint64 id,uint64 parentId,string model,ObjectType type) :
-mId(id),
-mParentId(parentId),
-mModel(model),
-mType(type),
-mLoadState(LoadState_Loading),
-mTypeOptions(0),
-mSubZoneId(0),
-mEquipSlots(0),
-mPrivateOwner(0)
+Object::Object(uint64 id,uint64 parentId,string model,ObjectType type)
+: mModel(model)
+, mLoadState(LoadState_Loading)
+, mType(type)
+, mId(id)
+, mParentId(parentId)
+, mPrivateOwner(0)
+, mEquipSlots(0)
+, mSubZoneId(0)
+, mTypeOptions(0)
 {
 	mObjectController.setObject(this);
 }

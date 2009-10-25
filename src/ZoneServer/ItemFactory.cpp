@@ -96,7 +96,7 @@ void ItemFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT attributes.name,item_attributes.value,attributes.internal"
 															 " FROM item_attributes"
 															 " INNER JOIN attributes ON (item_attributes.attribute_id = attributes.id)"
-															 " WHERE item_attributes.item_id = %lld ORDER BY item_attributes.order",item->getId());
+															 " WHERE item_attributes.item_id = %"PRId64" ORDER BY item_attributes.order",item->getId());
 			}
 		}
 		break;
@@ -105,7 +105,7 @@ void ItemFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 		{
 			_buildAttributeMap(asyncContainer->mObject,result);
 			_postProcessAttributes(asyncContainer->mObject);
-			
+
 			if(asyncContainer->mObject->getLoadState() == LoadState_Loaded)
 			{
 				asyncContainer->mOfCallback->handleObjectReady(asyncContainer->mObject,asyncContainer->mClient);
@@ -132,7 +132,7 @@ void ItemFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint
 													"FROM items "
 													"INNER JOIN item_types ON (items.item_type = item_types.id) "
 													"LEFT JOIN item_customization ON (items.id = item_customization.id)"
-													"WHERE items.id = %lld",id);
+													"WHERE items.id = %"PRId64"",id);
 }
 
 //=============================================================================
@@ -164,15 +164,15 @@ Item* ItemFactory::_createItem(DatabaseResult* result)
 		case ItemFamily_Deed:					item	= new Deed();						break;
 		case ItemFamily_Medicine:				item	= new Medicine();					break;
 		case ItemFamily_Scout:					item	= new Scout();						break;
-		case ItemFamily_FireWork:	
+		case ItemFamily_FireWork:
 			{
 				switch(itemIdentifier.mTypeId)
 				{
 					case ItemType_Firework_Show:	item	= new FireworkShow();				break;
 					default:						item	= new Firework();					break;
 				}
-			}			
-			break;						
+			}
+			break;
 
 		default:
 		{
@@ -268,22 +268,22 @@ void ItemFactory::_postProcessAttributes(Object* object)
 					//read out the remaining time and start a new timer
 					//int32 time = item->getInternalAttribute<int32>("craft_tool_time");
 					//set 1 sec as the item is already in the inventory anyway after relog
-					item->setTimer(1);										
-					
+					item->setTimer(1);
+
 					//not without a player
 					//we will do that in the inventory :)
 					//gMessageLib->sendUpdateTimer(item,item->getOwner());
-					
-					gWorldManager->addBusyCraftTool((CraftingTool*)item);				
-				}   
+
+					gWorldManager->addBusyCraftTool((CraftingTool*)item);
+				}
 				else
 				{
 					item->setAttribute("craft_tool_status","@crafting:tool_status_ready");
-					mDatabase->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='@crafting:tool_status_ready' WHERE item_id=%lld AND attribute_id=%u",item->getId(),AttrType_CraftToolStatus);
+					mDatabase->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='@crafting:tool_status_ready' WHERE item_id=%"PRId64" AND attribute_id=%u",item->getId(),AttrType_CraftToolStatus);
 
 					int8 sql[250];
 					item->addAttribute("craft_tool_time","0");
-					sprintf(sql,"INSERT INTO item_attributes VALUES(%I64u,%u,'0',0,0)",item->getId(),AttrType_CraftToolTime);					
+					sprintf(sql,"INSERT INTO item_attributes VALUES(%"PRIu64",%u,'0',0,0)",item->getId(),AttrType_CraftToolTime);
 					mDatabase->ExecuteSqlAsync(0,0,sql);
 				}
 			}

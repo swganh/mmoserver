@@ -120,7 +120,7 @@ void InsuranceTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObje
 							{
 								// Update attribute.
 								tangibleObject->setInternalAttribute("insured","1");
-								gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE item_attributes SET value=1 WHERE item_id=%llu AND attribute_id=%u",tangibleObject->getId(), 1270);
+								gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE item_attributes SET value=1 WHERE item_id=%"PRIu64" AND attribute_id=%u",tangibleObject->getId(), 1270);
 
 								tangibleObject->setTypeOptions(tangibleObject->getTypeOptions() | 4);
 
@@ -316,9 +316,9 @@ void InsuranceTerminal::handleUIEvent(uint32 action,int32 element,string inputSt
 							// Update attribute.
 							// string str("insured");
 							tangibleObject->setInternalAttribute("insured","1");
-							gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE item_attributes SET value=1 WHERE item_id=%llu AND attribute_id=%u",tangibleObject->getId(), 1270);
+							gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE item_attributes SET value=1 WHERE item_id=%"PRIu64" AND attribute_id=%u",tangibleObject->getId(), 1270);
 
-							gLogger->logMsgF("UPDATE item_attributes SET value=1 WHERE item_id=%llu AND attribute_id=%u\n", MSG_NORMAL, tangibleObject->getId(), 1270);
+							gLogger->logMsgF("UPDATE item_attributes SET value=1 WHERE item_id=%"PRIu64" AND attribute_id=%u\n", MSG_NORMAL, tangibleObject->getId(), 1270);
 							
 							tangibleObject->setTypeOptions(tangibleObject->getTypeOptions() | 4);
 
@@ -486,7 +486,7 @@ void InsuranceTerminal::handleUIEvent(uint32 action,int32 element,string inputSt
 								// Insure the item.
 								// Update attribute.
 								tangibleObject->setInternalAttribute("insured","1");
-								gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE item_attributes SET value=1 WHERE item_id=%llu AND attribute_id=%u",tangibleObject->getId(), 1270);
+								gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE item_attributes SET value=1 WHERE item_id=%"PRIu64" AND attribute_id=%u",tangibleObject->getId(), 1270);
 
 								tangibleObject->setTypeOptions(tangibleObject->getTypeOptions() | 4);
 

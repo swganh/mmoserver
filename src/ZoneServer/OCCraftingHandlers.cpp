@@ -134,7 +134,7 @@ void ObjectController::_handleRequestCraftingSession(uint64 targetId,Message* me
 	uint32				expFlag			= 2;//needs to be >1 !!!!!
 
 	message->setIndex(24);
-	uint32				counter			= message->getUint32();
+	/*uint32				counter			= */message->getUint32();
 
 	//get nearest crafting station
 	ObjectSet			inRangeObjects;
@@ -142,7 +142,7 @@ void ObjectController::_handleRequestCraftingSession(uint64 targetId,Message* me
 
 	if(!tool)
 	{
-		gLogger->logMsgF("ObjController::handleRequestcraftingsession: could not find tool %lld",MSG_NORMAL,targetId);
+		gLogger->logMsgF("ObjController::handleRequestcraftingsession: could not find tool %"PRId64"",MSG_NORMAL,targetId);
 		gMessageLib->sendCraftAcknowledge(opCraftCancelResponse,0,0,playerObject);
 		return;
 	}
@@ -192,7 +192,7 @@ void ObjectController::_handleSelectDraftSchematic(uint64 targetId,Message* mess
 {
 	PlayerObject*		playerObject	= dynamic_cast<PlayerObject*>(mObject);
 	CraftingSession*	session			= playerObject->getCraftingSession();
-	DraftSchematic*		schematic		= NULL;
+	//DraftSchematic*		schematic		= NULL;
 	string				dataStr;
 	uint32				schematicIndex	= 0;
 
@@ -218,7 +218,7 @@ void ObjectController::_handleCancelCraftingSession(uint64 targetId,Message* mes
 
 	message->setIndex(24);
 
-	uint32			counter			= message->getUint32();
+	/*uint32			counter			= */message->getUint32();
 
 	gCraftingSessionFactory->destroySession(playerObject->getCraftingSession());
 
@@ -345,7 +345,7 @@ void ObjectController::handleCraftCustomization(Message* message)
 
 
 	int8 sql[550];
-	sprintf(sql,"INSERT INTO item_customization VALUES(%I64u, %u, %u)",session->getItem()->getId(),session->getItem()->getCustomization(1),session->getItem()->getCustomization(2));
+	sprintf(sql,"INSERT INTO item_customization VALUES(%"PRIu64", %u, %u)",session->getItem()->getId(),session->getItem()->getCustomization(1),session->getItem()->getCustomization(2));
 	mDatabase->ExecuteSqlAsync(0,0,sql);
 
 	session->setProductionAmount(amount);

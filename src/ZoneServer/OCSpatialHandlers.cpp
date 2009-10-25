@@ -42,26 +42,49 @@ void ObjectController::_handleSpatialChatInternal(uint64 targetId,Message* messa
 	// FIXME: for now assume only players send chat
 	PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
 	string			chatData;
-	BStringVector	chatElement;
 
 
 	message->getStringUnicode16(chatData);
 	chatData.convert(BSTRType_ANSI);
 
-	chatData.split(chatElement,' ');
-	
-	string chatMessage = chatElement[5];
-	
+	int8* data = chatData.getRawData();
+	uint16 len = chatData.getLength();
+
+	char chatElement[5][32];
+
+	uint8 element		= 0;
+	uint8 elementIndex	= 0;
+	uint16 byteCount	= 0;
+
+	while(element < 5)
+	{
+		if(*data == ' ')
+		{
+			byteCount++;
+			element++;
+			data++;
+			elementIndex = 0;
+			continue;
+		}
+
+		chatElement[element][elementIndex] = *data;
+		elementIndex++;
+		byteCount++;
+		data++;
+	}
+
+	string chatMessage(data);
 
 	// need to truncate or we may get in trouble
-	if(chatMessage.getLength() > 256)
+	if(len - byteCount > 256)
 	{
 		chatMessage.setLength(256);
 		chatMessage.getRawData()[256] = 0;
 	}
 	else
 	{
-		chatMessage.getRawData()[chatMessage.getLength()] = 0;
+		chatMessage.setLength(len - byteCount);
+		chatMessage.getRawData()[len - byteCount] = 0;
 	}
 
 	chatMessage.convert(BSTRType_Unicode16);
@@ -127,7 +150,7 @@ void ObjectController::_handleSetMoodInternal(uint64 targetId,Message* message,O
 	gMessageLib->sendMoodUpdate(playerObject);
 
 	ObjControllerAsyncContainer* asyncContainer = new(mDBAsyncContainerPool.malloc()) ObjControllerAsyncContainer(OCQuery_Nope);
-	sprintf(sql,"UPDATE swganh.character_attributes SET moodId = %u where character_id = %I64u",mood,playerObject->getId());
+	sprintf(sql,"UPDATE swganh.character_attributes SET moodId = %u where character_id = %"PRIu64"",mood,playerObject->getId());
 
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
 

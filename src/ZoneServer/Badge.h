@@ -12,7 +12,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_ZONESERVER_BADGE_H
 #define ANH_ZONESERVER_BADGE_H
 
-#include "utils/typedefs.h"
+#include "Utils/typedefs.h"
 
 
 //======================================================================================================================

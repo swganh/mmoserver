@@ -298,7 +298,7 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult
 			for (uint64 i = 0; i < count; i++)
 			{
 				result->GetNextRow(creatureTemplateBinding, &creatureTemplateId);
-				// gLogger->logMsgF("NonPersistentNpcFactory::handleDatabaseJobComplete() Creature template %llu used by lair ", MSG_NORMAL, creatureTemplateId);
+				// gLogger->logMsgF("NonPersistentNpcFactory::handleDatabaseJobComplete() Creature template %"PRIu64" used by lair ", MSG_NORMAL, creatureTemplateId);
 				npc->setCreatureTemplate((uint32)i, creatureTemplateId);
 
 				spawnRate += spawnRateInc;
@@ -318,7 +318,7 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult
 			mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT attributes.name,lair_attributes.value,attributes.internal"
 				" FROM lair_attributes"
 				" INNER JOIN attributes ON (lair_attributes.attribute_id = attributes.id)"
-				" WHERE lair_attributes.lair_id = %lld ORDER BY lair_attributes.order", asyncContainer->mTemplateId);
+				" WHERE lair_attributes.lair_id = %"PRId64" ORDER BY lair_attributes.order", asyncContainer->mTemplateId);
 		}
 		break;
 
@@ -343,12 +343,12 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult
 			{
 				QueryNonPersistentNpcFactory* asContainer = new QueryNonPersistentNpcFactory(asyncContainer->mOfCallback,NonPersistentNpcQuery_Attributes, 0, npc->getId());
 				
-				// gLogger->logMsgF("NonPersistentNpcFactory::handleDatabaseJobComplete() Invoking NonPersistentNpcQuery_Attributes NPC ID = %llu", MSG_NORMAL, npc->getId());
+				// gLogger->logMsgF("NonPersistentNpcFactory::handleDatabaseJobComplete() Invoking NonPersistentNpcQuery_Attributes NPC ID = %"PRIu64"", MSG_NORMAL, npc->getId());
 
 				mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT attributes.name,non_persistent_npc_attributes.value,attributes.internal"
 					" FROM non_persistent_npc_attributes"
 					" INNER JOIN attributes ON (non_persistent_npc_attributes.attribute_id = attributes.id)"
-					" WHERE non_persistent_npc_attributes.npc_id = %lld ORDER BY non_persistent_npc_attributes.order", asyncContainer->mTemplateId);
+					" WHERE non_persistent_npc_attributes.npc_id = %"PRId64" ORDER BY non_persistent_npc_attributes.order", asyncContainer->mTemplateId);
 			}
 		}
 		break;
@@ -378,14 +378,14 @@ NPCObject* NonPersistentNpcFactory::_createNonPersistentNpc(DatabaseResult* resu
 {
 	NpcIdentifier	npcIdentifier;
 
-	// gLogger->logMsgF("NonPersistentNpcFactory::_createNonPersistentNpc() ObjectId = %llu", MSG_NORMAL, npcNewId);
+	// gLogger->logMsgF("NonPersistentNpcFactory::_createNonPersistentNpc() ObjectId = %"PRIu64"", MSG_NORMAL, npcNewId);
 	uint64 count = result->getRowCount();
 	assert(count == 1);
 
 	result->GetNextRow(mNpcIdentifierBinding,(void*)&npcIdentifier);
 	result->ResetRowIndex();
 
-	// gLogger->logMsgF("NonPersistentNpcFactory::_createNonPersistentNpc() TemplateId = %llu ObjectId = %llu, familyId = %u controllingObject = %llu", MSG_NORMAL, templateId, npcNewId, npcIdentifier.mFamilyId, controllingObject);
+	// gLogger->logMsgF("NonPersistentNpcFactory::_createNonPersistentNpc() TemplateId = %"PRIu64" ObjectId = %"PRIu64", familyId = %u controllingObject = %"PRIu64"", MSG_NORMAL, templateId, npcNewId, npcIdentifier.mFamilyId, controllingObject);
 
 	return this->createNonPersistentNpc(result, templateId, npcNewId, npcIdentifier.mFamilyId, controllingObject);
 }
@@ -640,7 +640,7 @@ void NonPersistentNpcFactory::_destroyDatabindings()
 //=============================================================================
 void NonPersistentNpcFactory::requestLairObject(ObjectFactoryCallback* ofCallback, uint64 lairsId, uint64 npcNewId)
 {
-	// gLogger->logMsgF("NonPersistentNpcFactory::requestLairObject() LairsId = %llu, ObjectId will be = %llu", MSG_NORMAL, lairsId, npcNewId);
+	// gLogger->logMsgF("NonPersistentNpcFactory::requestLairObject() LairsId = %"PRIu64", ObjectId will be = %"PRIu64"", MSG_NORMAL, lairsId, npcNewId);
 
 	mDatabase->ExecuteSqlAsync(this,new QueryNonPersistentNpcFactory(ofCallback, NonPersistentNpcQuery_LairTemplate, lairsId, npcNewId),
 								"SELECT lairs.creature_spawn_region, lairs.lair_template, lairs.creature_group, lairs.count, lairs.spawn_x, lairs.spawn_z, "
@@ -672,5 +672,5 @@ void NonPersistentNpcFactory::requestNpcObject(ObjectFactoryCallback* ofCallback
 								"non_persistent_npcs.moodID, non_persistent_npcs.scale, non_persistent_npcs.family "
 								"FROM non_persistent_npcs "
 								"INNER JOIN faction ON (non_persistent_npcs.faction = faction.id) "
-								"WHERE non_persistent_npcs.id=%lld;", creatureTemplateId);
+								"WHERE non_persistent_npcs.id=%"PRId64";", creatureTemplateId);
 }

@@ -196,6 +196,11 @@ private:
 	  uint16					  mFragmentedPacketStartSequence;
 	  uint16					  mFragmentedPacketCurrentSequence;
 
+	  uint32                      mRoutedFragmentedPacketTotalSize;
+	  uint32                      mRoutedFragmentedPacketCurrentSize;
+	  uint16					  mRoutedFragmentedPacketStartSequence;
+	  uint16					  mRoutedFragmentedPacketCurrentSequence;
+
 	  uint64                      mConnectStartEvent;       // For SCOM_Connect commands
 	  uint64                      mLastConnectRequestSent;  
 

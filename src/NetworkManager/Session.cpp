@@ -56,6 +56,10 @@ mFragmentedPacketTotalSize(0),
 mFragmentedPacketCurrentSize(0),
 mFragmentedPacketStartSequence(0),
 mFragmentedPacketCurrentSequence(0),
+mRoutedFragmentedPacketTotalSize(0),
+mRoutedFragmentedPacketCurrentSize(0),
+mRoutedFragmentedPacketStartSequence(0),
+mRoutedFragmentedPacketCurrentSequence(0),
 mConnectStartEvent(0),   
 mLastConnectRequestSent(0),
 mLastPacketReceived(0),
@@ -1257,49 +1261,52 @@ void Session::_processDataChannelPacket(Packet* packet, bool fastPath)
 
 void Session::_processDataChannelB(Packet* packet)
 {
-  uint8		priority		= 0;
-  uint8		routed			= 0;
-  uint8		dest			= 0;
-  uint32	accountId		= 0;
+	uint8		priority		= 0;
+	uint8		routed			= 0;
+	uint8		dest			= 0;
+	uint32	accountId		= 0;
   
 
 
-		// Otherwise ack this packet then send it up
-		packet->setReadIndex(0);
-		uint16 packetType = packet->getUint16();   //session op
-		uint16 sequence = ntohs(packet->getUint16());
+	// Otherwise ack this packet then send it up
+	packet->setReadIndex(0);
+	uint16 packetType = packet->getUint16();   //session op
+	uint16 sequence = ntohs(packet->getUint16());
 
-		if (!mInSequenceNext == sequence)
-		{
-			gLogger->logMsgF("Session::_processDataChannelB :: Incoming data - seq: %i expect: %u Session:0x%x%.4x", MSG_HIGH, sequence, mInSequenceNext, mService->getId(), getId());
-			return;
-		}
+	if (!mInSequenceNext == sequence)
+	{
+		gLogger->logMsgF("Session::_processDataChannelB :: Incoming data - seq: %i expect: %u Session:0x%x%.4x", MSG_HIGH, sequence, mInSequenceNext, mService->getId(), getId());
+		return;
+	}
 
-		// check to see if this is a multi-message message
-		//uint16 len = packet->getSize() - 4;  // -2 header, -2 sequence
-		priority = packet->getUint8();
-		routed = packet->getUint8();
+	// check to see if this is a multi-message message
+	
+	priority = packet->getUint8();
+	routed = packet->getUint8();
 	  
-		// If we're from the server, strip off our routing header.
-		if (!routed)
-		{
-			gLogger->logMsgF("Session::_processDataChannelB :: thats not routed ... sob :(", MSG_HIGH);			
-			assert(false);
-		}
-  
-		//this is a nultimessage ??
-		if (routed== 0x19)//routed
-		{
-			// Next byte is size
-			uint32 size = packet->getUint8();
+	// If we're from the server, strip off our routing header.
+	if (!routed)
+	{
+		gLogger->logMsgF("Session::_processDataChannelB :: thats not routed ... sob :(", MSG_HIGH);			
+		assert(false);
+	}
 
-			do 
+  
+	//this is a nultimessage ??
+	if (routed== 0x19)//routed
+	{
+		// Next byte is size
+		uint32 size = packet->getUint8();
+		gLogger->logMsgF("Session::_processDataChannelB :: Process MultiMessage Message size %u", MSG_HIGH,size);			
+
+		do 
 			{
 				// More size bytes?
 				if (size == 0xff)
 				{
 					//right now max size 255 (1 byte!!!)
 					size = ntohs(packet->getUint16());
+					gLogger->logMsgF("Session::_processDataChannelB :: MultiMessage Message size Corrected %u", MSG_HIGH,size);			
 				}
 		  
 				// We need to get these again.
@@ -1984,7 +1991,7 @@ void Session::_processRoutedFragmentedPacket(Packet* packet)
 	uint8 routed = 0;
 	uint8 dest = 0;
 	uint32 accountId = 0;
-
+	 
 	
 	// Inc our in seq
 	//gLogger->logMsgF("_processFragmentedPacket::increasing mInSequence by 1 %u", MSG_HIGH, mInSequenceNext);  
@@ -1995,12 +2002,14 @@ void Session::_processRoutedFragmentedPacket(Packet* packet)
 	//gLogger->logMsgF("_processFragmentedPacket::send ack sequence %u", MSG_HIGH, mInSequenceNext-1);  
 
 	// If we are not already processing a multi-packet message, start to.
-	if (mFragmentedPacketTotalSize == 0)
+	if (mRoutedFragmentedPacketTotalSize == 0)
 	{
-	    mFragmentedPacketTotalSize = ntohl(packet->getUint32());
+	    mRoutedFragmentedPacketTotalSize = ntohl(packet->getUint32());
+		gLogger->logMsgF("Session::_processRoutedFragmentedPacket started sequence:%u size %u", MSG_HIGH,sequence , mRoutedFragmentedPacketTotalSize);
+		//gLogger->hexDump(packet->getData(), packet->getSize());
 
-		mFragmentedPacketCurrentSize = packet->getSize() - 8;  // -2 header, -2 sequence, -4 size - 
-		mFragmentedPacketCurrentSequence = mFragmentedPacketStartSequence = sequence;
+		mRoutedFragmentedPacketCurrentSize = packet->getSize() - 8;  // -2 header, -2 sequence, -4 size - 
+		mRoutedFragmentedPacketCurrentSequence = mRoutedFragmentedPacketStartSequence = sequence;
 
 		// Now push the packet into our fragmented queue
 		mIncomingFragmentedPacketQueue.push(packet);
@@ -2008,16 +2017,23 @@ void Session::_processRoutedFragmentedPacket(Packet* packet)
 	// This is the next packet in the multi-packet sequence.
 	else
 	{
-		mFragmentedPacketCurrentSize += packet->getSize() - 4;  // -2 header, -2 sequence
-		mFragmentedPacketCurrentSequence = sequence;
-
-		if (mFragmentedPacketCurrentSize > mFragmentedPacketTotalSize)
+		mRoutedFragmentedPacketCurrentSize += packet->getSize() - 4;  // -2 header, -2 sequence
+		if(sequence > ( mRoutedFragmentedPacketCurrentSequence  + 1) )
 		{
-			gLogger->logMsgF("Session::_processRoutedFragmentedPacket Currentsize: %u should be:%u", MSG_HIGH,mFragmentedPacketCurrentSize , mFragmentedPacketTotalSize);
+			gLogger->logMsgF("Session::_processRoutedFragmentedPacket Currentsequence: %u should be:%u", MSG_HIGH,sequence , mRoutedFragmentedPacketCurrentSequence);
+			gLogger->hexDump(packet->getData(), packet->getSize());
+
+		}
+		mRoutedFragmentedPacketCurrentSequence = sequence;
+
+		if (mRoutedFragmentedPacketCurrentSize > mRoutedFragmentedPacketTotalSize)
+		{
+			gLogger->logMsgF("Session::_processRoutedFragmentedPacket Currentsize: %u should be:%u", MSG_HIGH,mRoutedFragmentedPacketCurrentSize , mRoutedFragmentedPacketTotalSize);
+			gLogger->hexDump(packet->getData(), packet->getSize());
 		}
 
 		// If this is our last packet, send them all up to the application
-		if (mFragmentedPacketCurrentSize >= mFragmentedPacketTotalSize)
+		if (mRoutedFragmentedPacketCurrentSize >= mRoutedFragmentedPacketTotalSize)
 		{
 			//gLogger->logMsgF("Finalize received fragged packet - size: %u, total: %u current: %u seq:%u", MSG_HIGH, packet->getSize() - 4, mFragmentedPacketTotalSize, mFragmentedPacketCurrentSize, sequence);
 			mIncomingFragmentedPacketQueue.push(packet);
@@ -2078,10 +2094,10 @@ void Session::_processRoutedFragmentedPacket(Packet* packet)
 		  _addIncomingMessage(newMessage, priority);
 
 			// Clear our size counters
-			mFragmentedPacketTotalSize = 0;
-			mFragmentedPacketCurrentSize = 0;
-			mFragmentedPacketCurrentSequence = 0;
-			mFragmentedPacketStartSequence = 0;
+			mRoutedFragmentedPacketTotalSize = 0;
+			mRoutedFragmentedPacketCurrentSize = 0;
+			mRoutedFragmentedPacketCurrentSequence = 0;
+			mRoutedFragmentedPacketStartSequence = 0;
 	  }
 	  // This is just the next packet in sequence.  Throw it on the queue
 	  else

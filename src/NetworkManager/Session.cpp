@@ -752,6 +752,17 @@ void Session::HandleSessionPacket(Packet* packet)
 			default:
 			{
 				gLogger->logMsgF("Session::HandleSessionPacket :: *** wanted to send Out-of-Order packet with weird opcode - Sequence: %i, Service %u Session:0x%.4x", MSG_HIGH, sequence, mService->getId(), getId());
+				gLogger->hexDump(packet->getData(),packet->getSize());
+				Packet* orderPacket;
+				orderPacket = mPacketFactory->CreatePacket();
+				orderPacket->addUint16(SESSIONOP_DataOrder2);
+				orderPacket->addUint16(htons(sequence));
+				orderPacket->addUint16(htons(mInSequenceNext));
+				orderPacket->setIsCompressed(false);
+				orderPacket->setIsEncrypted(true);
+
+				_addOutgoingUnreliablePacket(orderPacket);
+				
 				mPacketFactory->DestroyPacket(packet);
 				return;
 			}

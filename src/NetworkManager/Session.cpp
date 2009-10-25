@@ -1810,7 +1810,7 @@ void Session::_processDataOrderChannelB(Packet* packet)
 		// do we want to throttle the amount of packets being send to 10 or 50 or 100 ???
 		// if we receive a sequence on the rolloverlist (65530 for example) we will
 		// always send ALL packets on the regular list - I dont anticipate a big deal here though!!!
-		if ((windowSequence < sequence) && (windowSequence >= bottomSequence))
+		if ((windowSequence < sequence))
 		{
 			        
 			//gLogger->logMsgF("Resending reliable packet.  seq: %u, order: %u", MSG_HIGH, windowSequence, sequence);
@@ -2823,10 +2823,9 @@ void Session::_buildRoutedMultiDataPacket()
 {
 	Packet*		newPacket = mPacketFactory->CreatePacket();
 	Message*	message = 0;
-
+	
 	newPacket->addUint16(SESSIONOP_DataChannel2); //server server communication !!!!!
 	newPacket->addUint16(htons(mOutSequenceNext));
-	gLogger->logMsgF("Session::_buildRoutedMultiDataPacket() sequence: %u", MSG_HIGH,mOutSequenceNext);
 	newPacket->addUint16(0x1900);
 	//newPacket->addUint8(0);
 	//newPacket->addUint8(0x19);

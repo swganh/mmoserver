@@ -2005,7 +2005,7 @@ void Session::_processRoutedFragmentedPacket(Packet* packet)
 	if (mRoutedFragmentedPacketTotalSize == 0)
 	{
 	    mRoutedFragmentedPacketTotalSize = ntohl(packet->getUint32());
-		gLogger->logMsgF("Session::_processRoutedFragmentedPacket started sequence:%u size %u", MSG_HIGH,sequence , mRoutedFragmentedPacketTotalSize);
+		//gLogger->logMsgF("Session::_processRoutedFragmentedPacket started sequence:%u size %u", MSG_HIGH,sequence , mRoutedFragmentedPacketTotalSize);
 		//gLogger->hexDump(packet->getData(), packet->getSize());
 
 		mRoutedFragmentedPacketCurrentSize = packet->getSize() - 8;  // -2 header, -2 sequence, -4 size - 
@@ -2330,7 +2330,7 @@ void Session::_buildOutgoingReliableRoutedPackets(Message* message)
 
   if(messageSize + envelopeSize > mMaxPacketSize)		   //why >= ??
   {
-	  gLogger->logMsgF("Session::_buildRoutedfragmentedPacket sequence :  %u", MSG_HIGH,mOutSequenceNext);
+	  //gLogger->logMsgF("Session::_buildRoutedfragmentedPacket sequence :  %u", MSG_HIGH,mOutSequenceNext);
 
     // Build our first packet with the total size.
     newPacket = mPacketFactory->CreatePacket(); 
@@ -2660,7 +2660,7 @@ uint32 Session::_buildPackets()
 			mRoutedMultiMessageQueue.push(message);
 
 			//cave we *might* have 2bytes for Size !!!!!!  (if size 255 or bigger)
-			uint16 baseSize = 18 + message->getSize(); // 2 header, 2 sequence, 2 0019, 1(2) size,7 prio/routing, 3 comp/crc
+			uint16 baseSize = 19 + message->getSize(); // 2 header, 2 sequence, 2 0019, 1(3) size,7 prio/routing, 3 comp/crc
 			packetsbuild++;
 			while(baseSize < mMaxPacketSize && mOutgoingMessageQueue.size())
 			{
@@ -2681,7 +2681,7 @@ uint32 Session::_buildPackets()
 		{
 			mMultiMessageQueue.push(message);
 
-			uint16 baseSize = 12 + message->getSize(); // 2 header, 2 sequence, 2 0019, 1 size,2 prio/routing, 3 comp/crc
+			uint16 baseSize = 14 + message->getSize(); // 2 header, 2 sequence, 2 0019, 1 size(3) ,2 prio/routing, 3 comp/crc
 			packetsbuild++;
 			while(baseSize < mMaxPacketSize && mOutgoingMessageQueue.size())
 			{
@@ -2854,6 +2854,11 @@ void Session::_buildRoutedMultiDataPacket()
 	newPacket->setIsEncrypted(true);
 
 	mNewWindowPacketList.push_back(newPacket);
+
+	if(newPacket->getSize() > newPacket->getMaxPayload())
+	{
+		gLogger->logMsgF("Session::_buildRoutedMultiDataPacket() sequence: %u size messup is %u should be %u", MSG_HIGH,mOutSequenceNext,newPacket->getSize(),newPacket->getMaxPayload());
+	}
 
 	//sequence of packets uint16 +1 for every packet rollover from 0xffff to 0
 	if(!++mOutSequenceNext)

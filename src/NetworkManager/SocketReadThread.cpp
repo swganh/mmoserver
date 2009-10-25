@@ -195,7 +195,7 @@ void SocketReadThread::run(void)
 
 #endif
 			
-				if(error != 10054)
+				if(error == 10054)
 				{
 					gLogger->logMsgF("*** The Connection has been forcefully closed", MSG_HIGH);
 

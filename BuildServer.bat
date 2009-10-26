@@ -160,7 +160,30 @@ rem --- project to it's original state like a fresh checkout.                ---
 
 echo Cleaning the build environment
  
-if exist "bin" rmdir /S /Q "bin"  
+if exist "bin" (
+    if exist "%PROJECT_BASE%bin/Debug" (
+	cd "%PROJECT_BASE%bin/Debug"
+
+        if exist *.exe del /Q *.exe
+        if exist *.ilk del /Q *.ilk
+        if exist *.pdb del /Q *.pdb
+        if exist *.map del /Q *.map
+
+	cd "%PROJECT_BASE%"
+    )
+
+    if exist "%PROJECT_BASE%bin/Release" (
+	cd "%PROJECT_BASE%bin/Release"
+
+        if exist *.exe del /Q *.exe
+        if exist *.ilk del /Q *.ilk
+        if exist *.pdb del /Q *.pdb
+        if exist *.map del /Q *.map
+
+	cd "%PROJECT_BASE%"
+    )
+)
+
 if exist "deps" rmdir /S /Q "deps"
 if exist "build-aux" rmdir /S /Q "build-aux"  
 

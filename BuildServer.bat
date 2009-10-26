@@ -241,7 +241,7 @@ if not exist "deps" call :DOWNLOAD_DEPENDENCIES
 
 if not exist "deps\VERSION" (
     echo ** Dependencies out of date -- Updating now **
-    if exist "deps" rmdir /S /Q "deps" 
+    call :CLEAN_BUILD 
     call :DOWNLOAD_DEPENDENCIES
     echo ** Dependencies updated **
 )

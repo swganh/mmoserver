@@ -60,6 +60,7 @@ void ObjectController::_handleSpatialChatInternal(uint64 targetId,Message* messa
 	{
 		if(*data == ' ')
 		{
+			chatElement[element][elementIndex] = 0;
 			byteCount++;
 			element++;
 			data++;

@@ -255,6 +255,7 @@ private:
 	  PacketWindowList            mNewWindowPacketList;				
 
 	  PacketQueue                 mIncomingFragmentedPacketQueue;
+	  PacketQueue                 mIncomingRoutedFragmentedPacketQueue;
 	  PacketWindowList            mIncomingPacketList;				
 	  
       boost::recursive_mutex	  mSessionMutex;

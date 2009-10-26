@@ -249,7 +249,7 @@ set /p current_version=<"deps\VERSION"
 
 if not %current_version% == %DEPENDENCIES_VERSION% (
     echo ** Dependencies out of date -- Updating now **
-    if exist "deps" rmdir /S /Q "deps" 
+    call :CLEAN_BUILD 
     call :DOWNLOAD_DEPENDENCIES
     echo ** Dependencies updated **
 )

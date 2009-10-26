@@ -162,8 +162,7 @@ echo Cleaning the build environment
  
 if exist "bin" rmdir /S /Q "bin"  
 if exist "deps" rmdir /S /Q "deps"
-if exist "obj" rmdir /S /Q "obj"  
-if exist "lib" rmdir /S /Q "lib"
+if exist "build-aux" rmdir /S /Q "build-aux"  
 
 goto :eof
 rem --- End of CLEAN_BUILD -----------------------------------------------------  

@@ -42,6 +42,7 @@ class PacketFactory
 
 	private:
         PacketPool mPacketPool;
+		boost::recursive_mutex        mPacketFactoryMutex;
 	  // Anh_Utils::Clock*	mClock;
 };
 

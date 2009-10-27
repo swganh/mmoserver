@@ -65,6 +65,8 @@ void PacketFactory::Process(void)
 
 Packet* PacketFactory::CreatePacket(void)
 {
+
+	boost::recursive_mutex::scoped_lock lk(mPacketFactoryMutex);
 	Packet* newPacket = new(mPacketPool.malloc()) Packet();
 
 	newPacket->setTimeCreated(Anh_Utils::Clock::getSingleton()->getLocalTime());
@@ -77,6 +79,8 @@ Packet* PacketFactory::CreatePacket(void)
 
 void PacketFactory::DestroyPacket(Packet* packet)
 {
+	boost::recursive_mutex::scoped_lock lk(mPacketFactoryMutex);
+	
 	mPacketPool.free(packet);
 }
 

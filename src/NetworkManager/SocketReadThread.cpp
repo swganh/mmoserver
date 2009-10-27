@@ -159,7 +159,7 @@ void SocketReadThread::run(void)
 
 			// Add the new session to the main process list
 
-            boost::mutex::scoped_lock lk(mSocketReadMutex);
+            boost::recursive_mutex::scoped_lock lk(mSocketReadMutex);
 
 			mAddressSessionMap.insert(std::make_pair(hash,newSession));
 			mSocketWriteThread->NewSession(newSession);
@@ -232,7 +232,7 @@ void SocketReadThread::run(void)
 
 			// TODO: Implement an IP blacklist so we can drop packets immediately.
 
-            boost::mutex::scoped_lock lk(mSocketReadMutex);
+            boost::recursive_mutex::scoped_lock lk(mSocketReadMutex);
 
 			AddressSessionMap::iterator i = mAddressSessionMap.find(hash);
 
@@ -474,7 +474,7 @@ void SocketReadThread::RemoveAndDestroySession(Session* session)
 	// Find and remove the session from the address map.
 	uint64 hash = session->getAddress() | (((uint64)session->getPort()) << 32);
 
-    boost::mutex::scoped_lock lk(mSocketReadMutex);
+    boost::recursive_mutex::scoped_lock lk(mSocketReadMutex);
 
 	AddressSessionMap::iterator iter = mAddressSessionMap.find(hash);
 

@@ -29,7 +29,8 @@ class Service;
 
 //======================================================================================================================
 
-typedef boost::singleton_pool<Session,sizeof(Session),boost::default_user_allocator_malloc_free>	SessionPool;
+typedef boost::pool<boost::default_user_allocator_malloc_free> SessionPool;
+//typedef boost::singleton_pool<Session,sizeof(Session),boost::default_user_allocator_malloc_free>	SessionPool;
 
 //======================================================================================================================
 
@@ -56,7 +57,12 @@ class SessionFactory
 	  PacketFactory*                mPacketFactory;
 	  MessageFactory*               mMessageFactory;
 	  uint32                        mSessionIdNext;
+
+private:
+		
+	  SessionPool					mSessionPool;
 };
+
 
 
 

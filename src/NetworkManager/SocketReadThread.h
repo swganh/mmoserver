@@ -14,7 +14,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "Utils/typedefs.h"
 
-#include <boost/thread/mutex.hpp>
+//#include <boost/thread/mutex.hpp>
+#include <boost/thread/recursive_mutex.hpp>
 #include <boost/thread/thread.hpp>
 #include <list>
 #include <map>
@@ -86,7 +87,7 @@ class SocketReadThread
 
 	  uint32						mSessionResendWindowSize;
       boost::thread 				mThread;
-      boost::mutex                  mSocketReadMutex;
+      boost::recursive_mutex        mSocketReadMutex;
 	  AddressSessionMap             mAddressSessionMap;
 	  bool							mExit;
 };

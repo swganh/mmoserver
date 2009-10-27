@@ -197,7 +197,7 @@ void Session::ProcessWriteThread(void)
     
     //if (mService->getId() == 1)
     //{
-     gLogger->logMsgF("Sending ACK - Sequence: %u, Session:0x%x%.4x", MSG_HIGH, mInSequenceNext - 1, mService->getId(), getId());
+        gLogger->logMsgF("Sending ACK - Sequence: %u, Session:0x%x%.4x", MSG_HIGH, mInSequenceNext - 1, mService->getId(), getId());
     //}
 
     // Acks only need encryption

@@ -19,7 +19,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 //======================================================================================================================
 
-SessionFactory::SessionFactory(void) :
+SessionFactory::SessionFactory(void) 
+: mSessionPool(sizeof(Session)) ,
 mSessionIdNext(0)
 {
 
@@ -49,7 +50,8 @@ void SessionFactory::Startup(SocketWriteThread* writeThread, Service* service, P
 
 void SessionFactory::Shutdown(void)
 {
-	SessionPool::purge_memory();
+	mSessionPool.purge_memory();
+	
 }
 
 //======================================================================================================================
@@ -63,7 +65,7 @@ void SessionFactory::Process(void)
 
 Session* SessionFactory::CreateSession(void)
 {
-	Session* session = new(SessionPool::malloc()) Session();
+	Session* session = new(mSessionPool.malloc()) Session();
 
 	session->setSocketWriteThread(mSocketWriteThread);
 	session->setService(mService);
@@ -105,7 +107,7 @@ Session* SessionFactory::CreateSession(void)
 void SessionFactory::DestroySession(Session* session)
 {
 	session->~Session();
-	SessionPool::free(session);
+	mSessionPool.free(session);
 
 }
 

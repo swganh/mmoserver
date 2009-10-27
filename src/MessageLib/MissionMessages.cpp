@@ -281,6 +281,9 @@ bool MessageLib::sendMISO_Delta(MissionObject* missionObject,PlayerObject* targe
 	//NOTE: Do not mess with the order these are in. Being mildly AR I  
 	//      arranged them in order according to vID and it stopped working!
 
+	//NOTE
+	// use messages as bytebuffers!
+
 	//vID 1 - Name
 	if(strcmp(missionObject->getNameFile().getRawData(),"mission/mission_object"))
 	{

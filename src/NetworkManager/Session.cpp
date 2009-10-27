@@ -197,7 +197,7 @@ void Session::ProcessWriteThread(void)
     
     //if (mService->getId() == 1)
     //{
-        gLogger->logMsgF("Sending ACK - Sequence: %u, Session:0x%x%.4x", MSG_HIGH, mInSequenceNext - 1, mService->getId(), getId());
+    //    gLogger->logMsgF("Sending ACK - Sequence: %u, Session:0x%x%.4x", MSG_HIGH, mInSequenceNext - 1, mService->getId(), getId());
     //}
 
     // Acks only need encryption
@@ -332,7 +332,7 @@ void Session::ProcessWriteThread(void)
     }
     case SCOM_Disconnect:
     {
-		gLogger->logMsgF("handle Session disconnect %u endcount %u", MSG_HIGH, this->getId(),endCount);   
+		//gLogger->logMsgF("handle Session disconnect %u endcount %u", MSG_HIGH, this->getId(),endCount);   
       _processDisconnectCommand();      
       break;
     }
@@ -387,6 +387,8 @@ void Session::SendChannelA(Message* message)
 
   //the connectionserver puts a lot of fastpaths here  - so just put them were they belong
   //this alone takes roughly 5% cpu off of the connectionserver
+
+	message->mSourceId = 1;
 
   if(message->getFastpath()&& (message->getSize() < mMaxUnreliableSize))
 	  mUnreliableMessageQueue.push(message);
@@ -1618,25 +1620,7 @@ void Session::_processDataOrderChannelB(Packet* packet)
   if (bottomSequence < windowSequence)
   {
 	  gLogger->logErrorF("Netcode","_processDataOrderChannelB::*** Order packet bottomsequence too small bottom seq: %u, expect >: %u", MSG_HIGH, bottomSequence, windowSequence);
-	  gLogger->logErrorF("Netcode","_processDataOrderChannelB::*** Packets in line: %u", MSG_HIGH, mWindowPacketList.size());
 
-
-	  for (iter = mWindowPacketList.begin(); iter != mWindowPacketList.end(); iter++)
-		 {
-			 
-			// Grab our window packet
-			windowPacket = (*iter);
-			windowPacket->setReadIndex(2);
-			uint16 windowSequence = ntohs(windowPacket->getUint16());
-
-			gLogger->logErrorF("Netcode","_processDataOrderChannelB::*** Packets in line: %u", MSG_HIGH, windowSequence);
-			gLogger->hexDump(windowPacket->getData(),windowPacket->getSize());
-
-			
-		}
-  
-
-	  //assert(false);
   }
 
   if (sequence > windowSequence + mWindowPacketList.size())
@@ -1698,7 +1682,9 @@ void Session::_processDataOrderChannelB(Packet* packet)
 		if ((windowSequence < sequence))
 		{
 			        
-			//gLogger->logMsgF("Resending reliable packet.  seq: %u, order: %u", MSG_HIGH, windowSequence, sequence);
+			//make sure it isnt resend 500 times  per second
+			if(Anh_Utils::Clock::getSingleton()->getLocalTime() - windowPacket->getTimeOOHSent() < 300)
+					break;
 				
 			_addOutgoingReliablePacket(windowPacket);
 					
@@ -1710,8 +1696,8 @@ void Session::_processDataOrderChannelB(Packet* packet)
 		}
 		else
 		{
-			//mPacketFactory->DestroyPacket(packet);
-			//return;
+			mPacketFactory->DestroyPacket(packet);
+			return;
 		}
 	}
   

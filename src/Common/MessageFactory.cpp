@@ -452,7 +452,7 @@ void MessageFactory::_processGarbageCollection(void)
 				gLogger->logMsgF("age : %u ",MSG_HIGH, uint32((Anh_Utils::Clock::getSingleton()->getLocalTime() - message->getCreateTime())/1000));
 				gLogger->logMsgF("Source : %u ",MSG_HIGH, message->mSourceId);
 
-				//gLogger->hexDump(message->getData(), message->getSize());
+				gLogger->hexDump(message->getData(), message->getSize());
 			}
 			else
 				further = false;

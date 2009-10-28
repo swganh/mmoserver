@@ -134,6 +134,7 @@ void ObjectController::_handleNPCConversationStart(uint64 targetId,Message* mess
 			if(npc->hasInternalAttribute("npc_chat"))
 			{
 				char quack[5][32];
+				memset(quack, 0, sizeof(quack));
 
 				string phrase = (int8*)(npc->getInternalAttribute<std::string>("npc_chat").c_str());
 				phrase.convert(BSTRType_Unicode16);
@@ -152,6 +153,7 @@ void ObjectController::_handleNPCConversationStart(uint64 targetId,Message* mess
 			else
 			{
 				char quack[5][32];
+				memset(quack, 0, sizeof(quack));
 				std::pair<string,uint32> chat = gWorldManager->getRandNpcChatter();
 
 				// gLogger->logMsgF("NPC id %"PRId64" in cell(%"PRId64")",MSG_NORMAL, npc->getId(),npcParentId);

@@ -810,6 +810,8 @@ void Session::_processSessionRequestPacket(Packet* packet)
   packet->getUint32();                      // Unknown
   mRequestId = packet->getUint32();         // Request id.
 
+  gLogger->logMsgF("Session::_processSessionRequestPacket",MSG_HIGH);
+
   // Get a new encryption key if we're not already initilized.
   // If we're not a new session, then we should drop the packet.
   if (mStatus == SSTAT_Initialize)

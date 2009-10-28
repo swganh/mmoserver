@@ -240,6 +240,7 @@ void SocketReadThread::run(void)
 				// We should only be creating a new session if it's a session request packet
 				if(packetType == SESSIONOP_SessionRequest)
 				{
+					gLogger->logMsgF("Service %i: New Session(%s, %u), AddressMap: %i",MSG_NORMAL,mSessionFactory->getService()->getId(), inet_ntoa(from.sin_addr), ntohs(session->getPort()), mAddressSessionMap.size());
 					session = mSessionFactory->CreateSession();
 					session->setSocketReadThread(this);
 					session->setPacketFactory(mPacketFactory);
@@ -251,7 +252,7 @@ void SocketReadThread::run(void)
 					mAddressSessionMap.insert(std::make_pair(hash, session));
 					mSocketWriteThread->NewSession(session);
 
-					gLogger->logMsgF("Service %i: New Session(%s, %u), AddressMap: %i",MSG_NORMAL,mSessionFactory->getService()->getId(), inet_ntoa(from.sin_addr), ntohs(session->getPort()), mAddressSessionMap.size());
+					gLogger->logMsgF("Added Service %i: New Session(%s, %u), AddressMap: %i",MSG_NORMAL,mSessionFactory->getService()->getId(), inet_ntoa(from.sin_addr), ntohs(session->getPort()), mAddressSessionMap.size());
 				}
 				else
 				{

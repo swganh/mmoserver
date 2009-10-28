@@ -12,7 +12,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #ifndef ANH_UTILS_CONCURRENT_QUEUE_H
 #define ANH_UTILS_CONCURRENT_QUEUE_H
 
-#include <boost/thread/mutex.hpp>
+#include <boost/thread/recursive_mutex.hpp>
 #include <queue>
 
 
@@ -20,21 +20,21 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 namespace Anh_Utils
 {
-	template<class T,class Container = std::deque<T>,class QueueMutex = boost::mutex >
+	template<class T,class Container = std::deque<T>,class QueueMutex = boost::recursive_mutex >
 	class concurrent_queue
 	{
 		public:
 
 			void push(const T& item)
 			{
-                boost::mutex::scoped_lock lk(mMutex);
+                boost::recursive_mutex::scoped_lock lk(mMutex);
 
 				mContainer.push_back(item);
 			}
 
 			T pop()
 			{
-                boost::mutex::scoped_lock lk(mMutex);
+                boost::recursive_mutex::scoped_lock lk(mMutex);
 
 				T item = mContainer.front();
 				mContainer.pop_front();
@@ -44,7 +44,7 @@ namespace Anh_Utils
 
 			bool empty() const
 			{
-                boost::mutex::scoped_lock lk(mMutex);
+                boost::recursive_mutex::scoped_lock lk(mMutex);
 
 				bool result = mContainer.empty();
 
@@ -53,7 +53,7 @@ namespace Anh_Utils
 
 			typename Container::size_type size()
 			{
-                boost::mutex::scoped_lock lk(mMutex);
+                boost::recursive_mutex::scoped_lock lk(mMutex);
 
 				size_t result = mContainer.size();
 
@@ -62,7 +62,7 @@ namespace Anh_Utils
 
 			T& front()
 			{
-                boost::mutex::scoped_lock lk(mMutex);
+                boost::recursive_mutex::scoped_lock lk(mMutex);
 
 				T item = mContainer.front();
 

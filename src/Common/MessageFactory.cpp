@@ -448,11 +448,15 @@ void MessageFactory::_processGarbageCollection(void)
 			else if(Anh_Utils::Clock::getSingleton()->getLocalTime() - message->getCreateTime() > MESSAGE_MAX_LIFE_TIME)
 			{
 				further = false;
-				gLogger->logMsgF("MessageFactory::_processGarbageCollection : stuck Message fastpasth : %u ",MSG_HIGH, message->getFastpath());
-				gLogger->logMsgF("age : %u ",MSG_HIGH, uint32((Anh_Utils::Clock::getSingleton()->getLocalTime() - message->getCreateTime())/1000));
-				gLogger->logMsgF("Source : %u ",MSG_HIGH, message->mSourceId);
+				if (!message->mLogged)
+				{
+					gLogger->logMsgF("MessageFactory::_processGarbageCollection : New stuck Message !!! ",MSG_HIGH);
+					gLogger->logMsgF("age : %u ",MSG_HIGH, uint32((Anh_Utils::Clock::getSingleton()->getLocalTime() - message->getCreateTime())/1000));
+					gLogger->logMsgF("Source : %u ",MSG_HIGH, message->mSourceId);
 
-				gLogger->hexDump(message->getData(), message->getSize());
+					gLogger->hexDump(message->getData(), message->getSize());
+					message->mLogged = true;
+				}
 			}
 			else
 				further = false;

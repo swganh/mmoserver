@@ -143,7 +143,7 @@ void SocketReadThread::run(void)
 
 	while(!mExit)
 	{
-		// Check to see if we have a new request and process it.
+		// Check to see if *WE* are about to connect to a remote server 
 		if(mNewConnection.mPort != 0)
 		{
 			Session* newSession = mSessionFactory->CreateSession();
@@ -212,18 +212,13 @@ void SocketReadThread::run(void)
 			port = from.sin_port;
 			uint64 hash = address | (((uint64)port) << 32);
 
-			//stupid bug - why is this happening? basically it seems to be a threading issue to me
-			//as we might try to access the factories create together with all the sessions ?
-			//the create calls themselves using boost_singleton in the factory should be threadsafe though
-			if(!mReceivePacket )
-			{
-				gLogger->logMsg("*** still happening :(",MSG_NORMAL);
-				mReceivePacket = mPacketFactory->CreatePacket();
-			}
+			
+			assert(mReceivePacket);
+			
 
 			// Grab our packet type
 			mReceivePacket->Reset();           // Reset our internal members so we can use the packet again.
-			mReceivePacket->setSize(recvLen); // subtract the crc?  it might not have a CRC or I dont see how this is used -tmr
+			mReceivePacket->setSize(recvLen); // crc is subtracted by the decryption
 			uint8  packetTypeLow = mReceivePacket->peekUint8();
 			uint16 packetType = mReceivePacket->getUint16();
 
@@ -256,11 +251,11 @@ void SocketReadThread::run(void)
 					mAddressSessionMap.insert(std::make_pair(hash, session));
 					mSocketWriteThread->NewSession(session);
 
-					//gLogger->logMsgF("Service %i: New Session(%s, %u), AddressMap: %i",MSG_NORMAL,mSessionFactory->getService()->getId(), inet_ntoa(from.sin_addr), ntohs(session->getPort()), mAddressSessionMap.size());
+					gLogger->logMsgF("Service %i: New Session(%s, %u), AddressMap: %i",MSG_NORMAL,mSessionFactory->getService()->getId(), inet_ntoa(from.sin_addr), ntohs(session->getPort()), mAddressSessionMap.size());
 				}
 				else
 				{
-					//gLogger->logMsgF("*** Session not found.  Packet dropped. Type:0x%.4x", MSG_NORMAL, packetType);
+					gLogger->logMsgF("*** Session not found.  Packet dropped. Type:0x%.4x", MSG_NORMAL, packetType);
 
 					continue;
 				}

@@ -340,6 +340,7 @@ void SocketWriteThread::_sendPacket(Packet* packet, Session* session)
 
 void SocketWriteThread::NewSession(Session* session)
 {
+	//using concurrent queue that has a recursive mutex
 	mSessionQueue.push(session);
 }
 

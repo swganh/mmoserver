@@ -32,6 +32,7 @@ public:
                               , mFastpath(false)
                               , mPendingDelete(false)
                               , mData(0)
+							  , mLogged(false)
                               {}
 
   void                        Init(int8* data, uint16 len)      { mData = data; mSize = len; mIndex = 0;}
@@ -99,6 +100,7 @@ public:
   uint16                      getStringUnicode16(BString& data)  { data.initRawBSTR(&mData[mIndex], BSTRType_Unicode16); mIndex += data.getLength() * 2 + 4; return data.getLength(); }
 
   uint8                       mSourceId;
+  bool                        mLogged;
 
 private:
   uint64                      mCreateTime;
@@ -111,6 +113,7 @@ private:
   bool                        mRouted;
   bool                        mFastpath;
   bool                        mPendingDelete;
+  
   int8*                       mData;
 
 };

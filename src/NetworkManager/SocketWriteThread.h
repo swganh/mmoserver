@@ -68,6 +68,7 @@ class SocketWriteThread
 		SessionQueue		mSessionQueue;
 
         boost::thread   	mThread;
+		boost::recursive_mutex        mSocketWriteMutex;
 		bool				mExit;
 };
 

@@ -453,6 +453,8 @@ void MessageFactory::_processGarbageCollection(void)
 					gLogger->logMsgF("MessageFactory::_processGarbageCollection : New stuck Message !!! ",MSG_HIGH);
 					gLogger->logMsgF("age : %u ",MSG_HIGH, uint32((Anh_Utils::Clock::getSingleton()->getLocalTime() - message->getCreateTime())/1000));
 					gLogger->logMsgF("Source : %u ",MSG_HIGH, message->mSourceId);
+					gLogger->logMsgF("Path : %u ",MSG_HIGH, message->mPath);
+					
 
 					gLogger->hexDump(message->getData(), message->getSize());
 					message->mLogged = true;

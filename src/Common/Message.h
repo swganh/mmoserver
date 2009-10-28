@@ -13,6 +13,15 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #define ANH_LOGINSERVER_MESSAGE_H
 
 #include "Utils/typedefs.h"
+enum MessagePath
+{
+	MP_DataChannelA = 1,
+	MP_RoutedReliable= 2,
+	MP_RoutedMulti= 3,
+	MP_buildPacketStarted= 4,
+	MP_buildPacketEnded= 5,
+
+};
 
 
 //======================================================================================================================
@@ -100,6 +109,7 @@ public:
   uint16                      getStringUnicode16(BString& data)  { data.initRawBSTR(&mData[mIndex], BSTRType_Unicode16); mIndex += data.getLength() * 2 + 4; return data.getLength(); }
 
   uint8                       mSourceId;
+  MessagePath                 mPath;
   bool                        mLogged;
 
 private:

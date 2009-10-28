@@ -23,6 +23,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "Common/Message.h"
 
+#include "ConfigManager/ConfigManager.h"
 #include "Utils/typedefs.h"
 
 #include <boost/thread/thread.hpp>
@@ -79,6 +80,7 @@ Service::~Service(void)
 void Service::Startup(int8* localAddress, uint16 localPort,uint32 mfHeapSize)
 {
 
+	localAddress = (char*)gConfig->read<std::string>("BindAddress").c_str();
 	lasttime = Anh_Utils::Clock::getSingleton()->getLocalTime();
 	assert(strlen(localAddress) < 256);
 	strcpy(mLocalAddressName, localAddress);
@@ -124,7 +126,17 @@ void Service::Startup(int8* localAddress, uint16 localPort,uint32 mfHeapSize)
 	//set the socketbuffer so we dont suffer internal dataloss
 	int value;
 	int valuelength = sizeof(value);
-	value = 131072;
+	value = 524288;
+	int configvalue = gConfig->read<int32>("UDPBufferSize",512);
+
+	if(configvalue < 128)
+		configvalue = 128;
+	
+	if(configvalue > 4096)
+		configvalue = 4096;
+
+	value = configvalue *1024;
+	
 	setsockopt(mLocalSocket,SOL_SOCKET,SO_RCVBUF,(char*)&value,valuelength);
 
 

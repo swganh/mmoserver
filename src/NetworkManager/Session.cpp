@@ -2211,6 +2211,8 @@ void Session::_buildOutgoingReliableRoutedPackets(Message* message)
   uint16	envelopeSize = 0;
   uint16	messageSize = message->getSize();
 
+  message->mSourceId = 2;
+
   // fragments envelope sizes  
   envelopeSize = 18; // -2 header -2 seq -4 size -1 priority -1 routed flag -1 route destination -4 account id -3 comp/CRC 
 
@@ -2515,8 +2517,9 @@ uint32 Session::_buildPackets()
 	Message* message = mOutgoingMessageQueue.front();
 	mOutgoingMessageQueue.pop();
 
+	message->mPath = MP_buildPacketStarted;
 
-	//aere there still any fastpath packets around at this point ?
+	//are there still any fastpath packets around at this point ?
 	assert(!message->getFastpath());
 
 	//=================================
@@ -2602,7 +2605,8 @@ uint32 Session::_buildPackets()
 			message->setPendingDelete(true);
 		}
 	}
-
+	if(message)
+		message->mPath = MP_buildPacketEnded;
 	return(packetsbuild);
 }
 

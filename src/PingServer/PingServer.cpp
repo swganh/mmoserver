@@ -16,6 +16,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "LogManager/LogManager.h"
 
 #include "ConfigManager/ConfigManager.h"
+#include <boost/thread/thread.hpp>
 
 #include "Utils/utils.h"
 
@@ -129,6 +130,7 @@ int main(int argc, char* argv[])
 	while (true) {
 		// Check for incoming messages and handle them.
 		ping_server.Poll();
+		boost::this_thread::sleep(boost::posix_time::milliseconds(1));
 
 		// Stop the ping server if a key is hit.
 		if (Anh_Utils::kbhit()) break;

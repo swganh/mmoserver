@@ -80,7 +80,7 @@ Service::~Service(void)
 void Service::Startup(int8* localAddress, uint16 localPort,uint32 mfHeapSize)
 {
 
-	localAddress = (char*)gConfig->read<std::string>("BindAddress").c_str();
+	//localAddress = (char*)gConfig->read<std::string>("BindAddress").c_str();
 	lasttime = Anh_Utils::Clock::getSingleton()->getLocalTime();
 	assert(strlen(localAddress) < 256);
 	strcpy(mLocalAddressName, localAddress);
@@ -135,7 +135,7 @@ void Service::Startup(int8* localAddress, uint16 localPort,uint32 mfHeapSize)
 	if(configvalue > 4096)
 		configvalue = 4096;
 
-	value = configvalue *1024;
+	//value = configvalue *1024;
 	
 	setsockopt(mLocalSocket,SOL_SOCKET,SO_RCVBUF,(char*)&value,valuelength);
 

@@ -493,6 +493,7 @@ void MessageFactory::_processGarbageCollection(void)
 					gLogger->logMsgF("Source : %u ",MSG_HIGH, message->mSourceId);
 					gLogger->logMsgF("Path : %u ",MSG_HIGH, message->mPath);
 					gLogger->logMsgF("Session status : %u ",MSG_HIGH, session->getStatus());
+					message->mLogTime  = Anh_Utils::Clock::getSingleton()->getLocalTime();
 				}
 
 				if(Anh_Utils::Clock::getSingleton()->getLocalTime() - message->getCreateTime() > MESSAGE_MAX_LIFE_TIME*3)

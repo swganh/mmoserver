@@ -56,9 +56,21 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 void MessageLib::sendSpatialChat(CreatureObject* const srcObject,string chatMsg,char chatElement[5][32])
 {
-	//TODO Is chat really unreliable ??
+	
+	using boost::lexical_cast;
+    using boost::bad_lexical_cast;
 
-	uint64 chatElementTarget	= boost::lexical_cast<uint64>(chatElement[0]);
+	uint64 chatElementTarget;
+	try
+	{
+		chatElementTarget	= boost::lexical_cast<uint64>(chatElement[0]);
+	}
+	catch(bad_lexical_cast &)
+	{
+		chatElementTarget	= 0;
+
+	}
+		
 	uint16 chatElementMood1		= atoi(chatElement[1]);
 	uint16 chatElementMood2		= atoi(chatElement[2]);
 

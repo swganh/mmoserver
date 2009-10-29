@@ -240,7 +240,7 @@ void SocketReadThread::run(void)
 				// We should only be creating a new session if it's a session request packet
 				if(packetType == SESSIONOP_SessionRequest)
 				{
-					gLogger->logMsgF("Service %i: New Session(%s, %u), AddressMap: %i",MSG_NORMAL,mSessionFactory->getService()->getId(), inet_ntoa(from.sin_addr), ntohs(session->getPort()), mAddressSessionMap.size());
+					gLogger->logMsgF("new Service ",MSG_HIGH);
 					session = mSessionFactory->CreateSession();
 					session->setSocketReadThread(this);
 					session->setPacketFactory(mPacketFactory);
@@ -252,7 +252,7 @@ void SocketReadThread::run(void)
 					mAddressSessionMap.insert(std::make_pair(hash, session));
 					mSocketWriteThread->NewSession(session);
 
-					gLogger->logMsgF("Added Service %i: New Session(%s, %u), AddressMap: %i",MSG_NORMAL,mSessionFactory->getService()->getId(), inet_ntoa(from.sin_addr), ntohs(session->getPort()), mAddressSessionMap.size());
+					gLogger->logMsgF("Added Service %i: New Session(%s, %u), AddressMap: %i",MSG_HIGH,mSessionFactory->getService()->getId(), inet_ntoa(from.sin_addr), ntohs(session->getPort()), mAddressSessionMap.size());
 				}
 				else
 				{
@@ -272,8 +272,18 @@ void SocketReadThread::run(void)
 			// Validate our date header.  If it's not a valid header, drop it.
 
 			if(session->getStatus() > SSTAT_Connected)
+			{
+				gLogger->logMsgF("*** Session in the process of being disconnected status : %u", MSG_NORMAL,session->getStatus());
+				gLogger->logMsgF("Service %i: Session(%s, %u), AddressMap: %i hash %u",MSG_NORMAL,mSessionFactory->getService()->getId(), inet_ntoa(*((in_addr*)(&hash))), ntohs(session->getPort()), mAddressSessionMap.size(),hash);
+				
+				if (session->getStatus() == SSTAT_Destroy)
+				{
+					mAddressSessionMap.erase(i);
+					gLogger->logMsgF("Service %i: Removing Session(%s, %u), AddressMap: %i hash %u",MSG_NORMAL,mSessionFactory->getService()->getId(), inet_ntoa(*((in_addr*)(&hash))), ntohs(session->getPort()), mAddressSessionMap.size(),hash);
+					mSessionFactory->DestroySession(session);
+				}
 				continue;
-
+			}
 			if(packetType > 0x00ff && (packetType & 0x00ff) == 0 && session != NULL)
 			{
 				switch(packetType)
@@ -477,9 +487,11 @@ void SocketReadThread::RemoveAndDestroySession(Session* session)
 	if(iter != mAddressSessionMap.end())
 	{
 		mAddressSessionMap.erase(iter);
-		gLogger->logMsgF("Service %i: Removing Session(%s, %u), AddressMap: %i",MSG_NORMAL,mSessionFactory->getService()->getId(), inet_ntoa(*((in_addr*)(&hash))), ntohs(session->getPort()), mAddressSessionMap.size());
+		gLogger->logMsgF("Service %i: Removing Session(%s, %u), AddressMap: %i hash %u",MSG_NORMAL,mSessionFactory->getService()->getId(), inet_ntoa(*((in_addr*)(&hash))), ntohs(session->getPort()), mAddressSessionMap.size(),hash);
 		mSessionFactory->DestroySession(session);
 	}
+	else
+		gLogger->logMsgF("Service %i: Removing Session FAILED(%s, %u), AddressMap: %i hash %u",MSG_NORMAL,mSessionFactory->getService()->getId(), inet_ntoa(*((in_addr*)(&hash))), ntohs(session->getPort()), mAddressSessionMap.size(),hash);
 }
 
 //======================================================================================================================

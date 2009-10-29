@@ -170,6 +170,7 @@ void SocketWriteThread::run()
 			}
 			else
 			{
+				gLogger->logMsg("SocketWriteThread destroy session");
 				session->setStatus(SSTAT_Destroy);
 				mService->AddSessionToProcessQueue(session);
 			}

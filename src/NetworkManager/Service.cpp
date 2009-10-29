@@ -204,12 +204,6 @@ void Service::Process(uint32 loop)
 	NetworkClient* newClient = 0;
 	uint32 sessionCount = mSessionProcessQueue.size();
 
-	//prevent stalling the servers
-	//we really should shorten the thread by shortening packetwritetime and leave the sessioncount
-	//but we need to modify that for the server service
-	if(sessionCount>loop)
-		sessionCount =loop;
-
 	for(uint32 i = 0; i < sessionCount; i++)
 	{
 		// Grab our next Service to process

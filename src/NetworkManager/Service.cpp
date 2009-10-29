@@ -127,7 +127,8 @@ void Service::Startup(int8* localAddress, uint16 localPort,uint32 mfHeapSize)
 	int value;
 	int valuelength = sizeof(value);
 	value = 524288;
-	int configvalue = gConfig->read<int32>("UDPBufferSize",512);
+	int configvalue = gConfig->read<int32>("UDPBufferSize",1024);
+	gLogger->logMsgF("UDPBuffer set to %ukb",MSG_HIGH,configvalue);
 
 	if(configvalue < 128)
 		configvalue = 128;
@@ -135,7 +136,7 @@ void Service::Startup(int8* localAddress, uint16 localPort,uint32 mfHeapSize)
 	if(configvalue > 4096)
 		configvalue = 4096;
 
-	//value = configvalue *1024;
+	value = configvalue *1024;
 	
 	setsockopt(mLocalSocket,SOL_SOCKET,SO_RCVBUF,(char*)&value,valuelength);
 

@@ -492,6 +492,8 @@ void SocketReadThread::RemoveAndDestroySession(Session* session)
 	}
 	else
 		gLogger->logMsgF("Service %i: Removing Session FAILED(%s, %u), AddressMap: %i hash %u",MSG_NORMAL,mSessionFactory->getService()->getId(), inet_ntoa(*((in_addr*)(&hash))), ntohs(session->getPort()), mAddressSessionMap.size(),hash);
+
+	// why the %*/&+ is this not finding the session ? it completely legitimately finds it in the run() ???
 }
 
 //======================================================================================================================

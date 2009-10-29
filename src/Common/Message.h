@@ -15,13 +15,18 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Utils/typedefs.h"
 enum MessagePath
 {
+	MP_None = 0,
 	MP_DataChannelA = 1,
 	MP_RoutedReliable= 2,
 	MP_RoutedMulti= 3,
 	MP_buildPacketStarted= 4,
 	MP_buildPacketEnded= 5,
+	MP_Multi= 6,
+	MP_buildPacketUnreliable= 7,
+		
 
 };
+
 
 
 //======================================================================================================================
@@ -42,6 +47,9 @@ public:
                               , mPendingDelete(false)
                               , mData(0)
 							  , mLogged(false)
+							  , mLogTime(0)
+							  , mSession(NULL)
+							  , mPath(MP_None)
                               {}
 
   void                        Init(int8* data, uint16 len)      { mData = data; mSize = len; mIndex = 0;}
@@ -110,7 +118,10 @@ public:
 
   uint8                       mSourceId;
   MessagePath                 mPath;
+  
   bool                        mLogged;
+  uint64                      mLogTime;
+  void*						  mSession;
 
 private:
   uint64                      mCreateTime;

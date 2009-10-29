@@ -14,6 +14,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "LogManager/LogManager.h"
 
 #include "Utils/clock.h"
+#include "NetworkManager/session.h"
 
 #include <algorithm>
 #include <cassert>
@@ -455,10 +456,51 @@ void MessageFactory::_processGarbageCollection(void)
 					gLogger->logMsgF("Source : %u ",MSG_HIGH, message->mSourceId);
 					gLogger->logMsgF("Path : %u ",MSG_HIGH, message->mPath);
 					
+					
 
 					gLogger->hexDump(message->getData(), message->getSize());
 					message->mLogged = true;
+					message->mLogTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
+
+					Session* session = (Session*)message->mSession;
+
+					if(session->getStatus() > SSTAT_Disconnected)
+					{
+						gLogger->logMsgF("Session is about to be destroyed ",MSG_HIGH);
+
+					}
+
+					if(session->getStatus() == SSTAT_Disconnecting)
+					{
+						gLogger->logMsgF("Session is about to be destroyed ",MSG_HIGH);
+
+					}
+
 				}
+
+				Session* session = (Session*)message->mSession;
+				
+				if(!session)
+				{
+					gLogger->logMsgF("Packet is Sessionless ",MSG_HIGH);
+					message->setPendingDelete(true);
+				}
+				else
+				if(message->mLogTime <Anh_Utils::Clock::getSingleton()->getLocalTime()+10000)
+				{
+					gLogger->logMsgF("MessageFactory::_processGarbageCollection : Old stuck Message !!! ",MSG_HIGH);
+					gLogger->logMsgF("age : %u ",MSG_HIGH, uint32((Anh_Utils::Clock::getSingleton()->getLocalTime() - message->getCreateTime())/1000));
+					gLogger->logMsgF("Source : %u ",MSG_HIGH, message->mSourceId);
+					gLogger->logMsgF("Path : %u ",MSG_HIGH, message->mPath);
+					gLogger->logMsgF("Session status : %u ",MSG_HIGH, session->getStatus());
+				}
+
+				if(Anh_Utils::Clock::getSingleton()->getLocalTime() - message->getCreateTime() > MESSAGE_MAX_LIFE_TIME*3)
+				{
+					session->setCommand(SCOM_Disconnect);
+					gLogger->logErrorF("MessageLayer","MessageFactory::_processGarbageCollection Message Heap TimeOut destroying Session ",MSG_HIGH);
+				}
+
 			}
 			else
 				further = false;

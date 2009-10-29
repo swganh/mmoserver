@@ -133,7 +133,52 @@ Session::~Session(void)
 		// We're done with this message.
 		message->setPendingDelete(true);
 	}
+
+	while(!mUnreliableMessageQueue.empty())
+	{
+		message = mUnreliableMessageQueue.front();
+		mUnreliableMessageQueue.pop();
+
+		// We're done with this message.
+		message->setPendingDelete(true);
+	}
+
+	while(!mMultiMessageQueue.empty())
+	{
+		message = mMultiMessageQueue.front();
+		mMultiMessageQueue.pop();
+
+		// We're done with this message.
+		message->setPendingDelete(true);
+	}
+
+
+	while(!mRoutedMultiMessageQueue.empty())
+	{
+		message = mRoutedMultiMessageQueue.front();
+		mRoutedMultiMessageQueue.pop();
+
+		// We're done with this message.
+		message->setPendingDelete(true);
+	}
+
+	while(!mMultiUnreliableQueue.empty())
+	{
+		message = mMultiUnreliableQueue.front();
+		mMultiUnreliableQueue.pop();
+
+		// We're done with this message.
+		message->setPendingDelete(true);
+	}
+	
+		
+
+		
+	
+
 }
+
+
 
 //======================================================================================================================
 
@@ -369,6 +414,7 @@ void Session::ProcessWriteThread(void)
 //======================================================================================================================
 void Session::SendChannelA(Message* message)
 {
+	message->mSession = this;
 	//check whether we are disconnecting  this happens when a client or server crashes without sending a disconnect
 	//however in these cases we get a lot of stuck messages on the heap which are orphaned
 	if(mStatus != SSTAT_Connected)
@@ -401,6 +447,8 @@ void Session::SendChannelA(Message* message)
 
 void Session::SendChannelAUnreliable(Message* message)
 {
+	message->mSession = this;
+
 	//check whether we are disconnecting
 	if(mStatus != SSTAT_Connected)
 	{
@@ -579,7 +627,7 @@ void Session::HandleSessionPacket(Packet* packet)
 
    //gLogger->logMsgF("Incoming data - seq: %i expect: %u Session:0x%x%.4x", MSG_HIGH, sequence, mInSequenceNext, mService->getId(), getId());
 
-   if (mInSequenceNext != sequence)
+   if (mInSequenceNext < sequence)
    {
 	   // is it a packet we already received ?
 	  
@@ -809,8 +857,6 @@ void Session::_processSessionRequestPacket(Packet* packet)
   // retrieve our request id.
   packet->getUint32();                      // Unknown
   mRequestId = packet->getUint32();         // Request id.
-
-  gLogger->logMsgF("Session::_processSessionRequestPacket",MSG_HIGH);
 
   // Get a new encryption key if we're not already initilized.
   // If we're not a new session, then we should drop the packet.
@@ -2151,6 +2197,7 @@ void Session::_processConnectCommand(void)
       }
     }
   }
+
 }
 
 
@@ -2583,6 +2630,7 @@ uint32 Session::_buildPackets()
 			packetsbuild++;
 			while(baseSize < mMaxPacketSize && mOutgoingMessageQueue.size())
 			{
+				message->mPath = MP_Multi;
 				message = mOutgoingMessageQueue.front();
 							
 				baseSize += (message->getSize() + 5); // size + prio + routing   cave size *might be > 255 so using 3 (1+2) for size as a standard!!
@@ -2624,6 +2672,7 @@ uint32 Session::_buildPacketsUnreliable()
 
 	Message* message = mUnreliableMessageQueue.front();
 	mUnreliableMessageQueue.pop();
+	message->mPath = MP_buildPacketUnreliable;
 
 	// no larger ones than ff yet, we want at least 2 messages to fit in, dont use routed mesages, so the frontline server does packing only
 	if(!mUnreliableMessageQueue.size()
@@ -2645,6 +2694,7 @@ uint32 Session::_buildPacketsUnreliable()
 		while(baseSize < mMaxUnreliableSize && mUnreliableMessageQueue.size())
 		{
 			message = mUnreliableMessageQueue.front();
+			message->mPath = MP_buildPacketUnreliable;
 						
 			baseSize += message->getSize() + 3; // size + prio + routing
 

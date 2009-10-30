@@ -304,9 +304,9 @@ void CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string 
 
 		case SUI_Window_CharacterBuilderItemIdInputBox :
 		{
-			int32 inputId = 0;
+			uint32 inputId = 0;
 
-			if(swscanf(inputStr.getUnicode16(),L"%i",&inputId) == 1)
+			if(swscanf(inputStr.getUnicode16(),L"%u",&inputId) == 1)
 			{
 				ItemFrogItemClass* item = gTradeManager->mItemFrogClass.LookUpType(inputId);
 
@@ -350,8 +350,8 @@ void CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string 
 				//do we have children categories or children resources?
 				if(rParent->getChildren()->size())
 				{
-					gLogger->logMsgF("",MSG_HIGH);
-					gLogger->logMsgF("has children ",MSG_HIGH);
+					//gLogger->logMsgF("",MSG_HIGH);
+				
 					//iterate through the children categories and display them
 					ResourceCategoryList*			rcList				= rParent->getChildren();
 					ResourceCategoryList::iterator	rcIt				= rcList->begin();
@@ -507,7 +507,7 @@ void CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string 
 					break;
 				}
 
-				uint32							typeId		= static_cast<uint8>(resourceIdList[element]);
+				uint32							typeId		= static_cast<uint32>(resourceIdList[element]);
 				//ResourceType*					rType		= gResourceManager->getResourceTypeById(typeId);
 				//ResourceTypeMap*				rtMap		= gResourceManager->getResourceTypeMap();
 				ResourceCRCNameMap*				rCRCMap		= gResourceManager->getResourceCRCNameMap();
@@ -626,7 +626,7 @@ void CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string 
 				return;
 			}
 
-			gLogger->logMsgF("input: %u\n", MSG_NORMAL, mInputBoxAmount);
+			gLogger->logMsgF("input: %u", MSG_NORMAL, mInputBoxAmount);
 
 			// bank or inv?
 			if(window->getWindowType() == SUI_Window_CharacterBuilderCreditsMenuInventory_InputBox)

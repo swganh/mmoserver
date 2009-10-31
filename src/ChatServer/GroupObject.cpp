@@ -313,7 +313,7 @@ void GroupObject::createChannel()
 	tmpValueStr.setLength(swprintf(tmpValueStr.getUnicode16(), 1, L"" WidePRId64, mId));
 	channel->setTitle(tmpValueStr);
 
-	gLogger->logMsgF("Group channel created: '%s' with id %u.\n", MSG_NORMAL, channel->getName().getAnsi(), channel->getId());
+	gLogger->logMsgF("Group channel created: '%s' with id %u.", MSG_NORMAL, channel->getName().getAnsi(), channel->getId());
 	channel->setOwner(gSystemAvatar);
 	mChannel = channel;
 	gChatManager->registerChannel(mChannel);

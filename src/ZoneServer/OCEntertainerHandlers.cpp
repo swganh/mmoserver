@@ -71,10 +71,11 @@ void ObjectController::_handlewatch(uint64 targetId,Message* message,ObjectContr
 
 	// lets get the target player
 	message->setIndex(32);
-	PlayerObject* target_player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(message->getInt64()));
+	PlayerObject* target_player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(message->getUint64()));
 	if(!target_player)
 	{
-		gLogger->logMsgF("OC :: handle startwatch No entertainer\n", MSG_NORMAL);
+		gMessageLib->sendSystemMessage(targetPlayer,L"","performance","dance_watch_npc");
+		gLogger->logMsgF("OC :: handle startwatch No entertainer", MSG_NORMAL);
 		return;
 	}
 	gEntertainerManager->startWatching((PlayerObject*)mObject, target_player);
@@ -92,15 +93,16 @@ void ObjectController::_handlelisten(uint64 targetId,Message* message,ObjectCont
 
 	// lets get the target player
 	message->setIndex(32);
-	PlayerObject* target_player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(message->getInt64()));
+	PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(message->getUint64()));
 
 	if(!target_player)
 	{
-		gLogger->logMsgF("OC :: handle startwatch No entertainer\n", MSG_NORMAL);
+		gMessageLib->sendSystemMessage(targetPlayer,L"","performance","music_listen_npc");
+		//gLogger->logMsgF("OC :: handle startwatch No entertainer", MSG_NORMAL);
 		return;
 	}
 
-	gEntertainerManager->startListening((PlayerObject*)mObject, target_player);
+	gEntertainerManager->startListening((PlayerObject*)mObject, targetPlayer);
 
 }
 
@@ -302,7 +304,7 @@ void ObjectController::_handleDenyService(uint64 targetId,Message* message,Objec
 	PlayerObject* outcast;
 	//find out the id of the player if he should happen to be near
 	message->setIndex(32);
-	outcast = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(message->getInt64()));
+	outcast = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(message->getUint64()));
 	if(!outcast)
 	{
 		//if the poor sod is not known to the client by either being offline or somewhere else

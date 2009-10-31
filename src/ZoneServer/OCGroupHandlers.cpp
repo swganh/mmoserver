@@ -45,7 +45,7 @@ void ObjectController::_handleInvite(uint64 targetId,Message* message,ObjectCont
 
 	// lets get the target player
 	message->setIndex(32);
-	PlayerObject* target_player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(message->getInt64()));
+	PlayerObject* target_player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(message->getUint64()));
 
 	// if  target is valid
 	if(target_player == NULL || target_player == player)
@@ -53,6 +53,7 @@ void ObjectController::_handleInvite(uint64 targetId,Message* message,ObjectCont
 		gMessageLib->sendSystemMessage(player,L"","group","invite_no_target_self");
 		return;
 	}
+
 
 	gMessageFactory->StartMessage();
 	Message* newMessage;
@@ -73,7 +74,7 @@ void ObjectController::_handleUninvite(uint64 targetId,Message* message,ObjectCo
 
 	// lets get the target player
 	message->setIndex(32);
-	PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(message->getInt64()));
+	PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(message->getUint64()));
 
 
 	// if  target is valid
@@ -195,7 +196,7 @@ void ObjectController::_handleMakeLeader(uint64 targetId,Message* message,Object
 
 	// lets get the target player
 	message->setIndex(32);
-	PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(message->getInt64()));
+	PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(message->getUint64()));
 
 
 	// if  target is valid
@@ -231,7 +232,7 @@ void ObjectController::_handleDismissGroupMember(uint64 targetId,Message* messag
 
 	// lets get the target player
 	message->setIndex(32);
-	PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(message->getInt64()));
+	PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(message->getUint64()));
 
 
 	// if  target is valid

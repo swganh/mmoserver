@@ -252,12 +252,12 @@ void GroupManager::_processGroupInviteRequest(Message* message, DispatchClient* 
 {
 
 	Player* player			= gChatManager->getPlayerByAccId(client->getAccountId());
-	Player* targetPlayer	= gChatManager->getPlayerByAccId(message->getInt32());
+	Player* targetPlayer	= gChatManager->getPlayerByAccId(message->getUint32());
 	uint64 groupId;
 
 	if(targetPlayer == NULL || player == NULL)
 	{
-		gLogger->logMsg("GroupManager::_processGroupInviteRequest player not found\n");
+		gLogger->logMsg("GroupManager::_processGroupInviteRequest player not found");
 		return;
 	}
 
@@ -362,7 +362,7 @@ void GroupManager::_processGroupInviteResponse(Message* message, DispatchClient*
 
 	if(player == NULL)
 	{
-		gLogger->logMsg("GroupManager::_processGroupInviteResponse: player not found\n");
+		gLogger->logMsg("GroupManager::_processGroupInviteResponse: player not found");
 		return;
 	}
 
@@ -468,14 +468,14 @@ void GroupManager::_processGroupUnInvite(Message* message, DispatchClient* clien
 
 	if(player == NULL)
 	{
-		gLogger->logMsg("GroupManager::_processGroupUnInvite: player not found\n");
+		gLogger->logMsg("GroupManager::_processGroupUnInvite: player not found");
 		return;
 	}
 
-	Player* targetPlayer	= gChatManager->getPlayerByAccId(message->getInt32());
+	Player* targetPlayer	= gChatManager->getPlayerByAccId(message->getUint32());
 	if(targetPlayer== NULL)
 	{
-		gLogger->logMsg("GroupManager::_processGroupUnInvite: target not found\n");
+		gLogger->logMsg("GroupManager::_processGroupUnInvite: target not found");
 		return;
 	}
 
@@ -585,12 +585,12 @@ void GroupManager::_processGroupDismissGroupMember(Message* message, DispatchCli
 {
 
 	Player* player			= gChatManager->getPlayerByAccId(client->getAccountId());
-	Player* targetPlayer	= gChatManager->getPlayerByAccId(message->getInt32());
+	Player* targetPlayer	= gChatManager->getPlayerByAccId(message->getUint32());
 
 
 	if(targetPlayer == NULL || player == NULL)
 	{
-		gLogger->logMsg("GroupManager::_processGroupDismissGroupMember player not found\n");
+		gLogger->logMsg("GroupManager::_processGroupDismissGroupMember player not found");
 		return;
 	}
 
@@ -627,12 +627,12 @@ void GroupManager::_processGroupMakeLeader(Message* message, DispatchClient* cli
 {
 
 	Player* player			= gChatManager->getPlayerByAccId(client->getAccountId());
-	Player* targetPlayer	= gChatManager->getPlayerByAccId(message->getInt32());
+	Player* targetPlayer	= gChatManager->getPlayerByAccId(message->getUint32());
 
 
 	if(targetPlayer == NULL || player == NULL)
 	{
-		gLogger->logMsg("GroupManager::_processGroupMakeLeader player not found\n");
+		gLogger->logMsg("GroupManager::_processGroupMakeLeader player not found");
 		return;
 	}
 
@@ -823,15 +823,15 @@ void GroupManager::_processGroupLootMasterRequest(Message* message, DispatchClie
 // Leader choosen a new master looter
 void GroupManager::_processGroupLootMasterResponse(Message* message, DispatchClient* client)
 {
-	gLogger->logMsg("_processGroupLootMasterResponse\n");
+	gLogger->logMsg("_processGroupLootMasterResponse");
 
 	Player* player			= gChatManager->getPlayerByAccId(client->getAccountId());
-	Player* targetPlayer	= gChatManager->getPlayerByAccId(message->getInt32());
+	Player* targetPlayer	= gChatManager->getPlayerByAccId(message->getUint32());
 
 
 	if(targetPlayer == NULL || player == NULL)
 	{
-		gLogger->logMsg("GroupManager::_processGroupLootMasterResponse player not found\n");
+		gLogger->logMsg("GroupManager::_processGroupLootMasterResponse player not found");
 		return;
 	}
 

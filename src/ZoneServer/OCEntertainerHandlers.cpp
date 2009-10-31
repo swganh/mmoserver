@@ -71,14 +71,14 @@ void ObjectController::_handlewatch(uint64 targetId,Message* message,ObjectContr
 
 	// lets get the target player
 	message->setIndex(32);
-	PlayerObject* target_player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(message->getUint64()));
-	if(!target_player)
+	PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(message->getUint64()));
+	if(!targetPlayer)
 	{
 		gMessageLib->sendSystemMessage(targetPlayer,L"","performance","dance_watch_npc");
 		gLogger->logMsgF("OC :: handle startwatch No entertainer", MSG_NORMAL);
 		return;
 	}
-	gEntertainerManager->startWatching((PlayerObject*)mObject, target_player);
+	gEntertainerManager->startWatching((PlayerObject*)mObject, targetPlayer);
 
 }
 
@@ -95,7 +95,7 @@ void ObjectController::_handlelisten(uint64 targetId,Message* message,ObjectCont
 	message->setIndex(32);
 	PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(message->getUint64()));
 
-	if(!target_player)
+	if(!targetPlayer)
 	{
 		gMessageLib->sendSystemMessage(targetPlayer,L"","performance","music_listen_npc");
 		//gLogger->logMsgF("OC :: handle startwatch No entertainer", MSG_NORMAL);

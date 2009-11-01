@@ -93,7 +93,7 @@ void SpawnRegionFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 
 								"planet_regions.width,planet_regions.height,spawn_regions.parent_id,spawn_regions.mission"
 								" FROM spawn_regions"
 								" INNER JOIN planet_regions ON (spawn_regions.region_id = planet_regions.region_id)"
-								" WHERE (spawn_regions.id = %"PRId64")",id);
+								" WHERE (spawn_regions.id = %"PRIu64")",id);
 }
 
 //=============================================================================

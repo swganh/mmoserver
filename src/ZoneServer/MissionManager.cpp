@@ -406,7 +406,7 @@ void MissionManager::listRequest(PlayerObject* player, uint64 terminal_id,uint8 
 	int8		terminal_name[255];
 	strcpy(terminal_name,terminal->getName().getAnsi());
 
-	gLogger->logMsgF("Terminal id %"PRId64" is type '%s'\n", MSG_NORMAL, terminal_id, terminal_name);
+	gLogger->logMsgF("Terminal id %"PRIu64" is type '%s'", MSG_NORMAL, terminal_id, terminal_name);
 
  	int count = 0;
 	int len = strlen(terminal_name);
@@ -439,7 +439,7 @@ void MissionManager::listRequest(PlayerObject* player, uint64 terminal_id,uint8 
 				generateEntertainerMission(mission,count);
 			break;
 			default:
-				gLogger->logMsgF("Terminal id %"PRId64" is type '%s'\n", MSG_NORMAL, terminal_id, terminal_name);
+				gLogger->logMsgF("Terminal id %"PRIu64" is type '%s'", MSG_NORMAL, terminal_id, terminal_name);
 				mission->setRefreshCount(0);
 		}
 
@@ -456,7 +456,7 @@ void MissionManager::listRequest(PlayerObject* player, uint64 terminal_id,uint8 
 
 void MissionManager::detailsRequest(PlayerObject* player)
 {
-    gLogger->logMsgF("Player id %"PRId64" requested mission details\n", MSG_NORMAL, player->getId());
+    gLogger->logMsgF("Player id %"PRIu64" requested mission details", MSG_NORMAL, player->getId());
 
     // this request likely requires a MissionDetailsResponse (000000F8) packet response
 }
@@ -465,7 +465,7 @@ void MissionManager::detailsRequest(PlayerObject* player)
 
 void MissionManager::createRequest(PlayerObject* player)
 {
-    gLogger->logMsgF("Player id %"PRId64" accepted mission\n", MSG_NORMAL, player->getId());
+    gLogger->logMsgF("Player id %"PRIu64" accepted mission", MSG_NORMAL, player->getId());
 }
 
 //======================================================================================================================
@@ -482,7 +482,7 @@ void MissionManager::missionRequest(PlayerObject* player, uint64 mission_id)
 	MissionObject* mission =  mission_bag->getMissionById(mission_id);
 	if(mission == NULL)
 	{
-		gLogger->logMsgF("ERROR: Failed to retrieve mission with id %"PRId64". Unable to accept mission!", MSG_HIGH, mission_id);
+		gLogger->logMsgF("ERROR: Failed to retrieve mission with id %"PRIu64". Unable to accept mission!", MSG_HIGH, mission_id);
 		return;
 	}
 
@@ -822,8 +822,8 @@ void MissionManager::checkSurveyMission(PlayerObject* player,CurrentResource* re
 
 
 							int8 sm[500];
-							sprintf(sm,"That resource pocket is too close (%"PRId64" meters) to the mission giver to be useful to them. Go find one at least %"PRId32" meters away to complete your survey mission. ",
-										static_cast<uint64>(mission->getIssuingTerminal()->mPosition.distance2D(highestDist.position)),
+							sprintf(sm,"That resource pocket is too close (%"PRIu32" meters) to the mission giver to be useful to them. Go find one at least %"PRIu32" meters away to complete your survey mission. ",
+										static_cast<uint32>(mission->getIssuingTerminal()->mPosition.distance2D(highestDist.position)),
 										(1024 - (int)mission->getIssuingTerminal()->mPosition.distance2D(highestDist.position))
 										);
 							string s = BString(sm);

@@ -127,7 +127,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 		}
 		else
 		{
-			gLogger->logMsgF("Error removing %"PRIu64" from cell(%"PRId64")",MSG_HIGH,player->getId(),player->getParentId());
+			gLogger->logMsgF("Error removing %"PRIu64" from cell(%"PRIu64")",MSG_HIGH,player->getId(),player->getParentId());
 		}
 
 		// we are outside again
@@ -366,7 +366,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 		{
 			CellObject* cell = NULL;
 
-			// gLogger->logMsgF("We changed cell from (%"PRId64") to (%"PRId64")",MSG_NORMAL, oldParentId, parentId);
+			// gLogger->logMsgF("We changed cell from (%"PRIu64") to (%"PRIu64")",MSG_NORMAL, oldParentId, parentId);
 
 			// Remove us from whatever we where in before.
 			// (4 for add and 0 for remove)
@@ -382,7 +382,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 				}
 				else
 				{
-					gLogger->logMsgF("Error removing %"PRId64" from cell(%"PRId64")",MSG_NORMAL,player->getId(),oldParentId);
+					gLogger->logMsgF("Error removing %"PRIu64" from cell(%"PRIu64")",MSG_NORMAL,player->getId(),oldParentId);
 				}
 			}
 			else
@@ -428,12 +428,12 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 				if (gWorldConfig->isTutorial())
 				{
 					player->getTutorial()->setCellId(parentId);
-					// gLogger->logMsgF("handleDataTransformWithParent: Adding %"PRId64" to cell(%"PRId64")",MSG_NORMAL,player->getId(),parentId);
+					// gLogger->logMsgF("handleDataTransformWithParent: Adding %"PRIu64" to cell(%"PRIu64")",MSG_NORMAL,player->getId(),parentId);
 				}
 			}
 			else
 			{
-				gLogger->logMsgF("Error adding %"PRId64" to cell(%"PRId64")",MSG_NORMAL,player->getId(),parentId);
+				gLogger->logMsgF("Error adding %"PRIu64" to cell(%"PRIu64")",MSG_NORMAL,player->getId(),parentId);
 			}
 		}
 
@@ -721,7 +721,7 @@ bool ObjectController::_updateInRangeObjectsInside()
 	// make sure we got a cell
 	if (!playerCell)
 	{
-		gLogger->logMsgF("Error getting cell %"PRId64" for %"PRId64" type %u",MSG_NORMAL,player->getParentId(),player->getId(),player->getType());
+		gLogger->logMsgF("Error getting cell %"PRIu64" for %"PRIu64" type %u",MSG_NORMAL,player->getParentId(),player->getId(),player->getType());
 		return true;	// We are done, nothing we can do...
 	}
 
@@ -760,7 +760,7 @@ bool ObjectController::_updateInRangeObjectsInside()
 				}
 				else
 				{
-					gLogger->logMsgF("Error getting cell %"PRId64" for %"PRId64" type %u",MSG_NORMAL,object->getParentId(),object->getId(),object->getType());
+					gLogger->logMsgF("Error getting cell %"PRIu64" for %"PRIu64" type %u",MSG_NORMAL,object->getParentId(),object->getId(),object->getType());
 				}
 			}
 			if (validObject)
@@ -783,7 +783,7 @@ bool ObjectController::_updateInRangeObjectsInside()
 						}
 						else
 						{
-							// gLogger->logMsgF("_updateInRangeObjectsInside %s DISMISSED calling sendCreateObject() for %"PRId64"",MSG_NORMAL, player->getFirstName().getAnsi(), object->getId());
+							// gLogger->logMsgF("_updateInRangeObjectsInside %s DISMISSED calling sendCreateObject() for %"PRIu64"",MSG_NORMAL, player->getFirstName().getAnsi(), object->getId());
 						}
 					}
 					else

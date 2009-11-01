@@ -631,7 +631,7 @@ void ScriptSupport::containerSpawn(Container* container,
 	// WorldManager will only add us to the global object map if we use true.
 	gWorldManager->addObject(container, false);
 
-	// gLogger->logMsgF("ScriptSupport::npcSpawn: Added NPC with ID = %"PRId64"", MSG_HIGH, npcId);
+	// gLogger->logMsgF("ScriptSupport::npcSpawn: Added NPC with ID = %"PRIu64"", MSG_HIGH, npcId);
 
 	// Add us to the world.
 	gMessageLib->broadcastContainmentMessage(container->getId(),container->getParentId(),4,container);

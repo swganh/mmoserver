@@ -231,7 +231,7 @@ void NPCObject::updatePosition(uint64 parentId, Anh_Math::Vector3 newPosition)
 			}
 			else
 			{
-				gLogger->logMsgF("Error removing %"PRIu64" from cell(%"PRId64")",MSG_HIGH,this->getId(),this->getParentId());
+				gLogger->logMsgF("Error removing %"PRIu64" from cell(%"PRIu64")",MSG_HIGH,this->getId(),this->getParentId());
 			}
 
 			// we are outside again
@@ -300,7 +300,7 @@ void NPCObject::updatePosition(uint64 parentId, Anh_Math::Vector3 newPosition)
 			{
 				gMessageLib->broadcastContainmentMessage(this->getId(),oldParentId,0,this);
 			}
-			// gLogger->logMsgF("NPC changed cell from (%"PRId64") to (%"PRId64")",MSG_NORMAL, oldParentId, parentId);
+			// gLogger->logMsgF("NPC changed cell from (%"PRIu64") to (%"PRIu64")",MSG_NORMAL, oldParentId, parentId);
 
 			// only remove us from si, if we just entered the building
 			if (oldParentId != 0)
@@ -312,7 +312,7 @@ void NPCObject::updatePosition(uint64 parentId, Anh_Math::Vector3 newPosition)
 				}
 				else
 				{
-					gLogger->logMsgF("Error removing %"PRId64" from cell(%"PRId64")",MSG_NORMAL,this->getId(),oldParentId);
+					gLogger->logMsgF("Error removing %"PRIu64" from cell(%"PRIu64")",MSG_NORMAL,this->getId(),oldParentId);
 				}
 			}
 			else
@@ -340,7 +340,7 @@ void NPCObject::updatePosition(uint64 parentId, Anh_Math::Vector3 newPosition)
 			}
 			else
 			{
-				gLogger->logMsgF("Error adding %"PRId64" to cell(%"PRId64")",MSG_NORMAL,this->getId(),parentId);
+				gLogger->logMsgF("Error adding %"PRIu64" to cell(%"PRIu64")",MSG_NORMAL,this->getId(),parentId);
 			}
 			// update the player
 			this->setParentId(parentId);

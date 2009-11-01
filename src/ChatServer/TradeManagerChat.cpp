@@ -992,7 +992,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
 					if(AuctionTemp->BidderID != asynContainer->AuctionTemp->OwnerID){
 						TradeManagerAsyncContainer* asyncContainer;
 
-						sprintf(sql,"UPDATE banks SET credits=credits+%"PRId32" WHERE id=%"PRId64"",asynContainer->MyProxy, AuctionTemp->BidderID+4);
+						sprintf(sql,"UPDATE banks SET credits=credits+%"PRId32" WHERE id=%"PRIu64"",asynContainer->MyProxy, AuctionTemp->BidderID+4);
 						asyncContainer = new TradeManagerAsyncContainer(TRMQuery_NULL,NULL);
 						mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
 					}

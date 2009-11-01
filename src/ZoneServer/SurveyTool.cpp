@@ -164,8 +164,8 @@ void SurveyTool::handleUIEvent(uint32 action,int32 element,string inputStr,UIWin
 		setInternalAttribute("survey_range",boost::lexical_cast<std::string>(range));
 		setInternalAttribute("survey_points",boost::lexical_cast<std::string>(points));
 
-		gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE item_attributes SET value=%u WHERE item_id=%"PRId64" AND attribute_id=6",range,mId);
-		gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE item_attributes SET value=%u WHERE item_id=%"PRId64" AND attribute_id=7",points,mId);
+		gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE item_attributes SET value=%u WHERE item_id=%"PRIu64" AND attribute_id=6",range,mId);
+		gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE item_attributes SET value=%u WHERE item_id=%"PRIu64" AND attribute_id=7",points,mId);
 
 
 	}

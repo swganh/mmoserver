@@ -53,7 +53,7 @@ void ElevatorTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObjec
 		}
 		else
 		{
-			gLogger->logMsgF("could not find cell %"PRId64"",MSG_HIGH,playerObject->getParentId());
+			gLogger->logMsgF("could not find cell %"PRIu64"",MSG_HIGH,playerObject->getParentId());
 		}
 
 		// put him into new one
@@ -69,7 +69,7 @@ void ElevatorTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObjec
 		}
 		else
 		{
-			gLogger->logMsgF("could not find cell %"PRId64"",MSG_HIGH,mDstCellUp);
+			gLogger->logMsgF("could not find cell %"PRIu64"",MSG_HIGH,mDstCellUp);
 		}
 
 		gMessageLib->sendDataTransformWithParent(playerObject);
@@ -88,7 +88,7 @@ void ElevatorTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObjec
 		}
 		else
 		{
-			gLogger->logMsgF("could not find cell %"PRId64"",MSG_HIGH,playerObject->getParentId());
+			gLogger->logMsgF("could not find cell %"PRIu64"",MSG_HIGH,playerObject->getParentId());
 		}
 
 		// put him into new one
@@ -104,7 +104,7 @@ void ElevatorTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObjec
 		}
 		else
 		{
-			gLogger->logMsgF("could not find cell %"PRId64"",MSG_HIGH,mDstCellDown);
+			gLogger->logMsgF("could not find cell %"PRIu64"",MSG_HIGH,mDstCellDown);
 		}
 
 		gMessageLib->sendDataTransformWithParent(playerObject);

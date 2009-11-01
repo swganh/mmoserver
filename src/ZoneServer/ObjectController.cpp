@@ -361,7 +361,7 @@ bool ObjectController::_processCommandQueue()
 						}
 						else
 						{
-							gLogger->logMsgF("ObjectController::processCommandQueue: ObjControllerCmdGroup_Common Unhandled Cmd 0x%x for %"PRId64"",MSG_NORMAL,command,mObject->getId());
+							gLogger->logMsgF("ObjectController::processCommandQueue: ObjControllerCmdGroup_Common Unhandled Cmd 0x%x for %"PRIu64"",MSG_NORMAL,command,mObject->getId());
 							//gLogger->hexDump(message->getData(),message->getSize());
 
 							consumeHam = false;
@@ -371,7 +371,7 @@ bool ObjectController::_processCommandQueue()
 
 					case ObjControllerCmdGroup_Attack:
 					{
-						// gLogger->logMsgF("ObjectController::processCommandQueue: ObjControllerCmdGroup_Attack Handled Cmd 0x%x for %"PRId64"",MSG_NORMAL,command,mObject->getId());
+						// gLogger->logMsgF("ObjectController::processCommandQueue: ObjControllerCmdGroup_Attack Handled Cmd 0x%x for %"PRIu64"",MSG_NORMAL,command,mObject->getId());
 						// If player activated combat or me returning fire, the peace is ended, and auto-attack allowed.
 						player->toggleStateOff(CreatureState_Peace);
 						gMessageLib->sendStateUpdate(player);
@@ -428,7 +428,7 @@ bool ObjectController::_processCommandQueue()
 
 					default:
 					{
-						gLogger->logMsgF("ObjectController::processCommandQueue: Default Unhandled CmdGroup %u for %"PRId64"",MSG_NORMAL,cmdProperties->mCmdGroup,mObject->getId());
+						gLogger->logMsgF("ObjectController::processCommandQueue: Default Unhandled CmdGroup %u for %"PRIu64"",MSG_NORMAL,cmdProperties->mCmdGroup,mObject->getId());
 
 						consumeHam = false;
 					}

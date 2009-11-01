@@ -214,7 +214,7 @@ void CharacterLoginHandler::handleDispatchMessage(uint32 opcode, Message* messag
 		else
 		{
 			gLogger->logMsgF("all other cases",MSG_NORMAL);
-//			gLogger->logMsgF("New Player: %"PRId64", Total Players on zone : %i",MSG_NORMAL,playerId,(gWorldManager->getPlayerAccMap())->size() + 1);
+//			gLogger->logMsgF("New Player: %"PRIu64", Total Players on zone : %i",MSG_NORMAL,playerId,(gWorldManager->getPlayerAccMap())->size() + 1);
 			gObjectFactory->requestObject(ObjType_Player,0,0,this,playerId,client);
 		}
 	}
@@ -444,7 +444,7 @@ void CharacterLoginHandler::_processClusterZoneTransferApprovedByTicket(Message*
 		asyncContainer->player		= playerObject;
 		asyncContainer->callBack	= CLHCallBack_Transfer_Ticket;
 
-		mDatabase->ExecuteSqlAsync(this,asyncContainer,"DELETE FROM items WHERE id = %"PRId64"", ticket->getId());
+		mDatabase->ExecuteSqlAsync(this,asyncContainer,"DELETE FROM items WHERE id = %"PRIu64"", ticket->getId());
 
 
 	}

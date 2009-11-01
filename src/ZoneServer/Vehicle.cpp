@@ -180,7 +180,7 @@ void Vehicle::call()
 			mBody->addKnownObjectSafe(targetObject);
 			++it;
 		}
-		gLogger->logMsgF("void Vehicle::call() creating vehicle with id %"PRId64"", MSG_HIGH, mBody->getId());
+		gLogger->logMsgF("void Vehicle::call() creating vehicle with id %"PRIu64"", MSG_HIGH, mBody->getId());
 		gMessageLib->sendCreateObject(mBody,mOwner);
 		mOwner->addKnownObjectSafe(mBody);
 		mBody->addKnownObjectSafe(mOwner);

@@ -300,7 +300,7 @@ void ConversationManager::updateConversation(uint32 selectId,PlayerObject* playe
 	
 	if(!av)
 	{
-		gLogger->logMsgF("ConversationManager::updateConversation: could not find conversation for %"PRId64,MSG_NORMAL,player->getId());
+		gLogger->logMsgF("ConversationManager::updateConversation: could not find conversation for %"PRIu64,MSG_NORMAL,player->getId());
 		return;
 	}
 

@@ -156,7 +156,7 @@ void ObjectController::_handleNPCConversationStart(uint64 targetId,Message* mess
 				memset(quack, 0, sizeof(quack));
 				std::pair<string,uint32> chat = gWorldManager->getRandNpcChatter();
 
-				// gLogger->logMsgF("NPC id %"PRId64" in cell(%"PRId64")",MSG_NORMAL, npc->getId(),npcParentId);
+				// gLogger->logMsgF("NPC id %"PRIu64" in cell(%"PRIu64")",MSG_NORMAL, npc->getId(),npcParentId);
 				if (!gWorldConfig->isInstance())
 				{
 					gMessageLib->sendSpatialChat(npc,chat.first,quack);
@@ -177,7 +177,7 @@ void ObjectController::_handleNPCConversationStart(uint64 targetId,Message* mess
 		}
 	}
 	else
-		gLogger->logMsgF("ObjController::_handleNPCConversationStart: Couldn't find object %"PRId64"",MSG_HIGH,targetId);
+		gLogger->logMsgF("ObjController::_handleNPCConversationStart: Couldn't find object %"PRIu64"",MSG_HIGH,targetId);
 }
 
 //=============================================================================

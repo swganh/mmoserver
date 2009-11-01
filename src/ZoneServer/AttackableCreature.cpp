@@ -1462,7 +1462,7 @@ uint64 AttackableCreature::handleState(uint64 timeOverdue)
 					int64 roamingReadyTicksDelay = this->getReadyDelay();
 					if (roamingReadyTicksDelay > 0)
 					{
-						// gLogger->logMsgF("State_Alerted roamingReadyTicksDelay = %"PRId64"", MSG_NORMAL, roamingReadyTicksDelay);
+						// gLogger->logMsgF("State_Alerted roamingReadyTicksDelay = %"PRIu64"", MSG_NORMAL, roamingReadyTicksDelay);
 						roamingReadyTicksDelay--;
 						if (roamingReadyTicksDelay == 0)
 						{
@@ -1622,7 +1622,7 @@ void AttackableCreature::spawn(void)
 {
 	gCreatureSpawnCounter++;
 	// gLogger->logMsgF("AttackableCreature::spawn: Spawning creature %"PRIu64"", MSG_NORMAL, this->getId());
-	gLogger->logMsgF("Spawned creature # %"PRId64" (%"PRId64")", MSG_NORMAL, gCreatureSpawnCounter, gCreatureSpawnCounter - gCreatureDeathCounter);
+	gLogger->logMsgF("Spawned creature # %"PRIu64" (%"PRIu64")", MSG_NORMAL, gCreatureSpawnCounter, gCreatureSpawnCounter - gCreatureDeathCounter);
 
 	// Update the world about my presence.
 

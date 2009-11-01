@@ -111,7 +111,7 @@ mQuestWeaponType(DefaultQuestWeaponType)
 Tutorial::~Tutorial()
 {
 	// Save-update the state.
-	gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE character_tutorial SET character_state=%u,character_substate=%u WHERE character_id=%"PRId64"",mState, mSubState, mPlayerObject->getId());
+	gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE character_tutorial SET character_state=%u,character_substate=%u WHERE character_id=%"PRIu64"",mState, mSubState, mPlayerObject->getId());
 
 	// clear scripts
 	ScriptList::iterator scriptIt = mPlayerScripts.begin();
@@ -162,7 +162,7 @@ void Tutorial::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				mState = 1;
 
 				// Save the state.
-				(gWorldManager->getDatabase())->ExecuteSqlAsync(0,0,"INSERT INTO character_tutorial VALUES (%"PRId64",%u,%u)",asyncContainer->mId,mState, mSubState);
+				(gWorldManager->getDatabase())->ExecuteSqlAsync(0,0,"INSERT INTO character_tutorial VALUES (%"PRIu64",%u,%u)",asyncContainer->mId,mState, mSubState);
 			}
 			gWorldManager->getDatabase()->DestroyDataBinding(binding);
 		
@@ -516,7 +516,7 @@ void Tutorial::setState(uint32 state)
 	mState = state;
 
 	// Save-update the state.
-	gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE character_tutorial SET character_state=%u,character_substate=%u WHERE character_id=%"PRId64"",mState, mSubState, mPlayerObject->getId());
+	gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE character_tutorial SET character_state=%u,character_substate=%u WHERE character_id=%"PRIu64"",mState, mSubState, mPlayerObject->getId());
 
 }
 
@@ -555,7 +555,7 @@ void Tutorial::setSubState(uint32 subState)
 	mSubState = subState;
 
 	// Save-update the state.
-	gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE character_tutorial SET character_state=%u,character_substate=%u WHERE character_id=%"PRId64"",mState, mSubState, mPlayerObject->getId());
+	gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE character_tutorial SET character_state=%u,character_substate=%u WHERE character_id=%"PRIu64"",mState, mSubState, mPlayerObject->getId());
 
 }
 

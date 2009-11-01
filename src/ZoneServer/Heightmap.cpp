@@ -414,7 +414,7 @@ bool Heightmap::setupCache(int16 cacheResoulutionDivider)
 	{
 		gLogger->logMsgF("Min height = %.2f at position %d, %d", MSG_NORMAL, min, xPosMin, zPosMin);
 		gLogger->logMsgF("Max height = %.2f at position %d, %d", MSG_NORMAL, max, xPosMax, zPosMax);
-		// gLogger->logMsgF("noOfIgnored values are = %"PRId64"", MSG_NORMAL, noOfIgnored);
+		// gLogger->logMsgF("noOfIgnored values are = %"PRIu64"", MSG_NORMAL, noOfIgnored);
 
 	}
 	return status;

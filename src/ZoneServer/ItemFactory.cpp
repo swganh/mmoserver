@@ -96,7 +96,7 @@ void ItemFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT attributes.name,item_attributes.value,attributes.internal"
 															 " FROM item_attributes"
 															 " INNER JOIN attributes ON (item_attributes.attribute_id = attributes.id)"
-															 " WHERE item_attributes.item_id = %"PRId64" ORDER BY item_attributes.order",item->getId());
+															 " WHERE item_attributes.item_id = %"PRIu64" ORDER BY item_attributes.order",item->getId());
 			}
 		}
 		break;
@@ -132,7 +132,7 @@ void ItemFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint
 													"FROM items "
 													"INNER JOIN item_types ON (items.item_type = item_types.id) "
 													"LEFT JOIN item_customization ON (items.id = item_customization.id)"
-													"WHERE items.id = %"PRId64"",id);
+													"WHERE items.id = %"PRIu64"",id);
 }
 
 //=============================================================================
@@ -279,7 +279,7 @@ void ItemFactory::_postProcessAttributes(Object* object)
 				else
 				{
 					item->setAttribute("craft_tool_status","@crafting:tool_status_ready");
-					mDatabase->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='@crafting:tool_status_ready' WHERE item_id=%"PRId64" AND attribute_id=%u",item->getId(),AttrType_CraftToolStatus);
+					mDatabase->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='@crafting:tool_status_ready' WHERE item_id=%"PRIu64" AND attribute_id=%u",item->getId(),AttrType_CraftToolStatus);
 
 					int8 sql[250];
 					item->addAttribute("craft_tool_time","0");

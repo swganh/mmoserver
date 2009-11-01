@@ -142,7 +142,7 @@ void ObjectController::_handleRequestCraftingSession(uint64 targetId,Message* me
 
 	if(!tool)
 	{
-		gLogger->logMsgF("ObjController::handleRequestcraftingsession: could not find tool %"PRId64"",MSG_NORMAL,targetId);
+		gLogger->logMsgF("ObjController::handleRequestcraftingsession: could not find tool %"PRIu64"",MSG_NORMAL,targetId);
 		gMessageLib->sendCraftAcknowledge(opCraftCancelResponse,0,0,playerObject);
 		return;
 	}

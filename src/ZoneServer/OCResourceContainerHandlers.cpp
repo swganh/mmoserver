@@ -82,7 +82,7 @@ void ObjectController::_handleResourceContainerTransfer(uint64 targetId,Message*
 
 				gMessageLib->sendResourceContainerUpdateAmount(targetContainer,playerObject);
 
-				mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRId64"",newAmount,targetContainer->getId());
+				mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",newAmount,targetContainer->getId());
 
 				// delete old container
 				gMessageLib->sendDestroyObject(selectedContainer->getId(),playerObject);
@@ -102,8 +102,8 @@ void ObjectController::_handleResourceContainerTransfer(uint64 targetId,Message*
 				gMessageLib->sendResourceContainerUpdateAmount(targetContainer,playerObject);
 				gMessageLib->sendResourceContainerUpdateAmount(selectedContainer,playerObject);
 
-				mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRId64"",maxAmount,targetContainer->getId());
-				mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRId64"",selectedNewAmount,selectedContainer->getId());
+				mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",maxAmount,targetContainer->getId());
+				mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",selectedNewAmount,selectedContainer->getId());
 			}
 		}
 	}
@@ -158,7 +158,7 @@ void ObjectController::_handleResourceContainerSplit(uint64 targetId,Message* me
 
 	gMessageLib->sendResourceContainerUpdateAmount(selectedContainer,playerObject);
 
-	mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRId64"",selectedContainer->getAmount(),selectedContainer->getId());
+	mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",selectedContainer->getAmount(),selectedContainer->getId());
 
 	// create a new one
 	gObjectFactory->requestNewResourceContainer(inventory,(selectedContainer->getResource())->getId(),parentId,99,splitOffAmount);

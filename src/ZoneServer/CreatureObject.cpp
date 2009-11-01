@@ -636,7 +636,7 @@ void CreatureObject::incap()
 		// reset the counter if the reset time has passed
 		else if(mIncapCount != 0 && (localTime - mFirstIncapTime) >= gWorldConfig->getIncapResetTime() * 1000)
 		{
-			// gLogger->logMsgF("Time since first incap = %"PRId64"", MSG_NORMAL, localTime - mFirstIncapTime);
+			// gLogger->logMsgF("Time since first incap = %"PRIu64"", MSG_NORMAL, localTime - mFirstIncapTime);
 			// gLogger->logMsgF("Resetting mFirstIncapTime", MSG_NORMAL);
 
 			mIncapCount = 0;
@@ -645,7 +645,7 @@ void CreatureObject::incap()
 		/*
 		if (mIncapCount != 0)
 		{
-			gLogger->logMsgF("Time since first incap = %"PRId64"", MSG_NORMAL, localTime - mFirstIncapTime);
+			gLogger->logMsgF("Time since first incap = %"PRIu64"", MSG_NORMAL, localTime - mFirstIncapTime);
 		}
 		*/
 

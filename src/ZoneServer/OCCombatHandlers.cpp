@@ -365,7 +365,7 @@ void ObjectController::cloneAtPreDesignatedFacility(PlayerObject* player, SpawnP
 			"stamina_wounds,mind_wounds,focus_wounds,willpower_wounds"
 			" FROM character_clone"
 			" WHERE"
-			" (character_id = %"PRId64");",player->getId());
+			" (character_id = %"PRIu64");",player->getId());
 
 		mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
 	}

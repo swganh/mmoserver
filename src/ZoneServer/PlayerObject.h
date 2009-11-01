@@ -378,7 +378,8 @@ class PlayerObject : public CreatureObject
 		Tutorial*						mTutorial;
 
 		PlayerConnState		mConnState;
-		IDSession					mIDSession;
+
+		IDSession			mIDSession; //logs whether weve got an IDsession running at this point
 
 		uint64				mCombatTargetId; // The actual target player are hitting, not always the same as the "look-at" target.
 		uint64				mEntertainerPauseId;

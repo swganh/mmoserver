@@ -62,7 +62,6 @@ PlayerObject::PlayerObject()
 , mNearestCloningFacility(NULL)
 , mTravelPoint(NULL)
 , mTutorial(NULL)
-
 , mCombatTargetId(0)
 , mEntertainerPauseId(0)
 , mEntertainerTaskId(0)
@@ -120,6 +119,8 @@ PlayerObject::PlayerObject()
 	registerEventFunction(this,&PlayerObject::onSample);
 
 	mLots = gWorldConfig->getConfiguration("Player_Max_Lots",(uint8)10);
+
+	mIDSession = IDSessionNONE;
 }
 
 //=============================================================================
@@ -282,7 +283,7 @@ PlayerObject::~PlayerObject()
 				if(SpawnPoint* sp = nearestBuilding->getRandomSpawnPoint())
 				{
 					// update the database with the new values
-					gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE characters SET parent_id=%"PRId64",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f WHERE id=%"PRId64"",sp->mCellId
+					gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE characters SET parent_id=%"PRIu64",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f WHERE id=%"PRIu64"",sp->mCellId
 						,sp->mDirection.mX,sp->mDirection.mY,sp->mDirection.mZ,sp->mDirection.mW
 						,sp->mPosition.mX,sp->mPosition.mY,sp->mPosition.mZ
 						,this->getId());
@@ -335,7 +336,7 @@ PlayerObject::~PlayerObject()
 		}
 		else
 		{
-			gLogger->logMsgF("PlayerObject::destructor: couldn't find cell %"PRId64"",MSG_HIGH,this->getParentId());
+			gLogger->logMsgF("PlayerObject::destructor: couldn't find cell %"PRIu64"",MSG_HIGH,this->getParentId());
 		}
 	}
 	else
@@ -383,7 +384,7 @@ void PlayerObject::stopTutorial()
 		if (mTutorial)
 		{
 			// Save-update the state.
-			// (gWorldManager->getDatabase())->ExecuteSqlAsync(0,0,"UPDATE character_tutorial SET character_state=%u,character_substate=%u WHERE character_id=%"PRId64"",mTutorial->getState(), mTutorial->getSubState(),mId);
+			// (gWorldManager->getDatabase())->ExecuteSqlAsync(0,0,"UPDATE character_tutorial SET character_state=%u,character_substate=%u WHERE character_id=%"PRIu64"",mTutorial->getState(), mTutorial->getSubState(),mId);
 
 			delete mTutorial;
 			mTutorial = NULL;
@@ -995,9 +996,9 @@ void PlayerObject::addBadge(uint32 badgeId)
 		gMessageLib->sendPlayMusicMessage(badge->getSoundId(),this);
 		gMessageLib->sendSystemMessage(this,L"","badge_n","prose_grant","badge_n",badge->getName(),L"");
 
-		(gWorldManager->getDatabase())->ExecuteSqlAsync(0,0,"INSERT INTO character_badges VALUES (%"PRId64",%u)",mId,badgeId);
+		(gWorldManager->getDatabase())->ExecuteSqlAsync(0,0,"INSERT INTO character_badges VALUES (%"PRIu64",%u)",mId,badgeId);
 
-		gLogger->logMsgF("Badge %u granted to %"PRId64"",MSG_NORMAL,badgeId,mId);
+		gLogger->logMsgF("Badge %u granted to %"PRIu64"",MSG_NORMAL,badgeId,mId);
 
 		_verifyBadges();
 
@@ -1009,7 +1010,7 @@ void PlayerObject::addBadge(uint32 badgeId)
 	else
 	{
 		// This is an unexpected condition.
-		gLogger->logMsgF("Badge %u already exists for player with id %"PRId64"",MSG_NORMAL,badgeId,mId);
+		gLogger->logMsgF("Badge %u already exists for player with id %"PRIu64"",MSG_NORMAL,badgeId,mId);
 	}
 }
 

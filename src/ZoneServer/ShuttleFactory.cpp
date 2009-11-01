@@ -96,7 +96,7 @@ void ShuttleFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,u
 								"shuttle_types.object_string,shuttle_types.name,shuttle_types.file,shuttles.awayTime,shuttles.inPortTime,shuttles.collectorId "
 								"FROM shuttles "
 								"INNER JOIN shuttle_types ON (shuttles.shuttle_type = shuttle_types.id) "
-								"WHERE (shuttles.id = %"PRId64")",id);
+								"WHERE (shuttles.id = %"PRIu64")",id);
 }
 
 //=============================================================================

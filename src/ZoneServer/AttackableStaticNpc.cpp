@@ -286,7 +286,7 @@ void AttackableStaticNpc::respawn(void)
 void AttackableStaticNpc::spawn(void)
 {
 	// gLogger->logMsgF("AttackableStaticNpc::spawn: Spawning creature %"PRIu64"", MSG_NORMAL, this->getId());
-	// gLogger->logMsgF("Spawned static objects # %"PRId64" (%"PRId64")", MSG_NORMAL, gCreatureSpawnCounter, gCreatureSpawnCounter - gCreatureDeathCounter);
+	// gLogger->logMsgF("Spawned static objects # %"PRIu64" (%"PRIu64")", MSG_NORMAL, gCreatureSpawnCounter, gCreatureSpawnCounter - gCreatureDeathCounter);
 
 	// Update the world about my presence.
 	

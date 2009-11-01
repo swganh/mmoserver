@@ -476,7 +476,7 @@ void LoginManager::_processDeleteCharacter(Message* message,LoginClient* client)
 	uint64 characterId = message->getUint64();
 
 	client->setState(LCSTATE_DeleteCharacter);
-	// mDatabase->ExecuteSqlAsync(this,(void*)client,"DELETE FROM characters WHERE id=%"PRId64" AND galaxy_id=%u AND account_id=%u",characterId,galaxyId,client->getAccountId());
+	// mDatabase->ExecuteSqlAsync(this,(void*)client,"DELETE FROM characters WHERE id=%"PRIu64" AND galaxy_id=%u AND account_id=%u",characterId,galaxyId,client->getAccountId());
 	mDatabase->ExecuteSqlAsync(this,(void*)client,"SELECT sf_CharacterDelete(\'%"PRIu64"\')",characterId);
 }
 

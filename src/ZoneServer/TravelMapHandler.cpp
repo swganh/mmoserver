@@ -268,7 +268,7 @@ void TravelMapHandler::_processTravelPointListRequest(Message* message,DispatchC
 
 		if(terminal == NULL)
 		{
-			gLogger->logMsgF("TravelMapHandler::_processTravelListRequest: No TravelPosition set, player %"PRId64"",MSG_NORMAL,playerObject->getId());
+			gLogger->logMsgF("TravelMapHandler::_processTravelListRequest: No TravelPosition set, player %"PRIu64"",MSG_NORMAL,playerObject->getId());
 			return;
 		}
 

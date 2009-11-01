@@ -130,7 +130,7 @@ GroupObject* GroupManager::getGroupById(uint64 groupId)
 	if(it !=  mGroups.end())
 		return((*it).second);
 	else
-		gLogger->logMsgF("GroupManager::getGroupById: Could not find group %"PRId64"",MSG_NORMAL,groupId);
+		gLogger->logMsgF("GroupManager::getGroupById: Could not find group %"PRIu64"",MSG_NORMAL,groupId);
 
 	return(NULL);
 }
@@ -149,7 +149,7 @@ void GroupManager::removeGroup(uint64 groupId)
 	}
 	else
 	{
-		gLogger->logMsgF("GroupManager::removeGroup: Could not find group for removing %"PRId64"",MSG_NORMAL,groupId);
+		gLogger->logMsgF("GroupManager::removeGroup: Could not find group for removing %"PRIu64"",MSG_NORMAL,groupId);
 	}
 
 }

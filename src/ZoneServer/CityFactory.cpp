@@ -93,7 +93,7 @@ void CityFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint
 							"planet_regions.width,planet_regions.height"
 							" FROM cities"
 							" INNER JOIN planet_regions ON (cities.city_region = planet_regions.region_id)"
-							" WHERE (cities.id = %"PRId64")",id);
+							" WHERE (cities.id = %"PRIu64")",id);
 }
 
 //=============================================================================

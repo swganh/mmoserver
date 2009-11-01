@@ -83,7 +83,7 @@ void DatapadFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,DPFQuery_ObjectCount,asyncContainer->mClient);
 			asContainer->mObject = datapad;
 
-			mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT sf_getDatapadObjectCount(%"PRId64")",datapad->getId());
+			mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT sf_getDatapadObjectCount(%"PRIu64")",datapad->getId());
 
 		}
 		break;
@@ -111,9 +111,9 @@ void DatapadFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				asContainer->mObject = datapad;
 
 				mDatabase->ExecuteSqlAsync(this,asContainer,
-						"(SELECT \'waypoints\',waypoints.waypoint_id FROM waypoints WHERE owner_id = %"PRId64")"
-						" UNION (SELECT \'manschematics\',items.id FROM items WHERE (parent_id=%"PRId64"))"
-						" UNION (SELECT \'vehicles\',vehicles.id FROM vehicles WHERE (parent=%"PRId64"))"
+						"(SELECT \'waypoints\',waypoints.waypoint_id FROM waypoints WHERE owner_id = %"PRIu64")"
+						" UNION (SELECT \'manschematics\',items.id FROM items WHERE (parent_id=%"PRIu64"))"
+						" UNION (SELECT \'vehicles\',vehicles.id FROM vehicles WHERE (parent=%"PRIu64"))"
 						,dtpId-3,dtpId,dtpId);
 
 			}
@@ -202,7 +202,7 @@ void DatapadFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,u
 	mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,DPFQuery_MainDatapadData,client),
 								"SELECT datapads.id,datapad_types.object_string,datapad_types.name,datapad_types.file"
 								" FROM datapads INNER JOIN datapad_types ON (datapads.datapad_type = datapad_types.id)"
-								" WHERE (datapads.id = %"PRId64")",id);
+								" WHERE (datapads.id = %"PRIu64")",id);
 }
 
 //=============================================================================
@@ -293,7 +293,7 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
 				asContainer->mObject = datapad;
 				asContainer->mId = item->getId();//queryContainer.mId;
 				int8 sql[256];
-				sprintf(sql,"SELECT items.id FROM items WHERE (parent_id=%"PRId64")",item->getId());
+				sprintf(sql,"SELECT items.id FROM items WHERE (parent_id=%"PRIu64")",item->getId());
 				mDatabase->ExecuteSqlAsync(this,asContainer,sql);
 
 				mObjectLoadMap.insert(std::make_pair(item->getId(),new(mILCPool.ordered_malloc()) InLoadingContainer(datapad,0,0,1)));

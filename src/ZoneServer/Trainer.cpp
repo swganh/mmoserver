@@ -1123,7 +1123,7 @@ void Trainer::prepareConversation(PlayerObject* player)
 	// Let's turn to the player asking for my attention.
 
 	/*
-	gLogger->logMsgF("%"PRId64"",MSG_NORMAL, this->getId());
+	gLogger->logMsgF("%"PRIu64"",MSG_NORMAL, this->getId());
 	gLogger->logMsgF("%f %f %f",MSG_NORMAL, player->mPosition.mX, player->mPosition.mY, player->mPosition.mZ);
 	gLogger->logMsgF("\n%f %f %f",MSG_NORMAL, this->mPosition.mX, this->mPosition.mY, this->mPosition.mZ);
 	
@@ -1329,7 +1329,7 @@ void Trainer::respawn(void)
 void Trainer::spawn(void)
 {
 	// gLogger->logMsgF("AttackableStaticNpc::spawn: Spawning creature %"PRIu64"", MSG_NORMAL, this->getId());
-	// gLogger->logMsgF("Spawned static objects # %"PRId64" (%"PRId64")", MSG_NORMAL, gCreatureSpawnCounter, gCreatureSpawnCounter - gCreatureDeathCounter);
+	// gLogger->logMsgF("Spawned static objects # %"PRIu64" (%"PRIu64")", MSG_NORMAL, gCreatureSpawnCounter, gCreatureSpawnCounter - gCreatureDeathCounter);
 
 	// Update the world about my presence.
 	
@@ -1344,7 +1344,7 @@ void Trainer::spawn(void)
 		}
 		else
 		{
-			gLogger->logMsgF("Trainer::spawn: couldn't find cell %"PRIu64"\n", MSG_HIGH, this->getParentId());
+			gLogger->logMsgF("Trainer::spawn: couldn't find cell %"PRIu64, MSG_HIGH, this->getParentId());
 			
 			// It's a serious isse that we need to investigate.
 			assert(cell);

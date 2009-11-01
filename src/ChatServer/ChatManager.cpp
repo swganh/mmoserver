@@ -448,7 +448,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 				mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT characters.firstname FROM chat_friendlist "
 															"INNER JOIN characters ON (chat_friendlist.friend_id = characters.id) "
-															"WHERE (chat_friendlist.character_id = %"PRId64")",asContainer->mReceiver->getCharId());
+															"WHERE (chat_friendlist.character_id = %"PRIu64")",asContainer->mReceiver->getCharId());
 			}
 			else
 				gLogger->logMsgF("Could not find account %u",MSG_NORMAL,asyncContainer->mClient->getAccountId());
@@ -497,7 +497,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				int8 sql[20000],*sqlPointer;
 				int8 footer[64];
 				int8 receiverStr[64];
-				sprintf(receiverStr,"',%"PRId64",'",receiverId);
+				sprintf(receiverStr,"',%"PRIu64",'",receiverId);
 				sprintf(footer,",%u,%"PRIu32")",(asyncContainer->mMail->mAttachments.getLength() << 1),asyncContainer->mMail->mTime);
 				sprintf(sql,"SELECT sf_MailCreate('");
 
@@ -560,7 +560,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 			mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT characters.firstname FROM chat_ignorelist "
 														"INNER JOIN characters ON (chat_ignorelist.ignore_id = characters.id) "
-														"WHERE (chat_ignorelist.character_id = %"PRId64")",asyncContainer->mReceiverId);
+														"WHERE (chat_ignorelist.character_id = %"PRIu64")",asyncContainer->mReceiverId);
 			mDatabase->DestroyDataBinding(binding);
 		}
 		break;
@@ -718,7 +718,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 			mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT characters.firstname FROM chat_ignorelist "
 														"INNER JOIN characters ON (chat_ignorelist.ignore_id = characters.id) "
-														"WHERE (chat_ignorelist.character_id = %"PRId64")",asContainer->mReceiver->getCharId());
+														"WHERE (chat_ignorelist.character_id = %"PRIu64")",asContainer->mReceiver->getCharId());
 		}
 		break;
 
@@ -750,7 +750,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 			mDatabase->ExecuteSqlAsync(this, asContainer,"SELECT channel_id"
 											" FROM chat_char_channels"
-											" WHERE	(character_id = %"PRId64")", currentPlayer->getCharId());
+											" WHERE	(character_id = %"PRIu64")", currentPlayer->getCharId());
 
 		}
 		break;
@@ -937,7 +937,7 @@ void ChatManager::_processClusterClientConnect(Message* message,DispatchClient* 
 
 	Player* player = new Player(charId,client,planetId);
 
-	gLogger->logMsgF("Connecting account %u with player id %"PRId64"\n", MSG_NORMAL, client->getAccountId(), charId);
+	gLogger->logMsgF("Connecting account %u with player id %"PRIu64"", MSG_NORMAL, client->getAccountId(), charId);
 
 	mPlayerAccountMap.insert(std::make_pair(accountId,player));
 	mPlayerList.push_back(player);
@@ -950,14 +950,14 @@ void ChatManager::_processClusterClientConnect(Message* message,DispatchClient* 
 
 	mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT characters.firstname FROM chat_friendlist "
 												"INNER JOIN characters ON (chat_friendlist.friend_id = characters.id) "
-												"WHERE (chat_friendlist.character_id = %"PRId64")",asContainer->mReceiver->getCharId());
+												"WHERE (chat_friendlist.character_id = %"PRIu64")",asContainer->mReceiver->getCharId());
 
 
 	*/
 	ChatAsyncContainer* asyncContainer = new ChatAsyncContainer(ChatQuery_Player);
 	asyncContainer->mClient = client;
 
-	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT firstname,lastname FROM characters WHERE id=%"PRId64"",charId);
+	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT firstname,lastname FROM characters WHERE id=%"PRIu64"",charId);
 
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opChatOnConnectAvatar);
@@ -1130,7 +1130,7 @@ void ChatManager::_processWhenLoaded(Message* message,DispatchClient* client)
 
 				mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT chat_mail.id,chat_mail.from,chat_mail.subject,chat_mail.status,chat_mail.time"
 															" FROM chat_mail"
-															" WHERE	(chat_mail.to = %"PRId64")",asContainer->mReceiver->getCharId());
+															" WHERE	(chat_mail.to = %"PRIu64")",asContainer->mReceiver->getCharId());
 			}
 		}
 		GroupObject* group = gGroupManager->getGroupById(player->getGroupId());
@@ -1554,7 +1554,7 @@ void ChatManager::_processEnterRoomById(Message* message,DispatchClient* client)
 	if (!player->getAddPending())
 	{
 		channel->addUser(avatar);
-		mDatabase->ExecuteSqlAsync(NULL, NULL, "INSERT INTO chat_char_channels VALUES (%"PRId64", %u);", player->getCharId(), channel->getId());
+		mDatabase->ExecuteSqlAsync(NULL, NULL, "INSERT INTO chat_char_channels VALUES (%"PRIu64", %u);", player->getCharId(), channel->getId());
 		gChatMessageLib->sendChatOnEnteredRoom(client, avatar, channel, requestId);
 		gLogger->logMsg("Player added to channel");
 	}
@@ -1565,7 +1565,7 @@ void ChatManager::_processEnterRoomById(Message* message,DispatchClient* client)
 	*/
 	channel->addUser(avatar);
 	gChatMessageLib->sendChatOnEnteredRoom(client, avatar, channel, requestId);
-	mDatabase->ExecuteSqlAsync(NULL, NULL, "INSERT INTO chat_char_channels VALUES (%"PRId64", %u);", player->getCharId(), channel->getId());
+	mDatabase->ExecuteSqlAsync(NULL, NULL, "INSERT INTO chat_char_channels VALUES (%"PRIu64", %u);", player->getCharId(), channel->getId());
 	// gLogger->logMsg("Player added to channel");
 }
 
@@ -2111,7 +2111,7 @@ void ChatManager::_processRemoveAvatarFromRoom(Message* message,DispatchClient* 
 	else
 	{
 		assert(avatar != NULL);
-		mDatabase->ExecuteSqlAsync(NULL, NULL, "DELETE FROM chat_char_channels WHERE channel_id = %u AND character_id = %"PRId64";", channel->getId(), avatar->getPlayer()->getCharId());
+		mDatabase->ExecuteSqlAsync(NULL, NULL, "DELETE FROM chat_char_channels WHERE channel_id = %u AND character_id = %"PRIu64";", channel->getId(), avatar->getPlayer()->getCharId());
 		gChatMessageLib->sendChatOnLeaveRoom(client, avatar, channel, 0, errorCode);
 	}
 	channel->removeUser(playerName);
@@ -2215,7 +2215,7 @@ void ChatManager::_processBanAvatarFromRoom(Message* message,DispatchClient* cli
 		ChatAvatarId* avatar = channel->findUser(playerName);
 		if (avatar)
 		{
-			mDatabase->ExecuteSqlAsync(NULL, NULL, "DELETE FROM chat_char_channels WHERE channel_id = %u AND character_id = %"PRId64";", channel->getId(), avatar->getPlayer()->getCharId());
+			mDatabase->ExecuteSqlAsync(NULL, NULL, "DELETE FROM chat_char_channels WHERE channel_id = %u AND character_id = %"PRIu64";", channel->getId(), avatar->getPlayer()->getCharId());
 			gChatMessageLib->sendChatOnLeaveRoom(client, avatar, channel, 0, errorCode);
 			// gChatMessageLib->sendChatQueryRoomResults(client, channel, 0);	// Update clients before we remove the poor banned one.
 			channel->removeUser(playerName);
@@ -2455,7 +2455,7 @@ void ChatManager::_PersistentMessagebySystem(Mail* mail,DispatchClient* client, 
 		int8 sql[20000],*sqlPointer;
 		int8 footer[64];
 		int8 receiverStr[64];
-		sprintf(receiverStr,"',%"PRId64",'",receiver->getCharId());
+		sprintf(receiverStr,"',%"PRIu64",'",receiver->getCharId());
 		sprintf(footer,",%u,%"PRIu32")",(mail->mAttachments.getLength() << 1),mail->mTime);
 		sprintf(sql,"SELECT sf_MailCreate('%s",mail->getSender().getAnsi());
 		sqlPointer = sql + strlen(sql);
@@ -2566,7 +2566,7 @@ void ChatManager::_processPersistentMessageToServer(Message* message,DispatchCli
 		int8 sql[20000],*sqlPointer;
 		int8 footer[64];
 		int8 receiverStr[64];
-		sprintf(receiverStr,"',%"PRId64",'",receiver->getCharId());
+		sprintf(receiverStr,"',%"PRIu64",'",receiver->getCharId());
 		sprintf(footer,",%u,%"PRIu32")",(mail->mAttachments.getLength() << 1),mail->mTime);
 		sprintf(sql,"SELECT sf_MailCreate('%s",sender->getName().getAnsi());
 		sqlPointer = sql + strlen(sql);
@@ -3238,7 +3238,7 @@ void ChatManager::_processGroupSaySend(Message* message,DispatchClient* client)
 
 	// Convert since we are going to print it.
 	// msg.convert(BSTRType_ANSI);
-	// gLogger->logMsgF("Groupchat from player %s with id [%"PRId64"] -> : %s",MSG_NORMAL, player->getName().getAnsi(), player->mCharId, msg.getAnsi());
+	// gLogger->logMsgF("Groupchat from player %s with id [%"PRIu64"] -> : %s",MSG_NORMAL, player->getName().getAnsi(), player->mCharId, msg.getAnsi());
 }
 
 

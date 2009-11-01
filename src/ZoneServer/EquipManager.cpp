@@ -176,7 +176,7 @@ bool EquipManager::addEquippedObject(Object* object)
 
 	if (checkEquipSlots(slotMask))
 	{
-		//gLogger->logMsgF("EquipManager::addEquippedObject: Character: %"PRId64" Object: %"PRId64" : slot already taken!!!",MSG_NORMAL,mParent->getId(),object->getId());
+		//gLogger->logMsgF("EquipManager::addEquippedObject: Character: %"PRIu64" Object: %"PRIu64" : slot already taken!!!",MSG_NORMAL,mParent->getId(),object->getId());
 		//gLogger->logMsgF("Inventory::unEquipItem : object slot already filled slotmask : %u", MSG_NORMAL,slotMask);
 		//return(false);
 	}
@@ -184,7 +184,7 @@ bool EquipManager::addEquippedObject(Object* object)
 	// make sure we have a slot descriptor
 	if(!slotMask)
 	{
-		gLogger->logMsgF("EquipManager::addEquippedObject: Character: %"PRId64" Object: %"PRId64" : no slot mask set",MSG_NORMAL,mParent->getId(),object->getId());
+		gLogger->logMsgF("EquipManager::addEquippedObject: Character: %"PRIu64" Object: %"PRIu64" : no slot mask set",MSG_NORMAL,mParent->getId(),object->getId());
 
 		return(false);
 	}

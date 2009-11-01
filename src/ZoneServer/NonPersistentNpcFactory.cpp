@@ -318,7 +318,7 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult
 			mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT attributes.name,lair_attributes.value,attributes.internal"
 				" FROM lair_attributes"
 				" INNER JOIN attributes ON (lair_attributes.attribute_id = attributes.id)"
-				" WHERE lair_attributes.lair_id = %"PRId64" ORDER BY lair_attributes.order", asyncContainer->mTemplateId);
+				" WHERE lair_attributes.lair_id = %"PRIu64" ORDER BY lair_attributes.order", asyncContainer->mTemplateId);
 		}
 		break;
 
@@ -348,7 +348,7 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult
 				mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT attributes.name,non_persistent_npc_attributes.value,attributes.internal"
 					" FROM non_persistent_npc_attributes"
 					" INNER JOIN attributes ON (non_persistent_npc_attributes.attribute_id = attributes.id)"
-					" WHERE non_persistent_npc_attributes.npc_id = %"PRId64" ORDER BY non_persistent_npc_attributes.order", asyncContainer->mTemplateId);
+					" WHERE non_persistent_npc_attributes.npc_id = %"PRIu64" ORDER BY non_persistent_npc_attributes.order", asyncContainer->mTemplateId);
 			}
 		}
 		break;
@@ -672,5 +672,5 @@ void NonPersistentNpcFactory::requestNpcObject(ObjectFactoryCallback* ofCallback
 								"non_persistent_npcs.moodID, non_persistent_npcs.scale, non_persistent_npcs.family "
 								"FROM non_persistent_npcs "
 								"INNER JOIN faction ON (non_persistent_npcs.faction = faction.id) "
-								"WHERE non_persistent_npcs.id=%"PRId64";", creatureTemplateId);
+								"WHERE non_persistent_npcs.id=%"PRIu64";", creatureTemplateId);
 }

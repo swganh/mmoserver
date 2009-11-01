@@ -95,7 +95,7 @@ void TerminalFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 								QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,TFQuery_ElevatorData,asyncContainer->mClient);
 								asContainer->mObject = elTerminal;
 
-								mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT * FROM terminal_elevator_data WHERE id=%"PRId64" ORDER BY direction",elTerminal->getId());
+								mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT * FROM terminal_elevator_data WHERE id=%"PRIu64" ORDER BY direction",elTerminal->getId());
 							}
 							break;
 
@@ -145,7 +145,7 @@ void TerminalFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,
 					"terminals.y,terminals.z,terminals.terminal_type,terminal_types.object_string,terminal_types.name,terminal_types.file,"
 					"terminals.dataStr,terminals.dataInt1,terminals.customName"
 					" FROM terminals INNER JOIN terminal_types ON (terminals.terminal_type = terminal_types.id)"
-					" WHERE (terminals.id = %"PRId64")",id);
+					" WHERE (terminals.id = %"PRIu64")",id);
 }
 
 //=============================================================================

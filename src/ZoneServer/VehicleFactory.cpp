@@ -71,7 +71,7 @@ VehicleFactory::~VehicleFactory()
 void VehicleFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client)
 {
 	mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,VehicleFactoryQuery_TypesId,client,id),
-		"SELECT vehicle_types_id FROM vehicles WHERE id = %"PRId64"",id);
+		"SELECT vehicle_types_id FROM vehicles WHERE id = %"PRIu64"",id);
 
 }
 
@@ -133,7 +133,7 @@ void VehicleFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			QueryContainerBase* aContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,VehicleFactoryQuery_MainData,asyncContainer->mClient,asyncContainer->mId);
 			aContainer->mObject = (Object*)(IntangibleObject*)vehicle;
 
-			mDatabase->ExecuteSqlAsync(this,aContainer,"SELECT vehicle_types_id, parent, vehicle_hitpoint_loss,vehicle_incline_acceleration,vehicle_flat_acceleration FROM vehicles WHERE id = %"PRId64"",vehicle->getId());
+			mDatabase->ExecuteSqlAsync(this,aContainer,"SELECT vehicle_types_id, parent, vehicle_hitpoint_loss,vehicle_incline_acceleration,vehicle_flat_acceleration FROM vehicles WHERE id = %"PRIu64"",vehicle->getId());
 
 
 		}
@@ -156,7 +156,7 @@ void VehicleFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				mDatabase->ExecuteSqlAsync(this,asyncrContainer,"SELECT attributes.name, vehicle_attributes.attribute_value, attributes.internal"
 					" FROM attributes"
 					" INNER JOIN vehicle_attributes ON (attributes.id = vehicle_attributes.attribute_id)"
-					" WHERE vehicle_attributes.vehicles_id = %"PRId64" ORDER BY vehicle_attributes.attribute_order",asyncContainer->mId);
+					" WHERE vehicle_attributes.vehicles_id = %"PRIu64" ORDER BY vehicle_attributes.attribute_order",asyncContainer->mId);
 			}
 
 		}
@@ -187,7 +187,7 @@ void VehicleFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 void VehicleFactory::createVehicle(uint32 vehicle_type,PlayerObject* targetPlayer)
 {
 	mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(this,VehicleFactoryQuery_Create,targetPlayer->getClient()),
-		"SELECT sf_DefaultVehicleCreate(%u, %"PRId64")",vehicle_type,targetPlayer->getId());
+		"SELECT sf_DefaultVehicleCreate(%u, %"PRIu64")",vehicle_type,targetPlayer->getId());
 }
 //=============================================================================
 

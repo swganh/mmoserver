@@ -78,7 +78,7 @@ void BuffManager::handleDatabaseJobComplete(void *ref, DatabaseResult *result)
 				WMAsyncContainer* asContainer = asyncContainer->asyncContainer;
 
 				// position save - the callback will be in the worldmanager to proceed with the rest of the safe
-				mDatabase->ExecuteSqlAsync(reinterpret_cast<DatabaseCallback*>(asyncContainer->callBack),asContainer,"UPDATE characters SET parent_id=%"PRId64",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f,planet_id=%u,jedistate=%u WHERE id=%"PRId64"",playerObject->getParentId()
+				mDatabase->ExecuteSqlAsync(reinterpret_cast<DatabaseCallback*>(asyncContainer->callBack),asContainer,"UPDATE characters SET parent_id=%"PRIu64",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f,planet_id=%u,jedistate=%u WHERE id=%"PRIu64"",playerObject->getParentId()
 									,playerObject->mDirection.mX,playerObject->mDirection.mY,playerObject->mDirection.mZ,playerObject->mDirection.mW
 									,playerObject->mPosition.mX,playerObject->mPosition.mY,playerObject->mPosition.mZ
 									,gWorldManager->getZoneId(),playerObject->getJediState(),playerObject->getId());

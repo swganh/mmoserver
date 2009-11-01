@@ -86,7 +86,7 @@ void TicketCollectorFactory::handleDatabaseJobComplete(void* ref,DatabaseResult*
 
 void TicketCollectorFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client)
 {
-	mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,TCFQuery_MainData,client),"SELECT * FROM ticket_collectors WHERE id = %"PRId64"",id);
+	mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,TCFQuery_MainData,client),"SELECT * FROM ticket_collectors WHERE id = %"PRIu64"",id);
 }
 
 //=============================================================================

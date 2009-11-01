@@ -603,11 +603,11 @@ void EntertainerManager::applyMoney(PlayerObject* customer,PlayerObject* designe
 	asyncContainer->amountbank = amountbank;
 
 
-	sprintf(sql,"UPDATE inventories SET credits=credits-%i WHERE id=%"PRId64"",amountcash, customer->getId()+1);
+	sprintf(sql,"UPDATE inventories SET credits=credits-%i WHERE id=%"PRIu64"",amountcash, customer->getId()+1);
 	mTransaction->addQuery(sql);
-	sprintf(sql,"UPDATE banks SET credits=credits-%i WHERE id=%"PRId64"",amountbank, customer->getId()+4);
+	sprintf(sql,"UPDATE banks SET credits=credits-%i WHERE id=%"PRIu64"",amountbank, customer->getId()+4);
 	mTransaction->addQuery(sql);
-	sprintf(sql,"UPDATE banks SET credits=credits+%i WHERE id=%"PRId64"",amount, designer->getId()+4);
+	sprintf(sql,"UPDATE banks SET credits=credits+%i WHERE id=%"PRIu64"",amount, designer->getId()+4);
 	mTransaction->addQuery(sql);
 
 	mTransaction->execute();

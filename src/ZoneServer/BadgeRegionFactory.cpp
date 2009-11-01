@@ -93,7 +93,7 @@ void BadgeRegionFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 
 								"planet_regions.width,planet_regions.height,badge_regions.parent_id"
 								" FROM badge_regions"
 								" INNER JOIN planet_regions ON (badge_regions.region_id = planet_regions.region_id)"
-								" WHERE (badge_regions.id = %"PRId64")",id);
+								" WHERE (badge_regions.id = %"PRIu64")",id);
 }
 
 //=============================================================================

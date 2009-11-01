@@ -173,7 +173,7 @@ void ObjectController::_handleOpenContainer(uint64 targetId,Message* message,Obj
 	}
 	else
 	{
-		gLogger->logMsgF("ObjectController::_handleOpenContainer: INVALID Object id %"PRId64"",MSG_NORMAL,targetId);
+		gLogger->logMsgF("ObjectController::_handleOpenContainer: INVALID Object id %"PRIu64"",MSG_NORMAL,targetId);
 	}
 }
 
@@ -191,7 +191,7 @@ void ObjectController::_handleCloseContainer(uint64 targetId,Message* message,Ob
 
 
 	// gLogger->hexDump(message->getData(),message->getSize());
-	// gLogger->logMsgF("ObjectController::_handleCloseContainer: targetId = %"PRId64"",MSG_NORMAL,targetId);
+	// gLogger->logMsgF("ObjectController::_handleCloseContainer: targetId = %"PRIu64"",MSG_NORMAL,targetId);
 	// gMessageLib->sendOpenedContainer(targetId, playerObject);
 }
 
@@ -216,13 +216,13 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 
 	// gLogger->logMsg("ObjectController::_handleTransferItem() THIS IS (almost) UNSUPPORTED");
 
-	if(swscanf(dataStr.getUnicode16(),L" %"WidePRId64 L" %u %f %f %f",&targetContainerId,&linkType,&x,&y,&z) != 5)
+	if(swscanf(dataStr.getUnicode16(),L" %"WidePRIu64 L" %u %f %f %f",&targetContainerId,&linkType,&x,&y,&z) != 5)
 	{
 		gLogger->logMsg("ObjController::handleTransferItem: Error in parameters");
 		return;
 	}
-	// gLogger->logMsgF("Parameters:  %"PRId64" %d %.1f %.1f %.1f", MSG_NORMAL, targetContainerId, linkType, x, y, z);
-	// gLogger->logMsgF("TargetId = %"PRId64"", MSG_NORMAL, targetId);
+	// gLogger->logMsgF("Parameters:  %"PRIu64" %d %.1f %.1f %.1f", MSG_NORMAL, targetContainerId, linkType, x, y, z);
+	// gLogger->logMsgF("TargetId = %"PRIu64"", MSG_NORMAL, targetId);
 
 	if(itemObject)
 	{
@@ -269,7 +269,7 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 				}
 				else
 				{
-					gLogger->logMsgF("ObjectController::_handleTransferItem: couldn't find cell %"PRId64"",MSG_HIGH,targetContainerId);
+					gLogger->logMsgF("ObjectController::_handleTransferItem: couldn't find cell %"PRIu64"",MSG_HIGH,targetContainerId);
 				}
 			}
 			else
@@ -431,7 +431,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 
 	message->getStringUnicode16(dataStr);
 
-	if(swscanf(dataStr.getUnicode16(),L" " WidePRId64 L" %u %f %f %f",&targetContainerId,&linkType,&x,&y,&z) != 5)
+	if(swscanf(dataStr.getUnicode16(),L"%"WidePRIu64 L" %u %f %f %f",&targetContainerId,&linkType,&x,&y,&z) != 5)
 	{
 		gLogger->logMsg("ObjController::_handleTransferItemMisc: Error in parameters");
 		return;
@@ -785,11 +785,11 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 		{
 			// It's an item in the inventory we are to manipulate.
 			// gLogger->logMsg("Source is an inventory");
-			// gLogger->logMsgF("Target container id = %"PRId64"", MSG_NORMAL, targetContainerId);
+			// gLogger->logMsgF("Target container id = %"PRIu64"", MSG_NORMAL, targetContainerId);
 
 			if (inventory->getId() == targetContainerId)
 			{
-				gLogger->logMsg("Target is THE same inventory\n");
+				gLogger->logMsg("Target is THE same inventory");
 			}
 			if (gWorldConfig->isTutorial())
 			{
@@ -1104,7 +1104,7 @@ void ObjectController::_handleGetAttributesBatch(uint64 targetId,Message* messag
 				continue;
 			}
 
-			//gLogger->logMsgF("ObjectController::_handleAttributesBatch: get info for %"PRId64"",MSG_HIGH,itemId);
+			//gLogger->logMsgF("ObjectController::_handleAttributesBatch: get info for %"PRIu64"",MSG_HIGH,itemId);
 
 			// TODO: check our datapad items
 			if(playerObject->isConnected())
@@ -1122,7 +1122,7 @@ void ObjectController::_handleGetAttributesBatch(uint64 targetId,Message* messag
 				(playerObject->getClient())->SendChannelAUnreliable(newMessage, playerObject->getAccountId(),  CR_Client, 8);
 			}
 
-			//gLogger->logMsgF("ObjectController::_handleAttributesBatch: Object not found %"PRId64"",MSG_HIGH,itemId);
+			//gLogger->logMsgF("ObjectController::_handleAttributesBatch: Object not found %"PRIu64"",MSG_HIGH,itemId);
 
 			//finally, when we are crafting this could be the new item, not yet added to the worldmanager??
 			if(playerObject->getCraftingSession())
@@ -1304,7 +1304,7 @@ void ObjectController::handleObjectMenuRequest(Message* message)
 		// send a default menu,so client stops flooding us with requests
 
 		//empty might just mean that the clients radial is sufficient
-		//gLogger->logMsgF("ObjController::handleObjectMenuRequest: Couldn't find object Radial %"PRId64"",MSG_HIGH,requestedObjectId);
+		//gLogger->logMsgF("ObjController::handleObjectMenuRequest: Couldn't find object Radial %"PRIu64"",MSG_HIGH,requestedObjectId);
 
 		if(playerObject->isConnected())
 		 	gMessageLib->sendEmptyObjectMenuResponse(requestedObjectId,playerObject,responseNr,menuItemList);
@@ -1341,7 +1341,7 @@ void ObjectController::handleObjectReady(Object* object,DispatchClient* client)
 	}
 	*/
 
-	// gLogger->logMsgF("ObjectController::handleObjectReady: targetId = %"PRId64" for %s",MSG_NORMAL,object->getId(), player->getFirstName().getAnsi());
+	// gLogger->logMsgF("ObjectController::handleObjectReady: targetId = %"PRIu64" for %s",MSG_NORMAL,object->getId(), player->getFirstName().getAnsi());
 
 
 	// Get the container object.

@@ -256,7 +256,7 @@ void ObjectControllerDispatch::_dispatchMessage(Message* message, DispatchClient
 		}
 	}
 	else
-		gLogger->logMsgF("ObjectControllerDispatch: Couldn't find Object %"PRId64"",MSG_HIGH,objId);
+		gLogger->logMsgF("ObjectControllerDispatch: Couldn't find Object %"PRIu64"",MSG_HIGH,objId);
 
 	message->setPendingDelete(true);
 	message->mSourceId = 56;
@@ -272,7 +272,7 @@ void ObjectControllerDispatch::_dispatchObjectMenuSelect(Message* message,Dispat
 	if(object != NULL)
 		object->handleObjectMenuSelect(message->getUint8(),gWorldManager->getPlayerByAccId(client->getAccountId()));
 	else
-		gLogger->logMsgF("ObjController::handleRadialSelect: Object not found %"PRId64"",MSG_HIGH,objectId);
+		gLogger->logMsgF("ObjController::handleRadialSelect: Object not found %"PRIu64"",MSG_HIGH,objectId);
 
 	message->setPendingDelete(true);
 	message->mSourceId = 57;

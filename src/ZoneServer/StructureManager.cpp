@@ -428,7 +428,7 @@ void StructureManager::removeNamefromPermissionList(uint64 structureId, uint64 p
 	// 2 name not on list
 	// 3 Owner cannot be removed
 
-//mDatabase->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%.2f' WHERE item_id=%"PRId64" AND attribute_id=%u",attValue,mItem->getId(),att->getAttributeId());
+//mDatabase->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%.2f' WHERE item_id=%"PRIu64" AND attribute_id=%u",attValue,mItem->getId(),att->getAttributeId());
 }
 
 
@@ -445,7 +445,7 @@ void StructureManager::addNametoPermissionList(uint64 structureId, uint64 player
 	StructureManagerAsyncContainer* asyncContainer;
 
 	asyncContainer = new StructureManagerAsyncContainer(Structure_Query_Add_Permission, 0);
-	mDatabase->ExecuteSqlAsync(this,asyncContainer,"select sf_AddPermissionList(%I64u,'%s','%s')",structureId,name.getAnsi(),list.getAnsi());
+	mDatabase->ExecuteSqlAsync(this,asyncContainer,"select sf_AddPermissionList(%"PRIu64",'%s','%s')",structureId,name.getAnsi(),list.getAnsi());
 	asyncContainer->mStructureId = structureId;
 	asyncContainer->mPlayerId = playerId;
 	sprintf(asyncContainer->name,"%s",name.getAnsi());
@@ -455,7 +455,7 @@ void StructureManager::addNametoPermissionList(uint64 structureId, uint64 player
 	// 1 name doesnt exist
 	// 2 name already on list
 
-//mDatabase->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%.2f' WHERE item_id=%"PRId64" AND attribute_id=%u",attValue,mItem->getId(),att->getAttributeId());
+//mDatabase->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%.2f' WHERE item_id=%"PRIu64" AND attribute_id=%u",attValue,mItem->getId(),att->getAttributeId());
 }
 
 
@@ -478,7 +478,7 @@ void StructureManager::getDeleteStructureMaintenanceData(uint64 structureId, uin
 
 	//322 = energy_maintenance
 	//382 = examine_maintenance
-//mDatabase->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%.2f' WHERE item_id=%"PRId64" AND attribute_id=%u",attValue,mItem->getId(),att->getAttributeId());
+//mDatabase->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%.2f' WHERE item_id=%"PRIu64" AND attribute_id=%u",attValue,mItem->getId(),att->getAttributeId());
 }
 
 

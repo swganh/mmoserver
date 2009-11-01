@@ -471,7 +471,7 @@ void LairObject::makePeaceWithDefendersOutOfRange(void)
 void LairObject::spawn(void)
 {
 	gLairSpawnCounter++;
-	gLogger->logMsgF("Spawned lair # %"PRId64" (%"PRId64")", MSG_NORMAL, gLairSpawnCounter, gLairSpawnCounter - gLairDeathCounter);
+	gLogger->logMsgF("Spawned lair # %"PRIu64" (%"PRIu64")", MSG_NORMAL, gLairSpawnCounter, gLairSpawnCounter - gLairDeathCounter);
 
 	// Update the world about my presence.
 	if (this->getParentId())

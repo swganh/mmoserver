@@ -64,7 +64,7 @@ void ObjectController::_handleSitServer(uint64 targetId,Message* message,ObjectC
 	// sitting on chair
 	if(data.getLength())
 	{
-		elementCount = swscanf(data.getUnicode16(),L"%f,%f,%f,%"WidePRId64,&chairX,&chairY,&chairZ,&chairCell);
+		elementCount = swscanf(data.getUnicode16(),L"%f,%f,%f,%"WidePRIu64,&chairX,&chairY,&chairZ,&chairCell);
 
 		if(elementCount == 4)
 		{
@@ -115,7 +115,7 @@ void ObjectController::_handleSitServer(uint64 targetId,Message* message,ObjectC
 					if(cell)
 						cell->removeChild(playerObject);
 					else
-						gLogger->logMsgF("Error removing %"PRId64" from cell %"PRId64"",MSG_NORMAL,playerObject->getId(),playerObject->getParentId());
+						gLogger->logMsgF("Error removing %"PRIu64" from cell %"PRIu64"",MSG_NORMAL,playerObject->getId(),playerObject->getParentId());
 
 					playerObject->setParentId(chairCell);
 
@@ -124,7 +124,7 @@ void ObjectController::_handleSitServer(uint64 targetId,Message* message,ObjectC
 					if(cell)
 						cell->addChild(playerObject);
 					else
-						gLogger->logMsgF("Error adding %"PRId64" to cell %"PRId64"",MSG_NORMAL,playerObject->getId(),chairCell);
+						gLogger->logMsgF("Error adding %"PRIu64" to cell %"PRIu64"",MSG_NORMAL,playerObject->getId(),chairCell);
 				}
 
 				playerObject->mPosition = Anh_Math::Vector3(chairX,chairY,chairZ);

@@ -185,7 +185,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 							" FROM	draft_slots"
 							" INNER JOIN draft_schematics_slots ON (draft_slots.id = draft_schematics_slots.draft_slot_id)"
 							" WHERE"
-							" (draft_schematics_slots.schematic_id = %"PRId64")",schemId);
+							" (draft_schematics_slots.schematic_id = %"PRIu64")",schemId);
 
 				mDatabase->ExecuteSqlAsync(this,asContainer,sql);
 

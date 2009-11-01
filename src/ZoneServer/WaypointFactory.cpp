@@ -85,7 +85,7 @@ void WaypointFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,
 								"SELECT waypoints.waypoint_id,waypoints.owner_id,waypoints.x,waypoints.y,waypoints.z,"
 								"waypoints.name,planet.name,waypoints.active,waypoints.type"
 								" FROM waypoints INNER JOIN planet ON (waypoints.planet_id = planet.planet_id)"
-								" WHERE (waypoints.waypoint_id = %"PRId64")",id);
+								" WHERE (waypoints.waypoint_id = %"PRIu64")",id);
 }
 
 //=============================================================================

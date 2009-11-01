@@ -67,7 +67,7 @@ void ObjectController::destroyObject(uint64 objectId)
 	// or something else
 	if(object == NULL)
 	{
-		gLogger->logMsgF("ObjController::destroyObject: could not find object %"PRId64"",MSG_NORMAL,objectId);
+		gLogger->logMsgF("ObjController::destroyObject: could not find object %"PRIu64"",MSG_NORMAL,objectId);
 
 		return;
 	}
@@ -78,7 +78,7 @@ void ObjectController::destroyObject(uint64 objectId)
 		// update our datapad
 		if(!(datapad->removeWaypoint(objectId)))
 		{
-			gLogger->logMsgF("ObjController::handleDestroyObject: Error removing Waypoint from datapad %"PRId64"",MSG_NORMAL,objectId);
+			gLogger->logMsgF("ObjController::handleDestroyObject: Error removing Waypoint from datapad %"PRIu64"",MSG_NORMAL,objectId);
 		}
 
 		gMessageLib->sendUpdateWaypoint(dynamic_cast<WaypointObject*>(object),ObjectUpdateDelete,playerObject);
@@ -95,7 +95,7 @@ void ObjectController::destroyObject(uint64 objectId)
 		//update the datapad
 		if(!(datapad->removeData(objectId)))
 		{
-			gLogger->logMsgF("ObjController::handleDestroyObject: Error removing Data from datapad %"PRId64"",MSG_NORMAL,objectId);
+			gLogger->logMsgF("ObjController::handleDestroyObject: Error removing Data from datapad %"PRIu64"",MSG_NORMAL,objectId);
 		}
 
 		gObjectFactory->deleteObjectFromDB(object);

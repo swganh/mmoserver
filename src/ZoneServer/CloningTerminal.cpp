@@ -175,7 +175,7 @@ void CloningTerminal::handleUIEvent(uint32 action,int32 element,string inputStr,
 				Anh_Math::Vector3 bindPosition = gWorldManager->getObjectById(playerObject->getPreDesignatedCloningFacilityId())->mPosition;
 				playerObject->setBindCoords(bindPosition);
 
-				// gLogger->logMsgF("CloningTerminal::handleUIEvent Saving clone facility id %"PRId64"",MSG_HIGH,playerObject->getPreDesignatedCloningFacilityId());
+				// gLogger->logMsgF("CloningTerminal::handleUIEvent Saving clone facility id %"PRIu64"",MSG_HIGH,playerObject->getPreDesignatedCloningFacilityId());
 
 				int8 sql[128];
 				sprintf(sql,"call swganh.sp_CharacterCreateClone(%"PRIu64",%"PRIu64")", playerObject->getId(),playerObject->getPreDesignatedCloningFacilityId());

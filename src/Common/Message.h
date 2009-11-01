@@ -22,7 +22,7 @@ enum MessagePath
 	MP_buildPacketStarted= 4,
 	MP_buildPacketEnded= 5,
 	MP_Multi= 6,
-	MP_buildPacketUnreliable= 7,
+	MP_buildPacketUnreliable= 7
 		
 
 };

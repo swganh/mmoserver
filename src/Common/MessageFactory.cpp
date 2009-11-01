@@ -14,7 +14,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "LogManager/LogManager.h"
 
 #include "Utils/clock.h"
-#include "NetworkManager/session.h"
+#include "NetworkManager/Session.h"
 
 #include <algorithm>
 #include <cassert>

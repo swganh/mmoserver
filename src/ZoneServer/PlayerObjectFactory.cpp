@@ -411,6 +411,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
 
 			maxLots -= static_cast<uint8>(lotCount);
 			playerObject->setPlayerLots((uint8)maxLots);
+			gLogger->logMsgF("PlayerObjectFactory: %I64u has %u lots remaining",MSG_HIGH,playerObject->getId(),maxLots);
 
 			mDatabase->DestroyDataBinding(binding);
 		}
@@ -733,7 +734,7 @@ void PlayerObjectFactory::_setupDatabindings()
 	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mBattleFatigue),4,162);
 
 	for(uint16 i = 0;i < 0x71;i++)
-		mPlayerBinding->addField(DFT_uint16,offsetof(PlayerObject,mCustomization)+i,2,i + 17);
+		mPlayerBinding->addField(DFT_uint16,offsetof(PlayerObject,mCustomization[i]),2,i + 17);
 
 	mPlayerBinding->addField(DFT_uint16,offsetof(PlayerObject,mCustomization[171]),2,130);
 	mPlayerBinding->addField(DFT_uint16,offsetof(PlayerObject,mCustomization[172]),2,131);

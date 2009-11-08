@@ -253,9 +253,6 @@ void CharacterAdminHandler::_processCreateCharacter(Message* message, DispatchCl
   message->getStringAnsi(characterInfo.mHairModel);
 
   // hair customization
-  //message->getStringAnsi(characterInfo.mHairColor);
-  //add hair customization to character customization?
-  //_parseAppearanceData(message, &characterInfo);
 	_parseHairData(message, &characterInfo);
 
   // Character profession
@@ -364,8 +361,8 @@ void CharacterAdminHandler::_processCreateCharacter(Message* message, DispatchCl
   strcat(sql2,sql3);
   strcat(sql, sql2);
 
-  // Logging the character create sql for debugging purposes,beware this contains binary data
-  // gLogger->logMsgF("CharacterCreate: %s", MSG_NORMAL, sql);
+  //Logging the character create sql for debugging purposes,beware this contains binary data
+  gLogger->logMsgF("CharacterCreate: %s", MSG_NORMAL, sql);
 
   CAAsyncContainer* asyncContainer = new CAAsyncContainer(CAQuery_CreateCharacter,client);
   mDatabase->ExecuteProcedureAsync(this,asyncContainer,sql);
@@ -446,7 +443,7 @@ void CharacterAdminHandler::_parseHairData(Message* message, CharacterCreateInfo
 
 	  // Get the size of the data block
 	  uint16 dataSize = message->getUint16();
-	  gLogger->logMsgF("datasize : %u \n", MSG_NORMAL, dataSize);
+	  gLogger->logMsgF("datasize : %u ", MSG_NORMAL, dataSize);
 
 	  uint8 startindex = 0;
 	  uint8 endindex = 0;
@@ -460,7 +457,7 @@ void CharacterAdminHandler::_parseHairData(Message* message, CharacterCreateInfo
 
 			  startindex = message->getUint8();
 			  endindex = message->getUint8();
-			  gLogger->logMsgF("StartIndex : %u   : EndIndex %u\n", MSG_NORMAL, startindex, endindex);
+			  gLogger->logMsgF("StartIndex : %u   : EndIndex %u", MSG_NORMAL, startindex, endindex);
 			  dataIndex = 2;
 		  }
 
@@ -494,7 +491,7 @@ void CharacterAdminHandler::_parseHairData(Message* message, CharacterCreateInfo
 
 			// Set our attribute value
 			info->mHairCustomization[attributeIndex] = ((uint16)valueHighByte << 8) | valueLowByte;
-			gLogger->logMsgF("Hair Customization Index : %u   : data %u\n", MSG_NORMAL, attributeIndex,info->mHairCustomization[attributeIndex]);
+			gLogger->logMsgF("Hair Customization Index : %u   : data %u", MSG_NORMAL, attributeIndex,info->mHairCustomization[attributeIndex]);
 		  }
 
 		  /* uint16 end2  = */message->getUint16();

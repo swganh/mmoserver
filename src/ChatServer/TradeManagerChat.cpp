@@ -915,7 +915,21 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
 					auctionTemp->BidderID=0;
 
 					result->GetNextRow(binding,auctionTemp);
-					auctionTemp->BidderID=boost::lexical_cast<uint64>(auctionTemp->BidderIDRaw);
+
+					using boost::lexical_cast;
+					using boost::bad_lexical_cast;
+
+					try
+					{
+						auctionTemp->BidderID=boost::lexical_cast<uint64>(auctionTemp->BidderIDRaw);
+					}
+					catch(bad_lexical_cast &)
+					{
+						auctionTemp->BidderID	= 0;
+
+					}
+					
+					
 					processAuctionEMails(auctionTemp);
 
 					mAuction.push_back(auctionTemp);

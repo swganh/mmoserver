@@ -464,12 +464,18 @@ void MessageFactory::_processGarbageCollection(void)
 
 					Session* session = (Session*)message->mSession;
 
+					if(!session)
+					{
+						gLogger->logMsgF("Packet is Sessionless ",MSG_HIGH);
+						message->setPendingDelete(true);
+					}
+					else
 					if(session->getStatus() > SSTAT_Disconnected)
 					{
 						gLogger->logMsgF("Session is about to be destroyed ",MSG_HIGH);
 
 					}
-
+					else
 					if(session->getStatus() == SSTAT_Disconnecting)
 					{
 						gLogger->logMsgF("Session is about to be destroyed ",MSG_HIGH);

@@ -258,9 +258,7 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 			{
 				string name;
 				name = asynContainer->name;
-				gLogger->logMsgF("StructurManager add %s failed ", MSG_HIGH,name.getAnsi());
 				name.convert(BSTRType_Unicode16);
-				//name.convert(BSTRType_ANSI);
 
 				gMessageLib->sendSystemMessage(player,L"","player_structure","modify_list_invalid_player","","",name.getUnicode16());
 			}
@@ -281,7 +279,6 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 				string name;
 				name = asynContainer->name;
 				name.convert(BSTRType_Unicode16);
-				//name.convert(BSTRType_ANSI);
 
 				gMessageLib->sendSystemMessage(player,L"","player_structure","cannot_remove_owner","","",name.getUnicode16());
 			}
@@ -407,13 +404,10 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
 
 //=======================================================================================================================
-//adds a name to a permission list
+//removes a name from a permission list
 //=======================================================================================================================
 void StructureManager::removeNamefromPermissionList(uint64 structureId, uint64 playerId, string name, string list)
 {
-	// load our structures maintenance data
-	// that means the maintenance attribute and the energy attribute
-	//
 
 	StructureManagerAsyncContainer* asyncContainer;
 
@@ -428,8 +422,6 @@ void StructureManager::removeNamefromPermissionList(uint64 structureId, uint64 p
 	// 1 name doesnt exist
 	// 2 name not on list
 	// 3 Owner cannot be removed
-
-//mDatabase->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%.2f' WHERE item_id=%"PRIu64" AND attribute_id=%u",attValue,mItem->getId(),att->getAttributeId());
 }
 
 

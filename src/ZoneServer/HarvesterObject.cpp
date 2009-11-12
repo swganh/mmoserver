@@ -64,6 +64,7 @@ void HarvesterObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject
 				return;
 			}
 
+			player->setStructurePermissionId(this->getId());
 			gStructureManager->OpenStructureAdminList(this->getId(), player->getId());
 
 		}

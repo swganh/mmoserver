@@ -242,5 +242,7 @@ bool MessageLib::sendAdminList(PlayerStructure* structure, PlayerObject* playerO
 
 	(playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 5);
 
+	structure->resetStructureAdminList();
+
 	return(true);
 }

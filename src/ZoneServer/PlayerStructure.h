@@ -119,6 +119,7 @@ class PlayerStructure :	public TangibleObject
 		// thats the structures admin list
 		BStringVector			getStrucureAdminList(){return mStructureAdminList;}
 		void					addStructureAdmin(string name){mStructureAdminList.push_back(name);}
+		void					resetStructureAdminList(){mStructureAdminList.clear();}
 
 
 

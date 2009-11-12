@@ -565,7 +565,7 @@ bool ObjectController::_processEventQueue()
 //
 void ObjectController::enqueueCommandMessage(Message* message)
 {
-	/* uint32	clientTicks		= */message->getUint32();
+	uint32	clientTicks		= message->getUint32();
 	uint32	sequence		= message->getUint32();
 	uint32	opcode			= message->getUint32();
 	uint64	targetId		= message->getUint64();

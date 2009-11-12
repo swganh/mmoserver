@@ -463,7 +463,7 @@ void ObjectFactory::deleteObjectFromDB(Object* object)
 
 		case ObjType_Harvester:
 		{
-			sprintf(sql,"DELETE FROM Harvesters WHERE ID = %"PRIu64"",object->getId());
+			sprintf(sql,"DELETE FROM structures WHERE ID = %"PRIu64"",object->getId());
 			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
 
 			// admin lists //update attributes

@@ -318,6 +318,9 @@ class PlayerObject : public CreatureObject
 		bool				checkPlayerLots(uint8 check){int16 intCheck = mLots -check;return (intCheck>=0);}
 		bool				usePlayerLots(uint8 usedLots);
 		bool				regainPlayerLots(uint8 lots);
+		
+		void				setStructurePermissionId(uint64 id){mPermissionId = id;}
+		uint64				getStructurePermissionId(){return mPermissionId;}
 
 
 		uint32				mXpUpdateCounter;
@@ -393,6 +396,11 @@ class PlayerObject : public CreatureObject
 		uint64				mPreDesignatedCloningFacilityId;
 		uint64				mSelectedInstrument;
 		uint64				mTradePartner;
+		
+		// ID of the structure were setting the Premission for - as this is no callback and the Objectcontroller doesnt always provide us with an ID
+		uint64				mPermissionId;	
+
+
 		uint32				mAccountId;
 		uint32				mBornyear;
 		uint32				mClientTickCount;

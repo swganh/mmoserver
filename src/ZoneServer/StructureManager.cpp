@@ -316,12 +316,12 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 			// 0 is sucess
 			// 1 name doesnt exist
 			// 2 name already on list
+			// 3 list is full (more than 36 entries)
 
 			if(returnValue == 0)
 			{
 				string name;
 				name = asynContainer->name;
-				//name.convert(BSTRType_Unicode16);
 				gMessageLib->sendSystemMessage(player,L"","player_structure","player_added","",name.getAnsi());
 			}
 
@@ -331,9 +331,7 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 				name = asynContainer->name;
 				gLogger->logMsgF("StructurManager add %s failed ", MSG_HIGH,name.getAnsi());
 				name.convert(BSTRType_Unicode16);
-				//name.convert(BSTRType_ANSI);
-
-
+				
 				gMessageLib->sendSystemMessage(player,L"","player_structure","modify_list_invalid_player","","",name.getUnicode16());
 			}
 
@@ -341,13 +339,16 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 			{
 				string name;
 				name = asynContainer->name;
-				//name.convert(BSTRType_Unicode16);
 				name.convert(BSTRType_ANSI);
 				name << " is already on the list";
 				name.convert(BSTRType_Unicode16);
 				gMessageLib->sendSystemMessage(player,name.getUnicode16());
 			}
 
+			if(returnValue == 3)
+			{
+				gMessageLib->sendSystemMessage(player,L"","player_structure","too_many_entries");
+			}
 
 			//sendStructureAdminList(asynContainer->mPlayerId);
 

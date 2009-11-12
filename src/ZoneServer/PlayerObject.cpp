@@ -120,6 +120,8 @@ PlayerObject::PlayerObject()
 
 	mLots = gWorldConfig->getConfiguration("Player_Max_Lots",(uint8)10);
 
+	mPermissionId = 0;
+
 	mIDSession = IDSessionNONE;
 }
 

@@ -13,7 +13,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Deed.h"
 #include "HarvesterFactory.h"
 #include "Heightmap.h"
+#include "HarvesterObject.h"
 #include "PlayerStructure.h"
+#include "PlayerObject.h"
 #include "Inventory.h"
 #include "Item.h"
 #include "ObjectController.h"
@@ -63,13 +65,50 @@ void	ObjectController::_handleModifyPermissionList(uint64 targetId,Message* mess
 
 	sscanf(dataStr.getAnsi(),"%s %s %s",playerStr.getAnsi(), list.getAnsi(), action.getAnsi());
 
+	if(playerStr.getLength() > 40)
+	{
+		gMessageLib->sendSystemMessage(player,L"","player_structure","permission_40_char ");
+		return;
+	}
+
 	gLogger->logMsgF(" %s %s %s",MSG_HIGH, playerStr.getAnsi(), list.getAnsi(), action.getAnsi());
 
+	//TODO is target a structure?? used when using the commandline option
+	uint64 id = player->getTargetId();
+	Object* object = gWorldManager->getObjectById(id);
+	PlayerStructure* structure = dynamic_cast<PlayerStructure*>(object);
+
+	//if we have no structure that way, see whether we have a structure were we just used the adminlist
+	if(!structure)
+	{
+		id = player->getStructurePermissionId();
+		Object* object = gWorldManager->getObjectById(id);
+		structure = dynamic_cast<PlayerStructure*>(object);
+	}
+	
+	if(!structure)
+	{
+		gLogger->logMsgF("ObjectController::_handleModifyPermissionList No structure found :(",MSG_HIGH);
+		return;
+	}
+
+	//is the structure in Range???
+	float fAdminListDistance = gWorldConfig->getConfiguration("Player_Admin_List_Distance",(float)32.0);
+	
+	if(!player->mPosition.inRange2D(structure->mPosition,fAdminListDistance))
+	{
+		gMessageLib->sendSystemMessage(player,L"","player_structure","command_no_building");
+		return;
+	}
+
+	player->setStructurePermissionId(0);
+	
+
 	if(action == "add")
-		gStructureManager->addNametoPermissionList(targetId, player->getId(), playerStr, list);
+		gStructureManager->addNametoPermissionList(structure->getId(), player->getId(), playerStr, list);
 
 	if(action == "remove")
-		gStructureManager->addNametoPermissionList(targetId, player->getId(), playerStr, list);
+		gStructureManager->addNametoPermissionList(structure->getId(), player->getId(), playerStr, list);
 }
 //======================================================================================================================
 //

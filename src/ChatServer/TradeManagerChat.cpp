@@ -945,7 +945,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
 					//do we need to refund money???
 					if(auctionTemp->AuctionTyp == TRMVendor_Auction)
 					{
-						gLogger->logMsgF("check refund",MSG_NORMAL);
+						//gLogger->logMsgF("check refund",MSG_NORMAL);
 						//read in the bidhistory and iterate through the bidders of the auction
 						//refund money to everybody but the winning bidder
 

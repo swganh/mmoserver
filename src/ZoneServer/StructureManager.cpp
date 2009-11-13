@@ -326,6 +326,7 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 			{
 				string name;
 				name = asynContainer->name;
+				name.convert(BSTRType_ANSI);
 				gLogger->logMsgF("StructurManager add %s failed ", MSG_HIGH,name.getAnsi());
 				name.convert(BSTRType_Unicode16);
 				
@@ -394,6 +395,56 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 		}
 		break;
 
+		// =========================================
+		// asynchronously checks whether the player is on the admin list
+		case Structure_Query_Check_Permission:
+		{
+			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
+
+			uint32 returnValue;
+			DataBinding* binding = mDatabase->CreateDataBinding(1);
+			binding->addField(DFT_uint32,0,4);
+
+			uint64 count;
+			count = result->getRowCount();
+
+			if (!count)
+			{
+				gLogger->logMsgLoadFailure("StructureManager::check Permission no return value...",MSG_NORMAL);
+			}
+			result->GetNextRow(binding,&returnValue);
+			// 0 is on List
+			// 1 name doesnt exist
+			// 2 name not on list
+			// 3 owner
+
+			if((returnValue == 0)||(returnValue == 3))
+			{
+				// call processing handler
+				// 3 means structure Owner
+				processVerification(asynContainer->command,(returnValue == 3));
+				
+			}
+
+			if(returnValue == 1)
+			{
+				string name;
+				name = asynContainer->name;
+				name.convert(BSTRType_ANSI);
+				
+				gLogger->logMsgF("StructurManager check Permission name %s doesnt exist ", MSG_HIGH,name.getAnsi());
+				
+			}
+
+			if(returnValue == 2)
+			{
+				gMessageLib->sendSystemMessage(player,L"You are not an admin of this structure");
+			}
+
+			mDatabase->DestroyDataBinding(binding);
+		}
+		break;
+
 		default:break;
 
 	}
@@ -401,6 +452,28 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 }
 
 
+
+//=======================================================================================================================
+//checks for a name on a permission list
+//=======================================================================================================================
+void StructureManager::checkNameOnPermissionList(uint64 structureId, uint64 playerId, string name, string list, StructureAsyncCommand command)
+{
+
+	StructureManagerAsyncContainer* asyncContainer;
+
+	asyncContainer = new StructureManagerAsyncContainer(Structure_Query_Check_Permission, 0);
+	mDatabase->ExecuteSqlAsync(this,asyncContainer,"select sf_CheckPermissionList(%I64u,'%s','%s')",structureId,name.getAnsi(),list.getAnsi());
+	asyncContainer->mStructureId = structureId;
+	asyncContainer->mPlayerId = playerId;
+	asyncContainer->command = command;
+	sprintf(asyncContainer->name,"%s",name.getAnsi());
+
+
+	// 0 is Name on list
+	// 1 name doesnt exist
+	// 2 name not on list
+	// 3 Owner 
+}
 
 
 //=======================================================================================================================
@@ -823,4 +896,33 @@ void StructureManager::OpenStructureAdminList(uint64 structureId, uint64 playerI
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT c.firstname FROM structure_admin_data sad  INNER JOIN characters c ON (sad.PlayerID = c.ID)where sad.StructureID = %I64u",structureId);
 
 
+}
+
+//=======================================================================================================================
+//processes a succesfull PermissionList verification
+//=======================================================================================================================
+void StructureManager::processVerification(StructureAsyncCommand command, bool owner)
+{
+
+	PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(command.PlayerId));
+
+	if(!player)
+	{
+		gLogger->logMsg("StructureManager::processVerification : No Player");
+		return;
+	}
+
+	switch(command.Command)
+	{
+		case Structure_Command_Destroy: 
+		{		
+			if(owner)
+				gStructureManager->getDeleteStructureMaintenanceData(command.StructureId, command.PlayerId);
+			else
+				gMessageLib->sendSystemMessage(player,L"","player_structure","destroy_must_be_owner");
+			
+			
+		}
+		break;
+	}
 }

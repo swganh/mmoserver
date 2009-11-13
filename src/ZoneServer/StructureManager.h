@@ -51,17 +51,37 @@ enum Structure_QueryType
 	Structure_Query_delete				=	3,
 	Structure_Query_Admin_Data			=	4,
 	Structure_Query_Add_Permission		=	5,
-	Structure_Query_Remove_Permission	=	6
+	Structure_Query_Remove_Permission	=	6,
+	Structure_Query_Check_Permission	=	7,
+
+};
+
+enum Structure_Async_CommandEnum
+{
+	Structure_Command_NULL				=	0,
+	Structure_Command_AddPermission		=	1,
+	Structure_Command_Destroy			=	2,
+	
 
 };
 
 //======================================================================================================================
+
+struct StructureAsyncCommand
+{
+	uint64						StructureId;
+	uint64						PlayerId;
+	string						CommandString;
+	Structure_Async_CommandEnum	Command;
+};
 
 struct attributeDetail
 {
 	string	value;
 	uint32	attributeId;
 };
+
+
 
 //links deeds to structuredata
 //TODO still needs to be updated to support several structure types for some placeables
@@ -127,6 +147,7 @@ public:
 	int8						name[64];
 
 	PlayerObject*				builder;
+	StructureAsyncCommand		command;
 
 };
 
@@ -171,6 +192,8 @@ class StructureManager : public DatabaseCallback,public ObjectFactoryCallback
 
 		void					addNametoPermissionList(uint64 structureId, uint64 playerId, string name, string list);
 		void					removeNamefromPermissionList(uint64 structureId, uint64 playerId, string name, string list);
+		void					checkNameOnPermissionList(uint64 structureId, uint64 playerId, string name, string list, StructureAsyncCommand command);
+		void					processVerification(StructureAsyncCommand command, bool owner);
 
 		//returns a confirmatioon code for structure destruction
 		string					getCode();

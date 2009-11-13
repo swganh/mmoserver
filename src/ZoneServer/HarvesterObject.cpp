@@ -46,14 +46,16 @@ void HarvesterObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject
 	{
 		case radId_serverTerminalManagementDestroy: 
 		{
-			if(this->getOwner() != player->getId())
-			{
-				gLogger->logMsgF("HarvesterObject::handleObjectMenuSelect::Not the Owner",MSG_HIGH);
-				return;
-			}
+			StructureAsyncCommand command;
+			command.Command = Structure_Command_Destroy;
+			command.PlayerId = player->getId();
+			command.StructureId = this->getId();
 
-			gStructureManager->getDeleteStructureMaintenanceData(this->getId(), player->getId());
-			//gUIManager->createNewStructureDestroyBox(this,player, this, true);
+			gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+	
+			
+			//gStructureManager->getDeleteStructureMaintenanceData(this->getId(), player->getId());
+			
 		}
 		break;
 		case radId_serverTerminalManagement:

@@ -411,6 +411,8 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 			if (!count)
 			{
 				gLogger->logMsgLoadFailure("StructureManager::check Permission no return value...",MSG_NORMAL);
+				mDatabase->DestroyDataBinding(binding);
+				return;
 			}
 			result->GetNextRow(binding,&returnValue);
 			// 0 is on List

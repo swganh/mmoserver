@@ -463,10 +463,15 @@ void ObjectFactory::deleteObjectFromDB(Object* object)
 
 		case ObjType_Harvester:
 		{
+			//Harvester
 			sprintf(sql,"DELETE FROM structures WHERE ID = %"PRIu64"",object->getId());
 			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
 
-			// admin lists //update attributes
+			//Admin / Hopper Lists
+			sprintf(sql,"DELETE FROM structure_admin_data WHERE StructureID = %"PRIu64"",object->getId());
+			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
+
+			//update attributes cave redeed vs destroy
 
 		}
 		break;

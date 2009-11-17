@@ -60,7 +60,9 @@ enum Structure_Async_CommandEnum
 {
 	Structure_Command_NULL				=	0,
 	Structure_Command_AddPermission		=	1,
-	Structure_Command_Destroy			=	2,
+	Structure_Command_RemovePermission	=	2,
+	Structure_Command_Destroy			=	3,
+	Structure_Command_Permission		=	4,
 	
 
 };
@@ -72,6 +74,8 @@ struct StructureAsyncCommand
 	uint64						StructureId;
 	uint64						PlayerId;
 	string						CommandString;
+	string						PlayerStr;
+	string						List;
 	Structure_Async_CommandEnum	Command;
 };
 

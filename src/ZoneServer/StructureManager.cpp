@@ -924,5 +924,32 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			
 		}
 		break;
+
+		case Structure_Command_Permission:
+		{
+			player->setStructurePermissionId(command.StructureId);
+			OpenStructureAdminList(command.StructureId, command.PlayerId);
+
+		}
+		break;
+
+		case Structure_Command_AddPermission:
+		{
+		
+			addNametoPermissionList(command.StructureId, command.PlayerId, command.PlayerStr, command.List);
+
+		}
+		break;
+
+		case Structure_Command_RemovePermission:
+		{
+
+			removeNamefromPermissionList(command.StructureId, command.PlayerId, command.PlayerStr, command.List);
+	
+		}
+
+		
+
+	
 	}
 }

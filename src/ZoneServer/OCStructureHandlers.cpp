@@ -46,6 +46,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 void	ObjectController::_handleModifyPermissionList(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 
 {
+
+
 	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
 
 	if(!player)
@@ -103,12 +105,24 @@ void	ObjectController::_handleModifyPermissionList(uint64 targetId,Message* mess
 
 	player->setStructurePermissionId(0);
 	
+	StructureAsyncCommand command;
+	command.PlayerId = player->getId();
+	command.StructureId = structure->getId();
+	command.List = list;
+	command.PlayerStr = playerStr;
 
 	if(action == "add")
-		gStructureManager->addNametoPermissionList(structure->getId(), player->getId(), playerStr, list);
+	{
+		command.Command = Structure_Command_AddPermission;	
+		gStructureManager->checkNameOnPermissionList(structure->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+	}
 
 	if(action == "remove")
-		gStructureManager->removeNamefromPermissionList(structure->getId(), player->getId(), playerStr, list);
+	{
+		command.Command = Structure_Command_RemovePermission;	
+		gStructureManager->checkNameOnPermissionList(structure->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+	}
+		
 }
 //======================================================================================================================
 //

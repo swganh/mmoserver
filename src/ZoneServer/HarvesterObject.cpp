@@ -52,22 +52,17 @@ void HarvesterObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject
 			command.StructureId = this->getId();
 
 			gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
-	
-			
-			//gStructureManager->getDeleteStructureMaintenanceData(this->getId(), player->getId());
 			
 		}
 		break;
 		case radId_serverTerminalManagement:
-		{
-			if(this->getOwner() != player->getId())
-			{
-				gLogger->logMsgF("HarvesterObject::handleObjectMenuSelect::Not the Owner",MSG_HIGH);
-				return;
-			}
+		{			
+			StructureAsyncCommand command;
+			command.Command = Structure_Command_Permission;
+			command.PlayerId = player->getId();
+			command.StructureId = this->getId();
 
-			player->setStructurePermissionId(this->getId());
-			gStructureManager->OpenStructureAdminList(this->getId(), player->getId());
+			gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
 
 		}
 		break;

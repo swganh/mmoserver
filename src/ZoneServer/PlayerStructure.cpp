@@ -18,6 +18,9 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "MessageLib/MessageLib.h"
 #include "MathLib/Quaternion.h"
 
+#include "DatabaseManager/Database.h"
+#include "DatabaseManager/DatabaseResult.h"
+#include "DatabaseManager/DataBinding.h"
 //=============================================================================
 
 PlayerStructure::PlayerStructure() : TangibleObject()
@@ -184,6 +187,49 @@ void PlayerStructure::handleUIEvent(uint32 action,int32 element,string inputStr,
 			// now that a decision has been made get confirmation
 			gUIManager->createNewStructureDeleteConfirmBox(this,playerObject,this );
 		
+		}
+		break;
+
+		case SUI_Window_Structure_Rename:
+		{
+
+			inputStr.convert(BSTRType_ANSI);
+			
+			if(!inputStr.getLength())
+			{
+				//hmmm no answer - remain as it is?
+				return;
+			}
+
+			if(inputStr.getLength() > 68)
+			{
+				//hmmm no answer - remain as it is?
+				gMessageLib->sendSystemMessage(playerObject,L"","player_structure","not_valid_name"); 
+				return;
+
+			}
+			
+			//inputStr.convert(BSTRType_Unicode16);
+			this->setCustomName(inputStr.getAnsi());
+
+			gMessageLib->sendNewHarvesterName(this);
+
+			//update db!!!
+			// pull the db query
+
+		
+			int8	sql[255],end[64],*sqlPointer;
+
+			sprintf(sql,"UPDATE structures SET structures.name = '");
+			sprintf(end,"' WHERE structures.ID = %I64u",this->getId());
+			sqlPointer = sql + strlen(sql);
+			sqlPointer += gWorldManager->getDatabase()->Escape_String(sqlPointer,inputStr.getAnsi(),inputStr.getLength());
+			strcat(sql,end);
+
+			gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,sql);
+
+			gLogger->logMsgF("PlayerStructure::Rename Structure sql : %s", MSG_NORMAL,sql);
+
 		}
 		break;
 

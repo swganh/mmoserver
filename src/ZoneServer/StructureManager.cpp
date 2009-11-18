@@ -131,7 +131,8 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 			//thats 205 ????
 			uint8 requiredLots = structure->getLotCount();
 
-			if(lots >= requiredLots)
+			uint8 freelots = gWorldConfig->getConfiguration("Player_Max_Lots",(uint8)10) - lots;
+			if(freelots >= requiredLots)
 			{
 				//yay we were succesful
 				structure->setOwner(asynContainer->mTargetId);

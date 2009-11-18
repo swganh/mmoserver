@@ -365,6 +365,8 @@ public:
 	bool				sendBaselinesHINO_3(HarvesterObject* harvester,PlayerObject* player);
 	bool				sendBaselinesHINO_6(HarvesterObject* harvester,PlayerObject* player);
 	bool				sendBaselinesHINO_7(HarvesterObject* harvester,PlayerObject* player);
+	
+	void				sendNewHarvesterName(PlayerStructure* harvester);
 
 	// Installation Messages
 	bool				sendBaselinesINSO_3(PlayerStructure* structure,PlayerObject* player);

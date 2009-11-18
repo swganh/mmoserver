@@ -46,14 +46,19 @@ bool MessageLib::sendBaselinesHINO_3(HarvesterObject* harvester,PlayerObject* pl
 	gMessageFactory->addUint32(opHINO);
 	gMessageFactory->addUint8(3);
 
-	uint32 byteCount = 59 + harvester->getNameFile().getLength() + harvester->getName().getLength();
+	uint32 byteCount = 59 + harvester->getNameFile().getLength() + harvester->getName().getLength()+(harvester->getCustomName().getLength()*2);
 	gMessageFactory->addUint32(byteCount);
 	gMessageFactory->addUint16(16);
 	gMessageFactory->addFloat(1.0);
 	gMessageFactory->addString(harvester->getNameFile());
 	gMessageFactory->addUint32(0);
 	gMessageFactory->addString(harvester->getName());
-	gMessageFactory->addString(harvester->getCustomName());
+	
+	string name;
+	name = harvester->getCustomName();
+	name.convert(BSTRType_Unicode16);
+
+	gMessageFactory->addString(name.getUnicode16());
 	
 	gMessageFactory->addUint32(1);//volume (in inventory)
 	gMessageFactory->addUint16(0);//customization
@@ -245,4 +250,30 @@ bool MessageLib::sendBaselinesINSO_6(PlayerStructure* structure,PlayerObject* pl
 	(player->getClient())->SendChannelA(newMessage, player->getAccountId(), CR_Client, 5);
 
 	return(true);
+}
+
+
+//======================================================================================================================
+//send Harvester Name update
+//======================================================================================================================
+
+void MessageLib::sendNewHarvesterName(PlayerStructure* harvester)
+{
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opDeltasMessage);
+	gMessageFactory->addUint64(harvester->getId());
+	gMessageFactory->addUint32(opHINO);
+	gMessageFactory->addUint8(3);
+
+	gMessageFactory->addUint32(8 + (harvester->getCustomName().getLength()*2));
+	gMessageFactory->addUint16(1);
+	gMessageFactory->addUint16(2);
+	//Unicode
+	string name;
+	name = harvester->getCustomName();
+	name.convert(BSTRType_Unicode16);
+
+	gMessageFactory->addString(name.getUnicode16());
+
+	_sendToInRange(gMessageFactory->EndMessage(),harvester,5);
 }

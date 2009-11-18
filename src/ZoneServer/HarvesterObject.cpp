@@ -79,6 +79,13 @@ void HarvesterObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject
 		}
 		break;
 
+		case radId_setName:
+		{
+
+			gUIManager->createRenameStructureBox(this,player, this);
+		}
+		break;
+
 		
 	}
 }
@@ -101,8 +108,10 @@ void HarvesterObject::prepareCustomRadialMenu(CreatureObject* creatureObject, ui
 	radial->addItem(3,0,radId_serverTerminalManagement,radAction_ObjCallback,"Structure Permissions");
 	
 	radial->addItem(4,2,radId_serverTerminalManagementDestroy,radAction_ObjCallback,"destroy");//destroy
-	radial->addItem(5,3,radId_serverTerminalPermissionsAdmin,radAction_ObjCallback,"Admin List");//destroy
-	radial->addItem(6,3,radId_serverTerminalPermissionsHopper,radAction_ObjCallback,"Hopper List");//destroy
+	radial->addItem(5,2,radId_setName,radAction_ObjCallback,"Rename Structure");//destroy
+	
+	radial->addItem(6,3,radId_serverTerminalPermissionsAdmin,radAction_ObjCallback,"Admin List");//destroy
+	radial->addItem(7,3,radId_serverTerminalPermissionsHopper,radAction_ObjCallback,"Hopper List");//destroy
 	
 
 

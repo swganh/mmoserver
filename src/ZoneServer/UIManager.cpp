@@ -493,8 +493,6 @@ void UIManager::createNewStructureDestroyBox(UICallback* callback,PlayerObject* 
 	createNewListBox(callback,"handle Structure Destroy",sName, text.getAnsi(), attributesMenu, player, SUI_Window_Structure_Delete,SUI_LB_OKCANCEL);
 }
 
-
-
 void UIManager::createNewStructureDeleteConfirmBox(UICallback* callback,PlayerObject* player, PlayerStructure* structure)
 {
 
@@ -519,6 +517,34 @@ void UIManager::createNewStructureDeleteConfirmBox(UICallback* callback,PlayerOb
 	BStringVector vector;
 
 	createNewInputBox(callback,"",caption,text.getAnsi(),vector,player,SUI_IB_NODROPDOWN_OKCANCEL,SUI_Window_Structure_Delete_Confirm,6);
+	
+}
+
+
+void UIManager::createRenameStructureBox(UICallback* callback,PlayerObject* player, PlayerStructure* structure)
+{
+
+	string text = "Please enter the new name you would like for this object.";
+	
+	int8 caption[32];
+	sprintf(caption,"NAME THE OBJECT");
+
+	BStringVector vector;
+
+	int8 sName[128];
+
+	string name = structure->getCustomName();			
+	name.convert(BSTRType_ANSI);
+	sprintf(sName,"%s",name.getAnsi());
+	if(!name.getLength())
+	{
+		sprintf(sName,"@%s:%s",structure->getNameFile().getAnsi(),structure->getName().getAnsi());
+		
+	}
+
+	vector.push_back(sName);
+
+	createNewInputBox(callback,sName,caption,text.getAnsi(),vector,player,SUI_IB_NODROPDOWN_OKCANCEL,SUI_Window_Structure_Rename,68);
 	
 }
 

@@ -510,7 +510,7 @@ void UIManager::createNewStructureDeleteConfirmBox(UICallback* callback,PlayerOb
 	
 	int8 code [32];
 	structure->setCode();
-	sprintf(code,"code:%s",structure->getCode().getAnsi());
+	sprintf(code,"code: %s",structure->getCode().getAnsi());
 	text << code;
 
 	int8 caption[32];

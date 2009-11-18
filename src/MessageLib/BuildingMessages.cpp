@@ -204,8 +204,7 @@ bool MessageLib::sendEnterStructurePlacement(Object* deed, string objectString, 
 
 //======================================================================================================================
 //
-// Building Baselines Type 6
-// contain: unknown
+// sends the Admin List for a structure
 //
 
 bool MessageLib::sendAdminList(PlayerStructure* structure, PlayerObject* playerObject)
@@ -243,6 +242,50 @@ bool MessageLib::sendAdminList(PlayerStructure* structure, PlayerObject* playerO
 	(playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 5);
 
 	structure->resetStructureAdminList();
+
+	return(true);
+}
+
+//======================================================================================================================
+//
+// sends the Hopper List for a structure
+//
+
+bool MessageLib::sendHopperList(PlayerStructure* structure, PlayerObject* playerObject)
+{
+	if(!(playerObject->isConnected()))
+		return(false);
+
+	Message* newMessage;
+
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opSendPermissionList);  
+	gMessageFactory->addUint32(structure->getStrucureHopperList().size() );
+
+	string name;
+	BStringVector vector = 	structure->getStrucureHopperList();
+	BStringVector::iterator it = vector.begin();
+	while(it != vector.end())
+	{
+		name = (*it);
+		name.convert(BSTRType_Unicode16);
+		gMessageFactory->addString(name);
+
+		it++;
+	}
+
+	gMessageFactory->addUint32(0); // ???
+	//gMessageFactory->addUint16(0);	// unknown
+	name = "HOPPER";
+	name.convert(BSTRType_Unicode16);
+	gMessageFactory->addString(name);
+	gMessageFactory->addUint32(0); // ???
+	
+	newMessage = gMessageFactory->EndMessage();
+
+	(playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 5);
+
+	structure->resetStructureHopperList();
 
 	return(true);
 }

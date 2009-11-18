@@ -44,15 +44,18 @@ typedef std::list<uint64>				ObjectIDList;
 
 enum Structure_QueryType
 {
-	Structure_Query_NULL				=	0,
-	Structure_Query_LoadDeedData		=	1,
-	Structure_Query_LoadstructureItem	=	2,
+	Structure_Query_NULL						=	0,
+	Structure_Query_LoadDeedData				=	1,
+	Structure_Query_LoadstructureItem			=	2,
 
-	Structure_Query_delete				=	3,
-	Structure_Query_Admin_Data			=	4,
-	Structure_Query_Add_Permission		=	5,
-	Structure_Query_Remove_Permission	=	6,
-	Structure_Query_Check_Permission	=	7,
+	Structure_Query_delete						=	3,
+	Structure_Query_Admin_Data					=	4,
+	Structure_Query_Hopper_Data					=	5,
+	Structure_Query_Add_Permission				=	6,
+	Structure_Query_Remove_Permission			=	7,
+	Structure_Query_Check_Permission			=	8,
+	Structure_StructureTransfer_Lots_Recipient	=	9,
+	Structure_StructureTransfer_Lots_Donor		=	10,
 
 };
 
@@ -62,7 +65,9 @@ enum Structure_Async_CommandEnum
 	Structure_Command_AddPermission		=	1,
 	Structure_Command_RemovePermission	=	2,
 	Structure_Command_Destroy			=	3,
-	Structure_Command_Permission		=	4,
+	Structure_Command_PermissionAdmin	=	4,
+	Structure_Command_PermissionHopper	=	5,
+	Structure_Command_TransferStructure	=	6,
 	
 
 };
@@ -73,9 +78,11 @@ struct StructureAsyncCommand
 {
 	uint64						StructureId;
 	uint64						PlayerId;
+	uint64						RecipientId;
 	string						CommandString;
 	string						PlayerStr;
 	string						List;
+	string						Name;
 	Structure_Async_CommandEnum	Command;
 };
 
@@ -147,6 +154,7 @@ public:
 
 	uint64						mStructureId;
 	uint64						mPlayerId;
+	uint64						mTargetId;
 
 	int8						name[64];
 
@@ -198,6 +206,7 @@ class StructureManager : public DatabaseCallback,public ObjectFactoryCallback
 		void					removeNamefromPermissionList(uint64 structureId, uint64 playerId, string name, string list);
 		void					checkNameOnPermissionList(uint64 structureId, uint64 playerId, string name, string list, StructureAsyncCommand command);
 		void					processVerification(StructureAsyncCommand command, bool owner);
+		void					TransferStructureOwnership(StructureAsyncCommand command);
 
 		//returns a confirmatioon code for structure destruction
 		string					getCode();
@@ -217,6 +226,7 @@ class StructureManager : public DatabaseCallback,public ObjectFactoryCallback
 		}
 
 		void					OpenStructureAdminList(uint64 structureId, uint64 playerId);
+		void					OpenStructureHopperList(uint64 structureId, uint64 playerId);
 
 
 

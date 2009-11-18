@@ -51,6 +51,7 @@ class HarvesterObject :	public PlayerStructure
 		HarvesterFamily	mHarvesterFamily;
 
 		uint32			mTotalLoadCount;
+
 };
 
 //=============================================================================

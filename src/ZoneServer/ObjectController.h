@@ -524,6 +524,7 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback
 
 		void	_handleStructurePlacement(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleModifyPermissionList(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
+		void	_handleTransferStructure(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 
 		//pets
 		void	_handleMount(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);

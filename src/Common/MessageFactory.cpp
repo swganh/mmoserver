@@ -504,8 +504,18 @@ void MessageFactory::_processGarbageCollection(void)
 
 				if(Anh_Utils::Clock::getSingleton()->getLocalTime() - message->getCreateTime() > MESSAGE_MAX_LIFE_TIME*3)
 				{
-					session->setCommand(SCOM_Disconnect);
-					gLogger->logErrorF("MessageLayer","MessageFactory::_processGarbageCollection Message Heap TimeOut destroying Session ",MSG_HIGH);
+					if(session)
+					{
+						session->setCommand(SCOM_Disconnect);
+						gLogger->logErrorF("MessageLayer","MessageFactory::_processGarbageCollection Message Heap TimeOut destroying Session ",MSG_HIGH);
+					}
+					else
+					{
+						message->setPendingDelete(true);
+						gLogger->logErrorF("MessageLayer","MessageFactory::_processGarbageCollection Message Heap TimeOut session already destroyed - tagging message as destroyable",MSG_HIGH);
+					}
+
+				
 				}
 
 			}

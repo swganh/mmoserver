@@ -111,7 +111,6 @@ void HarvesterFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
 		case HFQuery_MainData:
 		{
-			gLogger->logMsgF("HarvesterFactory: HFQuery_MainData ", MSG_HIGH);
 			QueryContainerBase* asynContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,HFQuery_ResourceData,asyncContainer->mClient,asyncContainer->mId);
 
 			HarvesterObject* harvester = new(HarvesterObject);
@@ -170,7 +169,7 @@ void HarvesterFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id
 
 								*/
 	int8 hmm[1024];
-	sprintf(hmm, "SELECT s.id,s.owner,s.oX,s.oY,s.oZ,s.oW,s.x,s.y,s.z,structure_type_data.type,structure_type_data.object_string,structure_type_data.stf_name, structure_type_data.stf_file, s.name FROM structures s INNER JOIN structure_type_data ON (s.type = structure_type_data.type) WHERE (s.id = %"PRIu64")",id);
+	sprintf(hmm, "SELECT s.id,s.owner,s.oX,s.oY,s.oZ,s.oW,s.x,s.y,s.z,std.type,std.object_string,std.stf_name, std.stf_file, s.name, std.lots_used FROM structures s INNER JOIN structure_type_data std ON (s.type = std.type) WHERE (s.id = %"PRIu64")",id);
 	QueryContainerBase* asynContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,HFQuery_MainData,client,id);
 
 	mDatabase->ExecuteSqlAsync(this,asynContainer,hmm);
@@ -181,7 +180,7 @@ void HarvesterFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id
 
 void HarvesterFactory::_setupDatabindings()
 {
-	mHarvesterBinding = mDatabase->CreateDataBinding(14);
+	mHarvesterBinding = mDatabase->CreateDataBinding(15);
 	mHarvesterBinding->addField(DFT_uint64,offsetof(HarvesterObject,mId),8,0);
 	mHarvesterBinding->addField(DFT_uint64,offsetof(HarvesterObject,mOwner),8,1);
 	mHarvesterBinding->addField(DFT_float,offsetof(HarvesterObject,mDirection.mX),4,2);
@@ -196,6 +195,7 @@ void HarvesterFactory::_setupDatabindings()
 	mHarvesterBinding->addField(DFT_bstring,offsetof(HarvesterObject,mName),256,11);
 	mHarvesterBinding->addField(DFT_bstring,offsetof(HarvesterObject,mNameFile),256,12);
 	mHarvesterBinding->addField(DFT_bstring,offsetof(HarvesterObject,mCustomName),256,13);
+	mHarvesterBinding->addField(DFT_uint8,offsetof(HarvesterObject,mLotsUsed),1,14);
 
 
 }

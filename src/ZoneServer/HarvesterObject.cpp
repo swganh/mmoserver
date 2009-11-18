@@ -55,10 +55,10 @@ void HarvesterObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject
 			
 		}
 		break;
-		case radId_serverTerminalManagement:
+		case radId_serverTerminalPermissionsAdmin:
 		{			
 			StructureAsyncCommand command;
-			command.Command = Structure_Command_Permission;
+			command.Command = Structure_Command_PermissionAdmin;
 			command.PlayerId = player->getId();
 			command.StructureId = this->getId();
 
@@ -67,6 +67,19 @@ void HarvesterObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject
 		}
 		break;
 
+		case radId_serverTerminalPermissionsHopper:
+		{			
+			StructureAsyncCommand command;
+			command.Command = Structure_Command_PermissionHopper;
+			command.PlayerId = player->getId();
+			command.StructureId = this->getId();
+
+			gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+
+		}
+		break;
+
+		
 	}
 }
 
@@ -81,11 +94,16 @@ void HarvesterObject::prepareCustomRadialMenu(CreatureObject* creatureObject, ui
 	
 	RadialMenu* radial	= new RadialMenu();
 			
+	//radId_serverHarvesterManage
+	//radId_serverHouseManage
 	radial->addItem(1,0,radId_examine,radAction_Default,"");
 	radial->addItem(2,0,radId_serverHarvesterManage,radAction_ObjCallback,"Structure Management");
 	radial->addItem(3,0,radId_serverTerminalManagement,radAction_ObjCallback,"Structure Permissions");
 	
 	radial->addItem(4,2,radId_serverTerminalManagementDestroy,radAction_ObjCallback,"destroy");//destroy
+	radial->addItem(5,3,radId_serverTerminalPermissionsAdmin,radAction_ObjCallback,"Admin List");//destroy
+	radial->addItem(6,3,radId_serverTerminalPermissionsHopper,radAction_ObjCallback,"Hopper List");//destroy
+	
 
 
 	RadialMenuPtr radialPtr(radial);

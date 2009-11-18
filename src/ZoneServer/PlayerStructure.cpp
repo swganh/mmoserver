@@ -147,6 +147,18 @@ void PlayerStructure::sendStructureAdminList(uint64 playerId)
 
 }
 
+//=============================================================================
+// now we have the hopperlist we can proceed to display it
+//
+void PlayerStructure::sendStructureHopperList(uint64 playerId)
+{
+	PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId));
+
+	gMessageLib->sendHopperList(this,player);
+
+
+}
+
 
 //=============================================================================
 // 

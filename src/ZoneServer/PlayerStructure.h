@@ -78,6 +78,9 @@ class PlayerStructure :	public TangibleObject
 		void					setCondition(uint32 condition){ mCondition = condition; }
 		bool					decCondition(uint32 dec){int64 altered = static_cast<int64>(mCondition-dec);if(altered <= 0) return false; else mCondition = static_cast<uint32>(altered);return true; }
 
+		//the lots this structure uses
+		uint8					getLotCount(){ return mLotsUsed; }
+
 		uint32					getCurrentMaintenance();
 		void					setCurrentMaintenance(uint32 maintenance);
 
@@ -103,6 +106,7 @@ class PlayerStructure :	public TangibleObject
 
 		// sends an UI List with the Admin list
 		void					sendStructureAdminList(uint64 playerId);
+		void					sendStructureHopperList(uint64 playerId);
 
 		void					handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window);
 
@@ -120,6 +124,11 @@ class PlayerStructure :	public TangibleObject
 		BStringVector			getStrucureAdminList(){return mStructureAdminList;}
 		void					addStructureAdmin(string name){mStructureAdminList.push_back(name);}
 		void					resetStructureAdminList(){mStructureAdminList.clear();}
+
+		// thats the structures admin list
+		BStringVector			getStrucureHopperList(){return mStructureHopperList;}
+		void					addStructureHopper(string name){mStructureHopperList.push_back(name);}
+		void					resetStructureHopperList(){mStructureHopperList.clear();}
 
 
 
@@ -142,10 +151,13 @@ class PlayerStructure :	public TangibleObject
 		uint32						mMaintenance;
 		uint32						mMaxCondition;
 		bool						mWillRedeed;
+		uint8						mLotsUsed;
+
 		string						mCode;
 		timerTodoStruct				mTTS;
 
 		BStringVector				mStructureAdminList;
+		BStringVector				mStructureHopperList;
 };
 
 

@@ -323,7 +323,7 @@ void ObjectController::_handleGroupLootMode(uint64 targetId,Message* message,Obj
 	// disabled for now
 	//return;
 
-	gLogger->logMsg("_handleGroupLootMode\n");
+	gLogger->logMsg("_handleGroupLootMode");
 	PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
 
 	// make sure its a fully grouped player

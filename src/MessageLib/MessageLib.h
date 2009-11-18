@@ -377,6 +377,7 @@ public:
 	// Structures admin / placement
 	bool				sendEnterStructurePlacement(Object* deed, string objectString, PlayerObject* playerObject);
 	bool				sendAdminList(PlayerStructure* structure, PlayerObject* playerObject);
+	bool				sendHopperList(PlayerStructure* structure, PlayerObject* playerObject);
 
 	// resource container, resourcecontainermessages.cpp
 	bool				sendBaselinesRCNO_3(ResourceContainer* resourceContainer,PlayerObject* targetObject);

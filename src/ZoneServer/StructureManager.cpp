@@ -103,6 +103,66 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
 	switch(asynContainer->mQueryType)
 	{
+
+		case Structure_StructureTransfer_Lots_Recipient:
+		{
+			PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(asynContainer->mStructureId));
+
+			PlayerObject* donor = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
+			PlayerObject* recipient = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mTargetId));
+
+			uint8 lots;
+			DataBinding* binding = mDatabase->CreateDataBinding(1);
+			binding->addField(DFT_uint8,0,1);
+
+			uint64 count;
+			count = result->getRowCount();
+			if(!count)
+			{
+				gLogger->logMsgF("StructureManager::Transfer Structure Admin List Callback couldnt get recipients lots",MSG_HIGH);
+				mDatabase->DestroyDataBinding(binding);			
+				return;
+			}
+
+			
+			//thats lots in use
+			result->GetNextRow(binding,&lots);
+
+			//thats 205 ????
+			uint8 requiredLots = structure->getLotCount();
+
+			if(lots >= requiredLots)
+			{
+				//yay we were succesful
+				structure->setOwner(asynContainer->mTargetId);
+				mDatabase->ExecuteSqlAsync(0,0,"UPDATE structures SET structures.owner = %I64u WHERE structures.id = %I64u",asynContainer->mTargetId,asynContainer->mStructureId);
+				mDatabase->ExecuteSqlAsync(0,0,"DELETE FROM structure_admin_data where playerId = %I64u AND StructureID = %I64u",asynContainer->mPlayerId,asynContainer->mStructureId);
+				mDatabase->ExecuteSqlAsync(0,0,"INSERT INTO structure_admin_data VALUES (NULL,%I64u,%I64u,'ADMIN')",asynContainer->mStructureId, asynContainer->mTargetId);
+				        
+
+				//update the administration list
+
+				if(donor)
+				{
+					gMessageLib->sendSystemMessage(donor,L"","player_structure","ownership_transferred_out","",asynContainer->name);
+				}
+				if(recipient)
+				{
+					gMessageLib->sendSystemMessage(recipient,L"","player_structure","ownership_transferred_in","",donor->getFirstName().getAnsi());
+				}
+				
+
+			}
+			else
+			{
+			}
+
+			
+			mDatabase->DestroyDataBinding(binding);												   	
+
+
+		}
+		break;
 		case Structure_Query_Admin_Data:
 		{
 			PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(asynContainer->mStructureId));
@@ -127,6 +187,32 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 			mDatabase->DestroyDataBinding(binding);
 		}
 		break;
+
+		case Structure_Query_Hopper_Data:
+		{
+			PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(asynContainer->mStructureId));
+
+			string playerName;
+			DataBinding* binding = mDatabase->CreateDataBinding(1);
+			binding->addField(DFT_bstring,0,64);
+
+			uint64 count;
+			count = result->getRowCount();
+
+			for(uint64 i = 0;i < count;i++)
+			{
+				result->GetNextRow(binding,&playerName);
+
+				structure->addStructureHopper(playerName);
+
+			}
+
+			structure->sendStructureHopperList(asynContainer->mPlayerId);
+
+			mDatabase->DestroyDataBinding(binding);
+		}
+		break;
+
 
 		case Structure_Query_delete:
 		{
@@ -450,6 +536,7 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 		default:break;
 
 	}
+
 	SAFE_DELETE(asynContainer);
 }
 
@@ -881,8 +968,26 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 	return (false);
 }
 
+
 //=======================================================================================================================
-//handles callbacks of db creation of items
+//handles callback of altering the hopper list
+//
+void StructureManager::OpenStructureHopperList(uint64 structureId, uint64 playerId)
+{
+	// load our structures Admin data
+	//
+
+	StructureManagerAsyncContainer* asyncContainer;
+	asyncContainer = new StructureManagerAsyncContainer(Structure_Query_Hopper_Data, 0);
+	asyncContainer->mStructureId = structureId;
+	asyncContainer->mPlayerId = playerId;
+
+	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT c.firstname FROM structure_admin_data sad  INNER JOIN characters c ON (sad.PlayerID = c.ID)where sad.StructureID = %I64u AND sad.AdminType like 'HOPPER'",structureId);
+
+}
+
+//=======================================================================================================================
+//handles callback of altering the admin list
 //
 
 void StructureManager::OpenStructureAdminList(uint64 structureId, uint64 playerId)
@@ -895,7 +1000,7 @@ void StructureManager::OpenStructureAdminList(uint64 structureId, uint64 playerI
 	asyncContainer->mStructureId = structureId;
 	asyncContainer->mPlayerId = playerId;
 
-	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT c.firstname FROM structure_admin_data sad  INNER JOIN characters c ON (sad.PlayerID = c.ID)where sad.StructureID = %I64u",structureId);
+	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT c.firstname FROM structure_admin_data sad  INNER JOIN characters c ON (sad.PlayerID = c.ID)where sad.StructureID = %I64u AND sad.AdminType like 'ADMIN'",structureId);
 
 
 }
@@ -916,6 +1021,17 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 
 	switch(command.Command)
 	{
+
+		case Structure_Command_TransferStructure:
+		{
+			if(owner)
+				gStructureManager->TransferStructureOwnership(command);
+			else
+				gMessageLib->sendSystemMessage(player,L"You cannot transfer ownership of this structure");
+			
+		}
+		return;
+
 		case Structure_Command_Destroy: 
 		{		
 			if(owner)
@@ -927,10 +1043,18 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 		}
 		break;
 
-		case Structure_Command_Permission:
+		case Structure_Command_PermissionAdmin:
 		{
 			player->setStructurePermissionId(command.StructureId);
 			OpenStructureAdminList(command.StructureId, command.PlayerId);
+
+		}
+		break;
+
+		case Structure_Command_PermissionHopper:
+		{
+			player->setStructurePermissionId(command.StructureId);
+			OpenStructureHopperList(command.StructureId, command.PlayerId);
 
 		}
 		break;
@@ -949,9 +1073,37 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			removeNamefromPermissionList(command.StructureId, command.PlayerId, command.PlayerStr, command.List);
 	
 		}
-
-		
-
 	
 	}
+}
+
+
+//=======================================================================================================================
+//processes a structure transfer
+//=======================================================================================================================
+void StructureManager::TransferStructureOwnership(StructureAsyncCommand command)
+{
+	//at this point we have already made sure that the command is issued by the owner
+	PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(command.StructureId));
+
+	//if we have no structure that way, see whether we have a structure were we just used the adminlist
+	if(!structure)
+	{
+		gLogger->logMsgF("StructureManager::TransferStructureOwnership structure not found :(",MSG_HIGH);	
+		return;
+	}
+	
+	//step 1 make sure the recipient has enough free lots!
+
+	//step 1a -> get the recipients ID
+
+	//the recipient MUST be online !!!!! ???????
+
+	StructureManagerAsyncContainer* asyncContainer;
+	asyncContainer = new StructureManagerAsyncContainer(Structure_StructureTransfer_Lots_Recipient, 0);
+	asyncContainer->mStructureId = command.StructureId;
+	asyncContainer->mPlayerId = command.PlayerId;
+	asyncContainer->mTargetId = command.RecipientId;
+
+	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sf_getLotCount(%I64u)",command.PlayerId);
 }

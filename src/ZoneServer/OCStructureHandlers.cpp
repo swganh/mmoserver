@@ -37,8 +37,6 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Common/MessageFactory.h"
 
 
-//specific includes
-
 //======================================================================================================================
 //
 // Modifies the Admin List
@@ -52,13 +50,12 @@ void	ObjectController::_handleModifyPermissionList(uint64 targetId,Message* mess
 
 	if(!player)
 	{
-		//gMessageLib->sendSystemMessage(entertainer,L"","performance","flourish_not_performing");
+		gLogger->logMsgF(" ObjectController::_handleModifyPermissionList Player not found",MSG_HIGH);
 		return;
 	}
 	
 	//find out where our structure is
 	string dataStr;
-	gLogger->hexDump(message->getData(), message->getSize());
 	message->getStringUnicode16(dataStr);
 	
 	string playerStr,list,action;
@@ -193,4 +190,70 @@ void	ObjectController::_handleStructurePlacement(uint64 targetId,Message* messag
 	}
 		
 	
+}
+
+//======================================================================================================================
+//
+// Modifies the Admin List
+//
+void	ObjectController::_handleTransferStructure(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
+
+{
+	// requirement we have the structure targeted AND give the name of the recipient on the commandline
+	// OR we have the recipient targeted and stand NEXT to the structure were about to transfer
+
+	//do we have a valid donor ?
+	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+
+	if(!player)
+	{
+		gLogger->logMsgF(" ObjectController::_handleTransferStructure Player not found",MSG_HIGH);
+		return;
+	}
+
+
+	// is the player online and near 30m ?
+	// we get the  players id as targetid if yes, otherwise we get the name as string
+	// however, we do not want players that  are not online
+	
+	//now get the target player
+	PlayerObject*	recipient	= dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetId));
+
+	if(!recipient)
+	{
+		gMessageLib->sendSystemMessage(player,L"","player_structure","no_transfer_target");
+		return;
+	}
+
+	//do we have a valid structure ??? check our target first
+	uint64 id = player->getTargetId();
+	Object* object = gWorldManager->getObjectById(id);
+	PlayerStructure* structure = dynamic_cast<PlayerStructure*>(object);
+
+	if(!structure)
+	{
+		// we need to get the nearest structure that we own
+		// for now dustoff
+		gMessageLib->sendSystemMessage(player,L"","player_structure","command_no_building");
+		gLogger->logMsgF("ObjectController::_handleTransferStructure No structure found :(",MSG_HIGH);
+		return;
+	}
+	
+	//is the structure in Range???
+	float fTransferDistance = gWorldConfig->getConfiguration("Player_Transfer_Structure_Distance",(float)5.0);
+	if(!player->mPosition.inRange2D(structure->mPosition,fTransferDistance))
+	{
+		gMessageLib->sendSystemMessage(player,L"","player_structure","command_no_building");
+		return;
+	}
+
+	StructureAsyncCommand command;
+	command.PlayerId = player->getId();
+	command.StructureId = structure->getId();
+	command.RecipientId = recipient->getId();
+	command.PlayerStr = recipient->getFirstName().getAnsi();
+	command.Command = Structure_Command_TransferStructure;	
+
+	gStructureManager->checkNameOnPermissionList(structure->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+		
 }

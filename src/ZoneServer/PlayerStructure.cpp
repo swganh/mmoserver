@@ -218,7 +218,7 @@ void PlayerStructure::handleUIEvent(uint32 action,int32 element,string inputStr,
 			// pull the db query
 
 		
-			int8	sql[255],end[64],*sqlPointer;
+			int8	sql[255],end[128],*sqlPointer;
 
 			sprintf(sql,"UPDATE structures SET structures.name = '");
 			sprintf(end,"' WHERE structures.ID = %I64u",this->getId());

@@ -82,7 +82,14 @@ void HarvesterObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject
 		case radId_setName:
 		{
 
-			gUIManager->createRenameStructureBox(this,player, this);
+			StructureAsyncCommand command;
+			command.Command = Structure_Command_RenameStructure;
+			command.PlayerId = player->getId();
+			command.StructureId = this->getId();
+
+			gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+
+			
 		}
 		break;
 

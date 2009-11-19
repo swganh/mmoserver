@@ -23,6 +23,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
+#include "UIManager.h"
 
 #include "Common/DispatchClient.h"
 
@@ -1022,6 +1023,21 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 
 	switch(command.Command)
 	{
+
+
+		case Structure_Command_RenameStructure:
+		{
+			if(owner)
+			{
+				PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(command.StructureId));
+				gUIManager->createRenameStructureBox(structure,player, structure);
+			}
+			else
+				gMessageLib->sendSystemMessage(player,L"","player_structure","rename_must_be_owner ");
+
+			
+		}
+		return;
 
 		case Structure_Command_TransferStructure:
 		{

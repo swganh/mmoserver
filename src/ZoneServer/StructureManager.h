@@ -68,6 +68,7 @@ enum Structure_Async_CommandEnum
 	Structure_Command_PermissionAdmin	=	4,
 	Structure_Command_PermissionHopper	=	5,
 	Structure_Command_TransferStructure	=	6,
+	Structure_Command_RenameStructure	=	7,
 	
 
 };

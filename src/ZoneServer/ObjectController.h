@@ -522,9 +522,11 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback
 		void	_handleForceChoke(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleJediMindTrick(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 
+		//structures
 		void	_handleStructurePlacement(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleModifyPermissionList(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleTransferStructure(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
+		void	_handleNameStructure(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 
 		//pets
 		void	_handleMount(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);

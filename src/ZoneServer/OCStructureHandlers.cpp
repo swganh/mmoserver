@@ -41,6 +41,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 //
 // Modifies the Admin List
 //
+
 void	ObjectController::_handleModifyPermissionList(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 
 {
@@ -240,7 +241,7 @@ void	ObjectController::_handleTransferStructure(uint64 targetId,Message* message
 	}
 	
 	//is the structure in Range???
-	float fTransferDistance = gWorldConfig->getConfiguration("Player_Transfer_Structure_Distance",(float)5.0);
+	float fTransferDistance = gWorldConfig->getConfiguration("Player_Transfer_Structure_Distance",(float)8.0);
 	if(!player->mPosition.inRange2D(structure->mPosition,fTransferDistance))
 	{
 		gMessageLib->sendSystemMessage(player,L"","player_structure","command_no_building");
@@ -253,6 +254,66 @@ void	ObjectController::_handleTransferStructure(uint64 targetId,Message* message
 	command.RecipientId = recipient->getId();
 	command.PlayerStr = recipient->getFirstName().getAnsi();
 	command.Command = Structure_Command_TransferStructure;	
+
+	gStructureManager->checkNameOnPermissionList(structure->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+		
+}
+
+
+void	ObjectController::_handleNameStructure(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
+
+{
+	// requirement we have the structure targeted AND give the name of the recipient on the commandline
+	// OR we have the recipient targeted and stand NEXT to the structure were about to transfer
+
+	//do we have a valid donor ?
+	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+
+	if(!player)
+	{
+		gLogger->logMsgF(" ObjectController::_handleTransferStructure Player not found",MSG_HIGH);
+		return;
+	}
+
+	//do we have a valid structure ??? check our target first
+	uint64 id = player->getTargetId();
+	Object* object = gWorldManager->getObjectById(id);
+	PlayerStructure* structure = dynamic_cast<PlayerStructure*>(object);
+
+	if(!structure)
+	{
+		gMessageLib->sendSystemMessage(player,L"","player_structure","command_no_building");
+		return;
+	}
+	
+	//is the structure in Range???
+	float fTransferDistance = gWorldConfig->getConfiguration("Player_Transfer_Structure_Distance",(float)8.0);
+	if(!player->mPosition.inRange2D(structure->mPosition,fTransferDistance))
+	{
+		gMessageLib->sendSystemMessage(player,L"","player_structure","command_no_building");
+		return;
+	}
+
+	//find out where our structure is
+	string dataStr;
+	message->getStringUnicode16(dataStr);
+	
+	string nameStr;
+	
+	dataStr.convert(BSTRType_ANSI);
+
+	sscanf(dataStr.getAnsi(),"%s",nameStr.getAnsi());
+
+	if(nameStr.getLength() > 68)
+	{
+		gMessageLib->sendSystemMessage(player,L"","player_structure","not_valid_name");
+		return;
+	}
+
+	StructureAsyncCommand command;
+	command.Command = Structure_Command_RenameStructure;
+	command.PlayerId = player->getId();
+	command.StructureId = structure->getId();
 
 	gStructureManager->checkNameOnPermissionList(structure->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
 		

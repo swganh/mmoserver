@@ -317,6 +317,7 @@ enum object_controller_generic_functions
 	opOCPlaceStructure					= 0x7AF26B0B,
 	opPermissionListModify				= 0x896713f2,
 	opTransferStructure					= 0x116BDA06,
+	opNameStructure						= 0xc367b461,
 
 	//social
 	opOCtip								= 0xc64d8cb0,

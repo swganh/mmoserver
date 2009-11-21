@@ -25,6 +25,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "PlayerObject.h"
 #include "UIManager.h"
 #include "StructureManager.h"
+#include "ResourceManager.h"
 #include "WorldConfig.h"
 #include "WorldManager.h"
 
@@ -122,12 +123,13 @@ void	ObjectController::_handleModifyPermissionList(uint64 targetId,Message* mess
 	}
 		
 }
+
 //======================================================================================================================
 //
 // Places a structure in the game world
 //
 
-void	ObjectController::_handleStructurePlacement(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
+void ObjectController::_handleStructurePlacement(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
 	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
 
@@ -287,7 +289,7 @@ void	ObjectController::_handleNameStructure(uint64 targetId,Message* message,Obj
 	}
 	
 	//is the structure in Range???
-	float fTransferDistance = gWorldConfig->getConfiguration("Player_Transfer_Structure_Distance",(float)8.0);
+	float fTransferDistance = gWorldConfig->getConfiguration("Player_Structure_Operate_Distance",(float)10.0);
 	if(!player->mPosition.inRange2D(structure->mPosition,fTransferDistance))
 	{
 		gMessageLib->sendSystemMessage(player,L"","player_structure","command_no_building");
@@ -319,6 +321,10 @@ void	ObjectController::_handleNameStructure(uint64 targetId,Message* message,Obj
 		
 }
 
+//======================================================================================================================
+//
+// provides the harvester with the current resources
+//
 void	ObjectController::_handleHarvesterGetResourceData(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
 
@@ -343,7 +349,7 @@ void	ObjectController::_handleHarvesterGetResourceData(uint64 targetId,Message* 
 	}
 	
 	//is the structure in Range???
-	float fTransferDistance = gWorldConfig->getConfiguration("Player_Transfer_Structure_Distance",(float)8.0);
+	float fTransferDistance = gWorldConfig->getConfiguration("Player_Structure_Operate_Distance",(float)10.0);
 	if(!player->mPosition.inRange2D(structure->mPosition,fTransferDistance))
 	{
 		gLogger->logMsgF(" ObjectController::_handleHarvesterGetResourceData Structure not in Range",MSG_HIGH);
@@ -354,5 +360,95 @@ void	ObjectController::_handleHarvesterGetResourceData(uint64 targetId,Message* 
 
 	gMessageLib->sendHarvesterResourceData(structure,player);
 	gMessageLib->sendBaselinesHINO_7(harvester,player);
+
+}
+
+
+//======================================================================================================================
+//
+// Selects the resource for extraction
+//
+void	ObjectController::_handleHarvesterSelectResource(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
+{
+
+	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+
+	if(!player)
+	{
+		gLogger->logMsgF(" ObjectController::_handleHarvesterSelectResource Player not found",MSG_HIGH);
+		return;
+	}
+
+	//do we have a valid structure ??? 
+	uint64 id = targetId;
+	Object* object = gWorldManager->getObjectById(id);
+	PlayerStructure* structure = dynamic_cast<PlayerStructure*>(object);
+
+	if(!structure)
+	{
+		//gMessageLib->sendSystemMessage(player,L"","player_structure","command_no_building");
+		gLogger->logMsgF(" ObjectController::_handleHarvesterSelectResource Structure not found",MSG_HIGH);
+		return;
+	}
+	
+	//is the structure in Range???
+	float fTransferDistance = gWorldConfig->getConfiguration("Player_Structure_Operate_Distance",(float)10.0);
+	if(!player->mPosition.inRange2D(structure->mPosition,fTransferDistance))
+	{
+		gLogger->logMsgF(" ObjectController::_handleHarvesterGetResourceData Structure not in Range",MSG_HIGH);
+		return;
+	}
+
+	HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(structure);
+
+	gLogger->hexDump(message->getData(), message->getSize());
+
+
+	//get the relevant Resource
+	string dataStr;
+	message->getStringUnicode16(dataStr);
+
+	uint64 resourceId;
+	swscanf(dataStr.getUnicode16(),L"%I64u",&resourceId);
+
+	Resource* tmpResource = gResourceManager->getResourceById(resourceId);
+	
+	if((!tmpResource)||(!tmpResource->getCurrent()))
+	{
+		gLogger->logMsgF(" ObjectController::_handleHarvesterGetResourceData No valid resource!",MSG_HIGH);
+		return;
+	}
+
+	harvester->setCurrentResource(resourceId);
+
+
+	CurrentResource* cR = reinterpret_cast<CurrentResource*>(tmpResource);
+		//resource = reinterpret_cast<CurrentResource*>(gResourceManager->getResourceByNameCRC(resourceName.getCrc()));
+
+	float posX, posZ;
+	float ratio = 0.0;
+
+	posX	= harvester->mPosition.mX;
+	posZ	= harvester->mPosition.mZ;
+	
+	
+	if(cR)
+	{
+		ratio	= cR->getDistribution((int)posX + 8192,(int)posZ + 8192);
+		if(ratio > 1.0)
+		{
+			ratio = 1.0;
+		}
+	}
+
+	float ber = harvester->getAttribute<float>("harvester_efficiency");
+	if(ber <= 0)
+		ber = 3.0;
+
+	harvester->setCurrentExtractionRate(ber*ratio);
+	//now send the updates
+	gMessageLib->sendCurrentResourceUpdate(harvester,player);
+	gMessageLib->sendCurrentExtractionRate(harvester,player);
+	
 
 }

@@ -21,6 +21,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 HarvesterObject::HarvesterObject() : PlayerStructure()
 {
 	mType = ObjType_Harvester;
+	mCurrentExtractionRate = 0.0;
 	
 }
 

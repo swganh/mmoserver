@@ -369,6 +369,8 @@ public:
 	void				sendNewHarvesterName(PlayerStructure* harvester);
 	void				sendOperateHarvester(PlayerStructure* harvester,PlayerObject* player);
 	void				sendHarvesterResourceData(PlayerStructure* structure,PlayerObject* player);
+	void				sendCurrentResourceUpdate(HarvesterObject* harvester, PlayerObject* player);
+	void				sendCurrentExtractionRate(HarvesterObject* harvester, PlayerObject* player);
 
 	// Installation Messages
 	bool				sendBaselinesINSO_3(PlayerStructure* structure,PlayerObject* player);

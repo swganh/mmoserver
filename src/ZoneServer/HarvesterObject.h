@@ -42,6 +42,15 @@ class HarvesterObject :	public PlayerStructure
 		uint32			getUpdateCounter(){ return mHino7UpdateCounter; }
 		void			setUpdateCounter(uint32 value){ mHino7UpdateCounter = value; }
 
+		uint64			getCurrentResource(){ return mCurrentResource; }
+		void			setCurrentResource(uint64 value){ mCurrentResource = value; }
+
+		bool			getActive(){ return mActive; }
+		void			setActive(bool value){ mActive = value; }
+
+		float			getCurrentExtractionRate(){ return mCurrentExtractionRate; }
+		void			setCurrentExtractionRate(float value){ mCurrentExtractionRate = value; }
+
 		void			prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
 		void			handleObjectMenuSelect(uint8 messageType,Object* srcObject);
 		//void			handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window);
@@ -49,12 +58,15 @@ class HarvesterObject :	public PlayerStructure
 
 	private:
 
+		bool			mActive;
+
 		uint32			mResourceHarvested;
 		uint32			mHoperSize;
-		uint64			mResourceType;
+		uint64			mCurrentResource;
 		HarvesterFamily	mHarvesterFamily;
 
 		uint32			mTotalLoadCount;
+		float			mCurrentExtractionRate;
 
 		uint32			mResourceCategory;
 		uint32			mHino7UpdateCounter;

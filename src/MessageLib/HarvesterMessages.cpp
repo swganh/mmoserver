@@ -210,7 +210,7 @@ bool MessageLib::sendBaselinesHINO_7(HarvesterObject* harvester,PlayerObject* pl
 		++resourceIt;
 	}
 
-	gMessageFactory->addUint64(0);//current Res Id harvesting
+	gMessageFactory->addUint64(harvester->getCurrentResource());//current Res Id harvesting
 
 	gMessageFactory->addUint8(0);//on off status flag
 	gMessageFactory->addFloat(0);//hopper capacity
@@ -455,12 +455,70 @@ void MessageLib::sendHarvesterResourceData(PlayerStructure* structure,PlayerObje
 			ratio = 0;
 		}
 		else
-			ratio	= cR->getDistribution((int)posX + 8192,(int)posZ + 8192);
+		{
+			ratio	= (cR->getDistribution((int)posX + 8192,(int)posZ + 8192)*100);
+			if(ratio > 100)
+			{
+				ratio = 100;
+			}
+		}
 
 		gMessageFactory->addUint8((uint8)ratio);
 
 		++resourceIt;
 	}
+
+	(player->getClient())->SendChannelA(gMessageFactory->EndMessage(), player->getAccountId(),CR_Client,4);
+}
+
+//======================================================================================================================
+//send current Resource Update
+//======================================================================================================================
+
+void MessageLib::sendCurrentResourceUpdate(HarvesterObject* harvester, PlayerObject* player)
+{										  
+	gMessageFactory->StartMessage();
+	
+	gMessageFactory->addUint16(1);	//1 updated var
+	gMessageFactory->addUint16(5);	//var Nr 5
+	gMessageFactory->addUint64(harvester->getCurrentResource());
+	Message* fragment = gMessageFactory->EndMessage();
+
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opDeltasMessage);
+	gMessageFactory->addUint64(harvester->getId());
+	gMessageFactory->addUint32(opHINO);
+	gMessageFactory->addUint8(7);
+	gMessageFactory->addUint32(fragment->getSize());
+	gMessageFactory->addData(fragment->getData(),fragment->getSize());
+
+	fragment->setPendingDelete(true);
+
+	(player->getClient())->SendChannelA(gMessageFactory->EndMessage(), player->getAccountId(),CR_Client,4);
+}
+
+//======================================================================================================================
+//send current Resource Update
+//======================================================================================================================
+
+void MessageLib::sendCurrentExtractionRate(HarvesterObject* harvester, PlayerObject* player)
+{										  
+	gMessageFactory->StartMessage();
+	
+	gMessageFactory->addUint16(1);	//1 updated var
+	gMessageFactory->addUint16(9);	//var Nr 9
+	gMessageFactory->addFloat(harvester->getCurrentExtractionRate());
+	Message* fragment = gMessageFactory->EndMessage();
+
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opDeltasMessage);
+	gMessageFactory->addUint64(harvester->getId());
+	gMessageFactory->addUint32(opHINO);
+	gMessageFactory->addUint8(7);
+	gMessageFactory->addUint32(fragment->getSize());
+	gMessageFactory->addData(fragment->getData(),fragment->getSize());
+
+	fragment->setPendingDelete(true);
 
 	(player->getClient())->SendChannelA(gMessageFactory->EndMessage(), player->getAccountId(),CR_Client,4);
 }

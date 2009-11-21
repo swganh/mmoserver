@@ -321,6 +321,7 @@ enum object_controller_generic_functions
 	opTransferStructure					= 0x116BDA06,
 	opNameStructure						= 0xc367b461,
 	opHarvesterGetResourceData			= 0xF096C059,
+	opHarvesterSelectResource			= 0xff549d14,
 
 	//social
 	opOCtip								= 0xc64d8cb0,

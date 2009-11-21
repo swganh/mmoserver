@@ -528,6 +528,7 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback
 		void	_handleTransferStructure(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleNameStructure(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleHarvesterGetResourceData(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
+		void	_handleHarvesterSelectResource(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 
 		//pets
 		void	_handleMount(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);

@@ -14,6 +14,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "StructureManager.h"
 #include "UIManager.h"
 #include "MathLib/Quaternion.h"
+#include "MessageLib/MessageLib.h"
 
 //=============================================================================
 
@@ -93,6 +94,11 @@ void HarvesterObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject
 		}
 		break;
 
+		case radId_operateHarvester:
+		{
+			  gMessageLib->sendOperateHarvester(this,player);
+		}
+		break;
 		
 	}
 }
@@ -108,7 +114,7 @@ void HarvesterObject::prepareCustomRadialMenu(CreatureObject* creatureObject, ui
 	
 	RadialMenu* radial	= new RadialMenu();
 			
-	//radId_serverHarvesterManage
+	
 	//radId_serverHouseManage
 	radial->addItem(1,0,radId_examine,radAction_Default,"");
 	radial->addItem(2,0,radId_serverHarvesterManage,radAction_ObjCallback,"Structure Management");
@@ -116,9 +122,10 @@ void HarvesterObject::prepareCustomRadialMenu(CreatureObject* creatureObject, ui
 	
 	radial->addItem(4,2,radId_serverTerminalManagementDestroy,radAction_ObjCallback,"destroy");//destroy
 	radial->addItem(5,2,radId_setName,radAction_ObjCallback,"Rename Structure");//destroy
+	radial->addItem(6,2,radId_operateHarvester,radAction_ObjCallback,"operate Harvester");//destroy
 	
-	radial->addItem(6,3,radId_serverTerminalPermissionsAdmin,radAction_ObjCallback,"Admin List");//destroy
-	radial->addItem(7,3,radId_serverTerminalPermissionsHopper,radAction_ObjCallback,"Hopper List");//destroy
+	radial->addItem(7,3,radId_serverTerminalPermissionsAdmin,radAction_ObjCallback,"Admin List");//destroy
+	radial->addItem(8,3,radId_serverTerminalPermissionsHopper,radAction_ObjCallback,"Hopper List");//destroy
 	
 
 

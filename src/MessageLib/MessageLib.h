@@ -367,6 +367,8 @@ public:
 	bool				sendBaselinesHINO_7(HarvesterObject* harvester,PlayerObject* player);
 	
 	void				sendNewHarvesterName(PlayerStructure* harvester);
+	void				sendOperateHarvester(PlayerStructure* harvester,PlayerObject* player);
+	void				sendHarvesterResourceData(PlayerStructure* structure,PlayerObject* player);
 
 	// Installation Messages
 	bool				sendBaselinesINSO_3(PlayerStructure* structure,PlayerObject* player);

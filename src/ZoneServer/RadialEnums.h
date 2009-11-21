@@ -269,7 +269,8 @@ enum RadialIdentifier
 	radId_fireworkshowRemove				= 241,
 	radId_fireworkshowModify				= 242,
 	radId_fireworkshowReorder				= 243,
-	radId_fireworkshowData					= 244
+	radId_fireworkshowData					= 244,
+	radId_operateHarvester					= 245
 };
 
 #endif

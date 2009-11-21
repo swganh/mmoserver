@@ -318,3 +318,41 @@ void	ObjectController::_handleNameStructure(uint64 targetId,Message* message,Obj
 	gStructureManager->checkNameOnPermissionList(structure->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
 		
 }
+
+void	ObjectController::_handleHarvesterGetResourceData(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
+{
+
+	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+
+	if(!player)
+	{
+		gLogger->logMsgF(" ObjectController::_handleHarvesterGetResourceData Player not found",MSG_HIGH);
+		return;
+	}
+
+	//do we have a valid structure ??? 
+	uint64 id = targetId;
+	Object* object = gWorldManager->getObjectById(id);
+	PlayerStructure* structure = dynamic_cast<PlayerStructure*>(object);
+
+	if(!structure)
+	{
+		//gMessageLib->sendSystemMessage(player,L"","player_structure","command_no_building");
+		gLogger->logMsgF(" ObjectController::_handleHarvesterGetResourceData Structure not found",MSG_HIGH);
+		return;
+	}
+	
+	//is the structure in Range???
+	float fTransferDistance = gWorldConfig->getConfiguration("Player_Transfer_Structure_Distance",(float)8.0);
+	if(!player->mPosition.inRange2D(structure->mPosition,fTransferDistance))
+	{
+		gLogger->logMsgF(" ObjectController::_handleHarvesterGetResourceData Structure not in Range",MSG_HIGH);
+		return;
+	}
+
+	HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(structure);
+
+	gMessageLib->sendHarvesterResourceData(structure,player);
+	gMessageLib->sendBaselinesHINO_7(harvester,player);
+
+}

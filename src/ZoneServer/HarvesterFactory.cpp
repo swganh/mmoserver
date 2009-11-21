@@ -169,7 +169,7 @@ void HarvesterFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id
 
 								*/
 	int8 hmm[1024];
-	sprintf(hmm, "SELECT s.id,s.owner,s.oX,s.oY,s.oZ,s.oW,s.x,s.y,s.z,std.type,std.object_string,std.stf_name, std.stf_file, s.name, std.lots_used FROM structures s INNER JOIN structure_type_data std ON (s.type = std.type) WHERE (s.id = %"PRIu64")",id);
+	sprintf(hmm, "SELECT s.id,s.owner,s.oX,s.oY,s.oZ,s.oW,s.x,s.y,s.z,std.type,std.object_string,std.stf_name, std.stf_file, s.name, std.lots_used, std.resource_Category FROM structures s INNER JOIN structure_type_data std ON (s.type = std.type) WHERE (s.id = %"PRIu64")",id);
 	QueryContainerBase* asynContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,HFQuery_MainData,client,id);
 
 	mDatabase->ExecuteSqlAsync(this,asynContainer,hmm);
@@ -180,7 +180,7 @@ void HarvesterFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id
 
 void HarvesterFactory::_setupDatabindings()
 {
-	mHarvesterBinding = mDatabase->CreateDataBinding(15);
+	mHarvesterBinding = mDatabase->CreateDataBinding(16);
 	mHarvesterBinding->addField(DFT_uint64,offsetof(HarvesterObject,mId),8,0);
 	mHarvesterBinding->addField(DFT_uint64,offsetof(HarvesterObject,mOwner),8,1);
 	mHarvesterBinding->addField(DFT_float,offsetof(HarvesterObject,mDirection.mX),4,2);
@@ -196,6 +196,7 @@ void HarvesterFactory::_setupDatabindings()
 	mHarvesterBinding->addField(DFT_bstring,offsetof(HarvesterObject,mNameFile),256,12);
 	mHarvesterBinding->addField(DFT_bstring,offsetof(HarvesterObject,mCustomName),256,13);
 	mHarvesterBinding->addField(DFT_uint8,offsetof(HarvesterObject,mLotsUsed),1,14);
+	mHarvesterBinding->addField(DFT_uint32,offsetof(HarvesterObject,mResourceCategory),4,15);
 
 
 }

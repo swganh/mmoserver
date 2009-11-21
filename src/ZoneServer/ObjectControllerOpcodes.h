@@ -115,6 +115,8 @@ enum object_controller_artisan_functions
 	opOCrequestcoresample				= 0x9223c634,
 	opOCsurvey							= 0x19c9fac1,
 	opOCrequestsurvey					= 0xc00cfa18
+	
+
 };
 
 //=======================================================================
@@ -318,6 +320,7 @@ enum object_controller_generic_functions
 	opPermissionListModify				= 0x896713f2,
 	opTransferStructure					= 0x116BDA06,
 	opNameStructure						= 0xc367b461,
+	opHarvesterGetResourceData			= 0xF096C059,
 
 	//social
 	opOCtip								= 0xc64d8cb0,

@@ -12,6 +12,10 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "MessageLib.h"
 
 #include "ZoneServer/Deed.h"
+#include "ZoneServer/ResourceCategory.h"
+#include "ZoneServer/ResourceManager.h"
+#include "ZoneServer/ResourceType.h"
+
 #include "ZoneServer/HarvesterObject.h"
 #include "ZoneServer/PlayerObject.h"
 #include "ZoneServer/ObjectFactory.h"
@@ -122,7 +126,125 @@ bool MessageLib::sendBaselinesHINO_7(HarvesterObject* harvester,PlayerObject* pl
 	if(!(player->isConnected()))
 		return(false);
 
+	ResourceCategory*	mainCat = gResourceManager->getResourceCategoryById(harvester->getResourceCategory());
+	ResourceList		resourceList;
+
+	mainCat->getResources(resourceList,true);
+
 	Message* newMessage;
+	
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint8(15);
+	gMessageFactory->addUint8(0);
+	gMessageFactory->addUint8(1);	// 
+
+	
+	//=====================================
+	//start with the resource IDS
+	harvester->setUpdateCounter(resourceList.size());
+
+	gMessageFactory->addUint32(resourceList.size());
+	gMessageFactory->addUint32(harvester->getUpdateCounter());
+
+	ResourceList::iterator resourceIt = resourceList.begin();
+
+	while(resourceIt != resourceList.end())
+	{
+		Resource* tmpResource = (*resourceIt);
+
+		gMessageFactory->addUint64(tmpResource->getId());
+
+		++resourceIt;
+	}
+
+
+	//=====================================
+	//resource IDS a second time ... ???
+	harvester->setUpdateCounter(resourceList.size());
+
+	gMessageFactory->addUint32(resourceList.size());
+	gMessageFactory->addUint32(harvester->getUpdateCounter());
+
+	resourceIt = resourceList.begin();
+
+	while(resourceIt != resourceList.end())
+	{
+		Resource* tmpResource = (*resourceIt);
+
+		gMessageFactory->addUint64(tmpResource->getId());
+
+		++resourceIt;
+	}
+
+
+
+	//=====================================
+	//resource names
+	gMessageFactory->addUint32(resourceList.size());
+	gMessageFactory->addUint32(harvester->getUpdateCounter());
+	
+	resourceIt = resourceList.begin();
+
+	while(resourceIt != resourceList.end())
+	{
+		Resource* tmpResource = (*resourceIt);
+		gMessageFactory->addString(tmpResource->getName().getAnsi());
+		
+		++resourceIt;
+	}
+
+	
+
+	//=====================================
+	//resource types
+	gMessageFactory->addUint32(resourceList.size());
+	gMessageFactory->addUint32(harvester->getUpdateCounter());
+
+	resourceIt = resourceList.begin();
+
+	while(resourceIt != resourceList.end())
+	{
+		Resource* tmpResource = (*resourceIt);	
+		gMessageFactory->addString((tmpResource->getType())->getDescriptor().getAnsi());
+
+		++resourceIt;
+	}
+
+	gMessageFactory->addUint64(0);//current Res Id harvesting
+
+	gMessageFactory->addUint8(0);//on off status flag
+	gMessageFactory->addFloat(0);//hopper capacity
+	
+	gMessageFactory->addFloat(0);//spec rate
+	gMessageFactory->addFloat(0);//current rate
+
+	gMessageFactory->addFloat(0);//hopper amount
+	gMessageFactory->addFloat(0);//hopper size
+
+	gMessageFactory->addUint8(0);//
+	
+	gMessageFactory->addFloat(0);//
+	gMessageFactory->addFloat(0);//
+		
+	gMessageFactory->addFloat(0);//
+	gMessageFactory->addFloat(0);//
+	gMessageFactory->addFloat(0);//
+	gMessageFactory->addFloat(0);//
+	gMessageFactory->addFloat(0);//
+	gMessageFactory->addFloat(0);//
+	gMessageFactory->addFloat(0);//
+	gMessageFactory->addFloat(0);//
+
+	gMessageFactory->addUint64(0);//current Res Id harvesting
+	gMessageFactory->addUint64(0);//current Res Id harvesting
+	gMessageFactory->addUint64(0);//current Res Id harvesting
+	gMessageFactory->addUint64(0);//current Res Id harvesting
+	
+	newMessage = gMessageFactory->EndMessage();
+
+
+	//now add the data to the Baselines header
+	Message* completeMessage;
 
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opBaselinesMessage);  
@@ -130,25 +252,16 @@ bool MessageLib::sendBaselinesHINO_7(HarvesterObject* harvester,PlayerObject* pl
 	gMessageFactory->addUint32(opHINO);
 	gMessageFactory->addUint8(7);
 
-	gMessageFactory->addUint32(16);
-	gMessageFactory->addUint8(1);	// respoolupdate
-	
-	//gMessageFactory->addUint32(); // respool IDs count
-	//gMessageFactory->addUint32(); // respool IDs list counter
-		//gMessageFactory->addUint64(); // ID
-
-	//gMessageFactory->addUint32(); // respool Names count
-	//gMessageFactory->addUint32(); // respool Names list counter
-		//gMessageFactory->addString(); // ressourceName
+	gMessageFactory->addUint32(newMessage->getSize());//ByteCount
+	gMessageFactory->addData(newMessage->getData(),newMessage->getSize());
+	completeMessage = gMessageFactory->EndMessage();
 
 
-	gMessageFactory->addUint32(66); // unknown
-	gMessageFactory->addUint32(0);	// unknown
-	gMessageFactory->addUint32(0);
+	//Important! -> never leave a message undeleted
+	newMessage->setPendingDelete(true);
 
-	newMessage = gMessageFactory->EndMessage();
-
-	(player->getClient())->SendChannelA(newMessage, player->getAccountId(), CR_Client, 5);
+	(player->getClient())->SendChannelA(completeMessage, player->getAccountId(), CR_Client, 5);
+	harvester->setUpdateCounter(harvester->getUpdateCounter()+1);
 
 	return(true);
 }
@@ -276,4 +389,78 @@ void MessageLib::sendNewHarvesterName(PlayerStructure* harvester)
 	gMessageFactory->addString(name.getUnicode16());
 
 	_sendToInRange(gMessageFactory->EndMessage(),harvester,5);
+}
+
+//======================================================================================================================
+//send Harvester Name update
+//======================================================================================================================
+
+void MessageLib::sendOperateHarvester(PlayerStructure* harvester,PlayerObject* player)
+{
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opOperateHarvester);
+	gMessageFactory->addUint64(harvester->getId());
+	
+
+	(player->getClient())->SendChannelA(gMessageFactory->EndMessage(), player->getAccountId(), CR_Client, 5);
+	//_sendToInRange(gMessageFactory->EndMessage(),harvester,5);
+}
+
+//======================================================================================================================
+//send Harvester ResourceData
+//======================================================================================================================
+
+void MessageLib::sendHarvesterResourceData(PlayerStructure* structure,PlayerObject* player)
+{
+	HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(structure);
+	if(!harvester)
+	{
+		return;
+	}
+
+	ResourceCategory*	mainCat = gResourceManager->getResourceCategoryById(harvester->getResourceCategory());
+	ResourceList		resourceList;
+
+	float posX, posZ, ratio;
+
+	posX	= harvester->mPosition.mX;
+	posZ	= harvester->mPosition.mZ;
+	
+	mainCat->getResources(resourceList,true);
+
+	gMessageFactory->StartMessage();        
+	gMessageFactory->addUint32(opObjControllerMessage);  
+	gMessageFactory->addUint32(0x0000000B);           
+	gMessageFactory->addUint32(opHarvesterResourceData);           
+	gMessageFactory->addUint64(player->getId());
+	gMessageFactory->addUint32(0);           
+	gMessageFactory->addUint64(harvester->getId());
+
+	gMessageFactory->addUint32(resourceList.size());
+
+	ResourceList::iterator resourceIt = resourceList.begin();
+
+	while(resourceIt != resourceList.end())
+	{
+		Resource* tmpResource = (*resourceIt);
+
+		gMessageFactory->addUint64(tmpResource->getId());
+		gMessageFactory->addString(tmpResource->getName());
+		gMessageFactory->addString((tmpResource->getType())->getDescriptor());
+	
+		CurrentResource* cR = reinterpret_cast<CurrentResource*>(tmpResource);
+		//resource = reinterpret_cast<CurrentResource*>(gResourceManager->getResourceByNameCRC(resourceName.getCrc()));
+		if(!cR)
+		{
+			ratio = 0;
+		}
+		else
+			ratio	= cR->getDistribution((int)posX + 8192,(int)posZ + 8192);
+
+		gMessageFactory->addUint8((uint8)ratio);
+
+		++resourceIt;
+	}
+
+	(player->getClient())->SendChannelA(gMessageFactory->EndMessage(), player->getAccountId(),CR_Client,4);
 }

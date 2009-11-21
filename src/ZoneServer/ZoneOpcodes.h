@@ -18,6 +18,8 @@ enum zone_opcodes
 	//Harvester / House placement
 	opStructurePlacementMode			=	0xe8a54dc1,
 	opSendPermissionList				=	0x52F364B8,
+	opOperateHarvester					=	0xBD18C679,
+	opHarvesterResourceData				=	0x000000EA,
 
 	opClusterZoneRegisterName			=	0xb88f5166,
 	opNewbieTutorialResponse			=	0xca88fbad,

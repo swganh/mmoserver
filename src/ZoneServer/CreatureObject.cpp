@@ -555,13 +555,14 @@ void CreatureObject::CleanUpBuffs()
 	{
 		if(!(*it))
 		{
-			it++;
+			assert(false);
 		}
 		else
 		if((*it)->GetIsMarkedForDeletion())
 		{
 			((Buff*)(*it))->EraseAttributes();
-			mBuffList.erase(it++);
+			it = mBuffList.erase(it);
+			//it = mBuffList.begin();
 		}
 		else
 		{

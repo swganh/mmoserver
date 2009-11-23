@@ -154,12 +154,12 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 	protected:
 
 		AttributeMap				mAttributeMap;
-		AttributeOrderList	mAttributeOrderList;
+		AttributeOrderList			mAttributeOrderList;
 		AttributeMap 				mInternalAttributeMap;
-		ObjectSet						mKnownObjects;
-		PlayerObjectSet			mKnownPlayers;
-		ObjectController		mObjectController;
-		string							mModel;
+		ObjectSet					mKnownObjects;
+		PlayerObjectSet				mKnownPlayers;
+		ObjectController			mObjectController;
+		string						mModel;
 
 		RadialMenuPtr			mRadialMenu;
 

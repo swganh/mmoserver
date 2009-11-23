@@ -171,19 +171,24 @@ void Vehicle::call()
 
 		//spawn it for everyone in range
 		PlayerObjectSet*			inRangePlayers	= mOwner->getKnownPlayers();
-		PlayerObjectSet::iterator	it				= inRangePlayers->begin();
-		while(it != inRangePlayers->end())
+		
+		//inRangePlayers can be undefined ????
+		if(inRangePlayers)
 		{
-			PlayerObject* targetObject = (*it);
-			gMessageLib->sendCreateObject(mBody,targetObject);
-			targetObject->addKnownObjectSafe(mBody);
-			mBody->addKnownObjectSafe(targetObject);
-			++it;
+			PlayerObjectSet::iterator	it				= inRangePlayers->begin();
+			while(it != inRangePlayers->end())
+			{
+				PlayerObject* targetObject = (*it);
+				gMessageLib->sendCreateObject(mBody,targetObject);
+				targetObject->addKnownObjectSafe(mBody);
+				mBody->addKnownObjectSafe(targetObject);
+				++it;
+			}
+			gLogger->logMsgF("void Vehicle::call() creating vehicle with id %"PRIu64"", MSG_HIGH, mBody->getId());
+			gMessageLib->sendCreateObject(mBody,mOwner);
+			mOwner->addKnownObjectSafe(mBody);
+			mBody->addKnownObjectSafe(mOwner);
 		}
-		gLogger->logMsgF("void Vehicle::call() creating vehicle with id %"PRIu64"", MSG_HIGH, mBody->getId());
-		gMessageLib->sendCreateObject(mBody,mOwner);
-		mOwner->addKnownObjectSafe(mBody);
-		mBody->addKnownObjectSafe(mOwner);
 
 		//gMessageLib->sendOwnerUpdateCreo3(mOwner);
 		gMessageLib->sendUpdateTransformMessage(mBody);

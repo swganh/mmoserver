@@ -47,7 +47,6 @@ Vehicle::~Vehicle()
 {
 	if(mBody)
 	{
-
 		gWorldManager->destroyObject(mBody);
 		//delete mBody;
 	}
@@ -108,96 +107,115 @@ void Vehicle::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 item
 
 
 //===============================================================================================
-//spawns the physical body (CretureObject)
+//spawns the physical body (CreatureObject)
 
 void Vehicle::call()
 {
 	if(mBody)
 	{   //Destory the old body before creating a new one
+		gLogger->logMsgF("void Vehicle::call() destroy the old body", MSG_HIGH);
 		store();
 	}
 
-	if(mOwner->isConnected() && !mOwner->checkIfMountCalled())
+	if(mOwner->checkIfMountCalled())
 	{
+		gLogger->logMsgF("void Vehicle::call() mount already called", MSG_HIGH);
+		return;
 
-		// create the vehicle creature
-
-		mBody = new CreatureObject();
-
-		string cust;
-		cust.initRawBSTR((int8*)Swoop_Customization,BSTRType_ANSI);
-		mBody->setCustomizationStr(cust.getAnsi());
-		mBody->setCreoGroup(CreoGroup_Vehicle);
-		mBody->setTypeOptions(0x1080);
-		mBody->setMoodId(0);
-		mBody->setCL(0);
-
-		mBody->setId(mId + 1);	// Vehicles are created by the vehiclefactory with +2 step for IDs
-
-		setBodyId(mBody->getId());
-
-		//mBody->setId(gWorldManager->getRandomNpId());
-		mBody->setPetController(this->getId());
-
-		mBody->setOwner(mOwner->getId());
-		mBody->setParentId(0);
-		mBody->setModelString(mPhysicalModel);
-		mBody->setSpeciesGroup(mNameFile.getAnsi());
-		mBody->setSpeciesString(mName.getAnsi());
-		mBody->setPosture(0);
-		mBody->setScale(1.0f);
-
-
-		std::string con = this->getAttribute<std::string>("condition");
-		mBody->getHam()->setPropertyValue(HamBar_Health, HamProperty_CurrentHitpoints,atoi(con.substr(0,con.find_first_of("/")).c_str()));
-		mBody->getHam()->setPropertyValue(HamBar_Health, HamProperty_MaxHitpoints,atoi(con.substr(con.find_first_of("/")+1,con.find_first_of("/")).c_str()));
-
-		mOwner->setMount(mBody);
-		mOwner->setMounted(false);
-		mOwner->setMountCalled(false);
-
-		// todo: Write an algorthim that guarentees the mount will appear in-front of the player
-		// mugz raw idea :
-		// vehicle.x = player.x + (distance * cos(player.heading * RADIANT))
-		// vehicle.z = player.z + (distance * sin(player.heading * RADIANT))
-
-		mBody->mPosition.mX = mOwner->mPosition.mX + 2;
-		mBody->mPosition.mY = mOwner->mPosition.mY;
-		mBody->mPosition.mZ = mOwner->mPosition.mZ + 2;
-
-		// add to world
-		gWorldManager->addObject(mBody);
-
-
-		//spawn it for everyone in range
-		PlayerObjectSet*			inRangePlayers	= mOwner->getKnownPlayers();
-		
-		//inRangePlayers can be undefined ????
-		if(inRangePlayers)
-		{
-			PlayerObjectSet::iterator	it				= inRangePlayers->begin();
-			while(it != inRangePlayers->end())
-			{
-				PlayerObject* targetObject = (*it);
-				gMessageLib->sendCreateObject(mBody,targetObject);
-				targetObject->addKnownObjectSafe(mBody);
-				mBody->addKnownObjectSafe(targetObject);
-				++it;
-			}
-			gLogger->logMsgF("void Vehicle::call() creating vehicle with id %"PRIu64"", MSG_HIGH, mBody->getId());
-			gMessageLib->sendCreateObject(mBody,mOwner);
-			mOwner->addKnownObjectSafe(mBody);
-			mBody->addKnownObjectSafe(mOwner);
-		}
-
-		//gMessageLib->sendOwnerUpdateCreo3(mOwner);
-		gMessageLib->sendUpdateTransformMessage(mBody);
-
-
-
-		mOwner->setMountCalled(true);
 	}
 
+	if(!mOwner->isConnected())
+	{
+		return;
+	}
+
+	// create the vehicle creature
+	gLogger->logMsgF("void Vehicle::call() create new body", MSG_HIGH);
+
+	mBody = new CreatureObject();
+
+	string cust;
+	cust.initRawBSTR((int8*)Swoop_Customization,BSTRType_ANSI);
+	mBody->setCustomizationStr(cust.getAnsi());
+	mBody->setCreoGroup(CreoGroup_Vehicle);
+	mBody->setTypeOptions(0x1080);
+	mBody->setMoodId(0);
+	mBody->setCL(0);
+
+	mBody->setId(mId + 1);	// Vehicles are created by the vehiclefactory with +2 step for IDs
+
+	setBodyId(mBody->getId());
+
+	//mBody->setId(gWorldManager->getRandomNpId());
+	mBody->setPetController(this->getId());
+
+	mBody->setOwner(mOwner->getId());
+	mBody->setParentId(0);
+	mBody->setModelString(mPhysicalModel);
+	mBody->setSpeciesGroup(mNameFile.getAnsi());
+	mBody->setSpeciesString(mName.getAnsi());
+	mBody->setPosture(0);
+	mBody->setScale(1.0f);
+
+
+	std::string con = this->getAttribute<std::string>("condition");
+	mBody->getHam()->setPropertyValue(HamBar_Health, HamProperty_CurrentHitpoints,atoi(con.substr(0,con.find_first_of("/")).c_str()));
+	mBody->getHam()->setPropertyValue(HamBar_Health, HamProperty_MaxHitpoints,atoi(con.substr(con.find_first_of("/")+1,con.find_first_of("/")).c_str()));
+
+	mOwner->setMount(mBody);
+	mOwner->setMounted(false);
+	mOwner->setMountCalled(false);
+
+	// todo: Write an algorthim that guarentees the mount will appear in-front of the player
+	// mugz raw idea :
+	// vehicle.x = player.x + (distance * cos(player.heading * RADIANT))
+	// vehicle.z = player.z + (distance * sin(player.heading * RADIANT))
+
+	mBody->mPosition.mX = mOwner->mPosition.mX + 2;
+	mBody->mPosition.mY = mOwner->mPosition.mY;
+	mBody->mPosition.mZ = mOwner->mPosition.mZ + 2;
+
+	// add to world
+	if(!gWorldManager->addObject(mBody))
+	{
+		gLogger->logMsgF("void Vehicle::call() creating vehicle with id % "PRIu64" failed : couldnt add to world", MSG_HIGH, mBody->getId());
+		SAFE_DELETE(mBody);
+		return;
+	}
+
+
+	//spawn it for everyone in range
+	PlayerObjectSet*			inRangePlayers	= mOwner->getKnownPlayers();
+	
+	//inRangePlayers can be undefined ????
+	if(inRangePlayers)
+	{
+		PlayerObjectSet::iterator	it				= inRangePlayers->begin();
+		while(it != inRangePlayers->end())
+		{
+			PlayerObject* targetObject = (*it);
+			gMessageLib->sendCreateObject(mBody,targetObject);
+			targetObject->addKnownObjectSafe(mBody);
+			mBody->addKnownObjectSafe(targetObject);
+			++it;
+		}
+		gLogger->logMsgF("void Vehicle::call() creating vehicle with id %"PRIu64"", MSG_HIGH, mBody->getId());
+		gMessageLib->sendCreateObject(mBody,mOwner);
+		mOwner->addKnownObjectSafe(mBody);
+		mBody->addKnownObjectSafe(mOwner);
+	}
+	else
+	{
+			gLogger->logMsgF("void Vehicle::call() wtf no inRange Object set???", MSG_HIGH);
+	}
+
+	//gMessageLib->sendOwnerUpdateCreo3(mOwner);
+	gMessageLib->sendUpdateTransformMessage(mBody);
+
+
+
+	mOwner->setMountCalled(true);
+	
 	return;
 }
 

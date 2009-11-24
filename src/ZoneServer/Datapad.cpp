@@ -10,6 +10,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 */
 
 #include "Datapad.h"
+#include "Vehicle.h"
 #include "IntangibleObject.h"
 #include "ManufacturingSchematic.h"
 #include "MissionObject.h"
@@ -66,11 +67,25 @@ Datapad::~Datapad()
 	}
 	//--------------------------------------------
 
-	mData.clear();
+	//mData.clear();
 	DataList::iterator iter = mData.begin(); 	
 	while(iter != mData.end())
 	{
-		iter = mData.erase(iter);
+		//check to see whether its a vehicle controller
+		// PlayerObject* player = dynamic_cast<PlayerObject*>(creatureObject);
+		//Object* vehicle = dynamic_cast<Object*>(*iter);
+		Vehicle* vehicle = dynamic_cast<Vehicle*>(*iter);
+		
+		if(vehicle)
+		{
+			uint64 id = vehicle->getId();
+			iter = mData.erase(iter);
+			gWorldManager->eraseObject(id);
+		}
+		else
+			iter = mData.erase(iter);
+		
+			
 	}
 	//--------------------------------------------
 

@@ -162,9 +162,10 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 
 		// add / delete an object, make sure to cleanup any other references
 		bool					existObject(Object* object);	// Returns true if object does exist.
-		void					addObject(Object* object,bool manual = false);
+		bool					addObject(Object* object,bool manual = false);
 		void					destroyObject(Object* object);
 		Object*					getObjectById(uint64 objId);
+		void					eraseObject(uint64 key);
 
 		// Find object owned by "player"
 		uint64					getObjectOwnedBy(uint64 theOwner);

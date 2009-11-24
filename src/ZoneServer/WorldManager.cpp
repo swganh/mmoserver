@@ -2401,7 +2401,7 @@ uint64 WorldManager::getObjectOwnedBy(uint64 theOwner)
 // adds an object to the world->to cells and the SI only, use manual if adding to containers, or cells on preload
 //
 
-void WorldManager::addObject(Object* object,bool manual)
+bool WorldManager::addObject(Object* object,bool manual)
 {
 	uint64 key = object->getId();
 
@@ -2409,7 +2409,7 @@ void WorldManager::addObject(Object* object,bool manual)
 	if(getObjectById(key))
 	{
 		gLogger->logMsgF("WorldManager::addObject Object already existant added several times or ID messup ???",MSG_HIGH);
-		return;
+		return false;
 	}
 
 	mObjectMap.insert(key,object);
@@ -2417,7 +2417,7 @@ void WorldManager::addObject(Object* object,bool manual)
 	// if we want to set the parent manually or the object is from the snapshots and not a building, return
 	if(manual)
 	{
-		return;
+		return true;
 	}
 
 #if defined(_MSC_VER)
@@ -2432,11 +2432,11 @@ void WorldManager::addObject(Object* object,bool manual)
 		if(item)
 		{
 			if(!(item->getItemFamily() == ItemFamily_CraftingStations))
-				return;
+				return true;
 		}
 		else
 		{
-			return;
+			return true;
 		}
 	}
 
@@ -2477,7 +2477,7 @@ void WorldManager::addObject(Object* object,bool manual)
 				{
 					// we should never get here !
 					gLogger->logMsg("WorldManager::addObject: could not find zone region in map");
-					return;
+					return false;
 				}
 			}
 
@@ -2574,7 +2574,7 @@ void WorldManager::addObject(Object* object,bool manual)
 						else
 						{
 							gLogger->logMsg("WorldManager::addObject: could not find zone region in map for creature");
-							return;
+							return false;
 						}
 
 					}
@@ -2620,6 +2620,7 @@ void WorldManager::addObject(Object* object,bool manual)
 		}
 		break;
 	}
+	return true;
 }
 
 //======================================================================================================================
@@ -2821,15 +2822,11 @@ void WorldManager::destroyObject(Object* object)
 
 		case ObjType_Intangible:
 		{
-			//we shouldnt get any intangibles here anymore!
-
 			gLogger->logMsgF("Object of type ObjType_Intangible almost UNHANDLED in WorldManager::destroyObject:",MSG_HIGH);
 
 			// intangibles are controllers / pets in the datapad
-			//   they are NOT in the world
+			// they are NOT in the world
 
-			// destroy known objects
-			object->destroyKnownObjects();
 		}
 		break;
 
@@ -2855,6 +2852,28 @@ void WorldManager::destroyObject(Object* object)
 	else
 	{
 		gLogger->logMsgF("WorldManager::destroyObject: error removing from objectmap: %"PRIu64"",MSG_HIGH,object->getId());
+	}
+}
+
+
+//======================================================================================================================
+//
+// get an attribute string value from the global attribute map
+//
+
+void WorldManager::eraseObject(uint64 key)
+{											 
+
+	// finally delete it
+	ObjectMap::iterator objMapIt = mObjectMap.find(key);
+
+	if(objMapIt != mObjectMap.end())
+	{
+		mObjectMap.erase(objMapIt);
+	}
+	else
+	{
+		gLogger->logMsgF("WorldManager::destroyObject: error removing from objectmap: %"PRIu64"",MSG_HIGH,key);
 	}
 }
 

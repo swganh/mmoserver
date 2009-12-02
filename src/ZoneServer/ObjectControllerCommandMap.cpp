@@ -466,8 +466,9 @@ void ObjectControllerCommandMap::_registerCppHooks()
 	mCommandMap.insert(std::make_pair(opNameStructure,&ObjectController::_handleNameStructure));
 	mCommandMap.insert(std::make_pair(opHarvesterGetResourceData,&ObjectController::_handleHarvesterGetResourceData));
 	mCommandMap.insert(std::make_pair(opHarvesterSelectResource,&ObjectController::_handleHarvesterSelectResource));
-
-	
+	mCommandMap.insert(std::make_pair(opHarvesterActivate,&ObjectController::_handleHarvesterActivate));
+	mCommandMap.insert(std::make_pair(opHarvesterDeActivate,&ObjectController::_handleHarvesterDeActivate));
+	mCommandMap.insert(std::make_pair(opDiscardHopper,&ObjectController::_handleDiscardHopper));
 	
 
 }

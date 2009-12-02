@@ -16,11 +16,15 @@ Copyright (c) 2006 - 2008 The swgANH Team
 enum object_controller_opcodes
 {
 	opDataTransform						= 0x00000071,
+	opOC0x83    						= 0x00000083,
 	opCombatAction						= 0x000000CC,
 	opStartNpcConversation				= 0x000000DD,
 	opStopNpcConversation				= 0x000000DE,
 	opNpcConversationMessage			= 0x000000DF,
 	opNpcConversationOptions			= 0x000000E0,
+	opHarvesterResourceData				= 0x000000EA,
+	opResourceEmptyHopper				= 0x000000ED,
+	opResourceEmptyHopperResponse		= 0x000000EE,
 	opDataTransformWithParent			= 0x000000F1,
 	opSendAnimation						= 0x000000F2,
 	opSpatialChat						= 0x000000F4,
@@ -322,6 +326,9 @@ enum object_controller_generic_functions
 	opNameStructure						= 0xc367b461,
 	opHarvesterGetResourceData			= 0xF096C059,
 	opHarvesterSelectResource			= 0xff549d14,
+	opHarvesterActivate					= 0xCE645C94,
+	opHarvesterDeActivate				= 0x2C61CB03,
+	opDiscardHopper						= 0xC89B9E26,
 
 	//social
 	opOCtip								= 0xc64d8cb0,

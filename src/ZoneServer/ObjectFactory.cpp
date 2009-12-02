@@ -467,6 +467,9 @@ void ObjectFactory::deleteObjectFromDB(Object* object)
 			sprintf(sql,"DELETE FROM structures WHERE ID = %"PRIu64"",object->getId());
 			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
 
+			sprintf(sql,"DELETE FROM harvesters WHERE ID = %"PRIu64"",object->getId());
+			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
+
 			//Admin / Hopper Lists
 			sprintf(sql,"DELETE FROM structure_admin_data WHERE StructureID = %"PRIu64"",object->getId());
 			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);

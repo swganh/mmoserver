@@ -34,7 +34,9 @@ class MessageDispatch;
 class Player;
 class Ticket;
 class TradeManagerAsyncContainer;
+class StructureManagerAsyncContainer;
 
+struct HarvesterHopperItem;
 struct AuctionItem;
 struct Bazaar;
 struct ItemDescriptionAttributes;
@@ -44,6 +46,7 @@ typedef std::vector<ItemDescriptionAttributes*>	AttributesList;
 typedef std::vector<Category*>                  CategoryList;
 typedef std::vector<Channel*>                   ChannelList;
 typedef std::vector<Comment*>                   CommentList;
+typedef std::vector<HarvesterHopperItem*>		HopperResourceList;
 
 class ChatMessageLib
 {
@@ -77,6 +80,9 @@ public:
 	void sendCanceLiveAuctionResponseMessage(DispatchClient* client, uint32 error, uint64 mAuctionID) const;
 	void sendBazaarTransactionMessage(DispatchClient* client, AuctionItem mAuctionItem, uint64 mBuyerId,   uint32 mTime, Player*  mPlayer, Bazaar* mBazaarInfo) const;
 	void sendBankTipDeductMessage(DispatchClient* client, uint64 receiverId,   uint32 amount, Player*  mPlayer) const;
+
+	//structures
+	void SendHarvesterHopperUpdate(StructureManagerAsyncContainer* asynContainer, HopperResourceList* mHopperList) const;
 	
 	//void                    _sendBazaarTransactionMessage(DispatchClient* client, AuctionItem mAuctionItem, uint64 mCharId, uint32 mAmount,  uint32 mTime, Player*  mPlayer, string mName);
 

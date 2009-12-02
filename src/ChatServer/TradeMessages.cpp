@@ -13,6 +13,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "ChatOpcodes.h"
 #include "Player.h"
 #include "TradeManagerHelp.h"
+#include "StructureManagerChat.h"
 
 #include "LogManager/LogManager.h"
 
@@ -92,7 +93,7 @@ void ChatMessageLib::processSendCreateItem(DispatchClient* client, uint64 mPlaye
 
 }
 
-//=======================================================================================================================
+
 
 void ChatMessageLib::SendGetAuctionDetailsResponse(TradeManagerAsyncContainer* asynContainer, AttributesList* mAttributesList) const
 {
@@ -214,4 +215,56 @@ void ChatMessageLib::sendBazaarTransactionMessage(DispatchClient* client, Auctio
 }
 
 //======================================================================================================================
+
+
+
+//=======================================================================================================================
+//
+// sends the relevant delta to the client to update hopper contents
+//
+
+void ChatMessageLib::SendHarvesterHopperUpdate(StructureManagerAsyncContainer* asynContainer, HopperResourceList* mHopperList) const
+{			
+									 
+	HopperResourceList::iterator it = mHopperList->begin();
+									 
+	gMessageFactory->StartMessage();
+	
+	gMessageFactory->addUint16(2);	//2 updated vars
+	gMessageFactory->addUint16(12);	//var Nr 12 = hopper update flag
+	gMessageFactory->addUint8(1);
+	
+	gMessageFactory->addUint16(13);	//var Nr 12 = hopper resourcelist
+	gMessageFactory->addUint32(mHopperList->size());
+	gMessageFactory->addUint32(asynContainer->updateCounter+mHopperList->size());
+
+	gLogger->logMsgF("SendHarvesterHopperUpdate:: listsize %u updatecounter %u",MSG_NORMAL,mHopperList->size(),asynContainer->updateCounter);
+
+	gMessageFactory->addUint8(3);
+	gMessageFactory->addUint16(mHopperList->size());
+
+	asynContainer->updateCounter += mHopperList->size();
+	while(it != mHopperList->end())
+	{
+		gLogger->logMsgF("SendHarvesterHopperUpdate:: resource %I64u quantity %f",MSG_NORMAL,(*it)->ResourceID,(float)asynContainer->updateCounter);
+		gMessageFactory->addUint64((*it)->ResourceID);		
+		//gMessageFactory->addFloat((*it)->Quantity);		
+		gMessageFactory->addFloat((float)asynContainer->updateCounter);	
+		it++;
+	}
+	
+	Message* fragment = gMessageFactory->EndMessage();
+
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opDeltasMessage);
+	gMessageFactory->addUint64(asynContainer->harvesterID);
+	gMessageFactory->addUint32(opHINO);
+	gMessageFactory->addUint8(7);
+	gMessageFactory->addUint32(fragment->getSize());
+	gMessageFactory->addData(fragment->getData(),fragment->getSize());
+
+	fragment->setPendingDelete(true);
+	asynContainer->mClient->SendChannelA(gMessageFactory->EndMessage(), asynContainer->mClient->getAccountId(),  CR_Client, 4);
+
+}
 

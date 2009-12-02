@@ -9,8 +9,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
-#ifndef ANH_ZONESERVER_TradeManager_H
-#define ANH_ZONESERVER_TradeManager_H
+#ifndef ANH_CHATSERVER_TradeManager_H
+#define ANH_CHATSERVER_TradeManager_H
 
 #include "ChatManager.h"
 #include "ChatMessageLib.h"

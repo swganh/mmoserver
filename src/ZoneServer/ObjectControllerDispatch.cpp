@@ -243,6 +243,10 @@ void ObjectControllerDispatch::_dispatchMessage(Message* message, DispatchClient
 						ObjController->handleMissionAbort(message);
 						break;
 
+					case opResourceEmptyHopper:
+						ObjController->handleResourceEmptyHopper(message);
+						break;
+
 					default:
 						gLogger->logMsgF("ObjectControllerDispatch: Unhandled Cmd(0x00000083) %x",MSG_HIGH,subOp2);
 					break;

@@ -371,6 +371,10 @@ public:
 	void				sendHarvesterResourceData(PlayerStructure* structure,PlayerObject* player);
 	void				sendCurrentResourceUpdate(HarvesterObject* harvester, PlayerObject* player);
 	void				sendCurrentExtractionRate(HarvesterObject* harvester, PlayerObject* player);
+	void				sendHarvesterActive(HarvesterObject* harvester, PlayerObject* player);
+	void				sendHarvesterChatHopperUpdate(HarvesterObject* harvester, PlayerObject* player, uint8 update);
+	void				SendHarvesterHopperUpdate(HarvesterObject* harvester, PlayerObject* player);
+	void				sendResourceEmptyHopperResponse(PlayerStructure* structure,PlayerObject* player, uint32 amount, uint8 b1, uint8 b2);
 
 	// Installation Messages
 	bool				sendBaselinesINSO_3(PlayerStructure* structure,PlayerObject* player);

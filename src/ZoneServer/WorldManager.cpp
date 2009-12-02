@@ -2858,7 +2858,13 @@ void WorldManager::destroyObject(Object* object)
 
 //======================================================================================================================
 //
-// get an attribute string value from the global attribute map
+// simply erase an object ID out of the worlds ObjectMap *without* accessing the object
+// I am aware this is somewhat a hack, though it is necessary, that the worldobjectlist can provide
+// the objectcontroller with the IDs for the items in our datapad and inventory
+// proper ObjectOwnership would normally require that these objects dont get added to the worlds object list
+// perhaps it is possible to update the ObjectController at some later point to search the characters inventory / datapad
+// but please be advised that the same problems do apply to items in houses / hoppers/ chests
+// the objectcontroller can only provide them with a menu when it knows how to find the relevant Object
 //
 
 void WorldManager::eraseObject(uint64 key)

@@ -11,6 +11,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "WorldConfig.h"
 #include "StructureManager.h"
 #include "nonPersistantObjectFactory.h"
+#include "HarvesterObject.h"
 #include "ObjectFactory.h"
 #include "PlayerObject.h"
 #include "PlayerStructure.h"
@@ -104,7 +105,8 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
 	switch(asynContainer->mQueryType)
 	{
-
+		
+		//tests the amount of lots for the recipient of a structure during a structure transfer
 		case Structure_StructureTransfer_Lots_Recipient:
 		{
 			PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(asynContainer->mStructureId));
@@ -129,7 +131,6 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 			//thats lots in use
 			result->GetNextRow(binding,&lots);
 
-			//thats 205 ????
 			uint8 requiredLots = structure->getLotCount();
 
 			uint8 freelots = gWorldConfig->getConfiguration("Player_Max_Lots",(uint8)10) - lots;
@@ -158,10 +159,8 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 			else
 			{
 			}
-
 			
 			mDatabase->DestroyDataBinding(binding);												   	
-
 
 		}
 		break;
@@ -189,32 +188,6 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 			mDatabase->DestroyDataBinding(binding);
 		}
 		break;
-
-		case Structure_Query_Hopper_Data:
-		{
-			PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(asynContainer->mStructureId));
-
-			string playerName;
-			DataBinding* binding = mDatabase->CreateDataBinding(1);
-			binding->addField(DFT_bstring,0,64);
-
-			uint64 count;
-			count = result->getRowCount();
-
-			for(uint64 i = 0;i < count;i++)
-			{
-				result->GetNextRow(binding,&playerName);
-
-				structure->addStructureHopper(playerName);
-
-			}
-
-			structure->sendStructureHopperList(asynContainer->mPlayerId);
-
-			mDatabase->DestroyDataBinding(binding);
-		}
-		break;
-
 
 		case Structure_Query_delete:
 		{
@@ -255,8 +228,8 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 						structure->setAttribute("energy_maintenance",detail.value.getAnsi());
 
 					}
-
-					structure->addAttribute("energy_maintenance",detail.value.getAnsi());
+					else
+						structure->addAttribute("energy_maintenance",detail.value.getAnsi());
 				}
 
 				if(detail.attributeId == 382)
@@ -267,8 +240,8 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 						structure->setAttribute("examine_maintenance",detail.value.getAnsi());
 
 					}
-
-					structure->addAttribute("examine_maintenance",detail.value.getAnsi());
+					else
+						structure->addAttribute("examine_maintenance",detail.value.getAnsi());
 				}
 
 			}
@@ -897,6 +870,52 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 			continue;
 		}
 
+		if(structure->getTTS()->todo == ttE_UpdateHopper)
+		{
+
+			if(Anh_Utils::Clock::getSingleton()->getLocalTime() < structure->getTTS()->projectedTime)
+			{
+				gLogger->logMsg("StructureManager::_handleStructureObjectTimers: intervall to short - delayed");
+				break;
+			}
+
+			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById( structure->getTTS()->playerId ));
+			if(!player)
+			{
+				break;
+			}
+
+			HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(structure);
+
+			if(!harvester)
+			{
+				gLogger->logMsg("StructureManager::_handleStructureObjectTimers: No structure");
+				continue;
+			}
+
+			// TODO
+			// read the current resource hopper contents
+			StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(Structure_HopperUpdate,player->getClient());
+
+			asyncContainer->mStructureId	= structure->getId();
+			asyncContainer->mPlayerId		= player->getId();
+			
+			int8 sql[250];
+			sprintf(sql,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",asyncContainer->mStructureId);
+			
+			mDatabase->ExecuteSqlAsync(harvester,asyncContainer,sql);	
+
+			//is the structure in Range??? - otherwise stop updating
+			float fTransferDistance = gWorldConfig->getConfiguration("Player_Structure_Operate_Distance",(float)20.0);
+			if(player->mPosition.inRange2D(structure->mPosition,fTransferDistance))
+			{
+				structure->getTTS()->projectedTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 5000;
+				addStructureforHopperUpdate(structure->getId());
+			}
+		
+
+		}
+
 		if(structure->getTTS()->todo == ttE_Delete)
 		{
 			// TODO
@@ -913,7 +932,7 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 			if(Anh_Utils::Clock::getSingleton()->getLocalTime() < structure->getTTS()->projectedTime)
 			{
 				gLogger->logMsg("StructureManager::_handleStructureObjectTimers: intervall to short - delayed");
-				return false;
+				break;
 			}
 
 			//gLogger->logMsg("StructureManager::_handleStructureObjectTimers: building fence");
@@ -964,7 +983,7 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 
 
 		it = objectList->erase(it);
-		it = objectList->begin();
+		//it = objectList->begin();
 	}
 
 	return (false);
@@ -978,13 +997,19 @@ void StructureManager::OpenStructureHopperList(uint64 structureId, uint64 player
 {
 	// load our structures Admin data
 	//
+	HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(gWorldManager->getObjectById(structureId));
+	if(!harvester)
+	{
+		gLogger->logMsgF("OpenStructureHopperList : No harvester :(",MSG_HIGH);
+		return;
+	}
 
 	StructureManagerAsyncContainer* asyncContainer;
 	asyncContainer = new StructureManagerAsyncContainer(Structure_Query_Hopper_Data, 0);
 	asyncContainer->mStructureId = structureId;
 	asyncContainer->mPlayerId = playerId;
 
-	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT c.firstname FROM structure_admin_data sad  INNER JOIN characters c ON (sad.PlayerID = c.ID)where sad.StructureID = %I64u AND sad.AdminType like 'HOPPER'",structureId);
+	mDatabase->ExecuteSqlAsync(harvester,asyncContainer,"SELECT c.firstname FROM structure_admin_data sad  INNER JOIN characters c ON (sad.PlayerID = c.ID)where sad.StructureID = %I64u AND sad.AdminType like 'HOPPER'",structureId);
 
 }
 
@@ -1024,6 +1049,64 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 	switch(command.Command)
 	{
 
+		// callback for retrieving a variable amount of the selected resource
+		case Structure_Command_RetrieveResource:
+		{
+			HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(gWorldManager->getObjectById(command.StructureId));
+
+			StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(Structure_ResourceRetrieve,player->getClient());
+			asyncContainer->mStructureId	= command.StructureId;
+			asyncContainer->mPlayerId		= command.PlayerId;
+			asyncContainer->command 		= command;
+	
+			//mDatabase->ExecuteSqlAsync(harvester,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",harvester->getId());
+			mDatabase->ExecuteSqlAsync(harvester,asyncContainer,"SELECT sf_DiscardResource(%"PRIu64",%"PRIu64",%u) ",harvester->getId(),command.ResourceId,command.Amount);
+
+		}
+		break;
+
+		// callback for discarding a variable amount of the selected resource
+		case Structure_Command_DiscardResource:
+		{
+			HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(gWorldManager->getObjectById(command.StructureId));
+
+			StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(Structure_ResourceDiscard,player->getClient());
+			asyncContainer->mStructureId	= command.StructureId;
+			asyncContainer->mPlayerId		= command.PlayerId;
+			asyncContainer->command 		= command;
+			
+			//mDatabase->ExecuteSqlAsync(harvester,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",harvester->getId());
+			mDatabase->ExecuteSqlAsync(harvester,asyncContainer,"SELECT sf_DiscardResource(%"PRIu64",%"PRIu64",%u) ",harvester->getId(),command.ResourceId,command.Amount);
+
+		}
+		break;
+
+		case Structure_Command_GetResourceData:
+		{
+			HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(gWorldManager->getObjectById(command.StructureId));
+
+			StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(Structure_GetResourceData,player->getClient());
+			asyncContainer->mStructureId	= command.StructureId;
+			asyncContainer->mPlayerId		= command.PlayerId;
+			mDatabase->ExecuteSqlAsync(harvester,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",harvester->getId());
+
+		}
+		break;
+
+		case Structure_Command_DiscardHopper:
+		{
+			//send the db update
+			StructureManagerAsyncContainer* asyncContainer;
+
+			HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(gWorldManager->getObjectById(command.StructureId));
+
+			asyncContainer = new StructureManagerAsyncContainer(Structure_HopperDiscard, 0);
+			asyncContainer->mStructureId	= command.StructureId;
+			asyncContainer->mPlayerId		= command.PlayerId;
+			mDatabase->ExecuteSqlAsync(harvester,asyncContainer,"select sf_DiscardHopper(%I64u)",command.StructureId);
+
+		}
+		break;
 
 		case Structure_Command_RenameStructure:
 		{

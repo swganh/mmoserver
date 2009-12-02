@@ -17,11 +17,20 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 //=============================================================================
 
+typedef std::pair<uint64,float>					HarvesterResourcePair;
+typedef std::vector<HarvesterResourcePair>		HResourceList;
 
 
 //=============================================================================
 
-class HarvesterObject :	public PlayerStructure
+struct HarvesterHopperItem
+{
+		uint64			HarvesterID;
+		uint64			ResourceID;
+		float			Quantity;
+};
+
+class HarvesterObject :	public PlayerStructure, public DatabaseCallback
 {
 	friend class HarvesterFactory;
 
@@ -30,6 +39,7 @@ class HarvesterObject :	public PlayerStructure
 		HarvesterObject();
 		~HarvesterObject();
 
+		virtual void	handleDatabaseJobComplete(void* ref,DatabaseResult* result);
 		
 		HarvesterFamily	getHarvesterFamily(){ return mHarvesterFamily; }
 		void			setHarvesterFamily(HarvesterFamily hf){ mHarvesterFamily = hf; }
@@ -50,9 +60,21 @@ class HarvesterObject :	public PlayerStructure
 
 		float			getCurrentExtractionRate(){ return mCurrentExtractionRate; }
 		void			setCurrentExtractionRate(float value){ mCurrentExtractionRate = value; }
+		
+		void			createResourceContainer(uint64 id, PlayerObject* player, uint32 amount);
 
 		void			prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
 		void			handleObjectMenuSelect(uint8 messageType,Object* srcObject);
+
+		float			getSpecExtraction();
+		float			getHopperSize();
+		float			getCurrentHopperSize();
+
+		HResourceList*	getResourceList(){return &mResourceList;}
+		uint32			getRListUpdateCounter(){ return mRListUpdateCounter; }
+		void			setRListUpdateCounter(uint32 value){ mRListUpdateCounter = value; }
+		bool			checkResourceList(uint64 id);
+
 		//void			handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window);
 		
 
@@ -70,6 +92,10 @@ class HarvesterObject :	public PlayerStructure
 
 		uint32			mResourceCategory;
 		uint32			mHino7UpdateCounter;
+
+
+		HResourceList	mResourceList;
+		uint32			mRListUpdateCounter;
 
 };
 

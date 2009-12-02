@@ -19,7 +19,6 @@ enum zone_opcodes
 	opStructurePlacementMode			=	0xe8a54dc1,
 	opSendPermissionList				=	0x52F364B8,
 	opOperateHarvester					=	0xBD18C679,
-	opHarvesterResourceData				=	0x000000EA,
 
 	opClusterZoneRegisterName			=	0xb88f5166,
 	opNewbieTutorialResponse			=	0xca88fbad,
@@ -156,7 +155,10 @@ enum zone_opcodes
 	opIsmBroadcastPlanet			= 0x3F9D6D6E,	//[ZO->CH]
 	opIsmBroadcastGalaxy			= 0x8E41B5CB,	//[ZO->CH]
 	opIsmScheduleShutdown			= 0xF2477D2C,	//[ZO->CH] [CH->ZO]
-	opIsmCancelShutdown				= 0x5E43AC09	//[ZO->CH]
+	opIsmCancelShutdown				= 0x5E43AC09,	//[ZO->CH]
+
+	// structure inter server messages
+	opIsmHarvesterUpdate			= 0x8F603896	//[ZO->CH]
 
 
 };

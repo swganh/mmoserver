@@ -566,18 +566,11 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
 
 				uint64 count = result->getRowCount();
 
-				if(!count)
-					return;
-
-				if (count >= 1)
+				for(uint16 i=0;i <count;i++)
 				{
-					for(uint16 i=0;i <count;i++)
-					{
-						ItemDescriptionAttributes* mItemDescription = new ItemDescriptionAttributes;
-						result->GetNextRow(binding,mItemDescription);
-						mAtrributesList.push_back(mItemDescription);
-					}
-
+					ItemDescriptionAttributes* mItemDescription = new ItemDescriptionAttributes;
+					result->GetNextRow(binding,mItemDescription);
+					mAtrributesList.push_back(mItemDescription);
 				}
 
 				gChatMessageLib->SendGetAuctionDetailsResponse(asynContainer, &mAtrributesList);

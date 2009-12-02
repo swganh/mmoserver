@@ -206,6 +206,9 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback
 		void					handleGenericMissionRequest(Message* message);
 		void					handleMissionAbort(Message* message);
 
+		//structures
+		void					handleResourceEmptyHopper(Message* message);
+
 								// Utility
 		bool					objectsInRange(uint64 obj1Id, uint64 obj2Id, float range);
 
@@ -529,6 +532,9 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback
 		void	_handleNameStructure(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleHarvesterGetResourceData(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleHarvesterSelectResource(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
+		void	_handleHarvesterActivate(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
+		void	_handleHarvesterDeActivate(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
+		void	_handleDiscardHopper(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 
 		//pets
 		void	_handleMount(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);

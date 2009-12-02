@@ -26,6 +26,7 @@ class MessageDispatch;
 class NetworkManager;
 class Service;
 class TradeManagerChatHandler;
+class StructureManagerChatHandler;
 
 //======================================================================================================================
 
@@ -66,6 +67,7 @@ class ChatServer
 		MessageDispatch*              mMessageDispatch;
 
 		TradeManagerChatHandler*	  mTradeManagerChatHandler;
+		StructureManagerChatHandler*  mStructureManagerChatHandler;
 		ChatManager*				  mChatManager;
 		GroupManager*				  mGroupManager;
 		CSRManager*					  mCSRManager;

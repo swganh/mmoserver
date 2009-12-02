@@ -56,6 +56,12 @@ enum Structure_QueryType
 	Structure_Query_Check_Permission			=	8,
 	Structure_StructureTransfer_Lots_Recipient	=	9,
 	Structure_StructureTransfer_Lots_Donor		=	10,
+	Structure_HopperUpdate						=	11,
+	Structure_HopperDiscard						=	12,
+	Structure_GetResourceData					=	13,
+	Structure_ResourceDiscardUpdateHopper		=	14,
+	Structure_ResourceDiscard					=	15,
+	Structure_ResourceRetrieve					=	16,
 
 };
 
@@ -69,6 +75,10 @@ enum Structure_Async_CommandEnum
 	Structure_Command_PermissionHopper	=	5,
 	Structure_Command_TransferStructure	=	6,
 	Structure_Command_RenameStructure	=	7,
+	Structure_Command_DiscardHopper		=	8,
+	Structure_Command_GetResourceData	=	9,
+	Structure_Command_DiscardResource	=	10,
+	Structure_Command_RetrieveResource	=	11,
 	
 
 };
@@ -80,6 +90,10 @@ struct StructureAsyncCommand
 	uint64						StructureId;
 	uint64						PlayerId;
 	uint64						RecipientId;
+	uint64						ResourceId;
+	uint32						Amount;
+	uint8						b1;
+	uint8						b2;
 	string						CommandString;
 	string						PlayerStr;
 	string						List;
@@ -156,6 +170,9 @@ public:
 	uint64						mStructureId;
 	uint64						mPlayerId;
 	uint64						mTargetId;
+	
+	uint8						b1;
+	uint8						b2;
 
 	int8						name[64];
 
@@ -224,6 +241,12 @@ class StructureManager : public DatabaseCallback,public ObjectFactoryCallback
 		{
 			mStructureDeleteList.push_back(iD);
 			gWorldManager->getPlayerScheduler()->addTask(fastdelegate::MakeDelegate(this,&StructureManager::_handleStructureObjectTimers),7,mBuildingFenceInterval,NULL);
+		}
+
+		void					addStructureforHopperUpdate(uint64 iD)
+		{
+			mStructureDeleteList.insert(mStructureDeleteList.begin(),iD);// .push_back(iD);
+			gWorldManager->getPlayerScheduler()->addTask(fastdelegate::MakeDelegate(this,&StructureManager::_handleStructureObjectTimers),7,5000,NULL);
 		}
 
 		void					OpenStructureAdminList(uint64 structureId, uint64 playerId);

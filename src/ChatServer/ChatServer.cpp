@@ -16,6 +16,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "CSRManager.h"
 #include "GroupManager.h"
 #include "TradeManagerChat.h"
+#include "StructureManagerChat.h"
 
 #include "NetworkManager/NetworkManager.h"
 #include "NetworkManager/Service.h"
@@ -108,6 +109,7 @@ void ChatServer::Startup()
 	// load up our ChatManager
 	mChatManager = ChatManager::Init(mDatabase,mMessageDispatch);
 	mTradeManagerChatHandler = TradeManagerChatHandler::Init(mDatabase,mMessageDispatch,mChatManager);
+	mStructureManagerChatHandler = StructureManagerChatHandler::Init(mDatabase,mMessageDispatch,mChatManager);
 	mCSRManager = CSRManager::Init(mDatabase, mMessageDispatch, mChatManager);
 
 	// load up GroupManager
@@ -170,6 +172,7 @@ void ChatServer::Process()
 	mDatabaseManager->Process();
 	mNetworkManager->Process();
 	mTradeManagerChatHandler->Process();
+	mStructureManagerChatHandler->Process();
 }
 
 

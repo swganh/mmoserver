@@ -44,6 +44,8 @@ enum chat_opcodes
 	opBankTipDustOff					= 0x4516EDA7,
 	opBankTipDeduct						= 0x723BF836,
 
+	opIsmHarvesterUpdate				= 0x8F603896,	//[ZO->CH]
+
 
 
 	opConnectPlayerMessage			= 0x2e365218,
@@ -152,6 +154,7 @@ enum chat_opcodes
 
 	opCREO							= 0x4352454F,
 	opGRUP							= 0x47525550,
+	opHINO							= 0x48494E4F,
 
 	// group ISM (inter-server-messages)
 	opIsmSendSystemMailMessage		= 0x7B08578E,

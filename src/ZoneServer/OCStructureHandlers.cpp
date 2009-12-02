@@ -22,7 +22,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "ObjectControllerCommandMap.h"
 #include "ObjectControllerOpcodes.h"
 #include "ObjectFactory.h"
-#include "PlayerObject.h"
+
 #include "UIManager.h"
 #include "StructureManager.h"
 #include "ResourceManager.h"
@@ -358,8 +358,30 @@ void	ObjectController::_handleHarvesterGetResourceData(uint64 targetId,Message* 
 
 	HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(structure);
 
+	StructureAsyncCommand command;
+
+	command.Command = Structure_Command_GetResourceData;
+	command.PlayerId = player->getId();
+	command.StructureId = structure->getId();
+
+	gStructureManager->checkNameOnPermissionList(structure->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+
+	return;
 	gMessageLib->sendHarvesterResourceData(structure,player);
+
+	gLogger->logMsgF(" ObjectController::_handleHarvesterGetResourceData :: hino 7 baseline",MSG_HIGH);
 	gMessageLib->sendBaselinesHINO_7(harvester,player);
+
+	//add the structure to the timer so the resource amounts are updated while we look at the hopper
+	//harvester->getTTS()->todo		= ttE_UpdateHopper;
+	//harvester->getTTS()->playerId	= player->getId();
+	//structure->getTTS()->projectedTime = 5000 + Anh_Utils::Clock::getSingleton()->getLocalTime();
+	//gStructureManager->addStructureforHopperUpdate(harvester->getId());
+
+	// this needs to be handled zoneserverside - otherwise the addition of a res will trigger a racecondition 
+	// between the sql write query and the sql read please note that the harvesting itself happens through stored procedures
+	// and we cant keep the updatecounters synchronized
+	
 
 }
 
@@ -369,6 +391,111 @@ void	ObjectController::_handleHarvesterGetResourceData(uint64 targetId,Message* 
 // Selects the resource for extraction
 //
 void	ObjectController::_handleHarvesterSelectResource(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
+{
+	gLogger->logMsgF(" ObjectController::_handleHarvesterSelectResource",MSG_HIGH);
+
+	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+
+	if(!player)
+	{
+		gLogger->logMsgF(" ObjectController::_handleHarvesterSelectResource Player not found",MSG_HIGH);
+		return;
+	}
+
+	//do we have a valid structure ??? 
+	uint64 id = targetId;
+	Object* object = gWorldManager->getObjectById(id);
+	PlayerStructure* structure = dynamic_cast<PlayerStructure*>(object);
+
+	if(!structure)
+	{
+		//gMessageLib->sendSystemMessage(player,L"","player_structure","command_no_building");
+		gLogger->logMsgF(" ObjectController::_handleHarvesterSelectResource Structure not found",MSG_HIGH);
+		return;
+	}
+	
+	//is the structure in Range???
+	float fTransferDistance = gWorldConfig->getConfiguration("Player_Structure_Operate_Distance",(float)10.0);
+	if(!player->mPosition.inRange2D(structure->mPosition,fTransferDistance))
+	{
+		gLogger->logMsgF(" ObjectController::_handleHarvesterGetResourceData Structure not in Range",MSG_HIGH);
+		return;
+	}
+
+	HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(structure);
+
+	//get the relevant Resource
+	string dataStr;
+	message->getStringUnicode16(dataStr);
+
+	uint64 resourceId;
+	swscanf(dataStr.getUnicode16(),L"%I64u",&resourceId);
+
+	Resource* tmpResource = gResourceManager->getResourceById(resourceId);
+	
+	if((!tmpResource)||(!tmpResource->getCurrent()))
+	{
+		gLogger->logMsgF(" ObjectController::_handleHarvesterGetResourceData No valid resource!",MSG_HIGH);
+		return;
+	}
+
+	harvester->setCurrentResource(resourceId);
+
+	// update the current resource in the db 
+	mDatabase->ExecuteSqlAsync(0,0,"UPDATE harvesters SET ResourceID=%"PRIu64" WHERE id=%"PRIu64" ",resourceId,harvester->getId());
+
+
+	CurrentResource* cR = reinterpret_cast<CurrentResource*>(tmpResource);
+		//resource = reinterpret_cast<CurrentResource*>(gResourceManager->getResourceByNameCRC(resourceName.getCrc()));
+
+	float posX, posZ;
+	float ratio = 0.0;
+
+	posX	= harvester->mPosition.mX;
+	posZ	= harvester->mPosition.mZ;
+	
+	
+	if(cR)
+	{
+		ratio	= cR->getDistribution((int)posX + 8192,(int)posZ + 8192);
+		if(ratio > 1.0)
+		{
+			ratio = 1.0;
+		}
+	}
+
+	float ber = harvester->getSpecExtraction();
+
+	harvester->setCurrentExtractionRate(ber*ratio);
+
+	// now enter the new resource in the hoppers resource list if its isnt already in there
+	// TODO keep the list up to date by removing unnecessary resources
+	// to this end read the list anew and delete every resource with zero amount
+	// have a stored function do this
+	
+	if(!harvester->checkResourceList(resourceId))
+	{
+		//do *not* add to list - otherwise we get a racecondition with the asynch update from db !!!
+		//harvester->getResourceList()->push_back(std::make_pair(resourceId,float(0.0)));
+		//add to db
+		mDatabase->ExecuteSqlAsync(0,0,"INSERT INTO harvester_resources VALUES(%"PRIu64",%"PRIu64",0,0)",harvester->getId(),resourceId);
+	}
+
+	// update the current extractionrate in the db for the stored procedure handling the harvesting
+	mDatabase->ExecuteSqlAsync(0,0,"UPDATE harvesters SET rate=%f WHERE id=%"PRIu64" ",(ber*ratio),harvester->getId());
+
+	//now send the updates
+	gMessageLib->sendCurrentResourceUpdate(harvester,player);
+	gMessageLib->sendCurrentExtractionRate(harvester,player);
+
+}
+
+//======================================================================================================================
+//
+// Turns a harvester on
+//
+
+void	ObjectController::_handleHarvesterActivate(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
 
 	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
@@ -401,54 +528,190 @@ void	ObjectController::_handleHarvesterSelectResource(uint64 targetId,Message* m
 
 	HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(structure);
 
-	gLogger->hexDump(message->getData(), message->getSize());
+	harvester->setActive(true);
 
-
-	//get the relevant Resource
-	string dataStr;
-	message->getStringUnicode16(dataStr);
-
-	uint64 resourceId;
-	swscanf(dataStr.getUnicode16(),L"%I64u",&resourceId);
-
-	Resource* tmpResource = gResourceManager->getResourceById(resourceId);
+	//send the respective delta
+	gMessageLib->sendHarvesterActive(harvester,player);
 	
-	if((!tmpResource)||(!tmpResource->getCurrent()))
+	//send the db update
+	mDatabase->ExecuteSqlAsync(0,0,"UPDATE harvesters SET active= 1 WHERE id=%"PRIu64" ",harvester->getId());
+
+}
+
+//======================================================================================================================
+//
+// Turns a harvester off
+//
+
+void	ObjectController::_handleHarvesterDeActivate(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
+{
+
+	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+
+	if(!player)
 	{
-		gLogger->logMsgF(" ObjectController::_handleHarvesterGetResourceData No valid resource!",MSG_HIGH);
+		gLogger->logMsgF(" ObjectController::_handleHarvesterSelectResource Player not found",MSG_HIGH);
 		return;
 	}
 
-	harvester->setCurrentResource(resourceId);
+	//do we have a valid structure ??? 
+	uint64 id = targetId;
+	Object* object = gWorldManager->getObjectById(id);
+	PlayerStructure* structure = dynamic_cast<PlayerStructure*>(object);
 
-
-	CurrentResource* cR = reinterpret_cast<CurrentResource*>(tmpResource);
-		//resource = reinterpret_cast<CurrentResource*>(gResourceManager->getResourceByNameCRC(resourceName.getCrc()));
-
-	float posX, posZ;
-	float ratio = 0.0;
-
-	posX	= harvester->mPosition.mX;
-	posZ	= harvester->mPosition.mZ;
-	
-	
-	if(cR)
+	if(!structure)
 	{
-		ratio	= cR->getDistribution((int)posX + 8192,(int)posZ + 8192);
-		if(ratio > 1.0)
-		{
-			ratio = 1.0;
-		}
+		//gMessageLib->sendSystemMessage(player,L"","player_structure","command_no_building");
+		gLogger->logMsgF(" ObjectController::_handleHarvesterSelectResource Structure not found",MSG_HIGH);
+		return;
+	}
+	
+	//is the structure in Range???
+	float fTransferDistance = gWorldConfig->getConfiguration("Player_Structure_Operate_Distance",(float)10.0);
+	if(!player->mPosition.inRange2D(structure->mPosition,fTransferDistance))
+	{
+		gLogger->logMsgF(" ObjectController::_handleHarvesterGetResourceData Structure not in Range",MSG_HIGH);
+		return;
 	}
 
-	float ber = harvester->getAttribute<float>("harvester_efficiency");
-	if(ber <= 0)
-		ber = 3.0;
+	HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(structure);
 
-	harvester->setCurrentExtractionRate(ber*ratio);
-	//now send the updates
-	gMessageLib->sendCurrentResourceUpdate(harvester,player);
-	gMessageLib->sendCurrentExtractionRate(harvester,player);
+	harvester->setActive(false);
+
+	//send the respective delta
+	gMessageLib->sendHarvesterActive(harvester,player);
 	
+	//send the db update
+	mDatabase->ExecuteSqlAsync(0,0,"UPDATE harvesters SET active = 0 WHERE id=%"PRIu64" ",harvester->getId());
 
 }
+
+//======================================================================================================================
+//
+// Discards the contents of a harvesters Hopper
+//
+
+void	ObjectController::_handleDiscardHopper(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
+{
+
+	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+
+	if(!player)
+	{
+		gLogger->logMsgF(" ObjectController::_handleHarvesterSelectResource Player not found",MSG_HIGH);
+		return;
+	}
+
+	//do we have a valid structure ??? 
+	uint64 id = targetId;
+	Object* object = gWorldManager->getObjectById(id);
+	PlayerStructure* structure = dynamic_cast<PlayerStructure*>(object);
+
+	if(!structure)
+	{
+		//gMessageLib->sendSystemMessage(player,L"","player_structure","command_no_building");
+		gLogger->logMsgF(" ObjectController::_handleHarvesterSelectResource Structure not found",MSG_HIGH);
+		return;
+	}
+	
+	//is the structure in Range???
+	float fTransferDistance = gWorldConfig->getConfiguration("Player_Structure_Operate_Distance",(float)10.0);
+	if(!player->mPosition.inRange2D(structure->mPosition,fTransferDistance))
+	{
+		gLogger->logMsgF(" ObjectController::_handleHarvesterGetResourceData Structure not in Range",MSG_HIGH);
+		return;
+	}
+
+	HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(structure);
+
+	StructureAsyncCommand command;
+
+	command.Command = Structure_Command_DiscardHopper;
+	command.PlayerId = player->getId();
+	command.StructureId = structure->getId();
+
+	gStructureManager->checkNameOnPermissionList(structure->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+
+	//mDatabase->ExecuteSqlAsync(0,0,"SELECT sf_DiscardHopper(%"PRIu64") ",harvester->getId());
+//gMessageLib->SendHarvesterHopperUpdate(harvester,player);
+
+}
+
+
+//=============================================================================================================================
+// discards x amount of specified resource
+
+void ObjectController::handleResourceEmptyHopper(Message* message)
+{
+	uint64 playerId;
+	uint64 harvesterId;
+
+	message->getUint64(playerId);	
+	message->getUint64(harvesterId);
+
+	PlayerObject*   player  = dynamic_cast<PlayerObject*>(mObject);
+
+	if(!player)
+	{
+		gLogger->logMsgF(" ObjectController::ResourceEmptyHopper Player not found",MSG_HIGH);
+		return;
+	}
+
+	//do we have a valid structure ??? 
+	Object* object = gWorldManager->getObjectById(harvesterId);
+	PlayerStructure* structure = dynamic_cast<PlayerStructure*>(object);
+
+	if(!structure)
+	{
+		//gMessageLib->sendSystemMessage(player,L"","player_structure","command_no_building");
+		gLogger->logMsgF(" ObjectController::_handleHarvesterSelectResource Structure not found",MSG_HIGH);
+		return;
+	}
+	
+	//is the structure in Range???
+	float fTransferDistance = gWorldConfig->getConfiguration("Player_Structure_Operate_Distance",(float)10.0);
+	if(!player->mPosition.inRange2D(structure->mPosition,fTransferDistance))
+	{
+		gLogger->logMsgF(" ObjectController::_handleHarvesterGetResourceData Structure not in Range",MSG_HIGH);
+		return;
+	}
+
+	uint64 resourceId;
+	uint32 amount;
+	uint8 b1, b2;
+
+	message->getUint64(resourceId);
+	message->getUint32(amount);
+	message->getUint8(b1);
+	message->getUint8(b2);
+
+	HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(structure);
+
+	StructureAsyncCommand command;
+
+	if(b1 == 0)
+	{
+		command.Command		=	Structure_Command_RetrieveResource;
+		command.PlayerId	=	player->getId();		   
+		command.StructureId =	structure->getId();
+		command.ResourceId	=	resourceId; 
+		command.Amount		=	amount;
+		command.b1 = b1;
+		command.b2 = b2;
+	}
+	if(b1 == 1)
+	{
+		command.Command		=	Structure_Command_DiscardResource;
+		command.PlayerId	=	player->getId();		   
+		command.StructureId =	structure->getId();
+		command.ResourceId	=	resourceId; 
+		command.Amount		=	amount;
+		command.b1 = b1;
+		command.b2 = b2;
+
+	}
+
+	gStructureManager->checkNameOnPermissionList(structure->getId(),player->getId(),player->getFirstName().getAnsi(),"HOPPER",command);
+
+}
+

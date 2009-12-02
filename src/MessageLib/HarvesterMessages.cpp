@@ -21,6 +21,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "ZoneServer/ObjectFactory.h"
 #include "ZoneServer/WorldManager.h"
 #include "ZoneServer/ZoneOpcodes.h"
+#include "ZoneServer/ObjectControllerOpcodes.h"
 
 #include "LogManager/LogManager.h"
 
@@ -73,7 +74,7 @@ bool MessageLib::sendBaselinesHINO_3(HarvesterObject* harvester,PlayerObject* pl
 	gMessageFactory->addUint32(0);//condition damage
 	gMessageFactory->addUint32(1000);   //maxcondition
 	gMessageFactory->addUint32(0);
-	gMessageFactory->addUint8(0);//active flag
+	gMessageFactory->addUint8(harvester->getActive());//active flag
 	gMessageFactory->addFloat(0);//power reserve
 	gMessageFactory->addFloat(0);//power cost
 	gMessageFactory->addUint64(0);
@@ -120,6 +121,12 @@ bool MessageLib::sendBaselinesHINO_6(HarvesterObject* harvester,PlayerObject* pl
 
 	return(true);
 }
+
+//======================================================================================================================
+//
+// Building Baselines Type 7
+// contain: unknown
+//
 
 bool MessageLib::sendBaselinesHINO_7(HarvesterObject* harvester,PlayerObject* player)
 {
@@ -212,33 +219,37 @@ bool MessageLib::sendBaselinesHINO_7(HarvesterObject* harvester,PlayerObject* pl
 
 	gMessageFactory->addUint64(harvester->getCurrentResource());//current Res Id harvesting
 
-	gMessageFactory->addUint8(0);//on off status flag
-	gMessageFactory->addFloat(0);//hopper capacity
+	gMessageFactory->addUint8(harvester->getActive());//on off status flag
+	gMessageFactory->addUint32(uint32(harvester->getSpecExtraction()));//hopper capacity
 	
-	gMessageFactory->addFloat(0);//spec rate
-	gMessageFactory->addFloat(0);//current rate
+	gMessageFactory->addFloat(harvester->getSpecExtraction());//spec rate
+	gMessageFactory->addFloat(harvester->getCurrentExtractionRate());//current rate
 
-	gMessageFactory->addFloat(0);//hopper amount
-	gMessageFactory->addFloat(0);//hopper size
+	gMessageFactory->addFloat(harvester->getCurrentHopperSize());//current hopper size
+	gMessageFactory->addUint32((uint32)harvester->getHopperSize());//max Hoppersize
 
-	gMessageFactory->addUint8(0);//
+	gMessageFactory->addUint8(1);//	  hopper update flag
+
+
+	HResourceList* rList = harvester->getResourceList();
+	harvester->setRListUpdateCounter(rList->size());
+
+	gMessageFactory->addUint32(rList->size());//listsize hopper contents
+	gMessageFactory->addUint32(harvester->getRListUpdateCounter());//updatecounter hopper contents
+
+	//harvester->setRListUpdateCounter(harvester->getRListUpdateCounter()+rList->size());
 	
-	gMessageFactory->addFloat(0);//
-	gMessageFactory->addFloat(0);//
-		
-	gMessageFactory->addFloat(0);//
-	gMessageFactory->addFloat(0);//
-	gMessageFactory->addFloat(0);//
-	gMessageFactory->addFloat(0);//
-	gMessageFactory->addFloat(0);//
-	gMessageFactory->addFloat(0);//
-	gMessageFactory->addFloat(0);//
-	gMessageFactory->addFloat(0);//
+	HResourceList::iterator it = rList->begin();
+	while (it != rList->end())
+	{
+		gMessageFactory->addUint64((*it).first);//
+		gMessageFactory->addFloat((*it).second);//
+		it++;
+	}
+	
+	gMessageFactory->addUint8(0);//	  condition
 
-	gMessageFactory->addUint64(0);//current Res Id harvesting
-	gMessageFactory->addUint64(0);//current Res Id harvesting
-	gMessageFactory->addUint64(0);//current Res Id harvesting
-	gMessageFactory->addUint64(0);//current Res Id harvesting
+	gMessageFactory->addUint64(0);//
 	
 	newMessage = gMessageFactory->EndMessage();
 
@@ -498,7 +509,7 @@ void MessageLib::sendCurrentResourceUpdate(HarvesterObject* harvester, PlayerObj
 }
 
 //======================================================================================================================
-//send current Resource Update
+//send current ExtractionRate update
 //======================================================================================================================
 
 void MessageLib::sendCurrentExtractionRate(HarvesterObject* harvester, PlayerObject* player)
@@ -520,5 +531,176 @@ void MessageLib::sendCurrentExtractionRate(HarvesterObject* harvester, PlayerObj
 
 	fragment->setPendingDelete(true);
 
+	(player->getClient())->SendChannelA(gMessageFactory->EndMessage(), player->getAccountId(),CR_Client,4);
+}
+
+//======================================================================================================================
+//turn the harvester on
+//======================================================================================================================
+
+void MessageLib::sendHarvesterActive(HarvesterObject* harvester, PlayerObject* player)
+{										  
+	gMessageFactory->StartMessage();
+	
+	gMessageFactory->addUint16(1);	//1 updated var
+	gMessageFactory->addUint16(6);	//var Nr 9
+	gMessageFactory->addUint8(harvester->getActive());
+	Message* fragment = gMessageFactory->EndMessage();
+
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opDeltasMessage);
+	gMessageFactory->addUint64(harvester->getId());
+	gMessageFactory->addUint32(opHINO);
+	gMessageFactory->addUint8(7);
+	gMessageFactory->addUint32(fragment->getSize());
+	gMessageFactory->addData(fragment->getData(),fragment->getSize());
+
+	fragment->setPendingDelete(true);
+
+	(player->getClient())->SendChannelA(gMessageFactory->EndMessage(), player->getAccountId(),CR_Client,4);
+}
+
+//======================================================================================================================
+//Notifies the chatserver to
+//the chatserver will
+//======================================================================================================================
+
+void MessageLib::sendHarvesterChatHopperUpdate(HarvesterObject* harvester, PlayerObject* player, uint8 update)
+{										  
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opIsmHarvesterUpdate);
+	gMessageFactory->addUint64(harvester->getId());
+	gMessageFactory->addUint8(update);
+	gMessageFactory->addUint32(harvester->getRListUpdateCounter());
+
+	(player->getClient())->SendChannelA(gMessageFactory->EndMessage(), player->getAccountId(),CR_Chat,4);
+}
+
+//=======================================================================================================================
+//
+// sends the relevant delta to the client to update hopper contents
+//
+
+void MessageLib::SendHarvesterHopperUpdate(HarvesterObject* harvester, PlayerObject* player)
+{			
+																		 
+	gMessageFactory->StartMessage();
+	
+	gMessageFactory->addUint16(3);	//2 updated vars
+	gMessageFactory->addUint16(12);	//var Nr 12 = hopper update flag
+	gMessageFactory->addUint8(1);
+
+	gMessageFactory->addUint16(13);	//var Nr 12 = hopper resourcelist
+	
+	HResourceList*	hRList = harvester->getResourceList();
+	harvester->setRListUpdateCounter(harvester->getRListUpdateCounter() + hRList->size());
+
+	gLogger->logMsgF("adding update Counter  ID %u",MSG_HIGH,harvester->getRListUpdateCounter());
+
+	gMessageFactory->addUint32(hRList->size());
+	gMessageFactory->addUint32(harvester->getRListUpdateCounter());
+
+	//gLogger->logMsgF("SendHarvesterHopperUpdate:: listsize %u updatecounter %u",MSG_NORMAL,mHopperList->size(),asynContainer->updateCounter);
+
+	gMessageFactory->addUint8(3);
+	gMessageFactory->addUint16(hRList->size());
+
+	HResourceList::iterator it = hRList->begin();
+
+	while(it != hRList->end())
+	{
+		gMessageFactory->addUint64((*it).first);		
+		//gLogger->logMsgF("adding res ID %I64u",MSG_HIGH,(*it).first);
+		gMessageFactory->addFloat((*it).second);		
+		//gMessageFactory->addFloat((float)harvester->getRListUpdateCounter());	
+		it++;
+	}
+
+	gMessageFactory->addUint16(10);	//var Nr 12 = hopper update flag
+	gMessageFactory->addFloat(harvester->getCurrentHopperSize());
+	
+	Message* fragment = gMessageFactory->EndMessage();
+
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opDeltasMessage);
+	gMessageFactory->addUint64(harvester->getId());
+	gMessageFactory->addUint32(opHINO);
+	gMessageFactory->addUint8(7);
+	gMessageFactory->addUint32(fragment->getSize());
+	gMessageFactory->addData(fragment->getData(),fragment->getSize());
+
+	fragment->setPendingDelete(true);
+	(player->getClient())->SendChannelA(gMessageFactory->EndMessage(), player->getAccountId(),CR_Client,4);
+
+}
+
+
+//======================================================================================================================
+//
+// sends the Hopper List for a structure
+//
+
+bool MessageLib::sendHopperList(PlayerStructure* structure, PlayerObject* playerObject)
+{
+	if(!(playerObject->isConnected()))
+		return(false);
+
+	Message* newMessage;
+
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opSendPermissionList);  
+	gMessageFactory->addUint32(structure->getStrucureHopperList().size() );
+
+	string name;
+	BStringVector vector = 	structure->getStrucureHopperList();
+	BStringVector::iterator it = vector.begin();
+	while(it != vector.end())
+	{
+		name = (*it);
+		name.convert(BSTRType_Unicode16);
+		gMessageFactory->addString(name);
+
+		it++;
+	}
+
+	gMessageFactory->addUint32(0); // ???
+	//gMessageFactory->addUint16(0);	// unknown
+	name = "HOPPER";
+	name.convert(BSTRType_Unicode16);
+	gMessageFactory->addString(name);
+	gMessageFactory->addUint32(0); // ???
+	
+	newMessage = gMessageFactory->EndMessage();
+
+	(playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 5);
+
+	structure->resetStructureHopperList();
+
+	return(true);
+}
+
+
+//======================================================================================================================
+// 
+//======================================================================================================================
+
+void MessageLib::sendResourceEmptyHopperResponse(PlayerStructure* structure,PlayerObject* player, uint32 amount, uint8 b1, uint8 b2)
+{
+	HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(structure);
+	if(!harvester)
+	{
+		return;
+	}
+
+	gMessageFactory->StartMessage();        
+	gMessageFactory->addUint32(opObjControllerMessage);  
+	gMessageFactory->addUint32(0x0000000B);           
+	gMessageFactory->addUint32(opResourceEmptyHopperResponse);           
+	gMessageFactory->addUint64(player->getId());
+	gMessageFactory->addUint32(amount);           
+	gMessageFactory->addUint32(opResourceEmptyHopper);
+	gMessageFactory->addUint8(b1);           
+	gMessageFactory->addUint8(b2);           
+	
 	(player->getClient())->SendChannelA(gMessageFactory->EndMessage(), player->getAccountId(),CR_Client,4);
 }

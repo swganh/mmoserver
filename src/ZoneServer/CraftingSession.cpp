@@ -2185,7 +2185,7 @@ void CraftingSession::createManufactureSchematic(uint32 counter)
 
 	//504 is id of manf_limit number!!!
 	sprintf(sql,"INSERT INTO item_attributes VALUES(%"PRIu64",504,'%s',2,0)",mManufacturingSchematic->getId(),limit.getAnsi());
-
+	mDatabase->ExecuteSqlAsync(0,0,sql);
 
 	gMessageLib->sendCraftAcknowledge(opCreatePrototypeResponse,CraftCreate_2,static_cast<uint8>(counter),mOwner);
 }

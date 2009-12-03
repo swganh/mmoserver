@@ -92,10 +92,27 @@ void HarvesterFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
 			}
 
+			QueryContainerBase* asynContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,HFQuery_AttributeData,asyncContainer->mClient,asyncContainer->mId);
+			asynContainer->mId		= harvester->getId();
+			asynContainer->mObject	= harvester;
+
+			mDatabase->ExecuteSqlAsync(this,asynContainer,"SELECT attributes.name,sa.value,attributes.internal"
+															 " FROM structure_attributes sa"
+															 " INNER JOIN attributes ON (sa.attribute_id = attributes.id)"
+															 " WHERE sa.structure_id = %"PRIu64" ORDER BY sa.order",harvester->getId());
+
+			
+		}
+		break;
+
+		case HFQuery_AttributeData:
+		{
+			HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(asyncContainer->mObject);
+			_buildAttributeMap(harvester,result);
+
 			gLogger->logMsgF("HarvesterFactory: loaded Harvester %I64u", MSG_HIGH, harvester->getId());
 			asyncContainer->mOfCallback->handleObjectReady(harvester,asyncContainer->mClient);
-			mQueryContainerPool.free(asyncContainer);
-			return;
+			
 		}
 		break;
 

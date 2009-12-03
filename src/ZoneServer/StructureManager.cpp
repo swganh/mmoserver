@@ -207,7 +207,18 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 			if(!count)
 			{
 				gLogger->logMsgF("StructureManager::Structure %I64u without maintenance attributes",MSG_HIGH,asynContainer->mStructureId);
-				break;
+				//add the attributes so the structure has them and can be deleted
+				//322 = energy_maintenance
+				//382 = examine_maintenance
+				int8 sql[250];
+				sprintf(sql,"INSERT INTO item_attributes VALUES(%"PRIu64",322,'%s',2,0)",asynContainer->mStructureId,"5");
+				mDatabase->ExecuteSqlAsync(0,0,sql);
+				structure->addAttribute("energy_maintenance","5");
+
+				sprintf(sql,"INSERT INTO item_attributes VALUES(%"PRIu64",382,'%s',2,0)",asynContainer->mStructureId,"5");
+				mDatabase->ExecuteSqlAsync(0,0,sql);
+				structure->addAttribute("examine_maintenance","5");
+				
 			}
 
 			if(!structure)

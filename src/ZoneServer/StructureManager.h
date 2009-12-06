@@ -79,6 +79,7 @@ enum Structure_Async_CommandEnum
 	Structure_Command_GetResourceData	=	9,
 	Structure_Command_DiscardResource	=	10,
 	Structure_Command_RetrieveResource	=	11,
+	Structure_Command_PayMaintenance	=	12,
 	
 
 };

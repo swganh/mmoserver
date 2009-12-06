@@ -26,8 +26,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 //================================================================================
 
 UITransferBox::UITransferBox(UICallback* callback,uint32 id,const int8* eventStr,const int8* caption,const int8* text
-					   ,const int8* leftTitle,const int8* rightTitle, uint32 leftValue, uint32 rightValue, PlayerObject* playerObject)
-: UIWindow(callback,id,SUI_Window_InputBox,"Script.transfer",eventStr)
+					   ,const int8* leftTitle,const int8* rightTitle, uint32 leftValue, uint32 rightValue, PlayerObject* playerObject, uint8 windowType)
+: UIWindow(callback,id,windowType,"Script.transfer",eventStr)
 {
 	mOwner		= playerObject;
 	mCaption	= caption;

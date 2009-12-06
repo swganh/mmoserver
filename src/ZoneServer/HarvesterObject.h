@@ -74,8 +74,6 @@ class HarvesterObject :	public PlayerStructure, public DatabaseCallback
 		uint32			getRListUpdateCounter(){ return mRListUpdateCounter; }
 		void			setRListUpdateCounter(uint32 value){ mRListUpdateCounter = value; }
 		bool			checkResourceList(uint64 id);
-
-		//void			handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window);
 		
 
 	private:

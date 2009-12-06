@@ -47,7 +47,6 @@ void	ObjectController::_handleModifyPermissionList(uint64 targetId,Message* mess
 
 {
 
-
 	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
 
 	if(!player)

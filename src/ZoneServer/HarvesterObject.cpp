@@ -13,6 +13,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "HarvesterObject.h"
 #include "PlayerObject.h"
 #include "Inventory.h"
+
 #include "ResourceContainer.h"
 #include "StructureManager.h"
 #include "UIManager.h"
@@ -67,12 +68,12 @@ bool HarvesterObject::checkResourceList(uint64 id)
 float HarvesterObject::getSpecExtraction()
 {
 
-	if(!this->hasAttribute("harvester_efficiency"))
+	if(!this->hasAttribute("examine_extractionrate"))
 	{
-		this->addAttribute("harvester_efficiency","3.0");
+		this->addAttribute("examine_extractionrate","3.0");
 	}
 
-	return this->getAttribute<float>("harvester_efficiency");
+	return this->getAttribute<float>("examine_extractionrate");
 
 }
 
@@ -123,6 +124,18 @@ void HarvesterObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject
 	
 	switch(messageType)
 	{
+		case radId_payMaintenance:
+		{
+			StructureAsyncCommand command;
+			command.Command = Structure_Command_PayMaintenance;
+			command.PlayerId = player->getId();
+			command.StructureId = this->getId();
+
+			gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+			
+		}
+		break;
+
 		case radId_serverTerminalManagementDestroy: 
 		{
 			StructureAsyncCommand command;
@@ -203,9 +216,10 @@ void HarvesterObject::prepareCustomRadialMenu(CreatureObject* creatureObject, ui
 	radial->addItem(4,2,radId_serverTerminalManagementDestroy,radAction_ObjCallback,"destroy");//destroy
 	radial->addItem(5,2,radId_setName,radAction_ObjCallback,"Rename Structure");//destroy
 	radial->addItem(6,2,radId_operateHarvester,radAction_ObjCallback,"operate Harvester");//destroy
+	radial->addItem(7,2,radId_payMaintenance,radAction_ObjCallback,"Pay Maintenance");//destroy
 	
-	radial->addItem(7,3,radId_serverTerminalPermissionsAdmin,radAction_ObjCallback,"Admin List");//destroy
-	radial->addItem(8,3,radId_serverTerminalPermissionsHopper,radAction_ObjCallback,"Hopper List");//destroy
+	radial->addItem(8,3,radId_serverTerminalPermissionsAdmin,radAction_ObjCallback,"Admin List");//destroy
+	radial->addItem(9,3,radId_serverTerminalPermissionsHopper,radAction_ObjCallback,"Hopper List");//destroy
 	
 
 
@@ -516,26 +530,5 @@ void HarvesterObject::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 }
 
 
-/*
 
-void HarvesterObject::handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window)
-{
 
-	PlayerObject* playerObject = window->getOwner();
-
-	if(!playerObject || action || playerObject->getSurveyState() || playerObject->getSamplingState() || playerObject->isIncapacitated() || playerObject->isDead())
-	{
-		return;
-	}
-
-	switch(window->getWindowType())
-	{
-
-		case SUI_Window_Structure_Delete:
-		{
-		}
-		break;
-
-	}
-}
-*/

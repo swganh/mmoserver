@@ -211,7 +211,7 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 				//322 = energy_maintenance
 				//382 = examine_maintenance
 				int8 sql[250];
-				sprintf(sql,"INSERT INTO item_attributes VALUES(%"PRIu64",322,'%s',2,0)",asynContainer->mStructureId,"5");
+				sprintf(sql,"INSERT INTO item_attributes VALUES(%"PRIu64",384,'%s',2,0)",asynContainer->mStructureId,"5");
 				mDatabase->ExecuteSqlAsync(0,0,sql);
 				structure->addAttribute("energy_maintenance","5");
 
@@ -231,16 +231,16 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 			{
 				result->GetNextRow(binding,&detail);
 
-				if(detail.attributeId == 322)
+				if(detail.attributeId == 384)
 				{
 					//322 = energy_maintenance
-					if (structure->hasAttribute("energy_maintenance"))
+					if (structure->hasAttribute("examine_power"))
 					{
-						structure->setAttribute("energy_maintenance",detail.value.getAnsi());
+						structure->setAttribute("examine_power",detail.value.getAnsi());
 
 					}
 					else
-						structure->addAttribute("energy_maintenance",detail.value.getAnsi());
+						structure->addAttribute("examine_power",detail.value.getAnsi());
 				}
 
 				if(detail.attributeId == 382)
@@ -613,12 +613,12 @@ void StructureManager::getDeleteStructureMaintenanceData(uint64 structureId, uin
 	StructureManagerAsyncContainer* asyncContainer;
 
 	asyncContainer = new StructureManagerAsyncContainer(Structure_Query_delete, 0);
-	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sa.value, sa.attribute_id FROM structure_attributes sa where attribute_id = 382 or attribute_id = 322 and structure_id = %I64u",structureId);
+	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sa.value, sa.attribute_id FROM structure_attributes sa where attribute_id = 382 or attribute_id = 384 and structure_id = %I64u",structureId);
 	asyncContainer->mStructureId = structureId;
 	asyncContainer->mPlayerId = playerId;
 
-	//322 = energy_maintenance
 	//382 = examine_maintenance
+	//384 = examine_power
 //mDatabase->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%.2f' WHERE item_id=%"PRIu64" AND attribute_id=%u",attValue,mItem->getId(),att->getAttributeId());
 }
 
@@ -1059,6 +1059,15 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 
 	switch(command.Command)
 	{
+
+		case Structure_Command_PayMaintenance:
+		{
+			HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(gWorldManager->getObjectById(command.StructureId));
+
+			gUIManager->createPayMaintenanceTransferBox(harvester,player,harvester);
+
+		}
+		break;
 
 		// callback for retrieving a variable amount of the selected resource
 		case Structure_Command_RetrieveResource:

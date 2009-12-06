@@ -109,6 +109,7 @@ class PlayerStructure :	public TangibleObject
 		void					sendStructureHopperList(uint64 playerId);
 
 		void					handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window);
+		void					handleUIEvent(string strInventoryCash, string strBankCash, UIWindow* window);
 
 		//camps dont have cells
 		ObjectList				getAllCellChilds();

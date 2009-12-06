@@ -280,7 +280,7 @@ void ObjectFactory::requestnewHarvesterbyDeed(ObjectFactoryCallback* ofCallback,
 
 	gLogger->logMsgF("dir is %f, x:%f, y:%f, z:%f, w:%f",MSG_HIGH,dir,oX, oY, oZ, oW);
 
-	sprintf(sql,"SELECT sf_DefaultHarvesterCreate(%u,0,%"PRIu64",%u,%f,%f,%f,%f,%f,%f,%f,'%s',%u)",deedLink->structure_type, player->getId(), gWorldManager->getZoneId(),oX,oY,oZ,oW,x,y,z,customName.getAnsi(),deed->getId());
+	sprintf(sql,"SELECT sf_DefaultHarvesterCreate(%u,0,%"PRIu64",%u,%f,%f,%f,%f,%f,%f,%f,'%s',%I64u)",deedLink->structure_type, player->getId(), gWorldManager->getZoneId(),oX,oY,oZ,oW,x,y,z,customName.getAnsi(),deed->getId());
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
 	gLogger->logMsgF(sql,MSG_HIGH);
 

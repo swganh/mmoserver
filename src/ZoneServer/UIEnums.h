@@ -76,7 +76,9 @@ enum ui_window_types
 	SUI_Window_Structure_Delete									= 39,
 	SUI_Window_Structure_Delete_Confirm							= 40,
 	SUI_Window_Structure_Admin_List								= 41,
-	SUI_Window_Structure_Rename									= 42
+	SUI_Window_Structure_Rename									= 42,
+	SUI_Window_Transfer_Box										= 43,
+	SUI_Window_Pay_Maintenance									= 44
 
 };
 

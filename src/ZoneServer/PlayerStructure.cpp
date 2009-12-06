@@ -12,6 +12,8 @@ Copyright (c) 2006 - 2009 The swgANH Team
 
 #include "PlayerStructure.h"
 #include "PlayerObject.h"
+#include "Inventory.h"
+#include "Bank.h"
 #include "UICallback.h"
 #include "UIManager.h"
 #include "WorldManager.h"
@@ -52,8 +54,8 @@ uint32 PlayerStructure::getCurrentMaintenance()
 	}
 
 	gLogger->logMsgF("PlayerStructure::getMaintenance structure maintenance not set!!!!", MSG_NORMAL);
-	setCurrentMaintenance(1);
-	return 1;
+	setCurrentMaintenance(0);
+	return 0;
 }
 
 
@@ -65,9 +67,11 @@ void PlayerStructure::setCurrentMaintenance(uint32 maintenance)
 	if (this->hasAttribute("examine_maintenance"))
 	{
 		this->setAttribute("examine_maintenance",boost::lexical_cast<std::string>(maintenance));
+		return;
 		
 	}
-
+	
+	
 	this->addAttribute("examine_maintenance",boost::lexical_cast<std::string>(maintenance));
 	gLogger->logMsgF("PlayerStructure::setMaintenanceRate structure maintenance rate not set!!!!", MSG_NORMAL);
 
@@ -160,6 +164,98 @@ void PlayerStructure::sendStructureHopperList(uint64 playerId)
 	gMessageLib->sendHopperList(this,player);
 
 
+}
+
+//=============================================================================
+// thats for the transferbox
+//
+
+void PlayerStructure::handleUIEvent(string strCharacterCash, string strHarvesterCash, UIWindow* window)
+{
+
+	PlayerObject* player = window->getOwner();
+
+	if(!player)
+	{
+		return;
+	}
+
+	switch(window->getWindowType())
+	{
+
+		case SUI_Window_Pay_Maintenance:
+		{
+			strCharacterCash.convert(BSTRType_ANSI);
+			strHarvesterCash.convert(BSTRType_ANSI);
+
+			Bank* bank = dynamic_cast<Bank*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
+			Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+			int32 bankFunds = bank->getCredits();
+			int32 inventoryFunds = inventory->getCredits();
+			
+			int32 funds = inventoryFunds + bankFunds;
+
+			int32 characterMoneyDelta = atoi(strCharacterCash.getAnsi()) - funds;
+			int32 harvesterMoneyDelta = atoi(strHarvesterCash.getAnsi()) - this->getCurrentMaintenance();
+
+			// the amount transfered must be greater than zero
+			if(harvesterMoneyDelta == 0 || characterMoneyDelta == 0)
+			{
+				return;
+			}
+
+			//lets get the money from the bank first
+			if((bankFunds +characterMoneyDelta)< 0)
+			{
+				characterMoneyDelta += bankFunds;
+				bankFunds = 0;
+
+				inventoryFunds += characterMoneyDelta;
+
+			}
+			else
+			{
+				bankFunds += characterMoneyDelta;
+			}
+			
+			if(inventoryFunds < 0)
+			{
+				gLogger->logMsgF("PlayerStructure::PayMaintenance finances screwed up !!!!!!!!", MSG_NORMAL);
+				gLogger->logMsgF("Player : %I64u !!!!!", MSG_NORMAL,player->getId());
+				return;
+			}
+			
+
+			//now update the playerstructure
+
+			int32 maintenance = this->getCurrentMaintenance() + harvesterMoneyDelta;
+
+			if(maintenance < 0)
+			{
+				gLogger->logMsgF("PlayerStructure::PayMaintenance finances screwed up !!!!!!!!", MSG_NORMAL);
+				gLogger->logMsgF("Player : %I64u !!!!!", MSG_NORMAL,player->getId());
+				return;
+			}
+
+			bank->setCredits(bankFunds);
+			inventory->setCredits(inventoryFunds);
+			
+			gWorldManager->getDatabase()->DestroyResult(gWorldManager->getDatabase()->ExecuteSynchSql("UPDATE banks SET credits=%u WHERE id=%"PRIu64"",bank->getCredits(),bank->getId()));
+			gWorldManager->getDatabase()->DestroyResult(gWorldManager->getDatabase()->ExecuteSynchSql("UPDATE inventories SET credits=%u WHERE id=%"PRIu64"",inventory->getCredits(),inventory->getId()));
+
+			gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE structure_attributes SET value='%u' WHERE structure_id=%"PRIu64" AND attribute_id=382",maintenance,this->getId());
+			
+			this->setCurrentMaintenance(maintenance);
+			
+			//send the appropriate deltas.
+			gMessageLib->sendInventoryCreditsUpdate(player);
+			gMessageLib->sendBankCreditsUpdate(player);
+
+
+		}
+		break;
+
+	}
 }
 
 

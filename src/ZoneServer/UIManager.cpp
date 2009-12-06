@@ -10,6 +10,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 */
 #include "UIManager.h"
 #include "HarvesterObject.h"
+#include "Inventory.h"
+#include "Bank.h"
 #include "PlayerObject.h"
 #include "UICloneSelectListBox.h"
 #include "UIInputBox.h"
@@ -218,11 +220,11 @@ void UIManager::createNewTicketSelectListBox(UICallback* callback,const int8* ev
 // create a transfer box(trade)
 //
 
-void UIManager::createNewTransferBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* text,const int8* leftTitle,const int8* rightTitle,uint32 leftValue, uint32 rightValue,PlayerObject* playerObject)
+void UIManager::createNewTransferBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* text,const int8* leftTitle,const int8* rightTitle,uint32 leftValue, uint32 rightValue,PlayerObject* playerObject, uint8 windowType)
 {
 	uint32 ibId = _getFreeId();
 
-	UITransferBox* transferBox =  new UITransferBox(callback,ibId,eventStr,caption,text,leftTitle,rightTitle,leftValue,rightValue,playerObject);
+	UITransferBox* transferBox =  new UITransferBox(callback,ibId,eventStr,caption,text,leftTitle,rightTitle,leftValue,rightValue,playerObject,windowType);
 
 	mUIWindows.insert(ibId,transferBox);
 	playerObject->addUIWindow(ibId);
@@ -460,7 +462,7 @@ void UIManager::createNewStructureDestroyBox(UICallback* callback,PlayerObject* 
 
 
 	uint32 maintIs = structure->getCurrentMaintenance();
-	uint32 maintNeed = structure->getMaintenanceRate()*50;
+	uint32 maintNeed = structure->getMaintenanceRate()*45;
 
 	if(maintIs >= maintNeed)
 	{
@@ -520,6 +522,39 @@ void UIManager::createNewStructureDeleteConfirmBox(UICallback* callback,PlayerOb
 	
 }
 
+//============================================================================================
+//
+//
+
+void UIManager::createPayMaintenanceTransferBox(UICallback* callback,PlayerObject* player, PlayerStructure* structure)
+{
+
+	string text = "Select the total amount you would like to pay to the existing maintenance pool.\xa\xaCurrent maintenance pool: %u cr.";
+	
+	int8 caption[32];
+	sprintf(caption,"SELECT AMOUNT");
+	int8 sName[128];
+
+	string name = structure->getCustomName();			
+	name.convert(BSTRType_ANSI);
+	sprintf(sName,"%s",name.getAnsi());
+	if(!name.getLength())
+	{
+		sprintf(sName,"@%s:%s",structure->getNameFile().getAnsi(),structure->getName().getAnsi());
+		
+	}
+
+
+	uint32 funds = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits();
+	funds += dynamic_cast<Bank*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->getCredits();
+
+	createNewTransferBox(callback,sName,caption,text.getAnsi(),"Total Funds","To Pay",funds,structure->getCurrentMaintenance(),player,SUI_Window_Pay_Maintenance);
+	
+}
+
+//============================================================================================
+//
+//
 
 void UIManager::createRenameStructureBox(UICallback* callback,PlayerObject* player, PlayerStructure* structure)
 {
@@ -530,6 +565,7 @@ void UIManager::createRenameStructureBox(UICallback* callback,PlayerObject* play
 	sprintf(caption,"NAME THE OBJECT");
 
 	BStringVector vector;
+
 
 	int8 sName[128];
 
@@ -547,4 +583,3 @@ void UIManager::createRenameStructureBox(UICallback* callback,PlayerObject* play
 	createNewInputBox(callback,sName,caption,text.getAnsi(),vector,player,SUI_IB_NODROPDOWN_OKCANCEL,SUI_Window_Structure_Rename,68);
 	
 }
-

@@ -87,6 +87,9 @@ class PlayerStructure :	public TangibleObject
 		uint32					getMaintenanceRate();
 		void					setMaintenanceRate(uint32 maintenance);
 
+		uint32					getCurrentPower();
+		void					setCurrentPower(uint32 maintenance);
+
 		uint32					getMaxCondition(){ return mMaxCondition; }
 		void					setMaxCondition(uint32 condition){ mMaxCondition = condition; }
 		bool					decMaxCondition(uint32 dec){int64 altered = static_cast<int64>(mMaxCondition-dec);if(altered <= 0) return false; else mMaxCondition = static_cast<uint32>(altered);return true; }

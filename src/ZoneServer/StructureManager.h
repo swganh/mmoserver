@@ -62,6 +62,7 @@ enum Structure_QueryType
 	Structure_ResourceDiscardUpdateHopper		=	14,
 	Structure_ResourceDiscard					=	15,
 	Structure_ResourceRetrieve					=	16,
+	Structure_GetDepositPowerData				=	17,
 
 };
 
@@ -80,6 +81,7 @@ enum Structure_Async_CommandEnum
 	Structure_Command_DiscardResource	=	10,
 	Structure_Command_RetrieveResource	=	11,
 	Structure_Command_PayMaintenance	=	12,
+	Structure_Command_DepositPower		=	13,
 	
 
 };
@@ -254,6 +256,8 @@ class StructureManager : public DatabaseCallback,public ObjectFactoryCallback
 		void					OpenStructureHopperList(uint64 structureId, uint64 playerId);
 
 
+		uint32					getCurrentPower(PlayerObject* player);
+		uint32					deductPower(PlayerObject* player, uint32 amount);
 
 
 	private:

@@ -85,6 +85,7 @@ class UIManager : public MessageDispatchCallback
 		void				createNewStructureDeleteConfirmBox(UICallback* callback,PlayerObject* player, PlayerStructure* structure);
 		void				createRenameStructureBox(UICallback* callback,PlayerObject* player, PlayerStructure* structure);
 		void				createPayMaintenanceTransferBox(UICallback* callback,PlayerObject* player, PlayerStructure* structure);
+		void				createPowerTransferBox(UICallback* callback,PlayerObject* player, PlayerStructure* structure);
 		
 		// custom message boxes
 		void				createNewSkillTeachMessageBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* text,PlayerObject* playerObject,uint8 mbType,PlayerObject* pupil,Skill* skill);

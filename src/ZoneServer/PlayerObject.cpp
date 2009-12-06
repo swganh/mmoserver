@@ -24,6 +24,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "GroupObject.h"
 #include "Inventory.h"
 #include "QuadTree.h"
+
 #include "SampleEvent.h"
 #include "SchematicGroup.h"
 #include "SchematicManager.h"

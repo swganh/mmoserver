@@ -77,6 +77,42 @@ void PlayerStructure::setCurrentMaintenance(uint32 maintenance)
 
 }
 
+//=============================================================================
+// gets the maintenance paid into the harvester - CAVE we need to query this asynch!
+// as we modify the maintenance pool minutely  through the chatserver
+uint32 PlayerStructure::getCurrentPower()
+{
+	if (this->hasAttribute("examine_power"))
+	{
+		uint32 power = this->getAttribute<uint32>("examine_power");					
+		gLogger->logMsgF("structure power = %u", MSG_NORMAL, power);
+		return power;
+	}
+
+	gLogger->logMsgF("PlayerStructure::getCurrentPower structure power not set!!!!", MSG_NORMAL);
+	setCurrentPower(0);
+	return 0;
+}
+
+
+//=============================================================================
+//
+//
+void PlayerStructure::setCurrentPower(uint32 power)
+{
+	if (this->hasAttribute("examine_power"))
+	{
+		this->setAttribute("examine_power",boost::lexical_cast<std::string>(power));
+		return;
+		
+	}
+	
+	
+	this->addAttribute("examine_power",boost::lexical_cast<std::string>(power));
+	gLogger->logMsgF("PlayerStructure::setCurrentPower structure Power not set!!!!", MSG_NORMAL);
+
+}
+
 
 //=============================================================================
 //   gets the maintenance to be paid hourly for the structures upkeep
@@ -110,6 +146,7 @@ void PlayerStructure::setMaintenanceRate(uint32 maintenance)
 	gLogger->logMsgF("PlayerStructure::setMaintenanceRate structure maintenance rate not set!!!!", MSG_NORMAL);
 
 }
+
 
 //=============================================================================
 //
@@ -182,6 +219,22 @@ void PlayerStructure::handleUIEvent(string strCharacterCash, string strHarvester
 
 	switch(window->getWindowType())
 	{
+		case SUI_Window_Deposit_Power:
+		{
+				strCharacterCash.convert(BSTRType_ANSI);
+				string characterPower = strCharacterCash;
+
+				strHarvesterCash.convert(BSTRType_ANSI);
+				string harvesterPower = strHarvesterCash;
+
+				int32 harvesterPowerDelta = atoi(harvesterPower.getAnsi());
+
+				gStructureManager->deductPower(player,harvesterPowerDelta);
+				this->setCurrentPower(getCurrentPower()+harvesterPowerDelta);
+
+				gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE structure_attributes SET value='%u' WHERE structure_id=%"PRIu64" AND attribute_id=384",getCurrentPower(),this->getId());
+		}
+		break;
 
 		case SUI_Window_Pay_Maintenance:
 		{

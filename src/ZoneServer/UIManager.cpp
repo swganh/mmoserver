@@ -528,8 +528,10 @@ void UIManager::createNewStructureDeleteConfirmBox(UICallback* callback,PlayerOb
 
 void UIManager::createPayMaintenanceTransferBox(UICallback* callback,PlayerObject* player, PlayerStructure* structure)
 {
+	int32 structureFunds = structure->getCurrentMaintenance();
 
-	string text = "Select the total amount you would like to pay to the existing maintenance pool.\xa\xaCurrent maintenance pool: %u cr.";
+	int8 text[255];
+	sprintf(text,"Select the total amount you would like to pay to the existing maintenance pool.\xa\xa Current maintenance pool: %u cr.",structureFunds);
 	
 	int8 caption[32];
 	sprintf(caption,"SELECT AMOUNT");
@@ -548,9 +550,41 @@ void UIManager::createPayMaintenanceTransferBox(UICallback* callback,PlayerObjec
 	uint32 funds = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits();
 	funds += dynamic_cast<Bank*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->getCredits();
 
-	createNewTransferBox(callback,sName,caption,text.getAnsi(),"Total Funds","To Pay",funds,structure->getCurrentMaintenance(),player,SUI_Window_Pay_Maintenance);
+	createNewTransferBox(callback,sName,caption,text,"Total Funds","To Pay",funds,structureFunds,player,SUI_Window_Pay_Maintenance);
 	
 }
+
+//============================================================================================
+//
+//
+
+void UIManager::createPowerTransferBox(UICallback* callback,PlayerObject* player, PlayerStructure* structure)
+{
+
+	int8 text[255];
+	
+	uint32 structurePower = structure->getCurrentPower();
+	uint32 playerPower = gStructureManager->getCurrentPower(player);
+
+	sprintf(text,"Select the amount of power you would like to deposit.\xa\xa Current Power Value = %u ",structurePower);
+	
+	int8 caption[32];
+	sprintf(caption,"SELECT AMOUNT");
+	int8 sName[128];
+
+	string name = structure->getCustomName();			
+	name.convert(BSTRType_ANSI);
+	sprintf(sName,"%s",name.getAnsi());
+	if(!name.getLength())
+	{
+		sprintf(sName,"@%s:%s",structure->getNameFile().getAnsi(),structure->getName().getAnsi());
+		
+	}
+
+	createNewTransferBox(callback,sName,caption,text,"Total Energy","To Deposit",playerPower,0,player,SUI_Window_Deposit_Power);
+	
+}
+
 
 //============================================================================================
 //

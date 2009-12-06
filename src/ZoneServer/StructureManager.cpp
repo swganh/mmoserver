@@ -12,6 +12,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "StructureManager.h"
 #include "nonPersistantObjectFactory.h"
 #include "HarvesterObject.h"
+#include "Inventory.h"
+#include "ResourceContainer.h"
+#include "ResourceType.h"
 #include "ObjectFactory.h"
 #include "PlayerObject.h"
 #include "PlayerStructure.h"
@@ -105,6 +108,44 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
 	switch(asynContainer->mQueryType)
 	{
+
+		case Structure_GetDepositPowerData:
+		{
+			DataBinding* attributeBinding = mDatabase->CreateDataBinding(1);
+			attributeBinding->addField(DFT_bstring,0,128);
+
+			BString value;
+			
+			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
+			
+			PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(asynContainer->mStructureId));
+
+			uint64 count;
+			count = result->getRowCount();
+			if(!count)
+			{
+				gLogger->logMsgF("StructureManager::GetDepositPowerData Callback couldnt get power attribute",MSG_HIGH);
+				mDatabase->DestroyDataBinding(attributeBinding);			
+				return;
+			}
+
+			result->GetNextRow(attributeBinding,&value);
+
+			if(structure->hasAttribute("examine_power"))
+			{
+				structure->setAttribute("examine_power",value.getAnsi());
+			}
+			else
+			{
+				structure->addAttribute("examine_power",value.getAnsi());
+			}
+			
+			mDatabase->DestroyDataBinding(attributeBinding);												   	
+
+			gUIManager->createPowerTransferBox(structure,player,structure);
+
+		}
+		break;
 		
 		//tests the amount of lots for the recipient of a structure during a structure transfer
 		case Structure_StructureTransfer_Lots_Recipient:
@@ -1060,11 +1101,26 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 	switch(command.Command)
 	{
 
+		case Structure_Command_DepositPower:
+		{
+				PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(command.StructureId));
+
+			StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(Structure_GetDepositPowerData,player->getClient());
+			asyncContainer->mStructureId	= command.StructureId;
+			asyncContainer->mPlayerId		= command.PlayerId;
+			//mDatabase->ExecuteSqlAsync(structure,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",harvester->getId());
+			mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sa.value"
+														 " FROM structure_attributes sa"
+														 " INNER JOIN attributes a ON (sa.attribute_id = a.id)"
+														 " WHERE sa.structure_id = %"PRIu64" AND sa.attribute_id = 384",structure->getId());
+		}
+		break;
+
 		case Structure_Command_PayMaintenance:
 		{
-			HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(gWorldManager->getObjectById(command.StructureId));
+			PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(command.StructureId));
 
-			gUIManager->createPayMaintenanceTransferBox(harvester,player,harvester);
+			gUIManager->createPayMaintenanceTransferBox(structure,player,structure);
 
 		}
 		break;
@@ -1227,3 +1283,94 @@ void StructureManager::TransferStructureOwnership(StructureAsyncCommand command)
 
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sf_getLotCount(%I64u)",command.PlayerId);
 }
+
+uint32 StructureManager::getCurrentPower(PlayerObject* player)
+{
+	ObjectList*	invObjects = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getObjects();
+	ObjectList::iterator listIt = invObjects->begin();
+
+	uint32 power = 0;
+
+	while(listIt != invObjects->end())
+	{
+		// we are looking for resource containers
+		if(ResourceContainer* resCont = dynamic_cast<ResourceContainer*>(*listIt))
+		{
+			uint16 category = resCont->getResource()->getType()->getCategoryId();
+			
+			gLogger->logMsgF("PlayerObject::getCurrentPower() category : %u",MSG_NORMAL, category);
+			if(category == 475 || category == 476||category == 477||((category >= 618)&&category <=651 )||category ==903||category == 904 )
+			{
+				float pe = resCont->getResource()->getAttribute(ResAttr_PE);//7
+				
+				// thats actually not the classic way in precu energy was received on a
+				// 1::1 basis if pe was < 500
+				uint32 containerPower = (uint32)(resCont->getAmount()* (pe/500));
+				power += containerPower;
+			}
+
+			
+		}
+
+		++listIt;
+	}
+
+	return power;
+}
+
+uint32 StructureManager::deductPower(PlayerObject* player, uint32 amount)
+{
+	ObjectList*	invObjects = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getObjects();
+	ObjectList::iterator listIt = invObjects->begin();
+
+	uint32 power = 0;
+
+	while(listIt != invObjects->end())
+	{
+		// we are looking for resource containers
+		if(ResourceContainer* resCont = dynamic_cast<ResourceContainer*>(*listIt))
+		{
+			uint16 category = resCont->getResource()->getType()->getCategoryId();
+			
+			gLogger->logMsgF("PlayerObject::getCurrentPower() category : %u",MSG_NORMAL, category);
+			if(category == 475 || category == 476||category == 477||((category >= 618)&&category <=651 )||category ==903||category == 904 )
+			{
+				float pe = resCont->getResource()->getAttribute(ResAttr_PE);//7
+				
+				// thats actually not the classic way in precu energy was received on a
+				// 1::1 basis if pe was < 500
+				uint32 containerPower = (uint32)(resCont->getAmount()* (pe/500));
+				
+				uint32 tdAmount = amount;
+				if(tdAmount >containerPower)
+					tdAmount = containerPower;
+
+				
+				uint32 todelete = (uint32)(tdAmount /(pe/500));
+				uint32 newAmount = resCont->getAmount()-todelete;
+				if(newAmount <0)
+				{
+					assert(false);
+				}
+				
+				resCont->setAmount(newAmount);
+				gMessageLib->sendResourceContainerUpdateAmount(resCont,player);
+				mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",newAmount,resCont->getId());				
+
+				
+				amount -= tdAmount;
+			}
+
+			
+		}
+
+		++listIt;
+	}
+
+	if(amount>0)
+	{
+		gLogger->logMsgF("PlayerObject::deductPower() couldnt deduct the entire amount !!!!!",MSG_NORMAL);
+	}
+	return (!amount);
+}
+

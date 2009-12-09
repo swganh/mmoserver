@@ -42,7 +42,6 @@ Copyright (c) 2006 - 2008 The swgANH Team
 //
 // Modifies the Admin List
 //
-
 void	ObjectController::_handleModifyPermissionList(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 
 {
@@ -123,11 +122,11 @@ void	ObjectController::_handleModifyPermissionList(uint64 targetId,Message* mess
 		
 }
 
+
 //======================================================================================================================
 //
 // Places a structure in the game world
 //
-
 void ObjectController::_handleStructurePlacement(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
 	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
@@ -193,6 +192,8 @@ void ObjectController::_handleStructurePlacement(uint64 targetId,Message* messag
 		
 	
 }
+
+
 
 //======================================================================================================================
 //
@@ -261,6 +262,13 @@ void	ObjectController::_handleTransferStructure(uint64 targetId,Message* message
 }
 
 
+
+
+
+//======================================================================================================================
+//
+// Modifies the Admin List
+//
 void	ObjectController::_handleNameStructure(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 
 {
@@ -385,6 +393,7 @@ void	ObjectController::_handleHarvesterGetResourceData(uint64 targetId,Message* 
 }
 
 
+
 //======================================================================================================================
 //
 // Selects the resource for extraction
@@ -489,6 +498,7 @@ void	ObjectController::_handleHarvesterSelectResource(uint64 targetId,Message* m
 
 }
 
+
 //======================================================================================================================
 //
 // Turns a harvester on
@@ -589,7 +599,6 @@ void	ObjectController::_handleHarvesterDeActivate(uint64 targetId,Message* messa
 //
 // Discards the contents of a harvesters Hopper
 //
-
 void	ObjectController::_handleDiscardHopper(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
 
@@ -640,7 +649,7 @@ void	ObjectController::_handleDiscardHopper(uint64 targetId,Message* message,Obj
 //=============================================================================================================================
 // discards x amount of specified resource
 
-void ObjectController::handleResourceEmptyHopper(Message* message)
+void	ObjectController::handleResourceEmptyHopper(Message* message)
 {
 	uint64 playerId;
 	uint64 harvesterId;

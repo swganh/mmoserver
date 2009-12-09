@@ -79,7 +79,8 @@ enum ui_window_types
 	SUI_Window_Structure_Rename									= 42,
 	SUI_Window_Transfer_Box										= 43,
 	SUI_Window_Pay_Maintenance									= 44,
-	SUI_Window_Deposit_Power									= 45
+	SUI_Window_Deposit_Power									= 45,
+	SUI_Window_Structure_Status									= 46
 
 };
 
@@ -87,17 +88,19 @@ enum ui_window_types
 
 enum ui_mb_types
 {
-	SUI_MB_OK			= 1,
-	SUI_MB_OKCANCEL		= 2,
-	SUI_MB_YESNO		= 3
+	SUI_MB_OK				= 1,
+	SUI_MB_OKCANCEL			= 2,
+	SUI_MB_YESNO			= 3
+	
 };
 
 //================================================================================
 
 enum ui_lb_types
 {
-	SUI_LB_OK			= 1,
-	SUI_LB_OKCANCEL		= 2
+	SUI_LB_OK				= 1,
+	SUI_LB_OKCANCEL			= 2,
+	SUI_LB_CANCELREFRESH	= 3
 };
 
 //================================================================================

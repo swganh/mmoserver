@@ -124,6 +124,17 @@ void HarvesterObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject
 	
 	switch(messageType)
 	{
+		case radId_StructureStatus:
+		{
+			StructureAsyncCommand command;
+			command.Command = Structure_Command_ViewStatus;
+			command.PlayerId = player->getId();
+			command.StructureId = this->getId();
+
+			gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+
+		}
+		break;
 
 		case radId_depositPower:
 		{
@@ -226,14 +237,16 @@ void HarvesterObject::prepareCustomRadialMenu(CreatureObject* creatureObject, ui
 	radial->addItem(2,0,radId_serverHarvesterManage,radAction_ObjCallback,"Structure Management");
 	radial->addItem(3,0,radId_serverTerminalManagement,radAction_ObjCallback,"Structure Permissions");
 	
-	radial->addItem(4,2,radId_serverTerminalManagementDestroy,radAction_ObjCallback,"destroy");//destroy
-	radial->addItem(5,2,radId_setName,radAction_ObjCallback,"Rename Structure");//destroy
-	radial->addItem(6,2,radId_operateHarvester,radAction_ObjCallback,"operate Harvester");//destroy
-	radial->addItem(7,2,radId_payMaintenance,radAction_ObjCallback,"Pay Maintenance");//destroy
-	radial->addItem(8,2,radId_depositPower,radAction_ObjCallback,"Deposit Power");//destroy
+	radial->addItem(4,2,radId_serverTerminalManagementDestroy,radAction_ObjCallback,"Destroy Structure");//destroy
+	radial->addItem(5,2,radId_StructureStatus,radAction_ObjCallback,"Status");//destroy
+	radial->addItem(6,2,radId_payMaintenance,radAction_ObjCallback,"Pay Maintenance");//destroy
+	radial->addItem(7,2,radId_setName,radAction_ObjCallback,"Set Name");//destroy
+	radial->addItem(8,2,radId_operateHarvester,radAction_ObjCallback,"operate Harvester");//destroy
+	radial->addItem(9,2,radId_depositPower,radAction_ObjCallback,"Deposit Power");//destroy
 	
-	radial->addItem(9,3,radId_serverTerminalPermissionsAdmin,radAction_ObjCallback,"Admin List");//destroy
-	radial->addItem(10,3,radId_serverTerminalPermissionsHopper,radAction_ObjCallback,"Hopper List");//destroy
+	
+	radial->addItem(10,3,radId_serverTerminalPermissionsAdmin,radAction_ObjCallback,"Admin List");//destroy
+	radial->addItem(11,3,radId_serverTerminalPermissionsHopper,radAction_ObjCallback,"Hopper List");//destroy
 	
 
 

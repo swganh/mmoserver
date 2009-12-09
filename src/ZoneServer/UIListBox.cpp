@@ -214,6 +214,13 @@ void UIListBox::_initChildren()
 		}
 		break;
 
+		case SUI_LB_CANCELREFRESH:
+		{
+			mChildElements.push_back(new UIButton(0,"btnCancel",true,"@cancel"));
+			mChildElements.push_back(new UIButton(0,"btnOk",true,"@refresh"));
+		}
+		break;
+
 		default:break;
 	}
 }

@@ -109,6 +109,94 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 	switch(asynContainer->mQueryType)
 	{
 
+		case Structure_GetOwnersName:
+		{
+			DataBinding* attributeBinding = mDatabase->CreateDataBinding(1);
+			attributeBinding->addField(DFT_bstring,0,128);
+
+			BString value;
+			
+			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
+			
+			PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(asynContainer->mStructureId));
+
+			uint64 count;
+			count = result->getRowCount();
+			if(!count)
+			{
+				gLogger->logMsgF("StructureManager::GetDepositPowerData Callback couldnt get power attribute",MSG_HIGH);
+				mDatabase->DestroyDataBinding(attributeBinding);			
+				return;
+			}
+
+			result->GetNextRow(attributeBinding,&value);
+			structure->setOwnersName(value);
+
+			gUIManager->createNewStructureStatusBox(structure, player, structure);
+
+			mDatabase->DestroyDataBinding(attributeBinding);												   	
+		}
+		break;
+
+		case Structure_GetDepositMaintenanceData:
+		{
+
+			DataBinding* attributeBinding = mDatabase->CreateDataBinding(1);
+			attributeBinding->addField(DFT_bstring,0,128);
+
+			BString value;
+			
+			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
+			
+			PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(asynContainer->mStructureId));
+
+			uint64 count;
+			count = result->getRowCount();
+			if(!count)
+			{
+				gLogger->logMsgF("StructureManager::GetDepositPowerData Callback couldnt get power attribute",MSG_HIGH);
+				mDatabase->DestroyDataBinding(attributeBinding);			
+				return;
+			}
+
+			result->GetNextRow(attributeBinding,&value);
+
+			if(structure->hasAttribute("examine_maintenance"))
+			{
+				structure->setAttribute("examine_maintenance",value.getAnsi());
+			}
+			else
+			{
+				structure->addAttribute("examine_maintenance",value.getAnsi());
+			}
+
+			if(asynContainer->command.Command == Structure_Command_ViewStatus)
+			{
+				//now read in the owners name
+				StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(Structure_GetOwnersName,player->getClient());
+				asyncContainer->mStructureId	= asynContainer->mStructureId;
+				asyncContainer->mPlayerId		= asynContainer->mPlayerId;
+				asyncContainer->command			= asynContainer->command;
+
+				mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT c.firstname"
+														 " FROM characters c"
+														 " WHERE c.id = %"PRIu64"",structure->getOwner());
+
+
+				//gUIManager->createPayMaintenanceTransferBox(structure,player,structure);
+			}
+			else
+			{
+
+				gUIManager->createPayMaintenanceTransferBox(structure,player,structure);
+
+			}
+		
+			mDatabase->DestroyDataBinding(attributeBinding);												   	
+
+		}
+		break;
+
 		case Structure_GetDepositPowerData:
 		{
 			DataBinding* attributeBinding = mDatabase->CreateDataBinding(1);
@@ -131,19 +219,47 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
 			result->GetNextRow(attributeBinding,&value);
 
-			if(structure->hasAttribute("examine_power"))
+			//now read in the maintenance attribute
+			if(asynContainer->command.Command == Structure_Command_ViewStatus)
 			{
-				structure->setAttribute("examine_power",value.getAnsi());
+				if(structure->hasAttribute("examine_power"))
+				{
+					structure->setAttribute("examine_power",value.getAnsi());
+				}
+				else
+				{
+					structure->addAttribute("examine_power",value.getAnsi());
+				}
+				
+				StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(Structure_GetDepositMaintenanceData,player->getClient());
+				asyncContainer->mStructureId	= asynContainer->mStructureId;
+				asyncContainer->mPlayerId		= asynContainer->mPlayerId;
+				asyncContainer->command			= asynContainer->command;
+
+				mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sa.value"
+														 " FROM structure_attributes sa"
+														 //" INNER JOIN attributes a ON (sa.attribute_id = a.id)"
+														 " WHERE sa.structure_id = %"PRIu64" AND sa.attribute_id = 382",structure->getId());
+
 			}
-			else
+
+			
+			if(asynContainer->command.Command == Structure_Command_DepositPower)
 			{
-				structure->addAttribute("examine_power",value.getAnsi());
+				if(structure->hasAttribute("examine_power"))
+				{
+					structure->setAttribute("examine_power",value.getAnsi());
+				}
+				else
+				{
+					structure->addAttribute("examine_power",value.getAnsi());
+				}
+			
+				gUIManager->createPowerTransferBox(structure,player,structure);
+
 			}
 			
 			mDatabase->DestroyDataBinding(attributeBinding);												   	
-
-			gUIManager->createPowerTransferBox(structure,player,structure);
-
 		}
 		break;
 		
@@ -1029,6 +1145,7 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 			structure->addKnownObjectSafe(player);
 			gMessageLib->sendDataTransform(structure);
 
+			gMessageLib->sendConstructionComplete(player,structure);
 
 
 		}
@@ -1045,6 +1162,7 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 //=======================================================================================================================
 //handles callback of altering the hopper list
 //
+
 void StructureManager::OpenStructureHopperList(uint64 structureId, uint64 playerId)
 {
 	// load our structures Admin data
@@ -1087,6 +1205,7 @@ void StructureManager::OpenStructureAdminList(uint64 structureId, uint64 playerI
 //=======================================================================================================================
 //processes a succesfull PermissionList verification
 //=======================================================================================================================
+
 void StructureManager::processVerification(StructureAsyncCommand command, bool owner)
 {
 
@@ -1101,17 +1220,35 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 	switch(command.Command)
 	{
 
+		case Structure_Command_ViewStatus:
+		{
+			PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(command.StructureId));
+			
+			//read the relevant attributes in then display the status page
+			StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(Structure_GetDepositPowerData,player->getClient());
+			asyncContainer->mStructureId	= command.StructureId;
+			asyncContainer->mPlayerId		= command.PlayerId;
+			asyncContainer->command			= command;
+			//mDatabase->ExecuteSqlAsync(structure,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",harvester->getId());
+			mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sa.value"
+														 " FROM structure_attributes sa"
+														// " INNER JOIN attributes a ON (sa.attribute_id = a.id)"
+														 " WHERE sa.structure_id = %"PRIu64" AND sa.attribute_id = 384",structure->getId());
+		}
+		break;
+
 		case Structure_Command_DepositPower:
 		{
-				PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(command.StructureId));
+			PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(command.StructureId));
 
 			StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(Structure_GetDepositPowerData,player->getClient());
 			asyncContainer->mStructureId	= command.StructureId;
 			asyncContainer->mPlayerId		= command.PlayerId;
+			asyncContainer->command			= command;
 			//mDatabase->ExecuteSqlAsync(structure,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",harvester->getId());
 			mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sa.value"
 														 " FROM structure_attributes sa"
-														 " INNER JOIN attributes a ON (sa.attribute_id = a.id)"
+														 //" INNER JOIN attributes a ON (sa.attribute_id = a.id)"
 														 " WHERE sa.structure_id = %"PRIu64" AND sa.attribute_id = 384",structure->getId());
 		}
 		break;
@@ -1120,7 +1257,16 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 		{
 			PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(command.StructureId));
 
-			gUIManager->createPayMaintenanceTransferBox(structure,player,structure);
+			//gUIManager->createPayMaintenanceTransferBox(structure,player,structure);
+			StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(Structure_GetDepositMaintenanceData,player->getClient());
+			asyncContainer->mStructureId	= command.StructureId;
+			asyncContainer->mPlayerId		= command.PlayerId;
+			asyncContainer->command			= command;
+			//mDatabase->ExecuteSqlAsync(structure,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",harvester->getId());
+			mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sa.value"
+														 " FROM structure_attributes sa"
+														 //" INNER JOIN attributes a ON (sa.attribute_id = a.id)"
+														 " WHERE sa.structure_id = %"PRIu64" AND sa.attribute_id = 382",structure->getId());
 
 		}
 		break;
@@ -1257,6 +1403,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 //=======================================================================================================================
 //processes a structure transfer
 //=======================================================================================================================
+
 void StructureManager::TransferStructureOwnership(StructureAsyncCommand command)
 {
 	//at this point we have already made sure that the command is issued by the owner
@@ -1298,7 +1445,7 @@ uint32 StructureManager::getCurrentPower(PlayerObject* player)
 		{
 			uint16 category = resCont->getResource()->getType()->getCategoryId();
 			
-			gLogger->logMsgF("PlayerObject::getCurrentPower() category : %u",MSG_NORMAL, category);
+			gLogger->logMsgF("StructureManager::getCurrentPower() category : %u",MSG_NORMAL, category);
 			if(category == 475 || category == 476||category == 477||((category >= 618)&&category <=651 )||category ==903||category == 904 )
 			{
 				float pe = resCont->getResource()->getAttribute(ResAttr_PE);//7
@@ -1332,7 +1479,7 @@ uint32 StructureManager::deductPower(PlayerObject* player, uint32 amount)
 		{
 			uint16 category = resCont->getResource()->getType()->getCategoryId();
 			
-			gLogger->logMsgF("PlayerObject::getCurrentPower() category : %u",MSG_NORMAL, category);
+			gLogger->logMsgF("StructureManager::getCurrentPower() category : %u",MSG_NORMAL, category);
 			if(category == 475 || category == 476||category == 477||((category >= 618)&&category <=651 )||category ==903||category == 904 )
 			{
 				float pe = resCont->getResource()->getAttribute(ResAttr_PE);//7
@@ -1369,7 +1516,7 @@ uint32 StructureManager::deductPower(PlayerObject* player, uint32 amount)
 
 	if(amount>0)
 	{
-		gLogger->logMsgF("PlayerObject::deductPower() couldnt deduct the entire amount !!!!!",MSG_NORMAL);
+		gLogger->logMsgF("StructureManager::deductPower() couldnt deduct the entire amount !!!!!",MSG_NORMAL);
 	}
 	return (!amount);
 }

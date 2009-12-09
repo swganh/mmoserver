@@ -13,6 +13,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "ZoneServer/ObjectFactory.h"
 #include "ZoneServer/PlayerObject.h"
+#include "ZoneServer/PlayerStructure.h"
 #include "ZoneServer/ZoneOpcodes.h"
 
 #include "LogManager/LogManager.h"
@@ -161,4 +162,34 @@ void MessageLib::sendSoldInstantMail(uint64 oldOwner, PlayerObject* newOwner, st
 
 //======================================================================================================================
 
+ void MessageLib::sendConstructionComplete(PlayerObject* playerObject, PlayerStructure* structure)
+{
 
+	atMacroString* aMS = new atMacroString();
+
+	aMS->addMBstf("player_structure","construction_complete");
+	aMS->addDI(playerObject->getLots());
+	aMS->addTOstf(structure->getNameFile(),structure->getName());
+	aMS->addTextModule();
+
+
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opIsmSendSystemMailMessage);
+	gMessageFactory->addUint64(playerObject->getId());
+	gMessageFactory->addUint64(playerObject->getId());
+	//gMessageFactory->addString(targetObject->getFirstName());
+	gMessageFactory->addString(BString("@player_structure:construction_complete_sender"));
+	gMessageFactory->addString(BString("@player_structure:construction_complete_subject"));
+	gMessageFactory->addUint32(0);
+	gMessageFactory->addString(aMS->assemble());
+	delete aMS;
+
+
+	Message* newMessage = gMessageFactory->EndMessage();
+	playerObject->getClient()->SendChannelA(newMessage, playerObject->getAccountId(), CR_Chat, 6);
+
+
+
+	
+
+}

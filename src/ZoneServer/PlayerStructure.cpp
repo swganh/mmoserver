@@ -95,6 +95,7 @@ uint32 PlayerStructure::getCurrentPower()
 }
 
 
+
 //=============================================================================
 //
 //
@@ -112,41 +113,6 @@ void PlayerStructure::setCurrentPower(uint32 power)
 	gLogger->logMsgF("PlayerStructure::setCurrentPower structure Power not set!!!!", MSG_NORMAL);
 
 }
-
-
-//=============================================================================
-//   gets the maintenance to be paid hourly for the structures upkeep
-//
-uint32 PlayerStructure::getMaintenanceRate()
-{
-	if (this->hasAttribute("examine_maintenance_rate"))
-	{
-		uint32 maintenance = this->getAttribute<uint32>("examine_maintenance_rate");					
-		gLogger->logMsgF("structure maintenance = %u", MSG_NORMAL, maintenance);
-		return maintenance;
-	}
-
-	gLogger->logMsgF("PlayerStructure::getMaintenanceRate structure maintenance not set!!!!", MSG_NORMAL);
-	setMaintenanceRate(1);
-	return 1;
-}
-
-//=============================================================================
-//
-//
-void PlayerStructure::setMaintenanceRate(uint32 maintenance)
-{
-	if (this->hasAttribute("examine_maintenance_rate"))
-	{
-		this->setAttribute("examine_maintenance_rate",boost::lexical_cast<std::string>(maintenance));
-		
-	}
-
-	this->addAttribute("examine_maintenance_rate",boost::lexical_cast<std::string>(maintenance));
-	gLogger->logMsgF("PlayerStructure::setMaintenanceRate structure maintenance rate not set!!!!", MSG_NORMAL);
-
-}
-
 
 //=============================================================================
 //
@@ -168,6 +134,8 @@ bool PlayerStructure::canRedeed()
 	return true;
 }
 
+
+
 //=============================================================================
 // now we have the maintenance data we can proceed with the delete UI
 //
@@ -178,6 +146,7 @@ void PlayerStructure::deleteStructureDBDataRead(uint64 playerId)
 	gUIManager->createNewStructureDestroyBox(this,player, this, canRedeed());
 
 }
+
 
 //=============================================================================
 // now we have the adminlist we can proceed to display it
@@ -190,6 +159,7 @@ void PlayerStructure::sendStructureAdminList(uint64 playerId)
 
 
 }
+
 
 //=============================================================================
 // now we have the hopperlist we can proceed to display it
@@ -318,11 +288,11 @@ void PlayerStructure::handleUIEvent(string strCharacterCash, string strHarvester
 void PlayerStructure::handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window)
 {
 
-	PlayerObject* playerObject = window->getOwner();
+	PlayerObject* player = window->getOwner();
 
 	// action is zero for ok !!!
 
-	if(!playerObject || action || playerObject->getSurveyState() || playerObject->getSamplingState() || playerObject->isIncapacitated() || playerObject->isDead())
+	if(!player || action || player->isIncapacitated() || player->isDead())
 	{
 		return;
 	}
@@ -330,11 +300,24 @@ void PlayerStructure::handleUIEvent(uint32 action,int32 element,string inputStr,
 	switch(window->getWindowType())
 	{
 
+		case SUI_Window_Structure_Status:
+		{
+			
+			StructureAsyncCommand command;
+			command.Command = Structure_Command_ViewStatus;
+			command.PlayerId = player->getId();
+			command.StructureId = this->getId();
+
+			gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+
+		}
+		break;
+
 		case SUI_Window_Structure_Delete:
 		{
 			//================================
 			// now that a decision has been made get confirmation
-			gUIManager->createNewStructureDeleteConfirmBox(this,playerObject,this );
+			gUIManager->createNewStructureDeleteConfirmBox(this,player,this );
 		
 		}
 		break;
@@ -353,7 +336,7 @@ void PlayerStructure::handleUIEvent(uint32 action,int32 element,string inputStr,
 			if(inputStr.getLength() > 68)
 			{
 				//hmmm no answer - remain as it is?
-				gMessageLib->sendSystemMessage(playerObject,L"","player_structure","not_valid_name"); 
+				gMessageLib->sendSystemMessage(player,L"","player_structure","not_valid_name"); 
 				return;
 
 			}
@@ -390,13 +373,13 @@ void PlayerStructure::handleUIEvent(uint32 action,int32 element,string inputStr,
 				//delete it
 				mTTS.todo = ttE_Delete;
 				gStructureManager->addStructureforDestruction(this->getId());
-				gMessageLib->sendSystemMessage(playerObject,L"","player_structure","deed_reclaimed");
+				gMessageLib->sendSystemMessage(player,L"","player_structure","deed_reclaimed");
 			}
 			else
 			{
 				int8 text[255];
 				sprintf(text,"@player_structure:incorrect_destroy_code");
-				gUIManager->createNewMessageBox(NULL,"","SWG::ANH",text,playerObject);
+				gUIManager->createNewMessageBox(NULL,"","SWG::ANH",text,player);
 			}
 			//we need to get the input
 		}

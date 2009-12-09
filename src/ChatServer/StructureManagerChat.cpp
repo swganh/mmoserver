@@ -158,33 +158,87 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
 	switch(asynContainer->mQueryType)
 	{
 	   
-		case STRMQuery_HopperUpdate:
+		case STRMQuery_DoneHarvestUpdate:
+		{
+			uint64 exitCode;
+			DataBinding* binding = mDatabase->CreateDataBinding(1);
+			binding->addField(DFT_uint32,0,8);
+
+			uint64 count;
+			count = result->getRowCount();
+
+			//return codes :
+			// 0 everything ok
+			// 1 hopper full harvester turned of
+			// 2 resource isnt active anymore
+			// 3 resource doesnt exist in the first place
+
+
+			for(uint64 i=0;i <count;i++)
 			{
-				uint64 harvesterID;
-				DataBinding* binding = mDatabase->CreateDataBinding(1);
-				binding->addField(DFT_uint64,0,8);
+				result->GetNextRow(binding,&exitCode);
 
-				uint64 count;
-				count = result->getRowCount();
-	
-				for(uint64 i=0;i <count;i++)
+				if(exitCode == 1)
 				{
-					result->GetNextRow(binding,&harvesterID);
-					StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(STRMQuery_DoneHarvestUpdate,0);
-
-					//start by using power
-
-					// then use maintenance
-
-					//now harvest
-
-					int8 sql[100];
-					sprintf(sql,"SELECT sf_HarvestResource(%I64u)",harvesterID);
-					//gLogger->logMsgF("StructureManagerChatHandler:: %s",MSG_NORMAL,sql);
-					
-					mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
-
+					//hopper is full
 				}
+
+				if(exitCode == 2)
+				{
+					//resource shift
+				}
+
+				if(exitCode == 3)
+				{
+					//resource never existed in the first place
+					gLogger->logMsgF("StructureMabagerChat::Harvester %I64u harvested an invalid resource",MSG_HIGH,asynContainer->harvesterID);
+				}
+
+
+
+			}
+
+			mDatabase->DestroyDataBinding(binding);
+
+		}
+		break;
+
+		case STRMQuery_HopperUpdate:
+		{
+			uint64 harvesterID;
+			DataBinding* binding = mDatabase->CreateDataBinding(1);
+			binding->addField(DFT_uint64,0,8);
+
+			uint64 count;
+			count = result->getRowCount();
+
+			for(uint64 i=0;i <count;i++)
+			{
+				result->GetNextRow(binding,&harvesterID);
+
+				//start by using power
+
+				// then use maintenance
+
+				//now harvest
+
+				int8 sql[100];
+				sprintf(sql,"SELECT sf_HarvestResource(%I64u)",harvesterID);
+				StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(STRMQuery_DoneHarvestUpdate,0);
+				asyncContainer->harvesterID = harvesterID;
+				//gLogger->logMsgF("StructureManagerChatHandler:: %s",MSG_NORMAL,sql);
+				
+				mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
+
+				//return codes :
+				// 0 everything ok
+				// 1 hopper full harvester turned of
+				// 2 resource isnt active anymore
+				// 3 resource doesnt exist in the first place
+
+			}
+			
+			mDatabase->DestroyDataBinding(binding);
 
 		}
 		break;

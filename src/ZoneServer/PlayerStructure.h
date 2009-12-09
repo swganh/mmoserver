@@ -84,11 +84,14 @@ class PlayerStructure :	public TangibleObject
 		uint32					getCurrentMaintenance();
 		void					setCurrentMaintenance(uint32 maintenance);
 
-		uint32					getMaintenanceRate();
-		void					setMaintenanceRate(uint32 maintenance);
+		uint32					getMaintenanceRate(){return(uint32(maint_cost_wk/(168)));}
+		void					setMaintenanceRate(uint32 maintenance){maint_cost_wk = maintenance*168;}
 
 		uint32					getCurrentPower();
 		void					setCurrentPower(uint32 maintenance);
+
+		uint32					getPowerConsumption(){return(mPowerUsed);}
+		void					setPowerConsumption(uint32 c){mPowerUsed = c;}
 
 		uint32					getMaxCondition(){ return mMaxCondition; }
 		void					setMaxCondition(uint32 condition){ mMaxCondition = condition; }
@@ -103,6 +106,15 @@ class PlayerStructure :	public TangibleObject
 		// the code we need to enter to destroy a structure
 		string					getCode(){return mCode;}
 		void					setCode(){mCode = gStructureManager->getCode();}
+
+		//we store the owners name here when read in from db for the status window
+		string					getOwnersName(){return mOName;}
+		void					setOwnersName(string name){mOName = name;}
+
+
+		void					setPrivate(bool yesORno){mPrivate = yesORno;}
+		bool					getPrivate(){return mPrivate;}
+		
 
 		// is called by the structuremanager after reading maintenance data from the db
 		void					deleteStructureDBDataRead(uint64 playerId);
@@ -159,9 +171,15 @@ class PlayerStructure :	public TangibleObject
 
 		string						mCode;
 		timerTodoStruct				mTTS;
+		string						mOName;
+
+		bool						mPrivate;
 
 		BStringVector				mStructureAdminList;
 		BStringVector				mStructureHopperList;
+
+		uint32						maint_cost_wk;
+		uint32						mPowerUsed;
 };
 
 

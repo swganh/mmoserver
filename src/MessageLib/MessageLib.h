@@ -376,6 +376,8 @@ public:
 	void				SendHarvesterHopperUpdate(HarvesterObject* harvester, PlayerObject* player);
 	void				sendResourceEmptyHopperResponse(PlayerStructure* structure,PlayerObject* player, uint32 amount, uint8 b1, uint8 b2);
 
+	void				sendConstructionComplete(PlayerObject* playerObject, PlayerStructure* Structure);
+
 	// Installation Messages
 	bool				sendBaselinesINSO_3(PlayerStructure* structure,PlayerObject* player);
 	bool				sendBaselinesINSO_6(PlayerStructure* structure,PlayerObject* player);

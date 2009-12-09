@@ -523,7 +523,7 @@ void UIManager::createNewStructureDeleteConfirmBox(UICallback* callback,PlayerOb
 }
 
 //============================================================================================
-//
+//	 transfers maintenance between player and structure
 //
 
 void UIManager::createPayMaintenanceTransferBox(UICallback* callback,PlayerObject* player, PlayerStructure* structure)
@@ -554,10 +554,10 @@ void UIManager::createPayMaintenanceTransferBox(UICallback* callback,PlayerObjec
 	
 }
 
-//============================================================================================
-//
-//
 
+//============================================================================================
+//Transfers power between inventory and harvester
+//
 void UIManager::createPowerTransferBox(UICallback* callback,PlayerObject* player, PlayerStructure* structure)
 {
 
@@ -586,10 +586,11 @@ void UIManager::createPowerTransferBox(UICallback* callback,PlayerObject* player
 }
 
 
-//============================================================================================
-//
-//
 
+
+//============================================================================================
+// Renames a structure
+//
 void UIManager::createRenameStructureBox(UICallback* callback,PlayerObject* player, PlayerStructure* structure)
 {
 
@@ -616,4 +617,105 @@ void UIManager::createRenameStructureBox(UICallback* callback,PlayerObject* play
 
 	createNewInputBox(callback,sName,caption,text.getAnsi(),vector,player,SUI_IB_NODROPDOWN_OKCANCEL,SUI_Window_Structure_Rename,68);
 	
+}
+
+
+
+
+
+//============================================================================================
+// Creates the status box for a structure
+//
+void UIManager::createNewStructureStatusBox(UICallback* callback,PlayerObject* player, PlayerStructure* structure)
+{
+
+	int8 sName[128];
+
+	string name = structure->getCustomName();			
+	name.convert(BSTRType_ANSI);
+	sprintf(sName,"%s",name.getAnsi());
+	if(!name.getLength())
+	{
+		sprintf(sName,"@%s:%s",structure->getNameFile().getAnsi(),structure->getName().getAnsi());
+		
+	}
+
+	int8 wText[128];
+	sprintf(wText,"Structure Name: %s",sName);
+
+	BStringVector attributesMenu;
+
+	//Owner
+	int8 text[128];
+	sprintf(text,"Owner:%s",structure->getOwnersName());
+	attributesMenu.push_back(text);
+
+
+	//private vs public
+	if(structure->getPrivate())
+	{
+		sprintf(text,"This structure is private");
+	}
+	else
+	{
+		sprintf(text,"This structure is public");
+	}
+
+	attributesMenu.push_back(text);
+
+	// condition
+	uint32 currentCondition = structure->getMaxCondition() - structure->getDamage();
+
+	sprintf(text,"Condition: %u%s",(uint32)(currentCondition/(structure->getMaxCondition() /100)),"%");
+
+	attributesMenu.push_back(text);
+
+	
+	//Maintenance Pool
+	float maint = (float)structure->getCurrentMaintenance();
+	float rate  = (float)structure->getMaintenanceRate();
+	uint32 hours , days, minutes;
+	
+
+	days = (uint32)(maint / (rate *24));
+	maint -= days *(rate*24);
+
+	hours = (uint32)(maint / rate);
+	maint -= (uint32)(hours *rate);
+
+	minutes = (uint32)(maint/(rate/60));
+	
+	sprintf(text,"Maintenance Pool: %u(%u days, %u hours, %u minutes)",maint,days,hours,minutes);
+	attributesMenu.push_back(text);
+
+	//Maintenance rate
+	sprintf(text,"Maintenance Rate: %u/hr",rate);
+	attributesMenu.push_back(text);
+
+	//Power Pool
+	uint32 power = structure->getCurrentPower();
+	rate = (float)structure->getPowerConsumption();
+	
+	days = (uint32)(power / (rate *24));
+	power -=(uint32)( days *(rate*24));
+	
+	hours = (uint32)(power / rate);
+	power -= (uint32)(hours *rate);
+	
+	minutes = (uint32)(power/ (rate/60));
+	
+	sprintf(text,"Power Reserves: %u(%u days, %u hours, %u minutes)",power,days,hours,minutes);
+	attributesMenu.push_back(text);
+
+	//Power Consumption
+	sprintf(text,"Power Consumption: %u units/hr",structure->getPowerConsumption());
+	attributesMenu.push_back(text);
+
+	
+
+	//answer = x/(total/100);
+	//answer = x*(total/100);
+	// total = 100%
+	
+	createNewListBox(callback,"handle Structure Destroy","STRUCTURE STATUS", wText, attributesMenu, player, SUI_Window_Structure_Status,SUI_LB_CANCELREFRESH);
 }

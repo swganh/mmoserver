@@ -540,7 +540,7 @@ void	ObjectController::_handleHarvesterActivate(uint64 targetId,Message* message
 	harvester->setActive(true);
 
 	//send the respective delta
-	gMessageLib->sendHarvesterActive(harvester,player);
+	gMessageLib->sendHarvesterActive(harvester);
 	
 	//send the db update
 	mDatabase->ExecuteSqlAsync(0,0,"UPDATE harvesters SET active= 1 WHERE id=%"PRIu64" ",harvester->getId());
@@ -588,7 +588,7 @@ void	ObjectController::_handleHarvesterDeActivate(uint64 targetId,Message* messa
 	harvester->setActive(false);
 
 	//send the respective delta
-	gMessageLib->sendHarvesterActive(harvester,player);
+	gMessageLib->sendHarvesterActive(harvester);
 	
 	//send the db update
 	mDatabase->ExecuteSqlAsync(0,0,"UPDATE harvesters SET active = 0 WHERE id=%"PRIu64" ",harvester->getId());

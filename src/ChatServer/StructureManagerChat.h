@@ -66,6 +66,21 @@ enum SRMTimer
 	SRMTimer_CheckHarvesterHopper	=	1
 };
 
+
+struct structure
+{
+	uint64 owner;
+	string file;
+	string dir;
+	float x;
+	float z;
+	string planet;
+	uint32 maxcondition;
+	uint32 condition;
+	uint32 maint;
+	uint64 lastMail;
+};
+
 //======================================================================================================================
 
 class StructureManagerChatHandler : public MessageDispatchCallback, public DatabaseCallback, public TimerCallback
@@ -125,7 +140,12 @@ enum STRMQueryType
 {
 	STRMQuery_NULL						=	0,
 	STRMQuery_HopperUpdate				=	1,
-	STRMQuery_DoneHarvestUpdate			=	2
+	STRMQuery_DoneHarvestUpdate			=	2,
+	STRMQuery_DoneHarvesterUsePower		=	3,
+	STRMQuery_DoneHarvesterMaintenance	=	4,
+	STRMQuery_StructureMailOOFMaint		=	5,
+	STRMQuery_StructureMailDamage		=	6,
+	STRMQuery_StructureMailCondZero		=	7
 
 };
 

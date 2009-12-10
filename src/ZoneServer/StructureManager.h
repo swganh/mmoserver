@@ -65,6 +65,8 @@ enum Structure_QueryType
 	Structure_GetDepositPowerData				=	17,
 	Structure_GetDepositMaintenanceData			=	18,
 	Structure_GetOwnersName			 			=	19,
+	
+	Structure_GetInactiveHarvesters	 			=	20,
 
 };
 
@@ -255,6 +257,9 @@ class StructureManager : public DatabaseCallback,public ObjectFactoryCallback
 			mStructureDeleteList.insert(mStructureDeleteList.begin(),iD);// .push_back(iD);
 			gWorldManager->getPlayerScheduler()->addTask(fastdelegate::MakeDelegate(this,&StructureManager::_handleStructureObjectTimers),7,5000,NULL);
 		}
+
+		//check all active harvesters once in a while they might have been turned off by the db
+		bool					_handleStructureDBCheck(uint64 callTime, void* ref);
 
 		void					OpenStructureAdminList(uint64 structureId, uint64 playerId);
 		void					OpenStructureHopperList(uint64 structureId, uint64 playerId);

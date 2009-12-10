@@ -12,6 +12,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Mail.h"
 #include "Player.h"
 #include "StructureManagerChat.h"
+#include "TradeManagerChat.h"
 
 #include "ZoneServer/TangibleEnums.h"
 
@@ -157,12 +158,322 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
 
 	switch(asynContainer->mQueryType)
 	{
-	   
+		
+		//=================================================
+		//
+		//the structures condition reached zero
+		//
+		case STRMQuery_StructureMailCondZero:
+		{
+			structure st;
+			
+			DataBinding* binding = mDatabase->CreateDataBinding(9);
+			binding->addField(DFT_uint64,offsetof(structure,owner),8,0);
+			binding->addField(DFT_bstring,offsetof(structure,file),64,1);
+			binding->addField(DFT_bstring,offsetof(structure,dir),64,2);
+			binding->addField(DFT_float,offsetof(structure,x),4,3);
+			binding->addField(DFT_float,offsetof(structure,z),4,4);
+			binding->addField(DFT_bstring,offsetof(structure,planet),32,5);
+			binding->addField(DFT_uint32,offsetof(structure,maxcondition),4,6);
+			binding->addField(DFT_uint32,offsetof(structure,maint),4,7);
+			binding->addField(DFT_uint64,offsetof(structure,lastMail),8,8);
+
+			uint64 count;
+			
+			count = result->getRowCount();
+			result->GetNextRow(binding,&st);
+
+			if(st.lastMail < (gTradeManagerChat->getGlobalTickCount() + (24*3600*1000)))
+			{
+				//last Mail less than 24hours no need to send it again
+				mDatabase->DestroyDataBinding(binding);
+				return;
+
+			}
+
+			//send the relevant EMail
+
+			atMacroString* aMS = new atMacroString();
+
+			aMS->addMBstf("player_structure","structure_condemned_body");
+			aMS->addTTstf(st.file.getAnsi(),st.dir.getAnsi()); 
+			aMS->addDI((uint32)(st.maxcondition*(st.maint/168)));
+			aMS->addTextModule();
+
+			aMS->setPlanetString(st.planet);
+			aMS->setWP(st.x,0,st.z,"Structure");
+			aMS->addWaypoint();
+
+			Mail* mail = new Mail();
+			mail->setSender(BString("@player_structure:management"));
+			mail->setSubject(BString("@player_structure:structure_condemned_subject "));
+			mail->setText(BString(""));
+			mail->setStatus(MailStatus_New);
+			mail->setTime(static_cast<uint32>(time(NULL)));
+			mail->setAttachments(aMS->assemble());
+		
+			gChatManager->sendSystemMailMessage(mail,st.owner);
+			
+			mDatabase->DestroyDataBinding(binding);
+
+			int8 sql[250];
+			// Now update the time of the last EMail
+			sprintf(sql,"UPDATE structures SET structures.lastMail = %I64u WHERE ID = %I64u", gTradeManagerChat->getGlobalTickCount(), asynContainer->harvesterID);
+			
+			mDatabase->ExecuteSqlAsync(this,0,sql);
+
+		}
+		break;
+
+
+
+		//=================================================
+		//
+		//the structure is getting damaged
+		//
+		case STRMQuery_StructureMailDamage:
+		{
+			structure st;
+			
+			DataBinding* binding = mDatabase->CreateDataBinding(9);
+			binding->addField(DFT_uint64,offsetof(structure,owner),8,0);
+			binding->addField(DFT_bstring,offsetof(structure,file),64,1);
+			binding->addField(DFT_bstring,offsetof(structure,dir),64,2);
+			binding->addField(DFT_float,offsetof(structure,x),4,3);
+			binding->addField(DFT_float,offsetof(structure,z),4,4);
+			binding->addField(DFT_bstring,offsetof(structure,planet),32,5);
+			binding->addField(DFT_uint32,offsetof(structure,maxcondition),4,6);
+			binding->addField(DFT_uint32,offsetof(structure,condition),4,7);
+			binding->addField(DFT_uint64,offsetof(structure,lastMail),8,8);
+
+			uint64 count;
+			count = result->getRowCount();
+			result->GetNextRow(binding,&st);
+			
+			if(st.lastMail < (gTradeManagerChat->getGlobalTickCount() + (24*3600*1000)))
+			{
+				//last Mail less than 24hours no need to send it again
+				mDatabase->DestroyDataBinding(binding);
+				return;
+
+			}
+
+			//send the relevant EMail
+
+			atMacroString* aMS = new atMacroString();
+
+			aMS->addMBstf("player_structure","mail_structure_damage");
+			aMS->addTTstf(st.file.getAnsi(),st.dir.getAnsi()); 
+			aMS->addDI((uint32)((st.maxcondition-st.condition)/(st.maxcondition/100)));
+			aMS->addTextModule();
+
+			aMS->setPlanetString(st.planet);
+			aMS->setWP(st.x,0,st.z,"Structure");
+			aMS->addWaypoint();
+
+			Mail* mail = new Mail();
+			mail->setSender(BString("@player_structure:management"));
+			mail->setSubject(BString("@player_structure:mail_structure_damage_sub"));
+			mail->setText(BString(""));
+			mail->setStatus(MailStatus_New);
+			mail->setTime(static_cast<uint32>(time(NULL)));
+			mail->setAttachments(aMS->assemble());
+		
+			gChatManager->sendSystemMailMessage(mail,st.owner);
+			
+			mDatabase->DestroyDataBinding(binding);
+
+			int8 sql[250];
+			// Now update the time of the last EMail
+			sprintf(sql,"UPDATE structures SET structures.lastMail = %I64u WHERE ID = %I64u", gTradeManagerChat->getGlobalTickCount(), asynContainer->harvesterID);
+			
+			mDatabase->ExecuteSqlAsync(this,0,sql);
+
+		}
+		break;
+
+
+		//=================================================
+		//
+		//the structure is out of maintenance - the bank account will be used
+		//
+		case STRMQuery_StructureMailOOFMaint:
+		{
+			
+			structure st;
+			
+			DataBinding* binding = mDatabase->CreateDataBinding(7);
+			binding->addField(DFT_uint64,offsetof(structure,owner),8,0);
+			binding->addField(DFT_bstring,offsetof(structure,file),64,1);
+			binding->addField(DFT_bstring,offsetof(structure,dir),64,2);
+			binding->addField(DFT_float,offsetof(structure,x),4,3);
+			binding->addField(DFT_float,offsetof(structure,z),4,4);
+			binding->addField(DFT_bstring,offsetof(structure,planet),32,5);
+			binding->addField(DFT_uint64,offsetof(structure,lastMail),8,6);
+
+			uint64 count;
+			count = result->getRowCount();
+			result->GetNextRow(binding,&st);
+
+			if(st.lastMail < (gTradeManagerChat->getGlobalTickCount() + (24*3600*1000)))
+			{
+				//last Mail less than 24hours no need to send it again
+				mDatabase->DestroyDataBinding(binding);
+				return;
+
+			}
+
+			
+			//send the relevant EMail
+
+			atMacroString* aMS = new atMacroString();
+
+			aMS->addMBstf("player_structure","structure_maintenance_empty_body");
+			aMS->addTTstf(st.file.getAnsi(),st.dir.getAnsi()); 
+			aMS->addTextModule();
+
+			aMS->setPlanetString(st.planet);
+			aMS->setWP(st.x,0,st.z,"Structure");
+			aMS->addWaypoint();
+
+			Mail* mail = new Mail();
+			mail->setSender(BString("@player_structure:management"));
+			mail->setSubject(BString("@player_structure:structure_maintenance_empty_subject"));
+			mail->setText(BString(""));
+			mail->setStatus(MailStatus_New);
+			mail->setTime(static_cast<uint32>(time(NULL)));
+			mail->setAttachments(aMS->assemble());
+		
+			gChatManager->sendSystemMailMessage(mail,st.owner);
+			
+			mDatabase->DestroyDataBinding(binding);
+
+			int8 sql[250];
+			// Now update the time of the last EMail
+			sprintf(sql,"UPDATE structures SET structures.lastMail = %I64u WHERE ID = %I64u", gTradeManagerChat->getGlobalTickCount(), asynContainer->harvesterID);
+			
+			mDatabase->ExecuteSqlAsync(this ,0 ,sql);
+
+
+		}
+		break;
+
+		case STRMQuery_DoneHarvesterMaintenance:
+		{
+			uint32 exitCode;
+			DataBinding* binding = mDatabase->CreateDataBinding(1);
+			binding->addField(DFT_uint32,0,4);
+
+			uint64 count;
+			count = result->getRowCount();
+
+			//return codes :
+			// 0 everything ok
+			// 1 structure is out of maintenance  - taking maint out of the bank
+			// 2 structure got damaged
+			// 3 condition is zero
+
+
+			result->GetNextRow(binding,&exitCode);
+
+			if(exitCode == 1)// 1 structure is out of maintenance
+			{
+				// get the Owners ID
+				int8 sql[500];
+
+				//start by using power
+				sprintf(sql,"SELECT s.owner, st.stf_file, st.stf_name, s.x, s.z, p.name, s.lastMail FROM structures s INNER JOIN structure_type_data st ON (s.type = st.type) INNER JOIN planet p ON (p.planet_id = s.zone)WHERE ID = %I64u",asynContainer->harvesterID);
+				StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(STRMQuery_StructureMailOOFMaint,0);
+				asyncContainer->harvesterID = asynContainer->harvesterID;
+				//gLogger->logMsgF("StructureManagerChatHandler:: %s",MSG_NORMAL,sql);
+				
+				mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
+
+			}
+
+			if(exitCode == 2)// 2 structure got damaged
+			{
+				// get the Owners ID
+				int8 sql[500];
+
+				//start by using power
+				sprintf(sql,"SELECT s.owner, st.stf_file, st.stf_name, s.x, s.z, p.name, st.max_condition, s.condition, s.lastMail FROM structures s INNER JOIN structure_type_data st ON (s.type = st.type) INNER JOIN planet p ON (p.planet_id = s.zone)WHERE ID = %I64u",asynContainer->harvesterID);
+				StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(STRMQuery_StructureMailDamage,0);
+				asyncContainer->harvesterID = asynContainer->harvesterID;
+				//gLogger->logMsgF("StructureManagerChatHandler:: %s",MSG_NORMAL,sql);
+				
+				mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
+
+			}
+
+			if(exitCode == 3)// 1 structure is out of maintenance
+			{
+				// get the Owners ID
+				int8 sql[500];
+
+				//start by using power
+				sprintf(sql,"SELECT s.owner, st.stf_file, st.stf_name, s.x, s.z, p.name, st.max_condition, st.maint_cost_wk, s.lastMail FROM structures s INNER JOIN structure_type_data st ON (s.type = st.type) INNER JOIN planet p ON (p.planet_id = s.zone)WHERE ID = %I64u",asynContainer->harvesterID);
+				StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(STRMQuery_StructureMailCondZero,0);
+				asyncContainer->harvesterID = asynContainer->harvesterID;
+				//gLogger->logMsgF("StructureManagerChatHandler:: %s",MSG_NORMAL,sql);
+				
+				mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
+
+			}
+
+
+			if(exitCode > 3)
+			{
+				//unspecified db error
+				gLogger->logMsgF("StructureManagerChat::HarvesterMaintenanceUsage %I64u unspecified db error",MSG_HIGH,asynContainer->harvesterID);
+			}
+			
+
+			mDatabase->DestroyDataBinding(binding);
+
+		}
+		break;
+
+		case STRMQuery_DoneHarvesterUsePower:
+		{
+			uint32 exitCode;
+			DataBinding* binding = mDatabase->CreateDataBinding(1);
+			binding->addField(DFT_uint32,0,4);
+
+			uint64 count;
+			count = result->getRowCount();
+
+			//return codes :
+			// 0 everything ok
+			// 1 structure is out of power
+			// 2 
+			// 3 unspecified db error
+
+
+			result->GetNextRow(binding,&exitCode);
+
+			// cant notify zone when no player is online
+			// zone will update harvesterstatus once per hour
+				
+			// only reason for us tzo handle this event here  would be if we wanted to inform the player
+
+			if(exitCode == 3)
+			{
+				//unspecified db error
+				gLogger->logMsgF("StructureManagerChat::HarvesterPowerUsage %I64u unspecified db error",MSG_HIGH,asynContainer->harvesterID);
+			}
+			
+
+			mDatabase->DestroyDataBinding(binding);
+
+		}
+		break;
+
 		case STRMQuery_DoneHarvestUpdate:
 		{
-			uint64 exitCode;
+			uint32 exitCode;
 			DataBinding* binding = mDatabase->CreateDataBinding(1);
-			binding->addField(DFT_uint32,0,8);
+			binding->addField(DFT_uint32,0,4);
 
 			uint64 count;
 			count = result->getRowCount();
@@ -178,23 +489,11 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
 			{
 				result->GetNextRow(binding,&exitCode);
 
-				if(exitCode == 1)
-				{
-					//hopper is full
-				}
-
-				if(exitCode == 2)
-				{
-					//resource shift
-				}
-
 				if(exitCode == 3)
 				{
 					//resource never existed in the first place
 					gLogger->logMsgF("StructureMabagerChat::Harvester %I64u harvested an invalid resource",MSG_HIGH,asynContainer->harvesterID);
 				}
-
-
 
 			}
 
@@ -216,15 +515,29 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
 			{
 				result->GetNextRow(binding,&harvesterID);
 
+				int8 sql[100];
+
 				//start by using power
+				sprintf(sql,"SELECT sf_HarvesterUsePower(%I64u)",harvesterID);
+				StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(STRMQuery_DoneHarvesterUsePower,0);
+				asyncContainer->harvesterID = harvesterID;
+				//gLogger->logMsgF("StructureManagerChatHandler:: %s",MSG_NORMAL,sql);
+				
+				mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
+
 
 				// then use maintenance
+				sprintf(sql,"SELECT sf_HarvesterUseMaintenance(%I64u)",harvesterID);
+				asyncContainer = new StructureManagerAsyncContainer(STRMQuery_DoneHarvesterMaintenance,0);
+				asyncContainer->harvesterID = harvesterID;
+				//gLogger->logMsgF("StructureManagerChatHandler:: %s",MSG_NORMAL,sql);
+				
+				mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
+
 
 				//now harvest
-
-				int8 sql[100];
 				sprintf(sql,"SELECT sf_HarvestResource(%I64u)",harvesterID);
-				StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(STRMQuery_DoneHarvestUpdate,0);
+				asyncContainer = new StructureManagerAsyncContainer(STRMQuery_DoneHarvestUpdate,0);
 				asyncContainer->harvesterID = harvesterID;
 				//gLogger->logMsgF("StructureManagerChatHandler:: %s",MSG_NORMAL,sql);
 				

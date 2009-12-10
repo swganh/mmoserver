@@ -158,7 +158,7 @@ void Log::logMsg(const std::string& zone, const std::string& system, const std::
 	if(mDatabase)
 	{
 		//zone
-		int8 sql[500];
+		int8 sql[9000];
 		int8 escstring1[64];
 		int8 escstring2[64];
 		int8 escstring3[1024];
@@ -166,7 +166,7 @@ void Log::logMsg(const std::string& zone, const std::string& system, const std::
 		mDatabase->Escape_String(escstring2,system.c_str(),system.length());
 		mDatabase->Escape_String(escstring3,buf,length);
 		sprintf(sql,"call sp_ErrorLogHandler('%s','%s','%s')", escstring1, escstring2, escstring3);
-		mDatabase->ExecuteSqlAsync(0,0,sql);
+		mDatabase->ExecuteProcedureAsync(0,0,sql);
 		//mDatabase->ExecuteSqlAsync(0,0,"INSERT INTO %s VALUES (%I64u,173,'%s',1,0)",mName.c_str(),);
 	}
 

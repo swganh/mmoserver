@@ -41,6 +41,7 @@ StructureManager*			StructureManager::mSingleton  = NULL;
 StructureManager::StructureManager(Database* database,MessageDispatch* dispatch)
 {
 	mBuildingFenceInterval = gWorldConfig->getConfiguration("Zone_BuildingFenceInterval",(uint16)10000);
+	uint32 structureCheckIntervall = gWorldConfig->getConfiguration("Zone_structureCheckIntervall",(uint32)3600);
 
 	mDatabase = database;
 	mMessageDispatch = dispatch;
@@ -68,6 +69,11 @@ StructureManager::StructureManager(Database* database,MessageDispatch* dispatch)
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sit.structure_id, sit.cell, sit.item_type , sit.relX, sit.relY, sit.relZ, sit.dirX, sit.dirY, sit.dirZ, sit.dirW, sit.tan_type,  "
 													"tt.object_string, tt.name, tt.file from swganh.structure_item_template sit INNER JOIN terminal_types tt ON (tt.id = sit.item_type) WHERE sit.tan_type = %u",TanGroup_Terminal);
 
+
+	//=========================
+	//check regularly the harvesters - they might have been turned off by the db, harvesters without condition might need to be deleted
+	//do so every hour if no othe timeframe is set
+	gWorldManager->getPlayerScheduler()->addTask(fastdelegate::MakeDelegate(this,&StructureManager::_handleStructureDBCheck),7,structureCheckIntervall*1000,NULL);
 }
 
 
@@ -108,6 +114,50 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
 	switch(asynContainer->mQueryType)
 	{
+
+		case Structure_GetInactiveHarvesters:
+		{
+			struct structData
+			{
+				uint64 id;
+				uint32 condition;
+			};
+
+			structData sd;
+
+			DataBinding* binding = mDatabase->CreateDataBinding(2);
+			binding->addField(DFT_uint64,offsetof(structData,id),8,0);
+			binding->addField(DFT_uint32,offsetof(structData,condition),4,1);
+
+			uint64 count;
+			count = result->getRowCount();
+
+			for(uint64 i = 0;i < count;i++)
+			{
+				result->GetNextRow(binding,&sd);
+
+				HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(gWorldManager->getObjectById(sd.id));
+				if(harvester)
+				{
+					//if the harvesters status is changed we need to alter it
+					if(harvester->getActive())
+					{
+						harvester->setActive(false);
+						harvester->setDamage(sd.condition);
+						gMessageLib->sendHarvesterActive(harvester);
+
+						//Now update the condition
+
+					}
+				}
+
+			}
+
+			mDatabase->DestroyDataBinding(binding);
+
+
+		}
+		break;
 
 		case Structure_GetOwnersName:
 		{
@@ -1019,7 +1069,7 @@ string StructureManager::getCode()
 
 //======================================================================================================================
 //
-// Handle deletion of destroyed Structures
+// Handle deletion of destroyed Structures / building fences and other stuff
 //
 
 bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
@@ -1521,3 +1571,19 @@ uint32 StructureManager::deductPower(PlayerObject* player, uint32 amount)
 	return (!amount);
 }
 
+
+//======================================================================================================================
+//
+// Handle deletion of destroyed Structures / building fences and other stuff
+//
+
+bool StructureManager::_handleStructureDBCheck(uint64 callTime, void* ref)
+{
+	//iterate through all harvesters which are marked inactive in the db
+
+	StructureManagerAsyncContainer* asyncContainer;
+	asyncContainer = new StructureManagerAsyncContainer(Structure_GetInactiveHarvesters, 0);
+	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT h.ID, s.condition FROM harvesters h INNER JOIN structures s ON (h.ID = s.ID) WHERE active = 0");
+
+	return (true);
+}

@@ -268,3 +268,17 @@ void ChatMessageLib::SendHarvesterHopperUpdate(StructureManagerAsyncContainer* a
 
 }
 
+//=======================================================================================================================
+
+void ChatMessageLib::sendStructureConditionActiveUpdate(DispatchClient* client, uint64 structureID, uint32 mPlanetID, uint32 condition) const
+{
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opISMUpdateStructureCondition);
+	gMessageFactory->addUint64(structureID);
+	gMessageFactory->addUint32(condition);
+	gMessageFactory->addUint32(0);
+	Message* newMessage = gMessageFactory->EndMessage();
+	//planetID+8 is the zones ID 
+	client->SendChannelA(newMessage, client->getAccountId(), static_cast<uint8>(mPlanetID)+8, 6);
+
+}

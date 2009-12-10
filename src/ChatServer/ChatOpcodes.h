@@ -157,6 +157,7 @@ enum chat_opcodes
 	opHINO							= 0x48494E4F,
 
 	// group ISM (inter-server-messages)
+	// these are custom opcodes
 	opIsmSendSystemMailMessage		= 0x7B08578E,
 	opIsmGroupInviteRequest			= 0x944F2822,	//[Both]	<uint32 target>
 	opIsmGroupInviteResponse		= 0x3FDF93DF,	//[Both]	<bool success>
@@ -173,8 +174,8 @@ enum chat_opcodes
 	opIsmGroupPositionNotification	= 0x2FB45F7B,	//[ZO->CH]	<float x><float z>
 	opIsmGroupBaselineRequest		= 0xB0CE545A,	//[ZO->CH]	<float x><float z>
 	opIsmGroupAlterMissions			= 0x2F46E3A3,
+	opISMUpdateStructureCondition	= 0xED4643B6,
 
-	// Fake code, crc-based an the word "opIsmGroupSay".
 	opIsmGroupSay					= 0x39360616,	//[ZO->CH]
 	opChatNotifySceneReady			= 0x75C4DD84,	//[ZO->CH]  // Fake code, crc-based on the word "chatcmdsceneready".
 

@@ -228,7 +228,7 @@ void CSRManager::_processConnectPlayerMessage(Message* message, DispatchClient* 
 
 void CSRManager::_processAppendCommentMessage( Message* message, DispatchClient* client )
 {
-	gLogger->logMsg("CSRManager::_processAppendCommentMessage\n");
+	gLogger->logMsg("CSRManager::_processAppendCommentMessage");
 	string poster;
 	string comment;
 
@@ -242,7 +242,7 @@ void CSRManager::_processAppendCommentMessage( Message* message, DispatchClient*
 	mDatabase->Escape_String(cleanPoster,poster.getAnsi(), poster.getLength());
 
 	mDatabase->ExecuteSqlAsync(NULL, NULL, "INSERT INTO csr_comments VALUES (NULL, %u, '%s', '%s');", ticketid, cleanComment, cleanPoster);
-	mDatabase->ExecuteSqlAsync(NULL, NULL, "CALL sp_TicketActivity(%u);", ticketid);
+	mDatabase->ExecuteProcedureAsync(NULL, NULL, "CALL sp_TicketActivity(%u);", ticketid);
 
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opAppendCommentResponseMessage);

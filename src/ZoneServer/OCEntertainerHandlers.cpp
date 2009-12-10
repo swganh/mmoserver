@@ -1050,7 +1050,7 @@ void ObjectController::_handleRequestStatMigrationData(uint64 targetId,Message* 
 	sprintf(sql,"call sp_CharacterStatMigrationCreate (%"PRIu64",%u,%u,%u,%u,%u,%u,%u,%u,%u,0)",we->getId(),value1,value2,value3,value4,value5,value6,value7,value8,value9);
 	ObjControllerAsyncContainer* asyncContainer;
 	asyncContainer = new ObjControllerAsyncContainer(OCQuery_Nope);
-	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
+	mDatabase->ExecuteProcedureAsync(this,asyncContainer,sql);
 }
 
 //=============================================================================================================================

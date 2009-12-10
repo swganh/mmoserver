@@ -638,7 +638,9 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
 					//send the relevant EMail
 					gChatMessageLib->sendCancelAuctionMail(asynContainer->mClient, player->getCharId(),player->getCharId(), ItemName);
 					mDatabase->DestroyDataBinding(binding);
-				}else{
+				}
+				else
+				{
 					gChatMessageLib->sendCanceLiveAuctionResponseMessage(asynContainer->mClient, 1,asynContainer->AuctionID);
 					gLogger->logMsgF("TradeManager::TRMQuery_CancelAuction::Aucction not found : %I64u",MSG_NORMAL,asynContainer->AuctionID);
 
@@ -969,7 +971,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
 				TradeManagerAsyncContainer* asyncContainer = new TradeManagerAsyncContainer(TRMQuery_NULL,NULL);
 
 				sprintf(sql,"CALL sp_CommerceFindExpiredListing()");
-				mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
+				mDatabase->ExecuteProcedureAsync(this,asyncContainer,sql);
 
 				}
 			break;
@@ -1292,7 +1294,7 @@ void TradeManagerChatHandler::processAuctionEMails(AuctionItem* auctionTemp)
 void TradeManagerChatHandler::processAuctionBid(TradeManagerAsyncContainer* asynContainer, Player* player)
 {
 //auction ...
-	gLogger->logMsgF("process auction bid",MSG_NORMAL);
+	
 	int8 sql[250], PlayerName[40],*sqlPointer;
 
 	sqlPointer = PlayerName;

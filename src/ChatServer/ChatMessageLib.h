@@ -83,6 +83,7 @@ public:
 
 	//structures
 	void SendHarvesterHopperUpdate(StructureManagerAsyncContainer* asynContainer, HopperResourceList* mHopperList) const;
+	void sendStructureConditionActiveUpdate(DispatchClient* client, uint64 structureID, uint32 mPlanetID, uint32 condition) const;
 	
 	//void                    _sendBazaarTransactionMessage(DispatchClient* client, AuctionItem mAuctionItem, uint64 mCharId, uint32 mAmount,  uint32 mTime, Player*  mPlayer, string mName);
 

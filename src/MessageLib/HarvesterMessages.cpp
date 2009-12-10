@@ -71,8 +71,8 @@ bool MessageLib::sendBaselinesHINO_3(HarvesterObject* harvester,PlayerObject* pl
 	gMessageFactory->addUint32(0);//list
 	gMessageFactory->addUint32(0);//optionsbitmask
 	gMessageFactory->addUint32(0);//timer
-	gMessageFactory->addUint32(0);//condition damage
-	gMessageFactory->addUint32(1000);   //maxcondition
+	gMessageFactory->addUint32(harvester->getDamage());//condition damage
+	gMessageFactory->addUint32(harvester->getMaxCondition());   //maxcondition
 	gMessageFactory->addUint32(0);
 	gMessageFactory->addUint8(harvester->getActive());//active flag
 	gMessageFactory->addFloat(0);//power reserve
@@ -247,7 +247,8 @@ bool MessageLib::sendBaselinesHINO_7(HarvesterObject* harvester,PlayerObject* pl
 		it++;
 	}
 	
-	gMessageFactory->addUint8(0);//	  condition
+	uint8 condition = ((harvester->getMaxCondition()-harvester->getDamage())/(harvester->getMaxCondition()/100));
+	gMessageFactory->addUint8(condition);//	  condition
 
 	gMessageFactory->addUint64(0);//
 	
@@ -538,7 +539,7 @@ void MessageLib::sendCurrentExtractionRate(HarvesterObject* harvester, PlayerObj
 //turn the harvester on
 //======================================================================================================================
 
-void MessageLib::sendHarvesterActive(HarvesterObject* harvester, PlayerObject* player)
+void MessageLib::sendHarvesterActive(HarvesterObject* harvester)
 {										  
 	gMessageFactory->StartMessage();
 	
@@ -557,7 +558,9 @@ void MessageLib::sendHarvesterActive(HarvesterObject* harvester, PlayerObject* p
 
 	fragment->setPendingDelete(true);
 
-	(player->getClient())->SendChannelA(gMessageFactory->EndMessage(), player->getAccountId(),CR_Client,4);
+	_sendToInRange(gMessageFactory->EndMessage(),harvester,5);
+	//(player->getClient())->SendChannelA(gMessageFactory->EndMessage(), player->getAccountId(),CR_Client,4);
+	
 }
 
 //======================================================================================================================

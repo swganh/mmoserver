@@ -35,7 +35,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include <memory>
 #endif
 
-#define	gTradeManager	TradeManager::getSingletonPtr()
+#define	gTradeManagerChat	TradeManagerChatHandler::getSingletonPtr()
 
 //======================================================================================================================
 
@@ -80,6 +80,8 @@ class TradeManagerChatHandler : public MessageDispatchCallback, public DatabaseC
 		virtual void		handleDispatchMessage(uint32 opcode,Message* message,DispatchClient* client);
 		virtual void		handleDatabaseJobComplete(void* ref,DatabaseResult* result);
 
+		uint64				getGlobalTickCount(){return mGlobalTickCount;}
+
 		CommoditiesClass*	Commodities;
 
 		uint32				TerminalRegionbyID(uint64 id);
@@ -109,7 +111,6 @@ class TradeManagerChatHandler : public MessageDispatchCallback, public DatabaseC
 		void				processTimerEvents();
 		void				handleGlobalTickUpdate();
 		void				handleCheckAuctions();
-		uint64				getGlobalTickCount(){return mGlobalTickCount;}
 
 
 

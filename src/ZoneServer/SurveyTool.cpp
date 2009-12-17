@@ -19,6 +19,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "UIManager.h"
 #include "WorldManager.h"
 #include "ZoneOpcodes.h"
+#include "Heightmap.h"
 #include "MessageLib/MessageLib.h"
 #include "LogManager/LogManager.h"
 #include "DatabaseManager/Database.h"
@@ -61,6 +62,21 @@ void SurveyTool::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 	{
 		case radId_itemUse:
 		{
+			//are we swimming ??
+			//slow query - use for building placement only
+			if(Heightmap::Instance()->hasWater(playerObject->mPosition.mX,playerObject->mPosition.mZ))
+			{
+				gMessageLib->sendSystemMessage(playerObject,L"","error_message","survey_swimming");
+				return;
+			}
+
+			if(playerObject->getPerformingState() != PlayerPerformance_None)
+			{
+				gMessageLib->sendSystemMessage(playerObject,L"","error_message","survey_cant");
+				return;
+			}
+
+
 			// verify we are able to use this
 			if(!(playerObject->verifyAbility(opOCsurvey)))
 			{

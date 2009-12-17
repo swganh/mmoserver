@@ -30,6 +30,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "SchematicManager.h"
 #include "SpawnPoint.h"
 #include "StructureManager.h"
+#include "ResourceCollectionManager.h"
 #include "Tutorial.h"
 #include "UIManager.h"
 #include "UISkillSelectBox.h"
@@ -69,7 +70,6 @@ PlayerObject::PlayerObject()
 , mEntertainerWatchToId(0)
 , mLastGroupMissionUpdateTime(0)
 , mNearestCraftingStation(0)
-, mNextSampleTime(0)
 , mPlacedInstrument(0)
 , mPlayerObjId(0)
 , mPreDesignatedCloningFacilityId(0)
@@ -98,12 +98,6 @@ PlayerObject::PlayerObject()
 , mMountCalled(false)
 , mMounted(false)
 , mNewPlayerMessage(false)
-, mPassRadioactive(false)
-, mPendingSample(false)
-, mPendingSurvey(false)
-, mSampleEventFlag(false)
-, mSampleGambleFlag(false)
-, mSampleNodeFlag(false)
 , mTrading(false)
 {
 	mDuelList.reserve(10);
@@ -124,6 +118,16 @@ PlayerObject::PlayerObject()
 	mPermissionId = 0;
 
 	mIDSession = IDSessionNONE;
+	
+	getSampleData()->mPassRadioactive	= false;
+	getSampleData()->mPendingSample		= false;
+	getSampleData()->mPendingSurvey		= false;
+	getSampleData()->mSampleEventFlag	= false;
+	getSampleData()->mSampleGambleFlag	= false;
+	getSampleData()->mSampleNodeFlag	= false;
+	getSampleData()->mSampleNodeRecovery= false;
+	getSampleData()->mNextSampleTime	= 0;
+
 }
 
 //=============================================================================
@@ -419,15 +423,13 @@ void PlayerObject::resetProperties()
 	mSkillModUpdateCounter				= mSkillMods.size();
 	mXpUpdateCounter					= mXpList.size();
 	mPosture							= CreaturePosture_Upright;
-	mPendingSurvey						= false;
-	mPendingSample						= false;
+
+	getSampleData()->mPendingSurvey		= false;
+	getSampleData()->mPendingSample		= false;
+	getSampleData()->mSampleNodeRecovery= false;
+
 	mDefenderUpdateCounter				= 0;
 	mReady								= false;
-	// No. no... not that's too easy exploit...
-	// mIncapCount							= 0;
-	// mFirstIncapTime						= 0;
-	// mCurrentIncapTime					= 0;
-	// mState								= 0;
 
 	if(Datapad* datapad = dynamic_cast<Datapad*>(mEquipManager.getEquippedObject(CreatureEquipSlot_Datapad)))
 	{
@@ -1605,113 +1607,9 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,string inputStr,UIW
 		}
 		break;
 
-		// Sampling Radioactive Msg Box
-		case SUI_Window_SmplRadioactive_MsgBox:
-		{
-			if(action == 1)
-			{
-				gLogger->logMsg("sampling radioactive box: No\n");
-				mPassRadioactive = false;
-				mPendingSample = false;
-				mPosture	   = CreaturePosture_Upright;
-				gMessageLib->sendUpdateMovementProperties(this);
-				gMessageLib->sendPostureAndStateUpdate(this);
-				gMessageLib->sendSelfPostureUpdate(this);
-				return;
-			}else{
-				gLogger->logMsg("sampling radioactive box: Yes\n");
-				gLogger->logMsg("Please hit 'get sample' to continue.\n");
-				mPassRadioactive = true;
-				mPendingSample = true;
-				//TODO:invoke sample action
-				if(mHam.checkMainPools(0,150,0))
-				{
-					//SurveyTool*			tool		= event->getTool();
-					//CurrentResource*	resource	= event->getResource();
-					mNextSampleTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 30000;
-					//mObjectController.addEvent(new SampleEvent(tool,resource),10000);
-				}
-			}
-		}
-		break;
+		
 
-		case SUI_Window_SmplGamble_ListBox:
-		{
-			if(action == 1)
-			{
-				gLogger->logMsg("sampling gamble box action=1 (continue?)\n");
-				mPendingSample = true;
-				mSampleGambleFlag = false;
-
-				//TODO:invoke sample action
-				if(mHam.checkMainPools(0,150,0))
-				{
-					//SurveyTool*			tool		= event->getTool();
-					//CurrentResource*	resource	= event->getResource();
-					mNextSampleTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 30000;
-					//mObjectController.addEvent(new SampleEvent(tool,resource),10000);
-				}
-			}
-			else
-			{
-				gLogger->logMsg("sampling gamble box action != 1 (chance?)\n");
-				//action costs
-				mHam.updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints,300);
-				mPendingSample = true;
-
-				//determine whether gamble is good or not
-				int32 gambleRoll = int(gRandom->getRand()%2) + 1;
-
-				if(gambleRoll == 1)
-				{
-					mSampleEventFlag = true;
-					mSampleGambleFlag = true;
-				}
-				else
-				{
-					mSampleGambleFlag = false;
-				}
-
-				//TODO:invoke sample action
-				if(mHam.checkMainPools(0,150,0))
-				{
-					//SurveyTool*			tool		= event->getTool();
-					//CurrentResource*	resource	= event->getResource();
-					mNextSampleTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 30000;
-					//mObjectController.addEvent(new SampleEvent(tool,resource),10000);
-				}
-			}
-		}
-		break;
-
-		case SUI_Window_SmplWaypNode_ListBox:
-		{
-			if(action == 1)
-			{
-				gLogger->logMsg("sampling wayp node box action=1 (continue?)\n");
-				mPendingSample = true;
-				//TODO:need to create wayp obj
-				mSampleNodeFlag = true;
-				return;
-			}
-			else
-			{
-				gLogger->logMsg("sampling wayp node box action != 1 (stay here?)\n");
-				mPendingSample = true;
-				mSampleNodeFlag = false;
-				//TODO:need to invoke sample action
-				if(mHam.checkMainPools(0,150,0))
-				{
-					//SurveyTool*			tool		= event->getTool();
-					//CurrentResource*	resource	= event->getResource();
-					mNextSampleTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 30000;
-					//mObjectController.addEvent(new SampleEvent(tool,resource),10000);
-				}
-			}
-		}
-		break;
-
-	default:
+		default:
 		{
 			gLogger->logMsgF("handleUIEvent:Default: %u, %u, %s,",MSG_NORMAL, action, element, inputStr.getAnsi());
 		}
@@ -2167,7 +2065,7 @@ bool PlayerObject::autoAttackEnabled(void)
 //=============================================================================
 //we check whether we have enough Lots and update them if so including the db
 //
-bool PlayerObject::usePlayerLots(uint8 usedLots)
+bool PlayerObject::useLots(uint8 usedLots)
 {
 	int32 lots = mLots-usedLots;
 	if(lots <0)
@@ -2183,7 +2081,7 @@ bool PlayerObject::usePlayerLots(uint8 usedLots)
 //we check whether the amount of lots regained is plausibel
 //and updatre the db
 //
-bool PlayerObject::regainPlayerLots(uint8 lots)
+bool PlayerObject::regainLots(uint8 lots)
 {
 	uint8 maxLots = gWorldConfig->getConfiguration("Player_Max_Lots",(uint8)10);
 	if((mLots+lots)>maxLots)

@@ -67,6 +67,9 @@ enum Structure_QueryType
 	Structure_GetOwnersName			 			=	19,
 	
 	Structure_GetInactiveHarvesters	 			=	20,
+	Structure_GetDestructionStructures			=	21,
+	Structure_UpdateStructureDeed				=	22,
+	Structure_UpdateCharacterLots				=	23,
 
 };
 
@@ -268,6 +271,8 @@ class StructureManager : public DatabaseCallback,public ObjectFactoryCallback
 		uint32					getCurrentPower(PlayerObject* player);
 		uint32					deductPower(PlayerObject* player, uint32 amount);
 
+		//asynchronously updates the lot count of a player
+		void					UpdateCharacterLots(uint64 charId);
 
 	private:
 

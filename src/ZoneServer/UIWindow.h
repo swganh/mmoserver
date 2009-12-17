@@ -25,11 +25,35 @@ typedef std::vector<UIElement*>	Children;
 
 //================================================================================
 
+enum WindowQueryType
+{
+	Window_Query_NULL						=	0,
+	Window_Query_Radioactive_Sample			=	1,
+
+};
+
+
+class WindowAsyncContainerCommand
+{
+public:
+
+	WindowAsyncContainerCommand(WindowQueryType qt){ mQueryType = qt;}
+	~WindowAsyncContainerCommand(){}
+
+	WindowQueryType				mQueryType;
+
+
+	uint64						PlayerId;
+	uint64						ToolId;
+	void*						CurrentResource;
+};
+
+
 class UIWindow : public UIElement
 {
 	public:
 
-		UIWindow(UICallback* callback,uint32 id,uint8 windowType,const string windowTypeStr,const int8* eventStr);
+		UIWindow(UICallback* callback,uint32 id,uint8 windowType,const string windowTypeStr,const int8* eventStr, void* container = NULL);
 		virtual ~UIWindow();
 
 		uint8			getWindowType(){ return mWindowType; }
@@ -54,6 +78,8 @@ class UIWindow : public UIElement
 		bool			removeChild(uint32 id);
 		bool			removeChild(UIElement* element);
 
+		void*			getAsyncContainer(){return mContainer;}
+
 		virtual void	handleEvent(Message* message) = 0;
 		virtual void	sendCreate() = 0;
 
@@ -68,6 +94,7 @@ class UIWindow : public UIElement
 		UICallback*		mUICallback;
 		uint64			mTimeOut;
 		uint8			mWindowType;
+		void*			mContainer;
 };
 
 #endif

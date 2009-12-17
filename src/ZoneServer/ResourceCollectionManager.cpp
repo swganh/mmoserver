@@ -9,12 +9,20 @@ Copyright (c) 2006 - 2008 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
+#include "PlayerObject.h"
 #include "ResourceCollectionManager.h"
 #include "ResourceCollectionCommand.h"
+#include "UIManager.h"
+#include "WaypointObject.h"
+#include "Inventory.h"
+#include "Datapad.h"
+#include "WorldManager.h"
+#include "MessageLib/MessageLib.h"
 #include "LogManager/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
+#include "Utils/clock.h"
 
 //======================================================================================================================
 
@@ -135,4 +143,156 @@ void ResourceCollectionManager::handleDatabaseJobComplete(void* ref,DatabaseResu
 	}
 
 	mDBAsyncPool.ordered_free(asyncContainer);
+}
+
+//=============================================================================
+//
+// handles any UIWindow callbacks for sampling events
+//
+
+void ResourceCollectionManager::handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window)
+{
+	PlayerObject* player = window->getOwner();
+	if(!player)
+	{
+		return;
+	}
+
+	Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));			
+	if(!inventory)
+	{
+		return;
+	}
+	
+	WindowAsyncContainerCommand* asyncContainer = (WindowAsyncContainerCommand*)window->getAsyncContainer();
+	if(!asyncContainer)
+		return;
+
+	Ham* ham = player->getHam();
+	
+	switch(window->getWindowType())
+	{
+		// Sampling Radioactive Msg Box
+		case SUI_Window_SmplRadioactive_MsgBox:
+		{
+			//we stopped the sampling
+			if(action == 1)
+			{
+				player->getSampleData()->mPassRadioactive = false;
+				player->getSampleData()->mPendingSample = false;
+				player->setPosture(CreaturePosture_Upright);
+				gMessageLib->sendUpdateMovementProperties(player);
+				gMessageLib->sendPostureAndStateUpdate(player);
+				gMessageLib->sendSelfPostureUpdate(player);
+				return;
+			}
+			else
+			{
+				gLogger->logMsg("sampling radioactive box: Yes");
+	
+				player->getSampleData()->mPassRadioactive = true;
+				player->getSampleData()->mPendingSample = true;
+				
+				if(ham->checkMainPools(0,sampleActionCost,0))
+				{
+
+					SurveyTool*			tool					= dynamic_cast<SurveyTool*>(inventory->getObjectById(asyncContainer->ToolId));
+					CurrentResource*	resource				= (CurrentResource*)asyncContainer->CurrentResource;
+					player->getSampleData()->mNextSampleTime	= Anh_Utils::Clock::getSingleton()->getLocalTime() + 30000;
+					player->getController()->addEvent(new SampleEvent(tool,resource),10000);
+				}
+			}
+		}
+		break;
+
+		case SUI_Window_SmplGamble_ListBox:
+		{
+			if(action == 1)
+			{
+				player->getSampleData()->mPendingSample = true;
+				player->getSampleData()->mSampleGambleFlag = false;
+
+				//TODO:invoke sample action
+				if(ham->checkMainPools(0,sampleActionCost,0))
+				{
+					SurveyTool*			tool		= dynamic_cast<SurveyTool*>(inventory->getObjectById(asyncContainer->ToolId));
+					CurrentResource*	resource	= (CurrentResource*)asyncContainer->CurrentResource;
+					player->getSampleData()->mNextSampleTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 30000;
+					player->getController()->addEvent(new SampleEvent(tool,resource),10000);
+				}
+			}
+			else
+			{
+				gLogger->logMsg("sampling gamble box action != 1 (chance?)");
+				//action costs
+				ham->updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints,300,true);
+				player->getSampleData()->mPendingSample = true;
+
+				//determine whether gamble is good or not
+				int32 gambleRoll = int(gRandom->getRand()%2) + 1;
+
+				if(gambleRoll == 1)
+				{
+					player->getSampleData()->mSampleEventFlag = true;
+					player->getSampleData()->mSampleGambleFlag = true;
+				}
+				else
+				{
+					player->getSampleData()->mSampleEventFlag = false;
+					player->getSampleData()->mSampleGambleFlag = false;
+				}
+
+				//TODO:invoke sample action
+				if(ham->checkMainPools(0,sampleActionCost,0))
+				{
+					SurveyTool*			tool		= dynamic_cast<SurveyTool*>(inventory->getObjectById(asyncContainer->ToolId));
+					CurrentResource*	resource	= (CurrentResource*)asyncContainer->CurrentResource;
+					player->getSampleData()->mNextSampleTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 30000;
+					player->getController()->addEvent(new SampleEvent(tool,resource),10000);
+				}
+			}
+		}
+		break;
+
+		case SUI_Window_SmplWaypNode_ListBox:
+		{
+			if(action == 1)
+			{
+				gLogger->logMsg("sampling wayp node box action=1 (continue?)");
+				player->getSampleData()->mPendingSample	= false;
+				player->getSampleData()->mSampleNodeFlag = true;
+				
+				player->getSampleData()->Position.mX = player->mPosition.mX +(((gRandom->getRand()%50)+1));
+				player->getSampleData()->Position.mZ = player->mPosition.mZ +(((gRandom->getRand()%50)+1));
+				player->getSampleData()->zone		= gWorldManager->getZoneId();
+				player->getSampleData()->resource	= (CurrentResource*)asyncContainer->CurrentResource;
+
+				
+				Datapad* datapad= dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+				datapad->requestNewWaypoint("Resource Node",Anh_Math::Vector3(player->getSampleData()->Position.mX,0.0f,player->getSampleData()->Position.mZ),static_cast<uint16>(gWorldManager->getZoneId()),Waypoint_blue);
+				gMessageLib->sendSystemMessage(player,L"","survey","node_waypoint");
+				return;
+			}
+			else
+			{
+				gLogger->logMsg("sampling wayp node box action != 1 (stay here?)");
+				player->getSampleData()->mPendingSample = true;
+				player->getSampleData()->mSampleNodeFlag = false;
+				player->getSampleData()->Position.mX = 0;
+				player->getSampleData()->Position.mZ = 0;
+				player->getSampleData()->resource	= NULL;
+				player->getSampleData()->zone		= 0;
+				//TODO:need to invoke sample action
+				if(ham->checkMainPools(0,sampleActionCost,0))
+				{
+					SurveyTool*			tool		= dynamic_cast<SurveyTool*>(inventory->getObjectById(asyncContainer->ToolId));
+					CurrentResource*	resource	= (CurrentResource*)asyncContainer->CurrentResource;
+					player->getSampleData()->mNextSampleTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 30000;
+					player->getController()->addEvent(new SampleEvent(tool,resource),10000);
+				}
+			}
+		}
+		break;
+	}
+	SAFE_DELETE(asyncContainer);
 }

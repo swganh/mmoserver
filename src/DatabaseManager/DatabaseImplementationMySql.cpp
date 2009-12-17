@@ -177,7 +177,7 @@ void DatabaseImplementationMySql::GetNextRow(DatabaseResult* result, DataBinding
           }
         case DFT_int64:
           {
-            *((long long*)&((char*)object)[binding->mDataFields[i].mDataOffset]) = boost::lexical_cast<uint64>(row[binding->mDataFields[i].mColumn]);
+            *((long long*)&((char*)object)[binding->mDataFields[i].mDataOffset]) = boost::lexical_cast<int64>(row[binding->mDataFields[i].mColumn]);
             break;
           }
         case DFT_uint64:

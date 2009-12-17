@@ -97,7 +97,7 @@ void Deed::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 					}
 
 					//check available Lots
-					if(!player->usePlayerLots(data->requiredLots))
+					if(!player->useLots(data->requiredLots))
 					{
 						gMessageLib->sendSystemMessage(player, L"","player_structure","not_enough_lots");
 						return;

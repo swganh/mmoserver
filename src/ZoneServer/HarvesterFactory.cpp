@@ -108,7 +108,20 @@ void HarvesterFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 		case HFQuery_AttributeData:
 		{
 			HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(asyncContainer->mObject);
-			_buildAttributeMap(harvester,result);
+			//_buildAttributeMap(harvester,result);
+
+			Attribute_QueryContainer	attribute;
+			uint64						count = result->getRowCount();
+			//int8						str[256];
+			//BStringVector				dataElements;
+
+			for(uint64 i = 0;i < count;i++)
+			{
+				result->GetNextRow(mAttributeBinding,(void*)&attribute);				
+				harvester->addInternalAttribute(attribute.mKey,std::string(attribute.mValue.getAnsi()));
+			}
+
+			harvester->setLoadState(LoadState_Loaded);
 
 			gLogger->logMsgF("HarvesterFactory: loaded Harvester %I64u", MSG_HIGH, harvester->getId());
 			asyncContainer->mOfCallback->handleObjectReady(harvester,asyncContainer->mClient);
@@ -168,15 +181,7 @@ void HarvesterFactory::_createHarvester(DatabaseResult* result, HarvesterObject*
 void HarvesterFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client)
 {
 	//request the harvesters Data first
-	/*
-	mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,HFQuery_MainData,client,id),
-								"SELECT harvesters.id,harvesters.oX,harvesters.oY,harvesters.oZ,harvesters.oW,harvesters.x,"
-								"harvesters.y,harvesters.z,structure_type_data.type,structure_type_data.object_string,"
-								"structure_type_data.stf_name, structure_type_data.stf_file, harvesters.name"
-								"FROM harvesters INNER JOIN structure_type_data ON (harvesters.type = structure_type_data.type) "
-								"WHERE (harvesters.id = %I64u)",id);
-
-								*/
+	
 	int8 hmm[1024];
 	sprintf(hmm, "SELECT s.id,s.owner,s.oX,s.oY,s.oZ,s.oW,s.x,s.y,s.z,std.type,std.object_string,std.stf_name, std.stf_file, s.name, std.lots_used, std.resource_Category, h.ResourceID, h.active, h.rate, std.maint_cost_wk, std.power_used, s.condition, std.max_condition FROM structures s INNER JOIN structure_type_data std ON (s.type = std.type) INNER JOIN harvesters h ON (s.id = h.id) WHERE (s.id = %"PRIu64")",id);
 	QueryContainerBase* asynContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,HFQuery_MainData,client,id);

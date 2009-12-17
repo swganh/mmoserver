@@ -41,7 +41,8 @@ StructureManager*			StructureManager::mSingleton  = NULL;
 StructureManager::StructureManager(Database* database,MessageDispatch* dispatch)
 {
 	mBuildingFenceInterval = gWorldConfig->getConfiguration("Zone_BuildingFenceInterval",(uint16)10000);
-	uint32 structureCheckIntervall = gWorldConfig->getConfiguration("Zone_structureCheckIntervall",(uint32)3600);
+	//uint32 structureCheckIntervall = gWorldConfig->getConfiguration("Zone_structureCheckIntervall",(uint32)3600);
+	uint32 structureCheckIntervall = gWorldConfig->getConfiguration("Zone_structureCheckIntervall",(uint32)30);
 
 	mDatabase = database;
 	mMessageDispatch = dispatch;
@@ -72,7 +73,7 @@ StructureManager::StructureManager(Database* database,MessageDispatch* dispatch)
 
 	//=========================
 	//check regularly the harvesters - they might have been turned off by the db, harvesters without condition might need to be deleted
-	//do so every hour if no othe timeframe is set
+	//do so every hour if no other timeframe is set
 	gWorldManager->getPlayerScheduler()->addTask(fastdelegate::MakeDelegate(this,&StructureManager::_handleStructureDBCheck),7,structureCheckIntervall*1000,NULL);
 }
 
@@ -115,6 +116,119 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 	switch(asynContainer->mQueryType)
 	{
 
+		//asynchronously updates the playerlots for a character
+		case Structure_UpdateCharacterLots:
+		{
+			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
+
+			uint8 lotCount;
+			DataBinding* binding = mDatabase->CreateDataBinding(1);
+			binding->addField(DFT_uint8,0,1);
+
+			uint64 count;
+			count = result->getRowCount();
+
+			if (!count)
+			{
+				gLogger->logMsgLoadFailure("StructureManager::add Permission no return value...",MSG_NORMAL);
+				return;
+			}
+			result->GetNextRow(binding,&lotCount);
+
+			if(player)
+			{
+				//update the lots
+				uint8 maxLots = gWorldConfig->getConfiguration("Player_Max_Lots",(uint8)10);
+
+				maxLots -= static_cast<uint8>(lotCount);
+				player->setLots((uint8)maxLots);
+
+				
+			}
+			mDatabase->DestroyDataBinding(binding);
+		}
+		break;
+
+		//this is the callback from updating the structures deed in case the structure redeeded
+		//we use it to create the deed in the inventory
+		case Structure_UpdateStructureDeed:
+		{
+			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
+
+			uint64 deedId;
+			DataBinding* binding = mDatabase->CreateDataBinding(1);
+			binding->addField(DFT_uint64,0,8);
+
+			uint64 count;
+			count = result->getRowCount();
+
+			if (!count)
+			{
+				gLogger->logMsgLoadFailure("StructureManager::add Permission no return value...",MSG_NORMAL);
+				return;
+			}
+			result->GetNextRow(binding,&deedId);
+
+			if(player)
+			{
+				//load the deed into the inventory
+				Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+				if(inventory)
+				{
+					//15 is itemfamily for deeds
+					gObjectFactory->createIteminInventory(inventory,deedId,TanGroup_Item);
+				}
+			}
+			mDatabase->DestroyDataBinding(binding);
+		}
+		break;
+
+		//this is a list of the structures that has zero condition and needs to get destroyed
+		case Structure_GetDestructionStructures:
+		{
+			struct structData
+			{
+				uint64 id;
+				uint32 condition;
+			};
+
+			structData sd;
+
+			DataBinding* binding = mDatabase->CreateDataBinding(2);
+			binding->addField(DFT_uint64,offsetof(structData,id),8,0);
+			binding->addField(DFT_uint32,offsetof(structData,condition),4,1);
+
+			uint64 count;
+			count = result->getRowCount();
+
+			for(uint64 i = 0;i < count;i++)
+			{
+				result->GetNextRow(binding,&sd);
+
+				PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(sd.id));
+				if(structure)
+				{
+					//delete the deed in the db
+					//the parent is the streucture and the item family is 15
+					int8 sql[100];
+					sprintf(sql,"DELETE FROM items WHERE parent_id = %"PRIu64" AND item_family = 15",structure->getId());
+					mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
+
+					//delete harvester db side with all power and all resources
+					gObjectFactory->deleteObjectFromDB(structure);
+	
+					//delete it in the world
+					gMessageLib->sendDestroyObject_InRangeofObject(structure);
+					gWorldManager->destroyObject(structure);
+										
+				}
+			}
+
+			mDatabase->DestroyDataBinding(binding);
+
+		}
+		break;
+
 		case Structure_GetInactiveHarvesters:
 		{
 			struct structData
@@ -144,11 +258,12 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 					{
 						harvester->setActive(false);
 						harvester->setDamage(sd.condition);
+						
 						gMessageLib->sendHarvesterActive(harvester);
 
-						//Now update the condition
-
 					}
+					//Now update the condition
+					gMessageLib->sendCurrentConditionUpdate(harvester);
 				}
 
 			}
@@ -371,6 +486,8 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
 		}
 		break;
+
+		//queries all entries of a structures admin list
 		case Structure_Query_Admin_Data:
 		{
 			PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(asynContainer->mStructureId));
@@ -396,6 +513,7 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 		}
 		break;
 
+		//this asynchronously reads power and maintenance data for a structure about to be deleted
 		case Structure_Query_delete:
 		{
 
@@ -469,6 +587,7 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 		}
 		break;
 
+		// basic structure information for the structuremanager
 		case Structure_Query_LoadDeedData:
 		{
 			StructureDeedLink* deedLink;
@@ -502,6 +621,7 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 		}
 		break;
 
+		// a player has been removed from the permission list of a structure
 		case Structure_Query_Remove_Permission:
 		{
 			//PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(asynContainer->mStructureId));
@@ -570,10 +690,9 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 		break;
 
 
-
+		// a player has been added to the permission list of a structure
 		case Structure_Query_Add_Permission:
 		{
-			//PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(asynContainer->mStructureId));
 
 			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
 
@@ -633,6 +752,7 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 		}
 		break;
 
+		//this loads basic structure information for structure types
 		case Structure_Query_LoadstructureItem:
 		{
 
@@ -1137,11 +1257,30 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 		if(structure->getTTS()->todo == ttE_Delete)
 		{
 			// TODO
-			// get the deed to the inventory
-			// update the deeds attributes
+			// get the deed to the inventory *if* the structure will be redeeded
+			if(structure->canRedeed())
+			{				
+				//update the deeds attributes and set the new owner id (owners inventory = characterid +1)
+				StructureManagerAsyncContainer* asyncContainer;
+				asyncContainer = new StructureManagerAsyncContainer(Structure_UpdateStructureDeed, 0);
+				asyncContainer->mPlayerId = structure->getOwner();
+				int8 sql[150];
+				sprintf(sql,"select sf_DefaultHarvesterUpdateDeed(%"PRIu64",%"PRIu64")", structure->getId(),structure->getOwner()+1);
+				mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
+
+			}
+			else
+			//delete the deed
+			{
+				int8 sql[200];
+				sprintf(sql,"DELETE FROM items WHERE parent_id = %"PRIu64" AND item_family = 15",structure->getId());
+				mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
+			}
+
 			gObjectFactory->deleteObjectFromDB(structure);
 			gMessageLib->sendDestroyObject_InRangeofObject(structure);
 			gWorldManager->destroyObject(structure);
+			UpdateCharacterLots(structure->getOwner());
 
 		}
 
@@ -1196,7 +1335,7 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 			gMessageLib->sendDataTransform(structure);
 
 			gMessageLib->sendConstructionComplete(player,structure);
-
+			
 
 		}
 
@@ -1583,7 +1722,27 @@ bool StructureManager::_handleStructureDBCheck(uint64 callTime, void* ref)
 
 	StructureManagerAsyncContainer* asyncContainer;
 	asyncContainer = new StructureManagerAsyncContainer(Structure_GetInactiveHarvesters, 0);
-	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT h.ID, s.condition FROM harvesters h INNER JOIN structures s ON (h.ID = s.ID) WHERE active = 0");
+	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT h.ID, s.condition FROM harvesters h INNER JOIN structures s ON (h.ID = s.ID) WHERE active = 0 AND s.zone = %u", gWorldManager->getZoneId());
+
+	asyncContainer = new StructureManagerAsyncContainer(Structure_GetDestructionStructures, 0);
+	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT h.ID, s.condition FROM harvesters h INNER JOIN structures s ON (h.ID = s.ID) WHERE active = 0 AND( s.condition >= 1000) AND s.zone = %u", gWorldManager->getZoneId());
 
 	return (true);
+}
+
+
+//==========================================================================================0
+//asynchronously updates the lot count of a player
+void StructureManager::UpdateCharacterLots(uint64 charId)
+{
+	PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(charId));
+
+	if(!player)
+		return;
+
+	StructureManagerAsyncContainer* asyncContainer;
+	asyncContainer = new StructureManagerAsyncContainer(Structure_UpdateCharacterLots, 0);
+	asyncContainer->mPlayerId = charId;
+
+	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sf_getLotCount(%I64u)",charId);
 }

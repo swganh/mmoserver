@@ -15,6 +15,27 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Utils/EventHandler.h"
 
 
+struct SampleNode
+{
+	Anh_Math::Vector3	Position;
+	uint32				zone;
+	CurrentResource*	resource;
+	SurveyTool*			tool;
+
+	uint64				mNextSampleTime;
+
+	bool				mPassRadioactive;
+	bool				mPendingSample;
+	bool				mPendingSurvey;
+	
+	
+	bool				mSampleEventFlag;
+	bool				mSampleGambleFlag;
+	bool				mSampleNodeFlag;
+	bool				mSampleNodeRecovery;
+
+};
+
 //======================================================================================================================
 
 class SampleEvent : public Anh_Utils::Event

@@ -533,7 +533,7 @@ void MissionManager::missionRequest(PlayerObject* player, uint64 mission_id)
 	}
 
 	//Accept the mission let the player know
-	gMessageLib->sendPlayMusicMessage(3887,player); //3887, 'sound/music_mission_accepted.snd'
+	gMessageLib->sendPlayMusicMessage(WMSound_Mission_Accepted,player); //3887, 'sound/music_mission_accepted.snd'
 	gMessageLib->sendMISO_Delta(updater,player);
 
 	mission->sendAttributes(mission->getOwner());

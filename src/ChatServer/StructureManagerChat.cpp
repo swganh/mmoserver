@@ -71,12 +71,17 @@ StructureManagerChatHandler::StructureManagerChatHandler(Database* database, Mes
 	//move to Handle dispatch message at some time
 	uint32 ServerTimeInterval = 1;
 
-    std::tr1::shared_ptr<Timer> hopper_timer(new Timer(SRMTimer_CheckHarvesterHopper,this,ServerTimeInterval*1000,NULL));
+	//TODO
+
+	//implement configmanager in the chatserver
+
+    std::tr1::shared_ptr<Timer> hopper_timer(new Timer(SRMTimer_CheckHarvesterHopper,this,1000,NULL));
+	std::tr1::shared_ptr<Timer> maintenance_timer(new Timer(SRMTimer_CheckHarvesterMaintenance,this,18000*1000,NULL));
     //std::tr1::shared_ptr<Timer> tick_preserve_timer(new Timer(CMTimer_TickPreserve,this,ServerTimeInterval*10000,NULL));
     //std::tr1::shared_ptr<Timer> check_auctions_timer(new Timer(CMTimer_CheckAuctions,this,ServerTimeInterval*10000,NULL));
 
     mTimers.push_back(hopper_timer);
-    //mTimers.push_back(tick_preserve_timer);
+    mTimers.push_back(maintenance_timer);
     //mTimers.push_back(check_auctions_timer);
     
 }
@@ -159,6 +164,7 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
 	switch(asynContainer->mQueryType)
 	{
 		
+
 		//=================================================
 		//
 		//the structures condition reached zero
@@ -425,7 +431,9 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
 			if(exitCode > 3)
 			{
 				//unspecified db error
-				gLogger->logMsgF("StructureManagerChat::HarvesterMaintenanceUsage %I64u unspecified db error",MSG_HIGH,asynContainer->harvesterID);
+				//gLogger->logMsgF("StructureManagerChat::HarvesterMaintenanceUsage %I64u unspecified db error",MSG_HIGH,asynContainer->harvesterID);
+				
+				//most likely the structure reached condition zero and awaits destruction
 			}
 			
 
@@ -502,6 +510,35 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
 		}
 		break;
 
+		case STRMQuery_MaintenanceUpdate:
+		{
+			uint64 harvesterID;
+			DataBinding* binding = mDatabase->CreateDataBinding(1);
+			binding->addField(DFT_uint64,0,8);
+
+			uint64 count;
+			count = result->getRowCount();
+
+			for(uint64 i=0;i <count;i++)
+			{
+				result->GetNextRow(binding,&harvesterID);
+
+				int8 sql[100];
+
+				// then use maintenance
+				sprintf(sql,"SELECT sf_HarvesterUseMaintenance(%I64u)",harvesterID);
+				StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(STRMQuery_DoneHarvesterMaintenance,0);
+				asyncContainer->harvesterID = harvesterID;
+				//gLogger->logMsgF("StructureManagerChatHandler:: %s",MSG_NORMAL,sql);
+				
+				mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
+
+			}
+			
+			mDatabase->DestroyDataBinding(binding);
+		}
+		break;
+
 		case STRMQuery_HopperUpdate:
 		{
 			uint64 harvesterID;
@@ -524,16 +561,6 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
 				//gLogger->logMsgF("StructureManagerChatHandler:: %s",MSG_NORMAL,sql);
 				
 				mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
-
-
-				// then use maintenance
-				sprintf(sql,"SELECT sf_HarvesterUseMaintenance(%I64u)",harvesterID);
-				asyncContainer = new StructureManagerAsyncContainer(STRMQuery_DoneHarvesterMaintenance,0);
-				asyncContainer->harvesterID = harvesterID;
-				//gLogger->logMsgF("StructureManagerChatHandler:: %s",MSG_NORMAL,sql);
-				
-				mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
-
 
 				//now harvest
 				sprintf(sql,"SELECT sf_HarvestResource(%I64u)",harvesterID);
@@ -588,10 +615,18 @@ void StructureManagerChatHandler::processTimerEvents()
 
 		switch(id)
 		{			
+			//handles the harvesters Maintenance updates
+			case SRMTimer_CheckHarvesterMaintenance:
+			{
+				handleCheckHarvesterMaintenance();
+			}
+			break;
+
+			//handles the harvesters hopper and power -updates
 			case SRMTimer_CheckHarvesterHopper:
-				{
+			{
 				handleCheckHarvesterHopper();
-				}
+			}
 			break;
 
 			default:
@@ -615,6 +650,23 @@ void StructureManagerChatHandler::handleCheckHarvesterHopper()
 
 	int8 sql[100];
 	sprintf(sql,"SELECT h.ID FROM harvesters h WHERE h.active > 0 ");
+	
+	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
+
+}
+
+//=======================================================================================================================
+//
+// iterates through the list of hoppers we need to update on a regular basis
+// and reads the relevant resource data - then sends it to the client
+//
+void StructureManagerChatHandler::handleCheckHarvesterMaintenance()
+{
+
+	StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(STRMQuery_MaintenanceUpdate,0);
+
+	int8 sql[100];
+	sprintf(sql,"SELECT h.ID FROM harvesters h");
 	
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
 

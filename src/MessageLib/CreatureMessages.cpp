@@ -369,10 +369,8 @@ bool MessageLib::sendBaselinesCREO_6(CreatureObject* creatureObject,PlayerObject
 	if(!(targetObject->isConnected()))
 		return(false);
 
-	Message*		message;
-	uint32			byteCount;
-	uint32			cSize			= 0;
 	Ham*			creatureHam		= creatureObject->getHam();
+	
 	// Test ERU
 	// If no mood is set, use neutral for avatar / npc, then they will look less angry as default.
 	// This will NOT affect the chat-mood
@@ -382,52 +380,17 @@ bool MessageLib::sendBaselinesCREO_6(CreatureObject* creatureObject,PlayerObject
 	{
 		moodId = 74;
 	}
+	
 	string			moodStr			= gWorldManager->getMood(moodId);
 
 	ObjectList*		equippedObjects = creatureObject->getEquipManager()->getEquippedObjects();
 	ObjectIDList*	defenders		= creatureObject->getDefenders();
 
-	// add customization string size of equipped objects
 	ObjectList::iterator eqIt = equippedObjects->begin();
 
-	while(eqIt != equippedObjects->end())
-	{
-		if(TangibleObject* object = dynamic_cast<TangibleObject*>(*eqIt))
-		{
-			cSize += object->getCustomizationStr().getLength();
-		}
-		else if(CreatureObject* pet = dynamic_cast<CreatureObject*>(*eqIt))
-		{
-			cSize += pet->getCustomizationStr().getLength();
-		}
-
-		++eqIt;
-	}
-
-	// persistent npc don't need all hambars
-	if(creatureObject->getCreoGroup() == CreoGroup_PersistentNpc)
-	{
-		byteCount = 148;
-	}
-	else if(creatureObject->getCreoGroup() == CreoGroup_Vehicle)
-	{
-		//vehicles don't need ham bars
-		byteCount = 100;
-	}
-	else
-	{
-		byteCount = 172;
-	}
-
-	byteCount += cSize;
-
+	
 	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opBaselinesMessage);
-	gMessageFactory->addUint64(creatureObject->getId());
-	gMessageFactory->addUint32(opCREO);
-	gMessageFactory->addUint8(6);
 
-	gMessageFactory->addUint32(byteCount + (defenders->size() * 8) + (equippedObjects->size() * 18) + moodStr.getLength() + creatureObject->getCurrentAnimation().getLength());
 	gMessageFactory->addUint16(22);
 
 	gMessageFactory->addUint32(creatureObject->getSubZoneId());
@@ -599,9 +562,22 @@ bool MessageLib::sendBaselinesCREO_6(CreatureObject* creatureObject,PlayerObject
 
 	gMessageFactory->addUint16(0); // unknown
 	gMessageFactory->addUint8(0);  // extra byte that was needed to correct movement
-	message = gMessageFactory->EndMessage();
 
-	(targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5);
+   	Message* data = gMessageFactory->EndMessage();
+
+
+	//Now the Message header
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opBaselinesMessage);
+	gMessageFactory->addUint64(creatureObject->getId());
+	gMessageFactory->addUint32(opCREO);
+	gMessageFactory->addUint8(6);
+
+	gMessageFactory->addUint32(data->getSize());
+	gMessageFactory->addData(data->getData(),data->getSize());
+	data->setPendingDelete(true);
+
+	(targetObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 5);
 
 	return(true);
 }

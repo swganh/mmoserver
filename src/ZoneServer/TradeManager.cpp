@@ -257,7 +257,8 @@ void TradeManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				DataBinding* binding = mDatabase->CreateDataBinding(1);
 				binding->addField(DFT_uint32,0,4);
 				result->GetNextRow(binding,&error);
-				if (error == 0){
+				if (error == 0)
+				{
 
 					//proceed as normal our transaction has been a success
 					asynContainer->player1->getTrade()->processTradeListPostTransaction();
@@ -625,8 +626,8 @@ void TradeManager::_processDeductMoneyMessage(Message* message,DispatchClient* c
 
 //=======================================================================================================================
 // send by the chatserver to have us create the item we just received from the vendor
-// we still need to figure out how to handle the inventory issue
-//   probably just set movement down
+// ?????
+// 
 void TradeManager::_processCreateItemMessage(Message* message,DispatchClient* client)
 {
 	uint64			PlayerID		= message->getUint64();

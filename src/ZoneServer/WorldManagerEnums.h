@@ -90,5 +90,20 @@ enum WMTimer
 
 //======================================================================================================================
 
+//======================================================================================================================
+//
+// Sound Ids
+//
+enum WMSound
+{
+	WMSound_Eat_Human_Female		= 1803,
+	WMSound_Eat_Human_Male			= 1822,
+	WMSound_Drink_Human_Female		= 1146,
+	WMSound_Drink_Human_Male		= 2286,
+	WMSound_Mission_Accepted		= 3887
+
+};
+
+
 #endif
 

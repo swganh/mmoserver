@@ -23,8 +23,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 //================================================================================
 
-UIMessageBox::UIMessageBox(UICallback* callback,uint32 id,uint8 windowType,const int8* eventStr,const int8* caption,const int8* text,PlayerObject* playerObject,uint8 mbType)
-: UIWindow(callback,id,windowType,"Script.messageBox",eventStr),mMBType(mbType)
+UIMessageBox::UIMessageBox(UICallback* callback,uint32 id,uint8 windowType,const int8* eventStr,const int8* caption,const int8* text,PlayerObject* playerObject,uint8 mbType, void* container)
+: UIWindow(callback,id,windowType,"Script.messageBox",eventStr, container),mMBType(mbType)
 {
 	mOwner		= playerObject;
 	mCaption	= caption;

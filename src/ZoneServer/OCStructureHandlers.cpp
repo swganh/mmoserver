@@ -159,7 +159,6 @@ void ObjectController::_handleStructurePlacement(uint64 targetId,Message* messag
 
 	//TODO
 	//still have to check the region whether were allowed to build
-	//still have to remove the deed out of the inventory (assign to harvester)
 
 	switch(deed->getItemType())
 	{

@@ -25,6 +25,12 @@ class Database;
 class DatabaseCallback;
 class DatabaseResult;
 class DataBinding;
+class UIWindow;
+
+namespace Anh_Utils
+{
+    class Clock;
+}
 
 typedef struct tagResourceLocation
 {
@@ -53,7 +59,7 @@ class RCMAsyncContainer
 };
 
 //======================================================================================================================
-class ResourceCollectionManager : public DatabaseCallback
+class ResourceCollectionManager : public DatabaseCallback,public  UICallback
 {
 	public:
 
@@ -78,6 +84,7 @@ class ResourceCollectionManager : public DatabaseCallback
 
 		ResourceCollectionManager(Database* database);
 
+		void									handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window);
 		void									_setupDatabindings();
 		void									_destroyDatabindings();
 

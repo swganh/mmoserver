@@ -131,10 +131,12 @@ public:
 	void				sendDisableHudElement(PlayerObject* playerObject, string hudElement);
 
 	// client effects
-	bool				sendPlayClientEffectObjectMessage(string effect,string location,PlayerObject* targetObject);
+	bool				sendPlayClientEffectObjectMessage(string effect,string location, Object* targetObject);
+	//bool				sendPlayClientEffectObjectMessage(string effect,string location,PlayerObject* targetObject);
 	bool				sendPlayClientEffectObjectMessage(string effect,string location,PlayerObject* originObject,CreatureObject* targetObject);
 	bool				sendPlayClientEffectObjectMessage(string effect,string location, CreatureObject* targetObject);
 	bool				sendPlayClientEffectLocMessage(string effect,Anh_Math::Vector3 pos,PlayerObject* targetObject);
+	bool				sendPlayClientEffectObjectMessage(string effect,string location, Object* targetObject, PlayerObject* player);
 
 	// position updates
 	void				sendUpdateTransformMessage(MovingObject* object);
@@ -375,8 +377,10 @@ public:
 	void				sendHarvesterChatHopperUpdate(HarvesterObject* harvester, PlayerObject* player, uint8 update);
 	void				SendHarvesterHopperUpdate(HarvesterObject* harvester, PlayerObject* player);
 	void				sendResourceEmptyHopperResponse(PlayerStructure* structure,PlayerObject* player, uint32 amount, uint8 b1, uint8 b2);
+	void				sendCurrentConditionUpdate(HarvesterObject* harvester);
 
 	void				sendConstructionComplete(PlayerObject* playerObject, PlayerStructure* Structure);
+	void				SendUpdateHarvesterWorkAnimation(HarvesterObject* harvester);
 
 	// Installation Messages
 	bool				sendBaselinesINSO_3(PlayerStructure* structure,PlayerObject* player);

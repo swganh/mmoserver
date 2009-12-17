@@ -733,24 +733,6 @@ bool MessageLib::sendUpdateCellPermissionMessage(CellObject* cellObject,uint8 pe
 // play a clienteffect
 //
 
-bool MessageLib::sendPlayClientEffectObjectMessage(string effect,string location,PlayerObject* targetObject)
-{
-	if(!(targetObject->isConnected()))
-		return(false);
-
-	gMessageFactory->StartMessage();   
-	gMessageFactory->addUint32(opPlayClientEffectObjectMessage);
-	gMessageFactory->addString(effect);
-	gMessageFactory->addString(location);
-	gMessageFactory->addUint64(targetObject->getId());
-	gMessageFactory->addUint16(0); 
-
-	_sendToInRange(gMessageFactory->EndMessage(),targetObject,8,true);		
-	//(targetObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 5);
-
-	return(true);
-}
-
 bool MessageLib::sendPlayClientEffectObjectMessage(string effect,string location,PlayerObject* originObject,CreatureObject* targetObject)
 {
 	if(!(originObject->isConnected()))
@@ -786,6 +768,48 @@ bool MessageLib::sendPlayClientEffectObjectMessage(string effect,string location
 
 	_sendToInRange(gMessageFactory->EndMessage(),targetObject,8,false);		
 	//(targetObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 5);
+
+	return(true);
+}
+
+
+bool MessageLib::sendPlayClientEffectObjectMessage(string effect,string location, Object* targetObject)
+{
+	// No need to restrict this function for PlayerObject* only.
+
+	// We use getKnownPlayers() when we send this.
+	// if(!(originObject->isConnected()))
+	// 	return(false);
+
+	gMessageFactory->StartMessage();   
+	gMessageFactory->addUint32(opPlayClientEffectObjectMessage);
+	gMessageFactory->addString(effect);
+	gMessageFactory->addString(location);
+	gMessageFactory->addUint64(targetObject->getId());
+	gMessageFactory->addUint16(0); 
+
+	_sendToInRange(gMessageFactory->EndMessage(),targetObject,8,false);		
+	//(targetObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 5);
+
+	return(true);
+}
+
+bool MessageLib::sendPlayClientEffectObjectMessage(string effect,string location, Object* targetObject, PlayerObject* player)
+{
+	// No need to restrict this function for PlayerObject* only.
+
+	 if(!(player->isConnected()))
+	 	return(false);
+
+	gMessageFactory->StartMessage();   
+	gMessageFactory->addUint32(opPlayClientEffectObjectMessage);
+	gMessageFactory->addString(effect);
+	gMessageFactory->addString(location);
+	gMessageFactory->addUint64(targetObject->getId());
+	gMessageFactory->addUint16(0); 
+
+	//_sendToInRange(gMessageFactory->EndMessage(),targetObject,8,false);		
+	(player->getClient())->SendChannelA(gMessageFactory->EndMessage(), player->getAccountId(), CR_Client, 5);
 
 	return(true);
 }

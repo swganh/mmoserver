@@ -97,6 +97,8 @@ Inventory::~Inventory()
 
 void Inventory::removeObject(Object* object)
 {
+	assert(object);
+
 	ObjectList::iterator it = mObjects.begin();
 	while(it != mObjects.end())
 	{
@@ -161,7 +163,7 @@ void Inventory::removeEquippedObject(Object* object)
 }
 
 //=============================================================================
-
+//deletes the object out of the inventories Objectmap
 void Inventory::deleteObject(Object* object)
 {
 	ObjectList::iterator it = mObjects.begin();

@@ -16,7 +16,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 //================================================================================
 
-UIWindow::UIWindow(UICallback* callback,uint32 id,uint8 windowType,const string windowTypeStr,const int8* eventStr)
+UIWindow::UIWindow(UICallback* callback,uint32 id,uint8 windowType,const string windowTypeStr,const int8* eventStr, void* container)
 : UIElement(id,SUI_Element_Window)
 , mWindowTypeStr(windowTypeStr)
 , mUICallback(callback)
@@ -24,6 +24,7 @@ UIWindow::UIWindow(UICallback* callback,uint32 id,uint8 windowType,const string 
 {
 	mEventStr = eventStr;
 	mChildElements.reserve(5);
+	mContainer = container;
 }
 
 //================================================================================

@@ -410,7 +410,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
 			uint8 maxLots = gWorldConfig->getConfiguration("Player_Max_Lots",(uint8)10);
 
 			maxLots -= static_cast<uint8>(lotCount);
-			playerObject->setPlayerLots((uint8)maxLots);
+			playerObject->setLots((uint8)maxLots);
 			gLogger->logMsgF("PlayerObjectFactory: %I64u has %u lots remaining",MSG_HIGH,playerObject->getId(),maxLots);
 
 			mDatabase->DestroyDataBinding(binding);

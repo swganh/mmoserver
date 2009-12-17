@@ -15,8 +15,10 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "ObjectControllerCommandMap.h"
 #include "PlayerObject.h"
 #include "ResourceManager.h"
+#include "ResourceType.h"
 #include "SurveyTool.h"
 #include "UIManager.h"
+#include "Heightmap.h"
 #include "WorldConfig.h"
 #include "WorldManager.h"
 #include "MessageLib/MessageLib.h"
@@ -91,12 +93,27 @@ void ObjectController::_handleRequestCoreSample(uint64 targetId,Message* message
 {
 	PlayerObject*		playerObject = dynamic_cast<PlayerObject*>(mObject);
 
+
+
 	// don't allow sampling in buildings
 	if(playerObject->getParentId())
 	{
 		gMessageLib->sendSystemMessage(playerObject,L"","error_message","survey_in_structure");
 		return;
 	}
+
+	if(Heightmap::Instance()->hasWater(playerObject->mPosition.mX,playerObject->mPosition.mZ))
+	{
+		gMessageLib->sendSystemMessage(playerObject,L"","error_message","survey_swimming");
+		return;
+	}
+
+	if(playerObject->getPerformingState() != PlayerPerformance_None)
+	{
+		gMessageLib->sendSystemMessage(playerObject,L"","error_message","sample_cancel");
+		return;
+	}
+
 	uint64 localTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
 	if(!playerObject->getNextSampleTime() || (int32)(playerObject->getNextSampleTime() - localTime) <= 0)
 	{
@@ -120,6 +137,12 @@ void ObjectController::_handleRequestCoreSample(uint64 targetId,Message* message
 
 	if(resource == NULL || tool == NULL)
 		return;
+
+	if((resource->getType()->getCategoryId() == 903)||(resource->getType()->getCategoryId() == 904))
+	{
+		gMessageLib->sendSystemMessage(playerObject,L"","survey","must_have_harvester");
+		return;
+	}
 
 	// put us into sampling mode
 	playerObject->setSamplingState(true);

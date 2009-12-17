@@ -116,14 +116,15 @@ class PlayerObject : public CreatureObject
 		void				setJediState(uint32 js){ mJediState = js; }
 
 		// survey
-		bool				getSurveyState(){ return mPendingSurvey; }
-		void				setSurveyState(bool state){ mPendingSurvey = state; }
+		bool				getSurveyState(){ return mSampleNode.mPendingSurvey; }
+		void				setSurveyState(bool state){ mSampleNode.mPendingSurvey = state; }
 
 		// sample
-		bool				getSamplingState(){ return mPendingSample; }
-		void				setSamplingState(bool state){ mPendingSample = state; }
-		uint64				getNextSampleTime(){ return mNextSampleTime; }
-		void				setNextSampleTime(uint64 time){ mNextSampleTime = time; }
+		bool				getSamplingState(){ return mSampleNode.mPendingSample; }
+		void				setSamplingState(bool state){ mSampleNode.mPendingSample = state; }
+		uint64				getNextSampleTime(){ return mSampleNode.mNextSampleTime; }
+		void				setNextSampleTime(uint64 time){ mSampleNode.mNextSampleTime = time; }
+		SampleNode*			getSampleData(){return &mSampleNode;}
 
 		// Charsheet
 		uint32				getPlayerMatch(uint8 num){ return mPlayerMatch[num]; }
@@ -149,9 +150,6 @@ class PlayerObject : public CreatureObject
 
 		void				setMarriage(const string marriage){ mMarriage = marriage; }
 		string				getMarriage(){ return mMarriage; }
-
-		uint8				getLots(){ return mLots; }
-		void				setLots(uint8 lots){ mLots = lots; }
 
 		uint32				getBornyear(){ return mBornyear; }
 		void				setBornyear(uint32 bornyear){ mBornyear = bornyear; }
@@ -313,11 +311,12 @@ class PlayerObject : public CreatureObject
 		void				newPlayerMessage(void);
 
 		//Lots
-		uint8				getPlayerLots(){return mLots;}
-		void				setPlayerLots(uint8 set){mLots = set;}
-		bool				checkPlayerLots(uint8 check){int16 intCheck = mLots -check;return (intCheck>=0);}
-		bool				usePlayerLots(uint8 usedLots);
-		bool				regainPlayerLots(uint8 lots);
+		uint8				getLots(){ return mLots; }
+		void				setLots(uint8 lots){ mLots = lots; }
+		
+		bool				checkLots(uint8 check){int16 intCheck = mLots -check;return (intCheck>=0);}
+		bool				useLots(uint8 usedLots);
+		bool				regainLots(uint8 lots);
 		
 		void				setStructurePermissionId(uint64 id){mPermissionId = id;}
 		uint64				getStructurePermissionId(){return mPermissionId;}
@@ -371,18 +370,24 @@ class PlayerObject : public CreatureObject
 		uint32				mPlayerMatch[4];
 
 		BazaarTerminal*     mBazaarPoint;
-		DispatchClient*			mClient;
-		CraftingSession*		mCraftingSession;
-		CreatureObject*			mMount;
-		BuildingObject*			mNearestCloningFacility; // Default cloningfacility if revied timer expires.
-		Stomach*						mStomach;
-		Trade*							mTrade;
-		TravelTerminal*			mTravelPoint;
-		Tutorial*						mTutorial;
+		DispatchClient*		mClient;
+		CraftingSession*	mCraftingSession;
+		CreatureObject*		mMount;
+							
+		// Default cloningfacility if revive timer expires.
+		BuildingObject*		mNearestCloningFacility; 
+		Stomach*			mStomach;
+		Trade*				mTrade;
+		TravelTerminal*		mTravelPoint;
+		Tutorial*			mTutorial;
+
+		//the data for the sample node game
+		SampleNode			mSampleNode;
 
 		PlayerConnState		mConnState;
 
-		IDSession			mIDSession; //logs whether weve got an IDsession running at this point
+		//logs whether weve got an IDsession running at this point
+		IDSession			mIDSession; 
 
 		uint64				mCombatTargetId; // The actual target player are hitting, not always the same as the "look-at" target.
 		uint64				mEntertainerPauseId;
@@ -390,7 +395,6 @@ class PlayerObject : public CreatureObject
 		uint64				mEntertainerWatchToId;
 		uint64				mLastGroupMissionUpdateTime;
 		uint64				mNearestCraftingStation;
-		uint64				mNextSampleTime;
 		uint64				mPlacedInstrument;
 		uint64				mPlayerObjId;
 		uint64				mPreDesignatedCloningFacilityId;
@@ -429,12 +433,7 @@ class PlayerObject : public CreatureObject
 		bool				mMountCalled;
 		bool				mMounted;
 		bool				mNewPlayerMessage;
-		bool				mPassRadioactive;//rav
-		bool				mPendingSample;
-		bool				mPendingSurvey;
-		bool				mSampleEventFlag;//rav
-		bool				mSampleGambleFlag;//rav
-		bool				mSampleNodeFlag;//rav
+		
 		bool				mTrading;
 };
 

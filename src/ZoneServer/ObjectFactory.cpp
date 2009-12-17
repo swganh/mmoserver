@@ -20,7 +20,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "ManufacturingSchematic.h"
 #include "ObjectFactoryCallback.h"
 #include "PlayerObject.h"
+#include "Inventory.h"
 #include "PlayerObjectFactory.h"
+#include "MessageLib/MessageLib.h"
 #include "RegionFactory.h"
 #include "ResourceManager.h"
 #include "StructureManager.h"
@@ -105,6 +107,28 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				mHarvesterFactory->requestObject(asyncContainer->ofCallback,requestId,0,0,asyncContainer->client);
 
 				//now we need to update the Owners Lots
+				PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asyncContainer->OwnerId));
+					
+				//cave he might have logged out already - even if thats *very* unlikely (heck of a query that would have been)
+				if(player)
+				{
+					gStructureManager->UpdateCharacterLots(asyncContainer->OwnerId);
+					Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+					Deed* deed = dynamic_cast<Deed*>(inventory->getObjectById(asyncContainer->DeedId));
+					
+					//destroy it in the client
+					gMessageLib->sendDestroyObject(asyncContainer->DeedId,player);
+		
+					//delete it out of the inventory
+					inventory->deleteObject(deed);
+		
+
+				}
+				
+				// now we need to link the deed to the harvester in the db and remove it out of the inventory
+				int8 sql[250];
+				sprintf(sql,"UPDATE items SET parent_id = %I64u WHERE id = %"PRIu64"",requestId, asyncContainer->DeedId);
+				mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
 			}
 			else
 				gLogger->logMsg("ObjFactory::handleDatabaseJobComplete   :  create Harvester failed");
@@ -475,6 +499,12 @@ void ObjectFactory::deleteObjectFromDB(Object* object)
 			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
 
 			//update attributes cave redeed vs destroy
+			sprintf(sql,"DELETE FROM structure_attributes WHERE Structure_id = %"PRIu64"",object->getId());
+			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
+
+			//update hopper contents
+			sprintf(sql,"DELETE FROM harvester_resources WHERE ID = %"PRIu64"",object->getId());
+			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
 
 		}
 		break;

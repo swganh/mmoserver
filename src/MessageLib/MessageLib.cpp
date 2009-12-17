@@ -716,9 +716,14 @@ bool MessageLib::sendCreateHarvester(HarvesterObject* harvester,PlayerObject* pl
 
 	sendBaselinesHINO_3(harvester,player);
 	sendBaselinesHINO_6(harvester,player);
+	sendBaselinesHINO_7(harvester,player);
 
 
 	sendEndBaselines(harvester->getId(),player);
+
+	//int8 effectStr[400];
+	//sprintf(effectStr,"clienteffect/lair_med_damage_smoke.cef");
+	//sendPlayClientEffectObjectMessage(effectStr,"",harvester,player);
 
 	return(true);
 }

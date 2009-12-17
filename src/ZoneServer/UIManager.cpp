@@ -136,11 +136,11 @@ void UIManager::_processEventNotification(Message* message,DispatchClient* clien
 // create a message box
 //
 
-void UIManager::createNewMessageBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* text,PlayerObject* playerObject,ui_window_types windowType,uint8 mbType)
+void UIManager::createNewMessageBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* text,PlayerObject* playerObject,ui_window_types windowType,uint8 mbType, void* container)
 {
 	uint32 mbId = _getFreeId();
 
-	UIMessageBox* messageBox =  new UIMessageBox(callback,mbId,windowType,eventStr,caption,text,playerObject,mbType);
+	UIMessageBox* messageBox =  new UIMessageBox(callback,mbId,windowType,eventStr,caption,text,playerObject,mbType,container);
 
 	mUIWindows.insert(mbId,messageBox);
 	playerObject->addUIWindow(mbId);

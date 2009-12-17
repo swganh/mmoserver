@@ -148,6 +148,15 @@ void Food::handleFoodUse(Object* srcObject)
 		foodBuff->AddAttribute(foodAttribute);	
 		playerObject->AddBuff(foodBuff,true);
 
+		if(playerObject->getGender())
+		{
+			gMessageLib->sendPlayMusicMessage(WMSound_Eat_Human_Female,playerObject);
+		}
+		else
+		{
+			gMessageLib->sendPlayMusicMessage(WMSound_Eat_Human_Male,playerObject);
+		}
+
 	}
 
 	if(this->hasAttribute("stomach_drink"))
@@ -168,6 +177,15 @@ void Food::handleFoodUse(Object* srcObject)
 		Buff* foodBuff = Buff::SimpleBuff(playerObject, playerObject, 300000, 0, gWorldManager->GetCurrentGlobalTick());
 		foodBuff->AddAttribute(foodAttribute);	
 		playerObject->AddBuff(foodBuff,true);
+		
+		if(playerObject->getGender())
+		{
+			gMessageLib->sendPlayMusicMessage(WMSound_Drink_Human_Female,playerObject);
+		}
+		else
+		{
+			gMessageLib->sendPlayMusicMessage(WMSound_Drink_Human_Male,playerObject);
+		}
 
 	}
 

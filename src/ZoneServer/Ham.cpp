@@ -405,6 +405,7 @@ void Ham::updatePropertyValue(uint8 barIndex,uint8 valueIndex,int32 propertyDelt
 		break;
 
 		case HamProperty_Modifier:
+
 			if(mHamBars[barIndex]->updateModifiedHitpoints(propertyDelta) && sendUpdate)
 			{
 				gMessageLib->sendMaxHitpointDeltasCreo6_Single(mParent, barIndex);

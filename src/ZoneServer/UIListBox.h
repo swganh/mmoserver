@@ -22,7 +22,7 @@ class UIListBox : public UIWindow
 {
 	public:
 
-		UIListBox(UICallback* callback,uint32 id,uint8 windowType,const int8* eventStr,const int8* caption,const int8* prompt,const BStringVector dataItems,PlayerObject* playerObject,uint8 lbType = SUI_LB_OK);
+		UIListBox(UICallback* callback,uint32 id,uint8 windowType,const int8* eventStr,const int8* caption,const int8* prompt,const BStringVector dataItems,PlayerObject* playerObject,uint8 lbType = SUI_LB_OK, void* container = NULL);
 		virtual ~UIListBox();
 
 		BStringVector*	getDataItems(){ return &mDataItems; }

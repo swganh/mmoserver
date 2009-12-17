@@ -153,11 +153,11 @@ void UIManager::createNewMessageBox(UICallback* callback,const int8* eventStr,co
 // create a listbox
 //
 
-void UIManager::createNewListBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* prompt,const BStringVector dataItems,PlayerObject* playerObject,ui_window_types windowType,uint8 lbType)
+void UIManager::createNewListBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* prompt,const BStringVector dataItems,PlayerObject* playerObject,ui_window_types windowType,uint8 lbType, void* container)
 {
 	uint32 lbId = _getFreeId();
 
-	UIListBox* listBox =  new UIListBox(callback,lbId,windowType,eventStr,caption,prompt,dataItems,playerObject,lbType);
+	UIListBox* listBox =  new UIListBox(callback,lbId,windowType,eventStr,caption,prompt,dataItems,playerObject,lbType, container);
 
 	mUIWindows.insert(lbId,listBox);
 	playerObject->addUIWindow(lbId);

@@ -115,9 +115,15 @@ uint8 HamProperty::updateCurrentHitpoints(int32 hp,bool damage)
 //===============================================================
 bool HamProperty::updateModifiedHitpoints(int32 hp)
 {
+
+	//make sure we dont get negative hitpoints
+	if((mMaxHitPoints -mWounds -mEncumbrance + hp) < 1)
+		hp = (mMaxHitPoints -mWounds -mEncumbrance) -1;
+
+	//make sure we dont get useless updates they upset our updatecounters
 	if(hp==0)
 		return false;
-
+					 
 	//hp is the delta
 	mModifier += hp;
 	mMaxHitPoints += hp;

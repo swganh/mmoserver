@@ -17,6 +17,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "ResourceContainer.h"
 #include "ResourceCollectionManager.h"
 #include "ResourceType.h"
+#include "Buff.h"
 #include "UIEnums.h"
 #include "UIManager.h"
 #include "Heightmap.h"
@@ -45,6 +46,32 @@ void PlayerObject::onSurvey(const SurveyEvent* event)
 	{
 		Datapad*			datapad			= dynamic_cast<Datapad*>(mEquipManager.getEquippedObject(CreatureEquipSlot_Datapad));
 		ResourceLocation	highestDist		= gMessageLib->sendSurveyMessage(tool->getInternalAttribute<uint16>("survey_range"),tool->getInternalAttribute<uint16>("survey_points"),resource,this);
+
+		uint32 mindCost = gResourceCollectionManager->surveyMindCost;
+
+		//are we able to sample in the first place ??
+		if(!mHam.checkMainPools(0,0,mindCost))
+		{
+			
+			int32 myMind = mHam.mAction.getCurrentHitPoints();		
+			
+			//return message for sampling cancel based on HAM
+			if(myMind < (int32)mindCost)
+			{
+				gMessageLib->sendSystemMessage(this,L"","error_message","sample_mind");
+			}
+
+			//message for stop sampling
+			gMessageLib->sendSystemMessage(this,L"","survey","sample_cancel");
+
+			getSampleData()->mPendingSurvey = false;
+
+			mHam.updateRegenRates();
+			updateMovementProperties();
+			return;
+		}
+
+		mHam.updatePropertyValue(HamBar_Mind,HamProperty_CurrentHitpoints, -(int)mindCost);
 
 		// this is 0, if resource is not located
 		if(highestDist.position.mY == 5.0)
@@ -114,6 +141,37 @@ void PlayerObject::onSample(const SampleEvent* event)
 	}
 
 
+	uint32 actionCost = gResourceCollectionManager->sampleActionCost;
+
+	if(!mHam.checkMainPools(0,actionCost,0))
+	{
+	
+		int32 myAction = mHam.mAction.getCurrentHitPoints();		
+		
+		//return message for sampling cancel based on HAM
+		if(myAction < (int32)actionCost)
+		{
+			gMessageLib->sendSystemMessage(this,L"","error_message","sample_mind");
+		}
+
+		//message for stop sampling
+		gMessageLib->sendSystemMessage(this,L"","survey","sample_cancel");
+
+
+		getSampleData()->mPendingSample	= false;
+		mPosture		= CreaturePosture_Upright;
+
+		mHam.updateRegenRates();
+		updateMovementProperties();
+
+		gMessageLib->sendUpdateMovementProperties(this);
+		gMessageLib->sendPostureAndStateUpdate(this);
+		gMessageLib->sendSelfPostureUpdate(this);
+
+		return;
+	}
+
+
 	string					effect			= gWorldManager->getClientEffect(tool->getInternalAttribute<uint32>("sample_effect"));
 	bool					foundSameType	= false;
 	float					ratio			= (resource->getDistribution((int)mPosition.mX + 8192,(int)mPosition.mZ + 8192));
@@ -158,15 +216,26 @@ void PlayerObject::onSample(const SampleEvent* event)
 		{
 			//wound and BF dmg
 			mHam.updateBattleFatigue(bfDmg);
-			mHam.updatePropertyValue(HamBar_Health,HamProperty_Wounds, woundDmg); //does not function
+			mHam.updatePropertyValue(HamBar_Health,HamProperty_Wounds, woundDmg); 
 			mHam.updatePropertyValue(HamBar_Action,HamProperty_Wounds, woundDmg);
 			mHam.updatePropertyValue(HamBar_Mind,HamProperty_Wounds, woundDmg);
 		}
 		
 		//this should be a timed debuff per instance -- Do not cause wounds unless potential energy >= 500?
-		mHam.updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints,hamReduc,true);
-		mHam.updatePropertyValue(HamBar_Health,HamProperty_CurrentHitpoints,hamReduc,true); //does not function
-		gLogger->logMsgF("applied ham costs H/A w/ reduc: %u", MSG_NORMAL, hamReduc);
+		
+		BuffAttribute* healthdebuffAttribute = new BuffAttribute(Health, -(int)hamReduc,0,hamReduc); 
+		Buff* healthdebuff = Buff::SimpleBuff(this, this, 300000, 0, gWorldManager->GetCurrentGlobalTick());
+		healthdebuff->AddAttribute(healthdebuffAttribute);	
+		this->AddBuff(healthdebuff,true);
+
+		healthdebuffAttribute = new BuffAttribute(Action, -(int)hamReduc,0,hamReduc); 
+		healthdebuff = Buff::SimpleBuff(this, this, 300000, 0, gWorldManager->GetCurrentGlobalTick());
+		healthdebuff->AddAttribute(healthdebuffAttribute);	
+		this->AddBuff(healthdebuff,true);
+
+		//mHam.updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints,-hamReduc,true);
+		//mHam.updatePropertyValue(HamBar_Health,HamProperty_CurrentHitpoints,-hamReduc,true); 
+		//gLogger->logMsgF("applied ham costs H/A w/ reduc: %u", MSG_NORMAL, hamReduc);
 	
 	}
 
@@ -221,6 +290,7 @@ void PlayerObject::onSample(const SampleEvent* event)
 		dieRoll = 100;
 	}
 
+	//dieRoll = 92;
 	if(ratio_100 >= minConcentration)
 	{
 		// Bug fix -- were saying we found something, then not saying we didn't if the die roll was a failure.
@@ -239,6 +309,7 @@ void PlayerObject::onSample(const SampleEvent* event)
 		{
 			//EVENT WINDOW CASE
 			int32 eventRoll = int(gRandom->getRand()%2)+1;
+			//eventRoll = 1;
 			//do event 1 or event 2 based on roll
 			if(eventRoll == 1)
 			{
@@ -249,7 +320,10 @@ void PlayerObject::onSample(const SampleEvent* event)
 				asyncContainer->CurrentResource	= resource;
 
 				//TODO: Change UI integration
-				gUIManager->createNewMessageBox(gResourceCollectionManager,"gambleSample","@survey:gnode_t","@survey:gnode_d",this,SUI_Window_SmplGamble_ListBox,SUI_MB_OK,asyncContainer);
+				BStringVector items;
+				items.push_back("Ignore the concentration and continue working.");
+				items.push_back("Attempt to recover the resources. (300 Action)");
+				gUIManager->createNewListBox(gResourceCollectionManager,"gambleSample","@survey:gnode_t","@survey:gnode_d",items,this,SUI_Window_SmplGamble_ListBox,SUI_LB_OKCANCEL,asyncContainer);
 			
 				getSampleData()->mPendingSample = false;
 				return;
@@ -386,8 +460,6 @@ void PlayerObject::onSample(const SampleEvent* event)
 	}
 
 	// check our ham and keep sampling
-
-	uint32 actionCost = gResourceCollectionManager->sampleActionCost;
 	
 	if(getSampleData()->mSampleNodeRecovery)
 		actionCost = gResourceCollectionManager->sampleActionCost*2;

@@ -497,7 +497,7 @@ void CreatureObject::AddBuff(Buff* buff,  bool stackable, bool overwrite)
 		if(player != 0)
 		{
 			//gMessageLib->sendSystemMessage(player, "You appear to have attempted to stack Buffs. The server has prevented this");
-			gLogger->logMsg("Attempt to duplicate buffs prevented.\n");
+			gLogger->logMsg("Attempt to duplicate buffs prevented.");
 		}
 		SAFE_DELETE(buff);
 		return;

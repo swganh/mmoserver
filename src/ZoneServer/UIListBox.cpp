@@ -21,8 +21,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 //================================================================================
 
-UIListBox::UIListBox(UICallback* callback,uint32 id,uint8 windowType,const int8* eventStr,const int8* caption,const int8* prompt,const BStringVector dataItems,PlayerObject* playerObject,uint8 lbType)
-: UIWindow(callback,id,windowType,"Script.listBox",eventStr),mLbType(lbType)
+UIListBox::UIListBox(UICallback* callback,uint32 id,uint8 windowType,const int8* eventStr,const int8* caption,const int8* prompt,const BStringVector dataItems,PlayerObject* playerObject,uint8 lbType, void* container)
+: UIWindow(callback,id,windowType,"Script.listBox",eventStr,container),mLbType(lbType)
 {
 	mOwner		= playerObject;
 	mCaption	= caption;

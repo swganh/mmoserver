@@ -46,6 +46,9 @@ private:
 };
 
 
+// Buffs might make problems in cases were we modify a debuff of the ham in the ham object in order to prevent the ham from getting negativ
+// we still need mechanisms there to prevent the debuff from restoring the full amount of ham in these cases
+
 class Buff
 {
 	friend class CreatureObject;

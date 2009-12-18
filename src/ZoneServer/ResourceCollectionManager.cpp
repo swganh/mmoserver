@@ -209,46 +209,71 @@ void ResourceCollectionManager::handleUIEvent(uint32 action,int32 element,string
 		{
 			if(action == 1)
 			{
-				player->getSampleData()->mPendingSample = true;
+				player->getSampleData()->mPendingSample = false;
 				player->getSampleData()->mSampleGambleFlag = false;
+				player->setPosture(CreaturePosture_Upright);
+				gMessageLib->sendUpdateMovementProperties(player);
+				gMessageLib->sendPostureAndStateUpdate(player);
+				gMessageLib->sendSelfPostureUpdate(player);
+				return;
 
-				//TODO:invoke sample action
-				if(ham->checkMainPools(0,sampleActionCost,0))
-				{
-					SurveyTool*			tool		= dynamic_cast<SurveyTool*>(inventory->getObjectById(asyncContainer->ToolId));
-					CurrentResource*	resource	= (CurrentResource*)asyncContainer->CurrentResource;
-					player->getSampleData()->mNextSampleTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 30000;
-					player->getController()->addEvent(new SampleEvent(tool,resource),10000);
-				}
 			}
 			else
 			{
-				gLogger->logMsg("sampling gamble box action != 1 (chance?)");
-				//action costs
-				ham->updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints,300,true);
-				player->getSampleData()->mPendingSample = true;
-
-				//determine whether gamble is good or not
-				int32 gambleRoll = int(gRandom->getRand()%2) + 1;
-
-				if(gambleRoll == 1)
+				if(element == 0)
 				{
-					player->getSampleData()->mSampleEventFlag = true;
-					player->getSampleData()->mSampleGambleFlag = true;
+					player->getSampleData()->mPendingSample = true;
+					player->getSampleData()->mSampleGambleFlag = false;
+
+					//TODO:invoke sample action
+					if(ham->checkMainPools(0,sampleActionCost,0))
+					{
+						SurveyTool*			tool		= dynamic_cast<SurveyTool*>(inventory->getObjectById(asyncContainer->ToolId));
+						CurrentResource*	resource	= (CurrentResource*)asyncContainer->CurrentResource;
+						player->getSampleData()->mNextSampleTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 30000;
+						player->getController()->addEvent(new SampleEvent(tool,resource),10000);
+					}
 				}
 				else
 				{
-					player->getSampleData()->mSampleEventFlag = false;
-					player->getSampleData()->mSampleGambleFlag = false;
-				}
+					gLogger->logMsg("sampling gamble box ... gamble");
+					//action costs
+					if(!ham->checkMainPools(0,sampleActionCost*2,0))
+					{
+						player->setPosture(CreaturePosture_Upright);
+						gMessageLib->sendUpdateMovementProperties(player);
+						gMessageLib->sendPostureAndStateUpdate(player);
+						gMessageLib->sendSelfPostureUpdate(player);
+						player->getSampleData()->mSampleEventFlag = false;
+						player->getSampleData()->mSampleGambleFlag = false;
+						gMessageLib->sendSystemMessage(player,L"","survey","gamble_no_action");
+						return;
+					}
+					ham->updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints,300,true);
+					player->getSampleData()->mPendingSample = true;
 
-				//TODO:invoke sample action
-				if(ham->checkMainPools(0,sampleActionCost,0))
-				{
+					//determine whether gamble is good or not
+					int32 gambleRoll = int(gRandom->getRand()%2) + 1;
+
+					if(gambleRoll == 1)
+					{
+						player->getSampleData()->mSampleEventFlag = true;
+						player->getSampleData()->mSampleGambleFlag = true;
+					}
+					else
+					{
+						player->getSampleData()->mSampleEventFlag = false;
+						player->getSampleData()->mSampleGambleFlag = false;
+						gMessageLib->sendSystemMessage(player,L"","survey","gamble_fail");
+					}
+
+					//TODO:invoke sample action
+				
 					SurveyTool*			tool		= dynamic_cast<SurveyTool*>(inventory->getObjectById(asyncContainer->ToolId));
 					CurrentResource*	resource	= (CurrentResource*)asyncContainer->CurrentResource;
-					player->getSampleData()->mNextSampleTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 30000;
-					player->getController()->addEvent(new SampleEvent(tool,resource),10000);
+					player->getSampleData()->mNextSampleTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 5000;
+					player->getController()->addEvent(new SampleEvent(tool,resource),5000);
+					
 				}
 			}
 		}

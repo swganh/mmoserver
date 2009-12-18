@@ -282,15 +282,16 @@ void PlayerObject::onSample(const SampleEvent* event)
 
 	}
 
+	//dieRoll = 92;
 	//If previous call triggered a sample event, set the roll to ensure critical success
 	if(getSampleData()->mSampleEventFlag == true)
 	{
+		getSampleData()->mSampleEventFlag = false;
 		//set so a critical success happens -- A critical failure can also happen.  In either case, this took a significant amount of action (300 points???)
 		// This appears to have been what the commented out gambling code below was supposed to do.
 		dieRoll = 100;
 	}
 
-	//dieRoll = 92;
 	if(ratio_100 >= minConcentration)
 	{
 		// Bug fix -- were saying we found something, then not saying we didn't if the die roll was a failure.
@@ -350,17 +351,29 @@ void PlayerObject::onSample(const SampleEvent* event)
 		else
 		{
 			successSample = true;
-			if(dieRoll = 200) 
+			if(dieRoll == 200) 
 			{
 				sampleAmount = (static_cast<uint32>(3*maxSample));
 				gMessageLib->sendSystemMessage(this,L"","survey","node_recovery");
+				getSampleData()->mSampleEventFlag = false;
+				getSampleData()->mSampleNodeFlag = false;
 			}
 			else
 			if(dieRoll >= 96) 
 			{
+				if(getSampleData()->mSampleGambleFlag)
+				{
+					gMessageLib->sendSystemMessage(this,L"","survey","gamble_success");
+					sampleAmount = (static_cast<uint32>(3*maxSample));
+					getSampleData()->mSampleGambleFlag = false;
+					getSampleData()->mSampleEventFlag = false;
+				}
+				else
+				{
 				//CRITICAL SUCCESS
-				sampleAmount = (static_cast<uint32>(2*maxSample));
-				gMessageLib->sendSystemMessage(this,L"","survey","critical_success","","",resName);
+					sampleAmount = (static_cast<uint32>(2*maxSample));
+					gMessageLib->sendSystemMessage(this,L"","survey","critical_success","","",resName);
+				}
 			} 
 			else 
 			{

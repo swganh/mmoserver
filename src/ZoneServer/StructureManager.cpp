@@ -208,8 +208,9 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 				PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(sd.id));
 				if(structure)
 				{
+					gLogger->logMsgF("StructureManager::delete structure due to zero condition %I64u",MSG_NORMAL,structure->getId());
 					//delete the deed in the db
-					//the parent is the streucture and the item family is 15
+					//the parent is the structure and the item family is 15
 					int8 sql[100];
 					sprintf(sql,"DELETE FROM items WHERE parent_id = %"PRIu64" AND item_family = 15",structure->getId());
 					mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
@@ -1205,6 +1206,7 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 		if(!structure)
 		{
 			gLogger->logMsg("StructureManager::_handleStructureObjectTimers: No structure");
+			it = objectList->erase(it);
 			continue;
 		}
 
@@ -1220,7 +1222,8 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById( structure->getTTS()->playerId ));
 			if(!player)
 			{
-				break;
+				it = objectList->erase(it);
+				continue;
 			}
 
 			HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(structure);
@@ -1228,6 +1231,7 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 			if(!harvester)
 			{
 				gLogger->logMsg("StructureManager::_handleStructureObjectTimers: No structure");
+				it = objectList->erase(it);
 				continue;
 			}
 
@@ -1303,7 +1307,8 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 				gMessageLib->sendDestroyObject_InRangeofObject(fence);
 				gWorldManager->destroyObject(fence);
 				gWorldManager->handleObjectReady(structure,player->getClient());
-
+				it = objectList->erase(it);
+				continue;
 
 				return false;
 			}
@@ -1311,6 +1316,8 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 			if(!fence)
 			{
 				gLogger->logMsg("StructureManager::_handleStructureObjectTimers: No fence");
+				it = objectList->erase(it);
+				continue;
 				return false;
 			}
 
@@ -1341,7 +1348,7 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 
 
 		it = objectList->erase(it);
-		//it = objectList->begin();
+	
 	}
 
 	return (false);

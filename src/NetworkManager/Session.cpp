@@ -25,6 +25,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 #include "Common/MessageFactory.h"
 
+#include <boost/thread/thread.hpp>
+
 #include "Utils/rand.h"
 #include "Utils/utils.h"
 
@@ -111,9 +113,9 @@ lowest(0)
 
 Session::~Session(void)
 {					  
-	//gLogger->logMsgF("Session::~Session ",MSG_HIGH,this->getId());
+	gLogger->logMsgF("Session::~Session ",MSG_HIGH,this->getId());
 	Message* message = 0;
-
+	
     boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
     while(!mOutgoingMessageQueue.empty())
@@ -230,7 +232,8 @@ void Session::ProcessWriteThread(void)
   if(mSendDelayedAck)
   {
 	
-	  boost::recursive_mutex::scoped_lock lk(mSessionMutex);//			   
+	  //addoutgoing packet is already locking
+	// boost::recursive_mutex::scoped_lock lk(mSessionMutex);//			   
     //please note that we push it directly on the packet queue it wont be build as unreliable and wont end up in a 00 03
     // clear our send flag
     mSendDelayedAck = false;
@@ -395,7 +398,7 @@ void Session::ProcessWriteThread(void)
     if ((Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastPacketReceived) > 30000)
     {
 
-		gLogger->logMsgF("Session disconnect last received packet > 30 (%u) seconds session Id :%u", MSG_HIGH, t, this->getId());   
+		gLogger->logMsgF("Session disconnect last received packet > 30 (%I64u) seconds session Id :%u", MSG_HIGH, t, this->getId());   
  
       mCommand = SCOM_Disconnect;
     }
@@ -854,6 +857,13 @@ Message* Session::getIncomingQueueMessage()
 //======================================================================================================================
 void Session::_processSessionRequestPacket(Packet* packet)
 {   
+	// one problem of the bots is that we might get an IP port combination several times
+	if(mStatus > SSTAT_Connected)
+	{
+		gLogger->logMsgF("IP Port given multiple times ??",MSG_HIGH);
+		return;
+	}
+
   // retrieve our request id.
   packet->getUint32();                      // Unknown
   mRequestId = packet->getUint32();         // Request id.
@@ -1359,7 +1369,7 @@ void Session::_processDataChannelAck(Packet* packet)
 	packet->setReadIndex(2);  //skip the header
 	uint16 sequence = ntohs(packet->getUint16());
 
-	//gLogger->logMsgF("Received ACK  - Sequence: %u, Session:0x%x%.4x", MSG_HIGH, sequence, mService->getId(), getId());
+	gLogger->logMsgF("Received ACK  - Sequence: %u, Session:0x%x%.4x", MSG_HIGH, sequence, mService->getId(), getId());
 
     boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 	uint32 pDel = 0;

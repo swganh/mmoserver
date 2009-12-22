@@ -82,6 +82,12 @@ enum HarvesterFamily
 
 };
 
+enum FactoryFamily
+{
+	FactoryFamily_None						= 0,
+
+};
+
 
 #endif
 

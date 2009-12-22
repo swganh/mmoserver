@@ -102,6 +102,10 @@ void SocketReadThread::Startup(SOCKET socket, SocketWriteThread* writeThread, Se
 	// start our thread
     boost::thread t(std::tr1::bind(&SocketReadThread::run, this));
     mThread = boost::move(t);
+
+	HANDLE th =  mThread.native_handle();
+	SetPriorityClass(th,REALTIME_PRIORITY_CLASS);	
+	
 }
 
 //======================================================================================================================
@@ -227,8 +231,8 @@ void SocketReadThread::run(void)
 
 			// TODO: Implement an IP blacklist so we can drop packets immediately.
 
-            boost::recursive_mutex::scoped_lock lk(mSocketReadMutex);
-
+            //boost::recursive_mutex::scoped_lock lk(mSocketReadMutex);
+			//reading should be threadsafe ????
 			AddressSessionMap::iterator i = mAddressSessionMap.find(hash);
 
 			if(i != mAddressSessionMap.end())
@@ -240,7 +244,7 @@ void SocketReadThread::run(void)
 				// We should only be creating a new session if it's a session request packet
 				if(packetType == SESSIONOP_SessionRequest)
 				{
-					gLogger->logMsgF("new Service ",MSG_HIGH);
+					gLogger->logMsgF("new Session ",MSG_HIGH);
 					session = mSessionFactory->CreateSession();
 					session->setSocketReadThread(this);
 					session->setPacketFactory(mPacketFactory);
@@ -249,6 +253,7 @@ void SocketReadThread::run(void)
 					session->setResendWindowSize(mSessionResendWindowSize);
 
 					// Insert the session into our address map and process list
+					boost::recursive_mutex::scoped_lock lk(mSocketReadMutex);
 					mAddressSessionMap.insert(std::make_pair(hash, session));
 					mSocketWriteThread->NewSession(session);
 
@@ -262,7 +267,7 @@ void SocketReadThread::run(void)
 				}
 			}
 
-			lk.unlock();
+			//lk.unlock();
 
 			// I don't like any of the code below, but it's going to take me a bit to work out a good way to handle decompression
 			// and decryption.  It's dependent on session layer protocol information, which should not be looked at here.  Should
@@ -270,7 +275,7 @@ void SocketReadThread::run(void)
 			// Set the size of the packet
 
 			// Validate our date header.  If it's not a valid header, drop it.
-
+		 /*
 			if(session->getStatus() > SSTAT_Connected)
 			{
 				gLogger->logMsgF("*** Session in the process of being disconnected status : %u", MSG_NORMAL,session->getStatus());
@@ -284,6 +289,7 @@ void SocketReadThread::run(void)
 				}
 				continue;
 			}
+			*/
 			if(packetType > 0x00ff && (packetType & 0x00ff) == 0 && session != NULL)
 			{
 				switch(packetType)
@@ -487,11 +493,11 @@ void SocketReadThread::RemoveAndDestroySession(Session* session)
 	if(iter != mAddressSessionMap.end())
 	{
 		mAddressSessionMap.erase(iter);
-		gLogger->logMsgF("Service %i: Removing Session(%s, %u), AddressMap: %i hash %u",MSG_NORMAL,mSessionFactory->getService()->getId(), inet_ntoa(*((in_addr*)(&hash))), ntohs(session->getPort()), mAddressSessionMap.size(),hash);
+		gLogger->logMsgF("Service %i: Removing Session(%s, %u), AddressMap: %i hash %I64u",MSG_NORMAL,mSessionFactory->getService()->getId(), inet_ntoa(*((in_addr*)(&hash))), ntohs(session->getPort()), mAddressSessionMap.size(),hash);
 		mSessionFactory->DestroySession(session);
 	}
 	else
-		gLogger->logMsgF("Service %i: Removing Session FAILED(%s, %u), AddressMap: %i hash %u",MSG_NORMAL,mSessionFactory->getService()->getId(), inet_ntoa(*((in_addr*)(&hash))), ntohs(session->getPort()), mAddressSessionMap.size(),hash);
+		gLogger->logMsgF("Service %i: Removing Session FAILED(%s, %u), AddressMap: %i hash %I64u",MSG_NORMAL,mSessionFactory->getService()->getId(), inet_ntoa(*((in_addr*)(&hash))), ntohs(session->getPort()), mAddressSessionMap.size(),hash);
 
 	// why the %*/&+ is this not finding the session ? it completely legitimately finds it in the run() ???
 }

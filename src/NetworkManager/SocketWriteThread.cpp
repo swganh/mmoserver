@@ -88,7 +88,19 @@ void SocketWriteThread::Startup(SOCKET socket, Service* service, bool serverserv
 
 	// start our thread
     boost::thread t(std::tr1::bind(&SocketWriteThread::run, this));
-    mThread = boost::move(t);
+
+	mThread = boost::move(t);
+
+	HANDLE th =  mThread.native_handle();
+	SetPriorityClass(th,REALTIME_PRIORITY_CLASS);	
+
+	//HANDLE thread = t->native_handle();
+	//boost::this_thread::
+//	boost::this_thread::SetPriorityClass();
+	//HANDLE th = boost::thread::native_handle();
+	
+	//HANDLE th = boost::this_thread::native_handle();
+	//SetPriorityClass(th,REALTIME_PRIORITY_CLASS);	
 
 	lasttime =   Anh_Utils::Clock::getSingleton()->getLocalTime();
 	unCount = 	reCount = 0;
@@ -156,9 +168,6 @@ void SocketWriteThread::run()
 			//	ucount++;
 				packet = session->getOutgoingUnreliablePacket();
 				_sendPacket(packet, session);
-
-				//accessing the packetpool actually seems to crash regularly when we have a high load (around 150 bots in one bigger spot)
-				//might it make sense to put it on a session queue for later deletion in the session to avoid threading issues?
 				session->DestroyPacket(packet);
 			}
 

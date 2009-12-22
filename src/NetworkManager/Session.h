@@ -19,6 +19,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Utils/typedefs.h"
 
 #include <boost/thread/recursive_mutex.hpp>
+#include <boost/thread/thread.hpp>
 
 #include <list>
 #include <queue>

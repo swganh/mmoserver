@@ -485,7 +485,7 @@ void ObjectFactory::deleteObjectFromDB(Object* object)
 		}
 		break;
 
-		case ObjType_Harvester:
+		case ObjType_Structure:
 		{
 			//Harvester
 			sprintf(sql,"DELETE FROM structures WHERE ID = %"PRIu64"",object->getId());

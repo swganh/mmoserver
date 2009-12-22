@@ -1038,7 +1038,7 @@ void MessageLib::sendCreateObject(Object* object,PlayerObject* player,bool sendS
 		break;
 
 		// buildings
-		case ObjType_Harvester:
+		case ObjType_Structure:
 		{
 			// skip, if its static
 #if defined(_MSC_VER)

@@ -172,7 +172,7 @@ void HarvesterFactory::_createHarvester(DatabaseResult* result, HarvesterObject*
 	result->GetNextRow(mHarvesterBinding,harvester);
 
 	harvester->setLoadState(LoadState_Loaded);
-	harvester->setType(ObjType_Structure);
+	harvester->setType(ObjType_Harvester);
 	harvester->mCustomName.convert(BSTRType_Unicode16);
 }
 

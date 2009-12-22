@@ -40,8 +40,8 @@ enum ObjectType
 	ObjType_Waypoint			=	512,
 	ObjType_Region				=	1024,
 	ObjType_NonPersistant		=	2048,
-	ObjType_Harvester			=	4096,
-	//ObjType_Camp				=	8192,
+	ObjType_Structure			=	4096,
+	
 	ObjType_Intangible			=	16384
 
 	//might it make sense to put them together to object type structure ?

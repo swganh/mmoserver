@@ -197,7 +197,7 @@ void CellFactory::handleObjectReady(Object* object,DispatchClient* client)
 		case ObjType_Building:
 		case ObjType_Cell:
 		case ObjType_DraftSchematic:
-		case ObjType_Harvester:
+		case ObjType_Structure:
 		case ObjType_Intangible:
 		case ObjType_Lair:
 		case ObjType_Mission:

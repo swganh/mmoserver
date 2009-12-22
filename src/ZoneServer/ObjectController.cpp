@@ -289,6 +289,9 @@ bool ObjectController::_processCommandQueue()
 		// No, no, my smartass....We HAVE to handle normal command messages as fast as possible.
 		assert(cmdMsg);
 
+		// we might need to execute the command directly if it is part of the combat queue
+		// and our queue execution timer permits it
+		// or it is not part of the combat queue and can be executed directly in any case
 		if ((mNextCommandExecution <= currentTime) || !cmdMsg->getCmdProperties()->mAddToCombatQueue)
 		{
 			if (cmdMsg->getCmdProperties()->mAddToCombatQueue)
@@ -493,8 +496,6 @@ bool ObjectController::_processCommandQueue()
 		}
 		else
 		{
-			Message*	message		= cmdMsg->getData();	// Be aware, internally created messages are NULL (auto-attack)
-			message->mSourceId = 98;
 			// Make it simple, the time was not up yet, just leave, let other instances have the cpu, and handle it the next cycle.
 			break;
 		}

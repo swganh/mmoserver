@@ -994,7 +994,7 @@ void WorldManager::initObjectsInRange(PlayerObject* playerObject)
 {
 	// we still query for players here, cause they are found through the buildings and arent kept in a qtree
 	ObjectSet inRangeObjects;
-	mSpatialIndex->getObjectsInRange(playerObject,&inRangeObjects,(ObjType_Player | ObjType_Tangible | ObjType_NPC | ObjType_Creature | ObjType_Building| ObjType_Harvester),gWorldConfig->getPlayerViewingRange());
+	mSpatialIndex->getObjectsInRange(playerObject,&inRangeObjects,(ObjType_Player | ObjType_Tangible | ObjType_NPC | ObjType_Creature | ObjType_Building| ObjType_Structure),gWorldConfig->getPlayerViewingRange());
 
 	// query the according qtree, if we are in one
 	if(playerObject->getSubZoneId())
@@ -2500,7 +2500,7 @@ bool WorldManager::addObject(Object* object,bool manual)
 		}
 		break;
 
-		case ObjType_Harvester:
+		case ObjType_Structure:
 		{
 		//	HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(object);
 			mSpatialIndex->InsertPoint(key,object->mPosition.mX,object->mPosition.mZ);
@@ -2726,7 +2726,7 @@ void WorldManager::destroyObject(Object* object)
 		}
 		break;
 
-		case ObjType_Harvester:
+		case ObjType_Structure:
 		{
 			// cave what do we do with player cities ??
 			// then the parent Id should be the region object. shouldnt it????

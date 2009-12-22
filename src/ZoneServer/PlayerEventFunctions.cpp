@@ -305,12 +305,11 @@ void PlayerObject::onSample(const SampleEvent* event)
 			gMessageLib->sendSystemMessage(this,L"","survey","sample_failed","","",resName);
 		}
 
-		//TODO: removed this code for now, as you would have to dcon and rcon to work with the gambles
 		else if((dieRoll > 91)&&(dieRoll < 96))
 		{
 			//EVENT WINDOW CASE
 			int32 eventRoll = int(gRandom->getRand()%2)+1;
-			//eventRoll = 1;
+			//eventRoll = 2;
 			//do event 1 or event 2 based on roll
 			if(eventRoll == 1)
 			{
@@ -339,7 +338,11 @@ void PlayerObject::onSample(const SampleEvent* event)
 				//string waypConcentrationChoices = "Tune device to concentration.";
 				//waypConcentrationChoices.convert(BSTRType_Unicode16);
 				//WAYP CONCENTRATION
-				gUIManager->createNewMessageBox(gResourceCollectionManager,"waypNodeSample","@survey:cnode_t","@survey:cnode_d",this,SUI_Window_SmplWaypNode_ListBox,SUI_MB_OK,asyncContainer);
+				BStringVector items;
+				items.push_back("Ignore the concentration and continue working.");
+				items.push_back("Focus the device on the concentration");
+				//gUIManager->createNewListBox(gResourceCollectionManager,"gambleSample","@survey:gnode_t","@survey:gnode_d",items,this,SUI_Window_SmplGamble_ListBox,SUI_LB_OKCANCEL,asyncContainer);
+				gUIManager->createNewListBox(gResourceCollectionManager,"waypNodeSample","@survey:cnode_t","@survey:cnode_d",items,this,SUI_Window_SmplWaypNode_ListBox,SUI_LB_OKCANCEL,asyncContainer);
 		
 				//Pause sampling
 				getSampleData()->mPendingSample = false;

@@ -1036,6 +1036,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\FactoryObject.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\FactoryObject.h"
+					>
+				</File>
+				<File
 					RelativePath=".\HarvesterObject.cpp"
 					>
 				</File>

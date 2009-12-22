@@ -21,6 +21,7 @@ void NetworkClient::SendChannelA(Message* message, uint8 priority, bool fastpath
 { 
   message->setPriority(priority);
   message->setFastpath(fastpath);
+  message->mSession = mSession;
 
  
   return mSession->SendChannelA(message);

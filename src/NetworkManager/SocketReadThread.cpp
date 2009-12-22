@@ -104,7 +104,9 @@ void SocketReadThread::Startup(SOCKET socket, SocketWriteThread* writeThread, Se
     mThread = boost::move(t);
 
 	HANDLE th =  mThread.native_handle();
-	SetPriorityClass(th,REALTIME_PRIORITY_CLASS);	
+	//SetPriorityClass(th,REALTIME_PRIORITY_CLASS);	
+	SetPriorityClass(th,NORMAL_PRIORITY_CLASS);	
+	
 	
 }
 
@@ -178,7 +180,7 @@ void SocketReadThread::run(void)
 
 		// We're going to block for 250ms.
 		tv.tv_sec   = 0;
-		tv.tv_usec  = 5;
+		tv.tv_usec  = 50;
 
 		count = select(mSocket, &socketSet, 0, 0, &tv);
 
@@ -458,7 +460,7 @@ void SocketReadThread::run(void)
 			}
 		}
 		
-        boost::this_thread::sleep(boost::posix_time::milliseconds(1));
+		boost::this_thread::sleep(boost::posix_time::microseconds(10));
 	}
 
 	// Shutdown internally

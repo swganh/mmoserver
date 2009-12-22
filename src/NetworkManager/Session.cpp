@@ -125,15 +125,17 @@ Session::~Session(void)
 
       // We're done with this message.
 	  message->setPendingDelete(true);
+	  message->mSession = NULL;
     }
 
 	while(!mIncomingMessageQueue.empty())
 	{
 		message = mIncomingMessageQueue.front();
-		mIncomingMessageQueue.pop();
+		mIncomingMessageQueue.pop();//is this actually calling the messages destructor ?
 
 		// We're done with this message.
 		message->setPendingDelete(true);
+		message->mSession = NULL;
 	}
 
 	while(!mUnreliableMessageQueue.empty())
@@ -143,6 +145,7 @@ Session::~Session(void)
 
 		// We're done with this message.
 		message->setPendingDelete(true);
+		message->mSession = NULL;
 	}
 
 	while(!mMultiMessageQueue.empty())
@@ -152,6 +155,7 @@ Session::~Session(void)
 
 		// We're done with this message.
 		message->setPendingDelete(true);
+		message->mSession = NULL;
 	}
 
 
@@ -162,6 +166,7 @@ Session::~Session(void)
 
 		// We're done with this message.
 		message->setPendingDelete(true);
+		message->mSession = NULL;
 	}
 
 	while(!mMultiUnreliableQueue.empty())
@@ -171,6 +176,7 @@ Session::~Session(void)
 
 		// We're done with this message.
 		message->setPendingDelete(true);
+		message->mSession = NULL;
 	}
 	
 		
@@ -1369,7 +1375,7 @@ void Session::_processDataChannelAck(Packet* packet)
 	packet->setReadIndex(2);  //skip the header
 	uint16 sequence = ntohs(packet->getUint16());
 
-	gLogger->logMsgF("Received ACK  - Sequence: %u, Session:0x%x%.4x", MSG_HIGH, sequence, mService->getId(), getId());
+	//gLogger->logMsgF("Received ACK  - Sequence: %u, Session:0x%x%.4x", MSG_HIGH, sequence, mService->getId(), getId());
 
     boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 	uint32 pDel = 0;

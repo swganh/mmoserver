@@ -65,6 +65,8 @@ class MessageFactory
 
 		void                    _processGarbageCollection(void);
 		void                    _adjustHeapStartBounds(uint32 size);
+		//make sure our messageclass size is put inside heap bounds
+		void					_adjustMessageStart(uint32 size);
 		void                    _adjustHeapEndBounds(uint32 size);
 		uint32                  _getHeapSize(void);
 

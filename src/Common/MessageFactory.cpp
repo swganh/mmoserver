@@ -105,7 +105,7 @@ void MessageFactory::Process(void)
 }
 
 //======================================================================================================================
-
+// important is, that the size of the message class is not nuking our heap bounds! 
 void MessageFactory::StartMessage(void)
 {
 	// Do some garbage collection if we can.
@@ -119,10 +119,10 @@ void MessageFactory::StartMessage(void)
 	mCurrentMessageEnd = mCurrentMessageStart;
 
 	// Adjust start bounds if necessary.
-	_adjustHeapStartBounds(sizeof(Message));
+	_adjustMessageStart(sizeof(Message));
 
 	mCurrentMessage = new(mCurrentMessageStart) Message();
-	mCurrentMessageEnd = mHeapStart + sizeof(Message);
+	mCurrentMessageEnd = mCurrentMessageStart + sizeof(Message);
 }
 
 //======================================================================================================================
@@ -333,7 +333,7 @@ void MessageFactory::addString(const char* cstring)
 	BString str;
 	str = cstring;
 	addString(str);
-return;
+//return;
 }
 //======================================================================================================================
 
@@ -342,7 +342,7 @@ void MessageFactory::addString(const unsigned short* ustring)
 	BString ustr;
 	ustr = ustring;
 	addString(ustr);
-return;
+//return;
 }
 //======================================================================================================================
 
@@ -582,6 +582,48 @@ void MessageFactory::_adjustHeapStartBounds(uint32 size)
 		mCurrentMessageEnd		= mMessageHeap + messageSize;
 
 		mCurrentMessage->setData(mMessageHeap + sizeof(Message));
+
+		gLogger->logMsgF("Heap Rollover Service %u STATS: MessageHeap - size: %u, maxUsed: %2.2f%, created: %u, destroyed: %u\n", MSG_HIGH, mServiceId,heapSize, mMaxHeapUsedPercent, mMessagesCreated, mMessagesDestroyed);
+	}
+}
+
+// the trouble is, that if we start a new Message we need to check whether the size of the message class is still inside the heap bounds.
+// However mCurrentMessage is 0 at that point
+void MessageFactory::_adjustMessageStart(uint32 size)
+{
+	// Are we going to overflow our heap?
+	uint32 heapSize = _getHeapSize();
+
+	// _getHeapSize() returns the size of already constructed packets,
+	// but NOT the parts we already have been added for THIS message under construction.
+
+	uint32 messageSize = (mCurrentMessageEnd - mCurrentMessageStart);
+
+	//assert(mHeapTotalSize > messageSize + heapSize + size);
+ 	assert(mHeapTotalSize > messageSize + heapSize );
+
+	// Check to see if this add is going to push past the heap boundry.
+	if(mCurrentMessageEnd + size > mMessageHeap + mHeapTotalSize)
+	{
+		// We've gone past the end of our heap, copy this message to the front of the heap and continue
+
+		memcpy(mMessageHeap, mCurrentMessageStart, messageSize);
+
+		// Reset our main heap pointer(s)
+		if(mHeapStart == mHeapEnd)
+		{
+			mHeapEnd = mMessageHeap;
+		}
+
+		mHeapStart		= mMessageHeap;
+		mHeapRollover	= mCurrentMessageStart;
+
+		// Reinit our message pointers.
+		mCurrentMessage			= (Message*)mMessageHeap;
+		mCurrentMessageStart	= mMessageHeap;
+		mCurrentMessageEnd		= mMessageHeap + messageSize;
+
+		//mCurrentMessage->setData(mMessageHeap + sizeof(Message));
 
 		gLogger->logMsgF("Heap Rollover Service %u STATS: MessageHeap - size: %u, maxUsed: %2.2f%, created: %u, destroyed: %u\n", MSG_HIGH, mServiceId,heapSize, mMaxHeapUsedPercent, mMessagesCreated, mMessagesDestroyed);
 	}

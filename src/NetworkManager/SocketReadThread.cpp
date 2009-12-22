@@ -104,8 +104,8 @@ void SocketReadThread::Startup(SOCKET socket, SocketWriteThread* writeThread, Se
     mThread = boost::move(t);
 
 	HANDLE th =  mThread.native_handle();
-	//SetPriorityClass(th,REALTIME_PRIORITY_CLASS);	
-	SetPriorityClass(th,NORMAL_PRIORITY_CLASS);	
+	SetPriorityClass(th,REALTIME_PRIORITY_CLASS);	
+	//SetPriorityClass(th,NORMAL_PRIORITY_CLASS);	
 	
 	
 }

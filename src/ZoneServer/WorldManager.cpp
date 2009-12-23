@@ -156,7 +156,6 @@ void WorldManager::Shutdown()
 	// timers
 	delete(mAdminScheduler);
 	delete(mNpcManagerScheduler);
-	delete(mSubsystemScheduler);
 	delete(mObjControllerScheduler);
 	delete(mHamRegenScheduler);
 	delete(mMissionScheduler);
@@ -173,6 +172,10 @@ void WorldManager::Shutdown()
 		// destroying the referenced object seems to invalidate our iterator
 		playerIt = mPlayerAccMap.begin();
 	}
+
+	// we need to destroy that after the (player) objects!
+	// as the playerobjects try to remove the Objectcontroller scheduler and crash us if the scheduler isnt existent anymore
+	delete(mSubsystemScheduler);
 
 	mPlayersToRemove.clear();
 	mRegionMap.clear();

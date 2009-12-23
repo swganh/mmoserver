@@ -43,7 +43,7 @@ class Service
 
 		void	Startup(int8* localAddress, uint16 localPort,uint32 mfHeapSize);
 		void	Shutdown(void);
-		void	Process(uint32 loop);
+		void	Process();
 
 		void	Connect(NetworkClient* client, int8* address, uint16 port);
 

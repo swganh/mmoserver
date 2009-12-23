@@ -466,7 +466,7 @@ void LogManager::logErrorF(const std::string& system, const std::string& msg, Ms
 	if(!mDefaultErrorLog)
 		return;
 	
-//	mGlobalLogMutex.acquire();
+	boost::mutex::scoped_lock lk(mGlobalLogMutex);	
 
 	va_list args;
 	va_start(args, priority);

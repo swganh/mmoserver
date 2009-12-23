@@ -69,8 +69,7 @@ void NetworkManager::Process(void)
 	
 		if(service)
 		{
-			//service->setQueued(false);
-			service->Process(0xff);
+			service->Process();
 			service->setQueued(false);
 		}
 	}

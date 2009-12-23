@@ -167,8 +167,8 @@ T	WorldConfig::getConfiguration(string key, T fallback) const
 			gLogger->logErrorF("configuration","WorldConfig::getConfiguration: cast failed (%s)",MSG_HIGH,key.getAnsi());
 		}
 	}
-	else
-		gLogger->logErrorF("configuration","WorldConfig::getConfiguration: could not find %s - returning fallback",MSG_HIGH,key.getAnsi());
+	//else
+	//	gLogger->logErrorF("configuration","WorldConfig::getConfiguration: could not find %s - returning fallback",MSG_HIGH,key.getAnsi());
 
 	return(T(fallback));
 }

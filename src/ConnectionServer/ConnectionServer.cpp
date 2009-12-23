@@ -184,8 +184,8 @@ void ConnectionServer::Process(void)
 	mDatabaseManager->Process();
 	
 	//we dont want this stalled by the clients!!!
-	mServerService->Process(10);
-	mClientService->Process(30);
+	mServerService->Process();
+	mClientService->Process();
 
 	// Now process our sub modules
 	gMessageFactory->Process();

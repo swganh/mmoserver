@@ -278,7 +278,7 @@ void ZoneServer::Process(void)
 	mMessageDispatch->Process();
 
 	//is there stalling ?
-	mRouterService->Process(0xff);
+	mRouterService->Process();
 
 	//  Process our core services
 	mDatabaseManager->Process();

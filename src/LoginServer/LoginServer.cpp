@@ -120,7 +120,7 @@ void LoginServer::Shutdown(void)
 	delete mNetworkManager;
 	delete mDatabaseManager;
 
-	gLogger->logMsg("LoginServer Shutdown complete\n");
+	gLogger->logMsg("LoginServer Shutdown complete");
 }
 
 

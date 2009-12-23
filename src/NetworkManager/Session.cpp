@@ -329,7 +329,7 @@ void Session::ProcessWriteThread(void)
 
 			
 			// If we've sent our mWindowSizeCurrent of packets, break out and wait for some acks.
-			// make sure we send at least a minimum as we dont wont any stalling
+			// make sure we send at least a minimum as we dont want any stalling
 			if (packetsSent >= mWindowSizeCurrent)
 				break;
 
@@ -386,7 +386,7 @@ void Session::ProcessWriteThread(void)
     }
     case SCOM_Disconnect:
     {
-		//gLogger->logMsgF("handle Session disconnect %u endcount %u", MSG_HIGH, this->getId(),endCount);   
+		gLogger->logMsgF("handle Session disconnect %u endcount %u", MSG_HIGH, this->getId(),endCount);   
       _processDisconnectCommand();      
       break;
     }
@@ -398,23 +398,31 @@ void Session::ProcessWriteThread(void)
   // Process our timeouts.
   if (mStatus == SSTAT_Connected)
   {
-    // If we haven't received a packet in 30s, disconnect us.
+	  // If we haven't received a packet in 30s, disconnect us.
 	  uint64 t = Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastPacketReceived;
-	  t = t/1000;
-    if ((Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastPacketReceived) > 30000)
-    {
-
-		gLogger->logMsgF("Session disconnect last received packet > 30 (%I64u) seconds session Id :%u", MSG_HIGH, t, this->getId());   
+	  t = (uint64)t/1000;
+      if ((Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastPacketReceived) > 30000)
+      {
+		  if(this->mServerService)
+		  {
+				gLogger->logMsgF("Session disconnect last received packet > 30 (%I64u) seconds session Id :%u", MSG_HIGH, t, this->getId());   
+				gLogger->logMsgF("Session lastpacket %I64u now %I64u diff : %I64u", MSG_HIGH, mLastPacketReceived, Anh_Utils::Clock::getSingleton()->getLocalTime(),(Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastPacketReceived));   
+				assert(false);
+		  }
+		  else
+		  {
+			gLogger->logMsgF("Session disconnect last received packet > 30 (%I64u) seconds session Id :%u", MSG_HIGH, t, this->getId());   
  
-      mCommand = SCOM_Disconnect;
-    }
+			mCommand = SCOM_Disconnect;
+		  }
+      }
 
-    // If we haven't sent a packet in over 10 seconds, send a ping
-    if (Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastPacketSent > 10000)
-    {
-      gLogger->logMsgF("Sending ping packet due to timeout. Session:0x%x%.4x", MSG_LOW, mService->getId(), getId());
-      _sendPingPacket();
-    }
+      // If we haven't sent a packet in over 10 seconds, send a ping
+      if (Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastPacketSent > 10000)
+      {
+        gLogger->logMsgF("Sending ping packet due to timeout. Session:0x%x%.4x", MSG_LOW, mService->getId(), getId());
+        _sendPingPacket();
+      }
   }
  
 }
@@ -2222,24 +2230,23 @@ void Session::_processDisconnectCommand(void)
 {
 
 	//gLogger->logMsgF("Session::_processDisconnectCommand",MSG_HIGH);
-  // Set our status and clear the command
-  mStatus = SSTAT_Disconnecting;
-  mCommand = SCOM_None;
+	// Set our status and clear the command
+	mStatus = SSTAT_Disconnecting;
+	mCommand = SCOM_None;
 
-  	gLogger->logMsgF("Session::_processDisconnectCommand ", MSG_HIGH);
-  // Send a disconnect packet
-  Packet* newPacket = mPacketFactory->CreatePacket();
-  newPacket->addUint16(SESSIONOP_Disconnect);
-  newPacket->addUint32(mRequestId);
-  newPacket->addUint16(0x0006);
+	// Send a disconnect packet
+	Packet* newPacket = mPacketFactory->CreatePacket();
+	newPacket->addUint16(SESSIONOP_Disconnect);
+	newPacket->addUint32(mRequestId);
+	newPacket->addUint16(0x0006);
 
-  newPacket->setIsCompressed(false);
-  newPacket->setIsEncrypted(true);
+	newPacket->setIsCompressed(false);
+	newPacket->setIsEncrypted(true);
 
-  mService->AddSessionToProcessQueue(this);
-
-  // Send out packet out.
-  _addOutgoingUnreliablePacket(newPacket);
+	mService->AddSessionToProcessQueue(this);
+	gLogger->logMsgF("Session::_processDisconnectCommand added session to processqueue", MSG_HIGH);
+	// Send out packet out.
+	_addOutgoingUnreliablePacket(newPacket);
 }
 
 

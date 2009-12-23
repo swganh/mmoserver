@@ -512,19 +512,31 @@ void MessageFactory::_processGarbageCollection(void)
 					gLogger->logMsgF("Session status : %u ",MSG_HIGH, session->getStatus());
 					gLogger->hexDump(message->getData(), message->getSize());
 					message->mLogTime  = Anh_Utils::Clock::getSingleton()->getLocalTime();
+					return;
 				}
-
-				if(Anh_Utils::Clock::getSingleton()->getLocalTime() - message->getCreateTime() > MESSAGE_MAX_LIFE_TIME*3)
+				else
+				if(Anh_Utils::Clock::getSingleton()->getLocalTime() - message->getCreateTime() > MESSAGE_MAX_LIFE_TIME*2)
 				{
 					if(session)
 					{
-						session->setCommand(SCOM_Disconnect);
-						gLogger->logErrorF("MessageLayer","MessageFactory::_processGarbageCollection Message Heap TimeOut destroying Session ",MSG_HIGH);
+						// make sure that the status is not set again from Destroy to Disconnecting
+						// otherwise we wont ever get rid of that session
+						if(session->getStatus() < SSTAT_Disconnecting)
+						{
+							session->setCommand(SCOM_Disconnect);
+						 	gLogger->logErrorF("MessageLayer","MessageFactory::_processGarbageCollection Message Heap TimeOut destroying Session ",MSG_HIGH);
+						}
+						if(session->getStatus() == SSTAT_Destroy)
+						{
+						 	gLogger->logErrorF("MessageLayer","MessageFactory::_processGarbageCollection Session about to be destroyed",MSG_HIGH);
+						}
+						return;
 					}
 					else
 					{
 						message->setPendingDelete(true);
 						gLogger->logErrorF("MessageLayer","MessageFactory::_processGarbageCollection Message Heap TimeOut session already destroyed - tagging message as destroyable",MSG_HIGH);
+						return;
 					}
 
 				
@@ -532,15 +544,16 @@ void MessageFactory::_processGarbageCollection(void)
 
 			}
 			else
-				further = false;
+				return;
 
 			time = Anh_Utils::Clock::getSingleton()->getLocalTime();
 		}//Heap start != Heapend
 		else
 		{
-			further = false;
+			return;
 		}
 
+		time = Anh_Utils::Clock::getSingleton()->getLocalTime();
 	}
 
 }

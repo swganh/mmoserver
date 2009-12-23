@@ -193,7 +193,7 @@ void Service::Shutdown(void)
 
 //======================================================================================================================
 
-void Service::Process(uint32 loop)
+void Service::Process()
 {
 	//we only ever get here with a connected session
 

@@ -124,7 +124,7 @@ void PlayerObject::onSample(const SampleEvent* event)
 	{
 		gMessageLib->sendSystemMessage(this,L"","error_message","survey_swimming");
 		return;
-	}
+	}		 
 
 	Inventory* inventory = dynamic_cast<Inventory*>(this->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 	if(!inventory)
@@ -137,6 +137,12 @@ void PlayerObject::onSample(const SampleEvent* event)
 	if(!tool)
 	{
 		gMessageLib->sendSystemMessage(this,L"","error_message","sample_gone");
+		return;
+	}
+
+	if(this->checkIfMounted())
+	{
+		gMessageLib->sendSystemMessage(this,L"You cannot take resource samples while mounted.");
 		return;
 	}
 

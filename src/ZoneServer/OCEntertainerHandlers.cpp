@@ -838,7 +838,7 @@ void ObjectController::_handleImageDesign(uint64 targetId,Message* message,Objec
 	if(!imageDesigner)
 		return;
 
-	if(imageDesigner->checkStatesEither(CreatureState_Combat | CreatureState_Tumbling | CreatureState_Swimming))
+	if(imageDesigner->checkStatesEither(CreatureState_Combat | CreatureState_Tumbling | CreatureState_Swimming | CreatureState_Crafting))
 	{
 		gMessageLib->sendSystemMessage(imageDesigner,L"You cannot do this at this time.");
 		return;
@@ -862,6 +862,11 @@ void ObjectController::_handleImageDesign(uint64 targetId,Message* message,Objec
 		return;
 	}
 
+	if(!designObject->getGroupId() || (designObject->getGroupId() != imageDesigner->getGroupId() ))
+	{
+		gMessageLib->sendSystemMessage(imageDesigner,L"You must be grouped in order to imagedesign.");
+		return;
+	}
 
 	designObject->SetImageDesignSession(IDSessionPREY);
 	imageDesigner->SetImageDesignSession(IDSessionID);

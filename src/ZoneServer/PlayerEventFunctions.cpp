@@ -547,6 +547,7 @@ void PlayerObject::onLogout(const LogOutEvent* event)
 	gMessageLib->sendSystemMessage(this,L"","logout","safe_to_log_out");
 	
 	gMessageLib->sendLogout(this);
+	this->togglePlayerFlagOff(PlayerFlag_LogOut);	
 	gWorldManager->addDisconnectedPlayer(this);
 	//Initiate Logout
 	

@@ -128,7 +128,7 @@ inline uint32 MessageFactory::_getHeapSize(void)
 		return (uint32)(mHeapStart - mHeapEnd);
 	}
 
-	return (uint32)(mHeapEnd - mHeapStart);
+	return (uint32)mHeapTotalSize-(mHeapEnd - mHeapStart);
 	//return (uint32)(mMessageHeap + mHeapTotalSize - mHeapEnd + mHeapStart - mMessageHeap);
 }
 

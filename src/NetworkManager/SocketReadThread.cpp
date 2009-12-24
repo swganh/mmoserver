@@ -277,7 +277,8 @@ void SocketReadThread::run(void)
 			// Set the size of the packet
 
 			// Validate our date header.  If it's not a valid header, drop it.
-		 /*
+			// this is bullshit, but the loginserver on the tc (intel) wont get rid of old sessions without
+			// why is this happening ??
 			if(session->getStatus() > SSTAT_Connected)
 			{
 				gLogger->logMsgF("*** Session in the process of being disconnected status : %u", MSG_NORMAL,session->getStatus());
@@ -285,13 +286,14 @@ void SocketReadThread::run(void)
 				
 				if (session->getStatus() == SSTAT_Destroy)
 				{
+					boost::recursive_mutex::scoped_lock lk(mSocketReadMutex);
 					mAddressSessionMap.erase(i);
 					gLogger->logMsgF("Service %i: Removing Session(%s, %u), AddressMap: %i hash %u",MSG_NORMAL,mSessionFactory->getService()->getId(), inet_ntoa(*((in_addr*)(&hash))), ntohs(session->getPort()), mAddressSessionMap.size(),hash);
 					mSessionFactory->DestroySession(session);
 				}
 				continue;
 			}
-			*/
+			
 			if(packetType > 0x00ff && (packetType & 0x00ff) == 0 && session != NULL)
 			{
 				switch(packetType)

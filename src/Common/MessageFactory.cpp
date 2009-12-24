@@ -409,6 +409,10 @@ void MessageFactory::addData(int8* data, uint16 len)
 
 void MessageFactory::_processGarbageCollection(void)
 {
+	uint32 mlt = 3;
+	if(_getHeapSize() > 70.0)
+			mlt = 2;
+
 	// Just check to see if the oldest message is ready to be deleted yet.
 	//start with the oldest message
 	Message* message = reinterpret_cast<Message*>(mHeapEnd);
@@ -515,7 +519,7 @@ void MessageFactory::_processGarbageCollection(void)
 					return;
 				}
 				else
-				if(Anh_Utils::Clock::getSingleton()->getLocalTime() - message->getCreateTime() > MESSAGE_MAX_LIFE_TIME*2)
+				if(Anh_Utils::Clock::getSingleton()->getLocalTime() - message->getCreateTime() > MESSAGE_MAX_LIFE_TIME*mlt)
 				{
 					if(session)
 					{

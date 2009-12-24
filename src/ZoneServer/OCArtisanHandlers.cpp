@@ -94,6 +94,11 @@ void ObjectController::_handleRequestCoreSample(uint64 targetId,Message* message
 	PlayerObject*		playerObject = dynamic_cast<PlayerObject*>(mObject);
 
 
+	if(playerObject->checkIfMounted())
+	{
+		gMessageLib->sendSystemMessage(playerObject,L"You cannot take resource samples while mounted.");
+		return;
+	}
 
 	// don't allow sampling in buildings
 	if(playerObject->getParentId())

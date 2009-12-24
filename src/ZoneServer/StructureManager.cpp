@@ -217,10 +217,13 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
 					//delete harvester db side with all power and all resources
 					gObjectFactory->deleteObjectFromDB(structure);
-	
+					UpdateCharacterLots(structure->getOwner());
+
 					//delete it in the world
 					gMessageLib->sendDestroyObject_InRangeofObject(structure);
 					gWorldManager->destroyObject(structure);
+
+
 										
 				}
 			}
@@ -1282,9 +1285,10 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 			}
 
 			gObjectFactory->deleteObjectFromDB(structure);
+			UpdateCharacterLots(structure->getOwner());
+
 			gMessageLib->sendDestroyObject_InRangeofObject(structure);
 			gWorldManager->destroyObject(structure);
-			UpdateCharacterLots(structure->getOwner());
 
 		}
 

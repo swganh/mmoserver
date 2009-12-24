@@ -164,10 +164,10 @@ bool MessageLib::sendDestroyObject_InRange(uint64 objectId, PlayerObject* const 
 	return(true);
 }
 
-// What is the use of "self"? 
-// it means whether we send a message to all surrounding objects including or excludingus
-// ... for example if object is a player
-// its however not needed for destroy object
+//==============================================================================================================
+//
+// this deletes an object from the client
+//
 bool MessageLib::sendDestroyObject_InRangeofObject(Object* object)
 {
 	gMessageFactory->StartMessage();

@@ -69,7 +69,7 @@ enum object_controller_opcodes
 	opImageDesignStopMessage			= 0x00000239,
 	opApplyBuff							= 0x00000229,
 	opRemoveBuff						= 0x0000022A,
-	opMissionComplete					= 0x000004C5 //Actual name unknown
+	opMissionComplete					= 0x000004C5, //Actual name unknown
 
 };
 
@@ -260,6 +260,8 @@ enum object_controller_generic_functions
 	opOCdeathblow						= 0xE5F3B39B,
 	opOCloot							= 0xEF3CBEDB,
 
+	opOCLogout							= 0x03B65950,
+	opOCLogoutClient					= 0xCBC43B59,
 	opOCteach							= 0x5041F83A,
 	opOCmatch							= 0xD63286B8,
 

@@ -20,6 +20,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "CraftingSession.h"
 #include "SurveyEvent.h"
 #include "SampleEvent.h"
+#include "LogOutEvent.h"
 #include "Common/DispatchClient.h"
 #include <map>
 
@@ -297,6 +298,7 @@ class PlayerObject : public CreatureObject
 		// event functions
 		void				onSurvey(const SurveyEvent* event);
 		void				onSample(const SampleEvent* event);
+		void				onLogout(const LogOutEvent* event);
 
 		// cloning
 		void				clone(uint64 parentId,Anh_Math::Quaternion dir,Anh_Math::Vector3 pos);

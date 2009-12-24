@@ -134,7 +134,8 @@ void ObjectController::_handleRequestCraftingSession(uint64 targetId,Message* me
 	uint32				expFlag			= 2;//needs to be >1 !!!!!
 
 	message->setIndex(24);
-	/*uint32				counter			= */message->getUint32();
+	/*uint32				counter			= */
+	message->getUint32();
 
 	//get nearest crafting station
 	ObjectSet			inRangeObjects;
@@ -147,6 +148,10 @@ void ObjectController::_handleRequestCraftingSession(uint64 targetId,Message* me
 		return;
 	}
 
+//	if()
+//	{
+//	}
+
 	// get the tangible objects in range
 	mSI->getObjectsInRange(playerObject,&inRangeObjects,(ObjType_Tangible),range);
 
@@ -156,6 +161,12 @@ void ObjectController::_handleRequestCraftingSession(uint64 targetId,Message* me
 	if(!station)
 	{
 		expFlag = false;
+	}
+
+	if(playerObject->getPerformingState() != PlayerPerformance_None)
+	{
+		gMessageLib->sendSystemMessage(playerObject,L"You cannot do this at this time.");
+		return;
 	}
 
 	if(playerObject->checkState(CreatureState_Crafting) || playerObject->getCraftingSession())

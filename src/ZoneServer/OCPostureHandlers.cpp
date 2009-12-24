@@ -36,7 +36,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 void ObjectController::_handleSitServer(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	// FIXME: for now assume only players send chat
+	
 	PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
 	//uint8			currentPosture	= playerObject->getPosture();
 	string			data;
@@ -44,7 +44,12 @@ void ObjectController::_handleSitServer(uint64 targetId,Message* message,ObjectC
 	uint64			chairCell		= 0;
 	uint32			elementCount	= 0;
 
-	// gLogger->logMsg("ObjectController::_handleSitServer: Entering");
+	
+	if(playerObject->checkPlayerFlag(PlayerFlag_LogOut))
+	{
+		playerObject->togglePlayerFlagOff(PlayerFlag_LogOut);	
+		gMessageLib->sendSystemMessage(playerObject,L"","logout","aborted");
+	}
 
 	if(playerObject->isConnected())
 		gMessageLib->sendHeartBeat(playerObject->getClient());
@@ -98,7 +103,7 @@ void ObjectController::_handleSitServer(uint64 targetId,Message* message,ObjectC
 				else
 				{
 					// we should never get here !
-					gLogger->logMsg("SitOnObject: could not find zone region in map\n");
+					gLogger->logMsg("SitOnObject: could not find zone region in map");
 
 					// hammertime !
 					exit(-1);
@@ -184,14 +189,14 @@ void ObjectController::_handleStand(uint64 targetId,Message* message,ObjectContr
 		playerObject->setSamplingState(false);
 	}
 
-	//Get whether player is seated on a chair before we toggle it
+	if(playerObject->checkPlayerFlag(PlayerFlag_LogOut))
+	{
+		playerObject->togglePlayerFlagOff(PlayerFlag_LogOut);	
+		gMessageLib->sendSystemMessage(playerObject,L"","logout","aborted");
+	}
 
-	// Can not compare bitwise data with equality... the test below will only work if ALL other states = 0.
-	// bool IsSeatedOnChair = (playerObject->getState() == CreatureState_SittingOnChair);
-	bool IsSeatedOnChair = playerObject->checkState(CreatureState_SittingOnChair);
-
-	// reset sitonchair state
 	playerObject->toggleStateOff(CreatureState_SittingOnChair);
+
 	playerObject->setPosture(CreaturePosture_Upright);
 	playerObject->getHam()->updateRegenRates();
 	playerObject->updateMovementProperties();
@@ -201,6 +206,7 @@ void ObjectController::_handleStand(uint64 targetId,Message* message,ObjectContr
 	gMessageLib->sendSelfPostureUpdate(playerObject);
 
 	//if player is seated on an a chair, hack-fix clientside bug by manually sending client message
+	bool IsSeatedOnChair = playerObject->checkState(CreatureState_SittingOnChair);
 	if(IsSeatedOnChair)
 	{
 		gMessageLib->sendSystemMessage(playerObject,L"","shared","player_stand");
@@ -226,16 +232,20 @@ void ObjectController::_handleProne(uint64 targetId,Message* message,ObjectContr
 		playerObject->setSamplingState(false);
 	}
 
+	if(playerObject->checkPlayerFlag(PlayerFlag_LogOut))
+	{
+		playerObject->togglePlayerFlagOff(PlayerFlag_LogOut);	
+		gMessageLib->sendSystemMessage(playerObject,L"","logout","aborted");
+	}
 
-	//Get whether player is seated on a chair before we toggle it
+	playerObject->toggleStateOff(CreatureState_SittingOnChair);
+	
 
 	// Can not compare bitwise data with equality... the test below will only work if ALL other states = 0.
-	// bool IsSeatedOnChair = (playerObject->getState() == CreatureState_SittingOnChair);
-	bool IsSeatedOnChair = playerObject->checkState(CreatureState_SittingOnChair);
+	
 
 	playerObject->setPosture(CreaturePosture_Prone);
 	playerObject->getHam()->updateRegenRates();
-	playerObject->toggleStateOff(CreatureState_SittingOnChair);
 	playerObject->updateMovementProperties();
 
 	gMessageLib->sendUpdateMovementProperties(playerObject);
@@ -243,6 +253,7 @@ void ObjectController::_handleProne(uint64 targetId,Message* message,ObjectContr
 	gMessageLib->sendSelfPostureUpdate(playerObject);
 
 	//if player is seated on an a chair, hack-fix clientside bug by manually sending client message
+	bool IsSeatedOnChair = playerObject->checkState(CreatureState_SittingOnChair);
 	if(IsSeatedOnChair)
 	{
 		gMessageLib->sendSystemMessage(playerObject,L"","shared","player_prone");
@@ -266,9 +277,13 @@ void ObjectController::_handleKneel(uint64 targetId,Message* message,ObjectContr
 	// bool IsSeatedOnChair = (playerObject->getState() == CreatureState_SittingOnChair);
 	bool IsSeatedOnChair = playerObject->checkState(CreatureState_SittingOnChair);
 
+	//make sure we end states
+	//the logoff states is an invention of mine btw 
+	
+	playerObject->toggleStateOff(CreatureState_SittingOnChair);
+
 	playerObject->setPosture(CreaturePosture_Crouched);
 	playerObject->getHam()->updateRegenRates();
-	playerObject->toggleStateOff(CreatureState_SittingOnChair);
 	playerObject->updateMovementProperties();
 
 	gMessageLib->sendUpdateMovementProperties(playerObject);

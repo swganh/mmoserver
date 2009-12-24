@@ -42,6 +42,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "WorldConfig.h"
 #include "WorldManager.h"
 #include "ZoneOpcodes.h"
+#include "Utils/clock.h"
 #include "ZoneTree.h"
 #include "MessageLib/MessageLib.h"
 #include "LogManager/LogManager.h"
@@ -1406,6 +1407,55 @@ void ObjectController::_handleNewbieSelectStartingLocation(uint64 targetId,Messa
 		name.convert(BSTRType_ANSI);
 		player->getTutorial()->warpToStartingLocation(name);
 	}
+}
+
+
+
+
+//======================================================================================================================
+//
+//handles the logout via /logout command
+//
+void ObjectController::_handleClientLogout(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
+{
+	PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
+	// gLogger->hexDump(message->getData(),message->getSize());
+	
+	player->togglePlayerFlagOn(PlayerFlag_LogOut);	
+
+	//// we need to kneel
+	//player->setPosture(CreaturePosture_Crouched);
+	//player->getHam()->updateRegenRates();
+	//player->toggleStateOff(CreatureState_SittingOnChair);
+	//player->updateMovementProperties();
+
+	//gMessageLib->sendUpdateMovementProperties(player);
+	//gMessageLib->sendPostureAndStateUpdate(player);
+	//gMessageLib->sendSelfPostureUpdate(player);
+
+	uint32 logout		= gWorldConfig->getConfiguration("Player_LogOut_Time",(uint32)30);
+	uint32 logoutSpacer = gWorldConfig->getConfiguration("Player_LogOut_Spacer",(uint32)5);
+
+	if(logoutSpacer > logout)
+		logoutSpacer = logout;
+	
+	if(logoutSpacer < 1)
+		logoutSpacer = 1;
+
+	if(logout < logoutSpacer)
+		logout = logoutSpacer;
+
+	if(logout > 300)
+		logout = 300;
+
+	// schedule execution
+	addEvent(new LogOutEvent(Anh_Utils::Clock::getSingleton()->getLocalTime()+((logout-logoutSpacer)*1000),logoutSpacer*1000),logoutSpacer*1000);
+	gMessageLib->sendSystemMessage(player,L"","logout","time_left","","",L"",logout);
+
+	//we need to logout
+
+
+
 }
 
 

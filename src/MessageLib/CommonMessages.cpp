@@ -1431,3 +1431,21 @@ void MessageLib::sendDisableHudElement(PlayerObject* playerObject, string hudEle
 	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 5);
 
 }
+
+
+//======================================================================================================================
+//
+// Logout
+//
+
+void MessageLib::sendLogout(PlayerObject* playerObject)
+{
+	if(!(playerObject->isConnected()))
+		return;
+
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opLogoutMessage);  
+	
+	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 5);
+
+}

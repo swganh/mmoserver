@@ -114,6 +114,10 @@ void PlayerObject::onSample(const SampleEvent* event)
 	SurveyTool*			tool		= event->getTool();
 	CurrentResource*	resource	= event->getResource();
 
+	//====================================================
+	//check whether we are able to sample in the first place
+	//
+
 	if(!getSampleData()->mPendingSample || !resource || !tool || !isConnected())
 	{
 		getSampleData()->mPendingSample = false;
@@ -525,4 +529,25 @@ void PlayerObject::onSample(const SampleEvent* event)
 }
 
 //=============================================================================
+//
+//
 
+void PlayerObject::onLogout(const LogOutEvent* event)
+{
+	
+	//is it time for logout yet ?
+	if(Anh_Utils::Clock::getSingleton()->getLocalTime() <  event->getLogOutTime())
+	{
+		//tell the time and dust off
+		mObjectController.addEvent(new LogOutEvent(event->getLogOutTime(),event->getLogOutSpacer()),event->getLogOutSpacer());
+		uint32 timeLeft = (uint32)(event->getLogOutTime()- Anh_Utils::Clock::getSingleton()->getLocalTime())/1000;
+		gMessageLib->sendSystemMessage(this,L"","logout","time_left","","",L"",timeLeft);
+		return;
+	}
+	gMessageLib->sendSystemMessage(this,L"","logout","safe_to_log_out");
+	
+	gMessageLib->sendLogout(this);
+	gWorldManager->addDisconnectedPlayer(this);
+	//Initiate Logout
+	
+}

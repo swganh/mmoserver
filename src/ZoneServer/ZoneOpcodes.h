@@ -83,9 +83,10 @@ enum zone_opcodes
 	opBidAuctionResponseMessage			=	0x8FCBEF4A,
 	opProcessCreateAuction				=	0xAC2FD41D,
 
+	opLogoutMessage						=	0x42FD19DD,
+
 	opObjControllerMessage				=	0x80ce5e46,
 
-	opLogoutMessage						=	0x42fd19dd,
 	opSceneCreateObjectByCrc			=	0xFE89DDEA,
 	opUpdateContainmentMessage			=	0x56CBDE9E,
 	opUpdatePostureMessage				=	0x0BDE6B41,
@@ -102,9 +103,9 @@ enum zone_opcodes
 	opClosedContainer					=	0x32B79B7E,
 
 	//social
-	opFindFriendCreateWaypoint			=	0xdda2b297,
-	opFindFriendRequestPosition			=	0x35d536d9,
-	opFindFriendSendPosition			=	0x7347c6bf,
+	opFindFriendCreateWaypoint			=	0xDDA2B297,
+	opFindFriendRequestPosition			=	0x35D536D9,
+	opFindFriendSendPosition			=	0x7347C6BF,
 	opNotifyChatAddFriend				=	0xb581f90d,
 	opNotifyChatRemoveFriend			=	0x336015c,
 	opNotifyChatFindFriend				=	0xc447e379,

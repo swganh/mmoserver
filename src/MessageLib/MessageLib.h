@@ -102,6 +102,8 @@ public:
 	bool				sendDestroyObject_InRange(uint64 objectId,PlayerObject* const owner, bool self);
 	bool				sendDestroyObject_InRangeofObject(Object* object);
 
+	void				sendLogout(PlayerObject* playerObject);
+
 	bool				sendHeartBeat(DispatchClient* client);
 	bool				sendChatServerStatus(uint8 unk1,uint8 unk2,DispatchClient* client);
 	bool				sendParameters(uint32 parameters,DispatchClient* client);

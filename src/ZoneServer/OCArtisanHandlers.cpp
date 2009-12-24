@@ -47,6 +47,18 @@ void ObjectController::_handleRequestSurvey(uint64 targetId,Message* message,Obj
 		return;
 	}
 
+	if(playerObject->getPerformingState() != PlayerPerformance_None)
+	{
+		gMessageLib->sendSystemMessage(playerObject,L"You cannot do this at this time.");
+		return;
+	}
+
+	if(playerObject->getSurveyState())
+	{
+		playerObject->getSampleData()->mPendingSample = false;
+		gMessageLib->sendSystemMessage(playerObject,L"","survey","survey_sample");
+	}
+
 	SurveyTool*			tool			= dynamic_cast<SurveyTool*>(gWorldManager->getObjectById(targetId));
 	CurrentResource*	resource		= NULL;
 	string				resourceName;
@@ -97,6 +109,12 @@ void ObjectController::_handleRequestCoreSample(uint64 targetId,Message* message
 	if(playerObject->checkIfMounted())
 	{
 		gMessageLib->sendSystemMessage(playerObject,L"You cannot take resource samples while mounted.");
+		return;
+	}
+
+	if(playerObject->getPerformingState() != PlayerPerformance_None)
+	{
+		gMessageLib->sendSystemMessage(playerObject,L"You cannot do this at this time.");
 		return;
 	}
 

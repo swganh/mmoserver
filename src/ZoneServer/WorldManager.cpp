@@ -727,7 +727,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					}
 
 					if(result->getRowCount())
-						gLogger->logMsgLoadSuccess("WorldManager::Loading %u creture spawn regions...",MSG_NORMAL,count);
+						gLogger->logMsgLoadSuccess("WorldManager::Loading %u creature spawn regions...",MSG_NORMAL,count);
 					else
 						gLogger->logMsgLoadFailure("WorldManager::Loading creature spawn regions...",MSG_NORMAL);
 

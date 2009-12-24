@@ -426,7 +426,14 @@ void ObjectController::_handlestartdance(uint64 targetId,Message* message,Object
 		return;
 	}
 
-	if(performer->checkStatesEither(CreatureState_Combat | CreatureState_Tumbling | CreatureState_Swimming))
+	
+	if(performer->getSamplingState())
+	{
+		performer->getSampleData()->mPendingSample = false;
+		gMessageLib->sendSystemMessage(performer,L"","survey","sample_cancel");
+	}
+
+	if(performer->checkStatesEither(CreatureState_Combat | CreatureState_Tumbling | CreatureState_Swimming | CreatureState_Crafting))
 	{
 		gMessageLib->sendSystemMessage(performer,L"You cannot do this at this time.");
 		return;

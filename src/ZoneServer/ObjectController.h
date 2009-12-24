@@ -233,11 +233,13 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback
 		void	_handleMatch(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleLoot(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 
+
 		// postures
 		void	_handleSitServer(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleStand(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleKneel(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleProne(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
+		void	_handleClientLogout(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 
 		// destroy handlers
 		void	_handleServerDestroyObject(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);

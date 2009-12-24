@@ -212,6 +212,12 @@ void ObjectControllerCommandMap::_registerCppHooks()
 	mCommandMap.insert(std::make_pair(opOCteach,&ObjectController::_handleTeach));
 	mCommandMap.insert(std::make_pair(opOCBoardTransport,&ObjectController::_handleBoardTransport));
 	mCommandMap.insert(std::make_pair(opOCNewbieSelectStartingLocation,&ObjectController::_handleNewbieSelectStartingLocation));
+
+	mCommandMap.insert(std::make_pair(opOCLogoutClient,&ObjectController::_handleClientLogout));
+
+
+	
+
 	//pets,mounts
 	mCommandMap.insert(std::make_pair(opOCmount,&ObjectController::_handleMount));
 	mCommandMap.insert(std::make_pair(opOCdismount,&ObjectController::_handleDismount));

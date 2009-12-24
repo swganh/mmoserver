@@ -79,8 +79,8 @@ enum CreatureState
 	CreatureState_MountedCreature				=	0x0000000010000000,
 	CreatureState_PilotingShip					=	0x0000000020000000,
 	CreatureState_ShipOperations				=	0x0000000040000000,
-	CreatureState_ShipGunner					=	0x0000000080000000
-	/*CreatureState_ShipInterior					=	0x0000000100000000,
+	CreatureState_ShipGunner					=	0x0000000080000000,
+	/*CreatureState_ShipInterior				=	0x0000000100000000,
 	CreatureState_PilotingPobShip				=	0x0000000200000000,*/
 };
 

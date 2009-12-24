@@ -55,7 +55,8 @@ enum PlayerFlag
 	PlayerFlag_RolePlayer	=	0x00000004,
 	PlayerFlag_Afk			=	0x00000080,
 	PlayerFlag_LinkDead		=	0x00000100,
-	PlayerFlag_FactionRank	=	0x00000200
+	PlayerFlag_FactionRank	=	0x00000200,
+	PlayerFlag_LogOut		=	0x00001000//custom flag
 };
 
 //=============================================================================

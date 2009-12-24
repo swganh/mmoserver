@@ -259,22 +259,22 @@ class CreatureObject : public MovingObject
 
 	protected:
 
-		BuffList					mBuffList;
-		FactionList				mFactionList;
-		ObjectIDList			mDefenders;
+		BuffList			mBuffList;
+		FactionList			mFactionList;
+		ObjectIDList		mDefenders;
 		SkillCommandMap		mSkillCommandMap;
 		SkillCommandList	mSkillCommands;
-		SkillList					mSkills;
-		SkillModsList			mSkillMods;
-		EquipManager			mEquipManager;
-		Ham								mHam;
-		string						mCurrentAnimation;
-		string						mCustomizationStr;
-		string						mFaction;
-		string						mFirstName;
-		string						mLastName;
-		string						mSpecies;
-		string						mSpeciesGroup;
+		SkillList			mSkills;
+		SkillModsList		mSkillMods;
+		EquipManager		mEquipManager;
+		Ham					mHam;
+		string				mCurrentAnimation;
+		string				mCustomizationStr;
+		string				mFaction;
+		string				mFirstName;
+		string				mLastName;
+		string				mSpecies;
+		string				mSpeciesGroup;
 
 		//reference Hair here so it is not lost when we put on a helmet that occupies the equipslot!!!
 		//on unequipping the helmet and on logout we use this reference to destroy the hair!!!!!
@@ -293,8 +293,8 @@ class CreatureObject : public MovingObject
 		uint64				mGroupId;
 		uint64				mOwner; //If creature is a mount,pet,or vehicle it has an owner
 		uint64				mState;
-		float					mLastEntertainerXP;
-		float					mScale;
+		float				mLastEntertainerXP;
+		float				mScale;
 		uint32				mAsyncCount;
 		uint32				mLanguage;
 		uint32				mLastMoveTick;
@@ -304,12 +304,12 @@ class CreatureObject : public MovingObject
 		uint32				mSkillUpdateCounter;
 		uint16				mCL;
 		uint16				mCustomization[0xFF];
-		uint8					mFactionRank;
-		uint8					mIncapCount;
-		uint8					mMoodId;
-		uint8					mPosture;
-		uint8					mRaceId;
-		bool					mReady;
+		uint8				mFactionRank;
+		uint8				mIncapCount;
+		uint8				mMoodId;
+		uint8				mPosture;
+		uint8				mRaceId;
+		bool				mReady;
 		// entertaining
 
 		virtual void	handleObjectMenuSelect(uint8 messageType,Object* srcObject);

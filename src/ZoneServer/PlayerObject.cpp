@@ -84,6 +84,7 @@ PlayerObject::PlayerObject()
 , mExperimentationPoints(0)
 , mFriendsListUpdateCounter(0)
 , mHoloEmote(0)
+, mPlayerCustomFlags(0)
 , mIgnoresListUpdateCounter(0)
 , mPlayerFlags(0)
 
@@ -114,7 +115,8 @@ PlayerObject::PlayerObject()
 	registerEventFunction(this,&PlayerObject::onSurvey);
 	registerEventFunction(this,&PlayerObject::onSample);
 	registerEventFunction(this,&PlayerObject::onLogout);
-
+	registerEventFunction(this,&PlayerObject::onBurstRun);
+	
 	mLots = gWorldConfig->getConfiguration("Player_Max_Lots",(uint8)10);
 
 	mPermissionId = 0;
@@ -433,7 +435,8 @@ void PlayerObject::resetProperties()
 	getSampleData()->mPendingSample		= false;
 	getSampleData()->mSampleNodeRecovery= false;
 
-	this->togglePlayerFlagOff(PlayerFlag_LogOut);	
+	this->togglePlayerCustomFlagOff(PlayerCustomFlag_LogOut);	
+	this->togglePlayerCustomFlagOff(PlayerCustomFlag_BurstRun);	
 
 	mDefenderUpdateCounter				= 0;
 	mReady								= false;

@@ -214,6 +214,8 @@ void ObjectControllerCommandMap::_registerCppHooks()
 	mCommandMap.insert(std::make_pair(opOCNewbieSelectStartingLocation,&ObjectController::_handleNewbieSelectStartingLocation));
 
 	mCommandMap.insert(std::make_pair(opOCLogoutClient,&ObjectController::_handleClientLogout));
+	mCommandMap.insert(std::make_pair(opOCburstrun,&ObjectController::_BurstRun));
+	
 
 
 	

@@ -48,6 +48,13 @@ class MovingObject : public Object
 		// speed
 		float		getBaseRunSpeedLimit(){ return mBaseRunSpeedLimit; }
 		void		setBaseRunSpeedLimit(float speed){ mBaseRunSpeedLimit = speed; }
+
+		float		getCurrentSpeedModifier(){ return mCurrentSpeedMod; }
+		void		setCurrentSpeedModifier(float rate){ mCurrentSpeedMod = rate; }
+
+		float		getBaseSpeedModifier(){ return mBaseSpeedMod; }
+		void		setBaseSpeedModifier(float rate){ mBaseSpeedMod = rate; }
+		
 		//current Run speed limit is the speed at which we run
 		void		setCurrentRunSpeedLimit(float speed){ mCurrentRunSpeedLimit = speed; }
 		float		getCurrentRunSpeedLimit(){ return mCurrentRunSpeedLimit; }
@@ -69,7 +76,7 @@ class MovingObject : public Object
 
 	protected:
 
-		uint32	mInMoveCount;
+		uint32		mInMoveCount;
 		float		mBaseAcceleration;
 		float		mBaseRunSpeedLimit;
 		float		mBaseTerrainNegotiation;
@@ -79,6 +86,8 @@ class MovingObject : public Object
 		float		mCurrentSpeed;
 		float		mCurrentTerrainNegotiation;
 		float		mCurrentTurnRate;
+		float		mCurrentSpeedMod;
+		float		mBaseSpeedMod;
 };
 
 //=============================================================================

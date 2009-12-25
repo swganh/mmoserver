@@ -25,6 +25,8 @@ MovingObject::MovingObject()
 , mCurrentSpeed(0.0f)
 , mCurrentTerrainNegotiation(1.0f)
 , mCurrentTurnRate(1.0f)
+, mCurrentSpeedMod(1.0f)
+, mBaseSpeedMod(1.0f)
 {
 }
 

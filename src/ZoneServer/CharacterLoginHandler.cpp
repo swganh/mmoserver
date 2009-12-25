@@ -172,6 +172,7 @@ void CharacterLoginHandler::handleDispatchMessage(uint32 opcode, Message* messag
 			// resend our objects
 			gWorldManager->initObjectsInRange(playerObject);
 			gMessageLib->sendCreatePlayer(playerObject,playerObject);
+			playerObject->togglePlayerCustomFlagOff(PlayerCustomFlag_LogOut);	
 			gMessageLib->sendUpdatePlayerFlags(playerObject);
 
 			playerObject->getHam()->checkForRegen();
@@ -269,6 +270,8 @@ void CharacterLoginHandler::handleDispatchMessage(uint32 opcode, Message* messag
 
 			// Send newbie info.
 			player->newPlayerMessage();
+
+			player->togglePlayerCustomFlagOff(PlayerCustomFlag_LogOut);	
 
 			// Fix/workaround for addIgnore (Eruptor)
 			// If we send this info to client as soon as we get connected, client will miss the info most of the time.

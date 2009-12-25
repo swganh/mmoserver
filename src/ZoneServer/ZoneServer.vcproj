@@ -1099,6 +1099,10 @@
 					Name="Events"
 					>
 					<File
+						RelativePath=".\BurstRunEvent.h"
+						>
+					</File>
+					<File
 						RelativePath=".\FireworkEvent.h"
 						>
 					</File>

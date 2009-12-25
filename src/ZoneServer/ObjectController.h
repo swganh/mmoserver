@@ -232,6 +232,7 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback
 		void	_handleTeach(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleMatch(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleLoot(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
+		void	_BurstRun(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 
 
 		// postures

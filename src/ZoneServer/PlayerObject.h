@@ -21,6 +21,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "SurveyEvent.h"
 #include "SampleEvent.h"
 #include "LogOutEvent.h"
+#include "BurstRunEvent.h"
 #include "Common/DispatchClient.h"
 #include <map>
 
@@ -141,6 +142,14 @@ class PlayerObject : public CreatureObject
 		bool				checkPlayerFlags(uint64 flags){ return((mPlayerFlags & flags) == flags); }
 		uint32				getPlayerFlags() const { return mPlayerFlags; }
 		void				setPlayerFlags(uint32 flags){ mPlayerFlags = flags; }
+
+		void				togglePlayerCustomFlagOn(uint32 flag){ mPlayerCustomFlags = mPlayerCustomFlags | flag; }
+		void				togglePlayerCustomFlagOff(uint32 flag){ mPlayerCustomFlags = mPlayerCustomFlags & ~flag; }
+		void				togglePlayerCustomFlag(uint32 flag){ mPlayerCustomFlags = mPlayerCustomFlags ^ flag; }
+		bool				checkPlayerCustomFlag(uint32 flag){ return((mPlayerCustomFlags & flag) == flag); }
+		bool				checkPlayerCustomFlags(uint64 flags){ return((mPlayerCustomFlags & flags) == flags); }
+		uint32				getPlayerCustomFlags() const { return mPlayerCustomFlags; }
+		void				setPlayerCustomFlags(uint32 flags){ mPlayerCustomFlags = flags; }
 
 		BadgesList*			getBadges(){ return &mBadgeList;}
 		bool				checkBadges(uint32 badgeId);
@@ -299,6 +308,8 @@ class PlayerObject : public CreatureObject
 		void				onSurvey(const SurveyEvent* event);
 		void				onSample(const SampleEvent* event);
 		void				onLogout(const LogOutEvent* event);
+		void				onBurstRun(const BurstRunEvent* event);
+		
 
 		// cloning
 		void				clone(uint64 parentId,Anh_Math::Quaternion dir,Anh_Math::Vector3 pos);
@@ -345,22 +356,21 @@ class PlayerObject : public CreatureObject
 		void				_verifyBadges();
 		void				_verifyExplorationBadges();
 
-		AudienceList			mAudienceList;
-		BadgesList				mBadgeList;
+		AudienceList		mAudienceList;
+		BadgesList			mBadgeList;
 		DenyServiceList		mDenyAudienceList;
-		PlayerList				mDuelList;
+		PlayerList			mDuelList;
 		SchematicsIdList	mFilteredSchematicIdList;
 		AttributesList		mIDAttributesList;
-		ColorList					mIDColorList;
+		ColorList			mIDColorList;
 		SchematicsIdList	mSchematicAddList;
 		SchematicsIdList	mSchematicIdList;
-		UIWindowList			mUIWindowList;
-		XPCapList					mXpCapList;
-		XPList						mXpList;
-
-		BuffMap 					mEntertainerBuffMap;
-		ContactMap				mFriendsList;
-		ContactMap 				mIgnoreList;
+		UIWindowList		mUIWindowList;
+		XPCapList			mXpCapList;
+		XPList				mXpList;
+		BuffMap 			mEntertainerBuffMap;
+		ContactMap			mFriendsList;
+		ContactMap 			mIgnoreList;
 
 		string				mBiography;
 		string				mMarriage;
@@ -419,15 +429,16 @@ class PlayerObject : public CreatureObject
 		uint32 				mIgnoresListUpdateCounter;
 		uint32				mJediState;
 		uint32				mPlayerFlags;
+		uint32				mPlayerCustomFlags;
 		uint16				mGroupXp;
 		uint16				mMissionIdMask;
-		int8					mBindPlanet;
-		int8					mHomePlanet;
-		uint8					mCsrTag;
-		uint8					mFlourishCount;
-		uint8					mHoloCharge;
-		uint8					mLots;
-		uint8					mNewPlayerExemptions;
+		int8				mBindPlanet;
+		int8				mHomePlanet;
+		uint8				mCsrTag;
+		uint8				mFlourishCount;
+		uint8				mHoloCharge;
+		uint8				mLots;
+		uint8				mNewPlayerExemptions;
 		bool				mAutoAttack;
 		bool				mContactListUpdatePending;
 		bool				mFemale;

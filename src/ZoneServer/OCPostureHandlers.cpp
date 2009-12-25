@@ -45,9 +45,9 @@ void ObjectController::_handleSitServer(uint64 targetId,Message* message,ObjectC
 	uint32			elementCount	= 0;
 
 	
-	if(playerObject->checkPlayerFlag(PlayerFlag_LogOut))
+	if(playerObject->checkPlayerCustomFlag(PlayerCustomFlag_LogOut))
 	{
-		playerObject->togglePlayerFlagOff(PlayerFlag_LogOut);	
+		playerObject->togglePlayerFlagOff(PlayerCustomFlag_LogOut);	
 		gMessageLib->sendSystemMessage(playerObject,L"","logout","aborted");
 	}
 
@@ -189,9 +189,9 @@ void ObjectController::_handleStand(uint64 targetId,Message* message,ObjectContr
 		playerObject->setSamplingState(false);
 	}
 
-	if(playerObject->checkPlayerFlag(PlayerFlag_LogOut))
+	if(playerObject->checkPlayerCustomFlag(PlayerCustomFlag_LogOut))
 	{
-		playerObject->togglePlayerFlagOff(PlayerFlag_LogOut);	
+		playerObject->togglePlayerCustomFlagOff(PlayerCustomFlag_LogOut);	
 		gMessageLib->sendSystemMessage(playerObject,L"","logout","aborted");
 	}
 
@@ -232,9 +232,9 @@ void ObjectController::_handleProne(uint64 targetId,Message* message,ObjectContr
 		playerObject->setSamplingState(false);
 	}
 
-	if(playerObject->checkPlayerFlag(PlayerFlag_LogOut))
+	if(playerObject->checkPlayerCustomFlag(PlayerCustomFlag_LogOut))
 	{
-		playerObject->togglePlayerFlagOff(PlayerFlag_LogOut);	
+		playerObject->togglePlayerCustomFlagOff(PlayerCustomFlag_LogOut);	
 		gMessageLib->sendSystemMessage(playerObject,L"","logout","aborted");
 	}
 

@@ -1421,7 +1421,7 @@ void ObjectController::_handleClientLogout(uint64 targetId,Message* message,Obje
 	PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
 	// gLogger->hexDump(message->getData(),message->getSize());
 	
-	player->togglePlayerFlagOn(PlayerFlag_LogOut);	
+	player->togglePlayerCustomFlagOn(PlayerCustomFlag_LogOut);	
 
 	//// we need to kneel
 	//player->setPosture(CreaturePosture_Crouched);
@@ -1452,10 +1452,69 @@ void ObjectController::_handleClientLogout(uint64 targetId,Message* message,Obje
 	addEvent(new LogOutEvent(Anh_Utils::Clock::getSingleton()->getLocalTime()+((logout-logoutSpacer)*1000),logoutSpacer*1000),logoutSpacer*1000);
 	gMessageLib->sendSystemMessage(player,L"","logout","time_left","","",L"",logout);
 
-	//we need to logout
-
-
-
 }
 
 
+//======================================================================================================================
+//
+// start burst run
+//
+
+void ObjectController::_BurstRun(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
+{
+	
+	PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
+
+	//can we burstrun right now ??
+	if(player->checkPlayerCustomFlag(PlayerCustomFlag_BurstRun))
+	{
+		gMessageLib->sendSystemMessage(player,L"You are already running as hard as you can.");
+		return;
+	}
+
+	if(player->checkPlayerCustomFlag(PlayerCustomFlag_BurstRunCD))
+	{
+		gMessageLib->sendSystemMessage(player,L"","combat_effects","burst_run_tired");
+		return;
+	}
+
+	uint32 actioncost = gWorldConfig->getConfiguration("Player_BurstRun_Action",(uint32)300);
+	uint32 healthcost = gWorldConfig->getConfiguration("Player_BurstRun_Health",(uint32)300);
+	uint32 mindcost	  = gWorldConfig->getConfiguration("Player_BurstRun_Mind",(uint32)0);
+
+	if(!player->getHam()->checkMainPools(healthcost,actioncost,mindcost))
+	{
+		gMessageLib->sendSystemMessage(player,L"","combat_effects","burst_run_no");
+		return;
+	}
+
+	player->getHam()->updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints,-(int32)actioncost,true);
+	player->getHam()->updatePropertyValue(HamBar_Health,HamProperty_CurrentHitpoints,-(int32)healthcost,true);
+	player->getHam()->updatePropertyValue(HamBar_Mind,HamProperty_CurrentHitpoints,-(int32)mindcost,true);
+
+	player->setCurrentSpeedModifier(player->getCurrentSpeedModifier()*2);
+	gMessageLib->sendUpdateMovementProperties(player);
+
+	uint64 now = Anh_Utils::Clock::getSingleton()->getLocalTime();
+
+	uint32 br_length		= gWorldConfig->getConfiguration("Player_BurstRun_Time",(uint32)60);
+	uint32 br_coolD			= gWorldConfig->getConfiguration("Player_BurstRun_CoolDown",(uint32)600);
+
+	uint32 t = std::min<uint32>(br_length,  br_coolD);
+
+	player->togglePlayerCustomFlagOn(PlayerCustomFlag_BurstRunCD);	
+	player->togglePlayerCustomFlagOn(PlayerCustomFlag_BurstRun);	
+
+	// schedule execution
+	addEvent(new BurstRunEvent(now+(br_length*1000),now+(br_coolD*1000)),t*1000);
+	
+	//this sys message is messed up!!!
+	//gMessageLib->sendSystemMessage(player,L"","cbt_spam","burstrun_start");
+	gMessageLib->sendSystemMessage(player,L"You run as hard as you can!");
+	int8 s[256];
+	sprintf(s,"%s %s puts on a sudden burst of speed.",player->getFirstName(),player->getLastName());
+	BString bs(s);
+	bs.convert(BSTRType_Unicode16);
+	gMessageLib->sendSystemMessageInRange(player,false,bs.getUnicode16());
+
+}

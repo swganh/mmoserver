@@ -409,7 +409,7 @@ void CreatureObject::updateMovementProperties()
 
 		case CreaturePosture_Crouched:
 		{
-			mCurrentRunSpeedLimit			= 0.0f;
+			mCurrentRunSpeedLimit		= 0.0f;
 			mCurrentAcceleration		= 0.0f;
 			mCurrentTurnRate			= mBaseTurnRate;
 			mCurrentTerrainNegotiation	= mBaseTerrainNegotiation;

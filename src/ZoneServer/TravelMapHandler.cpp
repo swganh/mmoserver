@@ -661,7 +661,7 @@ void TravelMapHandler::handleUIEvent(uint32 action,int32 element,string inputStr
 					}
 					else
 					{
-						gLogger->logMsg("TicketCollector: Error getting TravelPoint\n");
+						gLogger->logMsg("TicketCollector: Error getting TravelPoint");
 					}
 					break;
 				}
@@ -740,7 +740,7 @@ void TravelMapHandler::useTicket(PlayerObject* playerObject, TravelTicket* ticke
 	}
 	else
 	{
-		gLogger->logMsg("TicketCollector: Error getting TravelPoint\n");
+		gLogger->logMsg("TicketCollector: Error getting TravelPoint");
 	}
 }
 

@@ -528,6 +528,88 @@ bool MessageLib::sendEnterTicketPurchaseModeMessage(TravelTerminal* terminal,Pla
 // system message
 //
 
+bool MessageLib::sendSystemMessageInRange(PlayerObject* playerObject,bool toSelf, string customMessage,string mainFile,string mainVar,string toFile,string toVar,string toCustom,int32 di,string ttFile,string ttVar,string ttCustom,uint64 ttId,uint64 toId,uint64 tuId,string tuFile,string tuVar,string tuCustom )
+{
+		if(!playerObject)
+		return(false);
+
+	if(!(playerObject->isConnected()))
+		return(false);
+
+	gMessageFactory->StartMessage(); 
+	gMessageFactory->addUint32(opChatSystemMessage);  
+	gMessageFactory->addUint8(0);
+
+	// simple message
+	if(customMessage.getLength())
+	{
+		gMessageFactory->addString(customMessage);
+		gMessageFactory->addUint32(0);				 
+	}
+	// templated message
+	else
+	{ 
+		gMessageFactory->addUint32(0);				 
+
+		// WRONG!
+		// The real size is the size of ALL parameters.
+		// uint32	realSize = mainFile.getLength() + mainVar.getLength() + toFile.getLength() + toVar.getLength() + ttFile.getLength() + ttVar.getLength();
+		uint32	realSize = mainFile.getLength() + mainVar.getLength() + toFile.getLength() + toVar.getLength() + ttFile.getLength() + ttVar.getLength() + tuFile.getLength() + tuVar.getLength();
+
+		gMessageFactory->addUint32(42 + ((uint32)ceil(((double)realSize) / 2.0)) + toCustom.getLength() + ttCustom.getLength() + tuCustom.getLength());
+
+		if(realSize % 2)
+			gMessageFactory->addUint16(1);
+		else
+			gMessageFactory->addUint16(0);
+
+		gMessageFactory->addUint8(1);
+		gMessageFactory->addUint32(0xFFFFFFFF);
+
+		//main message		
+		gMessageFactory->addString(mainFile);
+		gMessageFactory->addUint32(0);//spacer
+		gMessageFactory->addString(mainVar);
+
+		//object 1
+		gMessageFactory->addUint64(tuId);
+		gMessageFactory->addString(tuFile);
+		gMessageFactory->addUint32(0);//spacer
+		gMessageFactory->addString(tuVar);
+		gMessageFactory->addString(tuCustom);
+
+		//object 2		
+		gMessageFactory->addUint64(ttId);  //object id2
+		gMessageFactory->addString(ttFile);
+		gMessageFactory->addUint32(0);//spacer
+		gMessageFactory->addString(ttVar);
+		gMessageFactory->addString(ttCustom);
+
+		//object 3
+		gMessageFactory->addUint64(toId);
+		gMessageFactory->addString(toFile);
+		gMessageFactory->addUint32(0);//spacer
+		gMessageFactory->addString(toVar);
+		gMessageFactory->addString(toCustom);
+
+		gMessageFactory->addInt32(di);
+		gMessageFactory->addUint32(0);
+		gMessageFactory->addUint8(0);
+
+		if(realSize % 2)
+			gMessageFactory->addUint8(0);
+	}
+
+	_sendToInRange(gMessageFactory->EndMessage(),playerObject,8,toSelf);		
+
+	return(true);
+}
+
+//=======================================================================================================================
+//
+// system message
+//
+
 bool MessageLib::sendSystemMessage(PlayerObject* playerObject,string customMessage,string mainFile,string mainVar,string toFile,string toVar,string toCustom,int32 di,string ttFile,string ttVar,string ttCustom,uint64 ttId,uint64 toId,uint64 tuId,string tuFile,string tuVar,string tuCustom )
 {
 	if(!playerObject)

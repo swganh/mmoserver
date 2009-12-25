@@ -535,7 +535,7 @@ void PlayerObject::onSample(const SampleEvent* event)
 void PlayerObject::onLogout(const LogOutEvent* event)
 {
 	
-	if(!this->checkPlayerFlag(PlayerFlag_LogOut))
+	if(!this->checkPlayerCustomFlag(PlayerCustomFlag_LogOut))
 	{
 		return;
 	}
@@ -551,8 +551,59 @@ void PlayerObject::onLogout(const LogOutEvent* event)
 	gMessageLib->sendSystemMessage(this,L"","logout","safe_to_log_out");
 	
 	gMessageLib->sendLogout(this);
-	this->togglePlayerFlagOff(PlayerFlag_LogOut);	
+	this->togglePlayerCustomFlagOff(PlayerCustomFlag_LogOut);	
 	gWorldManager->addDisconnectedPlayer(this);
 	//Initiate Logout
 	
 }
+
+void PlayerObject::onBurstRun(const BurstRunEvent* event)
+{
+
+	uint64 now = Anh_Utils::Clock::getSingleton()->getLocalTime();
+
+	//do we have to remove the cooldown?
+	if(now >  event->getCoolDown())
+	{
+		if(this->checkPlayerCustomFlag(PlayerCustomFlag_BurstRunCD))
+		{
+			gMessageLib->sendSystemMessage(this,L"","combat_effects","burst_run_not_tired");
+			this->togglePlayerCustomFlagOff(PlayerCustomFlag_BurstRunCD);	
+
+		}
+	}
+
+	//do we have to remove the burstrun??
+	if(now >  event->getEndTime())
+	{
+		if(this->checkPlayerCustomFlag(PlayerCustomFlag_BurstRun))
+		{
+			gMessageLib->sendSystemMessage(this,L"You slow down.");
+			int8 s[256];
+			sprintf(s,"%s %s slows down.",this->getFirstName(),this->getLastName());
+			BString bs(s);
+			bs.convert(BSTRType_Unicode16);
+			gMessageLib->sendSystemMessageInRange(this,false,bs.getUnicode16());
+
+
+			gMessageLib->sendSystemMessage(this,L"","combat_effects","burst_run_tired");
+			this->togglePlayerCustomFlagOff(PlayerCustomFlag_BurstRun);	
+
+			this->setCurrentSpeedModifier(this->getBaseSpeedModifier());
+			gMessageLib->sendUpdateMovementProperties(this);
+
+
+
+		}
+	}
+
+	uint64 t = std::max<uint64>(event->getEndTime(),  event->getCoolDown());
+	
+	//have to call us once more ?
+	if(now < t)
+	{
+		mObjectController.addEvent(new BurstRunEvent(event->getEndTime(),event->getCoolDown()),t-now);
+	}
+		
+}
+

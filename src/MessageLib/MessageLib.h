@@ -117,6 +117,11 @@ public:
 		string ttFile = "",string ttVar = "",string ttCustom = L"",uint64 ttId = 0,uint64 toId = 0,uint64 tuId = 0,
 		string tuFile = "",string tuVar = "",string tuCustom = L"");
 
+	bool				sendSystemMessageInRange(PlayerObject* playerObject, bool toSelf, string customMessage = L"",string mainFile = "",
+		string mainVar = "",string toFile = "",string toVar = "",string toCustom = L"",int32 di = 0,
+		string ttFile = "",string ttVar = "",string ttCustom = L"",uint64 ttId = 0,uint64 toId = 0,uint64 tuId = 0,
+		string tuFile = "",string tuVar = "",string tuCustom = L"");
+
 	bool				sendMacroSystemMessage(PlayerObject* playerObject,string message,string macro);
 	bool				sendSystemMessage(PlayerObject* playerObject, string message, bool chatOnly);
 

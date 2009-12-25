@@ -10,7 +10,7 @@ cmdMap:ScriptRegisterEvent(script,"burstrun");
 
 -- parameters: none
 function burstrun(params)
-   wm:zoneSystemMessage("Run Forrest Run");
+ --  wm:zoneSystemMessage("Run Forrest Run");
 end;
 
 

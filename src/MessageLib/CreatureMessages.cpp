@@ -310,10 +310,10 @@ bool MessageLib::sendBaselinesCREO_4(PlayerObject* player)
 		++it;
 	}
 
-	// 4
+	// 4 Speedmultiplier base
 	gMessageFactory->addFloat(1.0f);
 
-	//5
+	//5 Speedmultiplier mod
 	gMessageFactory->addFloat(1.0f);
 
 	//6 Listen to Id
@@ -323,7 +323,7 @@ bool MessageLib::sendBaselinesCREO_4(PlayerObject* player)
 	gMessageFactory->addFloat(player->getCurrentRunSpeedLimit()); //RUN speed
 
 	//8
-	gMessageFactory->addFloat(1.02f);	// unknown
+	gMessageFactory->addFloat(1.02f);	// slopemod angle
 
 	//9
 	gMessageFactory->addFloat(player->getCurrentTerrainNegotiation());
@@ -1184,9 +1184,12 @@ bool MessageLib::sendUpdateMovementProperties(PlayerObject* playerObject)
 	gMessageFactory->addUint64(playerObject->getId());
 	gMessageFactory->addUint32(opCREO);
 	gMessageFactory->addUint8(4);
-	gMessageFactory->addUint32(20);
+	gMessageFactory->addUint32(26);
 
-	gMessageFactory->addUint16(3);
+	gMessageFactory->addUint16(4);
+
+	gMessageFactory->addUint16(5);
+	gMessageFactory->addFloat(playerObject->getCurrentSpeedModifier());
 
 	gMessageFactory->addUint16(7);
 	gMessageFactory->addFloat(playerObject->getCurrentRunSpeedLimit());

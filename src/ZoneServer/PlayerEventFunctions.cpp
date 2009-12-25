@@ -535,6 +535,10 @@ void PlayerObject::onSample(const SampleEvent* event)
 void PlayerObject::onLogout(const LogOutEvent* event)
 {
 	
+	if(!this->checkPlayerFlag(PlayerFlag_LogOut))
+	{
+		return;
+	}
 	//is it time for logout yet ?
 	if(Anh_Utils::Clock::getSingleton()->getLocalTime() <  event->getLogOutTime())
 	{

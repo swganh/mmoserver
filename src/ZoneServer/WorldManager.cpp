@@ -1471,10 +1471,13 @@ void WorldManager::warpPlanet(PlayerObject* playerObject,Anh_Math::Vector3 desti
 	removePlayerMovementUpdateTime(playerObject);
 
 	//remove the player out of his group - if any
+	//why the fuck would we do that ???
+	/*
 	GroupObject* group = gGroupManager->getGroupObject(playerObject->getGroupId());
 
 	if(group)
 		group->removePlayer(playerObject->getId());
+		*/
 
 	playerObject->destroyKnownObjects();
 
@@ -1502,12 +1505,15 @@ void WorldManager::warpPlanet(PlayerObject* playerObject,Anh_Math::Vector3 desti
 		}
 	}
 
-	// remove any timers timers running
-	removeObjControllerToProcess(playerObject->getController()->getTaskId());
+	// remove any timers running
+	//why remove that ?
+	//removeObjControllerToProcess(playerObject->getController()->getTaskId());
+	//playerObject->getController()->clearQueues();
+	//playerObject->getController()->setTaskId(0);
+	
+	//why remove that ?	
 	removeCreatureHamToProcess(playerObject->getHam()->getTaskId());
-	playerObject->getController()->clearQueues();
-	playerObject->getController()->setTaskId(0);
-	playerObject->getHam()->setTaskId(0);
+	//playerObject->getHam()->setTaskId(0);
 
 	// reset player properties
 	playerObject->resetProperties();

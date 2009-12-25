@@ -14,6 +14,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "Bank.h"
 #include "Buff.h"
 #include "BuildingObject.h"
+#include "BuffManager.h"
 #include "CellObject.h"
 #include "CharSheetManager.h"
 #include "CraftingSessionFactory.h"
@@ -425,9 +426,14 @@ void PlayerObject::resetProperties()
 	mXpUpdateCounter					= mXpList.size();
 	mPosture							= CreaturePosture_Upright;
 
+	//the client resets the bufftimers on local travel ... :(
+	gBuffManager->InitBuffs(this);
+
 	getSampleData()->mPendingSurvey		= false;
 	getSampleData()->mPendingSample		= false;
 	getSampleData()->mSampleNodeRecovery= false;
+
+	this->togglePlayerFlagOff(PlayerFlag_LogOut);	
 
 	mDefenderUpdateCounter				= 0;
 	mReady								= false;

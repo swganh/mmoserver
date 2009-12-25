@@ -192,6 +192,7 @@ void TicketCollector::handleUIEvent(uint32 action,int32 element,string inputStr,
 						else
 						{
 							gMessageLib->sendClusterZoneTransferRequestByTicket(playerObject, ticket->getId(), dstPoint->planetId);
+							
 						}
 					}
 					else

@@ -345,7 +345,9 @@ void Buff::InitializeIcons()
 		{
 			if(mIcon > 0) //if internal buff
 			{
-				gMessageLib->sendPlayerAddBuff(Player, mIcon, (float)(mTick/1000));
+				//make sure the time is updated in case we travel with the shuttle on the planet
+				uint64 time = gWorldManager->GetCurrentGlobalTick() - mStartTime;
+				gMessageLib->sendPlayerAddBuff(Player, mIcon, (float)((mTick-time)/1000));
 			}
 		}
 		else

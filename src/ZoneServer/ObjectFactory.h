@@ -28,6 +28,7 @@ class Deed;
 class DispatchClient;
 class DraftSchematic;
 class HarvesterFactory;
+class FactoryFactory;
 class IntangibleFactory;
 class OFAsyncContainer;
 class Object;
@@ -48,7 +49,8 @@ enum OFQuery
 	OFQuery_ResourceContainerCreate		= 1,
 	OFQuery_WaypointCreate				= 2,
 	OFQuery_Item						= 3,
-	OFQuery_Harvester					= 4
+	OFQuery_Harvester					= 4,
+	OFQuery_Factory						= 5
 };
 
 //=============================================================================
@@ -74,6 +76,7 @@ class ObjectFactory : public DatabaseCallback
 		void					requestNewTravelTicket(ObjectFactoryCallback* ofCallback,TicketProperties ticketProperties,uint64 parentId,uint16 planetId);
 		void					requestNewResourceContainer(ObjectFactoryCallback* ofCallback,uint64 resourceId,uint64 parentId,uint16 planetId,uint32 amount);
 		void					requestnewHarvesterbyDeed(ObjectFactoryCallback* ofCallback,Deed* deed,DispatchClient* client, float x, float y, float z, float dir, string customName, PlayerObject* player);
+		void					requestnewFactorybyDeed(ObjectFactoryCallback* ofCallback,Deed* deed,DispatchClient* client, float x, float y, float z, float dir, string customName, PlayerObject* player);
 
 
 		void					requestTanoNewParent(ObjectFactoryCallback* ofCallback,uint64 ObjectId,uint64 parentId, TangibleGroup  Group);
@@ -102,6 +105,7 @@ class ObjectFactory : public DatabaseCallback
 		RegionFactory*			mRegionFactory;
 		WaypointFactory*		mWaypointFactory;
 		HarvesterFactory*		mHarvesterFactory;
+		FactoryFactory*			mFactoryFactory;
 
 		boost::pool<boost::default_user_allocator_malloc_free>	mDbAsyncPool;
 };
@@ -121,6 +125,7 @@ class OFAsyncContainer
 		TangibleGroup			Group;
 		uint64					DeedId;
 		uint64					OwnerId;
+		uint64					PlayerId;
 };
 
 #endif

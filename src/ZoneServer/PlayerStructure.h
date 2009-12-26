@@ -52,6 +52,7 @@ struct timerTodoStruct
 class PlayerStructure :	public TangibleObject
 {
 	friend class HarvesterFactory;
+	friend class FactoryFactory;
 
 	public:
 

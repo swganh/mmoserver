@@ -685,11 +685,11 @@ void UIManager::createNewStructureStatusBox(UICallback* callback,PlayerObject* p
 
 	minutes = (uint32)(maint/(rate/60));
 	
-	sprintf(text,"Maintenance Pool: %u(%u days, %u hours, %u minutes)",maint,days,hours,minutes);
+	sprintf(text,"Maintenance Pool: %f(%u days, %u hours, %u minutes)",(float)structure->getCurrentMaintenance(),days,hours,minutes);
 	attributesMenu.push_back(text);
 
 	//Maintenance rate
-	sprintf(text,"Maintenance Rate: %u/hr",rate);
+	sprintf(text,"Maintenance Rate: %f/hr",rate);
 	attributesMenu.push_back(text);
 
 	//Power Pool
@@ -704,7 +704,7 @@ void UIManager::createNewStructureStatusBox(UICallback* callback,PlayerObject* p
 	
 	minutes = (uint32)(power/ (rate/60));
 	
-	sprintf(text,"Power Reserves: %u(%u days, %u hours, %u minutes)",power,days,hours,minutes);
+	sprintf(text,"Power Reserves: %u(%u days, %u hours, %u minutes)",structure->getCurrentPower(),days,hours,minutes);
 	attributesMenu.push_back(text);
 
 	//Power Consumption

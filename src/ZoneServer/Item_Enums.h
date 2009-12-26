@@ -82,6 +82,13 @@ enum ItemType
 
 
 	//====================================================
+	// Factories
+	ItemType_factory_clothing			= 1590,
+	ItemType_factory_food				= 1591,
+	ItemType_factory_item				= 1592,
+	ItemType_factory_structure			= 1593,
+
+	//====================================================
 	// Harvesters
 	ItemType_generator_fusion_personal	= 1594,
 	ItemType_generator_solar_personal	= 1595,

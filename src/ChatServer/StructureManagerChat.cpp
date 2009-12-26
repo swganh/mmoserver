@@ -76,13 +76,14 @@ StructureManagerChatHandler::StructureManagerChatHandler(Database* database, Mes
 	//implement configmanager in the chatserver
 
     std::tr1::shared_ptr<Timer> hopper_timer(new Timer(SRMTimer_CheckHarvesterHopper,this,1000,NULL));
-	std::tr1::shared_ptr<Timer> maintenance_timer(new Timer(SRMTimer_CheckHarvesterMaintenance,this,18000*1000,NULL));
+	std::tr1::shared_ptr<Timer> maintenance_timer(new Timer(SRMTimer_CheckHarvesterMaintenance,this,3600*1000,NULL));
+	std::tr1::shared_ptr<Timer> power_timer(new Timer(SRMTimer_CheckHarvesterPower,this,3600*1000,NULL));
     //std::tr1::shared_ptr<Timer> tick_preserve_timer(new Timer(CMTimer_TickPreserve,this,ServerTimeInterval*10000,NULL));
     //std::tr1::shared_ptr<Timer> check_auctions_timer(new Timer(CMTimer_CheckAuctions,this,ServerTimeInterval*10000,NULL));
 
     mTimers.push_back(hopper_timer);
     mTimers.push_back(maintenance_timer);
-    //mTimers.push_back(check_auctions_timer);
+    mTimers.push_back(power_timer);
     
 }
 
@@ -497,6 +498,16 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
 			{
 				result->GetNextRow(binding,&exitCode);
 
+				if(exitCode == 1)
+				{
+					//resource never existed in the first place
+					gLogger->logMsgF("StructureMabagerChat::Harvester %I64u hopper full",MSG_HIGH,asynContainer->harvesterID);
+				}
+				if(exitCode == 2)
+				{
+					//resource never existed in the first place
+					gLogger->logMsgF("StructureMabagerChat::Harvester %I64u resourcechange",MSG_HIGH,asynContainer->harvesterID);
+				}
 				if(exitCode == 3)
 				{
 					//resource never existed in the first place
@@ -539,9 +550,9 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
 		}
 		break;
 
-		case STRMQuery_HopperUpdate:
+		case STRMQuery_PowerUpdate:
 		{
-			uint64 harvesterID;
+				uint64 harvesterID;
 			DataBinding* binding = mDatabase->CreateDataBinding(1);
 			binding->addField(DFT_uint64,0,8);
 
@@ -562,9 +573,37 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
 				
 				mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
 
+				//return codes :
+				// 0 everything ok
+				// 1 hopper full harvester turned of
+				// 2 resource isnt active anymore
+				// 3 resource doesnt exist in the first place
+
+			}
+			
+			mDatabase->DestroyDataBinding(binding);
+
+		}
+		break;
+
+		case STRMQuery_HopperUpdate:
+		{
+			uint64 harvesterID;
+			DataBinding* binding = mDatabase->CreateDataBinding(1);
+			binding->addField(DFT_uint64,0,8);
+
+			uint64 count;
+			count = result->getRowCount();
+
+			for(uint64 i=0;i <count;i++)
+			{
+				result->GetNextRow(binding,&harvesterID);
+
+				int8 sql[100];
+
 				//now harvest
 				sprintf(sql,"SELECT sf_HarvestResource(%I64u)",harvesterID);
-				asyncContainer = new StructureManagerAsyncContainer(STRMQuery_DoneHarvestUpdate,0);
+				StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(STRMQuery_DoneHarvestUpdate,0);
 				asyncContainer->harvesterID = harvesterID;
 				//gLogger->logMsgF("StructureManagerChatHandler:: %s",MSG_NORMAL,sql);
 				
@@ -629,6 +668,12 @@ void StructureManagerChatHandler::processTimerEvents()
 			}
 			break;
 
+			case SRMTimer_CheckHarvesterPower:
+			{
+				handleCheckHarvesterPower();
+			}
+			break;
+
 			default:
 				gLogger->logMsgF("WorldManager::processTimerEvents: Unknown Timer %u",MSG_HIGH,id);
 			break;
@@ -637,6 +682,24 @@ void StructureManagerChatHandler::processTimerEvents()
 		processTime = Anh_Utils::Clock::getSingleton()->getLocalTime() - startTime;
 	}
 }
+
+//=======================================================================================================================
+//
+// iterates through the list of hoppers we need to update on a regular basis
+// and reads the relevant resource data - then sends it to the client
+//
+void StructureManagerChatHandler::handleCheckHarvesterPower()
+{
+
+	StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(STRMQuery_PowerUpdate,0);
+
+	int8 sql[100];
+	sprintf(sql,"SELECT h.ID FROM harvesters h WHERE h.active > 0 ");
+	
+	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
+
+}
+
 
 //=======================================================================================================================
 //

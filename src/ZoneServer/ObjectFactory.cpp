@@ -15,6 +15,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Deed.h"
 #include "DraftSchematic.h"
 #include "HarvesterFactory.h"
+#include "FactoryFactory.h"
 #include "IntangibleObject.h"
 #include "IntangibleFactory.h"
 #include "ManufacturingSchematic.h"
@@ -70,6 +71,7 @@ mDbAsyncPool(sizeof(OFAsyncContainer))
 	mRegionFactory			= RegionFactory::Init(mDatabase);
 	mWaypointFactory		= WaypointFactory::Init(mDatabase);
 	mHarvesterFactory		= HarvesterFactory::Init(mDatabase);
+	mFactoryFactory			= FactoryFactory::Init(mDatabase);
 }
 
 //=============================================================================
@@ -88,6 +90,54 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 	switch(asyncContainer->query)
 	{
+
+		case OFQuery_Factory:
+		{
+			if(!result->getRowCount())
+			{
+				gLogger->logMsg("ObjFactory::handleDatabaseJobComplete   :  create Factory failed");
+				break;
+			}
+
+			uint64 requestId = 0;
+			DataBinding* binding = mDatabase->CreateDataBinding(1);
+			binding->addField(DFT_uint64,0,8);
+			result->GetNextRow(binding,&requestId);
+			mDatabase->DestroyDataBinding(binding);
+
+			if(requestId)
+			{
+				mFactoryFactory->requestObject(asyncContainer->ofCallback,requestId,0,0,asyncContainer->client);
+
+				//now we need to update the Owners Lots
+				PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asyncContainer->OwnerId));
+					
+				//cave he might have logged out already - even if thats *very* unlikely (heck of a query that would have been)
+				if(player)
+				{
+					gStructureManager->UpdateCharacterLots(asyncContainer->OwnerId);
+					Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+					Deed* deed = dynamic_cast<Deed*>(inventory->getObjectById(asyncContainer->DeedId));
+					
+					//destroy it in the client
+					gMessageLib->sendDestroyObject(asyncContainer->DeedId,player);
+		
+					//delete it out of the inventory
+					inventory->deleteObject(deed);
+		
+
+				}
+				
+				// now we need to link the deed to the factory in the db and remove it out of the inventory
+				int8 sql[250];
+				sprintf(sql,"UPDATE items SET parent_id = %I64u WHERE id = %"PRIu64"",requestId, asyncContainer->DeedId);
+				mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
+			}
+			else
+				gLogger->logMsg("ObjFactory::handleDatabaseJobComplete   :  create Factory failed");
+		}
+		break;
+
 		case OFQuery_Harvester:
 		{
 			if(!result->getRowCount())
@@ -107,12 +157,12 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				mHarvesterFactory->requestObject(asyncContainer->ofCallback,requestId,0,0,asyncContainer->client);
 
 				//now we need to update the Owners Lots
-				PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asyncContainer->OwnerId));
+				PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asyncContainer->PlayerId));
 					
 				//cave he might have logged out already - even if thats *very* unlikely (heck of a query that would have been)
 				if(player)
 				{
-					gStructureManager->UpdateCharacterLots(asyncContainer->OwnerId);
+					gStructureManager->UpdateCharacterLots(asyncContainer->PlayerId);
 					Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 					Deed* deed = dynamic_cast<Deed*>(inventory->getObjectById(asyncContainer->DeedId));
 					
@@ -256,6 +306,10 @@ void ObjectFactory::requestNewResourceContainer(ObjectFactoryCallback* ofCallbac
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sf_ResourceContainerCreate(%"PRIu64",%"PRIu64",0,0,0,%u,%u)",resourceId,parentId,planetId,amount);
 }
 
+//=============================================================================
+//
+// creates a harvester based on the supplied deed
+//
 void ObjectFactory::requestnewHarvesterbyDeed(ObjectFactoryCallback* ofCallback,Deed* deed,DispatchClient* client, float x, float y, float z, float dir, string customName, PlayerObject* player)
 {
 	//create a new Harvester Object with the attributes as specified by the deed
@@ -263,6 +317,7 @@ void ObjectFactory::requestnewHarvesterbyDeed(ObjectFactoryCallback* ofCallback,
 
 	asyncContainer->DeedId = deed->getId();
 	asyncContainer->OwnerId = deed->getOwner();
+	asyncContainer->PlayerId = player->getId();
 	int8 sql[512];
 	//sf_DefaultHarvesterCreate`(type_id INT(11),parent_id BIGINT(20),privateowner_id BIGINT(20),inPlanet INT,oX FLOAT,oY FLOAT,oZ FLOAT, oW FLOAT,inX FLOAT,inY FLOAT,inZ FLOAT,custom_name CHAR(255)) RETURNS bigint(20)
 
@@ -309,6 +364,65 @@ void ObjectFactory::requestnewHarvesterbyDeed(ObjectFactoryCallback* ofCallback,
 	gLogger->logMsgF(sql,MSG_HIGH);
 
 }
+
+//=============================================================================
+//
+// creates a fatory based on the supplied deed
+//
+void ObjectFactory::requestnewFactorybyDeed(ObjectFactoryCallback* ofCallback,Deed* deed,DispatchClient* client, float x, float y, float z, float dir, string customName, PlayerObject* player)
+{
+	//create a new Harvester Object with the attributes as specified by the deed
+	OFAsyncContainer* asyncContainer = new(mDbAsyncPool.ordered_malloc()) OFAsyncContainer(ofCallback,OFQuery_Factory,client);
+
+	asyncContainer->DeedId = deed->getId();
+	asyncContainer->OwnerId = deed->getOwner();
+	int8 sql[512];
+	
+
+	StructureDeedLink* deedLink;
+	deedLink = gStructureManager->getDeedData(deed->getItemType());
+
+	float oX, oY, oZ, oW;
+	if(dir== 0.0)
+	{
+		oX = 0;
+		oY = 0;
+		oZ = 0;
+		oW = 1;
+	}
+	if(dir== 1.0)	 //ok
+	{
+		oX = 0.0;
+		oY = 0.71;
+		oZ = 0.0;
+		oW = 0.71;
+	}
+
+	if(dir== 2.0)
+	{
+		oX = 0;
+		oY = 1;
+		oZ = 0;
+		oW = 0;
+	}
+
+	if(dir== 3.0)
+	{
+		oX = 0;
+		oY = -0.71;
+		oZ = 0;
+		oW = 0.71;
+	}
+
+
+	gLogger->logMsgF("dir is %f, x:%f, y:%f, z:%f, w:%f",MSG_HIGH,dir,oX, oY, oZ, oW);
+
+	sprintf(sql,"SELECT sf_DefaultFactoryCreate(%u,0,%"PRIu64",%u,%f,%f,%f,%f,%f,%f,%f,'%s',%I64u)",deedLink->structure_type, player->getId(), gWorldManager->getZoneId(),oX,oY,oZ,oW,x,y,z,customName.getAnsi(),deed->getId());
+	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
+	gLogger->logMsgF(sql,MSG_HIGH);
+
+}
+
 
 //=============================================================================
 //

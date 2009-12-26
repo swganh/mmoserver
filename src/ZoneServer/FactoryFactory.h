@@ -9,13 +9,13 @@ Copyright (c) 2006 - 2008 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
-#ifndef ANH_ZONESERVER_HARVESTER_OBJECT_FACTORY_H
-#define ANH_ZONESERVER_HARVESTER_OBJECT_FACTORY_H
+#ifndef ANH_ZONESERVER_FACTORY_OBJECT_FACTORY_H
+#define ANH_ZONESERVER_FACTORY_OBJECT_FACTORY_H
 
 #include "ObjectFactoryCallback.h"
 #include "FactoryBase.h"
 
-#define gHarvesterFactory HarvesterFactory::getSingletonPtr()
+#define gFactoryFactory FactoryFactory::getSingletonPtr()
 
 
 //=============================================================================
@@ -23,30 +23,30 @@ Copyright (c) 2006 - 2008 The swgANH Team
 class Database;
 class DataBinding;
 class DispatchClient;
-class HarvesterObject;
+class FactoryObject;
 
 //=============================================================================
 
-enum HFQuery
+enum FFQuery
 {
-	HFQuery_MainData		= 1,
-	HFQuery_ResourceData	= 2,
-	HFQuery_byDeed			= 3,
-	HFQuery_AdminData		= 4,
-	HFQuery_AttributeData	= 5
+	FFQuery_MainData		= 1,
+	FFQuery_ResourceData	= 2,
+	FFQuery_byDeed			= 3,
+	FFQuery_AdminData		= 4,
+	FFQuery_AttributeData	= 5
 
 };
 
 //=============================================================================
 
-class HarvesterFactory : public FactoryBase, public ObjectFactoryCallback
+class FactoryFactory : public FactoryBase, public ObjectFactoryCallback
 {
 	public:
 
-		static HarvesterFactory*	getSingletonPtr() { return mSingleton; }
-		static HarvesterFactory*	Init(Database* database);
+		static FactoryFactory*	getSingletonPtr() { return mSingleton; }
+		static FactoryFactory*	Init(Database* database);
 
-		~HarvesterFactory();
+		~FactoryFactory();
 
 		virtual void	handleObjectReady(Object* object,DispatchClient* client);
 		void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
@@ -56,18 +56,18 @@ class HarvesterFactory : public FactoryBase, public ObjectFactoryCallback
 
 	private:
 
-		HarvesterFactory(Database* database);
+		FactoryFactory(Database* database);
 
 		void			_setupDatabindings();
 		void			_destroyDatabindings();
 
-		void			_createHarvester(DatabaseResult* result, HarvesterObject* harvester);
+		void			_createFactory(DatabaseResult* result, FactoryObject* factory);
 
-		static HarvesterFactory*	mSingleton;
+		static FactoryFactory*		mSingleton;
 		static bool					mInsFlag;
 
 
-		DataBinding*				mHarvesterBinding;
+		DataBinding*				mFactoryBinding;
 
 };
 

@@ -187,6 +187,16 @@ void ObjectController::_handleStructurePlacement(uint64 targetId,Message* messag
 			gObjectFactory->requestnewHarvesterbyDeed(gStructureManager,deed,player->getClient(),x,y,z,dir,"",player);
 		}
 		break;
+
+		case	ItemType_factory_clothing:
+		case	ItemType_factory_food:
+		case	ItemType_factory_item:
+		case	ItemType_factory_structure:
+		{
+			gObjectFactory->requestnewFactorybyDeed(gStructureManager,deed,player->getClient(),x,y,z,dir,"",player);
+		}
+		break;
+
 	}
 		
 	

@@ -64,7 +64,8 @@ typedef std::vector<std::tr1::shared_ptr<Timer> >	TimerList;
 enum SRMTimer
 {
 	SRMTimer_CheckHarvesterHopper		=	1,
-	SRMTimer_CheckHarvesterMaintenance	=	2
+	SRMTimer_CheckHarvesterMaintenance	=	2,
+	SRMTimer_CheckHarvesterPower		=	3
 };
 
 
@@ -112,6 +113,7 @@ class StructureManagerChatHandler : public MessageDispatchCallback, public Datab
 		void				processTimerEvents();
 		void				handleGlobalTickUpdate();
 
+		void				handleCheckHarvesterPower();
 		void				handleCheckHarvesterHopper();
 		void				handleCheckHarvesterMaintenance();
 
@@ -149,6 +151,7 @@ enum STRMQueryType
 	STRMQuery_StructureMailDamage		=	6,
 	STRMQuery_StructureMailCondZero		=	7,
 	STRMQuery_MaintenanceUpdate			=	8,
+	STRMQuery_PowerUpdate				=	9,
 
 };
 

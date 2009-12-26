@@ -1918,6 +1918,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\FactoryFactory.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\FactoryFactory.h"
+					>
+				</File>
+				<File
 					RelativePath=".\HarvesterFactory.cpp"
 					>
 				</File>

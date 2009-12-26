@@ -9,8 +9,8 @@ Copyright (c) 2006 - 2008 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
-#ifndef ANH_ZONESERVER_Factory_OBJECT_H
-#define ANH_ZONESERVER_Factory_OBJECT_H
+#ifndef ANH_ZONESERVER_FACTORY_OBJECT_H
+#define ANH_ZONESERVER_FACTORY_OBJECT_H
 
 #include "PlayerStructure.h"
 #include "BuildingEnums.h"

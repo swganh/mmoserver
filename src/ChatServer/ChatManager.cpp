@@ -2386,7 +2386,7 @@ void ChatManager::_processSystemMailMessage(Message* message,DispatchClient* cli
 	/* uint64 PlayerID = */message->getUint64();
 	uint64 ReceiverID = message->getUint64();
 	string Sender;
-	Sender.setLength(32);
+	Sender.setLength(128);
 	message->getStringAnsi(Sender);
 
 	string msgSubject;
@@ -2457,7 +2457,7 @@ void ChatManager::_PersistentMessagebySystem(Mail* mail,DispatchClient* client, 
 		int8 receiverStr[64];
 		sprintf(receiverStr,"',%"PRIu64",'",receiver->getCharId());
 		sprintf(footer,",%u,%"PRIu32")",(mail->mAttachments.getLength() << 1),mail->mTime);
-		sprintf(sql,"SELECT sf_MailCreate('%s",mail->getSender().getAnsi());
+		sprintf(sql,"SELECT sf_MailCreate('");
 		sqlPointer = sql + strlen(sql);
 		sqlPointer += mDatabase->Escape_String(sqlPointer,mail->getSender().getAnsi(),mail->getSender().getLength());
 		strcat(sql,receiverStr);

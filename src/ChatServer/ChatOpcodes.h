@@ -158,7 +158,7 @@ enum chat_opcodes
 
 	// group ISM (inter-server-messages)
 	// these are custom opcodes
-	opIsmSendSystemMailMessage		= 0x7B08578E,
+	//opIsmSendSystemMailMessage		= 0x7B08578E,
 	opIsmGroupInviteRequest			= 0x944F2822,	//[Both]	<uint32 target>
 	opIsmGroupInviteResponse		= 0x3FDF93DF,	//[Both]	<bool success>
 	opIsmGroupUnInvite				= 0x384CBE2C,	//[Both]	<uint32 target>

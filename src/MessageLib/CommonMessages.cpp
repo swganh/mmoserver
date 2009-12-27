@@ -658,21 +658,21 @@ bool MessageLib::sendSystemMessage(PlayerObject* playerObject,string customMessa
 		gMessageFactory->addString(tuFile);
 		gMessageFactory->addUint32(0);//spacer
 		gMessageFactory->addString(tuVar);
-		gMessageFactory->addString(tuCustom);
+		gMessageFactory->addString(tuCustom.getUnicode16());
 
 		//object 2		
 		gMessageFactory->addUint64(ttId);  //object id2
 		gMessageFactory->addString(ttFile);
 		gMessageFactory->addUint32(0);//spacer
 		gMessageFactory->addString(ttVar);
-		gMessageFactory->addString(ttCustom);
+		gMessageFactory->addString(ttCustom.getUnicode16());
 
 		//object 3
 		gMessageFactory->addUint64(toId);
 		gMessageFactory->addString(toFile);
 		gMessageFactory->addUint32(0);//spacer
 		gMessageFactory->addString(toVar);
-		gMessageFactory->addString(toCustom);
+		gMessageFactory->addString(toCustom.getUnicode16());
 
 		gMessageFactory->addInt32(di);
 		gMessageFactory->addUint32(0);
@@ -688,7 +688,6 @@ bool MessageLib::sendSystemMessage(PlayerObject* playerObject,string customMessa
 }
 
 //======================================================================================================================
-//
 // system message
 //
 

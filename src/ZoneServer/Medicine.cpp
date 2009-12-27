@@ -105,37 +105,36 @@ uint Medicine::getSkillRequired()
 {
 	return this->getAttribute<uint32>("healing_ability");
 }
-uint Medicine::getHealthHeal()
+uint32 Medicine::getHealthHeal()
 {
-	return this->getAttribute<uint32>("examine_heal_damage_health");
+	return (uint32)this->getAttribute<float>("examine_heal_damage_health");
 }
-uint Medicine::getActionHeal()
+uint32 Medicine::getActionHeal()
 {
-	return this->getAttribute<uint32>("examine_heal_damage_action");
+	return (uint32)this->getAttribute<float>("examine_heal_damage_action");
 }
-uint Medicine::getUsesRemaining()
+uint32 Medicine::getUsesRemaining()
 {
-	return this->getAttribute<uint32>("counter_uses_remaining");
+	return (uint32)this->getAttribute<float>("counter_uses_remaining");
 }
 bool Medicine::ConsumeUse(PlayerObject* playerObject)
 {
-	gMessageLib->sendSystemMessage(playerObject, L"Uses Remaining updated.");
+	
 
-	uint32 quantity = this->getAttribute<uint32>("counter_uses_remaining");
+	float quantity = this->getAttribute<float>("counter_uses_remaining");
 	quantity--;
 
 	if(quantity)
 	{
 		this->setAttribute("counter_uses_remaining",boost::lexical_cast<std::string>(quantity));
-		gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%u' WHERE item_id=%"PRIu64" AND attribute_id=%u",quantity,this->getId(),AttrType_CounterUsesRemaining);
+		gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%f' WHERE item_id=%"PRIu64" AND attribute_id=%u",quantity,this->getId(),AttrType_CounterUsesRemaining);
 
 		//now update the uses display
 		gMessageLib->sendUpdateUses(this,playerObject);
 		return false;
 	}
-	else
+	else //destroy us
 	{
-		//Inventory* inventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 		//the db
 		gObjectFactory->deleteObjectFromDB(this);
 
@@ -143,7 +142,11 @@ bool Medicine::ConsumeUse(PlayerObject* playerObject)
 		gMessageLib->sendDestroyObject(this->getId(),playerObject);
 
 		//delete it out of the inventory
-		//inventory->deleteObject(this);
+		//uint64 now = Anh_Utils::Clock::getSingleton()->getLocalTime();
+		//playerObject->getController()->addEvent(new ItemDeleteEvent(now+100,this->getId());
+		
+		//the above commented code is used for other consumeables
+		//with medicine the medicmanager handles the destruction
 		return true;
 	}
 
@@ -153,14 +156,12 @@ bool Medicine::ConsumeUse(PlayerObject* playerObject)
 
 void Medicine::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount)
 {
-	//RadialMenu* radial	= new RadialMenu();
+	RadialMenu* radial	= new RadialMenu();
 
-	//uint32 StimType = this->getItemType();
-
-	//uint32 radId = 0;
-
-	//RadialMenuPtr radialPtr(radial);
-
-	//mRadialMenu = radialPtr;
+	radial->addItem(1,0,radId_itemUse,radAction_ObjCallback,"");
+	radial->addItem(2,0,radId_examine,radAction_ObjCallback,"");
+	radial->addItem(3,0,radId_itemDestroy,radAction_ObjCallback,"");
+	RadialMenuPtr radialPtr(radial);
+	mRadialMenu = radialPtr;
 
 }

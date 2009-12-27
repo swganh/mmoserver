@@ -1107,6 +1107,10 @@
 						>
 					</File>
 					<File
+						RelativePath=".\ItemDeleteEvent.h"
+						>
+					</File>
+					<File
 						RelativePath=".\LogOutEvent.h"
 						>
 					</File>

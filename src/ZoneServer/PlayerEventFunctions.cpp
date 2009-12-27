@@ -529,7 +529,7 @@ void PlayerObject::onSample(const SampleEvent* event)
 }
 
 //=============================================================================
-//
+// this event manages the logout through the /logout command
 //
 
 void PlayerObject::onLogout(const LogOutEvent* event)
@@ -557,6 +557,9 @@ void PlayerObject::onLogout(const LogOutEvent* event)
 	
 }
 
+//=============================================================================
+// this event manages the burstrun
+//
 void PlayerObject::onBurstRun(const BurstRunEvent* event)
 {
 
@@ -604,6 +607,29 @@ void PlayerObject::onBurstRun(const BurstRunEvent* event)
 	{
 		mObjectController.addEvent(new BurstRunEvent(event->getEndTime(),event->getCoolDown()),t-now);
 	}
+		
+}
+
+
+//=============================================================================
+// this event manages the removeal of consumeables - so an object doesnt have to delete itself
+// CAVE we only remove it out of the inventory / objectmap
+void PlayerObject::onItemDeleteEvent(const ItemDeleteEvent* event)
+{
+
+	uint64 now = Anh_Utils::Clock::getSingleton()->getLocalTime();
+
+	//do we have to remove the cooldown?
+	
+	Item* item = dynamic_cast<Item*>(gWorldManager->getObjectById(event->getItem()));
+	if(!item)
+	{
+		gLogger->logMsgF("PlayerObject::onItemDeleteEvent: Item %I64u not found",MSG_HIGH,event->getItem());
+		return;
+	}
+	
+	Inventory* inventory = dynamic_cast<Inventory*>(this->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+	inventory->deleteObject(item);
 		
 }
 

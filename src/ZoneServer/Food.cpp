@@ -20,6 +20,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "DatabaseManager/Database.h"
 #include "MessageLib/MessageLib.h"
 #include "MathLib/Quaternion.h"
+#include "Utils/clock.h"
 
 //=============================================================================
 
@@ -221,8 +222,8 @@ void Food::handleFoodUse(Object* srcObject)
 		gMessageLib->sendDestroyObject(this->getId(),playerObject);
 		
 		//delete it out of the inventory
-		inventory->deleteObject(this);
-		
+		uint64 now = Anh_Utils::Clock::getSingleton()->getLocalTime();
+		playerObject->getController()->addEvent(new ItemDeleteEvent(now+100,this->getId()),100);
 		return;
 
 	}

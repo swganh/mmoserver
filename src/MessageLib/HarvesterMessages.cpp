@@ -274,8 +274,8 @@ bool MessageLib::sendBaselinesHINO_7(HarvesterObject* harvester,PlayerObject* pl
 		it++;
 	}
 	
-	//uint8 condition = ((harvester->getMaxCondition()-harvester->getDamage())/(harvester->getMaxCondition()/100));
-	gMessageFactory->addUint8(200);//condition);//	  condition
+	uint8 condition = ((harvester->getMaxCondition()-harvester->getDamage())/(harvester->getMaxCondition()/100));
+	gMessageFactory->addUint8(condition);//	  condition
 	//float condition = (float)((harvester->getMaxCondition()-harvester->getDamage())/(harvester->getMaxCondition()/100));
 	//gMessageFactory->addFloat((float)2.0);//condition);//	  condition
 
@@ -498,9 +498,13 @@ void MessageLib::sendHarvesterResourceData(PlayerStructure* structure,PlayerObje
 		else
 		{
 			ratio	= (cR->getDistribution((int)posX + 8192,(int)posZ + 8192)*100);
-			if(ratio > 100)
+			if(ratio > 100.0)
 			{
-				ratio = 100;
+				ratio = 100.0;
+			}
+			if(ratio < 0.0)
+			{
+				ratio = 0.0;
 			}
 		}
 

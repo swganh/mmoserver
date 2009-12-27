@@ -22,6 +22,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "SampleEvent.h"
 #include "LogOutEvent.h"
 #include "BurstRunEvent.h"
+#include "ItemDeleteEvent.h"
 #include "Common/DispatchClient.h"
 #include <map>
 
@@ -309,7 +310,8 @@ class PlayerObject : public CreatureObject
 		void				onSample(const SampleEvent* event);
 		void				onLogout(const LogOutEvent* event);
 		void				onBurstRun(const BurstRunEvent* event);
-		
+		void				onItemDeleteEvent(const ItemDeleteEvent* event);
+								 
 
 		// cloning
 		void				clone(uint64 parentId,Anh_Math::Quaternion dir,Anh_Math::Vector3 pos);

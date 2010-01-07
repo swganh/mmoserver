@@ -209,6 +209,8 @@ void WorldManager::Shutdown()
 
 	// Let's get REAL dirty here, since we have no solutions to the deletion-race of containers content.
 	// Done by Eruptor. I got tired of the unhandled problem.
+	// as we cannot keep the content out of the worldmanagers mainobjectlist - we might just store references in the container object ?
+	//
 #if defined(_MSC_VER)
 	if (getObjectById((uint64)(2533274790395904)))
 #else

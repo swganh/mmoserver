@@ -35,31 +35,32 @@ typedef std::vector<Object*>			ObjectList;
 class ObjectContainer :	public Object
 {
 	
-
+	friend class ItemFactory;
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
 	public:
 
 		ObjectContainer(uint64 id,uint64 parentId,const string model,ObjectType type);
 		ObjectContainer();
 		virtual ~ObjectContainer();
 
-		ObjectList*		   getData() { return &mData; }
+		ObjectIDList*	   getData() { return &mData; }
 		Object*			   getDataById(uint64 id);
 		bool		       addData(Object* Data);
 		bool		       removeData(uint64 id);
 		bool		       removeData(Object* Data);
-		ObjectList::iterator removeData(ObjectList::iterator it);
+		ObjectIDList::iterator removeData(ObjectIDList::iterator it);
 		
-		bool			   checkCapacity(){return(mCapacity > 0);}
-		void			   setCapacity(uint64 cap){mCapacity = cap;}
-		uint64			   getCapacity(){return mCapacity;}
+		bool			   checkCapacity(){return((mCapacity-mData.size()) > 0);}
+		void			   setCapacity(uint16 cap){mCapacity = cap;}
+		uint16			   getCapacity(){return mCapacity;}
 
 
 private:
 
 
 
-		ObjectList			mData;
-		uint64				mCapacity;
+		ObjectIDList			mData;
+		uint16				mCapacity;
 
 		
 		

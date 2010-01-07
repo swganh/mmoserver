@@ -332,6 +332,33 @@ bool MessageLib::sendEquippedItems(PlayerObject* srcObject,PlayerObject* targetO
 
 //======================================================================================================================
 //
+// creates all items childobjects
+//
+
+bool MessageLib::sendItemChildren(TangibleObject* srcObject,PlayerObject* targetObject)
+{
+	if(!_checkPlayer(targetObject))
+		return(false);
+
+	ObjectIDList*			childObjects		= srcObject->getData();
+	ObjectIDList::iterator	childObjectsIt		= childObjects->begin();
+
+	while(childObjectsIt != childObjects->end())
+	{
+		// items
+		if(TangibleObject* to = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*childObjectsIt))))
+		{
+			gMessageLib->sendCreateTangible(to,targetObject);
+		}
+
+		++childObjectsIt;
+	}
+
+	return(true);
+}
+
+//======================================================================================================================
+//
 // create player
 //
 
@@ -873,6 +900,7 @@ void MessageLib::sendInventory(PlayerObject* playerObject)
 			{
 				//gLogger->logMsgF("MessageLib::inventory:Tangible  %I64u parentId %I64u",MSG_HIGH,tangible->getId(),tangible->getParentId());
 				sendCreateTangible(tangible,playerObject);
+				sendItemChildren(tangible,playerObject);
 			}
 
 			++objIt;

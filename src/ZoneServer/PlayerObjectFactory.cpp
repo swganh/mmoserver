@@ -657,7 +657,7 @@ PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
 void PlayerObjectFactory::_setupDatabindings()
 {
 	//player binding
-	mPlayerBinding = mDatabase->CreateDataBinding(189);
+	mPlayerBinding = mDatabase->CreateDataBinding(185);
 	mPlayerBinding->addField(DFT_uint64,offsetof(PlayerObject,mId),8,0);
 	mPlayerBinding->addField(DFT_uint64,offsetof(PlayerObject,mParentId),8,1);
 	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mAccountId),4,2);
@@ -682,7 +682,7 @@ void PlayerObjectFactory::_setupDatabindings()
 	mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mBaseRunSpeedLimit),4,171);
 	mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mBaseAcceleration),4,172);
 	mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mBaseTurnRate),4,173);
-	mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mBaseTerrainNegotiation),4,174);
+	mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mBaseTerrainNegotiation),4,174);//24
 
 	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mPlayerFlags),4,175);
 	mPlayerBinding->addField(DFT_bstring,offsetof(PlayerObject,mBiography),4096,176);
@@ -698,7 +698,7 @@ void PlayerObjectFactory::_setupDatabindings()
 	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mPlayerMatch[3]),4,186);
 	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mCurrentForce),4,187);
 	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mMaxForce),4,188);
-	mPlayerBinding->addField(DFT_uint8,offsetof(PlayerObject,mNewPlayerExemptions),1,189);
+	mPlayerBinding->addField(DFT_uint8,offsetof(PlayerObject,mNewPlayerExemptions),1,189);		 //39
 
 	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mHealth.mMaxHitPoints),4,132);
 	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mStrength.mMaxHitPoints),4,133);
@@ -708,7 +708,7 @@ void PlayerObjectFactory::_setupDatabindings()
 	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mStamina.mMaxHitPoints),4,137);
 	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mMind.mMaxHitPoints),4,138);
 	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mFocus.mMaxHitPoints),4,139);
-	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mWillpower.mMaxHitPoints),4,140);
+	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mWillpower.mMaxHitPoints),4,140); //48
 
 	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mHealth.mCurrentHitPoints),4,141);
 	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mStrength.mCurrentHitPoints),4,142);
@@ -731,13 +731,13 @@ void PlayerObjectFactory::_setupDatabindings()
 	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mHealth.mEncumbrance),4,159);
 	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mAction.mEncumbrance),4,160);
 	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mMind.mEncumbrance),4,161);
-	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mBattleFatigue),4,162);
+	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mBattleFatigue),4,162);				 //70
 
 	for(uint16 i = 0;i < 0x71;i++)
-		mPlayerBinding->addField(DFT_uint16,offsetof(PlayerObject,mCustomization[i]),2,i + 17);
+		mPlayerBinding->addField(DFT_uint16,offsetof(PlayerObject,mCustomization[i]),2,i + 17);//+113 = 183
 
 	mPlayerBinding->addField(DFT_uint16,offsetof(PlayerObject,mCustomization[171]),2,130);
-	mPlayerBinding->addField(DFT_uint16,offsetof(PlayerObject,mCustomization[172]),2,131);
+	mPlayerBinding->addField(DFT_uint16,offsetof(PlayerObject,mCustomization[172]),2,131);				   //185
 
 	//hair binding
 	mHairBinding = mDatabase->CreateDataBinding(3);

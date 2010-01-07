@@ -915,7 +915,8 @@ bool MessageLib::sendPlayClientEffectLocMessage(string effect,Anh_Math::Vector3 
 	gMessageFactory->addString(effect);
 	gMessageFactory->addString(planet);
 	gMessageFactory->addFloat(pos.mX);
-	gMessageFactory->addFloat(static_cast<float>(pos.mY - 0.2));
+	//gMessageFactory->addFloat(static_cast<float>(pos.mY - 0.2));
+	gMessageFactory->addFloat(pos.mY);
 	gMessageFactory->addFloat(pos.mZ);
 	gMessageFactory->addUint64(0);
 	gMessageFactory->addUint32(0); 
@@ -1529,4 +1530,580 @@ void MessageLib::sendLogout(PlayerObject* playerObject)
 	
 	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 5);
 
+}
+
+/*
+bool MessageLib::sendSystemMessage(PlayerObject* playerObject,string mainFile,string mainVar,TangibleObject* to, CreatureObject* tt, CreatureObject* tu, int32 di)
+{
+	if(!playerObject)
+	{
+		gLogger->logMsg("bool MessageLib::sendSystemMessage (Objects) :: player is NULL");
+		return(false);
+	}
+
+	if(!(playerObject->isConnected()))
+		return(false);
+
+	gMessageFactory->StartMessage(); 
+	gMessageFactory->addUint32(opChatSystemMessage);  
+	gMessageFactory->addUint8(0);
+
+	
+	// templated message
+	gMessageFactory->addUint32(0);				 
+
+	// WRONG!
+	// The real size is the size of ALL parameters.
+	// uint32	realSize = mainFile.getLength() + mainVar.getLength() + toFile.getLength() + toVar.getLength() + ttFile.getLength() + ttVar.getLength();
+
+	string tuFullName;
+	string ttFullName;
+	string toCustom;
+
+	uint32	realSize = mainFile.getLength() + mainVar.getLength();
+	if(to)
+	{
+		realSize +=		to->getNameFile().getLength() + to->getName().getLength();
+		toCustom =		to->getCustomName();
+		toCustom.convert(BSTRType_Unicode16);
+	}
+
+	if(tu)
+	{
+		realSize +=  tu->getSpeciesString().getLength() + tu->getSpeciesGroup().getLength();
+		if(tu->getFirstName().getLength() > 1)
+		{
+			tuFullName << tu->getFirstName().getAnsi();
+		}
+		if(tu->getLastName().getLength() > 1)
+		{
+			tuFullName << tu->getLastName().getAnsi();
+		}
+
+		tuFullName.convert(BSTRType_Unicode16);
+	}
+
+	if(tt)
+	{
+		realSize +=  tt->getSpeciesString().getLength() + tt->getSpeciesGroup().getLength();
+		if(tt->getFirstName().getLength() > 1)
+		{
+			ttFullName << tt->getFirstName().getAnsi();
+		}
+		if(tt->getLastName().getLength() > 1)
+		{
+			ttFullName << tt->getLastName().getAnsi();
+		}
+
+		ttFullName.convert(BSTRType_Unicode16);
+
+	}
+	
+
+	gMessageFactory->addUint32(42 + ((uint32)ceil(((double)realSize) / 2.0)) + toCustom.getLength() + tuFullName.getLength() + ttFullName.getLength());
+
+	if(realSize % 2)
+		gMessageFactory->addUint16(1);
+	else
+		gMessageFactory->addUint16(0);
+
+	gMessageFactory->addUint8(1);
+	gMessageFactory->addUint32(0xFFFFFFFF);
+
+	//main message		
+	gMessageFactory->addString(mainFile);
+	gMessageFactory->addUint32(0);//spacer
+	gMessageFactory->addString(mainVar);
+
+	//object 1
+	if(tu)
+	{
+		gMessageFactory->addUint64(tu->getId());
+		gMessageFactory->addString(tu->getSpeciesGroup().getAnsi());
+		gMessageFactory->addUint32(0);//spacer
+		gMessageFactory->addString(tu->getSpeciesString().getAnsi());
+		gMessageFactory->addString(tuFullName.getUnicode16());
+	}
+	else
+	{
+		gMessageFactory->addUint64(0);
+		gMessageFactory->addString(BString("").getAnsi());
+		gMessageFactory->addUint32(0);//spacer
+		gMessageFactory->addString(BString("").getAnsi());
+		gMessageFactory->addUint32(0);//
+	}
+
+	//object 2		
+	if(tt)
+	{
+		gMessageFactory->addUint64(tt->getId());  //object id2
+		gMessageFactory->addString(tt->getSpeciesGroup().getAnsi());
+		gMessageFactory->addUint32(0);//spacer
+		gMessageFactory->addString(tt->getSpeciesString().getAnsi());
+		gMessageFactory->addString(ttFullName.getUnicode16());
+	}
+	else
+	{
+		gMessageFactory->addUint64(0);
+		gMessageFactory->addString(BString("").getAnsi());
+		gMessageFactory->addUint32(0);//spacer
+		gMessageFactory->addString(BString("").getAnsi());
+		gMessageFactory->addUint32(0);//spacer
+	}
+
+	//object 3
+	if(to)
+	{
+		gMessageFactory->addUint64(to->getId());
+		gMessageFactory->addString(to->getNameFile().getAnsi());
+		gMessageFactory->addUint32(0);//spacer
+		gMessageFactory->addString(to->getName().getAnsi());
+		gMessageFactory->addUint32(0);//spacer
+		//gMessageFactory->addString(to->getCustomName().getUnicode16());
+	}
+	else
+	{
+		gMessageFactory->addUint64(0);
+		gMessageFactory->addString(BString("").getAnsi());
+		gMessageFactory->addUint32(0);//spacer
+		gMessageFactory->addString(BString("").getAnsi());
+		gMessageFactory->addUint32(0);//spacer
+	}
+
+	gMessageFactory->addInt32(di);
+	gMessageFactory->addUint32(0);
+	gMessageFactory->addUint8(0);
+
+	if(realSize % 2)
+		gMessageFactory->addUint8(0);
+
+	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 5);
+
+	return(true);
+}
+
+
+bool MessageLib::sendSystemMessage(PlayerObject* playerObject,string mainFile,string mainVar,TangibleObject* to, TangibleObject* tt, CreatureObject* tu, int32 di)
+{
+	if(!playerObject)
+	{
+		gLogger->logMsg("bool MessageLib::sendSystemMessage (Objects) :: player is NULL");
+		return(false);
+	}
+
+	if(!(playerObject->isConnected()))
+		return(false);
+
+	gMessageFactory->StartMessage(); 
+	gMessageFactory->addUint32(opChatSystemMessage);  
+	gMessageFactory->addUint8(0);
+
+	
+	// templated message
+	gMessageFactory->addUint32(0);				 
+
+	// WRONG!
+	// The real size is the size of ALL parameters.
+	// uint32	realSize = mainFile.getLength() + mainVar.getLength() + toFile.getLength() + toVar.getLength() + ttFile.getLength() + ttVar.getLength();
+
+	string tuFullName;
+	string ttCustom;
+	string toCustom;
+
+	uint32	realSize = mainFile.getLength() + mainVar.getLength();
+	if(to)
+	{
+		realSize +=		to->getNameFile().getLength() + to->getName().getLength();
+		toCustom =		to->getCustomName();
+		toCustom.convert(BSTRType_Unicode16);
+	}
+
+	if(tu)
+	{
+		realSize +=  tu->getSpeciesString().getLength() + tu->getSpeciesGroup().getLength();
+		if(tu->getFirstName().getLength() > 1)
+		{
+			tuFullName << tu->getFirstName().getAnsi();
+		}
+		if(tu->getLastName().getLength() > 1)
+		{
+			tuFullName << tu->getLastName().getAnsi();
+		}
+
+		tuFullName.convert(BSTRType_Unicode16);
+	}
+
+	if(tt)
+	{
+		realSize +=		tt->getNameFile().getLength() + tt->getName().getLength();
+		ttCustom =		tt->getCustomName();
+		ttCustom.convert(BSTRType_Unicode16);
+	}
+	
+
+	gMessageFactory->addUint32(42 + ((uint32)ceil(((double)realSize) / 2.0)) + toCustom.getLength() + tuFullName.getLength() + ttCustom.getLength());
+
+	if(realSize % 2)
+		gMessageFactory->addUint16(1);
+	else
+		gMessageFactory->addUint16(0);
+
+	gMessageFactory->addUint8(1);
+	gMessageFactory->addUint32(0xFFFFFFFF);
+
+	//main message		
+	gMessageFactory->addString(mainFile);
+	gMessageFactory->addUint32(0);//spacer
+	gMessageFactory->addString(mainVar);
+
+	//object 1
+	if(tu)
+	{
+		gMessageFactory->addUint64(tu->getId());
+		gMessageFactory->addString(tu->getSpeciesGroup().getAnsi());
+		gMessageFactory->addUint32(0);//spacer
+		gMessageFactory->addString(tu->getSpeciesString().getAnsi());
+		gMessageFactory->addString(tuFullName.getUnicode16());
+	}
+	else
+	{
+		gMessageFactory->addUint64(0);
+		gMessageFactory->addString(BString("").getAnsi());
+		gMessageFactory->addUint32(0);//spacer
+		gMessageFactory->addString(BString("").getAnsi());
+		gMessageFactory->addUint32(0);//
+	}
+
+	//object 2		
+	if(tt)
+	{
+		gMessageFactory->addUint64(tt->getId());
+		gMessageFactory->addString(tt->getNameFile().getAnsi());
+		gMessageFactory->addUint32(0);//spacer
+		gMessageFactory->addString(tt->getName().getAnsi());
+		gMessageFactory->addUint32(0);//spacer
+	}
+	else
+	{
+		gMessageFactory->addUint64(0);
+		gMessageFactory->addString(BString("").getAnsi());
+		gMessageFactory->addUint32(0);//spacer
+		gMessageFactory->addString(BString("").getAnsi());
+		gMessageFactory->addUint32(0);//spacer
+	}
+
+	//object 3
+	if(to)
+	{
+		gMessageFactory->addUint64(to->getId());
+		gMessageFactory->addString(to->getNameFile().getAnsi());
+		gMessageFactory->addUint32(0);//spacer
+		gMessageFactory->addString(to->getName().getAnsi());
+		gMessageFactory->addUint32(0);//spacer
+		//gMessageFactory->addString(to->getCustomName().getUnicode16());
+	}
+	else
+	{
+		gMessageFactory->addUint64(0);
+		gMessageFactory->addString(BString("").getAnsi());
+		gMessageFactory->addUint32(0);//spacer
+		gMessageFactory->addString(BString("").getAnsi());
+		gMessageFactory->addUint32(0);//spacer
+	}
+
+	gMessageFactory->addInt32(di);
+	gMessageFactory->addUint32(0);
+	gMessageFactory->addUint8(0);
+
+	if(realSize % 2)
+		gMessageFactory->addUint8(0);
+
+	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 5);
+
+	return(true);
+}
+					  
+bool MessageLib::sendSystemMessage(PlayerObject* playerObject,string mainFile,string mainVar, int32 di)
+{
+	if(!playerObject)
+	{
+		gLogger->logMsg("bool MessageLib::sendSystemMessage (Objects) :: player is NULL");
+		return(false);
+	}
+
+	if(!(playerObject->isConnected()))
+		return(false);
+
+	gMessageFactory->StartMessage(); 
+	gMessageFactory->addUint32(opChatSystemMessage);  
+	gMessageFactory->addUint8(0);
+
+	
+	// templated message
+	gMessageFactory->addUint32(0);				 
+
+	// WRONG!
+	// The real size is the size of ALL parameters.
+	// uint32	realSize = mainFile.getLength() + mainVar.getLength() + toFile.getLength() + toVar.getLength() + ttFile.getLength() + ttVar.getLength();
+
+	uint32	realSize = mainFile.getLength() + mainVar.getLength();
+
+	gMessageFactory->addUint32(42 + ((uint32)ceil(((double)realSize) / 2.0)));
+
+	if(realSize % 2)
+		gMessageFactory->addUint16(1);
+	else
+		gMessageFactory->addUint16(0);
+
+	gMessageFactory->addUint8(1);
+	gMessageFactory->addUint32(0xFFFFFFFF);
+
+	//main message		
+	gMessageFactory->addString(mainFile);
+	gMessageFactory->addUint32(0);//spacer
+	gMessageFactory->addString(mainVar);
+
+	//object 1
+
+	gMessageFactory->addUint64(0);
+	gMessageFactory->addString(BString("").getAnsi());
+	gMessageFactory->addUint32(0);//spacer
+	gMessageFactory->addString(BString("").getAnsi());
+	gMessageFactory->addUint32(0);//
+
+	gMessageFactory->addUint64(0);
+	gMessageFactory->addString(BString("").getAnsi());
+	gMessageFactory->addUint32(0);//spacer
+	gMessageFactory->addString(BString("").getAnsi());
+	gMessageFactory->addUint32(0);//spacer
+
+	gMessageFactory->addUint64(0);
+	gMessageFactory->addString(BString("").getAnsi());
+	gMessageFactory->addUint32(0);//spacer
+	gMessageFactory->addString(BString("").getAnsi());
+	gMessageFactory->addUint32(0);//spacer
+	
+
+	gMessageFactory->addInt32(di);
+	gMessageFactory->addUint32(0);
+	gMessageFactory->addUint8(0);
+
+	if(realSize % 2)
+		gMessageFactory->addUint8(0);
+
+	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 5);
+
+	return(true);
+}
+
+		  */
+bool MessageLib::sendSysMsg(PlayerObject* playerObject,string mainFile,string mainVar,Object* to, Object* tt, Object* tu, int32 di)
+{
+	if(!playerObject)
+	{
+		gLogger->logMsg("bool MessageLib::sendSystemMessage (Objects) :: player is NULL");
+		return(false);
+	}
+
+	if(!(playerObject->isConnected()))
+		return(false);
+
+	gMessageFactory->StartMessage(); 
+	gMessageFactory->addUint32(opChatSystemMessage);  
+	gMessageFactory->addUint8(0);
+
+	
+	// templated message
+	gMessageFactory->addUint32(0);				 
+
+	// WRONG!
+	// The real size is the size of ALL parameters.
+	// uint32	realSize = mainFile.getLength() + mainVar.getLength() + toFile.getLength() + toVar.getLength() + ttFile.getLength() + ttVar.getLength();
+
+	string ttCustom, toCustom, tuCustom;
+	string ttdir, tudir, todir;
+	string ttfile, tufile, tofile;
+	
+
+	uint32	realSize = mainFile.getLength() + mainVar.getLength();
+	
+	TangibleObject* tto = dynamic_cast<TangibleObject*>(to);
+	
+	if(tto)
+	{
+		realSize +=		tto->getNameFile().getLength() + tto->getName().getLength();
+		toCustom =		tto->getCustomName();
+		toCustom.convert(BSTRType_Unicode16);
+		
+		tofile	= tto->getNameFile();
+		todir	= tto->getName();
+	}
+	else
+	{
+		CreatureObject* cto = dynamic_cast<CreatureObject*>(to);
+		if(cto)
+		{
+			realSize +=  cto->getSpeciesString().getLength() + cto->getSpeciesGroup().getLength();
+			if(cto->getFirstName().getLength() > 1)
+			{
+				toCustom << cto->getFirstName().getAnsi();
+			}
+			if(cto->getLastName().getLength() > 1)
+			{
+				toCustom<< cto->getLastName().getAnsi();
+			}
+
+			toCustom.convert(BSTRType_Unicode16);
+
+			tofile	= cto->getSpeciesGroup();
+			todir	= cto->getSpeciesString();
+		}
+	}
+
+	TangibleObject* ttu = dynamic_cast<TangibleObject*>(tu);
+	
+	if(ttu)
+	{
+		realSize +=		ttu->getNameFile().getLength() + ttu->getName().getLength();
+		tuCustom =		ttu->getCustomName();
+		tuCustom.convert(BSTRType_Unicode16);
+		tufile	= ttu->getNameFile();
+		tudir	= ttu->getName();
+	}
+	else
+	{
+		CreatureObject* ctu = dynamic_cast<CreatureObject*>(tu);
+		if(ctu)
+		{
+			realSize +=  ctu->getSpeciesString().getLength() + ctu->getSpeciesGroup().getLength();
+			if(ctu->getFirstName().getLength() > 1)
+			{
+				tuCustom << ctu->getFirstName().getAnsi();
+			}
+			if(ctu->getLastName().getLength() > 1)
+			{
+				tuCustom<< ctu->getLastName().getAnsi();
+			}
+
+			tuCustom.convert(BSTRType_Unicode16);
+
+			tufile	= ctu->getSpeciesGroup();
+			tudir	= ctu->getSpeciesString();
+		}
+	}
+
+	
+	TangibleObject* ttt = dynamic_cast<TangibleObject*>(tt);
+
+	if(ttt)
+	{
+		realSize +=		ttt->getNameFile().getLength() + ttt->getName().getLength();
+		ttCustom =		ttt->getCustomName();
+		ttCustom.convert(BSTRType_Unicode16);
+
+		ttfile	= ttt->getNameFile();
+		ttdir	= ttt->getName();
+	}
+	else
+	{
+		CreatureObject* ctt = dynamic_cast<CreatureObject*>(tt);
+		if(ctt)
+		{
+			realSize +=  ctt->getSpeciesString().getLength() + ctt->getSpeciesGroup().getLength();
+			if(ctt->getFirstName().getLength() > 1)
+			{
+				ttCustom<< ctt->getFirstName().getAnsi();
+			}
+			if(ctt->getLastName().getLength() > 1)
+			{
+				ttCustom<< ctt->getLastName().getAnsi();
+			}
+
+			ttCustom.convert(BSTRType_Unicode16);
+
+			ttfile	= ctt->getSpeciesGroup();
+			ttdir	= ctt->getSpeciesString();
+		}
+	}
+
+	gMessageFactory->addUint32(42 + ((uint32)ceil(((double)realSize) / 2.0)) + toCustom.getLength() + tuCustom.getLength() + ttCustom.getLength());
+
+	if(realSize % 2)
+		gMessageFactory->addUint16(1);
+	else
+		gMessageFactory->addUint16(0);
+
+	gMessageFactory->addUint8(1);
+	gMessageFactory->addUint32(0xFFFFFFFF);
+
+	//main message		
+	gMessageFactory->addString(mainFile);
+	gMessageFactory->addUint32(0);//spacer
+	gMessageFactory->addString(mainVar);
+
+	//object 1
+	if(tu)
+	{
+		gMessageFactory->addUint64(tu->getId());
+		gMessageFactory->addString(tufile.getAnsi());
+		gMessageFactory->addUint32(0);//spacer
+		gMessageFactory->addString(tudir.getAnsi());
+		gMessageFactory->addString(tuCustom.getUnicode16());
+	}
+	else
+	{
+		gMessageFactory->addUint64(0);
+		gMessageFactory->addString(BString("").getAnsi());
+		gMessageFactory->addUint32(0);//spacer
+		gMessageFactory->addString(BString("").getAnsi());
+		gMessageFactory->addUint32(0);//
+	}
+
+	//object 2		
+	if(tt)
+	{
+		gMessageFactory->addUint64(tt->getId());
+		gMessageFactory->addString(ttfile.getAnsi());
+		gMessageFactory->addUint32(0);//spacer
+		gMessageFactory->addString(ttdir.getAnsi());
+		gMessageFactory->addString(ttCustom.getUnicode16());
+	}
+	else
+	{
+		gMessageFactory->addUint64(0);
+		gMessageFactory->addString(BString("").getAnsi());
+		gMessageFactory->addUint32(0);//spacer
+		gMessageFactory->addString(BString("").getAnsi());
+		gMessageFactory->addUint32(0);//spacer
+	}
+
+	//object 3
+	if(to)
+	{
+		gMessageFactory->addUint64(to->getId());
+		gMessageFactory->addString(tofile.getAnsi());
+		gMessageFactory->addUint32(0);//spacer
+		gMessageFactory->addString(todir.getAnsi());
+		gMessageFactory->addString(toCustom.getUnicode16());
+		//gMessageFactory->addString(to->getCustomName().getUnicode16());
+	}
+	else
+	{
+		gMessageFactory->addUint64(0);
+		gMessageFactory->addString(BString("").getAnsi());
+		gMessageFactory->addUint32(0);//spacer
+		gMessageFactory->addString(BString("").getAnsi());
+		gMessageFactory->addUint32(0);//spacer
+	}
+
+	gMessageFactory->addInt32(di);
+	gMessageFactory->addUint32(0);
+	gMessageFactory->addUint8(0);
+
+	if(realSize % 2)
+		gMessageFactory->addUint8(0);
+
+	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 5);
+
+	return(true);
 }

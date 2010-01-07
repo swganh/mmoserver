@@ -12,13 +12,13 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "ObjectContainer.h"
 #include "PlayerObject.h"
 #include "MessageLib/MessageLib.h"
-
+#include "WorldManager.h"
 
 //=============================================================================
 
 ObjectContainer::ObjectContainer() 
 {
-	mCapacity = 65535;	
+	mCapacity = 0;	
 }
 
 //=============================================================================
@@ -27,7 +27,7 @@ ObjectContainer::ObjectContainer()
 ObjectContainer::ObjectContainer(uint64 id,uint64 parentId,string model,ObjectType type) 
 				:Object(id,parentId,model,ObjType_Tangible)
 {
-	mCapacity = 65535;	
+	mCapacity = 0;	
 
 }
 
@@ -44,9 +44,8 @@ bool ObjectContainer::addData(Object* Data)
 { 
 	if(mCapacity)
 	{
-		mData.push_back(Data); 
+		mData.push_back(Data->getId()); 
 		//PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getParentId()));					
-		mCapacity--;
 		return true;
 	}
 	else
@@ -62,11 +61,14 @@ bool ObjectContainer::addData(Object* Data)
 
 Object* ObjectContainer::getDataById(uint64 id)
 {
-	ObjectList::iterator it = mData.begin();
+	ObjectIDList::iterator it = mData.begin();
 
 	while(it != mData.end())
 	{
-		if((*it)->getId() == id) return(*it); ++it;
+		if((*it) == id) 
+			return(gWorldManager->getObjectById((*it))); 
+
+		++it;
 	}
 	gLogger->logMsgF("ObjectContainer::getDataById Data %I64u not found",MSG_HIGH, id);
 	return NULL;
@@ -76,12 +78,12 @@ Object* ObjectContainer::getDataById(uint64 id)
 
 bool ObjectContainer::removeData(Object* data)
 {
-	ObjectList::iterator it = mData.begin();
+	ObjectIDList::iterator it = mData.begin();
 	while(it != mData.end())
 	{
-		if((*it) == data)
+		if((*it) == data->getId())
 		{
-			removeData(it);
+			it = mData.erase(it);
 			return true;
 		}
 		++it;
@@ -94,12 +96,12 @@ bool ObjectContainer::removeData(Object* data)
 
 bool ObjectContainer::removeData(uint64 id)
 {
-	ObjectList::iterator it = mData.begin();
+	ObjectIDList::iterator it = mData.begin();
 	while(it != mData.end())
 	{
-		if((*it)->getId() == id)
+		if((*it) == id)
 		{
-			removeData(it);
+			it = mData.erase(it);
 			return true;
 		}
 		++it;
@@ -110,9 +112,8 @@ bool ObjectContainer::removeData(uint64 id)
 
 //=============================================================================
 
-ObjectList::iterator ObjectContainer::removeData(ObjectList::iterator it)
+ObjectIDList::iterator ObjectContainer::removeData(ObjectIDList::iterator it)
 {
 	it = mData.erase(it);
-	mCapacity++;
 return it;
 }

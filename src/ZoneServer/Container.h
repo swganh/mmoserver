@@ -40,9 +40,9 @@ class Container : public TangibleObject
 		void		deleteObject(Object* object);
 
 	private:
-		uint32		mObjectLoadCounter;
+		uint32				mObjectLoadCounter;
 		CreatureObject*		mParent;
-		ObjectList	mObjects;
+		ObjectList			mObjects;
 };
 
 //=============================================================================

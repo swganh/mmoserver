@@ -218,12 +218,12 @@ void ChatManager::_loadDatabindings()
 	mPlayerBinding->addField(DFT_bstring, offsetof(PlayerData, name),				64, 0);
 	mPlayerBinding->addField(DFT_bstring, offsetof(PlayerData, last_name),	64, 1);
 
-	mChannelBinding = mDatabase->CreateDataBinding(7);
-	mChannelBinding->addField(DFT_uint32,		offsetof(ChannelData,id),						4,		0);
-	mChannelBinding->addField(DFT_bstring,	offsetof(ChannelData,name),					65,		1);
-	mChannelBinding->addField(DFT_uint8,		offsetof(ChannelData,is_private),		1,		2);
-	mChannelBinding->addField(DFT_uint8,		offsetof(ChannelData,is_moderated),	1,		3);
-	mChannelBinding->addField(DFT_bstring,	offsetof(ChannelData,title),				256,	6);
+	mChannelBinding = mDatabase->CreateDataBinding(5);
+	mChannelBinding->addField(DFT_uint32,	offsetof(ChannelData,id),			4,		0);
+	mChannelBinding->addField(DFT_bstring,	offsetof(ChannelData,name),			65,		1);
+	mChannelBinding->addField(DFT_uint8,	offsetof(ChannelData,is_private),	1,		2);
+	mChannelBinding->addField(DFT_uint8,	offsetof(ChannelData,is_moderated),	1,		3);
+	mChannelBinding->addField(DFT_bstring,	offsetof(ChannelData,title),		256,	6);
 
 	mCreatorBinding = mDatabase->CreateDataBinding(1);
 	mCreatorBinding->addField(DFT_bstring, 0, 33, 4);
@@ -232,20 +232,20 @@ void ChatManager::_loadDatabindings()
 	mOwnerBinding->addField(DFT_bstring, 0, 33, 5);
 
 	mMailBinding = mDatabase->CreateDataBinding(7);
-	mMailBinding->addField(DFT_uint32,	offsetof(Mail,mId),							4,		0);
-	mMailBinding->addField(DFT_bstring,	offsetof(Mail,mSender),					64,		1);
-	mMailBinding->addField(DFT_bstring,	offsetof(Mail,mSubject),				256,	2);
-	mMailBinding->addField(DFT_bstring,	offsetof(Mail,mText),						8192,	3);
-	mMailBinding->addField(DFT_uint32,	offsetof(Mail,mTime),						4,		4);
-	mMailBinding->addField(DFT_raw,			offsetof(Mail,mAttachmentRaw),	2048,	5);
-	mMailBinding->addField(DFT_uint32,	offsetof(Mail,mAttachmentSize),	4,		6);
+	mMailBinding->addField(DFT_uint32,	offsetof(Mail,mId),					4,		0);
+	mMailBinding->addField(DFT_bstring,	offsetof(Mail,mSender),				64,		1);
+	mMailBinding->addField(DFT_bstring,	offsetof(Mail,mSubject),			256,	2);
+	mMailBinding->addField(DFT_bstring,	offsetof(Mail,mText),				8192,	3);
+	mMailBinding->addField(DFT_uint32,	offsetof(Mail,mTime),				4,		4);
+	mMailBinding->addField(DFT_raw,		offsetof(Mail,mAttachmentRaw),		2048,	5);
+	mMailBinding->addField(DFT_uint32,	offsetof(Mail,mAttachmentSize),		4,		6);
 
 	mMailHeaderBinding = mDatabase->CreateDataBinding(5);
-	mMailHeaderBinding->addField(DFT_uint32,	offsetof(Mail,mId),				4,0);
+	mMailHeaderBinding->addField(DFT_uint32,	offsetof(Mail,mId),			4,0);
 	mMailHeaderBinding->addField(DFT_bstring,	offsetof(Mail,mSender),		128,	1);
 	mMailHeaderBinding->addField(DFT_bstring,	offsetof(Mail,mSubject),	256,	2);
 	mMailHeaderBinding->addField(DFT_uint8,		offsetof(Mail,mStatus),		1,		3);
-	mMailHeaderBinding->addField(DFT_uint32,	offsetof(Mail,mTime),			4,		4);
+	mMailHeaderBinding->addField(DFT_uint32,	offsetof(Mail,mTime),		4,		4);
 
 
 

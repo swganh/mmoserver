@@ -102,6 +102,8 @@ void InventoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 				QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,IFQuery_Objects,asyncContainer->mClient);
 				asContainer->mObject = inventory;
 
+				//why would we load the lootcontainers and trashpiles for the inventory ???
+				//containers are normal items like furniture, lightsabers and stuff
 				mDatabase->ExecuteSqlAsync(this,asContainer,
 						"(SELECT \'containers\',containers.id FROM containers INNER JOIN container_types ON (containers.container_type = container_types.id)"
 						" WHERE (container_types.name NOT LIKE 'unknown') AND (containers.parent_id = %"PRIu64"))"

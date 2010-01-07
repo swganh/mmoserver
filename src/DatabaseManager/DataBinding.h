@@ -15,6 +15,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "Utils/typedefs.h"
 #include <vector>
 
+#include <cassert>
 
 // This is an example of how to setup a DataBinding object before passing it to ExecuteStatement()
 // DataBindings should only be setup once then used whenever the particualar query/class object needs it.
@@ -70,8 +71,10 @@ class DataBinding
 	public:
 					DataBinding(uint32 fieldCount) : mFieldCount(fieldCount), mFieldIndex(0) { }
 
-	  uint32		getFieldCount(void)          { return mFieldCount; }
+	  uint32		getFieldCount(void)          { assert(mFieldIndex == mFieldCount); return mFieldCount; }
 	  void			setFieldCount(uint32 count)	{ mFieldCount = count; }
+
+	  uint32		getFieldIndex(void)          { return mFieldIndex; }
 
 	  void			addField(DataFieldType type, uint32 offset, uint32 size, uint32 column = 0);
 
@@ -88,6 +91,8 @@ inline void DataBinding::addField(DataFieldType type, uint32 offset, uint32 size
 	mDataFields[mFieldIndex].mDataType    = type;
 	mDataFields[mFieldIndex].mDataOffset  = offset;
 	mDataFields[mFieldIndex].mDataSize    = size;
+
+	assert(mFieldIndex<= 200);
 
 	if (column == 0)
 	{

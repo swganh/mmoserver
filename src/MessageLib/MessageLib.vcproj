@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="MessageLib"
 	ProjectGUID="{9770A5AA-27F8-4818-9216-C6C1BE80FE2D}"
 	RootNamespace="MessageLib"

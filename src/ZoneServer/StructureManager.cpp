@@ -596,7 +596,7 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 		{
 			StructureDeedLink* deedLink;
 
-			DataBinding* binding = mDatabase->CreateDataBinding(7);
+			DataBinding* binding = mDatabase->CreateDataBinding(8);
 			binding->addField(DFT_uint32,offsetof(StructureDeedLink,structure_type),4,0);
 			binding->addField(DFT_uint32,offsetof(StructureDeedLink,item_type),4,1);
 			binding->addField(DFT_uint32,offsetof(StructureDeedLink,skill_Requirement),4,2);

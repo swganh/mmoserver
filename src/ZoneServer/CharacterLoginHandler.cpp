@@ -93,6 +93,7 @@ void CharacterLoginHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* 
 
 	switch(asyncContainer->callBack)
 	{
+		//were travelling to another zone
 		case CLHCallBack_Transfer_Ticket:
 		{
 			// Next step is save the player this call back goes to the worldmanager which will handle the rest
@@ -439,7 +440,7 @@ void CharacterLoginHandler::_processClusterZoneTransferApprovedByTicket(Message*
 		playerObject->updateMovementProperties();
 
 
-		//save the ticket then the position then the player
+		//delete the ticket then save the position then the player
 		CharacterLoadingContainer* asyncContainer = new(CharacterLoadingContainer);
 
 		asyncContainer->destination = destination;

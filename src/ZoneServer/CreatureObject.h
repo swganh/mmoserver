@@ -295,7 +295,7 @@ class CreatureObject : public MovingObject
 		uint64				mState;
 		float				mLastEntertainerXP;
 		float				mScale;
-		uint32				mAsyncCount;
+		uint32				mBuffAsyncCount;
 		uint32				mLanguage;
 		uint32				mLastMoveTick;
 		uint32				mPerformanceCounter;
@@ -325,10 +325,10 @@ class CreatureObject : public MovingObject
 		BuffList*			GetBuffList(){return(&mBuffList);}
 
 		//asynccount is our asyncquery counter when we store buffs async
-		uint32				GetAsyncCount(){return(mAsyncCount);}
-		void				SetAsyncCount(uint32 count){mAsyncCount = count;}
-		void				IncAsyncCount(){mAsyncCount++;}
-		void				DecAsyncCount(){mAsyncCount--;}
+		uint32				GetBuffAsyncCount(){return(mBuffAsyncCount);}
+		void				SetBuffAsyncCount(uint32 count){mBuffAsyncCount = count;}
+		void				IncBuffAsyncCount(){mBuffAsyncCount++;}
+		void				DecBuffAsyncCount(){mBuffAsyncCount--;}
 };
 
 //=============================================================================

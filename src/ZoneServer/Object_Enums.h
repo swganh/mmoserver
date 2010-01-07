@@ -58,7 +58,8 @@ enum ObjectLoadState
 	LoadState_Creature_Skills		= 5,
 	LoadState_Creature_XP			= 6,
 	LoadState_Creature_Badges		= 7,
-	LoadState_Creature_Factions		= 8
+	LoadState_Creature_Factions		= 8,
+	LoadState_ContainerContent		= 9
 };
 
 //=============================================================================

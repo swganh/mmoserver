@@ -937,58 +937,6 @@
 				</File>
 			</Filter>
 			<Filter
-				Name="common"
-				>
-				<Filter
-					Name="source"
-					>
-					<File
-						RelativePath=".\MovingObject.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\Object.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\ObjectContainer.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\StaticObject.cpp"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="header"
-					>
-					<File
-						RelativePath=".\MovingObject.h"
-						>
-					</File>
-					<File
-						RelativePath=".\Object.h"
-						>
-					</File>
-					<File
-						RelativePath=".\Object_Enums.h"
-						>
-					</File>
-					<File
-						RelativePath=".\ObjectContainer.h"
-						>
-					</File>
-					<File
-						RelativePath=".\SpawnPoint.h"
-						>
-					</File>
-					<File
-						RelativePath=".\StaticObject.h"
-						>
-					</File>
-				</Filter>
-			</Filter>
-			<Filter
 				Name="RadialMenu"
 				>
 				<File
@@ -1368,6 +1316,58 @@
 					</File>
 					<File
 						RelativePath=".\Vehicle.h"
+						>
+					</File>
+				</Filter>
+			</Filter>
+			<Filter
+				Name="common"
+				>
+				<Filter
+					Name="source"
+					>
+					<File
+						RelativePath=".\MovingObject.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\Object.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\ObjectContainer.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\StaticObject.cpp"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="header"
+					>
+					<File
+						RelativePath=".\MovingObject.h"
+						>
+					</File>
+					<File
+						RelativePath=".\Object.h"
+						>
+					</File>
+					<File
+						RelativePath=".\Object_Enums.h"
+						>
+					</File>
+					<File
+						RelativePath=".\ObjectContainer.h"
+						>
+					</File>
+					<File
+						RelativePath=".\SpawnPoint.h"
+						>
+					</File>
+					<File
+						RelativePath=".\StaticObject.h"
 						>
 					</File>
 				</Filter>

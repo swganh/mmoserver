@@ -68,10 +68,10 @@ void BuffManager::handleDatabaseJobComplete(void *ref, DatabaseResult *result)
 			//get the player and check whether this was the last buff callback
 			PlayerObject* playerObject			= asyncContainer->player;
 
-			playerObject->DecAsyncCount();
+			playerObject->DecBuffAsyncCount();
 
 			//if this is the last callback continue with saving the players data
-			if(!playerObject->GetAsyncCount())
+			if(!playerObject->GetBuffAsyncCount())
 			{
 
 				//the asynccontainer was prepared by the worldmanager
@@ -224,7 +224,7 @@ bool BuffManager::SaveBuffsAsync(WMAsyncContainer* asyncContainer,DatabaseCallba
 	//Remove Deleted Buffs
 	playerObject->CleanUpBuffs();
 
-	playerObject->SetAsyncCount(0);
+	playerObject->SetBuffAsyncCount(0);
 
 	//count the calls necessary
 	BuffList::iterator it = playerObject->GetBuffList()->begin();
@@ -239,9 +239,9 @@ bool BuffManager::SaveBuffsAsync(WMAsyncContainer* asyncContainer,DatabaseCallba
 			gWorldManager->removeBuffToProcess(buff->GetID());
 
 			//store the amount of async calls so we know when the last call finished
-			playerObject->IncAsyncCount(); //this is the buff
+			playerObject->IncBuffAsyncCount(); //this is the buff
 
-			playerObject->IncAsyncCount(); //all attributes of a buff are stored in a single query
+			playerObject->IncBuffAsyncCount(); //all attributes of a buff are stored in a single query
 
 			//Save to DB, and remove from the Process Queue
 			if(AddBuffToDB(asyncContainer, callback, buff, currenttime))
@@ -399,7 +399,8 @@ bool BuffManager::AddBuffToDB(WMAsyncContainer* asyncContainer,DatabaseCallback*
 			BuffAttribute* batemp = *it;
 
 			//undo the attribute pre safe - we will reapply this on login
-			buff->ModifyAttribute(batemp->GetType(), batemp->GetFinalValue());
+			//why undo it? - it just confuses the poor QA bunnies and doesnt really serve a purpose ?
+			//buff->ModifyAttribute(batemp->GetType(), batemp->GetFinalValue());
 
 			sprintf(sql2+strlen(sql2), "(%"PRIu64",", buff->GetID());
 			sprintf(sql2+strlen(sql2), "%"PRIu64",", player->getId());

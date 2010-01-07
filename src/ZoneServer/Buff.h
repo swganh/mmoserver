@@ -38,6 +38,9 @@ public:
 	int32				GetTickValue();
 	int32				GetFinalValue();
 
+	void				SetInitialValue(int32 v){mInitialValue = v;} 
+	void				SetFinalValue(int32 v){mFinalValue = v;} 
+
 private:
 	BuffAttributeEnum	mAttribute;
 	int32				mInitialValue;
@@ -117,7 +120,7 @@ private:
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	//Private Methods
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	void					ModifyAttribute(BuffAttributeEnum Type, int32 Value);
+	int32					ModifyAttribute(BuffAttributeEnum Type, int32 Value, bool damage = false, bool debuff = false);//returns the amount of the buff that got applied
 	void					IncrementTick();
 	uint64					GetRemainingTime();
 	bool					UpdateTick(uint64 CurrentTime);

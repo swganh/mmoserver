@@ -13,6 +13,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #define ANH_ZONESERVER_ITEM_FACTORY_H
 
 #include "FactoryBase.h"
+#include "ObjectFactoryCallback.h"
 
 #define		gItemFactory	ItemFactory::getSingletonPtr()
 
@@ -28,14 +29,15 @@ class ObjectFactoryCallback;
 
 enum ItemFactoryQuery
 {
-	ItemFactoryQuery_MainData	= 1,
-	ItemFactoryQuery_Attributes	= 2,
-	NonPersistantItemFactoryQuery_MainData	= 3
+	ItemFactoryQuery_MainData				= 1,
+	ItemFactoryQuery_Attributes				= 2,
+	NonPersistantItemFactoryQuery_MainData	= 3,
+	ItemFactoryQuery_Items					= 4
 };
 
 //=============================================================================
 
-class ItemFactory : public FactoryBase
+class ItemFactory : public FactoryBase, public ObjectFactoryCallback
 {
 	public:
 
@@ -43,6 +45,8 @@ class ItemFactory : public FactoryBase
 		static	ItemFactory*	Init(Database* database);
 
 		virtual ~ItemFactory();
+
+		virtual void			handleObjectReady(Object* object,DispatchClient* client);
 
 		void					handleDatabaseJobComplete(void* ref,DatabaseResult* result);
 		void					requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);

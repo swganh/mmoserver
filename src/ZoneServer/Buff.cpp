@@ -23,7 +23,10 @@ BuffAttribute::BuffAttribute(BuffAttributeEnum Type, int32 InitialValue, int32	T
 , mInitialValue(InitialValue)
 , mTickValue(TickValue)
 , mFinalValue(FinalValue)
-{}
+{
+	// TODO we need to test for total wounds and stuff to make sure that total wounds / health damage do *NOT*
+	// exceed the *UNBUFFED* values!!!!
+}
 
 
 BuffAttribute::~BuffAttribute()
@@ -126,6 +129,9 @@ Buff* Buff::FromDB(BuffDBItem* Item, uint64 CurrentGlobalTick)
 
 uint64 Buff::Update(uint64 CurrentTime, void* ref)
 {
+	//Todo
+	// we need a way to mark damaging buffs from nondamaging buffs
+	// ie docbuff restoring original ham values vs poison
 	if(mNoTicks > mCurrentTick)  //If we aren't on the final tick
 	{
 		//Modify Attributes
@@ -133,7 +139,8 @@ uint64 Buff::Update(uint64 CurrentTime, void* ref)
 		while(It != Attributes.end())
 		{
 			BuffAttribute* temp = (*It);
-			ModifyAttribute(temp->GetType(), temp->GetTickValue());
+			ModifyAttribute(temp->GetType(), temp->GetTickValue());	 
+			//were not interested in the return value here as ticking buffs are not applying final changes to restore an attribute
 			It++;
 		}
 
@@ -301,21 +308,12 @@ void Buff::InitialChanges()
 		PlayerObject* Player = dynamic_cast<PlayerObject*>(mTarget);
 		if(Player)
 		{
-			//gMessageLib->sendSystemMessage(Player, "Initialising Buff");
-			if(mNoTicks < 1)
+		
+			if(mIcon > 0) //if internal buff
 			{
-				if(mIcon > 0) //if internal buff
-				{
-					gMessageLib->sendPlayerAddBuff(Player, mIcon, (float)(mTick/1000));
-				}
+				gMessageLib->sendPlayerAddBuff(Player, mIcon, (float)(mTick/1000));
 			}
-			else
-			{
-				if(mIcon > 0) //if internal buff
-				{
-					gMessageLib->sendPlayerAddBuff(Player, mIcon, (float)((mNoTicks*mTick)/1000));
-				}
-			}
+		
 		}
 		else
 		{
@@ -325,7 +323,11 @@ void Buff::InitialChanges()
 		while(It != Attributes.end())
 		{
 			BuffAttribute* temp = (*It);
-			ModifyAttribute(temp->GetType(), temp->GetInitialValue());
+			//make sure we know if the ham has altered our value!
+			temp->SetInitialValue(ModifyAttribute(temp->GetType(), temp->GetInitialValue()));
+			if(temp->GetFinalValue())
+				temp->SetFinalValue(-temp->GetInitialValue());
+
 			It++;
 		}
 	}
@@ -410,16 +412,21 @@ Buff::~Buff()
 //
 //
 
-void Buff::ModifyAttribute(BuffAttributeEnum Type, int32 Value)
+int32 Buff::ModifyAttribute(BuffAttributeEnum Type, int32 Value, bool damage, bool debuff)
 {
+	//damage is dealt by a debuff like poison for example this can incapacitate so
+	//a debuff from a doctorbuff should not be able to incapacitate you
+
+	int32 cV = Value;
+	
 	switch(Type)
 	{
 
-	case Health:
-		{
-			this->mTarget->getHam()->updatePropertyValue(HamBar_Health, HamProperty_Modifier, Value);
-		}
-	break;
+		case Health:
+			{
+				cV = this->mTarget->getHam()->updatePropertyValue(HamBar_Health, HamProperty_Modifier, Value, damage);
+			}
+		break;
 
 	case Food_Filling:
 	{
@@ -443,49 +450,49 @@ void Buff::ModifyAttribute(BuffAttributeEnum Type, int32 Value)
 
 	case Strength:
 		{
-			this->mTarget->getHam()->updatePropertyValue(HamBar_Strength, HamProperty_Modifier, Value);
+			cV = this->mTarget->getHam()->updatePropertyValue(HamBar_Strength, HamProperty_Modifier, Value);
 		}
 	break;
 
 	case Constitution:
 		{
-			this->mTarget->getHam()->updatePropertyValue(HamBar_Constitution, HamProperty_Modifier, Value);
+			cV = this->mTarget->getHam()->updatePropertyValue(HamBar_Constitution, HamProperty_Modifier, Value);
 		}
 	break;
 
 	case Action:
 		{
-			this->mTarget->getHam()->updatePropertyValue(HamBar_Action, HamProperty_Modifier, Value);
+			cV = this->mTarget->getHam()->updatePropertyValue(HamBar_Action, HamProperty_Modifier, Value);
 		}
 	break;
 
 	case Quickness:
 		{
-			this->mTarget->getHam()->updatePropertyValue(HamBar_Quickness, HamProperty_Modifier, Value);
+			cV = this->mTarget->getHam()->updatePropertyValue(HamBar_Quickness, HamProperty_Modifier, Value);
 		}
 	break;
 
 	case Stamina:
 		{
-			this->mTarget->getHam()->updatePropertyValue(HamBar_Stamina, HamProperty_Modifier, Value);
+			cV = this->mTarget->getHam()->updatePropertyValue(HamBar_Stamina, HamProperty_Modifier, Value);
 		}
 	break;
 
 	case Mind:
 		{
-			this->mTarget->getHam()->updatePropertyValue(HamBar_Mind, HamProperty_Modifier, Value);
+			cV = this->mTarget->getHam()->updatePropertyValue(HamBar_Mind, HamProperty_Modifier, Value);
 		}
 	break;
 
 	case Focus:
 		{
-			this->mTarget->getHam()->updatePropertyValue(HamBar_Focus, HamProperty_Modifier, Value);
+			cV = this->mTarget->getHam()->updatePropertyValue(HamBar_Focus, HamProperty_Modifier, Value);
 		}
 	break;
 
 	case Willpower:
 		{
-			this->mTarget->getHam()->updatePropertyValue(HamBar_Willpower, HamProperty_Modifier, Value);
+			cV = this->mTarget->getHam()->updatePropertyValue(HamBar_Willpower, HamProperty_Modifier, Value);
 		}
 	break;
 
@@ -538,6 +545,7 @@ void Buff::ModifyAttribute(BuffAttributeEnum Type, int32 Value)
 		}
 		break;
 	}
+	return(cV);
 }
 
 void Buff::EraseAttributes()

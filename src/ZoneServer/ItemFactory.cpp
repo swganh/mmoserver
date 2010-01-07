@@ -106,6 +106,28 @@ void ItemFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			_buildAttributeMap(asyncContainer->mObject,result);
 			_postProcessAttributes(asyncContainer->mObject);
 
+			Item* item = dynamic_cast<Item*>(asyncContainer->mObject);
+			
+			// now check whether we are a container
+			// if so check whether we contain items
+			if(item->getCapacity())
+			{
+				item->setLoadState(LoadState_ContainerContent);
+				// query contents				
+				QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,ItemFactoryQuery_Items,asyncContainer->mClient);
+				asContainer->mObject = item;
+
+				//containers are normal items like furniture, lightsabers and stuff
+				mDatabase->ExecuteSqlAsync(this,asContainer,
+						"(SELECT \'items\',items.id FROM items WHERE (parent_id=%"PRIu64"))"
+						" UNION (SELECT \'resource_containers\',resource_containers.id FROM resource_containers WHERE (parent_id=%"PRIu64"))",
+						item->getId(),item->getId());
+				
+				return;
+			}
+
+			//
+
 			if(asyncContainer->mObject->getLoadState() == LoadState_Loaded)
 			{
 				asyncContainer->mOfCallback->handleObjectReady(asyncContainer->mObject,asyncContainer->mClient);
@@ -113,6 +135,38 @@ void ItemFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 		}
 		break;
 
+		case ItemFactoryQuery_Items:
+		{
+			uint64		count = result->getRowCount();
+
+			Item* item = dynamic_cast<Item*>(asyncContainer->mObject);
+
+			item->setLoadCount((uint32)count);
+
+			DataBinding* mBinding = mDatabase->CreateDataBinding(1);
+			mBinding->addField(DFT_uint64,0,8);
+
+			// nothing to load ? handle our callback immediately
+			if(!count)
+			{
+				item->setLoadState(LoadState_Loaded);
+				asyncContainer->mOfCallback->handleObjectReady(asyncContainer->mObject,asyncContainer->mClient);
+				return;
+			}
+
+			//enter us on the loadmap for future reference
+			mObjectLoadMap.insert(std::make_pair(item->getId(),new(mILCPool.ordered_malloc()) InLoadingContainer(item,asyncContainer->mOfCallback,asyncContainer->mClient,static_cast<uint32>(count))));
+
+			uint64 itemId;
+
+			// request all children
+			for(uint64 i = 0;i < count;i++)
+			{
+				result->GetNextRow(mBinding,&itemId);
+				requestObject(this,itemId, 0, 0, asyncContainer->mClient);
+			}
+		}
+		break;
 		default:break;
 	}
 
@@ -128,7 +182,7 @@ void ItemFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint
 													"items.oZ,items.oW,items.x,items.y,items.z,items.planet_id,items.customName,"
 													"item_types.object_string,item_types.stf_name,item_types.stf_file,item_types.stf_detail_name,"
 													"item_types.stf_detail_file,items.maxCondition,items.damage,items.dynamicint32,"
-													"item_types.equipSlots,item_types.equipRestrictions, item_customization.1, item_customization.2, item_types.b_isSitable "
+													"item_types.equipSlots,item_types.equipRestrictions, item_customization.1, item_customization.2, item_types.container "
 													"FROM items "
 													"INNER JOIN item_types ON (items.item_type = item_types.id) "
 													"LEFT JOIN item_customization ON (items.id = item_customization.id)"
@@ -219,7 +273,7 @@ void ItemFactory::_setupDatabindings()
 	mItemBinding->addField(DFT_uint32,offsetof(Item,mEquipRestrictions),4,23);
 	mItemBinding->addField(DFT_uint16,offsetof(Item,mCustomization[1]),2,24);
 	mItemBinding->addField(DFT_uint16,offsetof(Item,mCustomization[2]),2,25);
-	//mItemBinding->addField(DFT_uint16,offsetof(Item,mIsSitable),2,26);
+	mItemBinding->addField(DFT_uint16,offsetof(Item,mCapacity),2,26);
 
 
 
@@ -309,4 +363,30 @@ void ItemFactory::_postProcessAttributes(Object* object)
 
 //=============================================================================
 
+
+void ItemFactory::handleObjectReady(Object* object,DispatchClient* client)
+{
+	
+	InLoadingContainer* ilc	= _getObject(object->getParentId());
+	Item*		item	= dynamic_cast<Item*>(ilc->mObject);
+
+	assert(ilc);
+	ilc->mLoadCounter --;
+
+	gWorldManager->addObject(object,true);
+	item->addData(object);
+
+	if(!ilc->mLoadCounter)
+	{
+		item->setLoadState(LoadState_Loaded);
+		ilc->mOfCallback->handleObjectReady(item,ilc->mClient);
+		
+		if(!(_removeFromObjectLoadMap(item->getId())))
+			gLogger->logMsg("ItemFactory: Failed removing object from loadmap");
+
+		mILCPool.free(ilc);
+		return;
+	}
+
+}
 

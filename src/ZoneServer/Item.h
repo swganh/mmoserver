@@ -59,6 +59,9 @@ class Item : public TangibleObject
 		uint64	getOwner(){ return mOwner; }
 		void	setOwner(uint64 owner){ mOwner = owner; }
 
+		uint32	getLoadCount(){ return mLoadCount; }
+		void	setLoadCount(uint32 c){ mLoadCount = c; }
+
 		
 	protected:
 
@@ -74,6 +77,9 @@ class Item : public TangibleObject
 
 		//sitable objects flag 1 = sit. 0 = no sit
 		bool	mIsSitable;
+
+		uint32	mLoadCount;
+
 };
 
 //=============================================================================

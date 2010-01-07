@@ -112,6 +112,12 @@ public:
 	void				sendSceneReadyToChat(DispatchClient* client);
 	bool				sendServerTime(uint64 time,DispatchClient* client);
 	void				sendWeatherUpdate(Anh_Math::Vector3 cloudVec,uint32 weatherType,PlayerObject* player = NULL);
+	
+	//bool				sendSystemMessage(PlayerObject* playerObject,string mainFile,string mainVar,TangibleObject* to = NULL,CreatureObject* tt = NULL, CreatureObject* tu = NULL,int32 di = 0);
+	//bool				sendSystemMessage(PlayerObject* playerObject,string mainFile,string mainVar,TangibleObject* to = NULL, TangibleObject* tt = NULL, CreatureObject* tu = NULL, int32 di = 0);
+	//bool				sendSystemMessage(PlayerObject* playerObject,string mainFile,string mainVar, int32 di = 0);
+	bool				sendSysMsg(PlayerObject* playerObject,string mainFile,string mainVar,Object* to= NULL, Object* tt = NULL, Object* tu = NULL, int32 di = 0);
+	
 	bool				sendSystemMessage(PlayerObject* playerObject,string customMessage = L"",string mainFile = "",
 		string mainVar = "",string toFile = "",string toVar = "",string toCustom = L"",int32 di = 0,
 		string ttFile = "",string ttVar = "",string ttCustom = L"",uint64 ttId = 0,uint64 toId = 0,uint64 tuId = 0,
@@ -307,12 +313,15 @@ public:
 	// static object,	staticomessages.cpp
 	bool				sendBaselinesSTAO_3(const StaticObject* const staticObject, const PlayerObject* const targetObject) const;
 	bool				sendBaselinesSTAO_6(const StaticObject* const staticObject, const PlayerObject* const targetObject) const;
+	
 	// tangible object, tangiblemessages.cpp
 	bool				sendBaselinesTANO_3(const TangibleObject* const tangibleObject,const PlayerObject* const targetObject) const;
 	bool				sendBaselinesTANO_6(const TangibleObject* const tangibleObject,const PlayerObject* const targetObject) const;
 	// bool				sendBaselinesTANO_7(const TangibleObject* const tangibleObject,const PlayerObject* const targetObject) const;
 	bool				sendBaselinesTANO_8(const TangibleObject* const tangibleObject,const PlayerObject* const targetObject) const;
 	bool				sendBaselinesTANO_9(const TangibleObject* const tangibleObject,const PlayerObject* const targetObject) const;
+
+	bool				sendItemChildren(TangibleObject* srcObject,PlayerObject* targetObject);
 
 	// deltas
 	bool				sendUpdateComplexity(TangibleObject* tangibleObject,PlayerObject* playerObject);

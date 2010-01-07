@@ -81,13 +81,15 @@ class HamProperty
 		void	setEncumbrance(int32 enc){ mEncumbrance = enc; }
 		int32	getWounds(){ return mWounds; }
 		void	setWounds(int32 wounds){ mWounds = wounds; }
-		bool	updateWounds(int32 wounds);
-		bool	updateBaseHitpoints(int32 hp);
+		int32	updateWounds(int32 wounds);
+		int32	updateBaseHitpoints(int32 hp);
 
-		bool	updateModifiedHitpoints(int32 hp);
+		int32	updateModifiedHitpoints(int32 hp);
 
 		int32	getModifiedHitPoints(){ return mModifiedHitPoints; }
 		void	calcModifiedHitPoints();
+		
+		//bool	calcModifiedWounds();
 
 		int32	getValue(uint8 valueIndex);
 		void	setValue(uint8 valueIndex, int32 propertyValue);

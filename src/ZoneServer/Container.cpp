@@ -32,12 +32,10 @@ Container::~Container()
 
 	while(containerObjectIt != mObjects.end())
 	{
-		Object* object = (*containerObjectIt);
-
 		// Can we have busy crafting tool in a container??? 
 		// in theory yes,albeit only shortly
 
-		gWorldManager->destroyObject(object);
+		gWorldManager->destroyObject((*containerObjectIt));
 		
 		containerObjectIt = mObjects.erase(containerObjectIt);
 	}
@@ -70,7 +68,7 @@ void Container::deleteObject(Object* object)
 	{
 		if((*it) == object)
 		{
-			delete(*it);
+			gWorldManager->destroyObject(object);
 			mObjects.erase(it);
 			break;
 		}

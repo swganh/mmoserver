@@ -306,11 +306,12 @@ void Ham::updatePrimaryWounds(int32 propertyDelta)
 // gets called in order to modify a hambar
 //
 
-void Ham::updatePropertyValue(uint8 barIndex,uint8 valueIndex,int32 propertyDelta,bool damage,bool sendUpdate)
+int32 Ham::updatePropertyValue(uint8 barIndex,uint8 valueIndex,int32 propertyDelta,bool damage,bool sendUpdate, bool debuff)
 {
+	int32 mod = propertyDelta;
 	if(propertyDelta == 0)
 	{
-		return;
+		return 0;
 	}
 
 	switch(valueIndex)
@@ -348,32 +349,34 @@ void Ham::updatePropertyValue(uint8 barIndex,uint8 valueIndex,int32 propertyDelt
 
 		case HamProperty_Wounds:
 		{
-			// add, need to remove hitpoints in some cases
-			if(propertyDelta > 0)
-			{
-				// check for upper wound limit
-				if(mHamBars[barIndex]->getWounds() >= mHamBars[barIndex]->getMaxHitPoints() - 1)
-				{
-					break;
-				}
-
+			// Wounds should *never* force us to have negative hitpoints
+			// so always check against current hitpoints - not the theoretic max
+			//if(propertyDelta > 0)
+			//{
+				
 				//are the wounds properly applied?
 				//if yes modify current hitpoints accordingly
-				if(mHamBars[barIndex]->updateWounds(propertyDelta) && sendUpdate)
+				
+				int32 oV = mHamBars[barIndex]->getCurrentHitPoints();//make sure we can check whether the object changed
+				
+				mod = mHamBars[barIndex]->updateWounds(propertyDelta);//check our delta and get the modified (checked and applied) value
+
+				if((oV != mHamBars[barIndex]->getCurrentHitPoints())&& sendUpdate)
 				{
+					//creo 6 is current ham only apply update when changed
 					gMessageLib->sendCurrentHitpointDeltasCreo6_Single(mParent, barIndex);
 				}
 
-				if(sendUpdate)
+				if(mod && sendUpdate)
 				{
 					gMessageLib->sendWoundUpdateCreo3(mParent, barIndex);
 
-					if(mParent->getType() == ObjType_Player)
+					if((mParent->getType() == ObjType_Player)&&mod>0)
 					{
 						gMessageLib->sendCombatSpam(mParent,mParent,propertyDelta,"cbt_spam","wounded");
 					}
 				}
-			}
+			/*}
 
 			//remove
 			else
@@ -385,7 +388,7 @@ void Ham::updatePropertyValue(uint8 barIndex,uint8 valueIndex,int32 propertyDelt
 					if(sendUpdate)
 						gMessageLib->sendWoundUpdateCreo3(mParent, barIndex);
 				}
-			}
+			}  */
 		}
 		break;
 
@@ -405,12 +408,18 @@ void Ham::updatePropertyValue(uint8 barIndex,uint8 valueIndex,int32 propertyDelt
 		break;
 
 		case HamProperty_Modifier:
-
-			if(mHamBars[barIndex]->updateModifiedHitpoints(propertyDelta) && sendUpdate)
+		{
+			//modifying modified hitpoints CANNOT lead to zero hitpoints
+			//mHamBars[barIndex]->log();
+			mod = mHamBars[barIndex]->updateModifiedHitpoints(propertyDelta);
+			if(mod && sendUpdate)
 			{
 				gMessageLib->sendMaxHitpointDeltasCreo6_Single(mParent, barIndex);
+			//	mHamBars[barIndex]->log();
 				gMessageLib->sendCurrentHitpointDeltasCreo6_Single(mParent, barIndex);
 			}
+	
+		}
 		break;
 
 		case HamProperty_Encumbrance:
@@ -425,6 +434,7 @@ void Ham::updatePropertyValue(uint8 barIndex,uint8 valueIndex,int32 propertyDelt
 
 	updateRegenRates();
 	checkForRegen();
+	return mod;
 }
 
 //===========================================================================

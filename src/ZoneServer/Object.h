@@ -16,7 +16,7 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "RadialMenu.h"
 #include "UICallback.h"
 #include "Object_Enums.h"
-#include "LogManager/LogManager.h" // @todo: this needs to go.
+#include "LogManager/LogManager.h" // @todo: this needs to go.	  where does it need to go ?
 #include "MathLib/Vector3.h"
 #include "MathLib/Quaternion.h"
 #include "Utils/EventHandler.h"

@@ -21,6 +21,7 @@ Item::Item() : TangibleObject(), mOwner(0)
 	mPlaced				= false;
 	mNonPersistantCopy	= 0;
 	mPersistantCopy		= 0;
+	mLoadCount			= 0;
 
 }
 

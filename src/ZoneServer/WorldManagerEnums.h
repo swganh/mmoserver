@@ -96,6 +96,9 @@ enum WMTimer
 //
 enum WMSound
 {
+	WMSound_use_food				= 934,
+	WMSound_pl_Hum_F_eat			= 1591,
+	WMSound_pl_Hum_M_eat			= 3823,
 	WMSound_Eat_Human_Female		= 1803,
 	WMSound_Eat_Human_Male			= 1822,
 	WMSound_Drink_Human_Female		= 1146,

@@ -133,45 +133,42 @@ void Food::handleFoodUse(Object* srcObject)
 
 	if(this->hasAttribute("stomach_food"))
 	{
-		gMessageLib->sendSystemMessage(playerObject, L"Food Filling applied.");
 		filling = this->getAttribute<uint32>("stomach_food");					
 		
 		//do we still have place for it ?
 		if(!playerObject->getStomach()->checkFood(filling))
 		{
-			gMessageLib->sendSystemMessage(playerObject, L"","error_message","full_food");
+			gMessageLib->sendSysMsg(playerObject, "error_message","full_food");
 			return;
 		}
 		
+		gMessageLib->sendSysMsg(playerObject, "base_player","prose_consume_item",NULL,this);
+
 		//get a stomach Buff to handle the filling
 		BuffAttribute* foodAttribute = new BuffAttribute(Food_Filling, +filling,0,-(int)filling); 
 		Buff* foodBuff = Buff::SimpleBuff(playerObject, playerObject, 300000, 0, gWorldManager->GetCurrentGlobalTick());
 		foodBuff->AddAttribute(foodAttribute);	
 		playerObject->AddBuff(foodBuff,true);
 
-		if(playerObject->getGender())
-		{
-			gMessageLib->sendPlayMusicMessage(WMSound_Eat_Human_Female,playerObject);
-		}
-		else
-		{
-			gMessageLib->sendPlayMusicMessage(WMSound_Eat_Human_Male,playerObject);
-		}
-
+		gMessageLib->sendPlayClientEffectLocMessage(gWorldManager->getClientEffect(548),playerObject->mPosition,playerObject);
+		
+		//gMessageLib->cli
+		
 	}
 
 	if(this->hasAttribute("stomach_drink"))
 	{
 		uint32 filling = 0;
-		gMessageLib->sendSystemMessage(playerObject, L"Drink Filling applied.");
 		filling = this->getAttribute<uint32>("stomach_drink");					
 		
 		//do we still have place for it ?
 		if(!playerObject->getStomach()->checkDrink(filling))
 		{
-			gMessageLib->sendSystemMessage(playerObject, L"","error_message","full_drink");
+			gMessageLib->sendSysMsg(playerObject, "error_message","full_drink");
 			return;
 		}
+
+		gMessageLib->sendSysMsg(playerObject, "base_player","prose_consume_item",NULL,this);
 
 		//get a stomach Buff to handle the filling
 		BuffAttribute* foodAttribute = new BuffAttribute(Drink_Filling, +filling,0,-(int)filling); 
@@ -273,7 +270,6 @@ void Food::_handleMind_Buff(PlayerObject* playerObject)
 
 void Food::_handleUses_Remaining(PlayerObject* playerObject)
 {
-	gMessageLib->sendSystemMessage(playerObject, L"Uses Remaining updated.");
 
 	uint32 quantity = this->getAttribute<uint32>("counter_uses_remaining");
 	quantity--;

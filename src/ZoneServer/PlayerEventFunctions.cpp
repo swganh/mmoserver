@@ -91,7 +91,8 @@ void PlayerObject::onSurvey(const SurveyEvent* event)
 			// create a new one
 			if(datapad->getCapacity())
 			{
-				gMessageLib->sendSystemMessage(this,L"","survey","survey_waypoint");
+				gMessageLib->sendSysMsg(this,"survey","survey_waypoint");
+				//gMessageLib->sendSystemMessage(this,L"","survey","survey_waypoint");
 			}
 			//the datapad automatically checks if there is room and gives the relevant error message
 			datapad->requestNewWaypoint("Resource Survey",Anh_Math::Vector3(highestDist.position.mX,0.0f,highestDist.position.mZ),static_cast<uint16>(gWorldManager->getZoneId()),Waypoint_blue);
@@ -218,6 +219,9 @@ void PlayerObject::onSample(const SampleEvent* event)
 		}
 		
 		uint32 playerBF = mHam.getBattleFatigue();
+		
+		//TODO
+		//please note that bf alterations should be calculated by the ham object!!!!!!
 		uint32 woundDmg = 50*(1 + (playerBF/100)) + (50*(1 + (resPE/1000)));
 		uint32 bfDmg    = static_cast<uint32>(0.075*resPE);
 		uint32 hamReduc = 100*(2+ (resPE/1000));
@@ -231,7 +235,7 @@ void PlayerObject::onSample(const SampleEvent* event)
 			mHam.updatePropertyValue(HamBar_Mind,HamProperty_Wounds, woundDmg);
 		}
 		
-		//this should be a timed debuff per instance -- Do not cause wounds unless potential energy >= 500?
+		//this should be a timed debuff per instance -- Do not cause wounds unless potential energy >= 500
 		
 		BuffAttribute* healthdebuffAttribute = new BuffAttribute(Health, -(int)hamReduc,0,hamReduc); 
 		Buff* healthdebuff = Buff::SimpleBuff(this, this, 300000, 0, gWorldManager->GetCurrentGlobalTick());
@@ -242,6 +246,7 @@ void PlayerObject::onSample(const SampleEvent* event)
 		healthdebuff = Buff::SimpleBuff(this, this, 300000, 0, gWorldManager->GetCurrentGlobalTick());
 		healthdebuff->AddAttribute(healthdebuffAttribute);	
 		this->AddBuff(healthdebuff,true);
+		
 
 		//mHam.updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints,-hamReduc,true);
 		//mHam.updatePropertyValue(HamBar_Health,HamProperty_CurrentHitpoints,-hamReduc,true); 
@@ -490,9 +495,10 @@ void PlayerObject::onSample(const SampleEvent* event)
 	if(getSampleData()->mSampleNodeRecovery)
 		actionCost = gResourceCollectionManager->sampleActionCost*2;
 
-	// update ham for standard sample action oc does this already - only the first time though???
+	// update ham for standard sample action oc does this already - only the first time though???  !!!
 	mHam.updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints,-(int32)actionCost,true);
 
+	gLogger->logMsgF("PlayerObject::sample : %i actiopn taken ",MSG_HIGH,actionCost);
 	if(mHam.checkMainPools(0,actionCost,0) && (resAvailable))
 	{
 		getSampleData()->mNextSampleTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 3000; //change back to 30000 after testing is finished
@@ -545,10 +551,10 @@ void PlayerObject::onLogout(const LogOutEvent* event)
 		//tell the time and dust off
 		mObjectController.addEvent(new LogOutEvent(event->getLogOutTime(),event->getLogOutSpacer()),event->getLogOutSpacer());
 		uint32 timeLeft = (uint32)(event->getLogOutTime()- Anh_Utils::Clock::getSingleton()->getLocalTime())/1000;
-		gMessageLib->sendSystemMessage(this,L"","logout","time_left","","",L"",timeLeft);
+		gMessageLib->sendSysMsg(this,"logout","time_left",NULL,NULL,NULL,timeLeft);
 		return;
 	}
-	gMessageLib->sendSystemMessage(this,L"","logout","safe_to_log_out");
+	gMessageLib->sendSysMsg(this,"logout","safe_to_log_out");
 	
 	gMessageLib->sendLogout(this);
 	this->togglePlayerCustomFlagOff(PlayerCustomFlag_LogOut);	
@@ -570,7 +576,7 @@ void PlayerObject::onBurstRun(const BurstRunEvent* event)
 	{
 		if(this->checkPlayerCustomFlag(PlayerCustomFlag_BurstRunCD))
 		{
-			gMessageLib->sendSystemMessage(this,L"","combat_effects","burst_run_not_tired");
+			gMessageLib->sendSysMsg(this,"combat_effects","burst_run_not_tired");
 			this->togglePlayerCustomFlagOff(PlayerCustomFlag_BurstRunCD);	
 
 		}
@@ -589,7 +595,7 @@ void PlayerObject::onBurstRun(const BurstRunEvent* event)
 			gMessageLib->sendSystemMessageInRange(this,false,bs.getUnicode16());
 
 
-			gMessageLib->sendSystemMessage(this,L"","combat_effects","burst_run_tired");
+			gMessageLib->sendSysMsg(this,"combat_effects","burst_run_tired");
 			this->togglePlayerCustomFlagOff(PlayerCustomFlag_BurstRun);	
 
 			this->setCurrentSpeedModifier(this->getBaseSpeedModifier());

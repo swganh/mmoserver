@@ -230,7 +230,6 @@ void HarvesterObject::prepareCustomRadialMenu(CreatureObject* creatureObject, ui
 	}
 	
 	RadialMenu* radial	= new RadialMenu();
-			
 	
 	//radId_serverHouseManage
 	radial->addItem(1,0,radId_examine,radAction_Default,"");
@@ -242,7 +241,12 @@ void HarvesterObject::prepareCustomRadialMenu(CreatureObject* creatureObject, ui
 	radial->addItem(6,2,radId_payMaintenance,radAction_ObjCallback,"Pay Maintenance");//destroy
 	radial->addItem(7,2,radId_setName,radAction_ObjCallback,"Set Name");//destroy
 	radial->addItem(8,2,radId_operateHarvester,radAction_ObjCallback,"operate Harvester");//destroy
-	radial->addItem(9,2,radId_depositPower,radAction_ObjCallback,"Deposit Power");//destroy
+
+	
+	//generators dont need power
+	uint32 type = this->getHarvesterFamily();
+	if((type != 41)&&(type != 42)&&(type != 43))
+		radial->addItem(9,2,radId_depositPower,radAction_ObjCallback,"Deposit Power");//destroy
 	
 	
 	radial->addItem(10,3,radId_serverTerminalPermissionsAdmin,radAction_ObjCallback,"Admin List");//destroy

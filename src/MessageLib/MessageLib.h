@@ -43,6 +43,7 @@ class MissionObject;
 class CellObject;
 class StaticObject;
 class PlayerStructure;
+class FactoryCrate;
 
 class DispatchClient;
 class DraftSchematic;
@@ -76,6 +77,7 @@ public:
 	void				sendCreateObject(Object* object,PlayerObject* player,bool sendSelftoTarget = true);
 	bool				sendCreateManufacturingSchematic(ManufacturingSchematic* manSchem,PlayerObject* playerObject,bool attributes = true);
 	bool				sendCreateResourceContainer(ResourceContainer* resourceContainer,PlayerObject* targetObject);
+	bool				sendCreateFactoryCrate(FactoryCrate* crate,PlayerObject* targetObject);
 	bool				sendCreateStructure(PlayerStructure* structure,PlayerObject* player);
 	bool				sendCreateHarvester(HarvesterObject* harvester,PlayerObject* player);
 	bool				sendCreateBuilding(BuildingObject* buildingObject,PlayerObject* playerObject);
@@ -314,6 +316,12 @@ public:
 	bool				sendBaselinesSTAO_3(const StaticObject* const staticObject, const PlayerObject* const targetObject) const;
 	bool				sendBaselinesSTAO_6(const StaticObject* const staticObject, const PlayerObject* const targetObject) const;
 	
+	//crates
+	bool				sendBaselinesTYCF_3(const FactoryCrate* const crate,const PlayerObject* const targetObject) const;
+	bool				sendBaselinesTYCF_6( FactoryCrate* crate,const PlayerObject* const targetObject) const;
+	bool				sendBaselinesTYCF_8(const FactoryCrate* const crate,const PlayerObject* const targetObject) const;
+	bool				sendBaselinesTYCF_9(const FactoryCrate* const crate,const PlayerObject* const targetObject) const;
+
 	// tangible object, tangiblemessages.cpp
 	bool				sendBaselinesTANO_3(const TangibleObject* const tangibleObject,const PlayerObject* const targetObject) const;
 	bool				sendBaselinesTANO_6(const TangibleObject* const tangibleObject,const PlayerObject* const targetObject) const;

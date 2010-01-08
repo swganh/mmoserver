@@ -169,6 +169,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\FactoryCrateMessages.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\HarvesterMessages.cpp"
 				>
 			</File>

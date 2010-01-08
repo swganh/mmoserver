@@ -19,6 +19,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "ZoneServer/CurrentResource.h"
 #include "ZoneServer/Datapad.h"
 #include "ZoneServer/HarvesterObject.h"
+#include "ZoneServer/FactoryCrate.h"
 #include "ZoneServer/Inventory.h"
 #include "ZoneServer/ManufacturingSchematic.h"
 #include "ZoneServer/MissionBag.h"
@@ -654,6 +655,45 @@ bool MessageLib::sendCreateTangible(TangibleObject* tangibleObject,const PlayerO
 	return(true);
 }
 
+
+
+//======================================================================================================================
+//
+// create factory crate
+//
+
+bool MessageLib::sendCreateFactoryCrate(FactoryCrate* crate,PlayerObject* targetObject)
+{
+	if(!_checkPlayer(targetObject))
+		return(false);
+
+	sendCreateObjectByCRC(crate,targetObject,false);
+
+	uint64 parentId = crate->getParentId();
+
+
+	if(parentId)
+	{
+		sendContainmentMessage(crate->getId(),parentId,0xffffffff,targetObject);
+		//gLogger->logMsgF("rcno baseline :: parent Id : %I64u",MSG_NORMAL,parentId);
+	}
+
+	sendBaselinesTYCF_3(crate,targetObject);
+	sendBaselinesTYCF_6(crate,targetObject);
+
+	sendBaselinesTYCF_6(crate,targetObject);
+	sendBaselinesTYCF_6(crate,targetObject);
+
+	sendEndBaselines(crate->getId(),targetObject);
+
+
+	//now get the contained tangible and create it
+	//sendCreateTangible();
+
+	return(true);
+}
+
+
 //======================================================================================================================
 //
 // create resource container
@@ -896,14 +936,19 @@ void MessageLib::sendInventory(PlayerObject* playerObject)
 			sendCreateResourceContainer(resContainer,playerObject);
 		}
 		else
-			if(TangibleObject* tangible = dynamic_cast<TangibleObject*>(*objIt))
-			{
-				//gLogger->logMsgF("MessageLib::inventory:Tangible  %I64u parentId %I64u",MSG_HIGH,tangible->getId(),tangible->getParentId());
-				sendCreateTangible(tangible,playerObject);
-				sendItemChildren(tangible,playerObject);
-			}
+		if(FactoryCrate* crate = dynamic_cast<FactoryCrate*>(*objIt))
+		{
+			gMessageLib->sendCreateFactoryCrate(crate,playerObject);
+		}
+		else
+		if(TangibleObject* tangible = dynamic_cast<TangibleObject*>(*objIt))
+		{
+			//gLogger->logMsgF("MessageLib::inventory:Tangible  %I64u parentId %I64u",MSG_HIGH,tangible->getId(),tangible->getParentId());
+			sendCreateTangible(tangible,playerObject);
+			sendItemChildren(tangible,playerObject);
+		}
 
-			++objIt;
+		++objIt;
 	}
 
 	invObjects		= inventory->getEquippedObjects();
@@ -1039,6 +1084,11 @@ void MessageLib::sendCreateObject(Object* object,PlayerObject* player,bool sendS
 					}
 					// all other tangibles
 					else
+					if(FactoryCrate* crate = dynamic_cast<FactoryCrate*>(tangibleObject))
+					{
+						gMessageLib->sendCreateFactoryCrate(crate,player);
+					}
+					else					
 					{
 						gMessageLib->sendCreateTangible(tangibleObject,player);
 					}

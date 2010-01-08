@@ -83,6 +83,7 @@ bool MessageLib::sendBaselinesTYCF_3(const FactoryCrate* const crate,const Playe
 	gMessageFactory->addUint32(data->getSize());
 	gMessageFactory->addData(data->getData(), data->getSize());
 	
+	data->setPendingDelete(true);
 
 	(targetObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 5);
 
@@ -91,34 +92,53 @@ bool MessageLib::sendBaselinesTYCF_3(const FactoryCrate* const crate,const Playe
 
 //======================================================================================================================
 //
-// Tangible Baselines Type 6
+// Crate Baselines Type 6
 // contain: unknown
 //
 
-bool MessageLib::sendBaselinesTANO_6(const FactoryCrate* const crate,const PlayerObject* const targetObject) const
+bool MessageLib::sendBaselinesTYCF_6( FactoryCrate*  crate,const PlayerObject* const targetObject) const
 {
 	if(!(targetObject->isConnected()))
 		return(false);
 
-	Message* message;
+	Message* data;
+
+	gMessageFactory->StartMessage();  
+
+	gMessageFactory->addUint16(3);	// unknown
+	gMessageFactory->addUint32(0);	// unknown
+	gMessageFactory->addString(crate->getDetailFile());
+	gMessageFactory->addUint32(0);	// unknown
+	gMessageFactory->addString(crate->getNameFile());
+	
+	gMessageFactory->addUint32(0);	// unknown
+	gMessageFactory->addUint32(0);	// unknown
+	gMessageFactory->addUint32(0);	// unknown
+	gMessageFactory->addUint32(0);	// unknown
+
+	gMessageFactory->addUint32(0);	// unknown
+	gMessageFactory->addUint32(0);	// unknown
+
+	gMessageFactory->addUint32(0);	// unknown
+	gMessageFactory->addUint32(0);	// unknown
+
+	gMessageFactory->addUint8(1);	// unknown
+
+	data = gMessageFactory->EndMessage();
 
 	gMessageFactory->StartMessage();  
 	gMessageFactory->addUint32(opBaselinesMessage);   
-	gMessageFactory->addUint64(tangibleObject->getId()); 
-	gMessageFactory->addUint32(opTANO);
+	gMessageFactory->addUint64(crate->getId()); 
+	gMessageFactory->addUint32(opFCYT);
 	gMessageFactory->addUint8(6);  
 
-	gMessageFactory->addUint32(15 + tangibleObject->getUnknownStr1().getLength() + tangibleObject->getUnknownStr2().getLength());
-	gMessageFactory->addUint16(3);	// unknown
-	gMessageFactory->addUint32(tangibleObject->getSubZoneId());
-	gMessageFactory->addString(tangibleObject->getUnknownStr1());
-	gMessageFactory->addUint32(0);	// unknown
-	gMessageFactory->addString(tangibleObject->getUnknownStr2());
-	gMessageFactory->addUint8(1);	// unknown
+	gMessageFactory->addUint32(data->getSize());
+	gMessageFactory->addData(data->getData(), data->getSize());
+	
+	data->setPendingDelete(true);
 
-	message = gMessageFactory->EndMessage();
 
-	(targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5);
+	(targetObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 5);
 
 	return(true);
 }
@@ -129,28 +149,42 @@ bool MessageLib::sendBaselinesTANO_6(const FactoryCrate* const crate,const Playe
 // contain: unknown
 //
 
-bool MessageLib::sendBaselinesTANO_8(const TangibleObject* const tangibleObject,const PlayerObject* const targetObject) const
+bool MessageLib::sendBaselinesTYCF_8(const FactoryCrate* const crate,const PlayerObject* const targetObject) const
 {
 	if(!(targetObject->isConnected()))
 		return(false);
 
-	Message* message;
+	Message* data;
 
-	gMessageFactory->StartMessage();       
+	gMessageFactory->StartMessage();  
+
+	gMessageFactory->addUint16(3);	// unknown
+	gMessageFactory->addUint32(0);	// unknown
+	gMessageFactory->addUint32(0);	// unknown
+	
+	gMessageFactory->addUint32(0);	// unknown
+	gMessageFactory->addUint32(0);	// unknown
+	
+	data = gMessageFactory->EndMessage();
+
+	gMessageFactory->StartMessage();  
 	gMessageFactory->addUint32(opBaselinesMessage);   
-	gMessageFactory->addUint64(tangibleObject->getId()); 
-	gMessageFactory->addUint32(opTANO);
+	gMessageFactory->addUint64(crate->getId()); 
+	gMessageFactory->addUint32(opFCYT);
 	gMessageFactory->addUint8(8);  
 
-	gMessageFactory->addUint32(2);
-	gMessageFactory->addUint16(0);	// unknown
+	gMessageFactory->addUint32(data->getSize());
+	gMessageFactory->addData(data->getData(), data->getSize());
+	
+	data->setPendingDelete(true);
 
-	message = gMessageFactory->EndMessage();
 
-	(targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5);
+	(targetObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 5);
 
 	return(true);
 }
+
+
 
 //======================================================================================================================
 //
@@ -158,184 +192,38 @@ bool MessageLib::sendBaselinesTANO_8(const TangibleObject* const tangibleObject,
 // contain: unknown
 //
 
-bool MessageLib::sendBaselinesTANO_9(const TangibleObject* const tangibleObject,const PlayerObject* const targetObject) const
+bool MessageLib::sendBaselinesTYCF_9(const FactoryCrate* const crate,const PlayerObject* const targetObject) const
 {
 	if(!(targetObject->isConnected()))
 		return(false);
 
-	Message* message;
+	Message* data;
 
-	gMessageFactory->StartMessage();         
+	gMessageFactory->StartMessage();  
+
+	gMessageFactory->addUint16(3);	// unknown
+	gMessageFactory->addUint32(0);	// unknown
+	gMessageFactory->addUint32(0);	// unknown
+	
+	gMessageFactory->addUint32(0);	// unknown
+	gMessageFactory->addUint32(0);	// unknown
+	
+	data = gMessageFactory->EndMessage();
+
+	gMessageFactory->StartMessage();  
 	gMessageFactory->addUint32(opBaselinesMessage);   
-	gMessageFactory->addUint64(tangibleObject->getId()); 
-	gMessageFactory->addUint32(opTANO);
+	gMessageFactory->addUint64(crate->getId()); 
+	gMessageFactory->addUint32(opFCYT);
 	gMessageFactory->addUint8(9);  
 
-	gMessageFactory->addUint32(2);
-	gMessageFactory->addUint16(0);	// unknown
+	gMessageFactory->addUint32(data->getSize());
+	gMessageFactory->addData(data->getData(), data->getSize());
+	
+	data->setPendingDelete(true);
 
-	message = gMessageFactory->EndMessage();
 
-	(targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5);
-
-	return(true);
-}
-
-//======================================================================================================================
-//
-// Tangible deltas Type 3
-// update: complexity
-//
-
-bool MessageLib::sendUpdateComplexity(TangibleObject* tangibleObject,PlayerObject* playerObject)
-{
-	if(!(playerObject->isConnected()))
-		return(false);
-
-	gMessageFactory->StartMessage();  
-	gMessageFactory->addUint32(opDeltasMessage);
-	gMessageFactory->addUint64(tangibleObject->getId());
-	gMessageFactory->addUint32(opTANO);
-	gMessageFactory->addUint8(3);
-
-	gMessageFactory->addUint32(8);
-	gMessageFactory->addUint16(1);
-
-	gMessageFactory->addUint16(0);
-	gMessageFactory->addFloat(tangibleObject->getComplexity());
-
-	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5);
+	(targetObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 5);
 
 	return(true);
 }
 
-//======================================================================================================================
-// Tangible deltas Type 3
-// update: customization string
-//
-
-bool  MessageLib::sendUpdateCustomization_InRange(TangibleObject* tangibleObject,PlayerObject* playerObject)
-{
-		if(!(playerObject->isConnected()))
-		return(false);
-
-	gMessageFactory->StartMessage();  
-	gMessageFactory->addUint32(opDeltasMessage);
-	gMessageFactory->addUint64(tangibleObject->getId());
-	gMessageFactory->addUint32(opTANO);
-	gMessageFactory->addUint8(3);
-
-	gMessageFactory->addUint32(6+tangibleObject->getCustomizationStr().getLength());//length
-
-	gMessageFactory->addUint16(1);	   //one update
-
-	gMessageFactory->addUint16(4);	   //nr 4 = customization
-	gMessageFactory->addString(tangibleObject->getCustomizationStr());
-
-	_sendToInRange(gMessageFactory->EndMessage(),playerObject,8,true);
-	//(playerObject->getClient())->SendChannelA(newMessage,playerObject->getAccountId(),CR_Client,5,false);
-
-	return(true);
-
-
-}
-
-//======================================================================================================================
-//
-// Tangible deltas Type 3
-// update: type option
-//
-
-bool MessageLib::sendUpdateTypeOption(TangibleObject* tangibleObject,PlayerObject* playerObject)
-{
-	if(!(playerObject->isConnected()))
-		return(false);
-
-	gMessageFactory->StartMessage();  
-	gMessageFactory->addUint32(opDeltasMessage);
-	gMessageFactory->addUint64(tangibleObject->getId());
-	gMessageFactory->addUint32(opTANO);
-	gMessageFactory->addUint8(3);
-
-	gMessageFactory->addUint32(8);		//length
-
-	gMessageFactory->addUint16(1);	   //one update
-
-	gMessageFactory->addUint16(6);	   //nr 6 = type option.
-	gMessageFactory->addUint32(tangibleObject->getTypeOptions());
-
-	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5);
-	return(true);
-}
-
-//======================================================================================================================
-//
-// Tangible deltas Type 3
-// update: timer
-//
-
-bool MessageLib::sendUpdateTimer(TangibleObject* tangibleObject,PlayerObject* playerObject)
-{
-	if(!(playerObject->isConnected()))
-		return(false);
-
-	Message* newMessage;
-
-	gMessageFactory->StartMessage();  
-	gMessageFactory->addUint32(opDeltasMessage);
-	gMessageFactory->addUint64(tangibleObject->getId());
-	gMessageFactory->addUint32(opTANO);
-	gMessageFactory->addUint8(3);
-
-	gMessageFactory->addUint32(8);
-	gMessageFactory->addUint16(1);
-
-	gMessageFactory->addUint16(7);
-	gMessageFactory->addUint32(tangibleObject->getTimer());
-
-	newMessage = gMessageFactory->EndMessage();
-
-	(playerObject->getClient())->SendChannelA(newMessage,playerObject->getAccountId(),CR_Client,5);
-
-	return(true);
-}
-
-//======================================================================================================================
-
-
-
-bool MessageLib::sendUpdateUses(TangibleObject* tangibleObject,PlayerObject* playerObject)
-{
-	if(!(playerObject->isConnected()))
-		return(false);
-
-	uint32 uses = 0;
-
-	if(tangibleObject->hasAttribute("counter_uses_remaining"))
-	{
-		uses = tangibleObject->getAttribute<int>("counter_uses_remaining");
-	}
-
-		   
-	Message* newMessage;
-
-	gMessageFactory->StartMessage();  
-	gMessageFactory->addUint32(opDeltasMessage);
-	gMessageFactory->addUint64(tangibleObject->getId());
-	gMessageFactory->addUint32(opTANO);
-	gMessageFactory->addUint8(3);
-
-	gMessageFactory->addUint32(8);
-	gMessageFactory->addUint16(1);
-
-	gMessageFactory->addUint16(7);
-	gMessageFactory->addUint32(uses);
-
-	newMessage = gMessageFactory->EndMessage();
-
-	(playerObject->getClient())->SendChannelA(newMessage,playerObject->getAccountId(),CR_Client,5);
-
-	return(true);
-}
-
-//======================================================================================================================

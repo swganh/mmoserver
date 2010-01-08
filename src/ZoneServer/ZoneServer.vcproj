@@ -794,6 +794,10 @@
 							>
 						</File>
 						<File
+							RelativePath=".\FactoryCrate.h"
+							>
+						</File>
+						<File
 							RelativePath=".\Firework.h"
 							>
 						</File>
@@ -851,6 +855,10 @@
 						</File>
 						<File
 							RelativePath=".\Deed.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\FactoryCrate.cpp"
 							>
 						</File>
 						<File

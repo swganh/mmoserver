@@ -66,11 +66,11 @@ bool MessageLib::sendBaselinesHINO_3(HarvesterObject* harvester,PlayerObject* pl
 	if(harvester->getActive())
 		gMessageFactory->addUint8(1);//optionsbitmask - 1 = active
 	else
-		gMessageFactory->addUint8(128);//optionsbitmask - vendor etc harvester running
+		gMessageFactory->addUint8(0);//optionsbitmask - vendor etc harvester running
 
-	gMessageFactory->addUint8(16);//optionsbitmask - vendor etc harvester running
-	gMessageFactory->addUint8(2);//optionsbitmask - vendor etc harvester running
-	gMessageFactory->addUint8(2);//optionsbitmask - vendor etc harvester running
+	gMessageFactory->addUint8(0);//optionsbitmask - vendor etc harvester running
+	gMessageFactory->addUint8(0);//optionsbitmask - vendor etc harvester running
+	gMessageFactory->addUint8(0);//optionsbitmask - vendor etc harvester running
 	
 	gMessageFactory->addUint32(0);//timer
 	
@@ -86,10 +86,10 @@ bool MessageLib::sendBaselinesHINO_3(HarvesterObject* harvester,PlayerObject* pl
 	//B
 	gMessageFactory->addUint8(harvester->getActive());//active flag
 
-	gMessageFactory->addFloat(20.0);//power reserve
-	gMessageFactory->addFloat(2.0);//power cost
-	gMessageFactory->addFloat(2.0);//
-	gMessageFactory->addFloat(2.0);//
+	gMessageFactory->addFloat(0);//power reserve
+	gMessageFactory->addFloat(0);//power cost
+	gMessageFactory->addFloat(0);//
+	gMessageFactory->addFloat(0);//
 
 
 	

@@ -211,7 +211,13 @@ void HarvesterObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject
 
 		case radId_operateHarvester:
 		{
-			  gMessageLib->sendOperateHarvester(this,player);
+			StructureAsyncCommand command;
+			command.Command = Structure_Command_OperateHarvester;
+			command.PlayerId = player->getId();
+			command.StructureId = this->getId();
+
+			gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"HOPPER",command);
+		  
 		}
 		break;
 		

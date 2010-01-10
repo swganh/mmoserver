@@ -128,7 +128,7 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 				}
 				
-				// now we need to link the deed to the factory in the db and remove it out of the inventory
+				// now we need to link the deed to the factory in the db and remove it out of the inventory in the db
 				int8 sql[250];
 				sprintf(sql,"UPDATE items SET parent_id = %I64u WHERE id = %"PRIu64"",requestId, asyncContainer->DeedId);
 				mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
@@ -357,7 +357,7 @@ void ObjectFactory::requestnewHarvesterbyDeed(ObjectFactoryCallback* ofCallback,
 	}
 
 
-	gLogger->logMsgF("dir is %f, x:%f, y:%f, z:%f, w:%f",MSG_HIGH,dir,oX, oY, oZ, oW);
+	gLogger->logMsgF("New Harvester dir is %f, x:%f, y:%f, z:%f, w:%f",MSG_HIGH,dir,oX, oY, oZ, oW);
 
 	sprintf(sql,"SELECT sf_DefaultHarvesterCreate(%u,0,%"PRIu64",%u,%f,%f,%f,%f,%f,%f,%f,'%s',%I64u)",deedLink->structure_type, player->getId(), gWorldManager->getZoneId(),oX,oY,oZ,oW,x,y,z,customName.getAnsi(),deed->getId());
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
@@ -415,7 +415,7 @@ void ObjectFactory::requestnewFactorybyDeed(ObjectFactoryCallback* ofCallback,De
 	}
 
 
-	gLogger->logMsgF("dir is %f, x:%f, y:%f, z:%f, w:%f",MSG_HIGH,dir,oX, oY, oZ, oW);
+	gLogger->logMsgF("New Factory dir is %f, x:%f, y:%f, z:%f, w:%f",MSG_HIGH,dir,oX, oY, oZ, oW);
 
 	sprintf(sql,"SELECT sf_DefaultFactoryCreate(%u,0,%"PRIu64",%u,%f,%f,%f,%f,%f,%f,%f,'%s',%I64u)",deedLink->structure_type, player->getId(), gWorldManager->getZoneId(),oX,oY,oZ,oW,x,y,z,customName.getAnsi(),deed->getId());
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
@@ -606,6 +606,9 @@ void ObjectFactory::deleteObjectFromDB(Object* object)
 			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
 
 			sprintf(sql,"DELETE FROM harvesters WHERE ID = %"PRIu64"",object->getId());
+			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
+
+			sprintf(sql,"DELETE FROM factories WHERE ID = %"PRIu64"",object->getId());
 			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
 
 			//Admin / Hopper Lists

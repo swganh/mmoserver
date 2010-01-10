@@ -105,6 +105,8 @@ void Deed::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
 					//TODO
 					//check for city boundaries
+					player->togglePlayerCustomFlagOn(PlayerCustomFlag_StructurePlacement);	
+
 					gMessageLib->sendEnterStructurePlacement(this,data->structureObjectString,player);
 
 				}

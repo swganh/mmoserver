@@ -138,6 +138,14 @@ void ObjectController::_handleStructurePlacement(uint64 targetId,Message* messag
 		return;
 	}
 	
+	if(!player->checkPlayerCustomFlag(PlayerCustomFlag_StructurePlacement))
+	{
+		gLogger->logMsgF("Player %I64u is not in StructurePlacement Mode",MSG_HIGH, player->getId());
+		return;
+
+	}
+	player->togglePlayerCustomFlagOff(PlayerCustomFlag_StructurePlacement);	
+
 	//find out where our structure is
 	string dataStr;
 	message->getStringUnicode16(dataStr);

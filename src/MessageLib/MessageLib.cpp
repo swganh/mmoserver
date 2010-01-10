@@ -939,6 +939,7 @@ void MessageLib::sendInventory(PlayerObject* playerObject)
 		if(FactoryCrate* crate = dynamic_cast<FactoryCrate*>(*objIt))
 		{
 			gMessageLib->sendCreateFactoryCrate(crate,playerObject);
+			sendItemChildren(crate,playerObject);
 		}
 		else
 		if(TangibleObject* tangible = dynamic_cast<TangibleObject*>(*objIt))

@@ -944,7 +944,7 @@ void StructureManager::getDeleteStructureMaintenanceData(uint64 structureId, uin
 	StructureManagerAsyncContainer* asyncContainer;
 
 	asyncContainer = new StructureManagerAsyncContainer(Structure_Query_delete, 0);
-	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sa.value, sa.attribute_id FROM structure_attributes sa where attribute_id = 382 or attribute_id = 384 and structure_id = %I64u",structureId);
+	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sa.value, sa.attribute_id FROM structure_attributes sa where (attribute_id = 382 or attribute_id = 384) and structure_id = %I64u",structureId);
 	asyncContainer->mStructureId = structureId;
 	asyncContainer->mPlayerId = playerId;
 
@@ -1284,10 +1284,12 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 				mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
 			}
 
-			gObjectFactory->deleteObjectFromDB(structure);
 			UpdateCharacterLots(structure->getOwner());
 
 			gMessageLib->sendDestroyObject_InRangeofObject(structure);
+
+			gObjectFactory->deleteObjectFromDB(structure);
+
 			gWorldManager->destroyObject(structure);
 
 		}
@@ -1528,7 +1530,14 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			mDatabase->ExecuteSqlAsync(harvester,asyncContainer,"select sf_DiscardHopper(%I64u)",command.StructureId);
 
 		}
-		break;
+		break;	 
+
+		case Structure_Command_OperateHarvester:
+		{
+			PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(command.StructureId));
+			gMessageLib->sendOperateHarvester(structure,player);
+		}
+		return;
 
 		case Structure_Command_RenameStructure:
 		{

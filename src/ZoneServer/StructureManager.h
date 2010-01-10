@@ -91,6 +91,7 @@ enum Structure_Async_CommandEnum
 	Structure_Command_DepositPower		=	13,
 	Structure_Command_ViewStatus		=	14,
 	Structure_Command_ViewStatus_Att2	=	15,
+	Structure_Command_OperateHarvester	=	16,
 	
 
 };

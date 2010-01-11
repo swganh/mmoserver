@@ -45,7 +45,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 
 	if (!player)
 	{
-		gLogger->logMsgF("ObjectController::handleDataTransform Object id NOT A PLAYER, id = %"PRIu64"", MSG_HIGH, mObject->getId());
+		gLogger->logMsgF("ObjectController::handleDataTransform Object is NOT A PLAYER, id = %"PRIu64"", MSG_HIGH, mObject->getId());
 		return;
 	}
 
@@ -106,6 +106,8 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 	// gLogger->logMsgF("Direction = %f, %f, %f, %f",MSG_NORMAL, dir.mX, dir.mY, dir.mZ, dir.mW);
 
 	// stop entertaining, if we were
+	// important is, that if we move we change our posture to NOT skill animating anymore!
+	// so only stop entertaining when we are performing and NOT skillanimationg
 	if(player->getPerformingState() != PlayerPerformance_None && player->getPosture() != CreaturePosture_SkillAnimating)
 	{
 		gEntertainerManager->stopEntertaining(player);
@@ -292,7 +294,12 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 			else
 			{
 				// send out position updates to known players
-				gMessageLib->sendUpdateTransformMessage(player);
+				// please note that these updates mess up our dance performance
+				if(player->getPerformingState() == PlayerPerformance_None)
+				{
+					gMessageLib->sendUpdateTransformMessage(player);
+				}
+		
 
 			}
 
@@ -958,6 +965,9 @@ uint64 ObjectController::playerWorldUpdate(bool forcedUpdate)
 		// Update some of the objects we found.
 		mUpdatingObjects = !_updateInRangeObjectsInside();
 
+		/*
+		Why would we need to send position updates to confirm our position ?? 
+		we didfnt do any kind of movement prediction and these updates upset our spectators when were dancing
 		// Only send position updates when we are running slow...
 		if (!(mUpdatingObjects || mDestroyOutOfRangeObjects))
 		{
@@ -977,6 +987,7 @@ uint64 ObjectController::playerWorldUpdate(bool forcedUpdate)
 				gMessageLib->sendUpdateTransformMessageWithParent(player, player);
 			}
 		}
+		*/ 
 	}
 	else
 	{
@@ -1090,28 +1101,6 @@ uint64 ObjectController::playerWorldUpdate(bool forcedUpdate)
 			}
 		}
 
-		// Only send position updates when we are running slow...
-		if (!(mUpdatingObjects || mDestroyOutOfRangeObjects))
-		{
-
-			if (!gWorldConfig->isInstance())
-			{
-				//Send out position updates to known players
-				if(player->checkIfMounted() && player->getMount())
-				{
-					gMessageLib->sendUpdateTransformMessage(player->getMount());
-				}
-				else
-				{
-					gMessageLib->sendUpdateTransformMessage(player);
-				}
-			}
-			else
-			{
-				// send out position updates to known players in group or self only
-				gMessageLib->sendUpdateTransformMessage(player, player);
-			}
-		}
 	}
 
 	uint64 msToWait = 4900;		// Will give 5 sec.

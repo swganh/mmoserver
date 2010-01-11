@@ -153,6 +153,13 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 		//we use it to create the deed in the inventory
 		case Structure_UpdateStructureDeed:
 		{
+			PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(asynContainer->mStructureId));
+
+			//destroy the structure here so the sf can still access the relevant data
+			gObjectFactory->deleteObjectFromDB(structure);
+			gWorldManager->destroyObject(structure);
+			gMessageLib->sendDestroyObject_InRangeofObject(structure);
+
 			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
 
 			uint64 deedId;
@@ -164,10 +171,23 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
 			if (!count)
 			{
-				gLogger->logMsgLoadFailure("StructureManager::add Permission no return value...",MSG_NORMAL);
+				gLogger->logMsgLoadFailure("StructureManager::create deed no return value...",MSG_NORMAL);
 				return;
 			}
 			result->GetNextRow(binding,&deedId);
+
+			//return value of 0 means something wasnt found
+			if(!deedId)
+			{
+				gLogger->logMsgLoadFailure("StructureManager::create deed no return value...",MSG_NORMAL);
+				return;
+			}
+			//returnvalue of 1 means that there wasnt enough money on the deed
+			if(deedId == 1)
+			{
+				gLogger->logMsgLoadFailure("StructureManager::create deed with not enough maintenance...",MSG_NORMAL);
+				return;
+			}
 
 			if(player)
 			{
@@ -1263,14 +1283,17 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 
 		if(structure->getTTS()->todo == ttE_Delete)
 		{
-			// TODO
-			// get the deed to the inventory *if* the structure will be redeeded
+			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById( structure->getTTS()->playerId ));
 			if(structure->canRedeed())
-			{				
+			{	
+
+				gMessageLib->sendSystemMessage(player,L"","player_structure","deed_reclaimed");
+
 				//update the deeds attributes and set the new owner id (owners inventory = characterid +1)
 				StructureManagerAsyncContainer* asyncContainer;
 				asyncContainer = new StructureManagerAsyncContainer(Structure_UpdateStructureDeed, 0);
-				asyncContainer->mPlayerId = structure->getOwner();
+				asyncContainer->mPlayerId		= structure->getOwner();
+				asyncContainer->mStructureId	= structure->getId();
 				int8 sql[150];
 				sprintf(sql,"select sf_DefaultHarvesterUpdateDeed(%"PRIu64",%"PRIu64")", structure->getId(),structure->getOwner()+1);
 				mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
@@ -1279,18 +1302,16 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 			else
 			//delete the deed
 			{
+				gMessageLib->sendSystemMessage(player,L"","player_structure","structure_destroyed");
 				int8 sql[200];
 				sprintf(sql,"DELETE FROM items WHERE parent_id = %"PRIu64" AND item_family = 15",structure->getId());
 				mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
+				gObjectFactory->deleteObjectFromDB(structure);
+				gWorldManager->destroyObject(structure);
+				gMessageLib->sendDestroyObject_InRangeofObject(structure);
 			}
 
 			UpdateCharacterLots(structure->getOwner());
-
-			gMessageLib->sendDestroyObject_InRangeofObject(structure);
-
-			gObjectFactory->deleteObjectFromDB(structure);
-
-			gWorldManager->destroyObject(structure);
 
 		}
 

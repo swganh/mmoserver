@@ -371,9 +371,9 @@ void PlayerStructure::handleUIEvent(uint32 action,int32 element,string inputStr,
 			if(inputStr.getCrc() == this->getCode().getCrc())
 			{
 				//delete it
-				mTTS.todo = ttE_Delete;
+				mTTS.todo		= ttE_Delete;
+				mTTS.playerId	= player->getId();
 				gStructureManager->addStructureforDestruction(this->getId());
-				gMessageLib->sendSystemMessage(player,L"","player_structure","deed_reclaimed");
 			}
 			else
 			{

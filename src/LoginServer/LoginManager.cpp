@@ -114,6 +114,8 @@ void LoginManager::handleSessionDisconnect(NetworkClient* client)
 {
 	LoginClient* loginClient = reinterpret_cast<LoginClient*>(client);
 
+	//gLogger->logMsgF("handleSessionDisconnect account %u",MSG_HIGH,loginClient->getAccountId());
+
 	// Client has disconnected.  Update the db to show they are no longer authenticated.
 	mDatabase->ExecuteSqlAsync(0, 0, "UPDATE account SET authenticated=0 WHERE account_id=%u;", loginClient->getAccountId());
 
@@ -259,6 +261,7 @@ void LoginManager::_handleLoginClientId(LoginClient* client, Message* message)
   if (strlen(username.getAnsi()) == 0) //SessionID Login With ANH Launcher
   {
 	sprintf(sql,"SELECT account_id, username, password, station_id, banned, active,characters_allowed, session_key FROM account WHERE banned=0 AND authenticated=0 AND loggedin=0   AND session_key='");
+//	  sprintf(sql,"SELECT account_id, username, password, station_id, banned, active,characters_allowed, session_key FROM account WHERE banned=0 AND loggedin=0   AND session_key='");
 	sqlPointer = sql + strlen(sql);
 	sqlPointer += mDatabase->Escape_String(sqlPointer,password.getAnsi(),password.getLength());
   *sqlPointer++ = '\'';
@@ -266,7 +269,10 @@ void LoginManager::_handleLoginClientId(LoginClient* client, Message* message)
   }
   else //regular login the client login screen
   {
+	  //the problem with the marked authentication is, that if a connection drops without a sessiondisconnect packet
+	  //the connection to the loginserver cannot be established anymore - need to have the sessiontimeout think of that
 	sprintf(sql,"SELECT account_id, username, password, station_id, banned, active,characters_allowed FROM account WHERE banned=0 AND authenticated=0 AND loggedin=0   AND username='");
+	//sprintf(sql,"SELECT account_id, username, password, station_id, banned, active,characters_allowed FROM account WHERE banned=0 AND loggedin=0   AND username='");
 	sqlPointer = sql + strlen(sql);
 	sqlPointer += mDatabase->Escape_String(sqlPointer,username.getAnsi(),username.getLength());
 	strcat(sql,"' AND password=SHA1('");

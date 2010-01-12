@@ -218,10 +218,6 @@ void SocketReadThread::run(void)
 			port = from.sin_port;
 			uint64 hash = address | (((uint64)port) << 32);
 
-			
-			assert(mReceivePacket);
-			
-
 			// Grab our packet type
 			mReceivePacket->Reset();           // Reset our internal members so we can use the packet again.
 			mReceivePacket->setSize(recvLen); // crc is subtracted by the decryption
@@ -490,12 +486,11 @@ void SocketReadThread::RemoveAndDestroySession(Session* session)
 	// Find and remove the session from the address map.
 	uint64 hash = session->getAddress() | (((uint64)session->getPort()) << 32);
 
-    boost::recursive_mutex::scoped_lock lk(mSocketReadMutex);
-
 	AddressSessionMap::iterator iter = mAddressSessionMap.find(hash);
 
 	if(iter != mAddressSessionMap.end())
 	{
+		boost::recursive_mutex::scoped_lock lk(mSocketReadMutex);
 		mAddressSessionMap.erase(iter);
 		gLogger->logMsgF("Service %i: Removing Session(%s, %u), AddressMap: %i hash %I64u",MSG_NORMAL,mSessionFactory->getService()->getId(), inet_ntoa(*((in_addr*)(&hash))), ntohs(session->getPort()), mAddressSessionMap.size(),hash);
 		mSessionFactory->DestroySession(session);

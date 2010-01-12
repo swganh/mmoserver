@@ -183,7 +183,9 @@ void HarvesterFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id
 	//request the harvesters Data first
 	
 	int8 hmm[1024];
-	sprintf(hmm, "SELECT s.id,s.owner,s.oX,s.oY,s.oZ,s.oW,s.x,s.y,s.z,std.type,std.object_string,std.stf_name, std.stf_file, s.name, std.lots_used, std.resource_Category, h.ResourceID, h.active, h.rate, std.maint_cost_wk, std.power_used, s.condition, std.max_condition FROM structures s INNER JOIN structure_type_data std ON (s.type = std.type) INNER JOIN harvesters h ON (s.id = h.id) WHERE (s.id = %"PRIu64")",id);
+	sprintf(hmm,	"SELECT s.id,s.owner,s.oX,s.oY,s.oZ,s.oW,s.x,s.y,s.z,std.type,std.object_string,std.stf_name, std.stf_file, s.name, std.lots_used, std.resource_Category, h.ResourceID, h.active, h.rate, std.maint_cost_wk, std.power_used, s.condition, std.max_condition, std.repair_cost"
+					"FROM structures s INNER JOIN structure_type_data std ON (s.type = std.type) INNER JOIN harvesters h ON (s.id = h.id)"
+					"WHERE (s.id = %"PRIu64")",id);
 	QueryContainerBase* asynContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,HFQuery_MainData,client,id);
 
 	mDatabase->ExecuteSqlAsync(this,asynContainer,hmm);
@@ -194,7 +196,7 @@ void HarvesterFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id
 
 void HarvesterFactory::_setupDatabindings()
 {
-	mHarvesterBinding = mDatabase->CreateDataBinding(23);
+	mHarvesterBinding = mDatabase->CreateDataBinding(24);
 	mHarvesterBinding->addField(DFT_uint64,offsetof(HarvesterObject,mId),8,0);
 	mHarvesterBinding->addField(DFT_uint64,offsetof(HarvesterObject,mOwner),8,1);
 	mHarvesterBinding->addField(DFT_float,offsetof(HarvesterObject,mDirection.mX),4,2);
@@ -220,6 +222,7 @@ void HarvesterFactory::_setupDatabindings()
 	mHarvesterBinding->addField(DFT_uint32,offsetof(HarvesterObject,mPowerUsed),4,20);
 	mHarvesterBinding->addField(DFT_uint32,offsetof(HarvesterObject,mDamage),4,21);
 	mHarvesterBinding->addField(DFT_uint32,offsetof(HarvesterObject,mMaxCondition),4,22);
+	mHarvesterBinding->addField(DFT_uint32,offsetof(HarvesterObject,mRepairCost),4,23);
 
 }
 

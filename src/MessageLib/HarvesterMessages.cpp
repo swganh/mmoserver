@@ -600,21 +600,6 @@ void MessageLib::sendHarvesterActive(HarvesterObject* harvester)
 	
 }
 
-//======================================================================================================================
-//Notifies the chatserver to
-//the chatserver will
-//======================================================================================================================
-
-void MessageLib::sendHarvesterChatHopperUpdate(HarvesterObject* harvester, PlayerObject* player, uint8 update)
-{										  
-	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opIsmHarvesterUpdate);
-	gMessageFactory->addUint64(harvester->getId());
-	gMessageFactory->addUint8(update);
-	gMessageFactory->addUint32(harvester->getRListUpdateCounter());
-
-	(player->getClient())->SendChannelA(gMessageFactory->EndMessage(), player->getAccountId(),CR_Chat,4);
-}
 
 //=======================================================================================================================
 //
@@ -788,18 +773,18 @@ void MessageLib::SendUpdateHarvesterWorkAnimation(HarvesterObject* harvester)
 //send current Resource Update
 //======================================================================================================================
 
-void MessageLib::sendCurrentConditionUpdate(HarvesterObject* harvester)
+void MessageLib::sendHarvesterCurrentConditionUpdate(PlayerStructure* structure)
 {										  
 	gMessageFactory->StartMessage();
 	
 	gMessageFactory->addUint16(1);	//1 updated var
 	gMessageFactory->addUint16(8);	//var Nr 5
-	gMessageFactory->addUint32(harvester->getDamage());
+	gMessageFactory->addUint32(structure->getDamage());
 	Message* fragment = gMessageFactory->EndMessage();
 
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opDeltasMessage);
-	gMessageFactory->addUint64(harvester->getId());
+	gMessageFactory->addUint64(structure->getId());
 	gMessageFactory->addUint32(opHINO);
 	gMessageFactory->addUint8(3);
 	gMessageFactory->addUint32(fragment->getSize());
@@ -807,6 +792,6 @@ void MessageLib::sendCurrentConditionUpdate(HarvesterObject* harvester)
 
 	fragment->setPendingDelete(true);
 
-	_sendToInRange(gMessageFactory->EndMessage(),harvester,5);
+	_sendToInRange(gMessageFactory->EndMessage(),structure,5);
 }
 

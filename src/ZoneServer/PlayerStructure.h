@@ -88,6 +88,9 @@ class PlayerStructure :	public TangibleObject
 		uint32					getMaintenanceRate(){return(uint32(maint_cost_wk/(168)));}
 		void					setMaintenanceRate(uint32 maintenance){maint_cost_wk = maintenance*168;}
 
+		uint32					getRepairCost(){return(mRepairCost);}
+		void					setRepairCost(uint32 m){mRepairCost= m;}
+
 		uint32					getCurrentPower();
 		void					setCurrentPower(uint32 maintenance);
 
@@ -181,6 +184,7 @@ class PlayerStructure :	public TangibleObject
 
 		uint32						maint_cost_wk;
 		uint32						mPowerUsed;
+		uint32						mRepairCost;
 };
 
 

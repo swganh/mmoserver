@@ -48,28 +48,25 @@ enum Structure_QueryType
 	Structure_Query_LoadDeedData				=	1,
 	Structure_Query_LoadstructureItem			=	2,
 
-	Structure_Query_delete						=	3,
-	Structure_Query_Admin_Data					=	4,
-	Structure_Query_Hopper_Data					=	5,
-	Structure_Query_Add_Permission				=	6,
-	Structure_Query_Remove_Permission			=	7,
-	Structure_Query_Check_Permission			=	8,
-	Structure_StructureTransfer_Lots_Recipient	=	9,
-	Structure_StructureTransfer_Lots_Donor		=	10,
-	Structure_HopperUpdate						=	11,
-	Structure_HopperDiscard						=	12,
-	Structure_GetResourceData					=	13,
-	Structure_ResourceDiscardUpdateHopper		=	14,
-	Structure_ResourceDiscard					=	15,
-	Structure_ResourceRetrieve					=	16,
-	Structure_GetDepositPowerData				=	17,
-	Structure_GetDepositMaintenanceData			=	18,
-	Structure_GetOwnersName			 			=	19,
+	Structure_Query_Admin_Data					=	3,
+	Structure_Query_Hopper_Data					=	4,
+	Structure_Query_Add_Permission				=	5,
+	Structure_Query_Remove_Permission			=	6,
+	Structure_Query_Check_Permission			=	7,
+	Structure_StructureTransfer_Lots_Recipient	=	8,
+	Structure_StructureTransfer_Lots_Donor		=	9,
+	Structure_HopperUpdate						=	10,
+	Structure_HopperDiscard						=	11,
+	Structure_GetResourceData					=	12,
+	Structure_ResourceDiscardUpdateHopper		=	13,
+	Structure_ResourceDiscard					=	14,
+	Structure_ResourceRetrieve					=	15,
 	
-	Structure_GetInactiveHarvesters	 			=	20,
-	Structure_GetDestructionStructures			=	21,
-	Structure_UpdateStructureDeed				=	22,
-	Structure_UpdateCharacterLots				=	23,
+	Structure_GetInactiveHarvesters	 			=	16,
+	Structure_GetDestructionStructures			=	17,
+	Structure_UpdateStructureDeed				=	18,
+	Structure_UpdateCharacterLots				=	19,
+	Structure_UpdateAttributes					=	20,
 
 };
 
@@ -130,6 +127,7 @@ struct StructureDeedLink
 {
 	uint32	structure_type;
 	uint32	skill_Requirement;
+	uint32	repair_cost;
 	uint32	item_type;
 	string	structureObjectString;
 	uint8	requiredLots;
@@ -193,6 +191,18 @@ public:
 	StructureAsyncCommand		command;
 
 };
+
+class Type_QueryContainer
+{
+	public:
+
+		Type_QueryContainer(){}
+
+		uint64	mId;
+		BString	mString;
+		BString	mValue;
+};
+
 
 //======================================================================================================================
 

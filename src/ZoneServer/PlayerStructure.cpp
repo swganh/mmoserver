@@ -247,9 +247,6 @@ void PlayerStructure::handleUIEvent(string strCharacterCash, string strHarvester
 				gLogger->logMsgF("Player : %I64u !!!!!", MSG_NORMAL,player->getId());
 				return;
 			}
-			
-
-			//now update the playerstructure
 
 			int32 maintenance = this->getCurrentMaintenance() + harvesterMoneyDelta;
 
@@ -265,14 +262,43 @@ void PlayerStructure::handleUIEvent(string strCharacterCash, string strHarvester
 			
 			gWorldManager->getDatabase()->DestroyResult(gWorldManager->getDatabase()->ExecuteSynchSql("UPDATE banks SET credits=%u WHERE id=%"PRIu64"",bank->getCredits(),bank->getId()));
 			gWorldManager->getDatabase()->DestroyResult(gWorldManager->getDatabase()->ExecuteSynchSql("UPDATE inventories SET credits=%u WHERE id=%"PRIu64"",inventory->getCredits(),inventory->getId()));
-
-			gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE structure_attributes SET value='%u' WHERE structure_id=%"PRIu64" AND attribute_id=382",maintenance,this->getId());
-			
-			this->setCurrentMaintenance(maintenance);
 			
 			//send the appropriate deltas.
 			gMessageLib->sendInventoryCreditsUpdate(player);
 			gMessageLib->sendBankCreditsUpdate(player);
+
+			//get the structures conditiondamage and see whether it needs repair
+			uint32 damage = this->getDamage();
+			
+			if(damage)
+			{
+				uint32 cost = this->getRepairCost();
+				uint32 all = cost*damage;
+				if(maintenance <= (int32)all)
+				{
+					all -= (uint32)maintenance;
+					damage = (uint32)(all/cost);
+					maintenance = 0;
+				}
+				
+				if(maintenance > (int32)all)
+				{
+					maintenance -= (int32)all;
+					damage = 0;
+				}
+
+				//update the remaining damage in the db
+				gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE structures SET condition='%u' WHERE id=%"PRIu64"",damage,this->getId());
+				this->setDamage(damage);
+
+				//Update the structures Condition
+				gMessageLib->sendHarvesterCurrentConditionUpdate(this);
+
+			}
+
+			gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE structure_attributes SET value='%u' WHERE structure_id=%"PRIu64" AND attribute_id=382",maintenance,this->getId());
+			
+			this->setCurrentMaintenance(maintenance);
 
 
 		}

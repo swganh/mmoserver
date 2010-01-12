@@ -17,6 +17,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "ZoneServer/ResourceType.h"
 
 #include "ZoneServer/HarvesterObject.h"
+#include "ZoneServer/FactoryObject.h"
 #include "ZoneServer/PlayerObject.h"
 #include "ZoneServer/ObjectFactory.h"
 #include "ZoneServer/WorldManager.h"
@@ -314,10 +315,173 @@ bool MessageLib::sendBaselinesHINO_7(HarvesterObject* harvester,PlayerObject* pl
 // contain: name,
 //
 
+bool MessageLib::sendBaselinesINSO_3(FactoryObject* factory,PlayerObject* player)
+{
+	if(!(player->isConnected()))
+		return(false);
+			
+	Message* message;
+
+	gMessageFactory->StartMessage();    
+	gMessageFactory->addUint16(16);
+	gMessageFactory->addFloat(1.0);
+	gMessageFactory->addString(factory->getNameFile());
+	gMessageFactory->addUint32(0);
+	gMessageFactory->addString(factory->getName());
+	
+	string name;
+	name = factory->getCustomName();
+	name.convert(BSTRType_Unicode16);
+
+	gMessageFactory->addString(name.getUnicode16());
+	
+	gMessageFactory->addUint32(1);//volume (in inventory)
+	gMessageFactory->addUint16(0);//customization
+	gMessageFactory->addUint32(0);//list
+	gMessageFactory->addUint32(0);//list
+	
+	if(factory->getActive())
+		gMessageFactory->addUint8(1);//optionsbitmask - 1 = active
+	else
+		gMessageFactory->addUint8(0);//optionsbitmask - vendor etc harvester running
+
+	gMessageFactory->addUint8(0);//optionsbitmask - vendor etc harvester running
+	gMessageFactory->addUint8(0);//optionsbitmask - vendor etc harvester running
+	gMessageFactory->addUint8(0);//optionsbitmask - vendor etc harvester running
+	
+	gMessageFactory->addUint32(0);//timer
+	
+	//08
+	gMessageFactory->addUint32(factory->getDamage());//condition damage
+	
+	//09
+	gMessageFactory->addUint32(factory->getMaxCondition());   //maxcondition
+	
+	//A
+	gMessageFactory->addUint8(factory->getActive());//??
+	
+	//B
+	gMessageFactory->addUint8(factory->getActive());//active flag
+
+	gMessageFactory->addFloat(0);//power reserve
+	gMessageFactory->addFloat(0);//power cost
+	gMessageFactory->addFloat(0);//
+	gMessageFactory->addFloat(0);//
+
+
+	
+
+	message = gMessageFactory->EndMessage();
+
+	Message* newMessage;
+
+	gMessageFactory->StartMessage();    
+	gMessageFactory->addUint32(opBaselinesMessage);  
+	gMessageFactory->addUint64(factory->getId());
+	gMessageFactory->addUint32(opINSO);
+	gMessageFactory->addUint8(3);
+
+	gMessageFactory->addUint32(message->getSize());
+	gMessageFactory->addData(message->getData(),message->getSize());
+
+	newMessage = gMessageFactory->EndMessage();
+	message->setPendingDelete(true);
+
+	(player->getClient())->SendChannelA(newMessage, player->getAccountId(), CR_Client, 5);
+
+	return(true);
+}
+
+//======================================================================================================================
+//
+// Installation Baselines Type 6
+// contain: unknown
+//
+
+bool MessageLib::sendBaselinesINSO_6(FactoryObject* factory,PlayerObject* player)
+{
+
+	if(!(player->isConnected()))
+		return(false);
+			
+	Message* message;
+
+	gMessageFactory->StartMessage();    
+	gMessageFactory->addUint32(16);
+	gMessageFactory->addUint64(0);
+	gMessageFactory->addUint64(0);
+	gMessageFactory->addUint64(0);
+	gMessageFactory->addUint64(0);
+	gMessageFactory->addUint64(0);
+
+	
+	message = gMessageFactory->EndMessage();
+
+	Message* newMessage;
+
+	gMessageFactory->StartMessage();    
+	gMessageFactory->addUint32(opBaselinesMessage);  
+	gMessageFactory->addUint64(factory->getId());
+	gMessageFactory->addUint32(opINSO);
+	gMessageFactory->addUint8(6);
+
+	gMessageFactory->addUint32(message->getSize());
+	gMessageFactory->addData(message->getData(),message->getSize());
+
+	newMessage = gMessageFactory->EndMessage();
+	message->setPendingDelete(true);
+
+	(player->getClient())->SendChannelA(newMessage, player->getAccountId(), CR_Client, 5);
+
+	return(true);
+}
+
 bool MessageLib::sendBaselinesINSO_3(PlayerStructure* structure,PlayerObject* player)
 {
 	if(!(player->isConnected()))
 		return(false);
+			
+	Message* message;
+
+	gMessageFactory->StartMessage();    
+	gMessageFactory->addUint16(16);
+	gMessageFactory->addFloat(1.0);
+	gMessageFactory->addString(structure->getNameFile());
+	gMessageFactory->addUint32(0);
+	gMessageFactory->addString(structure->getName());
+	
+	string name;
+	name = structure->getCustomName();
+	name.convert(BSTRType_Unicode16);
+
+	gMessageFactory->addString(name.getUnicode16());
+	
+	gMessageFactory->addUint32(1);//volume (in inventory)
+	gMessageFactory->addUint16(0);//customization
+	gMessageFactory->addUint32(0);//list
+	gMessageFactory->addUint32(0);//list
+	gMessageFactory->addUint32(0);//list
+	
+	gMessageFactory->addUint32(0);//timer
+	
+	//08
+	gMessageFactory->addUint32(structure->getDamage());//condition damage
+	
+	//09
+	gMessageFactory->addUint32(structure->getMaxCondition());   //maxcondition
+	
+	//
+	gMessageFactory->addUint64(0);//timer
+	gMessageFactory->addUint64(0);//timer
+	gMessageFactory->addUint64(0);//timer
+	gMessageFactory->addUint64(0);//timer
+	gMessageFactory->addUint64(0);//timer
+
+
+
+	
+
+	message = gMessageFactory->EndMessage();
 
 	Message* newMessage;
 
@@ -327,41 +491,11 @@ bool MessageLib::sendBaselinesINSO_3(PlayerStructure* structure,PlayerObject* pl
 	gMessageFactory->addUint32(opINSO);
 	gMessageFactory->addUint8(3);
 
-	structure->getNameFile().convert(BSTRType_ANSI);
-	structure->getName().convert(BSTRType_ANSI);
-
-	printf("%s", structure->getNameFile().getAnsi());
-	printf("%s", structure->getName().getAnsi());
-
-	uint32 byteCount = 61 + structure->getNameFile().getLength() + structure->getName().getLength();
-	
-	gMessageFactory->addUint32(byteCount);
-	gMessageFactory->addUint16(10);
-	gMessageFactory->addFloat(1.0);
-	gMessageFactory->addString(structure->getNameFile());
-	gMessageFactory->addUint32(0);
-	gMessageFactory->addString(structure->getName());
-	gMessageFactory->addUint32(0);
-	//gMessageFactory->addString("");
-	
-	gMessageFactory->addUint32(1);//volume (in inventory)
-	gMessageFactory->addUint16(0);//customization
-	gMessageFactory->addUint32(0);//list
-	gMessageFactory->addUint32(0);//list
-	gMessageFactory->addUint32(0);//optionsbitmask
-	gMessageFactory->addUint32(0);//timer
-	gMessageFactory->addUint32(0);//condition damage
-	gMessageFactory->addUint32(0);   //maxcondition
-	gMessageFactory->addUint32(0);
-	gMessageFactory->addUint8(0);//active flag
-	gMessageFactory->addFloat(0);//power reserve
-	gMessageFactory->addFloat(0);//power cost
-	gMessageFactory->addUint64(0);
-	gMessageFactory->addUint64(0);
-	gMessageFactory->addUint64(0);
-	gMessageFactory->addUint64(0);
+	gMessageFactory->addUint32(message->getSize());
+	gMessageFactory->addData(message->getData(),message->getSize());
 
 	newMessage = gMessageFactory->EndMessage();
+	message->setPendingDelete(true);
 
 	(player->getClient())->SendChannelA(newMessage, player->getAccountId(), CR_Client, 5);
 
@@ -376,35 +510,42 @@ bool MessageLib::sendBaselinesINSO_3(PlayerStructure* structure,PlayerObject* pl
 
 bool MessageLib::sendBaselinesINSO_6(PlayerStructure* structure,PlayerObject* player)
 {
+
 	if(!(player->isConnected()))
 		return(false);
+			
+	Message* message;
+
+	gMessageFactory->StartMessage();    
+	gMessageFactory->addUint32(16);
+	gMessageFactory->addUint64(0);
+	gMessageFactory->addUint64(0);
+	gMessageFactory->addUint64(0);
+	gMessageFactory->addUint64(0);
+	gMessageFactory->addUint64(0);
+
+	
+	message = gMessageFactory->EndMessage();
 
 	Message* newMessage;
 
-	gMessageFactory->StartMessage();
+	gMessageFactory->StartMessage();    
 	gMessageFactory->addUint32(opBaselinesMessage);  
 	gMessageFactory->addUint64(structure->getId());
 	gMessageFactory->addUint32(opINSO);
 	gMessageFactory->addUint8(6);
 
-	gMessageFactory->addUint32(43);
-	gMessageFactory->addUint16(0);	// unknown
-	gMessageFactory->addUint16(0); // unknown
-	gMessageFactory->addUint32(0);	// unknown
-	gMessageFactory->addUint32(0);
-	gMessageFactory->addUint32(0);
-	gMessageFactory->addUint64(0);
-	gMessageFactory->addUint64(0);
-	gMessageFactory->addUint64(0);
-	gMessageFactory->addUint64(0);
-	gMessageFactory->addUint64(0);
+	gMessageFactory->addUint32(message->getSize());
+	gMessageFactory->addData(message->getData(),message->getSize());
 
 	newMessage = gMessageFactory->EndMessage();
+	message->setPendingDelete(true);
 
 	(player->getClient())->SendChannelA(newMessage, player->getAccountId(), CR_Client, 5);
 
 	return(true);
 }
+
 
 
 //======================================================================================================================

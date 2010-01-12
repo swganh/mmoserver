@@ -105,36 +105,36 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			result->GetNextRow(binding,&requestId);
 			mDatabase->DestroyDataBinding(binding);
 
-			if(requestId)
+			if(!requestId)
 			{
-				mFactoryFactory->requestObject(asyncContainer->ofCallback,requestId,0,0,asyncContainer->client);
-
-				//now we need to update the Owners Lots
-				PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asyncContainer->OwnerId));
-					
-				//cave he might have logged out already - even if thats *very* unlikely (heck of a query that would have been)
-				if(player)
-				{
-					gStructureManager->UpdateCharacterLots(asyncContainer->OwnerId);
-					Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-					Deed* deed = dynamic_cast<Deed*>(inventory->getObjectById(asyncContainer->DeedId));
-					
-					//destroy it in the client
-					gMessageLib->sendDestroyObject(asyncContainer->DeedId,player);
-		
-					//delete it out of the inventory
-					inventory->deleteObject(deed);
-		
-
-				}
-				
-				// now we need to link the deed to the factory in the db and remove it out of the inventory in the db
-				int8 sql[250];
-				sprintf(sql,"UPDATE items SET parent_id = %I64u WHERE id = %"PRIu64"",requestId, asyncContainer->DeedId);
-				mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
-			}
-			else
 				gLogger->logMsg("ObjFactory::handleDatabaseJobComplete   :  create Factory failed");
+			}
+			mFactoryFactory->requestObject(asyncContainer->ofCallback,requestId,0,0,asyncContainer->client);
+
+			//now we need to update the Owners Lots
+			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asyncContainer->OwnerId));
+				
+			//cave he might have logged out already - even if thats *very* unlikely (heck of a query that would have been)
+			if(player)
+			{
+				gStructureManager->UpdateCharacterLots(asyncContainer->OwnerId);
+				Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+				Deed* deed = dynamic_cast<Deed*>(inventory->getObjectById(asyncContainer->DeedId));
+				
+				//destroy it in the client
+				gMessageLib->sendDestroyObject(asyncContainer->DeedId,player);
+	
+				//delete it out of the inventory
+				inventory->deleteObject(deed);
+	
+
+			}
+			
+			// now we need to link the deed to the factory in the db and remove it out of the inventory in the db
+			int8 sql[250];
+			sprintf(sql,"UPDATE items SET parent_id = %I64u WHERE id = %"PRIu64"",requestId, asyncContainer->DeedId);
+			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
+				
 		}
 		break;
 

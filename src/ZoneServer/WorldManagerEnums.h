@@ -64,7 +64,8 @@ enum WMQuery
 	WMQuery_SpawnRegions			= 32,
 	WMQuery_SavePlayer_Buff			= 33,
 	WMQuery_CreatureSpawnRegions	= 34,
-	WMQuery_Harvesters				= 35
+	WMQuery_Harvesters				= 35,
+	WMQuery_Factories				= 36
 };
 
 //======================================================================================================================

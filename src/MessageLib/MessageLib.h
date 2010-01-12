@@ -36,6 +36,7 @@ class Skill;
 class ResourceContainer;
 class TangibleObject;
 class HarvesterObject;
+class FactoryObject;
 class ManufacturingSchematic;
 class PlayerObject;
 class MovingObject;
@@ -80,6 +81,7 @@ public:
 	bool				sendCreateFactoryCrate(FactoryCrate* crate,PlayerObject* targetObject);
 	bool				sendCreateStructure(PlayerStructure* structure,PlayerObject* player);
 	bool				sendCreateHarvester(HarvesterObject* harvester,PlayerObject* player);
+	bool				sendCreateFactory(FactoryObject* factory,PlayerObject* player);
 	bool				sendCreateBuilding(BuildingObject* buildingObject,PlayerObject* playerObject);
 	bool				sendCreateCamp(TangibleObject* camp,PlayerObject* player);
 	bool				sendCreateCreature(CreatureObject* creatureObject,PlayerObject* targetObject);
@@ -406,6 +408,9 @@ public:
 	void				SendUpdateHarvesterWorkAnimation(HarvesterObject* harvester);
 
 	// Installation Messages
+	bool				sendBaselinesINSO_3(FactoryObject* factory,PlayerObject* player);
+	bool				sendBaselinesINSO_6(FactoryObject* factory,PlayerObject* player);
+
 	bool				sendBaselinesINSO_3(PlayerStructure* structure,PlayerObject* player);
 	bool				sendBaselinesINSO_6(PlayerStructure* structure,PlayerObject* player);
 

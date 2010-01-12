@@ -61,6 +61,7 @@ class FactoryObject :	public PlayerStructure, public DatabaseCallback
 		FactoryFamily	mFactoryFamily;
 
 		uint32			mTotalLoadCount;
+		uint64			mManSchematicID;
 		
 };
 

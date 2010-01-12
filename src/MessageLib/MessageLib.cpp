@@ -19,6 +19,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "ZoneServer/CurrentResource.h"
 #include "ZoneServer/Datapad.h"
 #include "ZoneServer/HarvesterObject.h"
+#include "ZoneServer/FactoryObject.h"
 #include "ZoneServer/FactoryCrate.h"
 #include "ZoneServer/Inventory.h"
 #include "ZoneServer/ManufacturingSchematic.h"
@@ -798,7 +799,34 @@ bool MessageLib::sendCreateHarvester(HarvesterObject* harvester,PlayerObject* pl
 
 //======================================================================================================================
 //
-// create a harvester
+// create a factory
+//
+
+bool MessageLib::sendCreateFactory(FactoryObject* factory,PlayerObject* player)
+{
+	if(!_checkPlayer(player))
+		return(false);
+
+	//gLogger->logMsgF("MessageLib::sendCreateHarvester:ID %I64u parentId %I64u x : %f   y : %f",MSG_HIGH,harvester->getId(),harvester->getParentId(),harvester->mPosition.mX,harvester->mPosition.mZ);
+
+	sendCreateObjectByCRC(factory,player,false);
+
+	sendBaselinesINSO_3(factory,player);
+	sendBaselinesINSO_6(factory,player);
+
+	sendEndBaselines(factory->getId(),player);
+
+	//int8 effectStr[400];
+	//sprintf(effectStr,"clienteffect/lair_med_damage_smoke.cef");
+	//sendPlayClientEffectObjectMessage(effectStr,"",harvester,player);
+
+	return(true);
+}
+
+
+//======================================================================================================================
+//
+// create a structure
 //
 
 bool MessageLib::sendCreateStructure(PlayerStructure* structure,PlayerObject* player)
@@ -813,6 +841,15 @@ bool MessageLib::sendCreateStructure(PlayerStructure* structure,PlayerObject* pl
 
 		return(sendCreateHarvester(harvester, player));
 	}
+
+	FactoryObject* factory = dynamic_cast<FactoryObject*>(structure);
+
+	if(factory)
+	{
+
+		return(sendCreateFactory(factory, player));
+	}
+
 
 	gLogger->logMsgF("MessageLib::sendCreateStructure:ID %I64u : couldnt cast structure",MSG_HIGH,structure->getId());
 	return(false);
@@ -1129,6 +1166,14 @@ void MessageLib::sendCreateObject(Object* object,PlayerObject* player,bool sendS
 				if(HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(object))
 				{
 					gMessageLib->sendCreateHarvester(harvester,player);
+				}
+
+				
+		
+				if(FactoryObject* factory = dynamic_cast<FactoryObject*>(object))
+				{
+
+					sendCreateFactory(factory, player);
 				}
 			}
 		}

@@ -39,6 +39,8 @@ Copyright (c) 2006 - 2009 The swgANH Team
 #include "ZoneTree.h"
 #include "HarvesterFactory.h"
 #include "HarvesterObject.h"
+#include "FactoryFactory.h"
+#include "FactoryObject.h"
 #include "Inventory.h"
 #include "MissionObject.h"
 #include "ObjectFactory.h"
@@ -321,7 +323,11 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 						mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_CreatureSpawnRegions),"SELECT id, spawn_x, spawn_z, spawn_width, spawn_length FROM spawns WHERE spawn_planet=%u ORDER BY id;",mZoneId);
 
 						// load harvesters
-						mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_Harvesters),"SELECT id FROM structures WHERE zone=%u ORDER BY id;",mZoneId);
+						mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_Harvesters),"SELECT s.id FROM structures s INNER JOIN harvesters h ON (s.id = h.id) WHERE zone=%u ORDER BY id;",mZoneId);
+
+						// load factories
+						mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_Factories),"SELECT s.id FROM structures s INNER JOIN factories f ON (s.id = f.id) WHERE zone=%u ORDER BY id;",mZoneId);
+										
 
 					}
 					// no objects to load, so we are done
@@ -356,6 +362,31 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					}
 
 					mDatabase->DestroyDataBinding(harvesterBinding);
+				}
+				break;
+
+				//load harvesters
+				case WMQuery_Factories:
+				{
+					DataBinding* factoryBinding = mDatabase->CreateDataBinding(1);
+					factoryBinding->addField(DFT_int64,0,8);
+
+					uint64 factoryId;
+					uint64 count = result->getRowCount();
+
+					if(result->getRowCount())
+						gLogger->logMsgLoadSuccess("WorldManager::Loading %u factories...",MSG_NORMAL,count);
+					else
+						gLogger->logMsgLoadFailure("WorldManager::Loading factories...",MSG_NORMAL);
+
+					for(uint64 i = 0;i < count;i++)
+					{
+						result->GetNextRow(factoryBinding,&factoryId);
+
+						gFactoryFactory->requestObject(this,factoryId,0,0,asyncContainer->mClient);
+					}
+
+					mDatabase->DestroyDataBinding(factoryBinding);
 				}
 				break;
 

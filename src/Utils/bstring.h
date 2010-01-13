@@ -59,7 +59,9 @@ public:
     BString& operator =(const BString& data);
 
     BString& operator <<(const int8* data);
+	BString& operator <<(const uint16* data);
     BString& operator <<(int8* data);
+	BString& operator <<(uint16* data);
 
     // Accessor Methods
     int8* getAnsi();

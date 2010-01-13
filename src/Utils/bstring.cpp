@@ -319,6 +319,57 @@ BString& BString::operator =(const BString& data)
 
 
 //======================================================================================================================
+
+
+BString& BString::operator <<(const uint16* data)
+{
+	if(mType != BSTRType_Unicode16)
+		return *this;
+
+	// we might get a null pointer from db queries
+	if(data != NULL)
+	{
+	  // Get our source string length
+	  uint16 dataLength  = static_cast<uint16>(wcslen(reinterpret_cast<const wchar_t*>(data)));
+	  //uint16 dataLength = (uint16)strlen(data);
+
+	  // Set our new length and allocate
+	  uint16 oldLength = mLength;
+	  mLength += dataLength;
+	  _allocate();
+
+	  // Append our string into the bugger.
+	  memcpy(mString + oldLength * mCharacterWidth, data, dataLength* mCharacterWidth);
+	  memset(mString + mLength * mCharacterWidth, 0, mCharacterWidth);
+	}
+  return *this;
+}
+
+
+BString& BString::operator <<(uint16* data)
+{
+	if(mType != BSTRType_Unicode16)
+		return *this;
+
+	// we might get a null pointer from db queries
+	if(data != NULL)
+	{
+	  // Get our source string length
+	  uint16 dataLength  = static_cast<uint16>(wcslen(reinterpret_cast<const wchar_t*>(data)));
+	  //uint16 dataLength = (uint16)strlen(data);
+
+	  // Set our new length and allocate
+	  uint16 oldLength = mLength;
+	  mLength += dataLength;
+	  _allocate();
+
+	  // Append our string into the bugger.
+	  memcpy(mString + oldLength * mCharacterWidth, data, dataLength* mCharacterWidth);
+	  memset(mString + mLength * mCharacterWidth, 0, mCharacterWidth);
+	}
+  return *this;
+}
+
 BString& BString::operator <<(const int8* data)
 {
 	// we might get a null pointer from db queries

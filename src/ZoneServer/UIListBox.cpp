@@ -21,9 +21,11 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 //================================================================================
 
-UIListBox::UIListBox(UICallback* callback,uint32 id,uint8 windowType,const int8* eventStr,const int8* caption,const int8* prompt,const BStringVector dataItems,PlayerObject* playerObject,uint8 lbType, void* container)
+UIListBox::UIListBox(UICallback* callback,uint32 id,uint8 windowType,const int8* eventStr,string caption,BString prompt,const BStringVector dataItems,PlayerObject* playerObject,uint8 lbType, float distance, uint64 object, void* container)
 : UIWindow(callback,id,windowType,"Script.listBox",eventStr,container),mLbType(lbType)
 {
+	mDistance	= distance;
+	mObjectID	= object;
 	mOwner		= playerObject;
 	mCaption	= caption;
 	mPrompt		= prompt;
@@ -185,9 +187,9 @@ void UIListBox::sendCreate()
 	}
 
 	// unknown
+	gMessageFactory->addUint64(mObjectID);
+	gMessageFactory->addFloat(mDistance);
 	gMessageFactory->addUint64(0);
-	gMessageFactory->addUint64(0);
-	gMessageFactory->addUint32(0);
 
 	newMessage = gMessageFactory->EndMessage();
 

@@ -8,7 +8,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
+#include "WorldConfig.h"
 #include "UIManager.h"
+#include "Common/atMacroString.h"
 #include "HarvesterObject.h"
 #include "Inventory.h"
 #include "Bank.h"
@@ -120,11 +122,11 @@ void UIManager::_processEventNotification(Message* message,DispatchClient* clien
 	uint32		windowId	= message->getUint32();
 	UIWindow*	window		= getUIWindow(windowId);
 
-	gLogger->logMsgF("UI Event %u",MSG_LOW,windowId);
+	gLogger->logMsgF("UI Event %u",MSG_HIGH,windowId);
 
 	if(window == NULL)
 	{
-		gLogger->logMsgF("UIManager::_processEventNotification: could not find window %u",MSG_NORMAL,windowId);
+		gLogger->logMsgF("UIManager::_processEventNotification: could not find window %u",MSG_HIGH,windowId);
 		return;
 	}
 
@@ -153,11 +155,16 @@ void UIManager::createNewMessageBox(UICallback* callback,const int8* eventStr,co
 // create a listbox
 //
 
-void UIManager::createNewListBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* prompt,const BStringVector dataItems,PlayerObject* playerObject,ui_window_types windowType,uint8 lbType, void* container)
+void UIManager::createNewListBox(UICallback* callback,const int8* eventStr,string caption,BString prompt,const BStringVector dataItems,PlayerObject* playerObject,ui_window_types windowType,uint8 lbType, uint64 object, float distance, void* container)
 {
+	if((!distance)&&object)
+	{
+		distance = gWorldConfig->getConfiguration("Player_UI_Closure",(float)30.0);
+	}
+
 	uint32 lbId = _getFreeId();
 
-	UIListBox* listBox =  new UIListBox(callback,lbId,windowType,eventStr,caption,prompt,dataItems,playerObject,lbType, container);
+	UIListBox* listBox =  new UIListBox(callback,lbId,windowType,eventStr,caption,prompt,dataItems,playerObject,lbType,distance, object, container);
 
 	mUIWindows.insert(lbId,listBox);
 	playerObject->addUIWindow(lbId);
@@ -627,6 +634,103 @@ void UIManager::createRenameStructureBox(UICallback* callback,PlayerObject* play
 // Creates the status box for a structure
 //
 void UIManager::createNewStructureStatusBox(UICallback* callback,PlayerObject* player, PlayerStructure* structure)
+{
+
+	
+
+	//player_structure structure_name_prompt
+
+	string wText = "Structure Name: ";
+	string name = structure->getCustomName();
+	name.convert(BSTRType_ANSI);
+	wText << name.getAnsi();	
+	
+	
+	if(!structure->getCustomName().getLength())
+	{
+		wText = "@player_structure:structure_name_prompt ";
+		wText <<"@"<<structure->getNameFile().getAnsi()<<":"<<structure->getName().getAnsi();		
+	}
+
+	BStringVector attributesMenu;
+
+	//Owner
+	int8 text[128];
+	sprintf(text,"Owner:%s",structure->getOwnersName());
+	attributesMenu.push_back(text);
+
+
+	//private vs public
+	if(structure->getPrivate())
+	{
+		sprintf(text,"This structure is private");
+	}
+	else
+	{
+		sprintf(text,"This structure is public");
+	}
+
+	attributesMenu.push_back(text);
+
+	// condition
+	uint32 currentCondition = structure->getMaxCondition() - structure->getDamage();
+
+	sprintf(text,"Condition: %u%s",(uint32)(currentCondition/(structure->getMaxCondition() /100)),"%");
+
+	attributesMenu.push_back(text);
+
+	
+	//Maintenance Pool
+	float maint = (float)structure->getCurrentMaintenance();
+	float rate  = (float)structure->getMaintenanceRate();
+	uint32 hours , days, minutes;
+	
+
+	days = (uint32)(maint / (rate *24));
+	maint -= days *(rate*24);
+
+	hours = (uint32)(maint / rate);
+	maint -= (uint32)(hours *rate);
+
+	minutes = (uint32)(maint/(rate/60));
+	
+	sprintf(text,"Maintenance Pool: %u(%u days, %u hours, %u minutes)",(uint32)structure->getCurrentMaintenance(),days,hours,minutes);
+	attributesMenu.push_back(text);
+
+	//Maintenance rate
+	sprintf(text,"Maintenance Rate: %u/hr",(uint32)rate);
+	attributesMenu.push_back(text);
+
+	//Power Pool
+	uint32 power = structure->getCurrentPower();
+	rate = (float)structure->getPowerConsumption();
+	
+	days = (uint32)(power / (rate *24));
+	power -=(uint32)( days *(rate*24));
+	
+	hours = (uint32)(power / rate);
+	power -= (uint32)(hours *rate);
+	
+	minutes = (uint32)(power/ (rate/60));
+	
+	sprintf(text,"Power Reserves: %u(%u days, %u hours, %u minutes)",structure->getCurrentPower(),days,hours,minutes);
+	attributesMenu.push_back(text);
+
+	//Power Consumption
+	sprintf(text,"Power Consumption: %u units/hr",structure->getPowerConsumption());
+	attributesMenu.push_back(text);
+
+	
+
+	//answer = x/(total/100);
+	//answer = x*(total/100);
+	// total = 100%
+	
+	createNewListBox(callback,"handle Structure Destroy","@player_structure:structure_status_t", wText, attributesMenu, player, SUI_Window_Structure_Status,SUI_LB_CANCELREFRESH);
+}
+
+
+void UIManager::createNewFactorySchematicBox(UICallback* callback,PlayerObject* player, PlayerStructure* structure)
 {
 
 	int8 sName[128];

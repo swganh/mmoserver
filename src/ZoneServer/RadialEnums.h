@@ -273,7 +273,11 @@ enum RadialIdentifier
 	radId_operateHarvester					= 245,
 	radId_payMaintenance					= 246,
 	radId_depositPower						= 247,
-	radId_StructureStatus					= 248
+	radId_StructureStatus					= 248,
+	radId_StructureOptions					= 249,
+	radId_StartManufacture					= 250,
+	radId_ListIngredients					= 251,
+	radId_StopManufacture					= 252
 };
 
 #endif

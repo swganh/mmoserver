@@ -56,6 +56,17 @@ void FactoryObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 	
 	switch(messageType)
 	{
+		case radId_serverManfStationSchematic:
+		{
+			StructureAsyncCommand command;
+			command.Command = Structure_Command_AccessSchem;
+			command.PlayerId = player->getId();
+			command.StructureId = this->getId();
+
+			gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+		}
+		break;
+		
 		case radId_StructureStatus:
 		{
 			StructureAsyncCommand command;
@@ -165,23 +176,40 @@ void FactoryObject::prepareCustomRadialMenu(CreatureObject* creatureObject, uint
 			
 	
 	//radId_serverHouseManage
-	radial->addItem(1,0,radId_examine,radAction_Default,"");
-	radial->addItem(2,0,radId_serverHarvesterManage,radAction_ObjCallback,"Structure Management");
-	radial->addItem(3,0,radId_serverTerminalManagement,radAction_ObjCallback,"Structure Permissions");
+	uint8 i = 0;
+	radial->addItem(++i,0,radId_examine,radAction_Default,"");
+	radial->addItem(++i,0,radId_serverHarvesterManage,radAction_ObjCallback,"Structure Management");
+	radial->addItem(++i,0,radId_serverTerminalManagement,radAction_ObjCallback,"Structure Permissions");
+	radial->addItem(++i,0,radId_StructureOptions,radAction_ObjCallback,"Options");
 	
-	radial->addItem(4,2,radId_serverTerminalManagementDestroy,radAction_ObjCallback,"Destroy Structure");//destroy
-	radial->addItem(5,2,radId_StructureStatus,radAction_ObjCallback,"Status");//destroy
-	radial->addItem(6,2,radId_payMaintenance,radAction_ObjCallback,"Pay Maintenance");//destroy
-	radial->addItem(7,2,radId_setName,radAction_ObjCallback,"Set Name");//destroy
-	radial->addItem(8,2,radId_operateHarvester,radAction_ObjCallback,"operate Harvester");//destroy
-	radial->addItem(9,2,radId_depositPower,radAction_ObjCallback,"Deposit Power");//destroy
+	radial->addItem(++i,2,radId_serverTerminalManagementDestroy,radAction_ObjCallback,"Destroy Structure");
+	radial->addItem(++i,2,radId_StructureStatus,radAction_ObjCallback,"Status");
+	radial->addItem(++i,2,radId_payMaintenance,radAction_ObjCallback,"Pay Maintenance");
+	radial->addItem(++i,2,radId_setName,radAction_ObjCallback,"Set Name");
+	radial->addItem(++i,2,radId_operateHarvester,radAction_ObjCallback,"operate Harvester");
+	radial->addItem(++i,2,radId_depositPower,radAction_ObjCallback,"Deposit Power");
 	
 	
-	radial->addItem(10,3,radId_serverTerminalPermissionsAdmin,radAction_ObjCallback,"Admin List");//destroy
-	radial->addItem(11,3,radId_serverTerminalPermissionsHopper,radAction_ObjCallback,"Hopper List");//destroy
+	radial->addItem(++i,3,radId_serverTerminalPermissionsAdmin,radAction_ObjCallback,"Admin List");
+	radial->addItem(++i,3,radId_serverTerminalPermissionsHopper,radAction_ObjCallback,"Hopper List");
+
+	if(mManSchematicID)
+	{
+		if(!mActive)
+			radial->addItem(++i,4,radId_StartManufacture,radAction_ObjCallback,"Start manufacturing objects");
+		else
+			radial->addItem(++i,4,radId_StopManufacture,radAction_ObjCallback,"Stop manufacturing objects");
+
+		radial->addItem(++i,4,radId_ListIngredients,radAction_ObjCallback,"List ingredients needed for station");
+
+	}
+	radial->addItem(++i,4,radId_serverManfStationSchematic,radAction_ObjCallback,"Access schematic slot");
+	radial->addItem(++i,4,radId_serverManfHopperInput,radAction_ObjCallback,"Access station ingredient hopper");
+	radial->addItem(++i,4,radId_serverManfHopperInput,radAction_ObjCallback,"Access station output hopper");
+	
 	
 
-
+		
 	RadialMenuPtr radialPtr(radial);
 	mRadialMenu = radialPtr;
 }

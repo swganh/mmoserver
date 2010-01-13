@@ -96,7 +96,7 @@ void CharacterBuilderTerminal::handleObjectMenuSelect(uint8 messageType,Object* 
 				return;
 			}
 
-			gUIManager->createNewListBox(this,"handleMainMenu","Main menu","Select a category.", mMainMenu,playerObject,SUI_Window_CharacterBuilderMainMenu_ListBox);
+			gUIManager->createNewListBox(this,"handleMainMenu","Main menu","Select a category.", mMainMenu,playerObject,SUI_Window_CharacterBuilderMainMenu_ListBox,SUI_LB_OK,this->getId());
 		}
 	}
 	else

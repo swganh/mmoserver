@@ -338,7 +338,7 @@ void PlayerObject::onSample(const SampleEvent* event)
 				BStringVector items;
 				items.push_back("Ignore the concentration and continue working.");
 				items.push_back("Attempt to recover the resources. (300 Action)");
-				gUIManager->createNewListBox(gResourceCollectionManager,"gambleSample","@survey:gnode_t","@survey:gnode_d",items,this,SUI_Window_SmplGamble_ListBox,SUI_LB_OKCANCEL,asyncContainer);
+				gUIManager->createNewListBox(gResourceCollectionManager,"gambleSample","@survey:gnode_t","@survey:gnode_d",items,this,SUI_Window_SmplGamble_ListBox,SUI_LB_OKCANCEL,0,0,asyncContainer);
 			
 				getSampleData()->mPendingSample = false;
 				return;
@@ -357,7 +357,7 @@ void PlayerObject::onSample(const SampleEvent* event)
 				items.push_back("Ignore the concentration and continue working.");
 				items.push_back("Focus the device on the concentration");
 				//gUIManager->createNewListBox(gResourceCollectionManager,"gambleSample","@survey:gnode_t","@survey:gnode_d",items,this,SUI_Window_SmplGamble_ListBox,SUI_LB_OKCANCEL,asyncContainer);
-				gUIManager->createNewListBox(gResourceCollectionManager,"waypNodeSample","@survey:cnode_t","@survey:cnode_d",items,this,SUI_Window_SmplWaypNode_ListBox,SUI_LB_OKCANCEL,asyncContainer);
+				gUIManager->createNewListBox(gResourceCollectionManager,"waypNodeSample","@survey:cnode_t","@survey:cnode_d",items,this,SUI_Window_SmplWaypNode_ListBox,SUI_LB_OKCANCEL,0,0,asyncContainer);
 		
 				//Pause sampling
 				getSampleData()->mPendingSample = false;

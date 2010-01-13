@@ -67,7 +67,7 @@ class UIManager : public MessageDispatchCallback
 
 		// generic
 		void				createNewMessageBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* text,PlayerObject* playerObject,ui_window_types windowType = SUI_Window_MessageBox,uint8 mbType = SUI_MB_OK, void* container = NULL);
-		void				createNewListBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* prompt,const BStringVector dataItems,PlayerObject* playerObject,ui_window_types windowType = SUI_Window_ListBox,uint8 lbType = SUI_LB_OK, void* container = NULL);
+		void				createNewListBox(UICallback* callback,const int8* eventStr,string caption,BString prompt,const BStringVector dataItems,PlayerObject* playerObject,ui_window_types windowType = SUI_Window_ListBox,uint8 lbType = SUI_LB_OK,uint64 object = 0, float distance = 0, void* container = NULL);
 		void				createNewInputBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* text,const BStringVector dropdownElements,PlayerObject* playerObject,uint8 ibType,ui_window_types windowType = SUI_Window_InputBox,uint16 maxInputLength = 127);
 		void				createNewTransferBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* text,const int8* leftTitle,const int8* rightTitle,uint32 leftValue, uint32 rightValue,PlayerObject* playerObject, uint8 windowType = SUI_Window_Transfer_Box);
 
@@ -87,6 +87,7 @@ class UIManager : public MessageDispatchCallback
 		void				createPayMaintenanceTransferBox(UICallback* callback,PlayerObject* player, PlayerStructure* structure);
 		void				createPowerTransferBox(UICallback* callback,PlayerObject* player, PlayerStructure* structure);
 		void				createNewStructureStatusBox(UICallback* callback,PlayerObject* player, PlayerStructure* structure);
+		void				createNewFactorySchematicBox(UICallback* callback,PlayerObject* player, PlayerStructure* structure);
 		
 		// custom message boxes
 		void				createNewSkillTeachMessageBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* text,PlayerObject* playerObject,uint8 mbType,PlayerObject* pupil,Skill* skill);

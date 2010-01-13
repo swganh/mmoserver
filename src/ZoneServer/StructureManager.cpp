@@ -681,6 +681,24 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 			{
 				result->GetNextRow(binding,&container);
 
+				if(strcmp(container.mString.getAnsi(),"schematicCustom") == 0)
+				{	
+					structure->setCustomName(container.mValue.getAnsi());
+					gLogger->logMsgF("StructureManager::GetCustomName : %s",MSG_HIGH, container.mValue.getAnsi());
+				}
+
+				if(strcmp(container.mString.getAnsi(),"schematicName") == 0)
+				{	
+					structure->setName(container.mValue.getAnsi());
+					gLogger->logMsgF("StructureManager::GetName : %s",MSG_HIGH, container.mValue.getAnsi());
+				}
+
+				if(strcmp(container.mString.getAnsi(),"schematicFile") == 0)
+				{	
+					structure->setNameFile(container.mValue.getAnsi());
+					gLogger->logMsgF("StructureManager::GetNameFile : %s",MSG_HIGH, container.mValue.getAnsi());
+				}
+
 				if(strcmp(container.mString.getAnsi(),"maintenance") == 0)
 				{
 
@@ -725,34 +743,40 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 				}
 			}
 
-			if(asynContainer->command.Command == Structure_Command_Destroy)
+			switch(asynContainer->command.Command)
 			{
+				case Structure_Command_AccessSchem:
+				{
+				}
+				break;
 
-				structure->deleteStructureDBDataRead(player->getId());
+				case Structure_Command_Destroy:
+				{
+					structure->deleteStructureDBDataRead(player->getId());
+				}
+				break;
 
-			}
+				case Structure_Command_DepositPower:
+				{
+					gUIManager->createPowerTransferBox(structure,player,structure);
+				}
+				break;
 
-			if(asynContainer->command.Command == Structure_Command_DepositPower)
-			{
+				case Structure_Command_PayMaintenance:
+				{
+					gUIManager->createPayMaintenanceTransferBox(structure,player,structure);
+				}
+				break;
 
-				gUIManager->createPowerTransferBox(structure,player,structure);
+				case Structure_Command_ViewStatus:
+				{
+					gUIManager->createNewStructureStatusBox(structure, player, structure);
+				}
+				break;
 
-			}
-
-			if(asynContainer->command.Command == Structure_Command_PayMaintenance)
-			{
-
-				gUIManager->createPayMaintenanceTransferBox(structure,player,structure);
-
-			}
-			
-			if(asynContainer->command.Command == Structure_Command_ViewStatus)
-			{
-
-				gUIManager->createNewStructureStatusBox(structure, player, structure);
-
-			}
-		
+				default:
+					break;
+			}		
 			
 			mDatabase->DestroyDataBinding(binding);												   	
 
@@ -1336,6 +1360,23 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 
 	switch(command.Command)
 	{
+		case Structure_Command_AccessSchem:
+		{
+			PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(command.StructureId));
+
+			StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(Structure_UpdateAttributes,player->getClient());
+			asyncContainer->mStructureId	= command.StructureId;
+			asyncContainer->mPlayerId		= command.PlayerId;
+			asyncContainer->command			= command;
+			//mDatabase->ExecuteSqlAsync(structure,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",harvester->getId());
+			mDatabase->ExecuteSqlAsync(this,asyncContainer,
+				"		(SELECT 'schematicCustom', i.customNameFROM factories f INNER JOIN items i ON (i.id = f.ManSchematicID) WHERE f.ID = %I64u)"
+				 "UNION (SELECT 'schematicName', it.stf_name FROM factories f INNER JOIN items i ON (i.id = f.ManSchematicID) INNER JOIN item_types it ON (i.item_type = it.id) WHERE f.ID = %I64u)"
+				 "UNION (SELECT 'schematicFile', it.stf_file FROM factories f INNER JOIN items i ON (i.id = f.ManSchematicID) INNER JOIN item_types it ON (i.item_type = it.id) WHERE f.ID = %I64u)"
+				,command.StructureId);
+			
+		}
+		break;
 
 		case Structure_Command_ViewStatus:
 		{
@@ -1377,9 +1418,6 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 		{
 			PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(command.StructureId));
 
-			//gUIManager->createPayMaintenanceTransferBox(structure,player,structure);
-			//Structure_UpdateAttributes
-			//Structure_GetDepositMaintenanceData
 			StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(Structure_UpdateAttributes,player->getClient());
 			asyncContainer->mStructureId	= command.StructureId;
 			asyncContainer->mPlayerId		= command.PlayerId;

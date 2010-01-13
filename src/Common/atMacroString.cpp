@@ -12,6 +12,8 @@ atMacroString::atMacroString(void)
 	mZ = 0;
 	mCounter = 0;
 	mTUId = 0;
+	mTOId = 0;
+	mTTId = 0;
 }
 
 atMacroString::~atMacroString(void)
@@ -142,7 +144,7 @@ void	atMacroString::addWaypoint()
 
 }
 
-void			atMacroString::addTextModule()
+void	atMacroString::addTextModule()
 {
 	//byte 1 unknown
 	_addByte(static_cast<uint8>(mCounter));
@@ -167,11 +169,14 @@ void			atMacroString::addTextModule()
 	//TU Id
 	_adduint64(mTUId);//not a string
 	//TU stf  1
-	_adduint16(0);//probably string or list
+	mTTdir.convert(BSTRType_ANSI);
+	_addString(mTUdir);
 	//empty
 	_adduint32(0);//not a string
 	//TU stf  2
-	_adduint16(0);//probably string or list
+	//%TT str
+	mTTstr.convert(BSTRType_ANSI);
+	_addString(mTUstr);
 
 	//%TU custom string
 	mTU.convert(BSTRType_Unicode16);
@@ -180,7 +185,7 @@ void			atMacroString::addTextModule()
 
 
 	//TT Id
-	_adduint64(0);
+	_adduint64(mTTId);
 
 	//%TT dir
 	mTTdir.convert(BSTRType_ANSI);
@@ -197,7 +202,7 @@ void			atMacroString::addTextModule()
 
 
 	//TO Id
-	_adduint64(0);
+	_adduint64(mTOId);
 
 	//%TO dir
 	mTOdir.convert(BSTRType_ANSI);
@@ -219,7 +224,7 @@ void			atMacroString::addTextModule()
 }
 
 
-string			atMacroString::assemble()
+string	atMacroString::assemble()
 {
 
 	//make sure we have the right amount of bytes
@@ -243,92 +248,7 @@ string			atMacroString::assemble()
 	//gLogger->hexDump(mContainer.getRawData(),mContainer.getDataLength());
 	return(mContainer);
 
-/*	size = mContainer.getDataLength();
-	if (size){
-	}
-	memcpy(mPoint,mContainer.getRawData(),size);
-	mPoint1 =mPoint + size;
 
-	//byte 1 unknown
-	_addByte(mCounter);
-	mCounter++;
-	_addByte(0);
-	_addByte(1);
-
-	//unknown integer
-	_adduint32(0xffffffff);
-
-
-	//MessageBody
-	//stf dir
-	mMBdir.convert(BSTRType_ANSI);
-	_addString(mMBdir);
-	//??
-	_adduint32(0);
-	//stf text
-	mMBstr.convert(BSTRType_ANSI);
-	_addString(mMBstr);
-
-	//unknown int
-
-	_adduint32(0);//not a string
-	_adduint32(0);//not a string
-	_adduint32(0);//probably string or list
-	_adduint32(0);//not a string
-	_adduint32(0);//probably string or list
-
-	//some id??
-	_adduint64(0);
-
-	//%TT dir
-	mTTdir.convert(BSTRType_ANSI);
-	_addString(mTTdir);
-	//?????
-	_adduint32(0);
-	//%TT str
-	mTTstr.convert(BSTRType_ANSI);
-	_addString(mTTstr);
-
-	//%TT custom string
-	mTT.convert(BSTRType_Unicode16);
-	_addString(mTT);
-
-
-	//unknown Id maybe Id of the installation were talking about ???
-	_adduint64(0);
-
-	//%TT dir
-	mTOdir.convert(BSTRType_ANSI);
-	_addString(mTOdir);
-	//?????
-	_adduint32(0);
-	//%TT str
-	mTOstr.convert(BSTRType_ANSI);
-	_addString(mTOstr);
-
-	//%TT custom string
-	mTO.convert(BSTRType_Unicode16);
-	_addString(mTO);
-
-	_adduint32(mDI); //
-	_adduint32(0);
-	_addByte(0);
-	//thats the length of the first EMail
-
-	//make sure we have the right amount of bytes
-	uint32 sizeT = size;
-	sizeT = (sizeT <<31);
-	sizeT = (sizeT >>31);
-	if (sizeT == 1){
-		_addByte(0);
-	}
-
-	uint32 tempsize = size >> 1;
-	mContainer.convert(BSTRType_Unicode16);
-	mContainer.setLength(tempsize);
-	memcpy(mContainer.getRawData(),mPoint,size);
-	mContainer.setLength(tempsize);
-
-	return(mContainer);
-	*/
 }
+
+

@@ -12,7 +12,9 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "StructureManager.h"
 #include "nonPersistantObjectFactory.h"
 #include "HarvesterObject.h"
+#include "FactoryObject.h"
 #include "Inventory.h"
+#include "DataPad.h"
 #include "ResourceContainer.h"
 #include "ResourceType.h"
 #include "ObjectFactory.h"
@@ -670,12 +672,6 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
 			uint64 count;
 			count = result->getRowCount();
-			if(!count)
-			{
-				gLogger->logMsgF("StructureManager::GetDepositPowerData Callback couldnt get power attribute",MSG_HIGH);
-				mDatabase->DestroyDataBinding(binding);			
-				return;
-			}
 
 			for(uint64 i = 0;i < count;i++)
 			{
@@ -683,19 +679,25 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
 				if(strcmp(container.mString.getAnsi(),"schematicCustom") == 0)
 				{	
-					structure->setCustomName(container.mValue.getAnsi());
+					FactoryObject* factory = dynamic_cast<FactoryObject*>(structure);
+					if(factory)
+						factory->setSchematicCustomName(container.mValue);
 					gLogger->logMsgF("StructureManager::GetCustomName : %s",MSG_HIGH, container.mValue.getAnsi());
 				}
 
 				if(strcmp(container.mString.getAnsi(),"schematicName") == 0)
 				{	
-					structure->setName(container.mValue.getAnsi());
+					FactoryObject* factory = dynamic_cast<FactoryObject*>(structure);
+					if(factory)
+						factory->setSchematicName(container.mValue);
 					gLogger->logMsgF("StructureManager::GetName : %s",MSG_HIGH, container.mValue.getAnsi());
 				}
 
 				if(strcmp(container.mString.getAnsi(),"schematicFile") == 0)
 				{	
-					structure->setNameFile(container.mValue.getAnsi());
+					FactoryObject* factory = dynamic_cast<FactoryObject*>(structure);
+					if(factory)
+						factory->setSchematicFile(container.mValue);
 					gLogger->logMsgF("StructureManager::GetNameFile : %s",MSG_HIGH, container.mValue.getAnsi());
 				}
 
@@ -747,6 +749,9 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 			{
 				case Structure_Command_AccessSchem:
 				{
+					FactoryObject* factory = dynamic_cast<FactoryObject*>(structure);
+					if(factory)
+						gUIManager->createNewFactorySchematicBox(factory, player, factory);
 				}
 				break;
 
@@ -1360,6 +1365,25 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 
 	switch(command.Command)
 	{
+
+		case Structure_Command_AddSchem:
+		{
+			FactoryObject* factory = dynamic_cast<FactoryObject*>(gWorldManager->getObjectById(command.StructureId));
+			factory->setManSchemID(command.SchematicId);
+			
+			//link the schematic to the factory in the db
+			mDatabase->ExecuteSqlAsync(0,0,"UPDATE factories SET ManSchematicID = %I64u WHERE ID = %I64u",command.SchematicId,command.StructureId);
+			mDatabase->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id = %I64u WHERE ID = %I64u",command.StructureId,command.SchematicId);
+			
+			//remove the schematic from the player
+			PlayerObject* player	= dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(command.PlayerId));
+			Datapad* datapad		= dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+			datapad->removeManufacturingSchematic(command.SchematicId);
+			gMessageLib->sendDestroyObject(command.SchematicId,player);
+
+		}
+		break;
+
 		case Structure_Command_AccessSchem:
 		{
 			PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(command.StructureId));
@@ -1370,7 +1394,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			asyncContainer->command			= command;
 			//mDatabase->ExecuteSqlAsync(structure,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",harvester->getId());
 			mDatabase->ExecuteSqlAsync(this,asyncContainer,
-				"		(SELECT 'schematicCustom', i.customNameFROM factories f INNER JOIN items i ON (i.id = f.ManSchematicID) WHERE f.ID = %I64u)"
+				"		(SELECT 'schematicCustom', i.customName FROM factories f INNER JOIN items i ON (i.id = f.ManSchematicID) WHERE f.ID = %I64u)"
 				 "UNION (SELECT 'schematicName', it.stf_name FROM factories f INNER JOIN items i ON (i.id = f.ManSchematicID) INNER JOIN item_types it ON (i.item_type = it.id) WHERE f.ID = %I64u)"
 				 "UNION (SELECT 'schematicFile', it.stf_file FROM factories f INNER JOIN items i ON (i.id = f.ManSchematicID) INNER JOIN item_types it ON (i.item_type = it.id) WHERE f.ID = %I64u)"
 				,command.StructureId);

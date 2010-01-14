@@ -186,6 +186,29 @@ void SocketReadThread::run(void)
 
 		if(count && FD_ISSET(mSocket, &socketSet))
 		{
+
+			std::vector<uint64>::iterator it = DestroyList.begin();
+			while(it!=DestroyList.end())
+			{
+				AddressSessionMap::iterator iter = mAddressSessionMap.find((*it));
+
+				if(iter != mAddressSessionMap.end())
+				{
+					session = (*iter).second;
+					boost::recursive_mutex::scoped_lock lk(mSocketReadMutex);
+					mAddressSessionMap.erase(iter);
+					gLogger->logMsgF("Service %i: Removing Session(%u), AddressMap: %i hash %I64u",MSG_NORMAL,mSessionFactory->getService()->getId(), ntohs(session->getPort()), mAddressSessionMap.size(),(*it));
+					mSessionFactory->DestroySession(session);
+					it = DestroyList.erase(it);
+				}
+				else
+				{
+					gLogger->logMsgF("SESSION NOT FOUND!!! Service %i: Removing Session(%u), AddressMap: %i hash %I64u SESSION NOT FOUND!!!!!",MSG_NORMAL,mSessionFactory->getService()->getId(), ntohs(session->getPort()), mAddressSessionMap.size(),(*it));
+					it++;
+				}
+				
+			}
+
 			// Read any incoming packets.
 			recvLen = recvfrom(mSocket, mReceivePacket->getData(),(int) mMessageMaxSize, 0, (sockaddr*)&from, reinterpret_cast<socklen_t*>(&fromLen));
 			if (recvLen <= 2)
@@ -275,6 +298,12 @@ void SocketReadThread::run(void)
 			// Validate our date header.  If it's not a valid header, drop it.
 			// this is bullshit, but the loginserver on the tc (intel) wont get rid of old sessions without
 			// why is this happening ??
+			// BECAUSE THE SESSION WAS ALREADY DESTROYED AT THIS POINT STUPID!!!!!!!!!!
+			// *bangs head against wall*
+			// but only if we have a threading problem - and the destroy was mutexed
+			// did the session get destroyed through erasing the map entry ?????
+			
+			/*
 			if(session->getStatus() > SSTAT_Connected)
 			{
 				gLogger->logMsgF("*** Session in the process of being disconnected status : %u", MSG_NORMAL,session->getStatus());
@@ -290,6 +319,7 @@ void SocketReadThread::run(void)
 				continue;
 			}
 			
+			*/
 			if(packetType > 0x00ff && (packetType & 0x00ff) == 0 && session != NULL)
 			{
 				switch(packetType)
@@ -485,7 +515,9 @@ void SocketReadThread::RemoveAndDestroySession(Session* session)
 {
 	// Find and remove the session from the address map.
 	uint64 hash = session->getAddress() | (((uint64)session->getPort()) << 32);
-
+	boost::recursive_mutex::scoped_lock lk(mSocketReadMutex);
+	DestroyList.push_back(hash);
+/*
 	AddressSessionMap::iterator iter = mAddressSessionMap.find(hash);
 
 	if(iter != mAddressSessionMap.end())
@@ -498,7 +530,8 @@ void SocketReadThread::RemoveAndDestroySession(Session* session)
 	else
 		gLogger->logMsgF("Service %i: Removing Session FAILED(%s, %u), AddressMap: %i hash %I64u",MSG_NORMAL,mSessionFactory->getService()->getId(), inet_ntoa(*((in_addr*)(&hash))), ntohs(session->getPort()), mAddressSessionMap.size(),hash);
 
-	// why the %*/&+ is this not finding the session ? it completely legitimately finds it in the run() ???
+	// why the %/*&+ is this not finding the session ? it completely legitimately finds it in the run() ???
+	*/
 }
 
 //======================================================================================================================

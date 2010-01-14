@@ -89,7 +89,10 @@ class SocketReadThread
       boost::thread 				mThread;
       boost::recursive_mutex        mSocketReadMutex;
 	  AddressSessionMap             mAddressSessionMap;
+	  
+	  std::vector<uint64>			DestroyList;
 	  bool							mExit;
+
 };
 
 //======================================================================================================================

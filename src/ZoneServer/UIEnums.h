@@ -80,7 +80,8 @@ enum ui_window_types
 	SUI_Window_Transfer_Box										= 43,
 	SUI_Window_Pay_Maintenance									= 44,
 	SUI_Window_Deposit_Power									= 45,
-	SUI_Window_Structure_Status									= 46
+	SUI_Window_Structure_Status									= 46,
+	SUI_Window_Factory_Schematics								= 47
 
 };
 
@@ -98,9 +99,11 @@ enum ui_mb_types
 
 enum ui_lb_types
 {
-	SUI_LB_OK				= 1,
-	SUI_LB_OKCANCEL			= 2,
-	SUI_LB_CANCELREFRESH	= 3
+	SUI_LB_OK							= 1,
+	SUI_LB_OKCANCEL						= 2,
+	SUI_LB_CANCELREFRESH				= 3,
+	SUI_LB_CANCEL_SCHEMATIC_REMOVEUSE	= 4,
+	SUI_LB_CANCEL_SCHEMATIC_USE			= 5
 };
 
 //================================================================================

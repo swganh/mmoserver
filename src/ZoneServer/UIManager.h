@@ -47,6 +47,7 @@ class UIResourceSelectListBox;
 class BuildingObject;
 class UICloneSelectListBox;
 class PlayerStructure;
+class FactoryObject;
 
 //======================================================================================================================
 
@@ -87,7 +88,7 @@ class UIManager : public MessageDispatchCallback
 		void				createPayMaintenanceTransferBox(UICallback* callback,PlayerObject* player, PlayerStructure* structure);
 		void				createPowerTransferBox(UICallback* callback,PlayerObject* player, PlayerStructure* structure);
 		void				createNewStructureStatusBox(UICallback* callback,PlayerObject* player, PlayerStructure* structure);
-		void				createNewFactorySchematicBox(UICallback* callback,PlayerObject* player, PlayerStructure* structure);
+		void				createNewFactorySchematicBox(UICallback* callback,PlayerObject* player, FactoryObject* factory);
 		
 		// custom message boxes
 		void				createNewSkillTeachMessageBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* text,PlayerObject* playerObject,uint8 mbType,PlayerObject* pupil,Skill* skill);

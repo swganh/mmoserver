@@ -90,6 +90,7 @@ enum Structure_Async_CommandEnum
 	Structure_Command_ViewStatus_Att2	=	15,
 	Structure_Command_OperateHarvester	=	16,
 	Structure_Command_AccessSchem		=	17,
+	Structure_Command_AddSchem			=	18,
 	
 
 };
@@ -102,6 +103,7 @@ struct StructureAsyncCommand
 	uint64						PlayerId;
 	uint64						RecipientId;
 	uint64						ResourceId;
+	uint64						SchematicId;
 	uint32						Amount;
 	uint8						b1;
 	uint8						b2;

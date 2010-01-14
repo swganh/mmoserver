@@ -52,6 +52,18 @@ class FactoryObject :	public PlayerStructure, public DatabaseCallback
 		void			prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
 		void			handleObjectMenuSelect(uint8 messageType,Object* srcObject);
 
+		void			setSchematicCustomName(string name){mSchematicName = name;}
+		string			getSchematicCustomName(){return mSchematicName;}
+
+		void			setSchematicName(string name){mSchematicSTF = name;}
+		string			getSchematicName(){return mSchematicSTF;}
+
+		void			setSchematicFile(string name){mSchematicFile = name;}
+		string			getSchematicFile(){return mSchematicFile;}
+
+		uint64			getManSchemID(){ return mManSchematicID; }
+		void			setManSchemID(uint64 value){ mManSchematicID = value; }
+
 
 	private:
 
@@ -62,6 +74,10 @@ class FactoryObject :	public PlayerStructure, public DatabaseCallback
 
 		uint32			mTotalLoadCount;
 		uint64			mManSchematicID;
+
+		string			mSchematicName;
+		string			mSchematicFile;
+		string			mSchematicSTF;
 		
 };
 

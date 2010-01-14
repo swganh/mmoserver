@@ -1056,7 +1056,7 @@ void ObjectController::_handleGetAttributesBatch(uint64 targetId,Message* messag
 
 	if(!elementCount)
 	{
-		gLogger->logMsg("ObjectController::_handleAttributesBatch: Error in requestStr\n");
+		gLogger->logMsg("ObjectController::_handleAttributesBatch: Error in requestStr");
 		return;
 	}
 

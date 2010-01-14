@@ -35,7 +35,7 @@ uint32 UIButton::getPropertyCount()
 	if(mEnabled)
 	{
 		if(mText.getLength())
-			return(1);
+			return(2);
 		else
 			return(0);
 	}
@@ -54,6 +54,21 @@ void UIButton::addMessageData()
 	{
 		if(mText.getLength())
 		{
+			/*
+			gMessageFactory->addUint8(3);
+			gMessageFactory->addUint32(1);
+			gMessageFactory->addString(strTrue);
+			gMessageFactory->addUint32(2);
+			gMessageFactory->addString(mName);
+			gMessageFactory->addString(BString("Enabled"));
+			  */
+			gMessageFactory->addUint8(3);
+			gMessageFactory->addUint32(1);
+			gMessageFactory->addString(strTrue);
+			gMessageFactory->addUint32(2);
+			gMessageFactory->addString(mName);
+			gMessageFactory->addString(BString("visible"));
+
 			gMessageFactory->addUint8(3);
 			gMessageFactory->addUint32(1);
 			gMessageFactory->addString(mText);

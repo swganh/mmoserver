@@ -318,13 +318,45 @@ void PlayerStructure::handleUIEvent(uint32 action,int32 element,string inputStr,
 
 	// action is zero for ok !!!
 
-	if(!player || action || player->isIncapacitated() || player->isDead())
+	if(!player || (action==1) || player->isIncapacitated() || player->isDead())
 	{
 		return;
 	}
 
 	switch(window->getWindowType())
 	{
+		case SUI_Window_Factory_Schematics:
+		{
+			uint64 ManSchemId = 0;
+			if(!action)
+			{
+				WindowAsyncContainerCommand* asyncContainer = (WindowAsyncContainerCommand*)window->getAsyncContainer();	
+				if(!asyncContainer)
+				{
+					gLogger->logMsgF("PlayerStructure:: Handle Add Manufacture Schematic Asynccontainer is NULL!!!!", MSG_NORMAL);
+					return;
+				}
+				if(asyncContainer->SortedList.size())
+					ManSchemId = asyncContainer->SortedList.at(element);
+				else
+				{
+					SAFE_DELETE(asyncContainer);
+					return;
+				}
+				
+				SAFE_DELETE(asyncContainer);
+			}
+			
+						
+			StructureAsyncCommand command;
+			command.Command = Structure_Command_AddSchem;
+			command.PlayerId = player->getId();
+			command.StructureId = this->getId();
+			command.SchematicId = ManSchemId;
+
+			gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"HOPPER",command);
+		}
+		break;
 
 		case SUI_Window_Structure_Status:
 		{

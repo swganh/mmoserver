@@ -89,16 +89,17 @@ void UIListBox::sendCreate()
 	if(datasize > 250)
 		datasize = 250;
 
-	uint32 propertyCount = 5 + (datasize << 1) + getChildrenPropertyCount();
+	//uint32 propertyCount = 5 + (datasize << 1) + getChildrenPropertyCount();
+	uint32 propertyCount = 6 + (datasize << 1) + getChildrenPropertyCount();
 
 	gMessageFactory->addUint32(propertyCount);
 
 	// main window properties
 	gMessageFactory->addUint8(5);
-	gMessageFactory->addUint32(0);
-	gMessageFactory->addUint32(7);
-	gMessageFactory->addUint16(0);
-	gMessageFactory->addUint16(1);
+	gMessageFactory->addUint32(0);	//listsize
+	gMessageFactory->addUint32(7);	 //listsize
+	gMessageFactory->addUint16(0);	 //string
+	gMessageFactory->addUint16(1);	 //string
 	gMessageFactory->addUint8(9);
 	gMessageFactory->addString(mEventStr);
 	gMessageFactory->addString(BString("List.lstList"));
@@ -185,6 +186,19 @@ void UIListBox::sendCreate()
 		if(count == datasize)
 			break;
 	}
+	/*gMessageFactory->addUint8(3);
+	gMessageFactory->addUint32(1);
+	gMessageFactory->addString(BString(L"True"));
+	gMessageFactory->addUint32(2);
+	gMessageFactory->addString(mName);
+	gMessageFactory->addString(BString("visible"));
+	  */
+	gMessageFactory->addUint8(3);
+	gMessageFactory->addUint32(1);
+	gMessageFactory->addString(BString(L"@cancel"));
+	gMessageFactory->addUint32(2);
+	gMessageFactory->addString(BString("btnCancel"));
+	gMessageFactory->addString(BString("Text"));
 
 	// unknown
 	gMessageFactory->addUint64(mObjectID);
@@ -223,6 +237,25 @@ void UIListBox::_initChildren()
 		}
 		break;
 
+		case SUI_LB_CANCEL_SCHEMATIC_REMOVEUSE:
+		{
+			//mChildElements.push_back(new UIButton(1,"btnRevert",true,"@cancel"));
+			mChildElements.push_back(new UIButton(0,"btnOther",true,"@remove_schematic"));
+			mChildElements.push_back(new UIButton(0,"btnOk",true,"@use_schematic"));
+			
+			
+			
+		}
+		break;
+
+		case SUI_LB_CANCEL_SCHEMATIC_USE:
+		{
+			mChildElements.push_back(new UIButton(0,"btnCancel",true,"@cancel"));
+			mChildElements.push_back(new UIButton(0,"btnOk",true,"@use_schematic"));
+			
+		}
+		break;
+		
 		default:break;
 	}
 }

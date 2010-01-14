@@ -11,7 +11,11 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "WorldConfig.h"
 #include "UIManager.h"
 #include "Common/atMacroString.h"
+#include "Datapad.h"
+#include "FactoryObject.h"
 #include "HarvesterObject.h"
+#include "ManufacturingSchematic.h"
+#include "Item.h"
 #include "Inventory.h"
 #include "Bank.h"
 #include "PlayerObject.h"
@@ -423,7 +427,7 @@ void UIManager::createNewDiagnoseListBox(UICallback* callback,PlayerObject* Medi
 	sprintf(BattleFatigue,"Battle Fatigue -- %i",Patient->getHam()->getBattleFatigue());
 	attributesMenu.push_back(BattleFatigue);
 
-	createNewListBox(callback,"handleDiagnoseMenu",title, desc, attributesMenu, Medic, SUI_Window_ListBox);
+	createNewListBox(callback,"handleDiagnoseMenu",title, desc, attributesMenu, Medic, SUI_Window_ListBox,SUI_LB_OK,Patient->getId());
 }
 
 void UIManager::createNewStructureDestroyBox(UICallback* callback,PlayerObject* player, PlayerStructure* structure, bool redeed)
@@ -635,9 +639,6 @@ void UIManager::createRenameStructureBox(UICallback* callback,PlayerObject* play
 //
 void UIManager::createNewStructureStatusBox(UICallback* callback,PlayerObject* player, PlayerStructure* structure)
 {
-
-	
-
 	//player_structure structure_name_prompt
 
 	string wText = "Structure Name: ";
@@ -726,100 +727,86 @@ void UIManager::createNewStructureStatusBox(UICallback* callback,PlayerObject* p
 	//answer = x*(total/100);
 	// total = 100%
 	
-	createNewListBox(callback,"handle Structure Destroy","@player_structure:structure_status_t", wText, attributesMenu, player, SUI_Window_Structure_Status,SUI_LB_CANCELREFRESH);
+	createNewListBox(callback,"handle Structure Destroy","@player_structure:structure_status_t", wText, attributesMenu, player, SUI_Window_Structure_Status,SUI_LB_CANCELREFRESH,structure->getId());
 }
 
 
-void UIManager::createNewFactorySchematicBox(UICallback* callback,PlayerObject* player, PlayerStructure* structure)
+void UIManager::createNewFactorySchematicBox(UICallback* callback,PlayerObject* player, FactoryObject* factory)
 {
 
-	int8 sName[128];
-
-	string name = structure->getCustomName();			
-	name.convert(BSTRType_ANSI);
-	sprintf(sName,"%s",name.getAnsi());
-	if(!name.getLength())
+	
+	string wText = "Current schematic installed: ";
+	
+	if(factory->getManSchemID())
 	{
-		sprintf(sName,"@%s:%s",structure->getNameFile().getAnsi(),structure->getName().getAnsi());
+		string name = factory->getSchematicCustomName();
+		name.convert(BSTRType_ANSI);
+		wText << name.getAnsi();	
 		
+		
+		if(!factory->getSchematicCustomName().getLength())
+		{
+			wText <<"@"<<factory->getSchematicFile().getAnsi()<<":"<<factory->getSchematicName().getAnsi();		
+		}
 	}
 
-	int8 wText[128];
-	sprintf(wText,"Structure Name: %s",sName);
 
 	BStringVector attributesMenu;
+	WindowAsyncContainerCommand* asyncContainer = new  WindowAsyncContainerCommand(Window_Query_Add_Schematic);
 
-	//Owner
-	int8 text[128];
-	sprintf(text,"Owner:%s",structure->getOwnersName());
-	attributesMenu.push_back(text);
+	//now get all man schematics in the players datapad
+	Datapad* datapad								= dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+	ManufacturingSchematicList*				mList	= datapad->getManufacturingSchematics();
+	ManufacturingSchematicList::iterator	mListIt	= mList->begin();
+	
+	string lText;
 
-
-	//private vs public
-	if(structure->getPrivate())
+	while(mListIt != mList->end())
 	{
-		sprintf(text,"This structure is private");
+		ManufacturingSchematic* man = (*mListIt);
+		if(!man)
+		{
+			gLogger->logMsgF("UIManager::Man Schematic doesnt exist",MSG_NORMAL);
+			mListIt++;
+			continue;
+
+		}
+		
+		Item* item = man->getItem();
+		if(!item)
+		{
+			gLogger->logMsgF("UIManager::Man Schematic Item doesnt exist",MSG_NORMAL);
+			mListIt++;
+			continue;
+
+		}
+		
+		string name = item->getCustomName();
+
+		
+		//string name = factory->getSchematicCustomName();
+		name.convert(BSTRType_ANSI);
+		lText << name.getAnsi();	
+	
+		if(!name.getLength())
+		{
+			lText <<"@"<<item->getNameFile().getAnsi()<<":"<<item->getName().getAnsi();		
+		}
+
+		attributesMenu.push_back(lText);
+		asyncContainer->SortedList.push_back(man->getId());
+		
+		mListIt++;
 	}
-	else
-	{
-		sprintf(text,"This structure is public");
-	}
+	
+	uint8 LBType = SUI_LB_CANCEL_SCHEMATIC_USE;
 
-	attributesMenu.push_back(text);
-
-	// condition
-	uint32 currentCondition = structure->getMaxCondition() - structure->getDamage();
-
-	sprintf(text,"Condition: %u%s",(uint32)(currentCondition/(structure->getMaxCondition() /100)),"%");
-
-	attributesMenu.push_back(text);
+	if(factory->getManSchemID())
+		LBType =  SUI_LB_CANCEL_SCHEMATIC_REMOVEUSE;
 
 	
-	//Maintenance Pool
-	float maint = (float)structure->getCurrentMaintenance();
-	float rate  = (float)structure->getMaintenanceRate();
-	uint32 hours , days, minutes;
+	asyncContainer->PlayerId		= player->getId();
 	
-
-	days = (uint32)(maint / (rate *24));
-	maint -= days *(rate*24);
-
-	hours = (uint32)(maint / rate);
-	maint -= (uint32)(hours *rate);
-
-	minutes = (uint32)(maint/(rate/60));
-	
-	sprintf(text,"Maintenance Pool: %u(%u days, %u hours, %u minutes)",(uint32)structure->getCurrentMaintenance(),days,hours,minutes);
-	attributesMenu.push_back(text);
-
-	//Maintenance rate
-	sprintf(text,"Maintenance Rate: %u/hr",(uint32)rate);
-	attributesMenu.push_back(text);
-
-	//Power Pool
-	uint32 power = structure->getCurrentPower();
-	rate = (float)structure->getPowerConsumption();
-	
-	days = (uint32)(power / (rate *24));
-	power -=(uint32)( days *(rate*24));
-	
-	hours = (uint32)(power / rate);
-	power -= (uint32)(hours *rate);
-	
-	minutes = (uint32)(power/ (rate/60));
-	
-	sprintf(text,"Power Reserves: %u(%u days, %u hours, %u minutes)",structure->getCurrentPower(),days,hours,minutes);
-	attributesMenu.push_back(text);
-
-	//Power Consumption
-	sprintf(text,"Power Consumption: %u units/hr",structure->getPowerConsumption());
-	attributesMenu.push_back(text);
-
-	
-
-	//answer = x/(total/100);
-	//answer = x*(total/100);
-	// total = 100%
-	
-	createNewListBox(callback,"handle Structure Destroy","STRUCTURE STATUS", wText, attributesMenu, player, SUI_Window_Structure_Status,SUI_LB_CANCELREFRESH);
+	  
+	createNewListBox(callback,"handle Structure Destroy","STRUCTURE STATUS", wText, attributesMenu, player, SUI_Window_Factory_Schematics,LBType,factory->getId(),0,asyncContainer);
 }

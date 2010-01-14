@@ -4,7 +4,7 @@ This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emu
 For more information, see http://www.swganh.org
 
 
-Copyright (c) 2006 - 2008 The swgANH Team
+Copyright (c) 2006 - 2010 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
@@ -29,6 +29,7 @@ enum WindowQueryType
 {
 	Window_Query_NULL						=	0,
 	Window_Query_Radioactive_Sample			=	1,
+	Window_Query_Add_Schematic				=	2,
 
 };
 
@@ -45,7 +46,9 @@ public:
 
 	uint64						PlayerId;
 	uint64						ToolId;
+	uint64						SchematicId;
 	void*						CurrentResource;
+	std::vector<uint64 >		SortedList;
 };
 
 

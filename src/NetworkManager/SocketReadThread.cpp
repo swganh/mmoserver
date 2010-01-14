@@ -526,7 +526,7 @@ void SocketReadThread::RemoveAndDestroySession(Session* session)
 	gLogger->logMsgF("hash %I64u  vs mHash %I64u",MSG_HIGH,hash,session->mHash);
 	
 	boost::recursive_mutex::scoped_lock lk(mSocketReadMutex);
-	DestroyList.push_back(hash);
+	DestroyList.push_back(session->mHash);
 /*										
 	AddressSessionMap::iterator iter = mAddressSessionMap.find(hash);
 

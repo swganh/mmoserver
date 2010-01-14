@@ -94,13 +94,7 @@ void SocketWriteThread::Startup(SOCKET socket, Service* service, bool serverserv
 	HANDLE th =  mThread.native_handle();
 	SetPriorityClass(th,REALTIME_PRIORITY_CLASS);	
 
-	//HANDLE thread = t->native_handle();
-	//boost::this_thread::
-//	boost::this_thread::SetPriorityClass();
-	//HANDLE th = boost::thread::native_handle();
 	
-	//HANDLE th = boost::this_thread::native_handle();
-	//SetPriorityClass(th,REALTIME_PRIORITY_CLASS);	
 
 	lasttime =   Anh_Utils::Clock::getSingleton()->getLocalTime();
 	unCount = 	reCount = 0;

@@ -127,6 +127,7 @@ class Session
 	 
 	 
 	  uint64					  mLastPacketDestroyed;
+	  uint64					  mHash;
 
 private:
 	  void                        _processSessionRequestPacket(Packet* packet);
@@ -260,7 +261,7 @@ private:
 	  PacketWindowList            mIncomingPacketList;				
 	  
       boost::recursive_mutex	  mSessionMutex;
-	 
+
 	  uint64					  lasttime;
 	  uint64					  avgTime;
 	  uint32                      avgPacketsbuild;

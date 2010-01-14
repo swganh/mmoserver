@@ -182,32 +182,13 @@ void SocketReadThread::run(void)
 		tv.tv_sec   = 0;
 		tv.tv_usec  = 50;
 
+
 		count = select(mSocket, &socketSet, 0, 0, &tv);
 
 		if(count && FD_ISSET(mSocket, &socketSet))
 		{
 
-			std::vector<uint64>::iterator it = DestroyList.begin();
-			while(it!=DestroyList.end())
-			{
-				AddressSessionMap::iterator iter = mAddressSessionMap.find((*it));
-
-				if(iter != mAddressSessionMap.end())
-				{
-					session = (*iter).second;
-					boost::recursive_mutex::scoped_lock lk(mSocketReadMutex);
-					mAddressSessionMap.erase(iter);
-					gLogger->logMsgF("Service %i: Removing Session(%u), AddressMap: %i hash %I64u",MSG_NORMAL,mSessionFactory->getService()->getId(), ntohs(session->getPort()), mAddressSessionMap.size(),(*it));
-					mSessionFactory->DestroySession(session);
-					it = DestroyList.erase(it);
-				}
-				else
-				{
-					gLogger->logMsgF("SESSION NOT FOUND!!! Service %i: Removing Session(%u), AddressMap: %i hash %I64u SESSION NOT FOUND!!!!!",MSG_NORMAL,mSessionFactory->getService()->getId(), ntohs(session->getPort()), mAddressSessionMap.size(),(*it));
-					it++;
-				}
-				
-			}
+			
 
 			// Read any incoming packets.
 			recvLen = recvfrom(mSocket, mReceivePacket->getData(),(int) mMessageMaxSize, 0, (sockaddr*)&from, reinterpret_cast<socklen_t*>(&fromLen));
@@ -265,7 +246,7 @@ void SocketReadThread::run(void)
 				// We should only be creating a new session if it's a session request packet
 				if(packetType == SESSIONOP_SessionRequest)
 				{
-					gLogger->logMsgF("new Session ",MSG_HIGH);
+					gLogger->logMsgF("new Session created hash : %I64u ",MSG_HIGH,hash);
 					session = mSessionFactory->CreateSession();
 					session->setSocketReadThread(this);
 					session->setPacketFactory(mPacketFactory);
@@ -277,6 +258,7 @@ void SocketReadThread::run(void)
 					boost::recursive_mutex::scoped_lock lk(mSocketReadMutex);
 					mAddressSessionMap.insert(std::make_pair(hash, session));
 					mSocketWriteThread->NewSession(session);
+					session->mHash = hash;
 
 					gLogger->logMsgF("Added Service %i: New Session(%s, %u), AddressMap: %i",MSG_HIGH,mSessionFactory->getService()->getId(), inet_ntoa(from.sin_addr), ntohs(session->getPort()), mAddressSessionMap.size());
 				}
@@ -487,8 +469,32 @@ void SocketReadThread::run(void)
 				}
 			}
 		}
-		
 		boost::this_thread::sleep(boost::posix_time::microseconds(10));
+
+
+		boost::recursive_mutex::scoped_lock lk(mSocketReadMutex);
+
+		std::vector<uint64>::iterator it = DestroyList.begin();
+		while(it!=DestroyList.end())
+		{
+			AddressSessionMap::iterator iter = mAddressSessionMap.find((*it));
+
+			if(iter != mAddressSessionMap.end())
+			{
+				session = (*iter).second;
+				mAddressSessionMap.erase(iter);
+				gLogger->logMsgF("Service %i: Removing Session(%u), AddressMap: %i hash %I64u",MSG_NORMAL,mSessionFactory->getService()->getId(), ntohs(session->getPort()), mAddressSessionMap.size(),(*it));
+				mSessionFactory->DestroySession(session);
+				it = DestroyList.erase(it);
+			}
+			else
+			{
+				gLogger->logMsgF("SESSION NOT FOUND!!! Service %i: AddressMap: %i hash %I64u SESSION NOT FOUND!!!!!",MSG_NORMAL,mSessionFactory->getService()->getId(), mAddressSessionMap.size(),(*it));
+				it++;
+			}
+			
+		}
+
 	}
 
 	// Shutdown internally
@@ -515,9 +521,13 @@ void SocketReadThread::RemoveAndDestroySession(Session* session)
 {
 	// Find and remove the session from the address map.
 	uint64 hash = session->getAddress() | (((uint64)session->getPort()) << 32);
+
+	gLogger->logMsgF("Added to destroy list :::Service %i: Removing Session(%s, %u), AddressMap: %i hash %I64u",MSG_NORMAL,mSessionFactory->getService()->getId(), inet_ntoa(*((in_addr*)(&hash))), ntohs(session->getPort()), mAddressSessionMap.size(),hash);
+	gLogger->logMsgF("hash %I64u  vs mHash %I64u",MSG_HIGH,hash,session->mHash);
+	
 	boost::recursive_mutex::scoped_lock lk(mSocketReadMutex);
 	DestroyList.push_back(hash);
-/*
+/*										
 	AddressSessionMap::iterator iter = mAddressSessionMap.find(hash);
 
 	if(iter != mAddressSessionMap.end())

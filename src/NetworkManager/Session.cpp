@@ -106,6 +106,7 @@ lowest(0)
 	mMaxUnreliableSize= (uint32) MAX_PACKET_SIZE/2;
 	
 	endCount = 0;
+	mHash = 0;
 
 }
 

@@ -808,5 +808,5 @@ void UIManager::createNewFactorySchematicBox(UICallback* callback,PlayerObject* 
 	asyncContainer->PlayerId		= player->getId();
 	
 	  
-	createNewListBox(callback,"handle Structure Destroy","STRUCTURE STATUS", wText, attributesMenu, player, SUI_Window_Factory_Schematics,LBType,factory->getId(),0,asyncContainer);
+	createNewListBox(callback,"handleUpdateSchematic","@sui:swg", wText, attributesMenu, player, SUI_Window_Factory_Schematics,LBType,factory->getId(),0,asyncContainer);
 }

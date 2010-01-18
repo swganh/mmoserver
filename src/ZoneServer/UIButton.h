@@ -22,7 +22,7 @@ class UIButton : public UIElement
 	public:
 
 		UIButton(){}
-		UIButton(uint32 id,string name,bool enabled = true,string text = "");
+		UIButton(uint32 id,string name,bool enabled = true,string text = "", bool three = false);
 		virtual ~UIButton();
 
 		string			getName(){ return mName; }
@@ -43,6 +43,7 @@ class UIButton : public UIElement
 		string	mName;
 		string	mText;
 		bool	mEnabled;
+		bool	m3B;
 };
 
 #endif

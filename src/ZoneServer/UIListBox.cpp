@@ -52,6 +52,9 @@ void UIListBox::handleEvent(Message* message)
 	string	caption;
 	int32	selectedItem		= -1;
 
+	gLogger->logMsg("UIListBox::handleEvent: ");
+	gLogger->hexDump(message->getData(),message->getSize());
+
 	if(items)
 	{
 		message->getUint32(); // item count again
@@ -60,7 +63,11 @@ void UIListBox::handleEvent(Message* message)
 		if(swscanf(selectedDataItemStr.getUnicode16(),L"%i",&selectedItem) != 1)
 			gLogger->logMsg("UIListBox::handleEvent: item mismatch");
 
-		message->getStringUnicode16(caption);
+		if(items >= 2)
+			message->getStringUnicode16(caption);
+
+		if(items >= 3)
+			message->getStringUnicode16(mOption3);
 	}
 
 	if(mUICallback != NULL)
@@ -89,15 +96,14 @@ void UIListBox::sendCreate()
 	if(datasize > 250)
 		datasize = 250;
 
-	//uint32 propertyCount = 5 + (datasize << 1) + getChildrenPropertyCount();
-	uint32 propertyCount = 6 + (datasize << 1) + getChildrenPropertyCount();
+	uint32 propertyCount =3+ 5 + (datasize << 1) + getChildrenPropertyCount();
 
 	gMessageFactory->addUint32(propertyCount);
 
 	// main window properties
 	gMessageFactory->addUint8(5);
 	gMessageFactory->addUint32(0);	//listsize
-	gMessageFactory->addUint32(7);	 //listsize
+	gMessageFactory->addUint32(9);	 //listsize
 	gMessageFactory->addUint16(0);	 //string
 	gMessageFactory->addUint16(1);	 //string
 	gMessageFactory->addUint8(9);
@@ -106,10 +112,12 @@ void UIListBox::sendCreate()
 	gMessageFactory->addString(BString("SelectedRow"));
 	gMessageFactory->addString(BString("bg.caption.lblTitle"));
 	gMessageFactory->addString(BString("Text"));
+	gMessageFactory->addString(BString("this"));
+	gMessageFactory->addString(BString("otherPressed"));
 
 	gMessageFactory->addUint8(5);
 	gMessageFactory->addUint32(0);
-	gMessageFactory->addUint32(7);
+	gMessageFactory->addUint32(9);
 	gMessageFactory->addUint16(0);
 	gMessageFactory->addUint16(1);
 	gMessageFactory->addUint8(10);
@@ -118,6 +126,11 @@ void UIListBox::sendCreate()
 	gMessageFactory->addString(BString("SelectedRow"));
 	gMessageFactory->addString(BString("bg.caption.lblTitle"));
 	gMessageFactory->addString(BString("Text"));
+	gMessageFactory->addString(BString("this"));//ok this is rather straightforward
+	gMessageFactory->addString(BString("otherPressed"));
+	//with the 05 we set the returntype. if we set it like the other boxes it always returns the caption
+	//by adding the last 2 strings (this and otherPressed) it will return true when btnOther was pressed or false if btnOther was NOT pressed
+	//I could not get the UI to return any other value than zero in the return int when any other button than cancel was pressed.
 
 	// caption
 	gMessageFactory->addUint8(3);
@@ -134,6 +147,31 @@ void UIListBox::sendCreate()
 	gMessageFactory->addUint32(2);
 	gMessageFactory->addString(BString("Prompt.lblPrompt"));
 	gMessageFactory->addString(BString("Text"));
+
+		gMessageFactory->addUint8(3);
+	gMessageFactory->addUint32(1);
+	gMessageFactory->addString(BString(L"btnCancel"));
+	gMessageFactory->addUint32(2);
+	gMessageFactory->addString(BString("Prompt.lblPrompt"));
+	gMessageFactory->addString(BString("buttondelete"));
+
+		gMessageFactory->addUint8(3);
+	gMessageFactory->addUint32(1);
+	gMessageFactory->addString(BString(L"btnOther"));
+	gMessageFactory->addUint32(2);
+	gMessageFactory->addString(BString("Prompt.lblPrompt"));
+	gMessageFactory->addString(BString("buttonclose"));
+
+		gMessageFactory->addUint8(3);
+	gMessageFactory->addUint32(1);
+	gMessageFactory->addString(BString(L"btnOk"));
+	gMessageFactory->addUint32(2);
+	gMessageFactory->addString(BString("Prompt.lblPrompt"));
+	gMessageFactory->addString(BString("buttonaccept"));
+
+	//buttonaccept='buttonAccept' buttonclose='bg.mmc.close' buttondelete='buttonDelete' buttondetails='buttondetails'
+
+	//<Data buttonaccept='buttonAccept' buttonclose='bg.mmc.close' buttondelete='buttonDelete' buttondetails='buttondetails' buttonexit='buttonExit' buttonrefresh='buttonrefresh' checkPopUpHelp='checkPopUpHelp' details='details' Name='CodeData' PopUpHelp='PopUpHelp' table='all.tablepage.table' tableheader='all.tablepage.header' tabs='tabs'/>
 
 	// child elements
 	Children::iterator childrenIt = mChildElements.begin();
@@ -186,19 +224,8 @@ void UIListBox::sendCreate()
 		if(count == datasize)
 			break;
 	}
-	/*gMessageFactory->addUint8(3);
-	gMessageFactory->addUint32(1);
-	gMessageFactory->addString(BString(L"True"));
-	gMessageFactory->addUint32(2);
-	gMessageFactory->addString(mName);
-	gMessageFactory->addString(BString("visible"));
-	  */
-	gMessageFactory->addUint8(3);
-	gMessageFactory->addUint32(1);
-	gMessageFactory->addString(BString(L"@cancel"));
-	gMessageFactory->addUint32(2);
-	gMessageFactory->addString(BString("btnCancel"));
-	gMessageFactory->addString(BString("Text"));
+
+	//Size='66,17'
 
 	// unknown
 	gMessageFactory->addUint64(mObjectID);
@@ -239,9 +266,9 @@ void UIListBox::_initChildren()
 
 		case SUI_LB_CANCEL_SCHEMATIC_REMOVEUSE:
 		{
-			//mChildElements.push_back(new UIButton(1,"btnRevert",true,"@cancel"));
-			mChildElements.push_back(new UIButton(0,"btnOther",true,"@remove_schematic"));
-			mChildElements.push_back(new UIButton(0,"btnOk",true,"@use_schematic"));
+			mChildElements.push_back(new UIButton(1,"btnCancel",true,"@cancel",true));
+			mChildElements.push_back(new UIButton(2,"btnOk",true,"@use_schematic",true));
+			mChildElements.push_back(new UIButton(3,"btnOther",true,"@remove_schematic",true));
 			
 			
 			

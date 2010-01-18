@@ -1489,6 +1489,9 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 		{
 			HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(gWorldManager->getObjectById(command.StructureId));
 
+			if(!harvester)
+				return;
+
 			StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(Structure_GetResourceData,player->getClient());
 			asyncContainer->mStructureId	= command.StructureId;
 			asyncContainer->mPlayerId		= command.PlayerId;

@@ -751,7 +751,7 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 				{
 					FactoryObject* factory = dynamic_cast<FactoryObject*>(structure);
 					if(factory)
-						gUIManager->createNewFactorySchematicBox(factory, player, factory);
+						createNewFactorySchematicBox(player, factory);
 				}
 				break;
 
@@ -763,19 +763,19 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
 				case Structure_Command_DepositPower:
 				{
-					gUIManager->createPowerTransferBox(structure,player,structure);
+					createPowerTransferBox(player,structure);
 				}
 				break;
 
 				case Structure_Command_PayMaintenance:
 				{
-					gUIManager->createPayMaintenanceTransferBox(structure,player,structure);
+					createPayMaintenanceTransferBox(player,structure);
 				}
 				break;
 
 				case Structure_Command_ViewStatus:
 				{
-					gUIManager->createNewStructureStatusBox(structure, player, structure);
+					createNewStructureStatusBox(player, structure);
 				}
 				break;
 
@@ -1366,9 +1366,68 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 	switch(command.Command)
 	{
 
+		case Structure_Command_RemoveSchem:
+		{
+			FactoryObject* factory = dynamic_cast<FactoryObject*>(gWorldManager->getObjectById(command.StructureId));
+			if(!factory)
+			{
+				gLogger->logMsg("StructureManager::processVerification : No Factory (Structure_Command_AddSchem) ");
+				return;
+			}
+
+			//do we have a schematic that needs to be put back into the inventory???
+
+			if(!factory->getManSchemID())
+			{
+				//nothing to do for us
+				return;
+			}
+
+			//return the old schematic to the Datapad
+			Datapad*	datapad		= dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+			//Inventory*	inventory	= dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+			
+			//change the ManSchems Owner ID and load it into the datapad
+			gObjectFactory->requestTanoNewParent(datapad,factory->getManSchemID() ,datapad->getId(),TanGroup_ManufacturingSchematic);
+			mDatabase->ExecuteSqlAsync(0,0,"UPDATE factories SET ManSchematicID = 0 WHERE ID = %I64u",command.StructureId);
+
+			//finally reset the schem ID in the factory
+			factory->setManSchemID(0);
+			
+		}
+		break;
+
 		case Structure_Command_AddSchem:
 		{
 			FactoryObject* factory = dynamic_cast<FactoryObject*>(gWorldManager->getObjectById(command.StructureId));
+			if(!factory)
+			{
+				gLogger->logMsg("StructureManager::processVerification : No Factory (Structure_Command_AddSchem) ");
+				return;
+			}
+
+			//do we have a schematic that needs to be put back into the inventory???
+
+			if(factory->getManSchemID())
+			{
+				if(factory->getManSchemID() == command.SchematicId)
+				{
+					//nothing to do for us
+					return;
+				}
+
+				//first return the old schematic to the Datapad
+				Datapad*	datapad		= dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+				//Inventory*	inventory	= dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+				
+				//change the ManSchems Owner ID and load it into the datapad
+				gObjectFactory->requestTanoNewParent(datapad,factory->getManSchemID() ,datapad->getId(),TanGroup_ManufacturingSchematic);
+
+				//get the new Manufacturing schematic
+				datapad->removeManufacturingSchematic(command.SchematicId);
+		
+			}
+
 			factory->setManSchemID(command.SchematicId);
 			
 			//link the schematic to the factory in the db
@@ -1394,9 +1453,9 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			asyncContainer->command			= command;
 			//mDatabase->ExecuteSqlAsync(structure,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",harvester->getId());
 			mDatabase->ExecuteSqlAsync(this,asyncContainer,
-				"		(SELECT 'schematicCustom', i.customName FROM factories f INNER JOIN items i ON (i.id = f.ManSchematicID) WHERE f.ID = %I64u)"
-				 "UNION (SELECT 'schematicName', it.stf_name FROM factories f INNER JOIN items i ON (i.id = f.ManSchematicID) INNER JOIN item_types it ON (i.item_type = it.id) WHERE f.ID = %I64u)"
-				 "UNION (SELECT 'schematicFile', it.stf_file FROM factories f INNER JOIN items i ON (i.id = f.ManSchematicID) INNER JOIN item_types it ON (i.item_type = it.id) WHERE f.ID = %I64u)"
+				"		(SELECT \'schematicCustom\', i.customName FROM factories f INNER JOIN items i ON (i.id = f.ManSchematicID) WHERE f.ID = %I64u)"
+				 "UNION (SELECT \'schematicName\', it.stf_name FROM factories f INNER JOIN items i ON (i.id = f.ManSchematicID) INNER JOIN item_types it ON (i.item_type = it.id) WHERE f.ID = %I64u)"
+				 "UNION (SELECT \'schematicFile\', it.stf_file FROM factories f INNER JOIN items i ON (i.id = f.ManSchematicID) INNER JOIN item_types it ON (i.item_type = it.id) WHERE f.ID = %I64u)"
 				,command.StructureId);
 			
 		}
@@ -1527,7 +1586,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			if(owner)
 			{
 				PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(command.StructureId));
-				gUIManager->createRenameStructureBox(structure,player, structure);
+				createRenameStructureBox(player, structure);
 			}
 			else
 				gMessageLib->sendSystemMessage(player,L"","player_structure","rename_must_be_owner ");

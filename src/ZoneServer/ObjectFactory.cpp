@@ -450,16 +450,22 @@ void ObjectFactory::requestNewWaypoint(ObjectFactoryCallback* ofCallback,string 
 
 void ObjectFactory::requestTanoNewParent(ObjectFactoryCallback* ofCallback,uint64 ObjectId,uint64 parentID, TangibleGroup Group)
 {
+	//this is used to create an item after an auction and to load a Manufacturing schematic into the DataPad after it was removed from the factory
+	//After the owner ID was changed the item is requested through the OFQuery_Default request
+
 	OFAsyncContainer* asyncContainer;
 	int8 sql[512];
+
 	asyncContainer = new(mDbAsyncPool.ordered_malloc()) OFAsyncContainer(ofCallback,OFQuery_Default,NULL);
 	asyncContainer->Id = ObjectId;
 	asyncContainer->Group = Group;
 
 	switch(Group)
 	{
+		case TanGroup_ManufacturingSchematic:
 		case TanGroup_Item:
 		{
+
 			sprintf(sql,"UPDATE items SET parent_id = '%"PRIu64"' WHERE id = '%"PRIu64"' ",parentID,ObjectId);
 		}
 		break;
@@ -543,32 +549,30 @@ void ObjectFactory::deleteObjectFromDB(Object* object)
 			{
 				case TanGroup_Item:
 				{
+					Item* item = dynamic_cast<Item*>(object);
+					if(item->getItemType() == ItemFamily_ManufacturingSchematic)
+					{
+						ManufacturingSchematic* schem = dynamic_cast<ManufacturingSchematic*> (object);
+						//first associated item
+						sprintf(sql,"DELETE FROM items WHERE id = %"PRIu64"",schem->getItem()->getId());
+						mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
+						sprintf(sql,"DELETE FROM item_attributes WHERE item_id = %"PRIu64"",schem->getItem()->getId());
+						mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
+
+					}
+
 					sprintf(sql,"DELETE FROM items WHERE id = %"PRIu64"",object->getId());
 					mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
 
 					sprintf(sql,"DELETE FROM item_attributes WHERE item_id = %"PRIu64"",object->getId());
+					mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
 				}
 				break;
 
 				case TanGroup_ResourceContainer:
 				{
 					sprintf(sql,"DELETE FROM resource_containers WHERE id = %"PRIu64"",object->getId());
-				}
-				break;
-
-				case TanGroup_ManufacturingSchematic:
-				{
-					ManufacturingSchematic* schem = dynamic_cast<ManufacturingSchematic*> (object);
-					//first associated item
-					sprintf(sql,"DELETE FROM items WHERE id = %"PRIu64"",schem->getItem()->getId());
 					mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
-					sprintf(sql,"DELETE FROM item_attributes WHERE item_id = %"PRIu64"",schem->getItem()->getId());
-					mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
-
-					//now the schematic
-					sprintf(sql,"DELETE FROM items WHERE id = %"PRIu64"",object->getId());
-					mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
-					sprintf(sql,"DELETE FROM item_attributes WHERE item_id = %"PRIu64"",object->getId());
 				}
 				break;
 
@@ -629,13 +633,13 @@ void ObjectFactory::deleteObjectFromDB(Object* object)
 		case ObjType_Waypoint:
 		{
 			sprintf(sql,"DELETE FROM waypoints WHERE waypoint_id = %"PRIu64"",object->getId());
+			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
 		}
 		break;
 
 
 		default:break;
 	}
-	mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
 }
 
 //=============================================================================

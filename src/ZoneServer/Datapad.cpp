@@ -195,6 +195,7 @@ bool Datapad::removeManufacturingSchematic(uint64 id)
 	{
 		if((*it)->getId() == id)
 		{
+			delete((*it)->getItem());
 			mManufacturingSchematics.erase(it);
 			mCapacity++;
 			return(true);
@@ -216,6 +217,7 @@ bool Datapad::removeManufacturingSchematic(ManufacturingSchematic* ms)
 	{
 		if((*it) == ms)
 		{
+			delete(ms->getItem());
 			mManufacturingSchematics.erase(it);
 			mCapacity++;
 			return(true);
@@ -279,8 +281,19 @@ void Datapad::handleObjectReady(Object* object,DispatchClient* client)
 			gMessageLib->sendWaypointsUpdate(mOwner);
 		else
 		{
+			delete(object);
 			//remove it from db ...
 		}
+	}
+	if(ManufacturingSchematic* ms = dynamic_cast<ManufacturingSchematic*>(object))
+	{
+			if(addManufacturingSchematic(ms))
+				gMessageLib->sendCreateManufacturingSchematic(ms,mOwner,false);
+			else
+			{
+				delete(ms->getItem());
+				delete(ms);
+			}
 	}
 }
 

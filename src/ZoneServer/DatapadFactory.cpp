@@ -12,6 +12,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "DatapadFactory.h"
 #include "Datapad.h"
 #include "IntangibleObject.h"
+#include "PlayerObject.h"
 #include "Item.h"
 #include "ManufacturingSchematic.h"
 #include "ObjectFactoryCallback.h"
@@ -140,6 +141,36 @@ void DatapadFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 		}
 		break;
 
+		case DPFQuery_MSParent:
+		{
+			uint64 id;
+			DataBinding* binding = mDatabase->CreateDataBinding(1);
+
+			binding->addField(DFT_uint64,0,8);
+			result->GetNextRow(binding,&id);
+
+			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(id-3));
+			if(!player)
+			{
+				//factoryPanic!!!!!!!!
+				gLogger->logMsg("DatapadFactory: Failed getting player to create MS");
+				return;
+			}
+
+			Datapad*	datapad		= dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+
+			if(!datapad)
+			{
+				//factoryPanic!!!!!!!!
+				gLogger->logMsg("DatapadFactory: Failed getting datapad to create MS");
+				return;
+			}
+			mObjectLoadMap.insert(std::make_pair(datapad->getId(),new(mILCPool.ordered_malloc()) InLoadingContainer(datapad,datapad,NULL,1)));
+			gTangibleFactory->requestObject(this,asyncContainer->mId,TanGroup_Item,0,NULL);
+
+		}
+		break;
+
 		case DPFQuery_Objects:
 		{
 			Datapad* datapad = dynamic_cast<Datapad*>(asyncContainer->mObject);
@@ -196,7 +227,25 @@ void DatapadFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 }
 
 //=============================================================================
+//a Manufacturing Schematic will be loaded into the datapad
+void DatapadFactory::requestManufacturingSchematic(ObjectFactoryCallback* ofCallback, uint64 id)
+{
 
+	QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,DPFQuery_MSParent,NULL);
+	asContainer->mId = id;
+
+	mDatabase->ExecuteSqlAsync(this,asContainer,
+						" SELECT items.parent_id FROM items WHERE (id=%"PRIu64")"
+						,id);
+
+	//mObjectLoadMap.insert(std::make_pair(datapad->getId(),new(mILCPool.ordered_malloc()) InLoadingContainer(datapad,datapad,NULL,1)));
+
+	//gTangibleFactory->requestObject(this,id,TanGroup_Item,0,NULL);
+}
+
+
+//=============================================================================
+//
 void DatapadFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client)
 {
 	mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,DPFQuery_MainDatapadData,client),
@@ -275,7 +324,6 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
 			{
 				theID	= object->getParentId();
 				mIlc	= _getObject(theID);
-				datapad = dynamic_cast<Datapad*>(mIlc->mObject);
 
 				if(!mIlc)
 				{
@@ -283,13 +331,15 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
 					return;
 				}
 
+				datapad = dynamic_cast<Datapad*>(mIlc->mObject);
+
 				//parentId of schematics is the datapad!
 				//add the msco to the datapad
 
 				datapad->addManufacturingSchematic(dynamic_cast<ManufacturingSchematic*>(object));
 
 				//now load the associated item
-				QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(this,DPFQuery_ItemId,mIlc->mClient);
+				QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(this,DPFQuery_ItemId,NULL);
 				asContainer->mObject = datapad;
 				asContainer->mId = item->getId();//queryContainer.mId;
 				int8 sql[256];
@@ -372,6 +422,9 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
 		break;
 		default:break;
 	}
+
+	if(!mIlc)
+		return;
 
 	if(!(mIlc->mLoadCounter))
 	{

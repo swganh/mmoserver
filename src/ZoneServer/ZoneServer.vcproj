@@ -2482,6 +2482,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\UICustomWindows.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\UIEnums.h"
 					>
 				</File>
@@ -2723,6 +2727,10 @@
 				</File>
 				<File
 					RelativePath=".\StructureManager.h"
+					>
+				</File>
+				<File
+					RelativePath=".\StructureManagerUIManager.cpp"
 					>
 				</File>
 			</Filter>

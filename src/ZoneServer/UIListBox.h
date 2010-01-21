@@ -31,14 +31,12 @@ class UIListBox : public UIWindow
 		virtual void	handleEvent(Message* message);
 		void			sendCreate();
 
-		string			getOption3(){return mOption3;}
-
 	protected:
 
 		void		_initChildren();
 
 		string			mCaption;
-		string			mOption3;
+
 		string			mPrompt;
 		uint8			mLbType;
 		BStringVector	mDataItems;

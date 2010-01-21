@@ -12,6 +12,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 #include "TangibleFactory.h"
 #include "ContainerObjectFactory.h"
 #include "ItemFactory.h"
+#include "DatapadFactory.h"
 
 #include "ResourceContainerFactory.h"
 #include "TangibleEnums.h"
@@ -66,11 +67,12 @@ void TangibleFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,
 {
 	switch(subGroup)
 	{
-		case TanGroup_Item:					mItemFactory->requestObject(ofCallback,id,subGroup,subType,client);				break;
-		case TanGroup_Terminal:				mTerminalFactory->requestObject(ofCallback,id,subGroup,subType,client);			break;
-		case TanGroup_Container:			mContainerFactory->requestObject(ofCallback,id,subGroup,subType,client);			break;
-		case TanGroup_TicketCollector:		mTicketCollectorFactory->requestObject(ofCallback,id,subGroup,subType,client);		break;
-		case TanGroup_ResourceContainer:	mResourceContainerFactory->requestObject(ofCallback,id,subGroup,subType,client);	break;
+		case TanGroup_Item:						mItemFactory->requestObject(ofCallback,id,subGroup,subType,client);				break;
+		case TanGroup_Terminal:					mTerminalFactory->requestObject(ofCallback,id,subGroup,subType,client);			break;
+		case TanGroup_Container:				mContainerFactory->requestObject(ofCallback,id,subGroup,subType,client);			break;
+		case TanGroup_TicketCollector:			mTicketCollectorFactory->requestObject(ofCallback,id,subGroup,subType,client);		break;
+		case TanGroup_ResourceContainer:		mResourceContainerFactory->requestObject(ofCallback,id,subGroup,subType,client);	break;
+		case TanGroup_ManufacturingSchematic:	gDatapadFactory->requestManufacturingSchematic(ofCallback,id);
 
 		default:
 			gLogger->logMsg("TangibleFactory::requestObject Unknown Group");

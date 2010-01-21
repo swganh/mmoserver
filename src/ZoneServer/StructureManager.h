@@ -30,6 +30,8 @@ class Message;
 class Database;
 class MessageDispatch;
 class PlayerObject;
+class FactoryObject;
+class PlayerStructure;
 class UIWindow;
 
 namespace Anh_Utils
@@ -91,6 +93,7 @@ enum Structure_Async_CommandEnum
 	Structure_Command_OperateHarvester	=	16,
 	Structure_Command_AccessSchem		=	17,
 	Structure_Command_AddSchem			=	18,
+	Structure_Command_RemoveSchem		=	19,
 	
 
 };
@@ -226,7 +229,14 @@ class StructureManager : public DatabaseCallback,public ObjectFactoryCallback
 
 		virtual void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
 		void					handleObjectReady(Object* object,DispatchClient* client);
-		void					handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window);
+
+		void					createNewFactorySchematicBox(PlayerObject* player, FactoryObject* factory);
+		void					createNewStructureStatusBox(PlayerObject* player, PlayerStructure* structure);
+		void					createRenameStructureBox(PlayerObject* player, PlayerStructure* structure);
+		void					createPowerTransferBox(PlayerObject* player, PlayerStructure* structure);
+		void					createPayMaintenanceTransferBox(PlayerObject* player, PlayerStructure* structure);
+		void					createNewStructureDeleteConfirmBox(PlayerObject* player, PlayerStructure* structure);
+		void					createNewStructureDestroyBox(PlayerObject* player, PlayerStructure* structure, bool redeed);
 
 		//=========================================================
 

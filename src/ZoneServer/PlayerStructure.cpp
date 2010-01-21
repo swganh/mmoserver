@@ -143,7 +143,7 @@ void PlayerStructure::deleteStructureDBDataRead(uint64 playerId)
 {
 	PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId));
 
-	gUIManager->createNewStructureDestroyBox(this,player, this, canRedeed());
+	gStructureManager->createNewStructureDestroyBox(player, this, canRedeed());
 
 }
 
@@ -318,7 +318,7 @@ void PlayerStructure::handleUIEvent(uint32 action,int32 element,string inputStr,
 
 	// action is zero for ok !!!
 
-	if(!player || (action==1) || player->isIncapacitated() || player->isDead())
+	if(!player || (action) || player->isIncapacitated() || player->isDead())
 	{
 		return;
 	}
@@ -328,8 +328,12 @@ void PlayerStructure::handleUIEvent(uint32 action,int32 element,string inputStr,
 		case SUI_Window_Factory_Schematics:
 		{
 			uint64 ManSchemId = 0;
-			if(!action)
+			//check for use schematic
+			string b = window->getOption3();
+			b.convert(BSTRType_ANSI);
+			if(strcmp(b.getAnsi(),"false") == 0)
 			{
+				gLogger->logMsgF("PlayerStructure:: Button 3 (ok) was pressed!!!!", MSG_NORMAL);
 				WindowAsyncContainerCommand* asyncContainer = (WindowAsyncContainerCommand*)window->getAsyncContainer();	
 				if(!asyncContainer)
 				{
@@ -345,16 +349,34 @@ void PlayerStructure::handleUIEvent(uint32 action,int32 element,string inputStr,
 				}
 				
 				SAFE_DELETE(asyncContainer);
+
+				StructureAsyncCommand command;
+				command.Command = Structure_Command_AddSchem;
+				command.PlayerId = player->getId();
+				command.StructureId = this->getId();
+				command.SchematicId = ManSchemId;
+
+				gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"HOPPER",command);
+			}
+			else
+			if(strcmp(b.getAnsi(),"true") == 0) //remove schematic pressed
+			{
+				gLogger->logMsgF("PlayerStructure:: Button 4 (other) was pressed!!!!", MSG_NORMAL);
+
+				WindowAsyncContainerCommand* asyncContainer = (WindowAsyncContainerCommand*)window->getAsyncContainer();	
+				SAFE_DELETE(asyncContainer);
+
+				StructureAsyncCommand command;
+				command.Command = Structure_Command_RemoveSchem;
+				command.PlayerId = player->getId();
+				command.StructureId = this->getId();
+				command.SchematicId = ManSchemId;
+
+				gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"HOPPER",command);
 			}
 			
 						
-			StructureAsyncCommand command;
-			command.Command = Structure_Command_AddSchem;
-			command.PlayerId = player->getId();
-			command.StructureId = this->getId();
-			command.SchematicId = ManSchemId;
-
-			gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"HOPPER",command);
+			
 		}
 		break;
 
@@ -375,7 +397,7 @@ void PlayerStructure::handleUIEvent(uint32 action,int32 element,string inputStr,
 		{
 			//================================
 			// now that a decision has been made get confirmation
-			gUIManager->createNewStructureDeleteConfirmBox(this,player,this );
+			gStructureManager->gStructureManager->createNewStructureDeleteConfirmBox(player,this );
 		
 		}
 		break;

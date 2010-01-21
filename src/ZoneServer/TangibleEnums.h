@@ -28,9 +28,9 @@ enum TangibleGroup
 	TanGroup_Item					= 7,
 	TanGroup_ResourceContainer		= 8,
 	TanGroup_Datapad				= 9,
-	TanGroup_ManufacturingSchematic	= 10,
-	TanGroup_Structure				= 11,
-	TanGroup_Static					= 12
+	TanGroup_Structure				= 10,
+	TanGroup_Static					= 11,
+	TanGroup_ManufacturingSchematic	= 12
 };
 
 

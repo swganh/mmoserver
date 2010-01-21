@@ -362,7 +362,7 @@ void ItemFactory::_postProcessAttributes(Object* object)
 }
 
 //=============================================================================
-
+//handles the ObjectReady callback of items children!
 
 void ItemFactory::handleObjectReady(Object* object,DispatchClient* client)
 {

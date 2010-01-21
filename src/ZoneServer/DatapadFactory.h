@@ -36,7 +36,9 @@ enum DPFQuery
 	DPFQuery_ManufactureSchematic	= 4,
 	DPFQuery_ObjectCount			= 5,
 	DPFQuery_ItemId					= 6,
-	DPFQuery_Item					= 7
+	DPFQuery_Item					= 7,
+	DPFQuery_MSParent				= 8,
+	DPFQuery_MSDPadParent			= 9
 };
 
 //=============================================================================
@@ -53,6 +55,7 @@ class DatapadFactory : public FactoryBase, public ObjectFactoryCallback
 		virtual void	handleObjectReady(Object* object,DispatchClient* client);
 		void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
 		void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
+		void			requestManufacturingSchematic(ObjectFactoryCallback* ofCallback, uint64 id);
 
 	private:
 

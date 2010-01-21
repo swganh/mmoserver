@@ -89,6 +89,9 @@ class UIWindow : public UIElement
 		UICallback*		getCallback(){ return mUICallback; }
 		void			setCallback(UICallback* callback){ mUICallback = callback; }
 
+		string			getOption3(){return mOption3;}
+		string			getOption4(){return mOption4;}
+
 	protected:
 		Children		mChildElements;
 		string			mEventStr;
@@ -98,6 +101,9 @@ class UIWindow : public UIElement
 		uint64			mTimeOut;
 		uint8			mWindowType;
 		void*			mContainer;
+
+		string			mOption3;
+		string			mOption4;
 };
 
 #endif

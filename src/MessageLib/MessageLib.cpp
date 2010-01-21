@@ -910,7 +910,7 @@ bool MessageLib::sendCreateInstallation(PlayerStructure* structure,PlayerObject*
 //======================================================================================================================
 //
 // create manufacturing schematic
-//
+// the attributes bool makes the MSCO 3 send the attribute list
 
 bool MessageLib::sendCreateManufacturingSchematic(ManufacturingSchematic* manSchem,PlayerObject* playerObject,bool attributes)
 {

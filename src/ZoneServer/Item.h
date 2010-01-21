@@ -29,9 +29,13 @@ class Item : public TangibleObject
 		Item();
 		virtual ~Item();
 
+		//----------------------------------------
+		//family is the items family it belongs to
 		uint32	getItemFamily(){ return mItemFamily; }
 		void	setItemFamily(uint32 family){ mItemFamily = family; }
 
+		//----------------------------------------
+		//thats the specific type!
 		uint32	getItemType(){ return mItemType; }
 		void	setItemType(uint32 type){ mItemType = type; }
 

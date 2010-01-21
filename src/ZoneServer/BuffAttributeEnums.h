@@ -1,3 +1,15 @@
+
+/*
+---------------------------------------------------------------------------------------
+This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
+For more information, see http://www.swganh.org
+
+
+Copyright (c) 2006 - 2010 The swgANH Team
+
+---------------------------------------------------------------------------------------
+*/
+
 enum BuffAttributeCRC
 {
 	opAttributeStomach_drink	=   0xB9BC47C4,

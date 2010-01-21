@@ -2730,6 +2730,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\StructureManagerCallbackHandler.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\StructureManagerUIManager.cpp"
 					>
 				</File>

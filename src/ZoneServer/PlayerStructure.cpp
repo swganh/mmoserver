@@ -5,7 +5,7 @@ This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emu
 For more information, see http://www.swganh.org
 
 
-Copyright (c) 2006 - 2009 The swgANH Team
+Copyright (c) 2006 - 2010 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
@@ -345,6 +345,7 @@ void PlayerStructure::handleUIEvent(uint32 action,int32 element,string inputStr,
 				else
 				{
 					SAFE_DELETE(asyncContainer);
+					gMessageLib->sendSystemMessage(player,L"","manf_station","schematic_not_added");
 					return;
 				}
 				

@@ -3,7 +3,7 @@
    
    For more information, see http://www.swganh.org
    
-   Copyright (c) 2006 - 2009 The swgANH Team                  */
+   Copyright (c) 2006 - 2010 The swgANH Team                  */
 
 #ifndef ANH_DATABASEMANAGER_ACCOUNTDATA_H
 #define ANH_DATABASEMANAGER_ACCOUNTDATA_H

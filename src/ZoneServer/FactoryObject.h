@@ -64,6 +64,12 @@ class FactoryObject :	public PlayerStructure, public DatabaseCallback
 		uint64			getManSchemID(){ return mManSchematicID; }
 		void			setManSchemID(uint64 value){ mManSchematicID = value; }
 
+		uint64			getIngredientHopper(){ return mIngredientHopper; }
+		void			setIngredientHopper(uint64 value){ mIngredientHopper= value; }
+
+		uint64			getOutputHopper(){ return mOutputHopper; }
+		void			setOutputHopper(uint64 value){ mOutputHopper= value; }
+
 
 	private:
 
@@ -74,6 +80,9 @@ class FactoryObject :	public PlayerStructure, public DatabaseCallback
 
 		uint32			mTotalLoadCount;
 		uint64			mManSchematicID;
+
+		uint64			mIngredientHopper;
+		uint64			mOutputHopper;
 
 		string			mSchematicName;
 		string			mSchematicFile;

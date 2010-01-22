@@ -38,7 +38,6 @@ enum DPFQuery
 	DPFQuery_ItemId					= 6,
 	DPFQuery_Item					= 7,
 	DPFQuery_MSParent				= 8,
-	DPFQuery_MSDPadParent			= 9
 };
 
 //=============================================================================

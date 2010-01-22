@@ -33,7 +33,8 @@ enum FFQuery
 	FFQuery_ResourceData	= 2,
 	FFQuery_byDeed			= 3,
 	FFQuery_AdminData		= 4,
-	FFQuery_AttributeData	= 5
+	FFQuery_AttributeData	= 5,
+	FFQuery_Hopper			= 6
 
 };
 

@@ -703,6 +703,9 @@ void ObjectFactory::releaseAllPoolsMemory()
 	mBuildingFactory->releaseAllPoolsMemory();
 	mRegionFactory->releaseAllPoolsMemory();
 	mWaypointFactory->releaseQueryContainerPoolMemory();
+	mHarvesterFactory->releaseAllPoolsMemory();
+	mFactoryFactory->releaseAllPoolsMemory();
+
 }
 
 //=============================================================================

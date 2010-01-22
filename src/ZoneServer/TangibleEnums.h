@@ -30,7 +30,8 @@ enum TangibleGroup
 	TanGroup_Datapad				= 9,
 	TanGroup_Structure				= 10,
 	TanGroup_Static					= 11,
-	TanGroup_ManufacturingSchematic	= 12
+	TanGroup_ManufacturingSchematic	= 12,
+	TanGroup_Hopper					= 13
 };
 
 

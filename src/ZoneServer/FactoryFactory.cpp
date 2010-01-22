@@ -12,7 +12,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "FactoryFactory.h"
 #include "Deed.h"
 #include "FactoryObject.h"
-#include "ResourceContainerFactory.h"
+#include "TangibleFactory.h"
 #include "WorldManager.h"
 #include "LogManager/LogManager.h"
 #include "DatabaseManager/Database.h"
@@ -84,15 +84,66 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				factory->addInternalAttribute(attribute.mKey,std::string(attribute.mValue.getAnsi()));
 			}
 
-			factory->setLoadState(LoadState_Loaded);
 
-			gLogger->logMsgF("factoryFactory: loaded factory %I64u", MSG_HIGH, factory->getId());
-			asyncContainer->mOfCallback->handleObjectReady(factory,asyncContainer->mClient);
-			
+			QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,FFQuery_Hopper,asyncContainer->mClient);
+			asContainer->mObject = factory;
+
+			mDatabase->ExecuteSqlAsync(this,asContainer,
+						"(SELECT \'input\',id FROM items WHERE parent_id = %"PRIu64" AND item_type = 2773)"
+						" UNION (SELECT \'output\',id FROM items WHERE parent_id = %"PRIu64" AND item_type = 2774)"
+						,factory->getId(),factory->getId());
+
 			
 		}
 		break;
 
+		case FFQuery_Hopper:
+		{
+
+			FactoryObject* factory = dynamic_cast<FactoryObject*>(asyncContainer->mObject);
+
+			Type1_QueryContainer queryContainer;
+
+			DataBinding*	binding = mDatabase->CreateDataBinding(2);
+			binding->addField(DFT_bstring,offsetof(Type1_QueryContainer,mString),64,0);
+			binding->addField(DFT_uint64,offsetof(Type1_QueryContainer,mId),8,1);
+
+			uint64 count = result->getRowCount();
+
+			//InLoadingContainer* ilc = new(mILCPool.ordered_malloc()) InLoadingContainer(inventory,asyncContainer->mOfCallback,asyncContainer->mClient);
+			//ilc->mLoadCounter = count;
+
+			//mObjectLoadMap.insert(std::make_pair(datapad->getId(),new(mILCPool.ordered_malloc()) InLoadingContainer(datapad,asyncContainer->mOfCallback,asyncContainer->mClient,static_cast<uint32>(count))));
+
+			mObjectLoadMap.insert(std::make_pair(factory->getId(),new(mILCPool.ordered_malloc()) InLoadingContainer(factory,asyncContainer->mOfCallback,NULL,2)));
+
+			for(uint32 i = 0;i < count;i++)
+			{
+				result->GetNextRow(binding,&queryContainer);
+
+				if(strcmp(queryContainer.mString.getAnsi(),"input") == 0)
+				{
+					gTangibleFactory->requestObject(this,queryContainer.mId,TanGroup_Hopper,0,NULL);
+				}
+
+				else if(strcmp(queryContainer.mString.getAnsi(),"output") == 0)
+				{
+					gTangibleFactory->requestObject(this,queryContainer.mId,TanGroup_Hopper,0,NULL);
+				}
+			
+
+			}
+
+			mDatabase->DestroyDataBinding(binding);
+
+
+
+				//factory->setLoadState(LoadState_Loaded);
+			
+		  
+		}
+		break;
+		
 		case FFQuery_MainData:
 		{
 			QueryContainerBase* asynContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,FFQuery_AttributeData,asyncContainer->mClient,asyncContainer->mId);
@@ -199,19 +250,41 @@ void FactoryFactory::_destroyDatabindings()
 
 void FactoryFactory::handleObjectReady(Object* object,DispatchClient* client)
 {
-	//*ONLY* used to load resource containers
+	//*ONLY* used to load in and out put hopper
 	InLoadingContainer* ilc = _getObject(object->getParentId());
 	FactoryObject*		factory = dynamic_cast<FactoryObject*>(ilc->mObject);
+	if(!factory)
+	{
+			gLogger->logMsg("FactoryFactory::handleObjectReady No factory :(");
+	}
 
-	//add res containers
+	//add hopper to worldObjectlist, but NOT to the SI
 	gWorldManager->addObject(object,true);
 
+	Item* item = dynamic_cast<Item*>(object);
+	if(!item)
+	{
+			gLogger->logMsg("FactoryFactory::handleObjectReady No hopper :(");
+	}
 
-	if(factory->decLoadCount() == 0)
+	if(strcmp(item->getName().getAnsi(),"ingredient_hopper")==0)
+	{
+		gLogger->logMsg("FactoryFactory: IngredientHopper!!!!!!!!!!!!!!!!");
+		factory->setIngredientHopper(object->getId());
+	}
+	else
+	if(strcmp(item->getName().getAnsi(),"output_hopper")==0)
+	{
+		gLogger->logMsg("FactoryFactory: outputHopper!!!!!!!!!!!!!!!!");
+		factory->setOutputHopper(object->getId());
+	}
+	
+	if(( --ilc->mLoadCounter) == 0)
 	{
 		if(!(_removeFromObjectLoadMap(factory->getId())))
 			gLogger->logMsg("FactoryFactory: Failed removing object from loadmap");
 
+		factory->setLoadState(LoadState_Loaded);
 		ilc->mOfCallback->handleObjectReady(factory,ilc->mClient);
 
 		mILCPool.free(ilc);

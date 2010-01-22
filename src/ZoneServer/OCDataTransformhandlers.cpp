@@ -869,7 +869,7 @@ bool ObjectController::_destroyOutOfRangeObjects(ObjectSet *inRangeObjects)
 		++playerIt;
 	}
 
-	// We may wan't to limit the amount of messages sent in one session.
+	// We may want to limit the amount of messages sent in one session.
 	uint32 messageCount = 0;
 
 	// update objects

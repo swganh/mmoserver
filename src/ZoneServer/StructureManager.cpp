@@ -639,6 +639,79 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 
 	switch(command.Command)
 	{
+		case Structure_Command_AccessOutHopper:
+		{
+		 	FactoryObject* factory = dynamic_cast<FactoryObject*>(gWorldManager->getObjectById(command.StructureId));
+			if(!factory)
+			{
+				gLogger->logMsg("StructureManager::processVerification : No Factory (Structure_Command_AccessInHopper) ");
+				return;
+			}
+
+			//send the hopper as tangible if we havnt done that already ...
+			//add each other to the known objects list
+			Item* outHopper = dynamic_cast<Item*>(gWorldManager->getObjectById(factory->getOutputHopper()));
+			if(!outHopper)
+			{
+				gLogger->logMsg("StructureManager::processVerification : No outHopper (Structure_Command_AccessInHopper) ");
+				return;
+			}
+			//are we already known ???
+			if(outHopper->checkKnownObjects(player))
+			{
+				gLogger->logMsg("OutHopper already known ");
+				gMessageLib->sendOpenedContainer(outHopper->getId(),player);
+				return;
+			}
+
+			//no create
+			gMessageLib->sendCreateObject(outHopper,player,false);
+			outHopper->addKnownObjectSafe(player);
+			player->addKnownObjectSafe(outHopper);
+			//now add the hoppers content - update the objects location to the factory location so the destroy works
+
+
+			gMessageLib->sendOpenedContainer(outHopper->getId(),player);
+
+		}
+		break;
+
+		case Structure_Command_AccessInHopper:
+		{
+			FactoryObject* factory = dynamic_cast<FactoryObject*>(gWorldManager->getObjectById(command.StructureId));
+			if(!factory)
+			{
+				gLogger->logMsg("StructureManager::processVerification : No Factory (Structure_Command_AccessInHopper) ");
+				return;
+			}
+
+			//send the hopper as tangible if we havnt done that already ...
+			//add each other to the known objects list
+			Item* inHopper = dynamic_cast<Item*>(gWorldManager->getObjectById(factory->getIngredientHopper()));
+			if(!inHopper)
+			{
+				gLogger->logMsg("StructureManager::processVerification : No inHopper (Structure_Command_AccessInHopper) ");
+				return;
+			}
+			//are we already known ???
+			if(inHopper->checkKnownObjects(player))
+			{
+				gLogger->logMsg("InHopper already known ");
+				gMessageLib->sendOpenedContainer(inHopper->getId(),player);
+				return;
+			}
+
+			//no create
+			gMessageLib->sendCreateObject(inHopper,player,false);
+			inHopper->addKnownObjectSafe(player);
+			player->addKnownObjectSafe(inHopper);
+			//now add the hoppers content - update the objects location to the factory location so the destroy works
+
+
+			gMessageLib->sendOpenedContainer(inHopper->getId(),player);
+
+		}
+		break;
 
 		case Structure_Command_RemoveSchem:
 		{
@@ -749,6 +822,18 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 		{
 			PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(command.StructureId));
 			
+			//the structure might have been deleted between the last and the current refresh
+			if(!structure)
+			{
+				gMessageLib->sendSystemMessage(player,L"","player_structure","no_valid_structurestatus");
+				return;
+			}
+			if(player->getTargetId() != structure->getId())
+			{
+				gMessageLib->sendSystemMessage(player,L"","player_structure","changed_structurestatus");
+				return;
+			}
+
 			//read the relevant attributes in then display the status page
 			StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(Structure_UpdateAttributes,player->getClient());
 			asyncContainer->mStructureId	= command.StructureId;

@@ -238,7 +238,9 @@ void HarvesterFactory::_destroyDatabindings()
 
 void HarvesterFactory::handleObjectReady(Object* object,DispatchClient* client)
 {
-	//*ONLY* used to load resource containers
+	//*ONLY* used to load resource containers	
+	//never used ....
+
 	InLoadingContainer* ilc = _getObject(object->getParentId());
 	HarvesterObject*		harvester = dynamic_cast<HarvesterObject*>(ilc->mObject);
 

@@ -218,7 +218,8 @@ Item* ItemFactory::_createItem(DatabaseResult* result)
 		case ItemFamily_Deed:					item	= new Deed();						break;
 		case ItemFamily_Medicine:				item	= new Medicine();					break;
 		case ItemFamily_Scout:					item	= new Scout();						break;
-		case ItemFamily_FireWork:
+		case ItemFamily_FireWork:				item	= new Item();						break;
+		case ItemFamily_Hopper:					item	= new Item();						break;
 			{
 				switch(itemIdentifier.mTypeId)
 				{

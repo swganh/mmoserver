@@ -202,7 +202,7 @@ void StructureManager::createNewStructureStatusBox(PlayerObject* player, PlayerS
 	//answer = x*(total/100);
 	// total = 100%
 	
-	gUIManager->createNewListBox(structure,"handle Structure Destroy","@player_structure:structure_status_t", wText, attributesMenu, player, SUI_Window_Structure_Status,SUI_LB_CANCELREFRESH,structure->getId());
+	gUIManager->createNewListBox(structure,"structurestatus","@player_structure:structure_status_t", wText, attributesMenu, player, SUI_Window_Structure_Status,SUI_LB_CANCELREFRESH,structure->getId());
 }
 
 

@@ -73,6 +73,7 @@ void TangibleFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,
 		case TanGroup_TicketCollector:			mTicketCollectorFactory->requestObject(ofCallback,id,subGroup,subType,client);		break;
 		case TanGroup_ResourceContainer:		mResourceContainerFactory->requestObject(ofCallback,id,subGroup,subType,client);	break;
 		case TanGroup_ManufacturingSchematic:	gDatapadFactory->requestManufacturingSchematic(ofCallback,id);
+		case TanGroup_Hopper:					mItemFactory->requestObject(ofCallback,id,subGroup,subType,client);				break;
 
 		default:
 			gLogger->logMsg("TangibleFactory::requestObject Unknown Group");

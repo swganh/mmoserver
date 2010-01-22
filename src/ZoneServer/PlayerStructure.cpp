@@ -383,7 +383,7 @@ void PlayerStructure::handleUIEvent(uint32 action,int32 element,string inputStr,
 
 		case SUI_Window_Structure_Status:
 		{
-			
+			//we want to refresh
 			StructureAsyncCommand command;
 			command.Command = Structure_Command_ViewStatus;
 			command.PlayerId = player->getId();
@@ -398,7 +398,7 @@ void PlayerStructure::handleUIEvent(uint32 action,int32 element,string inputStr,
 		{
 			//================================
 			// now that a decision has been made get confirmation
-			gStructureManager->gStructureManager->createNewStructureDeleteConfirmBox(player,this );
+			gStructureManager->createNewStructureDeleteConfirmBox(player,this );
 		
 		}
 		break;

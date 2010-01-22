@@ -33,7 +33,8 @@ enum ItemFamily
 	ItemFamily_Medicine					= 22,
 	ItemFamily_Mission					= 23,
 	ItemFamily_Powerup					= 24,
-	ItemFamily_Scout					= 25
+	ItemFamily_Scout					= 25,
+	ItemFamily_Hopper					= 29
 };
 
 //=============================================================================

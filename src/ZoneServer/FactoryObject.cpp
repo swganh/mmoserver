@@ -56,6 +56,28 @@ void FactoryObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 	
 	switch(messageType)
 	{
+		case radId_serverManfHopperInput:
+		{
+			StructureAsyncCommand command;
+			command.Command = Structure_Command_AccessInHopper;
+			command.PlayerId = player->getId();
+			command.StructureId = this->getId();
+
+			gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"HOPPER",command);
+		}
+		break;
+
+		case radId_serverManfHopperOutput:
+		{
+			StructureAsyncCommand command;
+			command.Command = Structure_Command_AccessOutHopper;
+			command.PlayerId = player->getId();
+			command.StructureId = this->getId();
+
+			gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"HOPPER",command);
+		}
+		break;
+
 		case radId_serverManfStationSchematic:
 		{
 			StructureAsyncCommand command;
@@ -151,12 +173,6 @@ void FactoryObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 			
 		}
 		break;
-
-		case radId_operateHarvester:
-		{
-			  gMessageLib->sendOperateHarvester(this,player);
-		}
-		break;
 		
 	}
 }
@@ -186,7 +202,6 @@ void FactoryObject::prepareCustomRadialMenu(CreatureObject* creatureObject, uint
 	radial->addItem(++i,2,radId_StructureStatus,radAction_ObjCallback,"Status");
 	radial->addItem(++i,2,radId_payMaintenance,radAction_ObjCallback,"Pay Maintenance");
 	radial->addItem(++i,2,radId_setName,radAction_ObjCallback,"Set Name");
-	radial->addItem(++i,2,radId_operateHarvester,radAction_ObjCallback,"operate Harvester");
 	radial->addItem(++i,2,radId_depositPower,radAction_ObjCallback,"Deposit Power");
 	
 	
@@ -205,7 +220,7 @@ void FactoryObject::prepareCustomRadialMenu(CreatureObject* creatureObject, uint
 	}
 	radial->addItem(++i,4,radId_serverManfStationSchematic,radAction_ObjCallback,"Access schematic slot");
 	radial->addItem(++i,4,radId_serverManfHopperInput,radAction_ObjCallback,"Access station ingredient hopper");
-	radial->addItem(++i,4,radId_serverManfHopperInput,radAction_ObjCallback,"Access station output hopper");
+	radial->addItem(++i,4,radId_serverManfHopperOutput,radAction_ObjCallback,"Access station output hopper");
 	
 	
 

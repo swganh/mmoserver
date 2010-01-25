@@ -260,6 +260,11 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback
 		void	_handleCloseContainer(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleTransferItem(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleTransferItemMisc(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
+		void	_handleTransferItemMisc2(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
+		bool	checkTargetContainer(uint64 targetId);
+		bool	checkContainingContainer(uint64 targetId);
+		bool	removeFromContainer(uint64 targetContainerId, uint64 targetId);
+
 		void	_handleRequestQuestTimersAndCounters(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleNPCConversationStart(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleNPCConversationStop(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);

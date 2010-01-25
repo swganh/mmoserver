@@ -10,6 +10,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 */
 #include "WorldConfig.h"
 #include "StructureManager.h"
+#include "FactoryFactory.h"
 #include "nonPersistantObjectFactory.h"
 #include "HarvesterObject.h"
 #include "FactoryObject.h"
@@ -656,6 +657,10 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 				gLogger->logMsg("StructureManager::processVerification : No outHopper (Structure_Command_AccessInHopper) ");
 				return;
 			}
+
+			gFactoryFactory->upDateHopper(factory,factory->getIngredientHopper(),player->getClient(),factory);
+			return;
+
 			//are we already known ???
 			if(outHopper->checkKnownObjects(player))
 			{
@@ -663,6 +668,8 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 				gMessageLib->sendOpenedContainer(outHopper->getId(),player);
 				return;
 			}
+
+			
 
 			//no create
 			gMessageLib->sendCreateObject(outHopper,player,false);
@@ -693,22 +700,22 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 				gLogger->logMsg("StructureManager::processVerification : No inHopper (Structure_Command_AccessInHopper) ");
 				return;
 			}
+
 			//are we already known ???
 			if(inHopper->checkKnownObjects(player))
 			{
-				gLogger->logMsg("InHopper already known ");
-				gMessageLib->sendOpenedContainer(inHopper->getId(),player);
+				gLogger->logMsg("StructureManager :: Structure_Command_AccessInHopper :: InHopper already known ");
+				gFactoryFactory->upDateHopper(factory,factory->getIngredientHopper(),player->getClient(),factory);
 				return;
 			}
 
-			//no create
+			//now create
 			gMessageLib->sendCreateObject(inHopper,player,false);
 			inHopper->addKnownObjectSafe(player);
 			player->addKnownObjectSafe(inHopper);
-			//now add the hoppers content - update the objects location to the factory location so the destroy works
-
-
-			gMessageLib->sendOpenedContainer(inHopper->getId(),player);
+						
+			//
+			gMessageLib->sendOpenedContainer(inHopper->getId(),player);		
 
 		}
 		break;

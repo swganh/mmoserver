@@ -25,6 +25,7 @@ public:
 	ObjectFactoryCallback();
 	virtual ~ObjectFactoryCallback();
 
+	virtual void	handleObjectReady(Object* object,DispatchClient* client, uint64 hopper) {};
 	virtual void	handleObjectReady(Object* object,DispatchClient* client) {};
 	virtual void	handleObjectReady(Object* object) {};
 };

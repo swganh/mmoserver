@@ -582,7 +582,7 @@ bool MessageLib::sendCreateCreature(CreatureObject* creatureObject,PlayerObject*
 // create tangible
 //
 
-bool MessageLib::sendCreateTangible(TangibleObject* tangibleObject,const PlayerObject* const targetObject) const
+bool MessageLib::sendCreateTangible(TangibleObject* tangibleObject,const PlayerObject* const targetObject) 
 {
 	//gLogger->logMsgF("MessageLib::send create tangible  %I64u name %s",MSG_HIGH,tangibleObject->getId(),tangibleObject->getName().getAnsi());
 
@@ -637,7 +637,6 @@ bool MessageLib::sendCreateTangible(TangibleObject* tangibleObject,const PlayerO
 		// or tied directly to an object
 		else
 		{
-			//printf("tied directly to Owner : %I64u",tangibleObject->getParentId());
 			sendContainmentMessage(tangibleObject->getId(),tangibleObject->getParentId(),4,targetObject);
 		}
 	}
@@ -652,6 +651,35 @@ bool MessageLib::sendCreateTangible(TangibleObject* tangibleObject,const PlayerO
 	//}
 
 	sendEndBaselines(tangibleObject->getId(),targetObject);
+
+	//todo : facilitate destruction, too!!!
+	//question - is a contained object destroyed by hand or does the client automatically get rid of it once 
+	//the containing container is destroyed
+
+
+	//now check whether we have children!!!
+	ObjectIDList*			ol = tangibleObject->getData();
+	ObjectIDList::iterator	it = ol->begin();
+
+	while(it != ol->end())
+	{
+		TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)));
+		if(!tO)
+		{
+			assert(false);
+		}
+
+		if(!targetObject->checkKnownObjects(tO))
+		{				
+			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetObject->getId()));
+			sendCreateObject(tO,player,false);
+			player->addKnownObjectSafe(tO);
+			tO->addKnownObjectSafe(player);
+		}
+
+		it++;
+	}
+
 
 	return(true);
 }

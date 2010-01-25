@@ -20,8 +20,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 //=============================================================================
 
-typedef std::vector<Object*>			ObjectList;
-
+typedef std::vector<Object*>	ObjectList;
 //=============================================================================
 
 /*
@@ -49,6 +48,13 @@ class ObjectContainer :	public Object
 		bool		       removeData(uint64 id);
 		bool		       removeData(Object* Data);
 		ObjectIDList::iterator removeData(ObjectIDList::iterator it);
+
+		ObjectIDList*	   getWatcher() { return &mWatchers; }
+		Object*			   getWatcherById(uint64 id);
+		bool		       addWatcher(Object* Data);
+		bool		       removeWatcher(uint64 id);
+		bool		       removeWatcher(Object* Data);
+		ObjectIDList::iterator removeWatcher(ObjectIDList::iterator it);
 		
 		bool			   checkCapacity(){return((mCapacity-mData.size()) > 0);}
 		void			   setCapacity(uint16 cap){mCapacity = cap;}
@@ -60,7 +66,8 @@ private:
 
 
 		ObjectIDList			mData;
-		uint16				mCapacity;
+		ObjectIDList			mWatchers;
+		uint16					mCapacity;
 
 		
 		

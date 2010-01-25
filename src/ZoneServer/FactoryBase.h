@@ -112,6 +112,7 @@ class QueryContainerBase
 		Object*					mObject;
 		uint32					mQueryType;
 		uint64					mId;
+		uint64					mHopper;
 };
 
 //=============================================================================
@@ -137,9 +138,10 @@ class Type1_QueryContainer
 	public:
 
 		Type1_QueryContainer(){}
-
+		uint32	mVolume;
 		uint64	mId;
 		string	mString;
+
 };
 
 //=============================================================================

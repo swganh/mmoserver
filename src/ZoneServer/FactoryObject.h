@@ -14,6 +14,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include "PlayerStructure.h"
 #include "BuildingEnums.h"
+#include "ObjectFactory.h"
 
 //=============================================================================
 
@@ -28,7 +29,7 @@ struct FactoryHopperItem
 		float			Quantity;
 };
 
-class FactoryObject :	public PlayerStructure, public DatabaseCallback
+class FactoryObject :	public PlayerStructure, public DatabaseCallback, public ObjectFactoryCallback
 {
 	friend class FactoryFactory;
 
@@ -39,6 +40,8 @@ class FactoryObject :	public PlayerStructure, public DatabaseCallback
 
 		virtual void	handleDatabaseJobComplete(void* ref,DatabaseResult* result);
 		
+		virtual void	handleObjectReady(Object* object,DispatchClient* client, uint64 hopper);
+
 		FactoryFamily	getFactoryFamily(){ return mFactoryFamily; }
 		void			setFactoryFamily(FactoryFamily ff){ mFactoryFamily = ff; }
 

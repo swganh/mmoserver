@@ -22,6 +22,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "ManufacturingSchematic.h"
 #include "Medicine.h"
 #include "ObjectFactoryCallback.h"
+#include "TangibleFactory.h"
 #include "Scout.h"
 #include "SurveyTool.h"
 #include "TravelTicket.h"
@@ -123,7 +124,6 @@ void ItemFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 						" UNION (SELECT \'resource_containers\',resource_containers.id FROM resource_containers WHERE (parent_id=%"PRIu64"))",
 						item->getId(),item->getId());
 				
-				return;
 			}
 
 			//
@@ -143,8 +143,12 @@ void ItemFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 			item->setLoadCount((uint32)count);
 
-			DataBinding* mBinding = mDatabase->CreateDataBinding(1);
-			mBinding->addField(DFT_uint64,0,8);
+			Type1_QueryContainer queryContainer;
+
+			DataBinding*	binding = mDatabase->CreateDataBinding(2);
+			binding->addField(DFT_bstring,offsetof(Type1_QueryContainer,mString),64,0);
+			binding->addField(DFT_uint64,offsetof(Type1_QueryContainer,mId),8,1);
+
 
 			// nothing to load ? handle our callback immediately
 			if(!count)
@@ -154,16 +158,25 @@ void ItemFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				return;
 			}
 
-			//enter us on the loadmap for future reference
+			//otherwise enter us on the loadmap for future reference
 			mObjectLoadMap.insert(std::make_pair(item->getId(),new(mILCPool.ordered_malloc()) InLoadingContainer(item,asyncContainer->mOfCallback,asyncContainer->mClient,static_cast<uint32>(count))));
-
-			uint64 itemId;
 
 			// request all children
 			for(uint64 i = 0;i < count;i++)
 			{
-				result->GetNextRow(mBinding,&itemId);
-				requestObject(this,itemId, 0, 0, asyncContainer->mClient);
+				result->GetNextRow(binding,&queryContainer);
+				
+				if(strcmp(queryContainer.mString.getAnsi(),"items") == 0)
+				{
+					requestObject(this,queryContainer.mId, 0, 0, asyncContainer->mClient);
+				}
+				else
+				if(strcmp(queryContainer.mString.getAnsi(),"resource_containers") == 0)
+				{
+					gTangibleFactory->requestObject(this,queryContainer.mId,TanGroup_ResourceContainer, 0, asyncContainer->mClient);
+				}
+				
+				gLogger->logMsgF("ItemFactory::requested child %I64u from parent %I64u",MSG_HIGH,queryContainer.mId, item->getId());
 			}
 		}
 		break;

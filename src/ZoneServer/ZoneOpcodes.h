@@ -100,7 +100,7 @@ enum zone_opcodes
 	opUpdatePvpStatusMessage			=	0x08a1c126,
 	opChange_Posture					=	0xab290245,
 	opOpenedContainer					=	0x2E11E4AB,
-	opClosedContainer					=	0x32B79B7E,
+	opClosedContainer					=	0x32B79B7E,	  //not functional serverpacket to client
 
 	//social
 	opFindFriendCreateWaypoint			=	0xDDA2B297,

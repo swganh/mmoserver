@@ -26,6 +26,10 @@ class CellObject :	public StaticObject
 
 	public:
 
+		//TODO : use the objectcontainer methods instead!
+		//please note that the objects need to stay in the worlmanager then though
+		//alternatively keep this for creatureObjects
+
 		CellObject();
 		CellObject(uint64 id,uint64 parentId,const string model = "object/cell/shared_cell.iff");
 		~CellObject();

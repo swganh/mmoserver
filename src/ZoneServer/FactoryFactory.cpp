@@ -12,12 +12,15 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "FactoryFactory.h"
 #include "Deed.h"
 #include "FactoryObject.h"
+#include "PlayerObject.h"
+#include "ResourceContainer.h"
 #include "TangibleFactory.h"
 #include "WorldManager.h"
 #include "LogManager/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
+#include "MessageLib/MessageLib.h"
 #include "Utils/utils.h"
 #include <assert.h>
 
@@ -66,6 +69,142 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 	switch(asyncContainer->mQueryType)
 	{
+		case FFQuery_HopperItemAttributeUpdate:
+		{
+
+			Type1_QueryContainer queryContainer;
+
+			DataBinding*	binding = mDatabase->CreateDataBinding(1);
+			binding->addField(DFT_bstring,offsetof(Type1_QueryContainer,mString),64,0);
+			//binding->addField(DFT_uint32,offsetof(Type1_QueryContainer,mVolume),4,1);
+
+			DataBinding*	binding2 = mDatabase->CreateDataBinding(1);
+			binding2->addField(DFT_uint32,offsetof(Type1_QueryContainer,mVolume),4,0);
+
+			uint64 count;
+			count = result->getRowCount();
+
+
+			for(uint64 i = 0;i < count;i++)
+			{
+				//get ourselves the item we want to update the volume / amount
+				TangibleObject* tangible = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(asyncContainer->mId));
+				if(!tangible)
+				{
+					gLogger->logMsg("FactoryFactory::FFQuery_HopperItemAttributeUpdate No tangible :(");
+					return;
+				}
+				Item* item = dynamic_cast<Item*>(tangible);
+				if(item)
+				{
+
+					result->GetNextRow(binding,&queryContainer);				
+					if(tangible->hasAttribute("volume"))
+					{
+						tangible->setAttribute("volume",queryContainer.mString.getAnsi());
+					}
+				}
+				//ResourceContainer
+				ResourceContainer* rc = dynamic_cast<ResourceContainer*>(gWorldManager->getObjectById(queryContainer.mId));
+				if(rc)
+				{
+					result->GetNextRow(binding2,&queryContainer);				
+					rc->setAmount(queryContainer.mVolume);
+				}
+				
+			}
+			InLoadingContainer* ilc = _getObject(asyncContainer->mHopper);
+			
+			if((--ilc->mLoadCounter)== 0)
+			{
+				gLogger->logMsg("FactoryFactory: FFQuery_HopperItemAttributeUpdate attribute load ended item refresh!");
+				if(!(_removeFromObjectLoadMap(asyncContainer->mObject->getId())))
+					gLogger->logMsg("FactoryFactory: Failed removing object from loadmap");
+
+				ilc->mOfCallback->handleObjectReady(asyncContainer->mObject,ilc->mClient,asyncContainer->mHopper);
+
+				mILCPool.free(ilc);
+			}
+		
+
+
+		}
+		break;
+
+		case FFQuery_HopperUpdate:
+		{
+			//the player openened a factories hopper.
+			//we now asynchronically read the hopper and its content and update them when necessary
+			Type1_QueryContainer queryContainer;
+
+			DataBinding*	binding = mDatabase->CreateDataBinding(2);
+			binding->addField(DFT_bstring,offsetof(Type1_QueryContainer,mString),64,0);
+			binding->addField(DFT_uint64,offsetof(Type1_QueryContainer,mId),8,1);
+
+
+			uint64 count;
+			count = result->getRowCount();
+			if(!count)
+			{
+				asyncContainer->mOfCallback->handleObjectReady(asyncContainer->mObject,asyncContainer->mClient,asyncContainer->mHopper);
+				return;
+			}
+
+			//asyncContainer->mId == HOPPER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
+			mObjectLoadMap.insert(std::make_pair(asyncContainer->mId,new(mILCPool.ordered_malloc()) InLoadingContainer(asyncContainer->mObject,asyncContainer->mOfCallback,asyncContainer->mClient,(uint32)count)));
+
+			for(uint64 i = 0;i < count;i++)
+			{
+				result->GetNextRow(binding,&queryContainer);				
+				
+				//read in the ID - find the item in the world or load it newly
+				if(strcmp(queryContainer.mString.getAnsi(),"item") == 0)
+				{
+					Item* item = dynamic_cast<Item*>(gWorldManager->getObjectById(queryContainer.mId));
+					if(!item)
+					{
+						//the item is new - load it over the itemfactory
+						gTangibleFactory->requestObject(this,queryContainer.mId,TanGroup_Item,0,asyncContainer->mClient);
+											
+					}
+					//else update relevant attributes
+					else
+					{
+						QueryContainerBase* asynContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,FFQuery_HopperItemAttributeUpdate,asyncContainer->mClient,queryContainer.mId);
+						asynContainer->mObject = asyncContainer->mObject;
+						asynContainer->mHopper = asyncContainer->mHopper;
+						
+						mDatabase->ExecuteSqlAsync(this,asynContainer,
+								//"(SELECT \'item\',id FROM items WHERE parent_id = %"PRIu64")"
+								"SELECT \'item\',value FROM item_attributes WHERE item_id = %"PRIu64" AND attribute_id = 1"
+								,queryContainer.mId);
+					}
+				}
+
+				if(strcmp(queryContainer.mString.getAnsi(),"resource") == 0)
+				{
+					ResourceContainer* rc = dynamic_cast<ResourceContainer*>(gWorldManager->getObjectById(queryContainer.mId));
+					if(!rc)
+					{
+						//the container is new - load it over the itemfactory
+						gTangibleFactory->requestObject(this,queryContainer.mId,TanGroup_ResourceContainer,0,asyncContainer->mClient);
+											
+					}
+					else
+					{
+						QueryContainerBase* asynContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,FFQuery_HopperItemAttributeUpdate,asyncContainer->mClient,queryContainer.mId);
+						asynContainer->mObject = asyncContainer->mObject;
+						asynContainer->mHopper = asyncContainer->mHopper;
+						
+						mDatabase->ExecuteSqlAsync(this,asynContainer,
+								//"(SELECT \'item\',id FROM items WHERE parent_id = %"PRIu64")"
+								"SELECT \'resource\',amount FROM resource_containers WHERE id= %"PRIu64""
+								,queryContainer.mId);
+					}
+				}
+			}
+		}
+		break;
 		
 		case FFQuery_AttributeData:
 		{
@@ -207,7 +346,18 @@ void FactoryFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,u
 	mDatabase->ExecuteSqlAsync(this,asynContainer,hmm);
 }
 
+//the factories hopper is accessed - update the hoppers contents
+void FactoryFactory::upDateHopper(ObjectFactoryCallback* ofCallback,uint64 hopperId, DispatchClient* client, FactoryObject* factory )
+{
+	QueryContainerBase* asynContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,FFQuery_HopperUpdate,client,hopperId);
+	asynContainer->mObject = factory;
+	asynContainer->mHopper = hopperId;
 
+	mDatabase->ExecuteSqlAsync(this,asynContainer,
+			"(SELECT \'item\',id FROM items WHERE parent_id = %"PRIu64")"
+			" UNION (SELECT \'resource\',id FROM resource_containers WHERE parent_id = %"PRIu64")"
+			,hopperId,hopperId);
+}
 //=============================================================================
 
 void FactoryFactory::_setupDatabindings()
@@ -250,42 +400,85 @@ void FactoryFactory::_destroyDatabindings()
 
 void FactoryFactory::handleObjectReady(Object* object,DispatchClient* client)
 {
-	//*ONLY* used to load in and out put hopper
+	//On serverstartup or factory create used to load in and out put hopper on factory create and to load hopper content
+	//On runtime used to load hopper content when we access a hopper or to create a new factory
+	//ILC ID on hoppercontent load is the hoppers ID
+
 	InLoadingContainer* ilc = _getObject(object->getParentId());
 	FactoryObject*		factory = dynamic_cast<FactoryObject*>(ilc->mObject);
 	if(!factory)
 	{
-			gLogger->logMsg("FactoryFactory::handleObjectReady No factory :(");
-	}
+		factory = NULL;
 
-	//add hopper to worldObjectlist, but NOT to the SI
+	}
+	
+	//add hopper / new item to worldObjectlist, but NOT to the SI
 	gWorldManager->addObject(object,true);
 
-	Item* item = dynamic_cast<Item*>(object);
-	if(!item)
-	{
-			gLogger->logMsg("FactoryFactory::handleObjectReady No hopper :(");
+	//do we have a valid Object?
+	TangibleObject* tangible = dynamic_cast<TangibleObject*>(object);
+	if(!tangible)
+	{		   	
+		gLogger->logMsg("FactoryFactory: No Tangible on handleObjectReady!!!!!!!!!!!!!!!!");
+		return;
 	}
 
-	if(strcmp(item->getName().getAnsi(),"ingredient_hopper")==0)
+	uint64 parent = 0;
+	if(strcmp(tangible->getName().getAnsi(),"ingredient_hopper")==0)
 	{
-		gLogger->logMsg("FactoryFactory: IngredientHopper!!!!!!!!!!!!!!!!");
 		factory->setIngredientHopper(object->getId());
 	}
 	else
-	if(strcmp(item->getName().getAnsi(),"output_hopper")==0)
+	if(strcmp(tangible->getName().getAnsi(),"output_hopper")==0)
 	{
-		gLogger->logMsg("FactoryFactory: outputHopper!!!!!!!!!!!!!!!!");
 		factory->setOutputHopper(object->getId());
 	}
+	else
+	{
+		//its a tangible item of a hopper read in during runtime
+		TangibleObject* hopper;
+		if(factory->getOutputHopper() == tangible->getParentId())
+		{
+			hopper = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(factory->getOutputHopper()));
+		}
+		else
+		{
+			hopper = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(factory->getIngredientHopper()));
+		}
+
+		if(!hopper)
+		{
+			gLogger->logMsg("FactoryFactory: outputHopper not found on item load !!!!!!!");
+			assert(false);	
+		}
+
+		parent = hopper->getId();
+		hopper->addData(tangible);
+		//iterate through known players - several may have the hopper opened
+		const PlayerObjectSet* const inRangePlayers		= hopper->getKnownPlayers();
+		PlayerObjectSet::const_iterator	itiR			= inRangePlayers->begin();
+		while(itiR != inRangePlayers->end())
+		{
+			PlayerObject* targetObject = (*itiR);
+			gMessageLib->sendCreateObject(tangible,targetObject);
+
+			++itiR;
+		}
+
+	}
+	
+	
 	
 	if(( --ilc->mLoadCounter) == 0)
 	{
-		if(!(_removeFromObjectLoadMap(factory->getId())))
+		if(!(_removeFromObjectLoadMap(object->getParentId())))
 			gLogger->logMsg("FactoryFactory: Failed removing object from loadmap");
 
 		factory->setLoadState(LoadState_Loaded);
-		ilc->mOfCallback->handleObjectReady(factory,ilc->mClient);
+		if(!parent)
+			ilc->mOfCallback->handleObjectReady(factory,ilc->mClient);
+		else
+			ilc->mOfCallback->handleObjectReady(factory,ilc->mClient,parent);
 
 		mILCPool.free(ilc);
 	}

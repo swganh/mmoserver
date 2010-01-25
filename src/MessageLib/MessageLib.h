@@ -86,7 +86,7 @@ public:
 	bool				sendCreateCamp(TangibleObject* camp,PlayerObject* player);
 	bool				sendCreateCreature(CreatureObject* creatureObject,PlayerObject* targetObject);
 	bool				sendCreatePlayer(PlayerObject* playerObject,PlayerObject* targetObject);
-	bool				sendCreateTangible(TangibleObject* tangibleObject,const PlayerObject* const targetObject) const;
+	bool				sendCreateTangible(TangibleObject* tangibleObject,const PlayerObject* const targetObject);
 	void				sendInventory(PlayerObject* playerObject);
 	bool				sendEquippedItems(PlayerObject* srcObject,PlayerObject* targetObject);
 	bool				sendCreateInstallation(PlayerStructure* structure,PlayerObject* player);

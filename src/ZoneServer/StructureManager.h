@@ -104,6 +104,7 @@ enum Structure_Async_CommandEnum
 
 struct StructureAsyncCommand
 {
+	uint64						HopperId;
 	uint64						StructureId;
 	uint64						PlayerId;
 	uint64						RecipientId;

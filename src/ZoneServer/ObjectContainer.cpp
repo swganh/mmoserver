@@ -117,3 +117,74 @@ ObjectIDList::iterator ObjectContainer::removeData(ObjectIDList::iterator it)
 	it = mData.erase(it);
 return it;
 }
+
+
+bool ObjectContainer::addWatcher(Object* Data) 
+{ 
+
+	mWatchers.push_back(Data->getId()); 
+	//PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getParentId()));					
+	return true;
+
+}
+
+//=============================================================================
+
+Object* ObjectContainer::getWatcherById(uint64 id)
+{
+	ObjectIDList::iterator it = mWatchers.begin();
+
+	while(it != mWatchers.end())
+	{
+		if((*it) == id) 
+			return(gWorldManager->getObjectById((*it))); 
+
+		++it;
+	}
+	gLogger->logMsgF("ObjectContainer::getWatcherById Data %I64u not found",MSG_HIGH, id);
+	return NULL;
+}
+
+//=============================================================================
+
+bool ObjectContainer::removeWatcher(Object* data)
+{
+	ObjectIDList::iterator it = mWatchers.begin();
+	while(it != mWatchers.end())
+	{
+		if((*it) == data->getId())
+		{
+			it = mWatchers.erase(it);
+			return true;
+		}
+		++it;
+	}
+	gLogger->logMsgF("ObjectContainer::removeWatcherByPointer Data %I64u not found",MSG_HIGH, data->getId());
+	return false;
+}
+
+//=============================================================================
+
+bool ObjectContainer::removeWatcher(uint64 id)
+{
+	ObjectIDList::iterator it = mWatchers.begin();
+	while(it != mWatchers.end())
+	{
+		if((*it) == id)
+		{
+			it = mWatchers.erase(it);
+			return true;
+		}
+		++it;
+	}
+	gLogger->logMsgF("ObjectContainer::removeWatcherById  %I64u not found",MSG_HIGH, id);
+	return false;
+}
+
+//=============================================================================
+
+ObjectIDList::iterator ObjectContainer::removeWatcher(ObjectIDList::iterator it)
+{
+	it = mWatchers.erase(it);
+return it;
+}

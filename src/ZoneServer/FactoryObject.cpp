@@ -40,6 +40,38 @@ FactoryObject::~FactoryObject()
 }
 
 
+void FactoryObject::handleObjectReady(Object* object,DispatchClient* client, uint64 hopper)
+{
+	Item* item = dynamic_cast<Item*>(gWorldManager->getObjectById(hopper));
+	if(!item)
+	{
+		gLogger->logMsgF("FactoryObject::handleObjectReady::could not find Hopper",MSG_HIGH);
+		assert(false);
+	}
+
+	if((item->getId() == this->getIngredientHopper())||(item->getId() == this->getOutputHopper()))
+	{
+		gLogger->logMsgF("FactoryObject::handleObjectReady::handleObjectReady - Hopper found - open container",MSG_HIGH);
+		
+		PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getPlayerByAccId(client->getAccountId()));
+		if(player)
+		{
+			gMessageLib->sendOpenedContainer(item->getId(),player);
+		}
+		else
+		{
+			gLogger->logMsgF("FactoryObject::handleObjectReady::handleObjectReady - Player NOT found - open container",MSG_HIGH);
+		}
+
+		
+	}
+	else
+	{
+		gLogger->logMsgF("FactoryObject::handleObjectReady::could not find Hopper",MSG_HIGH);
+	}
+
+
+}
 
 
 //=============================================================================
@@ -50,7 +82,7 @@ void FactoryObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 	PlayerObject* player = dynamic_cast<PlayerObject*>(srcObject);
 	if(!player)
 	{	
-		gLogger->logMsgF("HarvesterObject::handleObjectMenuSelect::could not find player",MSG_HIGH);
+		gLogger->logMsgF("FactoryObject::handleObjectMenuSelect::could not find player",MSG_HIGH);
 		return;
 	}
 	

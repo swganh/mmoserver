@@ -382,6 +382,8 @@ bool MessageLib::sendCreatePlayer(PlayerObject* playerObject,PlayerObject* targe
 	sendBaselinesCREO_3(playerObject,targetObject);
 	sendBaselinesCREO_6(playerObject,targetObject);
 
+	sendEndBaselines(playerObject->getId(),targetObject);
+
 	sendCreateObjectByCRC(playerObject,targetObject,true);
 	sendContainmentMessage(playerObject->getPlayerObjId(),playerObject->getId(),4,targetObject);
 
@@ -393,8 +395,6 @@ bool MessageLib::sendCreatePlayer(PlayerObject* playerObject,PlayerObject* targe
 		sendBaselinesPLAY_8(playerObject,targetObject);
 		sendBaselinesPLAY_9(playerObject,targetObject);
 	}
-
-	sendEndBaselines(playerObject->getPlayerObjId(),targetObject);
 
 	sendPostureMessage(playerObject,targetObject);
 
@@ -415,6 +415,7 @@ bool MessageLib::sendCreatePlayer(PlayerObject* playerObject,PlayerObject* targe
 
 	if(targetObject == playerObject)
 	{
+		
 		// create inventory and contents
 		if(dynamic_cast<TangibleObject*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)))
 		{
@@ -508,14 +509,15 @@ bool MessageLib::sendCreatePlayer(PlayerObject* playerObject,PlayerObject* targe
 		}
 
 
-		sendEndBaselines(playerObject->getId(),targetObject);
+
 	}
 	else
 	{
-		sendEndBaselines(playerObject->getId(),targetObject);
-
+		//sendEndBaselines(playerObject->getId(),targetObject);
 		sendEquippedItems(playerObject,targetObject);
 	}
+	
+	sendEndBaselines(playerObject->getPlayerObjId(),targetObject);
 
 	sendUpdatePvpStatus(playerObject,targetObject);
 
@@ -650,8 +652,6 @@ bool MessageLib::sendCreateTangible(TangibleObject* tangibleObject,const PlayerO
 	//sendBaselinesTANO_9(tangibleObject,targetObject);
 	//}
 
-	sendEndBaselines(tangibleObject->getId(),targetObject);
-
 	//todo : facilitate destruction, too!!!
 	//question - is a contained object destroyed by hand or does the client automatically get rid of it once 
 	//the containing container is destroyed
@@ -661,6 +661,7 @@ bool MessageLib::sendCreateTangible(TangibleObject* tangibleObject,const PlayerO
 	ObjectIDList*			ol = tangibleObject->getData();
 	ObjectIDList::iterator	it = ol->begin();
 
+	//gLogger->logMsgF("Now add our children (container %I64u)",MSG_HIGH,tangibleObject->getId());
 	while(it != ol->end())
 	{
 		TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)));
@@ -669,17 +670,19 @@ bool MessageLib::sendCreateTangible(TangibleObject* tangibleObject,const PlayerO
 			assert(false);
 		}
 
-		if(!targetObject->checkKnownObjects(tO))
-		{				
+		//if(!targetObject->checkKnownObjects(tO))
+		//{				
 			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetObject->getId()));
 			sendCreateObject(tO,player,false);
+			gLogger->logMsgF("added child %I64u to container %I64u",MSG_HIGH,tO->getId(),tO->getParentId());
 			player->addKnownObjectSafe(tO);
 			tO->addKnownObjectSafe(player);
-		}
+		//}
 
 		it++;
 	}
 
+	sendEndBaselines(tangibleObject->getId(),targetObject);
 
 	return(true);
 }
@@ -738,12 +741,10 @@ bool MessageLib::sendCreateResourceContainer(ResourceContainer* resourceContaine
 	uint64 parentId = resourceContainer->getParentId();
 
 
-	if(parentId)
-	{
-		sendContainmentMessage(resourceContainer->getId(),parentId,0xffffffff,targetObject);
-		//gLogger->logMsgF("rcno baseline :: parent Id : %I64u",MSG_NORMAL,parentId);
-	}
+	gLogger->logMsgF("rcno baseline :: parent Id : %I64u",MSG_NORMAL,parentId);
 
+	sendContainmentMessage(resourceContainer->getId(),parentId,0xffffffff,targetObject);	
+	
 	sendBaselinesRCNO_3(resourceContainer,targetObject);
 	sendBaselinesRCNO_6(resourceContainer,targetObject);
 
@@ -983,8 +984,6 @@ void MessageLib::sendInventory(PlayerObject* playerObject)
 	sendBaselinesTANO_3(inventory,playerObject);
 	sendBaselinesTANO_6(inventory,playerObject);
 
-	sendEndBaselines(inventory->getId(),playerObject);
-
 	// create objects contained
 	ObjectList* invObjects		= inventory->getObjects();
 	ObjectList::iterator objIt	= invObjects->begin();
@@ -1011,11 +1010,13 @@ void MessageLib::sendInventory(PlayerObject* playerObject)
 		{
 			//gLogger->logMsgF("MessageLib::inventory:Tangible  %I64u parentId %I64u",MSG_HIGH,tangible->getId(),tangible->getParentId());
 			sendCreateTangible(tangible,playerObject);
-			sendItemChildren(tangible,playerObject);
+			//sendItemChildren(tangible,playerObject);
 		}
 
 		++objIt;
 	}
+
+	sendEndBaselines(inventory->getId(),playerObject);
 
 	invObjects		= inventory->getEquippedObjects();
 	objIt			= invObjects->begin();

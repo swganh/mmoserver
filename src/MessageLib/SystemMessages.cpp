@@ -13,6 +13,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include "ZoneServer/ObjectFactory.h"
 #include "ZoneServer/PlayerObject.h"
+#include "ZoneServer/WorldManager.h"
 #include "ZoneServer/PlayerStructure.h"
 #include "ZoneServer/ZoneOpcodes.h"
 
@@ -171,6 +172,26 @@ void MessageLib::sendSoldInstantMail(uint64 oldOwner, PlayerObject* newOwner, st
 	aMS->addDI(playerObject->getLots());
 	aMS->addTOstf(structure->getNameFile(),structure->getName());
 	aMS->addTextModule();
+
+	string planet;
+	planet = gWorldManager->getPlanetNameThis();
+	planet.toLowerFirst();
+	
+	string wText = "";
+	string name = structure->getCustomName();
+	name.convert(BSTRType_ANSI);
+	wText << name.getAnsi();	
+	
+	
+	if(!structure->getCustomName().getLength())
+	{
+		//wText = "@player_structure:structure_name_prompt ";
+		wText <<"@"<<structure->getNameFile().getAnsi()<<":"<<structure->getName().getAnsi();		
+	}
+
+	aMS->setPlanetString(planet);
+	aMS->setWP(static_cast<float>(structure->mPosition.mX), static_cast<float>(structure->mPosition.mY), 0, name);
+	aMS->addWaypoint();
 
 
 	gMessageFactory->StartMessage();

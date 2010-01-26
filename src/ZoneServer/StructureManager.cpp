@@ -652,7 +652,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 				return;
 			}
 
-			gFactoryFactory->upDateHopper(factory,factory->getIngredientHopper(),player->getClient(),factory);
+			gFactoryFactory->upDateHopper(factory,factory->getOutputHopper(),player->getClient(),factory);
 			return;
 
 			//are we already known ???

@@ -288,7 +288,7 @@ void PlayerStructure::handleUIEvent(string strCharacterCash, string strHarvester
 				}
 
 				//update the remaining damage in the db
-				gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE structures SET condition='%u' WHERE id=%"PRIu64"",damage,this->getId());
+				gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE structures s SET s.condition= %u WHERE s.ID=%"PRIu64"",damage,this->getId());
 				this->setDamage(damage);
 
 				//Update the structures Condition

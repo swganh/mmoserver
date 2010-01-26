@@ -254,7 +254,7 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 			//mObjectLoadMap.insert(std::make_pair(datapad->getId(),new(mILCPool.ordered_malloc()) InLoadingContainer(datapad,asyncContainer->mOfCallback,asyncContainer->mClient,static_cast<uint32>(count))));
 
-			mObjectLoadMap.insert(std::make_pair(factory->getId(),new(mILCPool.ordered_malloc()) InLoadingContainer(factory,asyncContainer->mOfCallback,NULL,2)));
+			mObjectLoadMap.insert(std::make_pair(factory->getId(),new(mILCPool.ordered_malloc()) InLoadingContainer(factory,asyncContainer->mOfCallback,asyncContainer->mClient,2)));
 
 			for(uint32 i = 0;i < count;i++)
 			{

@@ -55,9 +55,6 @@ void UIListBox::handleEvent(Message* message)
 	string	caption;
 	int32	selectedItem		= -1;
 
-	gLogger->logMsg("UIListBox::handleEvent: ");
-	gLogger->hexDump(message->getData(),message->getSize());
-
 	if(items)
 	{
 		message->getUint32(); // item count again

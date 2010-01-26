@@ -119,8 +119,6 @@ void UIManager::_processEventNotification(Message* message,DispatchClient* clien
 	uint32		windowId	= message->getUint32();
 	UIWindow*	window		= getUIWindow(windowId);
 
-	gLogger->logMsgF("UI Event %u",MSG_HIGH,windowId);
-
 	if(window == NULL)
 	{
 		gLogger->logMsgF("UIManager::_processEventNotification: could not find window %u",MSG_HIGH,windowId);

@@ -81,7 +81,7 @@ bool MessageLib::sendBaselinesTANO_3(const TangibleObject* const tangibleObject,
 	gMessageFactory->addUint32(tangibleObject->getMaxCondition());
 	
 	//1 when not moveable
-	gMessageFactory->addUint8(1);	// 
+	gMessageFactory->addUint8(0);	// 
 	
 
 	message = gMessageFactory->EndMessage();

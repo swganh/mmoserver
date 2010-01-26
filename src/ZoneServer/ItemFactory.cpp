@@ -383,6 +383,8 @@ void ItemFactory::handleObjectReady(Object* object,DispatchClient* client)
 	
 	InLoadingContainer* ilc	= _getObject(object->getParentId());
 	Item*		item	= dynamic_cast<Item*>(ilc->mObject);
+	// we can get factory crates, resource continers and other items at this point
+	// when they are children of our containeritem
 
 	assert(ilc);
 	ilc->mLoadCounter --;

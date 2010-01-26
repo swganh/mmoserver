@@ -246,7 +246,7 @@ void HarvesterObject::prepareCustomRadialMenu(CreatureObject* creatureObject, ui
 	radial->addItem(5,2,radId_StructureStatus,radAction_ObjCallback,"Status");//destroy
 	radial->addItem(6,2,radId_payMaintenance,radAction_ObjCallback,"Pay Maintenance");//destroy
 	radial->addItem(7,2,radId_setName,radAction_ObjCallback,"Set Name");//destroy
-	radial->addItem(8,2,radId_operateHarvester,radAction_ObjCallback,"operate Harvester");//destroy
+	radial->addItem(8,2,radId_operateHarvester,radAction_ObjCallback,"Operate Harvester");//destroy
 
 	
 	//generators dont need power

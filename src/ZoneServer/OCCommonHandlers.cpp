@@ -1274,7 +1274,13 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 		cell->addChild(itemObject);
 
 		gMessageLib->sendContainmentMessage(targetId,targetContainerId,linkType,playerObject);
-		mDatabase->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id ='%I64u', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",itemObject->getParentId(), itemObject->mDirection.mY, itemObject->mDirection.mZ, itemObject->mDirection.mW, itemObject->mPosition.mX, itemObject->mPosition.mY, itemObject->mPosition.mZ, itemObject->getId());
+		
+		ResourceContainer* rc = dynamic_cast<ResourceContainer*>(itemObject);
+		//gObjectFactory->GiveNewOwnerInDB(itemObject,targetContainerId);
+		if(rc)
+			mDatabase->ExecuteSqlAsync(0,0,"UPDATE resource_containers SET parent_id ='%I64u', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",itemObject->getParentId(), itemObject->mDirection.mY, itemObject->mDirection.mZ, itemObject->mDirection.mW, itemObject->mPosition.mX, itemObject->mPosition.mY, itemObject->mPosition.mZ, itemObject->getId());
+		else
+			mDatabase->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id ='%I64u', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",itemObject->getParentId(), itemObject->mDirection.mY, itemObject->mDirection.mZ, itemObject->mDirection.mW, itemObject->mPosition.mX, itemObject->mPosition.mY, itemObject->mPosition.mZ, itemObject->getId());
 
 		// NOTE: It's quite possible to have the player update do this kind of updates manually,
 		// but that will have a performance cost we don't ready to take yet.
@@ -1300,9 +1306,8 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 		itemObject->setParentId(targetContainerId);
 		inventory->addObject(itemObject);
 		gMessageLib->sendContainmentMessage(targetId,targetContainerId,linkType,playerObject);
-		//gMessageLib->sendCreateTangible(tangible,playerObject);
-		// mDatabase->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id=%I64u, privateowner_id=%I64u WHERE id=%I64u" ,targetContainerId, itemObject->getPrivateOwner(), targetId);
-		mDatabase->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id ='%I64u', oY='0', oZ='0', oW='0', x='0', y='0', z='0' WHERE id='%I64u'",itemObject->getParentId(), itemObject->getId());
+		
+		gObjectFactory->GiveNewOwnerInDB(itemObject,targetContainerId);
 		return;
 		
 	}
@@ -1317,6 +1322,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 
 		itemObject->setParentId(targetContainerId);
 		mDatabase->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id=%I64u WHERE id=%I64u" ,targetContainerId, targetId);
+		gObjectFactory->GiveNewOwnerInDB(itemObject,targetContainerId);
 		gMessageLib->sendContainmentMessage(targetId,targetContainerId,linkType,playerObject);
 		return;
 	}
@@ -1339,7 +1345,9 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 		receivingContainer->addData(itemObject);
 		itemObject->setParentId(receivingContainer->getId());
 		gMessageLib->sendContainmentMessage(targetId,targetContainerId,linkType,playerObject);
-		mDatabase->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id ='%I64u', oY='0', oZ='0', oW='0', x='0', y='0', z='0' WHERE id='%I64u'",itemObject->getParentId(), itemObject->getId());
+		
+		gObjectFactory->GiveNewOwnerInDB(itemObject,targetContainerId);
+		//mDatabase->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id ='%I64u', oY='0', oZ='0', oW='0', x='0', y='0', z='0' WHERE id='%I64u'",itemObject->getParentId(), itemObject->getId());
 	}
 	
 

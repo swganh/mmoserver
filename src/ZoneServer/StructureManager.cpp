@@ -587,20 +587,14 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 void StructureManager::OpenStructureHopperList(uint64 structureId, uint64 playerId)
 {
 	// load our structures Admin data
-	//
-	HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(gWorldManager->getObjectById(structureId));
-	if(!harvester)
-	{
-		gLogger->logMsgF("OpenStructureHopperList : No harvester :(",MSG_HIGH);
-		return;
-	}
+	//	
 
 	StructureManagerAsyncContainer* asyncContainer;
 	asyncContainer = new StructureManagerAsyncContainer(Structure_Query_Hopper_Data, 0);
 	asyncContainer->mStructureId = structureId;
 	asyncContainer->mPlayerId = playerId;
 
-	mDatabase->ExecuteSqlAsync(harvester,asyncContainer,"SELECT c.firstname FROM structure_admin_data sad  INNER JOIN characters c ON (sad.PlayerID = c.ID)where sad.StructureID = %I64u AND sad.AdminType like 'HOPPER'",structureId);
+	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT c.firstname FROM structure_admin_data sad  INNER JOIN characters c ON (sad.PlayerID = c.ID)where sad.StructureID = %I64u AND sad.AdminType like 'HOPPER'",structureId);
 
 }
 

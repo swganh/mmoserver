@@ -509,31 +509,6 @@ void HarvesterObject::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 		}
 		break;
 
-		case Structure_Query_Hopper_Data:
-		{
-			//PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(asynContainer->mStructureId));
-
-			string playerName;
-			DataBinding* binding = gWorldManager->getDatabase()->CreateDataBinding(1);
-			binding->addField(DFT_bstring,0,64);
-
-			uint64 count;
-			count = result->getRowCount();
-
-			for(uint64 i = 0;i < count;i++)
-			{
-				result->GetNextRow(binding,&playerName);
-
-				addStructureHopper(playerName);
-
-			}
-
-			sendStructureHopperList(asynContainer->mPlayerId);
-
-			gWorldManager->getDatabase()->DestroyDataBinding(binding);
-		}
-		break;
-
 		case Structure_HopperDiscard:
 		{
 			//PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(asynContainer->mStructureId));

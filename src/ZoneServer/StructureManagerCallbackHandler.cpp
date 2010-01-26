@@ -73,6 +73,31 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 	switch(asynContainer->mQueryType)
 	{
 
+		case Structure_Query_Hopper_Data:
+		{
+			PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(asynContainer->mStructureId));
+
+			string playerName;
+			DataBinding* binding = gWorldManager->getDatabase()->CreateDataBinding(1);
+			binding->addField(DFT_bstring,0,64);
+
+			uint64 count;
+			count = result->getRowCount();
+
+			for(uint64 i = 0;i < count;i++)
+			{
+				result->GetNextRow(binding,&playerName);
+
+				structure->addStructureHopper(playerName);
+
+			}
+
+			structure->sendStructureHopperList(asynContainer->mPlayerId);
+
+			gWorldManager->getDatabase()->DestroyDataBinding(binding);
+		}
+		break;
+
 		//asynchronously updates the playerlots for a character
 		case Structure_UpdateCharacterLots:
 		{
@@ -411,8 +436,8 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 			{
 				string name;
 				name = asynContainer->name;
-				//name.convert(BSTRType_Unicode16);
-				gMessageLib->sendSystemMessage(player,L"","player_structure","player_removed","",name.getAnsi());
+				name.convert(BSTRType_Unicode16);
+				gMessageLib->sendSystemMessage(player,L"","player_structure","player_added","","",name.getUnicode16());
 			}
 
 			if(returnValue == 1)
@@ -479,7 +504,9 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 			{
 				string name;
 				name = asynContainer->name;
-				gMessageLib->sendSystemMessage(player,L"","player_structure","player_added","",name.getAnsi());
+				//gMessageLib->sendSystemMessage(player,L"","player_structure","player_added","",name.getAnsi());
+				name.convert(BSTRType_Unicode16);
+				gMessageLib->sendSystemMessage(player,L"","player_structure","player_added","","",name.getUnicode16());
 			}
 
 			if(returnValue == 1)

@@ -118,7 +118,7 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			if((--ilc->mLoadCounter)== 0)
 			{
 				gLogger->logMsg("FactoryFactory: FFQuery_HopperItemAttributeUpdate attribute load ended item refresh!");
-				if(!(_removeFromObjectLoadMap(asyncContainer->mObject->getId())))
+				if(!(_removeFromObjectLoadMap(asyncContainer->mHopper)))
 					gLogger->logMsg("FactoryFactory: Failed removing object from loadmap");
 
 				ilc->mOfCallback->handleObjectReady(asyncContainer->mObject,ilc->mClient,asyncContainer->mHopper);

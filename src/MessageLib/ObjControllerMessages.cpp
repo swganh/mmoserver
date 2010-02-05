@@ -1045,16 +1045,16 @@ bool MessageLib::sendDraftslotsResponse(DraftSchematic* schematic,PlayerObject* 
 		gMessageFactory->addString(slot->getComponentName());
 		gMessageFactory->addString(slot->getResourceName());
 
-		if((slot->getType())==2)
+		if((slot->getType())== DST_IdentComponent)
 		{
-			gMessageFactory->addUint8(2);
-			gMessageFactory->addUint32(slot->getAmount());
+			gMessageFactory->addUint8(slot->getType());
+			gMessageFactory->addUint32(slot->getNecessaryAmount());
 			gMessageFactory->addUint16(0);
 		}
 		else
 		{
 			gMessageFactory->addUint8(slot->getType());
-			gMessageFactory->addUint32(slot->getAmount());
+			gMessageFactory->addUint32(slot->getNecessaryAmount());
 		}
 
 
@@ -1719,16 +1719,16 @@ bool MessageLib::sendManufactureSlots(ManufacturingSchematic* manSchem,CraftingT
 		gMessageFactory->addString(slot->getComponentName());
 		gMessageFactory->addString(slot->getResourceName());
 
-		if((slot->getType()) == 2)
+		if((slot->getType()) == DST_IdentComponent)
 		{
-			gMessageFactory->addUint8(2);
-			gMessageFactory->addUint32(slot->getAmount());
+			gMessageFactory->addUint8(slot->getType());
+			gMessageFactory->addUint32(slot->getNecessaryAmount());
 			gMessageFactory->addUint16(0);
 		}
 		else
 		{
 			gMessageFactory->addUint8(slot->getType());
-			gMessageFactory->addUint32(slot->getAmount());
+			gMessageFactory->addUint32(slot->getNecessaryAmount());
 		}
 
 		++it;

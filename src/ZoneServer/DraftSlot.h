@@ -17,6 +17,14 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 //=============================================================================
 
+enum DSType
+{
+	DST_Empty				= 0,	
+	DST_IdentComponent		= 2,
+	DST_Resource			= 4,
+	DST_SimiliarComponent	= 5
+};
+
 class DraftSlot
 {
 	friend class SchematicManager;
@@ -32,10 +40,15 @@ class DraftSlot
 		void	setComponentFile(string file){ mFile = file; }
 		string	getResourceName(){ return mResourceName; }
 		void	setResourceName(string res){ mResourceName = res; }
-		uint32	getAmount(){ return mAmount; }
-		void	setAmount(uint32 amount){ mAmount = amount; }
+		
+		//the amount necessary to fill the slot
+		uint32	getNecessaryAmount(){ return mAmount; }
+		void	setNecessaryAmount(uint32 amount){ mAmount = amount; }
+		
+		//the type of res / component to fill
 		uint8	getType(){ return mType; }
 		void	setType(uint8 type){ mType = type; }
+		
 		uint8	getOptional(){ return mOptional; }
 		void	setOptional(uint8 optional){ mOptional = optional; }
 		
@@ -46,10 +59,7 @@ class DraftSlot
 		string	mFile;
 		string	mResourceName;
 		uint32	mAmount;
-		//type gives the type of resource
-		//2 is identical component
-		//4 is resource
-		//5 is similiar component
+		
 		uint8	mType;
 		uint8	mOptional;
 };

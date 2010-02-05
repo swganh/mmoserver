@@ -196,8 +196,7 @@ void ObjectControllerCommandMap::_registerCppHooks()
 	mCommandMap.insert(std::make_pair(opOCsurvey,&ObjectController::_handleSurvey));
 	mCommandMap.insert(std::make_pair(opOCrequestcoresample,&ObjectController::_handleRequestCoreSample));
 	mCommandMap.insert(std::make_pair(opOCsample,&ObjectController::_handleSample));
-	mCommandMap.insert(std::make_pair(opOCresourcecontainertransfer,&ObjectController::_handleResourceContainerTransfer));
-	mCommandMap.insert(std::make_pair(opOCresourcecontainersplit, &ObjectController::_handleResourceContainerSplit));
+
 	mCommandMap.insert(std::make_pair(opOCrequestbadges,&ObjectController::_handleRequestBadges));
 	mCommandMap.insert(std::make_pair(opOCrequestwaypointatposition, &ObjectController::_handleRequestWaypointAtPosition));
 	mCommandMap.insert(std::make_pair(opOCsetwaypointactivestatus, &ObjectController::_handleSetWaypointActiveStatus));
@@ -215,6 +214,11 @@ void ObjectControllerCommandMap::_registerCppHooks()
 
 	mCommandMap.insert(std::make_pair(opOCLogoutClient,&ObjectController::_handleClientLogout));
 	mCommandMap.insert(std::make_pair(opOCburstrun,&ObjectController::_BurstRun));
+
+	mCommandMap.insert(std::make_pair(opOCFactoryCrateSplit,&ObjectController::_handleFactoryCrateSplit));
+	mCommandMap.insert(std::make_pair(opOCExtractObject,&ObjectController::_ExtractObject));
+	mCommandMap.insert(std::make_pair(opOCresourcecontainertransfer,&ObjectController::_handleResourceContainerTransfer));
+	mCommandMap.insert(std::make_pair(opOCresourcecontainersplit, &ObjectController::_handleResourceContainerSplit));
 	
 
 

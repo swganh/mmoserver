@@ -50,6 +50,7 @@ class ItemFactory : public FactoryBase, public ObjectFactoryCallback
 
 		void					handleDatabaseJobComplete(void* ref,DatabaseResult* result);
 		void					requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
+		void					requestContainerContent(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client, uint32 depth = 0);
 
 	private:
 

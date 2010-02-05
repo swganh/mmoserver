@@ -40,6 +40,13 @@ FactoryObject::~FactoryObject()
 }
 
 
+//========================================================================0
+// we only handle the hoppers here
+// we get here on runtime when the last content has been loaded from db
+// respectively if the content update is done
+// when it is processed it sends the open container - by this we ensure, that the
+// hopper is up to date when the player sees it
+
 void FactoryObject::handleObjectReady(Object* object,DispatchClient* client, uint64 hopper)
 {
 	Item* item = dynamic_cast<Item*>(gWorldManager->getObjectById(hopper));
@@ -72,6 +79,7 @@ void FactoryObject::handleObjectReady(Object* object,DispatchClient* client, uin
 
 
 }
+
 
 
 //=============================================================================

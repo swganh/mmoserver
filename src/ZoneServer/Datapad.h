@@ -31,7 +31,7 @@ typedef std::vector<IntangibleObject*>			DataList;
 
 //=============================================================================
 
-class Datapad : public TangibleObject, public ObjectFactoryCallback
+class Datapad : public TangibleObject
 {
 	friend class DatapadFactory;
 

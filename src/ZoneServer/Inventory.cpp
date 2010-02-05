@@ -217,45 +217,35 @@ bool Inventory::updateCredits(int32 amount)
 
 void Inventory::handleObjectReady(Object* object,DispatchClient* client)
 {
-	if(TangibleObject* tangibleObject = dynamic_cast<TangibleObject*>(object))
+	TangibleObject* tangibleObject = dynamic_cast<TangibleObject*>(object);
+	if(!tangibleObject)
 	{
-		// reminder: objects are owned by the global map, inventory only keeps references
+		return;
+	}
+	
+	// reminder: objects are owned by the global map, inventory only keeps references
 
+	//generally we presume that objects are created UNEQUIPPED
+	gWorldManager->addObject(object,true);
 
-		//generally we presume that objects are created UNEQUIPPED
-		gWorldManager->addObject(object,true);
+	mObjects.push_back(object);
 
-		mObjects.push_back(object);
+	// send the creates, if we are owned by a player
+	if(PlayerObject* player = dynamic_cast<PlayerObject*>(mParent))
+	{
+		gMessageLib->sendCreateObject(object,player,false);
+	}
 
-		// send the creates, if we are owned by a player
-		if(PlayerObject* player = dynamic_cast<PlayerObject*>(mParent))
+	//check if we are a busy crafting tool
+	if(CraftingTool* tool = dynamic_cast<CraftingTool*>(object))
+	{
+		if(tool->getCurrentItem())
 		{
-			// could be a resource container, need to check this first, since it inherits from tangible
-			if(ResourceContainer* resCont = dynamic_cast<ResourceContainer*>(object))
-			{
-				//resource containers are stored in the db under the player ID
-				//however, it is important that the inventory contains them
-				resCont->setParentId(this->getId());
-				gMessageLib->sendCreateResourceContainer(resCont,player);
-			}
-			// or a tangible
-			else
-			{
-				object->setParentId(this->getId());
-				gMessageLib->sendCreateTangible(tangibleObject,player);
-			}
-		}
-
-		//check if we are a busy crafting tool
-		if(CraftingTool* tool = dynamic_cast<CraftingTool*>(object))
-		{
-			if(tool->getCurrentItem())
-			{
-				PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getParentId()));
-				gMessageLib->sendUpdateTimer(tool,player);
-			}
+			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getParentId()));
+			gMessageLib->sendUpdateTimer(tool,player);
 		}
 	}
+	
 }
 
 //=============================================================================

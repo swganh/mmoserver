@@ -450,7 +450,13 @@ bool MessageLib::sendCreatePlayer(PlayerObject* playerObject,PlayerObject* targe
 		// datapad
 		if(TangibleObject* datapad = dynamic_cast<TangibleObject*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad)))
 		{
-			gMessageLib->sendCreateTangible(datapad,playerObject);
+			sendContainmentMessage(datapad->getId(),datapad->getParentId(),4,playerObject);
+			sendBaselinesTANO_3(datapad,playerObject);
+			sendBaselinesTANO_6(datapad,playerObject);
+
+			//would be nice to use the tangibles objectcontainer for the datapad
+			//need to get missionobjects intangibles, Man Schematics, waypoints and stuff in though, so better do it manually
+			//gMessageLib->sendCreateTangible(datapad,playerObject);
 
 			//now iterate through the schematics and create them clientside
 			Datapad* dpad = dynamic_cast<Datapad*> (datapad);
@@ -501,7 +507,7 @@ bool MessageLib::sendCreatePlayer(PlayerObject* playerObject,PlayerObject* targe
 				++ite;
 			}
 
-
+			sendEndBaselines(datapad->getId(),playerObject); //close the datapad
 
 
 			//Should send accepted missions here
@@ -584,12 +590,15 @@ bool MessageLib::sendCreateCreature(CreatureObject* creatureObject,PlayerObject*
 // create tangible
 //
 
-bool MessageLib::sendCreateTangible(TangibleObject* tangibleObject,const PlayerObject* const targetObject) 
+bool MessageLib::sendCreateTangible(TangibleObject* tangibleObject,PlayerObject* targetObject, bool sendchildren) 
 {
 	//gLogger->logMsgF("MessageLib::send create tangible  %I64u name %s",MSG_HIGH,tangibleObject->getId(),tangibleObject->getName().getAnsi());
 
 	if(!_checkPlayer(targetObject))
+	{
+		gLogger->logMsgF("MessageLib::sendCreateTangible No valid player :(",MSG_HIGH);
 		return(false);
+	}
 
 	uint64 parentId = tangibleObject->getParentId();
 
@@ -642,20 +651,13 @@ bool MessageLib::sendCreateTangible(TangibleObject* tangibleObject,const PlayerO
 			sendContainmentMessage(tangibleObject->getId(),tangibleObject->getParentId(),4,targetObject);
 		}
 	}
+	else
+	{
+		sendContainmentMessage(tangibleObject->getId(),tangibleObject->getParentId(),0xffffffff,targetObject);
+	}
 
 	sendBaselinesTANO_3(tangibleObject,targetObject);
 	sendBaselinesTANO_6(tangibleObject,targetObject);
-
-	//if(tangibleObject->getTangibleGroup() != TanGroup_Terminal)
-	//{
-	//sendBaselinesTANO_8(tangibleObject,targetObject);
-	//sendBaselinesTANO_9(tangibleObject,targetObject);
-	//}
-
-	//todo : facilitate destruction, too!!!
-	//question - is a contained object destroyed by hand or does the client automatically get rid of it once 
-	//the containing container is destroyed
-
 
 	//now check whether we have children!!!
 	ObjectIDList*			ol = tangibleObject->getData();
@@ -670,15 +672,8 @@ bool MessageLib::sendCreateTangible(TangibleObject* tangibleObject,const PlayerO
 			assert(false);
 		}
 
-		//if(!targetObject->checkKnownObjects(tO))
-		//{				
-			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetObject->getId()));
-			sendCreateObject(tO,player,false);
-			gLogger->logMsgF("added child %I64u to container %I64u",MSG_HIGH,tO->getId(),tO->getParentId());
-			player->addKnownObjectSafe(tO);
-			tO->addKnownObjectSafe(player);
-		//}
-
+		PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetObject->getId()));
+		sendCreateObject(tO,player,false);
 		it++;
 	}
 
@@ -704,17 +699,31 @@ bool MessageLib::sendCreateFactoryCrate(FactoryCrate* crate,PlayerObject* target
 	uint64 parentId = crate->getParentId();
 
 
-	if(parentId)
-	{
-		sendContainmentMessage(crate->getId(),parentId,0xffffffff,targetObject);
-		//gLogger->logMsgF("rcno baseline :: parent Id : %I64u",MSG_NORMAL,parentId);
-	}
-
+	sendContainmentMessage(crate->getId(),parentId,0xffffffff,targetObject);
+	
 	sendBaselinesTYCF_3(crate,targetObject);
 	sendBaselinesTYCF_6(crate,targetObject);
 
-	sendBaselinesTYCF_6(crate,targetObject);
-	sendBaselinesTYCF_6(crate,targetObject);
+	sendBaselinesTYCF_8(crate,targetObject);
+	sendBaselinesTYCF_9(crate,targetObject);
+
+	//check for our linked item and create it
+	ObjectIDList*			ol = crate->getData();
+	ObjectIDList::iterator	it = ol->begin();
+
+	while(it != ol->end())
+	{
+		TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)));
+		if(!tO)
+		{
+			assert(false);
+		}
+
+		//PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetObject->getId()));
+		sendCreateObject(tO,targetObject,false);
+		it++;
+	}
+
 
 	sendEndBaselines(crate->getId(),targetObject);
 
@@ -739,9 +748,6 @@ bool MessageLib::sendCreateResourceContainer(ResourceContainer* resourceContaine
 	sendCreateObjectByCRC(resourceContainer,targetObject,false);
 
 	uint64 parentId = resourceContainer->getParentId();
-
-
-	gLogger->logMsgF("rcno baseline :: parent Id : %I64u",MSG_NORMAL,parentId);
 
 	sendContainmentMessage(resourceContainer->getId(),parentId,0xffffffff,targetObject);	
 	
@@ -842,6 +848,13 @@ bool MessageLib::sendCreateFactory(FactoryObject* factory,PlayerObject* player)
 
 	sendBaselinesINSO_3(factory,player);
 	sendBaselinesINSO_6(factory,player);
+
+	TangibleObject* InHopper = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(factory->getIngredientHopper()));
+	sendCreateTangible(InHopper,player,false);
+
+	TangibleObject* OutHopper = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(factory->getOutputHopper()));
+	sendCreateTangible(OutHopper,player,false);
+
 
 	sendEndBaselines(factory->getId(),player);
 
@@ -1137,30 +1150,37 @@ void MessageLib::sendCreateObject(Object* object,PlayerObject* player,bool sendS
 		{
 			// skip, if its static
 #if defined(_MSC_VER)
-			if(object->getId() > 0x0000000100000000)
+			if(object->getId() <= 0x0000000100000000)
 #else
-			if(object->getId() > 0x0000000100000000LLU)
+			if(object->getId() <= 0x0000000100000000LLU)
 #endif
 			{
-				if(TangibleObject* tangibleObject = dynamic_cast<TangibleObject*>(object))
-				{
-					// resource containers
-					if(ResourceContainer* resContainer = dynamic_cast<ResourceContainer*>(tangibleObject))
-					{
-						gMessageLib->sendCreateResourceContainer(resContainer,player);
-					}
-					// all other tangibles
-					else
-					if(FactoryCrate* crate = dynamic_cast<FactoryCrate*>(tangibleObject))
-					{
-						gMessageLib->sendCreateFactoryCrate(crate,player);
-					}
-					else					
-					{
-						gMessageLib->sendCreateTangible(tangibleObject,player);
-					}
-				}
+				//skip statics
+				break;
 			}
+
+			TangibleObject* tangibleObject = dynamic_cast<TangibleObject*>(object);
+			if(!tangibleObject)
+			{
+				//that wouldnt make a lot of sense would it?
+				assert(false);
+			}
+
+			// resource containers
+			if(ResourceContainer* resContainer = dynamic_cast<ResourceContainer*>(tangibleObject))
+			{
+				gMessageLib->sendCreateResourceContainer(resContainer,player);
+			}
+			else
+			if(FactoryCrate* crate = dynamic_cast<FactoryCrate*>(tangibleObject))
+			{
+				gMessageLib->sendCreateFactoryCrate(crate,player);
+			}
+			else					
+			{
+				gMessageLib->sendCreateTangible(tangibleObject,player);
+			}
+		
 		}
 		break;
 

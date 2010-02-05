@@ -68,7 +68,16 @@ void WorldConfig::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 	buildAttributeMap(result);
 
 	// verify loaded settings, unless we cant do table level checks with crap mysql
+	
+	// Container Depth
+	mContainerDepth= gWorldConfig->getConfiguration("Player_ContainerDepth",(uint16)5);
+	if(mContainerDepth > 256)
+		mContainerDepth= 256;
+	else if(mContainerDepth< 3)
+		mContainerDepth= 3;
 
+
+	
 	// Message of the day
 
 	// Player viewing range

@@ -30,6 +30,9 @@ class FactoryCrate : public Item
 		virtual void	handleObjectMenuSelect(uint8 messageType,Object* srcObject);
 		void			sendAttributes(PlayerObject* playerObject);
 
+		TangibleObject*	getLinkedObject();
+		int32			decreaseContent(uint32 amount);
+
 	private:
 };
 

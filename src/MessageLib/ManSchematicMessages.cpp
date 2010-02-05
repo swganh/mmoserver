@@ -605,7 +605,7 @@ bool MessageLib::sendDeltasMSCO_7(ManufacturingSchematic* manSchem,PlayerObject*
 	gMessageFactory->addUint8(2);
 	gMessageFactory->addUint16(elementIndex);
 
-	gMessageFactory->addUint32(static_cast<uint32>((*manSlotIt)->getmFilledIndicator()));
+	gMessageFactory->addUint32(static_cast<uint32>((*manSlotIt)->getFilledType()));
 
 
 	//
@@ -995,9 +995,10 @@ bool MessageLib::sendManufactureSlotUpdate(ManufacturingSchematic* manSchem,uint
 	gMessageFactory->addUint32(73 + manSlot->mFilledResources.size() * 12);
 	gMessageFactory->addUint16(5);
 
-	// filled indicator
-	//find out wether there are changes
-	//Only advance our updateCounter when there are changes!!!!!
+	// filled Type is eithe 0 for not filled or the types enum
+	
+	// find out wether there are changes
+	// Only advance our updateCounter when there are changes!!!!!
 	if(manSlot->mFilledIndicatorChange)
 	{
 		++manSchem->mUpdateCounter[1];
@@ -1012,7 +1013,7 @@ bool MessageLib::sendManufactureSlotUpdate(ManufacturingSchematic* manSchem,uint
 	gMessageFactory->addUint8(2);
 	gMessageFactory->addUint16(slotId);
 
-	gMessageFactory->addUint32(static_cast<uint32>(manSlot->getmFilledIndicator()));
+	gMessageFactory->addUint32(static_cast<uint32>(manSlot->getFilledType()));
 
 
 	// resources filled

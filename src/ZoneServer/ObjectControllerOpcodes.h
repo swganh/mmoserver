@@ -320,6 +320,9 @@ enum object_controller_generic_functions
 	opOCBoardTransport					= 0x5dcd41a2,
 	opOCNewbieSelectStartingLocation	= 0xCF2D30F4,
 
+	opOCExtractObject					= 0xF62E35BA,
+	opOCFactoryCrateSplit				= 0x8BBB0B89,
+
 	//structures
 	opOCPlaceStructureMode				= 0x07625BAA,
 	opOCPlaceStructure					= 0x7AF26B0B,

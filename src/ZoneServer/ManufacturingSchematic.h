@@ -13,6 +13,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #define ANH_ZONESERVER_MANUFACTURING_SCHEMATIC_H
 
 #include "Item.h"
+#include "DraftSlot.h"
 
 //=============================================================================
 
@@ -21,7 +22,7 @@ class ExperimentationProperty;
 class CraftWeight;
 class CraftAttribute;
 class CraftAttributeWeight;
-class DraftSlot;
+//class DraftSlot;
 
 struct CustomizationOption
 {
@@ -29,15 +30,6 @@ struct CustomizationOption
 	uint16		cutomizationIndex;
 	uint32		paletteSize;
 	uint32		defaultValue;
-};
-
-enum SlotIndicatorEnum
-{
-	SlotIndicator_None		= 0,
-	SlotIndicator_Identical	= 2,
-	SlotIndicator_Resource	= 4,
-	SlotIndicator_Similar	= 5
-
 };
 
 typedef std::vector<CustomizationOption*>	CustomizationList;
@@ -119,6 +111,7 @@ class ManufacturingSchematic : public Item
 		bool	mExpAttributeValueChange;
 		bool	mBlueBarSizeChange;
 		bool	mMaxExpValueChange;
+
 		uint64	mDataPadId;
 		uint32	mPaletteSize;
 
@@ -150,28 +143,44 @@ class ManufactureSlot
 		ManufactureSlot(DraftSlot* draftSlot)
 		:	mDraftSlot(draftSlot)
 		, mFilled(0)
-		, mFilledIndicator(0)
+		, mFilledType(DST_Empty)
 		, mUnknown1(0)
 		, mUnknown2(0xffffffff)
 		, mUnknown3(0)
 		, mFilledIndicatorChange(false)
-		{}
+		, mResourceId(0)
+		{mSerial = "";}
 
 		virtual ~ManufactureSlot(){}
-		float	getmFilledIndicator(){ return static_cast<float>(mFilledIndicator); }
-		void	setmFilledIndicator(uint32 indicator){ mFilledIndicatorChange = (mFilledIndicator != indicator);mFilledIndicator= indicator; }
+
+		bool	addResourcetoSlot(uint64 resID, uint32 amount);
+		
+		DSType	getFilledType(){ return mFilledType; }
+		void	setFilledType(DSType indicator){ mFilledIndicatorChange = (mFilledType != indicator);mFilledType= indicator; }
+
+		uint64	getResourceId(){return mResourceId;}
+		void	setResourceId(uint64 id){mResourceId = id;}
+
+		string	getSerial(){return mSerial;}
+		void	setSerial(string s){mSerial= s;}
+
+		uint32	getFilledAmount(){return mFilled;}
+		void	setFilledAmount(uint32 amount){mFilled = amount;}
 
 		FilledResources	mFilledResources;
 		// slots
 		DraftSlot*		mDraftSlot;
 
+		//id of the resource filled or the serial
+		uint64	mResourceId;
+		string  mSerial;
+
+		//amount we have filled in the slot
 		uint32			mFilled;
-		// SlotContent filled
-		// 0 nothing
-		// 1 ??
-		// 2 item
-		// 4 resource
-		uint32			mFilledIndicator;
+		
+		//type of stuff filled see draftslot.h
+		DSType			mFilledType;
+
 		uint32			mUnknown1;
 		uint32			mUnknown2;
 		uint32			mUnknown3;

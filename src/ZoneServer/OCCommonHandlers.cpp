@@ -1095,7 +1095,6 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 		// Remove object from cell.
 		if (cell->removeChild(itemObject))
 		{
-			gLogger->logMsgF("ObjectController::_handleTransferItemMisc: send destroy then containment how can this work ????", MSG_NORMAL);
 			//gMessageLib->sendDestroyObject_InRange(tangible->getId(),playerObject,false);
 			//gMessageLib->sendContainmentMessage(targetId,targetContainerId,linkType,playerObject);
 	

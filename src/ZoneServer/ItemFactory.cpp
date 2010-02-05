@@ -17,6 +17,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Firework.h"
 #include "Food.h"
 #include "Furniture.h"
+#include "FactoryCrate.h"
 #include "Instrument.h"
 #include "Item.h"
 #include "ManufacturingSchematic.h"
@@ -33,6 +34,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
+#include "WorldConfig.h"
 
 #include "Utils/utils.h"
 
@@ -93,6 +95,7 @@ void ItemFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			{
 				QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,ItemFactoryQuery_Attributes,asyncContainer->mClient);
 				asContainer->mObject = item;
+				asContainer->mDepth = asyncContainer->mDepth;
 
 				mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT attributes.name,item_attributes.value,attributes.internal"
 															 " FROM item_attributes"
@@ -109,14 +112,16 @@ void ItemFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 			Item* item = dynamic_cast<Item*>(asyncContainer->mObject);
 			
-			// now check whether we are a container
-			// if so check whether we contain items
-			if(item->getCapacity())
+			// now check whether we are a container - if so check whether we contain items
+			// make sure we dont iterate in loops! max iteration depth should probably not exceed 5 
+			uint16 ContainerDepth = gWorldConfig->getPlayerContainerDepth();
+			if(item->getCapacity() && (asyncContainer->mDepth <= ContainerDepth))
 			{
 				item->setLoadState(LoadState_ContainerContent);
 				// query contents				
 				QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,ItemFactoryQuery_Items,asyncContainer->mClient);
 				asContainer->mObject = item;
+				asContainer->mDepth = asyncContainer->mDepth;
 
 				//containers are normal items like furniture, lightsabers and stuff
 				mDatabase->ExecuteSqlAsync(this,asContainer,
@@ -168,15 +173,17 @@ void ItemFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				
 				if(strcmp(queryContainer.mString.getAnsi(),"items") == 0)
 				{
-					requestObject(this,queryContainer.mId, 0, 0, asyncContainer->mClient);
+					// increase our iteration depth
+					requestContainerContent(this,queryContainer.mId, 0, 0, asyncContainer->mClient, asyncContainer->mDepth+1);
 				}
 				else
 				if(strcmp(queryContainer.mString.getAnsi(),"resource_containers") == 0)
 				{
+					// no need to worry about iteration depth with resourceContainers
 					gTangibleFactory->requestObject(this,queryContainer.mId,TanGroup_ResourceContainer, 0, asyncContainer->mClient);
 				}
 				
-				gLogger->logMsgF("ItemFactory::requested child %I64u from parent %I64u",MSG_HIGH,queryContainer.mId, item->getId());
+				//gLogger->logMsgF("ItemFactory::requested child %I64u from parent %I64u",MSG_HIGH,queryContainer.mId, item->getId());
 			}
 		}
 		break;
@@ -190,7 +197,27 @@ void ItemFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 void ItemFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client)
 {
-	mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,ItemFactoryQuery_MainData,client,id),
+	QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,ItemFactoryQuery_MainData,client,id);
+	asContainer->mDepth = 0;
+
+	mDatabase->ExecuteSqlAsync(this,asContainer,
+													"SELECT items.id,items.parent_id,items.item_family,items.item_type,items.privateowner_id,items.oX,items.oY,"
+													"items.oZ,items.oW,items.x,items.y,items.z,items.planet_id,items.customName,"
+													"item_types.object_string,item_types.stf_name,item_types.stf_file,item_types.stf_detail_name,"
+													"item_types.stf_detail_file,items.maxCondition,items.damage,items.dynamicint32,"
+													"item_types.equipSlots,item_types.equipRestrictions, item_customization.1, item_customization.2, item_types.container "
+													"FROM items "
+													"INNER JOIN item_types ON (items.item_type = item_types.id) "
+													"LEFT JOIN item_customization ON (items.id = item_customization.id)"
+													"WHERE items.id = %"PRIu64"",id);
+}
+
+void ItemFactory::requestContainerContent(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client, uint32 depth)
+{
+	QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,ItemFactoryQuery_MainData,client,id);
+	asContainer->mDepth = depth;
+
+	mDatabase->ExecuteSqlAsync(this,asContainer,
 													"SELECT items.id,items.parent_id,items.item_family,items.item_type,items.privateowner_id,items.oX,items.oY,"
 													"items.oZ,items.oW,items.x,items.y,items.z,items.planet_id,items.customName,"
 													"item_types.object_string,item_types.stf_name,item_types.stf_file,item_types.stf_detail_name,"
@@ -232,6 +259,7 @@ Item* ItemFactory::_createItem(DatabaseResult* result)
 		case ItemFamily_Medicine:				item	= new Medicine();					break;
 		case ItemFamily_Scout:					item	= new Scout();						break;
 		case ItemFamily_FireWork:				item	= new Item();						break;
+		case ItemFamily_FactoryCrate:			item	= new FactoryCrate();				break;
 		case ItemFamily_Hopper:					item	= new Item();						break;
 			{
 				switch(itemIdentifier.mTypeId)

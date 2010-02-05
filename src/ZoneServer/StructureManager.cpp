@@ -655,24 +655,6 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			gFactoryFactory->upDateHopper(factory,factory->getOutputHopper(),player->getClient(),factory);
 			return;
 
-			//are we already known ???
-			if(outHopper->checkKnownObjects(player))
-			{
-				gLogger->logMsg("OutHopper already known ");
-				gMessageLib->sendOpenedContainer(outHopper->getId(),player);
-				return;
-			}
-
-			
-
-			//no create
-			gMessageLib->sendCreateObject(outHopper,player,false);
-			outHopper->addKnownObjectSafe(player);
-			player->addKnownObjectSafe(outHopper);
-			//now add the hoppers content - update the objects location to the factory location so the destroy works
-
-
-			gMessageLib->sendOpenedContainer(outHopper->getId(),player);
 
 		}
 		break;
@@ -695,22 +677,9 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 				return;
 			}
 
-			//are we already known ???
-			if(inHopper->checkKnownObjects(player))
-			{
-				gLogger->logMsg("StructureManager :: Structure_Command_AccessInHopper :: InHopper already known ");
-				gFactoryFactory->upDateHopper(factory,factory->getIngredientHopper(),player->getClient(),factory);
-				return;
-			}
-
-			//now create
-			gMessageLib->sendCreateObject(inHopper,player,false);
-			inHopper->addKnownObjectSafe(player);
-			player->addKnownObjectSafe(inHopper);
-						
-			//
-			gMessageLib->sendOpenedContainer(inHopper->getId(),player);		
-
+			gFactoryFactory->upDateHopper(factory,factory->getIngredientHopper(),player->getClient(),factory);
+			return;
+		
 		}
 		break;
 

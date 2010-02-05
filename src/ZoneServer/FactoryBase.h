@@ -113,6 +113,7 @@ class QueryContainerBase
 		uint32					mQueryType;
 		uint64					mId;
 		uint64					mHopper;
+		uint32					mDepth;
 };
 
 //=============================================================================

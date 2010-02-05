@@ -29,7 +29,7 @@ struct FactoryHopperItem
 		float			Quantity;
 };
 
-class FactoryObject :	public PlayerStructure, public DatabaseCallback, public ObjectFactoryCallback
+class FactoryObject :	public PlayerStructure, public DatabaseCallback
 {
 	friend class FactoryFactory;
 

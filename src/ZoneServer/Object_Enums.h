@@ -22,7 +22,8 @@ enum AttributeType
 	AttrType_crafter					=	17,
 	AttrType_CraftToolStatus			=	18,
 	AttrType_CraftToolTime				=	22,
-	AttrType_CounterUsesRemaining		=	23
+	AttrType_CounterUsesRemaining		=	23,
+	AttrType_factory_count				=	400
 };
 
 enum ObjectType

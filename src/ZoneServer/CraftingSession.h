@@ -61,6 +61,8 @@ class CraftingSession : public DatabaseCallback, public ObjectFactoryCallback
 		void					handleFillSlot(uint64 resContainerId,uint32 slotId,uint32 unknown,uint8 counter);
 		void					handleFillSlotResource(uint64 resContainerId,uint32 slotId,uint32 unknown,uint8 counter);
 		void					handleFillSlotComponent(uint64 componentId,uint32 slotId,uint32 unknown,uint8 counter);
+		void					handleFillSlotResourceRewrite(uint64 resContainerId,uint32 slotId,uint32 unknown,uint8 counter);
+
 		uint32					getComponentSerial(ManufactureSlot*	manSlot, Inventory* inventory);
 		bool					AdjustComponentStack(Item* item, Inventory* inventory, uint32 uses);
 
@@ -68,6 +70,8 @@ class CraftingSession : public DatabaseCallback, public ObjectFactoryCallback
 		void					emptySlot(uint32 slotId,ManufactureSlot* manSlot,uint64 containerId);
 		void					bagResource(ManufactureSlot* manSlot,uint64 containerId);
 		void					bagComponents(ManufactureSlot* manSlot,uint64 containerId);
+
+		void					updateResourceContainer(uint64 containerID, uint32 newAmount);
 
 		CraftingTool*			getTool(){ return mTool; }
 		CraftingStation*		getStation(){ return mStation; }
@@ -107,6 +111,10 @@ class CraftingSession : public DatabaseCallback, public ObjectFactoryCallback
 		uint32					getCustomization(){return mCustomization;}
 
 		void					createManufactureSchematic(uint32 counter);
+		
+		//collects a resourcelist for Manufacturing Schematics
+		void					collectResources();
+		void					collectComponents();
 
 	private:
 
@@ -133,25 +141,27 @@ class CraftingSession : public DatabaseCallback, public ObjectFactoryCallback
 		float					_calcAverageMalleability();
 
 		Anh_Utils::Clock*				mClock;
-		Database*								mDatabase;
+		Database*						mDatabase;
 		DraftSchematic*					mDraftSchematic;
-		Item*										mItem;
-		ManufacturingSchematic*	mManufacturingSchematic;
-		PlayerObject*						mOwner;
+		Item*							mItem;
+		ManufacturingSchematic*			mManufacturingSchematic;
+		PlayerObject*					mOwner;
 		CraftingStation*				mStation;
-		CraftingTool*						mTool;
-		float										mToolEffectivity;
-		uint32									mAssSkillModId;
-		uint32									mCriticalCount;
-		uint32									mCustomization;
-		uint32									mExpFlag;
-		uint32									mExpSkillModId;
-		uint32									mOwnerAssSkillMod;
-		uint32									mOwnerExpSkillMod;
-		uint32									mProductionAmount;
-		uint32									mStage;
-		uint32									mSubCategory;
-		bool										mFirstFill;
+		CraftingTool*					mTool;
+		CheckResources					mCheckRes;
+		float							mToolEffectivity;
+		uint32							mAssSkillModId;
+		uint32							mCriticalCount;
+		uint32							mCustomization;
+		uint32							mExpFlag;
+		uint32							mExpSkillModId;
+		uint32							mOwnerAssSkillMod;
+		uint32							mOwnerExpSkillMod;
+		uint32							mProductionAmount;
+		uint32							mStage;
+		uint32							mSubCategory;
+		uint32							mSchematicCRC;
+		bool							mFirstFill;
 };
 
 //=============================================================================

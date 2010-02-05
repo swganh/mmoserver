@@ -23,7 +23,7 @@ class CreatureObject;
 
 //=============================================================================
 
-class Inventory : public TangibleObject, public ObjectFactoryCallback
+class Inventory : public TangibleObject
 {
 	friend class ObjectFactory;
 	friend class PlayerObjectFactory;

@@ -10,9 +10,13 @@ Copyright (c) 2006 - 2010 The swgANH Team
 */
 
 #include "ObjectContainer.h"
+#include "CellObject.h"
+#include "Inventory.h"
+#include "FactoryObject.h"
 #include "PlayerObject.h"
 #include "MessageLib/MessageLib.h"
 #include "WorldManager.h"
+#include "CraftingTool.h"
 
 //=============================================================================
 
@@ -118,73 +122,134 @@ ObjectIDList::iterator ObjectContainer::removeData(ObjectIDList::iterator it)
 return it;
 }
 
-
-bool ObjectContainer::addWatcher(Object* Data) 
-{ 
-
-	mWatchers.push_back(Data->getId()); 
-	//PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getParentId()));					
-	return true;
-
-}
-
 //=============================================================================
+// the item is obviously a container that gets to hold the item we just created
+// we need to find out who needs updates on the containers content - these are the players on the 
+// knownObjects list of the container
+// please note that the inventory and the datapad handle their Own ObjectReady functions!!!!
 
-Object* ObjectContainer::getWatcherById(uint64 id)
+void ObjectContainer::handleObjectReady(Object* object,DispatchClient* client)
 {
-	ObjectIDList::iterator it = mWatchers.begin();
 
-	while(it != mWatchers.end())
+	TangibleObject* tO = dynamic_cast<TangibleObject*>(object);
+	if(!tO)
 	{
-		if((*it) == id) 
-			return(gWorldManager->getObjectById((*it))); 
-
-		++it;
+		gLogger->logMsgF("ObjectContainer::handleObjectReady :No tangible ????", MSG_NORMAL);
+		return;
 	}
-	gLogger->logMsgF("ObjectContainer::getWatcherById Data %I64u not found",MSG_HIGH, id);
-	return NULL;
-}
+	// reminder: objects are owned by the global map, our item (container) only keeps references
 
-//=============================================================================
+	gWorldManager->addObject(object,true);
 
-bool ObjectContainer::removeWatcher(Object* data)
-{
-	ObjectIDList::iterator it = mWatchers.begin();
-	while(it != mWatchers.end())
+	//add it to our container list
+	this->addData(object);
+
+	CraftingTool* tool = dynamic_cast<CraftingTool*>(object);
+
+	//==========================
+	//update the world - who is looking into our container ?
+
+	// find the main containing object
+	// thats an inventory, a cell or a factory - they are the object registered in the SI 
+	// and can tell us who we need to update
+	uint64 mainParent = getObjectMainParent(object);
+
+	if(!mainParent)
 	{
-		if((*it) == data->getId())
+		gLogger->logMsgF("ObjectContainer::handleObjectReady :No main parent ???? Object ID %I64u", MSG_NORMAL, object->getId());
+		return;
+
+	}
+	PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(mainParent));
+	
+	if(player)
+	{
+		//send the update to the player only
+		if(player)
 		{
-			it = mWatchers.erase(it);
-			return true;
+			gMessageLib->sendCreateObject(object,player,false);
+			if(tool&&tool->getCurrentItem())
+			{
+				gMessageLib->sendUpdateTimer(tool,player);
+			}
 		}
-		++it;
+
+		return;
 	}
-	gLogger->logMsgF("ObjectContainer::removeWatcherByPointer Data %I64u not found",MSG_HIGH, data->getId());
-	return false;
-}
 
-//=============================================================================
-
-bool ObjectContainer::removeWatcher(uint64 id)
-{
-	ObjectIDList::iterator it = mWatchers.begin();
-	while(it != mWatchers.end())
+	// no need to check the type again - getObjectMainParent() did that already
+	// ás its not an inventory this leaves us with factory or cell
+	Object* ParentObject = dynamic_cast<Object*>(gWorldManager->getObjectById(mainParent));	
+	if(ParentObject)
 	{
-		if((*it) == id)
+		PlayerObjectSet*			knownPlayers	= ParentObject->getKnownPlayers();
+		PlayerObjectSet::iterator	playerIt		= knownPlayers->begin();
+		
+		while(playerIt != knownPlayers->end())
 		{
-			it = mWatchers.erase(it);
-			return true;
+			PlayerObject* player = (*playerIt);
+			gMessageLib->sendCreateObject(object,player,false);
+		
+			if(tool&&tool->getCurrentItem())
+			{
+				PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getParentId()));
+				gMessageLib->sendUpdateTimer(tool,player);
+			}
+
+			player++;
 		}
-		++it;
+
+
+		return;
 	}
-	gLogger->logMsgF("ObjectContainer::removeWatcherById  %I64u not found",MSG_HIGH, id);
-	return false;
+
+	// send the creates to everyone on our containers knownObjectslist
+	// please note that only makes sense for containers in the SI - containers in the inventory need to
+	// be handled differently!!!
+	
+	// find out whether we need to try and find a parent
+	// valid parents for
 }
 
-//=============================================================================
-
-ObjectIDList::iterator ObjectContainer::removeWatcher(ObjectIDList::iterator it)
+//============================================================================================================
+// the idea is that the container holding our new item might be held by a container, too
+// should this happen, we need to find the main container to determin what kind of creates to send to our player/s
+// we will iterate through the parentObjects until the parent is either a player (item has been in the inventory)
+// or a cell or a factory
+uint64 ObjectContainer::getObjectMainParent(Object* object)
 {
-	it = mWatchers.erase(it);
-return it;
+
+	uint64 parentID = object->getParentId();
+
+	// hack ourselves a player - it is not possible to get an inventory otherwise because
+	// inventories are not part of the WorldObjectMap ... which really gets cumbersome
+	PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(parentID-1));
+	if(!player)
+	{
+		CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(parentID));
+		if(!cell)
+		{
+			FactoryObject* factory = dynamic_cast<FactoryObject*>(gWorldManager->getObjectById(parentID));
+			if(!factory)
+			{
+				Object* ob = dynamic_cast<Object*>(gWorldManager->getObjectById(parentID));
+				if(!ob)
+				{
+					return 0;
+				}
+				parentID = getObjectMainParent(ob);
+			}
+		}
+	}
+	else
+	{
+		return parentID-1;
+		//Inventory is parent ID +1 - we cannot find inventories in the worldObjectMap but we can find players there
+		//so we have to go this way
+		//before changing this we need to settle the dispute what objects are part of the world objectmap and need to discuss objectownership
+		//Eru is right in saying that we cant have two object owners (well we can but obviously we shouldnt)
+	}
+
+	return parentID;
 }
+

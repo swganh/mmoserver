@@ -1443,6 +1443,10 @@
 						>
 					</File>
 					<File
+						RelativePath=".\OCCrateHandlers.cpp"
+						>
+					</File>
+					<File
 						RelativePath=".\OCDatapadHandlers.cpp"
 						>
 					</File>
@@ -2715,6 +2719,10 @@
 				</File>
 				<File
 					RelativePath=".\CraftingSessionFactory.h"
+					>
+				</File>
+				<File
+					RelativePath=".\CraftingSessionHelper.cpp"
 					>
 				</File>
 			</Filter>

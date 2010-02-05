@@ -284,8 +284,6 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback
 		void	_handleToggleAFK(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleToggleDisplayFactionRank(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleAnon(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
-		void	_handleResourceContainerTransfer(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
-		void	_handleResourceContainerSplit(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleRequestWaypointAtPosition(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleSetWaypointActiveStatus(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleWaypoint(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
@@ -303,6 +301,12 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback
 		void	_handleAddIgnore(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleRemoveIgnore(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleNewbieSelectStartingLocation(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
+
+		//modify Objects
+		void	_handleResourceContainerTransfer(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
+		void	_handleResourceContainerSplit(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
+		void	_ExtractObject(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
+		void	_handleFactoryCrateSplit(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 
 		// combat
 		void	_handleDuel(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);

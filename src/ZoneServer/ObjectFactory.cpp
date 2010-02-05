@@ -253,6 +253,18 @@ void ObjectFactory::requestNewDefaultManufactureSchematic(ObjectFactoryCallback*
 
 //=============================================================================
 //
+// create a new item based on a tangible template (clone it)
+//
+void ObjectFactory::requestNewClonedItem(ObjectFactoryCallback* ofCallback,uint64 templateId,uint64 parentId)
+{
+	OFAsyncContainer* asyncContainer = new(mDbAsyncPool.ordered_malloc()) OFAsyncContainer(ofCallback,OFQuery_Item,NULL);
+
+	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sf_DefaultItemCreateByTangibleTemplate(%"PRIu64",%"PRIu64")",parentId,templateId);
+}
+
+
+//=============================================================================
+//
 // create a new item by schematic crc with default attributes
 //
 void ObjectFactory::requestNewDefaultItem(ObjectFactoryCallback* ofCallback,uint32 schemCrc,uint64 parentId,uint16 planetId,Anh_Math::Vector3 position,string customName)
@@ -535,6 +547,12 @@ void ObjectFactory::GiveNewOwnerInDB(Object* object, uint64 ID)
 
 //=============================================================================
 
+void ObjectFactory::deleteObjectFromDB(uint64 id)
+{
+	Object* object = dynamic_cast<Object*>(gWorldManager->getObjectById(id));
+	deleteObjectFromDB(object );
+}
+
 void ObjectFactory::deleteObjectFromDB(Object* object)
 {
 	int8 sql[256];
@@ -685,7 +703,7 @@ void ObjectFactory::requestObject(ObjectType objType,uint16 subGroup,uint16 subT
 		break;
 
 		default:
-			gLogger->logMsg("ObjectFactory::requestObject Unknown Object type\n");
+			gLogger->logMsg("ObjectFactory::requestObject Unknown Object type");
 		break;
 	}
 }

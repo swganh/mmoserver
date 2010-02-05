@@ -453,18 +453,11 @@ void FactoryFactory::handleObjectReady(Object* object,DispatchClient* client)
 		}
 
 		parent = hopper->getId();
-		hopper->addData(tangible);
-		//iterate through known players - several may have the hopper opened
-		const PlayerObjectSet* const inRangePlayers		= hopper->getKnownPlayers();
-		PlayerObjectSet::const_iterator	itiR			= inRangePlayers->begin();
-		while(itiR != inRangePlayers->end())
-		{
-			PlayerObject* targetObject = (*itiR);
-			gMessageLib->sendCreateObject(tangible,targetObject);
 
-			++itiR;
-		}
-
+		//add to hopper / create for players
+		hopper->handleObjectReady(object,NULL);
+		
+		
 	}
 	
 	
@@ -475,10 +468,10 @@ void FactoryFactory::handleObjectReady(Object* object,DispatchClient* client)
 			gLogger->logMsg("FactoryFactory: Failed removing object from loadmap");
 
 		factory->setLoadState(LoadState_Loaded);
-		if(!parent)
+		if(!parent)			   //factories dont have a parent! main cell is 0!!!
 			ilc->mOfCallback->handleObjectReady(factory,ilc->mClient);
 		else
-			ilc->mOfCallback->handleObjectReady(factory,ilc->mClient,parent);
+			ilc->mOfCallback->handleObjectReady(factory,ilc->mClient,parent);	//only hoppers have a parent (the factory)
 
 		mILCPool.free(ilc);
 	}

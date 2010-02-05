@@ -33,7 +33,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 // contain: 
 //
 
-bool MessageLib::sendBaselinesSTAO_3(const StaticObject* const staticObject, const PlayerObject* const targetObject) const
+bool MessageLib::sendBaselinesSTAO_3(StaticObject* staticObject, PlayerObject* targetObject) 
 {
 	if(!(targetObject->isConnected()))
 		return(false);
@@ -64,7 +64,7 @@ bool MessageLib::sendBaselinesSTAO_3(const StaticObject* const staticObject, con
 // contain: unknown
 //
 
-bool MessageLib::sendBaselinesSTAO_6(const StaticObject* const staticObject, const PlayerObject* const targetObject) const
+bool MessageLib::sendBaselinesSTAO_6(StaticObject* staticObject, PlayerObject* targetObject)
 {
 	if(!(targetObject->isConnected()))
 		return(false);

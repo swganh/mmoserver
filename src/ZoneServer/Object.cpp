@@ -312,6 +312,8 @@ bool Object::addKnownObjectSafe(Object* object)
 }
 
 //=============================================================================
+// known objects are those that are in the SI NEAR to our object and have been created
+// all known objects that are NOT found in the next SI update will be destroyed as out of range
 
 void Object::addKnownObject(Object* object)
 {

@@ -75,6 +75,8 @@ class WorldConfig : public DatabaseCallback
 
 		uint32				getGroupMissionUpdateTime(){return mGroupMissionUpdateTime;}
 
+		uint16				getPlayerContainerDepth(){ return mContainerDepth; }
+
 		uint16				getPlayerViewingRange(){ return mPlayerViewingRange; }
 		uint16				getPlayerChatRange(){ return mPlayerChatRange; }
 		
@@ -110,6 +112,8 @@ class WorldConfig : public DatabaseCallback
 		//
 		// configuration variables
 		//
+		// Player Viewing Range, the default range used for spatial queries
+		uint16				mContainerDepth;
 
 		// Player Viewing Range, the default range used for spatial queries
 		uint16				mPlayerViewingRange;

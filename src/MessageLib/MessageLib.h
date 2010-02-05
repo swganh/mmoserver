@@ -86,7 +86,7 @@ public:
 	bool				sendCreateCamp(TangibleObject* camp,PlayerObject* player);
 	bool				sendCreateCreature(CreatureObject* creatureObject,PlayerObject* targetObject);
 	bool				sendCreatePlayer(PlayerObject* playerObject,PlayerObject* targetObject);
-	bool				sendCreateTangible(TangibleObject* tangibleObject,const PlayerObject* const targetObject);
+	bool				sendCreateTangible(TangibleObject* tangibleObject,PlayerObject* targetObject, bool sendchildren = true);
 	void				sendInventory(PlayerObject* playerObject);
 	bool				sendEquippedItems(PlayerObject* srcObject,PlayerObject* targetObject);
 	bool				sendCreateInstallation(PlayerStructure* structure,PlayerObject* player);
@@ -315,14 +315,16 @@ public:
 	void				sendFoodUpdate(PlayerObject* playerObject);
 	void				sendDrinkUpdate(PlayerObject* playerObject);
 	// static object,	staticomessages.cpp
-	bool				sendBaselinesSTAO_3(const StaticObject* const staticObject, const PlayerObject* const targetObject) const;
-	bool				sendBaselinesSTAO_6(const StaticObject* const staticObject, const PlayerObject* const targetObject) const;
+	bool				sendBaselinesSTAO_3(StaticObject* staticObject, PlayerObject* targetObject);
+	bool				sendBaselinesSTAO_6(StaticObject* staticObject, PlayerObject* targetObject);
 	
 	//crates
-	bool				sendBaselinesTYCF_3(const FactoryCrate* const crate,const PlayerObject* const targetObject) const;
-	bool				sendBaselinesTYCF_6( FactoryCrate* crate,const PlayerObject* const targetObject) const;
-	bool				sendBaselinesTYCF_8(const FactoryCrate* const crate,const PlayerObject* const targetObject) const;
-	bool				sendBaselinesTYCF_9(const FactoryCrate* const crate,const PlayerObject* const targetObject) const;
+	bool				sendBaselinesTYCF_3(FactoryCrate* crate,PlayerObject* targetObject);
+	bool				sendBaselinesTYCF_6( FactoryCrate* crate,PlayerObject* targetObject);
+	bool				sendBaselinesTYCF_8(FactoryCrate* crate,PlayerObject* targetObject);
+	bool				sendBaselinesTYCF_9(FactoryCrate* crate,PlayerObject* targetObject);
+
+	bool				sendUpdateCrateContent(FactoryCrate* crate,PlayerObject* playerObject);
 
 	// tangible object, tangiblemessages.cpp
 	bool				sendBaselinesTANO_3(const TangibleObject* const tangibleObject,const PlayerObject* const targetObject) const;

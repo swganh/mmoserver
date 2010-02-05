@@ -22,7 +22,9 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include "Common/Message.h"
 #include "Common/MessageFactory.h"
-#include "MathLib/Quaternion.h"
+
+//#include "MathLib/Quaternion.h"
+#include "DatabaseManager/Database.h"
 //=============================================================================
 
 FactoryCrate::FactoryCrate() : Item()
@@ -112,3 +114,45 @@ void FactoryCrate::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8
 	RadialMenuPtr radialPtr(radial);
 	mRadialMenu = radialPtr;
 }
+
+
+TangibleObject*	FactoryCrate::getLinkedObject()
+{
+	ObjectIDList*			ol = this->getData();
+	ObjectIDList::iterator	it = ol->begin();
+
+	//just get the first linked object - crates only have the one
+
+	TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)));
+	if(!tO)
+	{
+		assert(false);
+		return NULL;
+	}
+
+	return tO;
+
+}
+
+int32 FactoryCrate::decreaseContent(uint32 amount)
+{
+	uint32 crateAmount = 0;
+	if(this->hasAttribute("factory_count"))
+	{
+		crateAmount = this->getAttribute<int>("factory_count");
+	}
+
+	int32 newAmount = crateAmount - amount;
+
+	if(newAmount < 0)
+	{
+		assert(false);
+		return -1;
+	}
+
+	this->setAttribute("factory_count",boost::lexical_cast<std::string>(newAmount));
+	gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%i' WHERE item_id=%"PRIu64" AND attribute_id=%u",newAmount,this->getId(),AttrType_factory_count);
+
+	return newAmount;
+}
+

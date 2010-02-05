@@ -1064,7 +1064,7 @@ void WorldManager::initObjectsInRange(PlayerObject* playerObject)
 		Object* object = (*it);
 
 		// send create for the type of object
-		if (object->getPrivateOwner())
+		if (object->getPrivateOwner())	//what is this about ?? does it concern instances ????
 		{
 			if (object->isOwnedBy(playerObject))
 			{
@@ -2823,6 +2823,8 @@ void WorldManager::destroyObject(Object* object)
 						// Well, Tangible can have more kind of parents than just cells or SI. For example players or Inventory.
 						// the tangible is owned by its containing object (please note exeption of inventory / player with equipped stuff)
 
+						// however we should leave the object link in the worldmanagers Objectmap and only store references in the object
+						// we will have great trouble finding items otherwise 
 
 						//gLogger->logMsgF("WorldManager::destroyObject couldn't find cell %"PRIu64"",MSG_NORMAL,parentId);
 					}

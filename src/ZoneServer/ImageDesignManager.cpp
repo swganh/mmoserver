@@ -566,8 +566,8 @@ void EntertainerManager::applyHair(PlayerObject* customer,string newHairString)
 
 			while(itiR != inRangePlayers->end())
 			{
-				const PlayerObject* const targetObject = (*itiR);
-				gMessageLib->sendCreateTangible(playerHair,targetObject);
+				
+				gMessageLib->sendCreateTangible(playerHair,(*itiR));
 
 				++itiR;
 			}

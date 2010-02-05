@@ -8,32 +8,22 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
-#include "BankTerminal.h"
 #include "CraftingTool.h"
 #include "CurrentResource.h"
 #include "Inventory.h"
 #include "Item.h"
-#include "NPCObject.h"
 #include "ObjectController.h"
 #include "ObjectControllerOpcodes.h"
 #include "ObjectControllerCommandMap.h"
 #include "ObjectFactory.h"
 #include "PlayerObject.h"
 #include "ResourceContainer.h"
-#include "SurveyTool.h"
-#include "TravelMapHandler.h"
-#include "UIManager.h"
-#include "Wearable.h"
 #include "WorldConfig.h"
 #include "WorldManager.h"
-
 #include "MessageLib/MessageLib.h"
 #include "LogManager/LogManager.h"
 #include "DatabaseManager/Database.h"
-#include "DatabaseManager/DatabaseResult.h"
-#include "DatabaseManager/DataBinding.h"
 #include "Common/Message.h"
-#include "Common/MessageFactory.h"
 
 #include <boost/lexical_cast.hpp>
 
@@ -164,6 +154,4 @@ void ObjectController::_handleResourceContainerSplit(uint64 targetId,Message* me
 	gObjectFactory->requestNewResourceContainer(inventory,(selectedContainer->getResource())->getId(),parentId,99,splitOffAmount);
 
 }
-
-//======================================================================================================================
 

@@ -138,12 +138,12 @@ void AttackableCreature::handleObjectMenuSelect(uint8 messageType,Object* srcObj
 						if (inventory)
 						{
 							// Open the Inventory.
-							ObjectList*	objList = inventory->getObjects();
-							ObjectList::iterator containerObjectIt = objList->begin();
+							ObjectIDList*			objList				= inventory->getObjects();
+							ObjectIDList::iterator	containerObjectIt	= objList->begin();
 
 							while (containerObjectIt != objList->end())
 							{
-								Object* object = (*containerObjectIt);
+								Object* object = gWorldManager->getObjectById((*containerObjectIt));
 
 								if (TangibleObject* tangibleObject = dynamic_cast<TangibleObject*>(object))
 								{

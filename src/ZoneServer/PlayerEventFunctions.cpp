@@ -438,13 +438,14 @@ void PlayerObject::onSample(const SampleEvent* event)
 
 		// see if we can add it to an existing container
 		Inventory*	inventory	= dynamic_cast<Inventory*>(mEquipManager.getEquippedObject(CreatureEquipSlot_Inventory));
-		ObjectList*	invObjects	= inventory->getObjects();
-		ObjectList::iterator listIt = invObjects->begin();
+		ObjectIDList*			invObjects	= inventory->getObjects();
+		ObjectIDList::iterator	listIt		= invObjects->begin();
 
 		while(listIt != invObjects->end())
 		{
 			// we are looking for resource containers
-			if(ResourceContainer* resCont = dynamic_cast<ResourceContainer*>(*listIt))
+			ResourceContainer* resCont = dynamic_cast<ResourceContainer*>(gWorldManager->getObjectById((*listIt)));
+			if(resCont)
 			{
 				uint32 targetAmount	= resCont->getAmount();
 				uint32 maxAmount	= resCont->getMaxAmount();

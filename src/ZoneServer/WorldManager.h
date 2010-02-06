@@ -397,6 +397,7 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		NpcActiveHandlers			mNpcActiveHandlers;
 		NpcDormantHandlers			mNpcDormantHandlers;
 		NpcReadyHandlers			mNpcReadyHandlers;
+		ObjectIDList			    mStructureList;
 		ObjectMap					mObjectMap;
 		PlayerAccMap				mPlayerAccMap;
 		PlayerMovementUpdateMap		mPlayerMovementUpdateMap;

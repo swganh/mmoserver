@@ -32,6 +32,7 @@ ObjectContainer::ObjectContainer(uint64 id,uint64 parentId,string model,ObjectTy
 				:Object(id,parentId,model,ObjType_Tangible)
 {
 	mCapacity = 0;	
+	//mData.reserve(80);
 
 }
 
@@ -40,11 +41,31 @@ ObjectContainer::ObjectContainer(uint64 id,uint64 parentId,string model,ObjectTy
 ObjectContainer::~ObjectContainer()
 {
 	
+	ObjectIDList::iterator	objectIt = mData.begin();
+
+	while(objectIt != mData.end())
+	{
+	 	Object* object = gWorldManager->getObjectById((*objectIt));
+
+		//take care of a crafting tool
+		if(CraftingTool* tool = dynamic_cast<CraftingTool*>(object))
+		{
+			if(tool->getCurrentItem())
+			{
+				gWorldManager->removeBusyCraftTool(tool);
+
+			}
+		}
+
+		gWorldManager->destroyObject(object);
+
+		objectIt = removeObject(objectIt);
+	}
 }
 
 //=============================================================================
 																			   
-bool ObjectContainer::addData(Object* Data) 
+bool ObjectContainer::addObject(Object* Data) 
 { 
 	if(mCapacity)
 	{
@@ -54,7 +75,7 @@ bool ObjectContainer::addData(Object* Data)
 	}
 	else
 	{
-		//PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getParentId()));					
+		PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getParentId()));					
 		//gMessageLib->sendSystemMessage(player,L"","base_player","too_many_waypoints");
 		return false;
 
@@ -63,7 +84,7 @@ bool ObjectContainer::addData(Object* Data)
 
 //=============================================================================
 
-Object* ObjectContainer::getDataById(uint64 id)
+Object* ObjectContainer::getObjectById(uint64 id)
 {
 	ObjectIDList::iterator it = mData.begin();
 
@@ -79,8 +100,9 @@ Object* ObjectContainer::getDataById(uint64 id)
 }
 
 //=============================================================================
-
-bool ObjectContainer::removeData(Object* data)
+//just removes it out of the container - the object gets not deleted in the worldmanager
+//
+bool ObjectContainer::removeObject(Object* data)
 {
 	ObjectIDList::iterator it = mData.begin();
 	while(it != mData.end())
@@ -97,8 +119,30 @@ bool ObjectContainer::removeData(Object* data)
 }
 
 //=============================================================================
+// removes it out of the container and destroys it in the worldmanager
+// get in removal from db and zone, too ?
+//
+bool ObjectContainer::deleteObject(Object* data)
+{
+	ObjectIDList::iterator it = mData.begin();
+	while(it != mData.end())
+	{
+		if((*it) == data->getId())
+		{
+			it = mData.erase(it);
+			gWorldManager->destroyObject(data);
+			return true;
+		}
+		++it;
+	}
+	gLogger->logMsgF("ObjectContainer::removeDataByPointer Data %I64u not found",MSG_HIGH, data->getId());
+	return false;
+}
 
-bool ObjectContainer::removeData(uint64 id)
+
+//=============================================================================
+
+bool ObjectContainer::removeObject(uint64 id)
 {
 	ObjectIDList::iterator it = mData.begin();
 	while(it != mData.end())
@@ -116,7 +160,7 @@ bool ObjectContainer::removeData(uint64 id)
 
 //=============================================================================
 
-ObjectIDList::iterator ObjectContainer::removeData(ObjectIDList::iterator it)
+ObjectIDList::iterator ObjectContainer::removeObject(ObjectIDList::iterator it)
 {
 	it = mData.erase(it);
 return it;
@@ -142,7 +186,7 @@ void ObjectContainer::handleObjectReady(Object* object,DispatchClient* client)
 	gWorldManager->addObject(object,true);
 
 	//add it to our container list
-	this->addData(object);
+	this->addObject(object);
 
 	CraftingTool* tool = dynamic_cast<CraftingTool*>(object);
 
@@ -226,18 +270,24 @@ uint64 ObjectContainer::getObjectMainParent(Object* object)
 	PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(parentID-1));
 	if(!player)
 	{
-		CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(parentID));
-		if(!cell)
+		// the backpack might have been equipped ?
+		//   this way we have of course a player directly
+		PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(parentID));
+		if(!player)
 		{
-			FactoryObject* factory = dynamic_cast<FactoryObject*>(gWorldManager->getObjectById(parentID));
-			if(!factory)
+			CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(parentID));
+			if(!cell)
 			{
-				Object* ob = dynamic_cast<Object*>(gWorldManager->getObjectById(parentID));
-				if(!ob)
+				FactoryObject* factory = dynamic_cast<FactoryObject*>(gWorldManager->getObjectById(parentID));
+				if(!factory)
 				{
-					return 0;
+					Object* ob = dynamic_cast<Object*>(gWorldManager->getObjectById(parentID));
+					if(!ob)
+					{
+						return 0;
+					}
+					parentID = getObjectMainParent(ob);
 				}
-				parentID = getObjectMainParent(ob);
 			}
 		}
 	}

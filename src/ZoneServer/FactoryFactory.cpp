@@ -327,6 +327,7 @@ void FactoryFactory::_createFactory(DatabaseResult* result, FactoryObject* facto
 	factory->setLoadState(LoadState_Loaded);
 	factory->setType(ObjType_Structure);
 	factory->mCustomName.convert(BSTRType_Unicode16);
+	factory->setCapacity(2); // we want to load 2 hoppers!
 }
 
 //=============================================================================
@@ -427,11 +428,13 @@ void FactoryFactory::handleObjectReady(Object* object,DispatchClient* client)
 	if(strcmp(tangible->getName().getAnsi(),"ingredient_hopper")==0)
 	{
 		factory->setIngredientHopper(object->getId());
+		factory->addObject(object);
 	}
 	else
 	if(strcmp(tangible->getName().getAnsi(),"output_hopper")==0)
 	{
 		factory->setOutputHopper(object->getId());
+		factory->addObject(object);
 	}
 	else
 	{

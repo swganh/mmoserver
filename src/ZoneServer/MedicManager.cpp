@@ -176,37 +176,42 @@ bool MedicManager::HealDamage(PlayerObject* Medic, CreatureObject* Target, uint6
 	//If we weren't triggered by a stim ie. from a command
 	if(StimPackObjectID == 0)
 	{
+		//TODO have an automated function that looks for the first item of a certain typein ALL containers
+
 		//Look through inventory to find a StimPack
 		Inventory* inventory = dynamic_cast<Inventory*>(Medic->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 
-		ObjectList::iterator It = inventory->getObjects()->begin();
+		ObjectIDList::iterator It = inventory->getObjects()->begin();
 		while(It != inventory->getObjects()->end())
 		{
-			Item* item = dynamic_cast<Item*>(*It);
-			if(item == 0)
+			Item* item = dynamic_cast<Item*>(gWorldManager->getObjectById((*It)));
+			if(!item)
 			{
+				assert(false);
 				It++;
 				continue;
 			}
 
 			switch(item->getItemType())
 			{
-			case ItemType_Stimpack_A:
-			case ItemType_Stimpack_B:
-			case ItemType_Stimpack_C:
-			case ItemType_Stimpack_D:
-			case ItemType_Stimpack_E:
-				StimPackObjectID = item->getId();
-				Stim = dynamic_cast<Medicine*>(item);
-				break;
-			default:
-				break;
+				case ItemType_Stimpack_A:
+				case ItemType_Stimpack_B:
+				case ItemType_Stimpack_C:
+				case ItemType_Stimpack_D:
+				case ItemType_Stimpack_E:
+					StimPackObjectID = item->getId();
+					Stim = dynamic_cast<Medicine*>(item);
+					break;
+				default:
+					break;
 			}
 
-			if(StimPackObjectID != 0)
+			if(Stim)
 			{
 				break;
-			} else {
+			} 
+			else 
+			{
 				It++;
 			}
 		}
@@ -218,7 +223,8 @@ bool MedicManager::HealDamage(PlayerObject* Medic, CreatureObject* Target, uint6
 			gMessageLib->sendSystemMessage(Medic,L"","healing_response","healing_response_60");
 			return false;
 		}
-	} else {
+	} else 
+	{
 		gLogger->logMsg("We already have a Stim Selected", FOREGROUND_BLUE);
 		Stim = dynamic_cast<Medicine*>(gWorldManager->getObjectById(StimPackObjectID));
 	}

@@ -99,7 +99,7 @@ bool CraftingSession::AdjustComponentStack(Item* item, Inventory* inventory, uin
 
 		//and add it to the manufacturing schematic
 		item->setParentId(mManufacturingSchematic->getId());
-		mManufacturingSchematic->addData(item);
+		mManufacturingSchematic->addObject(item);
 		//the link will update the inventories item count
 		gMessageLib->sendContainmentMessage(item->getId(),item->getParentId(),4,mOwner);
 
@@ -601,14 +601,14 @@ void CraftingSession::bagComponents(ManufactureSlot* manSlot,uint64 containerId)
 	FilledResources::iterator resIt = manSlot->mFilledResources.begin();
 	while(resIt != manSlot->mFilledResources.end())
 	{
-		Item*	filledComponent	= dynamic_cast<Item*>(mManufacturingSchematic->getDataById((*resIt).first));
+		Item*	filledComponent	= dynamic_cast<Item*>(mManufacturingSchematic->getObjectById((*resIt).first));
 
 		if(!filledComponent)
 		{
 			gLogger->logMsgF("CraftingSession::bagComponents filledComponent not found",MSG_HIGH);
 			return;
 		}
-		mManufacturingSchematic->removeData((*resIt).first);
+		mManufacturingSchematic->removeObject((*resIt).first);
 
 		//add to inventory
 		inventory->addObject(filledComponent);
@@ -644,15 +644,16 @@ void CraftingSession::bagResource(ManufactureSlot* manSlot,uint64 containerId)
 		uint32 amount = (*resIt).second;
 
 		// see if we can add it to an existing container
-		ObjectList*	invObjects = dynamic_cast<Inventory*>(mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getObjects();
-		ObjectList::iterator listIt = invObjects->begin();
+		ObjectIDList*			invObjects	= dynamic_cast<Inventory*>(mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getObjects();
+		ObjectIDList::iterator	listIt		= invObjects->begin();
 
 		bool	foundSameType	= false;
 
 		while(listIt != invObjects->end())
 		{
 			// we are looking for resource containers
-			if(ResourceContainer* resCont = dynamic_cast<ResourceContainer*>(*listIt))
+			ResourceContainer* resCont = dynamic_cast<ResourceContainer*>(gWorldManager->getObjectById((*listIt)));
+			if(resCont)
 			{
 				uint32 targetAmount	= resCont->getAmount();
 				uint32 maxAmount	= resCont->getMaxAmount();

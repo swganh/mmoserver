@@ -188,6 +188,7 @@ Inventory* InventoryFactory::_createInventory(DatabaseResult* result)
 	result->GetNextRow(mInventoryBinding,(void*)inventory);
 	inventory->setParentId(inventory->mId - 1);
 
+	inventory->setCapacity(inventory->mMaxSlots);
 	return inventory;
 }
 
@@ -228,6 +229,9 @@ void InventoryFactory::handleObjectReady(Object* object,DispatchClient* client)
 	//for unequipped items only
 	inventory->addObject(object);
 	
+	if(inventory->getObjectLoadCounter() > 	inventory->getCapacity())
+		inventory->setObjectLoadCounter(inventory->getCapacity());
+
 	if(inventory->getObjectLoadCounter() == (inventory->getObjects())->size())
 	{
 		inventory->setLoadState(LoadState_Loaded);

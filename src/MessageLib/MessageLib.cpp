@@ -342,7 +342,7 @@ bool MessageLib::sendItemChildren(TangibleObject* srcObject,PlayerObject* target
 	if(!_checkPlayer(targetObject))
 		return(false);
 
-	ObjectIDList*			childObjects		= srcObject->getData();
+	ObjectIDList*			childObjects		= srcObject->getObjects();
 	ObjectIDList::iterator	childObjectsIt		= childObjects->begin();
 
 	while(childObjectsIt != childObjects->end())
@@ -450,13 +450,13 @@ bool MessageLib::sendCreatePlayer(PlayerObject* playerObject,PlayerObject* targe
 		// datapad
 		if(TangibleObject* datapad = dynamic_cast<TangibleObject*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad)))
 		{
-			sendContainmentMessage(datapad->getId(),datapad->getParentId(),4,playerObject);
-			sendBaselinesTANO_3(datapad,playerObject);
-			sendBaselinesTANO_6(datapad,playerObject);
+			//sendContainmentMessage(datapad->getId(),datapad->getParentId(),4,playerObject);
+			//sendBaselinesTANO_3(datapad,playerObject);
+			//sendBaselinesTANO_6(datapad,playerObject);
 
 			//would be nice to use the tangibles objectcontainer for the datapad
 			//need to get missionobjects intangibles, Man Schematics, waypoints and stuff in though, so better do it manually
-			//gMessageLib->sendCreateTangible(datapad,playerObject);
+			gMessageLib->sendCreateTangible(datapad,playerObject);
 
 			//now iterate through the schematics and create them clientside
 			Datapad* dpad = dynamic_cast<Datapad*> (datapad);
@@ -507,7 +507,7 @@ bool MessageLib::sendCreatePlayer(PlayerObject* playerObject,PlayerObject* targe
 				++ite;
 			}
 
-			sendEndBaselines(datapad->getId(),playerObject); //close the datapad
+			//sendEndBaselines(datapad->getId(),playerObject); //close the datapad
 
 
 			//Should send accepted missions here
@@ -660,7 +660,7 @@ bool MessageLib::sendCreateTangible(TangibleObject* tangibleObject,PlayerObject*
 	sendBaselinesTANO_6(tangibleObject,targetObject);
 
 	//now check whether we have children!!!
-	ObjectIDList*			ol = tangibleObject->getData();
+	ObjectIDList*			ol = tangibleObject->getObjects();
 	ObjectIDList::iterator	it = ol->begin();
 
 	//gLogger->logMsgF("Now add our children (container %I64u)",MSG_HIGH,tangibleObject->getId());
@@ -708,7 +708,7 @@ bool MessageLib::sendCreateFactoryCrate(FactoryCrate* crate,PlayerObject* target
 	sendBaselinesTYCF_9(crate,targetObject);
 
 	//check for our linked item and create it
-	ObjectIDList*			ol = crate->getData();
+	ObjectIDList*			ol = crate->getObjects();
 	ObjectIDList::iterator	it = ol->begin();
 
 	while(it != ol->end())
@@ -991,6 +991,8 @@ void MessageLib::sendInventory(PlayerObject* playerObject)
 	inventory->setTypeOptions(256);
 	//gLogger->logMsgF("MessageLib::inventory: ID %I64u parentId %I64u",MSG_HIGH,inventory->getId(),inventory->getParentId());
 
+	//todo - just use sendcreate tangible and have it send the children, too!!!!
+
 	// create the inventory
 	sendCreateObjectByCRC(inventory,playerObject,false);
 	sendContainmentMessage(inventory->getId(),inventory->getParentId(),4,playerObject);
@@ -998,51 +1000,31 @@ void MessageLib::sendInventory(PlayerObject* playerObject)
 	sendBaselinesTANO_6(inventory,playerObject);
 
 	// create objects contained
-	ObjectList* invObjects		= inventory->getObjects();
-	ObjectList::iterator objIt	= invObjects->begin();
+	ObjectIDList* invObjects		= inventory->getObjects();
+	ObjectIDList::iterator objIt	= invObjects->begin();
 
-
-	//todo separate objects who are contained by inventory and by the player!!!!!!!!!!!!!!!!!!!!
-
-	//done this is the inventory list - equipped items follow later
 	while(objIt != invObjects->end())
 	{
-		if(ResourceContainer* resContainer = dynamic_cast<ResourceContainer*>(*objIt))
-		{
-			//gLogger->logMsgF("MessageLib::inventory:Resource %I64u parentId %I64u",MSG_HIGH,resContainer->getId(),resContainer->getParentId());
-			sendCreateResourceContainer(resContainer,playerObject);
-		}
-		else
-		if(FactoryCrate* crate = dynamic_cast<FactoryCrate*>(*objIt))
-		{
-			gMessageLib->sendCreateFactoryCrate(crate,playerObject);
-			sendItemChildren(crate,playerObject);
-		}
-		else
-		if(TangibleObject* tangible = dynamic_cast<TangibleObject*>(*objIt))
-		{
-			//gLogger->logMsgF("MessageLib::inventory:Tangible  %I64u parentId %I64u",MSG_HIGH,tangible->getId(),tangible->getParentId());
-			sendCreateTangible(tangible,playerObject);
-			//sendItemChildren(tangible,playerObject);
-		}
-
+		Object* object = gWorldManager->getObjectById((*objIt));
+		
+		sendCreateObject(object,playerObject,false);
 		++objIt;
 	}
 
 	sendEndBaselines(inventory->getId(),playerObject);
 
-	invObjects		= inventory->getEquippedObjects();
-	objIt			= invObjects->begin();
+	ObjectList* invEquippedObjects		= inventory->getEquippedObjects();
+	ObjectList::iterator objEIt			= invEquippedObjects->begin();
 
-	while(objIt != invObjects->end())
+	while(objEIt != invEquippedObjects->end())
 	{
-		if(TangibleObject* tangible = dynamic_cast<TangibleObject*>(*objIt))
+		if(TangibleObject* tangible = dynamic_cast<TangibleObject*>(*objEIt))
 		{
 			//gLogger->logMsgF("MessageLib::inventory: equipped tangible %I64u parentId %I64u",MSG_HIGH,tangible->getId(),tangible->getParentId());
 			sendCreateTangible(tangible,playerObject);
 		}
 
-		++objIt;
+		++objEIt;
 	}
 
 	//gLogger->logMsgF("MessageLib::inventory: end",MSG_HIGH);

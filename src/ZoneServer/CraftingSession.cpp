@@ -544,7 +544,7 @@ void CraftingSession::addComponentAttribute()
 			//in case a slot has several components in it were just interested in the first
 			//that at least one item is in it we already established
 			FilledResources::iterator resIt = manSlot->mFilledResources.begin();
-			Item*	filledComponent	= dynamic_cast<Item*>(mManufacturingSchematic->getDataById((*resIt).first));
+			Item*	filledComponent	= dynamic_cast<Item*>(mManufacturingSchematic->getObjectById((*resIt).first));
 
 			if(!filledComponent)
 			{

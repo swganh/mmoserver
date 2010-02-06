@@ -770,7 +770,7 @@ void ObjectController::_handleTransferItemMisc2(uint64 targetId,Message* message
 					creatureInventory->removeObject(itemObject);
 					// gLogger->logMsg("Removed item from a creature inventory");
 
-					ObjectList* invObjList = creatureInventory->getObjects();
+					ObjectIDList* invObjList = creatureInventory->getObjects();
 					if (invObjList->size() == 0)
 					{
 						// Put this creature in the pool of delayed destruction and remove the corpse from scene.
@@ -1052,7 +1052,7 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 		creatureInventory->removeObject(itemObject);
 		// gLogger->logMsg("Removed item from a creature inventory");
 
-		ObjectList* invObjList = creatureInventory->getObjects();
+		ObjectIDList* invObjList = creatureInventory->getObjects();
 		if (invObjList->size() == 0)
 		{
 			// Put this creature in the pool of delayed destruction and remove the corpse from scene.
@@ -1121,7 +1121,7 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 
 	//some other container ... hopper backpack chest etc
 	TangibleObject* containingContainer = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(tangible->getParentId()));
-	if(containingContainer&&containingContainer->removeData(itemObject))
+	if(containingContainer&&containingContainer->removeObject(itemObject))
 		return true;
 	
 	
@@ -1341,7 +1341,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 	TangibleObject* receivingContainer = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(targetContainerId));
 	if(receivingContainer)
 	{
-		receivingContainer->addData(itemObject);
+		receivingContainer->addObject(itemObject);
 		itemObject->setParentId(receivingContainer->getId());
 		gMessageLib->sendContainmentMessage(targetId,targetContainerId,linkType,playerObject);
 		
@@ -1749,7 +1749,7 @@ void ObjectController::handleObjectMenuRequest(Message* message)
 		if(playerObject->isConnected())
 			gMessageLib->sendEmptyObjectMenuResponse(requestedObjectId,playerObject,responseNr,menuItemList);
 
-		//the list is cleared and items are destroyes in the message lib
+		//the list is cleared and items are destroyed in the message lib
 		//for the default response
 		gLogger->logMsgF("ObjController::handleObjectMenuRequest: Couldn't find object %"PRIu64"",MSG_HIGH,requestedObjectId);
 		return;

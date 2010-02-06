@@ -212,6 +212,7 @@ void WorldManager::Shutdown()
 	// Let's get REAL dirty here, since we have no solutions to the deletion-race of containers content.
 	// Done by Eruptor. I got tired of the unhandled problem.
 	// as we cannot keep the content out of the worldmanagers mainobjectlist - we might just store references in the container object ?
+	// the point is that we then have to delete all containers first - so register them seperately?
 	//
 #if defined(_MSC_VER)
 	if (getObjectById((uint64)(2533274790395904)))
@@ -232,10 +233,25 @@ void WorldManager::Shutdown()
 		}
 	}
 
-	// finally delete them
-	mObjectMap.clear();
-	mQTRegionMap.clear();
+	// remove all cells and factories first so we dont get a racecondition with their content 
+	// when clearing the mainObjectMap
+	ObjectIDList::iterator itStruct = mStructureList.begin();
+	while(itStruct != mStructureList.end())
+	{
+		ObjectMap::iterator objMapIt = mObjectMap.find(*itStruct);
 
+		if(objMapIt != mObjectMap.end())
+		{
+			mObjectMap.erase(objMapIt);
+		}
+		itStruct++;
+	}
+
+	// finally delete them
+	mQTRegionMap.clear();
+	mObjectMap.clear();
+	
+	
 	// shutdown SI
 	mSpatialIndex->ShutDown();
 	delete(mSpatialIndex);
@@ -2545,6 +2561,7 @@ bool WorldManager::addObject(Object* object,bool manual)
 		case ObjType_Structure:
 		{
 		//	HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(object);
+			mStructureList.push_back(object->getId());
 			mSpatialIndex->InsertPoint(key,object->mPosition.mX,object->mPosition.mZ);
 
 		}
@@ -2553,7 +2570,7 @@ bool WorldManager::addObject(Object* object,bool manual)
 		case ObjType_Building:
 		{
 			BuildingObject* building = dynamic_cast<BuildingObject*>(object);
-
+			
 			mSpatialIndex->InsertRegion(key,building->mPosition.mX,building->mPosition.mZ,building->getWidth(),building->getHeight());
 		}
 		break;
@@ -2787,6 +2804,17 @@ void WorldManager::destroyObject(Object* object)
 			}
 
 			object->destroyKnownObjects();
+
+
+			ObjectIDList::iterator itStruct = mStructureList.begin();
+			while(itStruct != mStructureList.end())
+			{
+				if((*itStruct)==object->getId())
+					itStruct = mStructureList.erase(itStruct);
+				else
+					itStruct++;
+			}
+			
 		}
 		break;
 

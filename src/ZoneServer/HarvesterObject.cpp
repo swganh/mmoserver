@@ -271,8 +271,8 @@ void HarvesterObject::createResourceContainer(uint64 resID, PlayerObject* player
 {
 	//now create the resource container
 
-	ObjectList*	invObjects = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getObjects();
-	ObjectList::iterator listIt = invObjects->begin();
+	ObjectIDList*			invObjects	= dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getObjects();
+	ObjectIDList::iterator	listIt		= invObjects->begin();
 
 	uint32 rAmount = amount;
 
@@ -281,7 +281,8 @@ void HarvesterObject::createResourceContainer(uint64 resID, PlayerObject* player
 	while(listIt != invObjects->end())
 	{
 		// we are looking for resource containers
-		if(ResourceContainer* resCont = dynamic_cast<ResourceContainer*>(*listIt))
+		ResourceContainer* resCont = dynamic_cast<ResourceContainer*>(gWorldManager->getObjectById((*listIt)));
+		if(resCont)
 		{
 			uint32 targetAmount	= resCont->getAmount();
 			uint32 maxAmount	= resCont->getMaxAmount();

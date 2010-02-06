@@ -118,7 +118,7 @@ void FactoryCrate::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8
 
 TangibleObject*	FactoryCrate::getLinkedObject()
 {
-	ObjectIDList*			ol = this->getData();
+	ObjectIDList*			ol = this->getObjects();
 	ObjectIDList::iterator	it = ol->begin();
 
 	//just get the first linked object - crates only have the one

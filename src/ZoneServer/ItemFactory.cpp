@@ -418,7 +418,7 @@ void ItemFactory::handleObjectReady(Object* object,DispatchClient* client)
 	ilc->mLoadCounter --;
 
 	gWorldManager->addObject(object,true);
-	item->addData(object);
+	item->addObject(object);
 
 	if(!ilc->mLoadCounter)
 	{

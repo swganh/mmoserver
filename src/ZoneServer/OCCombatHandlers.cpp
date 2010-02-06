@@ -405,24 +405,26 @@ void ObjectController::lootAll(uint64 targetId, PlayerObject* playerObject)
 				inventory->setCredits(0);
 
 				// Get all items from creature inventory.
-				ObjectList* invObjList = inventory->getObjects();
+				ObjectIDList*			invObjList	= inventory->getObjects();
+				ObjectIDList::iterator	invObjectIt = invObjList->begin();
 				int32 lootedItems = 0;
 				
-				ObjectList::iterator invObjectIt = invObjList->begin();
+				
 				while (invObjectIt != invObjList->end())
 				{
-					Object* object = (*invObjectIt);
+					Object* object = gWorldManager->getObjectById((*invObjectIt));
 
 					// Move the object to player inventory.
 					Item* item = dynamic_cast<Item*>(object);
 					if (item)
 					{
 						// TODO: Check for player inventory full, and handle containers and resource containers etc...
+						// TODO: add the destroy objects to the remove Object interface at one point
 						gMessageLib->sendDestroyObject(object->getId(),playerObject);
 						// creatureInventory->removeObject(itemObject);
 
 						gObjectFactory->requestNewDefaultItem(playerInventory, item->getItemFamily(), item->getItemType(), playerInventory->getId(),99,Anh_Math::Vector3(),"");
-						invObjectIt = invObjList->erase(invObjectIt);
+						invObjectIt = inventory->removeObject(invObjectIt);
 						lootedItems++;
 					}
 					else

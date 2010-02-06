@@ -12,10 +12,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Mail.h"
 #include "Player.h"
 #include "TradeManagerChat.h"
-
-#include "ZoneServer/TangibleEnums.h"
-#include "ZoneServer/TradeManager.h"
-
+#include "TradeManagerHelp.h"
 #include "LogManager/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"

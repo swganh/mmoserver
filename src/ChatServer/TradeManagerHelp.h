@@ -16,7 +16,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include <vector>
 
 #include "Utils/typedefs.h"
-#include "ZoneServer/TradeManager.h"
+//#include "ZoneServer/TradeManager.h"
 
 class DispatchClient;
 
@@ -57,6 +57,19 @@ struct ResItemDescriptionAttributes
 		int8			pe[32];
 
 };
+
+enum TRMAuctionType
+{
+	TRMVendor_Auction   	=	0,
+	TRMVendor_Instant       =   1,
+	TRMVendor_Ended			=   2,
+	TRMVendor_Deleted 		=   3,
+	TRMVendor_Offer 		=   4,
+	TRMVendor_Cancelled		=   5,
+	TRMVendor_Sold  		=   6,
+	TRMVendor_NotSold 		=   7
+};
+
 
 //======================================================================================================================
 //
@@ -103,6 +116,153 @@ struct Query
 		uint64 vendorID;
 		uint8 unknown2;
 		uint16 start;
+};
+
+enum TRMRegionType
+{
+	TRMGalaxy        	=	0,
+	TRMPlanet	        =   1,
+	TRMRegion           =   2,
+	TRMVendor			=	3
+
+};
+enum TRMAuctionWindowType
+{
+	TRMVendor_AllAuctions	=	2,
+	TRMVendor_MySales       =   3,
+	TRMVendor_MyBids		=   4,
+	TRMVendor_AvailableItems=   5,
+	TRMVendor_Offers		=   6,
+	TRMVendor_ForSale		=   7,
+	TRMVendor_Stockroom		=   8
+
+};
+enum TRMPermissionType
+{
+	TRMOwner        	=	0,
+	TRMNotOwner         =   1,
+	TRMBazaar           =   2,
+	TRMBazaarQuery		=	3
+};
+
+
+	enum TRMQueryType
+{
+	TRMQuery_NULL						=	0,
+	TRMQuery_LoadBazaar					=	1,
+	TRMQuery_AuctionQuery				=	2,
+	TRMQuery_CreateAuction				=	3,
+	TRMQuery_GetDetails					=	4,
+	TRMQuery_CancelAuction				=	5,
+	TRMQuery_RetrieveAuction			=	6,
+	TRMQuery_DeleteAuction				=	7,
+	TRMQuery_BidAuction					= 8,
+	TRMQuery_ACKRetrieval				= 9,
+	TRMQuery_MoneyTransaction			= 10,
+	TRMQuery_BazaarMoneyTransaction		= 11,
+	TRMQuery_CreateAuctionTransaction	= 12,
+	TRMQuery_ItemTableFrogQuery			= 13,
+	TRMQuery_CheckListingsBazaar		= 14,
+
+	TRMQuery_LoadGlobalTick =	15,
+	TRMQuery_SaveGlobalTick =	16,
+	TRMQuery_CancelAuction_BidderMail	= 17,
+	TRMQuery_ExpiredListing				= 18,
+	TRMQuery_GetAttributeDetails		= 19,
+	TRMQuery_ProcessBidAuction			= 20,
+	TRMQuery_ProcessAuctionRefund		= 21,
+	TRMQuery_GetResAttributeDetails		= 22
+};
+
+struct AuctionItem
+{
+		uint64			ItemID;
+		uint64			OwnerID;
+		uint64			BazaarID;
+		uint32          AuctionTyp;
+		uint64			EndTime;
+		uint32          Premium;
+		uint32			Category;
+		uint32			ItemTyp;
+		uint32			Price;
+		int8			Name[128];
+		int8			Description[1024];
+		uint16			RegionID;
+		uint64			BidderID;
+		uint16			PlanetID;
+		int8			SellerName[32];
+		int8			BazaarName[128];
+		uint32			MyBid;
+		uint32			MyProxy;
+
+		int8			bidder_name[32];
+		uint32			HighProxy;
+		uint32			HighBid;
+		int8			HighProxyRaw[32];
+		int8			HighBidRaw[32];
+		int8			BidderIDRaw[32];
+		int8			Owner[32];
+		uint32			itemcategory;
+
+};
+
+struct DescriptionItem
+{
+		uint64			ItemID;
+		int8			Description[1024];
+		int8			tang[128];
+		int8			details[1024];
+};
+
+
+class TradeManagerAsyncContainer
+{
+public:
+
+	TradeManagerAsyncContainer(TRMQueryType qt,DispatchClient* client){ mQueryType = qt; mClient = client; }
+	~TradeManagerAsyncContainer(){}
+
+
+	uint64				BuyerID;
+	uint32				Itemsstart;
+	uint32				Itemsstop;
+	DescriptionItem*	mItemDescription;
+	AuctionItem*		AuctionTemp;
+
+	TRMQueryType		mQueryType;
+	DispatchClient*		mClient;
+
+	uint64				AuctionID;
+	uint32				BazaarWindow;
+	uint32				BazaarPage;
+	uint64				BazaarID;
+	uint32				MyBid;
+	uint32				MyProxy;
+	uint32				crc;
+	uint32				time;
+	string				name;
+	string				mPlanet;
+	string				mRegion;
+	string				mOwner;
+
+	//trading
+	int32				amount1,amount2;//inv credits
+	int32				amountbank,amountcash;
+	int32				bank1;//bankcredits
+	int32				bank2;
+	
+	uint64				sellerID;
+	int32				mX;
+	int32				mY;
+
+	//TRMVendorType		mVendorType;
+	TRMAuctionType		auctionType;
+
+	uint8				premium;
+	uint32				itemType;
+	uint32				price;
+	string				description;
+	string				tang;
 };
 
 //======================================================================================================================

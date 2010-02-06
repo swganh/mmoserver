@@ -37,7 +37,7 @@ class MessageDispatch;
 typedef std::map<uint32,Player*> 	PlayerAccountMap;
 typedef	std::map<uint32,Player*> 	PlayerNameMap;
 typedef	std::map<uint64,Player*> 	PlayerIdMap;
-typedef std::vector<Player*>			PlayerList;
+typedef std::vector<Player*>		PlayerList;
 typedef std::map<uint32,Channel*>	ChannelMap;
 typedef std::map<uint32,Channel*>	ChannelNameMap;
 typedef std::vector<Channel*>			ChannelList;

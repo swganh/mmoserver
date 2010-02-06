@@ -15,6 +15,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Inventory.h"
 #include "Item.h"
 #include "ObjectFactory.h"
+#include "WorldManager.h"
 #include "PlayerObject.h"
 #include "UIManager.h"
 #include "MessageLib/MessageLib.h"
@@ -364,12 +365,12 @@ ObjectList* FireworkShow::_getInventoryFireworks(PlayerObject* playerObject)
 	ObjectList* returnList = new ObjectList();
 
 	Inventory* inventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-	ObjectList*	objList = inventory->getObjects();
-	ObjectList::iterator containerObjectIt = objList->begin();
+	ObjectIDList*			objList				= inventory->getObjects();
+	ObjectIDList::iterator	containerObjectIt	= objList->begin();
 
 	while (containerObjectIt != objList->end())
 	{		
-		Object* object = (*containerObjectIt);
+		Object* object = gWorldManager->getObjectById((*containerObjectIt));
 		if (Item* item = dynamic_cast<Item*>(object))
 		{
 			if(item->getItemFamily()==ItemFamily_FireWork && item->getItemType()!= ItemType_Firework_Show)

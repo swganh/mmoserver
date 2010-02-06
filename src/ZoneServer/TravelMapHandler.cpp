@@ -530,13 +530,13 @@ bool TravelMapHandler::findTicket(PlayerObject* player, string port)
 {
 	uint32	zoneId = gWorldManager->getZoneId();
 
-	ObjectList* invObjects = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getObjects();
-
-	ObjectList::iterator it = invObjects->begin();
+	ObjectIDList* invObjects = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getObjects();
+	ObjectIDList::iterator it = invObjects->begin();
 
 	while(it != invObjects->end())
 	{
-		if(TravelTicket* ticket = dynamic_cast<TravelTicket*>(*it))
+		TravelTicket* ticket = dynamic_cast<TravelTicket*>(gWorldManager->getObjectById((*it)));
+		if(ticket)
 		{
 			string srcPoint		= (int8*)((ticket->getAttribute<std::string>("travel_departure_point")).c_str());
 			uint16 srcPlanetId	= static_cast<uint16>(gWorldManager->getPlanetIdByName((int8*)((ticket->getAttribute<std::string>("travel_departure_planet")).c_str())));
@@ -559,13 +559,13 @@ void TravelMapHandler::createTicketSelectMenu(PlayerObject* playerObject, Shuttl
 	BStringVector	availableTickets;
 	uint32			zoneId = gWorldManager->getZoneId();
 
-	ObjectList* invObjects = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getObjects();
-
-	ObjectList::iterator it = invObjects->begin();
+	ObjectIDList*			invObjects	= dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getObjects();
+	ObjectIDList::iterator	it			= invObjects->begin();
 
 	while(it != invObjects->end())
 	{
-		if(TravelTicket* ticket = dynamic_cast<TravelTicket*>(*it))
+		TravelTicket* ticket = dynamic_cast<TravelTicket*>(gWorldManager->getObjectById((*it)));
+		if(ticket)
 		{
 			string srcPoint		= (int8*)((ticket->getAttribute<std::string>("travel_departure_point")).c_str());
 			uint16 srcPlanetId	= static_cast<uint8>(gWorldManager->getPlanetIdByName((int8*)((ticket->getAttribute<std::string>("travel_departure_planet")).c_str())));
@@ -616,13 +616,13 @@ void TravelMapHandler::handleUIEvent(uint32 action,int32 element,string inputStr
 			return;
 		}
 
-		ObjectList*		invObjects		= dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getObjects();
-
-		ObjectList::iterator it = invObjects->begin();
+		ObjectIDList*			invObjects		= dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getObjects();
+		ObjectIDList::iterator	it				= invObjects->begin();
 
 		while(it != invObjects->end())
 		{
-			if(TravelTicket* ticket = dynamic_cast<TravelTicket*>(*it))
+			TravelTicket* ticket = dynamic_cast<TravelTicket*>(gWorldManager->getObjectById((*it)));
+			if(ticket)
 			{
 				string srcPoint		= (int8*)((ticket->getAttribute<std::string>("travel_departure_point")).c_str());
 				string dstPointStr	= (int8*)((ticket->getAttribute<std::string>("travel_arrival_point")).c_str());

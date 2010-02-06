@@ -15,6 +15,9 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Utils/typedefs.h"
 #include "Object_Enums.h"
 #include "Object.h"
+#include "WorldConfig.h"
+#include "WorldManager.h"
+//#include "TangibleObject.h"
 #include <vector>
 
 
@@ -47,16 +50,47 @@ class ObjectContainer :	public Object, public ObjectFactoryCallback
 
 		uint64				getObjectMainParent(Object* object);
 
-		ObjectIDList*	   getData() { return &mData; }
-		Object*			   getDataById(uint64 id);
-		bool		       addData(Object* Data);
-		bool		       removeData(uint64 id);
-		bool		       removeData(Object* Data);
-		ObjectIDList::iterator removeData(ObjectIDList::iterator it);
+		ObjectIDList*		getObjects() { return &mData; }
+		Object*				getObjectById(uint64 id);
+		bool				addObject(Object* Data);
 		
-		bool			   checkCapacity(){return((mCapacity-mData.size()) > 0);}
-		void			   setCapacity(uint16 cap){mCapacity = cap;}
-		uint16			   getCapacity(){return mCapacity;}
+		bool				deleteObject(Object* data);
+
+		bool				removeObject(uint64 id);
+		bool				removeObject(Object* Data);
+		ObjectIDList::iterator removeObject(ObjectIDList::iterator it);
+		
+		//we need to check the content of our children, too!!!!
+		bool				checkCapacity(){return((mCapacity-mData.size()) > 0);}
+		void				setCapacity(uint16 cap){mCapacity = cap;}
+		uint16				getCapacity(){return mCapacity;}
+		
+		uint16				getContentSize(uint16 iteration)
+		{
+			uint16 content = mData.size();
+
+			if(iteration > gWorldConfig->getPlayerContainerDepth())
+			{
+				return content;
+			}
+			
+			ObjectIDList*			ol = getObjects();
+			ObjectIDList::iterator	it = ol->begin();
+
+			while(it != ol->end())
+			{
+				ObjectContainer* tO = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById((*it)));
+				if(!tO)
+				{
+					assert(false);
+				}
+
+				content += tO->getContentSize(iteration+1);
+
+				it++;
+			}
+			return content;
+		}
 
 
 private:

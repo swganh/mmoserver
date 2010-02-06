@@ -652,6 +652,35 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 				return;
 			}
 
+
+			//now create the hoppers content - put it on the knownobjectslist so it gets deleted once we move ... ?
+			ObjectIDList*			ol = outHopper->getObjects();
+			ObjectIDList::iterator	it = ol->begin();
+
+			while(it != ol->end())
+			{
+				TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)));
+				if(!tO)
+				{
+					assert(false);
+				}
+
+				//PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetObject->getId()));
+				if(!tO->checkKnownPlayer(player))
+				{
+					gMessageLib->sendCreateObject(tO,player,false);
+					
+					// this might be considered a hack - we relay on the movementupdate to delete this data once we move 
+					// (as the content is not part of the si the first update will send the deletes)
+					// otherwise we do not know whether these objects were created for said player or not
+					// the alternative would be to create a second (third) knownObjectslist to keep track of knownplayers
+					// without si involvement - the deletion would then have to be triggered by the senddestroy for the containing object
+					player->addKnownObjectSafe(tO);
+					tO->addKnownObjectSafe(player);
+				}
+				it++;
+			}
+
 			gFactoryFactory->upDateHopper(factory,factory->getOutputHopper(),player->getClient(),factory);
 			return;
 
@@ -676,6 +705,35 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 				gLogger->logMsg("StructureManager::processVerification : No inHopper (Structure_Command_AccessInHopper) ");
 				return;
 			}
+
+			//now create the hoppers content - put it on the knownobjectslist so it gets deleted once we move ... ?
+			ObjectIDList*			ol = inHopper->getObjects();
+			ObjectIDList::iterator	it = ol->begin();
+
+			while(it != ol->end())
+			{
+				TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)));
+				if(!tO)
+				{
+					assert(false);
+				}
+
+				//PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetObject->getId()));
+				if(!tO->checkKnownPlayer(player))
+				{
+					gMessageLib->sendCreateObject(tO,player,false);
+					
+					// this might be considered a hack - we relay on the movementupdate to delete this data once we move 
+					// (as the content is not part of the si the first update will send the deletes)
+					// otherwise we do not know whether these objects were created for said player or not
+					// the alternative would be to create a second (third) knownObjectslist to keep track of knownplayers
+					// without si involvement - the deletion would then have to be triggered by the senddestroy for the containing object
+					player->addKnownObjectSafe(tO);
+					tO->addKnownObjectSafe(player);
+				}
+				it++;
+			}
+
 
 			gFactoryFactory->upDateHopper(factory,factory->getIngredientHopper(),player->getClient(),factory);
 			return;
@@ -1023,15 +1081,16 @@ void StructureManager::TransferStructureOwnership(StructureAsyncCommand command)
 
 uint32 StructureManager::getCurrentPower(PlayerObject* player)
 {
-	ObjectList*	invObjects = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getObjects();
-	ObjectList::iterator listIt = invObjects->begin();
+	ObjectIDList*			invObjects	= dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getObjects();
+	ObjectIDList::iterator	listIt		= invObjects->begin();
 
 	uint32 power = 0;
 
 	while(listIt != invObjects->end())
 	{
 		// we are looking for resource containers
-		if(ResourceContainer* resCont = dynamic_cast<ResourceContainer*>(*listIt))
+		ResourceContainer* resCont = dynamic_cast<ResourceContainer*>(gWorldManager->getObjectById((*listIt)));
+		if(resCont)
 		{
 			uint16 category = resCont->getResource()->getType()->getCategoryId();
 			
@@ -1057,15 +1116,16 @@ uint32 StructureManager::getCurrentPower(PlayerObject* player)
 
 uint32 StructureManager::deductPower(PlayerObject* player, uint32 amount)
 {
-	ObjectList*	invObjects = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getObjects();
-	ObjectList::iterator listIt = invObjects->begin();
+	ObjectIDList*			invObjects	= dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getObjects();
+	ObjectIDList::iterator	listIt		= invObjects->begin();
 
 	uint32 power = 0;
 
 	while(listIt != invObjects->end())
 	{
 		// we are looking for resource containers
-		if(ResourceContainer* resCont = dynamic_cast<ResourceContainer*>(*listIt))
+		ResourceContainer* resCont = dynamic_cast<ResourceContainer*>(gWorldManager->getObjectById((*listIt)));
+		if(resCont)
 		{
 			uint16 category = resCont->getResource()->getType()->getCategoryId();
 			

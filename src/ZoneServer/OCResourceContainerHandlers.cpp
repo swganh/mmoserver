@@ -81,6 +81,7 @@ void ObjectController::_handleResourceContainerTransfer(uint64 targetId,Message*
 				dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->deleteObject(selectedContainer);
 
 
+
 			}
 			// target container full, update both contents
 			else if(newAmount > maxAmount)
@@ -119,13 +120,6 @@ void ObjectController::_handleResourceContainerSplit(uint64 targetId,Message* me
 		return;
 	}
 
-	//check if we can fit an additional resource container in our inventory
-	if(!inventory->checkSlots(1))
-	{
-		gMessageLib->sendSystemMessage(playerObject,L"","error_message","inv_full");
-		return;
-	}
-
 	string dataStr;
 
 	message->getStringUnicode16(dataStr);
@@ -143,15 +137,47 @@ void ObjectController::_handleResourceContainerSplit(uint64 targetId,Message* me
 	uint32	splitOffAmount	= boost::lexical_cast<uint32>(dataElements[0].getAnsi());
 	uint64	parentId		= boost::lexical_cast<uint64>(dataElements[1].getAnsi());
 
+
+	if(selectedContainer->getParentId() == inventory->getId())
+	{
+		//check if we can fit an additional resource container in our inventory
+		if(!inventory->checkSlots(1))
+		{
+			gMessageLib->sendSystemMessage(playerObject,L"","error_message","inv_full");
+			return;
+		}
+
+		mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",selectedContainer->getAmount(),selectedContainer->getId());
+
+		// create a new one
+		// update selected container contents
+		selectedContainer->setAmount(selectedContainer->getAmount() - splitOffAmount);
+		gMessageLib->sendResourceContainerUpdateAmount(selectedContainer,playerObject);
+
+		gObjectFactory->requestNewResourceContainer(inventory,(selectedContainer->getResource())->getId(),parentId,99,splitOffAmount);
+		return;
+	}
+
+	Item* item = dynamic_cast<Item*>(gWorldManager->getObjectById(parentId));
+	if(!item)
+	{
+		gLogger->logMsg("ObjectController::_ExtractObject: resourcecontainers parent does not exist!");
+		assert(false);
+		return;
+	}
+	
+	if(!item->checkCapacity())
+	{
+		//check if we can fit an additional item in our inventory
+		gMessageLib->sendSystemMessage(playerObject,L"","container_error_message","container3");
+		return;
+	}
 	// update selected container contents
 	selectedContainer->setAmount(selectedContainer->getAmount() - splitOffAmount);
 
 	gMessageLib->sendResourceContainerUpdateAmount(selectedContainer,playerObject);
 
-	mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",selectedContainer->getAmount(),selectedContainer->getId());
-
-	// create a new one
-	gObjectFactory->requestNewResourceContainer(inventory,(selectedContainer->getResource())->getId(),parentId,99,splitOffAmount);
-
+	gObjectFactory->requestNewResourceContainer(item,(selectedContainer->getResource())->getId(),parentId,99,splitOffAmount);
+	
 }
 

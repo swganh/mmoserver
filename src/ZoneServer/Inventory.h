@@ -42,17 +42,10 @@ class Inventory : public TangibleObject
 		uint32			getObjectLoadCounter(){ return mObjectLoadCounter; }
 		void			setObjectLoadCounter(uint32 count){ mObjectLoadCounter = count; }
 
-		ObjectList*		getObjects(){ return &mObjects; }
-		void			addObject(Object* object); 
-		void			removeObject(Object* object);
-		void			deleteObject(Object* object);
-
 		ObjectList*		getEquippedObjects(){ return &mEquippedObjects; }
 		void			addEquippedObject(Object* object){ mEquippedObjects.push_back(object); }
 		void			removeEquippedObject(Object* object);
 		void			deleteEquippedObject(Object* object);
-
-		Object*			getObjectById(uint64 objId);
 
 		int32			getCredits(){ return mCredits; }
 		void			setCredits(int32 credits){ mCredits = credits; }
@@ -73,10 +66,9 @@ class Inventory : public TangibleObject
 		CreatureObject*		mParent;
 		uint32				mObjectLoadCounter;
 		
-		ObjectIDList		mObjectIDs;
+
 		ObjectIDList		mEquippedObjectIDs;
 
-		ObjectList			mObjects;
 		ObjectList			mEquippedObjects;
 		int32				mCredits;
 		uint8				mMaxSlots;

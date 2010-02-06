@@ -36,6 +36,8 @@ FactoryObject::FactoryObject() : PlayerStructure()
 
 FactoryObject::~FactoryObject()
 {
+	//gWorldManager->destroyObject(gWorldManager->getObjectById(getIngredientHopper()));
+	//gWorldManager->destroyObject(gWorldManager->getObjectById(getOutputHopper()));
 
 }
 

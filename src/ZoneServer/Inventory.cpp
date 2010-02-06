@@ -25,7 +25,6 @@ Inventory::Inventory() : TangibleObject()
 {
 	mTanGroup = TanGroup_Inventory;
 	mObjectLoadCounter = 1000;
-	mObjects.reserve(80);
 }
 
 //=============================================================================
@@ -34,51 +33,9 @@ Inventory::Inventory() : TangibleObject()
 //
 Inventory::~Inventory()
 {
-	// gLogger->logMsgF("Inventory::~Inventory() No of object = %u", MSG_HIGH, mObjects.size());
-	uint32 itemCounter = 0;
 
-	ObjectList::iterator	invObjectIt = mObjects.begin();
-
-	Object* object;
-
-	while(invObjectIt != mObjects.end())
-	{
-		itemCounter++;	// Used for debugging purpose, to see is to beleive... instead of ignoring the obvious.
-
-		object = (*invObjectIt);
-		//this crashes repeatedly when I stop the server - might it be related to our crashes on log out ??
-
-		// Sure it crash!!! Thats because the item in the inventory is owned by the WorldManager,
-		// and if the WorldManager already have removed it before we remove the inventory, as we may do when shutting down the server,
-		// we will get a crash when attempting to delete a dangling pointer...
-		// As simple as that!
-
-		// There is  one good soultion to this: Store handles to objects (the id's) instead of object references (pointers).
-
-		// A less good solution is to protects all code that can risk the use of dangling pointers with exception handling,
-		// but I doubt that code will be easier to read or more efficient than retrieving the object when we need access to it.
-
-		if(CraftingTool* tool = dynamic_cast<CraftingTool*>(object))
-		{
-			if(tool->getCurrentItem())
-			{
-				gWorldManager->removeBusyCraftTool(tool);
-
-				//save status is not necessary as the status already is in the db and updated on status change
-				//crafttool saves time to db on update
-
-
-			}
-
-			// todo: save left time and status to db
-		}
-
-
-
-		gWorldManager->destroyObject(object);
-
-		invObjectIt = mObjects.erase(invObjectIt);
-	}
+	//TODO:have the equipped Objects move to the player
+	ObjectList::iterator	invObjectIt;
 
 
 	invObjectIt = mEquippedObjects.begin();
@@ -95,38 +52,6 @@ Inventory::~Inventory()
 
 //=============================================================================
 
-void Inventory::removeObject(Object* object)
-{
-	assert(object);
-
-	ObjectList::iterator it = mObjects.begin();
-	while(it != mObjects.end())
-	{
-		if((*it) == object)
-		{
-			mObjects.erase(it);
-			return;
-		}
-		++it;
-	}
-	gLogger->logMsgF("cant find object %s",MSG_HIGH,object->getModelString().getAnsi());
-}
-
-void Inventory::addObject(Object* object)
-{
-	ObjectList::iterator it = mObjects.begin();
-	while(it != mObjects.end())
-	{
-		if((*it) == object)
-		{
-			gLogger->logMsgF(" object %s already in list",MSG_HIGH,object->getModelString().getAnsi());
-			return;
-		}
-		++it;
-	}
-
-	mObjects.push_back(object);
-}
 
 //============================================================================
 // checks whether we have enough space in the inventory to accomodate
@@ -162,39 +87,6 @@ void Inventory::removeEquippedObject(Object* object)
 	gLogger->logMsgF("cant find equipped object %s",MSG_HIGH,object->getModelString().getAnsi());
 }
 
-//=============================================================================
-//deletes the object out of the inventories Objectmap
-void Inventory::deleteObject(Object* object)
-{
-	ObjectList::iterator it = mObjects.begin();
-
-	while(it != mObjects.end())
-	{
-		if((*it) == object)
-		{
-			gWorldManager->destroyObject(object);
-
-			mObjects.erase(it);
-			return;
-		}
-		++it;
-	}
-}
-
-//=============================================================================
-
-Object* Inventory::getObjectById(uint64 objId)
-{
-	ObjectList::iterator it = mObjects.begin();
-	while(it != mObjects.end())
-	{
-		if((*it)->getId() == objId)
-			return(*it);
-		++it;
-	}
-	gLogger->logMsgF("Inventory::getObjectById Item %I64u not found",MSG_HIGH,objId);
-	return(NULL);
-}
 
 //=============================================================================
 
@@ -228,7 +120,7 @@ void Inventory::handleObjectReady(Object* object,DispatchClient* client)
 	//generally we presume that objects are created UNEQUIPPED
 	gWorldManager->addObject(object,true);
 
-	mObjects.push_back(object);
+	addObject(object);
 
 	// send the creates, if we are owned by a player
 	if(PlayerObject* player = dynamic_cast<PlayerObject*>(mParent))
@@ -484,13 +376,13 @@ void Inventory::getUninsuredItems(SortedInventoryItemList* insuranceList)
 	// Clear the insurance list.
 	insuranceList->clear();
 
-	ObjectList::iterator invObjectIt = mObjects.begin();
+	ObjectIDList::iterator invObjectIt = getObjects()->begin();
 
 	// Items inside inventory and child objects.
-	while (invObjectIt != mObjects.end())
+	while (invObjectIt != getObjects()->end())
 	{
-		Object* object = (*invObjectIt);
-		if (object->hasInternalAttribute("insured"))
+		Object* object = gWorldManager->getObjectById((*invObjectIt));
+		if (object&&object->hasInternalAttribute("insured"))
 		{
 			// gLogger->logMsgF("Inventory::insuranceListCreate: Found item with insurance attribute inside the inventory: %"PRIu64"", MSG_NORMAL,object->getId());
 			if (!object->getInternalAttribute<bool>("insured"))
@@ -519,12 +411,12 @@ void Inventory::getUninsuredItems(SortedInventoryItemList* insuranceList)
 	}
 
 	// Items equipped by the player.
-	invObjectIt = mEquippedObjects.begin();
+	ObjectList::iterator equippedObjectIt = mEquippedObjects.begin();
 
-	while (invObjectIt != mEquippedObjects.end())
+	while (equippedObjectIt != mEquippedObjects.end())
 	{
-		Object* object = (*invObjectIt);
-		if (object->hasInternalAttribute("insured"))
+		Object* object = (*equippedObjectIt);
+		if (object&&object->hasInternalAttribute("insured"))
 		{
 			// gLogger->logMsgF("Inventory::insuranceListCreate: Found equipped item with insurance attribute: %"PRIu64"", MSG_NORMAL,object->getId());
 			if (!object->getInternalAttribute<bool>("insured"))
@@ -549,7 +441,7 @@ void Inventory::getUninsuredItems(SortedInventoryItemList* insuranceList)
 				}
 			}
 		}
-		invObjectIt++;
+		equippedObjectIt++;
 	}
 }
 
@@ -566,13 +458,13 @@ void Inventory::getInsuredItems(SortedInventoryItemList* insuranceList)
 	// Clear the insurance list.
 	insuranceList->clear();
 
-	ObjectList::iterator invObjectIt = mObjects.begin();
+	ObjectIDList::iterator invObjectIt = getObjects()->begin();
 
 	// Items inside inventory and child objects.
-	while (invObjectIt != mObjects.end())
+	while (invObjectIt != getObjects()->end())
 	{
-		Object* object = (*invObjectIt);
-		if (object->hasInternalAttribute("insured"))
+		Object* object = gWorldManager->getObjectById((*invObjectIt));
+		if (object&&object->hasInternalAttribute("insured"))
 		{
 			// gLogger->logMsgF("Inventory::insuranceListCreate: Found item with insurance attribute inside the inventory: %"PRIu64"", MSG_NORMAL,object->getId());
 			if (object->getInternalAttribute<bool>("insured"))
@@ -601,11 +493,11 @@ void Inventory::getInsuredItems(SortedInventoryItemList* insuranceList)
 	}
 
 	// Items equipped by the player.
-	invObjectIt = mEquippedObjects.begin();
+	ObjectList::iterator equippedObjectIt = mEquippedObjects.begin();
 
-	while (invObjectIt != mEquippedObjects.end())
+	while (equippedObjectIt != mEquippedObjects.end())
 	{
-		Object* object = (*invObjectIt);
+		Object* object = (*equippedObjectIt);
 		if (object->hasInternalAttribute("insured"))
 		{
 			// gLogger->logMsgF("Inventory::insuranceListCreate: Found equipped item with insurance attribute: %"PRIu64"", MSG_NORMAL,object->getId());
@@ -631,7 +523,7 @@ void Inventory::getInsuredItems(SortedInventoryItemList* insuranceList)
 				}
 			}
 		}
-		invObjectIt++;
+		equippedObjectIt++;
 	}
 }
 
@@ -639,12 +531,12 @@ void Inventory::getInsuredItems(SortedInventoryItemList* insuranceList)
 bool Inventory::itemExist(uint32 familyId, uint32 typeId)
 {
 	bool found = false;
-	ObjectList::iterator invObjectIt = mObjects.begin();
+	ObjectIDList::iterator invObjectIt = getObjects()->begin();
 
 	// Items inside inventory and child objects.
-	while (invObjectIt != mObjects.end())
+	while (invObjectIt != getObjects()->end())
 	{
-		Object* object = (*invObjectIt);
+		Object* object = getObjectById(*invObjectIt);
 		Item* item = dynamic_cast<Item*>(object);
 		if (item)
 		{
@@ -660,11 +552,11 @@ bool Inventory::itemExist(uint32 familyId, uint32 typeId)
 	if (!found)
 	{
 		// Items equipped by the player.
-		invObjectIt = mEquippedObjects.begin();
+		ObjectList::iterator equippedObjectIt = mEquippedObjects.begin();
 
-		while (invObjectIt != mEquippedObjects.end())
+		while (equippedObjectIt != mEquippedObjects.end())
 		{
-			Object* object = (*invObjectIt);
+			Object* object = (*equippedObjectIt);
 			Item* item = dynamic_cast<Item*>(object);
 			if (item)
 			{
@@ -674,7 +566,7 @@ bool Inventory::itemExist(uint32 familyId, uint32 typeId)
 					break;
 				}
 			}
-			invObjectIt++;
+			equippedObjectIt++;
 		}
 	}
 	return found;

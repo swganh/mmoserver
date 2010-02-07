@@ -282,7 +282,7 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		// get an attribute key
 		string					getAttributeKey(uint32 keyId);
 		// get an attribute ID
-		uint64					getAttributeId(uint32 keyId);
+		uint32					getAttributeId(uint32 keyId);
 		// get a npc animation
 		string					getNpcConverseAnimation(uint32 animId){ return mvNpcConverseAnimations[animId - 1]; }
 		// get a random chat phrase
@@ -339,6 +339,7 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		~WorldManager();
 
 		AttributeKeyMap				mObjectAttributeKeyMap;
+		AttributeIDMap				mObjectAttributeIDMap;
 
 	private:
 

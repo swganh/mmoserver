@@ -67,8 +67,6 @@ bool MessageLib::sendBaselinesMSCO_3(ManufacturingSchematic* manSchem,PlayerObje
 	if(!draftSchematic)
 		return(false);
 
-	// @todo: this variable is currently unused. Revisit later and remove if unneeded.
-	// uint32					namesByteCount	= manSchem->getNameFile().getLength() + manSchem->getName().getLength() + (manSchem->getCustomName().getLength()<< 1) + (playerObject->getFirstName().getLength() << 1);
 	string					convPlayerName	= playerObject->getFirstName();
 	string					convCustomName	= manSchem->getCustomName();
 

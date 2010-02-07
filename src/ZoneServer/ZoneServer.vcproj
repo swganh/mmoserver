@@ -549,6 +549,22 @@
 				>
 			</File>
 			<File
+				RelativePath=".\WorldManagerDataBaseHandlers.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\WorldManagerNPCHandlers.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\WorldManagerObjectHandlers.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\WorldManagerPlayerHandlers.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\ZoneServer.cpp"
 				>
 			</File>

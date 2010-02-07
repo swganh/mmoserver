@@ -782,16 +782,21 @@ string CraftingSession::getSerial()
 
 uint8 CraftingSession::_experimentRoll(uint32 expPoints)
 {
-
-	// get the assembly mod, TODO: match to schematic groups
-	int32 assMod = mOwner->getSkillModValue(SMod_general_assembly);
+	if(mOwnerExpSkillMod > 125)
+	{
+		mOwnerExpSkillMod = 125;
+	}
 
 	int32 assRoll;
 	int32 riskRoll;
 
 	float ma		= _calcAverageMalleability();
 
-	float rating	= 50.0f + (ma - 500.0f) / 40.0f +  assMod - (5.0f * expPoints);
+	//high rating means lesser risk!!
+	float rating	= 50.0f + ((ma - 500.0f) / 40.0f) +  mOwnerExpSkillMod - (5.0f * expPoints);
+
+	rating	-= (mManufacturingSchematic->getComplexity()/10);
+	rating	+= (mToolEffectivity/10);
 
 	float risk		= 100.0f - rating;
 
@@ -861,18 +866,19 @@ uint8 CraftingSession::_assembleRoll()
 
 	float ma		= _calcAverageMalleability();
 
-	// make sure the values are valid and dont crash us
-	if((mOwnerAssSkillMod > 100)||(mOwnerAssSkillMod < 0))
+	// make sure the values are valid and dont crash us cap it at 125
+	if(mOwnerAssSkillMod > 125)
 	{
-		mOwnerAssSkillMod = 0;
+		mOwnerAssSkillMod = 125;
 	}
 
 
-	float rating	= 50.0f + (ma - 500.0f) / 40.0f +  mOwnerAssSkillMod - 5.0f + (mToolEffectivity/10);
+	float rating	= 50.0f + ((ma - 500.0f) / 40.0f) +  mOwnerAssSkillMod - 5.0f;
 	//gLogger->logMsgF("CraftingSession:: relevant rating %f",MSG_NORMAL,rating);
 	gLogger->logErrorF("Crafting","CraftingSession::_assembleRoll() relevant rating %f",MSG_NORMAL,rating);
 
 	rating	+= (mToolEffectivity/10);
+	rating -= (mManufacturingSchematic->getComplexity()/10);
 
 	gLogger->logErrorF("Crafting","CraftingSession::_assembleRoll() relevant rating modified with tool %f",MSG_NORMAL,rating);
 
@@ -1075,6 +1081,11 @@ void CraftingSession::collectComponents()
 		//is it a resource??
 		if(((*manIt)->mDraftSlot->getType() == DST_IdentComponent)||((*manIt)->mDraftSlot->getType() == DST_SimiliarComponent))
 		{
+			if(!(*manIt)->mFilledResources.size())
+			{
+				manIt++;
+				continue;
+			}
 			//get component serial and amount
 			//we only can enter one serial type in a slot so dont care about the other entries
 
@@ -1169,5 +1180,127 @@ void CraftingSession::updateResourceContainer(uint64 containerID, uint32 newAmou
 		gMessageLib->sendResourceContainerUpdateAmount(resContainer,mOwner);
 		mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",newAmount,resContainer->getId());
 	}
+
+}
+
+//===============================================================
+// empties the slots of a man schem when a critical assembly error happens
+// send
+
+void CraftingSession::emptySlots(uint32 counter)
+{
+	uint8 amount = mManufacturingSchematic->getManufactureSlots()->size();
+
+    for (uint8 i = 0; i < amount; i++)
+	{
+
+		ManufactureSlot* manSlot = mManufacturingSchematic->getManufactureSlots()->at(i);
+
+		if(manSlot)
+		{
+			emptySlot(i,manSlot,mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)->getId());
+
+			gMessageLib->sendCraftAcknowledge(opCraftEmptySlot,CraftError_None,static_cast<uint8>(counter),mOwner);
+
+		}
+	}
+}
+
+//===============================================================
+// modifies an items attribute value
+// 
+
+void CraftingSession::modifyAttributeValue(CraftAttribute* att, float attValue)
+{
+	if(att->getType())
+	{
+		int32 intAtt = 0;
+		//is there an attribute of a component that affects us??
+		if(mManufacturingSchematic->hasPPAttribute(att->getAttributeKey()))
+		{
+			float attributeAddValue = mManufacturingSchematic->getPPAttribute<float>(att->getAttributeKey());
+			intAtt = (int32)(ceil(attributeAddValue));
+		}
+
+		intAtt += (int32)(ceil(attValue));
+		mItem->setAttributeIncDB(att->getAttributeKey(),boost::lexical_cast<std::string>(intAtt));
+	}
+	else
+	{
+		attValue = roundF(attValue,2);
+
+		//is there an attribute of a component that affects us??
+		if(mManufacturingSchematic->hasPPAttribute(att->getAttributeKey()))
+		{
+			float attributeAddValue = mManufacturingSchematic->getPPAttribute<float>(att->getAttributeKey());
+			attValue += roundF(attributeAddValue,2);
+
+		}
+		mItem->setAttributeIncDB(att->getAttributeKey(),boost::lexical_cast<std::string>(attValue));
+	}
+}
+
+
+float CraftingSession::getPercentage(uint8 roll)
+{
+	float percentage = 0.0;
+	switch(roll)
+	{
+		case 0 :	percentage = 0.08f;	break;
+		case 1 :	percentage = 0.07f;	break;
+		case 2 :	percentage = 0.06f;	break;
+		case 3 :	percentage = 0.02f;	break;
+		case 4 :	percentage = 0.01f;	break;
+		case 5 :	percentage = -0.0175f;	break; //failure
+		case 6 :	percentage = -0.035f;	break;//moderate failure
+		case 7 :	percentage = -0.07f;	break;//big failure
+		case 8 :	percentage = -0.14f;	break;//critical failure
+	}
+	return percentage;
+}
+
+//========================================================================================
+// gets the ExperimentationRoll and initializes the experimental properties
+// meaning an exp property which exists several times (with different resourceweights) 
+// gets the same roll assigned
+							  
+uint8 CraftingSession::getExperimentationRoll(ExperimentationProperty* expProperty, uint8 expPoints)
+{
+	ExperimentationProperties*			expAllProps = mManufacturingSchematic->getExperimentationProperties();
+	ExperimentationProperties::iterator itAll		=	 expAllProps->begin();
+	uint8 roll;
+
+	if(expProperty->mRoll == -1)
+	{
+		gLogger->logMsgF("CraftingSession:: expProperty is a Virgin!",MSG_NORMAL);
+		
+		// get our Roll and take into account the relevant modifiers
+		roll			= _experimentRoll(expPoints);
+
+		// now go through all properties and mark them when its this one!
+		// so we dont experiment two times on it!
+		itAll =	 expAllProps->begin();
+		while(itAll != expAllProps->end())
+		{
+			ExperimentationProperty* tempProperty = (*itAll);
+
+			gLogger->logMsgF("CraftingSession:: now testing expProperty : %s",MSG_NORMAL,tempProperty->mExpAttributeName.getAnsi());
+			if(expProperty->mExpAttributeName.getCrc() == tempProperty->mExpAttributeName.getCrc())
+			{
+				gLogger->logMsgF("CraftingSession:: yay :) lets assign it our roll : %u",MSG_NORMAL,roll);
+				tempProperty->mRoll = roll;
+			}
+
+			itAll++;
+		}
+
+	}
+	else
+	{
+		roll = static_cast<uint8>(expProperty->mRoll);
+		gLogger->logMsgF("CraftingSession:: experiment expProperty isnt a virgin anymore ...(roll:%u)",MSG_NORMAL,roll);
+	}
+
+	return roll;
 
 }

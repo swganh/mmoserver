@@ -23,6 +23,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 //=============================================================================
 
+class ExperimentationProperty;
+class CraftAttribute;
 class CraftingTool;
 class CraftingStation;
 class CraftSessionQueryContainer;
@@ -116,14 +118,29 @@ class CraftingSession : public DatabaseCallback, public ObjectFactoryCallback
 		void					collectResources();
 		void					collectComponents();
 
+		//empties the slots of a manufacturing schematic when assembly failed
+		void					emptySlots(uint32 counter);
+
+		//an attributes value is updated depending on the attribute type (int/float)
+		void					modifyAttributeValue(CraftAttribute* att, float attValue);
+
+		//the percentage modifying our attribute based on the roll
+		float					getPercentage(uint8 roll);
+
+		// gets the ExperimentationRoll and initializes the experimental properties
+		// meaning an exp property which exists several times (with different resourceweights) 
+		// gets the same roll assigned
+		uint8					getExperimentationRoll(ExperimentationProperty* expProperty, uint8 expPoints);
+
 	private:
 
 
 		float roundF(float x,const int places)
 		{
-			const float shift = pow(10.0f,places);
+			float shift = pow(10.0f,places);
 
-			return floorf(x * shift + 0.5f) / shift;
+			int32 i = (int32)floorf(x * shift + 0.5f);
+			return float(i / shift);
 		}
 
 		float					_calcWeightedResourceValue(CraftWeights* weights);

@@ -344,3 +344,16 @@ bool ManufactureSlot::addResourcetoSlot(uint64 resID, uint32 amount)
 	return false;
 }
 
+
+void ManufacturingSchematic::ModifyBlueBars(float mod)
+{
+	ExperimentationProperties*			expPropertiesList	= getExperimentationProperties();
+	ExperimentationProperties::iterator	expIt				= expPropertiesList->begin();
+
+	while(expIt!= expPropertiesList->end())
+	{
+		(*expIt)->mBlueBarSize = ((*expIt)->mBlueBarSize * mod);
+
+		++expIt;
+	}
+}

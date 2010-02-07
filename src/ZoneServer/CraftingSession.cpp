@@ -330,6 +330,8 @@ void CraftingSession::handleObjectReady(Object* object,DispatchClient* client)
 	{
 		mManufacturingSchematic = dynamic_cast<ManufacturingSchematic*>(item);
 
+		mManufacturingSchematic->setComplexity((float)mDraftSchematic->getComplexity());
+
 		// now request the (temporary) item, based on the draft schematic defaults
 		gObjectFactory->requestNewDefaultItem(this,(mDraftSchematic->getId() >> 32),mTool->getId(),99,Anh_Math::Vector3());
 	}
@@ -377,7 +379,10 @@ bool CraftingSession::selectDraftSchematic(uint32 schematicIndex)
 
 	// invalid index
 	if(filteredPlayerSchematics->empty() || filteredPlayerSchematics->size() < schematicIndex)
+	{
+		gLogger->logErrorF("Crafting","CraftingSession::selectDraftSchematic: Invalid Index : %u",MSG_NORMAL,schematicIndex);
 		return(false);
+	}
 
 	// get the schematic from the filtered list
 	uint32 schemCrc = ((filteredPlayerSchematics->at(schematicIndex))>>32);
@@ -667,32 +672,11 @@ void CraftingSession::assemble(uint32 counter)
 		//the client forces us to stay in stage 2!!!
 		mStage = 2;
 
-		while(expIt!= expPropertiesList->end())
-		{
-			(*expIt)->mBlueBarSize = ((*expIt)->mBlueBarSize * 0.9f);
-
-			++expIt;
-		}
+		mManufacturingSchematic->ModifyBlueBars(0.9);
 
 		//now empty the slots
-		uint8 amount = mManufacturingSchematic->getManufactureSlots()->size();
-
-	    for (uint8 i = 0; i < amount; i++)
-		{
-
-			ManufactureSlot* manSlot = mManufacturingSchematic->getManufactureSlots()->at(i);
-
-			if(manSlot)
-			{
-				emptySlot(i,manSlot,mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)->getId());
-
-				gMessageLib->sendCraftAcknowledge(opCraftEmptySlot,CraftError_None,static_cast<uint8>(counter),mOwner);
-
-			}
-		}
-		// done
-
-
+		emptySlots(counter);
+		
 		gMessageLib->sendGenericIntResponse(assRoll,static_cast<uint8>(counter),mOwner);
 		return;
 	}
@@ -745,38 +729,12 @@ void CraftingSession::assemble(uint32 counter)
 		// exp attribute - the msco code will sort that out so that the exp attribute is only send once!
 		while(caIt != expProperty->mAttributes->end())
 		{
-			CraftAttribute* att = (*caIt);
-
+			 CraftAttribute* att = (*caIt);
 			float attValue	= att->getMin() + ((att->getMax() - att->getMin()) * expProperty->mExpAttributeValue);
-			// ceil and cut off, when it needs to be an integer
-			if(att->getType())
-			{
-				int32 intAtt = 0;
-				if(mManufacturingSchematic->hasPPAttribute(att->getAttributeKey()))
-				{
-					float attributeAddValue = mManufacturingSchematic->getPPAttribute<float>(att->getAttributeKey());
-					intAtt = (int32)(ceil(attributeAddValue));
-				}
-
-				intAtt += (int32)(ceil(attValue));
-
-				mItem->setAttribute(att->getAttributeKey(),boost::lexical_cast<std::string>(intAtt));
-				mDatabase->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%i' WHERE item_id=%"PRIu64" AND attribute_id=%u",intAtt,mItem->getId(),att->getAttributeId());
-			}
-			else
-			{
-				attValue = roundF(attValue,2);
-
-				if(mManufacturingSchematic->hasPPAttribute(att->getAttributeKey()))
-				{
-					float attributeAddValue = mManufacturingSchematic->getPPAttribute<float>(att->getAttributeKey());
-					attValue += roundF(attributeAddValue,2);
-				}
-
-				mItem->setAttribute(att->getAttributeKey(),boost::lexical_cast<std::string>(attValue));
-				mDatabase->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%.2f' WHERE item_id=%"PRIu64" AND attribute_id=%u",attValue,mItem->getId(),att->getAttributeId());
-			}
-
+		
+			//modify the attribute for the item - in memory AND db
+			modifyAttributeValue((*caIt),attValue);
+			
 			++caIt;
 		}
 
@@ -948,10 +906,12 @@ void CraftingSession::experiment(uint8 counter,std::vector<std::pair<uint32,uint
 
 	// a list containing ALL exp properties - including the ones appearing more often than once
 	ExperimentationProperties*			expAllProps = mManufacturingSchematic->getExperimentationProperties();
-	ExperimentationProperties::iterator itAll =	 expAllProps->begin();
+	ExperimentationProperties::iterator itAll		=	 expAllProps->begin();
+	
 
-
-
+	uint32				accumulatedRoll = 0;//here we accumulate the roll results
+	uint8				roll = 0;				//thats the experimentation roll
+	uint8				rollCount = 0;		//thats the amount of rolls made
 	uint32				expPoints = 0;
 
 	//this is the list containing the assigned experimentation points
@@ -964,10 +924,11 @@ void CraftingSession::experiment(uint8 counter,std::vector<std::pair<uint32,uint
 
 		++it;
 	}
+	// update left exp points
+	mOwner->setExperimentationPoints(mOwner->getExperimentationPoints() - expPoints);
 
-	// here we accumulate our experimentation rolls
-	uint16	accumulatedRoll = 0;
-	uint8	rollCount = 0;
+	//items complexity increases per experimentation
+	mManufacturingSchematic->incComplexity();
 
 	// initialize our storage value so we know what we already experimented on
 	// use the list containing ALL properties
@@ -984,72 +945,29 @@ void CraftingSession::experiment(uint8 counter,std::vector<std::pair<uint32,uint
 	it			= properties.begin();
 	expPoints	= 0;
 
-	uint8 roll;
+	
 	while(it != properties.end())
 	{
+		expPoints = (*it).first;
 		ExperimentationProperty* expProperty = expPropList->at((*it).second).second;
+
 		gLogger->logMsgF("CraftingSession:: experiment expProperty : %s",MSG_NORMAL,expProperty->mExpAttributeName.getAnsi());
 
 		// make sure that we only experiment once for exp properties that might be entered twice in our list !!!!
-		if(expProperty->mRoll == -1)
-		{
-			gLogger->logMsgF("CraftingSession:: expProperty is a Virgin!",MSG_NORMAL);
-			// get our Roll and take into account the relevant modifiers
-			roll			= _experimentRoll(expPoints);
+		roll = getExperimentationRoll(expProperty,expPoints);
 
-			// now go through all properties and mark them when its this one!
-			// so we dont experiment two times on it!
-			itAll =	 expAllProps->begin();
-			while(itAll != expAllProps->end())
-			{
-				ExperimentationProperty* tempProperty = (*itAll);
-
-				gLogger->logMsgF("CraftingSession:: now testing expProperty : %s",MSG_NORMAL,tempProperty->mExpAttributeName.getAnsi());
-				if(expProperty->mExpAttributeName.getCrc() == tempProperty->mExpAttributeName.getCrc())
-				{
-					gLogger->logMsgF("CraftingSession:: yay :) lets assign it our roll : %u",MSG_NORMAL,roll);
-					tempProperty->mRoll = roll;
-				}
-
-				itAll++;
-			}
-
-		}
-		else
-		{
-			roll = static_cast<uint8>(expProperty->mRoll);
-			gLogger->logMsgF("CraftingSession:: experiment expProperty isnt a virgin anymore ...(roll:%u)",MSG_NORMAL,roll);
-		}
-
-
-		accumulatedRoll += roll;
+		//get the mean roll for our status message
 		rollCount++;
-		float percentage	= 0.0f;
+		accumulatedRoll		+= (uint32)roll;
+		
+		//the percentage gets added to / deducted from our attributes value
+		float modifier	= getPercentage(roll);						   		
 
-		switch(roll)
-		{
-			case 0 :	percentage = 0.08f;	break;
-			case 1 :	percentage = 0.07f;	break;
-			case 2 :	percentage = 0.06f;	break;
-			case 3 :	percentage = 0.02f;	break;
-			case 4 :	percentage = 0.01f;	break;
-			case 5 :	percentage = -0.0175f;	break; //failure
-			case 6 :	percentage = -0.035f;	break;//moderate failure
-			case 7 :	percentage = -0.07f;	break;//big failure
-			case 8 :	percentage = -0.14f;	break;//critical failure
-		}
+		//the bluebar gives the max amount of experimentation we can do
+		float malus = 1.0f + modifier;
+		expProperty->mBlueBarSize = (expProperty->mBlueBarSize * malus);
 
-		if((roll < 1) || (roll >4))
-		{
-			float malus = 1.0f + percentage;
-			expProperty->mBlueBarSize = (expProperty->mBlueBarSize * malus);
-		}
-
-		float add = percentage;// attribute->mExpAttributeValue * percentage;
-
-		expProperty->mExpAttributeValue += add * (*it).first;
-
-		expPoints += (*it).first;
+		expProperty->mExpAttributeValue += modifier * (*it).first;
 
 		// update item attributes
 		CraftAttributes::iterator caIt = expProperty->mAttributes->begin();
@@ -1058,58 +976,22 @@ void CraftingSession::experiment(uint8 counter,std::vector<std::pair<uint32,uint
 		while(caIt != expProperty->mAttributes->end())
 		{
 			CraftAttribute* att = (*caIt);
-
-			//gLogger->logMsgF("CraftingSession:: experiment attribute ID %u",MSG_NORMAL,att->getAttributeId());
-
 			float attValue	= att->getMin() + ((att->getMax() - att->getMin()) * expProperty->mExpAttributeValue);
 
 			if(attValue > att->getMax())
 				attValue = att->getMax();
 
-			//gLogger->logMsgF("CraftingSession:: experiment attribute value %f",MSG_NORMAL,attValue);
-			// ceil and cut off, when it needs to be an integer
-			if(att->getType())
-			{
-				int32 intAtt = 0;
-
-				if(mManufacturingSchematic->hasPPAttribute(att->getAttributeKey()))
-				{
-					float attributeAddValue = mManufacturingSchematic->getPPAttribute<float>(att->getAttributeKey());
-					intAtt = (int32)(ceil(attributeAddValue));
-				}
-
-				intAtt += (int32)(ceil(attValue));
-
-				mItem->setAttribute(att->getAttributeKey(),boost::lexical_cast<std::string>(intAtt));
-				mDatabase->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%i' WHERE item_id=%"PRIu64" AND attribute_id=%u",intAtt,mItem->getId(),att->getAttributeId());
-			}
-			else
-			{
-				attValue = roundF(attValue,2);
-
-				if(mManufacturingSchematic->hasPPAttribute(att->getAttributeKey()))
-				{
-					float attributeAddValue = mManufacturingSchematic->getPPAttribute<float>(att->getAttributeKey());
-					attValue += roundF(attributeAddValue,2);
-				}
-
-				//attValue =  round2ptPrecision(float x) { char falpha[128]; sprintf(falpha,"%0.2f",x); return atof(falpha); }
-
-				mItem->setAttribute(att->getAttributeKey(),boost::lexical_cast<std::string>(attValue));
-				mDatabase->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%.2f' WHERE item_id=%"PRIu64" AND attribute_id=%u",attValue,mItem->getId(),att->getAttributeId());
-			}
-
+			//modify the attributes value in memory and db depending on float or integer value
+			modifyAttributeValue((*caIt),attValue);
 			++caIt;
 		}
 
 		++it;
 	}
 
+	
 	// get the gross of our exp rolls for the message
 	roll = (uint8)   accumulatedRoll/rollCount;
-
-	// update left exp points
-	mOwner->setExperimentationPoints(mOwner->getExperimentationPoints() - expPoints);
 
 	// send updates
 	gMessageLib->sendAttributeDeltasMSCO_7(mManufacturingSchematic,mOwner);
@@ -1275,21 +1157,20 @@ void CraftingSession::createManufactureSchematic(uint32 counter)
 	mManufacturingSchematic->setItem(mItem);
 
 	//Now enter the relevant information into the Manufactureschematic table
-	mDatabase->ExecuteSqlAsync(0,0,"INSERT INTO manufactureschematic VALUES (%"PRIu64",%u,%u,%"PRIu64",%s)",mManufacturingSchematic->getId(),this->getProductionAmount(),this->mSchematicCRC,mItem->getId(),serial.getAnsi());
+	mDatabase->ExecuteSqlAsync(0,0,"INSERT INTO manufactureschematic VALUES (%"PRIu64",%u,%u,%"PRIu64",%s,%u)",mManufacturingSchematic->getId(),this->getProductionAmount(),this->mSchematicCRC,mItem->getId(),serial.getAnsi(),mManufacturingSchematic->getComplexity());
 
 	
 	//save the customization - thats part of the item!!!!
 
 	//add datapadsize
-	//data size - hardcode to 1 for now
-	//244 is id of attribute data_volume!!!
+	//data size - hardcode to 1 for now not sure whether there are different sizes
 	mManufacturingSchematic->addAttribute("data_volume","1");
-	sprintf(sql,"INSERT INTO item_attributes VALUES(%"PRIu64",244,'1',0,0)",mManufacturingSchematic->getId());
+	sprintf(sql,"INSERT INTO item_attributes VALUES(%"PRIu64",%u,'1',0,0)",mManufacturingSchematic->getId(),AttrType_DataVolume);
 	mDatabase->ExecuteSqlAsync(0,0,sql);
 
 	//add creator
 	mItem->addAttribute("crafter",mOwner->getFirstName().getAnsi());
-	sprintf(sql,"INSERT INTO item_attributes VALUES(%"PRIu64",17,'%s',0,0)",mItem->getId(),mOwner->getFirstName().getAnsi());
+	sprintf(sql,"INSERT INTO item_attributes VALUES(%"PRIu64",%u,'%s',0,0)",mItem->getId(),AttrType_crafter,mOwner->getFirstName().getAnsi());
 	mDatabase->ExecuteSqlAsync(0,0,sql);
 
 	//save the resource Information as atributes

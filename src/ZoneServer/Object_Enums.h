@@ -23,6 +23,7 @@ enum AttributeType
 	AttrType_CraftToolStatus			=	18,
 	AttrType_CraftToolTime				=	22,
 	AttrType_CounterUsesRemaining		=	23,
+	AttrType_DataVolume					=	244,
 	AttrType_factory_count				=	400
 };
 

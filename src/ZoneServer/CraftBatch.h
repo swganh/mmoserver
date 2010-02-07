@@ -84,6 +84,8 @@ class CraftAttribute
 		string	getAttributeKey(){ return mAttributeKey; }
 		float	getMin(){ return mMin; }
 		float	getMax(){ return mMax; }
+
+		//determines whether the attributes value is integer or float ()draft_craft_item_attribute_link attribute_type
 		uint8	getType() { return mType; }
 
 	private:

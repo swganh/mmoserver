@@ -16,6 +16,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "MessageLib/MessageLib.h"
 #include "Common/Message.h"
 #include "Common/MessageFactory.h"
+#include "DatabaseManager/Database.h"
 
 
 //=============================================================================
@@ -222,12 +223,60 @@ void Object::setAttribute(string key,std::string value)
 	(*it).second = value;
 }
 
+//=========================================================================
+//set the attribute and alter the db
+
+void Object::setAttributeIncDB(string key,std::string value)
+{
+	AttributeMap::iterator it = mAttributeMap.find(key.getCrc());
+
+	if(it == mAttributeMap.end())
+	{
+		gLogger->logMsgF("Object::setAttribute: could not find %s",MSG_HIGH,key.getAnsi());
+		return;
+	}
+
+	(*it).second = value;
+
+	uint32 attributeID = gWorldManager->getAttributeId(key.getCrc());
+	if(!attributeID)
+	{
+		gLogger->logMsgF("Object::addAttribute DB: no such attribute in the attribute table :%s",MSG_HIGH,key.getAnsi());
+		return;
+	}
+	int8 sql[512];
+	
+	sprintf(sql,"UPDATE item_attributes SET value='%s' WHERE item_id=%"PRIu64" AND attribute_id=%u",value,this->getId(),attributeID);
+	gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,sql);
+}
+	
+
 //=============================================================================
+//adds the attribute to the objects attribute list
 
 void Object::addAttribute(string key,std::string value)
 {
 	mAttributeMap.insert(std::make_pair(key.getCrc(),value));
 	mAttributeOrderList.push_back(key.getCrc());
+}
+
+//=============================================================================
+//adds the attribute to the objects attribute list AND to the db - it needs a valid entry in the attribute table for that
+
+void Object::addAttributeIncDB(string key,std::string value)
+{
+	mAttributeMap.insert(std::make_pair(key.getCrc(),value));
+	mAttributeOrderList.push_back(key.getCrc());
+
+	uint32 attributeID = gWorldManager->getAttributeId(key.getCrc());
+	if(!attributeID)
+	{
+		gLogger->logMsgF("Object::addAttribute DB: no such attribute in the attribute table :%s",MSG_HIGH,key.getAnsi());
+		return;
+	}
+	int8 sql[512];
+	sprintf(sql,"INSERT INTO item_attributes VALUES(%"PRIu64",%u,%s,%u,0)",this->getId(),attributeID,value,mAttributeOrderList.size());
+	gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,sql);
 }
 
 //=============================================================================

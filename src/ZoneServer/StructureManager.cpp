@@ -176,7 +176,7 @@ void StructureManager::addNametoPermissionList(uint64 structureId, uint64 player
 	// 1 name doesnt exist
 	// 2 name already on list
 
-//mDatabase->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%.2f' WHERE item_id=%"PRIu64" AND attribute_id=%u",attValue,mItem->getId(),att->getAttributeId());
+
 }
 
 

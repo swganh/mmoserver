@@ -116,7 +116,9 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 		template<typename T> T		getAttribute(string key) const;
 		template<typename T> T		getAttribute(uint32 keyCrc) const;
 		void						setAttribute(string key,std::string value);
+		void						setAttributeIncDB(string key,std::string value);
 		void						addAttribute(string key,std::string value);
+		void						addAttributeIncDB(string key,std::string value);
 		bool						hasAttribute(string key) const;
 		void						removeAttribute(string key);
 		AttributeOrderList*			getAttributeOrder(){ return &mAttributeOrderList; }

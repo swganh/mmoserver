@@ -80,6 +80,8 @@ class ManufacturingSchematic : public Item
 		void	prepareAttributes();
 		void	sendAttributes(PlayerObject* playerObject);
 
+		void	ModifyBlueBars(float mod);
+
 		ManufactureSlots*			getManufactureSlots(){ return &mManufactureSlots; }
 
 
@@ -103,17 +105,19 @@ class ManufacturingSchematic : public Item
 		bool						hasPPAttribute(string key) const;
 		void						removePPAttribute(string key);
 
-		CustomizationList*		getCustomizationList(){return &mCustomizationList;}
+		CustomizationList*			getCustomizationList(){return &mCustomizationList;}
 
-		uint32	mUpdateCounter[19];
-		uint32	mAttributesUpdateCounter;
+		void						incComplexity(){mComplexity++;}
 
-		bool	mExpAttributeValueChange;
-		bool	mBlueBarSizeChange;
-		bool	mMaxExpValueChange;
+		uint32					mUpdateCounter[19];
+		uint32					mAttributesUpdateCounter;
 
-		uint64	mDataPadId;
-		uint32	mPaletteSize;
+		bool					mExpAttributeValueChange;
+		bool					mBlueBarSizeChange;
+		bool					mMaxExpValueChange;
+
+		uint64					mDataPadId;
+		uint32					mPaletteSize;
 
 		CustomizationList		mCustomizationList;
 
@@ -221,7 +225,7 @@ class ExperimentationProperty//CraftingAttribute
 		float							mExpAttributeValueOld;
 		float							mMaxExpValue;
 		float							mMaxExpValueOld;
-		uint32						mExpUnknown;//ExperimentationOffsetList
+		uint32							mExpUnknown;//ExperimentationOffsetList
 		int32							mRoll;
 		bool							mBlueBarSizeChange;
 		bool							mExpAttributeValueChange;

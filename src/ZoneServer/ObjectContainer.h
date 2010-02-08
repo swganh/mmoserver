@@ -32,6 +32,7 @@ typedef std::vector<Object*>	ObjectList;
  to offer methods to keep and organize a list of objects
 
 */
+class PlayerObject;
 
 
 class ObjectContainer :	public Object, public ObjectFactoryCallback
@@ -54,11 +55,25 @@ class ObjectContainer :	public Object, public ObjectFactoryCallback
 		Object*				getObjectById(uint64 id);
 		bool				addObject(Object* Data);
 		
+		//creates the object for the provided player/s
+		bool				addObject(Object* Data,PlayerObject* player);
+		bool				addObject(Object* Data,PlayerObjectSet*	knownPlayers);
+
+		
+		
 		bool				deleteObject(Object* data);
 
 		bool				removeObject(uint64 id);
+		bool				removeObject(uint64 id, PlayerObject* player);
+		bool				removeObject(uint64 id, PlayerObjectSet*	knownPlayers);
+		
 		bool				removeObject(Object* Data);
+		bool				removeObject(Object* Data, PlayerObject* player);
+		bool				removeObject(Object* Data, PlayerObjectSet*	knownPlayers);
+
 		ObjectIDList::iterator removeObject(ObjectIDList::iterator it);
+		ObjectIDList::iterator removeObject(ObjectIDList::iterator it, PlayerObject*	player);
+		ObjectIDList::iterator removeObject(ObjectIDList::iterator it, PlayerObjectSet*	knownPlayers);
 		
 		//we need to check the content of our children, too!!!!
 		bool				checkCapacity(){return((mCapacity-mData.size()) > 0);}

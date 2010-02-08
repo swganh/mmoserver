@@ -36,6 +36,7 @@ class CellObject :	public StaticObject
 
 		ObjectList*	getChilds(){ return &mChildObjects; }
 		void		addChild(Object* object){ mChildObjects.push_back(object); }
+		void		addChild(Object* object, PlayerObjectSet* inRangePlayers, PlayerObject* player = NULL);
 		bool		removeChild(Object* object);
 		bool		checkForChild(Object* object);
 

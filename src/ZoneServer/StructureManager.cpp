@@ -582,7 +582,7 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 
 
 //=======================================================================================================================
-//handles callback of altering the hopper list
+//handles callback of altering the hopper Permission list
 //
 
 void StructureManager::OpenStructureHopperList(uint64 structureId, uint64 playerId)
@@ -654,7 +654,8 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			}
 
 
-			//now create the hoppers content - put it on the knownobjectslist so it gets deleted once we move ... ?
+			// now create the hoppers content - put it on the knownobjectslist so it gets deleted once we move ... 
+			// so we cant use the automated version ... :(
 			ObjectIDList*			ol = outHopper->getObjects();
 			ObjectIDList::iterator	it = ol->begin();
 

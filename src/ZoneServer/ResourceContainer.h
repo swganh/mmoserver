@@ -30,6 +30,9 @@ class ResourceContainer : public TangibleObject
 		ResourceContainer();
 		~ResourceContainer();
 
+		virtual void	setParentIdIncDB(uint64 parentId);
+	
+
 		uint64		getResourceId();
 		void		setResourceId(uint64 id);
 		Resource*	getResource();

@@ -9,6 +9,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 #include "TangibleObject.h"
+#include "WorldManager.h"
 #include "DatabaseManager/Database.h"
 #include "MathLib/Quaternion.h"
 
@@ -163,4 +164,30 @@ void TangibleObject::buildTanoCustomization(uint8 len)
 
 	setCustomizationStr(theCustomization);
 	delete [] theCustomization;
+}
+
+//=============================================================================
+//assign the item a new custom name
+//
+void TangibleObject::setCustomNameIncDB(const int8* name)
+{
+	mCustomName = name; 
+	int8 sql[1024],restStr[128],*sqlPointer;
+	sprintf(sql,"UPDATE items SET customName='");
+		sqlPointer = sql + strlen(sql);
+		sqlPointer += gWorldManager->getDatabase()->Escape_String(sqlPointer,mCustomName.getAnsi(),mCustomName.getLength());
+		sprintf(restStr,"' WHERE id=%"PRIu64" ",this->getId());
+	
+	strcat(sql,restStr);
+	gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,sql);
+}
+
+//=============================================================================
+//assign the item a new parentid
+//
+
+void TangibleObject::setParentIdIncDB(uint64 parentId)
+{ 
+	mParentId = parentId; 
+	gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id=%"PRIu64" WHERE id=%"PRIu64"",mParentId,this->getId());
 }

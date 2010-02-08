@@ -1000,8 +1000,8 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 		{
 			// unequip it
 			inventory->unEquipItem(itemObject);
-			gMessageLib->sendDestroyObject_InRange(targetId,playerObject,false);//destroy it to the other players
-			inventory->removeObject(itemObject);
+			//remove it out of the inventory
+			inventory->removeObject(itemObject);			
 			return true;
 		}
 		//help ... how can that happen an item contained by the player MUST be equipped?
@@ -1268,15 +1268,14 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 		}
 
 	
-		itemObject->setParentId(targetContainerId);
+		
 		itemObject->mPosition = playerObject->mPosition;
 		itemObject->mDirection = playerObject->mDirection;
-		cell->addChild(itemObject);
-
-		gMessageLib->sendContainmentMessage(targetId,targetContainerId,linkType,playerObject);
+		
+		//do the db update manually because of the position - unless we get an automated position save in
+		itemObject->setParentId(targetContainerId,linkType,playerObject,false); 
 		
 		ResourceContainer* rc = dynamic_cast<ResourceContainer*>(itemObject);
-		//gObjectFactory->GiveNewOwnerInDB(itemObject,targetContainerId);
 		if(rc)
 			mDatabase->ExecuteSqlAsync(0,0,"UPDATE resource_containers SET parent_id ='%I64u', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",itemObject->getParentId(), itemObject->mDirection.mY, itemObject->mDirection.mZ, itemObject->mDirection.mW, itemObject->mPosition.mX, itemObject->mPosition.mY, itemObject->mPosition.mZ, itemObject->getId());
 		else
@@ -1285,17 +1284,8 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 		// NOTE: It's quite possible to have the player update do this kind of updates manually,
 		// but that will have a performance cost we don't ready to take yet.
 		
-		PlayerObjectSet* inRangePlayers	= playerObject->getKnownPlayers();
-		PlayerObjectSet::iterator it = inRangePlayers->begin();
-		while(it != inRangePlayers->end())
-		{
-			PlayerObject* targetObject = (*it);
-			gMessageLib->sendCreateTangible(tangible,targetObject);
-			targetObject->addKnownObjectSafe(tangible);
-			tangible->addKnownObjectSafe(targetObject);
-			++it;
-		}
-		return;
+		cell->addChild(itemObject,playerObject->getKnownPlayers());
+		
 	}	
 
 
@@ -1303,30 +1293,14 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 	if (inventory && (inventory->getId() == targetContainerId))	// Valid player inventory.
 	{
 		// Add object to OUR inventory.
-		itemObject->setParentId(targetContainerId);
+		itemObject->setParentId(targetContainerId,linkType,playerObject,true);
 		inventory->addObject(itemObject);
-		gMessageLib->sendContainmentMessage(targetId,targetContainerId,linkType,playerObject);
 		
-		gObjectFactory->GiveNewOwnerInDB(itemObject,targetContainerId);
 		return;
 		
 	}
 	
-	Container* container = dynamic_cast<Container*>(gWorldManager->getObjectById(targetContainerId));
-	if (container && tangible)
-	{
-		
-		// Add it to the container.
-		// We dont have any access validations yet.
-		container->addObject(itemObject);
-
-		itemObject->setParentId(targetContainerId);
-		mDatabase->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id=%I64u WHERE id=%I64u" ,targetContainerId, targetId);
-		gObjectFactory->GiveNewOwnerInDB(itemObject,targetContainerId);
-		gMessageLib->sendContainmentMessage(targetId,targetContainerId,linkType,playerObject);
-		return;
-	}
-
+	
 	PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetContainerId));
 	if(player)
 	{
@@ -1338,16 +1312,26 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 		return;
 	}
 
+	//thats the tutorial container - leave them as separate class ?
+	Container* container = dynamic_cast<Container*>(gWorldManager->getObjectById(targetContainerId));
+	if (container && tangible)
+	{
+		
+		// Add it to the container.
+		// We dont have any access validations yet.
+		container->addObject(itemObject);	  //just add its already created
+		
+		//set the new parent, send the contaiment and update the db
+		itemObject->setParentId(targetContainerId,linkType,playerObject,true);
+		return;
+	}
+
 	//some other container ... hopper backpack chest etc
 	TangibleObject* receivingContainer = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(targetContainerId));
 	if(receivingContainer)
 	{
 		receivingContainer->addObject(itemObject);
-		itemObject->setParentId(receivingContainer->getId());
-		gMessageLib->sendContainmentMessage(targetId,targetContainerId,linkType,playerObject);
-		
-		gObjectFactory->GiveNewOwnerInDB(itemObject,targetContainerId);
-		//mDatabase->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id ='%I64u', oY='0', oZ='0', oW='0', x='0', y='0', z='0' WHERE id='%I64u'",itemObject->getParentId(), itemObject->getId());
+		itemObject->setParentId(receivingContainer->getId(),linkType,playerObject,true);
 	}
 	
 
@@ -1368,51 +1352,30 @@ void ObjectController::_handlePurchaseTicket(uint64 targetId,Message* message,Ob
 	BStringVector	dataElements;
 	uint16			elements;
 
-	ObjectSet		inRangeObjects;
-	float			purchaseRange = 10.0;
+	
+	float		purchaseRange = gWorldConfig->getConfiguration("Player_TicketTerminalAccess_Distance",(float)10.0);
 
 	if(playerObject->getPosture() == CreaturePosture_SkillAnimating)
 	{
 		gMessageLib->sendSystemMessage(playerObject,L"You cannot do that at this time.");
 		return;
 	}
-
-	mSI->getObjectsInRange(playerObject,&inRangeObjects,ObjType_Tangible,purchaseRange);
+	
 
 	//however we are able to use the purchaseticket command in starports
 	//without having to use a ticketvendor by just giving commandline parameters
 	//when we are *near* a ticket vendor
 
+	TravelTerminal* terminal = dynamic_cast<TravelTerminal*> (gWorldManager->getNearestTerminal(playerObject,TanType_TravelTerminal));
 	// iterate through the results
-	ObjectSet::iterator it = inRangeObjects.begin();
-	bool found = false;
-
-	while(it != inRangeObjects.end())
-	{
-
-		TravelTerminal* terminal = dynamic_cast<TravelTerminal*> (*it);
-
-		if(terminal)
-		{
-			if(terminal->getTangibleType() == TanType_TravelTerminal)
-			{
-				//double check the distance
-				if(terminal->mPosition.inRange2D(playerObject->mPosition,purchaseRange))
-				{
-					found = true;
-					playerObject->setTravelPoint(terminal);
-				}
-			}
-		}
-
-		++it;
-	}
-
-	if(!found)
+	
+	if((!terminal)||terminal->mPosition.inRange2D(playerObject->mPosition,purchaseRange))
 	{
 		gMessageLib->sendSystemMessage(playerObject,L"","travel","too_far");
 		return;
 	}
+
+	playerObject->setTravelPoint(terminal);
 
 	message->getStringUnicode16(dataStr);
 

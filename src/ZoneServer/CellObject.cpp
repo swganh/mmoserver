@@ -9,6 +9,9 @@ Copyright (c) 2006 - 2010 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 #include "CellObject.h"
+#include "PlayerObject.h"
+#include "TangibleObject.h"
+#include "MessageLib/MessageLib.h"
 #include "MathLib/Quaternion.h"
 
 
@@ -68,3 +71,24 @@ bool CellObject::checkForChild(Object* object)
 
 //=============================================================================
 
+
+void CellObject::addChild(Object* object, PlayerObjectSet* inRangePlayers, PlayerObject* player)
+{
+	addChild(object);
+	PlayerObjectSet::iterator it = inRangePlayers->begin();
+	while(it != inRangePlayers->end())
+	{
+		PlayerObject* targetObject = (*it);
+		gMessageLib->sendCreateObject(object,targetObject);
+		targetObject->addKnownObjectSafe(object);
+		object->addKnownObjectSafe(targetObject);
+		++it;
+	}
+	if(player)
+	{
+		gMessageLib->sendCreateObject(object,player);
+		player->addKnownObjectSafe(object);
+		object->addKnownObjectSafe(player);
+	}
+	return;
+}

@@ -18,6 +18,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "LogManager/LogManager.h"
 #include "Common/Message.h"
 #include "Common/MessageFactory.h"
+#include "DatabaseManager/Database.h"
 #include "MathLib/Quaternion.h"
 
 //=============================================================================
@@ -204,6 +205,16 @@ void ResourceContainer::sendAttributes(PlayerObject* playerObject)
 	(playerObject->getClient())->SendChannelAUnreliable(newMessage, playerObject->getAccountId(),  CR_Client, 9);
 }
 
+
 //=============================================================================
+//assign the ResourceContainer a new parentid
+//
+
+void ResourceContainer::setParentIdIncDB(uint64 parentId)
+{ 
+	mParentId = parentId; 
+	gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE resource_containers SET parent_id=%"PRIu64" WHERE id=%"PRIu64"",mParentId,this->getId());
+}
+
 
 

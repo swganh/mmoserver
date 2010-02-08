@@ -76,11 +76,20 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 		void						setId(uint64 id){ mId = id; }
 
 		uint64						getParentId() const { return mParentId; }
+		void						setParentId(uint64 parentId){ mParentId = parentId; }
+		void						setParentId(uint64 parentId,uint32 contaiment, PlayerObject* target, bool db = false);
+		void						setParentId(uint64 parentId,uint32 contaiment, PlayerObjectSet*	knownPlayers, bool db);
+		//=============================================================================
+		//just sets a new ParentID and sends Containment to TargetObject
+		virtual void				setParentIdIncDB(uint64 parentId){mParentId = parentId;
+		gLogger->logMsgF("Object::setParentId no table specified id: %I64u",MSG_HIGH,this->getId());}
+		
+		
 		string						getModelString(){ return mModel; }
 		ObjectType					getType() const { return mType; }
 		uint32						getTypeOptions() const { return mTypeOptions; }
 
-		void						setParentId(uint64 parentId){ mParentId = parentId; }
+		
 		void						setModelString(const string model){ mModel = model; }
 		void						setType(ObjectType type){ mType = type; }
 		void						setTypeOptions(uint32 options){ mTypeOptions = options; }
@@ -128,6 +137,8 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 		template<typename T> T		getInternalAttribute(string key);
 		void						setInternalAttribute(string key,std::string value);
 		void						addInternalAttribute(string key,std::string value);
+		void						setInternalAttributeIncDB(string key,std::string value);
+		void						addInternalAttributeIncDB(string key,std::string value);
 		bool						hasInternalAttribute(string key);
 		void						removeInternalAttribute(string key);
 

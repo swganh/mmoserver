@@ -118,25 +118,17 @@ void Inventory::handleObjectReady(Object* object,DispatchClient* client)
 	// reminder: objects are owned by the global map, inventory only keeps references
 
 	//generally we presume that objects are created UNEQUIPPED
-	gWorldManager->addObject(object,true);
-
-	addObject(object);
+	//equipped objects are handled through the playerfactory on load
+	gWorldManager->addObject(object,true);//true means its not added to the si!!
 
 	// send the creates, if we are owned by a player
 	if(PlayerObject* player = dynamic_cast<PlayerObject*>(mParent))
 	{
-		gMessageLib->sendCreateObject(object,player,false);
+		addObject(object,player);
 	}
 
-	//check if we are a busy crafting tool
-	if(CraftingTool* tool = dynamic_cast<CraftingTool*>(object))
-	{
-		if(tool->getCurrentItem())
-		{
-			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getParentId()));
-			gMessageLib->sendUpdateTimer(tool,player);
-		}
-	}
+	else
+		addObject(object);
 	
 }
 
@@ -222,40 +214,29 @@ bool Inventory::EquipItem(Object* object)
 
 	//now remove from inventories unequipped list
 	this->removeObject(object);
+
 	//and add to inventories equipped list
 	this->addEquippedObject(object);
 
 	uint64			parentId	= this->getParentId();
 
-	object->setParentId(parentId);
-	object->setInternalAttribute("equipped","1");
+	//update containment and db
+	object->setParentId(parentId,4,owner,true);
 
-	gMessageLib->sendContainmentMessage(object->getId(),parentId,4,owner);
+	//update the relevant attribute and the db 
+	object->setInternalAttributeIncDB("equipped","1");
+
 	gMessageLib->sendEquippedListUpdate_InRange(owner);
 
+	//create it for all nearby players
 	PlayerObjectSet*			inRangePlayers	= owner->getKnownPlayers();
-	PlayerObjectSet::iterator	it				= inRangePlayers->begin();
-
-	while(it != inRangePlayers->end())
-	{
-		PlayerObject* targetObject = (*it);
-		gMessageLib->sendCreateTangible(item,targetObject);
-		++it;
-	}
+	gMessageLib->sendCreateTangible(item,inRangePlayers);
 
 	// weapon update
 	if(item->getItemFamily() == ItemFamily_Weapon)
 	{
 		gMessageLib->sendWeaponIdUpdate(owner);
 	}
-
-	int8 sql[256];
-	//set the equipped attribute to unequipped
-	sprintf(sql,"UPDATE swganh.item_attributes ia INNER JOIN swganh.attributes a ON a.id = ia.attribute_id SET ia.value = '1' WHERE ia.item_id= %"PRIu64" AND a.name = 'equipped'", object->getId());
-	gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,sql);
-
-	sprintf(sql,"UPDATE swganh.items  SET parent_id = '%"PRIu64"' WHERE id= %"PRIu64" ", parentId, object->getId());
-	gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,sql);
 
 	return(true);
 }
@@ -307,7 +288,12 @@ void Inventory::unEquipItem(Object* object)
 	uint64			parentId		=	inventory->getId();
 
 	//the object is now in the inventory
-	object->setParentId(this->getId());
+	//update the containment for owner and db
+	object->setParentId(this->getId(), 0xffffffff, owner, true);
+	
+	//destroy for everyone in range
+	gMessageLib->sendDestroyObject_InRange(object->getId(),owner,false);
+	gMessageLib->sendEquippedListUpdate_InRange(owner);
 
 	//now remove from the equipped list
 	this->removeEquippedObject(object);
@@ -315,7 +301,7 @@ void Inventory::unEquipItem(Object* object)
 	//and add to inventories regular (unequipped) list
 	this->addObject(object);
 
-	object->setInternalAttribute("equipped","0");
+	object->setInternalAttributeIncDB("equipped","0");
 
 	owner->getEquipManager()->removeEquippedObject(object);
 
@@ -327,20 +313,6 @@ void Inventory::unEquipItem(Object* object)
 		//if we have hair equip it
 		owner->getEquipManager()->addEquippedObject(CreatureEquipSlot_Hair,playerHair);
 	}
-
-
-	gMessageLib->sendContainmentMessage_InRange(object->getId(),parentId,0xffffffff,owner);
-	gMessageLib->sendDestroyObject_InRange(object->getId(),owner,false);
-	gMessageLib->sendEquippedListUpdate_InRange(owner);
-
-
-	int8 sql[256];
-	//set the equipped attribute to unequipped
-	sprintf(sql,"UPDATE swganh.item_attributes ia INNER JOIN swganh.attributes a ON a.id = ia.attribute_id SET ia.value = '0' WHERE ia.item_id= %"PRIu64" AND a.name = 'equipped'", object->getId());
-	gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,sql);
-
-	sprintf(sql,"UPDATE swganh.items  SET parent_id = '%"PRIu64"' WHERE id= %"PRIu64" ", parentId, object->getId());
-	gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,sql);
 
 	if(item->getItemFamily() == ItemFamily_Instrument)
 	{

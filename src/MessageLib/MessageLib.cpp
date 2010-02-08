@@ -587,7 +587,25 @@ bool MessageLib::sendCreateCreature(CreatureObject* creatureObject,PlayerObject*
 
 //======================================================================================================================
 //
-// create tangible
+// create tangible - HARK!!!! ResourceContainers and FactoryCrates are tangibles, too!!!!
+//
+
+void MessageLib::sendCreateTangible(TangibleObject* tangibleObject, PlayerObjectSetML*	knownPlayers, bool sendchildren) 
+{
+	PlayerObjectSet::iterator	it				= knownPlayers->begin();
+
+	while(it != knownPlayers->end())
+	{
+		PlayerObject* targetObject = (*it);
+		gMessageLib->sendCreateTangible(tangibleObject, targetObject, sendchildren);
+		++it;
+	}
+
+}
+
+//======================================================================================================================
+//
+// create tangible - HARK!!!! ResourceContainers and FactoryCrates are tangibles, too!!!!
 //
 
 bool MessageLib::sendCreateTangible(TangibleObject* tangibleObject,PlayerObject* targetObject, bool sendchildren) 
@@ -598,6 +616,16 @@ bool MessageLib::sendCreateTangible(TangibleObject* tangibleObject,PlayerObject*
 	{
 		gLogger->logMsgF("MessageLib::sendCreateTangible No valid player :(",MSG_HIGH);
 		return(false);
+	}
+
+	if(ResourceContainer* resContainer = dynamic_cast<ResourceContainer*>(tangibleObject))
+	{
+		return sendCreateResourceContainer(resContainer,targetObject);
+	}
+	else
+	if(FactoryCrate* crate = dynamic_cast<FactoryCrate*>(tangibleObject))
+	{
+		return sendCreateFactoryCrate(crate,targetObject);
 	}
 
 	uint64 parentId = tangibleObject->getParentId();
@@ -1148,21 +1176,7 @@ void MessageLib::sendCreateObject(Object* object,PlayerObject* player,bool sendS
 				assert(false);
 			}
 
-			// resource containers
-			if(ResourceContainer* resContainer = dynamic_cast<ResourceContainer*>(tangibleObject))
-			{
-				gMessageLib->sendCreateResourceContainer(resContainer,player);
-			}
-			else
-			if(FactoryCrate* crate = dynamic_cast<FactoryCrate*>(tangibleObject))
-			{
-				gMessageLib->sendCreateFactoryCrate(crate,player);
-			}
-			else					
-			{
-				gMessageLib->sendCreateTangible(tangibleObject,player);
-			}
-		
+			gMessageLib->sendCreateTangible(tangibleObject,player);		
 		}
 		break;
 

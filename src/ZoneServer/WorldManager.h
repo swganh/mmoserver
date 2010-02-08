@@ -37,6 +37,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #define	 gWorldManager	WorldManager::getSingletonPtr()
 
+enum TangibleType;
 // forward declarations
 class DispatchClient;
 class WMAsyncContainer;
@@ -334,8 +335,11 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 
 		bool					_handleTick(uint64 callTime,void* ref);
 
-
 		void					removePlayerMovementUpdateTime(PlayerObject* player);
+
+		//find objects in the world
+		Object*					getNearestTerminal(PlayerObject* player, TangibleType terminalType);
+		
 		~WorldManager();
 
 		AttributeKeyMap				mObjectAttributeKeyMap;

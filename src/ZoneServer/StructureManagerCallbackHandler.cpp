@@ -73,6 +73,7 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 	switch(asynContainer->mQueryType)
 	{
 
+		//this is the Hopper Permission List
 		case Structure_Query_Hopper_Data:
 		{
 			PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(asynContainer->mStructureId));

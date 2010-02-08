@@ -420,11 +420,14 @@ void ObjectController::lootAll(uint64 targetId, PlayerObject* playerObject)
 					{
 						// TODO: Check for player inventory full, and handle containers and resource containers etc...
 						// TODO: add the destroy objects to the remove Object interface at one point
-						gMessageLib->sendDestroyObject(object->getId(),playerObject);
-						// creatureInventory->removeObject(itemObject);
-
-						gObjectFactory->requestNewDefaultItem(playerInventory, item->getItemFamily(), item->getItemType(), playerInventory->getId(),99,Anh_Math::Vector3(),"");
-						invObjectIt = inventory->removeObject(invObjectIt);
+						//assume size is 1 slot
+						if(playerInventory->checkSlots(1))
+						{
+							gObjectFactory->requestNewDefaultItem(playerInventory, item->getItemFamily(), item->getItemType(), playerInventory->getId(),99,Anh_Math::Vector3(),"");
+							
+							//remove from container - destroy for player
+							invObjectIt = inventory->removeObject(invObjectIt,playerObject);
+						}
 						lootedItems++;
 					}
 					else

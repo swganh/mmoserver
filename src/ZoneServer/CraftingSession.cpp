@@ -264,8 +264,8 @@ void CraftingSession::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 				// schedule item for creation and update the tool timer
 				mTool->initTimer((int32)(mDraftSchematic->getComplexity() * 3.0f),3000,mClock->getLocalTime());
 
-				mTool->setAttribute("craft_tool_status","@crafting:tool_status_working");
-				mDatabase->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='@crafting:tool_status_working' WHERE item_id=%"PRIu64" AND attribute_id=18",mTool->getId());
+				mTool->setAttributeIncDB("craft_tool_status","@crafting:tool_status_working");
+		
 
 				gMessageLib->sendUpdateTimer(mTool,mOwner);
 				gWorldManager->addBusyCraftTool(mTool);
@@ -1127,22 +1127,13 @@ void CraftingSession::createManufactureSchematic(uint32 counter)
 
 
 	//save the datapad as the Owner Id in the db
-	mDatabase->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id=%"PRIu64" WHERE id=%"PRIu64"",datapad->getId(),mManufacturingSchematic->getId());
+	
 
 	//set the custom name of the object
-	int8 sql[1024],restStr[128],*sqlPointer;
-	sprintf(sql,"UPDATE items SET customName='");
-		sqlPointer = sql + strlen(sql);
-		sqlPointer += mDatabase->Escape_String(sqlPointer,mItem->getCustomName().getAnsi(),mItem->getCustomName().getLength());
-		sprintf(restStr,"' WHERE id=%"PRIu64" ",mManufacturingSchematic->getId());
-
-	strcat(sql,restStr);
-
-	mDatabase->ExecuteSqlAsync(0,0,sql);
+	mManufacturingSchematic->setCustomNameIncDB(mItem->getCustomName().getAnsi());
 
 	//set the schematic as parent id for our item - we need it as dummy!!!
-	mDatabase->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id=%"PRIu64" WHERE id=%"PRIu64" ",mManufacturingSchematic->getId(),mItem->getId());
-	mItem->setParentId(mManufacturingSchematic->getId());
+	mItem->setParentIdIncDB(mManufacturingSchematic->getId());
 
 	mManufacturingSchematic->setItem(mItem);
 

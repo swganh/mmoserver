@@ -76,10 +76,74 @@ bool ObjectContainer::addObject(Object* Data)
 	else
 	{
 		PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getParentId()));					
-		//gMessageLib->sendSystemMessage(player,L"","base_player","too_many_waypoints");
+		gLogger->logMsgF("ObjectContainer::addObject No Capacity!!!!",MSG_HIGH);
 		return false;
 
 	}
+}
+
+//==========================================================================================0
+//adds the Object to the container and creates it for a single player
+//
+bool ObjectContainer::addObject(Object* Data, PlayerObject* player) 
+{ 
+	if(!addObject(Data))
+		return false;
+
+	if(!player)
+	{
+		//its still added to the container
+		gLogger->logMsgF("ObjectContainer::addObject No Capacity!!!!",MSG_HIGH);
+		return true;
+
+	}
+	
+	gMessageLib->sendCreateObject(Data,player,false);
+	CraftingTool* tool = dynamic_cast<CraftingTool*>(Data);
+	if(tool&&tool->getCurrentItem())
+	{
+		gMessageLib->sendUpdateTimer(tool,player);
+	}
+	
+	return true;
+}
+
+//==========================================================================================0
+//adds the Object to the container and creates it for a single player
+//
+bool ObjectContainer::addObject(Object* Data,PlayerObjectSet*	knownPlayers) 
+{ 
+	if(!addObject(Data))
+		return false;
+
+	if(!knownPlayers||(!knownPlayers->size()))
+	{
+		//its still added to the container
+		gLogger->logMsgF("ObjectContainer::addObject No Capacity!!!!",MSG_HIGH);
+		return true;
+
+	}
+	
+	PlayerObjectSet::iterator	playerIt		= knownPlayers->begin();
+	CraftingTool* tool = dynamic_cast<CraftingTool*>(Data);
+
+	while(playerIt != knownPlayers->end())
+	{
+		PlayerObject* player = (*playerIt);
+		gMessageLib->sendCreateObject(Data,player,false);
+	
+		if(tool&&tool->getCurrentItem())
+		{
+			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getParentId()));
+			gMessageLib->sendUpdateTimer(tool,player);
+		}
+
+		player++;
+	}
+
+
+	return true;
+	
 }
 
 //=============================================================================
@@ -158,6 +222,83 @@ bool ObjectContainer::removeObject(uint64 id)
 	return false;
 }
 
+bool ObjectContainer::removeObject(uint64 id, PlayerObject* player)
+{
+	if(!removeObject(id))
+		return false;
+	gMessageLib->sendDestroyObject(id,player);
+	
+	return true;
+}
+
+bool ObjectContainer::removeObject(Object* Data, PlayerObject* player)
+{
+	if(!removeObject(Data->getId()))
+		return false;
+	gMessageLib->sendDestroyObject(Data->getId(),player);
+	return true;
+}
+
+bool ObjectContainer::removeObject(uint64 id, PlayerObjectSet*	knownPlayers)
+{
+	if(!removeObject(id))
+		return false;
+
+	PlayerObjectSet::iterator	playerIt		= knownPlayers->begin();
+
+	while(playerIt != knownPlayers->end())
+	{
+		PlayerObject* player = (*playerIt);
+		gMessageLib->sendDestroyObject(id,player);
+	
+		player++;
+	}
+	return true;
+}
+
+bool ObjectContainer::removeObject(Object* Data, PlayerObjectSet*	knownPlayers)
+{
+	if(!removeObject(Data->getId()))
+		return false;
+		
+	PlayerObjectSet::iterator	playerIt		= knownPlayers->begin();
+
+	while(playerIt != knownPlayers->end())
+	{
+		PlayerObject* player = (*playerIt);
+		gMessageLib->sendDestroyObject(Data->getId(),player);
+	
+		player++;
+	}
+	
+	return true;
+}
+
+ObjectIDList::iterator ObjectContainer::removeObject(ObjectIDList::iterator it, PlayerObjectSet*	knownPlayers)
+{
+	PlayerObjectSet::iterator	playerIt		= knownPlayers->begin();
+
+	while(playerIt != knownPlayers->end())
+	{
+		PlayerObject* player = (*playerIt);
+		gMessageLib->sendDestroyObject((*it),player);
+
+		player++;
+	}
+
+	it = mData.erase(it);
+
+	return it;
+}
+
+ObjectIDList::iterator ObjectContainer::removeObject(ObjectIDList::iterator it, PlayerObject* player)
+{
+	gMessageLib->sendDestroyObject((*it),player);
+	it = mData.erase(it);
+	return it;
+}
+
+
 //=============================================================================
 
 ObjectIDList::iterator ObjectContainer::removeObject(ObjectIDList::iterator it)
@@ -185,9 +326,6 @@ void ObjectContainer::handleObjectReady(Object* object,DispatchClient* client)
 
 	gWorldManager->addObject(object,true);
 
-	//add it to our container list
-	this->addObject(object);
-
 	CraftingTool* tool = dynamic_cast<CraftingTool*>(object);
 
 	//==========================
@@ -204,55 +342,33 @@ void ObjectContainer::handleObjectReady(Object* object,DispatchClient* client)
 		return;
 
 	}
+
+	//TODO: handle error messages with full containers
+
 	PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(mainParent));
 	
 	if(player)
 	{
-		//send the update to the player only
-		if(player)
-		{
-			gMessageLib->sendCreateObject(object,player,false);
-			if(tool&&tool->getCurrentItem())
-			{
-				gMessageLib->sendUpdateTimer(tool,player);
-			}
-		}
-
+		//add it to our container list
+		this->addObject(object,player);
 		return;
 	}
 
 	// no need to check the type again - getObjectMainParent() did that already
-	// ás its not an inventory this leaves us with factory or cell
+	// ás its not an inventory this leaves us with factory or cell as mainparent
 	Object* ParentObject = dynamic_cast<Object*>(gWorldManager->getObjectById(mainParent));	
 	if(ParentObject)
 	{
 		PlayerObjectSet*			knownPlayers	= ParentObject->getKnownPlayers();
-		PlayerObjectSet::iterator	playerIt		= knownPlayers->begin();
-		
-		while(playerIt != knownPlayers->end())
-		{
-			PlayerObject* player = (*playerIt);
-			gMessageLib->sendCreateObject(object,player,false);
-		
-			if(tool&&tool->getCurrentItem())
-			{
-				PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getParentId()));
-				gMessageLib->sendUpdateTimer(tool,player);
-			}
-
-			player++;
-		}
-
-
+		this->addObject(object,knownPlayers);
 		return;
+	
 	}
 
 	// send the creates to everyone on our containers knownObjectslist
 	// please note that only makes sense for containers in the SI - containers in the inventory need to
-	// be handled differently!!!
+	// be handled differently!!! (IE only send to player (= mainparent) like done above
 	
-	// find out whether we need to try and find a parent
-	// valid parents for
 }
 
 //============================================================================================================

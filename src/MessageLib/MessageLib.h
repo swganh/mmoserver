@@ -24,6 +24,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #define	 gMessageLib	MessageLib::getSingletonPtr()
 
+
 class Item;
 class IntangibleObject;
 class BuildingObject;
@@ -55,7 +56,8 @@ class ActiveConversation;
 
 typedef struct tagResourceLocation ResourceLocation;
 
-typedef std::vector<PlayerObject*>				PlayerList;
+typedef std::set<PlayerObject*>			PlayerObjectSetML;
+typedef std::vector<PlayerObject*>		PlayerList;
 
 enum ObjectUpdate
 {
@@ -75,21 +77,30 @@ public:
 	static MessageLib*	Init();
 
 	// multiple messages, messagelib.cpp
+	//tangibles
 	void				sendCreateObject(Object* object,PlayerObject* player,bool sendSelftoTarget = true);
 	bool				sendCreateManufacturingSchematic(ManufacturingSchematic* manSchem,PlayerObject* playerObject,bool attributes = true);
 	bool				sendCreateResourceContainer(ResourceContainer* resourceContainer,PlayerObject* targetObject);
 	bool				sendCreateFactoryCrate(FactoryCrate* crate,PlayerObject* targetObject);
+	bool				sendCreateTangible(TangibleObject* tangibleObject,PlayerObject* targetObject, bool sendchildren = true);
+	void				sendCreateTangible(TangibleObject* tangibleObject, PlayerObjectSetML*	knownPlayers, bool sendchildren = true) ;
+
+	//structures
+	bool				sendCreateInstallation(PlayerStructure* structure,PlayerObject* player);
 	bool				sendCreateStructure(PlayerStructure* structure,PlayerObject* player);
 	bool				sendCreateHarvester(HarvesterObject* harvester,PlayerObject* player);
 	bool				sendCreateFactory(FactoryObject* factory,PlayerObject* player);
 	bool				sendCreateBuilding(BuildingObject* buildingObject,PlayerObject* playerObject);
 	bool				sendCreateCamp(TangibleObject* camp,PlayerObject* player);
+	
+	//creatures
 	bool				sendCreateCreature(CreatureObject* creatureObject,PlayerObject* targetObject);
 	bool				sendCreatePlayer(PlayerObject* playerObject,PlayerObject* targetObject);
-	bool				sendCreateTangible(TangibleObject* tangibleObject,PlayerObject* targetObject, bool sendchildren = true);
+	
+
 	void				sendInventory(PlayerObject* playerObject);
 	bool				sendEquippedItems(PlayerObject* srcObject,PlayerObject* targetObject);
-	bool				sendCreateInstallation(PlayerStructure* structure,PlayerObject* player);
+	
 
 	// common messages, commonmessages.cpp
 	bool				sendCreateObjectByCRC(Object* object,const PlayerObject* const targetObject,bool player) const;

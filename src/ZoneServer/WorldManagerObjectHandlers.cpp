@@ -33,6 +33,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "ResourceManager.h"
 #include "SchematicManager.h"
 #include "TreasuryManager.h"
+#include "Terminal.h"
 #include "WorldConfig.h"
 #include "ZoneOpcodes.h"
 #include "ZoneServer.h"
@@ -707,4 +708,40 @@ bool WorldManager::_handleGeneralObjectTimers(uint64 callTime, void* ref)
 		}
 	}
 	return (true);
+}
+
+//======================================================================================================================
+//
+//	getNearest Terminal
+//
+
+Object* WorldManager::getNearestTerminal(PlayerObject* player, TangibleType terminalType)
+{
+
+	ObjectSet		inRangeObjects;
+	this->getSI()->getObjectsInRange(player,&inRangeObjects,ObjType_Tangible,1024);//range is debateable
+
+	ObjectSet::iterator it = inRangeObjects.begin();
+	
+	float	range = 0.0;
+	Object* nearestTerminal = NULL;;
+
+	while(it != inRangeObjects.end())
+	{
+
+		Terminal* terminal = dynamic_cast<Terminal*> (*it);
+		if(terminal&&(terminal->getTangibleType() == terminalType))
+		{
+			float nr = terminal->mPosition.distance2D(player->mPosition);
+			//double check the distance
+			if((nearestTerminal && (range < nr))||(!nearestTerminal))
+			{
+				range = nr;
+				nearestTerminal = terminal;
+			}
+		}
+
+		++it;
+	}
+	return nearestTerminal;
 }

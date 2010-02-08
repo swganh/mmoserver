@@ -105,6 +105,7 @@ bool CraftingSession::AdjustComponentStack(Item* item, Inventory* inventory, uin
 
 		//the db will only be updated if we really use the ´component!!
 		//at this point we might still put it out again or cancel the crafting session!!!!
+		//this is necessary in order to keep it consistent with a possible stack we might use
 
 		return true;
 	}
@@ -612,10 +613,11 @@ void CraftingSession::bagComponents(ManufactureSlot* manSlot,uint64 containerId)
 
 		//add to inventory
 		inventory->addObject(filledComponent);
+		//we do not need to change the db here - that only happens when we assemble!
+		filledComponent->setParentId(inventory->getId(),0xffffffff,mOwner,false);
 
-		filledComponent->setParentId(inventory->getId());
-		//do we have to uncontain them off the schematic?
-		gMessageLib->sendContainmentMessage(filledComponent->getId(),filledComponent->getParentId(),4,mOwner);
+		//gMessageLib->sendContainmentMessage
+
 		resIt++;
 
 	}

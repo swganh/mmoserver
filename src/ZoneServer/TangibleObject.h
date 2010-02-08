@@ -39,6 +39,10 @@ class TangibleObject :	public ObjectContainer
 		string				getColorStr(){ return mColorStr; }
 		void				setColorStr(const int8* coloStr){ mColorStr = coloStr; }
 
+		//============================================================
+		//sets ParentId - for item table objects in the db and Object
+		virtual void		setParentIdIncDB(uint64 parentId);
+
 		string				getCustomizationStr() const { return mCustomizationStr; }
 		void				setCustomizationStr(const uint8* custStr){ mCustomizationStr = (int8*)custStr; }
 		void				setCustomization(uint8 index, uint16 val, uint8 length = 73){ mCustomization[index] = val;buildTanoCustomization(length); }
@@ -50,8 +54,10 @@ class TangibleObject :	public ObjectContainer
 		void				setUnknownStr1(const int8* unknownStr){ mUnknownStr1 = unknownStr; }
 		string				getUnknownStr2() const { return mUnknownStr2; }
 		void				setUnknownStr2(const int8* unknownStr){ mUnknownStr2 = unknownStr; }
+		
 		string				getCustomName() const { return mCustomName; }
 		void				setCustomName(const int8* name){ mCustomName = name; }
+		void				setCustomNameIncDB(const int8* name);
 
 		TangibleGroup		getTangibleGroup() const{ return mTanGroup; }
 		void				setTangibleGroup(TangibleGroup group){ mTanGroup = group; }

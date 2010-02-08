@@ -332,6 +332,47 @@ void Object::removeAttribute(string key)
 
 //=========================================================================
 
+//=========================================================================
+//set the attribute and alter the db
+
+void Object::setInternalAttributeIncDB(string key,std::string value)
+{
+	if(!hasInternalAttribute(key))
+	{
+		addInternalAttributeIncDB(key,value);
+	}
+
+	AttributeMap::iterator it = mInternalAttributeMap.find(key.getCrc());
+
+	if(it == mInternalAttributeMap.end())
+	{
+		gLogger->logMsgF("Object::setAttribute: could not find %s",MSG_HIGH,key.getAnsi());
+		return;
+	}
+
+	(*it).second = value;
+
+	uint32 attributeID = gWorldManager->getAttributeId(key.getCrc());
+	if(!attributeID)
+	{
+		gLogger->logMsgF("Object::addAttribute DB: no such attribute in the attribute table :%s",MSG_HIGH,key.getAnsi());
+		return;
+	}
+
+	int8 sql[512],*sqlPointer,restStr[128];
+//	int8 sql[1024]
+	sprintf(sql,"UPDATE item_attributes SET value='");
+
+	sqlPointer = sql + strlen(sql);
+	sqlPointer += gWorldManager->getDatabase()->Escape_String(sqlPointer,value.c_str(),value.length());
+	sprintf(restStr,"'WHERE item_id=%I64u AND attribute_id=%u",this->getId(),attributeID);
+	strcat(sql,restStr);
+
+	
+	//sprintf(sql,"UPDATE item_attributes SET value='%s' WHERE item_id=%"PRIu64" AND attribute_id=%u",value,this->getId(),attributeID);
+	gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,sql);
+}
+
 void	Object::setInternalAttribute(string key,std::string value)
 {
 	AttributeMap::iterator it = mInternalAttributeMap.find(key.getCrc());
@@ -344,6 +385,40 @@ void	Object::setInternalAttribute(string key,std::string value)
 
 	(*it).second = value;
 }
+
+//=============================================================================
+//adds the attribute to the objects attribute list AND to the db - it needs a valid entry in the attribute table for that
+
+void Object::addInternalAttributeIncDB(string key,std::string value)
+{
+	if(hasInternalAttribute(key))
+	{
+		setInternalAttributeIncDB(key,value);
+		return;
+	}
+
+	mInternalAttributeMap.insert(std::make_pair(key.getCrc(),value));
+
+	uint32 attributeID = gWorldManager->getAttributeId(key.getCrc());
+	if(!attributeID)
+	{
+		gLogger->logMsgF("Object::addAttribute DB: no such attribute in the attribute table :%s",MSG_HIGH,key.getAnsi());
+		return;
+	}
+	int8 sql[512],*sqlPointer,restStr[128];
+//	int8 sql[1024]
+	sprintf(sql,"INSERT INTO item_attributes VALUES(%"PRIu64",%u,'",this->getId(),attributeID);
+
+	sqlPointer = sql + strlen(sql);
+	sqlPointer += gWorldManager->getDatabase()->Escape_String(sqlPointer,value.c_str(),value.length());
+	sprintf(restStr,"',%u,0)",static_cast<uint32>(this->mInternalAttributeMap.size()));
+	strcat(sql,restStr);
+	
+	gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,sql);
+
+	//sprintf(sql,"INSERT INTO item_attributes VALUES(%"PRIu64",%u,%s,%u,0)",this->getId(),attributeID,value,mAttributeOrderList.size());
+}
+
 
 //=============================================================================
 
@@ -461,5 +536,43 @@ void Object::destroyKnownObjects()
 bool Object::isOwnedBy(PlayerObject* player)
 {
 	return ((mPrivateOwner == player->getId()) || (mPrivateOwner == player->getGroupId()));
+}
+
+//=============================================================================
+//assign the ResourceContainer a new parentid and send a containment when a target is given
+//
+
+void Object::setParentId(uint64 parentId,uint32 contaiment, PlayerObject* target, bool db)
+{
+	mParentId = parentId; 
+	if(db)
+	{
+		this->setParentIdIncDB(parentId);		
+	}
+
+	if(target)
+		gMessageLib->sendContainmentMessage(this->getId(),this->getParentId(),contaiment,target);
+
+}
+
+void Object::setParentId(uint64 parentId,uint32 contaiment, PlayerObjectSet*	knownPlayers, bool db)
+{
+	mParentId = parentId; 
+	if(db)
+	{
+		this->setParentIdIncDB(parentId);		
+	}
+
+	PlayerObjectSet::iterator	playerIt		= knownPlayers->begin();
+
+	while(playerIt != knownPlayers->end())
+	{
+		PlayerObject* player = (*playerIt);
+		if(player)
+			gMessageLib->sendContainmentMessage(this->getId(),this->getParentId(),contaiment,player);
+
+		player++;
+	}
+
 }
 

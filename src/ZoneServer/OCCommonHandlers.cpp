@@ -51,6 +51,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "DatabaseManager/DatabaseResult.h"
 #include "Common/Message.h"
 #include "Common/MessageFactory.h"
+#include "CraftingSession.h"
 
 
 void ObjectController::_handleBoardTransport(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)

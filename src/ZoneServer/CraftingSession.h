@@ -21,6 +21,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "ObjectFactoryCallback.h"
 #include "CraftingEnums.h"
 
+#include <boost/lexical_cast.hpp>
+
 //=============================================================================
 
 class ExperimentationProperty;
@@ -135,12 +137,24 @@ class CraftingSession : public DatabaseCallback, public ObjectFactoryCallback
 	private:
 
 
-		float roundF(float x,const int places)
+		float rndFloat(float x)
 		{
-			float shift = pow(10.0f,places);
+			int32 i = (int32)floorf(x * 100 + 0.5f);
+		//	(float)(i / 100.00);
 
-			int32 i = (int32)floorf(x * shift + 0.5f);
-			return float(i / shift);
+			int8 str[32];
+			sprintf(str,"%.2f",(float)(i / 100.00));
+			return boost::lexical_cast<float>(str);
+		}
+
+		string rndFloattoStr(float x)
+		{
+			int32 i = (int32)floorf(x * 100 + 0.5f);
+		//	(float)(i / 100.00);
+
+			int8 str[32];
+			sprintf(str,"%.2f",(float)(i / 100.00));
+			return BString(str);
 		}
 
 		float					_calcWeightedResourceValue(CraftWeights* weights);

@@ -22,6 +22,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "LogManager/LogManager.h"
 #include "MathLib/Quaternion.h"
 #include <time.h>
+#include "utils/rand.h"
 
 //=============================================================================
 

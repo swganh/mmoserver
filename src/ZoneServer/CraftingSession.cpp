@@ -656,6 +656,14 @@ void CraftingSession::assemble(uint32 counter)
 	ExperimentationProperties*			expPropertiesList	= mManufacturingSchematic->getExperimentationProperties();
 	ExperimentationProperties::iterator	expIt				= expPropertiesList->begin();
 
+	// get the items serial
+	string serial;
+	serial = getSerial();
+	mItem->addAttributeIncDB("serial_number",serial.getAnsi());
+
+	//add creator
+	mItem->addAttributeIncDB("crafter",mOwner->getFirstName().getAnsi());
+
 	int8 assRoll = _assembleRoll();
 
 	// move to experimentation stage
@@ -694,7 +702,7 @@ void CraftingSession::assemble(uint32 counter)
 
 
 	// update item complexity
-	mItem->setComplexity(static_cast<float>(mDraftSchematic->getComplexity()));
+	mItem->setComplexity(static_cast<float>(mManufacturingSchematic->getComplexity()));
 	gMessageLib->sendUpdateComplexity(mItem,mOwner);
 
 	// calc initial assembly percentages
@@ -817,50 +825,17 @@ void CraftingSession::createPrototype(uint32 noPractice,uint32 counter)
 		strcat(sql,restStr);
 
 		t->addQuery(sql);
+		t->execute();
 
 		// add the crafter name attribute
-		if(mItem->hasAttribute("crafter"))
-		{
-			int8 s[64];
-			mDatabase->Escape_String(s,mOwner->getFirstName().getAnsi(),mOwner->getFirstName().getLength());
-			mItem->setAttribute("crafter",mOwner->getFirstName().getAnsi());
-			sprintf(sql,"UPDATE item_attributes SET value='%s' WHERE item_id=%"PRIu64" AND attribute_id=%u",s,mItem->getId(),AttrType_crafter);
-		}
-		else
-		{
-			mItem->addAttribute("crafter",mOwner->getFirstName().getAnsi());
-
-			sprintf(sql,"INSERT INTO item_attributes VALUES(%"PRIu64",%u,'",mItem->getId(),AttrType_crafter);
-			sqlPointer = sql + strlen(sql);
-			sqlPointer += mDatabase->Escape_String(sqlPointer,mOwner->getFirstName().getAnsi(),mOwner->getFirstName().getLength());
-			sprintf(restStr,"',%u,0)",static_cast<uint32>(mItem->getAttributeMap()->size()));
-			strcat(sql,restStr);
-
-		}
-		t->addQuery(sql);
+		// adds automatically when necessary
+		mItem->setAttributeIncDB("crafter",mOwner->getFirstName().getAnsi());
 
 		// now the serial
-		string serial;
-		serial = getSerial();
+		string serial = getSerial();
 
-		if(mItem->hasAttribute("serial_number"))
-		{
-			mItem->setAttribute("serial_number",serial.getAnsi());
-			sprintf(sql,"UPDATE item_attributes SET value='%s' WHERE item_id=%"PRIu64" AND attribute_id=%u",serial.getAnsi(),mItem->getId(),AttrType_serial_number);
-		}
-		else
-		{
-
-			sprintf(sql,"INSERT INTO item_attributes VALUES(%"PRIu64",%u,'",mItem->getId(),AttrType_serial_number);
-			sqlPointer = sql + strlen(sql);
-			sqlPointer += mDatabase->Escape_String(sqlPointer,serial.getAnsi(),serial.getLength());
-			sprintf(restStr,"',%u,0)",static_cast<uint32>(mItem->getAttributeMap()->size()));
-			strcat(sql,restStr);
-			mItem->addAttribute("serial_number",serial.getAnsi());
-		}
-
-		t->addQuery(sql);
-		t->execute();
+		// adds automatically when necessary
+		mItem->setAttributeIncDB("serial_number",serial.getAnsi());
 
 	}
 	else
@@ -875,10 +850,9 @@ void CraftingSession::createPrototype(uint32 noPractice,uint32 counter)
 			xpType = mManufacturingSchematic->getInternalAttribute<float>("xpType");
 
 		// add some cooldown time
-		mTool->initTimer((int32)(mDraftSchematic->getComplexity() * 2.0f),3000,mClock->getLocalTime());
+		mTool->initTimer((int32)(mManufacturingSchematic->getComplexity() * 2.0f),3000,mClock->getLocalTime());
 
-		mTool->setAttribute("craft_tool_status","@crafting:tool_status_working");
-		mDatabase->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='@crafting:tool_status_working' WHERE item_id=%"PRIu64" AND attribute_id=%u",mTool->getId(),AttrType_CraftToolStatus);
+		mTool->setAttributeIncDB("craft_tool_status","@crafting:tool_status_working");
 
 		gMessageLib->sendUpdateTimer(mTool,mOwner);
 		gWorldManager->addBusyCraftTool(mTool);
@@ -929,6 +903,8 @@ void CraftingSession::experiment(uint8 counter,std::vector<std::pair<uint32,uint
 
 	//items complexity increases per experimentation
 	mManufacturingSchematic->incComplexity();
+	mItem->setComplexity(static_cast<float>(mManufacturingSchematic->getComplexity()));
+	gMessageLib->sendUpdateComplexity(mItem,mOwner);
 
 	// initialize our storage value so we know what we already experimented on
 	// use the list containing ALL properties
@@ -976,10 +952,23 @@ void CraftingSession::experiment(uint8 counter,std::vector<std::pair<uint32,uint
 		while(caIt != expProperty->mAttributes->end())
 		{
 			CraftAttribute* att = (*caIt);
-			float attValue	= att->getMin() + ((att->getMax() - att->getMin()) * expProperty->mExpAttributeValue);
+			
+			float attValue;
+			if(att->getMin() > att->getMax())
+			{
+				attValue	= att->getMin() - ((att->getMin() - att->getMax()) * expProperty->mExpAttributeValue);
 
-			if(attValue > att->getMax())
-				attValue = att->getMax();
+				if(attValue > att->getMin())
+					attValue = att->getMin();
+
+			}
+			else
+			{
+				attValue	= att->getMin() + ((att->getMax() - att->getMin()) * expProperty->mExpAttributeValue);
+
+				if(attValue > att->getMax())
+					attValue = att->getMax();
+			}
 
 			//modify the attributes value in memory and db depending on float or integer value
 			modifyAttributeValue((*caIt),attValue);
@@ -995,6 +984,9 @@ void CraftingSession::experiment(uint8 counter,std::vector<std::pair<uint32,uint
 
 	// send updates
 	gMessageLib->sendAttributeDeltasMSCO_7(mManufacturingSchematic,mOwner);
+	
+	//update the schematics complexity
+	gMessageLib->sendMSCO_3_ComplexityUpdate(mManufacturingSchematic,mOwner);
 	//gMessageLib->sendDeltasMSCO_3(mManufacturingSchematic,mOwner);
 	gMessageLib->sendUpdateExperimentationPoints(mOwner);
 
@@ -1098,6 +1090,7 @@ void CraftingSession::createManufactureSchematic(uint32 counter)
 
 	if(!datapad->addManufacturingSchematic(mManufacturingSchematic))
 	{
+		gLogger->logMsgF("CraftingSession:: createManufactureSchematic : datapad full",MSG_NORMAL);
 		//TODO
 		//delete the man schem from the objectlist and the db
 		gObjectFactory->deleteObjectFromDB(mItem);
@@ -1113,10 +1106,6 @@ void CraftingSession::createManufactureSchematic(uint32 counter)
 
 		return;
 	}
-
-	// get the items serial
-	string serial;
-	serial = getSerial();
 
 	mManufacturingSchematic->setCustomName(mItem->getCustomName().getAnsi());
 
@@ -1154,24 +1143,19 @@ void CraftingSession::createManufactureSchematic(uint32 counter)
 	//set the schematic as parent id for our item - we need it as dummy!!!
 	mDatabase->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id=%"PRIu64" WHERE id=%"PRIu64" ",mManufacturingSchematic->getId(),mItem->getId());
 	mItem->setParentId(mManufacturingSchematic->getId());
+
 	mManufacturingSchematic->setItem(mItem);
 
 	//Now enter the relevant information into the Manufactureschematic table
-	mDatabase->ExecuteSqlAsync(0,0,"INSERT INTO manufactureschematic VALUES (%"PRIu64",%u,%u,%"PRIu64",%s,%u)",mManufacturingSchematic->getId(),this->getProductionAmount(),this->mSchematicCRC,mItem->getId(),serial.getAnsi(),mManufacturingSchematic->getComplexity());
+	std::string serial = mItem->getAttribute<std::string>("serial_number");
+	mDatabase->ExecuteSqlAsync(0,0,"INSERT INTO manufactureschematic VALUES (%"PRIu64",%u,%u,%"PRIu64",%s,%u)",mManufacturingSchematic->getId(),this->getProductionAmount(),this->mSchematicCRC,mItem->getId(),serial,mManufacturingSchematic->getComplexity());
 
 	
 	//save the customization - thats part of the item!!!!
 
 	//add datapadsize
 	//data size - hardcode to 1 for now not sure whether there are different sizes
-	mManufacturingSchematic->addAttribute("data_volume","1");
-	sprintf(sql,"INSERT INTO item_attributes VALUES(%"PRIu64",%u,'1',0,0)",mManufacturingSchematic->getId(),AttrType_DataVolume);
-	mDatabase->ExecuteSqlAsync(0,0,sql);
-
-	//add creator
-	mItem->addAttribute("crafter",mOwner->getFirstName().getAnsi());
-	sprintf(sql,"INSERT INTO item_attributes VALUES(%"PRIu64",%u,'%s',0,0)",mItem->getId(),AttrType_crafter,mOwner->getFirstName().getAnsi());
-	mDatabase->ExecuteSqlAsync(0,0,sql);
+	mManufacturingSchematic->addAttributeIncDB("data_volume","1");
 
 	//save the resource Information as atributes
 	// please note that the attribute 173 cat_manf_schem_ing_ressource or _component cannot be entered several times in our table
@@ -1184,24 +1168,10 @@ void CraftingSession::createManufactureSchematic(uint32 counter)
 	//establishes a componentlist and adds it to the schematic
 	collectComponents();
 
-	//serial
-	mItem->addAttribute("serial_number",serial.getAnsi());
-
-	//16 is id of attribute serial number!!!
-	sprintf(sql,"INSERT INTO item_attributes VALUES(%"PRIu64",16,'",mItem->getId());
-	sqlPointer = sql + strlen(sql);
-	sqlPointer += mDatabase->Escape_String(sqlPointer,serial.getAnsi(),serial.getLength());
-	sprintf(restStr,"',%u,0)",static_cast<uint32>(mItem->getAttributeMap()->size()));
-	strcat(sql,restStr);
-	mDatabase->ExecuteSqlAsync(0,0,sql);
-
 	//manufacturing limit
 	string limit = boost::lexical_cast<std::string>(this->getProductionAmount()).c_str();
-	mManufacturingSchematic->addAttribute("manf_limit",limit.getAnsi());
-
-	//504 is id of manf_limit number!!!
-	sprintf(sql,"INSERT INTO item_attributes VALUES(%"PRIu64",504,'%s',2,0)",mManufacturingSchematic->getId(),limit.getAnsi());
-	mDatabase->ExecuteSqlAsync(0,0,sql);
+	
+	mManufacturingSchematic->addAttributeIncDB("manf_limit",limit.getAnsi());
 
 	gMessageLib->sendCraftAcknowledge(opCreatePrototypeResponse,CraftCreate_2,static_cast<uint8>(counter),mOwner);
 }

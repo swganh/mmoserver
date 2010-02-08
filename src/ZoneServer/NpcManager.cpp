@@ -30,6 +30,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "DatabaseManager/DataBinding.h"
 
 #include "Utils/utils.h"
+#include "Utils/rand.h"
 
 #include <assert.h>
 

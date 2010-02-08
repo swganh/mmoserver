@@ -41,6 +41,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Common/atMacroString.h"
 #include "MathLib/Quaternion.h"
 
+#include "utils/rand.h"
+
 
 class TutorialQueryContainer
 {

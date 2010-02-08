@@ -830,7 +830,7 @@ uint8 CraftingSession::_experimentRoll(uint32 expPoints)
 	++modRoll;
 
 	//int32 modRoll = (gRandom->getRand() - (rating*0.2))/15;
-	gLogger->logErrorF("crafting","CraftingSession:: assembly Roll postMod %u",MSG_NORMAL,modRoll);
+	gLogger->logErrorF("crafting","CraftingSession:: assembly Roll postMod %i",MSG_NORMAL,modRoll);
 
 	//0 is amazing success
 	//1 is great success
@@ -1039,6 +1039,7 @@ void CraftingSession::collectResources()
 	checkResIt = mCheckRes.begin();
 	while(checkResIt  != mCheckRes.end())
 	{
+		//build these attributes by hand the attribute wont be found in the attributes table its custom made
 		name = gResourceManager->getResourceById((*checkResIt).first)->getName();
 		sprintf(attr,"cat_manf_schem_ing_resource.\"%s",name .getAnsi());
 		string attrName = BString(attr);
@@ -1227,16 +1228,18 @@ void CraftingSession::modifyAttributeValue(CraftAttribute* att, float attValue)
 	}
 	else
 	{
-		attValue = roundF(attValue,2);
+		float f = rndFloat(attValue);
 
 		//is there an attribute of a component that affects us??
 		if(mManufacturingSchematic->hasPPAttribute(att->getAttributeKey()))
 		{
 			float attributeAddValue = mManufacturingSchematic->getPPAttribute<float>(att->getAttributeKey());
-			attValue += roundF(attributeAddValue,2);
+			f += rndFloat(attributeAddValue);
 
 		}
-		mItem->setAttributeIncDB(att->getAttributeKey(),boost::lexical_cast<std::string>(attValue));
+		//mItem->setAttributeIncDB(att->getAttributeKey(),boost::lexical_cast<std::string>(f));
+		mItem->setAttributeIncDB(att->getAttributeKey(),rndFloattoStr(f).getAnsi());
+		
 	}
 }
 

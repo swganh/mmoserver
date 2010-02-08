@@ -23,6 +23,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "WorldConfig.h"
 #include "ZoneTree.h"
 #include "ZoneServer/NonPersistentNpcFactory.h"
+#include "utils/rand.h"
 
 // TODO: Implement by functionality.
 static const int64 readyDefaultPeriodTime = 1000;

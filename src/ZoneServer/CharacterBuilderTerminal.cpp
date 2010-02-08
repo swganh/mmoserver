@@ -30,6 +30,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include "Utils/utils.h"
 
+#include "utils/rand.h"
 //=============================================================================
 
 CharacterBuilderTerminal::CharacterBuilderTerminal() : Terminal(), mSortedList(NULL)

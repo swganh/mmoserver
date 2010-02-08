@@ -31,6 +31,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Common/Message.h"
 #include "Common/MessageDispatch.h"
 #include "Common/MessageFactory.h"
+#include "Utils/rand.h"
 
 //======================================================================================================================
 

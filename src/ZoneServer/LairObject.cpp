@@ -20,6 +20,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "ZoneTree.h"
 #include "MessageLib/MessageLib.h"
 #include "MathLib/Quaternion.h"
+#include "utils/rand.h"
 
 static const int64 dormantDefaultPeriodTime = 10000;
 static const int64 readyDefaultPeriodTime = 1000;

@@ -29,6 +29,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Common/MessageFactory.h"
 #include "Common/MessageOpcodes.h"
 #include "ConfigManager/ConfigManager.h"
+#include "utils/rand.h"
 
 
 //======================================================================================================================

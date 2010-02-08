@@ -25,6 +25,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
 
+#include "Utils/rand.h"
 //=========================================================================================
 
 bool			CombatManager::mInsFlag		= false;

@@ -15,6 +15,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "CurrentResource.h"
 #include "Item.h"
 #include "ManufacturingSchematic.h"
+#include "CraftingSession.h"
 #include "NPCObject.h"
 #include "ObjectController.h"
 #include "ObjectControllerCommandMap.h"

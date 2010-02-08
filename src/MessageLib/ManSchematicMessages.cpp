@@ -78,14 +78,24 @@ bool MessageLib::sendBaselinesMSCO_3(ManufacturingSchematic* manSchem,PlayerObje
 	//object count
 	gMessageFactory->addUint16(13);
 
+	//0
 	gMessageFactory->addFloat(static_cast<float>(draftSchematic->getComplexity()));
+	
+	//1
 	gMessageFactory->addString(manSchem->getNameFile());
 	gMessageFactory->addUint32(0);
 	gMessageFactory->addString(manSchem->getName());
+	
+	//2
 	gMessageFactory->addString(convCustomName);
+	
+	//3 = volume
 	gMessageFactory->addUint32(1);
+	
+	//4 = schematic quantity used with schematics with limited uses
 	gMessageFactory->addUint32(1);
 
+	//5
 	// send attributes on baseline so that they are shown on assembly
 	//cave review update counter
 	if(sendAttributes)
@@ -125,8 +135,13 @@ bool MessageLib::sendBaselinesMSCO_3(ManufacturingSchematic* manSchem,PlayerObje
 		gMessageFactory->addUint32(0);
 		gMessageFactory->addUint32(0);
 	}
+	//6 creators name
 	gMessageFactory->addString(convPlayerName);
+	
+	//7 complexity
 	gMessageFactory->addUint32(static_cast<uint32>(manSchem->getComplexity()));
+	
+	// schematic data size
 	gMessageFactory->addUint32(1);
 
 	part = gMessageFactory->EndMessage();
@@ -1343,3 +1358,33 @@ bool MessageLib::sendAttributeDeltasMSCO_7(ManufacturingSchematic* manSchem,Play
 
 //======================================================================================================================
 
+
+//======================================================================================================================
+
+bool MessageLib::sendMSCO_3_ComplexityUpdate(ManufacturingSchematic* manSchem,PlayerObject* playerObject)
+{
+
+	Message*							newMessage;
+
+	if(!(playerObject->isConnected()))
+		return(false);
+
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opDeltasMessage);
+	gMessageFactory->addUint64(manSchem->getId());
+	gMessageFactory->addUint32(opMSCO);
+	gMessageFactory->addUint8(3);
+
+	gMessageFactory->addUint32(8);
+	gMessageFactory->addUint16(1);
+
+	gMessageFactory->addUint16(7);
+
+	gMessageFactory->addUint32(static_cast<uint32>(manSchem->getComplexity()));
+	
+	newMessage = gMessageFactory->EndMessage();
+
+	(playerObject->getClient())->SendChannelA(newMessage,playerObject->getAccountId(),CR_Client,5);
+
+	return(true);
+}

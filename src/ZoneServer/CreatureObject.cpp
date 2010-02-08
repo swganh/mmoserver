@@ -29,6 +29,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "MathLib/Quaternion.h"
 #include "Utils/clock.h"
 
+#include "utils/rand.h"
 #include <cfloat>
 
 //=============================================================================

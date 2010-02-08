@@ -28,6 +28,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include "LogManager/LogManager.h"
 #include "DatabaseManager/Database.h"
+#include "Utils/rand.h"
 
 
 

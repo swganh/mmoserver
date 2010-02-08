@@ -17,7 +17,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Stomach.h"
 #include "Trade.h"
 #include "PlayerEnums.h"
-#include "CraftingSession.h"
+//#include "CraftingSession.h"
 #include "SurveyEvent.h"
 #include "SampleEvent.h"
 #include "LogOutEvent.h"
@@ -31,6 +31,9 @@ class BuildingObject;
 class Tutorial;
 class TravelTerminal;
 
+
+class CraftingStation;
+class CraftingSession;
 //=============================================================================
 
 typedef std::vector<std::pair<string,float> >	AttributesList;

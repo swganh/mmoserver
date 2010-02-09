@@ -76,7 +76,8 @@ class ObjectContainer :	public Object, public ObjectFactoryCallback
 		ObjectIDList::iterator removeObject(ObjectIDList::iterator it, PlayerObjectSet*	knownPlayers);
 		
 		//we need to check the content of our children, too!!!!
-		bool				checkCapacity(){return((mCapacity-mData.size()) > 0);}
+		virtual bool		checkCapacity(){return((mCapacity-mData.size()) > 0);}
+		virtual bool		checkCapacity(uint8 amount, PlayerObject* player = NULL);
 		void				setCapacity(uint16 cap){mCapacity = cap;}
 		uint16				getCapacity(){return mCapacity;}
 		

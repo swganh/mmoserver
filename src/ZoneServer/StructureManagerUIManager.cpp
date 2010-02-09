@@ -56,11 +56,11 @@ void StructureManager::createNewFactorySchematicBox(PlayerObject* player, Factor
 	Datapad* datapad								= dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
 	ManufacturingSchematicList*				mList	= datapad->getManufacturingSchematics();
 	ManufacturingSchematicList::iterator	mListIt	= mList->begin();
-	
-	string lText;
 
 	while(mListIt != mList->end())
 	{
+		string lText;
+
 		ManufacturingSchematic* man = (*mListIt);
 		if(!man)
 		{
@@ -84,6 +84,7 @@ void StructureManager::createNewFactorySchematicBox(PlayerObject* player, Factor
 		
 		//string name = factory->getSchematicCustomName();
 		name.convert(BSTRType_ANSI);
+		lText  = "";
 		lText << name.getAnsi();	
 	
 		if(!name.getLength())

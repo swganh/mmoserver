@@ -419,3 +419,13 @@ uint64 ObjectContainer::getObjectMainParent(Object* object)
 	return parentID;
 }
 
+
+bool ObjectContainer::checkCapacity(uint8 amount, PlayerObject* player)
+{
+	if(player&&(mCapacity-mData.size() < amount))
+	{
+		gMessageLib->sendSystemMessage(player,L"","container_error_message","container3");
+	}
+
+	return((mCapacity-mData.size()) >= amount);
+}

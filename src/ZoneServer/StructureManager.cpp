@@ -825,7 +825,9 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			datapad->removeManufacturingSchematic(command.SchematicId);
 			gMessageLib->sendDestroyObject(command.SchematicId,player);
 
-			gMessageLib->sendSystemMessage(player,L"","manf_station","schematic_added");
+			TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(command.SchematicId));
+			gMessageLib->sendSysMsg(player,"manf_station","schematic_added",NULL,tO);
+			//gMessageLib->sendSystemMessage(player,
 
 		}
 		break;

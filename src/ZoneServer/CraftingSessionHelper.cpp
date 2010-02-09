@@ -1065,6 +1065,7 @@ void CraftingSession::collectResources()
 		checkResIt  ++;
 	}
 
+	mCheckRes.clear();
 }
 
 //===============================================================================
@@ -1130,6 +1131,7 @@ void CraftingSession::collectComponents()
 	}
 
 	checkResIt = mCheckRes.begin();
+	
 	while(checkResIt  != mCheckRes.end())
 	{
 		name = gResourceManager->getResourceById((*checkResIt).first)->getName();
@@ -1155,6 +1157,7 @@ void CraftingSession::collectComponents()
 		checkResIt  ++;
 	}
 
+	mCheckRes.clear();
 }
 
 

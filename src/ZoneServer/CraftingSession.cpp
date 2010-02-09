@@ -1139,7 +1139,8 @@ void CraftingSession::createManufactureSchematic(uint32 counter)
 
 	//Now enter the relevant information into the Manufactureschematic table
 	std::string serial = mItem->getAttribute<std::string>("serial_number");
-	mDatabase->ExecuteSqlAsync(0,0,"INSERT INTO manufactureschematic VALUES (%"PRIu64",%u,%u,%"PRIu64",%s,%u)",mManufacturingSchematic->getId(),this->getProductionAmount(),this->mSchematicCRC,mItem->getId(),serial,mManufacturingSchematic->getComplexity());
+	
+	mDatabase->ExecuteSqlAsync(0,0,"INSERT INTO manufactureschematic VALUES (%"PRIu64",%u,%u,%"PRIu64",'%s',%f)",mManufacturingSchematic->getId(),this->getProductionAmount(),this->mSchematicCRC,mItem->getId(),serial.c_str(),mManufacturingSchematic->getComplexity());
 
 	
 	//save the customization - thats part of the item!!!!

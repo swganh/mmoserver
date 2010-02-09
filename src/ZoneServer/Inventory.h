@@ -20,6 +20,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 typedef std::vector<std::pair<string,uint64> >	SortedInventoryItemList;
 class CreatureObject;
+class PlayerObject;
 
 //=============================================================================
 
@@ -51,9 +52,13 @@ class Inventory : public TangibleObject
 		void			setCredits(int32 credits){ mCredits = credits; }
 		bool			updateCredits(int32 amount);
 
+		//depecrated - use check(get/set) capicity instead
 		uint8			getMaxSlots(){ return mMaxSlots; }
 		bool			checkSlots(uint8 amount);
 		void			setMaxSlots(uint8 slots){ mMaxSlots = slots; }
+
+		virtual bool	checkCapacity(uint8 amount, PlayerObject* player = NULL);
+
 		void			unEquipItem(Object* object);
 		bool			EquipItem(Object* object);
 

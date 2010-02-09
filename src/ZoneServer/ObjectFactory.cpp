@@ -95,7 +95,7 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 		{
 			if(!result->getRowCount())
 			{
-				gLogger->logMsg("ObjFactory::handleDatabaseJobComplete   :  create Factory failed");
+				gLogger->logMsg("ObjFactory::handleDatabaseJobComplete   :  create Factory failed : no result");
 				break;
 			}
 
@@ -107,7 +107,7 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 			if(!requestId)
 			{
-				gLogger->logMsg("ObjFactory::handleDatabaseJobComplete   :  create Factory failed");
+				gLogger->logMsg("ObjFactory::handleDatabaseJobComplete   :  create Factory failed : result is 0");
 			}
 			mFactoryFactory->requestObject(asyncContainer->ofCallback,requestId,0,0,asyncContainer->client);
 

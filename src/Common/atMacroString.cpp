@@ -114,7 +114,7 @@ void	atMacroString::addWaypoint()
 
 	//byte 1 unknown
 	_addByte(0);//perhaps counter, so this would be waypoint nr 1 ???
-	_addByte(1);//perhaps counter, so this would be waypoint nr 1 ???
+	_addByte(mCounter-1);//perhaps counter, so this would be waypoint nr 1 ???
 	//mCounter++;
 	//however why start macros then at 0 ????
 	_addByte(0);

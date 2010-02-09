@@ -20,20 +20,13 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "ObjectFactory.h"
 #include "PlayerObject.h"
 #include "FactoryCrate.h"
-//#include "SurveyTool.h"
-#include "UIManager.h"
-//#include "Wearable.h"
+//#include "UIManager.h"
 #include "WorldConfig.h"
 #include "WorldManager.h"
 
 #include "MessageLib/MessageLib.h"
 #include "LogManager/LogManager.h"
-//#include "DatabaseManager/Database.h"
-//#include "DatabaseManager/DatabaseResult.h"
-//#include "DatabaseManager/DataBinding.h"
 #include "Common/Message.h"
-//#include "Common/MessageFactory.h"
-
 #include <boost/lexical_cast.hpp>
 
 //======================================================================================================================
@@ -61,53 +54,25 @@ void	ObjectController::_ExtractObject(uint64 targetId,Message* message,ObjectCon
 		return;
 	}
 
-	//get the crates containing container
+	//get the crates containing container - inventory is a tangible, too - we can use the unified interface thks to virtual functions :)
 
-	if(crate->getParentId() == inventory->getId())
-	{
-		if(!inventory->checkSlots(1))
-		{
-			//check if we can fit an additional item in our inventory
-			gMessageLib->sendSystemMessage(playerObject,L"","error_message","inv_full");
-			return;
-		}
-		//create the new item
-		gObjectFactory->requestNewClonedItem(inventory,crate->getLinkedObject()->getId(),inventory->getId());
-
-		//decrease crate content
-		int32 content = crate->decreaseContent(1);
-		if(!content)
-		{
-			gMessageLib->sendDestroyObject(crate->getId(),playerObject);
-			gObjectFactory->deleteObjectFromDB(crate->getId());
-			inventory->deleteObject(crate);
-		}
-			if(content < 0)
-			{
-				gLogger->logMsg("ObjectController::_ExtractObject: the crate now has negative content!");
-				assert(false);
-				return;
-			}
-		return;
-	}
-
-	Item* item = dynamic_cast<Item*>(gWorldManager->getObjectById(crate->getParentId()));
-	if(!item)
+	TangibleObject* tO = dynamic_cast<TangibleObject* >(gWorldManager->getObjectById(crate->getParentId()));
+	if(!tO)
 	{
 		gLogger->logMsg("ObjectController::_ExtractObject: Crates parent does not exist!");
 		assert(false);
 		return;
 	}
 	
-	if(!item->checkCapacity())
+	if(!tO->checkCapacity())
 	{
 		//check if we can fit an additional item in our inventory
-		gMessageLib->sendSystemMessage(playerObject,L"","container_error_message","container3");
+		
 		return;
 	}
 
 	//create the new item
-	gObjectFactory->requestNewClonedItem(item,crate->getLinkedObject()->getId(),item->getId());
+	gObjectFactory->requestNewClonedItem(tO,crate->getLinkedObject()->getId(),tO->getId());
 
 	//decrease crate content
 	int32 content = crate->decreaseContent(1);

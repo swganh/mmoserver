@@ -548,7 +548,7 @@ void	ObjectController::_handleHarvesterActivate(uint64 targetId,Message* message
 	float fTransferDistance = gWorldConfig->getConfiguration("Player_Structure_Operate_Distance",(float)10.0);
 	if(!player->mPosition.inRange2D(structure->mPosition,fTransferDistance))
 	{
-		gLogger->logMsgF(" ObjectController::_handleHarvesterGetResourceData Structure not in Range",MSG_HIGH);
+		gLogger->logMsgF(" ObjectController::_handleHarvesterActivate Structure not in Range",MSG_HIGH);
 		return;
 	}
 

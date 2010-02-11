@@ -118,7 +118,18 @@ void StructureManager::checkNameOnPermissionList(uint64 structureId, uint64 play
 	StructureManagerAsyncContainer* asyncContainer;
 
 	asyncContainer = new StructureManagerAsyncContainer(Structure_Query_Check_Permission, 0);
-	mDatabase->ExecuteSqlAsync(this,asyncContainer,"select sf_CheckPermissionList(%I64u,'%s','%s')",structureId,name.getAnsi(),list.getAnsi());
+
+	int8 sql[512],*sqlPointer,restStr[128];
+//	int8 sql[1024]
+	sprintf(sql,"select sf_CheckPermissionList(%I64u,'",structureId);
+
+	sqlPointer = sql + strlen(sql);
+	sqlPointer += gWorldManager->getDatabase()->Escape_String(sqlPointer,name.getAnsi(),name.getLength());
+	sprintf(restStr,"','%s')",list.getAnsi());
+	strcat(sql,restStr);
+	
+	gWorldManager->getDatabase()->ExecuteSqlAsync(this,asyncContainer,sql);
+
 	asyncContainer->mStructureId = structureId;
 	asyncContainer->mPlayerId = playerId;
 	asyncContainer->command = command;

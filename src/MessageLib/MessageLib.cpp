@@ -382,8 +382,6 @@ bool MessageLib::sendCreatePlayer(PlayerObject* playerObject,PlayerObject* targe
 	sendBaselinesCREO_3(playerObject,targetObject);
 	sendBaselinesCREO_6(playerObject,targetObject);
 
-	sendEndBaselines(playerObject->getId(),targetObject);
-
 	sendCreateObjectByCRC(playerObject,targetObject,true);
 	sendContainmentMessage(playerObject->getPlayerObjId(),playerObject->getId(),4,targetObject);
 
@@ -395,6 +393,9 @@ bool MessageLib::sendCreatePlayer(PlayerObject* playerObject,PlayerObject* targe
 		sendBaselinesPLAY_8(playerObject,targetObject);
 		sendBaselinesPLAY_9(playerObject,targetObject);
 	}
+
+	//close the yalp
+	sendEndBaselines(playerObject->getPlayerObjId(),targetObject);
 
 	sendPostureMessage(playerObject,targetObject);
 
@@ -450,9 +451,6 @@ bool MessageLib::sendCreatePlayer(PlayerObject* playerObject,PlayerObject* targe
 		// datapad
 		if(TangibleObject* datapad = dynamic_cast<TangibleObject*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad)))
 		{
-			//sendContainmentMessage(datapad->getId(),datapad->getParentId(),4,playerObject);
-			//sendBaselinesTANO_3(datapad,playerObject);
-			//sendBaselinesTANO_6(datapad,playerObject);
 
 			//would be nice to use the tangibles objectcontainer for the datapad
 			//need to get missionobjects intangibles, Man Schematics, waypoints and stuff in though, so better do it manually
@@ -506,9 +504,6 @@ bool MessageLib::sendCreatePlayer(PlayerObject* playerObject,PlayerObject* targe
 
 				++ite;
 			}
-
-			//sendEndBaselines(datapad->getId(),playerObject); //close the datapad
-
 
 			//Should send accepted missions here
 

@@ -523,7 +523,7 @@ bool MessageLib::sendCreatePlayer(PlayerObject* playerObject,PlayerObject* targe
 		sendEquippedItems(playerObject,targetObject);
 	}
 	
-	sendEndBaselines(playerObject->getPlayerObjId(),targetObject);
+	sendEndBaselines(playerObject->getId(),targetObject);
 
 	sendUpdatePvpStatus(playerObject,targetObject);
 

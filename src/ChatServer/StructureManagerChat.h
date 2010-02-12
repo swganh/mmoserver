@@ -65,7 +65,8 @@ enum SRMTimer
 {
 	SRMTimer_CheckHarvesterHopper		=	1,
 	SRMTimer_CheckHarvesterMaintenance	=	2,
-	SRMTimer_CheckHarvesterPower		=	3
+	SRMTimer_CheckHarvesterPower		=	3,
+	SRMTimer_CheckFactory				=	4
 };
 
 
@@ -117,6 +118,8 @@ class StructureManagerChatHandler : public MessageDispatchCallback, public Datab
 		void				handleCheckHarvesterHopper();
 		void				handleCheckHarvesterMaintenance();
 
+		void				handleFactoryUpdate();
+
 
 		HarvesterList*		getHarvesterList(){return &mHarvesterList;}
 
@@ -152,6 +155,8 @@ enum STRMQueryType
 	STRMQuery_StructureMailCondZero		=	7,
 	STRMQuery_MaintenanceUpdate			=	8,
 	STRMQuery_PowerUpdate				=	9,
+	STRMQuery_FactoryUpdate				=	10,
+	STRMQuery_DoneFactoryUpdate			=	11,
 
 };
 

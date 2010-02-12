@@ -19,6 +19,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "ResourceContainer.h"
 #include "ResourceType.h"
 #include "ObjectFactory.h"
+//#include "ObjectContainer.h"
 #include "PlayerObject.h"
 #include "PlayerStructure.h"
 #include "QuadTree.h"
@@ -1001,7 +1002,8 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 				createRenameStructureBox(player, structure);
 			}
 			else
-				gMessageLib->sendSystemMessage(player,L"","player_structure","rename_must_be_owner ");
+				gMessageLib->sendSystemMessage(player,L"You must be the owner to rename a structure.");
+				//gMessageLib->sendSystemMessage(player,L"","player_structure","rename_must_be_owner ");
 
 			
 		}
@@ -1012,7 +1014,8 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			if(owner)
 				gStructureManager->TransferStructureOwnership(command);
 			else
-				gMessageLib->sendSystemMessage(player,L"You cannot transfer ownership of this structure");
+				gMessageLib->sendSystemMessage(player,L"You must be the owner to transfer a structure.");
+				//gMessageLib->sendSystemMessage(player,L"You cannot transfer ownership of this structure");
 			
 		}
 		return;
@@ -1020,9 +1023,36 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 		case Structure_Command_Destroy: 
 		{		
 			if(owner)
+			{
+				FactoryObject* factory = dynamic_cast<FactoryObject*>(gWorldManager->getObjectById(command.StructureId));
+			
+				if(factory)
+				{
+					if(factory->getManSchemID())
+					{
+						gMessageLib->sendSystemMessage(player,L"You need to remove the manufacturing schematic before destroying the structure");
+						return;
+					}
+
+					TangibleObject* hopper = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(factory->getIngredientHopper()));
+					if(hopper&&hopper->getObjects()->size())
+					{
+						gMessageLib->sendSystemMessage(player,L"You need to empty the hoppers before destroying the structure");
+						return;
+					}
+					hopper = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(factory->getOutputHopper()));
+					if(hopper&&hopper->getObjects()->size())
+					{
+						gMessageLib->sendSystemMessage(player,L"You need to empty the hoppers before destroying the structure");
+						return;
+					}
+				}
+
 				gStructureManager->getDeleteStructureMaintenanceData(command.StructureId, command.PlayerId);
+			}
 			else
-				gMessageLib->sendSystemMessage(player,L"","player_structure","destroy_must_be_owner");
+				gMessageLib->sendSystemMessage(player,L"You must be the owner to destroy a structure.");
+				//gMessageLib->sendSystemMessage(player,L"","player_structure","destroy_must_be_owner");
 			
 			
 		}

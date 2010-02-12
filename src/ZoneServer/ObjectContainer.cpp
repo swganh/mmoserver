@@ -46,6 +46,12 @@ ObjectContainer::~ObjectContainer()
 	while(objectIt != mData.end())
 	{
 	 	Object* object = gWorldManager->getObjectById((*objectIt));
+		if(!object)
+		{
+			gLogger->logMsgF("ObjectContainer::remove Object : No Object!!!!",MSG_HIGH);
+			assert(false);
+			continue;
+		}
 
 		//take care of a crafting tool
 		if(CraftingTool* tool = dynamic_cast<CraftingTool*>(object))
@@ -138,7 +144,7 @@ bool ObjectContainer::addObject(Object* Data,PlayerObjectSet*	knownPlayers)
 			gMessageLib->sendUpdateTimer(tool,player);
 		}
 
-		player++;
+		playerIt++;
 	}
 
 
@@ -251,7 +257,7 @@ bool ObjectContainer::removeObject(uint64 id, PlayerObjectSet*	knownPlayers)
 		PlayerObject* player = (*playerIt);
 		gMessageLib->sendDestroyObject(id,player);
 	
-		player++;
+		playerIt++;
 	}
 	return true;
 }
@@ -268,7 +274,7 @@ bool ObjectContainer::removeObject(Object* Data, PlayerObjectSet*	knownPlayers)
 		PlayerObject* player = (*playerIt);
 		gMessageLib->sendDestroyObject(Data->getId(),player);
 	
-		player++;
+		playerIt++;
 	}
 	
 	return true;
@@ -283,7 +289,7 @@ ObjectIDList::iterator ObjectContainer::removeObject(ObjectIDList::iterator it, 
 		PlayerObject* player = (*playerIt);
 		gMessageLib->sendDestroyObject((*it),player);
 
-		player++;
+		playerIt++;
 	}
 
 	it = mData.erase(it);

@@ -55,13 +55,17 @@ void	ObjectController::_ExtractObject(uint64 targetId,Message* message,ObjectCon
 	}
 
 	//get the crates containing container - inventory is a tangible, too - we can use the unified interface thks to virtual functions :)
-
+	//add inventories to worldmanager ?
 	TangibleObject* tO = dynamic_cast<TangibleObject* >(gWorldManager->getObjectById(crate->getParentId()));
 	if(!tO)
 	{
-		gLogger->logMsg("ObjectController::_ExtractObject: Crates parent does not exist!");
-		assert(false);
-		return;
+		tO = dynamic_cast<TangibleObject* >(inventory);
+		if(!tO)
+		{
+			gLogger->logMsg("ObjectController::_ExtractObject: Crates parent does not exist!");
+			assert(false);
+			return;
+		}
 	}
 	
 	if(!tO->checkCapacity())
@@ -81,6 +85,7 @@ void	ObjectController::_ExtractObject(uint64 targetId,Message* message,ObjectCon
 		gMessageLib->sendDestroyObject(crate->getId(),playerObject);
 		gObjectFactory->deleteObjectFromDB(crate->getId());
 		inventory->deleteObject(crate);
+		return;
 	}
 	
 	if(content < 0)

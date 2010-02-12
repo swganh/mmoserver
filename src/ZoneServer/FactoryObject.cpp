@@ -169,6 +169,8 @@ void FactoryObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
 		case radId_serverTerminalManagementDestroy: 
 		{
+			//is there a manufacturing schematic inside ???
+
 			StructureAsyncCommand command;
 			command.Command = Structure_Command_Destroy;
 			command.PlayerId = player->getId();

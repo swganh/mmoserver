@@ -60,8 +60,12 @@ void FactoryCrate::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
 void FactoryCrate::sendAttributes(PlayerObject* playerObject)
 {
+
 	if(!(playerObject->isConnected()))
 		return;
+
+	AttributeMap*				iAttributeMap		= this->getLinkedObject()->getAttributeMap();
+	AttributeOrderList*			iAttributeOrderList	= this->getLinkedObject()->getAttributeOrder();
 
 	Message* newMessage;
 
@@ -69,10 +73,10 @@ void FactoryCrate::sendAttributes(PlayerObject* playerObject)
 	gMessageFactory->addUint32(opAttributeListMessage);
 	gMessageFactory->addUint64(mId);
 
-	gMessageFactory->addUint32(1 + mAttributeMap.size());
+	gMessageFactory->addUint32(2 + mAttributeMap.size()+iAttributeMap->size());
 
 	string	tmpValueStr = string(BSTRType_Unicode16,64);
-	string	value;
+	string	value,aStr;
 
 	tmpValueStr.setLength(swprintf(tmpValueStr.getUnicode16(),50,L"%u/%u",mMaxCondition - mDamage,mMaxCondition));
 
@@ -82,9 +86,32 @@ void FactoryCrate::sendAttributes(PlayerObject* playerObject)
 	AttributeMap::iterator			mapIt;
 	AttributeOrderList::iterator	orderIt = mAttributeOrderList.begin();
 
+	
+
 	while(orderIt != mAttributeOrderList.end())
 	{
 		mapIt = mAttributeMap.find(*orderIt);
+
+		gMessageFactory->addString(gWorldManager->getAttributeKey((*mapIt).first));
+
+		value = (*mapIt).second.c_str();
+		value.convert(BSTRType_Unicode16);
+
+		gMessageFactory->addString(value);
+
+		++orderIt;
+	}
+
+	gMessageFactory->addString(BString("factory_attribs"));
+	aStr = "\\#ff0000 --------------";
+	aStr.convert(BSTRType_Unicode16);
+	gMessageFactory->addString(aStr);
+
+	orderIt = iAttributeOrderList->begin();
+
+	while(orderIt != iAttributeOrderList->end())
+	{
+		mapIt = iAttributeMap->find(*orderIt);
 
 		gMessageFactory->addString(gWorldManager->getAttributeKey((*mapIt).first));
 

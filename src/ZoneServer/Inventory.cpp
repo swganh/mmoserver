@@ -112,6 +112,8 @@ void Inventory::handleObjectReady(Object* object,DispatchClient* client)
 	TangibleObject* tangibleObject = dynamic_cast<TangibleObject*>(object);
 	if(!tangibleObject)
 	{
+		gLogger->logMsgF("Inventory::handleObjectReady : Not a tangible ???", MSG_NORMAL);
+		assert(false);
 		return;
 	}
 	

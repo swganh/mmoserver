@@ -1165,5 +1165,9 @@ void CraftingSession::createManufactureSchematic(uint32 counter)
 	
 	mManufacturingSchematic->addAttributeIncDB("manf_limit",limit.getAnsi());
 
+
+	string mask = boost::lexical_cast<std::string>(mDraftSchematic->getSubCategory()).c_str();
+	mManufacturingSchematic->addInternalAttributeIncDB("craft_tool_typemask",mask.getAnsi());
+
 	gMessageLib->sendCraftAcknowledge(opCreatePrototypeResponse,CraftCreate_2,static_cast<uint8>(counter),mOwner);
 }

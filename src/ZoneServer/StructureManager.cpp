@@ -19,7 +19,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "ResourceContainer.h"
 #include "ResourceType.h"
 #include "ObjectFactory.h"
-//#include "ObjectContainer.h"
+#include "ManufacturingSchematic.h"
 #include "PlayerObject.h"
 #include "PlayerStructure.h"
 #include "QuadTree.h"
@@ -647,6 +647,32 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 
 	switch(command.Command)
 	{
+		case Structure_Command_StartFactory:
+		{
+			FactoryObject* factory = dynamic_cast<FactoryObject*>(gWorldManager->getObjectById(command.StructureId));
+			if(!factory)
+			{
+				gLogger->logMsg("StructureManager::processVerification : No Factory (Structure_Command_AccessInHopper) ");
+				return;
+			}
+
+			//is a schematic installed?
+			if(!factory->getManSchemID())
+			{
+				gMessageLib->sendSystemMessage(player,L"You need to add a schematic before you can start producing items.");
+				gLogger->logMsg("StructureManager::processVerification : No Factory (Structure_Command_AccessInHopper) ");
+				return;
+			}
+			
+			factory->setActive(true);
+
+			//now turn the factory on - in db and otherwise
+			mDatabase->ExecuteSqlAsync(0,0,"UPDATE factories f SET f.active = 1 WHERE f.ID = %I64u",command.StructureId);
+			gMessageLib->SendUpdateFactoryWorkAnimation(factory);
+
+		}
+		break;
+
 		case Structure_Command_AccessOutHopper:
 		{
 		 	FactoryObject* factory = dynamic_cast<FactoryObject*>(gWorldManager->getObjectById(command.StructureId));
@@ -819,10 +845,31 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 				
 				//change the ManSchems Owner ID and load it into the datapad
 				gObjectFactory->requestTanoNewParent(datapad,factory->getManSchemID() ,datapad->getId(),TanGroup_ManufacturingSchematic);
-
-				//get the new Manufacturing schematic
-				datapad->removeManufacturingSchematic(command.SchematicId);
 		
+			}
+
+			
+			PlayerObject* player	= dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(command.PlayerId));
+			Datapad*	datapad		= dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+			
+			TangibleObject* tO = dynamic_cast<TangibleObject*>(datapad->getManufacturingSchematicById(command.SchematicId));
+			if(!tO->hasInternalAttribute("craft_tool_typemask"))
+			{
+				gMessageLib->sendSystemMessage(player,L"old schematic it will be deprecated once factory schematic type checks are implemented");
+				tO->addInternalAttribute("craft_tool_typemask","0xffffffff");
+			}
+
+			uint32 mask = tO->getInternalAttribute<uint32>("craft_tool_typemask");
+			
+			if((mask&&factory->getMask())!=mask)
+			{
+					gMessageLib->sendSystemMessage(player,L"this schematic will not fit into the factory anymore as soon as schematictype checks are implemented");
+					
+					int8 s[512];
+					sprintf(s,"schematic Mask %u vs factory Mask %u",mask,factory->getMask());
+					string message(s);
+					message.convert(BSTRType_Unicode16);
+					gMessageLib->sendSystemMessage(player,message.getUnicode16());
 			}
 
 			factory->setManSchemID(command.SchematicId);
@@ -832,14 +879,17 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			mDatabase->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id = %I64u WHERE ID = %I64u",command.StructureId,command.SchematicId);
 			
 			//remove the schematic from the player
-			PlayerObject* player	= dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(command.PlayerId));
-			Datapad* datapad		= dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+			
+
 			datapad->removeManufacturingSchematic(command.SchematicId);
 			gMessageLib->sendDestroyObject(command.SchematicId,player);
 
-			TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(command.SchematicId));
+			
 			gMessageLib->sendSysMsg(player,"manf_station","schematic_added",NULL,tO);
 			//gMessageLib->sendSystemMessage(player,
+			
+			//remove the added Manufacturing schematic
+			datapad->removeManufacturingSchematic(command.SchematicId);
 
 		}
 		break;

@@ -70,7 +70,22 @@ ObjectContainer::~ObjectContainer()
 }
 
 //=============================================================================
-																			   
+											
+bool ObjectContainer::addObjectSecure(Object* Data) 
+{ 
+	mData.push_back(Data->getId()); 
+	if(mCapacity)
+	{
+		return true;
+	}
+	else
+	{
+		gLogger->logMsgF("ObjectContainer::addObjectSecure No Capacity!!!!",MSG_HIGH);
+		return false;
+
+	}
+}
+
 bool ObjectContainer::addObject(Object* Data) 
 { 
 	if(mCapacity)
@@ -112,6 +127,27 @@ bool ObjectContainer::addObject(Object* Data, PlayerObject* player)
 	}
 	
 	return true;
+}
+
+bool ObjectContainer::addObjectSecure(Object* Data, PlayerObject* player) 
+{ 
+
+	if(!player)
+	{
+		//its still added to the container
+		gLogger->logMsgF("ObjectContainer::addObject No Capacity!!!!",MSG_HIGH);
+		return true;
+
+	}
+	
+	gMessageLib->sendCreateObject(Data,player,false);
+	CraftingTool* tool = dynamic_cast<CraftingTool*>(Data);
+	if(tool&&tool->getCurrentItem())
+	{
+		gMessageLib->sendUpdateTimer(tool,player);
+	}
+
+	return addObjectSecure(Data);
 }
 
 //==========================================================================================0

@@ -183,3 +183,37 @@ int32 FactoryCrate::decreaseContent(uint32 amount)
 	return newAmount;
 }
 
+//========================================================================================
+//used by the factoryfactory to update hoppercontent when looking at a hopper
+//
+void FactoryCrate::upDateFactoryVolume(string amount)
+{
+	if(!this->hasAttribute("factory_count"))
+	{
+		return;
+	}
+	
+	std::string v = this->getAttribute<std::string>("factory_count");
+	BString value = v.c_str();
+		
+	if(value.getCrc() == amount.getCrc())
+	{
+		return;
+	}
+	this->setAttribute("factory_count",amount.getAnsi());
+
+	PlayerObjectSet*			knownPlayers	= this->getKnownPlayers();
+	PlayerObjectSet::iterator	playerIt		= knownPlayers->begin();
+
+	while(playerIt != knownPlayers->end())
+	{
+		PlayerObject* player = (*playerIt);
+		if(player)
+			gMessageLib->sendUpdateCrateContent(this,player);
+
+		playerIt++;
+	}
+
+}
+
+

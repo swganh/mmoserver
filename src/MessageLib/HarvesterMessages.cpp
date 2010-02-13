@@ -876,6 +876,45 @@ void MessageLib::sendResourceEmptyHopperResponse(PlayerStructure* structure,Play
 // sends the relevant delta to the client to update the working animation
 //
 
+void MessageLib::SendUpdateFactoryWorkAnimation(FactoryObject* factory)
+{			
+																		 
+	gMessageFactory->StartMessage();
+	
+	gMessageFactory->addUint16(1);	//2 updated vars
+	gMessageFactory->addUint16(6);	//var Nr 6 = bitmask ( harvester work animation)
+
+	if(factory->getActive())
+		gMessageFactory->addUint8(1);//optionsbitmask - 1 = active
+	else
+		gMessageFactory->addUint8(0);//optionsbitmask - vendor etc harvester running
+
+	gMessageFactory->addUint8(0);//optionsbitmask - vendor etc harvester running
+	gMessageFactory->addUint16(0);//optionsbitmask - vendor etc harvester running
+	
+
+	
+	Message* fragment = gMessageFactory->EndMessage();
+
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opDeltasMessage);
+	gMessageFactory->addUint64(factory->getId());
+	gMessageFactory->addUint32(opINSO);
+	gMessageFactory->addUint8(3);
+	gMessageFactory->addUint32(fragment->getSize());
+	gMessageFactory->addData(fragment->getData(),fragment->getSize());
+
+	fragment->setPendingDelete(true);
+	_sendToInRange(gMessageFactory->EndMessage(),factory,5);
+	//(player->getClient())->SendChannelA(gMessageFactory->EndMessage(), player->getAccountId(),CR_Client,4);
+
+}
+
+//=======================================================================================================================
+//
+// sends the relevant delta to the client to update the working animation
+//
+
 void MessageLib::SendUpdateHarvesterWorkAnimation(HarvesterObject* harvester)
 {			
 																		 

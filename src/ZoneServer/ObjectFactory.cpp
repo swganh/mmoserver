@@ -112,14 +112,14 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			mFactoryFactory->requestObject(asyncContainer->ofCallback,requestId,0,0,asyncContainer->client);
 
 			//now we need to update the Owners Lots
-			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asyncContainer->OwnerId));
+			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asyncContainer->PlayerId));
 				
 			//cave he might have logged out already - even if thats *very* unlikely (heck of a query that would have been)
 			if(player)
 			{
-				gStructureManager->UpdateCharacterLots(asyncContainer->OwnerId);
+				gStructureManager->UpdateCharacterLots(asyncContainer->PlayerId);
 				Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-				Deed* deed = dynamic_cast<Deed*>(inventory->getObjectById(asyncContainer->DeedId));
+				Deed* deed = dynamic_cast<Deed*>(gWorldManager->getObjectById(asyncContainer->DeedId));
 				
 				//destroy it in the client
 				gMessageLib->sendDestroyObject(asyncContainer->DeedId,player);
@@ -388,6 +388,7 @@ void ObjectFactory::requestnewFactorybyDeed(ObjectFactoryCallback* ofCallback,De
 
 	asyncContainer->DeedId = deed->getId();
 	asyncContainer->OwnerId = deed->getOwner();
+	asyncContainer->PlayerId = player->getId();
 	int8 sql[512];
 	
 

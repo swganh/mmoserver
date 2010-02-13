@@ -54,6 +54,8 @@ class ObjectContainer :	public Object, public ObjectFactoryCallback
 		ObjectIDList*		getObjects() { return &mData; }
 		Object*				getObjectById(uint64 id);
 		bool				addObject(Object* Data);
+		bool				addObjectSecure(Object* Data);
+		bool				addObjectSecure(Object* Data, PlayerObject* player);
 		
 		//creates the object for the provided player/s
 		bool				addObject(Object* Data,PlayerObject* player);

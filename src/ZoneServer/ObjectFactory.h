@@ -69,7 +69,7 @@ class ObjectFactory : public DatabaseCallback
 		void					requestObject(ObjectType objType,uint16 subGroup,uint16 subType,ObjectFactoryCallback* ofCallback,uint64 id,DispatchClient* client);
 
 		// create new objects in the database
-		void					requestNewClonedItem(ObjectFactoryCallback* ofCallback,uint64 templateId,uint64 parentId);//creates a clone item after a tangible template - out of a crate for example
+		void					requestNewClonedItem(ObjectFactoryCallback* ofCallback,uint64 templateId,uint64 parentId);//creates a clone item after a tangible template - out of a crate for exampl
 		void					requestNewDefaultItem(ObjectFactoryCallback* ofCallback,uint32 schemCrc,uint64 parentId,uint16 planetId,Anh_Math::Vector3 position,string customName = "");
 		void					requestNewDefaultItem(ObjectFactoryCallback* ofCallback,uint32 familyId,uint32 typeId,uint64 parentId,uint16 planetId,Anh_Math::Vector3 position,string customName = "");
 		void					requestNewDefaultManufactureSchematic(ObjectFactoryCallback* ofCallback,uint32 schemCrc,uint64 parentId);
@@ -128,6 +128,7 @@ class OFAsyncContainer
 		uint64					DeedId;
 		uint64					OwnerId;
 		uint64					PlayerId;
+		
 };
 
 #endif

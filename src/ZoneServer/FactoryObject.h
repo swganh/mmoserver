@@ -73,6 +73,9 @@ class FactoryObject :	public PlayerStructure, public DatabaseCallback
 		uint64			getOutputHopper(){ return mOutputHopper; }
 		void			setOutputHopper(uint64 value){ mOutputHopper= value; }
 
+		uint32			getMask(){ return mSchematicMask; }
+		void			setMask(uint32 value){ mSchematicMask = value; }
+
 
 	private:
 
@@ -80,6 +83,8 @@ class FactoryObject :	public PlayerStructure, public DatabaseCallback
 
 		
 		FactoryFamily	mFactoryFamily;
+
+		uint32			mSchematicMask;
 
 		uint32			mTotalLoadCount;
 		uint64			mManSchematicID;

@@ -41,6 +41,7 @@ typedef std::vector<CraftWeight*>				CraftWeights;
 typedef std::vector<CraftAttribute*>			CraftAttributes;
 typedef std::vector<CraftAttributeWeight*>		CraftAttributeWeights;
 typedef std::vector<std::pair<uint64,uint32> >	FilledResources;
+typedef std::vector<std::pair<Item*,uint32> >	FilledComponent;
 
 
 //=============================================================================
@@ -157,7 +158,7 @@ class ManufactureSlot
 
 		virtual ~ManufactureSlot(){}
 
-		bool	addResourcetoSlot(uint64 resID, uint32 amount);
+		bool	addResourcetoSlot(uint64 resID, uint32 amount, uint8 type);
 		
 		DSType	getFilledType(){ return mFilledType; }
 		void	setFilledType(DSType indicator){ mFilledIndicatorChange = (mFilledType != indicator);mFilledType= indicator; }
@@ -172,6 +173,9 @@ class ManufactureSlot
 		void	setFilledAmount(uint32 amount){mFilled = amount;}
 
 		FilledResources	mFilledResources;
+		
+		FilledComponent	mUsedComponentStacks;
+		
 		// slots
 		DraftSlot*		mDraftSlot;
 

@@ -1123,8 +1123,12 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 	//some other container ... hopper backpack chest etc
 	TangibleObject* containingContainer = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(tangible->getParentId()));
 	if(containingContainer&&containingContainer->removeObject(itemObject))
+
+	{
+		playerObject->removeKnownObject(containingContainer);
 		return true;
 	
+	}
 	
 	return false;
 
@@ -1941,7 +1945,7 @@ void ObjectController::_BurstRun(uint64 targetId,Message* message,ObjectControll
 	//gMessageLib->sendSystemMessage(player,L"","cbt_spam","burstrun_start");
 	gMessageLib->sendSystemMessage(player,L"You run as hard as you can!");
 	int8 s[256];
-	sprintf(s,"%s %s puts on a sudden burst of speed.",player->getFirstName(),player->getLastName());
+	sprintf(s,"%s %s puts on a sudden burst of speed.",player->getFirstName().getAnsi(),player->getLastName().getAnsi());
 	BString bs(s);
 	bs.convert(BSTRType_Unicode16);
 	gMessageLib->sendSystemMessageInRange(player,false,bs.getUnicode16());

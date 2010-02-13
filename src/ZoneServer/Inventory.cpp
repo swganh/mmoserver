@@ -130,7 +130,7 @@ void Inventory::handleObjectReady(Object* object,DispatchClient* client)
 	}
 
 	else
-		addObject(object);
+		addObjectSecure(object);
 	
 }
 
@@ -210,7 +210,7 @@ bool Inventory::EquipItem(Object* object)
 		return(false);
 	}
 
-	gLogger->logMsgF("Inventory::EquipItem : owner ID : %I64u\n", MSG_NORMAL,owner->getId());
+	gLogger->logMsgF("Inventory::EquipItem : owner ID : %I64u", MSG_NORMAL,owner->getId());
 	//equipped objects are always contained by the Player
 	//unequipped ones by the inventory!
 
@@ -301,7 +301,7 @@ void Inventory::unEquipItem(Object* object)
 	this->removeEquippedObject(object);
 
 	//and add to inventories regular (unequipped) list
-	this->addObject(object);
+	this->addObjectSecure(object);
 
 	object->setInternalAttributeIncDB("equipped","0");
 

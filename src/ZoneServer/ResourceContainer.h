@@ -31,6 +31,7 @@ class ResourceContainer : public TangibleObject
 		~ResourceContainer();
 
 		virtual void	setParentIdIncDB(uint64 parentId);
+		virtual void	upDateFactoryVolume(string amount);
 	
 
 		uint64		getResourceId();

@@ -96,6 +96,7 @@ enum Structure_Async_CommandEnum
 	Structure_Command_RemoveSchem		=	19,
 	Structure_Command_AccessInHopper	=	20,
 	Structure_Command_AccessOutHopper	=	21,
+	Structure_Command_StartFactory		=	22,
 	
 
 };

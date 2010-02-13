@@ -62,6 +62,8 @@ class NonPersistantObjectFactory : public FactoryBase
 
 		void					_createItem(DatabaseResult* result,Item* item);
 
+		TangibleObject*			NonPersistantObjectFactory::cloneTangible(TangibleObject* theTemplate);
+
 	protected:
 		NonPersistantObjectFactory(Database* database);
 		~NonPersistantObjectFactory();

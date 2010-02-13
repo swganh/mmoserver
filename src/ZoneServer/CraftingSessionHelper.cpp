@@ -19,6 +19,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Datapad.h"
 #include "DraftSchematic.h"
 #include "DraftSlot.h"
+#include "FactoryCrate.h"
 #include "Inventory.h"
 #include "Item.h"
 #include "ManufacturingSchematic.h"
@@ -29,6 +30,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "ResourceManager.h"
 #include "SchematicManager.h"
 #include "WorldManager.h"
+
+#include "nonPersistantObjectFactory.h"
 
 #include "MessageLib/MessageLib.h"
 
@@ -115,6 +118,189 @@ bool CraftingSession::AdjustComponentStack(Item* item, Inventory* inventory, uin
 }
 
 
+//=============================================================================
+//
+// returns the serial of either a crate or component
+// thats easy for stacks and a little more involved for factory crates
+// 
+
+string CraftingSession::ComponentGetSerial(Item* component)
+{
+
+	string componentSerial = "";
+
+	FactoryCrate* fC  = dynamic_cast<FactoryCrate*>(component);
+	if(fC)
+	{
+		if(fC->getLinkedObject()->hasAttribute("serial"))
+			componentSerial = fC->getLinkedObject()->getAttribute<std::string>("serial").c_str();
+		
+		
+		return	componentSerial;
+	}
+
+	if(component->hasAttribute("serial"))
+		componentSerial = component->getAttribute<std::string>("serial").c_str();
+
+	return	componentSerial;
+		
+}
+
+
+//=============================================================================
+//
+// returns the amount of the item useable
+// thats easy for stacks and a little more involved for factory crates
+// under the presumption that crates can hold stackable items, too 
+
+uint32 CraftingSession::getComponentOffer(Item* component, uint32 needed)
+{
+
+	uint32 crateSize = 0;
+	uint32 stacksize = 1;
+	FactoryCrate* fC  = dynamic_cast<FactoryCrate*>(component);
+	if(fC)
+	{
+		if(!fC->hasAttribute("factory_count"))
+		{
+			gLogger->logMsgF("CraftingSession::prepareComponent crate without factory_count attribute",MSG_HIGH);
+			return 0;
+		}
+		
+		crateSize = fC->getAttribute<uint32>("factory_count");
+		stacksize = 1;
+		
+		if(!fC->getLinkedObject()->hasAttribute("stacksize"))
+		{
+			return crateSize;
+		}
+
+		stacksize = fC->getLinkedObject()->getAttribute<uint32>("stacksize");
+
+		return	stacksize*crateSize;
+		
+	}
+
+	if(!component->hasAttribute("stacksize"))
+	{
+		return 1;
+	}
+
+	stacksize = component->getAttribute<uint32>("stacksize");
+
+	return	stacksize;
+		
+}
+
+//=============================================================================
+//
+// preparing the offer means linking the stack/ crate to the slot so we can access it later on
+// delete it out of the inventory/continer if necessary
+// otherwise adjust the stacksize
+
+bool CraftingSession::prepareComponentOffer(Item* component, uint32 needed, ManufactureSlot* manSlot)
+{
+	Inventory* inventory = dynamic_cast<Inventory*>(mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+
+	uint32 crateSize = 1;
+	uint32 stackSize = 1;
+	FactoryCrate* fC  = dynamic_cast<FactoryCrate*>(component);
+	if(fC)
+	{
+		if(!fC->hasAttribute("factory_count"))					  
+		{
+			gLogger->logMsgF("CraftingSession::prepareComponentoffer crate without factory_count attribute",MSG_HIGH);
+			return false;
+		}
+		
+		crateSize = fC->getAttribute<uint32>("factory_count");
+		
+		if(!fC->getLinkedObject()->hasAttribute("stacksize"))
+		{
+			stackSize = 1;
+		}
+
+		uint32 crateTaken = (uint32)needed/stackSize;
+		
+		if(crateTaken>crateSize)
+		{
+			gLogger->logMsgF("CraftingSession::prepareComponentOffer crate does not have enough content",MSG_HIGH);
+			return false;
+		}
+
+		//only take away whole stacks
+		fC->setAttributeIncDB("factory_count",boost::lexical_cast<std::string>(crateSize-crateTaken));
+
+		//reference it in the slot so we dont loose it
+		manSlot->mUsedComponentStacks.push_back(std::make_pair(component,crateTaken));
+
+		//if its now empty remove it out of the inventory so we cant use it several times
+		if(crateTaken == crateSize)
+		{
+			TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(component->getParentId()));
+			if(!tO)
+				tO = dynamic_cast<TangibleObject*>(inventory);
+
+			tO->removeObject(component);
+			
+			//leave parent_id untouched - we might need to readd it to the container
+			gMessageLib->sendContainmentMessage(fC->getId(),mManufacturingSchematic->getId(),0xffffffff,mOwner);
+			
+		}
+		
+		return true;
+		
+	}
+
+	if(!component->hasAttribute("stacksize"))
+	{
+		manSlot->mUsedComponentStacks.push_back(std::make_pair(component,1));
+
+		// remove it out of the inventory so we cant use it several times
+		TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(component->getParentId()));
+		if(!tO)
+			tO = dynamic_cast<TangibleObject*>(inventory);
+
+		tO->removeObject(component);
+		
+		//leave parent_id untouched - we might need to readd it to the container
+		gMessageLib->sendContainmentMessage(component->getId(),mManufacturingSchematic->getId(),0xffffffff,mOwner);
+
+		return true;
+		
+	}
+
+	stackSize = component->getAttribute<uint32>("stacksize");
+
+	uint32 stackTaken = needed;
+	
+	if(stackTaken>stackSize)
+	{
+		gLogger->logMsgF("CraftingSession::prepareComponentOffer stack does not have enough content",MSG_HIGH);
+		return false;
+	}
+
+	component->setAttributeIncDB("stacksize",boost::lexical_cast<std::string>(stackSize-stackTaken));
+
+	//reference it in the slot so we dont loose it
+	manSlot->mUsedComponentStacks.push_back(std::make_pair(component,stackTaken));
+
+	//if its now empty remove it out of the inventory so we cant use it several times
+	if(stackTaken == stackSize)
+	{
+		TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(component->getParentId()));
+		if(!tO)
+			tO = dynamic_cast<TangibleObject*>(inventory);
+
+		tO->removeObject(component);
+		//leave parent_id untouched - we might need to readd it to the container
+		gMessageLib->sendContainmentMessage(component->getId(),mManufacturingSchematic->getId(),0xffffffff,mOwner);
+	}
+		
+	return true;
+		
+}
+
 
 //=============================================================================
 //
@@ -125,6 +311,17 @@ void CraftingSession::handleFillSlotComponent(uint64 componentId,uint32 slotId,u
 {
 
 	ManufactureSlot*	manSlot			= mManufacturingSchematic->getManufactureSlots()->at(slotId);
+
+	uint64 crateID = 0;
+	uint64 crateTangID = 0;
+
+	Item*		component	= dynamic_cast<Item*>(gWorldManager->getObjectById(componentId));
+
+	FactoryCrate* fC  = dynamic_cast<FactoryCrate*>(component);
+	if(fC)
+	{
+		crateTangID = fC->getLinkedObject()->getId();
+	}
 
 	Inventory* inventory = dynamic_cast<Inventory*>(mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 
@@ -140,13 +337,9 @@ void CraftingSession::handleFillSlotComponent(uint64 componentId,uint32 slotId,u
 	string				componentSerial	= "";
 	string				filledSerial	= "";
 
-	Item*		component	= dynamic_cast<Item*>(inventory->getObjectById(componentId));
 
-	if(component->hasAttribute("serial"))
-		componentSerial = component->getAttribute<std::string>("serial").c_str();
+	componentSerial = ComponentGetSerial(component);
 
-
-//	bool resourceBool = false;
 	bool smallupdate = false;
 
 	if((!component) || (!manSlot))
@@ -155,14 +348,10 @@ void CraftingSession::handleFillSlotComponent(uint64 componentId,uint32 slotId,u
 		return;
 	}
 
-	// components need the same serial
-	// see if something is filled already
+	// get the amount of already filled components
 	FilledResources::iterator filledResIt = manSlot->mFilledResources.begin();
-
-	//get the amount of already filled components
 	while(filledResIt != manSlot->mFilledResources.end())
 	{
-
 		existingAmount += (*filledResIt).second;
 		++filledResIt;
 	}
@@ -177,102 +366,41 @@ void CraftingSession::handleFillSlotComponent(uint64 componentId,uint32 slotId,u
 		return;
 	}
 
-	// see how much this component stack has to offer
-	// slot completely filled
-	if(availableAmount >= totalNeededAmount)
+	//ok we probably have a deal here - if its a crate we need to get a stack out - or more ?
+
+	// see how much this component stack /crate has to offer
+	uint32 offer = getComponentOffer(component,totalNeededAmount); 
+
+	
+	// important question - are there stackable crafting components in crates - like stack in a stack ???? 
+	// answer - not to my knowledge
+
+	// add it to the slot get the update type
+	uint64 selectedComponentId = componentId;
+
+	if(crateTangID)
 	{
-		// add to the already filled components
+		selectedComponentId = crateTangID;
+	}
 
-		filledResIt				= manSlot->mFilledResources.begin();
+	// important is that when we use crates we need to keep track of the involved crates somehow
+	smallupdate = manSlot->addResourcetoSlot(selectedComponentId,offer,manSlot->mDraftSlot->getType());
 
-		if(manSlot->mFilledResources.size()&&(getComponentSerial(manSlot, inventory) == componentSerial.getCrc()))
-		{
-			//important!!! if it is an individual component add the items id with stacksize
-			//dont loose items through stacking already present items
-			manSlot->mFilledResources.push_back(std::make_pair(component->getId(),totalNeededAmount));
-			filledResIt				= manSlot->mFilledResources.begin();
-			manSlot->setFilledType((DSType)manSlot->mDraftSlot->getType());
-			manSlot->mFilledIndicatorChange = true;
-			smallupdate = true;
-		}
-		else
-		if(manSlot->mFilledResources.size())
-		{
-			gMessageLib->sendCraftAcknowledge(opCraftFillSlot,CraftError_Internal_Invalid_Ingredient,counter,mOwner);
-			return;
-		}
-		else
-		if(manSlot->mFilledResources.empty())
-		{
-			//resourceBool = true;
-			// only allow one unique type
+	//the component is now referenced and the stack attributes (if any) are altered
+	prepareComponentOffer(component, offer, manSlot);
+	
+	// update the slot total resource amount
+	manSlot->setFilledAmount(manSlot->getFilledAmount()+offer);
 
-			manSlot->mFilledResources.push_back(std::make_pair(component->getId(),totalNeededAmount));
-			manSlot->setFilledType((DSType)manSlot->mDraftSlot->getType());
-			manSlot->mFilledIndicatorChange = true;
-			//link it to the schematic ?
-
-		}
-
-		if(!AdjustComponentStack(component,inventory,totalNeededAmount))
-		{
-			gMessageLib->sendCraftAcknowledge(opCraftFillSlot,CraftError_Internal_Invalid_Ingredient_Size,counter,mOwner);
-			return;
-		}
-
-
-		// update the slot total resource amount
-		manSlot->mFilled = manSlot->mDraftSlot->getNecessaryAmount();
-
+	if(manSlot->getFilledAmount() == manSlot->mDraftSlot->getNecessaryAmount())
+	{
 		// update the total count of filled slots
 		mManufacturingSchematic->addFilledSlot();
 		gMessageLib->sendUpdateFilledManufactureSlots(mManufacturingSchematic,mOwner);
 	}
-	// got only a bit of the required amount
-	else//if(availableAmount >= totalNeededAmount)
-	{
-		// add a new entry
-		filledResIt				= manSlot->mFilledResources.begin();
-
-		if((getComponentSerial(manSlot, inventory) == componentSerial.getCrc())&&manSlot->mFilledResources.size())
-		{
-			//(*filledResIt).second += availableAmount;
-			manSlot->mFilledResources.push_back(std::make_pair(componentId,availableAmount));
-			filledResIt				= manSlot->mFilledResources.begin();
-			manSlot->setFilledType((DSType)manSlot->mDraftSlot->getType());
-			manSlot->mFilledIndicatorChange = true;
-			smallupdate = true;
-		}
-
-		else
-		if(!manSlot->mFilledResources.empty())
-		{
-			gMessageLib->sendCraftAcknowledge(opCraftFillSlot,CraftError_Bad_Resource_Chosen,counter,mOwner);
-			return;
-		}
-		// nothing of that resource filled, add a new entry
-		else
-		if(manSlot->mFilledResources.empty())
-		{
-
-			manSlot->mFilledResources.push_back(std::make_pair(componentId,availableAmount));
-			manSlot->setFilledType((DSType)manSlot->mDraftSlot->getType());
-			manSlot->mFilledIndicatorChange = true;
-
-		}
-
-		if(!AdjustComponentStack(component,inventory,totalNeededAmount))
-		{
-			gMessageLib->sendCraftAcknowledge(opCraftFillSlot,CraftError_Internal_Invalid_Ingredient_Size,counter,mOwner);
-			return;
-		}
-
-		// update the slot total resource amount
-		manSlot->mFilled += availableAmount;
-
-	}
 
 	// update the slot contents, send all slots on first fill
+	// we need to make sure we only update lists with changes, so the lists dont desynchronize!
 	if(!mFirstFill)
 	{
 		mFirstFill = true;
@@ -290,6 +418,7 @@ void CraftingSession::handleFillSlotComponent(uint64 componentId,uint32 slotId,u
 	// done
 	gMessageLib->sendCraftAcknowledge(opCraftFillSlot,CraftError_None,counter,mOwner);
 
+	
 }
 
 //=============================================================================
@@ -547,7 +676,7 @@ void CraftingSession::handleFillSlotResourceRewrite(uint64 resContainerId,uint32
 	}
 	
 	// add it to the slot get the update type
-	smallupdate = manSlot->addResourcetoSlot(containerResId,takeAmount);
+	smallupdate = manSlot->addResourcetoSlot(containerResId,takeAmount,manSlot->mDraftSlot->getType());
 	
 	// update the container amount
 	uint32 newContainerAmount = availableAmount - takeAmount;
@@ -595,33 +724,86 @@ void CraftingSession::handleFillSlotResourceRewrite(uint64 resContainerId,uint32
 void CraftingSession::bagComponents(ManufactureSlot* manSlot,uint64 containerId)
 {
 	//add the components back to the inventory
+	uint32 crateSize;
 	manSlot->setFilledType(DST_Empty);
 
 	Inventory* inventory = dynamic_cast<Inventory*>(mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 
-	FilledResources::iterator resIt = manSlot->mFilledResources.begin();
-	while(resIt != manSlot->mFilledResources.end())
+	FilledComponent::iterator compIt = manSlot->mUsedComponentStacks.begin();
+	while(compIt != manSlot->mUsedComponentStacks.end())
 	{
-		Item*	filledComponent	= dynamic_cast<Item*>(mManufacturingSchematic->getObjectById((*resIt).first));
+		Item*	filledComponent	= dynamic_cast<Item*>((*compIt).first);
 
 		if(!filledComponent)
 		{
 			gLogger->logMsgF("CraftingSession::bagComponents filledComponent not found",MSG_HIGH);
 			return;
 		}
-		mManufacturingSchematic->removeObject((*resIt).first);
+		mManufacturingSchematic->removeObject((*compIt).first);
 
-		//add to inventory
-		inventory->addObject(filledComponent);
-		//we do not need to change the db here - that only happens when we assemble!
-		filledComponent->setParentId(inventory->getId(),0xffffffff,mOwner,false);
+		Item* component = dynamic_cast<Item*>((*compIt).first);
 
-		//gMessageLib->sendContainmentMessage
+		uint32 amount = (*compIt).second;
 
-		resIt++;
+		//add to original container
+		TangibleObject* container = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(component->getParentId()));
+		if(!container)
+			container = dynamic_cast<TangibleObject*>(inventory);
+
+		if(!container)
+		{
+			gLogger->logMsgF("CraftingSession::bagComponents couldnt find components parent container",MSG_HIGH);
+			return;
+		}
+		
+		FactoryCrate* fC = dynamic_cast<FactoryCrate*>(component);
+		if(fC)
+		{
+			if(!fC->hasAttribute("factory_count"))					  
+			{
+				gLogger->logMsgF("CraftingSession::prepareComponentoffer crate without factory_count attribute",MSG_HIGH);
+				return;
+			}
+		
+			crateSize = fC->getAttribute<uint32>("factory_count");
+			//did we empty it??
+			if(!crateSize)
+			{
+				container->addObject(fC);
+				gMessageLib->sendContainmentMessage(fC->getId(),container->getId(),0xffffffff,mOwner);
+			}	 		
+			fC->setAttribute("factory_count",boost::lexical_cast<std::string>(amount+crateSize));
+
+			compIt = manSlot->mUsedComponentStacks.erase(compIt);
+			continue;
+		}
+		
+		if(!filledComponent->hasAttribute("stacksize"))					  
+		{
+			container->addObject(filledComponent);
+			gMessageLib->sendContainmentMessage(filledComponent->getId(),container->getId(),0xffffffff,mOwner);
+
+			compIt = manSlot->mUsedComponentStacks.erase(compIt);
+			continue;
+			
+		}
+		
+		crateSize = filledComponent->getAttribute<uint32>("stacksize");
+		filledComponent->setAttribute("stacksize",boost::lexical_cast<std::string>(crateSize+amount));
+		
+		//did we empty it??
+		if(!crateSize)
+		{
+			container->addObject(filledComponent);
+			gMessageLib->sendContainmentMessage(filledComponent->getId(),container->getId(),0xffffffff,mOwner);
+		}	 		
+
+		compIt = manSlot->mUsedComponentStacks.erase(compIt);
 
 	}
 
+	manSlot->mUsedComponentStacks.clear();
+	manSlot->mFilledResources.clear();
 }
 
 //=============================================================================

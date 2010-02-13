@@ -179,6 +179,16 @@ void StructureManager::createNewStructureStatusBox(PlayerObject* player, PlayerS
 	attributesMenu.push_back(text);
 
 	//Power Pool
+	if(structure->getPlayerStructureFamily() == PlayerStructure_Harvester)
+	{
+		HarvesterObject* hO = dynamic_cast<HarvesterObject*>(structure);
+		HarvesterFamily haFa = hO->getHarvesterFamily();
+		
+		if((haFa == HarvesterFamily_Fusion)||(haFa == HarvesterFamily_Solar)||(haFa == HarvesterFamily_Wind))
+		{
+			gUIManager->createNewListBox(structure,"structurestatus","@player_structure:structure_status_t", wText, attributesMenu, player, SUI_Window_Structure_Status,SUI_LB_CANCELREFRESH,structure->getId());	
+		}
+	}
 	uint32 power = structure->getCurrentPower();
 	rate = (float)structure->getPowerConsumption();
 	
@@ -196,7 +206,6 @@ void StructureManager::createNewStructureStatusBox(PlayerObject* player, PlayerS
 	//Power Consumption
 	sprintf(text,"Power Consumption: %u units/hr",structure->getPowerConsumption());
 	attributesMenu.push_back(text);
-
 	
 
 	//answer = x/(total/100);

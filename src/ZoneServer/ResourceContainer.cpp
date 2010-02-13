@@ -19,6 +19,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Common/Message.h"
 #include "Common/MessageFactory.h"
 #include "DatabaseManager/Database.h"
+#include "MessageLib/MessageLib.h"
 #include "MathLib/Quaternion.h"
 
 //=============================================================================
@@ -216,5 +217,31 @@ void ResourceContainer::setParentIdIncDB(uint64 parentId)
 	gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE resource_containers SET parent_id=%"PRIu64" WHERE id=%"PRIu64"",mParentId,this->getId());
 }
 
+void ResourceContainer::upDateFactoryVolume(string amount)
+{
+	uint32 a = 0;
+	a = boost::lexical_cast<uint32>(amount.getAnsi());
+	
+	if(a == this->getAmount())
+	{
+		return;
+	}
 
+	this->setAmount(a);
+
+	TangibleObject* hopper = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(this->getParentId()));
+	
+	PlayerObjectSet*			knownPlayers	= hopper->getKnownPlayers();
+	PlayerObjectSet::iterator	playerIt		= knownPlayers->begin();
+
+	while(playerIt != knownPlayers->end())
+	{
+		PlayerObject* player = (*playerIt);
+		if(player)
+			gMessageLib->sendResourceContainerUpdateAmount(this,player);
+
+		playerIt++;
+	}
+
+}
 

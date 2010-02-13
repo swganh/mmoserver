@@ -98,6 +98,17 @@ void FactoryObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 	
 	switch(messageType)
 	{
+		case radId_StartManufacture:
+		{
+			StructureAsyncCommand command;
+			command.Command = Structure_Command_StartFactory;
+			command.PlayerId = player->getId();
+			command.StructureId = this->getId();
+
+			gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+		}
+		break;
+
 		case radId_serverManfHopperInput:
 		{
 			StructureAsyncCommand command;
@@ -289,7 +300,6 @@ void FactoryObject::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 	SAFE_DELETE(asynContainer);
 }
-
 
 
 

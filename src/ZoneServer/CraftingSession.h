@@ -22,6 +22,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "CraftingEnums.h"
 
 #include <boost/lexical_cast.hpp>
+#include <list>
 
 //=============================================================================
 
@@ -50,6 +51,7 @@ namespace Anh_Utils
 typedef std::vector<CraftWeight*>			CraftWeights;
 typedef std::map<uint64,uint32>				CheckResources;
 
+typedef std::list<uint64>					ObjectIDList;
 //=============================================================================
 
 class CraftingSession : public DatabaseCallback, public ObjectFactoryCallback
@@ -66,6 +68,10 @@ class CraftingSession : public DatabaseCallback, public ObjectFactoryCallback
 		void					handleFillSlotResource(uint64 resContainerId,uint32 slotId,uint32 unknown,uint8 counter);
 		void					handleFillSlotComponent(uint64 componentId,uint32 slotId,uint32 unknown,uint8 counter);
 		void					handleFillSlotResourceRewrite(uint64 resContainerId,uint32 slotId,uint32 unknown,uint8 counter);
+
+		bool					prepareComponentOffer(Item* component, uint32 needed, ManufactureSlot* manSlot);
+		uint32					getComponentOffer(Item* component, uint32 needed);
+		string					ComponentGetSerial(Item* component);
 
 		uint32					getComponentSerial(ManufactureSlot*	manSlot, Inventory* inventory);
 		bool					AdjustComponentStack(Item* item, Inventory* inventory, uint32 uses);

@@ -30,6 +30,7 @@ class TangibleObject :	public ObjectContainer
 		TangibleObject(uint64 id,uint64 parentId,const string model,TangibleGroup tanGroup = TanGroup_None,TangibleType tanType = TanType_None,const string name = "",const string nameFile = "",const string detailFile = "");
 		virtual ~TangibleObject();
 
+		virtual void		upDateFactoryVolume(string amount){;}
 		string				getName() const { return mName; }
 		void				setName(const int8* name){ mName = name; }
 		string				getNameFile() const { return mNameFile; }

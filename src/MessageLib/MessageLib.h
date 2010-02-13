@@ -427,6 +427,7 @@ public:
 
 	bool				sendBaselinesINSO_3(PlayerStructure* structure,PlayerObject* player);
 	bool				sendBaselinesINSO_6(PlayerStructure* structure,PlayerObject* player);
+	void				SendUpdateFactoryWorkAnimation(FactoryObject* factory);
 
 	// deltas
 	bool				sendUpdateCellPermissionMessage(CellObject* cellObject,uint8 permission,PlayerObject* playerObject);

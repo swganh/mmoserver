@@ -176,7 +176,7 @@ TangibleObject* NonPersistantObjectFactory::spawnTangible(StructureItemTemplate*
 	tangible->mPosition.mY += placableTemplate->mPosition.mY;
 	tangible->mPosition.mZ += placableTemplate->mPosition.mZ;
 	
-	tangible->mDirection = placableTemplate->mDirection.mX;
+	tangible->mDirection.mX = placableTemplate->mDirection.mX;
 	tangible->mDirection.mY = placableTemplate->mDirection.mY;
 	tangible->mDirection.mZ = placableTemplate->mDirection.mZ;
 
@@ -388,5 +388,40 @@ PlayerStructure* NonPersistantObjectFactory::requestBuildingFenceObject(float x,
 	return structure;
 
 }
+
+//================================================================================================================
+//
+// we clone a nonpersistant tangible here - we use it when we get an item out of a crate while crafting for example
+//
+TangibleObject* NonPersistantObjectFactory::cloneTangible(TangibleObject* theTemplate)
+{
+	
+	TangibleObject* tangible = new(TangibleObject);
+	
+	tangible->setId(gWorldManager->getRandomNpId());
+
+	tangible->mPosition = theTemplate->mPosition;	
+	tangible->mDirection = theTemplate->mDirection;
+
+	tangible->setName(theTemplate->getName().getAnsi());
+	tangible->setNameFile(theTemplate->getNameFile().getAnsi());
+
+	tangible->setParentId(theTemplate->getParentId());
+	tangible->setCustomName(theTemplate->getCustomName().getAnsi());
+	tangible->setMaxCondition(theTemplate->getMaxCondition());
+
+	tangible->setTangibleGroup(theTemplate->getTangibleGroup());
+	
+	//see above notes
+	tangible->setTangibleType(theTemplate->getTangibleType());
+
+	
+
+	tangible->setModelString(theTemplate->getModelString());
+
+	return(tangible);
+
+}
+
 
 

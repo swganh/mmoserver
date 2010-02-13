@@ -10,6 +10,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 */
 
 #include "FactoryFactory.h"
+#include "FactoryCrate.h"
+
 #include "Deed.h"
 #include "FactoryObject.h"
 #include "PlayerObject.h"
@@ -24,6 +26,30 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Utils/utils.h"
 #include <assert.h>
 
+//itemtypes
+/*
+weapons = 1
+armor = 2
+food 4
+clothing 8
+vehicle 16
+droid 32
+chemical 64
+tissue 128
+
+creatures 256
+furniture 512
+installation 1024
+lightsaber 2048
+generic 4096
+genetics   8192
+starshipcomponents131072
+mand droid		65536
+mand armor 32768
+mand tailor	 16384
+ship tools 262144
+misc   524288
+ */
 //=============================================================================
 
 bool				FactoryFactory::mInsFlag    = false;
@@ -76,41 +102,26 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 			DataBinding*	binding = mDatabase->CreateDataBinding(1);
 			binding->addField(DFT_bstring,offsetof(Type1_QueryContainer,mString),64,0);
-			//binding->addField(DFT_uint32,offsetof(Type1_QueryContainer,mVolume),4,1);
-
-			DataBinding*	binding2 = mDatabase->CreateDataBinding(1);
-			binding2->addField(DFT_uint32,offsetof(Type1_QueryContainer,mVolume),4,0);
-
+			
 			uint64 count;
 			count = result->getRowCount();
 
-
+			// should be 1 result featuring the value as string
+			// note that we can get MySQL to give us the resContainersVolume as string as we just tell it to not cast the value
+			// MySQL just uses strings in its interface!! so we just wait and cast the value in the virtual function
+			// this way we dont have to differentiate between resourceContainers and FactoryCrates and save ourselves alot of unecessary work
 			for(uint64 i = 0;i < count;i++)
 			{
-				//get ourselves the item we want to update the volume / amount
+	
 				TangibleObject* tangible = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(asyncContainer->mId));
 				if(!tangible)
 				{
 					gLogger->logMsg("FactoryFactory::FFQuery_HopperItemAttributeUpdate No tangible :(");
+					mDatabase->DestroyDataBinding(binding);
 					return;
 				}
-				Item* item = dynamic_cast<Item*>(tangible);
-				if(item)
-				{
-
-					result->GetNextRow(binding,&queryContainer);				
-					if(tangible->hasAttribute("volume"))
-					{
-						tangible->setAttribute("volume",queryContainer.mString.getAnsi());
-					}
-				}
-				//ResourceContainer
-				ResourceContainer* rc = dynamic_cast<ResourceContainer*>(gWorldManager->getObjectById(queryContainer.mId));
-				if(rc)
-				{
-					result->GetNextRow(binding2,&queryContainer);				
-					rc->setAmount(queryContainer.mVolume);
-				}
+				result->GetNextRow(binding,&queryContainer);							
+				tangible->upDateFactoryVolume(queryContainer.mString); //virtual function present in tangible, resourceContainer and factoryCrate
 				
 			}
 			InLoadingContainer* ilc = _getObject(asyncContainer->mHopper);
@@ -126,7 +137,7 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				mILCPool.free(ilc);
 			}
 		
-
+			mDatabase->DestroyDataBinding(binding);
 
 		}
 		break;
@@ -147,6 +158,7 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			if(!count)
 			{
 				asyncContainer->mOfCallback->handleObjectReady(asyncContainer->mObject,asyncContainer->mClient,asyncContainer->mHopper);
+				mDatabase->DestroyDataBinding(binding);
 				return;
 			}
 
@@ -176,7 +188,7 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 						
 						mDatabase->ExecuteSqlAsync(this,asynContainer,
 								//"(SELECT \'item\',id FROM items WHERE parent_id = %"PRIu64")"
-								"SELECT \'item\',value FROM item_attributes WHERE item_id = %"PRIu64" AND attribute_id = 1"
+								"SELECT value FROM item_attributes WHERE item_id = %"PRIu64" AND attribute_id = 400"
 								,queryContainer.mId);
 					}
 				}
@@ -198,11 +210,12 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 						
 						mDatabase->ExecuteSqlAsync(this,asynContainer,
 								//"(SELECT \'item\',id FROM items WHERE parent_id = %"PRIu64")"
-								"SELECT \'resource\',amount FROM resource_containers WHERE id= %"PRIu64""
+								"SELECT amount FROM resource_containers WHERE id= %"PRIu64""
 								,queryContainer.mId);
 					}
 				}
 			}
+			mDatabase->DestroyDataBinding(binding);
 		}
 		break;
 		
@@ -274,11 +287,6 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			}
 
 			mDatabase->DestroyDataBinding(binding);
-
-
-
-				//factory->setLoadState(LoadState_Loaded);
-			
 		  
 		}
 		break;
@@ -339,7 +347,7 @@ void FactoryFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,u
 	int8 hmm[1024];
 	sprintf(hmm,	"SELECT s.id,s.owner,s.oX,s.oY,s.oZ,s.oW,s.x,s.y,s.z,"
 					"std.type,std.object_string,std.stf_name, std.stf_file, s.name,"
-					"std.lots_used, f.active, std.maint_cost_wk, std.power_used, s.condition, std.max_condition, f.ManSchematicId "
+					"std.lots_used, f.active, std.maint_cost_wk, std.power_used, std.schematicMask, s.condition, std.max_condition, f.ManSchematicId "
 					"FROM structures s INNER JOIN structure_type_data std ON (s.type = std.type) INNER JOIN factories f ON (s.id = f.id) " 
 					"WHERE (s.id = %"PRIu64")",id);
 	QueryContainerBase* asynContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,FFQuery_MainData,client,id);
@@ -363,7 +371,7 @@ void FactoryFactory::upDateHopper(ObjectFactoryCallback* ofCallback,uint64 hoppe
 
 void FactoryFactory::_setupDatabindings()
 {
-	mFactoryBinding = mDatabase->CreateDataBinding(21);
+	mFactoryBinding = mDatabase->CreateDataBinding(22);
 	mFactoryBinding->addField(DFT_uint64,offsetof(FactoryObject,mId),8,0);
 	mFactoryBinding->addField(DFT_uint64,offsetof(FactoryObject,mOwner),8,1);
 	mFactoryBinding->addField(DFT_float,offsetof(FactoryObject,mDirection.mX),4,2);
@@ -384,9 +392,12 @@ void FactoryFactory::_setupDatabindings()
 	mFactoryBinding->addField(DFT_uint8,offsetof(FactoryObject,mActive),1,15);
 	mFactoryBinding->addField(DFT_uint32,offsetof(FactoryObject,maint_cost_wk),4,16);
 	mFactoryBinding->addField(DFT_uint32,offsetof(FactoryObject,mPowerUsed),4,17);
-	mFactoryBinding->addField(DFT_uint32,offsetof(FactoryObject,mDamage),4,18);
-	mFactoryBinding->addField(DFT_uint32,offsetof(FactoryObject,mMaxCondition),4,19);
-	mFactoryBinding->addField(DFT_uint64,offsetof(FactoryObject,mManSchematicID),8,20);
+	
+	mFactoryBinding->addField(DFT_uint32,offsetof(FactoryObject,mSchematicMask),4,18);
+
+	mFactoryBinding->addField(DFT_uint32,offsetof(FactoryObject,mDamage),4,19);
+	mFactoryBinding->addField(DFT_uint32,offsetof(FactoryObject,mMaxCondition),4,20);
+	mFactoryBinding->addField(DFT_uint64,offsetof(FactoryObject,mManSchematicID),8,21);
 }
 
 //=============================================================================

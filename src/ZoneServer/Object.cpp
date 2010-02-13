@@ -571,7 +571,7 @@ void Object::setParentId(uint64 parentId,uint32 contaiment, PlayerObjectSet*	kno
 		if(player)
 			gMessageLib->sendContainmentMessage(this->getId(),this->getParentId(),contaiment,player);
 
-		player++;
+		playerIt++;
 	}
 
 }

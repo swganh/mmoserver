@@ -309,7 +309,7 @@ void ManufacturingSchematic::removePPAttribute(string key)
 // a resource gets added to the slots list the return type gives an indication on the kind of update we need to
 // send
 
-bool ManufactureSlot::addResourcetoSlot(uint64 resID, uint32 amount)
+bool ManufactureSlot::addResourcetoSlot(uint64 resID, uint32 amount, uint8 type)
 {
 	FilledResources::iterator	filledResIt		= mFilledResources.begin();
 	
@@ -321,7 +321,7 @@ bool ManufactureSlot::addResourcetoSlot(uint64 resID, uint32 amount)
 			//hark in live the same resource gets added to a second slot
 			mFilledResources.push_back(std::make_pair(resID,amount));
 			filledResIt				= mFilledResources.begin();
-			setFilledType(DST_Resource);//4  resource has been filled
+			setFilledType((DSType)type);
 			return true;
 		}
 
@@ -337,7 +337,7 @@ bool ManufactureSlot::addResourcetoSlot(uint64 resID, uint32 amount)
 		if(mFilledResources.empty())
 		{
 			mFilledResources.push_back(std::make_pair(resID,amount));
-			setFilledType(DST_Resource);
+			setFilledType((DSType)type);
 			mFilledIndicatorChange = true;
 		}
 	}

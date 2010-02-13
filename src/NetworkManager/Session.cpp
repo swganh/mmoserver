@@ -1555,26 +1555,15 @@ void Session::_processDataOrderPacket(Packet* packet)
   packet->setReadIndex(2);
   uint16 sequence = ntohs(packet->getUint16());
 
-  PacketWindowList::iterator iter = mWindowPacketList.begin();
+  PacketWindowList::iterator	iter			= mWindowPacketList.begin();
+  Packet*						windowPacket	= *iter;
+  
   PacketWindowList::iterator iterRoll = mRolloverWindowPacketList.begin();
-  Packet* windowPacket = *iter;
+  
   windowPacket->setReadIndex(2);
   uint16 windowSequence = ntohs(windowPacket->getUint16());
 
-  //check if its just an increase in the sequence as new packets arrive or quite a new request
-  /*
-  if((lowestCount +1)== sequence)
-  {
-	  lowestCount++;
-	  if(Anh_Utils::Clock::getSingleton()->getLocalTime() - windowPacket->getTimeOOHSent() < 100)
-	  	  return;
-  }
-  else
-  {
-	  lowest = sequence;
-	  lowestCount = sequence;
-  }
-	*/
+  
   gLogger->logErrorF("Netcode","_processDataOrderPacket::Out-Of-order packet session 0x%x%.4x seq: %u, windowsequ : %u", MSG_HIGH, mService->getId(), mId, sequence, windowSequence);
 
   //Do some bounds checking
@@ -1639,7 +1628,7 @@ void Session::_processDataOrderPacket(Packet* packet)
 		// do we want to throttle the amount of packets being send to 10 or 50 or 100 ???
 		// if we receive a sequence on the rolloverlist (65530 for example) we will
 		// always send ALL packets on the regular list - I dont anticipate a big deal here though!!!
-		if (windowSequence < sequence )
+		if (windowSequence <= sequence )
 		{
 			        
 			//gLogger->logMsgF("Resending reliable packet.  seq: %u, order: %u", MSG_HIGH, windowSequence, sequence);

@@ -69,6 +69,7 @@ class DraftSchematic
 		WeightsBatch*		getAssemblyWeightsBatchByListId(uint32 listId);
 		WeightsBatch*		getExperimentWeightsBatchByListId(uint32 listId);
 		CraftBatch*			getCraftBatchByListId(uint32 listId);
+		//the subcategory tells us what category the schem is under in the crafting tool
 		uint32				getSubCategory(){ return mSubCategory; }
 		void				setSubCategory(uint32 category){ mSubCategory = category; }
 		uint32				getDraftSlotsUpdate(){ return(mDraftSlotsUpdate+=1); }

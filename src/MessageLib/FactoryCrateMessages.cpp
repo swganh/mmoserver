@@ -252,11 +252,11 @@ bool MessageLib::sendUpdateCrateContent(FactoryCrate* crate,PlayerObject* player
 	if(!(playerObject->isConnected()))
 		return(false);
 
-	uint32 uses = 0;
 
+	uint32 amount = 0;
 	if(crate->hasAttribute("factory_count"))
 	{
-		uses = crate->getAttribute<int>("factory_count");
+		amount = crate->getAttribute<int>("factory_count");
 	}
 
 		   
@@ -272,7 +272,7 @@ bool MessageLib::sendUpdateCrateContent(FactoryCrate* crate,PlayerObject* player
 	gMessageFactory->addUint16(1);
 
 	gMessageFactory->addUint16(7);
-	gMessageFactory->addUint32(uses);
+	gMessageFactory->addUint32(amount);
 
 	newMessage = gMessageFactory->EndMessage();
 

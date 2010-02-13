@@ -591,7 +591,7 @@ void PlayerObject::onBurstRun(const BurstRunEvent* event)
 		{
 			gMessageLib->sendSystemMessage(this,L"You slow down.");
 			int8 s[256];
-			sprintf(s,"%s %s slows down.",this->getFirstName(),this->getLastName());
+			sprintf(s,"%s %s slows down.",this->getFirstName().getAnsi(),this->getLastName().getAnsi());
 			BString bs(s);
 			bs.convert(BSTRType_Unicode16);
 			gMessageLib->sendSystemMessageInRange(this,false,bs.getUnicode16());

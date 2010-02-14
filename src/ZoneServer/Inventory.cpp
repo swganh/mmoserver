@@ -214,9 +214,6 @@ bool Inventory::EquipItem(Object* object)
 	//equipped objects are always contained by the Player
 	//unequipped ones by the inventory!
 
-	//now remove from inventories unequipped list
-	this->removeObject(object);
-
 	//and add to inventories equipped list
 	this->addEquippedObject(object);
 
@@ -301,7 +298,7 @@ void Inventory::unEquipItem(Object* object)
 	this->removeEquippedObject(object);
 
 	//and add to inventories regular (unequipped) list
-	this->addObjectSecure(object);
+	//this->addObjectSecure(object); the transferhandler will put it wherever necessary
 
 	object->setInternalAttributeIncDB("equipped","0");
 

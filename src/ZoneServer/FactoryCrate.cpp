@@ -168,6 +168,11 @@ int32 FactoryCrate::decreaseContent(uint32 amount)
 	{
 		crateAmount = this->getAttribute<int>("factory_count");
 	}
+	else
+	{
+		this->setAttributeIncDB("factory_count","1");
+		crateAmount = 1;
+	}
 
 	int32 newAmount = crateAmount - amount;
 

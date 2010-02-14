@@ -344,6 +344,29 @@ bool ManufactureSlot::addResourcetoSlot(uint64 resID, uint32 amount, uint8 type)
 	return false;
 }
 
+//====================================================================================================
+//adds a component to a slot
+//
+
+void ManufactureSlot::addComponenttoSlot(uint64 resID, uint32 amount, uint8 type)
+{
+
+	//the trouble is that we need one entry per item!!!
+	uint32 counter = 0;
+	if(mFilledResources.empty())
+		mFilledIndicatorChange = true;
+
+	while(counter<amount)
+	{
+		counter++;
+		mFilledResources.push_back(std::make_pair(resID,1));
+		setFilledType((DSType)type);
+		
+	}
+	
+}
+
+
 
 void ManufacturingSchematic::ModifyBlueBars(float mod)
 {

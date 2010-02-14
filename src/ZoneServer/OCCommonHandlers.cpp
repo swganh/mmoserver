@@ -1000,8 +1000,7 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 		{
 			// unequip it
 			inventory->unEquipItem(itemObject);
-			//remove it out of the inventory
-			inventory->removeObject(itemObject);			
+			
 			return true;
 		}
 		//help ... how can that happen an item contained by the player MUST be equipped?
@@ -1125,7 +1124,8 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 	if(containingContainer&&containingContainer->removeObject(itemObject))
 
 	{
-		playerObject->removeKnownObject(containingContainer);
+		playerObject->removeKnownObject(tangible);
+		tangible->removeKnownObject(playerObject);
 		return true;
 	
 	}

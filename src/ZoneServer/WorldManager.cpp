@@ -155,6 +155,16 @@ void WorldManager::Shutdown()
 		scriptIt = mWorldScripts.erase(scriptIt);
 	}
 
+	// objects
+	PlayerAccMap::iterator playerIt = mPlayerAccMap.begin();
+	while(! mPlayerAccMap.empty())
+	{
+		const PlayerObject* player = (*playerIt).second;
+		destroyObject((Object*)player);
+		// destroying the referenced object seems to invalidate our iterator
+		playerIt = mPlayerAccMap.begin();
+	}
+
 	// timers
 	delete(mAdminScheduler);
 	delete(mNpcManagerScheduler);
@@ -165,15 +175,7 @@ void WorldManager::Shutdown()
 	delete(mEntertainerScheduler);
 	delete(mBuffScheduler);
 
-	// objects
-	PlayerAccMap::iterator playerIt = mPlayerAccMap.begin();
-	while(! mPlayerAccMap.empty())
-	{
-		const PlayerObject* player = (*playerIt).second;
-		destroyObject((Object*)player);
-		// destroying the referenced object seems to invalidate our iterator
-		playerIt = mPlayerAccMap.begin();
-	}
+	
 
 	// we need to destroy that after the (player) objects!
 	// as the playerobjects try to remove the Objectcontroller scheduler and crash us if the scheduler isnt existent anymore

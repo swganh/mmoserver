@@ -159,6 +159,7 @@ class ManufactureSlot
 		virtual ~ManufactureSlot(){}
 
 		bool	addResourcetoSlot(uint64 resID, uint32 amount, uint8 type);
+		void	addComponenttoSlot(uint64 resID, uint32 amount, uint8 type);
 		
 		DSType	getFilledType(){ return mFilledType; }
 		void	setFilledType(DSType indicator){ mFilledIndicatorChange = (mFilledType != indicator);mFilledType= indicator; }

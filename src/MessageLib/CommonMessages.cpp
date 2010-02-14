@@ -116,7 +116,7 @@ bool MessageLib::sendEndBaselines(uint64 objectId,const PlayerObject* const targ
 
 bool MessageLib::sendDestroyObject(uint64 objectId, PlayerObject* targetObject)
 {
-	if(!(targetObject->isConnected()))
+	if(!_checkPlayer(targetObject))
 		return(false);
 
 	Message*		message;

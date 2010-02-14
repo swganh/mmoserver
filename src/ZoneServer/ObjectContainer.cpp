@@ -221,6 +221,7 @@ bool ObjectContainer::removeObject(Object* data)
 		++it;
 	}
 	gLogger->logMsgF("ObjectContainer::removeDataByPointer Data %I64u not found",MSG_HIGH, data->getId());
+	assert(false);
 	return false;
 }
 

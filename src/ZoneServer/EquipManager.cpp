@@ -201,6 +201,7 @@ bool EquipManager::addEquippedObject(Object* object)
 				//unequip it! and update the inventory about it
 				Inventory*		inventory		=	dynamic_cast<Inventory*>(mParent->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 				inventory->unEquipItem((*it).second);
+				inventory->addObjectSecure((*it).second);
 			}
 
 			// add the object

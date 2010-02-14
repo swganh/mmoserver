@@ -222,18 +222,18 @@ void InventoryFactory::handleObjectReady(Object* object,DispatchClient* client)
 
 	InLoadingContainer* ilc	= _getObject(object->getParentId());
 
+	assert(ilc);
 	Inventory*			inventory	= dynamic_cast<Inventory*>(ilc->mObject);
 
 	gWorldManager->addObject(object,true);
 
 	//for unequipped items only
-	inventory->addObject(object);
-	
-	if(inventory->getObjectLoadCounter() > 	inventory->getCapacity())
-		inventory->setObjectLoadCounter(inventory->getCapacity());
+	inventory->addObjectSecure(object);
 
 	if(inventory->getObjectLoadCounter() == (inventory->getObjects())->size())
 	{
+		gLogger->logMsgF("InventoryFactory: remove inventory %I64u from loadmap",MSG_HIGH,inventory->getId());
+
 		inventory->setLoadState(LoadState_Loaded);
 
 		if(!(_removeFromObjectLoadMap(inventory->getId())))

@@ -75,6 +75,7 @@ class CraftingSession : public DatabaseCallback, public ObjectFactoryCallback
 
 		uint32					getComponentSerial(ManufactureSlot*	manSlot, Inventory* inventory);
 		bool					AdjustComponentStack(Item* item, Inventory* inventory, uint32 uses);
+		void					destroyComponents();
 
 		void					handleEmptySlot(uint32 slotId,uint64 containerId,uint8 counter);
 		void					emptySlot(uint32 slotId,ManufactureSlot* manSlot,uint64 containerId);

@@ -580,6 +580,17 @@ void ObjectFactory::deleteObjectFromDB(Object* object)
 
 					}
 
+					ObjectIDList* objectList		= item->getObjects();
+					ObjectIDList::iterator objIt	= objectList->begin();
+
+					while(objIt != objectList->end())
+					{			
+						Object* object = gWorldManager->getObjectById((*objIt));
+						deleteObjectFromDB(object);
+						
+						++objIt;
+					}
+
 					sprintf(sql,"DELETE FROM items WHERE id = %"PRIu64"",object->getId());
 					mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
 

@@ -1024,6 +1024,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\HouseObject.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\HouseObject.h"
+					>
+				</File>
+				<File
 					RelativePath=".\PlayerStructure.cpp"
 					>
 				</File>
@@ -1963,6 +1971,14 @@
 				</File>
 				<File
 					RelativePath=".\HarvesterFactory.h"
+					>
+				</File>
+				<File
+					RelativePath=".\HouseFactory.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\HouseFactory.h"
 					>
 				</File>
 			</Filter>

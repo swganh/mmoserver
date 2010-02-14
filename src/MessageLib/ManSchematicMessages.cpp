@@ -1240,8 +1240,8 @@ bool MessageLib::sendAttributeDeltasMSCO_7(ManufacturingSchematic* manSchem,Play
 	{
 		gMessageFactory->addUint16(9);
 
-		manSchem->mUpdateCounter[9] += (expProp->size());
-		gMessageFactory->addUint32(expProp->size());
+		manSchem->mUpdateCounter[9] += (manSchem->expPropStore.size());
+		gMessageFactory->addUint32(manSchem->expPropStore.size());
 
 		gMessageFactory->addUint32(manSchem->mUpdateCounter[9]);
 
@@ -1280,9 +1280,9 @@ bool MessageLib::sendAttributeDeltasMSCO_7(ManufacturingSchematic* manSchem,Play
 	{
 		gMessageFactory->addUint16(11);
 
-		gMessageFactory->addUint32(expProp->size());
+		gMessageFactory->addUint32(manSchem->expPropStore.size());
 
-		manSchem->mUpdateCounter[11] += expProp->size();
+		manSchem->mUpdateCounter[11] += manSchem->expPropStore.size();
 		gMessageFactory->addUint32(manSchem->mUpdateCounter[11]);
 		//manSchem->mUpdateCounter[11] += 1;//(exProp->size());
 
@@ -1306,9 +1306,9 @@ bool MessageLib::sendAttributeDeltasMSCO_7(ManufacturingSchematic* manSchem,Play
 	{
 		gMessageFactory->addUint16(12);
 
-		gMessageFactory->addUint32(expProp->size());
+		gMessageFactory->addUint32(manSchem->expPropStore.size());
 
-		manSchem->mUpdateCounter[12] += expProp->size();
+		manSchem->mUpdateCounter[12] += manSchem->expPropStore.size();
 		gMessageFactory->addUint32(manSchem->mUpdateCounter[12]);
 		//manSchem->mUpdateCounter[12] += 1;
 

@@ -9,13 +9,14 @@ Copyright (c) 2006 - 2010 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
-#ifndef ANH_ZONESERVER_FACTORY_OBJECT_FACTORY_H
-#define ANH_ZONESERVER_FACTORY_OBJECT_FACTORY_H
+#ifndef ANH_ZONESERVER_HOUSE_OBJECT_FACTORY_H
+#define ANH_ZONESERVER_HOUSE_OBJECT_FACTORY_H
 
 #include "ObjectFactoryCallback.h"
 #include "FactoryBase.h"
+#include "CellFactory.h"
 
-#define gFactoryFactory FactoryFactory::getSingletonPtr()
+#define gHouseFactory HouseFactory::getSingletonPtr()
 
 
 //=============================================================================
@@ -23,55 +24,53 @@ Copyright (c) 2006 - 2010 The swgANH Team
 class Database;
 class DataBinding;
 class DispatchClient;
-class FactoryObject;
+class HouseObject;
 
 //=============================================================================
 
-enum FFQuery
+enum HFQuery
 {
-	FFQuery_MainData					= 1,
-	FFQuery_ResourceData				= 2,
-	FFQuery_byDeed						= 3,
-	FFQuery_AdminData					= 4,
-	FFQuery_AttributeData				= 5,
-	FFQuery_Hopper						= 6,
-	FFQuery_HopperUpdate				= 7,
-	FFQuery_HopperItemAttributeUpdate	= 8
+	HOFQuery_MainData					= 1,
+    HOFQuery_AttributeData				= 2,
+	HOFQuery_AdminData					= 3,
+	HOFQuery_CellData					= 4,
+	
+	
 
 };
 
 //=============================================================================
 
-class FactoryFactory : public FactoryBase, public ObjectFactoryCallback
+class HouseFactory : public FactoryBase, public ObjectFactoryCallback
 {
 	public:
 
-		static FactoryFactory*	getSingletonPtr() { return mSingleton; }
-		static FactoryFactory*	Init(Database* database);
+		static HouseFactory*	getSingletonPtr() { return mSingleton; }
+		static HouseFactory*	Init(Database* database);
 
-		~FactoryFactory();
+		~HouseFactory();
 
 		virtual void	handleObjectReady(Object* object,DispatchClient* client);
 		void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
 		void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
-		void			upDateHopper(ObjectFactoryCallback* ofCallback,uint64 hopperId, DispatchClient* client, FactoryObject* factory);
 
 		void			releaseAllPoolsMemory();
 
 	private:
 
-		FactoryFactory(Database* database);
+		HouseFactory(Database* database);
 
 		void			_setupDatabindings();
 		void			_destroyDatabindings();
 
-		void			_createFactory(DatabaseResult* result, FactoryObject* factory);
+		void			_createHouse(DatabaseResult* result, HouseObject* house);
 
-		static FactoryFactory*		mSingleton;
+		static HouseFactory*		mSingleton;
 		static bool					mInsFlag;
 
 
-		DataBinding*				mFactoryBinding;
+		CellFactory*				mCellFactory;
+		DataBinding*				mHouseBinding;
 
 };
 

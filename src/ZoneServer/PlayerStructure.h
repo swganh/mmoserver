@@ -53,6 +53,7 @@ class PlayerStructure :	public TangibleObject
 {
 	friend class HarvesterFactory;
 	friend class FactoryFactory;
+	friend class HouseFactory;
 
 	public:
 
@@ -150,7 +151,12 @@ class PlayerStructure :	public TangibleObject
 		void					addStructureHopper(string name){mStructureHopperList.push_back(name);}
 		void					resetStructureHopperList(){mStructureHopperList.clear();}
 
+		// thats the structures admin list
+		ObjectIDList			getHousingList(){return mHousingAdminList;}
+		void					addHousingAdminEntry(uint64 id){mHousingAdminList.push_back(id);}
+		void					resetHousingAdminList(){mHousingAdminList.clear();}
 
+								 
 
 	private:
 
@@ -179,6 +185,7 @@ class PlayerStructure :	public TangibleObject
 
 		bool						mPrivate;
 
+		ObjectIDList				mHousingAdminList;
 		BStringVector				mStructureAdminList;
 		BStringVector				mStructureHopperList;
 

@@ -131,9 +131,7 @@ bool ObjectContainer::addObject(Object* Data, PlayerObject* player)
 }
 
 bool ObjectContainer::addObjectSecure(Object* Data, PlayerObject* player) 
-{ 
-
-	
+{ 	
 
 	if(!player)
 	{

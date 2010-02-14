@@ -1060,6 +1060,8 @@ void MessageLib::sendInventory(PlayerObject* playerObject)
 
 void MessageLib::sendCreateObject(Object* object,PlayerObject* player,bool sendSelftoTarget)
 {
+	if(!object)
+		return;
 	switch(object->getType())
 	{
 		case ObjType_NPC:

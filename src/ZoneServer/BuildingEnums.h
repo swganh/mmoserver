@@ -88,6 +88,12 @@ enum FactoryFamily
 
 };
 
+enum HouseFamily
+{
+	HouseFamily_None						= 0,
+
+};
+
 
 #endif
 

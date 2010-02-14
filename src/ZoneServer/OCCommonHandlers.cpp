@@ -919,7 +919,7 @@ bool ObjectController::checkContainingContainer(uint64 targetId)
 //
 
 
-bool ObjectController::checkTargetContainer(uint64 targetContainerId)
+bool ObjectController::checkTargetContainer(uint64 targetContainerId, Object* object)
 {
 	PlayerObject*	playerObject	=	dynamic_cast<PlayerObject*>(mObject);
 	Inventory*		inventory		=	dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
@@ -933,7 +933,9 @@ bool ObjectController::checkTargetContainer(uint64 targetContainerId)
 
 	if(playerObject->getId() == targetContainerId)
 	{
-		return true;
+		//check for equip restrictions!!!!
+		return inventory->EquipItemTest(object);
+		
 	}
 	
 	if(!targetContainer)
@@ -1013,7 +1015,7 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 	{
 		//gMessageLib->sendDestroyObject(targetId,playerObject);
 		inventory->removeObject(itemObject);
-		return true;
+			return true;
 
 	}
 	
@@ -1226,11 +1228,15 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 
 	//lets begin by getting the target Object
 
-	if(!checkTargetContainer(targetContainerId))
+	if(!checkTargetContainer(targetContainerId,itemObject))
 	{
 		gLogger->logMsg("ObjController::_handleTransferItemMisc:TargetContainer is not valid :(");
 		return;
 	}
+
+	TangibleObject* parentContainer = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(tangible->getParentId()));
+	if(!parentContainer)
+		parentContainer = inventory;
 
 	if(!checkContainingContainer(tangible->getParentId()))
 	{
@@ -1298,7 +1304,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 	{
 		// Add object to OUR inventory.
 		itemObject->setParentId(targetContainerId,linkType,playerObject,true);
-		inventory->addObject(itemObject);
+		inventory->addObjectSecure(itemObject);
 		
 		return;
 		
@@ -1311,7 +1317,12 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 		if(!item->getInternalAttribute<bool>("equipped"))
 		{
 			//equip / unequip handles the db side, too
-			inventory->EquipItem(item);
+			if(!inventory->EquipItem(item))
+			{
+				//readd it to the old parent
+				if(parentContainer)
+					parentContainer->addObjectSecure(item);
+			}
 		}
 		return;
 	}

@@ -261,7 +261,7 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback
 		void	_handleTransferItem(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleTransferItemMisc(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleTransferItemMisc2(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
-		bool	checkTargetContainer(uint64 targetId);
+		bool	checkTargetContainer(uint64 targetId, Object* object);
 		bool	checkContainingContainer(uint64 targetId);
 		bool	removeFromContainer(uint64 targetContainerId, uint64 targetId);
 

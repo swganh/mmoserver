@@ -96,8 +96,9 @@ bool ObjectContainer::addObject(Object* Data)
 	}
 	else
 	{
-		PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getParentId()));					
+		//PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getParentId()));					
 		gLogger->logMsgF("ObjectContainer::addObject No Capacity!!!!",MSG_HIGH);
+		assert(false);
 		return false;
 
 	}
@@ -132,12 +133,13 @@ bool ObjectContainer::addObject(Object* Data, PlayerObject* player)
 bool ObjectContainer::addObjectSecure(Object* Data, PlayerObject* player) 
 { 
 
+	
+
 	if(!player)
 	{
-		//its still added to the container
 		gLogger->logMsgF("ObjectContainer::addObject No Capacity!!!!",MSG_HIGH);
-		return true;
-
+		return addObjectSecure(Data);
+		
 	}
 	
 	gMessageLib->sendCreateObject(Data,player,false);
@@ -221,7 +223,7 @@ bool ObjectContainer::removeObject(Object* data)
 		++it;
 	}
 	gLogger->logMsgF("ObjectContainer::removeDataByPointer Data %I64u not found",MSG_HIGH, data->getId());
-	assert(false);
+//	assert(false);
 	return false;
 }
 

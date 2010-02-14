@@ -862,7 +862,7 @@ void ObjectController::_handleImageDesign(uint64 targetId,Message* message,Objec
 		return;
 	}
 
-	if(!designObject->getGroupId() || (designObject->getGroupId() != imageDesigner->getGroupId() ))
+	if((designObject != imageDesigner) && (designObject->getGroupId() != imageDesigner->getGroupId() ))
 	{
 		gMessageLib->sendSystemMessage(imageDesigner,L"You must be grouped in order to imagedesign.");
 		return;

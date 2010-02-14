@@ -61,6 +61,7 @@ class Inventory : public TangibleObject
 
 		void			unEquipItem(Object* object);
 		bool			EquipItem(Object* object);
+		bool			EquipItemTest(Object* object);
 
 		void			getUninsuredItems(SortedInventoryItemList* insuranceList);
 		void			getInsuredItems(SortedInventoryItemList* insuranceList);

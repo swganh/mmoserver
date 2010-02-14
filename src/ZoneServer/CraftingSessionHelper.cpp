@@ -791,6 +791,7 @@ void CraftingSession::bagComponents(ManufactureSlot* manSlot,uint64 containerId)
 				gMessageLib->sendContainmentMessage(fC->getId(),container->getId(),0xffffffff,mOwner);
 			}	 		
 			fC->setAttributeIncDB("factory_count",boost::lexical_cast<std::string>(amount+crateSize));
+			gMessageLib->sendUpdateCrateContent(fC,mOwner);
 
 			compIt = manSlot->mUsedComponentStacks.erase(compIt);
 			continue;
@@ -1421,8 +1422,18 @@ void CraftingSession::collectComponents()
 	
 	while(checkResIt  != mCheckRes.end())
 	{
-		name = gResourceManager->getResourceById((*checkResIt).first)->getName();
-		sprintf(attr,"cat_manf_schem_ing_resource.\"%s",name .getAnsi());
+		Item* tO = dynamic_cast<Item*>(gWorldManager->getObjectById((*checkResIt).first));
+		if(!tO)
+		{
+			gLogger->logErrorF("Crafting","CraftingSession::collectComponents() no component",MSG_NORMAL);
+			continue;
+		}
+		string componentSerial = "";
+		if(tO->hasAttribute("serial"))
+				componentSerial = tO->getAttribute<std::string>("serial").c_str();
+
+		name = tO->getName();
+		sprintf(attr,"cat_manf_schem_ing_component.\"%s",name .getAnsi());
 		string attrName = BString(attr);
 
 		sprintf(str,"%u",(*checkResIt).second);
@@ -1439,7 +1450,7 @@ void CraftingSession::collectComponents()
 		mDatabase->ExecuteSqlAsync(0,0,"INSERT INTO item_attributes VALUES (%"PRIu64",173,'%s',1,0)",mManufacturingSchematic->getId(),str);
 		
 		//now enter it in the relevant manschem table so we can use it in factories
-		mDatabase->ExecuteSqlAsync(0,0,"INSERT INTO manschemresources VALUES (NULL,%"PRIu64",%"PRIu64",%u)",mManufacturingSchematic->getId(),(*checkResIt).first,(*checkResIt).second);
+		mDatabase->ExecuteSqlAsync(0,0,"INSERT INTO manschemcomponents VALUES (NULL,%"PRIu64",%u,%s,%u)",mManufacturingSchematic->getId(),tO->getItemType(),componentSerial,(*checkResIt).second);
 
 		checkResIt  ++;
 	}

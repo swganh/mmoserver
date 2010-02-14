@@ -18,6 +18,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "ObjectControllerOpcodes.h"
 #include "ObjectControllerCommandMap.h"
 #include "PlayerObject.h"
+#include "FactoryObject.h"
 #include "QuadTree.h"
 #include "Tutorial.h"
 #include "WorldConfig.h"
@@ -883,6 +884,65 @@ bool ObjectController::_destroyOutOfRangeObjects(ObjectSet *inRangeObjects)
 		// if its not in the current inrange queries result, destroy it
 		if(inRangeObjects->find(object) == inRangeObjects->end())
 		{
+
+			if(object->getType() == ObjType_Structure)
+			{
+				FactoryObject* factory = dynamic_cast<FactoryObject*>(object);
+				if(factory)
+				{
+					//delete the hoppers contents
+					TangibleObject* hopper = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(factory->getIngredientHopper()));
+					if(hopper)
+					{
+							ObjectIDList*			ol = hopper->getObjects();
+							ObjectIDList::iterator	it = ol->begin();
+
+							while(it != ol->end())
+							{
+								TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)));
+								if(!tO)
+								{
+									assert(false);
+								}
+
+								//PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetObject->getId()));
+								if(!tO->checkKnownPlayer(player))
+								{
+									gMessageLib->sendDestroyObject(tO->getId(),player);
+								}
+								it++;
+							}
+					
+							gMessageLib->sendDestroyObject(hopper->getId(),player);					
+					}
+
+					hopper = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(factory->getOutputHopper()));
+					if(hopper)
+					{
+							ObjectIDList*			ol = hopper->getObjects();
+							ObjectIDList::iterator	it = ol->begin();
+
+							while(it != ol->end())
+							{
+								TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)));
+								if(!tO)
+								{
+									assert(false);
+								}
+
+								//PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetObject->getId()));
+								if(!tO->checkKnownPlayer(player))
+								{
+									gMessageLib->sendDestroyObject(tO->getId(),player);
+								}
+								it++;
+							}
+					
+							gMessageLib->sendDestroyObject(hopper->getId(),player);					
+					}
+
+				}
+			}
 			// send a destroy to us
 			gMessageLib->sendDestroyObject(object->getId(),player);
 			// gLogger->logMsgF("RemoveObject: %"PRIu64"", MSG_NORMAL, object->getId());

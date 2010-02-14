@@ -647,6 +647,26 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 
 	switch(command.Command)
 	{
+		
+		case Structure_Command_StopFactory:
+		{
+			FactoryObject* factory = dynamic_cast<FactoryObject*>(gWorldManager->getObjectById(command.StructureId));
+			if(!factory)
+			{
+				gLogger->logMsg("StructureManager::processVerification : No Factory (Structure_Command_AccessInHopper) ");
+				return;
+			}
+
+			gMessageLib->sendSystemMessage(player,L"You stop manufacturing items");
+			factory->setActive(false);
+
+			//now turn the factory on - in db and otherwise
+			mDatabase->ExecuteSqlAsync(0,0,"UPDATE factories f SET f.active = 0 WHERE f.ID = %I64u",command.StructureId);
+			gMessageLib->SendUpdateFactoryWorkAnimation(factory);
+
+		}
+		break;
+
 		case Structure_Command_StartFactory:
 		{
 			FactoryObject* factory = dynamic_cast<FactoryObject*>(gWorldManager->getObjectById(command.StructureId));
@@ -663,7 +683,8 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 				gLogger->logMsg("StructureManager::processVerification : No Factory (Structure_Command_AccessInHopper) ");
 				return;
 			}
-			
+
+			gMessageLib->sendSystemMessage(player,L"You start manufacturing items");
 			factory->setActive(true);
 
 			//now turn the factory on - in db and otherwise
@@ -709,6 +730,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 				if(!tO->checkKnownPlayer(player))
 				{
 					gMessageLib->sendCreateObject(tO,player,false);
+					tO->addKnownObjectSafe(player);
 				}
 				it++;
 			}
@@ -753,6 +775,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 				//PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetObject->getId()));
 				if(!tO->checkKnownPlayer(player))
 				{
+					tO->addKnownObjectSafe(player);
 					gMessageLib->sendCreateObject(tO,player,false);
 					
 					// this might be considered a hack - we relay on the movementupdate to delete this data once we move 
@@ -760,7 +783,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 					// otherwise we do not know whether these objects were created for said player or not
 					// the alternative would be to create a second (third) knownObjectslist to keep track of knownplayers
 					// without si involvement - the deletion would then have to be triggered by the senddestroy for the containing object
-					player->addKnownObjectSafe(tO);
+					//player->addKnownObjectSafe(tO);
 					tO->addKnownObjectSafe(player);
 				}
 				it++;

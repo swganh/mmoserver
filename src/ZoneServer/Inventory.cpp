@@ -136,9 +136,10 @@ void Inventory::handleObjectReady(Object* object,DispatchClient* client)
 
 //=============================================================================
 
-bool Inventory::EquipItem(Object* object)
+bool Inventory::EquipItemTest(Object* object)
 {
 	Item* item = dynamic_cast<Item*>(object);
+	PlayerObject*	owner		= dynamic_cast<PlayerObject*> (gWorldManager->getObjectById(this->getParentId()));
 
 	if(!item)
 	{
@@ -158,7 +159,7 @@ bool Inventory::EquipItem(Object* object)
 		return(false);
 	}
 
-	PlayerObject*	owner		= dynamic_cast<PlayerObject*> (gWorldManager->getObjectById(this->getParentId()));
+	
 
 	if(!owner)
 	{
@@ -209,6 +210,16 @@ bool Inventory::EquipItem(Object* object)
 	//	gMessageLib->sendSystemMessage(owner,L"You already wear something there you nutter.");
 		return(false);
 	}
+	return(true);
+}
+
+bool Inventory::EquipItem(Object* object)
+{
+	if(!EquipItemTest(object))
+		return false;
+	
+	PlayerObject*	owner		= dynamic_cast<PlayerObject*> (gWorldManager->getObjectById(this->getParentId()));
+	Item* item = dynamic_cast<Item*>(object);
 
 	gLogger->logMsgF("Inventory::EquipItem : owner ID : %I64u", MSG_NORMAL,owner->getId());
 	//equipped objects are always contained by the Player

@@ -299,7 +299,7 @@ bool Inventory::unEquipItem(Object* object)
 
 	//the object is now in the inventory
 	//update the containment for owner and db
-	object->setParentId(this->getId(), 0xffffffff, owner, true);
+	object->setParentId(inventory->getId(), 0xffffffff, owner, true);
 	
 	//destroy for everyone in range
 	gMessageLib->sendDestroyObject_InRange(object->getId(),owner,false);

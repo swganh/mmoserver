@@ -344,7 +344,7 @@ PlayerObject::~PlayerObject()
 	{
 		if(CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(this->getParentId())))
 		{
-			cell->removeChild((Object*)this);
+			cell->removeObject((Object*)this);
 		}
 		else
 		{

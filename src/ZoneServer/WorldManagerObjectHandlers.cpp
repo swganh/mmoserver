@@ -16,6 +16,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "BuffManager.h"
 #include "BuildingObject.h"
 #include "CellObject.h"
+#include "HouseObject.h"
+
 #include "CharacterLoginHandler.h"
 #include "Container.h"
 #include "ConversationManager.h"
@@ -146,7 +148,7 @@ bool WorldManager::addObject(Object* object,bool manual)
 
 				if(CellObject* cell = dynamic_cast<CellObject*>(getObjectById(player->getParentId())))
 				{
-					cell->addChild(player);
+					cell->addObjectSecure(player);
 				}
 				else
 				{
@@ -188,6 +190,16 @@ bool WorldManager::addObject(Object* object,bool manual)
 		}
 		break;
 
+		case ObjType_PlayerHouse:
+		{
+			mStructureList.push_back(object->getId());
+			
+			HouseObject* building = dynamic_cast<HouseObject*>(object);
+			
+			mSpatialIndex->InsertRegion(key,building->mPosition.mX,building->mPosition.mZ,building->getWidth(),building->getHeight());
+		}
+		break;
+
 		case ObjType_Structure:
 		{
 		//	HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(object);
@@ -219,7 +231,7 @@ bool WorldManager::addObject(Object* object,bool manual)
 				CellObject* cell = dynamic_cast<CellObject*>(getObjectById(parentId));
 
 				if(cell)
-					cell->addChild(object);
+					cell->addObjectSecure(object);
 				else
 					gLogger->logMsgF("WorldManager::addObject couldn't find cell %"PRIu64"",MSG_NORMAL,parentId);
 			}
@@ -243,7 +255,7 @@ bool WorldManager::addObject(Object* object,bool manual)
 				CellObject* cell = dynamic_cast<CellObject*>(getObjectById(parentId));
 
 				if(cell)
-					cell->addChild(creature);
+					cell->addObjectSecure(creature);
 				else
 					gLogger->logMsgF("WorldManager::addObject: couldn't find cell %"PRIu64"",MSG_HIGH,parentId);
 			}
@@ -369,7 +381,7 @@ void WorldManager::destroyObject(Object* object)
 			{
 				if(CellObject* cell = dynamic_cast<CellObject*>(getObjectById(object->getParentId())))
 				{
-					cell->removeChild(object);
+					cell->removeObject(object);
 				}
 				else
 				{
@@ -398,6 +410,7 @@ void WorldManager::destroyObject(Object* object)
 		}
 		break;
 
+		case ObjType_PlayerHouse:
 		case ObjType_Structure:
 		{
 			// cave what do we do with player cities ??
@@ -457,7 +470,7 @@ void WorldManager::destroyObject(Object* object)
 				{
 					if(CellObject* cell = dynamic_cast<CellObject*>(getObjectById(parentId)))
 					{
-						cell->removeChild(object);
+						cell->removeObject(object);
 					}
 					else
 					{
@@ -575,7 +588,7 @@ void WorldManager::initObjectsInRange(PlayerObject* playerObject)
 {
 	// we still query for players here, cause they are found through the buildings and arent kept in a qtree
 	ObjectSet inRangeObjects;
-	mSpatialIndex->getObjectsInRange(playerObject,&inRangeObjects,(ObjType_Player | ObjType_Tangible | ObjType_NPC | ObjType_Creature | ObjType_Building| ObjType_Structure),gWorldConfig->getPlayerViewingRange());
+	mSpatialIndex->getObjectsInRange(playerObject,&inRangeObjects,(ObjType_Player | ObjType_Tangible | ObjType_NPC | ObjType_Creature | ObjType_Building | ObjType_Structure | ObjType_PlayerHouse),gWorldConfig->getPlayerViewingRange());
 
 	// query the according qtree, if we are in one
 	if(playerObject->getSubZoneId())

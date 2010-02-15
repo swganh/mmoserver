@@ -118,7 +118,7 @@ void ObjectController::_handleSitServer(uint64 targetId,Message* message,ObjectC
 					CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(playerObject->getParentId()));
 
 					if(cell)
-						cell->removeChild(playerObject);
+						cell->removeObject(playerObject);
 					else
 						gLogger->logMsgF("Error removing %"PRIu64" from cell %"PRIu64"",MSG_NORMAL,playerObject->getId(),playerObject->getParentId());
 
@@ -127,7 +127,7 @@ void ObjectController::_handleSitServer(uint64 targetId,Message* message,ObjectC
 					cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(chairCell));
 
 					if(cell)
-						cell->addChild(playerObject);
+						cell->addObjectSecure(playerObject);
 					else
 						gLogger->logMsgF("Error adding %"PRIu64" to cell %"PRIu64"",MSG_NORMAL,playerObject->getId(),chairCell);
 				}

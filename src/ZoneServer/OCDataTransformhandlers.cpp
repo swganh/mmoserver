@@ -10,6 +10,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 */
 #include "ActiveConversation.h"
 #include "BuildingObject.h"
+#include "HouseObject.h"
+
 #include "CellObject.h"
 #include "ConversationManager.h"
 #include "Heightmap.h"
@@ -126,7 +128,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 		// remove us from the last cell we were in
 		if(CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId())))
 		{
-			cell->removeChild(player);
+			cell->removeObject(player);
 		}
 		else
 		{
@@ -385,7 +387,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 			{
 				if((cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(oldParentId))))
 				{
-					cell->removeChild(player);
+					cell->removeObject(player);
 					// Done above.. gMessageLib->broadcastContainmentMessage(player->getId(),parentId,4,player);
 				}
 				else
@@ -430,7 +432,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 			gMessageLib->broadcastContainmentMessage(player->getId(),parentId,4,player);
 			if((cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(parentId))))
 			{
-				cell->addChild(player);
+				cell->addObjectSecure(player);
 
 				// Inform tutorial about cell change.
 				if (gWorldConfig->isTutorial())
@@ -542,7 +544,7 @@ void ObjectController::_findInRangeObjectsOutside(bool updateAll)
 		mSI->getObjectsInRangeEx(player,&mInRangeObjects,(ObjType_Player | ObjType_NPC | ObjType_Creature), viewingRange);
 
 		// This may be good when we standstill.
-		mSI->getObjectsInRange(player,&mInRangeObjects,(ObjType_Tangible | ObjType_Building | ObjType_Lair| ObjType_Structure), viewingRange);
+		mSI->getObjectsInRange(player,&mInRangeObjects,(ObjType_Tangible | ObjType_Building | ObjType_Lair | ObjType_Structure | ObjType_PlayerHouse), viewingRange);
 
 	}
 	/*
@@ -657,16 +659,18 @@ void ObjectController::_findInRangeObjectsInside(bool updateAll)
 	// make sure we got a cell
 	if (!playerCell)
 	{
-		gLogger->logMsg("ERROR: No playerCell.\n");
+		gLogger->logMsg("ERROR: No playerCell.");
 		return;
 	}
 
-	BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(playerCell->getParentId()));
+	Object* object = gWorldManager->getObjectById(playerCell->getParentId());
+	BuildingObject* building = dynamic_cast<BuildingObject*>(object);
 
 	// make sure we got a building
 	if (!building)
 	{
-		gLogger->logMsg("ERROR: No building.\n");
+		HouseObject* house = dynamic_cast<HouseObject*>(object);
+		gLogger->logMsg("ERROR: No building.");
 		return;
 	}
 
@@ -681,7 +685,7 @@ void ObjectController::_findInRangeObjectsInside(bool updateAll)
 
 		// We want the players first.
 		mSI->getObjectsInRange(player,&mInRangeObjects,(ObjType_Player),viewingRange);
-		mSI->getObjectsInRange(player,&mInRangeObjects,(ObjType_Tangible | ObjType_NPC | ObjType_Creature | ObjType_Building| ObjType_Structure),viewingRange);
+		mSI->getObjectsInRange(player,&mInRangeObjects,(ObjType_Tangible | ObjType_NPC | ObjType_Creature | ObjType_Building | ObjType_Structure | ObjType_PlayerHouse),viewingRange);
 
 		// query the qtree based on the buildings world position
 		if (QTRegion* region = mSI->getQTRegion(building->mPosition.mX,building->mPosition.mZ))
@@ -887,8 +891,7 @@ bool ObjectController::_destroyOutOfRangeObjects(ObjectSet *inRangeObjects)
 
 			if(object->getType() == ObjType_Structure)
 			{
-				FactoryObject* factory = dynamic_cast<FactoryObject*>(object);
-				if(factory)
+				if(FactoryObject* factory = dynamic_cast<FactoryObject*>(object))
 				{
 					//delete the hoppers contents
 					TangibleObject* hopper = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(factory->getIngredientHopper()));

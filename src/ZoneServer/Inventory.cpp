@@ -253,18 +253,18 @@ bool Inventory::EquipItem(Object* object)
 
 //=============================================================================
 
-void Inventory::unEquipItem(Object* object)
+bool Inventory::unEquipItem(Object* object)
 {
 	if(!object->hasInternalAttribute("equipped"))
 	{
 		gLogger->logMsgF("Inventory::unEquipItem : object not equipable object ID : %"PRIu64"", MSG_NORMAL,object->getId());
-		return;
+		return false;
 	}
 
 	if(!object->getInternalAttribute<bool>("equipped"))
 	{
 		gLogger->logMsgF("Inventory::unEquipItem : object is unequiped object ID : %"PRIu64"", MSG_NORMAL,object->getId());
-		return;
+		return false;
 	}
 
 	Item* item = dynamic_cast<Item*>(object);
@@ -272,7 +272,7 @@ void Inventory::unEquipItem(Object* object)
 	if(!item)
 	{
 		gLogger->logMsgF("Inventory::unEquipItem : No Item object ID : %"PRIu64"", MSG_NORMAL,object->getId());
-		return;
+		return false;
 	}
 
 	PlayerObject*	owner		= dynamic_cast<PlayerObject*> (gWorldManager->getObjectById(this->getParentId()));
@@ -280,7 +280,7 @@ void Inventory::unEquipItem(Object* object)
 	if(!owner)
 	{
 		gLogger->logMsgF("Inventory::unEquipItem : No owner Inventory ID : %"PRIu64"", MSG_NORMAL,this->getId());
-		return;
+		return false;
 	}
 
 	//0client forces us to stop performing at this point as he unequips the instrument regardless of what we do
@@ -343,6 +343,8 @@ void Inventory::unEquipItem(Object* object)
 	{
 		gMessageLib->sendWeaponIdUpdate(owner);
 	}
+
+	return true;
 }
 
 //=============================================================================

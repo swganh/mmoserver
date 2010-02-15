@@ -44,7 +44,7 @@ class BuildingObject :	public TangibleObject
 		void			setWidth(float width){ mWidth = width; }
 		float			getHeight(){ return mHeight; }
 		void			setHeight(float height){ mHeight = height; }
-		ObjectList		getAllCellChilds();
+		//ObjectList		getAllCellChilds();
 
 		uint32			getLoadCount(){ return mTotalLoadCount; }
 		void			setLoadCount(uint32 count){ mTotalLoadCount = count; }

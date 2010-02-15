@@ -112,10 +112,44 @@ enum ItemType
 	ItemType_harvester_moisture_heavy		= 1611,
 	ItemType_harvester_moisture_medium		= 1612,
 
-	ItemType_harvester_ore_personal		= 1613,
-	ItemType_harvester_ore_heavy		= 1614,
-	ItemType_harvester_ore_medium		= 1615,
+	ItemType_harvester_ore_personal			= 1613,
+	ItemType_harvester_ore_heavy			= 1614,
+	ItemType_harvester_ore_medium			= 1615,
 
+	ItemType_deed_bank_corellian			= 1560,
+	ItemType_deed_bank_naboo				= 1561,
+	ItemType_deed_merchant_tent				= 1728,
+
+	ItemType_deed_naboo_small_house			= 1616,
+	
+	ItemType_deed_naboo_large_house			= 1729,
+	ItemType_deed_naboo_medium_house		= 1730,
+	ItemType_deed_naboo_small_house_2		= 1731,
+	
+
+	ItemType_deed_corellia_large_house		= 1712,
+	ItemType_deed_corellia_large_house_2	= 1713,
+	ItemType_deed_corellia_medium_house		= 1714,
+	ItemType_deed_corellia_medium_house_2	= 1715,
+	
+	ItemType_deed_corellia_small_house_1	= 1716,
+	ItemType_deed_corellia_small_house_2	= 1717,
+	ItemType_deed_corellia_small_house_3	= 1718,
+	ItemType_deed_corellia_small_house_4	= 1719,	
+	
+	ItemType_deed_generic_large_house_1		= 1720,
+	ItemType_deed_generic_large_house_2		= 1721,
+	ItemType_deed_generic_medium_house_1	= 1722,
+	ItemType_deed_generic_medium_house_2	= 1723,
+	ItemType_deed_generic_small_house_1		= 1724,
+	ItemType_deed_generic_small_house_2		= 1725,
+	ItemType_deed_generic_small_house_3		= 1726,
+	ItemType_deed_generic_small_house_4		= 1727,
+
+	ItemType_deed_tatooine_large_house		= 1732,
+	ItemType_deed_tatooine_medium_house		= 1733,
+	ItemType_deed_tatooine_small_house		= 1734,
+	ItemType_deed_tatooine_small_house_2	= 1735,
 
 	//====================================================
 	// Guild Halls

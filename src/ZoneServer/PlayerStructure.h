@@ -133,6 +133,10 @@ class PlayerStructure :	public TangibleObject
 
 		//camps dont have cells
 		ObjectList				getAllCellChilds();
+		CellObjectList*	getCellList(){ return &mCells; }
+		void			addCell(CellObject* cellObject){ mCells.push_back(cellObject); }
+		bool			removeCell(CellObject* cellObject);
+		bool			checkForCell(CellObject* cellObject);
 
 
 		// thats the camps / structures lit of additionally created item like signs and stuff and fires and chairs

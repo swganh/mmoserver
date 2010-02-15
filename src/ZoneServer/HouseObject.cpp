@@ -26,67 +26,11 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "DatabaseManager/DataBinding.h"
 
 
-bool HouseObject::removeCell(CellObject* cellObject)
-{
-	CellObjectList::iterator it = mCells.begin();
-
-	while(it != mCells.end())
-	{
-		if((*it) == cellObject)
-		{
-			mCells.erase(it);
-			return(true);
-		}
-		++it;
-	}
-	return(false);
-}
-
-//=============================================================================
-
-bool HouseObject::checkForCell(CellObject* cellObject)
-{
-	CellObjectList::iterator it = mCells.begin();
-
-	while(it != mCells.end())
-	{
-		if((*it) == cellObject)
-			return(true);
-		++it;
-	}
-	return(false);
-}
-
-//=============================================================================
-
-ObjectList HouseObject::getAllCellChilds()
-{
-	ObjectList*	tmpList;
-	ObjectList	resultList;
-	ObjectList::iterator childIt;
-
-	CellObjectList::iterator cellIt = mCells.begin();
-
-	while(cellIt != mCells.end())
-	{
-		tmpList = (*cellIt)->getChilds();
-		childIt = tmpList->begin();
-
-		while(childIt != tmpList->end())
-		{
-			resultList.push_back((*childIt));
-			++childIt;
-		}
-		++cellIt;
-	}
-	return(resultList);
-}
-
 //=============================================================================
 
 HouseObject::HouseObject() : PlayerStructure()
 {
-	mType = ObjType_Structure;
+	mType = ObjType_PlayerHouse;
 	
 	mWidth = 128;
 	mHeight = 128;
@@ -97,18 +41,16 @@ HouseObject::HouseObject() : PlayerStructure()
 
 HouseObject::~HouseObject()
 {
-	//gWorldManager->destroyObject(gWorldManager->getObjectById(getIngredientHopper()));
-	//gWorldManager->destroyObject(gWorldManager->getObjectById(getOutputHopper()));
 
 }
 
 
+
+
+
 //========================================================================0
-// we only handle the hoppers here
-// we get here on runtime when the last content has been loaded from db
-// respectively if the content update is done
-// when it is processed it sends the open container - by this we ensure, that the
-// hopper is up to date when the player sees it
+//
+//
 
 void HouseObject::handleObjectReady(Object* object,DispatchClient* client, uint64 hopper)
 {
@@ -309,9 +251,7 @@ void HouseObject::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 
 	radial->addItem(++i,2,radId_serverTerminalManagementDestroy,radAction_ObjCallback,"Destroy Structure");
 	radial->addItem(++i,2,radId_StructureStatus,radAction_ObjCallback,"Status");
 	radial->addItem(++i,2,radId_payMaintenance,radAction_ObjCallback,"Pay Maintenance");
-	radial->addItem(++i,2,radId_setName,radAction_ObjCallback,"Set Name");
-	radial->addItem(++i,2,radId_depositPower,radAction_ObjCallback,"Deposit Power");
-	
+	radial->addItem(++i,2,radId_setName,radAction_ObjCallback,"Set Name");	
 	
 	radial->addItem(++i,3,radId_serverTerminalPermissionsAdmin,radAction_ObjCallback,"Admin List");
 	radial->addItem(++i,3,radId_serverTerminalPermissionsHopper,radAction_ObjCallback,"Hopper List");
@@ -343,5 +283,6 @@ void HouseObject::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 	SAFE_DELETE(asynContainer);
 }
+
 
 

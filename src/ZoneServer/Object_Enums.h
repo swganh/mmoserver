@@ -43,6 +43,7 @@ enum ObjectType
 	ObjType_Region				=	1024,
 	ObjType_NonPersistant		=	2048,
 	ObjType_Structure			=	4096,
+	ObjType_PlayerHouse			=	8192,
 	
 	ObjType_Intangible			=	16384
 

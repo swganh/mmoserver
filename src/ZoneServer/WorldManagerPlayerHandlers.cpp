@@ -332,7 +332,7 @@ void WorldManager::warpPlanet(PlayerObject* playerObject,Anh_Math::Vector3 desti
 	{
 		if(CellObject* cell = dynamic_cast<CellObject*>(getObjectById(playerObject->getParentId())))
 		{
-			cell->removeChild(playerObject);
+			cell->removeObject(playerObject);
 		}
 		else
 		{
@@ -377,7 +377,7 @@ void WorldManager::warpPlanet(PlayerObject* playerObject,Anh_Math::Vector3 desti
 	{
 		if(CellObject* cell = dynamic_cast<CellObject*>(getObjectById(parentId)))
 		{
-			cell->addChild(playerObject);
+			cell->addObjectSecure(playerObject);
 		}
 		else
 		{

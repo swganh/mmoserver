@@ -205,6 +205,40 @@ void ObjectController::_handleStructurePlacement(uint64 targetId,Message* messag
 		}
 		break;
 
+		case	ItemType_deed_naboo_large_house:
+		case	ItemType_deed_naboo_medium_house:
+		case	ItemType_deed_naboo_small_house_2:
+		case	ItemType_deed_naboo_small_house:
+
+		case	ItemType_deed_corellia_large_house:
+		case	ItemType_deed_corellia_large_house_2:
+		case	ItemType_deed_corellia_medium_house:
+		case	ItemType_deed_corellia_medium_house_2:
+		
+		case	ItemType_deed_corellia_small_house_1:
+		case	ItemType_deed_corellia_small_house_2:
+		case	ItemType_deed_corellia_small_house_3:
+		case	ItemType_deed_corellia_small_house_4:
+		
+		case	ItemType_deed_generic_large_house_1:
+		case	ItemType_deed_generic_large_house_2:
+		case	ItemType_deed_generic_medium_house_1:
+		case	ItemType_deed_generic_medium_house_2:
+		case	ItemType_deed_generic_small_house_1:
+		case	ItemType_deed_generic_small_house_2:
+		case	ItemType_deed_generic_small_house_3:
+		case	ItemType_deed_generic_small_house_4:
+
+		case	ItemType_deed_tatooine_large_house:
+		case	ItemType_deed_tatooine_medium_house:
+		case	ItemType_deed_tatooine_small_house:
+		case	ItemType_deed_tatooine_small_house_2:
+
+		{
+			gObjectFactory->requestnewHousebyDeed(gStructureManager,deed,player->getClient(),x,y,z,dir,"",player);
+		}
+		break;
+
 	}
 		
 	

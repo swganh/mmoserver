@@ -49,7 +49,7 @@ void ElevatorTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObjec
 
 		if(cell)
 		{
-			cell->removeChild(playerObject);
+			cell->removeObject(playerObject);
 		}
 		else
 		{
@@ -65,7 +65,7 @@ void ElevatorTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObjec
 
 		if(cell)
 		{
-			cell->addChild(playerObject);
+			cell->addObjectSecure(playerObject);
 		}
 		else
 		{
@@ -84,7 +84,7 @@ void ElevatorTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObjec
 
 		if(cell)
 		{
-			cell->removeChild(playerObject);
+			cell->removeObject(playerObject);
 		}
 		else
 		{
@@ -100,7 +100,7 @@ void ElevatorTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObjec
 
 		if(cell)
 		{
-			cell->addChild(playerObject);
+			cell->addObjectSecure(playerObject);
 		}
 		else
 		{

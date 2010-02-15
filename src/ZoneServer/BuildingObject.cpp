@@ -36,6 +36,14 @@ BuildingObject::~BuildingObject()
 
 		it = mSpawnPoints.erase(it);
 	}
+	//destroy the cells 
+
+	CellObjectList::iterator itC = mCells.begin();
+	while(itC != mCells.end())
+	{
+		itC = mCells.erase(itC);
+
+	}
 }
 
 //=============================================================================
@@ -73,28 +81,6 @@ bool BuildingObject::checkForCell(CellObject* cellObject)
 
 //=============================================================================
 
-ObjectList BuildingObject::getAllCellChilds()
-{
-	ObjectList*	tmpList;
-	ObjectList	resultList;
-	ObjectList::iterator childIt;
-
-	CellObjectList::iterator cellIt = mCells.begin();
-
-	while(cellIt != mCells.end())
-	{
-		tmpList = (*cellIt)->getChilds();
-		childIt = tmpList->begin();
-
-		while(childIt != tmpList->end())
-		{
-			resultList.push_back((*childIt));
-			++childIt;
-		}
-		++cellIt;
-	}
-	return(resultList);
-}
 
 //=============================================================================
 

@@ -227,7 +227,7 @@ void NPCObject::updatePosition(uint64 parentId, Anh_Math::Vector3 newPosition)
 			// remove us from the last cell we were in
 			if (CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(this->getParentId())))
 			{
-				cell->removeChild(this);
+				cell->removeObject(this);
 			}
 			else
 			{
@@ -308,7 +308,7 @@ void NPCObject::updatePosition(uint64 parentId, Anh_Math::Vector3 newPosition)
 				// We are still inside.
 				if ((cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(oldParentId))))
 				{
-					cell->removeChild(this);
+					cell->removeObject(this);
 				}
 				else
 				{
@@ -336,7 +336,7 @@ void NPCObject::updatePosition(uint64 parentId, Anh_Math::Vector3 newPosition)
 			}
 			if ((cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(parentId))))
 			{
-				cell->addChild(this);
+				cell->addObjectSecure(this);
 			}
 			else
 			{

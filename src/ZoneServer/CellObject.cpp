@@ -38,57 +38,9 @@ CellObject::~CellObject()
 
 //=============================================================================
 
-bool CellObject::removeChild(Object* object)
-{
-	ObjectList::iterator it = mChildObjects.begin();
-	while(it != mChildObjects.end())
-	{
-		if((*it) == object)
-		{
-			mChildObjects.erase(it);
-			return(true);
-		}
-		++it;
-	}
-	return(false);
-}
-
-//=============================================================================
-
-bool CellObject::checkForChild(Object* object)
-{
-	ObjectList::iterator it = mChildObjects.begin();
-	while(it != mChildObjects.end())
-	{
-		if((*it) == object)
-		{
-			return(true);
-		}
-		++it;
-	}
-	return(false);
-}
-
 //=============================================================================
 
 
-void CellObject::addChild(Object* object, PlayerObjectSet* inRangePlayers, PlayerObject* player)
-{
-	addChild(object);
-	PlayerObjectSet::iterator it = inRangePlayers->begin();
-	while(it != inRangePlayers->end())
-	{
-		PlayerObject* targetObject = (*it);
-		gMessageLib->sendCreateObject(object,targetObject);
-		targetObject->addKnownObjectSafe(object);
-		object->addKnownObjectSafe(targetObject);
-		++it;
-	}
-	if(player)
-	{
-		gMessageLib->sendCreateObject(object,player);
-		player->addKnownObjectSafe(object);
-		object->addKnownObjectSafe(player);
-	}
-	return;
-}
+
+//=============================================================================
+

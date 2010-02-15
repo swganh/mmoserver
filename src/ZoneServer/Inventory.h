@@ -59,7 +59,7 @@ class Inventory : public TangibleObject
 
 		virtual bool	checkCapacity(uint8 amount, PlayerObject* player = NULL);
 
-		void			unEquipItem(Object* object);
+		bool			unEquipItem(Object* object);
 		bool			EquipItem(Object* object);
 		bool			EquipItemTest(Object* object);
 

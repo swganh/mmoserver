@@ -297,7 +297,7 @@ void AttackableStaticNpc::spawn(void)
 
 		if (CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(this->getParentId())))
 		{
-			cell->addChild(this);
+			cell->addObjectSecure(this);
 		}
 		else
 		{

@@ -211,7 +211,7 @@ void HouseFactory::_createHouse(DatabaseResult* result, HouseObject* house)
 	result->GetNextRow(mHouseBinding,house);
 
 	house->setLoadState(LoadState_Loaded);
-	house->setType(ObjType_Structure);
+	house->setType(ObjType_PlayerHouse);
 	house->mCustomName.convert(BSTRType_Unicode16);
 	//house->setCapacity(2); // we want to load 2 hoppers!
 }
@@ -223,11 +223,12 @@ void HouseFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uin
 	//request the harvesters Data first
 	
 	int8 hmm[1024];
-	sprintf(hmm,	"SELECT s.id,s.owner,s.oX,s.oY,s.oZ,s.oW,s.x,s.y,s.z,"
-					"std.type,std.object_string,std.stf_name, std.stf_file, s.name,"
-					"std.lots_used, h.private, std.maint_cost_wk, s.condition, std.max_condition"
+	sprintf(hmm,	"SELECT s.id,s.owner,s.oX,s.oY,s.oZ,s.oW,s.x,s.y,s.z, "
+					"std.type,std.object_string,std.stf_name, std.stf_file, s.name, "
+					"std.lots_used, h.private, std.maint_cost_wk, s.condition, std.max_condition "
 					"FROM structures s INNER JOIN structure_type_data std ON (s.type = std.type) INNER JOIN houses h ON (s.id = h.id) " 
 					"WHERE (s.id = %"PRIu64")",id);
+
 	QueryContainerBase* asynContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,HOFQuery_MainData,client,id);
 
 	mDatabase->ExecuteSqlAsync(this,asynContainer,hmm);
@@ -257,8 +258,8 @@ void HouseFactory::_setupDatabindings()
 	mHouseBinding->addField(DFT_uint8,offsetof(HouseObject,mLotsUsed),1,14);
 	mHouseBinding->addField(DFT_uint8,offsetof(HouseObject,mPrivate),1,15);
 	mHouseBinding->addField(DFT_uint32,offsetof(HouseObject,maint_cost_wk),4,16);
-	mHouseBinding->addField(DFT_uint32,offsetof(HouseObject,mCondition),4,18);
-	mHouseBinding->addField(DFT_uint32,offsetof(HouseObject,mMaxCondition),4,19);														
+	mHouseBinding->addField(DFT_uint32,offsetof(HouseObject,mCondition),4,17);
+	mHouseBinding->addField(DFT_uint32,offsetof(HouseObject,mMaxCondition),4,18);														
 	
 }
 

@@ -214,6 +214,9 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 	uint32			linkType;
 	float			x,y,z;
 
+
+	gLogger->logMsg("ObjController::_handleTransferItem: called");
+
 	message->getStringUnicode16(dataStr);
 
 	// gLogger->logMsg("ObjectController::_handleTransferItem() THIS IS (almost) UNSUPPORTED");
@@ -267,7 +270,7 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 			{
 				if(CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(targetContainerId)))
 				{
-					cell->addChild(itemObject);
+					cell->addObjectSecure(itemObject);
 				}
 				else
 				{
@@ -342,7 +345,7 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 			if(TangibleObject* tangible = dynamic_cast<TangibleObject*>(itemObject))
 			{
 				//uint64 parentId = itemObject->getParentId();
-				cell->removeChild(itemObject);
+				cell->removeObject(itemObject);
 
 				//update known players
 				PlayerObjectSet*			inRangePlayers	= playerObject->getKnownPlayers();
@@ -407,509 +410,12 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 
 //=============================================================================
 //
-// transfer misc item
-//
-
-//	Transfer items between player inventories, containers and cells. Also handles transfer from  creature inventories (looting).
-//	Also handles trandfer between player inventory and player (equipping items).
-//	We don't handle transfer to the world outside.
-//
-
-void ObjectController::_handleTransferItemMisc2(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
-{
-	//we need to make sure that ONLY equipped items are contained by the player
-	//all other items are contained by the inventory!!!!!!!!
-
-	PlayerObject*	playerObject	=	dynamic_cast<PlayerObject*>(mObject);
-	Object*			itemObject		=	gWorldManager->getObjectById(targetId);
-	Inventory*		inventory		=	dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-
-	string			dataStr;
-	uint64			targetContainerId;
-	uint32			linkType;
-	float			x,y,z;
-
-	// gLogger->logMsg("ObjController::_handleTransferItemMisc: Entered");
-
-	message->getStringUnicode16(dataStr);
-
-	if(swscanf(dataStr.getUnicode16(),L"%"WidePRIu64 L" %u %f %f %f",&targetContainerId,&linkType,&x,&y,&z) != 5)
-	{
-		gLogger->logMsg("ObjController::_handleTransferItemMisc: Error in parameters");
-		return;
-	}
-
-	// gLogger->logMsgF("Parameters:  %"PRIu64" %d %.1f %.1f %.1f", MSG_NORMAL, targetContainerId, linkType, x, y, z);
-	// gLogger->logMsgF("TargetId = %"PRIu64"", MSG_NORMAL, targetId);
-	if (!itemObject)
-	{
-		gLogger->logMsg("ObjController::_handleTransferItemMisc: No Object to transfer :(");
-		//no Object :(
-		return;
-
-	}
-
-	TangibleObject* tangible = dynamic_cast<TangibleObject*>(itemObject);
-	if(!tangible)
-	{
-		//no tagible - get out of here
-		return;
-	}
-
-	Item* item = dynamic_cast<Item*>(itemObject);
-
-	// We may want to transfer other things than items...basically tangibleObjects!
-	// resourcecontainers / factory crates
-	
-	// first check whether its an instrument with persistant copy
-	if (item)
-	{
-		//check if its only temporarily placed
-		if(item->getItemFamily() == ItemFamily_Instrument)
-		{
-			if(item->getPersistantCopy())
-			{
-				// gMessageLib->sendSystemMessage(playerObject,L"you cannot pick this up");
-				// You bet, I can! Remove the temp instrument from the world.
-
-				// Do I have access to this instrument?
-				if (item->getOwner() == playerObject->getId())
-				{
-					playerObject->getController()->destroyObject(targetId);
-
-				}
-				return;
-			}
-		}
-	}
-	
-
-	// A FYI: When we drop items, we use player pos.
-	itemObject->mPosition = Anh_Math::Vector3(x,y,z);
-
-
-// DROP or PICKUP
-// Drop item (from inventory) into a cell.
-	if (targetContainerId)
-	{
-		CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(targetContainerId));
-		if (cell)
-		{
-			// TODO: THIS WILL BE EVALUATED WHEN WE CAN HAVE ACCESS TO PLAYER BUILDINGS.
-
-			// drop in a cell
-			// gLogger->logMsgF("ObjectController::_handleTransferItemMisc: Drop into cell %"PRIu64"", MSG_NORMAL, targetContainerId);
-
-			// Remove the object from whatever contains it.
-			// Item* item = dynamic_cast<Item*>(itemObject);
-			TangibleObject* tangible = dynamic_cast<TangibleObject*>(itemObject);
-
-			if (inventory && item && tangible)
-			{
-				// Fully validated, continue the operation...
-				if (itemObject->getParentId() == playerObject->getId())
-				{
-					if (item->getTangibleGroup() == TanGroup_Item && itemObject->hasInternalAttribute("equipped"))
-					{
-						// unequip it
-						if (item->getInternalAttribute<bool>("equipped"))
-						{
-							// gLogger->logMsgF("Item is equipped  - unequipping it before drop", MSG_NORMAL);
-							inventory->unEquipItem(item);
-						}
-					}
-				}
-				gMessageLib->sendDestroyObject(targetId,playerObject);
-				inventory->removeObject(itemObject);
-				// gLogger->logMsg("Removed item from an inventory/container and dropped into a cell.");
-
-				// Add the item to the cell.
-
-				// If we drop (some) instruments, we have to remove the non persistent copy, if any.
-				if (item->getItemFamily() == ItemFamily_Instrument)
-				{
-					if (playerObject->getPlacedInstrumentId())
-					{
-						// We do have a placed instrument.
-						uint32 instrumentType = item->getItemType();
-						if ((instrumentType == ItemType_Nalargon) || (instrumentType == ItemType_omni_box) || (instrumentType == ItemType_nalargon_max_reebo))
-						{
-							// We are about to drop the real thing, remove any copied instrument.
-							// item->setOwner(playerObject->getId();
-							playerObject->getController()->destroyObject(playerObject->getPlacedInstrumentId());
-
-
-							// As a test we will mark the instrument with a "owner tag". This tag will disappear when server restarts.
-							// But it gives us some simulated control of access to dropped items.
-							// TODO: Fix this when we implement cell-vuilding access verification system.
-							// item->setOwner(playerObject->getId());
-						}
-					}
-				}
-				// As a test we will mark the instrument with a "owner tag". This tag will disappear when server restarts.
-				// But it gives us some simulated control of access to dropped items.
-				// TODO: Fix this when we implement cell-building access verification system.
-				item->setOwner(playerObject->getId());
-
-				itemObject->setParentId(targetContainerId);
-				itemObject->mPosition = playerObject->mPosition;
-				itemObject->mDirection = playerObject->mDirection;
-				cell->addChild(itemObject);
-
-				gMessageLib->sendContainmentMessage(targetId,targetContainerId,linkType,playerObject);
-				mDatabase->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id ='%I64u', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",itemObject->getParentId(), itemObject->mDirection.mY, itemObject->mDirection.mZ, itemObject->mDirection.mW, itemObject->mPosition.mX, itemObject->mPosition.mY, itemObject->mPosition.mZ, itemObject->getId());
-
-				// NOTE: It's quite possible to have the player update do this kind of updates manually,
-				// but that will have a performance cost we don't ready to take yet.
-				PlayerObjectSet* inRangePlayers	= playerObject->getKnownPlayers();
-				PlayerObjectSet::iterator it = inRangePlayers->begin();
-				while(it != inRangePlayers->end())
-				{
-					PlayerObject* targetObject = (*it);
-					gMessageLib->sendCreateTangible(tangible,targetObject);
-					targetObject->addKnownObjectSafe(tangible);
-					tangible->addKnownObjectSafe(targetObject);
-					++it;
-				}
-			}
-			else
-			{
-				// We do not allow to drop items from conatiners directly to cells (yet).
-				// gLogger->logMsg("Can't drop items from that container into the cell.");
-			}
-			return;
-		}
-		else
-		{
-			// Continue...
-			// gLogger->logMsgF("ObjectController::_handleTransferItemMisc: Target %"PRIu64" was not a cell, continue...", MSG_NORMAL, targetContainerId);
-
-
-			// pick up - check whether target object is a container or an inventory
-
-			// If we are picking up, it's to the players inventory.
-
-// Pick up from cell (into player inventory).
-			if (inventory && (inventory->getId() == targetContainerId))	// Valid player inventory.
-			{
-				// Picking up into the inventory.
-				CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(itemObject->getParentId()));
-				if (cell)
-				{
-					// gLogger->logMsgF("ObjectController::_handleTransferItemMisc: pick up from cell %"PRIu64"", MSG_NORMAL, itemObject->getParentId());
-
-					// Remove object from cell.
-					TangibleObject* tangible = dynamic_cast<TangibleObject*>(itemObject);
-					if (item && tangible)
-					{
-#if defined(_MSC_VER)
-						if (targetId <= uint64(0x0000000100000000))
-#else
-						if (targetId <= uint64(0x0000000100000000LLU))
-#endif
-						{
-							// Attempt to pickup one of our static items.
-							// gLogger->logMsgF("ObjectController::_handleTransferItemMisc: Item %"PRIu64" is a static item owned by this galaxy.", MSG_NORMAL, targetId);
-							gMessageLib->sendSystemMessage(playerObject,L"","error_message","insufficient_permissions");
-							return;
-						}
-
-						// Are we the owner of this item?
-						if (item->getOwner() != playerObject->getId())
-						{
-							// We should not pickup what we don't own.
-
-							// But, as long as we allow people to drop items in all buildings,
-							// we allow to pickup items not owned, i.e. been left during a server restart.
-							if (item->getOwner() != 0)
-							{
-								gMessageLib->sendSystemMessage(playerObject,L"","error_message","insufficient_permissions");
-								return;
-							}
-						}
-
-						// Stop playing if we pick up the (permanently placed) instrument we are playing
-						if (item->getItemFamily() == ItemFamily_Instrument)
-						{
-							uint32 instrumentType = item->getItemType();
-							if ((instrumentType == ItemType_Nalargon) || (instrumentType == ItemType_omni_box) || (instrumentType == ItemType_nalargon_max_reebo))
-							{
-								// It's a placeable original instrument.
-								// Are we targeting the instrument we actually play on?
-								if (playerObject->getActiveInstrumentId() == item->getId())
-								{
-									gEntertainerManager->stopEntertaining(playerObject);
-									// gLogger->logMsgF("ObjectController::_handleTransferItemMisc: Picking up the active instrument", MSG_NORMAL);
-								}
-							}
-						}
-						if (cell->removeChild(itemObject))
-						{
-							gMessageLib->sendDestroyObject(tangible->getId(),playerObject);
-							gMessageLib->sendContainmentMessage(targetId,targetContainerId,linkType,playerObject);
-
-							PlayerObjectSet* inRangePlayers	= playerObject->getKnownPlayers();
-							PlayerObjectSet::iterator it = inRangePlayers->begin();
-							while(it != inRangePlayers->end())
-							{
-								PlayerObject* targetObject = (*it);
-								gMessageLib->sendDestroyObject(tangible->getId(),targetObject);
-								targetObject->removeKnownObject(tangible);
-								++it;
-							}
-							itemObject->destroyKnownObjects();
-
-							// Add object to inventory.
-							itemObject->setParentId(targetContainerId);
-							inventory->addObject(itemObject);
-							gMessageLib->sendCreateTangible(tangible,playerObject);
-							// mDatabase->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id=%I64u, privateowner_id=%I64u WHERE id=%I64u" ,targetContainerId, itemObject->getPrivateOwner(), targetId);
-							mDatabase->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id ='%I64u', oY='0', oZ='0', oW='0', x='0', y='0', z='0' WHERE id='%I64u'",itemObject->getParentId(), itemObject->getId());
-						}
-						else
-						{
-							// This should not happend.
-							gLogger->logMsg("Can't delete-find item in cell.\n");
-							gMessageLib->sendSystemMessage(playerObject,L"","error_message","insufficient_permissions");
-						}
-					}
-					else
-					{
-						// gLogger->logMsg("Can't pickup item from that cell.");
-					}
-					return;
-				}
-				// Continue...
-				// gLogger->logMsgF("ObjectController::_handleTransferItemMisc: Parent of item %"PRIu64" was not a cell to pickup from, continue...", MSG_NORMAL, itemObject->getParentId());
-			}
-		}
-	}
-
-// TRANSFER ITEMS. (manual looting included)
-
-	// We have to figure out if we are adding or deleting an item from the inventory.
-
-// Transfer item to player inventory.
-	// Inventory* inventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-	if (inventory && (inventory->getId() == targetContainerId))
-	{
-		// gLogger->logMsg("Transfer item to player inventory");
-		//bool removedFailed = false;
-
-		// Remove it from the container.
-		// We dont have any access validations yet.
-		uint64 sourceId = itemObject->getParentId();
-		Container* container = dynamic_cast<Container*>(gWorldManager->getObjectById(sourceId));
-		if (container)
-		{
-			// gLogger->logMsg("Transfer item from container to player inventory");
-			container->removeObject(itemObject);
-			if (gWorldConfig->isTutorial())
-			{
-				playerObject->getTutorial()->transferedItemFromContainer(targetId, sourceId);
-
-				// If object is owned by player (private owned for instancing), we remove the owner from the object.
-				if (itemObject->getPrivateOwner() == playerObject->getId())
-				{
-					itemObject->setPrivateOwner(0);
-				}
-			}
-
-			// Add object to inventory.
-			dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->addObject(itemObject);
-			itemObject->setParentId(targetContainerId);
-			mDatabase->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id=%I64u, privateowner_id=%I64u WHERE id=%I64u" ,targetContainerId, itemObject->getPrivateOwner(), targetId);
-			gMessageLib->sendContainmentMessage(targetId,targetContainerId,linkType,playerObject);
-			return;
-		}
-		// The long version...
-		/*
-		else
-		{
-			// Can it be an object in a creature inventory?
-
-			// Get objects parent.
-			unit64 parentId = itemObject->getParentId();
-
-			if (parentId)
-			{
-				// Assuming this is an Inventory, it's parent would have the if of parentId - 1.
-				uint64 grandParentId = parentId - 1;
-
-				// Check if this is a registred object.
-				Object* unknownObject = gWorldManager->getObjectById(grandParentId);
-				if (unknownObject)
-				{
-					CreatureObject* unknownCreature = dynamic_cast<CreatureObject*>(unknownObject);
-					if (unknownCreature)
-					{
-						Inventory* creatureInventory  = dynamic_cast<Inventory*>(unknownCreature->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-						if (creatureInventory)
-						{
-							if (creatureInventory->getId() == itemObject->getParentId())
-							{
-								// It was an item in an inventory... sigh...
-				*/
-		// The short version!
-		else
-		{
-			CreatureObject* unknownCreature;
-			Inventory* creatureInventory;
-			if (itemObject->getParentId() &&
-				(unknownCreature = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(itemObject->getParentId() - 1))) &&
-				(creatureInventory = dynamic_cast<Inventory*>(unknownCreature->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))) &&
-				(creatureInventory->getId() == itemObject->getParentId()))
-			{
-				Item* item = dynamic_cast<Item*>(itemObject);
-				if (creatureInventory && item)
-				{
-					// Fully validated, continue the operation...
-					gLogger->logMsg("Transfer item from creature inventory to player inventory (looting)");
-					// gMessageLib->sendContainmentMessage(targetId,itemObject->getParentId(),-1,playerObject);
-
-					gMessageLib->sendDestroyObject(targetId,playerObject);
-					creatureInventory->removeObject(itemObject);
-					// gLogger->logMsg("Removed item from a creature inventory");
-
-					ObjectIDList* invObjList = creatureInventory->getObjects();
-					if (invObjList->size() == 0)
-					{
-						// Put this creature in the pool of delayed destruction and remove the corpse from scene.
-						gWorldManager->addCreatureObjectForTimedDeletion(creatureInventory->getParentId(), LootedCorpseTimeout);
-					}
-
-					if (gWorldConfig->isTutorial())
-					{
-						// TODO: Update tutorial about the loot.
-						// playerObject->getTutorial()->transferedItemFromContainer(targetId, sourceId);
-					}
-					// This ensure that we do not use/store any of the temp id's in the database.
-					gObjectFactory->requestNewDefaultItem(inventory, item->getItemFamily(), item->getItemType(), inventory->getId(),99,Anh_Math::Vector3(),"");
-					return;
-				}
-				else
-				{
-					// gLogger->logMsg("Could not transfer item to any inventory, continue..");
-				}
-			}
-		}
-	}
-// Transfer item from player inventory.
-	else if ((inventory && inventory->getId() == itemObject->getParentId()) && (targetContainerId != playerObject->getId())) // Is this last part a test for equipped items...?
-	{
-		// It's an item in the inventory we are to manipulate.
-		// gLogger->logMsg("Source is an inventory");
-		// gLogger->logMsgF("Target container id = %"PRIu64"", MSG_NORMAL, targetContainerId);
-
-		if (inventory->getId() == targetContainerId)
-		{
-			gLogger->logMsg("Target is THE same inventory");
-		}
-		if (gWorldConfig->isTutorial())
-		{
-			// We don't allow users to place item in the container.
-			// gMessageLib->sendSystemMessage(playerObject,L"","event_perk","chest_can_not_add");
-			gMessageLib->sendSystemMessage(playerObject,L"","error_message","remove_only");
-		}
-		else
-		{
-			// Validate target before removing items form inventory. We don't wanna lose the item, do we?
-			Container* container = dynamic_cast<Container*>(gWorldManager->getObjectById(targetContainerId));
-			Item* item = dynamic_cast<Item*>(itemObject);
-			// TangibleObject* tangible = dynamic_cast<TangibleObject*>(itemObject);
-
-			if (container && item)
-			{
-				// Unequipp
-				if (itemObject->getParentId() == playerObject->getId())
-				{
-					if (item->getTangibleGroup() == TanGroup_Item && itemObject->hasInternalAttribute("equipped"))
-					{
-						// unequip it
-						if (item->getInternalAttribute<bool>("equipped"))
-						{
-							// gLogger->logMsgF("Item is equipped  - unequiping it before drop in world", MSG_NORMAL);
-							inventory->unEquipItem(item);
-						}
-					}
-				}
-				// gLogger->logMsg("Transfer item from player inventory to container.");
-
-				// Remove object from inventory.
-				dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->removeObject(itemObject);
-
-				// Add it to the container.
-				// We dont have any access validations yet.
-				container->addObject(itemObject);
-
-				itemObject->setParentId(targetContainerId);
-				mDatabase->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id=%I64u WHERE id=%I64u" ,targetContainerId, targetId);
-				gMessageLib->sendContainmentMessage(targetId,targetContainerId,linkType,playerObject);
-			}
-			else
-			{
-				// gLogger->logMsg("Could not add item to container");
-				// if creature inventory
-				// gMessageLib->sendSystemMessage(playerObject,L"","error_message","remove_only_corpse");
-			}
-		}
-		return;
-	}
-
-	// gLogger->logMsgF("Object type: %d", MSG_NORMAL, itemObject->getType());
-	switch(itemObject->getType())
-	{
-		case ObjType_Tangible:
-		{
-			Item* item = dynamic_cast<Item*>(itemObject);
-			if (item)
-			{
-				// gLogger->logMsgF("Tangible item type: %d", MSG_NORMAL, item->getItemType());
-				// gLogger->logMsgF("Item family: %d", MSG_NORMAL, item->getItemFamily());
-
-				if (item->getTangibleGroup() == TanGroup_Item && itemObject->hasInternalAttribute("equipped"))
-				{
-
-					// unequip it
-					if(item->getInternalAttribute<bool>("equipped"))
-					{
-						// gLogger->logMsgF("it is equipped  - unequip it", MSG_NORMAL);
-
-						inventory->unEquipItem(item);
-						return;
-
-					}
-					// equip it
-					else
-					{
-						/// gLogger->logMsgF("it is NOT equipped - equip it", MSG_NORMAL);
-						// don't equip music instruments or weapons while performing
-						inventory->EquipItem(item);
-						return;
-
-					}
-
-				}
-			}
-		}
-		break;
-
-		default:
-		{
-			gLogger->logMsgF("ObjectController::_handleTransferItemMisc: Unhandled object type: %d", MSG_NORMAL, itemObject->getType());
-		}
-		break;
-	}
-}
-
-
-//=============================================================================
-//
 // checks whether we have access to the container containing the item
 //
 
-bool ObjectController::checkContainingContainer(uint64 targetId)
+bool ObjectController::checkContainingContainer(uint64 containingContainer)
 {
+	CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(containingContainer));
 	return true;
 }
 
@@ -923,11 +429,13 @@ bool ObjectController::checkTargetContainer(uint64 targetContainerId, Object* ob
 {
 	PlayerObject*	playerObject	=	dynamic_cast<PlayerObject*>(mObject);
 	Inventory*		inventory		=	dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-	TangibleObject* targetContainer = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(targetContainerId));
+	ObjectContainer* targetContainer = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(targetContainerId));
 
-	//the inventory is *NOT* part of the worldmanagers ObjectMap
-	if(inventory->getId() == targetContainerId)
+	//the inventory is *NOT* part of the worldmanagers ObjectMap  
+	//our inventory is save to take stuff out
+	if(inventory&& (inventory->getId() == targetContainerId))
 	{
+		//check space
 		return true;
 	}
 
@@ -957,23 +465,20 @@ bool ObjectController::checkTargetContainer(uint64 targetContainerId, Object* ob
 	}
 
 	//lets begin by getting the containing Object
-	CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(targetContainerId));
-	if (cell)
+	if (CellObject* cell = dynamic_cast<CellObject*>(targetContainer))
 	{
 		//do we have permission to drop the item here ???
 
 	}
 
 	//we also might want to check this for factories hoppers
-	if((strcmp(targetContainer->getName().getAnsi(),"ingredient_hopper")==0)||(strcmp(targetContainer->getName().getAnsi(),"output_hopper")==0))
+	TangibleObject* tangibleContainer = dynamic_cast<TangibleObject*>(targetContainer);
+	if((tangibleContainer)&&((strcmp(tangibleContainer->getName().getAnsi(),"ingredient_hopper")==0)||(strcmp(tangibleContainer->getName().getAnsi(),"output_hopper")==0)))
 	{
 		//do we have access rights to the factories hopper?? this would have to be checked asynchronously
 	}
 
-	if (inventory && (inventory->getId() == targetContainerId))	// Valid player inventory.
-	{
-		//is this our inventory ?? do we have enough space ?
-	}
+	
 
 	return true;
 
@@ -1001,9 +506,8 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 		if ((itemObject->hasInternalAttribute("equipped"))&&(itemObject->getInternalAttribute<bool>("equipped")))
 		{
 			// unequip it
-			inventory->unEquipItem(itemObject);
+			return inventory->unEquipItem(itemObject);
 			
-			return true;
 		}
 		//help ... how can that happen an item contained by the player MUST be equipped?
 		assert(false);
@@ -1095,7 +599,7 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 		}
 		
 		// Remove object from cell.
-		if (cell->removeChild(itemObject))
+		if (cell->removeObject(itemObject))
 		{
 			//gMessageLib->sendDestroyObject_InRange(tangible->getId(),playerObject,false);
 			//gMessageLib->sendContainmentMessage(targetId,targetContainerId,linkType,playerObject);
@@ -1281,6 +785,8 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 		
 		itemObject->mPosition = playerObject->mPosition;
 		itemObject->mDirection = playerObject->mDirection;
+
+		gLogger->logMsgF("ObjectController::_handleTransferItemMisc: Cell added item to cell %I64u ", MSG_NORMAL,cell->getId());
 		
 		//do the db update manually because of the position - unless we get an automated position save in
 		itemObject->setParentId(targetContainerId,linkType,playerObject,false); 
@@ -1294,7 +800,8 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 		// NOTE: It's quite possible to have the player update do this kind of updates manually,
 		// but that will have a performance cost we don't ready to take yet.
 		
-		cell->addChild(itemObject,playerObject->getKnownPlayers());
+		cell->addObjectSecure(itemObject,playerObject->getKnownPlayers());
+		gLogger->logMsgF("ObjectController::_handleTransferItemMisc: Player : %I64u contained in %I64u", MSG_NORMAL,playerObject->getId(),playerObject->getParentId());
 		
 	}	
 
@@ -1319,6 +826,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 			//equip / unequip handles the db side, too
 			if(!inventory->EquipItem(item))
 			{
+				gLogger->logMsgF("ObjectController::_handleTransferItemMisc: Error equipping  %"PRIu64"", MSG_NORMAL, item->getId());
 				//readd it to the old parent
 				if(parentContainer)
 					parentContainer->addObjectSecure(item);

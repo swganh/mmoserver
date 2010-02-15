@@ -18,6 +18,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "ZoneServer/CraftingTool.h"
 #include "ZoneServer/CurrentResource.h"
 #include "ZoneServer/Datapad.h"
+#include "ZoneServer/HouseObject.h"
 #include "ZoneServer/HarvesterObject.h"
 #include "ZoneServer/FactoryObject.h"
 #include "ZoneServer/FactoryCrate.h"
@@ -814,7 +815,48 @@ bool MessageLib::sendCreateBuilding(BuildingObject* buildingObject,PlayerObject*
 		sendContainmentMessage(cellId,buildingId,0xffffffff,playerObject);
 		sendBaselinesSCLT_3(cell,cellId - buildingId,playerObject);
 		sendBaselinesSCLT_6(cell,playerObject);
-		sendUpdateCellPermissionMessage(cell,1,playerObject);
+		sendUpdateCellPermissionMessage(cell,1,playerObject);	 //make cellpermission softcoded
+		sendEndBaselines(cellId,playerObject);
+
+		++cellIt;
+	}
+
+	sendEndBaselines(buildingId,playerObject);
+
+	return(true);
+}
+
+//======================================================================================================================
+//
+// create building
+//
+
+bool MessageLib::sendCreateHouse(HouseObject* buildingObject,PlayerObject* playerObject)
+{
+	if(!_checkPlayer(playerObject))
+		return(false);
+
+	sendCreateObjectByCRC(buildingObject,playerObject,false);
+
+	sendBaselinesBUIO_3(buildingObject,playerObject);
+	sendBaselinesBUIO_6(buildingObject,playerObject);
+
+	uint64 buildingId = buildingObject->getId();
+
+	CellObjectList*				cellList	= buildingObject->getCellList();
+	CellObjectList::iterator	cellIt		= cellList->begin();
+
+	uint64 cellCount = cellList->size();
+	while(cellIt != cellList->end())
+	{
+		CellObject* cell = (*cellIt);
+		uint64 cellId = cell->getId();
+
+		sendCreateObjectByCRC(cell,playerObject,false);
+		sendContainmentMessage(cellId,buildingId,0xffffffff,playerObject);
+		sendBaselinesSCLT_3(cell,cellCount--,playerObject);
+		sendBaselinesSCLT_6(cell,playerObject);
+		sendUpdateCellPermissionMessage(cell,1,playerObject);	 //make cellpermission softcoded
 		sendEndBaselines(cellId,playerObject);
 
 		++cellIt;
@@ -899,22 +941,21 @@ bool MessageLib::sendCreateStructure(PlayerStructure* structure,PlayerObject* pl
 	if(!_checkPlayer(player))
 		return(false);
 
-	HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(structure);
-
-	if(harvester)
+	if(HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(structure))
 	{
-
 		return(sendCreateHarvester(harvester, player));
 	}
-
-	FactoryObject* factory = dynamic_cast<FactoryObject*>(structure);
-
-	if(factory)
+	else
+	if(HouseObject* house = dynamic_cast<HouseObject*>(structure))
 	{
-
-		return(sendCreateFactory(factory, player));
+		return(sendCreateHouse(house, player));
 	}
 
+	else 
+	if(FactoryObject* factory = dynamic_cast<FactoryObject*>(structure))
+	{
+		return(sendCreateFactory(factory, player));
+	}
 
 	gLogger->logMsgF("MessageLib::sendCreateStructure:ID %I64u : couldnt cast structure",MSG_HIGH,structure->getId());
 	return(false);
@@ -1195,7 +1236,7 @@ void MessageLib::sendCreateObject(Object* object,PlayerObject* player,bool sendS
 		}
 		break;
 
-		// buildings
+		case ObjType_PlayerHouse:
 		case ObjType_Structure:
 		{
 			// skip, if its static
@@ -1205,17 +1246,9 @@ void MessageLib::sendCreateObject(Object* object,PlayerObject* player,bool sendS
 			if(object->getId() > 0x0000000100000000LLU)
 #endif
 			{
-				if(HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(object))
+				if(PlayerStructure* structure = dynamic_cast<PlayerStructure*>(object))
 				{
-					gMessageLib->sendCreateHarvester(harvester,player);
-				}
-
-				
-		
-				if(FactoryObject* factory = dynamic_cast<FactoryObject*>(object))
-				{
-
-					sendCreateFactory(factory, player);
+					sendCreateStructure(structure,player);
 				}
 			}
 		}

@@ -188,6 +188,32 @@ bool ObjectContainer::addObject(Object* Data,PlayerObjectSet*	knownPlayers)
 	
 }
 
+//========================================================================================================0
+//ads an object for all surrounding players - use for SI objects
+
+void ObjectContainer::addObjectSecure(Object* object, PlayerObjectSet* inRangePlayers, PlayerObject* player)
+{
+	addObjectSecure(object);
+
+	PlayerObjectSet::iterator it = inRangePlayers->begin();
+	while(it != inRangePlayers->end())
+	{
+		PlayerObject* targetObject = (*it);
+		gMessageLib->sendCreateObject(object,targetObject);
+		
+		targetObject->addKnownObjectSafe(object);
+		object->addKnownObjectSafe(targetObject);
+		++it;
+	}
+	if(player)
+	{
+		gMessageLib->sendCreateObject(object,player);
+		player->addKnownObjectSafe(object);
+		object->addKnownObjectSafe(player);
+	}
+	return;
+}
+
 //=============================================================================
 
 Object* ObjectContainer::getObjectById(uint64 id)
@@ -471,4 +497,44 @@ bool ObjectContainer::checkCapacity(uint8 amount, PlayerObject* player)
 	}
 
 	return((mCapacity-mData.size()) >= amount);
+}
+
+ObjectList ObjectContainer::getAllCellChilds()
+{
+	ObjectIDList*	tmpList;
+	ObjectList	resultList;
+	ObjectIDList::iterator childIt;
+
+	ObjectIDList::iterator cellIt = mData.begin();
+
+	while(cellIt != mData.end())
+	{
+		ObjectContainer* object = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById((*cellIt)));
+		tmpList = object->getObjects();
+		childIt = tmpList->begin();
+
+		while(childIt != tmpList->end())
+		{
+			Object* childObject = gWorldManager->getObjectById((*childIt));
+			resultList.push_back(childObject);
+			++childIt;
+		}
+		++cellIt;
+	}
+	return(resultList);
+}
+
+
+bool ObjectContainer::checkForChild(Object* object)
+{
+	ObjectIDList::iterator it = mData.begin();
+	while(it != mData.end())
+	{
+		if((*it) == object->getId())
+		{
+			return(true);
+		}
+		++it;
+	}
+	return(false);
 }

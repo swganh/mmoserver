@@ -28,6 +28,7 @@ class Deed;
 class DispatchClient;
 class DraftSchematic;
 class HarvesterFactory;
+class HouseFactory;
 class FactoryFactory;
 class IntangibleFactory;
 class OFAsyncContainer;
@@ -50,7 +51,8 @@ enum OFQuery
 	OFQuery_WaypointCreate				= 2,
 	OFQuery_Item						= 3,
 	OFQuery_Harvester					= 4,
-	OFQuery_Factory						= 5
+	OFQuery_Factory						= 5,
+	OFQuery_House						= 6
 };
 
 //=============================================================================
@@ -78,6 +80,7 @@ class ObjectFactory : public DatabaseCallback
 		void					requestNewResourceContainer(ObjectFactoryCallback* ofCallback,uint64 resourceId,uint64 parentId,uint16 planetId,uint32 amount);
 		void					requestnewHarvesterbyDeed(ObjectFactoryCallback* ofCallback,Deed* deed,DispatchClient* client, float x, float y, float z, float dir, string customName, PlayerObject* player);
 		void					requestnewFactorybyDeed(ObjectFactoryCallback* ofCallback,Deed* deed,DispatchClient* client, float x, float y, float z, float dir, string customName, PlayerObject* player);
+		void					requestnewHousebyDeed(ObjectFactoryCallback* ofCallback,Deed* deed,DispatchClient* client, float x, float y, float z, float dir, string customName, PlayerObject* player);
 
 
 		void					requestTanoNewParent(ObjectFactoryCallback* ofCallback,uint64 ObjectId,uint64 parentId, TangibleGroup  Group);
@@ -108,6 +111,8 @@ class ObjectFactory : public DatabaseCallback
 		WaypointFactory*		mWaypointFactory;
 		HarvesterFactory*		mHarvesterFactory;
 		FactoryFactory*			mFactoryFactory;
+		HouseFactory*			mHouseFactory;
+		
 
 		boost::pool<boost::default_user_allocator_malloc_free>	mDbAsyncPool;
 };

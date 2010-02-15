@@ -148,6 +148,7 @@ void CellFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint
 CellObject* CellFactory::_createCell(DatabaseResult* result)
 {
 	CellObject* cellObject = new CellObject();
+	cellObject->setCapacity(500);
 
 	uint64 count = result->getRowCount();
 	assert(count == 1);
@@ -211,9 +212,9 @@ void CellFactory::handleObjectReady(Object* object,DispatchClient* client)
 			break;
 	}
 
-	cell->addChild(object);
+	cell->addObjectSecure(object);
 
-	if(cell->getLoadCount() == (cell->getChilds())->size())
+	if(cell->getLoadCount() == cell->getObjects()->size())
 	{
 		if(!(_removeFromObjectLoadMap(cell->getId())))
 			gLogger->logMsg("CellFactory: Failed removing object from loadmap");

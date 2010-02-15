@@ -13,6 +13,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include "ZoneServer/BuildingObject.h"
 #include "ZoneServer/CellObject.h"
+#include "ZoneServer/HouseObject.h"
 #include "ZoneServer/PlayerObject.h"
 #include "ZoneServer/WorldManager.h"
 #include "ZoneServer/ZoneOpcodes.h"
@@ -23,7 +24,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Common/DispatchClient.h"
 #include "Common/MessageFactory.h"
 #include "Common/MessageOpcodes.h"
-
+#include "Common/Message.h"
 
 
 
@@ -53,12 +54,12 @@ bool MessageLib::sendBaselinesBUIO_3(BuildingObject* buildingObject,PlayerObject
 	gMessageFactory->addString(buildingObject->getNameFile());
 	gMessageFactory->addUint32(0);
 	gMessageFactory->addString(buildingObject->getName());
+	gMessageFactory->addUint32(0);//custom name
 	gMessageFactory->addUint32(0);
-	gMessageFactory->addUint32(0xFF);
 	gMessageFactory->addUint16(0);
 	gMessageFactory->addUint32(0);
 	gMessageFactory->addUint32(0);
-	gMessageFactory->addUint32(256);
+	gMessageFactory->addUint32(0);
 	gMessageFactory->addUint32(0);
 	gMessageFactory->addUint32(0);
 	gMessageFactory->addUint32(1000);
@@ -70,6 +71,55 @@ bool MessageLib::sendBaselinesBUIO_3(BuildingObject* buildingObject,PlayerObject
 
 	return(true);
 }
+
+bool MessageLib::sendBaselinesBUIO_3(HouseObject* buildingObject,PlayerObject* playerObject)
+{
+	if(!(playerObject->isConnected()))
+		return(false);
+
+	Message* fragment;
+
+	gMessageFactory->StartMessage();    
+	gMessageFactory->addUint16(11);
+	gMessageFactory->addFloat(1.0);
+	gMessageFactory->addString(buildingObject->getNameFile());
+	gMessageFactory->addUint32(0);
+	gMessageFactory->addString(buildingObject->getName());
+	gMessageFactory->addUint32(0);//custom name
+	gMessageFactory->addUint32(0);
+	gMessageFactory->addUint16(0);
+	gMessageFactory->addUint32(0);
+	gMessageFactory->addUint32(0);
+	gMessageFactory->addUint32(0);
+	gMessageFactory->addUint32(0);
+	gMessageFactory->addUint32(0);
+	gMessageFactory->addUint32(0);
+	gMessageFactory->addUint32(0);
+	gMessageFactory->addUint32(0);
+	gMessageFactory->addUint32(0);
+	gMessageFactory->addUint8(0);
+
+	fragment = gMessageFactory->EndMessage();
+
+
+	Message* newMessage;
+
+	gMessageFactory->StartMessage();    
+	gMessageFactory->addUint32(opBaselinesMessage);  
+	gMessageFactory->addUint64(buildingObject->getId());
+	gMessageFactory->addUint32(opBUIO);
+	gMessageFactory->addUint8(3);
+	gMessageFactory->addUint32(fragment->getSize());
+	gMessageFactory->addData(fragment->getData(),fragment->getSize());
+
+	newMessage = gMessageFactory->EndMessage();
+	fragment->setPendingDelete(true);
+
+	(playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 5);
+
+	return(true);
+}
+
 
 //======================================================================================================================
 //
@@ -102,6 +152,36 @@ bool MessageLib::sendBaselinesBUIO_6(BuildingObject* buildingObject,PlayerObject
 
 	return(true);
 }
+
+
+bool MessageLib::sendBaselinesBUIO_6(HouseObject* buildingObject,PlayerObject* playerObject)
+{
+	if(!(playerObject->isConnected()))
+		return(false);
+
+	Message* newMessage;
+
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opBaselinesMessage);  
+	gMessageFactory->addUint64(buildingObject->getId());
+	gMessageFactory->addUint32(opBUIO);
+	gMessageFactory->addUint8(6);
+
+	gMessageFactory->addUint32(14);
+	gMessageFactory->addUint16(2);	// unknown
+	gMessageFactory->addUint32(0); // unknown
+	gMessageFactory->addUint32(0);	// unknown
+	gMessageFactory->addUint32(0);
+	gMessageFactory->addUint32(0);
+	gMessageFactory->addUint32(0);
+
+	newMessage = gMessageFactory->EndMessage();
+
+	(playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 5);
+
+	return(true);
+}
+
 
 //======================================================================================================================
 //

@@ -28,12 +28,12 @@ class HouseObject;
 
 //=============================================================================
 
-enum HFQuery
+enum HOFQuery
 {
 	HOFQuery_MainData					= 1,
     HOFQuery_AttributeData				= 2,
 	HOFQuery_AdminData					= 3,
-	HOFQuery_CellData					= 4,
+	HOFQuery_CellData					= 4
 	
 	
 

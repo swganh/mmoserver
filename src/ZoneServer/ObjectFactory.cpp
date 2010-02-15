@@ -15,6 +15,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Deed.h"
 #include "DraftSchematic.h"
 #include "HarvesterFactory.h"
+#include "HouseFactory.h"
 #include "FactoryFactory.h"
 #include "IntangibleObject.h"
 #include "IntangibleFactory.h"
@@ -72,6 +73,7 @@ mDbAsyncPool(sizeof(OFAsyncContainer))
 	mWaypointFactory		= WaypointFactory::Init(mDatabase);
 	mHarvesterFactory		= HarvesterFactory::Init(mDatabase);
 	mFactoryFactory			= FactoryFactory::Init(mDatabase);
+	mHouseFactory			= HouseFactory::Init(mDatabase);
 }
 
 //=============================================================================
@@ -90,6 +92,52 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 	switch(asyncContainer->query)
 	{
+		case OFQuery_House:
+		{
+			if(!result->getRowCount())
+			{
+				gLogger->logMsg("ObjFactory::handleDatabaseJobComplete   :  create house failed : no result");
+				break;
+			}
+
+			uint64 requestId = 0;
+			DataBinding* binding = mDatabase->CreateDataBinding(1);
+			binding->addField(DFT_uint64,0,8);
+			result->GetNextRow(binding,&requestId);
+			mDatabase->DestroyDataBinding(binding);
+
+			if(!requestId)
+			{
+				gLogger->logMsg("ObjFactory::handleDatabaseJobComplete   :  create house failed : result is 0");
+			}
+			mHouseFactory->requestObject(asyncContainer->ofCallback,requestId,0,0,asyncContainer->client);
+
+			//now we need to update the Owners Lots
+			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asyncContainer->PlayerId));
+				
+			//cave he might have logged out already - even if thats *very* unlikely (heck of a query that would have been)
+			if(player)
+			{
+				gStructureManager->UpdateCharacterLots(asyncContainer->PlayerId);
+				Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+				Deed* deed = dynamic_cast<Deed*>(gWorldManager->getObjectById(asyncContainer->DeedId));
+				
+				//destroy it in the client
+				gMessageLib->sendDestroyObject(asyncContainer->DeedId,player);
+	
+				//delete it out of the inventory
+				inventory->deleteObject(deed);
+	
+
+			}
+			
+			// now we need to link the deed to the factory in the db and remove it out of the inventory in the db
+			int8 sql[250];
+			sprintf(sql,"UPDATE items SET parent_id = %I64u WHERE id = %"PRIu64"",requestId, asyncContainer->DeedId);
+			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
+				
+		}
+		break;
 
 		case OFQuery_Factory:
 		{
@@ -436,6 +484,59 @@ void ObjectFactory::requestnewFactorybyDeed(ObjectFactoryCallback* ofCallback,De
 
 }
 
+void ObjectFactory::requestnewHousebyDeed(ObjectFactoryCallback* ofCallback,Deed* deed,DispatchClient* client, float x, float y, float z, float dir, string customName, PlayerObject* player)
+{
+		//create a new Harvester Object with the attributes as specified by the deed
+	OFAsyncContainer* asyncContainer = new(mDbAsyncPool.ordered_malloc()) OFAsyncContainer(ofCallback,OFQuery_House,client);
+
+	asyncContainer->DeedId = deed->getId();
+	asyncContainer->OwnerId = deed->getOwner();
+	asyncContainer->PlayerId = player->getId();
+	int8 sql[512];
+	
+
+	StructureDeedLink* deedLink;
+	deedLink = gStructureManager->getDeedData(deed->getItemType());
+
+	float oX, oY, oZ, oW;
+	if(dir== 0.0)
+	{
+		oX = 0;
+		oY = 0;
+		oZ = 0;
+		oW = 1;
+	}
+	if(dir== 1.0)	 //ok
+	{
+		oX = 0.0;
+		oY = 0.71;
+		oZ = 0.0;
+		oW = 0.71;
+	}
+
+	if(dir== 2.0)
+	{
+		oX = 0;
+		oY = 1;
+		oZ = 0;
+		oW = 0;
+	}
+
+	if(dir== 3.0)
+	{
+		oX = 0;
+		oY = -0.71;
+		oZ = 0;
+		oW = 0.71;
+	}
+
+
+	gLogger->logMsgF("New House dir is %f, x:%f, y:%f, z:%f, w:%f",MSG_HIGH,dir,oX, oY, oZ, oW);
+
+	sprintf(sql,"SELECT sf_DefaultHouseCreate(%u,0,%"PRIu64",%u,%f,%f,%f,%f,%f,%f,%f,'%s',%I64u)",deedLink->structure_type, player->getId(), gWorldManager->getZoneId(),oX,oY,oZ,oW,x,y,z,customName.getAnsi(),deed->getId());
+	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
+	gLogger->logMsgF(sql,MSG_HIGH);
+}
 
 //=============================================================================
 //
@@ -633,8 +734,15 @@ void ObjectFactory::deleteObjectFromDB(Object* object)
 		}
 		break;
 
+		case ObjType_PlayerHouse:
 		case ObjType_Structure:
 		{
+			//Houses
+			sprintf(sql,"DELETE FROM houses WHERE ID = %"PRIu64"",object->getId());
+			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
+			sprintf(sql,"DELETE FROM cells WHERE parent_id = %"PRIu64"",object->getId());
+			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
+
 			//Harvester
 			sprintf(sql,"DELETE FROM structures WHERE ID = %"PRIu64"",object->getId());
 			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);

@@ -31,6 +31,7 @@ PlayerStructure::PlayerStructure() : TangibleObject()
 	mCondition		= 1000;
 	mWillRedeed		= false;
 	
+	mHousingAdminList.clear();
 }
 
 //=============================================================================
@@ -468,3 +469,34 @@ void PlayerStructure::handleUIEvent(uint32 action,int32 element,string inputStr,
 }
 
 
+
+bool PlayerStructure::removeCell(CellObject* cellObject)
+{
+	CellObjectList::iterator it = mCells.begin();
+
+	while(it != mCells.end())
+	{
+		if((*it) == cellObject)
+		{
+			mCells.erase(it);
+			return(true);
+		}
+		++it;
+	}
+	return(false);
+}
+
+//=============================================================================
+
+bool PlayerStructure::checkForCell(CellObject* cellObject)
+{
+	CellObjectList::iterator it = mCells.begin();
+
+	while(it != mCells.end())
+	{
+		if((*it) == cellObject)
+			return(true);
+		++it;
+	}
+	return(false);
+}

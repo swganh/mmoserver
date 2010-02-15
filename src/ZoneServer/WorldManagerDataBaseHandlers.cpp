@@ -15,6 +15,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "CreatureSpawnRegion.h"
 #include "HarvesterFactory.h"
 #include "FactoryFactory.h"
+#include "HouseFactory.h"
 #include "ObjectFactory.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
@@ -54,7 +55,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					if(mTotalObjectCount > 0)
 					{
 						// this loads all buildings with cells and objects they contain
-						_loadBuildings();
+						_loadBuildings();	 //NOT PlayerStructures!!!!!!!!!!!!!!!!!!!!!!!!!! they are handled seperately further down
 						// load objects in world
 						_loadAllObjects(0);
 
@@ -102,6 +103,9 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 						// load factories
 						mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_Factories),"SELECT s.id FROM structures s INNER JOIN factories f ON (s.id = f.id) WHERE zone=%u ORDER BY id;",mZoneId);
+
+						// load playerhouses
+						mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_Houses),"SELECT s.id FROM structures s INNER JOIN houses h ON (s.id = h.id) WHERE zone=%u ORDER BY id;",mZoneId);
 										
 
 					}
@@ -137,6 +141,30 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					}
 
 					mDatabase->DestroyDataBinding(harvesterBinding);
+				}
+				break;
+
+				case WMQuery_Houses:
+				{
+					DataBinding* houseBinding = mDatabase->CreateDataBinding(1);
+					houseBinding->addField(DFT_int64,0,8);
+
+					uint64 houseId;
+					uint64 count = result->getRowCount();
+
+					if(result->getRowCount())
+						gLogger->logMsgLoadSuccess("WorldManager::Loading %u playerhouses...",MSG_NORMAL,count);
+					else
+						gLogger->logMsgLoadFailure("WorldManager::Loading playerhouses...",MSG_NORMAL);
+
+					for(uint64 i = 0;i < count;i++)
+					{
+						result->GetNextRow(houseBinding,&houseId);
+
+						gHouseFactory->requestObject(this,houseId,0,0,asyncContainer->mClient);
+					}
+
+					mDatabase->DestroyDataBinding(houseBinding);
 				}
 				break;
 

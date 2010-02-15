@@ -37,6 +37,7 @@ class Skill;
 class ResourceContainer;
 class TangibleObject;
 class HarvesterObject;
+class HouseObject;
 class FactoryObject;
 class ManufacturingSchematic;
 class PlayerObject;
@@ -91,6 +92,7 @@ public:
 	bool				sendCreateHarvester(HarvesterObject* harvester,PlayerObject* player);
 	bool				sendCreateFactory(FactoryObject* factory,PlayerObject* player);
 	bool				sendCreateBuilding(BuildingObject* buildingObject,PlayerObject* playerObject);
+	bool				sendCreateHouse(HouseObject* buildingObject,PlayerObject* playerObject);
 	bool				sendCreateCamp(TangibleObject* camp,PlayerObject* player);
 	
 	//creatures
@@ -396,6 +398,8 @@ public:
 	// building / cell object, buildingmessages.cpp
 	bool				sendBaselinesBUIO_3(BuildingObject* buildingObject,PlayerObject* playerObject);
 	bool				sendBaselinesBUIO_6(BuildingObject* buildingObject,PlayerObject* playerObject);
+	bool				sendBaselinesBUIO_3(HouseObject* buildingObject,PlayerObject* playerObject);
+	bool				sendBaselinesBUIO_6(HouseObject* buildingObject,PlayerObject* playerObject);
 	bool				sendBaselinesSCLT_3(CellObject* cellObject,uint64 cellNr,PlayerObject* playerObject);
 	bool				sendBaselinesSCLT_6(CellObject* cellObject,PlayerObject* playerObject);
 

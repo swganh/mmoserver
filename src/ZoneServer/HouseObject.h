@@ -49,22 +49,18 @@ class HouseObject :	public PlayerStructure, public DatabaseCallback
 		void			prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
 		void			handleObjectMenuSelect(uint8 messageType,Object* srcObject);
 
-		CellObjectList*	getCellList(){ return &mCells; }
-		void			addCell(CellObject* cellObject){ mCells.push_back(cellObject); }
-		bool			removeCell(CellObject* cellObject);
-		bool			checkForCell(CellObject* cellObject);
+		
 
 		float			getWidth(){ return mWidth; }
 		void			setWidth(float width){ mWidth = width; }
 		float			getHeight(){ return mHeight; }
 		void			setHeight(float height){ mHeight = height; }
-		ObjectList		getAllCellChilds();
 		
 
 
 	private:
 		
-		CellObjectList	mCells;
+		
 		float			mWidth;
 		float			mHeight;
 

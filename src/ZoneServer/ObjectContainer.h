@@ -56,11 +56,14 @@ class ObjectContainer :	public Object, public ObjectFactoryCallback
 		bool				addObject(Object* Data);
 		bool				addObjectSecure(Object* Data);
 		bool				addObjectSecure(Object* Data, PlayerObject* player);
+		void				addObjectSecure(Object* object, PlayerObjectSet* inRangePlayers, PlayerObject* player = NULL);
 		
 		//creates the object for the provided player/s
 		bool				addObject(Object* Data,PlayerObject* player);
 		bool				addObject(Object* Data,PlayerObjectSet*	knownPlayers);
 
+		ObjectList			getAllCellChilds();
+		bool				checkForChild(Object* object);
 		
 		
 		bool				deleteObject(Object* data);

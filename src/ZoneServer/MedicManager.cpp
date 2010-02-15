@@ -123,7 +123,7 @@ bool MedicManager::HealDamage(PlayerObject* Medic, CreatureObject* Target, uint6
 	if(Medic->mPosition.distance2D(Target->mPosition) > distance)
 	{
 		gLogger->logMsg("Heal Target is out of range", FOREGROUND_RED);
-		gMessageLib->sendSystemMessage(Medic,L"","healing_response","no_line_of_sight");
+		gMessageLib->sendSystemMessage(Medic,L"","healing","no_line_of_sight");
 		return false;
 	}
 	gLogger->logMsg("Heal Target is within range", FOREGROUND_BLUE);

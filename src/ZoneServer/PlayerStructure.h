@@ -54,6 +54,7 @@ class PlayerStructure :	public TangibleObject
 	friend class HarvesterFactory;
 	friend class FactoryFactory;
 	friend class HouseFactory;
+	
 
 	public:
 
@@ -132,7 +133,7 @@ class PlayerStructure :	public TangibleObject
 		void					handleUIEvent(string strInventoryCash, string strBankCash, UIWindow* window);
 
 		//camps dont have cells
-		ObjectList				getAllCellChilds();
+		
 		CellObjectList*	getCellList(){ return &mCells; }
 		void			addCell(CellObject* cellObject){ mCells.push_back(cellObject); }
 		bool			removeCell(CellObject* cellObject);

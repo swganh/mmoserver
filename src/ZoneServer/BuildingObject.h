@@ -12,7 +12,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #ifndef ANH_ZONESERVER_BUILDING_OBJECT_H
 #define ANH_ZONESERVER_BUILDING_OBJECT_H
 
-#include "TangibleObject.h"
+#include "HouseObject.h"
 #include "BuildingEnums.h"
 #include <vector>
 
@@ -21,12 +21,11 @@ class SpawnPoint;
 
 //=============================================================================
 
-typedef std::vector<CellObject*>	CellObjectList;
 typedef std::vector<SpawnPoint*>	SpawnPoints;
 
 //=============================================================================
 
-class BuildingObject :	public TangibleObject
+class BuildingObject :	public HouseObject
 {
 	friend class BuildingFactory;
 
@@ -35,15 +34,6 @@ class BuildingObject :	public TangibleObject
 		BuildingObject();
 		~BuildingObject();
 
-		CellObjectList*	getCellList(){ return &mCells; }
-		void			addCell(CellObject* cellObject){ mCells.push_back(cellObject); }
-		bool			removeCell(CellObject* cellObject);
-		bool			checkForCell(CellObject* cellObject);
-
-		float			getWidth(){ return mWidth; }
-		void			setWidth(float width){ mWidth = width; }
-		float			getHeight(){ return mHeight; }
-		void			setHeight(float height){ mHeight = height; }
 		//ObjectList		getAllCellChilds();
 
 		uint32			getLoadCount(){ return mTotalLoadCount; }
@@ -58,9 +48,6 @@ class BuildingObject :	public TangibleObject
 
 	private:
 
-		CellObjectList	mCells;
-		float			mWidth;
-		float			mHeight;
 		uint32			mTotalLoadCount;
 		SpawnPoints		mSpawnPoints;
 		BuildingFamily	mBuildingFamily;

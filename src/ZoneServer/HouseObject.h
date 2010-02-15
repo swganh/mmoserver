@@ -26,6 +26,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 class HouseObject :	public PlayerStructure, public DatabaseCallback
 {
 	friend class HouseFactory;
+	friend class BuildingFactory;
 
 	public:
 

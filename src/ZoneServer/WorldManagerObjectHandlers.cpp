@@ -195,8 +195,11 @@ bool WorldManager::addObject(Object* object,bool manual)
 			mStructureList.push_back(object->getId());
 			
 			HouseObject* building = dynamic_cast<HouseObject*>(object);
-			
-			mSpatialIndex->InsertRegion(key,building->mPosition.mX,building->mPosition.mZ,building->getWidth(),building->getHeight());
+			if(!building)
+			{
+				assert( false);
+			}
+			mSpatialIndex->InsertRegion(key,object->mPosition.mX,object->mPosition.mZ,building->getWidth(),building->getHeight());
 		}
 		break;
 
@@ -605,9 +608,16 @@ void WorldManager::initObjectsInRange(PlayerObject* playerObject)
 			else
 			{
 				CellObject*		cell		= dynamic_cast<CellObject*>(getObjectById(playerObject->getParentId()));
-				BuildingObject* building	= dynamic_cast<BuildingObject*>(getObjectById(cell->getParentId()));
-
-				qRect = Anh_Math::Rectangle(building->mPosition.mX - viewingRange,building->mPosition.mZ - viewingRange,viewingRange * 2,viewingRange * 2);
+				
+				if(BuildingObject* building	= dynamic_cast<BuildingObject*>(getObjectById(cell->getParentId())))
+				{
+					qRect = Anh_Math::Rectangle(building->mPosition.mX - viewingRange,building->mPosition.mZ - viewingRange,viewingRange * 2,viewingRange * 2);
+				}
+				else
+				if(HouseObject* house	= dynamic_cast<HouseObject*>(getObjectById(cell->getParentId())))
+				{
+					qRect = Anh_Math::Rectangle(house->mPosition.mX - viewingRange,house->mPosition.mZ - viewingRange,viewingRange * 2,viewingRange * 2);
+				}
 			}
 
 			region->mTree->getObjectsInRange(playerObject,&inRangeObjects,ObjType_Player,&qRect);

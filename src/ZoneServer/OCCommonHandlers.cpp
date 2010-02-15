@@ -801,6 +801,11 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 		// but that will have a performance cost we don't ready to take yet.
 		
 		cell->addObjectSecure(itemObject,playerObject->getKnownPlayers());
+		playerObject->addKnownObjectSafe(itemObject);
+		itemObject->addKnownObjectSafe(playerObject);
+		
+		gMessageLib->sendDestroyObject(itemObject->getId(),playerObject);
+		gMessageLib->sendCreateObject(itemObject,playerObject);
 		gLogger->logMsgF("ObjectController::_handleTransferItemMisc: Player : %I64u contained in %I64u", MSG_NORMAL,playerObject->getId(),playerObject->getParentId());
 		
 	}	

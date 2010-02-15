@@ -17,11 +17,10 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 //=============================================================================
 
-BuildingObject::BuildingObject() : TangibleObject()
+BuildingObject::BuildingObject() : HouseObject()
 {
 	mType = ObjType_Building;
-	mWidth = 128;
-	mHeight = 128;
+
 }
 
 //=============================================================================
@@ -38,48 +37,10 @@ BuildingObject::~BuildingObject()
 	}
 	//destroy the cells 
 
-	CellObjectList::iterator itC = mCells.begin();
-	while(itC != mCells.end())
-	{
-		itC = mCells.erase(itC);
-
-	}
 }
 
 //=============================================================================
 
-bool BuildingObject::removeCell(CellObject* cellObject)
-{
-	CellObjectList::iterator it = mCells.begin();
-
-	while(it != mCells.end())
-	{
-		if((*it) == cellObject)
-		{
-			mCells.erase(it);
-			return(true);
-		}
-		++it;
-	}
-	return(false);
-}
-
-//=============================================================================
-
-bool BuildingObject::checkForCell(CellObject* cellObject)
-{
-	CellObjectList::iterator it = mCells.begin();
-
-	while(it != mCells.end())
-	{
-		if((*it) == cellObject)
-			return(true);
-		++it;
-	}
-	return(false);
-}
-
-//=============================================================================
 
 
 //=============================================================================

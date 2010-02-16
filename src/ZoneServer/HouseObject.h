@@ -17,10 +17,12 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "ObjectFactory.h"
 
 //=============================================================================
+class CellObject;
 
-
+typedef std::vector<CellObject*>		CellObjectList;
 
 //=============================================================================
+
 
 
 class HouseObject :	public PlayerStructure, public DatabaseCallback
@@ -49,24 +51,21 @@ class HouseObject :	public PlayerStructure, public DatabaseCallback
 
 		void			prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
 		void			handleObjectMenuSelect(uint8 messageType,Object* srcObject);
-
 		
-
-		float			getWidth(){ return mWidth; }
-		void			setWidth(float width){ mWidth = width; }
-		float			getHeight(){ return mHeight; }
-		void			setHeight(float height){ mHeight = height; }
+		//camps dont have cells
 		
+		CellObjectList*	getCellList(){ return &mCells; }
+		void			addCell(CellObject* cellObject){ mCells.push_back(cellObject); }
+		bool			removeCell(CellObject* cellObject);
+		bool			checkForCell(CellObject* cellObject);
+		ObjectList		getAllCellChilds();
 
 
 	private:
-		
-		
-		float			mWidth;
-		float			mHeight;
 
 		bool			mPublic;
 
+		CellObjectList	mCells;
 		
 		BuildingFamily	mBuildingFamily;
 		HouseFamily		mHouseFamily;

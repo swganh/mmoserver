@@ -61,9 +61,8 @@ class ObjectContainer :	public Object, public ObjectFactoryCallback
 		//creates the object for the provided player/s
 		bool				addObject(Object* Data,PlayerObject* player);
 		bool				addObject(Object* Data,PlayerObjectSet*	knownPlayers);
-
-		ObjectList			getAllCellChilds();
-		bool				checkForChild(Object* object);
+		
+		bool				checkForObject(Object* object);
 		
 		
 		bool				deleteObject(Object* data);

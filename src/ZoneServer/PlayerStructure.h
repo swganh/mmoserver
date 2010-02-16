@@ -18,11 +18,9 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "UICallback.h"
 #include <vector>
 
-class CellObject;
 
 //=============================================================================
 
-typedef std::vector<CellObject*>		CellObjectList;
 typedef	std::vector<TangibleObject*>	ItemList;
 
 
@@ -53,6 +51,7 @@ class PlayerStructure :	public TangibleObject
 {
 	friend class HarvesterFactory;
 	friend class FactoryFactory;
+	friend class BuildingFactory;
 	friend class HouseFactory;
 	
 
@@ -132,13 +131,6 @@ class PlayerStructure :	public TangibleObject
 		void					handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window);
 		void					handleUIEvent(string strInventoryCash, string strBankCash, UIWindow* window);
 
-		//camps dont have cells
-		
-		CellObjectList*	getCellList(){ return &mCells; }
-		void			addCell(CellObject* cellObject){ mCells.push_back(cellObject); }
-		bool			removeCell(CellObject* cellObject);
-		bool			checkForCell(CellObject* cellObject);
-
 
 		// thats the camps / structures lit of additionally created item like signs and stuff and fires and chairs
 		void					addItem(TangibleObject* tO)	{ mItemList.push_back(tO); }
@@ -169,8 +161,6 @@ class PlayerStructure :	public TangibleObject
 		PlayerStructureFamily		mPlayerStructureFamily;
 
 		uint32						mTotalLoadCount;
-
-		CellObjectList				mCells;
 
 		float						mWidth;
 		float						mHeight;

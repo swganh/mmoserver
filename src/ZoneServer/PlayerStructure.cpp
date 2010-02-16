@@ -13,6 +13,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "PlayerStructure.h"
 #include "PlayerObject.h"
 #include "Inventory.h"
+#include "CellObject.h"
 #include "Bank.h"
 #include "UICallback.h"
 #include "UIManager.h"
@@ -470,33 +471,3 @@ void PlayerStructure::handleUIEvent(uint32 action,int32 element,string inputStr,
 
 
 
-bool PlayerStructure::removeCell(CellObject* cellObject)
-{
-	CellObjectList::iterator it = mCells.begin();
-
-	while(it != mCells.end())
-	{
-		if((*it) == cellObject)
-		{
-			mCells.erase(it);
-			return(true);
-		}
-		++it;
-	}
-	return(false);
-}
-
-//=============================================================================
-
-bool PlayerStructure::checkForCell(CellObject* cellObject)
-{
-	CellObjectList::iterator it = mCells.begin();
-
-	while(it != mCells.end())
-	{
-		if((*it) == cellObject)
-			return(true);
-		++it;
-	}
-	return(false);
-}

@@ -187,7 +187,9 @@ bool MedicManager::HealDamage(PlayerObject* Medic, CreatureObject* Target, uint6
 			Item* item = dynamic_cast<Item*>(gWorldManager->getObjectById((*It)));
 			if(!item)
 			{
-				assert(false);
+				//hell resource containers are no items!!!
+				//they would cast as tangibles though
+				//assert(false);
 				It++;
 				continue;
 			}

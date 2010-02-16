@@ -1099,10 +1099,13 @@ void MessageLib::sendInventory(PlayerObject* playerObject)
 // send the matching object creates
 //
 
-void MessageLib::sendCreateObject(Object* object,PlayerObject* player,bool sendSelftoTarget)
+bool MessageLib::sendCreateObject(Object* object,PlayerObject* player,bool sendSelftoTarget)
 {
 	if(!object)
-		return;
+	{
+		assert(false);
+		return false;
+	}
 	switch(object->getType())
 	{
 		case ObjType_NPC:
@@ -1144,13 +1147,13 @@ void MessageLib::sendCreateObject(Object* object,PlayerObject* player,bool sendS
 				{
 					if (targetCreature->isOwnedBy(player))
 					{
-						gMessageLib->sendCreateCreature(targetCreature,player);
+						return gMessageLib->sendCreateCreature(targetCreature,player);
 					}
 				}
 				else
 				{
 					// No owner.. a "normal" creature
-					gMessageLib->sendCreateCreature(targetCreature,player);
+					return gMessageLib->sendCreateCreature(targetCreature,player);
 				}
 			}
 		}
@@ -1212,9 +1215,10 @@ void MessageLib::sendCreateObject(Object* object,PlayerObject* player,bool sendS
 			{
 				//that wouldnt make a lot of sense would it?
 				assert(false);
+				return false;
 			}
 
-			gMessageLib->sendCreateTangible(tangibleObject,player);		
+			return gMessageLib->sendCreateTangible(tangibleObject,player);		
 		}
 		break;
 
@@ -1261,6 +1265,7 @@ void MessageLib::sendCreateObject(Object* object,PlayerObject* player,bool sendS
 		}
 		break;
 	}
+	return true;
 }
 
 //======================================================================================================================

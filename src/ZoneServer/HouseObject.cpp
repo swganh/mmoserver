@@ -32,8 +32,8 @@ HouseObject::HouseObject() : PlayerStructure()
 {
 	mType = ObjType_PlayerHouse;
 	
-	mWidth = 128;
-	mHeight = 128;
+	setWidth(128);
+	setHeight(128);
 	
 }
 
@@ -286,3 +286,58 @@ void HouseObject::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 
 
+
+bool HouseObject::removeCell(CellObject* cellObject)
+{
+	CellObjectList::iterator it = mCells.begin();
+
+	while(it != mCells.end())
+	{
+		if((*it) == cellObject)
+		{
+			mCells.erase(it);
+			return(true);
+		}
+		++it;
+	}
+	return(false);
+}
+
+//=============================================================================
+
+bool HouseObject::checkForCell(CellObject* cellObject)
+{
+	CellObjectList::iterator it = mCells.begin();
+
+	while(it != mCells.end())
+	{
+		if((*it) == cellObject)
+			return(true);
+		++it;
+	}
+	return(false);
+}
+
+ObjectList HouseObject::getAllCellChilds()
+{
+	ObjectIDList*	tmpList;
+	ObjectList	resultList;
+	ObjectIDList::iterator childIt;
+
+	CellObjectList::iterator cellIt = mCells.begin();
+
+	while(cellIt != mCells.end())
+	{
+		tmpList = (*cellIt)->getObjects();
+		childIt = tmpList->begin();
+
+		while(childIt != tmpList->end())
+		{
+			Object* childObject = gWorldManager->getObjectById((*childIt));
+			resultList.push_back(childObject);
+			++childIt;
+		}
+		++cellIt;
+	}
+	return(resultList);
+}

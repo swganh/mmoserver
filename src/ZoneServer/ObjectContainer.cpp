@@ -50,6 +50,8 @@ ObjectContainer::~ObjectContainer()
 		{
 			gLogger->logMsgF("ObjectContainer::remove Object : No Object!!!!",MSG_HIGH);
 			assert(false);
+			objectIt = removeObject(objectIt);
+			
 			continue;
 		}
 
@@ -499,33 +501,9 @@ bool ObjectContainer::checkCapacity(uint8 amount, PlayerObject* player)
 	return((mCapacity-mData.size()) >= amount);
 }
 
-ObjectList ObjectContainer::getAllCellChilds()
-{
-	ObjectIDList*	tmpList;
-	ObjectList	resultList;
-	ObjectIDList::iterator childIt;
-
-	ObjectIDList::iterator cellIt = mData.begin();
-
-	while(cellIt != mData.end())
-	{
-		ObjectContainer* object = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById((*cellIt)));
-		tmpList = object->getObjects();
-		childIt = tmpList->begin();
-
-		while(childIt != tmpList->end())
-		{
-			Object* childObject = gWorldManager->getObjectById((*childIt));
-			resultList.push_back(childObject);
-			++childIt;
-		}
-		++cellIt;
-	}
-	return(resultList);
-}
 
 
-bool ObjectContainer::checkForChild(Object* object)
+bool ObjectContainer::checkForObject(Object* object)
 {
 	ObjectIDList::iterator it = mData.begin();
 	while(it != mData.end())

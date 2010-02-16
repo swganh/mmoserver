@@ -332,7 +332,7 @@ void ZoneTree::getObjectsInRangeIntersection(Object* object,ObjectSet* resultSet
 }
 
 
-void ZoneTree::getObjectsInRange(const Object* const object,ObjectSet* resultSet,uint32 objTypes,float range)
+void ZoneTree::getObjectsInRange(const Object* const object,ObjectSet* resultSet,uint32 objTypes,float range, bool cellContent)
 {
 	ObjectIdList	resultIdList;
 	Object*			tmpObject;
@@ -363,7 +363,7 @@ void ZoneTree::getObjectsInRange(const Object* const object,ObjectSet* resultSet
 			// check if its us and the object still exists
 			if((static_cast<uint64>(*it) != objectId) && ((tmpObject = gWorldManager->getObjectById((*it))) != NULL))
 			{
-				// if we are in same parent
+				// if we are in same parent	   (world)
 				if(!tmpObject->getParentId())
 				{
 					tmpType = tmpObject->getType();
@@ -373,8 +373,9 @@ void ZoneTree::getObjectsInRange(const Object* const object,ObjectSet* resultSet
 						resultSet->insert(tmpObject);
 					}
 					// if its a building, add objects of our types it contains
-					
-					if((tmpType == ObjType_PlayerHouse)||(tmpType == ObjType_Building))
+				
+					//should we query cellchildren here or rather just create them with their cell regardless
+					if(((tmpType == ObjType_PlayerHouse)||(tmpType == ObjType_Building))&&cellContent)
 					{
 						// gLogger->logMsg("Found a building");
 

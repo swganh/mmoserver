@@ -66,7 +66,7 @@ class ZoneTree
 		void			RemovePoint(int64 objId, double x, double z);
 		void			RemoveRegion(int64 objId, double xLow, double zLow, double xHigh, double zHigh);
 
-		void			getObjectsInRange(const Object* const object, ObjectSet* resultSet, uint32 objTypes, float range);
+		void			getObjectsInRange(const Object* const object, ObjectSet* resultSet, uint32 objTypes, float range, bool cellContent = false);
 		void			getObjectsInRangeIntersection(Object* object, ObjectSet* resultSet, uint32 objTypes, float range);
 		void			getObjectsInRangeEx(Object* object, ObjectSet* resultSet, uint32 objTypes, float range);
 		QTRegion*		getQTRegion(double x, double z);

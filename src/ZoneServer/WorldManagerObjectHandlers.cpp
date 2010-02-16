@@ -609,11 +609,7 @@ void WorldManager::initObjectsInRange(PlayerObject* playerObject)
 			{
 				CellObject*		cell		= dynamic_cast<CellObject*>(getObjectById(playerObject->getParentId()));
 				
-				if(BuildingObject* building	= dynamic_cast<BuildingObject*>(getObjectById(cell->getParentId())))
-				{
-					qRect = Anh_Math::Rectangle(building->mPosition.mX - viewingRange,building->mPosition.mZ - viewingRange,viewingRange * 2,viewingRange * 2);
-				}
-				else
+				
 				if(HouseObject* house	= dynamic_cast<HouseObject*>(getObjectById(cell->getParentId())))
 				{
 					qRect = Anh_Math::Rectangle(house->mPosition.mX - viewingRange,house->mPosition.mZ - viewingRange,viewingRange * 2,viewingRange * 2);
@@ -644,6 +640,7 @@ void WorldManager::initObjectsInRange(PlayerObject* playerObject)
 		else
 		{
 			gMessageLib->sendCreateObject(object,playerObject);
+			gLogger->logMsgF("WorldManager::initObjectsInRange: creating object : %"PRIu64"",MSG_HIGH,object->getId());
 			object->addKnownObjectSafe(playerObject);
 			playerObject->addKnownObjectSafe(object);
 		}

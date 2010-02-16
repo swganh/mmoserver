@@ -79,7 +79,7 @@ public:
 
 	// multiple messages, messagelib.cpp
 	//tangibles
-	void				sendCreateObject(Object* object,PlayerObject* player,bool sendSelftoTarget = true);
+	bool				sendCreateObject(Object* object,PlayerObject* player,bool sendSelftoTarget = true);
 	bool				sendCreateManufacturingSchematic(ManufacturingSchematic* manSchem,PlayerObject* playerObject,bool attributes = true);
 	bool				sendCreateResourceContainer(ResourceContainer* resourceContainer,PlayerObject* targetObject);
 	bool				sendCreateFactoryCrate(FactoryCrate* crate,PlayerObject* targetObject);

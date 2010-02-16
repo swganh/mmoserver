@@ -230,7 +230,7 @@ rem --- Start of BUILD_ENVIRONMENT_FOR_9.0 -------------------------------------
 
 set "VS_BASE_DIR=%PROGRAMFILES(X86)%\Microsoft Visual Studio 9.0"
 if not exist "!VS_BASE_DIR!" (
-	  set "VS_BASE_DIR=D:\PROGRAM FILES\Microsoft Visual Studio 9.0"
+	  set "VS_BASE_DIR=%PROGRAMFILES%\Microsoft Visual Studio 9.0"
 	  if not exist "!VS_BASE_DIR!" (          
 		    rem TODO: Allow user to enter a path to their base visual Studio directory.
        

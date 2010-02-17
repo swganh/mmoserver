@@ -190,19 +190,6 @@ bool WorldManager::addObject(Object* object,bool manual)
 		}
 		break;
 
-		case ObjType_PlayerHouse:
-		{
-			mStructureList.push_back(object->getId());
-			
-			HouseObject* building = dynamic_cast<HouseObject*>(object);
-			if(!building)
-			{
-				assert( false);
-			}
-			mSpatialIndex->InsertRegion(key,object->mPosition.mX,object->mPosition.mZ,building->getWidth(),building->getHeight());
-		}
-		break;
-
 		case ObjType_Structure:
 		{
 		//	HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(object);
@@ -214,7 +201,12 @@ bool WorldManager::addObject(Object* object,bool manual)
 
 		case ObjType_Building:
 		{
+			//mStructureList.push_back(object->getId());
 			BuildingObject* building = dynamic_cast<BuildingObject*>(object);
+			if(!building)
+			{
+				assert(false);
+			}
 			
 			mSpatialIndex->InsertRegion(key,building->mPosition.mX,building->mPosition.mZ,building->getWidth(),building->getHeight());
 		}
@@ -413,7 +405,7 @@ void WorldManager::destroyObject(Object* object)
 		}
 		break;
 
-		case ObjType_PlayerHouse:
+
 		case ObjType_Structure:
 		{
 			// cave what do we do with player cities ??
@@ -435,6 +427,7 @@ void WorldManager::destroyObject(Object* object)
 			object->destroyKnownObjects();
 
 
+			//remove it out of the worldmanagers structurelist now that it is deleted
 			ObjectIDList::iterator itStruct = mStructureList.begin();
 			while(itStruct != mStructureList.end())
 			{
@@ -449,6 +442,37 @@ void WorldManager::destroyObject(Object* object)
 
 		case ObjType_Building:
 		{
+
+			//dont remove .tre buildings
+			HouseObject* house = dynamic_cast<HouseObject*>(object);
+			if(house)
+			{
+				if(object->getSubZoneId())
+				{
+					if(QTRegion* region = getQTRegion(object->getSubZoneId()))
+					{
+						object->setSubZoneId(0);
+						region->mTree->removeObject(object);
+					}
+				}
+				else
+				{	
+					mSpatialIndex->RemoveRegion(object->getId(),object->mPosition.mX,object->mPosition.mZ,house->getWidth(),house->getHeight());
+				}
+
+				object->destroyKnownObjects();
+
+				//remove it out of the worldmanagers structurelist now that it is deleted
+				ObjectIDList::iterator itStruct = mStructureList.begin();
+				while(itStruct != mStructureList.end())
+				{
+					if((*itStruct)==object->getId())
+						itStruct = mStructureList.erase(itStruct);
+					else
+						itStruct++;
+				}
+			
+			}
 
 		}
 		break;
@@ -591,7 +615,7 @@ void WorldManager::initObjectsInRange(PlayerObject* playerObject)
 {
 	// we still query for players here, cause they are found through the buildings and arent kept in a qtree
 	ObjectSet inRangeObjects;
-	mSpatialIndex->getObjectsInRange(playerObject,&inRangeObjects,(ObjType_Player | ObjType_Tangible | ObjType_NPC | ObjType_Creature | ObjType_Building | ObjType_Structure | ObjType_PlayerHouse),gWorldConfig->getPlayerViewingRange());
+	mSpatialIndex->getObjectsInRange(playerObject,&inRangeObjects,(ObjType_Player | ObjType_Tangible | ObjType_NPC | ObjType_Creature | ObjType_Building | ObjType_Structure ),gWorldConfig->getPlayerViewingRange());
 
 	// query the according qtree, if we are in one
 	if(playerObject->getSubZoneId())

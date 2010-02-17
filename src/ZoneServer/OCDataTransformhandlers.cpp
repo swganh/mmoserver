@@ -544,7 +544,7 @@ void ObjectController::_findInRangeObjectsOutside(bool updateAll)
 		mSI->getObjectsInRangeEx(player,&mInRangeObjects,(ObjType_Player | ObjType_NPC | ObjType_Creature), viewingRange);
 
 		// This may be good when we standstill.
-		mSI->getObjectsInRange(player,&mInRangeObjects,(ObjType_Tangible | ObjType_Building | ObjType_Lair | ObjType_Structure | ObjType_PlayerHouse), viewingRange);
+		mSI->getObjectsInRange(player,&mInRangeObjects,(ObjType_Tangible | ObjType_Building | ObjType_Lair | ObjType_Structure), viewingRange);
 
 	}
 	/*
@@ -685,7 +685,7 @@ void ObjectController::_findInRangeObjectsInside(bool updateAll)
 
 		// We want the players first.
 		mSI->getObjectsInRange(player,&mInRangeObjects,(ObjType_Player),viewingRange);
-		mSI->getObjectsInRange(player,&mInRangeObjects,(ObjType_Tangible | ObjType_NPC | ObjType_Creature | ObjType_Building | ObjType_Structure | ObjType_PlayerHouse),viewingRange);
+		mSI->getObjectsInRange(player,&mInRangeObjects,(ObjType_Tangible | ObjType_NPC | ObjType_Creature | ObjType_Building | ObjType_Structure),viewingRange);
 
 		// query the qtree based on the buildings world position
 		if (QTRegion* region = mSI->getQTRegion(house->mPosition.mX,house->mPosition.mZ))

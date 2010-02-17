@@ -17,7 +17,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 //=============================================================================
 
-BuildingObject::BuildingObject() : HouseObject()
+BuildingObject::BuildingObject() : PlayerStructure()
 {
 	mType = ObjType_Building;
 
@@ -36,6 +36,13 @@ BuildingObject::~BuildingObject()
 		it = mSpawnPoints.erase(it);
 	}
 	//destroy the cells 
+	CellObjectList::iterator cellIt = mCells.begin();
+
+	while(cellIt != mCells.end())
+	{
+		delete(*cellIt);
+		cellIt = mCells.erase(cellIt);
+	}
 
 }
 
@@ -57,4 +64,58 @@ SpawnPoint* BuildingObject::getRandomSpawnPoint()
 
 //=============================================================================
 
+bool BuildingObject::removeCell(CellObject* cellObject)
+{
+	CellObjectList::iterator it = mCells.begin();
+
+	while(it != mCells.end())
+	{
+		if((*it) == cellObject)
+		{
+			mCells.erase(it);
+			return(true);
+		}
+		++it;
+	}
+	return(false);
+}
+
+//=============================================================================
+
+bool BuildingObject::checkForCell(CellObject* cellObject)
+{
+	CellObjectList::iterator it = mCells.begin();
+
+	while(it != mCells.end())
+	{
+		if((*it) == cellObject)
+			return(true);
+		++it;
+	}
+	return(false);
+}
+
+ObjectList BuildingObject::getAllCellChilds()
+{
+	ObjectIDList*	tmpList;
+	ObjectList	resultList;
+	ObjectIDList::iterator childIt;
+
+	CellObjectList::iterator cellIt = mCells.begin();
+
+	while(cellIt != mCells.end())
+	{
+		tmpList = (*cellIt)->getObjects();
+		childIt = tmpList->begin();
+
+		while(childIt != tmpList->end())
+		{
+			Object* childObject = gWorldManager->getObjectById((*childIt));
+			resultList.push_back(childObject);
+			++childIt;
+		}
+		++cellIt;
+	}
+	return(resultList);
+}
 

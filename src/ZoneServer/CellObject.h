@@ -34,12 +34,6 @@ class CellObject :	public StaticObject
 		CellObject(uint64 id,uint64 parentId,const string model = "object/cell/shared_cell.iff");
 		~CellObject();
 
-		//ObjectList*	getChilds(){ return &mChildObjects; }
-		//void		addChild(Object* object){ mChildObjects.push_back(object); }
-		//void		addChild(Object* object, PlayerObjectSet* inRangePlayers, PlayerObject* player = NULL);
-		//bool		removeChild(Object* object);
-		//bool		checkForChild(Object* object);
-
 		uint32		getLoadCount(){ return mTotalLoadCount; }
 		void		setLoadCount(uint32 count){ mTotalLoadCount = count; }
 

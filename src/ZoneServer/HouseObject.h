@@ -12,20 +12,12 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #ifndef ANH_ZONESERVER_HOUSE_OBJECT_H
 #define ANH_ZONESERVER_HOUSE_OBJECT_H
 
-#include "PlayerStructure.h"
+#include "BuildingObject.h"
 #include "BuildingEnums.h"
 #include "ObjectFactory.h"
 
-//=============================================================================
-class CellObject;
 
-typedef std::vector<CellObject*>		CellObjectList;
-
-//=============================================================================
-
-
-
-class HouseObject :	public PlayerStructure, public DatabaseCallback
+class HouseObject :	public BuildingObject, public DatabaseCallback
 {
 	friend class HouseFactory;
 	friend class BuildingFactory;
@@ -51,21 +43,12 @@ class HouseObject :	public PlayerStructure, public DatabaseCallback
 
 		void			prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
 		void			handleObjectMenuSelect(uint8 messageType,Object* srcObject);
-		
-		//camps dont have cells
-		
-		CellObjectList*	getCellList(){ return &mCells; }
-		void			addCell(CellObject* cellObject){ mCells.push_back(cellObject); }
-		bool			removeCell(CellObject* cellObject);
-		bool			checkForCell(CellObject* cellObject);
-		ObjectList		getAllCellChilds();
+	
 
 
 	private:
 
 		bool			mPublic;
-
-		CellObjectList	mCells;
 		
 		BuildingFamily	mBuildingFamily;
 		HouseFamily		mHouseFamily;

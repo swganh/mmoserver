@@ -15,6 +15,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Deed.h"
 #include "DraftSchematic.h"
 #include "HarvesterFactory.h"
+#include "HouseObject.h"
 #include "HouseFactory.h"
 #include "FactoryFactory.h"
 #include "IntangibleObject.h"
@@ -734,14 +735,36 @@ void ObjectFactory::deleteObjectFromDB(Object* object)
 		}
 		break;
 
-		case ObjType_PlayerHouse:
-		case ObjType_Structure:
+		case ObjType_Building:
 		{
-			//Houses
+			//only delete when a playerbuilding
+			HouseObject* house = dynamic_cast<HouseObject*>(object);
+			if(!house)
+			{
+				//no player building
+				return;
+			}
+
 			sprintf(sql,"DELETE FROM houses WHERE ID = %"PRIu64"",object->getId());
 			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
 			sprintf(sql,"DELETE FROM cells WHERE parent_id = %"PRIu64"",object->getId());
 			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
+
+			sprintf(sql,"DELETE FROM structures WHERE ID = %"PRIu64"",object->getId());
+			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
+
+			//Admin / Hopper Lists
+			sprintf(sql,"DELETE FROM structure_admin_data WHERE StructureID = %"PRIu64"",object->getId());
+			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
+
+			//update attributes cave redeed vs destroy
+			sprintf(sql,"DELETE FROM structure_attributes WHERE Structure_id = %"PRIu64"",object->getId());
+			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
+
+		}
+		break;
+		case ObjType_Structure:
+		{			
 
 			//Harvester
 			sprintf(sql,"DELETE FROM structures WHERE ID = %"PRIu64"",object->getId());

@@ -1240,7 +1240,6 @@ bool MessageLib::sendCreateObject(Object* object,PlayerObject* player,bool sendS
 		}
 		break;
 
-		case ObjType_PlayerHouse:
 		case ObjType_Structure:
 		{
 			// skip, if its static

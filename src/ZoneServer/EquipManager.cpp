@@ -200,8 +200,17 @@ bool EquipManager::addEquippedObject(Object* object)
 				//return false;
 				//unequip it! and update the inventory about it
 				Inventory*		inventory		=	dynamic_cast<Inventory*>(mParent->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-				inventory->unEquipItem((*it).second);
-				inventory->addObjectSecure((*it).second);
+				if(slotMask==CreatureEquipSlot_Hair)
+				{
+					this->getParent()->setHair((*it).second);
+					this->removeEquippedObject(CreatureEquipSlot_Hair);
+
+				}
+				else
+				{
+					inventory->unEquipItem((*it).second);
+					inventory->addObjectSecure((*it).second);
+				}
 			}
 
 			// add the object

@@ -249,14 +249,16 @@ void WorldManager::Shutdown()
 		itStruct++;
 	}
 
+	// shutdown SI
+	mSpatialIndex->ShutDown(); //removes all structures and their children
+	delete(mSpatialIndex);
+
 	// finally delete them
 	mQTRegionMap.clear();
 	mObjectMap.clear();
 	
 	
-	// shutdown SI
-	mSpatialIndex->ShutDown();
-	delete(mSpatialIndex);
+	
 }
 
 //======================================================================================================================

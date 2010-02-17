@@ -12,20 +12,23 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #ifndef ANH_ZONESERVER_BUILDING_OBJECT_H
 #define ANH_ZONESERVER_BUILDING_OBJECT_H
 
-#include "HouseObject.h"
+#include "PlayerStructure.h"
 #include "BuildingEnums.h"
 #include <vector>
 
 class CellObject;
 class SpawnPoint;
 
+
 //=============================================================================
 
+
+typedef std::vector<CellObject*>	CellObjectList;
 typedef std::vector<SpawnPoint*>	SpawnPoints;
 
 //=============================================================================
 
-class BuildingObject :	public HouseObject
+class BuildingObject :	public PlayerStructure
 {
 	friend class BuildingFactory;
 
@@ -46,7 +49,14 @@ class BuildingObject :	public HouseObject
 		SpawnPoints*	getSpawnPoints(){ return &mSpawnPoints; }
 		SpawnPoint*		getRandomSpawnPoint();
 
+		CellObjectList*	getCellList(){ return &mCells; }
+		void			addCell(CellObject* cellObject){ mCells.push_back(cellObject); }
+		bool			removeCell(CellObject* cellObject);
+		bool			checkForCell(CellObject* cellObject);
+		ObjectList		getAllCellChilds();
+
 	private:
+		CellObjectList	mCells;
 
 		uint32			mTotalLoadCount;
 		SpawnPoints		mSpawnPoints;

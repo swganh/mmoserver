@@ -11,7 +11,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include "ZoneTree.h"
 #include "BuildingObject.h"
-#include "HouseObject.h"
 
 #include "ObjectContainer.h"
 #include "CellObject.h"
@@ -375,11 +374,11 @@ void ZoneTree::getObjectsInRange(const Object* const object,ObjectSet* resultSet
 					// if its a building, add objects of our types it contains
 				
 					//should we query cellchildren here or rather just create them with their cell regardless
-					if(((tmpType == ObjType_PlayerHouse)||(tmpType == ObjType_Building))&&cellContent)
+					if((tmpType == ObjType_Building)&&cellContent)
 					{
 						// gLogger->logMsg("Found a building");
 
-						ObjectList cellChilds = (dynamic_cast<HouseObject*>(tmpObject))->getAllCellChilds();
+						ObjectList cellChilds = (dynamic_cast<BuildingObject*>(tmpObject))->getAllCellChilds();
 						ObjectList::iterator cellChildsIt = cellChilds.begin();
 
 						while(cellChildsIt != cellChilds.end())
@@ -410,25 +409,21 @@ void ZoneTree::getObjectsInRange(const Object* const object,ObjectSet* resultSet
 		CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(object->getParentId()));
 		BuildingObject* buildingObject;
 
-		if(cell)
-		{
-			buildingObject = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()));
-		}
-		else
+		if(!cell)
 		{
 			gLogger->logMsgF("SI could not find cell %"PRIu64"",MSG_HIGH,object->getParentId());
 			return;
 		}
 
 	
-		HouseObject* house = dynamic_cast<HouseObject*>(gWorldManager->getObjectById(cell->getParentId()));
-		if(!house)
+		buildingObject = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()));
+		if(!buildingObject)
 		{
 			gLogger->logMsgF("SI could not find building %"PRIu64"",MSG_HIGH,cell->getParentId());
 			return;
 		}
-		float buildingWidth		= house->getWidth();
-		float buildingHeight	= house->getHeight();
+		float buildingWidth		= buildingObject->getWidth();
+		float buildingHeight	= buildingObject->getHeight();
 		
 
 		float queryWidth,queryHeight;
@@ -459,10 +454,10 @@ void ZoneTree::getObjectsInRange(const Object* const object,ObjectSet* resultSet
 			queryHeight = buildingHeight + 32;
 		}
 
-		plow[0] = house->mPosition.mX - queryWidth;
-		plow[1] = house->mPosition.mZ - queryHeight;
-		phigh[0] = house->mPosition.mX + queryWidth;
-		phigh[1] = house->mPosition.mZ + queryHeight;
+		plow[0] = buildingObject->mPosition.mX - queryWidth;
+		plow[1] = buildingObject->mPosition.mZ - queryHeight;
+		phigh[0] = buildingObject->mPosition.mX + queryWidth;
+		phigh[1] = buildingObject->mPosition.mZ + queryHeight;
 
 		Region r = Region(plow,phigh,2);
 		MyVisitor vis(&resultIdList);
@@ -486,9 +481,9 @@ void ZoneTree::getObjectsInRange(const Object* const object,ObjectSet* resultSet
 				}
 				// if its a building, add objects of our types it contains
 				
-				if((tmpType == ObjType_PlayerHouse)||(tmpType == ObjType_Building))
+				if(tmpType == ObjType_Building)
 				{
-					ObjectList cellChilds = (dynamic_cast<HouseObject*>(tmpObject))->getAllCellChilds();
+					ObjectList cellChilds = (dynamic_cast<BuildingObject*>(tmpObject))->getAllCellChilds();
 					ObjectList::iterator cellChildsIt = cellChilds.begin();
 
 					while(cellChildsIt != cellChilds.end())

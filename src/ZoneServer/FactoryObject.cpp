@@ -36,9 +36,7 @@ FactoryObject::FactoryObject() : PlayerStructure()
 
 FactoryObject::~FactoryObject()
 {
-	//gWorldManager->destroyObject(gWorldManager->getObjectById(getIngredientHopper()));
-	//gWorldManager->destroyObject(gWorldManager->getObjectById(getOutputHopper()));
-
+	//hoppers are strored in the factories objectcontainer and get automatically destroyed on shutdown
 }
 
 

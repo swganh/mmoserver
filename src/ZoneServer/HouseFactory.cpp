@@ -211,7 +211,7 @@ void HouseFactory::_createHouse(DatabaseResult* result, HouseObject* house)
 	result->GetNextRow(mHouseBinding,house);
 
 	house->setLoadState(LoadState_Loaded);
-	house->setType(ObjType_PlayerHouse);
+	house->setType(ObjType_Building);
 	house->mCustomName.convert(BSTRType_Unicode16);
 	//house->setCapacity(2); // we want to load 2 hoppers!
 }

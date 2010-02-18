@@ -83,6 +83,16 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
 						2,
 						gConfig->read<float>("Horizon"));
 
+	try
+	{
+		mDebug = gConfig->read<bool>("LoadReduceDebug");
+	}
+	catch (...)
+	{
+		mDebug = false;
+	}
+
+
 	// create schedulers
 	mSubsystemScheduler		= new Anh_Utils::Scheduler();
 	mObjControllerScheduler = new Anh_Utils::Scheduler();
@@ -119,7 +129,13 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
 	_registerScriptHooks();
 
 	// initiate loading of objects
-	mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_ObjectCount),"SELECT sf_getZoneObjectCount(%i);",mZoneId);
+	if(mDebug)
+	{
+		gLogger->logMsg("WorldManager::DebugStartUp with culled items, npcs, resources and stuff");
+		mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_ObjectCount),"SELECT sf_getZoneObjectCountDebug(%i);",mZoneId);
+	}
+	else
+		mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_ObjectCount),"SELECT sf_getZoneObjectCount(%i);",mZoneId);
 
 #if defined(_MSC_VER)
 	mNonPersistantId =   422212465065984;

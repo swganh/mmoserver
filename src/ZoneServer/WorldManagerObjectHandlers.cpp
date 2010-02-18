@@ -691,6 +691,8 @@ void WorldManager::_loadAllObjects(uint64 parentId)
 				,mZoneId,parentId,mZoneId,parentId,mZoneId);
 
 	mDatabase->ExecuteSqlAsync(this,asynContainer,sql);
+
+	//gConfig->read<float>("FillFactor"
 }
 
 bool WorldManager::_handleGeneralObjectTimers(uint64 callTime, void* ref)

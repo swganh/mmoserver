@@ -17,6 +17,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
+#include "ConfigManager/ConfigManager.h"
 
 //======================================================================================================================
 
@@ -215,6 +216,18 @@ void ResourceManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 
 			// query current resources
 			// note: current resources not on this planet are loaded with the old resource query
+			bool mDebug;
+			try
+			{
+				mDebug = gConfig->read<bool>("LoadReduceDebug");
+			}
+			catch (...)
+			{
+				mDebug = false;
+			}
+			if(mDebug)
+				return;
+
 			mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) RMAsyncContainer(RMQuery_CurrentResources),
 														"SELECT resources.id,resources.name,resources.type_id,"
 														"resources.er,resources.cr,resources.cd,resources.dr,resources.fl,resources.hr,"

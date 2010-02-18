@@ -36,6 +36,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "DatabaseManager/DatabaseResult.h"
 #include "MessageLib/MessageLib.h"
 
+#include "ConfigManager/ConfigManager.h"
+
 #include "Utils/rand.h"
 #include <cstdio>
 
@@ -85,6 +87,17 @@ MissionManager* MissionManager::mSingleton = NULL;
 MissionManager::MissionManager(Database* database, uint32 zone) :
 mDatabase(database)
 {
+	bool mDebug;
+	try
+	{
+		mDebug = gConfig->read<bool>("LoadReduceDebug");
+	}
+	catch (...)
+	{
+		mDebug = false;
+	}
+	if(mDebug)
+		return;
 	MissionManagerAsyncContainer* asyncContainer;
 	asyncContainer = new MissionManagerAsyncContainer(MissionQuery_Load_Types, 0);
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT id, type, content, name FROM swganh.mission_types");

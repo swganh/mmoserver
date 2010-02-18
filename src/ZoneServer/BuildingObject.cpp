@@ -40,7 +40,8 @@ BuildingObject::~BuildingObject()
 
 	while(cellIt != mCells.end())
 	{
-		delete(*cellIt);
+		gWorldManager->destroyObject((*cellIt));
+		//cellIt++;
 		cellIt = mCells.erase(cellIt);
 	}
 

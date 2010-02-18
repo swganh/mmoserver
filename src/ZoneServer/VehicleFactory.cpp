@@ -90,10 +90,22 @@ void VehicleFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			binding->addField(DFT_uint64,0,8);
 			uint64	id		= 0;
 			uint64	count	= result->getRowCount();
-			assert(count == 1);
+			if(!count)
+			{
+				gLogger->logMsgF("VehicleFactory::createVehicle query without result", MSG_NORMAL);				
+				mDatabase->DestroyDataBinding(binding);
+				return;
+			}
 			result->GetNextRow(binding,&id);
 			mDatabase->DestroyDataBinding(binding);
 			asyncContainer->mId = id;
+
+			if(!id)
+			{
+				gLogger->logMsgF("VehicleFactory::createVehicle query with invalid result", MSG_NORMAL);				
+				mDatabase->DestroyDataBinding(binding);
+				return;
+			}
 
 			gVehicleFactory->requestObject(asyncContainer->mOfCallback,id,0,0,asyncContainer->mClient);
 
@@ -186,8 +198,11 @@ void VehicleFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 void VehicleFactory::createVehicle(uint32 vehicle_type,PlayerObject* targetPlayer)
 {
+	int8 sql[256];
+	sprintf(sql,"SELECT sf_DefaultVehicleCreate(%u, %"PRIu64")",vehicle_type,targetPlayer->getId());
+	 gLogger->logMsgF("VehicleFactory::createVehicle query %s", MSG_NORMAL, sql);
 	mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(this,VehicleFactoryQuery_Create,targetPlayer->getClient()),
-		"SELECT sf_DefaultVehicleCreate(%u, %"PRIu64")",vehicle_type,targetPlayer->getId());
+		sql);
 }
 //=============================================================================
 

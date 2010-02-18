@@ -250,7 +250,7 @@ void WorldManager::Shutdown()
 	}
 
 	// shutdown SI
-	mSpatialIndex->ShutDown(); //removes all structures and their children
+	mSpatialIndex->ShutDown();
 	delete(mSpatialIndex);
 
 	// finally delete them

@@ -443,9 +443,8 @@ void WorldManager::destroyObject(Object* object)
 		case ObjType_Building:
 		{
 
-			//dont remove .tre buildings
-			HouseObject* house = dynamic_cast<HouseObject*>(object);
-			if(house)
+			BuildingObject* building = dynamic_cast<BuildingObject*>(object);
+			if(building)
 			{
 				if(object->getSubZoneId())
 				{

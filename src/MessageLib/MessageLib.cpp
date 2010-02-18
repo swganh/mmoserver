@@ -806,6 +806,7 @@ bool MessageLib::sendCreateBuilding(BuildingObject* buildingObject,PlayerObject*
 	CellObjectList*				cellList	= buildingObject->getCellList();
 	CellObjectList::iterator	cellIt		= cellList->begin();
 
+	uint64 cellCount = cellList->size();
 	while(cellIt != cellList->end())
 	{
 		CellObject* cell = (*cellIt);
@@ -813,7 +814,7 @@ bool MessageLib::sendCreateBuilding(BuildingObject* buildingObject,PlayerObject*
 
 		sendCreateObjectByCRC(cell,playerObject,false);
 		sendContainmentMessage(cellId,buildingId,0xffffffff,playerObject);
-		sendBaselinesSCLT_3(cell,cellId - buildingId,playerObject);
+		sendBaselinesSCLT_3(cell,cellCount--,playerObject);
 		sendBaselinesSCLT_6(cell,playerObject);
 		sendUpdateCellPermissionMessage(cell,1,playerObject);	 //make cellpermission softcoded
 		sendEndBaselines(cellId,playerObject);
@@ -1235,6 +1236,10 @@ bool MessageLib::sendCreateObject(Object* object,PlayerObject* player,bool sendS
 				if(BuildingObject* building = dynamic_cast<BuildingObject*>(object))
 				{
 					gMessageLib->sendCreateBuilding(building,player);
+				}
+				else
+				{
+					assert(false);
 				}
 			}
 		}

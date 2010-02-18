@@ -202,8 +202,18 @@ bool EquipManager::addEquippedObject(Object* object)
 				Inventory*		inventory		=	dynamic_cast<Inventory*>(mParent->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 				if(slotMask==CreatureEquipSlot_Hair)
 				{
-					this->getParent()->setHair((*it).second);
-					this->removeEquippedObject(CreatureEquipSlot_Hair);
+					// is it really the hair??
+					TangibleObject* hair = dynamic_cast<TangibleObject*>((*it).second);
+					if(hair->getTangibleType() == TanType_Hair)
+					{
+						this->getParent()->setHair((*it).second);
+						this->removeEquippedObject(CreatureEquipSlot_Hair);
+					}
+					else
+					{
+						inventory->unEquipItem((*it).second);
+						inventory->addObjectSecure((*it).second);
+					}
 
 				}
 				else

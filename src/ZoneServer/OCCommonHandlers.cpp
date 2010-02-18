@@ -215,7 +215,7 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 	float			x,y,z;
 
 
-	gLogger->logMsg("ObjController::_handleTransferItem: called");
+	gLogger->logMsgF("ObjController::_handleTransferItem: called item %I64u",MSG_HIGH,itemObject);
 
 	message->getStringUnicode16(dataStr);
 
@@ -395,7 +395,14 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 					// equip it
 					else
 					{
-						inventory->EquipItem(item);
+						if(inventory->EquipItem(item))
+						{
+							inventory->removeObject(item);
+						}
+						else
+						{
+							gLogger->logMsgF("ObjectController::_handleTransferItem: equip failed",MSG_HIGH);	
+						}
 						return;
 
 					}
@@ -660,7 +667,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 	float			x,y,z;
 	CellObject*		cell;
 
-	// gLogger->logMsg("ObjController::_handleTransferItemMisc: Entered");
+	gLogger->logMsg("ObjController::_handleTransferItemMisc: Entered");
 
 	//gMessageLib->sendSystemMessage(playerObject,L"","error_message","insufficient_permissions");
 

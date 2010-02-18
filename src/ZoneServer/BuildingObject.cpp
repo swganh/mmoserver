@@ -25,7 +25,7 @@ BuildingObject::BuildingObject() : PlayerStructure()
 
 //=============================================================================
 
-BuildingObject::~BuildingObject()
+BuildingObject::~BuildingObject()									 
 {
 	SpawnPoints::iterator it = mSpawnPoints.begin();
 

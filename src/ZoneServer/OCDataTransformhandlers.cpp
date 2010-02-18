@@ -665,9 +665,9 @@ void ObjectController::_findInRangeObjectsInside(bool updateAll)
 
 	Object* object = gWorldManager->getObjectById(playerCell->getParentId());
 	//BuildingObject* building = dynamic_cast<BuildingObject*>(object);
-	HouseObject* house = dynamic_cast<HouseObject*>(object);
+	BuildingObject* building = dynamic_cast<BuildingObject*>(object);
 	// make sure we got a building
-	if (!house)
+	if (!building)
 	{
 		
 		gLogger->logMsg("ERROR: No building.");
@@ -688,9 +688,9 @@ void ObjectController::_findInRangeObjectsInside(bool updateAll)
 		mSI->getObjectsInRange(player,&mInRangeObjects,(ObjType_Tangible | ObjType_NPC | ObjType_Creature | ObjType_Building | ObjType_Structure),viewingRange);
 
 		// query the qtree based on the buildings world position
-		if (QTRegion* region = mSI->getQTRegion(house->mPosition.mX,house->mPosition.mZ))
+		if (QTRegion* region = mSI->getQTRegion(building->mPosition.mX,building->mPosition.mZ))
 		{
-			Anh_Math::Rectangle qRect = Anh_Math::Rectangle(house->mPosition.mX - viewingRange,house->mPosition.mZ - viewingRange,viewingRange * 2,viewingRange * 2);
+			Anh_Math::Rectangle qRect = Anh_Math::Rectangle(building->mPosition.mX - viewingRange,building->mPosition.mZ - viewingRange,viewingRange * 2,viewingRange * 2);
 
 			// We need to find moving creatures outside...
 			region->mTree->getObjectsInRange(player,&mInRangeObjects,ObjType_Player | ObjType_NPC | ObjType_Creature, &qRect);
@@ -707,9 +707,9 @@ void ObjectController::_findInRangeObjectsInside(bool updateAll)
 		mSI->getObjectsInRange(player,&mInRangeObjects,(ObjType_Tangible | ObjType_Player | ObjType_Creature | ObjType_NPC),viewingRange);
 
 		// query the qtree based on the buildings world position
-		if (QTRegion* region = mSI->getQTRegion(house->mPosition.mX,house->mPosition.mZ))
+		if (QTRegion* region = mSI->getQTRegion(building->mPosition.mX,building->mPosition.mZ))
 		{
-			Anh_Math::Rectangle qRect = Anh_Math::Rectangle(house->mPosition.mX - viewingRange,house->mPosition.mZ - viewingRange,viewingRange * 2,viewingRange * 2);
+			Anh_Math::Rectangle qRect = Anh_Math::Rectangle(building->mPosition.mX - viewingRange,building->mPosition.mZ - viewingRange,viewingRange * 2,viewingRange * 2);
 
 			// We need to find moving creatures outside...
 			region->mTree->getObjectsInRange(player,&mInRangeObjects,ObjType_Player | ObjType_NPC | ObjType_Creature,&qRect);

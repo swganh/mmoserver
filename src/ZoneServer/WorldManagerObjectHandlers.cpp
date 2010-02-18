@@ -201,7 +201,7 @@ bool WorldManager::addObject(Object* object,bool manual)
 
 		case ObjType_Building:
 		{
-			//mStructureList.push_back(object->getId());
+			mStructureList.push_back(object->getId());
 			BuildingObject* building = dynamic_cast<BuildingObject*>(object);
 			if(!building)
 			{
@@ -456,7 +456,7 @@ void WorldManager::destroyObject(Object* object)
 				}
 				else
 				{	
-					mSpatialIndex->RemoveRegion(object->getId(),object->mPosition.mX,object->mPosition.mZ,house->getWidth(),house->getHeight());
+					mSpatialIndex->RemoveRegion(object->getId(),object->mPosition.mX,object->mPosition.mZ,building->getWidth(),building->getHeight());
 				}
 
 				object->destroyKnownObjects();
@@ -663,7 +663,7 @@ void WorldManager::initObjectsInRange(PlayerObject* playerObject)
 		else
 		{
 			gMessageLib->sendCreateObject(object,playerObject);
-			gLogger->logMsgF("WorldManager::initObjectsInRange: creating object : %"PRIu64"",MSG_HIGH,object->getId());
+			
 			object->addKnownObjectSafe(playerObject);
 			playerObject->addKnownObjectSafe(object);
 		}

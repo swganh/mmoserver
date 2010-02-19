@@ -549,7 +549,8 @@ void CraftingSession::addComponentAttribute()
 			//in case a slot has several components in it were just interested in the first
 			//that at least one item is in it we already established
 			FilledResources::iterator resIt = manSlot->mFilledResources.begin();
-			Item*	filledComponent	= dynamic_cast<Item*>(mManufacturingSchematic->getObjectById((*resIt).first));
+			
+			Item*	filledComponent	= dynamic_cast<Item*>(gWorldManager->getObjectById((*resIt).first));
 
 			if(!filledComponent)
 			{
@@ -566,7 +567,7 @@ void CraftingSession::addComponentAttribute()
 			{
 				// see whether our filled component has the relevant attribute
 				gLogger->logMsgF("CraftingSession::addComponentAttribute checking component for attribute %s ",MSG_NORMAL,(*cAPPiT)->getAttributeKey().getAnsi() );
-				if(!filledComponent->hasAttribute( (*cAPPiT)->getAttributeKey() ))
+				if(!filledComponent->hasAttribute( (*cAPPiT)->getAttributeKey().getAnsi() ))
 				{
 					gLogger->logMsgF("CraftingSession::addComponentAttribute : attribute %s not found :(",MSG_NORMAL,(*cAPPiT)->getAttributeKey().getAnsi() );
 					cAPPiT++;
@@ -582,9 +583,9 @@ void CraftingSession::addComponentAttribute()
 					gLogger->logMsgF("CraftingSession::addComponentAttribute : Manipulation : AttributePPME_AddValue",MSG_NORMAL);
 					// just add our value to the items attribute in case the attribute on the item exists
 					// do NOT add the attribute in case it wont exist
-					if(mItem->hasAttribute( (*cAPPiT)->getAffectedAttributeKey() ))
+					gLogger->logMsgF("addComponentAttribute checking item for attribute %s",MSG_NORMAL,(*cAPPiT)->getAffectedAttributeKey().getAnsi());
+					if(mItem->hasAttribute( (*cAPPiT)->getAffectedAttributeKey().getAnsi() ))
 					{
-						gLogger->logMsgF("CraftingSession::addComponentAttribute AttributePPME_AddValue",MSG_NORMAL);
 						gLogger->logMsgF("CraftingSession::addComponentAttribute %s will affect %S",MSG_NORMAL,(*cAPPiT)->getAttributeKey().getAnsi() ,(*cAPPiT)->getAffectedAttributeKey().getAnsi() );
 
 						// add the attribute (to the schematic) if it doesnt exist already to the relevant list for storage

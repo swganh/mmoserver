@@ -345,6 +345,7 @@ void WorldManager::destroyObject(Object* object)
 			// gLogger->logMsg("WorldManager::destroyObject: Player Client set to NULL");
 			delete player->getClient();
 			player->setClient(NULL);
+			player->setConnectionState(PlayerConnState_Destroying);
 		}
 		break;
 		case ObjType_NPC:
@@ -380,7 +381,7 @@ void WorldManager::destroyObject(Object* object)
 				}
 				else
 				{
-					gLogger->logMsgF("WorldManager::destroyObject: couldn't find cell %"PRIu64"",MSG_HIGH,object->getParentId());
+					//gLogger->logMsgF("WorldManager::destroyObject: couldn't find cell %"PRIu64"",MSG_HIGH,object->getParentId());
 				}
 			}
 

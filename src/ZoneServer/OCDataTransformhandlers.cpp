@@ -800,7 +800,6 @@ bool ObjectController::_updateInRangeObjectsInside()
 					}
 					else
 					{
-						gLogger->logMsgF("add  %"PRIu64" to cell",MSG_NORMAL,object->getId());
 						gMessageLib->sendCreateObject(object,player);
 						player->addKnownObject(object);
 						object->addKnownObjectSafe(player);

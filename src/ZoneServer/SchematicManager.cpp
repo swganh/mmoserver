@@ -383,11 +383,12 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 				asContainer->mSchematic = schematic;
 				asContainer->mBatchId = batch->getListId();
 
-				mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT dsam.Attribute, dsam.AffectedAttribute, dsam.Manipulation, a.name, b.name "
-															" FROM draft_schematic_attribute_manipulation as dsam"
-															" INNER JOIN attributes as a ON (dsam.attribute = a.id)"
-															" INNER JOIN attributes as b ON (dsam.affectedattribute = b.id)"
-															" WHERE Draft_Schematic=%u",schematic->getWeightsBatchId());
+				mDatabase->ExecuteSqlAsync(this,asContainer,
+					"SELECT dsam.Attribute, dsam.AffectedAttribute, dsam.Manipulation, a.name, b.name "
+					" FROM draft_schematic_attribute_manipulation as dsam"
+					" INNER JOIN attributes as a ON (dsam.attribute = a.id)"
+					" INNER JOIN attributes as b ON (dsam.affectedattribute = b.id)"
+					" WHERE Draft_Schematic=%u",schematic->getWeightsBatchId());
 			}
 
 			mDatabase->DestroyDataBinding(binding);

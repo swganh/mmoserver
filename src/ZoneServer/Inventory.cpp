@@ -258,6 +258,7 @@ bool Inventory::unEquipItem(Object* object)
 	if(!object->hasInternalAttribute("equipped"))
 	{
 		gLogger->logMsgF("Inventory::unEquipItem : object not equipable object ID : %"PRIu64"", MSG_NORMAL,object->getId());
+		gLogger->logMsgF("Inventory::unEquipItem : likely playerHair", MSG_NORMAL,object->getId());
 		return false;
 	}
 

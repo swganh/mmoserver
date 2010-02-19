@@ -211,15 +211,19 @@ bool EquipManager::addEquippedObject(Object* object)
 					}
 					else
 					{
-						inventory->unEquipItem((*it).second);
-						inventory->addObjectSecure((*it).second);
+						if(inventory->unEquipItem((*it).second))
+						{
+							inventory->addObjectSecure((*it).second);
+						}
 					}
 
 				}
 				else
 				{
-					inventory->unEquipItem((*it).second);
-					inventory->addObjectSecure((*it).second);
+					if(inventory->unEquipItem((*it).second))
+					{
+						inventory->addObjectSecure((*it).second);
+					}
 				}
 			}
 

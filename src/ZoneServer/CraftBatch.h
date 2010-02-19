@@ -115,8 +115,8 @@ class CraftAttributeWeight
 		uint32	getAttributeId(){ return mAttributeId; }
 		string	getAttributeKey(){ return mAttributeKey; }
 
-		uint32	getAffectedAttributeId(){ return mAttributeId; }
-		string	getAffectedAttributeKey(){ return mAttributeKey; }
+		uint32	getAffectedAttributeId(){ return mAffectedAttributeId; }
+		string	getAffectedAttributeKey(){ return mAffectedAttributeKey; }
 
 		uint32	getManipulation(){ return mManipulation; }
 

@@ -814,7 +814,16 @@ bool MessageLib::sendCreateBuilding(BuildingObject* buildingObject,PlayerObject*
 
 		sendCreateObjectByCRC(cell,playerObject,false);
 		sendContainmentMessage(cellId,buildingId,0xffffffff,playerObject);
-		sendBaselinesSCLT_3(cell,cellCount--,playerObject);
+
+		//cell ids are id based for tutorial cells!
+		if(cell->getId() <= 2203318222975)
+		{
+			sendBaselinesSCLT_3(cell,cellId - buildingId,playerObject);
+		}
+		else
+		{
+			sendBaselinesSCLT_3(cell,cellCount--,playerObject);
+		}
 		sendBaselinesSCLT_6(cell,playerObject);
 		sendUpdateCellPermissionMessage(cell,1,playerObject);	 //make cellpermission softcoded
 		sendEndBaselines(cellId,playerObject);

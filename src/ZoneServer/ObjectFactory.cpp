@@ -95,6 +95,7 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 	{
 		case OFQuery_House:
 		{
+			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asyncContainer->PlayerId));
 			if(!result->getRowCount())
 			{
 				gLogger->logMsg("ObjFactory::handleDatabaseJobComplete   :  create house failed : no result");
@@ -142,6 +143,7 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 		case OFQuery_Factory:
 		{
+			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asyncContainer->PlayerId));
 			if(!result->getRowCount())
 			{
 				gLogger->logMsg("ObjFactory::handleDatabaseJobComplete   :  create Factory failed : no result");
@@ -189,6 +191,7 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 		case OFQuery_Harvester:
 		{
+			gStructureManager->UpdateCharacterLots(asyncContainer->PlayerId);
 			if(!result->getRowCount())
 			{
 				gLogger->logMsg("ObjFactory::handleDatabaseJobComplete   :  create Harvester failed");

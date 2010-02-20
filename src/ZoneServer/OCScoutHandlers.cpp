@@ -50,4 +50,10 @@ void ObjectController::_handleForage(uint64 targetId,Message* message,ObjectCont
 } 
 
 //=============================================================================================================================
+//
+// throwtrap
+//
 
+void ObjectController::_handleThrowTrap(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
+{
+}

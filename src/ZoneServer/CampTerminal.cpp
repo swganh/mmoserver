@@ -100,8 +100,14 @@ void CampTerminal::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8
 
 
 	radial->addItem(1,0,radId_examine,radAction_Default);
-	radial->addItem(2,0,radId_serverTerminalManagementStatus,radAction_ObjCallback,"status");
-	radial->addItem(3,0,radId_serverTerminalManagementDestroy,radAction_ObjCallback,"disband");
+	radial->addItem(2,0,radId_serverTerminalManagementStatus,radAction_ObjCallback,"Status");
+	
+	Camp* camp = (Camp*) gWorldManager->getObjectById(this->mCampId);
+	
+	if(creatureObject->getId() == camp->getOwner())
+	{
+		radial->addItem(3,0,radId_serverTerminalManagementDestroy,radAction_ObjCallback,"Disband");
+	}
 
 	mRadialMenu = RadialMenuPtr(radial);
 

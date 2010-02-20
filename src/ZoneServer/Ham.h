@@ -103,6 +103,10 @@ class Ham
 
 		void			updateRegenRates();
 
+		int32			getHealthRegenRate();
+		int32			getActionRegenRate();
+		int32			getMindRegenRate();
+
 		uint64			getTaskId(){ return mTaskId; }
 		void			setTaskId(uint64 id){ mTaskId = id; }
 
@@ -141,13 +145,15 @@ class Ham
 		uint64			mTaskId;
 
 		//statmigration
-		int32			mActionRegenRate;
 		int32			mBattleFatigue;
 		int32			mCurrentForce;
-		int32			mForceRegenRate;
-		int32			mHealthRegenRate;
 		int32			mMaxForce;
+		
+		int32			mHealthRegenRate;
+		int32			mActionRegenRate;
 		int32			mMindRegenRate;
+		int32			mForceRegenRate;
+		
 		int32			mTargetHealth;
 		int32			mTargetStrength;
 		int32			mTargetConstitution;
@@ -157,7 +163,6 @@ class Ham
 		int32			mTargetMind;
 		int32			mTargetFocus;
 		int32			mTargetWillpower;
-
 
 		uint32			mBaseHitpointsUpdateCounter;
 		uint32			mNextBaseHitpointsUpdateInterval;

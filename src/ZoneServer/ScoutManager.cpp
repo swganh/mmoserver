@@ -37,7 +37,6 @@ void ScoutManager::createCamp(uint32 typeId,uint64 parentId,Anh_Math::Vector3 po
 	//get blueprint out of the db
 
 	StructureDeedLink*	deedData = 	gStructureManager->getDeedData(typeId);
-
 	if(!deedData)
 		return;
 
@@ -145,8 +144,43 @@ void ScoutManager::createCamp(uint32 typeId,uint64 parentId,Anh_Math::Vector3 po
 		terminal->setCampRegion(region->getId());
 
 	region->mPosition = player->mPosition;
-	region->setWidth(5.0);
-	region->setHeight(5.0);
+
+
+	//@todo need to update these sizes so they are more accurate.
+	//set the bounds of the camp (so we know when the camp is abandoned
+
+	switch(typeId)
+	{
+	case ItemType_Camp_basic: 
+		region->setWidth(15.0); //11 Width + 2 buffer on each side
+		region->setHeight(15.0); //11 Height + 2 buffer on each side
+		break;
+	case ItemType_Camp_elite:
+		region->setWidth(18.0); //14 width + 2 buffer on each side
+		region->setHeight(26.0); //22 height + 2 buffer on each side
+		break;
+	case ItemType_Camp_improved:
+		region->setWidth(21.0); //17 width + 2 buffer on each side
+		region->setHeight(18.0); //14 height + 2 buffer on each side
+		break;
+	case ItemType_Camp_luxury: 
+		region->setWidth(46.0); //42 width + 2 buffer on each side
+		region->setHeight(45.0); //41 height + 2 buffer on each side
+		break;
+	case ItemType_Camp_multi:
+		region->setWidth(32.0); //28 height + 2 buffer on each side
+		region->setHeight(34.0); //30 height + 2 buffer on each side
+		break;
+	case ItemType_Camp_quality:
+		region->setWidth(24.0); //20 width + 2 buffer on each side
+		region->setHeight(25.0); //21 height + 2 buffer on each side
+		break;
+	default:
+		region->setWidth(5.0);
+		region->setHeight(5.0);
+	}
+
+	//region->setHeight(5.0);
 
 	//important if !0 it will never get the relevant subzone!
 	region->setSubZoneId(0);

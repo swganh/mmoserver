@@ -621,6 +621,7 @@ bool Ham::_regenForce()
 	return(false);
 }
 
+
 //===========================================================================
 //
 // FIXME
@@ -628,6 +629,8 @@ bool Ham::_regenForce()
 
 void Ham::updateRegenRates()
 {
+	
+
 	float regenModifier = 1.0f;
 
 	switch(mParent->getPosture())
@@ -763,3 +766,17 @@ bool Ham::updateMaxForce(int32 forceDelta,bool sendUpdate)
 
 
 
+int32			Ham::getHealthRegenRate()
+{
+	return mHealthRegenRate;
+}
+
+int32			Ham::getActionRegenRate()
+{
+	return mActionRegenRate;
+}
+
+int32			Ham::getMindRegenRate()
+{
+	return mMindRegenRate;
+}

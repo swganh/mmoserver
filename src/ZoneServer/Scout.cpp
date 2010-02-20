@@ -11,13 +11,17 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include "Scout.h"
 #include "Camp.h"
+#include "Inventory.h"
 #include "Item_Enums.h"
 #include "nonPersistantObjectFactory.h"
+#include "ObjectFactory.h"
 #include "PlayerObject.h"
 #include "ScoutManager.h"
 #include "StructureManager.h"
 #include "WorldManager.h"
 #include "ZoneOpcodes.h"
+
+#include "MessageLib/MessageLib.h"
 
 #include "MathLib/Quaternion.h"
 #include "Common/Message.h"
@@ -47,7 +51,7 @@ void Scout::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 			case radId_itemUse:
 			{
 				//make sure it is a camp
-				if(this->getItemType() >= ItemType_Camp_basic || this->getItemType() <= ItemType_Camp_quality)
+				if(this->getItemType() >= ItemType_Camp_basic && this->getItemType() <= ItemType_Camp_quality)
 				{
 					//place camp TODO check whether camp can be placed ie whether we are in an urban area
 					//ie create in the world for all known players
@@ -55,6 +59,11 @@ void Scout::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
 					gScoutManager->createCamp(this->getItemType(),0,player->mPosition,"",player);
 
+					Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+					inventory->removeObject(this);
+					gMessageLib->sendDestroyObject(this->getId(),player);
+					gObjectFactory->deleteObjectFromDB(this);
+					gWorldManager->destroyObject(this);
 				}
 
 			}

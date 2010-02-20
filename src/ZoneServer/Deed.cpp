@@ -51,17 +51,7 @@ void Deed::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 		{
 			case radId_itemUse:
 			{
-				//make sure its a structure or a camp
-				if(this->getItemType() >= ItemType_Camp_basic && this->getItemType() <= ItemType_Camp_quality)
-				{
-					//place camp TODO check whether camp can be placed ie whether we are in an urban area
-					//ie create in the world for all known players
-					//Camps use BUIO 3 and 6
-
-					gScoutManager->createCamp(this->getItemType(),0,player->mPosition,"",player);
-
-				}
-				else if(this->getItemType() >= ItemType_Deed_X34 && this->getItemType() <= ItemType_Deed_Swoop) //landspeeder x34, speederbike, swoop
+				if(this->getItemType() >= ItemType_Deed_X34 && this->getItemType() <= ItemType_Deed_Swoop) //landspeeder x34, speederbike, swoop
 				{
 					// create the vehicle and put in datapad
 					Datapad*		datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
@@ -70,7 +60,6 @@ void Deed::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 					{
 						gVehicleFactory->createVehicle(this->getItemType(),player);
 
-						// delete the deed
 						Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 						inventory->removeObject(this);
 						gMessageLib->sendDestroyObject(this->getId(),player);
@@ -177,3 +166,5 @@ void Deed::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCou
 	RadialMenuPtr radialPtr(radial);
 	mRadialMenu = radialPtr;
 }
+
+//=============================================================================

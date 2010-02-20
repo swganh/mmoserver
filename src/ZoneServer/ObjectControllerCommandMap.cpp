@@ -306,6 +306,7 @@ void ObjectControllerCommandMap::_registerCppHooks()
 	mCommandMap.insert(std::make_pair(opOCharvestcorpse,&ObjectController::_handleHarvestCorpse));
 	mCommandMap.insert(std::make_pair(opOCmaskscent,&ObjectController::_handleMaskScent));
 	mCommandMap.insert(std::make_pair(opOCforage,&ObjectController::_handleForage));
+	mCommandMap.insert(std::make_pair(opOCthrowtrap, &ObjectController::_handleThrowTrap));
 
 	// medic
 	mCommandMap.insert(std::make_pair(opOCdiagnose,&ObjectController::_handleDiagnose));

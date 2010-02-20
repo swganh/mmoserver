@@ -163,7 +163,9 @@ enum object_controller_scout_functions
 {
 	opOCharvestcorpse					= 0x029D0CC5,
 	opOCmaskscent						= 0xb0f4c4b6,
-	opOCforage							= 0x494f9f80
+	opOCforage							= 0x494f9f80,
+	opOCthrowtrap						= 0x0549BE67
+
 };
 
 //=======================================================================

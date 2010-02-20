@@ -1282,24 +1282,24 @@ For information on buffing experience, see dancer and musician sections on the w
 	//Mind
 	if(entertainer->getHam()->mMind.getWounds() > 0)
 	{
-		entertainer->getHam()->updatePropertyValue(HamBar_Mind,HamProperty_Wounds, static_cast<uint32>(-pTotalMindHeal));
+		entertainer->getHam()->updatePropertyValue(HamBar_Mind,HamProperty_Wounds, static_cast<int32>(-pTotalMindHeal));
 	}
 	//heal willpower
 	if(entertainer->getHam()->mWillpower.getWounds() > 0)
 	{
-		entertainer->getHam()->updatePropertyValue(HamBar_Willpower,HamProperty_Wounds, static_cast<uint32>(-pTotalMindHeal));
+		entertainer->getHam()->updatePropertyValue(HamBar_Willpower,HamProperty_Wounds, static_cast<int32>(-pTotalMindHeal));
 	}
 
 	//heal focus
 	if(entertainer->getHam()->mFocus.getWounds() > 0)
 	{
-		entertainer->getHam()->updatePropertyValue(HamBar_Focus,HamProperty_Wounds, static_cast<uint32>(-pTotalMindHeal));
+		entertainer->getHam()->updatePropertyValue(HamBar_Focus,HamProperty_Wounds, static_cast<int32>(-pTotalMindHeal));
 	}
 
 	//heal bf
 	if(entertainer->getHam()->getBattleFatigue() > 0)
 	{
-		entertainer->getHam()->updateBattleFatigue(static_cast<uint32>(-pTotalShockHeal));
+		entertainer->getHam()->updateBattleFatigue(static_cast<int32>(-pTotalShockHeal));
 	}
 
 	//iterate through the audience

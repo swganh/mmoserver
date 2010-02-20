@@ -405,6 +405,7 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback
 		void	_handleHarvestCorpse(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleMaskScent(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleForage(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
+		void	_handleThrowTrap(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 
 		// medic
 		void	_handleDiagnose(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);

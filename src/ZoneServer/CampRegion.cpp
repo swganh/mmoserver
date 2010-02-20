@@ -8,7 +8,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
-
+#include <list>
 #include "CampRegion.h"
 #include "Camp.h"
 #include "PlayerObject.h"
@@ -17,6 +17,14 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "WorldManager.h"
 #include "ZoneTree.h"
 #include "MessageLib/MessageLib.h"
+
+//=============================================================================
+struct CampRegion::campLink
+{
+	uint64 objectID;
+	uint32 tickCount;
+	uint64 lastSeenTime;
+};
 
 //=============================================================================
 
@@ -32,7 +40,8 @@ mQTRegion(NULL)
 	mAbandoned		= false;
 	mXp				= 0;
 
-	mLeftTime = mSetUpTime = gWorldManager->GetCurrentGlobalTick();
+	
+	mSetUpTime = gWorldManager->GetCurrentGlobalTick();
 }
 
 //=============================================================================
@@ -45,14 +54,20 @@ CampRegion::~CampRegion()
 
 void CampRegion::update()
 {
+	//Camps have a max timer of 55 minutes
+	if(gWorldManager->GetCurrentGlobalTick() - mSetUpTime > 3300000)
+	{
+		//gLogger->logMsg("55 Minutes OLD! DEATH TO THE CAMP!", BACKGROUND_RED);
+		despawnCamp();
+		return;
+	}
+
 	if(mAbandoned)
 	{
-		if((gWorldManager->GetCurrentGlobalTick() - mLeftTime > 5000) && (!mDestroyed))
+		if((gWorldManager->GetCurrentGlobalTick() >= mExpiresTime) && (!mDestroyed))
 		{
 			despawnCamp();
 		}
-
-		return;
 	}
 
 	PlayerObject* owner = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(mOwnerId));
@@ -61,14 +76,15 @@ void CampRegion::update()
 	{
 		//abandon
 		mAbandoned	= true;
-		mLeftTime	= gWorldManager->GetCurrentGlobalTick();
+		mExpiresTime	= gWorldManager->GetCurrentGlobalTick(); //There is no grace period for combat.
+		return;
 	}
 
 	if(!mSubZoneId)
 	{
 		mQTRegion	= mSI->getQTRegion(mPosition.mX,mPosition.mZ);
 		mSubZoneId	= (uint32)mQTRegion->getId();
-		mQueryRect	= Anh_Math::Rectangle(mPosition.mX - mWidth,mPosition.mZ - mHeight,mWidth * 2,mHeight * 2);
+		mQueryRect	= Anh_Math::Rectangle(mPosition.mX - mWidth,mPosition.mZ - mHeight,mWidth*2,mHeight*2);
 	}
 
 	Object*		object;
@@ -92,11 +108,72 @@ void CampRegion::update()
 
 		//one xp per player in camp every 2 seconds
 		if(!mAbandoned)
-			mXp ++;
+		{
+			applyHAMHealing(object);
+			mXp++;
+		}
 
 		if(!(checkKnownObjects(object)))
 		{
 			onObjectEnter(object);
+
+
+
+			std::list<campLink*>::iterator i;
+			bool alreadyExists = false;
+
+			for(i = links.begin(); i != links.end(); i++)
+			{
+				if((*i)->objectID == object->getId())
+				{
+					alreadyExists = true;
+				}
+			}
+
+			if(!alreadyExists)
+			{
+				//gLogger->logMsg("CREATING A NEW LINK!");
+				campLink* temp = new campLink;
+				temp->objectID = object->getId();
+				temp->lastSeenTime = gWorldManager->GetCurrentGlobalTick();
+				temp->tickCount = 0;
+
+				links.push_back(temp);
+			}
+		}
+		else
+		{
+			//gLogger->logMsg("HANDLING TICK!");
+			//Find the right link
+			std::list<campLink*>::iterator i;
+
+			for(i = links.begin(); i != links.end(); i++)
+			{
+				if((*i)->objectID == object->getId())
+				{
+
+					(*i)->lastSeenTime = gWorldManager->GetCurrentGlobalTick();
+
+					if((*i)->tickCount == 60)
+					{
+						applyWoundHealing(object);
+						(*i)->tickCount = 0;
+					}
+					else
+						(*i)->tickCount++;
+
+					break;
+				}
+			}
+
+
+			/*
+			//This code causes the Zone Server to print relational position and rotation info
+			//to allow the adding of items without much effort.
+			int8 text[256];
+			sprintf(text,"Position: mX=%f mY=%f mZ=%f\nDirection: mX=%f mY=%f mZ=%f mW=%f", (object->mPosition.mX - this->mPosition.mX), (object->mPosition.mY - this->mPosition.mY), (object->mPosition.mZ - this->mPosition.mZ), object->mDirection.mX,object->mDirection.mY,object->mDirection.mZ,object->mDirection.mW);
+			gLogger->logMsg(text, BACKGROUND_RED);
+			*/
 		}
 
 		++objIt;
@@ -117,6 +194,21 @@ void CampRegion::update()
 		++objSetIt;
 	}
 
+	//prune the list
+	std::list<campLink*>::iterator i = links.begin();
+
+	while(i != links.end())
+	{
+		if(gWorldManager->GetCurrentGlobalTick() - (*i)->lastSeenTime >= 30000)
+		{
+			//gLogger->logMsg("ERASING AN ENTRY!");
+			i = links.erase(i);
+		}
+		else
+		{
+			i++;
+		}
+	}
 }
 
 //=============================================================================
@@ -145,6 +237,13 @@ void CampRegion::onObjectEnter(Object* object)
 			uT.convert(BSTRType_Unicode16);
 			gMessageLib->sendSystemMessage(player, uT);
 		}
+		else
+		{
+			//ensure it's not time to destroy the camp
+			mAbandoned = false;
+
+			//gLogger->logMsg("ENTERED CAMP", BACKGROUND_RED);
+		}
 
 	}
 
@@ -160,12 +259,22 @@ void CampRegion::onObjectLeave(Object* object)
 	if(object->getId() == mOwnerId)
 	{
 		mAbandoned	= true;
-		mLeftTime	= gWorldManager->GetCurrentGlobalTick();
+
+			//gLogger->logMsg("LEFT CAMP", BACKGROUND_RED);
+
+		//We want to have this camp die after the owner has been gone longer 
+		//than he stayed in the camp, with a max of two minutes.
+		uint64 mTempCurrentTime = gWorldManager->GetCurrentGlobalTick();
+
+		if((mTempCurrentTime - mSetUpTime) > 120000)
+			mExpiresTime = mTempCurrentTime + 120000;
+		else
+			mExpiresTime = mTempCurrentTime + (mTempCurrentTime - mSetUpTime);
 	}
 	else
 	{
 		int8 text[64];
-		sprintf(text,"You have left %s's camp",this->getCampOwnerName().getAnsi());
+		sprintf(text,"You have left %s's camp", this->getCampOwnerName().getAnsi());
 		string uT = text;
 		uT.convert(BSTRType_Unicode16);
 		gMessageLib->sendSystemMessage(player, uT);
@@ -180,8 +289,6 @@ void	CampRegion::despawnCamp()
 {
 	mDestroyed	= true;
 	mActive		= false;
-
-	gLogger->logMsg("destroy the camp");
 
 	//PlayerObject* owner = NULL;//dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(mOwnerId));
 	//we need to destroy our camp!!
@@ -203,6 +310,7 @@ void	CampRegion::despawnCamp()
 	gWorldManager->addRemoveRegion(this);
 
 	//now grant xp
+	applyXp();
 	if(mXp)
 	{
 		if(mXp > mXpMax)
@@ -217,7 +325,122 @@ void	CampRegion::despawnCamp()
 
 }
 
+void	CampRegion::applyWoundHealing(Object* object)
+{
+	PlayerObject* player = dynamic_cast<PlayerObject*>(object);
+
+	//gLogger->logMsg("APPLYING WOUND HEALING!");
+
+	//Make sure it's a player.
+	if(player == NULL)
+		return;
+
+	Ham* hamz = player->getHam();
+
+	if(hamz->mHealth.getWounds() > 0)
+	{
+		hamz->updatePropertyValue(HamBar_Health ,HamProperty_Wounds, -1);
+		mHealingDone++;
+	}
+
+	if(hamz->mStrength.getWounds() > 0)
+	{
+		hamz->updatePropertyValue(HamBar_Strength ,HamProperty_Wounds, -1);
+		mHealingDone++;
+	}
+
+	if(hamz->mConstitution.getWounds() > 0)
+	{
+		hamz->updatePropertyValue(HamBar_Constitution ,HamProperty_Wounds, -1);
+		mHealingDone++;
+	}
+
+	if(hamz->mAction.getWounds() > 0)
+	{
+		hamz->updatePropertyValue(HamBar_Action ,HamProperty_Wounds, -1);
+		mHealingDone++;
+	}
+
+	if(hamz->mQuickness.getWounds() > 0)
+	{
+		hamz->updatePropertyValue(HamBar_Quickness ,HamProperty_Wounds, -1);
+		mHealingDone++;
+	}
+
+	if(hamz->mStamina.getWounds() > 0)
+	{
+		hamz->updatePropertyValue(HamBar_Stamina ,HamProperty_Wounds, -1);
+		mHealingDone++;
+	}
+
+	if(hamz->mMind.getWounds() > 0)
+	{
+		hamz->updatePropertyValue(HamBar_Mind ,HamProperty_Wounds, -1);
+		mHealingDone++;
+	}
+
+	if(hamz->mFocus.getWounds() > 0)
+	{
+		hamz->updatePropertyValue(HamBar_Focus ,HamProperty_Wounds, -1);
+		mHealingDone++;
+	}
+
+	if(hamz->mWillpower.getWounds() > 0)
+	{
+		hamz->updatePropertyValue(HamBar_Willpower ,HamProperty_Wounds, -1);
+		mHealingDone++;
+	}
+
+}
+
+void	CampRegion::applyHAMHealing(Object* object)
+{
+	PlayerObject* player = dynamic_cast<PlayerObject*>(object);
+
+	//Make sure it's a player.
+	if(player == NULL)
+		return;
+
+	Ham* hamz = player->getHam();
+
+	//Heal the Ham
+	int32 HealthRegenRate = hamz->getHealthRegenRate();
+	int32 ActionRegenRate = hamz->getActionRegenRate();
+	int32 MindRegenRate = hamz->getMindRegenRate();
+
+	//Because we tick every 2 seconds, we need to double this.
+	HealthRegenRate += (int32)(HealthRegenRate * mHealingModifier) * 2;
+	ActionRegenRate += (int32)(ActionRegenRate * mHealingModifier) * 2;
+	MindRegenRate	+= (int32)(MindRegenRate * mHealingModifier) * 2;
+
+	if(hamz->mHealth.getModifiedHitPoints() - hamz->mHealth.getCurrentHitPoints() > 0)
+	{
+		//Regen Health
+		int32 oldVal = hamz->mHealth.getCurrentHitPoints();
+		hamz->updatePropertyValue(HamBar_Health,HamProperty_CurrentHitpoints, ActionRegenRate);
+		mHealingDone += hamz->mHealth.getCurrentHitPoints() - oldVal;
+	}
+	
+	if(hamz->mAction.getModifiedHitPoints() - hamz->mAction.getCurrentHitPoints() > 0)
+	{
+		//Regen Action
+		int32 oldVal = hamz->mAction.getCurrentHitPoints();
+		hamz->updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints, ActionRegenRate);
+		mHealingDone += hamz->mAction.getCurrentHitPoints() - oldVal;
+	}
+
+	if(hamz->mMind.getModifiedHitPoints() - hamz->mMind.getCurrentHitPoints() > 0)
+	{
+		//Regen Mind
+		int32 oldVal = hamz->mMind.getCurrentHitPoints();
+		hamz->updatePropertyValue(HamBar_Mind, HamProperty_CurrentHitpoints, MindRegenRate);
+		mHealingDone += hamz->mMind.getCurrentHitPoints() - oldVal;
+	}
+
+}
+
 void	CampRegion::applyXp()
 {
-
+	//mXP = The amount of XP accumulated via vistors in the camp
+	mXp += mHealingDone; //The Amount of Healing Done
 }

@@ -65,6 +65,8 @@ class CampRegion : public RegionObject
 				float	getHealingModifier(){return mHealingModifier;}
 
 				void	despawnCamp();
+				void	applyHAMHealing(Object* object);
+				void	applyWoundHealing(Object* object);
 				void	applyXp();
 
 	protected:
@@ -76,15 +78,21 @@ class CampRegion : public RegionObject
 		uint64				mOwnerId;
 		bool				mAbandoned;
 		uint64				mSetUpTime;
-		uint64				mLeftTime;
+		//uint64				mLeftTime;
+		uint64				mExpiresTime;
 		uint32				mXpMax;
 		uint32				mXp;
 		string				mOwnerName;
 		float				mHealingModifier;
 
+		uint32				mHealingDone;
+
 		bool				mDestroyed;
 
 		VisitorSet			mVisitorSet;
+
+		struct				campLink;
+		std::list<campLink*>	links;
 };
 
 

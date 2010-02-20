@@ -29,7 +29,7 @@ ScoutManager::~ScoutManager(void)
 }
 
 
-void ScoutManager::createCamp(uint32 typeId,uint64 parentId,Anh_Math::Vector3 position,string customName, PlayerObject* player)
+bool ScoutManager::createCamp(uint32 typeId,uint64 parentId,Anh_Math::Vector3 position,string customName, PlayerObject* player)
 //gObjectFactory->requestNewDefaultItem
 //(this,11,1320,entertainer->getId(),99,Anh_Math::Vector3(),"");
 {
@@ -38,24 +38,24 @@ void ScoutManager::createCamp(uint32 typeId,uint64 parentId,Anh_Math::Vector3 po
 
 	StructureDeedLink*	deedData = 	gStructureManager->getDeedData(typeId);
 	if(!deedData)
-		return;
+		return false;
 
 	if(!player->checkSkill(deedData->skill_Requirement))
 	{
 		gMessageLib->sendSystemMessage(player,L"","camp","sys_nsf_skill");
-		return;
+		return false;
 	}
 
 	if(!gStructureManager->checkCampRadius(player))
 	{
 		gMessageLib->sendSystemMessage(player,L"","camp","error_camp_too_close");
-		return;
+		return false;
 	}
 
 	if(!gStructureManager->checkCityRadius(player))
 	{
 		gMessageLib->sendSystemMessage(player,L"","camp","error_nobuild");
-		return;
+		return false;
 	}
 
 	Camp* camp = new (Camp);
@@ -195,5 +195,5 @@ void ScoutManager::createCamp(uint32 typeId,uint64 parentId,Anh_Math::Vector3 po
 	sprintf(name,"%s %s",player->getFirstName().getAnsi(),player->getLastName().getAnsi());
 	region->setCampOwnerName(BString(name));
 
-
+	return true;
 }

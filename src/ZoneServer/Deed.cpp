@@ -10,7 +10,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 */
 
 #include "Deed.h"
-#include "Camp.h"
 #include "Datapad.h"
 #include "Inventory.h"
 #include "Item_Enums.h"

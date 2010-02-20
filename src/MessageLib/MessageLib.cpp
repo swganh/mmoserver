@@ -1062,6 +1062,10 @@ void MessageLib::sendInventory(PlayerObject* playerObject)
 	Inventory*	inventory	= dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 	//uint64		parentId	= inventory->getParentId();
 
+	//to stop the server from crashing.
+	if(!inventory)
+		return;
+
 	inventory->setTypeOptions(256);
 	//gLogger->logMsgF("MessageLib::inventory: ID %I64u parentId %I64u",MSG_HIGH,inventory->getId(),inventory->getParentId());
 

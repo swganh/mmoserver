@@ -48,7 +48,7 @@ public:
 	}
 
 
-	void createCamp(uint32 typeId,uint64 parentId,Anh_Math::Vector3 position,string customName, PlayerObject* player);
+	bool createCamp(uint32 typeId,uint64 parentId,Anh_Math::Vector3 position,string customName, PlayerObject* player);
 
 protected:
 	~ScoutManager(void);

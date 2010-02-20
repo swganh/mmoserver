@@ -22,7 +22,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "DatabaseManager/DatabaseResult.h"
 #include "ScriptEngine/ScriptEngine.h"
 #include "ScriptEngine/ScriptSupport.h"
-#include "ConfigManager/ConfigManager.h"
 
 
 //======================================================================================================================

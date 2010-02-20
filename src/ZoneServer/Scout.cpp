@@ -57,13 +57,14 @@ void Scout::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 					//ie create in the world for all known players
 					//Camps use BUIO 3 and 6
 
-					gScoutManager->createCamp(this->getItemType(),0,player->mPosition,"",player);
-
-					Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-					inventory->removeObject(this);
-					gMessageLib->sendDestroyObject(this->getId(),player);
-					gObjectFactory->deleteObjectFromDB(this);
-					gWorldManager->destroyObject(this);
+					if(gScoutManager->createCamp(this->getItemType(),0,player->mPosition,"",player))
+					{
+						Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+						inventory->removeObject(this);
+						gMessageLib->sendDestroyObject(this->getId(),player);
+						gObjectFactory->deleteObjectFromDB(this);
+						gWorldManager->destroyObject(this);
+					}
 				}
 
 			}

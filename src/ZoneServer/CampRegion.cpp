@@ -219,7 +219,8 @@ void CampRegion::onObjectEnter(Object* object)
 	if(object->getParentId() == mParentId)
 	{
 		//PlayerObject* player = (PlayerObject*)object;
-		addKnownObject(object);
+		this->addKnownObject(object);
+		object->addKnownObject(this);
 
 		VisitorSet::iterator it = mVisitorSet.find(object->getId());
 
@@ -254,7 +255,8 @@ void CampRegion::onObjectEnter(Object* object)
 void CampRegion::onObjectLeave(Object* object)
 {
 	PlayerObject* player = (PlayerObject*)object;
-	removeKnownObject(object);
+	this->removeKnownObject(object);
+	object->removeKnownObject(this);
 
 	if(object->getId() == mOwnerId)
 	{

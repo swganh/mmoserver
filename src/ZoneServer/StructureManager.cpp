@@ -53,7 +53,7 @@ StructureManager::StructureManager(Database* database,MessageDispatch* dispatch)
 	//todo load buildings from building table and use appropriate stfs there
 	//are harvesters on there too
 	asyncContainer = new StructureManagerAsyncContainer(Structure_Query_LoadDeedData, 0);
-	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sdd.id, sdd.DeedType, sdd.SkillRequirement, s_td.object_string, s_td.lots_used, s_td.stf_name, s_td.stf_file, s_td.healing_modifier, s_td.repair_cost from swganh.structure_deed_data sdd INNER JOIN structure_type_data s_td ON sdd.id = s_td.type");
+	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sdd.id, sdd.DeedType, sdd.SkillRequirement, s_td.object_string, s_td.lots_used, s_td.stf_name, s_td.stf_file, s_td.healing_modifier, s_td.repair_cost from swganh.structure_deed_data sdd INNER JOIN structure_type_data s_td ON sdd.StructureType = s_td.type");
 
 	//items
 	asyncContainer = new StructureManagerAsyncContainer(Structure_Query_LoadstructureItem, 0);
@@ -1207,11 +1207,13 @@ uint32 StructureManager::getCurrentPower(PlayerObject* player)
 			gLogger->logMsgF("StructureManager::getCurrentPower() category : %u",MSG_NORMAL, category);
 			if(category == 475 || category == 476||category == 477||((category >= 618)&&category <=651 )||category ==903||category == 904 )
 			{
-				float pe = resCont->getResource()->getAttribute(ResAttr_PE);//7
+				float pe = (float) (resCont->getResource()->getAttribute(ResAttr_PE)/500);//7
+				if(pe < 1.0)
+					pe = 1.0;
 				
 				// thats actually not the classic way in precu energy was received on a
 				// 1::1 basis if pe was < 500
-				uint32 containerPower = (uint32)(resCont->getAmount()* (pe/500));
+				uint32 containerPower = (uint32)(resCont->getAmount()* pe);
 				power += containerPower;
 			}
 

@@ -154,7 +154,7 @@ void CampRegion::update()
 
 					(*i)->lastSeenTime = gWorldManager->GetCurrentGlobalTick();
 
-					if((*i)->tickCount == 60)
+					if((*i)->tickCount == 15)
 					{
 						applyWoundHealing(object);
 						(*i)->tickCount = 0;

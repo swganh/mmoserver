@@ -114,9 +114,7 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			}
 			mHouseFactory->requestObject(asyncContainer->ofCallback,requestId,0,0,asyncContainer->client);
 
-			//now we need to update the Owners Lots
-			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asyncContainer->PlayerId));
-				
+			//now we need to update the Owners Lots				
 			//cave he might have logged out already - even if thats *very* unlikely (heck of a query that would have been)
 			if(player)
 			{

@@ -96,6 +96,7 @@ bool Object::removeKnownObject(Object* object)
 }
 
 //=============================================================================
+// returns true when item *is* found
 
 bool Object::checkKnownObjects(Object* object) const
 {
@@ -470,6 +471,12 @@ bool Object::addKnownObjectSafe(Object* object)
 
 void Object::addKnownObject(Object* object)
 {
+	if(checkKnownObjects(object))
+	{
+		gLogger->logMsgF("Object::addKnownObject %I64u couldnt be added to %I64u - already in it", MSG_NORMAL, object->getId(), this->getId());
+		return;
+	}
+
 	if(object->getType() == ObjType_Player)
 	{
 		mKnownPlayers.insert(dynamic_cast<PlayerObject*>(object));

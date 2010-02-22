@@ -593,15 +593,18 @@ bool ObjectController::_updateInRangeObjectsOutside()
 					if (object->isOwnedBy(player))
 					{
 						gMessageLib->sendCreateObject(object,player);
-						player->addKnownObject(object);
+						player->addKnownObjectSafe(object);
 						object->addKnownObjectSafe(player);
 
 						//If player has a mount make sure add to its known objects
+						//but is the mount even near us ???
+						// does this even matter ?
+
 						if(player->checkIfMountCalled() && player->getMount())
 						{
 							if(!player->getMount()->checkKnownObjects(object))
 							{
-								player->getMount()->addKnownObject(object);
+								player->getMount()->addKnownObjectSafe(object);
 							}
 							if(!object->checkKnownObjects(player->getMount()))
 							{
@@ -614,7 +617,7 @@ bool ObjectController::_updateInRangeObjectsOutside()
 				else
 				{
 					gMessageLib->sendCreateObject(object,player);
-					player->addKnownObject(object);
+					player->addKnownObjectSafe(object);
 					object->addKnownObjectSafe(player);
 
 					//If player has a mount make sure add to its known objects
@@ -622,7 +625,7 @@ bool ObjectController::_updateInRangeObjectsOutside()
 					{
 						if(!player->getMount()->checkKnownObjects(object))
 						{
-							player->getMount()->addKnownObject(object);
+							player->getMount()->addKnownObjectSafe(object);
 						}
 						if(!object->checkKnownObjects(player->getMount()))
 						{
@@ -789,7 +792,7 @@ bool ObjectController::_updateInRangeObjectsInside()
 						if (object->isOwnedBy(player))
 						{
 							gMessageLib->sendCreateObject(object,player);
-							player->addKnownObject(object);
+							player->addKnownObjectSafe(object);
 							object->addKnownObjectSafe(player);
 							updatedObjects++;
 						}
@@ -801,7 +804,7 @@ bool ObjectController::_updateInRangeObjectsInside()
 					else
 					{
 						gMessageLib->sendCreateObject(object,player);
-						player->addKnownObject(object);
+						player->addKnownObjectSafe(object);
 						object->addKnownObjectSafe(player);
 						updatedObjects++;
 					}
@@ -848,10 +851,10 @@ bool ObjectController::_destroyOutOfRangeObjects(ObjectSet *inRangeObjects)
 			if(playerObject->checkIfMounted() && playerObject->getMount())
 			{
 				gMessageLib->sendDestroyObject(playerObject->getMount()->getId(),player);
-				if(!player->checkKnownObjects(playerObject->getMount()))
-				{
-					player->removeKnownObject(playerObject->getMount());
-				}
+				
+				player->removeKnownObject(playerObject->getMount());
+				playerObject->getMount()->removeKnownObject(player);
+				
 			}
 
 			//send a destroy to him
@@ -861,10 +864,9 @@ bool ObjectController::_destroyOutOfRangeObjects(ObjectSet *inRangeObjects)
 			if(player->checkIfMounted() && playerObject->getMount())
 			{
 				gMessageLib->sendDestroyObject(player->getMount()->getId(),playerObject);
-				if(!playerObject->checkKnownObjects(player->getMount()))
-				{
-					playerObject->removeKnownObject(player->getMount());
-				}
+				playerObject->removeKnownObject(player->getMount());
+				player->getMount()->removeKnownObject(playerObject);
+				
 			}
 
 			// we don't know each other anymore
@@ -908,14 +910,15 @@ bool ObjectController::_destroyOutOfRangeObjects(ObjectSet *inRangeObjects)
 									assert(false);
 								}
 
-								//PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetObject->getId()));
-								if(!tO->checkKnownPlayer(player))
-								{
-									gMessageLib->sendDestroyObject(tO->getId(),player);
-								}
+								tO->removeKnownObject(player);
+								player->removeKnownObject(tO);
+								gMessageLib->sendDestroyObject(tO->getId(),player);
 								it++;
 							}
 					
+							hopper->removeKnownObject(player);
+							player->removeKnownObject(hopper);
+							
 							gMessageLib->sendDestroyObject(hopper->getId(),player);					
 					}
 
@@ -934,13 +937,15 @@ bool ObjectController::_destroyOutOfRangeObjects(ObjectSet *inRangeObjects)
 								}
 
 								//PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetObject->getId()));
-								if(!tO->checkKnownPlayer(player))
-								{
-									gMessageLib->sendDestroyObject(tO->getId(),player);
-								}
+								tO->removeKnownObject(player);
+								player->removeKnownObject(tO);
+								gMessageLib->sendDestroyObject(tO->getId(),player);
+								
 								it++;
 							}
 					
+							hopper->removeKnownObject(player);
+							player->removeKnownObject(hopper);
 							gMessageLib->sendDestroyObject(hopper->getId(),player);					
 					}
 
@@ -948,7 +953,7 @@ bool ObjectController::_destroyOutOfRangeObjects(ObjectSet *inRangeObjects)
 			}
 			// send a destroy to us
 			gMessageLib->sendDestroyObject(object->getId(),player);
-			// gLogger->logMsgF("RemoveObject: %"PRIu64"", MSG_NORMAL, object->getId());
+			gLogger->logMsgF("RemoveObject: %"PRIu64"", MSG_NORMAL, object->getId());
 
 			// we don't know each other anymore
 			knownObjects->erase(objIt++);

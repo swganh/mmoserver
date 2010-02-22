@@ -2489,25 +2489,25 @@
 					RelativePath=".\TradeManager.h"
 					>
 				</File>
-			</Filter>
-			<Filter
-				Name="TreasuryManager"
-				>
 				<Filter
-					Name="header"
+					Name="TreasuryManager"
 					>
-					<File
-						RelativePath=".\TreasuryManager.h"
+					<Filter
+						Name="header"
 						>
-					</File>
-				</Filter>
-				<Filter
-					Name="source"
-					>
-					<File
-						RelativePath=".\TreasuryManager.cpp"
+						<File
+							RelativePath=".\TreasuryManager.h"
+							>
+						</File>
+					</Filter>
+					<Filter
+						Name="source"
 						>
-					</File>
+						<File
+							RelativePath=".\TreasuryManager.cpp"
+							>
+						</File>
+					</Filter>
 				</Filter>
 			</Filter>
 			<Filter

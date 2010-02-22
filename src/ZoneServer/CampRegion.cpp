@@ -219,8 +219,8 @@ void CampRegion::onObjectEnter(Object* object)
 	if(object->getParentId() == mParentId)
 	{
 		//PlayerObject* player = (PlayerObject*)object;
-		this->addKnownObject(object);
-		object->addKnownObject(this);
+		this->addKnownObjectSafe(object);
+		object->addKnownObjectSafe(this);
 
 		VisitorSet::iterator it = mVisitorSet.find(object->getId());
 

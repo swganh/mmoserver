@@ -712,9 +712,6 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 				return;
 			}
 
-
-			// now create the hoppers content - put it on the knownobjectslist so it gets deleted once we move ... 
-			// so we cant use the automated version ... :(
 			ObjectIDList*			ol = outHopper->getObjects();
 			ObjectIDList::iterator	it = ol->begin();
 
@@ -731,6 +728,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 				{
 					gMessageLib->sendCreateObject(tO,player,false);
 					tO->addKnownObjectSafe(player);
+					player->addKnownObjectSafe(tO);
 				}
 				it++;
 			}
@@ -776,6 +774,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 				if(!tO->checkKnownPlayer(player))
 				{
 					tO->addKnownObjectSafe(player);
+					player->addKnownObjectSafe(tO);
 					gMessageLib->sendCreateObject(tO,player,false);
 					
 					// this might be considered a hack - we relay on the movementupdate to delete this data once we move 
@@ -783,8 +782,8 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 					// otherwise we do not know whether these objects were created for said player or not
 					// the alternative would be to create a second (third) knownObjectslist to keep track of knownplayers
 					// without si involvement - the deletion would then have to be triggered by the senddestroy for the containing object
-					//player->addKnownObjectSafe(tO);
-					tO->addKnownObjectSafe(player);
+					
+					
 				}
 				it++;
 			}

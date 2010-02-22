@@ -107,6 +107,12 @@ void LairObject::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 i
 
 void LairObject::addKnownObject(Object* object)
 {
+	if(checkKnownObjects(object))
+	{
+		gLogger->logMsgF("AttackableCreature::addKnownObject %I64u couldnt be added to %I64u already in it", MSG_NORMAL, object->getId(), this->getId());
+		return;
+	}
+
 	if (object->getType() == ObjType_Player)
 	{
 		mKnownPlayers.insert(dynamic_cast<PlayerObject*>(object));

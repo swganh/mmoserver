@@ -90,7 +90,7 @@ void City::onObjectEnter(Object* object)
 	PlayerObject* player = (PlayerObject*)object;
 	//player->setCityRegionId(this->getId());
 
-	addKnownObject(object);
+	addKnownObjectSafe(object);
 
 	gLogger->logMsgF("%s entered %s (%u players in city)",MSG_HIGH,player->getFirstName().getAnsi(),mCityName.getAnsi(),mKnownPlayers.size());
 }

@@ -96,7 +96,7 @@ void SpawnRegion::onObjectEnter(Object* object)
 	if(object->getParentId() == mParentId)
 	{
 		//PlayerObject* player = (PlayerObject*)object;
-		addKnownObject(object);
+		addKnownObjectSafe(object);
 	}
 }
 

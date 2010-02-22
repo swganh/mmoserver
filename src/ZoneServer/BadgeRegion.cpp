@@ -93,7 +93,7 @@ void BadgeRegion::onObjectEnter(Object* object)
 	if(object->getParentId() == mParentId)
 	{
 		PlayerObject* player = (PlayerObject*)object;
-		addKnownObject(object);
+		addKnownObjectSafe(object);
 
 		if(!(player->checkBadges(mBadgeId)))
 			player->addBadge(mBadgeId);

@@ -953,7 +953,7 @@ bool ObjectController::_destroyOutOfRangeObjects(ObjectSet *inRangeObjects)
 			}
 			// send a destroy to us
 			gMessageLib->sendDestroyObject(object->getId(),player);
-			gLogger->logMsgF(" RemoveObject: %"PRIu64"", MSG_NORMAL, object->getId());
+			gLogger->logMsgF("RemoveObject: %"PRIu64"", MSG_NORMAL, object->getId());
 
 			// we don't know each other anymore
 			knownObjects->erase(objIt++);

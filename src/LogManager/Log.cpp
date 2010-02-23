@@ -126,7 +126,7 @@ void Log::logMsg(const std::string& msg, MsgPriority priority, va_list args)
 
 		tstring.append("[");
 		tstring.append(timestamp_());
-		tstring.append("]");
+		tstring.append("] ");
 
 		tstring.append(buf);
 		if(mFileOut)

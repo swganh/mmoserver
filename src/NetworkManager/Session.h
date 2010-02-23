@@ -124,6 +124,9 @@ class Session
 	  void                        setInIncomingQueue(bool in)                     { mInIncomingQueue = in; }
 	  void                        setPacketSize(uint16 size)					  { mMaxPacketSize = size;}
 	  void                        setUnreliableSize(uint16 size)				  { mMaxUnreliableSize = size;}
+
+	  void						  setServerService(bool yes){mServerService = yes;}
+	  bool						  getServerService(){return mServerService;}
 	 
 	 
 	  uint64					  mLastPacketDestroyed;
@@ -168,6 +171,7 @@ private:
 	  void                        _sendPingPacket(void);
 
 	  void						  _handleOutSequenceRollover();
+	  
 
 	  //we want to use bigger packets in the zone connection server communication!
 	  uint16					  mMaxPacketSize;
@@ -208,6 +212,8 @@ private:
 
 	  uint64                      mLastPacketReceived;      // General session timeout
 	  uint64                      mLastPacketSent;          // General session timeout
+
+	  uint64                      mLastPingPacketSent;          // General session timeout
 
 	  // Netstats
 	  uint32				      mServerTickCount;
@@ -254,7 +260,8 @@ private:
 	  PacketWindowList            mWindowPacketList;				//our build packets - ready to get send
 	  PacketWindowList			  mRolloverWindowPacketList;		//send packets after a rollover they await sending and / or acknowledgement by the client
 	  PacketWindowList			  mNewRolloverWindowPacketList;
-	  PacketWindowList            mNewWindowPacketList;				
+	  PacketWindowList            mNewWindowPacketList;	
+	  PacketWindowList			  mOutOfOrderPackets;
 
 	  PacketQueue                 mIncomingFragmentedPacketQueue;
 	  PacketQueue                 mIncomingRoutedFragmentedPacketQueue;

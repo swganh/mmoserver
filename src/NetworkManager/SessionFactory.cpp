@@ -72,6 +72,7 @@ Session* SessionFactory::CreateSession(void)
 	session->setMessageFactory(mMessageFactory);
 	session->setId(mSessionIdNext++);
 
+	session->setServerService(mServerService);
 	if(mServerService)
 	{
 		uint16 unreliable = gNetConfig->getServerServerUnReliableSize();

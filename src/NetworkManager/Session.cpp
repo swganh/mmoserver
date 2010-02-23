@@ -104,6 +104,8 @@ lowest(0)
 	mServerService = false;
 	mMaxPacketSize = MAX_PACKET_SIZE;
 	mMaxUnreliableSize= (uint32) MAX_PACKET_SIZE/2;
+
+	mLastPingPacketSent = 0;
 	
 	endCount = 0;
 	mHash = 0;
@@ -392,17 +394,35 @@ void Session::ProcessWriteThread(void)
   } //end switch(mCommand)
 
   // Process our timeouts.
-  /*if (mStatus == SSTAT_Connected)
+  // MUAHARHARHARHAR Welcome to the Netlayer /me laughs dirtily
+  // please note several things!!!!!!
+  // ZONESERVER DO NOT HAVE ( I repeat : zoneservers DONOTHAVE) ha clientsession!!!! 
+  // this means that in a zoneserver mServerSession will always be true
+  // the only server with a (several truth be told, as much as we have clients) clientsession is the connectionserver
+  // mServerSession is set to true via the netlayer initialization in connectionserver/ zoneserver.cpp
+  // if we are spamming pings to the zone ( they are actually filtered out by our toolset) it is a good idea to look at
+  // the pingserver 
+  // to send 50 pings per second with the keep alive code here we would need 250 servers pinging.
+  // interisting is however the question on how we decide which pings to mirror, and which to ignore
+  // so for startes I will limit the (back) pinging to once per second.
+  // (_processPingPacket)
+  // What happened with the current code, was that every ping, once started caused the server to mirror it
+  // there never was a throttle - so pinging between servers once started - never stopped.
+  // As fast as it could possibly happen. Given another reason to send a ping - the pinging just was doubled.
+
+
+  if (mStatus == SSTAT_Connected)
   {
+
 	  uint64 t = Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastPacketReceived;
 	  t = (uint64)t/1000;
       if ((Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastPacketReceived) > 60000)
       {
 		  if(this->mServerService)
 		  {
-				gLogger->logMsgF("Session disconnect last received packet > 30 (%I64u) seconds session Id :%u", MSG_HIGH, t, this->getId());   
+				gLogger->logMsgF("Session disconnect last received packet > 60 (%I64u) seconds session Id :%u", MSG_HIGH, t, this->getId());   
 				gLogger->logMsgF("Session lastpacket %I64u now %I64u diff : %I64u", MSG_HIGH, mLastPacketReceived, Anh_Utils::Clock::getSingleton()->getLocalTime(),(Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastPacketReceived));   
-				assert(false);
+				mCommand = SCOM_Disconnect;
 		  }
 		  else
 		  {
@@ -411,9 +431,10 @@ void Session::ProcessWriteThread(void)
 			mCommand = SCOM_Disconnect;
 		  }
       }
-	  
-	  if ((Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastPacketReceived) > 20000 && this->mServerService)
+	  else	  
+	  if ((Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastPacketReceived) > 5000 && this->mServerService)
 	  {
+		  gLogger->logMsgF("Session send server erver ping", MSG_HIGH);   
 			_sendPingPacket();
 	  }
 
@@ -423,7 +444,8 @@ void Session::ProcessWriteThread(void)
 			gLogger->logMsgF("Sending ping packet due to timeout. Session:0x%x%.4x", MSG_HIGH, mService->getId(), getId());
 			_sendPingPacket();
       }
-  }*/
+	  */
+  }
  
 }
 
@@ -646,7 +668,44 @@ void Session::HandleSessionPacket(Packet* packet)
 
    if (mInSequenceNext < sequence)
    {
-	   // is it a packet we already received ?
+	   //last line of defense synchronization
+		if(sequence > (mInSequenceNext+50))
+		{
+			mInSequenceNext = sequence;
+			SortSessionPacket(packet,packetType);
+			return;
+		}
+
+	   mOutOfOrderPackets.push_back(packet);
+
+	   uint32 itCount = 0;
+	   PacketWindowList::iterator ooopsIt = mOutOfOrderPackets.begin();
+
+	   while(ooopsIt != mOutOfOrderPackets.end())
+	   {
+		   itCount++;
+
+		   if(itCount > 10)
+			   break;
+
+		   Packet* ooopsPacket = (*ooopsIt);
+		   ooopsPacket->setReadIndex(2);
+		   uint16 ooopsSequence = ntohs(packet->getUint16());
+
+		   if(ooopsSequence == mInSequenceNext)
+		   {
+			   HandleSessionPacket(ooopsPacket);
+			   mOutOfOrderPackets.erase(ooopsIt++);
+		   }
+		   else
+		   if(ooopsSequence < mInSequenceNext)
+		   {
+			   mPacketFactory->DestroyPacket(ooopsPacket);
+			   mOutOfOrderPackets.erase(ooopsIt++);
+		   }
+		   else
+			ooopsIt++;
+	   }
 	  
 	   //were missing something
 	   gLogger->logMsgF("Session::HandleSessionPacket :: Incoming data - seq: %i expect: %u Session:0x%x%.4x", MSG_HIGH, sequence, mInSequenceNext, mService->getId(), getId());
@@ -667,6 +726,8 @@ void Session::HandleSessionPacket(Packet* packet)
 					orderPacket->setIsEncrypted(true);
 
 					_addOutgoingUnreliablePacket(orderPacket);
+
+		
 			  }
 			  break;
 			
@@ -700,23 +761,24 @@ void Session::HandleSessionPacket(Packet* packet)
 
 				_addOutgoingUnreliablePacket(orderPacket);
 				
-				mPacketFactory->DestroyPacket(packet);
+				//mPacketFactory->DestroyPacket(packet);
 				return;
 			}
 		}
-		mPacketFactory->DestroyPacket(packet);
+		//mPacketFactory->DestroyPacket(packet);
 		return;
 	   
    }
 
-   
-
-   // What type of SessionPacket is it?
-   // let the specialist handle it
+   else
    if (mInSequenceNext == sequence)
+   {
 		SortSessionPacket(packet,packetType);
-
-  
+   }
+   else
+   {
+   		mPacketFactory->DestroyPacket(packet);
+   }
 }
 
 
@@ -1951,12 +2013,6 @@ void Session::_processRoutedFragmentedPacket(Packet* packet)
 	{
 	    mRoutedFragmentedPacketTotalSize = ntohl(packet->getUint32());
 
-		if((uint32)(mRoutedFragmentedPacketTotalSize+8) <= (mMaxPacketSize))
-		{
-			gLogger->logMsgF("Session::_processRoutedFragmentedPacket size to small ????: %u ", MSG_HIGH, mRoutedFragmentedPacketTotalSize);
-			assert(false);
-		}
-
 		//gLogger->logMsgF("Session::_processRoutedFragmentedPacket started sequence:%u size %u", MSG_HIGH,sequence , mRoutedFragmentedPacketTotalSize);
 		//gLogger->hexDump(packet->getData(), packet->getSize());
 
@@ -1970,20 +2026,8 @@ void Session::_processRoutedFragmentedPacket(Packet* packet)
 	else
 	{
 		mRoutedFragmentedPacketCurrentSize += packet->getSize() - 4;  // -2 header, -2 sequence
-		if(sequence > ( mRoutedFragmentedPacketCurrentSequence  + 1) )
-		{
-			gLogger->logMsgF("Session::_processRoutedFragmentedPacket Currentsequence: %u should be:%u", MSG_HIGH,sequence , mRoutedFragmentedPacketCurrentSequence);
-			gLogger->hexDump(packet->getData(), packet->getSize());
-
-		}
+		
 		mRoutedFragmentedPacketCurrentSequence = sequence;
-
-		if (mRoutedFragmentedPacketCurrentSize > mRoutedFragmentedPacketTotalSize)
-		{
-			gLogger->logMsgF("Session::_processRoutedFragmentedPacket Currentsize: %u should be:%u", MSG_HIGH,mRoutedFragmentedPacketCurrentSize , mRoutedFragmentedPacketTotalSize);
-			gLogger->hexDump(packet->getData(), packet->getSize());
-			assert(false);
-		}
 
 		// If this is our last packet, send them all up to the application
 		if (mRoutedFragmentedPacketCurrentSize == mRoutedFragmentedPacketTotalSize)
@@ -2064,6 +2108,17 @@ void Session::_processRoutedFragmentedPacket(Packet* packet)
 //======================================================================================================================
 void Session::_processPingPacket(Packet* packet)
 {
+
+	//with the old code *every* ping caused a new ping
+	//so once pinged we kept pinging.
+	//when we then decided to add a ping we just doubled the pinging
+	//as fast as the servers possibly could spam packets
+
+   if((Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastPingPacketSent) < 1000)
+   {
+	   return;
+   }
+
   // Client sends a simple 5 byte ping.
   if (packet->getSize() == 5)
   {
@@ -2076,6 +2131,7 @@ void Session::_processPingPacket(Packet* packet)
 
     // Push the packet on our outgoing queue
     _addOutgoingUnreliablePacket(newPacket);
+	mLastPingPacketSent = Anh_Utils::Clock::getSingleton()->getLocalTime();
   }
   // Backend servers are larger to incorporate more features, 9 bytes(packet size).
   else
@@ -2094,6 +2150,7 @@ void Session::_processPingPacket(Packet* packet)
 
       // Push the packet on our outgoing queue
       _addOutgoingUnreliablePacket(newPacket);
+	  mLastPingPacketSent = Anh_Utils::Clock::getSingleton()->getLocalTime();
     }
   }
   
@@ -2152,10 +2209,11 @@ void Session::_processNetStatRequestPacket(Packet* packet)
 //======================================================================================================================
 void Session::_sendPingPacket(void)
 {
+  mLastPingPacketSent = Anh_Utils::Clock::getSingleton()->getLocalTime();
+
   // Create a new ping packet and send it on.
   Packet* packet = mPacketFactory->CreatePacket();
-  packet->addUint8(0);
-  packet->addUint8(0x06);     // Ping packet type;
+  packet->addUint16(SESSIONOP_Ping);
   packet->addUint32(1);       // ping request
 
   // Set our compression and encryption flags
@@ -2277,13 +2335,7 @@ void Session::_buildOutgoingReliableRoutedPackets(Message* message)
   // fragments envelope sizes  
   envelopeSize = 18; // -2 header -2 seq -4 size -1 priority -1 routed flag -1 route destination -4 account id -3 comp/CRC 
 
-  // If we're too large to fit in a single packet, split us up.
-  if(messageSize + envelopeSize == mMaxPacketSize)		   //why >= ??
-  {
-	gLogger->logMsgF("Session::_buildRoutedfragmentedPacketwithout cause ???() sequence: %u", MSG_HIGH,mOutSequenceNext);
-  }
-
-  
+  // If we're too large to fit in a single packet, split us up.  
   if(messageSize + envelopeSize > mMaxPacketSize)		   //why >= ??
   {
 	  //gLogger->logMsgF("Session::_buildRoutedfragmentedPacket sequence :  %u", MSG_HIGH,mOutSequenceNext);
@@ -2299,7 +2351,7 @@ void Session::_buildOutgoingReliableRoutedPackets(Message* message)
 
 	newPacket->addUint8(message->getPriority());
 
-    newPacket->addUint8(1);                                       // There is a routing header next
+    newPacket->addUint8(1);                               // There is a routing header next
     newPacket->addUint8(message->getDestinationId());
     newPacket->addUint32(message->getAccountId());
     newPacket->addData(message->getData(), mMaxPacketSize- envelopeSize); // -2 header, -2 sequence, -4 size, -2 priority/routing, -5 routing, -2 crc

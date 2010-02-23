@@ -392,12 +392,11 @@ void Session::ProcessWriteThread(void)
   } //end switch(mCommand)
 
   // Process our timeouts.
-  if (mStatus == SSTAT_Connected)
+  /*if (mStatus == SSTAT_Connected)
   {
-	  // If we haven't received a packet in 30s, disconnect us.
 	  uint64 t = Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastPacketReceived;
 	  t = (uint64)t/1000;
-      if ((Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastPacketReceived) > 30000)
+      if ((Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastPacketReceived) > 60000)
       {
 		  if(this->mServerService)
 		  {
@@ -412,19 +411,19 @@ void Session::ProcessWriteThread(void)
 			mCommand = SCOM_Disconnect;
 		  }
       }
-
-	  if ((Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastPacketReceived) > 5000)
-      {
-			//gLogger->logMsgF("Sending ping packet due to timeout. Session:0x%x%.4x", MSG_HIGH, mService->getId(), getId());
+	  
+	  if ((Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastPacketReceived) > 20000 && this->mServerService)
+	  {
 			_sendPingPacket();
 	  }
-      // If we haven't sent a packet in over 10 seconds, send a ping
-      if (Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastPacketSent > 5000)
+
+      /* If we haven't sent a packet in over 10 seconds, send a ping
+      if (Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastPacketSent > 10000)
       {
-			//gLogger->logMsgF("Sending ping packet due to timeout. Session:0x%x%.4x", MSG_HIGH, mService->getId(), getId());
+			gLogger->logMsgF("Sending ping packet due to timeout. Session:0x%x%.4x", MSG_HIGH, mService->getId(), getId());
 			_sendPingPacket();
       }
-  }
+  }*/
  
 }
 

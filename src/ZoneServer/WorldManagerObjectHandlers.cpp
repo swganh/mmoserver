@@ -542,6 +542,8 @@ void WorldManager::destroyObject(Object* object)
 				gLogger->logMsgF("Worldmanager::destroyObject: qt region %"PRIu64"",MSG_HIGH,object->getId());
 			}
 
+			object->destroyKnownObjects();
+
 		}
 		break;
 
@@ -565,6 +567,8 @@ void WorldManager::destroyObject(Object* object)
 		}
 		break;
 	}
+
+	//object->destroyKnownObjects();
 
 
 	// finally delete it

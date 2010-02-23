@@ -140,6 +140,10 @@ void Service::Startup(int8* localAddress, uint16 localPort,uint32 mfHeapSize)
 	
 	setsockopt(mLocalSocket,SOL_SOCKET,SO_RCVBUF,(char*)&value,valuelength);
 
+	int temp = 1;
+	//9 is IP_DONTFRAG (PK told me to put that here so we know wtf 9 means :P
+	setsockopt(mLocalSocket, IPPROTO_IP, 9, (char*)&temp, sizeof(temp));
+
 
 	// Create our read/write socket classes
 	mSocketWriteThread = new SocketWriteThread();

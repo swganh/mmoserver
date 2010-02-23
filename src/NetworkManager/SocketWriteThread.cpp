@@ -136,6 +136,7 @@ void SocketWriteThread::run()
 
 		for(uint32 i = 0; i < sessionCount; i++)
 		{
+			uint32 packetCount = 0;
 			session = mSessionQueue.pop();
 
 			if(!session)
@@ -149,17 +150,22 @@ void SocketWriteThread::run()
 
 			while (session->getOutgoingReliablePacketCount())
 			{
-			//	rcount++;
+				packetCount++;
+				if(packetCount > 25)
+					break;
 				packet = session->getOutgoingReliablePacket();
 				_sendPacket(packet, session);
 			}
 
 
+			packetCount = 0;
+			
 			// Send any outgoing unreliable packets
 			//uint32 ucount = 0;
 			while (session->getOutgoingUnreliablePacketCount())
 			{
-			//	ucount++;
+				if(packetCount > 25)
+					break;
 				packet = session->getOutgoingUnreliablePacket();
 				_sendPacket(packet, session);
 				session->DestroyPacket(packet);

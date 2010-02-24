@@ -117,6 +117,7 @@ PlayerObject::PlayerObject()
 	registerEventFunction(this,&PlayerObject::onLogout);
 	registerEventFunction(this,&PlayerObject::onBurstRun);
 	registerEventFunction(this,&PlayerObject::onItemDeleteEvent);
+	registerEventFunction(this,&PlayerObject::onInjuryTreatment);
 	
 	mLots = gWorldConfig->getConfiguration("Player_Max_Lots",(uint8)10);
 

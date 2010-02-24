@@ -641,3 +641,39 @@ void PlayerObject::onItemDeleteEvent(const ItemDeleteEvent* event)
 		
 }
 
+//=============================================================================
+// this event manages injury treatment cooldowns.
+//
+void PlayerObject::onInjuryTreatment(const InjuryTreatmentEvent* event)
+{
+
+		// We've healed, now we need to set the delay...
+	gLogger->logMsg("Starting medic injury heal delay...", FOREGROUND_BLUE);
+
+	//Math...
+	uint32 healingspeed = this->getSkillModValue(SMod_healing_range_speed);
+	int delay = (int)floor((healingspeed * -(1.0f / 8.0f)) + 21.0f);
+
+	//Foods that could reduce time.
+	uint64 foodbuff = NULL;
+
+	// Make it at least 4 seconds.
+	uint64 cooldown = max(4, delay);
+
+	//If they don't have it, no need to continue.
+	if(!this->checkPlayerCustomFlag(PlayerCustomFlag_InjuryTreatment))
+	{
+		return;
+	}
+
+	// If they do have it, start timer to turn it off.
+	if(this->checkPlayerCustomFlag(PlayerCustomFlag_InjuryTreatment)){
+	this->getController()->addEvent(new InjuryTreatmentEvent(event->getInjuryTreatmentTime(),event->getInjuryTreatmentSpacer()), cooldown);
+	}
+
+
+	if(Anh_Utils::Clock::getSingleton()->getLocalTime() >  event->getInjuryTreatmentTime()){
+		this->togglePlayerCustomFlagOff(PlayerCustomFlag_InjuryTreatment);
+		gMessageLib->sendSystemMessage(this, L"", "healing_response", "healing_response_58");
+	}
+}

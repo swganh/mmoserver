@@ -63,7 +63,8 @@ enum PlayerCustomFlag
 	PlayerCustomFlag_BurstRun				=	0x00000001,
 	PlayerCustomFlag_BurstRunCD				=	0x00000002,
 	PlayerCustomFlag_LogOut					=	0x00000004,
-	PlayerCustomFlag_StructurePlacement		=	0x00000008//custom flag
+	PlayerCustomFlag_StructurePlacement		=	0x00000008,//custom flag
+	PlayerCustomFlag_InjuryTreatment		=	0x00000016, //custom flag
 };
 
 //=============================================================================

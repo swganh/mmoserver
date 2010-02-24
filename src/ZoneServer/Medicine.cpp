@@ -39,7 +39,7 @@ void Medicine::handleStimpackMenuSelect(uint8 messageType, PlayerObject* player)
 				if(player->getHam()->checkMainPools(0, 0, 140))
 				{
 					//Try to Heal Damage
-					if(gMedicManager->HealDamage(player, target, mId, 0))
+					if(gMedicManager->CheckStim(player, target, 0))
 					{
 						//If we succeed, reduce Medics Mind
 						player->getHam()->updatePropertyValue(HamBar_Mind, HamProperty_CurrentHitpoints, -140);
@@ -76,6 +76,21 @@ void Medicine::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 			handleStimpackMenuSelect(messageType, player);
 			break;
 		case ItemType_Stimpack_E:
+			handleStimpackMenuSelect(messageType, player);
+			break;
+		case ItemType_Ranged_Stimpack_A:
+			handleStimpackMenuSelect(messageType, player);
+			break;
+		case ItemType_Ranged_Stimpack_B:
+			handleStimpackMenuSelect(messageType, player);
+			break;
+		case ItemType_Ranged_Stimpack_C:
+			handleStimpackMenuSelect(messageType, player);
+			break;
+		case ItemType_Ranged_Stimpack_D:
+			handleStimpackMenuSelect(messageType, player);
+			break;
+		case ItemType_Ranged_Stimpack_E:
 			handleStimpackMenuSelect(messageType, player);
 			break;
 		}

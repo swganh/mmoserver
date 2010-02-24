@@ -57,7 +57,7 @@ void ObjectController::_handleHealDamage(uint64 targetId, Message* message,Objec
 		return;
 	}
 
-	mHandlerCompleted = gMedicManager->HealDamage(Medic, Target, cmdProperties);
+	mHandlerCompleted = gMedicManager->CheckStim(Medic, Target, cmdProperties);
 }
 
 //=============================================================================================================================

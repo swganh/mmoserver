@@ -180,6 +180,11 @@ enum ItemType
 	ItemType_Camp_luxury				= 1973, //High Tech Field Base Kit
 	ItemType_Camp_multi					= 1974, //Multiperson Camp Kit
 	ItemType_Camp_quality				= 1975, //High Quality Camp Kit
+	ItemType_Ranged_Stimpack_A			= 1875,
+	ItemType_Ranged_Stimpack_B			= 1876,
+	ItemType_Ranged_Stimpack_C			= 1877,
+	ItemType_Ranged_Stimpack_D			= 1878,
+	ItemType_Ranged_Stimpack_E			= 1879,
 	ItemType_Firework_Type_1			= 1756,
 	ItemType_Firework_Type_2			= 1761,
 	ItemType_Firework_Type_3			= 1760,

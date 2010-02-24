@@ -254,6 +254,12 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback
 		void	_handleSpatialChatInternal(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleSocialInternal(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 
+		//datapad
+		void	_handleRequestWaypointAtPosition(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
+		void	_handleSetWaypointActiveStatus(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
+		void	_handleWaypoint(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
+		void	_handleSetWaypointName(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
+
 		void	_handleBoardTransport(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleSetMoodInternal(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleOpenContainer(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
@@ -284,10 +290,7 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback
 		void	_handleToggleAFK(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleToggleDisplayFactionRank(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleAnon(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
-		void	_handleRequestWaypointAtPosition(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
-		void	_handleSetWaypointActiveStatus(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
-		void	_handleWaypoint(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
-		void	_handleSetWaypointName(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
+	
 		void	_handleRequestCharacterSheetInfo(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleRequestBiography(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleSetBiography(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);

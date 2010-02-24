@@ -157,8 +157,6 @@ void ObjectController::_handleStructurePlacement(uint64 targetId,Message* messag
 
 	gLogger->logMsgF(" ID %I64u x %f y %f dir %f",MSG_HIGH, deedId, x, z, dir);
 	
-	//slow query - use for building placement only
-	y = Heightmap::Instance()->getHeight(x,z);
 	
 	//now get our deed
 	Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
@@ -167,6 +165,11 @@ void ObjectController::_handleStructurePlacement(uint64 targetId,Message* messag
 
 	//TODO
 	//still have to check the region whether were allowed to build
+	if(!gStructureManager->checkCityRadius(player))
+	{
+		gMessageLib->sendSystemMessage(player,L"","camp","error_nobuild");
+		return;
+	}
 
 	switch(deed->getItemType())
 	{
@@ -192,6 +195,8 @@ void ObjectController::_handleStructurePlacement(uint64 targetId,Message* messag
 		case	ItemType_harvester_ore_heavy:
 		case	ItemType_harvester_ore_medium:
 		{
+			//slow query - use for building placement only
+			y = Heightmap::Instance()->getHeight(x,z);
 			gObjectFactory->requestnewHarvesterbyDeed(gStructureManager,deed,player->getClient(),x,y,z,dir,"",player);
 		}
 		break;
@@ -201,6 +206,8 @@ void ObjectController::_handleStructurePlacement(uint64 targetId,Message* messag
 		case	ItemType_factory_item:
 		case	ItemType_factory_structure:
 		{
+			//slow query - use for building placement only
+			y = Heightmap::Instance()->getHeight(x,z);
 			gObjectFactory->requestnewFactorybyDeed(gStructureManager,deed,player->getClient(),x,y,z,dir,"",player);
 		}
 		break;
@@ -235,6 +242,9 @@ void ObjectController::_handleStructurePlacement(uint64 targetId,Message* messag
 		case	ItemType_deed_tatooine_small_house_2:
 
 		{
+			
+			//slow query - use for building placement only
+			y = Heightmap::Instance()->getHeight(x,z);
 			gObjectFactory->requestnewHousebyDeed(gStructureManager,deed,player->getClient(),x,y,z,dir,"",player);
 		}
 		break;

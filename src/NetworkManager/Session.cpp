@@ -349,6 +349,7 @@ void Session::ProcessWriteThread(void)
 
 	iter = mNewWindowPacketList.begin();
 
+	//mNewWindoPacketList has the not yet send Packets
 	while(iter != mNewWindowPacketList.end())
 	{
 
@@ -363,6 +364,7 @@ void Session::ProcessWriteThread(void)
 
 		_addOutgoingReliablePacket(windowPacket);
 		
+		//mWindoPacketList has the already send but not yet acknowledged PAckets
 		mWindowPacketList.push_back(windowPacket);
 		packetsSent++;
 
@@ -426,25 +428,19 @@ void Session::ProcessWriteThread(void)
 		  }
 		  else
 		  {
-			gLogger->logMsgF("Session disconnect last received packet > 30 (%I64u) seconds session Id :%u", MSG_HIGH, t, this->getId());   
+			gLogger->logMsgF("Session disconnect last received packet > 60 (%I64u) seconds session Id :%u", MSG_HIGH, t, this->getId());   
  
 			mCommand = SCOM_Disconnect;
 		  }
       }
 	  else	  
-	  if ((Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastPacketReceived) > 5000 && this->mServerService)
+	  if (this->mServerService && ((Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastPacketReceived) > 10000))
 	  {
-		  gLogger->logMsgF("Session send server erver ping", MSG_HIGH);   
-			_sendPingPacket();
+		  //gLogger->logMsgF("Session send server server ping", MSG_HIGH);   
+		  if((Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastPingPacketSent) > 1000)
+				_sendPingPacket();
 	  }
-
-      /* If we haven't sent a packet in over 10 seconds, send a ping
-      if (Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastPacketSent > 10000)
-      {
-			gLogger->logMsgF("Sending ping packet due to timeout. Session:0x%x%.4x", MSG_HIGH, mService->getId(), getId());
-			_sendPingPacket();
-      }
-	  */
+      
   }
  
 }
@@ -1688,12 +1684,11 @@ void Session::_processDataOrderPacket(Packet* packet)
 		// If it's smaller than the order packet send it, otherwise break;
 		// do we want to throttle the amount of packets being send to 10 or 50 or 100 ???
 		// if we receive a sequence on the rolloverlist (65530 for example) we will
-		// always send ALL packets on the regular list - I dont anticipate a big deal here though!!!
-		if (windowSequence <= sequence )
-		{
-			        
-			//gLogger->logMsgF("Resending reliable packet.  seq: %u, order: %u", MSG_HIGH, windowSequence, sequence);
-				
+		// always send ALL packets on the regular list - 
+		
+		//make sure we do not spam the connection needlessly with packets
+		if(Anh_Utils::Clock::getSingleton()->getLocalTime() - windowPacket->getTimeOOHSent() > 200)
+		{		
 			_addOutgoingReliablePacket(windowPacket);
 					
 			windowPacket->setTimeOOHSent(Anh_Utils::Clock::getSingleton()->getLocalTime());
@@ -1802,12 +1797,8 @@ void Session::_processDataOrderChannelB(Packet* packet)
 		// do we want to throttle the amount of packets being send to 10 or 50 or 100 ???
 		// if we receive a sequence on the rolloverlist (65530 for example) we will
 		// always send ALL packets on the regular list - I dont anticipate a big deal here though!!!
-		if ((windowSequence < sequence))
+		if(Anh_Utils::Clock::getSingleton()->getLocalTime() - windowPacket->getTimeOOHSent() > 100)
 		{
-			        
-			//make sure it isnt resend 500 times  per second
-			if(Anh_Utils::Clock::getSingleton()->getLocalTime() - windowPacket->getTimeOOHSent() < 300)
-					break;
 				
 			_addOutgoingReliablePacket(windowPacket);
 					

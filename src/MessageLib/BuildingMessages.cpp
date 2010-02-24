@@ -97,7 +97,7 @@ bool MessageLib::sendBaselinesBUIO_3(HouseObject* buildingObject,PlayerObject* p
 	gMessageFactory->addUint32(0);
 	gMessageFactory->addUint32(0);
 	gMessageFactory->addUint32(0);
-	gMessageFactory->addUint8(0);
+	gMessageFactory->addUint8(1);
 
 	fragment = gMessageFactory->EndMessage();
 

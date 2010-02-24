@@ -213,6 +213,7 @@ private:
 	  uint64                      mLastPacketReceived;      // General session timeout
 	  uint64                      mLastPacketSent;          // General session timeout
 
+
 	  uint64                      mLastPingPacketSent;          // General session timeout
 
 	  // Netstats

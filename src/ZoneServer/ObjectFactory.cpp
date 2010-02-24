@@ -510,9 +510,9 @@ void ObjectFactory::requestnewHousebyDeed(ObjectFactoryCallback* ofCallback,Deed
 	if(dir== 1.0)	 //ok
 	{
 		oX = 0.0;
-		oY = 0.71;
+		oY = 0.707107;
 		oZ = 0.0;
-		oW = 0.71;
+		oW = 0.707107;
 	}
 
 	if(dir== 2.0)
@@ -526,9 +526,9 @@ void ObjectFactory::requestnewHousebyDeed(ObjectFactoryCallback* ofCallback,Deed
 	if(dir== 3.0)
 	{
 		oX = 0;
-		oY = -0.71;
+		oY = -0.707107;
 		oZ = 0;
-		oW = 0.71;
+		oW = 0.707107;
 	}
 
 

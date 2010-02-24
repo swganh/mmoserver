@@ -812,6 +812,9 @@ bool MessageLib::sendCreateBuilding(BuildingObject* buildingObject,PlayerObject*
 		CellObject* cell = (*cellIt);
 		uint64 cellId = cell->getId();
 
+		gLogger->logMsgF("create cell %I64u",MSG_HIGH,cell->getId());
+
+		uint64 count = buildingObject->getMinCellId()-1;
 		sendCreateObjectByCRC(cell,playerObject,false);
 		sendContainmentMessage(cellId,buildingId,0xffffffff,playerObject);
 
@@ -822,7 +825,7 @@ bool MessageLib::sendCreateBuilding(BuildingObject* buildingObject,PlayerObject*
 		}
 		else
 		{
-			sendBaselinesSCLT_3(cell,cellCount--,playerObject);
+			sendBaselinesSCLT_3(cell,cellId - count,playerObject);
 		}
 		sendBaselinesSCLT_6(cell,playerObject);
 		sendUpdateCellPermissionMessage(cell,1,playerObject);	 //make cellpermission softcoded

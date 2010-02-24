@@ -55,12 +55,17 @@ class BuildingObject :	public PlayerStructure
 		bool			checkForCell(CellObject* cellObject);
 		ObjectList		getAllCellChilds();
 
+		uint64			getMinCellId(){ return mMaxCellId; }
+		void			setMinCellId(uint64 count){ mMaxCellId = count; }
+
 	private:
 		CellObjectList	mCells;
 
 		uint32			mTotalLoadCount;
 		SpawnPoints		mSpawnPoints;
 		BuildingFamily	mBuildingFamily;
+
+		uint64			mMaxCellId;
 };
 
 //=============================================================================

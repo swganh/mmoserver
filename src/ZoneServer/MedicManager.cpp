@@ -223,7 +223,7 @@ bool MedicManager::HealDamage(PlayerObject* Medic, CreatureObject* Target, uint6
 		gMessageLib->sendSystemMessage(Medic,L"","healing_response", "healing_must_wait");
 		return false;
 	}
-	
+
 
 	float distance = gWorldConfig->getConfiguration("Player_heal_distance",(float)6.0);
 
@@ -235,7 +235,7 @@ bool MedicManager::HealDamage(PlayerObject* Medic, CreatureObject* Target, uint6
 	}
 	gLogger->logMsg("Heal Target is within range", FOREGROUND_BLUE);
 
-		//If we don't have an OC Controller Cmd Property (ie we have been called by using an item) - go get one
+	//If we don't have an OC Controller Cmd Property (ie we have been called by using an item) - go get one
 	if(cmdProperties == 0)
 	{
 		gLogger->logMsg("We need to get Object Properties", FOREGROUND_BLUE);
@@ -265,7 +265,7 @@ bool MedicManager::HealDamage(PlayerObject* Medic, CreatureObject* Target, uint6
 	//Do PVP Alignments Match - only check if targetting player.
 
 	if(critter) {
-	return false;
+		return false;
 	}
 
 	if(Medic->getPvPStatus() != PlayerTarget->getPvPStatus())
@@ -274,6 +274,7 @@ bool MedicManager::HealDamage(PlayerObject* Medic, CreatureObject* Target, uint6
 		gLogger->logMsg("PVP Flag not right", FOREGROUND_RED);
 		gMessageLib->sendSystemMessage(Medic,L"","healing","pvp_no_help");
 		return false;
+	}
 
 	gLogger->logMsg("PVP Flags OK", FOREGROUND_BLUE);
 
@@ -288,20 +289,20 @@ bool MedicManager::HealDamage(PlayerObject* Medic, CreatureObject* Target, uint6
 		if(!(TargetAction < TargetMaxAction))
 		{
 			if (self){
-			gLogger->logMsg("You don't need healing", FOREGROUND_RED);
-			gMessageLib->sendSystemMessage(Medic,L"","healing","no_damage_to_heal_self");
-			return false;
+				gLogger->logMsg("You don't need healing", FOREGROUND_RED);
+				gMessageLib->sendSystemMessage(Medic,L"","healing","no_damage_to_heal_self");
+				return false;
 			}
 			if (!self) {
-			gLogger->logMsg("Target does not need healing", FOREGROUND_RED);
-			gMessageLib->sendSystemMessage(Medic,L"","healing","no_damage_to_heal_target");
-			return false;
+				gLogger->logMsg("Target does not need healing", FOREGROUND_RED);
+				gMessageLib->sendSystemMessage(Medic,L"","healing","no_damage_to_heal_target");
+				return false;
 			}
 		}
 	}
 	gLogger->logMsg("Target Needs Healing", FOREGROUND_BLUE);
 
-	
+
 	//Get Heal Strength
 	//TODO - Food, BEClothing, and Med Center/city bonuses.
 	int healthpower = Stim->getHealthHeal();
@@ -363,10 +364,10 @@ bool MedicManager::HealDamage(PlayerObject* Medic, CreatureObject* Target, uint6
 			}
 		}
 
-	//Anim
+		//Anim
 		gMessageLib->sendCreatureAnimation(Medic, BString("heal_self"));
 
-	//CE
+		//CE
 		gMessageLib->sendPlayClientEffectLocMessage("clienteffect/healing_healdamage.cef",Medic->mPosition,Medic);
 
 	} else { //if targetting something else
@@ -398,11 +399,11 @@ bool MedicManager::HealDamage(PlayerObject* Medic, CreatureObject* Target, uint6
 				}
 			}
 		}
-	//Anim
+		//Anim
 
 		gMessageLib->sendCreatureAnimation(Medic, BString("heal_other"));
 
-			//CE
+		//CE
 		gMessageLib->sendPlayClientEffectLocMessage("clienteffect/healing_healdamage.cef",PlayerTarget->mPosition,PlayerTarget);
 	}
 	return true;

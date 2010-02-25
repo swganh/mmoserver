@@ -10,7 +10,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 */
 #include "InsuranceTerminal.h"
 #include "Bank.h"
-
+#include "Inventory.h"
+#include "WorldConfig.h"
 #include "PlayerObject.h"
 #include "TangibleObject.h"
 #include "TreasuryManager.h"
@@ -23,13 +24,13 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "DatabaseManager/Database.h"
 #include "MathLib/Quaternion.h"
 
-const int32 insuranceFee = 100;
 
 //=============================================================================
 
 InsuranceTerminal::InsuranceTerminal() : Terminal()
 {
 	mRadialMenu = RadialMenuPtr(new RadialMenu());
+	mInsuranceFee		= gWorldConfig->getConfiguration("Player_ItemInsuranceFee",(int)100);
 
 	if (gWorldConfig->isTutorial())
 	{
@@ -302,23 +303,23 @@ void InsuranceTerminal::handleUIEvent(uint32 action,int32 element,string inputSt
 							// [Insurance] Item already insured: %TT. 
 							gMessageLib->sendSystemMessage(playerObject,L"","error_message","prose_item_already_insured", "","", L"", 0, "", "", selectedItemm);
 						}
-						else if (creditsAtBank < insuranceFee)
+						else if (creditsAtBank < mInsuranceFee)
 						{
 							// You have insufficient funds to insure your %TT. 
 							gMessageLib->sendSystemMessage(playerObject,L"","error_message","prose_nsf_insure", "","", L"", 0, "", "", selectedItemm);
 						}
-						else if ((dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->updateCredits(-insuranceFee)))
+						else if ((dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->updateCredits(-mInsuranceFee)))
 						{
 							// The credits is drawn from the player bank.
 							// System message: You successfully make a payment of %DI credits to %TO.
-							gMessageLib->sendSystemMessage(playerObject, L"", "base_player", "prose_pay_acct_success", "terminal_name", "terminal_insurance", L"", insuranceFee);
+							gMessageLib->sendSystemMessage(playerObject, L"", "base_player", "prose_pay_acct_success", "terminal_name", "terminal_insurance", L"", mInsuranceFee);
 
 							// Update attribute.
 							// string str("insured");
 							tangibleObject->setInternalAttribute("insured","1");
 							gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE item_attributes SET value=1 WHERE item_id=%"PRIu64" AND attribute_id=%u",tangibleObject->getId(), 1270);
 
-							gLogger->logMsgF("UPDATE item_attributes SET value=1 WHERE item_id=%"PRIu64" AND attribute_id=%u\n", MSG_NORMAL, tangibleObject->getId(), 1270);
+							//gLogger->logMsgF("UPDATE item_attributes SET value=1 WHERE item_id=%"PRIu64" AND attribute_id=%u", MSG_NORMAL, tangibleObject->getId(), 1270);
 							
 							tangibleObject->setTypeOptions(tangibleObject->getTypeOptions() | 4);
 
@@ -365,7 +366,7 @@ void InsuranceTerminal::handleUIEvent(uint32 action,int32 element,string inputSt
 					BStringVector insuranceList;
 					this->getUninsuredItems(playerObject, &insuranceList);
 
-					uint32 insuranceFee = insuranceList.size() * 100;
+					uint32 insuranceFee = insuranceList.size() * mInsuranceFee;
 					int8 sql[256];
 					sprintf(sql,"@terminal_ui:insure_all_d_prefix %u @terminal_ui:insure_all_d_suffix \n\n @terminal_ui:insure_all_confirm", insuranceFee);
 					gUIManager->createNewMessageBox(this,"","@terminal_ui:insure_all_t",sql,playerObject, SUI_Window_InsuranceAll_MessageBox, SUI_MB_YESNO);
@@ -397,7 +398,7 @@ void InsuranceTerminal::handleUIEvent(uint32 action,int32 element,string inputSt
 					// Insure all insurable items.
 					int32 creditsAtBank = (dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->getCredits());
 					string selectedItemm;
-					int32 fee = mSortedInsuranceList.size() * insuranceFee;
+					int32 fee = mSortedInsuranceList.size() * mInsuranceFee;
 
 					if (mSortedInsuranceList.size() ==  0)
 					{

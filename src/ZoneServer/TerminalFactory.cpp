@@ -11,6 +11,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "TerminalFactory.h"
 
 #include "BankTerminal.h"
+#include "PlayerStructureTerminal.h"
 #include "BazaarTerminal.h"
 #include "CharacterBuilderTerminal.h"
 #include "CloningTerminal.h"
@@ -173,7 +174,7 @@ Terminal* TerminalFactory::_createTerminal(DatabaseResult* result)
 		case TanType_NewsNetTerminal:				case TanType_HQTerminal:
 		case TanType_SpaceTerminal:					case TanType_BallotBoxTerminal:
 		case TanType_BountyDroidTerminal:			case TanType_GuildTerminal:
-		case TanType_PlayerStructureTerminal:		case TanType_CityVoteTerminal:
+		case TanType_CityVoteTerminal:
 		case TanType_NymCaveTerminal:				case TanType_GeoBunkerTerminal:
 		case TanType_Light_Enc_VotingTerminal:		case TanType_Dark_Enc_ChallengeTerminal:
 		case TanType_Dark_Enc_VotingTerminal:		case TanType_Light_Enc_ChallengeTerminal:
@@ -207,6 +208,34 @@ Terminal* TerminalFactory::_createTerminal(DatabaseResult* result)
 		}
 		break;
 
+		case TanType_PlayerStructureTerminal:		
+		{
+			terminal = new PlayerStructureTerminal();
+			terminal->setTangibleType(tanType);
+
+			DataBinding* terminalBinding = mDatabase->CreateDataBinding(14);
+			terminalBinding->addField(DFT_uint64,offsetof(Terminal,mId),8,0);
+			terminalBinding->addField(DFT_uint64,offsetof(Terminal,mParentId),8,1);
+			terminalBinding->addField(DFT_float,offsetof(Terminal,mDirection.mX),4,2);
+			terminalBinding->addField(DFT_float,offsetof(Terminal,mDirection.mY),4,3);
+			terminalBinding->addField(DFT_float,offsetof(Terminal,mDirection.mZ),4,4);
+			terminalBinding->addField(DFT_float,offsetof(Terminal,mDirection.mW),4,5);
+			terminalBinding->addField(DFT_float,offsetof(Terminal,mPosition.mX),4,6);
+			terminalBinding->addField(DFT_float,offsetof(Terminal,mPosition.mY),4,7);
+			terminalBinding->addField(DFT_float,offsetof(Terminal,mPosition.mZ),4,8);
+			terminalBinding->addField(DFT_uint32,offsetof(Terminal,mTerminalType),4,9);
+			terminalBinding->addField(DFT_bstring,offsetof(Terminal,mModel),256,10);
+			terminalBinding->addField(DFT_bstring,offsetof(Terminal,mName),64,11);
+			terminalBinding->addField(DFT_bstring,offsetof(Terminal,mNameFile),64,12);
+			terminalBinding->addField(DFT_bstring,offsetof(Terminal,mCustomName),256,15);
+
+			result->GetNextRow(terminalBinding,(void*)terminal);
+
+			mDatabase->DestroyDataBinding(terminalBinding);
+
+			terminal->setLoadState(LoadState_Loaded);
+		}
+		break;
 
 		case TanType_BankTerminal:
 		{

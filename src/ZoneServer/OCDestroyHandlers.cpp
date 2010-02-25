@@ -18,7 +18,9 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "ObjectControllerCommandMap.h"
 #include "ObjectFactory.h"
 #include "PlayerObject.h"
-#include "IntangibleObject.h"
+#include "Vehicle.h"
+
+//#include "IntangibleObject.h"
 #include "ResourceContainer.h"
 #include "SurveyTool.h"
 #include "WaypointObject.h"

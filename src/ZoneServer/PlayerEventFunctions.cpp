@@ -373,6 +373,7 @@ void PlayerObject::onSample(const SampleEvent* event)
 			if(dieRoll == 200) 
 			{
 				sampleAmount = (static_cast<uint32>(3*maxSample));
+				sampleAmount = max(sampleAmount,1);
 				gMessageLib->sendSystemMessage(this,L"","survey","node_recovery");
 				getSampleData()->mSampleEventFlag = false;
 				getSampleData()->mSampleNodeFlag = false;
@@ -384,6 +385,7 @@ void PlayerObject::onSample(const SampleEvent* event)
 				{
 					gMessageLib->sendSystemMessage(this,L"","survey","gamble_success");
 					sampleAmount = (static_cast<uint32>(3*maxSample));
+					sampleAmount = max(sampleAmount,1);
 					getSampleData()->mSampleGambleFlag = false;
 					getSampleData()->mSampleEventFlag = false;
 				}
@@ -391,6 +393,7 @@ void PlayerObject::onSample(const SampleEvent* event)
 				{
 				//CRITICAL SUCCESS
 					sampleAmount = (static_cast<uint32>(2*maxSample));
+					sampleAmount = max(sampleAmount,1);
 					gMessageLib->sendSystemMessage(this,L"","survey","critical_success","","",resName);
 				}
 			} 
@@ -398,6 +401,7 @@ void PlayerObject::onSample(const SampleEvent* event)
 			{
 				//NORMAL SUCCESS
 				sampleAmount = (static_cast<uint32>(floor(static_cast<float>((maxSample-minSample)*(dieRoll-failureChance)/(90-failureChance)+minSample))));         // floor == round down, so 9.9 == 9
+				sampleAmount = max(sampleAmount,1);
 				gMessageLib->sendSystemMessage(this,L"","survey","sample_located","","",resName,sampleAmount);
 			}
 		}
@@ -409,12 +413,6 @@ void PlayerObject::onSample(const SampleEvent* event)
 		resAvailable = false;
 	}
 	
-
-	//Fix for bug#870 - A very small success which rounds to 0 should actually give 1 unit
-	if(successSample && sampleAmount <= 1)
-	{
-		sampleAmount = 1;
-	}
 
 	// show the effects
 	if (successSample) 

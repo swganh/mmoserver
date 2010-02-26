@@ -838,6 +838,12 @@ void ObjectController::_handleImageDesign(uint64 targetId,Message* message,Objec
 	if(!imageDesigner)
 		return;
 
+	if(!imageDesigner->verifyAbility(cmdProperties->mAbilityCrc))
+	{
+		gMessageLib->sendSystemMessage(imageDesigner,L"","image_designer","not_an_image_designer");
+		return;
+	}
+
 	if(imageDesigner->checkStatesEither(CreatureState_Combat | CreatureState_Tumbling | CreatureState_Swimming | CreatureState_Crafting))
 	{
 		gMessageLib->sendSystemMessage(imageDesigner,L"You cannot do this at this time.");

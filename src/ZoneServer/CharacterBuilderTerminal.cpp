@@ -839,10 +839,27 @@ void CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string 
 				break;
 			}
 
-			SkillList* skillList = gSkillManager->getMasterProfessionList();
-			SkillList::iterator skillIt = skillList->begin();
-			skillIt+=element;
-			gSkillManager->learnSkillLine((*skillIt)->mId, playerObject, false);
+			SkillList* newList = new SkillList();
+			SkillList*			skillList	= gSkillManager->getMasterProfessionList();
+			SkillList::iterator skillIt		= skillList->begin();
+
+			while(skillIt != skillList->end())
+			{
+				// skip jedi professions, if flag isn't set
+				if(!playerObject->getJediState() && strstr((*skillIt)->mName.getAnsi(),"discipline"))
+				{
+					++skillIt;
+					continue;
+				}
+
+				newList->push_back(*skillIt);
+				++skillIt;
+			}
+
+			SkillList::iterator newSkill = newList->begin();
+			newSkill+=element;
+			gSkillManager->learnSkillLine((*newSkill)->mId, playerObject, false);
+			delete newList;
 		}
 		break;
 

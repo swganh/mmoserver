@@ -218,6 +218,13 @@ ActiveConversation* ConversationManager::getActiveConversation(uint64 id)
 
 void ConversationManager::startConversation(NPCObject* npc,PlayerObject* player)
 {
+	//we can't converse whilst in combat
+	if(player->checkState(CreatureState_Combat))
+	{
+		stopConversation(player);
+		gMessageLib->sendSystemMessage(player,"You may not start a Conversation whilst in Combat!");
+	}
+
 	// make sure theres no conversation running yet
 	if(getActiveConversation(player->getId()) != NULL)
 	{

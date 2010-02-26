@@ -108,7 +108,7 @@ void BankTerminal::handleUIEvent(string strInventoryCash, string strBankCash, UI
 
 	PlayerObject* playerObject = window->getOwner(); // window owner
 
-	if(playerObject == NULL || !playerObject->isConnected() || playerObject->getSamplingState() || playerObject->isIncapacitated() || playerObject->isDead())
+	if(playerObject == NULL || !playerObject->isConnected() || playerObject->getSamplingState() || playerObject->isIncapacitated() || playerObject->isDead() || playerObject->checkState(CreatureState_Combat))
 	{
 		return;
 	}

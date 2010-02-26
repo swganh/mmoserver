@@ -115,7 +115,7 @@ void CloningTerminal::handleUIEvent(uint32 action,int32 element,string inputStr,
 
 	PlayerObject* playerObject = window->getOwner(); // window owner
 
-	if(playerObject == NULL || !playerObject->isConnected() || playerObject->getSamplingState() || playerObject->isIncapacitated() || playerObject->isDead())
+	if(playerObject == NULL || !playerObject->isConnected() || playerObject->getSamplingState() || playerObject->isIncapacitated() || playerObject->isDead() || playerObject->checkState(CreatureState_Combat))
 	{
 		return;
 	}

@@ -838,7 +838,7 @@ void ObjectController::_handleImageDesign(uint64 targetId,Message* message,Objec
 	if(!imageDesigner)
 		return;
 
-	if(!imageDesigner->verifyAbility(cmdProperties->mAbilityCrc))
+	if(!imageDesigner->checkSkill(SMSkill_NoviceEntertainer))
 	{
 		gMessageLib->sendSystemMessage(imageDesigner,L"","image_designer","not_an_image_designer");
 		return;

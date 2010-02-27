@@ -13,6 +13,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "CellObject.h"
 #include "CreatureEnums.h"
 #include "CreatureObject.h"
+#include "PlayerStructureTerminal.h"
 #include "ObjectFactory.h"
 #include "Shuttle.h"
 #include "WorldManager.h"
@@ -194,6 +195,16 @@ void CellFactory::handleObjectReady(Object* object,DispatchClient* client)
 				gWorldManager->addShuttle(dynamic_cast<Shuttle*>(creature));
 		}
 		break;
+		
+		case ObjType_Tangible:
+		{
+			PlayerStructureTerminal* terminal = dynamic_cast<PlayerStructureTerminal*>(object);
+			if(terminal)
+			{
+				terminal->setStructure(cell->getParentId());
+			}
+		}
+		break;
 
 		case ObjType_Building:
 		case ObjType_Cell:
@@ -206,7 +217,7 @@ void CellFactory::handleObjectReady(Object* object,DispatchClient* client)
 		case ObjType_NonPersistant:
 		case ObjType_Player:
 		case ObjType_Region:
-		case ObjType_Tangible:
+		
 		case ObjType_Waypoint:
 		default:
 			break;

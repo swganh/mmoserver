@@ -19,6 +19,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "ZoneServer/CurrentResource.h"
 #include "ZoneServer/Datapad.h"
 #include "ZoneServer/HouseObject.h"
+#include "ZoneServer/InTangibleObject.h"
 #include "ZoneServer/HarvesterObject.h"
 #include "ZoneServer/FactoryObject.h"
 #include "ZoneServer/FactoryCrate.h"
@@ -477,14 +478,9 @@ bool MessageLib::sendCreatePlayer(PlayerObject* playerObject,PlayerObject* targe
 			{
 				if(IntangibleObject* itno = dynamic_cast<IntangibleObject*>(*ite))
 				{
-					gMessageLib->sendCreateObjectByCRC(itno,playerObject,false);
-					gMessageLib->sendBaselinesITNO_3(itno,playerObject);
-					gMessageLib->sendBaselinesITNO_6(itno,playerObject);
-					gMessageLib->sendBaselinesITNO_8(itno,playerObject);
-					gMessageLib->sendBaselinesITNO_9(itno,playerObject);
-					gMessageLib->sendContainmentMessage(itno->getId(), dpad->getId(), 0xffffffff, playerObject);
-					gMessageLib->sendEndBaselines(itno->getId(),playerObject);
-
+					gMessageLib->sendCreateInTangible(itno, dpad->getId(), playerObject);
+					
+					//dont add it to the MainObjectMap
 					//gWorldManager->addObject(itno,true);
 
 					switch(itno->getItnoGroup())
@@ -599,11 +595,60 @@ void MessageLib::sendCreateTangible(TangibleObject* tangibleObject, PlayerObject
 
 }
 
+bool MessageLib::sendCreateStaticObject(TangibleObject* tangibleObject,PlayerObject* targetObject)
+{
+	if(!_checkPlayer(targetObject))
+	{
+		gLogger->logMsgF("MessageLib::sendCreateStaticObject No valid player :(",MSG_HIGH);
+		return(false);
+	}
+
+	if(!tangibleObject)
+	{
+		gLogger->logMsgF("MessageLib::sendCreateStaticObject No valid object :(",MSG_HIGH);
+		return(false);
+	}
+	
+	sendCreateObjectByCRC(tangibleObject,targetObject,false);
+	sendBaselinesSTAO_3(tangibleObject,targetObject);
+	sendBaselinesSTAO_6(tangibleObject,targetObject);
+	sendEndBaselines(tangibleObject->getId(),targetObject);
+	return true;
+}
+
+//======================================================================================================================
+//
+// create intangible 
+//
+bool MessageLib::sendCreateInTangible(IntangibleObject* intangibleObject,uint64 containmentId,PlayerObject* targetObject) 
+{
+	if(!_checkPlayer(targetObject))
+	{
+		gLogger->logMsgF("MessageLib::sendCreateInTangible No valid player :(",MSG_HIGH);
+		return(false);
+	}
+
+	if(!intangibleObject)
+	{
+		gLogger->logMsgF("MessageLib::sendCreateInTangible No valid intangible :(",MSG_HIGH);
+		return(false);
+	}
+
+	gMessageLib->sendCreateObjectByCRC(intangibleObject,targetObject,false);
+	gMessageLib->sendBaselinesITNO_3(intangibleObject,targetObject);
+	gMessageLib->sendBaselinesITNO_6(intangibleObject,targetObject);
+	gMessageLib->sendBaselinesITNO_8(intangibleObject,targetObject);
+	gMessageLib->sendBaselinesITNO_9(intangibleObject,targetObject);
+	gMessageLib->sendContainmentMessage(intangibleObject->getId(), containmentId, 0xffffffff, targetObject);
+	gMessageLib->sendEndBaselines(intangibleObject->getId(),targetObject);
+
+	return true;
+}
+
 //======================================================================================================================
 //
 // create tangible - HARK!!!! ResourceContainers and FactoryCrates are tangibles, too!!!!
 //
-
 bool MessageLib::sendCreateTangible(TangibleObject* tangibleObject,PlayerObject* targetObject, bool sendchildren) 
 {
 	//gLogger->logMsgF("MessageLib::send create tangible  %I64u name %s",MSG_HIGH,tangibleObject->getId(),tangibleObject->getName().getAnsi());
@@ -622,6 +667,11 @@ bool MessageLib::sendCreateTangible(TangibleObject* tangibleObject,PlayerObject*
 	if(FactoryCrate* crate = dynamic_cast<FactoryCrate*>(tangibleObject))
 	{
 		return sendCreateFactoryCrate(crate,targetObject);
+	}
+	else
+	if(tangibleObject->getTangibleGroup() ==TanGroup_Static)
+	{
+		return sendCreateStaticObject(tangibleObject,targetObject);
 	}
 
 	uint64 parentId = tangibleObject->getParentId();
@@ -811,8 +861,6 @@ bool MessageLib::sendCreateBuilding(BuildingObject* buildingObject,PlayerObject*
 	{
 		CellObject* cell = (*cellIt);
 		uint64 cellId = cell->getId();
-
-		gLogger->logMsgF("create cell %I64u",MSG_HIGH,cell->getId());
 
 		uint64 count = buildingObject->getMinCellId()-1;
 		sendCreateObjectByCRC(cell,playerObject,false);
@@ -1125,6 +1173,7 @@ bool MessageLib::sendCreateObject(Object* object,PlayerObject* player,bool sendS
 	}
 	switch(object->getType())
 	{
+		
 		case ObjType_NPC:
 		// creatures
 		case ObjType_Creature:

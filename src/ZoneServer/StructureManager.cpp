@@ -13,6 +13,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "FactoryFactory.h"
 #include "nonPersistantObjectFactory.h"
 #include "HarvesterObject.h"
+#include "HouseObject.h"
 #include "FactoryObject.h"
 #include "Inventory.h"
 #include "DataPad.h"
@@ -512,6 +513,15 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 			else
 			//delete the deed
 			{
+
+				//if its a playerstructure boot all players and pets inside
+				HouseObject* house = dynamic_cast<HouseObject*>(structure);
+				if(house)
+				{
+					house->prepareDestruction();
+				}
+
+
 				gMessageLib->sendSystemMessage(player,L"","player_structure","structure_destroyed");
 				int8 sql[200];
 				sprintf(sql,"DELETE FROM items WHERE parent_id = %"PRIu64" AND item_family = 15",structure->getId());
@@ -520,6 +530,8 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 				gMessageLib->sendDestroyObject_InRangeofObject(structure);
 				gWorldManager->destroyObject(structure);
 				UpdateCharacterLots(structure->getOwner());
+
+
 			}
 
 			
@@ -563,22 +575,7 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 			gMessageLib->sendDestroyObject_InRangeofObject(fence);
 			gWorldManager->destroyObject(fence);
 
-			PlayerObjectSet*			inRangePlayers	= player->getKnownPlayers();
-			PlayerObjectSet::iterator	it				= inRangePlayers->begin();
-			while(it != inRangePlayers->end())
-			{
-				PlayerObject* targetObject = (*it);
-				gMessageLib->sendCreateStructure(structure,targetObject);
-				targetObject->addKnownObjectSafe(structure);
-				structure->addKnownObjectSafe(targetObject);
-				++it;
-			}
-
-			gMessageLib->sendCreateStructure(structure,player);
-			player->addKnownObjectSafe(structure);
-			structure->addKnownObjectSafe(player);
-			gMessageLib->sendDataTransform(structure);
-
+			gWorldManager->createObjectinWorld(player,structure);	
 			gMessageLib->sendConstructionComplete(player,structure);
 			
 
@@ -776,14 +773,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 					tO->addKnownObjectSafe(player);
 					player->addKnownObjectSafe(tO);
 					gMessageLib->sendCreateObject(tO,player,false);
-					
-					// this might be considered a hack - we relay on the movementupdate to delete this data once we move 
-					// (as the content is not part of the si the first update will send the deletes)
-					// otherwise we do not know whether these objects were created for said player or not
-					// the alternative would be to create a second (third) knownObjectslist to keep track of knownplayers
-					// without si involvement - the deletion would then have to be triggered by the senddestroy for the containing object
-					
-					
+									
 				}
 				it++;
 			}

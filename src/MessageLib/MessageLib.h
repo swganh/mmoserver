@@ -85,6 +85,8 @@ public:
 	bool				sendCreateFactoryCrate(FactoryCrate* crate,PlayerObject* targetObject);
 	bool				sendCreateTangible(TangibleObject* tangibleObject,PlayerObject* targetObject, bool sendchildren = true);
 	void				sendCreateTangible(TangibleObject* tangibleObject, PlayerObjectSetML*	knownPlayers, bool sendchildren = true) ;
+	bool				sendCreateStaticObject(TangibleObject* tangibleObject,PlayerObject* targetObject);
+	bool				sendCreateInTangible(IntangibleObject* intangibleObject, uint64 containmentId, PlayerObject* targetObject);
 
 	//structures
 	bool				sendCreateInstallation(PlayerStructure* structure,PlayerObject* player);
@@ -327,9 +329,10 @@ public:
 	void				sendLanguagePlay9(PlayerObject* playerObject);
 	void				sendFoodUpdate(PlayerObject* playerObject);
 	void				sendDrinkUpdate(PlayerObject* playerObject);
+	
 	// static object,	staticomessages.cpp
-	bool				sendBaselinesSTAO_3(StaticObject* staticObject, PlayerObject* targetObject);
-	bool				sendBaselinesSTAO_6(StaticObject* staticObject, PlayerObject* targetObject);
+	bool				sendBaselinesSTAO_3(TangibleObject* staticObject, PlayerObject* targetObject);
+	bool				sendBaselinesSTAO_6(TangibleObject* staticObject, PlayerObject* targetObject);
 	
 	//crates
 	bool				sendBaselinesTYCF_3(FactoryCrate* crate,PlayerObject* targetObject);

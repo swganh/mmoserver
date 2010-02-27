@@ -9,12 +9,12 @@ Copyright (c) 2006 - 2010 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 #include "PlayerStructureTerminal.h"
-#include "Bank.h"
+#include "PlayerStructure.h"
 
 #include "PlayerObject.h"
 #include "TangibleObject.h"
-#include "TreasuryManager.h"
-#include "Tutorial.h"
+#include "HouseObject.h"
+
 #include "UIManager.h"
 #include "WorldConfig.h"
 #include "WorldManager.h"
@@ -28,33 +28,74 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 PlayerStructureTerminal::PlayerStructureTerminal() : Terminal()
 {
-	mRadialMenu = RadialMenuPtr(new RadialMenu());
-
-	// any object with callbacks needs to handle those (received with menuselect messages) !
-	mRadialMenu->addItem(1,0,radId_examine,radAction_ObjCallback,"@radial:examine");
-	mRadialMenu->addItem(2,0,radId_serverTerminalManagement,radAction_Default,"@radial:management");
-	mRadialMenu->addItem(3,0,radId_serverTerminalPermissions,radAction_ObjCallback, "@radial:permissions");
+	mStructure = 0;
 
 	
+}
+
+void PlayerStructureTerminal::prepareCustomRadialMenu(CreatureObject* player, uint8 itemCount)
+{
+	RadialMenu* radial	= new RadialMenu();
+
+	// any object with callbacks needs to handle those (received with menuselect messages) !
+	radial->addItem(1,0,radId_examine,radAction_Default,"");
+	radial->addItem(2,0,radId_serverTerminalManagement,radAction_ObjCallback,"Management");
+	radial->addItem(3,0,radId_serverTerminalPermissions,radAction_ObjCallback, "Permissions");
+
+	//test if the caller is on the permission list
+
+	//radial->addItem(4,2,radId_serverTerminalManagementDestroy,radAction_ObjCallback,"@player_structure:permission_destroy ");//destroy
+
+	HouseObject* house = dynamic_cast<HouseObject*>(gWorldManager->getObjectById(this->getStructure()));
+	if(house)
+	{
+		radial->addItem(4,2,radId_serverTerminalManagementDestroy,radAction_ObjCallback,"@player_structure:permission_destroy ");//destroy
+		radial->addItem(5,2,radId_serverTerminalManagementStatus,radAction_ObjCallback,"@player_structure:management_status");
+
+	}
+  
+	RadialMenuPtr radialPtr(radial);
+	mRadialMenu = radialPtr;
+
 }
 
 //=============================================================================
 
 PlayerStructureTerminal::~PlayerStructureTerminal()
 {
+	
 }
 
 //=============================================================================
 
 void PlayerStructureTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 {
-	PlayerObject* playerObject = (PlayerObject*)srcObject;
+	PlayerObject* player = (PlayerObject*)srcObject;
 
-	if (playerObject && playerObject->isConnected())
+	if ((!player) ||(!player->isConnected()))
 	{
-		// Fetch all items that can be insured.
-
+		gLogger->logMsgF("HarvesterObject::handleObjectMenuSelect::could not find player",MSG_HIGH);
+		return;
 	}
+	
+	switch(messageType)
+	{
+		case radId_serverTerminalManagementDestroy: 
+		{
+			StructureAsyncCommand command;
+			command.Command = Structure_Command_Destroy;
+			command.PlayerId = player->getId();
+			command.StructureId = this->getStructure();
+
+			gStructureManager->checkNameOnPermissionList(this->getStructure(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+			
+		}
+		break;
+
+		default:
+			break;
+	}
+
 }
 
 

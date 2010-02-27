@@ -12,9 +12,12 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "nonPersistantObjectFactory.h"
 #include "StructureManager.h"
 #include "HarvesterObject.h"
+#include "HouseObject.h"
 #include "FactoryObject.h"
+//#include "CellObject.h"
 #include "Inventory.h"
 #include "ObjectFactory.h"
+#include "HouseObject.h"
 #include "PlayerObject.h"
 #include "PlayerStructure.h"
 #include "WorldManager.h"
@@ -136,7 +139,16 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 		//we use it to create the deed in the inventory
 		case Structure_UpdateStructureDeed:
 		{
+			
 			PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(asynContainer->mStructureId));
+
+			//if its a playerstructure boot all players and pets inside
+			HouseObject* house = dynamic_cast<HouseObject*>(structure);
+			if(house)
+			{
+				house->prepareDestruction();
+			}
+			
 
 			//destroy the structure here so the sf can still access the relevant data
 			gObjectFactory->deleteObjectFromDB(structure);

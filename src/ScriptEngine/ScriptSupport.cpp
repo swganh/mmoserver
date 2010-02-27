@@ -76,7 +76,8 @@ ScriptSupport* ScriptSupport::Instance()
 //======================================================================================================================
 //
 //	General purpose
-//
+// will this only get called on start up ???
+// if no why dont get the objects created for surrounding players ??
 
 void ScriptSupport::handleObjectReady(Object* object)
 {
@@ -90,6 +91,7 @@ void ScriptSupport::handleObjectReady(Object* object)
 
 		// Creatures are added to WorldManager list when they have been fully initilaized (spawned) successfully.
 		// when we re-spawn them.
+		
 		if (object->getType() == ObjType_Tangible)
 		{
 			gWorldManager->addObject(object,true);

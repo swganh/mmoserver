@@ -153,6 +153,8 @@ class PlayerStructure :	public TangibleObject
 		void					addHousingAdminEntry(uint64 id){mHousingAdminList.push_back(id);}
 		void					resetHousingAdminList(){mHousingAdminList.clear();}
 
+		
+
 								 
 
 	private:

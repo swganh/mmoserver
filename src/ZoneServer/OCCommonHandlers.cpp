@@ -369,6 +369,7 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 		// but that will have a performance cost we don't ready to take yet.
 		
 		cell->addObjectSecure(itemObject,playerObject->getKnownPlayers());
+		//alternatively we could use gWorldManager->createObjectinWorld(player);	to create it for other players
 		playerObject->addKnownObjectSafe(itemObject);
 		itemObject->addKnownObjectSafe(playerObject);
 		
@@ -1291,6 +1292,7 @@ void ObjectController::handleObjectMenuRequest(Message* message)
 		{
 			gMessageLib->sendObjectMenuResponse(requestedObject,playerObject,responseNr);
 		}
+		//the radial menu is supposed to be an intelligent pointer deleting itself when no reference is left
 	}
 	else
 	{
@@ -1306,9 +1308,7 @@ void ObjectController::handleObjectMenuRequest(Message* message)
 		//the list is cleared and items are destroyes in the message lib
 		//for the default response
 	}
-
-	//are the menu options pointers removed / deleted by boost ?
-	//delete(requestedObject->getRadialMenu());
+	
 }
 
 //=============================================================================================================================

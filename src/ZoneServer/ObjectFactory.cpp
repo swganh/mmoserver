@@ -13,6 +13,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "BuildingFactory.h"
 #include "CreatureFactory.h"
 #include "Deed.h"
+#include "CellObject.h"
 #include "DraftSchematic.h"
 #include "HarvesterFactory.h"
 #include "HouseObject.h"
@@ -708,6 +709,14 @@ void ObjectFactory::deleteObjectFromDB(Object* object)
 				}
 				break;
 
+				case TanGroup_Terminal:
+				{
+					sprintf(sql,"DELETE FROM terminals WHERE id = %"PRIu64"",object->getId());
+					mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
+
+				}
+				break;
+
 				default:break;
 			}
 		}
@@ -735,6 +744,43 @@ void ObjectFactory::deleteObjectFromDB(Object* object)
 		}
 		break;
 
+		case ObjType_Cell:
+		{
+			CellObject* cell = dynamic_cast<CellObject*>(object);
+			ObjectIDList* cellObjects		= cell->getObjects();
+			ObjectIDList::iterator objIt	= cellObjects->begin();
+
+			while(objIt != cellObjects->end())
+			{
+				Object* childObject = gWorldManager->getObjectById((*objIt));
+
+				if(PlayerObject* player = dynamic_cast<PlayerObject*>(childObject))
+				{
+					//place the player in the world	and db	- do *NOT* delete him :P
+					//player->setParentId(0,0xffffffff,player->getKnownPlayers(),true);
+				}
+				else
+				if(CreatureObject* pet = dynamic_cast<CreatureObject*>(childObject))
+				{
+					//place the player in the world	and db	- do *NOT* delete him :P
+					//pet->setParentId(0,0xffffffff,pet->getKnownPlayers(),true);
+				}
+				else
+				{
+					deleteObjectFromDB(childObject);
+				}
+				
+				++objIt;
+
+				sprintf(sql,"UPDATE characters SET parent_id = 0 WHERE parent_id = %"PRIu64"",object->getId());
+				mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
+			}
+
+			sprintf(sql,"DELETE FROM cells WHERE id = %"PRIu64"",object->getId());
+			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
+		}
+		break;
+
 		case ObjType_Building:
 		{
 			//only delete when a playerbuilding
@@ -745,10 +791,23 @@ void ObjectFactory::deleteObjectFromDB(Object* object)
 				return;
 			}
 
+			CellObjectList*				cellList	= house->getCellList();
+			CellObjectList::iterator	cellIt		= cellList->begin();
+
+			while(cellIt != cellList->end())
+			{
+				CellObject* cell = (*cellIt);
+				deleteObjectFromDB(cell);
+				//remove items in the building from world and db
+
+				++cellIt;
+			}
+
 			sprintf(sql,"DELETE FROM houses WHERE ID = %"PRIu64"",object->getId());
 			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
-			sprintf(sql,"DELETE FROM cells WHERE parent_id = %"PRIu64"",object->getId());
-			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
+
+			//sprintf(sql,"DELETE FROM terminals WHERE ID = %"PRIu64"",object->getId());
+			//mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
 
 			sprintf(sql,"DELETE FROM structures WHERE ID = %"PRIu64"",object->getId());
 			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);

@@ -75,11 +75,12 @@ typedef std::vector<PlayerObject*>				PlayerList;
 typedef std::vector<Shuttle*>					ShuttleList;
 typedef std::vector<RegionObject*>				ActiveRegions;
 typedef std::list<CreatureObject*>				CreatureQueue;
-typedef std::vector<CraftingTool*>				CraftTools;
 typedef std::vector<std::pair<uint64, NpcConversionTime*> >	NpcConversionTimers;
 typedef std::map<uint64, uint64>				PlayerMovementUpdateMap;
 typedef std::map<uint64, uint64>				CreatureObjectDeletionMap;
 typedef std::map<uint64, uint64>				PlayerObjectReviveMap;
+
+typedef std::vector<uint64>						CraftTools;//a list of busy craft tools needing regular updates
 
 // Creature spawn regions.
 typedef std::map<uint64, const CreatureSpawnRegion*>	CreatureSpawnRegionMap;
@@ -165,6 +166,10 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		bool					existObject(Object* object);	// Returns true if object does exist.
 		bool					addObject(Object* object,bool manual = false);
 		void					destroyObject(Object* object);
+		void					destroyObjectForKnownPlayers(Object* object);
+		void					createObjectForKnownPlayers(PlayerObjectSet* knownPlayers, Object* object);
+		void					createObjectinWorld(PlayerObject* player, Object* object);
+		void					createObjectinWorld(Object* object);
 		Object*					getObjectById(uint64 objId);
 		void					eraseObject(uint64 key);
 

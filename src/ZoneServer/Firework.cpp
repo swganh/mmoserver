@@ -61,19 +61,26 @@ void Firework::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 				if(this->getItemType() >= ItemType_Firework_Type_5 || this->getItemType() <= ItemType_Firework_Type_2)
 				{
 					//Player must be standing or Kneeling to launch
-					if(playerObject->getPosture()==CreaturePosture_Upright || playerObject->getPosture()==CreaturePosture_Crouched)
+					if(playerObject->getPosture()!=CreaturePosture_Upright || playerObject->getPosture()!=CreaturePosture_Crouched)
 					{
-						if(playerObject->getParentId())
-						{
-							gMessageLib->sendSystemMessage(playerObject,L"You can not do this while indoors.");
+							gMessageLib->sendSystemMessage(playerObject,L"You must be standing or kneeling to start a firework.");
 							return;
-						}
-						//Create the Firework in the world
-						if(gFireworkManager->createFirework(this->getItemType(),playerObject,playerObject->mPosition)==true)
-						{
-							playerObject->getController()->destroyObject(this->getId());							
-						}
 					}
+					if(playerObject->getParentId())
+					{
+						gMessageLib->sendSystemMessage(playerObject,L"You can not do this while indoors.");
+						return;
+					}
+					//Create the Firework in the world
+					TangibleObject* fireWorkInworld = gFireworkManager->createFirework(this->getItemType(),playerObject,playerObject->mPosition);
+					if(fireWorkInworld)
+					{
+						playerObject->getController()->destroyObject(this->getId());							
+					}
+
+					//now add timer somewhere to make them start
+
+					//then delete the
 				}				
 			}
 			break;
@@ -356,8 +363,7 @@ void FireworkShow::onLaunch(const FireworkEvent* event)
 {
 	//PlayerObject* playerObject = dynamic_cast<PlayerObject*>(event->getSrcObject());
 
-	bool isShow = this->getItemType() == ItemType_Firework_Show;
-	gFireworkManager->createFirework(1756,event->getPlayerObject(),event->getPosition(),isShow);
+	gFireworkManager->createFirework(1756,event->getPlayerObject(),event->getPosition());
 }
 
 ObjectList* FireworkShow::_getInventoryFireworks(PlayerObject* playerObject)

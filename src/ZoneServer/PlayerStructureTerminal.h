@@ -29,9 +29,15 @@ class PlayerStructureTerminal : public Terminal
 		void		handleObjectMenuSelect(uint8 messageType,Object* srcObject);
 		void		handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window);
 
+		void		prepareCustomRadialMenu(CreatureObject* player, uint8 itemCount);
+
+		void		setStructure(uint64 s){mStructure = s;}
+		uint64		getStructure(){return mStructure;}
+
 	private:
 		
 		
+		uint64			mStructure;
 
 };
 

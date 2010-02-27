@@ -319,6 +319,133 @@ bool WorldManager::addObject(Object* object,bool manual)
 	return true;
 }
 
+
+//======================================================================================================================
+//
+// removes an object from the world
+//
+
+void WorldManager::destroyObjectForKnownPlayers(Object* object)
+{
+
+	PlayerObjectSet* knownPlayers = object->getKnownPlayers();
+	PlayerObjectSet::iterator it = knownPlayers->begin();
+	while(it != knownPlayers->end())
+	{
+		PlayerObject* targetObject = (*it);
+		gMessageLib->sendDestroyObject(object->getId(),targetObject);
+		targetObject->removeKnownObject(object);
+		++it;
+	}
+	object->destroyKnownObjects();
+	
+}
+
+//======================================================================================================================
+//
+// creates an object in the world around a player
+//
+
+void WorldManager::createObjectinWorld(PlayerObject* player, Object* object)
+{
+	//create it for players around us
+	createObjectForKnownPlayers(player->getKnownPlayers(),object);
+			
+	//create it for us
+	gMessageLib->sendCreateObject(object,player);
+	player->addKnownObjectSafe(object);
+	object->addKnownObjectSafe(player);
+}
+
+//======================================================================================================================
+//
+// creates an object in the world queries the si to find relevant players
+// generally querying the si is slow so beware to use this
+
+void WorldManager::createObjectinWorld(Object* object)
+{
+	float				viewingRange	= (float)gWorldConfig->getPlayerViewingRange();
+	ObjectSet inRangeObjects;
+	mSpatialIndex->getObjectsInRange(object,&inRangeObjects,(ObjType_Player),viewingRange);
+
+	// query the according qtree, if we are in one
+	if(object->getSubZoneId())
+	{
+		if(QTRegion* region = getQTRegion(object->getSubZoneId()))
+		{
+			
+			Anh_Math::Rectangle qRect;
+
+			if(!object->getParentId())
+			{
+				qRect = Anh_Math::Rectangle(object->mPosition.mX - viewingRange,object->mPosition.mZ - viewingRange,viewingRange * 2,viewingRange * 2);
+			}
+			else
+			{
+				CellObject*		cell		= dynamic_cast<CellObject*>(getObjectById(object->getParentId()));
+				
+				
+				if(BuildingObject* house	= dynamic_cast<BuildingObject*>(getObjectById(cell->getParentId())))
+				{
+					qRect = Anh_Math::Rectangle(house->mPosition.mX - viewingRange,house->mPosition.mZ - viewingRange,viewingRange * 2,viewingRange * 2);
+				}
+			}
+
+			region->mTree->getObjectsInRange(object,&inRangeObjects,ObjType_Player,&qRect);
+		}
+	}
+
+	// iterate through the results
+	ObjectSet::iterator it = inRangeObjects.begin();
+
+	while(it != inRangeObjects.end())
+	{
+		PlayerObject* player = dynamic_cast<PlayerObject*> (*it);
+		if(player)
+		{
+			// send create for the type of object
+			if (object->getPrivateOwner())	//what is this about ?? does it concern instances ????
+			{
+				if (object->isOwnedBy(player))
+				{
+					gMessageLib->sendCreateObject(object,player);
+					object->addKnownObjectSafe(player);
+					player->addKnownObjectSafe(object);
+				}
+			}
+			else
+			{
+				gMessageLib->sendCreateObject(object,player);
+				
+				object->addKnownObjectSafe(player);
+				player->addKnownObjectSafe(object);
+			}
+		}
+		++it;
+	}
+	
+}
+
+//======================================================================================================================
+//
+// creates an object from the world
+//
+
+void WorldManager::createObjectForKnownPlayers(PlayerObjectSet* knownPlayers, Object* object)
+{
+
+	PlayerObjectSet::iterator it = knownPlayers->begin();
+	while(it != knownPlayers->end())
+	{	
+		PlayerObject* targetObject = (*it);
+		gMessageLib->sendCreateObject(object,targetObject);
+		targetObject->addKnownObjectSafe(object);
+		object->addKnownObjectSafe(targetObject);
+		++it;
+	}
+	
+}
+
 //======================================================================================================================
 //
 // removes an object from the world
@@ -638,7 +765,7 @@ void WorldManager::initObjectsInRange(PlayerObject* playerObject)
 				CellObject*		cell		= dynamic_cast<CellObject*>(getObjectById(playerObject->getParentId()));
 				
 				
-				if(HouseObject* house	= dynamic_cast<HouseObject*>(getObjectById(cell->getParentId())))
+				if(BuildingObject* house	= dynamic_cast<BuildingObject*>(getObjectById(cell->getParentId())))
 				{
 					qRect = Anh_Math::Rectangle(house->mPosition.mX - viewingRange,house->mPosition.mZ - viewingRange,viewingRange * 2,viewingRange * 2);
 				}

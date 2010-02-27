@@ -202,25 +202,8 @@ TangibleObject* NonPersistantObjectFactory::spawnTangible(StructureItemTemplate*
 	tangible->mDirection = player->mDirection;
 	//tangible->setTypeOptions(0xffffffff);
 
-	gWorldManager->addObject(tangible);
-				
-	//gWorldManager->initPlayersInRange(itemObject);
-	//TangibleObject* tangible = dynamic_cast<TangibleObject*>(object);
-	
-	PlayerObjectSet*			inRangePlayers	= player->getKnownPlayers();
-	PlayerObjectSet::iterator	it				= inRangePlayers->begin();
-	while(it != inRangePlayers->end())
-	{
-		PlayerObject* targetObject = (*it);
-		gMessageLib->sendCreateTangible(tangible,targetObject);
-		targetObject->addKnownObjectSafe(tangible);
-		tangible->addKnownObjectSafe(targetObject);
-		++it;
-	}
-
-	gMessageLib->sendCreateTangible(tangible,player);
-	player->addKnownObjectSafe(tangible);
-	tangible->addKnownObjectSafe(player);
+	gWorldManager->addObject(tangible);			
+	gWorldManager->createObjectinWorld(player,tangible);	
 	gMessageLib->sendDataTransform(tangible);
 
 	return(tangible);
@@ -270,25 +253,7 @@ CampTerminal* NonPersistantObjectFactory::spawnTerminal(StructureItemTemplate* p
 	//tangible->mDirection = player->mDirection;
 	
 	gWorldManager->addObject(terminal);
-				
-	//gWorldManager->initPlayersInRange(itemObject);
-	//TangibleObject* tangible = dynamic_cast<TangibleObject*>(object);
-	
-	PlayerObjectSet*			inRangePlayers	= player->getKnownPlayers();
-	PlayerObjectSet::iterator	it				= inRangePlayers->begin();
-	while(it != inRangePlayers->end())
-	{
-		PlayerObject* targetObject = (*it);
-		gMessageLib->sendCreateTangible(terminal,targetObject);
-		targetObject->addKnownObjectSafe(terminal);
-		terminal->addKnownObjectSafe(targetObject);
-		++it;
-	}
-
-	gMessageLib->sendCreateTangible(terminal,player);
-	player->addKnownObjectSafe(terminal);
-	terminal->addKnownObjectSafe(player);
-	gMessageLib->sendDataTransform(terminal);
+	gWorldManager->createObjectinWorld(player,terminal);	
 
 	return(terminal);
 
@@ -365,24 +330,8 @@ PlayerStructure* NonPersistantObjectFactory::requestBuildingFenceObject(float x,
 	//create it in the world
 	
 	gWorldManager->addObject(structure);
-				
-	//gWorldManager->initPlayersInRange(itemObject);
-	//TangibleObject* tangible = dynamic_cast<TangibleObject*>(object);
-	
-	PlayerObjectSet*			inRangePlayers	= player->getKnownPlayers();
-	PlayerObjectSet::iterator	it				= inRangePlayers->begin();
-	while(it != inRangePlayers->end())
-	{
-		PlayerObject* targetObject = (*it);
-		gMessageLib->sendCreateInstallation(structure,targetObject);
-		targetObject->addKnownObjectSafe(structure);
-		structure->addKnownObjectSafe(targetObject);
-		++it;
-	}
-
-	gMessageLib->sendCreateInstallation(structure,player);
-	player->addKnownObjectSafe(structure);
-	structure->addKnownObjectSafe(player);
+		
+	gWorldManager->createObjectinWorld(player,structure);	
 	gMessageLib->sendDataTransform(structure);
 
 	return structure;

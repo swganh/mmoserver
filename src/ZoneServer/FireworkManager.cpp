@@ -26,10 +26,15 @@ FireworkManager::~FireworkManager(void)
 }
 
 
-//bool FireworkManager::createFirework(uint32 typeId, PlayerObject* player, bool isShow)
-bool FireworkManager::createFirework(uint32 typeId, PlayerObject* player, Anh_Math::Vector3 position, bool isShow)
+//===============================================================================00
+//creates the static Object of the firework in the world
+//
+TangibleObject* FireworkManager::createFirework(uint32 typeId, PlayerObject* player, Anh_Math::Vector3 position)
 {
-	StaticObject* firework = new StaticObject();
+	//this is by definition a nonpersistant object - so move it there 
+	TangibleObject* firework = new TangibleObject();
+	firework->setTangibleGroup(TanGroup_Static);
+	//firework->setTangibleType();
 	firework->mPosition = position;//player->mPosition;
 	firework->mDirection.mX = 0;
 	firework->mDirection.mY = 0;
@@ -70,46 +75,13 @@ bool FireworkManager::createFirework(uint32 typeId, PlayerObject* player, Anh_Ma
 	default:
 		{
 			gLogger->logMsgF("Error creating firework, type:%u",MSG_NORMAL, typeId);
-			return false;
+			return NULL;
 		}
 	}
 
-	//gWorldManager->addObject(firework);
-
-
-	if(player->isConnected())
-		gMessageLib->sendHeartBeat(player->getClient());
-
-	if(isShow==false)
-	{
-		player->setPosture(CreaturePosture_Crouched);
-		player->getHam()->updateRegenRates();
-		player->toggleStateOff(CreatureState_SittingOnChair);
-		player->updateMovementProperties();
-
-		gMessageLib->sendUpdateMovementProperties(player);
-		gMessageLib->sendPostureAndStateUpdate(player);
-		gMessageLib->sendSelfPostureUpdate(player);
-	}
-
-
-	PlayerObjectSet*			inRangePlayers	= player->getKnownPlayers();
-	PlayerObjectSet::iterator	it				= inRangePlayers->begin();
-	while(it != inRangePlayers->end())
-	{
-		PlayerObject* targetObject = (*it);
-		gMessageLib->sendCreateObjectByCRC(firework,targetObject,false);
-		gMessageLib->sendBaselinesSTAO_3(firework,targetObject);
-		gMessageLib->sendBaselinesSTAO_6(firework,targetObject);
-		gMessageLib->sendEndBaselines(firework->getId(),targetObject);
-		++it;
-	}
-
-	gMessageLib->sendCreateObjectByCRC(firework,player,false);
-	gMessageLib->sendBaselinesSTAO_3(firework,player);
-	gMessageLib->sendBaselinesSTAO_6(firework,player);
-	gMessageLib->sendEndBaselines(firework->getId(),player);
-	delete firework;
-
-	return true;
+	//add it to the world!!!
+	gWorldManager->addObject(firework);
+	gWorldManager->createObjectinWorld(player,firework);
+	
+	return firework;
 }

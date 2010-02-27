@@ -2151,26 +2151,15 @@ void EntertainerManager::handleObjectReady(Object* object,DispatchClient* client
 			placedInstrument->mPosition  = player->mPosition;
 			placedInstrument->mDirection = player->mDirection;
 
+			//add it to MainObjectMap and SI
 			gWorldManager->addObject(object);
 
 			//gWorldManager->initPlayersInRange(itemObject);
 			TangibleObject* tangible = dynamic_cast<TangibleObject*>(object);
 
-			PlayerObjectSet*			inRangePlayers	= player->getKnownPlayers();
-			PlayerObjectSet::iterator	it				= inRangePlayers->begin();
-			while(it != inRangePlayers->end())
-			{
-				PlayerObject* targetObject = (*it);
-				gMessageLib->sendCreateTangible(tangible,targetObject);
-				targetObject->addKnownObjectSafe(object);
-				object->addKnownObjectSafe(targetObject);
-				++it;
-			}
-
-			gMessageLib->sendCreateTangible(tangible,player);
-			player->addKnownObjectSafe(object);
-			object->addKnownObjectSafe(player);
-
+			//create it for us and players around us
+			gWorldManager->createObjectinWorld(player,object);
+			
 			// We move the player, not the instrument.
 			if (player->getParentId())
 			{

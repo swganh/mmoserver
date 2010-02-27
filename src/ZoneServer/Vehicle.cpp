@@ -183,31 +183,7 @@ void Vehicle::call()
 		return;
 	}
 
-
-	//spawn it for everyone in range
-	PlayerObjectSet*			inRangePlayers	= mOwner->getKnownPlayers();
-	
-	//inRangePlayers can be undefined ????
-	if(inRangePlayers)
-	{
-		PlayerObjectSet::iterator	it				= inRangePlayers->begin();
-		while(it != inRangePlayers->end())
-		{
-			PlayerObject* targetObject = (*it);
-			gMessageLib->sendCreateObject(mBody,targetObject);
-			targetObject->addKnownObjectSafe(mBody);
-			mBody->addKnownObjectSafe(targetObject);
-			++it;
-		}
-		gLogger->logMsgF("void Vehicle::call() creating vehicle with id %"PRIu64"", MSG_HIGH, mBody->getId());
-		gMessageLib->sendCreateObject(mBody,mOwner);
-		mOwner->addKnownObjectSafe(mBody);
-		mBody->addKnownObjectSafe(mOwner);
-	}
-	else
-	{
-			gLogger->logMsgF("void Vehicle::call() wtf no inRange Object set???", MSG_HIGH);
-	}
+	gWorldManager->createObjectinWorld(mOwner,mBody);	
 
 	//gMessageLib->sendOwnerUpdateCreo3(mOwner);
 	gMessageLib->sendUpdateTransformMessage(mBody);

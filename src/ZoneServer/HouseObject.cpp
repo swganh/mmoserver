@@ -285,5 +285,39 @@ void HouseObject::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 }
 
 
+bool HouseObject::hasAdmin(uint64 id)
+{
+	ObjectIDList		adminList =	getHousingList();
+	
+	ObjectIDList::iterator it =	 adminList.begin();
 
+	while (it != adminList.end())
+	{
+		if( id == (*it))
+			return true;
+
+		it++;
+	}
+	return false;
+}
+
+void HouseObject::prepareDestruction()
+{
+	//iterate through all the cells - do they need to be deleted ?
+	//place players inside a cell in the world
+	CellObjectList*				cellList	= getCellList();
+	CellObjectList::iterator	cellIt		= cellList->begin();
+
+	while(cellIt != cellList->end())
+	{
+		CellObject* cell = (*cellIt);
+					
+		//remove items in the building from the world 
+		//place players and their pets in the maincell
+		cell->prepareDestruction();
+
+		++cellIt;
+	}
+
+}
 

@@ -266,15 +266,8 @@ void VehicleFactory::handleObjectReady(Object* object,DispatchClient* client)
 			{
 				datapad->addData(vehicle);
 				gWorldManager->addObject(vehicle,true);
-
 				//spawn it in the player's datapad
-				gMessageLib->sendCreateObjectByCRC(vehicle,player,false);
-				gMessageLib->sendBaselinesITNO_3(vehicle,player);
-				gMessageLib->sendBaselinesITNO_6(vehicle,player);
-				gMessageLib->sendBaselinesITNO_8(vehicle,player);
-				gMessageLib->sendBaselinesITNO_9(vehicle,player);
-				gMessageLib->sendContainmentMessage(vehicle->getId(), datapad->getId(), 0xffffffff, player);
-				gMessageLib->sendEndBaselines(vehicle->getId(),player);
+				gMessageLib->sendCreateInTangible(vehicle, datapad->getId(), player);
 
 				//now spawn it in the world
 				vehicle->call();

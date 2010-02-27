@@ -37,6 +37,9 @@ class CellObject :	public StaticObject
 		uint32		getLoadCount(){ return mTotalLoadCount; }
 		void		setLoadCount(uint32 count){ mTotalLoadCount = count; }
 
+		void		prepareDestruction();
+
+
 	private:
 
 		//ObjectList	mChildObjects;

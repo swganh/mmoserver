@@ -233,6 +233,7 @@ void BuildingFactory::handleObjectReady(Object* object,DispatchClient* client)
 	InLoadingContainer* ilc = _getObject(object->getParentId());
 	BuildingObject*		building = dynamic_cast<BuildingObject*>(ilc->mObject);
 	
+	//this happens on load so no reason to update players
 	gWorldManager->addObject(object,true);
 
 	building->addCell(dynamic_cast<CellObject*>(object));

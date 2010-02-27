@@ -370,7 +370,9 @@ bool MedicManager::HealDamage(PlayerObject* Medic, CreatureObject* Target, uint6
 		//CE
 		gMessageLib->sendPlayClientEffectLocMessage("clienteffect/healing_healdamage.cef",Medic->mPosition,Medic);
 
-	} else { //if targetting something else
+	} 
+	else 
+	{ //if targetting something else
 		if(StrengthHealth > 0)
 		{
 			if(StrengthAction > 0)
@@ -389,7 +391,9 @@ bool MedicManager::HealDamage(PlayerObject* Medic, CreatureObject* Target, uint6
 					gMessageLib->sendSystemMessage(PlayerTarget, L"", "healing_response", "healing_response_16", "", "", L"", StrengthHealth,"","",L"",0,Medic->getId());
 				}
 			}
-		} else {
+		} 
+		else 
+		{
 			if(StrengthAction > 0)
 			{
 				gMessageLib->sendSystemMessage(Medic, L"", "healing_response", "healing_response_14", "", "", L"", StrengthAction,"","",L"",Target->getId());

@@ -84,22 +84,8 @@ bool ScoutManager::createCamp(uint32 typeId,uint64 parentId,Anh_Math::Vector3 po
 
 	//create it in the world
 	gWorldManager->addObject(camp);
-
-	PlayerObjectSet*			inRangePlayers	= player->getKnownPlayers();
-	PlayerObjectSet::iterator	it				= inRangePlayers->begin();
-	while(it != inRangePlayers->end())
-	{
-		PlayerObject* targetObject = (*it);
-		gMessageLib->sendCreateTangible(camp,targetObject);
-		targetObject->addKnownObjectSafe(camp);
-		camp->addKnownObjectSafe(targetObject);
-		++it;
-	}
-
-	gMessageLib->sendCreateTangible(camp,player);
-	player->addKnownObjectSafe(camp);
-	camp->addKnownObjectSafe(player);
-	gMessageLib->sendDataTransform(camp);
+	gWorldManager->createObjectinWorld(player,camp);	
+	
 
 	//now get all the respective templates chairs/fires/torches and stuff
 

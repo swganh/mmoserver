@@ -591,8 +591,8 @@ bool WorldManager::_handleCraftToolTimers(uint64 callTime,void* ref)
 
 	while(it != mBusyCraftTools.end())
 	{
-		CraftingTool*	tool	= (*it);
-		PlayerObject*	player	= dynamic_cast<PlayerObject*>(getObjectById(tool->getParentId() - 1));
+		CraftingTool*	tool	=	dynamic_cast<CraftingTool*>(getObjectById((*it)));
+		PlayerObject*	player	=	dynamic_cast<PlayerObject*>(getObjectById(tool->getParentId() - 1));
 		Item*			item	= tool->getCurrentItem();
 
 		if(player)
@@ -642,7 +642,7 @@ bool WorldManager::_handleCraftToolTimers(uint64 callTime,void* ref)
 
 void WorldManager::addBusyCraftTool(CraftingTool* tool)
 {
-	mBusyCraftTools.push_back(tool);
+	mBusyCraftTools.push_back(tool->getId());
 }
 
 //======================================================================================================================
@@ -653,7 +653,7 @@ void WorldManager::removeBusyCraftTool(CraftingTool* tool)
 
 	while(it != mBusyCraftTools.end())
 	{
-		if((*it) == tool)
+		if((*it) == tool->getId())
 		{
 			mBusyCraftTools.erase(it);
 			break;

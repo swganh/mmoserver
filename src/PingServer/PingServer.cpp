@@ -114,7 +114,7 @@ void PingServer::HandleSend(const boost::system::error_code& error, size_t bytes
 
 int main(int argc, char* argv[])
 {
-	LogManager::Init(G_LEVEL_NORMAL, "PingServer.log", LEVEL_NORMAL, false, true, false);
+	LogManager::Init(G_LEVEL_NORMAL, "PingServer.log", LEVEL_NORMAL, true, true, false);
 	ConfigManager::Init("PingServer.cfg");
 	
 	gLogger->logMsgF("PingServer %s", MSG_NORMAL, ConfigManager::getBuildString().c_str());
@@ -124,8 +124,16 @@ int main(int argc, char* argv[])
 	int port            = gConfig->read<int>("BindPort");
 
     // Start the ping server.
-	PingServer ping_server(address, port);
-	gLogger->logMsgF("PingServer listening at %s:%d", MSG_NORMAL, address.c_str(), port);
+	try
+	{
+		PingServer ping_server(address, port);
+		gLogger->logMsgF("PingServer listening at %s:%d", MSG_NORMAL, address.c_str(), port);
+	}
+	catch(...) //Icky. Oh well.
+	{
+		gLogger->logMsgF("The specified port (%d) is already in use.", MSG_HIGH, port);
+		return -1;
+	}
 
 	while (true) {
 		// Check for incoming messages and handle them.

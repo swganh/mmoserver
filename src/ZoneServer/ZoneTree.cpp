@@ -547,7 +547,7 @@ void ZoneTree::RemoveRegion(int64 objId,double xLow,double zLow,double xHigh,dou
 	if(mTree->deleteData(r,objId) == false)
 	{
 		std::ostringstream ss;
-		ss << "ZoneTree::RemoveRegion *** ERROR: Cannot delete id: " << objId << std::endl;
+		ss << " ZoneTree::RemoveRegion *** ERROR: Cannot delete id: " << objId << std::endl;
 		gLogger->logMsg(ss.str());
 	}
 	else

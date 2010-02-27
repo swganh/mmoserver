@@ -94,7 +94,6 @@ public:
 	bool				sendCreateHarvester(HarvesterObject* harvester,PlayerObject* player);
 	bool				sendCreateFactory(FactoryObject* factory,PlayerObject* player);
 	bool				sendCreateBuilding(BuildingObject* buildingObject,PlayerObject* playerObject);
-	bool				sendCreateHouse(HouseObject* buildingObject,PlayerObject* playerObject);
 	bool				sendCreateCamp(TangibleObject* camp,PlayerObject* player);
 	
 	//creatures

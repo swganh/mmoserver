@@ -873,49 +873,9 @@ bool MessageLib::sendCreateBuilding(BuildingObject* buildingObject,PlayerObject*
 		}
 		else
 		{
+			gLogger->logMsgF("MessageLib::cell id %I64u cellcount %I64u",MSG_HIGH,cellId,count);
 			sendBaselinesSCLT_3(cell,cellId - count,playerObject);
 		}
-		sendBaselinesSCLT_6(cell,playerObject);
-		sendUpdateCellPermissionMessage(cell,1,playerObject);	 //make cellpermission softcoded
-		sendEndBaselines(cellId,playerObject);
-
-		++cellIt;
-	}
-
-	sendEndBaselines(buildingId,playerObject);
-
-	return(true);
-}
-
-//======================================================================================================================
-//
-// create building
-//
-
-bool MessageLib::sendCreateHouse(HouseObject* buildingObject,PlayerObject* playerObject)
-{
-	if(!_checkPlayer(playerObject))
-		return(false);
-
-	sendCreateObjectByCRC(buildingObject,playerObject,false);
-
-	sendBaselinesBUIO_3(buildingObject,playerObject);
-	sendBaselinesBUIO_6(buildingObject,playerObject);
-
-	uint64 buildingId = buildingObject->getId();
-
-	CellObjectList*				cellList	= buildingObject->getCellList();
-	CellObjectList::iterator	cellIt		= cellList->begin();
-
-	uint64 cellCount = cellList->size();
-	while(cellIt != cellList->end())
-	{
-		CellObject* cell = (*cellIt);
-		uint64 cellId = cell->getId();
-
-		sendCreateObjectByCRC(cell,playerObject,false);
-		sendContainmentMessage(cellId,buildingId,0xffffffff,playerObject);
-		sendBaselinesSCLT_3(cell,cellCount--,playerObject);
 		sendBaselinesSCLT_6(cell,playerObject);
 		sendUpdateCellPermissionMessage(cell,1,playerObject);	 //make cellpermission softcoded
 		sendEndBaselines(cellId,playerObject);
@@ -1009,7 +969,7 @@ bool MessageLib::sendCreateStructure(PlayerStructure* structure,PlayerObject* pl
 	else
 	if(HouseObject* house = dynamic_cast<HouseObject*>(structure))
 	{
-		return(sendCreateHouse(house, player));
+		return(sendCreateBuilding(house, player));
 	}
 
 	else 
@@ -1018,6 +978,10 @@ bool MessageLib::sendCreateStructure(PlayerStructure* structure,PlayerObject* pl
 		return(sendCreateFactory(factory, player));
 	}
 
+	if(structure->getPlayerStructureFamily() == PlayerStructure_Fence)
+	{
+		return(sendCreateInstallation(structure, player));
+	}
 	gLogger->logMsgF("MessageLib::sendCreateStructure:ID %I64u : couldnt cast structure",MSG_HIGH,structure->getId());
 	return(false);
 
@@ -1178,34 +1142,7 @@ bool MessageLib::sendCreateObject(Object* object,PlayerObject* player,bool sendS
 		// creatures
 		case ObjType_Creature:
 		{
-			/*
-			if (!gWorldConfig->isInstance())
-			{
-			if(CreatureObject* targetCreature = dynamic_cast<CreatureObject*>(object))
-			{
-			gMessageLib->sendCreateCreature(targetCreature,player);
-			}
-			}
-			else
-			{
-			// If it's a creature owned by me or my group I want to see it.
-			if (CreatureObject* targetCreature = dynamic_cast<CreatureObject*>(object))
-			{
-			if (targetCreature->getPrivateOwner())
-			{
-			if (targetCreature->isOwnedBy(player))
-			{
-			gMessageLib->sendCreateCreature(targetCreature,player);
-			}
-			}
-			else
-			{
-			// No owner.. standard creature
-			gMessageLib->sendCreateCreature(targetCreature,player);
-			}
-			}
-			}
-			*/
+		
 			// If it's a creature owned by me or my group I want to see it.
 			if (CreatureObject* targetCreature = dynamic_cast<CreatureObject*>(object))
 			{

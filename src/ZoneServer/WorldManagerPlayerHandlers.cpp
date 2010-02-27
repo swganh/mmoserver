@@ -200,7 +200,7 @@ void WorldManager::savePlayerSync(uint32 accId,bool remove)
 
 PlayerObject*	WorldManager::getPlayerByAccId(uint32 accId)
 {
-	PlayerAccMap::iterator it = mPlayerAccMap.find(accId);
+ 	PlayerAccMap::iterator it = mPlayerAccMap.find(accId);
 
 	if(it != mPlayerAccMap.end())
 	{

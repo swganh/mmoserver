@@ -99,6 +99,8 @@ class PlayerObject : public CreatureObject
 
 		bool				checkXpType(uint32 xpType);
 
+		virtual void		setParentIdIncDB(uint64 parentId);
+
 		// Here is where we shall add restrictions for JTL, Jedi, Pre-Pub 14
 		// or other restrictions for type of XP to allow. Return true if xpType is restricted.
 		bool				restrictedXpType(uint32 xpType);

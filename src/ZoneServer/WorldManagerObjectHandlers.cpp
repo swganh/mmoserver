@@ -584,7 +584,8 @@ void WorldManager::destroyObject(Object* object)
 				}
 				else
 				{	
-					mSpatialIndex->RemoveRegion(object->getId(),object->mPosition.mX,object->mPosition.mZ,building->getWidth(),building->getHeight());
+					//mSpatialIndex->InsertRegion(key,building->mPosition.mX,building->mPosition.mZ,building->getWidth(),building->getHeight());
+					mSpatialIndex->RemoveRegion(object->getId(),object->mPosition.mX,object->mPosition.mZ,object->mPosition.mX+building->getWidth(),object->mPosition.mZ+building->getHeight());
 				}
 
 				object->destroyKnownObjects();

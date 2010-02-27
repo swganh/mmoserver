@@ -97,7 +97,7 @@ void HouseFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 				mCellFactory->requestObject(this,cellId,0,0,asyncContainer->mClient);
 				if(cellId < maxid)
-				maxid = cellId;
+					maxid = cellId;
 			}
 			house->setMinCellId(maxid);
 

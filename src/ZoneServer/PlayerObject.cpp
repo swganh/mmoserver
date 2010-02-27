@@ -2034,3 +2034,11 @@ bool PlayerObject::regainLots(uint8 lots)
 	return true;
 }
 
+//=============================================================================
+//assign the item a new parent id
+//
+void PlayerObject::setParentIdIncDB(uint64 parentId)
+{ 
+	mParentId = parentId; 
+	gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE characters SET parent_id=%"PRIu64" WHERE id=%"PRIu64"",mParentId,this->getId());
+}

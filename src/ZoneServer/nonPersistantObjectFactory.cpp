@@ -306,6 +306,7 @@ PlayerStructure* NonPersistantObjectFactory::requestBuildingFenceObject(float x,
 	
 	PlayerStructure* structure = new(PlayerStructure);
 	
+	structure->setType(ObjType_Structure);
 	structure->mPosition.mX = x;
 	structure->mPosition.mZ = z;	
 	//slow query - use for building placement only
@@ -318,7 +319,7 @@ PlayerStructure* NonPersistantObjectFactory::requestBuildingFenceObject(float x,
 	structure->setCustomName("");
 	structure->setMaxCondition(1000);
 
-	structure->setPlayerStructureFamily(PlayerStructure_Temporary);
+	structure->setPlayerStructureFamily(PlayerStructure_Fence);
 
 	structure->setId(gWorldManager->getRandomNpId());
 

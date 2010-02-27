@@ -72,6 +72,12 @@ void CampRegion::update()
 
 	PlayerObject* owner = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(mOwnerId));
 
+	if(!owner)
+	{
+		despawnCamp();
+		return;
+	}
+
 	if(owner->checkState(CreatureState_Combat))
 	{
 		//abandon
@@ -116,8 +122,6 @@ void CampRegion::update()
 		if(!(checkKnownObjects(object)))
 		{
 			onObjectEnter(object);
-
-
 
 			std::list<campLink*>::iterator i;
 			bool alreadyExists = false;

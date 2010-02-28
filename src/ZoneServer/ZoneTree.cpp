@@ -463,8 +463,8 @@ void ZoneTree::getObjectsInRange(const Object* const object,ObjectSet* resultSet
 		MyVisitor vis(&resultIdList);
 
 		// This is a test to see if we "get any more speed", by ERU.
-		 //mTree->intersectsWithQuery(r,vis);
-		mTree->containsWhatQuery(r,vis);
+		 mTree->intersectsWithQuery(r,vis);
+		//mTree->containsWhatQuery(r,vis);
 
 		ObjectIdList::iterator it = resultIdList.begin();
 		while(it != resultIdList.end())

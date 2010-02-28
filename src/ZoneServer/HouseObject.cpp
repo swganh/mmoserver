@@ -32,8 +32,8 @@ HouseObject::HouseObject() : BuildingObject()
 {
 	mType = ObjType_Building;
 	
-	setWidth(128);
-	setHeight(128);
+	setWidth(64);
+	setHeight(64);
 	
 }
 

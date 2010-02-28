@@ -44,7 +44,8 @@ enum PlayerStructureFamily
 	PlayerStructure_City_Deco				= 5,
 	PlayerStructure_Factory					= 6,
 	PlayerStructure_Temporary				= 7,
-	PlayerStructure_Fence					= 8
+	PlayerStructure_Fence					= 8,
+	PlayerStructure_Sign					= 9
 };
 
 enum CampFamily

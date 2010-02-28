@@ -44,6 +44,9 @@ class HouseObject :	public BuildingObject, public DatabaseCallback
 		void			prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
 		void			handleObjectMenuSelect(uint8 messageType,Object* srcObject);
 
+		PlayerStructure*	getSign(){ return mSign; }
+		void				setSign(PlayerStructure* sign){ mSign = sign; }
+
 		bool			hasAdmin(uint64 id);
 	
 		void			prepareDestruction();
@@ -57,6 +60,8 @@ class HouseObject :	public BuildingObject, public DatabaseCallback
 		HouseFamily		mHouseFamily;
 
 		uint32			mTotalLoadCount;
+
+		PlayerStructure* mSign;
 		
 };
 

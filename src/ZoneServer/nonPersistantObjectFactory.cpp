@@ -315,8 +315,9 @@ PlayerStructure* NonPersistantObjectFactory::requestBuildingFenceObject(float x,
 	structure->setName("temporary_structure");
 	structure->setNameFile("player_structure");
 	
+
 	structure->setParentId(0);
-	structure->setCustomName("");
+
 	structure->setMaxCondition(1000);
 
 	structure->setPlayerStructureFamily(PlayerStructure_Fence);
@@ -326,7 +327,48 @@ PlayerStructure* NonPersistantObjectFactory::requestBuildingFenceObject(float x,
 	//tangible->setOwner(player->getId());
 	
 	//gLogger->logMsgF("place %s",MSG_HIGH,placableTemplate->structureObjectString.getAnsi());
+	
+
+	//create it in the world
 	structure->setModelString("object/installation/base/shared_construction_installation_base.iff");
+
+	gWorldManager->addObject(structure);
+		
+	gWorldManager->createObjectinWorld(player,structure);	
+	gMessageLib->sendDataTransform(structure);
+
+	return structure;
+
+}
+
+PlayerStructure* NonPersistantObjectFactory::requestBuildingSignObject(float x, float y, float z, PlayerObject* player, string name, string namefile, string custom)
+{
+	
+	PlayerStructure* structure = new(PlayerStructure);
+	
+	structure->setType(ObjType_Structure);
+	structure->mPosition.mX = x;
+	structure->mPosition.mZ = z;	
+	//slow query - use for building placement only
+	structure->mPosition.mY = y;
+
+	structure->setName(name.getAnsi());
+	structure->setNameFile(namefile.getAnsi());
+	structure->setCustomName(custom.getAnsi());
+
+	structure->setParentId(0);
+	structure->setCustomName("");
+	structure->setMaxCondition(1000);
+
+	structure->setPlayerStructureFamily(PlayerStructure_Sign);
+
+	structure->setId(gWorldManager->getRandomNpId());
+
+	//tangible->setOwner(player->getId());
+	
+	//gLogger->logMsgF("place %s",MSG_HIGH,placableTemplate->structureObjectString.getAnsi());
+	structure->setModelString("object/static/structure/tatooine/shared_streetsign_wall_style_01.iff");
+	
 
 	//create it in the world
 	

@@ -55,6 +55,7 @@ class NonPersistantObjectFactory : public FactoryBase
 		void					createTangible(ObjectFactoryCallback* ofCallback, uint32 familyId, uint32 typeId, uint64 parentId,Anh_Math::Vector3 position, string customName, DispatchClient* client);
 
 		PlayerStructure*		requestBuildingFenceObject(float x, float y, float z, PlayerObject* player);
+		PlayerStructure*		requestBuildingSignObject(float x, float y, float z, PlayerObject* player, string name, string namefile, string custom);
 
 		//spawns temporary objects for camps
 		TangibleObject*			spawnTangible(StructureItemTemplate* placableTemplate, uint64 parentId, Anh_Math::Vector3 position, string customName, PlayerObject* player);

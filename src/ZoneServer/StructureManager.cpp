@@ -577,6 +577,12 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 
 			gWorldManager->createObjectinWorld(player,structure);	
 			gMessageLib->sendConstructionComplete(player,structure);
+
+			if(HouseObject* house = dynamic_cast<HouseObject*>(structure))
+			{
+				PlayerStructure* sign = gNonPersistantObjectFactory->requestBuildingSignObject(structure->mPosition.mX,structure->mPosition.mY,structure->mPosition.mZ,player,"","","");
+				house->setSign(sign);
+			}
 			
 
 		}

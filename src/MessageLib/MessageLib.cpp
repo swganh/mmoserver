@@ -873,7 +873,6 @@ bool MessageLib::sendCreateBuilding(BuildingObject* buildingObject,PlayerObject*
 		}
 		else
 		{
-			gLogger->logMsgF("MessageLib::cell id %I64u cellcount %I64u",MSG_HIGH,cellId,count);
 			sendBaselinesSCLT_3(cell,cellId - count,playerObject);
 		}
 		sendBaselinesSCLT_6(cell,playerObject);

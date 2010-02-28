@@ -39,8 +39,8 @@ void PlayerStructureTerminal::prepareCustomRadialMenu(CreatureObject* player, ui
 
 	// any object with callbacks needs to handle those (received with menuselect messages) !
 	radial->addItem(1,0,radId_examine,radAction_Default,"");
-	radial->addItem(2,0,radId_serverTerminalManagement,radAction_ObjCallback,"Management");
-	radial->addItem(3,0,radId_serverTerminalPermissions,radAction_ObjCallback, "Permissions");
+	radial->addItem(2,0,radId_serverTerminalManagement,radAction_ObjCallback,"@player_structure:management");
+	radial->addItem(3,0,radId_serverTerminalPermissions,radAction_ObjCallback, "@player_structure:permissions");
 
 	//test if the caller is on the permission list
 
@@ -51,6 +51,8 @@ void PlayerStructureTerminal::prepareCustomRadialMenu(CreatureObject* player, ui
 	{
 		radial->addItem(4,2,radId_serverTerminalManagementDestroy,radAction_ObjCallback,"@player_structure:permission_destroy ");//destroy
 		radial->addItem(5,2,radId_serverTerminalManagementStatus,radAction_ObjCallback,"@player_structure:management_status");
+		radial->addItem(6,2,radId_serverTerminalManagementPay,radAction_ObjCallback,"@player_structure:management_pay");
+		
 
 	}
   
@@ -91,6 +93,31 @@ void PlayerStructureTerminal::handleObjectMenuSelect(uint8 messageType,Object* s
 			
 		}
 		break;
+
+		case radId_serverTerminalManagementStatus:
+		{
+			StructureAsyncCommand command;
+			command.Command = Structure_Command_ViewStatus;
+			command.PlayerId = player->getId();
+			command.StructureId = this->getStructure();
+
+			gStructureManager->checkNameOnPermissionList(this->getStructure(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+
+		}
+		break;
+
+		case radId_serverTerminalManagementPay:
+		{
+			StructureAsyncCommand command;
+			command.Command = Structure_Command_PayMaintenance;
+			command.PlayerId = player->getId();
+			command.StructureId = this->getStructure();
+
+			gStructureManager->checkNameOnPermissionList(this->getStructure(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+			
+		}
+		break;
+
 
 		default:
 			break;

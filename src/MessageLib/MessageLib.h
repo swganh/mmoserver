@@ -444,6 +444,8 @@ public:
 	bool				sendEnterStructurePlacement(Object* deed, string objectString, PlayerObject* playerObject);
 	bool				sendAdminList(PlayerStructure* structure, PlayerObject* playerObject);
 	bool				sendHopperList(PlayerStructure* structure, PlayerObject* playerObject);
+	bool				sendBanList(PlayerStructure* structure, PlayerObject* playerObject);
+	bool				sendEntryList(PlayerStructure* structure, PlayerObject* playerObject);
 
 	// resource container, resourcecontainermessages.cpp
 	bool				sendBaselinesRCNO_3(ResourceContainer* resourceContainer,PlayerObject* targetObject);

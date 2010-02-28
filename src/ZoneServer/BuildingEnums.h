@@ -45,7 +45,9 @@ enum PlayerStructureFamily
 	PlayerStructure_Factory					= 6,
 	PlayerStructure_Temporary				= 7,
 	PlayerStructure_Fence					= 8,
-	PlayerStructure_Sign					= 9
+	PlayerStructure_Sign					= 9,
+	PlayerStructure_TreBuilding				= 10
+	
 };
 
 enum CampFamily

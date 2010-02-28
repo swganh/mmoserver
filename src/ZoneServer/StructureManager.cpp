@@ -10,6 +10,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 */
 #include "WorldConfig.h"
 #include "StructureManager.h"
+#include "PlayerStructureTerminal.h"
 #include "FactoryFactory.h"
 #include "nonPersistantObjectFactory.h"
 #include "HarvesterObject.h"
@@ -578,9 +579,14 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 			gWorldManager->createObjectinWorld(player,structure);	
 			gMessageLib->sendConstructionComplete(player,structure);
 
-			if(HouseObject* house = dynamic_cast<HouseObject*>(structure))
+			if(structure->getPlayerStructureFamily() == PlayerStructure_House)
 			{
-				PlayerStructure* sign = gNonPersistantObjectFactory->requestBuildingSignObject(structure->mPosition.mX,structure->mPosition.mY,structure->mPosition.mZ,player,"","","");
+				float x,y,z;
+				x = structure->mPosition.mX+7;
+				y = structure->mPosition.mY+1;
+				z = structure->mPosition.mZ+7;
+				PlayerStructure* sign = gNonPersistantObjectFactory->requestBuildingSignObject(x,y,z,player,"sign","sign_name",structure->getCustomName());
+				HouseObject* house = dynamic_cast<HouseObject*>(structure);
 				house->setSign(sign);
 			}
 			
@@ -634,6 +640,46 @@ void StructureManager::OpenStructureAdminList(uint64 structureId, uint64 playerI
 }
 
 //=======================================================================================================================
+//handles callback of altering the admin list
+//
+
+void StructureManager::OpenStructureEntryList(uint64 structureId, uint64 playerId)
+{
+	// load our structures Admin data
+	//
+
+	StructureManagerAsyncContainer* asyncContainer;
+	asyncContainer = new StructureManagerAsyncContainer(Structure_Query_Entry_Data, 0);
+	asyncContainer->mStructureId = structureId;
+	asyncContainer->mPlayerId = playerId;
+
+	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT c.firstname FROM structure_admin_data sad  INNER JOIN characters c ON (sad.PlayerID = c.ID)where sad.StructureID = %I64u AND sad.AdminType like 'Entry'",structureId);
+
+
+}
+
+
+//=======================================================================================================================
+//handles callback of altering the admin list
+//
+
+void StructureManager::OpenStructureBanList(uint64 structureId, uint64 playerId)
+{
+	// load our structures Admin data
+	//
+
+	StructureManagerAsyncContainer* asyncContainer;
+	asyncContainer = new StructureManagerAsyncContainer(Structure_Query_Ban_Data, 0);
+	asyncContainer->mStructureId = structureId;
+	asyncContainer->mPlayerId = playerId;
+
+	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT c.firstname FROM structure_admin_data sad  INNER JOIN characters c ON (sad.PlayerID = c.ID)where sad.StructureID = %I64u AND sad.AdminType like 'BAN'",structureId);
+
+
+}
+
+
+//=======================================================================================================================
 //processes a succesfull PermissionList verification
 //=======================================================================================================================
 
@@ -650,13 +696,32 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 
 	switch(command.Command)
 	{
+
+		case Structure_Command_Privacy:
+		{
+			HouseObject* house = dynamic_cast<HouseObject*>(gWorldManager->getObjectById(command.StructureId));
+			if(!house)
+			{
+				gLogger->logMsg("StructureManager::processVerification : No Player Building ");
+				return;
+			}
+			//set to private
+			if(house->getPublic())
+			{
+				mDatabase->ExecuteSqlAsync(0,0,"UPDATE houses h SET h.private = 1 WHERE h.ID = %I64u",command.StructureId);
+			}
+
+			mDatabase->ExecuteSqlAsync(0,0,"UPDATE houses h SET h.private = 0 WHERE h.ID = %I64u",command.StructureId);
+		}
+		break;
+
 		
 		case Structure_Command_StopFactory:
 		{
 			FactoryObject* factory = dynamic_cast<FactoryObject*>(gWorldManager->getObjectById(command.StructureId));
 			if(!factory)
 			{
-				gLogger->logMsg("StructureManager::processVerification : No Factory (Structure_Command_AccessInHopper) ");
+				gLogger->logMsg("StructureManager::processVerification : No Factory (Structure_Command_StopFactory) ");
 				return;
 			}
 
@@ -934,8 +999,12 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			}
 			if(player->getTargetId() != structure->getId())
 			{
-				gMessageLib->sendSystemMessage(player,L"","player_structure","changed_structurestatus");
-				return;
+				PlayerStructureTerminal* terminal = dynamic_cast<PlayerStructureTerminal*>(gWorldManager->getObjectById(player->getTargetId()));
+				if(!terminal||(terminal->getStructure() != command.StructureId))
+				{
+					gMessageLib->sendSystemMessage(player,L"","player_structure","changed_structurestatus");
+					return;
+				}
 			}
 
 			//read the relevant attributes in then display the status page
@@ -1115,6 +1184,20 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 				//gMessageLib->sendSystemMessage(player,L"","player_structure","destroy_must_be_owner");
 			
 			
+		}
+		break;
+
+		case Structure_Command_PermissionBan:
+		{
+			player->setStructurePermissionId(command.StructureId);
+			OpenStructureAdminList(command.StructureId, command.PlayerId);
+		}
+		break;
+
+		case Structure_Command_PermissionEntry:
+		{
+			player->setStructurePermissionId(command.StructureId);
+			OpenStructureAdminList(command.StructureId, command.PlayerId);
 		}
 		break;
 

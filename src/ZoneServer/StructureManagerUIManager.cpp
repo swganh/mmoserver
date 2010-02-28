@@ -11,6 +11,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "WorldConfig.h"
 #include "StructureManager.h"
 #include "HarvesterObject.h"
+#include "HouseObject.h"
 #include "FactoryObject.h"
 #include "ManufacturingSchematic.h"
 #include "Inventory.h"
@@ -138,13 +139,14 @@ void StructureManager::createNewStructureStatusBox(PlayerObject* player, PlayerS
 
 
 	//private vs public
-	if(structure->getPrivate())
+	HouseObject* house = dynamic_cast<HouseObject*>(structure);
+	if(house && house->getPublic())
 	{
-		sprintf(text,"This structure is private");
+		sprintf(text,"This structure is public");
 	}
 	else
 	{
-		sprintf(text,"This structure is public");
+		sprintf(text,"This structure is private");	
 	}
 
 	attributesMenu.push_back(text);
@@ -178,7 +180,7 @@ void StructureManager::createNewStructureStatusBox(PlayerObject* player, PlayerS
 	sprintf(text,"Maintenance Rate: %u/hr",(uint32)rate);
 	attributesMenu.push_back(text);
 
-	//Power Pool
+	//Power Pool do not display with houses or powerharvesters
 	if(structure->getPlayerStructureFamily() == PlayerStructure_Harvester)
 	{
 		HarvesterObject* hO = dynamic_cast<HarvesterObject*>(structure);
@@ -187,8 +189,18 @@ void StructureManager::createNewStructureStatusBox(PlayerObject* player, PlayerS
 		if((haFa == HarvesterFamily_Fusion)||(haFa == HarvesterFamily_Solar)||(haFa == HarvesterFamily_Wind))
 		{
 			gUIManager->createNewListBox(structure,"structurestatus","@player_structure:structure_status_t", wText, attributesMenu, player, SUI_Window_Structure_Status,SUI_LB_CANCELREFRESH,structure->getId());	
+			return;
 		}
+		
 	}
+
+	//no powerpool for houses :)
+	if(structure->getPlayerStructureFamily() == PlayerStructure_House)
+	{
+		gUIManager->createNewListBox(structure,"structurestatus","@player_structure:structure_status_t", wText, attributesMenu, player, SUI_Window_Structure_Status,SUI_LB_CANCELREFRESH,structure->getId());	
+		return;
+	}
+
 	uint32 power = structure->getCurrentPower();
 	rate = (float)structure->getPowerConsumption();
 	

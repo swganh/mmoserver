@@ -162,6 +162,31 @@ void PlayerStructure::sendStructureAdminList(uint64 playerId)
 
 }
 
+//=============================================================================
+// now we have the adminlist we can proceed to display it
+//
+void PlayerStructure::sendStructureBanList(uint64 playerId)
+{
+	PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId));
+
+	gMessageLib->sendBanList(this,player);
+
+
+}
+
+//=============================================================================
+// now we have the adminlist we can proceed to display it
+//
+void PlayerStructure::sendStructureEntryList(uint64 playerId)
+{
+	PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId));
+
+	gMessageLib->sendEntryList(this,player);
+
+
+}
+
+
 
 //=============================================================================
 // now we have the hopperlist we can proceed to display it

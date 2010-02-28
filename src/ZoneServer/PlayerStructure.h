@@ -76,7 +76,7 @@ class PlayerStructure :	public TangibleObject
 		uint64					getOwner(){ return mOwner; }
 		void					setOwner(uint64 owner){ mOwner = owner; }
 
-		uint32					getCondition(){ return mCondition; }
+		uint32					getCondition(){ return (mMaxCondition - mDamage); }
 		void					setCondition(uint32 condition){ mCondition = condition; }
 		bool					decCondition(uint32 dec){int64 altered = static_cast<int64>(mCondition-dec);if(altered <= 0) return false; else mCondition = static_cast<uint32>(altered);return true; }
 
@@ -114,12 +114,7 @@ class PlayerStructure :	public TangibleObject
 
 		//we store the owners name here when read in from db for the status window
 		string					getOwnersName(){return mOName;}
-		void					setOwnersName(string name){mOName = name;}
-
-
-		void					setPrivate(bool yesORno){mPrivate = yesORno;}
-		bool					getPrivate(){return mPrivate;}
-		
+		void					setOwnersName(string name){mOName = name;}		
 
 		// is called by the structuremanager after reading maintenance data from the db
 		void					deleteStructureDBDataRead(uint64 playerId);
@@ -127,6 +122,8 @@ class PlayerStructure :	public TangibleObject
 		// sends an UI List with the Admin list
 		void					sendStructureAdminList(uint64 playerId);
 		void					sendStructureHopperList(uint64 playerId);
+		void					sendStructureBanList(uint64 playerId);
+		void					sendStructureEntryList(uint64 playerId);
 
 		void					handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window);
 		void					handleUIEvent(string strInventoryCash, string strBankCash, UIWindow* window);
@@ -142,6 +139,16 @@ class PlayerStructure :	public TangibleObject
 		BStringVector			getStrucureAdminList(){return mStructureAdminList;}
 		void					addStructureAdmin(string name){mStructureAdminList.push_back(name);}
 		void					resetStructureAdminList(){mStructureAdminList.clear();}
+
+		// thats the structures entry list
+		BStringVector			getStrucureEntryList(){return mStructureEntryList;}
+		void					addStructureEntry(string name){mStructureEntryList.push_back(name);}
+		void					resetStructureEntryList(){mStructureEntryList.clear();}
+
+		// thats the structures ban list
+		BStringVector			getStrucureBanList(){return mStructureBanList;}
+		void					addStructureBan(string name){mStructureBanList.push_back(name);}
+		void					resetStructureBanList(){mStructureBanList.clear();}
 
 		// thats the structures admin list
 		BStringVector			getStrucureHopperList(){return mStructureHopperList;}
@@ -180,9 +187,9 @@ class PlayerStructure :	public TangibleObject
 		timerTodoStruct				mTTS;
 		string						mOName;
 
-		bool						mPrivate;
-
 		ObjectIDList				mHousingAdminList;
+		BStringVector				mStructureBanList;		
+		BStringVector				mStructureEntryList;
 		BStringVector				mStructureAdminList;
 		BStringVector				mStructureHopperList;
 

@@ -52,6 +52,13 @@ void PlayerStructureTerminal::prepareCustomRadialMenu(CreatureObject* player, ui
 		radial->addItem(4,2,radId_serverTerminalManagementDestroy,radAction_ObjCallback,"@player_structure:permission_destroy ");//destroy
 		radial->addItem(5,2,radId_serverTerminalManagementStatus,radAction_ObjCallback,"@player_structure:management_status");
 		radial->addItem(6,2,radId_serverTerminalManagementPay,radAction_ObjCallback,"@player_structure:management_pay");
+		radial->addItem(7,2,radId_serverTerminalManagementPrivacy,radAction_ObjCallback,"@player_structure:management_privacy");
+
+		radial->addItem(8,3,radId_serverTerminalPermissionsAdmin,radAction_ObjCallback,"@player_structure:permission_admin");
+		radial->addItem(9,3,radId_serverTerminalPermissionsBanned,radAction_ObjCallback,"@player_structure:permission_banned");
+		radial->addItem(10,3,radId_serverTerminalPermissionsEnter,radAction_ObjCallback,"@player_structure:permission_enter");
+
+		 
 		
 
 	}
@@ -82,6 +89,50 @@ void PlayerStructureTerminal::handleObjectMenuSelect(uint8 messageType,Object* s
 	
 	switch(messageType)
 	{
+		case radId_serverTerminalPermissionsBanned:
+		{
+			StructureAsyncCommand command;
+			command.Command = Structure_Command_PermissionBan;
+			command.PlayerId = player->getId();
+			command.StructureId = this->getStructure();
+
+			gStructureManager->checkNameOnPermissionList(this->getStructure(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+		}
+		break;
+
+		case radId_serverTerminalPermissionsEnter:
+		{
+			StructureAsyncCommand command;
+			command.Command = Structure_Command_PermissionEntry;
+			command.PlayerId = player->getId();
+			command.StructureId = this->getStructure();
+
+			gStructureManager->checkNameOnPermissionList(this->getStructure(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+		}
+		break;
+
+		case radId_serverTerminalPermissionsAdmin:
+		{
+			StructureAsyncCommand command;
+			command.Command = Structure_Command_PermissionAdmin;
+			command.PlayerId = player->getId();
+			command.StructureId = this->getStructure();
+
+			gStructureManager->checkNameOnPermissionList(this->getStructure(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+		}
+		break;
+
+		case radId_serverTerminalManagementPrivacy:
+		{
+			StructureAsyncCommand command;
+			command.Command = Structure_Command_Privacy;
+			command.PlayerId = player->getId();
+			command.StructureId = this->getStructure();
+
+			gStructureManager->checkNameOnPermissionList(this->getStructure(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+		}
+		break;
+
 		case radId_serverTerminalManagementDestroy: 
 		{
 			StructureAsyncCommand command;
@@ -103,6 +154,7 @@ void PlayerStructureTerminal::handleObjectMenuSelect(uint8 messageType,Object* s
 
 			gStructureManager->checkNameOnPermissionList(this->getStructure(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
 
+			
 		}
 		break;
 

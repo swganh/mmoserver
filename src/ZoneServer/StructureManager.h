@@ -69,6 +69,8 @@ enum Structure_QueryType
 	Structure_UpdateStructureDeed				=	18,
 	Structure_UpdateCharacterLots				=	19,
 	Structure_UpdateAttributes					=	20,
+	Structure_Query_Entry_Data					=	21,
+	Structure_Query_Ban_Data					=	22,
 
 };
 
@@ -98,6 +100,9 @@ enum Structure_Async_CommandEnum
 	Structure_Command_AccessOutHopper	=	21,
 	Structure_Command_StartFactory		=	22,
 	Structure_Command_StopFactory		=	23,
+	Structure_Command_Privacy			=	24,
+	Structure_Command_PermissionEntry	=	25,
+	Structure_Command_PermissionBan		=	26,
 	
 
 };
@@ -294,6 +299,8 @@ class StructureManager : public DatabaseCallback,public ObjectFactoryCallback
 		bool					_handleStructureDBCheck(uint64 callTime, void* ref);
 
 		void					OpenStructureAdminList(uint64 structureId, uint64 playerId);
+		void					OpenStructureEntryList(uint64 structureId, uint64 playerId);
+		void					OpenStructureBanList(uint64 structureId, uint64 playerId);
 		void					OpenStructureHopperList(uint64 structureId, uint64 playerId);
 
 

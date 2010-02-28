@@ -360,6 +360,58 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 		}
 		break;
 
+		//queries all entries of a structures entry list
+		case Structure_Query_Entry_Data:
+		{
+			PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(asynContainer->mStructureId));
+
+			string playerName;
+			DataBinding* binding = mDatabase->CreateDataBinding(1);
+			binding->addField(DFT_bstring,0,64);
+
+			uint64 count;
+			count = result->getRowCount();
+
+			for(uint64 i = 0;i < count;i++)
+			{
+				result->GetNextRow(binding,&playerName);
+
+				structure->addStructureEntry(playerName);
+
+			}
+
+			structure->sendStructureEntryList(asynContainer->mPlayerId);
+
+			mDatabase->DestroyDataBinding(binding);
+		}
+		break;
+
+		//queries all entries of a structures entry list
+		case Structure_Query_Ban_Data:
+		{
+			PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(asynContainer->mStructureId));
+
+			string playerName;
+			DataBinding* binding = mDatabase->CreateDataBinding(1);
+			binding->addField(DFT_bstring,0,64);
+
+			uint64 count;
+			count = result->getRowCount();
+
+			for(uint64 i = 0;i < count;i++)
+			{
+				result->GetNextRow(binding,&playerName);
+
+				structure->addStructureBan(playerName);
+
+			}
+
+			structure->sendStructureBanList(asynContainer->mPlayerId);
+
+			mDatabase->DestroyDataBinding(binding);
+		}
+		break;
+
 		//queries all entries of a structures admin list
 		case Structure_Query_Admin_Data:
 		{

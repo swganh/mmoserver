@@ -326,3 +326,92 @@ bool MessageLib::sendAdminList(PlayerStructure* structure, PlayerObject* playerO
 	return(true);
 }
 
+//======================================================================================================================
+//
+// sends the Admin List for a structure
+//
+
+bool MessageLib::sendEntryList(PlayerStructure* structure, PlayerObject* playerObject)
+{
+	if(!(playerObject->isConnected()))
+		return(false);
+
+	Message* newMessage;
+
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opSendPermissionList);  
+	gMessageFactory->addUint32(structure->getStrucureEntryList().size() );
+
+	string name;
+	BStringVector vector = 	structure->getStrucureEntryList();
+	BStringVector::iterator it = vector.begin();
+	while(it != vector.end())
+	{
+		name = (*it);
+		name.convert(BSTRType_Unicode16);
+		gMessageFactory->addString(name);
+
+		it++;
+	}
+
+	gMessageFactory->addUint32(0); // ???
+	//gMessageFactory->addUint16(0);	// unknown
+	name = "ENTRY";
+	name.convert(BSTRType_Unicode16);
+	gMessageFactory->addString(name);
+	gMessageFactory->addUint32(0); // ???
+	
+	newMessage = gMessageFactory->EndMessage();
+
+	(playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 5);
+
+	structure->resetStructureAdminList();
+
+	return(true);
+}
+
+
+//======================================================================================================================
+//
+// sends the Admin List for a structure
+//
+
+bool MessageLib::sendBanList(PlayerStructure* structure, PlayerObject* playerObject)
+{
+	if(!(playerObject->isConnected()))
+		return(false);
+
+	Message* newMessage;
+
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opSendPermissionList);  
+	gMessageFactory->addUint32(structure->getStrucureBanList().size() );
+
+	string name;
+	BStringVector vector = 	structure->getStrucureBanList();
+	BStringVector::iterator it = vector.begin();
+	while(it != vector.end())
+	{
+		name = (*it);
+		name.convert(BSTRType_Unicode16);
+		gMessageFactory->addString(name);
+
+		it++;
+	}
+
+	gMessageFactory->addUint32(0); // ???
+	//gMessageFactory->addUint16(0);	// unknown
+	name = "BAN";
+	name.convert(BSTRType_Unicode16);
+	gMessageFactory->addString(name);
+	gMessageFactory->addUint32(0); // ???
+	
+	newMessage = gMessageFactory->EndMessage();
+
+	(playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 5);
+
+	structure->resetStructureAdminList();
+
+	return(true);
+}
+

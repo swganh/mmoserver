@@ -217,7 +217,8 @@ void HouseFactory::_createHouse(DatabaseResult* result, HouseObject* house)
 	house->setLoadState(LoadState_Loaded);
 	house->setType(ObjType_Building);
 	house->mCustomName.convert(BSTRType_Unicode16);
-	//house->setCapacity(2); // we want to load 2 hoppers!
+	house->setPlayerStructureFamily(PlayerStructure_House);
+
 }
 
 //=============================================================================
@@ -260,9 +261,9 @@ void HouseFactory::_setupDatabindings()
 	mHouseBinding->addField(DFT_bstring,offsetof(HouseObject,mCustomName),256,13);
 	
 	mHouseBinding->addField(DFT_uint8,offsetof(HouseObject,mLotsUsed),1,14);
-	mHouseBinding->addField(DFT_uint8,offsetof(HouseObject,mPrivate),1,15);
+	mHouseBinding->addField(DFT_uint8,offsetof(HouseObject,mPublic),1,15);
 	mHouseBinding->addField(DFT_uint32,offsetof(HouseObject,maint_cost_wk),4,16);
-	mHouseBinding->addField(DFT_uint32,offsetof(HouseObject,mCondition),4,17);
+	mHouseBinding->addField(DFT_uint32,offsetof(HouseObject,mDamage),4,17);
 	mHouseBinding->addField(DFT_uint32,offsetof(HouseObject,mMaxCondition),4,18);														
 	
 }

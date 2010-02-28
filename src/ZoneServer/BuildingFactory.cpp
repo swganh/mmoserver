@@ -182,6 +182,7 @@ BuildingObject* BuildingFactory::_createBuilding(DatabaseResult* result)
 	result->GetNextRow(mBuildingBinding,buildingObject);
 
 	buildingObject->setLoadState(LoadState_Loaded);
+	buildingObject->setPlayerStructureFamily(PlayerStructure_TreBuilding);
 
 	return buildingObject;
 }

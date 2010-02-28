@@ -128,20 +128,21 @@ int main(int argc, char* argv[])
 	{
 		PingServer ping_server(address, port);
 		gLogger->logMsgF("PingServer listening at %s:%d", MSG_NORMAL, address.c_str(), port);
+
+
+		while (true) {
+			// Check for incoming messages and handle them.
+			ping_server.Poll();
+			boost::this_thread::sleep(boost::posix_time::milliseconds(1));
+
+			// Stop the ping server if a key is hit.
+			if (Anh_Utils::kbhit()) break;
+		}
 	}
 	catch(...) //Icky. Oh well.
 	{
 		gLogger->logMsgF("The specified port (%d) is already in use.", MSG_HIGH, port);
 		return -1;
-	}
-
-	while (true) {
-		// Check for incoming messages and handle them.
-		ping_server.Poll();
-		boost::this_thread::sleep(boost::posix_time::milliseconds(1));
-
-		// Stop the ping server if a key is hit.
-		if (Anh_Utils::kbhit()) break;
 	}
 
 	return 0;

@@ -177,8 +177,6 @@ void ZoneServer::Startup(int8* zoneName)
 	BuffManager::Init(mDatabase);
 	MedicManager::Init(mMessageDispatch);
 	AdminManager::Init(mMessageDispatch);
-
-
 	EntertainerManager::Init(mDatabase,mMessageDispatch);
 	GroupManager::Init(mDatabase,mMessageDispatch);
 	StructureManager::Init(mDatabase,mMessageDispatch);
@@ -382,7 +380,7 @@ int main(int argc, char* argv[])
 		}
 
 		gZoneServer->Process();
-		gMessageFactory->Process();
+		gMessageFactory->Process(); //Garbage Collection
 
         boost::this_thread::sleep(boost::posix_time::milliseconds(1));
 

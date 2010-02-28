@@ -23,6 +23,25 @@ class Message;
 class MessageDispatch;
 class PlayerObject;
 class ObjectControllerCommandMap;
+class ZoneTree;
+
+enum forageFails
+{
+	NOT_OUTSIDE,
+	PLAYER_MOVED,
+	ACTION_LOW,
+	IN_COMBAT,
+	AREA_EMPTY,
+	ENTERED_COMBAT,
+	NO_SKILL,
+	ALREADY_FORAGING,
+	GOT_DISCONNECTED
+};
+
+class ForageAttempt;
+class ForagePocket;
+
+#define gScoutManager	ScoutManager::getSingletonPtr()
 
 class ScoutManager
 {
@@ -34,6 +53,7 @@ public:
 		if (!mSingleton)
 		{
 			mSingleton = new ScoutManager();
+
 		}
 		return mSingleton;
 	}
@@ -47,15 +67,23 @@ public:
 		}
 	}
 
-
+	//camps
 	bool createCamp(uint32 typeId,uint64 parentId,Anh_Math::Vector3 position,string customName, PlayerObject* player);
 
+	//foraging
+	void forageUpdate();
+	void startForage(PlayerObject* player);
+	static void failForage(PlayerObject* player, forageFails fail);
+	static void successForage(PlayerObject* player);
+
 protected:
+	ScoutManager::ScoutManager();
 	~ScoutManager(void);
 
 private:
 	static ScoutManager*	mSingleton;
-	
-	ScoutManager(){}
-	
+	ZoneTree*				mSI;
+
+	ForagePocket*			pHead;
+
 };

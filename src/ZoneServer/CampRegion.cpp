@@ -296,7 +296,11 @@ void	CampRegion::despawnCamp()
 	mDestroyed	= true;
 	mActive		= false;
 
-	//PlayerObject* owner = NULL;//dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(mOwnerId));
+	PlayerObject* owner = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(mOwnerId));
+
+	if(owner)
+		owner->setHasCamp(false);
+
 	//we need to destroy our camp!!
 	Camp* camp = dynamic_cast<Camp*>(gWorldManager->getObjectById(mCampId));
 	ItemList* iL = camp->getItemList();

@@ -1886,3 +1886,29 @@ bool MessageLib::sendSkillModUpdateCreo4(PlayerObject* playerObject)
 	return(true);
 
 }
+
+//======================================================================================================================
+//
+// Creature Deltas Type 6
+// update: Staitionary Flag
+//
+
+void MessageLib::sendStationaryFlagUpdate(PlayerObject* playerObject)
+{
+	gMessageFactory->StartMessage();
+	
+	gMessageFactory->addUint32(opDeltasMessage);
+	gMessageFactory->addUint64(playerObject->getId());
+	gMessageFactory->addUint32(opCREO);
+	gMessageFactory->addUint8(6);
+	gMessageFactory->addUint32(5);
+	gMessageFactory->addUint16(1);
+	gMessageFactory->addUint16(17);
+	
+	if(playerObject->isStationary())
+		gMessageFactory->addUint8(1);
+	else
+		gMessageFactory->addUint8(0);
+
+	playerObject->getClient()->SendChannelA(gMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5);
+}

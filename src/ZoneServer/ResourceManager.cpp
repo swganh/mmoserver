@@ -270,9 +270,9 @@ void ResourceManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 					delete(resource);
 			}
 			if(result->getRowCount())
-				gLogger->logMsgLoadSuccess("ResourceManager::loading %u Ressources...",MSG_NORMAL,result->getRowCount());
+				gLogger->logMsgLoadSuccess("ResourceManager::loading %u Resources...",MSG_NORMAL,result->getRowCount());
 			else
-				gLogger->logMsgLoadFailure("ResourceManager::loading Ressources...",MSG_NORMAL);
+				gLogger->logMsgLoadFailure("ResourceManager::loading Resources...",MSG_NORMAL);
 
 		}
 		break;

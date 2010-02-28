@@ -104,6 +104,7 @@ PlayerObject::PlayerObject()
 {
 	mDuelList.reserve(10);
 
+	mIsForaging			= false;
 	mType				= ObjType_Player;
 	mCreoGroup			= CreoGroup_Player;
 	mStomach			= new Stomach();

@@ -46,6 +46,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "ObjectFactory.h"
 #include "QuadTree.h"
 #include "Shuttle.h"
+#include "ScoutManager.h"
 #include "TicketCollector.h"
 #include "ConfigManager/ConfigManager.h"
 #include "DatabaseManager/Database.h"
@@ -603,7 +604,10 @@ bool WorldManager::_handleCraftToolTimers(uint64 callTime,void* ref)
 				// add it to the world, if it holds an item
 				if(item)
 				{
-					item->setParentId(dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getId());
+					Inventory* temp =  dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+					if(!temp) continue;
+
+					item->setParentId(temp->getId());
 					dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->addObject(item);
 					gWorldManager->addObject(item,true);
 
@@ -696,7 +700,11 @@ void WorldManager::addCreatureObjectForTimedDeletion(uint64 creatureId, uint64 w
 }
 
 
-
+bool WorldManager::_handleScoutForagingUpdate(uint64 callTime, void* ref)
+{
+	gScoutManager->forageUpdate();
+	return true;
+}
 
 //======================================================================================================================
 //
@@ -875,7 +883,7 @@ void WorldManager::_handleLoadComplete()
 	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handlePlayerMovementUpdateTimers),4,1000,NULL);
 	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleGeneralObjectTimers),5,2000,NULL);
 	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleGroupObjectTimers),5,gWorldConfig->getGroupMissionUpdateTime(),NULL);
-
+	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleScoutForagingUpdate),7,2000, NULL);
 
 	// Init NPC Manager, will load lairs from the DB.
 	(void)NpcManager::Instance();
@@ -1077,7 +1085,6 @@ uint64 WorldManager::addEntertainerToProccess(CreatureObject* entertainerObject,
 {
     return((mEntertainerScheduler->addTask(fastdelegate::MakeDelegate(entertainerObject,&CreatureObject::handlePerformanceTick),1,tick,NULL)));
 }
-
 
 //======================================================================================================================
 //

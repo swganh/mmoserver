@@ -8,6 +8,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
+#include <list>
 #include "ScoutManager.h"
 #include "Camp.h"
 #include "CampRegion.h"
@@ -20,15 +21,28 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "TangibleObject.h"
 #include "UIManager.h"
 #include "WorldManager.h"
+#include "QTRegion.h"
+#include "QuadTree.h"
+#include "ZoneTree.h"
 
 #include "MessageLib/MessageLib.h"
+#include "Utils/rand.h"
 ScoutManager*	ScoutManager::mSingleton = NULL;
+
+
+ScoutManager::ScoutManager()
+{
+	mSI = gWorldManager->getSI();
+	pHead = NULL;
+}
 
 ScoutManager::~ScoutManager(void)
 {
 }
 
-
+//================================================================================
+//CAMPS!
+//================================================================================
 bool ScoutManager::createCamp(uint32 typeId,uint64 parentId,Anh_Math::Vector3 position,string customName, PlayerObject* player)
 //gObjectFactory->requestNewDefaultItem
 //(this,11,1320,entertainer->getId(),99,Anh_Math::Vector3(),"");
@@ -56,6 +70,11 @@ bool ScoutManager::createCamp(uint32 typeId,uint64 parentId,Anh_Math::Vector3 po
 	{
 		gMessageLib->sendSystemMessage(player,L"","camp","error_nobuild");
 		return false;
+	}
+
+	if(player->HasCamp())
+	{
+		gMessageLib->sendSystemMessage(player,L"","camp","sys_already_camping");
 	}
 
 	Camp* camp = new (Camp);
@@ -181,5 +200,267 @@ bool ScoutManager::createCamp(uint32 typeId,uint64 parentId,Anh_Math::Vector3 po
 	sprintf(name,"%s %s",player->getFirstName().getAnsi(),player->getLastName().getAnsi());
 	region->setCampOwnerName(BString(name));
 
+	player->setHasCamp(true);
+
 	return true;
+}
+
+
+//================================================================================
+//FORAGING!
+//================================================================================
+
+class ForageAttempt
+{
+public:
+	ForageAttempt::ForageAttempt(PlayerObject* player, uint64 time)
+	{
+		startTime = time;
+		playerID = player->getId();
+		completed = false;
+	}
+
+	uint64 startTime;
+	uint64 playerID;
+	bool completed;
+};
+
+class ForagePocket
+{
+public:
+	ForagePocket::ForagePocket(PlayerObject* player, ZoneTree* mSI)
+	{
+		region = mSI->getQTRegion(player->mPosition.mX,player->mPosition.mZ);
+
+		innerRect = Anh_Math::Rectangle(player->mPosition.mX - 10,player->mPosition.mZ - 10,20,20);
+		outterRect = Anh_Math::Rectangle(player->mPosition.mX - 30,player->mPosition.mZ - 30,60,60);
+
+		pNext = NULL;
+	}
+
+	bool containsPlayer(PlayerObject* player)
+	{
+		if( region->mTree->ObjectContained(&innerRect, player) || region->mTree->ObjectContained(&outterRect, player) )
+			return true;
+		else
+			return false;
+	}
+
+	bool addAttempt(ForageAttempt* attempt)
+	{
+		if(attempts.size() < 4)
+		{
+			attempts.push_back(attempt);
+			return true;
+		}
+		return false;
+	}
+
+	bool updateAttempts(uint64 currentTime); //if True Delete this Pocket, if False don't
+
+	ForagePocket* pNext;
+
+private:
+	std::list<ForageAttempt*> attempts;
+
+	QTRegion* region;
+	Anh_Math::Rectangle innerRect;
+	Anh_Math::Rectangle outterRect;
+};
+
+void ScoutManager::startForage(PlayerObject* player)
+{
+	player->setForaging(true);
+
+	//Starts the Foraging Animation
+	//player->setPosture(CreaturePosture_SkillAnimating);
+	//player->setCurrentAnimation(BString("std_forage"));
+	
+	//gMessageLib->sendPostureUpdate(player);
+	gMessageLib->sendCreatureAnimation(player, "forage");
+
+	player->setStationary(false);
+	gMessageLib->sendStationaryFlagUpdate(player);
+
+	//Creates a ForageAttempt object for tracking the forage operation
+	ForageAttempt* attempt = new ForageAttempt(player, gWorldManager->GetCurrentGlobalTick());
+
+	//FIND THE APPROPRIATE FORAGEPocket
+	ForagePocket* it = pHead;
+	while(it != NULL)
+	{
+		if(it->containsPlayer(player))
+		{
+			if(!it->addAttempt(attempt))
+			{
+				//The area is empty :(
+				ScoutManager::failForage(player, AREA_EMPTY);
+			}
+			return;
+		}
+	}
+
+	//None of them contained the player. We need to make new one.
+
+	ForagePocket* new_pocket = new ForagePocket(player, mSI);
+	it = pHead;
+	ForagePocket* previousHead = NULL;
+	while(it != NULL)
+	{
+		previousHead = it;
+		it = it->pNext;
+	}
+
+	if(previousHead == NULL)
+		pHead = new_pocket;
+	else
+		previousHead->pNext = new_pocket;
+
+	new_pocket->addAttempt(attempt);
+	//gLogger->logMsg("NEW FORAGING ATTEMPT", FOREGROUND_RED);
+}
+
+void ScoutManager::forageUpdate()
+{
+	ForagePocket* it = pHead;
+	ForagePocket* previousHead = NULL;
+	while(it != NULL)
+	{
+		if(it->updateAttempts(gWorldManager->GetCurrentGlobalTick())) //If true we delete this Pocket
+		{
+			//gLogger->logMsg("FORAGING TICK", FOREGROUND_RED);
+			if(previousHead == NULL)
+			{
+				pHead = it->pNext;
+			}
+			else
+			{
+				previousHead->pNext = it->pNext;
+			}
+				delete it;
+				it = previousHead;
+		}
+		if(it != NULL)
+			it = it->pNext;
+	}
+}
+
+void ScoutManager::successForage(PlayerObject* player)
+{
+	//gLogger->logMsg("FORAGING ATTEMPT SUCCESS!", FOREGROUND_RED);
+	//Chance of success = sqrt(skill)/20 + 0.15
+	//Chance in down = chance/2
+
+	//First lets calc our chance to 'win'
+	//This is the magic formula!	
+	double chance = std::sqrt((double)player->getSkillModValue(9))/20 + 0.15;
+
+	if(!gStructureManager->checkCityRadius(player)) chance = chance/2;
+
+	if((gRandom->getRand() % 100) <= chance*100)
+	{
+		// YOU WIN!
+		gMessageLib->sendSystemMessage(player, L"", "skl_use","sys_forage_success");
+
+		//There are two types of item to get. Bait (not rare) and Items (rare)
+
+		//Inventory* inventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+		//gObjectFactory->requestNewDefaultItem(inventory,item->family,item->type,inventory->getId(),99,Anh_Math::Vector3(),"");
+	}
+	else
+	{
+		//YOU LOSE!
+		gMessageLib->sendSystemMessage(player, L"", "skl_use","sys_forage_fail");
+	}
+
+	player->setForaging(false);
+}
+
+void ScoutManager::failForage(PlayerObject* player, forageFails fail)
+{
+	switch(fail)
+	{
+	case NOT_OUTSIDE:
+		gMessageLib->sendSystemMessage(player, L"", "skl_use","sys_forage_inside");
+		return;
+	case PLAYER_MOVED:
+		gMessageLib->sendSystemMessage(player, L"", "skl_use","sys_forage_movefail");
+		break;
+	case ACTION_LOW:
+		gMessageLib->sendSystemMessage(player, L"", "skl_use","sys_forage_attrib");
+		return;
+	case IN_COMBAT:
+		gMessageLib->sendSystemMessage(player, L"", "skl_use","sys_forage_cant");
+		return;
+	case AREA_EMPTY:
+		gMessageLib->sendSystemMessage(player, L"", "skl_use","sys_forage_empty");
+		break;
+	case ENTERED_COMBAT:
+		gMessageLib->sendSystemMessage(player, L"", "skl_use","sys_forage_combatfail");
+		break;
+	case NO_SKILL:
+		gMessageLib->sendSystemMessage(player, L"", "skl_use","sys_forage_noskill");
+		return;
+	case ALREADY_FORAGING:
+		gMessageLib->sendSystemMessage(player, L"", "skl_use","sys_forage_already");
+		return;
+	case GOT_DISCONNECTED:
+		return;
+	}
+
+	player->setForaging(false);
+	player->setPosture(CreaturePosture_Upright);
+	gMessageLib->sendPostureUpdate(player);
+
+}
+
+bool ForagePocket::updateAttempts(uint64 currentTime)
+{	
+	if(attempts.empty())
+		return true;
+
+	std::list<ForageAttempt*>::iterator it = attempts.begin();
+	while(it != attempts.end())
+	{
+		if((currentTime - (*it)->startTime) >= 300000) //5minutes until we reopen the pocket
+		{
+			it = attempts.erase(it);
+			//gLogger->logMsg("POCKET REMOVED DUE TO TIMER", FOREGROUND_RED);
+		}
+		else if((currentTime - (*it)->startTime) >= 8000 && !(*it)->completed)
+		{
+			//gLogger->logMsg("ATTEMPT FINISHED", FOREGROUND_RED);
+			PlayerObject* player = (PlayerObject*)gWorldManager->getObjectById((*it)->playerID);
+			if(player != NULL)
+			{
+				if(region->mTree->ObjectContained(&innerRect, player))
+				{
+					//The player has a chance to get something
+					ScoutManager::successForage(player);
+					(*it)->completed = true;
+				}
+			}
+			it++;
+		}
+		else if((currentTime - (*it)->startTime) >= 2000 && !(*it)->completed )
+		{
+			PlayerObject* player = (PlayerObject*)gWorldManager->getObjectById((*it)->playerID);
+			if(player != NULL)
+			{
+				if(!region->mTree->ObjectContained(&innerRect, player))
+				{
+					//gLogger->logMsg("AREA EMPTY", FOREGROUND_RED);
+					(*it)->completed = true;
+					ScoutManager::failForage(player, AREA_EMPTY);
+				}
+			}
+			it++;
+		}
+		else
+		{
+			it++;
+		}
+	}
+
+	return false;
 }

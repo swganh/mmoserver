@@ -360,11 +360,19 @@ class PlayerObject : public CreatureObject
 		void				disableAutoAttack(void);
 		bool				autoAttackEnabled(void);
 
+		bool				HasCamp(){ return mHasCamp;}
+		void				setHasCamp(bool val){mHasCamp = val;}
+
+		//Foraging
+		bool				isForaging(){ return mIsForaging; }
+		void				setForaging(bool status) { mIsForaging = status; }
+
 	private:
 
 		void				_verifyBadges();
 		void				_verifyExplorationBadges();
 
+		bool				mHasCamp;
 		AudienceList		mAudienceList;
 		BadgesList			mBadgeList;
 		DenyServiceList		mDenyAudienceList;
@@ -457,6 +465,7 @@ class PlayerObject : public CreatureObject
 		bool				mNewPlayerMessage;
 		
 		bool				mTrading;
+		bool				mIsForaging;
 };
 
 

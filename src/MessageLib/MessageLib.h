@@ -328,6 +328,7 @@ public:
 	void				sendLanguagePlay9(PlayerObject* playerObject);
 	void				sendFoodUpdate(PlayerObject* playerObject);
 	void				sendDrinkUpdate(PlayerObject* playerObject);
+	void				sendStationaryFlagUpdate(PlayerObject* playerObject);
 	
 	// static object,	staticomessages.cpp
 	bool				sendBaselinesSTAO_3(TangibleObject* staticObject, PlayerObject* targetObject);

@@ -371,6 +371,7 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		bool	_handleCraftToolTimers(uint64 callTime,void* ref);
 		bool	_handleNpcConversionTimers(uint64 callTime,void* ref);
 		bool	_handleFireworkLaunchTimers(uint64 callTime,void* ref);
+		bool	_handleScoutForagingUpdate(uint64 callTime, void* ref);
 
 		bool	_handlePlayerMovementUpdateTimers(uint64 callTime, void* ref);
 
@@ -437,6 +438,7 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		Anh_Utils::VariableTimeScheduler* mBuffScheduler;
 		Database*								mDatabase;
 		Anh_Utils::Scheduler*		mEntertainerScheduler;
+		Anh_Utils::Scheduler*		mScoutScheduler;
 		Anh_Utils::Scheduler*		mHamRegenScheduler;
 		Anh_Utils::Scheduler*		mMissionScheduler;
 		Anh_Utils::Scheduler*		mNpcManagerScheduler;

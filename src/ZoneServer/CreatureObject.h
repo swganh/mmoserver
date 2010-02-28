@@ -186,6 +186,9 @@ class CreatureObject : public MovingObject
 		string				getCurrentAnimation(){ return mCurrentAnimation; }
 		void				setCurrentAnimation(string state){ mCurrentAnimation = state; }
 
+		bool				isStationary(){ return mStationary; }
+		void				setStationary(bool val){ mStationary = val; }
+
 		uint32				UpdatePerformanceCounter();
 
 
@@ -310,6 +313,7 @@ class CreatureObject : public MovingObject
 		uint8				mPosture;
 		uint8				mRaceId;
 		bool				mReady;
+		bool				mStationary;
 		// entertaining
 
 		virtual void	handleObjectMenuSelect(uint8 messageType,Object* srcObject);

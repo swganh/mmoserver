@@ -846,6 +846,14 @@ bool MessageLib::sendCreateBuilding(BuildingObject* buildingObject,PlayerObject*
 	if(!_checkPlayer(playerObject))
 		return(false);
 
+	//test buildings on house basis here
+	//perhaps move to on cell basis sometime ?
+	if(HouseObject* house = dynamic_cast<HouseObject*>(buildingObject))
+	{
+		gLogger->logMsgF("check cell permission",MSG_NORMAL);
+		house->checkCellPermission(playerObject);
+	}
+
 	sendCreateObjectByCRC(buildingObject,playerObject,false);
 
 	sendBaselinesBUIO_3(buildingObject,playerObject);
@@ -876,7 +884,8 @@ bool MessageLib::sendCreateBuilding(BuildingObject* buildingObject,PlayerObject*
 			sendBaselinesSCLT_3(cell,cellId - count,playerObject);
 		}
 		sendBaselinesSCLT_6(cell,playerObject);
-		sendUpdateCellPermissionMessage(cell,1,playerObject);	 //make cellpermission softcoded
+
+		sendUpdateCellPermissionMessage(cell,buildingObject->getPublic(),playerObject);	 //cellpermissions get checked by datatransform
 		sendEndBaselines(cellId,playerObject);
 
 		++cellIt;

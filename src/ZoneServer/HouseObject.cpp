@@ -46,6 +46,31 @@ HouseObject::~HouseObject()
 
 
 
+void HouseObject::checkCellPermission(PlayerObject* player)
+{
+	
+
+	if(this->getPublic())
+	{
+		StructureAsyncCommand command;
+		command.Command = Structure_Command_CellEnterDenial;
+		command.PlayerId = player->getId();
+		command.StructureId = this->getId();
+		
+		gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"BAN",command);
+
+	}
+	else
+	{
+		StructureAsyncCommand command;
+		command.Command = Structure_Command_CellEnter;
+		command.PlayerId = player->getId();
+		command.StructureId = this->getId();
+		
+		gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ENTRY",command);
+
+	}	
+}
 
 
 //========================================================================0
@@ -80,151 +105,6 @@ void HouseObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 		return;
 	}
 	
-	switch(messageType)
-	{
-		case radId_StopManufacture:
-		{
-			StructureAsyncCommand command;
-			command.Command = Structure_Command_StopFactory;
-			command.PlayerId = player->getId();
-			command.StructureId = this->getId();
-
-			gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
-		}
-		break;
-
-		case radId_StartManufacture:
-		{
-			StructureAsyncCommand command;
-			command.Command = Structure_Command_StartFactory;
-			command.PlayerId = player->getId();
-			command.StructureId = this->getId();
-
-			gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
-		}
-		break;
-
-		case radId_serverManfHopperInput:
-		{
-			StructureAsyncCommand command;
-			command.Command = Structure_Command_AccessInHopper;
-			command.PlayerId = player->getId();
-			command.StructureId = this->getId();
-
-			gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"HOPPER",command);
-		}
-		break;
-
-		case radId_serverManfHopperOutput:
-		{
-			StructureAsyncCommand command;
-			command.Command = Structure_Command_AccessOutHopper;
-			command.PlayerId = player->getId();
-			command.StructureId = this->getId();
-
-			gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"HOPPER",command);
-		}
-		break;
-
-		case radId_serverManfStationSchematic:
-		{
-			StructureAsyncCommand command;
-			command.Command = Structure_Command_AccessSchem;
-			command.PlayerId = player->getId();
-			command.StructureId = this->getId();
-
-			gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
-		}
-		break;
-		
-		case radId_StructureStatus:
-		{
-			StructureAsyncCommand command;
-			command.Command = Structure_Command_ViewStatus;
-			command.PlayerId = player->getId();
-			command.StructureId = this->getId();
-
-			gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
-
-		}
-		break;
-
-		case radId_depositPower:
-		{
-			StructureAsyncCommand command;
-			command.Command = Structure_Command_DepositPower;
-			command.PlayerId = player->getId();
-			command.StructureId = this->getId();
-
-			gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
-
-		}
-		break;
-
-		case radId_payMaintenance:
-		{
-			StructureAsyncCommand command;
-			command.Command = Structure_Command_PayMaintenance;
-			command.PlayerId = player->getId();
-			command.StructureId = this->getId();
-
-			gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
-			
-		}
-		break;
-
-		case radId_serverTerminalManagementDestroy: 
-		{
-			//is there a manufacturing schematic inside ???
-
-			StructureAsyncCommand command;
-			command.Command = Structure_Command_Destroy;
-			command.PlayerId = player->getId();
-			command.StructureId = this->getId();
-
-			gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
-			
-		}
-		break;
-		case radId_serverTerminalPermissionsAdmin:
-		{			
-			StructureAsyncCommand command;
-			command.Command = Structure_Command_PermissionAdmin;
-			command.PlayerId = player->getId();
-			command.StructureId = this->getId();
-
-			gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
-
-		}
-		break;
-
-		case radId_serverTerminalPermissionsHopper:
-		{			
-			StructureAsyncCommand command;
-			command.Command = Structure_Command_PermissionHopper;
-			command.PlayerId = player->getId();
-			command.StructureId = this->getId();
-
-			gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
-
-		}
-		break;
-
-		case radId_setName:
-		{
-
-			StructureAsyncCommand command;
-			command.Command = Structure_Command_RenameStructure;
-			command.PlayerId = player->getId();
-			command.StructureId = this->getId();
-
-			gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
-
-			
-		}
-		break;
-		
-	}
 }
 
 //=============================================================================
@@ -320,4 +200,6 @@ void HouseObject::prepareDestruction()
 	}
 
 }
+
+
 

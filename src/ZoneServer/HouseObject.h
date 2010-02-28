@@ -38,9 +38,6 @@ class HouseObject :	public BuildingObject, public DatabaseCallback
 		uint32			decLoadCount(){ return (mTotalLoadCount-1); }
 		void			setLoadCount(uint32 count){ mTotalLoadCount = count; }
 
-		bool			getPublic(){ return mPublic; }
-		void			setPublic(bool value){ mPublic = value; }
-
 		void			prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
 		void			handleObjectMenuSelect(uint8 messageType,Object* srcObject);
 
@@ -51,10 +48,10 @@ class HouseObject :	public BuildingObject, public DatabaseCallback
 	
 		void			prepareDestruction();
 
+		void			checkCellPermission(PlayerObject* player);
+
 
 	private:
-
-		bool			mPublic;
 		
 		BuildingFamily	mBuildingFamily;
 		HouseFamily		mHouseFamily;

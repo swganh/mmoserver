@@ -31,6 +31,7 @@ typedef std::vector<SpawnPoint*>	SpawnPoints;
 class BuildingObject :	public PlayerStructure
 {
 	friend class BuildingFactory;
+	friend class HouseFactory;
 
 	public:
 
@@ -55,11 +56,16 @@ class BuildingObject :	public PlayerStructure
 		bool			checkForCell(CellObject* cellObject);
 		ObjectList		getAllCellChilds();
 
+		void			updateCellPermissions(PlayerObject* player, bool access);
+
 		uint64			getMinCellId(){ return mMaxCellId; }
 		void			setMinCellId(uint64 count){ mMaxCellId = count; }
 
+		bool			getPublic(){ return mPublic; }
+		void			setPublic(bool value){ mPublic = value; }
 	private:
 		CellObjectList	mCells;
+		bool			mPublic;
 
 		uint32			mTotalLoadCount;
 		SpawnPoints		mSpawnPoints;

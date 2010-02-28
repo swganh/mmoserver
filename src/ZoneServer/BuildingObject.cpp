@@ -11,6 +11,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include "BuildingObject.h"
 #include "CellObject.h"
+#include "MessageLib/MessageLib.h"
 #include "SpawnPoint.h"
 #include "MathLib/Quaternion.h"
 #include "Utils/rand.h"
@@ -120,3 +121,25 @@ ObjectList BuildingObject::getAllCellChilds()
 	return(resultList);
 }
 
+//================================================================================
+//
+//the cells send an updated permission  to the specified player
+//
+void BuildingObject::updateCellPermissions(PlayerObject* player, bool access)
+{
+	gLogger->logMsg("BuildingObject::updateCellPermissions: Permission set to %u",access);
+	//iterate through all the cells - do they need to be deleted ?
+	//place players inside a cell in the world
+	CellObjectList*				cellList	= getCellList();
+	CellObjectList::iterator	cellIt		= cellList->begin();
+
+	while(cellIt != cellList->end())
+	{
+		CellObject* cell = (*cellIt);
+					
+		gMessageLib->sendUpdateCellPermissionMessage(cell,access,player);	
+
+		++cellIt;
+	}
+
+}

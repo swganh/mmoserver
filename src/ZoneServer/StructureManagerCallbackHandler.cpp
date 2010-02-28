@@ -693,7 +693,18 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
 			if(returnValue == 2)
 			{
-				gMessageLib->sendSystemMessage(player,L"You are not an admin of this structure");
+				if(asynContainer->command.Command == Structure_Command_CellEnter )
+				{
+					//were on the white list - enter
+					if(BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(asynContainer->command.StructureId)))
+						building->updateCellPermissions(player,false);
+				}
+				if(asynContainer->command.Command == Structure_Command_CellEnterDenial)
+				{
+					//do nothing we are not on the ban list
+				}
+				else
+					gMessageLib->sendSystemMessage(player,L"You are not an admin of this structure");
 			}
 
 			mDatabase->DestroyDataBinding(binding);

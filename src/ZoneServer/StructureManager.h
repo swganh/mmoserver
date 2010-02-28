@@ -103,6 +103,8 @@ enum Structure_Async_CommandEnum
 	Structure_Command_Privacy			=	24,
 	Structure_Command_PermissionEntry	=	25,
 	Structure_Command_PermissionBan		=	26,
+	Structure_Command_CellEnter			=	27,
+	Structure_Command_CellEnterDenial	=	28,
 	
 
 };

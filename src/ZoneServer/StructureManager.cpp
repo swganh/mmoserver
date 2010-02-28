@@ -697,6 +697,46 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 	switch(command.Command)
 	{
 
+		case Structure_Command_CellEnterDenial:
+		{
+			//we just queried the ban list
+			//make sure were not the owner, however
+			if(owner)
+			{
+				return;
+			}
+
+			BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(command.StructureId));
+			if(!building)
+			{
+				gLogger->logMsg("StructureManager::processVerification : No building (Structure_Command_CellEnterDenial) ");
+				return;
+			}
+			//now send cell permission update to the player
+
+			building->updateCellPermissions(player,false);
+		
+		}
+		break;
+
+		case Structure_Command_CellEnter:
+		{
+			//we just queried the access list as the structure is private
+			//owner and everyone on entry and admin list may enter
+			
+			BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(command.StructureId));
+			if(!building)
+			{
+				gLogger->logMsg("StructureManager::processVerification : No building (Structure_Command_CellEnterDenial) ");
+				return;
+			}
+			//now send cell permission update to the player
+
+			building->updateCellPermissions(player,true);
+		
+		}
+		break;
+
 		case Structure_Command_Privacy:
 		{
 			HouseObject* house = dynamic_cast<HouseObject*>(gWorldManager->getObjectById(command.StructureId));
@@ -709,8 +749,13 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			if(house->getPublic())
 			{
 				mDatabase->ExecuteSqlAsync(0,0,"UPDATE houses h SET h.private = 1 WHERE h.ID = %I64u",command.StructureId);
+				house->setPublic(false);
+				gMessageLib->sendSystemMessage(player,L"","player_structure","structure_now_private");
+				return;
 			}
 
+			house->setPublic(true);
+			gMessageLib->sendSystemMessage(player,L"","player_structure","structure_now_public");
 			mDatabase->ExecuteSqlAsync(0,0,"UPDATE houses h SET h.private = 0 WHERE h.ID = %I64u",command.StructureId);
 		}
 		break;
@@ -1190,14 +1235,14 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 		case Structure_Command_PermissionBan:
 		{
 			player->setStructurePermissionId(command.StructureId);
-			OpenStructureAdminList(command.StructureId, command.PlayerId);
+			OpenStructureBanList(command.StructureId, command.PlayerId);
 		}
 		break;
 
 		case Structure_Command_PermissionEntry:
 		{
 			player->setStructurePermissionId(command.StructureId);
-			OpenStructureAdminList(command.StructureId, command.PlayerId);
+			OpenStructureEntryList(command.StructureId, command.PlayerId);
 		}
 		break;
 

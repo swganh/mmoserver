@@ -374,6 +374,9 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 		// if we changed cell
 		if (oldParentId != parentId)
 		{
+
+			
+
 			CellObject* cell = NULL;
 
 			// gLogger->logMsgF("We changed cell from (%"PRIu64") to (%"PRIu64")",MSG_NORMAL, oldParentId, parentId);
@@ -432,6 +435,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 			gMessageLib->broadcastContainmentMessage(player->getId(),parentId,4,player);
 			if((cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(parentId))))
 			{
+
 				cell->addObjectSecure(player);
 
 				// Inform tutorial about cell change.

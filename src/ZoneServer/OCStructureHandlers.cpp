@@ -14,6 +14,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "HarvesterFactory.h"
 #include "Heightmap.h"
 #include "HarvesterObject.h"
+#include "HouseObject.h"
+#include "CellObject.h"
 #include "PlayerStructure.h"
 #include "PlayerObject.h"
 #include "Inventory.h"
@@ -94,6 +96,22 @@ void	ObjectController::_handleModifyPermissionList(uint64 targetId,Message* mess
 	//is the structure in Range???
 	float fAdminListDistance = gWorldConfig->getConfiguration("Player_Admin_List_Distance",(float)32.0);
 	
+	if(player->getParentId())
+	{
+		if(CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId())))
+		{
+			if(HouseObject* house = dynamic_cast<HouseObject*>(gWorldManager->getObjectById(cell->getParentId())))
+			{
+				if(house->getId() != structure->getId())
+				{
+					gMessageLib->sendSystemMessage(player,L"","player_structure","command_no_building");
+					return;
+				}
+			}
+		}
+		
+	}
+	else
 	if(!player->mPosition.inRange2D(structure->mPosition,fAdminListDistance))
 	{
 		gMessageLib->sendSystemMessage(player,L"","player_structure","command_no_building");

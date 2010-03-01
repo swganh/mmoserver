@@ -57,7 +57,7 @@ class Inventory : public TangibleObject
 		bool			checkSlots(uint8 amount);
 		void			setMaxSlots(uint8 slots){ mMaxSlots = slots; }
 
-		virtual bool	checkCapacity(uint8 amount, PlayerObject* player = NULL);
+		virtual bool	checkCapacity(uint8 amount, PlayerObject* player = NULL, bool sendMsg = true);
 
 		bool			unEquipItem(Object* object);
 		bool			EquipItem(Object* object);

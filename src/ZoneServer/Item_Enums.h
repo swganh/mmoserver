@@ -28,6 +28,7 @@ enum ItemFamily
 	ItemFamily_Generic					= 9,
 	ItemFamily_Weapon					= 10,
 	ItemFamily_Instrument				= 11,
+	ItemFamily_BugJar					= 12,
 	ItemFamily_FireWork					= 19,
 	ItemFamily_Deed						= 15,
 	ItemFamily_Medicine					= 22,
@@ -64,6 +65,26 @@ enum ItemType
 	ItemType_SpaceStation				= 32,
 
 	ItemType_ManSchematic				= 1312,
+
+	//====================================================
+	//Foraged Foods
+	ItemType_Jar_Foraged_Fungus			= 38,
+	ItemType_Ko_Do_Fruit				= 51,
+	ItemType_EsostEw_Zann				= 63,
+	ItemType_Maroj_Melon				= 66,
+	ItemType_Foraged_Berries			= 74,
+	ItemType_Sijjo_Sewi					= 82,
+	ItemType_Sosi_Hodor					= 97,
+	ItemType_Foraged_Bugs				= 110,
+	ItemType_Schule_Nef					= 117,
+	ItemType_Wild_Snaff					= 129,
+	ItemType_Flurr_Cle_Onion			= 161,
+	ItemType_Alever_Twethpek			= 170,
+	ItemType_Jar_Foraged_Grubs			= 186,
+	ItemType_Insect_Bait				= 2784,
+	ItemType_Worm_Bait					= 2785,
+	ItemType_Grub_Bait					= 2786,
+	ItemType_Chum_Bait					= 2787,
 
 	//====================================================
 	// Music Instruments
@@ -194,7 +215,6 @@ enum ItemType
 	ItemType_Firework_Type_11			= 1758,
 	ItemType_Firework_Type_18			= 1759,
 	ItemType_Firework_Show				= 1762
-
 
 	//Owen - changing the ids of the fireworks to be in order of the firework numbers would look cleaner, here and other places
 };

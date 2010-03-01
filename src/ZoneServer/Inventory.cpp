@@ -561,11 +561,12 @@ bool Inventory::itemExist(uint32 familyId, uint32 typeId)
 //check for the containers capacity and return a fitting error message if necessary
 //
 
-bool Inventory::checkCapacity(uint8 amount, PlayerObject* player)
+bool Inventory::checkCapacity(uint8 amount, PlayerObject* player, bool sendMsg)
 {
 	if(player&&(getCapacity()-getObjects()->size() < amount))
 	{
-		gMessageLib->sendSystemMessage(player,L"","error_message","inv_full");
+		if(sendMsg)
+			gMessageLib->sendSystemMessage(player,L"","error_message","inv_full");
 		return false;
 	}
 

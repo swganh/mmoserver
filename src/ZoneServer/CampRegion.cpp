@@ -427,7 +427,7 @@ void	CampRegion::applyHAMHealing(Object* object)
 	{
 		//Regen Health
 		int32 oldVal = hamz->mHealth.getCurrentHitPoints();
-		hamz->updatePropertyValue(HamBar_Health,HamProperty_CurrentHitpoints, ActionRegenRate);
+		hamz->updatePropertyValue(HamBar_Health,HamProperty_CurrentHitpoints, HealthRegenRate);
 		mHealingDone += hamz->mHealth.getCurrentHitPoints() - oldVal;
 	}
 	

@@ -15,6 +15,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "CampTerminal.h"
 #include "Item_Enums.h"
 #include "nonPersistantObjectFactory.h"
+#include "ObjectFactory.h"
 #include "PlayerObject.h"
 #include "Scout.h"
 #include "StructureManager.h"
@@ -24,6 +25,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "QTRegion.h"
 #include "QuadTree.h"
 #include "ZoneTree.h"
+#include "Inventory.h"
+#include "WorldManager.h"
 
 #include "MessageLib/MessageLib.h"
 #include "Utils/rand.h"
@@ -246,14 +249,9 @@ public:
 			return false;
 	}
 
-	bool addAttempt(ForageAttempt* attempt)
+	void addAttempt(ForageAttempt* attempt)
 	{
-		if(attempts.size() < 4)
-		{
-			attempts.push_back(attempt);
-			return true;
-		}
-		return false;
+		attempts.push_back(attempt);
 	}
 
 	bool updateAttempts(uint64 currentTime); //if True Delete this Pocket, if False don't
@@ -279,8 +277,11 @@ void ScoutManager::startForage(PlayerObject* player)
 	//gMessageLib->sendPostureUpdate(player);
 	gMessageLib->sendCreatureAnimation(player, "forage");
 
-	player->setStationary(false);
-	gMessageLib->sendStationaryFlagUpdate(player);
+	//player->setStationary(false);
+	//gMessageLib->sendStationaryFlagUpdate(player);
+
+	//Use up some action!
+	player->getHam()->updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints, -100);
 
 	//Creates a ForageAttempt object for tracking the forage operation
 	ForageAttempt* attempt = new ForageAttempt(player, gWorldManager->GetCurrentGlobalTick());
@@ -291,13 +292,10 @@ void ScoutManager::startForage(PlayerObject* player)
 	{
 		if(it->containsPlayer(player))
 		{
-			if(!it->addAttempt(attempt))
-			{
-				//The area is empty :(
-				ScoutManager::failForage(player, AREA_EMPTY);
-			}
+			it->addAttempt(attempt);
 			return;
 		}
+		it = it->pNext;
 	}
 
 	//None of them contained the player. We need to make new one.
@@ -360,12 +358,175 @@ void ScoutManager::successForage(PlayerObject* player)
 	if((gRandom->getRand() % 100) <= chance*100)
 	{
 		// YOU WIN!
-		gMessageLib->sendSystemMessage(player, L"", "skl_use","sys_forage_success");
 
 		//There are two types of item to get. Bait (not rare) and Items (rare)
 
-		//Inventory* inventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-		//gObjectFactory->requestNewDefaultItem(inventory,item->family,item->type,inventory->getId(),99,Anh_Math::Vector3(),"");
+		//Determine Bait or Item
+
+		uint32 itemType = 0;
+		uint32 itemFamily = 0;
+
+		uint itemCount = 0;
+
+		if(gRandom->getRand() % 4 == 1) //Item
+		{
+			itemFamily = ItemFamily_Foods;
+
+			uint MaxItemCount = 0;
+			//Determine #
+			uint32 skillModValue = player->getSkillModValue(9);
+			
+			if(skillModValue < 25)
+				MaxItemCount = 1;
+			else if(skillModValue < 50)
+				MaxItemCount = 2;
+			else
+				MaxItemCount = 3;
+
+			//Determine Type
+
+			uint32 temp = gRandom->getRand() % 13;
+
+			switch(gWorldManager->getZoneId())
+			{
+			case 0://Corellia
+			case 5://Naboo
+			case 6://Rori
+			case 7://Talus
+			case 8://Tatooine
+				{
+					//Starter Planets (11 possible items)
+					switch(temp)
+					{
+					case 0:
+						itemType = ItemType_Foraged_Berries;
+						break;
+					case 1:
+						itemType = ItemType_Foraged_Bugs;
+						break;
+					case 2:
+						itemType = ItemType_Sijjo_Sewi;
+						break;
+					case 3:
+						itemType = ItemType_Flurr_Cle_Onion;
+						break;
+					case 4:
+						itemType = ItemType_Schule_Nef;
+						break;
+					case 5:
+						itemType = ItemType_Alever_Twethpek;
+						break;
+					case 6:
+						itemType = ItemType_Jar_Foraged_Fungus;
+						break;
+					case 7:
+						itemType = ItemType_Jar_Foraged_Grubs;
+						break;
+					case 8:
+					case 12:
+						itemType = ItemType_Ko_Do_Fruit;
+						break;
+					case 9:
+					case 11:
+						itemType = ItemType_Maroj_Melon;
+						break;
+					case 10:
+						itemType = ItemType_Sosi_Hodor;
+						break;
+					}
+					break;
+				}
+			default:
+				{
+					//Adventure Planets (8 possible items)
+					switch(temp)
+					{
+					case 5:
+					case 0:
+						itemType = ItemType_Alever_Twethpek;
+						break;
+					case 6:
+					case 1:
+						itemType = ItemType_Jar_Foraged_Fungus;
+						break;
+					case 7:
+					case 2:
+						itemType = ItemType_Jar_Foraged_Grubs;
+						break;
+					case 8:
+					case 3:
+						itemType = ItemType_Ko_Do_Fruit;
+						break;
+					case 9:
+					case 4:
+						itemType = ItemType_Maroj_Melon;
+						break;
+					case 10:
+						itemType = ItemType_Sosi_Hodor;
+						break;
+					case 11:
+						itemType = ItemType_EsostEw_Zann;
+						break;
+					case 12:
+						itemType = ItemType_Wild_Snaff;
+						break;
+					}
+					break;
+				}
+			}
+		}
+		else //Bait
+		{
+			itemFamily = ItemFamily_BugJar;
+			uint MaxItemCount = 0;
+			//Determine #
+			uint32 skillModValue = player->getSkillModValue(9);
+			
+			if(skillModValue <= 25)
+				MaxItemCount = 2;
+			else if(skillModValue <= 50)
+				MaxItemCount = 3;
+			else if(skillModValue <= 75)
+				MaxItemCount = 4;
+			else
+				MaxItemCount = 5;
+
+			itemCount = gRandom->getRand() & 1; //Faster than rand % 2 but means same thing.
+			if(itemCount == 0)
+				itemCount = MaxItemCount - 1;//Lower
+			if(itemCount == 1)
+				itemCount = MaxItemCount; //Upper
+
+			//Determine Type
+
+			switch(gRandom->getRand() % 3)
+			{
+			case 0:
+				itemType = ItemType_Insect_Bait;
+				break;
+			case 1:
+				itemType = ItemType_Worm_Bait;
+				break;
+			case 2:
+				itemType = ItemType_Grub_Bait;
+				break;
+			}
+		}
+
+		//gMessageLib->sendSystemMessage(player, L"", "skl_use","sys_forage_success");
+		//gMessageLib->sendSystemMessage(player, L"", "skl_use","sys_forage_noroom");
+
+		Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+
+		if(!inventory)
+			return;
+
+		if(!inventory->checkCapacity(1, player, false))
+			gMessageLib->sendSystemMessage(player, L"", "skl_use","sys_forage_noroom");
+		else
+			gMessageLib->sendSystemMessage(player, L"", "skl_use","sys_forage_success");
+
+		gObjectFactory->requestNewDefaultItem(inventory, itemFamily, itemType, inventory->getId(),99,Anh_Math::Vector3(),"");
 	}
 	else
 	{
@@ -420,11 +581,13 @@ bool ForagePocket::updateAttempts(uint64 currentTime)
 		return true;
 
 	std::list<ForageAttempt*>::iterator it = attempts.begin();
+	unsigned int AttemptCount = 0;
 	while(it != attempts.end())
 	{
 		if((currentTime - (*it)->startTime) >= 300000) //5minutes until we reopen the pocket
 		{
 			it = attempts.erase(it);
+			AttemptCount--;
 			//gLogger->logMsg("POCKET REMOVED DUE TO TIMER", FOREGROUND_RED);
 		}
 		else if((currentTime - (*it)->startTime) >= 8000 && !(*it)->completed)
@@ -433,32 +596,40 @@ bool ForagePocket::updateAttempts(uint64 currentTime)
 			PlayerObject* player = (PlayerObject*)gWorldManager->getObjectById((*it)->playerID);
 			if(player != NULL)
 			{
-				if(region->mTree->ObjectContained(&innerRect, player))
+				if(player->checkState(CreatureState_Combat))
+				{
+					ScoutManager::failForage(player, ENTERED_COMBAT);
+					(*it)->completed = true;
+					it++; AttemptCount++;
+					continue;
+				}
+
+				if(region->mTree->ObjectContained(&innerRect, player) && AttemptCount < 4)
 				{
 					//The player has a chance to get something
 					ScoutManager::successForage(player);
 					(*it)->completed = true;
 				}
-			}
-			it++;
-		}
-		else if((currentTime - (*it)->startTime) >= 2000 && !(*it)->completed )
-		{
-			PlayerObject* player = (PlayerObject*)gWorldManager->getObjectById((*it)->playerID);
-			if(player != NULL)
-			{
-				if(!region->mTree->ObjectContained(&innerRect, player))
+				else
 				{
-					//gLogger->logMsg("AREA EMPTY", FOREGROUND_RED);
 					(*it)->completed = true;
 					ScoutManager::failForage(player, AREA_EMPTY);
 				}
 			}
 			it++;
+			AttemptCount++;
 		}
 		else
 		{
+			PlayerObject* player = (PlayerObject*)gWorldManager->getObjectById((*it)->playerID);
+			if(player && player->checkState(CreatureState_Combat))
+			{
+				ScoutManager::failForage(player, ENTERED_COMBAT);
+				(*it)->completed = true;
+			}
+
 			it++;
+			AttemptCount++;
 		}
 	}
 

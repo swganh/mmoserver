@@ -2874,6 +2874,18 @@
 					</File>
 				</Filter>
 			</Filter>
+			<Filter
+				Name="ForageManager"
+				>
+				<File
+					RelativePath=".\ForageManager.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ForageManager.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 	</Files>
 	<Globals>

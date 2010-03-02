@@ -71,9 +71,6 @@ public:
 		}
 	}
 
-	//camps
-	bool createCamp(uint32 typeId,uint64 parentId,Anh_Math::Vector3 position,string customName, PlayerObject* player);
-
 	//foraging
 	void forageUpdate();
 	void startForage(PlayerObject* player, forageClasses);

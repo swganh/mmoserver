@@ -21,6 +21,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "DatabaseManager/DatabaseResult.h"
 #include "Common/MessageFactory.h"
 #include "Common/Message.h"
+#include "ForageManager.h"
 
 
 
@@ -78,8 +79,9 @@ void ObjectController::_handleHealWound(uint64 targetId,Message* message,ObjectC
 
 void ObjectController::_handleMedicalForage(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	//PlayerObject* Medic = dynamic_cast<PlayerObject*>(mObject);
-	//gMessageLib->sendSystemMessage(Medic, "Medical Forage has not been implemented yet. Sorry.");
+		PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
+	if(player)
+		gForageManager->startForage(player, ForageClass_Medic);
 }
 
 //=============================================================================================================================

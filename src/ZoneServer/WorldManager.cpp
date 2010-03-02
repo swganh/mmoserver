@@ -46,7 +46,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "ObjectFactory.h"
 #include "QuadTree.h"
 #include "Shuttle.h"
-#include "ScoutManager.h"
+#include "ForageManager.h"
 #include "TicketCollector.h"
 #include "ConfigManager/ConfigManager.h"
 #include "DatabaseManager/Database.h"
@@ -702,7 +702,7 @@ void WorldManager::addCreatureObjectForTimedDeletion(uint64 creatureId, uint64 w
 
 bool WorldManager::_handleScoutForagingUpdate(uint64 callTime, void* ref)
 {
-	gScoutManager->forageUpdate();
+	gForageManager->forageUpdate();
 	return true;
 }
 

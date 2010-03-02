@@ -47,6 +47,7 @@ public:
 	bool HealDamage(PlayerObject* Medic, CreatureObject* Target, uint64 StimPackObjectID, ObjectControllerCmdProperties* cmdProperties);
 	bool HealDamageRanged(PlayerObject* Medic, CreatureObject* Target, uint64 StimPackObjectID, ObjectControllerCmdProperties* cmdProperties);
 	bool Diagnose(PlayerObject* Medic, PlayerObject* Target);
+	void successForage(PlayerObject* player);
 
 private:
 	static MedicManager*	mSingleton;

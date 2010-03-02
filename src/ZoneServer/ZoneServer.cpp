@@ -17,6 +17,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "CombatManager.h"
 #include "EntertainerManager.h"
 #include "Food.h"
+#include "ForageManager.h"
 #include "GroupManager.h"
 #include "MedicManager.h"
 #include "NonPersistentItemFactory.h"
@@ -165,7 +166,7 @@ void ZoneServer::Startup(int8* zoneName)
 												// The object will create itself upon first usage,
 	(void)NonPersistentNpcFactory::Instance();
 
-
+	(void)ForageManager::Instance();
 	(void)ScoutManager::Instance();
 	(void)NonPersistantObjectFactory::Instance();
 

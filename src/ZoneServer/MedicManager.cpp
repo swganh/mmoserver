@@ -18,8 +18,11 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "UIManager.h"
 #include "WorldManager.h"
 #include "WorldConfig.h"
+#include "ForageManager.h"
+#include "StructureManager.h"
 
 #include "MessageLib/MessageLib.h"
+#include "Utils/rand.h"
 
 
 #ifndef min
@@ -614,4 +617,34 @@ bool MedicManager::HealDamageRanged(PlayerObject* Medic, CreatureObject* Target,
 	}
 
 	return true;
+}
+
+//Foraging
+void MedicManager::successForage(PlayerObject* player)
+{
+	//gLogger->logMsg("FORAGING ATTEMPT SUCCESS!", FOREGROUND_RED);
+	//Chance of success = sqrt(skill)/20 + 0.15
+	//Chance in down = chance/2
+
+	//First lets calc our chance to 'win'
+	//This is the magic formula!	
+	double chance = std::sqrt((double)player->getSkillModValue(20))/20 + 0.15;
+
+	if(!gStructureManager->checkCityRadius(player)) 
+		chance = chance*50;
+	else
+		chance = chance*100;
+
+	if((gRandom->getRand() % 100) <= chance)
+	{
+		// YOU WIN!
+		gMessageLib->sendSystemMessage(player, L"", "skl_use","sys_forage_success");
+	}
+	else
+	{
+		//YOU LOSE! GOOD DAY SIR!
+		gMessageLib->sendSystemMessage(player, L"", "skl_use","sys_forage_fail");
+	}
+
+	player->setForaging(false);
 }

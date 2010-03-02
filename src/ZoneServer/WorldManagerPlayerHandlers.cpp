@@ -32,7 +32,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "ResourceCollectionManager.h"
 #include "ResourceManager.h"
 #include "SchematicManager.h"
-#include "ScoutManager.h"
 #include "TreasuryManager.h"
 #include "WorldConfig.h"
 #include "ZoneOpcodes.h"
@@ -253,7 +252,7 @@ void WorldManager::addDisconnectedPlayer(PlayerObject* playerObject)
 	playerObject->toggleStateOff(CreatureState_Crafting);
 
 	//Fail any foraging
-	gScoutManager->failForage(playerObject, GOT_DISCONNECTED);
+	playerObject->isForaging();
 
 	//any speeder out?
 

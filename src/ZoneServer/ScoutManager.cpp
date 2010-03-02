@@ -219,7 +219,7 @@ void ScoutManager::successForage(PlayerObject* player)
 	else
 		chance = chance*100;
 
-	if((gRandom->getRand() % 100) <= chance*100)
+	if((gRandom->getRand() % 100) <= chance)
 	{
 		// YOU WIN!
 
@@ -390,7 +390,7 @@ void ScoutManager::successForage(PlayerObject* player)
 		else
 			gMessageLib->sendSystemMessage(player, L"", "skl_use","sys_forage_success");
 
-		gObjectFactory->requestNewDefaultItem(inventory, itemFamily, itemType, inventory->getId(),99,Anh_Math::Vector3(),"");
+		gObjectFactory->requestNewDefaultItemWithUses(inventory, itemFamily, itemType, inventory->getId(),99,Anh_Math::Vector3(),"",itemCount);
 	}
 	else
 	{

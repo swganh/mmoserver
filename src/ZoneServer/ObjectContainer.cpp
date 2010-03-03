@@ -100,7 +100,7 @@ bool ObjectContainer::addObject(Object* Data)
 	{
 		//PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getParentId()));					
 		gLogger->logMsgF("ObjectContainer::addObject No Capacity!!!!",MSG_HIGH);
-		assert(false);
+		//assert(false); Another case where....why crash? We can continue just fine.
 		return false;
 
 	}

@@ -178,8 +178,11 @@ int32 FactoryCrate::decreaseContent(uint32 amount)
 
 	if(newAmount < 0)
 	{
-		assert(false);
-		return -1;
+		//??? If we came in here and there was no attrib for this crate
+		//....no matter what 'amount' is (unless it's 0) we're going to fail hardcore.
+		//Lets try to recover from this DB error by returning 0.
+		//assert(false); 
+		return 0;
 	}
 
 	this->setAttribute("factory_count",boost::lexical_cast<std::string>(newAmount));

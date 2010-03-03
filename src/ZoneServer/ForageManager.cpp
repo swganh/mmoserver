@@ -54,7 +54,7 @@ public:
 
 	bool containsPlayer(PlayerObject* player)
 	{
-		if( region->mTree->ObjectContained(&innerRect, player) || region->mTree->ObjectContained(&outterRect, player) )
+		if(region->mTree->ObjectContained(&outterRect, player))
 			return true;
 		else
 			return false;

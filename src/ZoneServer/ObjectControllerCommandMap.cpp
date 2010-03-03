@@ -482,8 +482,18 @@ void ObjectControllerCommandMap::_registerCppHooks()
 	mCommandMap.insert(std::make_pair(opHarvesterActivate,&ObjectController::_handleHarvesterActivate));
 	mCommandMap.insert(std::make_pair(opHarvesterDeActivate,&ObjectController::_handleHarvesterDeActivate));
 	mCommandMap.insert(std::make_pair(opDiscardHopper,&ObjectController::_handleDiscardHopper));
+
+	mCommandMap.insert(std::make_pair(opItemRotation,&ObjectController::_handleItemRotation));
+	mCommandMap.insert(std::make_pair(opItemMoveUp,&ObjectController::_handleItemMoveUp));
+
+	mCommandMap.insert(std::make_pair(opItemMoveForward,&ObjectController::_handleItemMoveForward));
+	mCommandMap.insert(std::make_pair(opItemMoveBack,&ObjectController::_handleItemMoveBack));
+	mCommandMap.insert(std::make_pair(opItemMoveDown,&ObjectController::_handleItemMoveDown));
+	
+	
 	
 
+	
 }
 
 //======================================================================================================================

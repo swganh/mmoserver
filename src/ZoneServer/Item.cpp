@@ -11,6 +11,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include "Item.h"
 #include "PlayerObject.h"
+#include "MessageLib/MessageLib.h"
 
 
 //=============================================================================
@@ -32,8 +33,40 @@ Item::~Item()
 }
 
 //=============================================================================
+// its an item droppe in a cell - these all have the same menu options
+
+void Item::prepareCustomRadialMenuInCell(CreatureObject* creatureObject, uint8 itemCount)
+{
+	RadialMenu* radial	= new RadialMenu();
+	uint8 i = 1;
+	uint8 u = 1;
+
+	// any object with callbacks needs to handle those (received with menuselect messages) !
+	if(this->getObjects()->size())
+		radial->addItem(i++,0,radId_itemOpen,radAction_Default,"");
+
+	radial->addItem(i++,0,radId_examine,radAction_Default,"");
+
+	radial->addItem(i++,0,radId_itemPickup,radAction_Default,"");
+	
+	u = i;
+	radial->addItem(i++,0,radId_itemMove,radAction_Default, "");	
+	radial->addItem(i++,u,radId_itemMoveForward,radAction_Default, "");//radAction_ObjCallback
+	radial->addItem(i++,u,radId_ItemMoveBack,radAction_Default, "");
+	radial->addItem(i++,u,radId_itemMoveUp,radAction_Default, "");
+	radial->addItem(i++,u,radId_itemMoveDown,radAction_Default, "");
+	
+	u = i;
+	radial->addItem(i++,0,radId_itemRotate,radAction_Default, "");
+	radial->addItem(i++,u,radId_itemRotateRight,radAction_Default, "");
+	radial->addItem(i++,u,radId_itemRotateLeft,radAction_Default, "");
+
+  
+	RadialMenuPtr radialPtr(radial);
+	mRadialMenu = radialPtr;
 
 
+}
 void Item::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount)
 {
 	//check if musical Instrument
@@ -72,10 +105,17 @@ void Item::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 	{
 		switch(messageType)
 		{
-			// When player hits launch on fireworks
-			case radId_itemUse:
+			case radId_itemRotateRight:
 			{
+				this->mDirection.rotatex(10);
+				gMessageLib->sendDataTransform(this);
+			}
+			break;
 
+			case radId_itemRotateLeft:
+			{
+				this->mDirection.rotatex(-10);
+				gMessageLib->sendDataTransform(this);
 			}
 			break;
 

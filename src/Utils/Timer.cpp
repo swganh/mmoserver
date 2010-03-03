@@ -14,7 +14,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 //==============================================================================================================================
 
-Timer::Timer(uint32 id,TimerCallback* callback,uint32 interval, void* container)
+Timer::Timer(uint32 id,TimerCallback* callback,uint64 interval, void* container)
 : mContainer(container)
 , mCallback(callback)
 , mId(id)
@@ -23,7 +23,7 @@ Timer::Timer(uint32 id,TimerCallback* callback,uint32 interval, void* container)
 	if(mInterval < 100)
 		mInterval = 100;
 
-	mLastTick = static_cast<uint32>(Anh_Utils::Clock::getSingleton()->getLocalTime());
+	mLastTick = Anh_Utils::Clock::getSingleton()->getLocalTime();
 
     boost::thread t(&Timer::Run, this);
     mThread = boost::move(t);
@@ -50,7 +50,7 @@ void Timer::Run()
 		if(currentTick - mLastTick >= mInterval)
 		{
 			mCallback->handleTimer(mId,mContainer);
-			mLastTick = static_cast<uint32>(currentTick);
+			mLastTick = currentTick;
 		}
 
         boost::this_thread::sleep(boost::posix_time::milliseconds(10));

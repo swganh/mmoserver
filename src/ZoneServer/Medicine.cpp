@@ -61,39 +61,46 @@ void Medicine::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 {
 	if(PlayerObject* player = dynamic_cast<PlayerObject*>(srcObject))
 	{
-		switch(mItemType)
+		switch(messageType)
 		{
-		case ItemType_Stimpack_A:
-			handleStimpackMenuSelect(messageType, player);
+			case radId_itemRotateRight:
+			{
+				this->mDirection.rotatex(10);
+				gMessageLib->sendDataTransform(this);
+			}
 			break;
-		case ItemType_Stimpack_B:
-			handleStimpackMenuSelect(messageType, player);
+
+			case radId_itemRotateLeft:
+			{
+				this->mDirection.rotatex(-10);
+				gMessageLib->sendDataTransform(this);
+			}
 			break;
-		case ItemType_Stimpack_C:
-			handleStimpackMenuSelect(messageType, player);
+
+			case radId_itemUse:
+			{
+				switch(mItemType)
+				{
+				case ItemType_Stimpack_A:
+				case ItemType_Stimpack_B:
+				case ItemType_Stimpack_C:
+				case ItemType_Stimpack_D:
+				case ItemType_Stimpack_E:
+				case ItemType_Ranged_Stimpack_A:
+				case ItemType_Ranged_Stimpack_B:
+				case ItemType_Ranged_Stimpack_C:
+				case ItemType_Ranged_Stimpack_D:
+				case ItemType_Ranged_Stimpack_E:
+					handleStimpackMenuSelect(messageType, player);
+					break;
+				}
+
+			}
 			break;
-		case ItemType_Stimpack_D:
-			handleStimpackMenuSelect(messageType, player);
-			break;
-		case ItemType_Stimpack_E:
-			handleStimpackMenuSelect(messageType, player);
-			break;
-		case ItemType_Ranged_Stimpack_A:
-			handleStimpackMenuSelect(messageType, player);
-			break;
-		case ItemType_Ranged_Stimpack_B:
-			handleStimpackMenuSelect(messageType, player);
-			break;
-		case ItemType_Ranged_Stimpack_C:
-			handleStimpackMenuSelect(messageType, player);
-			break;
-		case ItemType_Ranged_Stimpack_D:
-			handleStimpackMenuSelect(messageType, player);
-			break;
-		case ItemType_Ranged_Stimpack_E:
-			handleStimpackMenuSelect(messageType, player);
-			break;
+
+			default: break;
 		}
+		
 	}
 }
 

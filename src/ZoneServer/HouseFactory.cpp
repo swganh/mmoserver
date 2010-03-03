@@ -108,7 +108,9 @@ void HouseFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,HOFQuery_AdminData,asyncContainer->mClient);
 			asContainer->mObject = house;
 
-			mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT PlayerID, AdminType FROM structure_admin_data WHERE StructureID = %"PRIu64";",house->getId());
+			int8 hmm[1024];
+			sprintf(hmm,"SELECT PlayerID FROM structure_admin_data WHERE StructureID = %"PRIu64" AND AdminType like 'ADMIN';",house->getId());
+			mDatabase->ExecuteSqlAsync(this,asContainer,hmm);
 
 		}
 		break;
@@ -126,18 +128,15 @@ void HouseFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 			adminStruct adminData;
 
-			DataBinding*	adminBinding = mDatabase->CreateDataBinding(2);
+			DataBinding*	adminBinding = mDatabase->CreateDataBinding(1);
 			adminBinding->addField(DFT_uint64,offsetof(adminStruct,playerID),8,0);
-			adminBinding->addField(DFT_bstring,offsetof(adminStruct,adminList),64,0);
-
 
 			uint64 count = result->getRowCount();
 
 			for(uint32 j = 0;j < count;j++)
 			{
 				result->GetNextRow(adminBinding,&adminData);
-
-				if(adminData.adminList.getCrc() == BString("admin").getCrc())
+				gLogger->logMsgF("added admin %I64u to house %I64u",MSG_HIGH,adminData.playerID,house->getId());
 				house->addHousingAdminEntry(adminData.playerID);
 			}
 

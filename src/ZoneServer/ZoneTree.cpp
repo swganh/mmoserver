@@ -353,7 +353,9 @@ void ZoneTree::getObjectsInRange(const Object* const object,ObjectSet* resultSet
 		Region r = Region(plow,phigh,2);
 		MyVisitor vis(&resultIdList);
 
+		//please note that the containsWhatQuery regularly fails to find objects were standing next to - 
 		//mTree->containsWhatQuery(r,vis);
+
 		mTree->intersectsWithQuery(r,vis);
 		// filter needed objects
 		ObjectIdList::iterator it = resultIdList.begin();
@@ -462,8 +464,10 @@ void ZoneTree::getObjectsInRange(const Object* const object,ObjectSet* resultSet
 		Region r = Region(plow,phigh,2);
 		MyVisitor vis(&resultIdList);
 
-		// This is a test to see if we "get any more speed", by ERU.
-		 mTree->intersectsWithQuery(r,vis);
+		mTree->intersectsWithQuery(r,vis);
+
+		//containswhat query regularly misses objects we stand next to do *not* use it
+		//this might have been because the width and height of buildings was set by default to 128 (ie our viewing range)
 		//mTree->containsWhatQuery(r,vis);
 
 		ObjectIdList::iterator it = resultIdList.begin();
@@ -479,8 +483,8 @@ void ZoneTree::getObjectsInRange(const Object* const object,ObjectSet* resultSet
 				{
 					resultSet->insert(tmpObject);
 				}
-				// if its a building, add objects of our types it contains
-				
+		
+				// if its a building, add objects of queried types it contains				
 				if(tmpType == ObjType_Building)
 				{
 					ObjectList cellChilds = (dynamic_cast<BuildingObject*>(tmpObject))->getAllCellChilds();

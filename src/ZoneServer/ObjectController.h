@@ -268,7 +268,7 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback
 		void	_handleTransferItemMisc(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleTransferItemMisc2(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		bool	checkTargetContainer(uint64 targetId, Object* object);
-		bool	checkContainingContainer(uint64 targetId);
+		bool	checkContainingContainer(uint64 containingContainer, uint64 playerId);
 		bool	removeFromContainer(uint64 targetContainerId, uint64 targetId);
 
 		void	_handleRequestQuestTimersAndCounters(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
@@ -551,6 +551,17 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback
 		void	_handleHarvesterActivate(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleHarvesterDeActivate(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleDiscardHopper(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
+
+		void	_handleItemRotation(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
+		void	_handleItemMoveUp(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
+
+		void	_handleItemMoveForward(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
+		void	_handleItemMoveBack(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
+		void	_handleItemMoveDown(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
+		
+		
+
+		
 
 		//pets
 		void	_handleMount(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);

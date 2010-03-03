@@ -174,9 +174,7 @@ void StructureManager::removeNamefromPermissionList(uint64 structureId, uint64 p
 //=======================================================================================================================
 void StructureManager::addNametoPermissionList(uint64 structureId, uint64 playerId, string name, string list)
 {
-	// load our structures maintenance data
-	// that means the maintenance attribute and the energy attribute
-	//
+	//we have shown that we are on the admin list, so the name we proposed now will get added
 
 	StructureManagerAsyncContainer* asyncContainer;
 
@@ -727,7 +725,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(command.StructureId));
 			if(!building)
 			{
-				gLogger->logMsg("StructureManager::processVerification : No building (Structure_Command_CellEnterDenial) ");
+				gLogger->logMsg("StructureManager::processVerification : No building (Structure_Command_CellEnter) ");
 				return;
 			}
 			//now send cell permission update to the player
@@ -748,7 +746,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			//set to private
 			if(house->getPublic())
 			{
-				mDatabase->ExecuteSqlAsync(0,0,"UPDATE houses h SET h.private = 1 WHERE h.ID = %I64u",command.StructureId);
+				mDatabase->ExecuteSqlAsync(0,0,"UPDATE houses h SET h.private = 0 WHERE h.ID = %I64u",command.StructureId);
 				house->setPublic(false);
 				gMessageLib->sendSystemMessage(player,L"","player_structure","structure_now_private");
 				return;
@@ -756,7 +754,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 
 			house->setPublic(true);
 			gMessageLib->sendSystemMessage(player,L"","player_structure","structure_now_public");
-			mDatabase->ExecuteSqlAsync(0,0,"UPDATE houses h SET h.private = 0 WHERE h.ID = %I64u",command.StructureId);
+			mDatabase->ExecuteSqlAsync(0,0,"UPDATE houses h SET h.private = 1 WHERE h.ID = %I64u",command.StructureId);
 		}
 		break;
 

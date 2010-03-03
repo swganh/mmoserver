@@ -496,3 +496,28 @@ void PlayerStructure::handleUIEvent(uint32 action,int32 element,string inputStr,
 
 
 
+
+
+
+
+
+
+
+
+//=============================================================================
+// 
+//
+
+bool PlayerStructure::hasAdminRights(uint64 id)
+{
+	ObjectIDList::iterator it = mHousingAdminList.begin();
+
+	while(it != mHousingAdminList.end())
+	{
+		if((*it) == id) 
+			return(true); 
+
+		++it;
+	}
+	return false;
+}

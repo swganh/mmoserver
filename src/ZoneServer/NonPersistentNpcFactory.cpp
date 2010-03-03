@@ -459,6 +459,7 @@ NPCObject* NonPersistentNpcFactory::createNonPersistentNpc(DatabaseResult* resul
 	gWorldManager->addObject(npc, true);
 
 	Inventory*	npcInventory = new Inventory();
+	npcInventory->setCapacity(50);//we want to be able to fill something in our inventory
 	npcInventory->setParent(npc);
 
 	uint64 count = result->getRowCount();

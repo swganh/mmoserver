@@ -108,10 +108,12 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 		bool						checkKnownObjects(Object* object) const;
 
 		RadialMenuPtr				getRadialMenu(){ return mRadialMenu; }
+		void						ResetRadialMenu(){	RadialMenu* radial	= NULL;RadialMenuPtr radialPtr(radial);	mRadialMenu = radialPtr;}
 
 		virtual void				handleUIEvent(uint32 action,int32 element,string inputStr = "",UIWindow* window = NULL) {}
 
 		virtual void				prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount){}
+		virtual void				prepareCustomRadialMenuInCell(CreatureObject* creatureObject, uint8 itemCount){}
 		virtual	void				handleObjectMenuSelect(uint8 messageType,Object* srcObject){}
 
 		virtual void				sendAttributes(PlayerObject* playerObject);

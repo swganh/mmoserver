@@ -56,6 +56,16 @@ Anh_Math::Quaternion Anh_Math::Quaternion::operator* (const Anh_Math::Quaternion
 	);
 }
 
+void Anh_Math::Quaternion::Multiplication (const Anh_Math::Quaternion q)
+{
+ 
+	mX = mW * q.mW - mX * q.mX - mY * q.mY - mZ * q.mZ;
+	mY = mW * q.mX + mX * q.mW + mY * q.mZ - mZ * q.mY;
+	mZ = mW * q.mY + mY * q.mW + mZ * q.mX - mX * q.mZ;
+	mW = mW * q.mZ + mZ * q.mW + mX * q.mY - mY * q.mX;
+
+}
+
 //==============================================================================
 
 float Anh_Math::Quaternion::DotProduct(Anh_Math::Quaternion& q)
@@ -82,6 +92,34 @@ float Anh_Math::Quaternion::normalize()
 }
 
 //==============================================================================
+// with thks to http://gpwiki.org/index.php/OpenGL:Tutorials:Using_Quaternions_to_represent_rotation
+// for help
+void Anh_Math::Quaternion::VectorAxis(const Vector3 &v, float angle)
+{
+	float sinAngle;
+	angle *= 0.5f;
+	Vector3 vn(v);
+	//vn.normalise();
+ 
+	sinAngle = sin(angle);
+ 
+	mX = (vn.mX * sinAngle);
+	mY = (vn.mY * sinAngle);
+	mZ = (vn.mZ * sinAngle);
+	mW = cos(angle);
+
+}
+
+//==============================================================================
+// with thks to http://gpwiki.org/index.php/OpenGL:Tutorials:Using_Quaternions_to_represent_rotation
+// for help
+void Anh_Math::Quaternion::rotatex(float xrmod)
+{
+	Quaternion nrot;
+	nrot.VectorAxis(Vector3(1.0f, 0.0f, 0.0f), xrmod );
+
+	Multiplication(nrot);
+}
 
 // This version does not handle vectors / floats never used, nor does it change values (sign) of any members. (Compared to previous version below).
 float Anh_Math::Quaternion::getAnglesToSend() const

@@ -52,6 +52,7 @@ void HouseObject::checkCellPermission(PlayerObject* player)
 
 	if(this->getPublic())
 	{
+		//structure is public - are we banned ?
 		StructureAsyncCommand command;
 		command.Command = Structure_Command_CellEnterDenial;
 		command.PlayerId = player->getId();
@@ -62,6 +63,7 @@ void HouseObject::checkCellPermission(PlayerObject* player)
 	}
 	else
 	{
+		//structure is private - do we have access ?
 		StructureAsyncCommand command;
 		command.Command = Structure_Command_CellEnter;
 		command.PlayerId = player->getId();

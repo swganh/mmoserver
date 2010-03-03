@@ -674,6 +674,7 @@ void	ObjectController::_handleHarvesterDeActivate(uint64 targetId,Message* messa
 
 }
 
+
 //======================================================================================================================
 //
 // Discards the contents of a harvesters Hopper
@@ -802,3 +803,309 @@ void	ObjectController::handleResourceEmptyHopper(Message* message)
 
 }
 
+
+
+//======================================================================================================================
+//
+// moves an item
+//
+void	ObjectController::_handleItemMoveForward(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
+{
+
+	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+
+	if(!player)
+	{
+		gLogger->logMsgF(" ObjectController::_handleItemRotation Player not found",MSG_HIGH);
+		return;
+	}
+
+	//do we have a valid item ??? 
+	uint64 id = targetId;
+	Object* object = gWorldManager->getObjectById(id);
+
+	if(!object)
+	{
+		gLogger->logMsgF(" ObjectController::_handleItemRotation item not found",MSG_HIGH);
+		return;
+	}
+
+	if(CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId())))
+	{
+		if(BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId())))
+		{
+			if(!building->hasAdminRights(player->getId()))
+			{
+				gLogger->logMsgF(" ObjectController::_handleItemRotation no admin rights",MSG_HIGH);
+				return;
+			}
+		}
+		else
+		{
+			gLogger->logMsgF(" ObjectController::_handleItemRotation no structure",MSG_HIGH);
+			return;
+		}
+	}
+	else
+	{
+		gLogger->logMsgF(" ObjectController::_handleItemRotation no cell",MSG_HIGH);
+		return;
+	}
+
+
+	//we somehow need to calculate the vector of the movement *away* from us
+	object->mPosition.mX += 0.10;
+	gMessageLib->sendDataTransformWithParent(object);
+
+
+	gLogger->hexDump(message->getData(), message->getSize());
+}
+
+
+//======================================================================================================================
+//
+// moves an item
+//
+void	ObjectController::_handleItemMoveUp(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
+{
+
+	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+
+	if(!player)
+	{
+		gLogger->logMsgF(" ObjectController::_handleItemRotation Player not found",MSG_HIGH);
+		return;
+	}
+
+	//do we have a valid item ??? 
+	uint64 id = targetId;
+	Object* object = gWorldManager->getObjectById(id);
+
+	if(!object)
+	{
+		gLogger->logMsgF(" ObjectController::_handleItemRotation item not found",MSG_HIGH);
+		return;
+	}
+
+	if(CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId())))
+	{
+		if(BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId())))
+		{
+			if(!building->hasAdminRights(player->getId()))
+			{
+				gLogger->logMsgF(" ObjectController::_handleItemRotation no admin rights",MSG_HIGH);
+				return;
+			}
+		}
+		else
+		{
+			gLogger->logMsgF(" ObjectController::_handleItemRotation no structure",MSG_HIGH);
+			return;
+		}
+	}
+	else
+	{
+		gLogger->logMsgF(" ObjectController::_handleItemRotation no cell",MSG_HIGH);
+		return;
+	}
+
+
+	object->mPosition.mY += 0.10;
+	gMessageLib->sendDataTransformWithParent(object);
+
+
+	gLogger->hexDump(message->getData(), message->getSize());
+}
+
+
+//======================================================================================================================
+//
+// moves an item
+//
+void	ObjectController::_handleItemMoveDown(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
+{
+
+	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+
+	if(!player)
+	{
+		gLogger->logMsgF(" ObjectController::_handleItemRotation Player not found",MSG_HIGH);
+		return;
+	}
+
+	//do we have a valid item ??? 
+	uint64 id = targetId;
+	Object* object = gWorldManager->getObjectById(id);
+
+	if(!object)
+	{
+		gLogger->logMsgF(" ObjectController::_handleItemRotation item not found",MSG_HIGH);
+		return;
+	}
+
+	if(CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId())))
+	{
+		if(BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId())))
+		{
+			if(!building->hasAdminRights(player->getId()))
+			{
+				gLogger->logMsgF(" ObjectController::_handleItemRotation no admin rights",MSG_HIGH);
+				return;
+			}
+		}
+		else
+		{
+			gLogger->logMsgF(" ObjectController::_handleItemRotation no structure",MSG_HIGH);
+			return;
+		}
+	}
+	else
+	{
+		gLogger->logMsgF(" ObjectController::_handleItemRotation no cell",MSG_HIGH);
+		return;
+	}
+
+
+	object->mPosition.mY -= 0.10;
+	gMessageLib->sendDataTransformWithParent(object);
+
+
+	gLogger->hexDump(message->getData(), message->getSize());
+}
+
+
+
+
+//======================================================================================================================
+//
+// moves an item
+//
+void	ObjectController::_handleItemMoveBack(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
+{
+
+	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+
+	if(!player)
+	{
+		gLogger->logMsgF(" ObjectController::_handleItemRotation Player not found",MSG_HIGH);
+		return;
+	}
+
+	//do we have a valid item ??? 
+	uint64 id = targetId;
+	Object* object = gWorldManager->getObjectById(id);
+
+	if(!object)
+	{
+		gLogger->logMsgF(" ObjectController::_handleItemRotation item not found",MSG_HIGH);
+		return;
+	}
+
+	if(CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId())))
+	{
+		if(BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId())))
+		{
+			if(!building->hasAdminRights(player->getId()))
+			{
+				gLogger->logMsgF(" ObjectController::_handleItemRotation no admin rights",MSG_HIGH);
+				return;
+			}
+		}
+		else
+		{
+			gLogger->logMsgF(" ObjectController::_handleItemRotation no structure",MSG_HIGH);
+			return;
+		}
+	}
+	else
+	{
+		gLogger->logMsgF(" ObjectController::_handleItemRotation no cell",MSG_HIGH);
+		return;
+	}
+
+	//we somehow need to calculate the vector of the movement *away* from us
+
+	object->mPosition.mX -= 0.10;
+	gMessageLib->sendDataTransformWithParent(object);
+
+
+	gLogger->hexDump(message->getData(), message->getSize());
+}
+
+
+
+
+
+//======================================================================================================================
+//
+// rotates an item
+//
+void	ObjectController::_handleItemRotation(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
+{
+
+	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+
+	if(!player)
+	{
+		gLogger->logMsgF(" ObjectController::_handleItemRotation Player not found",MSG_HIGH);
+		return;
+	}
+
+	//do we have a valid item ??? 
+	uint64 id = targetId;
+	Object* object = gWorldManager->getObjectById(id);
+
+	if(!object)
+	{
+		gLogger->logMsgF(" ObjectController::_handleItemRotation item not found",MSG_HIGH);
+		return;
+	}
+
+	if(CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId())))
+	{
+		if(BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId())))
+		{
+			if(!building->hasAdminRights(player->getId()))
+			{
+				gLogger->logMsgF(" ObjectController::_handleItemRotation no admin rights",MSG_HIGH);
+				return;
+			}
+		}
+		else
+		{
+			gLogger->logMsgF(" ObjectController::_handleItemRotation no structure",MSG_HIGH);
+			return;
+		}
+	}
+	else
+	{
+		gLogger->logMsgF(" ObjectController::_handleItemRotation no cell",MSG_HIGH);
+		return;
+	}
+
+
+	string dataStr;
+	message->getStringUnicode16(dataStr);
+
+	uint32 degrees;
+	int8 direction[32];
+	dataStr.convert(BSTRType_ANSI);
+	sscanf(dataStr.getAnsi(),"%s %u",&direction, &degrees);
+
+	gLogger->logMsgF(" ObjectController::_handleItemRotation direction %s",MSG_HIGH,direction);
+	
+	if(strcmp(direction,"left") == 0)
+	{
+		object->mDirection.rotatex(-3.6);
+		gMessageLib->sendDataTransformWithParent(object);
+	}
+
+	if(strcmp(direction,"right") == 0)
+	{
+		object->mDirection.rotatex(3.6);
+		gMessageLib->sendDataTransformWithParent(object);
+	}
+
+
+	gLogger->hexDump(message->getData(), message->getSize());
+}

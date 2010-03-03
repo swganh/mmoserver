@@ -43,6 +43,7 @@ class TangibleObject :	public ObjectContainer
 		//============================================================
 		//sets ParentId - for item table objects in the db and Object
 		virtual void		setParentIdIncDB(uint64 parentId);
+		virtual void		prepareCustomRadialMenuInCell(CreatureObject* creatureObject, uint8 itemCount);
 
 		string				getCustomizationStr() const { return mCustomizationStr; }
 		void				setCustomizationStr(const uint8* custStr){ mCustomizationStr = (int8*)custStr; }

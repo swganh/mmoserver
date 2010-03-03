@@ -730,7 +730,7 @@ void ScriptSupport::itemPopulateInventory(uint64 itemId, uint64 npcId, uint64 pl
 		if (inventory)
 		{
 			//  and (tutorial:getRoom() < 7)
-			inventory->addObject(itemObject);
+			inventory->addObjectSecure(itemObject);
 			itemObject->setParentId(npcId+1);
 		}
 	}

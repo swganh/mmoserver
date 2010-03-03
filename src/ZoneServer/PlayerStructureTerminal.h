@@ -30,6 +30,7 @@ class PlayerStructureTerminal : public Terminal
 		void		handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window);
 
 		void		prepareCustomRadialMenu(CreatureObject* player, uint8 itemCount);
+		void		prepareCustomRadialMenuInCell(CreatureObject* creatureObject, uint8 itemCount);
 
 		void		setStructure(uint64 s){mStructure = s;}
 		uint64		getStructure(){return mStructure;}

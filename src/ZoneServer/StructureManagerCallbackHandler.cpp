@@ -371,7 +371,7 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
 			uint64 count;
 			count = result->getRowCount();
-
+			structure->resetStructureEntryList();
 			for(uint64 i = 0;i < count;i++)
 			{
 				result->GetNextRow(binding,&playerName);
@@ -397,6 +397,7 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
 			uint64 count;
 			count = result->getRowCount();
+			structure->resetStructureBanList();
 
 			for(uint64 i = 0;i < count;i++)
 			{
@@ -489,7 +490,7 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
 			if (!count)
 			{
-				gLogger->logMsgLoadFailure("StructureManager::add Permission no return value...",MSG_NORMAL);
+				gLogger->logMsgLoadFailure("StructureManager::Structure_Query_Remove_Permission no return value...",MSG_NORMAL);
 			}
 			result->GetNextRow(binding,&returnValue);
 			// 0 is sucess
@@ -502,7 +503,7 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 				string name;
 				name = asynContainer->name;
 				name.convert(BSTRType_Unicode16);
-				gMessageLib->sendSystemMessage(player,L"","player_structure","player_added","","",name.getUnicode16());
+				gMessageLib->sendSystemMessage(player,L"","player_structure","player_removed","","",name.getUnicode16());
 			}
 
 			if(returnValue == 1)
@@ -541,6 +542,33 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 		}
 		break;
 
+		case Structure_Query_UpdatePermission:
+		{
+			HouseObject*	house = dynamic_cast<HouseObject*>(gWorldManager->getObjectById(asynContainer->mStructureId));
+
+			struct adminStruct
+			{
+				uint64 playerID;
+			};
+
+			adminStruct adminData;
+
+			DataBinding*	adminBinding = mDatabase->CreateDataBinding(1);
+			adminBinding->addField(DFT_uint64,offsetof(adminStruct,playerID),8,0);
+
+			uint64 count = result->getRowCount();
+			house->resetHousingAdminList();
+
+			for(uint32 j = 0;j < count;j++)
+			{
+				result->GetNextRow(adminBinding,&adminData);
+				house->addHousingAdminEntry(adminData.playerID);
+			}
+
+			mDatabase->DestroyDataBinding(adminBinding);
+
+		}
+		break;
 
 		// a player has been added to the permission list of a structure
 		case Structure_Query_Add_Permission:
@@ -572,6 +600,12 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 				//gMessageLib->sendSystemMessage(player,L"","player_structure","player_added","",name.getAnsi());
 				name.convert(BSTRType_Unicode16);
 				gMessageLib->sendSystemMessage(player,L"","player_structure","player_added","","",name.getUnicode16());
+				
+				//now read in the (admin) list again
+				StructureManagerAsyncContainer* asContainer = new StructureManagerAsyncContainer(Structure_Query_UpdatePermission,NULL);
+				asContainer->mStructureId = asynContainer->mStructureId;
+
+				gWorldManager->getDatabase()->ExecuteSqlAsync(this,asContainer,"SELECT PlayerID FROM structure_admin_data WHERE StructureID = %"PRIu64" AND AdminType like '%ADMIN%';",asContainer->mStructureId);
 			}
 
 			if(returnValue == 1)
@@ -695,13 +729,13 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 			{
 				if(asynContainer->command.Command == Structure_Command_CellEnter )
 				{
-					//were on the white list - enter
+					//the structure is private - we are not on the access list :(
 					if(BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(asynContainer->command.StructureId)))
 						building->updateCellPermissions(player,false);
 				}
 				if(asynContainer->command.Command == Structure_Command_CellEnterDenial)
 				{
-					//do nothing we are not on the ban list
+					//do nothing we are not on the ban list and as the structure is public all is fine
 				}
 				else
 					gMessageLib->sendSystemMessage(player,L"You are not an admin of this structure");

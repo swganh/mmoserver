@@ -23,7 +23,7 @@ class TimerCallback;
 class Timer
 {
 public:
-    Timer(uint32 id,TimerCallback* callback,uint32 interval, void* container);
+    Timer(uint32 id,TimerCallback* callback,uint64 interval, void* container);
     ~Timer();
 
     virtual	void	Run();
@@ -35,8 +35,8 @@ private:
     void*						mContainer;
     TimerCallback*	mCallback;
     uint32					mId;
-    uint32					mInterval;
-    uint32					mLastTick;
+    uint64					mInterval;
+    uint64					mLastTick;
 };
 
 #endif

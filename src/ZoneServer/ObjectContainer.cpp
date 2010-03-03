@@ -83,11 +83,13 @@ bool ObjectContainer::addObjectSecure(Object* Data)
 	else
 	{
 		gLogger->logMsgF("ObjectContainer::addObjectSecure No Capacity!!!!",MSG_HIGH);
-		return false;
+		return true;
 
 	}
 }
 
+//==============================================================================0
+//use only when youre prepared to receive a false result with a not added item
 bool ObjectContainer::addObject(Object* Data) 
 { 
 	if(mCapacity)
@@ -100,9 +102,13 @@ bool ObjectContainer::addObject(Object* Data)
 	{
 		//PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getParentId()));					
 		gLogger->logMsgF("ObjectContainer::addObject No Capacity!!!!",MSG_HIGH);
-		//assert(false); Another case where....why crash? We can continue just fine.
+		//assert(false);// Another case where....why crash? We can continue just fine.
+		//because crashing is fun :)))
+		//plus obvioulsly someone uses the code without proper failsafes
+		//and its good practice to find these spots :))))
 		return false;
 
+		//its not my fault I cant reach snows tc for 2 weeks ...
 	}
 }
 

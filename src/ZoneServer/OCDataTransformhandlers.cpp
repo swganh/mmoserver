@@ -687,12 +687,7 @@ void ObjectController::_findInRangeObjectsInside(bool updateAll)
 	if (updateAll)
 	{
 		// This is good to use when entering a building.
-
-		// gLogger->logMsg("INSIDE updateAll.");
-
-		// We want the players first.
-		mSI->getObjectsInRange(player,&mInRangeObjects,(ObjType_Player),viewingRange);
-		mSI->getObjectsInRange(player,&mInRangeObjects,(ObjType_Tangible | ObjType_NPC | ObjType_Creature | ObjType_Building | ObjType_Structure),viewingRange);
+		mSI->getObjectsInRange(player,&mInRangeObjects,(ObjType_Player | ObjType_Tangible | ObjType_NPC | ObjType_Creature | ObjType_Building | ObjType_Structure),viewingRange);
 
 		// query the qtree based on the buildings world position
 		if (QTRegion* region = mSI->getQTRegion(building->mPosition.mX,building->mPosition.mZ))
@@ -791,19 +786,14 @@ bool ObjectController::_updateInRangeObjectsInside()
 				if (object->getId() > 0x0000000100000000LLU)
 #endif
 				{
-					if (object->getPrivateOwner())
+					//if its an instance and per chance *our* instance
+					if (object->getPrivateOwner()&&object->isOwnedBy(player))
 					{
-						if (object->isOwnedBy(player))
-						{
-							gMessageLib->sendCreateObject(object,player);
-							player->addKnownObjectSafe(object);
-							object->addKnownObjectSafe(player);
-							updatedObjects++;
-						}
-						else
-						{
-							// gLogger->logMsgF("_updateInRangeObjectsInside %s DISMISSED calling sendCreateObject() for %"PRIu64"",MSG_NORMAL, player->getFirstName().getAnsi(), object->getId());
-						}
+						gMessageLib->sendCreateObject(object,player);
+						player->addKnownObjectSafe(object);
+						object->addKnownObjectSafe(player);
+						updatedObjects++;
+		
 					}
 					else
 					{

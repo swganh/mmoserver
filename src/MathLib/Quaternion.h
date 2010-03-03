@@ -40,6 +40,11 @@ namespace Anh_Math
 			float	DotProduct(Quaternion& q); 
 			float	getNormal() const;  
 			float	normalize(); 
+			
+			void	Multiplication (const Anh_Math::Quaternion q);
+			void	VectorAxis(const Vector3 &v, float angle);
+			void	rotatex(float xrmod);
+			
 			// Vector3	getAnglesToSend();
 			float	getAnglesToSend() const;
 			Vector3	getAngles();

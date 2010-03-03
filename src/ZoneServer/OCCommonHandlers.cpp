@@ -33,12 +33,13 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "ResourceManager.h"
 #include "Shuttle.h"
 #include "SurveyTool.h"
+#include "BuildingObject.h"
 #include "TravelMapHandler.h"
 #include "TravelTerminal.h"
 #include "TreasuryManager.h"
 #include "Tutorial.h"
 #include "UIManager.h"
-#include "Wearable.h"
+//#include "Wearable.h"
 #include "WorldConfig.h"
 #include "WorldManager.h"
 #include "ZoneOpcodes.h"
@@ -307,9 +308,9 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 	if(!parentContainer)
 		parentContainer = inventory;
 
-	if(!checkContainingContainer(tangible->getParentId()))
+	if(!checkContainingContainer(tangible->getParentId(), playerObject->getId()))
 	{
-		gLogger->logMsg("ObjController::_handleTransferItemMisc:ContainingContainer is not valid :(");
+		gLogger->logMsg("ObjController::_handleTransferItemMisc:ContainingContainer is not allowing the transfer :(");
 		return;
 
 	}
@@ -365,11 +366,11 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 		else
 			mDatabase->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id ='%I64u', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",itemObject->getParentId(), itemObject->mDirection.mY, itemObject->mDirection.mZ, itemObject->mDirection.mW, itemObject->mPosition.mX, itemObject->mPosition.mY, itemObject->mPosition.mZ, itemObject->getId());
 
-		// NOTE: It's quite possible to have the player update do this kind of updates manually,
-		// but that will have a performance cost we don't ready to take yet.
 		
 		cell->addObjectSecure(itemObject,playerObject->getKnownPlayers());
-		//alternatively we could use gWorldManager->createObjectinWorld(player);	to create it for other players
+		
+		//do this manually - we need to destroy the object and create it freshly for it to display properly 
+		//to the owner
 		playerObject->addKnownObjectSafe(itemObject);
 		itemObject->addKnownObjectSafe(playerObject);
 		
@@ -416,7 +417,7 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 		
 		// Add it to the container.
 		// We dont have any access validations yet.
-		container->addObject(itemObject);	  //just add its already created
+		container->addObjectSecure(itemObject);	  //just add its already created
 		
 		//set the new parent, send the contaiment and update the db
 		itemObject->setParentId(targetContainerId,linkType,playerObject,true);
@@ -427,7 +428,7 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 	TangibleObject* receivingContainer = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(targetContainerId));
 	if(receivingContainer)
 	{
-		receivingContainer->addObject(itemObject);
+		receivingContainer->addObjectSecure(itemObject);
 		itemObject->setParentId(receivingContainer->getId(),linkType,playerObject,true);
 	}
 	
@@ -439,9 +440,17 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 // checks whether we have access to the container containing the item
 //
 
-bool ObjectController::checkContainingContainer(uint64 containingContainer)
+bool ObjectController::checkContainingContainer(uint64 containingContainer, uint64 playerId)
 {
-	CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(containingContainer));
+	if(CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(containingContainer)))
+	{
+		if(BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId())))
+		{
+			if(building->hasAdminRights(playerId))
+				return true;
+		}
+		return false;
+	}
 	return true;
 }
 
@@ -479,7 +488,7 @@ bool ObjectController::checkTargetContainer(uint64 targetContainerId, Object* ob
 		return false;
 	}
 
-	Container* container = dynamic_cast<Container*>(gWorldManager->getObjectById(targetContainerId));
+	Container* container = dynamic_cast<Container*>(targetContainer );
 	if (container)
 	{
 		if (gWorldConfig->isTutorial())
@@ -496,6 +505,12 @@ bool ObjectController::checkTargetContainer(uint64 targetContainerId, Object* ob
 	{
 		//do we have permission to drop the item here ???
 
+		if(BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId())))
+		{
+			if(building->hasAdminRights(playerObject->getId()))
+				return true;
+		}
+		return false;
 	}
 
 	//we also might want to check this for factories hoppers
@@ -779,9 +794,9 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 	if(!parentContainer)
 		parentContainer = inventory;
 
-	if(!checkContainingContainer(tangible->getParentId()))
+	if(!checkContainingContainer(tangible->getParentId(), playerObject->getId()))
 	{
-		gLogger->logMsg("ObjController::_handleTransferItemMisc:ContainingContainer is not valid :(");
+		gLogger->logMsg("ObjController::_handleTransferItemMisc:ContainingContainer is not allowing the transfer :(");
 		return;
 
 	}
@@ -793,6 +808,10 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 		return;
 	}
 
+	
+	//we need to destroy the old radial ... our item now gets a new one
+	//delete(itemObject->getRadialMenu());
+	itemObject->ResetRadialMenu();
 				
 	//now go and move it to wherever it belongs
 	cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(targetContainerId));
@@ -834,15 +853,14 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 		else
 			mDatabase->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id ='%I64u', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",itemObject->getParentId(), itemObject->mDirection.mY, itemObject->mDirection.mZ, itemObject->mDirection.mW, itemObject->mPosition.mX, itemObject->mPosition.mY, itemObject->mPosition.mZ, itemObject->getId());
 
-		// NOTE: It's quite possible to have the player update do this kind of updates manually,
-		// but that will have a performance cost we don't ready to take yet.
-		
+		//take wm function at one point
 		cell->addObjectSecure(itemObject,playerObject->getKnownPlayers());
 		playerObject->addKnownObjectSafe(itemObject);
 		itemObject->addKnownObjectSafe(playerObject);
 		
 		gMessageLib->sendDestroyObject(itemObject->getId(),playerObject);
 		gMessageLib->sendCreateObject(itemObject,playerObject);
+		
 		gLogger->logMsgF("ObjectController::_handleTransferItemMisc: Player : %I64u contained in %I64u", MSG_NORMAL,playerObject->getId(),playerObject->getParentId());
 		
 	}	
@@ -895,7 +913,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 	TangibleObject* receivingContainer = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(targetContainerId));
 	if(receivingContainer)
 	{
-		receivingContainer->addObject(itemObject);
+		receivingContainer->addObjectSecure(itemObject);
 		itemObject->setParentId(receivingContainer->getId(),linkType,playerObject,true);
 	}
 	
@@ -1284,7 +1302,17 @@ void ObjectController::handleObjectMenuRequest(Message* message)
 		return;
 	}
 
-	requestedObject->prepareCustomRadialMenu(playerObject,static_cast<uint8>(itemCount));
+	//are we an item dropped in a structure awaiting to be moved or picked u`p?
+
+	if(requestedObject->getParentId())
+	{
+		if(CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(requestedObject->getParentId())))
+		{
+			requestedObject->prepareCustomRadialMenuInCell(playerObject,static_cast<uint8>(itemCount));
+		}
+	}
+	if(!requestedObject->getRadialMenu())
+		requestedObject->prepareCustomRadialMenu(playerObject,static_cast<uint8>(itemCount));
 
 	if (requestedObject->getRadialMenu())
 	{
@@ -1293,6 +1321,8 @@ void ObjectController::handleObjectMenuRequest(Message* message)
 			gMessageLib->sendObjectMenuResponse(requestedObject,playerObject,responseNr);
 		}
 		//the radial menu is supposed to be an intelligent pointer deleting itself when no reference is left
+		//however during runtime the item always references the radialmenu that was generated for it on the first call.
+		//when the circumstances of the item change we need to delete the pointer and thus force it to generate a new radial
 	}
 	else
 	{

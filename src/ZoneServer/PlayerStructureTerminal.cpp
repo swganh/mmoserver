@@ -33,9 +33,9 @@ PlayerStructureTerminal::PlayerStructureTerminal() : Terminal()
 	
 }
 
-void PlayerStructureTerminal::prepareCustomRadialMenu(CreatureObject* player, uint8 itemCount)
+void PlayerStructureTerminal::prepareCustomRadialMenuInCell(CreatureObject* creatureObject, uint8 itemCount)
 {
-	RadialMenu* radial	= new RadialMenu();
+		RadialMenu* radial	= new RadialMenu();
 
 	// any object with callbacks needs to handle those (received with menuselect messages) !
 	radial->addItem(1,0,radId_examine,radAction_Default,"");
@@ -66,6 +66,13 @@ void PlayerStructureTerminal::prepareCustomRadialMenu(CreatureObject* player, ui
 	RadialMenuPtr radialPtr(radial);
 	mRadialMenu = radialPtr;
 
+
+
+}
+
+void PlayerStructureTerminal::prepareCustomRadialMenu(CreatureObject* player, uint8 itemCount)
+{
+	return prepareCustomRadialMenuInCell(player, itemCount);
 }
 
 //=============================================================================

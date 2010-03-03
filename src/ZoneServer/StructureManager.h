@@ -71,6 +71,7 @@ enum Structure_QueryType
 	Structure_UpdateAttributes					=	20,
 	Structure_Query_Entry_Data					=	21,
 	Structure_Query_Ban_Data					=	22,
+	Structure_Query_UpdatePermission			=	23,
 
 };
 

@@ -12,6 +12,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Item.h"
 #include "PlayerObject.h"
 #include "MessageLib/MessageLib.h"
+#include "DatabaseManager/Database.h"
 
 
 //=============================================================================
@@ -30,6 +31,12 @@ Item::Item() : TangibleObject(), mOwner(0)
 
 Item::~Item()
 {
+}
+
+void Item::updateWorldPosition()
+{
+	gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id ='%I64u', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",this->getParentId(), this->mDirection.mY, this->mDirection.mZ, this->mDirection.mW, this->mPosition.mX, this->mPosition.mY, this->mPosition.mZ, this->getId());
+	
 }
 
 //=============================================================================

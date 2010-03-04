@@ -73,7 +73,7 @@ CharacterBuilderTerminal::~CharacterBuilderTerminal()
 //=============================================================================
 
 
-void CharacterBuilderTerminal::prepareRadialMenu()
+void CharacterBuilderTerminal::prepareCustomRadialMenu()
 {
 		mRadialMenu = RadialMenuPtr(new RadialMenu());
 

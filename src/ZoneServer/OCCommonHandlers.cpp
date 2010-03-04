@@ -359,13 +359,15 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 		
 		//do the db update manually because of the position - unless we get an automated position save in
 		itemObject->setParentId(targetContainerId,linkType,playerObject,false); 
+		itemObject->updateWorldPosition();
 		
-		ResourceContainer* rc = dynamic_cast<ResourceContainer*>(itemObject);
+		/*ResourceContainer* rc = dynamic_cast<ResourceContainer*>(itemObject);
+
 		if(rc)
 			mDatabase->ExecuteSqlAsync(0,0,"UPDATE resource_containers SET parent_id ='%I64u', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",itemObject->getParentId(), itemObject->mDirection.mY, itemObject->mDirection.mZ, itemObject->mDirection.mW, itemObject->mPosition.mX, itemObject->mPosition.mY, itemObject->mPosition.mZ, itemObject->getId());
 		else
 			mDatabase->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id ='%I64u', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",itemObject->getParentId(), itemObject->mDirection.mY, itemObject->mDirection.mZ, itemObject->mDirection.mW, itemObject->mPosition.mX, itemObject->mPosition.mY, itemObject->mPosition.mZ, itemObject->getId());
-
+		  */
 		
 		cell->addObjectSecure(itemObject,playerObject->getKnownPlayers());
 		

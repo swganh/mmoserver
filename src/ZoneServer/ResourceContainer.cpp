@@ -245,3 +245,9 @@ void ResourceContainer::upDateFactoryVolume(string amount)
 
 }
 
+
+void ResourceContainer::updateWorldPosition()
+{
+	gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE resource_containers SET parent_id ='%I64u', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",this->getParentId(), this->mDirection.mY, this->mDirection.mZ, this->mDirection.mW, this->mPosition.mX, this->mPosition.mY, this->mPosition.mZ, this->getId());
+	
+}

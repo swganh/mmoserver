@@ -116,6 +116,8 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 		virtual void				prepareCustomRadialMenuInCell(CreatureObject* creatureObject, uint8 itemCount){}
 		virtual	void				handleObjectMenuSelect(uint8 messageType,Object* srcObject){}
 
+		virtual void				updateWorldPosition(){}
+
 		virtual void				sendAttributes(PlayerObject* playerObject);
 		virtual string				getBazaarName();
 		virtual string				getBazaarTang();

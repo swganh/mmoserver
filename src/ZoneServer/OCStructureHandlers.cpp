@@ -856,9 +856,8 @@ void	ObjectController::_handleItemMoveForward(uint64 targetId,Message* message,O
 	//we somehow need to calculate the vector of the movement *away* from us
 	object->mPosition.mX += 0.10;
 	gMessageLib->sendDataTransformWithParent(object);
+	object->updateWorldPosition();
 
-
-	gLogger->hexDump(message->getData(), message->getSize());
 }
 
 
@@ -912,9 +911,7 @@ void	ObjectController::_handleItemMoveUp(uint64 targetId,Message* message,Object
 
 	object->mPosition.mY += 0.10;
 	gMessageLib->sendDataTransformWithParent(object);
-
-
-	gLogger->hexDump(message->getData(), message->getSize());
+	object->updateWorldPosition();
 }
 
 
@@ -968,9 +965,7 @@ void	ObjectController::_handleItemMoveDown(uint64 targetId,Message* message,Obje
 
 	object->mPosition.mY -= 0.10;
 	gMessageLib->sendDataTransformWithParent(object);
-
-
-	gLogger->hexDump(message->getData(), message->getSize());
+	object->updateWorldPosition();
 }
 
 
@@ -1027,9 +1022,8 @@ void	ObjectController::_handleItemMoveBack(uint64 targetId,Message* message,Obje
 
 	object->mPosition.mX -= 0.10;
 	gMessageLib->sendDataTransformWithParent(object);
+	object->updateWorldPosition();
 
-
-	gLogger->hexDump(message->getData(), message->getSize());
 }
 
 
@@ -1106,6 +1100,4 @@ void	ObjectController::_handleItemRotation(uint64 targetId,Message* message,Obje
 		gMessageLib->sendDataTransformWithParent(object);
 	}
 
-
-	gLogger->hexDump(message->getData(), message->getSize());
 }

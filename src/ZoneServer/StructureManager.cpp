@@ -697,6 +697,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 
 		case Structure_Command_CellEnterDenial:
 		{
+			//our structure is public
 			//we just queried the ban list
 			//make sure were not the owner, however
 			if(owner)

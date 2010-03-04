@@ -1096,13 +1096,13 @@ void	ObjectController::_handleItemRotation(uint64 targetId,Message* message,Obje
 	
 	if(strcmp(direction,"left") == 0)
 	{
-		object->mDirection.rotatex(-3.6);
+		object->mDirection.rotatex(-(float) degrees);
 		gMessageLib->sendDataTransformWithParent(object);
 	}
 
 	if(strcmp(direction,"right") == 0)
 	{
-		object->mDirection.rotatex(3.6);
+		object->mDirection.rotatex((float) degrees);
 		gMessageLib->sendDataTransformWithParent(object);
 	}
 

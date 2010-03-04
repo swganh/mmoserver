@@ -158,7 +158,7 @@ class PlayerStructure :	public TangibleObject
 		// thats the structures admin list
 		ObjectIDList			getHousingList(){return mHousingAdminList;}
 		void					addHousingAdminEntry(uint64 id){mHousingAdminList.push_back(id);}
-		void					resetHousingAdminList(){assert(false);mHousingAdminList.clear();}
+		void					resetHousingAdminList(){mHousingAdminList.clear();}
 		bool					hasAdminRights(uint64 id);
 
 		

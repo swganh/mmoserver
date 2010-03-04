@@ -733,6 +733,7 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 					if(BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(asynContainer->command.StructureId)))
 						building->updateCellPermissions(player,false);
 				}
+				else
 				if(asynContainer->command.Command == Structure_Command_CellEnterDenial)
 				{
 					//do nothing we are not on the ban list and as the structure is public all is fine

@@ -850,7 +850,7 @@ bool MessageLib::sendCreateBuilding(BuildingObject* buildingObject,PlayerObject*
 	//perhaps move to on cell basis sometime ?
 	if(HouseObject* house = dynamic_cast<HouseObject*>(buildingObject))
 	{
-		gLogger->logMsgF("check cell permission",MSG_NORMAL);
+		//gLogger->logMsgF("check cell permission",MSG_NORMAL);
 		house->checkCellPermission(playerObject);
 	}
 

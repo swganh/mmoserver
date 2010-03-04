@@ -35,11 +35,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 CharacterBuilderTerminal::CharacterBuilderTerminal() : Terminal(), mSortedList(NULL)
 {
-	mRadialMenu = RadialMenuPtr(new RadialMenu());
 
-	// any object with callbacks needs to handle those (received with menuselect messages) !
-	mRadialMenu->addItem(1,0,radId_itemUse,radAction_ObjCallback);
-	mRadialMenu->addItem(2,0,radId_examine,radAction_Default);
 
 	mMainMenu.push_back("Manage Experience");
 	mMainMenu.push_back("Manage Credits");
@@ -79,6 +75,11 @@ CharacterBuilderTerminal::~CharacterBuilderTerminal()
 
 void CharacterBuilderTerminal::prepareRadialMenu()
 {
+		mRadialMenu = RadialMenuPtr(new RadialMenu());
+
+	// any object with callbacks needs to handle those (received with menuselect messages) !
+	mRadialMenu->addItem(1,0,radId_itemUse,radAction_ObjCallback);
+	mRadialMenu->addItem(2,0,radId_examine,radAction_Default);
 }
 
 //=============================================================================

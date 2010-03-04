@@ -1152,7 +1152,7 @@ void MessageLib::sendDataTransform(Object* object)
 	gMessageFactory->addUint32(opDataTransform);
 	gMessageFactory->addUint64(object->getId());
 	gMessageFactory->addUint32(0);
-	gMessageFactory->addUint32(0);
+	gMessageFactory->addUint32(object->incDataTransformCounter());
 
 	gMessageFactory->addFloat(object->mDirection.mX);
 	gMessageFactory->addFloat(object->mDirection.mY);
@@ -1175,11 +1175,13 @@ void MessageLib::sendDataTransformWithParent(Object* object)
 {
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opObjControllerMessage);
-	gMessageFactory->addUint32(0x0000000B);
+	gMessageFactory->addUint32(0x00000053);
 	gMessageFactory->addUint32(opDataTransformWithParent);
 	gMessageFactory->addUint64(object->getId());
 	gMessageFactory->addUint32(0);
-	gMessageFactory->addUint32(0);
+	uint32 u = object->incDataTransformCounter();
+	gMessageFactory->addUint32(u);
+	//gLogger->logMsgF("datatransform counter : %u",MSG_HIGH,u);
 
 	gMessageFactory->addUint64(object->getParentId());
 	gMessageFactory->addFloat(object->mDirection.mX);
@@ -1208,7 +1210,8 @@ void MessageLib::sendDataTransform(Object* object, PlayerObject* player)
 	gMessageFactory->addUint32(opDataTransform);
 	gMessageFactory->addUint64(object->getId());
 	gMessageFactory->addUint32(0);
-	gMessageFactory->addUint32(0);
+	
+	gMessageFactory->addUint32(object->incDataTransformCounter());
 
 	gMessageFactory->addFloat(object->mDirection.mX);
 	gMessageFactory->addFloat(object->mDirection.mY);
@@ -1217,7 +1220,7 @@ void MessageLib::sendDataTransform(Object* object, PlayerObject* player)
 	gMessageFactory->addFloat(object->mPosition.mX);
 	gMessageFactory->addFloat(object->mPosition.mY);
 	gMessageFactory->addFloat(object->mPosition.mZ);
-	gMessageFactory->addUint32(0);
+	gMessageFactory->addUint32(0);	//speed
 
 	_sendToInstancedPlayersUnreliable(gMessageFactory->EndMessage(),5, player);//thats movement thats supposed to be fast !!!!!!!!!!!!!!!!!!!!!!!
 }	//so unreliable needs to be true!!!!!
@@ -1235,7 +1238,7 @@ void MessageLib::sendDataTransformWithParent(Object* object, PlayerObject* playe
 	gMessageFactory->addUint32(opDataTransformWithParent);
 	gMessageFactory->addUint64(object->getId());
 	gMessageFactory->addUint32(0);
-	gMessageFactory->addUint32(0);
+	gMessageFactory->addUint32(object->incDataTransformCounter());
 
 	gMessageFactory->addUint64(object->getParentId());
 	gMessageFactory->addFloat(object->mDirection.mX);

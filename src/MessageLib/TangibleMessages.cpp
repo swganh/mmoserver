@@ -116,7 +116,7 @@ bool MessageLib::sendBaselinesTANO_6(const TangibleObject* const tangibleObject,
 	gMessageFactory->addString(tangibleObject->getUnknownStr1());
 	gMessageFactory->addUint32(0);	// unknown
 	gMessageFactory->addString(tangibleObject->getUnknownStr2());
-	gMessageFactory->addUint8(1);	// unknown
+	gMessageFactory->addUint8(0);	// unknown
 
 	message = gMessageFactory->EndMessage();
 

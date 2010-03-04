@@ -30,6 +30,7 @@ Object::Object()
 , mEquipSlots(0)
 , mSubZoneId(0)
 , mTypeOptions(0)
+, mDataTransformCounter(0)
 {
 	mDirection = Anh_Math::Quaternion();
 	mPosition  = Anh_Math::Vector3();
@@ -49,8 +50,10 @@ Object::Object(uint64 id,uint64 parentId,string model,ObjectType type)
 , mEquipSlots(0)
 , mSubZoneId(0)
 , mTypeOptions(0)
+, mDataTransformCounter(0)
 {
 	mObjectController.setObject(this);
+
 }
 
 //=============================================================================

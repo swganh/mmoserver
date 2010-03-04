@@ -1420,11 +1420,11 @@ void CreatureObject::prepareCustomRadialMenu(CreatureObject* creatureObject, uin
 			radial->addItem(2,0,radId_vehicleStore,radAction_ObjCallback,"@pet/pet_menu:menu_store");
 			if(owner->checkIfMounted())
 			{
-				radial->addItem(3,0,radId_serverVehicleExit,radAction_ObjCallback,"@pet/pet_menu:menu_exit");
+				radial->addItem(3,0,radId_serverVehicleExit,radAction_Default,"@pet/pet_menu:menu_exit");
 			}
 			else
 			{
-				radial->addItem(3,0,radId_serverVehicleEnter,radAction_ObjCallback,"@pet/pet_menu:menu_enter");
+				radial->addItem(3,0,radId_serverVehicleEnter,radAction_Default,"@pet/pet_menu:menu_enter");
 			}
 
 			//TODO: Check if near a garage then add repair
@@ -1464,7 +1464,8 @@ void CreatureObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 			break;
 			case radId_serverVehicleEnter: //An associated packet is sent
 			case radId_serverVehicleExit: //mount and dismount logic is contained within OCPetHandlers.cpp
-			break;
+				gLogger->logErrorF("radials","CreatureObject::Error: still in radial selection",MSG_NORMAL);
+				break;
 
 			default:
 				gLogger->logErrorF("radials","CreatureObject::Error: unknown radial selection: %d",MSG_NORMAL,messageType);

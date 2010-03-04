@@ -154,6 +154,11 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 		uint32						getEquipRestrictions(){ return mEquipRestrictions; }
 		void						setEquipRestrictions(uint32 restrictions){ mEquipRestrictions = restrictions; }
 
+		uint32						getDataTransformCounter(){ return mDataTransformCounter; }
+		uint32						incDataTransformCounter(){ return ++mDataTransformCounter; }
+		void						setDataTransformCounter(uint32 restrictions){ mDataTransformCounter= restrictions; }
+
+		
 		virtual ~Object();
 
 		Anh_Math::Quaternion	mDirection;
@@ -189,6 +194,7 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 		uint32					mInMoveCount;
 		uint32					mSubZoneId;
 		uint32					mTypeOptions;
+		uint32					mDataTransformCounter;
 	private:
 		Anh_Math::Vector3		mLastUpdatePosition;	// Position where SI was updated.
 

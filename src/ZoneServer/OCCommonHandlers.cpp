@@ -1311,6 +1311,9 @@ void ObjectController::handleObjectMenuRequest(Message* message)
 			requestedObject->prepareCustomRadialMenuInCell(playerObject,static_cast<uint8>(itemCount));
 		}
 	}
+
+	//delete the radials after every use or provide every object with set rules when to delete it ?
+
 	if(!requestedObject->getRadialMenu())
 		requestedObject->prepareCustomRadialMenu(playerObject,static_cast<uint8>(itemCount));
 
@@ -1320,6 +1323,7 @@ void ObjectController::handleObjectMenuRequest(Message* message)
 		{
 			gMessageLib->sendObjectMenuResponse(requestedObject,playerObject,responseNr);
 		}
+		requestedObject->ResetRadialMenu();
 		//the radial menu is supposed to be an intelligent pointer deleting itself when no reference is left
 		//however during runtime the item always references the radialmenu that was generated for it on the first call.
 		//when the circumstances of the item change we need to delete the pointer and thus force it to generate a new radial

@@ -58,11 +58,25 @@ Anh_Math::Quaternion Anh_Math::Quaternion::operator* (const Anh_Math::Quaternion
 
 void Anh_Math::Quaternion::Multiplication (const Anh_Math::Quaternion q)
 {
+	//Note: Quaternions lack the Commutative Property of multiplication 
+	//so be sure this is the function you want to use.
+	//This function is equivalent to: this = this * q;
 	mX = mW * q.mX + mX * q.mW + mY * q.mZ - mZ * q.mY;
 	mY = mW * q.mY + mY * q.mW + mZ * q.mX - mX * q.mZ;
 	mZ = mW * q.mZ + mZ * q.mW + mX * q.mY - mY * q.mX;
 	mW = mW * q.mW - mX * q.mX - mY * q.mY - mZ * q.mZ;
 
+}
+
+void Anh_Math::Quaternion::Multiplication2 (const Anh_Math::Quaternion q)
+{
+	//Note: Quaternions lack the Commutative Property of multiplication 
+	//so be sure this is the function you want to use.
+	//This function is equivalent to: this = q * this;
+	mX = q.mW * mX + q.mX * mW + q.mY * mZ - q.mZ * mY;
+	mY = q.mW * mY + q.mY * mW + q.mZ * mX - q.mX * mZ;
+	mZ = q.mW * mZ + q.mZ * mW + q.mX * mY - q.mY * mX;
+	mW = q.mW * mW - q.mX * mX - q.mY * mY - q.mZ * mZ;
 }
 
 //==============================================================================

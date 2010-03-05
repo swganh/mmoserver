@@ -58,11 +58,10 @@ Anh_Math::Quaternion Anh_Math::Quaternion::operator* (const Anh_Math::Quaternion
 
 void Anh_Math::Quaternion::Multiplication (const Anh_Math::Quaternion q)
 {
- 
-	mX = mW * q.mW - mX * q.mX - mY * q.mY - mZ * q.mZ;
-	mY = mW * q.mX + mX * q.mW + mY * q.mZ - mZ * q.mY;
-	mZ = mW * q.mY + mY * q.mW + mZ * q.mX - mX * q.mZ;
-	mW = mW * q.mZ + mZ * q.mW + mX * q.mY - mY * q.mX;
+	mX = mW * q.mX + mX * q.mW + mY * q.mZ - mZ * q.mY;
+	mY = mW * q.mY + mY * q.mW + mZ * q.mX - mX * q.mZ;
+	mZ = mW * q.mZ + mZ * q.mW + mX * q.mY - mY * q.mX;
+	mW = mW * q.mW - mX * q.mX - mY * q.mY - mZ * q.mZ;
 
 }
 
@@ -103,9 +102,9 @@ void Anh_Math::Quaternion::VectorAxis(const Vector3 &v, float angle)
  
 	sinAngle = sin(angle);
  
-	mX = (vn.mX * sinAngle);
-	mY = (vn.mY * sinAngle);
-	mZ = (vn.mZ * sinAngle);
+	mX = (vn.mX * (sinAngle/2));
+	mY = (vn.mY * (sinAngle/2));
+	mZ = (vn.mZ * (sinAngle/2));
 	mW = cos(angle);
 	//this->normalize();
 
@@ -117,7 +116,7 @@ void Anh_Math::Quaternion::VectorAxis(const Vector3 &v, float angle)
 void Anh_Math::Quaternion::rotatex(float xrmod)
 {
 	Quaternion nrot;
-	nrot.VectorAxis(Vector3(1.0f, 0.0f, 0.0f),(float)( xrmod * 0.01745));
+	nrot.VectorAxis(Vector3(0.0f, 1.0f, 0.0f),(float)( xrmod * 0.01745));
 
 	Multiplication(nrot);
 }

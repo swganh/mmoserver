@@ -41,7 +41,8 @@ namespace Anh_Math
 			float	getNormal() const;  
 			float	normalize(); 
 			
-			void	Multiplication (const Anh_Math::Quaternion q);
+			void	Multiplication (const Anh_Math::Quaternion q); // this = this * q
+			void	Multiplication2 (const Anh_Math::Quaternion q);// this = q * this
 			void	VectorAxis(const Vector3 &v, float angle);
 			void	rotatex(float xrmod);
 			

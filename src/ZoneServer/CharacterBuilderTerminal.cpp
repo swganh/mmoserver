@@ -73,7 +73,7 @@ CharacterBuilderTerminal::~CharacterBuilderTerminal()
 //=============================================================================
 
 
-void CharacterBuilderTerminal::prepareCustomRadialMenu()
+void CharacterBuilderTerminal::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount)
 {
 		mRadialMenu = RadialMenuPtr(new RadialMenu());
 

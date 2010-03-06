@@ -30,7 +30,7 @@ public:
 	CharacterBuilderTerminal();
 	~CharacterBuilderTerminal();
 
-	virtual void		prepareCustomRadialMenu();
+	virtual void		prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
 	void		handleObjectMenuSelect(uint8 messageType,Object* srcObject);
 	void		handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window);
 

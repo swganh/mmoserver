@@ -593,6 +593,13 @@ bool WorldManager::_handleCraftToolTimers(uint64 callTime,void* ref)
 	while(it != mBusyCraftTools.end())
 	{
 		CraftingTool*	tool	=	dynamic_cast<CraftingTool*>(getObjectById((*it)));
+		if(!tool)
+		{
+			gLogger->logMsgF("WorldManager::_handleCraftToolTimers missing crafting tool :(",MSG_NORMAL);
+			it = mBusyCraftTools.erase(it);
+			continue;
+		}
+
 		PlayerObject*	player	=	dynamic_cast<PlayerObject*>(getObjectById(tool->getParentId() - 1));
 		Item*			item	= tool->getCurrentItem();
 

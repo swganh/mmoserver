@@ -116,9 +116,9 @@ void Anh_Math::Quaternion::VectorAxis(const Vector3 &v, float angle)
  
 	sinAngle = sin(angle);
  
-	mX = (vn.mX * (sinAngle/2));
-	mY = (vn.mY * (sinAngle/2));
-	mZ = (vn.mZ * (sinAngle/2));
+	mX = (vn.mX * (sinAngle/4));
+	mY = (vn.mY * (sinAngle/4));
+	mZ = (vn.mZ * (sinAngle/4));
 	mW = cos(angle);
 	//this->normalize();
 
@@ -132,7 +132,7 @@ void Anh_Math::Quaternion::rotatex(float xrmod)
 	Quaternion nrot;
 	nrot.VectorAxis(Vector3(0.0f, 1.0f, 0.0f),(float)( xrmod * 0.01745));
 
-	Multiplication(nrot);
+	Multiplication2(nrot);
 }
 
 // This version does not handle vectors / floats never used, nor does it change values (sign) of any members. (Compared to previous version below).

@@ -141,6 +141,12 @@ void GroupManager::_processIsmInviteRequest(Message* message)
 		return;	
 	}
 
+	if(sender->mPosition.distance2D(target->mPosition) > 90)
+	{
+		gMessageLib->sendSystemMessage(sender, L"", "group", "out_of_range_suffix");
+		return;
+	}
+
 	//target->setGroupId(message->getUint64()); // the group id provided by the chatserver
 
 	gMessageLib->sendInviteSenderUpdateDeltasCreo6(sender->getId(),target);

@@ -12,7 +12,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #ifndef ANH_ZONESERVER_GroupManager_H
 #define ANH_ZONESERVER_GroupManager_H
 
-#include <vector>
+#include <list>
 
 #include "Common/MessageDispatchCallback.h"
 #include "DatabaseManager/DatabaseCallback.h"
@@ -58,7 +58,7 @@ class GroupManager : public MessageDispatchCallback, public DatabaseCallback
 
 		virtual void		handleDispatchMessage(uint32 opcode,Message* message,DispatchClient* client);
 		void				sendGroupMissionUpdate(GroupObject* group);
-		MissionObject*		getZoneGroupMission(std::vector<uint64>* members);
+		MissionObject*		getZoneGroupMission(std::list<uint64>* members);
 
 		GroupObject*		getGroupObject(uint64 id);
 		void				addGroupObject(GroupObject* group){mGroupList.push_back(group);}

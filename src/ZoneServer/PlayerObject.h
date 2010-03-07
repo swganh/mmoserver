@@ -367,6 +367,10 @@ class PlayerObject : public CreatureObject
 		bool				isForaging(){ return mIsForaging; }
 		void				setForaging(bool status) { mIsForaging = status; }
 
+		//Harvesting
+		int					getPreviousHarvestSelection() { return mPreviousHarvestingSelection;}
+		void				setPreviousHarvestSelection(int newSelection){ mPreviousHarvestingSelection = newSelection;}
+
 	private:
 
 		void				_verifyBadges();
@@ -466,6 +470,8 @@ class PlayerObject : public CreatureObject
 		
 		bool				mTrading;
 		bool				mIsForaging;
+
+		int					mPreviousHarvestingSelection;
 };
 
 

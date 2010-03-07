@@ -12,7 +12,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #pragma once
 
-#include <vector>
+#include "AttackableCreature.h"
 #include "MathLib/Vector3.h"
 #include "Utils/typedefs.h"
 
@@ -26,6 +26,15 @@ class ObjectControllerCommandMap;
 class ZoneTree;
 
 #define gScoutManager	ScoutManager::getSingletonPtr()
+
+enum HarvestSelection
+{
+	HARVEST_ANY = 0,
+	HARVEST_MEAT,
+	HARVEST_HIDE,
+	HARVEST_BONE
+};
+
 
 class ScoutManager
 {
@@ -56,6 +65,11 @@ public:
 
 	//foraging
 	static void successForage(PlayerObject* player);
+
+	//harvesting
+	void handleHarvestCorpse(PlayerObject* player, CreatureObject* target, HarvestSelection harvest);
+	uint32 getHarvestSkillFactor(CreatureObject* object);
+	uint32 getCreatureFactor(CreatureObject* object);
 
 protected:
 	ScoutManager::ScoutManager();

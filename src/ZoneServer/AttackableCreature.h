@@ -255,6 +255,9 @@ public:
 
 
 
+		//If the object is a baby! Awww.
+		bool mIsBaby;
+
 		// If object shall attack other objects (for now players) when they get inside "attackRange".
 		bool mIsAgressive;
 

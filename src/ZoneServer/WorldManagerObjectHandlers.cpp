@@ -17,7 +17,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "BuildingObject.h"
 #include "CellObject.h"
 #include "HouseObject.h"
-
+#include "PlayerObject.h"
 #include "CharacterLoginHandler.h"
 #include "Container.h"
 #include "ConversationManager.h"

@@ -12,11 +12,11 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #ifndef ANH_ZONESERVER_GROUP_OBJECT_H
 #define ANH_ZONESERVER_GROUP_OBJECT_H
 
-#include "PlayerObject.h"
-
 //=============================================================================
 
-typedef std::vector<uint64>				Uint64List;
+#include <list>
+
+typedef std::list<uint64>				Uint64List;
 
 
 

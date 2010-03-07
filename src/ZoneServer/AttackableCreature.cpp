@@ -20,6 +20,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "ResourceContainer.h"
 #include "Weapon.h"
 #include "WorldManager.h"
+#include "ScoutManager.h"
 #include "WorldConfig.h"
 #include "ZoneTree.h"
 #include "ZoneServer/NonPersistentNpcFactory.h"
@@ -81,11 +82,12 @@ AttackableCreature::~AttackableCreature()
 
 void AttackableCreature::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount)
 {
+	mRadialMenu.reset();
+	mRadialMenu = RadialMenuPtr(new RadialMenu());
+
 	if (this->isDead())
 	{
 		// gLogger->logMsgF("AttackableCreature::prepareCustomRadialMenu Creature is dead", MSG_NORMAL);
-		mRadialMenu.reset();
-		mRadialMenu = RadialMenuPtr(new RadialMenu());
 
 		if (!creatureObject->isDead() && !creatureObject->isIncapacitated())
 		{
@@ -93,6 +95,21 @@ void AttackableCreature::prepareCustomRadialMenu(CreatureObject* creatureObject,
 			// mRadialMenu = RadialMenuPtr(new RadialMenu());
 			mRadialMenu->addItem(1,0,radId_lootAll,radAction_ObjCallback, "@ui_radial:loot_all");
 			mRadialMenu->addItem(2,1,radId_loot,radAction_ObjCallback, "@ui_radial:loot");
+
+			//Harvesting of Corpse :D
+			if(creatureObject->checkSkill(31) && this->allowedToLoot(creatureObject->getId(), creatureObject->getGroupId()))
+			{
+				mRadialMenu->addItem(4,0,radId_serverHarvestCorpse, radAction_ObjCallback, "@sui:harvest_corpse");
+
+				if(this->hasAttribute("res_meat"))
+					mRadialMenu->addItem(5,3,radId_diceRoll, radAction_ObjCallback, "@sui:harvest_meat");
+
+				if(this->hasAttribute("res_hide"))
+					mRadialMenu->addItem(6,3,radId_diceTwoFace, radAction_ObjCallback, "@sui:harvest_hide");
+
+				if(this->hasAttribute("res_bone"))
+					mRadialMenu->addItem(7,3,radId_diceThreeFace, radAction_ObjCallback, "@sui:harvest_bone");
+			}
 		}
 		else
 		{
@@ -102,6 +119,8 @@ void AttackableCreature::prepareCustomRadialMenu(CreatureObject* creatureObject,
 	else
 	{
 		// gLogger->logMsgF("AttackableCreature::prepareCustomRadialMenu Creature is alive", MSG_NORMAL);
+		if(creatureObject->checkSkill(31) /*&& this->hasAttribute("res_milk")*/)
+			mRadialMenu->addItem(5,0,radId_diceFourFace, radAction_ObjCallback, "milk_me");
 	}
 }
 
@@ -276,6 +295,22 @@ void AttackableCreature::handleObjectMenuSelect(uint8 messageType,Object* srcObj
 				}
 			}
 			break;
+
+			case radId_serverHarvestCorpse: //NORMAL HARVEST CORPSE!
+				gScoutManager->handleHarvestCorpse(playerObject, this, HARVEST_ANY);
+				break;
+			case radId_diceRoll: //HARVESTING OF MEAT!
+				gScoutManager->handleHarvestCorpse(playerObject, this, HARVEST_MEAT);
+				break;
+			case radId_diceTwoFace: //HARVESTING OF HIDE!
+				gScoutManager->handleHarvestCorpse(playerObject, this, HARVEST_HIDE);
+				break;
+			case radId_diceThreeFace: //HARVESTING OF BONE!
+				gScoutManager->handleHarvestCorpse(playerObject, this, HARVEST_BONE);
+				break;
+			case radId_diceFourFace: //MILKING!
+				gMessageLib->sendSystemMessage(playerObject,L"YOU TRIED TO MILK ME! WHY I OUTTA!");
+				break;
 
 			default:
 			{
@@ -2215,6 +2250,11 @@ void AttackableCreature::respawn(void)
 		assert(false);
 		mIsKiller = false;
 	}
+
+	if(this->hasAttribute("res_bone"))
+	if(this->hasAttribute("res_meat"))
+	if(this->hasAttribute("res_hide"))
+
 
 	if (this->hasInternalAttribute("creature_warning_range"))
 	{

@@ -189,10 +189,10 @@ enum RadialIdentifier
 	radId_petSpecialAttackOne				= 161,
 	radId_petSpecialAttackTwo				= 162,
 	radId_petRangedAttack					= 163,
-	radId_diceRoll							= 164,
-	radId_diceTwoFace						= 165,
-	radId_diceThreeFace						= 166,
-	radId_diceFourFace						= 167,
+	radId_diceRoll							= 164, //Reused for HarvestMeat
+	radId_diceTwoFace						= 165, //Reused for HarvestHide
+	radId_diceThreeFace						= 166, //Reused for HarvestBone
+	radId_diceFourFace						= 167, //Reused for Milk Me
 	radId_diceFiveFace						= 168,
 	radId_diceSixFace						= 169,
 	radId_diceSevenFace						= 170,

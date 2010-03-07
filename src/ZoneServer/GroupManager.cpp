@@ -17,6 +17,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "ObjectFactory.h"
 #include "UIManager.h"
 #include "WaypointObject.h"
+#include "PlayerObject.h"
 #include "WorldConfig.h"
 #include "WorldManager.h"
 #include "ZoneOpcodes.h"
@@ -335,7 +336,7 @@ void GroupManager::sendGroupMissionUpdate(GroupObject* group)
 // this function gets called everytime we accept/finish/delete a mission
 // and should be called every few seconds while were moving
 
-MissionObject* GroupManager::getZoneGroupMission(std::vector<uint64>* members)
+MissionObject* GroupManager::getZoneGroupMission(std::list<uint64>* members)
 {
 
 	// we will iterate through all onZone groupmembers and compile a list of missions
@@ -375,7 +376,6 @@ MissionObject* GroupManager::getZoneGroupMission(std::vector<uint64>* members)
 			missionListIt++;
 		}
 	
-
 		playerListIt++;
 	}
 

@@ -8,7 +8,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
-#include "ScoutManager.h"
 #include "Camp.h"
 #include "CampRegion.h"
 #include "CampTerminal.h"
@@ -16,13 +15,16 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "nonPersistantObjectFactory.h"
 #include "ObjectFactory.h"
 #include "PlayerObject.h"
+#include "ScoutManager.h"
 #include "Scout.h"
 #include "StructureManager.h"
 #include "TangibleObject.h"
 #include "UIManager.h"
 #include "WorldManager.h"
 #include "WorldManager.h"
+#include "AttackableCreature.h"
 #include "Inventory.h"
+#include "GroupManager.h"
 
 #include "MessageLib/MessageLib.h"
 #include "Utils/rand.h"
@@ -399,5 +401,130 @@ void ScoutManager::successForage(PlayerObject* player)
 	}
 
 	player->setForaging(false);
+}
+
+
+
+
+
+
+//================================================================================
+//Harvesting!
+//================================================================================
+void ScoutManager::handleHarvestCorpse(PlayerObject* player, CreatureObject* target, HarvestSelection harvest)
+{
+	if(!target || !player)
+		return;
+
+	/*
+	//Perform Checking...
+	if(player->checkState(CreatureState_Combat))
+		gMessageLib->sendSystemMessage(player, L"", "internal_command_string","prose_harvest_corpse_failed");
+
+
+	float rangerFactor = 1; //# of times to increase yield due to ranger.
+	//If Grouped and nearby (64m)
+	rangerFactor = 1.20;
+	//If Ranger in group and nearby (64m)
+	rangerFactor = 1.30;
+	//If Mager Ranger in group and nearby (64m)
+	rangerFactor = 1.40;
+	*/
+
+	//Do the deed.
+	if(harvest != HARVEST_ANY)
+		player->setPreviousHarvestSelection(harvest);
+	else
+		harvest = (HarvestSelection)player->getPreviousHarvestSelection();
+
+	if(harvest == HARVEST_ANY)
+	{
+		//randomly pick one!
+		harvest = (HarvestSelection)((gRandom->getRand() % 2)+1);
+	}
+
+	switch(harvest)
+	{
+	case HARVEST_MEAT:
+		gMessageLib->sendSystemMessage(player, L"You wanted to harvest MEAT!");
+		break;
+	case HARVEST_BONE:
+		gMessageLib->sendSystemMessage(player, L"You wanted to harvest BONE!");
+		break;
+	case HARVEST_HIDE:
+		gMessageLib->sendSystemMessage(player, L"You wanted to harvest HIDE!");
+		break;
+	}
+
+	/*
+	//Calc Creature Quality
+	switch((gRandom->getRand() % 2))
+	{
+	case 0:
+		gMessageLib->sendSystemMessage(player, L"", "internal_command_string","creature_quality_fat");
+	case 1:
+		gMessageLib->sendSystemMessage(player, L"", "internal_command_string","creature_quality_medium");
+	case 2:
+		gMessageLib->sendSystemMessage(player, L"", "internal_command_string","creature_quality_skinny");
+	}
+
+	//get creature factor
+	getCreatureFactor(target);
+
+	//TODO; HANDLE BABYS!
+
+	//gGroupManager->
+
+	*/
+
+}
+
+uint32 ScoutManager::getHarvestSkillFactor(CreatureObject* object)
+{
+	return 0;
+}
+
+
+uint32 ScoutManager::getCreatureFactor(CreatureObject* object)
+{
+	if(!object)
+		return 0;
+
+	uint16 CL = object->getCL();
+	
+	if(CL < 9)
+	{
+		//Equation Adjustments
+		switch(CL)
+		{
+		case 1:
+			return 7;
+		case 2:
+			return 16;
+		case 3:
+			return 23;
+		case 4:
+			return 27;
+		case 5:
+			return 34;
+		case 6:
+			return 42;
+		case 7:
+			return 50;
+		case 8:
+			return 59;
+		default:
+			{	//Actual Equation:
+				// Creature Factor = 0.1322(Challenge Level)^2 + 9.6078(Challenge Level) - 28.103
+				double temp = (0.1322*(CL*CL)) + 9.6078*CL - 28.103;
+
+				if(temp > 2000)
+					return 2000;
+				else
+					return (uint32)temp;
+			}
+		}
+	}
+	return 0;
 }
 

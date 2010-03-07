@@ -9,6 +9,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
+#include "PlayerObject.h"
 #include "WorldManager.h"
 #include "AdminManager.h"
 #include "Buff.h"

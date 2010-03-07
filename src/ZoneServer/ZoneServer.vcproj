@@ -1734,22 +1734,6 @@
 				RelativePath=".\ObjectControllerOpcodes.h"
 				>
 			</File>
-			<File
-				RelativePath=".\OCContactListsHandlers.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\OCCrateHandlers.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\OCNpcConversationhandlers.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\OCResourceContainerHandlers.cpp"
-				>
-			</File>
 			<Filter
 				Name="ProcessValidators"
 				>
@@ -1782,7 +1766,15 @@
 					>
 				</File>
 				<File
+					RelativePath=".\OCContactListsHandlers.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\OCCraftingHandlers.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\OCCrateHandlers.cpp"
 					>
 				</File>
 				<File
@@ -1798,11 +1790,19 @@
 					>
 				</File>
 				<File
+					RelativePath=".\OCNpcConversationhandlers.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\OCPetHandlers.cpp"
 					>
 				</File>
 				<File
 					RelativePath=".\OCPostureHandlers.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\OCResourceContainerHandlers.cpp"
 					>
 				</File>
 				<File
@@ -1874,217 +1874,217 @@
 					>
 				</File>
 			</Filter>
-		</Filter>
-		<Filter
-			Name="Professions"
-			>
 			<Filter
-				Name="Scout"
+				Name="Professions"
 				>
-				<File
-					RelativePath=".\OCScoutHandlers.cpp"
+				<Filter
+					Name="Scout"
 					>
-				</File>
-			</Filter>
-			<Filter
-				Name="Brawler"
-				>
-				<File
-					RelativePath=".\OCBrawlerHandlers.cpp"
+					<File
+						RelativePath=".\OCScoutHandlers.cpp"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="Brawler"
 					>
-				</File>
-			</Filter>
-			<Filter
-				Name="Medic"
-				>
-				<File
-					RelativePath=".\OCMedicHandlers.cpp"
+					<File
+						RelativePath=".\OCBrawlerHandlers.cpp"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="Medic"
 					>
-				</File>
-			</Filter>
-			<Filter
-				Name="Marksman"
-				>
-				<File
-					RelativePath=".\OCMarksmanHandlers.cpp"
+					<File
+						RelativePath=".\OCMedicHandlers.cpp"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="Marksman"
 					>
-				</File>
-			</Filter>
-			<Filter
-				Name="Entertainer"
-				>
-				<File
-					RelativePath=".\OCEntertainerHandlers.cpp"
+					<File
+						RelativePath=".\OCMarksmanHandlers.cpp"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="Entertainer"
 					>
-				</File>
-			</Filter>
-			<Filter
-				Name="Artisan"
-				>
-				<File
-					RelativePath=".\OCArtisanHandlers.cpp"
+					<File
+						RelativePath=".\OCEntertainerHandlers.cpp"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="Artisan"
 					>
-				</File>
-			</Filter>
-			<Filter
-				Name="Admin"
-				>
-				<File
-					RelativePath=".\OCAdminHandlers.cpp"
+					<File
+						RelativePath=".\OCArtisanHandlers.cpp"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="Admin"
 					>
-				</File>
-			</Filter>
-			<Filter
-				Name="Jedi"
-				>
-				<File
-					RelativePath=".\OCForceDefenseHandlers.cpp"
+					<File
+						RelativePath=".\OCAdminHandlers.cpp"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="Jedi"
 					>
-				</File>
-				<File
-					RelativePath=".\OCForceEnhancementHandlers.cpp"
+					<File
+						RelativePath=".\OCForceDefenseHandlers.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\OCForceEnhancementHandlers.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\OCForceHealingHandlers.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\OCForceLightsaberHandlers.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\OCForcePowerHandlers.cpp"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="BioEngineer"
 					>
-				</File>
-				<File
-					RelativePath=".\OCForceHealingHandlers.cpp"
+					<File
+						RelativePath=".\OCBioEngineerHandlers.cpp"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="BountyHunter"
 					>
-				</File>
-				<File
-					RelativePath=".\OCForceLightsaberHandlers.cpp"
+					<File
+						RelativePath=".\OCBountyHunterHandlers.cpp"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="Carbineer"
 					>
-				</File>
-				<File
-					RelativePath=".\OCForcePowerHandlers.cpp"
+					<File
+						RelativePath=".\OCCarbineerHandlers.cpp"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="CreatureHandler"
 					>
-				</File>
-			</Filter>
-			<Filter
-				Name="BioEngineer"
-				>
-				<File
-					RelativePath=".\OCBioEngineerHandlers.cpp"
+					<File
+						RelativePath=".\OCCreatureHandlerHandlers.cpp"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="CombatMedic"
 					>
-				</File>
-			</Filter>
-			<Filter
-				Name="BountyHunter"
-				>
-				<File
-					RelativePath=".\OCBountyHunterHandlers.cpp"
+					<File
+						RelativePath=".\OCCombatMedicHandlers.cpp"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="Commando"
 					>
-				</File>
-			</Filter>
-			<Filter
-				Name="Carbineer"
-				>
-				<File
-					RelativePath=".\OCCarbineerHandlers.cpp"
+					<File
+						RelativePath=".\OCCommandoHandlers.cpp"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="Doctor"
 					>
-				</File>
-			</Filter>
-			<Filter
-				Name="CreatureHandler"
-				>
-				<File
-					RelativePath=".\OCCreatureHandlerHandlers.cpp"
+					<File
+						RelativePath=".\OCDoctorHandlers.cpp"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="Fencer"
 					>
-				</File>
-			</Filter>
-			<Filter
-				Name="CombatMedic"
-				>
-				<File
-					RelativePath=".\OCCombatMedicHandlers.cpp"
+					<File
+						RelativePath=".\OCFencerHandlers.cpp"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="Pikeman"
 					>
-				</File>
-			</Filter>
-			<Filter
-				Name="Commando"
-				>
-				<File
-					RelativePath=".\OCCommandoHandlers.cpp"
+					<File
+						RelativePath=".\OCPikemanHandlers.cpp"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="Pistoleer"
 					>
-				</File>
-			</Filter>
-			<Filter
-				Name="Doctor"
-				>
-				<File
-					RelativePath=".\OCDoctorHandlers.cpp"
+					<File
+						RelativePath=".\OCPistoleerHandlers.cpp"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="Ranger"
 					>
-				</File>
-			</Filter>
-			<Filter
-				Name="Fencer"
-				>
-				<File
-					RelativePath=".\OCFencerHandlers.cpp"
+					<File
+						RelativePath=".\OCRangerHandlers.cpp"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="Rifleman"
 					>
-				</File>
-			</Filter>
-			<Filter
-				Name="Pikeman"
-				>
-				<File
-					RelativePath=".\OCPikemanHandlers.cpp"
+					<File
+						RelativePath=".\OCRiflemanHandlers.cpp"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="Smuggler"
 					>
-				</File>
-			</Filter>
-			<Filter
-				Name="Pistoleer"
-				>
-				<File
-					RelativePath=".\OCPistoleerHandlers.cpp"
+					<File
+						RelativePath=".\OCSmugglerHandlers.cpp"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="SquadLeader"
 					>
-				</File>
-			</Filter>
-			<Filter
-				Name="Ranger"
-				>
-				<File
-					RelativePath=".\OCRangerHandlers.cpp"
+					<File
+						RelativePath=".\OCSquadLeaderHandlers.cpp"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="Swordsman"
 					>
-				</File>
-			</Filter>
-			<Filter
-				Name="Rifleman"
-				>
-				<File
-					RelativePath=".\OCRiflemanHandlers.cpp"
+					<File
+						RelativePath=".\OCSwordsmanHandlers.cpp"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="TerasKasi"
 					>
-				</File>
-			</Filter>
-			<Filter
-				Name="Smuggler"
-				>
-				<File
-					RelativePath=".\OCSmugglerHandlers.cpp"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="SquadLeader"
-				>
-				<File
-					RelativePath=".\OCSquadLeaderHandlers.cpp"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="Swordsman"
-				>
-				<File
-					RelativePath=".\OCSwordsmanHandlers.cpp"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="TerasKasi"
-				>
-				<File
-					RelativePath=".\OCTerasKasiHandlers.cpp"
-					>
-				</File>
+					<File
+						RelativePath=".\OCTerasKasiHandlers.cpp"
+						>
+					</File>
+				</Filter>
 			</Filter>
 		</Filter>
 		<Filter

@@ -597,6 +597,10 @@
 						>
 					</File>
 					<File
+						RelativePath=".\CreatureEventFunctions.cpp"
+						>
+					</File>
+					<File
 						RelativePath=".\CreatureFactory.cpp"
 						>
 					</File>
@@ -691,6 +695,46 @@
 								>
 							</File>
 						</Filter>
+						<Filter
+							Name="CharSheet"
+							>
+							<File
+								RelativePath=".\CharSheetManager.cpp"
+								>
+							</File>
+							<File
+								RelativePath=".\CharSheetManager.h"
+								>
+							</File>
+							<File
+								RelativePath=".\OCCharacterSheethandlers.cpp"
+								>
+							</File>
+							<Filter
+								Name="Badges"
+								>
+								<File
+									RelativePath=".\Badge.h"
+									>
+								</File>
+								<File
+									RelativePath=".\BadgeRegion.cpp"
+									>
+								</File>
+								<File
+									RelativePath=".\BadgeRegion.h"
+									>
+								</File>
+								<File
+									RelativePath=".\BadgeRegionFactory.cpp"
+									>
+								</File>
+								<File
+									RelativePath=".\BadgeRegionFactory.h"
+									>
+								</File>
+							</Filter>
+						</Filter>
 					</Filter>
 					<Filter
 						Name="NPC"
@@ -709,6 +753,14 @@
 						</File>
 						<File
 							RelativePath=".\NpcIdentifier.h"
+							>
+						</File>
+						<File
+							RelativePath=".\NpcManager.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\NpcManager.h"
 							>
 						</File>
 						<File
@@ -836,6 +888,10 @@
 							>
 						</File>
 						<File
+							RelativePath=".\OCPostureHandlers.cpp"
+							>
+						</File>
+						<File
 							RelativePath=".\PVPosture.cpp"
 							>
 						</File>
@@ -885,24 +941,56 @@
 						</File>
 					</Filter>
 					<Filter
-						Name="EventFunctions"
+						Name="Skill"
 						>
 						<File
-							RelativePath=".\CreatureEventFunctions.cpp"
+							RelativePath=".\EVAbility.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\EVAbility.h"
+							>
+						</File>
+						<File
+							RelativePath=".\OCSkillHandlers.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\Skill.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\Skill.h"
+							>
+						</File>
+						<File
+							RelativePath=".\SkillEnums.h"
+							>
+						</File>
+						<File
+							RelativePath=".\SkillManager.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\SkillManager.h"
 							>
 						</File>
 					</Filter>
 					<Filter
-						Name="Events"
+						Name="Equip"
 						>
 						<File
-							RelativePath=".\IncapRecoveryEvent.h"
+							RelativePath=".\EquipManager.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\EquipManager.h"
 							>
 						</File>
 					</Filter>
 				</Filter>
 				<Filter
-					Name="Items"
+					Name="GenericItems"
 					>
 					<File
 						RelativePath=".\Item.cpp"
@@ -933,150 +1021,6 @@
 						>
 					</File>
 					<Filter
-						Name="CraftingStation"
-						>
-						<File
-							RelativePath=".\CraftingStation.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\CraftingStation.h"
-							>
-						</File>
-					</Filter>
-					<Filter
-						Name="CraftingTool"
-						>
-						<File
-							RelativePath=".\CraftingTool.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\CraftingTool.h"
-							>
-						</File>
-					</Filter>
-					<Filter
-						Name="Deed"
-						>
-						<File
-							RelativePath=".\Deed.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\Deed.h"
-							>
-						</File>
-					</Filter>
-					<Filter
-						Name="Factory Crate (FCYT)"
-						>
-						<File
-							RelativePath=".\FactoryCrate.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\FactoryCrate.h"
-							>
-						</File>
-					</Filter>
-					<Filter
-						Name="Firework"
-						>
-						<File
-							RelativePath=".\Firework.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\Firework.h"
-							>
-						</File>
-					</Filter>
-					<Filter
-						Name="Food"
-						>
-						<File
-							RelativePath=".\Food.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\Food.h"
-							>
-						</File>
-					</Filter>
-					<Filter
-						Name="Furniture"
-						>
-						<File
-							RelativePath=".\Furniture.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\Furniture.h"
-							>
-						</File>
-					</Filter>
-					<Filter
-						Name="Instrument"
-						>
-						<File
-							RelativePath=".\Instrument.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\Instrument.h"
-							>
-						</File>
-					</Filter>
-					<Filter
-						Name="Manufacture Schematic (MSCO)"
-						>
-						<File
-							RelativePath=".\ManufacturingSchematic.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\ManufacturingSchematic.h"
-							>
-						</File>
-					</Filter>
-					<Filter
-						Name="Medicine"
-						>
-						<File
-							RelativePath=".\Medicine.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\Medicine.h"
-							>
-						</File>
-					</Filter>
-					<Filter
-						Name="Scout"
-						>
-						<File
-							RelativePath=".\Scout.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\Scout.h"
-							>
-						</File>
-					</Filter>
-					<Filter
-						Name="SurveyTool"
-						>
-						<File
-							RelativePath=".\SurveyTool.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\SurveyTool.h"
-							>
-						</File>
-					</Filter>
-					<Filter
 						Name="TravelTicket"
 						>
 						<File
@@ -1085,18 +1029,6 @@
 						</File>
 						<File
 							RelativePath=".\TravelTicket.h"
-							>
-						</File>
-					</Filter>
-					<Filter
-						Name="Weapon"
-						>
-						<File
-							RelativePath=".\Weapon.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\Weapon.h"
 							>
 						</File>
 					</Filter>
@@ -1117,11 +1049,31 @@
 					Name="PlayerStructure"
 					>
 					<File
+						RelativePath=".\OCStructureHandlers.cpp"
+						>
+					</File>
+					<File
 						RelativePath=".\PlayerStructure.cpp"
 						>
 					</File>
 					<File
 						RelativePath=".\PlayerStructure.h"
+						>
+					</File>
+					<File
+						RelativePath=".\StructureManager.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\StructureManager.h"
+						>
+					</File>
+					<File
+						RelativePath=".\StructureManagerCallbackHandler.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\StructureManagerUIManager.cpp"
 						>
 					</File>
 					<Filter
@@ -1383,6 +1335,18 @@
 							RelativePath=".\TravelTerminal.h"
 							>
 						</File>
+						<Filter
+							Name="TravelMap"
+							>
+							<File
+								RelativePath=".\TravelMapHandler.cpp"
+								>
+							</File>
+							<File
+								RelativePath=".\TravelMapHandler.h"
+								>
+							</File>
+						</Filter>
 					</Filter>
 				</Filter>
 			</Filter>
@@ -1397,34 +1361,6 @@
 					RelativePath=".\StaticObject.h"
 					>
 				</File>
-			</Filter>
-			<Filter
-				Name="HelperObjects"
-				>
-				<Filter
-					Name="Radials"
-					>
-					<File
-						RelativePath=".\RadialEnums.h"
-						>
-					</File>
-					<File
-						RelativePath=".\RadialMenu.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\RadialMenu.h"
-						>
-					</File>
-					<File
-						RelativePath=".\RadialMenuItem.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\RadialMenuItem.h"
-						>
-					</File>
-				</Filter>
 			</Filter>
 			<Filter
 				Name="Intangible (ITNO)"
@@ -1445,6 +1381,10 @@
 					RelativePath=".\IntangibleObject.h"
 					>
 				</File>
+				<File
+					RelativePath=".\OCPetHandlers.cpp"
+					>
+				</File>
 				<Filter
 					Name="Mission (MISO)"
 					>
@@ -1457,11 +1397,23 @@
 						>
 					</File>
 					<File
+						RelativePath=".\MissionManager.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\MissionManager.h"
+						>
+					</File>
+					<File
 						RelativePath=".\MissionObject.cpp"
 						>
 					</File>
 					<File
 						RelativePath=".\MissionObject.h"
+						>
+					</File>
+					<File
+						RelativePath=".\OCMissionHandlers.cpp"
 						>
 					</File>
 				</Filter>
@@ -1502,18 +1454,6 @@
 					</File>
 					<File
 						RelativePath=".\WaypointObject.h"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="Group (GRUP)"
-					>
-					<File
-						RelativePath=".\GroupObject.h"
-						>
-					</File>
-					<File
-						RelativePath=".\OCGroupHandlers.cpp"
 						>
 					</File>
 				</Filter>
@@ -1628,6 +1568,10 @@
 						Name="Resource Container (RCNO)"
 						>
 						<File
+							RelativePath=".\OCResourceContainerHandlers.cpp"
+							>
+						</File>
+						<File
 							RelativePath=".\ResourceContainer.cpp"
 							>
 						</File>
@@ -1643,6 +1587,94 @@
 							RelativePath=".\ResourceContainerFactory.h"
 							>
 						</File>
+						<Filter
+							Name="Resource"
+							>
+							<File
+								RelativePath=".\Resource.cpp"
+								>
+							</File>
+							<File
+								RelativePath=".\Resource.h"
+								>
+							</File>
+							<File
+								RelativePath=".\ResourceManager.cpp"
+								>
+							</File>
+							<File
+								RelativePath=".\ResourceManager.h"
+								>
+							</File>
+							<Filter
+								Name="CurrentResource"
+								>
+								<File
+									RelativePath=".\CurrentResource.cpp"
+									>
+								</File>
+								<File
+									RelativePath=".\CurrentResource.h"
+									>
+								</File>
+							</Filter>
+							<Filter
+								Name="Category"
+								>
+								<File
+									RelativePath=".\ResourceCategory.cpp"
+									>
+								</File>
+								<File
+									RelativePath=".\ResourceCategory.h"
+									>
+								</File>
+							</Filter>
+							<Filter
+								Name="Type"
+								>
+								<File
+									RelativePath=".\ResourceType.cpp"
+									>
+								</File>
+								<File
+									RelativePath=".\ResourceType.h"
+									>
+								</File>
+							</Filter>
+							<Filter
+								Name="noise"
+								>
+								<File
+									RelativePath=".\noiseutils.cpp"
+									>
+								</File>
+								<File
+									RelativePath=".\noiseutils.h"
+									>
+								</File>
+							</Filter>
+						</Filter>
+						<Filter
+							Name="ResourceCollection"
+							>
+							<File
+								RelativePath=".\ResourceCollectionCommand.cpp"
+								>
+							</File>
+							<File
+								RelativePath=".\ResourceCollectionCommand.h"
+								>
+							</File>
+							<File
+								RelativePath=".\ResourceCollectionManager.cpp"
+								>
+							</File>
+							<File
+								RelativePath=".\ResourceCollectionManager.h"
+								>
+							</File>
+						</Filter>
 					</Filter>
 					<Filter
 						Name="MissionBag"
@@ -1679,10 +1711,6 @@
 				</File>
 				<File
 					RelativePath=".\Object_Enums.h"
-					>
-				</File>
-				<File
-					RelativePath=".\SpawnPoint.h"
 					>
 				</File>
 			</Filter>
@@ -1754,27 +1782,11 @@
 					>
 				</File>
 				<File
-					RelativePath=".\OCCharacterSheethandlers.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\OCCombatHandlers.cpp"
-					>
-				</File>
-				<File
 					RelativePath=".\OCCommonHandlers.cpp"
 					>
 				</File>
 				<File
 					RelativePath=".\OCContactListsHandlers.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\OCCraftingHandlers.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\OCCrateHandlers.cpp"
 					>
 				</File>
 				<File
@@ -1786,39 +1798,7 @@
 					>
 				</File>
 				<File
-					RelativePath=".\OCMissionHandlers.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\OCNpcConversationhandlers.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\OCPetHandlers.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\OCPostureHandlers.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\OCResourceContainerHandlers.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\OCSkillHandlers.cpp"
-					>
-				</File>
-				<File
 					RelativePath=".\OCSpatialHandlers.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\OCStructureHandlers.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\OCTradeHandlers.cpp"
 					>
 				</File>
 			</Filter>
@@ -1831,14 +1811,6 @@
 				</File>
 				<File
 					RelativePath=".\EnqueueValidator.h"
-					>
-				</File>
-				<File
-					RelativePath=".\EVAbility.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\EVAbility.h"
 					>
 				</File>
 				<File
@@ -1857,234 +1829,6 @@
 					RelativePath=".\EVQueueSize.h"
 					>
 				</File>
-				<File
-					RelativePath=".\EVSurveySample.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\EVSurveySample.h"
-					>
-				</File>
-				<File
-					RelativePath=".\EVWeapon.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\EVWeapon.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="Professions"
-				>
-				<Filter
-					Name="Scout"
-					>
-					<File
-						RelativePath=".\OCScoutHandlers.cpp"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="Brawler"
-					>
-					<File
-						RelativePath=".\OCBrawlerHandlers.cpp"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="Medic"
-					>
-					<File
-						RelativePath=".\OCMedicHandlers.cpp"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="Marksman"
-					>
-					<File
-						RelativePath=".\OCMarksmanHandlers.cpp"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="Entertainer"
-					>
-					<File
-						RelativePath=".\OCEntertainerHandlers.cpp"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="Artisan"
-					>
-					<File
-						RelativePath=".\OCArtisanHandlers.cpp"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="Admin"
-					>
-					<File
-						RelativePath=".\OCAdminHandlers.cpp"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="Jedi"
-					>
-					<File
-						RelativePath=".\OCForceDefenseHandlers.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\OCForceEnhancementHandlers.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\OCForceHealingHandlers.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\OCForceLightsaberHandlers.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\OCForcePowerHandlers.cpp"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="BioEngineer"
-					>
-					<File
-						RelativePath=".\OCBioEngineerHandlers.cpp"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="BountyHunter"
-					>
-					<File
-						RelativePath=".\OCBountyHunterHandlers.cpp"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="Carbineer"
-					>
-					<File
-						RelativePath=".\OCCarbineerHandlers.cpp"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="CreatureHandler"
-					>
-					<File
-						RelativePath=".\OCCreatureHandlerHandlers.cpp"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="CombatMedic"
-					>
-					<File
-						RelativePath=".\OCCombatMedicHandlers.cpp"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="Commando"
-					>
-					<File
-						RelativePath=".\OCCommandoHandlers.cpp"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="Doctor"
-					>
-					<File
-						RelativePath=".\OCDoctorHandlers.cpp"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="Fencer"
-					>
-					<File
-						RelativePath=".\OCFencerHandlers.cpp"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="Pikeman"
-					>
-					<File
-						RelativePath=".\OCPikemanHandlers.cpp"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="Pistoleer"
-					>
-					<File
-						RelativePath=".\OCPistoleerHandlers.cpp"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="Ranger"
-					>
-					<File
-						RelativePath=".\OCRangerHandlers.cpp"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="Rifleman"
-					>
-					<File
-						RelativePath=".\OCRiflemanHandlers.cpp"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="Smuggler"
-					>
-					<File
-						RelativePath=".\OCSmugglerHandlers.cpp"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="SquadLeader"
-					>
-					<File
-						RelativePath=".\OCSquadLeaderHandlers.cpp"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="Swordsman"
-					>
-					<File
-						RelativePath=".\OCSwordsmanHandlers.cpp"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="TerasKasi"
-					>
-					<File
-						RelativePath=".\OCTerasKasiHandlers.cpp"
-						>
-					</File>
-				</Filter>
 			</Filter>
 		</Filter>
 		<Filter
@@ -2173,58 +1917,6 @@
 						>
 					</File>
 					<Filter
-						Name="BadgeRegion"
-						>
-						<File
-							RelativePath=".\BadgeRegion.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\BadgeRegion.h"
-							>
-						</File>
-						<File
-							RelativePath=".\BadgeRegionFactory.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\BadgeRegionFactory.h"
-							>
-						</File>
-					</Filter>
-					<Filter
-						Name="CampRegion"
-						>
-						<File
-							RelativePath=".\CampRegion.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\CampRegion.h"
-							>
-						</File>
-					</Filter>
-					<Filter
-						Name="CityRegion"
-						>
-						<File
-							RelativePath=".\City.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\City.h"
-							>
-						</File>
-						<File
-							RelativePath=".\CityFactory.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\CityFactory.h"
-							>
-						</File>
-					</Filter>
-					<Filter
 						Name="QTRegion"
 						>
 						<File
@@ -2241,26 +1933,6 @@
 						</File>
 						<File
 							RelativePath=".\QTRegionFactory.h"
-							>
-						</File>
-					</Filter>
-					<Filter
-						Name="SpawnRegion"
-						>
-						<File
-							RelativePath=".\SpawnRegion.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\SpawnRegion.h"
-							>
-						</File>
-						<File
-							RelativePath=".\SpawnRegionFactory.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\SpawnRegionFactory.h"
 							>
 						</File>
 					</Filter>
@@ -2294,117 +1966,245 @@
 					</File>
 				</Filter>
 			</Filter>
+		</Filter>
+		<Filter
+			Name="Professions"
+			>
 			<Filter
-				Name="Managers"
+				Name="Scout"
 				>
+				<File
+					RelativePath=".\OCScoutHandlers.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Scout.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Scout.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ScoutManager.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ScoutManager.h"
+					>
+				</File>
 				<Filter
-					Name="Combat"
+					Name="CampRegion"
 					>
 					<File
-						RelativePath=".\CMWeaponGroup.h"
+						RelativePath=".\CampRegion.cpp"
 						>
 					</File>
 					<File
-						RelativePath=".\CombatManager.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\CombatManager.h"
+						RelativePath=".\CampRegion.h"
 						>
 					</File>
 				</Filter>
 				<Filter
-					Name="CharSheet"
+					Name="CreatureHandler"
 					>
 					<File
-						RelativePath=".\Badge.h"
-						>
-					</File>
-					<File
-						RelativePath=".\CharSheetManager.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\CharSheetManager.h"
+						RelativePath=".\OCCreatureHandlerHandlers.cpp"
 						>
 					</File>
 				</Filter>
 				<Filter
-					Name="Conversation"
+					Name="Ranger"
 					>
 					<File
-						RelativePath=".\ActiveConversation.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\ActiveConversation.h"
-						>
-					</File>
-					<File
-						RelativePath=".\Conversation.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\Conversation.h"
-						>
-					</File>
-					<File
-						RelativePath=".\ConversationManager.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\ConversationManager.h"
+						RelativePath=".\OCRangerHandlers.cpp"
 						>
 					</File>
 				</Filter>
 				<Filter
-					Name="CraftingSession"
+					Name="SquadLeader"
 					>
 					<File
-						RelativePath=".\CraftingEnums.h"
+						RelativePath=".\OCSquadLeaderHandlers.cpp"
 						>
 					</File>
+				</Filter>
+			</Filter>
+			<Filter
+				Name="Brawler"
+				>
+				<File
+					RelativePath=".\OCBrawlerHandlers.cpp"
+					>
+				</File>
+				<Filter
+					Name="Fencer"
+					>
 					<File
-						RelativePath=".\CraftingSession.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\CraftingSession.h"
-						>
-					</File>
-					<File
-						RelativePath=".\CraftingSessionCallBack.h"
-						>
-					</File>
-					<File
-						RelativePath=".\CraftingSessionFactory.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\CraftingSessionFactory.h"
-						>
-					</File>
-					<File
-						RelativePath=".\CraftingSessionHelper.cpp"
+						RelativePath=".\OCFencerHandlers.cpp"
 						>
 					</File>
 				</Filter>
 				<Filter
-					Name="Entertainer"
+					Name="Pikeman"
 					>
 					<File
-						RelativePath=".\EntertainerManager.cpp"
+						RelativePath=".\OCPikemanHandlers.cpp"
 						>
 					</File>
+				</Filter>
+				<Filter
+					Name="Swordsman"
+					>
 					<File
-						RelativePath=".\EntertainerManager.h"
+						RelativePath=".\OCSwordsmanHandlers.cpp"
 						>
 					</File>
+				</Filter>
+				<Filter
+					Name="TerasKasi"
+					>
+					<File
+						RelativePath=".\OCTerasKasiHandlers.cpp"
+						>
+					</File>
+				</Filter>
+			</Filter>
+			<Filter
+				Name="Marksman"
+				>
+				<File
+					RelativePath=".\OCMarksmanHandlers.cpp"
+					>
+				</File>
+				<Filter
+					Name="BountyHunter"
+					>
+					<File
+						RelativePath=".\OCBountyHunterHandlers.cpp"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="Carbineer"
+					>
+					<File
+						RelativePath=".\OCCarbineerHandlers.cpp"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="Commando"
+					>
+					<File
+						RelativePath=".\OCCommandoHandlers.cpp"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="Pistoleer"
+					>
+					<File
+						RelativePath=".\OCPistoleerHandlers.cpp"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="Rifleman"
+					>
+					<File
+						RelativePath=".\OCRiflemanHandlers.cpp"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="Smuggler"
+					>
+					<File
+						RelativePath=".\OCSmugglerHandlers.cpp"
+						>
+					</File>
+				</Filter>
+			</Filter>
+			<Filter
+				Name="Entertainer"
+				>
+				<File
+					RelativePath=".\EntertainerManager.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\EntertainerManager.h"
+					>
+				</File>
+				<File
+					RelativePath=".\OCEntertainerHandlers.cpp"
+					>
+				</File>
+				<Filter
+					Name="Dancer"
+					>
+				</Filter>
+				<Filter
+					Name="ImageDesigner"
+					>
 					<File
 						RelativePath=".\ImageDesignManager.cpp"
 						>
 					</File>
 				</Filter>
+				<Filter
+					Name="Musician"
+					>
+				</Filter>
+			</Filter>
+			<Filter
+				Name="Artisan"
+				>
+				<File
+					RelativePath=".\OCArtisanHandlers.cpp"
+					>
+				</File>
+				<Filter
+					Name="Architect"
+					>
+				</Filter>
+				<Filter
+					Name="ArmorSmith"
+					>
+				</Filter>
+				<Filter
+					Name="Chief"
+					>
+				</Filter>
+				<Filter
+					Name="DroidEngineer"
+					>
+				</Filter>
+				<Filter
+					Name="Merchant"
+					>
+				</Filter>
+				<Filter
+					Name="Tailor"
+					>
+				</Filter>
+				<Filter
+					Name="Weaponsmith"
+					>
+				</Filter>
+			</Filter>
+			<Filter
+				Name="Medical"
+				>
+				<File
+					RelativePath=".\Medicine.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Medicine.h"
+					>
+				</File>
 				<Filter
 					Name="Medic"
 					>
@@ -2416,107 +2216,255 @@
 						RelativePath=".\MedicManager.h"
 						>
 					</File>
-				</Filter>
-				<Filter
-					Name="Mission"
-					>
 					<File
-						RelativePath=".\MissionManager.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\MissionManager.h"
+						RelativePath=".\OCMedicHandlers.cpp"
 						>
 					</File>
 				</Filter>
 				<Filter
-					Name="NPC"
+					Name="CombatMedic"
 					>
 					<File
-						RelativePath=".\CreatureSpawnRegion.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\CreatureSpawnRegion.h"
-						>
-					</File>
-					<File
-						RelativePath=".\NpcManager.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\NpcManager.h"
+						RelativePath=".\OCCombatMedicHandlers.cpp"
 						>
 					</File>
 				</Filter>
 				<Filter
-					Name="Resource"
+					Name="BioEngineer"
 					>
 					<File
-						RelativePath=".\Resource.cpp"
+						RelativePath=".\OCBioEngineerHandlers.cpp"
 						>
 					</File>
-					<File
-						RelativePath=".\Resource.h"
-						>
-					</File>
-					<File
-						RelativePath=".\ResourceManager.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\ResourceManager.h"
-						>
-					</File>
-					<Filter
-						Name="CurrentResource"
-						>
-						<File
-							RelativePath=".\CurrentResource.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\CurrentResource.h"
-							>
-						</File>
-					</Filter>
-					<Filter
-						Name="Category"
-						>
-						<File
-							RelativePath=".\ResourceCategory.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\ResourceCategory.h"
-							>
-						</File>
-					</Filter>
-					<Filter
-						Name="Type"
-						>
-						<File
-							RelativePath=".\ResourceType.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\ResourceType.h"
-							>
-						</File>
-					</Filter>
-					<Filter
-						Name="noise"
-						>
-						<File
-							RelativePath=".\noiseutils.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\noiseutils.h"
-							>
-						</File>
-					</Filter>
 				</Filter>
+				<Filter
+					Name="Doctor"
+					>
+					<File
+						RelativePath=".\OCDoctorHandlers.cpp"
+						>
+					</File>
+				</Filter>
+			</Filter>
+			<Filter
+				Name="Jedi"
+				>
+				<File
+					RelativePath=".\OCForceDefenseHandlers.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\OCForceEnhancementHandlers.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\OCForceHealingHandlers.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\OCForceLightsaberHandlers.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\OCForcePowerHandlers.cpp"
+					>
+				</File>
+			</Filter>
+		</Filter>
+		<Filter
+			Name="Systems"
+			>
+			<Filter
+				Name="Spawning"
+				>
+				<File
+					RelativePath=".\CreatureSpawnRegion.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\CreatureSpawnRegion.h"
+					>
+				</File>
+				<File
+					RelativePath=".\SpawnPoint.h"
+					>
+				</File>
+				<File
+					RelativePath=".\SpawnRegion.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\SpawnRegion.h"
+					>
+				</File>
+				<File
+					RelativePath=".\SpawnRegionFactory.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\SpawnRegionFactory.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Buffs"
+				>
+				<File
+					RelativePath=".\Buff.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Buff.h"
+					>
+				</File>
+				<File
+					RelativePath=".\BuffAttributeEnums.h"
+					>
+				</File>
+				<File
+					RelativePath=".\BuffDBItem.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\BuffDBItem.h"
+					>
+				</File>
+				<File
+					RelativePath=".\BuffIconsEnum.h"
+					>
+				</File>
+				<File
+					RelativePath=".\BuffManager.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\BuffManager.h"
+					>
+				</File>
+				<Filter
+					Name="Events"
+					>
+					<File
+						RelativePath=".\BuffEvent.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\BuffEvent.h"
+						>
+					</File>
+				</Filter>
+			</Filter>
+			<Filter
+				Name="Combat"
+				>
+				<File
+					RelativePath=".\CombatManager.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\CombatManager.h"
+					>
+				</File>
+				<File
+					RelativePath=".\IncapRecoveryEvent.h"
+					>
+				</File>
+				<File
+					RelativePath=".\OCCombatHandlers.cpp"
+					>
+				</File>
+				<Filter
+					Name="Weapon"
+					>
+					<File
+						RelativePath=".\CMWeaponGroup.h"
+						>
+					</File>
+					<File
+						RelativePath=".\EVWeapon.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\EVWeapon.h"
+						>
+					</File>
+					<File
+						RelativePath=".\Weapon.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\Weapon.h"
+						>
+					</File>
+				</Filter>
+			</Filter>
+			<Filter
+				Name="Conversation"
+				>
+				<File
+					RelativePath=".\ActiveConversation.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ActiveConversation.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Conversation.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Conversation.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ConversationManager.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ConversationManager.h"
+					>
+				</File>
+				<File
+					RelativePath=".\OCNpcConversationhandlers.cpp"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Crafting"
+				>
+				<File
+					RelativePath=".\CraftingEnums.h"
+					>
+				</File>
+				<File
+					RelativePath=".\CraftingSession.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\CraftingSession.h"
+					>
+				</File>
+				<File
+					RelativePath=".\CraftingSessionCallBack.h"
+					>
+				</File>
+				<File
+					RelativePath=".\CraftingSessionFactory.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\CraftingSessionFactory.h"
+					>
+				</File>
+				<File
+					RelativePath=".\CraftingSessionHelper.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\OCCraftingHandlers.cpp"
+					>
+				</File>
 				<Filter
 					Name="Schematic"
 					>
@@ -2602,426 +2550,482 @@
 					</Filter>
 				</Filter>
 				<Filter
-					Name="Skill"
+					Name="Surveying"
 					>
 					<File
-						RelativePath=".\Skill.cpp"
+						RelativePath=".\EVSurveySample.cpp"
 						>
 					</File>
 					<File
-						RelativePath=".\Skill.h"
-						>
-					</File>
-					<File
-						RelativePath=".\SkillEnums.h"
-						>
-					</File>
-					<File
-						RelativePath=".\SkillManager.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\SkillManager.h"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="Structure"
-					>
-					<File
-						RelativePath=".\StructureManager.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\StructureManager.h"
-						>
-					</File>
-					<File
-						RelativePath=".\StructureManagerCallbackHandler.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\StructureManagerUIManager.cpp"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="Trade"
-					>
-					<File
-						RelativePath=".\Trade.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\Trade.h"
-						>
-					</File>
-					<File
-						RelativePath=".\TradeManager.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\TradeManager.h"
+						RelativePath=".\EVSurveySample.h"
 						>
 					</File>
 					<Filter
-						Name="TreasuryManager"
+						Name="SurveyTool"
 						>
 						<File
-							RelativePath=".\TreasuryManager.cpp"
+							RelativePath=".\SurveyTool.cpp"
 							>
 						</File>
 						<File
-							RelativePath=".\TreasuryManager.h"
+							RelativePath=".\SurveyTool.h"
 							>
 						</File>
 					</Filter>
 				</Filter>
 				<Filter
-					Name="TravelMap"
+					Name="CraftingStation"
 					>
 					<File
-						RelativePath=".\TravelMapHandler.cpp"
+						RelativePath=".\CraftingStation.cpp"
 						>
 					</File>
 					<File
-						RelativePath=".\TravelMapHandler.h"
+						RelativePath=".\CraftingStation.h"
 						>
 					</File>
 				</Filter>
 				<Filter
-					Name="UI"
+					Name="CraftingTool"
 					>
 					<File
-						RelativePath=".\UICallback.h"
+						RelativePath=".\CraftingTool.cpp"
 						>
 					</File>
 					<File
-						RelativePath=".\UICustomWindows.cpp"
+						RelativePath=".\CraftingTool.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="Factory Crate (FCYT)"
+					>
+					<File
+						RelativePath=".\FactoryCrate.cpp"
 						>
 					</File>
 					<File
-						RelativePath=".\UIEnums.h"
+						RelativePath=".\FactoryCrate.h"
 						>
 					</File>
 					<File
-						RelativePath=".\UIManager.cpp"
+						RelativePath=".\OCCrateHandlers.cpp"
 						>
 					</File>
-					<File
-						RelativePath=".\UIManager.h"
-						>
-					</File>
-					<File
-						RelativePath=".\UIOpcodes.h"
-						>
-					</File>
+				</Filter>
+				<Filter
+					Name="CraftableItems"
+					>
 					<Filter
-						Name="Elements"
-						>
-						<Filter
-							Name="Button"
-							>
-							<File
-								RelativePath=".\UIButton.cpp"
-								>
-							</File>
-							<File
-								RelativePath=".\UIButton.h"
-								>
-							</File>
-						</Filter>
-						<Filter
-							Name="DropdownBox"
-							>
-							<File
-								RelativePath=".\UIDropdownBox.cpp"
-								>
-							</File>
-							<File
-								RelativePath=".\UIDropdownBox.h"
-								>
-							</File>
-						</Filter>
-						<Filter
-							Name="Element"
-							>
-							<File
-								RelativePath=".\UIElement.cpp"
-								>
-							</File>
-							<File
-								RelativePath=".\UIElement.h"
-								>
-							</File>
-						</Filter>
-						<Filter
-							Name="InputField"
-							>
-							<File
-								RelativePath=".\UIInputField.cpp"
-								>
-							</File>
-							<File
-								RelativePath=".\UIInputField.h"
-								>
-							</File>
-						</Filter>
-						<Filter
-							Name="Window"
-							>
-							<File
-								RelativePath=".\UIWindow.cpp"
-								>
-							</File>
-							<File
-								RelativePath=".\UIWindow.h"
-								>
-							</File>
-						</Filter>
-					</Filter>
-					<Filter
-						Name="Windows"
-						>
-						<Filter
-							Name="InputBox"
-							>
-							<File
-								RelativePath=".\UIInputBox.cpp"
-								>
-							</File>
-							<File
-								RelativePath=".\UIInputBox.h"
-								>
-							</File>
-						</Filter>
-						<Filter
-							Name="ListBox"
-							>
-							<File
-								RelativePath=".\UICloneSelectListBox.h"
-								>
-							</File>
-							<File
-								RelativePath=".\UIListBox.cpp"
-								>
-							</File>
-							<File
-								RelativePath=".\UIListBox.h"
-								>
-							</File>
-							<File
-								RelativePath=".\UIPlayerSelectBox.h"
-								>
-							</File>
-							<File
-								RelativePath=".\UIResourceSelectListBox.h"
-								>
-							</File>
-							<File
-								RelativePath=".\UISkillSelectBox.h"
-								>
-							</File>
-							<File
-								RelativePath=".\UITicketSelectListBox.h"
-								>
-							</File>
-						</Filter>
-						<Filter
-							Name="MessageBox"
-							>
-							<File
-								RelativePath=".\UIMessageBox.cpp"
-								>
-							</File>
-							<File
-								RelativePath=".\UIMessageBox.h"
-								>
-							</File>
-							<File
-								RelativePath=".\UIOfferTeachBox.h"
-								>
-							</File>
-						</Filter>
-						<Filter
-							Name="QuadTree"
-							>
-							<File
-								RelativePath=".\QuadTree.cpp"
-								>
-							</File>
-							<File
-								RelativePath=".\QuadTree.h"
-								>
-							</File>
-							<File
-								RelativePath=".\QuadTreeNode.cpp"
-								>
-							</File>
-							<File
-								RelativePath=".\QuadTreeNode.h"
-								>
-							</File>
-						</Filter>
-						<Filter
-							Name="TransferBox"
-							>
-							<File
-								RelativePath=".\UITransferBox.cpp"
-								>
-							</File>
-							<File
-								RelativePath=".\UITransferBox.h"
-								>
-							</File>
-						</Filter>
-					</Filter>
-				</Filter>
-				<Filter
-					Name="Scout"
-					>
-					<File
-						RelativePath=".\ScoutManager.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\ScoutManager.h"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="Forage"
-					>
-					<File
-						RelativePath=".\ForageManager.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\ForageManager.h"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="Admin"
-					>
-					<File
-						RelativePath=".\AdminManager.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\AdminManager.h"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="ResourceCollection"
-					>
-					<File
-						RelativePath=".\ResourceCollectionCommand.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\ResourceCollectionCommand.h"
-						>
-					</File>
-					<File
-						RelativePath=".\ResourceCollectionManager.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\ResourceCollectionManager.h"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="Buffs"
-					>
-					<File
-						RelativePath=".\Buff.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\Buff.h"
-						>
-					</File>
-					<File
-						RelativePath=".\BuffAttributeEnums.h"
-						>
-					</File>
-					<File
-						RelativePath=".\BuffDBItem.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\BuffDBItem.h"
-						>
-					</File>
-					<File
-						RelativePath=".\BuffIconsEnum.h"
-						>
-					</File>
-					<File
-						RelativePath=".\BuffManager.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\BuffManager.h"
-						>
-					</File>
-					<Filter
-						Name="Events"
+						Name="Deed"
 						>
 						<File
-							RelativePath=".\BuffEvent.cpp"
+							RelativePath=".\Deed.cpp"
 							>
 						</File>
 						<File
-							RelativePath=".\BuffEvent.h"
+							RelativePath=".\Deed.h"
+							>
+						</File>
+					</Filter>
+					<Filter
+						Name="Firework"
+						>
+						<File
+							RelativePath=".\Firework.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\Firework.h"
+							>
+						</File>
+						<File
+							RelativePath=".\FireworkManager.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\FireworkManager.h"
+							>
+						</File>
+					</Filter>
+					<Filter
+						Name="Furniture"
+						>
+						<File
+							RelativePath=".\Furniture.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\Furniture.h"
+							>
+						</File>
+					</Filter>
+					<Filter
+						Name="Food"
+						>
+						<File
+							RelativePath=".\Food.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\Food.h"
+							>
+						</File>
+					</Filter>
+					<Filter
+						Name="Instrument"
+						>
+						<File
+							RelativePath=".\Instrument.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\Instrument.h"
 							>
 						</File>
 					</Filter>
 				</Filter>
 				<Filter
-					Name="Equip"
+					Name="Manufacture Schematic (MSCO)"
 					>
 					<File
-						RelativePath=".\EquipManager.cpp"
+						RelativePath=".\ManufacturingSchematic.cpp"
 						>
 					</File>
 					<File
-						RelativePath=".\EquipManager.h"
+						RelativePath=".\ManufacturingSchematic.h"
 						>
 					</File>
 				</Filter>
+			</Filter>
+			<Filter
+				Name="UI"
+				>
+				<File
+					RelativePath=".\UICallback.h"
+					>
+				</File>
+				<File
+					RelativePath=".\UICustomWindows.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\UIEnums.h"
+					>
+				</File>
+				<File
+					RelativePath=".\UIManager.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\UIManager.h"
+					>
+				</File>
+				<File
+					RelativePath=".\UIOpcodes.h"
+					>
+				</File>
 				<Filter
-					Name="Firework"
+					Name="Elements"
+					>
+					<Filter
+						Name="Button"
+						>
+						<File
+							RelativePath=".\UIButton.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\UIButton.h"
+							>
+						</File>
+					</Filter>
+					<Filter
+						Name="DropdownBox"
+						>
+						<File
+							RelativePath=".\UIDropdownBox.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\UIDropdownBox.h"
+							>
+						</File>
+					</Filter>
+					<Filter
+						Name="Element"
+						>
+						<File
+							RelativePath=".\UIElement.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\UIElement.h"
+							>
+						</File>
+					</Filter>
+					<Filter
+						Name="InputField"
+						>
+						<File
+							RelativePath=".\UIInputField.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\UIInputField.h"
+							>
+						</File>
+					</Filter>
+					<Filter
+						Name="Window"
+						>
+						<File
+							RelativePath=".\UIWindow.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\UIWindow.h"
+							>
+						</File>
+					</Filter>
+				</Filter>
+				<Filter
+					Name="Windows"
+					>
+					<Filter
+						Name="InputBox"
+						>
+						<File
+							RelativePath=".\UIInputBox.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\UIInputBox.h"
+							>
+						</File>
+					</Filter>
+					<Filter
+						Name="ListBox"
+						>
+						<File
+							RelativePath=".\UICloneSelectListBox.h"
+							>
+						</File>
+						<File
+							RelativePath=".\UIListBox.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\UIListBox.h"
+							>
+						</File>
+						<File
+							RelativePath=".\UIPlayerSelectBox.h"
+							>
+						</File>
+						<File
+							RelativePath=".\UIResourceSelectListBox.h"
+							>
+						</File>
+						<File
+							RelativePath=".\UISkillSelectBox.h"
+							>
+						</File>
+						<File
+							RelativePath=".\UITicketSelectListBox.h"
+							>
+						</File>
+					</Filter>
+					<Filter
+						Name="MessageBox"
+						>
+						<File
+							RelativePath=".\UIMessageBox.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\UIMessageBox.h"
+							>
+						</File>
+						<File
+							RelativePath=".\UIOfferTeachBox.h"
+							>
+						</File>
+					</Filter>
+					<Filter
+						Name="QuadTree"
+						>
+						<File
+							RelativePath=".\QuadTree.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\QuadTree.h"
+							>
+						</File>
+						<File
+							RelativePath=".\QuadTreeNode.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\QuadTreeNode.h"
+							>
+						</File>
+					</Filter>
+					<Filter
+						Name="TransferBox"
+						>
+						<File
+							RelativePath=".\UITransferBox.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\UITransferBox.h"
+							>
+						</File>
+					</Filter>
+				</Filter>
+			</Filter>
+			<Filter
+				Name="Trade"
+				>
+				<File
+					RelativePath=".\OCTradeHandlers.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Trade.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Trade.h"
+					>
+				</File>
+				<File
+					RelativePath=".\TradeManager.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\TradeManager.h"
+					>
+				</File>
+				<Filter
+					Name="TreasuryManager"
 					>
 					<File
-						RelativePath=".\FireworkManager.cpp"
+						RelativePath=".\TreasuryManager.cpp"
 						>
 					</File>
 					<File
-						RelativePath=".\FireworkManager.h"
+						RelativePath=".\TreasuryManager.h"
 						>
 					</File>
 				</Filter>
+			</Filter>
+			<Filter
+				Name="Radials"
+				>
+				<File
+					RelativePath=".\RadialEnums.h"
+					>
+				</File>
+				<File
+					RelativePath=".\RadialMenu.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\RadialMenu.h"
+					>
+				</File>
+				<File
+					RelativePath=".\RadialMenuItem.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\RadialMenuItem.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Group"
+				>
+				<File
+					RelativePath=".\GroupManager.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\GroupManager.h"
+					>
+				</File>
+				<File
+					RelativePath=".\GroupManagerHandler.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\GroupManagerHandler.h"
+					>
+				</File>
 				<Filter
-					Name="Group"
+					Name="Group (GRUP)"
 					>
 					<File
-						RelativePath=".\GroupManager.cpp"
+						RelativePath=".\GroupObject.h"
 						>
 					</File>
 					<File
-						RelativePath=".\GroupManager.h"
+						RelativePath=".\OCGroupHandlers.cpp"
+						>
+					</File>
+				</Filter>
+			</Filter>
+			<Filter
+				Name="Admin"
+				>
+				<File
+					RelativePath=".\AdminManager.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\AdminManager.h"
+					>
+				</File>
+				<File
+					RelativePath=".\OCAdminHandlers.cpp"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Forage"
+				>
+				<File
+					RelativePath=".\ForageManager.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ForageManager.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Guild"
+				>
+				<Filter
+					Name="CityRegion"
+					>
+					<File
+						RelativePath=".\City.cpp"
 						>
 					</File>
 					<File
-						RelativePath=".\GroupManagerHandler.cpp"
+						RelativePath=".\City.h"
 						>
 					</File>
 					<File
-						RelativePath=".\GroupManagerHandler.h"
+						RelativePath=".\CityFactory.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\CityFactory.h"
 						>
 					</File>
 				</Filter>

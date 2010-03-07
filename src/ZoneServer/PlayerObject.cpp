@@ -101,6 +101,7 @@ PlayerObject::PlayerObject()
 , mMounted(false)
 , mNewPlayerMessage(false)
 , mTrading(false)
+, mHasCamp(false)
 {
 	mDuelList.reserve(10);
 

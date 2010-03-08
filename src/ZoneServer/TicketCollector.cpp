@@ -34,11 +34,6 @@ mShuttle(NULL)
 
 	mPortDescriptor.setLength(64);
 
-	mRadialMenu = RadialMenuPtr(new RadialMenu());
-	
-	mRadialMenu->addItem(1,0,radId_itemUse,radAction_ObjCallback);
-	mRadialMenu->addItem(2,0,radId_examine,radAction_Default);
-
 }
 
 //=============================================================================
@@ -93,6 +88,26 @@ void TicketCollector::handleObjectMenuSelect(uint8 messageType,Object* srcObject
 	}
 	else
 		gLogger->logMsgF("TravelTerminal: Unhandled MenuSelect: %u",MSG_HIGH,messageType);
+}
+
+
+
+void TicketCollector::prepareCustomRadialMenu(uint8 messageType,Object* srcObject)
+{
+	mRadialMenu = RadialMenuPtr(new RadialMenu());
+	
+	mRadialMenu->addItem(1,0,radId_itemUse,radAction_ObjCallback);
+	mRadialMenu->addItem(2,0,radId_examine,radAction_Default);
+	
+}
+
+void TicketCollector::prepareCustomRadialMenuInCell(uint8 messageType,Object* srcObject)
+{
+	mRadialMenu = RadialMenuPtr(new RadialMenu());
+	
+	mRadialMenu->addItem(1,0,radId_itemUse,radAction_ObjCallback);
+	mRadialMenu->addItem(2,0,radId_examine,radAction_Default);
+	
 }
 
 

@@ -39,7 +39,9 @@ class TravelTerminal : public Terminal
 		PortType	getPortType(){ return mPortType; }
 		void		setPortType(PortType portType){ mPortType = portType; }
 
-		void		handleObjectMenuSelect(uint8 messageType,Object* srcObject);
+		virtual void		handleObjectMenuSelect(uint8 messageType,Object* srcObject);
+		virtual void		prepareCustomRadialMenuInCell(uint8 messageType,Object* srcObject);
+		virtual void		prepareCustomRadialMenu(uint8 messageType,Object* srcObject);
 
 	private:
 

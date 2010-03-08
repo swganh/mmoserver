@@ -49,10 +49,10 @@ Anh_Math::Quaternion Anh_Math::Quaternion::operator* (const Anh_Math::Quaternion
 {
 	return Anh_Math::Quaternion
 	(
-			mW * q.mW - mX * q.mX - mY * q.mY - mZ * q.mZ,
-			mW * q.mX + mX * q.mW + mY * q.mZ - mZ * q.mY,
-			mW * q.mY + mY * q.mW + mZ * q.mX - mX * q.mZ,
-			mW * q.mZ + mZ * q.mW + mX * q.mY - mY * q.mX
+		mW * q.mX + mX * q.mW + mY * q.mZ - mZ * q.mY,
+		mW * q.mY + mY * q.mW + mZ * q.mX - mX * q.mZ,
+		mW * q.mZ + mZ * q.mW + mX * q.mY - mY * q.mX,
+		mW * q.mW - mX * q.mX - mY * q.mY - mZ * q.mZ
 	);
 }
 
@@ -76,7 +76,19 @@ void Anh_Math::Quaternion::Multiplication2 (const Anh_Math::Quaternion q)
 	mX = q.mW * mX + q.mX * mW + q.mY * mZ - q.mZ * mY;
 	mY = q.mW * mY + q.mY * mW + q.mZ * mX - q.mX * mZ;
 	mZ = q.mW * mZ + q.mZ * mW + q.mX * mY - q.mY * mX;
+
+
 	mW = q.mW * mW - q.mX * mX - q.mY * mY - q.mZ * mZ;
+	//q1 = q.mW; q2 = mW
+	//(Q1 * Q2).w = (w1w2 - x1x2 - y1y2 - z1z2)
+
+
+	//(Q1 * Q2).x = (w1x2 + x1w2 + y1z2 - z1y2)
+	//(Q1 * Q2).y = (w1y2 - x1z2 + y1w2 + z1x2)
+	//(Q1 * Q2).z = (w1z2 + x1y2 - y1x2 + z1w2
+
+
+
 }
 
 //==============================================================================
@@ -110,17 +122,18 @@ float Anh_Math::Quaternion::normalize()
 void Anh_Math::Quaternion::VectorAxis(const Vector3 &v, float angle)
 {
 	float sinAngle;
-	angle *= 0.5f;
+	//angle *= 0.5f;
 	Vector3 vn(v);
 	vn.normalize();
+	this->normalize();
  
-	sinAngle = sin(angle);
+	sinAngle = sin(angle/2);
  
-	mX = (vn.mX * (sinAngle/4));
-	mY = (vn.mY * (sinAngle/4));
-	mZ = (vn.mZ * (sinAngle/4));
-	mW = cos(angle);
-	//this->normalize();
+	mX = vn.mX * sinAngle;
+	mY = vn.mY * sinAngle;
+	mZ = vn.mZ * sinAngle;
+	mW = cos(angle/2);
+
 
 }
 
@@ -130,7 +143,7 @@ void Anh_Math::Quaternion::VectorAxis(const Vector3 &v, float angle)
 void Anh_Math::Quaternion::rotatex(float xrmod)
 {
 	Quaternion nrot;
-	nrot.VectorAxis(Vector3(0.0f, 1.0f, 0.0f),(float)( xrmod * 0.01745));
+	nrot.VectorAxis(Vector3(0.0f, 1.0f, 0.0f),(float)( xrmod * (3.14/180)));
 
 	Multiplication2(nrot);
 }

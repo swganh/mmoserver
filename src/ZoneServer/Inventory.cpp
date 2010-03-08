@@ -204,12 +204,6 @@ bool Inventory::EquipItemTest(Object* object)
 		return(false);
 	}
 
-	//check whether the slot is already filled
-	if(!owner->getEquipManager()->addEquippedObject(item))
-	{
-	//	gMessageLib->sendSystemMessage(owner,L"You already wear something there you nutter.");
-		return(false);
-	}
 	return(true);
 }
 

@@ -22,9 +22,6 @@ TravelTerminal::TravelTerminal() : Terminal()
 {
 	mRadialMenu = RadialMenuPtr(new RadialMenu());
 	
-	// any object with callbacks needs to handle those (received with menuselect messages) !
-	mRadialMenu->addItem(1,0,radId_itemUse,radAction_ObjCallback);
-	mRadialMenu->addItem(2,0,radId_examine,radAction_Default);
 }
 
 //=============================================================================
@@ -90,3 +87,21 @@ void TravelTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
 //=============================================================================
 
+
+void TravelTerminal::prepareCustomRadialMenu(uint8 messageType,Object* srcObject)
+{
+	mRadialMenu = RadialMenuPtr(new RadialMenu());
+	
+	mRadialMenu->addItem(1,0,radId_itemUse,radAction_ObjCallback);
+	mRadialMenu->addItem(2,0,radId_examine,radAction_Default);
+	
+}
+
+void TravelTerminal::prepareCustomRadialMenuInCell(uint8 messageType,Object* srcObject)
+{
+	mRadialMenu = RadialMenuPtr(new RadialMenu());
+	
+	mRadialMenu->addItem(1,0,radId_itemUse,radAction_ObjCallback);
+	mRadialMenu->addItem(2,0,radId_examine,radAction_Default);
+	
+}

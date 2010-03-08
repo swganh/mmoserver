@@ -27,6 +27,7 @@ class Terminal : public TangibleObject
 
 		uint32			getTerminalType(){return mTerminalType;}
 		void			setTerminalType(uint32 type ){mTerminalType = type;}
+		virtual void	prepareCustomRadialMenuInCell(CreatureObject* creatureObject, uint8 itemCount){;}
 	
 
 	private:

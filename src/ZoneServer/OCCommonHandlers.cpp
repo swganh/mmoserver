@@ -868,6 +868,9 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 	if (inventory && (inventory->getId() == targetContainerId))	// Valid player inventory.
 	{
 		// Add object to OUR inventory.
+
+		playerObject->getEquipManager()->addEquippedObject(itemObject);
+		
 		itemObject->setParentId(targetContainerId,linkType,playerObject,true);
 		inventory->addObjectSecure(itemObject);
 		

@@ -150,6 +150,22 @@ Object* EquipManager::getEquippedObject(CreatureEquipSlot slot)
 	return(NULL);
 }
 
+/*
+bool EquipManager::checkEquipObject(Object* object)
+{
+	SlotMap::iterator	it;
+	uint32				slotMask	= object->getEquipSlotMask();
+
+	// make sure we have a slot descriptor
+	if(!slotMask)
+	{
+		gLogger->logMsgF("EquipManager::addEquippedObject: Character: %"PRIu64" Object: %"PRIu64" : no slot mask set",MSG_NORMAL,mParent->getId(),object->getId());
+
+		return(false);
+	}
+	return true;
+}
+  */
 //=============================================================================
 //
 // add an object according to its slot definitions, remove objects with slot conflicts
@@ -161,8 +177,8 @@ bool EquipManager::addEquippedObject(Object* object)
 	uint8				occurance	= 0;
 	uint32				slotMask	= object->getEquipSlotMask();
 
-	if(getEquippedObject(CreatureEquipSlot_Weapon))
 	//if we want to equip a weapon we need to remove the default unarmed first
+	if(getEquippedObject(CreatureEquipSlot_Weapon))
 	if(slotMask == CreatureEquipSlot_Weapon)
 	{
 		removeEquippedObject(CreatureEquipSlot_Weapon);
@@ -174,19 +190,22 @@ bool EquipManager::addEquippedObject(Object* object)
 		removeEquippedObject(CreatureEquipSlot_Hair);
 	}
 
-	if (checkEquipSlots(slotMask))
-	{
-		//gLogger->logMsgF("EquipManager::addEquippedObject: Character: %"PRIu64" Object: %"PRIu64" : slot already taken!!!",MSG_NORMAL,mParent->getId(),object->getId());
-		//gLogger->logMsgF("Inventory::unEquipItem : object slot already filled slotmask : %u", MSG_NORMAL,slotMask);
-		//return(false);
-	}
-
 	// make sure we have a slot descriptor
 	if(!slotMask)
 	{
 		gLogger->logMsgF("EquipManager::addEquippedObject: Character: %"PRIu64" Object: %"PRIu64" : no slot mask set",MSG_NORMAL,mParent->getId(),object->getId());
 
 		return(false);
+	}
+
+	//what kind of test is this?
+	//probably whether we have the relevant slots ?
+	//its missing an ! then
+	if (checkEquipSlots(slotMask))
+	{
+		//gLogger->logMsgF("EquipManager::addEquippedObject: Character: %"PRIu64" Object: %"PRIu64" : slot already taken!!!",MSG_NORMAL,mParent->getId(),object->getId());
+		//gLogger->logMsgF("Inventory::unEquipItem : object slot already filled slotmask : %u", MSG_NORMAL,slotMask);
+		//return(false);
 	}
 
 	for(uint32 slot = 1; slot < CREATURE_MAX_SLOT;slot = slot << 1)

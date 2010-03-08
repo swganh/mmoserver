@@ -99,6 +99,7 @@ void MessageRouter::RouteMessage(Message* message, ConnectionClient* client)
 			message->setDestinationId(dest);
 			message->setSourceId(0);
 			message->setRouted(true);
+			
 			//gLogger->logMsgF("Routing client %u message 0x%.8x to server %u", MSG_NORMAL, client->getAccountId(), opcode, dest);
 
 			// If it's for the connection server, route it locally.

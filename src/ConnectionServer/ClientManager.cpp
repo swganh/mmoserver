@@ -410,7 +410,7 @@ void ClientManager::_handleQueryAuth(ConnectionClient* client, DatabaseResult* r
 
     // This one goes to the AdminServer
     adminMessage->setAccountId(client->getAccountId());
-    adminMessage->setDestinationId(CR_Admin);
+    adminMessage->setDestinationId(CR_Connection);
     adminMessage->setRouted(true);
     mMessageRouter->RouteMessage(adminMessage, client);
 

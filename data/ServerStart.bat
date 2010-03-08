@@ -1,8 +1,5 @@
 start ConnectionServer.exe
 
-
-start AdminServer.exe
-
 start LoginServer.exe
 
 start ChatServer.exe

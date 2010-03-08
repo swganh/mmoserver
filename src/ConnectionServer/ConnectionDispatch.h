@@ -23,7 +23,7 @@ class ConnectionDispatchCallback;
 class ConnectionClient;
 class Message;
 
-typedef std::map<uint32,ConnectionDispatchCallback*>   MessageCallbackMap;
+typedef std::map<uint32,ConnectionDispatchCallback*>   ConnectionMessageCallbackMap;
 
 //======================================================================================================================
 
@@ -45,7 +45,7 @@ class ConnectionDispatch
 
 	private:
 
-		MessageCallbackMap              mMessageCallbackMap;
+		ConnectionMessageCallbackMap              mMessageCallbackMap;
 };
 
 

@@ -69,7 +69,7 @@ void ConnectionDispatch::RegisterMessageCallback(uint32 opcode, ConnectionDispat
 void ConnectionDispatch::UnregisterMessageCallback(uint32 opcode)
 {
 	// Remove our callback from the map.
-	MessageCallbackMap::iterator iter = mMessageCallbackMap.find(opcode);
+	ConnectionMessageCallbackMap::iterator iter = mMessageCallbackMap.find(opcode);
 
 	if(iter != mMessageCallbackMap.end())
 	{
@@ -88,7 +88,7 @@ void ConnectionDispatch::handleIncomingMessage(ConnectionClient* client, Message
 	uint32 opcode;
 	message->getUint32(opcode);
 
-	MessageCallbackMap::iterator iter = mMessageCallbackMap.find(opcode);
+	ConnectionMessageCallbackMap::iterator iter = mMessageCallbackMap.find(opcode);
 
 	if(iter != mMessageCallbackMap.end())
 	{

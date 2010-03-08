@@ -10,9 +10,11 @@ Copyright (c) 2006 - 2010 The swgANH Team
 */
 
 #include "ConnectionServer.h"
-
+#include "ConnectionServerOpcodes.h"
 #include "ClientManager.h"
+#include "CharacterAdminHandler.h"
 #include "ConnectionDispatch.h"
+#include "PlanetMapHandler.h"
 #include "ServerManager.h"
 #include "MessageRouter.h"
 
@@ -123,6 +125,12 @@ void ConnectionServer::Startup(void)
 	mServerManager = new ServerManager();
 	mServerManager->Startup(mServerService, mDatabase, mMessageRouter, mConnectionDispatch,mClientManager);
 
+	mCharacterAdminHandler = new CharacterAdminHandler(mClusterId);
+	mCharacterAdminHandler->Startup(mDatabase, mConnectionDispatch);
+  
+	mPlanetMapHandler = new PlanetMapHandler();
+	mPlanetMapHandler->Startup(mDatabase,mConnectionDispatch);
+
 	// We're done initiailizing.
 	_updateDBServerList(2);
 	gLogger->logMsg("ConnectionServer::Server Boot Complete", FOREGROUND_GREEN);
@@ -147,6 +155,8 @@ void ConnectionServer::Shutdown(void)
 	// We're shuttind down, so update the DB again.
 	_updateDBServerList(0);
 
+	mCharacterAdminHandler->Shutdown();
+	mPlanetMapHandler->Shutdown();
 	mClientManager->Shutdown();
 	mServerManager->Shutdown();
 	mMessageRouter->Shutdown();
@@ -162,6 +172,9 @@ void ConnectionServer::Shutdown(void)
 	mNetworkManager->Shutdown();
 
 	// Delete our objects
+	
+	delete mCharacterAdminHandler;
+	delete mPlanetMapHandler;
 	delete mClientManager;
 	delete mServerManager;
 	delete mMessageRouter;
@@ -189,6 +202,8 @@ void ConnectionServer::Process(void)
 
 	// Now process our sub modules
 	gMessageFactory->Process();
+	mCharacterAdminHandler->Process();
+	mPlanetMapHandler->Process();
 	mClientManager->Process();
 	mServerManager->Process();
 	mMessageRouter->Process();

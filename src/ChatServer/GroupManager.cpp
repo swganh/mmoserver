@@ -74,6 +74,7 @@ GroupManager::GroupManager(MessageDispatch* dispatch)
 	mMessageDispatch->RegisterMessageCallback(opIsmGroupLootModeResponse,this);
 	mMessageDispatch->RegisterMessageCallback(opIsmGroupLootMasterRequest,this);
 	mMessageDispatch->RegisterMessageCallback(opIsmGroupLootMasterResponse,this);
+	mMessageDispatch->RegisterMessageCallback(opIsmGroupInviteInRangeResponse, this);
 }
 
 
@@ -114,6 +115,7 @@ void GroupManager::Shutdown()
 	mMessageDispatch->UnregisterMessageCallback(opIsmGroupLootModeResponse);
 	mMessageDispatch->UnregisterMessageCallback(opIsmGroupLootMasterRequest);
 	mMessageDispatch->UnregisterMessageCallback(opIsmGroupLootMasterResponse);
+	mMessageDispatch->UnregisterMessageCallback(opIsmGroupInviteInRangeResponse);
 }
 
 //======================================================================================================================
@@ -240,6 +242,12 @@ void GroupManager::handleDispatchMessage(uint32 opcode, Message* message, Dispat
 		}
 		break;
 
+		case opIsmGroupInviteInRangeResponse:
+		{
+			_processIsmInviteInRangeResponse(message, client);
+		}
+		break;
+
 		default:
 		gLogger->logMsgF("GroupManager::handleDispatchMessage: Unhandled opcode %u",MSG_NORMAL,opcode);
 		break;
@@ -253,7 +261,6 @@ void GroupManager::_processGroupInviteRequest(Message* message, DispatchClient* 
 
 	Player* player			= gChatManager->getPlayerByAccId(client->getAccountId());
 	Player* targetPlayer	= gChatManager->getPlayerByAccId(message->getUint32());
-	uint64 groupId;
 
 	if(targetPlayer == NULL || player == NULL)
 	{
@@ -261,96 +268,15 @@ void GroupManager::_processGroupInviteRequest(Message* message, DispatchClient* 
 		return;
 	}
 
-	// I must be the group leader and group not full before we bother checking target...
-	GroupObject* group = NULL;
-	groupId = player->getGroupId();
-
-	if (groupId != 0)
+	// If they are not on the same planet, they are obviously not in-range.
+	if(player->getPlanetId() != targetPlayer->getPlanetId())
 	{
-		group = getGroupById(player->getGroupId());
-		if (group == NULL)
-		{
-			return;
-		}
-		// Sender in group.
-
-		// if sender is not leader
-		if(group->getLeader() != player)
-		{
-			gChatMessageLib->sendSystemMessage(player,L"@group:must_be_leader");
-			return;
-		}
-
-		// is it full?
-		if(group->getMemberCount() >= 20)
-		{
-			gChatMessageLib->sendSystemMessage(group->getLeader(),L"@group:full");
-			return;
-		}
-	}
-	
-	// If target have me ignored, auto decline my invitation.
-	string ignoreName = player->getName();
-	ignoreName.toLower();
-
-	// check our ignorelist
-	if (targetPlayer->checkIgnore(ignoreName.getCrc()))
-	{
-		gChatMessageLib->sendGroupSystemMessage(targetPlayer->getName(), BString("decline_leader"), player, NULL);
+		gChatMessageLib->sendSystemMessage(player, L"@group:out_of_range_suffix");
 		return;
 	}
 
-
-	// if target is member of a group already
-	if(targetPlayer->getGroupId() != 0 && targetPlayer->getGroupMemberIndex() != 0xFFFF)
-	{
-		if(targetPlayer->getGroupId() == groupId)
-		{
-			gChatMessageLib->sendSystemMessage(player,L"This player is already in your group.");
-		}
-		else
-		{
-			gChatMessageLib->sendGroupSystemMessage(targetPlayer->getName(), BString("already_grouped"), player, NULL);
-		}
-		return;
-	}
-
-
-	// if target in group and is considering to join a group
-	if ((targetPlayer->getGroupMemberIndex() == 0xFFFF) && (targetPlayer->getGroupId() != 0))
-	{
-		// considering to join your group
-		if(targetPlayer->getGroupId() == player->getGroupId())
-		{
-			gChatMessageLib->sendGroupSystemMessage(targetPlayer->getName(), BString("considering_your_group"), player, NULL);
-		}
-
-		// considering to join another group
-		else
-		{
-			gChatMessageLib->sendGroupSystemMessage(targetPlayer->getName(), BString("considering_other_group"), player, NULL);
-		}
-		return;
-	}
-
-
-	// the sender is not in a group, lets create a new one
-	// and insert it in the group map
-	if (groupId == 0)
-	{
-		assert(group == NULL);
-		groupId = this->getNextGroupId();
-		group = new GroupObject(player, groupId); 
-		mGroups.insert(std::make_pair(groupId, group));
-	}
-
-	// add the target player as temp member
-	group->addTempMember(targetPlayer);
-
-	gChatMessageLib->sendGroupSystemMessage(targetPlayer->getName(), BString("invite_leader"), player, NULL);
-
-	// tell the zone to display the invite box
-	gChatMessageLib->sendIsmInviteRequest(player, targetPlayer);
+	// Ask the zone server if both players are in range.
+	gChatMessageLib->sendIsmInviteInRangeRequest(player, targetPlayer);
 }
 
 //======================================================================================================================
@@ -873,3 +799,114 @@ void GroupManager::_processGroupLootMasterResponse(Message* message, DispatchCli
 
 //======================================================================================================================
 
+void GroupManager::_processIsmInviteInRangeResponse(Message* message, DispatchClient* client)
+{
+	Player* player			= gChatManager->getPlayerByAccId(message->getUint32());
+	Player* targetPlayer	= gChatManager->getPlayerByAccId(message->getUint32());
+	uint8	inRange			= message->getUint8();
+
+	if(targetPlayer == NULL || player == NULL)
+	{
+		gLogger->logMsg("GroupManager::_processIsmInviteInRangeResponse player not found");
+		return;
+	}
+
+	// If we are not in range, inform the player and return.
+	if(!inRange)
+	{
+		gChatMessageLib->sendSystemMessage(player, L"@group:out_of_range_suffix");
+		return;
+	}
+
+	// I must be the group leader and group not full before we bother checking target...
+	GroupObject* group = NULL;
+	uint64 groupId = player->getGroupId();
+
+	if (groupId != 0)
+	{
+		group = getGroupById(player->getGroupId());
+		if (group == NULL)
+		{
+			return;
+		}
+		// Sender in group.
+
+		// if sender is not leader
+		if(group->getLeader() != player)
+		{
+			gChatMessageLib->sendSystemMessage(player,L"@group:must_be_leader");
+			return;
+		}
+
+		// is it full?
+		if(group->getMemberCount() >= 20)
+		{
+			gChatMessageLib->sendSystemMessage(group->getLeader(),L"@group:full");
+			return;
+		}
+	}
+	
+	// If target have me ignored, auto decline my invitation.
+	string ignoreName = player->getName();
+	ignoreName.toLower();
+
+	// check our ignorelist
+	if (targetPlayer->checkIgnore(ignoreName.getCrc()))
+	{
+		gChatMessageLib->sendGroupSystemMessage(targetPlayer->getName(), BString("decline_leader"), player, NULL);
+		return;
+	}
+
+
+	// if target is member of a group already
+	if(targetPlayer->getGroupId() != 0 && targetPlayer->getGroupMemberIndex() != 0xFFFF)
+	{
+		if(targetPlayer->getGroupId() == groupId)
+		{
+			gChatMessageLib->sendSystemMessage(player,L"This player is already in your group.");
+		}
+		else
+		{
+			gChatMessageLib->sendGroupSystemMessage(targetPlayer->getName(), BString("already_grouped"), player, NULL);
+		}
+		return;
+	}
+
+
+	// if target in group and is considering to join a group
+	if ((targetPlayer->getGroupMemberIndex() == 0xFFFF) && (targetPlayer->getGroupId() != 0))
+	{
+		// considering to join your group
+		if(targetPlayer->getGroupId() == player->getGroupId())
+		{
+			gChatMessageLib->sendGroupSystemMessage(targetPlayer->getName(), BString("considering_your_group"), player, NULL);
+		}
+
+		// considering to join another group
+		else
+		{
+			gChatMessageLib->sendGroupSystemMessage(targetPlayer->getName(), BString("considering_other_group"), player, NULL);
+		}
+		return;
+	}
+
+
+	// the sender is not in a group, lets create a new one
+	// and insert it in the group map
+	if (groupId == 0)
+	{
+		assert(group == NULL);
+		groupId = this->getNextGroupId();
+		group = new GroupObject(player, groupId); 
+		mGroups.insert(std::make_pair(groupId, group));
+	}
+
+	// add the target player as temp member
+	group->addTempMember(targetPlayer);
+
+	gChatMessageLib->sendGroupSystemMessage(targetPlayer->getName(), BString("invite_leader"), player, NULL);
+
+	// tell the zone to display the invite box
+	gChatMessageLib->sendIsmInviteRequest(player, targetPlayer);
+
+}

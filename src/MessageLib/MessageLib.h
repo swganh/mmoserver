@@ -470,6 +470,7 @@ public:
 	void				sendIsmGroupBaselineRequest(PlayerObject* targetPlayer);
 	void				sendIsmGroupPositionNotification(PlayerObject* targetPlayer);
 	void				sendIsmGroupLeave(PlayerObject* player);
+	void				sendIsmGroupInviteInRangeResponse(PlayerObject* sender, PlayerObject* target, bool inRange );
 
 	// trading / bazaar
 	bool				sendAbortTradeMessage(PlayerObject* playerObject);

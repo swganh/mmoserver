@@ -71,6 +71,7 @@ class GroupManager : public MessageDispatchCallback, public DatabaseCallback
 		void				_processIsmGroupCREO6deltaGroupId(Message* message);
 		void				_processIsmGroupLootModeResponse(Message* message);
 		void				_processIsmGroupLootMasterResponse(Message* message);
+		void				_processIsmGroupInviteInRangeRequest(Message* message);
 
 		static GroupManager*	mSingleton;
 		static bool				mInsFlag;

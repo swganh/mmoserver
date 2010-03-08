@@ -78,3 +78,17 @@ void ChatMessageLib::sendIsmGroupCREO6deltaGroupId(uint64 groupId, Player* targe
 }
 
 //======================================================================================================================
+
+void ChatMessageLib::sendIsmInviteInRangeRequest(Player* sender, Player* target)
+{
+	Message* newMessage;
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opIsmGroupInviteInRangeRequest);
+	gMessageFactory->addUint32(sender->getClient()->getAccountId());
+	gMessageFactory->addUint32(target->getClient()->getAccountId());
+	newMessage = gMessageFactory->EndMessage();
+
+	sender->getClient()->SendChannelA(newMessage, sender->getClient()->getAccountId(), static_cast<uint8>(sender->getPlanetId())+8, 3);
+}
+
+//======================================================================================================================

@@ -149,6 +149,9 @@ enum zone_opcodes
 	opIsmGroupPositionNotification	= 0x2FB45F7B,	//[ZO->CH]	<float x><float z>
 	opIsmGroupBaselineRequest		= 0xB0CE545A,	//[ZO->CH]	<float x><float z>
 	opIsmGroupAlterMissions			= 0x2F46E3A3,	//[ZO->CH]
+	opIsmGroupInviteInRangeRequest	= 0x19F89B8E,	//[CH->ZO]  <uint32 sender><uint32 target>
+	opIsmGroupInviteInRangeResponse	= 0xA4B7CA4C,   //[ZO->CH]  <uint32 sender><uint32 target><bool inRange>
+
 	// Fake code, crc-based an the word "opIsmGroupSay".
 	opIsmGroupSay					= 0x39360616,	//[ZO->CH]  // Fake code, crc-based on the word "opIsmGroupSay".
 	opChatNotifySceneReady			= 0x75C4DD84,	//[ZO ->CH] // Fake code, crc-based on the word "chatcmdsceneready".

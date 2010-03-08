@@ -54,6 +54,7 @@ GroupManager::GroupManager(Database* database, MessageDispatch* dispatch)
 	mMessageDispatch->RegisterMessageCallback(opIsmGroupCREO6deltaGroupId,this);  
 	mMessageDispatch->RegisterMessageCallback(opIsmGroupLootModeResponse,this); 
 	mMessageDispatch->RegisterMessageCallback(opIsmGroupLootMasterResponse,this); 
+	mMessageDispatch->RegisterMessageCallback(opIsmGroupInviteInRangeRequest, this);
 }
 
 
@@ -88,6 +89,7 @@ void GroupManager::Shutdown()
 	mMessageDispatch->UnregisterMessageCallback(opIsmGroupCREO6deltaGroupId);
 	mMessageDispatch->UnregisterMessageCallback(opIsmGroupLootModeResponse);
 	mMessageDispatch->UnregisterMessageCallback(opIsmGroupLootMasterResponse);
+	mMessageDispatch->UnregisterMessageCallback(opIsmGroupInviteInRangeRequest);
 }
 
 //======================================================================================================================
@@ -121,6 +123,12 @@ void GroupManager::handleDispatchMessage(uint32 opcode, Message* message, Dispat
 		}
 		break;
 
+		case opIsmGroupInviteInRangeRequest:
+		{
+			_processIsmGroupInviteInRangeRequest(message);
+		}
+		break;
+
 		default:
 			gLogger->logMsgF("GroupManagerMessage::handleDispatchMessage: Unhandled opcode %u",MSG_NORMAL,opcode);
 		break;
@@ -140,12 +148,6 @@ void GroupManager::_processIsmInviteRequest(Message* message)
 	{
 		gLogger->logMsg("GroupManager::_processIsmInviteRequest PlayerAccId not found");
 		return;	
-	}
-
-	if(sender->mPosition.distance2D(target->mPosition) > 90)
-	{
-		gMessageLib->sendSystemMessage(sender, L"", "group", "out_of_range_suffix");
-		return;
 	}
 
 	//target->setGroupId(message->getUint64()); // the group id provided by the chatserver
@@ -464,4 +466,29 @@ void GroupManager::deleteGroupObject(uint64 id)
 		if(it != mGroupList.end())
 			it++;
 	}
+}
+
+//======================================================================================================================
+
+void GroupManager::_processIsmGroupInviteInRangeRequest(Message *message)
+{
+	PlayerObject* sender = gWorldManager->getPlayerByAccId(message->getUint32());
+	PlayerObject* target = gWorldManager->getPlayerByAccId(message->getUint32());
+	Message* newMessage = new Message();
+
+	if( sender == NULL || target == NULL )
+	{
+		gLogger->logMsg("GroupManager::_processIsmInviteInRangeRequest player not found");
+		return;
+	}
+
+	if(sender->mPosition.inRange2D(target->mPosition, 90))
+	{
+		gMessageLib->sendIsmGroupInviteInRangeResponse(sender, target, true);
+	}
+	else
+	{
+		gMessageLib->sendIsmGroupInviteInRangeResponse(sender, target, false);
+	}
+
 }

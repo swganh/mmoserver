@@ -152,6 +152,25 @@ void MessageLib::sendIsmGroupPositionNotification(PlayerObject* targetPlayer)
 
 //======================================================================================================================
 //
+// group invite inrange response
+//
+
+void MessageLib::sendIsmGroupInviteInRangeResponse(PlayerObject *sender, PlayerObject *target, bool inRange)
+{
+	if(!_checkPlayer(sender) || !_checkPlayer(target))
+		return;
+
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opIsmGroupInviteInRangeResponse);
+	gMessageFactory->addUint32(sender->getAccountId());
+	gMessageFactory->addUint32(target->getAccountId());
+	gMessageFactory->addUint8(inRange);
+	Message* newMessage = gMessageFactory->EndMessage();
+	sender->getClient()->SendChannelA(newMessage, sender->getAccountId(), CR_Chat, 2);
+}
+
+//======================================================================================================================
+//
 // report location to chatserver
 //
 

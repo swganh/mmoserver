@@ -1460,6 +1460,17 @@ void ChatManager::_processInstantMessageToCharacter(Message* message,DispatchCli
 		targetStatus = 4; //TODO: Magic Number - Someone please fix?
 	}
 
+	// If a galaxy name is provided, automatically flag
+	// as the user not existing.
+	// This feature was supported in Live SWG ( Cross Galaxy Talk )
+	// however, the likelyhood of a community having more then
+	// one galaxy is sparce.
+	if(strcmp( gChatManager->getGalaxyName().getAnsi(), serverName.getAnsi() ) != 0)
+	{
+		receiver = NULL;
+		targetStatus = 4;
+	}
+
 	if(receiver != NULL)
 	{
 		gMessageFactory->StartMessage();

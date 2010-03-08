@@ -132,23 +132,10 @@ void ObjectController::_handleBoardTransport(uint64 targetId,Message* message,Ob
 
 void ObjectController::_handleOpenContainer(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	// gLogger->logMsg("ObjController::_handleOpenContainer:");
 
 	PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
 	Object*			itemObject		= gWorldManager->getObjectById(targetId);
 
-	// gLogger->hexDump(message->getData(),message->getSize());
-/*
-	46 5E CE 80 23 00 00 00 16 01 00 00 79 69 00 00
-	02 00 00 00 00 00 00 00 00 00 00 00 86 75 17 70
-	B3 2C 81 00 00 00 00 00 02 00 00 00 31 00 20 00
-
-	// 86 75 17 70 = The command OpenContainer
-	// B3 2C 81 00 00 00 00 00 = container id
-	// 02 00 00 00 31 00 20 00 = 2, "1 ", i.e Number of uni-chars (32 bits) and no of Open " 1", " 2".... " 21" where the " " is the last byte in the data.
-*/
-
-	// Let's make a "fake open" if the object is not a container.
 	if (itemObject)
 	{
 		bool aContainer = false;
@@ -170,7 +157,16 @@ void ObjectController::_handleOpenContainer(uint64 targetId,Message* message,Obj
 		}
 		if (!aContainer)
 		{
-			// Open an empty container. And we will actually see what kind of container it is.
+			// STF: container_error_message Key: container8 does not seem to be working, using this custom string temperary.
+			gMessageLib->sendSystemMessage(playerObject, L"You do not have permission to access that container.");
+		}
+		else
+		{
+			if( playerObject->mPosition.inRange2D(itemObject->mPosition, 10) )
+			{
+				gMessageLib->sendSystemMessage(playerObject, L"", "system_msg", "out_of_range");
+			}
+
 			gMessageLib->sendOpenedContainer(targetId, playerObject);
 		}
 	}

@@ -95,7 +95,7 @@ void HouseFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			{
 				result->GetNextRow(cellBinding,&cellId);
 
-				mCellFactory->requestObject(this,cellId,0,0,asyncContainer->mClient);
+				mCellFactory->requestStructureCell(this,cellId,0,0,asyncContainer->mClient);
 				if(cellId < maxid)
 					maxid = cellId;
 			}
@@ -165,7 +165,7 @@ void HouseFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,HOFQuery_CellData,asyncContainer->mClient);
 			asContainer->mObject = house;
 
-			mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT id FROM cells WHERE parent_id = %"PRIu64" ORDER BY cells.id;",house->getId());
+			mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT id FROM structure_cells WHERE parent_id = %"PRIu64" ORDER BY structure_cells.id;",house->getId());
 			
 
 			

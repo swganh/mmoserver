@@ -320,7 +320,7 @@ Terminal* TerminalFactory::_createTerminal(DatabaseResult* result)
 
 			result->GetNextRow(mElevatorMainDataBinding,(void*)terminal);
 
-			((ElevatorTerminal*)(terminal))->prepareRadialMenu();
+			//((ElevatorTerminal*)(terminal))->prepareRadialMenu();
 			terminal->setLoadState(LoadState_Tangible_Data);
 		}
 		break;

@@ -146,6 +146,13 @@ void CellFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint
 
 //=============================================================================
 
+void CellFactory::requestStructureCell(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client)
+{
+	mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,CellFQuery_MainData,client),"SELECT id,parent_id FROM structure_cells WHERE id = %"PRIu64"",id);
+}
+
+//=============================================================================
+
 CellObject* CellFactory::_createCell(DatabaseResult* result)
 {
 	CellObject* cellObject = new CellObject();

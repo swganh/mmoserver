@@ -35,8 +35,9 @@ class ElevatorTerminal : public Terminal
 		Anh_Math::Vector3		getDstPosDown(){ return mDstPosDown; }
 		uint32					getEffectDown(){ return mEffectDown; }
 
-		void					prepareRadialMenu();
-		void					handleObjectMenuSelect(uint8 messageType,Object* srcObject);
+		
+		virtual void		prepareCustomRadialMenuInCell(uint8 messageType,Object* srcObject);
+		virtual void		handleObjectMenuSelect(uint8 messageType,Object* srcObject);
 
 	private:
 

@@ -150,11 +150,12 @@ void ObjectController::_handleOpenContainer(uint64 targetId,Message* message,Obj
 			TangibleObject* tangObj = dynamic_cast<TangibleObject*>(itemObject);
 			if (tangObj->getTangibleGroup() == TanGroup_Container)
 			{
-				// Request container contence.
+				// Request container contents.
 				gContainerFactory->requestObject(this,targetId,TanGroup_Container,0,playerObject->getClient());
 				aContainer = true;
 			}
 		}
+		//its not a Container* Object however in theory it still can be a backpack for example
 		if (!aContainer)
 		{
 			// STF: container_error_message Key: container8 does not seem to be working, using this custom string temperary.

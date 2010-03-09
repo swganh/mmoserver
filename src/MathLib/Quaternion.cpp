@@ -54,6 +54,7 @@ Anh_Math::Quaternion Anh_Math::Quaternion::operator* (const Anh_Math::Quaternion
 		mW * q.mZ + mZ * q.mW + mX * q.mY - mY * q.mX,
 		mW * q.mW - mX * q.mX - mY * q.mY - mZ * q.mZ
 	);
+	
 }
 
 void Anh_Math::Quaternion::Multiplication (const Anh_Math::Quaternion q)
@@ -66,6 +67,7 @@ void Anh_Math::Quaternion::Multiplication (const Anh_Math::Quaternion q)
 	mZ = mW * q.mZ + mZ * q.mW + mX * q.mY - mY * q.mX;
 	mW = mW * q.mW - mX * q.mX - mY * q.mY - mZ * q.mZ;
 
+	this->normalize();
 }
 
 void Anh_Math::Quaternion::Multiplication2 (const Anh_Math::Quaternion q)
@@ -86,7 +88,7 @@ void Anh_Math::Quaternion::Multiplication2 (const Anh_Math::Quaternion q)
 	//(Q1 * Q2).x = (w1x2 + x1w2 + y1z2 - z1y2)
 	//(Q1 * Q2).y = (w1y2 - x1z2 + y1w2 + z1x2)
 	//(Q1 * Q2).z = (w1z2 + x1y2 - y1x2 + z1w2
-
+  this->normalize();
 
 
 }
@@ -111,13 +113,18 @@ float Anh_Math::Quaternion::normalize()
 {
 	float len = getNormal();
 	float f = 1.0f / sqrt(len);
-	*this = *this * f;
+	// *this = *this * f;
 
+	this->mW*= f;
+	this->mX*= f;
+	this->mY*= f;
+	this->mZ*= f;
 	return len;
 }
 
 //==============================================================================
-// with thks to http://gpwiki.org/index.php/OpenGL:Tutorials:Using_Quaternions_to_represent_rotation
+// with thks to http://gpwiki.org/index.php/OpenGL:Tutorials:Using_Quaternions_to_re
+
 // for help
 void Anh_Math::Quaternion::VectorAxis(const Vector3 &v, float angle)
 {
@@ -134,7 +141,7 @@ void Anh_Math::Quaternion::VectorAxis(const Vector3 &v, float angle)
 	mZ = vn.mZ * sinAngle;
 	mW = cos(angle/2);
 
-
+	this->normalize();
 }
 
 //==============================================================================

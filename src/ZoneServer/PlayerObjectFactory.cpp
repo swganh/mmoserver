@@ -433,43 +433,44 @@ void PlayerObjectFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64
 	QueryContainerBase* asyncContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,POFQuery_MainPlayerData,client);
 
 	int8 sql[8152];
-	sprintf(sql,"SELECT characters.id,characters.parent_Id,characters.account_id,characters.oX,characters.oY,characters.oZ,characters.oW,"
-		"characters.x,characters.y,characters.z,character_appearance.base_model_string,"
-		"characters.firstname,characters.lastname,character_appearance.hair,character_appearance.hair1,character_appearance.hair2,race.name,"
-		"character_appearance.`00FF`,character_appearance.`01FF`,character_appearance.`02FF`,character_appearance.`03FF`,character_appearance.`04FF`,"
-		"character_appearance.`05FF`,character_appearance.`06FF`,character_appearance.`07FF`,character_appearance.`08FF`,character_appearance.`09FF`,"
-		"character_appearance.`0AFF`,character_appearance.`0BFF`,character_appearance.`0CFF`,character_appearance.`0DFF`,character_appearance.`0EFF`,"
-		"character_appearance.`0FFF`,character_appearance.`10FF`,character_appearance.`11FF`,character_appearance.`12FF`,character_appearance.`13FF`,"
-		"character_appearance.`14FF`,character_appearance.`15FF`,character_appearance.`16FF`,character_appearance.`17FF`,character_appearance.`18FF`,"
-		"character_appearance.`19FF`,character_appearance.`1AFF`,character_appearance.`1BFF`,character_appearance.`1CFF`,character_appearance.`1DFF`,"
-		"character_appearance.`1EFF`,character_appearance.`1FFF`,character_appearance.`20FF`,character_appearance.`21FF`,character_appearance.`22FF`,"
-		"character_appearance.`23FF`,character_appearance.`24FF`,character_appearance.`25FF`,character_appearance.`26FF`,character_appearance.`27FF`,"
-		"character_appearance.`28FF`,character_appearance.`29FF`,character_appearance.`2AFF`,character_appearance.`2BFF`,character_appearance.`2CFF`,"
-		"character_appearance.`2DFF`,character_appearance.`2EFF`,character_appearance.`2FFF`,character_appearance.`30FF`,character_appearance.`31FF`,"
-		"character_appearance.`32FF`,character_appearance.`33FF`,character_appearance.`34FF`,character_appearance.`35FF`,character_appearance.`36FF`,"
-		"character_appearance.`37FF`,character_appearance.`38FF`,character_appearance.`39FF`,character_appearance.`3AFF`,character_appearance.`3BFF`,"
-		"character_appearance.`3CFF`,character_appearance.`3DFF`,character_appearance.`3EFF`,character_appearance.`3FFF`,character_appearance.`40FF`,"
-		"character_appearance.`41FF`,character_appearance.`42FF`,character_appearance.`43FF`,character_appearance.`44FF`,character_appearance.`45FF`,"
-		"character_appearance.`46FF`,character_appearance.`47FF`,character_appearance.`48FF`,character_appearance.`49FF`,character_appearance.`4AFF`,"
-		"character_appearance.`4BFF`,character_appearance.`4CFF`,character_appearance.`4DFF`,character_appearance.`4EFF`,character_appearance.`4FFF`,"
-		"character_appearance.`50FF`,character_appearance.`51FF`,character_appearance.`52FF`,character_appearance.`53FF`,character_appearance.`54FF`,"
-		"character_appearance.`55FF`,character_appearance.`56FF`,character_appearance.`57FF`,character_appearance.`58FF`,character_appearance.`59FF`,"
-		"character_appearance.`5AFF`,character_appearance.`5BFF`,character_appearance.`5CFF`,character_appearance.`5DFF`,character_appearance.`5EFF`,"
-		"character_appearance.`5FFF`,character_appearance.`60FF`,character_appearance.`61FF`,character_appearance.`62FF`,character_appearance.`63FF`,"
-		"character_appearance.`64FF`,character_appearance.`65FF`,character_appearance.`66FF`,character_appearance.`67FF`,character_appearance.`68FF`,"
-		"character_appearance.`69FF`,character_appearance.`6AFF`,character_appearance.`6BFF`,character_appearance.`6CFF`,character_appearance.`6DFF`,"
-		"character_appearance.`6EFF`,character_appearance.`6FFF`,character_appearance.`70FF`,character_appearance.`ABFF`,character_appearance.`AB2FF`,character_attributes.health_max,character_attributes.strength_max,"
-		"character_attributes.constitution_max,character_attributes.action_max,character_attributes.quickness_max,character_attributes.stamina_max,"
-		"character_attributes.mind_max,character_attributes.focus_max,character_attributes.willpower_max,character_attributes.health_current,"
-		"character_attributes.strength_current,character_attributes.constitution_current,character_attributes.action_current,"
-		"character_attributes.quickness_current,character_attributes.stamina_current,character_attributes.mind_current,character_attributes.focus_current,"
-		"character_attributes.willpower_current,character_attributes.health_wounds,character_attributes.strength_wounds,"
-		"character_attributes.constitution_wounds,character_attributes.action_wounds,character_attributes.quickness_wounds,"
-		"character_attributes.stamina_wounds,character_attributes.mind_wounds,character_attributes.focus_wounds,character_attributes.willpower_wounds,"
-		"character_attributes.health_encum,character_attributes.action_encum,character_attributes.mind_encum,character_attributes.battlefatigue,character_attributes.language,"
-		"banks.credits,faction.name,"
-		"character_attributes.posture,character_attributes.moodId,characters.jedistate,character_attributes.title,character_appearance.scale,"
-		"character_movement.baseSpeed,character_movement.baseAcceleration,character_movement.baseTurnrate,character_movement.baseTerrainNegotiation,"
+	sprintf(sql,"SELECT characters.id,characters.parent_Id,characters.account_id,characters.oX,characters.oY,characters.oZ,characters.oW,"//7
+		"characters.x,characters.y,characters.z,character_appearance.base_model_string,"//11
+		"characters.firstname,characters.lastname,character_appearance.hair,character_appearance.hair1,character_appearance.hair2,race.name,"//17
+		"character_appearance.`00FF`,character_appearance.`01FF`,character_appearance.`02FF`,character_appearance.`03FF`,character_appearance.`04FF`,"	  //22
+		"character_appearance.`05FF`,character_appearance.`06FF`,character_appearance.`07FF`,character_appearance.`08FF`,character_appearance.`09FF`,"	  //27
+		"character_appearance.`0AFF`,character_appearance.`0BFF`,character_appearance.`0CFF`,character_appearance.`0DFF`,character_appearance.`0EFF`,"	  //32
+		"character_appearance.`0FFF`,character_appearance.`10FF`,character_appearance.`11FF`,character_appearance.`12FF`,character_appearance.`13FF`,"	  //37
+		"character_appearance.`14FF`,character_appearance.`15FF`,character_appearance.`16FF`,character_appearance.`17FF`,character_appearance.`18FF`,"	  //42
+		"character_appearance.`19FF`,character_appearance.`1AFF`,character_appearance.`1BFF`,character_appearance.`1CFF`,character_appearance.`1DFF`,"	  //47
+		"character_appearance.`1EFF`,character_appearance.`1FFF`,character_appearance.`20FF`,character_appearance.`21FF`,character_appearance.`22FF`,"	  //52
+		"character_appearance.`23FF`,character_appearance.`24FF`,character_appearance.`25FF`,character_appearance.`26FF`,character_appearance.`27FF`,"	  //57
+		"character_appearance.`28FF`,character_appearance.`29FF`,character_appearance.`2AFF`,character_appearance.`2BFF`,character_appearance.`2CFF`,"	  //62
+		"character_appearance.`2DFF`,character_appearance.`2EFF`,character_appearance.`2FFF`,character_appearance.`30FF`,character_appearance.`31FF`,"	  //67
+		"character_appearance.`32FF`,character_appearance.`33FF`,character_appearance.`34FF`,character_appearance.`35FF`,character_appearance.`36FF`,"	  //72
+		"character_appearance.`37FF`,character_appearance.`38FF`,character_appearance.`39FF`,character_appearance.`3AFF`,character_appearance.`3BFF`,"	  //77
+		"character_appearance.`3CFF`,character_appearance.`3DFF`,character_appearance.`3EFF`,character_appearance.`3FFF`,character_appearance.`40FF`,"	  //82
+		"character_appearance.`41FF`,character_appearance.`42FF`,character_appearance.`43FF`,character_appearance.`44FF`,character_appearance.`45FF`,"	  //87
+		"character_appearance.`46FF`,character_appearance.`47FF`,character_appearance.`48FF`,character_appearance.`49FF`,character_appearance.`4AFF`,"	  //92
+		"character_appearance.`4BFF`,character_appearance.`4CFF`,character_appearance.`4DFF`,character_appearance.`4EFF`,character_appearance.`4FFF`,"	  //97
+		"character_appearance.`50FF`,character_appearance.`51FF`,character_appearance.`52FF`,character_appearance.`53FF`,character_appearance.`54FF`,"	  //102
+		"character_appearance.`55FF`,character_appearance.`56FF`,character_appearance.`57FF`,character_appearance.`58FF`,character_appearance.`59FF`,"	  //107
+		"character_appearance.`5AFF`,character_appearance.`5BFF`,character_appearance.`5CFF`,character_appearance.`5DFF`,character_appearance.`5EFF`,"	  //112
+		"character_appearance.`5FFF`,character_appearance.`60FF`,character_appearance.`61FF`,character_appearance.`62FF`,character_appearance.`63FF`,"	  //117
+		"character_appearance.`64FF`,character_appearance.`65FF`,character_appearance.`66FF`,character_appearance.`67FF`,character_appearance.`68FF`,"	  //122
+		"character_appearance.`69FF`,character_appearance.`6AFF`,character_appearance.`6BFF`,character_appearance.`6CFF`,character_appearance.`6DFF`,"	  //127
+		"character_appearance.`6EFF`,character_appearance.`6FFF`,character_appearance.`70FF`,character_appearance.`ABFF`,character_appearance.`AB2FF`,"//132
+		"character_attributes.health_max,character_attributes.strength_max,"//134
+		"character_attributes.constitution_max,character_attributes.action_max,character_attributes.quickness_max,character_attributes.stamina_max,"  //138
+		"character_attributes.mind_max,character_attributes.focus_max,character_attributes.willpower_max,character_attributes.health_current,"//142
+		"character_attributes.strength_current,character_attributes.constitution_current,character_attributes.action_current,"	 //145
+		"character_attributes.quickness_current,character_attributes.stamina_current,character_attributes.mind_current,character_attributes.focus_current,"	//149
+		"character_attributes.willpower_current,character_attributes.health_wounds,character_attributes.strength_wounds,"//152
+		"character_attributes.constitution_wounds,character_attributes.action_wounds,character_attributes.quickness_wounds," //155
+		"character_attributes.stamina_wounds,character_attributes.mind_wounds,character_attributes.focus_wounds,character_attributes.willpower_wounds,"//159
+		"character_attributes.health_encum,character_attributes.action_encum,character_attributes.mind_encum,character_attributes.battlefatigue,character_attributes.language,"	//164
+		"banks.credits,faction.name,"//166
+		"character_attributes.posture,character_attributes.moodId,characters.jedistate,character_attributes.title,character_appearance.scale,"   //171
+		"character_movement.baseSpeed,character_movement.baseAcceleration,character_movement.baseTurnrate,character_movement.baseTerrainNegotiation,"//175 grml off by one it should be 176
 		"character_attributes.character_flags,character_biography.biography,character_attributes.states,characters.race_id,"
 		"banks.planet_id,account.csr,character_attributes.group_id,characters.bornyear,"
 		"character_matchmaking.match_1, character_matchmaking.match_2, character_matchmaking.match_3, character_matchmaking.match_4,"
@@ -616,20 +617,27 @@ PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
 		playerObject->setPosture(CreaturePosture_Upright);
 	}
 
+	//Just set mStates to Zero on initialization ??????????????????????????????????????????????????????
+	//However states are saved to db -character_attributes.character_flags-
+
 	// We also have quite a lot of state possibilities that we should not let our character have at startup.
 	// We may have to take ceratin actions on these, and then this is not the best placce to do the validation etc...
-	playerObject->toggleStateOff((CreatureState)(CreatureState_Cover |
+
+	// Todo : which states remain valid after a zone to zone transition ??? in order to transfer zone e need to be out of combat - so ... none ?
+	playerObject->toggleStateOff((CreatureState)(
+								 CreatureState_Cover |
 								 CreatureState_Combat |
 								 CreatureState_Aiming |
 								 CreatureState_Berserk |
 								 CreatureState_FeignDeath |
-								 CreatureState_CombatAttitudeEvasive |
-								 CreatureState_CombatAttitudeNormal |
-								 CreatureState_CombatAttitudeAggressive |
+								 CreatureState_CombatAttitudeEvasive |		// these should be altered on login ???
+								 CreatureState_CombatAttitudeNormal |		// these should be altered on login ???
+								 CreatureState_CombatAttitudeAggressive |	// these should be altered on login ???
 								 CreatureState_Swimming |
 								 CreatureState_Crafting |
 								 CreatureState_RidingMount |
-								 CreatureState_MountedCreature));
+								 CreatureState_MountedCreature |
+								 CreatureState_Peace ));
 
 	playerObject->mHam.updateRegenRates();
 	playerObject->mHam.checkForRegen();

@@ -28,6 +28,13 @@ bool PVState::validate(uint32 &reply1, uint32 &reply2, uint64 targetId, uint32 o
     // check our states
     if(!creature || !cmdProperties || (creature->getState() & cmdProperties->mStates) != 0)
     {
+
+		if(!creature)
+			gLogger->logMsgF("ObjController::PVState::validate: creature not found %"PRIu64"",MSG_HIGH,mController->getObject()->getId());
+
+		if((creature->getState() & cmdProperties->mStates) != 0)
+			gLogger->logMsgF("ObjController::PVState::validate: state denial state :  %"PRIu64"",MSG_HIGH,((creature->getState() & cmdProperties->mStates)));
+
         reply1 = 0;
         reply2 = 0;
         

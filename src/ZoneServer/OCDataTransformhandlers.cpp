@@ -985,12 +985,13 @@ uint64 ObjectController::playerWorldUpdate(bool forcedUpdate)
 {
 	PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
 
-	// If we already are busy, don't start another update.
+	// If we already are busy, don't start another update.		 ??????????????????
 	if (!(mUpdatingObjects || mDestroyOutOfRangeObjects || forcedUpdate))
 	{
 		// If we have been inactive for too long, let's update the world.
 		if (player->getCurrentSpeed() == 0.0)
 		{
+			//is  this the amount of full updates already running ?
 			if (++mFullUpdateTrigger >= 15)		// We only check this when we are running idle with low frequency
 			{
 				// gLogger->logMsg("... sitting still to long!");

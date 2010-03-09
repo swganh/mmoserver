@@ -110,43 +110,10 @@ void HouseObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 }
 
 //=============================================================================
-// prepares the custom radial for our harvester
+// ´not needed - this is handled over the structures terminal
 void HouseObject::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount)
 {
-	PlayerObject* player = dynamic_cast<PlayerObject*>(creatureObject);
-	if(!player)
-	{	
-		gLogger->logMsgF("HarvesterObject::handleObjectMenuSelect::could not find player",MSG_HIGH);
-		return;
-	}
 	
-	RadialMenu* radial	= new RadialMenu();
-			
-	
-	//radId_serverHouseManage
-	uint8 i = 0;
-	radial->addItem(++i,0,radId_examine,radAction_Default,"");
-	radial->addItem(++i,0,radId_serverHarvesterManage,radAction_ObjCallback,"Structure Management");
-	radial->addItem(++i,0,radId_serverTerminalManagement,radAction_ObjCallback,"Structure Permissions");
-	radial->addItem(++i,0,radId_StructureOptions,radAction_ObjCallback,"Options");
-	
-	radial->addItem(++i,2,radId_serverTerminalManagementDestroy,radAction_ObjCallback,"Destroy Structure");
-	radial->addItem(++i,2,radId_StructureStatus,radAction_ObjCallback,"Status");
-	radial->addItem(++i,2,radId_payMaintenance,radAction_ObjCallback,"Pay Maintenance");
-	radial->addItem(++i,2,radId_setName,radAction_ObjCallback,"Set Name");	
-	
-	radial->addItem(++i,3,radId_serverTerminalPermissionsAdmin,radAction_ObjCallback,"Admin List");
-	radial->addItem(++i,3,radId_serverTerminalPermissionsHopper,radAction_ObjCallback,"Hopper List");
-
-	radial->addItem(++i,4,radId_serverManfStationSchematic,radAction_ObjCallback,"Access schematic slot");
-	radial->addItem(++i,4,radId_serverManfHopperInput,radAction_ObjCallback,"Access station ingredient hopper");
-	radial->addItem(++i,4,radId_serverManfHopperOutput,radAction_ObjCallback,"Access station output hopper");
-	
-	
-
-		
-	RadialMenuPtr radialPtr(radial);
-	mRadialMenu = radialPtr;
 }
 
 

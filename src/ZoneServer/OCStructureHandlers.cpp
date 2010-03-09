@@ -1032,6 +1032,112 @@ void	ObjectController::_handleItemMoveBack(uint64 targetId,Message* message,Obje
 
 //======================================================================================================================
 //
+// rotates an item	 90d to right
+//
+void	ObjectController::_handleItemRotationRight90(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
+{
+	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+
+	if(!player)
+	{
+		gLogger->logMsgF(" ObjectController::_handleItemRotation Player not found",MSG_HIGH);
+		return;
+	}
+
+	//do we have a valid item ??? 
+	uint64 id = targetId;
+	Object* object = gWorldManager->getObjectById(id);
+
+	if(!object)
+	{
+		gLogger->logMsgF(" ObjectController::_handleItemRotation item not found",MSG_HIGH);
+		return;
+	}
+
+	if(CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId())))
+	{
+		if(BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId())))
+		{
+			if(!building->hasAdminRights(player->getId()))
+			{
+				gLogger->logMsgF(" ObjectController::_handleItemRotation no admin rights",MSG_HIGH);
+				return;
+			}
+		}
+		else
+		{
+			gLogger->logMsgF(" ObjectController::_handleItemRotation no structure",MSG_HIGH);
+			return;
+		}
+	}
+	else
+	{
+		gLogger->logMsgF(" ObjectController::_handleItemRotation no cell",MSG_HIGH);
+		return;
+	}
+	
+	
+	object->mDirection.rotatex(90);
+	gMessageLib->sendDataTransformWithParent(object);
+	
+
+}
+
+//======================================================================================================================
+//
+// rotates an item 90d to left
+//
+void	ObjectController::_handleItemRotationLeft90(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
+{
+	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+
+	if(!player)
+	{
+		gLogger->logMsgF(" ObjectController::_handleItemRotation Player not found",MSG_HIGH);
+		return;
+	}
+
+	//do we have a valid item ??? 
+	uint64 id = targetId;
+	Object* object = gWorldManager->getObjectById(id);
+
+	if(!object)
+	{
+		gLogger->logMsgF(" ObjectController::_handleItemRotation item not found",MSG_HIGH);
+		return;
+	}
+
+	if(CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId())))
+	{
+		if(BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId())))
+		{
+			if(!building->hasAdminRights(player->getId()))
+			{
+				gLogger->logMsgF(" ObjectController::_handleItemRotation no admin rights",MSG_HIGH);
+				return;
+			}
+		}
+		else
+		{
+			gLogger->logMsgF(" ObjectController::_handleItemRotation no structure",MSG_HIGH);
+			return;
+		}
+	}
+	else
+	{
+		gLogger->logMsgF(" ObjectController::_handleItemRotation no cell",MSG_HIGH);
+		return;
+	}
+	
+	
+	object->mDirection.rotatex(-90);
+	gMessageLib->sendDataTransformWithParent(object);
+	
+
+}
+
+//======================================================================================================================
+//
 // rotates an item
 //
 void	ObjectController::_handleItemRotation(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)

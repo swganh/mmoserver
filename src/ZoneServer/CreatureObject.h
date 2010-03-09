@@ -295,7 +295,7 @@ class CreatureObject : public MovingObject
 		uint64				mFirstIncapTime;
 		uint64				mGroupId;
 		uint64				mOwner; //If creature is a mount,pet,or vehicle it has an owner
-		uint64				mState;
+		uint64				mState; //char states like peace, combat etc
 		float				mLastEntertainerXP;
 		float				mScale;
 		uint32				mBuffAsyncCount;
@@ -313,7 +313,7 @@ class CreatureObject : public MovingObject
 		uint8				mPosture;
 		uint8				mRaceId;
 		bool				mReady;
-		bool				mStationary;
+		bool				mStationary;			 //sets the stationary flag in the tano3 so better move it there
 		// entertaining
 
 		virtual void	handleObjectMenuSelect(uint8 messageType,Object* srcObject);

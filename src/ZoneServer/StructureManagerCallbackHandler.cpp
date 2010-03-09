@@ -592,6 +592,7 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 			// 1 name doesnt exist
 			// 2 name already on list
 			// 3 list is full (more than 36 entries)
+			// 4 owner tried to add him/herselve to the ban list
 
 			if(returnValue == 0)
 			{
@@ -632,6 +633,11 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 			if(returnValue == 3)
 			{
 				gMessageLib->sendSystemMessage(player,L"","player_structure","too_many_entries");
+			}
+
+			if(returnValue == 4)
+			{
+				gMessageLib->sendSystemMessage(player,L"You cannot Ban the structures Owner");
 			}
 
 			//sendStructureAdminList(asynContainer->mPlayerId);

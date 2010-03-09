@@ -552,6 +552,9 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback
 		void	_handleHarvesterDeActivate(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleDiscardHopper(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 
+		
+		void	_handleItemRotationLeft90(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
+		void	_handleItemRotationRight90(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleItemRotation(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleItemMoveUp(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 

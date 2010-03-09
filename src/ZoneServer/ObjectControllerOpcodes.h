@@ -337,6 +337,9 @@ enum object_controller_generic_functions
 	opHarvesterDeActivate				= 0x2C61CB03,
 	opDiscardHopper						= 0xC89B9E26,
 	opItemRotation						= 0xa8eb1d48,
+	opItemRotationRight90				= 0x8dfc28ab,
+	opItemRotationLeft90				= 0x3816ae47,
+
 	opItemMoveUp						= 0xf6a83a09,
 	opItemMoveForward					= 0xb8effe04,
 	opItemMoveBack						= 0x67ac3903,

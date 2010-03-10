@@ -68,39 +68,51 @@ void StructureManager::handleObjectReady(Object* object,DispatchClient* client)
 }
 
 
+//==================================================================================================
+// handles the hoppers permission list
+// it will be read in for the list to display when the player displays it to make changes
+// please note that the list is purely db based and *not* kept in memory
+// it will be cleared once the changes are made
+//
+void StructureManager::_HandleQueryHopperPermissionData(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result)
+{
+
+	PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(asynContainer->mStructureId));
+
+	string playerName;
+	DataBinding* binding = gWorldManager->getDatabase()->CreateDataBinding(1);
+	binding->addField(DFT_bstring,0,64);
+
+	uint64 count;
+	count = result->getRowCount();
+
+	for(uint64 i = 0;i < count;i++)
+	{
+		result->GetNextRow(binding,&playerName);
+
+		structure->addStructureHopper(playerName);
+
+	}
+
+	structure->sendStructureHopperList(asynContainer->mPlayerId);
+
+	gWorldManager->getDatabase()->DestroyDataBinding(binding);
+}
+
 
 void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 {
 	StructureManagerAsyncContainer* asynContainer = (StructureManagerAsyncContainer*)ref;
 
+	StructureManagerCommandMap::iterator it = gStructureManagerCmdMap.find(asynContainer->mQueryType);
+
+	if(it != gStructureManagerCmdMap.end())
+	{
+		(this->*((*it).second))(asynContainer, result);
+	}
+
 	switch(asynContainer->mQueryType)
 	{
-
-		//this is the Hopper Permission List
-		case Structure_Query_Hopper_Data:
-		{
-			PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(asynContainer->mStructureId));
-
-			string playerName;
-			DataBinding* binding = gWorldManager->getDatabase()->CreateDataBinding(1);
-			binding->addField(DFT_bstring,0,64);
-
-			uint64 count;
-			count = result->getRowCount();
-
-			for(uint64 i = 0;i < count;i++)
-			{
-				result->GetNextRow(binding,&playerName);
-
-				structure->addStructureHopper(playerName);
-
-			}
-
-			structure->sendStructureHopperList(asynContainer->mPlayerId);
-
-			gWorldManager->getDatabase()->DestroyDataBinding(binding);
-		}
-		break;
 
 		//asynchronously updates the playerlots for a character
 		case Structure_UpdateCharacterLots:
@@ -414,7 +426,7 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 		break;
 
 		//queries all entries of a structures admin list
-		case Structure_Query_Admin_Data:
+		case Structure_Query_Admin_Permission_Data:
 		{
 			PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(asynContainer->mStructureId));
 

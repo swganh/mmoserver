@@ -610,7 +610,7 @@ void StructureManager::OpenStructureHopperList(uint64 structureId, uint64 player
 	//	
 
 	StructureManagerAsyncContainer* asyncContainer;
-	asyncContainer = new StructureManagerAsyncContainer(Structure_Query_Hopper_Data, 0);
+	asyncContainer = new StructureManagerAsyncContainer(Structure_Query_Hopper_Permission_Data, 0);
 	asyncContainer->mStructureId = structureId;
 	asyncContainer->mPlayerId = playerId;
 
@@ -628,7 +628,7 @@ void StructureManager::OpenStructureAdminList(uint64 structureId, uint64 playerI
 	//
 
 	StructureManagerAsyncContainer* asyncContainer;
-	asyncContainer = new StructureManagerAsyncContainer(Structure_Query_Admin_Data, 0);
+	asyncContainer = new StructureManagerAsyncContainer(Structure_Query_Admin_Permission_Data, 0);
 	asyncContainer->mStructureId = structureId;
 	asyncContainer->mPlayerId = playerId;
 
@@ -1263,7 +1263,8 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 
 		case Structure_Command_AddPermission:
 		{
-		
+			//make sure we do not add ourselves to the ban list
+
 			addNametoPermissionList(command.StructureId, command.PlayerId, command.PlayerStr, command.List);
 
 		}

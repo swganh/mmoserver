@@ -517,8 +517,28 @@ bool ObjectController::checkTargetContainer(uint64 targetContainerId, Object* ob
 	if((tangibleContainer)&&((strcmp(tangibleContainer->getName().getAnsi(),"ingredient_hopper")==0)||(strcmp(tangibleContainer->getName().getAnsi(),"output_hopper")==0)))
 	{
 		//do we have access rights to the factories hopper?? this would have to be checked asynchronously
+		return true;
 	}
 
+	//if this is a tangible container (backpack, satchel) we want to make sure,
+	//that we do not put another backpack in it.
+
+	//in other words, the contained container MUST be smaller than the containing container
+
+	//inventories are already dealed with
+
+	TangibleObject* tangibleItem = dynamic_cast<TangibleObject*>(object);
+
+	uint32 containingContainersize =  tangibleContainer->getCapacity();
+	uint32 containedContainersize =  tangibleItem->getCapacity();
+
+	//we can only add smaller containers inside other containers
+	if(containedContainersize >= containingContainersize)
+	{
+		return false;
+	}
+
+	
 	
 
 	return true;
@@ -870,7 +890,6 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 	{
 		// Add object to OUR inventory.
 
-		playerObject->getEquipManager()->addEquippedObject(itemObject);
 		
 		itemObject->setParentId(targetContainerId,linkType,playerObject,true);
 		inventory->addObjectSecure(itemObject);

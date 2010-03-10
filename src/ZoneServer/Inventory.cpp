@@ -212,14 +212,17 @@ bool Inventory::EquipItem(Object* object)
 	if(!EquipItemTest(object))
 		return false;
 	
+
 	PlayerObject*	owner		= dynamic_cast<PlayerObject*> (gWorldManager->getObjectById(this->getParentId()));
 	Item* item = dynamic_cast<Item*>(object);
+
+	owner->getEquipManager()->addEquippedObject(object);
 
 	gLogger->logMsgF("Inventory::EquipItem : owner ID : %I64u", MSG_NORMAL,owner->getId());
 	//equipped objects are always contained by the Player
 	//unequipped ones by the inventory!
 
-	//and add to inventories equipped list
+	//and add to inventories equipped list   - move this to playerobject at one point
 	this->addEquippedObject(object);
 
 	uint64			parentId	= this->getParentId();

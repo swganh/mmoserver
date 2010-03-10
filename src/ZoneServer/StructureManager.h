@@ -33,6 +33,7 @@ class PlayerObject;
 class FactoryObject;
 class PlayerStructure;
 class UIWindow;
+class StructureManagerCommandMapClass;
 
 namespace Anh_Utils
 {
@@ -50,8 +51,8 @@ enum Structure_QueryType
 	Structure_Query_LoadDeedData				=	1,
 	Structure_Query_LoadstructureItem			=	2,
 
-	Structure_Query_Admin_Data					=	3,
-	Structure_Query_Hopper_Data					=	4,
+	Structure_Query_Admin_Permission_Data		=	3,
+	Structure_Query_Hopper_Permission_Data		=	4,
 	Structure_Query_Add_Permission				=	5,
 	Structure_Query_Remove_Permission			=	6,
 	Structure_Query_Check_Permission			=	7,
@@ -232,6 +233,7 @@ class StructureManager : public DatabaseCallback,public ObjectFactoryCallback
 
 	public:
 		//System
+		friend class StructureManagerCommandMapClass;
 
 		static StructureManager*	getSingletonPtr() { return mSingleton; }
 		static StructureManager*	Init(Database* database,MessageDispatch* dispatch);
@@ -315,6 +317,8 @@ class StructureManager : public DatabaseCallback,public ObjectFactoryCallback
 
 	private:
 
+		//callback functions
+		void						_HandleQueryHopperPermissionData(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result);
 
 		StructureManager(Database* database,MessageDispatch* dispatch);
 
@@ -333,5 +337,31 @@ class StructureManager : public DatabaseCallback,public ObjectFactoryCallback
 
 };
 
+typedef void														(StructureManager::*funcStructureManagerPointer)(StructureManagerAsyncContainer*,DatabaseResult*);
+typedef std::map<Structure_QueryType,funcStructureManagerPointer>	StructureManagerCommandMap;
+#define gStructureManagerCmdMap										((StructureManagerCommandMapClass::getSingletonPtr())->mCommandMap)
+
+class StructureManagerCommandMapClass
+{
+	public:
+
+		static StructureManagerCommandMapClass*		getSingletonPtr() { return mSingleton; }
+		static StructureManagerCommandMapClass*		Init();
+
+		
+		~StructureManagerCommandMapClass();
+		StructureManagerCommandMapClass();
+
+		StructureManagerCommandMap					mCommandMap;
+
+	private:
+		
+		static bool									mInsFlag;
+		static StructureManagerCommandMapClass*		mSingleton;
+
+};
+
 #endif
+
+
 

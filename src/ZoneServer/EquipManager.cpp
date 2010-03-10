@@ -169,7 +169,7 @@ bool EquipManager::checkEquipObject(Object* object)
 //=============================================================================
 //
 // add an object according to its slot definitions, remove objects with slot conflicts
-//
+// the return is irrelevant as it does permanent changes anyway
 
 bool EquipManager::addEquippedObject(Object* object)
 {

@@ -30,6 +30,8 @@ typedef std::vector<Object*>	ObjectList;
  - Base class for all containers / items that can be containers
 
  to offer methods to keep and organize a list of objects
+ used by inventory, backpacks, datapads, manufacturingschematics, furniture
+ still to add to players for equippedobjects 
 
 */
 class PlayerObject;

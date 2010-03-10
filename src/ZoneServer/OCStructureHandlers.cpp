@@ -854,7 +854,11 @@ void	ObjectController::_handleItemMoveForward(uint64 targetId,Message* message,O
 
 
 	//we somehow need to calculate the vector of the movement *away* from us
-	object->mPosition.mX += 0.10;
+	player->mDirection.normalize();
+	object->mPosition.mX -= (float)(player->mDirection.mX * 0.10);
+	object->mPosition.mZ -= (float)(player->mDirection.mZ * 0.10);
+	object->mPosition.mY -= (float)(player->mDirection.mY * 0.10);
+	
 	gMessageLib->sendDataTransformWithParent(object);
 	object->updateWorldPosition();
 
@@ -1020,7 +1024,11 @@ void	ObjectController::_handleItemMoveBack(uint64 targetId,Message* message,Obje
 
 	//we somehow need to calculate the vector of the movement *away* from us
 
-	object->mPosition.mX -= 0.10;
+	player->mDirection.normalize();
+	object->mPosition.mX += (float)(player->mDirection.mX * 0.10);
+	object->mPosition.mZ += (float)(player->mDirection.mZ * 0.10);
+	object->mPosition.mY += (float)(player->mDirection.mY * 0.10);
+
 	gMessageLib->sendDataTransformWithParent(object);
 	object->updateWorldPosition();
 

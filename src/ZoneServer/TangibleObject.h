@@ -81,6 +81,9 @@ class TangibleObject :	public ObjectContainer
 		bool				updateTimer(uint64 callTime);
 		int32				getTimer() const { return mTimer; }
 		void				setTimer(int32 timer){ mTimer = timer; }
+
+		bool				getStatic()const { return mStatic; }
+		void				setStatic(bool isStatic){ mStatic = isStatic; }
 	protected:
 
 		string				mCustomizationStr;
@@ -92,15 +95,16 @@ class TangibleObject :	public ObjectContainer
 		string				mUnknownStr1;
 		string				mUnknownStr2;
 		uint16				mCustomization[256];
-		TangibleGroup	mTanGroup;
-		TangibleType	mTanType;
-		float					mComplexity;
+		TangibleGroup		mTanGroup;
+		TangibleType		mTanType;
+		float				mComplexity;
 		uint64				mLastTimerUpdate;
-		int32					mTimer;
+		int32				mTimer;
 		uint32				mCustomizationSize;
 		uint32				mDamage;
 		uint32				mMaxCondition;
 		uint32				mTimerInterval;
+		bool				mStatic;
 };
 
 //=============================================================================

@@ -229,7 +229,7 @@ void HouseFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uin
 	int8 hmm[1024];
 	sprintf(hmm,	"SELECT s.id,s.owner,s.oX,s.oY,s.oZ,s.oW,s.x,s.y,s.z, "
 					"std.type,std.object_string,std.stf_name, std.stf_file, s.name, "
-					"std.lots_used, h.private, std.maint_cost_wk, s.condition, std.max_condition "
+					"std.lots_used, h.private, std.maint_cost_wk, s.condition, std.max_condition, std.max_storage "
 					"FROM structures s INNER JOIN structure_type_data std ON (s.type = std.type) INNER JOIN houses h ON (s.id = h.id) " 
 					"WHERE (s.id = %"PRIu64")",id);
 
@@ -242,7 +242,7 @@ void HouseFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uin
 
 void HouseFactory::_setupDatabindings()
 {
-	mHouseBinding = mDatabase->CreateDataBinding(19);
+	mHouseBinding = mDatabase->CreateDataBinding(20);
 	mHouseBinding->addField(DFT_uint64,offsetof(HouseObject,mId),8,0);
 	mHouseBinding->addField(DFT_uint64,offsetof(HouseObject,mOwner),8,1);
 	mHouseBinding->addField(DFT_float,offsetof(HouseObject,mDirection.mX),4,2);
@@ -264,6 +264,7 @@ void HouseFactory::_setupDatabindings()
 	mHouseBinding->addField(DFT_uint32,offsetof(HouseObject,maint_cost_wk),4,16);
 	mHouseBinding->addField(DFT_uint32,offsetof(HouseObject,mDamage),4,17);
 	mHouseBinding->addField(DFT_uint32,offsetof(HouseObject,mMaxCondition),4,18);														
+	mHouseBinding->addField(DFT_uint32,offsetof(HouseObject,mMaxStorage),4,19);														
 	
 }
 

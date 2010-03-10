@@ -55,6 +55,8 @@ class BuildingObject :	public PlayerStructure
 		bool			removeCell(CellObject* cellObject);
 		bool			checkForCell(CellObject* cellObject);
 		ObjectList		getAllCellChilds();
+		
+		uint16			getCellContentCount();
 
 		void			updateCellPermissions(PlayerObject* player, bool access);
 
@@ -63,11 +65,18 @@ class BuildingObject :	public PlayerStructure
 
 		bool			getPublic(){ return mPublic; }
 		void			setPublic(bool value){ mPublic = value; }
+
+		bool			checkCapacity(uint8 amount){return ((int32)(mMaxStorage - getCellContentCount())> amount);}
+
 	private:
 		CellObjectList	mCells;
 		bool			mPublic;
 
 		uint32			mTotalLoadCount;
+		
+		//max capacity of a house - this is *not* objectcontainer capacity as that holds the cells
+		uint32			mMaxStorage;
+
 		SpawnPoints		mSpawnPoints;
 		BuildingFamily	mBuildingFamily;
 

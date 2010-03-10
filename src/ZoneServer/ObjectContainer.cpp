@@ -496,15 +496,37 @@ uint64 ObjectContainer::getObjectMainParent(Object* object)
 	return parentID;
 }
 
+//=============================================================================================
+// gets a headcount of all tangible (!!!) Objects in the container 
+// including those contained in containers
+uint16 ObjectContainer::getHeadCount()
+{
+	uint16 count = 0;
 
+	ObjectIDList::iterator it = mData.begin();
+	while(it != mData.end())
+	{
+		//do NOT count static tangibles like the playerStructureTerminal
+		TangibleObject* to = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(*it));
+		if(to && (!to->getStatic()))
+		{
+		 	count += to->getHeadCount();
+			count += 1; //implememt items counting more than 1 at one time	
+		}
+		++it;
+	}
+	return count;
+
+}
 bool ObjectContainer::checkCapacity(uint8 amount, PlayerObject* player)
 {
-	if(player&&(mCapacity-mData.size() < amount))
+	uint16 contentCount = getHeadCount();
+	if(player&&(mCapacity-contentCount < amount))
 	{
 		gMessageLib->sendSystemMessage(player,L"","container_error_message","container3");
 	}
 
-	return((mCapacity-mData.size()) >= amount);
+	return((mCapacity-contentCount) >= amount);
 }
 
 

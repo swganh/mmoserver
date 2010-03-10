@@ -154,6 +154,13 @@ void ObjectController::_handleOpenContainer(uint64 targetId,Message* message,Obj
 				gContainerFactory->requestObject(this,targetId,TanGroup_Container,0,playerObject->getClient());
 				aContainer = true;
 			}
+
+			//this might be a backpack
+			//or a chest
+			if (tangObj->getCapacity())
+			{
+				aContainer = true;
+			}
 		}
 		//its not a Container* Object however in theory it still can be a backpack for example
 		if (!aContainer)
@@ -446,7 +453,9 @@ bool ObjectController::checkContainingContainer(uint64 containingContainer, uint
 		if(BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId())))
 		{
 			if(building->hasAdminRights(playerId))
+			{
 				return true;
+			}
 		}
 		return false;
 	}
@@ -464,12 +473,17 @@ bool ObjectController::checkTargetContainer(uint64 targetContainerId, Object* ob
 	PlayerObject*	playerObject	=	dynamic_cast<PlayerObject*>(mObject);
 	Inventory*		inventory		=	dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 	ObjectContainer* targetContainer = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(targetContainerId));
+	
+	TangibleObject* tangibleItem = dynamic_cast<TangibleObject*>(object);
+	
+	//if its a backpack etc we want to know how many items are in it!
+	uint32 objectSize = tangibleItem->getHeadCount();
 
 	//the inventory is *NOT* part of the worldmanagers ObjectMap  
 	//this is our inventory - we are allowed to put stuff in there - but is there still enough place ?
 	if(inventory&& (inventory->getId() == targetContainerId))
 	{
-		return inventory->checkCapacity(1,playerObject);
+		return inventory->checkCapacity(1,playerObject,true);
 		//check space
 
 	}
@@ -507,7 +521,11 @@ bool ObjectController::checkTargetContainer(uint64 targetContainerId, Object* ob
 		if(BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId())))
 		{
 			if(building->hasAdminRights(playerObject->getId()))
-				return true;
+			{
+				//do we have enough room ?
+				return building->checkCapacity(objectSize);
+				
+			}
 		}
 		return false;
 	}
@@ -517,6 +535,7 @@ bool ObjectController::checkTargetContainer(uint64 targetContainerId, Object* ob
 	if((tangibleContainer)&&((strcmp(tangibleContainer->getName().getAnsi(),"ingredient_hopper")==0)||(strcmp(tangibleContainer->getName().getAnsi(),"output_hopper")==0)))
 	{
 		//do we have access rights to the factories hopper?? this would have to be checked asynchronously
+		
 		return true;
 	}
 
@@ -527,7 +546,9 @@ bool ObjectController::checkTargetContainer(uint64 targetContainerId, Object* ob
 
 	//inventories are already dealed with
 
-	TangibleObject* tangibleItem = dynamic_cast<TangibleObject*>(object);
+	//check capacity - return false if full
+	if(!tangibleContainer->checkCapacity(1,playerObject)) //automatically sends errormsg to player
+		return false;
 
 	uint32 containingContainersize =  tangibleContainer->getCapacity();
 	uint32 containedContainersize =  tangibleItem->getCapacity();
@@ -669,6 +690,12 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 			}
 		}
 		
+		//we *cannot* remove static tangibles like the structureterminal!!!!
+		if(tangible->getStatic())
+		{
+			return false;
+		}
+
 		// Remove object from cell.
 		if (cell->removeObject(itemObject))
 		{

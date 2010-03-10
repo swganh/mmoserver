@@ -86,6 +86,7 @@ class ObjectContainer :	public Object, public ObjectFactoryCallback
 		virtual bool		checkCapacity(uint8 amount, PlayerObject* player = NULL);
 		void				setCapacity(uint16 cap){mCapacity = cap;}
 		uint16				getCapacity(){return mCapacity;}
+		uint16				getHeadCount();
 		
 		uint16				getContentSize(uint16 iteration)
 		{

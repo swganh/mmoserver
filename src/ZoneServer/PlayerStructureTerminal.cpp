@@ -29,6 +29,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 PlayerStructureTerminal::PlayerStructureTerminal() : Terminal()
 {
 	mStructure = 0;
+	setStatic(true);
 
 	
 }

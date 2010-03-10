@@ -21,6 +21,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 BuildingObject::BuildingObject() : PlayerStructure()
 {
 	mType = ObjType_Building;
+	mMaxStorage = 0;
 
 }
 
@@ -96,6 +97,25 @@ bool BuildingObject::checkForCell(CellObject* cellObject)
 	}
 	return(false);
 }
+
+//=============================================================================
+//gets the count of all tangibles in a cell
+//how to not count the structure terminal ???? 
+// - dont count tangibles marked as ststic :)
+uint16 BuildingObject::getCellContentCount()
+{
+	uint16 count = 0;
+	CellObjectList::iterator it = mCells.begin();
+
+	while(it != mCells.end())
+	{
+		count += (*it)->getHeadCount();
+			
+		++it;
+	}
+	return(count);
+}
+
 
 ObjectList BuildingObject::getAllCellChilds()
 {

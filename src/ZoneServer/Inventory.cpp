@@ -560,7 +560,7 @@ bool Inventory::itemExist(uint32 familyId, uint32 typeId)
 
 bool Inventory::checkCapacity(uint8 amount, PlayerObject* player, bool sendMsg)
 {
-	if(player&&(getCapacity()-getObjects()->size() < amount))
+	if(player&&(getCapacity() - getHeadCount() < amount))
 	{
 		if(sendMsg)
 			gMessageLib->sendSystemMessage(player,L"","error_message","inv_full");

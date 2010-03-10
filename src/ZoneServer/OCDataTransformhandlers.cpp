@@ -90,8 +90,8 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 
 	// get new direction, position and speed
 	dir.mX = message->getFloat();
-	dir.mZ = message->getFloat();	 //z/y are swapped in coordinates, not quarternions!!!
-	dir.mY = message->getFloat();
+	dir.mY = message->getFloat();	 
+	dir.mZ = message->getFloat();
 	dir.mW = message->getFloat();
 
 	pos.mX = message->getFloat();
@@ -354,8 +354,8 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 		// get new direction, position, parent and speed
 		parentId = message->getUint64();
 		dir.mX = message->getFloat();
+		dir.mY = message->getFloat();
 		dir.mZ = message->getFloat();
-		dir.mY = message->getFloat();//please note that z/y are swapped for position ( thus z is y and vice versa) interistingly enough only for position, not rotation
 		dir.mW = message->getFloat();
 		pos.mX = message->getFloat();
 		pos.mY = message->getFloat();

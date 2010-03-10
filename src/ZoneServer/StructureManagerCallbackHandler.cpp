@@ -684,7 +684,7 @@ void StructureManager::_HandleAddPermission(StructureManagerAsyncContainer* asyn
 	//dont ban the owner
 	if(returnValue == 4)
 	{
-		gMessageLib->sendSystemMessage(player,L"You cannot Ban the structures Owner");
+		gMessageLib->sendSystemMessage(player,L"You cannot Ban the structure's Owner");
 	}
 
 	mDatabase->DestroyDataBinding(binding);

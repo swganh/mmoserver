@@ -855,7 +855,7 @@ void	ObjectController::_handleItemMoveForward(uint64 targetId,Message* message,O
 
 	//we somehow need to calculate the vector of the movement *away* from us
 	player->mDirection.normalize();
-	object->mPosition.mX -= (float)(player->mDirection.mX * 0.10);
+	object->mPosition.mX -= (float)((1-player->mDirection.mZ) * 0.10);
 	object->mPosition.mZ -= (float)(player->mDirection.mZ * 0.10);
 	object->mPosition.mY -= (float)(player->mDirection.mY * 0.10);
 	
@@ -1025,7 +1025,7 @@ void	ObjectController::_handleItemMoveBack(uint64 targetId,Message* message,Obje
 	//we somehow need to calculate the vector of the movement *away* from us
 
 	player->mDirection.normalize();
-	object->mPosition.mX += (float)(player->mDirection.mX * 0.10);
+	object->mPosition.mX += (float)((1-player->mDirection.mX) * 0.10);
 	object->mPosition.mZ += (float)(player->mDirection.mZ * 0.10);
 	object->mPosition.mY += (float)(player->mDirection.mY * 0.10);
 

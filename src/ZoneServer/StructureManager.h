@@ -72,7 +72,7 @@ enum Structure_QueryType
 	Structure_UpdateAttributes					=	20,
 	Structure_Query_Entry_Permission_Data		=	21,
 	Structure_Query_Ban_Permission_Data			=	22,
-	Structure_Query_UpdatePermission			=	23,
+	Structure_Query_UpdateAdminPermission		=	23,
 
 };
 
@@ -330,7 +330,12 @@ class StructureManager : public DatabaseCallback,public ObjectFactoryCallback
 		void				_HandleStructureTransferLotsRecipient(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result);
 		void				_HandleQueryLoadDeedData(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result);
 		void				_HandleRemovePermission(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result);
-		
+		void				_HandleUpdateAdminPermission(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result);
+		void				_HandleAddPermission(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result);
+		void				_HandleNonPersistantLoadStructureItem(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result);
+		void				_HandleCheckPermission(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result);
+		void				_HandleUpdateAttributes(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result);
+
 
 		StructureManager(Database* database,MessageDispatch* dispatch);
 

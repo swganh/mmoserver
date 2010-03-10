@@ -575,12 +575,371 @@ void StructureManager::_HandleRemovePermission(StructureManagerAsyncContainer* a
 
 //==================================================================================================
 // 
-// after adding a name to the admin list we read it in again
-// 
+// after adding a name to the admin list we read it in again (as ID though)
+// so dropping ( picking up items in cells works
 
-//void StructureManager::_HandleUpdateAdminPermission(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result)
-//{
-//}
+void StructureManager::_HandleUpdateAdminPermission(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result)
+{
+	HouseObject*	house = dynamic_cast<HouseObject*>(gWorldManager->getObjectById(asynContainer->mStructureId));
+
+	struct adminStruct
+	{
+		uint64 playerID;
+	};
+
+	adminStruct adminData;
+
+	DataBinding*	adminBinding = mDatabase->CreateDataBinding(1);
+	adminBinding->addField(DFT_uint64,offsetof(adminStruct,playerID),8,0);
+
+	uint64 count = result->getRowCount();
+	house->resetHousingAdminList();
+
+	for(uint32 j = 0;j < count;j++)
+	{
+		result->GetNextRow(adminBinding,&adminData);
+		house->addHousingAdminEntry(adminData.playerID);
+	}
+
+	mDatabase->DestroyDataBinding(adminBinding);
+
+}
+
+//==================================================================================================
+// 
+// A name has been added to (one of the) permission / ban lists of a structure
+// if it was a playerhouse make sure to update our in memory admin list
+// so pickup/drop works
+
+void StructureManager::_HandleAddPermission(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result)
+{
+	PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
+
+	uint32 returnValue;
+	DataBinding* binding = mDatabase->CreateDataBinding(1);
+	binding->addField(DFT_uint32,0,4);
+
+	uint64 count;
+	count = result->getRowCount();
+
+	if (!count)
+	{
+		gLogger->logMsgLoadFailure("StructureManager::add Permission no return value...",MSG_NORMAL);
+	}
+	result->GetNextRow(binding,&returnValue);
+	// 0 is sucess
+	// 1 name doesnt exist
+	// 2 name already on list
+	// 3 list is full (more than 36 entries)
+	// 4 owner tried to add him/herselve to the ban list
+
+	if(returnValue == 0)
+	{
+		string name;
+		name = asynContainer->name;
+		//gMessageLib->sendSystemMessage(player,L"","player_structure","player_added","",name.getAnsi());
+		name.convert(BSTRType_Unicode16);
+		gMessageLib->sendSystemMessage(player,L"","player_structure","player_added","","",name.getUnicode16());
+		
+		//now read in the (admin) list again if its a playerHouse
+		//we need to keep them in memory to handle drop/pickup in cells
+		if(HouseObject*	house = dynamic_cast<HouseObject*>(gWorldManager->getObjectById(asynContainer->mStructureId)))
+		{
+			StructureManagerAsyncContainer* asContainer = new StructureManagerAsyncContainer(Structure_Query_UpdateAdminPermission,NULL);
+			asContainer->mStructureId = asynContainer->mStructureId;
+
+			gWorldManager->getDatabase()->ExecuteSqlAsync(this,asContainer,"SELECT PlayerID FROM structure_admin_data WHERE StructureID = %"PRIu64" AND AdminType like '%ADMIN%';",asContainer->mStructureId);
+		}
+	}
+
+	//no valid name
+	if(returnValue == 1)
+	{
+		string name;
+		name = asynContainer->name;
+		name.convert(BSTRType_ANSI);
+		gLogger->logMsgF("StructurManager add %s failed ", MSG_HIGH,name.getAnsi());
+		name.convert(BSTRType_Unicode16);
+		
+		gMessageLib->sendSystemMessage(player,L"","player_structure","modify_list_invalid_player","","",name.getUnicode16());
+	}
+
+	//name already on the list
+	if(returnValue == 2)
+	{
+		string name;
+		name = asynContainer->name;
+		name.convert(BSTRType_ANSI);
+		name << " is already on the list";
+		name.convert(BSTRType_Unicode16);
+		gMessageLib->sendSystemMessage(player,name.getUnicode16());
+	}
+
+	//no more than 36 entries on the list
+	if(returnValue == 3)
+	{
+		gMessageLib->sendSystemMessage(player,L"","player_structure","too_many_entries");
+	}
+
+	//dont ban the owner
+	if(returnValue == 4)
+	{
+		gMessageLib->sendSystemMessage(player,L"You cannot Ban the structures Owner");
+	}
+
+	mDatabase->DestroyDataBinding(binding);
+
+}
+
+//==================================================================================================
+// 
+// this loads basic (nonpersistant) structure item information for structure types
+// used with camps - 
+
+void StructureManager::_HandleNonPersistantLoadStructureItem(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result)
+{
+	StructureItemTemplate* itemTemplate;
+
+	DataBinding* binding = mDatabase->CreateDataBinding(14);
+	binding->addField(DFT_uint32,offsetof(StructureItemTemplate,structure_id),4,0);
+	binding->addField(DFT_uint32,offsetof(StructureItemTemplate,CellNr),4,1);
+	binding->addField(DFT_uint32,offsetof(StructureItemTemplate,item_type),4,2);
+	binding->addField(DFT_float,offsetof(StructureItemTemplate,mPosition.mX),4,3);
+	binding->addField(DFT_float,offsetof(StructureItemTemplate,mPosition.mY),4,4);
+	binding->addField(DFT_float,offsetof(StructureItemTemplate,mPosition.mZ),4,5);
+	binding->addField(DFT_float,offsetof(StructureItemTemplate,mDirection.mX),4,6);
+	binding->addField(DFT_float,offsetof(StructureItemTemplate,mDirection.mY),4,7);
+	binding->addField(DFT_float,offsetof(StructureItemTemplate,mDirection.mZ),4,8);
+	binding->addField(DFT_float,offsetof(StructureItemTemplate,dw),4,9);
+	binding->addField(DFT_uint32,offsetof(StructureItemTemplate,tanType),4,10);
+
+	binding->addField(DFT_bstring,offsetof(StructureItemTemplate,structureObjectString),128,11);
+	binding->addField(DFT_bstring,offsetof(StructureItemTemplate,name),32,12);
+	binding->addField(DFT_bstring,offsetof(StructureItemTemplate,file),32,13);
+
+	uint64 count;
+	count = result->getRowCount();
+
+	for(uint64 i = 0;i < count;i++)
+	{
+		itemTemplate = new(StructureItemTemplate);
+		result->GetNextRow(binding,itemTemplate);
+		mItemTemplate.push_back(itemTemplate);
+	}
+
+	if(result->getRowCount())
+		gLogger->logMsgLoadSuccess("StructureManager::Loading %u Structure Items...",MSG_NORMAL,result->getRowCount());
+	else
+		gLogger->logMsgLoadFailure("StructureManager::Loading Structure Items...",MSG_NORMAL);
+
+	mDatabase->DestroyDataBinding(binding);
+
+}
+
+//==================================================================================================
+// 
+// asynchronously checks whether the player is on the permissionlist list provided in the query
+// after succesful verifying the entry the processVerification procedure is called
+// to execute the provided command
+// a special case is checking the ban / entry list when we send a structure create
+// we then update the cell permission per delta depending on check outcome
+
+void StructureManager::_HandleCheckPermission(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result)
+{
+	PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
+
+	uint32 returnValue;
+	DataBinding* binding = mDatabase->CreateDataBinding(1);
+	binding->addField(DFT_uint32,0,4);
+
+	uint64 count;
+	count = result->getRowCount();
+
+	if (!count)
+	{
+		gLogger->logMsgLoadFailure("StructureManager::check Permission no return value...",MSG_NORMAL);
+		mDatabase->DestroyDataBinding(binding);
+		return;
+	}
+	result->GetNextRow(binding,&returnValue);
+	// 0 is on List
+	// 1 name doesnt exist
+	// 2 name not on list
+	// 3 owner
+
+	if((returnValue == 0)||(returnValue == 3))
+	{
+		// call processing handler
+		// 3 means structure Owner
+		processVerification(asynContainer->command,(returnValue == 3));
+		
+	}
+
+	if(returnValue == 1)
+	{
+		string name;
+		name = asynContainer->name;
+		name.convert(BSTRType_ANSI);
+		
+		gLogger->logMsgF("StructurManager check Permission name %s doesnt exist ", MSG_HIGH,name.getAnsi());
+		
+	}
+
+	if(returnValue == 2)
+	{
+		if(asynContainer->command.Command == Structure_Command_CellEnter )
+		{
+			//the structure is private - we are not on the access list :(
+			if(BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(asynContainer->command.StructureId)))
+				building->updateCellPermissions(player,false);
+		}
+		else
+		if(asynContainer->command.Command == Structure_Command_CellEnterDenial)
+		{
+			//do nothing we are not on the ban list and as the structure is public all is fine
+		}
+		else
+			gMessageLib->sendSystemMessage(player,L"You are not an admin of this structure");
+	}
+
+	mDatabase->DestroyDataBinding(binding);
+}
+
+//==================================================================================================
+// 
+// asynchronously updates a provided attribute and calls a specified handler
+// based on the command option
+
+void StructureManager::_HandleUpdateAttributes(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result)
+{
+	BString value;
+	Type_QueryContainer container;
+
+	DataBinding*	binding = mDatabase->CreateDataBinding(2);
+	binding->addField(DFT_bstring,offsetof(Type_QueryContainer,mString),128,0);
+	binding->addField(DFT_bstring,offsetof(Type_QueryContainer,mValue),128,1);
+	
+	PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
+	
+	PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(asynContainer->mStructureId));
+
+	uint64 count;
+	count = result->getRowCount();
+
+	for(uint64 i = 0;i < count;i++)
+	{
+		result->GetNextRow(binding,&container);
+
+		if(strcmp(container.mString.getAnsi(),"schematicCustom") == 0)
+		{	
+			FactoryObject* factory = dynamic_cast<FactoryObject*>(structure);
+			if(factory)
+				factory->setSchematicCustomName(container.mValue);
+			gLogger->logMsgF("StructureManager::GetCustomName : %s",MSG_HIGH, container.mValue.getAnsi());
+		}
+
+		if(strcmp(container.mString.getAnsi(),"schematicName") == 0)
+		{	
+			FactoryObject* factory = dynamic_cast<FactoryObject*>(structure);
+			if(factory)
+				factory->setSchematicName(container.mValue);
+			gLogger->logMsgF("StructureManager::GetName : %s",MSG_HIGH, container.mValue.getAnsi());
+		}
+
+		if(strcmp(container.mString.getAnsi(),"schematicFile") == 0)
+		{	
+			FactoryObject* factory = dynamic_cast<FactoryObject*>(structure);
+			if(factory)
+				factory->setSchematicFile(container.mValue);
+			gLogger->logMsgF("StructureManager::GetNameFile : %s",MSG_HIGH, container.mValue.getAnsi());
+		}
+
+		if(strcmp(container.mString.getAnsi(),"maintenance") == 0)
+		{
+
+			if(structure->hasAttribute("examine_maintenance"))
+			{
+				structure->setAttribute("examine_maintenance",container.mValue.getAnsi());
+			}
+			else
+			{
+				structure->addAttribute("examine_maintenance",container.mValue.getAnsi());
+			}
+		}
+
+		if(strcmp(container.mString.getAnsi(),"power") == 0)
+		{
+
+			if(structure->hasAttribute("examine_power"))
+			{
+				structure->setAttribute("examine_power",container.mValue.getAnsi());
+			}
+			else
+			{
+				structure->addAttribute("examine_power",container.mValue.getAnsi());
+			}
+
+		}
+
+		if(strcmp(container.mString.getAnsi(),"condition") == 0)
+		{
+
+			
+			container.mValue.setLength(4);
+			structure->setDamage(boost::lexical_cast<uint32>(container.mValue.getAnsi()));
+			gLogger->logMsgF("StructureManager::GetConditionData : %u",MSG_HIGH, structure->getDamage());
+		}
+
+		if(strcmp(container.mString.getAnsi(),"name") == 0)
+		{
+
+			structure->setOwnersName(container.mValue);
+			
+		}
+	}
+
+	switch(asynContainer->command.Command)
+	{
+		case Structure_Command_AccessSchem:
+		{
+			FactoryObject* factory = dynamic_cast<FactoryObject*>(structure);
+			if(factory)
+				createNewFactorySchematicBox(player, factory);
+		}
+		break;
+
+		case Structure_Command_Destroy:
+		{
+			structure->deleteStructureDBDataRead(player->getId());
+		}
+		break;
+
+		case Structure_Command_DepositPower:
+		{
+			createPowerTransferBox(player,structure);
+		}
+		break;
+
+		case Structure_Command_PayMaintenance:
+		{
+			createPayMaintenanceTransferBox(player,structure);
+		}
+		break;
+
+		case Structure_Command_ViewStatus:
+		{
+			createNewStructureStatusBox(player, structure);
+		}
+		break;
+
+		default:
+			break;
+	}		
+	
+	mDatabase->DestroyDataBinding(binding);												   	
+
+
+}
 
 void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 {
@@ -591,359 +950,6 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 	if(it != gStructureManagerCmdMap.end())
 	{
 		(this->*((*it).second))(asynContainer, result);
-	}
-
-	switch(asynContainer->mQueryType)
-	{
-
-		case Structure_Query_UpdatePermission:
-		{
-			HouseObject*	house = dynamic_cast<HouseObject*>(gWorldManager->getObjectById(asynContainer->mStructureId));
-
-			struct adminStruct
-			{
-				uint64 playerID;
-			};
-
-			adminStruct adminData;
-
-			DataBinding*	adminBinding = mDatabase->CreateDataBinding(1);
-			adminBinding->addField(DFT_uint64,offsetof(adminStruct,playerID),8,0);
-
-			uint64 count = result->getRowCount();
-			house->resetHousingAdminList();
-
-			for(uint32 j = 0;j < count;j++)
-			{
-				result->GetNextRow(adminBinding,&adminData);
-				house->addHousingAdminEntry(adminData.playerID);
-			}
-
-			mDatabase->DestroyDataBinding(adminBinding);
-
-		}
-		break;
-
-		// a player has been added to the permission list of a structure
-		case Structure_Query_Add_Permission:
-		{
-
-			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
-
-			uint32 returnValue;
-			DataBinding* binding = mDatabase->CreateDataBinding(1);
-			binding->addField(DFT_uint32,0,4);
-
-			uint64 count;
-			count = result->getRowCount();
-
-			if (!count)
-			{
-				gLogger->logMsgLoadFailure("StructureManager::add Permission no return value...",MSG_NORMAL);
-			}
-			result->GetNextRow(binding,&returnValue);
-			// 0 is sucess
-			// 1 name doesnt exist
-			// 2 name already on list
-			// 3 list is full (more than 36 entries)
-			// 4 owner tried to add him/herselve to the ban list
-
-			if(returnValue == 0)
-			{
-				string name;
-				name = asynContainer->name;
-				//gMessageLib->sendSystemMessage(player,L"","player_structure","player_added","",name.getAnsi());
-				name.convert(BSTRType_Unicode16);
-				gMessageLib->sendSystemMessage(player,L"","player_structure","player_added","","",name.getUnicode16());
-				
-				//now read in the (admin) list again
-				StructureManagerAsyncContainer* asContainer = new StructureManagerAsyncContainer(Structure_Query_UpdatePermission,NULL);
-				asContainer->mStructureId = asynContainer->mStructureId;
-
-				gWorldManager->getDatabase()->ExecuteSqlAsync(this,asContainer,"SELECT PlayerID FROM structure_admin_data WHERE StructureID = %"PRIu64" AND AdminType like '%ADMIN%';",asContainer->mStructureId);
-			}
-
-			if(returnValue == 1)
-			{
-				string name;
-				name = asynContainer->name;
-				name.convert(BSTRType_ANSI);
-				gLogger->logMsgF("StructurManager add %s failed ", MSG_HIGH,name.getAnsi());
-				name.convert(BSTRType_Unicode16);
-				
-				gMessageLib->sendSystemMessage(player,L"","player_structure","modify_list_invalid_player","","",name.getUnicode16());
-			}
-
-			if(returnValue == 2)
-			{
-				string name;
-				name = asynContainer->name;
-				name.convert(BSTRType_ANSI);
-				name << " is already on the list";
-				name.convert(BSTRType_Unicode16);
-				gMessageLib->sendSystemMessage(player,name.getUnicode16());
-			}
-
-			if(returnValue == 3)
-			{
-				gMessageLib->sendSystemMessage(player,L"","player_structure","too_many_entries");
-			}
-
-			if(returnValue == 4)
-			{
-				gMessageLib->sendSystemMessage(player,L"You cannot Ban the structures Owner");
-			}
-
-			//sendStructureAdminList(asynContainer->mPlayerId);
-
-			mDatabase->DestroyDataBinding(binding);
-		}
-		break;
-
-		//this loads basic structure information for structure types
-		case Structure_Query_LoadstructureItem:
-		{
-
-			StructureItemTemplate* itemTemplate;
-
-			DataBinding* binding = mDatabase->CreateDataBinding(14);
-			binding->addField(DFT_uint32,offsetof(StructureItemTemplate,structure_id),4,0);
-			binding->addField(DFT_uint32,offsetof(StructureItemTemplate,CellNr),4,1);
-			binding->addField(DFT_uint32,offsetof(StructureItemTemplate,item_type),4,2);
-			binding->addField(DFT_float,offsetof(StructureItemTemplate,mPosition.mX),4,3);
-			binding->addField(DFT_float,offsetof(StructureItemTemplate,mPosition.mY),4,4);
-			binding->addField(DFT_float,offsetof(StructureItemTemplate,mPosition.mZ),4,5);
-			binding->addField(DFT_float,offsetof(StructureItemTemplate,mDirection.mX),4,6);
-			binding->addField(DFT_float,offsetof(StructureItemTemplate,mDirection.mY),4,7);
-			binding->addField(DFT_float,offsetof(StructureItemTemplate,mDirection.mZ),4,8);
-			binding->addField(DFT_float,offsetof(StructureItemTemplate,dw),4,9);
-			binding->addField(DFT_uint32,offsetof(StructureItemTemplate,tanType),4,10);
-
-			binding->addField(DFT_bstring,offsetof(StructureItemTemplate,structureObjectString),128,11);
-			binding->addField(DFT_bstring,offsetof(StructureItemTemplate,name),32,12);
-			binding->addField(DFT_bstring,offsetof(StructureItemTemplate,file),32,13);
-
-			uint64 count;
-			count = result->getRowCount();
-
-			for(uint64 i = 0;i < count;i++)
-			{
-				itemTemplate = new(StructureItemTemplate);
-				result->GetNextRow(binding,itemTemplate);
-				mItemTemplate.push_back(itemTemplate);
-			}
-
-			if(result->getRowCount())
-				gLogger->logMsgLoadSuccess("StructureManager::Loading %u Structure Items...",MSG_NORMAL,result->getRowCount());
-			else
-				gLogger->logMsgLoadFailure("StructureManager::Loading Structure Items...",MSG_NORMAL);
-
-			mDatabase->DestroyDataBinding(binding);
-		}
-		break;
-
-		// =========================================
-		// asynchronously checks whether the player is on the admin list
-		case Structure_Query_Check_Permission:
-		{
-			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
-
-			uint32 returnValue;
-			DataBinding* binding = mDatabase->CreateDataBinding(1);
-			binding->addField(DFT_uint32,0,4);
-
-			uint64 count;
-			count = result->getRowCount();
-
-			if (!count)
-			{
-				gLogger->logMsgLoadFailure("StructureManager::check Permission no return value...",MSG_NORMAL);
-				mDatabase->DestroyDataBinding(binding);
-				return;
-			}
-			result->GetNextRow(binding,&returnValue);
-			// 0 is on List
-			// 1 name doesnt exist
-			// 2 name not on list
-			// 3 owner
-
-			if((returnValue == 0)||(returnValue == 3))
-			{
-				// call processing handler
-				// 3 means structure Owner
-				processVerification(asynContainer->command,(returnValue == 3));
-				
-			}
-
-			if(returnValue == 1)
-			{
-				string name;
-				name = asynContainer->name;
-				name.convert(BSTRType_ANSI);
-				
-				gLogger->logMsgF("StructurManager check Permission name %s doesnt exist ", MSG_HIGH,name.getAnsi());
-				
-			}
-
-			if(returnValue == 2)
-			{
-				if(asynContainer->command.Command == Structure_Command_CellEnter )
-				{
-					//the structure is private - we are not on the access list :(
-					if(BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(asynContainer->command.StructureId)))
-						building->updateCellPermissions(player,false);
-				}
-				else
-				if(asynContainer->command.Command == Structure_Command_CellEnterDenial)
-				{
-					//do nothing we are not on the ban list and as the structure is public all is fine
-				}
-				else
-					gMessageLib->sendSystemMessage(player,L"You are not an admin of this structure");
-			}
-
-			mDatabase->DestroyDataBinding(binding);
-		}
-		break;
-
-		// =========================================
-		// loads attribute data and calls a taskspecific handler
-		// as set through the command option
-		case Structure_UpdateAttributes:
-		{
-
-			BString value;
-			Type_QueryContainer container;
-
-			DataBinding*	binding = mDatabase->CreateDataBinding(2);
-			binding->addField(DFT_bstring,offsetof(Type_QueryContainer,mString),128,0);
-			binding->addField(DFT_bstring,offsetof(Type_QueryContainer,mValue),128,1);
-			
-			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
-			
-			PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(asynContainer->mStructureId));
-
-			uint64 count;
-			count = result->getRowCount();
-
-			for(uint64 i = 0;i < count;i++)
-			{
-				result->GetNextRow(binding,&container);
-
-				if(strcmp(container.mString.getAnsi(),"schematicCustom") == 0)
-				{	
-					FactoryObject* factory = dynamic_cast<FactoryObject*>(structure);
-					if(factory)
-						factory->setSchematicCustomName(container.mValue);
-					gLogger->logMsgF("StructureManager::GetCustomName : %s",MSG_HIGH, container.mValue.getAnsi());
-				}
-
-				if(strcmp(container.mString.getAnsi(),"schematicName") == 0)
-				{	
-					FactoryObject* factory = dynamic_cast<FactoryObject*>(structure);
-					if(factory)
-						factory->setSchematicName(container.mValue);
-					gLogger->logMsgF("StructureManager::GetName : %s",MSG_HIGH, container.mValue.getAnsi());
-				}
-
-				if(strcmp(container.mString.getAnsi(),"schematicFile") == 0)
-				{	
-					FactoryObject* factory = dynamic_cast<FactoryObject*>(structure);
-					if(factory)
-						factory->setSchematicFile(container.mValue);
-					gLogger->logMsgF("StructureManager::GetNameFile : %s",MSG_HIGH, container.mValue.getAnsi());
-				}
-
-				if(strcmp(container.mString.getAnsi(),"maintenance") == 0)
-				{
-
-					if(structure->hasAttribute("examine_maintenance"))
-					{
-						structure->setAttribute("examine_maintenance",container.mValue.getAnsi());
-					}
-					else
-					{
-						structure->addAttribute("examine_maintenance",container.mValue.getAnsi());
-					}
-				}
-
-				if(strcmp(container.mString.getAnsi(),"power") == 0)
-				{
-
-					if(structure->hasAttribute("examine_power"))
-					{
-						structure->setAttribute("examine_power",container.mValue.getAnsi());
-					}
-					else
-					{
-						structure->addAttribute("examine_power",container.mValue.getAnsi());
-					}
-
-				}
-
-				if(strcmp(container.mString.getAnsi(),"condition") == 0)
-				{
-
-					
-					container.mValue.setLength(4);
-					structure->setDamage(boost::lexical_cast<uint32>(container.mValue.getAnsi()));
-					gLogger->logMsgF("StructureManager::GetConditionData : %u",MSG_HIGH, structure->getDamage());
-				}
-
-				if(strcmp(container.mString.getAnsi(),"name") == 0)
-				{
-
-					structure->setOwnersName(container.mValue);
-					
-				}
-			}
-
-			switch(asynContainer->command.Command)
-			{
-				case Structure_Command_AccessSchem:
-				{
-					FactoryObject* factory = dynamic_cast<FactoryObject*>(structure);
-					if(factory)
-						createNewFactorySchematicBox(player, factory);
-				}
-				break;
-
-				case Structure_Command_Destroy:
-				{
-					structure->deleteStructureDBDataRead(player->getId());
-				}
-				break;
-
-				case Structure_Command_DepositPower:
-				{
-					createPowerTransferBox(player,structure);
-				}
-				break;
-
-				case Structure_Command_PayMaintenance:
-				{
-					createPayMaintenanceTransferBox(player,structure);
-				}
-				break;
-
-				case Structure_Command_ViewStatus:
-				{
-					createNewStructureStatusBox(player, structure);
-				}
-				break;
-
-				default:
-					break;
-			}		
-			
-			mDatabase->DestroyDataBinding(binding);												   	
-
-		}
-		break;
-
-
-		default:break;
-
 	}
 
 	SAFE_DELETE(asynContainer);

@@ -329,6 +329,8 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 		return;
 	}
 
+	tangible->destroyKnownObjects();
+
 				
 	//now go and move it to wherever it belongs
 	cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(targetContainerId));
@@ -858,7 +860,9 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 	//we need to destroy the old radial ... our item now gets a new one
 	//delete(itemObject->getRadialMenu());
 	itemObject->ResetRadialMenu();
-				
+
+	itemObject->destroyKnownObjects();
+
 	//now go and move it to wherever it belongs
 	cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(targetContainerId));
 	if (cell)

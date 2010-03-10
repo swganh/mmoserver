@@ -647,7 +647,7 @@ void StructureManager::OpenStructureEntryList(uint64 structureId, uint64 playerI
 	//
 
 	StructureManagerAsyncContainer* asyncContainer;
-	asyncContainer = new StructureManagerAsyncContainer(Structure_Query_Entry_Data, 0);
+	asyncContainer = new StructureManagerAsyncContainer(Structure_Query_Entry_Permission_Data, 0);
 	asyncContainer->mStructureId = structureId;
 	asyncContainer->mPlayerId = playerId;
 
@@ -667,7 +667,7 @@ void StructureManager::OpenStructureBanList(uint64 structureId, uint64 playerId)
 	//
 
 	StructureManagerAsyncContainer* asyncContainer;
-	asyncContainer = new StructureManagerAsyncContainer(Structure_Query_Ban_Data, 0);
+	asyncContainer = new StructureManagerAsyncContainer(Structure_Query_Ban_Permission_Data, 0);
 	asyncContainer->mStructureId = structureId;
 	asyncContainer->mPlayerId = playerId;
 

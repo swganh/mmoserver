@@ -54,7 +54,10 @@ StructureManagerCommandMapClass* StructureManagerCommandMapClass::Init()
 
 StructureManagerCommandMapClass::StructureManagerCommandMapClass()
 {
-	mCommandMap.insert(std::make_pair(Structure_Query_Hopper_Permission_Data,&StructureManager::::_HandleQueryHopperPermissionData));
+	mCommandMap.insert(std::make_pair(Structure_Query_Hopper_Permission_Data,&StructureManager::_HandleQueryHopperPermissionData));
+	mCommandMap.insert(std::make_pair(Structure_Query_Admin_Permission_Data,&StructureManager::_HandleQueryAdminPermissionData));
+	mCommandMap.insert(std::make_pair(Structure_Query_Ban_Permission_Data,&StructureManager::_HandleQueryBanPermissionData));
+	mCommandMap.insert(std::make_pair(Structure_Query_Entry_Permission_Data,&StructureManager::_HandleQueryEntryPermissionData));
 //	mCommandMap.insert(std::make_pair(opAttributeAttr_Health,&Food::_handleHealth_Buff));
 //	mCommandMap.insert(std::make_pair(opAttributeAttr_Mind,&Food::_handleMind_Buff));
 	

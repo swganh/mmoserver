@@ -70,8 +70,8 @@ enum Structure_QueryType
 	Structure_UpdateStructureDeed				=	18,
 	Structure_UpdateCharacterLots				=	19,
 	Structure_UpdateAttributes					=	20,
-	Structure_Query_Entry_Data					=	21,
-	Structure_Query_Ban_Data					=	22,
+	Structure_Query_Entry_Permission_Data		=	21,
+	Structure_Query_Ban_Permission_Data			=	22,
 	Structure_Query_UpdatePermission			=	23,
 
 };
@@ -319,6 +319,10 @@ class StructureManager : public DatabaseCallback,public ObjectFactoryCallback
 
 		//callback functions
 		void						_HandleQueryHopperPermissionData(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result);
+		void						_HandleQueryAdminPermissionData(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result);
+		void						_HandleQueryEntryPermissionData(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result);
+		void						_HandleQueryBanPermissionData(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result);
+		
 
 		StructureManager(Database* database,MessageDispatch* dispatch);
 

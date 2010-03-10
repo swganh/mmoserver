@@ -137,22 +137,22 @@ class PlayerStructure :	public TangibleObject
 
 		// thats the structures admin list
 		BStringVector			getStrucureAdminList(){return mStructureAdminList;}
-		void					addStructureAdmin(string name){mStructureAdminList.push_back(name);}
+		void					addStructureAdminListEntry(string name){mStructureAdminList.push_back(name);}
 		void					resetStructureAdminList(){mStructureAdminList.clear();}
 
 		// thats the structures entry list
 		BStringVector			getStrucureEntryList(){return mStructureEntryList;}
-		void					addStructureEntry(string name){mStructureEntryList.push_back(name);}
+		void					addStructureEntryListEntry(string name){mStructureEntryList.push_back(name);}
 		void					resetStructureEntryList(){mStructureEntryList.clear();}
 
 		// thats the structures ban list
 		BStringVector			getStrucureBanList(){return mStructureBanList;}
-		void					addStructureBan(string name){mStructureBanList.push_back(name);}
+		void					addStructureBanListEntry(string name){mStructureBanList.push_back(name);}
 		void					resetStructureBanList(){mStructureBanList.clear();}
 
 		// thats the structures admin list
 		BStringVector			getStrucureHopperList(){return mStructureHopperList;}
-		void					addStructureHopper(string name){mStructureHopperList.push_back(name);}
+		void					addStructureHopperListEntry(string name){mStructureHopperList.push_back(name);}
 		void					resetStructureHopperList(){mStructureHopperList.clear();}
 
 		// thats the structures admin list

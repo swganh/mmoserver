@@ -90,7 +90,7 @@ void StructureManager::_HandleQueryHopperPermissionData(StructureManagerAsyncCon
 	{
 		result->GetNextRow(binding,&playerName);
 
-		structure->addStructureHopper(playerName);
+		structure->addStructureHopperListEntry(playerName);
 
 	}
 
@@ -99,6 +99,98 @@ void StructureManager::_HandleQueryHopperPermissionData(StructureManagerAsyncCon
 	gWorldManager->getDatabase()->DestroyDataBinding(binding);
 }
 
+//==================================================================================================
+// handles the admin permission list
+// it will be read in for the list to display when the player displays it to make changes
+// please note that the list is purely db based and *not* kept in memory
+// it will be cleared once the changes are made
+//
+void StructureManager::_HandleQueryAdminPermissionData(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result)
+{
+	PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(asynContainer->mStructureId));
+
+	string playerName;
+	DataBinding* binding = mDatabase->CreateDataBinding(1);
+	binding->addField(DFT_bstring,0,64);
+
+	uint64 count;
+	count = result->getRowCount();
+
+	for(uint64 i = 0;i < count;i++)
+	{
+		result->GetNextRow(binding,&playerName);
+
+		structure->addStructureAdminListEntry(playerName);
+
+	}
+
+	structure->sendStructureAdminList(asynContainer->mPlayerId);
+
+	mDatabase->DestroyDataBinding(binding);
+}
+
+//==================================================================================================
+// handles the admin permission list
+// it will be read in for the list to display when the player displays it to make changes
+// please note that the list is purely db based and *not* kept in memory
+// it will be cleared once the changes are made
+//
+void StructureManager::_HandleQueryEntryPermissionData(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result)
+{
+
+	PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(asynContainer->mStructureId));
+
+	string playerName;
+	DataBinding* binding = mDatabase->CreateDataBinding(1);
+	binding->addField(DFT_bstring,0,64);
+
+	uint64 count;
+	count = result->getRowCount();
+	structure->resetStructureEntryList();
+	for(uint64 i = 0;i < count;i++)
+	{
+		result->GetNextRow(binding,&playerName);
+
+		structure->addStructureEntryListEntry(playerName);
+
+	}
+
+	structure->sendStructureEntryList(asynContainer->mPlayerId);
+
+	mDatabase->DestroyDataBinding(binding);
+	
+}
+
+//==================================================================================================
+// handles the admin permission list
+// it will be read in for the list to display when the player displays it to make changes
+// please note that the list is purely db based and *not* kept in memory
+// it will be cleared once the changes are made
+//
+void StructureManager::_HandleQueryBanPermissionData(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result)
+{
+	PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(asynContainer->mStructureId));
+
+	string playerName;
+	DataBinding* binding = mDatabase->CreateDataBinding(1);
+	binding->addField(DFT_bstring,0,64);
+
+	uint64 count;
+	count = result->getRowCount();
+	structure->resetStructureBanList();
+
+	for(uint64 i = 0;i < count;i++)
+	{
+		result->GetNextRow(binding,&playerName);
+
+		structure->addStructureBanListEntry(playerName);
+
+	}
+
+	structure->sendStructureBanList(asynContainer->mPlayerId);
+
+	mDatabase->DestroyDataBinding(binding);
+}
 
 void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 {
@@ -369,85 +461,6 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 			
 			mDatabase->DestroyDataBinding(binding);												   	
 
-		}
-		break;
-
-		//queries all entries of a structures entry list
-		case Structure_Query_Entry_Data:
-		{
-			PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(asynContainer->mStructureId));
-
-			string playerName;
-			DataBinding* binding = mDatabase->CreateDataBinding(1);
-			binding->addField(DFT_bstring,0,64);
-
-			uint64 count;
-			count = result->getRowCount();
-			structure->resetStructureEntryList();
-			for(uint64 i = 0;i < count;i++)
-			{
-				result->GetNextRow(binding,&playerName);
-
-				structure->addStructureEntry(playerName);
-
-			}
-
-			structure->sendStructureEntryList(asynContainer->mPlayerId);
-
-			mDatabase->DestroyDataBinding(binding);
-		}
-		break;
-
-		//queries all entries of a structures entry list
-		case Structure_Query_Ban_Data:
-		{
-			PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(asynContainer->mStructureId));
-
-			string playerName;
-			DataBinding* binding = mDatabase->CreateDataBinding(1);
-			binding->addField(DFT_bstring,0,64);
-
-			uint64 count;
-			count = result->getRowCount();
-			structure->resetStructureBanList();
-
-			for(uint64 i = 0;i < count;i++)
-			{
-				result->GetNextRow(binding,&playerName);
-
-				structure->addStructureBan(playerName);
-
-			}
-
-			structure->sendStructureBanList(asynContainer->mPlayerId);
-
-			mDatabase->DestroyDataBinding(binding);
-		}
-		break;
-
-		//queries all entries of a structures admin list
-		case Structure_Query_Admin_Permission_Data:
-		{
-			PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(asynContainer->mStructureId));
-
-			string playerName;
-			DataBinding* binding = mDatabase->CreateDataBinding(1);
-			binding->addField(DFT_bstring,0,64);
-
-			uint64 count;
-			count = result->getRowCount();
-
-			for(uint64 i = 0;i < count;i++)
-			{
-				result->GetNextRow(binding,&playerName);
-
-				structure->addStructureAdmin(playerName);
-
-			}
-
-			structure->sendStructureAdminList(asynContainer->mPlayerId);
-
-			mDatabase->DestroyDataBinding(binding);
 		}
 		break;
 

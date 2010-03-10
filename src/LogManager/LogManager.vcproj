@@ -121,6 +121,7 @@
 				TreatWChar_tAsBuiltInType="true"
 				WarningLevel="3"
 				WarnAsError="true"
+				DisableSpecificWarnings="4103"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"

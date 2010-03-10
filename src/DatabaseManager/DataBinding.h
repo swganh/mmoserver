@@ -71,7 +71,7 @@ class DataBinding
 	public:
 					DataBinding(uint32 fieldCount) : mFieldCount(fieldCount), mFieldIndex(0) { }
 
-	  uint32		getFieldCount(void)          { assert(mFieldIndex == mFieldCount); return mFieldCount; }
+	  uint32		getFieldCount(void)          { return mFieldCount; }
 	  void			setFieldCount(uint32 count)	{ mFieldCount = count; }
 
 	  uint32		getFieldIndex(void)          { return mFieldIndex; }
@@ -92,7 +92,7 @@ inline void DataBinding::addField(DataFieldType type, uint32 offset, uint32 size
 	mDataFields[mFieldIndex].mDataOffset  = offset;
 	mDataFields[mFieldIndex].mDataSize    = size;
 
-	assert(mFieldIndex<= 200);
+	assert(mFieldIndex <= 200 && "Exceeds max field size of 200");
 
 	if (column == 0)
 	{

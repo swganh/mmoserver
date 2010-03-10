@@ -589,7 +589,6 @@ void BString::toLower()
 			data++;
 		}
 		return;
-
 	}
 
 	int8* data = mString;

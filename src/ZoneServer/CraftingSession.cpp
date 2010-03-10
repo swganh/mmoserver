@@ -682,7 +682,7 @@ void CraftingSession::assemble(uint32 counter)
 		//the client forces us to stay in stage 2!!!
 		mStage = 2;
 
-		mManufacturingSchematic->ModifyBlueBars(0.9);
+		mManufacturingSchematic->ModifyBlueBars(static_cast<float>(0.9));
 
 		//now empty the slots
 		emptySlots(counter);

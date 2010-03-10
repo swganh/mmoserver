@@ -913,7 +913,7 @@ void	ObjectController::_handleItemMoveUp(uint64 targetId,Message* message,Object
 	}
 
 
-	object->mPosition.mY += 0.10;
+	object->mPosition.mY += static_cast<float>(0.10);
 	gMessageLib->sendDataTransformWithParent(object);
 	object->updateWorldPosition();
 }
@@ -967,7 +967,7 @@ void	ObjectController::_handleItemMoveDown(uint64 targetId,Message* message,Obje
 	}
 
 
-	object->mPosition.mY -= 0.10;
+	object->mPosition.mY -= static_cast<float>(0.10);
 	gMessageLib->sendDataTransformWithParent(object);
 	object->updateWorldPosition();
 }

@@ -436,7 +436,6 @@ void CSRManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 		case CSRQuery_TicketActivity:
 			{
 				uint64 count = result->getRowCount();
-				assert(count < 2);
 
 				gMessageFactory->StartMessage();
 				gMessageFactory->addUint32(opNewTicketActivityResponseMessage);
@@ -450,9 +449,6 @@ void CSRManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 		case CSRQuery_NewTicket:
 			{
-				uint64 count = result->getRowCount();
-				assert(count == 1);
-
 				uint32 id;
 				DataBinding* binding = mDatabase->CreateDataBinding(1);
 				binding->addField(DFT_uint32, 0, 4, 0);

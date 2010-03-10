@@ -34,7 +34,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Utils/typedefs.h"
 #include "Utils/utils.h"
 
-#include <cassert>
 #include <cstring>
 #include <ctime>
 
@@ -426,9 +425,6 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 		case ChatQuery_Player:
 		{
-			uint64 count = result->getRowCount();
-			assert(count == 1);
-
 			PlayerAccountMap::iterator it = mPlayerAccountMap.find(asyncContainer->mClient->getAccountId());
 
 			if(it != mPlayerAccountMap.end())
@@ -458,10 +454,11 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 		case ChatQuery_GalaxyName:
 		{
 			uint64 count = result->getRowCount();
-			if (count != 1)
+			
+			if (count == 0) {
 				gLogger->logMsg("Could not find Galaxy ",MSG_NORMAL);
-			assert(count == 1);
-
+				return;
+			}
 
 			DataBinding* binding = mDatabase->CreateDataBinding(1);
 			binding->addField(DFT_bstring,0,64);
@@ -481,10 +478,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			DataBinding* binding = mDatabase->CreateDataBinding(1);
 			binding->addField(DFT_uint64,0,8);
 
-			uint64 count = result->getRowCount();
-			assert(count <= 1);
-
-			if(count)
+			if(result->getRowCount())
 			{
 				result->GetNextRow(binding,&receiverId);
 
@@ -543,9 +537,6 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			uint32 dbMailId = 0;
 			DataBinding* binding = mDatabase->CreateDataBinding(1);
 			binding->addField(DFT_uint32,0,4);
-
-			uint64 count = result->getRowCount();
-			assert(count == 1);
 
 			result->GetNextRow(binding,&dbMailId);
 
@@ -640,9 +631,6 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			Mail mail = Mail();
 			mail.mSubject.setLength(512);
 			mail.mText.setLength(8192);
-
-			uint64 count = result->getRowCount();
-			assert(count == 1);
 
 			result->GetNextRow(mMailBinding,&mail);
 
@@ -1312,7 +1300,6 @@ void ChatManager::_processDestroyRoom(Message* message,DispatchClient* client)
 		gLogger->logMsgF("No channel for room %u", MSG_NORMAL, roomId);
 		return;
 	}
-	assert(channel != NULL);
 
 	// This is me destroying the channel
 	string playername = BString(getPlayerByAccId(client->getAccountId())->getName().getAnsi());
@@ -1335,7 +1322,6 @@ void ChatManager::_processDestroyRoom(Message* message,DispatchClient* client)
 	else
 	{
 		// Remove user from channel...before destruction.
-		assert(avatar != NULL);
 		gChatMessageLib->sendChatOnLeaveRoom(client, avatar, channel, 0);
 	}
 
@@ -1402,7 +1388,6 @@ void ChatManager::_processRoomQuery(Message* message,DispatchClient* client)
 		gLogger->logMsgF("No channel for room %s", MSG_NORMAL, roomname.getAnsi());
 		return;
 	}
-	assert(channel != NULL);
 	gChatMessageLib->sendChatQueryRoomResults(client, channel, requestId);
 }
 
@@ -1609,7 +1594,6 @@ void ChatManager::_processSendToRoom(Message* message,DispatchClient* client)
 		gChatMessageLib->sendChatOnSendRoomMessage(client, 1, requestId);	// Error code 1 will give the default error message.
 		return;
 	}
-	assert(channel != NULL);
 
 	// We use two versions of names, one with the real spelling and one with pure lowercase.
 	string sender = BString(player->getName().getAnsi());
@@ -1666,7 +1650,6 @@ void ChatManager::_processAddModeratorToRoom(Message* message,DispatchClient* cl
 		gLogger->logMsgF("No channel for room %s", MSG_NORMAL, roomname.getAnsi());
 		return;
 	}
-	assert(channel != NULL);
 
 
 	// We use two versions of names, one with the real spelling and one with pure lowercase.
@@ -1772,7 +1755,6 @@ void ChatManager::_processInviteAvatarToRoom(Message* message,DispatchClient* cl
 		gLogger->logMsgF("No channel for room %s", MSG_NORMAL, roomname.getAnsi());
 		return;
 	}
-	assert(channel != NULL);
 
 	// We use two versions of names, one with the real spelling and one with pure lowercase.
 	playerName.toLower();
@@ -1884,7 +1866,6 @@ void ChatManager::_processUninviteAvatarFromRoom(Message* message, DispatchClien
 		gLogger->logMsgF("No channel for room %s", MSG_NORMAL, roomname.getAnsi());
 		return;
 	}
-	assert(channel != NULL);
 
 	// We use two versions of names, one with the real spelling and one with pure lowercase.
 	playerName.toLower();
@@ -1993,7 +1974,6 @@ void ChatManager::_processRemoveModFromRoom(Message* message,DispatchClient* cli
 		gLogger->logMsgF("No channel for room %s", MSG_NORMAL, roomname.getAnsi());
 		return;
 	}
-	assert(channel != NULL);
 
 	// We use two versions of names, one with the real spelling and one with pure lowercase.
 	playerName.toLower();
@@ -2108,7 +2088,6 @@ void ChatManager::_processRemoveAvatarFromRoom(Message* message,DispatchClient* 
 		gLogger->logMsgF("No channel for room %s", MSG_NORMAL, roomname.getAnsi());
 		return;
 	}
-	assert(channel != NULL);
 
 	playerName.toLower();
 	uint32 errorCode = 0;
@@ -2121,7 +2100,6 @@ void ChatManager::_processRemoveAvatarFromRoom(Message* message,DispatchClient* 
 	}
 	else
 	{
-		assert(avatar != NULL);
 		mDatabase->ExecuteSqlAsync(NULL, NULL, "DELETE FROM chat_char_channels WHERE channel_id = %u AND character_id = %"PRIu64";", channel->getId(), avatar->getPlayer()->getCharId());
 		gChatMessageLib->sendChatOnLeaveRoom(client, avatar, channel, 0, errorCode);
 	}
@@ -2154,7 +2132,6 @@ void ChatManager::_processBanAvatarFromRoom(Message* message,DispatchClient* cli
 		gLogger->logMsgF("No channel for room %s", MSG_NORMAL, roomname.getAnsi());
 		return;
 	}
-	assert(channel != NULL);
 
 	// We use two versions of names, one with the real spelling and one with pure lowercase.
 	playerName.toLower();
@@ -2286,7 +2263,6 @@ void ChatManager::_processUnbanAvatarFromRoom(Message* message,DispatchClient* c
 		gLogger->logMsgF("No channel for room %s", MSG_NORMAL, roomname.getAnsi());
 		return;
 	}
-	assert(channel != NULL);
 
 	// We use two versions of names, one with the real spelling and one with pure lowercase.
 	playerName.toLower();
@@ -3122,10 +3098,7 @@ bool ChatManager::isValidName(string name)
 
 	DatabaseResult* result = mDatabase->ExecuteSynchSql("SELECT id FROM characters WHERE LCASE(firstname) = '%s';", sql);
 
-	uint64 count = result->getRowCount();
-	assert(count <= 1);
-
-	bool valid = (count == 1);
+	bool valid = (result->getRowCount() == 1);
 	mDatabase->DestroyResult(result);
 
 	return valid;
@@ -3139,10 +3112,8 @@ bool ChatManager::isValidExactName(string name)
 	int8 sql[128];
 	mDatabase->Escape_String(sql, name.getAnsi(), name.getLength());
 	DatabaseResult* result = mDatabase->ExecuteSynchSql("SELECT id FROM characters WHERE BINARY firstname = '%s';", sql);
-	uint64 count = result->getRowCount();
-	assert(count <= 1);
 
-	bool valid = (count == 1);
+	bool valid = (result->getRowCount() == 1);
 	mDatabase->DestroyResult(result);
 
 	return valid;
@@ -3173,9 +3144,7 @@ string* ChatManager::getFirstName(string& name)
 		mDatabase->Escape_String(sql, name.getAnsi(), name.getLength());
 		DatabaseResult* result = mDatabase->ExecuteSynchSql("SELECT firstname FROM characters WHERE LCASE(firstname)= '%s';", sql);
 
-		uint64 count = result->getRowCount();
-		assert(count <= 1);
-		if (count == 1)
+		if (result->getRowCount() == 1)
 		{
 			// We found a username that matched the input.
 			// string theName;
@@ -3232,7 +3201,6 @@ void ChatManager::_processGroupSaySend(Message* message,DispatchClient* client)
 		gLogger->logErrorF("chat","ChatManager::_processGroupSaySend Can't find group with group-id %u",MSG_NORMAL,player->getGroupId());
 		return;
 	}
-	assert(group != NULL);
 
 	Channel* channel = group->getChannel();
 	if (channel == NULL)
@@ -3240,7 +3208,6 @@ void ChatManager::_processGroupSaySend(Message* message,DispatchClient* client)
 		gLogger->logErrorF("chat","ChatManager::_processGroupSaySend Can't find channel from group with group-id %u",MSG_NORMAL,player->getGroupId());
 		return;
 	}
-	assert(channel != NULL);
 
 	// uint32 requestId = 0; // What's this??
 

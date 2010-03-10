@@ -409,9 +409,9 @@ void ObjectFactory::requestnewHarvesterbyDeed(ObjectFactoryCallback* ofCallback,
 	if(dir== 1.0)	 //ok
 	{
 		oX = 0.0;
-		oY = 0.71;
+		oY = static_cast<float>(0.71);
 		oZ = 0.0;
-		oW = 0.71;
+		oW = static_cast<float>(0.71);
 	}
 
 	if(dir== 2.0)
@@ -425,9 +425,9 @@ void ObjectFactory::requestnewHarvesterbyDeed(ObjectFactoryCallback* ofCallback,
 	if(dir== 3.0)
 	{
 		oX = 0;
-		oY = -0.71;
+		oY = static_cast<float>(-0.71);
 		oZ = 0;
-		oW = 0.71;
+		oW = static_cast<float>(0.71);
 	}
 
 
@@ -468,9 +468,9 @@ void ObjectFactory::requestnewFactorybyDeed(ObjectFactoryCallback* ofCallback,De
 	if(dir== 1.0)	 //ok
 	{
 		oX = 0.0;
-		oY = 0.71;
+		oY = static_cast<float>(0.71);
 		oZ = 0.0;
-		oW = 0.71;
+		oW = static_cast<float>(0.71);
 	}
 
 	if(dir== 2.0)
@@ -484,9 +484,9 @@ void ObjectFactory::requestnewFactorybyDeed(ObjectFactoryCallback* ofCallback,De
 	if(dir== 3.0)
 	{
 		oX = 0;
-		oY = -0.71;
+		oY = static_cast<float>(-0.71);
 		oZ = 0;
-		oW = 0.71;
+		oW = static_cast<float>(0.71);
 	}
 
 
@@ -523,9 +523,9 @@ void ObjectFactory::requestnewHousebyDeed(ObjectFactoryCallback* ofCallback,Deed
 	if(dir== 1.0)	 //ok
 	{
 		oX = 0.0;
-		oY = 0.707107;
+		oY = static_cast<float>(0.707107);
 		oZ = 0.0;
-		oW = 0.707107;
+		oW = static_cast<float>(0.707107);
 	}
 
 	if(dir== 2.0)
@@ -539,9 +539,9 @@ void ObjectFactory::requestnewHousebyDeed(ObjectFactoryCallback* ofCallback,Deed
 	if(dir== 3.0)
 	{
 		oX = 0;
-		oY = -0.707107;
+		oY = static_cast<float>(-0.707107);
 		oZ = 0;
-		oW = 0.707107;
+		oW = static_cast<float>(0.707107);
 	}
 
 

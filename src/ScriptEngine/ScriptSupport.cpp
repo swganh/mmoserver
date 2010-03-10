@@ -185,6 +185,7 @@ uint64 ScriptSupport::npcCreate(uint64 templateId) //, uint64 npcPrivateOwnerId,
 	}
 	else
 	{
+		// @TODO: WorldManager::getRandomNpNpcIdSequence must return a valid value.
 		assert(false);
 	}
 	return npcId;

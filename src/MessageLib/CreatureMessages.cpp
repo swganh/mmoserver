@@ -645,7 +645,7 @@ void MessageLib::sendDefenderUpdate(CreatureObject* creatureObject,uint8 updateT
 		// Reset all
 		// Not suported yet
 		gLogger->logMsgF("MessageLib::sendDefenderUpdate Invalid option = %u", MSG_NORMAL,updateType);
-		assert(false);
+		return;
 	}
 
 	gMessageFactory->addUint32(payloadSize);

@@ -44,7 +44,6 @@ bool MessageLib::sendBaselinesTYCF_3(FactoryCrate* crate,PlayerObject* targetObj
 	TangibleObject* tO = crate->getLinkedObject();
 	if(!tO)
 	{
-		assert(false);
 		customName = crate->getCustomName();
 		NameFile = crate->getNameFile();
 		Name = crate->getName();

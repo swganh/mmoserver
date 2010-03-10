@@ -129,6 +129,7 @@
 				WarnAsError="true"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
+				DisableSpecificWarnings="4103"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -159,7 +160,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="subwcrev.exe &quot;$(SolutionDir)&quot; &quot;$(SolutionDir)data\VERSION.in&quot; &quot;$(SolutionDir)bin\$(ConfigurationName)\VERSION&quot;"
+				CommandLine=""
 			/>
 		</Configuration>
 		<Configuration

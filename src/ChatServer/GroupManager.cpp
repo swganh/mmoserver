@@ -895,7 +895,6 @@ void GroupManager::_processIsmInviteInRangeResponse(Message* message, DispatchCl
 	// and insert it in the group map
 	if (groupId == 0)
 	{
-		assert(group == NULL);
 		groupId = this->getNextGroupId();
 		group = new GroupObject(player, groupId); 
 		mGroups.insert(std::make_pair(groupId, group));

@@ -55,8 +55,8 @@ Script::~Script()
 
 void Script::run()
 {
-	assert(mEngine->getMasterState());
-	assert(mThreadState);
+	assert(mEngine->getMasterState() && "Invalid engine master state");
+	assert(mThreadState && "Invalid thread state");
 
 	if(luaL_loadfile(mThreadState,mFile) == 0)
 	{
@@ -73,8 +73,8 @@ void Script::run()
 
 void Script::runFile(const int8 *fileName)
 {
-	assert(mEngine->getMasterState());
-	assert(mThreadState);
+	assert(mEngine->getMasterState() && "Invalid engine master state");
+	assert(mThreadState && "Invalid thread state");
 
 	if(luaL_loadfile(mThreadState,fileName) == 0)
 	{
@@ -91,8 +91,8 @@ void Script::runFile(const int8 *fileName)
 
 uint32 Script::runString(const int8 *cmdString)
 {
-	assert(mEngine->getMasterState());
-	assert(mThreadState);
+	assert(mEngine->getMasterState() && "Invalid engine master state");
+	assert(mThreadState && "Invalid thread state");
 
 	if(luaL_loadbuffer(mThreadState,cmdString,strlen(cmdString),"Console") == 0)
 	{

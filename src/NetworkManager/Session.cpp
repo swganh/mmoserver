@@ -449,6 +449,14 @@ void Session::ProcessWriteThread(void)
 //======================================================================================================================
 void Session::SendChannelA(Message* message)
 {
+	// Do some boundschecking.
+	if (message->getPriority() > 0x10)
+	{
+		gLogger->logMsgF("Session::SendChannelA priority messup!!!", MSG_HIGH );
+		gLogger->hexDump(message->getData(), message->getSize());
+		return;
+	}
+
 	message->mSession = this;
 	//check whether we are disconnecting  this happens when a client or server crashes without sending a disconnect
 	//however in these cases we get a lot of stuck messages on the heap which are orphaned
@@ -459,8 +467,6 @@ void Session::SendChannelA(Message* message)
 		return;
 	}
 
-  // Do some boundschecking.
-  assert(message->getPriority() < 0x10);
   
   //gLogger->logMsgF("Sending message - Session:0x%x%.4x", MSG_LOW, mService->getId(), getId());
 
@@ -482,6 +488,14 @@ void Session::SendChannelA(Message* message)
 
 void Session::SendChannelAUnreliable(Message* message)
 {
+	// Do some boundschecking.
+	if (message->getPriority() > 0x10)
+	{
+		gLogger->logMsgF("Session::SendChannelAUnreliablepriority messup!!!", MSG_HIGH );
+		gLogger->hexDump(message->getData(), message->getSize());
+		return;
+	}
+
 	message->mSession = this;
 
 	//check whether we are disconnecting
@@ -491,9 +505,6 @@ void Session::SendChannelAUnreliable(Message* message)
 		message->setPendingDelete(true);		
 		return;
 	}
-
-  // Do some boundschecking.
-  assert(message->getPriority() < 0x10);
   
   //gLogger->logMsgF("Sending message - Session:0x%x%.4x", MSG_LOW, mService->getId(), getId());
 
@@ -792,7 +803,14 @@ void Session::HandleFastpathPacket(Packet* packet)
 	mLastPacketReceived = Anh_Utils::Clock::getSingleton()->getLocalTime();
 	
 	packet->setReadIndex(0);
+
 	priority = packet->getUint8();
+	if (priority > 0x10)
+	{
+		gLogger->logMsgF("Session::HandleFastpathPacket priority messup!!!", MSG_HIGH );
+		return;
+	}
+
 	routed = packet->getUint8();
 	if (routed)
 	{
@@ -816,9 +834,6 @@ void Session::HandleFastpathPacket(Packet* packet)
 
 		
 	newMessage->setPriority(priority);
-	assert(newMessage->getPriority() < 0x10);
-	
-	
 	
 	newMessage->setDestinationId(dest);
 	newMessage->setAccountId(accountId);
@@ -1159,7 +1174,7 @@ void Session::_processDataChannelPacket(Packet* packet, bool fastPath)
   if(fastPath)
   {
 		gLogger->logMsgF("Session::_processDataChannel :: fastpath", MSG_HIGH);
-		assert(false);
+		return;
   }
   else
   {
@@ -1173,9 +1188,16 @@ void Session::_processDataChannelPacket(Packet* packet, bool fastPath)
 		  //gLogger->logMsgF("Incoming data - seq: %i expect: %u Session:0x%x%.4x", MSG_LOW, sequence, mInSequenceNext, mService->getId(), getId());
 		}
 
-	  // check to see if this is a multi-message message
-	  //uint16 len = packet->getSize() - 4;  // -2 header, -2 sequence
-	  priority = packet->getUint8();
+		// check to see if this is a multi-message message
+		//uint16 len = packet->getSize() - 4;  // -2 header, -2 sequence
+		priority = packet->getUint8();
+		if (priority > 0x10)
+		{
+			gLogger->logMsgF("Session::_processDataChannelPacket priority messup!!!", MSG_HIGH );
+			gLogger->hexDump(packet->getData(), packet->getSize());
+			return;
+		}
+
 	  routed = packet->getUint8();
 	  
 	  // If we're from the server, strip off our routing header.
@@ -1211,7 +1233,6 @@ void Session::_processDataChannelPacket(Packet* packet, bool fastPath)
 		  newMessage->setAccountId(accountId);
 		  newMessage->setDestinationId(dest);
 		  newMessage->setPriority(priority);
-		  assert(newMessage->getPriority() < 0x10);
 
 		  // Need to specify whether this is routed or not here, so we know in the app
 		  newMessage->setRouted(false);
@@ -1243,7 +1264,6 @@ void Session::_processDataChannelPacket(Packet* packet, bool fastPath)
 		newMessage->setAccountId(accountId);
 		newMessage->setDestinationId(dest);
 		newMessage->setPriority(priority);
-		assert(newMessage->getPriority() < 0x10);
 
 		// Push the message on our incoming queue
 		_addIncomingMessage(newMessage, priority);
@@ -1289,20 +1309,26 @@ void Session::_processDataChannelB(Packet* packet)
 	if (!mInSequenceNext == sequence)
 	{
 		gLogger->logMsgF("Session::_processDataChannelB :: Incoming data - seq: %i expect: %u Session:0x%x%.4x", MSG_HIGH, sequence, mInSequenceNext, mService->getId(), getId());
-		assert(false);;
+		return;
 	}
 
 	// check to see if this is a multi-message message
 	
 	priority = packet->getUint8();
+	if (priority > 0x10)
+	{
+		gLogger->logMsgF("Session::_processDataChannelB priority messup!!!", MSG_HIGH );
+		gLogger->hexDump(packet->getData(), packet->getSize());
+		return;
+	}
+
 	routed = packet->getUint8();
 	  
 	// If we're from the server, strip off our routing header.
 	if (!routed)
 	{
 		gLogger->logMsgF("Session::_processDataChannelB :: thats not routed ... sob :(", MSG_HIGH);			
-
-		assert(false);
+		return;
 	}
 
   
@@ -1322,13 +1348,20 @@ void Session::_processDataChannelB(Packet* packet)
 		  
 				// We need to get these again.
 				priority = packet->getUint8();
+				if (priority > 0x10)
+				{
+					gLogger->logMsgF("Session::_processDataChannelB priority messup!!!", MSG_HIGH );
+					gLogger->hexDump(packet->getData(), packet->getSize());
+					return;
+				}
+
 				routed =  packet->getUint8();  // Routing byte in a B 019 used!!! as we have interserver communication here
 		 
 				if(!routed)
 				{
 					gLogger->logMsgF("Session::_processDataChannelB :: thats not routed ... sob :(", MSG_HIGH);
 					gLogger->hexDump(packet->getData(),packet->getSize());
-					assert(false);
+					return;
 				}
 
 				dest = packet->getUint8();
@@ -1353,9 +1386,8 @@ void Session::_processDataChannelB(Packet* packet)
 				{
 					gLogger->logMsgF("Session::_processDataChannelB  packet messup message (!) priority size : %u!!!",MSG_HIGH, size);
 					gLogger->hexDump(packet->getData(),packet->getSize());
-					assert(false);
+					return;
 				}
-				assert(newMessage->getPriority() < 0x10);
 
 				// Need to specify whether this is routed or not here, so we know in the app
 				newMessage->setRouted(true);
@@ -1375,7 +1407,7 @@ void Session::_processDataChannelB(Packet* packet)
 			{
 				gLogger->logMsgF("Session::_processDataChannelB  Multi packet messup message size : %u!!!",MSG_HIGH, size);
 				gLogger->hexDump(packet->getData(),packet->getSize());
-				assert(false);
+				return;
 
 			}
 
@@ -1393,7 +1425,7 @@ void Session::_processDataChannelB(Packet* packet)
 			if (!routed)
 			{
 				gLogger->logMsgF("Session::_processDataChannelB :: thats not routed ... sob :(", MSG_HIGH);
-				assert(false);
+				return;
 			}
 			newMessage->setRouted(true);
 		
@@ -1403,7 +1435,12 @@ void Session::_processDataChannelB(Packet* packet)
 			newMessage->setDestinationId(dest);
 			
 			newMessage->setPriority(priority);
-			assert(newMessage->getPriority() < 0x10);
+			if (priority > 0x10)
+				{
+					gLogger->logMsgF("Session::_processDataChannelB priority messup!!!", MSG_HIGH );
+					gLogger->hexDump(newMessage->getData(), newMessage->getSize());
+					return;
+				}
 
 			// Push the message on our incoming queue
 			_addIncomingMessage(newMessage, priority);
@@ -1951,14 +1988,12 @@ void Session::_processFragmentedPacket(Packet* packet)
 		  newMessage->setAccountId(accountId);
 		  
 		  if (priority > 0x10)
-			{
-	
-				gLogger->logMsgF("Session::_processFragmentedPacket priority messup!!!", MSG_HIGH );
-				gLogger->hexDump(newMessage->getData(), newMessage->getSize());
+		  {
+			  gLogger->logMsgF("Session::_processFragmentedPacket priority messup!!!", MSG_HIGH );
+			  gLogger->hexDump(newMessage->getData(), newMessage->getSize());
+			  return;
+		  }
 
-			}
-
-		  assert(newMessage->getPriority() < 0x10);
 
 		  // Push the message on our incoming queue
 		  _addIncomingMessage(newMessage, priority);
@@ -2071,10 +2106,9 @@ void Session::_processRoutedFragmentedPacket(Packet* packet)
 	
 			gLogger->logMsgF("Session::_processFragmentedPacket priority messup!!!", MSG_HIGH );
 			gLogger->hexDump(newMessage->getData(), newMessage->getSize());
-
+			return;
 		  }
 
-		  assert(newMessage->getPriority() < 0x10);
 		  newMessage->setDestinationId(dest);
 		  newMessage->setAccountId(accountId);
 
@@ -2403,9 +2437,7 @@ void Session::_buildOutgoingReliableRoutedPackets(Message* message)
 	//newPacket->setSequence(mOutSequenceNext);
 	newPacket->addUint16(htons(mOutSequenceNext));
 	newPacket->addUint8(message->getPriority());
-	
-	assert(message->getRouted());
-	
+		
 	newPacket->addUint8(message->getRouted());
 	newPacket->addUint8(message->getDestinationId());
 	newPacket->addUint32(message->getAccountId());
@@ -2624,7 +2656,7 @@ uint32 Session::_buildPackets()
 	message->mPath = MP_buildPacketStarted;
 
 	//are there still any fastpath packets around at this point ?
-	assert(!message->getFastpath());
+	assert(!message->getFastpath() && "No Fastpath messages should reach this point");
 
 	//=================================
 	// messages need to be of a certain size to make multimessages viable
@@ -2881,9 +2913,9 @@ void Session::_buildUnreliableMultiDataPacket()
 		message = mMultiUnreliableQueue.front();
 		mMultiUnreliableQueue.pop();
 
-		assert((message->getSize() + 2)<= 255);
-		assert(!message->getRouted());
-		assert(message->getFastpath());
+		assert((message->getSize() + 2)<= 255 && "Message size should never be exceeded by this point");
+		assert(!message->getRouted() && "Message should be routed by this point");
+		assert(message->getFastpath() && "Only fastpath messages should be handled here");
 
 		newPacket->addUint8(message->getSize() + 2); // count priority + routing flag
 		newPacket->addUint8(message->getPriority());

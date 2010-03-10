@@ -114,7 +114,7 @@ void MessageFactory::StartMessage(void)
 	// Initialize the message start and end.
 	mCurrentMessageStart = mHeapStart;
 
-	assert(mCurrentMessage==0);	// Can't handle more than one message at once.
+	assert(mCurrentMessage==0 && "Can't handle more than one message at once.");
 
 	mCurrentMessageEnd = mCurrentMessageStart;
 
@@ -129,7 +129,7 @@ void MessageFactory::StartMessage(void)
 
 Message* MessageFactory::EndMessage(void)
 {
-  assert(mCurrentMessage);
+	assert(mCurrentMessage && "Must call StartMessage before EndMessage.");
 
   // Do some garbage collection if we can.
   _processGarbageCollection();
@@ -181,7 +181,7 @@ void MessageFactory::DestroyMessage(Message* message)
 void MessageFactory::addInt8(int8 data)
 {
 	// Make sure we've called StartMessage()
-	assert(mCurrentMessage);
+	assert(mCurrentMessage && "Must call StartMessage before adding data");
 
 	// Adjust start bounds if necessary.
 	_adjustHeapStartBounds(sizeof(data));
@@ -196,7 +196,7 @@ void MessageFactory::addInt8(int8 data)
 void MessageFactory::addUint8(uint8 data)
 {
 	// Make sure we've called StartMessage()
-	assert(mCurrentMessage);
+	assert(mCurrentMessage && "Must call StartMessage before adding data");
 
 	// Adjust start bounds if necessary.
 	_adjustHeapStartBounds(sizeof(data));
@@ -211,7 +211,7 @@ void MessageFactory::addUint8(uint8 data)
 void MessageFactory::addInt16(int16 data)
 {
 	// Make sure we've called StartMessage()
-	assert(mCurrentMessage);
+	assert(mCurrentMessage && "Must call StartMessage before adding data");
 
 	// Adjust start bounds if necessary.
 	_adjustHeapStartBounds(sizeof(data));
@@ -241,7 +241,7 @@ void MessageFactory::addUint16(uint16 data)
 void MessageFactory::addInt32(int32 data)
 {
 	// Make sure we've called StartMessage()
-	assert(mCurrentMessage);
+	assert(mCurrentMessage && "Must call StartMessage before adding data");
 
 	// Adjust start bounds if necessary.
 	_adjustHeapStartBounds(sizeof(data));
@@ -256,7 +256,7 @@ void MessageFactory::addInt32(int32 data)
 void MessageFactory::addUint32(uint32 data)
 {
 	// Make sure we've called StartMessage()
-	assert(mCurrentMessage);
+	assert(mCurrentMessage && "Must call StartMessage before adding data");
 
 	// Adjust start bounds if necessary.
 	_adjustHeapStartBounds(sizeof(data));
@@ -271,7 +271,7 @@ void MessageFactory::addUint32(uint32 data)
 void MessageFactory::addInt64(int64 data)
 {
 	// Make sure we've called StartMessage()
-	assert(mCurrentMessage);
+	assert(mCurrentMessage && "Must call StartMessage before adding data");
 
 	// Adjust start bounds if necessary.
 	_adjustHeapStartBounds(sizeof(data));
@@ -286,7 +286,7 @@ void MessageFactory::addInt64(int64 data)
 void MessageFactory::addUint64(uint64 data)
 {
 	// Make sure we've called StartMessage()
-	assert(mCurrentMessage);
+	assert(mCurrentMessage && "Must call StartMessage before adding data");
 
 	// Adjust start bounds if necessary.
 	_adjustHeapStartBounds(sizeof(data));
@@ -301,7 +301,7 @@ void MessageFactory::addUint64(uint64 data)
 void MessageFactory::addFloat(float data)
 {
 	// Make sure we've called StartMessage()
-	assert(mCurrentMessage);
+	assert(mCurrentMessage && "Must call StartMessage before adding data");
 
 	// Adjust start bounds if necessary.
 	_adjustHeapStartBounds(sizeof(data));
@@ -316,7 +316,7 @@ void MessageFactory::addFloat(float data)
 void MessageFactory::addDouble(double data)
 {
 	// Make sure we've called StartMessage()
-	assert(mCurrentMessage);
+	assert(mCurrentMessage && "Must call StartMessage before adding data");
 
 	// Adjust start bounds if necessary.
 	_adjustHeapStartBounds(sizeof(data));
@@ -357,7 +357,7 @@ void MessageFactory::addString(const wchar_t* ustring)
 void MessageFactory::addString(const string& data)
 {
 	// Make sure we've called StartMessage()
-	assert(mCurrentMessage);
+	assert(mCurrentMessage && "Must call StartMessage before adding data");
 
 	// Adjust start bounds if necessary.
 	_adjustHeapStartBounds(data.getDataLength());
@@ -395,7 +395,7 @@ void MessageFactory::addString(const string& data)
 void MessageFactory::addData(int8* data, uint16 len)
 {
 	// Make sure we've called StartMessage()
-	assert(mCurrentMessage);
+	assert(mCurrentMessage && "Must call StartMessage before adding data");
 
 	// Adjust start bounds if necessary.
 	_adjustHeapStartBounds(len);
@@ -415,8 +415,8 @@ void MessageFactory::_processGarbageCollection(void)
 
 	// Just check to see if the oldest message is ready to be deleted yet.
 	//start with the oldest message
+	assert(mHeapEnd < mMessageHeap + mHeapTotalSize && "mHeapEnd not within mMessageHeap bounds");
 	Message* message = reinterpret_cast<Message*>(mHeapEnd);
-	assert(mHeapEnd < mMessageHeap + mHeapTotalSize);
 
 	//when the oldest Message wont get deleted No other messages get deleted from the heap !!!!!!!!
 
@@ -454,8 +454,8 @@ void MessageFactory::_processGarbageCollection(void)
 				
 				if(!message)
 					return;
-				
-				assert(mHeapEnd < mMessageHeap + mHeapTotalSize);
+
+				assert(mHeapEnd < mMessageHeap + mHeapTotalSize  && "mHeapEnd not within mMessageHeap bounds");
 
 				further = (mHeapEnd != mHeapStart) && message->getPendingDelete();
 
@@ -575,7 +575,7 @@ void MessageFactory::_adjustHeapStartBounds(uint32 size)
 	uint32 messageSize = (mCurrentMessageEnd - mCurrentMessageStart);
 
 	//assert(mHeapTotalSize > messageSize + heapSize + size);
- 	assert(mHeapTotalSize > messageSize + heapSize );
+ 	assert(mHeapTotalSize > messageSize + heapSize && "Message heap overflow.");
 
 	// Check to see if this add is going to push past the heap boundry.
 	if(mCurrentMessageEnd + size > mMessageHeap + mHeapTotalSize)
@@ -617,7 +617,7 @@ void MessageFactory::_adjustMessageStart(uint32 size)
 	uint32 messageSize = (mCurrentMessageEnd - mCurrentMessageStart);
 
 	//assert(mHeapTotalSize > messageSize + heapSize + size);
- 	assert(mHeapTotalSize > messageSize + heapSize );
+ 	assert(mHeapTotalSize > messageSize + heapSize && "Message heap overflow.");
 
 	// Check to see if this add is going to push past the heap boundry.
 	if(mCurrentMessageEnd + size > mMessageHeap + mHeapTotalSize)

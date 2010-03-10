@@ -82,7 +82,7 @@ void Service::Startup(int8* localAddress, uint16 localPort,uint32 mfHeapSize)
 
 	//localAddress = (char*)gConfig->read<std::string>("BindAddress").c_str();
 	lasttime = Anh_Utils::Clock::getSingleton()->getLocalTime();
-	assert(strlen(localAddress) < 256);
+	assert(strlen(localAddress) < 256 && "Address length should be less than 256");
 	strcpy(mLocalAddressName, localAddress);
 	mLocalAddress = inet_addr(localAddress);
 	mLocalPort = htons(localPort);

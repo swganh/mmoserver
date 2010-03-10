@@ -743,7 +743,8 @@ bool MessageLib::sendCreateTangible(TangibleObject* tangibleObject,PlayerObject*
 		TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)));
 		if(!tO)
 		{
-			assert(false);
+			gLogger->logMsgF("Unable to find object with ID %PRIu64", MSG_HIGH, (*it));
+			continue;
 		}
 
 		PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetObject->getId()));
@@ -790,7 +791,8 @@ bool MessageLib::sendCreateFactoryCrate(FactoryCrate* crate,PlayerObject* target
 		TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)));
 		if(!tO)
 		{
-			assert(false);
+			gLogger->logMsgF("Unable to find object with ID %PRIu64", MSG_HIGH, (*it));
+			continue;
 		}
 
 		//PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetObject->getId()));
@@ -1140,7 +1142,7 @@ bool MessageLib::sendCreateObject(Object* object,PlayerObject* player,bool sendS
 {
 	if(!object)
 	{
-		assert(false);
+		gLogger->logMsg("Attempting sendCreateObject on an invalid object instance", MSG_HIGH);
 		return false;
 	}
 	switch(object->getType())
@@ -1222,12 +1224,6 @@ bool MessageLib::sendCreateObject(Object* object,PlayerObject* player,bool sendS
 			}
 
 			TangibleObject* tangibleObject = dynamic_cast<TangibleObject*>(object);
-			if(!tangibleObject)
-			{
-				//that wouldnt make a lot of sense would it?
-				assert(false);
-				return false;
-			}
 
 			return gMessageLib->sendCreateTangible(tangibleObject,player);		
 		}
@@ -1246,10 +1242,6 @@ bool MessageLib::sendCreateObject(Object* object,PlayerObject* player,bool sendS
 				if(BuildingObject* building = dynamic_cast<BuildingObject*>(object))
 				{
 					gMessageLib->sendCreateBuilding(building,player);
-				}
-				else
-				{
-					assert(false);
 				}
 			}
 		}

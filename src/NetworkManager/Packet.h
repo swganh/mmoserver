@@ -106,7 +106,7 @@ public:
   void                          setTimeSent(uint64 time)            { mTimeSent = time; }
   void                          setTimeOOHSent(uint64 time)         { mTimeOOHSent = time; }
   void                          setResends(uint32 resends)          { mResends = resends; }
-  void                          setSize(uint16 size)                { mSize = size; assert(size <= mMaxPayLoad); }
+  void                          setSize(uint16 size)                { assert(size <= mMaxPayLoad && "Packet size larger than MaxPayLoad"); mSize = size; }
   void                          setPacketType(uint16 type)          { *((int16*)mData) = type; }
   void                          setIsCompressed(bool compressed)    { mCompressed = compressed; }
   void                          setIsEncrypted(bool encrypted)      { mEncrypted = encrypted; }
@@ -114,11 +114,11 @@ public:
 
 
   // Two generic interfaces to mData.  Temporary until a better ones can be implemented.
-  void                          addUint8(uint8 data)                { *(uint8*)&mData[mWriteIndex] = data; mWriteIndex += sizeof(uint8);  if (mWriteIndex > mSize) mSize = mWriteIndex; assert(mSize <= mMaxPayLoad); }
-  void                          addUint16(uint16 data)              { *(uint16*)&mData[mWriteIndex] = data; mWriteIndex += sizeof(uint16);  if (mWriteIndex > mSize) mSize = mWriteIndex; assert(mSize <= mMaxPayLoad); }
-  void                          addUint32(uint32 data)              { *(uint32*)&mData[mWriteIndex] = data; mWriteIndex += sizeof(uint32); if (mWriteIndex > mSize) mSize = mWriteIndex; assert(mSize <= mMaxPayLoad); }
-  void                          addUint64(uint64 data)              { *(uint64*)&mData[mWriteIndex] = data; mWriteIndex += sizeof(uint64); if (mWriteIndex > mSize) mSize = mWriteIndex; assert(mSize <= mMaxPayLoad); }
-  void                          addData(int8* data, uint16 len)     { memcpy((void*)&mData[mWriteIndex], data, len); mWriteIndex += len; if (mWriteIndex > mSize) mSize = mWriteIndex; assert(mSize <= mMaxPayLoad); }
+  void                          addUint8(uint8 data)                { *(uint8*)&mData[mWriteIndex] = data; mWriteIndex += sizeof(uint8);  if (mWriteIndex > mSize) mSize = mWriteIndex; assert(mSize <= mMaxPayLoad && "Packet size larger than MaxPayLoad"); }
+  void                          addUint16(uint16 data)              { *(uint16*)&mData[mWriteIndex] = data; mWriteIndex += sizeof(uint16);  if (mWriteIndex > mSize) mSize = mWriteIndex; assert(mSize <= mMaxPayLoad && "Packet size larger than MaxPayLoad"); }
+  void                          addUint32(uint32 data)              { *(uint32*)&mData[mWriteIndex] = data; mWriteIndex += sizeof(uint32); if (mWriteIndex > mSize) mSize = mWriteIndex; assert(mSize <= mMaxPayLoad && "Packet size larger than MaxPayLoad"); }
+  void                          addUint64(uint64 data)              { *(uint64*)&mData[mWriteIndex] = data; mWriteIndex += sizeof(uint64); if (mWriteIndex > mSize) mSize = mWriteIndex; assert(mSize <= mMaxPayLoad && "Packet size larger than MaxPayLoad"); }
+  void                          addData(int8* data, uint16 len)     { memcpy((void*)&mData[mWriteIndex], data, len); mWriteIndex += len; if (mWriteIndex > mSize) mSize = mWriteIndex; assert(mSize <= mMaxPayLoad && "Packet size larger than MaxPayLoad"); }
 
   int8                          getInt8(void)                       { int8 value = *(int8*)&mData[mReadIndex]; mReadIndex += sizeof(int8); return value; }
   uint8                         getUint8(void)                      { uint8 value = *(uint8*)&mData[mReadIndex]; mReadIndex += sizeof(uint8); return value; }

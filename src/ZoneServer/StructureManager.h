@@ -229,11 +229,12 @@ class Type_QueryContainer
 class StructureManager : public DatabaseCallback,public ObjectFactoryCallback
 {
 	friend class ObjectFactory;
+	friend class StructureManagerCommandMapClass;
 
 
 	public:
 		//System
-		friend class StructureManagerCommandMapClass;
+		
 
 		static StructureManager*	getSingletonPtr() { return mSingleton; }
 		static StructureManager*	Init(Database* database,MessageDispatch* dispatch);
@@ -318,10 +319,17 @@ class StructureManager : public DatabaseCallback,public ObjectFactoryCallback
 	private:
 
 		//callback functions
-		void						_HandleQueryHopperPermissionData(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result);
-		void						_HandleQueryAdminPermissionData(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result);
-		void						_HandleQueryEntryPermissionData(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result);
-		void						_HandleQueryBanPermissionData(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result);
+		void				_HandleQueryHopperPermissionData(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result);
+		void				_HandleQueryAdminPermissionData(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result);
+		void				_HandleQueryEntryPermissionData(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result);
+		void				_HandleQueryBanPermissionData(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result);
+		void				_HandleUpdateCharacterLots(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result);
+		void				_HandleStructureRedeedCallBack(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result);
+		void				_HandleStructureDestruction(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result);
+		void				_HandleGetInactiveHarvesters(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result);
+		void				_HandleStructureTransferLotsRecipient(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result);
+		void				_HandleQueryLoadDeedData(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result);
+		void				_HandleRemovePermission(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result);
 		
 
 		StructureManager(Database* database,MessageDispatch* dispatch);

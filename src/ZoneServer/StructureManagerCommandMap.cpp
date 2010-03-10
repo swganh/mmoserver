@@ -11,25 +11,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "WorldConfig.h"
 #include "StructureManager.h"
 
-#include "PlayerStructureTerminal.h"
-#include "FactoryFactory.h"
-#include "nonPersistantObjectFactory.h"
-#include "HarvesterObject.h"
-#include "HouseObject.h"
-#include "FactoryObject.h"
-#include "Inventory.h"
-#include "DataPad.h"
-#include "ResourceContainer.h"
-#include "ResourceType.h"
-#include "ObjectFactory.h"
-#include "ManufacturingSchematic.h"
-#include "PlayerObject.h"
-#include "PlayerStructure.h"
-#include "QuadTree.h"
-#include "WorldManager.h"
-#include "ZoneTree.h"
-#include "MessageLib/MessageLib.h"
-
 #include "LogManager/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "Utils/rand.h"
@@ -58,8 +39,13 @@ StructureManagerCommandMapClass::StructureManagerCommandMapClass()
 	mCommandMap.insert(std::make_pair(Structure_Query_Admin_Permission_Data,&StructureManager::_HandleQueryAdminPermissionData));
 	mCommandMap.insert(std::make_pair(Structure_Query_Ban_Permission_Data,&StructureManager::_HandleQueryBanPermissionData));
 	mCommandMap.insert(std::make_pair(Structure_Query_Entry_Permission_Data,&StructureManager::_HandleQueryEntryPermissionData));
-//	mCommandMap.insert(std::make_pair(opAttributeAttr_Health,&Food::_handleHealth_Buff));
-//	mCommandMap.insert(std::make_pair(opAttributeAttr_Mind,&Food::_handleMind_Buff));
-	
+	mCommandMap.insert(std::make_pair(Structure_UpdateCharacterLots,&StructureManager::_HandleUpdateCharacterLots));
+	mCommandMap.insert(std::make_pair(Structure_UpdateStructureDeed,&StructureManager::_HandleStructureRedeedCallBack));
+	mCommandMap.insert(std::make_pair(Structure_GetDestructionStructures,&StructureManager::_HandleStructureDestruction));
+	mCommandMap.insert(std::make_pair(Structure_GetInactiveHarvesters,&StructureManager::_HandleGetInactiveHarvesters));
+	mCommandMap.insert(std::make_pair(Structure_StructureTransfer_Lots_Recipient,&StructureManager::_HandleStructureTransferLotsRecipient));
+	mCommandMap.insert(std::make_pair(Structure_Query_LoadDeedData,&StructureManager::_HandleQueryLoadDeedData));
+	mCommandMap.insert(std::make_pair(Structure_Query_Remove_Permission,&StructureManager::_HandleRemovePermission));
+
 	
 }

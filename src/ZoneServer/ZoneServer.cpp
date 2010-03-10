@@ -155,7 +155,13 @@ void ZoneServer::Startup(int8* zoneName)
 	ObjectControllerCommandMap::Init(mDatabase);
 	MessageLib::Init();
 	ObjectFactory::Init(mDatabase);
+	
+	//attribute commands for foodbuffs
 	FoodCommandMapClass::Init();
+	
+	//structuremanager callback functions 
+	StructureManagerCommandMapClass::Init();
+
 	WorldManager::Init(zoneId,this,mDatabase);
 
 	// Init the non persistent factories. For now we take them one-by-one here, until we have a collection of them.

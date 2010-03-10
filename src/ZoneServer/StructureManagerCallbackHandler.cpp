@@ -192,6 +192,396 @@ void StructureManager::_HandleQueryBanPermissionData(StructureManagerAsyncContai
 	mDatabase->DestroyDataBinding(binding);
 }
 
+//==================================================================================================
+// 
+// updates the characters lots
+//
+void StructureManager::_HandleUpdateCharacterLots(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result)
+{
+	PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
+
+	uint8 lotCount;
+	DataBinding* binding = mDatabase->CreateDataBinding(1);
+	binding->addField(DFT_uint8,0,1);
+
+	uint64 count;
+	count = result->getRowCount();
+
+	if (!count)
+	{
+		gLogger->logMsgLoadFailure("StructureManager::add Permission no return value...",MSG_NORMAL);
+		return;
+	}
+	result->GetNextRow(binding,&lotCount);
+
+	if(player)
+	{
+		//update the lots
+		uint8 maxLots = gWorldConfig->getConfiguration("Player_Max_Lots",(uint8)10);
+
+		maxLots -= static_cast<uint8>(lotCount);
+		player->setLots((uint8)maxLots);
+
+		
+	}
+	mDatabase->DestroyDataBinding(binding);
+	
+}
+
+//==================================================================================================
+// 
+// this is the callback from updating the structures deed in case the structure redeeded
+// we use it to create the deed in the inventory and get all the other necessary stuff underway 
+// to delete the playerstructure
+
+void StructureManager::_HandleStructureRedeedCallBack(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result)
+{
+	PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(asynContainer->mStructureId));
+
+	//if its a playerstructure boot all players and pets inside
+	HouseObject* house = dynamic_cast<HouseObject*>(structure);
+	if(house)
+	{
+		house->prepareDestruction();
+	}
+	
+
+	//destroy the structure here so the sf can still access the relevant data
+	gObjectFactory->deleteObjectFromDB(structure);
+	gMessageLib->sendDestroyObject_InRangeofObject(structure);
+
+	gWorldManager->destroyObject(structure);
+	
+
+	PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
+
+	uint64 deedId;
+	DataBinding* binding = mDatabase->CreateDataBinding(1);
+	binding->addField(DFT_uint64,0,8);
+
+	uint64 count;
+	count = result->getRowCount();
+
+	if (!count)
+	{
+		gLogger->logMsgLoadFailure("StructureManager::create deed no result...",MSG_NORMAL);
+		mDatabase->DestroyDataBinding(binding);
+		return;
+	}
+	result->GetNextRow(binding,&deedId);
+
+	//return value of 0 means something wasnt found
+	if(!deedId)
+	{
+		gLogger->logMsgF("StructureManager::create deed no valid return value...",MSG_NORMAL);
+		mDatabase->DestroyDataBinding(binding);
+		return;
+	}
+	//returnvalue of 1 means that there wasnt enough money on the deed
+	if(deedId == 1)
+	{
+		gLogger->logMsgF("StructureManager::create deed with not enough maintenance...",MSG_NORMAL);
+		gMessageLib->sendSysMsg(player, "player_structure","structure_destroyed ");	
+		mDatabase->DestroyDataBinding(binding);
+		return;
+	}
+
+	if(player)
+	{
+		//load the deed into the inventory
+		Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+		if(inventory)
+		{
+			//15 is itemfamily for deeds
+			gObjectFactory->createIteminInventory(inventory,deedId,TanGroup_Item);
+		}
+	}
+
+	UpdateCharacterLots(asynContainer->mPlayerId);
+
+	mDatabase->DestroyDataBinding(binding);
+}
+
+//==================================================================================================
+// 
+// handles the callback of the destruction of structures when condition wears of.
+// 
+
+void StructureManager::_HandleStructureDestruction(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result)
+{
+	struct structData
+	{
+		uint64 id;
+		uint32 condition;
+	};
+
+	structData sd;
+
+	DataBinding* binding = mDatabase->CreateDataBinding(2);
+	binding->addField(DFT_uint64,offsetof(structData,id),8,0);
+	binding->addField(DFT_uint32,offsetof(structData,condition),4,1);
+
+	uint64 count;
+	count = result->getRowCount();
+
+	for(uint64 i = 0;i < count;i++)
+	{
+		result->GetNextRow(binding,&sd);
+
+		PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(sd.id));
+		if(structure)
+		{
+			gLogger->logMsgF("StructureManager::delete structure due to zero condition %I64u",MSG_NORMAL,structure->getId());
+			//delete the deed in the db
+			//the parent is the structure and the item family is 15
+			int8 sql[100];
+			sprintf(sql,"DELETE FROM items WHERE parent_id = %"PRIu64" AND item_family = 15",structure->getId());
+			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
+
+			//delete harvester db side with all power and all resources
+			gObjectFactory->deleteObjectFromDB(structure);
+			UpdateCharacterLots(structure->getOwner());
+
+			//delete it in the world
+			gMessageLib->sendDestroyObject_InRangeofObject(structure);
+			gWorldManager->destroyObject(structure);
+
+
+								
+		}
+	}
+
+	mDatabase->DestroyDataBinding(binding);
+}
+
+//==================================================================================================
+// 
+// handles the callback of the destruction of structures when condition wears of.
+// 
+
+void StructureManager::_HandleGetInactiveHarvesters(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result)
+{
+
+	struct structData
+	{
+		uint64 id;
+		uint32 condition;
+	};
+
+	structData sd;
+
+	DataBinding* binding = mDatabase->CreateDataBinding(2);
+	binding->addField(DFT_uint64,offsetof(structData,id),8,0);
+	binding->addField(DFT_uint32,offsetof(structData,condition),4,1);
+
+	uint64 count;
+	count = result->getRowCount();
+
+	for(uint64 i = 0;i < count;i++)
+	{
+		result->GetNextRow(binding,&sd);
+
+		HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(gWorldManager->getObjectById(sd.id));
+		if(harvester)
+		{
+			//if the harvesters status is changed we need to alter it
+			if(harvester->getActive())
+			{
+				harvester->setActive(false);
+				harvester->setDamage(sd.condition);
+				
+				gMessageLib->sendHarvesterActive(harvester);
+
+			}
+			//Now update the condition
+			gMessageLib->sendHarvesterCurrentConditionUpdate(harvester);
+		}
+
+	}
+
+	mDatabase->DestroyDataBinding(binding);
+}
+
+//==================================================================================================
+// 
+// tests the amount of lots for the recipient of a structure during a structure transfer
+// 
+
+void StructureManager::_HandleStructureTransferLotsRecipient(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result)
+{
+	PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(asynContainer->mStructureId));
+
+	PlayerObject* donor = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
+	PlayerObject* recipient = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mTargetId));
+
+	uint8 lots;
+	DataBinding* binding = mDatabase->CreateDataBinding(1);
+	binding->addField(DFT_uint8,0,1);
+
+	uint64 count;
+	count = result->getRowCount();
+	if(!count)
+	{
+		gLogger->logMsgF("StructureManager::Transfer Structure Admin List Callback couldnt get recipients lots",MSG_HIGH);
+		mDatabase->DestroyDataBinding(binding);			
+		return;
+	}
+
+	
+	//thats lots in use
+	result->GetNextRow(binding,&lots);
+
+	uint8 requiredLots = structure->getLotCount();
+
+	uint8 freelots = gWorldConfig->getConfiguration("Player_Max_Lots",(uint8)10) - lots;
+	if(freelots >= requiredLots)
+	{
+		//yay we were succesful
+		structure->setOwner(asynContainer->mTargetId);
+		mDatabase->ExecuteSqlAsync(0,0,"UPDATE structures SET structures.owner = %I64u WHERE structures.id = %I64u",asynContainer->mTargetId,asynContainer->mStructureId);
+		mDatabase->ExecuteSqlAsync(0,0,"DELETE FROM structure_admin_data where playerId = %I64u AND StructureID = %I64u",asynContainer->mPlayerId,asynContainer->mStructureId);
+		mDatabase->ExecuteSqlAsync(0,0,"INSERT INTO structure_admin_data VALUES (NULL,%I64u,%I64u,'ADMIN')",asynContainer->mStructureId, asynContainer->mTargetId);
+		        
+
+		//update the administration list
+
+		if(donor)
+		{
+			gMessageLib->sendSystemMessage(donor,L"","player_structure","ownership_transferred_out","",asynContainer->name);
+		}
+		if(recipient)
+		{
+			gMessageLib->sendSystemMessage(recipient,L"","player_structure","ownership_transferred_in","",donor->getFirstName().getAnsi());
+		}
+		
+
+	}
+	else
+	{
+		//say something
+	}
+	
+	mDatabase->DestroyDataBinding(binding);												   	
+}
+
+//==================================================================================================
+// 
+// basic structuretype information for the structuremanager	loaded on startup
+// 
+
+void StructureManager::_HandleQueryLoadDeedData(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result)
+{
+	StructureDeedLink* deedLink;
+
+	DataBinding* binding = mDatabase->CreateDataBinding(9);
+	binding->addField(DFT_uint32,offsetof(StructureDeedLink,structure_type),4,0);
+	binding->addField(DFT_uint32,offsetof(StructureDeedLink,item_type),4,1);
+	binding->addField(DFT_uint32,offsetof(StructureDeedLink,skill_Requirement),4,2);
+	binding->addField(DFT_bstring,offsetof(StructureDeedLink,structureObjectString),128,3);
+	binding->addField(DFT_uint8,offsetof(StructureDeedLink,requiredLots),1,4);
+	binding->addField(DFT_bstring,offsetof(StructureDeedLink,stf_name),64,5);
+	binding->addField(DFT_bstring,offsetof(StructureDeedLink,stf_file),64,6);
+	binding->addField(DFT_float,offsetof(StructureDeedLink,healing_modifier),4,7);
+	binding->addField(DFT_uint32,offsetof(StructureDeedLink,repair_cost),4,8);
+
+	uint64 count;
+	count = result->getRowCount();
+
+	for(uint64 i = 0;i < count;i++)
+	{
+		deedLink	= new(StructureDeedLink);
+		result->GetNextRow(binding,deedLink);
+		mDeedLinkList.push_back(deedLink);
+	}
+
+	if(result->getRowCount())
+		gLogger->logMsgLoadSuccess("StructureManager::Loading %u Structures...",MSG_NORMAL,result->getRowCount());
+	else
+		gLogger->logMsgLoadFailure("StructureManager::Loading Structures...",MSG_NORMAL);
+
+	mDatabase->DestroyDataBinding(binding);
+}
+
+//==================================================================================================
+// 
+// a player has been removed from the permission list of a structure
+// 
+
+void StructureManager::_HandleRemovePermission(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result)
+{
+	//PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(asynContainer->mStructureId));
+
+	PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
+
+	uint32 returnValue;
+	DataBinding* binding = mDatabase->CreateDataBinding(1);
+	binding->addField(DFT_uint32,0,4);
+
+	uint64 count;
+	count = result->getRowCount();
+
+	if (!count)
+	{
+		gLogger->logMsgLoadFailure("StructureManager::Structure_Query_Remove_Permission no return value...",MSG_NORMAL);
+	}
+	result->GetNextRow(binding,&returnValue);
+	// 0 is sucess
+	// 1 name doesnt exist
+	// 2 name not on list
+	// 3 Owner cannot be removed
+
+	if(returnValue == 0)
+	{
+		string name;
+		name = asynContainer->name;
+		name.convert(BSTRType_Unicode16);
+		gMessageLib->sendSystemMessage(player,L"","player_structure","player_removed","","",name.getUnicode16());
+	}
+
+	if(returnValue == 1)
+	{
+		string name;
+		name = asynContainer->name;
+		name.convert(BSTRType_Unicode16);
+
+		gMessageLib->sendSystemMessage(player,L"","player_structure","modify_list_invalid_player","","",name.getUnicode16());
+	}
+
+	if(returnValue == 2)
+	{
+		string name;
+		name = asynContainer->name;
+		//name.convert(BSTRType_Unicode16);
+		name.convert(BSTRType_ANSI);
+		name << " is not on the list";
+		name.convert(BSTRType_Unicode16);
+		gMessageLib->sendSystemMessage(player,name.getUnicode16());
+	}
+
+	if(returnValue == 3)
+	{
+		string name;
+		name = asynContainer->name;
+		name.convert(BSTRType_Unicode16);
+
+		gMessageLib->sendSystemMessage(player,L"","player_structure","cannot_remove_owner","","",name.getUnicode16());
+	}
+
+
+	//sendStructureAdminList(asynContainer->mPlayerId);
+
+	mDatabase->DestroyDataBinding(binding);
+}
+
+//==================================================================================================
+// 
+// after adding a name to the admin list we read it in again
+// 
+
+//void StructureManager::_HandleUpdateAdminPermission(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result)
+//{
+//}
+
 void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 {
 	StructureManagerAsyncContainer* asynContainer = (StructureManagerAsyncContainer*)ref;
@@ -205,367 +595,6 @@ void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
 	switch(asynContainer->mQueryType)
 	{
-
-		//asynchronously updates the playerlots for a character
-		case Structure_UpdateCharacterLots:
-		{
-			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
-
-			uint8 lotCount;
-			DataBinding* binding = mDatabase->CreateDataBinding(1);
-			binding->addField(DFT_uint8,0,1);
-
-			uint64 count;
-			count = result->getRowCount();
-
-			if (!count)
-			{
-				gLogger->logMsgLoadFailure("StructureManager::add Permission no return value...",MSG_NORMAL);
-				return;
-			}
-			result->GetNextRow(binding,&lotCount);
-
-			if(player)
-			{
-				//update the lots
-				uint8 maxLots = gWorldConfig->getConfiguration("Player_Max_Lots",(uint8)10);
-
-				maxLots -= static_cast<uint8>(lotCount);
-				player->setLots((uint8)maxLots);
-
-				
-			}
-			mDatabase->DestroyDataBinding(binding);
-		}
-		break;
-
-		//this is the callback from updating the structures deed in case the structure redeeded
-		//we use it to create the deed in the inventory
-		case Structure_UpdateStructureDeed:
-		{
-			
-			PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(asynContainer->mStructureId));
-
-			//if its a playerstructure boot all players and pets inside
-			HouseObject* house = dynamic_cast<HouseObject*>(structure);
-			if(house)
-			{
-				house->prepareDestruction();
-			}
-			
-
-			//destroy the structure here so the sf can still access the relevant data
-			gObjectFactory->deleteObjectFromDB(structure);
-			gMessageLib->sendDestroyObject_InRangeofObject(structure);
-
-			gWorldManager->destroyObject(structure);
-			
-
-			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
-
-			uint64 deedId;
-			DataBinding* binding = mDatabase->CreateDataBinding(1);
-			binding->addField(DFT_uint64,0,8);
-
-			uint64 count;
-			count = result->getRowCount();
-
-			if (!count)
-			{
-				gLogger->logMsgLoadFailure("StructureManager::create deed no returned values...",MSG_NORMAL);
-				mDatabase->DestroyDataBinding(binding);
-				return;
-			}
-			result->GetNextRow(binding,&deedId);
-
-			//return value of 0 means something wasnt found
-			if(!deedId)
-			{
-				gLogger->logMsgLoadFailure("StructureManager::create deed no return value...",MSG_NORMAL);
-				mDatabase->DestroyDataBinding(binding);
-				return;
-			}
-			//returnvalue of 1 means that there wasnt enough money on the deed
-			if(deedId == 1)
-			{
-				gLogger->logMsgLoadFailure("StructureManager::create deed with not enough maintenance...",MSG_NORMAL);
-				mDatabase->DestroyDataBinding(binding);
-				return;
-			}
-
-			if(player)
-			{
-				//load the deed into the inventory
-				Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-				if(inventory)
-				{
-					//15 is itemfamily for deeds
-					gObjectFactory->createIteminInventory(inventory,deedId,TanGroup_Item);
-				}
-			}
-
-			UpdateCharacterLots(asynContainer->mPlayerId);
-
-			mDatabase->DestroyDataBinding(binding);
-		}
-		break;
-
-		//this is a list of the structures that has zero condition and needs to get destroyed
-		case Structure_GetDestructionStructures:
-		{
-			struct structData
-			{
-				uint64 id;
-				uint32 condition;
-			};
-
-			structData sd;
-
-			DataBinding* binding = mDatabase->CreateDataBinding(2);
-			binding->addField(DFT_uint64,offsetof(structData,id),8,0);
-			binding->addField(DFT_uint32,offsetof(structData,condition),4,1);
-
-			uint64 count;
-			count = result->getRowCount();
-
-			for(uint64 i = 0;i < count;i++)
-			{
-				result->GetNextRow(binding,&sd);
-
-				PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(sd.id));
-				if(structure)
-				{
-					gLogger->logMsgF("StructureManager::delete structure due to zero condition %I64u",MSG_NORMAL,structure->getId());
-					//delete the deed in the db
-					//the parent is the structure and the item family is 15
-					int8 sql[100];
-					sprintf(sql,"DELETE FROM items WHERE parent_id = %"PRIu64" AND item_family = 15",structure->getId());
-					mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
-
-					//delete harvester db side with all power and all resources
-					gObjectFactory->deleteObjectFromDB(structure);
-					UpdateCharacterLots(structure->getOwner());
-
-					//delete it in the world
-					gMessageLib->sendDestroyObject_InRangeofObject(structure);
-					gWorldManager->destroyObject(structure);
-
-
-										
-				}
-			}
-
-			mDatabase->DestroyDataBinding(binding);
-
-		}
-		break;
-
-		case Structure_GetInactiveHarvesters:
-		{
-			struct structData
-			{
-				uint64 id;
-				uint32 condition;
-			};
-
-			structData sd;
-
-			DataBinding* binding = mDatabase->CreateDataBinding(2);
-			binding->addField(DFT_uint64,offsetof(structData,id),8,0);
-			binding->addField(DFT_uint32,offsetof(structData,condition),4,1);
-
-			uint64 count;
-			count = result->getRowCount();
-
-			for(uint64 i = 0;i < count;i++)
-			{
-				result->GetNextRow(binding,&sd);
-
-				HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(gWorldManager->getObjectById(sd.id));
-				if(harvester)
-				{
-					//if the harvesters status is changed we need to alter it
-					if(harvester->getActive())
-					{
-						harvester->setActive(false);
-						harvester->setDamage(sd.condition);
-						
-						gMessageLib->sendHarvesterActive(harvester);
-
-					}
-					//Now update the condition
-					gMessageLib->sendHarvesterCurrentConditionUpdate(harvester);
-				}
-
-			}
-
-			mDatabase->DestroyDataBinding(binding);
-
-
-		}
-		break;
-
-		//tests the amount of lots for the recipient of a structure during a structure transfer
-		case Structure_StructureTransfer_Lots_Recipient:
-		{
-			PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(asynContainer->mStructureId));
-
-			PlayerObject* donor = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
-			PlayerObject* recipient = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mTargetId));
-
-			uint8 lots;
-			DataBinding* binding = mDatabase->CreateDataBinding(1);
-			binding->addField(DFT_uint8,0,1);
-
-			uint64 count;
-			count = result->getRowCount();
-			if(!count)
-			{
-				gLogger->logMsgF("StructureManager::Transfer Structure Admin List Callback couldnt get recipients lots",MSG_HIGH);
-				mDatabase->DestroyDataBinding(binding);			
-				return;
-			}
-
-			
-			//thats lots in use
-			result->GetNextRow(binding,&lots);
-
-			uint8 requiredLots = structure->getLotCount();
-
-			uint8 freelots = gWorldConfig->getConfiguration("Player_Max_Lots",(uint8)10) - lots;
-			if(freelots >= requiredLots)
-			{
-				//yay we were succesful
-				structure->setOwner(asynContainer->mTargetId);
-				mDatabase->ExecuteSqlAsync(0,0,"UPDATE structures SET structures.owner = %I64u WHERE structures.id = %I64u",asynContainer->mTargetId,asynContainer->mStructureId);
-				mDatabase->ExecuteSqlAsync(0,0,"DELETE FROM structure_admin_data where playerId = %I64u AND StructureID = %I64u",asynContainer->mPlayerId,asynContainer->mStructureId);
-				mDatabase->ExecuteSqlAsync(0,0,"INSERT INTO structure_admin_data VALUES (NULL,%I64u,%I64u,'ADMIN')",asynContainer->mStructureId, asynContainer->mTargetId);
-				        
-
-				//update the administration list
-
-				if(donor)
-				{
-					gMessageLib->sendSystemMessage(donor,L"","player_structure","ownership_transferred_out","",asynContainer->name);
-				}
-				if(recipient)
-				{
-					gMessageLib->sendSystemMessage(recipient,L"","player_structure","ownership_transferred_in","",donor->getFirstName().getAnsi());
-				}
-				
-
-			}
-			else
-			{
-			}
-			
-			mDatabase->DestroyDataBinding(binding);												   	
-
-		}
-		break;
-
-		// basic structure information for the structuremanager
-		case Structure_Query_LoadDeedData:
-		{
-			StructureDeedLink* deedLink;
-
-			DataBinding* binding = mDatabase->CreateDataBinding(9);
-			binding->addField(DFT_uint32,offsetof(StructureDeedLink,structure_type),4,0);
-			binding->addField(DFT_uint32,offsetof(StructureDeedLink,item_type),4,1);
-			binding->addField(DFT_uint32,offsetof(StructureDeedLink,skill_Requirement),4,2);
-			binding->addField(DFT_bstring,offsetof(StructureDeedLink,structureObjectString),128,3);
-			binding->addField(DFT_uint8,offsetof(StructureDeedLink,requiredLots),1,4);
-			binding->addField(DFT_bstring,offsetof(StructureDeedLink,stf_name),64,5);
-			binding->addField(DFT_bstring,offsetof(StructureDeedLink,stf_file),64,6);
-			binding->addField(DFT_float,offsetof(StructureDeedLink,healing_modifier),4,7);
-			binding->addField(DFT_uint32,offsetof(StructureDeedLink,repair_cost),4,8);
-
-			uint64 count;
-			count = result->getRowCount();
-
-			for(uint64 i = 0;i < count;i++)
-			{
-				deedLink	= new(StructureDeedLink);
-				result->GetNextRow(binding,deedLink);
-				mDeedLinkList.push_back(deedLink);
-			}
-
-			if(result->getRowCount())
-				gLogger->logMsgLoadSuccess("StructureManager::Loading %u Structures...",MSG_NORMAL,result->getRowCount());
-			else
-				gLogger->logMsgLoadFailure("StructureManager::Loading Structures...",MSG_NORMAL);
-
-			mDatabase->DestroyDataBinding(binding);
-		}
-		break;
-
-		// a player has been removed from the permission list of a structure
-		case Structure_Query_Remove_Permission:
-		{
-			//PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(asynContainer->mStructureId));
-
-			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
-
-			uint32 returnValue;
-			DataBinding* binding = mDatabase->CreateDataBinding(1);
-			binding->addField(DFT_uint32,0,4);
-
-			uint64 count;
-			count = result->getRowCount();
-
-			if (!count)
-			{
-				gLogger->logMsgLoadFailure("StructureManager::Structure_Query_Remove_Permission no return value...",MSG_NORMAL);
-			}
-			result->GetNextRow(binding,&returnValue);
-			// 0 is sucess
-			// 1 name doesnt exist
-			// 2 name not on list
-			// 3 Owner cannot be removed
-
-			if(returnValue == 0)
-			{
-				string name;
-				name = asynContainer->name;
-				name.convert(BSTRType_Unicode16);
-				gMessageLib->sendSystemMessage(player,L"","player_structure","player_removed","","",name.getUnicode16());
-			}
-
-			if(returnValue == 1)
-			{
-				string name;
-				name = asynContainer->name;
-				name.convert(BSTRType_Unicode16);
-
-				gMessageLib->sendSystemMessage(player,L"","player_structure","modify_list_invalid_player","","",name.getUnicode16());
-			}
-
-			if(returnValue == 2)
-			{
-				string name;
-				name = asynContainer->name;
-				//name.convert(BSTRType_Unicode16);
-				name.convert(BSTRType_ANSI);
-				name << " is not on the list";
-				name.convert(BSTRType_Unicode16);
-				gMessageLib->sendSystemMessage(player,name.getUnicode16());
-			}
-
-			if(returnValue == 3)
-			{
-				string name;
-				name = asynContainer->name;
-				name.convert(BSTRType_Unicode16);
-
-				gMessageLib->sendSystemMessage(player,L"","player_structure","cannot_remove_owner","","",name.getUnicode16());
-			}
-
-
-			//sendStructureAdminList(asynContainer->mPlayerId);
-
-			mDatabase->DestroyDataBinding(binding);
-		}
-		break;
 
 		case Structure_Query_UpdatePermission:
 		{

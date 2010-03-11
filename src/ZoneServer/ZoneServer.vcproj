@@ -1848,10 +1848,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\MapNames.h"
-				>
-			</File>
-			<File
 				RelativePath=".\ZoneOpcodes.h"
 				>
 			</File>

@@ -811,92 +811,39 @@ bool MessageLib::sendUpdateCellPermissionMessage(CellObject* cellObject,uint8 pe
 
 //======================================================================================================================
 //
-// play a clienteffect
+// play a clienteffect, if a player is given it will be sent to him only, otherwise to everyone in range of the effectObject
 //
 
-bool MessageLib::sendPlayClientEffectObjectMessage(string effect,string location,PlayerObject* originObject,CreatureObject* targetObject)
+bool MessageLib::sendPlayClientEffectObjectMessage(string effect,string location,Object* effectObject,PlayerObject* playerObject)
 {
-	if(!(originObject->isConnected()))
-		return(false);
-
 	gMessageFactory->StartMessage();   
 	gMessageFactory->addUint32(opPlayClientEffectObjectMessage);
 	gMessageFactory->addString(effect);
 	gMessageFactory->addString(location);
-	gMessageFactory->addUint64(targetObject->getId());
+	gMessageFactory->addUint64(effectObject->getId());
 	gMessageFactory->addUint16(0); 
 
-	_sendToInRange(gMessageFactory->EndMessage(),originObject,8,true);		
-	//(targetObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 5);
+	if(playerObject)
+	{
+		if(playerObject->isConnected())
+		{
+			(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 5);
+		}
+	}
+	else
+	{
+		if(PlayerObject* playerTargetObject = dynamic_cast<PlayerObject*>(effectObject))
+		{
+			_sendToInRange(gMessageFactory->EndMessage(),effectObject,5);
+		}
+		else
+		{
+			_sendToInRange(gMessageFactory->EndMessage(),effectObject,5,false);
+		}
+	}
 
 	return(true);
 }
-
-bool MessageLib::sendPlayClientEffectObjectMessage(string effect,string location, CreatureObject* targetObject)
-{
-	// No need to restrict this function for PlayerObject* only.
-
-	// We use getKnownPlayers() when we send this.
-	// if(!(originObject->isConnected()))
-	// 	return(false);
-
-	gMessageFactory->StartMessage();   
-	gMessageFactory->addUint32(opPlayClientEffectObjectMessage);
-	gMessageFactory->addString(effect);
-	gMessageFactory->addString(location);
-	gMessageFactory->addUint64(targetObject->getId());
-	gMessageFactory->addUint16(0); 
-
-	_sendToInRange(gMessageFactory->EndMessage(),targetObject,8,false);		
-	//(targetObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 5);
-
-	return(true);
-}
-
-
-bool MessageLib::sendPlayClientEffectObjectMessage(string effect,string location, Object* targetObject)
-{
-	// No need to restrict this function for PlayerObject* only.
-
-	// We use getKnownPlayers() when we send this.
-	// if(!(originObject->isConnected()))
-	// 	return(false);
-
-	gMessageFactory->StartMessage();   
-	gMessageFactory->addUint32(opPlayClientEffectObjectMessage);
-	gMessageFactory->addString(effect);
-	gMessageFactory->addString(location);
-	gMessageFactory->addUint64(targetObject->getId());
-	gMessageFactory->addUint16(0); 
-
-	_sendToInRange(gMessageFactory->EndMessage(),targetObject,8,false);		
-	//(targetObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 5);
-
-	return(true);
-}
-
-bool MessageLib::sendPlayClientEffectObjectMessage(string effect,string location, Object* targetObject, PlayerObject* player)
-{
-	// No need to restrict this function for PlayerObject* only.
-
-	 if(!(player->isConnected()))
-	 	return(false);
-
-	gMessageFactory->StartMessage();   
-	gMessageFactory->addUint32(opPlayClientEffectObjectMessage);
-	gMessageFactory->addString(effect);
-	gMessageFactory->addString(location);
-	gMessageFactory->addUint64(targetObject->getId());
-	gMessageFactory->addUint16(0); 
-
-	//_sendToInRange(gMessageFactory->EndMessage(),targetObject,8,false);		
-	(player->getClient())->SendChannelA(gMessageFactory->EndMessage(), player->getAccountId(), CR_Client, 5);
-
-	return(true);
-}
-
-
-
 
 //======================================================================================================================
 //

@@ -162,12 +162,8 @@ public:
 	void				sendDisableHudElement(PlayerObject* playerObject, string hudElement);
 
 	// client effects
-	bool				sendPlayClientEffectObjectMessage(string effect,string location, Object* targetObject);
-	//bool				sendPlayClientEffectObjectMessage(string effect,string location,PlayerObject* targetObject);
-	bool				sendPlayClientEffectObjectMessage(string effect,string location,PlayerObject* originObject,CreatureObject* targetObject);
-	bool				sendPlayClientEffectObjectMessage(string effect,string location, CreatureObject* targetObject);
+	bool				sendPlayClientEffectObjectMessage(string effect,string location,Object* effectObject,PlayerObject* playerObject = NULL);
 	bool				sendPlayClientEffectLocMessage(string effect,Anh_Math::Vector3 pos,PlayerObject* targetObject);
-	bool				sendPlayClientEffectObjectMessage(string effect,string location, Object* targetObject, PlayerObject* player);
 
 	// position updates
 	void				sendUpdateTransformMessage(MovingObject* object);

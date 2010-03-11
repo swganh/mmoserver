@@ -868,7 +868,7 @@ void ScriptSupport::scriptSystemMessage(uint64 playerId, uint64 targetId, std::s
 	{
 		string msg = (int8*)message.c_str();
 		// gMessageLib->sendPlayClientEffectLocMessage(msg, object->mPosition, playerObject);
-		gMessageLib->sendPlayClientEffectObjectMessage(msg,"",playerObject,creature);
+		gMessageLib->sendPlayClientEffectObjectMessage(msg,"",creature,playerObject);
 		// "clienteffect/combat_explosion_lair_large.cef"
 	}
 }

@@ -1624,19 +1624,19 @@ void ObjectController::_handleVentriloquism(uint64 targetId,Message* message,Obj
 		gMessageLib->sendSystemMessage(we,L"","performance","effect_level_too_high","","",L"",0,"","",L"");
 		return;
 	}
+
 	if(highest == 0)
 	{
 		gMessageLib->sendSystemMessage(we,L"","performance","effect_lack_skill_self","","",L"",0,"","",L"");
 		return;
 	}
-	int8 effectStr[64];
-	gMessageLib->sendSystemMessage(we,L"","performance","effect_perform_ventriloquism");
-	sprintf(effectStr,"clienteffect/entertainer_ventriloquism_level_%u.cef",effect);
-	gMessageLib->sendPlayClientEffectObjectMessage(effectStr,"",we,targetObject);
 
+	int8 effectStr[64];
+
+	gMessageLib->sendSystemMessage(we,L"","performance","effect_perform_ventriloquism");
+
+	sprintf(effectStr,"clienteffect/entertainer_ventriloquism_level_%u.cef",effect);
+
+	gMessageLib->sendPlayClientEffectObjectMessage(effectStr,"",targetObject);
 }
 
-//
-
-//gMessageLib->sendPlayClientEffectLocMessage(effect,playerObject->mPosition,playerObject);
-//entertainer->getSkillModValue(SMod_healing_dance_mind);

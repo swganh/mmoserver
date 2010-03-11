@@ -330,8 +330,8 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 	}
 
 	tangible->destroyKnownObjects();
-
-				
+	gMessageLib->sendCreateObject(itemObject,playerObject);
+					
 	//now go and move it to wherever it belongs
 	cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(targetContainerId));
 	if (cell)
@@ -862,6 +862,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 	itemObject->ResetRadialMenu();
 
 	itemObject->destroyKnownObjects();
+	gMessageLib->sendCreateObject(itemObject,playerObject);
 
 	//now go and move it to wherever it belongs
 	cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(targetContainerId));

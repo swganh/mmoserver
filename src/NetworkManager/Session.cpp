@@ -697,21 +697,26 @@ void Session::HandleSessionPacket(Packet* packet)
 
 		   Packet* ooopsPacket = (*ooopsIt);
 		   ooopsPacket->setReadIndex(2);
-		   uint16 ooopsSequence = ntohs(packet->getUint16());
+		   uint16 ooopsSequence = ntohs(ooopsPacket->getUint16());
 
 		   if(ooopsSequence == mInSequenceNext)
 		   {
+			   gLogger->logMsgF("use stored packet - sequence %uI64", MSG_HIGH, ooopsSequence);
 			   HandleSessionPacket(ooopsPacket);
 			   mOutOfOrderPackets.erase(ooopsIt++);
 		   }
 		   else
 		   if(ooopsSequence < mInSequenceNext)
 		   {
+			   gLogger->logMsgF("destroy stored packet - sequence %uI64", MSG_HIGH, ooopsSequence);
 			   mPacketFactory->DestroyPacket(ooopsPacket);
 			   mOutOfOrderPackets.erase(ooopsIt++);
 		   }
 		   else
-			ooopsIt++;
+		   {
+			   gLogger->logMsgF("ignore stored packet - sequence %uI64", MSG_HIGH, ooopsSequence);
+				ooopsIt++;
+		   }
 	   }
 	  
 	   //were missing something

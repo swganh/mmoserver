@@ -19,7 +19,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "DatabaseManager/DataBinding.h"
 #include "Utils/rand.h"
 #include "Utils/utils.h"
-#include <assert.h>
 
 //=============================================================================
 
@@ -108,7 +107,6 @@ Shuttle* ShuttleFactory::_createShuttle(DatabaseResult* result)
 	shuttleInventory->setParent(shuttle);
 
 	uint64 count = result->getRowCount();
-	assert(count == 1);
 
 	result->GetNextRow(mShuttleBinding,(void*)shuttle);
 

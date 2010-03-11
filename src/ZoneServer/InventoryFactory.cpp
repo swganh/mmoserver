@@ -21,7 +21,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include "Utils/utils.h"
 
-#include <assert.h>
+#include <cassert>
 
 //=============================================================================
 
@@ -182,7 +182,6 @@ Inventory* InventoryFactory::_createInventory(DatabaseResult* result)
 	Inventory*	inventory = new Inventory();
 
 	uint64 count = result->getRowCount();
-	assert(count == 1);
 
 	// get our results
 	result->GetNextRow(mInventoryBinding,(void*)inventory);
@@ -222,7 +221,11 @@ void InventoryFactory::handleObjectReady(Object* object,DispatchClient* client)
 
 	InLoadingContainer* ilc	= _getObject(object->getParentId());
 
-	assert(ilc);
+	assert(ilc && "InventoryFactory::handleObjectReady unable to find InLoadingContainer");
+	if (! ilc) {
+		return;
+	}
+
 	Inventory*			inventory	= dynamic_cast<Inventory*>(ilc->mObject);
 
 	gWorldManager->addObject(object,true);

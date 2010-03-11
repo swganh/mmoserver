@@ -25,6 +25,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 //#include "MathLib/Quaternion.h"
 #include "DatabaseManager/Database.h"
+#include <cassert>
+
 //=============================================================================
 
 FactoryCrate::FactoryCrate() : Item()
@@ -153,7 +155,7 @@ TangibleObject*	FactoryCrate::getLinkedObject()
 	TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)));
 	if(!tO)
 	{
-		assert(false);
+		assert(false && "FactoryCrate::getLinkedObject WorldManager did not return a valid TangibleObject");
 		return NULL;
 	}
 

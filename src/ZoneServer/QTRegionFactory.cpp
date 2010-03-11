@@ -19,8 +19,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include "Utils/utils.h"
 
-#include <assert.h>
-
 //=============================================================================
 
 bool				QTRegionFactory::mInsFlag    = false;
@@ -101,8 +99,6 @@ void QTRegionFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,
 QTRegion* QTRegionFactory::_createRegion(DatabaseResult* result)
 {
 	QTRegion*	region = new QTRegion();
-
-	assert(result->getRowCount() == 1);
 
 	result->GetNextRow(mRegionBinding,(void*)region);
 

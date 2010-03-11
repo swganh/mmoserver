@@ -225,7 +225,6 @@ void ObjectController::_handleAdminSysMsg(uint64 targetId,Message* message,Objec
 		else
 		{
 			sprintf(rawData,"Admin: [Unexpected error]");
-			assert(false);
 		}
 	}
 	else

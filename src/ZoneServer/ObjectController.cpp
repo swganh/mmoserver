@@ -36,6 +36,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Common/Message.h"
 #include "Utils/clock.h"
 
+#include <cassert>
+
 //=============================================================================
 //
 // Constructor
@@ -249,7 +251,7 @@ bool ObjectController::_processCommandQueue()
 	if (!player)
 	{
 		gLogger->logMsgF("ObjectController::_processCommandQueue() Invalid object", MSG_NORMAL);
-		assert(false);
+		assert(false && "ObjectController::_processCommandQueue mObject is not a PlayerObject");
 		return false;
 	}
 
@@ -285,9 +287,6 @@ bool ObjectController::_processCommandQueue()
 
 		// see if we got something to execute yet
 		ObjControllerCommandMessage* cmdMsg = mCommandQueue.front();
-
-		// No, no, my smartass....We HAVE to handle normal command messages as fast as possible.
-		assert(cmdMsg);
 
 		// we might need to execute the command directly if it is part of the combat queue
 		// and our queue execution timer permits it
@@ -692,7 +691,7 @@ void ObjectController::enqueueAutoAttack(uint64 targetId)
 		if (!creature)
 		{
 			gLogger->logMsgF("ObjectController::enqueueAutoAttack() Invalid object", MSG_NORMAL);
-			assert(false);
+			assert(false && "ObjectController::enqueueAutoAttack mObject is not a CreatureObject");
 		}
 
 		uint32	reply1 = 0;

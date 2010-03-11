@@ -185,8 +185,7 @@ void Tutorial::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				binding->addField(DFT_float, offsetof(TutorialStartingLocation, destX), 4, 1);
 				binding->addField(DFT_float, offsetof(TutorialStartingLocation, destY), 4, 2);
 				binding->addField(DFT_float, offsetof(TutorialStartingLocation, destZ), 4, 3);
-				uint64 count = result->getRowCount();
-				assert(count == 1);
+
 				result->GetNextRow(binding, &startingLocation);
 
 				startingLocation.destX += (gRandom->getRand()%5 - 2);

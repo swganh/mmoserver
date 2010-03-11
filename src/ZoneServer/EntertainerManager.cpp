@@ -2133,7 +2133,6 @@ void EntertainerManager::handleObjectReady(Object* object,DispatchClient* client
 			if(!permanentinstrument)
 			{
 				gLogger->logMsg("EntertainerManager::handleObjectReady: no permanent instrument\n");
-				assert(false);
 				return;
 			}
 
@@ -2177,13 +2176,13 @@ void EntertainerManager::handleObjectReady(Object* object,DispatchClient* client
 		else
 		{
 			// I wan't to know when this happens
-			assert(false);
+			assert(false && "EntertainerManager::handleObjectReady WorldManager unable to find player");
 		}
 	}
 	else
 	{
 		// I wan't to know when this happens
-		assert(false);
+		assert(false && "EntertainerManager::handleObjectReady WorldManager unable to find instrument");
 	}
 }
 

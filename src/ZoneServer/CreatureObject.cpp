@@ -554,11 +554,6 @@ void CreatureObject::CleanUpBuffs()
 	std::vector<Buff*>::iterator it = mBuffList.begin();
 	while(it != mBuffList.end())
 	{
-		if(!(*it))
-		{
-			assert(false);
-		}
-		else
 		if((*it)->GetIsMarkedForDeletion())
 		{
 			((Buff*)(*it))->EraseAttributes();
@@ -1025,7 +1020,7 @@ bool CreatureObject::setAsActiveDefenderAndUpdateList(uint64 defenderId)
 
 			// THIS code should be in player, not creature, for obvious reasons.
 			PlayerObject* player = dynamic_cast<PlayerObject*>(this);
-			assert(player);
+			assert(player && "CreatureObject::setAsActiveDefenderAndUpdateList This should always be a player object");
 
 			gMessageLib->sendBaselinesCREO_6(player,player);
 			gMessageLib->sendEndBaselines(player->getPlayerObjId(),player);

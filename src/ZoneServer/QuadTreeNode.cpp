@@ -15,6 +15,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "MathLib/Rectangle.h"
 #include "MathLib/Circle.h"
 
+#include <cassert>
+
 //======================================================================================================================
 //
 // Constructor
@@ -84,8 +86,8 @@ void QuadTreeNode::subDivide()
 int32 QuadTreeNode::addObject(Object* object)
 {
 	// Validate input. Should be interesting to see.
-	assert(object);
-	assert(object->getId());
+	assert(object && "QuadTreeNode::addObject this method does not accept NULL objects");
+	assert(object->getId() && "QuadTreeNode::addObject this method requires an object with a valid id");
 
 	// gLogger->logMsgF("Trying to add Object %"PRIu64" @ %.2f %.2f ", MSG_NORMAL, object->getId(), object->mPosition.mX, object->mPosition.mZ);
 
@@ -123,7 +125,7 @@ int32 QuadTreeNode::addObject(Object* object)
 			}
 		}
 	}
-	assert(false);
+	assert(false && "QuadTreeNode::addObject unable to add object to a node");
 	return(0);
 }
 
@@ -160,29 +162,19 @@ void QuadTreeNode::getObjectsInRange(Object* object,ObjectSet* resultSet,uint32 
 		{
 			if ((*it).first)
 			{
-				Object* currentObject = gWorldManager->getObjectById((*it).first);
-				if (currentObject)
+				Object* currentObject = (*it).second;
+				
+				// don't add ourself
+				if(currentObject != object && ((currentObject->getType() & typeMask) == static_cast<uint32>(currentObject->getType())))
 				{
-					assert(currentObject == (*it).second);
-					// Object* currentObject = (*it).second;
-
-					// don't add ourself
-					if(currentObject != object && ((currentObject->getType() & typeMask) == static_cast<uint32>(currentObject->getType())))
-					{
-						// gLogger->logMsgF("QuadTreeNode::getObjectsInRange FINDING object with id = %"PRIu64"", MSG_NORMAL, currentObject->getId());
-						resultSet->insert(currentObject);
-					}
-				}
-				else
-				{
-					// The object is gone... we need figure out why it's not deleted properly.
-					gLogger->logMsgF("QuadTreeNode::getObjectsInRange ERROR INVALID DATA and ID. ID = %"PRIu64"", MSG_NORMAL, (*it).first);
-				}
+					// gLogger->logMsgF("QuadTreeNode::getObjectsInRange FINDING object with id = %"PRIu64"", MSG_NORMAL, currentObject->getId());
+					resultSet->insert(currentObject);
+				}					
 			}
 			else
 			{
 				gLogger->logMsgF("QuadTreeNode::getObjectsInRange ERROR INVALID ID\n", MSG_NORMAL);
-				assert(false);
+				assert(false && "QuadTreeNode::getObjectsInRange ERROR INVALID ID");
 			}
 			++it;
 		}
@@ -302,8 +294,8 @@ bool QuadTreeNode::ObjectContained(Anh_Math::Shape* shape, Object* object)
 int32 QuadTreeNode::removeObject(Object* object)
 {
 	// Validate input. Should be interesting to see.
-	assert(object);
-	assert(object->getId());
+	assert(object && "QuadTreeNode::removeObject this method does not accept NULL objects");
+	assert(object->getId() && "QuadTreeNode::removeObject this method requires an object with a valid id");
 
 	// make sure its a leaf
 	if(!mSubNodes)
@@ -337,7 +329,7 @@ int32 QuadTreeNode::removeObject(Object* object)
 			}
 		}
 	}
-	assert(false);
+	assert(false && "QuadTreeNode::removeObject unable to remove object");
 	return(0);
 }
 
@@ -351,8 +343,8 @@ int32 QuadTreeNode::removeObject(Object* object)
 int32 QuadTreeNode::updateObject(Object* object,Anh_Math::Vector3 newPosition)
 {
 	// Validate input. Should be interesting to see.
-	assert(object);
-	assert(object->getId());
+	assert(object && "QuadTreeNode::updateObject this method does not accept NULL objects");
+	assert(object->getId() && "QuadTreeNode::updateObject this method requires an object with a valid id");
 
 	// shouldnt be called on leafs
 	if(mSubNodes)

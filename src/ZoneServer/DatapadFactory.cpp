@@ -28,8 +28,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "DatabaseManager/DataBinding.h"
 #include "Utils/utils.h"
 
-#include <assert.h>
-
 //=============================================================================
 
 bool				DatapadFactory::mInsFlag    = false;
@@ -261,7 +259,6 @@ Datapad* DatapadFactory::_createDatapad(DatabaseResult* result)
 	Datapad* datapad = new Datapad();
 
 	uint64 count = result->getRowCount();
-	assert(count == 1);
 
 	// get our results
 	result->GetNextRow(mDatapadBinding,(void*)datapad);

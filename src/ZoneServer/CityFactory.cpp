@@ -19,8 +19,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include "Utils/utils.h"
 
-#include <assert.h>
-
 //=============================================================================
 
 bool			CityFactory::mInsFlag    = false;
@@ -103,7 +101,6 @@ City* CityFactory::_createCity(DatabaseResult* result)
 	City*	city = new City();
 
 	uint64 count = result->getRowCount();
-	assert(count == 1);
 
 	result->GetNextRow(mCityBinding,(void*)city);
 

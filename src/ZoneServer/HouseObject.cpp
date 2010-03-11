@@ -25,6 +25,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
 
+#include <cassert>
 
 //=============================================================================
 
@@ -85,12 +86,8 @@ void HouseObject::handleObjectReady(Object* object,DispatchClient* client, uint6
 	if(!item)
 	{
 		gLogger->logMsgF("FactoryObject::handleObjectReady::could not find Hopper",MSG_HIGH);
-		assert(false);
+		assert(false && "HouseObject::handleObjectReady could not find hopper");
 	}
-
-	
-
-
 }
 
 

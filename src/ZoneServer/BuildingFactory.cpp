@@ -20,7 +20,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "Utils/utils.h"
-#include <assert.h>
 
 //=============================================================================
 
@@ -177,7 +176,6 @@ BuildingObject* BuildingFactory::_createBuilding(DatabaseResult* result)
 	BuildingObject*	buildingObject = new BuildingObject();
 
 	uint64 count = result->getRowCount();
-	assert(count == 1);
 
 	result->GetNextRow(mBuildingBinding,buildingObject);
 

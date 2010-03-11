@@ -29,6 +29,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Common/Message.h"
 #include <boost/lexical_cast.hpp>
 
+#include <cassert>
+
 //======================================================================================================================
 //splits a factory crate
 
@@ -63,7 +65,7 @@ void	ObjectController::_ExtractObject(uint64 targetId,Message* message,ObjectCon
 		if(!tO)
 		{
 			gLogger->logMsg("ObjectController::_ExtractObject: Crates parent does not exist!");
-			assert(false);
+			assert(false && "ObjectController::_ExtractObject inventory must be a tangible object");
 			return;
 		}
 	}
@@ -91,7 +93,7 @@ void	ObjectController::_ExtractObject(uint64 targetId,Message* message,ObjectCon
 	if(content < 0)
 	{
 		gLogger->logMsg("ObjectController::_ExtractObject: the crate now has negative content!");
-		assert(false);
+		assert(false && "ObjectController::_ExtractObject crate must not have negative content");
 		return;
 	}
 

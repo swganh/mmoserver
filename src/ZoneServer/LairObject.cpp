@@ -22,33 +22,14 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "MathLib/Quaternion.h"
 #include "utils/rand.h"
 
+#include <cassert>
+
 static const int64 dormantDefaultPeriodTime = 10000;
 static const int64 readyDefaultPeriodTime = 1000;
 
 // For test.
 static int64 gLairSpawnCounter = 0;
 static int64 gLairDeathCounter = 0;
-
-
-//=============================================================================
-
-LairObject::LairObject() : AttackableStaticNpc(),
-mLairState(State_LairUnspawned),
-mSpawned(false)
-{
-	assert(false);	// We should not use this constructor.
-
-	mNpcFamily	= NpcFamily_NaturalLairs;
-	mType = ObjType_Lair;
-
-	// this->mInitialized = false;
-
-	// Use default radial.
-	// mRadialMenu = RadialMenuPtr(new RadialMenu());
-
-	// this->togglePvPStateOn(CreaturePvPStatus_Attackable);
-
-}
 
 //=============================================================================
 
@@ -677,7 +658,7 @@ void LairObject::respawn(void)
 		}
 		else
 		{
-			assert(false);
+			assert(false && "LairObject::respawn missing lair_wave_size attribute");
 			this->mWaveSize = 3;
 		}
 
@@ -688,7 +669,7 @@ void LairObject::respawn(void)
 		}
 		else
 		{
-			assert(false);
+			assert(false && "LairObject::respawn missing lair_passive_waves attribute");
 			this->mPassiveWaves = 3;
 		}
 
@@ -712,7 +693,7 @@ void LairObject::respawn(void)
 		}
 		else
 		{
-			assert(false);
+			assert(false && "LairObject::respawn missing lair_respawn_delay attribute");
 			this->setRespawnDelay(5*60*1000);
 		}
 
@@ -725,7 +706,7 @@ void LairObject::respawn(void)
 		}
 		else
 		{
-			assert(false);
+			assert(false && "LairObject::respawn missing lair_creatures_max_spawn_distance attribute");
 			this->mMaxSpawnDistance = 10;
 		}
 
@@ -751,7 +732,7 @@ void LairObject::respawn(void)
 		}
 		else
 		{
-			assert(false);
+			assert(false && "LairObject::respawn missing creature_health attribute");
 			this->mHam.mHealth.setCurrentHitPoints(500);
 			this->mHam.mHealth.setMaxHitPoints(500);
 			this->mHam.mHealth.setBaseHitPoints(500);
@@ -767,7 +748,7 @@ void LairObject::respawn(void)
 		}
 		else
 		{
-			assert(false);
+			assert(false && "LairObject::respawn missing creature_strength attribute");
 			this->mHam.mStrength.setCurrentHitPoints(500);
 			this->mHam.mStrength.setMaxHitPoints(500);
 			this->mHam.mStrength.setBaseHitPoints(500);
@@ -783,7 +764,7 @@ void LairObject::respawn(void)
 		}
 		else
 		{
-			assert(false);
+			assert(false && "LairObject::respawn missing creature_constitution attribute");
 			this->mHam.mConstitution.setCurrentHitPoints(500);
 			this->mHam.mConstitution.setMaxHitPoints(500);
 			this->mHam.mConstitution.setBaseHitPoints(500);
@@ -820,7 +801,7 @@ void LairObject::respawn(void)
 	}
 	else
 	{
-		assert(false);
+		assert(false && "LairObject::respawn mNpcFamily != NpcFamily_NaturalLairs");
 	}
 }
 
@@ -849,7 +830,7 @@ void LairObject::reportedDead(uint64 deadCreatureId)
 					break;
 				}
 			}
-			assert(creatureTemplate != 0);
+			assert(creatureTemplate != 0 && "LairObject::reportedDead invalid creature template");
 
 			// Here we have the type of creature to spawn.
 
@@ -881,12 +862,12 @@ void LairObject::setSpawnArea(const Anh_Math::Rectangle &mSpawnArea)
 
 void LairObject::setCreatureTemplate(uint32 index, uint64 creatureTemplateId)
 {
-	assert(index < MaxCreatureTypes);
+	assert(index < MaxCreatureTypes && "LairObject::setCreatureTemplate index parameter must be greater than MaxCreatureTypes");
 	this->mCreatureTemplates[index] = creatureTemplateId;
 }
 
 void LairObject::setCreatureSpawnRate(uint32 index, uint32 spawnRate)
 {
-	assert(index < MaxCreatureTypes);
+	assert(index < MaxCreatureTypes && "LairObject::setCreatureSpawnRate index parameter must be greater than MaxCreatureTypes");
 	this->mCreatureSpawnRate[index] = spawnRate;
 }

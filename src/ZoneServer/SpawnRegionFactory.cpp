@@ -19,8 +19,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include "Utils/utils.h"
 
-#include <assert.h>
-
 //=============================================================================
 
 bool				SpawnRegionFactory::mInsFlag    = false;
@@ -103,7 +101,6 @@ SpawnRegion* SpawnRegionFactory::_createSpawnRegion(DatabaseResult* result)
 	SpawnRegion*	spawnRegion = new SpawnRegion();
 
 	uint64 count = result->getRowCount();
-	assert(count == 1);
 
 	result->GetNextRow(mSpawnRegionBinding,spawnRegion);
 

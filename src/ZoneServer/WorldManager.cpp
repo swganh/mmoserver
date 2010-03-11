@@ -60,6 +60,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Utils/VariableTimeScheduler.h"
 #include "Utils/utils.h"
 
+#include <cassert>
+
 //======================================================================================================================
 
 bool			WorldManager::mInsFlag    = false;
@@ -849,7 +851,7 @@ void WorldManager::_handleLoadComplete()
 
 	if (!Heightmap::Instance())
 	{
-		assert(false);
+		assert(false && "WorldManager::_handleLoadComplete Missing heightmap, download at http://www.swganh.com/!!planets!!/PLANET_NAME.rar");
 	}
 
 	// create a height-map cashe.

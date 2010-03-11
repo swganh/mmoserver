@@ -33,7 +33,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "DatabaseManager/Database.h"
 #include "Utils/rand.h"
 
-
+#include <cassert>
 
 bool						StructureManager::mInsFlag    = false;
 StructureManager*			StructureManager::mSingleton  = NULL;
@@ -832,7 +832,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 				TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)));
 				if(!tO)
 				{
-					assert(false);
+					assert(false && "StructureManager::processVerification Structure_Command_AccessOutHopper WorldManager unable to find tangible object");
 				}
 
 				//PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetObject->getId()));
@@ -879,7 +879,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 				TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)));
 				if(!tO)
 				{
-					assert(false);
+					assert(false && "StructureManager::processVerification Structure_Command_AccessInHopper WorldManager unable to find tangible object");
 				}
 
 				//PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetObject->getId()));
@@ -1382,7 +1382,7 @@ uint32 StructureManager::deductPower(PlayerObject* player, uint32 amount)
 				uint32 newAmount = resCont->getAmount()-todelete;
 				if(newAmount <0)
 				{
-					assert(false);
+					assert(false && "StructureManager::deductPower new amount cannot be negative");
 				}
 				
 				resCont->setAmount(newAmount);

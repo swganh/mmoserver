@@ -160,7 +160,7 @@ class AttackableCreature : public NPCObject
 
 	private:
 		// Default constructor, should not be used.
-		AttackableCreature() { assert(false);}
+		AttackableCreature();
 
 		bool	needAssist(void);
 		void	executeAssist(void);

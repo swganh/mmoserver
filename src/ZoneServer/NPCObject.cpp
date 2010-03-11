@@ -25,6 +25,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include "Utils/rand.h"
 
+#include <cassert>
 #include <cfloat>
 
 class DamageDealer
@@ -120,7 +121,7 @@ float NPCObject::getHeightAt2DPosition(float xPos, float zPos, bool bestOffer) c
 	}
 	if (yPos == FLT_MIN)
 	{
-		assert(false);
+		assert(false && "NPCObject::getHeightAt2DPosition unable to get height");
 	}
 	return yPos;
 }
@@ -471,7 +472,6 @@ void NPCObject::updateDamage(uint64 playerId, uint64 groupId, uint32 weaponGroup
 	}
 
 	// If attacker are within creature aggro range, give max aggro whatever attacker posture.
-	assert(damageDealer);
 	if (damageDealer->mAggroPoints < 100.1)
 	{
 		// float aggroPoints = 4;		// This is max aggro you can get at one single occation when doing damage and be in range of the creature aggro.
@@ -498,7 +498,6 @@ void NPCObject::updateDamage(uint64 playerId, uint64 groupId, uint32 weaponGroup
 				}
 				else
 				{
-					assert(attackerDistance != 0);
 					aggroPoints *= static_cast<float>(64.0 / attackerDistance);
 				}
 			}
@@ -544,7 +543,6 @@ void NPCObject::updateAggro(uint64 playerId, uint64 groupId, uint8 attackerPostu
 		mDamageDealers.push_back(damageDealer);
 	}
 
-	assert(damageDealer);
 	if ((attackerPosture == CreaturePosture_Incapacitated) || (attackerPosture == CreaturePosture_Dead))
 	{
 		// gLogger->logMsgF("Removed aggro, target is incapped or dead.", MSG_NORMAL);

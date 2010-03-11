@@ -192,7 +192,6 @@ void ObjectController::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 			binding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mWillpower.mWounds),4,8);
 
 			uint64	count = result->getRowCount();
-			assert(count == 1);
 
 			result->GetNextRow(binding,asyncContainer->playerObject);
 

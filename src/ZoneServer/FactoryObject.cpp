@@ -24,6 +24,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
 
+#include <cassert>
 
 //============================================================================
 FactoryObject::FactoryObject() : PlayerStructure()
@@ -53,7 +54,7 @@ void FactoryObject::handleObjectReady(Object* object,DispatchClient* client, uin
 	if(!item)
 	{
 		gLogger->logMsgF("FactoryObject::handleObjectReady::could not find Hopper",MSG_HIGH);
-		assert(false);
+		assert(false && "FactoryObject::handleObjectReady WorldManager could not find hopper");
 	}
 
 	if((item->getId() == this->getIngredientHopper())||(item->getId() == this->getOutputHopper()))

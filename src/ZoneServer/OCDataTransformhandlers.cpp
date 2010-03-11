@@ -37,6 +37,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Common/MessageFactory.h"
 #include "Utils/clock.h"
 
+#include <cassert>
+
 //=============================================================================
 //
 // position update in world
@@ -902,7 +904,7 @@ bool ObjectController::_destroyOutOfRangeObjects(ObjectSet *inRangeObjects)
 								TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)));
 								if(!tO)
 								{
-									assert(false);
+									assert(false && "ObjectController::_destroyOutOfRangeObjects WorldManager unable to find TangibleObject instance");
 								}
 
 								tO->removeKnownObject(player);
@@ -928,7 +930,7 @@ bool ObjectController::_destroyOutOfRangeObjects(ObjectSet *inRangeObjects)
 								TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)));
 								if(!tO)
 								{
-									assert(false);
+									assert(false && "ObjectController::_destroyOutOfRangeObjects WorldManager unable to find TangibleObject instance");
 								}
 
 								//PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetObject->getId()));

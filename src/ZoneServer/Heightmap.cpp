@@ -12,8 +12,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "ZoneServer/WorldManager.h"
 #include "LogManager/LogManager.h"
 #include "Utils/utils.h"
-#include <assert.h>
-#include <float.h>
+#include <cassert>
+#include <cfloat>
 
 //=============================================================================
 Heightmap::Heightmap(const char* planet_name)
@@ -113,19 +113,19 @@ bool Heightmap::getRow(unsigned char* buffer, int32 x, int32 z, int32 length)
 	{
 		gLogger->logMsg("Heightmap::ERROR: Invalid input: x out of range",FOREGROUND_RED);
 		gLogger->logMsgF("x = %d,  -WIDTH/2 = %d", MSG_NORMAL, x, -WIDTH/2);
-		assert(false);
+		assert(false && "Heightmap::getRow x out of range");
 		return false;
 	}
 	if ((z < -(HEIGHT- 1)/2) || (z > (HEIGHT - 1)/2))
 	{
 		gLogger->logMsg("Heightmap::ERROR: Invalid input: z out of range",FOREGROUND_RED);
-		assert(false);
+		assert(false && "Heightmap::getRow z out of range");
 		return false;
 	}
 	if (length < 0)
 	{
 		gLogger->logMsg("Heightmap::ERROR: Invalid input: length is negative",FOREGROUND_RED);
-		assert(false);
+		assert(false && "Heightmap::getRow length is negative");
 		return false;
 	}
 	if (length == 0)
@@ -142,7 +142,7 @@ bool Heightmap::getRow(unsigned char* buffer, int32 x, int32 z, int32 length)
 		if(!Open())
 		{
 			gLogger->logMsg("Heightmap::ERROR: Unable to retrieve height data.",FOREGROUND_RED);
-			assert(false);
+			assert(false && "Heightmap::getRow Missing heightmap, download at http://www.swganh.com/!!planets!!/PLANET_NAME.rar");
 			return false;
 		}
 	}
@@ -155,7 +155,7 @@ bool Heightmap::getRow(unsigned char* buffer, int32 x, int32 z, int32 length)
 	{
 		gLogger->logMsg("Heightmap::ERROR: Invalid input: length out of range",FOREGROUND_RED);
 		gLogger->logMsgF("endOffset = %d, (2 * WIDTH * HEIGHT) = %d", MSG_NORMAL, endOffset, (int32)(2 * WIDTH * HEIGHT));
-		assert(false);
+		assert(false && "Heightmap::getRow length out of range");
 		return false;
 	}
 	int32 len = (endOffset - startOffset);
@@ -269,13 +269,13 @@ bool Heightmap::setupCache(int16 cacheResoulutionDivider)
 
 	if (mCacheAvaliable)
 	{
-		assert (false);		// Should only be initialized once
+		assert (false && "Heightmap::setupCache cache already setup");		// Should only be initialized once
 		return status;
 	}
 	if ((cacheResoulutionDivider < 0) || (cacheResoulutionDivider > 3))
 	{
 		// Invalid input.
-		assert(false);
+		assert(false && "Heightmap::setupCache invalid input");
 		return status;
 	}
 
@@ -297,7 +297,7 @@ bool Heightmap::setupCache(int16 cacheResoulutionDivider)
 	mHeightmapCache = new float*[mCacheHeight];
 	if (!mHeightmapCache)
 	{
-		assert (mHeightmapCache != NULL);
+		assert (mHeightmapCache != NULL && "Heightmap::setupCache unable to allocate memory for heightmap");
 		return false;
 	}
 
@@ -306,7 +306,6 @@ bool Heightmap::setupCache(int16 cacheResoulutionDivider)
 		mHeightmapCache[i] = new float[mCacheWidth];
 		if (!mHeightmapCache[i])
 		{
-			assert (mHeightmapCache[i] != NULL);
 			return false;
 		}
 	}
@@ -316,7 +315,7 @@ bool Heightmap::setupCache(int16 cacheResoulutionDivider)
 	heightMapRow = new uint16[heightMapWidth];
 	if (!heightMapRow)
 	{
-		assert (heightMapRow != NULL);
+		assert (heightMapRow != NULL && "Heightmap::setupCache unable to allocate memory for heightmap row");
 		return false;
 	}
 

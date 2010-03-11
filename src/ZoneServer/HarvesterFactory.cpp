@@ -19,7 +19,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
 #include "Utils/utils.h"
-#include <assert.h>
 
 //=============================================================================
 
@@ -167,7 +166,6 @@ void HarvesterFactory::_createHarvester(DatabaseResult* result, HarvesterObject*
 {
 
 	uint64 count = result->getRowCount();
-	assert(count == 1);
 
 	result->GetNextRow(mHarvesterBinding,harvester);
 

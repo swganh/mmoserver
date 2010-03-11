@@ -18,6 +18,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "WorldManager.h"
 #include "CraftingTool.h"
 
+#include <cassert>
+
 //=============================================================================
 
 ObjectContainer::ObjectContainer() 
@@ -49,7 +51,7 @@ ObjectContainer::~ObjectContainer()
 		if(!object)
 		{
 			gLogger->logMsgF("ObjectContainer::remove Object : No Object!!!!",MSG_HIGH);
-			assert(false);
+			assert(false && "ObjectContainer::~ObjectContainer WorldManager unable to find object instance");
 			objectIt = removeObject(objectIt);
 			
 			continue;

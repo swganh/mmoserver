@@ -17,7 +17,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
 #include "Utils/utils.h"
-#include <assert.h>
 
 //=============================================================================
 
@@ -96,7 +95,6 @@ TicketCollector* TicketCollectorFactory::_createTicketCollector(DatabaseResult* 
 	TicketCollector*	ticketCollector = new TicketCollector();
 
 	uint64 count = result->getRowCount();
-	assert(count == 1);
 
 	result->GetNextRow(mTicketCollectorBinding,(void*)ticketCollector);
 

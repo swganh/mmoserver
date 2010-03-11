@@ -34,8 +34,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Utils/utils.h"
 #include "Utils/typedefs.h"
 
-#include <assert.h>
-
 //=============================================================================
 
 //bool							NonPersistantObjectFactory::mInsFlag    = false;
@@ -267,15 +265,11 @@ CampTerminal* NonPersistantObjectFactory::spawnTerminal(StructureItemTemplate* p
 
 void NonPersistantObjectFactory::_createItem(DatabaseResult* result,Item* item)
 {
-	
-
 	uint64 count = result->getRowCount();
-	assert(count == 1);
 
 	result->GetNextRow(mItemBinding,item);
 
 	item->setLoadState(LoadState_Attributes);
-
 }
 
 

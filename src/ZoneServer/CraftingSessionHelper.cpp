@@ -1388,7 +1388,7 @@ void CraftingSession::collectComponents()
 			if(!tO)
 			{
 				//item not found??? wth
-				assert(false);
+				assert(false && "CraftingSession::collectComponents No tangible object found in world manager");
 			}
 
 			string componentSerial = "";

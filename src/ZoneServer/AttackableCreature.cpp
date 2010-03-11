@@ -1436,7 +1436,7 @@ uint64 AttackableCreature::handleState(uint64 timeOverdue)
 			// This is not a valid state.
 			gLogger->logMsgF("AttackableCreature::handleState Invalid state State_Unspawned.\n", MSG_NORMAL);
 			// It's a serious isse that we need to investigate.
-			assert(false);
+			assert(false && "AttackableCreature should never be in an unspawned state");
 
 			// Remove us from all timers etc...
 			// NpcManager::Instance()->removeNpc(this->getId());
@@ -1680,10 +1680,9 @@ void AttackableCreature::spawn(void)
 		}
 		else
 		{
+			assert(false && "Unable to locate cell");
 			gLogger->logMsgF("AttackableCreature::spawnCreature: couldn't find cell %"PRIu64"\n", MSG_HIGH, this->getParentId());
-
-			// It's a serious isse that we need to investigate.
-			assert(cell);
+			return;
 		}
 	}
 	else
@@ -2092,7 +2091,7 @@ void AttackableCreature::respawn(void)
 		}
 		else
 		{
-			assert(false);
+			assert(false && "Missing lair/creature respawn delay value");
 			this->setRespawnDelay(1000);
 			// mRespawnDelay = 10000;
 		}
@@ -2139,7 +2138,7 @@ void AttackableCreature::respawn(void)
 	}
 	else
 	{
-		assert(false);
+		assert(false && "Missing creature damage min attribute");
 		mMinDamage = 10;
 	}
 
@@ -2151,7 +2150,7 @@ void AttackableCreature::respawn(void)
 	}
 	else
 	{
-		assert(false);
+		assert(false && "Missing creature damage max attribute");
 		mMaxDamage = 20;
 	}
 
@@ -2163,7 +2162,7 @@ void AttackableCreature::respawn(void)
 	}
 	else
 	{
-		assert(false);
+		assert(false && "Missing creature damage max range attribute");
 		mWeaponMaxRange = 4;
 	}
 
@@ -2175,7 +2174,7 @@ void AttackableCreature::respawn(void)
 	}
 	else
 	{
-		assert(false);
+		assert(false && "Missing creature attack attribute");
 		mAttackSpeed = 2000;
 	}
 
@@ -2187,7 +2186,7 @@ void AttackableCreature::respawn(void)
 	}
 	else
 	{
-		assert(false);
+		assert(false && "Missing creature xp attribute");
 		this->setWeaponXp(0);
 	}
 
@@ -2199,7 +2198,7 @@ void AttackableCreature::respawn(void)
 	}
 	else
 	{
-		assert(false);
+		assert(false && "Missing agro attribute");
 		this->setBaseAggro(40.0);
 	}
 
@@ -2211,7 +2210,7 @@ void AttackableCreature::respawn(void)
 	}
 	else
 	{
-		assert(false);
+		assert(false && "Missing creature is aggressive attribute");
 		mIsAgressive = false;
 	}
 
@@ -2223,7 +2222,7 @@ void AttackableCreature::respawn(void)
 	}
 	else
 	{
-		assert(false);
+		assert(false && "Missing stalking attribute");
 		mIsStalker = false;
 	}
 
@@ -2235,7 +2234,7 @@ void AttackableCreature::respawn(void)
 	}
 	else
 	{
-		assert(false);
+		assert(false && "Missing creature is roaming attribute");
 		mIsRoaming = false;
 	}
 
@@ -2247,7 +2246,7 @@ void AttackableCreature::respawn(void)
 	}
 	else
 	{
-		assert(false);
+		assert(false && "Missing killer attribute");
 		mIsKiller = false;
 	}
 
@@ -2264,7 +2263,7 @@ void AttackableCreature::respawn(void)
 	}
 	else
 	{
-		assert(false);
+		assert(false && "Missing creature warning range attribute");
 		mAttackWarningRange = 20.0;
 	}
 
@@ -2278,7 +2277,7 @@ void AttackableCreature::respawn(void)
 		}
 		else
 		{
-			assert(false);
+			assert(false && "Missing creature attack range attribute");
 			this->setAttackRange(15.0);
 		}
 	}
@@ -2291,7 +2290,7 @@ void AttackableCreature::respawn(void)
 	}
 	else
 	{
-		assert(false);
+		assert(false && "Missing creature aggro range attribute");
 		mMaxAggroRange = 64;
 	}
 
@@ -2342,7 +2341,7 @@ void AttackableCreature::respawn(void)
 		}
 		else
 		{
-			assert(false);
+			assert(false && "Missing creature roaming delay attribute");
 			mRoamingDelay = 120000;
 		}
 
@@ -2354,7 +2353,7 @@ void AttackableCreature::respawn(void)
 		}
 		else
 		{
-			assert(false);
+			assert(false && "Missing creature roaming speed attribute");
 			mRoamingSpeed = 0.5;
 		}
 
@@ -2366,7 +2365,7 @@ void AttackableCreature::respawn(void)
 		}
 		else
 		{
-			assert(false);
+			assert(false && "Missing creature roaming max distance attribute");
 			mRoamingDistanceMax = 64.0;
 		}
 	}
@@ -2381,7 +2380,7 @@ void AttackableCreature::respawn(void)
 		}
 		else
 		{
-			assert(false);
+			assert(false && "Missing creature stalking speed attribute");
 			mStalkerSpeed = 4.0;
 		}
 
@@ -2393,7 +2392,7 @@ void AttackableCreature::respawn(void)
 		}
 		else
 		{
-			assert(false);
+			assert(false && "Missing creature stalking max distance");
 			mStalkerDistanceMax = 64.0;
 		}
 	}
@@ -2406,7 +2405,7 @@ void AttackableCreature::respawn(void)
 	}
 	else
 	{
-		assert(false);
+		assert(false && "Missing creature group assist attribute");
 		mIsGroupAssist = false;
 	}
 
@@ -2420,7 +2419,7 @@ void AttackableCreature::respawn(void)
 	}
 	else
 	{
-		assert(false);
+		assert(false && "Missing creature health attribute");
 		this->mHam.mHealth.setCurrentHitPoints(500);
 		this->mHam.mHealth.setMaxHitPoints(500);
 		this->mHam.mHealth.setBaseHitPoints(500);
@@ -2436,7 +2435,7 @@ void AttackableCreature::respawn(void)
 	}
 	else
 	{
-		assert(false);
+		assert(false && "Missing creature strength attribute");
 		this->mHam.mStrength.setCurrentHitPoints(500);
 		this->mHam.mStrength.setMaxHitPoints(500);
 		this->mHam.mStrength.setBaseHitPoints(500);
@@ -2452,7 +2451,7 @@ void AttackableCreature::respawn(void)
 	}
 	else
 	{
-		assert(false);
+		assert(false && "Missing creature constitution attribute");
 		this->mHam.mConstitution.setCurrentHitPoints(500);
 		this->mHam.mConstitution.setMaxHitPoints(500);
 		this->mHam.mConstitution.setBaseHitPoints(500);
@@ -2470,7 +2469,7 @@ void AttackableCreature::respawn(void)
 	}
 	else
 	{
-		assert(false);
+		assert(false && "Missing creature action attribute");
 		this->mHam.mAction.setCurrentHitPoints(500);
 		this->mHam.mAction.setMaxHitPoints(500);
 		this->mHam.mAction.setBaseHitPoints(500);
@@ -2486,7 +2485,7 @@ void AttackableCreature::respawn(void)
 	}
 	else
 	{
-		assert(false);
+		assert(false && "Missing creature quickness attribute");
 		this->mHam.mQuickness.setCurrentHitPoints(500);
 		this->mHam.mQuickness.setMaxHitPoints(500);
 		this->mHam.mQuickness.setBaseHitPoints(500);
@@ -2502,7 +2501,7 @@ void AttackableCreature::respawn(void)
 	}
 	else
 	{
-		assert(false);
+		assert(false && "Missing creature stamina attribute");
 		this->mHam.mStamina.setCurrentHitPoints(500);
 		this->mHam.mStamina.setMaxHitPoints(500);
 		this->mHam.mStamina.setBaseHitPoints(500);
@@ -2519,7 +2518,7 @@ void AttackableCreature::respawn(void)
 	}
 	else
 	{
-		assert(false);
+		assert(false && "Missing creature mind attribute");
 		this->mHam.mMind.setCurrentHitPoints(500);
 		this->mHam.mMind.setMaxHitPoints(500);
 		this->mHam.mMind.setBaseHitPoints(500);
@@ -2535,7 +2534,7 @@ void AttackableCreature::respawn(void)
 	}
 	else
 	{
-		assert(false);
+		assert(false && "Missing creature focus attribute");
 		this->mHam.mFocus.setCurrentHitPoints(500);
 		this->mHam.mFocus.setMaxHitPoints(500);
 		this->mHam.mFocus.setBaseHitPoints(500);
@@ -2551,7 +2550,7 @@ void AttackableCreature::respawn(void)
 	}
 	else
 	{
-		assert(false);
+		assert(false && "Missing creature willpower attribute");
 		this->mHam.mWillpower.setCurrentHitPoints(500);
 		this->mHam.mWillpower.setMaxHitPoints(500);
 		this->mHam.mWillpower.setBaseHitPoints(500);

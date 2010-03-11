@@ -18,8 +18,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "DatabaseManager/DataBinding.h"
 #include "Utils/utils.h"
 
-#include <assert.h>
-
 //=============================================================================
 
 bool				WaypointFactory::mInsFlag    = false;
@@ -93,9 +91,6 @@ void WaypointFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,
 WaypointObject* WaypointFactory::_createWaypoint(DatabaseResult* result)
 {
 	WaypointObject*	waypoint = new WaypointObject();
-
-	uint64 count = result->getRowCount();
-	assert(count == 1);
 
 	result->GetNextRow(mWaypointBinding,(void*)waypoint);
 

@@ -24,7 +24,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "DatabaseManager/DataBinding.h"
 #include "MessageLib/MessageLib.h"
 #include "Utils/utils.h"
-#include <assert.h>
+#include <cassert>
 
 //itemtypes
 /*
@@ -328,7 +328,6 @@ void FactoryFactory::_createFactory(DatabaseResult* result, FactoryObject* facto
 {
 
 	uint64 count = result->getRowCount();
-	assert(count == 1);
 
 	result->GetNextRow(mFactoryBinding,factory);
 
@@ -463,15 +462,13 @@ void FactoryFactory::handleObjectReady(Object* object,DispatchClient* client)
 		if(!hopper)
 		{
 			gLogger->logMsg("FactoryFactory: outputHopper not found on item load !!!!!!!");
-			assert(false);	
+			assert(false && "FactoryFactory::handleObjectReady WorldManager could not find output hopper");	
 		}
 
 		parent = hopper->getId();
 
 		//add to hopper / create for players
-		hopper->handleObjectReady(object,NULL);
-		
-		
+		hopper->handleObjectReady(object,NULL);		
 	}
 	
 	

@@ -120,7 +120,6 @@ void VehicleFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			binding->addField(DFT_uint32,0,4);
 
 			uint64	count = result->getRowCount();
-			assert(count == 1);
 
 			result->GetNextRow(binding,&vehicleType);
 			mDatabase->DestroyDataBinding(binding);
@@ -157,7 +156,7 @@ void VehicleFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			Vehicle* vehicle = dynamic_cast<Vehicle*>(asyncContainer->mObject);
 
 			uint64	count = result->getRowCount();
-			assert(count == 1);
+
 			if(count == 1)
 			{
 				result->GetNextRow(mVehicleCreo_Binding,vehicle);
@@ -209,9 +208,6 @@ void VehicleFactory::createVehicle(uint32 vehicle_type,PlayerObject* targetPlaye
 Vehicle* VehicleFactory::_createVehicle(DatabaseResult* result)
 {
 	Vehicle* vehicle = new Vehicle();
-
-	uint64 count = result->getRowCount();
-	assert(count == 1);
 
 	result->GetNextRow(mVehicleItno_Binding,vehicle);
 

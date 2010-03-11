@@ -25,8 +25,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "DatabaseManager/DataBinding.h"
 #include "MessageLib/MessageLib.h"
 #include "Utils/utils.h"
-#include <assert.h>
-
 
 //=============================================================================
 
@@ -209,7 +207,6 @@ void HouseFactory::_createHouse(DatabaseResult* result, HouseObject* house)
 {
 
 	uint64 count = result->getRowCount();
-	assert(count == 1);
 
 	result->GetNextRow(mHouseBinding,house);
 

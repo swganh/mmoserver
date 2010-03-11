@@ -69,7 +69,7 @@ AdminManager* AdminManager::Instance()
 	if (!mInstance)
 	{
 		// mInstance = new AdminManager(gZoneServer->getDispatcher());
-		assert(mInstance != NULL);
+		assert(mInstance != NULL && "AdminManager::Init must be called prior to AdminManager::Instance calls");
 	}
 	return mInstance;
 }
@@ -80,7 +80,6 @@ AdminManager* AdminManager::Init(MessageDispatch* messageDispatch)
 	if (!mInstance)
 	{
 		mInstance = new AdminManager(messageDispatch);
-		assert(mInstance != NULL);
 	}
 	return mInstance;
 }
@@ -208,7 +207,6 @@ void AdminManager::addAdminRequest(uint64 requestType, string message, int32 ttl
 			timeToFirstEvent = 0;
 		}
 	}
-	assert(ttl >= timeToFirstEvent);
 	ttl -= timeToFirstEvent;
 
 	AdminRequestObject* requestObject = new AdminRequestObject(requestType, message, ttl);
@@ -351,7 +349,6 @@ uint64 AdminManager::handleAdminRequest(uint64 requestType, uint64 timeOverdue)
 				++it;
 			}
 
-			assert(((*adminRequestIterator).second)->mTimeToLive >= timeToNextEvent);
 			((*adminRequestIterator).second)->mTimeToLive -= timeToNextEvent;
 
 			if (timeToNextEvent > 0)

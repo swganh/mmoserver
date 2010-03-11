@@ -38,7 +38,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include "Utils/utils.h"
 
-#include <assert.h>
+#include <cassert>
 
 //=============================================================================
 
@@ -237,7 +237,6 @@ Item* ItemFactory::_createItem(DatabaseResult* result)
 	ItemIdentifier	itemIdentifier;
 
 	uint64 count = result->getRowCount();
-	assert(count == 1);
 
 	result->GetNextRow(mItemIdentifierBinding,(void*)&itemIdentifier);
 	result->ResetRowIndex();
@@ -410,11 +409,16 @@ void ItemFactory::handleObjectReady(Object* object,DispatchClient* client)
 {
 	
 	InLoadingContainer* ilc	= _getObject(object->getParentId());
+	
+	assert(ilc && "ItemFactory::handleObjectReady unable to find InLoadingContainer");
+	if (! ilc) {
+		return;
+	}
+
 	Item*		item	= dynamic_cast<Item*>(ilc->mObject);
 	// we can get factory crates, resource containers and other items at this point
 	// when they are children of our containeritem
 
-	assert(ilc);
 	ilc->mLoadCounter --;
 
 	gWorldManager->addObject(object,true);

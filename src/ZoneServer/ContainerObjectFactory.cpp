@@ -26,8 +26,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include "Utils/utils.h"
 
-#include <assert.h>
-
 //=============================================================================
 
 ContainerObjectFactory*	ContainerObjectFactory::mSingleton  = NULL;
@@ -210,7 +208,6 @@ Container* ContainerObjectFactory::_createContainer(DatabaseResult* result)
 	Container*	container = new Container();
 
 	uint64 count = result->getRowCount();
-	assert(count == 1);
 
 	result->GetNextRow(mContainerBinding,(void*)container);
 

@@ -19,6 +19,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "MathLib/Quaternion.h"
 #include "Utils/utils.h"
 
+#include <cassert>
+
 //=============================================================================
 
 Inventory::Inventory() : TangibleObject()
@@ -113,7 +115,7 @@ void Inventory::handleObjectReady(Object* object,DispatchClient* client)
 	if(!tangibleObject)
 	{
 		gLogger->logMsgF("Inventory::handleObjectReady : Not a tangible ???", MSG_NORMAL);
-		assert(false);
+		assert(false && "Inventory::handleObjectReady object is not tangible");
 		return;
 	}
 	

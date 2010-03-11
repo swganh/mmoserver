@@ -30,7 +30,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include "Utils/utils.h"
 #include "Utils/rand.h"
-#include <assert.h>
+#include <cassert>
 
 //=============================================================================
 
@@ -194,14 +194,13 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult
 			lairSpawnNpcBinding->addField(DFT_bstring,offsetof(NPCObject,mFaction),32,12);
 					
 			uint64 count = result->getRowCount();
-			assert(count == 1);
+
 			result->GetNextRow(lairSpawnBinding,&lair);
 
 			// Let's create the lair.
 		
 			// We save the lairs-type... that's kinda a template for the complete lair.
 			LairObject* npc	= new LairObject(asyncContainer->mTemplateId);
-			assert(npc);
 
 			// Set the new if of this temp object.
 			npc->setId(asyncContainer->mId);
@@ -221,7 +220,7 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult
 			else
 			{
 				// We do not have support for handling creatures inside.
-				assert(false);
+				assert(false && "NonPersistentNpcFactory::handleDatabaseJobComplete NonPersistentNpcQuery_LairTemplate No support for handling creatures inside");
 				npc->mPosition.mY = 0;
 			}
 			
@@ -284,7 +283,7 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult
 		{
 			// Get the lair object.
 			LairObject* npc = dynamic_cast<LairObject*>(gWorldManager->getObjectById(asyncContainer->mId));
-			assert(npc);
+			assert(npc && "NonPersistentNpcFactory::handleDatabaseJobComplete NonPersistentNpcQuery_LairCreatureTemplates WorldManager unable to find object id");
 
 			uint64	creatureTemplateId;
 			DataBinding* creatureTemplateBinding = mDatabase->CreateDataBinding(1);
@@ -380,7 +379,6 @@ NPCObject* NonPersistentNpcFactory::_createNonPersistentNpc(DatabaseResult* resu
 
 	// gLogger->logMsgF("NonPersistentNpcFactory::_createNonPersistentNpc() ObjectId = %"PRIu64"", MSG_NORMAL, npcNewId);
 	uint64 count = result->getRowCount();
-	assert(count == 1);
 
 	result->GetNextRow(mNpcIdentifierBinding,(void*)&npcIdentifier);
 	result->ResetRowIndex();
@@ -436,7 +434,7 @@ NPCObject* NonPersistentNpcFactory::createNonPersistentNpc(DatabaseResult* resul
 			// gLogger->logMsgF("NonPersistentNpcFactory::createNonPersistentNpc() Created a NpcFamily_NaturalLairs", MSG_NORMAL);
 
 			//Lairs are not supported here, at least not yet.
-			assert(false);
+			assert(false && "NonPersistentNpcFactory::createNonPersistent NpcFamily_NaturalLairs Lairs are not supported here yet.");
 			npc	= new LairObject(templateId);
 		}
 		break;
@@ -444,13 +442,11 @@ NPCObject* NonPersistentNpcFactory::createNonPersistentNpc(DatabaseResult* resul
 		default:
 		{
 			gLogger->logMsgF("NonPersistentNpcFactory::createNonPersistent unknown Family %u",MSG_HIGH,familyId);
-			assert(false);
+			assert(false && "NonPersistentNpcFactory::createNonPersistent unknown family");
 			npc = new NPCObject();
 		}
 		break;
 	}
-
-	assert(npc);
 
 	// Set the new temporarily id.
 	npc->setId(npcNewId);
@@ -463,7 +459,6 @@ NPCObject* NonPersistentNpcFactory::createNonPersistentNpc(DatabaseResult* resul
 	npcInventory->setParent(npc);
 
 	uint64 count = result->getRowCount();
-	assert(count == 1);
 
 	result->GetNextRow(mNonPersistentNpcBinding,(void*)npc);
 
@@ -501,7 +496,7 @@ NPCObject* NonPersistentNpcFactory::createNonPersistentNpc(DatabaseResult* resul
 	else if (npc->getNpcFamily() == NpcFamily_NaturalLairs)
 	{
 		//Lairs are not supported here, at least not yet.
-		assert(false);
+		assert(false && "NonPersistentNpcFactory::createNonPersistent NpcFamily_NaturalLairs Lairs not supported here yet");
 
 		// Dynamic spawned pve-enabled "static" creatures like lairs.
 		npc->setType(ObjType_Creature);
@@ -538,7 +533,7 @@ NPCObject* NonPersistentNpcFactory::createNonPersistentNpc(DatabaseResult* resul
 		}
 
 		AttackableCreature* attackableNpc = dynamic_cast<AttackableCreature*>(npc);
-		assert(attackableNpc);
+		assert(attackableNpc && "NonPersistentNpcFactory::createNonPersistent unable to cast npc to AttackableCreature instance");
 
 		// Fix this later
 		// Also set the owner (lair) who's controlling this creature.

@@ -27,6 +27,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "MessageLib/MessageLib.h"
 #include "MathLib/Quaternion.h"
 
+#include <cassert>
+
 //=============================================================================
 
 Trainer::Trainer() : NPCObject(), mPlayerGotRequirementsForMasterSkill(false)
@@ -1347,7 +1349,7 @@ void Trainer::spawn(void)
 			gLogger->logMsgF("Trainer::spawn: couldn't find cell %"PRIu64, MSG_HIGH, this->getParentId());
 			
 			// It's a serious isse that we need to investigate.
-			assert(cell);
+			assert(cell && "Trainer::spawn WorldManager unable to find CellObject");
 		}
 	}
 	else
@@ -1388,7 +1390,7 @@ void Trainer::spawn(void)
 			}
 			else
 			{
-				assert(false);
+				assert(false && "Trainer::spawn WorldManager unable to find PlayerObject");
 				gLogger->logMsgF("Trainer::spawn: Failed to spawn a private skill trainer.", MSG_NORMAL);
 			}
 		}

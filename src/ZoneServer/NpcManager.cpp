@@ -32,7 +32,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Utils/utils.h"
 #include "Utils/rand.h"
 
-#include <assert.h>
+#include <cassert>
 
 //=============================================================================
 
@@ -61,7 +61,6 @@ NpcManager* NpcManager::Instance(void)
 	if (!mInstance)
 	{
 		mInstance = new NpcManager(WorldManager::getSingletonPtr()->getDatabase());
-		assert(mInstance != NULL);
 	}
 	return mInstance;
 }
@@ -165,7 +164,7 @@ uint64 NpcManager::handleNpc(NPCObject* npc, uint64 timeOverdue)
 		else
 		{
 			gLogger->logMsgF("NpcManager::handleNpc() Invalid AI state.\n", MSG_NORMAL);
-			assert(false);
+			assert(false && "NpcManager::handleNpc invalid AI state");
 		}
 	}
 	return waitTime;

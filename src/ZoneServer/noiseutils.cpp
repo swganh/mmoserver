@@ -165,7 +165,7 @@ int GradientColor::FindInsertionPos (double gradientPos)
 
 const Color& GradientColor::GetColor (double gradientPos) const
 {
-  assert (m_gradientPointCount >= 2);
+  assert (m_gradientPointCount >= 2 && "GradientColor::GetColor m_gradientPointCount must be greater than 2");
 
   // Find the first element in the gradient point array that has a gradient
   // position larger than the gradient position passed to this method.

@@ -27,8 +27,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include "Utils/utils.h"
 
-#include <assert.h>
-
 //=============================================================================
 
 bool				TerminalFactory::mInsFlag    = false;
@@ -160,7 +158,6 @@ Terminal* TerminalFactory::_createTerminal(DatabaseResult* result)
 	typeBinding->addField(DFT_uint32,0,4,9);
 
 	uint64 count = result->getRowCount();
-	assert(count == 1);
 
 	result->GetNextRow(typeBinding,&tanType);
 	result->ResetRowIndex();

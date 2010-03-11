@@ -54,6 +54,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Common/MessageFactory.h"
 #include "CraftingSession.h"
 
+#include <cassert>
 
 void ObjectController::_handleBoardTransport(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
@@ -594,7 +595,7 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 			
 		}
 		//help ... how can that happen an item contained by the player MUST be equipped?
-		assert(false);
+		assert(false && "ObjectController::removeFromContainer item contained by the playerm ust be equiped");
 	}
 	
 	
@@ -719,7 +720,7 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 		}
 		else
 		{
-			assert(false);
+			assert(false && "ObjectController::removeFromContainer unable to remove itemObject");
 		}
 
 	}

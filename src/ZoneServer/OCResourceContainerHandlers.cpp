@@ -27,6 +27,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include <boost/lexical_cast.hpp>
 
+#include <cassert>
+
 //======================================================================================================================
 //
 // transfers resources across resource containers
@@ -162,7 +164,7 @@ void ObjectController::_handleResourceContainerSplit(uint64 targetId,Message* me
 	if(!item)
 	{
 		gLogger->logMsg("ObjectController::_ExtractObject: resourcecontainers parent does not exist!");
-		assert(false);
+		assert(false && "ObjectController::_ExtractObject resourcecontainers parent does not exist");
 		return;
 	}
 	

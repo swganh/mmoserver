@@ -24,6 +24,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
 
+#include <cassert>
 
 //=============================================================================
 
@@ -357,7 +358,7 @@ void HarvesterObject::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 
 			if(!count)
 			{
-				assert(false);
+				assert(false && "HarvesterObject::handleDatabaseJobComplete Structure_ResourceRetrieve did not find any resources");
 				return;
 			}
 
@@ -396,7 +397,7 @@ void HarvesterObject::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 
 			if(!count)
 			{
-				assert(false);
+				assert(false && "HarvesterObject::handleDatabaseJobComplete Structure_ResourceDiscard did not find resource");
 				return;
 			}
 

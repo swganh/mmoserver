@@ -61,6 +61,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Utils/VariableTimeScheduler.h"
 #include "Utils/utils.h"
 
+#include <cassert>
+
 //======================================================================================================================
 //
 // returns the id of the first object that has a private owner that match the requested one.
@@ -203,10 +205,6 @@ bool WorldManager::addObject(Object* object,bool manual)
 		{
 			mStructureList.push_back(object->getId());
 			BuildingObject* building = dynamic_cast<BuildingObject*>(object);
-			if(!building)
-			{
-				assert(false);
-			}
 			
 			mSpatialIndex->InsertRegion(key,building->mPosition.mX,building->mPosition.mZ,building->getWidth(),building->getHeight());
 		}
@@ -312,7 +310,7 @@ bool WorldManager::addObject(Object* object,bool manual)
 			gLogger->logMsgF("Unhandled ObjectType in WorldManager::addObject: PRId32",MSG_HIGH,object->getType());
 			// Please, when adding new stufff, at least take the time to add a stub for that type.
 			// Better fail always, than have random crashes.
-			assert(false);
+			assert(false && "WorldManager::addObject Unhandled ObjectType");
 		}
 		break;
 	}
@@ -691,7 +689,7 @@ void WorldManager::destroyObject(Object* object)
 
 			// Please, when adding new stufff, at least take the time to add a stub for that type.
 			// Better fail always, than have random crashes.
-			assert(false);
+			assert(false && "WorldManager::destroyObject Unhandled ObjectType");
 		}
 		break;
 	}

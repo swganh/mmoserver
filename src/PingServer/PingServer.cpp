@@ -36,6 +36,8 @@ PingServer::PingServer(int port)
     , socket_(io_service_)
     , receive_buffer_(RECEIVE_BUFFER)
 {
+	boost::asio::ip::udp::endpoint endpoint(boost::asio::ip::udp::v4(), port);
+	socket_.open(endpoint.protocol());
 	socket_.set_option(boost::asio::ip::udp::socket::reuse_address(true));
 	socket_.bind(boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), port)); 
 }
@@ -45,8 +47,10 @@ PingServer::PingServer(const std::string& address, int port)
     , socket_(io_service_)
     , receive_buffer_(RECEIVE_BUFFER)
 {
+	boost::asio::ip::udp::endpoint endpoint(boost::asio::ip::address::from_string(address), port);
+	socket_.open(endpoint.protocol());
 	socket_.set_option(boost::asio::ip::udp::socket::reuse_address(true));
-	socket_.bind(boost::asio::ip::udp::endpoint(boost::asio::ip::address::from_string(address), port));
+	socket_.bind(endpoint);
 }
 
 PingServer::~PingServer()

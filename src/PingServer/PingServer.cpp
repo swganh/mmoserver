@@ -28,6 +28,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include <functional>
 #endif
 
+#include <iostream>
 
 #define RECEIVE_BUFFER 512
 
@@ -39,18 +40,9 @@ PingServer::PingServer(int port)
 	boost::asio::ip::udp::endpoint endpoint(boost::asio::ip::udp::v4(), port);
 	socket_.open(endpoint.protocol());
 	socket_.set_option(boost::asio::ip::udp::socket::reuse_address(true));
-	socket_.bind(boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), port)); 
-}
+	socket_.bind(endpoint); 
 
-PingServer::PingServer(const std::string& address, int port)
-    : io_service_()
-    , socket_(io_service_)
-    , receive_buffer_(RECEIVE_BUFFER)
-{
-	boost::asio::ip::udp::endpoint endpoint(boost::asio::ip::address::from_string(address), port);
-	socket_.open(endpoint.protocol());
-	socket_.set_option(boost::asio::ip::udp::socket::reuse_address(true));
-	socket_.bind(endpoint);
+	AsyncReceive();
 }
 
 PingServer::~PingServer()
@@ -130,12 +122,11 @@ int main(int argc, char* argv[])
 	gLogger->logMsgF("PingServer %s", MSG_NORMAL, ConfigManager::getBuildString().c_str());
 
 	// Read in the address and port to start the ping server on.
-	std::string address = gConfig->read<std::string>("BindAddress");
 	int port            = gConfig->read<int>("BindPort");
 
     // Start the ping server.
-	PingServer ping_server(address, port);
-	gLogger->logMsgF("PingServer listening at %s:%d", MSG_NORMAL, address.c_str(), port);
+	PingServer ping_server(port);
+	gLogger->logMsgF("PingServer listening on port %d", MSG_NORMAL, port);
 
 	while (true) {
 		// Check for incoming messages and handle them.

@@ -35,13 +35,6 @@ public:
      */
     explicit PingServer(int port);
 
-    /*! \brief Start a ping service on a specific address and port.
-     *
-     * \param address The address to listen for ping requests on.
-     * \param port The port to listen for ping requests on.
-     */
-    PingServer(const std::string& address, int port);
-
     /*! Default destructor */
     ~PingServer();
 

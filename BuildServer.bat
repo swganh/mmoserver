@@ -21,6 +21,8 @@ call :BUILD_ENVIRONMENT
 if x%environment_built% == x goto :eof
 
 cd %PROJECT_BASE%
+
+rem call :DOWNLOAD_DATA_FILES
                     
 call :BUILD_DEPENDENCIES
                                         
@@ -249,7 +251,48 @@ goto :eof
 rem --- End of BUILD_ENVIRONMENT_FOR_9.0 --------------------------------------- 
 rem ----------------------------------------------------------------------------
 
+rem ----------------------------------------------------------------------------
+rem --- Start of DOWNLOAD_DATA_FILES -------------------------------------------
+rem --- Downloads datafiles such as heightmaps needed to run the project.    ---
+:DOWNLOAD_DATA_FILES
 
+echo ** Checking data file dependencies **
+echo.
+
+if not exist "data\heightmaps" (
+	mkdir data\heightmaps
+)
+
+call :DOWNLOAD_HEIGHTMAP tatooine
+
+echo ** Checking data file dependencies complete **
+
+goto :eof
+rem --- End of DOWNLOAD_DATA_FILES ---------------------------------------------
+rem ----------------------------------------------------------------------------
+
+
+rem ----------------------------------------------------------------------------
+rem --- Start of DOWNLOAD_HEIGHTMAP --------------------------------------------
+rem --- Downloads datafiles such as heightmaps needed to run the project.    ---
+:DOWNLOAD_HEIGHTMAP
+
+echo ** Downloading Heightmap for %1 **
+echo.
+
+if not exist "data\heightmaps\%1.zip" (
+	"tools\wget.exe" http://swganh.com/^^!^^!planets^^!^^!/%1.rar -O data\heightmaps\%1.zip
+	"tools\unzip.exe" data\heightmaps\%1.zip -d data\heightmaps >NUL
+	if exist "data\heightmaps\%1.hmp" (
+		del data\heightmaps\%1.zip
+	)
+)
+
+echo ** Downloading heightmap complete **
+
+goto :eof
+rem --- End of DOWNLOAD_HEIGHTMAP ----------------------------------------------
+rem ----------------------------------------------------------------------------
                            
 rem ----------------------------------------------------------------------------
 rem --- Start of BUILD_DEPENDENCIES --------------------------------------------

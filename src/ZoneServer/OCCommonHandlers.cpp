@@ -329,9 +329,6 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 
 		return;
 	}
-
-	tangible->destroyKnownObjects();
-	gMessageLib->sendCreateObject(itemObject,playerObject);
 					
 	//now go and move it to wherever it belongs
 	cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(targetContainerId));
@@ -394,6 +391,9 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 	if (inventory && (inventory->getId() == targetContainerId))	// Valid player inventory.
 	{
 		// Add object to OUR inventory.
+		tangible->destroyKnownObjects();
+		gMessageLib->sendCreateObject(itemObject,playerObject);
+
 		itemObject->setParentId(targetContainerId,linkType,playerObject,true);
 		inventory->addObjectSecure(itemObject);
 		
@@ -526,8 +526,20 @@ bool ObjectController::checkTargetContainer(uint64 targetContainerId, Object* ob
 			if(building->hasAdminRights(playerObject->getId()))
 			{
 				//do we have enough room ?
-				return building->checkCapacity(objectSize);
+				if(building->checkCapacity(objectSize))
+				{
+					return true;
+				}
+				else
+				{
+					gMessageLib->sendSystemMessage(playerObject,L"","container_error_message","container03");
+					return false;
+				}
 				
+			}
+			else
+			{
+				gMessageLib->sendSystemMessage(playerObject,L"","container_error_message","container08");
 			}
 		}
 		return false;
@@ -862,8 +874,6 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 	//delete(itemObject->getRadialMenu());
 	itemObject->ResetRadialMenu();
 
-	itemObject->destroyKnownObjects();
-	gMessageLib->sendCreateObject(itemObject,playerObject);
 
 	//now go and move it to wherever it belongs
 	cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(targetContainerId));
@@ -923,6 +933,8 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 	{
 		// Add object to OUR inventory.
 
+		itemObject->destroyKnownObjects();
+		gMessageLib->sendCreateObject(itemObject,playerObject);
 		
 		itemObject->setParentId(targetContainerId,linkType,playerObject,true);
 		inventory->addObjectSecure(itemObject);

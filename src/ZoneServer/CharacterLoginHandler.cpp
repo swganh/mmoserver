@@ -156,6 +156,8 @@ void CharacterLoginHandler::handleDispatchMessage(uint32 opcode, Message* messag
 			delete playerObject->getClient();
 
 			playerObject->setClient(client);
+			
+			playerObject->destroyKnownObjects();
 
 			//gLogger->logMsgF("CharacterLoginHandler opselect character - relog %u.", MSG_NORMAL, playerObject->getAccountId());
 

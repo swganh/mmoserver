@@ -134,7 +134,6 @@ void HouseFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			for(uint32 j = 0;j < count;j++)
 			{
 				result->GetNextRow(adminBinding,&adminData);
-				gLogger->logMsgF("added admin %I64u to house %I64u",MSG_HIGH,adminData.playerID,house->getId());
 				house->addHousingAdminEntry(adminData.playerID);
 			}
 

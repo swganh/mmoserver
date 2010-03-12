@@ -514,30 +514,7 @@ void Object::destroyKnownObjects()
 		targetPlayer->removeKnownObject(this);
 		mKnownPlayers.erase(playerIt++);
 
-		// (by Eru)
-		// When I see a call to destroyKnownObjects(), I do NOT expect that code to delete or manipulate data belonging to other objects,
-		// apart from the "theKnownObjects".
-
-
-		//we need to update the mInRangeObjects too as the list is potentially old
-		//and we might be on it
-
-		// CODE REMOVED BY ERU
-		/*
-		ObjectSet* set =	targetPlayer->getController()->getInRangeObjects();
-		ObjectSet::iterator osetsave = targetPlayer->getController()->getInRangeObjectsIterator();
-		ObjectSet::iterator osetIt = set->find(this);
-
-
-		if(osetIt != set->end())
-		{
-			if(osetsave == osetIt)
-				osetsave++;
-
-			 set->erase(this);
-
-		}
-		*/
+		
 	}
 }
 

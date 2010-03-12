@@ -33,6 +33,7 @@ BadgeRegion::~BadgeRegion()
 }
 
 //=============================================================================
+//every 2 secs were querying the si for players in our region
 
 void BadgeRegion::update()
 {

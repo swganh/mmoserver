@@ -743,6 +743,21 @@ void WorldManager::eraseObject(uint64 key)
 
 void WorldManager::initObjectsInRange(PlayerObject* playerObject)
 {
+	//if we are in a playerbuilding create the playerbuilding first
+	//otherwise our items will not show when they are created before the cell
+	if(CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(playerObject->getParentId())))
+	{
+		if(HouseObject* playerHouse = dynamic_cast<HouseObject*>(gWorldManager->getObjectById(cell->getParentId())))
+		{
+			//gLogger->logMsgF("create playerbuilding",MSG_HIGH);
+			gMessageLib->sendCreateObject(playerHouse,playerObject);
+			playerHouse->addKnownObjectSafe(playerObject);
+			playerObject->addKnownObjectSafe(playerHouse);	
+		}
+	}
+
+
+
 	// we still query for players here, cause they are found through the buildings and arent kept in a qtree
 	ObjectSet inRangeObjects;
 	mSpatialIndex->getObjectsInRange(playerObject,&inRangeObjects,(ObjType_Player | ObjType_Tangible | ObjType_NPC | ObjType_Creature | ObjType_Building | ObjType_Structure ),gWorldConfig->getPlayerViewingRange());
@@ -793,10 +808,13 @@ void WorldManager::initObjectsInRange(PlayerObject* playerObject)
 		}
 		else
 		{
-			gMessageLib->sendCreateObject(object,playerObject);
-			
-			object->addKnownObjectSafe(playerObject);
-			playerObject->addKnownObjectSafe(object);
+			if(!playerObject->checkKnownObjects(object))
+			{
+				gMessageLib->sendCreateObject(object,playerObject);
+				
+				object->addKnownObjectSafe(playerObject);
+				playerObject->addKnownObjectSafe(object);
+			}
 		}
 		++it;
 	}

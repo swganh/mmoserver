@@ -280,10 +280,10 @@ rem --- Downloads datafiles such as heightmaps needed to run the project.    ---
 echo ** Downloading Heightmap for %1 **
 echo.
 
-if not exist "data\heightmaps\%1.zip" (
-	"tools\wget.exe" http://swganh.com/^^!^^!planets^^!^^!/%1.rar -O data\heightmaps\%1.zip
+if not exist "data\heightmaps\%1.hmpw" (
+	"tools\wget.exe" http://swganh.com/^^!^^!planets^^!^^!/%1.zip -O data\heightmaps\%1.zip
 	"tools\unzip.exe" data\heightmaps\%1.zip -d data\heightmaps >NUL
-	if exist "data\heightmaps\%1.hmp" (
+	if exist "data\heightmaps\%1.hmpw" (
 		del data\heightmaps\%1.zip
 	)
 )

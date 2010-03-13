@@ -48,7 +48,7 @@ class Shuttle : public CreatureObject
 		uint32			getLandingTime(){ return mLandingTime; }
 		void			setShuttleState(ShuttleState state){ mShuttleState = state; }
 		ShuttleState	getShuttleState();
-		bool			avaliableInPort(void);
+		bool			availableInPort(void);
 		void			setCollectorId(uint64 id){ mTicketCollectorId = id; }
 		uint64			getCollectorId(){ return mTicketCollectorId; }
 		void			useShuttle(PlayerObject* playerObject);

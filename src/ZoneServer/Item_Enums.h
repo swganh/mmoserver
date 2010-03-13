@@ -31,6 +31,7 @@ enum ItemFamily
 	ItemFamily_BugJar					= 12,
 	ItemFamily_FireWork					= 19,
 	ItemFamily_Deed						= 15,
+	ItemFamily_Dice						= 16,
 	ItemFamily_Medicine					= 22,
 	ItemFamily_Mission					= 23,
 	ItemFamily_Powerup					= 24,
@@ -185,27 +186,31 @@ enum ItemType
 	ItemType_Deed_Speederbike			= 1737,
 	ItemType_Deed_Swoop					= 1738,
 
-
+	// meds
 	ItemType_Stimpack_A					= 1768,
 	ItemType_Stimpack_B					= 1769,
 	ItemType_Stimpack_C					= 1770,
 	ItemType_Stimpack_D					= 1771,
 	ItemType_Stimpack_E					= 1772,
+	ItemType_Ranged_Stimpack_A			= 1875,
+	ItemType_Ranged_Stimpack_B			= 1876,
+	ItemType_Ranged_Stimpack_C			= 1877,
+	ItemType_Ranged_Stimpack_D			= 1878,
+	ItemType_Ranged_Stimpack_E			= 1879,
 	ItemType_Pet_Stimpack_A				= 1939,
 	ItemType_Pet_Stimpack_B				= 1940,
 	ItemType_Pet_Stimpack_C				= 1941,
 	ItemType_Pet_Stimpack_D				= 1942,
+
+	// camps
 	ItemType_Camp_basic					= 1970, //Basic Camp Kit
 	ItemType_Camp_elite					= 1971, //Field Base Kit
 	ItemType_Camp_improved				= 1972, //Improved Camp Kit
 	ItemType_Camp_luxury				= 1973, //High Tech Field Base Kit
 	ItemType_Camp_multi					= 1974, //Multiperson Camp Kit
 	ItemType_Camp_quality				= 1975, //High Quality Camp Kit
-	ItemType_Ranged_Stimpack_A			= 1875,
-	ItemType_Ranged_Stimpack_B			= 1876,
-	ItemType_Ranged_Stimpack_C			= 1877,
-	ItemType_Ranged_Stimpack_D			= 1878,
-	ItemType_Ranged_Stimpack_E			= 1879,
+	
+	// fireworks
 	ItemType_Firework_Type_1			= 1756,
 	ItemType_Firework_Type_2			= 1761,
 	ItemType_Firework_Type_3			= 1760,
@@ -214,9 +219,10 @@ enum ItemType
 	ItemType_Firework_Type_10			= 1757,
 	ItemType_Firework_Type_11			= 1758,
 	ItemType_Firework_Type_18			= 1759,
-	ItemType_Firework_Show				= 1762
+	ItemType_Firework_Show				= 1762,
 
-	//Owen - changing the ids of the fireworks to be in order of the firework numbers would look cleaner, here and other places
+	// cubes
+	ItemType_Generic_ChanceCube			= 1739
 };
 
 //=============================================================================

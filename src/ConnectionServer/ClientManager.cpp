@@ -191,6 +191,7 @@ void ClientManager::handleSessionDisconnect(NetworkClient* client)
 
 
 //======================================================================================================================
+
 void ClientManager::handleSessionMessage(NetworkClient* client, Message* message)
 {
   ConnectionClient* connClient = reinterpret_cast<ConnectionClient*>(client);
@@ -202,8 +203,8 @@ void ClientManager::handleSessionMessage(NetworkClient* client, Message* message
   mMessageRouter->RouteMessage(message, connClient);
 }
 
-
 //======================================================================================================================
+
 void ClientManager::handleDispatchMessage(uint32 opcode, Message* message, ConnectionClient* client)
 {
   switch(opcode)

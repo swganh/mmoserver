@@ -425,9 +425,8 @@ void WorldManager::_processSchedulers()
 
 bool WorldManager::_handleDisconnectUpdate(uint64 callTime,void* ref)
 {
-
-
 	PlayerList::iterator it = mPlayersToRemove.begin();
+
 	while(it != mPlayersToRemove.end())
 	{
 		PlayerObject* playerObject = (*it);
@@ -450,13 +449,13 @@ bool WorldManager::_handleDisconnectUpdate(uint64 callTime,void* ref)
 			//asynch save
 			savePlayer(playerObject->getAccountId(),true,WMLogOut_LogOut);
 
-
 			it = mPlayersToRemove.erase(it);
 		}
 		else
-			it++;
+			++it;
 
 	}
+
 	return(true);
 }
 
@@ -677,13 +676,10 @@ void WorldManager::removeBusyCraftTool(CraftingTool* tool)
 	}
 }
 
-
-
 //======================================================================================================================
 //
 //	Add a timed entry for deletion of dead creature objects.
 //
-
 void WorldManager::addCreatureObjectForTimedDeletion(uint64 creatureId, uint64 when)
 {
 	uint64 expireTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
@@ -909,9 +905,6 @@ void WorldManager::_handleLoadComplete()
 
 	// Initialize static creature lairs.
 	mAdminScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleAdminRequests),5,5000,NULL);
-
-
-
 }
 
 //======================================================================================================================
@@ -1408,14 +1401,19 @@ const Anh_Math::Rectangle WorldManager::getSpawnArea(uint64 spawnRegionId)
 
 void WorldManager::removePlayerfromAccountMap(uint64 playerID)
 {
-	PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerID));
-
-	PlayerAccMap::iterator playerAccIt = mPlayerAccMap.find(player->getAccountId());
-
-	if(playerAccIt != mPlayerAccMap.end())
+	if(PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerID)))
 	{
-		gLogger->logMsgF("Player left: %"PRIu64", Total Players on zone : %i",MSG_NORMAL,player->getId(),(getPlayerAccMap())->size() -1);
-		mPlayerAccMap.erase(playerAccIt);
+		PlayerAccMap::iterator playerAccIt = mPlayerAccMap.find(player->getAccountId());
+
+		if(playerAccIt != mPlayerAccMap.end())
+		{
+			gLogger->logMsgF("Player left: %"PRIu64", Total Players on zone : %i",MSG_NORMAL,player->getId(),(getPlayerAccMap())->size() -1);
+			mPlayerAccMap.erase(playerAccIt);
+		}
+		else
+		{
+			gLogger->logErrorF("Worldmanager","WorldManager::destroyObject: error removing from playeraccmap : %u",MSG_HIGH,player->getAccountId());
+		}
 	}
 	else
 	{

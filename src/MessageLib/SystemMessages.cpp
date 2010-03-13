@@ -41,18 +41,18 @@ void MessageLib::sendBanktipMail(PlayerObject* playerObject, PlayerObject* targe
 	aMS->addTextModule();
 
 
-	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opIsmSendSystemMailMessage);
-	gMessageFactory->addUint64(playerObject->getId());
-	gMessageFactory->addUint64(playerObject->getId());
-	gMessageFactory->addString(targetObject->getFirstName());
-	gMessageFactory->addString(BString("@base_player:wire_mail_subject"));
-	gMessageFactory->addUint32(0);
-	gMessageFactory->addString(aMS->assemble());
+	mMessageFactory->StartMessage();
+	mMessageFactory->addUint32(opIsmSendSystemMailMessage);
+	mMessageFactory->addUint64(playerObject->getId());
+	mMessageFactory->addUint64(playerObject->getId());
+	mMessageFactory->addString(targetObject->getFirstName());
+	mMessageFactory->addString(BString("@base_player:wire_mail_subject"));
+	mMessageFactory->addUint32(0);
+	mMessageFactory->addString(aMS->assemble());
 	delete aMS;
 
 
-	Message* newMessage = gMessageFactory->EndMessage();
+	Message* newMessage = mMessageFactory->EndMessage();
 	playerObject->getClient()->SendChannelA(newMessage, playerObject->getAccountId(), CR_Chat, 6);
 
 
@@ -65,18 +65,18 @@ void MessageLib::sendBanktipMail(PlayerObject* playerObject, PlayerObject* targe
 	aMS->addTextModule();
 
 
-	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opIsmSendSystemMailMessage);
-	gMessageFactory->addUint64(targetObject->getId());
-	gMessageFactory->addUint64(targetObject->getId());
-	gMessageFactory->addString(playerObject->getFirstName());
-	gMessageFactory->addString(BString("@base_player:wire_mail_subject"));
-	gMessageFactory->addUint32(0);
-	gMessageFactory->addString(aMS->assemble());
+	mMessageFactory->StartMessage();
+	mMessageFactory->addUint32(opIsmSendSystemMailMessage);
+	mMessageFactory->addUint64(targetObject->getId());
+	mMessageFactory->addUint64(targetObject->getId());
+	mMessageFactory->addString(playerObject->getFirstName());
+	mMessageFactory->addString(BString("@base_player:wire_mail_subject"));
+	mMessageFactory->addUint32(0);
+	mMessageFactory->addString(aMS->assemble());
 	delete aMS;
 
 
-	newMessage = gMessageFactory->EndMessage();
+	newMessage = mMessageFactory->EndMessage();
 	playerObject->getClient()->SendChannelA(newMessage, playerObject->getAccountId(), CR_Chat, 6);
 
 }
@@ -107,17 +107,17 @@ void MessageLib::sendBoughtInstantMail(PlayerObject* newOwner, string ItemName, 
 	aMS->setWP(static_cast<float>(mX), static_cast<float>(mY), 0, ItemName);
 	aMS->addWaypoint();
 
-	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opIsmSendSystemMailMessage);
-	gMessageFactory->addUint64(newOwner->getId());
-	gMessageFactory->addUint64(newOwner->getId());
-	gMessageFactory->addString(BString("auctioner"));
-	gMessageFactory->addString(BString("@auction:subject_auction_buyer"));
-	gMessageFactory->addUint32(0);
+	mMessageFactory->StartMessage();
+	mMessageFactory->addUint32(opIsmSendSystemMailMessage);
+	mMessageFactory->addUint64(newOwner->getId());
+	mMessageFactory->addUint64(newOwner->getId());
+	mMessageFactory->addString(BString("auctioner"));
+	mMessageFactory->addString(BString("@auction:subject_auction_buyer"));
+	mMessageFactory->addUint32(0);
 	string attachment = aMS->assemble();
-	gMessageFactory->addString(attachment);
+	mMessageFactory->addString(attachment);
 	
-	Message* newMessage = gMessageFactory->EndMessage();
+	Message* newMessage = mMessageFactory->EndMessage();
 
 	
 	newOwner->getClient()->SendChannelA(newMessage, newOwner->getAccountId(), CR_Chat, 6);
@@ -146,17 +146,17 @@ void MessageLib::sendSoldInstantMail(uint64 oldOwner, PlayerObject* newOwner, st
 	aMS->addTO(planet);
 	aMS->addTextModule();
 
-	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opIsmSendSystemMailMessage);
-	gMessageFactory->addUint64(oldOwner);
-	gMessageFactory->addUint64(oldOwner);
-	gMessageFactory->addString(BString("auctioner"));
-	gMessageFactory->addString(BString("@auction:subject_instant_seller"));
-	gMessageFactory->addUint32(0);
-	gMessageFactory->addString(aMS->assemble());
+	mMessageFactory->StartMessage();
+	mMessageFactory->addUint32(opIsmSendSystemMailMessage);
+	mMessageFactory->addUint64(oldOwner);
+	mMessageFactory->addUint64(oldOwner);
+	mMessageFactory->addString(BString("auctioner"));
+	mMessageFactory->addString(BString("@auction:subject_instant_seller"));
+	mMessageFactory->addUint32(0);
+	mMessageFactory->addString(aMS->assemble());
 	delete aMS;
 
-	Message* newMessage = gMessageFactory->EndMessage();
+	Message* newMessage = mMessageFactory->EndMessage();
 	newOwner->getClient()->SendChannelA(newMessage, newOwner->getAccountId(), CR_Chat, 6);
 
 }
@@ -194,19 +194,19 @@ void MessageLib::sendSoldInstantMail(uint64 oldOwner, PlayerObject* newOwner, st
 	aMS->addWaypoint();
 
 
-	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opIsmSendSystemMailMessage);
-	gMessageFactory->addUint64(playerObject->getId());
-	gMessageFactory->addUint64(playerObject->getId());
-	//gMessageFactory->addString(targetObject->getFirstName());
-	gMessageFactory->addString(BString("@player_structure:construction_complete_sender"));
-	gMessageFactory->addString(BString("@player_structure:construction_complete_subject"));
-	gMessageFactory->addUint32(0);
-	gMessageFactory->addString(aMS->assemble());
+	mMessageFactory->StartMessage();
+	mMessageFactory->addUint32(opIsmSendSystemMailMessage);
+	mMessageFactory->addUint64(playerObject->getId());
+	mMessageFactory->addUint64(playerObject->getId());
+	//mMessageFactory->addString(targetObject->getFirstName());
+	mMessageFactory->addString(BString("@player_structure:construction_complete_sender"));
+	mMessageFactory->addString(BString("@player_structure:construction_complete_subject"));
+	mMessageFactory->addUint32(0);
+	mMessageFactory->addString(aMS->assemble());
 	delete aMS;
 
 
-	Message* newMessage = gMessageFactory->EndMessage();
+	Message* newMessage = mMessageFactory->EndMessage();
 	playerObject->getClient()->SendChannelA(newMessage, playerObject->getAccountId(), CR_Chat, 6);
 
 

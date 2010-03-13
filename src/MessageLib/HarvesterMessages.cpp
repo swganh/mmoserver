@@ -46,69 +46,69 @@ bool MessageLib::sendBaselinesHINO_3(HarvesterObject* harvester,PlayerObject* pl
 			
 	Message* message;
 
-	gMessageFactory->StartMessage();    
-	gMessageFactory->addUint16(16);
-	gMessageFactory->addFloat(1.0);
-	gMessageFactory->addString(harvester->getNameFile());
-	gMessageFactory->addUint32(0);
-	gMessageFactory->addString(harvester->getName());
+	mMessageFactory->StartMessage();    
+	mMessageFactory->addUint16(16);
+	mMessageFactory->addFloat(1.0);
+	mMessageFactory->addString(harvester->getNameFile());
+	mMessageFactory->addUint32(0);
+	mMessageFactory->addString(harvester->getName());
 	
 	string name;
 	name = harvester->getCustomName();
 	name.convert(BSTRType_Unicode16);
 
-	gMessageFactory->addString(name.getUnicode16());
+	mMessageFactory->addString(name.getUnicode16());
 	
-	gMessageFactory->addUint32(1);//volume (in inventory)
-	gMessageFactory->addUint16(0);//customization
-	gMessageFactory->addUint32(0);//list
-	gMessageFactory->addUint32(0);//list
+	mMessageFactory->addUint32(1);//volume (in inventory)
+	mMessageFactory->addUint16(0);//customization
+	mMessageFactory->addUint32(0);//list
+	mMessageFactory->addUint32(0);//list
 	
 	if(harvester->getActive())
-		gMessageFactory->addUint8(1);//optionsbitmask - 1 = active
+		mMessageFactory->addUint8(1);//optionsbitmask - 1 = active
 	else
-		gMessageFactory->addUint8(0);//optionsbitmask - vendor etc harvester running
+		mMessageFactory->addUint8(0);//optionsbitmask - vendor etc harvester running
 
-	gMessageFactory->addUint8(0);//optionsbitmask - vendor etc harvester running
-	gMessageFactory->addUint8(0);//optionsbitmask - vendor etc harvester running
-	gMessageFactory->addUint8(0);//optionsbitmask - vendor etc harvester running
+	mMessageFactory->addUint8(0);//optionsbitmask - vendor etc harvester running
+	mMessageFactory->addUint8(0);//optionsbitmask - vendor etc harvester running
+	mMessageFactory->addUint8(0);//optionsbitmask - vendor etc harvester running
 	
-	gMessageFactory->addUint32(0);//timer
+	mMessageFactory->addUint32(0);//timer
 	
 	//08
-	gMessageFactory->addUint32(harvester->getDamage());//condition damage
+	mMessageFactory->addUint32(harvester->getDamage());//condition damage
 	
 	//09
-	gMessageFactory->addUint32(harvester->getMaxCondition());   //maxcondition
+	mMessageFactory->addUint32(harvester->getMaxCondition());   //maxcondition
 	
 	//A
-	gMessageFactory->addUint8(harvester->getActive());//??
+	mMessageFactory->addUint8(harvester->getActive());//??
 	
 	//B
-	gMessageFactory->addUint8(harvester->getActive());//active flag
+	mMessageFactory->addUint8(harvester->getActive());//active flag
 
-	gMessageFactory->addFloat(0);//power reserve
-	gMessageFactory->addFloat(0);//power cost
-	gMessageFactory->addFloat(0);//
-	gMessageFactory->addFloat(0);//
+	mMessageFactory->addFloat(0);//power reserve
+	mMessageFactory->addFloat(0);//power cost
+	mMessageFactory->addFloat(0);//
+	mMessageFactory->addFloat(0);//
 
 
 	
 
-	message = gMessageFactory->EndMessage();
+	message = mMessageFactory->EndMessage();
 
 	Message* newMessage;
 
-	gMessageFactory->StartMessage();    
-	gMessageFactory->addUint32(opBaselinesMessage);  
-	gMessageFactory->addUint64(harvester->getId());
-	gMessageFactory->addUint32(opHINO);
-	gMessageFactory->addUint8(3);
+	mMessageFactory->StartMessage();    
+	mMessageFactory->addUint32(opBaselinesMessage);  
+	mMessageFactory->addUint64(harvester->getId());
+	mMessageFactory->addUint32(opHINO);
+	mMessageFactory->addUint8(3);
 
-	gMessageFactory->addUint32(message->getSize());
-	gMessageFactory->addData(message->getData(),message->getSize());
+	mMessageFactory->addUint32(message->getSize());
+	mMessageFactory->addData(message->getData(),message->getSize());
 
-	newMessage = gMessageFactory->EndMessage();
+	newMessage = mMessageFactory->EndMessage();
 	message->setPendingDelete(true);
 
 	(player->getClient())->SendChannelA(newMessage, player->getAccountId(), CR_Client, 5);
@@ -129,21 +129,21 @@ bool MessageLib::sendBaselinesHINO_6(HarvesterObject* harvester,PlayerObject* pl
 
 	Message* newMessage;
 
-	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opBaselinesMessage);  
-	gMessageFactory->addUint64(harvester->getId());
-	gMessageFactory->addUint32(opHINO);
-	gMessageFactory->addUint8(6);
+	mMessageFactory->StartMessage();
+	mMessageFactory->addUint32(opBaselinesMessage);  
+	mMessageFactory->addUint64(harvester->getId());
+	mMessageFactory->addUint32(opHINO);
+	mMessageFactory->addUint8(6);
 
-	gMessageFactory->addUint32(14);
-	gMessageFactory->addUint16(2);	// unknown
-	gMessageFactory->addUint16(0); // unknown
-	gMessageFactory->addUint32(0);	// unknown
-	gMessageFactory->addUint32(0);
-	gMessageFactory->addUint32(0);
-	gMessageFactory->addUint32(0);
+	mMessageFactory->addUint32(14);
+	mMessageFactory->addUint16(2);	// unknown
+	mMessageFactory->addUint16(0); // unknown
+	mMessageFactory->addUint32(0);	// unknown
+	mMessageFactory->addUint32(0);
+	mMessageFactory->addUint32(0);
+	mMessageFactory->addUint32(0);
 
-	newMessage = gMessageFactory->EndMessage();
+	newMessage = mMessageFactory->EndMessage();
 
 	(player->getClient())->SendChannelA(newMessage, player->getAccountId(), CR_Client, 5);
 
@@ -168,18 +168,18 @@ bool MessageLib::sendBaselinesHINO_7(HarvesterObject* harvester,PlayerObject* pl
 
 	Message* newMessage;
 	
-	gMessageFactory->StartMessage();
-	gMessageFactory->addUint8(15);
-	gMessageFactory->addUint8(0);
-	gMessageFactory->addUint8(1);	// 
+	mMessageFactory->StartMessage();
+	mMessageFactory->addUint8(15);
+	mMessageFactory->addUint8(0);
+	mMessageFactory->addUint8(1);	// 
 
 	
 	//=====================================
 	//start with the resource IDS
 	harvester->setUpdateCounter(resourceList.size());
 
-	gMessageFactory->addUint32(resourceList.size());
-	gMessageFactory->addUint32(harvester->getUpdateCounter());
+	mMessageFactory->addUint32(resourceList.size());
+	mMessageFactory->addUint32(harvester->getUpdateCounter());
 
 	ResourceList::iterator resourceIt = resourceList.begin();
 
@@ -187,7 +187,7 @@ bool MessageLib::sendBaselinesHINO_7(HarvesterObject* harvester,PlayerObject* pl
 	{
 		Resource* tmpResource = (*resourceIt);
 
-		gMessageFactory->addUint64(tmpResource->getId());
+		mMessageFactory->addUint64(tmpResource->getId());
 
 		++resourceIt;
 	}
@@ -197,8 +197,8 @@ bool MessageLib::sendBaselinesHINO_7(HarvesterObject* harvester,PlayerObject* pl
 	//resource IDS a second time ... ???
 	harvester->setUpdateCounter(resourceList.size());
 
-	gMessageFactory->addUint32(resourceList.size());
-	gMessageFactory->addUint32(harvester->getUpdateCounter());
+	mMessageFactory->addUint32(resourceList.size());
+	mMessageFactory->addUint32(harvester->getUpdateCounter());
 
 	resourceIt = resourceList.begin();
 
@@ -206,7 +206,7 @@ bool MessageLib::sendBaselinesHINO_7(HarvesterObject* harvester,PlayerObject* pl
 	{
 		Resource* tmpResource = (*resourceIt);
 
-		gMessageFactory->addUint64(tmpResource->getId());
+		mMessageFactory->addUint64(tmpResource->getId());
 
 		++resourceIt;
 	}
@@ -215,15 +215,15 @@ bool MessageLib::sendBaselinesHINO_7(HarvesterObject* harvester,PlayerObject* pl
 
 	//=====================================
 	//resource names
-	gMessageFactory->addUint32(resourceList.size());
-	gMessageFactory->addUint32(harvester->getUpdateCounter());
+	mMessageFactory->addUint32(resourceList.size());
+	mMessageFactory->addUint32(harvester->getUpdateCounter());
 	
 	resourceIt = resourceList.begin();
 
 	while(resourceIt != resourceList.end())
 	{
 		Resource* tmpResource = (*resourceIt);
-		gMessageFactory->addString(tmpResource->getName().getAnsi());
+		mMessageFactory->addString(tmpResource->getName().getAnsi());
 		
 		++resourceIt;
 	}
@@ -232,71 +232,71 @@ bool MessageLib::sendBaselinesHINO_7(HarvesterObject* harvester,PlayerObject* pl
 
 	//=====================================
 	//resource types
-	gMessageFactory->addUint32(resourceList.size());
-	gMessageFactory->addUint32(harvester->getUpdateCounter());
+	mMessageFactory->addUint32(resourceList.size());
+	mMessageFactory->addUint32(harvester->getUpdateCounter());
 
 	resourceIt = resourceList.begin();
 
 	while(resourceIt != resourceList.end())
 	{
 		Resource* tmpResource = (*resourceIt);	
-		gMessageFactory->addString((tmpResource->getType())->getDescriptor().getAnsi());
+		mMessageFactory->addString((tmpResource->getType())->getDescriptor().getAnsi());
 
 		++resourceIt;
 	}
 
-	gMessageFactory->addUint64(harvester->getCurrentResource());//current Res Id harvesting
+	mMessageFactory->addUint64(harvester->getCurrentResource());//current Res Id harvesting
 
-	gMessageFactory->addUint8(harvester->getActive());//on off status flag
-	gMessageFactory->addUint32(uint32(harvester->getSpecExtraction()));//hopper capacity
+	mMessageFactory->addUint8(harvester->getActive());//on off status flag
+	mMessageFactory->addUint32(uint32(harvester->getSpecExtraction()));//hopper capacity
 	
-	gMessageFactory->addFloat(harvester->getSpecExtraction());//spec rate
-	gMessageFactory->addFloat(harvester->getCurrentExtractionRate());//current rate
+	mMessageFactory->addFloat(harvester->getSpecExtraction());//spec rate
+	mMessageFactory->addFloat(harvester->getCurrentExtractionRate());//current rate
 
-	gMessageFactory->addFloat(harvester->getCurrentHopperSize());//current hopper size
-	gMessageFactory->addUint32((uint32)harvester->getHopperSize());//max Hoppersize
+	mMessageFactory->addFloat(harvester->getCurrentHopperSize());//current hopper size
+	mMessageFactory->addUint32((uint32)harvester->getHopperSize());//max Hoppersize
 
-	gMessageFactory->addUint8(1);//	  hopper update flag
+	mMessageFactory->addUint8(1);//	  hopper update flag
 
 
 	HResourceList* rList = harvester->getResourceList();
 	harvester->setRListUpdateCounter(rList->size());
 
-	gMessageFactory->addUint32(rList->size());//listsize hopper contents
-	gMessageFactory->addUint32(harvester->getRListUpdateCounter());//updatecounter hopper contents
+	mMessageFactory->addUint32(rList->size());//listsize hopper contents
+	mMessageFactory->addUint32(harvester->getRListUpdateCounter());//updatecounter hopper contents
 
 	//harvester->setRListUpdateCounter(harvester->getRListUpdateCounter()+rList->size());
 	
 	HResourceList::iterator it = rList->begin();
 	while (it != rList->end())
 	{
-		gMessageFactory->addUint64((*it).first);//
-		gMessageFactory->addFloat((*it).second);//
+		mMessageFactory->addUint64((*it).first);//
+		mMessageFactory->addFloat((*it).second);//
 		it++;
 	}
 	
 	uint8 condition = ((harvester->getMaxCondition()-harvester->getDamage())/(harvester->getMaxCondition()/100));
-	gMessageFactory->addUint8(condition);//	  condition
+	mMessageFactory->addUint8(condition);//	  condition
 	//float condition = (float)((harvester->getMaxCondition()-harvester->getDamage())/(harvester->getMaxCondition()/100));
-	//gMessageFactory->addFloat((float)2.0);//condition);//	  condition
+	//mMessageFactory->addFloat((float)2.0);//condition);//	  condition
 
-	//gMessageFactory->addUint64(0);//
+	//mMessageFactory->addUint64(0);//
 	
-	newMessage = gMessageFactory->EndMessage();
+	newMessage = mMessageFactory->EndMessage();
 
 
 	//now add the data to the Baselines header
 	Message* completeMessage;
 
-	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opBaselinesMessage);  
-	gMessageFactory->addUint64(harvester->getId());
-	gMessageFactory->addUint32(opHINO);
-	gMessageFactory->addUint8(7);
+	mMessageFactory->StartMessage();
+	mMessageFactory->addUint32(opBaselinesMessage);  
+	mMessageFactory->addUint64(harvester->getId());
+	mMessageFactory->addUint32(opHINO);
+	mMessageFactory->addUint8(7);
 
-	gMessageFactory->addUint32(newMessage->getSize());//ByteCount
-	gMessageFactory->addData(newMessage->getData(),newMessage->getSize());
-	completeMessage = gMessageFactory->EndMessage();
+	mMessageFactory->addUint32(newMessage->getSize());//ByteCount
+	mMessageFactory->addData(newMessage->getData(),newMessage->getSize());
+	completeMessage = mMessageFactory->EndMessage();
 
 
 	//Important! -> never leave a message undeleted
@@ -322,69 +322,69 @@ bool MessageLib::sendBaselinesINSO_3(FactoryObject* factory,PlayerObject* player
 			
 	Message* message;
 
-	gMessageFactory->StartMessage();    
-	gMessageFactory->addUint16(16);
-	gMessageFactory->addFloat(1.0);
-	gMessageFactory->addString(factory->getNameFile());
-	gMessageFactory->addUint32(0);
-	gMessageFactory->addString(factory->getName());
+	mMessageFactory->StartMessage();    
+	mMessageFactory->addUint16(16);
+	mMessageFactory->addFloat(1.0);
+	mMessageFactory->addString(factory->getNameFile());
+	mMessageFactory->addUint32(0);
+	mMessageFactory->addString(factory->getName());
 	
 	string name;
 	name = factory->getCustomName();
 	name.convert(BSTRType_Unicode16);
 
-	gMessageFactory->addString(name.getUnicode16());
+	mMessageFactory->addString(name.getUnicode16());
 	
-	gMessageFactory->addUint32(1);//volume (in inventory)
-	gMessageFactory->addUint16(0);//customization
-	gMessageFactory->addUint32(0);//list
-	gMessageFactory->addUint32(0);//list
+	mMessageFactory->addUint32(1);//volume (in inventory)
+	mMessageFactory->addUint16(0);//customization
+	mMessageFactory->addUint32(0);//list
+	mMessageFactory->addUint32(0);//list
 	
 	if(factory->getActive())
-		gMessageFactory->addUint8(1);//optionsbitmask - 1 = active
+		mMessageFactory->addUint8(1);//optionsbitmask - 1 = active
 	else
-		gMessageFactory->addUint8(0);//optionsbitmask - vendor etc harvester running
+		mMessageFactory->addUint8(0);//optionsbitmask - vendor etc harvester running
 
-	gMessageFactory->addUint8(0);//optionsbitmask - vendor etc harvester running
-	gMessageFactory->addUint8(0);//optionsbitmask - vendor etc harvester running
-	gMessageFactory->addUint8(0);//optionsbitmask - vendor etc harvester running
+	mMessageFactory->addUint8(0);//optionsbitmask - vendor etc harvester running
+	mMessageFactory->addUint8(0);//optionsbitmask - vendor etc harvester running
+	mMessageFactory->addUint8(0);//optionsbitmask - vendor etc harvester running
 	
-	gMessageFactory->addUint32(0);//timer
+	mMessageFactory->addUint32(0);//timer
 	
 	//08
-	gMessageFactory->addUint32(factory->getDamage());//condition damage
+	mMessageFactory->addUint32(factory->getDamage());//condition damage
 	
 	//09
-	gMessageFactory->addUint32(factory->getMaxCondition());   //maxcondition
+	mMessageFactory->addUint32(factory->getMaxCondition());   //maxcondition
 	
 	//A
-	gMessageFactory->addUint8(factory->getActive());//??
+	mMessageFactory->addUint8(factory->getActive());//??
 	
 	//B
-	gMessageFactory->addUint8(factory->getActive());//active flag
+	mMessageFactory->addUint8(factory->getActive());//active flag
 
-	gMessageFactory->addFloat(0);//power reserve
-	gMessageFactory->addFloat(0);//power cost
-	gMessageFactory->addFloat(0);//
-	gMessageFactory->addFloat(0);//
+	mMessageFactory->addFloat(0);//power reserve
+	mMessageFactory->addFloat(0);//power cost
+	mMessageFactory->addFloat(0);//
+	mMessageFactory->addFloat(0);//
 
 
 	
 
-	message = gMessageFactory->EndMessage();
+	message = mMessageFactory->EndMessage();
 
 	Message* newMessage;
 
-	gMessageFactory->StartMessage();    
-	gMessageFactory->addUint32(opBaselinesMessage);  
-	gMessageFactory->addUint64(factory->getId());
-	gMessageFactory->addUint32(opINSO);
-	gMessageFactory->addUint8(3);
+	mMessageFactory->StartMessage();    
+	mMessageFactory->addUint32(opBaselinesMessage);  
+	mMessageFactory->addUint64(factory->getId());
+	mMessageFactory->addUint32(opINSO);
+	mMessageFactory->addUint8(3);
 
-	gMessageFactory->addUint32(message->getSize());
-	gMessageFactory->addData(message->getData(),message->getSize());
+	mMessageFactory->addUint32(message->getSize());
+	mMessageFactory->addData(message->getData(),message->getSize());
 
-	newMessage = gMessageFactory->EndMessage();
+	newMessage = mMessageFactory->EndMessage();
 	message->setPendingDelete(true);
 
 	(player->getClient())->SendChannelA(newMessage, player->getAccountId(), CR_Client, 5);
@@ -406,29 +406,29 @@ bool MessageLib::sendBaselinesINSO_6(FactoryObject* factory,PlayerObject* player
 			
 	Message* message;
 
-	gMessageFactory->StartMessage();    
-	gMessageFactory->addUint32(16);
-	gMessageFactory->addUint64(0);
-	gMessageFactory->addUint64(0);
-	gMessageFactory->addUint64(0);
-	gMessageFactory->addUint64(0);
-	gMessageFactory->addUint64(0);
+	mMessageFactory->StartMessage();    
+	mMessageFactory->addUint32(16);
+	mMessageFactory->addUint64(0);
+	mMessageFactory->addUint64(0);
+	mMessageFactory->addUint64(0);
+	mMessageFactory->addUint64(0);
+	mMessageFactory->addUint64(0);
 
 	
-	message = gMessageFactory->EndMessage();
+	message = mMessageFactory->EndMessage();
 
 	Message* newMessage;
 
-	gMessageFactory->StartMessage();    
-	gMessageFactory->addUint32(opBaselinesMessage);  
-	gMessageFactory->addUint64(factory->getId());
-	gMessageFactory->addUint32(opINSO);
-	gMessageFactory->addUint8(6);
+	mMessageFactory->StartMessage();    
+	mMessageFactory->addUint32(opBaselinesMessage);  
+	mMessageFactory->addUint64(factory->getId());
+	mMessageFactory->addUint32(opINSO);
+	mMessageFactory->addUint8(6);
 
-	gMessageFactory->addUint32(message->getSize());
-	gMessageFactory->addData(message->getData(),message->getSize());
+	mMessageFactory->addUint32(message->getSize());
+	mMessageFactory->addData(message->getData(),message->getSize());
 
-	newMessage = gMessageFactory->EndMessage();
+	newMessage = mMessageFactory->EndMessage();
 	message->setPendingDelete(true);
 
 	(player->getClient())->SendChannelA(newMessage, player->getAccountId(), CR_Client, 5);
@@ -443,58 +443,58 @@ bool MessageLib::sendBaselinesINSO_3(PlayerStructure* structure,PlayerObject* pl
 			
 	Message* message;
 
-	gMessageFactory->StartMessage();    
-	gMessageFactory->addUint16(16);
-	gMessageFactory->addFloat(1.0);
-	gMessageFactory->addString(structure->getNameFile());
-	gMessageFactory->addUint32(0);
-	gMessageFactory->addString(structure->getName());
+	mMessageFactory->StartMessage();    
+	mMessageFactory->addUint16(16);
+	mMessageFactory->addFloat(1.0);
+	mMessageFactory->addString(structure->getNameFile());
+	mMessageFactory->addUint32(0);
+	mMessageFactory->addString(structure->getName());
 	
 	string name;
 	name = structure->getCustomName();
 	name.convert(BSTRType_Unicode16);
 
-	gMessageFactory->addString(name.getUnicode16());
+	mMessageFactory->addString(name.getUnicode16());
 	
-	gMessageFactory->addUint32(1);//volume (in inventory)
-	gMessageFactory->addUint16(0);//customization
-	gMessageFactory->addUint32(0);//list
-	gMessageFactory->addUint32(0);//list
-	gMessageFactory->addUint32(0);//list
+	mMessageFactory->addUint32(1);//volume (in inventory)
+	mMessageFactory->addUint16(0);//customization
+	mMessageFactory->addUint32(0);//list
+	mMessageFactory->addUint32(0);//list
+	mMessageFactory->addUint32(0);//list
 	
-	gMessageFactory->addUint32(0);//timer
+	mMessageFactory->addUint32(0);//timer
 	
 	//08
-	gMessageFactory->addUint32(structure->getDamage());//condition damage
+	mMessageFactory->addUint32(structure->getDamage());//condition damage
 	
 	//09
-	gMessageFactory->addUint32(structure->getMaxCondition());   //maxcondition
+	mMessageFactory->addUint32(structure->getMaxCondition());   //maxcondition
 	
 	//
-	gMessageFactory->addUint64(0);//timer
-	gMessageFactory->addUint64(0);//timer
-	gMessageFactory->addUint64(0);//timer
-	gMessageFactory->addUint64(0);//timer
-	gMessageFactory->addUint64(0);//timer
+	mMessageFactory->addUint64(0);//timer
+	mMessageFactory->addUint64(0);//timer
+	mMessageFactory->addUint64(0);//timer
+	mMessageFactory->addUint64(0);//timer
+	mMessageFactory->addUint64(0);//timer
 
 
 
 	
 
-	message = gMessageFactory->EndMessage();
+	message = mMessageFactory->EndMessage();
 
 	Message* newMessage;
 
-	gMessageFactory->StartMessage();    
-	gMessageFactory->addUint32(opBaselinesMessage);  
-	gMessageFactory->addUint64(structure->getId());
-	gMessageFactory->addUint32(opINSO);
-	gMessageFactory->addUint8(3);
+	mMessageFactory->StartMessage();    
+	mMessageFactory->addUint32(opBaselinesMessage);  
+	mMessageFactory->addUint64(structure->getId());
+	mMessageFactory->addUint32(opINSO);
+	mMessageFactory->addUint8(3);
 
-	gMessageFactory->addUint32(message->getSize());
-	gMessageFactory->addData(message->getData(),message->getSize());
+	mMessageFactory->addUint32(message->getSize());
+	mMessageFactory->addData(message->getData(),message->getSize());
 
-	newMessage = gMessageFactory->EndMessage();
+	newMessage = mMessageFactory->EndMessage();
 	message->setPendingDelete(true);
 
 	(player->getClient())->SendChannelA(newMessage, player->getAccountId(), CR_Client, 5);
@@ -516,29 +516,29 @@ bool MessageLib::sendBaselinesINSO_6(PlayerStructure* structure,PlayerObject* pl
 			
 	Message* message;
 
-	gMessageFactory->StartMessage();    
-	gMessageFactory->addUint32(16);
-	gMessageFactory->addUint64(0);
-	gMessageFactory->addUint64(0);
-	gMessageFactory->addUint64(0);
-	gMessageFactory->addUint64(0);
-	gMessageFactory->addUint64(0);
+	mMessageFactory->StartMessage();    
+	mMessageFactory->addUint32(16);
+	mMessageFactory->addUint64(0);
+	mMessageFactory->addUint64(0);
+	mMessageFactory->addUint64(0);
+	mMessageFactory->addUint64(0);
+	mMessageFactory->addUint64(0);
 
 	
-	message = gMessageFactory->EndMessage();
+	message = mMessageFactory->EndMessage();
 
 	Message* newMessage;
 
-	gMessageFactory->StartMessage();    
-	gMessageFactory->addUint32(opBaselinesMessage);  
-	gMessageFactory->addUint64(structure->getId());
-	gMessageFactory->addUint32(opINSO);
-	gMessageFactory->addUint8(6);
+	mMessageFactory->StartMessage();    
+	mMessageFactory->addUint32(opBaselinesMessage);  
+	mMessageFactory->addUint64(structure->getId());
+	mMessageFactory->addUint32(opINSO);
+	mMessageFactory->addUint8(6);
 
-	gMessageFactory->addUint32(message->getSize());
-	gMessageFactory->addData(message->getData(),message->getSize());
+	mMessageFactory->addUint32(message->getSize());
+	mMessageFactory->addData(message->getData(),message->getSize());
 
-	newMessage = gMessageFactory->EndMessage();
+	newMessage = mMessageFactory->EndMessage();
 	message->setPendingDelete(true);
 
 	(player->getClient())->SendChannelA(newMessage, player->getAccountId(), CR_Client, 5);
@@ -554,23 +554,23 @@ bool MessageLib::sendBaselinesINSO_6(PlayerStructure* structure,PlayerObject* pl
 
 void MessageLib::sendNewHarvesterName(PlayerStructure* harvester)
 {
-	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opDeltasMessage);
-	gMessageFactory->addUint64(harvester->getId());
-	gMessageFactory->addUint32(opHINO);
-	gMessageFactory->addUint8(3);
+	mMessageFactory->StartMessage();
+	mMessageFactory->addUint32(opDeltasMessage);
+	mMessageFactory->addUint64(harvester->getId());
+	mMessageFactory->addUint32(opHINO);
+	mMessageFactory->addUint8(3);
 
-	gMessageFactory->addUint32(8 + (harvester->getCustomName().getLength()*2));
-	gMessageFactory->addUint16(1);
-	gMessageFactory->addUint16(2);
+	mMessageFactory->addUint32(8 + (harvester->getCustomName().getLength()*2));
+	mMessageFactory->addUint16(1);
+	mMessageFactory->addUint16(2);
 	//Unicode
 	string name;
 	name = harvester->getCustomName();
 	name.convert(BSTRType_Unicode16);
 
-	gMessageFactory->addString(name.getUnicode16());
+	mMessageFactory->addString(name.getUnicode16());
 
-	_sendToInRange(gMessageFactory->EndMessage(),harvester,5);
+	_sendToInRange(mMessageFactory->EndMessage(),harvester,5);
 }
 
 //======================================================================================================================
@@ -579,13 +579,13 @@ void MessageLib::sendNewHarvesterName(PlayerStructure* harvester)
 
 void MessageLib::sendOperateHarvester(PlayerStructure* harvester,PlayerObject* player)
 {
-	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opOperateHarvester);
-	gMessageFactory->addUint64(harvester->getId());
+	mMessageFactory->StartMessage();
+	mMessageFactory->addUint32(opOperateHarvester);
+	mMessageFactory->addUint64(harvester->getId());
 	
 
-	(player->getClient())->SendChannelA(gMessageFactory->EndMessage(), player->getAccountId(), CR_Client, 5);
-	//_sendToInRange(gMessageFactory->EndMessage(),harvester,5);
+	(player->getClient())->SendChannelA(mMessageFactory->EndMessage(), player->getAccountId(), CR_Client, 5);
+	//_sendToInRange(mMessageFactory->EndMessage(),harvester,5);
 }
 
 //======================================================================================================================
@@ -610,15 +610,15 @@ void MessageLib::sendHarvesterResourceData(PlayerStructure* structure,PlayerObje
 	
 	mainCat->getResources(resourceList,true);
 
-	gMessageFactory->StartMessage();        
-	gMessageFactory->addUint32(opObjControllerMessage);  
-	gMessageFactory->addUint32(0x0000000B);           
-	gMessageFactory->addUint32(opHarvesterResourceData);           
-	gMessageFactory->addUint64(player->getId());
-	gMessageFactory->addUint32(0);           
-	gMessageFactory->addUint64(harvester->getId());
+	mMessageFactory->StartMessage();        
+	mMessageFactory->addUint32(opObjControllerMessage);  
+	mMessageFactory->addUint32(0x0000000B);           
+	mMessageFactory->addUint32(opHarvesterResourceData);           
+	mMessageFactory->addUint64(player->getId());
+	mMessageFactory->addUint32(0);           
+	mMessageFactory->addUint64(harvester->getId());
 
-	gMessageFactory->addUint32(resourceList.size());
+	mMessageFactory->addUint32(resourceList.size());
 
 	ResourceList::iterator resourceIt = resourceList.begin();
 
@@ -626,9 +626,9 @@ void MessageLib::sendHarvesterResourceData(PlayerStructure* structure,PlayerObje
 	{
 		Resource* tmpResource = (*resourceIt);
 
-		gMessageFactory->addUint64(tmpResource->getId());
-		gMessageFactory->addString(tmpResource->getName());
-		gMessageFactory->addString((tmpResource->getType())->getDescriptor());
+		mMessageFactory->addUint64(tmpResource->getId());
+		mMessageFactory->addString(tmpResource->getName());
+		mMessageFactory->addString((tmpResource->getType())->getDescriptor());
 	
 		CurrentResource* cR = reinterpret_cast<CurrentResource*>(tmpResource);
 		//resource = reinterpret_cast<CurrentResource*>(gResourceManager->getResourceByNameCRC(resourceName.getCrc()));
@@ -649,12 +649,12 @@ void MessageLib::sendHarvesterResourceData(PlayerStructure* structure,PlayerObje
 			}
 		}
 
-		gMessageFactory->addUint8((uint8)ratio);
+		mMessageFactory->addUint8((uint8)ratio);
 
 		++resourceIt;
 	}
 
-	(player->getClient())->SendChannelA(gMessageFactory->EndMessage(), player->getAccountId(),CR_Client,4);
+	(player->getClient())->SendChannelA(mMessageFactory->EndMessage(), player->getAccountId(),CR_Client,4);
 }
 
 //======================================================================================================================
@@ -663,24 +663,24 @@ void MessageLib::sendHarvesterResourceData(PlayerStructure* structure,PlayerObje
 
 void MessageLib::sendCurrentResourceUpdate(HarvesterObject* harvester, PlayerObject* player)
 {										  
-	gMessageFactory->StartMessage();
+	mMessageFactory->StartMessage();
 	
-	gMessageFactory->addUint16(1);	//1 updated var
-	gMessageFactory->addUint16(5);	//var Nr 5
-	gMessageFactory->addUint64(harvester->getCurrentResource());
-	Message* fragment = gMessageFactory->EndMessage();
+	mMessageFactory->addUint16(1);	//1 updated var
+	mMessageFactory->addUint16(5);	//var Nr 5
+	mMessageFactory->addUint64(harvester->getCurrentResource());
+	Message* fragment = mMessageFactory->EndMessage();
 
-	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opDeltasMessage);
-	gMessageFactory->addUint64(harvester->getId());
-	gMessageFactory->addUint32(opHINO);
-	gMessageFactory->addUint8(7);
-	gMessageFactory->addUint32(fragment->getSize());
-	gMessageFactory->addData(fragment->getData(),fragment->getSize());
+	mMessageFactory->StartMessage();
+	mMessageFactory->addUint32(opDeltasMessage);
+	mMessageFactory->addUint64(harvester->getId());
+	mMessageFactory->addUint32(opHINO);
+	mMessageFactory->addUint8(7);
+	mMessageFactory->addUint32(fragment->getSize());
+	mMessageFactory->addData(fragment->getData(),fragment->getSize());
 
 	fragment->setPendingDelete(true);
 
-	(player->getClient())->SendChannelA(gMessageFactory->EndMessage(), player->getAccountId(),CR_Client,4);
+	(player->getClient())->SendChannelA(mMessageFactory->EndMessage(), player->getAccountId(),CR_Client,4);
 }
 
 //======================================================================================================================
@@ -689,24 +689,24 @@ void MessageLib::sendCurrentResourceUpdate(HarvesterObject* harvester, PlayerObj
 
 void MessageLib::sendCurrentExtractionRate(HarvesterObject* harvester, PlayerObject* player)
 {										  
-	gMessageFactory->StartMessage();
+	mMessageFactory->StartMessage();
 	
-	gMessageFactory->addUint16(1);	//1 updated var
-	gMessageFactory->addUint16(9);	//var Nr 9
-	gMessageFactory->addFloat(harvester->getCurrentExtractionRate());
-	Message* fragment = gMessageFactory->EndMessage();
+	mMessageFactory->addUint16(1);	//1 updated var
+	mMessageFactory->addUint16(9);	//var Nr 9
+	mMessageFactory->addFloat(harvester->getCurrentExtractionRate());
+	Message* fragment = mMessageFactory->EndMessage();
 
-	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opDeltasMessage);
-	gMessageFactory->addUint64(harvester->getId());
-	gMessageFactory->addUint32(opHINO);
-	gMessageFactory->addUint8(7);
-	gMessageFactory->addUint32(fragment->getSize());
-	gMessageFactory->addData(fragment->getData(),fragment->getSize());
+	mMessageFactory->StartMessage();
+	mMessageFactory->addUint32(opDeltasMessage);
+	mMessageFactory->addUint64(harvester->getId());
+	mMessageFactory->addUint32(opHINO);
+	mMessageFactory->addUint8(7);
+	mMessageFactory->addUint32(fragment->getSize());
+	mMessageFactory->addData(fragment->getData(),fragment->getSize());
 
 	fragment->setPendingDelete(true);
 
-	(player->getClient())->SendChannelA(gMessageFactory->EndMessage(), player->getAccountId(),CR_Client,4);
+	(player->getClient())->SendChannelA(mMessageFactory->EndMessage(), player->getAccountId(),CR_Client,4);
 }
 
 //======================================================================================================================
@@ -715,29 +715,29 @@ void MessageLib::sendCurrentExtractionRate(HarvesterObject* harvester, PlayerObj
 
 void MessageLib::sendHarvesterActive(HarvesterObject* harvester)
 {										  
-	gMessageFactory->StartMessage();
+	mMessageFactory->StartMessage();
 	
-	gMessageFactory->addUint16(1);	//1 updated var
-	gMessageFactory->addUint16(6);	//var Nr 9
-	gMessageFactory->addUint8(harvester->getActive());
-	Message* fragment = gMessageFactory->EndMessage();
+	mMessageFactory->addUint16(1);	//1 updated var
+	mMessageFactory->addUint16(6);	//var Nr 9
+	mMessageFactory->addUint8(harvester->getActive());
+	Message* fragment = mMessageFactory->EndMessage();
 
-	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opDeltasMessage);
-	gMessageFactory->addUint64(harvester->getId());
-	gMessageFactory->addUint32(opHINO);
-	gMessageFactory->addUint8(7);
-	gMessageFactory->addUint32(fragment->getSize());
-	gMessageFactory->addData(fragment->getData(),fragment->getSize());
+	mMessageFactory->StartMessage();
+	mMessageFactory->addUint32(opDeltasMessage);
+	mMessageFactory->addUint64(harvester->getId());
+	mMessageFactory->addUint32(opHINO);
+	mMessageFactory->addUint8(7);
+	mMessageFactory->addUint32(fragment->getSize());
+	mMessageFactory->addData(fragment->getData(),fragment->getSize());
 
 	fragment->setPendingDelete(true);
 
-	_sendToInRange(gMessageFactory->EndMessage(),harvester,5);
+	_sendToInRange(mMessageFactory->EndMessage(),harvester,5);
 
 	//now send the bitmask change to play & stop the animation
 	SendUpdateHarvesterWorkAnimation(harvester);
 
-	//(player->getClient())->SendChannelA(gMessageFactory->EndMessage(), player->getAccountId(),CR_Client,4);
+	//(player->getClient())->SendChannelA(mMessageFactory->EndMessage(), player->getAccountId(),CR_Client,4);
 	
 }
 
@@ -750,53 +750,53 @@ void MessageLib::sendHarvesterActive(HarvesterObject* harvester)
 void MessageLib::SendHarvesterHopperUpdate(HarvesterObject* harvester, PlayerObject* player)
 {			
 																		 
-	gMessageFactory->StartMessage();
+	mMessageFactory->StartMessage();
 	
-	gMessageFactory->addUint16(3);	//2 updated vars
-	gMessageFactory->addUint16(12);	//var Nr 12 = hopper update flag
-	gMessageFactory->addUint8(1);
+	mMessageFactory->addUint16(3);	//2 updated vars
+	mMessageFactory->addUint16(12);	//var Nr 12 = hopper update flag
+	mMessageFactory->addUint8(1);
 
-	gMessageFactory->addUint16(13);	//var Nr 12 = hopper resourcelist
+	mMessageFactory->addUint16(13);	//var Nr 12 = hopper resourcelist
 	
 	HResourceList*	hRList = harvester->getResourceList();
 	harvester->setRListUpdateCounter(harvester->getRListUpdateCounter() + hRList->size());
 
 	gLogger->logMsgF("adding update Counter  ID %u",MSG_HIGH,harvester->getRListUpdateCounter());
 
-	gMessageFactory->addUint32(hRList->size());
-	gMessageFactory->addUint32(harvester->getRListUpdateCounter());
+	mMessageFactory->addUint32(hRList->size());
+	mMessageFactory->addUint32(harvester->getRListUpdateCounter());
 
 	//gLogger->logMsgF("SendHarvesterHopperUpdate:: listsize %u updatecounter %u",MSG_NORMAL,mHopperList->size(),asynContainer->updateCounter);
 
-	gMessageFactory->addUint8(3);
-	gMessageFactory->addUint16(hRList->size());
+	mMessageFactory->addUint8(3);
+	mMessageFactory->addUint16(hRList->size());
 
 	HResourceList::iterator it = hRList->begin();
 
 	while(it != hRList->end())
 	{
-		gMessageFactory->addUint64((*it).first);		
+		mMessageFactory->addUint64((*it).first);		
 		//gLogger->logMsgF("adding res ID %I64u",MSG_HIGH,(*it).first);
-		gMessageFactory->addFloat((*it).second);		
-		//gMessageFactory->addFloat((float)harvester->getRListUpdateCounter());	
+		mMessageFactory->addFloat((*it).second);		
+		//mMessageFactory->addFloat((float)harvester->getRListUpdateCounter());	
 		it++;
 	}
 
-	gMessageFactory->addUint16(10);	//var Nr 12 = hopper update flag
-	gMessageFactory->addFloat(harvester->getCurrentHopperSize());
+	mMessageFactory->addUint16(10);	//var Nr 12 = hopper update flag
+	mMessageFactory->addFloat(harvester->getCurrentHopperSize());
 	
-	Message* fragment = gMessageFactory->EndMessage();
+	Message* fragment = mMessageFactory->EndMessage();
 
-	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opDeltasMessage);
-	gMessageFactory->addUint64(harvester->getId());
-	gMessageFactory->addUint32(opHINO);
-	gMessageFactory->addUint8(7);
-	gMessageFactory->addUint32(fragment->getSize());
-	gMessageFactory->addData(fragment->getData(),fragment->getSize());
+	mMessageFactory->StartMessage();
+	mMessageFactory->addUint32(opDeltasMessage);
+	mMessageFactory->addUint64(harvester->getId());
+	mMessageFactory->addUint32(opHINO);
+	mMessageFactory->addUint8(7);
+	mMessageFactory->addUint32(fragment->getSize());
+	mMessageFactory->addData(fragment->getData(),fragment->getSize());
 
 	fragment->setPendingDelete(true);
-	(player->getClient())->SendChannelA(gMessageFactory->EndMessage(), player->getAccountId(),CR_Client,4);
+	(player->getClient())->SendChannelA(mMessageFactory->EndMessage(), player->getAccountId(),CR_Client,4);
 
 }
 
@@ -813,9 +813,9 @@ bool MessageLib::sendHopperList(PlayerStructure* structure, PlayerObject* player
 
 	Message* newMessage;
 
-	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opSendPermissionList);  
-	gMessageFactory->addUint32(structure->getStrucureHopperList().size() );
+	mMessageFactory->StartMessage();
+	mMessageFactory->addUint32(opSendPermissionList);  
+	mMessageFactory->addUint32(structure->getStrucureHopperList().size() );
 
 	string name;
 	BStringVector vector = 	structure->getStrucureHopperList();
@@ -824,19 +824,19 @@ bool MessageLib::sendHopperList(PlayerStructure* structure, PlayerObject* player
 	{
 		name = (*it);
 		name.convert(BSTRType_Unicode16);
-		gMessageFactory->addString(name);
+		mMessageFactory->addString(name);
 
 		it++;
 	}
 
-	gMessageFactory->addUint32(0); // ???
-	//gMessageFactory->addUint16(0);	// unknown
+	mMessageFactory->addUint32(0); // ???
+	//mMessageFactory->addUint16(0);	// unknown
 	name = "HOPPER";
 	name.convert(BSTRType_Unicode16);
-	gMessageFactory->addString(name);
-	gMessageFactory->addUint32(0); // ???
+	mMessageFactory->addString(name);
+	mMessageFactory->addUint32(0); // ???
 	
-	newMessage = gMessageFactory->EndMessage();
+	newMessage = mMessageFactory->EndMessage();
 
 	(playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 5);
 
@@ -858,17 +858,17 @@ void MessageLib::sendResourceEmptyHopperResponse(PlayerStructure* structure,Play
 		return;
 	}
 
-	gMessageFactory->StartMessage();        
-	gMessageFactory->addUint32(opObjControllerMessage);  
-	gMessageFactory->addUint32(0x0000000B);           
-	gMessageFactory->addUint32(opResourceEmptyHopperResponse);           
-	gMessageFactory->addUint64(player->getId());
-	gMessageFactory->addUint32(amount);           
-	gMessageFactory->addUint32(opResourceEmptyHopper);
-	gMessageFactory->addUint8(b1);           
-	gMessageFactory->addUint8(b2);           
+	mMessageFactory->StartMessage();        
+	mMessageFactory->addUint32(opObjControllerMessage);  
+	mMessageFactory->addUint32(0x0000000B);           
+	mMessageFactory->addUint32(opResourceEmptyHopperResponse);           
+	mMessageFactory->addUint64(player->getId());
+	mMessageFactory->addUint32(amount);           
+	mMessageFactory->addUint32(opResourceEmptyHopper);
+	mMessageFactory->addUint8(b1);           
+	mMessageFactory->addUint8(b2);           
 	
-	(player->getClient())->SendChannelA(gMessageFactory->EndMessage(), player->getAccountId(),CR_Client,4);
+	(player->getClient())->SendChannelA(mMessageFactory->EndMessage(), player->getAccountId(),CR_Client,4);
 }
 
 //=======================================================================================================================
@@ -879,34 +879,34 @@ void MessageLib::sendResourceEmptyHopperResponse(PlayerStructure* structure,Play
 void MessageLib::SendUpdateFactoryWorkAnimation(FactoryObject* factory)
 {			
 																		 
-	gMessageFactory->StartMessage();
+	mMessageFactory->StartMessage();
 	
-	gMessageFactory->addUint16(1);	//2 updated vars
-	gMessageFactory->addUint16(6);	//var Nr 6 = bitmask ( harvester work animation)
+	mMessageFactory->addUint16(1);	//2 updated vars
+	mMessageFactory->addUint16(6);	//var Nr 6 = bitmask ( harvester work animation)
 
 	if(factory->getActive())
-		gMessageFactory->addUint8(1);//optionsbitmask - 1 = active
+		mMessageFactory->addUint8(1);//optionsbitmask - 1 = active
 	else
-		gMessageFactory->addUint8(0);//optionsbitmask - vendor etc harvester running
+		mMessageFactory->addUint8(0);//optionsbitmask - vendor etc harvester running
 
-	gMessageFactory->addUint8(0);//optionsbitmask - vendor etc harvester running
-	gMessageFactory->addUint16(0);//optionsbitmask - vendor etc harvester running
+	mMessageFactory->addUint8(0);//optionsbitmask - vendor etc harvester running
+	mMessageFactory->addUint16(0);//optionsbitmask - vendor etc harvester running
 	
 
 	
-	Message* fragment = gMessageFactory->EndMessage();
+	Message* fragment = mMessageFactory->EndMessage();
 
-	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opDeltasMessage);
-	gMessageFactory->addUint64(factory->getId());
-	gMessageFactory->addUint32(opINSO);
-	gMessageFactory->addUint8(3);
-	gMessageFactory->addUint32(fragment->getSize());
-	gMessageFactory->addData(fragment->getData(),fragment->getSize());
+	mMessageFactory->StartMessage();
+	mMessageFactory->addUint32(opDeltasMessage);
+	mMessageFactory->addUint64(factory->getId());
+	mMessageFactory->addUint32(opINSO);
+	mMessageFactory->addUint8(3);
+	mMessageFactory->addUint32(fragment->getSize());
+	mMessageFactory->addData(fragment->getData(),fragment->getSize());
 
 	fragment->setPendingDelete(true);
-	_sendToInRange(gMessageFactory->EndMessage(),factory,5);
-	//(player->getClient())->SendChannelA(gMessageFactory->EndMessage(), player->getAccountId(),CR_Client,4);
+	_sendToInRange(mMessageFactory->EndMessage(),factory,5);
+	//(player->getClient())->SendChannelA(mMessageFactory->EndMessage(), player->getAccountId(),CR_Client,4);
 
 }
 
@@ -918,34 +918,34 @@ void MessageLib::SendUpdateFactoryWorkAnimation(FactoryObject* factory)
 void MessageLib::SendUpdateHarvesterWorkAnimation(HarvesterObject* harvester)
 {			
 																		 
-	gMessageFactory->StartMessage();
+	mMessageFactory->StartMessage();
 	
-	gMessageFactory->addUint16(1);	//2 updated vars
-	gMessageFactory->addUint16(6);	//var Nr 6 = bitmask ( harvester work animation)
+	mMessageFactory->addUint16(1);	//2 updated vars
+	mMessageFactory->addUint16(6);	//var Nr 6 = bitmask ( harvester work animation)
 
 	if(harvester->getActive())
-		gMessageFactory->addUint8(1);//optionsbitmask - 1 = active
+		mMessageFactory->addUint8(1);//optionsbitmask - 1 = active
 	else
-		gMessageFactory->addUint8(0);//optionsbitmask - vendor etc harvester running
+		mMessageFactory->addUint8(0);//optionsbitmask - vendor etc harvester running
 
-	gMessageFactory->addUint8(0);//optionsbitmask - vendor etc harvester running
-	gMessageFactory->addUint16(0);//optionsbitmask - vendor etc harvester running
+	mMessageFactory->addUint8(0);//optionsbitmask - vendor etc harvester running
+	mMessageFactory->addUint16(0);//optionsbitmask - vendor etc harvester running
 	
 
 	
-	Message* fragment = gMessageFactory->EndMessage();
+	Message* fragment = mMessageFactory->EndMessage();
 
-	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opDeltasMessage);
-	gMessageFactory->addUint64(harvester->getId());
-	gMessageFactory->addUint32(opHINO);
-	gMessageFactory->addUint8(3);
-	gMessageFactory->addUint32(fragment->getSize());
-	gMessageFactory->addData(fragment->getData(),fragment->getSize());
+	mMessageFactory->StartMessage();
+	mMessageFactory->addUint32(opDeltasMessage);
+	mMessageFactory->addUint64(harvester->getId());
+	mMessageFactory->addUint32(opHINO);
+	mMessageFactory->addUint8(3);
+	mMessageFactory->addUint32(fragment->getSize());
+	mMessageFactory->addData(fragment->getData(),fragment->getSize());
 
 	fragment->setPendingDelete(true);
-	_sendToInRange(gMessageFactory->EndMessage(),harvester,5);
-	//(player->getClient())->SendChannelA(gMessageFactory->EndMessage(), player->getAccountId(),CR_Client,4);
+	_sendToInRange(mMessageFactory->EndMessage(),harvester,5);
+	//(player->getClient())->SendChannelA(mMessageFactory->EndMessage(), player->getAccountId(),CR_Client,4);
 
 }
 
@@ -955,23 +955,23 @@ void MessageLib::SendUpdateHarvesterWorkAnimation(HarvesterObject* harvester)
 
 void MessageLib::sendHarvesterCurrentConditionUpdate(PlayerStructure* structure)
 {										  
-	gMessageFactory->StartMessage();
+	mMessageFactory->StartMessage();
 	
-	gMessageFactory->addUint16(1);	//1 updated var
-	gMessageFactory->addUint16(8);	//var Nr 5
-	gMessageFactory->addUint32(structure->getDamage());
-	Message* fragment = gMessageFactory->EndMessage();
+	mMessageFactory->addUint16(1);	//1 updated var
+	mMessageFactory->addUint16(8);	//var Nr 5
+	mMessageFactory->addUint32(structure->getDamage());
+	Message* fragment = mMessageFactory->EndMessage();
 
-	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opDeltasMessage);
-	gMessageFactory->addUint64(structure->getId());
-	gMessageFactory->addUint32(opHINO);
-	gMessageFactory->addUint8(3);
-	gMessageFactory->addUint32(fragment->getSize());
-	gMessageFactory->addData(fragment->getData(),fragment->getSize());
+	mMessageFactory->StartMessage();
+	mMessageFactory->addUint32(opDeltasMessage);
+	mMessageFactory->addUint64(structure->getId());
+	mMessageFactory->addUint32(opHINO);
+	mMessageFactory->addUint8(3);
+	mMessageFactory->addUint32(fragment->getSize());
+	mMessageFactory->addData(fragment->getData(),fragment->getSize());
 
 	fragment->setPendingDelete(true);
 
-	_sendToInRange(gMessageFactory->EndMessage(),structure,5);
+	_sendToInRange(mMessageFactory->EndMessage(),structure,5);
 }
 

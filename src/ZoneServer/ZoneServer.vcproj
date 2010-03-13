@@ -991,62 +991,6 @@
 					</Filter>
 				</Filter>
 				<Filter
-					Name="GenericItems"
-					>
-					<File
-						RelativePath=".\Item.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\Item.h"
-						>
-					</File>
-					<File
-						RelativePath=".\Item_Enums.h"
-						>
-					</File>
-					<File
-						RelativePath=".\ItemFactory.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\ItemFactory.h"
-						>
-					</File>
-					<File
-						RelativePath=".\NonPersistentItemFactory.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\NonPersistentItemFactory.h"
-						>
-					</File>
-					<Filter
-						Name="TravelTicket"
-						>
-						<File
-							RelativePath=".\TravelTicket.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\TravelTicket.h"
-							>
-						</File>
-					</Filter>
-					<Filter
-						Name="Wearable"
-						>
-						<File
-							RelativePath=".\Wearable.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\Wearable.h"
-							>
-						</File>
-					</Filter>
-				</Filter>
-				<Filter
 					Name="PlayerStructure"
 					>
 					<File
@@ -1310,26 +1254,6 @@
 						</File>
 					</Filter>
 					<Filter
-						Name="TicketCollector"
-						>
-						<File
-							RelativePath=".\TicketCollector.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\TicketCollector.h"
-							>
-						</File>
-						<File
-							RelativePath=".\TicketCollectorFactory.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\TicketCollectorFactory.h"
-							>
-						</File>
-					</Filter>
-					<Filter
 						Name="Travel"
 						>
 						<File
@@ -1353,6 +1277,186 @@
 							</File>
 						</Filter>
 					</Filter>
+				</Filter>
+				<Filter
+					Name="Item"
+					>
+					<File
+						RelativePath=".\Item.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\Item.h"
+						>
+					</File>
+					<File
+						RelativePath=".\Item_Enums.h"
+						>
+					</File>
+					<File
+						RelativePath=".\ItemFactory.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\ItemFactory.h"
+						>
+					</File>
+					<File
+						RelativePath=".\NonPersistentItemFactory.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\NonPersistentItemFactory.h"
+						>
+					</File>
+					<Filter
+						Name="Deed"
+						>
+						<File
+							RelativePath=".\Deed.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\Deed.h"
+							>
+						</File>
+					</Filter>
+					<Filter
+						Name="Instrument"
+						>
+						<File
+							RelativePath=".\Instrument.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\Instrument.h"
+							>
+						</File>
+					</Filter>
+					<Filter
+						Name="Firework"
+						>
+						<File
+							RelativePath=".\Firework.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\Firework.h"
+							>
+						</File>
+						<File
+							RelativePath=".\FireworkManager.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\FireworkManager.h"
+							>
+						</File>
+					</Filter>
+					<Filter
+						Name="Food"
+						>
+						<File
+							RelativePath=".\Food.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\Food.h"
+							>
+						</File>
+					</Filter>
+					<Filter
+						Name="Furniture"
+						>
+						<File
+							RelativePath=".\Furniture.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\Furniture.h"
+							>
+						</File>
+					</Filter>
+					<Filter
+						Name="Wearable"
+						>
+						<File
+							RelativePath=".\Wearable.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\Wearable.h"
+							>
+						</File>
+					</Filter>
+					<Filter
+						Name="TravelTicket"
+						>
+						<File
+							RelativePath=".\TravelTicket.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\TravelTicket.h"
+							>
+						</File>
+					</Filter>
+					<Filter
+						Name="SurveyTool"
+						>
+						<File
+							RelativePath=".\SurveyTool.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\SurveyTool.h"
+							>
+						</File>
+					</Filter>
+					<Filter
+						Name="CraftingTool"
+						>
+						<File
+							RelativePath=".\CraftingTool.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\CraftingTool.h"
+							>
+						</File>
+					</Filter>
+					<Filter
+						Name="Dice"
+						>
+						<File
+							RelativePath=".\ChanceCube.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\ChanceCube.h"
+							>
+						</File>
+					</Filter>
+				</Filter>
+				<Filter
+					Name="TicketCollector"
+					>
+					<File
+						RelativePath=".\TicketCollector.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\TicketCollector.h"
+						>
+					</File>
+					<File
+						RelativePath=".\TicketCollectorFactory.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\TicketCollectorFactory.h"
+						>
+					</File>
 				</Filter>
 			</Filter>
 			<Filter
@@ -1721,7 +1825,7 @@
 			</Filter>
 		</Filter>
 		<Filter
-			Name="ObjectControllers"
+			Name="ObjectController"
 			>
 			<File
 				RelativePath=".\ObjControllerCommandMessage.cpp"
@@ -2561,18 +2665,6 @@
 						RelativePath=".\EVSurveySample.h"
 						>
 					</File>
-					<Filter
-						Name="SurveyTool"
-						>
-						<File
-							RelativePath=".\SurveyTool.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\SurveyTool.h"
-							>
-						</File>
-					</Filter>
 				</Filter>
 				<Filter
 					Name="CraftingStation"
@@ -2583,18 +2675,6 @@
 					</File>
 					<File
 						RelativePath=".\CraftingStation.h"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="CraftingTool"
-					>
-					<File
-						RelativePath=".\CraftingTool.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\CraftingTool.h"
 						>
 					</File>
 				</Filter>
@@ -2613,78 +2693,6 @@
 						RelativePath=".\OCCrateHandlers.cpp"
 						>
 					</File>
-				</Filter>
-				<Filter
-					Name="CraftableItems"
-					>
-					<Filter
-						Name="Deed"
-						>
-						<File
-							RelativePath=".\Deed.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\Deed.h"
-							>
-						</File>
-					</Filter>
-					<Filter
-						Name="Firework"
-						>
-						<File
-							RelativePath=".\Firework.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\Firework.h"
-							>
-						</File>
-						<File
-							RelativePath=".\FireworkManager.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\FireworkManager.h"
-							>
-						</File>
-					</Filter>
-					<Filter
-						Name="Furniture"
-						>
-						<File
-							RelativePath=".\Furniture.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\Furniture.h"
-							>
-						</File>
-					</Filter>
-					<Filter
-						Name="Food"
-						>
-						<File
-							RelativePath=".\Food.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\Food.h"
-							>
-						</File>
-					</Filter>
-					<Filter
-						Name="Instrument"
-						>
-						<File
-							RelativePath=".\Instrument.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\Instrument.h"
-							>
-						</File>
-					</Filter>
 				</Filter>
 				<Filter
 					Name="Manufacture Schematic (MSCO)"

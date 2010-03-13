@@ -24,7 +24,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #define	 gMessageLib	MessageLib::getSingletonPtr()
 
-
+class MessageFactory;
 class Item;
 class IntangibleObject;
 class BuildingObject;
@@ -78,7 +78,6 @@ public:
 	static MessageLib*	Init();
 
 	// multiple messages, messagelib.cpp
-	//tangibles
 	bool				sendCreateObject(Object* object,PlayerObject* player,bool sendSelftoTarget = true);
 	bool				sendCreateManufacturingSchematic(ManufacturingSchematic* manSchem,PlayerObject* playerObject,bool attributes = true);
 	bool				sendCreateResourceContainer(ResourceContainer* resourceContainer,PlayerObject* targetObject);
@@ -88,7 +87,7 @@ public:
 	bool				sendCreateStaticObject(TangibleObject* tangibleObject,PlayerObject* targetObject);
 	bool				sendCreateInTangible(IntangibleObject* intangibleObject, uint64 containmentId, PlayerObject* targetObject);
 
-	//structures
+	// structures
 	bool				sendCreateInstallation(PlayerStructure* structure,PlayerObject* player);
 	bool				sendCreateStructure(PlayerStructure* structure,PlayerObject* player);
 	bool				sendCreateHarvester(HarvesterObject* harvester,PlayerObject* player);
@@ -96,7 +95,7 @@ public:
 	bool				sendCreateBuilding(BuildingObject* buildingObject,PlayerObject* playerObject);
 	bool				sendCreateCamp(TangibleObject* camp,PlayerObject* player);
 	
-	//creatures
+	// creatures
 	bool				sendCreateCreature(CreatureObject* creatureObject,PlayerObject* targetObject);
 	bool				sendCreatePlayer(PlayerObject* playerObject,PlayerObject* targetObject);
 	
@@ -120,31 +119,28 @@ public:
 	bool				sendDestroyObject_InRange(uint64 objectId,PlayerObject* const owner, bool self);
 	bool				sendDestroyObject_InRangeofObject(Object* object);
 
-	void				sendLogout(PlayerObject* playerObject);
+	bool				sendLogout(PlayerObject* playerObject);
 
 	bool				sendHeartBeat(DispatchClient* client);
 	bool				sendChatServerStatus(uint8 unk1,uint8 unk2,DispatchClient* client);
 	bool				sendParameters(uint32 parameters,DispatchClient* client);
 	bool				sendStartScene(uint64 zoneId,PlayerObject* player);
 	bool				sendSceneReady(DispatchClient* client);
-	void				sendSceneReadyToChat(DispatchClient* client);
+	bool				sendSceneReadyToChat(DispatchClient* client);
 	bool				sendServerTime(uint64 time,DispatchClient* client);
 	void				sendWeatherUpdate(Anh_Math::Vector3 cloudVec,uint32 weatherType,PlayerObject* player = NULL);
 	
-	//bool				sendSystemMessage(PlayerObject* playerObject,string mainFile,string mainVar,TangibleObject* to = NULL,CreatureObject* tt = NULL, CreatureObject* tu = NULL,int32 di = 0);
-	//bool				sendSystemMessage(PlayerObject* playerObject,string mainFile,string mainVar,TangibleObject* to = NULL, TangibleObject* tt = NULL, CreatureObject* tu = NULL, int32 di = 0);
-	//bool				sendSystemMessage(PlayerObject* playerObject,string mainFile,string mainVar, int32 di = 0);
 	bool				sendSysMsg(PlayerObject* playerObject,string mainFile,string mainVar,Object* to= NULL, Object* tt = NULL, Object* tu = NULL, int32 di = 0);
 	
 	bool				sendSystemMessage(PlayerObject* playerObject,string customMessage = L"",string mainFile = "",
-		string mainVar = "",string toFile = "",string toVar = "",string toCustom = L"",int32 di = 0,
-		string ttFile = "",string ttVar = "",string ttCustom = L"",uint64 ttId = 0,uint64 toId = 0,uint64 tuId = 0,
-		string tuFile = "",string tuVar = "",string tuCustom = L"");
+											string mainVar = "",string toFile = "",string toVar = "",string toCustom = L"",int32 di = 0,
+											string ttFile = "",string ttVar = "",string ttCustom = L"",uint64 ttId = 0,uint64 toId = 0,uint64 tuId = 0,
+											string tuFile = "",string tuVar = "",string tuCustom = L"");
 
 	bool				sendSystemMessageInRange(PlayerObject* playerObject, bool toSelf, string customMessage = L"",string mainFile = "",
-		string mainVar = "",string toFile = "",string toVar = "",string toCustom = L"",int32 di = 0,
-		string ttFile = "",string ttVar = "",string ttCustom = L"",uint64 ttId = 0,uint64 toId = 0,uint64 tuId = 0,
-		string tuFile = "",string tuVar = "",string tuCustom = L"");
+											string mainVar = "",string toFile = "",string toVar = "",string toCustom = L"",int32 di = 0,
+											string ttFile = "",string ttVar = "",string ttCustom = L"",uint64 ttId = 0,uint64 toId = 0,uint64 tuId = 0,
+											string tuFile = "",string tuVar = "",string tuCustom = L"");
 
 	bool				sendMacroSystemMessage(PlayerObject* playerObject,string message,string macro);
 	bool				sendSystemMessage(PlayerObject* playerObject, string message, bool chatOnly);
@@ -156,10 +152,10 @@ public:
 	bool				sendEnterTicketPurchaseModeMessage(TravelTerminal* terminal,PlayerObject* targetObject);
 
 	// Tutorials
-	void				sendUpdateTutorialRequest(PlayerObject* playerObject, string request);
-	void				sendOpenHolocron(PlayerObject* playerObject);
-	void				sendEnableHudElement(PlayerObject* playerObject, string hudElement);
-	void				sendDisableHudElement(PlayerObject* playerObject, string hudElement);
+	bool				sendUpdateTutorialRequest(PlayerObject* playerObject, string request);
+	bool				sendOpenHolocron(PlayerObject* playerObject);
+	bool				sendEnableHudElement(PlayerObject* playerObject, string hudElement);
+	bool				sendDisableHudElement(PlayerObject* playerObject, string hudElement);
 
 	// client effects
 	bool				sendPlayClientEffectObjectMessage(string effect,string location,Object* effectObject,PlayerObject* playerObject = NULL);
@@ -190,7 +186,6 @@ public:
 	bool				sendCraftExperimentResponse(uint32 ackType,uint32 resultId,uint8 counter,PlayerObject* playerObject);
 	bool				sendSharedNetworkMessage(PlayerObject* playerObject,uint32 unknown1,uint32 unknown2);
 	void				sendCombatSpam(Object* attacker,Object* defender,int32 damage,string stfFile,string stfVar,Item* item = NULL,uint8 colorFlag = 0,string customText = L"");
-	// void				sendFlyText(CreatureObject* srcCreature,string stfFile,string stfVar,uint8 red = 255,uint8 green = 255,uint8 blue = 255,uint8 display = 5);
 	void				sendFlyText(Object* srcCreature,string stfFile,string stfVar,uint8 red = 255,uint8 green = 255,uint8 blue = 255,uint8 display = 5);
 	// Used by Tutorial.
 	void				sendFlyText(Object* srcCreature, PlayerObject* player, string stfFile,string stfVar,uint8 red,uint8 green,uint8 blue,uint8 display);
@@ -200,8 +195,8 @@ public:
 	// spatial
 	void				sendSpatialChat(CreatureObject* const srcObject, string chatMsg, char chatElement[5][32]);
 	bool				sendSpatialChat(const CreatureObject* const srcObject, const PlayerObject* const playerObject,string customMessage = L"",string mainFile = "",
-		string mainVar = "",string toFile = "",string toVar = "",string toCustom = L"",int32 di = 0,
-		string ttFile = "",string ttVar = "",string ttCustom = L"",uint64 ttId = 0,uint64 toId = 0,uint64 tuId = 0) const;
+										string mainVar = "",string toFile = "",string toVar = "",string toCustom = L"",int32 di = 0,
+										string ttFile = "",string ttVar = "",string ttCustom = L"",uint64 ttId = 0,uint64 toId = 0,uint64 tuId = 0) const;
 	void				sendSpatialEmote(CreatureObject* srcObject,uint16 emoteId,uint16 sendText,uint64 emoteTarget);
 	void				sendCreatureAnimation(CreatureObject* srcObject,string animation);
 
@@ -226,7 +221,6 @@ public:
 	void				sendDataTransform(Object* object);
 	void				sendDataTransformWithParent(Object* object);
 	void				sendSitOnObject(CreatureObject* creatureObject);
-
 
 	// position updates for tutorial
 	void				sendDataTransform(Object* object, PlayerObject* player);
@@ -282,14 +276,14 @@ public:
 	void				sendInviteSenderUpdateDeltasCreo6(uint64 id, PlayerObject* targetPlayer);
 
 
-	//entertainer
+	// entertainer
 	bool				sendEntertainerCreo6Part3(PlayerObject* playerObject);
 
 	void				sendAnimationString(CreatureObject* creatureObject);
 	void				sendWatchEntertainer(PlayerObject* playerObject);
 	void				sendperformFlourish(PlayerObject* playerObject, uint32 flourish);
 
-	//image design
+	// image design
 	void				sendImageDesignStartMessage(PlayerObject* srcObject,PlayerObject* targetObject);
 	void				sendIDChangeMessage(PlayerObject* targetObject,PlayerObject* srcObject,PlayerObject* otherObject, string hair, uint32 iDsession,uint32 moneyOffered, uint32 moneyDemanded, uint32 customerAccept, uint8 designerCommit, uint8 flag3,uint32 smTimer, uint8 flag1, uint64 parentId,string holoEmote);
 	void				sendIDEndMessage(PlayerObject* targetObject,PlayerObject* srcObject,PlayerObject* otherObject, string hair, uint32 iDsession,uint32 moneyOffered, uint32 moneyDemanded,uint32 unknown2, uint8 flag2, uint8 flag3,uint32 counter1);
@@ -406,7 +400,7 @@ public:
 	bool				sendBaselinesBUIO_3(TangibleObject* structure,PlayerObject* player);
 	bool				sendBaselinesBUIO_6(TangibleObject* structure,PlayerObject* player);
 
-	//Harvester Messages
+	// Harvester Messages
 	bool				sendBaselinesHINO_3(HarvesterObject* harvester,PlayerObject* player);
 	bool				sendBaselinesHINO_6(HarvesterObject* harvester,PlayerObject* player);
 	bool				sendBaselinesHINO_7(HarvesterObject* harvester,PlayerObject* player);
@@ -434,8 +428,7 @@ public:
 
 	// deltas
 	bool				sendUpdateCellPermissionMessage(CellObject* cellObject,uint8 permission,PlayerObject* playerObject);
-
-	//===========================================================
+	
 	// Structures admin / placement
 	bool				sendEnterStructurePlacement(Object* deed, string objectString, PlayerObject* playerObject);
 	bool				sendAdminList(PlayerStructure* structure, PlayerObject* playerObject);
@@ -457,16 +450,16 @@ public:
 	bool				sendClusterZoneTransferRequestByPosition(PlayerObject* playerObject,Anh_Math::Vector3 position,uint32 destinationPlanet);
 	bool				sendClusterZoneTransferCharacter(PlayerObject* playerObject,uint32 destinationPlanet);
 	bool				sendGroupLootModeResponse(PlayerObject* playerObject,uint32 selection);
+	bool				sendGroupLootMasterResponse(PlayerObject* masterLooter, PlayerObject* playerObject);
 
-	//friendlist
-	void				sendFindFriendLocation(PlayerObject* friendPlayer, uint64 friendId,uint64 player, float X, float Z);
+	// friendlist
+	bool				sendFindFriendLocation(PlayerObject* friendPlayer, uint64 friendId,uint64 player, float X, float Z);
 
 	// groups
-
-	void				sendIsmGroupBaselineRequest(PlayerObject* targetPlayer);
-	void				sendIsmGroupPositionNotification(PlayerObject* targetPlayer);
-	void				sendIsmGroupLeave(PlayerObject* player);
-	void				sendIsmGroupInviteInRangeResponse(PlayerObject* sender, PlayerObject* target, bool inRange );
+	bool				sendIsmGroupBaselineRequest(PlayerObject* targetPlayer);
+	bool				sendIsmGroupPositionNotification(PlayerObject* targetPlayer);
+	bool				sendIsmGroupLeave(PlayerObject* player);
+	bool				sendIsmGroupInviteInRangeResponse(PlayerObject* sender, PlayerObject* target, bool inRange );
 
 	// trading / bazaar
 	bool				sendAbortTradeMessage(PlayerObject* playerObject);
@@ -477,22 +470,21 @@ public:
 	bool				sendSecureTrade(PlayerObject* targetPlayer,PlayerObject* srcObject,uint32 error);
 	bool				sendBeginTradeMessage(PlayerObject* targetObject,PlayerObject* srcObject);
 	bool				sendVerifyTradeMessage(PlayerObject* targetObject);
-	bool				sendAddItemMessage(PlayerObject* targetPlayer,TangibleObject* Object);
+	bool				sendAddItemMessage(PlayerObject* targetPlayer,TangibleObject* object);
 	bool				sendTangibleTrade(TangibleObject* tangibleObject,PlayerObject* targetObject);
 	bool				sendBeginVerificationMessage(PlayerObject* playerObject);
 	bool				sendVerificationMessage(PlayerObject* playerObject);
 	bool				sendTradeCompleteMessage(PlayerObject* playerObject);
 	bool				sendGiveMoneyMessage(PlayerObject* playerObject,uint32 Money);
-	void				sendCreateAuctionItemResponseMessage(PlayerObject* targetPlayer,uint64 AuctionId,uint32 error);
+	bool				sendCreateAuctionItemResponseMessage(PlayerObject* targetPlayer,uint64 AuctionId,uint32 error);
 	void				sendSoldInstantMail(uint64 oldOwner, PlayerObject* newOwner, string ItemName, uint32 Credits, string planet, string region);
 	void				sendBoughtInstantMail(PlayerObject* newOwner, string ItemName, string SellerName, uint32 Credits, string planet, string region, int32 mX, int32 mY);
 	void				sendBanktipMail(PlayerObject* playerObject, PlayerObject* targetObject, uint32 amount);
-	void				sendBankTipDustOff(PlayerObject* playerObject, uint64 tipRecipient, uint32 amount, string recipientName);
+	bool				sendBankTipDustOff(PlayerObject* playerObject, uint64 tipRecipient, uint32 amount, string recipientName);
 
-	//Buffs
+	// Buffs
 	void				sendPlayerAddBuff(PlayerObject* target, int32 CRC, float Duration);
 	void				sendPlayerRemoveBuff(PlayerObject* playerObject, int32 CRC);
-
 
 	~MessageLib();
 
@@ -513,6 +505,7 @@ private:
 	static MessageLib*	mSingleton;
 	static bool			mInsFlag;
 
+	MessageFactory*		mMessageFactory;
 };
 
 //======================================================================================================================

@@ -42,26 +42,26 @@ bool MessageLib::sendBaselinesTANO_3(const TangibleObject* const tangibleObject,
 	string customName = tangibleObject->getCustomName().getAnsi();
 	customName.convert(BSTRType_Unicode16);
 
-	gMessageFactory->StartMessage();
+	mMessageFactory->StartMessage();
 
-	gMessageFactory->addUint32(opBaselinesMessage);   
-	gMessageFactory->addUint64(tangibleObject->getId()); 
-	gMessageFactory->addUint32(opTANO);
-	gMessageFactory->addUint8(3);  
+	mMessageFactory->addUint32(opBaselinesMessage);   
+	mMessageFactory->addUint64(tangibleObject->getId()); 
+	mMessageFactory->addUint32(opTANO);
+	mMessageFactory->addUint8(3);  
 
-	gMessageFactory->addUint32(49 + (customName.getLength() << 1) + tangibleObject->getName().getLength() + tangibleObject->getCustomizationStr().getLength() + tangibleObject->getNameFile().getLength());
-	gMessageFactory->addUint16(11);	
-	gMessageFactory->addFloat(0);//tangibleObject->getComplexity());
-	gMessageFactory->addString(tangibleObject->getNameFile());
-	gMessageFactory->addUint32(0);	// unknown
-	gMessageFactory->addString(tangibleObject->getName());
-	gMessageFactory->addString(customName);
+	mMessageFactory->addUint32(49 + (customName.getLength() << 1) + tangibleObject->getName().getLength() + tangibleObject->getCustomizationStr().getLength() + tangibleObject->getNameFile().getLength());
+	mMessageFactory->addUint16(11);	
+	mMessageFactory->addFloat(0);//tangibleObject->getComplexity());
+	mMessageFactory->addString(tangibleObject->getNameFile());
+	mMessageFactory->addUint32(0);	// unknown
+	mMessageFactory->addString(tangibleObject->getName());
+	mMessageFactory->addString(customName);
 	uint32 uses = 0;
 
-	gMessageFactory->addUint32(1);//volume gives the volume taken up in the inventory!!!!!!!!
-	gMessageFactory->addString(tangibleObject->getCustomizationStr());
-	gMessageFactory->addUint64(0);	// unknown list might be defender list
-	gMessageFactory->addUint32(tangibleObject->getTypeOptions());
+	mMessageFactory->addUint32(1);//volume gives the volume taken up in the inventory!!!!!!!!
+	mMessageFactory->addString(tangibleObject->getCustomizationStr());
+	mMessageFactory->addUint64(0);	// unknown list might be defender list
+	mMessageFactory->addUint32(tangibleObject->getTypeOptions());
 
 	if(tangibleObject->hasAttribute("counter_uses_remaining"))
 	{
@@ -76,15 +76,15 @@ bool MessageLib::sendBaselinesTANO_3(const TangibleObject* const tangibleObject,
 	if(tangibleObject->getTimer() != 0)
 		uses = tangibleObject->getTimer();
 
-	gMessageFactory->addUint32(uses);
-	gMessageFactory->addUint32(tangibleObject->getDamage());
-	gMessageFactory->addUint32(tangibleObject->getMaxCondition());
+	mMessageFactory->addUint32(uses);
+	mMessageFactory->addUint32(tangibleObject->getDamage());
+	mMessageFactory->addUint32(tangibleObject->getMaxCondition());
 	
 	//1 when not moveable
-	gMessageFactory->addUint8(tangibleObject->getStatic());	// !!!!
+	mMessageFactory->addUint8(tangibleObject->getStatic());	// !!!!
 	
 
-	message = gMessageFactory->EndMessage();
+	message = mMessageFactory->EndMessage();
 
 	(targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5);
 
@@ -104,21 +104,21 @@ bool MessageLib::sendBaselinesTANO_6(const TangibleObject* const tangibleObject,
 
 	Message* message;
 
-	gMessageFactory->StartMessage();  
-	gMessageFactory->addUint32(opBaselinesMessage);   
-	gMessageFactory->addUint64(tangibleObject->getId()); 
-	gMessageFactory->addUint32(opTANO);
-	gMessageFactory->addUint8(6);  
+	mMessageFactory->StartMessage();  
+	mMessageFactory->addUint32(opBaselinesMessage);   
+	mMessageFactory->addUint64(tangibleObject->getId()); 
+	mMessageFactory->addUint32(opTANO);
+	mMessageFactory->addUint8(6);  
 
-	gMessageFactory->addUint32(15 + tangibleObject->getUnknownStr1().getLength() + tangibleObject->getUnknownStr2().getLength());
-	gMessageFactory->addUint16(3);	// unknown
-	gMessageFactory->addUint32(tangibleObject->getSubZoneId());
-	gMessageFactory->addString(tangibleObject->getUnknownStr1());
-	gMessageFactory->addUint32(0);	// unknown
-	gMessageFactory->addString(tangibleObject->getUnknownStr2());
-	gMessageFactory->addUint8(0);	// unknown
+	mMessageFactory->addUint32(15 + tangibleObject->getUnknownStr1().getLength() + tangibleObject->getUnknownStr2().getLength());
+	mMessageFactory->addUint16(3);	// unknown
+	mMessageFactory->addUint32(tangibleObject->getSubZoneId());
+	mMessageFactory->addString(tangibleObject->getUnknownStr1());
+	mMessageFactory->addUint32(0);	// unknown
+	mMessageFactory->addString(tangibleObject->getUnknownStr2());
+	mMessageFactory->addUint8(0);	// unknown
 
-	message = gMessageFactory->EndMessage();
+	message = mMessageFactory->EndMessage();
 
 	(targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5);
 
@@ -138,16 +138,16 @@ bool MessageLib::sendBaselinesTANO_8(const TangibleObject* const tangibleObject,
 
 	Message* message;
 
-	gMessageFactory->StartMessage();       
-	gMessageFactory->addUint32(opBaselinesMessage);   
-	gMessageFactory->addUint64(tangibleObject->getId()); 
-	gMessageFactory->addUint32(opTANO);
-	gMessageFactory->addUint8(8);  
+	mMessageFactory->StartMessage();       
+	mMessageFactory->addUint32(opBaselinesMessage);   
+	mMessageFactory->addUint64(tangibleObject->getId()); 
+	mMessageFactory->addUint32(opTANO);
+	mMessageFactory->addUint8(8);  
 
-	gMessageFactory->addUint32(2);
-	gMessageFactory->addUint16(0);	// unknown
+	mMessageFactory->addUint32(2);
+	mMessageFactory->addUint16(0);	// unknown
 
-	message = gMessageFactory->EndMessage();
+	message = mMessageFactory->EndMessage();
 
 	(targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5);
 
@@ -167,16 +167,16 @@ bool MessageLib::sendBaselinesTANO_9(const TangibleObject* const tangibleObject,
 
 	Message* message;
 
-	gMessageFactory->StartMessage();         
-	gMessageFactory->addUint32(opBaselinesMessage);   
-	gMessageFactory->addUint64(tangibleObject->getId()); 
-	gMessageFactory->addUint32(opTANO);
-	gMessageFactory->addUint8(9);  
+	mMessageFactory->StartMessage();         
+	mMessageFactory->addUint32(opBaselinesMessage);   
+	mMessageFactory->addUint64(tangibleObject->getId()); 
+	mMessageFactory->addUint32(opTANO);
+	mMessageFactory->addUint8(9);  
 
-	gMessageFactory->addUint32(2);
-	gMessageFactory->addUint16(0);	// unknown
+	mMessageFactory->addUint32(2);
+	mMessageFactory->addUint16(0);	// unknown
 
-	message = gMessageFactory->EndMessage();
+	message = mMessageFactory->EndMessage();
 
 	(targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5);
 
@@ -194,19 +194,19 @@ bool MessageLib::sendUpdateComplexity(TangibleObject* tangibleObject,PlayerObjec
 	if(!(playerObject->isConnected()))
 		return(false);
 
-	gMessageFactory->StartMessage();  
-	gMessageFactory->addUint32(opDeltasMessage);
-	gMessageFactory->addUint64(tangibleObject->getId());
-	gMessageFactory->addUint32(opTANO);
-	gMessageFactory->addUint8(3);
+	mMessageFactory->StartMessage();  
+	mMessageFactory->addUint32(opDeltasMessage);
+	mMessageFactory->addUint64(tangibleObject->getId());
+	mMessageFactory->addUint32(opTANO);
+	mMessageFactory->addUint8(3);
 
-	gMessageFactory->addUint32(8);
-	gMessageFactory->addUint16(1);
+	mMessageFactory->addUint32(8);
+	mMessageFactory->addUint16(1);
 
-	gMessageFactory->addUint16(0);
-	gMessageFactory->addFloat(tangibleObject->getComplexity());
+	mMessageFactory->addUint16(0);
+	mMessageFactory->addFloat(tangibleObject->getComplexity());
 
-	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5);
+	(playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5);
 
 	return(true);
 }
@@ -221,20 +221,20 @@ bool  MessageLib::sendUpdateCustomization_InRange(TangibleObject* tangibleObject
 		if(!(playerObject->isConnected()))
 		return(false);
 
-	gMessageFactory->StartMessage();  
-	gMessageFactory->addUint32(opDeltasMessage);
-	gMessageFactory->addUint64(tangibleObject->getId());
-	gMessageFactory->addUint32(opTANO);
-	gMessageFactory->addUint8(3);
+	mMessageFactory->StartMessage();  
+	mMessageFactory->addUint32(opDeltasMessage);
+	mMessageFactory->addUint64(tangibleObject->getId());
+	mMessageFactory->addUint32(opTANO);
+	mMessageFactory->addUint8(3);
 
-	gMessageFactory->addUint32(6+tangibleObject->getCustomizationStr().getLength());//length
+	mMessageFactory->addUint32(6+tangibleObject->getCustomizationStr().getLength());//length
 
-	gMessageFactory->addUint16(1);	   //one update
+	mMessageFactory->addUint16(1);	   //one update
 
-	gMessageFactory->addUint16(4);	   //nr 4 = customization
-	gMessageFactory->addString(tangibleObject->getCustomizationStr());
+	mMessageFactory->addUint16(4);	   //nr 4 = customization
+	mMessageFactory->addString(tangibleObject->getCustomizationStr());
 
-	_sendToInRange(gMessageFactory->EndMessage(),playerObject,8,true);
+	_sendToInRange(mMessageFactory->EndMessage(),playerObject,8,true);
 	//(playerObject->getClient())->SendChannelA(newMessage,playerObject->getAccountId(),CR_Client,5,false);
 
 	return(true);
@@ -253,20 +253,20 @@ bool MessageLib::sendUpdateTypeOption(TangibleObject* tangibleObject,PlayerObjec
 	if(!(playerObject->isConnected()))
 		return(false);
 
-	gMessageFactory->StartMessage();  
-	gMessageFactory->addUint32(opDeltasMessage);
-	gMessageFactory->addUint64(tangibleObject->getId());
-	gMessageFactory->addUint32(opTANO);
-	gMessageFactory->addUint8(3);
+	mMessageFactory->StartMessage();  
+	mMessageFactory->addUint32(opDeltasMessage);
+	mMessageFactory->addUint64(tangibleObject->getId());
+	mMessageFactory->addUint32(opTANO);
+	mMessageFactory->addUint8(3);
 
-	gMessageFactory->addUint32(8);		//length
+	mMessageFactory->addUint32(8);		//length
 
-	gMessageFactory->addUint16(1);	   //one update
+	mMessageFactory->addUint16(1);	   //one update
 
-	gMessageFactory->addUint16(6);	   //nr 6 = type option.
-	gMessageFactory->addUint32(tangibleObject->getTypeOptions());
+	mMessageFactory->addUint16(6);	   //nr 6 = type option.
+	mMessageFactory->addUint32(tangibleObject->getTypeOptions());
 
-	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5);
+	(playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5);
 	return(true);
 }
 
@@ -283,19 +283,19 @@ bool MessageLib::sendUpdateTimer(TangibleObject* tangibleObject,PlayerObject* pl
 
 	Message* newMessage;
 
-	gMessageFactory->StartMessage();  
-	gMessageFactory->addUint32(opDeltasMessage);
-	gMessageFactory->addUint64(tangibleObject->getId());
-	gMessageFactory->addUint32(opTANO);
-	gMessageFactory->addUint8(3);
+	mMessageFactory->StartMessage();  
+	mMessageFactory->addUint32(opDeltasMessage);
+	mMessageFactory->addUint64(tangibleObject->getId());
+	mMessageFactory->addUint32(opTANO);
+	mMessageFactory->addUint8(3);
 
-	gMessageFactory->addUint32(8);
-	gMessageFactory->addUint16(1);
+	mMessageFactory->addUint32(8);
+	mMessageFactory->addUint16(1);
 
-	gMessageFactory->addUint16(7);
-	gMessageFactory->addUint32(tangibleObject->getTimer());
+	mMessageFactory->addUint16(7);
+	mMessageFactory->addUint32(tangibleObject->getTimer());
 
-	newMessage = gMessageFactory->EndMessage();
+	newMessage = mMessageFactory->EndMessage();
 
 	(playerObject->getClient())->SendChannelA(newMessage,playerObject->getAccountId(),CR_Client,5);
 
@@ -321,19 +321,19 @@ bool MessageLib::sendUpdateUses(TangibleObject* tangibleObject,PlayerObject* pla
 		   
 	Message* newMessage;
 
-	gMessageFactory->StartMessage();  
-	gMessageFactory->addUint32(opDeltasMessage);
-	gMessageFactory->addUint64(tangibleObject->getId());
-	gMessageFactory->addUint32(opTANO);
-	gMessageFactory->addUint8(3);
+	mMessageFactory->StartMessage();  
+	mMessageFactory->addUint32(opDeltasMessage);
+	mMessageFactory->addUint64(tangibleObject->getId());
+	mMessageFactory->addUint32(opTANO);
+	mMessageFactory->addUint8(3);
 
-	gMessageFactory->addUint32(8);
-	gMessageFactory->addUint16(1);
+	mMessageFactory->addUint32(8);
+	mMessageFactory->addUint16(1);
 
-	gMessageFactory->addUint16(7);
-	gMessageFactory->addUint32(uses);
+	mMessageFactory->addUint16(7);
+	mMessageFactory->addUint32(uses);
 
-	newMessage = gMessageFactory->EndMessage();
+	newMessage = mMessageFactory->EndMessage();
 
 	(playerObject->getClient())->SendChannelA(newMessage,playerObject->getAccountId(),CR_Client,5);
 

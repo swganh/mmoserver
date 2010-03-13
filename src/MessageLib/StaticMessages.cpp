@@ -39,20 +39,20 @@ bool MessageLib::sendBaselinesSTAO_3(TangibleObject* staticObject, PlayerObject*
 		return(false);
 
 	Message* message;
-	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opBaselinesMessage);   
-	gMessageFactory->addUint64(staticObject->getId()); 
-	gMessageFactory->addUint32(opSTAO);
-	gMessageFactory->addUint8(3);  
-	gMessageFactory->addUint32(41);
-	gMessageFactory->addUint32(4); 
-	gMessageFactory->addUint16(0);
-	gMessageFactory->addString("obj_n");
-	gMessageFactory->addUint32(0); 
-	gMessageFactory->addString("unknown_object");
-	gMessageFactory->addUint32(0); 
-	gMessageFactory->addUint16(0xFF);
-	message = gMessageFactory->EndMessage();
+	mMessageFactory->StartMessage();
+	mMessageFactory->addUint32(opBaselinesMessage);   
+	mMessageFactory->addUint64(staticObject->getId()); 
+	mMessageFactory->addUint32(opSTAO);
+	mMessageFactory->addUint8(3);  
+	mMessageFactory->addUint32(41);
+	mMessageFactory->addUint32(4); 
+	mMessageFactory->addUint16(0);
+	mMessageFactory->addString("obj_n");
+	mMessageFactory->addUint32(0); 
+	mMessageFactory->addString("unknown_object");
+	mMessageFactory->addUint32(0); 
+	mMessageFactory->addUint16(0xFF);
+	message = mMessageFactory->EndMessage();
 	(targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5);
 
 	return(true);
@@ -71,18 +71,18 @@ bool MessageLib::sendBaselinesSTAO_6(TangibleObject* staticObject, PlayerObject*
 
 	Message* message;
 
-	gMessageFactory->StartMessage();  
-	gMessageFactory->addUint32(opBaselinesMessage);
-	gMessageFactory->addUint64(staticObject->getId());
-	gMessageFactory->addUint32(opSTAO);
-	gMessageFactory->addUint8(6);
-	gMessageFactory->addUint32(29);
-	gMessageFactory->addUint16(2);
-	gMessageFactory->addUint32(0x00000072);
-	gMessageFactory->addString("string_id_table");
-	gMessageFactory->addUint32(0x00);	
-	gMessageFactory->addUint16(0x00);	
-	message = gMessageFactory->EndMessage();
+	mMessageFactory->StartMessage();  
+	mMessageFactory->addUint32(opBaselinesMessage);
+	mMessageFactory->addUint64(staticObject->getId());
+	mMessageFactory->addUint32(opSTAO);
+	mMessageFactory->addUint8(6);
+	mMessageFactory->addUint32(29);
+	mMessageFactory->addUint16(2);
+	mMessageFactory->addUint32(0x00000072);
+	mMessageFactory->addString("string_id_table");
+	mMessageFactory->addUint32(0x00);	
+	mMessageFactory->addUint16(0x00);	
+	message = mMessageFactory->EndMessage();
 	(targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5);
 
 	return(true);

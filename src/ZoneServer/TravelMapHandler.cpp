@@ -604,7 +604,7 @@ void TravelMapHandler::handleUIEvent(uint32 action,int32 element,string inputStr
 			return;
 		}
 
-		if (!shuttle->avaliableInPort())
+		if (!shuttle->availableInPort())
 		{
 			gMessageLib->sendSystemMessage(playerObject,L"","travel","shuttle_not_available");
 			return;
@@ -676,17 +676,16 @@ void TravelMapHandler::handleUIEvent(uint32 action,int32 element,string inputStr
 
 void TravelMapHandler::useTicket(PlayerObject* playerObject, TravelTicket* ticket,Shuttle* shuttle)
 {
-
 	uint32	zoneId = gWorldManager->getZoneId();
 
 	// in range check
-	if(playerObject->getParentId() !=  shuttle->getParentId() )
+	if(playerObject->getParentId() !=  shuttle->getParentId())
 	{
 		gMessageLib->sendSystemMessage(playerObject,L"","travel","shuttle_not_available");
 		return;
 	}
 
-	TicketCollector* collector = (TicketCollector*) gWorldManager->getObjectById(shuttle->getCollectorId());
+	TicketCollector* collector = dynamic_cast<TicketCollector*>(gWorldManager->getObjectById(shuttle->getCollectorId()));
 	string port = collector->getPortDescriptor();
 
 	if(port.getCrc() == BString("Theed Starport").getCrc())
@@ -694,7 +693,7 @@ void TravelMapHandler::useTicket(PlayerObject* playerObject, TravelTicket* ticke
 		shuttle->setShuttleState(ShuttleState_InPort);
 	}
 
-	if (!shuttle->avaliableInPort())
+	if (!shuttle->availableInPort())
 	{
 		gMessageLib->sendSystemMessage(playerObject,L"","travel","shuttle_not_available");
 		return;
@@ -713,10 +712,7 @@ void TravelMapHandler::useTicket(PlayerObject* playerObject, TravelTicket* ticke
 	}
 
 	//ok lets travel
-
-	TravelPoint* dstPoint = gTravelMapHandler->getTravelPoint(dstPlanetId,dstPointStr);
-
-	if(dstPoint != NULL)
+	if(TravelPoint* dstPoint = gTravelMapHandler->getTravelPoint(dstPlanetId,dstPointStr))
 	{
 		Anh_Math::Vector3 destination;
 		destination.mX = dstPoint->spawnX + (gRandom->getRand()%5 - 2);

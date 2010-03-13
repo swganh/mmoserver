@@ -215,7 +215,6 @@ PlayerObject*	WorldManager::getPlayerByAccId(uint32 accId)
 
 void WorldManager::addDisconnectedPlayer(PlayerObject* playerObject)
 {
-	//uint32 timeOut = gWorldConfig->getLoggedTime();
 	uint32 timeOut = gWorldConfig->getConfiguration("Zone_Player_Logout",300);
 
 	gLogger->logMsgF("Player(%"PRIu64") disconnected,reconnect timeout in %u seconds",MSG_NORMAL,playerObject->getId(),timeOut);
@@ -231,16 +230,15 @@ void WorldManager::addDisconnectedPlayer(PlayerObject* playerObject)
 		ScriptSupport::Instance()->eraseObject(privateOwnedObjectId);
 
 		// We did have a private npc. Let us delete him/her/that.
-		Object* object = this->getObjectById(privateOwnedObjectId);
-		if (object)
+		if (Object* object = getObjectById(privateOwnedObjectId))
 		{
 			// But first, remove npc from our defender list.
-			// playerObject->removeDefender(object);
 			playerObject->removeDefenderAndUpdateList(object->getId());
 
-			this->destroyObject(object);
+			destroyObject(object);
 			// gLogger->logMsgF("WorldManager::addDisconnectedPlayer Deleted object with id  %"PRIu64"",MSG_NORMAL,privateOwnedObjectId);
 		}
+
 		privateOwnedObjectId = ScriptSupport::Instance()->getObjectOwnedBy(playerObject->getId());
 	}
 

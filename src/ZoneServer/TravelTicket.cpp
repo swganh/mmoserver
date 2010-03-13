@@ -8,6 +8,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
+
 #include "TravelTicket.h"
 #include "PlayerObject.h"
 #include "Shuttle.h"
@@ -19,7 +20,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "MessageLib/MessageLib.h"
 #include "LogManager/LogManager.h"
 #include "MathLib/Quaternion.h"
-
 
 
 //=============================================================================
@@ -40,7 +40,7 @@ TravelTicket::~TravelTicket()
 
 //=============================================================================
 
-string		TravelTicket::getBazaarName()
+string TravelTicket::getBazaarName()
 {
 	int8	ticketStr[256];
 
@@ -65,12 +65,11 @@ void TravelTicket::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 		{
 			gMessageLib->sendSystemMessage(player,L"You cannot do that at this time.");
 			return;
-			//gEntertainerManager->stopEntertaining(player);
 		}
 
-		ObjectSet		objects;
+		ObjectSet objects;
 
-		// see if a collector is in range
+		// see if a shuttle is in range
 		gWorldManager->getSI()->getObjectsInRange(player,&objects,ObjType_NPC | ObjType_Creature,25.0f);
 
 		ObjectSet::iterator objIt = objects.begin();
@@ -79,12 +78,9 @@ void TravelTicket::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 		{
 			if(Shuttle* shuttle = dynamic_cast<Shuttle*> (*objIt))
 			{
-
 				if(player->getParentId() == shuttle->getParentId())
 				{
 					gTravelMapHandler->useTicket(player, (TravelTicket*) this,shuttle); 
-					//collector->travelRequest(this,player);
-
 					return;
 				}
 			}

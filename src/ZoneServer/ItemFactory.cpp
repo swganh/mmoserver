@@ -29,6 +29,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "TravelTicket.h"
 #include "Weapon.h"
 #include "Wearable.h"
+#include "ChanceCube.h"
 #include "WorldManager.h"
 #include "LogManager/LogManager.h"
 #include "DatabaseManager/Database.h"
@@ -89,8 +90,9 @@ void ItemFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			Item* item = _createItem(result);
 
 			if(item->getLoadState() == LoadState_Loaded && asyncContainer->mOfCallback)
+			{
 				asyncContainer->mOfCallback->handleObjectReady(item,asyncContainer->mClient);
-
+			}
 			else if(item->getLoadState() == LoadState_Attributes)
 			{
 				QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,ItemFactoryQuery_Attributes,asyncContainer->mClient);
@@ -115,6 +117,7 @@ void ItemFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			// now check whether we are a container - if so check whether we contain items
 			// make sure we dont iterate in loops! max iteration depth should probably not exceed 5 
 			uint16 ContainerDepth = gWorldConfig->getPlayerContainerDepth();
+
 			if(item->getCapacity() && (asyncContainer->mDepth <= ContainerDepth))
 			{
 				item->setLoadState(LoadState_ContainerContent);
@@ -212,6 +215,8 @@ void ItemFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint
 													"WHERE items.id = %"PRIu64"",id);
 }
 
+//=============================================================================
+
 void ItemFactory::requestContainerContent(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client, uint32 depth)
 {
 	QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,ItemFactoryQuery_MainData,client,id);
@@ -253,21 +258,31 @@ Item* ItemFactory::_createItem(DatabaseResult* result)
 		case ItemFamily_ManufacturingSchematic:	item	= new ManufacturingSchematic();		break;
 		case ItemFamily_Instrument:				item	= new Instrument();					break;
 		case ItemFamily_Generic:				item	= new Item();						break;
+		case ItemFamily_Dice:
+		{
+			switch(itemIdentifier.mTypeId)
+			{
+				case ItemType_Generic_ChanceCube:	item = new ChanceCube();	break;
+				default:							item = new Item();			break;						
+			}
+		}
+		break;
+
 		case ItemFamily_Weapon:					item	= new Weapon();						break;
 		case ItemFamily_Deed:					item	= new Deed();						break;
 		case ItemFamily_Medicine:				item	= new Medicine();					break;
 		case ItemFamily_Scout:					item	= new Scout();						break;
-		case ItemFamily_FireWork:				item	= new Item();						break;
+		case ItemFamily_FireWork:
+		{
+			switch(itemIdentifier.mTypeId)
+			{
+				case ItemType_Firework_Show:	item	= new FireworkShow();				break;
+				default:						item	= new Firework();					break;
+			}
+		}
+		break;
 		case ItemFamily_FactoryCrate:			item	= new FactoryCrate();				break;
 		case ItemFamily_Hopper:					item	= new Item();						break;
-			{
-				switch(itemIdentifier.mTypeId)
-				{
-					case ItemType_Firework_Show:	item	= new FireworkShow();				break;
-					default:						item	= new Firework();					break;
-				}
-			}
-			break;
 
 		default:
 		{

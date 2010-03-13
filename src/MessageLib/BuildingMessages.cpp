@@ -41,31 +41,31 @@ bool MessageLib::sendBaselinesBUIO_3(BuildingObject* buildingObject,PlayerObject
 
 	Message* newMessage;
 
-	gMessageFactory->StartMessage();    
-	gMessageFactory->addUint32(opBaselinesMessage);  
-	gMessageFactory->addUint64(buildingObject->getId());
-	gMessageFactory->addUint32(opBUIO);
-	gMessageFactory->addUint8(3);
+	mMessageFactory->StartMessage();    
+	mMessageFactory->addUint32(opBaselinesMessage);  
+	mMessageFactory->addUint64(buildingObject->getId());
+	mMessageFactory->addUint32(opBUIO);
+	mMessageFactory->addUint8(3);
 
 	uint32 byteCount = 49 + buildingObject->getNameFile().getLength() + buildingObject->getName().getLength();
-	gMessageFactory->addUint32(byteCount);
-	gMessageFactory->addUint16(11);
-	gMessageFactory->addFloat(1.0);
-	gMessageFactory->addString(buildingObject->getNameFile());
-	gMessageFactory->addUint32(0);
-	gMessageFactory->addString(buildingObject->getName());
-	gMessageFactory->addUint32(0);//custom name
-	gMessageFactory->addUint32(0);
-	gMessageFactory->addUint16(0);
-	gMessageFactory->addUint32(0);
-	gMessageFactory->addUint32(0);
-	gMessageFactory->addUint32(0);
-	gMessageFactory->addUint32(0);
-	gMessageFactory->addUint32(0);
-	gMessageFactory->addUint32(1000);
-	gMessageFactory->addUint8(1);
+	mMessageFactory->addUint32(byteCount);
+	mMessageFactory->addUint16(11);
+	mMessageFactory->addFloat(1.0);
+	mMessageFactory->addString(buildingObject->getNameFile());
+	mMessageFactory->addUint32(0);
+	mMessageFactory->addString(buildingObject->getName());
+	mMessageFactory->addUint32(0);//custom name
+	mMessageFactory->addUint32(0);
+	mMessageFactory->addUint16(0);
+	mMessageFactory->addUint32(0);
+	mMessageFactory->addUint32(0);
+	mMessageFactory->addUint32(0);
+	mMessageFactory->addUint32(0);
+	mMessageFactory->addUint32(0);
+	mMessageFactory->addUint32(1000);
+	mMessageFactory->addUint8(1);
 
-	newMessage = gMessageFactory->EndMessage();
+	newMessage = mMessageFactory->EndMessage();
 
 	(playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 5);
 
@@ -79,40 +79,40 @@ bool MessageLib::sendBaselinesBUIO_3(HouseObject* buildingObject,PlayerObject* p
 
 	Message* fragment;
 
-	gMessageFactory->StartMessage();    
-	gMessageFactory->addUint16(11);
-	gMessageFactory->addFloat(1.0);
-	gMessageFactory->addString(buildingObject->getNameFile());
-	gMessageFactory->addUint32(0);
-	gMessageFactory->addString(buildingObject->getName());
-	gMessageFactory->addUint32(0);//custom name
-	gMessageFactory->addUint32(0);
-	gMessageFactory->addUint16(0);
-	gMessageFactory->addUint32(0);
-	gMessageFactory->addUint32(0);
-	gMessageFactory->addUint32(0);
-	gMessageFactory->addUint32(0);
-	gMessageFactory->addUint32(0);
-	gMessageFactory->addUint32(0);
-	gMessageFactory->addUint32(0);
-	gMessageFactory->addUint32(0);
-	gMessageFactory->addUint32(0);
-	gMessageFactory->addUint8(1);
+	mMessageFactory->StartMessage();    
+	mMessageFactory->addUint16(11);
+	mMessageFactory->addFloat(1.0);
+	mMessageFactory->addString(buildingObject->getNameFile());
+	mMessageFactory->addUint32(0);
+	mMessageFactory->addString(buildingObject->getName());
+	mMessageFactory->addUint32(0);//custom name
+	mMessageFactory->addUint32(0);
+	mMessageFactory->addUint16(0);
+	mMessageFactory->addUint32(0);
+	mMessageFactory->addUint32(0);
+	mMessageFactory->addUint32(0);
+	mMessageFactory->addUint32(0);
+	mMessageFactory->addUint32(0);
+	mMessageFactory->addUint32(0);
+	mMessageFactory->addUint32(0);
+	mMessageFactory->addUint32(0);
+	mMessageFactory->addUint32(0);
+	mMessageFactory->addUint8(1);
 
-	fragment = gMessageFactory->EndMessage();
+	fragment = mMessageFactory->EndMessage();
 
 
 	Message* newMessage;
 
-	gMessageFactory->StartMessage();    
-	gMessageFactory->addUint32(opBaselinesMessage);  
-	gMessageFactory->addUint64(buildingObject->getId());
-	gMessageFactory->addUint32(opBUIO);
-	gMessageFactory->addUint8(3);
-	gMessageFactory->addUint32(fragment->getSize());
-	gMessageFactory->addData(fragment->getData(),fragment->getSize());
+	mMessageFactory->StartMessage();    
+	mMessageFactory->addUint32(opBaselinesMessage);  
+	mMessageFactory->addUint64(buildingObject->getId());
+	mMessageFactory->addUint32(opBUIO);
+	mMessageFactory->addUint8(3);
+	mMessageFactory->addUint32(fragment->getSize());
+	mMessageFactory->addData(fragment->getData(),fragment->getSize());
 
-	newMessage = gMessageFactory->EndMessage();
+	newMessage = mMessageFactory->EndMessage();
 	fragment->setPendingDelete(true);
 
 	(playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 5);
@@ -134,19 +134,19 @@ bool MessageLib::sendBaselinesBUIO_6(BuildingObject* buildingObject,PlayerObject
 
 	Message* newMessage;
 
-	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opBaselinesMessage);  
-	gMessageFactory->addUint64(buildingObject->getId());
-	gMessageFactory->addUint32(opBUIO);
-	gMessageFactory->addUint8(6);
+	mMessageFactory->StartMessage();
+	mMessageFactory->addUint32(opBaselinesMessage);  
+	mMessageFactory->addUint64(buildingObject->getId());
+	mMessageFactory->addUint32(opBUIO);
+	mMessageFactory->addUint8(6);
 
-	gMessageFactory->addUint32(14);
-	gMessageFactory->addUint16(2);	// unknown
-	gMessageFactory->addUint32(66); // unknown
-	gMessageFactory->addUint32(0);	// unknown
-	gMessageFactory->addUint32(0);
+	mMessageFactory->addUint32(14);
+	mMessageFactory->addUint16(2);	// unknown
+	mMessageFactory->addUint32(66); // unknown
+	mMessageFactory->addUint32(0);	// unknown
+	mMessageFactory->addUint32(0);
 
-	newMessage = gMessageFactory->EndMessage();
+	newMessage = mMessageFactory->EndMessage();
 
 	(playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 5);
 
@@ -161,21 +161,21 @@ bool MessageLib::sendBaselinesBUIO_6(HouseObject* buildingObject,PlayerObject* p
 
 	Message* newMessage;
 
-	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opBaselinesMessage);  
-	gMessageFactory->addUint64(buildingObject->getId());
-	gMessageFactory->addUint32(opBUIO);
-	gMessageFactory->addUint8(6);
+	mMessageFactory->StartMessage();
+	mMessageFactory->addUint32(opBaselinesMessage);  
+	mMessageFactory->addUint64(buildingObject->getId());
+	mMessageFactory->addUint32(opBUIO);
+	mMessageFactory->addUint8(6);
 
-	gMessageFactory->addUint32(14);
-	gMessageFactory->addUint16(2);	// unknown
-	gMessageFactory->addUint32(0); // unknown
-	gMessageFactory->addUint32(0);	// unknown
-	gMessageFactory->addUint32(0);
-	gMessageFactory->addUint32(0);
-	gMessageFactory->addUint32(0);
+	mMessageFactory->addUint32(14);
+	mMessageFactory->addUint16(2);	// unknown
+	mMessageFactory->addUint32(0); // unknown
+	mMessageFactory->addUint32(0);	// unknown
+	mMessageFactory->addUint32(0);
+	mMessageFactory->addUint32(0);
+	mMessageFactory->addUint32(0);
 
-	newMessage = gMessageFactory->EndMessage();
+	newMessage = mMessageFactory->EndMessage();
 
 	(playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 5);
 
@@ -196,23 +196,23 @@ bool MessageLib::sendBaselinesSCLT_3(CellObject* cellObject,uint64 cellNr,Player
 
 	Message* newMessage;
 
-	gMessageFactory->StartMessage();   
-	gMessageFactory->addUint32(opBaselinesMessage);  
-	gMessageFactory->addUint64(cellObject->getId());
-	gMessageFactory->addUint32(opSCLT);
-	gMessageFactory->addUint8(3);
+	mMessageFactory->StartMessage();   
+	mMessageFactory->addUint32(opBaselinesMessage);  
+	mMessageFactory->addUint64(cellObject->getId());
+	mMessageFactory->addUint32(opSCLT);
+	mMessageFactory->addUint8(3);
 
-	gMessageFactory->addUint32(26);
-	gMessageFactory->addUint16(5);	// unknown
-	gMessageFactory->addUint32(0); // unknown
-	gMessageFactory->addUint16(0);
-	gMessageFactory->addUint32(0); // unknown
-	gMessageFactory->addUint16(0);
-	gMessageFactory->addUint32(0);
-	gMessageFactory->addUint32(0);
-	gMessageFactory->addUint32(static_cast<uint32>(cellNr));
+	mMessageFactory->addUint32(26);
+	mMessageFactory->addUint16(5);	// unknown
+	mMessageFactory->addUint32(0); // unknown
+	mMessageFactory->addUint16(0);
+	mMessageFactory->addUint32(0); // unknown
+	mMessageFactory->addUint16(0);
+	mMessageFactory->addUint32(0);
+	mMessageFactory->addUint32(0);
+	mMessageFactory->addUint32(static_cast<uint32>(cellNr));
 
-	newMessage = gMessageFactory->EndMessage();
+	newMessage = mMessageFactory->EndMessage();
 
 	(playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 5);
 
@@ -232,19 +232,19 @@ bool MessageLib::sendBaselinesSCLT_6(CellObject* cellObject,PlayerObject* player
 
 	Message* newMessage;
 
-	gMessageFactory->StartMessage();          
-	gMessageFactory->addUint32(opBaselinesMessage);  
-	gMessageFactory->addUint64(cellObject->getId());
-	gMessageFactory->addUint32(opSCLT);
-	gMessageFactory->addUint8(6);
+	mMessageFactory->StartMessage();          
+	mMessageFactory->addUint32(opBaselinesMessage);  
+	mMessageFactory->addUint64(cellObject->getId());
+	mMessageFactory->addUint32(opSCLT);
+	mMessageFactory->addUint8(6);
 
-	gMessageFactory->addUint32(14);
-	gMessageFactory->addUint16(2);	// unknown
-	gMessageFactory->addUint32(149); // unknown
-	gMessageFactory->addUint32(0);
-	gMessageFactory->addUint32(0);
+	mMessageFactory->addUint32(14);
+	mMessageFactory->addUint16(2);	// unknown
+	mMessageFactory->addUint32(149); // unknown
+	mMessageFactory->addUint32(0);
+	mMessageFactory->addUint32(0);
 
-	newMessage = gMessageFactory->EndMessage();
+	newMessage = mMessageFactory->EndMessage();
 
 	(playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 5);
 
@@ -265,14 +265,14 @@ bool MessageLib::sendEnterStructurePlacement(Object* deed, string objectString, 
 
 	Message* newMessage;
 
-	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opStructurePlacementMode);  
-	gMessageFactory->addUint64(deed->getId());
+	mMessageFactory->StartMessage();
+	mMessageFactory->addUint32(opStructurePlacementMode);  
+	mMessageFactory->addUint64(deed->getId());
 	//object/building/player/shared_player_house_tatooine_large_style_01.iff
 	//char *dir = "object/installation/generators/shared_power_generator_fusion_style_1.iff";
-	gMessageFactory->addString(objectString);
+	mMessageFactory->addString(objectString);
 
-	newMessage = gMessageFactory->EndMessage();
+	newMessage = mMessageFactory->EndMessage();
 	
 	//gLogger->logMsgF("placement mode : %s",MSG_HIGH,objectString.getAnsi());
 
@@ -294,9 +294,9 @@ bool MessageLib::sendAdminList(PlayerStructure* structure, PlayerObject* playerO
 
 	Message* newMessage;
 
-	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opSendPermissionList);  
-	gMessageFactory->addUint32(structure->getStrucureAdminList().size() );
+	mMessageFactory->StartMessage();
+	mMessageFactory->addUint32(opSendPermissionList);  
+	mMessageFactory->addUint32(structure->getStrucureAdminList().size() );
 
 	string name;
 	BStringVector vector = 	structure->getStrucureAdminList();
@@ -305,19 +305,19 @@ bool MessageLib::sendAdminList(PlayerStructure* structure, PlayerObject* playerO
 	{
 		name = (*it);
 		name.convert(BSTRType_Unicode16);
-		gMessageFactory->addString(name);
+		mMessageFactory->addString(name);
 
 		it++;
 	}
 
-	gMessageFactory->addUint32(0); // ???
-	//gMessageFactory->addUint16(0);	// unknown
+	mMessageFactory->addUint32(0); // ???
+	//mMessageFactory->addUint16(0);	// unknown
 	name = "ADMIN";
 	name.convert(BSTRType_Unicode16);
-	gMessageFactory->addString(name);
-	gMessageFactory->addUint32(0); // ???
+	mMessageFactory->addString(name);
+	mMessageFactory->addUint32(0); // ???
 	
-	newMessage = gMessageFactory->EndMessage();
+	newMessage = mMessageFactory->EndMessage();
 
 	(playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 5);
 
@@ -338,9 +338,9 @@ bool MessageLib::sendEntryList(PlayerStructure* structure, PlayerObject* playerO
 
 	Message* newMessage;
 
-	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opSendPermissionList);  
-	gMessageFactory->addUint32(structure->getStrucureEntryList().size() );
+	mMessageFactory->StartMessage();
+	mMessageFactory->addUint32(opSendPermissionList);  
+	mMessageFactory->addUint32(structure->getStrucureEntryList().size() );
 
 	string name;
 	BStringVector vector = 	structure->getStrucureEntryList();
@@ -349,19 +349,19 @@ bool MessageLib::sendEntryList(PlayerStructure* structure, PlayerObject* playerO
 	{
 		name = (*it);
 		name.convert(BSTRType_Unicode16);
-		gMessageFactory->addString(name);
+		mMessageFactory->addString(name);
 
 		it++;
 	}
 
-	gMessageFactory->addUint32(0); // ???
-	//gMessageFactory->addUint16(0);	// unknown
+	mMessageFactory->addUint32(0); // ???
+	//mMessageFactory->addUint16(0);	// unknown
 	name = "ENTRY";
 	name.convert(BSTRType_Unicode16);
-	gMessageFactory->addString(name);
-	gMessageFactory->addUint32(0); // ???
+	mMessageFactory->addString(name);
+	mMessageFactory->addUint32(0); // ???
 	
-	newMessage = gMessageFactory->EndMessage();
+	newMessage = mMessageFactory->EndMessage();
 
 	(playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 5);
 
@@ -383,9 +383,9 @@ bool MessageLib::sendBanList(PlayerStructure* structure, PlayerObject* playerObj
 
 	Message* newMessage;
 
-	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opSendPermissionList);  
-	gMessageFactory->addUint32(structure->getStrucureBanList().size() );
+	mMessageFactory->StartMessage();
+	mMessageFactory->addUint32(opSendPermissionList);  
+	mMessageFactory->addUint32(structure->getStrucureBanList().size() );
 
 	string name;
 	BStringVector vector = 	structure->getStrucureBanList();
@@ -394,19 +394,19 @@ bool MessageLib::sendBanList(PlayerStructure* structure, PlayerObject* playerObj
 	{
 		name = (*it);
 		name.convert(BSTRType_Unicode16);
-		gMessageFactory->addString(name);
+		mMessageFactory->addString(name);
 
 		it++;
 	}
 
-	gMessageFactory->addUint32(0); // ???
-	//gMessageFactory->addUint16(0);	// unknown
+	mMessageFactory->addUint32(0); // ???
+	//mMessageFactory->addUint16(0);	// unknown
 	name = "BAN";
 	name.convert(BSTRType_Unicode16);
-	gMessageFactory->addString(name);
-	gMessageFactory->addUint32(0); // ???
+	mMessageFactory->addString(name);
+	mMessageFactory->addUint32(0); // ???
 	
-	newMessage = gMessageFactory->EndMessage();
+	newMessage = mMessageFactory->EndMessage();
 
 	(playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 5);
 

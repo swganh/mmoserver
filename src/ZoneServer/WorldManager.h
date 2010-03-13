@@ -26,7 +26,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Utils/TimerCallback.h"
 #include "Utils/typedefs.h"
 
-#include <boost/ptr_container/ptr_map.hpp>
+#include <boost/ptr_container/ptr_unordered_map.hpp>
 
 #include <list>
 #include <map>
@@ -60,10 +60,10 @@ namespace Anh_Utils
 }
 
 // pwns all objects
-typedef boost::ptr_map<uint64,Object>			ObjectMap;
+typedef boost::ptr_unordered_map<uint64,Object>			ObjectMap;
 
 // seperate map for qt regions, since ids may match object ids
-typedef boost::ptr_map<uint32,QTRegion>			QTRegionMap;
+typedef boost::ptr_unordered_map<uint32,QTRegion>		QTRegionMap;
 
 // Maps for objects in world
 typedef std::map<uint32,const PlayerObject*>	PlayerAccMap;
@@ -80,7 +80,8 @@ typedef std::map<uint64, uint64>				PlayerMovementUpdateMap;
 typedef std::map<uint64, uint64>				CreatureObjectDeletionMap;
 typedef std::map<uint64, uint64>				PlayerObjectReviveMap;
 
-typedef std::vector<uint64>						CraftTools;//a list of busy craft tools needing regular updates
+// a list of busy craft tools needing regular updates
+typedef std::vector<uint64>						CraftTools;
 
 // Creature spawn regions.
 typedef std::map<uint64, const CreatureSpawnRegion*>	CreatureSpawnRegionMap;

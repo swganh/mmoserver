@@ -102,12 +102,13 @@ void Food::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 				
 					}
 				}
+
 				handleFoodUse(srcObject);
 			}
 		}
 	}
-
 }
+
 //=============================================================================
 
 void Food::handleFoodUse(Object* srcObject)

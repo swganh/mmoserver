@@ -45,48 +45,48 @@ bool MessageLib::sendBaselinesRCNO_3(ResourceContainer* resourceContainer,Player
 	string		resourceNameFile = "kb/kb_resources_n";
 	string		resourceTypeName = ((resourceContainer->getResource())->getType())->getTypeName();
 
-	gMessageFactory->StartMessage();       
-	gMessageFactory->addUint32(opBaselinesMessage);   
-	gMessageFactory->addUint64(resourceContainer->getId()); 
-	gMessageFactory->addUint32(opRCNO);
-	gMessageFactory->addUint8(3);  
+	mMessageFactory->StartMessage();       
+	mMessageFactory->addUint32(opBaselinesMessage);   
+	mMessageFactory->addUint64(resourceContainer->getId()); 
+	mMessageFactory->addUint32(opRCNO);
+	mMessageFactory->addUint8(3);  
 
-	gMessageFactory->addUint32(61 + resourceNameFile.getLength() + resourceTypeName.getLength());
-	gMessageFactory->addUint16(13);	
-	gMessageFactory->addFloat(0);	
-	gMessageFactory->addString(resourceNameFile);
-	gMessageFactory->addUint32(0);	// unknown
-	gMessageFactory->addString(resourceTypeName);
+	mMessageFactory->addUint32(61 + resourceNameFile.getLength() + resourceTypeName.getLength());
+	mMessageFactory->addUint16(13);	
+	mMessageFactory->addFloat(0);	
+	mMessageFactory->addString(resourceNameFile);
+	mMessageFactory->addUint32(0);	// unknown
+	mMessageFactory->addString(resourceTypeName);
 
-	gMessageFactory->addUint32(0);//customname
-	gMessageFactory->addUint32(1);	// volume
+	mMessageFactory->addUint32(0);//customname
+	mMessageFactory->addUint32(1);	// volume
 
-	gMessageFactory->addUint16(0);//ascii customization
+	mMessageFactory->addUint16(0);//ascii customization
 
 	// unknown list			   probably inherited from tano the customization crc of special attachments like scope etc
 	// so most likely not related to resources
-	gMessageFactory->addUint32(0);
-	gMessageFactory->addUint32(0);
+	mMessageFactory->addUint32(0);
+	mMessageFactory->addUint32(0);
 
-	gMessageFactory->addUint8(0);//OptionsBitmask figure the bitmap out!!!!! 4 is insured
-	gMessageFactory->addUint8(0);//OptionsBitmask figure the bitmap out!!!!!
-	gMessageFactory->addUint8(0);//OptionsBitmask figure the bitmap out!!!!!
-	gMessageFactory->addUint8(0);//OptionsBitmask figure the bitmap out!!!!!
+	mMessageFactory->addUint8(0);//OptionsBitmask figure the bitmap out!!!!! 4 is insured
+	mMessageFactory->addUint8(0);//OptionsBitmask figure the bitmap out!!!!!
+	mMessageFactory->addUint8(0);//OptionsBitmask figure the bitmap out!!!!!
+	mMessageFactory->addUint8(0);//OptionsBitmask figure the bitmap out!!!!!
 	//4 is insured
 
 	//timer incap (unused)
-	gMessageFactory->addUint32(0);	// unknown
+	mMessageFactory->addUint32(0);	// unknown
 	//cond damage
-	gMessageFactory->addUint32(0);
+	mMessageFactory->addUint32(0);
 	//max condition
-	gMessageFactory->addUint32(100);
+	mMessageFactory->addUint32(100);
 
 	//unknown - bitmask?????
-	gMessageFactory->addUint8(0);
-	gMessageFactory->addUint32(resourceContainer->getAmount());
-	gMessageFactory->addUint64((resourceContainer->getResource())->getId());
+	mMessageFactory->addUint8(0);
+	mMessageFactory->addUint32(resourceContainer->getAmount());
+	mMessageFactory->addUint64((resourceContainer->getResource())->getId());
 	
-	message = gMessageFactory->EndMessage();
+	message = mMessageFactory->EndMessage();
 
 	(targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5);
 
@@ -122,24 +122,24 @@ bool MessageLib::sendBaselinesRCNO_6(ResourceContainer* resourceContainer,Player
 	string		resourceName = (resourceContainer->getResource())->getName().getAnsi();
 	resourceName.convert(BSTRType_Unicode16);
 
-	gMessageFactory->StartMessage();        
-	gMessageFactory->addUint32(opBaselinesMessage);   
-	gMessageFactory->addUint64(resourceContainer->getId()); 
-	gMessageFactory->addUint32(opRCNO);
-	gMessageFactory->addUint8(6);  
+	mMessageFactory->StartMessage();        
+	mMessageFactory->addUint32(opBaselinesMessage);   
+	mMessageFactory->addUint64(resourceContainer->getId()); 
+	mMessageFactory->addUint32(opRCNO);
+	mMessageFactory->addUint8(6);  
 
-	gMessageFactory->addUint32(32 + (unknownStr.getLength() << 1) + resourceTypeDescriptor.getLength() + (resourceName.getLength() << 1));
-	gMessageFactory->addUint16(5);	
-	gMessageFactory->addFloat(1.0);	// unknown
-	gMessageFactory->addString(unknownStr);
-	gMessageFactory->addUint32(0);
-	gMessageFactory->addString(unknownStr);
-	gMessageFactory->addUint32(100000); // max stack size ?
-	gMessageFactory->addString(resourceTypeDescriptor);
-	gMessageFactory->addString(resourceName);
+	mMessageFactory->addUint32(32 + (unknownStr.getLength() << 1) + resourceTypeDescriptor.getLength() + (resourceName.getLength() << 1));
+	mMessageFactory->addUint16(5);	
+	mMessageFactory->addFloat(1.0);	// unknown
+	mMessageFactory->addString(unknownStr);
+	mMessageFactory->addUint32(0);
+	mMessageFactory->addString(unknownStr);
+	mMessageFactory->addUint32(100000); // max stack size ?
+	mMessageFactory->addString(resourceTypeDescriptor);
+	mMessageFactory->addString(resourceName);
 	
 
-	message = gMessageFactory->EndMessage();
+	message = mMessageFactory->EndMessage();
 
 	(targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5);
 
@@ -159,16 +159,16 @@ bool MessageLib::sendBaselinesRCNO_8(ResourceContainer* resourceContainer,Player
 
 	Message*	message;
 
-	gMessageFactory->StartMessage();          
-	gMessageFactory->addUint32(opBaselinesMessage);   
-	gMessageFactory->addUint64(resourceContainer->getId()); 
-	gMessageFactory->addUint32(opRCNO);
-	gMessageFactory->addUint8(8);  
+	mMessageFactory->StartMessage();          
+	mMessageFactory->addUint32(opBaselinesMessage);   
+	mMessageFactory->addUint64(resourceContainer->getId()); 
+	mMessageFactory->addUint32(opRCNO);
+	mMessageFactory->addUint8(8);  
 
-	gMessageFactory->addUint32(2);
-	gMessageFactory->addUint16(0);	
+	mMessageFactory->addUint32(2);
+	mMessageFactory->addUint16(0);	
 
-	message = gMessageFactory->EndMessage();
+	message = mMessageFactory->EndMessage();
 
 	(targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5);
 
@@ -188,16 +188,16 @@ bool MessageLib::sendBaselinesRCNO_9(ResourceContainer* resourceContainer,Player
 
 	Message*	message;
 
-	gMessageFactory->StartMessage();         
-	gMessageFactory->addUint32(opBaselinesMessage);   
-	gMessageFactory->addUint64(resourceContainer->getId()); 
-	gMessageFactory->addUint32(opRCNO);
-	gMessageFactory->addUint8(9);  
+	mMessageFactory->StartMessage();         
+	mMessageFactory->addUint32(opBaselinesMessage);   
+	mMessageFactory->addUint64(resourceContainer->getId()); 
+	mMessageFactory->addUint32(opRCNO);
+	mMessageFactory->addUint8(9);  
 
-	gMessageFactory->addUint32(2);
-	gMessageFactory->addUint16(0);	
+	mMessageFactory->addUint32(2);
+	mMessageFactory->addUint16(0);	
 
-	message = gMessageFactory->EndMessage();
+	message = mMessageFactory->EndMessage();
 
 	(targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5);
 
@@ -217,18 +217,18 @@ bool MessageLib::sendResourceContainerUpdateAmount(ResourceContainer* resourceCo
 
 	Message* newMessage;
 
-	gMessageFactory->StartMessage();          
-	gMessageFactory->addUint32(opDeltasMessage);  
-	gMessageFactory->addUint64(resourceContainer->getId());          
-	gMessageFactory->addUint32(opRCNO);           
-	gMessageFactory->addUint8(3);
+	mMessageFactory->StartMessage();          
+	mMessageFactory->addUint32(opDeltasMessage);  
+	mMessageFactory->addUint64(resourceContainer->getId());          
+	mMessageFactory->addUint32(opRCNO);           
+	mMessageFactory->addUint8(3);
 
-	gMessageFactory->addUint32(8);
-	gMessageFactory->addUint16(1);
-	gMessageFactory->addUint16(11);
-	gMessageFactory->addUint32(resourceContainer->getAmount());
+	mMessageFactory->addUint32(8);
+	mMessageFactory->addUint16(1);
+	mMessageFactory->addUint16(11);
+	mMessageFactory->addUint32(resourceContainer->getAmount());
 
-	newMessage = gMessageFactory->EndMessage();
+	newMessage = mMessageFactory->EndMessage();
 
 	(playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 5);
 

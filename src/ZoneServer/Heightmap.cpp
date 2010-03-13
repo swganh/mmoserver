@@ -25,7 +25,7 @@ Heightmap::Heightmap(const char* planet_name)
 , HEIGHT(15361)
 {
 	mFilename = planet_name;
-	mFilename += ".hmp";
+	mFilename += ".hmpw";
 	Connect();
 }
 

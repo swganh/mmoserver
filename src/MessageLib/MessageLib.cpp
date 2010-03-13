@@ -59,17 +59,18 @@ MessageLib*	MessageLib::mSingleton  = NULL;
 
 MessageLib::MessageLib()
 {
+	mMessageFactory = gMessageFactory;
 }
 
 //======================================================================================================================
 
 MessageLib*	MessageLib::Init()
 {
-
 	if(!mInsFlag)
 	{
 		mSingleton = new MessageLib();
 		mInsFlag = true;
+
 		return mSingleton;
 	}
 	else
@@ -88,14 +89,13 @@ MessageLib::~MessageLib()
 //
 // Checks the validity of the player in the global map
 //
-
-
 bool MessageLib::_checkPlayer(const PlayerObject* const player) const
 {
 	if(!player)
 		return false;
 
 	PlayerObject* tested = gWorldManager->getPlayerByAccId(player->getAccountId());
+
 	if(!tested)
 	{
 		gLogger->logMsgF("Player account (%u) invalid",MSG_NORMAL,player->getAccountId());
@@ -105,14 +105,18 @@ bool MessageLib::_checkPlayer(const PlayerObject* const player) const
 	return((tested->isConnected())&&(tested->getClient()));
 }
 
+//======================================================================================================================
+
 bool MessageLib::_checkPlayer(uint64 playerId) const
 {
 	PlayerObject* tested = dynamic_cast <PlayerObject*> (gWorldManager->getObjectById(playerId));
+
 	if(!tested)
 	{
 		gLogger->logMsgF("Player Id (%I64u) invalid",MSG_NORMAL,playerId);
 		return false;
 	}
+
 	return((tested->isConnected())&&(tested->getClient()));
 }
 
@@ -120,32 +124,29 @@ bool MessageLib::_checkPlayer(uint64 playerId) const
 //
 // broadcasts a message to all players in range of the given object
 //
-
 void MessageLib::_sendToInRangeUnreliable(Message* message, Object* const object,uint16 priority,bool toSelf)
 {
-	PlayerObjectSet*	inRangePlayers	= object->getKnownPlayers();
-	PlayerObjectSet::iterator	it				= inRangePlayers->begin();
-	// PlayerObjectSet::const_iterator 	it				= inRangePlayers->begin();
-	Message*					clonedMessage;
+	PlayerObjectSet*			inRangePlayers	= object->getKnownPlayers();
+	PlayerObjectSet::iterator	playerIt		= inRangePlayers->begin();
 
-	while(it != inRangePlayers->end())
+	while(playerIt != inRangePlayers->end())
 	{
-		if(_checkPlayer((*it)))
+		if(_checkPlayer((*playerIt)))
 		{
 			// clone our message
-			gMessageFactory->StartMessage();
-			gMessageFactory->addData(message->getData(),message->getSize());
-			clonedMessage = gMessageFactory->EndMessage();
+			mMessageFactory->StartMessage();
+			mMessageFactory->addData(message->getData(),message->getSize());
 
-			((*it)->getClient())->SendChannelAUnreliable(clonedMessage,(*it)->getAccountId(),CR_Client,static_cast<uint8>(priority));
+			((*playerIt)->getClient())->SendChannelAUnreliable(mMessageFactory->EndMessage(),(*playerIt)->getAccountId(),CR_Client,static_cast<uint8>(priority));
 		}
 
-		++it;
+		++playerIt;
 	}
 
 	if(toSelf)
 	{
 		const PlayerObject* const srcPlayer = dynamic_cast<const PlayerObject*>(object);
+
 		if(_checkPlayer(srcPlayer))
 		{
 			(srcPlayer->getClient())->SendChannelAUnreliable(message,srcPlayer->getAccountId(),CR_Client,static_cast<uint8>(priority));
@@ -153,34 +154,34 @@ void MessageLib::_sendToInRangeUnreliable(Message* message, Object* const object
 		}
 	}
 
-	gMessageFactory->DestroyMessage(message);
-
+	mMessageFactory->DestroyMessage(message);
 }
+
+//======================================================================================================================
 
 void MessageLib::_sendToInRange(Message* message, Object* const object,uint16 priority,bool toSelf)
 {
-	PlayerObjectSet*	inRangePlayers	= object->getKnownPlayers();
-	PlayerObjectSet::iterator	it			= inRangePlayers->begin();
-	Message*					clonedMessage;
+	PlayerObjectSet*			inRangePlayers	= object->getKnownPlayers();
+	PlayerObjectSet::iterator	playerIt		= inRangePlayers->begin();
 
-	while(it != inRangePlayers->end())
+	while(playerIt != inRangePlayers->end())
 	{
-		if(_checkPlayer((*it)))
+		if(_checkPlayer((*playerIt)))
 		{
 			// clone our message
-			gMessageFactory->StartMessage();
-			gMessageFactory->addData(message->getData(),message->getSize());
-			clonedMessage = gMessageFactory->EndMessage();
+			mMessageFactory->StartMessage();
+			mMessageFactory->addData(message->getData(),message->getSize());
 
-			((*it)->getClient())->SendChannelA(clonedMessage,(*it)->getAccountId(),CR_Client,static_cast<uint8>(priority));
+			((*playerIt)->getClient())->SendChannelA(mMessageFactory->EndMessage(),(*playerIt)->getAccountId(),CR_Client,static_cast<uint8>(priority));
 		}
 
-		++it;
+		++playerIt;
 	}
 
 	if(toSelf)
 	{
 		const PlayerObject* const srcPlayer = dynamic_cast<const PlayerObject*>(object);
+
 		if(_checkPlayer(srcPlayer))
 		{
 			(srcPlayer->getClient())->SendChannelA(message,srcPlayer->getAccountId(),CR_Client, static_cast<uint8>(priority));
@@ -188,112 +189,105 @@ void MessageLib::_sendToInRange(Message* message, Object* const object,uint16 pr
 		}
 	}
 
-	gMessageFactory->DestroyMessage(message);
-
+	mMessageFactory->DestroyMessage(message);
 }
-
 
 //======================================================================================================================
 //
 // Broadcasts a message to players in group and in range of the given object, used by tutorial and other instances
 //
-
 void MessageLib::_sendToInstancedPlayers(Message* message,uint16 priority, const PlayerObject* const playerObject) const
 {
 	if (!_checkPlayer(playerObject))
 	{
-		gMessageFactory->DestroyMessage(message);
+		mMessageFactory->DestroyMessage(message);
 		return;
 	}
 
-	PlayerList const inRangeMembers = playerObject->getInRangeGroupMembers(true);
-	PlayerList::const_iterator player	= inRangeMembers.begin();
-	Message* clonedMessage;
+	PlayerList const			inRangeMembers	= playerObject->getInRangeGroupMembers(true);
+	PlayerList::const_iterator	playerIt		= inRangeMembers.begin();
 
-	while (player != inRangeMembers.end())
+	while (playerIt != inRangeMembers.end())
 	{
-		if (_checkPlayer(*player))
+		if (_checkPlayer(*playerIt))
 		{
 			// Clone the message.
-			gMessageFactory->StartMessage();
-			gMessageFactory->addData(message->getData(),message->getSize());
-			clonedMessage = gMessageFactory->EndMessage();
+			mMessageFactory->StartMessage();
+			mMessageFactory->addData(message->getData(),message->getSize());
 
-			((*player)->getClient())->SendChannelA(clonedMessage,(*player)->getAccountId(),CR_Client,static_cast<uint8>(priority));
+			((*playerIt)->getClient())->SendChannelA(mMessageFactory->EndMessage(),(*playerIt)->getAccountId(),CR_Client,static_cast<uint8>(priority));
 		}
-		++player;
-	}
-	gMessageFactory->DestroyMessage(message);
-}
 
+		++playerIt;
+	}
+
+	mMessageFactory->DestroyMessage(message);
+}
 
 //======================================================================================================================
 //
 // Broadcasts a message to players in group and in range of the given object, used by tutorial and other instances
 //
-
 void MessageLib::_sendToInstancedPlayersUnreliable(Message* message,uint16 priority, const PlayerObject* const playerObject) const
 {
 	if (!_checkPlayer(playerObject))
 	{
-		gMessageFactory->DestroyMessage(message);
+		mMessageFactory->DestroyMessage(message);
 		return;
 	}
 
-	PlayerList const inRangeMembers = playerObject->getInRangeGroupMembers(true);
-	PlayerList::const_iterator player	= inRangeMembers.begin();
-	Message* clonedMessage;
+	PlayerList const			inRangeMembers	= playerObject->getInRangeGroupMembers(true);
+	PlayerList::const_iterator	playerIt		= inRangeMembers.begin();
 
-	while (player != inRangeMembers.end())
+	while (playerIt != inRangeMembers.end())
 	{
-		if (_checkPlayer(*player))
+		if (_checkPlayer(*playerIt))
 		{
 			// Clone the message.
-			gMessageFactory->StartMessage();
-			gMessageFactory->addData(message->getData(),message->getSize());
-			clonedMessage = gMessageFactory->EndMessage();
+			mMessageFactory->StartMessage();
+			mMessageFactory->addData(message->getData(),message->getSize());
 
-
-			((*player)->getClient())->SendChannelAUnreliable(clonedMessage,(*player)->getAccountId(),CR_Client,static_cast<uint8>(priority));
-
+			((*playerIt)->getClient())->SendChannelAUnreliable(mMessageFactory->EndMessage(),(*playerIt)->getAccountId(),CR_Client,static_cast<uint8>(priority));
 		}
-		++player;
-	}
-	gMessageFactory->DestroyMessage(message);
-}
 
+		++playerIt;
+	}
+
+	mMessageFactory->DestroyMessage(message);
+}
 
 //======================================================================================================================
 //
 // broadcasts a message to all players on the current zone
 //
-
 void MessageLib::_sendToAll(Message* message,uint16 priority,bool unreliable) const
 {
-	const PlayerAccMap* const players		= gWorldManager->getPlayerAccMap();
-	PlayerAccMap::const_iterator it	= players->begin();
-	Message* clonedMessage;
+	const PlayerAccMap* const		players		= gWorldManager->getPlayerAccMap();
+	PlayerAccMap::const_iterator	playerIt	= players->begin();
 
-	while(it != players->end())
+	while(playerIt != players->end())
 	{
-		const PlayerObject* const player = (*it).second;
+		const PlayerObject* const player = (*playerIt).second;
 
 		if(_checkPlayer(player))
 		{
-			gMessageFactory->StartMessage();
-			gMessageFactory->addData(message->getData(),message->getSize());
-			clonedMessage = gMessageFactory->EndMessage();
+			mMessageFactory->StartMessage();
+			mMessageFactory->addData(message->getData(),message->getSize());
 
 			if(unreliable)
-				(player->getClient())->SendChannelAUnreliable(clonedMessage,player->getAccountId(),CR_Client,static_cast<uint8>(priority));
+			{
+				(player->getClient())->SendChannelAUnreliable(mMessageFactory->EndMessage(),player->getAccountId(),CR_Client,static_cast<uint8>(priority));
+			}
 			else
-				(player->getClient())->SendChannelA(clonedMessage,player->getAccountId(),CR_Client,static_cast<uint8>(priority));
+			{
+				(player->getClient())->SendChannelA(mMessageFactory->EndMessage(),player->getAccountId(),CR_Client,static_cast<uint8>(priority));
+			}
 		}
 
-		++it;
+		++playerIt;
 	}
 
-	gMessageFactory->DestroyMessage(message);
+	mMessageFactory->DestroyMessage(message);
 }
 
 //======================================================================================================================
@@ -301,7 +295,6 @@ void MessageLib::_sendToAll(Message* message,uint16 priority,bool unreliable) co
 // send creates of the equipped items from player to player
 // iterates all inventory items of the source and sends creates to the target
 //
-
 bool MessageLib::sendEquippedItems(PlayerObject* srcObject,PlayerObject* targetObject)
 {
 	if(!_checkPlayer(targetObject))
@@ -338,7 +331,6 @@ bool MessageLib::sendEquippedItems(PlayerObject* srcObject,PlayerObject* targetO
 //
 // creates all items childobjects
 //
-
 bool MessageLib::sendItemChildren(TangibleObject* srcObject,PlayerObject* targetObject)
 {
 	if(!_checkPlayer(targetObject))
@@ -365,13 +357,10 @@ bool MessageLib::sendItemChildren(TangibleObject* srcObject,PlayerObject* target
 //
 // create player
 //
-
 bool MessageLib::sendCreatePlayer(PlayerObject* playerObject,PlayerObject* targetObject)
 {
 	if(!_checkPlayer(targetObject))
 		return(false);
-
-	//gLogger->logMsg("sendCreatePlayer",MSG_NORMAL);
 
 	sendCreateObjectByCRC(playerObject,targetObject,false);
 
@@ -448,12 +437,9 @@ bool MessageLib::sendCreatePlayer(PlayerObject* playerObject,PlayerObject* targe
 
 		}
 
-
-
 		// datapad
 		if(TangibleObject* datapad = dynamic_cast<TangibleObject*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad)))
 		{
-
 			//would be nice to use the tangibles objectcontainer for the datapad
 			//need to get missionobjects intangibles, Man Schematics, waypoints and stuff in though, so better do it manually
 			gMessageLib->sendCreateTangible(datapad,playerObject);
@@ -495,7 +481,7 @@ bool MessageLib::sendCreatePlayer(PlayerObject* playerObject,PlayerObject* targe
 						}
 						break;
 
-					default: {} break;
+						default: break;
 					}
 				}
 
@@ -505,9 +491,6 @@ bool MessageLib::sendCreatePlayer(PlayerObject* playerObject,PlayerObject* targe
 			//Should send accepted missions here
 
 		}
-
-
-
 	}
 	else
 	{
@@ -552,7 +535,6 @@ bool MessageLib::sendCreatePlayer(PlayerObject* playerObject,PlayerObject* targe
 //
 // create creature
 //
-
 bool MessageLib::sendCreateCreature(CreatureObject* creatureObject,PlayerObject* targetObject)
 {
 	if(!_checkPlayer(targetObject))
@@ -579,21 +561,23 @@ bool MessageLib::sendCreateCreature(CreatureObject* creatureObject,PlayerObject*
 
 //======================================================================================================================
 //
-// create tangible - HARK!!!! ResourceContainers and FactoryCrates are tangibles, too!!!!
+// create tangible
 //
-
 void MessageLib::sendCreateTangible(TangibleObject* tangibleObject, PlayerObjectSetML*	knownPlayers, bool sendchildren) 
 {
-	PlayerObjectSet::iterator	it				= knownPlayers->begin();
+	PlayerObjectSet::iterator it = knownPlayers->begin();
 
 	while(it != knownPlayers->end())
 	{
 		PlayerObject* targetObject = (*it);
+
 		gMessageLib->sendCreateTangible(tangibleObject, targetObject, sendchildren);
+
 		++it;
 	}
-
 }
+
+//======================================================================================================================
 
 bool MessageLib::sendCreateStaticObject(TangibleObject* tangibleObject,PlayerObject* targetObject)
 {
@@ -613,6 +597,7 @@ bool MessageLib::sendCreateStaticObject(TangibleObject* tangibleObject,PlayerObj
 	sendBaselinesSTAO_3(tangibleObject,targetObject);
 	sendBaselinesSTAO_6(tangibleObject,targetObject);
 	sendEndBaselines(tangibleObject->getId(),targetObject);
+
 	return true;
 }
 
@@ -647,7 +632,7 @@ bool MessageLib::sendCreateInTangible(IntangibleObject* intangibleObject,uint64 
 
 //======================================================================================================================
 //
-// create tangible - HARK!!!! ResourceContainers and FactoryCrates are tangibles, too!!!!
+// create tangible
 //
 bool MessageLib::sendCreateTangible(TangibleObject* tangibleObject,PlayerObject* targetObject, bool sendchildren) 
 {
@@ -663,13 +648,11 @@ bool MessageLib::sendCreateTangible(TangibleObject* tangibleObject,PlayerObject*
 	{
 		return sendCreateResourceContainer(resContainer,targetObject);
 	}
-	else
-	if(FactoryCrate* crate = dynamic_cast<FactoryCrate*>(tangibleObject))
+	else if(FactoryCrate* crate = dynamic_cast<FactoryCrate*>(tangibleObject))
 	{
 		return sendCreateFactoryCrate(crate,targetObject);
 	}
-	else
-	if(tangibleObject->getTangibleGroup() ==TanGroup_Static)
+	else if(tangibleObject->getTangibleGroup() == TanGroup_Static)
 	{
 		return sendCreateStaticObject(tangibleObject,targetObject);
 	}
@@ -680,7 +663,6 @@ bool MessageLib::sendCreateTangible(TangibleObject* tangibleObject,PlayerObject*
 
 	if(parentId != 0)
 	{
-
 		// its in a cell, container, inventory
 		if(parentId != targetObject->getId())
 		{
@@ -757,13 +739,10 @@ bool MessageLib::sendCreateTangible(TangibleObject* tangibleObject,PlayerObject*
 	return(true);
 }
 
-
-
 //======================================================================================================================
 //
 // create factory crate
 //
-
 bool MessageLib::sendCreateFactoryCrate(FactoryCrate* crate,PlayerObject* targetObject)
 {
 	if(!_checkPlayer(targetObject))
@@ -772,7 +751,6 @@ bool MessageLib::sendCreateFactoryCrate(FactoryCrate* crate,PlayerObject* target
 	sendCreateObjectByCRC(crate,targetObject,false);
 
 	uint64 parentId = crate->getParentId();
-
 
 	sendContainmentMessage(crate->getId(),parentId,0xffffffff,targetObject);
 	
@@ -797,12 +775,11 @@ bool MessageLib::sendCreateFactoryCrate(FactoryCrate* crate,PlayerObject* target
 
 		//PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetObject->getId()));
 		sendCreateObject(tO,targetObject,false);
+
 		it++;
 	}
 
-
 	sendEndBaselines(crate->getId(),targetObject);
-
 
 	//now get the contained tangible and create it
 	//sendCreateTangible();
@@ -810,12 +787,10 @@ bool MessageLib::sendCreateFactoryCrate(FactoryCrate* crate,PlayerObject* target
 	return(true);
 }
 
-
 //======================================================================================================================
 //
 // create resource container
 //
-
 bool MessageLib::sendCreateResourceContainer(ResourceContainer* resourceContainer,PlayerObject* targetObject)
 {
 	if(!_checkPlayer(targetObject))
@@ -842,7 +817,6 @@ bool MessageLib::sendCreateResourceContainer(ResourceContainer* resourceContaine
 //
 // create building
 //
-
 bool MessageLib::sendCreateBuilding(BuildingObject* buildingObject,PlayerObject* playerObject)
 {
 	if(!_checkPlayer(playerObject))
@@ -898,12 +872,10 @@ bool MessageLib::sendCreateBuilding(BuildingObject* buildingObject,PlayerObject*
 	return(true);
 }
 
-
 //======================================================================================================================
 //
 // create a harvester
 //
-
 bool MessageLib::sendCreateHarvester(HarvesterObject* harvester,PlayerObject* player)
 {
 	if(!_checkPlayer(player))
@@ -927,12 +899,10 @@ bool MessageLib::sendCreateHarvester(HarvesterObject* harvester,PlayerObject* pl
 	return(true);
 }
 
-
 //======================================================================================================================
 //
 // create a factory
 //
-
 bool MessageLib::sendCreateFactory(FactoryObject* factory,PlayerObject* player)
 {
 	if(!_checkPlayer(player))
@@ -961,12 +931,10 @@ bool MessageLib::sendCreateFactory(FactoryObject* factory,PlayerObject* player)
 	return(true);
 }
 
-
 //======================================================================================================================
 //
 // create a structure
 //
-
 bool MessageLib::sendCreateStructure(PlayerStructure* structure,PlayerObject* player)
 {
 	if(!_checkPlayer(player))
@@ -976,14 +944,11 @@ bool MessageLib::sendCreateStructure(PlayerStructure* structure,PlayerObject* pl
 	{
 		return(sendCreateHarvester(harvester, player));
 	}
-	else
-	if(HouseObject* house = dynamic_cast<HouseObject*>(structure))
+	else if(HouseObject* house = dynamic_cast<HouseObject*>(structure))
 	{
 		return(sendCreateBuilding(house, player));
 	}
-
-	else 
-	if(FactoryObject* factory = dynamic_cast<FactoryObject*>(structure))
+	else if(FactoryObject* factory = dynamic_cast<FactoryObject*>(structure))
 	{
 		return(sendCreateFactory(factory, player));
 	}
@@ -992,19 +957,16 @@ bool MessageLib::sendCreateStructure(PlayerStructure* structure,PlayerObject* pl
 	{
 		return(sendCreateInstallation(structure, player));
 	}
+
 	gLogger->logMsgF("MessageLib::sendCreateStructure:ID %I64u : couldnt cast structure",MSG_HIGH,structure->getId());
+
 	return(false);
-
 }
-
-
 
 //======================================================================================================================
 //
 // create camp
 //
-
-
 bool MessageLib::sendCreateCamp(TangibleObject* camp,PlayerObject* player)
 {
 	if(!_checkPlayer(player))
@@ -1017,7 +979,6 @@ bool MessageLib::sendCreateCamp(TangibleObject* camp,PlayerObject* player)
 
 	uint64 campId = camp->getId();
 
-
 	sendEndBaselines(campId,player);
 
 	return(true);
@@ -1027,8 +988,6 @@ bool MessageLib::sendCreateCamp(TangibleObject* camp,PlayerObject* player)
 //
 // create Installation
 //
-
-
 bool MessageLib::sendCreateInstallation(PlayerStructure* structure,PlayerObject* player)
 {
 	if(!_checkPlayer(player))
@@ -1041,18 +1000,16 @@ bool MessageLib::sendCreateInstallation(PlayerStructure* structure,PlayerObject*
 
 	uint64 structureId = structure->getId();
 
-
 	sendEndBaselines(structureId,player);
 
 	return(true);
 }
 
-
 //======================================================================================================================
 //
 // create manufacturing schematic
 // the attributes bool makes the MSCO 3 send the attribute list
-
+//
 bool MessageLib::sendCreateManufacturingSchematic(ManufacturingSchematic* manSchem,PlayerObject* playerObject,bool attributes)
 {
 	if(!_checkPlayer(playerObject))
@@ -1078,7 +1035,6 @@ bool MessageLib::sendCreateManufacturingSchematic(ManufacturingSchematic* manSch
 //
 // create the inventory contents for its owner
 //
-
 void MessageLib::sendInventory(PlayerObject* playerObject)
 {
 	if(!_checkPlayer(playerObject))
@@ -1137,7 +1093,6 @@ void MessageLib::sendInventory(PlayerObject* playerObject)
 //
 // send the matching object creates
 //
-
 bool MessageLib::sendCreateObject(Object* object,PlayerObject* player,bool sendSelftoTarget)
 {
 	if(!object)
@@ -1145,9 +1100,9 @@ bool MessageLib::sendCreateObject(Object* object,PlayerObject* player,bool sendS
 		gLogger->logMsg("Attempting sendCreateObject on an invalid object instance", MSG_HIGH);
 		return false;
 	}
+
 	switch(object->getType())
 	{
-		
 		case ObjType_NPC:
 		// creatures
 		case ObjType_Creature:
@@ -1265,12 +1220,13 @@ bool MessageLib::sendCreateObject(Object* object,PlayerObject* player,bool sendS
 		break;
 
 		// unknown types
-	default:
+		default:
 		{
 			gLogger->logMsgF("MessageLib::createObject: Unhandled object type: %i",MSG_HIGH,object->getType());
 		}
 		break;
 	}
+
 	return true;
 }
 

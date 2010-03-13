@@ -397,19 +397,19 @@ void CharacterLoginHandler::_processClusterClientDisconnect(Message* message, Di
 	uint32 reason = message->getUint32();
 	PlayerObject* playerObject;
 
-  if (reason == 1)
-  {
+	if (reason == 1)
+	{
 		gLogger->logMsgF("Removed Player: Total Players on zone : %i",MSG_NORMAL,(gWorldManager->getPlayerAccMap())->size());
-  }
-  else
-  {
+	}
+	else
+	{
 	  // put it to the disconnected list
 	  if((playerObject = gWorldManager->getPlayerByAccId(client->getAccountId())) != NULL)
 	  {
 		  // playerObject->setClient(NULL);	// To early for this, not as long as we have the playerObject active.
 		  gWorldManager->addDisconnectedPlayer(playerObject);
 	  }
-  }
+	}
 }
 
 //=======================================================================================================================

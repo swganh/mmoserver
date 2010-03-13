@@ -54,6 +54,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Utils/clock.h"
 #include "Utils/EventHandler.h"
 #include "MathLib/Quaternion.h"
+
 //=============================================================================
 
 PlayerObject::PlayerObject()
@@ -87,7 +88,6 @@ PlayerObject::PlayerObject()
 , mPlayerCustomFlags(0)
 , mIgnoresListUpdateCounter(0)
 , mPlayerFlags(0)
-
 , mMissionIdMask(0)
 , mBindPlanet(-1)
 , mHomePlanet(-1)
@@ -109,7 +109,6 @@ PlayerObject::PlayerObject()
 	mType				= ObjType_Player;
 	mCreoGroup			= CreoGroup_Player;
 	mStomach			= new Stomach();
-	// mMarriage			= L"Your Spouse";	// When testing
 	mMarriage			= L"";					// Unmarried
 	mTrade				= new Trade(this);
 
@@ -135,54 +134,51 @@ PlayerObject::PlayerObject()
 	getSampleData()->mSampleNodeFlag	= false;
 	getSampleData()->mSampleNodeRecovery= false;
 	getSampleData()->mNextSampleTime	= 0;
-
 }
 
 //=============================================================================
 
 PlayerObject::~PlayerObject()
 {
-
 	// store any eventually spawned vehicle
 	Datapad* datapad = dynamic_cast<Datapad*>(mEquipManager.getEquippedObject(CreatureEquipSlot_Datapad));
 
-	CreatureObject* mount = this->getMount();
-	if(mount)
+	if(mMount && datapad)
 	{
-		if(Vehicle* datapad_pet = dynamic_cast<Vehicle*>(datapad->getDataById(this->getMount()->getPetController())))
+		if(Vehicle* datapad_pet = dynamic_cast<Vehicle*>(datapad->getDataById(mMount->getPetController())))
 		{
 			datapad_pet->dismountPlayer();
 			datapad_pet->store();
 		}
-
 	}
+
 	// make sure we stop entertaining if we are an entertainer
 	gEntertainerManager->stopEntertaining(this);
 
 	// remove any timers we got running
-	gWorldManager->removeObjControllerToProcess(this->getController()->getTaskId());
-	gWorldManager->removeCreatureHamToProcess(this->getHam()->getTaskId());
-	this->getController()->setTaskId(0);
-	this->getHam()->setTaskId(0);
+	gWorldManager->removeObjControllerToProcess(mObjectController.getTaskId());
+	gWorldManager->removeCreatureHamToProcess(mHam.getTaskId());
+	mObjectController.setTaskId(0);
+	mHam.setTaskId(0);
 
 	// remove player from movement update timer.
 	gWorldManager->removePlayerMovementUpdateTime(this);
 
 	// remove us from the player map
-	gWorldManager->removePlayerfromAccountMap(this->getId());
+	gWorldManager->removePlayerfromAccountMap(mId);
 
-	// delete instanced instrument - this Instrument is in the world!!!!!
-	if(uint64 itemId = this->getPlacedInstrumentId())
+	// delete currently placed instrument
+	if(mPlacedInstrument)
 	{
-		if(Item* item = dynamic_cast<Item*>(gWorldManager->getObjectById(itemId)))
+		if(Item* item = dynamic_cast<Item*>(gWorldManager->getObjectById(mPlacedInstrument)))
 		{
-			this->getController()->destroyObject(item->getId());
+			mObjectController.destroyObject(mPlacedInstrument);
 		}
 	}
 
 	// remove us from active regions we are in
 	ObjectSet regions;
-	gWorldManager->getSI()->getObjectsInRange((Object*)this,&regions,ObjType_Region,20);
+	gWorldManager->getSI()->getObjectsInRange(this,&regions,ObjType_Region,20);
 
 	ObjectSet::iterator objListIt = regions.begin();
 
@@ -192,46 +188,41 @@ PlayerObject::~PlayerObject()
 
 		if(region->getActive())
 		{
-			region->onObjectLeave((Object*)this);
+			region->onObjectLeave(this);
 		}
 
 		++objListIt;
 	}
 
 	// make sure we are deleted out of entertainer Ticks when entertained
-	if(this->getEntertainerWatchToId())
+	if(mEntertainerWatchToId)
 	{
-		if(PlayerObject* entertainer = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getEntertainerWatchToId())))
+		if(PlayerObject* entertainer = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(mEntertainerWatchToId)))
 		{
-			if(entertainer)
-				gEntertainerManager->removeAudience(entertainer,this);
+			gEntertainerManager->removeAudience(entertainer,this);
 		}
 	}
 
-	if(this->getEntertainerListenToId())
+	if(mEntertainerListenToId)
 	{
-		if(PlayerObject* entertainer = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getEntertainerListenToId())))
+		if(PlayerObject* entertainer = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(mEntertainerListenToId)))
 		{
-			if(entertainer)
-				gEntertainerManager->removeAudience(entertainer,this);
+			gEntertainerManager->removeAudience(entertainer,this);
 		}
 	}
 
-	// make sure we don't leave a craft session open
-	gCraftingSessionFactory->destroySession(this->getCraftingSession());
+	// make sure we don't leave a crafting session open
+	gCraftingSessionFactory->destroySession(mCraftingSession);
 	this->setCraftingSession(NULL);
 	this->toggleStateOff(CreatureState_Crafting);
 	this->setCraftingStage(0);
 	this->setExperimentationFlag(0);
 
-	//remove the player out of his group - if any
-	GroupObject* group = gGroupManager->getGroupObject(this->getGroupId());
-
-	if(group)
-		group->removePlayer(this->getId());
-
-	// ?????????????? why do we need to alter these States ?
-
+	// remove the player out of his group - if any
+	if(GroupObject* group = gGroupManager->getGroupObject(mGroupId))
+	{
+		group->removePlayer(mId);
+	}
 
 	// can't zone or logout while in combat
 	this->toggleStateOff(CreatureState_Combat);
@@ -241,9 +232,9 @@ PlayerObject::~PlayerObject()
 	this->toggleStateOff(CreatureState_Intimidated);
 
 	// update duel lists
-	PlayerList::iterator duelIt = this->getDuelList()->begin();
+	PlayerList::iterator duelIt = mDuelList.begin();
 
-	while(duelIt != this->getDuelList()->end())
+	while(duelIt != mDuelList.end())
 	{
 		if((*duelIt)->checkDuelList(this))
 		{
@@ -258,10 +249,9 @@ PlayerObject::~PlayerObject()
 		++duelIt;
 	}
 
-
 	// move to the nearest cloning center, if we are incapped or dead
-	if(this->getPosture() == CreaturePosture_Incapacitated
-	|| this->getPosture() == CreaturePosture_Dead)
+	if(mPosture == CreaturePosture_Incapacitated
+	|| mPosture == CreaturePosture_Dead)
 	{
 		// bring up the clone selection window
 		ObjectSet						inRangeBuildings;
@@ -282,7 +272,7 @@ PlayerObject::~PlayerObject()
 			if(building && building->getBuildingFamily() == BuildingFamily_Cloning_Facility)
 			{
 				if(!nearestBuilding
-				|| (nearestBuilding != building && (this->mPosition.distance2D(building->mPosition) < this->mPosition.distance2D(nearestBuilding->mPosition))))
+				|| (nearestBuilding != building && (mPosition.distance2D(building->mPosition) < mPosition.distance2D(nearestBuilding->mPosition))))
 				{
 					nearestBuilding = building;
 				}
@@ -301,30 +291,25 @@ PlayerObject::~PlayerObject()
 					gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE characters SET parent_id=%"PRIu64",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f WHERE id=%"PRIu64"",sp->mCellId
 						,sp->mDirection.mX,sp->mDirection.mY,sp->mDirection.mZ,sp->mDirection.mW
 						,sp->mPosition.mX,sp->mPosition.mY,sp->mPosition.mZ
-						,this->getId());
+						,mId);
 				}
 			}
 		}
 	}
 
-
-
 	// update defender lists
-	ObjectIDList::iterator defenderIt = this->getDefenders()->begin();
+	ObjectIDList::iterator defenderIt = mDefenders.begin();
 
-	while (defenderIt != this->getDefenders()->end())
+	while (defenderIt != mDefenders.end())
 	{
 		if (CreatureObject* defenderCreature = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById((*defenderIt))))
 		{
-			// defenderCreature->removeDefender(player);
-			defenderCreature->removeDefenderAndUpdateList(this->getId());
+			defenderCreature->removeDefenderAndUpdateList(mId);
 
 			if(PlayerObject* defenderPlayer = dynamic_cast<PlayerObject*>(defenderCreature))
 			{
 				gMessageLib->sendUpdatePvpStatus(this,defenderPlayer);
 			}
-
-			// gMessageLib->sendNewDefenderList(defenderCreature);
 
 			// if no more defenders, clear combat state
 			if(!defenderCreature->getDefenders()->size())
@@ -338,72 +323,61 @@ PlayerObject::~PlayerObject()
 		++defenderIt;
 	}
 
-
 	// destroy known objects
-	this->destroyKnownObjects();
+	destroyKnownObjects();
 
 	// remove us from cell / SI
-	if(this->getParentId())
+	if(mParentId)
 	{
-		if(CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(this->getParentId())))
+		if(CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(mParentId)))
 		{
-			cell->removeObject((Object*)this);
+			cell->removeObject(this);
 		}
 		else
 		{
-			gLogger->logMsgF("PlayerObject::destructor: couldn't find cell %"PRIu64"",MSG_HIGH,this->getParentId());
+			gLogger->logMsgF("PlayerObject::destructor: couldn't find cell %"PRIu64"",MSG_HIGH,mParentId);
 		}
 	}
-	else
+	else if(mSubZoneId)
 	{
-		if(this->getSubZoneId())
+		if(QTRegion* region = gWorldManager->getQTRegion(mSubZoneId))
 		{
-			if(QTRegion* region = gWorldManager->getQTRegion(this->getSubZoneId()))
-			{
-				this->setSubZoneId(0);
-				region->mTree->removeObject(this);
-			}
+			mSubZoneId = 0;
+
+			region->mTree->removeObject(this);
 		}
 	}
-
 
 	clearAllUIWindows();
 
 	stopTutorial();
-	// delete mTutorial;	// It's safe to delete a NULL-object.
 
+	// mission bag
 	Object* missionBag = mEquipManager.getEquippedObject(CreatureEquipSlot_MissionBag);
 	mEquipManager.removeEquippedObject(CreatureEquipSlot_MissionBag);
-	SAFE_DELETE(missionBag);
+	delete(missionBag);
 
-	// delete datapad
-	//Object* datapad = mEquipManager.getEquippedObject(CreatureEquipSlot_Datapad);
+	// datapad
 	mEquipManager.removeEquippedObject(CreatureEquipSlot_Datapad);
-	SAFE_DELETE(datapad);
+	delete(datapad);
 
-	// delete bank
+	// bank
 	Object* bank = mEquipManager.getEquippedObject(CreatureEquipSlot_Bank);
 	mEquipManager.removeEquippedObject(CreatureEquipSlot_Bank);
-	SAFE_DELETE(bank);
+	delete(bank);
 
-	SAFE_DELETE(mStomach);
-	SAFE_DELETE(mTrade);
+	delete(mStomach);
+	delete(mTrade);
 }
 
 //=============================================================================
 
 void PlayerObject::stopTutorial()
 {
-	if (gWorldConfig->isTutorial())
+	if (gWorldConfig->isTutorial() && mTutorial)
 	{
-		if (mTutorial)
-		{
-			// Save-update the state.
-			// (gWorldManager->getDatabase())->ExecuteSqlAsync(0,0,"UPDATE character_tutorial SET character_state=%u,character_substate=%u WHERE character_id=%"PRIu64"",mTutorial->getState(), mTutorial->getSubState(),mId);
-
-			delete mTutorial;
-			mTutorial = NULL;
-		}
+		delete(mTutorial);
+		mTutorial = NULL;
 	}
 }
 
@@ -411,13 +385,9 @@ void PlayerObject::stopTutorial()
 
 void PlayerObject::startTutorial()
 {
-	if (gWorldConfig->isTutorial())
+	if (gWorldConfig->isTutorial() && !mTutorial)
 	{
-		if (!mTutorial)
-		{
-			// Create a Tutorial
-			mTutorial = new Tutorial(this);
-		}
+		mTutorial = new Tutorial(this);
 	}
 }
 
@@ -432,7 +402,7 @@ void PlayerObject::resetProperties()
 	mXpUpdateCounter					= mXpList.size();
 	mPosture							= CreaturePosture_Upright;
 
-	//the client resets the bufftimers on local travel ... :(
+	// the client resets the bufftimers on local travel ... :(
 	gBuffManager->InitBuffs(this);
 
 	getSampleData()->mPendingSurvey		= false;
@@ -498,55 +468,56 @@ void PlayerObject::resetProperties()
 
 void PlayerObject::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount)
 {
-	PlayerObject* playerObject = dynamic_cast<PlayerObject*>(creatureObject);
-	// gLogger->logMsgF("PlayerObject::prepareCustomRadialMenu",MSG_NORMAL);
-	RadialMenu* radial	= new RadialMenu();
+	PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(creatureObject);
+
+	if(!playerObject)
+	{
+		return;
+	}
+
+	RadialMenu*		radial			= new RadialMenu();
 
 	uint8 radId = itemCount;
 
-	// #1 entertainer - are we performing???
-	if(getPerformingState() == PlayerPerformance_Dance)
+	// entertainer - dance
+	if(mPendingPerform == PlayerPerformance_Dance)
 	{
-		// check that we are not currently watching
-		if(playerObject->getEntertainerWatchToId()== this->getId())
+		// stop watching
+		if(playerObject->getEntertainerWatchToId()== mId)
 		{
 			radial->addItem(radId,0,radId_serverPerformanceWatchStop,radAction_ObjCallback,"Stop Watching");
 
 			++radId;
 		}
-		else
+		// start watching
+		else if(playerObject->mPosition.inRange2D(mPosition,20))
 		{
-			// are we in range????
-			if(playerObject->mPosition.inRange2D(this->mPosition,20))
-			{
-				radial->addItem(radId,0,radId_serverPerformanceWatch,radAction_ObjCallback,"Watch");
+			radial->addItem(radId,0,radId_serverPerformanceWatch,radAction_ObjCallback,"Watch");
 
-				++radId;
-			}
+			++radId;
 		}
 	}
-	else if(getPerformingState() == PlayerPerformance_Music)
+	// entertainer - music
+	else if(mPendingPerform == PlayerPerformance_Music)
 	{
-		// check that we are not currently watching
-		if(playerObject->getEntertainerListenToId()== this->getId())
+		// stop listening
+		if(playerObject->getEntertainerListenToId()== mId)
 		{
 			radial->addItem(radId,0,radId_serverPerformanceListenStop,radAction_ObjCallback,"Stop Listening");
 
 			++radId;
 		}
-		else
+		// start listening
+		else if(playerObject->mPosition.inRange2D(mPosition,20))
 		{
-			// are we in range????
-			if(playerObject->mPosition.inRange2D(this->mPosition,20))
-			{
-				radial->addItem(radId,0,radId_serverPerformanceListen,radAction_ObjCallback,"Listen");
-				++radId;
-			}
+			radial->addItem(radId,0,radId_serverPerformanceListen,radAction_ObjCallback,"Listen");
+
+			++radId;
 		}
 	}
 
 	// teach
-	if((playerObject->getGroupId())&&(this->getGroupId() == playerObject->getGroupId()))
+	if(playerObject->getGroupId() && (mGroupId == playerObject->getGroupId()))
 	{
 		radial->addItem(radId,0,radId_serverTeach,radAction_ObjCallback,"Teach");
 
@@ -555,8 +526,6 @@ void PlayerObject::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8
 
 	RadialMenuPtr radialPtr(radial);
 	mRadialMenu = radialPtr;
-
-
 }
 
 //=============================================================================
@@ -605,6 +574,7 @@ bool PlayerObject::UpdateXp(uint32 xpType,int32 value)
 			it->second += value;
 			return(true);
 		}
+
 		++it;
 	}
 
@@ -624,6 +594,7 @@ bool PlayerObject::UpdateXpCap(uint32 xpType,int32 value)
 			it->second = value;
 			return (true);
 		}
+
 		++it;
 	}
 
@@ -634,7 +605,6 @@ bool PlayerObject::UpdateXpCap(uint32 xpType,int32 value)
 
 bool PlayerObject::UpdateIdAttributes(BString attribute,float value)
 {
-
 	AttributesList::iterator it = mIDAttributesList.begin();
 
 	while(it != mIDAttributesList.end())
@@ -644,6 +614,7 @@ bool PlayerObject::UpdateIdAttributes(BString attribute,float value)
 			it->second = value;
 			return(true);
 		}
+
 		++it;
 	}
 
@@ -656,7 +627,6 @@ bool PlayerObject::UpdateIdAttributes(BString attribute,float value)
 
 bool PlayerObject::UpdateIdColors(BString attribute,uint16 value)
 {
-
 	ColorList::iterator it = mIDColorList.begin();
 
 	while(it != mIDColorList.end())
@@ -666,6 +636,7 @@ bool PlayerObject::UpdateIdColors(BString attribute,uint16 value)
 			it->second = value;
 			return(true);
 		}
+
 		++it;
 	}
 
@@ -678,7 +649,17 @@ bool PlayerObject::UpdateIdColors(BString attribute,uint16 value)
 
 bool PlayerObject::checkDeductCredits(int32 amount)
 {
-	return(amount <= dynamic_cast<Bank*>(mEquipManager.getEquippedObject(CreatureEquipSlot_Bank))->getCredits() + dynamic_cast<Inventory*>(mEquipManager.getEquippedObject(CreatureEquipSlot_Inventory))->getCredits());
+	Bank*		bank		= dynamic_cast<Bank*>(mEquipManager.getEquippedObject(CreatureEquipSlot_Bank));
+	Inventory*	inventory	= dynamic_cast<Inventory*>(mEquipManager.getEquippedObject(CreatureEquipSlot_Inventory));
+
+	if(bank && inventory)
+	{
+		return(amount <= bank->getCredits() + inventory->getCredits());
+	}
+	else
+	{
+		return(false);
+	}
 }
 
 //=============================================================================
@@ -715,10 +696,10 @@ bool PlayerObject::deductCredits(int32 amount)
 		{
 			if(amount <= bank->getCredits() + inventory->getCredits())
 			{
-				// ok always do bank first
+				// bank first
 				if(amount > bank->getCredits())
 				{
-					//ok more than on the bank first empty bank, then inv.
+					// first empty bank, then inv.
 					amount -= bank->getCredits();
 					bank->setCredits(0);
 					inventory->setCredits(inventory->getCredits() - amount);
@@ -761,10 +742,10 @@ bool PlayerObject::checkXpType(uint32 xpType)
 }
 
 //=============================================================================
-
+//
 // Here is where we shall add restrictions for JTL, Jedi, Pre-Pub 14
 // or other restrictions for type of XP to allow.
-
+//
 bool PlayerObject::restrictedXpType(uint32 xpType)
 {
 	bool restricted = false;
@@ -779,9 +760,9 @@ bool PlayerObject::restrictedXpType(uint32 xpType)
 	}
 	// FS and Jedi
 	else if ((xpType == 7) || (xpType == 8) || (xpType == 9) || // Lightsabers
-		(xpType == 10) || (xpType == 31) ||				// Jedi and (unknown right now).
-		(xpType == 42) ||									// Force Rank
-		(xpType == 43) || (xpType == 44) || (xpType == 45) || (xpType == 46))	// Force sensitive
+			(xpType == 10) || (xpType == 31) ||				// Jedi and (unknown right now).
+			(xpType == 42) ||									// Force Rank
+			(xpType == 43) || (xpType == 44) || (xpType == 45) || (xpType == 46))	// Force sensitive
 	{
 		restricted = true;
 	}
@@ -789,6 +770,7 @@ bool PlayerObject::restrictedXpType(uint32 xpType)
 	{
 		restricted = true;
 	}
+
 	return restricted;
 }
 
@@ -954,7 +936,6 @@ void PlayerObject::prepareSchematicIds()
 {
 	mSchematicIdList.clear();
 
-
 	SkillList::iterator skillIt = mSkills.begin();
 
 	while(skillIt != mSkills.end())
@@ -1046,7 +1027,7 @@ void PlayerObject::_verifyExplorationBadges()
 
 		if(badge->getCategory() >= 3 && badge->getCategory() <= 5)
 		{
-			count++;
+			++count;
 		}
 
 		++it;
@@ -1060,7 +1041,7 @@ void PlayerObject::_verifyExplorationBadges()
 		case 40: addBadge(103); break;
 		case 45: addBadge(104); break;
 
-	default: break;
+		default: break;
 	}
 
 	_verifyBadges();
@@ -1082,7 +1063,7 @@ void PlayerObject::_verifyBadges()
 		case 100:	addBadge(5); break;
 		case 125:	addBadge(6); break;
 
-	default:break;
+		default:break;
 	}
 }
 
@@ -1190,11 +1171,11 @@ bool PlayerObject::checkIgnoreList(uint32 nameCrc) const
 PlayerList PlayerObject::getInRangeGroupMembers(bool self) const
 {
 	PlayerObjectSet::const_iterator	it			= mKnownPlayers.begin();
-	PlayerList					members;
+	PlayerList						members;
 
 	if(self)
 	{
-		members.push_back((PlayerObject *)this);
+		members.push_back((PlayerObject*)this);
 	}
 
 	if(mGroupId == 0)
@@ -1204,14 +1185,9 @@ PlayerList PlayerObject::getInRangeGroupMembers(bool self) const
 
 	while(it != mKnownPlayers.end())
 	{
-		if((*it)->getType() == ObjType_Player)
+		if((*it)->getGroupId() == mGroupId)
 		{
-			PlayerObject* player = dynamic_cast<PlayerObject*>(*it);
-
-			if(player->getGroupId() == mGroupId)
-			{
-				members.push_back(player);
-			}
+			members.push_back(*it);
 		}
 
 		++it;
@@ -1221,7 +1197,6 @@ PlayerList PlayerObject::getInRangeGroupMembers(bool self) const
 }
 
 //=============================================================================
-
 
 void PlayerObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 {
@@ -1240,51 +1215,47 @@ void PlayerObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 			// in which case our checks need to be better! At this time we can *assume* that the client provided
 			// us with a teacher and pupil!
 
-			//check if our pupil already gets taught
-			if (!this->getTrade()->getTeacher())
+			// check if our pupil already gets taught
+			if (!mTrade->getTeacher())
 			{
-				this->getTrade()->setTeacher(callingObject);
+				mTrade->setTeacher(callingObject);
 				gSkillManager->teach(this,callingObject,"");
 			}
 			else
 			{
-				gMessageLib->sendSystemMessage(callingObject,L"","teaching","student_has_offer_to_learn","","",L"",0,"","",L"",this->getId());
+				gMessageLib->sendSystemMessage(callingObject,L"","teaching","student_has_offer_to_learn","","",L"",0,"","",L"",mId);
 			}
 		}
 		break;
 
-		case radId_tradeStart: // deposit all
+		case radId_tradeStart:
 		break;
 
 		case radId_serverPerformanceWatch:
 		{
-			// start watching
 			gEntertainerManager->startWatching(callingObject,this);
 		}
 		break;
 
 		case radId_serverPerformanceWatchStop:
 		{
-			// stop watching
 			gEntertainerManager->stopWatching(callingObject);
 		}
 		break;
 
 		case radId_serverPerformanceListen:
 		{
-			// start listening
 			gEntertainerManager->startListening(callingObject,this);
 		}
 		break;
 
 		case radId_serverPerformanceListenStop:
 		{
-			// stop listening
 			gEntertainerManager->stopListening(callingObject);
 		}
 		break;
 
-	default:
+		default:
 		{
 			gLogger->logMsgF("PlayerObject: Unhandled MenuSelect: %u",MSG_HIGH,messageType);
 		}
@@ -1296,29 +1267,30 @@ void PlayerObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
 void PlayerObject::giveBankCredits(uint32 amount)
 {
-	Bank* bank = dynamic_cast<Bank*>(mEquipManager.getEquippedObject(CreatureEquipSlot_Bank));
+	if(Bank* bank = dynamic_cast<Bank*>(mEquipManager.getEquippedObject(CreatureEquipSlot_Bank)))
+	{
+		bank->setCredits(bank->getCredits() + amount);
 
-	bank->setCredits(bank->getCredits() + amount);
-
-	gMessageLib->sendBankCreditsUpdate(this);
+		gMessageLib->sendBankCreditsUpdate(this);
+	}
 }
 
 //=============================================================================
 
 void PlayerObject::giveInventoryCredits(uint32 amount)
 {
-	Inventory* inventory = dynamic_cast<Inventory*>(mEquipManager.getEquippedObject(CreatureEquipSlot_Inventory));
+	if(Inventory* inventory = dynamic_cast<Inventory*>(mEquipManager.getEquippedObject(CreatureEquipSlot_Inventory)))
+	{
+		inventory->setCredits(inventory->getCredits() + amount);
 
-	inventory->setCredits(inventory->getCredits() + amount);
-
-	gMessageLib->sendInventoryCreditsUpdate(this);
+		gMessageLib->sendInventoryCreditsUpdate(this);
+	}
 }
 
 //=============================================================================
 //
 // handles any UIWindow callbacks for this player
 //
-
 void PlayerObject::handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window)
 {
 	switch(window->getWindowType())
@@ -1349,7 +1321,7 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,string inputStr,UIW
 						if (element == 1)
 						{
 							// Clone at the pre-designated facility...
-							this->getController()->cloneAtPreDesignatedFacility(this, sp);
+							mObjectController.cloneAtPreDesignatedFacility(this, sp);
 						}
 						else //  if (element == 0)  // Handle non-selected response as if closest cloning facility was selected,
 							// until we learn how to restart the dialog when nothing selected.
@@ -1363,7 +1335,7 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,string inputStr,UIW
 									if (preDesignatedBuilding == building)
 									{
 										// Clone at the pre-designated facility...
-										this->getController()->cloneAtPreDesignatedFacility(this, sp);
+										mObjectController.cloneAtPreDesignatedFacility(this, sp);
 										break;
 									}
 								}
@@ -1437,11 +1409,10 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,string inputStr,UIW
 			BStringVector		splitProf;
 			string				skillString = dataItems->at(element);
 
-			if(!skillString.getLength())
+			if(!skillString.getLength() || skillString.split(splitSkill,':') < 2)
+			{
 				return;
-
-			if(skillString.split(splitSkill,':') < 2)
-				return;
+			}
 
 			Skill* skill = gSkillManager->getSkillByName(splitSkill[1]);
 
@@ -1451,19 +1422,19 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,string inputStr,UIW
 				return;
 			}
 
-			//test whether its a profession
-			//in that case redo the box with the professions skills shown and any other profession reduced
+			// test whether its a profession
+			// in that case redo the box with the professions skills shown and any other profession reduced
 			int8 caption[128],text[128];
 
 			if(splitSkill[1].split(splitProf,'_') == 2)
 			{
-				//its a profession. Build the list new with the professions skills shown;
+				// its a profession. Build the list new with the professions skills shown
 				gSkillManager->teach(pupilObject,this,splitSkill[1]);
 
 				return;
 			}
-			//its a skill - offer to teach it
 
+			// its a skill - offer to teach it
 			sprintf(text,"@skl_n:%s",skill->mName.getAnsi());
 			sprintf(caption,"%s offers to teach you : %s",mFirstName.getAnsi(),text);
 
@@ -1510,18 +1481,17 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,string inputStr,UIW
 			{
 				string	danceString = dataItems->at(element);
 
-				if(!danceString.getLength())
+				if(!danceString.getLength() || danceString.split(splitDance,'+') < 2)
+				{
 					return;
-
-				if(danceString.split(splitDance,'+') < 2)
-					return;
+				}
 
 				string mDance = splitDance[1];
 
-				//if we are already dancing only change the dance, otherwise start entertaining
-				if(this->getPerformingState() == PlayerPerformance_None)
+				// if we are already dancing, only change the dance, otherwise start entertaining
+				if(mPendingPerform == PlayerPerformance_None)
 				{
-					this->setPerformingState(PlayerPerformance_Dance);
+					mPendingPerform = PlayerPerformance_Dance;
 					gEntertainerManager->startDancePerformance(this,mDance);
 				}
 				else
@@ -1532,6 +1502,7 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,string inputStr,UIW
 		}
 		break;
 
+		// outcast select listbox
 		case SUI_Window_SelectOutcast_Listbox:
 		{
 			UIListBox*		outcastSelectBox	= dynamic_cast<UIListBox*>(window);
@@ -1539,7 +1510,7 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,string inputStr,UIW
 
 			if(element > -1)
 			{
-				string	outcastString = dataItems->at(element);
+				string outcastString = dataItems->at(element);
 
 				if(!outcastString.getLength())
 				{
@@ -1565,18 +1536,17 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,string inputStr,UIW
 			{
 				string	danceString = dataItems->at(element);
 
-				if(!danceString.getLength())
+				if(!danceString.getLength() || danceString.split(splitDance,'+') < 2)
+				{
 					return;
-
-				if(danceString.split(splitDance,'+') < 2)
-					return;
+				}
 
 				string mDance = splitDance[1];
 
-				//if we are already making music only change the piece, otherwise start entertaining
-				if(this->getPerformingState() == PlayerPerformance_None)
+				// if we are already making music, only change the piece, otherwise start entertaining
+				if(mPendingPerform == PlayerPerformance_None)
 				{
-					this->setPerformingState(PlayerPerformance_Music);
+					mPendingPerform = PlayerPerformance_Music;
 					gEntertainerManager->startMusicPerformance(this,mDance);
 				}
 				else
@@ -1598,30 +1568,23 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,string inputStr,UIW
 		}
 		break;
 
+		// group loot master listbox
 		case SUI_Window_SelectGroupLootMaster_Listbox:
 		{
 			if (element < 0) { break; }
 
 			UIPlayerSelectBox* selectionBox = dynamic_cast<UIPlayerSelectBox*>(window);
 			PlayerObject* selectedPlayer = selectionBox->getPlayers()[element];
+
 			if(selectedPlayer == NULL)
 			{
 				gLogger->logMsg("SUI_Window_SelectGroupLootMaster_Listbox: Invalid player selection");
 				break;
 			}
 
-			// advise the chat server
-			// put in messagelib?
-			gMessageFactory->StartMessage();
-			Message* newMessage;
-			gMessageFactory->addUint32(opIsmGroupLootMasterResponse);
-			gMessageFactory->addUint32(selectedPlayer->getAccountId());
-			newMessage = gMessageFactory->EndMessage();
-			this->getClient()->SendChannelA(newMessage,this->getAccountId(),CR_Chat,2);
+			gMessageLib->sendGroupLootMasterResponse(selectedPlayer,this);
 		}
 		break;
-
-		
 
 		default:
 		{
@@ -1635,7 +1598,6 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,string inputStr,UIW
 //
 // checks if a player is in the duellist
 //
-
 bool PlayerObject::checkDuelList(PlayerObject* player)
 {
 	PlayerList::iterator it = mDuelList.begin();
@@ -1657,7 +1619,6 @@ bool PlayerObject::checkDuelList(PlayerObject* player)
 //
 // remove a player from the duellist
 //
-
 void PlayerObject::removeFromDuelList(PlayerObject* player)
 {
 	PlayerList::iterator it = mDuelList.begin();
@@ -1675,33 +1636,30 @@ void PlayerObject::removeFromDuelList(PlayerObject* player)
 }
 
 //=============================================================================
-
-CraftingStation* PlayerObject::getCraftingStation(ObjectSet	inRangeObjects, ItemType	toolType)
+//
+// sets and returns the nearest crafting station
+//
+CraftingStation* PlayerObject::getCraftingStation(ObjectSet	inRangeObjects, ItemType toolType)
 {
-	// iterate through the results
-	// and return a fitting crafting station depending on the tool we used
-	// return NULL in case no fitting station is near
-
 	ObjectSet::iterator it = inRangeObjects.begin();
 
-	setNearestCraftingStation(NULL);
+	mNearestCraftingStation = 0;
 
 	while(it != inRangeObjects.end())
 	{
 		if(CraftingStation*	station = dynamic_cast<CraftingStation*>(*it))
 		{
-			//check whether the station fits to our tool!!
+			uint32 stationType = station->getItemType();
+
+			// check whether the station fits to our tool
 			switch(toolType)
 			{
 				case ItemType_ClothingTool:
 				{
-					if(station->getItemType() == ItemType_ClothingStation)
-						setNearestCraftingStation(station->getId());
-
-					if(station->getItemType() == ItemType_ClothingStationPublic)
+					if(stationType == ItemType_ClothingStation || stationType == ItemType_ClothingStationPublic)
 					{
-						//if()
-						setNearestCraftingStation(station->getId());
+						mNearestCraftingStation = station->getId();
+
 						return(station);
 					}
 				}
@@ -1709,12 +1667,10 @@ CraftingStation* PlayerObject::getCraftingStation(ObjectSet	inRangeObjects, Item
 
 				case ItemType_WeaponTool:
 				{
-					if(station->getItemType() == ItemType_WeaponStation)
-						setNearestCraftingStation(station->getId());
-
-					if(station->getItemType() == ItemType_WeaponStationPublic)
+					if(stationType == ItemType_WeaponStation || stationType == ItemType_WeaponStationPublic)
 					{
-						setNearestCraftingStation(station->getId());
+						mNearestCraftingStation = station->getId();
+
 						return(station);
 					}
 				}
@@ -1722,12 +1678,10 @@ CraftingStation* PlayerObject::getCraftingStation(ObjectSet	inRangeObjects, Item
 
 				case ItemType_FoodTool:
 				{
-					if(station->getItemType() == ItemType_FoodStation)
-						setNearestCraftingStation(station->getId());
-
-					if(station->getItemType() == ItemType_FoodStationPublic)
+					if(stationType == ItemType_FoodStation || stationType == ItemType_FoodStationPublic)
 					{
-						setNearestCraftingStation(station->getId());
+						mNearestCraftingStation = station->getId();
+
 						return(station);
 					}
 				}
@@ -1735,12 +1689,10 @@ CraftingStation* PlayerObject::getCraftingStation(ObjectSet	inRangeObjects, Item
 
 				case ItemType_StructureTool:
 				{
-					if(station->getItemType() == ItemType_StructureStation)
-						setNearestCraftingStation(station->getId());
-
-					if(station->getItemType() == ItemType_StructureStationPublic)
+					if(stationType == ItemType_StructureStation || stationType == ItemType_StructureStationPublic)
 					{
-						setNearestCraftingStation(station->getId());
+						mNearestCraftingStation = station->getId();
+
 						return(station);
 					}
 				}
@@ -1748,32 +1700,29 @@ CraftingStation* PlayerObject::getCraftingStation(ObjectSet	inRangeObjects, Item
 
 				case ItemType_SpaceTool:
 				{
-					if(station->getItemType() == ItemType_SpaceStation)
-						setNearestCraftingStation(station->getId());
-
-					if(station->getItemType() == ItemType_SpaceStationPublic)
+					if(stationType == ItemType_SpaceStation || stationType == ItemType_SpaceStationPublic)
 					{
-						setNearestCraftingStation(station->getId());
+						mNearestCraftingStation = station->getId();
+
 						return(station);
 					}
 				}
 				break;
 
-				
-
 				case ItemType_GenericTool:
 				case ItemType_JediTool:
 				default:
+				{
 					return(NULL);
+				}
+				break;
 			}
 		}
 
 		++it;
 	}
 
-	CraftingStation*	station = dynamic_cast<CraftingStation*>(gWorldManager->getObjectById(getNearestCraftingStation()));
-
-	return(station);
+	return(NULL);
 }
 
 //=============================================================================
@@ -1781,15 +1730,15 @@ CraftingStation* PlayerObject::getCraftingStation(ObjectSet	inRangeObjects, Item
 void PlayerObject::clone(uint64 parentId,Anh_Math::Quaternion dir,Anh_Math::Vector3 pos)
 {
 	// Remove revive timer, if any.
-	gWorldManager->removePlayerObjectForTimedCloning(this->getId());
+	gWorldManager->removePlayerObjectForTimedCloning(mId);
 
 	// TODO: decay, wounds
 
 	// Handle free deaths for newbies.
-	if (this->mNewPlayerExemptions > 0)
+	if (mNewPlayerExemptions > 0)
 	{
 		// No insurance loss, no decay.
-		this->mNewPlayerExemptions--;
+		--mNewPlayerExemptions;
 		mNewPlayerMessage = true;		//We will send a message when we re-spawn.
 	}
 	else
@@ -1802,13 +1751,12 @@ void PlayerObject::clone(uint64 parentId,Anh_Math::Quaternion dir,Anh_Math::Vect
 
 			SortedInventoryItemList::iterator it;
 			it = insuranceList.begin();
+
 			while (it != insuranceList.end())
 			{
-				Object* object = gWorldManager->getObjectById((*it).second);
-				if (object)
+				if (Object* object = gWorldManager->getObjectById((*it).second))
 				{
-					TangibleObject* tangibleObject = dynamic_cast<TangibleObject*>(object);
-					if (tangibleObject)
+					if (TangibleObject* tangibleObject = dynamic_cast<TangibleObject*>(object))
 					{
 						// Remove insurance.
 						tangibleObject->setInternalAttribute("insured","0");
@@ -1820,7 +1768,8 @@ void PlayerObject::clone(uint64 parentId,Anh_Math::Quaternion dir,Anh_Math::Vect
 						(void)gMessageLib->sendUpdateTypeOption(tangibleObject, this);
 					}
 				}
-				it++;
+
+				++it;
 			}
 		}
 	}
@@ -1852,22 +1801,20 @@ void PlayerObject::clone(uint64 parentId,Anh_Math::Quaternion dir,Anh_Math::Vect
 	}
 	*/
 	gWorldManager->warpPlanet(this,pos,parentId,dir);
-
-
 }
 
 //=============================================================================
 
 void PlayerObject::setPreDesignatedCloningFacilityId(uint64 cloningId)
 {
-	this->mPreDesignatedCloningFacilityId = cloningId;
+	mPreDesignatedCloningFacilityId = cloningId;
 }
 
-
 //=============================================================================
+
 uint64 PlayerObject::getPreDesignatedCloningFacilityId(void)
 {
-	return this->mPreDesignatedCloningFacilityId;
+	return mPreDesignatedCloningFacilityId;
 }
 
 //=============================================================================
@@ -1886,50 +1833,52 @@ void PlayerObject::setNewPlayerExemptions(uint8 npe, bool displayMessage)
 }
 
 //=============================================================================
+
 void PlayerObject::newPlayerMessage(void)
 {
-	if (this->mNewPlayerMessage)
+	if (mNewPlayerMessage)
 	{
-		if (this->mNewPlayerExemptions >= 2)
+		if (mNewPlayerExemptions >= 2)
 		{
 			// New Player Auto-Insure Activated. You have %DI deaths before item insurance is required.
 			gMessageLib->sendSystemMessage(this, L"", "base_player", "prose_newbie_insured", "", "", L"", mNewPlayerExemptions);
 		}
-		else if (this->mNewPlayerExemptions == 1)
+		else if (mNewPlayerExemptions == 1)
 		{
 			// New Player Auto-Insure Activated. You have one death before item insurance is required.
 			gMessageLib->sendSystemMessage(this, L"", "base_player", "last_newbie_insure");
 		}
-		else if (this->mNewPlayerExemptions == 0)
+		else if (mNewPlayerExemptions == 0)
 		{
 			// New player exemption status has expired. You will now be required to insure your items if you wish to retain them after cloning.
 			gMessageLib->sendSystemMessage(this, L"", "base_player", "newbie_expired");
 		}
-		this->mNewPlayerMessage = false;
+
+		mNewPlayerMessage = false;
 	}
 }
 //=============================================================================
-//
-//
+
 void PlayerObject::saveNearestCloningFacility(BuildingObject* nearestCloningFacility)
 {
 	mNearestCloningFacility = nearestCloningFacility;
 }
 
 //=============================================================================
+
 void PlayerObject::cloneAtNearestCloningFacility(void)
 {
 	if (mNearestCloningFacility)
 	{
 		if (SpawnPoint* sp = mNearestCloningFacility->getRandomSpawnPoint())
 		{
-			if (this->mNewPlayerExemptions == 0)
+			if (mNewPlayerExemptions == 0)
 			{
 				// Add wounds...
-				this->getHam()->updatePrimaryWounds(100);
+				mHam.updatePrimaryWounds(100);
 
 				// .. and some BF
-				this->getHam()->updateBattleFatigue(100, true);
+				mHam.updateBattleFatigue(100, true);
 			}
 
 			// Clone
@@ -1938,34 +1887,28 @@ void PlayerObject::cloneAtNearestCloningFacility(void)
 	}
 }
 
-
-
 //=============================================================================
+
 EMLocationType PlayerObject::getPlayerLocation()
 {
 	// make sure we are eiter in a camp or in a playerstructure
-	CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(this->getParentId()));
-	if(cell)
+	if(CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(this->getParentId())))
 	{
-		Object* object = dynamic_cast<Object*>(gWorldManager->getObjectById(cell->getParentId()));
-		if(object)
+		if(Object* object = dynamic_cast<Object*>(gWorldManager->getObjectById(cell->getParentId())))
 		{
-			// string modelname = object->getModelString();
 			if(strstr(object->getModelString().getAnsi(),"cantina"))
 			{
 				return EMLocation_Cantina;
 			}
 
-			//not sure yet how to find playerstructures - leave this for when we have them implemented
+			// not sure yet how to find playerstructures - leave this for when we have them implemented
 		}
-
 	}
 	else
 	{
 		// we are not in a cell but maybe in a camp
 		if(!gStructureManager->checkinCamp(this))
 		{
-
 			return EMLocation_Camp;
 		}
 	}
@@ -1974,59 +1917,68 @@ EMLocationType PlayerObject::getPlayerLocation()
 }
 
 //=============================================================================
+
 void PlayerObject::setCombatTargetId(uint64 targetId)
 {
-	this->mCombatTargetId = targetId;
+	mCombatTargetId = targetId;
 }
 
-
 //=============================================================================
+
 uint64 PlayerObject::getCombatTargetId(void)
 {
-	return this->mCombatTargetId;
+	return mCombatTargetId;
 }
 
 //=============================================================================
+
 void PlayerObject::enableAutoAttack(void)
 {
 	mAutoAttack = true;
 }
 
 //=============================================================================
+
 void PlayerObject::disableAutoAttack(void)
 {
 	mAutoAttack = false;
 }
 
 //=============================================================================
+
 bool PlayerObject::autoAttackEnabled(void)
 {
 	return mAutoAttack;
 }
 
 //=============================================================================
-//we check whether we have enough Lots and update them if so including the db
+//
+// we check whether we have enough Lots and update them if so including the db
 //
 bool PlayerObject::useLots(uint8 usedLots)
 {
-	int32 lots = mLots-usedLots;
-	if(lots <0)
+	int32 lots = mLots - usedLots;
+
+	if(lots < 0)
 	{
 		return false;
 	}
+
 	mLots -= usedLots;
 
 	return true;
 }
 
 //=============================================================================
-//we check whether the amount of lots regained is plausibel
-//and updatre the db
+//
+// we check whether the amount of lots regained is plausibel
+// and update the db
 //
 bool PlayerObject::regainLots(uint8 lots)
 {
 	uint8 maxLots = gWorldConfig->getConfiguration("Player_Max_Lots",(uint8)10);
-	if((mLots+lots)>maxLots)
+
+	if((mLots + lots) > maxLots)
 	{
 		return false;
 	}
@@ -2037,10 +1989,12 @@ bool PlayerObject::regainLots(uint8 lots)
 }
 
 //=============================================================================
-//assign the item a new parent id
+//
+// assign the item a new parent id
 //
 void PlayerObject::setParentIdIncDB(uint64 parentId)
 { 
 	mParentId = parentId; 
+
 	gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE characters SET parent_id=%"PRIu64" WHERE id=%"PRIu64"",mParentId,this->getId());
 }

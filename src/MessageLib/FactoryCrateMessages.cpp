@@ -58,53 +58,53 @@ bool MessageLib::sendBaselinesTYCF_3(FactoryCrate* crate,PlayerObject* targetObj
 
 	customName.convert(BSTRType_Unicode16);
 
-	gMessageFactory->StartMessage();
+	mMessageFactory->StartMessage();
 
 	
-	gMessageFactory->addUint16(11);	//op count
-	gMessageFactory->addFloat(1.0);//tangibleObject->getComplexity());
-	gMessageFactory->addString(NameFile.getAnsi());
-	gMessageFactory->addUint32(0);	// unknown
-	gMessageFactory->addString(Name.getAnsi());
-	gMessageFactory->addString(customName.getUnicode16());
+	mMessageFactory->addUint16(11);	//op count
+	mMessageFactory->addFloat(1.0);//tangibleObject->getComplexity());
+	mMessageFactory->addString(NameFile.getAnsi());
+	mMessageFactory->addUint32(0);	// unknown
+	mMessageFactory->addString(Name.getAnsi());
+	mMessageFactory->addString(customName.getUnicode16());
 	uint32 uses = 0;
 
-	gMessageFactory->addUint32(1);//volume gives the volume taken up in the inventory!!!!!!!!
-	//gMessageFactory->addString(crate->getCustomizationStr());
-	gMessageFactory->addUint16(0);//crate customization
-	gMessageFactory->addUint64(0);	// unknown list might be defender list
-	gMessageFactory->addUint32(0);//crate->getTypeOptions());bitmask - insured etc
+	mMessageFactory->addUint32(1);//volume gives the volume taken up in the inventory!!!!!!!!
+	//mMessageFactory->addString(crate->getCustomizationStr());
+	mMessageFactory->addUint16(0);//crate customization
+	mMessageFactory->addUint64(0);	// unknown list might be defender list
+	mMessageFactory->addUint32(0);//crate->getTypeOptions());bitmask - insured etc
 
 	if(crate->hasAttribute("factory_count"))
 	{
 		uses = crate->getAttribute<int>("factory_count");
 	}
 
-	gMessageFactory->addUint32(uses);//
-	gMessageFactory->addUint32(0);
-	gMessageFactory->addUint32(0);
+	mMessageFactory->addUint32(uses);//
+	mMessageFactory->addUint32(0);
+	mMessageFactory->addUint32(0);
 	
 	//1 when not moveable
-	gMessageFactory->addUint8(0);	// 
-	gMessageFactory->addUint64(0);	// 
+	mMessageFactory->addUint8(0);	// 
+	mMessageFactory->addUint64(0);	// 
 	
 
-	Message* data = gMessageFactory->EndMessage();
+	Message* data = mMessageFactory->EndMessage();
 
 
-	gMessageFactory->StartMessage();
+	mMessageFactory->StartMessage();
 
-	gMessageFactory->addUint32(opBaselinesMessage);   
-	gMessageFactory->addUint64(crate->getId()); 
-	gMessageFactory->addUint32(opFCYT);
-	gMessageFactory->addUint8(3);  
+	mMessageFactory->addUint32(opBaselinesMessage);   
+	mMessageFactory->addUint64(crate->getId()); 
+	mMessageFactory->addUint32(opFCYT);
+	mMessageFactory->addUint8(3);  
 
-	gMessageFactory->addUint32(data->getSize());
-	gMessageFactory->addData(data->getData(), data->getSize());
+	mMessageFactory->addUint32(data->getSize());
+	mMessageFactory->addData(data->getData(), data->getSize());
 	
 	data->setPendingDelete(true);
 
-	(targetObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 5);
+	(targetObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 5);
 
 	return(true);
 }
@@ -122,40 +122,40 @@ bool MessageLib::sendBaselinesTYCF_6( FactoryCrate*  crate,PlayerObject* targetO
 
 	Message* data;
 
-	gMessageFactory->StartMessage();  
+	mMessageFactory->StartMessage();  
 
-	gMessageFactory->addUint16(3);	// unknown
-	gMessageFactory->addUint32(0);	// unknown
-	//gMessageFactory->addString();//crate->getDetailFile());
-	gMessageFactory->addUint32(0);	// unknown
-	//gMessageFactory->addString(0);//crate->getNameFile());
+	mMessageFactory->addUint16(3);	// unknown
+	mMessageFactory->addUint32(0);	// unknown
+	//mMessageFactory->addString();//crate->getDetailFile());
+	mMessageFactory->addUint32(0);	// unknown
+	//mMessageFactory->addString(0);//crate->getNameFile());
 	
-	gMessageFactory->addUint32(0);	// unknown
-	gMessageFactory->addUint32(0);	// unknown
-	gMessageFactory->addUint32(0);	// unknown
-	gMessageFactory->addUint32(0);	// unknown
+	mMessageFactory->addUint32(0);	// unknown
+	mMessageFactory->addUint32(0);	// unknown
+	mMessageFactory->addUint32(0);	// unknown
+	mMessageFactory->addUint32(0);	// unknown
 
-	gMessageFactory->addUint32(0);	// unknown
-	gMessageFactory->addUint32(0);	// unknown
+	mMessageFactory->addUint32(0);	// unknown
+	mMessageFactory->addUint32(0);	// unknown
 
 	
-	gMessageFactory->addUint8(0);	// unknown
+	mMessageFactory->addUint8(0);	// unknown
 
-	data = gMessageFactory->EndMessage();
+	data = mMessageFactory->EndMessage();
 
-	gMessageFactory->StartMessage();  
-	gMessageFactory->addUint32(opBaselinesMessage);   
-	gMessageFactory->addUint64(crate->getId()); 
-	gMessageFactory->addUint32(opFCYT);
-	gMessageFactory->addUint8(6);  
+	mMessageFactory->StartMessage();  
+	mMessageFactory->addUint32(opBaselinesMessage);   
+	mMessageFactory->addUint64(crate->getId()); 
+	mMessageFactory->addUint32(opFCYT);
+	mMessageFactory->addUint8(6);  
 
-	gMessageFactory->addUint32(data->getSize());
-	gMessageFactory->addData(data->getData(), data->getSize());
+	mMessageFactory->addUint32(data->getSize());
+	mMessageFactory->addData(data->getData(), data->getSize());
 	
 	data->setPendingDelete(true);
 
 
-	(targetObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 5);
+	(targetObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 5);
 
 	return(true);
 }
@@ -173,30 +173,30 @@ bool MessageLib::sendBaselinesTYCF_8(FactoryCrate* crate,PlayerObject* targetObj
 
 	Message* data;
 
-	gMessageFactory->StartMessage();  
+	mMessageFactory->StartMessage();  
 
-	gMessageFactory->addUint16(3);	// unknown
-	gMessageFactory->addUint32(0);	// unknown
-	gMessageFactory->addUint32(0);	// unknown
+	mMessageFactory->addUint16(3);	// unknown
+	mMessageFactory->addUint32(0);	// unknown
+	mMessageFactory->addUint32(0);	// unknown
 	
-	gMessageFactory->addUint32(0);	// unknown
-	gMessageFactory->addUint32(0);	// unknown
+	mMessageFactory->addUint32(0);	// unknown
+	mMessageFactory->addUint32(0);	// unknown
 	
-	data = gMessageFactory->EndMessage();
+	data = mMessageFactory->EndMessage();
 
-	gMessageFactory->StartMessage();  
-	gMessageFactory->addUint32(opBaselinesMessage);   
-	gMessageFactory->addUint64(crate->getId()); 
-	gMessageFactory->addUint32(opFCYT);
-	gMessageFactory->addUint8(8);  
+	mMessageFactory->StartMessage();  
+	mMessageFactory->addUint32(opBaselinesMessage);   
+	mMessageFactory->addUint64(crate->getId()); 
+	mMessageFactory->addUint32(opFCYT);
+	mMessageFactory->addUint8(8);  
 
-	gMessageFactory->addUint32(data->getSize());
-	gMessageFactory->addData(data->getData(), data->getSize());
+	mMessageFactory->addUint32(data->getSize());
+	mMessageFactory->addData(data->getData(), data->getSize());
 	
 	data->setPendingDelete(true);
 
 
-	(targetObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 5);
+	(targetObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 5);
 
 	return(true);
 }
@@ -217,30 +217,30 @@ bool MessageLib::sendBaselinesTYCF_9(FactoryCrate* crate,PlayerObject* targetObj
 
 	Message* data;
 
-	gMessageFactory->StartMessage();  
+	mMessageFactory->StartMessage();  
 
-	gMessageFactory->addUint16(3);	// unknown
-	gMessageFactory->addUint32(0);	// unknown
-	gMessageFactory->addUint32(0);	// unknown
+	mMessageFactory->addUint16(3);	// unknown
+	mMessageFactory->addUint32(0);	// unknown
+	mMessageFactory->addUint32(0);	// unknown
 	
-	gMessageFactory->addUint32(0);	// unknown
-	gMessageFactory->addUint32(0);	// unknown
+	mMessageFactory->addUint32(0);	// unknown
+	mMessageFactory->addUint32(0);	// unknown
 	
-	data = gMessageFactory->EndMessage();
+	data = mMessageFactory->EndMessage();
 
-	gMessageFactory->StartMessage();  
-	gMessageFactory->addUint32(opBaselinesMessage);   
-	gMessageFactory->addUint64(crate->getId()); 
-	gMessageFactory->addUint32(opFCYT);
-	gMessageFactory->addUint8(9);  
+	mMessageFactory->StartMessage();  
+	mMessageFactory->addUint32(opBaselinesMessage);   
+	mMessageFactory->addUint64(crate->getId()); 
+	mMessageFactory->addUint32(opFCYT);
+	mMessageFactory->addUint8(9);  
 
-	gMessageFactory->addUint32(data->getSize());
-	gMessageFactory->addData(data->getData(), data->getSize());
+	mMessageFactory->addUint32(data->getSize());
+	mMessageFactory->addData(data->getData(), data->getSize());
 	
 	data->setPendingDelete(true);
 
 
-	(targetObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 5);
+	(targetObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 5);
 
 	return(true);
 }
@@ -261,19 +261,19 @@ bool MessageLib::sendUpdateCrateContent(FactoryCrate* crate,PlayerObject* player
 		   
 	Message* newMessage;
 
-	gMessageFactory->StartMessage();  
-	gMessageFactory->addUint32(opDeltasMessage);
-	gMessageFactory->addUint64(crate->getId());
-	gMessageFactory->addUint32(opFCYT);
-	gMessageFactory->addUint8(3);
+	mMessageFactory->StartMessage();  
+	mMessageFactory->addUint32(opDeltasMessage);
+	mMessageFactory->addUint64(crate->getId());
+	mMessageFactory->addUint32(opFCYT);
+	mMessageFactory->addUint8(3);
 
-	gMessageFactory->addUint32(8);
-	gMessageFactory->addUint16(1);
+	mMessageFactory->addUint32(8);
+	mMessageFactory->addUint16(1);
 
-	gMessageFactory->addUint16(7);
-	gMessageFactory->addUint32(amount);
+	mMessageFactory->addUint16(7);
+	mMessageFactory->addUint32(amount);
 
-	newMessage = gMessageFactory->EndMessage();
+	newMessage = mMessageFactory->EndMessage();
 
 	(playerObject->getClient())->SendChannelA(newMessage,playerObject->getAccountId(),CR_Client,5);
 

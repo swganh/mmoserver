@@ -25,27 +25,23 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Common/MessageOpcodes.h"
 
 
-
-
 //======================================================================================================================
 //
 // request zone transfer through travel ticket
 // 
-
 bool MessageLib::sendClusterZoneTransferRequestByTicket(PlayerObject* playerObject,uint64 ticketId,uint32 destinationPlanet)
 {
-	if(!(playerObject->isConnected()))
+	if(!playerObject || !playerObject->isConnected())
+	{
 		return(false);
+	}
 
-	Message* newMessage;
+	mMessageFactory->StartMessage();          
+	mMessageFactory->addUint32(opClusterZoneTransferRequestByTicket);  
+	mMessageFactory->addUint32(destinationPlanet);
+	mMessageFactory->addUint64(ticketId);
 
-	gMessageFactory->StartMessage();          
-	gMessageFactory->addUint32(opClusterZoneTransferRequestByTicket);  
-	gMessageFactory->addUint32(destinationPlanet);
-	gMessageFactory->addUint64(ticketId);
-	newMessage = gMessageFactory->EndMessage();
-
-	(playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Connection, 0);
+	(playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Connection, 0);
 
 	return(true);
 }
@@ -54,22 +50,20 @@ bool MessageLib::sendClusterZoneTransferRequestByTicket(PlayerObject* playerObje
 //
 // request zone transfer through admin command
 // 
-
 bool MessageLib::sendClusterZoneTransferRequestByPosition(PlayerObject* playerObject,Anh_Math::Vector3 position,uint32 destinationPlanet)
 {
-	if(!(playerObject->isConnected()))
+	if(!playerObject || !playerObject->isConnected())
+	{
 		return(false);
+	}
 
-	Message* newMessage;
+	mMessageFactory->StartMessage();          
+	mMessageFactory->addUint32(opClusterZoneTransferRequestByPosition);  
+	mMessageFactory->addUint32(destinationPlanet);
+	mMessageFactory->addFloat(position.mX);
+	mMessageFactory->addFloat(position.mZ);
 
-	gMessageFactory->StartMessage();          
-	gMessageFactory->addUint32(opClusterZoneTransferRequestByPosition);  
-	gMessageFactory->addUint32(destinationPlanet);
-	gMessageFactory->addFloat(position.mX);
-	gMessageFactory->addFloat(position.mZ);
-	newMessage = gMessageFactory->EndMessage();
-
-	(playerObject->getClient())->SendChannelA(newMessage,playerObject->getAccountId(),CR_Connection,0);
+	(playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Connection,0);
 
 	return(true);
 }
@@ -78,21 +72,19 @@ bool MessageLib::sendClusterZoneTransferRequestByPosition(PlayerObject* playerOb
 //
 // zone transfer through travel ticket
 // 
-
 bool MessageLib::sendClusterZoneTransferCharacter(PlayerObject* playerObject, uint32 destinationPlanet)
 {
-	if(!(playerObject->isConnected()))
+	if(!playerObject || !playerObject->isConnected())
+	{
 		return(false);
+	}
 
-	Message* newMessage;
+	mMessageFactory->StartMessage();          
+	mMessageFactory->addUint32(opClusterZoneTransferCharacter);  
+	mMessageFactory->addUint64(playerObject->getId());
+	mMessageFactory->addUint32(destinationPlanet);
 
-	gMessageFactory->StartMessage();          
-	gMessageFactory->addUint32(opClusterZoneTransferCharacter);  
-	gMessageFactory->addUint64(playerObject->getId());
-	gMessageFactory->addUint32(destinationPlanet);
-	newMessage = gMessageFactory->EndMessage();
-
-	(playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Connection, 0);
+	(playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Connection, 0);
 
 	return(true);
 }
@@ -101,136 +93,165 @@ bool MessageLib::sendClusterZoneTransferCharacter(PlayerObject* playerObject, ui
 //
 // group baselines
 // 
-
-void MessageLib::sendIsmGroupBaselineRequest(PlayerObject* targetPlayer)
+bool MessageLib::sendIsmGroupBaselineRequest(PlayerObject* targetPlayer)
 {
 	if (!_checkPlayer(targetPlayer))
-		return;
+	{
+		return(false);
+	}
 
-	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opIsmGroupBaselineRequest);
-	gMessageFactory->addFloat(targetPlayer->mPosition.mX);
-	gMessageFactory->addFloat(targetPlayer->mPosition.mZ);
-	Message* newMessage = gMessageFactory->EndMessage();
-	targetPlayer->getClient()->SendChannelA(newMessage,targetPlayer->getAccountId(), CR_Chat, 2);
+	mMessageFactory->StartMessage();
+	mMessageFactory->addUint32(opIsmGroupBaselineRequest);
+	mMessageFactory->addFloat(targetPlayer->mPosition.mX);
+	mMessageFactory->addFloat(targetPlayer->mPosition.mZ);
+
+	targetPlayer->getClient()->SendChannelA(mMessageFactory->EndMessage(),targetPlayer->getAccountId(), CR_Chat, 2);
+
+	return(true);
 }
 
 //======================================================================================================================
 //
 // group leave
 // 
-
-void MessageLib::sendIsmGroupLeave(PlayerObject* player)
+bool MessageLib::sendIsmGroupLeave(PlayerObject* player)
 {
 	if (!_checkPlayer(player))
-		return;
+	{
+		return(false);
+	}
 
-	Message* newMessage;
-	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opIsmGroupLeave);  
-	newMessage = gMessageFactory->EndMessage();
-	player->getClient()->SendChannelA(newMessage,player->getAccountId(),CR_Chat,2);
+	mMessageFactory->StartMessage();
+	mMessageFactory->addUint32(opIsmGroupLeave);  
+
+	player->getClient()->SendChannelA(mMessageFactory->EndMessage(),player->getAccountId(),CR_Chat,2);
+
+	return(true);
 }
 
 //======================================================================================================================
 //
 // group position
 //
-
-void MessageLib::sendIsmGroupPositionNotification(PlayerObject* targetPlayer)
+bool MessageLib::sendIsmGroupPositionNotification(PlayerObject* targetPlayer)
 {
 	if (!_checkPlayer(targetPlayer))
-		return;
+	{
+		return(false);
+	}
 
-	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opIsmGroupPositionNotification);
-	gMessageFactory->addFloat(targetPlayer->mPosition.mX);
-	gMessageFactory->addFloat(targetPlayer->mPosition.mZ);
-	Message* newMessage = gMessageFactory->EndMessage();
-	targetPlayer->getClient()->SendChannelA(newMessage,targetPlayer->getAccountId(), CR_Chat, 2);
+	mMessageFactory->StartMessage();
+	mMessageFactory->addUint32(opIsmGroupPositionNotification);
+	mMessageFactory->addFloat(targetPlayer->mPosition.mX);
+	mMessageFactory->addFloat(targetPlayer->mPosition.mZ);
+
+	targetPlayer->getClient()->SendChannelA(mMessageFactory->EndMessage(),targetPlayer->getAccountId(), CR_Chat, 2);
+
+	return(true);
 }
 
 //======================================================================================================================
 //
 // group invite inrange response
 //
-
-void MessageLib::sendIsmGroupInviteInRangeResponse(PlayerObject *sender, PlayerObject *target, bool inRange)
+bool MessageLib::sendIsmGroupInviteInRangeResponse(PlayerObject *sender, PlayerObject *target, bool inRange)
 {
 	if(!_checkPlayer(sender) || !_checkPlayer(target))
-		return;
+	{
+		return(false);
+	}
 
-	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opIsmGroupInviteInRangeResponse);
-	gMessageFactory->addUint32(sender->getAccountId());
-	gMessageFactory->addUint32(target->getAccountId());
-	gMessageFactory->addUint8(inRange);
-	Message* newMessage = gMessageFactory->EndMessage();
-	sender->getClient()->SendChannelA(newMessage, sender->getAccountId(), CR_Chat, 2);
+	mMessageFactory->StartMessage();
+	mMessageFactory->addUint32(opIsmGroupInviteInRangeResponse);
+	mMessageFactory->addUint32(sender->getAccountId());
+	mMessageFactory->addUint32(target->getAccountId());
+	mMessageFactory->addUint8(inRange);
+
+	sender->getClient()->SendChannelA(mMessageFactory->EndMessage(), sender->getAccountId(), CR_Chat, 2);
+
+	return(true);
 }
 
 //======================================================================================================================
 //
 // report location to chatserver
 //
-
-void MessageLib::sendFindFriendLocation(PlayerObject* friendPlayer, uint64 friendId,uint64 player, float X, float Z)
+bool MessageLib::sendFindFriendLocation(PlayerObject* friendPlayer, uint64 friendId,uint64 player, float X, float Z)
 {
-	if(!(friendPlayer->isConnected()))
-		return;
+	if(!friendPlayer || !friendPlayer->isConnected())
+	{
+		return(false);
+	}
 
-	gMessageFactory->StartMessage();      
-	gMessageFactory->addUint32(opFindFriendSendPosition);  
-	gMessageFactory->addUint64(friendId);  
-	gMessageFactory->addUint64(player);  
-	gMessageFactory->addFloat(X);  
-	gMessageFactory->addFloat(Z);  
-	
+	mMessageFactory->StartMessage();      
+	mMessageFactory->addUint32(opFindFriendSendPosition);  
+	mMessageFactory->addUint64(friendId);  
+	mMessageFactory->addUint64(player);  
+	mMessageFactory->addFloat(X);  
+	mMessageFactory->addFloat(Z);  
 
-	(friendPlayer->getClient())->SendChannelA(gMessageFactory->EndMessage(), friendPlayer->getAccountId(), CR_Chat, 4);
+	(friendPlayer->getClient())->SendChannelA(mMessageFactory->EndMessage(), friendPlayer->getAccountId(), CR_Chat, 4);
 
-	return;
+	return(true);
 }
 
 //======================================================================================================================
 //
 // Dust off for Banktips
 //
-
-void MessageLib::sendBankTipDustOff(PlayerObject* playerObject, uint64 tipRecipient, uint32 amount, string recipientName)
+bool MessageLib::sendBankTipDustOff(PlayerObject* playerObject, uint64 tipRecipient, uint32 amount, string recipientName)
 {
-	if(!(playerObject->isConnected()))
-		return;
+	if(!playerObject || !playerObject->isConnected())
+	{
+		return(false);
+	}
 
-	gMessageFactory->StartMessage();      
-	gMessageFactory->addUint32(opBankTipDustOff);  
-	gMessageFactory->addUint64(tipRecipient);  
-	gMessageFactory->addUint64(playerObject->getId());  
-	gMessageFactory->addUint32(amount);  
-	gMessageFactory->addString(recipientName);  
+	mMessageFactory->StartMessage();      
+	mMessageFactory->addUint32(opBankTipDustOff);  
+	mMessageFactory->addUint64(tipRecipient);  
+	mMessageFactory->addUint64(playerObject->getId());  
+	mMessageFactory->addUint32(amount);  
+	mMessageFactory->addString(recipientName);  
 	
-	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Chat, 4);
+	(playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Chat, 4);
 
-	return;
+	return(true);
 }
 
 //======================================================================================================================
 //
 // group loot mode update
 //
-
 bool MessageLib::sendGroupLootModeResponse(PlayerObject* playerObject,uint32 selection)
 {
-	if(!(playerObject->isConnected()))
+	if(!playerObject || !playerObject->isConnected())
 	{
 		return(false);
 	}
 
-	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opIsmGroupLootModeResponse);
-	gMessageFactory->addUint32(selection);
+	mMessageFactory->StartMessage();
+	mMessageFactory->addUint32(opIsmGroupLootModeResponse);
+	mMessageFactory->addUint32(selection);
 
-	(playerObject->getClient())->SendChannelA(gMessageFactory->EndMessage(), playerObject->getAccountId(),CR_Chat,2);
+	(playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), playerObject->getAccountId(),CR_Chat,2);
+
+	return(true);
+}
+
+//======================================================================================================================
+
+bool MessageLib::sendGroupLootMasterResponse(PlayerObject* masterLooter, PlayerObject* playerObject)
+{
+	if(!masterLooter || !playerObject || !playerObject->isConnected())
+	{
+		return(false);
+	}
+
+	mMessageFactory->StartMessage();
+	mMessageFactory->addUint32(opIsmGroupLootMasterResponse);
+	mMessageFactory->addUint32(masterLooter->getAccountId());
+
+	(playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Chat,2);
 
 	return(true);
 }

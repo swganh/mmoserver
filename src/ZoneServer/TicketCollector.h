@@ -31,7 +31,6 @@ class TicketCollector : public TangibleObject
 		~TicketCollector();
 
 		virtual void	handleObjectMenuSelect(uint8 messageType,Object* srcObject);
-		virtual void	prepareCustomRadialMenuInCell(uint8 messageType,Object* srcObject);
 		virtual void	prepareCustomRadialMenu(uint8 messageType,Object* srcObject);
 
 		void			setShuttle(Shuttle* shuttle){ mShuttle = shuttle; }

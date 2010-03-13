@@ -56,30 +56,31 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include <cassert>
 
+//=============================================================================
+
 void ObjectController::_handleBoardTransport(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
 	PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
 
 	ObjectSet		inRangeObjects;
-	float boardingRange = 25.0;
+	float			boardingRange	= 25.0;
 
 	if(playerObject->getPosture() == CreaturePosture_SkillAnimating)
 	{
 		gMessageLib->sendSystemMessage(playerObject,L"You cannot do that at this time.");
 		return;
-		//gEntertainerManager->stopEntertaining(player);
 	}
 
 	string str;
 	message->getStringUnicode16(str);
 	str.convert(BSTRType_ANSI);
 	str.toLower();
+
 	if((str.getCrc() != BString("transport").getCrc()))
 	{
 		gMessageLib->sendSystemMessage(playerObject,L"","travel","boarding_what_shuttle");
 		return;
 	}
-
 
 	mSI->getObjectsInRange(playerObject,&inRangeObjects,ObjType_Creature | ObjType_NPC,boardingRange);
 
@@ -88,36 +89,24 @@ void ObjectController::_handleBoardTransport(uint64 targetId,Message* message,Ob
 
 	while(it != inRangeObjects.end())
 	{
-		CreatureObject* creature = dynamic_cast<CreatureObject*> (*it);
-
-		if(creature)
+		if(Shuttle* shuttle = dynamic_cast<Shuttle*>(*it))
 		{
-
-			if(creature->getCreoGroup() == CreoGroup_Shuttle)
+			// in range check
+			if(playerObject->getParentId() !=  shuttle->getParentId())
 			{
-				Shuttle* shuttle = dynamic_cast<Shuttle*> (creature);
-
-				if(shuttle)
-				{
-
-					// in range check
-					if(playerObject->getParentId() !=  shuttle->getParentId() )
-					{
-						gMessageLib->sendSystemMessage(playerObject,L"","travel","boarding_too_far");
-						return;
-					}
-
-					if (!shuttle->avaliableInPort())
-					{
-						gMessageLib->sendSystemMessage(playerObject,L"","travel","shuttle_not_available");
-						return;
-					}
-
-					shuttle->useShuttle(playerObject);
-					return;
-				}
+				gMessageLib->sendSystemMessage(playerObject,L"","travel","boarding_too_far");
+				return;
 			}
 
+			if (!shuttle->availableInPort())
+			{
+				gMessageLib->sendSystemMessage(playerObject,L"","travel","shuttle_not_available");
+				return;
+			}
+
+			shuttle->useShuttle(playerObject);
+
+			return;
 		}
 
 		++it;
@@ -130,7 +119,6 @@ void ObjectController::_handleBoardTransport(uint64 targetId,Message* message,Ob
 //
 // open container
 //
-
 void ObjectController::_handleOpenContainer(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
 

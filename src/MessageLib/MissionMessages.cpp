@@ -45,11 +45,11 @@ bool MessageLib::sendBaselinesMISO_3(MissionObject* missionObject,PlayerObject* 
 	//####
 	//HEAD
 	//####
-	gMessageFactory->StartMessage();  
-	gMessageFactory->addUint32(opBaselinesMessage);   
-	gMessageFactory->addUint64(missionObject->getId()); 
-	gMessageFactory->addUint32(opMISO);
-	gMessageFactory->addUint8(3);  
+	mMessageFactory->StartMessage();  
+	mMessageFactory->addUint32(opBaselinesMessage);   
+	mMessageFactory->addUint64(missionObject->getId()); 
+	mMessageFactory->addUint32(opMISO);
+	mMessageFactory->addUint8(3);  
 	
 	//158
 	uint32 size = 158+missionObject->getNameFile().getLength() + missionObject->getName().getLength();
@@ -60,95 +60,95 @@ bool MessageLib::sendBaselinesMISO_3(MissionObject* missionObject,PlayerObject* 
 	size += missionObject->getTarget().getLength();
 
 
-	gMessageFactory->addUint32(size); //size 
-	gMessageFactory->addUint16(17);  //Opperand/Variable count
+	mMessageFactory->addUint32(size); //size 
+	mMessageFactory->addUint16(17);  //Opperand/Variable count
 
 	//####
 	//BODY
 	//####
 
 	// 0 -- Complexity
-	gMessageFactory->addFloat(1.0f); //4
+	mMessageFactory->addFloat(1.0f); //4
 
     // 1 -- Object Name
-	gMessageFactory->addString(missionObject->getNameFile()); //STF - ASCII
-	gMessageFactory->addUint32(0);
-	gMessageFactory->addString(missionObject->getName()); //Name - ASCII +8 =12
+	mMessageFactory->addString(missionObject->getNameFile()); //STF - ASCII
+	mMessageFactory->addUint32(0);
+	mMessageFactory->addString(missionObject->getName()); //Name - ASCII +8 =12
 
 	//2 -- Custom name
-	gMessageFactory->addUint32(0); //UNICODE string 16
+	mMessageFactory->addUint32(0); //UNICODE string 16
 
 	//3 -- Unknown
-	gMessageFactory->addUint32(0);	//20 volume
+	mMessageFactory->addUint32(0);	//20 volume
 
 	//4 -- Unknown
-	gMessageFactory->addUint32(0);//24 generic int
+	mMessageFactory->addUint32(0);//24 generic int
 
 	//5 -- Difficulty
-	gMessageFactory->addUint32(missionObject->getDifficulty());//28
+	mMessageFactory->addUint32(missionObject->getDifficulty());//28
 
 	//6 -- Destination/End Location
-	gMessageFactory->addFloat(missionObject->getDestination().Coordinates.mX); //X
-	gMessageFactory->addFloat(missionObject->getDestination().Coordinates.mY); //Y
-	gMessageFactory->addFloat(missionObject->getDestination().Coordinates.mZ); //Z
-	gMessageFactory->addUint64(0); //Possibly a cell id
-	gMessageFactory->addUint32(missionObject->getDestination().PlanetCRC); //Planet CRC +24 = 52
+	mMessageFactory->addFloat(missionObject->getDestination().Coordinates.mX); //X
+	mMessageFactory->addFloat(missionObject->getDestination().Coordinates.mY); //Y
+	mMessageFactory->addFloat(missionObject->getDestination().Coordinates.mZ); //Z
+	mMessageFactory->addUint64(0); //Possibly a cell id
+	mMessageFactory->addUint32(missionObject->getDestination().PlanetCRC); //Planet CRC +24 = 52
 
 	//7 -- Creator
-	//gMessageFactory->addUint32(0);
+	//mMessageFactory->addUint32(0);
 	string data = missionObject->getCreator();
 	data.convert(BSTRType_Unicode16);
-	gMessageFactory->addString(data); //UNICODE 56
+	mMessageFactory->addString(data); //UNICODE 56
 
 	//8 -- Reward
-	gMessageFactory->addUint32(missionObject->getReward());//60
+	mMessageFactory->addUint32(missionObject->getReward());//60
 
 	//9 -- Start Location
-	gMessageFactory->addFloat(missionObject->getStart().Coordinates.mX); //X
-	gMessageFactory->addFloat(missionObject->getStart().Coordinates.mY); //Y
-	gMessageFactory->addFloat(missionObject->getStart().Coordinates.mZ); //Z
-	gMessageFactory->addUint64(0); //Possibly a cell id
-	gMessageFactory->addUint32(missionObject->getStart().PlanetCRC); //Planet CRC +24 =84
+	mMessageFactory->addFloat(missionObject->getStart().Coordinates.mX); //X
+	mMessageFactory->addFloat(missionObject->getStart().Coordinates.mY); //Y
+	mMessageFactory->addFloat(missionObject->getStart().Coordinates.mZ); //Z
+	mMessageFactory->addUint64(0); //Possibly a cell id
+	mMessageFactory->addUint32(missionObject->getStart().PlanetCRC); //Planet CRC +24 =84
 
 	//10 -- Target Model
-	gMessageFactory->addUint32(missionObject->getTargetModel());//88
+	mMessageFactory->addUint32(missionObject->getTargetModel());//88
 
 	//11 -- Description
-	gMessageFactory->addString(missionObject->getDetailFile());  //STF - ASCII
-	gMessageFactory->addUint32(0);
-	gMessageFactory->addString(missionObject->getDetail()); //Name - ASCII +8 =96
+	mMessageFactory->addString(missionObject->getDetailFile());  //STF - ASCII
+	mMessageFactory->addUint32(0);
+	mMessageFactory->addString(missionObject->getDetail()); //Name - ASCII +8 =96
 
 	//12 -- Title
-	gMessageFactory->addString(missionObject->getTitleFile()); //STF - ASCII
-	gMessageFactory->addUint32(0);
-	gMessageFactory->addString(missionObject->getTitle()); //Name - ASCII +8 = 104
+	mMessageFactory->addString(missionObject->getTitleFile()); //STF - ASCII
+	mMessageFactory->addUint32(0);
+	mMessageFactory->addString(missionObject->getTitle()); //Name - ASCII +8 = 104
 
 	//13 -- Refresh Count
-	gMessageFactory->addUint32(missionObject->getRefreshCount());//108
+	mMessageFactory->addUint32(missionObject->getRefreshCount());//108
 
 	//14 -- Mission Type
-	gMessageFactory->addUint32(missionObject->getMissionType());//112
+	mMessageFactory->addUint32(missionObject->getMissionType());//112
 
 	//15 -- Target Name
-	//gMessageFactory->addUint16(0);
-	gMessageFactory->addString(missionObject->getTarget()); // "@STF:Name" format - ASCII//114
+	//mMessageFactory->addUint16(0);
+	mMessageFactory->addString(missionObject->getTarget()); // "@STF:Name" format - ASCII//114
 
 	//16 -- Mission Waypoint
-	gMessageFactory->addUint32(0);
-	gMessageFactory->addFloat(missionObject->getWaypoint()->getCoords().mX);  //X
-	gMessageFactory->addFloat(missionObject->getWaypoint()->getCoords().mY);  //Y
-	gMessageFactory->addFloat(missionObject->getWaypoint()->getCoords().mZ);  //Z
-	gMessageFactory->addUint64(0); //Possible Cell ID
-	gMessageFactory->addUint32(missionObject->getWaypoint()->getPlanetCRC()); //Planet CRC
+	mMessageFactory->addUint32(0);
+	mMessageFactory->addFloat(missionObject->getWaypoint()->getCoords().mX);  //X
+	mMessageFactory->addFloat(missionObject->getWaypoint()->getCoords().mY);  //Y
+	mMessageFactory->addFloat(missionObject->getWaypoint()->getCoords().mZ);  //Z
+	mMessageFactory->addUint64(0); //Possible Cell ID
+	mMessageFactory->addUint32(missionObject->getWaypoint()->getPlanetCRC()); //Planet CRC
 	data = missionObject->getWaypoint()->getName();
 	data.convert(BSTRType_Unicode16);
-	gMessageFactory->addString(data); //Waypoint name "@STF:Name" format - UNICODE
-	gMessageFactory->addUint64(missionObject->getWaypoint()->getId()); //Waypoint ID (MISO3 ID +1)
-	gMessageFactory->addUint8(missionObject->getWaypoint()->getWPType());  //Waypoint Type
-	gMessageFactory->addUint8(missionObject->getWaypoint()->getActive());  //Activated Flag +42 =156
-		gMessageFactory->addUint32(0);
+	mMessageFactory->addString(data); //Waypoint name "@STF:Name" format - UNICODE
+	mMessageFactory->addUint64(missionObject->getWaypoint()->getId()); //Waypoint ID (MISO3 ID +1)
+	mMessageFactory->addUint8(missionObject->getWaypoint()->getWPType());  //Waypoint Type
+	mMessageFactory->addUint8(missionObject->getWaypoint()->getActive());  //Activated Flag +42 =156
+		mMessageFactory->addUint32(0);
 
-	message = gMessageFactory->EndMessage();
+	message = mMessageFactory->EndMessage();
 
 	(targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5);
 
@@ -171,23 +171,23 @@ bool MessageLib::sendBaselinesMISO_6(MissionObject* missionObject,PlayerObject* 
 	//####
 	//HEAD
 	//####
-	gMessageFactory->StartMessage();  
-	gMessageFactory->addUint32(opBaselinesMessage);   
-	gMessageFactory->addUint64(missionObject->getId()); 
-	gMessageFactory->addUint32(opMISO);
-	gMessageFactory->addUint8(6);  
+	mMessageFactory->StartMessage();  
+	mMessageFactory->addUint32(opBaselinesMessage);   
+	mMessageFactory->addUint64(missionObject->getId()); 
+	mMessageFactory->addUint32(opMISO);
+	mMessageFactory->addUint8(6);  
 	
-	gMessageFactory->addUint32(15); //size
-	gMessageFactory->addUint16(2);  //Opperand/Variable count
+	mMessageFactory->addUint32(15); //size
+	mMessageFactory->addUint16(2);  //Opperand/Variable count
 
 	//####
 	//BODY
 	//####
-	gMessageFactory->addUint64(0x86); 
-	gMessageFactory->addUint32(0);    
-	gMessageFactory->addUint8(0);    
+	mMessageFactory->addUint64(0x86); 
+	mMessageFactory->addUint32(0);    
+	mMessageFactory->addUint8(0);    
 
-	message = gMessageFactory->EndMessage();
+	message = mMessageFactory->EndMessage();
 
 	(targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5);
 
@@ -210,21 +210,21 @@ bool MessageLib::sendBaselinesMISO_8(MissionObject* missionObject,PlayerObject* 
 	//####
 	//HEAD
 	//####
-	gMessageFactory->StartMessage();  
-	gMessageFactory->addUint32(opBaselinesMessage);   
-	gMessageFactory->addUint64(missionObject->getId()); 
-	gMessageFactory->addUint32(opMISO);
-	gMessageFactory->addUint8(8);  
-	gMessageFactory->addUint32(2);    
-	gMessageFactory->addUint16(0);  //Opperand count
+	mMessageFactory->StartMessage();  
+	mMessageFactory->addUint32(opBaselinesMessage);   
+	mMessageFactory->addUint64(missionObject->getId()); 
+	mMessageFactory->addUint32(opMISO);
+	mMessageFactory->addUint8(8);  
+	mMessageFactory->addUint32(2);    
+	mMessageFactory->addUint16(0);  //Opperand count
 	
 
 	//####
 	//BODY
 	//####
-	gMessageFactory->addUint32(0);    
+	mMessageFactory->addUint32(0);    
 
-	message = gMessageFactory->EndMessage();
+	message = mMessageFactory->EndMessage();
 
 	(targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5);
 
@@ -247,21 +247,21 @@ bool MessageLib::sendBaselinesMISO_9(MissionObject* missionObject,PlayerObject* 
 	//####
 	//HEAD
 	//####
-	gMessageFactory->StartMessage();  
-	gMessageFactory->addUint32(opBaselinesMessage);   
-	gMessageFactory->addUint64(missionObject->getId()); 
-	gMessageFactory->addUint32(opMISO);
-	gMessageFactory->addUint8(9);  
+	mMessageFactory->StartMessage();  
+	mMessageFactory->addUint32(opBaselinesMessage);   
+	mMessageFactory->addUint64(missionObject->getId()); 
+	mMessageFactory->addUint32(opMISO);
+	mMessageFactory->addUint8(9);  
 	
-	gMessageFactory->addUint32(2);  //Opperand count
+	mMessageFactory->addUint32(2);  //Opperand count
 	
 
 	//####
 	//BODY
 	//####
-	gMessageFactory->addUint16(0);    
+	mMessageFactory->addUint16(0);    
 
-	message = gMessageFactory->EndMessage();
+	message = mMessageFactory->EndMessage();
 
 	(targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5);
 
@@ -421,17 +421,17 @@ bool MessageLib::sendMISO_Delta(MissionObject* missionObject,PlayerObject* targe
 	//HEAD
 	//####
 	Message* message;
-	gMessageFactory->StartMessage();               
-	gMessageFactory->addUint32(opDeltasMessage);  
-	gMessageFactory->addUint64(missionObject->getId()); 
-	gMessageFactory->addUint32(opMISO);
-	gMessageFactory->addUint8(3);
-	gMessageFactory->addUint32(body.getSize()+2);
-	gMessageFactory->addUint16(update_count);
-	gMessageFactory->addData(body.getBuffer(),(uint16)body.getSize());
+	mMessageFactory->StartMessage();               
+	mMessageFactory->addUint32(opDeltasMessage);  
+	mMessageFactory->addUint64(missionObject->getId()); 
+	mMessageFactory->addUint32(opMISO);
+	mMessageFactory->addUint8(3);
+	mMessageFactory->addUint32(body.getSize()+2);
+	mMessageFactory->addUint16(update_count);
+	mMessageFactory->addData(body.getBuffer(),(uint16)body.getSize());
 	
 	
-	message = gMessageFactory->EndMessage();
+	message = mMessageFactory->EndMessage();
 	//gLogger->hexDump(message->getData(),message->getSize());
 
 	(targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5);
@@ -447,17 +447,17 @@ bool MessageLib::sendMissionGenericResponse(MissionObject* missionObject,PlayerO
 	else if(!targetObject->isConnected()) return false;
 
 	Message* message;
-	gMessageFactory->StartMessage();        
-	gMessageFactory->addUint32(opObjControllerMessage);  
-	gMessageFactory->addUint32(0x0000001B);           
-	gMessageFactory->addUint32(opMissionGenericResponse);           
-	gMessageFactory->addUint64(missionObject->getOwner()->getId());
-	gMessageFactory->addUint32(0);                    
-	gMessageFactory->addUint64(missionObject->getId());
-	gMessageFactory->addUint8(0x01);
-	gMessageFactory->addInt8(0x04);
+	mMessageFactory->StartMessage();        
+	mMessageFactory->addUint32(opObjControllerMessage);  
+	mMessageFactory->addUint32(0x0000001B);           
+	mMessageFactory->addUint32(opMissionGenericResponse);           
+	mMessageFactory->addUint64(missionObject->getOwner()->getId());
+	mMessageFactory->addUint32(0);                    
+	mMessageFactory->addUint64(missionObject->getId());
+	mMessageFactory->addUint8(0x01);
+	mMessageFactory->addInt8(0x04);
 
-	message = gMessageFactory->EndMessage();
+	message = mMessageFactory->EndMessage();
 
 	targetObject->getClient()->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5);
 
@@ -472,15 +472,15 @@ bool MessageLib::sendMissionAbort(MissionObject* missionObject,PlayerObject* tar
 	else if(!targetObject->isConnected()) return false;
 
 	Message* message;
-	gMessageFactory->StartMessage();          
-	gMessageFactory->addUint32(opObjControllerMessage);  
-	gMessageFactory->addUint32(0x0000000B);           
-	gMessageFactory->addUint32(opMissionAbort);           
-	gMessageFactory->addUint64(missionObject->getOwner()->getPlayerObjId());
-	gMessageFactory->addUint32(0);  
-	gMessageFactory->addUint64(missionObject->getId());
+	mMessageFactory->StartMessage();          
+	mMessageFactory->addUint32(opObjControllerMessage);  
+	mMessageFactory->addUint32(0x0000000B);           
+	mMessageFactory->addUint32(opMissionAbort);           
+	mMessageFactory->addUint64(missionObject->getOwner()->getPlayerObjId());
+	mMessageFactory->addUint32(0);  
+	mMessageFactory->addUint64(missionObject->getId());
 
-	message = gMessageFactory->EndMessage();
+	message = mMessageFactory->EndMessage();
 
 	targetObject->getClient()->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5);
 
@@ -495,16 +495,16 @@ bool MessageLib::sendMissionComplete(PlayerObject* targetObject)
 	else if(!targetObject->isConnected()) return false;
 
 	Message* message;
-	gMessageFactory->StartMessage();          
-	gMessageFactory->addUint32(opObjControllerMessage);  
-	gMessageFactory->addUint32(0x00000083);           
-	gMessageFactory->addUint32(opMissionComplete);           
-	gMessageFactory->addUint64(targetObject->getPlayerObjId());
-	gMessageFactory->addUint64(0);  
-	gMessageFactory->addUint16(0);
-	gMessageFactory->addUint8(0);
+	mMessageFactory->StartMessage();          
+	mMessageFactory->addUint32(opObjControllerMessage);  
+	mMessageFactory->addUint32(0x00000083);           
+	mMessageFactory->addUint32(opMissionComplete);           
+	mMessageFactory->addUint64(targetObject->getPlayerObjId());
+	mMessageFactory->addUint64(0);  
+	mMessageFactory->addUint16(0);
+	mMessageFactory->addUint8(0);
 
-	message = gMessageFactory->EndMessage();
+	message = mMessageFactory->EndMessage();
 
 	targetObject->getClient()->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5);
 

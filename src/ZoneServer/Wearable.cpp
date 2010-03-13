@@ -33,10 +33,10 @@ Wearable::~Wearable()
 
 void Wearable::sendAttributes(PlayerObject* playerObject)
 {
-	if(!(playerObject->isConnected()))
+	if(!playerObject || !playerObject->isConnected())
+	{
 		return;
-
-	Message* newMessage;
+	}
 
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opAttributeListMessage);
@@ -69,9 +69,7 @@ void Wearable::sendAttributes(PlayerObject* playerObject)
 		++orderIt;
 	}
 
-	newMessage = gMessageFactory->EndMessage();
-
-	(playerObject->getClient())->SendChannelAUnreliable(newMessage, playerObject->getAccountId(), CR_Client, 9);
+	(playerObject->getClient())->SendChannelAUnreliable(gMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 9);
 }
 
 //=============================================================================

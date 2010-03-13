@@ -17,7 +17,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Stomach.h"
 #include "Trade.h"
 #include "PlayerEnums.h"
-//#include "CraftingSession.h"
 #include "SurveyEvent.h"
 #include "SampleEvent.h"
 #include "LogOutEvent.h"
@@ -63,7 +62,7 @@ class PlayerObject : public CreatureObject
 		PlayerObject();
 		~PlayerObject();
 
-		DispatchClient*	getClient() const { return mClient; }
+		DispatchClient*		getClient() const { return mClient; }
 		void				setClient(DispatchClient* client){ mClient = client; }
 
 		Tutorial*			getTutorial() const { return mTutorial; }
@@ -101,8 +100,6 @@ class PlayerObject : public CreatureObject
 
 		virtual void		setParentIdIncDB(uint64 parentId);
 
-		// Here is where we shall add restrictions for JTL, Jedi, Pre-Pub 14
-		// or other restrictions for type of XP to allow. Return true if xpType is restricted.
 		bool				restrictedXpType(uint32 xpType);
 
 		int32				getXpAmount(uint32 xpType);
@@ -214,7 +211,6 @@ class PlayerObject : public CreatureObject
 		virtual	void		handleObjectMenuSelect(uint8 messageType,Object* srcObject);
 
 		// Entertainment
-
 		EMLocationType		getPlayerLocation();
 		uint64				getPlacedInstrumentId(){return mPlacedInstrument;}
 		void				setPlacedInstrumentId(uint64 id){mPlacedInstrument = id;}
@@ -274,7 +270,6 @@ class PlayerObject : public CreatureObject
 
 		bool				checkIfMountCalled() { return mMountCalled; }
 		void				setMountCalled(bool mount_called) { mMountCalled = mount_called; }
-
 
 		// crafting
 		CraftingStation*	getCraftingStation(ObjectSet	inRangeObjects, ItemType	toolType);

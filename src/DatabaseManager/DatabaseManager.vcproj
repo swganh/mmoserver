@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="DatabaseManager"
 	ProjectGUID="{A5639F60-42C1-4FDA-97CE-BC2D5AD7184D}"
 	RootNamespace="Database"

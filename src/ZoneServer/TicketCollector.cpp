@@ -52,13 +52,13 @@ void TicketCollector::handleObjectMenuSelect(uint8 messageType,Object* srcObject
 		
 		if(!playerObject)
 		{
-			gLogger->logMsgF("TravelTerminal: no player",MSG_HIGH);
+			gLogger->logMsgF("TicketCollector: no player",MSG_HIGH);
 			return;
 		}
 
 		if(!mShuttle)
 		{
-			gLogger->logMsgF("TravelTerminal: no shuttle",MSG_HIGH);
+			gLogger->logMsgF("TicketCollector: no shuttle",MSG_HIGH);
 			return;
 		}
 
@@ -90,7 +90,7 @@ void TicketCollector::handleObjectMenuSelect(uint8 messageType,Object* srcObject
 		gLogger->logMsgF("TravelTerminal: Unhandled MenuSelect: %u",MSG_HIGH,messageType);
 }
 
-
+//=============================================================================
 
 void TicketCollector::prepareCustomRadialMenu(uint8 messageType,Object* srcObject)
 {
@@ -98,18 +98,7 @@ void TicketCollector::prepareCustomRadialMenu(uint8 messageType,Object* srcObjec
 	
 	mRadialMenu->addItem(1,0,radId_itemUse,radAction_ObjCallback);
 	mRadialMenu->addItem(2,0,radId_examine,radAction_Default);
-	
 }
-
-void TicketCollector::prepareCustomRadialMenuInCell(uint8 messageType,Object* srcObject)
-{
-	mRadialMenu = RadialMenuPtr(new RadialMenu());
-	
-	mRadialMenu->addItem(1,0,radId_itemUse,radAction_ObjCallback);
-	mRadialMenu->addItem(2,0,radId_examine,radAction_Default);
-	
-}
-
 
 //=============================================================================
 
@@ -123,8 +112,7 @@ void TicketCollector::_createTicketSelectMenu(PlayerObject* playerObject)
 
 	while(it != invObjects->end())
 	{
-		TravelTicket* ticket = dynamic_cast<TravelTicket*>(gWorldManager->getObjectById((*it)));
-		if(ticket)
+		if(TravelTicket* ticket = dynamic_cast<TravelTicket*>(gWorldManager->getObjectById((*it))))
 		{
 			string srcPoint		= (int8*)((ticket->getAttribute<std::string>("travel_departure_point")).c_str());
 			uint16 srcPlanetId	= static_cast<uint16>(gWorldManager->getPlanetIdByName((int8*)((ticket->getAttribute<std::string>("travel_departure_planet")).c_str())));
@@ -146,7 +134,7 @@ void TicketCollector::_createTicketSelectMenu(PlayerObject* playerObject)
 
 void TicketCollector::handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window)
 {
-	if (!action && element != -1 && mShuttle != NULL && mShuttle->avaliableInPort())
+	if (!action && element != -1 && mShuttle != NULL && mShuttle->availableInPort())
 	{
 		uint32			zoneId			= gWorldManager->getZoneId();
 		PlayerObject*	playerObject	= window->getOwner();
@@ -159,7 +147,6 @@ void TicketCollector::handleUIEvent(uint32 action,int32 element,string inputStr,
 		// in range check
 		if(playerObject->getParentId() != mParentId || !playerObject->mPosition.inRange2D(this->mPosition,10.0f))
 		{
-			//gMessageLib->sendSystemMessage(playerObject,L"","system_msg","out_of_range");
 			gMessageLib->sendSystemMessage(playerObject,L"","travel","boarding_too_far");
 			return;
 		}
@@ -169,8 +156,7 @@ void TicketCollector::handleUIEvent(uint32 action,int32 element,string inputStr,
 
 		while(it != invObjects->end())
 		{
-			TravelTicket* ticket = dynamic_cast<TravelTicket*>(gWorldManager->getObjectById((*it)));
-			if(ticket)
+			if(TravelTicket* ticket = dynamic_cast<TravelTicket*>(gWorldManager->getObjectById((*it))))
 			{
 				string srcPoint		= (int8*)((ticket->getAttribute<std::string>("travel_departure_point")).c_str());
 				string dstPointStr	= (int8*)((ticket->getAttribute<std::string>("travel_arrival_point")).c_str());
@@ -181,20 +167,15 @@ void TicketCollector::handleUIEvent(uint32 action,int32 element,string inputStr,
 				string selectedDst = items->at(element);
 				selectedDst.convert(BSTRType_ANSI);
 
-
 				if(srcPlanetId == zoneId && (strcmp(srcPoint.getAnsi(),mPortDescriptor.getAnsi()) == 0)
 				&& (strcmp(dstPointStr.getAnsi(),selectedDst.getAnsi()) == 0))
 				{
-					TravelPoint* dstPoint = gTravelMapHandler->getTravelPoint(dstPlanetId,dstPointStr);
-
-					if(dstPoint != NULL)
+					if(TravelPoint* dstPoint = gTravelMapHandler->getTravelPoint(dstPlanetId,dstPointStr))
 					{
 						Anh_Math::Vector3 destination;
 						// getRand(5) return 0-4, then sub 2, and you get equal of random values at both sides of zero. (-2, -1, 0, 1, 2)
-						//destination.mX = dstPoint->spawnX + (gRandom->getRand()%4 - 2);	// This gives -2, -1, 0, 1
 						destination.mX = dstPoint->spawnX + (gRandom->getRand()%5 - 2);
 						destination.mY = dstPoint->spawnY;
-						// destination.mZ = dstPoint->spawnZ + (gRandom->getRand()%4 - 2);
 						destination.mZ = dstPoint->spawnZ + (gRandom->getRand()%5 - 2);
 
 						// If it's on this planet, then just warp, otherwize zone
@@ -220,6 +201,7 @@ void TicketCollector::handleUIEvent(uint32 action,int32 element,string inputStr,
 					break;
 				}
 			}
+
 			++it;
 		}
 	}
@@ -240,7 +222,7 @@ void TicketCollector::travelRequest(TravelTicket* ticket,PlayerObject* playerObj
 	uint16 srcPlanetId	= static_cast<uint16>(gWorldManager->getPlanetIdByName((int8*)((ticket->getAttribute<std::string>("travel_departure_planet")).c_str())));
 	uint16 dstPlanetId	= static_cast<uint16>(gWorldManager->getPlanetIdByName((int8*)((ticket->getAttribute<std::string>("travel_arrival_planet")).c_str())));
 
-	if (mShuttle && mShuttle->avaliableInPort())
+	if (mShuttle && mShuttle->availableInPort())
 	{
 		if(srcPlanetId == zoneId && (strcmp(srcPoint.getAnsi(),mPortDescriptor.getAnsi()) == 0))
 		{

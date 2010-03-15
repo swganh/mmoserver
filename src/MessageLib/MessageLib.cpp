@@ -726,6 +726,7 @@ bool MessageLib::sendCreateTangible(TangibleObject* tangibleObject,PlayerObject*
 		if(!tO)
 		{
 			gLogger->logMsgF("Unable to find object with ID %PRIu64", MSG_HIGH, (*it));
+			it++;
 			continue;
 		}
 

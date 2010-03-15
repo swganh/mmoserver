@@ -1148,6 +1148,11 @@ void EntertainerManager::buff(PlayerObject* entertainer)
 		BuffStruct* buffStruct = (*buffIt).second;
 		audience = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById((*buffIt).first));
 
+		if(!audience)
+		{
+			entertainer->getEntertainerBuffMap()->erase(buffIt++);
+			continue;
+		}
 		//check whether we are still grouped - if not discard
 		if((entertainer->getGroupId() != 0) &&(entertainer->getGroupId() == audience->getGroupId()))
 		{

@@ -574,7 +574,7 @@ bool ObjectController::_updateInRangeObjectsOutside()
 
 	// We may wan't to limit the amount of messages sent in one session.
 	uint32 updatedObjects = 0;
-	const uint32 objectSendLimit = 5000;
+	const uint32 objectSendLimit = 50;
 
 	while ((mObjectSetIt != mInRangeObjects.end()) && (updatedObjects < objectSendLimit))
 	{
@@ -623,22 +623,25 @@ bool ObjectController::_updateInRangeObjectsOutside()
 				}
 				else
 				{
-					gMessageLib->sendCreateObject(object,player);
-					player->addKnownObjectSafe(object);
-					object->addKnownObjectSafe(player);
+					//if(!player->checkKnownObjects(object))
+					//{
+						gMessageLib->sendCreateObject(object,player);
+						player->addKnownObjectSafe(object);
+						object->addKnownObjectSafe(player);
 
-					//If player has a mount make sure add to its known objects
-					if(player->checkIfMountCalled() && player->getMount())
-					{
-						if(!player->getMount()->checkKnownObjects(object))
+						//If player has a mount make sure add to its known objects
+						if(player->checkIfMountCalled() && player->getMount())
 						{
-							player->getMount()->addKnownObjectSafe(object);
+							if(!player->getMount()->checkKnownObjects(object))
+							{
+								player->getMount()->addKnownObjectSafe(object);
+							}
+							if(!object->checkKnownObjects(player->getMount()))
+							{
+								object->addKnownObjectSafe(player->getMount());
+							}
 						}
-						if(!object->checkKnownObjects(player->getMount()))
-						{
-							object->addKnownObjectSafe(player->getMount());
-						}
-					}
+					//}
 					updatedObjects++;
 				}
 			}
@@ -744,7 +747,7 @@ bool ObjectController::_updateInRangeObjectsInside()
 
 	// We may wan't to limit the amount of messages sent in one session.
 	uint32 updatedObjects = 0;
-	const uint32 objectSendLimit = 5000;
+	const uint32 objectSendLimit = 50;
 
 	//what do we do if the object has been deleted in the meantime?
 	//TODO
@@ -800,10 +803,13 @@ bool ObjectController::_updateInRangeObjectsInside()
 					}
 					else
 					{
-						gMessageLib->sendCreateObject(object,player);
-						player->addKnownObjectSafe(object);
-						object->addKnownObjectSafe(player);
-						updatedObjects++;
+						//if(!player->checkKnownObjects(object))
+						//{
+							gMessageLib->sendCreateObject(object,player);
+							player->addKnownObjectSafe(object);
+							object->addKnownObjectSafe(player);
+							updatedObjects++;
+						//}
 					}
 				}
 			}

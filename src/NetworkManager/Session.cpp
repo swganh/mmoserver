@@ -199,10 +199,11 @@ void Session::ProcessWriteThread(void)
 {
 
 	bool say = false;
-  uint64 packetBuildTimeStart;
-  uint64 packetBuildTime = 0;
+	uint64 now = Anh_Utils::Clock::getSingleton()->getLocalTime();
+	uint64 packetBuildTimeStart;
+	uint64 packetBuildTime = 0;
   
-  uint64 wholeTime = packetBuildTime = packetBuildTimeStart = Anh_Utils::Clock::getSingleton()->getLocalTime();
+  uint64 wholeTime = packetBuildTime = packetBuildTimeStart = now;
 
   //only process when we are busy - we dont need to iterate through possible resends all the time
   if((!mUnreliableMessageQueue.size())&&(!mOutgoingMessageQueue.size()))
@@ -270,10 +271,10 @@ void Session::ProcessWriteThread(void)
   uint32 pUnreliableBuild = 0;
 
   //build reliable packets
-  while(((packetBuildTime - packetBuildTimeStart) < mPacketBuildTimeLimit) && ((mRolloverWindowPacketList.size() + mWindowPacketList.size()) < mWindowSizeCurrent) && mOutgoingMessageQueue.size())
+  while(((now - packetBuildTimeStart) < mPacketBuildTimeLimit) && ((mRolloverWindowPacketList.size() + mWindowPacketList.size()) < mWindowSizeCurrent) && mOutgoingMessageQueue.size())
   {
 	pBuild += _buildPackets();
-	packetBuildTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
+	now = Anh_Utils::Clock::getSingleton()->getLocalTime();
 	
   }
 	
@@ -281,15 +282,15 @@ void Session::ProcessWriteThread(void)
  
 
   //build unreliable packets
-  packetBuildTime = packetBuildTimeStart = Anh_Utils::Clock::getSingleton()->getLocalTime();
-  while(((packetBuildTime - packetBuildTimeStart) < mPacketBuildTimeLimit) && mUnreliableMessageQueue.size())
+  now = packetBuildTimeStart = Anh_Utils::Clock::getSingleton()->getLocalTime();
+  while(((now - packetBuildTimeStart) < mPacketBuildTimeLimit) && mUnreliableMessageQueue.size())
   {
 	  //unreliables are directly put on the wire without getting in the way of our window
 	  //this way they get lost when we have lag but thats not exactly a hughe problem
 	  //and we dont get problems with our window list filled with unreliables
 	  //which never get acked
 	  pUnreliableBuild += _buildPacketsUnreliable();
-	  packetBuildTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
+	  now = Anh_Utils::Clock::getSingleton()->getLocalTime();
  	
   }
 
@@ -415,29 +416,28 @@ void Session::ProcessWriteThread(void)
 
   if (mStatus == SSTAT_Connected)
   {
-
-	  uint64 t = Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastPacketReceived;
-	  t = (uint64)t/1000;
-      if ((Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastPacketReceived) > 60000)
+	  uint64 t = now - mLastPacketReceived;
+	  
+      if (t > 60000)
       {
 		  if(this->mServerService)
 		  {
-				gLogger->logMsgF("Session disconnect last received packet > 60 (%I64u) seconds session Id :%u", MSG_HIGH, t, this->getId());   
-				gLogger->logMsgF("Session lastpacket %I64u now %I64u diff : %I64u", MSG_HIGH, mLastPacketReceived, Anh_Utils::Clock::getSingleton()->getLocalTime(),(Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastPacketReceived));   
-				mCommand = SCOM_Disconnect;
+				gLogger->logMsgF("Session disconnect last received packet > 60 (%I64u) seconds session Id :%u", MSG_HIGH, t/1000, this->getId());   
+				gLogger->logMsgF("Session lastpacket %I64u now %I64u diff : %I64u", MSG_HIGH, mLastPacketReceived, now,(now - mLastPacketReceived));   
+				//mCommand = SCOM_Disconnect;
 		  }
 		  else
 		  {
-			gLogger->logMsgF("Session disconnect last received packet > 60 (%I64u) seconds session Id :%u", MSG_HIGH, t, this->getId());   
+			gLogger->logMsgF("Session disconnect last received packet > 60 (%I64u) seconds session Id :%u", MSG_HIGH, float(t/1000.0), this->getId());   
  
 			mCommand = SCOM_Disconnect;
 		  }
       }
 	  else	  
-	  if (this->mServerService && ((Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastPacketReceived) > 10000))
+	  if (this->mServerService && ((t - mLastPacketReceived) > 10000))
 	  {
 		  //gLogger->logMsgF("Session send server server ping", MSG_HIGH);   
-		  if((Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastPingPacketSent) > 1000)
+		  if((t - mLastPingPacketSent) > 2000)
 				_sendPingPacket();
 	  }
       
@@ -701,20 +701,20 @@ void Session::HandleSessionPacket(Packet* packet)
 
 		   if(ooopsSequence == mInSequenceNext)
 		   {
-			   gLogger->logMsgF("use stored packet - sequence %uI64", MSG_HIGH, ooopsSequence);
+			   gLogger->logMsgF("use stored packet - sequence %u", MSG_HIGH, ooopsSequence);
 			   HandleSessionPacket(ooopsPacket);
 			   mOutOfOrderPackets.erase(ooopsIt++);
 		   }
 		   else
 		   if(ooopsSequence < mInSequenceNext)
 		   {
-			   gLogger->logMsgF("destroy stored packet - sequence %uI64", MSG_HIGH, ooopsSequence);
+			   gLogger->logMsgF("destroy stored packet - sequence %u", MSG_HIGH, ooopsSequence);
 			   mPacketFactory->DestroyPacket(ooopsPacket);
 			   mOutOfOrderPackets.erase(ooopsIt++);
 		   }
 		   else
 		   {
-			   gLogger->logMsgF("ignore stored packet - sequence %uI64", MSG_HIGH, ooopsSequence);
+			   gLogger->logMsgF("ignore stored packet - sequence %u", MSG_HIGH, ooopsSequence);
 				ooopsIt++;
 		   }
 	   }

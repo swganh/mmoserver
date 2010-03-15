@@ -127,7 +127,12 @@ void SocketWriteThread::run()
 
 	// Call our internal _startup method
 	_startup();
+	
+	uint32 packets = 50;
+	if(mServerService)
+		packets = 1000;
 
+	
 	// Main loop
 	while(!mExit)
 	{
@@ -151,8 +156,9 @@ void SocketWriteThread::run()
 			while (session->getOutgoingReliablePacketCount())
 			{
 				packetCount++;
-				if(packetCount > 25)
+				if(packetCount > packets)
 					break;
+
 				packet = session->getOutgoingReliablePacket();
 				_sendPacket(packet, session);
 			}
@@ -164,8 +170,7 @@ void SocketWriteThread::run()
 			//uint32 ucount = 0;
 			while (session->getOutgoingUnreliablePacketCount())
 			{
-				if(packetCount > 25)
-					break;
+				
 				packet = session->getOutgoingUnreliablePacket();
 				_sendPacket(packet, session);
 				session->DestroyPacket(packet);

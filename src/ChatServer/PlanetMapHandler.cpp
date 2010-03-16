@@ -10,9 +10,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 */
 
 #include "PlanetMapHandler.h"
-#include "ConnectionDispatch.h"
-#include "ConnectionClient.h"
-#include "ConnectionServerOpcodes.h"
+#include "ChatOpcodes.h"
 
 #include "LogManager/LogManager.h"
 
@@ -20,7 +18,9 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 
+#include "Common/DispatchClient.h"
 #include "Common/Message.h"
+#include "Common/MessageDispatch.h"
 #include "Common/MessageFactory.h"
 
 //#include <stdio.h>
@@ -44,12 +44,12 @@ PlanetMapHandler::~PlanetMapHandler()
 
 //======================================================================================================================
 
-void PlanetMapHandler::Startup(Database* database, ConnectionDispatch* dispatch)
+void PlanetMapHandler::Startup(Database* database, MessageDispatch* dispatch)
 {
 	mDatabase = database;
-	mConnectionDispatch = dispatch;
+	mMessageDispatch = dispatch;
 
-	mConnectionDispatch->RegisterMessageCallback(opGetMapLocationsMessage,this);
+	mMessageDispatch->RegisterMessageCallback(opGetMapLocationsMessage,this);
 
 
   // We're going to build our databinding here.
@@ -72,7 +72,7 @@ void PlanetMapHandler::Shutdown()
   mDatabase->DestroyDataBinding(mDataBinding);
 
   // Unregister our message callbacks
-	mConnectionDispatch->UnregisterMessageCallback(opGetMapLocationsMessage);
+	mMessageDispatch->UnregisterMessageCallback(opGetMapLocationsMessage);
 }
 
 
@@ -86,7 +86,7 @@ void PlanetMapHandler::Process()
 
 //======================================================================================================================
 
-void PlanetMapHandler::handleDispatchMessage(uint32 opcode, Message* message, ConnectionClient* client)
+void PlanetMapHandler::handleDispatchMessage(uint32 opcode, Message* message, DispatchClient* client)
 {
 	switch(opcode)
 	{
@@ -115,7 +115,7 @@ void PlanetMapHandler::handleDatabaseJobComplete(void* ref, DatabaseResult* resu
 
 	// Get our container back
 	PlanetMapHandlerAsyncContainer* container = reinterpret_cast<PlanetMapHandlerAsyncContainer*>(ref);
-	ConnectionClient* client = reinterpret_cast<ConnectionClient*>(container->mClient);
+	DispatchClient* client = reinterpret_cast<DispatchClient*>(container->mClient);
 
 	if(!client)
 	{
@@ -127,7 +127,7 @@ void PlanetMapHandler::handleDatabaseJobComplete(void* ref, DatabaseResult* resu
 	gMessageFactory->addUint32(opHeartBeat);
 	newMessage = gMessageFactory->EndMessage();
 
-	client->SendChannelAUnreliable(newMessage, 1);
+	client->SendChannelAUnreliable(newMessage, client->getAccountId(), CR_Client, 1);
 
 	locationsCount = result->getRowCount();
 
@@ -165,7 +165,7 @@ void PlanetMapHandler::handleDatabaseJobComplete(void* ref, DatabaseResult* resu
 
 	newMessage = gMessageFactory->EndMessage();
 
-	client->SendChannelA(newMessage, 8, false);
+	client->SendChannelA(newMessage, client->getAccountId(), CR_Client, 8);
 
   // Destroy our DB objects
   delete (container);
@@ -173,7 +173,7 @@ void PlanetMapHandler::handleDatabaseJobComplete(void* ref, DatabaseResult* resu
 
 
 //======================================================================================================================
-void PlanetMapHandler::_processMapLocationsRequest(Message* message, ConnectionClient* client)
+void PlanetMapHandler::_processMapLocationsRequest(Message* message, DispatchClient* client)
 {
   PlanetMapHandlerAsyncContainer* container = new PlanetMapHandlerAsyncContainer();
 

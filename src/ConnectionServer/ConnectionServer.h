@@ -16,11 +16,10 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 
 //======================================================================================================================
-class CharacterAdminHandler;
+
 class DatabaseManager;
 class Database;
 class NetworkManager;
-class PlanetMapHandler;
 class Service;
 class MessageRouter;
 class ClientManager;
@@ -52,8 +51,6 @@ class ConnectionServer
 		ClientManager*			mClientManager;
 		ServerManager*			mServerManager;
 		ConnectionDispatch*		mConnectionDispatch;
-		CharacterAdminHandler*        mCharacterAdminHandler;
-		PlanetMapHandler*				mPlanetMapHandler;
 
 		uint32					mClusterId;
 

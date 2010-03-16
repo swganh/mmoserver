@@ -181,6 +181,21 @@ enum chat_opcodes
 	opIsmGroupSay					= 0x39360616,	//[ZO->CH]
 	opChatNotifySceneReady			= 0x75C4DD84,	//[ZO->CH]  // Fake code, crc-based on the word "chatcmdsceneready".
 
+	// character creation messages
+	opClientIdMsg				=	0xd5899226,
+	opClientPermissionsMessage	=	0xE00730E5,
+
+	opClientCreateCharacter				=	0xB97F3074,
+	opClientRandomNameRequest			=	0xD6D1B6D1,
+	opClientRandomNameResponse			=	0xE85FB868,
+	opClientCreateCharacterSuccess		=	0x1DB575CC,
+	opClientCreateCharacterFailed		=	0xdf333c6e,
+	opLagRequest						=	0x31805EE0,
+
+	// Map location messages
+	opGetMapLocationsMessage			=	0x1a7ab839,
+	opGetMapLocationsResponseMessage	=	0x9f80464c,
+
 	// admin inter server messages
 	opIsmBroadcastPlanet			= 0x3F9D6D6E,	//[ZO->CH]
 	opIsmBroadcastGalaxy			= 0x8E41B5CB,	//[ZO->CH]

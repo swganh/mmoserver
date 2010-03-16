@@ -9,10 +9,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
-#include "ConnectionServerOpcodes.h"
 #include "CharacterAdminHandler.h"
-#include "ConnectionDispatch.h"
-#include "ConnectionClient.h"
+#include "ChatOpcodes.h"
 
 #include "LogManager/LogManager.h"
 
@@ -20,7 +18,9 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 
+#include "Common/DispatchClient.h"
 #include "Common/Message.h"
+#include "Common/MessageDispatch.h"
 #include "Common/MessageFactory.h"
 
 #include "Utils/utils.h"
@@ -33,8 +33,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include <cstring>
 
 //======================================================================================================================
-CharacterAdminHandler::CharacterAdminHandler(uint8 galaxyId)
-: mGalaxyId(galaxyId)
+CharacterAdminHandler::CharacterAdminHandler(void)
 {
 
 }
@@ -48,16 +47,16 @@ CharacterAdminHandler::~CharacterAdminHandler(void)
 
 
 //======================================================================================================================
-void CharacterAdminHandler::Startup(Database* database, ConnectionDispatch* dispatch)
+void CharacterAdminHandler::Startup(Database* database, MessageDispatch* dispatch)
 {
   // Store our members
   mDatabase = database;
-  mConnectionDispatch = dispatch;
+  mMessageDispatch = dispatch;
 
   // Register our opcodes
-  mConnectionDispatch->RegisterMessageCallback(opClientCreateCharacter,this);
-  mConnectionDispatch->RegisterMessageCallback(opLagRequest,this);
-  mConnectionDispatch->RegisterMessageCallback(opClientRandomNameRequest,this);
+  mMessageDispatch->RegisterMessageCallback(opClientCreateCharacter,this);
+  mMessageDispatch->RegisterMessageCallback(opLagRequest,this);
+  mMessageDispatch->RegisterMessageCallback(opClientRandomNameRequest,this);
 
   // Load anything we need from the database
 }
@@ -67,9 +66,9 @@ void CharacterAdminHandler::Startup(Database* database, ConnectionDispatch* disp
 void CharacterAdminHandler::Shutdown(void)
 {
   // Unregister our callbacks
-  mConnectionDispatch->UnregisterMessageCallback(opClientCreateCharacter);
-  mConnectionDispatch->UnregisterMessageCallback(opLagRequest);
-  mConnectionDispatch->UnregisterMessageCallback(opClientRandomNameRequest);
+  mMessageDispatch->UnregisterMessageCallback(opClientCreateCharacter);
+  mMessageDispatch->UnregisterMessageCallback(opLagRequest);
+  mMessageDispatch->UnregisterMessageCallback(opClientRandomNameRequest);
 }
 
 
@@ -81,7 +80,7 @@ void CharacterAdminHandler::Process(void)
 
 
 //======================================================================================================================
-void CharacterAdminHandler::handleDispatchMessage(uint32 opcode, Message* message, ConnectionClient* client)
+void CharacterAdminHandler::handleDispatchMessage(uint32 opcode, Message* message, DispatchClient* client)
 {
   switch(opcode)
   {
@@ -107,7 +106,7 @@ void CharacterAdminHandler::handleDispatchMessage(uint32 opcode, Message* messag
 
 
 //======================================================================================================================
-void CharacterAdminHandler::_processRandomNameRequest(Message* message, ConnectionClient* client)
+void CharacterAdminHandler::_processRandomNameRequest(Message* message, DispatchClient* client)
 {
 	if(!client)
 	{
@@ -123,7 +122,7 @@ void CharacterAdminHandler::_processRandomNameRequest(Message* message, Connecti
   newMessage = gMessageFactory->EndMessage();
 
   // Send our message to the client.
-  client->SendChannelAUnreliable(newMessage, 1);
+  client->SendChannelAUnreliable(newMessage, client->getAccountId(), CR_Client, 1);
 
   // set our object type string.
   string objectType;
@@ -136,7 +135,7 @@ void CharacterAdminHandler::_processRandomNameRequest(Message* message, Connecti
 
 
 //======================================================================================================================
-void CharacterAdminHandler::_processCreateCharacter(Message* message, ConnectionClient* client)
+void CharacterAdminHandler::_processCreateCharacter(Message* message, DispatchClient* client)
 {
 	// gLogger->logMsgF("CharacterAdminHandler::_processCreateCharacter Entering", MSG_NORMAL);
   CharacterCreateInfo characterInfo;
@@ -300,9 +299,8 @@ void CharacterAdminHandler::_processCreateCharacter(Message* message, Connection
 		characterInfo.mLastName = strRep(std::string(characterInfo.mLastName.getAnsi()),"'","''").c_str();
 
 	// Build our procedure call
-	sprintf(sql, "CALL sp_CharacterCreate(%"PRIu32", %d,'%s','%s', '%s', '%s', %f",
+	sprintf(sql, "CALL sp_CharacterCreate(%"PRIu32", 2,'%s','%s', '%s', '%s', %f",
 		client->getAccountId(),
-		mGalaxyId,
 		characterInfo.mFirstName.getAnsi(),
 		characterInfo.mLastName.getAnsi(),
 		characterInfo.mProfession.getAnsi(),
@@ -311,9 +309,8 @@ void CharacterAdminHandler::_processCreateCharacter(Message* message, Connection
   }
   else
   {
-	  sprintf(sql, "CALL sp_CharacterCreate(%"PRIu32", %d, '%s',NULL , '%s', '%s', %f",
+	  sprintf(sql, "CALL sp_CharacterCreate(%"PRIu32", 2, '%s',NULL , '%s', '%s', %f",
 		  client->getAccountId(),
-		  mGalaxyId,
 		  characterInfo.mFirstName.getAnsi(),
 		  characterInfo.mProfession.getAnsi(),
 		  characterInfo.mStartCity.getAnsi(),
@@ -425,7 +422,7 @@ void CharacterAdminHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* 
 			gMessageFactory->addString(state);
 			newMessage = gMessageFactory->EndMessage();
 
-			asyncContainer->mClient->SendChannelA(newMessage, 4, false);
+			asyncContainer->mClient->SendChannelA(newMessage, asyncContainer->mClient->getAccountId(), CR_Client, 4);
 
 			mDatabase->DestroyDataBinding(binding);
 		}
@@ -590,7 +587,7 @@ void CharacterAdminHandler::_parseAppearanceData(Message* message, CharacterCrea
 
 //======================================================================================================================
 
-void CharacterAdminHandler::_sendCreateCharacterSuccess(uint64 characterId,ConnectionClient* client)
+void CharacterAdminHandler::_sendCreateCharacterSuccess(uint64 characterId,DispatchClient* client)
 {
 	if(!client)
 	{
@@ -602,19 +599,19 @@ void CharacterAdminHandler::_sendCreateCharacterSuccess(uint64 characterId,Conne
 	gMessageFactory->addUint32(opHeartBeat);
 	Message* newMessage = gMessageFactory->EndMessage();
 
-	client->SendChannelAUnreliable(newMessage, 1);
+	client->SendChannelAUnreliable(newMessage, client->getAccountId(), CR_Client, 1);
 
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opClientCreateCharacterSuccess);
 	gMessageFactory->addUint64(characterId);
 	newMessage = gMessageFactory->EndMessage();
 
-	client->SendChannelA(newMessage, 2, false);
+	client->SendChannelA(newMessage, client->getAccountId(), CR_Client, 2);
 }
 
 //======================================================================================================================
 
-void CharacterAdminHandler::_sendCreateCharacterFailed(uint32 errorCode,ConnectionClient* client)
+void CharacterAdminHandler::_sendCreateCharacterFailed(uint32 errorCode,DispatchClient* client)
 {
 	if(!client)
 	{
@@ -712,7 +709,7 @@ void CharacterAdminHandler::_sendCreateCharacterFailed(uint32 errorCode,Connecti
 	gMessageFactory->addUint32(opHeartBeat);
 	Message* newMessage = gMessageFactory->EndMessage();
 
-	client->SendChannelAUnreliable(newMessage, 1);
+	client->SendChannelAUnreliable(newMessage, client->getAccountId(), CR_Client, 1);
 
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opClientCreateCharacterFailed);
@@ -722,7 +719,7 @@ void CharacterAdminHandler::_sendCreateCharacterFailed(uint32 errorCode,Connecti
 	gMessageFactory->addString(errorString);
 	newMessage = gMessageFactory->EndMessage();
 
-	client->SendChannelA(newMessage, 3, false);
+	client->SendChannelA(newMessage, client->getAccountId(), CR_Client, 3);
 }
 
 //======================================================================================================================

@@ -16,6 +16,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 //======================================================================================================================
 
+class CharacterAdminHandler;
 class ChatManager;
 class CSRManager;
 class Database;
@@ -24,6 +25,7 @@ class DispatchClient;
 class GroupManager;
 class MessageDispatch;
 class NetworkManager;
+class PlanetMapHandler;
 class Service;
 class TradeManagerChatHandler;
 class StructureManagerChatHandler;
@@ -66,6 +68,8 @@ class ChatServer
 
 		MessageDispatch*              mMessageDispatch;
 
+		CharacterAdminHandler*        mCharacterAdminHandler;
+		PlanetMapHandler*			  mPlanetMapHandler;
 		TradeManagerChatHandler*	  mTradeManagerChatHandler;
 		StructureManagerChatHandler*  mStructureManagerChatHandler;
 		ChatManager*				  mChatManager;

@@ -361,10 +361,6 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\CharacterAdminHandler.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\ClientManager.cpp"
 				>
 			</File>
@@ -381,10 +377,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\PlanetMapHandler.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\ServerManager.cpp"
 				>
 			</File>
@@ -394,10 +386,6 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
-			<File
-				RelativePath=".\CharacterAdminHandler.h"
-				>
-			</File>
 			<File
 				RelativePath=".\ClientManager.h"
 				>
@@ -428,10 +416,6 @@
 			</File>
 			<File
 				RelativePath=".\MessageRouter.h"
-				>
-			</File>
-			<File
-				RelativePath=".\PlanetMapHandler.h"
 				>
 			</File>
 			<File

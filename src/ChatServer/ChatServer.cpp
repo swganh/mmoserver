@@ -17,6 +17,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "GroupManager.h"
 #include "TradeManagerChat.h"
 #include "StructureManagerChat.h"
+#include "CharacterAdminHandler.h"
+#include "PlanetMapHandler.h"
 
 #include "NetworkManager/NetworkManager.h"
 #include "NetworkManager/Service.h"
@@ -115,6 +117,12 @@ void ChatServer::Startup()
 	// load up GroupManager
 	mGroupManager = GroupManager::Init(mMessageDispatch);
 
+	mCharacterAdminHandler = new CharacterAdminHandler();
+	mCharacterAdminHandler->Startup(mDatabase, mMessageDispatch);  
+  
+	mPlanetMapHandler = new PlanetMapHandler();
+	mPlanetMapHandler->Startup(mDatabase,mMessageDispatch);
+
 	ChatMessageLib::Init(mClient);
 
 	// We're done initializing.
@@ -138,6 +146,12 @@ void ChatServer::Shutdown()
 	_updateDBServerList(0);
 
 	// Shutdown the various handlers
+	mCharacterAdminHandler->Shutdown();
+	delete mCharacterAdminHandler;
+	
+	mPlanetMapHandler->Shutdown();
+	delete mPlanetMapHandler;
+
 	delete (mChatManager);
 	delete (mCSRManager);
 	mTradeManagerChatHandler->Shutdown();
@@ -171,6 +185,8 @@ void ChatServer::Process()
 	//  Process our core services
 	mDatabaseManager->Process();
 	mNetworkManager->Process();
+	mCharacterAdminHandler->Process();
+	mPlanetMapHandler->Process();
 	mTradeManagerChatHandler->Process();
 	mStructureManagerChatHandler->Process();
 }

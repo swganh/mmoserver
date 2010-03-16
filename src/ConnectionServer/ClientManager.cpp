@@ -411,7 +411,7 @@ void ClientManager::_handleQueryAuth(ConnectionClient* client, DatabaseResult* r
 
     // This one goes to the AdminServer
     adminMessage->setAccountId(client->getAccountId());
-    adminMessage->setDestinationId(CR_Connection);
+    adminMessage->setDestinationId(CR_Chat);
     adminMessage->setRouted(true);
     mMessageRouter->RouteMessage(adminMessage, client);
 

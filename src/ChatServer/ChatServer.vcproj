@@ -190,62 +190,26 @@
 	</References>
 	<Files>
 		<Filter
-			Name="Source Files"
-			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
-			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
+			Name="CharacterCreationManager"
 			>
 			<File
-				RelativePath=".\Channel.cpp"
+				RelativePath=".\CharacterAdminHandler.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ChatAvatarId.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\ChatManager.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\ChatServer.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Player.cpp"
+				RelativePath=".\CharacterAdminHandler.h"
 				>
 			</File>
 		</Filter>
 		<Filter
-			Name="Header Files"
-			Filter="h;hpp;hxx;hm;inl;inc;xsd"
-			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
+			Name="PlanetMapManager"
 			>
 			<File
-				RelativePath=".\Channel.h"
+				RelativePath=".\PlanetMapHandler.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ChatAvatarId.h"
-				>
-			</File>
-			<File
-				RelativePath=".\ChatManager.h"
-				>
-			</File>
-			<File
-				RelativePath=".\ChatOpcodes.h"
-				>
-			</File>
-			<File
-				RelativePath=".\ChatServer.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Mail.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Player.h"
+				RelativePath=".\PlanetMapHandler.h"
 				>
 			</File>
 		</Filter>
@@ -328,34 +292,22 @@
 		<Filter
 			Name="CSRManager"
 			>
-			<Filter
-				Name="Header Files"
+			<File
+				RelativePath=".\CSRManager.cpp"
 				>
-				<File
-					RelativePath=".\CSRManager.h"
-					>
-				</File>
-				<File
-					RelativePath=".\CSRObjects.h"
-					>
-				</File>
-				<File
-					RelativePath=".\CSROpcodes.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="Source Files"
+			</File>
+			<File
+				RelativePath=".\CSRManager.h"
 				>
-				<File
-					RelativePath=".\CSRManager.cpp"
-					>
-				</File>
-			</Filter>
-		</Filter>
-		<Filter
-			Name="BuffEventManager"
-			>
+			</File>
+			<File
+				RelativePath=".\CSRObjects.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CSROpcodes.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="StructureManager"
@@ -369,6 +321,54 @@
 				>
 			</File>
 		</Filter>
+		<File
+			RelativePath=".\Channel.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\Channel.h"
+			>
+		</File>
+		<File
+			RelativePath=".\ChatAvatarId.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\ChatAvatarId.h"
+			>
+		</File>
+		<File
+			RelativePath=".\ChatManager.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\ChatManager.h"
+			>
+		</File>
+		<File
+			RelativePath=".\ChatOpcodes.h"
+			>
+		</File>
+		<File
+			RelativePath=".\ChatServer.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\ChatServer.h"
+			>
+		</File>
+		<File
+			RelativePath=".\Mail.h"
+			>
+		</File>
+		<File
+			RelativePath=".\Player.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\Player.h"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

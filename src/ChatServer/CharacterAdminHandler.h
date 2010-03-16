@@ -9,20 +9,19 @@ Copyright (c) 2006 - 2010 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
-#ifndef ANH_ADMINSERVER_CHARACTERADMINHANDLER_H
-#define ANH_ADMINSERVER_CHARACTERADMINHANDLER_H
+#ifndef SRC_CHATSERVER_CHARACTERADMINHANDLER_H_
+#define SRC_CHATSERVER_CHARACTERADMINHANDLER_H_
 
-#include "ConnectionDispatchCallback.h"
+#include "Common/MessageDispatchCallback.h"
 #include "DatabaseManager/DatabaseCallback.h"
-//#include "Utils/typedefs.h"
 
 
 //======================================================================================================================
 class Message;
 class Database;
 class DatabaseResult;
-class ConnectionDispatch;
-class ConnectionClient;
+class MessageDispatch;
+class DispatchClient;
 
 enum QueryType
 {
@@ -34,10 +33,10 @@ class CAAsyncContainer
 {
 	public:
 
-		CAAsyncContainer(QueryType queryType,ConnectionClient* client){ mQueryType = queryType; mClient = client; }
+		CAAsyncContainer(QueryType queryType,DispatchClient* client){ mQueryType = queryType; mClient = client; }
 
 		QueryType		mQueryType;
-		ConnectionClient*	mClient;
+		DispatchClient*	mClient;
 		string			mObjBaseType;
 };
 
@@ -64,38 +63,36 @@ public:
 
 
 //======================================================================================================================
-class CharacterAdminHandler : public ConnectionDispatchCallback, public DatabaseCallback
+class CharacterAdminHandler : public MessageDispatchCallback, public DatabaseCallback
 {
 	public:
 
-		explicit CharacterAdminHandler(uint8 galaxyId);
+		CharacterAdminHandler(void);
 		~CharacterAdminHandler(void);
 
-		void			Startup(Database* database, ConnectionDispatch* dispatch);
+		void			Startup(Database* database, MessageDispatch* dispatch);
 		void			Shutdown(void);
 		void			Process(void);
 
-		// Inherited from ConnectionDispatchCallback
-		virtual void	handleDispatchMessage(uint32 opcode, Message* message, ConnectionClient* client);
+		// Inherited from MessageDispatchCallback
+		virtual void	handleDispatchMessage(uint32 opcode, Message* message, DispatchClient* client);
 		virtual void	handleDatabaseJobComplete(void* ref,DatabaseResult* result);
 
 	private:
 
-		void				_processRandomNameRequest(Message* message, ConnectionClient* client);
-		void                _processCreateCharacter(Message* message, ConnectionClient* client);
+		void				_processRandomNameRequest(Message* message, DispatchClient* client);
+		void                _processCreateCharacter(Message* message, DispatchClient* client);
 		void                _parseAppearanceData(Message* message, CharacterCreateInfo* info);
 
 		void				_parseHairData(Message* message, CharacterCreateInfo* info);
 
-		void				_sendCreateCharacterSuccess(uint64 characterId,ConnectionClient* client);
-		void				_sendCreateCharacterFailed(uint32 errorCode,ConnectionClient* client);
+		void				_sendCreateCharacterSuccess(uint64 characterId,DispatchClient* client);
+		void				_sendCreateCharacterFailed(uint32 errorCode,DispatchClient* client);
 
 		Database*           mDatabase;
-		ConnectionDispatch*    mConnectionDispatch;
-		uint8					mGalaxyId;
+		MessageDispatch*    mMessageDispatch;
 };
 
 
-#endif //MMOSERVER_ADMINSERVER_CHARACTERADMINHANDLER_H
-
+#endif // SRC_CHATSERVER_CHARACTERADMINHANDLER_H_
 

@@ -13,7 +13,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "ConnectionServerOpcodes.h"
 #include "ClientManager.h"
 #include "ConnectionDispatch.h"
-#include "PlanetMapHandler.h"
 #include "ServerManager.h"
 #include "MessageRouter.h"
 

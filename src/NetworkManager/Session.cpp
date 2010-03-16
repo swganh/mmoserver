@@ -416,13 +416,16 @@ void Session::ProcessWriteThread(void)
 
   if (mStatus == SSTAT_Connected)
   {
-	  uint64 t = now - mLastPacketReceived;
+	  int64 t = now - mLastPacketReceived;
 	  
+	  //!!! as receiving packets happens in the readthread and this code is executed in the write thread
+	  //it can happen that a packet was received AFTER the now is read out - especvially when our thread gets interrupted at this point!!!!
+	  //to solve this we take an int instead an uint as lastpacket can be bigger than now :)
       if (t > 60000)
       {
 		  if(this->mServerService)
 		  {
-				gLogger->logMsgF("Session disconnect last received packet > 60 (%I64u) seconds session Id :%u", MSG_HIGH, t/1000, this->getId());   
+				gLogger->logMsgF("Session disconnect last received packet > 60 (%I64) seconds session Id :%u", MSG_HIGH, t/1000, this->getId());   
 				gLogger->logMsgF("Session lastpacket %I64u now %I64u diff : %I64u", MSG_HIGH, mLastPacketReceived, now,(now - mLastPacketReceived));   
 				//mCommand = SCOM_Disconnect;
 		  }
@@ -434,7 +437,7 @@ void Session::ProcessWriteThread(void)
 		  }
       }
 	  else	  
-	  if (this->mServerService && ((t - mLastPacketReceived) > 10000))
+	  if (this->mServerService && ((t - mLastPacketReceived) > 20000))
 	  {
 		  //gLogger->logMsgF("Session send server server ping", MSG_HIGH);   
 		  if((t - mLastPingPacketSent) > 2000)

@@ -53,7 +53,7 @@ class SocketWriteThread
 
 		void			_sendPacket(Packet* packet, Session* session);
 
-		void				*mtheHandle;
+		//void				*mtheHandle;
 
 		uint16				mMessageMaxSize;
 		int8				mSendBuffer[SEND_BUFFER_SIZE];  
@@ -74,11 +74,11 @@ class SocketWriteThread
 		bool				mServerService;
 		// Anh_Utils::Clock*	mClock;
 
-		SessionQueue		mSessionQueue;
+		SessionQueue				mSessionQueue;
 
-        boost::thread   	mThread;
-		boost::recursive_mutex        mSocketWriteMutex;
-		bool				mExit;
+        boost::thread   			mThread;
+		boost::recursive_mutex      mSocketWriteMutex;
+		bool						mExit;
 };
 
 //======================================================================================================================

@@ -1006,7 +1006,7 @@ void ObjectController::_handlePurchaseTicket(uint64 targetId,Message* message,Ob
 	TravelTerminal* terminal = dynamic_cast<TravelTerminal*> (gWorldManager->getNearestTerminal(playerObject,TanType_TravelTerminal));
 	// iterate through the results
 	
-	if((!terminal)||terminal->mPosition.inRange2D(playerObject->mPosition,purchaseRange))
+	if((!terminal)||(!terminal->mPosition.inRange2D(playerObject->mPosition,purchaseRange)))
 	{
 		gMessageLib->sendSystemMessage(playerObject,L"","travel","too_far");
 		return;

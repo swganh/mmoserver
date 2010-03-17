@@ -97,9 +97,9 @@ void SocketWriteThread::Startup(SOCKET socket, Service* service, bool serverserv
 	
 
 	//our thread load values
-	mThreadTime = mLastThreadTime = 0;
+	//mThreadTime = mLastThreadTime = 0;
 	mLastTime =   Anh_Utils::Clock::getSingleton()->getLocalTime();
-	lastThreadProcessingTime = threadProcessingTime = 0;
+	//lastThreadProcessingTime = threadProcessingTime = 0;
 	
 	unCount = 	reCount = 0;
 }

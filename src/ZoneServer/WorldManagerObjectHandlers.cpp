@@ -909,16 +909,18 @@ bool WorldManager::_handleGeneralObjectTimers(uint64 callTime, void* ref)
 //	getNearest Terminal
 //
 
-Object* WorldManager::getNearestTerminal(PlayerObject* player, TangibleType terminalType)
+Object* WorldManager::getNearestTerminal(PlayerObject* player, TangibleType terminalType, float range)
 {
 
+
+	//this will get the nearest terminal in the world - we need to check playerbuildings, too
 	ObjectSet		inRangeObjects;
-	this->getSI()->getObjectsInRange(player,&inRangeObjects,ObjType_Tangible,1024);//range is debateable
+	this->getSI()->getObjectsInRange(player,&inRangeObjects,(ObjType_Tangible|ObjType_Building),range);//range is debateable
 
 	ObjectSet::iterator it = inRangeObjects.begin();
 	
 	float	range = 0.0;
-	Object* nearestTerminal = NULL;;
+	Object* nearestTerminal = NULL;
 
 	while(it != inRangeObjects.end())
 	{
@@ -928,10 +930,42 @@ Object* WorldManager::getNearestTerminal(PlayerObject* player, TangibleType term
 		{
 			float nr = terminal->mPosition.distance2D(player->mPosition);
 			//double check the distance
-			if((nearestTerminal && (range < nr))||(!nearestTerminal))
+			if((nearestTerminal && (nr < range ))||(!nearestTerminal))
 			{
 				range = nr;
 				nearestTerminal = terminal;
+			}
+		}
+		else
+		if(BuildingObject* building = dynamic_cast<BuildingObject*> (*it))
+		{
+			//iterate through the structure and look for terminals
+			ObjectList list = building->getAllCellChilds();
+			ObjectList::iterator cellChildsIt = list.begin();
+
+			while(cellChildsIt != list.end())
+			{
+				Object* cellChild = (*cellChildsIt);
+
+				uint32 tmpType = cellChild->getType();
+
+				if((tmpType & ObjType_Tangible) == static_cast<uint32>(ObjType_Tangible))
+				{
+					
+					Terminal* terminal = dynamic_cast<Terminal*> (cellChild);
+					if(terminal&&(terminal->getTangibleType() == terminalType))
+					{
+						float nr = terminal->mPosition.distance2D(player->mPosition);
+						//double check the distance
+						if((nearestTerminal && (nr < range))||(!nearestTerminal))
+						{
+							range = nr;
+							nearestTerminal = terminal;
+						}
+					}
+				}
+
+				++cellChildsIt;
 			}
 		}
 

@@ -365,7 +365,7 @@ void Session::ProcessWriteThread(void)
 
 		_addOutgoingReliablePacket(windowPacket);
 		
-		//mWindoPacketList has the already send but not yet acknowledged PAckets
+		//mWindoPacketList has the already send but not yet acknowledged Packets
 		mWindowPacketList.push_back(windowPacket);
 		packetsSent++;
 
@@ -419,15 +419,15 @@ void Session::ProcessWriteThread(void)
 	  int64 t = now - mLastPacketReceived;
 	  
 	  //!!! as receiving packets happens in the readthread and this code is executed in the write thread
-	  //it can happen that a packet was received AFTER the now is read out - especvially when our thread gets interrupted at this point!!!!
+	  //it can happen that a packet was received AFTER the now is read out - especially when our thread gets interrupted at this point!!!!
 	  //to solve this we take an int instead an uint as lastpacket can be bigger than now :)
       if (t > 60000)
       {
 		  if(this->mServerService)
 		  {
-				gLogger->logMsgF("Session disconnect last received packet > 60 (%I64) seconds session Id :%u", MSG_HIGH, t/1000, this->getId());   
+				gLogger->logMsgF("Session disconnect last received packet > 60 (%I64u) seconds session Id :%u", MSG_HIGH, t/1000, this->getId());   
 				gLogger->logMsgF("Session lastpacket %I64u now %I64u diff : %I64u", MSG_HIGH, mLastPacketReceived, now,(now - mLastPacketReceived));   
-				//mCommand = SCOM_Disconnect;
+				mCommand = SCOM_Disconnect;
 		  }
 		  else
 		  {
@@ -457,6 +457,9 @@ void Session::SendChannelA(Message* message)
 	{
 		gLogger->logMsgF("Session::SendChannelA priority messup!!!", MSG_HIGH );
 		gLogger->hexDump(message->getData(), message->getSize());
+
+		//ALWAYS delete messages -never orphan them!!!
+		message->setPendingDelete(true);		
 		return;
 	}
 
@@ -477,8 +480,6 @@ void Session::SendChannelA(Message* message)
 
   //the connectionserver puts a lot of fastpaths here  - so just put them were they belong
   //this alone takes roughly 5% cpu off of the connectionserver
-
-	message->mSourceId = 1;
 
   if(message->getFastpath()&& (message->getSize() < mMaxUnreliableSize))
 	  mUnreliableMessageQueue.push(message);
@@ -1364,17 +1365,9 @@ void Session::_processDataChannelB(Packet* packet)
 				}
 
 				routed =  packet->getUint8();  // Routing byte in a B 019 used!!! as we have interserver communication here
-		 
-				if(!routed)
-				{
-					gLogger->logMsgF("Session::_processDataChannelB :: thats not routed ... sob :(", MSG_HIGH);
-					gLogger->hexDump(packet->getData(),packet->getSize());
-					return;
-				}
 
 				dest = packet->getUint8();
 				accountId = packet->getUint32();
-		  
 
 				// Init a new message for this data.
 				mMessageFactory->StartMessage();
@@ -1424,6 +1417,7 @@ void Session::_processDataChannelB(Packet* packet)
 		{
 			dest = packet->getUint8();
 			accountId = packet->getUint32();
+
 			// Create our new message and send it up.
 			mMessageFactory->StartMessage();
 			mMessageFactory->addData(packet->getData() + packet->getReadIndex(), packet->getSize() - packet->getReadIndex());
@@ -1437,6 +1431,7 @@ void Session::_processDataChannelB(Packet* packet)
 			}
 			newMessage->setRouted(true);
 		
+
 
 			// set our message parameters
 			newMessage->setAccountId(accountId);

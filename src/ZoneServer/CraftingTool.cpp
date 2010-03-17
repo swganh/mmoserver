@@ -18,6 +18,11 @@ Copyright (c) 2006 - 2010 The swgANH Team
 CraftingTool::CraftingTool() : Item(),
 mCurrentItem(NULL)
 {
+	
+}
+
+void CraftingTool::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount)
+{
 	mRadialMenu	= RadialMenuPtr(new RadialMenu());
 
 	mRadialMenu->addItem(1,0,radId_craftStart,radAction_Default);

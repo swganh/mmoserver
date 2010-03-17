@@ -599,6 +599,8 @@ void StructureManager::_HandleUpdateAdminPermission(StructureManagerAsyncContain
 	{
 		result->GetNextRow(adminBinding,&adminData);
 		house->addHousingAdminEntry(adminData.playerID);
+
+		//now that we added it to the list we need to update the players delta
 	}
 
 	mDatabase->DestroyDataBinding(adminBinding);
@@ -645,6 +647,7 @@ void StructureManager::_HandleAddPermission(StructureManagerAsyncContainer* asyn
 		//we need to keep them in memory to handle drop/pickup in cells
 		if(HouseObject*	house = dynamic_cast<HouseObject*>(gWorldManager->getObjectById(asynContainer->mStructureId)))
 		{
+			updateKownPlayerPermissions(house);
 			StructureManagerAsyncContainer* asContainer = new StructureManagerAsyncContainer(Structure_Query_UpdateAdminPermission,NULL);
 			asContainer->mStructureId = asynContainer->mStructureId;
 
@@ -694,7 +697,7 @@ void StructureManager::_HandleAddPermission(StructureManagerAsyncContainer* asyn
 //==================================================================================================
 // 
 // this loads basic (nonpersistant) structure item information for structure types
-// used with camps - 
+// used with camps -	loaded on startup
 
 void StructureManager::_HandleNonPersistantLoadStructureItem(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result)
 {
@@ -796,7 +799,10 @@ void StructureManager::_HandleCheckPermission(StructureManagerAsyncContainer* as
 		else
 		if(asynContainer->command.Command == Structure_Command_CellEnterDenial)
 		{
-			//do nothing we are not on the ban list and as the structure is public all is fine
+			//in case the structure was private before we are now be allowed to enter
+			//as we are not banned
+			if(BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(asynContainer->command.StructureId)))
+				building->updateCellPermissions(player,true);
 		}
 		else
 			gMessageLib->sendSystemMessage(player,L"You are not an admin of this structure");

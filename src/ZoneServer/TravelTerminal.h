@@ -40,8 +40,8 @@ class TravelTerminal : public Terminal
 		void		setPortType(PortType portType){ mPortType = portType; }
 
 		virtual void		handleObjectMenuSelect(uint8 messageType,Object* srcObject);
-		virtual void		prepareCustomRadialMenuInCell(uint8 messageType,Object* srcObject);
-		virtual void		prepareCustomRadialMenu(uint8 messageType,Object* srcObject);
+
+		virtual void		prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
 
 	private:
 

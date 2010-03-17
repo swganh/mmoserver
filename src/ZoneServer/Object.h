@@ -108,7 +108,7 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 		bool						checkKnownObjects(Object* object) const;
 
 		RadialMenuPtr				getRadialMenu(){ return mRadialMenu; }
-		void						ResetRadialMenu(){	RadialMenu* radial	= NULL;RadialMenuPtr radialPtr(radial);	mRadialMenu = radialPtr;}
+		virtual void				ResetRadialMenu(){;}//	RadialMenu* radial	= NULL;RadialMenuPtr radialPtr(radial);	mRadialMenu = radialPtr;}
 
 		virtual void				handleUIEvent(uint32 action,int32 element,string inputStr = "",UIWindow* window = NULL) {}
 

@@ -29,8 +29,18 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 InsuranceTerminal::InsuranceTerminal() : Terminal()
 {
-	mRadialMenu = RadialMenuPtr(new RadialMenu());
 	mInsuranceFee		= gWorldConfig->getConfiguration("Player_ItemInsuranceFee",(int)100);
+}
+
+//=============================================================================
+
+InsuranceTerminal::~InsuranceTerminal()
+{
+}
+
+void InsuranceTerminal::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount)
+{
+	mRadialMenu = RadialMenuPtr(new RadialMenu());
 
 	if (gWorldConfig->isTutorial())
 	{
@@ -45,12 +55,6 @@ InsuranceTerminal::InsuranceTerminal() : Terminal()
 		mRadialMenu->addItem(2,0,radId_examine,radAction_Default);
 		mRadialMenu->addItem(3,0,radId_Unknown,radAction_ObjCallback, "@sui:mnu_insure_all");
 	}
-}
-
-//=============================================================================
-
-InsuranceTerminal::~InsuranceTerminal()
-{
 }
 
 //=============================================================================

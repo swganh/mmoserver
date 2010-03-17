@@ -23,6 +23,7 @@ ChanceCube::ChanceCube() : Item()
 	mRadialMenu->addItem(2,0,radId_examine,radAction_Default);
 }
 
+
 //=============================================================================
 
 ChanceCube::~ChanceCube(void)

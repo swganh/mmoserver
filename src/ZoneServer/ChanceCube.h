@@ -26,6 +26,7 @@ class ChanceCube : public Item
 		virtual ~ChanceCube(void);
 
 		void	handleObjectMenuSelect(uint8 messageType,Object* srcObject);
+		virtual void	ResetRadialMenu(){;}//RadialMenu* radial	= NULL;RadialMenuPtr radialPtr(radial);	mRadialMenu = radialPtr;}
 };
 
 //=============================================================================

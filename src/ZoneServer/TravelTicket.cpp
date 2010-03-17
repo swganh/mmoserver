@@ -26,11 +26,17 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 TravelTicket::TravelTicket() : Item()
 {
+	
+}
+
+void TravelTicket::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount)
+{
 	mRadialMenu = RadialMenuPtr(new RadialMenu());
 
 	mRadialMenu->addItem(1,0,radId_itemUse,radAction_ObjCallback);
 	mRadialMenu->addItem(2,0,radId_examine,radAction_Default);
 }
+
 
 //=============================================================================
 

@@ -91,12 +91,16 @@ void SocketWriteThread::Startup(SOCKET socket, Service* service, bool serverserv
 
 	mThread = boost::move(t);
 
-	HANDLE th =  mThread.native_handle();
-	SetPriorityClass(th,REALTIME_PRIORITY_CLASS);	
+	HANDLE mtheHandle = mThread.native_handle();
+	SetPriorityClass(mtheHandle,REALTIME_PRIORITY_CLASS);	
 
 	
 
-	lasttime =   Anh_Utils::Clock::getSingleton()->getLocalTime();
+	//our thread load values
+	mThreadTime = mLastThreadTime = 0;
+	mLastTime =   Anh_Utils::Clock::getSingleton()->getLocalTime();
+	lastThreadProcessingTime = threadProcessingTime = 0;
+	
 	unCount = 	reCount = 0;
 }
 
@@ -189,6 +193,33 @@ void SocketWriteThread::run()
 				mService->AddSessionToProcessQueue(session);
 			}
 		}
+		/*
+		if(!mServerService)
+		{
+			uint64 now = Anh_Utils::Clock::getSingleton()->getLocalTime();
+			int64 timePassed = now - mLastTime;
+			
+			//get a measurement every several seconds 2 ?? 5 ???
+			if(timePassed > 5000)
+			{
+				mLastTime = now;
+
+				LPFILETIME time1, time2,time3,time4;
+				time1 = time2 = time3 = time4 = 0;
+				GetProcessTimes(mtheHandle,time1,time2,time3,time4);
+				
+				mLastThreadTime = mThreadTime;
+				mNewThreadTime = (uint64)&time3+(uint64)&time4;
+
+				mThreadTime = mNewThreadTime - mLastThreadTime;
+
+				mCpuUsage = (uint32)((100.0 * mThreadTime) / timePassed);
+				gLogger->logMsgF("SocketReadThread Currently at (%u) cpu load",MSG_HIGH,mCpuUsage);
+				
+			}
+		}
+		
+		*/
 
         boost::this_thread::sleep(boost::posix_time::milliseconds(1));
 	}

@@ -33,6 +33,17 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 SurveyTool::SurveyTool() : Item()
 {
+	
+}
+
+//=============================================================================
+
+SurveyTool::~SurveyTool()
+{
+}
+
+void SurveyTool::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount)
+{
 	mRadialMenu	= RadialMenuPtr(new RadialMenu());
 
 	mRadialMenu->addItem(1,0,radId_itemUse,radAction_ObjCallback);
@@ -40,12 +51,6 @@ SurveyTool::SurveyTool() : Item()
 	mRadialMenu->addItem(3,0,radId_itemDestroy,radAction_Default);
 	mRadialMenu->addItem(4,0,radId_serverItemOptions,radAction_ObjCallback,"@sui:tool_options");
 	mRadialMenu->addItem(5,4,radId_serverSurveyToolRange,radAction_ObjCallback,"@sui:survey_range");
-}
-
-//=============================================================================
-
-SurveyTool::~SurveyTool()
-{
 }
 
 //=============================================================================

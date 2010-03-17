@@ -25,11 +25,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 Firework::Firework() : Item()
 {
-	mRadialMenu	= RadialMenuPtr(new RadialMenu());
-	mRadialMenu->addItem(1,0,radId_itemUse,radAction_ObjCallback,"");
-	mRadialMenu->addItem(2,0,radId_examine,radAction_ObjCallback,"");
-	mRadialMenu->addItem(3,0,radId_itemDestroy,radAction_ObjCallback,"");
-	this->delay=0;
+	
 }
 
 //=============================================================================
@@ -43,6 +39,11 @@ Firework::~Firework()
 
 void Firework::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount)
 {
+	mRadialMenu	= RadialMenuPtr(new RadialMenu());
+	mRadialMenu->addItem(1,0,radId_itemUse,radAction_ObjCallback,"");
+	mRadialMenu->addItem(2,0,radId_examine,radAction_ObjCallback,"");
+	mRadialMenu->addItem(3,0,radId_itemDestroy,radAction_ObjCallback,"");
+	this->delay=0;
 
 }
 

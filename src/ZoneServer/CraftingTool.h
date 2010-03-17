@@ -27,6 +27,7 @@ class CraftingTool : public Item
 	
 		Item*	getCurrentItem(){ return mCurrentItem; }
 		void	setCurrentItem(Item* item){ mCurrentItem = item; }
+		virtual void	prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
 
 	private:
 

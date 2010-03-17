@@ -110,6 +110,31 @@ void StructureManager::Shutdown()
 }
 
 
+//=======================================================================================================================
+// after altering a structures permission list we will update the permissions of the players
+// on the structures KnownObjectsList
+//
+
+void StructureManager::updateKownPlayerPermissions(PlayerStructure* structure)
+{
+	HouseObject* house = dynamic_cast<HouseObject*>(structure);
+	if(!house)
+		return;
+
+	PlayerObjectSet* playerSet = structure->getKnownPlayers();
+	PlayerObjectSet::iterator it = playerSet->begin();
+
+	while(it != playerSet->end())
+	{
+		PlayerObject* player = (*it);
+		house->checkCellPermission(player);
+		
+		it++;
+	}
+
+
+}
+
 
 
 //=======================================================================================================================
@@ -702,6 +727,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			//make sure were not the owner, however
 			if(owner)
 			{
+				//building->updateCellPermissions(player,true);
 				return;
 			}
 
@@ -750,12 +776,14 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 				mDatabase->ExecuteSqlAsync(0,0,"UPDATE houses h SET h.private = 0 WHERE h.ID = %I64u",command.StructureId);
 				house->setPublic(false);
 				gMessageLib->sendSystemMessage(player,L"","player_structure","structure_now_private");
+				updateKownPlayerPermissions(house);
 				return;
 			}
 
 			house->setPublic(true);
 			gMessageLib->sendSystemMessage(player,L"","player_structure","structure_now_public");
 			mDatabase->ExecuteSqlAsync(0,0,"UPDATE houses h SET h.private = 1 WHERE h.ID = %I64u",command.StructureId);
+			updateKownPlayerPermissions(house);
 		}
 		break;
 

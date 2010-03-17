@@ -1357,8 +1357,11 @@ void ObjectController::handleObjectMenuRequest(Message* message)
 	}
 
 	//are we an item dropped in a structure awaiting to be moved or picked u`p?
+    //just implement this virtual function for items as we need just one central point instead
+	//of the same code over and over for all items
 
-	if(requestedObject->getParentId())
+	Item* item = dynamic_cast<Item*>(requestedObject);
+	if(item && requestedObject->getParentId())
 	{
 		if(CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(requestedObject->getParentId())))
 		{
@@ -1377,6 +1380,8 @@ void ObjectController::handleObjectMenuRequest(Message* message)
 		{
 			gMessageLib->sendObjectMenuResponse(requestedObject,playerObject,responseNr);
 		}
+		//they only reset if the objects virtual function does it
+		//by default it stays
 		requestedObject->ResetRadialMenu();
 		//the radial menu is supposed to be an intelligent pointer deleting itself when no reference is left
 		//however during runtime the item always references the radialmenu that was generated for it on the first call.

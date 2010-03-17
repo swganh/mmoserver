@@ -117,7 +117,7 @@ void ElevatorTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObjec
 
 //=============================================================================
 
-void ElevatorTerminal::prepareCustomRadialMenuInCell(uint8 messageType,Object* srcObject)
+void ElevatorTerminal::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount)
 {
 	RadialMenu* radial = new RadialMenu();
 	

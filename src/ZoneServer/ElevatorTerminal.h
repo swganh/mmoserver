@@ -36,7 +36,7 @@ class ElevatorTerminal : public Terminal
 		uint32					getEffectDown(){ return mEffectDown; }
 
 		
-		virtual void		prepareCustomRadialMenuInCell(uint8 messageType,Object* srcObject);
+		virtual void		prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
 		virtual void		handleObjectMenuSelect(uint8 messageType,Object* srcObject);
 
 	private:

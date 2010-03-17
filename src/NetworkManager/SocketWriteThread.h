@@ -53,13 +53,22 @@ class SocketWriteThread
 
 		void			_sendPacket(Packet* packet, Session* session);
 
+		void				*mtheHandle;
+
 		uint16				mMessageMaxSize;
 		int8				mSendBuffer[SEND_BUFFER_SIZE];  
 		Service*			mService;
 		CompCryptor*		mCompCryptor;
 		SOCKET				mSocket;
 		bool				mIsRunning;
-		uint64			    lasttime;
+		uint64			    mLastTime;
+		uint64			    mLastThreadTime;
+		uint64			    mNewThreadTime;
+		uint32				mCpuUsage;
+		uint64			    mThreadTime;
+		uint64				lastThreadProcessingTime;
+		uint64				threadProcessingTime;
+
 		uint32				unCount;
 		uint32				reCount;
 		bool				mServerService;

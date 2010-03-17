@@ -147,7 +147,7 @@ ObjectList BuildingObject::getAllCellChilds()
 //
 void BuildingObject::updateCellPermissions(PlayerObject* player, bool access)
 {
-	gLogger->logMsg("BuildingObject::updateCellPermissions: Permission set to %u",access);
+	//gLogger->logMsg("BuildingObject::updateCellPermissions: Permission set to %u",access);
 	//iterate through all the cells - do they need to be deleted ?
 	//place players inside a cell in the world
 	CellObjectList*				cellList	= getCellList();

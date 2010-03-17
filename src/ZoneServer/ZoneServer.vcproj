@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="ZoneServer"
 	ProjectGUID="{003C0A20-ACBE-498D-A674-3938FF4AF5AB}"
 	RootNamespace="Zoneserver"
@@ -1614,6 +1614,22 @@
 					RelativePath=".\EVQueueSize.h"
 					>
 				</File>
+				<File
+					RelativePath=".\EVSurveySample.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\EVSurveySample.h"
+					>
+				</File>
+				<File
+					RelativePath=".\EVWeapon.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\EVWeapon.h"
+					>
+				</File>
 			</Filter>
 		</Filter>
 		<Filter
@@ -2162,14 +2178,6 @@
 						>
 					</File>
 					<File
-						RelativePath=".\EVWeapon.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\EVWeapon.h"
-						>
-					</File>
-					<File
 						RelativePath=".\Weapon.cpp"
 						>
 					</File>
@@ -2329,18 +2337,6 @@
 							>
 						</File>
 					</Filter>
-				</Filter>
-				<Filter
-					Name="Surveying"
-					>
-					<File
-						RelativePath=".\EVSurveySample.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\EVSurveySample.h"
-						>
-					</File>
 				</Filter>
 				<Filter
 					Name="CraftingStation"

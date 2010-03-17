@@ -628,6 +628,12 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 		case ChatQuery_MailById:
 		{
+			if(!result->getRowCount())
+			{
+				gLogger->logMsgF(" not found mail with id %u",MSG_HIGH,asyncContainer->mRequestId);
+				SAFE_DELETE(asyncContainer);
+				return;
+			}
 			Mail mail = Mail();
 			mail.mSubject.setLength(512);
 			mail.mText.setLength(8192);
@@ -2601,14 +2607,7 @@ void ChatManager::_processPersistentMessageToServer(Message* message,DispatchCli
 void ChatManager::_processRequestPersistentMessage(Message* message,DispatchClient* client)
 {
 	uint32 dbMailId;
-	Message* newMessage;
-
-	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opHeartBeat);
-	newMessage = gMessageFactory->EndMessage();
-
-	client->SendChannelA(newMessage,client->getAccountId(),CR_Client,1);
-
+	
 
 	message->getUint32();            // unknown
 	dbMailId = message->getUint32();
@@ -2616,6 +2615,7 @@ void ChatManager::_processRequestPersistentMessage(Message* message,DispatchClie
 
 	ChatAsyncContainer* asyncContainer = new ChatAsyncContainer(ChatQuery_MailById);
 	asyncContainer->mClient = client;
+	asyncContainer->mRequestId = dbMailId;
 
 	int8 sql[256];
 	sprintf(sql,"SELECT chat_mail.id,chat_mail.from,chat_mail.subject,chat_mail.body,chat_mail.time,chat_mail.attachments,chat_mail.attachmentSize"

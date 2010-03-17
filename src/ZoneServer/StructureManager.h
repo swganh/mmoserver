@@ -254,6 +254,8 @@ class StructureManager : public DatabaseCallback,public ObjectFactoryCallback
 		void					createNewStructureDeleteConfirmBox(PlayerObject* player, PlayerStructure* structure);
 		void					createNewStructureDestroyBox(PlayerObject* player, PlayerStructure* structure, bool redeed);
 
+		void					updateKownPlayerPermissions(PlayerStructure* structure);
+
 		//=========================================================
 
 		StructureDeedLink*		getDeedData(uint32 type);	//returns the data associated with a certain deed

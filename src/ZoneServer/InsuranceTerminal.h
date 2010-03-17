@@ -28,6 +28,7 @@ class InsuranceTerminal : public Terminal
 
 		void		handleObjectMenuSelect(uint8 messageType,Object* srcObject);
 		void		handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window);
+		virtual void prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
 
 	private:
 		void		getUninsuredItems(PlayerObject* playerObject, BStringVector* insuranceList);

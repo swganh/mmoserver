@@ -232,7 +232,7 @@ void HarvesterObject::prepareCustomRadialMenu(CreatureObject* creatureObject, ui
 	PlayerObject* player = dynamic_cast<PlayerObject*>(creatureObject);
 	if(!player)
 	{	
-		gLogger->logMsgF("HarvesterObject::handleObjectMenuSelect::could not find player",MSG_HIGH);
+		gLogger->logMsgF("HarvesterObject::prepareCustomRadialMenu::could not find player",MSG_HIGH);
 		return;
 	}
 	

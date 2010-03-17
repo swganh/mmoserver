@@ -20,7 +20,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 TravelTerminal::TravelTerminal() : Terminal()
 {
-	mRadialMenu = RadialMenuPtr(new RadialMenu());
 	
 }
 
@@ -88,7 +87,7 @@ void TravelTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 //=============================================================================
 
 
-void TravelTerminal::prepareCustomRadialMenu(uint8 messageType,Object* srcObject)
+void TravelTerminal::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount)
 {
 	mRadialMenu = RadialMenuPtr(new RadialMenu());
 	
@@ -97,11 +96,3 @@ void TravelTerminal::prepareCustomRadialMenu(uint8 messageType,Object* srcObject
 	
 }
 
-void TravelTerminal::prepareCustomRadialMenuInCell(uint8 messageType,Object* srcObject)
-{
-	mRadialMenu = RadialMenuPtr(new RadialMenu());
-	
-	mRadialMenu->addItem(1,0,radId_itemUse,radAction_ObjCallback);
-	mRadialMenu->addItem(2,0,radId_examine,radAction_Default);
-	
-}

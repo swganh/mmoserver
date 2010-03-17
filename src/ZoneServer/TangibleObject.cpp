@@ -193,3 +193,36 @@ void TangibleObject::setParentIdIncDB(uint64 parentId)
 	gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id=%"PRIu64" WHERE id=%"PRIu64"",mParentId,this->getId());
 }
 
+
+void TangibleObject::prepareCustomRadialMenuInCell(CreatureObject* creatureObject, uint8 itemCount)
+{
+	RadialMenu* radial	= new RadialMenu();
+	uint8 i = 1;
+	uint8 u = 1;
+
+	// any object with callbacks needs to handle those (received with menuselect messages) !
+	if(this->getObjects()->size())
+		radial->addItem(i++,0,radId_itemOpen,radAction_Default,"");
+
+	radial->addItem(i++,0,radId_examine,radAction_Default,"");
+
+	radial->addItem(i++,0,radId_itemPickup,radAction_Default,"");
+	
+	u = i;
+	radial->addItem(i++,0,radId_itemMove,radAction_Default, "");	
+	radial->addItem(i++,u,radId_itemMoveForward,radAction_Default, "");//radAction_ObjCallback
+	radial->addItem(i++,u,radId_ItemMoveBack,radAction_Default, "");
+	radial->addItem(i++,u,radId_itemMoveUp,radAction_Default, "");
+	radial->addItem(i++,u,radId_itemMoveDown,radAction_Default, "");
+	
+	u = i;
+	radial->addItem(i++,0,radId_itemRotate,radAction_Default, "");
+	radial->addItem(i++,u,radId_itemRotateRight,radAction_Default, "");
+	radial->addItem(i++,u,radId_itemRotateLeft,radAction_Default, "");
+
+  
+	RadialMenuPtr radialPtr(radial);
+	mRadialMenu = radialPtr;
+
+
+}

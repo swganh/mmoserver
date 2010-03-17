@@ -1361,7 +1361,16 @@ void ObjectController::handleObjectMenuRequest(Message* message)
 	//of the same code over and over for all items
 
 	Item* item = dynamic_cast<Item*>(requestedObject);
+	ResourceContainer* rc = dynamic_cast<ResourceContainer*>(requestedObject);
 	if(item && requestedObject->getParentId())
+	{
+		if(CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(requestedObject->getParentId())))
+		{
+			requestedObject->prepareCustomRadialMenuInCell(playerObject,static_cast<uint8>(itemCount));
+		}
+	}
+
+	if(rc && requestedObject->getParentId())
 	{
 		if(CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(requestedObject->getParentId())))
 		{

@@ -48,7 +48,7 @@ class Item : public TangibleObject
 									return name;  }
 
 		virtual void	prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
-		virtual void	prepareCustomRadialMenuInCell(CreatureObject* creatureObject, uint8 itemCount);
+		//virtual void	prepareCustomRadialMenuInCell(CreatureObject* creatureObject, uint8 itemCount);
 		virtual void	ResetRadialMenu(){RadialMenu* radial	= NULL;RadialMenuPtr radialPtr(radial);	mRadialMenu = radialPtr;}
 		virtual void	updateWorldPosition();
 

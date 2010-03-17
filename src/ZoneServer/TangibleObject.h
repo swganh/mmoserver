@@ -30,6 +30,8 @@ class TangibleObject :	public ObjectContainer
 		TangibleObject(uint64 id,uint64 parentId,const string model,TangibleGroup tanGroup = TanGroup_None,TangibleType tanType = TanType_None,const string name = "",const string nameFile = "",const string detailFile = "");
 		virtual ~TangibleObject();
 
+		virtual void		prepareCustomRadialMenuInCell(CreatureObject* creatureObject, uint8 itemCount);
+
 		virtual void		upDateFactoryVolume(string amount){;}
 		string				getName() const { return mName; }
 		void				setName(const int8* name){ mName = name; }
@@ -43,7 +45,6 @@ class TangibleObject :	public ObjectContainer
 		//============================================================
 		//sets ParentId - for item table objects in the db and Object
 		virtual void		setParentIdIncDB(uint64 parentId);
-		virtual void		prepareCustomRadialMenuInCell(CreatureObject* creatureObject, uint8 itemCount){;}
 
 		string				getCustomizationStr() const { return mCustomizationStr; }
 		void				setCustomizationStr(const uint8* custStr){ mCustomizationStr = (int8*)custStr; }

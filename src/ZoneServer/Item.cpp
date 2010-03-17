@@ -40,8 +40,8 @@ void Item::updateWorldPosition()
 }
 
 //=============================================================================
-// its an item droppe in a cell - these all have the same menu options
-
+// its an item drop in a cell - these all have the same menu options
+/*
 void Item::prepareCustomRadialMenuInCell(CreatureObject* creatureObject, uint8 itemCount)
 {
 	RadialMenu* radial	= new RadialMenu();
@@ -74,6 +74,7 @@ void Item::prepareCustomRadialMenuInCell(CreatureObject* creatureObject, uint8 i
 
 
 }
+*/
 void Item::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount)
 {
 	//thats handled by the specific items as these are very heterogen

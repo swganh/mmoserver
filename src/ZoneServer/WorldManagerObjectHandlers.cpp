@@ -909,13 +909,13 @@ bool WorldManager::_handleGeneralObjectTimers(uint64 callTime, void* ref)
 //	getNearest Terminal
 //
 
-Object* WorldManager::getNearestTerminal(PlayerObject* player, TangibleType terminalType, float range)
+Object* WorldManager::getNearestTerminal(PlayerObject* player, TangibleType terminalType, float searchrange)
 {
 
 
 	//this will get the nearest terminal in the world - we need to check playerbuildings, too
 	ObjectSet		inRangeObjects;
-	this->getSI()->getObjectsInRange(player,&inRangeObjects,(ObjType_Tangible|ObjType_Building),range);//range is debateable
+	this->getSI()->getObjectsInRange(player,&inRangeObjects,(ObjType_Tangible|ObjType_Building),searchrange);//range is debateable
 
 	ObjectSet::iterator it = inRangeObjects.begin();
 	

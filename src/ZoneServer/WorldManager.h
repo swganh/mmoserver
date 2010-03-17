@@ -345,7 +345,7 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		void					removePlayerMovementUpdateTime(PlayerObject* player);
 
 		//find objects in the world
-		Object*					getNearestTerminal(PlayerObject* player, TangibleType terminalType, float range = 32);
+		Object*					getNearestTerminal(PlayerObject* player, TangibleType terminalType, float searchrange = 32);
 		
 		~WorldManager();
 

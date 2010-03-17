@@ -929,6 +929,14 @@ void ChatManager::_processClusterClientConnect(Message* message,DispatchClient* 
 	uint64 charId = message->getUint64();
 	uint32 planetId = message->getUint32();
 
+	// @NOTE this is a hack that is needed for the time being. Currently the MessageDispatch
+	// handles these opClusterClientConnect messages however messages coming from a zone
+	// server require additional extra processing. To ensure this is only handled at the
+	// appropriate time check to see if a character id has been set as only the zone server sets this.
+	if (charId == 0) {
+		return;
+	}
+
 	Player* player = new Player(charId,client,planetId);
 
 	gLogger->logMsgF("Connecting account %u with player id %"PRIu64"", MSG_NORMAL, client->getAccountId(), charId);

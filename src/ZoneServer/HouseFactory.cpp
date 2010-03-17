@@ -276,9 +276,20 @@ void HouseFactory::_destroyDatabindings()
 
 void HouseFactory::handleObjectReady(Object* object,DispatchClient* client)
 {
-	//add our cells
+	//Perform checking.
+	if(!client)
+		return;
 
+	//add our cells
 	InLoadingContainer* ilc = _getObject(object->getParentId());
+
+	//Perform checking.
+	if(!ilc)
+	{
+		gLogger->logMsg("House creation failed (HouseFactory.cpp line 289)", FOREGROUND_RED);
+		return;
+	}
+
 	HouseObject*		house = dynamic_cast<HouseObject*>(ilc->mObject);
 	
 	//add hopper / new item to worldObjectlist, but NOT to the SI

@@ -237,7 +237,7 @@ class CreatureObject : public MovingObject
 		void				onIncapRecovery(const IncapRecoveryEvent* event);
 
 		virtual void		prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
-		virtual void		ResetRadialMenu(){RadialMenu* radial	= NULL;RadialMenuPtr radialPtr(radial);	mRadialMenu = radialPtr;}
+		virtual void		ResetRadialMenu(){mRadialMenu.reset();RadialMenu* radial	= NULL;RadialMenuPtr radialPtr(radial);	mRadialMenu = radialPtr;}
 
 		void				makePeaceWithDefender(uint64 targetId);
 		uint64				getNearestDefender(void);

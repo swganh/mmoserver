@@ -75,6 +75,7 @@ void Item::prepareCustomRadialMenuInCell(CreatureObject* creatureObject, uint8 i
 
 }
 */
+
 void Item::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount)
 {
 	//thats handled by the specific items as these are very heterogen

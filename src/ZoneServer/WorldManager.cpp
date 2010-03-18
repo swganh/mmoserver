@@ -444,7 +444,20 @@ bool WorldManager::_handleDisconnectUpdate(uint64 callTime,void* ref)
 			//remove the player out of his group - if any
 			GroupObject* group = gGroupManager->getGroupObject(playerObject->getGroupId());
 			if(group)
+			{
+				if(playerObject->getIDPartner() != 0)
+				{
+					if(PlayerObject* idPartner = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerObject->getIDPartner())))
+					{
+						idPartner->SetImageDesignSession(IDSessionNONE);
+						idPartner->setIDPartner(0);
+						playerObject->SetImageDesignSession(IDSessionNONE);
+						playerObject->setIDPartner(0);
+					}
+
+				}
 				group->removePlayer(playerObject->getId());
+			}
 
 			//asynch save
 			savePlayer(playerObject->getAccountId(),true,WMLogOut_LogOut);

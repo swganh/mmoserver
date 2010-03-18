@@ -246,6 +246,9 @@ class PlayerObject : public CreatureObject
 		uint32				getHoloCharge(){ return mHoloCharge; }
 		void				setHoloCharge(uint32 emote){ mHoloCharge = static_cast<uint8>(emote); }
 
+		uint64				getIDPartner(){ return mIDPartner; }
+		void				setIDPartner(uint64 id){ mIDPartner= id; }
+
 		// trade
 		void				giveBankCredits(uint32 amount);
 		void	            giveInventoryCredits(uint32 amount);
@@ -416,6 +419,7 @@ class PlayerObject : public CreatureObject
 
 		//logs whether weve got an IDsession running at this point
 		IDSession			mIDSession; 
+		uint64				mIDPartner;
 
 		uint64				mCombatTargetId; // The actual target player are hitting, not always the same as the "look-at" target.
 		uint64				mEntertainerPauseId;

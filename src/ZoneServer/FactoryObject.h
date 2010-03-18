@@ -52,6 +52,7 @@ class FactoryObject :	public PlayerStructure, public DatabaseCallback
 		bool			getActive(){ return mActive; }
 		void			setActive(bool value){ mActive = value; }
 
+		virtual void	ResetRadialMenu(){RadialMenu* radial	= NULL;RadialMenuPtr radialPtr(radial);	mRadialMenu = radialPtr;}
 		void			prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
 		void			handleObjectMenuSelect(uint8 messageType,Object* srcObject);
 

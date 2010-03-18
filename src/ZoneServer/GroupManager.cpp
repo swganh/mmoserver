@@ -182,6 +182,18 @@ void GroupManager::_processIsmGroupCREO6deltaGroupId(Message* message)
 			//got it - just remove him from the group
 			group->removePlayer(player->getId());
 
+			if(player->getIDPartner() != 0)
+			{
+				if(PlayerObject* idPartner = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(player->getIDPartner())))
+				{
+					idPartner->SetImageDesignSession(IDSessionNONE);
+					idPartner->setIDPartner(0);
+					player->SetImageDesignSession(IDSessionNONE);
+					player->setIDPartner(0);
+				}
+
+			}
+
 			//if the group is now empty we need to delete it
 			Uint64List* groupList = group->getPlayerList();
 			if(groupList->size() == 0)

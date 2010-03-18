@@ -222,6 +222,17 @@ PlayerObject::~PlayerObject()
 	if(GroupObject* group = gGroupManager->getGroupObject(mGroupId))
 	{
 		group->removePlayer(mId);
+		if(this->getIDPartner() != 0)
+		{
+			if(PlayerObject* idPartner = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getIDPartner())))
+			{
+				idPartner->SetImageDesignSession(IDSessionNONE);
+				idPartner->setIDPartner(0);
+				this->SetImageDesignSession(IDSessionNONE);
+				this->setIDPartner(0);
+			}
+
+		}
 	}
 
 	// can't zone or logout while in combat
@@ -485,14 +496,14 @@ void PlayerObject::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8
 		// stop watching
 		if(playerObject->getEntertainerWatchToId()== mId)
 		{
-			radial->addItem(radId,0,radId_serverPerformanceWatchStop,radAction_ObjCallback,"Stop Watching");
+			radial->addItem(radId+1,0,radId_serverPerformanceWatchStop,radAction_ObjCallback,"Stop Watching");
 
 			++radId;
 		}
 		// start watching
 		else if(playerObject->mPosition.inRange2D(mPosition,20))
 		{
-			radial->addItem(radId,0,radId_serverPerformanceWatch,radAction_ObjCallback,"Watch");
+			radial->addItem(radId+1,0,radId_serverPerformanceWatch,radAction_ObjCallback,"Watch");
 
 			++radId;
 		}
@@ -503,14 +514,14 @@ void PlayerObject::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8
 		// stop listening
 		if(playerObject->getEntertainerListenToId()== mId)
 		{
-			radial->addItem(radId,0,radId_serverPerformanceListenStop,radAction_ObjCallback,"Stop Listening");
+			radial->addItem(radId+1,0,radId_serverPerformanceListenStop,radAction_ObjCallback,"Stop Listening");
 
 			++radId;
 		}
 		// start listening
 		else if(playerObject->mPosition.inRange2D(mPosition,20))
 		{
-			radial->addItem(radId,0,radId_serverPerformanceListen,radAction_ObjCallback,"Listen");
+			radial->addItem(radId+1,0,radId_serverPerformanceListen,radAction_ObjCallback,"Listen");
 
 			++radId;
 		}

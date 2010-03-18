@@ -875,7 +875,9 @@ void ObjectController::_handleImageDesign(uint64 targetId,Message* message,Objec
 	}
 
 	designObject->SetImageDesignSession(IDSessionPREY);
+	designObject->setIDPartner(imageDesigner->getId());
 	imageDesigner->SetImageDesignSession(IDSessionID);
+	imageDesigner->setIDPartner(designObject->getId());
 
 	gMessageLib->sendImageDesignStartMessage(imageDesigner,designObject);
 
@@ -964,6 +966,9 @@ void ObjectController::handleImageDesignChangeMessage(Message* message,uint64 ta
 		if(imageDesigner->getImageDesignSession() == IDSessionNONE)
 			return;
 
+		imageDesigner->setIDPartner(0);
+		customer->setIDPartner(0);
+
 		imageDesigner->SetImageDesignSession(IDSessionNONE);
 		customer->SetImageDesignSession(IDSessionNONE);
 		//changelists get deleted
@@ -1033,6 +1038,8 @@ void ObjectController::handleImageDesignStopMessage(Message* message,uint64 targ
 	if(imageDesigner->getImageDesignSession() == IDSessionID)
 		gMessageLib->sendIDEndMessage(idObject,imageDesigner,idObject,hair, counter2,creditsOffered, 0,unknown2,flag2,flag3,counter1);
 
+	imageDesigner->setIDPartner(0);
+	customer->setIDPartner(0);
 	imageDesigner->SetImageDesignSession(IDSessionNONE);
 	customer->SetImageDesignSession(IDSessionNONE);
 

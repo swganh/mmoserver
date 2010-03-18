@@ -265,8 +265,15 @@ void InsuranceTerminal::handleUIEvent(uint32 action,int32 element,string inputSt
 					// Insure one item.
 					// gLogger->logMsgF("SUI_Window_Insurance_ListBox OK",MSG_NORMAL);
 					
-					int32 creditsAtBank = (dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->getCredits());
-					
+					Inventory* inventoryObject = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)); 
+					Bank* bankObject = dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
+
+					if(!inventoryObject || !bankObject)
+						return;
+
+					int32 creditsInInventory = inventoryObject->getCredits();
+					int32 creditsAtBank = bankObject->getCredits();
+
 					if (mSortedInsuranceList.size() ==  0)
 					{
 						// You have no insurable items.
@@ -307,14 +314,26 @@ void InsuranceTerminal::handleUIEvent(uint32 action,int32 element,string inputSt
 							// [Insurance] Item already insured: %TT. 
 							gMessageLib->sendSystemMessage(playerObject,L"","error_message","prose_item_already_insured", "","", L"", 0, "", "", selectedItemm);
 						}
-						else if (creditsAtBank < mInsuranceFee)
+						else if ((creditsAtBank+creditsInInventory) < mInsuranceFee)
 						{
 							// You have insufficient funds to insure your %TT. 
 							gMessageLib->sendSystemMessage(playerObject,L"","error_message","prose_nsf_insure", "","", L"", 0, "", "", selectedItemm);
 						}
-						else if ((dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->updateCredits(-mInsuranceFee)))
+						else
 						{
-							// The credits is drawn from the player bank.
+							int32 delta = creditsInInventory - mInsuranceFee;
+
+							if(delta >= 0)
+							{
+								inventoryObject->updateCredits(-mInsuranceFee);
+							}
+							else if(delta < 0 && creditsAtBank >= (-delta))
+							{
+								inventoryObject->updateCredits(mInsuranceFee + delta);
+								bankObject->updateCredits(delta);
+							}
+
+							// The credits is drawn from the player inventory and/or bank.
 							// System message: You successfully make a payment of %DI credits to %TO.
 							gMessageLib->sendSystemMessage(playerObject, L"", "base_player", "prose_pay_acct_success", "terminal_name", "terminal_insurance", L"", mInsuranceFee);
 
@@ -333,11 +352,11 @@ void InsuranceTerminal::handleUIEvent(uint32 action,int32 element,string inputSt
 							// You successfully insure your %TT. 
 							gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_insure_success", "","", L"", 0, "", "", selectedItemm);
 						}
-						else
+						/*else
 						{
 							// An attempt to insure your %TT has failed. Most likely, this is due to lack of funds. 
 							gMessageLib->sendSystemMessage(playerObject,L"","error_message","prose_insure_fail", "","", L"", 0, "", "", selectedItemm);
-						}
+						}*/
 					}
 				}
 				break;

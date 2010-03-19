@@ -334,6 +334,7 @@ void Buff::InitialChanges()
 
 			It++;
 		}
+		mDoInit=false;
 	}
 }
 

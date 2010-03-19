@@ -122,7 +122,7 @@ private:
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	int32					ModifyAttribute(BuffAttributeEnum Type, int32 Value, bool damage = false, bool debuff = false);//returns the amount of the buff that got applied
 	void					IncrementTick();
-	uint64					GetRemainingTime();
+	uint64					GetRemainingTime(uint64 CurrentTime);
 	bool					UpdateTick(uint64 CurrentTime);
 	void					FinalChanges();		//last change of a buff before deletion
 	void					InitialChanges();	//resend icons and attribute changes

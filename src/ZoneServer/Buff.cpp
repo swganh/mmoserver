@@ -285,16 +285,20 @@ void Buff::IncrementTick()
     mCurrentTick++;
 }
 
-
-uint64 Buff::GetRemainingTime()
-{
-    if(mNoTicks > mCurrentTick)
-    {
-        return mTick *(mNoTicks - mCurrentTick);
-    }
-
-    return 0;
-}
+uint64 Buff::GetRemainingTime(uint64 CurrentTime)
+ {
+	if(mNoTicks==0)
+	{
+		return (mStartTime+mTick)-CurrentTime;
+	} else {
+		if(mNoTicks > mCurrentTick)
+		{
+			return (mStartTime+(mTick *(mNoTicks - mCurrentTick)))-CurrentTime;
+		}
+	}
+ 
+     return 0;
+ }
 
 
 //=============================================================================
@@ -520,7 +524,13 @@ int32 Buff::ModifyAttribute(BuffAttributeEnum Type, int32 Value, bool damage, bo
 	case Carbine_Speed:{}break;
 	case Mask_Scent:
 		{
-			this->mTarget->modifySkillModValue(16, Value);
+			
+			if(mTarget->getSkillModValue(16) != 0)
+			{
+				mTarget->modifySkillModValue(16, Value);
+			} else { //we don't have skill mods for Mask Scent, hence erase attributes
+				EraseAttributes();
+			}
 		}
 	break;
 	case Onehandmelee_Accuracy:{}break;

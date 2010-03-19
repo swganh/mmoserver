@@ -143,8 +143,13 @@ void BuffManager::LoadBuffsFromResult(buffAsyncContainer* asyncContainer, Databa
 	{
 		result->GetNextRow(buffBinding,tmp);
 		Buff* buffTemp = Buff::FromDB(tmp, envelope->currentTime);
-		buffTemp->setTarget(player);
-		player->AddBuff(buffTemp);
+		if(buffTemp->GetRemainingTime(envelope->currentTime) >0) //Check there is time left
+		{
+			buffTemp->setTarget(player);
+			player->AddBuff(buffTemp);
+		} else {
+			SAFE_DELETE(buffTemp);
+		}
 	}
 	SAFE_DELETE(tmp);
 	mDatabase->DestroyDataBinding(buffBinding);
@@ -196,6 +201,7 @@ void BuffManager::LoadBuffAttributesFromResult(buffAsyncContainer* asyncContaine
 		result->GetNextRow(buffBinding,tmp);
 		asyncContainer->buff->AddAttribute(BuffAttribute::FromDB(tmp));
 	}
+	asyncContainer->buff->SetInit(true);
 	SAFE_DELETE(tmp);
 	mDatabase->DestroyDataBinding(buffBinding);
 

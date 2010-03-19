@@ -666,7 +666,9 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 						",health_wounds=%u,strength_wounds=%u,constitution_wounds=%u,action_wounds=%u,quickness_wounds=%u"
 						",stamina_wounds=%u,mind_wounds=%u,focus_wounds=%u,willpower_wounds=%u,battlefatigue=%u,posture=%u,moodId=%u,title=\'%s\'"
 						",character_flags=%u,states=%"PRIu64",language=%u,new_player_exemptions=%u WHERE character_id=%"PRIu64""
-						,ham->mHealth.getCurrentHitPoints(),ham->mAction.getCurrentHitPoints(),ham->mMind.getCurrentHitPoints()
+						,ham->mHealth.getCurrentHitPoints() - ham->mHealth.getModifier(),
+						ham->mAction.getCurrentHitPoints() - ham->mAction.getModifier(),
+						ham->mMind.getCurrentHitPoints() - ham->mMind.getModifier()
 						,ham->mHealth.getWounds(),ham->mStrength.getWounds()
 						,ham->mConstitution.getWounds(),ham->mAction.getWounds(),ham->mQuickness.getWounds(),ham->mStamina.getWounds(),ham->mMind.getWounds()
 						,ham->mFocus.getWounds(),ham->mWillpower.getWounds(),ham->getBattleFatigue(),playerObject->getPosture(),playerObject->getMoodId(),playerObject->getTitle().getAnsi()

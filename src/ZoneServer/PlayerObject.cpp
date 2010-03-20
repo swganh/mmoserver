@@ -1738,12 +1738,25 @@ CraftingStation* PlayerObject::getCraftingStation(ObjectSet	inRangeObjects, Item
 
 //=============================================================================
 
-void PlayerObject::clone(uint64 parentId,Anh_Math::Quaternion dir,Anh_Math::Vector3 pos)
+void PlayerObject::clone(uint64 parentId,Anh_Math::Quaternion dir,Anh_Math::Vector3 pos, bool preDesignatedFacility)
 {
 	// Remove revive timer, if any.
 	gWorldManager->removePlayerObjectForTimedCloning(mId);
 
-	// TODO: decay, wounds
+	
+
+	//reset buffs
+	BuffList::iterator it = this->GetBuffList()->begin();
+	while(it != this->GetBuffList()->end())
+	{
+		RemoveBuff((*it));
+		it++;
+	}
+	this->GetBuffList()->clear();
+	this->CleanUpBuffs();
+	this->getHam()->resetModifiers();
+	//TODO reset skillmodifiers
+	gMessageLib->sendCurrentHitpointDeltasCreo6_Full(this);
 
 	// Handle free deaths for newbies.
 	if (mNewPlayerExemptions > 0)
@@ -1754,6 +1767,14 @@ void PlayerObject::clone(uint64 parentId,Anh_Math::Quaternion dir,Anh_Math::Vect
 	}
 	else
 	{
+		if(!preDesignatedFacility)
+		{
+			//this seems ot be handled already somewhere
+			//uddate wounds
+			//getHam()->updateAllWounds(100);
+			//getHam()->updateBattleFatigue(100,true);
+		}
+
 		// Update / remove insurance of items in inventory (or equppied).
 		if (Inventory* inventory = dynamic_cast<Inventory*>(mEquipManager.getEquippedObject(CreatureEquipSlot_Inventory)))
 		{

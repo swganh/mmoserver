@@ -113,6 +113,8 @@ class Ham
 		bool			checkMainPools(int32 health,int32 action,int32 mind);
 		void			checkForRegen();
 
+		void			resetModifiers();
+
 		// get total hampoints to check for cheaters on statmigration
 		int32			getTotalHamCount();
 

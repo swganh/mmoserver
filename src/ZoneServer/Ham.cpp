@@ -77,6 +77,22 @@ Ham::~Ham()
 {
 }
 
+
+//===========================================================================
+//Resets the individual modifiers to 0 (ie after death)
+//===========================================================================
+void Ham::resetModifiers()
+{
+	setPropertyValue(HamBar_Health, HamProperty_Modifier,0);
+	setPropertyValue(HamBar_Strength, HamProperty_Modifier,0);
+	setPropertyValue(HamBar_Constitution, HamProperty_Modifier,0);
+	setPropertyValue(HamBar_Action, HamProperty_Modifier,0);
+	setPropertyValue(HamBar_Quickness, HamProperty_Modifier,0);
+	setPropertyValue(HamBar_Stamina, HamProperty_Modifier,0);
+	setPropertyValue(HamBar_Mind, HamProperty_Modifier,0);
+	setPropertyValue(HamBar_Focus, HamProperty_Modifier,0);
+	setPropertyValue(HamBar_Willpower, HamProperty_Modifier,0);
+}
 //===========================================================================
 //adds the interval to the updatecounter AFTER the current interval has been send
 //(in case more than one hambar is updated)

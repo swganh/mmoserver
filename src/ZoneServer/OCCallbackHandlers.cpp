@@ -203,7 +203,7 @@ void ObjectController::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 			SpawnPoint* sp = reinterpret_cast<SpawnPoint*>(asyncContainer->anyPtr);
 			if (sp)
 			{
-				asyncContainer->playerObject->clone(sp->mCellId,sp->mDirection,sp->mPosition);
+				asyncContainer->playerObject->clone(sp->mCellId,sp->mDirection,sp->mPosition,true);
 			}
 
 			mDatabase->DestroyDataBinding(binding);

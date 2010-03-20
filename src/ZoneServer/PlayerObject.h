@@ -319,7 +319,7 @@ class PlayerObject : public CreatureObject
 								 
 
 		// cloning
-		void				clone(uint64 parentId,Anh_Math::Quaternion dir,Anh_Math::Vector3 pos);
+		void				clone(uint64 parentId,Anh_Math::Quaternion dir,Anh_Math::Vector3 pos, bool preDesignatedFacility=false);
 		void				setPreDesignatedCloningFacilityId(uint64 cloningId);
 		uint64				getPreDesignatedCloningFacilityId(void);
 		void				saveNearestCloningFacility(BuildingObject* nearestCloningFacility);

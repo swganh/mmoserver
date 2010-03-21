@@ -413,15 +413,66 @@ void ScoutManager::successForage(PlayerObject* player)
 //================================================================================
 void ScoutManager::handleHarvestCorpse(PlayerObject* player, CreatureObject* target, HarvestSelection harvest)
 {
+	/*
 	if(!target || !player)
 		return;
 
-	/*
 	//Perform Checking...
 	if(player->checkState(CreatureState_Combat))
 		gMessageLib->sendSystemMessage(player, L"", "internal_command_string","prose_harvest_corpse_failed");
 
+	if(harvest != HARVEST_ANY)
+		player->setPreviousHarvestSelection(harvest);
+	else
+		harvest = (HarvestSelection)player->getPreviousHarvestSelection();
 
+	std::vector<HarvestSelection> availableSelections;
+
+	if(target->hasAttribute("res_meat"))
+		availableSelections.push_back(HARVEST_MEAT);
+	
+	if(target->hasAttribute("res_bone"))
+		availableSelections.push_back(HARVEST_BONE);
+
+	if(target->hasAttribute("res_hide"))
+		availableSelections.push_back(HARVEST_HIDE);
+
+
+	if(harvest == HARVEST_ANY)
+	{
+		//get a random one.
+		harvest = (HarvestSelection)((gRandom->getRand() % (availableSelections.size()-1))+1);
+	}
+	else
+	{
+		bool good = false;
+
+		for(unsigned int i=0; i < availableSelections.size(); i++)
+			if(availableSelections[i] == harvest) good = true;
+
+		if(!good)
+		{
+			gMessageLib->sendSystemMessage(player, L"", "internal_command_string","no_resource");
+			return;
+		}
+	}
+
+	switch(harvest)
+	{
+	case HARVEST_MEAT:
+		gMessageLib->sendSystemMessage(player, L"YOU WANTED TO HARVEST MEAT");
+		break;
+	case HARVEST_BONE:
+		gMessageLib->sendSystemMessage(player, L"YOU WANTED TO HARVEST BONE");
+		break;
+	case HARVEST_HIDE:
+		gMessageLib->sendSystemMessage(player, L"YOU WANTED TO HARVEST HIDE");
+		break;
+	}
+
+	//Do the deed
+
+	/*
 	float rangerFactor = 1; //# of times to increase yield due to ranger.
 	//If Grouped and nearby (64m)
 	rangerFactor = 1.20;
@@ -430,31 +481,6 @@ void ScoutManager::handleHarvestCorpse(PlayerObject* player, CreatureObject* tar
 	//If Mager Ranger in group and nearby (64m)
 	rangerFactor = 1.40;
 	*/
-
-	//Do the deed.
-	if(harvest != HARVEST_ANY)
-		player->setPreviousHarvestSelection(harvest);
-	else
-		harvest = (HarvestSelection)player->getPreviousHarvestSelection();
-
-	if(harvest == HARVEST_ANY)
-	{
-		//randomly pick one!
-		harvest = (HarvestSelection)((gRandom->getRand() % 2)+1);
-	}
-
-	switch(harvest)
-	{
-	case HARVEST_MEAT:
-		gMessageLib->sendSystemMessage(player, L"You wanted to harvest MEAT!");
-		break;
-	case HARVEST_BONE:
-		gMessageLib->sendSystemMessage(player, L"You wanted to harvest BONE!");
-		break;
-	case HARVEST_HIDE:
-		gMessageLib->sendSystemMessage(player, L"You wanted to harvest HIDE!");
-		break;
-	}
 
 	/*
 	//Calc Creature Quality
@@ -476,7 +502,6 @@ void ScoutManager::handleHarvestCorpse(PlayerObject* player, CreatureObject* tar
 	//gGroupManager->
 
 	*/
-
 }
 
 uint32 ScoutManager::getHarvestSkillFactor(CreatureObject* object)

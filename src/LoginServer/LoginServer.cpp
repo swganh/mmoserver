@@ -88,8 +88,7 @@ void LoginServer::Startup(void)
 	(void)MessageFactory::getSingleton();		// Use this a marker of where the factory is instanced. 
 												// The code itself here is not needed, since it will instance itself at first use.
 
-	mLoginManager = new LoginManager();
-	mLoginManager->Startup(mDatabase);
+	mLoginManager = new LoginManager(mDatabase);
 
 	// Let our network Service know about our callbacks
 	mService->AddNetworkCallback(mLoginManager);
@@ -107,8 +106,7 @@ void LoginServer::Shutdown(void)
 {
 	gLogger->logMsg("LoginServer shutting down...");
 
-	mLoginManager->Shutdown();
-	delete(mLoginManager);
+	delete mLoginManager;
 
 	mNetworkManager->DestroyService(mService);
 	delete mNetworkManager;

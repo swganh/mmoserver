@@ -1116,6 +1116,14 @@
 					<Filter
 						Name="BugJar"
 						>
+						<File
+							RelativePath=".\BugJar.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\BugJar.h"
+							>
+						</File>
 					</Filter>
 				</Filter>
 				<Filter

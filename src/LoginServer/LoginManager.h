@@ -57,11 +57,9 @@ class LoginManager : public NetworkCallback, public DatabaseCallback
 {
 	public:
 
-                            LoginManager(void);
+                            LoginManager(Database* database);
                             ~LoginManager(void);
 
-		void                    Startup(Database* database);
-		void                    Shutdown(void);
 		void                    Process(void);
 
   // From NetworkCallback inheritance

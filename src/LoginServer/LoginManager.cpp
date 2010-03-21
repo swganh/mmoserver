@@ -35,8 +35,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 //======================================================================================================================
 
-LoginManager::LoginManager(void) :
-mDatabase(0),
+LoginManager::LoginManager(Database* database) :
+mDatabase(database),
 // mClock(0),
 mSendServerList(false),
 mLastStatusQuery(0),
@@ -48,21 +48,6 @@ mLoginClientPool(sizeof(LoginClient))
 //======================================================================================================================
 
 LoginManager::~LoginManager(void)
-{
-
-}
-
-//======================================================================================================================
-
-void LoginManager::Startup(Database* database)
-{
-	mDatabase	= database;
-
-}
-
-//======================================================================================================================
-
-void LoginManager::Shutdown(void)
 {
 
 }

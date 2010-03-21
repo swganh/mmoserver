@@ -49,18 +49,6 @@ ChatServer* gChatServer;
 
 ChatServer::ChatServer() : mNetworkManager(0),mDatabaseManager(0),mRouterService(0),mDatabase(0)
 {
-}
-
-//======================================================================================================================
-
-ChatServer::~ChatServer()
-{
-}
-
-//======================================================================================================================
-
-void ChatServer::Startup()
-{
 	//gLogger->printSmallLogo();
 	gLogger->logMsg("ChatServer Startup");
 	// gLogger->logMsg(GetBuildString());
@@ -102,8 +90,7 @@ void ChatServer::Startup()
 	_connectToConnectionServer();
 
 	// Place all startup code here.
-	mMessageDispatch = new MessageDispatch();
-	mMessageDispatch->Startup(mRouterService);
+	mMessageDispatch = new MessageDispatch(mRouterService);
 
 	// load up our ChatManager
 	mChatManager = ChatManager::Init(mDatabase,mMessageDispatch);
@@ -135,7 +122,7 @@ void ChatServer::Startup()
 
 //======================================================================================================================
 
-void ChatServer::Shutdown()
+ChatServer::~ChatServer()
 {
 	gLogger->logMsg("ChatServer shutting down...");
 
@@ -153,9 +140,6 @@ void ChatServer::Shutdown()
 	delete (mCSRManager);
 	mTradeManagerChatHandler->Shutdown();
 	delete (mTradeManagerChatHandler);
-
-	// Shutdown and delete the game modules.
-	mMessageDispatch->Shutdown();
 
 	delete mMessageDispatch;
 
@@ -235,7 +219,6 @@ void ChatServer::_connectToConnectionServer()
 
 void handleExit()
 {
-	gChatServer->Shutdown();
 	delete gChatServer;
 }
 
@@ -250,9 +233,6 @@ int main(int argc, char* argv[])
 	ConfigManager::Init("ChatServer.cfg");
 
 	gChatServer = new ChatServer();
-
-	// Startup things
-	gChatServer->Startup();
 
   // Since startup completed successfully, now set the atexit().  Otherwise we try to gracefully shutdown a failed startup, which usually fails anyway.
   //atexit(handleExit);
@@ -269,7 +249,6 @@ int main(int argc, char* argv[])
 	}
 
 	// Shutdown things
-	gChatServer->Shutdown();
 	delete gChatServer;
 
 	// Delete LogManager

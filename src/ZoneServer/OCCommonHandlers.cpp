@@ -1350,6 +1350,11 @@ void ObjectController::handleObjectMenuRequest(Message* message)
 		if(playerObject->isConnected())
 			gMessageLib->sendEmptyObjectMenuResponse(requestedObjectId,playerObject,responseNr,menuItemList);
 
+		for(MenuItemList::iterator it=menuItemList.begin(); it != menuItemList.end();it++)
+			delete (*it);
+
+		menuItemList.clear();
+
 		//the list is cleared and items are destroyed in the message lib
 		//for the default response
 		gLogger->logMsgF("ObjController::handleObjectMenuRequest: Couldn't find object %"PRIu64"",MSG_HIGH,requestedObjectId);

@@ -51,8 +51,6 @@ class ChatServer
 		ChatServer();
 		~ChatServer();
 
-		void	Startup();
-		void    Shutdown();
 		void    Process();
 
 	private:

@@ -41,11 +41,9 @@ class MessageDispatch : public NetworkCallback
 {
 	public:
 
-		MessageDispatch(void);
+		MessageDispatch(Service* service);
 		~MessageDispatch(void);
 
-		void						Startup(Service* service);
-		void						Shutdown(void);
 		void						Process(void);
 
 		void						RegisterMessageCallback(uint32 opcode, MessageDispatchCallback* callback);

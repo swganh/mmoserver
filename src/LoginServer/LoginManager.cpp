@@ -49,7 +49,12 @@ mLoginClientPool(sizeof(LoginClient))
 
 LoginManager::~LoginManager(void)
 {
+	LoginClientList::iterator iter = mLoginClientList.begin();
 
+	while(iter != mLoginClientList.end())
+	{
+		iter = mLoginClientList.erase(iter);
+	}
 }
 
 //======================================================================================================================

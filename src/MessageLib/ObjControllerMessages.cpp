@@ -754,11 +754,8 @@ bool MessageLib::sendEmptyObjectMenuResponse(uint64 requestedId,PlayerObject* ta
 		mMessageFactory->addUint8((*it)->sIdentifier);  // item identifier, 7 = examine
 		mMessageFactory->addUint8((*it)->sOption); // send custom description, 1 = off,3 = on
 		mMessageFactory->addUint32(0);// unicode custom description
-		delete((*it));
-		(*it) = NULL;
 		it++;
 	}
-	mMenuItemList.clear();
 	mMessageFactory->addUint8(responseNr);   // response nr
 
 	(targetObject->getClient())->SendChannelA(mMessageFactory->EndMessage(),targetObject->getAccountId(),CR_Client,5);

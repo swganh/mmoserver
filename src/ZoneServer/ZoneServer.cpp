@@ -145,9 +145,7 @@ void ZoneServer::Startup(int8* zoneName)
 	_updateDBServerList(1);
 
 	// Place all startup code here.
-	mMessageDispatch = new MessageDispatch();
-	mMessageDispatch->Startup(mRouterService);
-
+	mMessageDispatch = new MessageDispatch(mRouterService);
 
 	WorldConfig::Init(zoneId,mDatabase,zoneName);
 	ObjectControllerCommandMap::Init(mDatabase);
@@ -235,12 +233,11 @@ void ZoneServer::Shutdown(void)
 	gScriptEngine->shutdown();
 	ScriptSupport::Instance()->destroyInstance();
 
-	mMessageDispatch->Shutdown();
+	delete mMessageDispatch;
 
 	// gMessageFactory->Shutdown(); // Nothing to do there yet, since deleting of the heap is done in the destructor.
 
 	delete mObjectControllerDispatch;
-	delete mMessageDispatch;
 
 	// Delete the non persistent factories, that are possible to delete.
 	// NonPersistentContainerFactory::getSingletonPtr()->destroySingleton();

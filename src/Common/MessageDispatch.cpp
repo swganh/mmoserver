@@ -27,9 +27,11 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 //======================================================================================================================
 
-MessageDispatch::MessageDispatch(void)
+MessageDispatch::MessageDispatch(Service* service) :
+mRouterService(service)
 {
-
+	// Put ourselves on the service callback list.
+	mRouterService->AddNetworkCallback(this);
 }
 
 //======================================================================================================================
@@ -37,22 +39,6 @@ MessageDispatch::MessageDispatch(void)
 MessageDispatch::~MessageDispatch(void)
 {
 
-}
-
-//======================================================================================================================
-
-void MessageDispatch::Startup(Service* service)
-{
-	// Put ourselves on the service callback list.
-	mRouterService = service;
-	mRouterService->AddNetworkCallback(this);
-}
-
-//======================================================================================================================
-
-void MessageDispatch::Shutdown(void)
-{
-  
 }
 
 //======================================================================================================================
@@ -208,7 +194,7 @@ void MessageDispatch::handleSessionMessage(NetworkClient* client, Message* messa
 	if(deleteClient)
 	{
 		// We will delete the client when we delete the player or reconnect again.
-		// delete dispatchClient;
+		//delete dispatchClient;
 		dispatchClient = NULL;
 	}
 

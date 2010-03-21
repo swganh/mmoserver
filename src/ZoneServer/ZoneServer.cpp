@@ -91,7 +91,6 @@ void ZoneServer::Startup(int8* zoneName)
 
 	// Create and startup our core services.
 	mDatabaseManager = new DatabaseManager();
-	mDatabaseManager->Startup();
 
 	mNetworkManager = new NetworkManager();
 
@@ -256,13 +255,11 @@ void ZoneServer::Shutdown(void)
 	mNetworkManager->DestroyService(mRouterService);
 	delete mNetworkManager;
 
-	mDatabaseManager->Shutdown();
+	delete mDatabaseManager;
 
 	delete gSkillManager->getSingletonPtr();
 	delete gMedicManager->getSingletonPtr();
 	delete gBuffManager->getSingletonPtr();
-
-	delete mDatabaseManager;
 
 	// NOW, I can feel that it should be safe to delete the data holding messages.
 	gMessageFactory->destroySingleton();

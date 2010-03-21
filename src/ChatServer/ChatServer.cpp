@@ -68,7 +68,6 @@ void ChatServer::Startup()
 
 	// Create and startup our core services.
 	mDatabaseManager = new DatabaseManager();
-	mDatabaseManager->Startup();
 
 	mNetworkManager = new NetworkManager();
 
@@ -163,8 +162,6 @@ void ChatServer::Shutdown()
 	// Shutdown and delete our core services.
 	mNetworkManager->DestroyService(mRouterService);
 	delete mNetworkManager;
-	
-	mDatabaseManager->Shutdown();
 
 	MessageFactory::getSingleton()->destroySingleton();	// Delete message factory and call shutdown();
 

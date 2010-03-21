@@ -28,11 +28,8 @@ typedef struct st_mysql_rows MYSQL_ROWS;
 class DatabaseImplementationMySql : public DatabaseImplementation
 {
 public:
-									 DatabaseImplementationMySql(void);
+									 DatabaseImplementationMySql(char* host, uint16 port, char* user, char* pass, char* schema);
   virtual							~DatabaseImplementationMySql(void);
-  
-  virtual void						Startup(char* host, unsigned short port, char* user, char* pass, char* schema);
-  virtual void						Shutdown(void);
   
   virtual DatabaseResult*			ExecuteSql(int8* sql,bool procedure = false);
   virtual DatabaseWorkerThread*		DestroyResult(DatabaseResult* result);

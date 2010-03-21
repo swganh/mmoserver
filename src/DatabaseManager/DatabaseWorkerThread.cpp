@@ -29,25 +29,11 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 //======================================================================================================================
 
-DatabaseWorkerThread::DatabaseWorkerThread(DBType type, Database* database) :
+DatabaseWorkerThread::DatabaseWorkerThread(DBType type, Database* database, char* host, uint16 port, char* user, char* pass, char* schema) :
 mDatabase(database),
 mDatabaseImplementation(0),
 mCurrentJob(0),
 mDatabaseImplementationType(type)
-{
-
-}
-
-//======================================================================================================================
-
-DatabaseWorkerThread::~DatabaseWorkerThread(void)
-{
-
-}
-
-//======================================================================================================================
-
-void DatabaseWorkerThread::Startup(char* host, uint16 port, char* user, char* pass, char* schema) 
 {
   mPort = port;
   strcpy(mHostname, host);
@@ -64,7 +50,7 @@ void DatabaseWorkerThread::Startup(char* host, uint16 port, char* user, char* pa
 
 //======================================================================================================================
 
-void DatabaseWorkerThread::Shutdown(void)
+DatabaseWorkerThread::~DatabaseWorkerThread(void)
 {
 	mExit = true;
 
@@ -72,8 +58,7 @@ void DatabaseWorkerThread::Shutdown(void)
     mThread.join();
 
 	// Shutdown our DBImplementation
-	mDatabaseImplementation->Shutdown();
-	delete(mDatabaseImplementation);
+	delete mDatabaseImplementation;
 }
 
 //======================================================================================================================
@@ -84,15 +69,12 @@ void DatabaseWorkerThread::_startup(void)
   switch (mDatabaseImplementationType)
   {
 	case DBTYPE_MYSQL:
-		mDatabaseImplementation = reinterpret_cast<DatabaseImplementation*>(new DatabaseImplementationMySql());
+		mDatabaseImplementation = reinterpret_cast<DatabaseImplementation*>(new DatabaseImplementationMySql(mHostname, mPort, mUsername, mPassword, mSchema));
     break;
 
 	default:
 		break;
   }
-
-  // Init the new DBImplementation class.
-  mDatabaseImplementation->Startup(mHostname, mPort, mUsername, mPassword, mSchema);
 
   mIsDone = false;
 }

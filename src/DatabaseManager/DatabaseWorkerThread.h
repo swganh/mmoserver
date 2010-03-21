@@ -27,11 +27,9 @@ class DatabaseImplementation;
 class DatabaseWorkerThread
 {
 public:
-                              DatabaseWorkerThread(DBType type, Database* datbase);
+                              DatabaseWorkerThread(DBType type, Database* datbase, int8* host, uint16 port, int8* user, int8* pass, int8* schema);
                               ~DatabaseWorkerThread(void);
 
-  void                        Startup(int8* host, uint16 port, int8* user, int8* pass, int8* schema);
-  void                        Shutdown(void);
   virtual void				  run(); 
 
   void                        ExecuteJob(DatabaseJob* job);

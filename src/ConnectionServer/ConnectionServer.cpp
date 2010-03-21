@@ -78,7 +78,6 @@ void ConnectionServer::Startup(void)
 	mServerService = mNetworkManager->GenerateService((char*)gConfig->read<std::string>("ClusterBindAddress").c_str(), gConfig->read<uint16>("ClusterBindPort"),gConfig->read<uint32>("ServerServiceMessageHeap")*1024, true);//,15);
 
 	mDatabaseManager = new DatabaseManager();
-	mDatabaseManager->Startup();
 
 	mDatabase = mDatabaseManager->Connect(DBTYPE_MYSQL,
 									   (char*)(gConfig->read<std::string>("DBServer")).c_str(),

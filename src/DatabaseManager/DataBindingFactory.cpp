@@ -30,20 +30,6 @@ DataBindingFactory::~DataBindingFactory(void)
 
 //======================================================================================================================
 
-void DataBindingFactory::Startup(void)
-{
-	
-}
-
-//======================================================================================================================
-
-void DataBindingFactory::Shutdown(void)
-{
-
-}
-
-//======================================================================================================================
-
 DataBinding* DataBindingFactory::CreateDataBinding(uint16 fieldCount)
 {
 	return(new (mDataBindingPool.ordered_malloc()) DataBinding(fieldCount));

@@ -38,11 +38,9 @@ typedef Anh_Utils::concurrent_queue<DatabaseWorkerThread*>		DatabaseWorkerThread
 class Database
 {
   public:
-                                          Database(DBType type);
+                                          Database(DBType type,int8* host, uint16 port, int8* user, int8* pass, int8* schema);
                                           ~Database(void);
-            
-  void                                    Startup(int8* host, uint16 port, int8* user, int8* pass, int8* schema);
-  void                                    Shutdown(void);
+
   void                                    Process(void);
 
   DatabaseResult*                         ExecuteSynchSql(const int8* sql, ...);

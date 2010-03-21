@@ -62,7 +62,6 @@ void LoginServer::Startup(void)
 
 
 	mDatabaseManager = new DatabaseManager();
-	mDatabaseManager->Startup();
 
 	// Connect to our database and pass it off to our modules.
 	mDatabase = mDatabaseManager->Connect(DBTYPE_MYSQL,
@@ -110,10 +109,8 @@ void LoginServer::Shutdown(void)
 
 	mNetworkManager->DestroyService(mService);
 	delete mNetworkManager;
-	mDatabaseManager->Shutdown();
 	
 	MessageFactory::getSingleton()->destroySingleton();	// Delete message factory and call shutdown();
-
 
 	delete mDatabaseManager;
 

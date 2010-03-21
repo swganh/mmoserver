@@ -31,8 +31,6 @@ public:
                                   DatabaseManager(void);
                                   ~DatabaseManager(void);
 
-  void                            Startup(void);
-  void                            Shutdown(void);
   void                            Process(void);
 
   Database*                       Connect(DBType type, int8* host, uint16 port, int8* user, int8* pass, int8* dbname);

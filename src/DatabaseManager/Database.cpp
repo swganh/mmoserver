@@ -29,30 +29,15 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include <cstdio>
 
 //======================================================================================================================
-Database::Database(DBType type) :
+Database::Database(DBType type, char* host, uint16 port, char* user, char* pass, char* schema) :
 mDatabaseType(type),
 mDataBindingFactory(0),
 mDatabaseImplementation(0),
 mJobPool(sizeof(DatabaseJob)),
 mTransactionPool(sizeof(Transaction))
 {
-
-}
-
-
-//======================================================================================================================
-Database::~Database(void)
-{
-
-}
-
-
-//======================================================================================================================
-void  Database::Startup(char* host, uint16 port, char* user, char* pass, char* schema)
-{
   // Create and startup our factorys
   mDataBindingFactory = new DataBindingFactory();
-  mDataBindingFactory->Startup();
 
   // Create our own DatabaseImplementation for synchronous queries
   // Create our DBImplementation object
@@ -60,14 +45,12 @@ void  Database::Startup(char* host, uint16 port, char* user, char* pass, char* s
 	{
 		case DBTYPE_MYSQL:
 		{
-			mDatabaseImplementation = reinterpret_cast<DatabaseImplementation*>(new DatabaseImplementationMySql());
+			mDatabaseImplementation = reinterpret_cast<DatabaseImplementation*>(new DatabaseImplementationMySql(host, port, user, pass, schema));
 		}
 		break;
 
 		default:break;
 	}
-
-  mDatabaseImplementation->Startup(host, port, user, pass, schema);
 
   // Create our worker threads and put them in the idle queue
   mMinThreads = gConfig->read<uint32>("DBMinThreads");
@@ -75,8 +58,7 @@ void  Database::Startup(char* host, uint16 port, char* user, char* pass, char* s
   DatabaseWorkerThread* newWorker = 0;
   for (uint32 i = 0; i < mMinThreads; i++)
   {
-    newWorker = new DatabaseWorkerThread(mDatabaseType, this);
-    newWorker->Startup(host, port, user, pass, schema);
+    newWorker = new DatabaseWorkerThread(mDatabaseType, this, host, port, user, pass, schema);
 
     pushIdleWorker(newWorker);
   }
@@ -84,25 +66,20 @@ void  Database::Startup(char* host, uint16 port, char* user, char* pass, char* s
 
 
 //======================================================================================================================
-void Database::Shutdown(void)
+Database::~Database(void)
 {
 	DatabaseWorkerThread* worker = 0;
 
 	while(mWorkerIdleQueue.size())
 	{
 		worker = mWorkerIdleQueue.pop();
-
-		worker->Shutdown();
-
 		delete(worker);
 	}
 
 	//shutdown local implementation
-	mDatabaseImplementation->Shutdown();
 	delete(mDatabaseImplementation);
 
 	// Shutdown our factories and destroy them.
-	mDataBindingFactory->Shutdown();
 	delete(mDataBindingFactory);
 }
 

@@ -31,9 +31,6 @@ class DataBindingFactory
 		DataBindingFactory(void);
 		~DataBindingFactory(void);
 
-		void			Startup(void);
-		void			Shutdown(void);
-
 		DataBinding*	CreateDataBinding(uint16 fieldCount);
 		void			DestroyDataBinding(DataBinding* binding);
 

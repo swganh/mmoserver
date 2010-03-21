@@ -28,11 +28,8 @@ typedef boost::singleton_pool<DatabaseResult,sizeof(DatabaseResult),boost::defau
 class DatabaseImplementation
 {
 public:
-									DatabaseImplementation(void) {};
+									DatabaseImplementation(char* host, uint16 port, char* user, char* pass, char* schema) {};
   virtual							~DatabaseImplementation(void) {};
-  
-  virtual void						Startup(char* host, unsigned short port, char* user, char* pass, char* schema) = 0;
-  virtual void						Shutdown(void) = 0;
   
   virtual DatabaseResult*			ExecuteSql(int8* sql,bool procedure = false) = 0;
 

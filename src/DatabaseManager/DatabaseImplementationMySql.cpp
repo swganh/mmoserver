@@ -22,27 +22,14 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include <cstring>
 
 //======================================================================================================================
-DatabaseImplementationMySql::DatabaseImplementationMySql(void)
-{
-
-}
-
-
-//======================================================================================================================
-DatabaseImplementationMySql::~DatabaseImplementationMySql(void)
-{
-
-}
-
-
-//======================================================================================================================
-void  DatabaseImplementationMySql::Startup(char* host, uint16 port, char* user, char* pass, char* dbname)
+DatabaseImplementationMySql::DatabaseImplementationMySql(char* host, uint16 port, char* user, char* pass, char* schema) :
+	DatabaseImplementation(host, port, user, pass, schema)
 {
   MYSQL*        connect = 0;
 
   // Initialize mysql and make a connection to the server.
   mConnection = mysql_init(0);
-  connect = mysql_real_connect(mConnection, (const char*)host, (const char*)user, (const char*)pass, (const char*)dbname, port, 0, CLIENT_MULTI_STATEMENTS);
+  connect = mysql_real_connect(mConnection, (const char*)host, (const char*)user, (const char*)pass, (const char*)schema, port, 0, CLIENT_MULTI_STATEMENTS);
   mysql_options(mConnection, MYSQL_OPT_RECONNECT, "true");
 
   // Any errors from the connection attempt?
@@ -54,15 +41,13 @@ void  DatabaseImplementationMySql::Startup(char* host, uint16 port, char* user, 
  // int i = 0;
 }
 
-
 //======================================================================================================================
-void DatabaseImplementationMySql::Shutdown(void)
+DatabaseImplementationMySql::~DatabaseImplementationMySql(void)
 {
   // Close the connection and destroy our connection object.
   mysql_close(mConnection);
   mysql_thread_end();
 }
-
 
 //======================================================================================================================
 DatabaseResult* DatabaseImplementationMySql::ExecuteSql(int8* sql,bool procedure)

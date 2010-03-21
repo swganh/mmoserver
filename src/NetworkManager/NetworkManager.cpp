@@ -36,8 +36,6 @@ mServiceIdIndex(1)
 
 NetworkManager::~NetworkManager(void)
 {
-	delete LogManager::getSingletonPtr();
-	delete NetConfig::getSingletonPtr();
 }
 
 //======================================================================================================================

@@ -60,8 +60,7 @@ LogManager::~LogManager()
 	while(it != mLogs.end())
 	{
 		delete(it->second);
-		mLogs.erase(it);
-		it = mLogs.begin();
+		it = mLogs.erase(it);
 	}
 }
 

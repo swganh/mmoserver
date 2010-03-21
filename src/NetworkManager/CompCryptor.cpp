@@ -16,32 +16,15 @@ Copyright (c) 2006 - 2010 The swgANH Team
 //======================================================================================================================
 CompCryptor::CompCryptor(void)
 {
-	mStreamData = 0;
+	mStreamData = new z_stream;
 }
 
 
 //======================================================================================================================
 CompCryptor::~CompCryptor(void)
 {
-
+	delete mStreamData;
 }
-
-
-//======================================================================================================================
-void CompCryptor::Startup(void)
-{
-  // Setup our zlib init struct and init the library.  I HATE zlib.  Someone rewrite it, or find a compatible C++ version
-  mStreamData = new z_stream;
-}
-
-
-//======================================================================================================================
-void CompCryptor::Shutdown(void)
-{
-	if(mStreamData)
-		delete mStreamData;
-}
-
 
 //======================================================================================================================
 int CompCryptor::Compress(int8* inData, uint32 inLen, int8* outData, uint32 outLen)

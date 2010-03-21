@@ -1412,16 +1412,15 @@ void CreatureObject::prepareCustomRadialMenu(CreatureObject* creatureObject, uin
 		if(creatureObject->getId() == mOwner)
 		{
 			PlayerObject* owner = dynamic_cast<PlayerObject*>(creatureObject);
-			radial->addItem(2,0,radId_vehicleStore,radAction_ObjCallback,"@pet/pet_menu:menu_store");
 			if(owner->checkIfMounted())
 			{
-				radial->addItem(3,0,radId_serverVehicleExit,radAction_Default,"@pet/pet_menu:menu_exit");
+				radial->addItem(2,0,radId_serverVehicleExit,radAction_Default,"@pet/pet_menu:menu_exit");
 			}
 			else
 			{
-				radial->addItem(3,0,radId_serverVehicleEnter,radAction_Default,"@pet/pet_menu:menu_enter");
+				radial->addItem(2,0,radId_serverVehicleEnter,radAction_Default,"@pet/pet_menu:menu_enter");
 			}
-
+			radial->addItem(3,0,radId_vehicleStore,radAction_ObjCallback,"@pet/pet_menu:menu_store");
 			//TODO: Check if near a garage then add repair
 		}
 

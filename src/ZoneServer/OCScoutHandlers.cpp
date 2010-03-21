@@ -35,27 +35,40 @@ void ObjectController::_handleHarvestCorpse(uint64 targetId,Message* message,Obj
 	AttackableCreature* target = dynamic_cast<AttackableCreature*>(gWorldManager->getObjectById(targetId));
 	PlayerObject* playerObject = dynamic_cast<PlayerObject*>(mObject);
 
-	if(!playerObject)
+	if(!playerObject || !playerObject->isConnected())
 		return;
 
 	if(!target)
 		gMessageLib->sendSystemMessage(playerObject, L"", "internal_command_string","target_not_creature");
 
-	BString input;
-	message->getStringAnsi(input);
-	
-	input.toLower();
+	string cmdString;
+	message->getStringAnsi(cmdString);
 
-	if(input.getAnsi() == "meat")
-		gScoutManager->handleHarvestCorpse(playerObject, dynamic_cast<CreatureObject*>(playerObject->getTarget()), HARVEST_MEAT);
-	else if(input.getAnsi() == "bone")
-		gScoutManager->handleHarvestCorpse(playerObject, dynamic_cast<CreatureObject*>(playerObject->getTarget()), HARVEST_BONE);
-	else if(input.getAnsi() == "hide")
-		gScoutManager->handleHarvestCorpse(playerObject, dynamic_cast<CreatureObject*>(playerObject->getTarget()), HARVEST_HIDE);
+	int8 rawData[128];
+
+	int32 elementCount = sscanf(cmdString.getAnsi(), "%80s", rawData);
+
+	if(elementCount == 0)
+	{
+		gScoutManager->handleHarvestCorpse(playerObject, target, HARVEST_ANY);
+	}
+	else if(elementCount == 1)
+	{
+		string data(rawData);
+		data.toLower();
+		
+		if(data == "meat")
+			gScoutManager->handleHarvestCorpse(playerObject, target, HARVEST_MEAT);
+		else if(data == "bone")
+			gScoutManager->handleHarvestCorpse(playerObject, target, HARVEST_BONE);
+		else if(data == "hide")
+			gScoutManager->handleHarvestCorpse(playerObject, target, HARVEST_HIDE);
+	}
 	else
-		gScoutManager->handleHarvestCorpse(playerObject, dynamic_cast<CreatureObject*>(playerObject->getTarget()), HARVEST_ANY);
+	{
+		gMessageLib->sendSystemMessage(playerObject, L"", "internal_command_string","no_resource");
+	}
 
-	
 } 
 
 //=============================================================================================================================

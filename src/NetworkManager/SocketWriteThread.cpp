@@ -49,18 +49,11 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 //======================================================================================================================
 
-SocketWriteThread::SocketWriteThread() :
+SocketWriteThread::SocketWriteThread(SOCKET socket, Service* service, bool serverservice) :
 mService(0),
 mCompCryptor(0),
 mSocket(0),
 mIsRunning(false)
-{
-
-}
-
-//======================================================================================================================
-
-void SocketWriteThread::Startup(SOCKET socket, Service* service, bool serverservice)
 {
 	mSocket = socket;
 	mService = service;
@@ -84,7 +77,6 @@ void SocketWriteThread::Startup(SOCKET socket, Service* service, bool serverserv
 
 	// Create our CompCryptor object.
 	mCompCryptor = new CompCryptor();
-	mCompCryptor->Startup();
 
 	// start our thread
     boost::thread t(std::tr1::bind(&SocketWriteThread::run, this));
@@ -104,9 +96,7 @@ void SocketWriteThread::Startup(SOCKET socket, Service* service, bool serverserv
 	unCount = 	reCount = 0;
 }
 
-//======================================================================================================================
-
-void SocketWriteThread::Shutdown(void)
+SocketWriteThread::~SocketWriteThread()
 {
 	gLogger->logMsg("SocketWriteThread ended");
 
@@ -116,12 +106,10 @@ void SocketWriteThread::Shutdown(void)
     mThread.interrupt();
     mThread.join();
 
-	mCompCryptor->Shutdown();
-	delete(mCompCryptor);
+	delete mCompCryptor;
 
 	// delete(mClock);
 }
-
 
 //======================================================================================================================
 void SocketWriteThread::run()

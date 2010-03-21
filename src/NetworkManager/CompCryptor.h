@@ -26,9 +26,6 @@ public:
                                     CompCryptor(void);
                                     ~CompCryptor(void);
 
-  void                              Startup(void);
-  void                              Shutdown(void);
-
   int                               Compress(int8* inData, uint32 inLen, int8* outData, uint32 outLen);
   int                               Decompress(int8* inData, uint32 inLen, int8* outData, uint32 outLen);
 

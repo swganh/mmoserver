@@ -52,7 +52,7 @@ bool Service::mSocketsSubsystemInitComplete = false;
 
 //======================================================================================================================
 
-Service::Service(NetworkManager* networkManager, bool serverservice) :
+Service::Service(NetworkManager* networkManager, bool serverservice, uint32 id, int8* localAddress, uint16 localPort,uint32 mfHeapSize) :
 mNetworkManager(networkManager),
 mSocketReadThread(0),
 mSocketWriteThread(0),
@@ -64,21 +64,7 @@ mLocalPort(0),
 mQueued(false),
 mServerService(serverservice)
 {
-
-}
-
-//======================================================================================================================
-
-Service::~Service(void)
-{
-
-
-}
-
-//======================================================================================================================
-
-void Service::Startup(int8* localAddress, uint16 localPort,uint32 mfHeapSize)
-{
+	mId = id;
 
 	//localAddress = (char*)gConfig->read<std::string>("BindAddress").c_str();
 	lasttime = Anh_Utils::Clock::getSingleton()->getLocalTime();
@@ -87,7 +73,7 @@ void Service::Startup(int8* localAddress, uint16 localPort,uint32 mfHeapSize)
 	mLocalAddress = inet_addr(localAddress);
 	mLocalPort = htons(localPort);
 
-#if(ANH_PLATFORM == ANH_PLATFORM_WIN32)
+	#if(ANH_PLATFORM == ANH_PLATFORM_WIN32)
 	// Startup the windows socket layer if it's not already started.
 	if (!mSocketsSubsystemInitComplete)
 	{
@@ -95,7 +81,7 @@ void Service::Startup(int8* localAddress, uint16 localPort,uint32 mfHeapSize)
 		WSADATA data;
 		WSAStartup(MAKEWORD(2,0), &data);
 	}
-#endif //WIN32
+	#endif //WIN32
 
 	// Create our socket descriptors
 	SOCKET mLocalSocket = socket(PF_INET, SOCK_DGRAM, 0);
@@ -146,11 +132,8 @@ void Service::Startup(int8* localAddress, uint16 localPort,uint32 mfHeapSize)
 
 
 	// Create our read/write socket classes
-	mSocketWriteThread = new SocketWriteThread();
-	mSocketReadThread = new SocketReadThread();
-
-	mSocketWriteThread->Startup(mLocalSocket,this,mServerService);
-	mSocketReadThread->Startup(mLocalSocket, mSocketWriteThread,this,mfHeapSize, mServerService);
+	mSocketWriteThread = new SocketWriteThread(mLocalSocket,this,mServerService);
+	mSocketReadThread = new SocketReadThread(mLocalSocket, mSocketWriteThread,this,mfHeapSize, mServerService);
 
 	// Query the stack for the actual address and port we got and store it in the service.
 	//getsockname(mLocalSocket, (sockaddr*)&server, &serverLen);
@@ -162,12 +145,11 @@ void Service::Startup(int8* localAddress, uint16 localPort,uint32 mfHeapSize)
 	*((uint32*)&toAddr.sa_data[2]) = 0;
 	*((uint16*)&(toAddr.sa_data[0])) = 0;
 	sent = connect(mLocalSocket, &toAddr, toLen);
-
 }
 
 //======================================================================================================================
 
-void Service::Shutdown(void)
+Service::~Service(void)
 {
 	Session* session = 0;
 
@@ -181,18 +163,15 @@ void Service::Shutdown(void)
 		}
 	}
 
-	mSocketWriteThread->Shutdown();
-	mSocketReadThread->Shutdown();
-
 	delete mSocketWriteThread;
 	delete mSocketReadThread;
 
 	closesocket(mLocalSocket);
 	mLocalSocket = INVALID_SOCKET;
 
-#if(ANH_PLATFORM == ANH_PLATFORM_WIN32)
-	WSACleanup();
-#endif
+	#if(ANH_PLATFORM == ANH_PLATFORM_WIN32)
+		WSACleanup();
+	#endif
 }
 
 //======================================================================================================================

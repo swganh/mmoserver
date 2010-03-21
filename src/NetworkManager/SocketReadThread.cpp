@@ -47,7 +47,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 //======================================================================================================================
 
-SocketReadThread::SocketReadThread() :
+SocketReadThread::SocketReadThread(SOCKET socket, SocketWriteThread* writeThread, Service* service,uint32 mfHeapSize, bool serverservice) :
 mReceivePacket(0),
 mDecompressPacket(0),
 mSessionFactory(0),
@@ -55,13 +55,6 @@ mPacketFactory(0),
 mCompCryptor(0),
 mSocket(0),
 mIsRunning(false)
-{
-
-}
-
-//======================================================================================================================
-
-void SocketReadThread::Startup(SOCKET socket, SocketWriteThread* writeThread, Service* service,uint32 mfHeapSize, bool serverservice)
 {
 	if(serverservice)
 	{
@@ -93,7 +86,6 @@ void SocketReadThread::Startup(SOCKET socket, SocketWriteThread* writeThread, Se
 	mSessionFactory->Startup(writeThread, service, mPacketFactory, mMessageFactory, serverservice);
 
 	mCompCryptor = new CompCryptor();
-	mCompCryptor->Startup();
 
 	// Allocate our receive packets
 	mReceivePacket = mPacketFactory->CreatePacket();
@@ -110,16 +102,13 @@ void SocketReadThread::Startup(SOCKET socket, SocketWriteThread* writeThread, Se
 	
 }
 
-//======================================================================================================================
-
-void SocketReadThread::Shutdown(void)
+SocketReadThread::~SocketReadThread()
 {
 	mExit = true;
 
     mThread.interrupt();
     mThread.join();
 
-	mCompCryptor->Shutdown();
 	mPacketFactory->Shutdown();
 	mSessionFactory->Shutdown();
 	mMessageFactory->Shutdown();

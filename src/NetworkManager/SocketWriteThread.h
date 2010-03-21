@@ -35,10 +35,9 @@ class SocketWriteThread
 {
 	public:
 
-		SocketWriteThread(void);
+		SocketWriteThread(SOCKET socket, Service* service, bool serverservice);
+		~SocketWriteThread();
 
-		void			Startup(SOCKET socket, Service* service, bool serverservice);
-		void			Shutdown(void);
 		virtual void	run();
 
 		void			NewSession(Session* session);

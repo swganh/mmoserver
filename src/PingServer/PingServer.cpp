@@ -137,6 +137,8 @@ int main(int argc, char* argv[])
 		if (Anh_Utils::kbhit()) break;
 	}
 
+	delete LogManager::getSingletonPtr();
+
 	return 0;
 }
 

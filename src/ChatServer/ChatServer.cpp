@@ -71,8 +71,6 @@ void ChatServer::Startup()
 	mDatabaseManager->Startup();
 
 	mNetworkManager = new NetworkManager();
-	mNetworkManager->Startup();
-
 
 	// Connect to the DB and start listening for the RouterServer.
 	mDatabase = mDatabaseManager->Connect(DBTYPE_MYSQL,
@@ -164,12 +162,12 @@ void ChatServer::Shutdown()
 
 	// Shutdown and delete our core services.
 	mNetworkManager->DestroyService(mRouterService);
-	mNetworkManager->Shutdown();
+	delete mNetworkManager;
+	
 	mDatabaseManager->Shutdown();
 
 	MessageFactory::getSingleton()->destroySingleton();	// Delete message factory and call shutdown();
 
-	delete mNetworkManager;
 	delete mDatabaseManager;
 
 	gLogger->logMsg("ChatServer Shutdown Complete\n");

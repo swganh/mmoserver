@@ -58,7 +58,6 @@ void LoginServer::Startup(void)
 	// Initialize our modules.
 
 	mNetworkManager = new NetworkManager();
-	mNetworkManager->Startup();
 	mService = mNetworkManager->GenerateService((char*)gConfig->read<std::string>("BindAddress").c_str(), gConfig->read<uint16>("BindPort"),gConfig->read<uint32>("ServiceMessageHeap")*1024,false);
 
 
@@ -112,12 +111,12 @@ void LoginServer::Shutdown(void)
 	delete(mLoginManager);
 
 	mNetworkManager->DestroyService(mService);
-	mNetworkManager->Shutdown();
+	delete mNetworkManager;
 	mDatabaseManager->Shutdown();
 	
 	MessageFactory::getSingleton()->destroySingleton();	// Delete message factory and call shutdown();
 
-	delete mNetworkManager;
+
 	delete mDatabaseManager;
 
 	gLogger->logMsg("LoginServer Shutdown complete");
@@ -174,6 +173,8 @@ int main(int argc, char* argv[])
 	// Shutdown things
 	gLoginServer->Shutdown();
 	delete gLoginServer;
+
+	delete LogManager::getSingletonPtr();
 
   return 0;
 }

@@ -94,7 +94,6 @@ void ZoneServer::Startup(int8* zoneName)
 	mDatabaseManager->Startup();
 
 	mNetworkManager = new NetworkManager();
-	mNetworkManager->Startup();
 
 	// Connect to the DB and start listening for the RouterServer.
 	mDatabase = mDatabaseManager->Connect(DBTYPE_MYSQL,
@@ -255,14 +254,14 @@ void ZoneServer::Shutdown(void)
 
 	// Shutdown and delete our core services.
 	mNetworkManager->DestroyService(mRouterService);
-	mNetworkManager->Shutdown();
+	delete mNetworkManager;
+
 	mDatabaseManager->Shutdown();
 
 	delete gSkillManager->getSingletonPtr();
 	delete gMedicManager->getSingletonPtr();
 	delete gBuffManager->getSingletonPtr();
 
-	delete mNetworkManager;
 	delete mDatabaseManager;
 
 	// NOW, I can feel that it should be safe to delete the data holding messages.
@@ -398,6 +397,8 @@ int main(int argc, char* argv[])
 
 	delete gZoneServer;
 	gZoneServer = NULL;
+
+	delete LogManager::getSingletonPtr();
 
 	return 0;
 }

@@ -70,7 +70,6 @@ void ConnectionServer::Startup(void)
 	
 	// Startup our core modules
 	mNetworkManager = new NetworkManager();
-	mNetworkManager->Startup();
 
 	// Create our status service
 	//clientservice
@@ -158,8 +157,8 @@ void ConnectionServer::Shutdown(void)
 	mNetworkManager->DestroyService(mClientService);
 
 	// Shutdown our core modules
-	mDatabaseManager->Shutdown();
-	mNetworkManager->Shutdown();
+	delete mDatabaseManager;
+	delete mNetworkManager;
 
 	// Delete our objects
 	
@@ -169,9 +168,6 @@ void ConnectionServer::Shutdown(void)
 	delete mConnectionDispatch;
 
 	MessageFactory::getSingleton()->destroySingleton();	// Delete message factory and call shutdown();
-
-	delete mDatabaseManager;
-	delete mNetworkManager;
 
 	gLogger->logMsg("ConnectionServer Shutdown Complete");
 }
@@ -234,6 +230,8 @@ int main(int argc, char* argv[])
 	// Shutdown things
 	gConnectionServer->Shutdown();
 	delete gConnectionServer;
+
+	delete LogManager::getSingletonPtr();
 
 	return 0;
 }

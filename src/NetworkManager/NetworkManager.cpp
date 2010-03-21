@@ -29,26 +29,15 @@ mServiceIdIndex(1)
 {
 	// for safety, in case someone forgot to init previously
 	LogManager::Init();
+	NetConfig::Init();
 }
 
 //======================================================================================================================
 
 NetworkManager::~NetworkManager(void)
 {
-
-}
-
-//======================================================================================================================
-
-void NetworkManager::Startup(void)
-{
-	NetConfig::Init();
-}
-
-//======================================================================================================================
-
-void NetworkManager::Shutdown(void)
-{
+	delete LogManager::getSingletonPtr();
+	delete NetConfig::getSingletonPtr();
 }
 
 //======================================================================================================================
@@ -83,9 +72,7 @@ Service* NetworkManager::GenerateService(int8* address, uint16 port,uint32 mfHea
 {
 	Service* newService = 0;
 
-	newService = new Service(this, serverservice);
-	newService->setId(mServiceIdIndex++);
-	newService->Startup(address, port,mfHeapSize);
+	newService = new Service(this, serverservice, mServiceIdIndex++, address, port,mfHeapSize);
 	
 	return newService;
 }
@@ -94,7 +81,6 @@ Service* NetworkManager::GenerateService(int8* address, uint16 port,uint32 mfHea
 
 void NetworkManager::DestroyService(Service* service)
 {
-	service->Shutdown();
 	delete(service);
 }
 

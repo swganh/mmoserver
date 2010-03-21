@@ -44,11 +44,9 @@ class MessageRouter
 {
 	public:
 
-		MessageRouter(void);
+		MessageRouter(Database* database, ConnectionDispatch* dispatch);
 		~MessageRouter(void);
 
-		void	Startup(Database* database, ConnectionDispatch* dispatch);
-		void	Shutdown(void);
 		void	Process(void);
 
 		void	RouteMessage(Message* message, ConnectionClient* client);

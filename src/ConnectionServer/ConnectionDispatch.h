@@ -34,8 +34,6 @@ class ConnectionDispatch
 		ConnectionDispatch(void);
 		~ConnectionDispatch(void);
 
-		void	Startup(void);
-		void	Shutdown(void);
 		void	Process(void);
 
 		void	RegisterMessageCallback(uint32 opcode, ConnectionDispatchCallback* callback);

@@ -36,11 +36,9 @@ class ServerManager : public NetworkCallback, public ConnectionDispatchCallback,
 {
 	public:
 
-		ServerManager(void);
+		ServerManager(Service* service, Database* database, MessageRouter* router, ConnectionDispatch* dispatch,ClientManager* clientManager);
 		~ServerManager(void);
 
-		void                            Startup(Service* service, Database* database, MessageRouter* router, ConnectionDispatch* dispatch,ClientManager* clientManager);
-		void                            Shutdown(void);
 		void                            Process(void);
 
 		void                            SendMessageToServer(Message* message);

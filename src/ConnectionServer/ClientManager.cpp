@@ -29,27 +29,13 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 //======================================================================================================================
 
-ClientManager::ClientManager(void)
-{
-
-}
-
-//======================================================================================================================
-
-ClientManager::~ClientManager(void)
-{
-
-}
-
-//======================================================================================================================
-
-void ClientManager::Startup(Service* service, Database* database, MessageRouter* router, ConnectionDispatch* dispatch)
+ClientManager::ClientManager(Service* service, Database* database, MessageRouter* router, ConnectionDispatch* dispatch) :
+mClientService(service),
+mDatabase(database),
+mMessageRouter(router),
+mConnectionDispatch(dispatch)
 {
 	// Set our member variables
-	mClientService          = service;
-	mDatabase               = database;
-	mMessageRouter          = router;
-	mConnectionDispatch     = dispatch;
 	mMessageRouter->setClientManager(this);
 
 	// Put ourselves on the callback list for this service.
@@ -63,7 +49,7 @@ void ClientManager::Startup(Service* service, Database* database, MessageRouter*
 
 //======================================================================================================================
 
-void ClientManager::Shutdown(void)
+ClientManager::~ClientManager(void)
 {
 	// Unregister our opcodes
 	mConnectionDispatch->UnregisterMessageCallback(opClientIdMsg);
@@ -185,6 +171,7 @@ void ClientManager::handleSessionDisconnect(NetworkClient* client)
 
 	if(iter != mPlayerClientMap.end())
 	{
+		delete ((*iter).second);
 		mPlayerClientMap.erase(iter);
 	}
 }

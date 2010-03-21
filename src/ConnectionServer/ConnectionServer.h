@@ -36,8 +36,6 @@ class ConnectionServer
 		ConnectionServer(void);
 		~ConnectionServer(void);
 
-		void	Startup(void);
-		void	Shutdown(void);
 		void	Process(void);
 
 	private:

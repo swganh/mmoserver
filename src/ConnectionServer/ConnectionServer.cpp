@@ -48,20 +48,6 @@ mClusterId(0),
 mClientService(0),
 mServerService(0)
 {
-
-}
-
-//======================================================================================================================
-
-ConnectionServer::~ConnectionServer(void)
-{
-
-}
-
-//======================================================================================================================
-
-void ConnectionServer::Startup(void)
-{
 	// log msg to default log
 	//gLogger->printSmallLogo();
 	gLogger->logMsg("ConnectionServer Startup", FOREGROUND_GREEN | FOREGROUND_RED);
@@ -110,16 +96,12 @@ void ConnectionServer::Startup(void)
 
 	// Startup our router modules.
 	mConnectionDispatch = new ConnectionDispatch();
-	mConnectionDispatch->Startup();
 
-	mMessageRouter = new MessageRouter();
-	mMessageRouter->Startup(mDatabase, mConnectionDispatch);
+	mMessageRouter = new MessageRouter(mDatabase, mConnectionDispatch);
 
-	mClientManager = new ClientManager();
-	mClientManager->Startup(mClientService, mDatabase, mMessageRouter, mConnectionDispatch);
+	mClientManager = new ClientManager(mClientService, mDatabase, mMessageRouter, mConnectionDispatch);
 
-	mServerManager = new ServerManager();
-	mServerManager->Startup(mServerService, mDatabase, mMessageRouter, mConnectionDispatch,mClientManager);
+	mServerManager = new ServerManager(mServerService, mDatabase, mMessageRouter, mConnectionDispatch,mClientManager);
   
 	// We're done initiailizing.
 	_updateDBServerList(2);
@@ -135,7 +117,7 @@ void ConnectionServer::Startup(void)
 
 //======================================================================================================================
 
-void ConnectionServer::Shutdown(void)
+ConnectionServer::~ConnectionServer(void)
 {
 	gLogger->logMsg("ConnectionServer Shutting down...");
 
@@ -145,11 +127,11 @@ void ConnectionServer::Shutdown(void)
 	// We're shuttind down, so update the DB again.
 	_updateDBServerList(0);
 
-	mClientManager->Shutdown();
-	mServerManager->Shutdown();
-	mMessageRouter->Shutdown();
+	delete mClientManager;
+	delete mServerManager;
+	delete mMessageRouter;
 
-	mConnectionDispatch->Shutdown();
+	delete mConnectionDispatch;
 
 	// Destroy our network services.
 	mNetworkManager->DestroyService(mServerService);
@@ -158,13 +140,6 @@ void ConnectionServer::Shutdown(void)
 	// Shutdown our core modules
 	delete mDatabaseManager;
 	delete mNetworkManager;
-
-	// Delete our objects
-	
-	delete mClientManager;
-	delete mServerManager;
-	delete mMessageRouter;
-	delete mConnectionDispatch;
 
 	MessageFactory::getSingleton()->destroySingleton();	// Delete message factory and call shutdown();
 
@@ -212,9 +187,6 @@ int main(int argc, char* argv[])
 
 	gConnectionServer = new ConnectionServer();
 
-	// Startup things
-	gConnectionServer->Startup();
-
 	// Main loop
 	while(1)
 	{
@@ -227,7 +199,6 @@ int main(int argc, char* argv[])
 	}
 
 	// Shutdown things
-	gConnectionServer->Shutdown();
 	delete gConnectionServer;
 
 	delete LogManager::getSingletonPtr();

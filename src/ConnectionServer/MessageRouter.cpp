@@ -32,34 +32,17 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 //======================================================================================================================
 
-MessageRouter::MessageRouter(void) :
-mConnectionDispatch(0),
-mDatabase(0)
+MessageRouter::MessageRouter(Database* database, ConnectionDispatch* connectionDispatch) :
+mConnectionDispatch(connectionDispatch),
+mDatabase(database)
 {
-
-}
-
-//======================================================================================================================
-
-MessageRouter::~MessageRouter(void)
-{
-
-}
-
-//======================================================================================================================
-
-void MessageRouter::Startup(Database* database, ConnectionDispatch* connectionDispatch)
-{
-	mConnectionDispatch = connectionDispatch;
-	mDatabase = database;
-
 	// Load our message and process lists from the DB.
 	_loadMessageProcessMap();
 }
 
 //======================================================================================================================
 
-void MessageRouter::Shutdown(void)
+MessageRouter::~MessageRouter(void)
 {
 
 }

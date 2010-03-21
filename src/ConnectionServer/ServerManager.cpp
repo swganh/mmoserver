@@ -34,34 +34,18 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 //======================================================================================================================
 
-ServerManager::ServerManager(void) :
-mMessageRouter(0),
-mServerService(0),
-mDatabase(0),
-mConnectionDispatch(0),
+ServerManager::ServerManager(Service* service, Database* database, MessageRouter* router, ConnectionDispatch* dispatch,ClientManager* clientManager) :
+mMessageRouter(router),
+mServerService(service),
+mDatabase(database),
+mConnectionDispatch(dispatch),
 mTotalActiveServers(0),
-mTotalConnectedServers(0)
+mTotalConnectedServers(0),
+mClientManager(clientManager)
 {
 	memset(&mServerAddressMap, 0, sizeof(mServerAddressMap));
-}
 
-//======================================================================================================================
-
-ServerManager::~ServerManager(void)
-{
-
-}
-
-//======================================================================================================================
-
-void ServerManager::Startup(Service* service, Database* database, MessageRouter* router, ConnectionDispatch* dispatch,ClientManager* clientManager)
-{
 	// Set our member variables
-	mServerService        = service;
-	mDatabase             = database;
-	mMessageRouter        = router;
-	mConnectionDispatch   = dispatch;
-	mClientManager		  = clientManager;
 	mMessageRouter->setServerManager(this);
 
 	// Put ourselves on the callback list for this service.
@@ -84,7 +68,7 @@ void ServerManager::Startup(Service* service, Database* database, MessageRouter*
 
 //======================================================================================================================
 
-void ServerManager::Shutdown(void)
+ServerManager::~ServerManager(void)
 {
 	mConnectionDispatch->UnregisterMessageCallback(opClusterRegisterServer);
 	mConnectionDispatch->UnregisterMessageCallback(opClusterZoneTransferRequestByTicket);
@@ -181,6 +165,7 @@ void ServerManager::handleSessionDisconnect(NetworkClient* client)
 	// Server disconnected.  But don't remove the mapping if it's not the same one.
 	if(mServerAddressMap[connClient->getServerId()].mConnectionClient == connClient)
 	{
+		delete mServerAddressMap[connClient->getServerId()].mConnectionClient;
 		mServerAddressMap[connClient->getServerId()].mConnectionClient = 0;
 	}
 

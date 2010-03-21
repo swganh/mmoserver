@@ -16,7 +16,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 //======================================================================================================================
 CompCryptor::CompCryptor(void)
 {
-
+	mStreamData = 0;
 }
 
 
@@ -38,7 +38,8 @@ void CompCryptor::Startup(void)
 //======================================================================================================================
 void CompCryptor::Shutdown(void)
 {
-  //delete mStreamData;
+	if(mStreamData)
+		delete mStreamData;
 }
 
 

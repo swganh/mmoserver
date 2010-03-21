@@ -160,6 +160,7 @@ DatabaseResult* Database::ExecuteSynchSql(const int8* sql, ...)
 	sprintf(message, "WARNING: SYNCHRONOUS SQL STATEMENT: %s",localSql);
 	gLogger->logMsg(message, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | BACKGROUND_RED);
 
+	va_end(args);
 	return ExecuteSql(localSql);
 }
 DatabaseResult* Database::ExecuteSql(const int8* sql, ...)
@@ -178,6 +179,7 @@ DatabaseResult* Database::ExecuteSql(const int8* sql, ...)
 	// Run our query and return our result set.
 	newResult = mDatabaseImplementation->ExecuteSql(localSql);
 
+	va_end(args);
 	return newResult;
 }
 
@@ -203,6 +205,8 @@ void Database::ExecuteSqlAsync(DatabaseCallback* callback, void* ref, const int8
 
 	// Add the job to our processList;
 	mJobPendingQueue.push(job);
+
+	va_end(args);
 }
 
 //the reasoning behind this is the following
@@ -246,6 +250,8 @@ DatabaseResult* Database::ExecuteProcedure(const int8* sql, ...)
 	// Run our query and return our result set.
 	newResult = mDatabaseImplementation->ExecuteSql(localSql,true);
 
+	va_end(args);
+
 	return newResult;
 }
 
@@ -271,6 +277,8 @@ void Database::ExecuteProcedureAsync(DatabaseCallback* callback, void* ref, cons
 
 	// Add the job to our processList
 	mJobPendingQueue.push(job);
+
+	va_end(args);
 }
 
 //======================================================================================================================

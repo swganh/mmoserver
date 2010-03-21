@@ -203,6 +203,8 @@ void LogManager::logMsgStartUp(const std::string& msg, MsgPriority priority, ...
 	{
 		mDefaultLog->logMsgNolf(msg, priority, true, true, true, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE, args);
 	}
+
+	va_end(args);
 }
 
 void LogManager::logMsgFollowUp(const std::string& msg, MsgPriority priority, ...)
@@ -217,6 +219,8 @@ void LogManager::logMsgFollowUp(const std::string& msg, MsgPriority priority, ..
 
 		mDefaultLog->logMsgNolf(msg, priority, true, true, false,FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE, args);
 	}
+
+	va_end(args);
 }
 
 //======================================================================================================================
@@ -232,6 +236,8 @@ void LogManager::logMsgF(const std::string& msg, MsgPriority priority, ...)
 	{
 		mDefaultLog->logMsg(msg, priority, args);
 	}
+
+	va_end(args);
 }
 
 //======================================================================================================================
@@ -262,6 +268,7 @@ void LogManager::logMsgF(Log* log, const std::string& msg, MsgPriority priority,
 	va_start(args, priority);
 
 	log->logMsg(msg, priority, args);
+	va_end(args);
 }
 
 //======================================================================================================================
@@ -270,7 +277,7 @@ void LogManager::logMsgOk(int width)
 {
 	boost::mutex::scoped_lock lk(mGlobalLogMutex);
 
-	std::cout << std::setw(width-6); // Width minus the [ OK ] message length.
+	std::cout << std::setw(width-5); // Width minus the [ OK ] message length.
 	std::cout << std::right << "[ " << green << "OK" << white << " ]" << std::endl;
 }
 
@@ -292,6 +299,7 @@ void LogManager::logMsgLoadSuccess(const std::string& msg, MsgPriority priority,
 		length = 80;
 
 	logMsgOk(length);
+	va_end(args);
 }
 
 
@@ -312,6 +320,7 @@ void LogManager::logMsgLoadFailure(const std::string& msg, MsgPriority priority,
 		length = 80;
 
 	logMsgFailed(length);
+	va_end(args);
 }
 
 //======================================================================================================================
@@ -320,8 +329,8 @@ void LogManager::logMsgFailed(int width)
 {
     boost::mutex::scoped_lock lk(mGlobalLogMutex);	
 
-		std::cout << std::setw(width-10); // Width minus the [ OK ] message length.
-		std::cout << std::right << "[ " << red << "FAILED" << white << " ]" << std::endl;
+		std::cout << std::setw(width-6); // Width minus the [FAIL] message length.
+		std::cout << std::right << "[" << red << "FAIL" << white << "]" << std::endl;
 }
 
 //======================================================================================================================
@@ -475,5 +484,5 @@ void LogManager::logErrorF(const std::string& system, const std::string& msg, Ms
 
 //	mGlobalLogMutex.release();
 
-
+	va_end(args);
 }

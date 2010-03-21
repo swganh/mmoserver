@@ -25,7 +25,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "ObjectFactoryCallback.h"
 #include "TangibleFactory.h"
 #include "Scout.h"
-#include "BugJar.h"
+//#include "BugJar.h"
 #include "SurveyTool.h"
 #include "TravelTicket.h"
 #include "Weapon.h"
@@ -284,7 +284,7 @@ Item* ItemFactory::_createItem(DatabaseResult* result)
 		break;
 		case ItemFamily_FactoryCrate:			item	= new FactoryCrate();				break;
 		case ItemFamily_Hopper:					item	= new Item();						break;
-		case ItemFamily_BugJar:					item	= new BugJar();						break;
+//		case ItemFamily_BugJar:					item	= new BugJar();						break;
 		default:
 		{
 			item = new Item();

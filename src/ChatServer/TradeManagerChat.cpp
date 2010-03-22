@@ -947,6 +947,8 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
 						asyncContainer->AuctionTemp = auctionTemp;
 						//mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
 
+						//WE NEED THIS WHILE WE HAVE THE ABOVE LINE COMMENTED OUT!!!
+						delete asyncContainer;
 					}
 
 					//Update the new owner in case our auction got sold

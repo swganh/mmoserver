@@ -52,6 +52,17 @@ public:
 		pNext = NULL;
 	}
 
+	ForagePocket::~ForagePocket()
+	{
+		//This shouldn't be a problem, but it's here just in case.
+
+		for(std::list<ForageAttempt*>::iterator it=attempts.begin(); it != attempts.end();)
+		{
+			delete (*it);
+			it=attempts.erase(it);
+		}
+	}
+
 	bool containsPlayer(PlayerObject* player)
 	{
 		if(region->mTree->ObjectContained(&outterRect, player))
@@ -236,6 +247,7 @@ bool ForagePocket::updateAttempts(uint64 currentTime)
 	{
 		if((currentTime - (*it)->startTime) >= 300000) //5minutes until we reopen the pocket
 		{
+			delete (*it);
 			it = attempts.erase(it);
 			AttemptCount--;
 			//gLogger->logMsg("POCKET REMOVED DUE TO TIMER", FOREGROUND_RED);

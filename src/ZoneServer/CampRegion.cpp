@@ -206,6 +206,7 @@ void CampRegion::update()
 		if(gWorldManager->GetCurrentGlobalTick() - (*i)->lastSeenTime >= 30000)
 		{
 			//gLogger->logMsg("ERASING AN ENTRY!");
+			delete (*i);
 			i = links.erase(i);
 		}
 		else

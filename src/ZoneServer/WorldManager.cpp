@@ -115,7 +115,6 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
 	mvClientEffects.reserve(1000);
 	mvMoods.reserve(200);
 	mvSounds.reserve(5000);
-	mPlayersToRemove.reserve(10);
 	mShuttleList.reserve(50);
 
 	// load up subsystems

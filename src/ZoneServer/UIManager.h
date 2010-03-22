@@ -16,6 +16,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "UIEnums.h"
 #include "UIWindow.h"
 #include <boost/ptr_container/ptr_map.hpp>
+#include <list>
 
 
 //======================================================================================================================
@@ -74,7 +75,7 @@ class UIManager : public MessageDispatchCallback
 
 		// custom list boxes
 		void				createNewSkillSelectListBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* prompt,const BStringVector dataItems,PlayerObject* playerObject,uint8 lbType,PlayerObject* pupil);
-		void				createNewPlayerSelectListBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* prompt,const BStringVector dataItems, std::vector<PlayerObject*> playerList, PlayerObject* playerObject,uint8 lbType = SUI_LB_OK);
+		void				createNewPlayerSelectListBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* prompt,const BStringVector dataItems, std::list<PlayerObject*> playerList, PlayerObject* playerObject,uint8 lbType = SUI_LB_OK);
 		void				createNewTicketSelectListBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* prompt,const BStringVector dataItems,PlayerObject* playerObject,string port,Shuttle* shuttle,uint8 lbType = SUI_LB_OK);
 		void				createNewResourceSelectListBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* prompt,const BStringVector dataItems,ResourceIdList resourceIdList,PlayerObject* playerObject,uint8 windowType,uint8 lbType = SUI_LB_OK);
 		void				createNewCloneSelectListBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* prompt,const BStringVector dataItems,std::vector<BuildingObject*> buildingList,PlayerObject* playerObject,uint8 lbType = SUI_LB_OK);

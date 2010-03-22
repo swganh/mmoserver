@@ -14,6 +14,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include <map>
 #include <vector>
+#include <list>
 
 #include "DatabaseManager/DatabaseCallback.h"
 #include "ObjectFactoryCallback.h"
@@ -116,10 +117,10 @@ struct ModifierStruct
 //======================================================================================================================
 
 typedef std::map<uint64,BuffStruct*>		BuffMap;
-typedef std::vector<PerformanceStruct*>		PerformanceList;
-typedef std::vector<IDStruct*>				IdList;
-typedef std::vector<CreatureObject*>		AudienceList;
-typedef std::vector<HoloStruct*>			HoloEmoteEffects;
+typedef std::list<PerformanceStruct*>		PerformanceList;
+typedef std::list<IDStruct*>				IdList;
+typedef std::list<CreatureObject*>		AudienceList;
+typedef std::list<HoloStruct*>			HoloEmoteEffects;
 
 //======================================================================================================================
 

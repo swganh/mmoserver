@@ -71,7 +71,7 @@ typedef std::map<uint64,RegionObject*>			RegionMap;
 typedef std::vector<RegionObject*>				RegionDeleteList;
 
 // Lists for objects in world
-typedef std::vector<PlayerObject*>				PlayerList;
+typedef std::list<PlayerObject*>				PlayerList;
 typedef std::vector<Shuttle*>					ShuttleList;
 typedef std::vector<RegionObject*>				ActiveRegions;
 typedef std::list<CreatureObject*>				CreatureQueue;

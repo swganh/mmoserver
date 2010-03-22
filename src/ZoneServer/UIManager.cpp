@@ -257,7 +257,7 @@ void UIManager::createNewSkillTeachMessageBox(UICallback* callback,const int8* e
 // create a player select list box(group loot master)
 //
 
-void UIManager::createNewPlayerSelectListBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* prompt,const BStringVector dataItems, std::vector<PlayerObject*> playerList,  PlayerObject* playerObject,uint8 lbType)
+void UIManager::createNewPlayerSelectListBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* prompt,const BStringVector dataItems, std::list<PlayerObject*> playerList,  PlayerObject* playerObject,uint8 lbType)
 {
 	uint32 lbId = _getFreeId();
 

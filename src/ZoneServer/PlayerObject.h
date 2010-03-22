@@ -30,24 +30,22 @@ class BazaarTerminal;
 class BuildingObject;
 class Tutorial;
 class TravelTerminal;
-
-
 class CraftingStation;
 class CraftingSession;
 //=============================================================================
 
-typedef std::vector<std::pair<string,float> >	AttributesList;
-typedef std::vector<std::pair<string,uint16> >	ColorList;
-typedef std::vector<std::pair<uint32,int32> >	XPList;
-typedef std::vector<std::pair<uint32,int32> >	XPCapList;
+typedef std::list<std::pair<string,float> >	AttributesList;
+typedef std::list<std::pair<string,uint16> >	ColorList;
+typedef std::list<std::pair<uint32,int32> >	XPList;
+typedef std::list<std::pair<uint32,int32> >	XPCapList;
 typedef std::vector<uint64>						SchematicsIdList;
-typedef std::vector<uint64>						DenyServiceList;
-typedef std::vector<uint64>						GroupMissionList;
-typedef std::vector<CreatureObject*>			AudienceList;
+typedef std::list<uint64>						DenyServiceList;
+typedef std::list<uint64>						GroupMissionList;
+typedef std::list<CreatureObject*>			AudienceList;
 typedef std::map<uint64,BuffStruct*>			BuffMap;
-typedef std::vector<PlayerObject*>				PlayerList;
-typedef std::vector<uint32>						BadgesList;
-typedef std::vector<uint32>						UIWindowList;
+typedef std::list<PlayerObject*>				PlayerList;
+typedef std::list<uint32>						BadgesList;
+typedef std::list<uint32>						UIWindowList;
 typedef std::map<uint32,BString>				ContactMap;
 
 //=============================================================================

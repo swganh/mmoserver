@@ -20,6 +20,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include "Common/bytebuffer.h"
 #include <vector>
+#include <list>
 #include "MathLib/Vector3.h"
 
 #define	 gMessageLib	MessageLib::getSingletonPtr()
@@ -58,7 +59,7 @@ class ActiveConversation;
 typedef struct tagResourceLocation ResourceLocation;
 
 typedef std::set<PlayerObject*>			PlayerObjectSetML;
-typedef std::vector<PlayerObject*>		PlayerList;
+typedef std::list<PlayerObject*>		PlayerList;
 
 enum ObjectUpdate
 {

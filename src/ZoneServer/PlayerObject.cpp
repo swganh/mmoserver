@@ -103,8 +103,6 @@ PlayerObject::PlayerObject()
 , mTrading(false)
 , mHasCamp(false)
 {
-	mDuelList.reserve(10);
-
 	mIsForaging			= false;
 	mType				= ObjType_Player;
 	mCreoGroup			= CreoGroup_Player;
@@ -1585,7 +1583,13 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,string inputStr,UIW
 			if (element < 0) { break; }
 
 			UIPlayerSelectBox* selectionBox = dynamic_cast<UIPlayerSelectBox*>(window);
-			PlayerObject* selectedPlayer = selectionBox->getPlayers()[element];
+			//PlayerObject* selectedPlayer = selectionBox->getPlayers()[];
+
+			//I realise this is not the FASTEST way to do this, but PlayerList is used as a list EVERYWHERE else.
+			PlayerList::iterator it = selectionBox->getPlayers().begin();
+			std::advance(it, element-1);
+
+			PlayerObject* selectedPlayer = *it;
 
 			if(selectedPlayer == NULL)
 			{

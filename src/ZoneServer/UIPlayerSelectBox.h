@@ -18,7 +18,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 class PlayerObject;
 
 //================================================================================
-typedef std::vector<PlayerObject*>				PlayerList;
+typedef std::list<PlayerObject*>				PlayerList;
 //================================================================================
 
 

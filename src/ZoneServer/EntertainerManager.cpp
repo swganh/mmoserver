@@ -35,10 +35,10 @@ EntertainerManager*	EntertainerManager::mSingleton = NULL;
 
 //======================================================================================================================
 
-EntertainerManagerAsyncContainer::EntertainerManagerAsyncContainer(EMQueryType qt,DispatchClient* client)
+EntertainerManagerAsyncContainer::EntertainerManagerAsyncContainer(EMQueryType qt,DispatchClient* client) :
+mQueryType(qt),
+mClient(client)
 {
-    mQueryType = qt;
-    mClient = client;
 }
 
 //======================================================================================================================

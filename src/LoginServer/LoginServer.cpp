@@ -65,6 +65,7 @@ mNetworkManager(0)
 
 
   mDatabase->ExecuteSqlAsync(0,0,"UPDATE config_process_list SET serverstartID = serverstartID+1 WHERE name like 'login'");
+  mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE config_process_list SET status=%u WHERE name='login';", 1));
 
   // In case of a crash, we need to cleanup the DB a little.
 	mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE account SET authenticated=0 WHERE authenticated=1;"));
@@ -77,6 +78,10 @@ mNetworkManager(0)
 
 	// Let our network Service know about our callbacks
 	mService->AddNetworkCallback(mLoginManager);
+
+	// We're done initializing.
+	mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE config_process_list SET address='%s', port=%u, status=%u WHERE name='login';", mService->getLocalAddress(), mService->getLocalPort(), 2));
+
 	gLogger->logMsg("LoginServer Startup complete");
 	//gLogger->printLogo();
 	// std::string BuildString(GetBuildString());	
@@ -89,6 +94,7 @@ mNetworkManager(0)
 //======================================================================================================================
 LoginServer::~LoginServer(void)
 {
+	mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE config_process_list SET status=%u WHERE name='login';", 0));
 	gLogger->logMsg("LoginServer shutting down...");
 
 	delete mLoginManager;

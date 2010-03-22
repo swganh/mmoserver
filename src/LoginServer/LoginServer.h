@@ -29,8 +29,6 @@ class LoginServer
 		LoginServer(void);
 		~LoginServer(void);
 
-		void	Startup(void);
-		void	Shutdown(void);
 		void	Process(void);
 
 private:

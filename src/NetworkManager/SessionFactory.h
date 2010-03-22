@@ -36,11 +36,9 @@ typedef boost::singleton_pool<Session,sizeof(Session),boost::default_user_alloca
 class SessionFactory
 {
 	public:
-									SessionFactory(void);
+									SessionFactory(SocketWriteThread* writeThread, Service* service, PacketFactory* packetFactory, MessageFactory* messageFactory, bool serverservice);
 									~SessionFactory(void);
 
-	  void                          Startup(SocketWriteThread* writeThread, Service* service, PacketFactory* packetFactory, MessageFactory* messageFactory, bool serverservice);
-	  void                          Shutdown(void);
 	  void                          Process(void);
 
 	  Session*                      CreateSession(void);

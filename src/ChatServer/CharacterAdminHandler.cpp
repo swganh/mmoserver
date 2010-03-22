@@ -33,21 +33,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include <cstring>
 
 //======================================================================================================================
-CharacterAdminHandler::CharacterAdminHandler(void)
-{
-
-}
-
-
-//======================================================================================================================
-CharacterAdminHandler::~CharacterAdminHandler(void)
-{
-
-}
-
-
-//======================================================================================================================
-void CharacterAdminHandler::Startup(Database* database, MessageDispatch* dispatch)
+CharacterAdminHandler::CharacterAdminHandler(Database* database, MessageDispatch* dispatch)
 {
   // Store our members
   mDatabase = database;
@@ -63,14 +49,13 @@ void CharacterAdminHandler::Startup(Database* database, MessageDispatch* dispatc
 
 
 //======================================================================================================================
-void CharacterAdminHandler::Shutdown(void)
+CharacterAdminHandler::~CharacterAdminHandler(void)
 {
   // Unregister our callbacks
   mMessageDispatch->UnregisterMessageCallback(opClientCreateCharacter);
   mMessageDispatch->UnregisterMessageCallback(opLagRequest);
   mMessageDispatch->UnregisterMessageCallback(opClientRandomNameRequest);
 }
-
 
 //======================================================================================================================
 void CharacterAdminHandler::Process(void)

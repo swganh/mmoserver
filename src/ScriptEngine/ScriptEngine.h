@@ -26,13 +26,13 @@ extern "C"
 
 #include <boost/pool/pool.hpp>
 #include <boost/thread/mutex.hpp>
-#include <vector>
+#include <list>
 
 #define	 gScriptEngine	ScriptEngine::getSingletonPtr()
 
 class Tutorial;
 
-typedef std::vector<Script*>	ScriptList;
+typedef std::list<Script*>	ScriptList;
 
 //======================================================================================================================
 

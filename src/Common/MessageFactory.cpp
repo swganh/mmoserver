@@ -27,7 +27,7 @@ MessageFactory* MessageFactory::mSingleton = 0;
 
 //======================================================================================================================
 
-MessageFactory::MessageFactory()
+MessageFactory::MessageFactory(uint32 heapSize,uint32 serviceId)
 : mCurrentMessage(0)
 , mCurrentMessageEnd(0)
 , mCurrentMessageStart(0)
@@ -35,7 +35,7 @@ MessageFactory::MessageFactory()
 , mHeapEnd(0)
 , mHeapRollover(0)
 , mMessageHeap(NULL)
-, mHeapTotalSize(0)
+, mHeapTotalSize(heapSize)
 , mMessagesCreated(0)
 , mMessagesDestroyed(0)
 , mServiceId(0)
@@ -43,6 +43,18 @@ MessageFactory::MessageFactory()
 , mMaxHeapUsedPercent(0)
 {
 	// gLogger->logMsgF("MessageFactory::MessageFactory() CONSTRUCTED",MSG_NORMAL);
+
+	// the singleton is only for use with the zone - the services use their own instantiations as we need 1 factory per thread
+	// as the factory is not thread safe
+
+	// Allocate our message heap.
+	mMessageHeap = new int8[mHeapTotalSize];
+	memset(mMessageHeap, 0xed, mHeapTotalSize);
+	mHeapStart = mMessageHeap;
+	mHeapEnd = mMessageHeap;
+
+	mServiceId = serviceId;
+	mLastTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
 }
 
 //======================================================================================================================
@@ -63,37 +75,6 @@ MessageFactory::~MessageFactory()
 
 	// Important to notice is please that message factory isnt threadsafe
 	// thus we need several instances of it !!!!!!
-}
-
-//======================================================================================================================
-
-void MessageFactory::Startup(uint32 heapSize,uint32 serviceId)
-{
-	mHeapTotalSize = heapSize;
-
-	// the singleton is only for use with the zone - the services use their own instantiations as we need 1 factory per thread
-	// as the factory is not thread safe
-
-	// Allocate our message heap.
-	mMessageHeap = new int8[mHeapTotalSize];
-	memset(mMessageHeap, 0xed, mHeapTotalSize);
-	mHeapStart = mMessageHeap;
-	mHeapEnd = mMessageHeap;
-
-	mServiceId = serviceId;
-	mLastTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
-}
-
-//======================================================================================================================
-
-void MessageFactory::Shutdown(void)
-{
-	// Can't / should not delete the member data without deleting the instance...
-
-	// destroy our message heap
-
-	//delete[] mMessageHeap;
-
 }
 
 //======================================================================================================================

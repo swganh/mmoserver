@@ -35,20 +35,6 @@ LoginServer* gLoginServer = 0;
 LoginServer::LoginServer(void) :
 mNetworkManager(0)
 {
-
-}
-
-
-//======================================================================================================================
-LoginServer::~LoginServer(void)
-{
-
-}
-
-
-//======================================================================================================================
-void LoginServer::Startup(void)
-{
 	// log msg to default log
   //gLogger->printSmallLogo();
   gLogger->logMsg("LoginServer Startup");
@@ -101,7 +87,7 @@ void LoginServer::Startup(void)
 
 
 //======================================================================================================================
-void LoginServer::Shutdown(void)
+LoginServer::~LoginServer(void)
 {
 	gLogger->logMsg("LoginServer shutting down...");
 
@@ -117,7 +103,6 @@ void LoginServer::Shutdown(void)
 	gLogger->logMsg("LoginServer Shutdown complete");
 }
 
-
 //======================================================================================================================
 void LoginServer::Process(void)
 {
@@ -130,7 +115,6 @@ void LoginServer::Process(void)
 //======================================================================================================================
 void handleExit(void)
 {
-  gLoginServer->Shutdown();
   delete gLoginServer;
 }
 
@@ -148,9 +132,6 @@ int main(int argc, char* argv[])
 
   gLoginServer = new LoginServer();
 
-  // Startup things
-	gLoginServer->Startup();
-
   // Since startup completed successfully, now set the atexit().  Otherwise we try to gracefully shutdown a failed startup, which usually fails anyway.
   //atexit(handleExit);
 
@@ -166,7 +147,6 @@ int main(int argc, char* argv[])
 	}
 
 	// Shutdown things
-	gLoginServer->Shutdown();
 	delete gLoginServer;
 
 	delete LogManager::getSingletonPtr();

@@ -16,11 +16,11 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include <map>
 #include <string>
-#include <vector>
+#include <list>
 
 class Script;
 
-typedef std::vector<Script*>				ScriptList;
+typedef std::list<Script*>					ScriptList;
 typedef std::map<std::string, ScriptList*>	ScriptListMap;
 
 //======================================================================================================================

@@ -101,11 +101,9 @@ ChatServer::ChatServer() : mNetworkManager(0),mDatabaseManager(0),mRouterService
 	// load up GroupManager
 	mGroupManager = GroupManager::Init(mMessageDispatch);
 
-	mCharacterAdminHandler = new CharacterAdminHandler();
-	mCharacterAdminHandler->Startup(mDatabase, mMessageDispatch);  
+	mCharacterAdminHandler = new CharacterAdminHandler(mDatabase, mMessageDispatch);  
   
-	mPlanetMapHandler = new PlanetMapHandler();
-	mPlanetMapHandler->Startup(mDatabase,mMessageDispatch);
+	mPlanetMapHandler = new PlanetMapHandler(mDatabase,mMessageDispatch);
 
 	ChatMessageLib::Init(mClient);
 
@@ -130,10 +128,8 @@ ChatServer::~ChatServer()
 	_updateDBServerList(0);
 
 	// Shutdown the various handlers
-	mCharacterAdminHandler->Shutdown();
 	delete mCharacterAdminHandler;
 	
-	mPlanetMapHandler->Shutdown();
 	delete mPlanetMapHandler;
 
 	delete (mChatManager);

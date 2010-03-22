@@ -28,11 +28,9 @@ class PacketFactory
 {
 	public:
 
-		PacketFactory(void);
+		PacketFactory(bool serverservice);
 		~PacketFactory(void);
 
-		void		Startup(bool serverservice);
-		void		Shutdown(void);
 		void		Process(void);
 
 		Packet*		CreatePacket(void);

@@ -19,8 +19,13 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 //======================================================================================================================
 
-SessionFactory::SessionFactory(void) 
-: mSessionIdNext(0)
+SessionFactory::SessionFactory(SocketWriteThread* writeThread, Service* service, PacketFactory* packetFactory, MessageFactory* messageFactory, bool serverservice) 
+:	mSessionIdNext(0),
+	mSocketWriteThread(writeThread),
+	mService(service),
+	mPacketFactory(packetFactory),
+	mMessageFactory(messageFactory),
+	mServerService(serverservice)
 {
 
 }
@@ -29,28 +34,7 @@ SessionFactory::SessionFactory(void)
 
 SessionFactory::~SessionFactory(void)
 {
-
-}
-
-
-//======================================================================================================================
-
-void SessionFactory::Startup(SocketWriteThread* writeThread, Service* service, PacketFactory* packetFactory, MessageFactory* messageFactory, bool serverservice)
-{
-  mSocketWriteThread	= writeThread;
-  mService				= service;
-  mPacketFactory		= packetFactory;
-  mMessageFactory		= messageFactory;
-  mServerService		= serverservice;
-
-}
-
-//======================================================================================================================
-
-void SessionFactory::Shutdown(void)
-{
 	SessionPool::purge_memory();
-	
 }
 
 //======================================================================================================================

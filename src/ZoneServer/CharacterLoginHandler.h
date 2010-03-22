@@ -53,11 +53,8 @@ class CharacterLoginHandler : public MessageDispatchCallback,public ObjectFactor
 {
 	public:
 
-        CharacterLoginHandler(void);
+        CharacterLoginHandler(Database* database, MessageDispatch* dispatch);
         ~CharacterLoginHandler(void);
-
-		void	Startup(Database* database, MessageDispatch* dispatch);
-		void	Shutdown(void);
 
 		// DatabaseCallback
 		virtual void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);

@@ -30,11 +30,9 @@ class MessageFactory
 {
 	public:
 
-		MessageFactory();
+		MessageFactory(uint32 heapSize,uint32 serviceId = 0);
 		~MessageFactory();
 
-		void                    Startup(uint32 heapSize,uint32 serviceId = 0);
-		void                    Shutdown(void);
 		void                    Process(void);
 
 		void                    StartMessage(void);
@@ -100,8 +98,7 @@ inline MessageFactory* MessageFactory::getSingleton(void)
 	if(!mSingleton)
 	{
 		// gLogger->logMsgF("MessageFactory::getSingleton()",MSG_NORMAL);
-		mSingleton = new MessageFactory();
-		mSingleton->Startup(gConfig->read<uint32>("GlobalMessageHeap")*1024);
+		mSingleton = new MessageFactory(gConfig->read<uint32>("GlobalMessageHeap")*1024);
 	}
 
 	return mSingleton;
@@ -113,7 +110,6 @@ inline void MessageFactory::destroySingleton(void)
 {
 	if (mSingleton)
 	{
-		mSingleton->Shutdown();
 		delete mSingleton;
 		mSingleton = 0;
 	}

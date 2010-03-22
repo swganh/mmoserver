@@ -44,11 +44,9 @@ class ZoneServer
 {
 	public:
 
-		ZoneServer(void);
+		ZoneServer(int8* mapName);
 		~ZoneServer(void);
 
-		void	Startup(int8* mapName);
-		void	Shutdown(void);
 		void	Process(void);
 
 		void	handleWMReady();

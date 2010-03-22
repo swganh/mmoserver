@@ -49,11 +49,9 @@ class PlanetMapHandler : public MessageDispatchCallback, public DatabaseCallback
 {
 public:
 
-	                              PlanetMapHandler();
+	                              PlanetMapHandler(Database* database, MessageDispatch* dispatch);
 	                              ~PlanetMapHandler();
 
-	void			                    Startup(Database* database, MessageDispatch* dispatch);
-	void			                    Shutdown();
 	void			                    Process();
 
   // Inherited from MessageDispatchCallback

@@ -41,8 +41,6 @@ class Service
 		Service(NetworkManager* networkManager, bool serverservice, uint32 id, int8* localAddress, uint16 localPort,uint32 mfHeapSize);
 		~Service(void);
 
-		void	Startup(int8* localAddress, uint16 localPort,uint32 mfHeapSize);
-		void	Shutdown(void);
 		void	Process();
 
 		void	Connect(NetworkClient* client, int8* address, uint16 port);

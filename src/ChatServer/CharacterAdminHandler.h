@@ -67,11 +67,9 @@ class CharacterAdminHandler : public MessageDispatchCallback, public DatabaseCal
 {
 	public:
 
-		CharacterAdminHandler(void);
+		CharacterAdminHandler(Database* database, MessageDispatch* dispatch);
 		~CharacterAdminHandler(void);
 
-		void			Startup(Database* database, MessageDispatch* dispatch);
-		void			Shutdown(void);
 		void			Process(void);
 
 		// Inherited from MessageDispatchCallback

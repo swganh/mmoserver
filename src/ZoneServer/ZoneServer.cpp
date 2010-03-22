@@ -63,25 +63,11 @@ ZoneServer* gZoneServer = NULL;
 
 //======================================================================================================================
 
-ZoneServer::ZoneServer(void) :
+ZoneServer::ZoneServer(int8* zoneName) :
 mNetworkManager(0),
 mDatabaseManager(0),
 mRouterService(0),
 mDatabase(0)
-{
-
-}
-
-//======================================================================================================================
-
-ZoneServer::~ZoneServer(void)
-{
-
-}
-
-//======================================================================================================================
-
-void ZoneServer::Startup(int8* zoneName)
 {
 	//gLogger->printSmallLogo();
 	// gLogger->logMsgF("ZoneServer - %s Startup %s",MSG_NORMAL,zoneName,GetBuildString());
@@ -189,33 +175,14 @@ void ZoneServer::Startup(int8* zoneName)
 
 	ScriptEngine::Init();
 
-	mCharacterLoginHandler = new CharacterLoginHandler();
-	mCharacterLoginHandler->Startup(mDatabase,mMessageDispatch);
+	mCharacterLoginHandler = new CharacterLoginHandler(mDatabase,mMessageDispatch);
 
-	mObjectControllerDispatch = new ObjectControllerDispatch();
-	mObjectControllerDispatch->Startup(mDatabase,mMessageDispatch);
-
+	mObjectControllerDispatch = new ObjectControllerDispatch(mDatabase,mMessageDispatch);
 }
 
 //======================================================================================================================
 
-void ZoneServer::handleWMReady()
-{
-	_updateDBServerList(2);
-	gLogger->logMsg("ZoneServer::Startup Complete");
-	//gLogger->printLogo();
-	// std::string BuildString(GetBuildString());
-
-	gLogger->logMsgF("ZoneServer:%s %s",MSG_NORMAL,getZoneName().getAnsi(),ConfigManager::getBuildString().c_str());
-	gLogger->logMsg("Welcome to your SWGANH Experience!");
-
-	// Connect to the ConnectionServer;
-	_connectToConnectionServer();
-}
-
-//======================================================================================================================
-
-void ZoneServer::Shutdown(void)
+ZoneServer::~ZoneServer(void)
 {
 	gLogger->logMsg("ZoneServer shutting down...");
 
@@ -223,10 +190,10 @@ void ZoneServer::Shutdown(void)
 	_updateDBServerList(0);
 
 	// Shutdown and delete the game modules.
-	mCharacterLoginHandler->Shutdown();
+	delete mCharacterLoginHandler;
 	gTravelMapHandler->Shutdown();
 	gTradeManager->Shutdown();
-	mObjectControllerDispatch->Shutdown();
+	delete mObjectControllerDispatch;
 	AdminManager::deleteManager();
 
 	gWorldManager->Shutdown();	// Should be closed before script engine and script support, due to halting of scripts.
@@ -236,8 +203,6 @@ void ZoneServer::Shutdown(void)
 	delete mMessageDispatch;
 
 	// gMessageFactory->Shutdown(); // Nothing to do there yet, since deleting of the heap is done in the destructor.
-
-	delete mObjectControllerDispatch;
 
 	// Delete the non persistent factories, that are possible to delete.
 	// NonPersistentContainerFactory::getSingletonPtr()->destroySingleton();
@@ -262,6 +227,22 @@ void ZoneServer::Shutdown(void)
 	gMessageFactory->destroySingleton();
 
 	gLogger->logMsg("ZoneServer::Shutdown Complete\n");
+}
+
+//======================================================================================================================
+
+void ZoneServer::handleWMReady()
+{
+	_updateDBServerList(2);
+	gLogger->logMsg("ZoneServer::Startup Complete");
+	//gLogger->printLogo();
+	// std::string BuildString(GetBuildString());
+
+	gLogger->logMsgF("ZoneServer:%s %s",MSG_NORMAL,getZoneName().getAnsi(),ConfigManager::getBuildString().c_str());
+	gLogger->logMsg("Welcome to your SWGANH Experience!");
+
+	// Connect to the ConnectionServer;
+	_connectToConnectionServer();
 }
 
 //======================================================================================================================
@@ -368,8 +349,7 @@ int main(int argc, char* argv[])
 	ConfigManager::Init(configfileName);
 
 	// Start things up
-	gZoneServer = new ZoneServer();
-	gZoneServer->Startup((int8*)(gConfig->read<std::string>("ZoneName")).c_str());
+	gZoneServer = new ZoneServer((int8*)(gConfig->read<std::string>("ZoneName")).c_str());
 
 	// Main loop
 	while(1)
@@ -387,12 +367,9 @@ int main(int argc, char* argv[])
 	}
 
 	// Shut things down
-	gZoneServer->Shutdown();
 
 	delete gZoneServer;
 	gZoneServer = NULL;
-
-	delete LogManager::getSingletonPtr();
 
 	return 0;
 }

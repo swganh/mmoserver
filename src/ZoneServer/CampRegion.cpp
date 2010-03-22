@@ -333,7 +333,7 @@ void	CampRegion::despawnCamp()
 		//still get db side in
 	}
 
-
+	
 }
 
 void	CampRegion::applyWoundHealing(Object* object)

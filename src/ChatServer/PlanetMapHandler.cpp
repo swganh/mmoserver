@@ -28,23 +28,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 //======================================================================================================================
 
-PlanetMapHandler::PlanetMapHandler()
-{
-
-}
-
-
-//======================================================================================================================
-
-PlanetMapHandler::~PlanetMapHandler()
-{
-
-}
-
-
-//======================================================================================================================
-
-void PlanetMapHandler::Startup(Database* database, MessageDispatch* dispatch)
+PlanetMapHandler::PlanetMapHandler(Database* database, MessageDispatch* dispatch)
 {
 	mDatabase = database;
 	mMessageDispatch = dispatch;
@@ -66,7 +50,7 @@ void PlanetMapHandler::Startup(Database* database, MessageDispatch* dispatch)
 
 //======================================================================================================================
 
-void PlanetMapHandler::Shutdown()
+PlanetMapHandler::~PlanetMapHandler()
 {
   // Destroy our DataBinding object
   mDatabase->DestroyDataBinding(mDataBinding);
@@ -74,7 +58,6 @@ void PlanetMapHandler::Shutdown()
   // Unregister our message callbacks
 	mMessageDispatch->UnregisterMessageCallback(opGetMapLocationsMessage);
 }
-
 
 //======================================================================================================================
 

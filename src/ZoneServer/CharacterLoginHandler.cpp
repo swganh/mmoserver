@@ -34,23 +34,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 //======================================================================================================================
 
-CharacterLoginHandler::CharacterLoginHandler(void)
-{
-
-}
-
-
-//======================================================================================================================
-
-CharacterLoginHandler::~CharacterLoginHandler(void)
-{
-
-}
-
-
-//======================================================================================================================
-
-void CharacterLoginHandler::Startup(Database* database, MessageDispatch* dispatch)
+CharacterLoginHandler::CharacterLoginHandler(Database* database, MessageDispatch* dispatch)
 {
 	// Store our members
 	mDatabase = database;
@@ -73,7 +57,7 @@ void CharacterLoginHandler::Startup(Database* database, MessageDispatch* dispatc
 
 //======================================================================================================================
 
-void CharacterLoginHandler::Shutdown(void)
+CharacterLoginHandler::~CharacterLoginHandler(void)
 {
 	// Unregister our callbacks
 	mMessageDispatch->UnregisterMessageCallback(opSelectCharacter);

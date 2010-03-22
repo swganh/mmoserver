@@ -24,35 +24,21 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 //======================================================================================================================
 
-ObjectControllerDispatch::ObjectControllerDispatch()
+ObjectControllerDispatch::ObjectControllerDispatch(Database* database,MessageDispatch* dispatch) :
+mDatabase(database),
+mMessageDispatch(dispatch)
 {
+	mMessageDispatch->RegisterMessageCallback(opObjControllerMessage,this); 
+	mMessageDispatch->RegisterMessageCallback(opObjectMenuSelection,this);
 }
 
 //======================================================================================================================
 
 ObjectControllerDispatch::~ObjectControllerDispatch()
 {
-}
-
-//======================================================================================================================
-
-void ObjectControllerDispatch::Startup(Database* database, MessageDispatch* dispatch)
-{
-	mDatabase = database;
-	mMessageDispatch = dispatch;
-	mMessageDispatch->RegisterMessageCallback(opObjControllerMessage,this); 
-	mMessageDispatch->RegisterMessageCallback(opObjectMenuSelection,this);
-}
-
-
-//======================================================================================================================
-
-void ObjectControllerDispatch::Shutdown()
-{
 	mMessageDispatch->UnregisterMessageCallback(opObjControllerMessage);  
 	mMessageDispatch->UnregisterMessageCallback(opObjectMenuSelection);
 }
-
 
 //======================================================================================================================
 

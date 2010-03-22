@@ -28,11 +28,9 @@ class ObjectControllerDispatch : public MessageDispatchCallback
 {
 	public:
 
-		ObjectControllerDispatch();
+		ObjectControllerDispatch(Database* database,MessageDispatch* dispatch);
 		~ObjectControllerDispatch();
 
-		void			Startup(Database* database,MessageDispatch* dispatch);
-		void			Shutdown();
 		void			Process();
 
 		virtual void	handleDispatchMessage(uint32 opcode,Message* message,DispatchClient* client);

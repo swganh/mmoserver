@@ -16,24 +16,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 //======================================================================================================================
 
-PacketFactory::PacketFactory(void)
+PacketFactory::PacketFactory(bool serverservice)
 : mPacketPool(sizeof(Packet))
-{
-
-}
-
-
-//======================================================================================================================
-
-PacketFactory::~PacketFactory(void)
-{
-
-}
-
-
-//======================================================================================================================
-
-void PacketFactory::Startup(bool serverservice)
 {
 	if(serverservice)
 		mMaxPayLoad = gNetConfig->getServerServerReliableSize();
@@ -44,7 +28,7 @@ void PacketFactory::Startup(bool serverservice)
 
 //======================================================================================================================
 
-void PacketFactory::Shutdown(void)
+PacketFactory::~PacketFactory(void)
 {
 	// Destory our clock
 	// delete mClock;

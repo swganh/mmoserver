@@ -76,14 +76,11 @@ mIsRunning(false)
 	mNewConnection.mSession = 0;
 
 	// Startup our factories
-	mMessageFactory = new MessageFactory();
-	mMessageFactory->Startup(mfHeapSize,service->getId());
+	mMessageFactory = new MessageFactory(mfHeapSize,service->getId());
 
-	mPacketFactory = new PacketFactory();
-	mPacketFactory->Startup(serverservice);
+	mPacketFactory = new PacketFactory(serverservice);
 
-	mSessionFactory = new SessionFactory();
-	mSessionFactory->Startup(writeThread, service, mPacketFactory, mMessageFactory, serverservice);
+	mSessionFactory = new SessionFactory(writeThread, service, mPacketFactory, mMessageFactory, serverservice);
 
 	mCompCryptor = new CompCryptor();
 
@@ -109,14 +106,12 @@ SocketReadThread::~SocketReadThread()
     mThread.interrupt();
     mThread.join();
 
-	mPacketFactory->Shutdown();
-	mSessionFactory->Shutdown();
-	mMessageFactory->Shutdown();
-
-	delete mCompCryptor;
-	delete mSessionFactory;
 	delete mPacketFactory;
+	delete mSessionFactory;
+	
 	delete mMessageFactory;
+	
+	delete mCompCryptor;
 }
 
 //======================================================================================================================

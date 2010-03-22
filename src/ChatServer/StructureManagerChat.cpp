@@ -891,6 +891,7 @@ void StructureManagerChatHandler::ProcessAddHarvesterHopperUpdate(Message* messa
 		{
 			if((*it)->HarvesterID == harvesterID)
 			{
+				delete (*it);
 				it = hList->erase(it);
 				return;
 			}

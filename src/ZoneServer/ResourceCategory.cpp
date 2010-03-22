@@ -17,8 +17,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 ResourceCategory::ResourceCategory()
 {
-	mChildren.reserve(5);
-	mSiblings.reserve(5);
 }
 
 //=============================================================================

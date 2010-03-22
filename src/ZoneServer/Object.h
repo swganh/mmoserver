@@ -49,7 +49,7 @@ typedef std::tr1::shared_ptr<RadialMenu>	RadialMenuPtr;
 typedef std::list<uint64>				ObjectIDList;
 typedef std::set<Object*>				ObjectSet;
 typedef std::set<PlayerObject*>			PlayerObjectSet;
-typedef std::vector<uint32>				AttributeOrderList;
+typedef std::list<uint32>				AttributeOrderList;
 
 //=============================================================================
 

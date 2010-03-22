@@ -24,10 +24,10 @@ class MissionObject;
 class PlayerObject;
 class WaypointObject;
 
-typedef std::vector<WaypointObject*>			WaypointList;
-typedef std::vector<ManufacturingSchematic*>	ManufacturingSchematicList;
-typedef std::vector<MissionObject*>				MissionList;
-typedef std::vector<IntangibleObject*>			DataList;
+typedef std::list<WaypointObject*>			WaypointList;
+typedef std::list<ManufacturingSchematic*>	ManufacturingSchematicList;
+typedef std::list<MissionObject*>				MissionList;
+typedef std::list<IntangibleObject*>			DataList;
 
 //=============================================================================
 

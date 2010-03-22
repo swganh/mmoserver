@@ -17,7 +17,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 class MissionObject;
 
-typedef std::vector<MissionObject*>		MissionList;
+typedef std::list<MissionObject*>		MissionList;
 
 //=============================================================================
 

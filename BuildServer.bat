@@ -22,7 +22,9 @@ if x%environment_built% == x goto :eof
 
 cd %PROJECT_BASE%
 
-rem call :DOWNLOAD_DATA_FILES
+if %SKIPHEIGHTMAPS% == false (
+call :DOWNLOAD_DATA_FILES
+)
                     
 call :BUILD_DEPENDENCIES
                                         
@@ -79,6 +81,7 @@ set BUILD_TYPE=debug
 set MSVC_VERSION=9.0
 set REBUILD=build
 set DBINSTALL=false
+set SKIPHEIGHTMAPS=false
 set BUILD_ERROR=false    
 set HALT_ON_ERROR=true   
 set halt= 
@@ -100,6 +103,7 @@ if "%~0" == "-h" (
     echo.
 
     echo "    /nohaltonerror                 Skips halting on errors"
+	echo "    /skipheightmaps                Skips downloading heightmap files"
     echo "    /nodbinstall                   Skips the database build process"
     echo "    /dbinstall                     Run the database build process"
     echo "    /rebuild                       Rebuilds the projects instead of incremental build"
@@ -111,6 +115,10 @@ if "%~0" == "-h" (
 if "%~0" == "/clean" (
 	  call :CLEAN_BUILD
 	  goto :eof
+)  
+
+if "%~0" == "/skipheightmaps" (
+	  set SKIPHEIGHTMAPS=true
 )  
 
 if "%~0" == "/nodbinstall" (
@@ -263,7 +271,17 @@ if not exist "data\heightmaps" (
 	mkdir data\heightmaps
 )
 
+call :DOWNLOAD_HEIGHTMAP corellia
+call :DOWNLOAD_HEIGHTMAP dantooine
+call :DOWNLOAD_HEIGHTMAP dathomir
+call :DOWNLOAD_HEIGHTMAP endor
+call :DOWNLOAD_HEIGHTMAP lok
+call :DOWNLOAD_HEIGHTMAP naboo
+call :DOWNLOAD_HEIGHTMAP rori
+rem call :DOWNLOAD_HEIGHTMAP taanab
+call :DOWNLOAD_HEIGHTMAP talus
 call :DOWNLOAD_HEIGHTMAP tatooine
+call :DOWNLOAD_HEIGHTMAP yavin4
 
 echo ** Checking data file dependencies complete **
 
@@ -281,8 +299,13 @@ echo ** Downloading Heightmap for %1 **
 echo.
 
 if not exist "data\heightmaps\%1.hmpw" (
-	"tools\wget.exe" http://swganh.com/^^!^^!planets^^!^^!/%1.zip -O data\heightmaps\%1.zip
+	if not exist "data\heightmaps\%1.zip" (
+		"tools\wget.exe" http://swganh.com/^^!^^!planets^^!^^!/%1.zip -O data\heightmaps\%1.zip
+	)
+	
 	"tools\unzip.exe" data\heightmaps\%1.zip -d data\heightmaps >NUL
+	move "%PROJECT_BASE%data\heightmaps\%1.hmp" "%PROJECT_BASE%data\heightmaps\%1.hmpw"
+	
 	if exist "data\heightmaps\%1.hmpw" (
 		del data\heightmaps\%1.zip
 	)

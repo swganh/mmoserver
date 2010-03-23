@@ -2,6 +2,7 @@
 bin/
 build-aux/
 deps/
+data/heightmaps/
 *.cache
 *.zip
 *.tmp_*Win32.vcproj

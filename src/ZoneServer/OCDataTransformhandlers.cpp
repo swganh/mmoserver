@@ -994,7 +994,9 @@ uint64 ObjectController::playerWorldUpdate(bool forcedUpdate)
 {
 	PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
 
-	// If we already are busy, don't start another update.		 ??????????????????
+	// If we already are busy, don't start another update.
+	// ie if this is called by the worldmanager timer because we still have unupdated objects
+	// in our resultmap
 	if (!(mUpdatingObjects || mDestroyOutOfRangeObjects || forcedUpdate))
 	{
 		// If we have been inactive for too long, let's update the world.
@@ -1039,29 +1041,6 @@ uint64 ObjectController::playerWorldUpdate(bool forcedUpdate)
 		// Update some of the objects we found.
 		mUpdatingObjects = !_updateInRangeObjectsInside();
 
-		/*
-		Why would we need to send position updates to confirm our position ?? 
-		we didfnt do any kind of movement prediction and these updates upset our spectators when were dancing
-		// Only send position updates when we are running slow...
-		if (!(mUpdatingObjects || mDestroyOutOfRangeObjects))
-		{
-			//bool inRangeUpdate = false;		// -> gives "reliable message", and I (Eru) have no clue what that is :)
-			//Reliable messages are Messages that MUST under all circumstances arrive
-			//Unreliable messages are messages where a missing message is acceptable. They are MUCH more faster
-			//thus movement is unreliable
-
-			if (!gWorldConfig->isInstance())
-			{
-				// send out updates
-				gMessageLib->sendUpdateTransformMessageWithParent(player);
-			}
-			else
-			{
-				// send out position updates to known players in group or self only
-				gMessageLib->sendUpdateTransformMessageWithParent(player, player);
-			}
-		}
-		*/ 
 	}
 	else
 	{

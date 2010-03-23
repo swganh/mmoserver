@@ -415,7 +415,7 @@ void WorldManager::warpPlanet(PlayerObject* playerObject,Anh_Math::Vector3 desti
 //
 // Handle update of player movements. We need to have a consistent update of the world around us,
 // even we we are not moving in world.
-//
+// this is especially important when we are limiting object creates to say 50 objects per second
 
 bool WorldManager::_handlePlayerMovementUpdateTimers(uint64 callTime, void* ref)
 {

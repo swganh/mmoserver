@@ -355,8 +355,8 @@ void StructureManager::createNewStructureDestroyBox(PlayerObject* player, Player
 	BStringVector attributesMenu;
 
 	string text = "You have elected to destroy a structure. Pertinent structure data can be found in the list below. Please complete the following steps to confirm structure deletion.\xa\xa";
-			text <<"If you wish to redeed your structure, all structure data must be GREEN. \xa To continue with structure deletion, click YES. Otherwise, please click NO.\xa";
-			
+			text <<"If you wish to redeed your structure, all structure data must be \\#006400 GREEN\\#FFFFFF To continue with structure deletion, click YES. Otherwise, please click NO.\xa";
+
 	if(structure->canRedeed())
 	{
 		text <<"WILL REDEED: \\#006400 YES \\#FFFFFF";			

@@ -275,7 +275,7 @@ void UIListBox::_initChildren()
 		case SUI_LB_YESNO:
 		{
 			mChildElements.push_back(new UIButton(0,"btnCancel",true,"@no"));
-			mChildElements.push_back(new UIButton(0,"btnRevert",false));
+			//mChildElements.push_back(new UIButton(0,"btnRevert",false));
 			mChildElements.push_back(new UIButton(0,"btnOk",true,"@yes"));			
 		}
 		break;

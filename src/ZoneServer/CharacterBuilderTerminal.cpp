@@ -75,7 +75,7 @@ CharacterBuilderTerminal::~CharacterBuilderTerminal()
 
 void CharacterBuilderTerminal::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount)
 {
-		mRadialMenu = RadialMenuPtr(new RadialMenu());
+	mRadialMenu = RadialMenuPtr(new RadialMenu());
 
 	// any object with callbacks needs to handle those (received with menuselect messages) !
 	mRadialMenu->addItem(1,0,radId_itemUse,radAction_ObjCallback);
@@ -136,9 +136,14 @@ void CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string 
 					XPList* xpList = playerObject->getXpList();
 					XPList::iterator xpIt = xpList->begin();
 
-					// Allocate space where we can sort this stuff.
-					mSortedList = new SortedList;
 					SortedList::iterator it;
+					// Clear existing space, and allocate space where we can sort this stuff.
+					if(mSortedList)
+					{
+						SAFE_DELETE(mSortedList);
+					}
+					mSortedList = new SortedList;
+					
 
 					while (xpIt != xpList->end())
 					{
@@ -168,8 +173,7 @@ void CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string 
 					if (availableXpTypes.size() == 0)
 					{
 						gMessageLib->sendSystemMessage(playerObject, L"You currently do not have any skills.");
-						delete mSortedList;
-						mSortedList = NULL;
+						SAFE_DELETE(mSortedList);
 					}
 					else
 					{
@@ -860,7 +864,7 @@ void CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string 
 			SkillList::iterator newSkill = newList->begin();
 			newSkill+=element;
 			gSkillManager->learnSkillLine((*newSkill)->mId, playerObject, false);
-			delete newList;
+			SAFE_DELETE(newList);
 		}
 		break;
 

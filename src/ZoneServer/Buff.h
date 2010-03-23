@@ -17,12 +17,14 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include "Utils/typedefs.h"
 
+#include <list>
+
 class CreatureObject;
 class BuffAttribute;
 class BuffAttributeDBItem;
 class BuffDBItem;
 
-typedef std::vector<BuffAttribute*>	AttributeList;
+typedef std::list<BuffAttribute*>	AttributeList;
 
 class BuffAttribute
 {
@@ -65,7 +67,7 @@ public:
 	static Buff* TickingBuff(CreatureObject* Target, CreatureObject* Instigator, uint NoOfTicks, uint64 Tick, uint32 Icon, uint64 CurrentGlobalTick);
 	static Buff* FromDB(BuffDBItem* Item, uint64 CurrentGlobalTick);
 
-	~Buff();
+	~Buff(){EraseAttributes();}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	//Public Methods

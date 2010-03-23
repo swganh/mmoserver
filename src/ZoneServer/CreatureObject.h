@@ -18,6 +18,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "SkillManager.h"
 #include "CreatureEnums.h"
 #include <map>
+#include <list>
 
 //=============================================================================
 
@@ -31,7 +32,7 @@ typedef std::pair<uint32,int32>			FactionPoints;
 typedef std::vector<FactionPoints>		FactionList;
 typedef std::vector<CreatureObject*>	CreatureList;
 typedef std::vector<Object*>			ObjectList;
-typedef std::vector<Buff*>				BuffList;
+typedef std::list<Buff*>				BuffList;
 
 //=============================================================================
 
@@ -331,9 +332,9 @@ class CreatureObject : public MovingObject
 
 		//asynccount is our asyncquery counter when we store buffs async
 		uint32				GetBuffAsyncCount(){return(mBuffAsyncCount);}
-		void				SetBuffAsyncCount(uint32 count){mBuffAsyncCount = count;}
-		void				IncBuffAsyncCount(){mBuffAsyncCount++;}
-		void				DecBuffAsyncCount(){mBuffAsyncCount--;}
+		void				SetBuffAsyncCount(uint32 count){mBuffAsyncCount = count; }
+		void				IncBuffAsyncCount(){mBuffAsyncCount++; }
+		void				DecBuffAsyncCount(){mBuffAsyncCount--; }
 };
 
 //=============================================================================

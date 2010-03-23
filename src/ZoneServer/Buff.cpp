@@ -155,7 +155,7 @@ uint64 Buff::Update(uint64 CurrentTime, void* ref)
 
 	}
 	else
-	{ //If Buff is on final tick
+	{ //If  Buff is on final tick
 
 		FinalChanges();
 		/*if(mDowner!=0)
@@ -409,14 +409,6 @@ void Buff::FinalChanges()
 //
 //
 
-Buff::~Buff()
-{
-}
-
-//=============================================================================
-//
-//
-
 int32 Buff::ModifyAttribute(BuffAttributeEnum Type, int32 Value, bool damage, bool debuff)
 {
 	//damage is dealt by a debuff like poison for example this can incapacitate so
@@ -561,7 +553,13 @@ int32 Buff::ModifyAttribute(BuffAttributeEnum Type, int32 Value, bool damage, bo
 
 void Buff::EraseAttributes()
 {
-	Attributes.clear();
+	AttributeList::iterator it = Attributes.begin();
+
+	while(it!= Attributes.end())
+	{
+		SAFE_DELETE(*it);
+		it=Attributes.erase(it);
+	}
 }
 
 void Buff::SetParent(Buff* value)

@@ -432,7 +432,7 @@ void CreatureObject::updateMovementProperties()
 Buff* CreatureObject::GetBuff(uint32 BuffIcon)
 {
 	//Cycle through all buffs for the creature
-	std::vector<Buff*>::iterator it = mBuffList.begin();
+	BuffList::iterator it = mBuffList.begin();
 	//Check if the Icon CRCs Match (ie Duplication)
 	while(it != mBuffList.end())
 	{
@@ -448,7 +448,7 @@ Buff* CreatureObject::GetBuff(uint32 BuffIcon)
 bool CreatureObject::GetBuffExists(uint32 BuffIcon)
 {
 	//Cycle through all buffs for the creature
-	std::vector<Buff*>::iterator it = mBuffList.begin();
+	BuffList::iterator it = mBuffList.begin();
 	while(it != mBuffList.end())
 	{
 		//Check if the Icon CRCs Match (ie Duplication)
@@ -522,13 +522,20 @@ void CreatureObject::AddBuff(Buff* buff,  bool stackable, bool overwrite)
 
 int CreatureObject::GetNoOfBuffs()
 {
-	int No =0;
-	std::vector<Buff*>::iterator it = mBuffList.begin();
-	while(it != mBuffList.end())
+	/*int No =0;
+	BuffList::iterator it = mBuffList.begin();
+	while(*it != *mBuffList.end())
 	{
 		No++;it++;
 	}
-	return No;
+	return No;*/
+	return mBuffList.size();
+	/*if(*mBuffList.end())
+	{
+		return 1 + ((*mBuffList.end()) - (*mBuffList.begin()));
+	} else {
+		return 0;
+	}*/
 }
 void CreatureObject::RemoveBuff(Buff* buff)
 {
@@ -551,14 +558,13 @@ void CreatureObject::RemoveBuff(Buff* buff)
 
 void CreatureObject::CleanUpBuffs()
 {
-	std::vector<Buff*>::iterator it = mBuffList.begin();
+	BuffList::iterator it = mBuffList.begin();
 	while(it != mBuffList.end())
 	{
 		if((*it)->GetIsMarkedForDeletion())
 		{
-			((Buff*)(*it))->EraseAttributes();
+			SAFE_DELETE(*it);
 			it = mBuffList.erase(it);
-			//it = mBuffList.begin();
 		}
 		else
 		{

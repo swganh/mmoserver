@@ -103,7 +103,8 @@ enum ui_lb_types
 	SUI_LB_OKCANCEL						= 2,
 	SUI_LB_CANCELREFRESH				= 3,
 	SUI_LB_CANCEL_SCHEMATIC_REMOVEUSE	= 4,
-	SUI_LB_CANCEL_SCHEMATIC_USE			= 5
+	SUI_LB_CANCEL_SCHEMATIC_USE			= 5,
+	SUI_LB_YESNO						= 6
 };
 
 //================================================================================

@@ -355,7 +355,7 @@ void StructureManager::createNewStructureDestroyBox(PlayerObject* player, Player
 	BStringVector attributesMenu;
 
 	string text = "You have elected to destroy a structure. Pertinent structure data can be found in the list below. Please complete the following steps to confirm structure deletion.\xa\xa";
-			text <<"If you wish to redeed your structure, all structure data must be GREEN. \xa To continue with structure deletion, click OK. Otherwise, please click CANCEL.\xa";
+			text <<"If you wish to redeed your structure, all structure data must be GREEN. \xa To continue with structure deletion, click YES. Otherwise, please click NO.\xa";
 			
 	if(structure->canRedeed())
 	{
@@ -423,6 +423,6 @@ void StructureManager::createNewStructureDestroyBox(PlayerObject* player, Player
 	//answer = x*(total/100);
 	// total = 100%
 	
-	gUIManager->createNewListBox(structure,"handle Structure Destroy",sName, text.getAnsi(), attributesMenu, player, SUI_Window_Structure_Delete,SUI_LB_OKCANCEL);
+	gUIManager->createNewListBox(structure,"handle Structure Destroy",sName, text.getAnsi(), attributesMenu, player, SUI_Window_Structure_Delete,SUI_LB_YESNO);
 }
 

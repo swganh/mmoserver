@@ -98,9 +98,9 @@ mServerService(serverservice)
 	// We need to call connect on the socket to an address before we can know which address we have.
 	// The address specified in the connect call determines which interface our socket is associated with
 	// based on routing.  1.1.1.1 should give us the default adaptor.  Not sure what to do one multihomed hosts yet.
-	struct sockaddr   toAddr;
-	int32             sent, toLen = sizeof(toAddr);
-
+//	struct sockaddr   toAddr;
+//	int32             sent, toLen = sizeof(toAddr);
+/*
 	toAddr.sa_family = AF_INET;
 	*((uint32*)&toAddr.sa_data[2]) = 0;
 	*((uint16*)&(toAddr.sa_data[0])) = 0;
@@ -108,7 +108,7 @@ mServerService(serverservice)
 	// This connect will make the socket only acceept packets from the destination.  Need to reset at end.
 	//sent = sendto(mLocalSocket, mSendBuffer, 1, 0, &toAddr, toLen);
 	sent = connect(mLocalSocket, &toAddr, toLen);
-
+*/
 	//set the socketbuffer so we dont suffer internal dataloss
 	int value;
 	int valuelength = sizeof(value);
@@ -139,12 +139,13 @@ mServerService(serverservice)
 	//getsockname(mLocalSocket, (sockaddr*)&server, &serverLen);
 	//mLocalAddress = server.sin_addr.s_addr;
 	//mLocalPort = server.sin_port;
-
+/*
 	// Reset the connect call to universe.
 	toAddr.sa_family = AF_INET;
 	*((uint32*)&toAddr.sa_data[2]) = 0;
 	*((uint16*)&(toAddr.sa_data[0])) = 0;
 	sent = connect(mLocalSocket, &toAddr, toLen);
+*/
 }
 
 //======================================================================================================================

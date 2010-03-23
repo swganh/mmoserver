@@ -13,7 +13,7 @@ std::string GetBuildNumber()
     if (build_num.length() == 0)
     {
         std::string build_string = GetBuildString();    
-        build_num = build_string.substr(0, build_string.find_first_of(" "));
+        build_num = ANH_VERSION_MAJOR"."ANH_VERSION_MINOR"."ANH_VERSION_PATCH"."+build_string.substr(0, build_string.find_first_of(" "));
     }
 
 	return build_num;
@@ -37,24 +37,22 @@ std::string GetBuildTime()
 
 std::string GetBuildString()
 {
-    static std::string build_string;
+    static std::string build_revision;
+    static std::string build_timestamp;
 
-    if (build_string.length() == 0) 
+    if (build_revision.length() == 0) 
     {
         std::ifstream version_file("VERSION");
 
         if (version_file.is_open())
         {
-            std::string read_string;
-            std::getline(version_file, read_string);
-            
-            build_string = ANH_VERSION_MAJOR"."ANH_VERSION_MINOR".";
-            build_string += read_string;
+            std::getline(version_file, build_revision);
+			std::getline(version_file, build_timestamp);
         }
 
         version_file.close();
     }
 
-	return build_string;
+	return build_revision+" "+build_timestamp;
 }
 

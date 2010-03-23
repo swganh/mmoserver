@@ -1,0 +1,10 @@
+# These files should be ignored
+bin/
+build-aux/
+deps/
+*.cache
+*.zip
+*.tmp_*Win32.vcproj
+*.user
+*.ncb
+*.suo

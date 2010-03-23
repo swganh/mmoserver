@@ -18,8 +18,9 @@ Copyright (c) 2006 - 2010 The swgANH Team
 //
 
 #define ANH_VERSION_MAJOR	"0"
-#define ANH_VERSION_MINOR	"1"
-#define ANH_VERSION_NAME	"Dev"
+#define ANH_VERSION_MINOR	"2"
+#define ANH_VERSION_PATCH	"0"
+#define ANH_VERSION_NAME	"dev"
 
 //=====================================================================================
 //

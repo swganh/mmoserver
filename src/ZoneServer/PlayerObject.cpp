@@ -486,7 +486,24 @@ void PlayerObject::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8
 
 	RadialMenu*		radial			= new RadialMenu();
 
-	uint8 radId = itemCount;
+	uint8 radId = 0;
+
+	//if we have a prefab Menu (we will have one as a player)  iterate through it and add it to our response
+	//this way we will have our menu item numbering done right
+	MenuItemList* menuItemList = 		getMenuList();
+	if(menuItemList)
+	{
+		MenuItemList::iterator it	=	menuItemList->begin();
+
+		while(it != menuItemList->end())
+		{
+			radId++;
+			
+			radial->addItem((*it)->sItem,(*it)->sSubMenu,(RadialIdentifier)(*it)->sIdentifier,(*it)->sOption,"");
+			it++;
+		}
+	}
+
 
 	// entertainer - dance
 	if(mPendingPerform == PlayerPerformance_Dance)
@@ -494,16 +511,13 @@ void PlayerObject::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8
 		// stop watching
 		if(playerObject->getEntertainerWatchToId()== mId)
 		{
-			radial->addItem(radId+1,0,radId_serverPerformanceWatchStop,radAction_ObjCallback,"Stop Watching");
+			radial->addItem(radId++,0,radId_serverPerformanceWatchStop,radAction_ObjCallback,"Stop Watching");
 
-			++radId;
 		}
 		// start watching
 		else if(playerObject->mPosition.inRange2D(mPosition,20))
 		{
-			radial->addItem(radId+1,0,radId_serverPerformanceWatch,radAction_ObjCallback,"Watch");
-
-			++radId;
+			radial->addItem(radId++,0,radId_serverPerformanceWatch,radAction_ObjCallback,"Watch");
 		}
 	}
 	// entertainer - music
@@ -512,25 +526,21 @@ void PlayerObject::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8
 		// stop listening
 		if(playerObject->getEntertainerListenToId()== mId)
 		{
-			radial->addItem(radId+1,0,radId_serverPerformanceListenStop,radAction_ObjCallback,"Stop Listening");
-
-			++radId;
+			radial->addItem(radId++,0,radId_serverPerformanceListenStop,radAction_ObjCallback,"Stop Listening");
 		}
 		// start listening
 		else if(playerObject->mPosition.inRange2D(mPosition,20))
 		{
-			radial->addItem(radId+1,0,radId_serverPerformanceListen,radAction_ObjCallback,"Listen");
+			radial->addItem(radId++,0,radId_serverPerformanceListen,radAction_ObjCallback,"Listen");
 
-			++radId;
 		}
 	}
 
 	// teach
 	if(playerObject->getGroupId() && (mGroupId == playerObject->getGroupId()))
 	{
-		radial->addItem(radId,0,radId_serverTeach,radAction_ObjCallback,"Teach");
-
-		++radId;
+		radial->addItem(radId++,0,radId_serverTeach,radAction_ObjCallback,"Teach");
+		
 	}
 
 	RadialMenuPtr radialPtr(radial);

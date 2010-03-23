@@ -176,11 +176,14 @@ void StructureManager::checkNameOnPermissionList(uint64 structureId, uint64 play
 //=======================================================================================================================
 void StructureManager::removeNamefromPermissionList(uint64 structureId, uint64 playerId, string name, string list)
 {
+	int8 playerName[64];
+
+	mDatabase->Escape_String(playerName,name.getAnsi(),name.getLength());
 
 	StructureManagerAsyncContainer* asyncContainer;
 
 	asyncContainer = new StructureManagerAsyncContainer(Structure_Query_Remove_Permission, 0);
-	mDatabase->ExecuteSqlAsync(this,asyncContainer,"select sf_RemovePermissionList(%I64u,'%s','%s')",structureId,name.getAnsi(),list.getAnsi());
+	mDatabase->ExecuteSqlAsync(this,asyncContainer,"select sf_RemovePermissionList(%I64u,'%s','%s')",structureId,playerName,list.getAnsi());
 	asyncContainer->mStructureId = structureId;
 	asyncContainer->mPlayerId = playerId;
 	sprintf(asyncContainer->name,"%s",name.getAnsi());
@@ -199,7 +202,7 @@ void StructureManager::removeNamefromPermissionList(uint64 structureId, uint64 p
 //=======================================================================================================================
 void StructureManager::addNametoPermissionList(uint64 structureId, uint64 playerId, string name, string list)
 {
-	int8 sql[512],*sqlPointer;
+	int8 playerName[64];
 	//we have shown that we are on the admin list, so the name we proposed now will get added
 
 	StructureManagerAsyncContainer* asyncContainer;
@@ -207,21 +210,13 @@ void StructureManager::addNametoPermissionList(uint64 structureId, uint64 player
 	asyncContainer = new StructureManagerAsyncContainer(Structure_Query_Add_Permission, 0);
 	//mDatabase->ExecuteSqlAsync(this,asyncContainer,"select sf_AddPermissionList(%"PRIu64",'%s','%s')",structureId,name.getAnsi(),list.getAnsi());
 
-
-	sprintf(sql,"SELECT sf_AddPermissionList(%"PRIu64",'",structureId);
-
-	sqlPointer = sql + strlen(sql);
-	sqlPointer += mDatabase->Escape_String(sqlPointer,name.getAnsi(),name.getLength());
-
-	int8 endStr[128];
-	sprintf(endStr,"','%s'",list.getAnsi());
-	strcat(sql,endStr);
+	mDatabase->Escape_String(playerName,name.getAnsi(),name.getLength());
 
 	asyncContainer->mStructureId = structureId;
 	asyncContainer->mPlayerId = playerId;
 	sprintf(asyncContainer->name,"%s",name.getAnsi());
 
-	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
+	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sf_AddPermissionList(%"PRIu64",'%s','%s')",structureId,playerName,list.getAnsi());
 
 	// 0 is sucess
 	// 1 name doesnt exist

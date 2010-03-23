@@ -173,6 +173,10 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 		void					setLastUpdatePosition(Anh_Math::Vector3 pos ){mLastUpdatePosition = pos; }
 
 
+		//clientprefab Menu List
+		MenuItemList*			getMenuList(){ return mMenuItemList; }
+		void					setMenuList(MenuItemList* list){ mMenuItemList = list; }
+
 	protected:
 
 		AttributeMap				mAttributeMap;
@@ -182,6 +186,8 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 		PlayerObjectSet				mKnownPlayers;
 		ObjectController			mObjectController;
 		string						mModel;
+
+		MenuItemList*				mMenuItemList;
 
 		RadialMenuPtr			mRadialMenu;
 

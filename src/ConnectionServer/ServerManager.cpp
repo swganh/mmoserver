@@ -165,8 +165,13 @@ void ServerManager::handleSessionDisconnect(NetworkClient* client)
 	// Server disconnected.  But don't remove the mapping if it's not the same one.
 	if(mServerAddressMap[connClient->getServerId()].mConnectionClient == connClient)
 	{
-		delete mServerAddressMap[connClient->getServerId()].mConnectionClient;
-		mServerAddressMap[connClient->getServerId()].mConnectionClient = 0;
+		//its undefined later
+		uint32 id = connClient->getServerId();
+		//we actually delete the client in line 186 with delete(client)
+		//deleting it here just crashes us everytime a server disconnects :)
+
+		//delete mServerAddressMap[id].mConnectionClient;
+		mServerAddressMap[id].mConnectionClient = 0;
 	}
 
 	// update the galaxy state

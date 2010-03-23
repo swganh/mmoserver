@@ -899,9 +899,9 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 		
 		ResourceContainer* rc = dynamic_cast<ResourceContainer*>(itemObject);
 		if(rc)
-			mDatabase->ExecuteSqlAsync(0,0,"UPDATE resource_containers SET parent_id ='%I64u', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",itemObject->getParentId(), itemObject->mDirection.mY, itemObject->mDirection.mZ, itemObject->mDirection.mW, itemObject->mPosition.mX, itemObject->mPosition.mY, itemObject->mPosition.mZ, itemObject->getId());
+			mDatabase->ExecuteSqlAsync(0,0,"UPDATE resource_containers SET parent_id ='%I64u', oX='%f', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",itemObject->getParentId(), itemObject->mDirection.mX, itemObject->mDirection.mY, itemObject->mDirection.mZ, itemObject->mDirection.mW, itemObject->mPosition.mX, itemObject->mPosition.mY, itemObject->mPosition.mZ, itemObject->getId());
 		else
-			mDatabase->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id ='%I64u', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",itemObject->getParentId(), itemObject->mDirection.mY, itemObject->mDirection.mZ, itemObject->mDirection.mW, itemObject->mPosition.mX, itemObject->mPosition.mY, itemObject->mPosition.mZ, itemObject->getId());
+			mDatabase->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id ='%I64u', oX='%f', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",itemObject->getParentId(), itemObject->mDirection.mX, itemObject->mDirection.mY, itemObject->mDirection.mZ, itemObject->mDirection.mW, itemObject->mPosition.mX, itemObject->mPosition.mY, itemObject->mPosition.mZ, itemObject->getId());
 
 		//take wm function at one point
 		cell->addObjectSecure(itemObject,playerObject->getKnownPlayers());
@@ -1350,16 +1350,15 @@ void ObjectController::handleObjectMenuRequest(Message* message)
 		if(playerObject->isConnected())
 			gMessageLib->sendEmptyObjectMenuResponse(requestedObjectId,playerObject,responseNr,menuItemList);
 
-		for(MenuItemList::iterator it=menuItemList.begin(); it != menuItemList.end();it++)
-			delete (*it);
-
-		menuItemList.clear();
-
 		//the list is cleared and items are destroyed in the message lib
 		//for the default response
 		gLogger->logMsgF("ObjController::handleObjectMenuRequest: Couldn't find object %"PRIu64"",MSG_HIGH,requestedObjectId);
 		return;
 	}
+
+	requestedObject->setMenuList(&menuItemList);
+
+
 
 	//are we an item dropped in a structure awaiting to be moved or picked u`p?
     //just implement this virtual function for items as we need just one central point instead
@@ -1415,6 +1414,14 @@ void ObjectController::handleObjectMenuRequest(Message* message)
 		//the list is cleared and items are destroyes in the message lib
 		//for the default response
 	}
+
+
+	//we need to clear that if the messagelib wont clear it
+	//still want to use it for the player radials at some point
+	for(MenuItemList::iterator it=menuItemList.begin(); it != menuItemList.end();it++)
+			delete (*it);
+
+	menuItemList.clear();
 	
 }
 

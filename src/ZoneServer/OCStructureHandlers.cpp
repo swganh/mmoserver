@@ -64,7 +64,11 @@ void	ObjectController::_handleModifyPermissionList(uint64 targetId,Message* mess
 	
 	dataStr.convert(BSTRType_ANSI);
 
-	sscanf(dataStr.getAnsi(),"%s %s %s",playerStr.getAnsi(), list.getAnsi(), action.getAnsi());
+	int8 s1[64],s2[32],s3[32];
+	sscanf(dataStr.getAnsi(),"%32s %16s %16s",s1, s2, s3);
+	playerStr = s1;
+	list = s2;
+	action = s3;
 
 	if(playerStr.getLength() > 40)
 	{

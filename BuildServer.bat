@@ -36,6 +36,8 @@ if not exist "deps" (
     exit /b 1
 )
 
+if %DEPENDENCIESONLY% == true goto :eof
+
 call :BUILD_PROJECT     
 
 if not %ERRORLEVEL% == 0 (
@@ -82,6 +84,7 @@ set MSVC_VERSION=9.0
 set REBUILD=build
 set DBINSTALL=false
 set SKIPHEIGHTMAPS=false
+set DEPENDENCIESONLY=false
 set BUILD_ERROR=false    
 set HALT_ON_ERROR=true   
 set halt= 
@@ -102,6 +105,7 @@ if "%~0" == "-h" (
     echo msvc_build.cmd Help
     echo.
 
+	echo "    /builddeps                     Builds only the project dependencies"
     echo "    /nohaltonerror                 Skips halting on errors"
 	echo "    /skipheightmaps                Skips downloading heightmap files"
     echo "    /nodbinstall                   Skips the database build process"
@@ -116,6 +120,10 @@ if "%~0" == "/clean" (
 	  call :CLEAN_BUILD
 	  goto :eof
 )  
+
+if "%~0" == "/builddeps" (
+	  set DEPENDENCIESONLY=true
+) 
 
 if "%~0" == "/skipheightmaps" (
 	  set SKIPHEIGHTMAPS=true
@@ -295,12 +303,14 @@ rem --- Start of DOWNLOAD_HEIGHTMAP --------------------------------------------
 rem --- Downloads datafiles such as heightmaps needed to run the project.    ---
 :DOWNLOAD_HEIGHTMAP
 
-echo ** Downloading Heightmap for %1 **
-echo.
-
 if not exist "data\heightmaps\%1.hmpw" (
 	if not exist "data\heightmaps\%1.zip" (
+		echo ** Downloading Heightmap for %1 **
+		echo.
+		
 		"tools\wget.exe" http://swganh.com/^^!^^!planets^^!^^!/%1.zip -O data\heightmaps\%1.zip
+		
+		echo ** Downloading heightmap complete **
 	)
 	
 	"tools\unzip.exe" data\heightmaps\%1.zip -d data\heightmaps >NUL
@@ -310,8 +320,6 @@ if not exist "data\heightmaps\%1.hmpw" (
 		del data\heightmaps\%1.zip
 	)
 )
-
-echo ** Downloading heightmap complete **
 
 goto :eof
 rem --- End of DOWNLOAD_HEIGHTMAP ----------------------------------------------

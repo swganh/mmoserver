@@ -26,6 +26,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include "LogManager/LogManager.h"
 #include "UIManager.h"
+#include "Utils/colors.h"
 
 //#include "Common/DispatchClient.h"
 
@@ -329,10 +330,10 @@ void StructureManager::createNewStructureDeleteConfirmBox(PlayerObject* player, 
 	string text = "Your structure";
 	if(structure->getRedeed())
 	{
-		text <<"\\#006400WILL\\#FFFFFF ";
+		text <<"\\#"SOE_GREEN"WILL\\#FFFFFF ";
 	}
 	else
-		text <<"\\#FF0000WILL NOT \\#FFFFFF";
+		text <<"\\#"SOE_RED"WILL NOT \\#FFFFFF";
 
 	text <<"be redeeded. If you wish to continue with destroying your structure, please enter the following code into the input box.\xa\xa";
 	
@@ -355,22 +356,22 @@ void StructureManager::createNewStructureDestroyBox(PlayerObject* player, Player
 	BStringVector attributesMenu;
 
 	string text = "You have elected to destroy a structure. Pertinent structure data can be found in the list below. Please complete the following steps to confirm structure deletion.\xa\xa";
-			text <<"If you wish to redeed your structure, all structure data must be \\#006400 GREEN\\#FFFFFF To continue with structure deletion, click YES. Otherwise, please click NO.\xa";
+			text <<"If you wish to redeed your structure, all structure data must be \\#"SOE_GREEN" GREEN\\#FFFFFF To continue with structure deletion, click YES. Otherwise, please click NO.\xa";
 
 	if(structure->canRedeed())
 	{
-		text <<"WILL REDEED: \\#006400 YES \\#FFFFFF";			
+		text <<"WILL REDEED: \\#"SOE_GREEN" YES \\#FFFFFF";			
 
 		int8 redeedText[64];
-		sprintf(redeedText,"CAN REDEED: \\#006400 YES\\#FFFFFF");
+		sprintf(redeedText,"CAN REDEED: \\#"SOE_GREEN" YES\\#FFFFFF");
 		attributesMenu.push_back(redeedText);
 	}
 	else
 	{
-		text <<"WILL REDEED: \\#FF0000 NO \\#FFFFFF";			
+		text <<"WILL REDEED: \\#"SOE_RED" NO \\#FFFFFF";			
 
 		int8 redeedText[64];
-		sprintf(redeedText,"CAN REDEED: \\#FF0000 NO\\#FFFFFF");
+		sprintf(redeedText,"CAN REDEED: \\#"SOE_RED" NO\\#FFFFFF");
 		attributesMenu.push_back(redeedText);
 	}
 	
@@ -380,14 +381,14 @@ void StructureManager::createNewStructureDestroyBox(PlayerObject* player, Player
 	if( cond < maxCond)
 	{
 		int8 condition[64];
-		sprintf(condition,"-CONDITION:\\#FF0000%u/%u\\#FFFFFF",cond,maxCond);
+		sprintf(condition,"-CONDITION:\\#"SOE_RED"%u/%u\\#FFFFFF",cond,maxCond);
 		attributesMenu.push_back(condition);
 		
 	}
 	else
 	{
 		int8 condition[64];
-		sprintf(condition,"-CONDITION:\\#006400%u/%u\\#FFFFFF",cond,maxCond);
+		sprintf(condition,"-CONDITION:\\#"SOE_GREEN"%u/%u\\#FFFFFF",cond,maxCond);
 		attributesMenu.push_back(condition);
 	}
 
@@ -398,13 +399,13 @@ void StructureManager::createNewStructureDestroyBox(PlayerObject* player, Player
 	if(maintIs >= maintNeed)
 	{
 		int8 maintenance[128];
-		sprintf(maintenance,"-MAINTENANCE:\\#006400%u/%u\\#FFFFFF",maintIs,maintNeed);
+		sprintf(maintenance,"-MAINTENANCE:\\#"SOE_GREEN"%u/%u\\#FFFFFF",maintIs,maintNeed);
 		attributesMenu.push_back(maintenance);
 	}
 	else
 	{
 		int8 maintenance[128];
-		sprintf(maintenance,"-MAINTENANCE:\\#FF0000%u/%u\\#FFFFFF",maintIs,maintNeed);
+		sprintf(maintenance,"-MAINTENANCE:\\#"SOE_RED"%u/%u\\#FFFFFF",maintIs,maintNeed);
 		attributesMenu.push_back(maintenance);
 	}
 

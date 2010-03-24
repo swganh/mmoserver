@@ -20,6 +20,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Common/Message.h"
 #include "Common/MessageFactory.h"
 
+#include "Utils/colors.h"
+
 //=============================================================================
 
 ManufacturingSchematic::ManufacturingSchematic() : Item(),
@@ -208,7 +210,7 @@ void ManufacturingSchematic::sendAttributes(PlayerObject* playerObject)
 
 	//attributes ....
 	gMessageFactory->addString(BString("manf_attribs"));
-	aStr = "\\#ff0000 --------------";
+	aStr = "\\#"SOE_RED" --------------";
 	aStr.convert(BSTRType_Unicode16);
 	gMessageFactory->addString(aStr);
 

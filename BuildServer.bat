@@ -496,20 +496,20 @@ if "%BUILD_TYPE%" == "all" (
 if exist "*.cache" del /S /Q "*.cache" >NUL
     
 if "%BUILD_TYPE%" == "debug" (
-    "%MSBUILD%" "gtest.sln" /t:rebuild /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "gtest.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
     if exist "*.cache" del /S /Q "*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "release" (
-    "%MSBUILD%" "gtest.sln" /t:rebuild /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "gtest.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
     if exist "*.cache" del /S /Q "*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "all" (
-    "%MSBUILD%" "gtest.sln" /t:rebuild /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "gtest.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
     if exist "*.cache" del /S /Q "*.cache" >NUL
 	
-    "%MSBUILD%" "gtest.sln" /t:rebuild /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "gtest.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
     if exist "*.cache" del /S /Q "*.cache" >NUL
 )
 
@@ -562,20 +562,20 @@ if "%BUILD_TYPE%" == "all" (
 if exist "%PROJECT_BASE%deps\gmock\msvc\*.cache" del /S /Q "%PROJECT_BASE%deps\gmock\msvc\*.cache" >NUL
     
 if "%BUILD_TYPE%" == "debug" (
-    "%MSBUILD%" "gmock.sln" /t:rebuild /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "gmock.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
     if exist "*.cache" del /S /Q "*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "release" (
-    "%MSBUILD%" "gmock.sln" /t:rebuild /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "gmock.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
     if exist "*.cache" del /S /Q "*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "all" (
-    "%MSBUILD%" "gmock.sln" /t:rebuild /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "gmock.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
     if exist "*.cache" del /S /Q "*.cache" >NUL
 	
-    "%MSBUILD%" "gmock.sln" /t:rebuild /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "gmock.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
     if exist "*.cache" del /S /Q "*.cache" >NUL
 )
 
@@ -734,20 +734,20 @@ rem Removing it as it's not needed.
 if exist "*.cache" del /S /Q "*.cache" >NUL
 
 if "%BUILD_TYPE%" == "debug" (
-    "%MSBUILD%" "libnoise.sln" /t:rebuild /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "libnoise.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
     if exist "*.cache" del /S /Q "*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "release" (
-    "%MSBUILD%" "libnoise.sln" /t:rebuild /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "libnoise.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
     if exist "*.cache" del /S /Q "*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "all" (
-    "%MSBUILD%" "libnoise.sln" /t:rebuild /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "libnoise.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
     if exist "*.cache" del /S /Q "*.cache" >NUL
 
-    "%MSBUILD%" "libnoise.sln" /t:rebuild /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "libnoise.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
     if exist "*.cache" del /S /Q "*.cache" >NUL
 )      
 
@@ -803,20 +803,20 @@ rem Removing it as it's not needed.
 if exist "*.cache" del /S /Q "*.cache" >NUL
 
 if "%BUILD_TYPE%" == "debug" (
-    "%MSBUILD%" "spatialindex.sln" /t:rebuild /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "spatialindex.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
     if exist "*.cache" del /S /Q "*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "release" (
-    "%MSBUILD%" "spatialindex.sln" /t:rebuild /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "spatialindex.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
     if exist "*.cache" del /S /Q "*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "all" (
-    "%MSBUILD%" "spatialindex.sln" /t:rebuild /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "spatialindex.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
     if exist "*.cache" del /S /Q "*.cache" >NUL
 
-    "%MSBUILD%" "spatialindex.sln" /t:rebuild /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "spatialindex.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
     if exist "*.cache" del /S /Q "*.cache" >NUL
 )    
 
@@ -872,20 +872,20 @@ rem Removing it as it's not needed.
 if exist "*.cache" del /S /Q "*.cache" >NUL
 
 if "%BUILD_TYPE%" == "debug" (
-    "%MSBUILD%" "toluapp.sln" /t:rebuild /p:Platform=Win32,Configuration=withLua51_Debug,VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "toluapp.sln" /t:build /p:Platform=Win32,Configuration=withLua51_Debug,VCBuildAdditionalOptions="/useenv"
     if exist "*.cache" del /S /Q "*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "release" (
-    "%MSBUILD%" "toluapp.sln" /t:rebuild /p:Platform=Win32,Configuration=withLua51_Release,VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "toluapp.sln" /t:build /p:Platform=Win32,Configuration=withLua51_Release,VCBuildAdditionalOptions="/useenv"
     if exist "*.cache" del /S /Q "*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "all" (
-    "%MSBUILD%" "toluapp.sln" /t:rebuild /p:Platform=Win32,Configuration=withLua51_Debug,VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "toluapp.sln" /t:build /p:Platform=Win32,Configuration=withLua51_Debug,VCBuildAdditionalOptions="/useenv"
     if exist "*.cache" del /S /Q "*.cache" >NUL
 
-    "%MSBUILD%" "toluapp.sln" /t:rebuild /p:Platform=Win32,Configuration=withLua51_Release,VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "toluapp.sln" /t:build /p:Platform=Win32,Configuration=withLua51_Release,VCBuildAdditionalOptions="/useenv"
     if exist "*.cache" del /S /Q "*.cache" >NUL
 )
 
@@ -941,20 +941,20 @@ rem Removing it as it's not needed.
 if exist "zlib.sln.cache" del /S /Q "zlib.sln.cache" >NUL
 
 if "%BUILD_TYPE%" == "debug" ( 
-    "%MSBUILD%" "zlib.sln" /t:rebuild /p:Platform=Win32,Configuration="LIB Debug",VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "zlib.sln" /t:build /p:Platform=Win32,Configuration="LIB Debug",VCBuildAdditionalOptions="/useenv"
     if exist "*.cache" del /S /Q "*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "release" (
-    "%MSBUILD%" "zlib.sln" /t:rebuild /p:Platform=Win32,Configuration="LIB Release",VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "zlib.sln" /t:build /p:Platform=Win32,Configuration="LIB Release",VCBuildAdditionalOptions="/useenv"
     if exist "*.cache" del /S /Q "*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "all" (
-    "%MSBUILD%" "zlib.sln" /t:rebuild /p:Platform=Win32,Configuration="LIB Debug",VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "zlib.sln" /t:build /p:Platform=Win32,Configuration="LIB Debug",VCBuildAdditionalOptions="/useenv"
     if exist "*.cache" del /S /Q "*.cache" >NUL
 
-    "%MSBUILD%" "zlib.sln" /t:rebuild /p:Platform=Win32,Configuration="LIB Release",VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "zlib.sln" /t:build /p:Platform=Win32,Configuration="LIB Release",VCBuildAdditionalOptions="/useenv"
     if exist "*.cache" del /S /Q "*.cache" >NUL
 )
 

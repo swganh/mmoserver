@@ -417,6 +417,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\colors.h"
+				>
+			</File>
+			<File
 				RelativePath=".\concurrent_queue.h"
 				>
 			</File>

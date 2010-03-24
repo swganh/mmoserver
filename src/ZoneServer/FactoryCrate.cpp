@@ -25,6 +25,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 //#include "MathLib/Quaternion.h"
 #include "DatabaseManager/Database.h"
+#include "Utils/colors.h"
 #include <cassert>
 
 //=============================================================================
@@ -105,7 +106,7 @@ void FactoryCrate::sendAttributes(PlayerObject* playerObject)
 	}
 
 	gMessageFactory->addString(BString("factory_attribs"));
-	aStr = "\\#ff0000 --------------";
+	aStr = "\\#"SOE_RED" --------------";
 	aStr.convert(BSTRType_Unicode16);
 	gMessageFactory->addString(aStr);
 

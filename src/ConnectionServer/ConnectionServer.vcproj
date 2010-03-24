@@ -21,8 +21,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="&quot;$(SolutionDir)build-aux\obj\$(ConfigurationName)\$(ProjectName)&quot;"
-			IntermediateDirectory="&quot;$(SolutionDir)build-aux\obj\$(ConfigurationName)\$(ProjectName)&quot;"
+			OutputDirectory="&quot;$(SolutionDir)build-aux\$(ConfigurationName)\$(ProjectName)&quot;"
+			IntermediateDirectory="&quot;$(SolutionDir)build-aux\$(ConfigurationName)\$(ProjectName)&quot;"
 			ConfigurationType="1"
 			CharacterSet="1"
 			>
@@ -108,8 +108,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="&quot;$(SolutionDir)build-aux\obj\$(ConfigurationName)\$(ProjectName)&quot;"
-			IntermediateDirectory="&quot;$(SolutionDir)build-aux\obj\$(ConfigurationName)\$(ProjectName)&quot;"
+			OutputDirectory="&quot;$(SolutionDir)build-aux\$(ConfigurationName)\$(ProjectName)&quot;"
+			IntermediateDirectory="&quot;$(SolutionDir)build-aux\$(ConfigurationName)\$(ProjectName)&quot;"
 			ConfigurationType="1"
 			CharacterSet="1"
 			DeleteExtensionsOnClean="*.obj;*.ilk;*.tlb;*.tli;*.tlh;*.tmp;*.rsp;*.pgc;*.pgd;$(TargetPath)"

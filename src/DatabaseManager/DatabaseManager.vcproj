@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="DatabaseManager"
 	ProjectGUID="{A5639F60-42C1-4FDA-97CE-BC2D5AD7184D}"
 	RootNamespace="Database"
@@ -21,8 +21,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="&quot;$(SolutionDir)build-aux\obj\$(ConfigurationName)\$(ProjectName)&quot;"
-			IntermediateDirectory="&quot;$(SolutionDir)build-aux\obj\$(ConfigurationName)\$(ProjectName)&quot;"
+			OutputDirectory="&quot;$(SolutionDir)build-aux\$(ConfigurationName)\$(ProjectName)&quot;"
+			IntermediateDirectory="&quot;$(SolutionDir)build-aux\$(ConfigurationName)\$(ProjectName)&quot;"
 			ConfigurationType="4"
 			CharacterSet="1"
 			WholeProgramOptimization="0"
@@ -80,7 +80,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="&quot;$(SolutionDir)build-aux\lib\$(ConfigurationName)\$(ProjectName).lib&quot;"
+				OutputFile="&quot;$(SolutionDir)build-aux\$(ConfigurationName)\$(ProjectName)\$(ProjectName).lib&quot;"
 				AdditionalLibraryDirectories=""
 				IgnoreDefaultLibraryNames=""
 			/>
@@ -105,8 +105,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="&quot;$(SolutionDir)build-aux\obj\$(ConfigurationName)\$(ProjectName)&quot;"
-			IntermediateDirectory="&quot;$(SolutionDir)build-aux\obj\$(ConfigurationName)\$(ProjectName)&quot;"
+			OutputDirectory="&quot;$(SolutionDir)build-aux\$(ConfigurationName)\$(ProjectName)&quot;"
+			IntermediateDirectory="&quot;$(SolutionDir)build-aux\$(ConfigurationName)\$(ProjectName)&quot;"
 			ConfigurationType="4"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
@@ -156,7 +156,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="&quot;$(SolutionDir)build-aux\lib\$(ConfigurationName)\$(ProjectName).lib&quot;"
+				OutputFile="&quot;$(SolutionDir)build-aux\$(ConfigurationName)\$(ProjectName)\$(ProjectName).lib&quot;"
 				AdditionalLibraryDirectories=""
 				IgnoreDefaultLibraryNames=""
 			/>

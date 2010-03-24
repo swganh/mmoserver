@@ -182,6 +182,7 @@ void ResourceCollectionManager::handleUIEvent(uint32 action,int32 element,string
 				player->getSampleData()->mPassRadioactive = false;
 				player->getSampleData()->mPendingSample = false;
 				player->setPosture(CreaturePosture_Upright);
+				player->updateMovementProperties();
 				gMessageLib->sendUpdateMovementProperties(player);
 				gMessageLib->sendPostureAndStateUpdate(player);
 				gMessageLib->sendSelfPostureUpdate(player);
@@ -214,6 +215,7 @@ void ResourceCollectionManager::handleUIEvent(uint32 action,int32 element,string
 				player->getSampleData()->mPendingSample = false;
 				player->getSampleData()->mSampleGambleFlag = false;
 				player->setPosture(CreaturePosture_Upright);
+				player->updateMovementProperties();
 				gMessageLib->sendUpdateMovementProperties(player);
 				gMessageLib->sendPostureAndStateUpdate(player);
 				gMessageLib->sendSelfPostureUpdate(player);
@@ -240,6 +242,7 @@ void ResourceCollectionManager::handleUIEvent(uint32 action,int32 element,string
 					if(!ham->checkMainPools(0,sampleActionCost*2,0))
 					{
 						player->setPosture(CreaturePosture_Upright);
+						player->updateMovementProperties();
 						gMessageLib->sendUpdateMovementProperties(player);
 						gMessageLib->sendPostureAndStateUpdate(player);
 						gMessageLib->sendSelfPostureUpdate(player);
@@ -299,11 +302,13 @@ void ResourceCollectionManager::handleUIEvent(uint32 action,int32 element,string
 					gMessageLib->sendSystemMessage(player,L"","survey","node_waypoint");
 
 					player->setPosture(CreaturePosture_Upright);
+					player->updateMovementProperties();
 					gMessageLib->sendUpdateMovementProperties(player);
 					gMessageLib->sendPostureAndStateUpdate(player);
 					gMessageLib->sendSelfPostureUpdate(player);
 
-					return;
+					
+				return;
 				}
 				//we ignored the node - so continue sampling
 				if(element == 0)
@@ -329,6 +334,7 @@ void ResourceCollectionManager::handleUIEvent(uint32 action,int32 element,string
 				player->getSampleData()->zone		= 0;
 
 				player->setPosture(CreaturePosture_Upright);
+				player->updateMovementProperties();
 				gMessageLib->sendUpdateMovementProperties(player);
 				gMessageLib->sendPostureAndStateUpdate(player);
 				gMessageLib->sendSelfPostureUpdate(player);

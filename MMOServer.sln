@@ -178,7 +178,7 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		AMDCaProjectFile = D:\Projects\SWGANH\MMOServer\CodeAnalyst\MMOServer.caw
+		AMDCaProjectFile = CodeAnalyst\MMOServer.caw
 	EndGlobalSection
 	GlobalSection(DPCodeReviewSolutionGUID) = preSolution
 		DPCodeReviewSolutionGUID = {00000000-0000-0000-0000-000000000000}

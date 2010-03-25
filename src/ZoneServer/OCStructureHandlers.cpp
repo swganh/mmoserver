@@ -859,14 +859,14 @@ void	ObjectController::_handleItemMoveForward(uint64 targetId,Message* message,O
 	player->mDirection.normalize();
 	player->mPosition.normalize();
 	object->mPosition.normalize();
-	/*object->mPosition.mX -= (float)((1-player->mDirection.mX) * 0.10);
+	object->mPosition.mX -= (float)((1-player->mDirection.mX) * 0.10);
 	object->mPosition.mZ -= (float)(player->mDirection.mY * 0.10);
-	object->mPosition.mY -= (float)(player->mDirection.mZ * 0.10);*/
+	object->mPosition.mY -= (float)(player->mDirection.mZ * 0.10);
     
-	Anh_Math::Vector3 v3 = player->mPosition - object->mPosition;
-	v3.normalize();
-	object->mPosition = v3 * 0.1;
-	object->mPosition.normalize();
+	//Anh_Math::Vector3 v3 = object->mPosition - player->mPosition;
+	//v3.normalize();
+	//object->mPosition += v3 * 0.1;
+	//object->mPosition.normalize();
 	
 	gMessageLib->sendDataTransformWithParent(object);
 	object->updateWorldPosition();

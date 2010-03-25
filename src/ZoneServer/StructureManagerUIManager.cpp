@@ -356,22 +356,22 @@ void StructureManager::createNewStructureDestroyBox(PlayerObject* player, Player
 	BStringVector attributesMenu;
 
 	string text = "You have elected to destroy a structure. Pertinent structure data can be found in the list below. Please complete the following steps to confirm structure deletion.\xa\xa";
-			text <<"If you wish to redeed your structure, all structure data must be \\#"SOE_GREEN" GREEN\\#FFFFFF To continue with structure deletion, click YES. Otherwise, please click NO.\xa";
+			text <<"If you wish to redeed your structure, all structure data must be \\#"SOE_GREEN" GREEN\\#. To continue with structure deletion, click YES. Otherwise, please click NO.\xa";
 
 	if(structure->canRedeed())
 	{
-		text <<"WILL REDEED: \\#"SOE_GREEN" YES \\#FFFFFF";			
+		text <<"WILL REDEED:\\#"SOE_GREEN" YES";			
 
 		int8 redeedText[64];
-		sprintf(redeedText,"CAN REDEED: \\#"SOE_GREEN" YES\\#FFFFFF");
+		sprintf(redeedText,"CAN REDEED: \\#"SOE_GREEN" YES");
 		attributesMenu.push_back(redeedText);
 	}
 	else
 	{
-		text <<"WILL REDEED: \\#"SOE_RED" NO \\#FFFFFF";			
+		text <<"WILL REDEED:\\#"SOE_RED" NO";			
 
 		int8 redeedText[64];
-		sprintf(redeedText,"CAN REDEED: \\#"SOE_RED" NO\\#FFFFFF");
+		sprintf(redeedText,"CAN REDEED:\\#"SOE_RED" NO");
 		attributesMenu.push_back(redeedText);
 	}
 	
@@ -381,17 +381,16 @@ void StructureManager::createNewStructureDestroyBox(PlayerObject* player, Player
 	if( cond < maxCond)
 	{
 		int8 condition[64];
-		sprintf(condition,"-CONDITION:\\#"SOE_RED"%u/%u\\#FFFFFF",cond,maxCond);
+		sprintf(condition," - CONDITION: \\#"SOE_RED"%u/%u",cond,maxCond);
 		attributesMenu.push_back(condition);
 		
 	}
 	else
 	{
 		int8 condition[64];
-		sprintf(condition,"-CONDITION:\\#"SOE_GREEN"%u/%u\\#FFFFFF",cond,maxCond);
+		sprintf(condition," - CONDITION: \\#"SOE_GREEN"%u/%u",cond,maxCond);
 		attributesMenu.push_back(condition);
 	}
-
 
 	uint32 maintIs = structure->getCurrentMaintenance();
 	uint32 maintNeed = structure->getMaintenanceRate()*45;
@@ -399,13 +398,13 @@ void StructureManager::createNewStructureDestroyBox(PlayerObject* player, Player
 	if(maintIs >= maintNeed)
 	{
 		int8 maintenance[128];
-		sprintf(maintenance,"-MAINTENANCE:\\#"SOE_GREEN"%u/%u\\#FFFFFF",maintIs,maintNeed);
+		sprintf(maintenance," - MAINTENANCE: \\#"SOE_GREEN"%u/%u",maintIs,maintNeed);
 		attributesMenu.push_back(maintenance);
 	}
 	else
 	{
 		int8 maintenance[128];
-		sprintf(maintenance,"-MAINTENANCE:\\#"SOE_RED"%u/%u\\#FFFFFF",maintIs,maintNeed);
+		sprintf(maintenance," - MAINTENANCE: \\#"SOE_RED"%u/%u",maintIs,maintNeed);
 		attributesMenu.push_back(maintenance);
 	}
 

@@ -52,9 +52,10 @@ class NewConnection
 class SocketReadThread
 {
 	public:
-									SocketReadThread(SOCKET socket, SocketWriteThread* writeThread, Service* service,uint32 mfHeapSize, bool serverservice);
-									~SocketReadThread();
+									SocketReadThread(void);
 
+	  void                          Startup(SOCKET socket, SocketWriteThread* writeThread, Service* service,uint32 mfHeapSize, bool serverservice);
+	  void                          Shutdown(void);
 	  virtual void                 run();
 
 	  void                          NewOutgoingConnection(int8* address, uint16 port);

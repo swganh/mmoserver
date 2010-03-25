@@ -12,12 +12,14 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #ifndef ANH_NETWORKMANAGER_SESSION_H
 #define ANH_NETWORKMANAGER_SESSION_H
 
+#include "CompCryptor.h"
 #include "NetConfig.h"
 
 #include "Common/Message.h"
 #include "Utils/clock.h"
 #include "Utils/typedefs.h"
 
+#include <boost/asio.hpp>
 #include <boost/thread/recursive_mutex.hpp>
 #include <boost/thread/thread.hpp>
 
@@ -37,9 +39,8 @@ class SessionPacket;
 
 //======================================================================================================================
 
-typedef std::list<Packet*,std::allocator<Packet*> >		PacketWindowList;
+typedef std::map< uint16, Packet* >						SequencedPacketMap;
 typedef std::queue<Packet*>								PacketQueue;
-//typedef std::priority_queue<Message*,std::vector<Message*>,CompareMsg>  MessageQueue;
 typedef std::queue<Message*>							MessageQueue;
 
 //======================================================================================================================
@@ -73,6 +74,7 @@ class Session
 
 	  void                        ProcessReadThread(void);
 	  void                        ProcessWriteThread(void);
+	  void						  Update(void);
 
 	  void                        HandleSessionPacket(Packet* packet);
 	  void                        SortSessionPacket(Packet* packet, uint16 type);
@@ -89,14 +91,7 @@ class Session
 	  NetworkClient*              getClient(void)                                 { return mClient; }
 	  Service*                    getService(void)                                { return mService; }
 	  uint32                      getId(void)                                     { return mId; }
-	  int32                       getAddress(void)                                { return mAddress; }
-	  int8*                       getAddressString(void);
-	  uint16                      getPort(void)                                   { return mPort; }
 	  uint16                      getPortHost(void);
-	  uint32                      getOutgoingReliablePacketCount(void)            { return mOutgoingReliablePacketQueue.size(); }
-	  Packet*                     getOutgoingReliablePacket(void);
-	  uint32                      getOutgoingUnreliablePacketCount(void)          { return mOutgoingUnreliablePacketQueue.size(); }
-	  Packet*                     getOutgoingUnreliablePacket(void);
 	  uint32                      getIncomingQueueMessageCount()    { return mIncomingMessageQueue.size(); }
 	  Message*                    getIncomingQueueMessage();
 	  uint32                      getEncryptKey(void)                             { return mEncryptKey; }
@@ -104,10 +99,8 @@ class Session
 	  SessionCommand              getCommand(void)                                { return mCommand; }
 	  bool                        getInOutgoingQueue(void)                        { return mInOutgoingQueue; }
 	  bool                        getInIncomingQueue(void)                        { return mInIncomingQueue; }
-	  uint32					  getResendWindowSize()							  { return mWindowResendSize; }
+	  boost::asio::ip::udp::endpoint getRemoteEndpoint(void)					  { return mRemoteEndpoint; }
 
-
-	  void						  setResendWindowSize(uint32 resendWindowSize)	  { mWindowResendSize = resendWindowSize;  mWindowSizeCurrent = resendWindowSize; }
 	  void                        setClient(NetworkClient* client)                { mClient = client; }
 	  void                        setService(Service* service)                    { mService = service; }
 	  void                        setSocketReadThread(SocketReadThread* thread)   { mSocketReadThread = thread; }
@@ -115,8 +108,7 @@ class Session
 	  void                        setPacketFactory(PacketFactory* factory)        { mPacketFactory = factory; }
 	  void                        setMessageFactory(MessageFactory* factory)      { mMessageFactory = factory; }
 	  void                        setId(uint32 id)                                { mId = id; }
-	  void                        setAddress(int32 address)						  { mAddress = address; }
-	  void                        setPort(uint16 port)                            { mPort = port; }
+	  void						  setRemoteEndpoint( boost::asio::ip::udp::endpoint ep ) { mRemoteEndpoint = ep; }
 	  void                        setEncryptKey(uint32 key)                       { mEncryptKey = key; }
 	  void                        setStatus(SessionStatus status)                 { mStatus = status; }
 	  void                        setCommand(SessionCommand command)              { mCommand = command; }
@@ -127,10 +119,18 @@ class Session
 
 	  void						  setServerService(bool yes){mServerService = yes;}
 	  bool						  getServerService(){return mServerService;}
-	 
+
+	  void						  QueueIncomingPacket(Packet* packet)			  { boost::recursive_mutex::scoped_lock sl(mSessionMutex); mIncomingPackets.push(packet); }
 	 
 	  uint64					  mLastPacketDestroyed;
 	  uint64					  mHash;
+
+	  //
+	  // DUMMY TEMP!
+	  //
+	  uint32		getAddress( void ) { return 0; }
+	  uint16		getPort( void ) { return 0; }
+
 
 private:
 	  void                        _processSessionRequestPacket(Packet* packet);
@@ -138,14 +138,10 @@ private:
 	  void                        _processMultiPacket(Packet* packet);
 	  void                        _processNetStatRequestPacket(Packet* packet);
 	  
-	  void                        _processDataChannelPacket(Packet* packet, bool fastPath);
-	  void                        _processDataChannelB(Packet* packet);
-	  
+	  void                        _processDataChannelPacket(Packet* packet, bool fastPath);	  
 	  void                        _processDataOrderPacket(Packet* packet);
-	  void                        _processDataOrderChannelB(Packet* packet);
 	  void                        _processDataChannelAck(Packet* packet);
 	  void                        _processFragmentedPacket(Packet* packet);
-	  void						  _processRoutedFragmentedPacket(Packet* packet);
 	  void                        _processPingPacket(Packet* packet);
 
 	  void                        _processConnectCommand(void);
@@ -170,7 +166,14 @@ private:
 	  void                        _resendOutgoingPackets(void);
 	  void                        _sendPingPacket(void);
 
-	  void						  _handleOutSequenceRollover();
+	  void						  _handleOutOfOrderPacket(uint16 packet);
+
+	  //
+	  // Temp Functions. These should probably exist else where. - Dead1ock
+	  //
+	  bool						  ValidatePacketCrc(Packet* packet);
+	  void						  DeCompCryptPacket(Packet* packet);
+
 	  
 
 	  //we want to use bigger packets in the zone connection server communication!
@@ -189,12 +192,11 @@ private:
 	  // Anh_Utils::Clock*           mClock;
 	  
 
-	  uint32                      mId;
-	  int32                       mAddress;                 // stored in network order
-	  uint16                      mPort;                    // stored in network order
-	  uint32                      mEncryptKey;
-	  uint32                      mRequestId;
-	  uint32                      mOutgoingPingSequence;
+	  uint32						mId;
+	  uint32						mEncryptKey;
+	  uint32						mRequestId;
+	  uint32						mOutgoingPingSequence;
+	  boost::asio::ip::udp::endpoint mRemoteEndpoint;
 
 	  // Incoming fragmented packet processing.
 	  uint32                      mFragmentedPacketTotalSize;
@@ -209,11 +211,8 @@ private:
 
 	  uint64                      mConnectStartEvent;       // For SCOM_Connect commands
 	  uint64                      mLastConnectRequestSent;  
-
 	  uint64                      mLastPacketReceived;      // General session timeout
 	  uint64                      mLastPacketSent;          // General session timeout
-
-
 	  uint64                      mLastPingPacketSent;          // General session timeout
 
 	  // Netstats
@@ -230,12 +229,6 @@ private:
 	  // Reliability
 	  uint16                      mOutSequenceNext;
 	  uint16                      mInSequenceNext;
-	  
-	  bool						  mOutSequenceRollover;
-	  uint16                      mNextPacketSequenceSent;
-	  uint64                      mLastRemotePacketAckReceived;
-	  uint32                      mWindowSizeCurrent;		//amount of packets we want to send in one round
-	  uint32                      mWindowResendSize;	    //
 
 	  bool                        mSendDelayedAck;        // We processed some incoming packets, send an ack
 	  bool                        mInOutgoingQueue;       // Are we already in the queue?
@@ -256,17 +249,12 @@ private:
 	  MessageQueue				  mMultiUnreliableQueue;
 
 	  // Packet queues.
-	  PacketQueue                 mOutgoingReliablePacketQueue;		//these are packets put on by the sessionwrite thread to send
-	  PacketQueue                 mOutgoingUnreliablePacketQueue;   //build unreliables they will get send directly by the socket write thread  without storing for possible r esends
-	  PacketWindowList            mWindowPacketList;				//our build packets - ready to get send
-	  PacketWindowList			  mRolloverWindowPacketList;		//send packets after a rollover they await sending and / or acknowledgement by the client
-	  PacketWindowList			  mNewRolloverWindowPacketList;
-	  PacketWindowList            mNewWindowPacketList;	
-	  PacketWindowList			  mOutOfOrderPackets;
+	  PacketQueue				  mIncomingPackets;
+	  PacketQueue				  mOutgoingPackets;
+	  SequencedPacketMap		  mOutgoingPacketCache; // Cache packets until they are acknowledged.
 
 	  PacketQueue                 mIncomingFragmentedPacketQueue;
-	  PacketQueue                 mIncomingRoutedFragmentedPacketQueue;
-	  PacketWindowList            mIncomingPacketList;				
+	  PacketQueue                 mIncomingRoutedFragmentedPacketQueue;		
 	  
       boost::recursive_mutex	  mSessionMutex;
 
@@ -281,6 +269,8 @@ private:
 	  uint32					  endCount;
 	  uint16					  lowest;// the lowest packet requested from the server
 	  uint16					  lowestCount;// counts the requests up
+
+	  CompCryptor				  mCompCryptor; // Compressor/Decompressor - Encryptor/Decryptor
 	  
 };
 

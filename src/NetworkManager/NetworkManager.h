@@ -37,6 +37,8 @@ class NetworkManager
 		NetworkManager(void);
 		~NetworkManager(void);
 
+		void		Startup(void);
+		void		Shutdown(void);
 		void		Process(void);
 
 		Service*	GenerateService(int8* address, uint16 port,uint32 mfHeapSize, bool serverservice);

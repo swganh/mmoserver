@@ -30,11 +30,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #endif
 
 #if defined(_MSC_VER)
-	#ifndef _WINSOCK2API_
-#include <WINSOCK2.h>
-#undef errno
-#define errno WSAGetLastError()
-	#endif
+
 #else
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -49,11 +45,18 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 //======================================================================================================================
 
-SocketWriteThread::SocketWriteThread(SOCKET socket, Service* service, bool serverservice) :
+SocketWriteThread::SocketWriteThread() :
 mService(0),
 mCompCryptor(0),
 mSocket(0),
 mIsRunning(false)
+{
+
+}
+
+//======================================================================================================================
+
+void SocketWriteThread::Startup(SOCKET socket, Service* service, bool serverservice)
 {
 	mSocket = socket;
 	mService = service;
@@ -77,26 +80,25 @@ mIsRunning(false)
 
 	// Create our CompCryptor object.
 	mCompCryptor = new CompCryptor();
+	mCompCryptor->Startup();
 
 	// start our thread
     boost::thread t(std::tr1::bind(&SocketWriteThread::run, this));
 
 	mThread = boost::move(t);
 
-	HANDLE mtheHandle = mThread.native_handle();
-	SetPriorityClass(mtheHandle,REALTIME_PRIORITY_CLASS);	
+	HANDLE th =  mThread.native_handle();
+	SetPriorityClass(th,REALTIME_PRIORITY_CLASS);	
 
 	
 
-	//our thread load values
-	//mThreadTime = mLastThreadTime = 0;
-	mLastTime =   Anh_Utils::Clock::getSingleton()->getLocalTime();
-	//lastThreadProcessingTime = threadProcessingTime = 0;
-	
+	lasttime =   Anh_Utils::Clock::getSingleton()->getLocalTime();
 	unCount = 	reCount = 0;
 }
 
-SocketWriteThread::~SocketWriteThread()
+//======================================================================================================================
+
+void SocketWriteThread::Shutdown(void)
 {
 	gLogger->logMsg("SocketWriteThread ended");
 
@@ -106,25 +108,21 @@ SocketWriteThread::~SocketWriteThread()
     mThread.interrupt();
     mThread.join();
 
-	delete mCompCryptor;
+	mCompCryptor->Shutdown();
+	delete(mCompCryptor);
 
 	// delete(mClock);
 }
+
 
 //======================================================================================================================
 void SocketWriteThread::run()
 {
 	Session*            session;
-	Packet*             packet;
 
 	// Call our internal _startup method
 	_startup();
-	
-	uint32 packets = 50;
-	if(mServerService)
-		packets = 1000;
 
-	
 	// Main loop
 	while(!mExit)
 	{
@@ -144,13 +142,12 @@ void SocketWriteThread::run()
 
 			// Send any outgoing reliable packets
 			//uint32 rcount = 0;
-
+#ifdef NOTHIN
 			while (session->getOutgoingReliablePacketCount())
 			{
 				packetCount++;
-				if(packetCount > packets)
+				if(packetCount > 25)
 					break;
-
 				packet = session->getOutgoingReliablePacket();
 				_sendPacket(packet, session);
 			}
@@ -162,13 +159,14 @@ void SocketWriteThread::run()
 			//uint32 ucount = 0;
 			while (session->getOutgoingUnreliablePacketCount())
 			{
-				
+				if(packetCount > 25)
+					break;
 				packet = session->getOutgoingUnreliablePacket();
 				_sendPacket(packet, session);
 				session->DestroyPacket(packet);
 			}
 
-
+#endif
 			// If the session is still in a connected state, Put us back in the queue.
 			if (session->getStatus() != SSTAT_Disconnected)
 			{
@@ -181,33 +179,6 @@ void SocketWriteThread::run()
 				mService->AddSessionToProcessQueue(session);
 			}
 		}
-		/*
-		if(!mServerService)
-		{
-			uint64 now = Anh_Utils::Clock::getSingleton()->getLocalTime();
-			int64 timePassed = now - mLastTime;
-			
-			//get a measurement every several seconds 2 ?? 5 ???
-			if(timePassed > 5000)
-			{
-				mLastTime = now;
-
-				LPFILETIME time1, time2,time3,time4;
-				time1 = time2 = time3 = time4 = 0;
-				GetProcessTimes(mtheHandle,time1,time2,time3,time4);
-				
-				mLastThreadTime = mThreadTime;
-				mNewThreadTime = (uint64)&time3+(uint64)&time4;
-
-				mThreadTime = mNewThreadTime - mLastThreadTime;
-
-				mCpuUsage = (uint32)((100.0 * mThreadTime) / timePassed);
-				gLogger->logMsgF("SocketReadThread Currently at (%u) cpu load",MSG_HIGH,mCpuUsage);
-				
-			}
-		}
-		
-		*/
 
         boost::this_thread::sleep(boost::posix_time::milliseconds(1));
 	}
@@ -266,9 +237,6 @@ void SocketWriteThread::_sendPacket(Packet* packet, Session* session)
 	//uint8  packetTypeHigh = *(packet->getData()+1);
 
 	//gLogger->logMsgF("OnWire, Type:0x%.4x, Session:0x%x%.4x, IP: 0x%.8x, port:%u", MSG_LOW, packetType, session->getService()->getId(), session->getId(), session->getAddress(), ntohs(session->getPort()));
-
-	// Set our TimeSent
-	packet->setTimeSent(Anh_Utils::Clock::getSingleton()->getLocalTime());
 
 	// Setup our to address
 	toAddr.sa_family = AF_INET;

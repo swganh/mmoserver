@@ -9,6 +9,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
+#define WIN32_LEAN_AND_MEAN
+
 #include "ZoneServer.h"
 #include "AdminManager.h"
 #include "BuffManager.h"

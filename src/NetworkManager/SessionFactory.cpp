@@ -19,13 +19,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 //======================================================================================================================
 
-SessionFactory::SessionFactory(SocketWriteThread* writeThread, Service* service, PacketFactory* packetFactory, MessageFactory* messageFactory, bool serverservice) 
-:	mSessionIdNext(0),
-	mSocketWriteThread(writeThread),
-	mService(service),
-	mPacketFactory(packetFactory),
-	mMessageFactory(messageFactory),
-	mServerService(serverservice)
+SessionFactory::SessionFactory(void) 
+: mSessionIdNext(0)
 {
 
 }
@@ -34,7 +29,27 @@ SessionFactory::SessionFactory(SocketWriteThread* writeThread, Service* service,
 
 SessionFactory::~SessionFactory(void)
 {
+
+}
+
+
+//======================================================================================================================
+
+void SessionFactory::Startup(SocketWriteThread* writeThread, Service* service, PacketFactory* packetFactory, MessageFactory* messageFactory, bool serverservice)
+{
+  mService				= service;
+  mPacketFactory		= packetFactory;
+  mMessageFactory		= messageFactory;
+  mServerService		= serverservice;
+
+}
+
+//======================================================================================================================
+
+void SessionFactory::Shutdown(void)
+{
 	SessionPool::purge_memory();
+	
 }
 
 //======================================================================================================================
@@ -49,8 +64,6 @@ void SessionFactory::Process(void)
 Session* SessionFactory::CreateSession(void)
 {
 	Session* session = new(SessionPool::malloc()) Session();
-
-	session->setSocketWriteThread(mSocketWriteThread);
 	session->setService(mService);
 	session->setPacketFactory(mPacketFactory);
 	session->setMessageFactory(mMessageFactory);

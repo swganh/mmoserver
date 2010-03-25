@@ -111,7 +111,7 @@ NetworkClient* ServerManager::handleSessionConnect(Session* session, Service* se
 //	int8 address[32] = boost::asio::ip::address::to_string()(endpoint.address();//(endpoint.address);
 	// Execute our statement
 	int8 sql[500];
-	sprintf(sql,"SELECT id, address, port, status, active FROM config_process_list WHERE address='%s' AND port=%u;", session->getAddressString(), session->getPortHost());
+	sprintf(sql,"SELECT id, address, port, status, active FROM config_process_list WHERE address='%s' AND port=%u;", session->getRemoteEndpoint().address().to_string(), session->getRemoteEndpoint().port());
 	DatabaseResult* result = mDatabase->ExecuteSynchSql(sql);
 	gLogger->logMsgF(sql,MSG_HIGH);
 	gLogger->logMsg("\n");

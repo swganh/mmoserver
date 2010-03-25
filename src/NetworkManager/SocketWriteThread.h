@@ -35,9 +35,10 @@ class SocketWriteThread
 {
 	public:
 
-		SocketWriteThread(SOCKET socket, Service* service, bool serverservice);
-		~SocketWriteThread();
+		SocketWriteThread(void);
 
+		void			Startup(SOCKET socket, Service* service, bool serverservice);
+		void			Shutdown(void);
 		virtual void	run();
 
 		void			NewSession(Session* session);
@@ -52,32 +53,23 @@ class SocketWriteThread
 
 		void			_sendPacket(Packet* packet, Session* session);
 
-		//void				*mtheHandle;
-
 		uint16				mMessageMaxSize;
 		int8				mSendBuffer[SEND_BUFFER_SIZE];  
 		Service*			mService;
 		CompCryptor*		mCompCryptor;
 		SOCKET				mSocket;
 		bool				mIsRunning;
-		uint64			    mLastTime;
-		uint64			    mLastThreadTime;
-		uint64			    mNewThreadTime;
-		uint32				mCpuUsage;
-		uint64			    mThreadTime;
-		uint64				lastThreadProcessingTime;
-		uint64				threadProcessingTime;
-
+		uint64			    lasttime;
 		uint32				unCount;
 		uint32				reCount;
 		bool				mServerService;
 		// Anh_Utils::Clock*	mClock;
 
-		SessionQueue				mSessionQueue;
+		SessionQueue		mSessionQueue;
 
-        boost::thread   			mThread;
-		boost::recursive_mutex      mSocketWriteMutex;
-		bool						mExit;
+        boost::thread   	mThread;
+		boost::recursive_mutex        mSocketWriteMutex;
+		bool				mExit;
 };
 
 //======================================================================================================================

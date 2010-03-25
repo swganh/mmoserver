@@ -15,13 +15,16 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "NetworkClient.h"
 #include "NetworkManager.h"
 #include "Packet.h"
+#include "PacketFactory.h"
 #include "Session.h"
+#include "SessionFactory.h"
 #include "SocketReadThread.h"
 #include "SocketWriteThread.h"
 
 #include "LogManager/LogManager.h"
 
 #include "Common/Message.h"
+#include "Common/MessageFactory.h"
 
 #include "ConfigManager/ConfigManager.h"
 #include "Utils/typedefs.h"
@@ -29,9 +32,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include <boost/thread/thread.hpp>
 
 #if defined(_MSC_VER)
-	#ifndef _WINSOCK2API_
-#include <WINSOCK2.h>
-	#endif
+
 #else
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -52,19 +53,32 @@ bool Service::mSocketsSubsystemInitComplete = false;
 
 //======================================================================================================================
 
-Service::Service(NetworkManager* networkManager, bool serverservice, uint32 id, int8* localAddress, uint16 localPort,uint32 mfHeapSize) :
+Service::Service(NetworkManager* networkManager, bool serverservice) :
 mNetworkManager(networkManager),
-mSocketReadThread(0),
-mSocketWriteThread(0),
 mLocalSocket(0),
 avgTime(0),
 avgPacketsbuild (0),
 mLocalAddress(0),
 mLocalPort(0),
 mQueued(false),
-mServerService(serverservice)
+mServerService(serverservice),
+mIOService()
 {
-	mId = id;
+
+}
+
+//======================================================================================================================
+
+Service::~Service(void)
+{
+
+
+}
+
+//======================================================================================================================
+
+void Service::Startup(int8* localAddress, uint16 localPort,uint32 mfHeapSize)
+{
 
 	//localAddress = (char*)gConfig->read<std::string>("BindAddress").c_str();
 	lasttime = Anh_Utils::Clock::getSingleton()->getLocalTime();
@@ -73,42 +87,17 @@ mServerService(serverservice)
 	mLocalAddress = inet_addr(localAddress);
 	mLocalPort = htons(localPort);
 
-	#if(ANH_PLATFORM == ANH_PLATFORM_WIN32)
-	// Startup the windows socket layer if it's not already started.
-	if (!mSocketsSubsystemInitComplete)
-	{
-		mSocketsSubsystemInitComplete = true;
-		WSADATA data;
-		WSAStartup(MAKEWORD(2,0), &data);
-	}
-	#endif //WIN32
+	// Startup Factories
+	mPacketFactory = new PacketFactory();
+	mPacketFactory->Startup(false);
 
-	// Create our socket descriptors
-	SOCKET mLocalSocket = socket(PF_INET, SOCK_DGRAM, 0);
+	mMessageFactory = new MessageFactory(mfHeapSize, getId());
 
-	// Bind to our listen port.
-	sockaddr_in   server;
-	server.sin_family   = AF_INET;
-	server.sin_port     = mLocalPort;
-	server.sin_addr.s_addr = INADDR_ANY;
+	mSessionFactory = new SessionFactory();
+	mSessionFactory->Startup(NULL, this, mPacketFactory, mMessageFactory, false);
 
-	// Attempt to bind to our socket
-	bind(mLocalSocket, (sockaddr*)&server, sizeof(server));
+	mRecvPacket = mPacketFactory->CreatePacket();
 
-	// We need to call connect on the socket to an address before we can know which address we have.
-	// The address specified in the connect call determines which interface our socket is associated with
-	// based on routing.  1.1.1.1 should give us the default adaptor.  Not sure what to do one multihomed hosts yet.
-//	struct sockaddr   toAddr;
-//	int32             sent, toLen = sizeof(toAddr);
-/*
-	toAddr.sa_family = AF_INET;
-	*((uint32*)&toAddr.sa_data[2]) = 0;
-	*((uint16*)&(toAddr.sa_data[0])) = 0;
-
-	// This connect will make the socket only acceept packets from the destination.  Need to reset at end.
-	//sent = sendto(mLocalSocket, mSendBuffer, 1, 0, &toAddr, toLen);
-	sent = connect(mLocalSocket, &toAddr, toLen);
-*/
 	//set the socketbuffer so we dont suffer internal dataloss
 	int value;
 	int valuelength = sizeof(value);
@@ -123,63 +112,33 @@ mServerService(serverservice)
 		configvalue = 8192;
 
 	value = configvalue *1024;
-	
-	setsockopt(mLocalSocket,SOL_SOCKET,SO_RCVBUF,(char*)&value,valuelength);
 
-	int temp = 1;
-	//9 is IP_DONTFRAG (PK told me to put that here so we know wtf 9 means :P
-	setsockopt(mLocalSocket, IPPROTO_IP, 9, (char*)&temp, sizeof(temp));
+	mSocket = new boost::asio::ip::udp::socket( mIOService, boost::asio::ip::udp::endpoint( boost::asio::ip::udp::v4(), localPort ) );
 
+	//
+	// Initial Async Receive From
+	//
+	mSocket->async_receive_from( 
+		boost::asio::buffer( mRecvPacket->getData(), mRecvPacket->getMaxPayload() ),
+		mRecvEndpoint,
+		boost::bind(&Service::HandleRecvFrom, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred)
+	);
 
-	// Create our read/write socket classes
-	mSocketWriteThread = new SocketWriteThread(mLocalSocket,this,mServerService);
-	mSocketReadThread = new SocketReadThread(mLocalSocket, mSocketWriteThread,this,mfHeapSize, mServerService);
-
-	// Query the stack for the actual address and port we got and store it in the service.
-	//getsockname(mLocalSocket, (sockaddr*)&server, &serverLen);
-	//mLocalAddress = server.sin_addr.s_addr;
-	//mLocalPort = server.sin_port;
-/*
-	// Reset the connect call to universe.
-	toAddr.sa_family = AF_INET;
-	*((uint32*)&toAddr.sa_data[2]) = 0;
-	*((uint16*)&(toAddr.sa_data[0])) = 0;
-	sent = connect(mLocalSocket, &toAddr, toLen);
-*/
+	mNetworkManager->AddServiceToProcessQueue(this);
 }
 
 //======================================================================================================================
 
-Service::~Service(void)
+void Service::Shutdown(void)
 {
-	Session* session = 0;
-
-	while(mSessionProcessQueue.size())
-	{
-		session = mSessionProcessQueue.pop();
-
-		if(session)
-		{
-			mSocketReadThread->RemoveAndDestroySession(session);
-		}
-	}
-
-	delete mSocketWriteThread;
-	delete mSocketReadThread;
-
-	closesocket(mLocalSocket);
-	mLocalSocket = INVALID_SOCKET;
-
-	#if(ANH_PLATFORM == ANH_PLATFORM_WIN32)
-		WSACleanup();
-	#endif
 }
 
 //======================================================================================================================
 
 void Service::Process()
 {
-	//we only ever get here with a connected session
+	mNetworkManager->AddServiceToProcessQueue(this);
+	mIOService.poll();
 
 	// Get the current count of Sessions to be processed.  We can't just check to see if the queue is empty, since
 	// the other threads could keep placing more Packets in the queue, and this could cause a stall in the
@@ -193,9 +152,12 @@ void Service::Process()
 	{
 		// Grab our next Service to process
 		session = mSessionProcessQueue.pop();
+		session->Update();
 
-		if(!session)
-			continue;
+
+		//
+		// Move this code to Session::Update(), somehow...
+		//
 
 		session->setInIncomingQueue(false);
 
@@ -241,7 +203,6 @@ void Service::Process()
 		}
 		else if(session->getStatus() == SSTAT_Destroy)
 		{
-		  mSocketReadThread->RemoveAndDestroySession(session);
 
 		  continue;
 		}
@@ -282,8 +243,8 @@ void Service::Process()
 		}
 
 		session->setInIncomingQueue(false);
-	}
 
+	}
 
 }
 
@@ -291,6 +252,7 @@ void Service::Process()
 
 void Service::Connect(NetworkClient* client, int8* address, uint16 port)
 {
+#ifdef NOTHIN
 	// Setup our new connection object and pass it to SocketReadThread.  This is temporary until there is time to implemnt
 	// a queue/async connect method.  FIXME:  Make queue based, async using NetworkCallback for status changes.
 
@@ -306,6 +268,7 @@ void Service::Connect(NetworkClient* client, int8* address, uint16 port)
 			{
 				break;
 			}
+			mSocketReadThread->getNewConnectionInfo()->mSession->Update();
 		}
 
         boost::this_thread::sleep(boost::posix_time::milliseconds(10));
@@ -313,6 +276,7 @@ void Service::Connect(NetworkClient* client, int8* address, uint16 port)
 
 	client->setSession(mSocketReadThread->getNewConnectionInfo()->mSession);
 	mSocketReadThread->getNewConnectionInfo()->mSession->setClient(client);
+#endif
 }
 
 //======================================================================================================================
@@ -346,4 +310,76 @@ uint16 Service::getLocalPort(void)
 
 //======================================================================================================================
 
+void Service::HandleRecvFrom(const boost::system::error_code &error, std::size_t bytesRecvd)
+{
 
+	//
+	// Check for an error and make sure we actually have bytes to read!
+	//
+	if( !error && bytesRecvd > 2 )
+	{
+		//
+		// Reset receive packet.
+		//
+		mRecvPacket->Reset();
+		mRecvPacket->setSize(bytesRecvd);
+
+
+		//
+		// Find the session.
+		//
+		Session* session = 0;
+		AddressSessionMap2::iterator i = mAddressSessionMap.find( mRecvEndpoint );
+		if(i != mAddressSessionMap.end() )
+		{
+			session = (*i).second;
+		}
+		else
+		{
+			//
+			// If the session doesnt exist, and this is a SessionRequest
+			// create a new session and insert it into the AddressSessionMap.
+			//
+			if( mRecvPacket->peekUint16() == SESSIONOP_SessionRequest )
+			{
+				gLogger->logMsgF("Service: New Session (%s:%u)", MSG_NORMAL, mRecvEndpoint.address().to_string().c_str(), mRecvEndpoint.port());
+				session = mSessionFactory->CreateSession();
+				session->setPacketFactory(mPacketFactory);
+				session->setRemoteEndpoint( mRecvEndpoint );
+				mAddressSessionMap.insert( std::pair< boost::asio::ip::udp::endpoint, Session* >( mRecvEndpoint, session ) );
+			}
+		}
+
+		//
+		// Queue the packet and add the Session to the processing Queue.
+		//
+		session->setInIncomingQueue(false);
+		session->QueueIncomingPacket(mRecvPacket);
+		AddSessionToProcessQueue(session);
+
+		mRecvPacket = mPacketFactory->CreatePacket();
+	}
+	else
+	{
+	}
+
+	//
+	// Reset our AsyncRecvFrom.
+	//
+	mSocket->async_receive_from( 
+		boost::asio::buffer( mRecvPacket->getData(), mRecvPacket->getMaxPayload() ),
+		mRecvEndpoint,
+		boost::bind(&Service::HandleRecvFrom, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred)
+		);
+}
+
+//======================================================================================================================
+
+void Service::HandleSendTo(Packet* msg)
+{
+	msg->setReadIndex(0);
+	gLogger->hexDump( msg->getData(), msg->getSize() );
+	mPacketFactory->DestroyPacket(msg);
+}
+
+//======================================================================================================================

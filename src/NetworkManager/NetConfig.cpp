@@ -58,7 +58,7 @@ NetConfig* NetConfig::Init()
 NetConfig::~NetConfig()
 {
 	mInsFlag = false;
-	//delete(mSingleton);
+	delete(mSingleton);
 }
 
 //======================================================================================================================

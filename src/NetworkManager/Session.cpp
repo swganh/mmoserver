@@ -11,7 +11,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 // this will send out of orders and just skip the packets missing
 //#define SEND_OUT_OF_ORDERS 
-
+#define WIN32_LEAN_AND_MEAN
 #include "Session.h"
 
 #include "NetworkClient.h"
@@ -49,8 +49,6 @@ mPacketFactory(0),
 mMessageFactory(0),
 // mClock(0),
 mId(0),
-mAddress(0),
-mPort(0),
 mEncryptKey(0),
 mRequestId(0),
 mOutgoingPingSequence(1),
@@ -76,11 +74,6 @@ mServerPacketsSent(0),
 mServerPacketsReceived(0),
 mOutSequenceNext(0),
 mInSequenceNext(0),
-mOutSequenceRollover(false),
-mNextPacketSequenceSent(0),
-mLastRemotePacketAckReceived(0),
-mWindowSizeCurrent(8000),
-mWindowResendSize(8000),
 mSendDelayedAck(false),
 mInOutgoingQueue(false),
 mInIncomingQueue(false),
@@ -95,10 +88,6 @@ lowest(0)
 {
 	mConnectStartEvent = lasttime = Anh_Utils::Clock::getSingleton()->getLocalTime();       // For SCOM_Connect commands
 	mLastConnectRequestSent = mConnectStartEvent;  
-
-	mLastPacketReceived = mConnectStartEvent;      // General session timeout
-	mLastPacketSent = mConnectStartEvent;          // General session timeout
-	mLastRemotePacketAckReceived = mConnectStartEvent;          // General session timeout 
 	
 
 	mServerService = false;
@@ -109,6 +98,8 @@ lowest(0)
 	
 	endCount = 0;
 	mHash = 0;
+
+	mCompCryptor.Startup();
 
 }
 
@@ -182,8 +173,49 @@ Session::~Session(void)
 		message->mSession = NULL;
 	}
 
+	mCompCryptor.Shutdown();
+
 }
 
+//======================================================================================================================
+
+void Session::Update(void)
+{
+	boost::recursive_mutex::scoped_lock lk(mSessionMutex);
+
+	//
+	// Process incoming packets.
+	//
+	if( mIncomingPackets.size() > 0 )
+	{
+		for( unsigned int x = 0; x < mIncomingPackets.size(); x++ )
+		{
+			HandleSessionPacket( mIncomingPackets.front() );
+			mIncomingPackets.pop();
+		}
+	}
+
+	//
+	// ....?
+	//
+	ProcessWriteThread();
+
+	//
+	// Send pending outgoing packets.
+	//
+	if( mOutgoingPackets.size() > 0 )
+	{
+		for( unsigned int x = 0; x < mOutgoingPackets.size(); x++ )
+		{
+			getService()->getSocket()->async_send_to( 
+				boost::asio::buffer(mOutgoingPackets.front()->getData(), mOutgoingPackets.front()->getSize()),
+				getRemoteEndpoint(),
+				boost::bind(&Service::HandleSendTo, getService(), mOutgoingPackets.front())
+				);
+			mOutgoingPackets.pop();
+		}
+	}
+}
 
 
 //======================================================================================================================
@@ -197,13 +229,11 @@ void Session::ProcessReadThread(void)
 
 void Session::ProcessWriteThread(void)
 {
-
 	bool say = false;
-	uint64 now = Anh_Utils::Clock::getSingleton()->getLocalTime();
-	uint64 packetBuildTimeStart;
-	uint64 packetBuildTime = 0;
+  uint64 packetBuildTimeStart;
+  uint64 packetBuildTime = 0;
   
-  uint64 wholeTime = packetBuildTime = packetBuildTimeStart = now;
+  uint64 wholeTime = packetBuildTime = packetBuildTimeStart = Anh_Utils::Clock::getSingleton()->getLocalTime();
 
   //only process when we are busy - we dont need to iterate through possible resends all the time
   if((!mUnreliableMessageQueue.size())&&(!mOutgoingMessageQueue.size()))
@@ -221,60 +251,15 @@ void Session::ProcessWriteThread(void)
   mLastWriteThreadTime = packetBuildTimeStart;
 
   uint32 outSize = mOutgoingMessageQueue.size();
-  
-  
-  if((wholeTime - lasttime )>5000 && (mWindowPacketList.size() > 100))
-  {
-	  say = true;
-	  
-	  lasttime =	packetBuildTime;
 
-	  say = false;
-	  
-  }
-
-  // Process our delayed ack here
-  if(mSendDelayedAck)
-  {
-	
-	  //addoutgoing packet is already locking
-	// boost::recursive_mutex::scoped_lock lk(mSessionMutex);//			   
-    //please note that we push it directly on the packet queue it wont be build as unreliable and wont end up in a 00 03
-    // clear our send flag
-    mSendDelayedAck = false;
-
-    // send an ack for this packet.
-    Packet* ackPacket = mPacketFactory->CreatePacket();
-    ackPacket->addUint16(SESSIONOP_DataAck1);
-    ackPacket->addUint16(htons(mInSequenceNext - 1));
-    
-    //if (mService->getId() == 1)
-    //{
-    //    gLogger->logMsgF("Sending ACK - Sequence: %u, Session:0x%x%.4x", MSG_HIGH, mInSequenceNext - 1, mService->getId(), getId());
-    //}
-
-    // Acks only need encryption
-    ackPacket->setIsCompressed(false);
-    ackPacket->setIsEncrypted(true);
-  
-    // Push the packet on our outgoing queue
-    _addOutgoingUnreliablePacket(ackPacket);
-  }
-
-  // We need to prepare any outgoing packets here
-  // Do we have any room for more reliable packets?
-
-
-
-  
   uint32 pBuild = 0;
   uint32 pUnreliableBuild = 0;
 
   //build reliable packets
-  while(((now - packetBuildTimeStart) < mPacketBuildTimeLimit) && ((mRolloverWindowPacketList.size() + mWindowPacketList.size()) < mWindowSizeCurrent) && mOutgoingMessageQueue.size())
+  while(((packetBuildTime - packetBuildTimeStart) < mPacketBuildTimeLimit) && mOutgoingMessageQueue.size())
   {
 	pBuild += _buildPackets();
-	now = Anh_Utils::Clock::getSingleton()->getLocalTime();
+	packetBuildTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
 	
   }
 	
@@ -282,97 +267,24 @@ void Session::ProcessWriteThread(void)
  
 
   //build unreliable packets
-  now = packetBuildTimeStart = Anh_Utils::Clock::getSingleton()->getLocalTime();
-  while(((now - packetBuildTimeStart) < mPacketBuildTimeLimit) && mUnreliableMessageQueue.size())
+  packetBuildTime = packetBuildTimeStart = Anh_Utils::Clock::getSingleton()->getLocalTime();
+  while(((packetBuildTime - packetBuildTimeStart) < mPacketBuildTimeLimit) && mUnreliableMessageQueue.size())
   {
 	  //unreliables are directly put on the wire without getting in the way of our window
 	  //this way they get lost when we have lag but thats not exactly a hughe problem
 	  //and we dont get problems with our window list filled with unreliables
 	  //which never get acked
 	  pUnreliableBuild += _buildPacketsUnreliable();
-	  now = Anh_Utils::Clock::getSingleton()->getLocalTime();
+	  packetBuildTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
  	
   }
 
-	// Now check to see if we can send any more reliable packets out the wire yet.  NOT optimized
-	PacketWindowList::iterator	iter;
-	PacketWindowList::iterator	iterRoll;
-
-	Packet*						windowPacket	= NULL;
-	uint32						packetsSent		= 0;
-
-	//Rollover happens when our sequence reaches 65535
-	//the old (< sequence = 0)packets go in the rolloverqueue and wait for being send and/or acknowledged and then deleted
-	if(mOutSequenceRollover)
-	{
-        boost::recursive_mutex::scoped_lock lk(mSessionMutex);
-
-		iterRoll = mRolloverWindowPacketList.begin();
-		
-		//the list contains all packets those already send / resend and those not already send are in the back
-		//this means we always iterate through the oldest packets first until we get to the new packets
-		//up to the point that our packetwindowsize of packets is send
-
-		//it will make sense to use a separate list for already send packets as we do not want to iterate constantly through
-		//old but not yet acknowledged packets - this doesnt seem to be a problem though
-			
-		
-		iterRoll = mNewRolloverWindowPacketList.begin();
-
-		while(iterRoll != mNewRolloverWindowPacketList.end())
-		{
-
-			windowPacket = *iterRoll;
-			windowPacket->setReadIndex(2);
-			uint16 sequence = ntohs(windowPacket->getUint16());
-
-			
-			// If we've sent our mWindowSizeCurrent of packets, break out and wait for some acks.
-			// make sure we send at least a minimum as we dont want any stalling
-			if (packetsSent >= mWindowSizeCurrent)
-				break;
-
-			_addOutgoingReliablePacket(windowPacket);
-			iterRoll = mNewRolloverWindowPacketList.erase(iterRoll);
-			mRolloverWindowPacketList.push_back(windowPacket);
-			packetsSent++;
-
-			mNextPacketSequenceSent++;		
-		}
-	}
-
-	resendPackets = 0;
-
     boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
-	//WindowPacketList is our current window of send and not yet acknowledged packets
-	//A Rollover might still be in existance
-
-	iter = mNewWindowPacketList.begin();
-
-	//mNewWindoPacketList has the not yet send Packets
-	while(iter != mNewWindowPacketList.end())
+	for( unsigned int x = 0; x < mOutgoingPackets.size(); x++ )
 	{
-
-		windowPacket = *iter;
-		//windowPacket->setReadIndex(2);
-		//uint16 sequence = ntohs(windowPacket->getUint16());
-		
-		// If we've sent our mWindowSizeCurrent of packets, break out and wait for some acks.
-		// make sure we send at least a minimum as we dont wont any stalling
-		if (packetsSent >= mWindowSizeCurrent)
-			break;
-
-		_addOutgoingReliablePacket(windowPacket);
-		
-		//mWindoPacketList has the already send but not yet acknowledged Packets
-		mWindowPacketList.push_back(windowPacket);
-		packetsSent++;
-
-		++mNextPacketSequenceSent;
-
-		mNewWindowPacketList.erase(iter++);
-			
+		_addOutgoingReliablePacket( mOutgoingPackets.front() );
+		mOutgoingPackets.pop();
 	}
 
 	lk.unlock();
@@ -416,31 +328,29 @@ void Session::ProcessWriteThread(void)
 
   if (mStatus == SSTAT_Connected)
   {
-	  int64 t = now - mLastPacketReceived;
-	  
-	  //!!! as receiving packets happens in the readthread and this code is executed in the write thread
-	  //it can happen that a packet was received AFTER the now is read out - especially when our thread gets interrupted at this point!!!!
-	  //to solve this we take an int instead an uint as lastpacket can be bigger than now :)
-      if (t > 60000)
+
+	  uint64 t = Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastPacketReceived;
+	  t = (uint64)t/1000;
+      if ((Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastPacketReceived) > 60000)
       {
 		  if(this->mServerService)
 		  {
-				gLogger->logMsgF("Session disconnect last received packet > 60 (%I64u) seconds session Id :%u", MSG_HIGH, t/1000, this->getId());   
-				gLogger->logMsgF("Session lastpacket %I64u now %I64u diff : %I64u", MSG_HIGH, mLastPacketReceived, now,(now - mLastPacketReceived));   
+				gLogger->logMsgF("Session disconnect last received packet > 60 (%I64u) seconds session Id :%u", MSG_HIGH, t, this->getId());   
+				gLogger->logMsgF("Session lastpacket %I64u now %I64u diff : %I64u", MSG_HIGH, mLastPacketReceived, Anh_Utils::Clock::getSingleton()->getLocalTime(),(Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastPacketReceived));   
 				mCommand = SCOM_Disconnect;
 		  }
 		  else
 		  {
-			gLogger->logMsgF("Session disconnect last received packet > 60 (%I64u) seconds session Id :%u", MSG_HIGH, float(t/1000.0), this->getId());   
+			gLogger->logMsgF("Session disconnect last received packet > 60 (%I64u) seconds session Id :%u", MSG_HIGH, t, this->getId());   
  
 			mCommand = SCOM_Disconnect;
 		  }
       }
 	  else	  
-	  if (this->mServerService && ((t - mLastPacketReceived) > 20000))
+	  if (this->mServerService && ((Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastPacketReceived) > 10000))
 	  {
 		  //gLogger->logMsgF("Session send server server ping", MSG_HIGH);   
-		  if((t - mLastPingPacketSent) > 2000)
+		  if((Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastPingPacketSent) > 1000)
 				_sendPingPacket();
 	  }
       
@@ -457,9 +367,6 @@ void Session::SendChannelA(Message* message)
 	{
 		gLogger->logMsgF("Session::SendChannelA priority messup!!!", MSG_HIGH );
 		gLogger->hexDump(message->getData(), message->getSize());
-
-		//ALWAYS delete messages -never orphan them!!!
-		message->setPendingDelete(true);		
 		return;
 	}
 
@@ -480,6 +387,8 @@ void Session::SendChannelA(Message* message)
 
   //the connectionserver puts a lot of fastpaths here  - so just put them were they belong
   //this alone takes roughly 5% cpu off of the connectionserver
+
+	message->mSourceId = 1;
 
   if(message->getFastpath()&& (message->getSize() < mMaxUnreliableSize))
 	  mUnreliableMessageQueue.push(message);
@@ -528,45 +437,24 @@ void Session::SortSessionPacket(Packet* packet, uint16 type)
 	packet->setReadIndex(2);
 	switch (type)
 	  {
-		// New connection request.
-	
-		// our user data channels
-		case SESSIONOP_DataChannel2:
-		{
-		// All data channels get handled here.
-		  _processDataChannelB(packet);
-		  break;
-		}
 		case SESSIONOP_DataChannel1:
-		case SESSIONOP_DataChannel3:
-		case SESSIONOP_DataChannel4:
 		{
 		  // All data channels get handled here.
 		  _processDataChannelPacket(packet, false);
 		  break;
 		}
-		
-		case SESSIONOP_DataFrag2:
-		{
-			_processRoutedFragmentedPacket(packet);
-			break;
-		}
 
 		// This is part of a message fragment.  Just add it to the packet queue as it must be handled further up.
 		case SESSIONOP_DataFrag1:
-		case SESSIONOP_DataFrag3:
-		case SESSIONOP_DataFrag4:
 		{
 		  // Handle our fragmented packets here.
 		  _processFragmentedPacket(packet);
 		  break;
 		}
-		
-		
 		default:
 		{
 		  // Unknown SESSIONOP code
-		  gLogger->logMsgF("Destroying packet because!!! --tmr",MSG_HIGH);
+		  gLogger->logMsgF("Unhandled Sequenced Message %u",MSG_HIGH, type);
 		  mPacketFactory->DestroyPacket(packet);
 		  break;
 		}
@@ -577,24 +465,26 @@ void Session::SortSessionPacket(Packet* packet, uint16 type)
 //======================================================================================================================
 void Session::HandleSessionPacket(Packet* packet)
 {
-  // Reset our packet read index and start parsing...
-  packet->setReadIndex(0);
-  uint16 packetType = packet->getUint16();
-  
-  // Set our last packet time index
-  mLastPacketReceived = Anh_Utils::Clock::getSingleton()->getLocalTime();
-  mClientPacketsReceived++;
+	// Reset our packet read index and start parsing...
+	packet->setReadIndex(0);
+	uint16 packetType = packet->getUint16();
 
-  // If this is fastpath data, send it up.
-  if (packetType < 0x0100)
-  {
-    HandleFastpathPacket(packet);
-    return;
-  }
+	gLogger->logMsgF("Session::HandleSessionPacket %X", MSG_NORMAL, packetType);
 
-  //get rid of all the unsequenced stuff
-  switch (packetType)
-  {
+	// Set our last packet time index
+	mLastPacketReceived = Anh_Utils::Clock::getSingleton()->getLocalTime();
+	mClientPacketsReceived++;
+
+	// If this is fastpath data, send it up.
+	if (packetType < 0x0100)
+	{
+	HandleFastpathPacket(packet);
+	return;
+	}
+
+	//get rid of all the unsequenced stuff
+	switch (packetType)
+	{
 	// New connection request.
 	case SESSIONOP_SessionRequest:
 	{
@@ -614,16 +504,8 @@ void Session::HandleSessionPacket(Packet* packet)
 	}
 
 	case SESSIONOP_DataOrder1:
-	case SESSIONOP_DataOrder3:
-	case SESSIONOP_DataOrder4:
 	{
 	  _processDataOrderPacket(packet);
-	  return;
-	}
-
-	case SESSIONOP_DataOrder2:
-	{
-	  _processDataOrderChannelB(packet);
 	  return;
 	}
 
@@ -632,30 +514,30 @@ void Session::HandleSessionPacket(Packet* packet)
 	{
 		// itself has no sequence but its contained packets might   - we dont send reliables in multis
 		// however they get handled through this function anyway
+	  if(!ValidatePacketCrc(packet))
+		  return;
+	  DeCompCryptPacket(packet);
 	  _processMultiPacket(packet);
 	  return;
 	}
 	// Remote side disconnceted
 	case SESSIONOP_Disconnect:
 	{
-	
+
 			gLogger->logMsgF("Session::remote side disconnected", MSG_HIGH);
 	  mStatus = SSTAT_Disconnecting;
 	  _processDisconnectPacket(packet);
 	  return;
 	}
-	
+
 	// Data channel acks
 	case SESSIONOP_DataAck1:
-	case SESSIONOP_DataAck2:
-	case SESSIONOP_DataAck3:
-	case SESSIONOP_DataAck4:
 	{
 	  _processDataChannelAck(packet);
 	  return;
 	}
-        
-	
+	    
+
 	// Ping, don't know what it's for yet.
 	case SESSIONOP_Ping:
 	{
@@ -666,137 +548,54 @@ void Session::HandleSessionPacket(Packet* packet)
 	// Network Status.  Must return a proper packet or network layer stops working.
 	case SESSIONOP_NetStatRequest:
 	{
+	  if(!ValidatePacketCrc(packet))
+		  return;
+	  DeCompCryptPacket(packet);
 	  _processNetStatRequestPacket(packet);
 	  return;
 	}
-  }
+	}
 
-  //now we have a sequenced packet
-  //check if we are in sequence
-   uint16 sequence = ntohs(packet->getUint16());
+	if(!ValidatePacketCrc(packet))
+	  return;
+	DeCompCryptPacket(packet);
 
-   //gLogger->logMsgF("Incoming data - seq: %i expect: %u Session:0x%x%.4x", MSG_HIGH, sequence, mInSequenceNext, mService->getId(), getId());
+	//now we have a sequenced packet
+	//check if we are in sequence
 
-   if (mInSequenceNext < sequence)
-   {
-	   //last line of defense synchronization
-		if(sequence > (mInSequenceNext+50))
-		{
-			mInSequenceNext = sequence;
-			SortSessionPacket(packet,packetType);
-			return;
-		}
+	uint16 sequence = ntohs(packet->getUint16());
 
-	   mOutOfOrderPackets.push_back(packet);
+	gLogger->logMsgF("Sequence: %u | Expected Sequence: %u", MSG_NORMAL, sequence, mInSequenceNext);
+	if( mInSequenceNext == sequence )
+	{
+		Packet* ack = mPacketFactory->CreatePacket();
+		ack->addUint16(SESSIONOP_DataAck1);
+		ack->addUint16(htons(sequence));
+		ack->setIsCompressed(false);
+		ack->setIsEncrypted(false);
+		_addOutgoingUnreliablePacket(ack);
 
-	   uint32 itCount = 0;
-	   PacketWindowList::iterator ooopsIt = mOutOfOrderPackets.begin();
+		SortSessionPacket(packet, packetType);
+	}
+	else
+	{
+		_handleOutOfOrderPacket(sequence);
+		mPacketFactory->DestroyPacket(packet);
+	}
 
-	   while(ooopsIt != mOutOfOrderPackets.end())
-	   {
-		   itCount++;
-
-		   if(itCount > 10)
-			   break;
-
-		   Packet* ooopsPacket = (*ooopsIt);
-		   ooopsPacket->setReadIndex(2);
-		   uint16 ooopsSequence = ntohs(ooopsPacket->getUint16());
-
-		   if(ooopsSequence == mInSequenceNext)
-		   {
-			   gLogger->logMsgF("use stored packet - sequence %u", MSG_HIGH, ooopsSequence);
-			   HandleSessionPacket(ooopsPacket);
-			   mOutOfOrderPackets.erase(ooopsIt++);
-		   }
-		   else
-		   if(ooopsSequence < mInSequenceNext)
-		   {
-			   gLogger->logMsgF("destroy stored packet - sequence %u", MSG_HIGH, ooopsSequence);
-			   mPacketFactory->DestroyPacket(ooopsPacket);
-			   mOutOfOrderPackets.erase(ooopsIt++);
-		   }
-		   else
-		   {
-			   gLogger->logMsgF("ignore stored packet - sequence %u", MSG_HIGH, ooopsSequence);
-				ooopsIt++;
-		   }
-	   }
-	  
-	   //were missing something
-	   gLogger->logMsgF("Session::HandleSessionPacket :: Incoming data - seq: %i expect: %u Session:0x%x%.4x", MSG_HIGH, sequence, mInSequenceNext, mService->getId(), getId());
-
-	   // now send an out of order
-		//gLogger->logMsgF("OO %u < %u",MSG_NORMAL,mInSequenceNext,sequence);
-			
-		switch(packetType )
-		{
-			case SESSIONOP_DataFrag1:
-			case SESSIONOP_DataChannel1:
-			  {
-					Packet* orderPacket;
-					orderPacket = mPacketFactory->CreatePacket();
-					orderPacket->addUint16(SESSIONOP_DataOrder1);
-					orderPacket->addUint16(htons(sequence));
-					orderPacket->setIsCompressed(false);
-					orderPacket->setIsEncrypted(true);
-
-					_addOutgoingUnreliablePacket(orderPacket);
-
-		
-			  }
-			  break;
-			
-			case SESSIONOP_DataFrag2:
-			case SESSIONOP_DataChannel2:
-			  {
-					Packet* orderPacket;
-					orderPacket = mPacketFactory->CreatePacket();
-					orderPacket->addUint16(SESSIONOP_DataOrder2);
-					orderPacket->addUint16(htons(sequence));
-					orderPacket->addUint16(htons(mInSequenceNext));
-					orderPacket->setIsCompressed(false);
-					orderPacket->setIsEncrypted(true);
-
-					_addOutgoingUnreliablePacket(orderPacket);
-
-			  }
-			  break;
-
-			default:
-			{
-				gLogger->logMsgF("Session::HandleSessionPacket :: *** wanted to send Out-of-Order packet with weird opcode - Sequence: %i, Service %u Session:0x%.4x", MSG_HIGH, sequence, mService->getId(), getId());
-				gLogger->hexDump(packet->getData(),packet->getSize());
-				Packet* orderPacket;
-				orderPacket = mPacketFactory->CreatePacket();
-				orderPacket->addUint16(SESSIONOP_DataOrder2);
-				orderPacket->addUint16(htons(sequence));
-				orderPacket->addUint16(htons(mInSequenceNext));
-				orderPacket->setIsCompressed(false);
-				orderPacket->setIsEncrypted(true);
-
-				_addOutgoingUnreliablePacket(orderPacket);
-				
-				//mPacketFactory->DestroyPacket(packet);
-				return;
-			}
-		}
-		//mPacketFactory->DestroyPacket(packet);
-		return;
-	   
-   }
-
-   else
-   if (mInSequenceNext == sequence)
-   {
-		SortSessionPacket(packet,packetType);
-   }
-   else
-   {
-   		mPacketFactory->DestroyPacket(packet);
-   }
 }
 
+//======================================================================================================================
+
+void Session::_handleOutOfOrderPacket(uint16 sequence)
+{
+	Packet* packet = mPacketFactory->CreatePacket();
+	packet->addUint16(SESSIONOP_DataOrder1);
+	packet->addUint16(htons(sequence));
+	packet->setIsCompressed(false);
+	packet->setIsEncrypted(true);
+	_addOutgoingUnreliablePacket(packet);
+}
 
 //======================================================================================================================
 
@@ -870,67 +669,6 @@ void Session::DestroyPacket(Packet* packet)
 {
 	mPacketFactory->DestroyPacket(packet);
 }
-
-//======================================================================================================================
-
-Packet* Session::getOutgoingReliablePacket(void)                   
-{ 
-  Packet* packet = 0;
-
-  if (mOutgoingReliablePacketQueue.size() == 0)
-    return packet;
-
-  mServerPacketsSent++;
-  
-  // Get a new Outgoing packet
-  boost::recursive_mutex::scoped_lock lk(mSessionMutex);
-  
-  packet =  mOutgoingReliablePacketQueue.front(); 
-  mOutgoingReliablePacketQueue.pop(); 
-
-  lk.unlock();
-
-  mLastPacketSent = Anh_Utils::Clock::getSingleton()->getLocalTime();
-
-  //packet->setReadIndex(2);
-  //uint16 sequence = ntohs(packet->getUint16());
-
- 
-  //gLogger->logMsgF("Session::getOutgoingReliablePacket Sequence  : %u ", MSG_HIGH, sequence);
- 
-
-  
-  return packet;
-}
-
-
-//======================================================================================================================
-Packet* Session::getOutgoingUnreliablePacket(void)                   
-{ 
-  Packet* packet = 0;
-
-  if (mOutgoingUnreliablePacketQueue.size() == 0)
-    return packet;
-  
-  mServerPacketsSent++;
-  
-  // Get a new Outgoing packet
-  boost::recursive_mutex::scoped_lock lk(mSessionMutex);
-
-  packet =  mOutgoingUnreliablePacketQueue.front(); 
-  mOutgoingUnreliablePacketQueue.pop();
-
-  lk.unlock();
-
-  mLastPacketSent = Anh_Utils::Clock::getSingleton()->getLocalTime();
-
-  // Temp debug logging for client only.
-  //packet->setReadIndex(2);
-  
-
-  return packet;
-}
-
 
 //======================================================================================================================
 Message* Session::getIncomingQueueMessage()
@@ -1012,6 +750,9 @@ void Session::_processMultiPacket(Packet* packet)
 {
   Packet* newPacket = 0;
   uint16 packetIndex = 0, packetSize = 0;
+
+  ValidatePacketCrc(packet);
+  DeCompCryptPacket(packet);
   
   // Iterate through our multi-packet
 
@@ -1295,353 +1036,29 @@ void Session::_processDataChannelPacket(Packet* packet, bool fastPath)
 	mPacketFactory->DestroyPacket(packet);
 }
 
-
-//======================================================================================================================
-//Data Channel B is used for interserver communication (ie of routed Packets)
-//this way we are able to pass around zipping
-//======================================================================================================================
-
-void Session::_processDataChannelB(Packet* packet)
-{
-	uint8		priority		= 0;
-	uint8		routed			= 0;
-	uint8		dest			= 0;
-	uint32	accountId		= 0;
-  
-
-
-	// Otherwise ack this packet then send it up
-	packet->setReadIndex(0);
-	uint16 packetType = packet->getUint16();   //session op
-	uint16 sequence = ntohs(packet->getUint16());
-
-	if (!mInSequenceNext == sequence)
-	{
-		gLogger->logMsgF("Session::_processDataChannelB :: Incoming data - seq: %i expect: %u Session:0x%x%.4x", MSG_HIGH, sequence, mInSequenceNext, mService->getId(), getId());
-		return;
-	}
-
-	// check to see if this is a multi-message message
-	
-	priority = packet->getUint8();
-	if (priority > 0x10)
-	{
-		gLogger->logMsgF("Session::_processDataChannelB priority messup!!!", MSG_HIGH );
-		gLogger->hexDump(packet->getData(), packet->getSize());
-		return;
-	}
-
-	routed = packet->getUint8();
-	  
-	// If we're from the server, strip off our routing header.
-	if (!routed)
-	{
-		gLogger->logMsgF("Session::_processDataChannelB :: thats not routed ... sob :(", MSG_HIGH);			
-		return;
-	}
-
-  
-	//this is a nultimessage ??
-	if (routed== 0x19)//routed
-	{
-		// Next byte is size
-		uint32 size = packet->getUint8();
-		do 
-			{
-				// More size bytes?
-				if (size == 0xff)
-				{
-					//right now max size 255 (1 byte!!!)
-					size = ntohs(packet->getUint16());
-				}
-		  
-				// We need to get these again.
-				priority = packet->getUint8();
-				if (priority > 0x10)
-				{
-					gLogger->logMsgF("Session::_processDataChannelB priority messup!!!", MSG_HIGH );
-					gLogger->hexDump(packet->getData(), packet->getSize());
-					return;
-				}
-
-				routed =  packet->getUint8();  // Routing byte in a B 019 used!!! as we have interserver communication here
-
-				dest = packet->getUint8();
-				accountId = packet->getUint32();
-
-				// Init a new message for this data.
-				mMessageFactory->StartMessage();
-				
-				//type 2 sequence 2 priority 1 routed 1 routing header 5 = 11
-				//type 2 sequence 2 priority 1 routed 1 size 1 (or 3) routing header 5 = 12 or 14
-				//but size - 7	(priority + routed + routing header)
-				mMessageFactory->addData(packet->getData() + packet->getReadIndex(), static_cast<uint16>(size) - 7); // -1 priority, -1 routing and routing header
-				Message* newMessage = mMessageFactory->EndMessage();
-
-				// set our account and server id's
-				newMessage->setAccountId(accountId);
-				newMessage->setDestinationId(dest);
-				newMessage->setPriority(priority);
-			  
-				if(priority >= 0x10)
-				{
-					gLogger->logMsgF("Session::_processDataChannelB  packet messup message (!) priority size : %u!!!",MSG_HIGH, size);
-					gLogger->hexDump(packet->getData(),packet->getSize());
-					return;
-				}
-
-				// Need to specify whether this is routed or not here, so we know in the app
-				newMessage->setRouted(true);
-
-				// Push the message on our incoming queue
-				_addIncomingMessage(newMessage, priority);
-
-				// Advance the message index
-				packet->setReadIndex(packet->getReadIndex() + static_cast<uint16>(size) - 7); // -1 priority, -1 routing
-
-				size = packet->getUint8();
-	
-			}
-			while ((packet->getReadIndex() < packet->getSize()) && size != 0);
-
-			if(packet->getReadIndex() > (uint32)(packet->getSize()+1))
-			{
-				gLogger->logMsgF("Session::_processDataChannelB  Multi packet messup message size : %u!!!",MSG_HIGH, size);
-				gLogger->hexDump(packet->getData(),packet->getSize());
-				return;
-
-			}
-
-		}
-		else // no 019
-		{
-			dest = packet->getUint8();
-			accountId = packet->getUint32();
-
-			// Create our new message and send it up.
-			mMessageFactory->StartMessage();
-			mMessageFactory->addData(packet->getData() + packet->getReadIndex(), packet->getSize() - packet->getReadIndex());
-			Message* newMessage = mMessageFactory->EndMessage();
-
-			// Need to specify whether this is routed or not here, so we know in the app
-			if (!routed)
-			{
-				gLogger->logMsgF("Session::_processDataChannelB :: thats not routed ... sob :(", MSG_HIGH);
-				return;
-			}
-			newMessage->setRouted(true);
-		
-
-
-			// set our message parameters
-			newMessage->setAccountId(accountId);
-			newMessage->setDestinationId(dest);
-			
-			newMessage->setPriority(priority);
-			if (priority > 0x10)
-				{
-					gLogger->logMsgF("Session::_processDataChannelB priority messup!!!", MSG_HIGH );
-					gLogger->hexDump(newMessage->getData(), newMessage->getSize());
-					return;
-				}
-
-			// Push the message on our incoming queue
-			_addIncomingMessage(newMessage, priority);
-
-		}
-
-		// Set our inSequence number so we know we recieved this packet.
-		// in sequence is per packet not per message 
-		//gLogger->logMsgF("_processDataChannelPacket B::increasing mInSequence by 1 %u", MSG_HIGH, mInSequenceNext);  
-		mInSequenceNext++;
-		//gLogger->logMsgF("_processDataChannelPacket B::send ack sequence %u", MSG_HIGH, mInSequenceNext-1);  
-		mSendDelayedAck = true;
-  
-
-
-  // Destroy our incoming packet, it's not needed any longer.
-
-	mPacketFactory->DestroyPacket(packet);
-}
-
-
-
-
 //======================================================================================================================
 void Session::_processDataChannelAck(Packet* packet)
 {
-	uint32 oldsize = mWindowSizeCurrent;
+	packet->setReadIndex(2);
+	boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
-	Packet* windowPacket = 0;
-	uint16 windowPacketSequence = 0;
-	PacketWindowList::iterator iter;
-	PacketWindowList::iterator itN;
+	SequencedPacketMap::iterator			i = mOutgoingPacketCache.find(ntohs(packet->getUint16()));
+	SequencedPacketMap::reverse_iterator	ri( i );
 
-	// Get the sequence off our incoming packet
-	packet->setReadIndex(2);  //skip the header
-	uint16 sequence = ntohs(packet->getUint16());
-
-	//gLogger->logMsgF("Received ACK  - Sequence: %u, Session:0x%x%.4x", MSG_HIGH, sequence, mService->getId(), getId());
-
-    boost::recursive_mutex::scoped_lock lk(mSessionMutex);
-	uint32 pDel = 0;
-
-	// If our windowQueue is empty, this is a dupe ack for the last packet that was on it.  Just return.
-	if(mOutSequenceRollover)
+	//
+	// The packet we are looking for does not exist.
+	// Destroy our incoming packet and return.
+	//
+	if( i == mOutgoingPacketCache.end() )
 	{
-		if((!mRolloverWindowPacketList.size()) && (!mNewRolloverWindowPacketList.size()))
-		{
-			mOutSequenceRollover = false;
-		}
-		// this is an ack for the new queue	 so the old queue can go completely
-		else if((sequence < (0xFFFF - (mRolloverWindowPacketList.size()+mNewRolloverWindowPacketList.size()))))
-		{
-		
-			gLogger->logMsgF("_processDataChannelAck::Rollover complete Windowsize %u ack seq new queue %u",MSG_HIGH,mWindowSizeCurrent,sequence);
-			mLastRemotePacketAckReceived = Anh_Utils::Clock::getSingleton()->getLocalTime();
-
-			mOutSequenceRollover = false;
-			iter = mRolloverWindowPacketList.begin();
-			
-			//now that communication is reestablished we can resize our window again
-			if(mWindowSizeCurrent < mWindowResendSize)
-			{
-				mWindowSizeCurrent += uint32(mWindowResendSize/10);
-				if(mWindowSizeCurrent >mWindowResendSize)
-					mWindowSizeCurrent = mWindowResendSize;
-			}
-			//destroy them now they are acknowleged
-			//they dont have to be resend
-			while(iter != mRolloverWindowPacketList.end())
-			{
-				pDel ++;
-				mPacketFactory->DestroyPacket(*iter);
-				mRolloverWindowPacketList.erase(iter);
-				iter = mRolloverWindowPacketList.begin();
-			
-
-			}
-		}
-		else//else if(sequence < 0xFFFF - mRolloverWindowPacketList.size()) thats an ack purely for the old list
-		{
-			//only parts of the old queue can go
-			iter = mRolloverWindowPacketList.begin();
-			windowPacket = *iter;
-			windowPacket->setReadIndex(2); 
-			windowPacketSequence = ntohs(windowPacket->getUint16());
-
-			if(sequence < windowPacketSequence)
-			{
-				//gLogger->logMsg("dupe rollover queue ack");
-			}
-			else
-			{
-				
-				// This is a proper ack, so handle it.
-				if(mWindowSizeCurrent < mWindowResendSize)
-				{
-					// I dont go with a set window of packets in our queues here as I think
-					// that the servers (especially the zones) need to keep on sending
-					// especially when loads of players log on to one zone in this situation we get easily a few thousand to tenthsnd messages
-					// in a short time
-					mWindowSizeCurrent += uint32(mWindowResendSize/10);
-					if(mWindowSizeCurrent >mWindowResendSize)
-						mWindowSizeCurrent = mWindowResendSize;
-				}
-				while(sequence >= windowPacketSequence)
-				{	
-					pDel ++;
-					mPacketFactory->DestroyPacket(*iter);
-					mRolloverWindowPacketList.erase(iter);
-
-					// If the list is empty, break out
-					if(mRolloverWindowPacketList.size() == 0)
-					{
-						gLogger->logMsgF("_processDataChannelAck::Rollover complete Windowsize %u ack seq %u",MSG_HIGH,mWindowSizeCurrent,sequence);
-						windowPacket = 0;
-						windowPacketSequence = 0;
-						
-						if(mNewRolloverWindowPacketList.size() == 0)
-							mOutSequenceRollover = false;
-
-						break;
-					}
-
-					iter = mRolloverWindowPacketList.begin();
-					windowPacket = *iter;
-					windowPacket->setReadIndex(2); 
-					windowPacketSequence = ntohs(windowPacket->getUint16());
-				}//while(sequence >= windowPacketSequence)
-
-				mLastRemotePacketAckReceived = Anh_Utils::Clock::getSingleton()->getLocalTime();
-
-				// Our current window increases here, as we know come communication is back.
-			
-			}//if(sequence < windowPacketSequence)
-
-			mPacketFactory->DestroyPacket(packet);
-			gLogger->logMsgF("_processDataChannelAck::Rollover Ack Windowsize %u ack seq new queue %u",MSG_HIGH,mWindowSizeCurrent,sequence);
-
-			return;
-		}//else if(sequence < 0xFFFF - mRolloverWindowPacketList.size())
-	}	   //if the rollover was gone completely we continue with the regular list
-
-	if (mWindowPacketList.size() == 0)
-	{
-		gLogger->logMsgF("Dupe ACK received - Nothing in resend window - seq: %u, Session:0x%x%.4x", MSG_LOW, sequence, mService->getId(), getId());
 		mPacketFactory->DestroyPacket(packet);
 		return;
 	}
 
-	iter = mWindowPacketList.begin();
-	windowPacket = *iter;
-	windowPacket->setReadIndex(2); //skip the header
-	windowPacketSequence = ntohs(windowPacket->getUint16());
+	for( ri; ri != mOutgoingPacketCache.rend(); ri++ )
+		mPacketFactory->DestroyPacket(ri->second);
 
-	if (sequence < windowPacketSequence)
-	{
-		// Dpulicate ack, drop it.
-		gLogger->logMsgF("Dupe ACK received - No such packet in window - ackSeq: %u, expect: %u, Session:0x%x%.4x", MSG_HIGH, sequence, windowPacketSequence, mService->getId(), getId());
-	}
-	else if (sequence > windowPacketSequence + mWindowPacketList.size())
-	{
-		// This ack is way out of bounds, log a message and drop it. 
-		gLogger->logMsgF("_processDataChannelAck::*** Ack out of bounds - ackSeq: %u, expect: %u, Session:0x%x%.4x", MSG_HIGH, sequence, windowPacketSequence, mService->getId(), getId());
-	}
-	else
-	{
-		// This is a proper ack, so handle it.
-		if(mWindowSizeCurrent < mWindowResendSize)
-		{
-			mWindowSizeCurrent += uint32(mWindowResendSize/10);
-			if(mWindowSizeCurrent >mWindowResendSize)
-				mWindowSizeCurrent = mWindowResendSize;
-		}
-
-		while (sequence >= windowPacketSequence)
-		{
-			//gLogger->logMsgF("Received ACK  - Destroyed Packet Sequence: %u, Session:0x%x%.4x", MSG_HIGH, windowPacketSequence);
-			pDel ++;
-			mPacketFactory->DestroyPacket(*iter);
-			mWindowPacketList.erase(iter);
-			
-
-			// If the window is empty, break out
-			if (mWindowPacketList.size() == 0)
-				break;
-
-			iter = mWindowPacketList.begin();
-			windowPacket = *iter;
-			windowPacket->setReadIndex(2); //skip the header
-			windowPacketSequence = ntohs(windowPacket->getUint16());
-		}
-
-		mLastRemotePacketAckReceived = Anh_Utils::Clock::getSingleton()->getLocalTime();
-		//gLogger->logMsgF("Received ACK  - Sequence: %u, Session:0x%x%.4x", MSG_HIGH, sequence, mService->getId(), getId());
-
-	}
-
-	// Destroy our incoming packet, it's not needed any longer.
+	mOutgoingPacketCache.erase( mOutgoingPacketCache.begin(), i );
 	mPacketFactory->DestroyPacket(packet);
 }
 
@@ -1649,221 +1066,39 @@ void Session::_processDataChannelAck(Packet* packet)
 //======================================================================================================================
 void Session::_processDataOrderPacket(Packet* packet)
 {
-  packet->setReadIndex(2);
-  uint16 sequence = ntohs(packet->getUint16());
+	packet->setReadIndex(2);
+	boost::recursive_mutex::scoped_lock lk(mSessionMutex);
+	uint16 outOfOrderSequence = (ntohs(packet->getUint16()));
 
-  PacketWindowList::iterator	iter			= mWindowPacketList.begin();
-  Packet*						windowPacket	= *iter;
-  
-  PacketWindowList::iterator iterRoll = mRolloverWindowPacketList.begin();
-  
-  windowPacket->setReadIndex(2);
-  uint16 windowSequence = ntohs(windowPacket->getUint16());
+	SequencedPacketMap::iterator i = mOutgoingPacketCache.find(outOfOrderSequence);
+	SequencedPacketMap::iterator lowIt = mOutgoingPacketCache.lower_bound( 0 );
 
-  
-  gLogger->logErrorF("Netcode","_processDataOrderPacket::Out-Of-order packet session 0x%x%.4x seq: %u, windowsequ : %u", MSG_HIGH, mService->getId(), mId, sequence, windowSequence);
+	gLogger->logMsgF("Session::_processDataOrderPacket() packet with sequence %u Out of Order.", MSG_NORMAL, outOfOrderSequence);
 
-  //Do some bounds checking
-  if (sequence < windowSequence)
-  {
-	  gLogger->logErrorF("Netcode","_processDataOrderPacket::*** Order packet sequence too small, may be a duplicate or we handled our acks wrong.  seq: %u, expect >: %u", MSG_HIGH, sequence, windowSequence);
-  }
-
-  if (sequence > windowSequence + mWindowPacketList.size())
-  {
-	  gLogger->logErrorF("Netcode","_processDataOrderPacket::*** Rollover Order packet  seq: %u, expect >: %u", MSG_HIGH, sequence, windowSequence);
-  }
-	
-	//The location of the packetsequence out of order has NOBEARING on the question on which list we will find the last properly received Packet!!!
-
-
-	if(mRolloverWindowPacketList.size()&& (sequence > (65535-mRolloverWindowPacketList.size())))
+	//
+	// Uh oh!
+	//
+	if( i == mOutgoingPacketCache.end() )
 	{
-		//jupp its on the rolloverlist
-        boost::recursive_mutex::scoped_lock lk(mSessionMutex); // mRolloverWindowPacketList and WindowPacketList get accessed by the socketwritethread and by the socketreadthread both through the session
-
-		uint16 count = 0;
-		for (iterRoll = mRolloverWindowPacketList.begin(); iterRoll != mWindowPacketList.end(); iterRoll++)
-		{
-			// Grab our window packet
-			windowPacket = (*iterRoll);
-			windowPacket->setReadIndex(2);
-			uint16 windowRollSequence = ntohs(windowPacket->getUint16());
-
-			// If it's smaller than the order packet send it, otherwise break;
-			if (windowRollSequence < sequence )
-			{
-				//count++;
-				//if(count > 50)
-				//	break;
-					
-				if(Anh_Utils::Clock::getSingleton()->getLocalTime() - windowPacket->getTimeOOHSent() < 200)
-					break;
-				
-				_addOutgoingReliablePacket(windowPacket);
-				
-				windowPacket->setTimeOOHSent(Anh_Utils::Clock::getSingleton()->getLocalTime());
-
-				if (mWindowSizeCurrent > (mWindowResendSize/10))
-					mWindowSizeCurrent--;
-
-			}
-		}
-	 }
-  
-     uint16 count = 0;
-	 for (iter = mWindowPacketList.begin(); iter != mWindowPacketList.end(); iter++)
-	 {
-         boost::recursive_mutex::scoped_lock lk(mSessionMutex);//			   mRolloverWindowPacketList and WindowPacketList get accessed by the socketwritethread and by the socketreadthread both through the session
-	 
-		// Grab our window packet
-		windowPacket = (*iter);
-		windowPacket->setReadIndex(2);
-		uint16 windowSequence = ntohs(windowPacket->getUint16());
-
-		// If it's smaller than the order packet send it, otherwise break;
-		// do we want to throttle the amount of packets being send to 10 or 50 or 100 ???
-		// if we receive a sequence on the rolloverlist (65530 for example) we will
-		// always send ALL packets on the regular list - 
-		
-		//make sure we do not spam the connection needlessly with packets
-		if(Anh_Utils::Clock::getSingleton()->getLocalTime() - windowPacket->getTimeOOHSent() > 200)
-		{		
-			_addOutgoingReliablePacket(windowPacket);
-					
-			windowPacket->setTimeOOHSent(Anh_Utils::Clock::getSingleton()->getLocalTime());
-
-			if (mWindowSizeCurrent > (mWindowResendSize/10))
-				mWindowSizeCurrent--;
-		
-		}
-		else
-		{
-			mPacketFactory->DestroyPacket(packet);
-			return;
-		}
-	}  
-
-  // Destroy our incoming packet, it's not needed any longer.
-  mPacketFactory->DestroyPacket(packet);
-}
-
-
-//======================================================================================================================
-void Session::_processDataOrderChannelB(Packet* packet)
-{
-	boost::recursive_mutex::scoped_lock lk(mSessionMutex);//			   
-
-  packet->setReadIndex(2);
-  uint16 sequence = ntohs(packet->getUint16());
-  uint16 bottomSequence = ntohs(packet->getUint16());
-
-  if(!mWindowPacketList.size())
-  {
-	  mPacketFactory->DestroyPacket(packet);
-	  return;
-  }
-
-  PacketWindowList::iterator iter = mWindowPacketList.begin();
-  PacketWindowList::iterator iterRoll = mRolloverWindowPacketList.begin();
-  
-  Packet* windowPacket = *iter;
-  windowPacket->setReadIndex(2);
-  uint16 windowSequence = ntohs(windowPacket->getUint16());
-  
-
-  gLogger->logErrorF("Netcode","_processDataOrderChannelB::Out-Of-order packet session 0x%x%.4x seq: %u, windowsequ : %u, bottom %u", MSG_HIGH, mService->getId(), mId, sequence, windowSequence, bottomSequence);
-
-  //Do some bounds checking
-  if (bottomSequence < windowSequence)
-  {
-	  gLogger->logErrorF("Netcode","_processDataOrderChannelB::*** Order packet bottomsequence too small bottom seq: %u, expect >: %u", MSG_HIGH, bottomSequence, windowSequence);
-
-  }
-
-  if (sequence > windowSequence + mWindowPacketList.size())
-  {
-	  gLogger->logErrorF("Netcode","_processDataOrderChannelB::*** Rollover Order packet  seq: %u, expect >: %u", MSG_HIGH, sequence, windowSequence);
-  }
-	
-	//The location of the packetsequence out of order has NOBEARING on the question on which list we will find the last properly received Packet!!!
-
-
-	if(mRolloverWindowPacketList.size()&& (sequence > (65535-mRolloverWindowPacketList.size())))
-	{
-		//jupp its on the rolloverlist
-		//mRolloverWindowPacketList and WindowPacketList get accessed by the socketwritethread and by the socketreadthread both through the session
-	 
-		uint16 count = 0;
-		for (iterRoll = mRolloverWindowPacketList.begin(); iterRoll != mWindowPacketList.end(); iterRoll++)
-		{
-			// Grab our window packet
-			windowPacket = (*iterRoll);
-			windowPacket->setReadIndex(2);
-			uint16 windowRollSequence = ntohs(windowPacket->getUint16());
-
-			// If it's smaller than the order packet send it, otherwise break;
-			if ((windowRollSequence < sequence) && (windowRollSequence >= bottomSequence))
-			{
-				//count++;
-				//if(count > 50)
-				//	break;
-					
-				if(Anh_Utils::Clock::getSingleton()->getLocalTime() - windowPacket->getTimeOOHSent() < 200)
-					break;
-				
-				_addOutgoingReliablePacket(windowPacket);
-				
-				windowPacket->setTimeOOHSent(Anh_Utils::Clock::getSingleton()->getLocalTime());
-
-				if (mWindowSizeCurrent > (mWindowResendSize/10))
-					mWindowSizeCurrent--;
-
-			}
-		}
-
-	 }
-
-     uint16 count = 0;
-	 for (iter = mWindowPacketList.begin(); iter != mWindowPacketList.end(); iter++)
-	 {
-        // boost::recursive_mutex::scoped_lock lk(mSessionMutex);
-		// Grab our window packet
-		windowPacket = (*iter);
-		windowPacket->setReadIndex(2);
-		uint16 windowSequence = ntohs(windowPacket->getUint16());
-
-		// If it's smaller than the order packet send it, otherwise break;
-		// do we want to throttle the amount of packets being send to 10 or 50 or 100 ???
-		// if we receive a sequence on the rolloverlist (65530 for example) we will
-		// always send ALL packets on the regular list - I dont anticipate a big deal here though!!!
-		if(Anh_Utils::Clock::getSingleton()->getLocalTime() - windowPacket->getTimeOOHSent() > 100)
-		{
-				
-			_addOutgoingReliablePacket(windowPacket);
-					
-			windowPacket->setTimeOOHSent(Anh_Utils::Clock::getSingleton()->getLocalTime());
-
-			if (mWindowSizeCurrent > (mWindowResendSize/10))
-				mWindowSizeCurrent--;
-		
-		}
-		else
-		{
-			mPacketFactory->DestroyPacket(packet);
-			return;
-		}
+		gLogger->logErrorF("Network Manager", "Session::_processDataOrderPacket() packet with sequence %u does not exist in the cache.", MSG_NORMAL, outOfOrderSequence);
+		mPacketFactory->DestroyPacket(packet);
+		return;
 	}
-  
 
-  // Destroy our incoming packet, it's not needed any longer.
-  mPacketFactory->DestroyPacket(packet);
+
+	//
+	// Iterate from the lowest sequence to the Out of Order Sequence.
+	//
+	for( ; lowIt != i; lowIt++ )
+		_addOutgoingReliablePacket(i->second);
+
+	mPacketFactory->DestroyPacket(packet);
 }
-
 
 //======================================================================================================================
 void Session::_processFragmentedPacket(Packet* packet)
 {
+
 	packet->setReadIndex(2); //skip the header
 	uint16 sequence = ntohs(packet->getUint16());
 	uint8 priority = 0;
@@ -2017,123 +1252,7 @@ void Session::_processFragmentedPacket(Packet* packet)
 }
 
 //======================================================================================================================
-void Session::_processRoutedFragmentedPacket(Packet* packet)
-{
-	packet->setReadIndex(2); //skip the header
-	
-	uint16 sequence = ntohs(packet->getUint16());
-	
-	uint8 priority = 0;
-	uint8 routed = 0;
-	uint8 dest = 0;
-	uint32 accountId = 0;
-	 
-	
-	// Inc our in seq
-	//gLogger->logMsgF("_processFragmentedPacket::increasing mInSequence by 1 %u", MSG_HIGH, mInSequenceNext);  
-	mInSequenceNext++;
-  
-	// Need to send out acks
-	mSendDelayedAck = true;
-	//gLogger->logMsgF("_processFragmentedPacket::send ack sequence %u", MSG_HIGH, mInSequenceNext-1);  
 
-	// If we are not already processing a multi-packet message, start to.
-	if (mRoutedFragmentedPacketTotalSize == 0)
-	{
-	    mRoutedFragmentedPacketTotalSize = ntohl(packet->getUint32());
-
-		//gLogger->logMsgF("Session::_processRoutedFragmentedPacket started sequence:%u size %u", MSG_HIGH,sequence , mRoutedFragmentedPacketTotalSize);
-		//gLogger->hexDump(packet->getData(), packet->getSize());
-
-		mRoutedFragmentedPacketCurrentSize = packet->getSize() - 8;  // -2 header, -2 sequence, -4 size - 
-		mRoutedFragmentedPacketCurrentSequence = mRoutedFragmentedPacketStartSequence = sequence;
-
-		// Now push the packet into our fragmented queue
-		mIncomingRoutedFragmentedPacketQueue.push(packet);
-	}
-	// This is the next packet in the multi-packet sequence.
-	else
-	{
-		mRoutedFragmentedPacketCurrentSize += packet->getSize() - 4;  // -2 header, -2 sequence
-		
-		mRoutedFragmentedPacketCurrentSequence = sequence;
-
-		// If this is our last packet, send them all up to the application
-		if (mRoutedFragmentedPacketCurrentSize == mRoutedFragmentedPacketTotalSize)
-		{
-			//gLogger->logMsgF("Finalize received fragged packet - size: %u, total: %u current: %u seq:%u", MSG_HIGH, packet->getSize() - 4, mFragmentedPacketTotalSize, mFragmentedPacketCurrentSize, sequence);
-			mIncomingRoutedFragmentedPacketQueue.push(packet);
-			Packet* fragment = 0;
-
-			// Build the message from the fragmented packet here and send it up
-			mMessageFactory->StartMessage();
-			
-			uint32 fragmentCount = mIncomingRoutedFragmentedPacketQueue.size();
-			
-			for (uint32 i = 0; i < fragmentCount; i++)
-			{
-				fragment = mIncomingRoutedFragmentedPacketQueue.front();
-				mIncomingRoutedFragmentedPacketQueue.pop();
-
-				// if this is the first packet, make sure to skip the size.
-				if (i == 0)
-				{
-					fragment->setReadIndex(8);	//2opcode, 2 sequence and 4 size
-					
-					priority = fragment->getUint8();
-					routed = fragment->getUint8();				    
-					dest = fragment->getUint8();
-					accountId = fragment->getUint32();
-					
-					mMessageFactory->addData(fragment->getData() + 15, fragment->getSize() - 15); // -2 header, -2 sequence, -4 size, -2 priority/routing, -5 routing header
-				    
-				}
-				// This is just additional data
-				else
-				{
-					mMessageFactory->addData(fragment->getData() + 4, fragment->getSize() - 4); // -2 header, -2 sequence 
-				}
-
-				// delete our fragment
-				mPacketFactory->DestroyPacket(fragment);
-		  }
-		  Message* newMessage = mMessageFactory->EndMessage();
-
-		  // Set our message variables.
-		  
-		  newMessage->setRouted(true);
-		  newMessage->setPriority(priority);
-
-		  if (priority > 0x10)
-		  {
-	
-			gLogger->logMsgF("Session::_processFragmentedPacket priority messup!!!", MSG_HIGH );
-			gLogger->hexDump(newMessage->getData(), newMessage->getSize());
-			return;
-		  }
-
-		  newMessage->setDestinationId(dest);
-		  newMessage->setAccountId(accountId);
-
-		  // Push the message on our incoming queue
-		  _addIncomingMessage(newMessage, priority);
-
-			// Clear our size counters
-			mRoutedFragmentedPacketTotalSize = 0;
-			mRoutedFragmentedPacketCurrentSize = 0;
-			mRoutedFragmentedPacketCurrentSequence = 0;
-			mRoutedFragmentedPacketStartSequence = 0;
-	  }
-	  // This is just the next packet in sequence.  Throw it on the queue
-	  else
-	  { 
-	    mIncomingRoutedFragmentedPacketQueue.push(packet);
-	  }
-    
-  }
-}
-
-//======================================================================================================================
 void Session::_processPingPacket(Packet* packet)
 {
 
@@ -2186,11 +1305,12 @@ void Session::_processPingPacket(Packet* packet)
   mPacketFactory->DestroyPacket(packet);
 }
 
-
 //======================================================================================================================
+
 void Session::_processNetStatRequestPacket(Packet* packet)
 {
   uint16 tick = packet->getUint16();
+
 
   mLastRoundtripTime        = packet->getUint32();
   mAverageRoundtripTime     = packet->getUint32();
@@ -2371,7 +1491,7 @@ void Session::_buildOutgoingReliableRoutedPackets(Message* message)
     // Build our first packet with the total size.
     newPacket = mPacketFactory->CreatePacket(); 
 
-	newPacket->addUint16(SESSIONOP_DataFrag2);
+	newPacket->addUint16(SESSIONOP_DataFrag1);
 	
     newPacket->addUint16(htons(mOutSequenceNext));
 
@@ -2394,10 +1514,9 @@ void Session::_buildOutgoingReliableRoutedPackets(Message* message)
     // Push the packet on our outgoing queue
     boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
-    mNewWindowPacketList.push_back(newPacket);
-
-	if(!++mOutSequenceNext)
-		_handleOutSequenceRollover();
+	mOutgoingPackets.push(newPacket);
+    mOutgoingPacketCache[mOutSequenceNext] = newPacket;
+	mOutSequenceNext++;
 
     lk.unlock();
 
@@ -2407,7 +1526,7 @@ void Session::_buildOutgoingReliableRoutedPackets(Message* message)
       newPacket = mPacketFactory->CreatePacket();
 
       // Build our remaining packets
-	  newPacket->addUint16(SESSIONOP_DataFrag2);
+	  newPacket->addUint16(SESSIONOP_DataFrag1);
 	
       newPacket->addUint16(htons(mOutSequenceNext));
       newPacket->addData(message->getData() + messageIndex, std::min<uint16>(mMaxPacketSize - 7, messageSize - messageIndex));
@@ -2424,10 +1543,8 @@ void Session::_buildOutgoingReliableRoutedPackets(Message* message)
       // Push the packet on our outgoing queue
       boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
-      mNewWindowPacketList.push_back(newPacket);
-
-	  if(!++mOutSequenceNext)
-		  _handleOutSequenceRollover();
+	  mOutgoingPacketCache[mOutSequenceNext] = newPacket;
+	  mOutSequenceNext++;
     }
   }
   else
@@ -2436,7 +1553,7 @@ void Session::_buildOutgoingReliableRoutedPackets(Message* message)
     // Create a new packet and push the data into it.
     newPacket = mPacketFactory->CreatePacket();
 	
-	newPacket->addUint16(SESSIONOP_DataChannel2);
+	newPacket->addUint16(SESSIONOP_DataChannel1);
 	//newPacket->setSequence(mOutSequenceNext);
 	newPacket->addUint16(htons(mOutSequenceNext));
 	newPacket->addUint8(message->getPriority());
@@ -2452,10 +1569,9 @@ void Session::_buildOutgoingReliableRoutedPackets(Message* message)
     // Push the packet on our outgoing queue
     boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
-    mNewWindowPacketList.push_back(newPacket);
-
-	if(!++mOutSequenceNext)
-		_handleOutSequenceRollover();
+	mOutgoingPackets.push(newPacket);
+	mOutgoingPacketCache[mOutSequenceNext] = newPacket;
+	mOutSequenceNext++;
   }
   message->setPendingDelete(true);
 }
@@ -2499,10 +1615,9 @@ void Session::_buildOutgoingReliablePackets(Message* message)
     // Push the packet on our outgoing queue
     boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
-    mNewWindowPacketList.push_back(newPacket);
-
-	if(!++mOutSequenceNext)
-		_handleOutSequenceRollover();
+	mOutgoingPackets.push(newPacket);
+	mOutgoingPacketCache[mOutSequenceNext] = newPacket;
+    mOutSequenceNext++;
 
     // Now build any remaining packets.
     while (messageSize > messageIndex)
@@ -2526,10 +1641,9 @@ void Session::_buildOutgoingReliablePackets(Message* message)
       // Push the packet on our outgoing queue
       boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
-      mNewWindowPacketList.push_back(newPacket);
-
-	  if(!++mOutSequenceNext)
-		  _handleOutSequenceRollover();
+	  mOutgoingPackets.push(newPacket);
+	  mOutgoingPacketCache[mOutSequenceNext] = newPacket;
+	  mOutSequenceNext++;
     }
   }
   else
@@ -2554,10 +1668,9 @@ void Session::_buildOutgoingReliablePackets(Message* message)
     // Push the packet on our outgoing queue
     boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
-    mNewWindowPacketList.push_back(newPacket);
-
-	if(!++mOutSequenceNext)
-		_handleOutSequenceRollover();
+	mOutgoingPackets.push(newPacket);
+	mOutgoingPacketCache[mOutSequenceNext] = newPacket;
+	mOutSequenceNext++;
   }
   message->setPendingDelete(true);
 }
@@ -2603,8 +1716,8 @@ void Session::_addOutgoingReliablePacket(Packet* packet)
   boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
   // Set our last packet sent time index
-  packet->setTimeQueued(Anh_Utils::Clock::getSingleton()->getLocalTime());
-  mOutgoingReliablePacketQueue.push(packet); 
+  //packet->setTimeQueued(Anh_Utils::Clock::getSingleton()->getLocalTime());
+  mOutgoingPackets.push(packet); 
 
   //gLogger->logMsgF("ReliableQueueAdd: Type:0x%.4x, Session:0x%x%.4x", MSG_LOW, packet->getPacketType(), mService->getId(), getId());
 }
@@ -2617,24 +1730,9 @@ void Session::_addOutgoingUnreliablePacket(Packet* packet)
   boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
   // Set our last packet sent time index
-  packet->setTimeQueued(Anh_Utils::Clock::getSingleton()->getLocalTime());
-  mOutgoingUnreliablePacketQueue.push(packet);
+  mOutgoingPackets.push(packet);
 
   //gLogger->logMsgF("UnreliableQueueAdd: Type:0x%.4x, Session:0x%x%.4x", MSG_LOW, packet->getPacketType(), mService->getId(), getId());
-}
-
-
-//======================================================================================================================
-int8* Session::getAddressString(void)
-{
-  return inet_ntoa(*(struct in_addr *)&mAddress); 
-}
-
-
-//======================================================================================================================
-uint16 Session::getPortHost(void)
-{
-  return ntohs(mPort); 
 }
 
 //======================================================================================================================
@@ -2835,11 +1933,10 @@ void Session::_buildMultiDataPacket()
 	newPacket->setIsEncrypted(true);
 
 	boost::recursive_mutex::scoped_lock lk(mSessionMutex);
-	mNewWindowPacketList.push_back(newPacket);
-	
-	//sequence of packets uint16 +1 for every packet rollover from 0xffff to 0
-	if(!++mOutSequenceNext)
-		_handleOutSequenceRollover();
+
+	mOutgoingPackets.push(newPacket);
+	mOutgoingPacketCache[mOutSequenceNext] = newPacket;
+	mOutSequenceNext++;
 }
 
 //======================================================================
@@ -2851,7 +1948,7 @@ void Session::_buildRoutedMultiDataPacket()
 	Packet*		newPacket = mPacketFactory->CreatePacket();
 	Message*	message = 0;
 	
-	newPacket->addUint16(SESSIONOP_DataChannel2); //server server communication !!!!!
+	newPacket->addUint16(SESSIONOP_DataChannel1); //server server communication !!!!!
 	newPacket->addUint16(htons(mOutSequenceNext));
 	newPacket->addUint16(0x1900);
 	//newPacket->addUint8(0);
@@ -2891,11 +1988,9 @@ void Session::_buildRoutedMultiDataPacket()
 	newPacket->setIsEncrypted(true);
 
 	boost::recursive_mutex::scoped_lock lk(mSessionMutex);
-	mNewWindowPacketList.push_back(newPacket);
-
-	//sequence of packets uint16 +1 for every packet rollover from 0xffff to 0
-	if(!++mOutSequenceNext)
-		_handleOutSequenceRollover();
+	mOutgoingPackets.push(newPacket);
+	mOutgoingPacketCache[mOutSequenceNext] = newPacket;
+	mOutSequenceNext++;
 }
 
 //======================================================================
@@ -2938,19 +2033,44 @@ void Session::_buildUnreliableMultiDataPacket()
 
 //======================================================================================================================
 
-void Session::_handleOutSequenceRollover()
+bool Session::ValidatePacketCrc(Packet* packet)
 {
-	//rollover of the packet sequence from 0xffff to 0
-	gLogger->logMsgF("Session Sequence Rollover queuesize %u nextseqsent: %u Service %u",MSG_HIGH,mWindowPacketList.size(),mNextPacketSequenceSent,mService->getId());
-	mOutSequenceRollover = true;
+	uint32 packetCrc = mCompCryptor.GenerateCRC(packet->getData(), packet->getSize() - 2, getEncryptKey());
 	
-	mRolloverWindowPacketList = mWindowPacketList;
-	mNewRolloverWindowPacketList = mNewWindowPacketList;
-	
-	mWindowPacketList.clear();
-	mNewWindowPacketList.clear();
+	uint8 crcLow = (uint8)*(packet->getData() + (packet->getSize() - 1));
+	uint8 crcHigh = (uint8)*(packet->getData() + (packet->getSize() - 2));
+
+	if( crcLow != (uint8)packetCrc || crcHigh != (uint8)(packetCrc >> 8) )
+	{
+		gLogger->logMsg("*** Reliable Packet dropped. CRC mismatch.");
+		return false;
+	}
+
+	return true;
 }
 
 //======================================================================================================================
 
+void Session::DeCompCryptPacket(Packet* packet)
+{
 
+	mCompCryptor.Decrypt(packet->getData() + 2, packet->getSize() - 4, getEncryptKey());
+
+	Packet* decompressPacket = mPacketFactory->CreatePacket();
+	uint16 decompressLen = mCompCryptor.Decompress( packet->getData() + 2, packet->getSize() - 5, decompressPacket->getData()+2, decompressPacket->getMaxPayload() - 5);
+
+	if(decompressLen > 0)
+	{
+		packet->setIsCompressed(true);
+		memcpy( packet->getData()+2, decompressPacket->getData()+2, decompressPacket->getSize());
+	}
+	else
+	{
+		packet->setSize( packet->getSize() - 3 );
+	}
+
+	mPacketFactory->DestroyPacket(decompressPacket);
+
+}
+
+//======================================================================================================================

@@ -16,11 +16,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include "Utils/typedefs.h"
 
-#if defined(_MSC_VER)
-	#ifndef _WINSOCK2API_
-#include <WINSOCK2.h>
-	#endif
-#endif
 
 //======================================================================================================================
 
@@ -29,12 +24,25 @@ mServiceIdIndex(1)
 {
 	// for safety, in case someone forgot to init previously
 	LogManager::Init();
-	NetConfig::Init();
 }
 
 //======================================================================================================================
 
 NetworkManager::~NetworkManager(void)
+{
+
+}
+
+//======================================================================================================================
+
+void NetworkManager::Startup(void)
+{
+	NetConfig::Init();
+}
+
+//======================================================================================================================
+
+void NetworkManager::Shutdown(void)
 {
 }
 
@@ -56,11 +64,10 @@ void NetworkManager::Process(void)
 	
 		if(service)
 		{
-			service->Process();
 			service->setQueued(false);
+			service->Process();
 		}
-	}
-	
+	}	
 }
 
 
@@ -70,7 +77,9 @@ Service* NetworkManager::GenerateService(int8* address, uint16 port,uint32 mfHea
 {
 	Service* newService = 0;
 
-	newService = new Service(this, serverservice, mServiceIdIndex++, address, port,mfHeapSize);
+	newService = new Service(this, serverservice);
+	newService->setId(mServiceIdIndex++);
+	newService->Startup(address, port,mfHeapSize);
 	
 	return newService;
 }
@@ -79,6 +88,7 @@ Service* NetworkManager::GenerateService(int8* address, uint16 port,uint32 mfHea
 
 void NetworkManager::DestroyService(Service* service)
 {
+	service->Shutdown();
 	delete(service);
 }
 

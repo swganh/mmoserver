@@ -609,14 +609,8 @@ bool ObjectController::_updateInRangeObjectsOutside()
 
 						if(player->checkIfMountCalled() && player->getMount())
 						{
-							if(!player->getMount()->checkKnownObjects(object))
-							{
-								player->getMount()->addKnownObjectSafe(object);
-							}
-							if(!object->checkKnownObjects(player->getMount()))
-							{
-								object->addKnownObjectSafe(player->getMount());
-							}
+							player->getMount()->addKnownObjectSafe(object);
+							object->addKnownObjectSafe(player->getMount());
 						}
 						updatedObjects++;
 					}
@@ -632,14 +626,8 @@ bool ObjectController::_updateInRangeObjectsOutside()
 						//If player has a mount make sure add to its known objects
 						if(player->checkIfMountCalled() && player->getMount())
 						{
-							if(!player->getMount()->checkKnownObjects(object))
-							{
-								player->getMount()->addKnownObjectSafe(object);
-							}
-							if(!object->checkKnownObjects(player->getMount()))
-							{
-								object->addKnownObjectSafe(player->getMount());
-							}
+							player->getMount()->addKnownObjectSafe(object);
+							object->addKnownObjectSafe(player->getMount());
 						}
 					//}
 					updatedObjects++;
@@ -850,7 +838,7 @@ bool ObjectController::_destroyOutOfRangeObjects(ObjectSet *inRangeObjects)
 			// send a destroy to us
 			gMessageLib->sendDestroyObject(playerObject->getId(),player);
 
-			//If player is mounted destory his mout too
+			//If player is mounted destroy his mount too
 			if(playerObject->checkIfMounted() && playerObject->getMount())
 			{
 				gMessageLib->sendDestroyObject(playerObject->getMount()->getId(),player);

@@ -133,6 +133,8 @@ class OFAsyncContainer
 		uint64					DeedId;
 		uint64					OwnerId;
 		uint64					PlayerId;
+
+		Anh_Math::Vector3		coords;
 		
 };
 

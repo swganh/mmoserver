@@ -19,7 +19,7 @@ CreatureSpawnRegion::CreatureSpawnRegion() : mId(0)
 
 CreatureSpawnRegion::~CreatureSpawnRegion()
 {
-	gLogger->logMsgF("CreatureSpawnRegion::~CreatureSpawnRegion()\n", MSG_NORMAL);
+	gLogger->logMsgF("CreatureSpawnRegion::~CreatureSpawnRegion()", MSG_NORMAL);
 }
 
 

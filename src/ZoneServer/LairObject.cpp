@@ -292,7 +292,7 @@ uint64 LairObject::handleState(uint64 timeOverdue)
 
 		default:
 		{
-			gLogger->logMsgF("UNKNOWN state\n", MSG_NORMAL);
+			gLogger->logMsgF("UNKNOWN state", MSG_NORMAL);
 		}
 		break;
 

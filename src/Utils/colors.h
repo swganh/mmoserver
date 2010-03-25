@@ -13,7 +13,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #define SRC_UTILS_COLORS_H_
 
 // Color values
-#define SOE_GREEN "7ACC44"
-#define SOE_RED	  "E0634A"
+#define SOE_GREEN "32CD32"
+#define SOE_RED	  "FF6347"
 
 #endif  // SRC_UTILS_COLORS_H_

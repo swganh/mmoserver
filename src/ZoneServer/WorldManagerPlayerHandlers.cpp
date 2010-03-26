@@ -23,6 +23,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "CraftingSessionFactory.h"
 #include "CraftingTool.h"
 #include "CreatureSpawnRegion.h"
+#include "Datapad.h"
 #include "GroupManager.h"
 #include "GroupObject.h"
 #include "Heightmap.h"
@@ -34,6 +35,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "ResourceManager.h"
 #include "SchematicManager.h"
 #include "TreasuryManager.h"
+#include "Vehicle.h"
 #include "WorldConfig.h"
 #include "ZoneOpcodes.h"
 #include "ZoneServer.h"
@@ -221,6 +223,36 @@ void WorldManager::addDisconnectedPlayer(PlayerObject* playerObject)
 
 	// Halt the tutorial scripts, if running.
 	playerObject->stopTutorial();
+
+	/*
+	if(playerObject->checkIfMountCalled())
+	{
+		gLogger->logMsgF("Player(%"PRIu64")'s Mounts Known Objects ",MSG_NORMAL,playerObject->getId());
+		CreatureObject* cO = playerObject->getMount();
+		
+		ObjectSet* oS  = cO->getKnownObjects();
+		ObjectSet::iterator			objIt		= oS->begin();
+
+		// objects
+		while(objIt != oS->end())
+		{
+			uint64 id = (*objIt)->getId();
+			gLogger->logMsgF("(%"PRIu64")'",MSG_NORMAL,id);
+			
+		}
+	}
+	*/
+
+	Datapad* datapad = dynamic_cast<Datapad*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+
+	if(playerObject->getMount() && datapad)
+	{
+		if(Vehicle* datapad_pet = dynamic_cast<Vehicle*>(datapad->getDataById(playerObject->getMount()->getPetController())))
+		{
+			datapad_pet->dismountPlayer();
+			datapad_pet->store();
+		}
+	}
 
 	// Delete private owned spawned objects, like npc's in the Tutorial.
 	uint64 privateOwnedObjectId = ScriptSupport::Instance()->getObjectOwnedBy(playerObject->getId());

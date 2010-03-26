@@ -18,8 +18,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "PacketFactory.h"
 #include "Session.h"
 #include "SessionFactory.h"
-#include "SocketReadThread.h"
-#include "SocketWriteThread.h"
 
 #include "LogManager/LogManager.h"
 

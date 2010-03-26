@@ -158,15 +158,7 @@ void ObjectController::_handleStructurePlacement(uint64 targetId,Message* messag
 	{
 		//gMessageLib->sendSystemMessage(entertainer,L"","performance","flourish_not_performing");
 		return;
-	}
-	
-	if(!player->checkPlayerCustomFlag(PlayerCustomFlag_StructurePlacement))
-	{
-		gLogger->logMsgF("Player %I64u is not in StructurePlacement Mode",MSG_HIGH, player->getId());
-		return;
-
-	}
-	player->togglePlayerCustomFlagOff(PlayerCustomFlag_StructurePlacement);	
+	}	
 
 	//find out where our structure is
 	string dataStr;
@@ -865,9 +857,16 @@ void	ObjectController::_handleItemMoveForward(uint64 targetId,Message* message,O
 
 	//we somehow need to calculate the vector of the movement *away* from us
 	player->mDirection.normalize();
+	player->mPosition.normalize();
+	object->mPosition.normalize();
 	object->mPosition.mX -= (float)((1-player->mDirection.mX) * 0.10);
 	object->mPosition.mZ -= (float)(player->mDirection.mY * 0.10);
 	object->mPosition.mY -= (float)(player->mDirection.mZ * 0.10);
+    
+	//Anh_Math::Vector3 v3 = object->mPosition - player->mPosition;
+	//v3.normalize();
+	//object->mPosition += v3 * 0.1;
+	//object->mPosition.normalize();
 	
 	gMessageLib->sendDataTransformWithParent(object);
 	object->updateWorldPosition();

@@ -23,6 +23,7 @@ public:
   int8                  mBanned;
   int8                  mActive;
   uint32                mCharsAllowed;
+  int8					mCsr;
 };
 
 

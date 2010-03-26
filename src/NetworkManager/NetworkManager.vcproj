@@ -416,14 +416,6 @@
 				RelativePath=".\SessionFactory.cpp"
 				>
 			</File>
-			<File
-				RelativePath=".\SocketReadThread.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\SocketWriteThread.cpp"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -472,14 +464,6 @@
 			</File>
 			<File
 				RelativePath=".\Socket.h"
-				>
-			</File>
-			<File
-				RelativePath=".\SocketReadThread.h"
-				>
-			</File>
-			<File
-				RelativePath=".\SocketWriteThread.h"
 				>
 			</File>
 		</Filter>

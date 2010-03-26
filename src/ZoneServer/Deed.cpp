@@ -93,9 +93,12 @@ void Deed::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
 					//TODO
 					//check for city boundaries
-					player->togglePlayerCustomFlagOn(PlayerCustomFlag_StructurePlacement);	
+					//player->togglePlayerCustomFlagOn(PlayerCustomFlag_StructurePlacement);	
 
 					gMessageLib->sendEnterStructurePlacement(this,data->structureObjectString,player);
+					//sadly the client wont inform us when the player hit escape
+					
+					gStructureManager->UpdateCharacterLots(player->getId());
 
 				}
 			}

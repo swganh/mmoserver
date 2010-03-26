@@ -15,8 +15,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "LogManager/LogManager.h"
 
 
-
-
 //======================================================================================================================
 
 SessionFactory::SessionFactory(void) 
@@ -70,10 +68,12 @@ Session* SessionFactory::CreateSession(void)
 	session->setId(mSessionIdNext++);
 
 	session->setServerService(mServerService);
+
 	if(mServerService)
 	{
 		uint16 unreliable = gNetConfig->getServerServerUnReliableSize();
 		uint16 reliable = gNetConfig->getServerServerReliableSize();
+
 		if(reliable > MAX_SERVER_PACKET_SIZE)
 			reliable = MAX_SERVER_PACKET_SIZE;
 		if(unreliable > MAX_SERVER_PACKET_SIZE)
@@ -86,6 +86,7 @@ Session* SessionFactory::CreateSession(void)
 	{
 		uint16 unreliable = gNetConfig->getServerClientUnReliableSize();
 		uint16 reliable = gNetConfig->getServerClientReliableSize();
+
 		if(reliable > MAX_CLIENT_PACKET_SIZE)
 			reliable = MAX_CLIENT_PACKET_SIZE;
 		if(unreliable > MAX_CLIENT_PACKET_SIZE)
@@ -93,7 +94,6 @@ Session* SessionFactory::CreateSession(void)
 
 		session->setPacketSize(reliable);
 		session->setUnreliableSize(unreliable);
-
 	}
 
 	return session;
@@ -105,7 +105,6 @@ void SessionFactory::DestroySession(Session* session)
 {
 	session->~Session();
 	SessionPool::free(session);
-
 }
 
 //======================================================================================================================

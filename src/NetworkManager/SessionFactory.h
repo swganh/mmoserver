@@ -43,16 +43,15 @@ class SessionFactory
 	  Session*                      CreateSession(void);
 	  void                          DestroySession(Session* packet);
 
-	  Service*                      getService()                { return mService; }
+	  Service*                      getService() { return mService; }
 
 	private:
 
-	  bool							mServerService;//marks the service as server / client important to determine packetsize
+	  bool							mServerService; //marks the service as server / client important to determine packetsize
 	  Service*                      mService;
 	  PacketFactory*                mPacketFactory;
 	  MessageFactory*               mMessageFactory;
 	  uint32                        mSessionIdNext;
-		
 };
 
 

@@ -125,13 +125,6 @@ class Session
 	  uint64					  mLastPacketDestroyed;
 	  uint64					  mHash;
 
-	  //
-	  // DUMMY TEMP!
-	  //
-	  uint32		getAddress( void ) { return 0; }
-	  uint16		getPort( void ) { return 0; }
-
-
 private:
 	  void                        _processSessionRequestPacket(Packet* packet);
 	  void                        _processDisconnectPacket(Packet* packet);
@@ -191,7 +184,6 @@ private:
 	  MessageFactory*             mMessageFactory;
 	  // Anh_Utils::Clock*           mClock;
 	  
-
 	  uint32						mId;
 	  uint32						mEncryptKey;
 	  uint32						mRequestId;

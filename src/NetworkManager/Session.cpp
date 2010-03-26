@@ -18,8 +18,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Packet.h"
 #include "PacketFactory.h"
 #include "Service.h"
-#include "SocketReadThread.h"
-#include "SocketWriteThread.h"
 
 #include "LogManager/LogManager.h"
 
@@ -102,7 +100,7 @@ lowest(0)
 	mCompCryptor.Startup();
 
 }
-
+                         
 //======================================================================================================================
 
 Session::~Session(void)

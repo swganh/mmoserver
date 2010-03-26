@@ -13,6 +13,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "BuildingFactory.h"
 #include "CreatureFactory.h"
 #include "Deed.h"
+#include "Datapad.h"
 #include "CellObject.h"
 #include "DraftSchematic.h"
 #include "HarvesterFactory.h"
@@ -128,7 +129,9 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 	
 				//delete it out of the inventory
 				inventory->deleteObject(deed);
-	
+				
+				Datapad* thePad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+				thePad->requestNewWaypoint("Player House",asyncContainer->coords,gWorldManager->getPlanetIdByName(gWorldManager->getPlanetNameThis()),1);
 
 			}
 			
@@ -175,8 +178,9 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 	
 				//delete it out of the inventory
 				inventory->deleteObject(deed);
-	
 
+				Datapad* thePad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+				thePad->requestNewWaypoint("Player Factory",asyncContainer->coords,gWorldManager->getPlanetIdByName(gWorldManager->getPlanetNameThis()),1);
 			}
 			
 			// now we need to link the deed to the factory in the db and remove it out of the inventory in the db
@@ -221,7 +225,9 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 		
 					//delete it out of the inventory
 					inventory->deleteObject(deed);
-		
+
+					Datapad* thePad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+					thePad->requestNewWaypoint("Harvester",asyncContainer->coords,gWorldManager->getPlanetIdByName(gWorldManager->getPlanetNameThis()),1);
 
 				}
 				
@@ -392,6 +398,9 @@ void ObjectFactory::requestnewHarvesterbyDeed(ObjectFactoryCallback* ofCallback,
 	asyncContainer->DeedId = deed->getId();
 	asyncContainer->OwnerId = deed->getOwner();
 	asyncContainer->PlayerId = player->getId();
+	asyncContainer->coords.mX = x;
+	asyncContainer->coords.mY = y;
+	asyncContainer->coords.mZ = z;
 	int8 sql[512];
 	//sf_DefaultHarvesterCreate`(type_id INT(11),parent_id BIGINT(20),privateowner_id BIGINT(20),inPlanet INT,oX FLOAT,oY FLOAT,oZ FLOAT, oW FLOAT,inX FLOAT,inY FLOAT,inZ FLOAT,custom_name CHAR(255)) RETURNS bigint(20)
 
@@ -451,6 +460,9 @@ void ObjectFactory::requestnewFactorybyDeed(ObjectFactoryCallback* ofCallback,De
 	asyncContainer->DeedId = deed->getId();
 	asyncContainer->OwnerId = deed->getOwner();
 	asyncContainer->PlayerId = player->getId();
+	asyncContainer->coords.mX = x;
+	asyncContainer->coords.mY = y;
+	asyncContainer->coords.mZ = z;
 	int8 sql[512];
 	
 
@@ -506,6 +518,9 @@ void ObjectFactory::requestnewHousebyDeed(ObjectFactoryCallback* ofCallback,Deed
 	asyncContainer->DeedId = deed->getId();
 	asyncContainer->OwnerId = deed->getOwner();
 	asyncContainer->PlayerId = player->getId();
+	asyncContainer->coords.mX = x;
+	asyncContainer->coords.mY = y;
+	asyncContainer->coords.mZ = z;
 	int8 sql[512];
 	
 

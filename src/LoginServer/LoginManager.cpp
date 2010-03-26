@@ -69,20 +69,6 @@ void LoginManager::Process(void)
 	{
 		mLastStatusQuery = static_cast<uint32>(Anh_Utils::Clock::getSingleton()->getLocalTime());
 		mDatabase->ExecuteSqlAsync(this, (void*)1, "SELECT galaxy_id, name, address, port, pingport, population, status, UNIX_TIMESTAMP(last_update) FROM galaxy;");
-
-		if (mSendServerList)
-		{
-			LoginClientList::iterator iter = mLoginClientList.begin();
-
-			while(iter != mLoginClientList.end())
-			{
-				_sendServerStatus((*iter));
-
-				++iter;
-			}
-
-			mSendServerList = false;
-		}
 	}
 }
 
@@ -252,7 +238,7 @@ void LoginManager::_handleLoginClientId(LoginClient* client, Message* message)
 
   if (strlen(username.getAnsi()) == 0) //SessionID Login With ANH Launcher
   {
-	sprintf(sql,"SELECT account_id, username, password, station_id, banned, active,characters_allowed, session_key FROM account WHERE banned=0 AND authenticated=0 AND loggedin=0   AND session_key='");
+	sprintf(sql,"SELECT account_id, username, password, station_id, banned, active,characters_allowed, session_key, csr FROM account WHERE banned=0 AND authenticated=0 AND loggedin=0   AND session_key='");
 //	  sprintf(sql,"SELECT account_id, username, password, station_id, banned, active,characters_allowed, session_key FROM account WHERE banned=0 AND loggedin=0   AND session_key='");
 	sqlPointer = sql + strlen(sql);
 	sqlPointer += mDatabase->Escape_String(sqlPointer,password.getAnsi(),password.getLength());
@@ -263,7 +249,7 @@ void LoginManager::_handleLoginClientId(LoginClient* client, Message* message)
   {
 	  //the problem with the marked authentication is, that if a connection drops without a sessiondisconnect packet
 	  //the connection to the loginserver cannot be established anymore - need to have the sessiontimeout think of that
-	sprintf(sql,"SELECT account_id, username, password, station_id, banned, active,characters_allowed FROM account WHERE banned=0 AND authenticated=0 AND loggedin=0   AND username='");
+	sprintf(sql,"SELECT account_id, username, password, station_id, banned, active,characters_allowed,csr FROM account WHERE banned=0 AND authenticated=0 AND loggedin=0   AND username='");
 	//sprintf(sql,"SELECT account_id, username, password, station_id, banned, active,characters_allowed FROM account WHERE banned=0 AND loggedin=0   AND username='");
 	sqlPointer = sql + strlen(sql);
 	sqlPointer += mDatabase->Escape_String(sqlPointer,username.getAnsi(),username.getLength());
@@ -289,7 +275,7 @@ void LoginManager::_authenticateClient(LoginClient* client, DatabaseResult* resu
 
   // This DataBinding code I'm not sure where to put atm.  I've thought about a base class for any objects that want
   // DataBinding, but I don't want to go overboard on abstraction.  Any suggestions would be appreciated.  :)
-  DataBinding* binding = mDatabase->CreateDataBinding(7);
+  DataBinding* binding = mDatabase->CreateDataBinding(8);
   binding->addField(DFT_int64, offsetof(AccountData, mId), 8);
   binding->addField(DFT_string, offsetof(AccountData, mUsername), 32);
   binding->addField(DFT_string, offsetof(AccountData, mPassword), 64);
@@ -297,12 +283,14 @@ void LoginManager::_authenticateClient(LoginClient* client, DatabaseResult* resu
   binding->addField(DFT_uint8, offsetof(AccountData, mBanned), 1);
   binding->addField(DFT_uint8, offsetof(AccountData, mActive), 1);
   binding->addField(DFT_uint32,offsetof(AccountData, mCharsAllowed), 4);
+  binding->addField(DFT_uint8, offsetof(AccountData, mCsr), 1);
 
   if (result->getRowCount())
   {
     result->GetNextRow(binding, (void*)&data);
     client->setAccountId(data.mId);
 	  client->setCharsAllowed(data.mCharsAllowed);
+	  client->setCsr(data.mCsr);
 
     gLogger->logErrorF("login","void LoginManager::_authenticateClient Login: AccountId: %u Name: %s",MSG_NORMAL,data.mId,data.mUsername);
     _sendAuthSucceeded(client);
@@ -510,9 +498,15 @@ void LoginManager::_sendServerStatus(LoginClient* client)
     gMessageFactory->addUint32(0x00000cb2);
     gMessageFactory->addUint32(client->getCharsAllowed());
     gMessageFactory->addUint32(0xffff8f80);
-    gMessageFactory->addUint32((*iter)->mStatus);                     // server status 0=offline, 1=loading, 2=online, 3=locked
+    if((*iter)->mStatus==3 && client->getCsr()>0)// server status 0=offline, 1=loading, 2=online, 3=locked
+	{
+		gMessageFactory->addUint32(2);  
+	} else {
+		gMessageFactory->addUint32((*iter)->mStatus);  
+	}
     gMessageFactory->addUint8(0);
   }
+
 
   Message* message = gMessageFactory->EndMessage();
 
@@ -574,6 +568,20 @@ void LoginManager::_updateServerStatus(DatabaseResult* result)
 
   // Destroy our database object stuff thigns
   mDatabase->DestroyDataBinding(binding);
+
+	if (mSendServerList)
+	{
+		LoginClientList::iterator it = mLoginClientList.begin();
+
+		while(it != mLoginClientList.end())
+		{
+			_sendServerStatus((*it));
+
+			++it;
+		}
+
+		mSendServerList = false;
+	}
 }
 
 //======================================================================================================================

@@ -81,7 +81,71 @@ enum ui_window_types
 	SUI_Window_Pay_Maintenance									= 44,
 	SUI_Window_Deposit_Power									= 45,
 	SUI_Window_Structure_Status									= 46,
-	SUI_Window_Factory_Schematics								= 47
+	SUI_Window_Factory_Schematics								= 47,
+
+	//New CharBuilderTerminal Windows
+	SUI_Window_CharacterBuilder_ListBox_ExperienceMenu=48,
+	SUI_Window_CharacterBuilder_ListBox_CreditMenu=49,
+	SUI_Window_CharacterBuilder_ListBox_BuffMenu=50,
+	SUI_Window_CharacterBuilder_ListBox_ItemMenu=51,
+	SUI_Window_CharacterBuilder_ListBox_ResourceMenu=52,
+
+	//2nd level menus
+	SUI_Window_CharacterBuilder_ListBox_StructureMenu=53,
+	SUI_Window_CharacterBuilder_ListBox_FurnitureMenu=54,
+	SUI_Window_CharacterBuilder_ListBox_VehicleMenu=55,
+	SUI_Window_CharacterBuilder_ListBox_InstrumentMenu=56,
+	SUI_Window_CharacterBuilder_ListBox_ToolMenu=57,
+	SUI_Window_CharacterBuilder_ListBox_WeaponMenu=58,
+	SUI_Window_CharacterBuilder_ListBox_ArmorMenu=59,
+
+	//3rd level menus
+	//Structure
+	SUI_Window_CharacterBuilder_ListBox_FactoryMenu=60,
+	SUI_Window_CharacterBuilder_ListBox_HarvesterMenu=61,
+	SUI_Window_CharacterBuilder_ListBox_CampMenu=62,
+	SUI_Window_CharacterBuilder_ListBox_HouseMenu=63,
+	//Furniture
+	SUI_Window_CharacterBuilder_ListBox_RugMenu=64,
+	SUI_Window_CharacterBuilder_ListBox_PlantMenu=65,
+	SUI_Window_CharacterBuilder_ListBox_ElegantMenu=66,
+	SUI_Window_CharacterBuilder_ListBox_ModernMenu=67,
+	SUI_Window_CharacterBuilder_ListBox_PlainMenu=68,
+	SUI_Window_CharacterBuilder_ListBox_CheapMenu=69,
+	//Tools
+	SUI_Window_CharacterBuilder_ListBox_SurveyToolMenu=70,
+	SUI_Window_CharacterBuilder_ListBox_CraftingToolMenu=71,
+	//Weapons
+	SUI_Window_CharacterBuilder_ListBox_MeleeMenu=72,
+	SUI_Window_CharacterBuilder_ListBox_RangedMenu=73,
+	//Armor
+	SUI_Window_CharacterBuilder_ListBox_BoneArmorMenu=74,
+	SUI_Window_CharacterBuilder_ListBox_CompositeArmorMenu=75,
+	SUI_Window_CharacterBuilder_ListBox_UbeseArmorMenu=76,
+
+	//4th level menus
+	//Harvesters
+	SUI_Window_CharacterBuilder_ListBox_FloraMenu=77,
+	SUI_Window_CharacterBuilder_ListBox_GasMenu=78,
+	SUI_Window_CharacterBuilder_ListBox_ChemicalMenu=79,
+	SUI_Window_CharacterBuilder_ListBox_WaterMenu=80,
+	SUI_Window_CharacterBuilder_ListBox_MineralMenu=81,
+	//Houses
+	SUI_Window_CharacterBuilder_ListBox_GenericMenu=82,
+	SUI_Window_CharacterBuilder_ListBox_TatooineMenu=83,
+	//Melee Weapon
+	SUI_Window_CharacterBuilder_ListBox_OneHandSwordMenu=84,
+	SUI_Window_CharacterBuilder_ListBox_TwoHandSwordMenu=85,
+	SUI_Window_CharacterBuilder_ListBox_AxeMenu=86,
+	SUI_Window_CharacterBuilder_ListBox_BatonMenu=87,
+	SUI_Window_CharacterBuilder_ListBox_PolearmMenu=88,
+	SUI_Window_CharacterBuilder_ListBox_KnifeMenu=89,
+	//Ranged Weapon
+	SUI_Window_CharacterBuilder_ListBox_CarbineMenu=90,
+	SUI_Window_CharacterBuilder_ListBox_ThrownMenu=91,
+	SUI_Window_CharacterBuilder_ListBox_HeavyMenu=92,
+	SUI_Window_CharacterBuilder_ListBox_PistolMenu=93,
+	SUI_Window_CharacterBuilder_ListBox_RifleMenu=94
 
 };
 

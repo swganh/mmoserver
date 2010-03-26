@@ -111,8 +111,6 @@ mServerService(0)
 
 	gLogger->logMsgF("ConnectionServer %s",MSG_NORMAL,ConfigManager::getBuildString().c_str());
 	gLogger->logMsg("Welcome to your SWGANH Experience!");
-	
-	
 }
 
 //======================================================================================================================

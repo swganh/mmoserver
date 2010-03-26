@@ -162,7 +162,7 @@
 				AdditionalLibraryDirectories="&quot;$(SolutionDir)deps\boost\stage\lib&quot;;&quot;$(SolutionDir)deps\mysql\lib\opt&quot;;&quot;$(SolutionDir)deps\zlib\projects\visualc6\Win32_LIB_Release&quot;;&quot;$(SolutionDir)deps\zthread\Release&quot;"
 				GenerateManifest="false"
 				IgnoreDefaultLibraryNames=""
-				GenerateDebugInformation="false"
+				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"

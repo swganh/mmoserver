@@ -82,6 +82,7 @@ set "PROJECT_BASE=%~dp0"
 set BUILD_TYPE=debug
 set MSVC_VERSION=9.0
 set REBUILD=build
+set ALLHEIGHTMAPS=false
 set DBINSTALL=false
 set SKIPHEIGHTMAPS=false
 set DEPENDENCIESONLY=false
@@ -106,6 +107,7 @@ if "%~0" == "-h" (
     echo.
 
 	echo "    /builddeps                     Builds only the project dependencies"
+	echo "    /allheightmaps                 Downloads all of the heightmaps"
     echo "    /nohaltonerror                 Skips halting on errors"
 	echo "    /skipheightmaps                Skips downloading heightmap files"
     echo "    /nodbinstall                   Skips the database build process"
@@ -124,6 +126,10 @@ if "%~0" == "/clean" (
 if "%~0" == "/builddeps" (
 	  set DEPENDENCIESONLY=true
 ) 
+
+if "%~0" == "/allheightmaps" (
+	  set ALLHEIGHTMAPS=true
+)  
 
 if "%~0" == "/skipheightmaps" (
 	  set SKIPHEIGHTMAPS=true
@@ -279,18 +285,20 @@ if not exist "data\heightmaps" (
 	mkdir data\heightmaps
 )
 
-call :DOWNLOAD_HEIGHTMAP corellia
-call :DOWNLOAD_HEIGHTMAP dantooine
-call :DOWNLOAD_HEIGHTMAP dathomir
-call :DOWNLOAD_HEIGHTMAP endor
-call :DOWNLOAD_HEIGHTMAP lok
-call :DOWNLOAD_HEIGHTMAP naboo
-call :DOWNLOAD_HEIGHTMAP rori
-rem call :DOWNLOAD_HEIGHTMAP taanab
-call :DOWNLOAD_HEIGHTMAP talus
 call :DOWNLOAD_HEIGHTMAP tatooine
-call :DOWNLOAD_HEIGHTMAP yavin4
 
+if %ALLHEIGHTMAPS% == true (
+	call :DOWNLOAD_HEIGHTMAP corellia
+	call :DOWNLOAD_HEIGHTMAP dantooine
+	call :DOWNLOAD_HEIGHTMAP dathomir
+	call :DOWNLOAD_HEIGHTMAP endor
+	call :DOWNLOAD_HEIGHTMAP lok
+	call :DOWNLOAD_HEIGHTMAP naboo
+	call :DOWNLOAD_HEIGHTMAP rori
+	rem call :DOWNLOAD_HEIGHTMAP taanab
+	call :DOWNLOAD_HEIGHTMAP talus
+	call :DOWNLOAD_HEIGHTMAP yavin4
+)
 echo ** Checking data file dependencies complete **
 
 goto :eof

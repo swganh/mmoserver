@@ -132,11 +132,11 @@ void CharacterBuilderTerminal::InitStructures()
 
 	//BStringVector			mCampMenu;
 	mCampMenu.push_back("Basic Camp");
-	mCampMenu.push_back("Elite Camp");
+	mCampMenu.push_back("Field Base Camp");
 	mCampMenu.push_back("Improved Camp");
-	mCampMenu.push_back("Luxury Camp");
-	mCampMenu.push_back("Multi Camp");
-	mCampMenu.push_back("Quality Camp");
+	mCampMenu.push_back("HiTech Field Base Camp");
+	mCampMenu.push_back("Multiperson Camp");
+	mCampMenu.push_back("High Quality Camp");
 
 	//BStringVector			mHouseMenu;
 	mHouseMenu.push_back("Generic Houses");
@@ -252,11 +252,9 @@ void CharacterBuilderTerminal::InitVehicles()
 void CharacterBuilderTerminal::InitInstruments()
 {
 	mInstrumentMenu.push_back("Bandfill");
-	mInstrumentMenu.push_back("Drums");
-	mInstrumentMenu.push_back("Dual Wave Synth");
 	mInstrumentMenu.push_back("Fanfar");
-	mInstrumentMenu.push_back("Fizz");
-	mInstrumentMenu.push_back("Droopy Flute");
+	mInstrumentMenu.push_back("Fizzz");
+	mInstrumentMenu.push_back("Chidinkalu Horn");
 	mInstrumentMenu.push_back("Kloo Horn");
 	mInstrumentMenu.push_back("Mandoviol");
 	mInstrumentMenu.push_back("Nalargon");
@@ -1100,36 +1098,30 @@ void CharacterBuilderTerminal::_handleInstrumentMenu(PlayerObject* player, uint3
 		GiveItem(player,1316);
 		break;
 	case 1:
-		GiveItem(player,1325);
-		break;
-	case 2:
-		GiveItem(player,1326);
-		break;
-	case 3:
 		GiveItem(player,1318);
 		break;
-	case 4:
+	case 2:
 		GiveItem(player,1315);
 		break;
-	case 5:
+	case 3:
 		GiveItem(player,1317);
 		break;
-	case 6:
+	case 4:
 		GiveItem(player,1314);
 		break;
-	case 7:
+	case 5:
 		GiveItem(player,1323);
 		break;
-	case 8:
+	case 6:
 		GiveItem(player,1320);
 		break;
-	case 9:
+	case 7:
 		GiveItem(player,1319);
 		break;
-	case 10:
+	case 8:
 		GiveItem(player,1313);
 		break;
-	case 11:
+	case 9:
 		GiveItem(player,1322);
 		break;
 	default:break;

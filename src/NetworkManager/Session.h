@@ -89,7 +89,7 @@ class Session
 	  NetworkClient*              getClient(void)                                 { return mClient; }
 	  Service*                    getService(void)                                { return mService; }
 	  uint32                      getId(void)                                     { return mId; }
-	  int32                       getAddress(void)                                { return mAddress; }
+	  uint32                      getAddress(void)                                { return mAddress; }
 	  int8*                       getAddressString(void);
 	  uint16                      getPort(void)                                   { return mPort; }
 	  uint16                      getPortHost(void);
@@ -115,7 +115,7 @@ class Session
 	  void                        setPacketFactory(PacketFactory* factory)        { mPacketFactory = factory; }
 	  void                        setMessageFactory(MessageFactory* factory)      { mMessageFactory = factory; }
 	  void                        setId(uint32 id)                                { mId = id; }
-	  void                        setAddress(int32 address)						  { mAddress = address; }
+	  void                        setAddress(uint32 address)					  { mAddress = address; }
 	  void                        setPort(uint16 port)                            { mPort = port; }
 	  void                        setEncryptKey(uint32 key)                       { mEncryptKey = key; }
 	  void                        setStatus(SessionStatus status)                 { mStatus = status; }
@@ -190,7 +190,7 @@ private:
 	  
 
 	  uint32                      mId;
-	  int32                       mAddress;                 // stored in network order
+	  uint32                      mAddress;                 // stored in network order
 	  uint16                      mPort;                    // stored in network order
 	  uint32                      mEncryptKey;
 	  uint32                      mRequestId;

@@ -32,13 +32,16 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include <map>
 #include <vector>
 
-//#include "BuffManager.h"
 //======================================================================================================================
 
 #define	 gWorldManager	WorldManager::getSingletonPtr()
 
+//======================================================================================================================
+
 enum TangibleType;
-// forward declarations
+
+//======================================================================================================================
+
 class DispatchClient;
 class WMAsyncContainer;
 class Script;
@@ -51,6 +54,8 @@ class ZoneServer;
 class Ham;
 class Buff;
 class MissionObject;
+
+//======================================================================================================================
 
 namespace Anh_Utils
 {

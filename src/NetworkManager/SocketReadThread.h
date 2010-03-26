@@ -14,11 +14,11 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include "Utils/typedefs.h"
 
-//#include <boost/thread/mutex.hpp>
-#include <boost/thread/recursive_mutex.hpp>
+#include <boost/thread/mutex.hpp>
 #include <boost/thread/thread.hpp>
 #include <list>
 #include <map>
+
 	
 //======================================================================================================================
 
@@ -31,21 +31,23 @@ class Session;
 class Service;
 class Packet;
 
+//======================================================================================================================
+
 typedef std::list<Session*>			SessionList;
-typedef std::map<uint64,Session*>	AddressSessionMap;    //Hash based on IP and port we might consider adding other stuff with 
-														   //with a loginmanager to allow multiple clients per IP if so wihed
-                                                                  
-                                                                  
+typedef std::map<uint64,Session*>	AddressSessionMap;     
+				                                                                     
 typedef unsigned int SOCKET;                                      
+
+//======================================================================================================================
 
 class NewConnection
 {
 	public:
+
 	  int8              mAddress[256];
 	  uint16            mPort;
 	  Session*          mSession;
 };
-
 
 //======================================================================================================================
 
@@ -55,14 +57,14 @@ class SocketReadThread
 									SocketReadThread(SOCKET socket, SocketWriteThread* writeThread, Service* service,uint32 mfHeapSize, bool serverservice);
 									~SocketReadThread();
 
-	  virtual void                 run();
+	  virtual void					run();
 
 	  void                          NewOutgoingConnection(int8* address, uint16 port);
 	  void                          RemoveAndDestroySession(Session* session);
 
 	  NewConnection*                getNewConnectionInfo(void)  { return &mNewConnection; };
 	  bool                          getIsRunning(void)          { return mIsRunning; }
-	  void							requestExit(){ mExit = true; }
+	  void							requestExit()				{ mExit = true; }
 
 	protected:
 
@@ -86,18 +88,15 @@ class SocketReadThread
 
 	  uint32						mSessionResendWindowSize;
       boost::thread 				mThread;
-      boost::recursive_mutex        mSocketReadMutex;
+      boost::mutex					mSocketReadMutex;
 	  AddressSessionMap             mAddressSessionMap;
 	  
-	  std::vector<uint64>			DestroyList;
 	  bool							mExit;
-
 };
 
 //======================================================================================================================
 
 #endif //ANH_NETWORKMANAGER_SOCKETREADTHREAD_H
-
 
 
 

@@ -118,9 +118,9 @@ void CharacterBuilderTerminal::InitStructures()
 	mStructureMenu.push_back("Houses");
 
 	//BStringVector			mFactoryMenu;
-	mFactoryMenu.push_back("Clothing Factory");
+	mFactoryMenu.push_back("Wearables Factory");
 	mFactoryMenu.push_back("Food Factory");
-	mFactoryMenu.push_back("Item Factory");
+	mFactoryMenu.push_back("Equipment Factory");
 	mFactoryMenu.push_back("Structure Factory");
 	
 	//BStringVector			mHarvesterMenu;
@@ -145,24 +145,28 @@ void CharacterBuilderTerminal::InitStructures()
 	////Harvesters
 	//BStringVector			mFloraMenu;
 	mFloraMenu.push_back("Small");
-	mFloraMenu.push_back("Medium");
 	mFloraMenu.push_back("Heavy");
+	mFloraMenu.push_back("Medium");
 	//BStringVector			mGasMenu;
 	mGasMenu.push_back("Small");
-	mGasMenu.push_back("Medium");
 	mGasMenu.push_back("Heavy");
+	mGasMenu.push_back("Medium");
+	
 	//BStringVector			mChemicalMenu;
 	mChemicalMenu.push_back("Small");
-	mChemicalMenu.push_back("Medium");
 	mChemicalMenu.push_back("Heavy");
+	mChemicalMenu.push_back("Medium");
+	
 	//BStringVector			mWaterMenu;
 	mWaterMenu.push_back("Small");
-	mWaterMenu.push_back("Medium");
 	mWaterMenu.push_back("Heavy");
+	mWaterMenu.push_back("Medium");
+	
 	//BStringVector			mMineralMenu;
 	mMineralMenu.push_back("Small");
-	mMineralMenu.push_back("Medium");
 	mMineralMenu.push_back("Heavy");
+	mMineralMenu.push_back("Medium");
+	
 
 	////Houses
 	//BStringVector			mGenericMenu;
@@ -1223,12 +1227,6 @@ void CharacterBuilderTerminal::_handleHarvesterMenu(PlayerObject* playerObject, 
 		}
 		break;
 	case 4:
-		if(playerObject->isConnected())
-		{
-			gUIManager->createNewListBox(this,"handleGenericMenu","Generic","Select a category.",mGenericMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_GenericMenu);
-		}
-		break;
-	case 5:
 		if(playerObject->isConnected())
 		{
 			gUIManager->createNewListBox(this,"handleMineralMenu","Mineral","Select a category.",mMineralMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_MineralMenu);

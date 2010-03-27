@@ -191,7 +191,6 @@ void Vehicle::call()
 	gMessageLib->sendUpdateTransformMessage(mBody);
 
 
-
 	mOwner->setMountCalled(true);
 	
 	return;

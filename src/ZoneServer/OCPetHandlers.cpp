@@ -55,7 +55,7 @@ void ObjectController::_handleMount(uint64 targetId,Message* message,ObjectContr
 				if(Vehicle* vehicle = dynamic_cast<Vehicle*>(gWorldManager->getObjectById(pet->getPetController())))
 				{
 					//The /mount command can work up to 32m on live
-					if(vehicle->mPosition.distance2D(player->mPosition) <= 32)
+					if(vehicle->getBody()->mPosition.distance2D(player->mPosition.mX,player->mPosition.mZ) <= 32)
 					{
 						vehicle->mountPlayer();
 					}

@@ -1615,17 +1615,14 @@ void ObjectController::_BurstRun(uint64 targetId,Message* message,ObjectControll
 	// schedule execution
 	addEvent(new BurstRunEvent(now+(br_length*1000),now+(br_coolD*1000)),t*1000);
 	
-	//this sys message is messed up!!!
-	//gMessageLib->sendSystemMessage(player,L"","cbt_spam","burstrun_start");
+	//Send the burst run system message to the player
 	gMessageLib->sendSystemMessage(player,L"You run as hard as you can!");
 	
-	//not sure w
+	//Now send the burst run combat spam message to InRange
 	int8 s[256];
 	sprintf(s,"%s %s puts on a sudden burst of speed.",player->getFirstName().getAnsi(),player->getLastName().getAnsi());
 	BString bs(s);
 	bs.convert(BSTRType_Unicode16);
-	//gMessageLib->sendSystemMessageInRange(player,false,bs.getUnicode16());
-
-	gMessageLib->sendCombatSpam(player,player,0,"cbt_spam","burstrun_start",0,0,bs.getUnicode16());
+	gMessageLib->sendCombatSpam(player,player,0,"","",0,0,bs.getUnicode16());
 
 }

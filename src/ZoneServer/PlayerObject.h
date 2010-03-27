@@ -16,6 +16,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "EntertainerManager.h"
 #include "Stomach.h"
 #include "Trade.h"
+#include "MountObject.h"
 #include "PlayerEnums.h"
 #include "SurveyEvent.h"
 #include "SampleEvent.h"
@@ -266,8 +267,8 @@ class PlayerObject : public CreatureObject
 		bool				checkIfMounted() { return mMounted; }
 		void				setMounted(bool mounted) { mMounted = mounted; }
 
-		CreatureObject*		getMount() { return mMount; }
-		void				setMount(CreatureObject* mount) { mMount = mount; }
+		MountObject*		getMount() { return mMount; }
+		void				setMount(MountObject* mount) { mMount = mount; }
 
 		bool				checkIfMountCalled() { return mMountCalled; }
 		void				setMountCalled(bool mount_called) { mMountCalled = mount_called; }
@@ -401,7 +402,7 @@ class PlayerObject : public CreatureObject
 		BazaarTerminal*     mBazaarPoint;
 		DispatchClient*		mClient;
 		CraftingSession*	mCraftingSession;
-		CreatureObject*		mMount;
+		MountObject*		mMount;
 							
 		// Default cloningfacility if revive timer expires.
 		BuildingObject*		mNearestCloningFacility; 

@@ -13,6 +13,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #define ANH_ZONESERVER_VEHICLE_H
 
 #include "IntangibleObject.h"
+#include "MountObject.h"
 
 //Forward Declerations
 class IntangibleObject;
@@ -78,7 +79,7 @@ protected:
 	int					mInclineAcceleration;
 	int					mFlatAcceleration;
 	PlayerObject*		mOwner;
-	CreatureObject*		mBody;
+	MountObject*		mBody;
 	uint64				mBodyId;
 
 private:

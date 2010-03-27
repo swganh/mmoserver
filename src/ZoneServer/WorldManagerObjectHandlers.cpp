@@ -28,6 +28,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "GroupObject.h"
 #include "Heightmap.h"
 #include "MissionManager.h"
+#include "MountObject.h"
 #include "NpcManager.h"
 #include "NPCObject.h"
 #include "PlayerStructure.h"

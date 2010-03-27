@@ -13,6 +13,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "CreatureObject.h"
 #include "IntangibleObject.h"
 #include "PlayerObject.h"
+#include "MountObject.h"
 #include "Object.h"
 #include "WorldManager.h"
 #include "MessageLib/MessageLib.h"
@@ -132,7 +133,7 @@ void Vehicle::call()
 	// create the vehicle creature
 	gLogger->logMsgF("void Vehicle::call() create new body", MSG_HIGH);
 
-	mBody = new CreatureObject();
+	mBody = new MountObject();
 
 	string cust;
 	cust.initRawBSTR((int8*)Swoop_Customization,BSTRType_ANSI);

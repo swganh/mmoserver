@@ -48,7 +48,9 @@ typedef std::tr1::shared_ptr<RadialMenu>	RadialMenuPtr;
 // typedef std::vector<uint64>				ObjectIDList;
 typedef std::list<uint64>				ObjectIDList;
 typedef std::set<Object*>				ObjectSet;
+typedef std::set<uint64>				ObjectIDSet;
 typedef std::set<PlayerObject*>			PlayerObjectSet;
+typedef std::set<uint64>			PlayerObjectIDSet;
 typedef std::list<uint32>				AttributeOrderList;
 
 //=============================================================================
@@ -184,6 +186,7 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 		AttributeMap 				mInternalAttributeMap;
 		ObjectSet					mKnownObjects;
 		PlayerObjectSet				mKnownPlayers;
+		ObjectIDSet					mKnownObjectsIDs;
 		ObjectController			mObjectController;
 		string						mModel;
 

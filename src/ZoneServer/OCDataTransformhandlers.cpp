@@ -609,8 +609,11 @@ bool ObjectController::_updateInRangeObjectsOutside()
 
 						if(player->checkIfMountCalled() && player->getMount())
 						{
-							player->getMount()->addKnownObjectSafe(object);
-							object->addKnownObjectSafe(player->getMount());
+							if(player->getMount()->getId() != object->getId())
+							{
+								player->getMount()->addKnownObjectSafe(object);
+								object->addKnownObjectSafe(player->getMount());
+							}
 						}
 						updatedObjects++;
 					}
@@ -626,8 +629,11 @@ bool ObjectController::_updateInRangeObjectsOutside()
 						//If player has a mount make sure add to its known objects
 						if(player->checkIfMountCalled() && player->getMount())
 						{
-							player->getMount()->addKnownObjectSafe(object);
-							object->addKnownObjectSafe(player->getMount());
+							if(player->getMount()->getId() != object->getId())
+							{
+								player->getMount()->addKnownObjectSafe(object);
+								object->addKnownObjectSafe(player->getMount());
+							}
 						}
 					//}
 					updatedObjects++;

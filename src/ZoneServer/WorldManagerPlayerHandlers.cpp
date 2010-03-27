@@ -9,6 +9,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
+#include "MountObject.h"
 #include "PlayerObject.h"
 #include "WorldManager.h"
 #include "AdminManager.h"
@@ -228,9 +229,9 @@ void WorldManager::addDisconnectedPlayer(PlayerObject* playerObject)
 	if(playerObject->checkIfMountCalled())
 	{
 		gLogger->logMsgF("Player(%"PRIu64")'s Mounts Known Objects ",MSG_NORMAL,playerObject->getId());
-		CreatureObject* cO = playerObject->getMount();
+		MountObject* mO = playerObject->getMount();
 		
-		ObjectSet* oS  = cO->getKnownObjects();
+		ObjectSet* oS  = mO->getKnownObjects();
 		ObjectSet::iterator			objIt		= oS->begin();
 
 		// objects
@@ -238,10 +239,11 @@ void WorldManager::addDisconnectedPlayer(PlayerObject* playerObject)
 		{
 			uint64 id = (*objIt)->getId();
 			gLogger->logMsgF("(%"PRIu64")'",MSG_NORMAL,id);
+			objIt++;
 			
 		}
 	}
-	*/
+	  */
 
 	Datapad* datapad = dynamic_cast<Datapad*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
 
@@ -249,8 +251,8 @@ void WorldManager::addDisconnectedPlayer(PlayerObject* playerObject)
 	{
 		if(Vehicle* datapad_pet = dynamic_cast<Vehicle*>(datapad->getDataById(playerObject->getMount()->getPetController())))
 		{
-			datapad_pet->dismountPlayer();
-			datapad_pet->store();
+			//datapad_pet->dismountPlayer();
+			//datapad_pet->store();
 		}
 	}
 

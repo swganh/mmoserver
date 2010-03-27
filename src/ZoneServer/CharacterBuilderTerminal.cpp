@@ -272,7 +272,7 @@ void CharacterBuilderTerminal::InitTools()
 	mSurveyToolMenu.push_back("Gas");
 	mSurveyToolMenu.push_back("Flora");
 	mSurveyToolMenu.push_back("Moisture");
-	mSurveyToolMenu.push_back("Liquid");
+	mSurveyToolMenu.push_back("Chemical");
 	mSurveyToolMenu.push_back("Solar");
 	mSurveyToolMenu.push_back("Mineral");
 	mSurveyToolMenu.push_back("Organic");

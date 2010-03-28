@@ -79,6 +79,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
+				AdditionalDependencies="psapi.lib"
 				OutputFile="&quot;$(SolutionDir)build-aux\$(ConfigurationName)\$(ProjectName)\$(ProjectName).lib&quot;"
 				AdditionalLibraryDirectories=""
 				IgnoreDefaultLibraryNames=""
@@ -438,6 +439,14 @@
 			</File>
 			<File
 				RelativePath=".\lockfree_queue.h"
+				>
+			</File>
+			<File
+				RelativePath=".\mdump.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\mdump.h"
 				>
 			</File>
 			<File

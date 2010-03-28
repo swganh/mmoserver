@@ -25,6 +25,10 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "ConfigManager/ConfigManager.h"
 #include "Utils/utils.h"
 
+#if !defined(_DEBUG) && defined(_WIN32)
+#include "Utils/mdump.h"
+#endif
+
 #include <boost/thread/thread.hpp>
 
 //======================================================================================================================
@@ -128,6 +132,11 @@ void handleExit(void)
 //======================================================================================================================
 int main(int argc, char* argv[])
 {
+	// In release mode, catch any unhandled exceptions that may cause the program to crash and create a dump report.
+#if !defined(_DEBUG) && defined(_WIN32)
+	SetUnhandledExceptionFilter(CreateMiniDump);
+#endif
+
   bool exit = false;
 
   // init our logmanager singleton,set global level normal, create the default log with normal priority, output to file + console, also truncate

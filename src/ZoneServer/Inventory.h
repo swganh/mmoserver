@@ -43,11 +43,6 @@ class Inventory : public TangibleObject
 		uint32			getObjectLoadCounter(){ return mObjectLoadCounter; }
 		void			setObjectLoadCounter(uint32 count){ mObjectLoadCounter = count; }
 
-		ObjectList*		getEquippedObjects(){ return &mEquippedObjects; }
-		void			addEquippedObject(Object* object){ mEquippedObjects.push_back(object); }
-		void			removeEquippedObject(Object* object);
-		void			deleteEquippedObject(Object* object);
-
 		int32			getCredits(){ return mCredits; }
 		void			setCredits(int32 credits){ mCredits = credits; }
 		bool			updateCredits(int32 amount);
@@ -59,10 +54,6 @@ class Inventory : public TangibleObject
 
 		virtual bool	checkCapacity(uint8 amount, PlayerObject* player = NULL, bool sendMsg = true);
 
-		bool			unEquipItem(Object* object);
-		bool			EquipItem(Object* object);
-		bool			EquipItemTest(Object* object);
-
 		void			getUninsuredItems(SortedInventoryItemList* insuranceList);
 		void			getInsuredItems(SortedInventoryItemList* insuranceList);
 		bool			itemExist(uint32 familyId, uint32 typeId);
@@ -72,10 +63,6 @@ class Inventory : public TangibleObject
 		CreatureObject*		mParent;
 		uint32				mObjectLoadCounter;
 		
-
-		ObjectIDList		mEquippedObjectIDs;
-
-		ObjectList			mEquippedObjects;
 		int32				mCredits;
 		uint8				mMaxSlots;
 };

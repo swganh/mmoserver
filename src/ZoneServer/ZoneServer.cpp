@@ -57,6 +57,10 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "ConfigManager/ConfigManager.h"
 #include "Utils/utils.h"
 
+#if !defined(_DEBUG) && defined(_WIN32)
+#include "Utils/mdump.h"
+#endif
+
 #include <boost/thread/thread.hpp>
 
 //======================================================================================================================
@@ -321,7 +325,11 @@ void ZoneServer::_connectToConnectionServer(void)
 //======================================================================================================================
 
 int main(int argc, char* argv[])
-{
+{	
+#if !defined(_DEBUG) && defined(_WIN32)
+	SetUnhandledExceptionFilter(CreateMiniDump);
+#endif
+
 	// The second argument on the command line should be the zone name.
 	//OnlyInstallUnhandeldExceptionFilter(); // Part of stackwalker
 	char zone[50];

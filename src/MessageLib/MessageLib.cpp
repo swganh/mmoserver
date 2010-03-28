@@ -300,7 +300,7 @@ bool MessageLib::sendEquippedItems(PlayerObject* srcObject,PlayerObject* targetO
 	if(!_checkPlayer(targetObject))
 		return(false);
 
-	ObjectList*				invObjects		= dynamic_cast<Inventory*>(srcObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getEquippedObjects();
+	ObjectList*				invObjects		= srcObject->getEquipManager()->getEquippedObjects();
 	ObjectList::iterator	invObjectsIt	= invObjects->begin();
 
 	while(invObjectsIt != invObjects->end())
@@ -1073,7 +1073,7 @@ void MessageLib::sendInventory(PlayerObject* playerObject)
 
 	sendEndBaselines(inventory->getId(),playerObject);
 
-	ObjectList* invEquippedObjects		= inventory->getEquippedObjects();
+	ObjectList* invEquippedObjects		= playerObject->getEquipManager()->getEquippedObjects();
 	ObjectList::iterator objEIt			= invEquippedObjects->begin();
 
 	while(objEIt != invEquippedObjects->end())

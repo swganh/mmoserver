@@ -54,7 +54,15 @@ void ObjectController::_handleMount(uint64 targetId,Message* message,ObjectContr
 
 				if(Vehicle* vehicle = dynamic_cast<Vehicle*>(gWorldManager->getObjectById(pet->getPetController())))
 				{
-					vehicle->mountPlayer();
+					//The /mount command can work up to 32m on live
+					if(vehicle->getBody()->mPosition.distance2D(player->mPosition.mX,player->mPosition.mZ) <= 32)
+					{
+						vehicle->mountPlayer();
+					}
+					else
+					{
+						gMessageLib->sendSystemMessage(player,L"Your target is too far away to mount.");
+					}
 				}
 				else
 				{

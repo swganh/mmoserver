@@ -23,7 +23,7 @@ class Object;
 class QTRegion;
 
 typedef std::vector<int64>		ObjectIdList;
-typedef std::vector<Object*>	ObjectList;
+typedef std::list<Object*>	ObjectList;
 
 //======================================================================================================================
 

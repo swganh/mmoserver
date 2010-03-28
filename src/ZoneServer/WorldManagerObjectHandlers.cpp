@@ -28,6 +28,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "GroupObject.h"
 #include "Heightmap.h"
 #include "MissionManager.h"
+#include "MountObject.h"
 #include "NpcManager.h"
 #include "NPCObject.h"
 #include "PlayerStructure.h"
@@ -456,6 +457,7 @@ void WorldManager::destroyObject(Object* object)
 	{
 		case ObjType_Player:
 		{
+			//destroys knownObjects in the destructor
 			PlayerObject* player = dynamic_cast<PlayerObject*>(object);
 
 			// moved most of the code to the players destructor
@@ -586,8 +588,6 @@ void WorldManager::destroyObject(Object* object)
 					mSpatialIndex->RemoveRegion(object->getId(),object->mPosition.mX-building->getWidth(),object->mPosition.mZ-building->getHeight(),object->mPosition.mX+building->getWidth(),object->mPosition.mZ+building->getHeight());
 				}
 
-				object->destroyKnownObjects();
-
 				//remove it out of the worldmanagers structurelist now that it is deleted
 				ObjectIDList::iterator itStruct = mStructureList.begin();
 				while(itStruct != mStructureList.end())
@@ -599,13 +599,18 @@ void WorldManager::destroyObject(Object* object)
 				}
 			
 			}
+			else
+				gLogger->logMsgF("WorldManager::destroyObject: nearly did not remove: %"PRIu64"s knownObjectList",MSG_HIGH,object->getId());
 
+
+			object->destroyKnownObjects();
 		}
 		break;
 
 		case ObjType_Cell:
 		{
-
+			//a cell shouldnt have knownobjects ... -that should be checked to make sure it is true
+			object->destroyKnownObjects();
 		}
 		break;
 
@@ -637,13 +642,13 @@ void WorldManager::destroyObject(Object* object)
 					}
 				}
 
-				// destroy known objects
-				object->destroyKnownObjects();
 			}
 			else
 			{
 				gLogger->logMsgF("WorldManager::destroyObject: error removing : %"PRIu64"",MSG_HIGH,object->getId());
 			}
+			// destroy known objects
+			object->destroyKnownObjects();
 		}
 		break;
 
@@ -680,6 +685,9 @@ void WorldManager::destroyObject(Object* object)
 			// intangibles are controllers / pets in the datapad
 			// they are NOT in the world
 
+			//we really shouldnt have any of thoose
+			object->destroyKnownObjects();
+
 		}
 		break;
 
@@ -694,7 +702,7 @@ void WorldManager::destroyObject(Object* object)
 		break;
 	}
 
-	//object->destroyKnownObjects();
+	object->destroyKnownObjects();
 
 
 	// finally delete it
@@ -808,13 +816,11 @@ void WorldManager::initObjectsInRange(PlayerObject* playerObject)
 		}
 		else
 		{
-			if(!playerObject->checkKnownObjects(object))
-			{
-				gMessageLib->sendCreateObject(object,playerObject);
+			gMessageLib->sendCreateObject(object,playerObject);
 				
-				object->addKnownObjectSafe(playerObject);
-				playerObject->addKnownObjectSafe(object);
-			}
+			object->addKnownObjectSafe(playerObject);
+			playerObject->addKnownObjectSafe(object);
+			
 		}
 		++it;
 	}

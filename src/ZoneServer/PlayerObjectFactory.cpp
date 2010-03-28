@@ -811,11 +811,6 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
 		gWorldManager->addObject(item,true);
 
 		playerObject->mEquipManager.addEquippedObject(item);
-
-		Inventory* inventory = dynamic_cast<Inventory*>(playerObject->mEquipManager.getEquippedObject(CreatureEquipSlot_Inventory));
-
-		inventory->addEquippedObject(item);
-
 	}
 	else
 	{
@@ -835,7 +830,7 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
 		}
 
 		// init equip counter
-		playerObject->mEquipManager.resetEquippedObjectsUpdateCounter();
+		playerObject->mEquipManager.setEquippedObjectsUpdateCounter(0);
 
 		mIlc->mOfCallback->handleObjectReady(playerObject,mIlc->mClient);
 

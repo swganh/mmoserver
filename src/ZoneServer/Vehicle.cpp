@@ -13,6 +13,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "CreatureObject.h"
 #include "IntangibleObject.h"
 #include "PlayerObject.h"
+#include "MountObject.h"
 #include "Object.h"
 #include "WorldManager.h"
 #include "MessageLib/MessageLib.h"
@@ -87,10 +88,7 @@ void Vehicle::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 //handles the radial selection
 void Vehicle::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount)
 {
-	RadialMenu* radial = new RadialMenu();
-
-	radial->addItem(1,0,radId_examine,radAction_Default);
-	radial->addItem(2,0,radId_itemDestroy,radAction_Default);
+	RadialMenu* radial = new RadialMenu();	
 
 	if(mBody)
 	{
@@ -100,6 +98,9 @@ void Vehicle::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 item
 	{
 		radial->addItem(3,0,radId_vehicleGenerate,radAction_ObjCallback,"@pet/pet_menu:menu_call");
 	}
+
+	radial->addItem(1,0,radId_examine,radAction_Default);
+	radial->addItem(2,0,radId_itemDestroy,radAction_Default);
 
 	mRadialMenu = RadialMenuPtr(radial);
 
@@ -132,7 +133,7 @@ void Vehicle::call()
 	// create the vehicle creature
 	gLogger->logMsgF("void Vehicle::call() create new body", MSG_HIGH);
 
-	mBody = new CreatureObject();
+	mBody = new MountObject();
 
 	string cust;
 	cust.initRawBSTR((int8*)Swoop_Customization,BSTRType_ANSI);
@@ -171,9 +172,10 @@ void Vehicle::call()
 	// vehicle.x = player.x + (distance * cos(player.heading * RADIANT))
 	// vehicle.z = player.z + (distance * sin(player.heading * RADIANT))
 
-	mBody->mPosition.mX = mOwner->mPosition.mX + 2;
-	mBody->mPosition.mY = mOwner->mPosition.mY;
-	mBody->mPosition.mZ = mOwner->mPosition.mZ + 2;
+	//QA says mounts spawn on top of the player
+	mBody->mPosition.mX = mOwner->mPosition.mX;// + 2;
+	mBody->mPosition.mY = mOwner->mPosition.mY + 0.3f;
+	mBody->mPosition.mZ = mOwner->mPosition.mZ;// + 2;
 
 	// add to world
 	if(!gWorldManager->addObject(mBody))
@@ -187,7 +189,6 @@ void Vehicle::call()
 
 	//gMessageLib->sendOwnerUpdateCreo3(mOwner);
 	gMessageLib->sendUpdateTransformMessage(mBody);
-
 
 
 	mOwner->setMountCalled(true);

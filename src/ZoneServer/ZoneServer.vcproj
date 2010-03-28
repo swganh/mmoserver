@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="ZoneServer"
 	ProjectGUID="{003C0A20-ACBE-498D-A674-3938FF4AF5AB}"
 	RootNamespace="Zoneserver"
@@ -173,7 +173,7 @@
 				AdditionalLibraryDirectories="&quot;$(SolutionDir)deps\boost\stage\lib&quot;;&quot;$(SolutionDir)deps\lua\lib&quot;;&quot;$(SolutionDir)deps\mysql\lib\opt&quot;;&quot;$(SolutionDir)deps\noise\win32\Release&quot;;&quot;$(SolutionDir)deps\spatialindex\Release&quot;;&quot;$(SolutionDir)deps\tolua++\win32\vc9\withLua51_Release&quot;;&quot;$(SolutionDir)deps\zlib\projects\visualc6\Win32_LIB_Release&quot;;&quot;$(SolutionDir)deps\zthread\Release&quot;"
 				GenerateManifest="false"
 				IgnoreDefaultLibraryNames=""
-				GenerateDebugInformation="false"
+				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
@@ -291,6 +291,14 @@
 					</File>
 					<File
 						RelativePath=".\CreatureObject.h"
+						>
+					</File>
+					<File
+						RelativePath=".\MountObject.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\MountObject.h"
 						>
 					</File>
 					<Filter

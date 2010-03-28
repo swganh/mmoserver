@@ -533,7 +533,7 @@ bool MessageLib::sendBaselinesCREO_6(CreatureObject* creatureObject,PlayerObject
 	eqIt = equippedObjects->begin();
 
 	mMessageFactory->addUint32(equippedObjects->size());
-	creatureObject->getEquipManager()->resetEquippedObjectsUpdateCounter();
+	creatureObject->getEquipManager()->setEquippedObjectsUpdateCounter(0);
 	mMessageFactory->addUint32(creatureObject->getEquipManager()->getEquippedObjectsUpdateCounter());
 
 	while(eqIt != equippedObjects->end())

@@ -15,6 +15,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "CreatureSpawnRegion.h"
 #include "HarvesterFactory.h"
 #include "FactoryFactory.h"
+#include "GroupObject.h"
+#include "GroupManager.h"
 #include "HouseFactory.h"
 #include "ObjectFactory.h"
 #include "DatabaseManager/Database.h"
@@ -680,7 +682,28 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				{
 					if(asyncContainer->mBool)
 					{
-						destroyObject(asyncContainer->mObject);
+						PlayerObject* playerObject = dynamic_cast<PlayerObject*>(asyncContainer->mObject);
+						//delete the old char
+						
+						//remove the player out of his group - if any
+						GroupObject* group = gGroupManager->getGroupObject(playerObject->getGroupId());
+						if(group)
+						{
+							if(playerObject->getIDPartner() != 0)
+							{
+								if(PlayerObject* idPartner = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerObject->getIDPartner())))
+								{
+									idPartner->SetImageDesignSession(IDSessionNONE);
+									idPartner->setIDPartner(0);
+									playerObject->SetImageDesignSession(IDSessionNONE);
+									playerObject->setIDPartner(0);
+								}
+
+							}
+							group->removePlayer(playerObject->getId());
+						}
+
+						destroyObject(playerObject);
 
 						//are we to load a new character???
 						if(asyncContainer->mLogout == WMLogOut_Char_Load)

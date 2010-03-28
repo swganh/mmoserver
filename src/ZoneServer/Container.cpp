@@ -21,7 +21,7 @@ Container::Container() : TangibleObject(), mParent(NULL)
 
 	mTanGroup = TanGroup_Container;
 	mObjectLoadCounter = 1000;
-	mObjects.reserve(80);
+	//mObjects.reserve(80);
 }
 
 //=============================================================================

@@ -380,6 +380,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\mdump.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\rand.cpp"
 				>
 			</File>
@@ -439,10 +443,6 @@
 			</File>
 			<File
 				RelativePath=".\lockfree_queue.h"
-				>
-			</File>
-			<File
-				RelativePath=".\mdump.cpp"
 				>
 			</File>
 			<File

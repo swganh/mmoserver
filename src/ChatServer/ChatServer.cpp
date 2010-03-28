@@ -37,6 +37,10 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include "Utils/utils.h"
 
+#if !defined(_DEBUG) && defined(_WIN32)
+#include "Utils/mdump.h"
+#endif
+
 #include <boost/thread/thread.hpp>
 
 #include <cstring>
@@ -222,6 +226,11 @@ void handleExit()
 
 int main(int argc, char* argv[])
 {
+	// In release mode, catch any unhandled exceptions that may cause the program to crash and create a dump report.
+#if !defined(_DEBUG) && defined(_WIN32)
+	SetUnhandledExceptionFilter(CreateMiniDump);
+#endif
+
 	bool exit = false;
 
 	LogManager::Init(G_LEVEL_NORMAL, "ChatServer.log", LEVEL_NORMAL, true, true);

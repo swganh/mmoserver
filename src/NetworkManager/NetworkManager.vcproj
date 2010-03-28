@@ -462,10 +462,6 @@
 				RelativePath=".\SessionFactory.h"
 				>
 			</File>
-			<File
-				RelativePath=".\Socket.h"
-				>
-			</File>
 		</Filter>
 	</Files>
 	<Globals>

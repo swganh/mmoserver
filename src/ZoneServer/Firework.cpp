@@ -281,7 +281,7 @@ void FireworkShow::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
 void FireworkShow::handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window)
 {
-	if (action==1)
+	/*if (action==1)
 	{
 		return;
 	}
@@ -313,7 +313,7 @@ void FireworkShow::handleUIEvent(uint32 action,int32 element,string inputStr,UIW
 				Item* item = dynamic_cast<Item*>(_getInventoryFireworks(window->getOwner())->at(element));
 				gLogger->logMsgF("Firework added: element:%i, customname:%s",MSG_NORMAL,element,item->getCustomName().getAnsi());
 				dynamic_cast<Firework*>(item)->setDelay(1000);
-				objList->push_back(item);	*/			
+				objList->push_back(item);	*/	/*		
 
 			}
 		}
@@ -345,6 +345,7 @@ void FireworkShow::handleUIEvent(uint32 action,int32 element,string inputStr,UIW
 		break;	
 		default:break;
 	}
+	*/
 }
 
 void FireworkShow::handleUIEvent(string strAvailable, string strDelay, UIWindow* window)

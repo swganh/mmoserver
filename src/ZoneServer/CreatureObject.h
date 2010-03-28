@@ -31,7 +31,7 @@ typedef std::map<uint32,void*>			SkillCommandMap;
 typedef std::pair<uint32,int32>			FactionPoints;
 typedef std::vector<FactionPoints>		FactionList;
 typedef std::vector<CreatureObject*>	CreatureList;
-typedef std::vector<Object*>			ObjectList;
+typedef std::list<Object*>				ObjectList;
 typedef std::list<Buff*>				BuffList;
 
 //=============================================================================

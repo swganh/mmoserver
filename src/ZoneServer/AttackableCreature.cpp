@@ -119,8 +119,8 @@ void AttackableCreature::prepareCustomRadialMenu(CreatureObject* creatureObject,
 	else
 	{
 		// gLogger->logMsgF("AttackableCreature::prepareCustomRadialMenu Creature is alive", MSG_NORMAL);
-		if(creatureObject->checkSkill(31) /*&& this->hasAttribute("res_milk")*/)
-			mRadialMenu->addItem(5,0,radId_diceFourFace, radAction_ObjCallback, "milk_me");
+		if(creatureObject->checkSkill(31) /*&& this->hasAttribute("res_milk")*/ && !creatureObject->checkState(CreatureState_Combat))
+			mRadialMenu->addItem(5,0,radId_serverMenu5, radAction_ObjCallback, "Collect Milk");
 	}
 }
 
@@ -308,7 +308,7 @@ void AttackableCreature::handleObjectMenuSelect(uint8 messageType,Object* srcObj
 			case radId_diceThreeFace: //HARVESTING OF BONE!
 				gScoutManager->handleHarvestCorpse(playerObject, this, HARVEST_BONE);
 				break;
-			case radId_diceFourFace: //MILKING!
+			case radId_serverMenu5: //MILKING!
 				gMessageLib->sendSystemMessage(playerObject,L"YOU TRIED TO MILK ME! WHY I OUTTA!");
 				break;
 

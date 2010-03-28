@@ -30,8 +30,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 class NetworkClient;
 class Service;
-class SocketReadThread;
-class SocketWriteThread;
 class PacketFactory;
 class MessageFactory;
 class Packet;
@@ -103,8 +101,6 @@ class Session
 
 	  void                        setClient(NetworkClient* client)                { mClient = client; }
 	  void                        setService(Service* service)                    { mService = service; }
-	  void                        setSocketReadThread(SocketReadThread* thread)   { mSocketReadThread = thread; }
-	  void                        setSocketWriteThread(SocketWriteThread* thread) { mSocketWriteThread = thread; }
 	  void                        setPacketFactory(PacketFactory* factory)        { mPacketFactory = factory; }
 	  void                        setMessageFactory(MessageFactory* factory)      { mMessageFactory = factory; }
 	  void                        setId(uint32 id)                                { mId = id; }
@@ -112,15 +108,13 @@ class Session
 	  void                        setEncryptKey(uint32 key)                       { mEncryptKey = key; }
 	  void                        setStatus(SessionStatus status)                 { mStatus = status; }
 	  void                        setCommand(SessionCommand command)              { mCommand = command; }
-	  void                        setInOutgoingQueue(bool in)                     { mInOutgoingQueue = in; }
-	  void                        setInIncomingQueue(bool in)                     { mInIncomingQueue = in; }
 	  void                        setPacketSize(uint16 size)					  { mMaxPacketSize = size;}
 	  void                        setUnreliableSize(uint16 size)				  { mMaxUnreliableSize = size;}
 
 	  void						  setServerService(bool yes){mServerService = yes;}
 	  bool						  getServerService(){return mServerService;}
 
-	  void						  QueueIncomingPacket(Packet* packet)			  { boost::recursive_mutex::scoped_lock sl(mSessionMutex); mIncomingPackets.push(packet); }
+	  void						  QueueIncomingPacket(Packet* packet)			  { mIncomingPackets.push(packet); }
 	 
 	  uint64					  mLastPacketDestroyed;
 	  uint64					  mHash;
@@ -178,8 +172,6 @@ private:
 
 	  Service*                    mService;
 	  NetworkClient*              mClient;
-	  SocketReadThread*           mSocketReadThread;
-	  SocketWriteThread*          mSocketWriteThread;
 	  PacketFactory*              mPacketFactory;
 	  MessageFactory*             mMessageFactory;
 	  // Anh_Utils::Clock*           mClock;
@@ -247,8 +239,6 @@ private:
 
 	  PacketQueue                 mIncomingFragmentedPacketQueue;
 	  PacketQueue                 mIncomingRoutedFragmentedPacketQueue;		
-	  
-      boost::recursive_mutex	  mSessionMutex;
 
 	  uint64					  lasttime;
 	  uint64					  avgTime;

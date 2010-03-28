@@ -35,7 +35,7 @@ class NetworkCallback;
 //======================================================================================================================
 
 typedef Anh_Utils::concurrent_queue<Session*>							SessionQueue;
-typedef std::map<boost::asio::ip::udp::endpoint,Session*>				AddressSessionMap2;
+typedef std::map<boost::asio::ip::udp::endpoint,Session*>				AddressSessionMap;
 typedef std::list<NetworkCallback*>										NetworkCallbackList;
 
 //======================================================================================================================
@@ -44,7 +44,7 @@ class Service
 {
 	public:
 
-		Service(NetworkManager* networkManager, bool serverservice);
+		Service(NetworkManager* networkManager, boost::asio::io_service* service, bool serverservice);
 		~Service(void);
 
 		void	Startup(int8* localAddress, uint16 localPort,uint32 mfHeapSize);
@@ -71,7 +71,6 @@ class Service
 		SessionQueue						mSessionProcessQueue;
 		int8								mLocalAddressName[256];
 		NetworkManager*						mNetworkManager;
-		SOCKET								mLocalSocket;
 		uint64								avgTime;
 		uint64								lasttime;
 		uint32								avgPacketsbuild;
@@ -81,7 +80,7 @@ class Service
 		uint16								mLocalPort;
 		bool								mQueued;
 		bool								mServerService;	//marks us as the serverservice / clientservice
-		AddressSessionMap2					mAddressSessionMap;
+		AddressSessionMap					mAddressSessionMap;
 		static bool							mSocketsSubsystemInitComplete;
 
 		PacketFactory*						mPacketFactory;
@@ -91,7 +90,7 @@ class Service
 		//==============
 		// ASIO
 		//
-		boost::asio::io_service				mIOService;
+		boost::asio::io_service*			mIOService;
 		boost::asio::ip::udp::socket*		mSocket;
 		boost::asio::ip::udp::endpoint		mRecvEndpoint;
 

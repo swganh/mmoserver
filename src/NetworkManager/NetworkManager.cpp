@@ -53,6 +53,8 @@ void NetworkManager::Process(void)
 	// Get the current count of Services to be processed.  We can't just check to see if the queue is empty, since
 	// the other threads could keep placing more Service objects in the queue, and this could cause a stall in the
 	// main thread.
+
+	mIOService.poll();
    
 	Service*	service = 0;
 	uint32		serviceCount = mServiceProcessQueue.size();
@@ -77,7 +79,7 @@ Service* NetworkManager::GenerateService(int8* address, uint16 port,uint32 mfHea
 {
 	Service* newService = 0;
 
-	newService = new Service(this, serverservice);
+	newService = new Service(this, &mIOService, serverservice);
 	newService->setId(mServiceIdIndex++);
 	newService->Startup(address, port,mfHeapSize);
 	
@@ -93,28 +95,3 @@ void NetworkManager::DestroyService(Service* service)
 }
 
 //======================================================================================================================
-
-Client* NetworkManager::Connect(void)
-{
-	Client* newClient = 0;
-
-	return newClient;
-}
-
-//======================================================================================================================
-
-void NetworkManager::RegisterCallback(NetworkCallback* callback)
-{
-}
-
-//======================================================================================================================
-
-void NetworkManager::UnregisterCallback(NetworkCallback* callback)
-{
-}
-
-//======================================================================================================================
-
-
-
-

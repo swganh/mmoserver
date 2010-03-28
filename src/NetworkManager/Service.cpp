@@ -27,19 +27,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "ConfigManager/ConfigManager.h"
 #include "Utils/typedefs.h"
 
-#include <boost/thread/thread.hpp>
-
-#if defined(_MSC_VER)
-
-#else
-#include <sys/socket.h>
-#include <arpa/inet.h>
-
-#define INVALID_SOCKET	-1
-#define SOCKET_ERROR	-1
-#define closesocket		close
-#endif
-
 #include <cassert>
 #include <cstdio>
 
@@ -51,16 +38,15 @@ bool Service::mSocketsSubsystemInitComplete = false;
 
 //======================================================================================================================
 
-Service::Service(NetworkManager* networkManager, bool serverservice) :
+Service::Service(NetworkManager* networkManager, boost::asio::io_service* service, bool serverservice) :
 mNetworkManager(networkManager),
-mLocalSocket(0),
 avgTime(0),
 avgPacketsbuild (0),
 mLocalAddress(0),
 mLocalPort(0),
 mQueued(false),
 mServerService(serverservice),
-mIOService()
+mIOService(service)
 {
 
 }
@@ -92,7 +78,7 @@ void Service::Startup(int8* localAddress, uint16 localPort,uint32 mfHeapSize)
 	mMessageFactory = new MessageFactory(mfHeapSize, getId());
 
 	mSessionFactory = new SessionFactory();
-	mSessionFactory->Startup(NULL, this, mPacketFactory, mMessageFactory, false);
+	mSessionFactory->Startup(NULL, this, mPacketFactory, mMessageFactory, mServerService);
 
 	mRecvPacket = mPacketFactory->CreatePacket();
 
@@ -111,7 +97,7 @@ void Service::Startup(int8* localAddress, uint16 localPort,uint32 mfHeapSize)
 
 	value = configvalue *1024;
 
-	mSocket = new boost::asio::ip::udp::socket( mIOService, boost::asio::ip::udp::endpoint( boost::asio::ip::udp::v4(), localPort ) );
+	mSocket = new boost::asio::ip::udp::socket( *mIOService, boost::asio::ip::udp::endpoint( boost::asio::ip::udp::v4(), localPort ) );
 
 	//
 	// Initial Async Receive From
@@ -122,22 +108,19 @@ void Service::Startup(int8* localAddress, uint16 localPort,uint32 mfHeapSize)
 		boost::bind(&Service::HandleRecvFrom, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred)
 	);
 
-	mNetworkManager->AddServiceToProcessQueue(this);
 }
 
 //======================================================================================================================
 
 void Service::Shutdown(void)
 {
+	mSocket->close();
 }
 
 //======================================================================================================================
 
 void Service::Process()
 {
-	mNetworkManager->AddServiceToProcessQueue(this);
-	mIOService.poll();
-
 	// Get the current count of Sessions to be processed.  We can't just check to see if the queue is empty, since
 	// the other threads could keep placing more Packets in the queue, and this could cause a stall in the
 	// main thread.
@@ -152,12 +135,9 @@ void Service::Process()
 		session = mSessionProcessQueue.pop();
 		session->Update();
 
-
 		//
 		// Move this code to Session::Update(), somehow...
 		//
-
-		session->setInIncomingQueue(false);
 
 		// Check to see if we're in the process of connecting or disconnecting.
 		if(session->getStatus() == SSTAT_Connecting)
@@ -240,54 +220,21 @@ void Service::Process()
 			}
 		}
 
-		session->setInIncomingQueue(false);
-
 	}
-
 }
 
 //======================================================================================================================
 
 void Service::Connect(NetworkClient* client, int8* address, uint16 port)
 {
-#ifdef NOTHIN
-	// Setup our new connection object and pass it to SocketReadThread.  This is temporary until there is time to implemnt
-	// a queue/async connect method.  FIXME:  Make queue based, async using NetworkCallback for status changes.
 
-	// We want this to be a blocking call for now, so loop waiting for change in session status from Connecting.
-	mSocketReadThread->NewOutgoingConnection(address, port);
-
-	// don't want a hard loop pegging the cpu.
-	while(1)
-	{
-		if(mSocketReadThread->getNewConnectionInfo()->mSession)
-		{
-			if(mSocketReadThread->getNewConnectionInfo()->mSession->getStatus() == SSTAT_Connected)
-			{
-				break;
-			}
-			mSocketReadThread->getNewConnectionInfo()->mSession->Update();
-		}
-
-        boost::this_thread::sleep(boost::posix_time::milliseconds(10));
-	}
-
-	client->setSession(mSocketReadThread->getNewConnectionInfo()->mSession);
-	mSocketReadThread->getNewConnectionInfo()->mSession->setClient(client);
-#endif
 }
 
 //======================================================================================================================
 
 void Service::AddSessionToProcessQueue(Session* session)
 {
-	if(!session->getInIncomingQueue())
-	{
-		session->setInIncomingQueue(true);
-		mSessionProcessQueue.push(session);
-
-	}
-
+	mSessionProcessQueue.push(session);
 	mNetworkManager->AddServiceToProcessQueue(this);
 }
 
@@ -327,7 +274,7 @@ void Service::HandleRecvFrom(const boost::system::error_code &error, std::size_t
 		// Find the session.
 		//
 		Session* session = 0;
-		AddressSessionMap2::iterator i = mAddressSessionMap.find( mRecvEndpoint );
+		AddressSessionMap::iterator i = mAddressSessionMap.find( mRecvEndpoint );
 		if(i != mAddressSessionMap.end() )
 		{
 			session = (*i).second;
@@ -351,10 +298,8 @@ void Service::HandleRecvFrom(const boost::system::error_code &error, std::size_t
 		//
 		// Queue the packet and add the Session to the processing Queue.
 		//
-		session->setInIncomingQueue(false);
 		session->QueueIncomingPacket(mRecvPacket);
 		AddSessionToProcessQueue(session);
-
 		mRecvPacket = mPacketFactory->CreatePacket();
 	}
 	else
@@ -375,7 +320,6 @@ void Service::HandleRecvFrom(const boost::system::error_code &error, std::size_t
 
 void Service::HandleSendTo(Packet* msg)
 {
-	msg->setReadIndex(0);
 	gLogger->hexDump( msg->getData(), msg->getSize() );
 	mPacketFactory->DestroyPacket(msg);
 }

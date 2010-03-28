@@ -41,8 +41,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 Session::Session(void) :
 mService(0),
 mClient(0),
-mSocketReadThread(0),
-mSocketWriteThread(0),
 mPacketFactory(0),
 mMessageFactory(0),
 // mClock(0),
@@ -107,8 +105,6 @@ Session::~Session(void)
 {					  
 	gLogger->logMsgF("Session::~Session ",MSG_HIGH,this->getId());
 	Message* message = 0;
-	
-    boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
     while(!mOutgoingMessageQueue.empty())
     {
@@ -179,7 +175,6 @@ Session::~Session(void)
 
 void Session::Update(void)
 {
-	boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
 	//
 	// Process incoming packets.
@@ -277,15 +272,11 @@ void Session::ProcessWriteThread(void)
  	
   }
 
-    boost::recursive_mutex::scoped_lock lk(mSessionMutex);
-
 	for( unsigned int x = 0; x < mOutgoingPackets.size(); x++ )
 	{
 		_addOutgoingReliablePacket( mOutgoingPackets.front() );
 		mOutgoingPackets.pop();
 	}
-
-	lk.unlock();
   
   // Handle any specific commands
   switch (mCommand)
@@ -379,10 +370,6 @@ void Session::SendChannelA(Message* message)
 	}
 
   
-  //gLogger->logMsgF("Sending message - Session:0x%x%.4x", MSG_LOW, mService->getId(), getId());
-
-    boost::recursive_mutex::scoped_lock lk(mSessionMutex);
-
   //the connectionserver puts a lot of fastpaths here  - so just put them were they belong
   //this alone takes roughly 5% cpu off of the connectionserver
 
@@ -417,9 +404,6 @@ void Session::SendChannelAUnreliable(Message* message)
 		return;
 	}
   
-  //gLogger->logMsgF("Sending message - Session:0x%x%.4x", MSG_LOW, mService->getId(), getId());
-
-  boost::recursive_mutex::scoped_lock lk(mSessionMutex);
   if(message->getSize() > mMaxUnreliableSize)	//I send the attribute messages as unreliables	 but they can be to big!!
   {
 	  message->setFastpath(false);	  //send it as reliable if its to big
@@ -558,6 +542,8 @@ void Session::HandleSessionPacket(Packet* packet)
 	  return;
 	DeCompCryptPacket(packet);
 
+	gLogger->hexDump( packet->getData(), packet->getSize() );
+
 	//now we have a sequenced packet
 	//check if we are in sequence
 
@@ -676,8 +662,6 @@ Message* Session::getIncomingQueueMessage()
   
   if (!mIncomingMessageQueue.size())
     return message;
-
-  boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
   message = mIncomingMessageQueue.front();
   mIncomingMessageQueue.pop();
@@ -1038,7 +1022,6 @@ void Session::_processDataChannelPacket(Packet* packet, bool fastPath)
 void Session::_processDataChannelAck(Packet* packet)
 {
 	packet->setReadIndex(2);
-	boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
 	SequencedPacketMap::iterator			i = mOutgoingPacketCache.find(ntohs(packet->getUint16()));
 	SequencedPacketMap::reverse_iterator	ri( i );
@@ -1065,7 +1048,6 @@ void Session::_processDataChannelAck(Packet* packet)
 void Session::_processDataOrderPacket(Packet* packet)
 {
 	packet->setReadIndex(2);
-	boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 	uint16 outOfOrderSequence = (ntohs(packet->getUint16()));
 
 	SequencedPacketMap::iterator i = mOutgoingPacketCache.find(outOfOrderSequence);
@@ -1453,14 +1435,7 @@ void Session::_addOutgoingMessage(Message* message, uint8 priority, bool fastpat
 //======================================================================================================================
 void Session::_addIncomingMessage(Message* message, uint8 priority)
 {
-  // simple bounds checking
-  //assert(priority < 0x10);
-
-    boost::recursive_mutex::scoped_lock lk(mSessionMutex);
-
   mIncomingMessageQueue.push(message);
-
-  lk.unlock();
   
   // Let the service know we need to be processed.
   mService->AddSessionToProcessQueue(this);
@@ -1508,15 +1483,11 @@ void Session::_buildOutgoingReliableRoutedPackets(Message* message)
 	// no compression in server server communication!
     newPacket->setIsCompressed(false);
 	newPacket->setIsEncrypted(true);
-    
-    // Push the packet on our outgoing queue
-    boost::recursive_mutex::scoped_lock lk(mSessionMutex);
+  
 
 	mOutgoingPackets.push(newPacket);
     mOutgoingPacketCache[mOutSequenceNext] = newPacket;
 	mOutSequenceNext++;
-
-    lk.unlock();
 
     // Now build any remaining packets.
     while (messageSize > messageIndex)
@@ -1537,9 +1508,6 @@ void Session::_buildOutgoingReliableRoutedPackets(Message* message)
      newPacket->setIsCompressed(false);
 	
      newPacket->setIsEncrypted(true);
-      
-      // Push the packet on our outgoing queue
-      boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
 	  mOutgoingPacketCache[mOutSequenceNext] = newPacket;
 	  mOutSequenceNext++;
@@ -1563,9 +1531,6 @@ void Session::_buildOutgoingReliableRoutedPackets(Message* message)
 	newPacket->setIsCompressed(false);
 	
     newPacket->setIsEncrypted(true);
-    
-    // Push the packet on our outgoing queue
-    boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
 	mOutgoingPackets.push(newPacket);
 	mOutgoingPacketCache[mOutSequenceNext] = newPacket;
@@ -1609,9 +1574,6 @@ void Session::_buildOutgoingReliablePackets(Message* message)
 	// as this is server client communication
 	newPacket->setIsCompressed(true);
     newPacket->setIsEncrypted(true);
-    
-    // Push the packet on our outgoing queue
-    boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
 	mOutgoingPackets.push(newPacket);
 	mOutgoingPacketCache[mOutSequenceNext] = newPacket;
@@ -1635,9 +1597,6 @@ void Session::_buildOutgoingReliablePackets(Message* message)
    	 newPacket->setIsCompressed(true);
 
       newPacket->setIsEncrypted(true);
-      
-      // Push the packet on our outgoing queue
-      boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
 	  mOutgoingPackets.push(newPacket);
 	  mOutgoingPacketCache[mOutSequenceNext] = newPacket;
@@ -1662,9 +1621,6 @@ void Session::_buildOutgoingReliablePackets(Message* message)
 	newPacket->setIsCompressed(true);
 
     newPacket->setIsEncrypted(true);
-    
-    // Push the packet on our outgoing queue
-    boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
 	mOutgoingPackets.push(newPacket);
 	mOutgoingPacketCache[mOutSequenceNext] = newPacket;
@@ -1710,8 +1666,6 @@ void Session::_buildOutgoingUnreliablePackets(Message* message)
 //======================================================================================================================
 void Session::_addOutgoingReliablePacket(Packet* packet)
 {
-  // Push the packet on our outgoing queue
-  boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
   // Set our last packet sent time index
   //packet->setTimeQueued(Anh_Utils::Clock::getSingleton()->getLocalTime());
@@ -1724,8 +1678,6 @@ void Session::_addOutgoingReliablePacket(Packet* packet)
 //======================================================================================================================
 void Session::_addOutgoingUnreliablePacket(Packet* packet)
 {
-  // Push the packet on our outgoing queue
-  boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
   // Set our last packet sent time index
   mOutgoingPackets.push(packet);
@@ -1745,7 +1697,6 @@ uint32 Session::_buildPackets()
 	// 2nd are there any ways a session can have to generate routed and not routed packets ????? - No its either or
 
 	uint32 packetsbuild = 0;
-	boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
 	//get our message
 
@@ -1852,7 +1803,6 @@ uint32 Session::_buildPacketsUnreliable()
 {
 
 	uint32 packetsbuild = 0;
-	boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
 	//gLogger->logMsgF("session build packets queue size : %u ",MSG_NORMAL,mOutgoingMessageQueue.size());
 
@@ -1930,8 +1880,6 @@ void Session::_buildMultiDataPacket()
 	newPacket->setIsCompressed(true);
 	newPacket->setIsEncrypted(true);
 
-	boost::recursive_mutex::scoped_lock lk(mSessionMutex);
-
 	mOutgoingPackets.push(newPacket);
 	mOutgoingPacketCache[mOutSequenceNext] = newPacket;
 	mOutSequenceNext++;
@@ -1985,7 +1933,6 @@ void Session::_buildRoutedMultiDataPacket()
 	newPacket->setIsCompressed(false); //server server !!! save the cycles!!!
 	newPacket->setIsEncrypted(true);
 
-	boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 	mOutgoingPackets.push(newPacket);
 	mOutgoingPacketCache[mOutSequenceNext] = newPacket;
 	mOutSequenceNext++;

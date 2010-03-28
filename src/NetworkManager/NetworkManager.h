@@ -13,6 +13,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #define ANH_NETWORKMANAGER_NETWORKMANAGER_H
 
 #include <queue>
+#include <boost/asio.hpp>
 #include "Utils/concurrent_queue.h"
 #include "Utils/typedefs.h"
 #include "Service.h"
@@ -43,17 +44,14 @@ class NetworkManager
 
 		Service*	GenerateService(int8* address, uint16 port,uint32 mfHeapSize, bool serverservice);
 		void		DestroyService(Service* service);
-		Client*		Connect(void);
-
-		void		RegisterCallback(NetworkCallback* callback);
-		void		UnregisterCallback(NetworkCallback* callback);
 
 		void		AddServiceToProcessQueue(Service* service);
 
 	private:
 
-	  ServiceQueue		mServiceProcessQueue;
-	  uint32			mServiceIdIndex;
+	  ServiceQueue					mServiceProcessQueue;
+	  uint32						mServiceIdIndex;
+	  boost::asio::io_service		mIOService;
 };
 
 

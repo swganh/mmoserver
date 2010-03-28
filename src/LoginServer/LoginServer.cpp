@@ -46,6 +46,7 @@ mNetworkManager(0)
 	// Initialize our modules.
 
 	mNetworkManager = new NetworkManager();
+	mNetworkManager->Startup();
 	mService = mNetworkManager->GenerateService((char*)gConfig->read<std::string>("BindAddress").c_str(), gConfig->read<uint16>("BindPort"),gConfig->read<uint32>("ServiceMessageHeap")*1024,false);
 
 

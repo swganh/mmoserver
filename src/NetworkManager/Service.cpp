@@ -318,10 +318,9 @@ void Service::HandleRecvFrom(const boost::system::error_code &error, std::size_t
 
 //======================================================================================================================
 
-void Service::HandleSendTo(Packet* msg)
+void Service::HandleSendTo(Session* source, Packet* msg)
 {
-	gLogger->hexDump( msg->getData(), msg->getSize() );
-	mPacketFactory->DestroyPacket(msg);
+	
 }
 
 //======================================================================================================================

@@ -111,7 +111,6 @@ int CompCryptor::Decompress(int8* inData, uint32 inLen, int8* outData, uint32 ou
   return outBytes;
 }
 
-
 //======================================================================================================================
 int CompCryptor::Encrypt(int8* data, uint32 len, uint32 seed)
 {

@@ -100,7 +100,7 @@ class Service
 		Packet*								mRecvPacket;
 
 		void	HandleRecvFrom( const boost::system::error_code& error, size_t bytesRecvd );
-public: void	HandleSendTo( Packet* msg );
+public: void	HandleSendTo( Session* source, Packet* msg );
 };
 
 

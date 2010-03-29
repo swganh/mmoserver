@@ -175,6 +175,7 @@ Session::~Session(void)
 
 void Session::Update(void)
 {
+	getService()->AddSessionToProcessQueue(this);
 
 	//
 	// Process incoming packets.
@@ -200,12 +201,19 @@ void Session::Update(void)
 	{
 		for( unsigned int x = 0; x < mOutgoingPackets.size(); x++ )
 		{
-			getService()->getSocket()->async_send_to( 
-				boost::asio::buffer(mOutgoingPackets.front()->getData(), mOutgoingPackets.front()->getSize()),
-				getRemoteEndpoint(),
-				boost::bind(&Service::HandleSendTo, getService(), mOutgoingPackets.front())
-				);
+			Packet* packet = mOutgoingPackets.front();
 			mOutgoingPackets.pop();
+
+			if( packet->getIsCompressed() )
+			{
+				
+			}
+
+			getService()->getSocket()->async_send_to( 
+				boost::asio::buffer(packet->getData(), packet->getSize()),
+				getRemoteEndpoint(),
+				boost::bind(&Service::HandleSendTo, getService(), this, packet)
+				);
 		}
 	}
 }
@@ -554,9 +562,9 @@ void Session::HandleSessionPacket(Packet* packet)
 	{
 		Packet* ack = mPacketFactory->CreatePacket();
 		ack->addUint16(SESSIONOP_DataAck1);
-		ack->addUint16(htons(sequence));
+		ack->addUint16(0);
 		ack->setIsCompressed(false);
-		ack->setIsEncrypted(false);
+		ack->setIsEncrypted(true);
 		_addOutgoingUnreliablePacket(ack);
 
 		SortSessionPacket(packet, packetType);
@@ -696,10 +704,10 @@ void Session::_processSessionRequestPacket(Packet* packet)
   Packet* newPacket = mPacketFactory->CreatePacket();             
   newPacket->addUint16(SESSIONOP_SessionResponse);      // Session packet type
   newPacket->addUint32(mRequestId);
-  newPacket->addUint32(htonl(mEncryptKey));
-  newPacket->addUint8(2);
-  newPacket->addUint8(1);
-  newPacket->addUint8(4);
+  newPacket->addUint32(0);
+  newPacket->addUint8(0);
+  newPacket->addUint8(0);
+  newPacket->addUint8(0);
   newPacket->addUint32(htonl(mMaxPacketSize));
   newPacket->setIsCompressed(false);
   newPacket->setIsEncrypted(false);
@@ -1980,7 +1988,7 @@ void Session::_buildUnreliableMultiDataPacket()
 
 bool Session::ValidatePacketCrc(Packet* packet)
 {
-	uint32 packetCrc = mCompCryptor.GenerateCRC(packet->getData(), packet->getSize() - 2, getEncryptKey());
+	/*uint32 packetCrc = mCompCryptor.GenerateCRC(packet->getData(), packet->getSize() - 2, getEncryptKey());
 	
 	uint8 crcLow = (uint8)*(packet->getData() + (packet->getSize() - 1));
 	uint8 crcHigh = (uint8)*(packet->getData() + (packet->getSize() - 2));
@@ -1989,7 +1997,7 @@ bool Session::ValidatePacketCrc(Packet* packet)
 	{
 		gLogger->logMsg("*** Reliable Packet dropped. CRC mismatch.");
 		return false;
-	}
+	}*/
 
 	return true;
 }
@@ -1999,7 +2007,7 @@ bool Session::ValidatePacketCrc(Packet* packet)
 void Session::DeCompCryptPacket(Packet* packet)
 {
 
-	mCompCryptor.Decrypt(packet->getData() + 2, packet->getSize() - 4, getEncryptKey());
+	//mCompCryptor.Decrypt(packet->getData() + 2, packet->getSize() - 4, getEncryptKey());
 
 	Packet* decompressPacket = mPacketFactory->CreatePacket();
 	uint16 decompressLen = mCompCryptor.Decompress( packet->getData() + 2, packet->getSize() - 5, decompressPacket->getData()+2, decompressPacket->getMaxPayload() - 5);
@@ -2011,7 +2019,7 @@ void Session::DeCompCryptPacket(Packet* packet)
 	}
 	else
 	{
-		packet->setSize( packet->getSize() - 3 );
+		// ENCRYPTION packet->setSize( packet->getSize() - 3);
 	}
 
 	mPacketFactory->DestroyPacket(decompressPacket);

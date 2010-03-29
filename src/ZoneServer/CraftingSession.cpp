@@ -57,6 +57,7 @@ CraftingSession::CraftingSession(Anh_Utils::Clock* clock,Database* database,Play
 , mCriticalCount(0)
 , mExpFlag(expFlag)
 , mStage(1)
+, mCounter(2)
 , mFirstFill(false)
 {
 
@@ -657,6 +658,7 @@ void CraftingSession::assemble(uint32 counter)
 
 	ExperimentationProperties*			expPropertiesList	= mManufacturingSchematic->getExperimentationProperties();
 	ExperimentationProperties::iterator	expIt				= expPropertiesList->begin();
+	mCounter = counter;
 
 	// get the items serial
 	string serial;
@@ -764,7 +766,7 @@ void CraftingSession::assemble(uint32 counter)
 void CraftingSession::customizationStage(uint32 counter)
 {
 	mStage = 5;
-
+	mCounter = counter;
 	mOwner->setCraftingStage(mStage);
 	gMessageLib->sendUpdateCraftingStage(mOwner);
 
@@ -776,7 +778,7 @@ void CraftingSession::customizationStage(uint32 counter)
 void CraftingSession::creationStage(uint32 counter)
 {
 	mStage = 5;
-
+	mCounter = counter;
 	mOwner->setCraftingStage(mStage);
 	gMessageLib->sendUpdateCraftingStage(mOwner);
 
@@ -788,6 +790,7 @@ void CraftingSession::creationStage(uint32 counter)
 void CraftingSession::experimentationStage(uint32 counter)
 {
 	mStage = 4;
+	mCounter = counter;
 
 	mOwner->setCraftingStage(mStage);
 	gMessageLib->sendUpdateCraftingStage(mOwner);
@@ -1117,19 +1120,19 @@ void CraftingSession::createManufactureSchematic(uint32 counter)
 
 	//delete the old attributes db side and object side
 	AttributeMap* map = mManufacturingSchematic->getAttributeMap();
-	map->empty();
+	map->clear();
 
 	map = mManufacturingSchematic->getInternalAttributeMap();
-	map->empty();
+	map->clear();
 
 	AttributeOrderList*	list = 	mManufacturingSchematic->getAttributeOrder();
-	list->empty();
+	list->clear();
 
 	mDatabase->ExecuteSqlAsync(0,0,"DELETE FROM item_attributes WHERE item_id=%"PRIu64"",mManufacturingSchematic->getId());
 
 
 	//save the datapad as the Owner Id in the db
-	
+	mManufacturingSchematic->setParentIdIncDB(datapad->getId());
 
 	//set the custom name of the object
 	mManufacturingSchematic->setCustomNameIncDB(mItem->getCustomName().getAnsi());

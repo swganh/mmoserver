@@ -284,9 +284,6 @@ void WorldManager::addDisconnectedPlayer(PlayerObject* playerObject)
 	playerObject->setCraftingSession(NULL);
 	playerObject->toggleStateOff(CreatureState_Crafting);
 
-	//Fail any foraging
-	playerObject->isForaging();
-
 	//any speeder out?
 
 	//despawn camps ??? - every reference is over id though

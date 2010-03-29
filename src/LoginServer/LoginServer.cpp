@@ -156,7 +156,8 @@ int main(int argc, char* argv[])
 		gLoginServer->Process();
 
 		if(Anh_Utils::kbhit())
-			break;
+			if(std::cin.get() == 'q')
+				break;
 
         boost::this_thread::sleep(boost::posix_time::milliseconds(10));
 	}

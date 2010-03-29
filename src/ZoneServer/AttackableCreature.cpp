@@ -1664,7 +1664,7 @@ void AttackableCreature::spawn(void)
 {
 	gCreatureSpawnCounter++;
 	// gLogger->logMsgF("AttackableCreature::spawn: Spawning creature %"PRIu64"", MSG_NORMAL, this->getId());
-	gLogger->logMsgF("Spawned creature # %"PRIu64" (%"PRIu64")", MSG_NORMAL, gCreatureSpawnCounter, gCreatureSpawnCounter - gCreatureDeathCounter);
+	//gLogger->logMsgF("Spawned creature # %"PRIu64" (%"PRIu64")", MSG_NORMAL, gCreatureSpawnCounter, gCreatureSpawnCounter - gCreatureDeathCounter);
 
 	// Update the world about my presence.
 

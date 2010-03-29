@@ -42,7 +42,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #endif
 
 #include <boost/thread/thread.hpp>
-
 #include <cstring>
 
 //======================================================================================================================
@@ -248,7 +247,10 @@ int main(int argc, char* argv[])
 		gChatServer->Process();
 
 		if(Anh_Utils::kbhit())
-			break;
+		{
+			if(std::cin.get() == 'q')
+				break;
+		}
 
         boost::this_thread::sleep(boost::posix_time::milliseconds(1));
 	}

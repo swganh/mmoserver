@@ -29,6 +29,20 @@ mDefaultWeapon(NULL)
 
 EquipManager::~EquipManager()
 {
+	ObjectList* objList = getEquippedObjects();
+	ObjectList::iterator it = objList->begin();
+
+	while(it != objList->end())
+	{
+		if((*it)->getType() == ObjType_Tangible)
+		{
+			gWorldManager->destroyObject((*it));
+		}
+		it++;
+	}
+
+	delete objList;
+
 	mSlotMap.clear();
 	mObjectMap.clear();
 
@@ -233,7 +247,7 @@ bool EquipManager::EquipItem(Object* object)
 	}
 
 	//update the relevant attribute and the db 
-	object->setInternalAttributeIncDB("equipped","1");
+	object->setInternalAttribute("equipped","1");
 
 	return true;
 }
@@ -315,7 +329,7 @@ bool EquipManager::unEquipItem(Object* object)
 		gMessageLib->sendWeaponIdUpdate(owner);
 	}
 
-	object->setInternalAttributeIncDB("equipped","0");
+	object->setInternalAttribute("equipped","0");
 
 	return true;
 }

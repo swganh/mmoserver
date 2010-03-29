@@ -362,9 +362,16 @@ int main(int argc, char* argv[])
 	// Main loop
 	while(1)
 	{
-		if (Anh_Utils::kbhit() || AdminManager::Instance()->shutdownZone())
+		if(AdminManager::Instance()->shutdownZone())
 		{
 			break;
+		}
+		else if (Anh_Utils::kbhit())
+		{
+			if(std::cin.get() == 'q')
+			{
+				break;
+			}
 		}
 
 		gZoneServer->Process();

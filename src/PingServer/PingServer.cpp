@@ -134,7 +134,9 @@ int main(int argc, char* argv[])
 		boost::this_thread::sleep(boost::posix_time::milliseconds(1));
 
 		// Stop the ping server if a key is hit.
-		if (Anh_Utils::kbhit()) break;
+		if (Anh_Utils::kbhit()) 
+			if(std::cin.get() == 'q')
+				break;
 	}
 
 	delete LogManager::getSingletonPtr();

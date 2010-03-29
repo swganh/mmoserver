@@ -838,7 +838,7 @@ void CraftingSession::destroyComponents()
 			continue;
 		}
 	
-			//add the components back to the inventory
+		//add the components back to the inventory
 		uint32 crateSize;
 		manSlot->setFilledType(DST_Empty);
 
@@ -1165,33 +1165,33 @@ uint8 CraftingSession::_assembleRoll()
 
 	float rating	= 50.0f + ((ma - 500.0f) / 40.0f) +  mOwnerAssSkillMod - 5.0f;
 	//gLogger->logMsgF("CraftingSession:: relevant rating %f",MSG_NORMAL,rating);
-	gLogger->logErrorF("Crafting","CraftingSession::_assembleRoll() relevant rating %f",MSG_NORMAL,rating);
+	//gLogger->logErrorF("Crafting","CraftingSession::_assembleRoll() relevant rating %f",MSG_NORMAL,rating);
 
 	rating	+= (mToolEffectivity/10);
 	rating -= (mManufacturingSchematic->getComplexity()/10);
 
-	gLogger->logErrorF("Crafting","CraftingSession::_assembleRoll() relevant rating modified with tool %f",MSG_NORMAL,rating);
+	//gLogger->logErrorF("Crafting","CraftingSession::_assembleRoll() relevant rating modified with tool %f",MSG_NORMAL,rating);
 
 	float risk		= 100.0f - rating;
 
-	gLogger->logErrorF("Crafting","CraftingSession::_assembleRoll() relevant Skill Mod %u",MSG_NORMAL,mOwnerAssSkillMod);
-	gLogger->logErrorF("Crafting","CraftingSession::_assembleRoll() relevant risk %f",MSG_NORMAL,risk);
+	//gLogger->logErrorF("Crafting","CraftingSession::_assembleRoll() relevant Skill Mod %u",MSG_NORMAL,mOwnerAssSkillMod);
+	//gLogger->logErrorF("Crafting","CraftingSession::_assembleRoll() relevant risk %f",MSG_NORMAL,risk);
 
 
 	mManufacturingSchematic->setExpFailureChance(risk);
 
 	riskRoll		= (int32)(floor(((double)gRandom->getRand() / (RAND_MAX  + 1.0f) * (100.0f - 1.0f) + 1.0f)));
 
-	gLogger->logErrorF("Crafting","CraftingSession::_assembleRoll() relevant riskroll %u",MSG_NORMAL,riskRoll);
+	//gLogger->logErrorF("Crafting","CraftingSession::_assembleRoll() relevant riskroll %u",MSG_NORMAL,riskRoll);
 
 
 	// ensure that every critical makes the nect critical less likely
 	// we dont want to have more than 3 criticals in a row
 
-	gLogger->logErrorF("Crafting","CraftingSession::_assembleRoll() relevant criticalCount %u",MSG_NORMAL,mCriticalCount);
+	//gLogger->logErrorF("Crafting","CraftingSession::_assembleRoll() relevant criticalCount %u",MSG_NORMAL,mCriticalCount);
 
 	riskRoll += (mCriticalCount*5);
-	gLogger->logErrorF("Crafting","CraftingSession::_assembleRoll() modified riskroll %u",MSG_NORMAL,riskRoll);
+	//gLogger->logErrorF("Crafting","CraftingSession::_assembleRoll() modified riskroll %u",MSG_NORMAL,riskRoll);
 
 	if((mCriticalCount = 3))
 		riskRoll = static_cast<uint32>(risk+1);

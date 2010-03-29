@@ -1665,7 +1665,7 @@ void PlayerObject::removeFromDuelList(PlayerObject* player)
 //
 // remove a player from the duellist
 //
-PlayerList::iterator PlayerObject::removeFromDuelList(PlayerList::iterator it)
+PlayerList::iterator PlayerObject::removeFromDuelList(PlayerList::iterator& it)
 {
 	return mDuelList.erase(it);		
 }

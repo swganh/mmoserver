@@ -37,11 +37,12 @@ class ConnectionServer
 		~ConnectionServer(void);
 
 		void	Process(void);
+		void    ToggleLock();
 
 	private:
 
 		void	_updateDBServerList(uint32 status);
-
+		
 		DatabaseManager*		mDatabaseManager;
 		Database*				mDatabase;
 		NetworkManager*			mNetworkManager;
@@ -54,6 +55,7 @@ class ConnectionServer
 
 		Service*				mClientService;
 		Service*				mServerService;
+		bool					mLocked;
 };
 
 //======================================================================================================================

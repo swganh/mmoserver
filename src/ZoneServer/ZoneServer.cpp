@@ -60,7 +60,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #endif
 
 #include <boost/thread/thread.hpp>
-
+  
 //======================================================================================================================
 
 ZoneServer* gZoneServer = NULL;
@@ -68,6 +68,7 @@ ZoneServer* gZoneServer = NULL;
 //======================================================================================================================
 
 ZoneServer::ZoneServer(int8* zoneName) :
+mZoneName(zoneName),
 mNetworkManager(0),
 mDatabaseManager(0),
 mRouterService(0),
@@ -75,9 +76,7 @@ mDatabase(0)
 {
 	//gLogger->printSmallLogo();
 	// gLogger->logMsgF("ZoneServer - %s Startup %s",MSG_NORMAL,zoneName,GetBuildString());
-	gLogger->logMsgF("ZoneServer - %s Startup %s",MSG_NORMAL,zoneName,ConfigManager::getBuildString().c_str());
-	//gLogger->logMsg(GetBuildString());
-	mZoneName = zoneName;
+	gLogger->logMsg("ZoneServer Startup", FOREGROUND_GREEN | FOREGROUND_RED);
 
 	// Create and startup our core services.
 	mDatabaseManager = new DatabaseManager();

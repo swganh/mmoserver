@@ -12,6 +12,8 @@ std::string GetBuildNumber()
 
     if (build_num.length() == 0)
     {
+        std::ifstream version_file("VERSION");
+
         std::string build_string = GetBuildString();    
         build_num = ANH_VERSION_MAJOR"."ANH_VERSION_MINOR"."ANH_VERSION_PATCH"."+build_string.substr(0, build_string.find_first_of(" "));
     }
@@ -48,6 +50,10 @@ std::string GetBuildString()
         {
             std::getline(version_file, build_revision);
 			std::getline(version_file, build_timestamp);
+
+			if (! version_file.eof() && version_file.peek() != '\n') {
+				std::getline(version_file, build_revision);
+			}
         }
 
         version_file.close();

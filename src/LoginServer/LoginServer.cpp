@@ -42,8 +42,6 @@ mNetworkManager(0)
 	// log msg to default log
   //gLogger->printSmallLogo();
   gLogger->logMsg("LoginServer Startup");
-  // gLogger->logMsg(GetBuildString());
-  gLogger->logMsg(ConfigManager::getBuildString());
 
 	// Initialize our modules.
 
@@ -90,7 +88,7 @@ mNetworkManager(0)
 	//gLogger->printLogo();
 	// std::string BuildString(GetBuildString());	
 
-	gLogger->logMsgF("LoginServer %s",MSG_NORMAL,ConfigManager::getBuildString().c_str());
+	gLogger->logMsgF("LoginServer - Build %s",MSG_NORMAL,ConfigManager::getBuildString().c_str());
 	gLogger->logMsg("Welcome to your SWGANH Experience!");
 }
 

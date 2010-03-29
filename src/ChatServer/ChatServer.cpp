@@ -54,8 +54,6 @@ ChatServer::ChatServer() : mNetworkManager(0),mDatabaseManager(0),mRouterService
 {
 	//gLogger->printSmallLogo();
 	gLogger->logMsg("ChatServer Startup");
-	// gLogger->logMsg(GetBuildString());
-	gLogger->logMsg(ConfigManager::getBuildString());
 
 	// Create and startup our core services.
 	mDatabaseManager = new DatabaseManager();
@@ -117,7 +115,7 @@ ChatServer::ChatServer() : mNetworkManager(0),mDatabaseManager(0),mRouterService
 	//gLogger->printLogo();
 	// std::string BuildString(GetBuildString());
 
-	gLogger->logMsgF("ChatServer %s",MSG_NORMAL,ConfigManager::getBuildString().c_str());
+	gLogger->logMsgF("ChatServer - Build %s",MSG_NORMAL,ConfigManager::getBuildString().c_str());
 	gLogger->logMsg("Welcome to your SWGANH Experience!");
 }
 

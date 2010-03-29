@@ -55,8 +55,6 @@ mServerService(0)
 	// log msg to default log
 	//gLogger->printSmallLogo();
 	gLogger->logMsg("ConnectionServer Startup", FOREGROUND_GREEN | FOREGROUND_RED);
-	// gLogger->logMsg(GetBuildString());
-	gLogger->logMsg(ConfigManager::getBuildString());
 	
 	// Startup our core modules
 	mNetworkManager = new NetworkManager();
@@ -113,7 +111,7 @@ mServerService(0)
 	//gLogger->printLogo();
 	// std::string BuildString(GetBuildString());	
 
-	gLogger->logMsgF("ConnectionServer %s",MSG_NORMAL,ConfigManager::getBuildString().c_str());
+	gLogger->logMsgF("ConnectionServer - Build %s",MSG_NORMAL,ConfigManager::getBuildString().c_str());
 	gLogger->logMsg("Welcome to your SWGANH Experience!");
 }
 

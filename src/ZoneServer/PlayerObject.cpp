@@ -256,7 +256,8 @@ PlayerObject::~PlayerObject()
 		}
 
 		++duelIt;
-	}
+	}		 
+	mDuelList.clear();
 
 	// move to the nearest cloning center, if we are incapped or dead
 	if(mPosture == CreaturePosture_Incapacitated
@@ -1660,6 +1661,22 @@ void PlayerObject::removeFromDuelList(PlayerObject* player)
 	}
 }
 
+//=============================================================================
+//
+// remove a player from the duellist
+//
+PlayerList::iterator PlayerObject::removeFromDuelList(PlayerList::iterator it)
+{
+	return mDuelList.erase(it);		
+}
+
+void PlayerObject::addToDuelList(PlayerObject* player)
+{ 
+	if(this->getId()!= player->getId())
+		mDuelList.push_back(player); 
+	else
+		gLogger->logMsgF("PlayerObject::addToDuelList: %I64u wanted to add himself to his/her duel list",MSG_NORMAL, player->getId());
+}
 //=============================================================================
 //
 // sets and returns the nearest crafting station

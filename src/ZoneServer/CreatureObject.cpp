@@ -763,6 +763,7 @@ void CreatureObject::die()
 
 			++duelIt;
 		}
+		player->getDuelList()->clear();
 
 		// update defender lists
 		ObjectIDList::iterator defenderIt = mDefenders.begin();

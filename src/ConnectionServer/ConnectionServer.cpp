@@ -50,7 +50,8 @@ mServerManager(0),
 mConnectionDispatch(0),
 mClusterId(0),
 mClientService(0),
-mServerService(0)
+mServerService(0),
+mLocked(false)
 {
 	// log msg to default log
 	//gLogger->printSmallLogo();
@@ -176,6 +177,22 @@ void ConnectionServer::_updateDBServerList(uint32 status)
 }
 
 //======================================================================================================================
+void ConnectionServer::ToggleLock()
+{
+	mLocked = !mLocked;
+
+	if(mLocked)
+	{
+		// Update our status for the LoginServer
+		mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE galaxy SET status=3,last_update=NOW() WHERE galaxy_id=%u;",mClusterId));
+		gLogger->logMsg("Locking server to normal users");
+	} else {
+		// Update our status for the LoginServer
+		mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE galaxy SET status=2,last_update=NOW() WHERE galaxy_id=%u;",mClusterId));
+		gLogger->logMsg("unlocking server to normal users");
+	}
+}
+//======================================================================================================================
 
 int main(int argc, char* argv[])
 {
@@ -198,8 +215,14 @@ int main(int argc, char* argv[])
         gConnectionServer->Process();
      
 				if(Anh_Utils::kbhit())
-					if(std::cin.get() == 'q')
+				{
+					char input = std::cin.get();
+					if(input == 'q')
 						break;
+					else if(input == 'l')
+						gConnectionServer->ToggleLock();
+				}
+					
 
         boost::this_thread::sleep(boost::posix_time::milliseconds(1));
 	}

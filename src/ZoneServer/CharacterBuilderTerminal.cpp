@@ -296,6 +296,7 @@ void CharacterBuilderTerminal::InitWeapons()
 	mMeleeMenu.push_back("Baton");
 	mMeleeMenu.push_back("Polearm");
 	mMeleeMenu.push_back("Knife");
+	mMeleeMenu.push_back("Unarmed");
 
 	mRangedMenu.push_back("Carbine");
 	mRangedMenu.push_back("Thrown");
@@ -335,6 +336,9 @@ void CharacterBuilderTerminal::InitWeapons()
 	mPolearmMenu.push_back("Wood (Type 2)");
 	mPolearmMenu.push_back("Vibrolance");
 	mPolearmMenu.push_back("Polearm Vibro Axe");
+	//Unarmed
+	mUnarmedMenu.push_back("Vibro Knuckler");
+
 	////Ranged Weapon
 	//BStringVector			mCarbineMenu;
 	mCarbineMenu.push_back("CDEF Carbine");
@@ -1466,6 +1470,12 @@ void CharacterBuilderTerminal::_handleMeleeMenu(PlayerObject* playerObject, uint
 			gUIManager->createNewListBox(this,"handleKnifeMenu","Knife","Select a category.",mKnifeMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_KnifeMenu);
 		}
 		break;
+	case 6://Unarmed
+		if(playerObject->isConnected())
+		{
+			gUIManager->createNewListBox(this,"UnarmedMenu","Unarmed","Select a category.",mUnarmedMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_UnarmedMenu);
+		}
+		break;
 	default:break;
 	}
 }
@@ -2164,6 +2174,9 @@ void  CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string
 			break;
 		case SUI_Window_CharacterBuilder_ListBox_KnifeMenu:
 			_handleKnifeMenu(playerObject, action, element, inputStr, window);
+			break;
+		case SUI_Window_CharacterBuilder_ListBox_UnarmedMenu:
+			GiveItem(playerObject,2294);
 			break;
 		case SUI_Window_CharacterBuilder_ListBox_CarbineMenu:
 			_handleCarbineMenu(playerObject, action, element, inputStr, window);

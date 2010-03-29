@@ -140,12 +140,13 @@ enum ui_window_types
 	SUI_Window_CharacterBuilder_ListBox_BatonMenu=87,
 	SUI_Window_CharacterBuilder_ListBox_PolearmMenu=88,
 	SUI_Window_CharacterBuilder_ListBox_KnifeMenu=89,
+	SUI_Window_CharacterBuilder_ListBox_UnarmedMenu=90,
 	//Ranged Weapon
-	SUI_Window_CharacterBuilder_ListBox_CarbineMenu=90,
-	SUI_Window_CharacterBuilder_ListBox_ThrownMenu=91,
-	SUI_Window_CharacterBuilder_ListBox_HeavyMenu=92,
-	SUI_Window_CharacterBuilder_ListBox_PistolMenu=93,
-	SUI_Window_CharacterBuilder_ListBox_RifleMenu=94
+	SUI_Window_CharacterBuilder_ListBox_CarbineMenu=91,
+	SUI_Window_CharacterBuilder_ListBox_ThrownMenu=92,
+	SUI_Window_CharacterBuilder_ListBox_HeavyMenu=93,
+	SUI_Window_CharacterBuilder_ListBox_PistolMenu=94,
+	SUI_Window_CharacterBuilder_ListBox_RifleMenu=95
 
 };
 

@@ -18,7 +18,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 //======================================================================================================================
 
-class Service;
+class IService;
 class ClientManager;
 class ServerManager;
 class ConnectionClient;

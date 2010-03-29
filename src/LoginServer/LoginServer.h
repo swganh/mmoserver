@@ -16,7 +16,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 //======================================================================================================================
 class NetworkManager;
-class Service;
+class IService;
 class LoginManager;
 class DatabaseManager;
 class Database;
@@ -33,10 +33,10 @@ class LoginServer
 
 private:
 	NetworkManager*									mNetworkManager;
-  Service*                        mService;
+    IService*										mService;
 	DatabaseManager*								mDatabaseManager;
-	Database*												mDatabase;
-  LoginManager*                   mLoginManager;
+	Database*										mDatabase;
+    LoginManager*									mLoginManager;
 };
 
 

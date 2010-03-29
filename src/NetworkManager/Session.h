@@ -29,7 +29,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 //======================================================================================================================
 
 class NetworkClient;
-class Service;
+class IService;
 class PacketFactory;
 class MessageFactory;
 class Packet;
@@ -87,7 +87,7 @@ class Session
 	  
 	  // Accessor methods
 	  NetworkClient*              getClient(void)                                 { return mClient; }
-	  Service*                    getService(void)                                { return mService; }
+	  IService*                    getService(void)                                { return mService; }
 	  uint32                      getId(void)                                     { return mId; }
 	  uint16                      getPortHost(void);
 	  uint32                      getIncomingQueueMessageCount()    { return mIncomingMessageQueue.size(); }
@@ -95,12 +95,10 @@ class Session
 	  uint32                      getEncryptKey(void)                             { return mEncryptKey; }
 	  SessionStatus               getStatus(void)                                 { return mStatus; }
 	  SessionCommand              getCommand(void)                                { return mCommand; }
-	  bool                        getInOutgoingQueue(void)                        { return mInOutgoingQueue; }
-	  bool                        getInIncomingQueue(void)                        { return mInIncomingQueue; }
 	  boost::asio::ip::udp::endpoint getRemoteEndpoint(void)					  { return mRemoteEndpoint; }
 
 	  void                        setClient(NetworkClient* client)                { mClient = client; }
-	  void                        setService(Service* service)                    { mService = service; }
+	  void                        setService(IService* service)                    { mService = service; }
 	  void                        setPacketFactory(PacketFactory* factory)        { mPacketFactory = factory; }
 	  void                        setMessageFactory(MessageFactory* factory)      { mMessageFactory = factory; }
 	  void                        setId(uint32 id)                                { mId = id; }
@@ -170,7 +168,7 @@ private:
 	  //we want to only encrypt / pack when we communicate with the client
 	  bool						  mServerService;
 
-	  Service*                    mService;
+	  IService*                    mService;
 	  NetworkClient*              mClient;
 	  PacketFactory*              mPacketFactory;
 	  MessageFactory*             mMessageFactory;
@@ -215,9 +213,6 @@ private:
 	  uint16                      mInSequenceNext;
 
 	  bool                        mSendDelayedAck;        // We processed some incoming packets, send an ack
-	  bool                        mInOutgoingQueue;       // Are we already in the queue?
-	  bool                        mInIncomingQueue;       // Are we already in the queue?
-
 	  uint16                      mLastSequenceAcked;
 
 	  SessionStatus               mStatus;

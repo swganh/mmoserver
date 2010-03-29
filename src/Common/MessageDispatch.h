@@ -21,7 +21,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 //======================================================================================================================
 
-class Service;
+class IService;
 class DispatchClient;
 class MessageDispatchCallback;
 class Message;
@@ -41,7 +41,7 @@ class MessageDispatch : public NetworkCallback
 {
 	public:
 
-		MessageDispatch(Service* service);
+		MessageDispatch(IService* service);
 		~MessageDispatch(void);
 
 		void						Process(void);
@@ -51,7 +51,7 @@ class MessageDispatch : public NetworkCallback
 		AccountClientMap*			getClientMap(){return(&mAccountClientMap);}
 
 		// Inherited NetworkCallback
-		virtual NetworkClient*		handleSessionConnect(Session* session, Service* service);
+		virtual NetworkClient*		handleSessionConnect(Session* session, IService* service);
 		virtual void				handleSessionDisconnect(NetworkClient* client);
 		virtual void				handleSessionMessage(NetworkClient* client, Message* message);
 
@@ -60,7 +60,7 @@ class MessageDispatch : public NetworkCallback
 		void						unregisterSessionlessDispatchClient(uint32 accountId);
 	private:
 
-		Service*					mRouterService;
+		IService*					mRouterService;
 		MessageCallbackMap			mMessageCallbackMap;
 		AccountClientMap			mAccountClientMap;
         boost::recursive_mutex		mSessionMutex;

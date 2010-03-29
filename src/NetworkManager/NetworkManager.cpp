@@ -11,7 +11,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include "NetworkManager.h"
 #include "NetConfig.h"
-#include "Service.h"
+#include "GameService.h"
 #include "LogManager/LogManager.h"
 
 #include "Utils/typedefs.h"
@@ -20,7 +20,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 //======================================================================================================================
 
 NetworkManager::NetworkManager(void) :
-mServiceIdIndex(1)
+mServiceIdIndex(1),
+mIOService()
 {
 	// for safety, in case someone forgot to init previously
 	LogManager::Init();
@@ -51,17 +52,17 @@ void NetworkManager::Shutdown(void)
 void NetworkManager::Process(void)
 {
 	// Get the current count of Services to be processed.  We can't just check to see if the queue is empty, since
-	// the other threads could keep placing more Service objects in the queue, and this could cause a stall in the
+	// the other threads could keep placing more IService objects in the queue, and this could cause a stall in the
 	// main thread.
 
 	mIOService.poll();
    
-	Service*	service = 0;
+	IService*	service = 0;
 	uint32		serviceCount = mServiceProcessQueue.size();
 
 	for(uint32 i = 0; i < serviceCount; i++)
 	{
-		// Grab our next Service to process
+		// Grab our next IService to process
 		service = mServiceProcessQueue.pop();
 	
 		if(service)
@@ -75,11 +76,10 @@ void NetworkManager::Process(void)
 
 //======================================================================================================================
 
-Service* NetworkManager::GenerateService(int8* address, uint16 port,uint32 mfHeapSize,  bool serverservice)
+IService* NetworkManager::GenerateService(std::string address, uint16 port,uint32 mfHeapSize,  ServiceType type)
 {
-	Service* newService = 0;
-
-	newService = new Service(this, &mIOService, serverservice);
+	IService* newService = new GameService(this, &mIOService);
+	printf("Here\n");
 	newService->setId(mServiceIdIndex++);
 	newService->Startup(address, port,mfHeapSize);
 	
@@ -88,7 +88,7 @@ Service* NetworkManager::GenerateService(int8* address, uint16 port,uint32 mfHea
 
 //======================================================================================================================
 
-void NetworkManager::DestroyService(Service* service)
+void NetworkManager::DestroyService(IService* service)
 {
 	service->Shutdown();
 	delete(service);

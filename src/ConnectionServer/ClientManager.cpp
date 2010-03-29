@@ -13,7 +13,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "ConnectionDispatch.h"
 #include "MessageRouter.h"
 
-#include "NetworkManager/Service.h"
+#include "NetworkManager/IService.h"
 
 #include "LogManager/LogManager.h"
 
@@ -29,7 +29,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 //======================================================================================================================
 
-ClientManager::ClientManager(Service* service, Database* database, MessageRouter* router, ConnectionDispatch* dispatch) :
+ClientManager::ClientManager(IService* service, Database* database, MessageRouter* router, ConnectionDispatch* dispatch) :
 mClientService(service),
 mDatabase(database),
 mMessageRouter(router),
@@ -125,7 +125,7 @@ void ClientManager::handleServerDown(uint32 serverId)
 
 //======================================================================================================================
 
-NetworkClient* ClientManager::handleSessionConnect(Session* session, Service* service)
+NetworkClient* ClientManager::handleSessionConnect(Session* session, IService* service)
 {
 	// Create a new client for the network.
 	ConnectionClient* newClient = new ConnectionClient();

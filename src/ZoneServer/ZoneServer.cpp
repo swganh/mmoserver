@@ -44,7 +44,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "ScriptEngine/ScriptSupport.h"
 #include "LogManager/LogManager.h"
 #include "NetworkManager/NetworkManager.h"
-#include "NetworkManager/Service.h"
+#include "NetworkManager/GameService.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseManager.h"
 #include "DatabaseManager/DatabaseResult.h"
@@ -108,7 +108,7 @@ mDatabase(0)
 	//increase the server start that will help us to organize our logs to the corresponding serverstarts (mostly for errors)
 	mDatabase->ExecuteSqlAsync(0,0,"UPDATE config_process_list SET serverstartID = serverstartID+1 WHERE name like \'%s\'",zoneName);
 
-	mRouterService = mNetworkManager->GenerateService((char*)gConfig->read<std::string>("BindAddress").c_str(), gConfig->read<uint16>("BindPort"),gConfig->read<uint32>("ServiceMessageHeap")*1024,true);
+	mRouterService = mNetworkManager->GenerateService((char*)gConfig->read<std::string>("BindAddress").c_str(), gConfig->read<uint16>("BindPort"),gConfig->read<uint32>("ServiceMessageHeap")*1024, SERVICE_TYPE_CLUSTER);
 
 	// Grab our zoneId out of the DB for this zonename.
 	uint32 zoneId = 0;

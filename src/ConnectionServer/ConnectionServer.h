@@ -20,7 +20,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 class DatabaseManager;
 class Database;
 class NetworkManager;
-class Service;
+class IService;
 class MessageRouter;
 class ClientManager;
 class ServerManager;
@@ -52,8 +52,8 @@ class ConnectionServer
 
 		uint32					mClusterId;
 
-		Service*				mClientService;
-		Service*				mServerService;
+		IService*				mClientService;
+		IService*				mServerService;
 };
 
 //======================================================================================================================

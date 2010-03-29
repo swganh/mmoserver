@@ -33,7 +33,7 @@ SessionFactory::~SessionFactory(void)
 
 //======================================================================================================================
 
-void SessionFactory::Startup(SocketWriteThread* writeThread, Service* service, PacketFactory* packetFactory, MessageFactory* messageFactory, bool serverservice)
+void SessionFactory::Startup(SocketWriteThread* writeThread, IService* service, PacketFactory* packetFactory, MessageFactory* messageFactory, bool serverservice)
 {
   mService				= service;
   mPacketFactory		= packetFactory;

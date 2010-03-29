@@ -17,7 +17,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 //======================================================================================================================
 
 class NetworkManager;
-class Service;
+class IService;
 class DatabaseManager;
 class Database;
 
@@ -63,7 +63,7 @@ class ZoneServer
 		NetworkManager*               mNetworkManager;
 		DatabaseManager*              mDatabaseManager;
 	
-		Service*                      mRouterService;
+		IService*                      mRouterService;
 		Database*                     mDatabase;
 
 		MessageDispatch*              mMessageDispatch;

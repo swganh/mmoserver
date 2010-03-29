@@ -373,23 +373,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\NetConfig.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\NetworkClient.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\NetworkManager.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\PacketFactory.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Service.cpp"
+				RelativePath=".\GameService.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -409,6 +393,22 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\NetConfig.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\NetworkClient.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\NetworkManager.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\PacketFactory.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Session.cpp"
 				>
 			</File>
@@ -424,6 +424,14 @@
 			>
 			<File
 				RelativePath=".\CompCryptor.h"
+				>
+			</File>
+			<File
+				RelativePath=".\GameService.h"
+				>
+			</File>
+			<File
+				RelativePath=".\IService.h"
 				>
 			</File>
 			<File
@@ -448,10 +456,6 @@
 			</File>
 			<File
 				RelativePath=".\PacketFactory.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Service.h"
 				>
 			</File>
 			<File

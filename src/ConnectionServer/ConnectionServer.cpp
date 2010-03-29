@@ -17,7 +17,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "MessageRouter.h"
 
 #include "NetworkManager/NetworkManager.h"
-#include "NetworkManager/Service.h"
+#include "NetworkManager/GameService.h"
 
 #include "LogManager/LogManager.h"
 
@@ -63,9 +63,9 @@ mServerService(0)
 
 	// Create our status service
 	//clientservice
-	mClientService = mNetworkManager->GenerateService((char*)gConfig->read<std::string>("BindAddress").c_str(), gConfig->read<uint16>("BindPort"),gConfig->read<uint32>("ClientServiceMessageHeap")*1024, false);//,5);
+	mClientService = mNetworkManager->GenerateService((char*)gConfig->read<std::string>("BindAddress").c_str(), gConfig->read<uint16>("BindPort"),gConfig->read<uint32>("ClientServiceMessageHeap")*1024, SERVICE_TYPE_GAME);//,5);
 	//serverservice
-	mServerService = mNetworkManager->GenerateService((char*)gConfig->read<std::string>("ClusterBindAddress").c_str(), gConfig->read<uint16>("ClusterBindPort"),gConfig->read<uint32>("ServerServiceMessageHeap")*1024, true);//,15);
+	mServerService = mNetworkManager->GenerateService((char*)gConfig->read<std::string>("ClusterBindAddress").c_str(), gConfig->read<uint16>("ClusterBindPort"),gConfig->read<uint32>("ServerServiceMessageHeap")*1024, SERVICE_TYPE_CLUSTER);//,15);
 
 	mDatabaseManager = new DatabaseManager();
 

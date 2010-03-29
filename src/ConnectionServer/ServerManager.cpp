@@ -17,7 +17,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "MessageRouter.h"
 
 #include "NetworkManager/Session.h"
-#include "NetworkManager/Service.h"
+#include "NetworkManager/IService.h"
 
 #include "LogManager/LogManager.h"
 
@@ -34,7 +34,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 //======================================================================================================================
 
-ServerManager::ServerManager(Service* service, Database* database, MessageRouter* router, ConnectionDispatch* dispatch,ClientManager* clientManager) :
+ServerManager::ServerManager(IService* service, Database* database, MessageRouter* router, ConnectionDispatch* dispatch,ClientManager* clientManager) :
 mMessageRouter(router),
 mServerService(service),
 mDatabase(database),
@@ -103,7 +103,7 @@ void ServerManager::SendMessageToServer(Message* message)
 
 //======================================================================================================================
 
-NetworkClient* ServerManager::handleSessionConnect(Session* session, Service* service)
+NetworkClient* ServerManager::handleSessionConnect(Session* session, IService* service)
 {
 	NetworkClient*	newClient = 0;
 	ServerAddress	serverAddress;

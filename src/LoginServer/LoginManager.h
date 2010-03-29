@@ -63,7 +63,7 @@ class LoginManager : public NetworkCallback, public DatabaseCallback
 		void                    Process(void);
 
   // From NetworkCallback inheritance
-		virtual NetworkClient*	handleSessionConnect(Session* session, Service* service);
+		virtual NetworkClient*	handleSessionConnect(Session* session, IService* service);
 		virtual void          	handleSessionDisconnect(NetworkClient* client);
 		virtual void            handleSessionMessage(NetworkClient* client, Message* message);
 

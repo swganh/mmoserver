@@ -26,7 +26,7 @@ class GroupManager;
 class MessageDispatch;
 class NetworkManager;
 class PlanetMapHandler;
-class Service;
+class IService;
 class TradeManagerChatHandler;
 class StructureManagerChatHandler;
 
@@ -61,7 +61,7 @@ class ChatServer
 		NetworkManager*				  mNetworkManager;
 		DatabaseManager*              mDatabaseManager;
 
-		Service*                      mRouterService;
+		IService*                     mRouterService;
 		Database*                     mDatabase;
 
 		MessageDispatch*              mMessageDispatch;

@@ -16,7 +16,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "MessageFactory.h"
 #include "DispatchClient.h"
 #include "MessageDispatchCallback.h"
-#include "NetworkManager/Service.h"
+#include "NetworkManager/IService.h"
 #include "NetworkManager/Session.h"
 #include "NetworkManager/NetworkClient.h"
 #include "LogManager/LogManager.h"
@@ -27,7 +27,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 //======================================================================================================================
 
-MessageDispatch::MessageDispatch(Service* service) :
+MessageDispatch::MessageDispatch(IService* service) :
 mRouterService(service)
 {
 	// Put ourselves on the service callback list.
@@ -74,7 +74,7 @@ void MessageDispatch::UnregisterMessageCallback(uint32 opcode)
 
 //======================================================================================================================
 
-NetworkClient* MessageDispatch::handleSessionConnect(Session* session, Service* service)
+NetworkClient* MessageDispatch::handleSessionConnect(Session* session, IService* service)
 {
 	// MessageDispatch should never recieve new connections.
 	return 0;

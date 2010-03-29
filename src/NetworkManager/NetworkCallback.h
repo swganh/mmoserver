@@ -15,7 +15,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 //======================================================================================================================
 
 class Session;
-class Service;
+class IService;
 class NetworkClient;
 class Message;
 
@@ -25,7 +25,7 @@ class NetworkCallback
 {
 	public:
 
-	  virtual NetworkClient*  handleSessionConnect(Session* session, Service* service)            { return (NetworkClient*)-1; };
+	  virtual NetworkClient*  handleSessionConnect(Session* session, IService* service)            { return (NetworkClient*)-1; };
 	  virtual void            handleSessionDisconnect(NetworkClient* client)                      {};
 	  virtual void            handleSessionMessage(NetworkClient* client, Message* message)       {};
 

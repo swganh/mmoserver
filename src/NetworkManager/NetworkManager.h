@@ -16,7 +16,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include <boost/asio.hpp>
 #include "Utils/concurrent_queue.h"
 #include "Utils/typedefs.h"
-#include "Service.h"
+#include "IService.h"
 
 //======================================================================================================================
 
@@ -27,7 +27,7 @@ class Session;
 
 //======================================================================================================================
 
-typedef Anh_Utils::concurrent_queue<Service*>	ServiceQueue;
+typedef Anh_Utils::concurrent_queue<IService*>	ServiceQueue;
 
 //======================================================================================================================
 
@@ -42,10 +42,10 @@ class NetworkManager
 		void		Shutdown(void);
 		void		Process(void);
 
-		Service*	GenerateService(int8* address, uint16 port,uint32 mfHeapSize, bool serverservice);
-		void		DestroyService(Service* service);
+		IService*	GenerateService(std::string address, uint16 port,uint32 mfHeapSize, ServiceType type);
+		void		DestroyService(IService* service);
 
-		void		AddServiceToProcessQueue(Service* service);
+		void		AddServiceToProcessQueue(IService* service);
 
 	private:
 
@@ -57,7 +57,7 @@ class NetworkManager
 
 //=====================================================================================================================
 
-inline void NetworkManager::AddServiceToProcessQueue(Service* service)
+inline void NetworkManager::AddServiceToProcessQueue(IService* service)
 {
 	if(!service->isQueued())
 	{

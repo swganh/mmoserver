@@ -21,7 +21,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "PlanetMapHandler.h"
 
 #include "NetworkManager/NetworkManager.h"
-#include "NetworkManager/Service.h"
+#include "NetworkManager/GameService.h"
 
 #include "LogManager/LogManager.h"
 
@@ -80,7 +80,7 @@ ChatServer::ChatServer() : mNetworkManager(0),mDatabaseManager(0),mRouterService
 										(bool)(gConfig->read<bool>("ConsoleOut",true)),
 										(bool)(gConfig->read<bool>("LogAppend",true)));
 
-	mRouterService = mNetworkManager->GenerateService((char*)gConfig->read<std::string>("BindAddress").c_str(), gConfig->read<uint16>("BindPort"),gConfig->read<uint32>("ServiceMessageHeap")*1024,true);
+	mRouterService = mNetworkManager->GenerateService((char*)gConfig->read<std::string>("BindAddress").c_str(), gConfig->read<uint16>("BindPort"),gConfig->read<uint32>("ServiceMessageHeap")*1024, SERVICE_TYPE_CLUSTER);
 
 	// We need to register our IP and port in the DB so the connection server can connect to us.
 	// Status:  0=offline, 1=loading, 2=online
@@ -212,7 +212,7 @@ void ChatServer::_connectToConnectionServer()
 
 	// Now connect to the ConnectionServer
 	mClient = new DispatchClient();
-	mRouterService->Connect(mClient, processAddress.mAddress, processAddress.mPort);
+	//mRouterService->Connect(mClient, processAddress.mAddress, processAddress.mPort);
 }
 
 //======================================================================================================================

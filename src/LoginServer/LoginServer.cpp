@@ -16,7 +16,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "LoginManager.h"
 
 #include "NetworkManager/NetworkManager.h"
-#include "NetworkManager/Service.h"
+#include "NetworkManager/GameService.h"
 
 #include "LogManager/LogManager.h"
 
@@ -48,13 +48,12 @@ mNetworkManager(0)
   gLogger->logMsg(ConfigManager::getBuildString());
 
 	// Initialize our modules.
-
 	mNetworkManager = new NetworkManager();
 	mNetworkManager->Startup();
-	mService = mNetworkManager->GenerateService((char*)gConfig->read<std::string>("BindAddress").c_str(), gConfig->read<uint16>("BindPort"),gConfig->read<uint32>("ServiceMessageHeap")*1024,false);
-
+	mService = mNetworkManager->GenerateService(gConfig->read<std::string>("BindAddress"), gConfig->read<uint16>("BindPort"),gConfig->read<uint32>("ServiceMessageHeap")*1024, SERVICE_TYPE_GAME);
 
 	mDatabaseManager = new DatabaseManager();
+
 
 	// Connect to our database and pass it off to our modules.
 	mDatabase = mDatabaseManager->Connect(DBTYPE_MYSQL,
@@ -83,7 +82,7 @@ mNetworkManager(0)
 
 	mLoginManager = new LoginManager(mDatabase);
 
-	// Let our network Service know about our callbacks
+	// Let our network IService know about our callbacks
 	mService->AddNetworkCallback(mLoginManager);
 
 	// We're done initializing.

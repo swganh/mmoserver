@@ -27,7 +27,7 @@ class ConnectionClient;
 class MessageRouter;
 class Message;
 class ConnectionDispatch;
-class Service;
+class IService;
 class Session;
 class Database;
 
@@ -39,7 +39,7 @@ class ClientManager : public NetworkCallback, public ConnectionDispatchCallback,
 {
 	public:
 
-		ClientManager(Service* service, Database* database, MessageRouter* router, ConnectionDispatch* connectionDispatch);
+		ClientManager(IService* service, Database* database, MessageRouter* router, ConnectionDispatch* connectionDispatch);
 		~ClientManager(void);
 
 		void                        Process(void);
@@ -47,7 +47,7 @@ class ClientManager : public NetworkCallback, public ConnectionDispatchCallback,
 		void                        SendMessageToClient(Message* message);
 
 		// Inherited NetworkCallback
-		virtual NetworkClient*	    handleSessionConnect(Session* session, Service* service);
+		virtual NetworkClient*	    handleSessionConnect(Session* session, IService* service);
 		virtual void          	    handleSessionDisconnect(NetworkClient* client);
 		virtual void				handleSessionMessage(NetworkClient* client, Message* message);
 
@@ -68,7 +68,7 @@ class ClientManager : public NetworkCallback, public ConnectionDispatchCallback,
 		void                        _handleQueryAuth(ConnectionClient* client, DatabaseResult* result);
 
 
-		Service*                    mClientService;
+		IService*                    mClientService;
 		Database*                   mDatabase;
 		MessageRouter*              mMessageRouter;
 		ConnectionDispatch*         mConnectionDispatch;

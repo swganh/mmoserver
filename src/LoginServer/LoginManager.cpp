@@ -74,7 +74,7 @@ void LoginManager::Process(void)
 
 //======================================================================================================================
 
-NetworkClient* LoginManager::handleSessionConnect(Session* session, Service* service)
+NetworkClient* LoginManager::handleSessionConnect(Session* session, IService* service)
 {
 	LoginClient* newClient = new(mLoginClientPool.malloc()) LoginClient();
 

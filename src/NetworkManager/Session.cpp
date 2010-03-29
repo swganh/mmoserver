@@ -17,7 +17,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "NetworkClient.h"
 #include "Packet.h"
 #include "PacketFactory.h"
-#include "Service.h"
+#include "GameService.h"
 
 #include "LogManager/LogManager.h"
 
@@ -71,8 +71,6 @@ mServerPacketsReceived(0),
 mOutSequenceNext(0),
 mInSequenceNext(0),
 mSendDelayedAck(false),
-mInOutgoingQueue(false),
-mInIncomingQueue(false),
 mStatus(SSTAT_Initialize),
 mCommand(SCOM_None),
 mPacketBuildTimeLimit(15),
@@ -212,7 +210,7 @@ void Session::Update(void)
 			getService()->getSocket()->async_send_to( 
 				boost::asio::buffer(packet->getData(), packet->getSize()),
 				getRemoteEndpoint(),
-				boost::bind(&Service::HandleSendTo, getService(), this, packet)
+				boost::bind(&IService::HandleSendTo, getService(), this, packet)
 				);
 		}
 	}

@@ -581,7 +581,7 @@ void MessageFactory::_adjustHeapStartBounds(uint32 size)
 
 		mCurrentMessage->setData(mMessageHeap + sizeof(Message));
 
-		gLogger->logMsgF("Heap Rollover Service %u STATS: MessageHeap - size: %u, maxUsed: %2.2f%, created: %u, destroyed: %u\n", MSG_HIGH, mServiceId,heapSize, mMaxHeapUsedPercent, mMessagesCreated, mMessagesDestroyed);
+		gLogger->logMsgF("Heap Rollover IService %u STATS: MessageHeap - size: %u, maxUsed: %2.2f%, created: %u, destroyed: %u\n", MSG_HIGH, mServiceId,heapSize, mMaxHeapUsedPercent, mMessagesCreated, mMessagesDestroyed);
 	}
 }
 
@@ -623,7 +623,7 @@ void MessageFactory::_adjustMessageStart(uint32 size)
 
 		//mCurrentMessage->setData(mMessageHeap + sizeof(Message));
 
-		gLogger->logMsgF("Heap Rollover Service %u STATS: MessageHeap - size: %u, maxUsed: %2.2f%, created: %u, destroyed: %u\n", MSG_HIGH, mServiceId,heapSize, mMaxHeapUsedPercent, mMessagesCreated, mMessagesDestroyed);
+		gLogger->logMsgF("Heap Rollover IService %u STATS: MessageHeap - size: %u, maxUsed: %2.2f%, created: %u, destroyed: %u\n", MSG_HIGH, mServiceId,heapSize, mMaxHeapUsedPercent, mMessagesCreated, mMessagesDestroyed);
 	}
 }
 

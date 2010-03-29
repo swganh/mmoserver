@@ -426,7 +426,7 @@ void CharacterBuilderTerminal::InitArmor()
 	mBoneArmorMenu.push_back("Gloves");
 	mBoneArmorMenu.push_back("Helmet");
 	mBoneArmorMenu.push_back("Leggings");
-	mBoneArmorMenu.push_back("SMC Left Bicep");
+	mBoneArmorMenu.push_back("Alternative Left Bicep");
 	//BStringVector			mCompositeArmorMenu;
 	mCompositeArmorMenu.push_back("Full Set");
 	mCompositeArmorMenu.push_back("Left Bicep");
@@ -1522,7 +1522,6 @@ void CharacterBuilderTerminal::_handleBoneArmorMenu(PlayerObject* player, uint32
 	{
 	case 0:
 		{
-		GiveItem(player,870);
 		GiveItem(player,1131);
 		GiveItem(player,615);
 		GiveItem(player,608);
@@ -1535,7 +1534,7 @@ void CharacterBuilderTerminal::_handleBoneArmorMenu(PlayerObject* player, uint32
 		}
 		break;
 	case 1:
-		GiveItem(player,870);
+		GiveItem(player,1102);
 		break;
 	case 2:
 		GiveItem(player,1131);
@@ -1562,7 +1561,7 @@ void CharacterBuilderTerminal::_handleBoneArmorMenu(PlayerObject* player, uint32
 		GiveItem(player,1001);
 		break;
 	case 10:
-		GiveItem(player,1102);
+		GiveItem(player,870);
 		break;
 	default:break;
 	}

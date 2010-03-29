@@ -51,26 +51,10 @@ void NetworkManager::Shutdown(void)
 
 void NetworkManager::Process(void)
 {
-	// Get the current count of Services to be processed.  We can't just check to see if the queue is empty, since
-	// the other threads could keep placing more IService objects in the queue, and this could cause a stall in the
-	// main thread.
-
 	mIOService.poll();
-   
-	IService*	service = 0;
-	uint32		serviceCount = mServiceProcessQueue.size();
 
-	for(uint32 i = 0; i < serviceCount; i++)
-	{
-		// Grab our next IService to process
-		service = mServiceProcessQueue.pop();
-	
-		if(service)
-		{
-			service->setQueued(false);
-			service->Process();
-		}
-	}	
+	for( ServiceList::iterator iter = mServiceList.begin(); iter != mServiceList.end(); iter++ )
+		(*iter)->Process();
 }
 
 
@@ -81,7 +65,7 @@ IService* NetworkManager::GenerateService(std::string address, uint16 port,uint3
 	IService* newService = new GameService(this, &mIOService);
 	newService->setId(mServiceIdIndex++);
 	newService->Startup(address, port,mfHeapSize);
-	
+	mServiceList.push_back(newService);
 	return newService;
 }
 
@@ -89,6 +73,15 @@ IService* NetworkManager::GenerateService(std::string address, uint16 port,uint3
 
 void NetworkManager::DestroyService(IService* service)
 {
+	for( ServiceList::iterator iter = mServiceList.begin(); iter != mServiceList.end(); iter++ )
+	{
+		if( (*iter)->getId() == service->getId() )
+		{
+			mServiceList.erase(iter);
+			break;
+		}
+	}
+
 	service->Shutdown();
 	delete(service);
 }

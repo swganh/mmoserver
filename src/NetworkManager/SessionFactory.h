@@ -19,10 +19,9 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 //======================================================================================================================
 
-class SocketWriteThread;
 class PacketFactory;
 class MessageFactory;
-class IService;
+class GameService;
 
 //======================================================================================================================
 
@@ -36,19 +35,18 @@ class SessionFactory
 									SessionFactory(void);
 									~SessionFactory(void);
 
-	  void                          Startup(SocketWriteThread* writeThread, IService* service, PacketFactory* packetFactory, MessageFactory* messageFactory, bool serverservice);
+	  void                          Startup(GameService* service, PacketFactory* packetFactory, MessageFactory* messageFactory);
 	  void                          Shutdown(void);
 	  void                          Process(void);
 
 	  Session*                      CreateSession(void);
 	  void                          DestroySession(Session* packet);
 
-	  IService*                     getService() { return mService; }
+	  GameService*                     getService() { return mService; }
 
 	private:
 
-	  bool							mServerService; //marks the service as server / client important to determine packetsize
-	  IService*                      mService;
+	  GameService*                  mService;
 	  PacketFactory*                mPacketFactory;
 	  MessageFactory*               mMessageFactory;
 	  uint32                        mSessionIdNext;

@@ -33,12 +33,11 @@ SessionFactory::~SessionFactory(void)
 
 //======================================================================================================================
 
-void SessionFactory::Startup(SocketWriteThread* writeThread, IService* service, PacketFactory* packetFactory, MessageFactory* messageFactory, bool serverservice)
+void SessionFactory::Startup(GameService* service, PacketFactory* packetFactory, MessageFactory* messageFactory)
 {
   mService				= service;
   mPacketFactory		= packetFactory;
   mMessageFactory		= messageFactory;
-  mServerService		= serverservice;
 
 }
 
@@ -67,34 +66,16 @@ Session* SessionFactory::CreateSession(void)
 	session->setMessageFactory(mMessageFactory);
 	session->setId(mSessionIdNext++);
 
-	session->setServerService(mServerService);
+	uint16 unreliable = gNetConfig->getServerClientUnReliableSize();
+	uint16 reliable = gNetConfig->getServerClientReliableSize();
 
-	if(mServerService)
-	{
-		uint16 unreliable = gNetConfig->getServerServerUnReliableSize();
-		uint16 reliable = gNetConfig->getServerServerReliableSize();
+	if(reliable > MAX_CLIENT_PACKET_SIZE)
+		reliable = MAX_CLIENT_PACKET_SIZE;
+	if(unreliable > MAX_CLIENT_PACKET_SIZE)
+		unreliable = MAX_CLIENT_PACKET_SIZE;
 
-		if(reliable > MAX_SERVER_PACKET_SIZE)
-			reliable = MAX_SERVER_PACKET_SIZE;
-		if(unreliable > MAX_SERVER_PACKET_SIZE)
-			unreliable = MAX_SERVER_PACKET_SIZE;
-
-		session->setPacketSize(reliable);
-		session->setUnreliableSize(unreliable);
-	}
-	else
-	{
-		uint16 unreliable = gNetConfig->getServerClientUnReliableSize();
-		uint16 reliable = gNetConfig->getServerClientReliableSize();
-
-		if(reliable > MAX_CLIENT_PACKET_SIZE)
-			reliable = MAX_CLIENT_PACKET_SIZE;
-		if(unreliable > MAX_CLIENT_PACKET_SIZE)
-			unreliable = MAX_CLIENT_PACKET_SIZE;
-
-		session->setPacketSize(reliable);
-		session->setUnreliableSize(unreliable);
-	}
+	session->setPacketSize(reliable);
+	session->setUnreliableSize(unreliable);
 
 	return session;
 }

@@ -13,6 +13,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #define ANH_NETWORKMANAGER_SESSION_H
 
 #include "CompCryptor.h"
+#include "GameService.h"
 #include "NetConfig.h"
 
 #include "Common/Message.h"
@@ -29,7 +30,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 //======================================================================================================================
 
 class NetworkClient;
-class IService;
 class PacketFactory;
 class MessageFactory;
 class Packet;
@@ -87,7 +87,7 @@ class Session
 	  
 	  // Accessor methods
 	  NetworkClient*              getClient(void)                                 { return mClient; }
-	  IService*                    getService(void)                                { return mService; }
+	  GameService*                getService(void)                                { return mService; }
 	  uint32                      getId(void)                                     { return mId; }
 	  uint16                      getPortHost(void);
 	  uint32                      getIncomingQueueMessageCount()    { return mIncomingMessageQueue.size(); }
@@ -98,7 +98,7 @@ class Session
 	  boost::asio::ip::udp::endpoint getRemoteEndpoint(void)					  { return mRemoteEndpoint; }
 
 	  void                        setClient(NetworkClient* client)                { mClient = client; }
-	  void                        setService(IService* service)                    { mService = service; }
+	  void                        setService(GameService* service)                    { mService = service; }
 	  void                        setPacketFactory(PacketFactory* factory)        { mPacketFactory = factory; }
 	  void                        setMessageFactory(MessageFactory* factory)      { mMessageFactory = factory; }
 	  void                        setId(uint32 id)                                { mId = id; }
@@ -109,13 +109,7 @@ class Session
 	  void                        setPacketSize(uint16 size)					  { mMaxPacketSize = size;}
 	  void                        setUnreliableSize(uint16 size)				  { mMaxUnreliableSize = size;}
 
-	  void						  setServerService(bool yes){mServerService = yes;}
-	  bool						  getServerService(){return mServerService;}
-
 	  void						  QueueIncomingPacket(Packet* packet)			  { mIncomingPackets.push(packet); }
-	 
-	  uint64					  mLastPacketDestroyed;
-	  uint64					  mHash;
 
 private:
 	  void                        _processSessionRequestPacket(Packet* packet);
@@ -165,10 +159,7 @@ private:
 	  uint16					  mMaxPacketSize;
 	  uint16					  mMaxUnreliableSize;
 
-	  //we want to only encrypt / pack when we communicate with the client
-	  bool						  mServerService;
-
-	  IService*                    mService;
+	  GameService*                mService;
 	  NetworkClient*              mClient;
 	  PacketFactory*              mPacketFactory;
 	  MessageFactory*             mMessageFactory;

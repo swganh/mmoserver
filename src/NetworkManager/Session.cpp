@@ -84,14 +84,12 @@ lowest(0)
 	mLastConnectRequestSent = mConnectStartEvent;  
 	
 
-	mServerService = false;
 	mMaxPacketSize = MAX_PACKET_SIZE;
 	mMaxUnreliableSize= (uint32) MAX_PACKET_SIZE/2;
 
 	mLastPingPacketSent = 0;
 	
 	endCount = 0;
-	mHash = 0;
 
 	mCompCryptor.Startup();
 
@@ -210,7 +208,7 @@ void Session::Update(void)
 			getService()->getSocket()->async_send_to( 
 				boost::asio::buffer(packet->getData(), packet->getSize()),
 				getRemoteEndpoint(),
-				boost::bind(&IService::HandleSendTo, getService(), this, packet)
+				boost::bind(&GameService::HandleSendTo, reinterpret_cast<GameService*>( getService() ), this, packet)
 				);
 		}
 	}
@@ -328,26 +326,9 @@ void Session::ProcessWriteThread(void)
 	  t = (uint64)t/1000;
       if ((Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastPacketReceived) > 60000)
       {
-		  if(this->mServerService)
-		  {
-				gLogger->logMsgF("Session disconnect last received packet > 60 (%I64u) seconds session Id :%u", MSG_HIGH, t, this->getId());   
-				gLogger->logMsgF("Session lastpacket %I64u now %I64u diff : %I64u", MSG_HIGH, mLastPacketReceived, Anh_Utils::Clock::getSingleton()->getLocalTime(),(Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastPacketReceived));   
-				mCommand = SCOM_Disconnect;
-		  }
-		  else
-		  {
 			gLogger->logMsgF("Session disconnect last received packet > 60 (%I64u) seconds session Id :%u", MSG_HIGH, t, this->getId());   
- 
 			mCommand = SCOM_Disconnect;
-		  }
       }
-	  else	  
-	  if (this->mServerService && ((Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastPacketReceived) > 10000))
-	  {
-		  //gLogger->logMsgF("Session send server server ping", MSG_HIGH);   
-		  if((Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastPingPacketSent) > 1000)
-				_sendPingPacket();
-	  }
       
   }
  

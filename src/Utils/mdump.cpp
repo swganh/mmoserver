@@ -27,12 +27,7 @@ LONG WINAPI CreateMiniDump( LPEXCEPTION_POINTERS pep )
 		mci.CallbackRoutine     = (MINIDUMP_CALLBACK_ROUTINE)MiniDumpCallback; 
 		mci.CallbackParam       = 0; 
 
-		MINIDUMP_TYPE mdt       = (MINIDUMP_TYPE)(MiniDumpWithPrivateReadWriteMemory | 
-		                                          MiniDumpWithDataSegs | 
-		                                          MiniDumpWithHandleData |
-		                                          MiniDumpWithFullMemoryInfo | 
-		                                          MiniDumpWithThreadInfo | 
-		                                          MiniDumpWithUnloadedModules ); 
+		MINIDUMP_TYPE mdt       = (MINIDUMP_TYPE)(MiniDumpWithIndirectlyReferencedMemory | MiniDumpScanMemory); 
 
 		BOOL rv = MiniDumpWriteDump( GetCurrentProcess(), GetCurrentProcessId(), 
 			hFile, mdt, (pep != 0) ? &mdei : 0, 0, &mci ); 

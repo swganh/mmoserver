@@ -236,14 +236,13 @@ void Heightmap::Connect(void)
 
 unsigned long Heightmap::getOffset(float x, float y) const
 {
-	unsigned int x_trans = round_coord(x) + WIDTH/2;
-	unsigned int y_trans = HEIGHT/2 - round_coord(y);
-	return 2*(y_trans*WIDTH + x_trans);
+	unsigned int x_trans = round_coord(x) + (WIDTH>>1);
+	unsigned int y_trans = (HEIGHT>>1) - round_coord(y);
+	return ((y_trans*WIDTH + x_trans)<<1);
 }
 
 //=============================================================================
 //
-
 
 int32 Heightmap::round_coord(float coord) const
 {

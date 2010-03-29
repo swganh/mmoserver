@@ -141,6 +141,8 @@ class CraftingSession : public DatabaseCallback, public ObjectFactoryCallback
 		// gets the same roll assigned
 		uint8					getExperimentationRoll(ExperimentationProperty* expProperty, uint8 expPoints);
 
+		uint32					getCounter() {return mCounter;}
+
 	private:
 
 
@@ -200,6 +202,7 @@ class CraftingSession : public DatabaseCallback, public ObjectFactoryCallback
 		uint32							mSubCategory;
 		uint32							mSchematicCRC;
 		bool							mFirstFill;
+		uint32							mCounter;
 };
 
 //=============================================================================

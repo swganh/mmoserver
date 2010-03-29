@@ -592,7 +592,7 @@ void PlayerObject::onBurstRun(const BurstRunEvent* event)
 			sprintf(s,"%s %s slows down.",this->getFirstName().getAnsi(),this->getLastName().getAnsi());
 			BString bs(s);
 			bs.convert(BSTRType_Unicode16);
-			gMessageLib->sendSystemMessageInRange(this,false,bs.getUnicode16());
+			gMessageLib->sendCombatSpam(this,this,0,"","",0,0,bs.getUnicode16());
 
 
 			gMessageLib->sendSysMsg(this,"combat_effects","burst_run_tired");

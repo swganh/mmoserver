@@ -10,3 +10,4 @@ data/heightmaps/
 *.ncb
 *.suo
 *.lnk
+.DS_Store

@@ -171,6 +171,7 @@ int32				mInputBoxAmount;
 	BStringVector			mBatonMenu;
 	BStringVector			mPolearmMenu;
 	BStringVector			mKnifeMenu;
+	BStringVector			mUnarmedMenu;
 	//Ranged Weapon
 	BStringVector			mCarbineMenu;
 	BStringVector			mThrownMenu;

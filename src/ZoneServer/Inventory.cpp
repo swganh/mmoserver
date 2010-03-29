@@ -35,21 +35,6 @@ Inventory::Inventory() : TangibleObject()
 //
 Inventory::~Inventory()
 {
-
-	//TODO:have the equipped Objects move to the player
-	ObjectList::iterator	invObjectIt;
-
-
-	invObjectIt = mEquippedObjects.begin();
-
-	while(invObjectIt != mEquippedObjects.end())
-	{
-		Object* object = (*invObjectIt);
-
-		gWorldManager->destroyObject(object);
-
-		invObjectIt = mEquippedObjects.erase(invObjectIt);
-	}
 }
 
 //=============================================================================
@@ -71,24 +56,6 @@ bool Inventory::checkSlots(uint8 amount)
 	gLogger->logMsgF("Inventory::checkslots(): Inventory full : max Inv capacity :%u, current capacity %u, nr of items we tried to add", MSG_NORMAL, mMaxSlots,getObjects()->size(),amount);
 	return false;
 }
-
-//=============================================================================
-
-void Inventory::removeEquippedObject(Object* object)
-{
-	ObjectList::iterator it = mEquippedObjects.begin();
-	while(it != mEquippedObjects.end())
-	{
-		if((*it) == object)
-		{
-			mEquippedObjects.erase(it);
-			return;
-		}
-		++it;
-	}
-	gLogger->logMsgF("cant find equipped object %s",MSG_HIGH,object->getModelString().getAnsi());
-}
-
 
 //=============================================================================
 
@@ -134,217 +101,6 @@ void Inventory::handleObjectReady(Object* object,DispatchClient* client)
 	else
 		addObjectSecure(object);
 	
-}
-
-//=============================================================================
-
-bool Inventory::EquipItemTest(Object* object)
-{
-	Item* item = dynamic_cast<Item*>(object);
-	PlayerObject*	owner		= dynamic_cast<PlayerObject*> (gWorldManager->getObjectById(this->getParentId()));
-
-	if(!item)
-	{
-		gLogger->logMsgF("Inventory::EquipItem : No Item object ID : %I64u", MSG_NORMAL,object->getId());
-		return(false);
-	}
-
-	if(!object->hasInternalAttribute("equipped"))
-	{
-		gLogger->logMsgF("Inventory::EquipItem : object not equipable object ID : %I64u", MSG_NORMAL,object->getId());
-		return(false);
-	}
-
-	if(object->getInternalAttribute<bool>("equipped"))
-	{
-		gLogger->logMsgF("Inventory::EquipItem : object is already equipped object ID : %I64u", MSG_NORMAL,object->getId());
-		return(false);
-	}
-
-	
-
-	if(!owner)
-	{
-		gLogger->logMsgF("Inventory::EquipItem : No owner Inventory ID : %I64u", MSG_NORMAL,this->getId());
-		return(false);
-	}
-
-	// don't equip music instruments or weapons while performing
-
-	if((owner->getPerformingState())&&((item->getItemFamily() == ItemFamily_Instrument) || (item->getItemFamily() == ItemFamily_Weapon)))
-	{
-		return(false);
-	}
-
-	// check items equip restrictions, first check race and gender
-	uint32 filter1 = item->getEquipRestrictions() & 0xFFF;
-	uint32 filter2 = owner->getRaceGenderMask() & 0xFFF;
-
-	if((filter1 & filter2) != filter2)
-	{
-		gMessageLib->sendSystemMessage(owner,L"You can't equip this item.");
-		return(false);
-	}
-
-	// then check, if we need to be jedi
-	filter1 = item->getEquipRestrictions() & 0xF000;
-	filter2 = owner->getRaceGenderMask() & 0xF000;
-
-	if(filter1 && !filter2)
-	{
-		gMessageLib->sendSystemMessage(owner,L"You can't equip this item.");
-		return(false);
-	}
-
-	// then faction
-	filter1 = item->getEquipRestrictions() & 0xF0000;
-
-	if((filter1 == 0x10000 && strcmp(owner->getFaction().getAnsi(),"rebel") != 0)
-	|| (filter1 == 0x20000 && strcmp(owner->getFaction().getAnsi(),"imperial") != 0))
-	{
-		gMessageLib->sendSystemMessage(owner,L"You can't equip this item.");
-		return(false);
-	}
-
-	return(true);
-}
-
-bool Inventory::EquipItem(Object* object)
-{
-	if(!EquipItemTest(object))
-		return false;
-	
-
-	PlayerObject*	owner		= dynamic_cast<PlayerObject*> (gWorldManager->getObjectById(this->getParentId()));
-	Item* item = dynamic_cast<Item*>(object);
-
-	owner->getEquipManager()->addEquippedObject(object);
-
-	gLogger->logMsgF("Inventory::EquipItem : owner ID : %I64u", MSG_NORMAL,owner->getId());
-	//equipped objects are always contained by the Player
-	//unequipped ones by the inventory!
-
-	//and add to inventories equipped list   - move this to playerobject at one point
-	this->addEquippedObject(object);
-
-	uint64			parentId	= this->getParentId();
-
-	//update containment and db
-	object->setParentId(parentId,4,owner,true);
-
-	//update the relevant attribute and the db 
-	object->setInternalAttributeIncDB("equipped","1");
-
-	gMessageLib->sendEquippedListUpdate_InRange(owner);
-
-	//create it for all nearby players
-	PlayerObjectSet*			inRangePlayers	= owner->getKnownPlayers();
-	gMessageLib->sendCreateTangible(item,inRangePlayers);
-
-	// weapon update
-	if(item->getItemFamily() == ItemFamily_Weapon)
-	{
-		gMessageLib->sendWeaponIdUpdate(owner);
-	}
-
-	return(true);
-}
-
-//=============================================================================
-
-bool Inventory::unEquipItem(Object* object)
-{
-	if(!object->hasInternalAttribute("equipped"))
-	{
-		gLogger->logMsgF("Inventory::unEquipItem : object not equipable object ID : %"PRIu64"", MSG_NORMAL,object->getId());
-		gLogger->logMsgF("Inventory::unEquipItem : likely playerHair", MSG_NORMAL,object->getId());
-		return false;
-	}
-
-	if(!object->getInternalAttribute<bool>("equipped"))
-	{
-		gLogger->logMsgF("Inventory::unEquipItem : object is unequiped object ID : %"PRIu64"", MSG_NORMAL,object->getId());
-		return false;
-	}
-
-	Item* item = dynamic_cast<Item*>(object);
-
-	if(!item)
-	{
-		gLogger->logMsgF("Inventory::unEquipItem : No Item object ID : %"PRIu64"", MSG_NORMAL,object->getId());
-		return false;
-	}
-
-	PlayerObject*	owner		= dynamic_cast<PlayerObject*> (gWorldManager->getObjectById(this->getParentId()));
-
-	if(!owner)
-	{
-		gLogger->logMsgF("Inventory::unEquipItem : No owner Inventory ID : %"PRIu64"", MSG_NORMAL,this->getId());
-		return false;
-	}
-
-	//0client forces us to stop performing at this point as he unequips the instrument regardless of what we do
-	if((item->getItemFamily() == ItemFamily_Instrument) && (owner->getPerformingState() != PlayerPerformance_None))
-	{
-		gEntertainerManager->stopEntertaining(owner);
-	}
-
-
-	gLogger->logMsgF("Inventory::unEquipItem : owner ID : %"PRIu64"", MSG_NORMAL,owner->getId());
-	//equipped objects are always contained by the Player
-	//unequipped ones by the inventory!
-
-	Inventory*		inventory		=	dynamic_cast<Inventory*>(owner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-	uint64			parentId		=	inventory->getId();
-
-	//the object is now in the inventory
-	//update the containment for owner and db
-	object->setParentId(inventory->getId(), 0xffffffff, owner, true);
-	
-	//destroy for everyone in range
-	gMessageLib->sendDestroyObject_InRange(object->getId(),owner,false);
-	gMessageLib->sendEquippedListUpdate_InRange(owner);
-
-	//now remove from the equipped list
-	this->removeEquippedObject(object);
-
-	//and add to inventories regular (unequipped) list
-	//this->addObjectSecure(object); the transferhandler will put it wherever necessary
-
-	object->setInternalAttributeIncDB("equipped","0");
-
-	owner->getEquipManager()->removeEquippedObject(object);
-
-	//check whether the hairslot is now free
-	TangibleObject*				playerHair		= dynamic_cast<TangibleObject*>(owner->getHair());//dynamic_cast<TangibleObject*>(customer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hair));
-	TangibleObject*				playerHairSlot	= dynamic_cast<TangibleObject*>(owner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hair));
-	if((!playerHairSlot)&&playerHair)
-	{
-		//if we have hair equip it
-		owner->getEquipManager()->addEquippedObject(CreatureEquipSlot_Hair,playerHair);
-	}
-
-	if(item->getItemFamily() == ItemFamily_Instrument)
-	{
-		if(owner->getPerformingState() == PlayerPerformance_Music)
-		{
-			//unequipping the instrument we play
-			gEntertainerManager->stopEntertaining(owner);
-		}
-	}
-
-	// if we unequiped our weapon, set the unarmed default weapon
-	if(item->getItemFamily() == ItemFamily_Weapon && (item->getEquipSlotMask() & CreatureEquipSlot_Weapon) == CreatureEquipSlot_Weapon)
-	{
-		owner->getEquipManager()->equipDefaultWeapon();
-	}
-
-	if(item->getItemFamily() == ItemFamily_Weapon)
-	{
-		gMessageLib->sendWeaponIdUpdate(owner);
-	}
-
-	return true;
 }
 
 //=============================================================================
@@ -395,9 +151,15 @@ void Inventory::getUninsuredItems(SortedInventoryItemList* insuranceList)
 	}
 
 	// Items equipped by the player.
-	ObjectList::iterator equippedObjectIt = mEquippedObjects.begin();
+	PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getParentId()));
+	if(!player)
+		return;
 
-	while (equippedObjectIt != mEquippedObjects.end())
+	ObjectList* objList = player->getEquipManager()->getEquippedObjects();
+
+	ObjectList::iterator equippedObjectIt = objList->begin();
+
+	while (equippedObjectIt != objList->end())
 	{
 		Object* object = (*equippedObjectIt);
 		if (object&&object->hasInternalAttribute("insured"))
@@ -427,6 +189,7 @@ void Inventory::getUninsuredItems(SortedInventoryItemList* insuranceList)
 		}
 		equippedObjectIt++;
 	}
+	delete objList;
 }
 
 //=============================================================================
@@ -477,9 +240,14 @@ void Inventory::getInsuredItems(SortedInventoryItemList* insuranceList)
 	}
 
 	// Items equipped by the player.
-	ObjectList::iterator equippedObjectIt = mEquippedObjects.begin();
+	PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getParentId()));
+	if(!player)
+		return;
 
-	while (equippedObjectIt != mEquippedObjects.end())
+	ObjectList* objList = player->getEquipManager()->getEquippedObjects();
+	ObjectList::iterator equippedObjectIt = objList->begin();
+
+	while (equippedObjectIt != objList->end())
 	{
 		Object* object = (*equippedObjectIt);
 		if (object->hasInternalAttribute("insured"))
@@ -509,6 +277,7 @@ void Inventory::getInsuredItems(SortedInventoryItemList* insuranceList)
 		}
 		equippedObjectIt++;
 	}
+	delete objList;
 }
 
 //=============================================================================
@@ -536,9 +305,14 @@ bool Inventory::itemExist(uint32 familyId, uint32 typeId)
 	if (!found)
 	{
 		// Items equipped by the player.
-		ObjectList::iterator equippedObjectIt = mEquippedObjects.begin();
+		PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getParentId()));
+		if(!player)
+			return found;
 
-		while (equippedObjectIt != mEquippedObjects.end())
+		ObjectList* objList = player->getEquipManager()->getEquippedObjects();
+		ObjectList::iterator equippedObjectIt = objList->begin();
+
+		while (equippedObjectIt != objList->end())
 		{
 			Object* object = (*equippedObjectIt);
 			Item* item = dynamic_cast<Item*>(object);
@@ -552,6 +326,7 @@ bool Inventory::itemExist(uint32 familyId, uint32 typeId)
 			}
 			equippedObjectIt++;
 		}
+		delete objList;
 	}
 	return found;
 }

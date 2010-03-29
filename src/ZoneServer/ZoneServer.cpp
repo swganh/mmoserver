@@ -55,8 +55,12 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "ConfigManager/ConfigManager.h"
 #include "Utils/utils.h"
 
-#include <boost/thread/thread.hpp>
+#if !defined(_DEBUG) && defined(_WIN32)
+#include "Utils/mdump.h"
+#endif
 
+#include <boost/thread/thread.hpp>
+  
 //======================================================================================================================
 
 ZoneServer* gZoneServer = NULL;
@@ -64,6 +68,7 @@ ZoneServer* gZoneServer = NULL;
 //======================================================================================================================
 
 ZoneServer::ZoneServer(int8* zoneName) :
+mZoneName(zoneName),
 mNetworkManager(0),
 mDatabaseManager(0),
 mRouterService(0),
@@ -71,9 +76,7 @@ mDatabase(0)
 {
 	//gLogger->printSmallLogo();
 	// gLogger->logMsgF("ZoneServer - %s Startup %s",MSG_NORMAL,zoneName,GetBuildString());
-	gLogger->logMsgF("ZoneServer - %s Startup %s",MSG_NORMAL,zoneName,ConfigManager::getBuildString().c_str());
-	//gLogger->logMsg(GetBuildString());
-	mZoneName = zoneName;
+	gLogger->logMsg("ZoneServer Startup", FOREGROUND_GREEN | FOREGROUND_RED);
 
 	// Create and startup our core services.
 	mDatabaseManager = new DatabaseManager();
@@ -319,7 +322,11 @@ void ZoneServer::_connectToConnectionServer(void)
 //======================================================================================================================
 
 int main(int argc, char* argv[])
-{
+{	
+#if !defined(_DEBUG) && defined(_WIN32)
+	SetUnhandledExceptionFilter(CreateMiniDump);
+#endif
+
 	// The second argument on the command line should be the zone name.
 	//OnlyInstallUnhandeldExceptionFilter(); // Part of stackwalker
 	char zone[50];
@@ -354,9 +361,16 @@ int main(int argc, char* argv[])
 	// Main loop
 	while(1)
 	{
-		if (Anh_Utils::kbhit() || AdminManager::Instance()->shutdownZone())
+		if(AdminManager::Instance()->shutdownZone())
 		{
 			break;
+		}
+		else if (Anh_Utils::kbhit())
+		{
+			if(std::cin.get() == 'q')
+			{
+				break;
+			}
 		}
 
 		gZoneServer->Process();

@@ -119,7 +119,7 @@ int main(int argc, char* argv[])
 	LogManager::Init(G_LEVEL_NORMAL, "PingServer.log", LEVEL_NORMAL, true, true, false);
 	ConfigManager::Init("PingServer.cfg");
 	
-	gLogger->logMsgF("PingServer %s", MSG_NORMAL, ConfigManager::getBuildString().c_str());
+	gLogger->logMsgF("PingServer - Build %s", MSG_NORMAL, ConfigManager::getBuildString().c_str());
 
 	// Read in the address and port to start the ping server on.
 	int port            = gConfig->read<int>("BindPort");
@@ -134,7 +134,9 @@ int main(int argc, char* argv[])
 		boost::this_thread::sleep(boost::posix_time::milliseconds(1));
 
 		// Stop the ping server if a key is hit.
-		if (Anh_Utils::kbhit()) break;
+		if (Anh_Utils::kbhit()) 
+			if(std::cin.get() == 'q')
+				break;
 	}
 
 	delete LogManager::getSingletonPtr();

@@ -374,23 +374,38 @@ void ObjectController::_handleNextCraftingStage(uint64 targetId,Message* message
 	PlayerObject*		playerObject	= dynamic_cast<PlayerObject*>(mObject);
 	CraftingSession*	session			= playerObject->getCraftingSession();
 	string				dataStr;
-	uint32				counter;
+	uint32				counter			= 1;
 
 	if(!session)
 		return;
 
 	message->getStringUnicode16(dataStr);
 
-	if(swscanf(dataStr.getUnicode16(),L"%u",&counter) != 1)
+	if(dataStr.getLength() == 0)
 	{
-		gCraftingSessionFactory->destroySession(playerObject->getCraftingSession());
-
-		//cave this is probably where we get when its issued by the commandline
-		return;
+		//Command Line Entry
+		counter = session->getCounter();
+	}
+	else
+	{
+		uint32 resultCount = swscanf(dataStr.getUnicode16(),L"%u",&counter);
+		if(resultCount != 1)
+		{
+			gCraftingSessionFactory->destroySession(session);
+			return;
+		}
+		gLogger->logMsgF("Counter We Got: %u", MSG_NORMAL, counter);
+		gLogger->logMsgF("Counter We'd Use: %u", MSG_NORMAL, session->getCounter());
 	}
 
 	switch(session->getStage())
 	{
+		case 1:
+		{
+			//Player's Macro is wrong! :p
+		}
+		break;
+
 		case 2:
 		{
 			session->assemble(counter);

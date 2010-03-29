@@ -25,6 +25,10 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "ConfigManager/ConfigManager.h"
 #include "Utils/utils.h"
 
+#if !defined(_DEBUG) && defined(_WIN32)
+#include "Utils/mdump.h"
+#endif
+
 #include <boost/thread/thread.hpp>
 
 //======================================================================================================================
@@ -38,8 +42,6 @@ mNetworkManager(0)
 	// log msg to default log
   //gLogger->printSmallLogo();
   gLogger->logMsg("LoginServer Startup");
-  // gLogger->logMsg(GetBuildString());
-  gLogger->logMsg(ConfigManager::getBuildString());
 
 	// Initialize our modules.
 
@@ -86,7 +88,7 @@ mNetworkManager(0)
 	//gLogger->printLogo();
 	// std::string BuildString(GetBuildString());	
 
-	gLogger->logMsgF("LoginServer %s",MSG_NORMAL,ConfigManager::getBuildString().c_str());
+	gLogger->logMsgF("LoginServer - Build %s",MSG_NORMAL,ConfigManager::getBuildString().c_str());
 	gLogger->logMsg("Welcome to your SWGANH Experience!");
 }
 
@@ -128,6 +130,11 @@ void handleExit(void)
 //======================================================================================================================
 int main(int argc, char* argv[])
 {
+	// In release mode, catch any unhandled exceptions that may cause the program to crash and create a dump report.
+#if !defined(_DEBUG) && defined(_WIN32)
+	SetUnhandledExceptionFilter(CreateMiniDump);
+#endif
+
   bool exit = false;
 
   // init our logmanager singleton,set global level normal, create the default log with normal priority, output to file + console, also truncate
@@ -147,7 +154,8 @@ int main(int argc, char* argv[])
 		gLoginServer->Process();
 
 		if(Anh_Utils::kbhit())
-			break;
+			if(std::cin.get() == 'q')
+				break;
 
         boost::this_thread::sleep(boost::posix_time::milliseconds(10));
 	}

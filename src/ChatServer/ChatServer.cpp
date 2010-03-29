@@ -37,8 +37,11 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include "Utils/utils.h"
 
-#include <boost/thread/thread.hpp>
+#if !defined(_DEBUG) && defined(_WIN32)
+#include "Utils/mdump.h"
+#endif
 
+#include <boost/thread/thread.hpp>
 #include <cstring>
 
 //======================================================================================================================
@@ -51,8 +54,6 @@ ChatServer::ChatServer() : mNetworkManager(0),mDatabaseManager(0),mRouterService
 {
 	//gLogger->printSmallLogo();
 	gLogger->logMsg("ChatServer Startup");
-	// gLogger->logMsg(GetBuildString());
-	gLogger->logMsg(ConfigManager::getBuildString());
 
 	// Create and startup our core services.
 	mDatabaseManager = new DatabaseManager();
@@ -114,7 +115,7 @@ ChatServer::ChatServer() : mNetworkManager(0),mDatabaseManager(0),mRouterService
 	//gLogger->printLogo();
 	// std::string BuildString(GetBuildString());
 
-	gLogger->logMsgF("ChatServer %s",MSG_NORMAL,ConfigManager::getBuildString().c_str());
+	gLogger->logMsgF("ChatServer - Build %s",MSG_NORMAL,ConfigManager::getBuildString().c_str());
 	gLogger->logMsg("Welcome to your SWGANH Experience!");
 }
 
@@ -222,6 +223,11 @@ void handleExit()
 
 int main(int argc, char* argv[])
 {
+	// In release mode, catch any unhandled exceptions that may cause the program to crash and create a dump report.
+#if !defined(_DEBUG) && defined(_WIN32)
+	SetUnhandledExceptionFilter(CreateMiniDump);
+#endif
+
 	bool exit = false;
 
 	LogManager::Init(G_LEVEL_NORMAL, "ChatServer.log", LEVEL_NORMAL, true, true);
@@ -239,7 +245,10 @@ int main(int argc, char* argv[])
 		gChatServer->Process();
 
 		if(Anh_Utils::kbhit())
-			break;
+		{
+			if(std::cin.get() == 'q')
+				break;
+		}
 
         boost::this_thread::sleep(boost::posix_time::milliseconds(1));
 	}

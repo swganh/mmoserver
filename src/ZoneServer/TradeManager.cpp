@@ -686,7 +686,7 @@ void TradeManager::_processHandleAuctionCreateMessage(Message* message,DispatchC
 	if (item)
 	{
 		//unequips the item in case it is equipped
-		inventory->unEquipItem(item);
+		playerObject->getEquipManager()->unEquipItem(item);
 
 		//will destroy any temporary placed instruments
 		checkPlacedInstrument(item,client);
@@ -1081,7 +1081,7 @@ void TradeManager::_processAddItemMessage(Message* message,DispatchClient* clien
 	if (theitem && addedItem->getParentId() == inventory->getId())
 	{
 		//make sure the item is not equipped
-		inventory->unEquipItem(theitem);
+		playerObject->getEquipManager()->unEquipItem(theitem);
 	}
 	//make sure that the item is only once on the list
 	if (playerObject->getTrade()->ItemTradeCheck(ItemId) == false)

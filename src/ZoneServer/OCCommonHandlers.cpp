@@ -396,9 +396,9 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 		if(!item->getInternalAttribute<bool>("equipped"))
 		{
 			//equip / unequip handles the db side, too
-			if(!inventory->EquipItem(item))
+			if(!player->getEquipManager()->EquipItem(item))
 			{
-				gLogger->logMsgF("ObjectController::_handleTransferItemMisc: Error equipping  %"PRIu64"", MSG_NORMAL, item->getId());
+				//gLogger->logMsgF("ObjectController::_handleTransferItemMisc: Error equipping  %"PRIu64"", MSG_NORMAL, item->getId());
 				//readd it to the old parent
 				if(parentContainer)
 					parentContainer->addObjectSecure(item);
@@ -482,13 +482,13 @@ bool ObjectController::checkTargetContainer(uint64 targetContainerId, Object* ob
 	if(playerObject->getId() == targetContainerId)
 	{
 		//check for equip restrictions!!!!
-		return inventory->EquipItemTest(object);
+		return true;
 		
 	}
 	
 	if(!targetContainer)
 	{
-		gLogger->logMsg("ObjController::_handleTransferItemMisc: TargetContainer is NULL :(");
+		//gLogger->logMsg("ObjController::_handleTransferItemMisc: TargetContainer is NULL :(");
 		return false;
 	}
 
@@ -591,7 +591,7 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 		if ((itemObject->hasInternalAttribute("equipped"))&&(itemObject->getInternalAttribute<bool>("equipped")))
 		{
 			// unequip it
-			return inventory->unEquipItem(itemObject);
+			return playerObject->getEquipManager()->unEquipItem(itemObject);
 			
 		}
 		//help ... how can that happen an item contained by the player MUST be equipped?
@@ -938,7 +938,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 		if(!item->getInternalAttribute<bool>("equipped"))
 		{
 			//equip / unequip handles the db side, too
-			if(!inventory->EquipItem(item))
+			if(!player->getEquipManager()->EquipItem(item))
 			{
 				gLogger->logMsgF("ObjectController::_handleTransferItemMisc: Error equipping  %"PRIu64"", MSG_NORMAL, item->getId());
 				//readd it to the old parent

@@ -53,6 +53,22 @@ if "%DBINSTALL%" == "true" (
     )
 )
 
+
+if not "%BUILDNUMBER%" == "false" (		
+	if "%BUILD_TYPE%" == "debug" (
+		echo %BUILDNUMBER% >> bin\Debug\VERSION
+	)
+	
+	if "%BUILD_TYPE%" == "release" (
+		echo %BUILDNUMBER% >> bin\Release\VERSION
+	)
+	
+	if "%BUILD_TYPE%" == "all" (
+		echo %BUILDNUMBER% >> bin\Debug\VERSION
+		echo %BUILDNUMBER% >> bin\Release\VERSION
+	)
+)
+
 echo.
 echo Server Successfully Built^^!
 echo This window will close shortly.
@@ -86,6 +102,7 @@ set ALLHEIGHTMAPS=false
 set DBINSTALL=false
 set SKIPHEIGHTMAPS=false
 set DEPENDENCIESONLY=false
+set BUILDNUMBER=0
 set BUILD_ERROR=false    
 set HALT_ON_ERROR=true   
 set halt= 
@@ -116,6 +133,7 @@ if "%~0" == "-h" (
     echo "    /clean                         Cleans the generated files"
     echo "    /build [debug-release-all]     Specifies the build type, defaults to debug"
     echo "    /msvc-version [vc9]            Specifies the msvc version and project files to use"
+	echo "    /buildnumber [num]             Specifies a build number to be set rather than commit hash"
 )
 
 if "%~0" == "/clean" (
@@ -152,11 +170,19 @@ if "%~0" == "/rebuild" (
 	  set REBUILD=rebuild
 )       
 
+
+rem Check for /buildnumber x format and then set BUILDNUMBER
+if "%~0" == "/buildnumber" (
+	set BUILDNUMBER=%~1
+    shift
+)
+
 rem Check for /build:x format and then set BUILD_TYPE
 if "%~0" == "/build" (
 	  set BUILD_TYPE=%~1
     shift
-)
+)      
+
 
 rem Check for /msvc-version:x format and then set MSVC_VERSION
 if "%~0" == "/msvc-version" (

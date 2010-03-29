@@ -28,6 +28,10 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "ConfigManager/ConfigManager.h"
 #include "Utils/utils.h"
 
+#if !defined(_DEBUG) && defined(_WIN32)
+#include "Utils/mdump.h"
+#endif
+
 #include <boost/thread/thread.hpp>
 
 //======================================================================================================================
@@ -46,13 +50,12 @@ mServerManager(0),
 mConnectionDispatch(0),
 mClusterId(0),
 mClientService(0),
-mServerService(0)
+mServerService(0),
+mLocked(false)
 {
 	// log msg to default log
 	//gLogger->printSmallLogo();
 	gLogger->logMsg("ConnectionServer Startup", FOREGROUND_GREEN | FOREGROUND_RED);
-	// gLogger->logMsg(GetBuildString());
-	gLogger->logMsg(ConfigManager::getBuildString());
 	
 	// Startup our core modules
 	mNetworkManager = new NetworkManager();
@@ -109,7 +112,7 @@ mServerService(0)
 	//gLogger->printLogo();
 	// std::string BuildString(GetBuildString());	
 
-	gLogger->logMsgF("ConnectionServer %s",MSG_NORMAL,ConfigManager::getBuildString().c_str());
+	gLogger->logMsgF("ConnectionServer - Build %s",MSG_NORMAL,ConfigManager::getBuildString().c_str());
 	gLogger->logMsg("Welcome to your SWGANH Experience!");
 }
 
@@ -172,10 +175,29 @@ void ConnectionServer::_updateDBServerList(uint32 status)
 }
 
 //======================================================================================================================
+void ConnectionServer::ToggleLock()
+{
+	mLocked = !mLocked;
+
+	if(mLocked)
+	{
+		// Update our status for the LoginServer
+		mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE galaxy SET status=3,last_update=NOW() WHERE galaxy_id=%u;",mClusterId));
+		gLogger->logMsg("Locking server to normal users");
+	} else {
+		// Update our status for the LoginServer
+		mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE galaxy SET status=2,last_update=NOW() WHERE galaxy_id=%u;",mClusterId));
+		gLogger->logMsg("unlocking server to normal users");
+	}
+}
+//======================================================================================================================
 
 int main(int argc, char* argv[])
 {
-	//OnlyInstallUnhandeldExceptionFilter();
+	// In release mode, catch any unhandled exceptions that may cause the program to crash and create a dump report.
+#if !defined(_DEBUG) && defined(_WIN32)
+	SetUnhandledExceptionFilter(CreateMiniDump);
+#endif
 
 	// init our logmanager singleton,set global level normal, create the default log with normal priority, output to file + console, also truncate
 	LogManager::Init(G_LEVEL_NORMAL, "ConnectionServer.log", LEVEL_NORMAL, true, true);
@@ -191,7 +213,14 @@ int main(int argc, char* argv[])
         gConnectionServer->Process();
      
 				if(Anh_Utils::kbhit())
-            break;
+				{
+					char input = std::cin.get();
+					if(input == 'q')
+						break;
+					else if(input == 'l')
+						gConnectionServer->ToggleLock();
+				}
+					
 
         boost::this_thread::sleep(boost::posix_time::milliseconds(1));
 	}

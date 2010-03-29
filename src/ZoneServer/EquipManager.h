@@ -22,6 +22,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 //=============================================================================
 
 typedef std::map<const CreatureEquipSlot,Object*> SlotMap;
+typedef std::multimap<Object*, const CreatureEquipSlot> ObjectSlotMap;
 
 //=============================================================================
 
@@ -37,11 +38,10 @@ class EquipManager
 		EquipManager();
 		~EquipManager();
 
+		ObjectList*			EquipManager::getEquippedObjects();
+
 		// the slot map
 		SlotMap*			getSlotMap(){ return &mSlotMap; }
-
-		// all equipped objects, kept to save filtering of the slotmap, since items may occupy multiple slots
-		ObjectList*			getEquippedObjects(){ return &mEquippedObjects; }
 
 		// creature parent reference
 		CreatureObject*		getParent(){ return mParent; }
@@ -67,7 +67,6 @@ class EquipManager
 		uint32				getEquippedObjectsUpdateCounter(){ return mEquippedObjectsUpdateCounter; }
 		uint32				advanceEquippedObjectsUpdateCounter(uint32 c){ mEquippedObjectsUpdateCounter += c; return mEquippedObjectsUpdateCounter; }
 		void				setEquippedObjectsUpdateCounter(uint32 c){ mEquippedObjectsUpdateCounter = c;}
-		void				resetEquippedObjectsUpdateCounter(){ mEquippedObjectsUpdateCounter = mEquippedObjects.size(); }
 
 		// default weapon handling
 		Weapon*				getDefaultWeapon(){ return mDefaultWeapon; }
@@ -83,11 +82,16 @@ class EquipManager
 		bool				checkEquipSlot(CreatureEquipSlot slot){ return((mEquipSlots & slot) == static_cast<uint32>(slot)); }
 		bool				checkEquipSlots(uint32 slots){ return((mEquipSlots & slots) == slots); }
 
+		bool				EquipItem(Object* object);
+		bool				unEquipItem(Object* object);
+		bool				CheckEquipable(Object* object);
+
 	private:
 
 		// slot / object references
-		SlotMap				mSlotMap;
-		ObjectList			mEquippedObjects;
+		SlotMap					mSlotMap;
+		ObjectSlotMap			mObjectMap;
+		//ObjectList			mEquippedObjects;
 
 		// reference for checking race/gender restrictions
 		CreatureObject*		mParent;

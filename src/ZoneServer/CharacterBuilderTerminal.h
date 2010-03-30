@@ -106,9 +106,12 @@ private:
 	void _handleHeavyMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
 	void _handlePistolMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
 	void _handleRifleMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
+	void _handleCSRItemSelect(PlayerObject* playerObject, uint32 action,int32 element,string inputStr,UIWindow* window);
+	void _handleMainCsrMenu(PlayerObject* playerObject, uint32 action,int32 element,string inputStr,UIWindow* window);
 	
 int32				mInputBoxAmount;
 	BStringVector		mMainMenu;
+	BStringVector		mMainCsrMenu;
 	//BStringVector		mCreditsMenu;
 	//BStringVector		mItemsMenu;
 	//ItemEntryList		mItemsTypes;

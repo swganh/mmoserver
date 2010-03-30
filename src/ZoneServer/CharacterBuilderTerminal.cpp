@@ -73,6 +73,13 @@ void CharacterBuilderTerminal::InitMenus()
 	mMainMenu.push_back("Manage Items");
 	mMainMenu.push_back("Manage Resources");
 	
+	mMainCsrMenu.push_back("Manage Experience");
+	mMainCsrMenu.push_back("Manage Credits");
+	mMainCsrMenu.push_back("Manage Buffs");
+	mMainCsrMenu.push_back("Manage Items");
+	mMainCsrMenu.push_back("Manage Resources");
+	mMainCsrMenu.push_back("Get Item by ID");
+
 	InitExperience();
 	InitCredits();
 	InitBuffs();
@@ -571,6 +578,9 @@ void CharacterBuilderTerminal::SendResourcesMenu(PlayerObject* playerObject, uin
 
 void CharacterBuilderTerminal::_handleMainMenu(PlayerObject* playerObject, uint32 action,int32 element,string inputStr,UIWindow* window)
 {
+	if(element >= (int)mMainMenu.size())
+		return _handleMainCsrMenu(playerObject, action, element, inputStr, window);
+
 	switch(element)
 	{
 	case 0://Experience
@@ -596,6 +606,46 @@ void CharacterBuilderTerminal::_handleMainMenu(PlayerObject* playerObject, uint3
 		break;
 	case 4://Resources
 		SendResourcesMenu(playerObject, action, element, inputStr, window);
+		break;
+		break;
+	default:
+		break;
+	}
+}
+void CharacterBuilderTerminal::_handleMainCsrMenu(PlayerObject* playerObject, uint32 action,int32 element,string inputStr,UIWindow* window)
+{
+	switch(element)
+	{
+	case 0://Experience
+		SendXPMenu(playerObject, action, element, inputStr, window);
+		break;
+	case 1://Credits
+		if(playerObject->isConnected())
+		{
+			gUIManager->createNewListBox(this,"handleCreditsMenu","Credits","Select a category.",mCreditMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_CreditMenu);
+		}
+		break;
+	case 2://Buffs
+		if(playerObject->isConnected())
+		{
+			gUIManager->createNewListBox(this,"handleAttributesMenu","Attributes","Select a Buff.",mBuffMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_BuffMenu);
+		}
+		break;
+	case 3://Items
+		if(playerObject->isConnected())
+		{
+			gUIManager->createNewListBox(this,"handleItemsMenu","Items","Select a Category.",mItemMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_ItemMenu);
+		}
+		break;
+	case 4://Resources
+		SendResourcesMenu(playerObject, action, element, inputStr, window);
+		break;
+	case 5:
+		if(playerObject->isConnected())
+		{
+			BStringVector dropDowns;
+			gUIManager->createNewInputBox(this, "handleInputItemId", "Get Item", "Enter the item ID", dropDowns, playerObject, SUI_IB_NODROPDOWN_OKCANCEL, SUI_Window_CharacterBuilderItemIdInputBox,8);
+		}
 		break;
 	default:
 		break;
@@ -2002,6 +2052,18 @@ void CharacterBuilderTerminal::_handleRifleMenu(PlayerObject* player, uint32 act
 	}
 }
 
+void CharacterBuilderTerminal::_handleCSRItemSelect(PlayerObject* playerObject, uint32 action,int32 element,string inputStr,UIWindow* window)
+{
+	uint32 inputId = 0;
+	
+	if(swscanf(inputStr.getUnicode16(),L"%u",&inputId) == 1)
+	{
+		GiveItem(playerObject,inputId);
+	}
+
+	BStringVector dropDowns;
+	gUIManager->createNewInputBox(this, "handleInputItemId", "Get Item", "Enter the item ID", dropDowns, playerObject, SUI_IB_NODROPDOWN_OKCANCEL, SUI_Window_CharacterBuilderItemIdInputBox,8);
+}
 void CharacterBuilderTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 {
 	if(messageType == radId_itemUse)
@@ -2016,7 +2078,12 @@ void CharacterBuilderTerminal::handleObjectMenuSelect(uint8 messageType,Object* 
 				return;
 			}
 
-			gUIManager->createNewListBox(this,"handleMainMenu","Main menu","Select a category.", mMainMenu,playerObject,SUI_Window_CharacterBuilderMainMenu_ListBox,SUI_LB_OK,this->getId());
+			if(playerObject->getCsrTag() > 0)
+			{
+				gUIManager->createNewListBox(this,"handleMainMenu","Main menu","Select a category.", mMainCsrMenu,playerObject,SUI_Window_CharacterBuilderMainMenu_ListBox,SUI_LB_OK,this->getId());
+			} else {
+				gUIManager->createNewListBox(this,"handleMainMenu","Main menu","Select a category.", mMainMenu,playerObject,SUI_Window_CharacterBuilderMainMenu_ListBox,SUI_LB_OK,this->getId());
+			}
 		}
 	}
 	else
@@ -2191,6 +2258,9 @@ void  CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string
 			break;
 		case SUI_Window_CharacterBuilder_ListBox_RifleMenu:
 			_handleRifleMenu(playerObject, action, element, inputStr, window);
+			break;
+		case SUI_Window_CharacterBuilderItemIdInputBox:
+			_handleCSRItemSelect(playerObject, action, element, inputStr, window);
 			break;
 		default:
 			break;

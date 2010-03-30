@@ -34,9 +34,7 @@ class MountObject : public CreatureObject
 		MountObject(){;}
 		~MountObject(){;}
 
-		virtual void addKnownObject(Object* object);
-		virtual bool removeKnownObject(Object* object);
-		virtual	void destroyKnownObjects();
+		virtual void prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
 
 
 		

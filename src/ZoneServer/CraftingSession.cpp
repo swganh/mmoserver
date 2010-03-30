@@ -639,10 +639,7 @@ void CraftingSession::addComponentAttribute()
 
 				cAPPiT++;
 			}
-
-
-
-
+	
 		}
 	}
 

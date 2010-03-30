@@ -1096,6 +1096,7 @@ void	ObjectController::_handleItemRotationRight90(uint64 targetId,Message* messa
 	
 	object->mDirection.rotatex(90);
 	gMessageLib->sendDataTransformWithParent(object);
+	object->updateWorldPosition();
 	
 
 }
@@ -1149,6 +1150,7 @@ void	ObjectController::_handleItemRotationLeft90(uint64 targetId,Message* messag
 	
 	object->mDirection.rotatex(-90);
 	gMessageLib->sendDataTransformWithParent(object);
+	object->updateWorldPosition();
 	
 
 }
@@ -1223,4 +1225,5 @@ void	ObjectController::_handleItemRotation(uint64 targetId,Message* message,Obje
 		gMessageLib->sendDataTransformWithParent(object);
 	}
 
+	object->updateWorldPosition();
 }

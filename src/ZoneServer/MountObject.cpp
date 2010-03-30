@@ -13,125 +13,64 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "MessageLib/MessageLib.h"
 #include "PlayerObject.h"
 
-		//=============================================================================
-// known objects are those that are in the SI NEAR to our object and have been created
-// all known objects that are NOT found in the next SI update will be destroyed as out of range
-
-void MountObject::addKnownObject(Object* object)
+//=============================================================================
+//handles building custom radials
+void MountObject::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount)
 {
-	if(this->getId() == object->getId())
+
+	PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(creatureObject);
+
+	if(!playerObject)
 	{
-		//assert(false);
-		return;
-	}
-	if(checkKnownObjects(object))
-	{
-		gLogger->logMsgF("Object::addKnownObject %I64u couldnt be added to %I64u - already in it", MSG_NORMAL, object->getId(), this->getId());
 		return;
 	}
 
-	if(object->getType() == ObjType_Player)
-	{
-		mKnownPlayers.insert(dynamic_cast<PlayerObject*>(object));
-	}
-	else
-	{
-		mKnownObjects.insert(object);
-		mKnownObjectsIDs.insert(object->getId());
-	}
-}
+	RadialMenu*		radial			= new RadialMenu();
 
+	uint8 radId = 0;
 
-bool MountObject::removeKnownObject(Object* object)
-{
-	if(object->getType() == ObjType_Player)
+	//if we have a prefab Menu (we will have one as a swoop)  iterate through it and add it to our response
+	//this way we will have our menu item numbering done right
+	MenuItemList* menuItemList = 		getMenuList();
+	if(menuItemList)
 	{
-		PlayerObjectSet::iterator it = mKnownPlayers.find(dynamic_cast<PlayerObject*>(object));
+		MenuItemList::iterator it	=	menuItemList->begin();
 
-		if(it != mKnownPlayers.end())
+		while(it != menuItemList->end())
 		{
-			mKnownPlayers.erase(it);
-
-			return(true);
+			radId++;
+			
+			radial->addItem((*it)->sItem,(*it)->sSubMenu,(RadialIdentifier)(*it)->sIdentifier,(*it)->sOption,"");
+			it++;
 		}
 	}
-	else
+
+
+
+	if(getCreoGroup() == CreoGroup_Vehicle)
 	{
 
-		ObjectSet::iterator it = mKnownObjects.find(object);
-
-		if(it != mKnownObjects.end())
+		if(creatureObject->getId() == mOwner)
 		{
-
-			gLogger->logMsgF("Object::removeKnownObject removing %I64u from %I64u", MSG_NORMAL, object->getId(), this->getId());
-			mKnownObjects.erase(it);
-
-			ObjectIDSet::iterator itID = mKnownObjectsIDs.find(object->getId());
-
-			if(itID != mKnownObjectsIDs.end())
+			PlayerObject* owner = dynamic_cast<PlayerObject*>(creatureObject);
+			if(owner->checkIfMounted())
 			{
-				mKnownObjectsIDs.erase(itID);
-				return(true);
+				radial->addItem(radId++,0,radId_serverVehicleExit,radAction_Default,"@pet/pet_menu:menu_exit");
 			}
 			else
 			{
-				gLogger->logMsgF("Object::removeKnownObject %I64u couldnt be removed from %I64u - not found", MSG_NORMAL, object->getId(), this->getId());
+				radial->addItem(radId++,0,radId_serverVehicleEnter,radAction_Default,"@pet/pet_menu:menu_enter");
 			}
-		
-
-			return(true);
+			radial->addItem(radId++,0,radId_vehicleStore,radAction_ObjCallback,"@pet/pet_menu:menu_store");
+			//TODO: Check if near a garage then add repair
 		}
-		else
-			gLogger->logMsgF("Object::removeKnownObject %I64u couldnt be removed from %I64u - not found", MSG_NORMAL, object->getId(), this->getId());
 
-		
+		//radial->addItem(1,0,radId_examine,radAction_Default);
+
+		mRadialMenu = RadialMenuPtr(radial);
 	}
 
-	return(false);
+
+
 }
 
-
-//=============================================================================
-
-void MountObject::destroyKnownObjects()
-{
-	ObjectSet::iterator			objIt		= mKnownObjects.begin();
-	PlayerObjectSet::iterator	playerIt	= mKnownPlayers.begin();
-
-	ObjectIDSet::iterator IDIt				= mKnownObjectsIDs.begin();
-		
-	// objects
-	while(IDIt	!= mKnownObjectsIDs.end())
-	{
-		Object* object = gWorldManager->getObjectById(*IDIt);
-		if(!object)
-		{
-			gLogger->logMsgF("Object::removeKnownObject %I64u couldnt be removed from %I64u - not found", MSG_NORMAL, (*IDIt), this->getId());	
-			(*IDIt)++;
-		}
-		else
-		{
-			mKnownObjectsIDs.erase(IDIt++);	
-		}
-		
-	}
-
-	while(objIt != mKnownObjects.end())
-	{
-		(*objIt)->removeKnownObject(this);
-		mKnownObjects.erase(objIt++);
-	}
-
-	// players
-	while(playerIt != mKnownPlayers.end())
-	{
-		PlayerObject* targetPlayer = (*playerIt);
-
-		gMessageLib->sendDestroyObject(mId,targetPlayer);
-
-		targetPlayer->removeKnownObject(this);
-		mKnownPlayers.erase(playerIt++);
-
-		
-	}
-}

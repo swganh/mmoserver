@@ -37,6 +37,10 @@ bool PVState::validate(uint32 &reply1, uint32 &reply2, uint64 targetId, uint32 o
 
         reply1 = 0;
         reply2 = 0;
+
+		gLogger->logMsgF("ObjController::PVState::validate: state denial state Command crc :  %u",MSG_HIGH,cmdProperties->mCmdCrc);
+		//handle canceling of crafting session if it was denied
+		
         
         return false;
     }

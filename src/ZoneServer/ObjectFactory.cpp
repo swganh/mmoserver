@@ -193,7 +193,6 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 		case OFQuery_Harvester:
 		{
-			gStructureManager->UpdateCharacterLots(asyncContainer->PlayerId);
 			if(!result->getRowCount())
 			{
 				gLogger->logMsg("ObjFactory::handleDatabaseJobComplete   :  create Harvester failed");

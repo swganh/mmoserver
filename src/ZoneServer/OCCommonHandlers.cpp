@@ -483,7 +483,7 @@ bool ObjectController::checkTargetContainer(uint64 targetContainerId, Object* ob
 	{
 		//check for equip restrictions!!!!
 		//we cant drop that check - further down we assume that the transfer is accepted
-		// a failing equip will just loose us our item or crash the server
+		// a failing equip will just loose us our item in the receiving container and crash the server in the end
 		return playerObject->getEquipManager()->CheckEquipable(object);
 			//inventory->EquipItemTest(object);
 		//return true;

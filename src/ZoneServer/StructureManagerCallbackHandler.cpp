@@ -221,6 +221,9 @@ void StructureManager::_HandleUpdateCharacterLots(StructureManagerAsyncContainer
 
 		maxLots -= static_cast<uint8>(lotCount);
 		player->setLots((uint8)maxLots);
+		
+		//mmmmh a bit of a hack ... maybe it works ?
+		gMessageLib->sendCharacterSheetResponse(player);
 
 		
 	}

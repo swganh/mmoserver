@@ -482,7 +482,11 @@ bool ObjectController::checkTargetContainer(uint64 targetContainerId, Object* ob
 	if(playerObject->getId() == targetContainerId)
 	{
 		//check for equip restrictions!!!!
-		return true;
+		//we cant drop that check - further down we assume that the transfer is accepted
+		// a failing equip will just loose us our item or crash the server
+		return playerObject->getEquipManager()->CheckEquipable(object);
+			//inventory->EquipItemTest(object);
+		//return true;
 		
 	}
 	

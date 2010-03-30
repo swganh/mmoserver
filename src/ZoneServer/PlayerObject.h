@@ -303,7 +303,7 @@ class PlayerObject : public CreatureObject
 		bool				checkDuelList(PlayerObject* player);
 		void				addToDuelList(PlayerObject* player);
 		void				removeFromDuelList(PlayerObject* player);
-		PlayerList::iterator removeFromDuelList(PlayerList::iterator& it);
+		//PlayerList::iterator removeFromDuelList(PlayerList::iterator& it);
 		void				clearDuelList(){ mDuelList.clear(); }
 
 		// reset properties on zoning

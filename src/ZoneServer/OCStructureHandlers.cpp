@@ -312,10 +312,23 @@ void ObjectController::HeightmapStructureHandler(HeightmapAsyncContainer* ref)
 	{
 		HeightResultMap* mapping = container->getResults();
 		HeightResultMap::iterator it = mapping->begin();
-		if(it != mapping->end() && it->second != NULL)
+
+		float highest = 0;
+		bool worked = false;
+		while(it != mapping->end() && it->second != NULL)
+		{
+			worked = true;
+
+			if(it->second->height > highest)
+				highest = it->second->height;
+
+			it++;
+		}
+
+		if(worked)
 		{
 			container->oCallback->requestnewHousebyDeed(container->ofCallback,container->deed,container->player->getClient(),
-														it->first.first,it->second->height,it->first.second,container->dir,container->customName,
+														it->first.first,highest,it->first.second,container->dir,container->customName,
 														container->player);
 		}
 		break;

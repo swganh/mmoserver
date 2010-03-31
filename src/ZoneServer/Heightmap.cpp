@@ -263,7 +263,7 @@ unsigned long Heightmap::getOffset(float x, float y) const
 {
 	unsigned int x_trans = round_coord(x) + (WIDTH>>1);
 	unsigned int y_trans = (HEIGHT>>1) - round_coord(y);
-	return ((y_trans*WIDTH + x_trans)<<1);
+	return (y_trans*WIDTH + x_trans)<<1;
 }
 
 //=============================================================================

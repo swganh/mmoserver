@@ -10,6 +10,8 @@ public:
 	ObjectFactory*	oCallback;
 	ObjectFactoryCallback* ofCallback;
 	Deed* deed;
+	float x;
+	float z;
 	float dir; 
 	string customName;
 	PlayerObject* player;

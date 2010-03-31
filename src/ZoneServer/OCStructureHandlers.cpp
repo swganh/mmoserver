@@ -223,6 +223,8 @@ void ObjectController::_handleStructurePlacement(uint64 targetId,Message* messag
 			container->ofCallback = gStructureManager;
 			container->deed = deed;
 			container->dir = dir;
+			container->x = x;
+			container->z = z;
 			container->customName = "";
 			container->player = player;
 
@@ -243,6 +245,8 @@ void ObjectController::_handleStructurePlacement(uint64 targetId,Message* messag
 			container->ofCallback = gStructureManager;
 			container->deed = deed;
 			container->dir = dir;
+			container->x = x;
+			container->z = z;
 			container->customName = "";
 			container->player = player;
 
@@ -287,6 +291,8 @@ void ObjectController::_handleStructurePlacement(uint64 targetId,Message* messag
 			container->oCallback = gObjectFactory;
 			container->ofCallback = gStructureManager;
 			container->deed = deed;
+			container->x = x;
+			container->z = z;
 			container->dir = dir;
 			container->customName = "";
 			container->player = player;
@@ -328,7 +334,7 @@ void ObjectController::HeightmapStructureHandler(HeightmapAsyncContainer* ref)
 		if(worked)
 		{
 			container->oCallback->requestnewHousebyDeed(container->ofCallback,container->deed,container->player->getClient(),
-														it->first.first,highest,it->first.second,container->dir,container->customName,
+														container->x,highest,container->z,container->dir,container->customName,
 														container->player);
 		}
 		break;

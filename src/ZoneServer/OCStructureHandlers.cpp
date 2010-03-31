@@ -39,6 +39,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Common/Message.h"
 #include "Common/MessageFactory.h"
 
+#include "StructureHeightmapAsyncContainer.h"
+
 
 //======================================================================================================================
 //
@@ -164,7 +166,7 @@ void ObjectController::_handleStructurePlacement(uint64 targetId,Message* messag
 	string dataStr;
 	message->getStringUnicode16(dataStr);
 	
-	float x,y,z,dir;
+	float x,z,dir;
 	uint64 deedId;
 
 	swscanf(dataStr.getUnicode16(),L"%I64u %f %f %f",&deedId, &x, &z, &dir);
@@ -215,9 +217,18 @@ void ObjectController::_handleStructurePlacement(uint64 targetId,Message* messag
 		case	ItemType_harvester_ore_heavy:
 		case	ItemType_harvester_ore_medium:
 		{
-			//slow query - use for building placement only
-			y = Heightmap::Instance()->getHeight(x,z);
-			gObjectFactory->requestnewHarvesterbyDeed(gStructureManager,deed,player->getClient(),x,y,z,dir,"",player);
+			StructureHeightmapAsyncContainer* container = new StructureHeightmapAsyncContainer(this, HeightmapCallback_StructureHarvester);
+			
+			container->oCallback = gObjectFactory;
+			container->ofCallback = gStructureManager;
+			container->deed = deed;
+			container->dir = dir;
+			container->customName = "";
+			container->player = player;
+
+			container->addToBatch(x,z);
+
+			Heightmap::Instance()->addNewHeightMapJob(container);
 		}
 		break;
 
@@ -226,9 +237,18 @@ void ObjectController::_handleStructurePlacement(uint64 targetId,Message* messag
 		case	ItemType_factory_item:
 		case	ItemType_factory_structure:
 		{
-			//slow query - use for building placement only
-			y = Heightmap::Instance()->getHeight(x,z);
-			gObjectFactory->requestnewFactorybyDeed(gStructureManager,deed,player->getClient(),x,y,z,dir,"",player);
+			StructureHeightmapAsyncContainer* container = new StructureHeightmapAsyncContainer(this, HeightmapCallback_StructureFactory);
+			
+			container->oCallback = gObjectFactory;
+			container->ofCallback = gStructureManager;
+			container->deed = deed;
+			container->dir = dir;
+			container->customName = "";
+			container->player = player;
+
+			container->addToBatch(x,z);
+
+			Heightmap::Instance()->addNewHeightMapJob(container);
 		}
 		break;
 
@@ -262,10 +282,18 @@ void ObjectController::_handleStructurePlacement(uint64 targetId,Message* messag
 		case	ItemType_deed_tatooine_small_house_2:
 
 		{
+			StructureHeightmapAsyncContainer* container = new StructureHeightmapAsyncContainer(this, HeightmapCallback_StructureHouse);
 			
-			//slow query - use for building placement only
-			y = Heightmap::Instance()->getHeight(x,z);
-			gObjectFactory->requestnewHousebyDeed(gStructureManager,deed,player->getClient(),x,y,z,dir,"",player);
+			container->oCallback = gObjectFactory;
+			container->ofCallback = gStructureManager;
+			container->deed = deed;
+			container->dir = dir;
+			container->customName = "";
+			container->player = player;
+
+			container->addToBatch(x,z);
+
+			Heightmap::Instance()->addNewHeightMapJob(container);
 		}
 		break;
 
@@ -274,14 +302,56 @@ void ObjectController::_handleStructurePlacement(uint64 targetId,Message* messag
 	
 }
 
+void ObjectController::HeightmapStructureHandler(HeightmapAsyncContainer* ref)
+{
+	StructureHeightmapAsyncContainer* container = static_cast<StructureHeightmapAsyncContainer*>(ref);
 
+	switch(container->type)
+	{
+	case HeightmapCallback_StructureHouse:
+	{
+		HeightResultMap* mapping = container->getResults();
+		HeightResultMap::iterator it = mapping->begin();
+		if(it != mapping->end() && it->second != NULL)
+		{
+			container->oCallback->requestnewHousebyDeed(container->ofCallback,container->deed,container->player->getClient(),
+														it->first.first,it->second->height,it->first.second,container->dir,container->customName,
+														container->player);
+		}
+		break;
+	}
+	case HeightmapCallback_StructureFactory:
+	{
+		HeightResultMap* mapping = container->getResults();
+		HeightResultMap::iterator it = mapping->begin();
+		if(it != mapping->end() && it->second != NULL)
+		{
+			container->oCallback->requestnewFactorybyDeed(container->ofCallback,container->deed,container->player->getClient(),
+														it->first.first,it->second->height,it->first.second,container->dir,
+														container->customName, container->player);
+		}
+		break;
+	}
+	case HeightmapCallback_StructureHarvester:
+	{
+		HeightResultMap* mapping = container->getResults();
+		HeightResultMap::iterator it = mapping->begin();
+		if(it != mapping->end() && it->second != NULL)
+		{
+			container->oCallback->requestnewHarvesterbyDeed(container->ofCallback,container->deed,container->player->getClient(),
+				it->first.first,it->second->height,it->first.second,container->dir,container->customName,
+														container->player);
+		}
+		break;
+	}
+	}
+}
 
 //======================================================================================================================
 //
 // Modifies the Admin List
 //
 void	ObjectController::_handleTransferStructure(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
-
 {
 	// requirement we have the structure targeted AND give the name of the recipient on the commandline
 	// OR we have the recipient targeted and stand NEXT to the structure were about to transfer

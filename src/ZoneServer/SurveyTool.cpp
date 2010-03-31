@@ -67,20 +67,20 @@ void SurveyTool::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 	{
 		case radId_itemUse:
 		{
+			//We only need to check this when using the tool's functions!
 			//are we swimming ??
 			//slow query - use for building placement only
-			if(Heightmap::Instance()->hasWater(playerObject->mPosition.mX,playerObject->mPosition.mZ))
-			{	
-				gMessageLib->sendSystemMessage(playerObject,L"","error_message","survey_swimming");
-				return;
-			}
+			//if(Heightmap::Instance()->hasWater(playerObject->mPosition.mX,playerObject->mPosition.mZ))
+			//{	
+			//	gMessageLib->sendSystemMessage(playerObject,L"","error_message","survey_swimming");
+			//	return;
+			//}
 
 			if(playerObject->getPerformingState() != PlayerPerformance_None)
 			{
 				gMessageLib->sendSystemMessage(playerObject,L"","error_message","survey_cant");
 				return;
 			}
-
 
 			// verify we are able to use this
 			if(!(playerObject->verifyAbility(opOCsurvey)))

@@ -19,6 +19,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Utils/PriorityVector.h"
 #include "DatabaseManager/DatabaseCallback.h"
 #include "ObjectFactoryCallback.h"
+#include "HeightMapCallback.h"
 #include "ObjControllerEvent.h"
 #include <boost/pool/pool.hpp>
 
@@ -45,6 +46,8 @@ class PlayerObject;
 class CraftingTool;
 class Item;
 class SpawnPoint;
+class ArtisanHeightmapAsyncContainer;
+class StructureHeightmapAsyncContainer;
 
 typedef std::set<Object*>				ObjectSet;
 
@@ -120,7 +123,7 @@ class ObjControllerAsyncContainer
 
 //=======================================================================
 
-class ObjectController : public DatabaseCallback, public ObjectFactoryCallback
+class ObjectController : public DatabaseCallback, public ObjectFactoryCallback, public HeightMapCallBack
 {
 	friend class ObjectControllerCommandMap;
 
@@ -138,6 +141,10 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback
 
 		// inherited callbacks
 		virtual void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
+		virtual void			heightMapCallback(HeightmapAsyncContainer *ref);
+
+		void HeightmapArtisanHandler(HeightmapAsyncContainer* ref);
+		void HeightmapStructureHandler(HeightmapAsyncContainer* ref);
 
 		// Anh_Utils::Clock*		getClock(){ return mClock; }
 

@@ -119,8 +119,8 @@ void AttackableCreature::prepareCustomRadialMenu(CreatureObject* creatureObject,
 	else
 	{
 		// gLogger->logMsgF("AttackableCreature::prepareCustomRadialMenu Creature is alive", MSG_NORMAL);
-		if(creatureObject->checkSkill(31) /*&& this->hasAttribute("res_milk")*/ && !creatureObject->checkState(CreatureState_Combat))
-			mRadialMenu->addItem(5,0,radId_serverMenu5, radAction_ObjCallback, "Collect Milk");
+		//if(creatureObject->checkSkill(31) /*&& this->hasAttribute("res_milk")*/ && !creatureObject->checkState(CreatureState_Combat))
+			//mRadialMenu->addItem(5,0,radId_serverMenu5, radAction_ObjCallback, "Collect Milk");
 	}
 }
 

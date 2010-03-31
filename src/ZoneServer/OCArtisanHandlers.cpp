@@ -31,6 +31,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Common/MessageFactory.h"
 #include "Utils/clock.h"
 
+#include "ArtisanHeightmapAsyncContainer.h"
+
 //======================================================================================================================
 //
 // request survey
@@ -125,12 +127,6 @@ void ObjectController::_handleRequestCoreSample(uint64 targetId,Message* message
 		return;
 	}
 
-	if(Heightmap::Instance()->hasWater(playerObject->mPosition.mX,playerObject->mPosition.mZ))
-	{
-		gMessageLib->sendSystemMessage(playerObject,L"","error_message","survey_swimming");
-		return;
-	}
-
 	if(playerObject->getPerformingState() != PlayerPerformance_None)
 	{
 		gMessageLib->sendSystemMessage(playerObject,L"","error_message","sample_cancel");
@@ -167,17 +163,44 @@ void ObjectController::_handleRequestCoreSample(uint64 targetId,Message* message
 		return;
 	}
 
-	// put us into sampling mode
-	playerObject->setSamplingState(true);
+	ArtisanHeightmapAsyncContainer* container = new ArtisanHeightmapAsyncContainer(this, HeightmapCallback_ArtisanSurvey);
+	container->addToBatch(playerObject->mPosition.mX,playerObject->mPosition.mZ);
 
-	resourceName.convert(BSTRType_Unicode16);
-	gMessageLib->sendSystemMessage(playerObject,L"","survey","start_sampling","","",resourceName);
+	container->playerObject = playerObject;
+	container->resource = resource;
+	container->resourceName = resourceName;
+	container->tool = tool;
 
-	// change posture
-	_handleKneel(0,NULL,NULL);
+	Heightmap::Instance()->addNewHeightMapJob(container);
 
-	// schedule execution
-	addEvent(new SampleEvent(tool,resource),8000);
+}
+
+void ObjectController::HeightmapArtisanHandler(HeightmapAsyncContainer* ref)
+{
+		ArtisanHeightmapAsyncContainer* container = static_cast<ArtisanHeightmapAsyncContainer*>(ref);
+
+		HeightResultMap* mapping = container->getResults();
+		HeightResultMap::iterator it = mapping->begin();
+		if(it != mapping->end() && it->second != NULL)
+		{
+			if(it->second->hasWater)
+			{
+				gMessageLib->sendSystemMessage(container->playerObject,L"","error_message","survey_swimming");
+				return;
+			}
+
+			// put us into sampling mode
+			container->playerObject->setSamplingState(true);
+
+			container->resourceName.convert(BSTRType_Unicode16);
+			gMessageLib->sendSystemMessage(container->playerObject,L"","survey","start_sampling","","",container->resourceName);
+
+			// change posture
+			_handleKneel(0,NULL,NULL);
+
+			// schedule execution
+			addEvent(new SampleEvent(container->tool,container->resource),8000);
+		}
 }
 
 //======================================================================================================================

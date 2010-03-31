@@ -37,9 +37,9 @@ class SessionPacket;
 
 //======================================================================================================================
 
-typedef std::map< uint16, Packet* >						SequencedPacketMap;
-typedef std::queue<Packet*>								PacketQueue;
-typedef std::queue<Message*>							MessageQueue;
+typedef std::map< uint16, Packet* >											SequencedPacketMap;
+typedef std::queue<Packet*>													PacketQueue;
+typedef std::priority_queue<Message*, std::vector<Message*>, CompareMsg>	MessageQueue;
 
 //======================================================================================================================
 
@@ -70,8 +70,7 @@ class Session
 								  Session(void);
 								  ~Session(void);
 
-	  void                        ProcessReadThread(void);
-	  void                        ProcessWriteThread(void);
+	  void                        ProcessWrite(void);
 	  void						  Update(void);
 
 	  void                        HandleSessionPacket(Packet* packet);
@@ -117,7 +116,7 @@ private:
 	  void                        _processMultiPacket(Packet* packet);
 	  void                        _processNetStatRequestPacket(Packet* packet);
 	  
-	  void                        _processDataChannelPacket(Packet* packet, bool fastPath);	  
+	  void                        _processDataChannelPacket(Packet* packet);	  
 	  void                        _processDataOrderPacket(Packet* packet);
 	  void                        _processDataChannelAck(Packet* packet);
 	  void                        _processFragmentedPacket(Packet* packet);
@@ -147,6 +146,8 @@ private:
 
 	  void						  _handleOutOfOrderPacket(uint16 packet);
 
+	  bool						  CheckSessionTimeOut( void );
+
 	  //
 	  // Temp Functions. These should probably exist else where. - Dead1ock
 	  //
@@ -154,8 +155,6 @@ private:
 	  void						  DeCompCryptPacket(Packet* packet);
 
 	  
-
-	  //we want to use bigger packets in the zone connection server communication!
 	  uint16					  mMaxPacketSize;
 	  uint16					  mMaxUnreliableSize;
 
@@ -163,7 +162,6 @@ private:
 	  NetworkClient*              mClient;
 	  PacketFactory*              mPacketFactory;
 	  MessageFactory*             mMessageFactory;
-	  // Anh_Utils::Clock*           mClock;
 	  
 	  uint32						mId;
 	  uint32						mEncryptKey;
@@ -238,7 +236,7 @@ private:
 	  uint16					  lowest;// the lowest packet requested from the server
 	  uint16					  lowestCount;// counts the requests up
 
-	  CompCryptor				  mCompCryptor; // Compressor/Decompressor - Encryptor/Decryptor
+	  CompCryptor				  mCompCryptor;
 	  
 };
 

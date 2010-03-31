@@ -46,7 +46,7 @@ class GameService : public IService
 {
 	public:
 
-		GameService(NetworkManager* networkManager, boost::asio::io_service* service);
+		GameService(NetworkManager* networkManager, boost::asio::io_service& service);
 		virtual ~GameService(void);
 
 		void	Startup(std::string localAddress, uint16 localPort,uint32 mfHeapSize);
@@ -60,7 +60,7 @@ class GameService : public IService
 		uint16										getLocalPort(void);
 		uint32										getId(void){ return mId; };
 		void										setId(uint32 id){ mId = id; };
-		boost::asio::ip::udp::socket*				getSocket() { return mSocket; }
+		boost::asio::ip::udp::socket&				getSocket() { return mSocket; }
 
 	private:
 
@@ -70,7 +70,6 @@ class GameService : public IService
 		uint32								mId;
 		std::string							mLocalAddress;
 		uint16								mLocalPort;
-		bool								mQueued;
 		AddressSessionMap					mAddressSessionMap;
 
 		PacketFactory*						mPacketFactory;
@@ -80,8 +79,7 @@ class GameService : public IService
 		//==============
 		// ASIO
 		//
-		boost::asio::io_service*			mIOService;
-		boost::asio::ip::udp::socket*		mSocket;
+		boost::asio::ip::udp::socket		mSocket;
 		boost::asio::ip::udp::endpoint		mRecvEndpoint;
 
 		//==============

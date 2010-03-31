@@ -30,7 +30,7 @@ enum ServiceType
 class IService
 {
 public:
-	IService( NetworkManager* networkManager, boost::asio::io_service* service ) { };
+	IService( NetworkManager* networkManager, boost::asio::io_service& service ) { };
 	virtual ~IService( void ) { };
 
 	virtual void Startup( std::string localAddress, uint16 localPort,uint32 mfHeapSize ) = 0;
@@ -44,8 +44,6 @@ public:
 	virtual uint32 getId( void ) = 0;
 
 	virtual void AddNetworkCallback( NetworkCallback* ) = 0;
-	// DONT LIKE
-	virtual void Connect(NetworkClient* client, int8* address, uint16 port) { };
 };
 
 #endif

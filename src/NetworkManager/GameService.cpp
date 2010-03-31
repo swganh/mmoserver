@@ -32,13 +32,10 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 //======================================================================================================================
 
-GameService::GameService(NetworkManager* networkManager, boost::asio::io_service* service) :
+GameService::GameService(NetworkManager* networkManager, boost::asio::io_service& service) :
 IService( networkManager, service ),
 mNetworkManager(networkManager),
-mLocalPort(0),
-mLocalAddress("127.0.0.1"),
-mQueued(false),
-mIOService(service)
+mSocket( service )
 {
 
 }
@@ -80,14 +77,15 @@ void GameService::Startup(std::string localAddress, uint16 localPort,uint32 mfHe
 
 	udpBuffLen *= 1024;
 
-	mSocket = new boost::asio::ip::udp::socket( *mIOService, boost::asio::ip::udp::endpoint( boost::asio::ip::udp::v4(), localPort ) );
-	mSocket->set_option( boost::asio::socket_base::receive_buffer_size( udpBuffLen ) );
-	mSocket->set_option( boost::asio::socket_base::send_buffer_size( udpBuffLen ) );
+	mSocket.open(mRecvEndpoint.protocol());
+	mSocket.bind( boost::asio::ip::udp::endpoint( boost::asio::ip::udp::v4(), localPort ) );
+	mSocket.set_option( boost::asio::socket_base::receive_buffer_size( udpBuffLen ) );
+	mSocket.set_option( boost::asio::socket_base::send_buffer_size( udpBuffLen ) );
 
 	//
 	// Initial Async Receive From
 	//
-	mSocket->async_receive_from( 
+	mSocket.async_receive_from( 
 		boost::asio::buffer( mRecvPacket->getData(), mRecvPacket->getMaxPayload() ),
 		mRecvEndpoint,
 		boost::bind(&GameService::HandleRecvFrom, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred)
@@ -99,7 +97,7 @@ void GameService::Startup(std::string localAddress, uint16 localPort,uint32 mfHe
 
 void GameService::Shutdown(void)
 {
-	mSocket->close();
+	mSocket.close();
 }
 
 //======================================================================================================================
@@ -284,7 +282,7 @@ void GameService::HandleRecvFrom(const boost::system::error_code &error, std::si
 	//
 	// Reset our AsyncRecvFrom.
 	//
-	mSocket->async_receive_from( 
+	mSocket.async_receive_from( 
 		boost::asio::buffer( mRecvPacket->getData(), mRecvPacket->getMaxPayload() ),
 		mRecvEndpoint,
 		boost::bind(&GameService::HandleRecvFrom, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred)

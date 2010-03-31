@@ -62,7 +62,7 @@ void NetworkManager::Process(void)
 
 IService* NetworkManager::GenerateService(std::string address, uint16 port,uint32 mfHeapSize,  ServiceType type)
 {
-	IService* newService = new GameService(this, &mIOService);
+	IService* newService = new GameService(this, mIOService);
 	newService->setId(mServiceIdIndex++);
 	newService->Startup(address, port,mfHeapSize);
 	mServiceList.push_back(newService);

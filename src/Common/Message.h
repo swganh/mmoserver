@@ -152,6 +152,3 @@ class CompareMsg
 
 
 #endif //MMOSERVER_LOGINSERVER_MESSAGE_H
-
-
-

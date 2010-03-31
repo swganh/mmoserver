@@ -311,7 +311,7 @@ void ZoneServer::_connectToConnectionServer(void)
 
 	// Now connect to the ConnectionServer
 	DispatchClient* client = new DispatchClient();
-	mRouterService->Connect(client, processAddress.mAddress, processAddress.mPort);
+	//mRouterService->Connect(client, processAddress.mAddress, processAddress.mPort);
 
 	// Send our registration message
 	gMessageFactory->StartMessage();

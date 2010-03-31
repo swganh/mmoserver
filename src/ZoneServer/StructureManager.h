@@ -154,6 +154,9 @@ struct StructureDeedLink
 	string	stf_file;
 	string	stf_name;
 	float	healing_modifier;
+
+	uint32 length;
+	uint32 width;
 };
 
 //templated items that need to be at certain spots on/in the structure

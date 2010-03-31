@@ -486,6 +486,8 @@ void StructureManager::_HandleQueryLoadDeedData(StructureManagerAsyncContainer* 
 	binding->addField(DFT_bstring,offsetof(StructureDeedLink,stf_file),64,6);
 	binding->addField(DFT_float,offsetof(StructureDeedLink,healing_modifier),4,7);
 	binding->addField(DFT_uint32,offsetof(StructureDeedLink,repair_cost),4,8);
+	binding->addField(DFT_uint32,offsetof(StructureDeedLink,length), 4, 9);
+	binding->addField(DFT_uint32,offsetof(StructureDeedLink,width), 4, 10);
 
 	uint64 count;
 	count = result->getRowCount();

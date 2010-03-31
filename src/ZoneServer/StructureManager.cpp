@@ -55,7 +55,7 @@ StructureManager::StructureManager(Database* database,MessageDispatch* dispatch)
 	//todo load buildings from building table and use appropriate stfs there
 	//are harvesters on there too
 	asyncContainer = new StructureManagerAsyncContainer(Structure_Query_LoadDeedData, 0);
-	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sdd.id, sdd.DeedType, sdd.SkillRequirement, s_td.object_string, s_td.lots_used, s_td.stf_name, s_td.stf_file, s_td.healing_modifier, s_td.repair_cost from swganh.structure_deed_data sdd INNER JOIN structure_type_data s_td ON sdd.StructureType = s_td.type");
+	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sdd.id, sdd.DeedType, sdd.SkillRequirement, s_td.object_string, s_td.lots_used, s_td.stf_name, s_td.stf_file, s_td.healing_modifier, s_td.repair_cost, s_td.fp_length, s_td.fp_width from swganh.structure_deed_data sdd INNER JOIN structure_type_data s_td ON sdd.StructureType = s_td.type");
 
 	//items
 	asyncContainer = new StructureManagerAsyncContainer(Structure_Query_LoadstructureItem, 0);

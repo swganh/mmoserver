@@ -297,7 +297,30 @@ void ObjectController::_handleStructurePlacement(uint64 targetId,Message* messag
 			container->customName = "";
 			container->player = player;
 
-			container->addToBatch(x,z);
+			//We need to give the thing several points to grab (because we want the max height)
+			StructureDeedLink* deedLink;
+			deedLink = gStructureManager->getDeedData(deed->getItemType());
+
+			uint32 halfLength = (deedLink->length >> 1);
+			uint32 halfWidth = (deedLink->width >> 1);
+
+			if(dir == 0 || dir == 2)
+			{
+				//Orientation 1
+				container->addToBatch(x-halfLength, z-halfWidth);
+				container->addToBatch(x+halfLength, z-halfWidth);
+				container->addToBatch(x-halfLength, z+halfWidth);
+				container->addToBatch(x+halfLength, z+halfWidth);
+			}
+
+			if(dir == 1 || dir == 3)
+			{
+				//Orientation 2
+				container->addToBatch(x-halfWidth, z-halfLength);
+				container->addToBatch(x+halfWidth, z-halfLength);
+				container->addToBatch(x-halfWidth, z+halfLength);
+				container->addToBatch(x+halfWidth, z+halfLength);
+			}
 
 			Heightmap::Instance()->addNewHeightMapJob(container);
 		}

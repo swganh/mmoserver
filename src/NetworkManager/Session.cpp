@@ -263,7 +263,7 @@ Session::~Session(void)
 		mPacketFactory->DestroyPacket(packet);
 	}
 
-	gLogger->logMsgF("Session::~Session %u Packets saved !!!!!",MSG_HIGH,savedPackets);
+	//gLogger->logMsgF("Session::~Session %u Packets saved !!!!!",MSG_HIGH,savedPackets);
 
 	 //PacketQueue                 mOutgoingReliablePacketQueue;		//these are packets put on by the sessionwrite thread to send
 	  //PacketQueue                 mOutgoingUnreliablePacketQueue;   //build unreliables they will get send directly by the socket write thread  without storing for possible r esends

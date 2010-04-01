@@ -301,16 +301,20 @@ void ObjectController::_handleStructurePlacement(uint64 targetId,Message* messag
 			StructureDeedLink* deedLink;
 			deedLink = gStructureManager->getDeedData(deed->getItemType());
 
-			uint32 halfLength = (deedLink->length >> 1);
-			uint32 halfWidth = (deedLink->width >> 1);
+			uint32 halfLength = (deedLink->length/2);
+			uint32 halfWidth = (deedLink->width/2);
 
 			if(dir == 0 || dir == 2)
 			{
 				//Orientation 1
 				container->addToBatch(x-halfLength, z-halfWidth);
+				gLogger->logMsgF("%f %f\n", MSG_NORMAL,x-halfLength, z-halfWidth);
 				container->addToBatch(x+halfLength, z-halfWidth);
+				gLogger->logMsgF("%f %f\n", MSG_NORMAL,x+halfLength, z-halfWidth);
 				container->addToBatch(x-halfLength, z+halfWidth);
+				gLogger->logMsgF("%f %f\n", MSG_NORMAL,x-halfLength, z+halfWidth);
 				container->addToBatch(x+halfLength, z+halfWidth);
+				gLogger->logMsgF("%f %f\n", MSG_NORMAL,x+halfLength, z+halfWidth);
 			}
 
 			if(dir == 1 || dir == 3)

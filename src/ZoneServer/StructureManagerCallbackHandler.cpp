@@ -476,7 +476,7 @@ void StructureManager::_HandleQueryLoadDeedData(StructureManagerAsyncContainer* 
 {
 	StructureDeedLink* deedLink;
 
-	DataBinding* binding = mDatabase->CreateDataBinding(9);
+	DataBinding* binding = mDatabase->CreateDataBinding(11);
 	binding->addField(DFT_uint32,offsetof(StructureDeedLink,structure_type),4,0);
 	binding->addField(DFT_uint32,offsetof(StructureDeedLink,item_type),4,1);
 	binding->addField(DFT_uint32,offsetof(StructureDeedLink,skill_Requirement),4,2);

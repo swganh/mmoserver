@@ -33,7 +33,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Utils/mdump.h"
 #endif
 
-#include "stackwalker.h"
+//#include "stackwalker.h"
 #include <boost/thread/thread.hpp>
 
 //======================================================================================================================

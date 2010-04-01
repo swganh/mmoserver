@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="ConnectionServer"
 	ProjectGUID="{304D5734-E599-438C-B157-900AC4BFCF9E}"
 	RootNamespace="ConnectionServer"
@@ -379,10 +379,6 @@
 			</File>
 			<File
 				RelativePath=".\ServerManager.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\bin\Debug\stackwalker\StackWalker.cpp"
 				>
 			</File>
 		</Filter>

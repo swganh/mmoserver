@@ -35,7 +35,7 @@ namespace Anh_Utils
 
 	uint64 Scheduler::addTask(FDCallback callback,uint8 priority,uint64 interval,void* async)
 	{
-		mTasks.push(Task(mNextTaskId,priority,Anh_Utils::Clock::getSingleton()->getLocalTime(),interval,callback,async));
+		mTasks.push(Task(mNextTaskId,priority,gClock->getLocalTime(),interval,callback,async));
 		return(mNextTaskId++);
 	}
 

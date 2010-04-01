@@ -31,6 +31,7 @@ Object::Object()
 , mSubZoneId(0)
 , mTypeOptions(0)
 , mDataTransformCounter(0)
+, mMovementMessageToggle(true)
 {
 	mDirection = Anh_Math::Quaternion();
 	mPosition  = Anh_Math::Vector3();
@@ -51,6 +52,7 @@ Object::Object(uint64 id,uint64 parentId,string model,ObjectType type)
 , mSubZoneId(0)
 , mTypeOptions(0)
 , mDataTransformCounter(0)
+, mMovementMessageToggle(true)
 {
 	mObjectController.setObject(this);
 

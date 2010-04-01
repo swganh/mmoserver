@@ -492,6 +492,8 @@ public:
 private:
 
 	MessageLib();
+	
+	bool				_checkDistance(Anh_Math::Vector3 mPosition1,Object* object, uint32 heapWarningLevel);
 
 	bool				_checkPlayer(const PlayerObject* const player) const;
 	bool				_checkPlayer(uint64 playerId) const;

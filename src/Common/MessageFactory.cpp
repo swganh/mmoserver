@@ -53,6 +53,9 @@ MessageFactory::MessageFactory(uint32 heapSize,uint32 serviceId)
 	mHeapStart = mMessageHeap;
 	mHeapEnd = mMessageHeap;
 
+	mLastHeapLevel = 0;
+	mLastHeapLevelTime = gClock->getSingleton()->getStoredTime();
+
 	mServiceId = serviceId;
 	mLastTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
 }
@@ -83,6 +86,9 @@ void MessageFactory::Process(void)
 {
 	// Do some garbage collection if we can.
 	_processGarbageCollection();
+	
+	//maintain a 1sec resolution clock to timestamp messages
+	gClock->process();
 }
 
 //======================================================================================================================
@@ -108,6 +114,30 @@ void MessageFactory::StartMessage(void)
 
 //======================================================================================================================
 
+uint32 MessageFactory::HeapWarningLevel(void)
+{
+	uint64 now = gClock->getSingleton()->getStoredTime();
+	
+	uint32 warnLevel = (uint32)(mCurrentUsed/10);
+	if((mCurrentUsed > mLastHeapLevel)&&(mCurrentUsed - mLastHeapLevel) > 10.0)
+		warnLevel += 2;
+
+	if((mCurrentUsed > mLastHeapLevel)&&(mCurrentUsed - mLastHeapLevel) > 20.0)
+		warnLevel += 4;
+	
+	if((now - mLastHeapLevelTime) > 1000)
+	{
+		mLastHeapLevelTime =  now;
+		mLastHeapLevel = mCurrentUsed;
+	}
+
+	
+	return warnLevel;
+	
+}
+
+//======================================================================================================================
+
 Message* MessageFactory::EndMessage(void)
 {
 	assert(mCurrentMessage && "Must call StartMessage before EndMessage.");
@@ -123,7 +153,7 @@ Message* MessageFactory::EndMessage(void)
 
   message->setData(mCurrentMessageStart + sizeof(Message));
   message->setSize((uint16)(mCurrentMessageEnd - mCurrentMessageStart) - sizeof(Message));
-  message->setCreateTime(Anh_Utils::Clock::getSingleton()->getLocalTime());
+  message->setCreateTime(gClock->getSingleton()->getStoredTime());
   mCurrentMessageStart = mCurrentMessageEnd;
 
   // Zero out our mCurrentMessage so we know we're not working on one.
@@ -132,19 +162,19 @@ Message* MessageFactory::EndMessage(void)
 
   //Update our stats.
   mMessagesCreated++;
-  float currentUsed = ((float)_getHeapSize() / (float)mHeapTotalSize)* 100.0f;
-  mMaxHeapUsedPercent = std::max<float>(mMaxHeapUsedPercent,  currentUsed);
+  mCurrentUsed = ((float)_getHeapSize() / (float)mHeapTotalSize)* 100.0f;
+  mMaxHeapUsedPercent = std::max<float>(mMaxHeapUsedPercent,  mCurrentUsed);
 
 
 
   // warn if we get near our boundaries
-  if(currentUsed > mHeapWarnLevel)
+  if(mCurrentUsed > mHeapWarnLevel)
   {
-	  mHeapWarnLevel = static_cast<float>(currentUsed+1.2);
-	  gLogger->logMsgF("WARNING: MessageFactory Heap at %2.2f usage",MSG_NORMAL,currentUsed);
+	  mHeapWarnLevel = static_cast<float>(mCurrentUsed+1.2);
+	  gLogger->logMsgF("WARNING: MessageFactory Heap at %2.2f usage",MSG_NORMAL,mCurrentUsed);
   } else
-  if (((currentUsed+2.2) < mHeapWarnLevel) && mHeapWarnLevel > 80.0)
-	  mHeapWarnLevel = currentUsed;
+  if (((mCurrentUsed+2.2) < mHeapWarnLevel) && mHeapWarnLevel > 80.0)
+	  mHeapWarnLevel = mCurrentUsed;
 
   return message;
 }
@@ -404,6 +434,7 @@ void MessageFactory::_processGarbageCollection(void)
 
 	uint64 timestart, time;
 	bool further = true;
+	//this needs to be precise - use localtime
 	timestart = time = Anh_Utils::Clock::getSingleton()->getLocalTime();
     while(((time - timestart ) < 1) && further)
 	{
@@ -442,13 +473,13 @@ void MessageFactory::_processGarbageCollection(void)
 
 			}//pending delete
 
-			else if(Anh_Utils::Clock::getSingleton()->getLocalTime() - message->getCreateTime() > MESSAGE_MAX_LIFE_TIME)
+			else if(Anh_Utils::Clock::getSingleton()->getStoredTime() - message->getCreateTime() > MESSAGE_MAX_LIFE_TIME)
 			{
 				further = false;
 				if (!message->mLogged)
 				{
 					gLogger->logMsgF("MessageFactory::_processGarbageCollection : New stuck Message !!! ",MSG_HIGH);
-					gLogger->logMsgF("age : %u ",MSG_HIGH, uint32((Anh_Utils::Clock::getSingleton()->getLocalTime() - message->getCreateTime())/1000));
+					gLogger->logMsgF("age : %u ",MSG_HIGH, uint32((Anh_Utils::Clock::getSingleton()->getStoredTime() - message->getCreateTime())/1000));
 					gLogger->logMsgF("Source : %u ",MSG_HIGH, message->mSourceId);
 					gLogger->logMsgF("Path : %u ",MSG_HIGH, message->mPath);
 					
@@ -456,7 +487,7 @@ void MessageFactory::_processGarbageCollection(void)
 
 					gLogger->hexDump(message->getData(), message->getSize());
 					message->mLogged = true;
-					message->mLogTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
+					message->mLogTime = Anh_Utils::Clock::getSingleton()->getStoredTime();
 
 					Session* session = (Session*)message->mSession;
 
@@ -488,19 +519,20 @@ void MessageFactory::_processGarbageCollection(void)
 					message->setPendingDelete(true);
 				}
 				else
-				if(Anh_Utils::Clock::getSingleton()->getLocalTime() >(message->mLogTime +10000))
+				if(Anh_Utils::Clock::getSingleton()->getStoredTime() >(message->mLogTime +10000))
 				{
 					gLogger->logMsgF("MessageFactory::_processGarbageCollection : Old stuck Message !!! ",MSG_HIGH);
-					gLogger->logMsgF("age : %u ",MSG_HIGH, uint32((Anh_Utils::Clock::getSingleton()->getLocalTime() - message->getCreateTime())/1000));
+					gLogger->logMsgF("age : %u ",MSG_HIGH, uint32((Anh_Utils::Clock::getSingleton()->getStoredTime() - message->getCreateTime())/1000));
 					gLogger->logMsgF("Source : %u ",MSG_HIGH, message->mSourceId);
 					gLogger->logMsgF("Path : %u ",MSG_HIGH, message->mPath);
 					gLogger->logMsgF("Session status : %u ",MSG_HIGH, session->getStatus());
 					gLogger->hexDump(message->getData(), message->getSize());
-					message->mLogTime  = Anh_Utils::Clock::getSingleton()->getLocalTime();
+					message->mLogTime  = Anh_Utils::Clock::getSingleton()->getStoredTime();
 					return;
 				}
 				else
-				if(Anh_Utils::Clock::getSingleton()->getLocalTime() - message->getCreateTime() > MESSAGE_MAX_LIFE_TIME*mlt)
+				//stored time is of sufficient resolution here
+				if(Anh_Utils::Clock::getSingleton()->getStoredTime() - message->getCreateTime() > MESSAGE_MAX_LIFE_TIME*mlt)
 				{
 					if(session)
 					{
@@ -531,6 +563,7 @@ void MessageFactory::_processGarbageCollection(void)
 			else
 				return;
 
+			//we need to be accurate here
 			time = Anh_Utils::Clock::getSingleton()->getLocalTime();
 		}//Heap start != Heapend
 		else
@@ -538,6 +571,7 @@ void MessageFactory::_processGarbageCollection(void)
 			return;
 		}
 
+		//we need to be accurate here
 		time = Anh_Utils::Clock::getSingleton()->getLocalTime();
 	}
 

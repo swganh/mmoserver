@@ -263,7 +263,7 @@ void CraftingSession::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 				gMessageLib->sendCraftAcknowledge(opCreatePrototypeResponse,CraftCreate_Success,qContainer->mCounter,mOwner);
 
 				// schedule item for creation and update the tool timer
-				mTool->initTimer((int32)(mDraftSchematic->getComplexity() * 3.0f),3000,mClock->getLocalTime());
+				mTool->initTimer((int32)(mDraftSchematic->getComplexity() * 3.0f),3000,mClock->getStoredTime());
 
 				mTool->setAttributeIncDB("craft_tool_status","@crafting:tool_status_working");
 		

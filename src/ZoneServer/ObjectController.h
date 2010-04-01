@@ -597,6 +597,7 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback
 		string	skipToNextField(string str) const;
 
 		// spatial object updates
+		float	_GetMessageHeapLoadViewingRange();
 		void	_findInRangeObjectsOutside(bool updateAll);
 		bool	_updateInRangeObjectsOutside();
 		void	_findInRangeObjectsInside(bool updateAll);

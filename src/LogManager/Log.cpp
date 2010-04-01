@@ -155,7 +155,8 @@ void Log::logMsg(const std::string& zone, const std::string& system, const std::
   int length = vsprintf(buf, text.c_str(), args);
 
 	//dblogging enabled??
-	if(mDatabase)
+/*	
+  if(mDatabase)
 	{
 		//zone
 		int8 sql[9000];
@@ -169,7 +170,7 @@ void Log::logMsg(const std::string& zone, const std::string& system, const std::
 		mDatabase->ExecuteProcedureAsync(0,0,sql);
 		//mDatabase->ExecuteSqlAsync(0,0,"INSERT INTO %s VALUES (%I64u,173,'%s',1,0)",mName.c_str(),);
 	}
-
+  */
 
 	if((mLogLevel + priority > mGlobalLogLevel)&&(mFileOut||mConsoleOut))
 	{

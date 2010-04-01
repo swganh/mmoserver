@@ -43,6 +43,7 @@ namespace Anh_Math
 			float	DotProduct(Vector3& v);
 			float	normalize();
 			Vector3 CrossProduct(Vector3& v);
+			bool	nonaccurateRange(const Vector3& v, float range) const;
 			float	distance2D(const Vector3& v) const;
 			float	distance2D(float x,float z) const;
 			bool	inRange2D(const Vector3& v,float distance);

@@ -30,6 +30,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #endif
 
 #include <boost/thread/thread.hpp>
+#include "Utils/clock.h"
 
 //======================================================================================================================
 LoginServer* gLoginServer = 0;
@@ -40,7 +41,8 @@ LoginServer::LoginServer(void) :
 mNetworkManager(0)
 {
 	// log msg to default log
-  //gLogger->printSmallLogo();
+  
+  Anh_Utils::Clock::Init();
   gLogger->logMsg("LoginServer Startup");
 
 	// Initialize our modules.
@@ -117,6 +119,7 @@ void LoginServer::Process(void)
 	mNetworkManager->Process();
 	mDatabaseManager->Process();
 	mLoginManager->Process();
+	gMessageFactory->Process();
 }
 
 

@@ -509,13 +509,55 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 	}
 }
 
+
 //=========================================================================================
 //
+
+float ObjectController::_GetMessageHeapLoadViewingRange()
+{
+	uint32 heapWarningLevel = gMessageFactory->HeapWarningLevel();
+
+	if(gMessageFactory->getHeapsize() > 99.0)
+		return 16.0;
+
+	//just send everything we have
+	if(heapWarningLevel < 3)
+		return (float)gWorldConfig->getPlayerViewingRange();
+	else
+	if(heapWarningLevel < 4)
+		return 96.0;
+	else
+	if (heapWarningLevel < 5)
+	{
+		return 64.0;
+	}
+	else
+	if (heapWarningLevel < 8)
+	{
+		return 32.0;
+	}
+	else
+	if (heapWarningLevel <= 10)
+	{
+		return 16.0;
+	}
+	else
+	if (heapWarningLevel > 10)
+		return 8.0;
+
+	return (float)gWorldConfig->getPlayerViewingRange();
+}
+
+//=========================================================================================
+//
+
 
 void ObjectController::_findInRangeObjectsOutside(bool updateAll)
 {
 	PlayerObject*	player			= dynamic_cast<PlayerObject*>(mObject);
-	float			viewingRange	= (float)gWorldConfig->getPlayerViewingRange();
+
+	//scale down viewing range when busy
+	float			viewingRange	= _GetMessageHeapLoadViewingRange();
 
 	// gLogger->logMsg("... _findInRangeObjectsOutside.");
 
@@ -653,7 +695,7 @@ bool ObjectController::_updateInRangeObjectsOutside()
 void ObjectController::_findInRangeObjectsInside(bool updateAll)
 {
 	PlayerObject*	player = dynamic_cast<PlayerObject*>(mObject);
-	float			viewingRange = (float)gWorldConfig->getPlayerViewingRange();
+	float			viewingRange = _GetMessageHeapLoadViewingRange();
 	CellObject*		playerCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()));
 
 

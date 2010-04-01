@@ -179,8 +179,11 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 		MenuItemList*			getMenuList(){ return mMenuItemList; }
 		void					setMenuList(MenuItemList* list){ mMenuItemList = list; }
 
+		bool					movementMessageToggle(){mMovementMessageToggle = !mMovementMessageToggle; return mMovementMessageToggle;}
+
 	protected:
 
+		bool						mMovementMessageToggle;
 		AttributeMap				mAttributeMap;
 		AttributeOrderList			mAttributeOrderList;
 		AttributeMap 				mInternalAttributeMap;

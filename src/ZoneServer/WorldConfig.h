@@ -93,6 +93,8 @@ class WorldConfig : public DatabaseCallback
 		void				disableTutorial() { mTutorialEnabled = false; }
 		void				enableInstance() { mInstanceEnabled = true; }
 
+		void				ResetViewingRange(){mPlayerViewingRange = mPlayerViewingRangeMax;}
+		void				setViewingRange(uint16 range){mPlayerViewingRange = range;}
 
 		// For now, the Tutorial is the only instance we have, but we need to be able to expand on that consept.
 		bool				isInstance();
@@ -117,6 +119,7 @@ class WorldConfig : public DatabaseCallback
 
 		// Player Viewing Range, the default range used for spatial queries
 		uint16				mPlayerViewingRange;
+		uint16				mPlayerViewingRangeMax;
 
 		// Player chat range
 		uint16				mPlayerChatRange;

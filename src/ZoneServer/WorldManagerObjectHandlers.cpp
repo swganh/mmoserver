@@ -61,6 +61,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Utils/Scheduler.h"
 #include "Utils/VariableTimeScheduler.h"
 #include "Utils/utils.h"
+#include "Common/MessageFactory.h"
 
 #include <cassert>
 
@@ -358,12 +359,51 @@ void WorldManager::createObjectinWorld(PlayerObject* player, Object* object)
 
 //======================================================================================================================
 //
+//make sure we scale down viewing range under high load
+float WorldManager::_GetMessageHeapLoadViewingRange()
+{
+	uint32 heapWarningLevel = gMessageFactory->HeapWarningLevel();
+	float view = (float)gWorldConfig->getPlayerViewingRange();
+
+	if(gMessageFactory->getHeapsize() > 90.0)
+		return 16.0;
+
+	//just send everything we have
+	if(heapWarningLevel < 3)
+		return view; 
+	else
+	if(heapWarningLevel < 4)
+		return 96.0;
+	else
+	if (heapWarningLevel < 5)
+	{
+		return 64.0;
+	}
+	else
+	if (heapWarningLevel < 8)
+	{
+		return 32.0;
+	}
+	else
+	if (heapWarningLevel <= 10)
+	{
+		return 16.0;
+	}
+	else
+	if (heapWarningLevel > 10)
+		return 8.0;
+
+	return (float)gWorldConfig->getPlayerViewingRange();
+}
+
+//======================================================================================================================
+//
 // creates an object in the world queries the si to find relevant players
 // generally querying the si is slow so beware to use this
 
 void WorldManager::createObjectinWorld(Object* object)
 {
-	float				viewingRange	= (float)gWorldConfig->getPlayerViewingRange();
+	float				viewingRange	= _GetMessageHeapLoadViewingRange();
 	ObjectSet inRangeObjects;
 	mSpatialIndex->getObjectsInRange(object,&inRangeObjects,(ObjType_Player),viewingRange);
 
@@ -751,6 +791,7 @@ void WorldManager::eraseObject(uint64 key)
 
 void WorldManager::initObjectsInRange(PlayerObject* playerObject)
 {
+	float				viewingRange	= _GetMessageHeapLoadViewingRange();
 	//if we are in a playerbuilding create the playerbuilding first
 	//otherwise our items will not show when they are created before the cell
 	if(CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(playerObject->getParentId())))
@@ -768,14 +809,13 @@ void WorldManager::initObjectsInRange(PlayerObject* playerObject)
 
 	// we still query for players here, cause they are found through the buildings and arent kept in a qtree
 	ObjectSet inRangeObjects;
-	mSpatialIndex->getObjectsInRange(playerObject,&inRangeObjects,(ObjType_Player | ObjType_Tangible | ObjType_NPC | ObjType_Creature | ObjType_Building | ObjType_Structure ),gWorldConfig->getPlayerViewingRange());
+	mSpatialIndex->getObjectsInRange(playerObject,&inRangeObjects,(ObjType_Player | ObjType_Tangible | ObjType_NPC | ObjType_Creature | ObjType_Building | ObjType_Structure ),viewingRange);
 
 	// query the according qtree, if we are in one
 	if(playerObject->getSubZoneId())
 	{
 		if(QTRegion* region = getQTRegion(playerObject->getSubZoneId()))
 		{
-			float				viewingRange	= (float)gWorldConfig->getPlayerViewingRange();
 			Anh_Math::Rectangle qRect;
 
 			if(!playerObject->getParentId())

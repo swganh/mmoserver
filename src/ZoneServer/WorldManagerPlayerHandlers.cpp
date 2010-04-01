@@ -75,7 +75,8 @@ void  WorldManager::initPlayersInRange(Object* object,PlayerObject* player)
 	{
 		if(QTRegion* region = getQTRegion(object->getSubZoneId()))
 		{
-			float				viewingRange	= (float)gWorldConfig->getPlayerViewingRange();
+			float				viewingRange	= _GetMessageHeapLoadViewingRange();
+			//float				viewingRange	= (float)gWorldConfig->getPlayerViewingRange();
 			Anh_Math::Rectangle qRect;
 
 			if(!object->getParentId())

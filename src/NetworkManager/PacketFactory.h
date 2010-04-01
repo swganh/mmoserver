@@ -39,9 +39,10 @@ class PacketFactory
 		uint16		mMaxPayLoad;
 
 	private:
-        PacketPool mPacketPool;
-		boost::recursive_mutex        mPacketFactoryMutex;
-	  // Anh_Utils::Clock*	mClock;
+		uint32							mPacketCount;
+        PacketPool						mPacketPool;
+		boost::recursive_mutex			mPacketFactoryMutex;
+	  
 };
 
 //======================================================================================================================

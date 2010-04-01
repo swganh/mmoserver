@@ -27,6 +27,11 @@ Heightmap::Heightmap(const char* planet_name)
 	mFilename = planet_name;
 	mFilename += ".hmpw";
 	Connect();
+
+	boost::thread t(std::tr1::bind(&Heightmap::RunThread, this));
+	mThread = boost::move(t);
+
+	mExit = false;
 }
 
 // Never used
@@ -38,6 +43,12 @@ Heightmap::Heightmap()
 
 Heightmap::~Heightmap()
 {
+
+	mExit = true;
+
+	mThread.interrupt();
+    mThread.join();
+
 	if(Open())
 	{
 		fclose(hmp);
@@ -77,7 +88,7 @@ Heightmap* Heightmap::Instance(void)
 //	PLAYER BUILDING PLACEMENT!!!
 //
 
-float Heightmap::getHeight(float x, float y)
+void Heightmap::fillInIterator(HeightResultMap::iterator it)
 {
 	if(!Open())
 	{
@@ -85,19 +96,64 @@ float Heightmap::getHeight(float x, float y)
 		if(!Open())
 		{
 			gLogger->logMsg("Heightmap::ERROR: Unable to retrieve height. A connection to the zone heightmap was not established!",FOREGROUND_RED);
-			return FLT_MIN;
+			return;
 		}
 	}
 
 	short height;
-	fseek(hmp,getOffset(x,y),SEEK_SET);
+	fseek(hmp,getOffset(it->first.first,it->first.second),SEEK_SET);
 	size_t result = fread(&height,2,1,hmp);
 	if (! result) {
 		gLogger->logMsg("Heightmap::ERROR: Unable to read height!",FOREGROUND_RED);
-		return FLT_MIN;
+		return;
 	}
+	
+	heightResult* heightRes = new heightResult;
+
+	if(height & 0x4000)//15th bit
+		heightRes->hasWater = true;
+	else
+		heightRes->hasWater = false;
+
 	height &= 0x7FFF;
-	return ((float)height)/10;
+	heightRes->height = ((float)height)/10;
+
+	it->second = heightRes;
+}
+
+
+void Heightmap::RunThread()
+{
+	while(!mExit)
+	{
+		mJobMutex.lock();
+
+		HeightmapAsyncContainer* job;
+		if(Jobs.size() != 0)
+		{
+			 job = Jobs.front();
+			Jobs.pop();
+		}
+		else
+			job = NULL;
+
+		mJobMutex.unlock();
+
+		if(job)
+		{
+			HeightResultMap* map = job->getResults();
+			for(HeightResultMap::iterator it=map->begin(); it != map->end(); it++)
+				fillInIterator(it);
+
+			job->getCallback()->heightMapCallback(job);
+		}
+		else
+		{
+			//We sleep if there is no work!
+			boost::this_thread::sleep(boost::posix_time::milliseconds(20));
+		}
+	}
+	gLogger->logMsg("HeightMap Thread Down!");
 }
 
 
@@ -184,37 +240,6 @@ bool Heightmap::getRow(unsigned char* buffer, int32 x, int32 z, int32 length)
 
 //=============================================================================
 //
-//	DO NOT AND I REPEAT DO NOT USE THIS FOR ---ANYTHING---
-//	EXCEPT FOR ONE TIME READS LIKE GETTING THE HEIGHT FOR
-//	PLAYER BUILDING PLACEMENT!!!
-bool Heightmap::hasWater(float x, float y)
-{
-	if(!Open())
-	{
-		Connect();
-		if(!Open())
-		{
-			gLogger->logMsg("Heightmap::ERROR: Unable to tell if position has water. A connection to the zone heightmap was not established!\n",FOREGROUND_RED | BACKGROUND_BLUE);
-			return false;
-		}
-	}
-
-	short height;
-	fseek(hmp,getOffset(x,y),SEEK_SET);
-	size_t result = fread(&height,2,1,hmp);
-	if (! result) {
-		gLogger->logMsg("Heightmap::ERROR: Unable to tell if position has water!",FOREGROUND_RED);
-		return false;
-	}
-
-	if(height & 0x4000)//15th bit
-		return true;
-
-	return false;
-}
-
-//=============================================================================
-//
 
 void Heightmap::Connect(void)
 {
@@ -238,7 +263,7 @@ unsigned long Heightmap::getOffset(float x, float y) const
 {
 	unsigned int x_trans = round_coord(x) + (WIDTH>>1);
 	unsigned int y_trans = (HEIGHT>>1) - round_coord(y);
-	return ((y_trans*WIDTH + x_trans)<<1);
+	return (y_trans*WIDTH + x_trans)<<1;
 }
 
 //=============================================================================
@@ -436,3 +461,25 @@ float Heightmap::getCachedHeightAt2DPosition(float xPos, float zPos) const
 	return yPos;
 }
 
+float Heightmap::getHeight(float x, float y)
+{
+	if(!Open())
+	{
+		Connect();
+		if(!Open())
+		{
+			gLogger->logMsg("Heightmap::ERROR: Unable to retrieve height. A connection to the zone heightmap was not established!",FOREGROUND_RED);
+			return FLT_MIN;
+		}
+	}
+
+	short height;
+	fseek(hmp,getOffset(x,y),SEEK_SET);
+	size_t result = fread(&height,2,1,hmp);
+	if (! result) {
+		gLogger->logMsg("Heightmap::ERROR: Unable to read height!",FOREGROUND_RED);
+		return FLT_MIN;
+	}
+	height &= 0x7FFF;
+	return ((float)height)/10;
+}

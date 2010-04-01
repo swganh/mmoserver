@@ -124,12 +124,6 @@ void PlayerObject::onSample(const SampleEvent* event)
 	{
 		getSampleData()->mPendingSample = false;
 		return;
-	}
-
-	if(Heightmap::Instance()->hasWater(this->mPosition.mX,this->mPosition.mZ))
-	{
-		gMessageLib->sendSystemMessage(this,L"","error_message","survey_swimming");
-		return;
 	}		 
 
 	Inventory* inventory = dynamic_cast<Inventory*>(this->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
@@ -182,7 +176,6 @@ void PlayerObject::onSample(const SampleEvent* event)
 
 		return;
 	}
-
 
 	string					effect			= gWorldManager->getClientEffect(tool->getInternalAttribute<uint32>("sample_effect"));
 	bool					foundSameType	= false;

@@ -13,6 +13,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include <cassert>
 #include <ctime>
+#include "Scheduler.h"
 
 #if(ANH_PLATFORM == ANH_PLATFORM_WIN32)
 #include <windows.h>
@@ -25,11 +26,16 @@ using namespace Anh_Utils;
 //======================================================================================================================
 
 Clock* Clock::mSingleton = NULL;
+bool	Clock::mInsFlag    = false;
 
 //======================================================================================================================
 
 Clock::Clock()
 {
+	mStoredTime = getLocalTime();
+	mClockScheduler		= new Anh_Utils::Scheduler();
+	mClockScheduler->addTask(fastdelegate::MakeDelegate(this,&Clock::_setStoredTime),1,1000,NULL);
+
 #if(ANH_PLATFORM == ANH_PLATFORM_WIN32)
 	timeBeginPeriod(1);
 #endif
@@ -39,18 +45,26 @@ Clock::Clock()
 
 Clock::~Clock()
 {
+	delete(mClockScheduler);
 
 }
 //======================================================================================================================
 
-Clock* Anh_Utils::Clock::getSingleton()
+void Clock::process()
+{ 
+	mClockScheduler->process();
+}
+
+Clock* Anh_Utils::Clock::Init()
 {
-	if(!mSingleton)
+	if(!mInsFlag)
 	{
 		mSingleton = new Clock();
+		mInsFlag = true;
+		return mSingleton;
 	}
-
-	return mSingleton;
+	else
+		return mSingleton;
 }
 
 //==============================================================================================================================

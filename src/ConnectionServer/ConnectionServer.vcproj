@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="ConnectionServer"
 	ProjectGUID="{304D5734-E599-438C-B157-900AC4BFCF9E}"
 	RootNamespace="ConnectionServer"
@@ -77,6 +77,7 @@
 				GenerateManifest="false"
 				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="true"
+				AssemblyDebug="1"
 				SubSystem="1"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
@@ -380,6 +381,10 @@
 				RelativePath=".\ServerManager.cpp"
 				>
 			</File>
+			<File
+				RelativePath="..\..\bin\Debug\stackwalker\StackWalker.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -420,6 +425,10 @@
 			</File>
 			<File
 				RelativePath=".\ServerManager.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\bin\Debug\stackwalker\StackWalker.h"
 				>
 			</File>
 		</Filter>

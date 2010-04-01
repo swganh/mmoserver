@@ -541,6 +541,15 @@ void StructureManager::_HandleRemovePermission(StructureManagerAsyncContainer* a
 		name = asynContainer->name;
 		name.convert(BSTRType_Unicode16);
 		gMessageLib->sendSystemMessage(player,L"","player_structure","player_removed","","",name.getUnicode16());
+
+		if(HouseObject*	house = dynamic_cast<HouseObject*>(gWorldManager->getObjectById(asynContainer->mStructureId)))
+		{
+			updateKownPlayerPermissions(house);
+			StructureManagerAsyncContainer* asContainer = new StructureManagerAsyncContainer(Structure_Query_UpdateAdminPermission,NULL);
+			asContainer->mStructureId = asynContainer->mStructureId;
+
+			gWorldManager->getDatabase()->ExecuteSqlAsync(this,asContainer,"SELECT PlayerID FROM structure_admin_data WHERE StructureID = %"PRIu64" AND AdminType like 'ADMIN';",asContainer->mStructureId);
+		}
 	}
 
 	if(returnValue == 1)
@@ -581,7 +590,7 @@ void StructureManager::_HandleRemovePermission(StructureManagerAsyncContainer* a
 //==================================================================================================
 // 
 // after adding a name to the admin list we read it in again (as ID though)
-// so dropping ( picking up items in cells works
+// so dropping / picking up items in cells works
 
 void StructureManager::_HandleUpdateAdminPermission(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result)
 {
@@ -656,7 +665,7 @@ void StructureManager::_HandleAddPermission(StructureManagerAsyncContainer* asyn
 			StructureManagerAsyncContainer* asContainer = new StructureManagerAsyncContainer(Structure_Query_UpdateAdminPermission,NULL);
 			asContainer->mStructureId = asynContainer->mStructureId;
 
-			gWorldManager->getDatabase()->ExecuteSqlAsync(this,asContainer,"SELECT PlayerID FROM structure_admin_data WHERE StructureID = %"PRIu64" AND AdminType like '%ADMIN%';",asContainer->mStructureId);
+			gWorldManager->getDatabase()->ExecuteSqlAsync(this,asContainer,"SELECT PlayerID FROM structure_admin_data WHERE StructureID = %"PRIu64" AND AdminType like 'ADMIN';",asContainer->mStructureId);
 		}
 	}
 

@@ -87,6 +87,9 @@ void WorldConfig::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 	else if(mPlayerViewingRange < 32)
 		mPlayerViewingRange = 32;
 
+	//save our initial value to reset after scaling down due to load
+	mPlayerViewingRangeMax = mPlayerViewingRange;
+
 	// Player chat range
 	mPlayerChatRange = gWorldConfig->getConfiguration("Zone_Player_ChatRange",(uint16)128);
 	

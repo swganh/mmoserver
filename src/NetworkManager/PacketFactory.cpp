@@ -19,6 +19,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 PacketFactory::PacketFactory(bool serverservice)
 : mPacketPool(sizeof(Packet))
 {
+	mPacketCount = 0;
+
 	if(serverservice)
 		mMaxPayLoad = gNetConfig->getServerServerReliableSize();
 	else
@@ -53,8 +55,10 @@ Packet* PacketFactory::CreatePacket(void)
 	boost::recursive_mutex::scoped_lock lk(mPacketFactoryMutex);
 	Packet* newPacket = new(mPacketPool.malloc()) Packet();
 
-	newPacket->setTimeCreated(Anh_Utils::Clock::getSingleton()->getLocalTime());
+	newPacket->setTimeCreated(Anh_Utils::Clock::getSingleton()->getStoredTime());
 	newPacket->setMaxPayload(mMaxPayLoad);
+
+	mPacketCount++;
 
 	return newPacket;
 }
@@ -66,6 +70,7 @@ void PacketFactory::DestroyPacket(Packet* packet)
 	boost::recursive_mutex::scoped_lock lk(mPacketFactoryMutex);
 	
 	mPacketPool.free(packet);
+	mPacketCount--;
 }
 
 //======================================================================================================================

@@ -36,6 +36,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "ConfigManager/ConfigManager.h"
 
 #include "Utils/utils.h"
+#include "Utils/clock.h"
 
 #if !defined(_DEBUG) && defined(_WIN32)
 #include "Utils/mdump.h"
@@ -52,6 +53,7 @@ ChatServer* gChatServer;
 
 ChatServer::ChatServer() : mNetworkManager(0),mDatabaseManager(0),mRouterService(0),mDatabase(0)
 {
+	Anh_Utils::Clock::Init();
 	//gLogger->printSmallLogo();
 	gLogger->logMsg("ChatServer Startup");
 
@@ -157,6 +159,7 @@ void ChatServer::Process()
 {
 	// Process our game modules
 	mMessageDispatch->Process();
+	gMessageFactory->Process();
 
 	//  Process our core services
 	mDatabaseManager->Process();

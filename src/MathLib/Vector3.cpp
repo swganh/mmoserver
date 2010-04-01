@@ -203,6 +203,16 @@ float Anh_Math::Vector3::distance2D(const Anh_Math::Vector3& v) const
 
 //=============================================================================
 
+bool	Anh_Math::Vector3::nonaccurateRange(const Vector3& v, float range) const
+{
+	if((mX-v.mX) > range)
+		return false;
+	if((mY-v.mY) > range)
+		return false;
+
+	return true;
+}
+
 float Anh_Math::Vector3::distance2D(float x,float z) const
 {
 	float dx,dz;

@@ -27,11 +27,13 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Common/MessageFactory.h"
 #include "ConfigManager/ConfigManager.h"
 #include "Utils/utils.h"
+#include "Utils/clock.h"
 
 #if !defined(_DEBUG) && defined(_WIN32)
 #include "Utils/mdump.h"
 #endif
 
+#include "stackwalker.h"
 #include <boost/thread/thread.hpp>
 
 //======================================================================================================================
@@ -53,6 +55,7 @@ mClientService(0),
 mServerService(0),
 mLocked(false)
 {
+	Anh_Utils::Clock::Init();
 	// log msg to default log
 	//gLogger->printSmallLogo();
 	gLogger->logMsg("ConnectionServer Startup", FOREGROUND_GREEN | FOREGROUND_RED);
@@ -164,6 +167,7 @@ void ConnectionServer::Process(void)
 	mClientManager->Process();
 	mServerManager->Process();
 	mMessageRouter->Process();
+	
 }
 
 //======================================================================================================================
@@ -204,6 +208,7 @@ int main(int argc, char* argv[])
 
 	// init out configmanager singleton (access configvariables with gConfig Macro,like: gConfig->readInto(test,"test");)
 	ConfigManager::Init("ConnectionServer.cfg");
+
 
 	gConnectionServer = new ConnectionServer();
 

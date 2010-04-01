@@ -54,6 +54,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Common/MessageOpcodes.h"
 #include "ConfigManager/ConfigManager.h"
 #include "Utils/utils.h"
+#include "Utils/clock.h"
 
 #if !defined(_DEBUG) && defined(_WIN32)
 #include "Utils/mdump.h"
@@ -74,7 +75,8 @@ mDatabaseManager(0),
 mRouterService(0),
 mDatabase(0)
 {
-	//gLogger->printSmallLogo();
+	Anh_Utils::Clock::Init();
+	
 	// gLogger->logMsgF("ZoneServer - %s Startup %s",MSG_NORMAL,zoneName,GetBuildString());
 	gLogger->logMsg("ZoneServer Startup", FOREGROUND_GREEN | FOREGROUND_RED);
 

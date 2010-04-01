@@ -115,7 +115,9 @@ lowest(0)
 //======================================================================================================================
 
 Session::~Session(void)
-{					  
+{				
+	uint32 savedPackets = 0;
+
 	gLogger->logMsgF("Session::~Session ",MSG_HIGH,this->getId());
 	Message* message = 0;
 	
@@ -182,8 +184,92 @@ Session::~Session(void)
 		message->mSession = NULL;
 	}
 
-}
+	//no use anymore for our stored ooops
+	PacketWindowList::iterator ooopsIt = mOutOfOrderPackets.begin();
 
+	while(ooopsIt != mOutOfOrderPackets.end())
+	{
+		savedPackets++;
+		Packet* ooopsPacket = (*ooopsIt);
+		mPacketFactory->DestroyPacket(ooopsPacket);
+		mOutOfOrderPackets.erase(ooopsIt++);
+	}
+
+	PacketWindowList::iterator it = mNewWindowPacketList.begin();
+
+	while(it != mNewWindowPacketList.end())
+	{
+		savedPackets++;
+		Packet* packet = (*it);
+		mPacketFactory->DestroyPacket(packet);
+		mNewWindowPacketList.erase(it++);
+	}
+
+	it = mNewRolloverWindowPacketList.begin();
+
+	while(it != mNewRolloverWindowPacketList.end())
+	{
+		savedPackets++;
+		Packet* packet = (*it);
+		mPacketFactory->DestroyPacket(packet);
+		mNewRolloverWindowPacketList.erase(it++);
+	}
+
+	it = mWindowPacketList.begin();
+
+	while(it != mWindowPacketList.end())
+	{
+		savedPackets++;
+		Packet* packet = (*it);
+		mPacketFactory->DestroyPacket(packet);
+		mWindowPacketList.erase(it++);
+	}
+
+	it = mRolloverWindowPacketList.begin();
+
+	while(it != mRolloverWindowPacketList.end())
+	{
+		savedPackets++;
+		Packet* packet = (*it);
+		mPacketFactory->DestroyPacket(packet);
+		mRolloverWindowPacketList.erase(it++);
+	}
+
+	it = mNewWindowPacketList.begin();
+
+	while(it != mNewWindowPacketList.end())
+	{
+		savedPackets++;
+		Packet* packet = (*it);
+		mPacketFactory->DestroyPacket(packet);
+		mNewWindowPacketList.erase(it++);
+	}
+
+	Packet* packet;
+	while(!mOutgoingReliablePacketQueue.empty())
+	{
+		savedPackets++;
+		packet = mOutgoingReliablePacketQueue.front();
+		mOutgoingReliablePacketQueue.pop();
+		mPacketFactory->DestroyPacket(packet);
+	}
+	
+
+	while(!mOutgoingUnreliablePacketQueue.empty())
+	{
+		savedPackets++;
+		packet = mOutgoingUnreliablePacketQueue.front();
+		mOutgoingUnreliablePacketQueue.pop();
+		mPacketFactory->DestroyPacket(packet);
+	}
+
+	//gLogger->logMsgF("Session::~Session %u Packets saved !!!!!",MSG_HIGH,savedPackets);
+
+	 //PacketQueue                 mOutgoingReliablePacketQueue;		//these are packets put on by the sessionwrite thread to send
+	  //PacketQueue                 mOutgoingUnreliablePacketQueue;   //build unreliables they will get send directly by the socket write thread  without storing for possible r esends
+
+}
+						
 
 
 //======================================================================================================================
@@ -582,7 +668,7 @@ void Session::HandleSessionPacket(Packet* packet)
   uint16 packetType = packet->getUint16();
   
   // Set our last packet time index
-  mLastPacketReceived = Anh_Utils::Clock::getSingleton()->getLocalTime();
+  mLastPacketReceived = Anh_Utils::Clock::getSingleton()->getStoredTime();
   mClientPacketsReceived++;
 
   // If this is fastpath data, send it up.
@@ -790,10 +876,48 @@ void Session::HandleSessionPacket(Packet* packet)
    if (mInSequenceNext == sequence)
    {
 		SortSessionPacket(packet,packetType);
+
+		//no use anymore for our stored ooops
+		PacketWindowList::iterator ooopsIt = mOutOfOrderPackets.begin();
+
+		while(ooopsIt != mOutOfOrderPackets.end())
+		{
+			Packet* ooopsPacket = (*ooopsIt);
+			mPacketFactory->DestroyPacket(ooopsPacket);
+			mOutOfOrderPackets.erase(ooopsIt++);
+		}
+
    }
    else
    {
    		mPacketFactory->DestroyPacket(packet);
+   }
+
+   if(mOutOfOrderPackets.size() > 50)
+   {
+	   gLogger->logMsgF("stored packet count > 50!!!!!!!! (- %u)", MSG_HIGH,mOutOfOrderPackets.size());
+		
+	   PacketWindowList::iterator ooopsIt = mOutOfOrderPackets.begin();
+
+	   uint32 itCount = 0;
+	   while(ooopsIt != mOutOfOrderPackets.end())
+	   {
+		   itCount++;
+
+		   if(itCount > 10)
+			   break;
+
+		   Packet* ooopsPacket = (*ooopsIt);
+		   ooopsPacket->setReadIndex(2);
+		   uint16 ooopsSequence = ntohs(ooopsPacket->getUint16());
+
+		   if(ooopsSequence > (mInSequenceNext+20))
+		   {
+			   mPacketFactory->DestroyPacket(ooopsPacket);
+			   mOutOfOrderPackets.erase(ooopsIt++);
+		   }
+		   
+	   }
    }
 }
 
@@ -809,7 +933,7 @@ void Session::HandleFastpathPacket(Packet* packet)
 	uint32	accountId		= 0;
 
 	// Fast path is raw data.  Just send it up.
-	mLastPacketReceived = Anh_Utils::Clock::getSingleton()->getLocalTime();
+	mLastPacketReceived = Anh_Utils::Clock::getSingleton()->getStoredTime();
 	
 	packet->setReadIndex(0);
 
@@ -890,7 +1014,7 @@ Packet* Session::getOutgoingReliablePacket(void)
 
   lk.unlock();
 
-  mLastPacketSent = Anh_Utils::Clock::getSingleton()->getLocalTime();
+  mLastPacketSent = Anh_Utils::Clock::getSingleton()->getStoredTime();
 
   //packet->setReadIndex(2);
   //uint16 sequence = ntohs(packet->getUint16());
@@ -922,7 +1046,7 @@ Packet* Session::getOutgoingUnreliablePacket(void)
 
   lk.unlock();
 
-  mLastPacketSent = Anh_Utils::Clock::getSingleton()->getLocalTime();
+  mLastPacketSent = Anh_Utils::Clock::getSingleton()->getStoredTime();
 
   // Temp debug logging for client only.
   //packet->setReadIndex(2);

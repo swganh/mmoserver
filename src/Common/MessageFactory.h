@@ -21,7 +21,7 @@ class Message;
 
 #define gMessageFactory			MessageFactory::getSingleton()
 
-// force a delete when we exceed this limit
+// NEVER DELETE MESSAGES THAT ARE STILL REFERENCED SOMEWHERE
 #define MESSAGE_MAX_LIFE_TIME	60000
 
 //======================================================================================================================
@@ -35,8 +35,12 @@ class MessageFactory
 
 		void                    Process(void);
 
+		//provides us with information on the current heap useage
+		uint32					HeapWarningLevel(void);
+
 		void                    StartMessage(void);
 		Message*                EndMessage(void);
+		
 		void                    DestroyMessage(Message* message);
 
 		static MessageFactory*	getSingleton(void);
@@ -59,6 +63,7 @@ class MessageFactory
 		void					addString(const unsigned short* ustring);
 		void                    addData(int8* data, uint16 len);
 
+		float					getHeapsize(){return mCurrentUsed;}
 	private:
 
 		void                    _processGarbageCollection(void);
@@ -83,9 +88,13 @@ class MessageFactory
 		// Statistics
 		uint32                  mMessagesCreated;
 		uint32                  mMessagesDestroyed;
-		uint32									mServiceId;
-		float										mHeapWarnLevel;
+		uint32					mServiceId;
+		float					mHeapWarnLevel;
 		float                   mMaxHeapUsedPercent;
+
+		float					mLastHeapLevel;
+		uint64					mLastHeapLevelTime;
+		float					mCurrentUsed;
 
 		static MessageFactory*	mSingleton;
 		// Anh_Utils::Clock*		mClock;

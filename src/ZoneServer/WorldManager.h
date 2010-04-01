@@ -169,6 +169,7 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		virtual void			handleTimer(uint32 id, void* container);
 
 		// add / delete an object, make sure to cleanup any other references
+		float					_GetMessageHeapLoadViewingRange();
 		bool					existObject(Object* object);	// Returns true if object does exist.
 		bool					addObject(Object* object,bool manual = false);
 		void					destroyObject(Object* object);

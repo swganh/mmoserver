@@ -94,15 +94,15 @@ bool MessageLib::_checkPlayer(const PlayerObject* const player) const
 	if(!player)
 		return false;
 
-	PlayerObject* tested = gWorldManager->getPlayerByAccId(player->getAccountId());
+	//PlayerObject* tested = gWorldManager->getPlayerByAccId(player->getAccountId());
 
-	if(!tested)
-	{
-		gLogger->logMsgF("Player account (%u) invalid",MSG_NORMAL,player->getAccountId());
-		return false;
-	}
+	//if(!tested)
+	//{
+	//	gLogger->logMsgF("Player account (%u) invalid",MSG_NORMAL,player->getAccountId());
+	//	return false;
+	//}
 
-	return((tested->isConnected())&&(tested->getClient()));
+	return((player->isConnected())&&(player->getClient()));
 }
 
 //======================================================================================================================
@@ -120,6 +120,51 @@ bool MessageLib::_checkPlayer(uint64 playerId) const
 	return((tested->isConnected())&&(tested->getClient()));
 }
 
+//================================================================================================0
+//send movement based on messageheap size and distance
+bool MessageLib::_checkDistance(Anh_Math::Vector3 mPosition1,Object* object, uint32 heapWarningLevel)
+{
+	if(mMessageFactory->getHeapsize() > 98.0)
+		return false;
+
+	//just send everything we have
+	if(heapWarningLevel < 4)
+		return true;
+	else
+	if (heapWarningLevel < 6)
+	{
+		if(!object->mPosition.nonaccurateRange(mPosition1,96))
+			return object->movementMessageToggle();
+	}
+	else
+	if (heapWarningLevel < 8)
+	{
+		if(!object->mPosition.nonaccurateRange(mPosition1,64))
+			return object->movementMessageToggle();
+	}
+	else
+	if (heapWarningLevel < 10)
+	{
+		float distance = object->mPosition.distance2D(mPosition1);
+		if(distance <= 32)
+			return true;
+		else
+		if(distance > 32)
+			return object->movementMessageToggle();
+		else
+		if(distance > 64)
+			return false;
+	}
+	else
+	if (heapWarningLevel >= 10)
+		return false;
+	
+	
+	
+
+	return false;
+}
+
 //======================================================================================================================
 //
 // broadcasts a message to all players in range of the given object
@@ -129,19 +174,30 @@ void MessageLib::_sendToInRangeUnreliable(Message* message, Object* const object
 	PlayerObjectSet*			inRangePlayers	= object->getKnownPlayers();
 	PlayerObjectSet::iterator	playerIt		= inRangePlayers->begin();
 
+	bool failed = false;
 	while(playerIt != inRangePlayers->end())
 	{
 		if(_checkPlayer((*playerIt)))
 		{
-			// clone our message
-			mMessageFactory->StartMessage();
-			mMessageFactory->addData(message->getData(),message->getSize());
+			bool yn = _checkDistance((*playerIt)->mPosition,object,mMessageFactory->HeapWarningLevel());
+			if(yn)
+			{
+				// clone our message
+				mMessageFactory->StartMessage();
+				mMessageFactory->addData(message->getData(),message->getSize());
 
-			((*playerIt)->getClient())->SendChannelAUnreliable(mMessageFactory->EndMessage(),(*playerIt)->getAccountId(),CR_Client,static_cast<uint8>(priority));
+				((*playerIt)->getClient())->SendChannelAUnreliable(mMessageFactory->EndMessage(),(*playerIt)->getAccountId(),CR_Client,static_cast<uint8>(priority));
+			}
+			else
+			{
+				failed = true;
+			}
 		}
 
 		++playerIt;
 	}
+	if( failed)
+		gLogger->logMsgF("MessageLib Heap Protection engaged Heap Warning Level %u Heap size %f",MSG_NORMAL,mMessageFactory->HeapWarningLevel(),mMessageFactory->getHeapsize());
 
 	if(toSelf)
 	{
@@ -823,12 +879,15 @@ bool MessageLib::sendCreateBuilding(BuildingObject* buildingObject,PlayerObject*
 	if(!_checkPlayer(playerObject))
 		return(false);
 
+	bool publicBuilding = true;
+
 	//test buildings on house basis here
 	//perhaps move to on cell basis sometime ?
 	if(HouseObject* house = dynamic_cast<HouseObject*>(buildingObject))
 	{
 		//gLogger->logMsgF("check cell permission",MSG_NORMAL);
 		house->checkCellPermission(playerObject);
+		publicBuilding = buildingObject->getPublic();
 	}
 
 	sendCreateObjectByCRC(buildingObject,playerObject,false);
@@ -862,7 +921,7 @@ bool MessageLib::sendCreateBuilding(BuildingObject* buildingObject,PlayerObject*
 		}
 		sendBaselinesSCLT_6(cell,playerObject);
 
-		sendUpdateCellPermissionMessage(cell,buildingObject->getPublic(),playerObject);	 //cellpermissions get checked by datatransform
+		sendUpdateCellPermissionMessage(cell,publicBuilding,playerObject);	 //cellpermissions get checked by datatransform
 		sendEndBaselines(cellId,playerObject);
 
 		++cellIt;

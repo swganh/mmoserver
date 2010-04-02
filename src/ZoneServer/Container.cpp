@@ -50,7 +50,7 @@ void Container::removeObject(Object* object)
 	ObjectList::iterator it = mObjects.begin();
 	while(it != mObjects.end())
 	{
-		if((*it) == object)
+		if((*it)->getId() == object->getId())
 		{
 			mObjects.erase(it);
 			break;

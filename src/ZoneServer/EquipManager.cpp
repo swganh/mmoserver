@@ -34,7 +34,13 @@ EquipManager::~EquipManager()
 
 	while(it != objList->end())
 	{
-		if((*it)->getType() == ObjType_Tangible)
+		TangibleObject* tanObj = dynamic_cast<TangibleObject*>(*it);
+
+		bool isHair = false;
+		if(tanObj && tanObj->getTangibleGroup() == 3)
+			isHair = true;
+
+		if((*it)->getType() == ObjType_Tangible && !isHair)
 		{
 			gWorldManager->destroyObject((*it));
 		}

@@ -417,21 +417,21 @@ while state == 1 do
 		tutorial:spatialChat(itemRoomOfficerId, "Ah, I see we have another refugee from the freighter.");
 
 		while tutorial:getPlayerPosToObject(itemRoomOfficerId) > 20.0 do
-			LuaScriptEngine.WaitMSec(500);
+			LuaScriptEngine.WaitMSec(2000);
 		end;
 
 		-- tutorial:spatialChat(itemRoomOfficerId, "@newbie_tutorial/newbie_convo:greeter1_bark2");
 		tutorial:spatialChat(itemRoomOfficerId, "Well, you're one of the lucky ones.  Most passengers didn't survive.");
 
 		while tutorial:getPlayerPosToObject(itemRoomOfficerId) > 16.0 do
-			LuaScriptEngine.WaitMSec(500);
+			LuaScriptEngine.WaitMSec(2000);
 		end;
 
 		-- tutorial:spatialChat(itemRoomOfficerId, "@newbie_tutorial/newbie_convo:greeter1_bark3");
 		tutorial:spatialChat(itemRoomOfficerId, "You should know better than to take passage with criminals.");
 
 		while tutorial:getPlayerPosToObject(itemRoomOfficerId) > 12.0 do
-			LuaScriptEngine.WaitMSec(500);
+			LuaScriptEngine.WaitMSec(2000);
 		end;
 	
 		tutorial:setSubState(6);
@@ -635,15 +635,18 @@ while state == 1 do
 
 		delayLeft = 8000;
 
+		
 		targetOpened = false;
-		while (targetOpened == false) do
+		while (targetOpened == false and not tutorial:isContainerEmpty(containerId)) do
 			if (tutorial:isContainerOpen(containerId) == false) then
 				LuaScriptEngine.WaitMSec(500);
 				if delayLeft > 0 then
+					print("STUCK LINE 644.");
 					delayLeft = delayLeft - 500
 				end
 			else
 				targetOpened = true;
+				break;
 			end;
 		end;
 		LuaScriptEngine.WaitMSec(delayLeft);
@@ -668,10 +671,10 @@ while state == 1 do
 -- Wait for player to pick up the items and close the container.
 		while (tutorial:isContainerClosed(containerId) == false) do
 		
-			-- print("Container is NOT closed.");
+			print("Container is NOT closed.");
 			
 			if (tutorial:isContainerEmpty(containerId) == true) then
-				-- print("Container is EMPTY.");
+				print("Container is EMPTY.");
 				break;
 			end;
 		
@@ -711,6 +714,7 @@ while state == 1 do
 
 -- We HAVE to close the container
 		while (tutorial:isContainerClosed(containerId) == false) do
+			print("STUCK LINE 715.");
  			LuaScriptEngine.WaitMSec(500);
  		end;
  		

@@ -756,8 +756,18 @@ bool Tutorial::isContainerEmpty(uint64 containerId)
 		Container* container = dynamic_cast<Container*>(gWorldManager->getObjectById(containerId));
 		if (container)
 		{
+
+			ObjectList* objList = container->getObjects();
+			ObjectList::iterator it = objList->begin();
+
+			while(it != objList->end())
+			{
+				it++;
+			}
+
 			uint32 mySize = container->getObjects()->size();
 			empty = (mySize == 0);
+			gLogger->logMsgF("Item Count: %u", MSG_NORMAL, mySize);
 		}
 	}
 	return empty;

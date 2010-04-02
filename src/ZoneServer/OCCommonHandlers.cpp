@@ -945,9 +945,14 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 			if(!player->getEquipManager()->EquipItem(item))
 			{
 				gLogger->logMsgF("ObjectController::_handleTransferItemMisc: Error equipping  %"PRIu64"", MSG_NORMAL, item->getId());
+				
+				//keep the special cases at a minimum.
+				//the idea is to have the code modularized to check target container, check parent container, THEN transfer
+
+
 				//readd it to the old parent
-				if(parentContainer)
-					parentContainer->addObjectSecure(item);
+				//if(parentContainer)
+					//parentContainer->addObjectSecure(item);
 			}
 		}
 		return;

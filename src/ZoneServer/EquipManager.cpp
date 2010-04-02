@@ -253,7 +253,7 @@ bool EquipManager::EquipItem(Object* object)
 	}
 
 	//update the relevant attribute and the db 
-	object->setInternalAttribute("equipped","1");
+	object->setInternalAttributeIncDB("equipped","1");
 
 	return true;
 }
@@ -335,7 +335,7 @@ bool EquipManager::unEquipItem(Object* object)
 		gMessageLib->sendWeaponIdUpdate(owner);
 	}
 
-	object->setInternalAttribute("equipped","0");
+	object->setInternalAttributeIncDB("equipped","0");
 
 	return true;
 }

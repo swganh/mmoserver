@@ -94,22 +94,6 @@ CreatureObject::CreatureObject()
 
 CreatureObject::~CreatureObject()
 {
-	// delete inventory
-	Object* inventory = mEquipManager.getEquippedObject(CreatureEquipSlot_Inventory);
-	mEquipManager.removeEquippedObject(CreatureEquipSlot_Inventory);
-
-	SAFE_DELETE(inventory);
-
-	// delete hair
-	//please note that the equipslot might be occupied if we are wearing a helmet!!!
-	//in which case we need the creatureobjectreference to hair to delete it without crashing
-	Object* hair = getHair();
-	mEquipManager.removeEquippedObject(CreatureEquipSlot_Hair);
-
-	//hair is not added to the world object list so just delete
-	SAFE_DELETE(hair); //not everyone has hair
-
-
 	mBuffList.clear();
 }
 

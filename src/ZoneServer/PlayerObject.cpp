@@ -362,7 +362,7 @@ PlayerObject::~PlayerObject()
 
 	stopTutorial();
 
-	// mission bag
+	/*// mission bag
 	Object* missionBag = mEquipManager.getEquippedObject(CreatureEquipSlot_MissionBag);
 	mEquipManager.removeEquippedObject(CreatureEquipSlot_MissionBag);
 	delete(missionBag);
@@ -374,7 +374,7 @@ PlayerObject::~PlayerObject()
 	// bank
 	Object* bank = mEquipManager.getEquippedObject(CreatureEquipSlot_Bank);
 	mEquipManager.removeEquippedObject(CreatureEquipSlot_Bank);
-	delete(bank);
+	delete(bank);*/
 
 	delete(mStomach);
 	delete(mTrade);

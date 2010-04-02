@@ -34,15 +34,13 @@ EquipManager::~EquipManager()
 
 	while(it != objList->end())
 	{
-		TangibleObject* tanObj = dynamic_cast<TangibleObject*>(*it);
-
-		bool isHair = false;
-		if(tanObj && tanObj->getTangibleGroup() == 3)
-			isHair = true;
-
-		if((*it)->getType() == ObjType_Tangible && !isHair)
+		if((*it)->getType() == ObjType_Tangible && gWorldManager->existObject((*it)))
 		{
 			gWorldManager->destroyObject((*it));
+		}
+		else
+		{
+			delete (*it);
 		}
 		it++;
 	}
@@ -51,8 +49,6 @@ EquipManager::~EquipManager()
 
 	mSlotMap.clear();
 	mObjectMap.clear();
-
-	delete(mDefaultWeapon);
 }
 
 ObjectList* EquipManager::getEquippedObjects()
@@ -62,12 +58,31 @@ ObjectList* EquipManager::getEquippedObjects()
 
 	while(it != mObjectMap.end())
 	{
-		result->push_front(it->first);
+		ObjectList::iterator ot = result->begin();
+
+		bool hasObject = false;
+		while(ot != result->end())
+		{
+			if((*ot) == (*it).first)
+			{
+				hasObject = true;
+				ot++;
+			}
+			ot++;
+		}
+
+		if(!hasObject)
+			result->push_front(it->first);
+
+
 		it++;
 	}
 
 	return result;
 }
+
+
+
 
 //=============================================================================
 //

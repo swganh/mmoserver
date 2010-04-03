@@ -696,6 +696,7 @@ void Session::HandleSessionPacket(Packet* packet)
 	  mStatus = SSTAT_Connected;
 	  packet->getUint32();                          // unkown
 	  mEncryptKey = ntohl(packet->getUint32());     // Encryption key
+	  mPacketFactory->DestroyPacket(packet);
 	  return;
 	}
 
@@ -2268,6 +2269,7 @@ void Session::_processPingPacket(Packet* packet)
 
    if((Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastPingPacketSent) < 1000)
    {
+	   mPacketFactory->DestroyPacket(packet);
 	   return;
    }
 

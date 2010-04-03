@@ -9,11 +9,14 @@ Copyright (c) 2006 - 2010 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
+#include <math.h>
+
 #include "Vehicle.h"
 #include "CreatureObject.h"
 #include "IntangibleObject.h"
 #include "PlayerObject.h"
 #include "MountObject.h"
+#include "Heightmap.h"
 #include "Object.h"
 #include "WorldManager.h"
 #include "MessageLib/MessageLib.h"
@@ -167,15 +170,16 @@ void Vehicle::call()
 	mOwner->setMounted(false);
 	mOwner->setMountCalled(false);
 
-	// todo: Write an algorthim that guarentees the mount will appear in-front of the player
-	// mugz raw idea :
-	// vehicle.x = player.x + (distance * cos(player.heading * RADIANT))
-	// vehicle.z = player.z + (distance * sin(player.heading * RADIANT))
+	//Set direction to match the player
+	mBody->mDirection = mOwner->mDirection;
 
-	//QA says mounts spawn on top of the player
-	mBody->mPosition.mX = mOwner->mPosition.mX;// + 2;
-	mBody->mPosition.mY = mOwner->mPosition.mY + 0.3f;
-	mBody->mPosition.mZ = mOwner->mPosition.mZ;// + 2;
+	//Spawn it to the side of the player
+	mBody->mPosition.mX = mOwner->mPosition.mX + ( 2 * cos(mOwner->mDirection.getAnglesToSend() + 1.5708f));
+	mBody->mPosition.mZ = mOwner->mPosition.mZ + ( 2 * sin(mOwner->mDirection.getAnglesToSend() + 1.5708f));
+
+	//And a little above the terrian (help prevent sticking)
+	mBody->mPosition.mY =  Heightmap::Instance()->getHeight(mBody->mPosition.mX, mBody->mPosition.mZ) + 0.3f;
+
 
 	// add to world
 	if(!gWorldManager->addObject(mBody))

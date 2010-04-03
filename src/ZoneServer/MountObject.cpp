@@ -50,22 +50,28 @@ void MountObject::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 
 	if(getCreoGroup() == CreoGroup_Vehicle)
 	{
 
+		//The radial for the swoop is done in this manner to make sure that enter/exit is the default action
+		//for double click... many people have expressed that they would rather have misnumbered radials then 
+		//not have the default action be enter/exit
+		if(radial) delete radial;
+		radial = new RadialMenu();
+
 		if(creatureObject->getId() == mOwner)
 		{
 			PlayerObject* owner = dynamic_cast<PlayerObject*>(creatureObject);
 			if(owner->checkIfMounted())
 			{
-				radial->addItem(radId++,0,radId_serverVehicleExit,radAction_Default,"@pet/pet_menu:menu_exit");
+				radial->addItem(2,0,radId_serverVehicleExit,radAction_ObjCallback,"@pet/pet_menu:menu_exit");
 			}
 			else
 			{
-				radial->addItem(radId++,0,radId_serverVehicleEnter,radAction_Default,"@pet/pet_menu:menu_enter");
+				radial->addItem(2,0,radId_serverVehicleEnter,radAction_ObjCallback,"@pet/pet_menu:menu_enter");
 			}
-			radial->addItem(radId++,0,radId_vehicleStore,radAction_ObjCallback,"@pet/pet_menu:menu_store");
+			radial->addItem(3,0,radId_vehicleStore,radAction_ObjCallback,"@pet/pet_menu:menu_store");
 			//TODO: Check if near a garage then add repair
 		}
 
-		//radial->addItem(1,0,radId_examine,radAction_Default);
+		radial->addItem(1,0,radId_examine,radAction_Default);
 
 		mRadialMenu = RadialMenuPtr(radial);
 	}

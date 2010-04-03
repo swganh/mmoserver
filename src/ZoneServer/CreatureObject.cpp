@@ -642,6 +642,18 @@ void CreatureObject::incap()
 			player->disableAutoAttack();
 		}
 
+		//See if our player is mounted -- if so dismount him 
+		if(player->checkIfMounted())
+		{
+			//Get the player's mount
+			if(Vehicle* vehicle = dynamic_cast<Vehicle*>(gWorldManager->getObjectById(player->getMount()->getPetController())))
+			{
+				//Now dismount
+				vehicle->dismountPlayer();
+			}
+
+		}
+
 		// advance incaps counter
 		if(++mIncapCount < gWorldConfig->getConfiguration("Player_Incapacitation",3))
 		{
@@ -1407,10 +1419,17 @@ void CreatureObject::prepareCustomRadialMenu(CreatureObject* creatureObject, uin
 			}
 			else
 			{
-				radial->addItem(2,0,radId_serverVehicleEnter,radAction_Default,"@pet/pet_menu:menu_enter");
+				radial->addItem(3,0,radId_serverVehicleEnter,radAction_Default,"@pet/pet_menu:menu_enter");
 			}
-			radial->addItem(3,0,radId_vehicleStore,radAction_ObjCallback,"@pet/pet_menu:menu_store");
+
 			//TODO: Check if near a garage then add repair
+
+			radial->addItem(1,0,radId_examine,radAction_Default);
+			radial->addItem(3,0,radId_vehicleStore,radAction_ObjCallback,"@pet/pet_menu:menu_store");
+
+			mRadialMenu = RadialMenuPtr(radial);
+			return;
+			
 		}
 
 		radial->addItem(1,0,radId_examine,radAction_Default);
@@ -1419,7 +1438,7 @@ void CreatureObject::prepareCustomRadialMenu(CreatureObject* creatureObject, uin
 	}
 
 
-
+return;
 }
 
 //=============================================================================

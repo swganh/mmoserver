@@ -34,7 +34,7 @@ EquipManager::~EquipManager()
 
 	while(it != objList->end())
 	{
-		if((*it)->getType() == ObjType_Tangible && gWorldManager->existObject((*it)))
+		if(gWorldManager->existObject((*it)))
 		{
 			gWorldManager->destroyObject((*it));
 		}

@@ -244,6 +244,17 @@ void ObjectController::_handlePeace(uint64 targetId,Message* message,ObjectContr
 		player->toggleStateOn(CreatureState_Peace);
 		gMessageLib->sendStateUpdate(player);
 		player->disableAutoAttack();
+
+		//End any duels
+
+		PlayerList* pList = player->getDuelList();
+		PlayerList::iterator it = pList->begin();
+
+		while(it != pList->end())
+		{
+			_handleEndDuel((*it)->getId(), NULL, NULL);
+			it++;
+		}
 	}
 }
 

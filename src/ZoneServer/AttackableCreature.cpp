@@ -756,7 +756,7 @@ bool AttackableCreature::isTargetValid(void)
 		{
 			if (this->getTarget() == (*it))	// Is the target in the known list of objects?
 			{
-				if (!(*it)->isDead() && !(*it)->isIncapacitated())
+				if (isTargetWithinMaxRange((*it)->getId()) && (*it)->isConnected()) //this function also checks incap or dead
 				{
 					// gLogger->logMsgF("AttackableCreature::checkCurrentTarget() Npc target validated OK.", MSG_NORMAL);
 					foundTarget = true;

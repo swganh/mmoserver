@@ -304,6 +304,8 @@ void ObjectController::_handleStructurePlacement(uint64 targetId,Message* messag
 			uint32 halfLength = (deedLink->length/2);
 			uint32 halfWidth = (deedLink->width/2);
 
+			container->addToBatch(x, z);
+
 			if(dir == 0 || dir == 2)
 			{
 				//Orientation 1

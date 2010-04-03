@@ -51,6 +51,7 @@ private:
 	void InitTools();
 	void InitWeapons();
 	void InitArmor();
+	void InitProfessions();
 
 	void SendXPMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
 	void SendResourcesMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
@@ -108,7 +109,8 @@ private:
 	void _handleRifleMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
 	void _handleCSRItemSelect(PlayerObject* playerObject, uint32 action,int32 element,string inputStr,UIWindow* window);
 	void _handleMainCsrMenu(PlayerObject* playerObject, uint32 action,int32 element,string inputStr,UIWindow* window);
-	
+	void _handleProfessionMenu(PlayerObject* playerObject, uint32 action,int32 element,string inputStr,UIWindow* window);
+
 int32				mInputBoxAmount;
 	BStringVector		mMainMenu;
 	BStringVector		mMainCsrMenu;
@@ -119,6 +121,7 @@ int32				mInputBoxAmount;
 
 	//1st level menus
 	BStringVector			mExperienceMenu;
+	BStringVector			mProfessionMenu;
 	BStringVector			mCreditMenu;
 	BStringVector			mBuffMenu;
 	BStringVector			mItemMenu;

@@ -79,11 +79,33 @@ void CharacterBuilderTerminal::InitMenus()
 	mMainCsrMenu.push_back("Manage Items");
 	mMainCsrMenu.push_back("Manage Resources");
 	mMainCsrMenu.push_back("Get Item by ID");
+	mMainCsrMenu.push_back("Manage Professions");
 
 	InitExperience();
+	InitProfessions();
 	InitCredits();
 	InitBuffs();
 	InitItems();
+}
+void CharacterBuilderTerminal::InitProfessions()
+{
+	SkillList*			skillList	= gSkillManager->getMasterProfessionList();
+	SkillList::iterator skillIt		= skillList->begin();
+
+	while(skillIt != skillList->end())
+	{
+		//// skip jedi professions, if flag isn't set
+		//if(!playerObject->getJediState() && strstr((*skillIt)->mName.getAnsi(),"discipline"))
+		//{
+		//	++skillIt;
+
+		//	continue;
+		//}
+
+		mProfessionMenu.push_back((*skillIt)->mName);
+
+		++skillIt;
+	}
 }
 void CharacterBuilderTerminal::InitExperience()
 {
@@ -640,11 +662,17 @@ void CharacterBuilderTerminal::_handleMainCsrMenu(PlayerObject* playerObject, ui
 	case 4://Resources
 		SendResourcesMenu(playerObject, action, element, inputStr, window);
 		break;
-	case 5:
+	case 5://Get Item by ID
 		if(playerObject->isConnected())
 		{
 			BStringVector dropDowns;
 			gUIManager->createNewInputBox(this, "handleInputItemId", "Get Item", "Enter the item ID", dropDowns, playerObject, SUI_IB_NODROPDOWN_OKCANCEL, SUI_Window_CharacterBuilderItemIdInputBox,8);
+		}
+		break;
+	case 6: //Professions
+		if(playerObject->isConnected())
+		{
+			gUIManager->createNewListBox(this,"handleGetProf","Select Profession to Master","Select from the list below.",mProfessionMenu,playerObject,SUI_Window_CharacterBuilderProfessionMastery_ListBox);
 		}
 		break;
 	default:
@@ -652,7 +680,27 @@ void CharacterBuilderTerminal::_handleMainCsrMenu(PlayerObject* playerObject, ui
 	}
 }
 
+void CharacterBuilderTerminal::_handleProfessionMenu(PlayerObject* playerObject, uint32 action,int32 element,string inputStr,UIWindow* window)
+{
+	if(element < 0)
+	{
+		return;
+	}
 
+	SkillList* skillList = gSkillManager->getMasterProfessionList();
+	SkillList::iterator newSkill = skillList->begin();
+	newSkill+=element;
+	if(!playerObject->getJediState() && strstr((*newSkill)->mName.getAnsi(),"discipline"))
+	{
+		gMessageLib->sendSystemMessage(playerObject, L"Sorry. That profession is only available to Jedi Enabled Accounts");
+		if(playerObject->isConnected())
+		{
+			gUIManager->createNewListBox(this,"handleGetProf","Select Profession to Master","Select from the list below.",mProfessionMenu,playerObject,SUI_Window_CharacterBuilderProfessionMastery_ListBox);
+		}
+	} else {
+		gSkillManager->learnSkillLine((*newSkill)->mId, playerObject, false);
+	}
+}
 void CharacterBuilderTerminal::_handleExperienceMenu(PlayerObject* playerObject, uint32 action,int32 element,string inputStr,UIWindow* window)
 {
 	if (element > (int32)playerObject->getXpList()->size() - 1 || element < 0)
@@ -2261,6 +2309,9 @@ void  CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string
 			break;
 		case SUI_Window_CharacterBuilderItemIdInputBox:
 			_handleCSRItemSelect(playerObject, action, element, inputStr, window);
+			break;
+		case SUI_Window_CharacterBuilderProfessionMastery_ListBox:
+			_handleProfessionMenu(playerObject, action, element, inputStr, window);
 			break;
 		default:
 			break;

@@ -91,7 +91,7 @@ rem ----------------------------------------------------------------------------
 rem --- Start of SET_DEFAULTS --------------------------------------------------
 :SET_DEFAULTS
 
-set DEPENDENCIES_VERSION=1788
+set DEPENDENCIES_VERSION=0.1.0
 set DEPENDENCIES_FILE=swganh-deps-%DEPENDENCIES_VERSION%.zip
 set DEPENDENCIES_URL=http://swganh.com/^^!^^!deps^^!^^!/%DEPENDENCIES_FILE%
 set "PROJECT_BASE=%~dp0"
@@ -380,6 +380,10 @@ set /p current_version=<"deps\VERSION"
 
 if not %current_version% == %DEPENDENCIES_VERSION% (
     echo ** Dependencies out of date -- Updating now **
+	
+	rem Need to do a full rebuild after updating dependenceies
+	set REBUILD=rebuild
+	
     call :CLEAN_BUILD 
     call :DOWNLOAD_DEPENDENCIES
     echo ** Dependencies updated **
@@ -470,15 +474,15 @@ if not exist "tools\jam\src\bin.ntx86\bjam.exe" (
 rem Build the boost libraries we need.
 
 if "%BUILD_TYPE%" == "debug" (
-    cmd /c "tools\jam\src\bin.ntx86\bjam.exe" --toolset=msvc-%MSVC_VERSION% --with-date_time --with-thread --with-regex --with-system variant=debug link=static runtime-link=static threading=multi >NUL
+    cmd /c "tools\jam\src\bin.ntx86\bjam.exe" --toolset=msvc-%MSVC_VERSION% --with-log --with-date_time --with-thread --with-regex --with-system variant=debug link=static runtime-link=static threading=multi >NUL
 )
 
 if "%BUILD_TYPE%" == "release" (
-    cmd /c "tools\jam\src\bin.ntx86\bjam.exe" --toolset=msvc-%MSVC_VERSION% --with-date_time --with-thread --with-regex --with-system variant=release link=static runtime-link=static threading=multi >NUL
+    cmd /c "tools\jam\src\bin.ntx86\bjam.exe" --toolset=msvc-%MSVC_VERSION% --with-log --with-date_time --with-thread --with-regex --with-system variant=release link=static runtime-link=static threading=multi >NUL
 )
 
 if "%BUILD_TYPE%" == "all" (
-    cmd /c "tools\jam\src\bin.ntx86\bjam.exe" --toolset=msvc-%MSVC_VERSION% --with-date_time --with-thread --with-regex --with-system variant=debug,release link=static runtime-link=static threading=multi >NUL
+    cmd /c "tools\jam\src\bin.ntx86\bjam.exe" --toolset=msvc-%MSVC_VERSION% --with-log --with-date_time --with-thread --with-regex --with-system variant=debug,release link=static runtime-link=static threading=multi >NUL
 )
 
 cd "%PROJECT_BASE%"

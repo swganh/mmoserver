@@ -253,7 +253,7 @@ void ObjectController::_handlePeace(uint64 targetId,Message* message,ObjectContr
 		while(it != pList->end())
 		{
 			_handleEndDuel((*it)->getId(), NULL, NULL);
-			it++;
+			it = pList->begin();
 		}
 	}
 }

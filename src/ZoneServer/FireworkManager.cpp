@@ -35,7 +35,14 @@ TangibleObject* FireworkManager::createFirework(uint32 typeId, PlayerObject* pla
 	TangibleObject* firework = new TangibleObject();
 	firework->setTangibleGroup(TanGroup_Static);
 	//firework->setTangibleType();
-	firework->mPosition = position;//player->mPosition;
+
+	//Make the Player Sit
+	player->setCrouched();
+
+	firework->mPosition.mX = player->mPosition.mX + ( 2 * cos(player->mDirection.getAnglesToSend()));
+	firework->mPosition.mY = position.mY;
+	firework->mPosition.mZ = player->mPosition.mZ + ( 2 * sin(player->mDirection.getAnglesToSend()));
+
 	firework->mDirection.mX = 0;
 	firework->mDirection.mY = 0;
 	firework->mDirection.mZ = 0;

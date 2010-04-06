@@ -39,9 +39,11 @@ TangibleObject* FireworkManager::createFirework(uint32 typeId, PlayerObject* pla
 	//Make the Player Sit
 	player->setCrouched();
 
-	firework->mPosition.mX = player->mPosition.mX + ( 2 * cos(player->mDirection.getAnglesToSend()));
+	//The placement formulas may require *slight* tweaking as they don't place directly in front of the player
+	//in the same spot every time.
+	firework->mPosition.mX = player->mPosition.mX + ( cos(player->mDirection.getAnglesToSend()));
 	firework->mPosition.mY = position.mY;
-	firework->mPosition.mZ = player->mPosition.mZ + ( 2 * sin(player->mDirection.getAnglesToSend()));
+	firework->mPosition.mZ = player->mPosition.mZ + ( sin(player->mDirection.getAnglesToSend()));
 
 	firework->mDirection.mX = 0;
 	firework->mDirection.mY = 0;

@@ -759,13 +759,17 @@ bool Tutorial::isContainerEmpty(uint64 containerId)
 
 			ObjectList* objList = container->getObjects();
 			ObjectList::iterator it = objList->begin();
-
+			uint32 mySize = 0;
 			while(it != objList->end())
 			{
+				if((*it)->getPrivateOwner() == mPlayerObject->getId())
+				{
+					mySize++;
+				}
 				it++;
 			}
 
-			uint32 mySize = container->getObjects()->size();
+			//uint32 mySize = container->getObjects()->size();
 			empty = (mySize == 0);
 			gLogger->logMsgF("Item Count: %u", MSG_NORMAL, mySize);
 		}

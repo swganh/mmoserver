@@ -66,7 +66,6 @@ ObjectList* EquipManager::getEquippedObjects()
 			if((*ot) == (*it).first)
 			{
 				hasObject = true;
-				ot++;
 			}
 			ot++;
 		}

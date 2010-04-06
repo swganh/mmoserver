@@ -21,10 +21,25 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 FireworkManager*	FireworkManager::mSingleton = NULL;
 
+class FireworkEvent
+{
+public:
+	TangibleObject* firework;
+	uint64 timeFired; //Time the firework was fired.
+	bool playerToldToStand;
+	PlayerObject* player; //Person who fired the Firework
+};
+
 FireworkManager::~FireworkManager(void)
 {
+	std::list<FireworkEvent*>::iterator it=fireworkEvents.begin();
+	
+	while( it != fireworkEvents.end())
+	{
+		delete *it;
+		fireworkEvents.erase(it);
+	}
 }
-
 
 //===============================================================================00
 //creates the static Object of the firework in the world
@@ -92,5 +107,48 @@ TangibleObject* FireworkManager::createFirework(uint32 typeId, PlayerObject* pla
 	gWorldManager->addObject(firework);
 	gWorldManager->createObjectinWorld(player,firework);
 	
+	FireworkEvent* fevent = new FireworkEvent;
+
+	//Setup the Manager Class
+	fevent->firework = firework;
+	fevent->player = player;
+	fevent->playerToldToStand = false;
+	fevent->timeFired = gWorldManager->GetCurrentGlobalTick();
+
+	this->fireworkEvents.push_back(fevent);
+
 	return firework;
+}
+
+void FireworkManager::Process()
+{
+	//This iterates all fired fireworks and keeps everything spiffy.
+
+	std::list<FireworkEvent*>::iterator it=this->fireworkEvents.begin();
+	
+	while( it != fireworkEvents.end())
+	{
+		if((gWorldManager->GetCurrentGlobalTick() - (*it)->timeFired) > 2000 && (*it)->playerToldToStand == false) //2 sec
+		{
+			if((*it)->player->getPosture() == CreaturePosture_Crouched)
+			{
+				(*it)->player->setUpright();
+				(*it)->playerToldToStand = true;
+
+			}
+			it++;
+		}
+		else if((gWorldManager->GetCurrentGlobalTick() - (*it)->timeFired) > 25000) //25 sec (about the time of a firework)
+		{
+			gWorldManager->destroyObject((*it)->firework);
+
+			delete *it;
+			it = fireworkEvents.erase(it);
+		}
+		else
+		{
+			it++;
+		}
+	}
+
 }

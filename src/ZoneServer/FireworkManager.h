@@ -16,9 +16,10 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "MathLib/Vector3.h"
 #include "TangibleObject.h"
 
-#define gFireworkManager FireworkManager::getSingletonPtr()
+#define gFireworkManager FireworkManager::Instance()
 
 class PlayerObject;
+class FireworkEvent;
 
 class FireworkManager
 {
@@ -55,6 +56,8 @@ protected:
 private:
 	static FireworkManager*	mSingleton;
 	
+	std::list<FireworkEvent*> fireworkEvents;
+
 	FireworkManager(){}
 	
 };

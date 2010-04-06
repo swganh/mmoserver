@@ -1628,11 +1628,11 @@ void CharacterBuilderTerminal::_handleBoneArmorMenu(PlayerObject* player, uint32
 		GiveItem(player,1257);
 		GiveItem(player,705);
 		GiveItem(player,1001);
-		GiveItem(player,1102);
+		GiveItem(player,870);
 		}
 		break;
 	case 1:
-		GiveItem(player,1102);
+		GiveItem(player,870);
 		break;
 	case 2:
 		GiveItem(player,1131);

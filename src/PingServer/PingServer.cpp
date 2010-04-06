@@ -82,7 +82,7 @@ void PingServer::HandleReceive(const boost::system::error_code& error, size_t by
 
     // Check if an error occurred.
     if (error && error != boost::asio::error::message_size) {
-        gLogger->logMsgF("Error reading from socket: %d", MSG_NORMAL, error.message().c_str());     
+        gLogger->logMsgF("Error reading from socket: %s", MSG_NORMAL, error.message().c_str());     
 
     // Otherwise return the ping response to the sender.
     } else {

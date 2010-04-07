@@ -46,7 +46,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)src&quot;;&quot;$(SolutionDir)deps&quot;;&quot;$(SolutionDir)deps\boost&quot;;&quot;$(SolutionDir)deps\lua\src&quot;;&quot;$(SolutionDir)deps\noise\src&quot;;&quot;$(SolutionDir)deps\spatialindex\tools\include&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)src&quot;;&quot;$(SolutionDir)deps&quot;;&quot;$(SolutionDir)deps\boost&quot;;&quot;$(SolutionDir)deps\glm&quot;;&quot;$(SolutionDir)deps\lua\src&quot;;&quot;$(SolutionDir)deps\noise\src&quot;;&quot;$(SolutionDir)deps\spatialindex\tools\include&quot;"
 				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;WIN32;_LIB;_WIN32_WINNT=0x0500;_DEBUG"
 				MinimalRebuild="true"
 				ExceptionHandling="1"

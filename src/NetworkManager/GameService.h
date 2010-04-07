@@ -29,15 +29,13 @@ class SessionFactory;
 
 class NetworkClient;
 class Session;
-class SocketReadThread;
-class SocketWriteThread;
 class NetworkManager;
 class NetworkCallback;
 
 //======================================================================================================================
 
 typedef std::queue<Session*>											SessionQueue;
-typedef std::map<boost::asio::ip::udp::endpoint,Session*>				AddressSessionMap;
+typedef std::map<uint16,Session*>										AddressSessionMap;
 typedef std::list<NetworkCallback*>										NetworkCallbackList;
 
 //======================================================================================================================

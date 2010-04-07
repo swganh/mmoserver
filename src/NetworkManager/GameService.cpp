@@ -97,6 +97,8 @@ void GameService::Startup(std::string localAddress, uint16 localPort,uint32 mfHe
 
 void GameService::Shutdown(void)
 {
+	mSessionFactory->Shutdown();
+	mPacketFactory->Shutdown();
 	mSocket.close();
 }
 
@@ -247,7 +249,13 @@ void GameService::HandleRecvFrom(const boost::system::error_code &error, std::si
 		// Find the session.
 		//
 		Session* session = 0;
-		AddressSessionMap::iterator i = mAddressSessionMap.find( mRecvEndpoint );
+
+		std::size_t addrhash = 0;
+		boost::hash_combine( addrhash, mRecvEndpoint.address().to_string() );
+		boost::hash_combine( addrhash, mRecvEndpoint.port() );
+		boost::hash_combine( addrhash, mLocalPort );
+
+		AddressSessionMap::iterator i = mAddressSessionMap.find( addrhash );
 		if(i != mAddressSessionMap.end() )
 		{
 			session = (*i).second;
@@ -264,7 +272,7 @@ void GameService::HandleRecvFrom(const boost::system::error_code &error, std::si
 				session = mSessionFactory->CreateSession();
 				session->setPacketFactory(mPacketFactory);
 				session->setRemoteEndpoint( mRecvEndpoint );
-				mAddressSessionMap.insert( std::pair< boost::asio::ip::udp::endpoint, Session* >( mRecvEndpoint, session ) );
+				mAddressSessionMap.insert( std::pair< uint16, Session* >( addrhash, session ) );
 			}
 		}
 

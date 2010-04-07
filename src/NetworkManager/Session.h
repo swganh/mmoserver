@@ -67,8 +67,8 @@ enum SessionCommand
 class Session
 {
 	public:
-								  Session(void);
-								  ~Session(void);
+		Session(void);
+		virtual ~Session(void);
 
 	  void                        ProcessWrite(void);
 	  void						  Update(void);
@@ -107,6 +107,7 @@ class Session
 	  void                        setCommand(SessionCommand command)              { mCommand = command; }
 	  void                        setPacketSize(uint16 size)					  { mMaxPacketSize = size;}
 	  void                        setUnreliableSize(uint16 size)				  { mMaxUnreliableSize = size;}
+	  void						  setSocket( boost::asio::socket_base* socket )	  { mSocket = socket; }
 
 	  void						  QueueIncomingPacket(Packet* packet)			  { mIncomingPackets.push(packet); }
 
@@ -163,11 +164,12 @@ private:
 	  PacketFactory*              mPacketFactory;
 	  MessageFactory*             mMessageFactory;
 	  
-	  uint32						mId;
-	  uint32						mEncryptKey;
-	  uint32						mRequestId;
-	  uint32						mOutgoingPingSequence;
-	  boost::asio::ip::udp::endpoint mRemoteEndpoint;
+	  uint32							mId;
+	  uint32							mEncryptKey;
+	  uint32							mRequestId;
+	  uint32							mOutgoingPingSequence;
+	  boost::asio::ip::udp::endpoint	mRemoteEndpoint;
+	  boost::asio::socket_base*			mSocket;
 
 	  // Incoming fragmented packet processing.
 	  uint32                      mFragmentedPacketTotalSize;

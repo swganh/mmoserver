@@ -43,7 +43,7 @@ mService(0),
 mClient(0),
 mPacketFactory(0),
 mMessageFactory(0),
-// mClock(0),
+mSocket(0),
 mId(0),
 mEncryptKey(0),
 mRequestId(0),
@@ -203,7 +203,7 @@ void Session::Update(void)
 				
 			}
 
-			getService()->getSocket().async_send_to( 
+			static_cast<boost::asio::ip::udp::socket*>(mSocket)->async_send_to( 
 				boost::asio::buffer(packet->getData(), packet->getSize()),
 				getRemoteEndpoint(),
 				boost::bind(&GameService::HandleSendTo, reinterpret_cast<GameService*>( getService() ), this, packet)

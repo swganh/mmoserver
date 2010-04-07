@@ -48,7 +48,8 @@ void ObjectController::_handleSetCurrentSkillTitle(uint64 targetId,Message* mess
 	newTitle.convert(BSTRType_ANSI);
 
 	SkillList* sList = playerObject->getSkills();
-	for(SkillList::iterator it=sList->begin(); it != sList->end(); it++)
+	SkillList::iterator sEnd = sList->end();
+	for(SkillList::iterator it=sList->begin(); it != sEnd; ++it)
 	{
 		if((*it)->mIsTitle)
 		{

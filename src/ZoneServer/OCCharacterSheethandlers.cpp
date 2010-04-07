@@ -47,9 +47,19 @@ void ObjectController::_handleSetCurrentSkillTitle(uint64 targetId,Message* mess
 	message->getStringUnicode16(newTitle);
 	newTitle.convert(BSTRType_ANSI);
 
-	playerObject->setTitle(newTitle.getAnsi());
-
-	gMessageLib->sendTitleUpdate(playerObject);
+	SkillList* sList = playerObject->getSkills();
+	for(SkillList::iterator it=sList->begin(); it != sList->end(); it++)
+	{
+		if((*it)->mIsTitle)
+		{
+			if(strcmp((*it)->mName.getAnsi(),newTitle.getAnsi()) == 0)
+			{
+				playerObject->setTitle(newTitle.getAnsi());
+				gMessageLib->sendTitleUpdate(playerObject);
+				break;
+			}
+		}
+	}
 }
 
 //======================================================================================================================

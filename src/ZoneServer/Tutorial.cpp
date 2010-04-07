@@ -96,7 +96,6 @@ mNpcConversationId(0),
 mContainerEventId(0),
 mQuestWeaponFamily(DefaultQuestWeaponFamily),
 mQuestWeaponType(DefaultQuestWeaponType)
-
 // mSpawnedNpc(NULL)
 {
 	// State shall be stored/fetched to/from DB.
@@ -112,6 +111,7 @@ mQuestWeaponType(DefaultQuestWeaponType)
 
 Tutorial::~Tutorial()
 {
+
 	// Save-update the state.
 	gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE character_tutorial SET character_state=%u,character_substate=%u WHERE character_id=%"PRIu64"",mState, mSubState, mPlayerObject->getId());
 
@@ -715,7 +715,8 @@ void Tutorial::enableItemContainerEvent(uint64 objectId)
 {
 	mContainerIsOpen = false;
 	mContainerIsClosed = false;
-	mContainerHasTransferedItem = 0;
+	mContainerTransferredItemCount = 0;
+	mHasTransfered = false;
 	mContainerEventId = objectId;
 }
 
@@ -756,18 +757,20 @@ bool Tutorial::isContainerEmpty(uint64 containerId)
 		Container* container = dynamic_cast<Container*>(gWorldManager->getObjectById(containerId));
 		if (container)
 		{
-
+			uint32 objectCount = 0;
 			ObjectList* objList = container->getObjects();
 			ObjectList::iterator it = objList->begin();
+			ObjectList::iterator cEnd = objList->end();
 
-			while(it != objList->end())
+			while(it != cEnd)
 			{
-				it++;
+				if((*it)->getPrivateOwner() == this->getPlayer())
+					++objectCount;
+
+				++it;
 			}
 
-			uint32 mySize = container->getObjects()->size();
-			empty = (mySize == 0);
-			gLogger->logMsgF("Item Count: %u", MSG_NORMAL, mySize);
+			empty = (objectCount == 0);
 		}
 	}
 	return empty;
@@ -777,21 +780,15 @@ void Tutorial::transferedItemFromContainer(uint64 itemId, uint64 containerId)
 {
 	if (containerId == mContainerEventId)
 	{
-		mContainerHasTransferedItem++;
+		mContainerTransferredItemCount++;
+		mHasTransfered = true;
 	}
 }
 
 bool Tutorial::isItemTransferedFromContainer(uint64 containerId)
 {
-	bool hasTransfered = false;
-	if (containerId == mContainerEventId)
-	{
-		if (mContainerHasTransferedItem > 0)
-		{
-			hasTransfered = true;
-			mContainerHasTransferedItem--;
-		}
-	}
+	bool hasTransfered = mHasTransfered;
+	mHasTransfered = false;
 	return hasTransfered;
 }
 

@@ -137,10 +137,10 @@ class NPCObject : public CreatureObject
 		DamageDealers	mDamageDealers;
 		DamageDealers	mDamageByGroups;
 
-		Anh_Math::Quaternion	mDefaultDirection;	// Default direction for npc-objects. Needed when players start turning the npc around.
-		Anh_Math::Vector3		mPositionOffset;
-		Anh_Math::Quaternion	mSpawnDirection;
-		Anh_Math::Vector3		mSpawnPosition;
+        glm::vec4	mDefaultDirection;	// Default direction for npc-objects. Needed when players start turning the npc around.
+		glm::vec3	mPositionOffset;
+		glm::vec4	mSpawnDirection;
+		glm::vec3	mSpawnPosition;
 
 		Npc_AI_State	mAiState;
 

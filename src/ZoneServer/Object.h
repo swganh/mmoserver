@@ -23,6 +23,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Utils/typedefs.h"
 
 #include <boost/lexical_cast.hpp>
+#include <glm/glm.hpp>
 
 #include <vector>
 #include <map>
@@ -165,8 +166,10 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 		
 		virtual ~Object();
 
-		Anh_Math::Quaternion	mDirection;
-		Anh_Math::Vector3		mPosition;
+        glm::vec4   mDirection;
+        glm::vec3   mPosition;
+		//Anh_Math::Quaternion	mDirection;
+		//Anh_Math::Vector3		mPosition;
 
 		inline uint64			getPrivateOwner() { return mPrivateOwner; }
 		inline void				setPrivateOwner(uint64 owner) { mPrivateOwner = owner; }

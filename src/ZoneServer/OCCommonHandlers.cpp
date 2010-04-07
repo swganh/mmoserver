@@ -393,16 +393,13 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 	PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetContainerId));
 	if(player)
 	{
-		if(!item->getInternalAttribute<bool>("equipped"))
+		//equip / unequip handles the db side, too
+		if(!player->getEquipManager()->EquipItem(item))
 		{
-			//equip / unequip handles the db side, too
-			if(!player->getEquipManager()->EquipItem(item))
-			{
-				//gLogger->logMsgF("ObjectController::_handleTransferItemMisc: Error equipping  %"PRIu64"", MSG_NORMAL, item->getId());
-				//readd it to the old parent
-				if(parentContainer)
-					parentContainer->addObjectSecure(item);
-			}
+			//gLogger->logMsgF("ObjectController::_handleTransferItemMisc: Error equipping  %"PRIu64"", MSG_NORMAL, item->getId());
+			//readd it to the old parent
+			if(parentContainer)
+				parentContainer->addObjectSecure(item);
 		}
 		return;
 	}
@@ -439,7 +436,41 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 
 bool ObjectController::checkContainingContainer(uint64 containingContainer, uint64 playerId)
 {
-	if(CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(containingContainer)))
+	ObjectContainer* container = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(containingContainer));
+	
+	if(!container)
+	{
+		//it might be our inventory or the inventory of a creature were looting
+		//PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId));
+		if(containingContainer == (playerId+1))
+		{
+			//its our inventory ... - return true
+			return true;
+		}
+
+		if(containingContainer == playerId)
+		{
+			//its us
+			return true;
+		}
+
+		return false;
+
+	}
+
+	uint64 ownerId = container->getObjectMainParent(container);
+
+	Object* object = dynamic_cast<Object*>(gWorldManager->getObjectById(ownerId));
+
+	if(BuildingObject* building = dynamic_cast<BuildingObject*>(object))
+	{
+		if(building->hasAdminRights(playerId))
+		{
+			return true;
+		}
+	}
+
+	if(CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(ownerId)))
 	{
 		if(BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId())))
 		{
@@ -450,6 +481,25 @@ bool ObjectController::checkContainingContainer(uint64 containingContainer, uint
 		}
 		return false;
 	}
+
+	if(PlayerObject* player = dynamic_cast<PlayerObject*>(object))
+	{
+		if(player->getId() == playerId)
+		{
+			return true;
+		}
+		else
+			return false;
+	}
+
+	//todo handle factory hoppers
+
+	//todo handle loot permissions
+	if(CreatureObject* creature = dynamic_cast<CreatureObject*>(object))
+	{
+	}
+
+	
 	return true;
 }
 
@@ -592,14 +642,9 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 	// its us
 	if (tangible->getParentId() == playerObject->getId())
 	{
-		if ((itemObject->hasInternalAttribute("equipped"))&&(itemObject->getInternalAttribute<bool>("equipped")))
-		{
-			// unequip it
-			return playerObject->getEquipManager()->unEquipItem(itemObject);
-			
-		}
-		//help ... how can that happen an item contained by the player MUST be equipped?
-		assert(false && "ObjectController::removeFromContainer item contained by the playerm ust be equiped");
+		// unequip it
+		return playerObject->getEquipManager()->unEquipItem(itemObject);
+		
 	}
 	
 	
@@ -939,21 +984,11 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 	PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetContainerId));
 	if(player)
 	{
-		if(!item->getInternalAttribute<bool>("equipped"))
+		//equip / unequip handles the db side, too
+		if(!player->getEquipManager()->EquipItem(item))
 		{
-			//equip / unequip handles the db side, too
-			if(!player->getEquipManager()->EquipItem(item))
-			{
-				gLogger->logMsgF("ObjectController::_handleTransferItemMisc: Error equipping  %"PRIu64"", MSG_NORMAL, item->getId());
-				
-				//keep the special cases at a minimum.
-				//the idea is to have the code modularized to check target container, check parent container, THEN transfer
-
-
-				//readd it to the old parent
-				//if(parentContainer)
-					//parentContainer->addObjectSecure(item);
-			}
+			gLogger->logMsgF("ObjectController::_handleTransferItemMisc: Error equipping  %"PRIu64"", MSG_NORMAL, item->getId());
+			//panik!!!!!!
 		}
 		return;
 	}

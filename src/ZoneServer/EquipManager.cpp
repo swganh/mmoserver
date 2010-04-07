@@ -266,9 +266,6 @@ bool EquipManager::EquipItem(Object* object)
 		gMessageLib->sendWeaponIdUpdate(owner);
 	}
 
-	//update the relevant attribute and the db 
-	object->setInternalAttributeIncDB("equipped","1");
-
 	return true;
 }
 
@@ -279,31 +276,18 @@ bool EquipManager::unEquipItem(Object* object)
 	Item* item = dynamic_cast<Item*>(object);
 	if(!item)
 	{
-		//gLogger->logMsgF("Inventory::unEquipItem : No Item object ID : %"PRIu64"", MSG_NORMAL,object->getId());
+		gLogger->logMsgF("Inventory::unEquipItem : No Item object ID : %"PRIu64"", MSG_NORMAL,object->getId());
 		return false;
 	}
 
 	PlayerObject*	owner		= dynamic_cast<PlayerObject*> (this->getParent());
 	if(!owner)
 	{
-		//gLogger->logMsgF("Inventory::unEquipItem : No owner", MSG_NORMAL);
+		gLogger->logMsgF("Inventory::unEquipItem : No one has it equipped :(", MSG_NORMAL);
 		return false;
 	}
 
-
-	if(!object->hasInternalAttribute("equipped"))
-	{
-		//gLogger->logMsgF("Inventory::unEquipItem : object not equipable object ID : %"PRIu64"", MSG_NORMAL,object->getId());
-		//gLogger->logMsgF("Inventory::unEquipItem : likely playerHair", MSG_NORMAL);
-		return false;
-	}
-	else if(!object->getInternalAttribute<bool>("equipped"))
-	{
-		//gLogger->logMsgF("Inventory::unEquipItem : object is unequiped object ID : %"PRIu64"", MSG_NORMAL,object->getId());
-		return false;
-	}
-
-	//0client forces us to stop performing at this point as he unequips the instrument regardless of what we do
+	//client forces us to stop performing at this point as he unequips the instrument regardless of what we do
 	if((item->getItemFamily() == ItemFamily_Instrument) && (owner->getPerformingState() != PlayerPerformance_None))
 	{
 		gEntertainerManager->stopEntertaining(owner);
@@ -349,8 +333,6 @@ bool EquipManager::unEquipItem(Object* object)
 		gMessageLib->sendWeaponIdUpdate(owner);
 	}
 
-	object->setInternalAttributeIncDB("equipped","0");
-
 	return true;
 }
 //=============================================================================
@@ -362,25 +344,16 @@ bool EquipManager::CheckEquipable(Object* object)
 
 	if(!item)
 	{
-		//gLogger->logMsgF("Inventory::EquipItem : No Item object ID : %I64u", MSG_NORMAL,object->getId());
+		gLogger->logMsgF("Inventory::EquipItem : No Item object ID : %I64u", MSG_NORMAL,object->getId());
 		return(false);
 	}
-	else if(!owner)
+	
+	if(!owner)
 	{
-		//gLogger->logMsgF("Inventory::EquipItem : No owner", MSG_NORMAL);
+		gLogger->logMsgF("Inventory::EquipItem : No owner", MSG_NORMAL);
 		return(false);
 	}
-	else if(!object->hasInternalAttribute("equipped"))
-	{
-		//gLogger->logMsgF("Inventory::EquipItem : object not equipable object ID : %I64u", MSG_NORMAL,object->getId());
-		return(false);
-	}
-	else if(object->getInternalAttribute<bool>("equipped"))
-	{
-		//gLogger->logMsgF("Inventory::EquipItem : object is already equipped object ID : %I64u", MSG_NORMAL,object->getId());
-		return(false);
-	}
-
+	
 	// don't equip music instruments or weapons while performing
 
 	if((owner->getPerformingState())&&((item->getItemFamily() == ItemFamily_Instrument) || (item->getItemFamily() == ItemFamily_Weapon)))

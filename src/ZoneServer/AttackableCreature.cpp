@@ -840,7 +840,6 @@ void AttackableCreature::equipPrimaryWeapon(void)
 			// gLogger->logMsgF("AttackableCreature::equipPrimaryWeapon() Equipping the primary weapon", MSG_NORMAL);
 
 		/*
-			mPrimaryWeapon->setInternalAttribute("equipped","1");
 			gMessageLib->sendEquippedListUpdate_InRange(this);
 
 			PlayerObjectSet* inRangePlayers = this->getKnownPlayers();
@@ -861,7 +860,7 @@ void AttackableCreature::equipPrimaryWeapon(void)
 		}
 		else
 		{
-			gLogger->logMsgF("AttackableCreature::equipPrimaryWeapon() Can't equip primary weapon\n", MSG_NORMAL);
+			gLogger->logMsgF("AttackableCreature::equipPrimaryWeapon() Can't equip primary weapon", MSG_NORMAL);
 		}
 	}
 }

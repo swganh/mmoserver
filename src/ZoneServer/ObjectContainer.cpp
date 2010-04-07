@@ -484,6 +484,11 @@ uint64 ObjectContainer::getObjectMainParent(Object* object)
 					parentID = getObjectMainParent(ob);
 				}
 			}
+			else
+			{
+				//return the house
+				return cell->getParentId();
+			}
 		}
 	}
 	else

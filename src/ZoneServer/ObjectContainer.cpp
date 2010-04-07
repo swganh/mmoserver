@@ -564,7 +564,7 @@ void ObjectContainer::createContent(PlayerObject* player)
 	while(it != mData.end())
 	{
 		TangibleObject* to = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(*it));
-		if(!player->checkKnownObjects(to))
+		if(to && (!player->checkKnownObjects(to)))
 		{
 			gMessageLib->sendCreateObject(to,player);
 			player->addKnownObjectSafe(to);

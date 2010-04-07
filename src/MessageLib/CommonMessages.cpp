@@ -61,15 +61,15 @@ bool MessageLib::sendCreateObjectByCRC(Object* object,const PlayerObject* const 
 		mMessageFactory->addUint64(dynamic_cast<PlayerObject*>(object)->getPlayerObjId());
 
 	// direction
-	mMessageFactory->addFloat(object->mDirection.mX);
-	mMessageFactory->addFloat(object->mDirection.mY);
-	mMessageFactory->addFloat(object->mDirection.mZ);
-	mMessageFactory->addFloat(object->mDirection.mW);
+	mMessageFactory->addFloat(object->mDirection.x);
+	mMessageFactory->addFloat(object->mDirection.y);
+	mMessageFactory->addFloat(object->mDirection.z);
+	mMessageFactory->addFloat(object->mDirection.w);
 
 	// position
-	mMessageFactory->addFloat(object->mPosition.mX);     
-	mMessageFactory->addFloat(object->mPosition.mY);       
-	mMessageFactory->addFloat(object->mPosition.mZ);     
+	mMessageFactory->addFloat(object->mPosition.x);     
+	mMessageFactory->addFloat(object->mPosition.y);       
+	mMessageFactory->addFloat(object->mPosition.z);     
 
 	if(!player)
 		mMessageFactory->addUint32(object->getModelString().getCrc());

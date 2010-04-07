@@ -24,6 +24,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include <boost/lexical_cast.hpp>
 #include <glm/glm.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 #include <vector>
 #include <map>
@@ -166,7 +167,7 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 		
 		virtual ~Object();
 
-        glm::vec4   mDirection;
+        glm::quat   mDirection;
         glm::vec3   mPosition;
 		//Anh_Math::Quaternion	mDirection;
 		//Anh_Math::Vector3		mPosition;

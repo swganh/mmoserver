@@ -59,8 +59,8 @@ class NPCObject : public CreatureObject
 		void			setCellIdForSpawn(uint64 cellIdForSpawn) {mCellIdForSpawn = cellIdForSpawn;}
         void			setSpawnPosition(const glm::vec3& spawnPosition) {mSpawnPosition = spawnPosition;}
 		const glm::vec3& getSpawnPosition() const {return mSpawnPosition;}
-		void			setSpawnDirection(const glm::vec4& spawnDirection) {mSpawnDirection = spawnDirection;}
-		const glm::vec4& getSpawnDirection() const {return mSpawnDirection;}
+		void			setSpawnDirection(const glm::quat& spawnDirection) {mSpawnDirection = spawnDirection;}
+		const glm::quat& getSpawnDirection() const {return mSpawnDirection;}
 
 
 		string			getTitle() const { return mTitle; }
@@ -137,9 +137,9 @@ class NPCObject : public CreatureObject
 		DamageDealers	mDamageDealers;
 		DamageDealers	mDamageByGroups;
 
-        glm::vec4	mDefaultDirection;	// Default direction for npc-objects. Needed when players start turning the npc around.
+        glm::quat	mDefaultDirection;	// Default direction for npc-objects. Needed when players start turning the npc around.
 		glm::vec3	mPositionOffset;
-		glm::vec4	mSpawnDirection;
+		glm::quat	mSpawnDirection;
 		glm::vec3	mSpawnPosition;
 
 		Npc_AI_State	mAiState;

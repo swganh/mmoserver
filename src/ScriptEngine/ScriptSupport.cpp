@@ -222,17 +222,17 @@ void ScriptSupport::npcSpawnPrivate(NPCObject* npc, uint64 npcId, uint64 npcPriv
 
 void ScriptSupport::npcSpawnGeneral(uint64 npcId, uint64 npcPrivateOwnerId, uint64 cellForSpawn, std::string firstname, std::string lastname, float dirY, float dirW, float posX, float posY, float posZ, uint64 respawnDelay) // , uint64 templateId)
 {
-	Anh_Math::Quaternion	direction;
-	Anh_Math::Vector3		position;
+    glm::vec4 direction;
+    glm::vec3 position;
 
-	direction.mX = 0.0;
-	direction.mY = dirY;
-	direction.mZ = 0.0;
-	direction.mW = dirW;
+	direction.x = 0.0;
+	direction.y = dirY;
+	direction.z = 0.0;
+	direction.w = dirW;
 
-	position.mX = posX;
-	position.mY = posY;
-	position.mZ = posZ;
+	position.x = posX;
+	position.y = posY;
+	position.z = posZ;
 
 	NPCObject* npc = dynamic_cast<NPCObject*>(gWorldManager->getObjectById(npcId));
 	assert(npc);

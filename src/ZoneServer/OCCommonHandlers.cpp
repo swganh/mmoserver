@@ -127,6 +127,12 @@ void ObjectController::_handleOpenContainer(uint64 targetId,Message* message,Obj
 
 	if (itemObject)
 	{
+		if( !playerObject->mPosition.inRange2D(itemObject->mPosition, 10) )
+		{
+			gMessageLib->sendSystemMessage(playerObject, L"", "system_msg", "out_of_range");
+			return;
+		}
+
 		bool aContainer = false;
 
 		if (gWorldConfig->isTutorial())
@@ -148,7 +154,13 @@ void ObjectController::_handleOpenContainer(uint64 targetId,Message* message,Obj
 			//or a chest
 			if (tangObj->getCapacity())
 			{
-				aContainer = true;
+				if(checkContainingContainer(tangObj->getId(),playerObject->getId()))
+				{
+					aContainer = true;
+					
+					//create containers content for us	
+					tangObj->createContent(playerObject);
+				}
 			}
 		}
 		//its not a Container* Object however in theory it still can be a backpack for example
@@ -462,12 +474,23 @@ bool ObjectController::checkContainingContainer(uint64 containingContainer, uint
 
 	Object* object = dynamic_cast<Object*>(gWorldManager->getObjectById(ownerId));
 
+	//it might be the inventory
+	if(!object)
+	{
+		//Hack ourselves an inventory .... - its not part of the world ObjectMap
+		if((ownerId-1) == playerId)
+		{
+			object = gWorldManager->getObjectById(playerId);
+		}
+	}
+
 	if(BuildingObject* building = dynamic_cast<BuildingObject*>(object))
 	{
 		if(building->hasAdminRights(playerId))
 		{
 			return true;
 		}
+		return false;
 	}
 
 	if(CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(ownerId)))
@@ -513,39 +536,55 @@ bool ObjectController::checkTargetContainer(uint64 targetContainerId, Object* ob
 {
 	PlayerObject*	playerObject	=	dynamic_cast<PlayerObject*>(mObject);
 	Inventory*		inventory		=	dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-	ObjectContainer* targetContainer = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(targetContainerId));
 	
 	TangibleObject* tangibleItem = dynamic_cast<TangibleObject*>(object);
 	
 	//if its a backpack etc we want to know how many items are in it!
 	uint32 objectSize = tangibleItem->getHeadCount();
 
-	//the inventory is *NOT* part of the worldmanagers ObjectMap  
-	//this is our inventory - we are allowed to put stuff in there - but is there still enough place ?
-	if(inventory&& (inventory->getId() == targetContainerId))
-	{
-		return inventory->checkCapacity(1,playerObject,true);
-		//check space
-
-	}
-
+	//********************
+	//this is a special case as we are equipping the item
+	//so handle it separately 
 	if(playerObject->getId() == targetContainerId)
 	{
 		//check for equip restrictions!!!!
 		//we cant drop that check - further down we assume that the transfer is accepted
 		// a failing equip will just loose us our item in the receiving container and crash the server in the end
-		return playerObject->getEquipManager()->CheckEquipable(object);
-			//inventory->EquipItemTest(object);
-		//return true;
-		
+		return playerObject->getEquipManager()->CheckEquipable(object);		
 	}
 	
+	//*****************************
+	//ok everything else is a tangible Object
+	ObjectContainer* targetContainer = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(targetContainerId));
+	
+	//sanity check - 
 	if(!targetContainer)
 	{
-		//gLogger->logMsg("ObjController::_handleTransferItemMisc: TargetContainer is NULL :(");
-		return false;
+		//inventory is NOT part of the main ObjectMap - everything else should be in there
+		if(inventory && (inventory->getId() != targetContainerId))
+		{
+			return false;
+			//gLogger->logMsg("ObjController::_handleTransferItemMisc: TargetContainer is NULL :(");
+		}
+		if(inventory)
+			targetContainer = dynamic_cast<TangibleObject*>(inventory);
+		else
+		{
+			gLogger->logMsg("ObjController::_handleTransferItemMisc: TargetContainer is NULL and not an inventory :(");
+			return false;
+		}
+		
 	}
 
+	//====================================================================00
+	//check access permissions first
+
+	bool access = false;
+	bool fit	 = false;
+
+	//********************
+	//The tutorial Container is a special case
+	//so handle it separately
 	Container* container = dynamic_cast<Container*>(targetContainer );
 	if (container)
 	{
@@ -558,54 +597,95 @@ bool ObjectController::checkTargetContainer(uint64 targetContainerId, Object* ob
 		}
 	}
 
-	//lets begin by getting the containing Object
-	if (CellObject* cell = dynamic_cast<CellObject*>(targetContainer))
+	//********************
+	//Factory Outputhopper is retrieve only
+	//access has been granted through the UI already
+	TangibleObject* tangibleContainer = dynamic_cast<TangibleObject*>(targetContainer);
+	if((tangibleContainer)&&(strcmp(tangibleContainer->getName().getAnsi(),"ingredient_hopper")==0))
 	{
-		//do we have permission to drop the item here ???
+		//do we have access rights to the factories hopper?? this would have to be checked asynchronously
+		//for now we can only access the hoppers UI through the client and checking our permission so its proven already
+		//a hacker might in theory exploit this, though factories items should only be in memory when someone accesses the hopper
 
-		if(BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId())))
+		access = true;
+	}
+	
+	//====================================================================================
+	//get the mainOwner of the container - thats a building or a player or an inventory
+	//
+	
+	uint64 ownerId = container->getObjectMainParent(targetContainer);
+	
+	Object* objectOwner = dynamic_cast<Object*>(gWorldManager->getObjectById(ownerId));
+
+	if(BuildingObject* building = dynamic_cast<BuildingObject*>(objectOwner))
+	{
+		if(building->hasAdminRights(playerObject->getId()))
 		{
-			if(building->hasAdminRights(playerObject->getId()))
+			access = true;
+			//do we have enough room ?
+			if(building->checkCapacity(objectSize))
 			{
-				//do we have enough room ?
-				if(building->checkCapacity(objectSize))
-				{
+				//*****************************
+				//if it is the House wé dont need to check a containers capacity further down
+				if(!tangibleContainer)   //mainly as the container might not exist if its placed in the house directly
 					return true;
-				}
-				else
-				{
-					gMessageLib->sendSystemMessage(playerObject,L"","container_error_message","container03");
-					return false;
-				}
-				
+
+				fit = true;
 			}
 			else
 			{
-				gMessageLib->sendSystemMessage(playerObject,L"","container_error_message","container08");
+				//This container is full. 
+				gMessageLib->sendSystemMessage(playerObject,L"","container_error_message","container03");
+				return false;
 			}
+			
 		}
-		return false;
-	}
+		else
+		{
+			//You do not have permission to access that container. 
+			gMessageLib->sendSystemMessage(playerObject,L"","container_error_message","container08");
+			return false;
+		}
 
-	//we also might want to check this for factories hoppers
-	TangibleObject* tangibleContainer = dynamic_cast<TangibleObject*>(targetContainer);
-	if((tangibleContainer)&&((strcmp(tangibleContainer->getName().getAnsi(),"ingredient_hopper")==0)||(strcmp(tangibleContainer->getName().getAnsi(),"output_hopper")==0)))
-	{
-		//do we have access rights to the factories hopper?? this would have to be checked asynchronously
 		
-		return true;
 	}
 
+	//**********************************
+	//the inventory is *NOT* part of the worldmanagers ObjectMap  
+	//this is our inventory - we are allowed to put stuff in there - but is there still enough place ?
+	if(inventory&& (inventory->getId() == ownerId))
+	{
+		//make sure its our inventory!!!!!!
+		access = ((inventory->getId()-1) == playerObject->getId());
+		if(!access)
+		{
+			//You do not have permission to access that container. 
+			gMessageLib->sendSystemMessage(playerObject,L"","container_error_message","container08");
+			return false;
+		}
+		
+		//check space in inventory
+		fit = inventory->checkCapacity(1,playerObject,true);
+		if(!fit)
+		{
+			//This container is full. 
+			gMessageLib->sendSystemMessage(playerObject,L"","container_error_message","container03");
+			return false;
+		}
+	}	
+	
 	//if this is a tangible container (backpack, satchel) we want to make sure,
 	//that we do not put another backpack in it.
-
 	//in other words, the contained container MUST be smaller than the containing container
 
-	//inventories are already dealed with
-
+	//**********************
 	//check capacity - return false if full
-	if(!tangibleContainer->checkCapacity(1,playerObject)) //automatically sends errormsg to player
+	//we wont get here if its an inventory
+	if(tangibleContainer && (!tangibleContainer->checkCapacity(objectSize,playerObject))) //automatically sends errormsg to player
+	{
 		return false;
+	}
 
 	uint32 containingContainersize =  tangibleContainer->getCapacity();
 	uint32 containedContainersize =  tangibleItem->getCapacity();
@@ -613,11 +693,11 @@ bool ObjectController::checkTargetContainer(uint64 targetContainerId, Object* ob
 	//we can only add smaller containers inside other containers
 	if(containedContainersize >= containingContainersize)
 	{
+		//This item is too bulky to fit inside this container.
+		gMessageLib->sendSystemMessage(playerObject,L"","container_error_message","container12");
 		return false;
 	}
 
-	
-	
 
 	return true;
 

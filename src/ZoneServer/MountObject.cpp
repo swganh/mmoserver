@@ -83,9 +83,10 @@ void MountObject::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 
 
 		radial->addItem(radId++,0,radId_examine,radAction_2);
 
-		mRadialMenu = RadialMenuPtr(radial);
+		
 	}
 
+	mRadialMenu = RadialMenuPtr(radial);
 
 
 }

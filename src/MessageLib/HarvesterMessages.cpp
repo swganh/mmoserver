@@ -602,6 +602,7 @@ void MessageLib::sendHarvesterResourceData(PlayerStructure* structure,PlayerObje
 
 	ResourceCategory*	mainCat = gResourceManager->getResourceCategoryById(harvester->getResourceCategory());
 	ResourceList		resourceList;
+	ResourceList		filtredResList;
 
 	float posX, posZ, ratio;
 
@@ -618,17 +619,13 @@ void MessageLib::sendHarvesterResourceData(PlayerStructure* structure,PlayerObje
 	mMessageFactory->addUint32(0);           
 	mMessageFactory->addUint64(harvester->getId());
 
-	mMessageFactory->addUint32(resourceList.size());
 
 	ResourceList::iterator resourceIt = resourceList.begin();
-
+	
+	//browse ressource and get only those with more than 0%
 	while(resourceIt != resourceList.end())
 	{
 		Resource* tmpResource = (*resourceIt);
-
-		mMessageFactory->addUint64(tmpResource->getId());
-		mMessageFactory->addString(tmpResource->getName());
-		mMessageFactory->addString((tmpResource->getType())->getDescriptor());
 	
 		CurrentResource* cR = reinterpret_cast<CurrentResource*>(tmpResource);
 		//resource = reinterpret_cast<CurrentResource*>(gResourceManager->getResourceByNameCRC(resourceName.getCrc()));
@@ -639,21 +636,33 @@ void MessageLib::sendHarvesterResourceData(PlayerStructure* structure,PlayerObje
 		else
 		{
 			ratio	= (cR->getDistribution((int)posX + 8192,(int)posZ + 8192)*100);
-			if(ratio > 100.0)
-			{
-				ratio = 100.0;
-			}
-			if(ratio < 0.0)
-			{
-				ratio = 0.0;
-			}
 		}
-
-		mMessageFactory->addUint8((uint8)ratio);
-
+		//push ressources to filtered list
+		if(ratio > 0)
+		{
+			filtredResList.push_back(tmpResource);
+		}
 		++resourceIt;
 	}
 
+	mMessageFactory->addUint32(filtredResList.size());
+
+	ResourceList::iterator filtredResIt = filtredResList.begin();
+	while (filtredResIt != filtredResList.end())
+	{
+		Resource* tmpResource = (*filtredResIt);
+		CurrentResource* cR = reinterpret_cast<CurrentResource*>(tmpResource);
+		ratio	= (cR->getDistribution((int)posX + 8192,(int)posZ + 8192)*100);
+		if(ratio>100)
+		{
+			ratio=100;
+		}
+		mMessageFactory->addUint64(tmpResource->getId());
+		mMessageFactory->addString(tmpResource->getName());
+		mMessageFactory->addString((tmpResource->getType())->getDescriptor());
+		mMessageFactory->addUint8((uint8)ratio);
+		++filtredResIt;
+	}
 	(player->getClient())->SendChannelA(mMessageFactory->EndMessage(), player->getAccountId(),CR_Client,4);
 }
 

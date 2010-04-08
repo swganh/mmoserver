@@ -439,6 +439,12 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
 				holo = new(HoloStruct);
 				result->GetNextRow(binding,holo);
 				mHoloList.push_back(holo);
+				string emote("holoemote_");
+				emote << holo->pEmoteName;
+				holo->pClientCRC = emote.getCrc();
+
+				emote = holo->pEmoteName;
+				holo->pCRC = emote.getCrc();
 			}
 
 			if(result->getRowCount())

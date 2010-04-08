@@ -833,10 +833,10 @@ void CraftingSession::destroyComponents()
 	{
 		//iterate through our manslots which contain components
 		ManufactureSlot* manSlot = mManufacturingSchematic->getManufactureSlots()->at(i);
-		if((manSlot->getFilledType()!=2)||(manSlot->getFilledType()!=5))
+		/*if((manSlot->getFilledType()!=DST_IdentComponent) && (manSlot->getFilledType()!=DST_SimiliarComponent))
 		{
 			continue;
-		}
+		}*/
 	
 		//add the components back to the inventory
 		uint32 crateSize;

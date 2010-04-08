@@ -33,11 +33,12 @@ public:
 FireworkManager::~FireworkManager(void)
 {
 	std::list<FireworkEvent*>::iterator it=fireworkEvents.begin();
-	
-	while( it != fireworkEvents.end())
+	std::list<FireworkEvent*>::iterator fEnd = fireworkEvents.end();
+	while( it != fEnd)
 	{
-		delete *it;
-		fireworkEvents.erase(it);
+		if(*it)
+			delete *it;
+		it = fireworkEvents.erase(it);
 	}
 }
 
@@ -125,20 +126,22 @@ void FireworkManager::Process()
 	//This iterates all fired fireworks and keeps everything spiffy.
 
 	std::list<FireworkEvent*>::iterator it=this->fireworkEvents.begin();
-	
-	while( it != fireworkEvents.end())
+	std::list<FireworkEvent*>::iterator fEnd = fireworkEvents.end();
+
+	//We can do this outside the while...We likely won't get a vastly different value while in it anyway.
+	uint64 currentTime = gWorldManager->GetCurrentGlobalTick();
+	while( it != fEnd)
 	{
-		if((gWorldManager->GetCurrentGlobalTick() - (*it)->timeFired) > 2000 && (*it)->playerToldToStand == false) //2 sec
+		if(*it && (currentTime - (*it)->timeFired) > 2000 && (*it)->playerToldToStand == false) //2 sec
 		{
 			if((*it)->player->getPosture() == CreaturePosture_Crouched)
 			{
 				(*it)->player->setUpright();
 				(*it)->playerToldToStand = true;
-
 			}
-			it++;
+			++it;
 		}
-		else if((gWorldManager->GetCurrentGlobalTick() - (*it)->timeFired) > 25000) //25 sec (about the time of a firework)
+		else if(*it && (currentTime - (*it)->timeFired) > 25000) //25 sec (about the time of a firework)
 		{
 			gWorldManager->destroyObject((*it)->firework);
 
@@ -147,7 +150,7 @@ void FireworkManager::Process()
 		}
 		else
 		{
-			it++;
+			++it;
 		}
 	}
 

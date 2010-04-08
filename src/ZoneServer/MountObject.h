@@ -35,6 +35,7 @@ class MountObject : public CreatureObject
 		~MountObject(){;}
 
 		virtual void prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
+		virtual void handleObjectMenuSelect(uint8 messageType,Object* srcObject);
 
 
 		

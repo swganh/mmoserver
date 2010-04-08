@@ -760,6 +760,7 @@ bool Tutorial::isContainerEmpty(uint64 containerId)
 			uint32 objectCount = 0;
 			ObjectList* objList = container->getObjects();
 			ObjectList::iterator it = objList->begin();
+
 			ObjectList::iterator cEnd = objList->end();
 
 			while(it != cEnd)

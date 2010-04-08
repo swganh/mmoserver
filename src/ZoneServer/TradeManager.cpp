@@ -1078,8 +1078,9 @@ void TradeManager::_processAddItemMessage(Message* message,DispatchClient* clien
 
 	//inventory items
 	Item* theitem = dynamic_cast<Item*>(gWorldManager->getObjectById(ItemId));
-	if (theitem && addedItem->getParentId() == inventory->getId())
+	if (theitem && playerObject->getController()->checkContainingContainer(addedItem->getParentId(),playerObject->getId()))
 	{
+	
 		//make sure the item is not equipped
 		playerObject->getEquipManager()->unEquipItem(theitem);
 	}

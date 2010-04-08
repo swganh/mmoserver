@@ -177,7 +177,20 @@ void Vehicle::call()
 	mBody->mPosition.mX = mOwner->mPosition.mX + ( 2 * cos(mOwner->mDirection.getAnglesToSend() + 1.5708f));
 	mBody->mPosition.mZ = mOwner->mPosition.mZ + ( 2 * sin(mOwner->mDirection.getAnglesToSend() + 1.5708f));
 
-	//And a little above the terrian (help prevent sticking)
+	//wat the heck is -1.#IND000 ?????
+	if(_isnan(mBody->mPosition.mX))
+	{
+		gLogger->logMsgF("void Vehicle::call() calculated position %f failed : is not a number", MSG_HIGH, mBody->mPosition.mX);
+		mBody->mPosition.mX = mOwner->mPosition.mX;
+	}
+
+	if(_isnan(mBody->mPosition.mZ))
+	{
+		gLogger->logMsgF("void Vehicle::call() calculated position %f failed : is not a number", MSG_HIGH, mBody->mPosition.mZ);
+		mBody->mPosition.mZ = mOwner->mPosition.mZ;
+	}
+
+	//And a little above the terrain (help prevent sticking)
 	mBody->mPosition.mY =  Heightmap::Instance()->getHeight(mBody->mPosition.mX, mBody->mPosition.mZ) + 0.3f;
 
 

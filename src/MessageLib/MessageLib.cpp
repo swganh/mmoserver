@@ -364,16 +364,13 @@ bool MessageLib::sendEquippedItems(PlayerObject* srcObject,PlayerObject* targetO
 		// items
 		if(Item* item = dynamic_cast<Item*>(*invObjectsIt))
 		{
-			if(item->hasInternalAttribute("equipped"))
+			if(item->getParentId() == srcObject->getId())
+			{			
+				gMessageLib->sendCreateTangible(item,targetObject);
+			}
+			else
 			{
-				if(item->getInternalAttribute<bool>("equipped"))
-				{
-					gMessageLib->sendCreateTangible(item,targetObject);
-				}
-				else
-				{
-					gLogger->logMsgF("MssageLib send equipped objects: Its not equipped ... %I64u",MSG_NORMAL,item->getId());
-				}
+				gLogger->logMsgF("MssageLib send equipped objects: Its not equipped ... %I64u",MSG_NORMAL,item->getId());
 			}
 		}
 
@@ -724,33 +721,17 @@ bool MessageLib::sendCreateTangible(TangibleObject* tangibleObject,PlayerObject*
 		{
 			// could be inside a crafting tool
 			Object* parent = gWorldManager->getObjectById(parentId);
+			CreatureObject* creatureObject = dynamic_cast<CreatureObject*>(parent);
 
 			if(parent && dynamic_cast<CraftingTool*>(parent))
 			{
 				sendContainmentMessage(tangibleObject->getId(),parentId,0,targetObject);
 			}
 			// if equipped, also tie it to the object
-			else if(tangibleObject->hasInternalAttribute("equipped"))
+			else if(creatureObject)
 			{
 				Item* item = dynamic_cast<Item*>(tangibleObject);
-
-				if(item->getInternalAttribute<bool>("equipped"))
-				{
-
-					// get the parent of inventory
-					if(CreatureObject* creatureObject = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(parentId)))
-					{
-						sendContainmentMessage(tangibleObject->getId(),creatureObject->getId(),4,targetObject);
-					}
-					else
-					{
-						gLogger->logMsgF("Inventory:: cant find parent for equipped item",MSG_NORMAL);
-					}
-				}
-				else
-				{
-					sendContainmentMessage(tangibleObject->getId(),tangibleObject->getParentId(),0xffffffff,targetObject);
-				}
+				sendContainmentMessage(tangibleObject->getId(),creatureObject->getId(),4,targetObject);				
 			}
 			else
 			{

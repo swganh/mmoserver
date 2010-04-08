@@ -100,7 +100,7 @@ void Trade::tradeInvitationAdded(PlayerObject* inviter)
 //=============================================================================
 void Trade::deleteTradeInvitation(PlayerObject* player)
 {
-	//when we start trading - or the invitation exspires
+	//when we start trading - or the invitation expires
 	//we must delete the now obsolete invitation from the list
 	PlayerObjectList::iterator it = mPlayerObjectList.begin();
 	while(it != mPlayerObjectList.end())
@@ -216,14 +216,7 @@ void  Trade::processTradeListPreTransaction(Transaction* mTransaction)
 
 	while(it != mItemTradeList.end())
 	{
-		//uint64 itemId = (*it)->getObject()->getId();
-		//TangibleGroup tanGroup = (*it)->getObject()->getTangibleGroup();
-
-		//make sure the item is not equipped
-		if (checkEquipped((Item*)(*it)->getObject()))
-			((Wearable*)(*it)->getObject())->setInternalAttribute("equipped","false");
-
-
+		
 		//change Owner in the db via transaction
 
 		switch((*it)->getObject()->getType())
@@ -302,15 +295,15 @@ void  Trade::processTradeListPostTransaction()
 
 bool Trade::checkEquipped(Item* addedItem)
 {
-	if(addedItem->getItemFamily() == ItemFamily_Wearable)
+	//only players can trade
+	PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(addedItem->getParentId()));
+	if(player)
 	{
-		Wearable* weareableObject = (Wearable*)addedItem;
-
-		return(weareableObject->getInternalAttribute<bool>("equipped"));
+		return false;
 	}
 	else
 	{
-		return false;
+		return true;
 	}
 }
 

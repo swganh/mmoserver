@@ -18,6 +18,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 enum RadialAction
 {
 	radAction_Default		= 1,
+	radAction_2				= 2,
 	radAction_ObjCallback	= 3
 };
 

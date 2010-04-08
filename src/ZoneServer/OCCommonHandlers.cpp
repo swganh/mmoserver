@@ -159,7 +159,7 @@ void ObjectController::_handleOpenContainer(uint64 targetId,Message* message,Obj
 		}
 		else
 		{
-			if( playerObject->mPosition.inRange2D(itemObject->mPosition, 10) )
+            if (glm::distance(playerObject->mPosition, itemObject->mPosition) < 10)
 			{
 				gMessageLib->sendSystemMessage(playerObject, L"", "system_msg", "out_of_range");
 			}
@@ -271,7 +271,7 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 	
 
 	// A FYI: When we drop items, we use player pos.
-	itemObject->mPosition = Anh_Math::Vector3(x,y,z);
+    itemObject->mPosition = glm::vec3(x,y,z);
 
 	if (!targetContainerId)
 	{
@@ -356,9 +356,9 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 		/*ResourceContainer* rc = dynamic_cast<ResourceContainer*>(itemObject);
 
 		if(rc)
-			mDatabase->ExecuteSqlAsync(0,0,"UPDATE resource_containers SET parent_id ='%I64u', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",itemObject->getParentId(), itemObject->mDirection.mY, itemObject->mDirection.mZ, itemObject->mDirection.mW, itemObject->mPosition.mX, itemObject->mPosition.mY, itemObject->mPosition.mZ, itemObject->getId());
+			mDatabase->ExecuteSqlAsync(0,0,"UPDATE resource_containers SET parent_id ='%I64u', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",itemObject->getParentId(), itemObject->mDirection.y, itemObject->mDirection.z, itemObject->mDirection.w, itemObject->mPosition.x, itemObject->mPosition.y, itemObject->mPosition.z, itemObject->getId());
 		else
-			mDatabase->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id ='%I64u', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",itemObject->getParentId(), itemObject->mDirection.mY, itemObject->mDirection.mZ, itemObject->mDirection.mW, itemObject->mPosition.mX, itemObject->mPosition.mY, itemObject->mPosition.mZ, itemObject->getId());
+			mDatabase->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id ='%I64u', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",itemObject->getParentId(), itemObject->mDirection.y, itemObject->mDirection.z, itemObject->mDirection.w, itemObject->mPosition.x, itemObject->mPosition.y, itemObject->mPosition.z, itemObject->getId());
 		  */
 		
 		cell->addObjectSecure(itemObject,playerObject->getKnownPlayers());
@@ -670,7 +670,7 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 			 //playerObject->getTutorial()->transferedItemFromContainer(targetId, sourceId);
 		}
 		// This ensure that we do not use/store any of the temp id's in the database.
-		gObjectFactory->requestNewDefaultItem(inventory, item->getItemFamily(), item->getItemType(), inventory->getId(),99,Anh_Math::Vector3(),"");
+        gObjectFactory->requestNewDefaultItem(inventory, item->getItemFamily(), item->getItemType(), inventory->getId(), 99, glm::vec3(), "");
 		return false;
 
 	}		   
@@ -822,7 +822,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 	
 
 	// A FYI: When we drop items, we use player pos.
-	itemObject->mPosition = Anh_Math::Vector3(x,y,z);
+    itemObject->mPosition = glm::vec3(x,y,z);
 
 	if (!targetContainerId)
 	{
@@ -903,9 +903,9 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 		
 		ResourceContainer* rc = dynamic_cast<ResourceContainer*>(itemObject);
 		if(rc)
-			mDatabase->ExecuteSqlAsync(0,0,"UPDATE resource_containers SET parent_id ='%I64u', oX='%f', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",itemObject->getParentId(), itemObject->mDirection.mX, itemObject->mDirection.mY, itemObject->mDirection.mZ, itemObject->mDirection.mW, itemObject->mPosition.mX, itemObject->mPosition.mY, itemObject->mPosition.mZ, itemObject->getId());
+			mDatabase->ExecuteSqlAsync(0,0,"UPDATE resource_containers SET parent_id ='%I64u', oX='%f', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",itemObject->getParentId(), itemObject->mDirection.x, itemObject->mDirection.y, itemObject->mDirection.z, itemObject->mDirection.w, itemObject->mPosition.x, itemObject->mPosition.y, itemObject->mPosition.z, itemObject->getId());
 		else
-			mDatabase->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id ='%I64u', oX='%f', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",itemObject->getParentId(), itemObject->mDirection.mX, itemObject->mDirection.mY, itemObject->mDirection.mZ, itemObject->mDirection.mW, itemObject->mPosition.mX, itemObject->mPosition.mY, itemObject->mPosition.mZ, itemObject->getId());
+			mDatabase->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id ='%I64u', oX='%f', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",itemObject->getParentId(), itemObject->mDirection.x, itemObject->mDirection.y, itemObject->mDirection.z, itemObject->mDirection.w, itemObject->mPosition.x, itemObject->mPosition.y, itemObject->mPosition.z, itemObject->getId());
 
 		//take wm function at one point
 		cell->addObjectSecure(itemObject,playerObject->getKnownPlayers());
@@ -1015,7 +1015,7 @@ void ObjectController::_handlePurchaseTicket(uint64 targetId,Message* message,Ob
 	TravelTerminal* terminal = dynamic_cast<TravelTerminal*> (gWorldManager->getNearestTerminal(playerObject,TanType_TravelTerminal));
 	// iterate through the results
 	
-	if((!terminal)||(!terminal->mPosition.inRange2D(playerObject->mPosition,purchaseRange)))
+    if((!terminal)|| (glm::distance(terminal->mPosition, playerObject->mPosition) > purchaseRange))
 	{
 		gMessageLib->sendSystemMessage(playerObject,L"","travel","too_far");
 		return;

@@ -351,7 +351,7 @@ bool CombatManager::handleAttack(CreatureObject *attacker, uint64 targetId, Obje
 	//}
 
 	// if we are out of range, skip this attack.
-	if (attacker->mPosition.distance2D(defender->mPosition) > weaponRange)
+    if (glm::distance(attacker->mPosition, defender->mPosition) > weaponRange)
 	{
 		// Target out of range.
 		PlayerObject* playerAttacker = dynamic_cast<PlayerObject*>(attacker);
@@ -435,7 +435,7 @@ uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* def
 			PlayerObject* player = dynamic_cast<PlayerObject*>(attacker);
 			if (player)
 			{
-				npc->updateDamage(player->getId(), player->getGroupId(), weapon->getGroup(), -multipliedDamage, player->getPosture(), defender->mPosition.distance2D(player->mPosition));
+                npc->updateDamage(player->getId(), player->getGroupId(), weapon->getGroup(), -multipliedDamage, player->getPosture(), glm::distance(defender->mPosition, player->mPosition));
 			}
 		}
 

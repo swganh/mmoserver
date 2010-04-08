@@ -299,8 +299,8 @@ PlayerObject::~PlayerObject()
 				{
 					// update the database with the new values
 					gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE characters SET parent_id=%"PRIu64",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f WHERE id=%"PRIu64"",sp->mCellId
-						,sp->mDirection.mX,sp->mDirection.mY,sp->mDirection.mZ,sp->mDirection.mW
-						,sp->mPosition.mX,sp->mPosition.mY,sp->mPosition.mZ
+						,sp->mDirection.x,sp->mDirection.y,sp->mDirection.z,sp->mDirection.w
+						,sp->mPosition.x,sp->mPosition.y,sp->mPosition.z
 						,mId);
 				}
 			}
@@ -1769,7 +1769,7 @@ CraftingStation* PlayerObject::getCraftingStation(ObjectSet	inRangeObjects, Item
 
 //=============================================================================
 
-void PlayerObject::clone(uint64 parentId,Anh_Math::Quaternion dir,Anh_Math::Vector3 pos, bool preDesignatedFacility)
+void PlayerObject::clone(uint64 parentId, const glm::quat& dir, const glm::vec3& pos, bool preDesignatedFacility)
 {
 	// Remove revive timer, if any.
 	gWorldManager->removePlayerObjectForTimedCloning(mId);

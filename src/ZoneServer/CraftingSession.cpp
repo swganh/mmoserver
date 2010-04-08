@@ -334,7 +334,7 @@ void CraftingSession::handleObjectReady(Object* object,DispatchClient* client)
 		mManufacturingSchematic->setComplexity((float)mDraftSchematic->getComplexity());
 
 		// now request the (temporary) item, based on the draft schematic defaults
-		gObjectFactory->requestNewDefaultItem(this,(mDraftSchematic->getId() >> 32),mTool->getId(),99,Anh_Math::Vector3());
+        gObjectFactory->requestNewDefaultItem(this, (mDraftSchematic->getId() >> 32), mTool->getId(), 99, glm::vec3());
 	}
 	// its the item
 	else

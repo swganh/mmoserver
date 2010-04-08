@@ -88,9 +88,9 @@ bool MessageLib::sendBaselinesMISO_3(MissionObject* missionObject,PlayerObject* 
 	mMessageFactory->addUint32(missionObject->getDifficulty());//28
 
 	//6 -- Destination/End Location
-	mMessageFactory->addFloat(missionObject->getDestination().Coordinates.mX); //X
-	mMessageFactory->addFloat(missionObject->getDestination().Coordinates.mY); //Y
-	mMessageFactory->addFloat(missionObject->getDestination().Coordinates.mZ); //Z
+	mMessageFactory->addFloat(missionObject->getDestination().Coordinates.x); //X
+	mMessageFactory->addFloat(missionObject->getDestination().Coordinates.y); //Y
+	mMessageFactory->addFloat(missionObject->getDestination().Coordinates.z); //Z
 	mMessageFactory->addUint64(0); //Possibly a cell id
 	mMessageFactory->addUint32(missionObject->getDestination().PlanetCRC); //Planet CRC +24 = 52
 
@@ -104,9 +104,9 @@ bool MessageLib::sendBaselinesMISO_3(MissionObject* missionObject,PlayerObject* 
 	mMessageFactory->addUint32(missionObject->getReward());//60
 
 	//9 -- Start Location
-	mMessageFactory->addFloat(missionObject->getStart().Coordinates.mX); //X
-	mMessageFactory->addFloat(missionObject->getStart().Coordinates.mY); //Y
-	mMessageFactory->addFloat(missionObject->getStart().Coordinates.mZ); //Z
+	mMessageFactory->addFloat(missionObject->getStart().Coordinates.x); //X
+	mMessageFactory->addFloat(missionObject->getStart().Coordinates.y); //Y
+	mMessageFactory->addFloat(missionObject->getStart().Coordinates.z); //Z
 	mMessageFactory->addUint64(0); //Possibly a cell id
 	mMessageFactory->addUint32(missionObject->getStart().PlanetCRC); //Planet CRC +24 =84
 
@@ -135,9 +135,9 @@ bool MessageLib::sendBaselinesMISO_3(MissionObject* missionObject,PlayerObject* 
 
 	//16 -- Mission Waypoint
 	mMessageFactory->addUint32(0);
-	mMessageFactory->addFloat(missionObject->getWaypoint()->getCoords().mX);  //X
-	mMessageFactory->addFloat(missionObject->getWaypoint()->getCoords().mY);  //Y
-	mMessageFactory->addFloat(missionObject->getWaypoint()->getCoords().mZ);  //Z
+	mMessageFactory->addFloat(missionObject->getWaypoint()->getCoords().x);  //X
+	mMessageFactory->addFloat(missionObject->getWaypoint()->getCoords().y);  //Y
+	mMessageFactory->addFloat(missionObject->getWaypoint()->getCoords().z);  //Z
 	mMessageFactory->addUint64(0); //Possible Cell ID
 	mMessageFactory->addUint32(missionObject->getWaypoint()->getPlanetCRC()); //Planet CRC
 	data = missionObject->getWaypoint()->getName();
@@ -317,9 +317,9 @@ bool MessageLib::sendMISO_Delta(MissionObject* missionObject,PlayerObject* targe
 	{
 		update_count++;
 		body.writeSHORT(0x06);
-		body.writeFLOAT(missionObject->getStart().Coordinates.mX);
-		body.writeFLOAT(missionObject->getStart().Coordinates.mY);
-		body.writeFLOAT(missionObject->getStart().Coordinates.mZ);
+		body.writeFLOAT(missionObject->getStart().Coordinates.x);
+		body.writeFLOAT(missionObject->getStart().Coordinates.y);
+		body.writeFLOAT(missionObject->getStart().Coordinates.z);
 		body.writeLONG(missionObject->getStart().CellID);
 		body.writeINT(missionObject->getStart().PlanetCRC);
 	}
@@ -353,9 +353,9 @@ bool MessageLib::sendMISO_Delta(MissionObject* missionObject,PlayerObject* targe
 	{
 		update_count++;
 		body.writeSHORT(0x09);
-		body.writeFLOAT(missionObject->getDestination().Coordinates.mX);
-		body.writeFLOAT(missionObject->getDestination().Coordinates.mY);
-		body.writeFLOAT(missionObject->getDestination().Coordinates.mZ);
+		body.writeFLOAT(missionObject->getDestination().Coordinates.x);
+		body.writeFLOAT(missionObject->getDestination().Coordinates.y);
+		body.writeFLOAT(missionObject->getDestination().Coordinates.z);
 		body.writeLONG(missionObject->getDestination().CellID);
 		body.writeINT(missionObject->getDestination().PlanetCRC);
 	}
@@ -400,9 +400,9 @@ bool MessageLib::sendMISO_Delta(MissionObject* missionObject,PlayerObject* targe
 		update_count++;
 		body.writeSHORT(0x10);
 		body.writeINT(0);
-		body.writeFLOAT(missionObject->getWaypoint()->getCoords().mX);  //X
-		body.writeFLOAT(missionObject->getWaypoint()->getCoords().mY);  //Y
-		body.writeFLOAT(missionObject->getWaypoint()->getCoords().mZ);  //Z
+		body.writeFLOAT(missionObject->getWaypoint()->getCoords().x);  //X
+		body.writeFLOAT(missionObject->getWaypoint()->getCoords().y);  //Y
+		body.writeFLOAT(missionObject->getWaypoint()->getCoords().z);  //Z
 		body.writeLONG(0); //Possible Cell ID
 		body.writeINT(missionObject->getWaypoint()->getPlanetCRC()); //Planet CRC
 		body.writeUSTRING(missionObject->getWaypoint()->getName().getRawData());

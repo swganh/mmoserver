@@ -862,7 +862,7 @@ void ObjectController::_handleImageDesign(uint64 targetId,Message* message,Objec
 		return;
 	}
 
-	if(!designObject->mPosition.inRange2D(imageDesigner->mPosition,16))
+    if(glm::distance(designObject->mPosition, imageDesigner->mPosition) > 16)
 	{
 		gMessageLib->sendSystemMessage(imageDesigner,L"","image_designer","out_of_range");
 		return;

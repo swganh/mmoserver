@@ -29,17 +29,17 @@ FireworkManager::~FireworkManager(void)
 //===============================================================================00
 //creates the static Object of the firework in the world
 //
-TangibleObject* FireworkManager::createFirework(uint32 typeId, PlayerObject* player, Anh_Math::Vector3 position)
+TangibleObject* FireworkManager::createFirework(uint32 typeId, PlayerObject* player, const glm::vec3& position)
 {
 	//this is by definition a nonpersistant object - so move it there 
 	TangibleObject* firework = new TangibleObject();
 	firework->setTangibleGroup(TanGroup_Static);
 	//firework->setTangibleType();
 	firework->mPosition = position;//player->mPosition;
-	firework->mDirection.mX = 0;
-	firework->mDirection.mY = 0;
-	firework->mDirection.mZ = 0;
-	firework->mDirection.mW = 1;
+	firework->mDirection.x = 0;
+	firework->mDirection.y = 0;
+	firework->mDirection.z = 0;
+	firework->mDirection.w = 1;
 	firework->setId(gWorldManager->getRandomNpId());
 
 	switch(typeId)

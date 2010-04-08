@@ -103,7 +103,7 @@ void ObjectController::_handleRequestWaypointAtPosition(uint64 targetId,Message*
 		return;
 	}
 
-	datapad->requestNewWaypoint(nameStr,Anh_Math::Vector3(x,y,z),static_cast<uint16>(planetId),Waypoint_blue);
+    datapad->requestNewWaypoint(nameStr, glm::vec3(x,y,z),static_cast<uint16>(planetId),Waypoint_blue);
 }
 
 //======================================================================================================================
@@ -162,9 +162,9 @@ void ObjectController::_handleWaypoint(uint64 targetId,Message* message,ObjectCo
 	/*
 	if(Object* target = player->getTarget())
 	{
-		x = (int32)target->mPosition.mX;
-		y = (int32)target->mPosition.mY;
-		z = (int32)target->mPosition.mZ;
+		x = (int32)target->mPosition.x;
+		y = (int32)target->mPosition.y;
+		z = (int32)target->mPosition.z;
 
 		verified = true;
 	}
@@ -183,9 +183,9 @@ void ObjectController::_handleWaypoint(uint64 targetId,Message* message,ObjectCo
 			{
 				if(!(player->getParentId()))
 				{
-					x = (int32)player->mPosition.mX;
-					y = (int32)player->mPosition.mY;
-					z = (int32)player->mPosition.mZ;
+					x = (int32)player->mPosition.x;
+					y = (int32)player->mPosition.y;
+					z = (int32)player->mPosition.z;
 				}
 				else
 				{
@@ -206,15 +206,15 @@ void ObjectController::_handleWaypoint(uint64 targetId,Message* message,ObjectCo
 					// Anh_Math::Vector3		position(building->mPosition);
 
 					// Get the length of the vector inside building.
-					float length = sqrt((player->mPosition.mX * player->mPosition.mX) + (player->mPosition.mZ * player->mPosition.mZ));
+					float length = sqrt((player->mPosition.x * player->mPosition.x) + (player->mPosition.z * player->mPosition.z));
 					
 					// Get the angle to the object.
-					// float alpha = atan(player->mPosition.mX/player->mPosition.mZ);
-					float alpha = atan(player->mPosition.mX/player->mPosition.mZ);
+					// float alpha = atan(player->mPosition.x/player->mPosition.z);
+					float alpha = atan(player->mPosition.x/player->mPosition.z);
 
 					if (alpha < 0.0f)
 					{
-						if (player->mPosition.mX > 0.0f)
+						if (player->mPosition.x > 0.0f)
 						{
 							// add 180
 							alpha += 3.1415936539f;
@@ -222,7 +222,7 @@ void ObjectController::_handleWaypoint(uint64 targetId,Message* message,ObjectCo
 					}
 					else
 					{
-						if (player->mPosition.mX < 0.0f)
+						if (player->mPosition.x < 0.0f)
 						{
 							// add 180
 							alpha += 3.1415936539f;
@@ -233,12 +233,12 @@ void ObjectController::_handleWaypoint(uint64 targetId,Message* message,ObjectCo
 
 
 					// Now get the angle of the building.
-					float wDir = building->mDirection.mW;
+					float wDir = building->mDirection.w;
 					// float yDir = 1.0f;
 
 					if (wDir > 0.0f)
 					{
-						if (building->mDirection.mY < 0.0)
+						if (building->mDirection.y < 0.0)
 						{
 							wDir *= -1.0f;
 							// yDir = -1.0f;
@@ -261,12 +261,12 @@ void ObjectController::_handleWaypoint(uint64 targetId,Message* message,ObjectCo
 
 					// gLogger->logMsgF("In world: %d",MSG_NORMAL, (int32)((angle / (2.0f * 3.1415936539f)) * 360));
 
-					// gLogger->logMsgF("Player pos: %.1f, %.1f", MSG_NORMAL, player->mPosition.mX, player->mPosition.mZ);
+					// gLogger->logMsgF("Player pos: %.1f, %.1f", MSG_NORMAL, player->mPosition.x, player->mPosition.z);
 
-					// gLogger->logMsgF("Base pos: %.0f, %.0f", MSG_NORMAL, building->mPosition.mX, building->mPosition.mZ);
+					// gLogger->logMsgF("Base pos: %.0f, %.0f", MSG_NORMAL, building->mPosition.x, building->mPosition.z);
 
-					float xDelta = building->mPosition.mX;
-					float zDelta = building->mPosition.mZ;
+					float xDelta = building->mPosition.x;
+					float zDelta = building->mPosition.z;
 
 					if (angle <= 3.1415936539/2.0)
 					{
@@ -306,15 +306,15 @@ void ObjectController::_handleWaypoint(uint64 targetId,Message* message,ObjectCo
 					}
 
 
-					if ((player->mPosition.mY + building->mPosition.mY) > 0.0f)
+					if ((player->mPosition.y + building->mPosition.y) > 0.0f)
 					{
-						// y = (int32)(ceil(player->mPosition.mY));
-						y = (int32)(player->mPosition.mY + building->mPosition.mY + 0.5f);
+						// y = (int32)(ceil(player->mPosition.y));
+						y = (int32)(player->mPosition.y + building->mPosition.y + 0.5f);
 					}
 					else
 					{
-						// y = (int32)(floor(player->mPosition.mY));
-						y = (int32)(player->mPosition.mY + building->mPosition.mY - 0.5f);
+						// y = (int32)(floor(player->mPosition.y));
+						y = (int32)(player->mPosition.y + building->mPosition.y - 0.5f);
 					}
 
 					if (zDelta > 0.0f )
@@ -377,7 +377,7 @@ void ObjectController::_handleWaypoint(uint64 targetId,Message* message,ObjectCo
 	if(verified)
 	{
 
-		datapad->requestNewWaypoint("Waypoint",Anh_Math::Vector3((float)x,(float)y,(float)z),static_cast<uint16>(gWorldManager->getZoneId()),Waypoint_blue);
+        datapad->requestNewWaypoint("Waypoint", glm::vec3((float)x,(float)y,(float)z),static_cast<uint16>(gWorldManager->getZoneId()),Waypoint_blue);
 	}
 	else
 	{

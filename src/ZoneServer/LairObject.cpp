@@ -402,7 +402,7 @@ bool LairObject::getLairTarget(void)
 			// We may have a target, since he is attacking this lair.
 			if (!creatureObject->isIncapacitated() && !creatureObject->isDead())
 			{
-				float distanceFromLair = this->mPosition.distance2D(creatureObject->mPosition);
+                float distanceFromLair = glm::distance(this->mPosition, creatureObject->mPosition);
 				if (distanceFromLair < nearestDistanceFromLair)
 				{
 					nearestDistanceFromLair = distanceFromLair;
@@ -480,12 +480,12 @@ void LairObject::spawn(void)
 	else
 	{
 		// gLogger->logMsg("LairObject::spawn Outside");
-		if (QTRegion* region = gWorldManager->getSI()->getQTRegion(this->mPosition.mX, this->mPosition.mZ))
+		if (QTRegion* region = gWorldManager->getSI()->getQTRegion(this->mPosition.x, this->mPosition.z))
 		{
 			// gLogger->logMsg("LairObject::spawn QTRegion found");
 			this->setSubZoneId((uint32)region->getId());
 			region->mTree->addObject(this);
-			// gLogger->logMsgF("Spawn at %.0f %.0f", MSG_NORMAL, this->mPosition.mX, this->mPosition.mZ);
+			// gLogger->logMsgF("Spawn at %.0f %.0f", MSG_NORMAL, this->mPosition.x, this->mPosition.z);
 		}
 	}
 
@@ -559,10 +559,10 @@ bool LairObject::playerInRange(float range)
 	// Make Set ready,
 	// inRangeObjects.clear();
 	// objectSetIt = mInRangeObjects.begin();	// Will point to end of Set
-	if (QTRegion* region = gWorldManager->getSI()->getQTRegion(this->mPosition.mX, this->mPosition.mZ))
+	if (QTRegion* region = gWorldManager->getSI()->getQTRegion(this->mPosition.x, this->mPosition.z))
 	{
 		// gLogger->logMsg("LairObject::playerInRange Looking for players");
-		Anh_Math::Rectangle qRect = Anh_Math::Rectangle(this->mPosition.mX - range, this->mPosition.mZ - range, range * 2, range * 2);
+		Anh_Math::Rectangle qRect = Anh_Math::Rectangle(this->mPosition.x - range, this->mPosition.z - range, range * 2, range * 2);
 		region->mTree->getObjectsInRange(this, &inRangeObjects, ObjType_Player, &qRect);
 	}
 	return !inRangeObjects.empty();
@@ -627,29 +627,25 @@ void LairObject::respawn(void)
 		else
 		{
 			// Rectangle(float lowX,float lowZ,float width,float height) : Shape(lowX,0.0f,lowZ),mWidth(width),mHeight(height){}
-			Anh_Math::Vector3		position;
-
-			Anh_Math::Vector3 *pos = this->mSpawnArea.getPosition();
-			position.mX = pos->mX;
-			position.mZ = pos->mZ;
+            const glm::vec3& position = this->mSpawnArea.getPosition();
 
 			float xWidth = this->mSpawnArea.getHeight();
 			float zHeight = this->mSpawnArea.getWidth();
 
 			// Ge a random position withing given region.
 			// Note that creature can spawn outside the region, since thay have a radius from the lair where thet are allowed to spawn.
-			this->mPosition.mX = position.mX + (gRandom->getRand() % (int32)(xWidth+1));
-			this->mPosition.mZ = position.mZ + (gRandom->getRand() % (int32)(zHeight+1));
+			this->mPosition.x = position.x + (gRandom->getRand() % (int32)(xWidth+1));
+			this->mPosition.z = position.z + (gRandom->getRand() % (int32)(zHeight+1));
 			if (this->getParentId() == 0)
 			{
 				// Heightmap only works outside.
-				this->mPosition.mY = this->getHeightAt2DPosition(this->mPosition.mX, this->mPosition.mZ, true);
+				this->mPosition.y = this->getHeightAt2DPosition(this->mPosition.x, this->mPosition.z, true);
 			}
 
 			// Random direction.
 			this->setRandomDirection();
 		}
-		// gLogger->logMsgF("Lair spawn at pos: %.0f %.0f %.0f", MSG_NORMAL, this->mPosition.mX, this->mPosition.mY, this->mPosition.mZ);
+		// gLogger->logMsgF("Lair spawn at pos: %.0f %.0f %.0f", MSG_NORMAL, this->mPosition.x, this->mPosition.y, this->mPosition.z);
 
 		if (this->hasInternalAttribute("lair_wave_size"))
 		{

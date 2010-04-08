@@ -79,26 +79,26 @@ Anh_Math::Vector3 NPCObject::getRandomPosition(const Anh_Math::Vector3& currentP
 	Anh_Math::Vector3 v(currentPos);
 
 	// TODO: Validate map bounderies.
-	v.mX = (float)(v.mX - (offsetX/2)) + gRandom->getRand() % (int)(offsetX+1);
-	v.mZ = (float)(v.mZ - (offsetZ/2)) + gRandom->getRand() % (int)(offsetZ+1);
+	v.x = (float)(v.x - (offsetX/2)) + gRandom->getRand() % (int)(offsetX+1);
+	v.z = (float)(v.z - (offsetZ/2)) + gRandom->getRand() % (int)(offsetZ+1);
 
-	v.mY = this->getHeightAt2DPosition(v.mX, v.mZ);
+	v.y = this->getHeightAt2DPosition(v.x, v.z);
 
 	/*
 	if (Heightmap::isHeightmapCacheAvaliable())
 	{
-		v.mY = Heightmap::Instance()->getCachedHeightAt2DPosition(v.mX, v.mZ);
+		v.y = Heightmap::Instance()->getCachedHeightAt2DPosition(v.x, v.z);
 	}
 	else
 	{
-		v.mY = Heightmap::Instance()->getHeight(v.mX, v.mZ );
+		v.y = Heightmap::Instance()->getHeight(v.x, v.z );
 	}
-	if (v.mY == FLT_MIN)
+	if (v.y == FLT_MIN)
 	{
 		assert(false);
 	}
 	*/
-	// gLogger->logMsgF("NPCObject::getRandomPosition: %.0f, %.0f, %.0f ", MSG_NORMAL, v.mX, v.mY, v.mZ);
+	// gLogger->logMsgF("NPCObject::getRandomPosition: %.0f, %.0f, %.0f ", MSG_NORMAL, v.x, v.y, v.z);
 	return v;
 }
 
@@ -145,19 +145,19 @@ void NPCObject::setDirection(float deltaX, float deltaZ)
 		// if (x/h < 0.0)
 		if (x < 0.0)
 		{
-			this->mDirection.mW = static_cast<float>(cos((3.14159354 * 0.5) + 0.5f*acos(-z/h)));
-			this->mDirection.mY = static_cast<float>(sin((3.14159354 * 0.5) + 0.5f*acos(-z/h)));
+			this->mDirection.w = static_cast<float>(cos((3.14159354 * 0.5) + 0.5f*acos(-z/h)));
+			this->mDirection.y = static_cast<float>(sin((3.14159354 * 0.5) + 0.5f*acos(-z/h)));
 		}
 		else
 		{
-			this->mDirection.mY = static_cast<float>(sin(0.5f*acos(z/h)));
-			this->mDirection.mW = static_cast<float>(cos(0.5f*acos(z/h)));
+			this->mDirection.y = static_cast<float>(sin(0.5f*acos(z/h)));
+			this->mDirection.w = static_cast<float>(cos(0.5f*acos(z/h)));
 		}
 	}
 	else
 	{
-		this->mDirection.mY = static_cast<float>(sin(0.5f*asin(x/h)));
-		this->mDirection.mW = static_cast<float>(cos(0.5f*acos(z/h)));
+		this->mDirection.y = static_cast<float>(sin(0.5f*asin(x/h)));
+		this->mDirection.w = static_cast<float>(cos(0.5f*acos(z/h)));
 	}
 
 	// send out position updates to known players
@@ -197,9 +197,9 @@ void NPCObject::moveAndUpdatePosition(void)
 	else
 	{
 		// Testing to actually use a somewhat real height value.
-		position.mX += this->getPositionOffset().mX;
-		position.mZ += this->getPositionOffset().mZ;
-		position.mY = Heightmap::Instance()->getCachedHeightAt2DPosition(position.mX, position.mZ);
+		position.x += this->getPositionOffset().x;
+		position.z += this->getPositionOffset().z;
+		position.y = Heightmap::Instance()->getCachedHeightAt2DPosition(position.x, position.z);
 	}
 	// send out position updates to known players
 	this->updatePosition(this->getParentId(),position);
@@ -247,7 +247,7 @@ void NPCObject::updatePosition(uint64 parentId, Anh_Math::Vector3 newPosition)
 			}
 
 			// add us to the qtree
-			if (QTRegion* newRegion = gWorldManager->getSI()->getQTRegion((double)this->mPosition.mX,(double)this->mPosition.mZ))
+			if (QTRegion* newRegion = gWorldManager->getSI()->getQTRegion((double)this->mPosition.x,(double)this->mPosition.z))
 			{
 				this->setSubZoneId((uint32)newRegion->getId());
 				newRegion->mTree->addObject(this);
@@ -263,8 +263,8 @@ void NPCObject::updatePosition(uint64 parentId, Anh_Math::Vector3 newPosition)
 			// We are still outside.
 
 			// get the qt of the new position
-			// if (QTRegion* newRegion = gWorldManager->getSI()->getQTRegion((double)this->mPosition.mX,(double)this->mPosition.mZ))
-			if (QTRegion* newRegion = gWorldManager->getSI()->getQTRegion((double)newPosition.mX, (double)newPosition.mZ))
+			// if (QTRegion* newRegion = gWorldManager->getSI()->getQTRegion((double)this->mPosition.x,(double)this->mPosition.z))
+			if (QTRegion* newRegion = gWorldManager->getSI()->getQTRegion((double)newPosition.x, (double)newPosition.z))
 			{
 				// we didnt change so update the old one
 				if((uint32)newRegion->getId() == this->getSubZoneId())
@@ -416,21 +416,21 @@ void NPCObject::setRandomDirection(void)
 		// if (x/h < 0.0) h always positive.
 		if (x < 0.0)
 		{
-			this->mDirection.mW = static_cast<float>(cos((3.14159354 * 0.5) + 0.5f*acos(-z/h)));
-			this->mDirection.mY = static_cast<float>(sin((3.14159354 * 0.5) + 0.5f*acos(-z/h)));
+			this->mDirection.w = static_cast<float>(cos((3.14159354 * 0.5) + 0.5f*acos(-z/h)));
+			this->mDirection.y = static_cast<float>(sin((3.14159354 * 0.5) + 0.5f*acos(-z/h)));
 		}
 		else
 		{
-			this->mDirection.mY = sin(0.5f*acos(z/h));
-			this->mDirection.mW = cos(0.5f*acos(z/h));
+			this->mDirection.y = sin(0.5f*acos(z/h));
+			this->mDirection.w = cos(0.5f*acos(z/h));
 		}
 	}
 	else
 	{
-		this->mDirection.mY = sin(0.5f*asin(x/h));
-		this->mDirection.mW = cos(0.5f*acos(z/h));
+		this->mDirection.y = sin(0.5f*asin(x/h));
+		this->mDirection.w = cos(0.5f*acos(z/h));
 	}
-	// gLogger->logMsgF("Translates to: %.3f, %.3f", MSG_NORMAL, this->mDirection.mY, this->mDirection.mW);
+	// gLogger->logMsgF("Translates to: %.3f, %.3f", MSG_NORMAL, this->mDirection.y, this->mDirection.w);
 }
 
 //=============================================================================

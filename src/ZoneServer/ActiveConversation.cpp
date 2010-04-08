@@ -77,7 +77,7 @@ void ActiveConversation::updateCurrentPage(uint32 selectId)
 
 	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mPlayer);
 	NPCObject*		npc		= dynamic_cast<NPCObject*>(mNpc);
-	if (!player->mPosition.inRange2D(npc->mPosition,11.0f))
+    if (glm::distance(player->mPosition, npc->mPosition) > 11.0f)
 	{
 		// We are out of range.
 		mCurrentPage = NULL;

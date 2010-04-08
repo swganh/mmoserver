@@ -636,7 +636,7 @@ float Tutorial::getPlayerPosX()
 	float posX = -9000.0f;	// Out of range.
 	if (mPlayerObject && mPlayerObject->isConnected())
 	{
-		posX = mPlayerObject->mPosition.mX;
+		posX = mPlayerObject->mPosition.x;
 	}
 	return posX;
 }
@@ -646,7 +646,7 @@ float Tutorial::getPlayerPosY()
 	float posY = -9000.0f;	// Out of range.
 	if (mPlayerObject && mPlayerObject->isConnected())
 	{
-		posY = mPlayerObject->mPosition.mY;
+		posY = mPlayerObject->mPosition.y;
 	}
 	return posY;
 }
@@ -656,7 +656,7 @@ float Tutorial::getPlayerPosZ()
 	float posZ = -9000.0f;	// Out of range.
 	if (mPlayerObject && mPlayerObject->isConnected())
 	{
-		posZ = mPlayerObject->mPosition.mZ;
+		posZ = mPlayerObject->mPosition.z;
 	}
 	return posZ;
 }

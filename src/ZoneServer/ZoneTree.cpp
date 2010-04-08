@@ -172,10 +172,10 @@ void ZoneTree::getObjectsInRangeIntersection(Object* object,ObjectSet* resultSet
 	// we in world space, outside -> inside , outside -> outside checking
 	if(!object->getParentId())
 	{
-		plow[0] = object->mPosition.mX - range;
-		plow[1] = object->mPosition.mZ - range;
-		phigh[0] = object->mPosition.mX + range;
-		phigh[1] = object->mPosition.mZ + range;
+		plow[0] = object->mPosition.x - range;
+		plow[1] = object->mPosition.z - range;
+		phigh[0] = object->mPosition.x + range;
+		phigh[1] = object->mPosition.z + range;
 
 		Region r = Region(plow,phigh,2);
 		MyVisitor vis(&resultIdList);
@@ -280,10 +280,10 @@ void ZoneTree::getObjectsInRangeIntersection(Object* object,ObjectSet* resultSet
 			queryHeight = buildingHeight + 32;
 		}
 
-		plow[0] = buildingObject->mPosition.mX - queryWidth;
-		plow[1] = buildingObject->mPosition.mZ - queryHeight;
-		phigh[0] = buildingObject->mPosition.mX + queryWidth;
-		phigh[1] = buildingObject->mPosition.mZ + queryHeight;
+		plow[0] = buildingObject->mPosition.x - queryWidth;
+		plow[1] = buildingObject->mPosition.z - queryHeight;
+		phigh[0] = buildingObject->mPosition.x + queryWidth;
+		phigh[1] = buildingObject->mPosition.z + queryHeight;
 
 		Region r = Region(plow,phigh,2);
 		MyVisitor vis(&resultIdList);
@@ -345,10 +345,10 @@ void ZoneTree::getObjectsInRange(const Object* const object,ObjectSet* resultSet
 	// we in world space, outside -> inside , outside -> outside checking
 	if(!object->getParentId())
 	{
-		plow[0] = object->mPosition.mX - range;
-		plow[1] = object->mPosition.mZ - range;
-		phigh[0] = object->mPosition.mX + range;
-		phigh[1] = object->mPosition.mZ + range;
+		plow[0] = object->mPosition.x - range;
+		plow[1] = object->mPosition.z - range;
+		phigh[0] = object->mPosition.x + range;
+		phigh[1] = object->mPosition.z + range;
 
 		Region r = Region(plow,phigh,2);
 		MyVisitor vis(&resultIdList);
@@ -456,10 +456,10 @@ void ZoneTree::getObjectsInRange(const Object* const object,ObjectSet* resultSet
 			queryHeight = buildingHeight + 32;
 		}
 
-		plow[0] = buildingObject->mPosition.mX - queryWidth;
-		plow[1] = buildingObject->mPosition.mZ - queryHeight;
-		phigh[0] = buildingObject->mPosition.mX + queryWidth;
-		phigh[1] = buildingObject->mPosition.mZ + queryHeight;
+		plow[0] = buildingObject->mPosition.x - queryWidth;
+		plow[1] = buildingObject->mPosition.z - queryHeight;
+		phigh[0] = buildingObject->mPosition.x + queryWidth;
+		phigh[1] = buildingObject->mPosition.z + queryHeight;
 
 		Region r = Region(plow,phigh,2);
 		MyVisitor vis(&resultIdList);
@@ -623,10 +623,10 @@ void ZoneTree::getObjectsInRangeEx(Object* object,ObjectSet* resultSet,uint32 ob
 	// we in world space, outside -> inside , outside -> outside checking
 	if(!object->getParentId())
 	{
-		plow[0] = object->mPosition.mX - range;
-		plow[1] = object->mPosition.mZ - range;
-		phigh[0] = object->mPosition.mX + range;
-		phigh[1] = object->mPosition.mZ + range;
+		plow[0] = object->mPosition.x - range;
+		plow[1] = object->mPosition.z - range;
+		phigh[0] = object->mPosition.x + range;
+		phigh[1] = object->mPosition.z + range;
 
 		Region r = Region(plow,phigh,2);
 		MyVisitor vis(&resultIdList);
@@ -744,10 +744,10 @@ void ZoneTree::getObjectsInRangeEx(Object* object,ObjectSet* resultSet,uint32 ob
 			queryHeight = buildingHeight + 32;
 		}
 
-		plow[0] = buildingObject->mPosition.mX - queryWidth;
-		plow[1] = buildingObject->mPosition.mZ - queryHeight;
-		phigh[0] = buildingObject->mPosition.mX + queryWidth;
-		phigh[1] = buildingObject->mPosition.mZ + queryHeight;
+		plow[0] = buildingObject->mPosition.x - queryWidth;
+		plow[1] = buildingObject->mPosition.z - queryHeight;
+		phigh[0] = buildingObject->mPosition.x + queryWidth;
+		phigh[1] = buildingObject->mPosition.z + queryHeight;
 
 		Region r = Region(plow,phigh,2);
 		MyVisitor vis(&resultIdList);

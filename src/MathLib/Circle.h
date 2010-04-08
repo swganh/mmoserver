@@ -24,8 +24,8 @@ namespace Anh_Math
 		public:
 
 			Circle() : Shape(),mRadius(0.0f){}
-			Circle(Vector3 center,float radius) : Shape(center),mRadius(radius){}
-			Circle(float centerX,float centerZ,float radius) : Shape(centerX,0.0f,centerZ),mRadius(radius){}
+            Circle(const glm::vec3& center, float radius) : Shape(center),mRadius(radius){}
+			Circle(float centerX, float centerZ, float radius) : Shape(centerX,0.0f,centerZ),mRadius(radius){}
 			virtual ~Circle(){}
 
 			float	getRadius(){ return mRadius; }

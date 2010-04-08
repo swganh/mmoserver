@@ -305,15 +305,15 @@ void MessageLib::sendUpdateTransformMessage(MovingObject* object)
 	mMessageFactory->StartMessage();
 	mMessageFactory->addUint32(opUpdateTransformMessage);          
 	mMessageFactory->addUint64(object->getId());
-	mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.mX * 4.0f + 0.5f));     
-	mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.mY * 4.0f + 0.5f));      
-	mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.mZ * 4.0f + 0.5f));      
+	mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.x * 4.0f + 0.5f));     
+	mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.y * 4.0f + 0.5f));      
+	mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.z * 4.0f + 0.5f));      
 	mMessageFactory->addUint32(object->getInMoveCount()); 
 
-	long double mag = sqrt((object->mPosition.mX*object->mPosition.mX) + (object->mPosition.mY*object->mPosition.mY) + (object->mPosition.mZ*object->mPosition.mZ));
+    long double length = glm::length(object->mPosition);
 
-	mMessageFactory->addUint8((uint8)(mag * 4.0f + 0.5f));                
-	mMessageFactory->addUint8(static_cast<uint8>(object->mDirection.getAnglesToSend())); 
+	mMessageFactory->addUint8((uint8)(length * 4.0f + 0.5f));                
+    mMessageFactory->addUint8(static_cast<uint8>(glm::gtx::quaternion::angle(object->mDirection))); 
 
 	_sendToInRangeUnreliable(mMessageFactory->EndMessage(),object,8,true);
 }
@@ -333,15 +333,15 @@ void MessageLib::sendUpdateTransformMessageWithParent(MovingObject* object)
 	mMessageFactory->addUint32(opUpdateTransformMessageWithParent);   
 	mMessageFactory->addUint64(object->getParentId());
 	mMessageFactory->addUint64(object->getId());
-	mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.mX * 8.0f + 0.5f));     
-	mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.mY * 8.0f + 0.5f));    
-	mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.mZ * 8.0f + 0.5f));    
+	mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.x * 8.0f + 0.5f));     
+	mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.y * 8.0f + 0.5f));    
+	mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.z * 8.0f + 0.5f));    
 	mMessageFactory->addUint32(object->getInMoveCount()); 
 
-	long double mag = sqrt((object->mPosition.mX*object->mPosition.mX) + (object->mPosition.mY*object->mPosition.mY) + (object->mPosition.mZ*object->mPosition.mZ));
+    long double length = glm::length(object->mPosition);
 
-	mMessageFactory->addUint8((uint8)(mag * 4.0f + 0.5f));                       
-	mMessageFactory->addUint8(static_cast<uint8>(object->mDirection.getAnglesToSend()));  
+	mMessageFactory->addUint8((uint8)(length * 4.0f + 0.5f));                
+    mMessageFactory->addUint8(static_cast<uint8>(glm::gtx::quaternion::angle(object->mDirection))); 
 
 	_sendToInRangeUnreliable(mMessageFactory->EndMessage(),object,8,false);		
 }
@@ -360,15 +360,15 @@ void MessageLib::sendUpdateTransformMessage(MovingObject* object, PlayerObject* 
 	mMessageFactory->StartMessage();
 	mMessageFactory->addUint32(opUpdateTransformMessage);          
 	mMessageFactory->addUint64(object->getId());
-	mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.mX * 4.0f + 0.5f));     
-	mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.mY * 4.0f + 0.5f));      
-	mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.mZ * 4.0f + 0.5f));      
+	mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.x * 4.0f + 0.5f));     
+	mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.y * 4.0f + 0.5f));      
+	mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.z * 4.0f + 0.5f));      
 	mMessageFactory->addUint32(object->getInMoveCount()); 
 
-	long double mag = sqrt((object->mPosition.mX*object->mPosition.mX) + (object->mPosition.mY*object->mPosition.mY) + (object->mPosition.mZ*object->mPosition.mZ));
+    long double length = glm::length(object->mPosition);
 
-	mMessageFactory->addUint8((uint8)(mag * 4.0f + 0.5f));                
-	mMessageFactory->addUint8(static_cast<uint8>(object->mDirection.getAnglesToSend()));    
+	mMessageFactory->addUint8((uint8)(length * 4.0f + 0.5f));                
+    mMessageFactory->addUint8(static_cast<uint8>(glm::gtx::quaternion::angle(object->mDirection))); 
 
 	_sendToInstancedPlayersUnreliable(mMessageFactory->EndMessage(), 8, player);
 }
@@ -388,15 +388,15 @@ void MessageLib::sendUpdateTransformMessageWithParent(MovingObject* object, Play
 	mMessageFactory->addUint32(opUpdateTransformMessageWithParent);   
 	mMessageFactory->addUint64(object->getParentId());
 	mMessageFactory->addUint64(object->getId());
-	mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.mX * 8.0f + 0.5f));     
-	mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.mY * 8.0f + 0.5f));    
-	mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.mZ * 8.0f + 0.5f));    
+	mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.x * 8.0f + 0.5f));     
+	mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.y * 8.0f + 0.5f));    
+	mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.z * 8.0f + 0.5f));    
 	mMessageFactory->addUint32(object->getInMoveCount()); 
 
-	long double mag = sqrt((object->mPosition.mX*object->mPosition.mX) + (object->mPosition.mY*object->mPosition.mY) + (object->mPosition.mZ*object->mPosition.mZ));
+    long double length = glm::length(object->mPosition);
 
-	mMessageFactory->addUint8((uint8)(mag * 4.0f + 0.5f));                       
-	mMessageFactory->addUint8(static_cast<uint8>(object->mDirection.getAnglesToSend()));  
+	mMessageFactory->addUint8((uint8)(length * 4.0f + 0.5f));                
+    mMessageFactory->addUint8(static_cast<uint8>(glm::gtx::quaternion::angle(object->mDirection))); 
 
 	_sendToInstancedPlayersUnreliable(mMessageFactory->EndMessage(), 8, player);
 }
@@ -461,9 +461,9 @@ bool MessageLib::sendStartScene(uint64 zoneId,PlayerObject* player)
 	string mapName = gWorldManager->getTrnFileThis();
 	mMessageFactory->addString(mapName);
 
-	mMessageFactory->addFloat(player->mPosition.mX);     
-	mMessageFactory->addFloat(player->mPosition.mY);    
-	mMessageFactory->addFloat(player->mPosition.mZ);   
+	mMessageFactory->addFloat(player->mPosition.x);     
+	mMessageFactory->addFloat(player->mPosition.y);    
+	mMessageFactory->addFloat(player->mPosition.z);   
 
 	mMessageFactory->addString(player->getModelString());
 	mMessageFactory->addUint64(zoneId);
@@ -787,14 +787,14 @@ bool MessageLib::sendErrorMessage(PlayerObject* playerObject,string errType,stri
 //
 // weather update
 //
-void MessageLib::sendWeatherUpdate(Anh_Math::Vector3 cloudVec,uint32 weatherType,PlayerObject* player)
+void MessageLib::sendWeatherUpdate(const glm::vec3& cloudVec, uint32 weatherType, PlayerObject* player)
 {
 	mMessageFactory->StartMessage();    
 	mMessageFactory->addUint32(opServerWeatherMessage);  
 	mMessageFactory->addUint32(weatherType);           
-	mMessageFactory->addFloat(cloudVec.mX);
-	mMessageFactory->addFloat(cloudVec.mY);
-	mMessageFactory->addFloat(cloudVec.mZ);
+	mMessageFactory->addFloat(cloudVec.x);
+	mMessageFactory->addFloat(cloudVec.y);
+	mMessageFactory->addFloat(cloudVec.z);
 
 	if(player)
 	{
@@ -871,7 +871,7 @@ bool MessageLib::sendPlayClientEffectObjectMessage(string effect,string location
 //
 // play a clienteffect at location
 //
-bool MessageLib::sendPlayClientEffectLocMessage(string effect,Anh_Math::Vector3 pos,PlayerObject* targetObject)
+bool MessageLib::sendPlayClientEffectLocMessage(string effect, const glm::vec3& pos, PlayerObject* targetObject)
 {
 	if(!targetObject || !targetObject->isConnected())
 	{
@@ -884,9 +884,9 @@ bool MessageLib::sendPlayClientEffectLocMessage(string effect,Anh_Math::Vector3 
 	mMessageFactory->addUint32(opPlayClientEffectLocMessage);
 	mMessageFactory->addString(effect);
 	mMessageFactory->addString(planet);
-	mMessageFactory->addFloat(pos.mX);
-	mMessageFactory->addFloat(pos.mY);
-	mMessageFactory->addFloat(pos.mZ);
+	mMessageFactory->addFloat(pos.x);
+	mMessageFactory->addFloat(pos.y);
+	mMessageFactory->addFloat(pos.z);
 	mMessageFactory->addUint64(0);
 	mMessageFactory->addUint32(0); 
 
@@ -914,7 +914,7 @@ ResourceLocation MessageLib::sendSurveyMessage(uint16 range,uint16 points,Curren
 	highestDist.ratio		= -1.0f;
 
 	// using mY of highest ratio vector, to determine if resource actually was found
-	highestDist.position.mY = 0.0f;
+	highestDist.position.y = 0.0f;
 
 	range = (range >> 1);
 
@@ -927,14 +927,14 @@ ResourceLocation MessageLib::sendSurveyMessage(uint16 range,uint16 points,Curren
 	{
 		for(int16 j = -range;j <= range;j+=step)
 		{
-			posX	= targetObject->mPosition.mX + (float)i;
-			posZ	= targetObject->mPosition.mZ + (float)j;
+			posX	= targetObject->mPosition.x + (float)i;
+			posZ	= targetObject->mPosition.z + (float)j;
 			ratio	= resource->getDistribution((int)posX + 8192,(int)posZ + 8192);
 
 			if(ratio > highestDist.ratio)
 			{				
-				highestDist.position.mX = posX;
-				highestDist.position.mZ = posZ;
+				highestDist.position.x = posX;
+				highestDist.position.z = posZ;
 				highestDist.ratio = ratio;
 			}
 
@@ -949,7 +949,7 @@ ResourceLocation MessageLib::sendSurveyMessage(uint16 range,uint16 points,Curren
 
 	if(highestDist.ratio >= 0.1f)
 	{
-		highestDist.position.mY = 5.0f;
+		highestDist.position.y = 5.0f;
 	}
 
 	return highestDist;
@@ -1069,11 +1069,11 @@ bool MessageLib::sendCharacterSheetResponse(PlayerObject* playerObject)
 	}
 	else
 	{
-		Anh_Math::Vector3 bindLoc = playerObject->getBindCoords();
+		glm::vec3 bindLoc = playerObject->getBindCoords();
 
-		mMessageFactory->addFloat(bindLoc.mX);
-		mMessageFactory->addFloat(bindLoc.mY);
-		mMessageFactory->addFloat(bindLoc.mZ);
+		mMessageFactory->addFloat(bindLoc.x);
+		mMessageFactory->addFloat(bindLoc.y);
+		mMessageFactory->addFloat(bindLoc.z);
 		string bindPlanet(gWorldManager->getPlanetNameById(playerObject->getBindPlanet()));
 		mMessageFactory->addString(bindPlanet);
 	}
@@ -1103,11 +1103,11 @@ bool MessageLib::sendCharacterSheetResponse(PlayerObject* playerObject)
 	}
 	else
 	{
-		Anh_Math::Vector3 homeLoc = playerObject->getHomeCoords();
+		glm::vec3 homeLoc = playerObject->getHomeCoords();
 
-		mMessageFactory->addFloat(homeLoc.mX);
-		mMessageFactory->addFloat(homeLoc.mY);
-		mMessageFactory->addFloat(homeLoc.mZ);
+		mMessageFactory->addFloat(homeLoc.x);
+		mMessageFactory->addFloat(homeLoc.y);
+		mMessageFactory->addFloat(homeLoc.z);
 		mMessageFactory->addString(BString(gWorldManager->getPlanetNameById(playerObject->getHomePlanet())));
 	} 
 

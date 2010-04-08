@@ -209,23 +209,23 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult
 			gWorldManager->addObject(npc, true);
 
 			// May need the height also, in case of pre set (fixed) spawn position.
-			npc->mPosition.mX = lair.mSpawnPosX;
-			npc->mPosition.mZ = lair.mSpawnPosZ;
+			npc->mPosition.x = lair.mSpawnPosX;
+			npc->mPosition.z = lair.mSpawnPosZ;
 
 			if (npc->getParentId() == 0)
 			{
 				// Heightmap only works outside.
-				npc->mPosition.mY = npc->getHeightAt2DPosition(lair.mSpawnPosX, lair.mSpawnPosZ, true);
+				npc->mPosition.y = npc->getHeightAt2DPosition(lair.mSpawnPosX, lair.mSpawnPosZ, true);
 			}
 			else
 			{
 				// We do not have support for handling creatures inside.
 				assert(false && "NonPersistentNpcFactory::handleDatabaseJobComplete NonPersistentNpcQuery_LairTemplate No support for handling creatures inside");
-				npc->mPosition.mY = 0;
+				npc->mPosition.y = 0;
 			}
 			
-			npc->mDirection.mY = lair.mSpawnDirY;
-			npc->mDirection.mW = lair.mSpawnDirW;
+			npc->mDirection.y = lair.mSpawnDirY;
+			npc->mDirection.w = lair.mSpawnDirW;
 
 			// Let's get the spawn area.
 			const Anh_Math::Rectangle spawnArea = gWorldManager->getSpawnArea(lair.mCreatureSpwanRegion);
@@ -654,8 +654,8 @@ void NonPersistentNpcFactory::requestNpcObject(ObjectFactoryCallback* ofCallback
 											   uint64 creatureTemplateId, 
 											   uint64 npcNewId,
 											   uint64 spawnCellId,
-											   Anh_Math::Vector3 spawnPosition, 
-											   Anh_Math::Quaternion	spawnDirection,
+                                               const glm::vec3& spawnPosition, 
+											   const glm::quat&	spawnDirection,
 											   uint64 respawnDelay,
 											   uint64 parentLairId)
 {

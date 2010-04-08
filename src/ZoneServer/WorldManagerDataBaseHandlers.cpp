@@ -719,10 +719,10 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					if(asyncContainer->mLogout == WMLogOut_Zone_Transfer)
 					{
 						//update the position to the new planets position
-						Anh_Math::Vector3		destination = asyncContainer->clContainer->destination;
+						const glm::vec3& destination = asyncContainer->clContainer->destination;
 
 						//in this case we retain the asynccontainer and let it be destroyed by the clientlogin handler
-						mDatabase->ExecuteSqlAsync(asyncContainer->clContainer->dbCallback,asyncContainer->clContainer,"UPDATE characters SET parent_id=0,x='%f', y='%f', z='%f', planet_id='%u' WHERE id='%I64u';", destination.mX, destination.mY, destination.mZ, asyncContainer->clContainer->planet, asyncContainer->clContainer->player->getId());
+						mDatabase->ExecuteSqlAsync(asyncContainer->clContainer->dbCallback,asyncContainer->clContainer,"UPDATE characters SET parent_id=0,x='%f', y='%f', z='%f', planet_id='%u' WHERE id='%I64u';", destination.x, destination.y, destination.z, asyncContainer->clContainer->planet, asyncContainer->clContainer->player->getId());
 					}
 				}
 				break;

@@ -415,12 +415,12 @@ void CharacterLoginHandler::_processClusterZoneTransferApprovedByTicket(Message*
 
 //		uint64 playerId = playerObject->getId();
 
-		Anh_Math::Vector3 destination;
-		destination.mX = dstPoint->spawnX + (gRandom->getRand()%5 - 2);
-		destination.mY = dstPoint->spawnY;
-		destination.mZ = dstPoint->spawnZ + (gRandom->getRand()%5 - 2);
+        glm::vec3 destination;
+		destination.x = dstPoint->spawnX + (gRandom->getRand()%5 - 2);
+		destination.y = dstPoint->spawnY;
+		destination.z = dstPoint->spawnZ + (gRandom->getRand()%5 - 2);
 
-		gLogger->logMsgF(" CharacterLoginHandler::_processClusterZoneTransferApprovedByTicket : (x)%f:(z)%f:(y)%f",MSG_NORMAL,destination.mX,destination.mY,destination.mZ);
+		gLogger->logMsgF(" CharacterLoginHandler::_processClusterZoneTransferApprovedByTicket : (x)%f:(z)%f:(y)%f",MSG_NORMAL,destination.x,destination.y,destination.z);
 
 		// reset to standing
 		playerObject->setPosture(CreaturePosture_Upright);

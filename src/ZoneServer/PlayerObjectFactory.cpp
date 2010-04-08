@@ -368,9 +368,9 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
 
 			DataBinding* binding = mDatabase->CreateDataBinding(5);
 			binding->addField(DFT_uint64,offsetof(PlayerObject,mPreDesignatedCloningFacilityId),8,0);
-			binding->addField(DFT_float,offsetof(PlayerObject,mBindCoords.mX),4,1);
-			binding->addField(DFT_float,offsetof(PlayerObject,mBindCoords.mY),4,2);
-			binding->addField(DFT_float,offsetof(PlayerObject,mBindCoords.mZ),4,3);
+			binding->addField(DFT_float,offsetof(PlayerObject,mBindCoords.x),4,1);
+			binding->addField(DFT_float,offsetof(PlayerObject,mBindCoords.y),4,2);
+			binding->addField(DFT_float,offsetof(PlayerObject,mBindCoords.z),4,3);
 			binding->addField(DFT_uint8,offsetof(PlayerObject,mBindPlanet),1,4);
 
 			uint64 count = result->getRowCount();
@@ -667,13 +667,13 @@ void PlayerObjectFactory::_setupDatabindings()
 	mPlayerBinding->addField(DFT_uint64,offsetof(PlayerObject,mId),8,0);
 	mPlayerBinding->addField(DFT_uint64,offsetof(PlayerObject,mParentId),8,1);
 	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mAccountId),4,2);
-	mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mDirection.mX),4,3);
-	mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mDirection.mY),4,4);
-	mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mDirection.mZ),4,5);
-	mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mDirection.mW),4,6);
-	mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mPosition.mX),4,7);
-	mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mPosition.mY),4,8);
-	mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mPosition.mZ),4,9);
+	mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mDirection.x),4,3);
+	mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mDirection.y),4,4);
+	mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mDirection.z),4,5);
+	mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mDirection.w),4,6);
+	mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mPosition.x),4,7);
+	mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mPosition.y),4,8);
+	mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mPosition.z),4,9);
 	mPlayerBinding->addField(DFT_bstring,offsetof(PlayerObject,mModel),128,10);
 	mPlayerBinding->addField(DFT_bstring,offsetof(PlayerObject,mFirstName),64,11);
 	mPlayerBinding->addField(DFT_bstring,offsetof(PlayerObject,mLastName),64,12);

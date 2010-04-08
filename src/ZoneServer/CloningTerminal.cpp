@@ -67,7 +67,7 @@ void CloningTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject
 							// store the location where we are bind
 							playerObject->setBindPlanet((uint8)gWorldManager->getZoneId());
 
-							Anh_Math::Vector3 bindPosition = gWorldManager->getObjectById(playerObject->getPreDesignatedCloningFacilityId())->mPosition;
+							const glm::vec3& bindPosition = gWorldManager->getObjectById(playerObject->getPreDesignatedCloningFacilityId())->mPosition;
 							playerObject->setBindCoords(bindPosition);
 
 							// TODO: We need to save the current data before creating the clone data.
@@ -172,7 +172,7 @@ void CloningTerminal::handleUIEvent(uint32 action,int32 element,string inputStr,
 				// store the location where we are bind
 				playerObject->setBindPlanet((uint8)gWorldManager->getZoneId());
 
-				Anh_Math::Vector3 bindPosition = gWorldManager->getObjectById(playerObject->getPreDesignatedCloningFacilityId())->mPosition;
+				const glm::vec3& bindPosition = gWorldManager->getObjectById(playerObject->getPreDesignatedCloningFacilityId())->mPosition;
 				playerObject->setBindCoords(bindPosition);
 
 				// gLogger->logMsgF("CloningTerminal::handleUIEvent Saving clone facility id %"PRIu64"",MSG_HIGH,playerObject->getPreDesignatedCloningFacilityId());

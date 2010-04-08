@@ -175,8 +175,8 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 		inline uint64			getPrivateOwner() { return mPrivateOwner; }
 		inline void				setPrivateOwner(uint64 owner) { mPrivateOwner = owner; }
 		bool					isOwnedBy(PlayerObject* player);
-		Anh_Math::Vector3		getLastUpdatePosition(){ return mLastUpdatePosition; }
-		void					setLastUpdatePosition(Anh_Math::Vector3 pos ){mLastUpdatePosition = pos; }
+		const glm::vec3&		getLastUpdatePosition(){ return mLastUpdatePosition; }
+		void					setLastUpdatePosition(const glm::vec3& pos ){mLastUpdatePosition = pos; }
 
 
 		//clientprefab Menu List
@@ -214,7 +214,7 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 		uint32					mTypeOptions;
 		uint32					mDataTransformCounter;
 	private:
-		Anh_Math::Vector3		mLastUpdatePosition;	// Position where SI was updated.
+		glm::vec3		        mLastUpdatePosition;	// Position where SI was updated.
 
 };
 

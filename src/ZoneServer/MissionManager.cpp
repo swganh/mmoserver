@@ -606,7 +606,7 @@ void MissionManager::missionCompleteEntertainer(PlayerObject* player)
 			if(mission->getInProgress() == false) { ++it; continue; }
 			if(mission->getMissionType() == dancer || mission->getMissionType() == musician)
 			{
-				if(player->mPosition.inRange2D(mission->getDestination().Coordinates,20))
+                if(glm::distance(player->mPosition, mission->getDestination().Coordinates) < 20)
 				{
 						missionComplete(player,mission);
 						it = datapad->removeMission(it);
@@ -678,7 +678,7 @@ void MissionManager::missionFailedEntertainer(PlayerObject* player)
 			if(mission->getMissionType() == dancer || mission->getMissionType() == musician)
 			{
 				if(!mission->getInProgress()) { ++it; continue; }
-				if(player->mPosition.inRange2D(mission->getDestination().Coordinates,20))
+                if(glm::distance(player->mPosition, mission->getDestination().Coordinates) < 20)
 				{
 						missionFailed(player,mission);
 						it = datapad->removeMission(it);
@@ -761,7 +761,7 @@ void MissionManager::checkMusicianMission(PlayerObject* player)
 			if(mission->getMissionType() == musician)
 			{
 				if(mission->getInProgress()) { ++it; continue; }
-				if(player->mPosition.inRange2D(mission->getDestination().Coordinates,20))
+                if(glm::distance(player->mPosition, mission->getDestination().Coordinates) < 20)
 				{
 					BuffAttribute* performance_timer = new BuffAttribute(Mission_Timer, 0,0,0);
 					Buff* timer = Buff::SimpleBuff(player, player, 600000, 0, gWorldManager->GetCurrentGlobalTick());
@@ -790,7 +790,7 @@ void MissionManager::checkDancerMission(PlayerObject* player)
 			if(mission->getMissionType() == dancer)
 			{
 				if(mission->getInProgress()) { ++it; continue; }
-				if(player->mPosition.inRange2D(mission->getDestination().Coordinates,20))
+                if(glm::distance(player->mPosition, mission->getDestination().Coordinates) < 20)
 				{
 					BuffAttribute* performance_timer = new BuffAttribute(Mission_Timer, 0,0,0);
 					Buff* timer = Buff::SimpleBuff(player, player, 600000, 0, gWorldManager->GetCurrentGlobalTick());
@@ -823,7 +823,7 @@ void MissionManager::checkSurveyMission(PlayerObject* player,CurrentResource* re
 				{
 					if(mission->getDifficulty() <= (highestDist.ratio*100))
 					{
-						if(!mission->getIssuingTerminal()->mPosition.inRange2D(highestDist.position,1024))
+                        if(glm::distance(mission->getIssuingTerminal()->mPosition, highestDist.position) > 1024)
 						{
 							gLogger->logMsg("PE > 500: ready to apply new BF/wound dmg");
 							missionComplete(player,mission);
@@ -837,9 +837,9 @@ void MissionManager::checkSurveyMission(PlayerObject* player,CurrentResource* re
 
 							int8 sm[500];
 							sprintf(sm,"That resource pocket is too close (%"PRIu32" meters) to the mission giver to be useful to them. Go find one at least %"PRIu32" meters away to complete your survey mission. ",
-										static_cast<uint32>(mission->getIssuingTerminal()->mPosition.distance2D(highestDist.position)),
-										(1024 - (int)mission->getIssuingTerminal()->mPosition.distance2D(highestDist.position))
-										);
+                                static_cast<uint32>(glm::distance(mission->getIssuingTerminal()->mPosition, highestDist.position)),
+                                    (1024 - (int)glm::distance(mission->getIssuingTerminal()->mPosition, highestDist.position)));
+
 							string s = BString(sm);
 							s.convert(BSTRType_Unicode16);
 							gMessageLib->sendSystemMessage(player,s);
@@ -916,7 +916,7 @@ bool MissionManager::checkReconMission(MissionObject* mission)
 {
 	if (mission->getMissionType() != recon) return false;
 
-	if(mission->getOwner()->mPosition.inRange2D(mission->getDestination().Coordinates,20))
+    if(glm::distance(mission->getOwner()->mPosition, mission->getDestination().Coordinates) < 20)
 	{
 		Datapad* datapad = dynamic_cast<Datapad*>(mission->getOwner()->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
 		missionComplete(mission->getOwner(),mission);
@@ -1130,7 +1130,7 @@ MissionObject* MissionManager::generateDeliverMission(MissionObject* mission)
 			uint32 roll		= (gRandom->getRand() / (RAND_MAX  + 1ul) * (9 - 1) + 1);
 			if((roll = 5)||(count > inRangeNPCs.size()))
 			{
-				if(mission_dest.Coordinates.mX == 0)
+				if(mission_dest.Coordinates.x == 0)
 				{
 					mission->setDestinationNPC(npc);
 					mission_dest.Coordinates = npc->mPosition;
@@ -1138,7 +1138,7 @@ MissionObject* MissionManager::generateDeliverMission(MissionObject* mission)
 					mission_dest.PlanetCRC = BString(gWorldManager->getPlanetNameThis()).getCrc();
 					mission->setDestination(mission_dest);
 				}
-				else if(mission_start.Coordinates.mX == 0 && mission->getDestinationNPC() != npc)
+				else if(mission_start.Coordinates.x == 0 && mission->getDestinationNPC() != npc)
 				{
 					mission->setStartNPC(npc);
 					mission_start.Coordinates = npc->mPosition;
@@ -1212,7 +1212,7 @@ MissionObject* MissionManager::generateEntertainerMission(MissionObject* mission
 			uint32 roll		= (gRandom->getRand() / (RAND_MAX  + 1ul) * (9 - 1) + 1);
 			if((roll = 5)||(cntLoop > inRangeNPCs.size()))
 			{
-				if(mission_dest.Coordinates.mX == 0 && mission->getDestinationNPC() != npc)
+				if(mission_dest.Coordinates.x == 0 && mission->getDestinationNPC() != npc)
 				{
 					mission->setStartNPC(npc);
 					mission_dest.Coordinates = npc->mPosition;
@@ -1398,7 +1398,7 @@ MissionObject* MissionManager::generateCraftingMission(MissionObject* mission)
 			uint32 roll		= (gRandom->getRand() / (RAND_MAX  + 1ul) * (9 - 1) + 1);
 			if((roll = 5)||(cntLoop > inRangeNPCs.size()))
 			{
-				if(mission_dest.Coordinates.mX == 0)
+				if(mission_dest.Coordinates.x == 0)
 				{
 					mission->setDestinationNPC(npc);
 					mission_dest.Coordinates = npc->mPosition;
@@ -1406,7 +1406,7 @@ MissionObject* MissionManager::generateCraftingMission(MissionObject* mission)
 					mission_dest.PlanetCRC = BString(gWorldManager->getPlanetNameThis()).getCrc();
 					mission->setDestination(mission_dest);
 				}
-				else if(mission_start.Coordinates.mX == 0 && mission->getDestinationNPC() != npc)
+				else if(mission_start.Coordinates.x == 0 && mission->getDestinationNPC() != npc)
 				{
 					mission->setStartNPC(npc);
 					mission_start.Coordinates = npc->mPosition;

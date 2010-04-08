@@ -84,7 +84,7 @@ void AttackableStaticNpc::respawn(void)
 	this->setParentId(getCellIdForSpawn());
 
 	// Default spawn position.
-	Anh_Math::Vector3 position(getSpawnPosition());
+    glm::vec3 position(getSpawnPosition());
 
 	// Respawn delay. If the creature have an unique delay, use that. Else use the one provided by the parent object.
 	this->setRespawnDelay(0);
@@ -103,10 +103,10 @@ void AttackableStaticNpc::respawn(void)
 	if (this->getParentId() == 0)
 	{
 		// Heightmap only works outside.
-		position.mY = this->getHeightAt2DPosition(position.mX, position.mZ, true);
+		position.y = this->getHeightAt2DPosition(position.x, position.z, true);
 	}
 	
-	// gLogger->logMsgF("Setting up spawn of creature at %.0f %.0f %.0f", MSG_NORMAL, position.mX, position.mY, position.mZ);
+	// gLogger->logMsgF("Setting up spawn of creature at %.0f %.0f %.0f", MSG_NORMAL, position.x, position.y, position.z);
 	this->mPosition = this->getSpawnPosition();		// Default spawn position.
 
 	// mSpawned = false;
@@ -309,7 +309,7 @@ void AttackableStaticNpc::spawn(void)
 	}
 	else
 	{
-		if (QTRegion* region = gWorldManager->getSI()->getQTRegion(this->mPosition.mX, this->mPosition.mZ))
+		if (QTRegion* region = gWorldManager->getSI()->getQTRegion(this->mPosition.x, this->mPosition.z))
 		{
 			this->setSubZoneId((uint32)region->getId());
 			region->mTree->addObject(this);

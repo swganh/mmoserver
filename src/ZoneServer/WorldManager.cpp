@@ -309,7 +309,7 @@ void WorldManager::handleObjectReady(Object* object,DispatchClient* client)
 
 		mQTRegionMap.insert(key,region);
 
-		mSpatialIndex->insertQTRegion(key,region->mPosition.mX,region->mPosition.mZ,region->getWidth(),region->getHeight());
+		mSpatialIndex->insertQTRegion(key,region->mPosition.x,region->mPosition.z,region->getWidth(),region->getHeight());
 	}
 	else
 	{
@@ -758,9 +758,9 @@ bool WorldManager::_handleGroupObjectTimers(uint64 callTime, void* ref)
 void WorldManager::updateWeather(float cloudX,float cloudY,float cloudZ,uint32 weatherType)
 {
 	mCurrentWeather.mWeather = weatherType;
-	mCurrentWeather.mClouds.mX = cloudX;
-	mCurrentWeather.mClouds.mY = cloudY;
-	mCurrentWeather.mClouds.mZ = cloudZ;
+	mCurrentWeather.mClouds.x = cloudX;
+	mCurrentWeather.mClouds.y = cloudY;
+	mCurrentWeather.mClouds.z = cloudZ;
 
 	gMessageLib->sendWeatherUpdate(mCurrentWeather.mClouds,mCurrentWeather.mWeather);
 }
@@ -1306,7 +1306,7 @@ bool WorldManager::objectsInRange(uint64 obj1Id, uint64 obj2Id, float range)
 	else if (obj1->getParentId() == obj2->getParentId())
 	{
 		// In the same cell (or both outside is rarley the case here)
-		if (obj1->mPosition.distance2D(obj2->mPosition) > range)
+        if (glm::distance(obj1->mPosition, obj2->mPosition) > range)
 		{
 			inRange = false;
 		}
@@ -1324,7 +1324,7 @@ bool WorldManager::objectsInRange(uint64 obj1Id, uint64 obj2Id, float range)
 		if (obj1Cell && obj2Cell && (obj1Cell->getParentId() == obj2Cell->getParentId()))
 		{
 			// In the same building
-			if (obj1->mPosition.distance2D(obj2->mPosition) > range)
+            if (glm::distance(obj1->mPosition, obj2->mPosition) > range)
 			{
 				// But out of range.
 				inRange = false;
@@ -1339,7 +1339,7 @@ bool WorldManager::objectsInRange(uint64 obj1Id, uint64 obj2Id, float range)
 	return inRange;
 }
 
-bool WorldManager::objectsInRange(Anh_Math::Vector3 obj1Position,  uint64 obj1ParentId, uint64 obj2Id, float range)
+bool WorldManager::objectsInRange(const glm::vec3& obj1Position,  uint64 obj1ParentId, uint64 obj2Id, float range)
 {
 	bool inRange = true;
 
@@ -1350,7 +1350,7 @@ bool WorldManager::objectsInRange(Anh_Math::Vector3 obj1Position,  uint64 obj1Pa
 	if (obj1ParentId == obj2->getParentId())
 	{
 		// In the same cell (or both outside is rarley the case here)
-		if (obj1Position.distance2D(obj2->mPosition) > range)
+        if (glm::distance(obj1Position, obj2->mPosition) > range)
 		{
 			inRange = false;
 		}
@@ -1368,7 +1368,7 @@ bool WorldManager::objectsInRange(Anh_Math::Vector3 obj1Position,  uint64 obj1Pa
 		if (obj1Cell && obj2Cell && (obj1Cell->getParentId() == obj2Cell->getParentId()))
 		{
 			// In the same building
-			if (obj1Position.distance2D(obj2->mPosition) > range)
+            if (glm::distance(obj1Position, obj2->mPosition) > range)
 			{
 				// But out of range.
 				inRange = false;

@@ -110,8 +110,8 @@ void ObjectController::_handleJoin(uint64 targetId,Message* message,ObjectContro
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opIsmGroupInviteResponse);  
 	gMessageFactory->addUint8(1);
-	gMessageFactory->addFloat(player->mPosition.mX);
-	gMessageFactory->addFloat(player->mPosition.mZ);
+	gMessageFactory->addFloat(player->mPosition.x);
+	gMessageFactory->addFloat(player->mPosition.z);
 	newMessage = gMessageFactory->EndMessage();
 	player->getClient()->SendChannelA(newMessage,player->getAccountId(),CR_Chat,2);
 }

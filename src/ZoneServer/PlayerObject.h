@@ -173,11 +173,11 @@ class PlayerObject : public CreatureObject
 		int8				getHomePlanet(){ return mHomePlanet; }
 		void				setHomePlanet(int8 planetId){ mHomePlanet = planetId; }
 
-		Anh_Math::Vector3	getBindCoords(){ return mBindCoords; }
-		void				setBindCoords(const Anh_Math::Vector3 coords){ mBindCoords = coords; }
+		const glm::vec3&	getBindCoords(){ return mBindCoords; }
+		void				setBindCoords(const glm::vec3& coords){ mBindCoords = coords; }
 
-		Anh_Math::Vector3	getHomeCoords(){ return mHomeCoords; }
-		void				setHomeCoords(const Anh_Math::Vector3 coords){ mHomeCoords = coords; }
+		const glm::vec3&	getHomeCoords(){ return mHomeCoords; }
+		void				setHomeCoords(const glm::vec3& coords){ mHomeCoords = coords; }
 
 		// UI Windows
 		void				handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window);
@@ -319,7 +319,7 @@ class PlayerObject : public CreatureObject
 								 
 
 		// cloning
-		void				clone(uint64 parentId,Anh_Math::Quaternion dir,Anh_Math::Vector3 pos, bool preDesignatedFacility=false);
+		void				clone(uint64 parentId, const glm::quat& dir, const glm::vec3& pos, bool preDesignatedFacility=false);
 		void				setPreDesignatedCloningFacilityId(uint64 cloningId);
 		uint64				getPreDesignatedCloningFacilityId(void);
 		void				saveNearestCloningFacility(BuildingObject* nearestCloningFacility);
@@ -395,8 +395,8 @@ class PlayerObject : public CreatureObject
 		string				mMarriage;
 		string				mTitle;
 
-		Anh_Math::Vector3	mBindCoords;
-		Anh_Math::Vector3	mHomeCoords;
+		glm::vec3 mBindCoords;
+		glm::vec3 mHomeCoords;
 
 		uint32				mPlayerMatch[4];
 

@@ -44,10 +44,10 @@ class ForagePocket
 public:
 	ForagePocket::ForagePocket(PlayerObject* player, ZoneTree* mSI)
 	{
-		region = mSI->getQTRegion(player->mPosition.mX,player->mPosition.mZ);
+		region = mSI->getQTRegion(player->mPosition.z,player->mPosition.z);
 
-		innerRect = Anh_Math::Rectangle(player->mPosition.mX - 10,player->mPosition.mZ - 10,20,20);
-		outterRect = Anh_Math::Rectangle(player->mPosition.mX - 30,player->mPosition.mZ - 30,60,60);
+		innerRect = Anh_Math::Rectangle(player->mPosition.x - 10,player->mPosition.z - 10,20,20);
+		outterRect = Anh_Math::Rectangle(player->mPosition.x - 30,player->mPosition.z - 30,60,60);
 
 		pNext = NULL;
 	}

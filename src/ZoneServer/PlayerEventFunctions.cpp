@@ -75,7 +75,7 @@ void PlayerObject::onSurvey(const SurveyEvent* event)
 		mHam.updatePropertyValue(HamBar_Mind,HamProperty_CurrentHitpoints, -(int)mindCost);
 
 		// this is 0, if resource is not located
-		if(highestDist.position.mY == 5.0)
+		if(highestDist.position.y == 5.0)
 		{
 			WaypointObject*	waypoint = datapad->getWaypointByName("Resource Survey");
 
@@ -96,7 +96,7 @@ void PlayerObject::onSurvey(const SurveyEvent* event)
 				//gMessageLib->sendSystemMessage(this,L"","survey","survey_waypoint");
 			}
 			//the datapad automatically checks if there is room and gives the relevant error message
-			datapad->requestNewWaypoint("Resource Survey",Anh_Math::Vector3(highestDist.position.mX,0.0f,highestDist.position.mZ),static_cast<uint16>(gWorldManager->getZoneId()),Waypoint_blue);
+			datapad->requestNewWaypoint("Resource Survey",Anh_Math::Vector3(highestDist.position.x,0.0f,highestDist.position.z),static_cast<uint16>(gWorldManager->getZoneId()),Waypoint_blue);
 						
 
 			gMissionManager->checkSurveyMission(this,resource,highestDist);
@@ -179,7 +179,7 @@ void PlayerObject::onSample(const SampleEvent* event)
 
 	string					effect			= gWorldManager->getClientEffect(tool->getInternalAttribute<uint32>("sample_effect"));
 	bool					foundSameType	= false;
-	float					ratio			= (resource->getDistribution((int)mPosition.mX + 8192,(int)mPosition.mZ + 8192));
+	float					ratio			= (resource->getDistribution((int)mPosition.x + 8192,(int)mPosition.z + 8192));
 	int32					surveyMod		= getSkillModValue(SMod_surveying);
 	uint32					sampleAmount	= 0;
 	ObjectSet::iterator	it					= mKnownObjects.begin();

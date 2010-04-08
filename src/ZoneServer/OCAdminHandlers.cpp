@@ -78,7 +78,7 @@ void ObjectController::_handleAdminWarpSelf(uint64 targetId,Message* message,Obj
 			if(x < -8192 || x > 8192 || z < -8192 || z > 8192)
 				break;
 
-			gWorldManager->warpPlanet(player,Anh_Math::Vector3(static_cast<float>(x),0.0f,static_cast<float>(z)),0);
+            gWorldManager->warpPlanet(player, glm::vec3(static_cast<float>(x),0.0f,static_cast<float>(z)),0);
 		}
 		return;
 
@@ -97,14 +97,14 @@ void ObjectController::_handleAdminWarpSelf(uint64 targetId,Message* message,Obj
 			// warp on this planet
 			if(static_cast<uint32>(planetId) == gWorldManager->getZoneId())
 			{
-				gWorldManager->warpPlanet(player,Anh_Math::Vector3(static_cast<float>(x),0.0f,static_cast<float>(z)),0);
+                gWorldManager->warpPlanet(player, glm::vec3(static_cast<float>(x),0.0f,static_cast<float>(z)),0);
 			}
 			// zone transfer request
 			else
 			{
 				gMessageLib->sendSystemMessage(player,L"Requesting zone transfer...");
 
-				gMessageLib->sendClusterZoneTransferRequestByPosition(player,Anh_Math::Vector3(static_cast<float>(x),0.0f,static_cast<float>(z)),planetId);
+                gMessageLib->sendClusterZoneTransferRequestByPosition(player, glm::vec3(static_cast<float>(x),0.0f,static_cast<float>(z)),planetId);
 			}
 		}
 		return;

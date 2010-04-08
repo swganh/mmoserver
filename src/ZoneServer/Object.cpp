@@ -33,8 +33,8 @@ Object::Object()
 , mDataTransformCounter(0)
 , mMovementMessageToggle(true)
 {
-	mDirection = Anh_Math::Quaternion();
-	mPosition  = Anh_Math::Vector3();
+    mDirection = glm::quat();
+    mPosition  = glm::vec3();
 
 	mObjectController.setObject(this);
 }

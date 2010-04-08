@@ -286,9 +286,9 @@ bool StructureManager::checkCampRadius(PlayerObject* player)
 	Anh_Math::Rectangle mQueryRect;
 	if(!subZoneId)
 	{
-		mQTRegion	= gWorldManager->getSI()->getQTRegion(player->mPosition.mX,player->mPosition.mZ);
+		mQTRegion	= gWorldManager->getSI()->getQTRegion(player->mPosition.x,player->mPosition.z);
 		subZoneId	= (uint32)mQTRegion->getId();
-		mQueryRect	= Anh_Math::Rectangle(player->mPosition.mX - width,player->mPosition.mZ - height,width * 2,height * 2);
+		mQueryRect	= Anh_Math::Rectangle(player->mPosition.x - width,player->mPosition.z - height,width * 2,height * 2);
 	}
 
 	RegionObject*	object;
@@ -333,9 +333,9 @@ bool StructureManager::checkCityRadius(PlayerObject* player)
 	Anh_Math::Rectangle mQueryRect;
 	if(!subZoneId)
 	{
-		mQTRegion	= gWorldManager->getSI()->getQTRegion(player->mPosition.mX,player->mPosition.mZ);
+		mQTRegion	= gWorldManager->getSI()->getQTRegion(player->mPosition.x,player->mPosition.z);
 		subZoneId	= (uint32)mQTRegion->getId();
-		mQueryRect	= Anh_Math::Rectangle(player->mPosition.mX - width,player->mPosition.mZ - height,width * 2,height * 2);
+		mQueryRect	= Anh_Math::Rectangle(player->mPosition.x - width,player->mPosition.z - height,width * 2,height * 2);
 	}
 
 	RegionObject*	object;
@@ -380,9 +380,9 @@ bool StructureManager::checkinCamp(PlayerObject* player)
 	Anh_Math::Rectangle mQueryRect;
 	if(!subZoneId)
 	{
-		mQTRegion	= gWorldManager->getSI()->getQTRegion(player->mPosition.mX,player->mPosition.mZ);
+		mQTRegion	= gWorldManager->getSI()->getQTRegion(player->mPosition.x,player->mPosition.z);
 		subZoneId	= (uint32)mQTRegion->getId();
-		mQueryRect	= Anh_Math::Rectangle(player->mPosition.mX - width,player->mPosition.mZ - height,width * 2,height * 2);
+		mQueryRect	= Anh_Math::Rectangle(player->mPosition.x - width,player->mPosition.z - height,width * 2,height * 2);
 	}
 
 	RegionObject*	object;
@@ -509,7 +509,7 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 
 			//is the structure in Range??? - otherwise stop updating
 			float fTransferDistance = gWorldConfig->getConfiguration("Player_Structure_Operate_Distance",(float)20.0);
-			if(player->mPosition.inRange2D(structure->mPosition,fTransferDistance))
+            if(glm::distance(player->mPosition, structure->mPosition) < fTransferDistance)
 			{
 				structure->getTTS()->projectedTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 5000;
 				addStructureforHopperUpdate(structure->getId());
@@ -613,9 +613,9 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 			if(structure->getPlayerStructureFamily() == PlayerStructure_House)
 			{
 				float x,y,z;
-				x = structure->mPosition.mX+7;
-				y = structure->mPosition.mY+1;
-				z = structure->mPosition.mZ+7;
+				x = structure->mPosition.x+7;
+				y = structure->mPosition.y+1;
+				z = structure->mPosition.z+7;
 				PlayerStructure* sign = gNonPersistantObjectFactory->requestBuildingSignObject(x,y,z,player,"sign","sign_name",structure->getCustomName());
 				HouseObject* house = dynamic_cast<HouseObject*>(structure);
 				house->setSign(sign);

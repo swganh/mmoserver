@@ -90,8 +90,8 @@ class NonPersistentNpcFactory : public FactoryBase
 										   uint64 creatureTemplateId,
 										   uint64 npcNewId,
 										   uint64 spawnCellId,
-										   Anh_Math::Vector3 spawnPosition,
-										   Anh_Math::Quaternion	spawnDirection,
+										   const glm::vec3& spawnPosition,
+										   const glm::quat&	spawnDirection,
 										   uint64 respawnDelay,
 										   uint64 parentLairId = 0);
 

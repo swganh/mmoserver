@@ -24,9 +24,9 @@ namespace Anh_Math
 		public:
 
 			Rectangle() : Shape(),mWidth(0.0f),mHeight(0.0f){}
-			Rectangle(Vector3 lowPosition,float width,float height) : Shape(lowPosition),mWidth(width),mHeight(height){}
-			Rectangle(float lowX,float lowZ,float width,float height) : Shape(lowX,0.0f,lowZ),mWidth(width),mHeight(height){}
-			virtual ~Rectangle(){}
+            Rectangle(const glm::vec3& lowPosition, float width, float height) : Shape(lowPosition),mWidth(width),mHeight(height){}
+			Rectangle(float lowX, float lowZ, float width, float height) : Shape(lowX,0.0f,lowZ),mWidth(width),mHeight(height){}
+			virtual ~Rectangle() {}
 
 			float	getWidth(){ return mWidth; }
 			float	getHeight(){ return mHeight; }

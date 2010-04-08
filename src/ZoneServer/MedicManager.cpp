@@ -57,7 +57,7 @@ bool MedicManager::Diagnose(PlayerObject* Medic, PlayerObject* Target)
 	
 	float distance = gWorldConfig->getConfiguration("Player_heal_distance",(float)6.0);
 
-	if(Medic->mPosition.distance2D(Target->mPosition) > distance)
+    if(glm::distance(Medic->mPosition, Target->mPosition) > distance)
 	{
 		gMessageLib->sendSystemMessage(Medic,L"","healing_response","healing_response_b7");
 		return false;
@@ -230,7 +230,7 @@ bool MedicManager::HealDamage(PlayerObject* Medic, CreatureObject* Target, uint6
 
 	float distance = gWorldConfig->getConfiguration("Player_heal_distance",(float)6.0);
 
-	if(Medic->mPosition.distance2D(Target->mPosition) > distance)
+    if(glm::distance(Medic->mPosition, Target->mPosition) > distance)
 	{
 		gLogger->logMsg("Heal Target is out of range", FOREGROUND_RED);
 		gMessageLib->sendSystemMessage(Medic,L"","healing","no_line_of_sight");
@@ -449,7 +449,7 @@ bool MedicManager::HealDamageRanged(PlayerObject* Medic, CreatureObject* Target,
 
 	float distance = gWorldConfig->getConfiguration("Player_heal_distance",(float)32.0);
 
-	if(Medic->mPosition.distance2D(Target->mPosition) > distance)
+    if(glm::distance(Medic->mPosition, Target->mPosition) > distance)
 	{
 		gLogger->logMsg("Heal Target is out of range", FOREGROUND_RED);
 		gMessageLib->sendSystemMessage(Medic,L"","healing","no_line_of_sight");

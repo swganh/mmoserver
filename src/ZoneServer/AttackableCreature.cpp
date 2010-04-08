@@ -935,7 +935,7 @@ void AttackableCreature::handleEvents(void)
 			if (this->getParentId() == 0)
 			{
 				// Heightmap only works outside.
-				newPosition.mY = getHeightAt2DPosition(newPosition.mX, newPosition.mZ, true);
+				newPosition.y = getHeightAt2DPosition(newPosition.x, newPosition.z, true);
 				this->updatePosition(this->getParentId(), newPosition);
 			}
 		}
@@ -1687,7 +1687,7 @@ void AttackableCreature::spawn(void)
 	}
 	else
 	{
-		if (QTRegion* region = gWorldManager->getSI()->getQTRegion(this->mPosition.mX, this->mPosition.mZ))
+		if (QTRegion* region = gWorldManager->getSI()->getQTRegion(this->mPosition.x, this->mPosition.z))
 		{
 			this->setSubZoneId((uint32)region->getId());
 			region->mTree->addObject(this);
@@ -1757,10 +1757,10 @@ void AttackableCreature::setupStalking(uint64 updatePeriodTime)
 		if (attacker)
 		{
 			// Update the direction of the npc in the world.
-			this->setDirection(attacker->mPosition.mX - this->mPosition.mX, attacker->mPosition.mZ - this->mPosition.mZ);
+			this->setDirection(attacker->mPosition.x - this->mPosition.x, attacker->mPosition.z - this->mPosition.z);
 			if (this->isStalker())
 			{
-				// gLogger->logMsgF("Npc stalking target %s at %.0f, %.0f, %.0f", MSG_NORMAL, attacker->getFirstName().getAnsi(), destination.mX, destination.mY, destination.mZ);
+				// gLogger->logMsgF("Npc stalking target %s at %.0f, %.0f, %.0f", MSG_NORMAL, attacker->getFirstName().getAnsi(), destination.x, destination.y, destination.z);
 				// gLogger->logMsgF("AttackableCreature::setupStalking of target %s", MSG_NORMAL, attacker->getFirstName().getAnsi());
 
 				this->disableHoming();
@@ -1774,9 +1774,9 @@ void AttackableCreature::setupStalking(uint64 updatePeriodTime)
 				// float steps = (distanceToMove * 1000)/(this->getStalkerSpeed() * activeDefaultPeriodTime);
 				float steps = (distanceToMove * 1000)/(this->getStalkerSpeed() * updatePeriodTime);
 
-				float xOffset = (destination.mX - this->mPosition.mX) / steps;
-				float yOffset = (destination.mY - this->mPosition.mY) / steps;
-				float zOffset = (destination.mZ - this->mPosition.mZ) / steps;
+				float xOffset = (destination.x - this->mPosition.x) / steps;
+				float yOffset = (destination.y - this->mPosition.y) / steps;
+				float zOffset = (destination.z - this->mPosition.z) / steps;
 
 				// Check if we will end up outside given area.
 				// We have to be able to move towards a target outside our stalking range.
@@ -1789,14 +1789,14 @@ void AttackableCreature::setupStalking(uint64 updatePeriodTime)
 					steps = (distanceToMove * 1000)/(this->getStalkerSpeed() * updatePeriodTime);
 
 					destination = this->mPosition;
-					destination.mX = steps * xOffset;
-					destination.mY = steps * yOffset;
-					destination.mZ = steps * zOffset;
-					// gLogger->logMsgF("Npc stalking target %s at LIMIT %.0f, %.0f, %.0f", MSG_NORMAL, attacker->getFirstName().getAnsi(), destination.mX, destination.mY, destination.mZ);
+					destination.x = steps * xOffset;
+					destination.y = steps * yOffset;
+					destination.z = steps * zOffset;
+					// gLogger->logMsgF("Npc stalking target %s at LIMIT %.0f, %.0f, %.0f", MSG_NORMAL, attacker->getFirstName().getAnsi(), destination.x, destination.y, destination.z);
 				}
 				else
 				{
-					// gLogger->logMsgF("Npc stalking target %s at %.0f, %.0f, %.0f", MSG_NORMAL, attacker->getFirstName().getAnsi(), destination.mX, destination.mY, destination.mZ);
+					// gLogger->logMsgF("Npc stalking target %s at %.0f, %.0f, %.0f", MSG_NORMAL, attacker->getFirstName().getAnsi(), destination.x, destination.y, destination.z);
 				}
 
 				this->setDestination(destination);
@@ -1838,12 +1838,12 @@ void AttackableCreature::setupRoaming(int32 maxRangeX, int32 maxRangeZ)
 			destination = getRandomPosition(mPosition, 2*maxRangeX, 2*maxRangeZ);
 		}
 	}
-	// gLogger->logMsgF("Npc going to %.0f, %.0f, %.0f", MSG_NORMAL, destination.mX, destination.mY, destination.mZ);
+	// gLogger->logMsgF("Npc going to %.0f, %.0f, %.0f", MSG_NORMAL, destination.x, destination.y, destination.z);
 
 	setDestination(destination);
 
 	// Update the direction of the npc in the world.
-	setDirection(destination.mX - mPosition.mX, destination.mZ - mPosition.mZ);
+	setDirection(destination.x - mPosition.x, destination.z - mPosition.z);
 
 	// How many updates do we have to do before npc is at new target position?
 	float distanceToMove = mPosition.distance2D(destination);
@@ -1859,9 +1859,9 @@ void AttackableCreature::setupRoaming(int32 maxRangeX, int32 maxRangeZ)
 		steps = distanceToMove/getRoamingSpeed();
 	}
 
-	float xOffset = (destination.mX - mPosition.mX) / steps;
-	float yOffset = (destination.mY - mPosition.mY) / steps;
-	float zOffset = (destination.mZ - mPosition.mZ) / steps;
+	float xOffset = (destination.x - mPosition.x) / steps;
+	float yOffset = (destination.y - mPosition.y) / steps;
+	float zOffset = (destination.z - mPosition.z) / steps;
 
 	setRoamingSteps((int32)steps);
 
@@ -1953,9 +1953,9 @@ void AttackableCreature::stalk()
 					// This our final move.
 					// When we attack, we want to stay a little bit from our target. (true until we start using ranged)
 					Anh_Math::Vector3 positionOffset = this->getPositionOffset();
-					positionOffset.mX /= 1.50;
-					positionOffset.mY /= 1.50;
-					positionOffset.mZ /= 1.50;
+					positionOffset.x /= 1.50;
+					positionOffset.y /= 1.50;
+					positionOffset.z /= 1.50;
 
 					// Save the offset for each movement request.
 					this->setPositionOffset(positionOffset);
@@ -2105,8 +2105,8 @@ void AttackableCreature::respawn(void)
 	float maxSpawnDistance = parent->getMaxSpawnDistance();
 	if (maxSpawnDistance != 0.0)
 	{
-		position.mX = (position.mX - maxSpawnDistance) + (float)(gRandom->getRand() % (int32)(maxSpawnDistance + maxSpawnDistance));
-		position.mZ = (position.mZ - maxSpawnDistance) + (float)(gRandom->getRand() % (int32)(maxSpawnDistance + maxSpawnDistance));
+		position.x = (position.x - maxSpawnDistance) + (float)(gRandom->getRand() % (int32)(maxSpawnDistance + maxSpawnDistance));
+		position.z = (position.z - maxSpawnDistance) + (float)(gRandom->getRand() % (int32)(maxSpawnDistance + maxSpawnDistance));
 
 		// Give them a random dir.
 		this->setRandomDirection();
@@ -2119,10 +2119,10 @@ void AttackableCreature::respawn(void)
 	if (this->getParentId() == 0)
 	{
 		// Heightmap only works outside.
-		position.mY = this->getHeightAt2DPosition(position.mX, position.mZ, true);
+		position.y = this->getHeightAt2DPosition(position.x, position.z, true);
 	}
 
-	// gLogger->logMsgF("Setting up spawn of creature at %.0f %.0f %.0f", MSG_NORMAL, position.mX, position.mY, position.mZ);
+	// gLogger->logMsgF("Setting up spawn of creature at %.0f %.0f %.0f", MSG_NORMAL, position.x, position.y, position.z);
 	this->mHomePosition = position;
 	this->mPosition = position;
 

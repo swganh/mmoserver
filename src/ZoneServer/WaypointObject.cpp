@@ -18,7 +18,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 WaypointObject::WaypointObject() : Object()
 {
 	mType = ObjType_Waypoint;
-	mCoords = Anh_Math::Vector3();
+    mCoords = glm::vec3();
 	mActive = false;
 	mName = L"";
 	mWPType = Waypoint_blue;

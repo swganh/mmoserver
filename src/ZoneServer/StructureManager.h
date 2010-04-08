@@ -173,10 +173,8 @@ struct StructureItemTemplate
 	string				name;
 	string				file;
 
-	Anh_Math::Vector3	mPosition;
-	Anh_Math::Vector3	mDirection;
-
-	float			dw;
+	glm::vec3	mPosition;
+	glm::quat	mDirection;
 };
 
 typedef		std::vector<StructureDeedLink*>		DeedLinkList;

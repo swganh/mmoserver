@@ -81,14 +81,14 @@ void  WorldManager::initPlayersInRange(Object* object,PlayerObject* player)
 
 			if(!object->getParentId())
 			{
-				qRect = Anh_Math::Rectangle(object->mPosition.mX - viewingRange,object->mPosition.mZ - viewingRange,viewingRange * 2,viewingRange * 2);
+				qRect = Anh_Math::Rectangle(object->mPosition.x - viewingRange,object->mPosition.z - viewingRange,viewingRange * 2,viewingRange * 2);
 			}
 			else
 			{
 				CellObject*		cell		= dynamic_cast<CellObject*>(getObjectById(object->getParentId()));
 				BuildingObject* building	= dynamic_cast<BuildingObject*>(getObjectById(cell->getParentId()));
 
-				qRect = Anh_Math::Rectangle(building->mPosition.mX - viewingRange,building->mPosition.mZ - viewingRange,viewingRange * 2,viewingRange * 2);
+				qRect = Anh_Math::Rectangle(building->mPosition.x - viewingRange,building->mPosition.z - viewingRange,viewingRange * 2,viewingRange * 2);
 			}
 
 			region->mTree->getObjectsInRange(object,&inRangeObjects,ObjType_Player,&qRect);
@@ -148,8 +148,8 @@ void WorldManager::savePlayer(uint32 accId,bool remove, WMLogOut mLogout, Charac
 
 		// position save will be called by the buff callback if there is any buff
 		mDatabase->ExecuteSqlAsync(this,asyncContainer,"UPDATE characters SET parent_id=%"PRIu64",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f,planet_id=%u,jedistate=%u WHERE id=%"PRIu64"",playerObject->getParentId()
-							,playerObject->mDirection.mX,playerObject->mDirection.mY,playerObject->mDirection.mZ,playerObject->mDirection.mW
-							,playerObject->mPosition.mX,playerObject->mPosition.mY,playerObject->mPosition.mZ
+							,playerObject->mDirection.x,playerObject->mDirection.y,playerObject->mDirection.z,playerObject->mDirection.w
+							,playerObject->mPosition.x,playerObject->mPosition.y,playerObject->mPosition.z
 							,mZoneId,playerObject->getJediState(),playerObject->getId());
 	}
 
@@ -164,8 +164,8 @@ void WorldManager::savePlayerSync(uint32 accId,bool remove)
 	Ham* ham = playerObject->getHam();
 
 	mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE characters SET parent_id=%"PRIu64",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f,planet_id=%u WHERE id=%"PRIu64"",playerObject->getParentId()
-						,playerObject->mDirection.mX,playerObject->mDirection.mY,playerObject->mDirection.mZ,playerObject->mDirection.mW
-						,playerObject->mPosition.mX,playerObject->mPosition.mY,playerObject->mPosition.mZ
+						,playerObject->mDirection.x,playerObject->mDirection.y,playerObject->mDirection.z,playerObject->mDirection.w
+						,playerObject->mPosition.x,playerObject->mPosition.y,playerObject->mPosition.z
 						,mZoneId,playerObject->getId()));
 
 	mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE character_attributes SET health_current=%u,action_current=%u,mind_current=%u"
@@ -345,7 +345,7 @@ void WorldManager::removePlayerFromDisconnectedList(PlayerObject* playerObject)
 // wide range move on the same planet
 //
 
-void WorldManager::warpPlanet(PlayerObject* playerObject,Anh_Math::Vector3 destination,uint64 parentId,Anh_Math::Quaternion direction)
+void WorldManager::warpPlanet(PlayerObject* playerObject, const glm::vec3& destination, uint64 parentId, const glm::quat& direction)
 {
 	// remove player from objects in his range.
 	removePlayerMovementUpdateTime(playerObject);
@@ -420,7 +420,7 @@ void WorldManager::warpPlanet(PlayerObject* playerObject,Anh_Math::Vector3 desti
 	}
 	else
 	{
-		if(QTRegion* region = mSpatialIndex->getQTRegion(playerObject->mPosition.mX,playerObject->mPosition.mZ))
+		if(QTRegion* region = mSpatialIndex->getQTRegion(playerObject->mPosition.x,playerObject->mPosition.z))
 		{
 			playerObject->setSubZoneId((uint32)region->getId());
 			region->mTree->addObject(playerObject);

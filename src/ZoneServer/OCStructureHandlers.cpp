@@ -1210,8 +1210,8 @@ void	ObjectController::_handleItemRotationRight90(uint64 targetId,Message* messa
 		return;
 	}
 	
+    object->mDirection = glm::gtc::quaternion::rotate(object->mDirection, 90, object->mPosition);
 	
-	object->mDirection.rotatex(90);
 	gMessageLib->sendDataTransformWithParent(object);
 	object->updateWorldPosition();
 	
@@ -1265,7 +1265,7 @@ void	ObjectController::_handleItemRotationLeft90(uint64 targetId,Message* messag
 	}
 	
 	
-	object->mDirection.rotatex(-90);
+    object->mDirection = glm::gtc::quaternion::rotate(object->mDirection, -90, object->mPosition);
 	gMessageLib->sendDataTransformWithParent(object);
 	object->updateWorldPosition();
 	
@@ -1332,13 +1332,13 @@ void	ObjectController::_handleItemRotation(uint64 targetId,Message* message,Obje
 	
 	if(strcmp(direction,"left") == 0)
 	{
-		object->mDirection.rotatex(-(float) degrees);
+        object->mDirection = glm::gtc::quaternion::rotate(object->mDirection, -static_cast<float>(degrees), object->mPosition);
 		gMessageLib->sendDataTransformWithParent(object);
 	}
 
 	if(strcmp(direction,"right") == 0)
 	{
-		object->mDirection.rotatex((float) degrees);
+        object->mDirection = glm::gtc::quaternion::rotate(object->mDirection, static_cast<float>(degrees), object->mPosition);
 		gMessageLib->sendDataTransformWithParent(object);
 	}
 

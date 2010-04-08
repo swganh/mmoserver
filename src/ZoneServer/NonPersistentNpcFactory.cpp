@@ -46,8 +46,8 @@ class QueryNonPersistentNpcFactory
 									 uint64 templateId,
 									 uint64 id,
 									 uint64 spawnCellId,
-									 Anh_Math::Vector3 spawnPosition,
-									 Anh_Math::Quaternion spawnDirection,
+                                     const glm::vec3& spawnPosition,
+                                     const glm::quat& spawnDirection,
 									 uint64	respawnDelay,
 									 uint64 parentLairId) :
 									mOfCallback(ofCallback),
@@ -65,8 +65,8 @@ class QueryNonPersistentNpcFactory
 		uint64					mTemplateId;
 		uint64					mId;
 		uint64					mSpawnCellId;
-		Anh_Math::Vector3		mSpawnPosition; 
-		Anh_Math::Quaternion	mSpawnDirection;
+        glm::vec3		mSpawnPosition; 
+        glm::quat	mSpawnDirection;
 		uint64					mRespawnDelay;
 		uint64					mParentObjectId;
 };

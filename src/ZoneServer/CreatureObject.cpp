@@ -819,7 +819,7 @@ void CreatureObject::die()
 					// TODO: This code is not working as intended if player dies inside, since buildings use world coordinates and players inside have cell coordinates.
 					// Tranformation is needed before the correct distance can be calculated.
 					if(!nearestBuilding	||
-					   (nearestBuilding != building && (mPosition.distance2D(building->mPosition) < mPosition.distance2D(nearestBuilding->mPosition))))
+                        (nearestBuilding != building && (glm::distance(mPosition, building->mPosition) < glm::distance(mPosition, nearestBuilding->mPosition))))
 					{
 						nearestBuilding = building;
 					}
@@ -1096,7 +1096,7 @@ uint64 CreatureObject::getNearestDefender(void)
 			CreatureObject* defender = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById((*it)));
 			if (defender && !defender->isDead() && !defender->isIncapacitated())
 			{
-				float len = (this->mPosition - defender->mPosition).getLength();
+                float len = glm::distance(this->mPosition, defender->mPosition);
 				if (len < minLenght)
 				{
 					minLenght = len;
@@ -1132,7 +1132,7 @@ uint64 CreatureObject::getNearestAttackingDefender(void)
 			{
 				if ((defender->getCreoGroup() == CreoGroup_Player) || (defender->getCreoGroup() == CreoGroup_Creature))
 				{
-					float len = (this->mPosition - defender->mPosition).getLength();
+                    float len = glm::distance(this->mPosition, defender->mPosition);
 					if (len < minLenght)
 					{
 						minLenght = len;

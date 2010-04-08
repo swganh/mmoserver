@@ -282,7 +282,7 @@ PlayerObject::~PlayerObject()
 			if(building && building->getBuildingFamily() == BuildingFamily_Cloning_Facility)
 			{
 				if(!nearestBuilding
-				|| (nearestBuilding != building && (mPosition.distance2D(building->mPosition) < mPosition.distance2D(nearestBuilding->mPosition))))
+                    || (nearestBuilding != building && (glm::distance(mPosition, building->mPosition) < glm::distance(mPosition, nearestBuilding->mPosition))))
 				{
 					nearestBuilding = building;
 				}
@@ -516,7 +516,7 @@ void PlayerObject::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8
 
 		}
 		// start watching
-		else if(playerObject->mPosition.inRange2D(mPosition,20))
+        else if(glm::distance(playerObject->mPosition, mPosition) < 20)
 		{
 			radial->addItem(radId++,0,radId_serverPerformanceWatch,radAction_ObjCallback,"Watch");
 		}
@@ -530,7 +530,7 @@ void PlayerObject::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8
 			radial->addItem(radId++,0,radId_serverPerformanceListenStop,radAction_ObjCallback,"Stop Listening");
 		}
 		// start listening
-		else if(playerObject->mPosition.inRange2D(mPosition,20))
+        else if(glm::distance(playerObject->mPosition, mPosition) < 20)
 		{
 			radial->addItem(radId++,0,radId_serverPerformanceListen,radAction_ObjCallback,"Listen");
 

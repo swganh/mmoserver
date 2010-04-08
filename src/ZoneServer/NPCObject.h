@@ -86,7 +86,7 @@ class NPCObject : public CreatureObject
 		void			setPositionOffset(const glm::vec3& positionOffset) {mPositionOffset = positionOffset;}
 		const glm::vec3&	getPositionOffset() const {return mPositionOffset;}
 
-		const glm::vec3& getRandomPosition(const glm::vec3& currentPos, int32 offsetX, int32 offsetZ) const;
+		glm::vec3       getRandomPosition(const glm::vec3& currentPos, int32 offsetX, int32 offsetZ) const;
 		float			getHeightAt2DPosition(float xPos, float zPos, bool bestOffer = false) const;
 		void			setDirection(float deltaX, float deltaZ);
 

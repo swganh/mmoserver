@@ -40,6 +40,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include "Utils/rand.h"
 #include <cstdio>
+#include <glm/gtx/random.hpp>
 
 //======================================================================================================================
 
@@ -1033,7 +1034,11 @@ MissionObject* MissionManager::generateDestroyMission(MissionObject* mission, ui
 	//Position
 	//int radius = 500; //500m radius
 	Location destination;
-	destination.Coordinates = mission->getOwner()->mPosition.new2DVectorNRadius(500);
+    
+    glm::vec3 new_vector = glm::gtx::random::vecRand3(50.0f, 500.0f);
+    new_vector.y = 0;
+
+	destination.Coordinates = mission->getOwner()->mPosition + new_vector;
 	destination.CellID = 0;
 	destination.PlanetCRC = BString(gWorldManager->getPlanetNameThis()).getCrc();
 
@@ -1465,7 +1470,11 @@ MissionObject* MissionManager::generateReconMission(MissionObject* mission)
 	//Position
 	//int radius = 500; //500m radius
 	Location destination;
-	destination.Coordinates = mission->getOwner()->mPosition.new2DVectorNRadius(500);
+
+    glm::vec3 new_vector = glm::gtx::random::vecRand3(50.0f, 500.0f);
+    new_vector.y = 0;
+
+	destination.Coordinates = mission->getOwner()->mPosition + new_vector;
 	destination.CellID = 0;
 	destination.PlanetCRC = BString(gWorldManager->getPlanetNameThis()).getCrc();
 	mission->setDestination(destination);

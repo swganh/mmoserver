@@ -930,7 +930,7 @@ void AttackableCreature::handleEvents(void)
 		if (!gWorldConfig->isTutorial())
 		{
 			// make a final position update, reading the heightmap, since we may have been "on the move" and y-axis is not correct.
-			Anh_Math::Vector3 newPosition(this->mPosition);
+            glm::vec3 newPosition(this->mPosition);
 
 			if (this->getParentId() == 0)
 			{
@@ -1765,8 +1765,8 @@ void AttackableCreature::setupStalking(uint64 updatePeriodTime)
 
 				this->disableHoming();
 
-				float distanceToMove = this->mPosition.distance2D(attacker->mPosition);
-				Anh_Math::Vector3 destination = attacker->mPosition;
+                float distanceToMove = glm::distance(this->mPosition, attacker->mPosition);
+                glm::vec3 destination = attacker->mPosition;
 
 				// Save attackers pos, since we may have to redefine the destination in case of out of allowed distance.
 				this->mStalkingTargetDestination = attacker->mPosition;
@@ -1780,11 +1780,11 @@ void AttackableCreature::setupStalking(uint64 updatePeriodTime)
 
 				// Check if we will end up outside given area.
 				// We have to be able to move towards a target outside our stalking range.
-				if (attacker->mPosition.distance2D(this->getHomePosition()) >= this->getStalkerDistanceMax())
+                if (glm::distance(attacker->mPosition, this->getHomePosition()) >= this->getStalkerDistanceMax())
 				{
 					// Yes, we have to change the destination.
 					// The total distance we may move is from here to the stalker max distance.
-					distanceToMove = this->getStalkerDistanceMax() - (this->mPosition.distance2D(this->getHomePosition()));
+                    distanceToMove = this->getStalkerDistanceMax() - (glm::distance(this->mPosition, this->getHomePosition()));
 					// steps = distanceToMove/npc->getStalkerSpeed();
 					steps = (distanceToMove * 1000)/(this->getStalkerSpeed() * updatePeriodTime);
 
@@ -1803,8 +1803,7 @@ void AttackableCreature::setupStalking(uint64 updatePeriodTime)
 				this->setStalkerSteps((int32)steps);
 
 				// Save the offset for each movement request.
-				Anh_Math::Vector3 positionOffset(xOffset, yOffset, zOffset);
-				this->setPositionOffset(positionOffset);
+                this->setPositionOffset(glm::vec3(xOffset, yOffset, zOffset));
 			}
 		}
 	}
@@ -1818,10 +1817,10 @@ void AttackableCreature::setupStalking(uint64 updatePeriodTime)
 void AttackableCreature::setupRoaming(int32 maxRangeX, int32 maxRangeZ)
 {
 	// Get a target position
-	Anh_Math::Vector3 destination;
+    glm::vec3 destination;
 
 	// If we already outside roaming area, get back home. We may get here when we stalk other objects.
-	if (mPosition.distance2D(getHomePosition()) >= getRoamingDistanceMax())
+    if (glm::distance(mPosition, getHomePosition()) >= getRoamingDistanceMax())
 	{
 		// gLogger->logMsgF("NPC is outside roaming area, going home.", MSG_NORMAL);
 		enableHoming();
@@ -1832,7 +1831,7 @@ void AttackableCreature::setupRoaming(int32 maxRangeX, int32 maxRangeZ)
 	{
 		// Verify that we don't roam outside given area.
 		destination = getRandomPosition(mPosition, 2*maxRangeX, 2*maxRangeZ);
-		while (getHomePosition().distance2D(destination) > getRoamingDistanceMax())
+        while (glm::distance(getHomePosition(), destination) > getRoamingDistanceMax())
 		{
 			// gLogger->logMsgF("Trying to find a position in range", MSG_NORMAL);
 			destination = getRandomPosition(mPosition, 2*maxRangeX, 2*maxRangeZ);
@@ -1846,7 +1845,7 @@ void AttackableCreature::setupRoaming(int32 maxRangeX, int32 maxRangeZ)
 	setDirection(destination.x - mPosition.x, destination.z - mPosition.z);
 
 	// How many updates do we have to do before npc is at new target position?
-	float distanceToMove = mPosition.distance2D(destination);
+    float distanceToMove = glm::distance(mPosition, destination);
 
 	// Dirty hack
 	float steps;
@@ -1866,8 +1865,7 @@ void AttackableCreature::setupRoaming(int32 maxRangeX, int32 maxRangeZ)
 	setRoamingSteps((int32)steps);
 
 	// Calculate and save the offset for each movement request.
-	Anh_Math::Vector3 positionOffset(xOffset, yOffset, zOffset);
-	setPositionOffset(positionOffset);
+    setPositionOffset(glm::vec3(xOffset, yOffset, zOffset));
 }
 
 
@@ -1878,7 +1876,7 @@ bool AttackableCreature::atStalkLimit() const
 	// Are we supposed to do any stalking?
 	if (this->isStalker())
 	{
-		float distanceToStalkerLimit = this->getStalkerDistanceMax() - (this->mPosition.distance2D(this->getHomePosition()));
+        float distanceToStalkerLimit = this->getStalkerDistanceMax() - (glm::distance(this->mPosition, this->getHomePosition()));
 		if (distanceToStalkerLimit <= 2.0)
 		{
 			atLimit = true;
@@ -1892,7 +1890,7 @@ bool AttackableCreature::insideRoamingLimit() const
 {
 	bool atLimit = false;
 
-	float distance = this->getRoamingDistanceMax() - (this->mPosition.distance2D(this->getHomePosition()));
+    float distance = this->getRoamingDistanceMax() - (glm::distance(this->mPosition, this->getHomePosition()));
 	if (distance < 0.0)
 	{
 		atLimit = true;
@@ -1904,7 +1902,7 @@ bool AttackableCreature::targetOutsideRoamingLimit(void) const
 {
 	bool atLimit = false;
 
-	float distance = this->getRoamingDistanceMax() - (this->getTarget()->mPosition.distance2D(this->getHomePosition()));
+    float distance = this->getRoamingDistanceMax() - (glm::distance(this->getTarget()->mPosition, this->getHomePosition()));
 	if (distance < 0)
 	{
 		atLimit = true;
@@ -1933,7 +1931,7 @@ void AttackableCreature::stalk()
 			// This will never be true when we are reaching the stalk limit, since the npc->position is not the attackers position.
 
 			// if ((attacker->mPosition == this->getDestination()) == false)
-			if ((attacker->mPosition == this->mStalkingTargetDestination) == false)
+            if (glm::all(glm::equal(attacker->mPosition, this->mStalkingTargetDestination)) == false)
 			{
 				// Our target may have moved...
 				// gLogger->logMsgF("NpcManager::stalk() Attacker has moved.", MSG_NORMAL);
@@ -1952,7 +1950,7 @@ void AttackableCreature::stalk()
 				{
 					// This our final move.
 					// When we attack, we want to stay a little bit from our target. (true until we start using ranged)
-					Anh_Math::Vector3 positionOffset = this->getPositionOffset();
+                    glm::vec3 positionOffset = this->getPositionOffset();
 					positionOffset.x /= 1.50;
 					positionOffset.y /= 1.50;
 					positionOffset.z /= 1.50;
@@ -2061,7 +2059,7 @@ void AttackableCreature::respawn(void)
 	this->setParentId(getCellIdForSpawn());
 
 	// Default spawn position.
-	Anh_Math::Vector3 position(getSpawnPosition());
+    glm::vec3 position(getSpawnPosition());
 
 	// Get parent object (lair), if any.
 	NPCObject* parent = dynamic_cast<NPCObject*>(gWorldManager->getObjectById(this->getLairId()));

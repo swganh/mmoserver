@@ -178,7 +178,7 @@ TangibleObject* NonPersistantObjectFactory::spawnTangible(StructureItemTemplate*
 	tangible->mDirection.y = placableTemplate->mDirection.y;
 	tangible->mDirection.z = placableTemplate->mDirection.z;
 
-	tangible->mDirection.w = placableTemplate->dw;
+	tangible->mDirection.w = placableTemplate->mDirection.w;
 
 	tangible->setName(placableTemplate->name.getAnsi());
 	tangible->setNameFile(placableTemplate->file.getAnsi());
@@ -225,7 +225,7 @@ CampTerminal* NonPersistantObjectFactory::spawnTerminal(StructureItemTemplate* p
 	terminal->mDirection.y = placableTemplate->mDirection.y;
 	terminal->mDirection.z = placableTemplate->mDirection.z;
 
-	terminal->mDirection.w = placableTemplate->dw;
+	terminal->mDirection.w = placableTemplate->mDirection.w;
 
 	terminal->setName(deedData->stf_name.getAnsi());
 	terminal->setNameFile(deedData->stf_file.getAnsi());

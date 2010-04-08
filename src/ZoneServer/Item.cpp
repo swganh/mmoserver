@@ -91,14 +91,14 @@ void Item::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 		{
 			case radId_itemRotateRight:
 			{
-				this->mDirection.rotatex(10);
+                this->mDirection = glm::gtc::quaternion::rotate(this->mDirection, 10, this->mPosition);
 				gMessageLib->sendDataTransform(this);
 			}
 			break;
 
 			case radId_itemRotateLeft:
 			{
-				this->mDirection.rotatex(-10);
+                this->mDirection = glm::gtc::quaternion::rotate(this->mDirection, -10, this->mPosition);
 				gMessageLib->sendDataTransform(this);
 			}
 			break;

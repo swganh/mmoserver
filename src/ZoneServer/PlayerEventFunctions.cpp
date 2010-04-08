@@ -33,6 +33,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include "utils/rand.h"
 
+#include <algorithm>
+
 //=============================================================================
 //
 // survey event
@@ -96,7 +98,7 @@ void PlayerObject::onSurvey(const SurveyEvent* event)
 				//gMessageLib->sendSystemMessage(this,L"","survey","survey_waypoint");
 			}
 			//the datapad automatically checks if there is room and gives the relevant error message
-			datapad->requestNewWaypoint("Resource Survey",Anh_Math::Vector3(highestDist.position.x,0.0f,highestDist.position.z),static_cast<uint16>(gWorldManager->getZoneId()),Waypoint_blue);
+            datapad->requestNewWaypoint("Resource Survey", glm::vec3(highestDist.position.x,0.0f,highestDist.position.z),static_cast<uint16>(gWorldManager->getZoneId()),Waypoint_blue);
 						
 
 			gMissionManager->checkSurveyMission(this,resource,highestDist);
@@ -267,7 +269,7 @@ void PlayerObject::onSample(const SampleEvent* event)
 	if(getSampleData()->mSampleNodeFlag)
 	{
 		//we need to be in a 5m radius of the node
-		if(this->mPosition.distance2D(this->getSampleData()->Position) <= 5.0)
+        if(glm::distance(this->mPosition, this->getSampleData()->Position) <= 5.0)
 		{
 			ratio	= 100.0;
 			dieRoll = 200;
@@ -366,7 +368,7 @@ void PlayerObject::onSample(const SampleEvent* event)
 			if(dieRoll == 200) 
 			{
 				sampleAmount = (static_cast<uint32>(3*maxSample));
-				sampleAmount = max(sampleAmount,1);
+                sampleAmount = std::max(sampleAmount,static_cast<uint>(1));
 				gMessageLib->sendSystemMessage(this,L"","survey","node_recovery");
 				getSampleData()->mSampleEventFlag = false;
 				getSampleData()->mSampleNodeFlag = false;
@@ -378,7 +380,7 @@ void PlayerObject::onSample(const SampleEvent* event)
 				{
 					gMessageLib->sendSystemMessage(this,L"","survey","gamble_success");
 					sampleAmount = (static_cast<uint32>(3*maxSample));
-					sampleAmount = max(sampleAmount,1);
+                    sampleAmount = std::max(sampleAmount, static_cast<uint>(1));
 					getSampleData()->mSampleGambleFlag = false;
 					getSampleData()->mSampleEventFlag = false;
 				}
@@ -386,7 +388,7 @@ void PlayerObject::onSample(const SampleEvent* event)
 				{
 				//CRITICAL SUCCESS
 					sampleAmount = (static_cast<uint32>(2*maxSample));
-					sampleAmount = max(sampleAmount,1);
+                    sampleAmount = std::max(sampleAmount, static_cast<uint>(1));
 					gMessageLib->sendSystemMessage(this,L"","survey","critical_success","","",resName);
 				}
 			} 
@@ -394,7 +396,7 @@ void PlayerObject::onSample(const SampleEvent* event)
 			{
 				//NORMAL SUCCESS
 				sampleAmount = (static_cast<uint32>(floor(static_cast<float>((maxSample-minSample)*(dieRoll-failureChance)/(90-failureChance)+minSample))));         // floor == round down, so 9.9 == 9
-				sampleAmount = max(sampleAmount,1);
+                sampleAmount = std::max(sampleAmount, static_cast<uint>(1));
 				gMessageLib->sendSystemMessage(this,L"","survey","sample_located","","",resName,sampleAmount);
 			}
 		}
@@ -649,7 +651,7 @@ void PlayerObject::onInjuryTreatment(const InjuryTreatmentEvent* event)
 	uint64 foodbuff = NULL;
 
 	// Make it at least 4 seconds.
-	uint64 cooldown = max(4, delay);
+    uint64 cooldown = std::max(4, delay);
 
 	//If they don't have it, no need to continue.
 	if(!this->checkPlayerCustomFlag(PlayerCustomFlag_InjuryTreatment))

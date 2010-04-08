@@ -74,9 +74,9 @@ NPCObject::~NPCObject()
 //	Returns a new random position given the rectangle of +- offsetX and +- offsetY.
 //
 
-Anh_Math::Vector3 NPCObject::getRandomPosition(const Anh_Math::Vector3& currentPos, int32 offsetX, int32 offsetZ) const
+glm::vec3 NPCObject::getRandomPosition(const glm::vec3& currentPos, int32 offsetX, int32 offsetZ) const
 {
-	Anh_Math::Vector3 v(currentPos);
+    glm::vec3 v(currentPos);
 
 	// TODO: Validate map bounderies.
 	v.x = (float)(v.x - (offsetX/2)) + gRandom->getRand() % (int)(offsetX+1);
@@ -188,7 +188,7 @@ void NPCObject::setDirection(float deltaX, float deltaZ)
 
 void NPCObject::moveAndUpdatePosition(void)
 {
-	Anh_Math::Vector3 position(this->mPosition);
+    glm::vec3 position(this->mPosition);
 
 	if (!Heightmap::isHeightmapCacheAvaliable())
 	{
@@ -211,7 +211,7 @@ void NPCObject::moveAndUpdatePosition(void)
 //	Update npc position in game world.
 //
 
-void NPCObject::updatePosition(uint64 parentId, Anh_Math::Vector3 newPosition)
+void NPCObject::updatePosition(uint64 parentId, const glm::vec3& newPosition)
 {
 	// gLogger->logMsgF("NPCObject::updatePosition: update NPC position)", MSG_NORMAL);
 

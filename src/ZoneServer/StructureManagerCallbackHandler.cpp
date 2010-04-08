@@ -476,7 +476,7 @@ void StructureManager::_HandleQueryLoadDeedData(StructureManagerAsyncContainer* 
 {
 	StructureDeedLink* deedLink;
 
-	DataBinding* binding = mDatabase->CreateDataBinding(11);
+	DataBinding* binding = mDatabase->CreateDataBinding(12);
 	binding->addField(DFT_uint32,offsetof(StructureDeedLink,structure_type),4,0);
 	binding->addField(DFT_uint32,offsetof(StructureDeedLink,item_type),4,1);
 	binding->addField(DFT_uint32,offsetof(StructureDeedLink,skill_Requirement),4,2);
@@ -488,6 +488,7 @@ void StructureManager::_HandleQueryLoadDeedData(StructureManagerAsyncContainer* 
 	binding->addField(DFT_uint32,offsetof(StructureDeedLink,repair_cost),4,8);
 	binding->addField(DFT_uint32,offsetof(StructureDeedLink,length), 4, 9);
 	binding->addField(DFT_uint32,offsetof(StructureDeedLink,width), 4, 10);
+	binding->addField(DFT_uint64,offsetof(StructureDeedLink,placementMask), 8, 11);
 
 	uint64 count;
 	count = result->getRowCount();

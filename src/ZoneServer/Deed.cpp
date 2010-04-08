@@ -84,7 +84,7 @@ void Deed::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 						return;
 					}
 
-					//check available Lots
+					//check available Lots and remove ... grml
 					if(!player->useLots(data->requiredLots))
 					{
 						gMessageLib->sendSystemMessage(player, L"","player_structure","not_enough_lots","","",L"",data->requiredLots);
@@ -93,12 +93,24 @@ void Deed::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
 					//TODO
 					//check for city boundaries
-					//player->togglePlayerCustomFlagOn(PlayerCustomFlag_StructurePlacement);	
-
-					gMessageLib->sendEnterStructurePlacement(this,data->structureObjectString,player);
-					//sadly the client wont inform us when the player hit escape
 					
-					gStructureManager->UpdateCharacterLots(player->getId());
+					//check if were allowed to build that structure on this planet
+					if((data->placementMask&gWorldManager->getZoneId()) == gWorldManager->getZoneId())
+					{
+						//sadly the client wont inform us when the player hit escape
+						gMessageLib->sendEnterStructurePlacement(this,data->structureObjectString,player);
+						gStructureManager->UpdateCharacterLots(player->getId());
+					}
+					else
+					{
+						//we cannot differ whether its a no build planet
+						//or just the house type isnt permitted here
+						//wrong_planet 
+						//not_permitted
+						gMessageLib->sendSystemMessage(player, L"","player_structure","wrong_planet","","",L"",data->requiredLots);
+						gStructureManager->UpdateCharacterLots(player->getId());
+						return;
+					}
 
 				}
 			}

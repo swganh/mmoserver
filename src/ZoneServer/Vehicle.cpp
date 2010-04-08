@@ -271,6 +271,7 @@ void Vehicle::dismountPlayer()
 
 	mBody->toggleStateOff(CreatureState_MountedCreature);
 	mOwner->toggleStateOff(CreatureState_RidingMount);
+	mOwner->setPosture(CreaturePosture_Upright);
 	gMessageLib->sendStateUpdate(mBody);
 	gMessageLib->sendStateUpdate(mOwner);
 
@@ -304,6 +305,7 @@ void Vehicle::mountPlayer()
 
 	mOwner->toggleStateOn(CreatureState_RidingMount);
 	mBody->toggleStateOn(CreatureState_MountedCreature);
+	mOwner->setPosture(CreaturePosture_DrivingVehicle);
 	gMessageLib->sendStateUpdate(mOwner);
 	gMessageLib->sendStateUpdate(mBody);
 

@@ -183,7 +183,7 @@ bool MessageLib::sendBaselinesHINO_7(HarvesterObject* harvester,PlayerObject* pl
 
 	ResourceList::iterator resourceIt = resourceList.begin();
 
-	while(resourceIt != resourceList.end())
+	while(resourceIt != resourceList.end() && (*resourceIt) != NULL)
 	{
 		Resource* tmpResource = (*resourceIt);
 
@@ -202,7 +202,7 @@ bool MessageLib::sendBaselinesHINO_7(HarvesterObject* harvester,PlayerObject* pl
 
 	resourceIt = resourceList.begin();
 
-	while(resourceIt != resourceList.end())
+	while(resourceIt != resourceList.end() && (*resourceIt) != NULL)
 	{
 		Resource* tmpResource = (*resourceIt);
 
@@ -220,7 +220,7 @@ bool MessageLib::sendBaselinesHINO_7(HarvesterObject* harvester,PlayerObject* pl
 	
 	resourceIt = resourceList.begin();
 
-	while(resourceIt != resourceList.end())
+	while(resourceIt != resourceList.end() && (*resourceIt) != NULL)
 	{
 		Resource* tmpResource = (*resourceIt);
 		mMessageFactory->addString(tmpResource->getName().getAnsi());
@@ -237,7 +237,7 @@ bool MessageLib::sendBaselinesHINO_7(HarvesterObject* harvester,PlayerObject* pl
 
 	resourceIt = resourceList.begin();
 
-	while(resourceIt != resourceList.end())
+	while(resourceIt != resourceList.end() && (*resourceIt) != NULL)
 	{
 		Resource* tmpResource = (*resourceIt);	
 		mMessageFactory->addString((tmpResource->getType())->getDescriptor().getAnsi());
@@ -602,7 +602,6 @@ void MessageLib::sendHarvesterResourceData(PlayerStructure* structure,PlayerObje
 
 	ResourceCategory*	mainCat = gResourceManager->getResourceCategoryById(harvester->getResourceCategory());
 	ResourceList		resourceList;
-	ResourceList		filtredResList;
 
 	float posX, posZ, ratio;
 
@@ -623,7 +622,7 @@ void MessageLib::sendHarvesterResourceData(PlayerStructure* structure,PlayerObje
 	ResourceList::iterator resourceIt = resourceList.begin();
 	
 	//browse ressource and get only those with more than 0%
-	while(resourceIt != resourceList.end())
+	while(resourceIt != resourceList.end() && (*resourceIt) != NULL)
 	{
 		Resource* tmpResource = (*resourceIt);
 	
@@ -637,20 +636,25 @@ void MessageLib::sendHarvesterResourceData(PlayerStructure* structure,PlayerObje
 		{
 			ratio	= (cR->getDistribution((int)posX + 8192,(int)posZ + 8192)*100);
 		}
-		//push ressources to filtered list
-		if(ratio > 0)
+		//remove 0% resources from the list
+		if(ratio <= 0)
 		{
-			filtredResList.push_back(tmpResource);
+			resourceIt = resourceList.erase(resourceIt);
+			
 		}
-		++resourceIt;
+		else
+		{
+			++resourceIt;
+		}
 	}
+	//Send ressource data size
+	mMessageFactory->addUint32(resourceList.size());
 
-	mMessageFactory->addUint32(filtredResList.size());
-
-	ResourceList::iterator filtredResIt = filtredResList.begin();
-	while (filtredResIt != filtredResList.end())
+	//Reloop across resource list cause list size have to be sent before ressource data
+	resourceIt = resourceList.begin();
+	while (resourceIt != resourceList.end() && (*resourceIt) != NULL)
 	{
-		Resource* tmpResource = (*filtredResIt);
+		Resource* tmpResource = (*resourceIt);
 		CurrentResource* cR = reinterpret_cast<CurrentResource*>(tmpResource);
 		ratio	= (cR->getDistribution((int)posX + 8192,(int)posZ + 8192)*100);
 		if(ratio>100)
@@ -661,7 +665,7 @@ void MessageLib::sendHarvesterResourceData(PlayerStructure* structure,PlayerObje
 		mMessageFactory->addString(tmpResource->getName());
 		mMessageFactory->addString((tmpResource->getType())->getDescriptor());
 		mMessageFactory->addUint8((uint8)ratio);
-		++filtredResIt;
+		++resourceIt;
 	}
 	(player->getClient())->SendChannelA(mMessageFactory->EndMessage(), player->getAccountId(),CR_Client,4);
 }

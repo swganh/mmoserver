@@ -636,8 +636,8 @@ void MessageLib::sendHarvesterResourceData(PlayerStructure* structure,PlayerObje
 		{
 			ratio	= (cR->getDistribution((int)posX + 8192,(int)posZ + 8192)*100);
 		}
-		//remove 0% resources from the list
-		if(ratio <= 0)
+		//remove less than 1% resources from the list
+		if(ratio < 1)
 		{
 			resourceIt = resourceList.erase(resourceIt);
 			

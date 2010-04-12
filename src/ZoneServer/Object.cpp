@@ -18,6 +18,9 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Common/MessageFactory.h"
 #include "DatabaseManager/Database.h"
 
+#include <glm/gtx/fast_trigonometry.hpp>
+
+using namespace glm::gtx;
 
 //=============================================================================
 
@@ -71,6 +74,52 @@ Object::~Object()
 }
 
 //=============================================================================
+
+glm::vec3 Object::getWorldPosition() const
+{
+    const Object* root_parent = getRootParent();
+
+    // Is this object the root? If so it's position is the world position.
+    if (this == root_parent) {
+        return mPosition;
+    }
+
+    // Get the length of the object's vector inside  the root parent (generally a building).
+    float length = glm::length(mPosition);
+
+    // Determine the translation angle.
+    float theta = quaternion::angle(root_parent->mDirection) - fast_trigonometry::fastAtan(mPosition.x, mPosition.z);
+
+    glm::vec3 world_position;
+
+    // Calculate the object's position relative to root parent's position in the world.
+    world_position.x = root_parent->mPosition.x + (sin(theta) * length);
+    world_position.z = root_parent->mPosition.z - (cos(theta) * length);
+    world_position.y = root_parent->mPosition.y + mPosition.y;
+
+    return world_position;				
+}
+
+//=============================================================================
+
+// @TODO: This is a dependency on WorldManager that could be avoided by having an
+//        Object instance hold a reference to it's parent.
+const Object* Object::getRootParent() const
+{
+    // If there's no parent id then this is the root object.
+    if (! getParentId()) {
+        return this;
+    }
+
+    // Otherwise get the parent for this object and call getRootParent on it.
+    Object* parent = gWorldManager->getObjectById(getParentId());
+    assert(parent && "Unable to find root parent in WorldManager");
+
+    return parent->getRootParent();
+}
+
+//=============================================================================
+
 
 bool Object::removeKnownObject(Object* object)
 {

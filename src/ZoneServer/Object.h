@@ -112,7 +112,7 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 		bool						checkKnownObjects(Object* object) const;
 
 		RadialMenuPtr				getRadialMenu(){ return mRadialMenu; }
-		virtual void				ResetRadialMenu(){;}//	RadialMenu* radial	= NULL;RadialMenuPtr radialPtr(radial);	mRadialMenu = radialPtr;}
+        virtual void				ResetRadialMenu() {}//	RadialMenu* radial	= NULL;RadialMenuPtr radialPtr(radial);	mRadialMenu = radialPtr;}
 
 		virtual void				handleUIEvent(uint32 action,int32 element,string inputStr = "",UIWindow* window = NULL) {}
 
@@ -166,6 +166,19 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 
 		
 		virtual ~Object();
+
+        /*! Retrieve the world position of an object. Important for ranged lookups that need
+         *  to include objects inside and outside of buildings.
+         *
+         * \returns glm::vec3 The world position of an object.
+         */
+        glm::vec3 getWorldPosition() const;
+
+        /*! Returns the current object's root parent. If the object is the root it returns itself.
+         *
+         * \returns const Object* Root parent for the current object.
+         */
+        const Object* getRootParent() const;
 
         glm::quat   mDirection;
         glm::vec3   mPosition;

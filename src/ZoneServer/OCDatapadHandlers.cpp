@@ -133,7 +133,7 @@ void ObjectController::_handleSetWaypointActiveStatus(uint64 targetId,Message* m
 // waypoint request from the commandline
 //
 
-void ObjectController::_handleWaypoint(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
+void ObjectController::_handleWaypoint(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties)
 {
 	PlayerObject*	player			= dynamic_cast<PlayerObject*>(mObject);
 	Datapad*		datapad			= dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
@@ -150,6 +150,8 @@ void ObjectController::_handleWaypoint(uint64 targetId,Message* message,ObjectCo
     //  [SYNTAX] /waypoint <x> <z> or /waypoint <x> <y> <z>
     message->getStringUnicode16(waypoint_data);
 
+    // Check and see if any parameters were passed to the /waypoint command. For
+    // immediate purposes the length can be used to tell if anything or nothing was passed.
     if (waypoint_data.getLength()) {
         int count = swscanf(waypoint_data.getUnicode16(), L"%f %f %f", &waypoint_position.x, &waypoint_position.y, &waypoint_position.z);
 

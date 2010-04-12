@@ -84,20 +84,18 @@ glm::vec3 Object::getWorldPosition() const
         return mPosition;
     }
 
-    // Get the length of the object's vector inside  the root parent (generally a building).
+    // Get the length of the object's vector inside the root parent (generally a building).
     float length = glm::length(mPosition);
 
     // Determine the translation angle.
     float theta = quaternion::angle(root_parent->mDirection) - fast_trigonometry::fastAtan(mPosition.x, mPosition.z);
 
-    glm::vec3 world_position;
-
-    // Calculate the object's position relative to root parent's position in the world.
-    world_position.x = root_parent->mPosition.x + (sin(theta) * length);
-    world_position.z = root_parent->mPosition.z - (cos(theta) * length);
-    world_position.y = root_parent->mPosition.y + mPosition.y;
-
-    return world_position;				
+    // Calculate and return the object's position relative to root parent's position in the world.
+    return glm::vec3(
+        root_parent->mPosition.x + (sin(theta) * length),
+        root_parent->mPosition.y + mPosition.y,
+        root_parent->mPosition.z - (cos(theta) * length)
+        );				
 }
 
 //=============================================================================

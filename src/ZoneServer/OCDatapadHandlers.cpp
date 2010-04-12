@@ -36,7 +36,9 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Common/Message.h"
 #include "Common/MessageFactory.h"
 
+#include <glm/gtx/fast_trigonometry.hpp>
 
+using namespace glm::gtx;
 
 //======================================================================================================================
 //
@@ -183,9 +185,9 @@ void ObjectController::_handleWaypoint(uint64 targetId,Message* message,ObjectCo
 			{
 				if(!(player->getParentId()))
 				{
-					x = (int32)player->mPosition.x;
-					y = (int32)player->mPosition.y;
-					z = (int32)player->mPosition.z;
+					x = static_cast<int32>(player->mPosition.x);
+					y = static_cast<int32>(player->mPosition.y);
+					z = static_cast<int32>(player->mPosition.z);
 				}
 				else
 				{
@@ -199,135 +201,17 @@ void ObjectController::_handleWaypoint(uint64 targetId,Message* message,ObjectCo
 					if(building == NULL)
 						return;
 
-					// Well, this is only half the job. We need to add our position inside the building too.
-					// As a starter, let's get the orientation of the building.
+                    // Get the length of the vector inside building.
+                    float length = glm::length(player->mPosition);
 
-					// Anh_Math::Quaternion	direction(building->mDirection);
-					// Anh_Math::Vector3		position(building->mPosition);
+                    // Determine the translation angle.
+                    float theta = quaternion::angle(building->mDirection) - fast_trigonometry::fastAtan(player->mPosition.x, player->mPosition.z);
 
-					// Get the length of the vector inside building.
-					float length = sqrt((player->mPosition.x * player->mPosition.x) + (player->mPosition.z * player->mPosition.z));
-					
-					// Get the angle to the object.
-					// float alpha = atan(player->mPosition.x/player->mPosition.z);
-					float alpha = atan(player->mPosition.x/player->mPosition.z);
+                    // Calculate the player position relative to building position.
+                    x = static_cast<int32>(building->mPosition.x + (sin(theta) * length));
+                    z = static_cast<int32>(building->mPosition.z - (cos(theta) * length));
+                    y = static_cast<int32>(building->mPosition.y + player->mPosition.y);
 
-					if (alpha < 0.0f)
-					{
-						if (player->mPosition.x > 0.0f)
-						{
-							// add 180
-							alpha += 3.1415936539f;
-						}
-					}
-					else
-					{
-						if (player->mPosition.x < 0.0f)
-						{
-							// add 180
-							alpha += 3.1415936539f;
-						}
-					}
-					
-					// gLogger->logMsgF("Player %d",MSG_NORMAL, (int32)((alpha / (2.0f * 3.1415936539f)) * 360));
-
-
-					// Now get the angle of the building.
-					float wDir = building->mDirection.w;
-					// float yDir = 1.0f;
-
-					if (wDir > 0.0f)
-					{
-						if (building->mDirection.y < 0.0)
-						{
-							wDir *= -1.0f;
-							// yDir = -1.0f;
-						}
-					}
-
-					float angle = 2.0f*acos(wDir);
-					// gLogger->logMsgF("Building: %d",MSG_NORMAL, (int32)((angle / (2.0f * 3.1415936539f)) * 360));
-
-					angle -= alpha;
-
-					if (angle > (2.0f * 3.1415936539f))
-					{
-						angle -= (2.0f * 3.1415936539f);
-					}
-					else if (angle < 0.0f)
-					{
-						angle += (2.0f * 3.1415936539f);
-					}
-
-					// gLogger->logMsgF("In world: %d",MSG_NORMAL, (int32)((angle / (2.0f * 3.1415936539f)) * 360));
-
-					// gLogger->logMsgF("Player pos: %.1f, %.1f", MSG_NORMAL, player->mPosition.x, player->mPosition.z);
-
-					// gLogger->logMsgF("Base pos: %.0f, %.0f", MSG_NORMAL, building->mPosition.x, building->mPosition.z);
-
-					float xDelta = building->mPosition.x;
-					float zDelta = building->mPosition.z;
-
-					if (angle <= 3.1415936539/2.0)
-					{
-						xDelta += (sin(angle) * length);
-						zDelta -= (cos(angle) * length);
-					}
-					else if (angle <= 3.1415936539f)
-					{
-						angle = (float)(3.1415936539) - angle;
-						xDelta += (sin(angle) * length);
-						zDelta += (cos(angle) * length);
-					}
-					else if (angle <= (float)((3.0 * 3.1415936539)/2.0))
-					{
-						angle = angle - (float)(3.1415936539f);
-						xDelta -= (sin(angle) * length);
-						zDelta += (cos(angle) * length);
-					}
-					else
-					{
-						angle = (float)(2.0 * 3.1415936539) - angle;
-						xDelta -= (sin(angle) * length);
-						zDelta -= (cos(angle) * length);
-					}
-
-					// gLogger->logMsgF("Delta pos: %.0f, %.0f", MSG_NORMAL, xDelta, zDelta);
-					
-					if (xDelta > 0.0f )
-					{
-						// x = (int32)(ceil(xDelta));
-						x = (int32)(xDelta + 0.5f);
-					}
-					else
-					{
-						// x = (int32)(floor(xDelta));
-						x = (int32)(xDelta - 0.5f);
-					}
-
-
-					if ((player->mPosition.y + building->mPosition.y) > 0.0f)
-					{
-						// y = (int32)(ceil(player->mPosition.y));
-						y = (int32)(player->mPosition.y + building->mPosition.y + 0.5f);
-					}
-					else
-					{
-						// y = (int32)(floor(player->mPosition.y));
-						y = (int32)(player->mPosition.y + building->mPosition.y - 0.5f);
-					}
-
-					if (zDelta > 0.0f )
-					{
-						// z = (int32)(ceil(zDelta));
-						z = (int32)(zDelta + 0.5f);
-					}
-					else
-					{
-						// z = (int32)(floor(zDelta));
-						z = (int32)(zDelta - 0.5f);
-					}
-					// gLogger->logMsgF("Position is: %d, %d", MSG_NORMAL, x, z);
 				}
 
 				verified = true;

@@ -36,10 +36,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Common/Message.h"
 #include "Common/MessageFactory.h"
 
-#include <glm/gtx/fast_trigonometry.hpp>
-
-using namespace glm::gtx;
-
 //======================================================================================================================
 //
 // waypoint request from datapad and planetmap
@@ -141,132 +137,48 @@ void ObjectController::_handleWaypoint(uint64 targetId,Message* message,ObjectCo
 {
 	PlayerObject*	player			= dynamic_cast<PlayerObject*>(mObject);
 	Datapad*		datapad			= dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
-	string			name;
-	int32			x,y,z;
-	uint32			elementCount	= 0;
-	bool			verified		= false;
-
-	
+	string			waypoint_data;
+    glm::vec3       waypoint_position;
 					
-	if(!datapad->getCapacity())
-	{
-		gMessageLib->sendSystemMessage(player,L"","base_player","too_many_waypoints");
+    // Before anything else verify the datapad can hold another waypoint.
+	if(! datapad->getCapacity()) {
+		gMessageLib->sendSystemMessage(player, L"", "base_player", "too_many_waypoints");
 		return;
 	}
+
+    // Read in any waypoint data that may have been sent:
+    //  [SYNTAX] /waypoint <x> <z> or /waypoint <x> <y> <z>
+    message->getStringUnicode16(waypoint_data);
+
+    if (waypoint_data.getLength()) {
+        int count = swscanf(waypoint_data.getUnicode16(), L"%i %i %i", &waypoint_position.x, &waypoint_position.y, &waypoint_position.z);
+
+        // If there are an invalid number of items then disregard and notify the player of the correct
+        // format for the /waypoint command.
+        if (count < 2 || count > 3) {
+            gMessageLib->sendSystemMessage(player,L"[SYNTAX] /waypoint <x> <z> or /waypoint <x> <y> <z>");
+            return;
+        }
+
+        // If the item count is 2 it means no y value was set in the /waypoint command so
+        // update the waypoint_position data values accordingly.
+        if (count == 2) {
+            waypoint_position.z = waypoint_position.y;
+            waypoint_position.y = 0;
+        }
+
+        // Validate the position values.
+        if (waypoint_position.x < -8192 || waypoint_position.x > 8192 ||
+            waypoint_position.y < -500 || waypoint_position.y > 500 ||
+            waypoint_position.z < -8192 || waypoint_position.z > 8192) {
+		    gMessageLib->sendSystemMessage(player, L"[SYNTAX] Invalid range for /waypoint. x = -8192/8192 y = -500/500 z = -8192/8192");
+            return;
+        }
+    } else {
+        waypoint_position = player->getWorldPosition();
+    }
 					
-
-	// create waypoint for current target, don't care about passed parameters
-	
-	// NOTE by ERU: I don't know why or when this code is to be used.
-	// The code makes it impossible to set a Waypoint unless you untarget everything first.
-	// And you don't even know about that Ticket collector you targeted when you travelled the last time.
-	// And thats why we get the wierd Waypoints 6000 m away...
-	/*
-	if(Object* target = player->getTarget())
-	{
-		x = (int32)target->mPosition.x;
-		y = (int32)target->mPosition.y;
-		z = (int32)target->mPosition.z;
-
-		verified = true;
-	}
-	// create waypoint, no object targeted
-	else
-	*/
-	{
-		message->getStringUnicode16(name);
-
-		if(name.getLength())
-			elementCount = swscanf(name.getUnicode16(),L"%i %i %i",&x,&y,&z);
-
-		switch(elementCount)
-		{
-			case 0:
-			{
-				if(!(player->getParentId()))
-				{
-					x = static_cast<int32>(player->mPosition.x);
-					y = static_cast<int32>(player->mPosition.y);
-					z = static_cast<int32>(player->mPosition.z);
-				}
-				else
-				{
-					CellObject*	cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()));
-
-					if(cell == NULL)
-						return;
-
-					BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()));
-
-					if(building == NULL)
-						return;
-
-                    // Get the length of the vector inside building.
-                    float length = glm::length(player->mPosition);
-
-                    // Determine the translation angle.
-                    float theta = quaternion::angle(building->mDirection) - fast_trigonometry::fastAtan(player->mPosition.x, player->mPosition.z);
-
-                    // Calculate the player position relative to building position.
-                    x = static_cast<int32>(building->mPosition.x + (sin(theta) * length));
-                    z = static_cast<int32>(building->mPosition.z - (cos(theta) * length));
-                    y = static_cast<int32>(building->mPosition.y + player->mPosition.y);
-
-				}
-
-				verified = true;
-			}
-			break;
-
-			case 2:
-			{
-				z = y;
-				y = 0;
-
-				if(x < -8192 || x > 8192)
-					break;
-
-				if(z < -8192 || z > 8192)
-					break;
-
-				verified = true;
-			}
-			break;
-
-			case 3:
-			{
-				if(x < -8192 || x > 8192)
-					break;
-
-				if(y < -500 || y > 500)
-					break;
-
-				if(z < -8192 || z > 8192)
-					break;
-
-				verified = true;
-			}
-			break;
-
-			default:
-			{
-				gMessageLib->sendSystemMessage(player,L"[SYNTAX] /waypoint <x> <z> or /waypoint <x> <y> <z>");
-
-				return;
-			}
-			break;
-		}
-	}
-
-	if(verified)
-	{
-
-        datapad->requestNewWaypoint("Waypoint", glm::vec3((float)x,(float)y,(float)z),static_cast<uint16>(gWorldManager->getZoneId()),Waypoint_blue);
-	}
-	else
-	{
-		gMessageLib->sendSystemMessage(player,L"Error parsing coordinates.");
-	}
+    datapad->requestNewWaypoint("Waypoint", waypoint_position, static_cast<uint16>(gWorldManager->getZoneId()), Waypoint_blue);
 }
 
 //======================================================================================================================

@@ -8,25 +8,10 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
-//#include "CellObject.h"
-//#include "Item.h"
 #include "ObjectController.h"
 #include "ObjectControllerOpcodes.h"
 #include "ObjectControllerCommandMap.h"
 #include "PlayerObject.h"
-//#include "QuadTree.h"
-//#include "QTRegion.h"
-//#include "WorldConfig.h"
-//#include "WorldManager.h"
-//#include "ZoneTree.h"
-
-//#include "MessageLib/MessageLib.h"
-//#include "LogManager/LogManager.h"
-//#include "DatabaseManager/Database.h"
-//#include "DatabaseManager/DataBinding.h"
-//#include "DatabaseManager/DatabaseResult.h"
-//#include "Common/Message.h"
-//#include "Common/MessageFactory.h"
 
 
 //=============================================================================

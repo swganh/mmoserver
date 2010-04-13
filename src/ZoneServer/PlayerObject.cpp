@@ -2071,7 +2071,7 @@ void PlayerObject::setSitting(Message* message)
 {
 	//uint8			currentPosture	= this->getPosture();
 	string			data;
-	float			chairX,chairY,chairZ;
+    glm::vec3       chair_position;
 	uint64			chairCell		= 0;
 	uint32			elementCount	= 0;
 
@@ -2100,20 +2100,20 @@ void PlayerObject::setSitting(Message* message)
 	// sitting on chair
 	if(data.getLength())
 	{
-		elementCount = swscanf(data.getUnicode16(),L"%f,%f,%f,%"WidePRIu64,&chairX,&chairY,&chairZ,&chairCell);
+		elementCount = swscanf(data.getUnicode16(), L"%f,%f,%f,%"WidePRIu64, &chair_position.x, &chair_position.y, &chair_position.z, &chairCell);
 
 		if(elementCount == 4)
 		{
 			// outside
 			if(!chairCell)
 			{
-				if(QTRegion* newRegion = gWorldManager->getSI()->getQTRegion((double)chairX,(double)chairZ))
+				if(QTRegion* newRegion = gWorldManager->getSI()->getQTRegion(chair_position.x, chair_position.z))
 				{
 					// we didnt change so update the old one
 					if((uint32)newRegion->getId() == this->getSubZoneId())
 					{
 						// this also updates the players position
-						newRegion->mTree->updateObject(this,Anh_Math::Vector3(chairX,chairY,chairZ));
+						newRegion->mTree->updateObject(this, chair_position);
 					}
 					else
 					{
@@ -2124,7 +2124,7 @@ void PlayerObject::setSitting(Message* message)
 						}
 
 						// update players position
-						this->mPosition = Anh_Math::Vector3(chairX,chairY,chairZ);
+						this->mPosition = chair_position;
 
 						// put into new
 						this->setSubZoneId((uint32)newRegion->getId());
@@ -2163,7 +2163,7 @@ void PlayerObject::setSitting(Message* message)
 						gLogger->logMsgF("Error adding %"PRIu64" to cell %"PRIu64"",MSG_NORMAL,this->getId(),chairCell);
 				}
 
-				this->mPosition = Anh_Math::Vector3(chairX,chairY,chairZ);
+				this->mPosition = chair_position;
 			}
 
 			//this->mDirection = Anh_Math::Quaternion();

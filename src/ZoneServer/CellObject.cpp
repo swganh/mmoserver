@@ -59,6 +59,7 @@ void CellObject::prepareDestruction()
 			//place the player in the world
 			player->setParentId(0,0xffffffff,player->getKnownPlayers(),true);
 			objIt = cellObjects->erase(objIt);
+			//update db with house position!!!
 		}
 		else
 		if(CreatureObject* pet = dynamic_cast<CreatureObject*>(object))

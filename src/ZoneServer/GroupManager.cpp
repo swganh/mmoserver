@@ -493,8 +493,22 @@ void GroupManager::_processIsmGroupInviteInRangeRequest(Message *message)
 		gLogger->logMsg("GroupManager::_processIsmInviteInRangeRequest player not found");
 		return;
 	}
+	
+	//are we in a structure ?????
+	Anh_Math::Vector3 charTargetPosition = target->mPosition;
+	Anh_Math::Vector3 charSenderPosition = sender->mPosition;
+	
+	//awaiting apathies mathlib!!!!
+	if(target->getParentId())
+	{
+		charTargetPosition = gWorldManager->getPlayerWorldPositionFromBuilding(target);
+	}
+	if(sender->getParentId())
+	{
+		charSenderPosition = gWorldManager->getPlayerWorldPositionFromBuilding(sender);
+	}
 
-	if(sender->mPosition.inRange2D(target->mPosition, 90))
+	if(charSenderPosition.inRange2D(charTargetPosition, 90))
 	{
 		gMessageLib->sendIsmGroupInviteInRangeResponse(sender, target, true);
 	}

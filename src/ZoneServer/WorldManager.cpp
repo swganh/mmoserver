@@ -348,6 +348,34 @@ uint64 WorldManager::GetCurrentGlobalTick()
 }
 
 //======================================================================================================================
+//
+//	Remove player from accountmap
+//
+
+Anh_Math::Vector3		WorldManager::getPlayerWorldPositionFromBuilding(PlayerObject* player)
+{
+	Object* cell = gWorldManager->getObjectById(player->getParentId());
+	if(!cell)
+	{
+		Anh_Math::Vector3 position;
+		return position;
+	}
+	Object* structure = gWorldManager->getObjectById(cell->getParentId());
+	if(!structure)
+	{
+		Anh_Math::Vector3 position;
+		return position;
+	}
+
+	Anh_Math::Vector3 position = player->mPosition;
+	position.mX += structure->mPosition.mX;
+	position.mZ += structure->mPosition.mZ;
+
+	return position;
+
+}
+
+//======================================================================================================================
 //still synch issues to adress with other servers
 //
 

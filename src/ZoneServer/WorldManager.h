@@ -25,6 +25,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include "Utils/TimerCallback.h"
 #include "Utils/typedefs.h"
+#include "Utils/utils.h"
 
 #include <boost/ptr_container/ptr_unordered_map.hpp>
 
@@ -284,6 +285,9 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 
 		// removes player from the current scene, and starts a new one after updating his position
 		void					warpPlanet(PlayerObject* playerObject,Anh_Math::Vector3 destination,uint64 parentId,Anh_Math::Quaternion direction = Anh_Math::Quaternion());
+
+		//gets our current position in the world when we are in a building
+		Anh_Math::Vector3		getPlayerWorldPositionFromBuilding(PlayerObject* playerObject);
 
 		// get a client effect string by its id
 		string					getClientEffect(uint32 effectId){ return mvClientEffects[effectId - 1]; }

@@ -505,32 +505,7 @@ void Object::destroyKnownObjects()
 	ObjectSet::iterator			objIt		= mKnownObjects.begin();
 	PlayerObjectSet::iterator	playerIt	= mKnownPlayers.begin();
 
-	/*
-	ObjectIDSet::iterator IDIt				= mKnownObjectsIDs.begin();
 	
-	while(IDIt != mKnownObjectsIDs.end())
-	{		
-		Object* object = gWorldManager->getObjectById(*IDIt);
-		gLogger->logMsgF("Object::removeKnownObject removing %I64u from %I64u", MSG_NORMAL, object->getId(), this->getId());
-		if(!object)
-		{
-			gLogger->logMsgF("Object::removeKnownObject %I64u couldnt be removed from %I64u - not found", MSG_NORMAL, (*IDIt), this->getId());	
-			(*IDIt)++;
-		}
-		ObjectIDSet::iterator itID = mKnownObjectsIDs.find(object->getId());
-
-		if(itID != mKnownObjectsIDs.end())
-		{
-			mKnownObjectsIDs.erase(itID);
-		}
-		else
-		{
-			gLogger->logMsgF("Object::removeKnownObject %I64u couldnt be removed from %I64u - not found", MSG_NORMAL, object->getId(), this->getId());
-			IDIt++;
-		}		
-	
-	}
-	*/
 	// objects
 	while(objIt != mKnownObjects.end())
 	{

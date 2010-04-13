@@ -57,7 +57,7 @@ void ObjectController::_handleNPCConversationStart(uint64 targetId,Message* mess
 		// not inside same parent, or out of range
 		if(!playerParentId && !npcParentId)
 		{
-			if(!player->mPosition.inRange2D(npc->mPosition,10.0f))
+            if (glm::distance(player->mPosition, npc->mPosition) > 10.0f)
 			{
 				inRange = false;
 			}
@@ -69,7 +69,7 @@ void ObjectController::_handleNPCConversationStart(uint64 targetId,Message* mess
 			uint64 npcBuildingId	= gWorldManager->getObjectById(npcParentId)->getParentId();
 
 			// not inside same building, or out of range
-			if(playerBuildingId != npcBuildingId || !player->mPosition.inRange2D(npc->mPosition,10.0f))
+            if(playerBuildingId != npcBuildingId || (glm::distance(player->mPosition, npc->mPosition) > 10.0f))
 			{
 				inRange = false;
 			}
@@ -78,7 +78,7 @@ void ObjectController::_handleNPCConversationStart(uint64 targetId,Message* mess
 		// we are out of range
 		if(!inRange)
 		{
-			float distance = player->mPosition.distance2D(npc->mPosition.mX, npc->mPosition.mZ);
+            float distance = glm::distance(player->mPosition, npc->mPosition);
 			char buffer[100];
 			sprintf(buffer, "You are out of range (%f m).", distance);
 			string msg(buffer);

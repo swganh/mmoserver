@@ -44,7 +44,7 @@ QTRegion::~QTRegion()
 
 void QTRegion::initTree()
 {
-	mTree = new QuadTree(mPosition.mX,mPosition.mZ,mWidth,mHeight,mQTDepth);
+	mTree = new QuadTree(mPosition.x,mPosition.z,mWidth,mHeight,mQTDepth);
 }
 
 //=============================================================================

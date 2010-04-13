@@ -181,7 +181,7 @@ uint64 ScriptSupport::npcCreate(uint64 templateId) //, uint64 npcPrivateOwnerId,
 	{
 		// Let's create a npc.
 		//gLogger->logMsgF("ScriptSupport::npcCreate Requesting npc from template %"PRIu64" with id = %"PRIu64"", MSG_NORMAL, templateId, npcId);
-		NonPersistentNpcFactory::Instance()->requestNpcObject(this, templateId, npcId, 0, 0, 0, 0);
+        NonPersistentNpcFactory::Instance()->requestNpcObject(this, templateId, npcId, 0, glm::vec3(), glm::quat(), 0);
 	}
 	else
 	{
@@ -222,17 +222,17 @@ void ScriptSupport::npcSpawnPrivate(NPCObject* npc, uint64 npcId, uint64 npcPriv
 
 void ScriptSupport::npcSpawnGeneral(uint64 npcId, uint64 npcPrivateOwnerId, uint64 cellForSpawn, std::string firstname, std::string lastname, float dirY, float dirW, float posX, float posY, float posZ, uint64 respawnDelay) // , uint64 templateId)
 {
-	Anh_Math::Quaternion	direction;
-	Anh_Math::Vector3		position;
+    glm::quat direction;
+    glm::vec3 position;
 
-	direction.mX = 0.0;
-	direction.mY = dirY;
-	direction.mZ = 0.0;
-	direction.mW = dirW;
+	direction.x = 0.0;
+	direction.y = dirY;
+	direction.z = 0.0;
+	direction.w = dirW;
 
-	position.mX = posX;
-	position.mY = posY;
-	position.mZ = posZ;
+	position.x = posX;
+	position.y = posY;
+	position.z = posZ;
 
 	NPCObject* npc = dynamic_cast<NPCObject*>(gWorldManager->getObjectById(npcId));
 	assert(npc);
@@ -290,7 +290,7 @@ void ScriptSupport::npcSpawnGeneral(uint64 npcId, uint64 npcPrivateOwnerId, uint
 	}
 	else
 	{
-		if (QTRegion* region = gWorldManager->getSI()->getQTRegion(npc->mPosition.mX,npc->mPosition.mZ))
+		if (QTRegion* region = gWorldManager->getSI()->getQTRegion(npc->mPosition.x,npc->mPosition.z))
 		{
 			// gLogger->logMsg("ScriptSupport::npcSpawn QTRegion found");
 			npc->setSubZoneId((uint32)region->getId());
@@ -382,14 +382,14 @@ void ScriptSupport::npcMove(NPCObject* npc, float posX, float posY, float posZ)
 	// gLogger->logMsgF("ScriptSupport::npcMove() this = PRId32, NPC is: PRId32",MSG_HIGH, this, mSpawnedNpc);
 
 	// send out position updates to known players
-	npc->updatePosition(npc->getParentId(), Anh_Math::Vector3(posX, posY, posZ));
+    npc->updatePosition(npc->getParentId(), glm::vec3(posX, posY, posZ));
 }
 
 void ScriptSupport::npcMoveToZone(NPCObject* npc, uint64 zoneId, float posX, float posY, float posZ)
 {
 	// gLogger->logMsgF("ScriptSupport::npcMoveToZone() %.0f %.0f %.0f", MSG_NORMAL, posX, posY, posZ);
 	// send out position updates to known players
-	npc->updatePosition(zoneId, Anh_Math::Vector3(posX, posY, posZ));
+	npc->updatePosition(zoneId, glm::vec3(posX, posY, posZ));
 }
 
 
@@ -401,8 +401,8 @@ uint32 ScriptSupport::getZoneId()
 
 void ScriptSupport::npcTestDir(NPCObject* npc, float dirX, float dirZ)
 {
-	npc->mDirection.mX = dirX;
-	npc->mDirection.mZ = dirZ;
+	npc->mDirection.x = dirX;
+	npc->mDirection.x = dirZ;
 }
 
 void ScriptSupport::npcDirection(NPCObject* npc, float deltaX, float deltaZ)
@@ -420,19 +420,19 @@ void ScriptSupport::npcDirection(NPCObject* npc, float deltaX, float deltaZ)
 		// if (x/h < 0.0)
 		if (x < 0.0)
 		{
-			npc->mDirection.mW = static_cast<float>(cos((3.14159354 * 0.5) + 0.5f*acos(-z/h)));
-			npc->mDirection.mY = static_cast<float>(sin((3.14159354 * 0.5) + 0.5f*acos(-z/h)));
+			npc->mDirection.w = static_cast<float>(cos((3.14159354 * 0.5) + 0.5f*acos(-z/h)));
+			npc->mDirection.y = static_cast<float>(sin((3.14159354 * 0.5) + 0.5f*acos(-z/h)));
 		}
 		else
 		{
-			npc->mDirection.mY = sin(0.5f*acos(z/h));
-			npc->mDirection.mW = cos(0.5f*acos(z/h));
+			npc->mDirection.y = sin(0.5f*acos(z/h));
+			npc->mDirection.w = cos(0.5f*acos(z/h));
 		}
 	}
 	else
 	{
-		npc->mDirection.mY = sin(0.5f*asin(x/h));
-		npc->mDirection.mW = cos(0.5f*acos(z/h));
+		npc->mDirection.y = sin(0.5f*asin(x/h));
+		npc->mDirection.w = cos(0.5f*acos(z/h));
 	}
 
 	// send out position updates to known players
@@ -472,12 +472,12 @@ void ScriptSupport::npcFormationPosition(NPCObject* npcMember, float xOffset, fl
 	float length = sqrt((xOffset * xOffset) + (zOffset * zOffset));
 	float alpha = atan(xOffset/zOffset);
 
-	float w = npcMember->mDirection.mW;
+	float w = npcMember->mDirection.w;
 	float y = 1.0;
 
 	if (w > 0.0)
 	{
-		if (npcMember->mDirection.mY < 0.0)
+		if (npcMember->mDirection.y < 0.0)
 		{
 			w *= -1;
 			y = -1.0;
@@ -489,11 +489,11 @@ void ScriptSupport::npcFormationPosition(NPCObject* npcMember, float xOffset, fl
 	// We assume all formation is following the leader, ie. located behind him.
 	angle += static_cast<float>(alpha + 3.1415936539);	// alpha + 180
 
-	Anh_Math::Vector3		positionOffset;
+    glm::vec3 positionOffset;
 
-	positionOffset.mX = (sin(angle) * length);
-	positionOffset.mY = 0;
-	positionOffset.mZ = (cos(angle) * length);
+	positionOffset.x = (sin(angle) * length);
+	positionOffset.y = 0;
+	positionOffset.z = (cos(angle) * length);
 
 	npcMember->setPositionOffset(positionOffset);
 
@@ -509,12 +509,12 @@ void ScriptSupport::npcFormationMoveEx(NPCObject* npc, float posX, float posY, f
 
 	float alpha = atan(xOffset/zOffset);
 
-	float w = npc->mDirection.mW;
+	float w = npc->mDirection.w;
 	float y = 1.0;
 
 	if (w > 0.0)
 	{
-		if (npc->mDirection.mY < 0.0)
+		if (npc->mDirection.y < 0.0)
 		{
 			w *= -1;
 			y = -1.0;
@@ -526,15 +526,15 @@ void ScriptSupport::npcFormationMoveEx(NPCObject* npc, float posX, float posY, f
 	// We assume all formation is following the leader, ie. located behind him.
 	angle += static_cast<float>(alpha + 3.1415936539);	// alpha + 180
 
-	// npc->mPosition.mX = posX + (sin(angle) * length);
-	// npc->mPosition.mY = posY;
-	// npc->mPosition.mZ = posZ + (cos(angle) * length);
+	// npc->mPosition.x = posX + (sin(angle) * length);
+	// npc->mPosition.y = posY;
+	// npc->mPosition.z = posZ + (cos(angle) * length);
 
 	posX += (sin(angle) * length);
 	posZ += (cos(angle) * length);
 
 	// send out position updates to known players
-	npc->updatePosition(npc->getParentId(), Anh_Math::Vector3(posX, posY, posZ));
+    npc->updatePosition(npc->getParentId(), glm::vec3(posX, posY, posZ));
 }
 
 // To be used with "ScriptSupport::npcFormationDirection".
@@ -544,7 +544,7 @@ void ScriptSupport::npcFormationMove(NPCObject* npc, float posX, float posY, flo
 	// npc->mPosition = npc->getPositionOffset();
 
 	// send out position updates to known players
-	npc->updatePosition(npc->getParentId(), Anh_Math::Vector3(posX, posY, posZ) + npc->getPositionOffset());
+    npc->updatePosition(npc->getParentId(), glm::vec3(posX, posY, posZ) + npc->getPositionOffset());
 }
 
 void ScriptSupport::npcClonePosition(NPCObject* npcDest, NPCObject* npcSrc)
@@ -612,14 +612,14 @@ void ScriptSupport::containerSpawn(Container* container,
 	Anh_Math::Quaternion	direction;
 	Anh_Math::Vector3		position;
 
-	direction.mX = 0.0;
-	direction.mY = dirY;
-	direction.mZ = 0.0;
-	direction.mW = dirW;
+	direction.x = 0.0;
+	direction.y = dirY;
+	direction.z = 0.0;
+	direction.w = dirW;
 
-	position.mX = posX;
-	position.mY = posY;
-	position.mZ = posZ;
+	position.x = posX;
+	position.y = posY;
+	position.z = posZ;
 
 	container->setId(containerId);
 	container->setParentId(cellForSpawn);	// The cell we will spawn in.
@@ -755,14 +755,14 @@ void ScriptSupport::itemSpawn(Item* item,
 	Anh_Math::Quaternion	direction;
 	Anh_Math::Vector3		position;
 
-	direction.mX = 0.0;
-	direction.mY = dirY;
-	direction.mZ = 0.0;
-	direction.mW = dirW;
+	direction.x = 0.0;
+	direction.y = dirY;
+	direction.z = 0.0;
+	direction.w = dirW;
 
-	position.mX = posX;
-	position.mY = posY;
-	position.mZ = posZ;
+	position.x = posX;
+	position.y = posY;
+	position.z = posZ;
 
 	item->setId(itemId);
 	item->setParentId(parentId);	// The cell we will spawn in, or the conatiner we belongs to.
@@ -781,7 +781,7 @@ void ScriptSupport::itemSpawn(Item* item,
 	if (parentId == 0)
 	{
 		gLogger->logMsgF("ScriptSupport::itemGetObject BIG TODO HERE" ,MSG_NORMAL);
-		// gWorldManager->getSI()->InsertPoint(itemId, item->mPosition.mX, item->mPosition.mZ);
+		// gWorldManager->getSI()->InsertPoint(itemId, item->mPosition.x, item->mPosition.z);
 	}
 	else
 	{
@@ -919,10 +919,10 @@ void ScriptSupport::setPlayerPosition(uint64 playerId, uint64 cellId, float posX
 	if (player)
 	{
 		// Anh_Math::Quaternion	direction;
-		Anh_Math::Vector3		position;
-		position.mX = posX;
-		position.mY = posY;
-		position.mZ = posZ;
+        glm::vec3 position;
+		position.x = posX;
+		position.y = posY;
+		position.z = posZ;
 
 		player->mPosition = position;
 		player->setParentId(cellId);

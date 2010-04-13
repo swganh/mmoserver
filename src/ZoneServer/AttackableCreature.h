@@ -105,8 +105,8 @@ class AttackableCreature : public NPCObject
 		bool	isKiller(void) const {return mIsKiller;}
 		bool	isGroupAssist(void) const {return mIsGroupAssist;}
 
-		Anh_Math::Vector3 getDestination(void) const {return mDestination;}
-		void	setDestination(Anh_Math::Vector3 destination) {mDestination = destination;}
+        const glm::vec3& getDestination(void) const {return mDestination;}
+        void	setDestination(const glm::vec3& destination) {mDestination = destination;}
 		float	getRoamingSpeed(void) const {return mRoamingSpeed;}
 
 
@@ -185,7 +185,7 @@ class AttackableCreature : public NPCObject
 		float	getStalkerSpeed(void) const {return mStalkerSpeed;}
 		float	getStalkerDistanceMax(void) const {return mStalkerDistanceMax;}
 		// Anh_Math::Vector3 getSpawnPosition(void) const {return mSpawn.mBasic.spawnPosition;}
-		const Anh_Math::Vector3& getHomePosition(void) const {return mHomePosition;}
+        const glm::vec3& getHomePosition(void) const {return mHomePosition;}
 		void	setStalkerSteps(int32 stalkerSteps) {mStalkerSteps = stalkerSteps;}
 		bool	setTargetInAttackRange(void);
 		uint64	getDefenderOutOfAggroRange(void);
@@ -233,7 +233,7 @@ public:
 		bool	mSpawned;
 
 		// Home position for object, often a lair or POI.
-		Anh_Math::Vector3 mHomePosition;
+        glm::vec3 mHomePosition;
 
 		// Id of controling unit (lair), or 0 if none.
 		uint64	mLairId;
@@ -291,7 +291,7 @@ public:
 		string mAttackedMessage;
 
 		// Position we are moving towards. Used by roaming among others...
-		Anh_Math::Vector3 mDestination;
+        glm::vec3 mDestination;
 
 		// Roaming, we go from point A to point B. The movement may be divided in several updates.
 		// We chose a new romaing point (can use some rand) and calculates the direction and speed.
@@ -318,7 +318,7 @@ public:
 
 
 private:
-		Anh_Math::Vector3	mStalkingTargetDestination;
+        glm::vec3	mStalkingTargetDestination;
 		Npc_Combat_State	mCombatState;
 		Weapon* 					mPrimaryWeapon;
 		Weapon* 					mSecondaryWeapon;

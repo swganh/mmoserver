@@ -190,7 +190,7 @@ void MessageLib::sendSoldInstantMail(uint64 oldOwner, PlayerObject* newOwner, st
 	}
 
 	aMS->setPlanetString(planet);
-	aMS->setWP(static_cast<float>(structure->mPosition.mX), static_cast<float>(structure->mPosition.mY), 0, wText);
+	aMS->setWP(static_cast<float>(structure->mPosition.x), static_cast<float>(structure->mPosition.y), 0, wText);
 	aMS->addWaypoint();
 
 

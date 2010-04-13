@@ -241,13 +241,13 @@ void HouseFactory::_setupDatabindings()
 	mHouseBinding = mDatabase->CreateDataBinding(20);
 	mHouseBinding->addField(DFT_uint64,offsetof(HouseObject,mId),8,0);
 	mHouseBinding->addField(DFT_uint64,offsetof(HouseObject,mOwner),8,1);
-	mHouseBinding->addField(DFT_float,offsetof(HouseObject,mDirection.mX),4,2);
-	mHouseBinding->addField(DFT_float,offsetof(HouseObject,mDirection.mY),4,3);
-	mHouseBinding->addField(DFT_float,offsetof(HouseObject,mDirection.mZ),4,4);
-	mHouseBinding->addField(DFT_float,offsetof(HouseObject,mDirection.mW),4,5);
-	mHouseBinding->addField(DFT_float,offsetof(HouseObject,mPosition.mX),4,6);
-	mHouseBinding->addField(DFT_float,offsetof(HouseObject,mPosition.mY),4,7);
-	mHouseBinding->addField(DFT_float,offsetof(HouseObject,mPosition.mZ),4,8);
+	mHouseBinding->addField(DFT_float,offsetof(HouseObject,mDirection.x),4,2);
+	mHouseBinding->addField(DFT_float,offsetof(HouseObject,mDirection.y),4,3);
+	mHouseBinding->addField(DFT_float,offsetof(HouseObject,mDirection.z),4,4);
+	mHouseBinding->addField(DFT_float,offsetof(HouseObject,mDirection.w),4,5);
+	mHouseBinding->addField(DFT_float,offsetof(HouseObject,mPosition.x),4,6);
+	mHouseBinding->addField(DFT_float,offsetof(HouseObject,mPosition.y),4,7);
+	mHouseBinding->addField(DFT_float,offsetof(HouseObject,mPosition.z),4,8);
 
 	mHouseBinding->addField(DFT_uint32,offsetof(HouseObject,mHouseFamily),4,9);//thats the structure_type_data ID
 	mHouseBinding->addField(DFT_bstring,offsetof(HouseObject,mModel),256,10);

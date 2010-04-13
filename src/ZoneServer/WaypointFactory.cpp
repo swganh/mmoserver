@@ -107,9 +107,9 @@ void WaypointFactory::_setupDatabindings()
 	mWaypointBinding = mDatabase->CreateDataBinding(9);
 	mWaypointBinding->addField(DFT_uint64,offsetof(WaypointObject,mId),8,0);
 	mWaypointBinding->addField(DFT_uint64,offsetof(WaypointObject,mParentId),8,1);
-	mWaypointBinding->addField(DFT_float,offsetof(WaypointObject,mCoords.mX),4,2);
-	mWaypointBinding->addField(DFT_float,offsetof(WaypointObject,mCoords.mY),4,3);
-	mWaypointBinding->addField(DFT_float,offsetof(WaypointObject,mCoords.mZ),4,4);
+	mWaypointBinding->addField(DFT_float,offsetof(WaypointObject,mCoords.x),4,2);
+	mWaypointBinding->addField(DFT_float,offsetof(WaypointObject,mCoords.y),4,3);
+	mWaypointBinding->addField(DFT_float,offsetof(WaypointObject,mCoords.z),4,4);
 	mWaypointBinding->addField(DFT_bstring,offsetof(WaypointObject,mName),255,5);
 	mWaypointBinding->addField(DFT_bstring,offsetof(WaypointObject,mModel),255,6);
 	mWaypointBinding->addField(DFT_uint8,offsetof(WaypointObject,mActive),1,7);

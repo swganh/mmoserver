@@ -563,9 +563,9 @@ void MessageLib::sendSitOnObject(CreatureObject* creatureObject)
 	mMessageFactory->addUint64(creatureObject->getId());
 	mMessageFactory->addUint32(0);
 	mMessageFactory->addUint64(creatureObject->getParentId());
-	mMessageFactory->addFloat(creatureObject->mPosition.mX);
-	mMessageFactory->addFloat(creatureObject->mPosition.mY);
-	mMessageFactory->addFloat(creatureObject->mPosition.mZ);
+	mMessageFactory->addFloat(creatureObject->mPosition.x);
+	mMessageFactory->addFloat(creatureObject->mPosition.y);
+	mMessageFactory->addFloat(creatureObject->mPosition.z);
 
 	_sendToInRange(mMessageFactory->EndMessage(),creatureObject,5);
 }
@@ -1151,13 +1151,13 @@ void MessageLib::sendDataTransform(Object* object)
 	mMessageFactory->addUint32(0);
 	mMessageFactory->addUint32(object->incDataTransformCounter());
 
-	mMessageFactory->addFloat(object->mDirection.mX);
-	mMessageFactory->addFloat(object->mDirection.mY);
-	mMessageFactory->addFloat(object->mDirection.mZ);
-	mMessageFactory->addFloat(object->mDirection.mW);
-	mMessageFactory->addFloat(object->mPosition.mX);
-	mMessageFactory->addFloat(object->mPosition.mY);
-	mMessageFactory->addFloat(object->mPosition.mZ);
+	mMessageFactory->addFloat(object->mDirection.x);
+	mMessageFactory->addFloat(object->mDirection.y);
+	mMessageFactory->addFloat(object->mDirection.z);
+	mMessageFactory->addFloat(object->mDirection.w);
+	mMessageFactory->addFloat(object->mPosition.x);
+	mMessageFactory->addFloat(object->mPosition.y);
+	mMessageFactory->addFloat(object->mPosition.z);
 	mMessageFactory->addUint32(0);
 
 	_sendToInRangeUnreliable(mMessageFactory->EndMessage(),object,5);
@@ -1181,13 +1181,13 @@ void MessageLib::sendDataTransformWithParent(Object* object)
 	//gLogger->logMsgF("datatransform counter : %u",MSG_HIGH,u);
 
 	mMessageFactory->addUint64(object->getParentId());
-	mMessageFactory->addFloat(object->mDirection.mX);
-	mMessageFactory->addFloat(object->mDirection.mY);
-	mMessageFactory->addFloat(object->mDirection.mZ);
-	mMessageFactory->addFloat(object->mDirection.mW);
-	mMessageFactory->addFloat(object->mPosition.mX);
-	mMessageFactory->addFloat(object->mPosition.mY);
-	mMessageFactory->addFloat(object->mPosition.mZ);
+	mMessageFactory->addFloat(object->mDirection.x);
+	mMessageFactory->addFloat(object->mDirection.y);
+	mMessageFactory->addFloat(object->mDirection.z);
+	mMessageFactory->addFloat(object->mDirection.w);
+	mMessageFactory->addFloat(object->mPosition.x);
+	mMessageFactory->addFloat(object->mPosition.y);
+	mMessageFactory->addFloat(object->mPosition.z);
 	mMessageFactory->addUint32(0);
 
 	//_sendToInRange(mMessageFactory->EndMessage(),object,5);
@@ -1210,13 +1210,13 @@ void MessageLib::sendDataTransform(Object* object, PlayerObject* player)
 	
 	mMessageFactory->addUint32(object->incDataTransformCounter());
 
-	mMessageFactory->addFloat(object->mDirection.mX);
-	mMessageFactory->addFloat(object->mDirection.mY);
-	mMessageFactory->addFloat(object->mDirection.mZ);
-	mMessageFactory->addFloat(object->mDirection.mW);
-	mMessageFactory->addFloat(object->mPosition.mX);
-	mMessageFactory->addFloat(object->mPosition.mY);
-	mMessageFactory->addFloat(object->mPosition.mZ);
+	mMessageFactory->addFloat(object->mDirection.x);
+	mMessageFactory->addFloat(object->mDirection.y);
+	mMessageFactory->addFloat(object->mDirection.z);
+	mMessageFactory->addFloat(object->mDirection.w);
+	mMessageFactory->addFloat(object->mPosition.x);
+	mMessageFactory->addFloat(object->mPosition.y);
+	mMessageFactory->addFloat(object->mPosition.z);
 	mMessageFactory->addUint32(0);	//speed
 
 	_sendToInstancedPlayersUnreliable(mMessageFactory->EndMessage(),5, player);//thats movement thats supposed to be fast !!!!!!!!!!!!!!!!!!!!!!!
@@ -1238,13 +1238,13 @@ void MessageLib::sendDataTransformWithParent(Object* object, PlayerObject* playe
 	mMessageFactory->addUint32(object->incDataTransformCounter());
 
 	mMessageFactory->addUint64(object->getParentId());
-	mMessageFactory->addFloat(object->mDirection.mX);
-	mMessageFactory->addFloat(object->mDirection.mY);
-	mMessageFactory->addFloat(object->mDirection.mZ);
-	mMessageFactory->addFloat(object->mDirection.mW);
-	mMessageFactory->addFloat(object->mPosition.mX);
-	mMessageFactory->addFloat(object->mPosition.mY);
-	mMessageFactory->addFloat(object->mPosition.mZ);
+	mMessageFactory->addFloat(object->mDirection.x);
+	mMessageFactory->addFloat(object->mDirection.y);
+	mMessageFactory->addFloat(object->mDirection.z);
+	mMessageFactory->addFloat(object->mDirection.w);
+	mMessageFactory->addFloat(object->mPosition.x);
+	mMessageFactory->addFloat(object->mPosition.y);
+	mMessageFactory->addFloat(object->mPosition.z);
 	mMessageFactory->addUint32(0);
 
 	_sendToInstancedPlayersUnreliable(mMessageFactory->EndMessage(),5, player);

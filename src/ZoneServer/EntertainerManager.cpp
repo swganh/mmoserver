@@ -1413,7 +1413,7 @@ void EntertainerManager::CheckDistances(PlayerObject* entertainer)
 		PlayerObject* audience = dynamic_cast<PlayerObject*> (*it);
 		if(audience)
 		{
-			if(!entertainer->mPosition.inRange2D(audience->mPosition,60))
+            if(glm::distance(entertainer->mPosition, audience->mPosition) > 60)
 			{
 				if(entertainer ->getPerformingState() == PlayerPerformance_Dance)
 				{
@@ -1675,7 +1675,7 @@ void EntertainerManager::startListening(PlayerObject* audience, PlayerObject* en
 	}
 
 	//is the entertainer near enough???
-	if(!entertainer->mPosition.inRange2D(audience->mPosition,60))
+    if(glm::distance(entertainer->mPosition, audience->mPosition) > 60)
 	{
 		gMessageLib->sendSystemMessage(audience,L"","performance","music_fail");
 		return;
@@ -1776,7 +1776,7 @@ void EntertainerManager::startWatching(PlayerObject* audience, PlayerObject* ent
 
 	//is the entertainer near enough???
 	//TODO range configureable ??
-	if(!entertainer->mPosition.inRange2D(audience->mPosition,60))
+    if(glm::distance(entertainer->mPosition, audience->mPosition) > 60)
 	{
 		gMessageLib->sendSystemMessage(audience,L"","performance","dance_fail");
 		return;

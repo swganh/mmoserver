@@ -118,7 +118,7 @@ void NpcManager::addCreature(uint64 creatureId, const SpawnData *spawn)
 	// Activate npc.
 	// gWorldManager->addReadyNpc(creatureId, spawn->mBasic.timeToFirstSpawn);
 
-	// gLogger->logMsgF("Npc will spawn at %.0f, %.0f, %.0f in %"PRIu64" seconds", MSG_NORMAL, npc->mPosition.mX, npc->mPosition.mY, npc->mPosition.mZ, spawn->mBasic.timeToFirstSpawn/1000);
+	// gLogger->logMsgF("Npc will spawn at %.0f, %.0f, %.0f in %"PRIu64" seconds", MSG_NORMAL, npc->mPosition.x, npc->mPosition.y, npc->mPosition.z, spawn->mBasic.timeToFirstSpawn/1000);
 	gWorldManager->addDormantNpc(creatureId, spawn->mBasic.timeToFirstSpawn);
 }
 */

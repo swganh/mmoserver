@@ -43,7 +43,7 @@ ScoutManager::~ScoutManager(void)
 //================================================================================
 //CAMPS!
 //================================================================================
-bool ScoutManager::createCamp(uint32 typeId,uint64 parentId,Anh_Math::Vector3 position,string customName, PlayerObject* player)
+bool ScoutManager::createCamp(uint32 typeId,uint64 parentId, const glm::vec3& position, const string& customName, PlayerObject* player)
 //gObjectFactory->requestNewDefaultItem
 //(this,11,1320,entertainer->getId(),99,Anh_Math::Vector3(),"");
 {
@@ -80,11 +80,11 @@ bool ScoutManager::createCamp(uint32 typeId,uint64 parentId,Anh_Math::Vector3 po
 	Camp* camp = new (Camp);
 	camp->mPosition = position;
 
-	camp->mDirection.mX = 0;
-	camp->mDirection.mY = 1;
-	camp->mDirection.mZ = 0;
+	camp->mDirection.x = 0;
+	camp->mDirection.y = 1;
+	camp->mDirection.z = 0;
 
-	camp->mDirection.mW = 1;
+	camp->mDirection.w = 1;
 
 	camp->setParentId(parentId);
 	camp->setCustomName(customName.getAnsi());
@@ -392,7 +392,7 @@ void ScoutManager::successForage(PlayerObject* player)
 		else
 			gMessageLib->sendSystemMessage(player, L"", "skl_use","sys_forage_success");
 
-		gObjectFactory->requestNewDefaultItemWithUses(inventory, itemFamily, itemType, inventory->getId(),99,Anh_Math::Vector3(),"",itemCount);
+        gObjectFactory->requestNewDefaultItemWithUses(inventory, itemFamily, itemType, inventory->getId(),99, glm::vec3(),"",itemCount);
 	}
 	else
 	{

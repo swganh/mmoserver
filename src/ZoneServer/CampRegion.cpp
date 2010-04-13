@@ -88,9 +88,9 @@ void CampRegion::update()
 
 	if(!mSubZoneId)
 	{
-		mQTRegion	= mSI->getQTRegion(mPosition.mX,mPosition.mZ);
+		mQTRegion	= mSI->getQTRegion(mPosition.x,mPosition.z);
 		mSubZoneId	= (uint32)mQTRegion->getId();
-		mQueryRect	= Anh_Math::Rectangle(mPosition.mX - mWidth,mPosition.mZ - mHeight,mWidth*2,mHeight*2);
+		mQueryRect	= Anh_Math::Rectangle(mPosition.x - mWidth,mPosition.z - mHeight,mWidth*2,mHeight*2);
 	}
 
 	Object*		object;
@@ -175,7 +175,7 @@ void CampRegion::update()
 			//This code causes the Zone Server to print relational position and rotation info
 			//to allow the adding of items without much effort.
 			int8 text[256];
-			sprintf(text,"Position: mX=%f mY=%f mZ=%f\nDirection: mX=%f mY=%f mZ=%f mW=%f", (object->mPosition.mX - this->mPosition.mX), (object->mPosition.mY - this->mPosition.mY), (object->mPosition.mZ - this->mPosition.mZ), object->mDirection.mX,object->mDirection.mY,object->mDirection.mZ,object->mDirection.mW);
+			sprintf(text,"Position: mX=%f mY=%f mZ=%f\nDirection: mX=%f mY=%f mZ=%f mW=%f", (object->mPosition.x - this->mPosition.x), (object->mPosition.y - this->mPosition.y), (object->mPosition.z - this->mPosition.z), object->mDirection.x,object->mDirection.y,object->mDirection.z,object->mDirection.w);
 			gLogger->logMsg(text, BACKGROUND_RED);
 			*/
 		}

@@ -162,7 +162,7 @@ bool WorldManager::addObject(Object* object,bool manual)
 			// query the rtree for the qt region we are in
 			else
 			{
-				if(QTRegion* region = mSpatialIndex->getQTRegion(player->mPosition.mX,player->mPosition.mZ))
+				if(QTRegion* region = mSpatialIndex->getQTRegion(player->mPosition.x,player->mPosition.z))
 				{
 					player->setSubZoneId((uint32)region->getId());
 					region->mTree->addObject(player);
@@ -198,7 +198,7 @@ bool WorldManager::addObject(Object* object,bool manual)
 		{
 		//	HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(object);
 			mStructureList.push_back(object->getId());
-			mSpatialIndex->InsertPoint(key,object->mPosition.mX,object->mPosition.mZ);
+			mSpatialIndex->InsertPoint(key,object->mPosition.x,object->mPosition.z);
 
 		}
 		break;
@@ -208,7 +208,7 @@ bool WorldManager::addObject(Object* object,bool manual)
 			mStructureList.push_back(object->getId());
 			BuildingObject* building = dynamic_cast<BuildingObject*>(object);
 			
-			mSpatialIndex->InsertRegion(key,building->mPosition.mX,building->mPosition.mZ,building->getWidth(),building->getHeight());
+			mSpatialIndex->InsertRegion(key,building->mPosition.x,building->mPosition.z,building->getWidth(),building->getHeight());
 		}
 		break;
 
@@ -219,7 +219,7 @@ bool WorldManager::addObject(Object* object,bool manual)
 
 			if(parentId == 0)
 			{
-				mSpatialIndex->InsertPoint(key,object->mPosition.mX,object->mPosition.mZ);
+				mSpatialIndex->InsertPoint(key,object->mPosition.x,object->mPosition.z);
 			}
 			else
 			{
@@ -262,7 +262,7 @@ bool WorldManager::addObject(Object* object,bool manual)
 					// moving creature, add to QT
 					case CreoGroup_Vehicle :
 					{
-						if(QTRegion* region = mSpatialIndex->getQTRegion(creature->mPosition.mX,creature->mPosition.mZ))
+						if(QTRegion* region = mSpatialIndex->getQTRegion(creature->mPosition.x,creature->mPosition.z))
 						{
 							creature->setSubZoneId((uint32)region->getId());
 							region->mTree->addObject(creature);
@@ -279,7 +279,7 @@ bool WorldManager::addObject(Object* object,bool manual)
 					// still creature, add to SI
 					default :
 					{
-						mSpatialIndex->InsertPoint(key,creature->mPosition.mX,creature->mPosition.mZ);
+						mSpatialIndex->InsertPoint(key,creature->mPosition.x,creature->mPosition.z);
 					}
 				}
 
@@ -294,7 +294,7 @@ bool WorldManager::addObject(Object* object,bool manual)
 
 			mRegionMap.insert(std::make_pair(key,region));
 
-			mSpatialIndex->InsertRegion(key,region->mPosition.mX,region->mPosition.mZ,region->getWidth(),region->getHeight());
+			mSpatialIndex->InsertRegion(key,region->mPosition.x,region->mPosition.z,region->getWidth(),region->getHeight());
 
 			if(region->getActive())
 				addActiveRegion(region);
@@ -417,7 +417,7 @@ void WorldManager::createObjectinWorld(Object* object)
 
 			if(!object->getParentId())
 			{
-				qRect = Anh_Math::Rectangle(object->mPosition.mX - viewingRange,object->mPosition.mZ - viewingRange,viewingRange * 2,viewingRange * 2);
+				qRect = Anh_Math::Rectangle(object->mPosition.x - viewingRange,object->mPosition.z - viewingRange,viewingRange * 2,viewingRange * 2);
 			}
 			else
 			{
@@ -426,7 +426,7 @@ void WorldManager::createObjectinWorld(Object* object)
 				
 				if(BuildingObject* house	= dynamic_cast<BuildingObject*>(getObjectById(cell->getParentId())))
 				{
-					qRect = Anh_Math::Rectangle(house->mPosition.mX - viewingRange,house->mPosition.mZ - viewingRange,viewingRange * 2,viewingRange * 2);
+					qRect = Anh_Math::Rectangle(house->mPosition.x - viewingRange,house->mPosition.z - viewingRange,viewingRange * 2,viewingRange * 2);
 				}
 			}
 
@@ -537,7 +537,7 @@ void WorldManager::destroyObject(Object* object)
 				}
 				else
 				{
-					mSpatialIndex->RemovePoint(object->getId(),object->mPosition.mX,object->mPosition.mZ);
+					mSpatialIndex->RemovePoint(object->getId(),object->mPosition.x,object->mPosition.z);
 				}
 			}
 			else
@@ -589,7 +589,7 @@ void WorldManager::destroyObject(Object* object)
 			}
 			else
 			{
-				mSpatialIndex->RemovePoint(object->getId(),object->mPosition.mX,object->mPosition.mZ);
+				mSpatialIndex->RemovePoint(object->getId(),object->mPosition.x,object->mPosition.z);
 			}
 
 			object->destroyKnownObjects();
@@ -624,8 +624,8 @@ void WorldManager::destroyObject(Object* object)
 				}
 				else
 				{	
-					//mSpatialIndex->InsertRegion(key,building->mPosition.mX,building->mPosition.mZ,building->getWidth(),building->getHeight());
-					mSpatialIndex->RemoveRegion(object->getId(),object->mPosition.mX-building->getWidth(),object->mPosition.mZ-building->getHeight(),object->mPosition.mX+building->getWidth(),object->mPosition.mZ+building->getHeight());
+					//mSpatialIndex->InsertRegion(key,building->mPosition.x,building->mPosition.z,building->getWidth(),building->getHeight());
+					mSpatialIndex->RemoveRegion(object->getId(),object->mPosition.x-building->getWidth(),object->mPosition.z-building->getHeight(),object->mPosition.x+building->getWidth(),object->mPosition.z+building->getHeight());
 				}
 
 				//remove it out of the worldmanagers structurelist now that it is deleted
@@ -662,7 +662,7 @@ void WorldManager::destroyObject(Object* object)
 
 				if(parentId == 0)
 				{
-					mSpatialIndex->RemovePoint(tangible->getId(),tangible->mPosition.mX,tangible->mPosition.mZ);
+					mSpatialIndex->RemovePoint(tangible->getId(),tangible->mPosition.x,tangible->mPosition.z);
 				}
 				else
 				{
@@ -820,7 +820,7 @@ void WorldManager::initObjectsInRange(PlayerObject* playerObject)
 
 			if(!playerObject->getParentId())
 			{
-				qRect = Anh_Math::Rectangle(playerObject->mPosition.mX - viewingRange,playerObject->mPosition.mZ - viewingRange,viewingRange * 2,viewingRange * 2);
+				qRect = Anh_Math::Rectangle(playerObject->mPosition.x - viewingRange,playerObject->mPosition.z - viewingRange,viewingRange * 2,viewingRange * 2);
 			}
 			else
 			{
@@ -829,7 +829,7 @@ void WorldManager::initObjectsInRange(PlayerObject* playerObject)
 				
 				if(BuildingObject* house	= dynamic_cast<BuildingObject*>(getObjectById(cell->getParentId())))
 				{
-					qRect = Anh_Math::Rectangle(house->mPosition.mX - viewingRange,house->mPosition.mZ - viewingRange,viewingRange * 2,viewingRange * 2);
+					qRect = Anh_Math::Rectangle(house->mPosition.x - viewingRange,house->mPosition.z - viewingRange,viewingRange * 2,viewingRange * 2);
 				}
 			}
 
@@ -974,7 +974,7 @@ Object* WorldManager::getNearestTerminal(PlayerObject* player, TangibleType term
 		Terminal* terminal = dynamic_cast<Terminal*> (*it);
 		if(terminal&&(terminal->getTangibleType() == terminalType))
 		{
-			float nr = terminal->mPosition.distance2D(player->mPosition);
+            float nr = glm::distance(terminal->mPosition, player->mPosition);
 			//double check the distance
 			if((nearestTerminal && (nr < range ))||(!nearestTerminal))
 			{
@@ -1001,7 +1001,7 @@ Object* WorldManager::getNearestTerminal(PlayerObject* player, TangibleType term
 					Terminal* terminal = dynamic_cast<Terminal*> (cellChild);
 					if(terminal&&(terminal->getTangibleType() == terminalType))
 					{
-						float nr = terminal->mPosition.distance2D(player->mPosition);
+                        float nr = glm::distance(terminal->mPosition, player->mPosition);
 						//double check the distance
 						if((nearestTerminal && (nr < range))||(!nearestTerminal))
 						{

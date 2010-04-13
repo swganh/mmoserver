@@ -24,7 +24,7 @@ class ResourceType;
 
 typedef struct
 {
-	Anh_Math::Vector3	Coordinates;
+    glm::vec3	Coordinates;
 	uint64				CellID;
 	uint32				PlanetCRC;
 } Location;

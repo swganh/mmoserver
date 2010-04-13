@@ -184,13 +184,13 @@ Terminal* TerminalFactory::_createTerminal(DatabaseResult* result)
 			DataBinding* terminalBinding = mDatabase->CreateDataBinding(14);
 			terminalBinding->addField(DFT_uint64,offsetof(Terminal,mId),8,0);
 			terminalBinding->addField(DFT_uint64,offsetof(Terminal,mParentId),8,1);
-			terminalBinding->addField(DFT_float,offsetof(Terminal,mDirection.mX),4,2);
-			terminalBinding->addField(DFT_float,offsetof(Terminal,mDirection.mY),4,3);
-			terminalBinding->addField(DFT_float,offsetof(Terminal,mDirection.mZ),4,4);
-			terminalBinding->addField(DFT_float,offsetof(Terminal,mDirection.mW),4,5);
-			terminalBinding->addField(DFT_float,offsetof(Terminal,mPosition.mX),4,6);
-			terminalBinding->addField(DFT_float,offsetof(Terminal,mPosition.mY),4,7);
-			terminalBinding->addField(DFT_float,offsetof(Terminal,mPosition.mZ),4,8);
+			terminalBinding->addField(DFT_float,offsetof(Terminal,mDirection.x),4,2);
+			terminalBinding->addField(DFT_float,offsetof(Terminal,mDirection.y),4,3);
+			terminalBinding->addField(DFT_float,offsetof(Terminal,mDirection.z),4,4);
+			terminalBinding->addField(DFT_float,offsetof(Terminal,mDirection.w),4,5);
+			terminalBinding->addField(DFT_float,offsetof(Terminal,mPosition.x),4,6);
+			terminalBinding->addField(DFT_float,offsetof(Terminal,mPosition.y),4,7);
+			terminalBinding->addField(DFT_float,offsetof(Terminal,mPosition.z),4,8);
 			terminalBinding->addField(DFT_uint32,offsetof(Terminal,mTerminalType),4,9);
 			terminalBinding->addField(DFT_bstring,offsetof(Terminal,mModel),256,10);
 			terminalBinding->addField(DFT_bstring,offsetof(Terminal,mName),64,11);
@@ -213,13 +213,13 @@ Terminal* TerminalFactory::_createTerminal(DatabaseResult* result)
 			DataBinding* terminalBinding = mDatabase->CreateDataBinding(14);
 			terminalBinding->addField(DFT_uint64,offsetof(Terminal,mId),8,0);
 			terminalBinding->addField(DFT_uint64,offsetof(Terminal,mParentId),8,1);
-			terminalBinding->addField(DFT_float,offsetof(Terminal,mDirection.mX),4,2);
-			terminalBinding->addField(DFT_float,offsetof(Terminal,mDirection.mY),4,3);
-			terminalBinding->addField(DFT_float,offsetof(Terminal,mDirection.mZ),4,4);
-			terminalBinding->addField(DFT_float,offsetof(Terminal,mDirection.mW),4,5);
-			terminalBinding->addField(DFT_float,offsetof(Terminal,mPosition.mX),4,6);
-			terminalBinding->addField(DFT_float,offsetof(Terminal,mPosition.mY),4,7);
-			terminalBinding->addField(DFT_float,offsetof(Terminal,mPosition.mZ),4,8);
+			terminalBinding->addField(DFT_float,offsetof(Terminal,mDirection.x),4,2);
+			terminalBinding->addField(DFT_float,offsetof(Terminal,mDirection.y),4,3);
+			terminalBinding->addField(DFT_float,offsetof(Terminal,mDirection.z),4,4);
+			terminalBinding->addField(DFT_float,offsetof(Terminal,mDirection.w),4,5);
+			terminalBinding->addField(DFT_float,offsetof(Terminal,mPosition.x),4,6);
+			terminalBinding->addField(DFT_float,offsetof(Terminal,mPosition.y),4,7);
+			terminalBinding->addField(DFT_float,offsetof(Terminal,mPosition.z),4,8);
 			terminalBinding->addField(DFT_uint32,offsetof(Terminal,mTerminalType),4,9);
 			terminalBinding->addField(DFT_bstring,offsetof(Terminal,mModel),256,10);
 			terminalBinding->addField(DFT_bstring,offsetof(Terminal,mName),64,11);
@@ -344,13 +344,13 @@ void TerminalFactory::_setupDatabindings()
 	mMissionMainDataBinding->addField(DFT_bstring,offsetof(MissionTerminal,mName),64,11);
 	mMissionMainDataBinding->addField(DFT_bstring,offsetof(MissionTerminal,mNameFile),64,12);
 	mMissionMainDataBinding->addField(DFT_bstring,offsetof(MissionTerminal,mCustomName),256,15);
-	mMissionMainDataBinding->addField(DFT_float,offsetof(MissionTerminal,mDirection.mX),4,2);
-	mMissionMainDataBinding->addField(DFT_float,offsetof(MissionTerminal,mDirection.mY),4,3);
-	mMissionMainDataBinding->addField(DFT_float,offsetof(MissionTerminal,mDirection.mZ),4,4);
-	mMissionMainDataBinding->addField(DFT_float,offsetof(MissionTerminal,mDirection.mW),4,5);
-	mMissionMainDataBinding->addField(DFT_float,offsetof(MissionTerminal,mPosition.mX),4,6);
-	mMissionMainDataBinding->addField(DFT_float,offsetof(MissionTerminal,mPosition.mY),4,7);
-	mMissionMainDataBinding->addField(DFT_float,offsetof(MissionTerminal,mPosition.mZ),4,8);
+	mMissionMainDataBinding->addField(DFT_float,offsetof(MissionTerminal,mDirection.x),4,2);
+	mMissionMainDataBinding->addField(DFT_float,offsetof(MissionTerminal,mDirection.y),4,3);
+	mMissionMainDataBinding->addField(DFT_float,offsetof(MissionTerminal,mDirection.z),4,4);
+	mMissionMainDataBinding->addField(DFT_float,offsetof(MissionTerminal,mDirection.w),4,5);
+	mMissionMainDataBinding->addField(DFT_float,offsetof(MissionTerminal,mPosition.x),4,6);
+	mMissionMainDataBinding->addField(DFT_float,offsetof(MissionTerminal,mPosition.y),4,7);
+	mMissionMainDataBinding->addField(DFT_float,offsetof(MissionTerminal,mPosition.z),4,8);
 
 	// bazaar terminal
 	mBazaarMainDataBinding = mDatabase->CreateDataBinding(13);
@@ -360,13 +360,13 @@ void TerminalFactory::_setupDatabindings()
 	mBazaarMainDataBinding->addField(DFT_bstring,offsetof(BazaarTerminal,mName),64,11);
 	mBazaarMainDataBinding->addField(DFT_bstring,offsetof(BazaarTerminal,mNameFile),64,12);
 	mBazaarMainDataBinding->addField(DFT_bstring,offsetof(BazaarTerminal,mCustomName),256,15);
-	mBazaarMainDataBinding->addField(DFT_float,offsetof(BazaarTerminal,mDirection.mX),4,2);
-	mBazaarMainDataBinding->addField(DFT_float,offsetof(BazaarTerminal,mDirection.mY),4,3);
-	mBazaarMainDataBinding->addField(DFT_float,offsetof(BazaarTerminal,mDirection.mZ),4,4);
-	mBazaarMainDataBinding->addField(DFT_float,offsetof(BazaarTerminal,mDirection.mW),4,5);
-	mBazaarMainDataBinding->addField(DFT_float,offsetof(BazaarTerminal,mPosition.mX),4,6);
-	mBazaarMainDataBinding->addField(DFT_float,offsetof(BazaarTerminal,mPosition.mY),4,7);
-	mBazaarMainDataBinding->addField(DFT_float,offsetof(BazaarTerminal,mPosition.mZ),4,8);
+	mBazaarMainDataBinding->addField(DFT_float,offsetof(BazaarTerminal,mDirection.x),4,2);
+	mBazaarMainDataBinding->addField(DFT_float,offsetof(BazaarTerminal,mDirection.y),4,3);
+	mBazaarMainDataBinding->addField(DFT_float,offsetof(BazaarTerminal,mDirection.z),4,4);
+	mBazaarMainDataBinding->addField(DFT_float,offsetof(BazaarTerminal,mDirection.w),4,5);
+	mBazaarMainDataBinding->addField(DFT_float,offsetof(BazaarTerminal,mPosition.x),4,6);
+	mBazaarMainDataBinding->addField(DFT_float,offsetof(BazaarTerminal,mPosition.y),4,7);
+	mBazaarMainDataBinding->addField(DFT_float,offsetof(BazaarTerminal,mPosition.z),4,8);
 
 	// cloning terminal
 	mCloningMainDataBinding = mDatabase->CreateDataBinding(13);
@@ -376,13 +376,13 @@ void TerminalFactory::_setupDatabindings()
 	mCloningMainDataBinding->addField(DFT_bstring,offsetof(CloningTerminal,mName),64,11);
 	mCloningMainDataBinding->addField(DFT_bstring,offsetof(CloningTerminal,mNameFile),64,12);
 	mCloningMainDataBinding->addField(DFT_bstring,offsetof(CloningTerminal,mCustomName),256,15);
-	mCloningMainDataBinding->addField(DFT_float,offsetof(CloningTerminal,mDirection.mX),4,2);
-	mCloningMainDataBinding->addField(DFT_float,offsetof(CloningTerminal,mDirection.mY),4,3);
-	mCloningMainDataBinding->addField(DFT_float,offsetof(CloningTerminal,mDirection.mZ),4,4);
-	mCloningMainDataBinding->addField(DFT_float,offsetof(CloningTerminal,mDirection.mW),4,5);
-	mCloningMainDataBinding->addField(DFT_float,offsetof(CloningTerminal,mPosition.mX),4,6);
-	mCloningMainDataBinding->addField(DFT_float,offsetof(CloningTerminal,mPosition.mY),4,7);
-	mCloningMainDataBinding->addField(DFT_float,offsetof(CloningTerminal,mPosition.mZ),4,8);
+	mCloningMainDataBinding->addField(DFT_float,offsetof(CloningTerminal,mDirection.x),4,2);
+	mCloningMainDataBinding->addField(DFT_float,offsetof(CloningTerminal,mDirection.y),4,3);
+	mCloningMainDataBinding->addField(DFT_float,offsetof(CloningTerminal,mDirection.z),4,4);
+	mCloningMainDataBinding->addField(DFT_float,offsetof(CloningTerminal,mDirection.w),4,5);
+	mCloningMainDataBinding->addField(DFT_float,offsetof(CloningTerminal,mPosition.x),4,6);
+	mCloningMainDataBinding->addField(DFT_float,offsetof(CloningTerminal,mPosition.y),4,7);
+	mCloningMainDataBinding->addField(DFT_float,offsetof(CloningTerminal,mPosition.z),4,8);
 
 	// insurance terminal
 	mInsuranceMainDataBinding = mDatabase->CreateDataBinding(13);
@@ -392,13 +392,13 @@ void TerminalFactory::_setupDatabindings()
 	mInsuranceMainDataBinding->addField(DFT_bstring,offsetof(InsuranceTerminal,mName),64,11);
 	mInsuranceMainDataBinding->addField(DFT_bstring,offsetof(InsuranceTerminal,mNameFile),64,12);
 	mInsuranceMainDataBinding->addField(DFT_bstring,offsetof(InsuranceTerminal,mCustomName),256,15);
-	mInsuranceMainDataBinding->addField(DFT_float,offsetof(InsuranceTerminal,mDirection.mX),4,2);
-	mInsuranceMainDataBinding->addField(DFT_float,offsetof(InsuranceTerminal,mDirection.mY),4,3);
-	mInsuranceMainDataBinding->addField(DFT_float,offsetof(InsuranceTerminal,mDirection.mZ),4,4);
-	mInsuranceMainDataBinding->addField(DFT_float,offsetof(InsuranceTerminal,mDirection.mW),4,5);
-	mInsuranceMainDataBinding->addField(DFT_float,offsetof(InsuranceTerminal,mPosition.mX),4,6);
-	mInsuranceMainDataBinding->addField(DFT_float,offsetof(InsuranceTerminal,mPosition.mY),4,7);
-	mInsuranceMainDataBinding->addField(DFT_float,offsetof(InsuranceTerminal,mPosition.mZ),4,8);
+	mInsuranceMainDataBinding->addField(DFT_float,offsetof(InsuranceTerminal,mDirection.x),4,2);
+	mInsuranceMainDataBinding->addField(DFT_float,offsetof(InsuranceTerminal,mDirection.y),4,3);
+	mInsuranceMainDataBinding->addField(DFT_float,offsetof(InsuranceTerminal,mDirection.z),4,4);
+	mInsuranceMainDataBinding->addField(DFT_float,offsetof(InsuranceTerminal,mDirection.w),4,5);
+	mInsuranceMainDataBinding->addField(DFT_float,offsetof(InsuranceTerminal,mPosition.x),4,6);
+	mInsuranceMainDataBinding->addField(DFT_float,offsetof(InsuranceTerminal,mPosition.y),4,7);
+	mInsuranceMainDataBinding->addField(DFT_float,offsetof(InsuranceTerminal,mPosition.z),4,8);
 
 	// character builder terminal
 	mCharacterBuilderMainDataBinding = mDatabase->CreateDataBinding(13);
@@ -408,13 +408,13 @@ void TerminalFactory::_setupDatabindings()
 	mCharacterBuilderMainDataBinding->addField(DFT_bstring,offsetof(CharacterBuilderTerminal,mName),64,11);
 	mCharacterBuilderMainDataBinding->addField(DFT_bstring,offsetof(CharacterBuilderTerminal,mNameFile),64,12);
 	mCharacterBuilderMainDataBinding->addField(DFT_bstring,offsetof(CharacterBuilderTerminal,mCustomName),256,15);
-	mCharacterBuilderMainDataBinding->addField(DFT_float,offsetof(CharacterBuilderTerminal,mDirection.mX),4,2);
-	mCharacterBuilderMainDataBinding->addField(DFT_float,offsetof(CharacterBuilderTerminal,mDirection.mY),4,3);
-	mCharacterBuilderMainDataBinding->addField(DFT_float,offsetof(CharacterBuilderTerminal,mDirection.mZ),4,4);
-	mCharacterBuilderMainDataBinding->addField(DFT_float,offsetof(CharacterBuilderTerminal,mDirection.mW),4,5);
-	mCharacterBuilderMainDataBinding->addField(DFT_float,offsetof(CharacterBuilderTerminal,mPosition.mX),4,6);
-	mCharacterBuilderMainDataBinding->addField(DFT_float,offsetof(CharacterBuilderTerminal,mPosition.mY),4,7);
-	mCharacterBuilderMainDataBinding->addField(DFT_float,offsetof(CharacterBuilderTerminal,mPosition.mZ),4,8);
+	mCharacterBuilderMainDataBinding->addField(DFT_float,offsetof(CharacterBuilderTerminal,mDirection.x),4,2);
+	mCharacterBuilderMainDataBinding->addField(DFT_float,offsetof(CharacterBuilderTerminal,mDirection.y),4,3);
+	mCharacterBuilderMainDataBinding->addField(DFT_float,offsetof(CharacterBuilderTerminal,mDirection.z),4,4);
+	mCharacterBuilderMainDataBinding->addField(DFT_float,offsetof(CharacterBuilderTerminal,mDirection.w),4,5);
+	mCharacterBuilderMainDataBinding->addField(DFT_float,offsetof(CharacterBuilderTerminal,mPosition.x),4,6);
+	mCharacterBuilderMainDataBinding->addField(DFT_float,offsetof(CharacterBuilderTerminal,mPosition.y),4,7);
+	mCharacterBuilderMainDataBinding->addField(DFT_float,offsetof(CharacterBuilderTerminal,mPosition.z),4,8);
 
 	// travel terminal
 	mTravelMainDataBinding = mDatabase->CreateDataBinding(15);
@@ -426,13 +426,13 @@ void TerminalFactory::_setupDatabindings()
 	mTravelMainDataBinding->addField(DFT_bstring,offsetof(TravelTerminal,mPositionDescriptor),128,13);
 	mTravelMainDataBinding->addField(DFT_uint32,offsetof(TravelTerminal,mPortType),4,14);
 	mTravelMainDataBinding->addField(DFT_bstring,offsetof(TravelTerminal,mCustomName),256,15);
-	mTravelMainDataBinding->addField(DFT_float,offsetof(TravelTerminal,mDirection.mX),4,2);
-	mTravelMainDataBinding->addField(DFT_float,offsetof(TravelTerminal,mDirection.mY),4,3);
-	mTravelMainDataBinding->addField(DFT_float,offsetof(TravelTerminal,mDirection.mZ),4,4);
-	mTravelMainDataBinding->addField(DFT_float,offsetof(TravelTerminal,mDirection.mW),4,5);
-	mTravelMainDataBinding->addField(DFT_float,offsetof(TravelTerminal,mPosition.mX),4,6);
-	mTravelMainDataBinding->addField(DFT_float,offsetof(TravelTerminal,mPosition.mY),4,7);
-	mTravelMainDataBinding->addField(DFT_float,offsetof(TravelTerminal,mPosition.mZ),4,8);
+	mTravelMainDataBinding->addField(DFT_float,offsetof(TravelTerminal,mDirection.x),4,2);
+	mTravelMainDataBinding->addField(DFT_float,offsetof(TravelTerminal,mDirection.y),4,3);
+	mTravelMainDataBinding->addField(DFT_float,offsetof(TravelTerminal,mDirection.z),4,4);
+	mTravelMainDataBinding->addField(DFT_float,offsetof(TravelTerminal,mDirection.w),4,5);
+	mTravelMainDataBinding->addField(DFT_float,offsetof(TravelTerminal,mPosition.x),4,6);
+	mTravelMainDataBinding->addField(DFT_float,offsetof(TravelTerminal,mPosition.y),4,7);
+	mTravelMainDataBinding->addField(DFT_float,offsetof(TravelTerminal,mPosition.z),4,8);
 
 
 	// bank terminal
@@ -443,13 +443,13 @@ void TerminalFactory::_setupDatabindings()
 	mBankMainDataBinding->addField(DFT_bstring,offsetof(BankTerminal,mName),64,11);
 	mBankMainDataBinding->addField(DFT_bstring,offsetof(BankTerminal,mNameFile),64,12);
 	mBankMainDataBinding->addField(DFT_bstring,offsetof(BankTerminal,mCustomName),256,15);
-	mBankMainDataBinding->addField(DFT_float,offsetof(BankTerminal,mDirection.mX),4,2);
-	mBankMainDataBinding->addField(DFT_float,offsetof(BankTerminal,mDirection.mY),4,3);
-	mBankMainDataBinding->addField(DFT_float,offsetof(BankTerminal,mDirection.mZ),4,4);
-	mBankMainDataBinding->addField(DFT_float,offsetof(BankTerminal,mDirection.mW),4,5);
-	mBankMainDataBinding->addField(DFT_float,offsetof(BankTerminal,mPosition.mX),4,6);
-	mBankMainDataBinding->addField(DFT_float,offsetof(BankTerminal,mPosition.mY),4,7);
-	mBankMainDataBinding->addField(DFT_float,offsetof(BankTerminal,mPosition.mZ),4,8);
+	mBankMainDataBinding->addField(DFT_float,offsetof(BankTerminal,mDirection.x),4,2);
+	mBankMainDataBinding->addField(DFT_float,offsetof(BankTerminal,mDirection.y),4,3);
+	mBankMainDataBinding->addField(DFT_float,offsetof(BankTerminal,mDirection.z),4,4);
+	mBankMainDataBinding->addField(DFT_float,offsetof(BankTerminal,mDirection.w),4,5);
+	mBankMainDataBinding->addField(DFT_float,offsetof(BankTerminal,mPosition.x),4,6);
+	mBankMainDataBinding->addField(DFT_float,offsetof(BankTerminal,mPosition.y),4,7);
+	mBankMainDataBinding->addField(DFT_float,offsetof(BankTerminal,mPosition.z),4,8);
 
 	// elevator terminal main data
 	mElevatorMainDataBinding = mDatabase->CreateDataBinding(13);
@@ -459,36 +459,36 @@ void TerminalFactory::_setupDatabindings()
 	mElevatorMainDataBinding->addField(DFT_bstring,offsetof(ElevatorTerminal,mName),64,11);
 	mElevatorMainDataBinding->addField(DFT_bstring,offsetof(ElevatorTerminal,mNameFile),64,12);
 	mElevatorMainDataBinding->addField(DFT_bstring,offsetof(ElevatorTerminal,mCustomName),256,15);
-	mElevatorMainDataBinding->addField(DFT_float,offsetof(ElevatorTerminal,mDirection.mX),4,2);
-	mElevatorMainDataBinding->addField(DFT_float,offsetof(ElevatorTerminal,mDirection.mY),4,3);
-	mElevatorMainDataBinding->addField(DFT_float,offsetof(ElevatorTerminal,mDirection.mZ),4,4);
-	mElevatorMainDataBinding->addField(DFT_float,offsetof(ElevatorTerminal,mDirection.mW),4,5);
-	mElevatorMainDataBinding->addField(DFT_float,offsetof(ElevatorTerminal,mPosition.mX),4,6);
-	mElevatorMainDataBinding->addField(DFT_float,offsetof(ElevatorTerminal,mPosition.mY),4,7);
-	mElevatorMainDataBinding->addField(DFT_float,offsetof(ElevatorTerminal,mPosition.mZ),4,8);
+	mElevatorMainDataBinding->addField(DFT_float,offsetof(ElevatorTerminal,mDirection.x),4,2);
+	mElevatorMainDataBinding->addField(DFT_float,offsetof(ElevatorTerminal,mDirection.y),4,3);
+	mElevatorMainDataBinding->addField(DFT_float,offsetof(ElevatorTerminal,mDirection.z),4,4);
+	mElevatorMainDataBinding->addField(DFT_float,offsetof(ElevatorTerminal,mDirection.w),4,5);
+	mElevatorMainDataBinding->addField(DFT_float,offsetof(ElevatorTerminal,mPosition.x),4,6);
+	mElevatorMainDataBinding->addField(DFT_float,offsetof(ElevatorTerminal,mPosition.y),4,7);
+	mElevatorMainDataBinding->addField(DFT_float,offsetof(ElevatorTerminal,mPosition.z),4,8);
 
 	// elevator terminal upper destination
 	mElevetorDataUpBinding = mDatabase->CreateDataBinding(9);
 	mElevetorDataUpBinding->addField(DFT_uint64,offsetof(ElevatorTerminal,mDstCellUp),8,1);
-	mElevetorDataUpBinding->addField(DFT_float,offsetof(ElevatorTerminal,mDstDirUp.mX),4,2);
-	mElevetorDataUpBinding->addField(DFT_float,offsetof(ElevatorTerminal,mDstDirUp.mY),4,3);
-	mElevetorDataUpBinding->addField(DFT_float,offsetof(ElevatorTerminal,mDstDirUp.mZ),4,4);
-	mElevetorDataUpBinding->addField(DFT_float,offsetof(ElevatorTerminal,mDstDirUp.mW),4,5);
-	mElevetorDataUpBinding->addField(DFT_float,offsetof(ElevatorTerminal,mDstPosUp.mX),4,6);
-	mElevetorDataUpBinding->addField(DFT_float,offsetof(ElevatorTerminal,mDstPosUp.mY),4,7);
-	mElevetorDataUpBinding->addField(DFT_float,offsetof(ElevatorTerminal,mDstPosUp.mZ),4,8);
+	mElevetorDataUpBinding->addField(DFT_float,offsetof(ElevatorTerminal,mDstDirUp.x),4,2);
+	mElevetorDataUpBinding->addField(DFT_float,offsetof(ElevatorTerminal,mDstDirUp.y),4,3);
+	mElevetorDataUpBinding->addField(DFT_float,offsetof(ElevatorTerminal,mDstDirUp.z),4,4);
+	mElevetorDataUpBinding->addField(DFT_float,offsetof(ElevatorTerminal,mDstDirUp.w),4,5);
+	mElevetorDataUpBinding->addField(DFT_float,offsetof(ElevatorTerminal,mDstPosUp.x),4,6);
+	mElevetorDataUpBinding->addField(DFT_float,offsetof(ElevatorTerminal,mDstPosUp.y),4,7);
+	mElevetorDataUpBinding->addField(DFT_float,offsetof(ElevatorTerminal,mDstPosUp.z),4,8);
 	mElevetorDataUpBinding->addField(DFT_uint32,offsetof(ElevatorTerminal,mEffectUp),4,9);
 
 	// elevator terminal lower destination
 	mElevetorDataDownBinding = mDatabase->CreateDataBinding(9);
 	mElevetorDataDownBinding->addField(DFT_uint64,offsetof(ElevatorTerminal,mDstCellDown),8,1);
-	mElevetorDataDownBinding->addField(DFT_float,offsetof(ElevatorTerminal,mDstDirDown.mX),4,2);
-	mElevetorDataDownBinding->addField(DFT_float,offsetof(ElevatorTerminal,mDstDirDown.mY),4,3);
-	mElevetorDataDownBinding->addField(DFT_float,offsetof(ElevatorTerminal,mDstDirDown.mZ),4,4);
-	mElevetorDataDownBinding->addField(DFT_float,offsetof(ElevatorTerminal,mDstDirDown.mW),4,5);
-	mElevetorDataDownBinding->addField(DFT_float,offsetof(ElevatorTerminal,mDstPosDown.mX),4,6);
-	mElevetorDataDownBinding->addField(DFT_float,offsetof(ElevatorTerminal,mDstPosDown.mY),4,7);
-	mElevetorDataDownBinding->addField(DFT_float,offsetof(ElevatorTerminal,mDstPosDown.mZ),4,8);
+	mElevetorDataDownBinding->addField(DFT_float,offsetof(ElevatorTerminal,mDstDirDown.x),4,2);
+	mElevetorDataDownBinding->addField(DFT_float,offsetof(ElevatorTerminal,mDstDirDown.y),4,3);
+	mElevetorDataDownBinding->addField(DFT_float,offsetof(ElevatorTerminal,mDstDirDown.z),4,4);
+	mElevetorDataDownBinding->addField(DFT_float,offsetof(ElevatorTerminal,mDstDirDown.w),4,5);
+	mElevetorDataDownBinding->addField(DFT_float,offsetof(ElevatorTerminal,mDstPosDown.x),4,6);
+	mElevetorDataDownBinding->addField(DFT_float,offsetof(ElevatorTerminal,mDstPosDown.y),4,7);
+	mElevetorDataDownBinding->addField(DFT_float,offsetof(ElevatorTerminal,mDstPosDown.z),4,8);
 	mElevetorDataDownBinding->addField(DFT_uint32,offsetof(ElevatorTerminal,mEffectDown),4,9);
 }
 

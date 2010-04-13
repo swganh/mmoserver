@@ -14,10 +14,10 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include "ObjectFactoryCallback.h"
 #include "DatabaseManager/DatabaseCallback.h"
-#include "MathLib/Vector3.h"
 #include "Common/MessageDispatchCallback.h"
 
 #include <boost/thread/recursive_mutex.hpp>
+#include <glm/glm.hpp>
 
 //======================================================================================================================
 
@@ -43,7 +43,7 @@ public:
 	ObjectFactoryCallback*		ofCallback;
 	DatabaseCallback*			dbCallback;
 	uint64						mPlayerId;
-	Anh_Math::Vector3			destination;
+	glm::vec3			        destination;
 	uint16						planet;
 	PlayerObject*				player;
 	CLHCallBack					callBack;

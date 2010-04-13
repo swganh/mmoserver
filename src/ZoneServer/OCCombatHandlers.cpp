@@ -330,7 +330,8 @@ void ObjectController::_handleLoot(uint64 targetId, Message *message, ObjectCont
 	{
 	   MissionObject* mission = dynamic_cast<MissionObject*>(*it);
 	   if(mission->getMissionType() != destroy) { ++it; continue; }
-	   if(player->mPosition.inRange2D(mission->getDestination().Coordinates,20))
+
+       if (glm::distance(player->mPosition, mission->getDestination().Coordinates) < 20)
 	   {
 			gMessageLib->sendPlayClientEffectLocMessage("clienteffect/combat_explosion_lair_large.cef",mission->getDestination().Coordinates,player);
 			gMissionManager->missionComplete(player,mission);
@@ -434,7 +435,7 @@ void ObjectController::lootAll(uint64 targetId, PlayerObject* playerObject)
 						//assume size is 1 slot
 						if(playerInventory->checkSlots(1))
 						{
-							gObjectFactory->requestNewDefaultItem(playerInventory, item->getItemFamily(), item->getItemType(), playerInventory->getId(),99,Anh_Math::Vector3(),"");
+                            gObjectFactory->requestNewDefaultItem(playerInventory, item->getItemFamily(), item->getItemType(), playerInventory->getId(), 99, glm::vec3(), "");
 							
 							//remove from container - destroy for player
 							invObjectIt = inventory->removeObject(invObjectIt,playerObject);

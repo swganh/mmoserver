@@ -82,7 +82,7 @@ void ObjectController::_handleSitServer(uint64 targetId,Message* message,ObjectC
 					if((uint32)newRegion->getId() == playerObject->getSubZoneId())
 					{
 						// this also updates the players position
-						newRegion->mTree->updateObject(playerObject,Anh_Math::Vector3(chairX,chairY,chairZ));
+                        newRegion->mTree->updateObject(playerObject, glm::vec3(chairX,chairY,chairZ));
 					}
 					else
 					{
@@ -93,7 +93,7 @@ void ObjectController::_handleSitServer(uint64 targetId,Message* message,ObjectC
 						}
 
 						// update players position
-						playerObject->mPosition = Anh_Math::Vector3(chairX,chairY,chairZ);
+                        playerObject->mPosition = glm::vec3(chairX,chairY,chairZ);
 
 						// put into new
 						playerObject->setSubZoneId((uint32)newRegion->getId());
@@ -132,7 +132,7 @@ void ObjectController::_handleSitServer(uint64 targetId,Message* message,ObjectC
 						gLogger->logMsgF("Error adding %"PRIu64" to cell %"PRIu64"",MSG_NORMAL,playerObject->getId(),chairCell);
 				}
 
-				playerObject->mPosition = Anh_Math::Vector3(chairX,chairY,chairZ);
+                playerObject->mPosition = glm::vec3(chairX,chairY,chairZ);
 			}
 
 			//playerObject->mDirection = Anh_Math::Quaternion();

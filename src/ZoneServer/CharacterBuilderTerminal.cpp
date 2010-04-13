@@ -504,7 +504,7 @@ void CharacterBuilderTerminal::GiveItem(PlayerObject* playerObject, uint32 input
 	if(item)
 	{
 		Inventory* inventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-		gObjectFactory->requestNewDefaultItem(inventory,item->family,item->type,inventory->getId(),99,Anh_Math::Vector3(),"");
+        gObjectFactory->requestNewDefaultItem(inventory,item->family,item->type,inventory->getId(),99, glm::vec3(),"");
 		gMessageLib->sendSystemMessage(playerObject, L"The item has been placed in your inventory.");
 	}
 	else

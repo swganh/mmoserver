@@ -54,7 +54,7 @@ class Datapad : public TangibleObject
 		bool			removeWaypoint(uint64 id);
 		bool			removeWaypoint(WaypointObject* waypoint);
 		void			setObjectLoadCounter(uint32 count){ mObjectLoadCounter = count; }
-		void			requestNewWaypoint(string name,const Anh_Math::Vector3 coords,uint16 planetId,uint8 wpType);
+		void			requestNewWaypoint(string name, const glm::vec3& coords, uint16 planetId, uint8 wpType);
 
 		//missions
 		MissionList*   getMissions() { return &mMissions; }

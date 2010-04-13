@@ -18,6 +18,9 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Common/MessageFactory.h"
 #include "DatabaseManager/Database.h"
 
+#include <glm/gtx/fast_trigonometry.hpp>
+
+using namespace glm::gtx;
 
 //=============================================================================
 
@@ -33,8 +36,8 @@ Object::Object()
 , mDataTransformCounter(0)
 , mMovementMessageToggle(true)
 {
-	mDirection = Anh_Math::Quaternion();
-	mPosition  = Anh_Math::Vector3();
+    mDirection = glm::quat();
+    mPosition  = glm::vec3();
 
 	mObjectController.setObject(this);
 }
@@ -71,6 +74,50 @@ Object::~Object()
 }
 
 //=============================================================================
+
+glm::vec3 Object::getWorldPosition() const
+{
+    const Object* root_parent = getRootParent();
+
+    // Is this object the root? If so it's position is the world position.
+    if (this == root_parent) {
+        return mPosition;
+    }
+
+    // Get the length of the object's vector inside the root parent (generally a building).
+    float length = glm::length(mPosition);
+
+    // Determine the translation angle.
+    float theta = quaternion::angle(root_parent->mDirection) - fast_trigonometry::fastAtan(mPosition.x, mPosition.z);
+
+    // Calculate and return the object's position relative to root parent's position in the world.
+    return glm::vec3(
+        root_parent->mPosition.x + (sin(theta) * length),
+        root_parent->mPosition.y + mPosition.y,
+        root_parent->mPosition.z - (cos(theta) * length)
+        );				
+}
+
+//=============================================================================
+
+// @TODO: This is a dependency on WorldManager that could be avoided by having an
+//        Object instance hold a reference to it's parent.
+const Object* Object::getRootParent() const
+{
+    // If there's no parent id then this is the root object.
+    if (! getParentId()) {
+        return this;
+    }
+
+    // Otherwise get the parent for this object and call getRootParent on it.
+    Object* parent = gWorldManager->getObjectById(getParentId());
+    assert(parent && "Unable to find root parent in WorldManager");
+
+    return parent->getRootParent();
+}
+
+//=============================================================================
+
 
 bool Object::removeKnownObject(Object* object)
 {

@@ -23,6 +23,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Utils/typedefs.h"
 
 #include <boost/lexical_cast.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 #include <vector>
 #include <map>
@@ -110,7 +112,7 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 		bool						checkKnownObjects(Object* object) const;
 
 		RadialMenuPtr				getRadialMenu(){ return mRadialMenu; }
-		virtual void				ResetRadialMenu(){;}//	RadialMenu* radial	= NULL;RadialMenuPtr radialPtr(radial);	mRadialMenu = radialPtr;}
+        virtual void				ResetRadialMenu() {}//	RadialMenu* radial	= NULL;RadialMenuPtr radialPtr(radial);	mRadialMenu = radialPtr;}
 
 		virtual void				handleUIEvent(uint32 action,int32 element,string inputStr = "",UIWindow* window = NULL) {}
 
@@ -165,14 +167,29 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 		
 		virtual ~Object();
 
-		Anh_Math::Quaternion	mDirection;
-		Anh_Math::Vector3		mPosition;
+        /*! Retrieve the world position of an object. Important for ranged lookups that need
+         *  to include objects inside and outside of buildings.
+         *
+         * \returns glm::vec3 The world position of an object.
+         */
+        glm::vec3 getWorldPosition() const;
+
+        /*! Returns the current object's root parent. If the object is the root it returns itself.
+         *
+         * \returns const Object* Root parent for the current object.
+         */
+        const Object* getRootParent() const;
+
+        glm::quat   mDirection;
+        glm::vec3   mPosition;
+		//Anh_Math::Quaternion	mDirection;
+		//Anh_Math::Vector3		mPosition;
 
 		inline uint64			getPrivateOwner() { return mPrivateOwner; }
 		inline void				setPrivateOwner(uint64 owner) { mPrivateOwner = owner; }
 		bool					isOwnedBy(PlayerObject* player);
-		Anh_Math::Vector3		getLastUpdatePosition(){ return mLastUpdatePosition; }
-		void					setLastUpdatePosition(Anh_Math::Vector3 pos ){mLastUpdatePosition = pos; }
+		const glm::vec3&		getLastUpdatePosition(){ return mLastUpdatePosition; }
+		void					setLastUpdatePosition(const glm::vec3& pos ){mLastUpdatePosition = pos; }
 
 
 		//clientprefab Menu List
@@ -210,7 +227,7 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 		uint32					mTypeOptions;
 		uint32					mDataTransformCounter;
 	private:
-		Anh_Math::Vector3		mLastUpdatePosition;	// Position where SI was updated.
+		glm::vec3		        mLastUpdatePosition;	// Position where SI was updated.
 
 };
 

@@ -117,8 +117,7 @@ void	ObjectController::_handleModifyPermissionList(uint64 targetId,Message* mess
 		}
 		
 	}
-	else
-	if(!player->mPosition.inRange2D(structure->mPosition,fAdminListDistance))
+    else if(glm::distance(player->mPosition, structure->mPosition) > fAdminListDistance)
 	{
 		gMessageLib->sendSystemMessage(player,L"","player_structure","command_no_building");
 		return;
@@ -443,7 +442,7 @@ void	ObjectController::_handleTransferStructure(uint64 targetId,Message* message
 	
 	//is the structure in Range???
 	float fTransferDistance = gWorldConfig->getConfiguration("Player_Transfer_Structure_Distance",(float)8.0);
-	if(!player->mPosition.inRange2D(structure->mPosition,fTransferDistance))
+    if(glm::distance(player->mPosition, structure->mPosition) > fTransferDistance)
 	{
 		gMessageLib->sendSystemMessage(player,L"","player_structure","command_no_building");
 		return;
@@ -496,7 +495,7 @@ void	ObjectController::_handleNameStructure(uint64 targetId,Message* message,Obj
 	
 	//is the structure in Range???
 	float fTransferDistance = gWorldConfig->getConfiguration("Player_Structure_Operate_Distance",(float)10.0);
-	if(!player->mPosition.inRange2D(structure->mPosition,fTransferDistance))
+    if(glm::distance(player->mPosition, structure->mPosition) > fTransferDistance)
 	{
 		gMessageLib->sendSystemMessage(player,L"","player_structure","command_no_building");
 		return;
@@ -556,7 +555,7 @@ void	ObjectController::_handleHarvesterGetResourceData(uint64 targetId,Message* 
 	
 	//is the structure in Range???
 	float fTransferDistance = gWorldConfig->getConfiguration("Player_Structure_Operate_Distance",(float)10.0);
-	if(!player->mPosition.inRange2D(structure->mPosition,fTransferDistance))
+	if(glm::distance(player->mPosition, structure->mPosition) > fTransferDistance)
 	{
 		gLogger->logMsgF(" ObjectController::_handleHarvesterGetResourceData Structure not in Range",MSG_HIGH);
 		return;
@@ -623,7 +622,7 @@ void	ObjectController::_handleHarvesterSelectResource(uint64 targetId,Message* m
 	
 	//is the structure in Range???
 	float fTransferDistance = gWorldConfig->getConfiguration("Player_Structure_Operate_Distance",(float)10.0);
-	if(!player->mPosition.inRange2D(structure->mPosition,fTransferDistance))
+	if(glm::distance(player->mPosition, structure->mPosition) > fTransferDistance)
 	{
 		gLogger->logMsgF(" ObjectController::_handleHarvesterGetResourceData Structure not in Range",MSG_HIGH);
 		return;
@@ -658,8 +657,8 @@ void	ObjectController::_handleHarvesterSelectResource(uint64 targetId,Message* m
 	float posX, posZ;
 	float ratio = 0.0;
 
-	posX	= harvester->mPosition.mX;
-	posZ	= harvester->mPosition.mZ;
+	posX	= harvester->mPosition.x;
+	posZ	= harvester->mPosition.z;
 	
 	
 	if(cR)
@@ -728,7 +727,7 @@ void	ObjectController::_handleHarvesterActivate(uint64 targetId,Message* message
 	
 	//is the structure in Range???
 	float fTransferDistance = gWorldConfig->getConfiguration("Player_Structure_Operate_Distance",(float)10.0);
-	if(!player->mPosition.inRange2D(structure->mPosition,fTransferDistance))
+	if(glm::distance(player->mPosition, structure->mPosition) > fTransferDistance)
 	{
 		gLogger->logMsgF(" ObjectController::_handleHarvesterActivate Structure not in Range",MSG_HIGH);
 		return;
@@ -776,7 +775,7 @@ void	ObjectController::_handleHarvesterDeActivate(uint64 targetId,Message* messa
 	
 	//is the structure in Range???
 	float fTransferDistance = gWorldConfig->getConfiguration("Player_Structure_Operate_Distance",(float)10.0);
-	if(!player->mPosition.inRange2D(structure->mPosition,fTransferDistance))
+	if(glm::distance(player->mPosition, structure->mPosition) > fTransferDistance)
 	{
 		gLogger->logMsgF(" ObjectController::_handleHarvesterGetResourceData Structure not in Range",MSG_HIGH);
 		return;
@@ -824,7 +823,7 @@ void	ObjectController::_handleDiscardHopper(uint64 targetId,Message* message,Obj
 	
 	//is the structure in Range???
 	float fTransferDistance = gWorldConfig->getConfiguration("Player_Structure_Operate_Distance",(float)10.0);
-	if(!player->mPosition.inRange2D(structure->mPosition,fTransferDistance))
+	if(glm::distance(player->mPosition, structure->mPosition) > fTransferDistance)
 	{
 		gLogger->logMsgF(" ObjectController::_handleHarvesterGetResourceData Structure not in Range",MSG_HIGH);
 		return;
@@ -878,7 +877,7 @@ void	ObjectController::handleResourceEmptyHopper(Message* message)
 	
 	//is the structure in Range???
 	float fTransferDistance = gWorldConfig->getConfiguration("Player_Structure_Operate_Distance",(float)10.0);
-	if(!player->mPosition.inRange2D(structure->mPosition,fTransferDistance))
+	if(glm::distance(player->mPosition, structure->mPosition) > fTransferDistance)
 	{
 		gLogger->logMsgF(" ObjectController::_handleHarvesterGetResourceData Structure not in Range",MSG_HIGH);
 		return;
@@ -974,12 +973,12 @@ void	ObjectController::_handleItemMoveForward(uint64 targetId,Message* message,O
 
 
 	//we somehow need to calculate the vector of the movement *away* from us
-	player->mDirection.normalize();
-	player->mPosition.normalize();
-	object->mPosition.normalize();
-	object->mPosition.mX -= (float)((1-player->mDirection.mX) * 0.10);
-	object->mPosition.mZ -= (float)(player->mDirection.mY * 0.10);
-	object->mPosition.mY -= (float)(player->mDirection.mZ * 0.10);
+    player->mDirection = glm::normalize(player->mDirection);
+    player->mPosition = glm::normalize(player->mPosition);
+    object->mPosition = glm::normalize(object->mPosition);
+	object->mPosition.x -= (float)((1-player->mDirection.x) * 0.10);
+	object->mPosition.z -= (float)(player->mDirection.y * 0.10);
+	object->mPosition.y -= (float)(player->mDirection.z * 0.10);
     
 	//Anh_Math::Vector3 v3 = object->mPosition - player->mPosition;
 	//v3.normalize();
@@ -1040,7 +1039,7 @@ void	ObjectController::_handleItemMoveUp(uint64 targetId,Message* message,Object
 	}
 
 
-	object->mPosition.mY += static_cast<float>(0.10);
+	object->mPosition.y += static_cast<float>(0.10);
 	gMessageLib->sendDataTransformWithParent(object);
 	object->updateWorldPosition();
 }
@@ -1094,7 +1093,7 @@ void	ObjectController::_handleItemMoveDown(uint64 targetId,Message* message,Obje
 	}
 
 
-	object->mPosition.mY -= static_cast<float>(0.10);
+	object->mPosition.y -= static_cast<float>(0.10);
 	gMessageLib->sendDataTransformWithParent(object);
 	object->updateWorldPosition();
 }
@@ -1151,10 +1150,10 @@ void	ObjectController::_handleItemMoveBack(uint64 targetId,Message* message,Obje
 
 	//we somehow need to calculate the vector of the movement *away* from us
 
-	player->mDirection.normalize();
-	object->mPosition.mX += (float)((1-player->mDirection.mX) * 0.10);
-	object->mPosition.mZ += (float)(player->mDirection.mY * 0.10);
-	object->mPosition.mY += (float)(player->mDirection.mZ * 0.10);
+    player->mDirection = glm::normalize(player->mDirection);
+	object->mPosition.x += (float)((1-player->mDirection.x) * 0.10);
+	object->mPosition.z += (float)(player->mDirection.y * 0.10);
+	object->mPosition.y += (float)(player->mDirection.z * 0.10);
 
 	gMessageLib->sendDataTransformWithParent(object);
 	object->updateWorldPosition();
@@ -1211,8 +1210,8 @@ void	ObjectController::_handleItemRotationRight90(uint64 targetId,Message* messa
 		return;
 	}
 	
+    object->mDirection = glm::gtc::quaternion::rotate(object->mDirection, 90, object->mPosition);
 	
-	object->mDirection.rotatex(90);
 	gMessageLib->sendDataTransformWithParent(object);
 	object->updateWorldPosition();
 	
@@ -1266,7 +1265,7 @@ void	ObjectController::_handleItemRotationLeft90(uint64 targetId,Message* messag
 	}
 	
 	
-	object->mDirection.rotatex(-90);
+    object->mDirection = glm::gtc::quaternion::rotate(object->mDirection, -90, object->mPosition);
 	gMessageLib->sendDataTransformWithParent(object);
 	object->updateWorldPosition();
 	
@@ -1333,13 +1332,13 @@ void	ObjectController::_handleItemRotation(uint64 targetId,Message* message,Obje
 	
 	if(strcmp(direction,"left") == 0)
 	{
-		object->mDirection.rotatex(-(float) degrees);
+        object->mDirection = glm::gtc::quaternion::rotate(object->mDirection, -static_cast<float>(degrees), object->mPosition);
 		gMessageLib->sendDataTransformWithParent(object);
 	}
 
 	if(strcmp(direction,"right") == 0)
 	{
-		object->mDirection.rotatex((float) degrees);
+        object->mDirection = glm::gtc::quaternion::rotate(object->mDirection, static_cast<float>(degrees), object->mPosition);
 		gMessageLib->sendDataTransformWithParent(object);
 	}
 

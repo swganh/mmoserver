@@ -17,7 +17,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 struct SampleNode
 {
-	Anh_Math::Vector3	Position;
+    glm::vec3           Position;
 	uint32				zone;
 	CurrentResource*	resource;
 	SurveyTool*			tool;

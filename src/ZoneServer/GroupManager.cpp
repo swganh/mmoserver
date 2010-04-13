@@ -414,7 +414,7 @@ MissionObject* GroupManager::getZoneGroupMission(std::list<uint64>* members)
 			float	nearestDistance = 88000.0;
 			
 			MissionObject* currentMission = (*missionRangeListIt).first;
-			float currentDistance = groupMember->mPosition.distance2D(currentMission->getDestination().Coordinates);
+            float currentDistance = glm::distance(groupMember->mPosition, currentMission->getDestination().Coordinates);
 
 			//store the nearest Mission
 			if(currentDistance < nearestDistance)
@@ -494,7 +494,7 @@ void GroupManager::_processIsmGroupInviteInRangeRequest(Message *message)
 		return;
 	}
 
-	if(sender->mPosition.inRange2D(target->mPosition, 90))
+    if (glm::distance(sender->mPosition, target->mPosition) < 90)
 	{
 		gMessageLib->sendIsmGroupInviteInRangeResponse(sender, target, true);
 	}

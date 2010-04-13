@@ -50,7 +50,7 @@ bool MessageLib::sendClusterZoneTransferRequestByTicket(PlayerObject* playerObje
 //
 // request zone transfer through admin command
 // 
-bool MessageLib::sendClusterZoneTransferRequestByPosition(PlayerObject* playerObject,Anh_Math::Vector3 position,uint32 destinationPlanet)
+bool MessageLib::sendClusterZoneTransferRequestByPosition(PlayerObject* playerObject, const glm::vec3& position, uint32 destinationPlanet)
 {
 	if(!playerObject || !playerObject->isConnected())
 	{
@@ -60,8 +60,8 @@ bool MessageLib::sendClusterZoneTransferRequestByPosition(PlayerObject* playerOb
 	mMessageFactory->StartMessage();          
 	mMessageFactory->addUint32(opClusterZoneTransferRequestByPosition);  
 	mMessageFactory->addUint32(destinationPlanet);
-	mMessageFactory->addFloat(position.mX);
-	mMessageFactory->addFloat(position.mZ);
+	mMessageFactory->addFloat(position.x);
+	mMessageFactory->addFloat(position.z);
 
 	(playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Connection,0);
 
@@ -102,10 +102,10 @@ bool MessageLib::sendIsmGroupBaselineRequest(PlayerObject* targetPlayer)
 
 	mMessageFactory->StartMessage();
 	mMessageFactory->addUint32(opIsmGroupBaselineRequest);
-	mMessageFactory->addFloat(targetPlayer->mPosition.mX);
-	mMessageFactory->addFloat(targetPlayer->mPosition.mZ);
+	mMessageFactory->addFloat(targetPlayer->mPosition.x);
+	mMessageFactory->addFloat(targetPlayer->mPosition.z);
 
-	targetPlayer->getClient()->SendChannelA(mMessageFactory->EndMessage(),targetPlayer->getAccountId(), CR_Chat, 2);
+	targetPlayer->getClient()->SendChannelA(mMessageFactory->EndMessage(), targetPlayer->getAccountId(), CR_Chat, 2);
 
 	return(true);
 }
@@ -142,8 +142,8 @@ bool MessageLib::sendIsmGroupPositionNotification(PlayerObject* targetPlayer)
 
 	mMessageFactory->StartMessage();
 	mMessageFactory->addUint32(opIsmGroupPositionNotification);
-	mMessageFactory->addFloat(targetPlayer->mPosition.mX);
-	mMessageFactory->addFloat(targetPlayer->mPosition.mZ);
+	mMessageFactory->addFloat(targetPlayer->mPosition.x);
+	mMessageFactory->addFloat(targetPlayer->mPosition.z);
 
 	targetPlayer->getClient()->SendChannelA(mMessageFactory->EndMessage(),targetPlayer->getAccountId(), CR_Chat, 2);
 

@@ -54,11 +54,11 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 		return;
 	}
 
-	Anh_Math::Vector3		pos;
-	Anh_Math::Quaternion	dir;
-	uint32					inMoveCount;
-	uint32					tickCount;
-	float					speed;
+    glm::vec3		pos;
+    glm::quat       dir;
+	uint32			inMoveCount;
+	uint32			tickCount;
+	float			speed;
 	bool updateAll = false;
 
 	// get tick and move counters
@@ -91,25 +91,25 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 
 
 	// get new direction, position and speed
-	dir.mX = message->getFloat();
-	dir.mY = message->getFloat();	 
-	dir.mZ = message->getFloat();
-	dir.mW = message->getFloat();
+	dir.x = message->getFloat();
+	dir.y = message->getFloat();	 
+	dir.z = message->getFloat();
+	dir.w = message->getFloat();
 
-	pos.mX = message->getFloat();
-	pos.mY = message->getFloat();
-	pos.mZ = message->getFloat();
+	pos.x = message->getFloat();
+	pos.y = message->getFloat();
+	pos.z = message->getFloat();
 	speed  = message->getFloat();
 
-	// gLogger->logMsgF("Position outside = %.2f, %.2f, %.2f",MSG_NORMAL, pos.mX,  pos.mY, pos.mZ);
+	// gLogger->logMsgF("Position outside = %.2f, %.2f, %.2f",MSG_NORMAL, pos.x,  pos.y, pos.z);
 	/*
 	if (Heightmap::isHeightmapCacheAvaliable())
 	{
-	gLogger->logMsgF("Heightmap value = %.2f",MSG_NORMAL, Heightmap::Instance()->getCachedHeightAt2DPosition(pos.mX, pos.mZ));
+	gLogger->logMsgF("Heightmap value = %.2f",MSG_NORMAL, Heightmap::Instance()->getCachedHeightAt2DPosition(pos.x, pos.z));
 	}
 	*/
 
-	// gLogger->logMsgF("Direction = %f, %f, %f, %f",MSG_NORMAL, dir.mX, dir.mY, dir.mZ, dir.mW);
+	// gLogger->logMsgF("Direction = %f, %f, %f, %f",MSG_NORMAL, dir.x, dir.y, dir.z, dir.w);
 
 	// stop entertaining, if we were
 	// important is, that if we move we change our posture to NOT skill animating anymore!
@@ -146,7 +146,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 
 		// add us to the qtree
 
-		if(QTRegion* newRegion = mSI->getQTRegion((double)pos.mX,(double)pos.mZ))
+		if(QTRegion* newRegion = mSI->getQTRegion((double)pos.x,(double)pos.z))
 		{
 			player->setSubZoneId((uint32)newRegion->getId());
 			newRegion->mTree->addObject(player);
@@ -175,7 +175,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 	{
 		// we should be in a qt at this point
 		// get the qt of the new position
-		if(QTRegion* newRegion = mSI->getQTRegion((double)pos.mX,(double)pos.mZ))
+		if(QTRegion* newRegion = mSI->getQTRegion((double)pos.x,(double)pos.z))
 		{
 			// we didnt change so update the old one
 			if((uint32)newRegion->getId() == player->getSubZoneId())
@@ -329,14 +329,14 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 void ObjectController::handleDataTransformWithParent(Message* message,bool inRangeUpdate)
 {
 	// FIXME: for now assume we only get messages from players
-	PlayerObject*			player = dynamic_cast<PlayerObject*>(mObject);
-	Anh_Math::Vector3		pos;
-	Anh_Math::Quaternion	dir;
-	uint32					inMoveCount;
-	uint32					tickCount;
-	uint64					parentId;
-	float					speed;
-	bool					updateAll = false;
+	PlayerObject*	player = dynamic_cast<PlayerObject*>(mObject);
+    glm::vec3       pos;
+    glm::quat       dir;
+	uint32          inMoveCount;
+	uint32			tickCount;
+	uint64			parentId;
+	float			speed;
+	bool			updateAll = false;
 
 	// get tick and move counters
 	tickCount	= message->getUint32();
@@ -355,18 +355,18 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 
 		// get new direction, position, parent and speed
 		parentId = message->getUint64();
-		dir.mX = message->getFloat();
-		dir.mY = message->getFloat();
-		dir.mZ = message->getFloat();
-		dir.mW = message->getFloat();
-		pos.mX = message->getFloat();
-		pos.mY = message->getFloat();
-		pos.mZ = message->getFloat();
+		dir.x = message->getFloat();
+		dir.y = message->getFloat();
+		dir.z = message->getFloat();
+		dir.w = message->getFloat();
+		pos.x = message->getFloat();
+		pos.y = message->getFloat();
+		pos.z = message->getFloat();
 		speed  = message->getFloat();
 
 
-		// gLogger->logMsgF("Position inside = %f, %f, %f",MSG_NORMAL, pos.mX,  pos.mY, pos.mZ);
-		// gLogger->logMsgF("Direction = %f, %f, %f, %f",MSG_NORMAL, dir.mX, dir.mY, dir.mZ, dir.mW);
+		// gLogger->logMsgF("Position inside = %f, %f, %f",MSG_NORMAL, pos.x,  pos.y, pos.z);
+		// gLogger->logMsgF("Direction = %f, %f, %f, %f",MSG_NORMAL, dir.x, dir.y, dir.z, dir.w);
 
 		// stop entertaining, if we were
 		if(player->getPerformingState() != PlayerPerformance_None && player->getPosture() != CreaturePosture_SkillAnimating)
@@ -578,7 +578,7 @@ void ObjectController::_findInRangeObjectsOutside(bool updateAll)
 		if(QTRegion* region = gWorldManager->getQTRegion(player->getSubZoneId()))
 		{
 			// gLogger->logMsg("... in a region.");
-			Anh_Math::Rectangle qRect = Anh_Math::Rectangle(player->mPosition.mX - viewingRange,player->mPosition.mZ - viewingRange,viewingRange * 2,viewingRange * 2);
+			Anh_Math::Rectangle qRect = Anh_Math::Rectangle(player->mPosition.x - viewingRange,player->mPosition.z - viewingRange,viewingRange * 2,viewingRange * 2);
 
 			// We need to find moving creatures also...
 			region->mTree->getObjectsInRange(player,&mInRangeObjects,ObjType_Player | ObjType_NPC | ObjType_Creature | ObjType_Lair , &qRect);
@@ -732,9 +732,9 @@ void ObjectController::_findInRangeObjectsInside(bool updateAll)
 		mSI->getObjectsInRange(player,&mInRangeObjects,(ObjType_Player | ObjType_Tangible | ObjType_NPC | ObjType_Creature | ObjType_Building | ObjType_Structure),viewingRange);
 
 		// query the qtree based on the buildings world position
-		if (QTRegion* region = mSI->getQTRegion(building->mPosition.mX,building->mPosition.mZ))
+		if (QTRegion* region = mSI->getQTRegion(building->mPosition.x,building->mPosition.z))
 		{
-			Anh_Math::Rectangle qRect = Anh_Math::Rectangle(building->mPosition.mX - viewingRange,building->mPosition.mZ - viewingRange,viewingRange * 2,viewingRange * 2);
+			Anh_Math::Rectangle qRect = Anh_Math::Rectangle(building->mPosition.x - viewingRange,building->mPosition.z - viewingRange,viewingRange * 2,viewingRange * 2);
 
 			// We need to find moving creatures outside...
 			region->mTree->getObjectsInRange(player,&mInRangeObjects,ObjType_Player | ObjType_NPC | ObjType_Creature, &qRect);
@@ -751,9 +751,9 @@ void ObjectController::_findInRangeObjectsInside(bool updateAll)
 		mSI->getObjectsInRange(player,&mInRangeObjects,(ObjType_Tangible | ObjType_Player | ObjType_Creature | ObjType_NPC),viewingRange);
 
 		// query the qtree based on the buildings world position
-		if (QTRegion* region = mSI->getQTRegion(building->mPosition.mX,building->mPosition.mZ))
+		if (QTRegion* region = mSI->getQTRegion(building->mPosition.x,building->mPosition.z))
 		{
-			Anh_Math::Rectangle qRect = Anh_Math::Rectangle(building->mPosition.mX - viewingRange,building->mPosition.mZ - viewingRange,viewingRange * 2,viewingRange * 2);
+			Anh_Math::Rectangle qRect = Anh_Math::Rectangle(building->mPosition.x - viewingRange,building->mPosition.z - viewingRange,viewingRange * 2,viewingRange * 2);
 
 			// We need to find moving creatures outside...
 			region->mTree->getObjectsInRange(player,&mInRangeObjects,ObjType_Player | ObjType_NPC | ObjType_Creature,&qRect);
@@ -1095,7 +1095,7 @@ uint64 ObjectController::playerWorldUpdate(bool forcedUpdate)
 					{
 						// gLogger->logMsg("We are not moving...");
 						// We are not moving, but how far are we from last full update pos?
-						if (!player->mPosition.inRange2D(player->getLastUpdatePosition(),16.0f))
+                        if (glm::distance(player->mPosition, player->getLastUpdatePosition()) < 16)
 						{
 							// Force a full update, inclusive of saving current "update pos".
 							// gLogger->logMsg("... forced update!");
@@ -1116,7 +1116,8 @@ uint64 ObjectController::playerWorldUpdate(bool forcedUpdate)
 		}
 
 		// Position check for SI-update.
-		OutOfUpdateRange |= !(player->mPosition.inRange2D(player->getLastUpdatePosition(),64.0f));
+        OutOfUpdateRange |= !(glm::distance(player->mPosition, player->getLastUpdatePosition()) < 64.0f);
+		//OutOfUpdateRange |= !(player->mPosition.inRange2D(player->getLastUpdatePosition(),64.0f));
 
 		// gLogger->logMsgF("Distance = %f",MSG_NORMAL, player->mPosition.distance2D(player->getLastUpdatePosition()));
 

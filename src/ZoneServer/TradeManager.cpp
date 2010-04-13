@@ -524,9 +524,9 @@ void TradeManager::_processFindFriendCreateWaypointMessage(Message* message,Disp
 
 	Datapad* thePad = dynamic_cast<Datapad*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
 
-	Anh_Math::Vector3		position;
-	position.mX = x;
-	position.mZ = z;
+    glm::vec3 position;
+	position.x = x;
+	position.z = z;
 
 	WaypointObject* wp = thePad->getWaypointByName(playerFriendName);
 	if(wp)
@@ -556,7 +556,7 @@ void TradeManager::_processFindFriendRequestPositionMessage(Message* message,Dis
 		return;
 	}
 
-	gMessageLib->sendFindFriendLocation(friendObject,playerFriend,player,friendObject->mPosition.mX,friendObject->mPosition.mZ);
+	gMessageLib->sendFindFriendLocation(friendObject,playerFriend,player,friendObject->mPosition.x,friendObject->mPosition.z);
 }
 
 //=======================================================================================================================

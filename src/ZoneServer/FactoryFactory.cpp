@@ -373,13 +373,13 @@ void FactoryFactory::_setupDatabindings()
 	mFactoryBinding = mDatabase->CreateDataBinding(22);
 	mFactoryBinding->addField(DFT_uint64,offsetof(FactoryObject,mId),8,0);
 	mFactoryBinding->addField(DFT_uint64,offsetof(FactoryObject,mOwner),8,1);
-	mFactoryBinding->addField(DFT_float,offsetof(FactoryObject,mDirection.mX),4,2);
-	mFactoryBinding->addField(DFT_float,offsetof(FactoryObject,mDirection.mY),4,3);
-	mFactoryBinding->addField(DFT_float,offsetof(FactoryObject,mDirection.mZ),4,4);
-	mFactoryBinding->addField(DFT_float,offsetof(FactoryObject,mDirection.mW),4,5);
-	mFactoryBinding->addField(DFT_float,offsetof(FactoryObject,mPosition.mX),4,6);
-	mFactoryBinding->addField(DFT_float,offsetof(FactoryObject,mPosition.mY),4,7);
-	mFactoryBinding->addField(DFT_float,offsetof(FactoryObject,mPosition.mZ),4,8);
+	mFactoryBinding->addField(DFT_float,offsetof(FactoryObject,mDirection.x),4,2);
+	mFactoryBinding->addField(DFT_float,offsetof(FactoryObject,mDirection.y),4,3);
+	mFactoryBinding->addField(DFT_float,offsetof(FactoryObject,mDirection.z),4,4);
+	mFactoryBinding->addField(DFT_float,offsetof(FactoryObject,mDirection.w),4,5);
+	mFactoryBinding->addField(DFT_float,offsetof(FactoryObject,mPosition.x),4,6);
+	mFactoryBinding->addField(DFT_float,offsetof(FactoryObject,mPosition.y),4,7);
+	mFactoryBinding->addField(DFT_float,offsetof(FactoryObject,mPosition.z),4,8);
 
 	mFactoryBinding->addField(DFT_uint32,offsetof(FactoryObject,mFactoryFamily),4,9);//thats the structure_type_data ID
 	mFactoryBinding->addField(DFT_bstring,offsetof(FactoryObject,mModel),256,10);

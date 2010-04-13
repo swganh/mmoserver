@@ -69,7 +69,7 @@ void TicketCollector::handleObjectMenuSelect(uint8 messageType,Object* srcObject
 		}
 
 		// in range check for shuttle not for the droid
-		if(playerObject->getParentId() != mParentId || !playerObject->mPosition.inRange2D(mShuttle->mPosition,25.0f))
+        if(playerObject->getParentId() != mParentId || (glm::distance(playerObject->mPosition, mShuttle->mPosition) > 25.0f))
 		{
 			gMessageLib->sendSystemMessage(playerObject,L"","travel","boarding_too_far");
 			return;
@@ -146,7 +146,7 @@ void TicketCollector::handleUIEvent(uint32 action,int32 element,string inputStr,
 		}
 
 		// in range check
-		if(playerObject->getParentId() != mParentId || !playerObject->mPosition.inRange2D(this->mPosition,10.0f))
+        if(playerObject->getParentId() != mParentId || (glm::distance(playerObject->mPosition, this->mPosition) > 10.0f))
 		{
 			gMessageLib->sendSystemMessage(playerObject,L"","travel","boarding_too_far");
 			return;
@@ -173,11 +173,11 @@ void TicketCollector::handleUIEvent(uint32 action,int32 element,string inputStr,
 				{
 					if(TravelPoint* dstPoint = gTravelMapHandler->getTravelPoint(dstPlanetId,dstPointStr))
 					{
-						Anh_Math::Vector3 destination;
+                        glm::vec3 destination;
 						// getRand(5) return 0-4, then sub 2, and you get equal of random values at both sides of zero. (-2, -1, 0, 1, 2)
-						destination.mX = dstPoint->spawnX + (gRandom->getRand()%5 - 2);
-						destination.mY = dstPoint->spawnY;
-						destination.mZ = dstPoint->spawnZ + (gRandom->getRand()%5 - 2);
+						destination.x = dstPoint->spawnX + (gRandom->getRand()%5 - 2);
+						destination.y = dstPoint->spawnY;
+						destination.z = dstPoint->spawnZ + (gRandom->getRand()%5 - 2);
 
 						// If it's on this planet, then just warp, otherwize zone
 						if(dstPlanetId == zoneId)
@@ -231,10 +231,10 @@ void TicketCollector::travelRequest(TravelTicket* ticket,PlayerObject* playerObj
 
 			if(dstPoint)
 			{
-				Anh_Math::Vector3 destination;
-				destination.mX = dstPoint->spawnX + (gRandom->getRand()%5 - 2);
-				destination.mY = dstPoint->spawnY;
-				destination.mZ = dstPoint->spawnZ + (gRandom->getRand()%5 - 2);
+                glm::vec3 destination;
+				destination.x = dstPoint->spawnX + (gRandom->getRand()%5 - 2);
+				destination.y = dstPoint->spawnY;
+				destination.z = dstPoint->spawnZ + (gRandom->getRand()%5 - 2);
 
 				// If it's on this planet, then just warp, otherwize zone
 				if(dstPlanetId == zoneId)

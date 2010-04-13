@@ -194,7 +194,7 @@ void Tutorial::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				gLogger->logMsgF("Tutorial::handleDatabaseJobComplete: New destination planet = %u",MSG_NORMAL, startingLocation.destinationPlanet);
 
 				gMessageLib->sendClusterZoneTransferRequestByPosition(player, 
-																	  Anh_Math::Vector3(startingLocation.destX, startingLocation.destY, startingLocation.destZ), 
+                    glm::vec3(startingLocation.destX, startingLocation.destY, startingLocation.destZ), 
 																	  startingLocation.destinationPlanet);
 			}
 			else
@@ -636,7 +636,7 @@ float Tutorial::getPlayerPosX()
 	float posX = -9000.0f;	// Out of range.
 	if (mPlayerObject && mPlayerObject->isConnected())
 	{
-		posX = mPlayerObject->mPosition.mX;
+		posX = mPlayerObject->mPosition.x;
 	}
 	return posX;
 }
@@ -646,7 +646,7 @@ float Tutorial::getPlayerPosY()
 	float posY = -9000.0f;	// Out of range.
 	if (mPlayerObject && mPlayerObject->isConnected())
 	{
-		posY = mPlayerObject->mPosition.mY;
+		posY = mPlayerObject->mPosition.y;
 	}
 	return posY;
 }
@@ -656,7 +656,7 @@ float Tutorial::getPlayerPosZ()
 	float posZ = -9000.0f;	// Out of range.
 	if (mPlayerObject && mPlayerObject->isConnected())
 	{
-		posZ = mPlayerObject->mPosition.mZ;
+		posZ = mPlayerObject->mPosition.z;
 	}
 	return posZ;
 }
@@ -668,7 +668,7 @@ float Tutorial::getPlayerPosToObject(uint64 objectId)
 	Object* object = dynamic_cast<Object*>(gWorldManager->getObjectById(objectId));
 	if (object && mPlayerObject && mPlayerObject->isConnected())
 	{
-		distance = mPlayerObject->mPosition.distance2D(object->mPosition);
+        distance = glm::distance(mPlayerObject->mPosition, object->mPosition);
 	}
 	return distance;
 }
@@ -819,7 +819,7 @@ void Tutorial::addQuestWeapon(uint32 familyId, uint32 typeId)
 				mQuestWeaponFamily = familyId;
 				mQuestWeaponType = typeId;
 			}
-			gObjectFactory->requestNewDefaultItem(inventory,mQuestWeaponFamily,mQuestWeaponType,inventory->getId(),99,Anh_Math::Vector3(),"");
+            gObjectFactory->requestNewDefaultItem(inventory,mQuestWeaponFamily,mQuestWeaponType,inventory->getId(),99, glm::vec3(), "");
 		}
 	}
 }

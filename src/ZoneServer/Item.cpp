@@ -35,7 +35,7 @@ Item::~Item()
 
 void Item::updateWorldPosition()
 {
-	gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id ='%I64u', oX='%f',oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",this->getParentId(), this->mDirection.mX, this->mDirection.mY, this->mDirection.mZ, this->mDirection.mW, this->mPosition.mX, this->mPosition.mY, this->mPosition.mZ, this->getId());
+	gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id ='%I64u', oX='%f',oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",this->getParentId(), this->mDirection.x, this->mDirection.y, this->mDirection.z, this->mDirection.w, this->mPosition.x, this->mPosition.y, this->mPosition.z, this->getId());
 	
 }
 
@@ -91,14 +91,14 @@ void Item::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 		{
 			case radId_itemRotateRight:
 			{
-				this->mDirection.rotatex(10);
+                this->mDirection = glm::gtc::quaternion::rotate(this->mDirection, 10, this->mPosition);
 				gMessageLib->sendDataTransform(this);
 			}
 			break;
 
 			case radId_itemRotateLeft:
 			{
-				this->mDirection.rotatex(-10);
+                this->mDirection = glm::gtc::quaternion::rotate(this->mDirection, -10, this->mPosition);
 				gMessageLib->sendDataTransform(this);
 			}
 			break;

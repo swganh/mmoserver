@@ -117,8 +117,8 @@ void QTRegionFactory::_setupDatabindings()
 	mRegionBinding->addField(DFT_uint8,offsetof(QTRegion,mQTDepth),1,1);
 	mRegionBinding->addField(DFT_bstring,offsetof(QTRegion,mRegionName),64,2);
 	mRegionBinding->addField(DFT_bstring,offsetof(QTRegion,mNameFile),64,3);
-	mRegionBinding->addField(DFT_float,offsetof(QTRegion,mPosition.mX),4,4);
-	mRegionBinding->addField(DFT_float,offsetof(QTRegion,mPosition.mZ),4,5);
+	mRegionBinding->addField(DFT_float,offsetof(QTRegion,mPosition.x),4,4);
+	mRegionBinding->addField(DFT_float,offsetof(QTRegion,mPosition.z),4,5);
 	mRegionBinding->addField(DFT_float,offsetof(QTRegion,mWidth),4,6);
 	mRegionBinding->addField(DFT_float,offsetof(QTRegion,mHeight),4,7);
 }

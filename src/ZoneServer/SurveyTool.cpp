@@ -70,7 +70,7 @@ void SurveyTool::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 			//We only need to check this when using the tool's functions!
 			//are we swimming ??
 			//slow query - use for building placement only
-			//if(Heightmap::Instance()->hasWater(playerObject->mPosition.mX,playerObject->mPosition.mZ))
+			//if(Heightmap::Instance()->hasWater(playerObject->mPosition.x,playerObject->mPosition.z))
 			//{	
 			//	gMessageLib->sendSystemMessage(playerObject,L"","error_message","survey_swimming");
 			//	return;

@@ -36,8 +36,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Common/Message.h"
 #include "Common/MessageFactory.h"
 
-
-
 //======================================================================================================================
 //
 // waypoint request from datapad and planetmap
@@ -103,7 +101,7 @@ void ObjectController::_handleRequestWaypointAtPosition(uint64 targetId,Message*
 		return;
 	}
 
-	datapad->requestNewWaypoint(nameStr,Anh_Math::Vector3(x,y,z),static_cast<uint16>(planetId),Waypoint_blue);
+    datapad->requestNewWaypoint(nameStr, glm::vec3(x,y,z),static_cast<uint16>(planetId),Waypoint_blue);
 }
 
 //======================================================================================================================
@@ -135,254 +133,55 @@ void ObjectController::_handleSetWaypointActiveStatus(uint64 targetId,Message* m
 // waypoint request from the commandline
 //
 
-void ObjectController::_handleWaypoint(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
+void ObjectController::_handleWaypoint(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties)
 {
 	PlayerObject*	player			= dynamic_cast<PlayerObject*>(mObject);
 	Datapad*		datapad			= dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
-	string			name;
-	int32			x,y,z;
-	uint32			elementCount	= 0;
-	bool			verified		= false;
-
-	
+	string			waypoint_data;
+    glm::vec3       waypoint_position;
 					
-	if(!datapad->getCapacity())
-	{
-		gMessageLib->sendSystemMessage(player,L"","base_player","too_many_waypoints");
+    // Before anything else verify the datapad can hold another waypoint.
+	if(! datapad->getCapacity()) {
+		gMessageLib->sendSystemMessage(player, L"", "base_player", "too_many_waypoints");
 		return;
 	}
+
+    // Read in any waypoint data that may have been sent:
+    //  [SYNTAX] /waypoint <x> <z> or /waypoint <x> <y> <z>
+    message->getStringUnicode16(waypoint_data);
+
+    // Check and see if any parameters were passed to the /waypoint command. For
+    // immediate purposes the length can be used to tell if anything or nothing was passed.
+    if (waypoint_data.getLength()) {
+        int count = swscanf(waypoint_data.getUnicode16(), L"%f %f %f", &waypoint_position.x, &waypoint_position.y, &waypoint_position.z);
+
+        // If there are an invalid number of items then disregard and notify the player of the correct
+        // format for the /waypoint command.
+        if (count < 2 || count > 3) {
+            gMessageLib->sendSystemMessage(player,L"[SYNTAX] /waypoint <x> <z> or /waypoint <x> <y> <z>");
+            return;
+        }
+
+        // If the item count is 2 it means no y value was set in the /waypoint command so
+        // update the waypoint_position data values accordingly.
+        if (count == 2) {
+            waypoint_position.z = waypoint_position.y;
+            waypoint_position.y = 0;
+        }
+
+        // Validate the position values.
+        if (waypoint_position.x < -8192 || waypoint_position.x > 8192 ||
+            waypoint_position.y < -500 || waypoint_position.y > 500 ||
+            waypoint_position.z < -8192 || waypoint_position.z > 8192) {
+		    gMessageLib->sendSystemMessage(player, L"[SYNTAX] Invalid range for /waypoint. x = -8192/8192 y = -500/500 z = -8192/8192");
+            return;
+        }
+    } else {
+        // If no parameters were passed to the /waypoint command use the current world position.
+        waypoint_position = player->getWorldPosition();
+    }
 					
-
-	// create waypoint for current target, don't care about passed parameters
-	
-	// NOTE by ERU: I don't know why or when this code is to be used.
-	// The code makes it impossible to set a Waypoint unless you untarget everything first.
-	// And you don't even know about that Ticket collector you targeted when you travelled the last time.
-	// And thats why we get the wierd Waypoints 6000 m away...
-	/*
-	if(Object* target = player->getTarget())
-	{
-		x = (int32)target->mPosition.mX;
-		y = (int32)target->mPosition.mY;
-		z = (int32)target->mPosition.mZ;
-
-		verified = true;
-	}
-	// create waypoint, no object targeted
-	else
-	*/
-	{
-		message->getStringUnicode16(name);
-
-		if(name.getLength())
-			elementCount = swscanf(name.getUnicode16(),L"%i %i %i",&x,&y,&z);
-
-		switch(elementCount)
-		{
-			case 0:
-			{
-				if(!(player->getParentId()))
-				{
-					x = (int32)player->mPosition.mX;
-					y = (int32)player->mPosition.mY;
-					z = (int32)player->mPosition.mZ;
-				}
-				else
-				{
-					CellObject*	cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()));
-
-					if(cell == NULL)
-						return;
-
-					BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()));
-
-					if(building == NULL)
-						return;
-
-					// Well, this is only half the job. We need to add our position inside the building too.
-					// As a starter, let's get the orientation of the building.
-
-					// Anh_Math::Quaternion	direction(building->mDirection);
-					// Anh_Math::Vector3		position(building->mPosition);
-
-					// Get the length of the vector inside building.
-					float length = sqrt((player->mPosition.mX * player->mPosition.mX) + (player->mPosition.mZ * player->mPosition.mZ));
-					
-					// Get the angle to the object.
-					// float alpha = atan(player->mPosition.mX/player->mPosition.mZ);
-					float alpha = atan(player->mPosition.mX/player->mPosition.mZ);
-
-					if (alpha < 0.0f)
-					{
-						if (player->mPosition.mX > 0.0f)
-						{
-							// add 180
-							alpha += 3.1415936539f;
-						}
-					}
-					else
-					{
-						if (player->mPosition.mX < 0.0f)
-						{
-							// add 180
-							alpha += 3.1415936539f;
-						}
-					}
-					
-					// gLogger->logMsgF("Player %d",MSG_NORMAL, (int32)((alpha / (2.0f * 3.1415936539f)) * 360));
-
-
-					// Now get the angle of the building.
-					float wDir = building->mDirection.mW;
-					// float yDir = 1.0f;
-
-					if (wDir > 0.0f)
-					{
-						if (building->mDirection.mY < 0.0)
-						{
-							wDir *= -1.0f;
-							// yDir = -1.0f;
-						}
-					}
-
-					float angle = 2.0f*acos(wDir);
-					// gLogger->logMsgF("Building: %d",MSG_NORMAL, (int32)((angle / (2.0f * 3.1415936539f)) * 360));
-
-					angle -= alpha;
-
-					if (angle > (2.0f * 3.1415936539f))
-					{
-						angle -= (2.0f * 3.1415936539f);
-					}
-					else if (angle < 0.0f)
-					{
-						angle += (2.0f * 3.1415936539f);
-					}
-
-					// gLogger->logMsgF("In world: %d",MSG_NORMAL, (int32)((angle / (2.0f * 3.1415936539f)) * 360));
-
-					// gLogger->logMsgF("Player pos: %.1f, %.1f", MSG_NORMAL, player->mPosition.mX, player->mPosition.mZ);
-
-					// gLogger->logMsgF("Base pos: %.0f, %.0f", MSG_NORMAL, building->mPosition.mX, building->mPosition.mZ);
-
-					float xDelta = building->mPosition.mX;
-					float zDelta = building->mPosition.mZ;
-
-					if (angle <= 3.1415936539/2.0)
-					{
-						xDelta += (sin(angle) * length);
-						zDelta -= (cos(angle) * length);
-					}
-					else if (angle <= 3.1415936539f)
-					{
-						angle = (float)(3.1415936539) - angle;
-						xDelta += (sin(angle) * length);
-						zDelta += (cos(angle) * length);
-					}
-					else if (angle <= (float)((3.0 * 3.1415936539)/2.0))
-					{
-						angle = angle - (float)(3.1415936539f);
-						xDelta -= (sin(angle) * length);
-						zDelta += (cos(angle) * length);
-					}
-					else
-					{
-						angle = (float)(2.0 * 3.1415936539) - angle;
-						xDelta -= (sin(angle) * length);
-						zDelta -= (cos(angle) * length);
-					}
-
-					// gLogger->logMsgF("Delta pos: %.0f, %.0f", MSG_NORMAL, xDelta, zDelta);
-					
-					if (xDelta > 0.0f )
-					{
-						// x = (int32)(ceil(xDelta));
-						x = (int32)(xDelta + 0.5f);
-					}
-					else
-					{
-						// x = (int32)(floor(xDelta));
-						x = (int32)(xDelta - 0.5f);
-					}
-
-
-					if ((player->mPosition.mY + building->mPosition.mY) > 0.0f)
-					{
-						// y = (int32)(ceil(player->mPosition.mY));
-						y = (int32)(player->mPosition.mY + building->mPosition.mY + 0.5f);
-					}
-					else
-					{
-						// y = (int32)(floor(player->mPosition.mY));
-						y = (int32)(player->mPosition.mY + building->mPosition.mY - 0.5f);
-					}
-
-					if (zDelta > 0.0f )
-					{
-						// z = (int32)(ceil(zDelta));
-						z = (int32)(zDelta + 0.5f);
-					}
-					else
-					{
-						// z = (int32)(floor(zDelta));
-						z = (int32)(zDelta - 0.5f);
-					}
-					// gLogger->logMsgF("Position is: %d, %d", MSG_NORMAL, x, z);
-				}
-
-				verified = true;
-			}
-			break;
-
-			case 2:
-			{
-				z = y;
-				y = 0;
-
-				if(x < -8192 || x > 8192)
-					break;
-
-				if(z < -8192 || z > 8192)
-					break;
-
-				verified = true;
-			}
-			break;
-
-			case 3:
-			{
-				if(x < -8192 || x > 8192)
-					break;
-
-				if(y < -500 || y > 500)
-					break;
-
-				if(z < -8192 || z > 8192)
-					break;
-
-				verified = true;
-			}
-			break;
-
-			default:
-			{
-				gMessageLib->sendSystemMessage(player,L"[SYNTAX] /waypoint <x> <z> or /waypoint <x> <y> <z>");
-
-				return;
-			}
-			break;
-		}
-	}
-
-	if(verified)
-	{
-
-		datapad->requestNewWaypoint("Waypoint",Anh_Math::Vector3((float)x,(float)y,(float)z),static_cast<uint16>(gWorldManager->getZoneId()),Waypoint_blue);
-	}
-	else
-	{
-		gMessageLib->sendSystemMessage(player,L"Error parsing coordinates.");
-	}
+    datapad->requestNewWaypoint("Waypoint", waypoint_position, static_cast<uint16>(gWorldManager->getZoneId()), Waypoint_blue);
 }
 
 //======================================================================================================================

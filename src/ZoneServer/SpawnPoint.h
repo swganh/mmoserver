@@ -13,23 +13,21 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #define ANH_ZONESERVER_SPAWNPOINT_H
 
 #include "Utils/typedefs.h"
-#include "MathLib/Vector3.h"
-#include "MathLib/Quaternion.h"
+#include <glm/glm.hpp>
 
 
 //=============================================================================
 
 class SpawnPoint
 {
-	public:
+ public:
+    SpawnPoint(){}
+	~SpawnPoint(){}
 
-		SpawnPoint(){}
-		~SpawnPoint(){}
-
-	uint64					mCellId;
-	Anh_Math::Quaternion	mDirection;
-	Anh_Math::Vector3		mPosition;
-	string					mName;
+	uint64		mCellId;
+    glm::quat	mDirection;
+    glm::vec3	mPosition;
+	string		mName;
 };
 
 //=============================================================================

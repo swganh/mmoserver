@@ -15,8 +15,9 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "DatabaseManager/DatabaseCallback.h"
 #include "FactoryBase.h"
 #include "NpcIdentifier.h"
-#include "MathLib/Vector3.h"
-#include "MathLib/Quaternion.h"
+
+#include <glm/glm.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 class NPCObject;
 class DatabaseResult;
@@ -90,8 +91,8 @@ class NonPersistentNpcFactory : public FactoryBase
 										   uint64 creatureTemplateId,
 										   uint64 npcNewId,
 										   uint64 spawnCellId,
-										   Anh_Math::Vector3 spawnPosition,
-										   Anh_Math::Quaternion	spawnDirection,
+										   const glm::vec3& spawnPosition,
+										   const glm::quat&	spawnDirection,
 										   uint64 respawnDelay,
 										   uint64 parentLairId = 0);
 

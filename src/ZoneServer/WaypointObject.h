@@ -47,15 +47,15 @@ class WaypointObject : public Object
 		uint8				getWPType(){ return mWPType; }
 		void				setWPType(uint8 type){ mWPType = type; }
 
-		void				setCoords(Anh_Math::Vector3 coords){ mCoords = coords; }
-		Anh_Math::Vector3	getCoords(){ return mCoords; }
+		void				setCoords(const glm::vec3& coords){ mCoords = coords; }
+        const glm::vec3&	getCoords(){ return mCoords; }
 
 		uint32				getPlanetCRC() { return mPlanetCRC; }
 		void				setPlanetCRC(uint32 planet_crc) { mPlanetCRC = planet_crc; }
 
 	private:
 
-		Anh_Math::Vector3	mCoords;
+        glm::vec3	mCoords;
 		bool				mActive;
 		string				mName;
 		uint8				mWPType;

@@ -524,9 +524,9 @@ void TradeManager::_processFindFriendCreateWaypointMessage(Message* message,Disp
 
 	Datapad* thePad = dynamic_cast<Datapad*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
 
-	Anh_Math::Vector3		position;
-	position.mX = x;
-	position.mZ = z;
+    glm::vec3 position;
+	position.x = x;
+	position.z = z;
 
 	WaypointObject* wp = thePad->getWaypointByName(playerFriendName);
 	if(wp)
@@ -556,7 +556,7 @@ void TradeManager::_processFindFriendRequestPositionMessage(Message* message,Dis
 		return;
 	}
 
-	gMessageLib->sendFindFriendLocation(friendObject,playerFriend,player,friendObject->mPosition.mX,friendObject->mPosition.mZ);
+	gMessageLib->sendFindFriendLocation(friendObject,playerFriend,player,friendObject->mPosition.x,friendObject->mPosition.z);
 }
 
 //=======================================================================================================================
@@ -1078,8 +1078,9 @@ void TradeManager::_processAddItemMessage(Message* message,DispatchClient* clien
 
 	//inventory items
 	Item* theitem = dynamic_cast<Item*>(gWorldManager->getObjectById(ItemId));
-	if (theitem && addedItem->getParentId() == inventory->getId())
+	if (theitem && playerObject->getController()->checkContainingContainer(addedItem->getParentId(),playerObject->getId()))
 	{
+	
 		//make sure the item is not equipped
 		playerObject->getEquipManager()->unEquipItem(theitem);
 	}

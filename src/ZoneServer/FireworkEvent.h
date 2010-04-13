@@ -22,23 +22,23 @@ class FireworkEvent : public Anh_Utils::Event
 {
 	public:
 
-		FireworkEvent(uint32 _typeId,PlayerObject* _playerObject, Anh_Math::Vector3	_position)
+		FireworkEvent(uint32 _typeId,PlayerObject* _playerObject, const glm::vec3&	_position)
 		{
 			this->typeId = _typeId;
 			this->playerObject=_playerObject;
 			this->mPosition = _position;
-			this->mPosition.mX +=static_cast<float>((gRandom->getRand()%5)-2.5);
-			this->mPosition.mZ +=static_cast<float>((gRandom->getRand()%5)-2.5);
+			this->mPosition.x +=static_cast<float>((gRandom->getRand()%5)-2.5);
+			this->mPosition.z +=static_cast<float>((gRandom->getRand()%5)-2.5);
 		}
 
 		PlayerObject*		getPlayerObject() const { return playerObject; }
 		uint32				getType() const { return typeId; }
-		Anh_Math::Vector3	getPosition() const { return mPosition; }
+		const glm::vec3&	getPosition() const { return mPosition; }
 
 	private:
 		PlayerObject* playerObject;
 		uint32	typeId;
-		Anh_Math::Vector3 mPosition;
+        glm::vec3 mPosition;
 };
 
 

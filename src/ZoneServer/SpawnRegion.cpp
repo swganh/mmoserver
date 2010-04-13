@@ -41,9 +41,9 @@ void SpawnRegion::update()
 	//run about every 4.5 seconds
 	if(!mSubZoneId)
 	{
-		mQTRegion	= mSI->getQTRegion(mPosition.mX,mPosition.mZ);
+		mQTRegion	= mSI->getQTRegion(mPosition.x,mPosition.z);
 		mSubZoneId	= (uint32)mQTRegion->getId();
-		mQueryRect	= Anh_Math::Rectangle(mPosition.mX - mWidth,mPosition.mZ - mHeight,mWidth * 2,mHeight * 2);
+		mQueryRect	= Anh_Math::Rectangle(mPosition.x - mWidth,mPosition.z - mHeight,mWidth * 2,mHeight * 2);
 	}
 
 	Object*		object;

@@ -164,7 +164,7 @@ void ObjectController::_handleRequestCoreSample(uint64 targetId,Message* message
 	}
 
 	ArtisanHeightmapAsyncContainer* container = new ArtisanHeightmapAsyncContainer(this, HeightmapCallback_ArtisanSurvey);
-	container->addToBatch(playerObject->mPosition.mX,playerObject->mPosition.mZ);
+	container->addToBatch(playerObject->mPosition.x,playerObject->mPosition.z);
 
 	container->playerObject = playerObject;
 	container->resource = resource;

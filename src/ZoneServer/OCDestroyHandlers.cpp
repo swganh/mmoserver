@@ -163,26 +163,24 @@ void ObjectController::destroyObject(uint64 objectId)
 			}
 
 			// update the equiplist, if its an equipable item
-			if(item->hasInternalAttribute("equipped"))
+			CreatureObject* creature = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(item->getParentId()));
+			if(creature)
 			{
-				if(item->getInternalAttribute<bool>("equipped"))
+				// remove from creatures slotmap
+				playerObject->getEquipManager()->removeEquippedObject(object);
+
+				// send out the new equiplist
+				gMessageLib->sendEquippedListUpdate_InRange(playerObject);
+
+				// destroy it for players in range
+				PlayerObjectSet* objList		= playerObject->getKnownPlayers();
+				PlayerObjectSet::iterator it	= objList->begin();
+
+				while(it != objList->end())
 				{
-					// remove from creatures slotmap
-					playerObject->getEquipManager()->removeEquippedObject(object);
+					gMessageLib->sendDestroyObject(objectId,(*it));
 
-					// send out the new equiplist
-					gMessageLib->sendEquippedListUpdate_InRange(playerObject);
-
-					// destroy it for players in range
-					PlayerObjectSet* objList		= playerObject->getKnownPlayers();
-					PlayerObjectSet::iterator it	= objList->begin();
-
-					while(it != objList->end())
-					{
-						gMessageLib->sendDestroyObject(objectId,(*it));
-
-						++it;
-					}
+					++it;
 				}
 			}
 		}

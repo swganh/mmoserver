@@ -610,7 +610,7 @@ void TravelMapHandler::handleUIEvent(uint32 action,int32 element,string inputStr
 			return;
 		}
 
-		if((playerObject->getParentId() != shuttle->getParentId()) || (!playerObject->mPosition.inRange2D(shuttle->mPosition,25.0f)))
+        if((playerObject->getParentId() != shuttle->getParentId()) || (glm::distance(playerObject->mPosition, shuttle->mPosition) > 25.0f))
 		{
 			gMessageLib->sendSystemMessage(playerObject,L"","travel","boarding_too_far");
 
@@ -640,10 +640,10 @@ void TravelMapHandler::handleUIEvent(uint32 action,int32 element,string inputStr
 
 					if(dstPoint != NULL)
 					{
-						Anh_Math::Vector3 destination;
-						destination.mX = dstPoint->spawnX + (gRandom->getRand()%5 - 2);
-						destination.mY = dstPoint->spawnY;
-						destination.mZ = dstPoint->spawnZ + (gRandom->getRand()%5 - 2);
+                        glm::vec3 destination;
+						destination.x = dstPoint->spawnX + (gRandom->getRand()%5 - 2);
+						destination.y = dstPoint->spawnY;
+						destination.z = dstPoint->spawnZ + (gRandom->getRand()%5 - 2);
 
 						// If it's on this planet, then just warp, otherwize zone
 						if(dstPlanetId == zoneId)
@@ -714,10 +714,10 @@ void TravelMapHandler::useTicket(PlayerObject* playerObject, TravelTicket* ticke
 	//ok lets travel
 	if(TravelPoint* dstPoint = gTravelMapHandler->getTravelPoint(dstPlanetId,dstPointStr))
 	{
-		Anh_Math::Vector3 destination;
-		destination.mX = dstPoint->spawnX + (gRandom->getRand()%5 - 2);
-		destination.mY = dstPoint->spawnY;
-		destination.mZ = dstPoint->spawnZ + (gRandom->getRand()%5 - 2);
+        glm::vec3 destination;
+		destination.x = dstPoint->spawnX + (gRandom->getRand()%5 - 2);
+		destination.y = dstPoint->spawnY;
+		destination.z = dstPoint->spawnZ + (gRandom->getRand()%5 - 2);
 
 		// If it's on this planet, then just warp, otherwize zone
 		if(dstPlanetId == zoneId)

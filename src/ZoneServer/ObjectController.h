@@ -216,6 +216,8 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback, 
 		//structures
 		void					handleResourceEmptyHopper(Message* message);
 
+		//permissionsystem
+		bool	checkContainingContainer(uint64 containingContainer, uint64 playerId);
 								// Utility
 		bool					objectsInRange(uint64 obj1Id, uint64 obj2Id, float range);
 
@@ -275,7 +277,7 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback, 
 		void	_handleTransferItemMisc(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleTransferItemMisc2(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		bool	checkTargetContainer(uint64 targetId, Object* object);
-		bool	checkContainingContainer(uint64 containingContainer, uint64 playerId);
+
 		bool	removeFromContainer(uint64 targetContainerId, uint64 targetId);
 
 		void	_handleRequestQuestTimersAndCounters(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);

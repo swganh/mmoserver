@@ -203,9 +203,9 @@ bool MessageLib::sendBaselinesPLAY_8(PlayerObject* playerObject,PlayerObject* ta
 		mMessageFactory->addUint8(2);
 		mMessageFactory->addUint64(waypoint->getId());
 		mMessageFactory->addUint32(0);
-		mMessageFactory->addFloat(waypoint->getCoords().mX);
-		mMessageFactory->addFloat(waypoint->getCoords().mY);
-		mMessageFactory->addFloat(waypoint->getCoords().mZ);
+		mMessageFactory->addFloat(waypoint->getCoords().x);
+		mMessageFactory->addFloat(waypoint->getCoords().y);
+		mMessageFactory->addFloat(waypoint->getCoords().z);
 		mMessageFactory->addUint64(0);
 		mMessageFactory->addUint32(waypoint->getPlanetCRC());//planetcrc
 		mMessageFactory->addString(waypoint->getName());
@@ -519,9 +519,9 @@ bool MessageLib::sendWaypointsUpdate(PlayerObject* playerObject)
 		mMessageFactory->addUint8(0);
 		mMessageFactory->addUint64(waypoint->getId());
 		mMessageFactory->addUint32(0); 
-		mMessageFactory->addFloat(waypoint->getCoords().mX);
-		mMessageFactory->addFloat(waypoint->getCoords().mY);
-		mMessageFactory->addFloat(waypoint->getCoords().mZ);
+		mMessageFactory->addFloat(waypoint->getCoords().x);
+		mMessageFactory->addFloat(waypoint->getCoords().y);
+		mMessageFactory->addFloat(waypoint->getCoords().z);
 		mMessageFactory->addUint64(0);
 		mMessageFactory->addUint32(waypoint->getModelString().getCrc());
 		mMessageFactory->addString(waypoint->getName());
@@ -581,9 +581,9 @@ bool MessageLib::sendUpdateWaypoint(WaypointObject* waypoint,ObjectUpdate update
 	mMessageFactory->addUint8(type);
 	mMessageFactory->addUint64(waypoint->getId());
 	mMessageFactory->addUint32(0);
-	mMessageFactory->addFloat(waypoint->getCoords().mX);
-	mMessageFactory->addFloat(waypoint->getCoords().mY);
-	mMessageFactory->addFloat(waypoint->getCoords().mZ);
+	mMessageFactory->addFloat(waypoint->getCoords().x);
+	mMessageFactory->addFloat(waypoint->getCoords().y);
+	mMessageFactory->addFloat(waypoint->getCoords().z);
 	mMessageFactory->addUint64(0);
 	mMessageFactory->addUint32(waypoint->getModelString().getCrc());
 	mMessageFactory->addString(waypoint->getName());

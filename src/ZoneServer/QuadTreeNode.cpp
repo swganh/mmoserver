@@ -63,10 +63,10 @@ void QuadTreeNode::subDivide()
 		// create them
 		mSubNodes = (QuadTreeNode**)::malloc(4 * sizeof(QuadTreeNode*));
 
-		mSubNodes[0] = new QuadTreeNode(mPosition.mX,mPosition.mZ + height,width,height);
-		mSubNodes[1] = new QuadTreeNode(mPosition.mX + width,mPosition.mZ + height,width,height);
-		mSubNodes[2] = new QuadTreeNode(mPosition.mX + width,mPosition.mZ,width,height);
-		mSubNodes[3] = new QuadTreeNode(mPosition.mX,mPosition.mZ,width,height);
+		mSubNodes[0] = new QuadTreeNode(mPosition.x,mPosition.z + height,width,height);
+		mSubNodes[1] = new QuadTreeNode(mPosition.x + width,mPosition.z + height,width,height);
+		mSubNodes[2] = new QuadTreeNode(mPosition.x + width,mPosition.z,width,height);
+		mSubNodes[3] = new QuadTreeNode(mPosition.x,mPosition.z,width,height);
 	}
 	// its a branch, so traverse its children
 	else
@@ -89,7 +89,7 @@ int32 QuadTreeNode::addObject(Object* object)
 	assert(object && "QuadTreeNode::addObject this method does not accept NULL objects");
 	assert(object->getId() && "QuadTreeNode::addObject this method requires an object with a valid id");
 
-	// gLogger->logMsgF("Trying to add Object %"PRIu64" @ %.2f %.2f ", MSG_NORMAL, object->getId(), object->mPosition.mX, object->mPosition.mZ);
+	// gLogger->logMsgF("Trying to add Object %"PRIu64" @ %.2f %.2f ", MSG_NORMAL, object->getId(), object->mPosition.x, object->mPosition.z);
 
 	// its a leaf, add it
 	if(!mSubNodes)
@@ -136,8 +136,8 @@ int32 QuadTreeNode::addObject(Object* object)
 
 bool QuadTreeNode::checkBounds(Object* object)
 {
-	if(object->mPosition.mX >= mPosition.mX && object->mPosition.mX < mPosition.mX + mWidth
-	&& object->mPosition.mZ >= mPosition.mZ && object->mPosition.mZ < mPosition.mZ + mHeight)
+	if(object->mPosition.x >= mPosition.x && object->mPosition.x < mPosition.x + mWidth
+	&& object->mPosition.z >= mPosition.z && object->mPosition.z < mPosition.z + mHeight)
 	{
 		return(true);
 	}
@@ -238,11 +238,11 @@ bool QuadTreeNode::intersects(Anh_Math::Shape* shape)
 	// rectangular
 	if(Anh_Math::Rectangle* rectangle = dynamic_cast<Anh_Math::Rectangle*>(shape))
 	{
-		Anh_Math::Vector3* rectPos = rectangle->getPosition();
+		const glm::vec3& rectPos = rectangle->getPosition();
 
 		// check intersection
-		if(rectPos->mX > mPosition.mX + mWidth  || rectPos->mX + rectangle->getWidth()  < mPosition.mX
-		|| rectPos->mZ > mPosition.mZ + mHeight || rectPos->mZ + rectangle->getHeight() < mPosition.mZ)
+		if(rectPos.x > mPosition.x + mWidth  || rectPos.x + rectangle->getWidth()  < mPosition.x
+		|| rectPos.z > mPosition.z + mHeight || rectPos.z + rectangle->getHeight() < mPosition.z)
 		{
 			return(false);
 		}
@@ -264,11 +264,11 @@ bool QuadTreeNode::ObjectContained(Anh_Math::Shape* shape, Object* object)
 	// rectangular
 	if(Anh_Math::Rectangle* rectangle = dynamic_cast<Anh_Math::Rectangle*>(shape))
 	{
-		Anh_Math::Vector3* rectPos = rectangle->getPosition();
+		const glm::vec3& rectPos = rectangle->getPosition();
 
 		// check intersection
-		if(rectPos->mX > object->mPosition.mX   || rectPos->mX + rectangle->getWidth()  < object->mPosition.mX
-		|| rectPos->mZ > object->mPosition.mZ  || rectPos->mZ + rectangle->getHeight() < object->mPosition.mZ)
+		if(rectPos.x > object->mPosition.x   || rectPos.x + rectangle->getWidth()  < object->mPosition.x
+		|| rectPos.z > object->mPosition.z  || rectPos.z + rectangle->getHeight() < object->mPosition.z)
 		{
 			return(false);
 		}
@@ -340,7 +340,7 @@ int32 QuadTreeNode::removeObject(Object* object)
 
 // int32 QuadTreeNode::addMyObject(Object* object);
 
-int32 QuadTreeNode::updateObject(Object* object,Anh_Math::Vector3 newPosition)
+int32 QuadTreeNode::updateObject(Object* object, const glm::vec3& newPosition)
 {
 	// Validate input. Should be interesting to see.
 	assert(object && "QuadTreeNode::updateObject this method does not accept NULL objects");
@@ -349,12 +349,12 @@ int32 QuadTreeNode::updateObject(Object* object,Anh_Math::Vector3 newPosition)
 	// shouldnt be called on leafs
 	if(mSubNodes)
 	{
-		// gLogger->logMsgF("Remove Object %"PRIu64" @ %.2f %.2f ", MSG_NORMAL, object->getId(), object->mPosition.mX, object->mPosition.mZ);
+		// gLogger->logMsgF("Remove Object %"PRIu64" @ %.2f %.2f ", MSG_NORMAL, object->getId(), object->mPosition.x, object->mPosition.z);
 		removeObject(object);
 
 		object->mPosition = newPosition;
 
-		// gLogger->logMsgF("Add Object %"PRIu64" @ %.2f %.2f ", MSG_NORMAL, object->getId(), object->mPosition.mX, object->mPosition.mZ);
+		// gLogger->logMsgF("Add Object %"PRIu64" @ %.2f %.2f ", MSG_NORMAL, object->getId(), object->mPosition.x, object->mPosition.z);
 		addObject(object);
 		// addMyObject(object);
 	}

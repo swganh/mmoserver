@@ -122,7 +122,7 @@ bool MessageLib::_checkPlayer(uint64 playerId) const
 
 //================================================================================================0
 //send movement based on messageheap size and distance
-bool MessageLib::_checkDistance(Anh_Math::Vector3 mPosition1,Object* object, uint32 heapWarningLevel)
+bool MessageLib::_checkDistance(const glm::vec3& mPosition1, Object* object, uint32 heapWarningLevel)
 {
 	if(mMessageFactory->getHeapsize() > 98.0)
 		return false;
@@ -133,19 +133,19 @@ bool MessageLib::_checkDistance(Anh_Math::Vector3 mPosition1,Object* object, uin
 	else
 	if (heapWarningLevel < 6)
 	{
-		if(!object->mPosition.nonaccurateRange(mPosition1,96))
+        if(glm::distance(object->mPosition, mPosition1) < 96)
 			return object->movementMessageToggle();
 	}
 	else
 	if (heapWarningLevel < 8)
 	{
-		if(!object->mPosition.nonaccurateRange(mPosition1,64))
+        if(glm::distance(object->mPosition, mPosition1) < 64)
 			return object->movementMessageToggle();
 	}
 	else
 	if (heapWarningLevel < 10)
 	{
-		float distance = object->mPosition.distance2D(mPosition1);
+		float distance = glm::distance(object->mPosition, mPosition1);
 		if(distance <= 32)
 			return true;
 		else
@@ -364,16 +364,13 @@ bool MessageLib::sendEquippedItems(PlayerObject* srcObject,PlayerObject* targetO
 		// items
 		if(Item* item = dynamic_cast<Item*>(*invObjectsIt))
 		{
-			if(item->hasInternalAttribute("equipped"))
+			if(item->getParentId() == srcObject->getId())
+			{			
+				gMessageLib->sendCreateTangible(item,targetObject);
+			}
+			else
 			{
-				if(item->getInternalAttribute<bool>("equipped"))
-				{
-					gMessageLib->sendCreateTangible(item,targetObject);
-				}
-				else
-				{
-					gLogger->logMsgF("MssageLib send equipped objects: Its not equipped ... %I64u",MSG_NORMAL,item->getId());
-				}
+				gLogger->logMsgF("MssageLib send equipped objects: Its not equipped ... %I64u",MSG_NORMAL,item->getId());
 			}
 		}
 
@@ -724,33 +721,17 @@ bool MessageLib::sendCreateTangible(TangibleObject* tangibleObject,PlayerObject*
 		{
 			// could be inside a crafting tool
 			Object* parent = gWorldManager->getObjectById(parentId);
+			CreatureObject* creatureObject = dynamic_cast<CreatureObject*>(parent);
 
 			if(parent && dynamic_cast<CraftingTool*>(parent))
 			{
 				sendContainmentMessage(tangibleObject->getId(),parentId,0,targetObject);
 			}
 			// if equipped, also tie it to the object
-			else if(tangibleObject->hasInternalAttribute("equipped"))
+			else if(creatureObject)
 			{
 				Item* item = dynamic_cast<Item*>(tangibleObject);
-
-				if(item->getInternalAttribute<bool>("equipped"))
-				{
-
-					// get the parent of inventory
-					if(CreatureObject* creatureObject = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(parentId)))
-					{
-						sendContainmentMessage(tangibleObject->getId(),creatureObject->getId(),4,targetObject);
-					}
-					else
-					{
-						gLogger->logMsgF("Inventory:: cant find parent for equipped item",MSG_NORMAL);
-					}
-				}
-				else
-				{
-					sendContainmentMessage(tangibleObject->getId(),tangibleObject->getParentId(),0xffffffff,targetObject);
-				}
+				sendContainmentMessage(tangibleObject->getId(),creatureObject->getId(),4,targetObject);				
 			}
 			else
 			{
@@ -941,7 +922,7 @@ bool MessageLib::sendCreateHarvester(HarvesterObject* harvester,PlayerObject* pl
 	if(!_checkPlayer(player))
 		return(false);
 
-	//gLogger->logMsgF("MessageLib::sendCreateHarvester:ID %I64u parentId %I64u x : %f   y : %f",MSG_HIGH,harvester->getId(),harvester->getParentId(),harvester->mPosition.mX,harvester->mPosition.mZ);
+	//gLogger->logMsgF("MessageLib::sendCreateHarvester:ID %I64u parentId %I64u x : %f   y : %f",MSG_HIGH,harvester->getId(),harvester->getParentId(),harvester->mPosition.x,harvester->mPosition.z);
 
 	sendCreateObjectByCRC(harvester,player,false);
 
@@ -968,7 +949,7 @@ bool MessageLib::sendCreateFactory(FactoryObject* factory,PlayerObject* player)
 	if(!_checkPlayer(player))
 		return(false);
 
-	//gLogger->logMsgF("MessageLib::sendCreateHarvester:ID %I64u parentId %I64u x : %f   y : %f",MSG_HIGH,harvester->getId(),harvester->getParentId(),harvester->mPosition.mX,harvester->mPosition.mZ);
+	//gLogger->logMsgF("MessageLib::sendCreateHarvester:ID %I64u parentId %I64u x : %f   y : %f",MSG_HIGH,harvester->getId(),harvester->getParentId(),harvester->mPosition.x,harvester->mPosition.z);
 
 	sendCreateObjectByCRC(factory,player,false);
 

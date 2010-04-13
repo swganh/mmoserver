@@ -118,8 +118,8 @@ void CityFactory::_setupDatabindings()
 	mCityBinding->addField(DFT_bstring,offsetof(City,mCityName),64,1);
 	mCityBinding->addField(DFT_bstring,offsetof(City,mRegionName),64,2);
 	mCityBinding->addField(DFT_bstring,offsetof(City,mNameFile),64,3);
-	mCityBinding->addField(DFT_float,offsetof(City,mPosition.mX),4,4);
-	mCityBinding->addField(DFT_float,offsetof(City,mPosition.mZ),4,5);
+	mCityBinding->addField(DFT_float,offsetof(City,mPosition.x),4,4);
+	mCityBinding->addField(DFT_float,offsetof(City,mPosition.z),4,5);
 	mCityBinding->addField(DFT_float,offsetof(City,mWidth),4,6);
 	mCityBinding->addField(DFT_float,offsetof(City,mHeight),4,7);
 }

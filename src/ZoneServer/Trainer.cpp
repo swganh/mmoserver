@@ -1126,15 +1126,15 @@ void Trainer::prepareConversation(PlayerObject* player)
 
 	/*
 	gLogger->logMsgF("%"PRIu64"",MSG_NORMAL, this->getId());
-	gLogger->logMsgF("%f %f %f",MSG_NORMAL, player->mPosition.mX, player->mPosition.mY, player->mPosition.mZ);
-	gLogger->logMsgF("\n%f %f %f",MSG_NORMAL, this->mPosition.mX, this->mPosition.mY, this->mPosition.mZ);
+	gLogger->logMsgF("%f %f %f",MSG_NORMAL, player->mPosition.x, player->mPosition.y, player->mPosition.z);
+	gLogger->logMsgF("\n%f %f %f",MSG_NORMAL, this->mPosition.x, this->mPosition.y, this->mPosition.z);
 	
-	gLogger->logMsgF("%f %f %f %f",MSG_NORMAL, player->mDirection.mX, player->mDirection.mY, player->mDirection.mZ, player->mDirection.mW);
-	gLogger->logMsgF("%f %f %f %f",MSG_NORMAL, this->mDirection.mX, this->mDirection.mY, this->mDirection.mZ, this->mDirection.mW);
+	gLogger->logMsgF("%f %f %f %f",MSG_NORMAL, player->mDirection.x, player->mDirection.y, player->mDirection.z, player->mDirection.w);
+	gLogger->logMsgF("%f %f %f %f",MSG_NORMAL, this->mDirection.x, this->mDirection.y, this->mDirection.z, this->mDirection.w);
 	*/
 	
-	float x = player->mPosition.mX - this->mPosition.mX;
-	float z = player->mPosition.mZ - this->mPosition.mZ;
+	float x = player->mPosition.x - this->mPosition.x;
+	float z = player->mPosition.z - this->mPosition.z;
 	float h = sqrt(x*x + z*z);
 	
 	// gLogger->logMsgF("%f %f %f %f",MSG_NORMAL, x, z, x/h, z/h);
@@ -1147,21 +1147,21 @@ void Trainer::prepareConversation(PlayerObject* player)
 	{	
 		if (x/h < 0.0)
 		{
-			this->mDirection.mW = static_cast<float>(cos((3.14159354 * 0.5) + 0.5f*acos(-z/h)));
-			this->mDirection.mY = static_cast<float>(sin((3.14159354 * 0.5) + 0.5f*acos(-z/h)));
+			this->mDirection.w = static_cast<float>(cos((3.14159354 * 0.5) + 0.5f*acos(-z/h)));
+			this->mDirection.y = static_cast<float>(sin((3.14159354 * 0.5) + 0.5f*acos(-z/h)));
 		}
 		else
 		{
-			this->mDirection.mY = sin(0.5f*acos(z/h));
-			this->mDirection.mW = cos(0.5f*acos(z/h));
+			this->mDirection.y = sin(0.5f*acos(z/h));
+			this->mDirection.w = cos(0.5f*acos(z/h));
 		}
 	}
 	else
 	{
-		this->mDirection.mY = sin(0.5f*asin(x/h));	
-		this->mDirection.mW = cos(0.5f*acos(z/h));
+		this->mDirection.y = sin(0.5f*asin(x/h));	
+		this->mDirection.w = cos(0.5f*acos(z/h));
 	}
-	// gLogger->logMsgF("%f %f %f %f",MSG_NORMAL, this->mDirection.mX, this->mDirection.mY, this->mDirection.mZ, this->mDirection.mW);
+	// gLogger->logMsgF("%f %f %f %f",MSG_NORMAL, this->mDirection.x, this->mDirection.y, this->mDirection.z, this->mDirection.w);
 	
 	// send out position updates to known players
 	this->setInMoveCount(this->getInMoveCount() + 1);
@@ -1194,7 +1194,7 @@ void Trainer::prepareConversation(PlayerObject* player)
 			gMessageLib->sendUpdateTransformMessage(this, player);
 		}
 	}
-	// gLogger->logMsgF("%f %f %f %f",MSG_NORMAL, this->mDirection.mX, this->mDirection.mY, this->mDirection.mZ, this->mDirection.mW);
+	// gLogger->logMsgF("%f %f %f %f",MSG_NORMAL, this->mDirection.x, this->mDirection.y, this->mDirection.z, this->mDirection.w);
 
 	setLastConversationTarget(player->getId());
 
@@ -1289,7 +1289,7 @@ void Trainer::respawn(void)
 	this->setParentId(getCellIdForSpawn());
 
 	// Default spawn position.
-	Anh_Math::Vector3 position(getSpawnPosition());
+    glm::vec3 position(getSpawnPosition());
 
 	// Respawn delay. If the creature have an unique delay, use that. Else use the one provided by the parent object.
 	this->setRespawnDelay(0);
@@ -1308,10 +1308,10 @@ void Trainer::respawn(void)
 	if (this->getParentId() == 0)
 	{
 		// Heightmap only works outside.
-		position.mY = this->getHeightAt2DPosition(position.mX, position.mZ, true);
+		position.y = this->getHeightAt2DPosition(position.x, position.z, true);
 	}
 	
-	// gLogger->logMsgF("Setting up spawn of creature at %.0f %.0f %.0f", MSG_NORMAL, position.mX, position.mY, position.mZ);
+	// gLogger->logMsgF("Setting up spawn of creature at %.0f %.0f %.0f", MSG_NORMAL, position.x, position.y, position.z);
 	this->mPosition = this->getSpawnPosition();		// Default spawn position.
 
 	// mSpawned = false;
@@ -1354,7 +1354,7 @@ void Trainer::spawn(void)
 	}
 	else
 	{
-		if (QTRegion* region = gWorldManager->getSI()->getQTRegion(this->mPosition.mX, this->mPosition.mZ))
+		if (QTRegion* region = gWorldManager->getSI()->getQTRegion(this->mPosition.x, this->mPosition.z))
 		{
 			this->setSubZoneId((uint32)region->getId());
 			region->mTree->addObject(this);

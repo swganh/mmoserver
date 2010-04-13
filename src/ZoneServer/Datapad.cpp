@@ -415,7 +415,7 @@ return it;
 //=============================================================================
 
 
-void Datapad::requestNewWaypoint(string name,const Anh_Math::Vector3 coords,uint16 planetId,uint8 wpType)
+void Datapad::requestNewWaypoint(string name, const glm::vec3& coords, uint16 planetId, uint8 wpType)
 {
 	
 	if(!mCapacity)

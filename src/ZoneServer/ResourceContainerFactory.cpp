@@ -143,13 +143,13 @@ void ResourceContainerFactory::_setupDatabindings()
 	mResourceContainerBinding->addField(DFT_uint64,offsetof(ResourceContainer,mParentId),8,1);
 	mResourceContainerBinding->addField(DFT_uint64,offsetof(ResourceContainer,mResourceId),8,2);
 	mResourceContainerBinding->addField(DFT_uint32,offsetof(ResourceContainer,mAmount),4,11);
-	mResourceContainerBinding->addField(DFT_float,offsetof(ResourceContainer,mDirection.mX),4,3);
-	mResourceContainerBinding->addField(DFT_float,offsetof(ResourceContainer,mDirection.mY),4,4);
-	mResourceContainerBinding->addField(DFT_float,offsetof(ResourceContainer,mDirection.mZ),4,5);
-	mResourceContainerBinding->addField(DFT_float,offsetof(ResourceContainer,mDirection.mW),4,6);
-	mResourceContainerBinding->addField(DFT_float,offsetof(ResourceContainer,mPosition.mX),4,7);
-	mResourceContainerBinding->addField(DFT_float,offsetof(ResourceContainer,mPosition.mY),4,8);
-	mResourceContainerBinding->addField(DFT_float,offsetof(ResourceContainer,mPosition.mZ),4,9);
+	mResourceContainerBinding->addField(DFT_float,offsetof(ResourceContainer,mDirection.x),4,3);
+	mResourceContainerBinding->addField(DFT_float,offsetof(ResourceContainer,mDirection.y),4,4);
+	mResourceContainerBinding->addField(DFT_float,offsetof(ResourceContainer,mDirection.z),4,5);
+	mResourceContainerBinding->addField(DFT_float,offsetof(ResourceContainer,mDirection.w),4,6);
+	mResourceContainerBinding->addField(DFT_float,offsetof(ResourceContainer,mPosition.x),4,7);
+	mResourceContainerBinding->addField(DFT_float,offsetof(ResourceContainer,mPosition.y),4,8);
+	mResourceContainerBinding->addField(DFT_float,offsetof(ResourceContainer,mPosition.z),4,9);
 }
 
 //=============================================================================

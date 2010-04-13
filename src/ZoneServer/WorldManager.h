@@ -252,7 +252,7 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 
 		// check if objects are in range. Handles cell and buildings, but not distance between buildings or buildings and outside.
 		bool					objectsInRange(uint64 obj1Id, uint64 obj2Id, float range);
-		bool					objectsInRange(Anh_Math::Vector3 obj1Position,  uint64 obj1ParentId, uint64 obj2Id, float range);
+		bool					objectsInRange(const glm::vec3& obj1Position, uint64 obj1ParentId, uint64 obj2Id, float range);
 
 		// Add-remove npc from Npc-handler queue's.
 		void					addDormantNpc(uint64 creature, uint64 when);
@@ -283,7 +283,7 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		ZoneTree*				getSI(){ return mSpatialIndex; }
 
 		// removes player from the current scene, and starts a new one after updating his position
-		void					warpPlanet(PlayerObject* playerObject,Anh_Math::Vector3 destination,uint64 parentId,Anh_Math::Quaternion direction = Anh_Math::Quaternion());
+		void					warpPlanet(PlayerObject* playerObject, const glm::vec3& destination,uint64 parentId, const glm::quat& direction = glm::quat());
 
 		// get a client effect string by its id
 		string					getClientEffect(uint32 effectId){ return mvClientEffects[effectId - 1]; }

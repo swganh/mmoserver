@@ -16,6 +16,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Utils/typedefs.h"
 #include <map>
 #include <set>
+#include <glm/glm.hpp>
 
 class Object;
 
@@ -38,7 +39,7 @@ class QuadTreeNode : public Anh_Math::Rectangle
 
 		int32	addObject(Object* object);
 		int32	removeObject(Object* object);
-		int32	updateObject(Object* object,Anh_Math::Vector3 newPosition);
+		int32	updateObject(Object* object, const glm::vec3& newPosition);
 
 		bool	checkBounds(Object* object);
 		bool	intersects(Anh_Math::Shape* shape);

@@ -44,7 +44,7 @@ FireworkManager::~FireworkManager(void)
 //===============================================================================00
 //creates the static Object of the firework in the world
 //
-TangibleObject* FireworkManager::createFirework(uint32 typeId, PlayerObject* player, Anh_Math::Vector3 position)
+TangibleObject* FireworkManager::createFirework(uint32 typeId, PlayerObject* player, const glm::vec3& position)
 {
 	//this is by definition a nonpersistant object - so move it there 
 	TangibleObject* firework = new TangibleObject();
@@ -54,16 +54,13 @@ TangibleObject* FireworkManager::createFirework(uint32 typeId, PlayerObject* pla
 	//Make the Player Sit
 	player->setCrouched();
 
-	//The placement formulas may require *slight* tweaking as they don't place directly in front of the player
-	//in the same spot every time.
-	firework->mPosition.mX = player->mPosition.mX + ( cos(player->mDirection.getAnglesToSend()));
-	firework->mPosition.mY = position.mY;
-	firework->mPosition.mZ = player->mPosition.mZ + ( sin(player->mDirection.getAnglesToSend()));
+    // Place the firework 1m in front of the player at the same heading.
+    firework->mPosition.x = player->mPosition.x + sin(glm::gtx::quaternion::angle(player->mDirection));
+    firework->mPosition.z = player->mPosition.z + cos(glm::gtx::quaternion::angle(player->mDirection));
+    firework->mPosition.y = player->mPosition.y;
 
-	firework->mDirection.mX = 0;
-	firework->mDirection.mY = 0;
-	firework->mDirection.mZ = 0;
-	firework->mDirection.mW = 1;
+	firework->mDirection = player->mDirection;
+
 	firework->setId(gWorldManager->getRandomNpId());
 
 	switch(typeId)

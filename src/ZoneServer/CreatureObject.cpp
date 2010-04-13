@@ -14,7 +14,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "AttackableStaticNpc.h"
 #include "Buff.h"
 #include "BuildingObject.h"
-#include "Datapad.h"
+//#include "Datapad.h"
 #include "EntertainerManager.h"
 #include "IncapRecoveryEvent.h"
 #include "PlayerObject.h"
@@ -819,7 +819,7 @@ void CreatureObject::die()
 					// TODO: This code is not working as intended if player dies inside, since buildings use world coordinates and players inside have cell coordinates.
 					// Tranformation is needed before the correct distance can be calculated.
 					if(!nearestBuilding	||
-					   (nearestBuilding != building && (mPosition.distance2D(building->mPosition) < mPosition.distance2D(nearestBuilding->mPosition))))
+                        (nearestBuilding != building && (glm::distance(mPosition, building->mPosition) < glm::distance(mPosition, nearestBuilding->mPosition))))
 					{
 						nearestBuilding = building;
 					}
@@ -1096,7 +1096,7 @@ uint64 CreatureObject::getNearestDefender(void)
 			CreatureObject* defender = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById((*it)));
 			if (defender && !defender->isDead() && !defender->isIncapacitated())
 			{
-				float len = (this->mPosition - defender->mPosition).getLength();
+                float len = glm::distance(this->mPosition, defender->mPosition);
 				if (len < minLenght)
 				{
 					minLenght = len;
@@ -1132,7 +1132,7 @@ uint64 CreatureObject::getNearestAttackingDefender(void)
 			{
 				if ((defender->getCreoGroup() == CreoGroup_Player) || (defender->getCreoGroup() == CreoGroup_Creature))
 				{
-					float len = (this->mPosition - defender->mPosition).getLength();
+                    float len = glm::distance(this->mPosition, defender->mPosition);
 					if (len < minLenght)
 					{
 						minLenght = len;
@@ -1404,40 +1404,7 @@ Object* CreatureObject::getTarget() const
 //handles building custom radials
 void CreatureObject::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount)
 {
-
-	if(getCreoGroup() == CreoGroup_Vehicle)
-	{
-
-		RadialMenu* radial = new RadialMenu();
-
-		if(creatureObject->getId() == mOwner)
-		{
-			PlayerObject* owner = dynamic_cast<PlayerObject*>(creatureObject);
-			if(owner->checkIfMounted())
-			{
-				radial->addItem(2,0,radId_serverVehicleExit,radAction_Default,"@pet/pet_menu:menu_exit");
-			}
-			else
-			{
-				radial->addItem(3,0,radId_serverVehicleEnter,radAction_Default,"@pet/pet_menu:menu_enter");
-			}
-
-			//TODO: Check if near a garage then add repair
-
-			radial->addItem(1,0,radId_examine,radAction_Default);
-			radial->addItem(3,0,radId_vehicleStore,radAction_ObjCallback,"@pet/pet_menu:menu_store");
-
-			mRadialMenu = RadialMenuPtr(radial);
-			return;
-			
-		}
-
-		radial->addItem(1,0,radId_examine,radAction_Default);
-
-		mRadialMenu = RadialMenuPtr(radial);
-	}
-
-
+ 
 return;
 }
 
@@ -1449,32 +1416,7 @@ void CreatureObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
 	if(PlayerObject* player = dynamic_cast<PlayerObject*>(srcObject))
 	{
-		switch(messageType)
-		{
-			case radId_vehicleStore:
-			{
-				if(Datapad* datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad)))
-				{
-					IntangibleObject* itno = datapad->getDataById(mId-1);
-					if(itno)
-					{
-						if(Vehicle* vehicle = dynamic_cast<Vehicle*>(itno))
-						{
-							vehicle->store();
-						}
-					}
-				}
-			}
-			break;
-			case radId_serverVehicleEnter: //An associated packet is sent
-			case radId_serverVehicleExit: //mount and dismount logic is contained within OCPetHandlers.cpp
-				gLogger->logErrorF("radials","CreatureObject::Error: still in radial selection",MSG_NORMAL);
-				break;
-
-			default:
-				gLogger->logErrorF("radials","CreatureObject::Error: unknown radial selection: %d",MSG_NORMAL,messageType);
-			break;
-		}
+			
 	}
 }
 

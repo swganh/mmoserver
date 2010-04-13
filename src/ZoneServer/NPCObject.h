@@ -57,10 +57,10 @@ class NPCObject : public CreatureObject
 		void			setRespawnDelay(uint64 respawnDelay) {mRespawnDelay = respawnDelay;}
 		uint64			getCellIdForSpawn(void) const {return mCellIdForSpawn;}
 		void			setCellIdForSpawn(uint64 cellIdForSpawn) {mCellIdForSpawn = cellIdForSpawn;}
-		void			setSpawnPosition(Anh_Math::Vector3 spawnPosition) {mSpawnPosition = spawnPosition;}
-		Anh_Math::Vector3 getSpawnPosition() const {return mSpawnPosition;}
-		void			setSpawnDirection(Anh_Math::Quaternion spawnDirection) {mSpawnDirection = spawnDirection;}
-		Anh_Math::Quaternion getSpawnDirection() const {return mSpawnDirection;}
+        void			setSpawnPosition(const glm::vec3& spawnPosition) {mSpawnPosition = spawnPosition;}
+		const glm::vec3& getSpawnPosition() const {return mSpawnPosition;}
+		void			setSpawnDirection(const glm::quat& spawnDirection) {mSpawnDirection = spawnDirection;}
+		const glm::quat& getSpawnDirection() const {return mSpawnDirection;}
 
 
 		string			getTitle() const { return mTitle; }
@@ -83,15 +83,15 @@ class NPCObject : public CreatureObject
 
 
 		// Used for NPC movements
-		void			setPositionOffset(Anh_Math::Vector3 positionOffset) {mPositionOffset = positionOffset;}
-		Anh_Math::Vector3	getPositionOffset() const {return mPositionOffset;}
+		void			setPositionOffset(const glm::vec3& positionOffset) {mPositionOffset = positionOffset;}
+		const glm::vec3&	getPositionOffset() const {return mPositionOffset;}
 
-		Anh_Math::Vector3 getRandomPosition(const Anh_Math::Vector3& currentPos, int32 offsetX, int32 offsetZ) const;
+		glm::vec3       getRandomPosition(const glm::vec3& currentPos, int32 offsetX, int32 offsetZ) const;
 		float			getHeightAt2DPosition(float xPos, float zPos, bool bestOffer = false) const;
 		void			setDirection(float deltaX, float deltaZ);
 
 		void			moveAndUpdatePosition(void);
-		void			updatePosition(uint64 parentId, Anh_Math::Vector3 newPosition);
+		void			updatePosition(uint64 parentId, const glm::vec3& newPosition);
 
 		uint64			getLastConversationTarget()const { return mLastConversationTarget; }
 		uint64			getLastConversationRequest() const { return mLastConversationRequest; }
@@ -137,10 +137,10 @@ class NPCObject : public CreatureObject
 		DamageDealers	mDamageDealers;
 		DamageDealers	mDamageByGroups;
 
-		Anh_Math::Quaternion	mDefaultDirection;	// Default direction for npc-objects. Needed when players start turning the npc around.
-		Anh_Math::Vector3		mPositionOffset;
-		Anh_Math::Quaternion	mSpawnDirection;
-		Anh_Math::Vector3		mSpawnPosition;
+        glm::quat	mDefaultDirection;	// Default direction for npc-objects. Needed when players start turning the npc around.
+		glm::vec3	mPositionOffset;
+		glm::quat	mSpawnDirection;
+		glm::vec3	mSpawnPosition;
 
 		Npc_AI_State	mAiState;
 

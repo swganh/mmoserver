@@ -21,7 +21,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Common/bytebuffer.h"
 #include <vector>
 #include <list>
-#include "MathLib/Vector3.h"
+#include <glm/glm.hpp>
 
 #define	 gMessageLib	MessageLib::getSingletonPtr()
 
@@ -129,7 +129,7 @@ public:
 	bool				sendSceneReady(DispatchClient* client);
 	bool				sendSceneReadyToChat(DispatchClient* client);
 	bool				sendServerTime(uint64 time,DispatchClient* client);
-	void				sendWeatherUpdate(Anh_Math::Vector3 cloudVec,uint32 weatherType,PlayerObject* player = NULL);
+	void				sendWeatherUpdate(const glm::vec3& cloudVec, uint32 weatherType, PlayerObject* player = NULL);
 	
 	bool				sendSysMsg(PlayerObject* playerObject,string mainFile,string mainVar,Object* to= NULL, Object* tt = NULL, Object* tu = NULL, int32 di = 0);
 	
@@ -160,7 +160,7 @@ public:
 
 	// client effects
 	bool				sendPlayClientEffectObjectMessage(string effect,string location,Object* effectObject,PlayerObject* playerObject = NULL);
-	bool				sendPlayClientEffectLocMessage(string effect,Anh_Math::Vector3 pos,PlayerObject* targetObject);
+	bool				sendPlayClientEffectLocMessage(string effect, const glm::vec3& pos, PlayerObject* targetObject);
 
 	// position updates
 	void				sendUpdateTransformMessage(MovingObject* object);
@@ -448,7 +448,7 @@ public:
 
 	// internal, internalmessages.cpp
 	bool				sendClusterZoneTransferRequestByTicket(PlayerObject* playerObject,uint64 ticketId,uint32 destinationPlanet);
-	bool				sendClusterZoneTransferRequestByPosition(PlayerObject* playerObject,Anh_Math::Vector3 position,uint32 destinationPlanet);
+	bool				sendClusterZoneTransferRequestByPosition(PlayerObject* playerObject, const glm::vec3& position, uint32 destinationPlanet);
 	bool				sendClusterZoneTransferCharacter(PlayerObject* playerObject,uint32 destinationPlanet);
 	bool				sendGroupLootModeResponse(PlayerObject* playerObject,uint32 selection);
 	bool				sendGroupLootMasterResponse(PlayerObject* masterLooter, PlayerObject* playerObject);
@@ -493,7 +493,7 @@ private:
 
 	MessageLib();
 	
-	bool				_checkDistance(Anh_Math::Vector3 mPosition1,Object* object, uint32 heapWarningLevel);
+	bool				_checkDistance(const glm::vec3& mPosition1, Object* object, uint32 heapWarningLevel);
 
 	bool				_checkPlayer(const PlayerObject* const player) const;
 	bool				_checkPlayer(uint64 playerId) const;

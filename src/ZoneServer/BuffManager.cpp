@@ -86,8 +86,8 @@ void BuffManager::handleDatabaseJobComplete(void *ref, DatabaseResult *result)
 
 				// position save - the callback will be in the worldmanager to proceed with the rest of the safe
 				mDatabase->ExecuteSqlAsync(reinterpret_cast<DatabaseCallback*>(asyncContainer->callBack),asContainer,"UPDATE characters SET parent_id=%"PRIu64",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f,planet_id=%u,jedistate=%u WHERE id=%"PRIu64"",playerObject->getParentId()
-									,playerObject->mDirection.mX,playerObject->mDirection.mY,playerObject->mDirection.mZ,playerObject->mDirection.mW
-									,playerObject->mPosition.mX,playerObject->mPosition.mY,playerObject->mPosition.mZ
+									,playerObject->mDirection.x,playerObject->mDirection.y,playerObject->mDirection.z,playerObject->mDirection.w
+									,playerObject->mPosition.x,playerObject->mPosition.y,playerObject->mPosition.z
 									,gWorldManager->getZoneId(),playerObject->getJediState(),playerObject->getId());
 			
 				//Free up Memory

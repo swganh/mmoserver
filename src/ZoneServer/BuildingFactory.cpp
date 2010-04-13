@@ -191,13 +191,13 @@ void BuildingFactory::_setupDatabindings()
 {
 	mBuildingBinding = mDatabase->CreateDataBinding(14);
 	mBuildingBinding->addField(DFT_uint64,offsetof(BuildingObject,mId),8,0);
-	mBuildingBinding->addField(DFT_float,offsetof(BuildingObject,mDirection.mX),4,1);
-	mBuildingBinding->addField(DFT_float,offsetof(BuildingObject,mDirection.mY),4,2);
-	mBuildingBinding->addField(DFT_float,offsetof(BuildingObject,mDirection.mZ),4,3);
-	mBuildingBinding->addField(DFT_float,offsetof(BuildingObject,mDirection.mW),4,4);
-	mBuildingBinding->addField(DFT_float,offsetof(BuildingObject,mPosition.mX),4,5);
-	mBuildingBinding->addField(DFT_float,offsetof(BuildingObject,mPosition.mY),4,6);
-	mBuildingBinding->addField(DFT_float,offsetof(BuildingObject,mPosition.mZ),4,7);
+	mBuildingBinding->addField(DFT_float,offsetof(BuildingObject,mDirection.x),4,1);
+	mBuildingBinding->addField(DFT_float,offsetof(BuildingObject,mDirection.y),4,2);
+	mBuildingBinding->addField(DFT_float,offsetof(BuildingObject,mDirection.z),4,3);
+	mBuildingBinding->addField(DFT_float,offsetof(BuildingObject,mDirection.w),4,4);
+	mBuildingBinding->addField(DFT_float,offsetof(BuildingObject,mPosition.x),4,5);
+	mBuildingBinding->addField(DFT_float,offsetof(BuildingObject,mPosition.y),4,6);
+	mBuildingBinding->addField(DFT_float,offsetof(BuildingObject,mPosition.z),4,7);
 	mBuildingBinding->addField(DFT_bstring,offsetof(BuildingObject,mModel),256,8);
 	mBuildingBinding->addField(DFT_float,offsetof(BuildingObject,mWidth),4,9);
 	mBuildingBinding->addField(DFT_float,offsetof(BuildingObject,mHeight),4,10);
@@ -207,13 +207,13 @@ void BuildingFactory::_setupDatabindings()
 
 	mSpawnBinding = mDatabase->CreateDataBinding(9);
 	mSpawnBinding->addField(DFT_uint64,offsetof(SpawnPoint,mCellId),8,0);
-	mSpawnBinding->addField(DFT_float,offsetof(SpawnPoint,mDirection.mX),4,1);
-	mSpawnBinding->addField(DFT_float,offsetof(SpawnPoint,mDirection.mY),4,2);
-	mSpawnBinding->addField(DFT_float,offsetof(SpawnPoint,mDirection.mZ),4,3);
-	mSpawnBinding->addField(DFT_float,offsetof(SpawnPoint,mDirection.mW),4,4);
-	mSpawnBinding->addField(DFT_float,offsetof(SpawnPoint,mPosition.mX),4,5);
-	mSpawnBinding->addField(DFT_float,offsetof(SpawnPoint,mPosition.mY),4,6);
-	mSpawnBinding->addField(DFT_float,offsetof(SpawnPoint,mPosition.mZ),4,7);
+	mSpawnBinding->addField(DFT_float,offsetof(SpawnPoint,mDirection.x),4,1);
+	mSpawnBinding->addField(DFT_float,offsetof(SpawnPoint,mDirection.y),4,2);
+	mSpawnBinding->addField(DFT_float,offsetof(SpawnPoint,mDirection.z),4,3);
+	mSpawnBinding->addField(DFT_float,offsetof(SpawnPoint,mDirection.w),4,4);
+	mSpawnBinding->addField(DFT_float,offsetof(SpawnPoint,mPosition.x),4,5);
+	mSpawnBinding->addField(DFT_float,offsetof(SpawnPoint,mPosition.y),4,6);
+	mSpawnBinding->addField(DFT_float,offsetof(SpawnPoint,mPosition.z),4,7);
 	mSpawnBinding->addField(DFT_bstring,offsetof(SpawnPoint,mName),256,8);
 }
 

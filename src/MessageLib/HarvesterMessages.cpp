@@ -605,8 +605,8 @@ void MessageLib::sendHarvesterResourceData(PlayerStructure* structure,PlayerObje
 
 	float posX, posZ, ratio;
 
-	posX	= harvester->mPosition.mX;
-	posZ	= harvester->mPosition.mZ;
+	posX	= harvester->mPosition.x;
+	posZ	= harvester->mPosition.z;
 	
 	mainCat->getResources(resourceList,true);
 

@@ -322,33 +322,33 @@ void ObjectFactory::requestNewClonedItem(ObjectFactoryCallback* ofCallback,uint6
 //
 // create a new item by schematic crc with default attributes
 //
-void ObjectFactory::requestNewDefaultItem(ObjectFactoryCallback* ofCallback,uint32 schemCrc,uint64 parentId,uint16 planetId,Anh_Math::Vector3 position,string customName)
+void ObjectFactory::requestNewDefaultItem(ObjectFactoryCallback* ofCallback, uint32 schemCrc, uint64 parentId, uint16 planetId, const glm::vec3& position, const string& customName)
 {
 	OFAsyncContainer* asyncContainer = new(mDbAsyncPool.ordered_malloc()) OFAsyncContainer(ofCallback,OFQuery_Item,NULL);
 
-	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sf_DefaultItemCreateBySchematic(%u,%"PRIu64",%u,%f,%f,%f,'%s')",schemCrc,parentId,planetId,position.mX,position.mY,position.mZ,customName.getAnsi());
+	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sf_DefaultItemCreateBySchematic(%u,%"PRIu64",%u,%f,%f,%f,'%s')",schemCrc,parentId,planetId,position.x,position.y,position.z,customName.getAnsi());
 }
 
 //=============================================================================
 //
 // create a new item with default attributes
 //
-void ObjectFactory::requestNewDefaultItem(ObjectFactoryCallback* ofCallback,uint32 familyId,uint32 typeId,uint64 parentId,uint16 planetId,Anh_Math::Vector3 position,string customName)
+void ObjectFactory::requestNewDefaultItem(ObjectFactoryCallback* ofCallback,uint32 familyId,uint32 typeId,uint64 parentId,uint16 planetId, const glm::vec3& position, const string& customName)
 {
 	OFAsyncContainer* asyncContainer = new(mDbAsyncPool.ordered_malloc()) OFAsyncContainer(ofCallback,OFQuery_Item,NULL);
 
-	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sf_DefaultItemCreate(%u,%u,%"PRIu64",%"PRIu64",%u,%f,%f,%f,'%s')",familyId,typeId,parentId,(uint64) 0,planetId,position.mX,position.mY,position.mZ,customName.getAnsi());
+	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sf_DefaultItemCreate(%u,%u,%"PRIu64",%"PRIu64",%u,%f,%f,%f,'%s')",familyId,typeId,parentId,(uint64) 0,planetId,position.x,position.y,position.z,customName.getAnsi());
 }
 
 //=============================================================================
 //
 // create a new item with default attributes
 //
-void ObjectFactory::requestNewDefaultItemWithUses(ObjectFactoryCallback* ofCallback,uint32 familyId,uint32 typeId,uint64 parentId,uint16 planetId,Anh_Math::Vector3 position,string customName, int useCount)
+void ObjectFactory::requestNewDefaultItemWithUses(ObjectFactoryCallback* ofCallback,uint32 familyId,uint32 typeId,uint64 parentId,uint16 planetId, const glm::vec3& position, const string& customName, int useCount)
 {
 	OFAsyncContainer* asyncContainer = new(mDbAsyncPool.ordered_malloc()) OFAsyncContainer(ofCallback,OFQuery_Item,NULL);
 
-	mDatabase->ExecuteSqlAsync(this,asyncContainer,"CALL sp_CreateForagedItem(%u,%u,%"PRIu64",%"PRIu64",%u,%f,%f,%f,'%s',%d)",familyId,typeId,parentId,(uint64) 0,planetId,position.mX,position.mY,position.mZ,customName.getAnsi(), useCount);
+	mDatabase->ExecuteSqlAsync(this,asyncContainer,"CALL sp_CreateForagedItem(%u,%u,%"PRIu64",%"PRIu64",%u,%f,%f,%f,'%s',%d)",familyId,typeId,parentId,(uint64) 0,planetId,position.x,position.y,position.z,customName.getAnsi(), useCount);
 }
 
 
@@ -397,9 +397,9 @@ void ObjectFactory::requestnewHarvesterbyDeed(ObjectFactoryCallback* ofCallback,
 	asyncContainer->DeedId = deed->getId();
 	asyncContainer->OwnerId = deed->getOwner();
 	asyncContainer->PlayerId = player->getId();
-	asyncContainer->coords.mX = x;
-	asyncContainer->coords.mY = y;
-	asyncContainer->coords.mZ = z;
+	asyncContainer->coords.x = x;
+	asyncContainer->coords.y = y;
+	asyncContainer->coords.z = z;
 	int8 sql[512];
 	//sf_DefaultHarvesterCreate`(type_id INT(11),parent_id BIGINT(20),privateowner_id BIGINT(20),inPlanet INT,oX FLOAT,oY FLOAT,oZ FLOAT, oW FLOAT,inX FLOAT,inY FLOAT,inZ FLOAT,custom_name CHAR(255)) RETURNS bigint(20)
 
@@ -459,9 +459,9 @@ void ObjectFactory::requestnewFactorybyDeed(ObjectFactoryCallback* ofCallback,De
 	asyncContainer->DeedId = deed->getId();
 	asyncContainer->OwnerId = deed->getOwner();
 	asyncContainer->PlayerId = player->getId();
-	asyncContainer->coords.mX = x;
-	asyncContainer->coords.mY = y;
-	asyncContainer->coords.mZ = z;
+	asyncContainer->coords.x = x;
+	asyncContainer->coords.y = y;
+	asyncContainer->coords.z = z;
 	int8 sql[512];
 	
 
@@ -517,9 +517,9 @@ void ObjectFactory::requestnewHousebyDeed(ObjectFactoryCallback* ofCallback,Deed
 	asyncContainer->DeedId = deed->getId();
 	asyncContainer->OwnerId = deed->getOwner();
 	asyncContainer->PlayerId = player->getId();
-	asyncContainer->coords.mX = x;
-	asyncContainer->coords.mY = y;
-	asyncContainer->coords.mZ = z;
+	asyncContainer->coords.x = x;
+	asyncContainer->coords.y = y;
+	asyncContainer->coords.z = z;
 	int8 sql[512];
 	
 
@@ -571,7 +571,7 @@ void ObjectFactory::requestnewHousebyDeed(ObjectFactoryCallback* ofCallback,Deed
 // create a new waypoint
 // never call this directly - always go over the datapad!!!!!  we need to check the capacity
 //
-void ObjectFactory::requestNewWaypoint(ObjectFactoryCallback* ofCallback,string name,const Anh_Math::Vector3 coords,uint16 planetId,uint64 ownerId,uint8 wpType)
+void ObjectFactory::requestNewWaypoint(ObjectFactoryCallback* ofCallback,string name, const glm::vec3& coords,uint16 planetId,uint64 ownerId,uint8 wpType)
 {
 
 	OFAsyncContainer* asyncContainer = new(mDbAsyncPool.ordered_malloc()) OFAsyncContainer(ofCallback,OFQuery_WaypointCreate,NULL);
@@ -581,7 +581,7 @@ void ObjectFactory::requestNewWaypoint(ObjectFactoryCallback* ofCallback,string 
 	sprintf(sql,"SELECT sf_WaypointCreate('");
 	sqlPointer = sql + strlen(sql);
 	sqlPointer += mDatabase->Escape_String(sqlPointer,name.getAnsi(),name.getLength());
-	sprintf(restStr,"',%"PRIu64",%f,%f,%f,%u,%u)",ownerId,coords.mX,coords.mY,coords.mZ,planetId,wpType);
+	sprintf(restStr,"',%"PRIu64",%f,%f,%f,%u,%u)", ownerId, coords.x, coords.y, coords.z, planetId, wpType);
 	strcat(sql,restStr);
 
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);

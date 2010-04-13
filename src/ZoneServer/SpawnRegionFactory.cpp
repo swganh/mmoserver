@@ -123,8 +123,8 @@ void SpawnRegionFactory::_setupDatabindings()
 	mSpawnRegionBinding->addField(DFT_uint32,offsetof(SpawnRegion,mSpawnType),4,1);
 	mSpawnRegionBinding->addField(DFT_bstring,offsetof(SpawnRegion,mRegionName),64,2);
 	mSpawnRegionBinding->addField(DFT_bstring,offsetof(SpawnRegion,mNameFile),64,3);
-	mSpawnRegionBinding->addField(DFT_float,offsetof(SpawnRegion,mPosition.mX),4,4);
-	mSpawnRegionBinding->addField(DFT_float,offsetof(SpawnRegion,mPosition.mZ),4,5);
+	mSpawnRegionBinding->addField(DFT_float,offsetof(SpawnRegion,mPosition.x),4,4);
+	mSpawnRegionBinding->addField(DFT_float,offsetof(SpawnRegion,mPosition.z),4,5);
 	mSpawnRegionBinding->addField(DFT_float,offsetof(SpawnRegion,mWidth),4,6);
 	mSpawnRegionBinding->addField(DFT_float,offsetof(SpawnRegion,mHeight),4,7);
 	mSpawnRegionBinding->addField(DFT_uint64,offsetof(SpawnRegion,mParentId),8,8);

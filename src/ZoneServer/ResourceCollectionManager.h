@@ -15,7 +15,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #define	 gResourceCollectionManager		ResourceCollectionManager::getSingletonPtr()
 
 #include "Utils/typedefs.h"
-#include "MathLib/Quaternion.h"
 #include "DatabaseManager/DatabaseCallback.h"
 #include <boost/pool/pool.hpp>
 
@@ -34,7 +33,7 @@ namespace Anh_Utils
 
 typedef struct tagResourceLocation
 {
-   Anh_Math::Vector3 position;
+   glm::vec3 position;
    float			 ratio;
 } ResourceLocation;
 

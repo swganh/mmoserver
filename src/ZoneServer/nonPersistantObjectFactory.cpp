@@ -126,7 +126,7 @@ void NonPersistantObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseRes
 //creates a non persistant tangible object
 //loads the necessary blueprints from db
 //////////////////////////////////////////////////////////////////////////////////
-void NonPersistantObjectFactory::createTangible(ObjectFactoryCallback* ofCallback, uint32 familyId,uint32 typeId,uint64 parentId,Anh_Math::Vector3 position,string customName,DispatchClient* client)
+void NonPersistantObjectFactory::createTangible(ObjectFactoryCallback* ofCallback, uint32 familyId,uint32 typeId,uint64 parentId, const glm::vec3& position,string customName,DispatchClient* client)
 //gObjectFactory->requestNewDefaultItem
 //(this,11,1320,entertainer->getId(),99,Anh_Math::Vector3(),"");
 {
@@ -161,7 +161,7 @@ void NonPersistantObjectFactory::createTangible(ObjectFactoryCallback* ofCallbac
 //we create a camp at the given coordinates together with all the necessary additions as found in structure_item_template
 //
 
-TangibleObject* NonPersistantObjectFactory::spawnTangible(StructureItemTemplate* placableTemplate, uint64 parentId,Anh_Math::Vector3 position,string customName, PlayerObject* player)
+TangibleObject* NonPersistantObjectFactory::spawnTangible(StructureItemTemplate* placableTemplate, uint64 parentId, const glm::vec3& position, const string& customName, PlayerObject* player)
 {
 	
 	//we dont set the types here as we are factually placing statics / and or items / terminals
@@ -170,15 +170,15 @@ TangibleObject* NonPersistantObjectFactory::spawnTangible(StructureItemTemplate*
 	TangibleObject* tangible = new(TangibleObject);
 	
 	tangible->mPosition = position;
-	tangible->mPosition.mX += placableTemplate->mPosition.mX;
-	tangible->mPosition.mY += placableTemplate->mPosition.mY;
-	tangible->mPosition.mZ += placableTemplate->mPosition.mZ;
+	tangible->mPosition.x += placableTemplate->mPosition.x;
+	tangible->mPosition.y += placableTemplate->mPosition.y;
+	tangible->mPosition.z += placableTemplate->mPosition.z;
 	
-	tangible->mDirection.mX = placableTemplate->mDirection.mX;
-	tangible->mDirection.mY = placableTemplate->mDirection.mY;
-	tangible->mDirection.mZ = placableTemplate->mDirection.mZ;
+	tangible->mDirection.x = placableTemplate->mDirection.x;
+	tangible->mDirection.y = placableTemplate->mDirection.y;
+	tangible->mDirection.z = placableTemplate->mDirection.z;
 
-	tangible->mDirection.mW = placableTemplate->dw;
+	tangible->mDirection.w = placableTemplate->mDirection.w;
 
 	tangible->setName(placableTemplate->name.getAnsi());
 	tangible->setNameFile(placableTemplate->file.getAnsi());
@@ -208,7 +208,7 @@ TangibleObject* NonPersistantObjectFactory::spawnTangible(StructureItemTemplate*
 
 }
 
-CampTerminal* NonPersistantObjectFactory::spawnTerminal(StructureItemTemplate* placableTemplate, uint64 parentId,Anh_Math::Vector3 position,string customName, PlayerObject* player, StructureDeedLink*	deedData)
+CampTerminal* NonPersistantObjectFactory::spawnTerminal(StructureItemTemplate* placableTemplate, uint64 parentId, const glm::vec3& position, const string& customName, PlayerObject* player, StructureDeedLink*	deedData)
 {
 	
 	//we dont set the types here as we are factually placing statics / and or items / terminals
@@ -217,15 +217,15 @@ CampTerminal* NonPersistantObjectFactory::spawnTerminal(StructureItemTemplate* p
 	CampTerminal* terminal = new(CampTerminal);
 	
 	terminal->mPosition = position;
-	terminal->mPosition.mX += placableTemplate->mPosition.mX;
-	terminal->mPosition.mY += placableTemplate->mPosition.mY;
-	terminal->mPosition.mZ += placableTemplate->mPosition.mZ;
+	terminal->mPosition.x += placableTemplate->mPosition.x;
+	terminal->mPosition.y += placableTemplate->mPosition.y;
+	terminal->mPosition.z += placableTemplate->mPosition.z;
 
-	terminal->mDirection.mX = placableTemplate->mDirection.mX;
-	terminal->mDirection.mY = placableTemplate->mDirection.mY;
-	terminal->mDirection.mZ = placableTemplate->mDirection.mZ;
+	terminal->mDirection.x = placableTemplate->mDirection.x;
+	terminal->mDirection.y = placableTemplate->mDirection.y;
+	terminal->mDirection.z = placableTemplate->mDirection.z;
 
-	terminal->mDirection.mW = placableTemplate->dw;
+	terminal->mDirection.w = placableTemplate->mDirection.w;
 
 	terminal->setName(deedData->stf_name.getAnsi());
 	terminal->setNameFile(deedData->stf_file.getAnsi());
@@ -301,10 +301,10 @@ PlayerStructure* NonPersistantObjectFactory::requestBuildingFenceObject(float x,
 	PlayerStructure* structure = new(PlayerStructure);
 	
 	structure->setType(ObjType_Structure);
-	structure->mPosition.mX = x;
-	structure->mPosition.mZ = z;	
+	structure->mPosition.x = x;
+	structure->mPosition.z = z;	
 	//slow query - use for building placement only
-	structure->mPosition.mY = y;
+	structure->mPosition.y = y;
 
 	structure->setName("temporary_structure");
 	structure->setNameFile("player_structure");
@@ -341,10 +341,10 @@ PlayerStructure* NonPersistantObjectFactory::requestBuildingSignObject(float x, 
 	PlayerStructure* structure = new(PlayerStructure);
 	
 	structure->setType(ObjType_Structure);
-	structure->mPosition.mX = x;
-	structure->mPosition.mZ = z;	
+	structure->mPosition.x = x;
+	structure->mPosition.z = z;	
 	//slow query - use for building placement only
-	structure->mPosition.mY = y;
+	structure->mPosition.y = y;
 
 	structure->setName(name.getAnsi());
 	structure->setNameFile(namefile.getAnsi());

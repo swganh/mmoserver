@@ -862,7 +862,7 @@ void ObjectController::_handleImageDesign(uint64 targetId,Message* message,Objec
 		return;
 	}
 
-	if(!designObject->mPosition.inRange2D(imageDesigner->mPosition,16))
+    if(glm::distance(designObject->mPosition, imageDesigner->mPosition) > 16)
 	{
 		gMessageLib->sendSystemMessage(imageDesigner,L"","image_designer","out_of_range");
 		return;
@@ -1114,7 +1114,7 @@ void ObjectController::_handlePlayHoloEmote(uint64 targetId,Message* message,Obj
 	if(!we)
 		return;
 
-	HoloStruct* myEmote = gEntertainerManager->getHoloEmoteIdbyCRC(we->getHoloEmote());
+	HoloStruct* myEmote = gEntertainerManager->getHoloEmote_by_CRC(we->getHoloEmote());
 
 	if(!myEmote)
 	{
@@ -1171,11 +1171,23 @@ void ObjectController::_handlePlayHoloEmote(uint64 targetId,Message* message,Obj
 
 	if(strcmp(myEmote->pEmoteName,"all"))
 	{
-		string effect = gWorldManager->getClientEffect(myEmote->pId);
-		gMessageLib->sendPlayClientEffectObjectMessage(effect,"head",we);
+		//its *not* all
+		if(requestedEmote->pId == myEmote->pId)
+		{
+			//only play if we give the proper name
+			string effect = gWorldManager->getClientEffect(myEmote->pId);
+			gMessageLib->sendPlayClientEffectObjectMessage(effect,"head",we);
+		}
+		else
+		{
+			//think of a better message ?
+			gMessageLib->sendSystemMessage(we,L"","image_designer","holoemote_help","","",L"",0,"","",L"");
+			return;
+		}
 	}
 	else
 	{
+		//it is all
 		string effect = gWorldManager->getClientEffect(requestedEmote->pId);
 		gMessageLib->sendPlayClientEffectObjectMessage(effect,"head",we);
 	}

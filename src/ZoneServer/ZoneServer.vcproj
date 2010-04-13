@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="ZoneServer"
 	ProjectGUID="{003C0A20-ACBE-498D-A674-3938FF4AF5AB}"
 	RootNamespace="Zoneserver"
@@ -46,7 +46,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)src&quot;;&quot;$(SolutionDir)deps&quot;;&quot;$(SolutionDir)deps\boost&quot;;&quot;$(SolutionDir)deps\lua\src&quot;;&quot;$(SolutionDir)deps\noise\src&quot;;&quot;$(SolutionDir)deps\spatialindex\include&quot;;&quot;$(SolutionDir)deps\spatialindex\tools\include&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)src&quot;;&quot;$(SolutionDir)deps&quot;;&quot;$(SolutionDir)deps\boost&quot;;&quot;$(SolutionDir)deps\glm&quot;;&quot;$(SolutionDir)deps\lua\src&quot;;&quot;$(SolutionDir)deps\noise\src&quot;;&quot;$(SolutionDir)deps\spatialindex\include&quot;;&quot;$(SolutionDir)deps\spatialindex\tools\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_CRT_NON_CONFORMING_SWPRINTFS;_CRT_SECURE_NO_DEPRECATE;_WIN32_WINNT=0x0500"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="3"
@@ -140,7 +140,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="3"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)src&quot;;&quot;$(SolutionDir)deps&quot;;&quot;$(SolutionDir)deps\boost&quot;;&quot;$(SolutionDir)deps\lua\src&quot;;&quot;$(SolutionDir)deps\noise\src&quot;;&quot;$(SolutionDir)deps\spatialindex\include&quot;;&quot;$(SolutionDir)deps\spatialindex\tools\include&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)src&quot;;&quot;$(SolutionDir)deps&quot;;&quot;$(SolutionDir)deps\boost&quot;;&quot;$(SolutionDir)deps\glm&quot;;&quot;$(SolutionDir)deps\lua\src&quot;;&quot;$(SolutionDir)deps\noise\src&quot;;&quot;$(SolutionDir)deps\spatialindex\include&quot;;&quot;$(SolutionDir)deps\spatialindex\tools\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_CRT_NON_CONFORMING_SWPRINTFS;_CRT_SECURE_NO_DEPRECATE;_WIN32_WINNT=0x0500;_CRT_SECURE_NO_WARNINGS"
 				ExceptionHandling="1"
 				RuntimeLibrary="0"
@@ -1154,6 +1154,170 @@
 						>
 					</File>
 				</Filter>
+				<Filter
+					Name="Containers"
+					>
+					<File
+						RelativePath=".\Container.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\Container.h"
+						>
+					</File>
+					<File
+						RelativePath=".\ContainerObjectFactory.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\ContainerObjectFactory.h"
+						>
+					</File>
+					<Filter
+						Name="Inventory"
+						>
+						<File
+							RelativePath=".\Inventory.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\Inventory.h"
+							>
+						</File>
+						<File
+							RelativePath=".\InventoryFactory.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\InventoryFactory.h"
+							>
+						</File>
+					</Filter>
+					<Filter
+						Name="MissionBag"
+						>
+						<File
+							RelativePath=".\MissionBag.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\MissionBag.h"
+							>
+						</File>
+					</Filter>
+				</Filter>
+				<Filter
+					Name="Resource Container (RCNO)"
+					>
+					<File
+						RelativePath=".\OCResourceContainerHandlers.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\ResourceContainer.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\ResourceContainer.h"
+						>
+					</File>
+					<File
+						RelativePath=".\ResourceContainerFactory.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\ResourceContainerFactory.h"
+						>
+					</File>
+					<Filter
+						Name="Resource"
+						>
+						<File
+							RelativePath=".\Resource.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\Resource.h"
+							>
+						</File>
+						<File
+							RelativePath=".\ResourceManager.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\ResourceManager.h"
+							>
+						</File>
+						<Filter
+							Name="CurrentResource"
+							>
+							<File
+								RelativePath=".\CurrentResource.cpp"
+								>
+							</File>
+							<File
+								RelativePath=".\CurrentResource.h"
+								>
+							</File>
+						</Filter>
+						<Filter
+							Name="Category"
+							>
+							<File
+								RelativePath=".\ResourceCategory.cpp"
+								>
+							</File>
+							<File
+								RelativePath=".\ResourceCategory.h"
+								>
+							</File>
+						</Filter>
+						<Filter
+							Name="Type"
+							>
+							<File
+								RelativePath=".\ResourceType.cpp"
+								>
+							</File>
+							<File
+								RelativePath=".\ResourceType.h"
+								>
+							</File>
+						</Filter>
+						<Filter
+							Name="noise"
+							>
+							<File
+								RelativePath=".\noiseutils.cpp"
+								>
+							</File>
+							<File
+								RelativePath=".\noiseutils.h"
+								>
+							</File>
+						</Filter>
+					</Filter>
+					<Filter
+						Name="ResourceCollection"
+						>
+						<File
+							RelativePath=".\ResourceCollectionCommand.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\ResourceCollectionCommand.h"
+							>
+						</File>
+						<File
+							RelativePath=".\ResourceCollectionManager.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\ResourceCollectionManager.h"
+							>
+						</File>
+					</Filter>
+				</Filter>
 			</Filter>
 			<Filter
 				Name="Static (STAO)"
@@ -1267,6 +1431,42 @@
 					>
 				</Filter>
 				<Filter
+					Name="Bank"
+					>
+					<File
+						RelativePath=".\Bank.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\Bank.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="Datapad"
+					>
+					<File
+						RelativePath=".\Datapad.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\Datapad.h"
+						>
+					</File>
+					<File
+						RelativePath=".\DatapadFactory.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\DatapadFactory.h"
+						>
+					</File>
+					<File
+						RelativePath=".\OCDatapadHandlers.cpp"
+						>
+					</File>
+				</Filter>
+				<Filter
 					Name="Cell (SCLT)"
 					>
 					<File
@@ -1285,206 +1485,6 @@
 						RelativePath=".\CellObject.h"
 						>
 					</File>
-				</Filter>
-				<Filter
-					Name="Containers"
-					>
-					<File
-						RelativePath=".\Container.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\Container.h"
-						>
-					</File>
-					<File
-						RelativePath=".\ContainerObjectFactory.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\ContainerObjectFactory.h"
-						>
-					</File>
-					<Filter
-						Name="Datapad"
-						>
-						<File
-							RelativePath=".\Datapad.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\Datapad.h"
-							>
-						</File>
-						<File
-							RelativePath=".\DatapadFactory.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\DatapadFactory.h"
-							>
-						</File>
-						<File
-							RelativePath=".\OCDatapadHandlers.cpp"
-							>
-						</File>
-					</Filter>
-					<Filter
-						Name="Inventory"
-						>
-						<File
-							RelativePath=".\Inventory.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\Inventory.h"
-							>
-						</File>
-						<File
-							RelativePath=".\InventoryFactory.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\InventoryFactory.h"
-							>
-						</File>
-					</Filter>
-					<Filter
-						Name="Bank"
-						>
-						<File
-							RelativePath=".\Bank.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\Bank.h"
-							>
-						</File>
-					</Filter>
-					<Filter
-						Name="Resource Container (RCNO)"
-						>
-						<File
-							RelativePath=".\OCResourceContainerHandlers.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\ResourceContainer.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\ResourceContainer.h"
-							>
-						</File>
-						<File
-							RelativePath=".\ResourceContainerFactory.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\ResourceContainerFactory.h"
-							>
-						</File>
-						<Filter
-							Name="Resource"
-							>
-							<File
-								RelativePath=".\Resource.cpp"
-								>
-							</File>
-							<File
-								RelativePath=".\Resource.h"
-								>
-							</File>
-							<File
-								RelativePath=".\ResourceManager.cpp"
-								>
-							</File>
-							<File
-								RelativePath=".\ResourceManager.h"
-								>
-							</File>
-							<Filter
-								Name="CurrentResource"
-								>
-								<File
-									RelativePath=".\CurrentResource.cpp"
-									>
-								</File>
-								<File
-									RelativePath=".\CurrentResource.h"
-									>
-								</File>
-							</Filter>
-							<Filter
-								Name="Category"
-								>
-								<File
-									RelativePath=".\ResourceCategory.cpp"
-									>
-								</File>
-								<File
-									RelativePath=".\ResourceCategory.h"
-									>
-								</File>
-							</Filter>
-							<Filter
-								Name="Type"
-								>
-								<File
-									RelativePath=".\ResourceType.cpp"
-									>
-								</File>
-								<File
-									RelativePath=".\ResourceType.h"
-									>
-								</File>
-							</Filter>
-							<Filter
-								Name="noise"
-								>
-								<File
-									RelativePath=".\noiseutils.cpp"
-									>
-								</File>
-								<File
-									RelativePath=".\noiseutils.h"
-									>
-								</File>
-							</Filter>
-						</Filter>
-						<Filter
-							Name="ResourceCollection"
-							>
-							<File
-								RelativePath=".\ResourceCollectionCommand.cpp"
-								>
-							</File>
-							<File
-								RelativePath=".\ResourceCollectionCommand.h"
-								>
-							</File>
-							<File
-								RelativePath=".\ResourceCollectionManager.cpp"
-								>
-							</File>
-							<File
-								RelativePath=".\ResourceCollectionManager.h"
-								>
-							</File>
-						</Filter>
-					</Filter>
-					<Filter
-						Name="MissionBag"
-						>
-						<File
-							RelativePath=".\MissionBag.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\MissionBag.h"
-							>
-						</File>
-					</Filter>
 				</Filter>
 			</Filter>
 			<Filter
@@ -2534,15 +2534,15 @@
 					RelativePath=".\GroupManagerHandler.h"
 					>
 				</File>
+				<File
+					RelativePath=".\OCGroupHandlers.cpp"
+					>
+				</File>
 				<Filter
 					Name="Group (GRUP)"
 					>
 					<File
 						RelativePath=".\GroupObject.h"
-						>
-					</File>
-					<File
-						RelativePath=".\OCGroupHandlers.cpp"
 						>
 					</File>
 				</Filter>

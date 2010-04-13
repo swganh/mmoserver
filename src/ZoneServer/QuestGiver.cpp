@@ -187,29 +187,29 @@ void QuestGiver::prepareConversation(PlayerObject* player)
 {
 
 	// Let's turn to the player asking for my attention.
-	float x = player->mPosition.mX - this->mPosition.mX;
-	float z = player->mPosition.mZ - this->mPosition.mZ;
+	float x = player->mPosition.x - this->mPosition.x;
+	float z = player->mPosition.z - this->mPosition.z;
 	float h = sqrt(x*x + z*z);
 
 	if ((z/h) < 0.0)
 	{	
 		if (x/h < 0.0)
 		{
-			this->mDirection.mW = static_cast<float>(cos((3.14159354 * 0.5) + 0.5f*acos(-z/h)));
-			this->mDirection.mY = static_cast<float>(sin((3.14159354 * 0.5) + 0.5f*acos(-z/h)));
+			this->mDirection.w = static_cast<float>(cos((3.14159354 * 0.5) + 0.5f*acos(-z/h)));
+			this->mDirection.y = static_cast<float>(sin((3.14159354 * 0.5) + 0.5f*acos(-z/h)));
 		}
 		else
 		{
-			this->mDirection.mY = sin(0.5f*acos(z/h));
-			this->mDirection.mW = cos(0.5f*acos(z/h));
+			this->mDirection.y = sin(0.5f*acos(z/h));
+			this->mDirection.w = cos(0.5f*acos(z/h));
 		}
 	}
 	else
 	{
-		this->mDirection.mY = sin(0.5f*asin(x/h));	
-		this->mDirection.mW = cos(0.5f*acos(z/h));
+		this->mDirection.y = sin(0.5f*asin(x/h));	
+		this->mDirection.w = cos(0.5f*acos(z/h));
 	}
-	// gLogger->logMsgF("%f %f %f %f",MSG_NORMAL, this->mDirection.mX, this->mDirection.mY, this->mDirection.mZ, this->mDirection.mW);
+	// gLogger->logMsgF("%f %f %f %f",MSG_NORMAL, this->mDirection.x, this->mDirection.y, this->mDirection.z, this->mDirection.w);
 	
 	// send out position updates to known players
 	this->setInMoveCount(this->getInMoveCount() + 1);
@@ -242,7 +242,7 @@ void QuestGiver::prepareConversation(PlayerObject* player)
 			gMessageLib->sendUpdateTransformMessage(this, player);
 		}
 	}
-	// gLogger->logMsgF("%f %f %f %f",MSG_NORMAL, this->mDirection.mX, this->mDirection.mY, this->mDirection.mZ, this->mDirection.mW);
+	// gLogger->logMsgF("%f %f %f %f",MSG_NORMAL, this->mDirection.x, this->mDirection.y, this->mDirection.z, this->mDirection.w);
 
 	setLastConversationTarget(player->getId());
 

@@ -384,9 +384,7 @@ void TreasuryManager::inventoryTipOnline(int32 amount, PlayerObject* playerObjec
 		return;
 	}
 
-	float f = playerObject->mPosition.distance2D(targetObject->mPosition);
-
-	if( f > 10.0)
+    if( glm::distance(playerObject->mPosition, targetObject->mPosition) > 10.0)
 	{
 		gMessageLib->sendSystemMessage(playerObject, L"","base_player","prose_tip_range","","",L"",amount,"","",L"",targetObject->getId());
 		return;

@@ -118,8 +118,8 @@ void BadgeRegionFactory::_setupDatabindings()
 	mBadgeRegionBinding->addField(DFT_uint32,offsetof(BadgeRegion,mBadgeId),4,1);
 	mBadgeRegionBinding->addField(DFT_bstring,offsetof(BadgeRegion,mRegionName),64,2);
 	mBadgeRegionBinding->addField(DFT_bstring,offsetof(BadgeRegion,mNameFile),64,3);
-	mBadgeRegionBinding->addField(DFT_float,offsetof(BadgeRegion,mPosition.mX),4,4);
-	mBadgeRegionBinding->addField(DFT_float,offsetof(BadgeRegion,mPosition.mZ),4,5);
+	mBadgeRegionBinding->addField(DFT_float,offsetof(BadgeRegion,mPosition.x),4,4);
+	mBadgeRegionBinding->addField(DFT_float,offsetof(BadgeRegion,mPosition.z),4,5);
 	mBadgeRegionBinding->addField(DFT_float,offsetof(BadgeRegion,mWidth),4,6);
 	mBadgeRegionBinding->addField(DFT_float,offsetof(BadgeRegion,mHeight),4,7);
 	mBadgeRegionBinding->addField(DFT_uint64,offsetof(BadgeRegion,mParentId),8,8);

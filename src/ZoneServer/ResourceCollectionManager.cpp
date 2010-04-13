@@ -291,14 +291,14 @@ void ResourceCollectionManager::handleUIEvent(uint32 action,int32 element,string
 					player->getSampleData()->mPendingSample	= false;
 					player->getSampleData()->mSampleNodeFlag = true;
 					
-					player->getSampleData()->Position.mX = player->mPosition.mX +(((gRandom->getRand()%50)+1));
-					player->getSampleData()->Position.mZ = player->mPosition.mZ +(((gRandom->getRand()%50)+1));
+					player->getSampleData()->Position.x = player->mPosition.x +(((gRandom->getRand()%50)+1));
+					player->getSampleData()->Position.z = player->mPosition.z +(((gRandom->getRand()%50)+1));
 					player->getSampleData()->zone		= gWorldManager->getZoneId();
 					player->getSampleData()->resource	= (CurrentResource*)asyncContainer->CurrentResource;
 
 					
 					Datapad* datapad= dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
-					datapad->requestNewWaypoint("Resource Node",Anh_Math::Vector3(player->getSampleData()->Position.mX,0.0f,player->getSampleData()->Position.mZ),static_cast<uint16>(gWorldManager->getZoneId()),Waypoint_blue);
+                    datapad->requestNewWaypoint("Resource Node", glm::vec3(player->getSampleData()->Position.x,0.0f,player->getSampleData()->Position.z),static_cast<uint16>(gWorldManager->getZoneId()),Waypoint_blue);
 					gMessageLib->sendSystemMessage(player,L"","survey","node_waypoint");
 
 					player->setPosture(CreaturePosture_Upright);
@@ -328,8 +328,8 @@ void ResourceCollectionManager::handleUIEvent(uint32 action,int32 element,string
 				gLogger->logMsg("sampling wayp node box action != 1 (stay here?)");
 				player->getSampleData()->mPendingSample = false;
 				player->getSampleData()->mSampleNodeFlag = false;
-				player->getSampleData()->Position.mX = 0;
-				player->getSampleData()->Position.mZ = 0;
+				player->getSampleData()->Position.x = 0;
+				player->getSampleData()->Position.z = 0;
 				player->getSampleData()->resource	= NULL;
 				player->getSampleData()->zone		= 0;
 

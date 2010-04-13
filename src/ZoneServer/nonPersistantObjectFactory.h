@@ -13,8 +13,9 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #define ANH_ZONESERVER_NON_PERSISTANT_H
 
 #include "FactoryBase.h"
-#include "MathLib/Vector3.h"
+
 #include <boost/pool/pool.hpp>
+#include <glm/glm.hpp>
 
 #define 	gNonPersistantObjectFactory	NonPersistantObjectFactory::getSingletonPtr()
 
@@ -52,14 +53,14 @@ class NonPersistantObjectFactory : public FactoryBase
 		virtual void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
 
 		virtual void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
-		void					createTangible(ObjectFactoryCallback* ofCallback, uint32 familyId, uint32 typeId, uint64 parentId,Anh_Math::Vector3 position, string customName, DispatchClient* client);
+		void					createTangible(ObjectFactoryCallback* ofCallback, uint32 familyId, uint32 typeId, uint64 parentId, const glm::vec3& position, string customName, DispatchClient* client);
 
 		PlayerStructure*		requestBuildingFenceObject(float x, float y, float z, PlayerObject* player);
 		PlayerStructure*		requestBuildingSignObject(float x, float y, float z, PlayerObject* player, string name, string namefile, string custom);
 
 		//spawns temporary objects for camps
-		TangibleObject*			spawnTangible(StructureItemTemplate* placableTemplate, uint64 parentId, Anh_Math::Vector3 position, string customName, PlayerObject* player);
-		CampTerminal*			spawnTerminal(StructureItemTemplate* placableTemplate, uint64 parentId, Anh_Math::Vector3 position, string customName, PlayerObject* player, StructureDeedLink*	deedData);
+		TangibleObject*			spawnTangible(StructureItemTemplate* placableTemplate, uint64 parentId, const glm::vec3& position, const string& customName, PlayerObject* player);
+		CampTerminal*			spawnTerminal(StructureItemTemplate* placableTemplate, uint64 parentId, const glm::vec3& position, const string& customName, PlayerObject* player, StructureDeedLink*	deedData);
 
 		void					_createItem(DatabaseResult* result,Item* item);
 

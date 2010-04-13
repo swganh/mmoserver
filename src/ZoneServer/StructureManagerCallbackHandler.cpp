@@ -51,7 +51,7 @@ void StructureManager::handleObjectReady(Object* object,DispatchClient* client)
 		uint32 account = client->getAccountId();
 		PlayerObject* player = gWorldManager->getPlayerByAccId(account);
 
-		PlayerStructure* fence =  gNonPersistantObjectFactory->requestBuildingFenceObject(structure->mPosition.mX,structure->mPosition.mY,structure->mPosition.mZ, player);
+		PlayerStructure* fence =  gNonPersistantObjectFactory->requestBuildingFenceObject(structure->mPosition.x,structure->mPosition.y,structure->mPosition.z, player);
 		structure->getTTS()->todo = ttE_BuildingFence;
 		structure->getTTS()->buildingFence = fence->getId();
 		structure->getTTS()->playerId = player->getId();
@@ -476,7 +476,7 @@ void StructureManager::_HandleQueryLoadDeedData(StructureManagerAsyncContainer* 
 {
 	StructureDeedLink* deedLink;
 
-	DataBinding* binding = mDatabase->CreateDataBinding(11);
+	DataBinding* binding = mDatabase->CreateDataBinding(12);
 	binding->addField(DFT_uint32,offsetof(StructureDeedLink,structure_type),4,0);
 	binding->addField(DFT_uint32,offsetof(StructureDeedLink,item_type),4,1);
 	binding->addField(DFT_uint32,offsetof(StructureDeedLink,skill_Requirement),4,2);
@@ -488,6 +488,7 @@ void StructureManager::_HandleQueryLoadDeedData(StructureManagerAsyncContainer* 
 	binding->addField(DFT_uint32,offsetof(StructureDeedLink,repair_cost),4,8);
 	binding->addField(DFT_uint32,offsetof(StructureDeedLink,length), 4, 9);
 	binding->addField(DFT_uint32,offsetof(StructureDeedLink,width), 4, 10);
+	binding->addField(DFT_uint64,offsetof(StructureDeedLink,placementMask), 8, 11);
 
 	uint64 count;
 	count = result->getRowCount();
@@ -721,13 +722,13 @@ void StructureManager::_HandleNonPersistantLoadStructureItem(StructureManagerAsy
 	binding->addField(DFT_uint32,offsetof(StructureItemTemplate,structure_id),4,0);
 	binding->addField(DFT_uint32,offsetof(StructureItemTemplate,CellNr),4,1);
 	binding->addField(DFT_uint32,offsetof(StructureItemTemplate,item_type),4,2);
-	binding->addField(DFT_float,offsetof(StructureItemTemplate,mPosition.mX),4,3);
-	binding->addField(DFT_float,offsetof(StructureItemTemplate,mPosition.mY),4,4);
-	binding->addField(DFT_float,offsetof(StructureItemTemplate,mPosition.mZ),4,5);
-	binding->addField(DFT_float,offsetof(StructureItemTemplate,mDirection.mX),4,6);
-	binding->addField(DFT_float,offsetof(StructureItemTemplate,mDirection.mY),4,7);
-	binding->addField(DFT_float,offsetof(StructureItemTemplate,mDirection.mZ),4,8);
-	binding->addField(DFT_float,offsetof(StructureItemTemplate,dw),4,9);
+	binding->addField(DFT_float,offsetof(StructureItemTemplate,mPosition.x),4,3);
+	binding->addField(DFT_float,offsetof(StructureItemTemplate,mPosition.y),4,4);
+	binding->addField(DFT_float,offsetof(StructureItemTemplate,mPosition.z),4,5);
+	binding->addField(DFT_float,offsetof(StructureItemTemplate,mDirection.x),4,6);
+	binding->addField(DFT_float,offsetof(StructureItemTemplate,mDirection.y),4,7);
+	binding->addField(DFT_float,offsetof(StructureItemTemplate,mDirection.z),4,8);
+	binding->addField(DFT_float,offsetof(StructureItemTemplate,mDirection.w),4,9);
 	binding->addField(DFT_uint32,offsetof(StructureItemTemplate,tanType),4,10);
 
 	binding->addField(DFT_bstring,offsetof(StructureItemTemplate,structureObjectString),128,11);

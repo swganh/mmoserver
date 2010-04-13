@@ -283,8 +283,8 @@ void CraftingSession::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 				if(mManufacturingSchematic->hasAttribute("xp"))
 					xp = mManufacturingSchematic->getAttribute<float>("xp");
 
-				if(mManufacturingSchematic->hasInternalAttribute("xpType"))
-					xpType = mManufacturingSchematic->getInternalAttribute<float>("xpType");
+				if(mManufacturingSchematic->hasInternalAttribute("xp_type"))
+					xpType = mManufacturingSchematic->getInternalAttribute<float>("xp_type");
 
 				if(xp > 0.0f)
 					gSkillManager->addExperience((uint32)xpType,(int32)xp,mOwner);
@@ -334,7 +334,7 @@ void CraftingSession::handleObjectReady(Object* object,DispatchClient* client)
 		mManufacturingSchematic->setComplexity((float)mDraftSchematic->getComplexity());
 
 		// now request the (temporary) item, based on the draft schematic defaults
-		gObjectFactory->requestNewDefaultItem(this,(mDraftSchematic->getId() >> 32),mTool->getId(),99,Anh_Math::Vector3());
+        gObjectFactory->requestNewDefaultItem(this, (mDraftSchematic->getId() >> 32), mTool->getId(), 99, glm::vec3());
 	}
 	// its the item
 	else
@@ -848,8 +848,8 @@ void CraftingSession::createPrototype(uint32 noPractice,uint32 counter)
 		if(mManufacturingSchematic->hasAttribute("xp"))
 			xp = mManufacturingSchematic->getAttribute<float>("xp");
 
-		if(mManufacturingSchematic->hasInternalAttribute("xpType"))
-			xpType = mManufacturingSchematic->getInternalAttribute<float>("xpType");
+		if(mManufacturingSchematic->hasInternalAttribute("xp_type"))
+			xpType = mManufacturingSchematic->getInternalAttribute<float>("xp_type");
 
 		// add some cooldown time
 		mTool->initTimer((int32)(mManufacturingSchematic->getComplexity() * 2.0f),3000,mClock->getLocalTime());

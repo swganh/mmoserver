@@ -453,7 +453,7 @@ void ObjectContainer::handleObjectReady(Object* object,DispatchClient* client)
 //============================================================================================================
 // the idea is that the container holding our new item might be held by a container, too
 // should this happen, we need to find the main container to determin what kind of creates to send to our player/s
-// we will iterate through the parentObjects until the parent is either a player (item has been in the inventory)
+// we will iterate through the parentObjects until the parent is either a player (item has been equipped) or in the inventory or )
 // or a cell or a factory
 uint64 ObjectContainer::getObjectMainParent(Object* object)
 {
@@ -473,6 +473,11 @@ uint64 ObjectContainer::getObjectMainParent(Object* object)
 			CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(parentID));
 			if(!cell)
 			{
+				CellObject* cell = dynamic_cast<CellObject*>(object);
+				if(cell)
+				{
+					return parentID;
+				}
 				FactoryObject* factory = dynamic_cast<FactoryObject*>(gWorldManager->getObjectById(parentID));
 				if(!factory)
 				{
@@ -484,11 +489,17 @@ uint64 ObjectContainer::getObjectMainParent(Object* object)
 					parentID = getObjectMainParent(ob);
 				}
 			}
+			else
+			{
+				//return the house
+				return cell->getParentId();
+			}
 		}
 	}
 	else
 	{
-		return parentID-1;
+		//its in the inventory
+		return parentID;
 		//Inventory is parent ID +1 - we cannot find inventories in the worldObjectMap but we can find players there
 		//so we have to go this way
 		//before changing this we need to settle the dispute what objects are part of the world objectmap and need to discuss objectownership
@@ -545,4 +556,20 @@ bool ObjectContainer::checkForObject(Object* object)
 		++it;
 	}
 	return(false);
+}
+
+void ObjectContainer::createContent(PlayerObject* player)
+{
+	ObjectIDList::iterator it = mData.begin();
+	while(it != mData.end())
+	{
+		TangibleObject* to = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(*it));
+		if(to && (!player->checkKnownObjects(to)))
+		{
+			gMessageLib->sendCreateObject(to,player);
+			player->addKnownObjectSafe(to);
+			to->addKnownObjectSafe(player);
+		}
+		++it;
+	}
 }

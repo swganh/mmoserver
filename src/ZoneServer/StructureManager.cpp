@@ -55,7 +55,7 @@ StructureManager::StructureManager(Database* database,MessageDispatch* dispatch)
 	//todo load buildings from building table and use appropriate stfs there
 	//are harvesters on there too
 	asyncContainer = new StructureManagerAsyncContainer(Structure_Query_LoadDeedData, 0);
-	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sdd.id, sdd.DeedType, sdd.SkillRequirement, s_td.object_string, s_td.lots_used, s_td.stf_name, s_td.stf_file, s_td.healing_modifier, s_td.repair_cost, s_td.fp_length, s_td.fp_width from swganh.structure_deed_data sdd INNER JOIN structure_type_data s_td ON sdd.StructureType = s_td.type");
+	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sdd.id, sdd.DeedType, sdd.SkillRequirement, s_td.object_string, s_td.lots_used, s_td.stf_name, s_td.stf_file, s_td.healing_modifier, s_td.repair_cost, s_td.fp_length, s_td.fp_width, s_td.planetMask from swganh.structure_deed_data sdd INNER JOIN structure_type_data s_td ON sdd.StructureType = s_td.type");
 
 	//items
 	asyncContainer = new StructureManagerAsyncContainer(Structure_Query_LoadstructureItem, 0);
@@ -286,9 +286,9 @@ bool StructureManager::checkCampRadius(PlayerObject* player)
 	Anh_Math::Rectangle mQueryRect;
 	if(!subZoneId)
 	{
-		mQTRegion	= gWorldManager->getSI()->getQTRegion(player->mPosition.mX,player->mPosition.mZ);
+		mQTRegion	= gWorldManager->getSI()->getQTRegion(player->mPosition.x,player->mPosition.z);
 		subZoneId	= (uint32)mQTRegion->getId();
-		mQueryRect	= Anh_Math::Rectangle(player->mPosition.mX - width,player->mPosition.mZ - height,width * 2,height * 2);
+		mQueryRect	= Anh_Math::Rectangle(player->mPosition.x - width,player->mPosition.z - height,width * 2,height * 2);
 	}
 
 	RegionObject*	object;
@@ -333,9 +333,9 @@ bool StructureManager::checkCityRadius(PlayerObject* player)
 	Anh_Math::Rectangle mQueryRect;
 	if(!subZoneId)
 	{
-		mQTRegion	= gWorldManager->getSI()->getQTRegion(player->mPosition.mX,player->mPosition.mZ);
+		mQTRegion	= gWorldManager->getSI()->getQTRegion(player->mPosition.x,player->mPosition.z);
 		subZoneId	= (uint32)mQTRegion->getId();
-		mQueryRect	= Anh_Math::Rectangle(player->mPosition.mX - width,player->mPosition.mZ - height,width * 2,height * 2);
+		mQueryRect	= Anh_Math::Rectangle(player->mPosition.x - width,player->mPosition.z - height,width * 2,height * 2);
 	}
 
 	RegionObject*	object;
@@ -380,9 +380,9 @@ bool StructureManager::checkinCamp(PlayerObject* player)
 	Anh_Math::Rectangle mQueryRect;
 	if(!subZoneId)
 	{
-		mQTRegion	= gWorldManager->getSI()->getQTRegion(player->mPosition.mX,player->mPosition.mZ);
+		mQTRegion	= gWorldManager->getSI()->getQTRegion(player->mPosition.x,player->mPosition.z);
 		subZoneId	= (uint32)mQTRegion->getId();
-		mQueryRect	= Anh_Math::Rectangle(player->mPosition.mX - width,player->mPosition.mZ - height,width * 2,height * 2);
+		mQueryRect	= Anh_Math::Rectangle(player->mPosition.x - width,player->mPosition.z - height,width * 2,height * 2);
 	}
 
 	RegionObject*	object;
@@ -509,7 +509,7 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 
 			//is the structure in Range??? - otherwise stop updating
 			float fTransferDistance = gWorldConfig->getConfiguration("Player_Structure_Operate_Distance",(float)20.0);
-			if(player->mPosition.inRange2D(structure->mPosition,fTransferDistance))
+            if(glm::distance(player->mPosition, structure->mPosition) < fTransferDistance)
 			{
 				structure->getTTS()->projectedTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 5000;
 				addStructureforHopperUpdate(structure->getId());
@@ -613,9 +613,9 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 			if(structure->getPlayerStructureFamily() == PlayerStructure_House)
 			{
 				float x,y,z;
-				x = structure->mPosition.mX+7;
-				y = structure->mPosition.mY+1;
-				z = structure->mPosition.mZ+7;
+				x = structure->mPosition.x+7;
+				y = structure->mPosition.y+1;
+				z = structure->mPosition.z+7;
 				PlayerStructure* sign = gNonPersistantObjectFactory->requestBuildingSignObject(x,y,z,player,"sign","sign_name",structure->getCustomName());
 				HouseObject* house = dynamic_cast<HouseObject*>(structure);
 				house->setSign(sign);

@@ -97,6 +97,7 @@ struct IDStruct
 struct HoloStruct
 {
 	uint32 pCRC;
+	uint32 pClientCRC;
 	uint32 pId;
 	int8   pEmoteName[64];
 };
@@ -166,7 +167,8 @@ class EntertainerManager : public DatabaseCallback, public ObjectFactoryCallback
 		//get db data
 		IDStruct*				getIDAttribute(uint32 CustomizationCRC,uint32 SpeciesCRC);
 		IDStruct*				getIDAttribute(uint32 CustomizationCRC);
-		HoloStruct*				getHoloEmoteIdbyCRC(uint32 crc);
+		HoloStruct*				getHoloEmote_by_ClientCRC(uint32 crc);
+		HoloStruct*				getHoloEmote_by_CRC(uint32 crc);
 		string					getHoloNames();
 		HoloStruct*				getHoloEmoteIdbyName(string name);
 		PerformanceStruct*		getPerformance(string performance);

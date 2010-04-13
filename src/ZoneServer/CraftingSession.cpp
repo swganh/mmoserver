@@ -869,6 +869,8 @@ void CraftingSession::createPrototype(uint32 noPractice,uint32 counter)
 		if(xp > 0.0f)
 			gSkillManager->addExperience((uint32)xpType,(int32)xp,mOwner);
 	}
+
+	destroyComponents();
 }
 
 

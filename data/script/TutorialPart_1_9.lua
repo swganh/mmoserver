@@ -713,10 +713,11 @@ while state == 1 do
 		delayLeft = 0;
 
 -- We HAVE to close the container
-		while (tutorial:isContainerClosed(containerId) == false) do
-			print("STUCK LINE 715.");
- 			LuaScriptEngine.WaitMSec(500);
- 		end;
+--The code to show a closed container was never being called. This means we need to comment this out for now for the sake of allowing the rest of the tutorial to work.
+		--while (tutorial:isContainerClosed(containerId) == false) do
+			--print("STUCK LINE 715.");
+ 			--LuaScriptEngine.WaitMSec(500);
+ 		--end;
  		
  		tutorial:updateTutorial("openInventory");
  		tutorial:setSubState(8);

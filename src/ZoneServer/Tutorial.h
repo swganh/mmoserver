@@ -17,6 +17,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include <map>
 
 class PlayerObject;
+class Container;
 
 //=============================================================================
 
@@ -149,12 +150,12 @@ class Tutorial : public DatabaseCallback
 
 		bool				mContainerIsOpen;
 		bool				mContainerIsClosed;
+		bool				mHasTransfered;
 
-		uint32				mContainerHasTransferedItem;
+		uint32				mContainerTransferredItemCount;
 		uint64				mContainerEventId;
 		uint32				mQuestWeaponFamily;
 		uint32				mQuestWeaponType;
-
 
 };
 //=============================================================================

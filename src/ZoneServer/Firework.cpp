@@ -62,12 +62,12 @@ void Firework::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 				if(this->getItemType() >= ItemType_Firework_Type_5 || this->getItemType() <= ItemType_Firework_Type_2)
 				{
 					//Player must be standing or Kneeling to launch
-					if(playerObject->getPosture()!=CreaturePosture_Upright && playerObject->getPosture()!=CreaturePosture_Crouched)
+					if((playerObject->getPosture()!=CreaturePosture_Upright && playerObject->getPosture()!=CreaturePosture_Crouched) || playerObject->getState() & CreatureState_RidingMount)
 					{
 							gMessageLib->sendSystemMessage(playerObject,L"You must be standing or kneeling to start a firework.");
 							return;
 					}
-					if(playerObject->getParentId())
+					else if(playerObject->getParentId())
 					{
 						gMessageLib->sendSystemMessage(playerObject,L"You can not do this while indoors.");
 						return;
@@ -363,8 +363,6 @@ void FireworkShow::handleUIEvent(string strAvailable, string strDelay, UIWindow*
 }
 void FireworkShow::onLaunch(const FireworkEvent* event)
 {
-	//PlayerObject* playerObject = dynamic_cast<PlayerObject*>(event->getSrcObject());
-
 	gFireworkManager->createFirework(1756,event->getPlayerObject(),event->getPosition());
 }
 

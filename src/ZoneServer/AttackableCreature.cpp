@@ -1817,6 +1817,10 @@ void AttackableCreature::setupStalking(uint64 updatePeriodTime)
 
 void AttackableCreature::setupRoaming(int32 maxRangeX, int32 maxRangeZ)
 {
+	//We can't setup roaming on the tutorial! (NO HEIGHTMAP!)
+	if(gWorldConfig->isTutorial())
+		return;
+
 	// Get a target position
 	Anh_Math::Vector3 destination;
 

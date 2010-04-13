@@ -28,8 +28,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include <functional>
 #endif
 
-#include <iostream>
-
 #define RECEIVE_BUFFER 512
 
 PingServer::PingServer(int port)
@@ -84,8 +82,8 @@ void PingServer::HandleReceive(const boost::system::error_code& error, size_t by
 
     // Check if an error occurred.
     if (error && error != boost::asio::error::message_size) {
-        std::cout << "Error reading from socket: " << error << std::endl;
-        
+        gLogger->logMsgF("Error reading from socket: %s", MSG_NORMAL, error.message().c_str());     
+
     // Otherwise return the ping response to the sender.
     } else {
         // Send the message that was just received back to the sender.

@@ -91,7 +91,7 @@ rem ----------------------------------------------------------------------------
 rem --- Start of SET_DEFAULTS --------------------------------------------------
 :SET_DEFAULTS
 
-set DEPENDENCIES_VERSION=0.1.0
+set DEPENDENCIES_VERSION=0.1.1
 set DEPENDENCIES_FILE=swganh-deps-%DEPENDENCIES_VERSION%.zip
 set DEPENDENCIES_URL=http://swganh.com/^^!^^!deps^^!^^!/%DEPENDENCIES_FILE%
 set "PROJECT_BASE=%~dp0"

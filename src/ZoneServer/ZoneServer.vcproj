@@ -1431,26 +1431,6 @@
 					>
 				</Filter>
 				<Filter
-					Name="Cell (SCLT)"
-					>
-					<File
-						RelativePath=".\CellFactory.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\CellFactory.h"
-						>
-					</File>
-					<File
-						RelativePath=".\CellObject.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\CellObject.h"
-						>
-					</File>
-				</Filter>
-				<Filter
 					Name="Bank"
 					>
 					<File
@@ -1483,6 +1463,26 @@
 					</File>
 					<File
 						RelativePath=".\OCDatapadHandlers.cpp"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="Cell (SCLT)"
+					>
+					<File
+						RelativePath=".\CellFactory.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\CellFactory.h"
+						>
+					</File>
+					<File
+						RelativePath=".\CellObject.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\CellObject.h"
 						>
 					</File>
 				</Filter>
@@ -2534,15 +2534,15 @@
 					RelativePath=".\GroupManagerHandler.h"
 					>
 				</File>
+				<File
+					RelativePath=".\OCGroupHandlers.cpp"
+					>
+				</File>
 				<Filter
 					Name="Group (GRUP)"
 					>
 					<File
 						RelativePath=".\GroupObject.h"
-						>
-					</File>
-					<File
-						RelativePath=".\OCGroupHandlers.cpp"
 						>
 					</File>
 				</Filter>

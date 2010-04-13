@@ -84,7 +84,7 @@ void Deed::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 						return;
 					}
 
-					//check available Lots
+					//check available Lots and remove ... grml
 					if(!player->useLots(data->requiredLots))
 					{
 						gMessageLib->sendSystemMessage(player, L"","player_structure","not_enough_lots","","",L"",data->requiredLots);
@@ -93,12 +93,24 @@ void Deed::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
 					//TODO
 					//check for city boundaries
-					//player->togglePlayerCustomFlagOn(PlayerCustomFlag_StructurePlacement);	
-
-					gMessageLib->sendEnterStructurePlacement(this,data->structureObjectString,player);
-					//sadly the client wont inform us when the player hit escape
 					
-					gStructureManager->UpdateCharacterLots(player->getId());
+					//check if were allowed to build that structure on this planet
+					if((data->placementMask&gWorldManager->getZoneId()) == gWorldManager->getZoneId())
+					{
+						//sadly the client wont inform us when the player hit escape
+						gMessageLib->sendEnterStructurePlacement(this,data->structureObjectString,player);
+						gStructureManager->UpdateCharacterLots(player->getId());
+					}
+					else
+					{
+						//we cannot differ whether its a no build planet
+						//or just the house type isnt permitted here
+						//wrong_planet 
+						//not_permitted
+						gMessageLib->sendSystemMessage(player, L"","player_structure","wrong_planet","","",L"",data->requiredLots);
+						gStructureManager->UpdateCharacterLots(player->getId());
+						return;
+					}
 
 				}
 			}
@@ -162,9 +174,36 @@ void Deed::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCou
 
 	RadialMenu* radial	= new RadialMenu();
 
-	radial->addItem(1,0,radId_itemUse,radAction_ObjCallback,"");
-	radial->addItem(2,0,radId_examine,radAction_ObjCallback,"");
-	radial->addItem(3,0,radId_itemDestroy,radAction_ObjCallback,"");
+	uint8 radId = 1;
+
+	//if we have a prefab Menu (we will have one as a deed)  iterate through it and add it to our response
+	//this way we will have our menu item numbering done right
+	
+	MenuItemList* menuItemList = 		getMenuList();
+	if(menuItemList)
+	{
+		MenuItemList::iterator it	=	menuItemList->begin();
+
+		while(it != menuItemList->end())
+		{
+			radId++;
+			
+			if((*it)->sIdentifier == 7)
+			{
+				radial->addItem((*it)->sItem,(*it)->sSubMenu,(RadialIdentifier)(*it)->sIdentifier,radAction_ObjCallback,"");
+			}
+			else
+				radial->addItem((*it)->sItem,(*it)->sSubMenu,(RadialIdentifier)(*it)->sIdentifier,radAction_Default,"");
+
+			//gLogger->logMsgF("menu item id : %u",MSG_HIGH,(*it)->sIdentifier);
+			it++;
+		}
+	}
+	 
+
+	radial->addItem(radId++,0,radId_itemUse,radAction_ObjCallback,"");
+	radial->addItem(radId++,0,radId_examine,radAction_ObjCallback,"");
+	radial->addItem(radId++,0,radId_itemDestroy,radAction_ObjCallback,"");
 	RadialMenuPtr radialPtr(radial);
 	mRadialMenu = radialPtr;
 }

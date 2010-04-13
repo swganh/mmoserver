@@ -283,8 +283,10 @@ void Vehicle::dismountPlayer()
 	gMessageLib->sendContainmentMessage_InRange(mOwner->getId(), 0, 0xffffffff, mOwner);
 
 	mBody->toggleStateOff(CreatureState_MountedCreature);
+
 	mOwner->toggleStateOff(CreatureState_RidingMount);
 	mOwner->setPosture(CreaturePosture_Upright);
+
 	gMessageLib->sendStateUpdate(mBody);
 	gMessageLib->sendStateUpdate(mOwner);
 

@@ -226,25 +226,6 @@ void WorldManager::addDisconnectedPlayer(PlayerObject* playerObject)
 	// Halt the tutorial scripts, if running.
 	playerObject->stopTutorial();
 
-	/*
-	if(playerObject->checkIfMountCalled())
-	{
-		gLogger->logMsgF("Player(%"PRIu64")'s Mounts Known Objects ",MSG_NORMAL,playerObject->getId());
-		MountObject* mO = playerObject->getMount();
-		
-		ObjectSet* oS  = mO->getKnownObjects();
-		ObjectSet::iterator			objIt		= oS->begin();
-
-		// objects
-		while(objIt != oS->end())
-		{
-			uint64 id = (*objIt)->getId();
-			gLogger->logMsgF("(%"PRIu64")'",MSG_NORMAL,id);
-			objIt++;
-			
-		}
-	}
-	  */
 
 	Datapad* datapad = dynamic_cast<Datapad*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
 
@@ -252,8 +233,8 @@ void WorldManager::addDisconnectedPlayer(PlayerObject* playerObject)
 	{
 		if(Vehicle* datapad_pet = dynamic_cast<Vehicle*>(datapad->getDataById(playerObject->getMount()->getPetController())))
 		{
-			//datapad_pet->dismountPlayer();
-			//datapad_pet->store();
+			datapad_pet->dismountPlayer();
+			datapad_pet->store();
 		}
 	}
 

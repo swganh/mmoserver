@@ -146,6 +146,7 @@ struct attributeDetail
 struct StructureDeedLink
 {
 	uint32	structure_type;
+	uint64	placementMask;
 	uint32	skill_Requirement;
 	uint32	repair_cost;
 	uint32	item_type;

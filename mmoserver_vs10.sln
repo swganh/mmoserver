@@ -14,6 +14,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ConfigManager", "src\Config
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NetworkManager", "src\NetworkManager\NetworkManager.vcxproj", "{DAA23959-260D-4EE1-BB7F-443100FF7D4E}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Common", "src\Common\Common.vcxproj", "{432DCBE9-1F49-49FF-9753-BE806192A917}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -40,6 +42,10 @@ Global
 		{DAA23959-260D-4EE1-BB7F-443100FF7D4E}.Debug|Win32.Build.0 = Debug|Win32
 		{DAA23959-260D-4EE1-BB7F-443100FF7D4E}.Release|Win32.ActiveCfg = Release|Win32
 		{DAA23959-260D-4EE1-BB7F-443100FF7D4E}.Release|Win32.Build.0 = Release|Win32
+		{432DCBE9-1F49-49FF-9753-BE806192A917}.Debug|Win32.ActiveCfg = Debug|Win32
+		{432DCBE9-1F49-49FF-9753-BE806192A917}.Debug|Win32.Build.0 = Debug|Win32
+		{432DCBE9-1F49-49FF-9753-BE806192A917}.Release|Win32.ActiveCfg = Release|Win32
+		{432DCBE9-1F49-49FF-9753-BE806192A917}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

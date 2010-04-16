@@ -1,0 +1,151 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{BAE6CEDD-4387-4FDD-A5B1-7F9C9D7F43A5}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>ChatServer</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)build-aux\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)build-aux\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalIncludeDirectories>$(SolutionDir)deps;$(SolutionDir)deps\boost;$(SolutionDir)src;</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(SolutionDir)deps\boost\stage\lib;$(SolutionDir)deps\mysql\lib\debug;$(SolutionDir)deps\zlib\projects\visualc6\Win32_LIB_Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>winmm.lib;ws2_32.lib;libmysql.lib;zlibd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalIncludeDirectories>$(SolutionDir)deps;$(SolutionDir)deps\boost;$(SolutionDir)src;</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>$(SolutionDir)deps\boost\stage\lib;$(SolutionDir)deps\mysql\lib\opt;$(SolutionDir)deps\zlib\projects\visualc6\Win32_LIB_Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>winmm.lib;ws2_32.lib;libmysql.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="Channel.cpp" />
+    <ClCompile Include="CharacterAdminHandler.cpp" />
+    <ClCompile Include="ChatAvatarId.cpp" />
+    <ClCompile Include="ChatManager.cpp" />
+    <ClCompile Include="ChatMessageLib.cpp" />
+    <ClCompile Include="ChatMessages.cpp" />
+    <ClCompile Include="ChatServer.cpp" />
+    <ClCompile Include="CSRManager.cpp" />
+    <ClCompile Include="CSRMessages.cpp" />
+    <ClCompile Include="GroupManager.cpp" />
+    <ClCompile Include="GroupMessages.cpp" />
+    <ClCompile Include="GroupObject.cpp" />
+    <ClCompile Include="PlanetMapHandler.cpp" />
+    <ClCompile Include="Player.cpp" />
+    <ClCompile Include="StructureManagerChat.cpp" />
+    <ClCompile Include="TradeManagerChat.cpp" />
+    <ClCompile Include="TradeManagerHelp.cpp" />
+    <ClCompile Include="TradeMessages.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Channel.h" />
+    <ClInclude Include="CharacterAdminHandler.h" />
+    <ClInclude Include="ChatAvatarId.h" />
+    <ClInclude Include="ChatManager.h" />
+    <ClInclude Include="ChatMessageLib.h" />
+    <ClInclude Include="ChatOpcodes.h" />
+    <ClInclude Include="ChatServer.h" />
+    <ClInclude Include="CSRManager.h" />
+    <ClInclude Include="CSRObjects.h" />
+    <ClInclude Include="CSROpcodes.h" />
+    <ClInclude Include="GroupManager.h" />
+    <ClInclude Include="GroupObject.h" />
+    <ClInclude Include="Mail.h" />
+    <ClInclude Include="PlanetMapHandler.h" />
+    <ClInclude Include="Player.h" />
+    <ClInclude Include="StructureManagerChat.h" />
+    <ClInclude Include="TradeManagerChat.h" />
+    <ClInclude Include="TradeManagerHelp.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Common\Common.vcxproj">
+      <Project>{432dcbe9-1f49-49ff-9753-be806192a917}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\ConfigManager\ConfigManager.vcxproj">
+      <Project>{c8684fd3-623a-484c-8686-1e7dfc09d759}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\DatabaseManager\DatabaseManager.vcxproj">
+      <Project>{c4e4bd1a-64fe-46b4-a38b-9fe62e57697d}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\LogManager\LogManager.vcxproj">
+      <Project>{daca5015-e625-4cda-a634-89ded4a9516a}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\NetworkManager\NetworkManager.vcxproj">
+      <Project>{daa23959-260d-4ee1-bb7f-443100ff7d4e}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Utils\Utils.vcxproj">
+      <Project>{95a1522d-a200-4f0c-9e57-815eb370d181}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

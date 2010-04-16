@@ -36,6 +36,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PingServer", "src\PingServe
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LoginServer", "src\LoginServer\LoginServer.vcxproj", "{9DC0B5E2-28A7-497C-8EFB-35C1EFA0527B}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ChatServer", "src\ChatServer\ChatServer.vcxproj", "{BAE6CEDD-4387-4FDD-A5B1-7F9C9D7F43A5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -90,6 +92,10 @@ Global
 		{9DC0B5E2-28A7-497C-8EFB-35C1EFA0527B}.Debug|Win32.Build.0 = Debug|Win32
 		{9DC0B5E2-28A7-497C-8EFB-35C1EFA0527B}.Release|Win32.ActiveCfg = Release|Win32
 		{9DC0B5E2-28A7-497C-8EFB-35C1EFA0527B}.Release|Win32.Build.0 = Release|Win32
+		{BAE6CEDD-4387-4FDD-A5B1-7F9C9D7F43A5}.Debug|Win32.ActiveCfg = Debug|Win32
+		{BAE6CEDD-4387-4FDD-A5B1-7F9C9D7F43A5}.Debug|Win32.Build.0 = Debug|Win32
+		{BAE6CEDD-4387-4FDD-A5B1-7F9C9D7F43A5}.Release|Win32.ActiveCfg = Release|Win32
+		{BAE6CEDD-4387-4FDD-A5B1-7F9C9D7F43A5}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

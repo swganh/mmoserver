@@ -13,8 +13,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #define ANH_SCRIPT_SUPPORT_H
 
 #include "Utils/typedefs.h"
-#include "MathLib/Vector3.h"
-#include "MathLib/Quaternion.h"
 #include "ZoneServer/ObjectFactoryCallback.h"
 #include <map>
 #include <string>

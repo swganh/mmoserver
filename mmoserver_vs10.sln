@@ -18,6 +18,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Common", "src\Common\Common
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MathLib", "src\MathLib\MathLib.vcxproj", "{A87C19CA-AB33-44BA-BBD1-9DB4404638E2}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ScriptEngine", "src\ScriptEngine\ScriptEngine.vcxproj", "{1E105BA1-3EC9-411A-9CFE-AB279F6FC3A7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -52,6 +54,10 @@ Global
 		{A87C19CA-AB33-44BA-BBD1-9DB4404638E2}.Debug|Win32.Build.0 = Debug|Win32
 		{A87C19CA-AB33-44BA-BBD1-9DB4404638E2}.Release|Win32.ActiveCfg = Release|Win32
 		{A87C19CA-AB33-44BA-BBD1-9DB4404638E2}.Release|Win32.Build.0 = Release|Win32
+		{1E105BA1-3EC9-411A-9CFE-AB279F6FC3A7}.Debug|Win32.ActiveCfg = Debug|Win32
+		{1E105BA1-3EC9-411A-9CFE-AB279F6FC3A7}.Debug|Win32.Build.0 = Debug|Win32
+		{1E105BA1-3EC9-411A-9CFE-AB279F6FC3A7}.Release|Win32.ActiveCfg = Release|Win32
+		{1E105BA1-3EC9-411A-9CFE-AB279F6FC3A7}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

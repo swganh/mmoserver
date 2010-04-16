@@ -10,6 +10,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DatabaseManager", "src\Data
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LogManager", "src\LogManager\LogManager.vcxproj", "{DACA5015-E625-4CDA-A634-89DED4A9516A}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ConfigManager", "src\ConfigManager\ConfigManager.vcxproj", "{C8684FD3-623A-484C-8686-1E7DFC09D759}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -28,6 +30,10 @@ Global
 		{DACA5015-E625-4CDA-A634-89DED4A9516A}.Debug|Win32.Build.0 = Debug|Win32
 		{DACA5015-E625-4CDA-A634-89DED4A9516A}.Release|Win32.ActiveCfg = Release|Win32
 		{DACA5015-E625-4CDA-A634-89DED4A9516A}.Release|Win32.Build.0 = Release|Win32
+		{C8684FD3-623A-484C-8686-1E7DFC09D759}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C8684FD3-623A-484C-8686-1E7DFC09D759}.Debug|Win32.Build.0 = Debug|Win32
+		{C8684FD3-623A-484C-8686-1E7DFC09D759}.Release|Win32.ActiveCfg = Release|Win32
+		{C8684FD3-623A-484C-8686-1E7DFC09D759}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

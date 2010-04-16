@@ -9,5 +9,6 @@ data/heightmaps/
 *.user
 *.ncb
 *.suo
+*.sdf
 *.lnk
 .DS_Store

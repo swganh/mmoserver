@@ -32,6 +32,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ConnectionServer", "src\Con
 		{432DCBE9-1F49-49FF-9753-BE806192A917} = {432DCBE9-1F49-49FF-9753-BE806192A917}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PingServer", "src\PingServer\PingServer.vcxproj", "{7F3F121F-E03F-458B-BE2E-4B3011906A93}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -78,6 +80,10 @@ Global
 		{9154B629-1049-4795-95BD-915A71EC755B}.Debug|Win32.Build.0 = Debug|Win32
 		{9154B629-1049-4795-95BD-915A71EC755B}.Release|Win32.ActiveCfg = Release|Win32
 		{9154B629-1049-4795-95BD-915A71EC755B}.Release|Win32.Build.0 = Release|Win32
+		{7F3F121F-E03F-458B-BE2E-4B3011906A93}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7F3F121F-E03F-458B-BE2E-4B3011906A93}.Debug|Win32.Build.0 = Debug|Win32
+		{7F3F121F-E03F-458B-BE2E-4B3011906A93}.Release|Win32.ActiveCfg = Release|Win32
+		{7F3F121F-E03F-458B-BE2E-4B3011906A93}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

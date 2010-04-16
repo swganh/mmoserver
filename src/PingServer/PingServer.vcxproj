@@ -11,9 +11,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{9154B629-1049-4795-95BD-915A71EC755B}</ProjectGuid>
+    <ProjectGuid>{7F3F121F-E03F-458B-BE2E-4B3011906A93}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>ConnectionServer</RootNamespace>
+    <RootNamespace>PingServer</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -54,14 +54,14 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)deps;$(SolutionDir)deps\boost;$(SolutionDir)src;</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalIncludeDirectories>$(SolutionDir)deps;$(SolutionDir)deps\boost;$(SolutionDir)src;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)deps\boost\stage\lib;$(SolutionDir)deps\mysql\lib\debug;$(SolutionDir)deps\zlib\projects\visualc6\Win32_LIB_Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>winmm.lib;ws2_32.lib;libmysql.lib;zlibd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)deps\boost\stage\lib;$(SolutionDir)deps\mysql\lib\debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libmysql.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -73,35 +73,23 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <AdditionalIncludeDirectories>$(SolutionDir)deps;$(SolutionDir)deps\boost;$(SolutionDir)src;</AdditionalIncludeDirectories>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(SolutionDir)deps\boost\stage\lib;$(SolutionDir)deps\mysql\lib\opt;$(SolutionDir)deps\zlib\projects\visualc6\Win32_LIB_Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>winmm.lib;ws2_32.lib;libmysql.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)deps\boost\stage\lib;$(SolutionDir)deps\mysql\lib\opt;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libmysql.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ClientManager.cpp" />
-    <ClCompile Include="ConnectionDispatch.cpp" />
-    <ClCompile Include="ConnectionServer.cpp" />
-    <ClCompile Include="MessageRouter.cpp" />
-    <ClCompile Include="ServerManager.cpp" />
+    <ClCompile Include="PingServer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ClientManager.h" />
-    <ClInclude Include="ConnectionClient.h" />
-    <ClInclude Include="ConnectionDispatch.h" />
-    <ClInclude Include="ConnectionDispatchCallback.h" />
-    <ClInclude Include="ConnectionDispatchClient.h" />
-    <ClInclude Include="ConnectionServer.h" />
-    <ClInclude Include="ConnectionServerOpcodes.h" />
-    <ClInclude Include="MessageRouter.h" />
-    <ClInclude Include="ServerManager.h" />
+    <ClInclude Include="PingServer.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.vcxproj">
@@ -115,9 +103,6 @@
     </ProjectReference>
     <ProjectReference Include="..\LogManager\LogManager.vcxproj">
       <Project>{daca5015-e625-4cda-a634-89ded4a9516a}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\NetworkManager\NetworkManager.vcxproj">
-      <Project>{daa23959-260d-4ee1-bb7f-443100ff7d4e}</Project>
     </ProjectReference>
     <ProjectReference Include="..\Utils\Utils.vcxproj">
       <Project>{95a1522d-a200-4f0c-9e57-815eb370d181}</Project>

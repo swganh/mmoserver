@@ -10,10 +10,33 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Database.cpp" />
+    <ClCompile Include="DatabaseImplementationMySql.cpp" />
+    <ClCompile Include="DatabaseManager.cpp" />
+    <ClCompile Include="DatabaseResult.cpp" />
+    <ClCompile Include="DatabaseWorkerThread.cpp" />
+    <ClCompile Include="DataBindingFactory.cpp" />
+    <ClCompile Include="Transaction.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Database.h" />
+    <ClInclude Include="DatabaseCallback.h" />
+    <ClInclude Include="DatabaseImplementation.h" />
+    <ClInclude Include="DatabaseImplementationMySql.h" />
+    <ClInclude Include="DatabaseJob.h" />
+    <ClInclude Include="DatabaseManager.h" />
+    <ClInclude Include="DatabaseResult.h" />
+    <ClInclude Include="DatabaseType.h" />
+    <ClInclude Include="DatabaseWorkerThread.h" />
+    <ClInclude Include="DataBinding.h" />
+    <ClInclude Include="DataBindingFactory.h" />
+    <ClInclude Include="Transaction.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{95A1522D-A200-4F0C-9E57-815EB370D181}</ProjectGuid>
+    <ProjectGuid>{C4E4BD1A-64FE-46B4-A38B-9FE62E57697D}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>Utils</RootNamespace>
+    <RootNamespace>DatabaseManager</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -38,42 +61,40 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)build-aux\$(Configuration)\$(ProjectName)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IntDir>$(SolutionDir)build-aux\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)build-aux\$(Configuration)\$(ProjectName)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IntDir>$(SolutionDir)build-aux\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)deps;$(SolutionDir)deps\boost;$(SolutionDir)src;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)deps;$(SolutionDir)deps\boost;$(SolutionDir)deps\mysql\include;$(SolutionDir)src</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)deps\boost\stage\lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)deps;$(SolutionDir)deps\boost;$(SolutionDir)src;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)deps;$(SolutionDir)deps\boost;$(SolutionDir)deps\mysql\include;$(SolutionDir)src</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -81,44 +102,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(SolutionDir)deps\boost\stage\lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="bstring.cpp" />
-    <ClCompile Include="clock.cpp" />
-    <ClCompile Include="EventHandler.cpp" />
-    <ClCompile Include="mdump.cpp" />
-    <ClCompile Include="rand.cpp" />
-    <ClCompile Include="Scheduler.cpp" />
-    <ClCompile Include="StreamColors.cpp" />
-    <ClCompile Include="Timer.cpp" />
-    <ClCompile Include="utils.cpp" />
-    <ClCompile Include="VariableTimeScheduler.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="bstring.h" />
-    <ClInclude Include="clock.h" />
-    <ClInclude Include="colors.h" />
-    <ClInclude Include="concurrent_queue.h" />
-    <ClInclude Include="EventHandler.h" />
-    <ClInclude Include="FastDelegate.h" />
-    <ClInclude Include="FastDelegateBind.h" />
-    <ClInclude Include="lockfree_queue.h" />
-    <ClInclude Include="mdump.h" />
-    <ClInclude Include="PriorityVector.h" />
-    <ClInclude Include="queue.h" />
-    <ClInclude Include="rand.h" />
-    <ClInclude Include="Scheduler.h" />
-    <ClInclude Include="stack.h" />
-    <ClInclude Include="StreamColors.h" />
-    <ClInclude Include="Timer.h" />
-    <ClInclude Include="TimerCallback.h" />
-    <ClInclude Include="typedefs.h" />
-    <ClInclude Include="utils.h" />
-    <ClInclude Include="VariableTimeScheduler.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -1,11 +1,11 @@
 @echo off
 SETLOCAL EnableDelayedExpansion
 
-rem msvc_build.cmd
+rem BuildServer.bat
 rem
 rem This is the build script used for building SWGANH and it's dependencies
 rem using Microsoft tools.
-                                                                                 
+
 rem ----------------------------------------------------------------------------
 rem ---Start of Main Execution -------------------------------------------------
 
@@ -25,9 +25,9 @@ cd %PROJECT_BASE%
 if %SKIPHEIGHTMAPS% == false (
 call :DOWNLOAD_DATA_FILES
 )
-                    
+
 call :BUILD_DEPENDENCIES
-                                        
+
 if not exist "deps" (
     echo Missing SWGANH dependencies!
     echo.
@@ -86,7 +86,7 @@ rem --- Helper Functions -------------------------------------------------------
 rem ----------------------------------------------------------------------------
 rem ----------------------------------------------------------------------------
 
-                                                                               
+
 rem ----------------------------------------------------------------------------
 rem --- Start of SET_DEFAULTS --------------------------------------------------
 :SET_DEFAULTS
@@ -96,7 +96,7 @@ set DEPENDENCIES_FILE=swganh-deps-%DEPENDENCIES_VERSION%.zip
 set DEPENDENCIES_URL=http://swganh.com/^^!^^!deps^^!^^!/%DEPENDENCIES_FILE%
 set "PROJECT_BASE=%~dp0"
 set BUILD_TYPE=debug
-set MSVC_VERSION=9.0
+set MSVC_VERSION=10.0
 set REBUILD=build
 set ALLHEIGHTMAPS=false
 set DBINSTALL=false
@@ -111,7 +111,7 @@ goto :eof
 rem --- End of SET_DEFAULTS ----------------------------------------------------  
 rem ----------------------------------------------------------------------------
 
-                                                                               
+
 rem ----------------------------------------------------------------------------
 rem --- Start of PROCESS_ARGUMENTS ---------------------------------------------
 :PROCESS_ARGUMENTS
@@ -201,7 +201,6 @@ rem --- End of PROCESS_ARGUMENTS -----------------------------------------------
 rem ----------------------------------------------------------------------------
 
 
-                                                                             
 rem ----------------------------------------------------------------------------
 rem --- Start of CLEAN_BUILD ---------------------------------------------------
 rem --- Cleans all output created by the build process, restoring the        ---
@@ -242,7 +241,6 @@ rem --- End of CLEAN_BUILD -----------------------------------------------------
 rem ----------------------------------------------------------------------------
 
 
-                                                                                  
 rem ----------------------------------------------------------------------------
 rem --- Start of BUILD_ENVIRONMENT ---------------------------------------------
 :BUILD_ENVIRONMENT
@@ -273,7 +271,6 @@ rem --- End of BUILD_ENVIRONMENT -----------------------------------------------
 rem ----------------------------------------------------------------------------
 
 
-                                          
 rem ----------------------------------------------------------------------------
 rem --- Start of BUILD_ENVIRONMENT_FOR_9.0 -------------------------------------
 :BUILD_ENVIRONMENT_FOR_9.0
@@ -298,6 +295,33 @@ if not exist "%DOTNET_BASE_DIR%" (
 goto :eof
 rem --- End of BUILD_ENVIRONMENT_FOR_9.0 --------------------------------------- 
 rem ----------------------------------------------------------------------------
+
+
+rem ----------------------------------------------------------------------------
+rem --- Start of BUILD_ENVIRONMENT_FOR_10.0 -------------------------------------
+:BUILD_ENVIRONMENT_FOR_10.0
+
+set "VS_BASE_DIR=%PROGRAMFILES(X86)%\Microsoft Visual Studio 10.0"
+if not exist "!VS_BASE_DIR!" (
+	  set "VS_BASE_DIR=%PROGRAMFILES%\Microsoft Visual Studio 10.0"
+	  if not exist "!VS_BASE_DIR!" (          
+		    rem TODO: Allow user to enter a path to their base visual Studio directory.
+       
+  	    echo ***** Microsoft Visual Studio 10.0 required *****
+  	    exit /b 1
+	  )
+)
+
+set "DOTNET_BASE_DIR=%WINDIR%\Microsoft.NET\Framework\v4.0.30319"
+if not exist "%DOTNET_BASE_DIR%" (
+    echo ***** Microsoft .NET Framework 4.0.30319 required *****
+    exit /b 1
+)
+
+goto :eof
+rem --- End of BUILD_ENVIRONMENT_FOR_9.0 --------------------------------------- 
+rem ----------------------------------------------------------------------------
+
 
 rem ----------------------------------------------------------------------------
 rem --- Start of DOWNLOAD_DATA_FILES -------------------------------------------
@@ -358,7 +382,8 @@ if not exist "data\heightmaps\%1.hmpw" (
 goto :eof
 rem --- End of DOWNLOAD_HEIGHTMAP ----------------------------------------------
 rem ----------------------------------------------------------------------------
-                           
+
+
 rem ----------------------------------------------------------------------------
 rem --- Start of BUILD_DEPENDENCIES --------------------------------------------
 rem --- Builds all external dependencies needed by the project.              ---
@@ -404,8 +429,7 @@ goto :eof
 rem --- End of BUILD_DEPENDENCIES ----------------------------------------------
 rem ----------------------------------------------------------------------------
 
-                                                          
-                                                                    
+
 rem ----------------------------------------------------------------------------
 rem --- Start of DOWNLOAD_DEPENDENCIES -----------------------------------------
 rem --- Downloads the dependency package for the current version of the source -
@@ -422,10 +446,11 @@ if exist "%DEPENDENCIES_FILE%" (
     echo Complete!
     echo.
 )
-                                                      
+
 goto :eof
 rem --- End of DOWNLOAD_DEPENDENCIES -------------------------------------------
 rem ----------------------------------------------------------------------------
+
 
 rem ----------------------------------------------------------------------------
 rem --- Start of BUILD_BOOST ---------------------------------------------------
@@ -474,23 +499,22 @@ if not exist "tools\jam\src\bin.ntx86\bjam.exe" (
 rem Build the boost libraries we need.
 
 if "%BUILD_TYPE%" == "debug" (
-    cmd /c "tools\jam\src\bin.ntx86\bjam.exe" --toolset=msvc-%MSVC_VERSION% --with-log --with-date_time --with-thread --with-regex --with-system variant=debug link=static runtime-link=static threading=multi >NUL
+    cmd /c "tools\jam\src\bin.ntx86\bjam.exe" --toolset=msvc-%MSVC_VERSION% --with-log --with-date_time --with-thread --with-regex --with-system variant=debug threading=multi >NUL
 )
 
 if "%BUILD_TYPE%" == "release" (
-    cmd /c "tools\jam\src\bin.ntx86\bjam.exe" --toolset=msvc-%MSVC_VERSION% --with-log --with-date_time --with-thread --with-regex --with-system variant=release link=static runtime-link=static threading=multi >NUL
+    cmd /c "tools\jam\src\bin.ntx86\bjam.exe" --toolset=msvc-%MSVC_VERSION% --with-log --with-date_time --with-thread --with-regex --with-system variant=release threading=multi >NUL
 )
 
 if "%BUILD_TYPE%" == "all" (
-    cmd /c "tools\jam\src\bin.ntx86\bjam.exe" --toolset=msvc-%MSVC_VERSION% --with-log --with-date_time --with-thread --with-regex --with-system variant=debug,release link=static runtime-link=static threading=multi >NUL
+    cmd /c "tools\jam\src\bin.ntx86\bjam.exe" --toolset=msvc-%MSVC_VERSION% --with-log --with-date_time --with-thread --with-regex --with-system variant=debug,release threading=multi >NUL
 )
 
 cd "%PROJECT_BASE%"
-                                                      
+
 goto :eof
 rem --- End of BUILD_BOOST -----------------------------------------------------
 rem ----------------------------------------------------------------------------
-
 
 
 rem ----------------------------------------------------------------------------
@@ -556,7 +580,6 @@ cd "%PROJECT_BASE%"
 goto :eof
 rem --- End of BUILD_GTEST -----------------------------------------------------
 rem ----------------------------------------------------------------------------
-
 
 
 rem ----------------------------------------------------------------------------

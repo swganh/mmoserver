@@ -16,7 +16,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include <list>
 
 #include "DatabaseManager/DatabaseCallback.h"
-#include "MathLib/Vector3.h"
 #include "ObjectFactoryCallback.h"
 #include "TangibleEnums.h"
 #include "WorldManager.h"

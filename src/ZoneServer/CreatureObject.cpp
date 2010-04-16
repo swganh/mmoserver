@@ -26,7 +26,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "ZoneTree.h"
 #include "ZoneServer/Tutorial.h"
 #include "MessageLib/MessageLib.h"
-#include "MathLib/Quaternion.h"
+
 #include "Utils/clock.h"
 
 #include "utils/rand.h"

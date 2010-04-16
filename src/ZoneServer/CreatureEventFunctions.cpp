@@ -14,7 +14,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "WorldManager.h"
 #include "MessageLib/MessageLib.h"
 #include "LogManager/LogManager.h"
-#include "MathLib/Quaternion.h"
+
 
 //=============================================================================
 //

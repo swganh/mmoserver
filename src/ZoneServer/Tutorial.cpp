@@ -39,7 +39,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
 #include "Common/atMacroString.h"
-#include "MathLib/Quaternion.h"
+
 
 #include "utils/rand.h"
 

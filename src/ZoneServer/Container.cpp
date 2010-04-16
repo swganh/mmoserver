@@ -11,7 +11,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Container.h"
 #include "ResourceContainer.h"
 #include "WorldManager.h"
-#include "MathLib/Quaternion.h"
+
 
 //=============================================================================
 

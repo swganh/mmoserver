@@ -11,7 +11,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include "CharacterBuilderTerminal.h"
 #include "Bank.h"
-#include "MathLib/Quaternion.h"
+
 #include "PlayerObject.h"
 #include "WorldManager.h"
 #include "LogManager/LogManager.h"

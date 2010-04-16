@@ -22,7 +22,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
-#include "MathLib/Quaternion.h"
+
 
 //======================================================================================================================
 

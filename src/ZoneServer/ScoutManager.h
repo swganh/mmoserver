@@ -13,7 +13,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #pragma once
 
 #include "AttackableCreature.h"
-#include "MathLib/Vector3.h"
 #include "Utils/typedefs.h"
 
 #define gScoutManager ScoutManager::getSingletonPtr()

@@ -11,7 +11,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "BazaarTerminal.h"
 #include "PlayerObject.h"
 #include "LogManager/LogManager.h"
-#include "MathLib/Quaternion.h"
+
 
 
 //=============================================================================

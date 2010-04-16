@@ -13,7 +13,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "CellObject.h"
 #include "MessageLib/MessageLib.h"
 #include "SpawnPoint.h"
-#include "MathLib/Quaternion.h"
+
 #include "Utils/rand.h"
 
 //=============================================================================

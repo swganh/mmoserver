@@ -10,7 +10,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 */
 
 #include "CraftingTool.h"
-#include "MathLib/Quaternion.h"
+
 
 
 //=============================================================================

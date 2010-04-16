@@ -10,7 +10,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 */
 
 #include "CraftingStation.h"
-#include "MathLib/Quaternion.h"
+
 
 
 //=============================================================================

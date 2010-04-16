@@ -13,7 +13,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #pragma once
 
 #include "Common/MessageDispatchCallback.h"
-#include "MathLib/Vector3.h"
 #include "TangibleObject.h"
 
 #define gFireworkManager FireworkManager::getSingletonPtr()

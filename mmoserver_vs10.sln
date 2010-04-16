@@ -38,6 +38,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LoginServer", "src\LoginSer
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ChatServer", "src\ChatServer\ChatServer.vcxproj", "{BAE6CEDD-4387-4FDD-A5B1-7F9C9D7F43A5}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ZoneServer", "src\ZoneServer\ZoneServer.vcxproj", "{FC533E81-C227-43D3-B68E-4A23241DD997}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -96,6 +98,10 @@ Global
 		{BAE6CEDD-4387-4FDD-A5B1-7F9C9D7F43A5}.Debug|Win32.Build.0 = Debug|Win32
 		{BAE6CEDD-4387-4FDD-A5B1-7F9C9D7F43A5}.Release|Win32.ActiveCfg = Release|Win32
 		{BAE6CEDD-4387-4FDD-A5B1-7F9C9D7F43A5}.Release|Win32.Build.0 = Release|Win32
+		{FC533E81-C227-43D3-B68E-4A23241DD997}.Debug|Win32.ActiveCfg = Debug|Win32
+		{FC533E81-C227-43D3-B68E-4A23241DD997}.Debug|Win32.Build.0 = Debug|Win32
+		{FC533E81-C227-43D3-B68E-4A23241DD997}.Release|Win32.ActiveCfg = Release|Win32
+		{FC533E81-C227-43D3-B68E-4A23241DD997}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

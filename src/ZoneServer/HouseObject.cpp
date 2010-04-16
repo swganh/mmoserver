@@ -18,7 +18,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "ResourceContainer.h"
 #include "StructureManager.h"
 #include "UIManager.h"
-#include "MathLib/Quaternion.h"
+
 #include "MessageLib/MessageLib.h"
 
 #include "DatabaseManager/Database.h"

@@ -499,15 +499,15 @@ if not exist "tools\jam\src\bin.ntx86\bjam.exe" (
 rem Build the boost libraries we need.
 
 if "%BUILD_TYPE%" == "debug" (
-    cmd /c "tools\jam\src\bin.ntx86\bjam.exe" --toolset=msvc-%MSVC_VERSION% --with-log --with-date_time --with-thread --with-regex --with-system variant=debug threading=multi >NUL
+    cmd /c "tools\jam\src\bin.ntx86\bjam.exe" --toolset=msvc-%MSVC_VERSION% --with-log --with-date_time --with-thread --with-regex --with-system variant=debug link=static runtime-link=static threading=multi >NUL
 )
 
 if "%BUILD_TYPE%" == "release" (
-    cmd /c "tools\jam\src\bin.ntx86\bjam.exe" --toolset=msvc-%MSVC_VERSION% --with-log --with-date_time --with-thread --with-regex --with-system variant=release threading=multi >NUL
+    cmd /c "tools\jam\src\bin.ntx86\bjam.exe" --toolset=msvc-%MSVC_VERSION% --with-log --with-date_time --with-thread --with-regex --with-system variant=release link=static runtime-link=static threading=multi >NUL
 )
 
 if "%BUILD_TYPE%" == "all" (
-    cmd /c "tools\jam\src\bin.ntx86\bjam.exe" --toolset=msvc-%MSVC_VERSION% --with-log --with-date_time --with-thread --with-regex --with-system variant=debug,release threading=multi >NUL
+    cmd /c "tools\jam\src\bin.ntx86\bjam.exe" --toolset=msvc-%MSVC_VERSION% --with-log --with-date_time --with-thread --with-regex --with-system variant=debug,release link=static runtime-link=static threading=multi >NUL
 )
 
 cd "%PROJECT_BASE%"

@@ -16,6 +16,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NetworkManager", "src\Netwo
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Common", "src\Common\Common.vcxproj", "{432DCBE9-1F49-49FF-9753-BE806192A917}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MathLib", "src\MathLib\MathLib.vcxproj", "{A87C19CA-AB33-44BA-BBD1-9DB4404638E2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -46,6 +48,10 @@ Global
 		{432DCBE9-1F49-49FF-9753-BE806192A917}.Debug|Win32.Build.0 = Debug|Win32
 		{432DCBE9-1F49-49FF-9753-BE806192A917}.Release|Win32.ActiveCfg = Release|Win32
 		{432DCBE9-1F49-49FF-9753-BE806192A917}.Release|Win32.Build.0 = Release|Win32
+		{A87C19CA-AB33-44BA-BBD1-9DB4404638E2}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A87C19CA-AB33-44BA-BBD1-9DB4404638E2}.Debug|Win32.Build.0 = Debug|Win32
+		{A87C19CA-AB33-44BA-BBD1-9DB4404638E2}.Release|Win32.ActiveCfg = Release|Win32
+		{A87C19CA-AB33-44BA-BBD1-9DB4404638E2}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

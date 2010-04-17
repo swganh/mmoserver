@@ -48,25 +48,25 @@ if not %ERRORLEVEL% == 0 (
 if "%DBINSTALL%" == "true" (
     call :INITIALIZE_DATABASE                  
     if not %ERRORLEVEL% == 0 (
-      if %HALT_ON_ERROR% == true (set /p halt=*** BUILD FAILED... PRESS ENTER TO CONTINUE ***)
-      exit /b %ERRORLEVEL% 
+        if %HALT_ON_ERROR% == true (set /p halt=*** BUILD FAILED... PRESS ENTER TO CONTINUE ***)
+        exit /b %ERRORLEVEL% 
     )
 )
 
 
 if not "%BUILDNUMBER%" == "false" (		
-	if "%BUILD_TYPE%" == "debug" (
-		echo %BUILDNUMBER% >> bin\Debug\VERSION
-	)
+    if "%BUILD_TYPE%" == "debug" (
+        echo %BUILDNUMBER% >> bin\Debug\VERSION
+    )
 	
-	if "%BUILD_TYPE%" == "release" (
-		echo %BUILDNUMBER% >> bin\Release\VERSION
-	)
+    if "%BUILD_TYPE%" == "release" (
+        echo %BUILDNUMBER% >> bin\Release\VERSION
+    )
 	
-	if "%BUILD_TYPE%" == "all" (
-		echo %BUILDNUMBER% >> bin\Debug\VERSION
-		echo %BUILDNUMBER% >> bin\Release\VERSION
-	)
+    if "%BUILD_TYPE%" == "all" (
+        echo %BUILDNUMBER% >> bin\Debug\VERSION
+        echo %BUILDNUMBER% >> bin\Release\VERSION
+    )
 )
 
 echo.
@@ -91,15 +91,14 @@ rem ----------------------------------------------------------------------------
 rem --- Start of SET_DEFAULTS --------------------------------------------------
 :SET_DEFAULTS
 
-set DEPENDENCIES_VERSION=0.1.1
+set DEPENDENCIES_VERSION=0.1.2
 set DEPENDENCIES_FILE=swganh-deps-%DEPENDENCIES_VERSION%.zip
 set DEPENDENCIES_URL=http://swganh.com/^^!^^!deps^^!^^!/%DEPENDENCIES_FILE%
 set "PROJECT_BASE=%~dp0"
 set BUILD_TYPE=debug
-set MSVC_VERSION=10.0
+set MSVC_VERSION=
 set REBUILD=build
 set ALLHEIGHTMAPS=false
-set DBINSTALL=false
 set SKIPHEIGHTMAPS=false
 set DEPENDENCIESONLY=false
 set BUILDNUMBER=0
@@ -122,74 +121,67 @@ if "%~0" == "" goto :CONTINUE_FROM_PROCESS_ARGUMENTS
 if "%~0" == "-h" (
     echo msvc_build.cmd Help
     echo.
-
-	echo "    /builddeps                     Builds only the project dependencies"
-	echo "    /allheightmaps                 Downloads all of the heightmaps"
+    echo "    /builddeps                     Builds only the project dependencies"
+    echo "    /allheightmaps                 Downloads all of the heightmaps"
     echo "    /nohaltonerror                 Skips halting on errors"
-	echo "    /skipheightmaps                Skips downloading heightmap files"
-    echo "    /nodbinstall                   Skips the database build process"
-    echo "    /dbinstall                     Run the database build process"
+    echo "    /skipheightmaps                Skips downloading heightmap files"
     echo "    /rebuild                       Rebuilds the projects instead of incremental build"
     echo "    /clean                         Cleans the generated files"
     echo "    /build [debug-release-all]     Specifies the build type, defaults to debug"
     echo "    /msvc-version [vc9]            Specifies the msvc version and project files to use"
-	echo "    /buildnumber [num]             Specifies a build number to be set rather than commit hash"
+    echo "    /buildnumber [num]             Specifies a build number to be set rather than commit hash"
 )
 
 if "%~0" == "/clean" (
-	  call :CLEAN_BUILD
-	  goto :eof
+    call :CLEAN_BUILD
+    goto :eof
 )  
 
 if "%~0" == "/builddeps" (
-	  set DEPENDENCIESONLY=true
+    set DEPENDENCIESONLY=true
 ) 
 
 if "%~0" == "/allheightmaps" (
-	  set ALLHEIGHTMAPS=true
+    set ALLHEIGHTMAPS=true
 )  
 
 if "%~0" == "/skipheightmaps" (
-	  set SKIPHEIGHTMAPS=true
-)  
-
-if "%~0" == "/nodbinstall" (
-	  set DBINSTALL=false
+    set SKIPHEIGHTMAPS=true
 )  
 
 if "%~0" == "/nohaltonerror" (
-	  set HALT_ON_ERROR=false
-)
-
-if "%~0" == "/dbinstall" (
-	  set DBINSTALL=true
+    set HALT_ON_ERROR=false
 )
 
 rem Check for /rebuild then set REBUILD
 if "%~0" == "/rebuild" (
-	  set REBUILD=rebuild
+    set REBUILD=rebuild
 )       
 
 
 rem Check for /buildnumber x format and then set BUILDNUMBER
 if "%~0" == "/buildnumber" (
-	set BUILDNUMBER=%~1
+    set BUILDNUMBER=%~1
     shift
 )
 
 rem Check for /build:x format and then set BUILD_TYPE
 if "%~0" == "/build" (
-	  set BUILD_TYPE=%~1
+    set BUILD_TYPE=%~1
     shift
 )      
 
 
 rem Check for /msvc-version:x format and then set MSVC_VERSION
 if "%~0" == "/msvc-version" (
-	  rem Only set if it's an allowed version
-	  if "%~1" == "vc9" (
-		set MSVC_VERSION=9.0
-	  )
+    rem Only set if it's an allowed version
+    if "%~1" == "vc9" (
+        set MSVC_VERSION=9
+    )
+
+    if "%~1" == "vc10" (
+        set MSVC_VERSION=10
+    )
   
     shift
 )
@@ -245,6 +237,18 @@ rem ----------------------------------------------------------------------------
 rem --- Start of BUILD_ENVIRONMENT ---------------------------------------------
 :BUILD_ENVIRONMENT
 
+if %MSVC_VERSION%x == x (
+	if exist "%PROGRAMFILES(X86)%\Microsoft Visual Studio 10.0" (
+		set MSVC_VERSION=10
+	) else if exist "%PROGRAMFILES%\Microsoft Visual Studio 10.0" (
+		set MSVC_VERSION=10		
+	) else if exist "%PROGRAMFILES(X86)%\Microsoft Visual Studio 9.0" (
+		set MSVC_VERSION=9	
+	) else if exist "%PROGRAMFILES%\Microsoft Visual Studio 9.0" (
+		set MSVC_VERSION=9	
+	)
+)
+
 call :BUILD_ENVIRONMENT_FOR_%MSVC_VERSION%
 
 rem Set to devenv.exe for all versions of VS except express.
@@ -252,12 +256,6 @@ if exist "%VS_BASE_DIR%\Common7\IDE\devenv.com" (
     set "DEVENV=%VS_BASE_DIR%\Common7\IDE\devenv.com"
 ) else (
     set "DEVENV=%VS_BASE_DIR%\Common7\IDE\vcexpress.exe"
-)
-
-set DOTNET_BASE_DIR=%WINDIR%\Microsoft.NET\Framework\v3.5
-if not exist "%DOTNET_BASE_DIR%" (
-    echo ***** Microsoft .NET Framework 3.5 required *****
-    exit /b 1
 )
 
 set "MSBUILD=%DOTNET_BASE_DIR%\msbuild.exe"
@@ -272,54 +270,54 @@ rem ----------------------------------------------------------------------------
 
 
 rem ----------------------------------------------------------------------------
-rem --- Start of BUILD_ENVIRONMENT_FOR_9.0 -------------------------------------
-:BUILD_ENVIRONMENT_FOR_9.0
+rem --- Start of BUILD_ENVIRONMENT_FOR_9 ---------------------------------------
+:BUILD_ENVIRONMENT_FOR_9
 
 set "VS_BASE_DIR=%PROGRAMFILES(X86)%\Microsoft Visual Studio 9.0"
 if not exist "!VS_BASE_DIR!" (
-	  set "VS_BASE_DIR=%PROGRAMFILES%\Microsoft Visual Studio 9.0"
-	  if not exist "!VS_BASE_DIR!" (          
-		    rem TODO: Allow user to enter a path to their base visual Studio directory.
+    set "VS_BASE_DIR=%PROGRAMFILES%\Microsoft Visual Studio 9.0"
+    if not exist "!VS_BASE_DIR!" (            
+        rem TODO: Allow user to enter a path to their base visual Studio directory.
        
-  	    echo ***** Microsoft Visual Studio 9.0 required *****
-  	    exit /b 1
-	  )
+        echo ***** Microsoft Visual Studio 9.0 required *****
+  	    exit
+    )
 )
 
 set "DOTNET_BASE_DIR=%WINDIR%\Microsoft.NET\Framework\v3.5"
 if not exist "%DOTNET_BASE_DIR%" (
     echo ***** Microsoft .NET Framework 3.5 required *****
-    exit /b 1
+    exit
 )
 
 goto :eof
-rem --- End of BUILD_ENVIRONMENT_FOR_9.0 --------------------------------------- 
+rem --- End of BUILD_ENVIRONMENT_FOR_9 ----------------------------------------- 
 rem ----------------------------------------------------------------------------
 
 
 rem ----------------------------------------------------------------------------
-rem --- Start of BUILD_ENVIRONMENT_FOR_10.0 -------------------------------------
-:BUILD_ENVIRONMENT_FOR_10.0
+rem --- Start of BUILD_ENVIRONMENT_FOR_10 --------------------------------------
+:BUILD_ENVIRONMENT_FOR_10
 
 set "VS_BASE_DIR=%PROGRAMFILES(X86)%\Microsoft Visual Studio 10.0"
 if not exist "!VS_BASE_DIR!" (
-	  set "VS_BASE_DIR=%PROGRAMFILES%\Microsoft Visual Studio 10.0"
-	  if not exist "!VS_BASE_DIR!" (          
-		    rem TODO: Allow user to enter a path to their base visual Studio directory.
-       
-  	    echo ***** Microsoft Visual Studio 10.0 required *****
-  	    exit /b 1
-	  )
+	set "VS_BASE_DIR=%PROGRAMFILES%\Microsoft Visual Studio 10.0"
+	if not exist "!VS_BASE_DIR!" (          
+        rem TODO: Allow user to enter a path to their base visual Studio directory.
+
+        echo ***** Microsoft Visual Studio 10.0 required *****
+        exit
+    )
 )
 
 set "DOTNET_BASE_DIR=%WINDIR%\Microsoft.NET\Framework\v4.0.30319"
 if not exist "%DOTNET_BASE_DIR%" (
     echo ***** Microsoft .NET Framework 4.0.30319 required *****
-    exit /b 1
+    exit
 )
 
 goto :eof
-rem --- End of BUILD_ENVIRONMENT_FOR_9.0 --------------------------------------- 
+rem --- End of BUILD_ENVIRONMENT_FOR_10 ---------------------------------------- 
 rem ----------------------------------------------------------------------------
 
 
@@ -499,15 +497,15 @@ if not exist "tools\jam\src\bin.ntx86\bjam.exe" (
 rem Build the boost libraries we need.
 
 if "%BUILD_TYPE%" == "debug" (
-    cmd /c "tools\jam\src\bin.ntx86\bjam.exe" --toolset=msvc-%MSVC_VERSION% --with-log --with-date_time --with-thread --with-regex --with-system variant=debug link=static runtime-link=static threading=multi >NUL
+    cmd /c "tools\jam\src\bin.ntx86\bjam.exe" --toolset=msvc-%MSVC_VERSION%.0 --with-log --with-date_time --with-thread --with-regex --with-system variant=debug link=static runtime-link=static threading=multi >NUL
 )
 
 if "%BUILD_TYPE%" == "release" (
-    cmd /c "tools\jam\src\bin.ntx86\bjam.exe" --toolset=msvc-%MSVC_VERSION% --with-log --with-date_time --with-thread --with-regex --with-system variant=release link=static runtime-link=static threading=multi >NUL
+    cmd /c "tools\jam\src\bin.ntx86\bjam.exe" --toolset=msvc-%MSVC_VERSION%.0 --with-log --with-date_time --with-thread --with-regex --with-system variant=release link=static runtime-link=static threading=multi >NUL
 )
 
 if "%BUILD_TYPE%" == "all" (
-    cmd /c "tools\jam\src\bin.ntx86\bjam.exe" --toolset=msvc-%MSVC_VERSION% --with-log --with-date_time --with-thread --with-regex --with-system variant=debug,release link=static runtime-link=static threading=multi >NUL
+    cmd /c "tools\jam\src\bin.ntx86\bjam.exe" --toolset=msvc-%MSVC_VERSION%.0 --with-log --with-date_time --with-thread --with-regex --with-system variant=debug,release link=static runtime-link=static threading=multi >NUL
 )
 
 cd "%PROJECT_BASE%"
@@ -558,20 +556,20 @@ if "%BUILD_TYPE%" == "all" (
 if exist "*.cache" del /S /Q "*.cache" >NUL
     
 if "%BUILD_TYPE%" == "debug" (
-    "%MSBUILD%" "gtest.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "gtest_vc%MSVC_VERSION%.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
     if exist "*.cache" del /S /Q "*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "release" (
-    "%MSBUILD%" "gtest.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "gtest_vc%MSVC_VERSION%.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
     if exist "*.cache" del /S /Q "*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "all" (
-    "%MSBUILD%" "gtest.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "gtest_vc%MSVC_VERSION%.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
     if exist "*.cache" del /S /Q "*.cache" >NUL
 	
-    "%MSBUILD%" "gtest.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "gtest_vc%MSVC_VERSION%.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
     if exist "*.cache" del /S /Q "*.cache" >NUL
 )
 
@@ -623,20 +621,20 @@ if "%BUILD_TYPE%" == "all" (
 if exist "%PROJECT_BASE%deps\gmock\msvc\*.cache" del /S /Q "%PROJECT_BASE%deps\gmock\msvc\*.cache" >NUL
     
 if "%BUILD_TYPE%" == "debug" (
-    "%MSBUILD%" "gmock.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "gmock_vc%MSVC_VERSION%.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
     if exist "*.cache" del /S /Q "*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "release" (
-    "%MSBUILD%" "gmock.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "gmock_vc%MSVC_VERSION%.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
     if exist "*.cache" del /S /Q "*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "all" (
-    "%MSBUILD%" "gmock.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "gmock_vc%MSVC_VERSION%.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
     if exist "*.cache" del /S /Q "*.cache" >NUL
 	
-    "%MSBUILD%" "gmock.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "gmock_vc%MSVC_VERSION%.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
     if exist "*.cache" del /S /Q "*.cache" >NUL
 )
 
@@ -795,20 +793,20 @@ rem Removing it as it's not needed.
 if exist "*.cache" del /S /Q "*.cache" >NUL
 
 if "%BUILD_TYPE%" == "debug" (
-    "%MSBUILD%" "libnoise.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "libnoise_vc%MSVC_VERSION%.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
     if exist "*.cache" del /S /Q "*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "release" (
-    "%MSBUILD%" "libnoise.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "libnoise_vc%MSVC_VERSION%.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
     if exist "*.cache" del /S /Q "*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "all" (
-    "%MSBUILD%" "libnoise.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "libnoise_vc%MSVC_VERSION%.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
     if exist "*.cache" del /S /Q "*.cache" >NUL
 
-    "%MSBUILD%" "libnoise.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "libnoise_vc%MSVC_VERSION%.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
     if exist "*.cache" del /S /Q "*.cache" >NUL
 )      
 
@@ -864,20 +862,20 @@ rem Removing it as it's not needed.
 if exist "*.cache" del /S /Q "*.cache" >NUL
 
 if "%BUILD_TYPE%" == "debug" (
-    "%MSBUILD%" "spatialindex.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "spatialindex_vc%MSVC_VERSION%.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
     if exist "*.cache" del /S /Q "*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "release" (
-    "%MSBUILD%" "spatialindex.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "spatialindex_vc%MSVC_VERSION%.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
     if exist "*.cache" del /S /Q "*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "all" (
-    "%MSBUILD%" "spatialindex.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "spatialindex_vc%MSVC_VERSION%.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
     if exist "*.cache" del /S /Q "*.cache" >NUL
 
-    "%MSBUILD%" "spatialindex.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "spatialindex_vc%MSVC_VERSION%.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
     if exist "*.cache" del /S /Q "*.cache" >NUL
 )    
 
@@ -933,20 +931,20 @@ rem Removing it as it's not needed.
 if exist "*.cache" del /S /Q "*.cache" >NUL
 
 if "%BUILD_TYPE%" == "debug" (
-    "%MSBUILD%" "toluapp.sln" /t:build /p:Platform=Win32,Configuration=withLua51_Debug,VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "toluapp_vc%MSVC_VERSION%.sln" /t:build /p:Platform=Win32,Configuration=withLua51_Debug,VCBuildAdditionalOptions="/useenv"
     if exist "*.cache" del /S /Q "*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "release" (
-    "%MSBUILD%" "toluapp.sln" /t:build /p:Platform=Win32,Configuration=withLua51_Release,VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "toluapp_vc%MSVC_VERSION%.sln" /t:build /p:Platform=Win32,Configuration=withLua51_Release,VCBuildAdditionalOptions="/useenv"
     if exist "*.cache" del /S /Q "*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "all" (
-    "%MSBUILD%" "toluapp.sln" /t:build /p:Platform=Win32,Configuration=withLua51_Debug,VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "toluapp_vc%MSVC_VERSION%.sln" /t:build /p:Platform=Win32,Configuration=withLua51_Debug,VCBuildAdditionalOptions="/useenv"
     if exist "*.cache" del /S /Q "*.cache" >NUL
 
-    "%MSBUILD%" "toluapp.sln" /t:build /p:Platform=Win32,Configuration=withLua51_Release,VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "toluapp_vc%MSVC_VERSION%.sln" /t:build /p:Platform=Win32,Configuration=withLua51_Release,VCBuildAdditionalOptions="/useenv"
     if exist "*.cache" del /S /Q "*.cache" >NUL
 )
 
@@ -1002,20 +1000,20 @@ rem Removing it as it's not needed.
 if exist "zlib.sln.cache" del /S /Q "zlib.sln.cache" >NUL
 
 if "%BUILD_TYPE%" == "debug" ( 
-    "%MSBUILD%" "zlib.sln" /t:build /p:Platform=Win32,Configuration="LIB Debug",VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "zlib_vc%MSVC_VERSION%.sln" /t:build /p:Platform=Win32,Configuration="LIB Debug",VCBuildAdditionalOptions="/useenv"
     if exist "*.cache" del /S /Q "*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "release" (
-    "%MSBUILD%" "zlib.sln" /t:build /p:Platform=Win32,Configuration="LIB Release",VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "zlib_vc%MSVC_VERSION%.sln" /t:build /p:Platform=Win32,Configuration="LIB Release",VCBuildAdditionalOptions="/useenv"
     if exist "*.cache" del /S /Q "*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "all" (
-    "%MSBUILD%" "zlib.sln" /t:build /p:Platform=Win32,Configuration="LIB Debug",VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "zlib_vc%MSVC_VERSION%.sln" /t:build /p:Platform=Win32,Configuration="LIB Debug",VCBuildAdditionalOptions="/useenv"
     if exist "*.cache" del /S /Q "*.cache" >NUL
 
-    "%MSBUILD%" "zlib.sln" /t:build /p:Platform=Win32,Configuration="LIB Release",VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "zlib_vc%MSVC_VERSION%.sln" /t:build /p:Platform=Win32,Configuration="LIB Release",VCBuildAdditionalOptions="/useenv"
     if exist "*.cache" del /S /Q "*.cache" >NUL
 )
 
@@ -1038,23 +1036,23 @@ if exist "*.cache" del /S /Q "*.cache" >NUL
 if exist "build-aux\*.xml" del /S /Q "build-aux\*.xml" >NUL
 
 if "%BUILD_TYPE%" == "debug" (
-    "%MSBUILD%" "MMOServer.sln" /t:%REBUILD% /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "MMOServer_vc%MSVC_VERSION%.sln" /t:%REBUILD% /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
     if errorlevel 1 exit /b 1
     if exist "*.cache" del /S /Q "*.cache" >NUL  
 )
 
 if "%BUILD_TYPE%" == "release" (
-    "%MSBUILD%" "MMOServer.sln" /t:%REBUILD% /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "MMOServer_vc%MSVC_VERSION%.sln" /t:%REBUILD% /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
     if errorlevel 1 exit /b 1
     if exist "*.cache" del /S /Q "*.cache" >NUL    
 )
 
 if "%BUILD_TYPE%" == "all" (
-    "%MSBUILD%" "MMOServer.sln" /t:%REBUILD% /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "MMOServer_vc%MSVC_VERSION%.sln" /t:%REBUILD% /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
     if errorlevel 1 exit /b 1
     if exist "*.cache" del /S /Q "*.cache" >NUL     
 	
-    "%MSBUILD%" "MMOServer.sln" /t:%REBUILD% /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "MMOServer_vc%MSVC_VERSION%.sln" /t:%REBUILD% /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
     if errorlevel 1 exit /b 1
     if exist "*.cache" del /S /Q "*.cache" >NUL 
 )
@@ -1063,31 +1061,6 @@ goto :eof
 rem --- End of BUILD_PROJECT ---------------------------------------------------
 rem ----------------------------------------------------------------------------
 
-
-
-rem ----------------------------------------------------------------------------
-rem --- Start of INITIALIZE_DATABASE -------------------------------------------
-rem --- Runs the database batch script if found.                             ---
-:INITIALIZE_DATABASE                              	
- 
-cd "%PROJECT_BASE%data\schema"
-
-if not exist "install.bat" (   
-    echo Unable to locate database installer. The database will
-    echo need to be initialized manually, please consult the documentation
-    echo for further information.
-    echo.
-    cd "%PROJECT_BASE%"
-    goto :eof
-)
-  
-start /w cmd /C "install.bat"
-
-cd "%PROJECT_BASE%"
-
-goto :eof
-rem --- End of INITIALIZE_DATABASE ---------------------------------------------
-rem ----------------------------------------------------------------------------
                
 rem ----------------------------------------------------------------------------
 rem --- Start of SLEEP ---------------------------------------------------------

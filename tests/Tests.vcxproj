@@ -10,42 +10,19 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Database.cpp" />
-    <ClCompile Include="DatabaseImplementationMySql.cpp" />
-    <ClCompile Include="DatabaseManager.cpp" />
-    <ClCompile Include="DatabaseResult.cpp" />
-    <ClCompile Include="DatabaseWorkerThread.cpp" />
-    <ClCompile Include="DataBindingFactory.cpp" />
-    <ClCompile Include="Transaction.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Database.h" />
-    <ClInclude Include="DatabaseCallback.h" />
-    <ClInclude Include="DatabaseImplementation.h" />
-    <ClInclude Include="DatabaseImplementationMySql.h" />
-    <ClInclude Include="DatabaseJob.h" />
-    <ClInclude Include="DatabaseManager.h" />
-    <ClInclude Include="DatabaseResult.h" />
-    <ClInclude Include="DatabaseType.h" />
-    <ClInclude Include="DatabaseWorkerThread.h" />
-    <ClInclude Include="DataBinding.h" />
-    <ClInclude Include="DataBindingFactory.h" />
-    <ClInclude Include="Transaction.h" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{C4E4BD1A-64FE-46B4-A38B-9FE62E57697D}</ProjectGuid>
+    <ProjectGuid>{E152B75F-A0EC-4470-93BC-B41C3F0A72A7}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>DatabaseManager</RootNamespace>
+    <RootNamespace>Tests</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
@@ -61,49 +38,89 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)build-aux\$(Configuration)\$(ProjectName)\</OutDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IntDir>$(SolutionDir)build-aux\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)build-aux\$(Configuration)\$(ProjectName)\</OutDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IntDir>$(SolutionDir)build-aux\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)deps;$(SolutionDir)deps\boost;$(SolutionDir)deps\mysql\include;$(SolutionDir)src</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalIncludeDirectories>$(SolutionDir)deps;$(SolutionDir)deps\boost;$(SolutionDir)deps\gmock\include;$(SolutionDir)deps\gtest\include;$(SolutionDir)src</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(SolutionDir)deps\boost\stage\lib;$(SolutionDir)deps\gmock\msvc\Debug;$(SolutionDir)deps\gtest\msvc\Debug;$(SolutionDir)deps\mysql\lib\debug;$(SolutionDir)deps\zlib\projects\visualc6\Win32_LIB_Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>winmm.lib;ws2_32.lib;gmock.lib;gtest.lib;libmysql.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>$(OutDir)$(TargetName)$(TargetExt) --gtest_output=xml:$(SolutionDir)\build-aux\</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)deps;$(SolutionDir)deps\boost;$(SolutionDir)deps\mysql\include;$(SolutionDir)src</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalIncludeDirectories>$(SolutionDir)deps;$(SolutionDir)deps\boost;$(SolutionDir)deps\gmock\include;$(SolutionDir)deps\gtest\include;$(SolutionDir)src</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>$(SolutionDir)deps\boost\stage\lib;$(SolutionDir)deps\gmock\msvc\Release;$(SolutionDir)deps\gtest\msvc\Release;$(SolutionDir)deps\mysql\lib\opt;$(SolutionDir)deps\zlib\projects\visualc6\Win32_LIB_Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>winmm.lib;ws2_32.lib;gmock.lib;gtest.lib;libmysql.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>$(OutDir)$(TargetName)$(TargetExt) --gtest_output=xml:$(SolutionDir)\build-aux\</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Utils\TestCmpistr.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\src\Common\Common.vcxproj">
+      <Project>{432dcbe9-1f49-49ff-9753-be806192a917}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\src\ConfigManager\ConfigManager.vcxproj">
+      <Project>{c8684fd3-623a-484c-8686-1e7dfc09d759}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\src\DatabaseManager\DatabaseManager.vcxproj">
+      <Project>{c4e4bd1a-64fe-46b4-a38b-9fe62e57697d}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\src\LogManager\LogManager.vcxproj">
+      <Project>{daca5015-e625-4cda-a634-89ded4a9516a}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\src\MessageLib\MessageLib.vcxproj">
+      <Project>{0c19070e-efc9-403c-ad41-79dd6f3b0e52}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\src\NetworkManager\NetworkManager.vcxproj">
+      <Project>{daa23959-260d-4ee1-bb7f-443100ff7d4e}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\src\ScriptEngine\ScriptEngine.vcxproj">
+      <Project>{1e105ba1-3ec9-411a-9cfe-ab279f6fc3a7}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\src\Utils\Utils.vcxproj">
+      <Project>{95a1522d-a200-4f0c-9e57-815eb370d181}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

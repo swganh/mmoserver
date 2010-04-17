@@ -378,7 +378,7 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		bool	_handleCraftToolTimers(uint64 callTime,void* ref);
 		bool	_handleNpcConversionTimers(uint64 callTime,void* ref);
 		bool	_handleFireworkLaunchTimers(uint64 callTime,void* ref);
-		bool	_handleScoutForagingUpdate(uint64 callTime, void* ref);
+		bool	_handleVariousUpdates(uint64 callTime, void* ref);
 
 		bool	_handlePlayerMovementUpdateTimers(uint64 callTime, void* ref);
 

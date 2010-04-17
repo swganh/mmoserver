@@ -42,8 +42,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "WorldConfig.h"
 #include "WorldManager.h"
 #include "ZoneOpcodes.h"
-#include "ZoneTree.h"
 
+#include "ZoneTree.h"
 #include "MessageLib/MessageLib.h"
 #include "ScriptEngine/ScriptEngine.h"
 #include "LogManager/LogManager.h"
@@ -2060,4 +2060,246 @@ void PlayerObject::setParentIdIncDB(uint64 parentId)
 	mParentId = parentId; 
 
 	gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE characters SET parent_id=%"PRIu64" WHERE id=%"PRIu64"",mParentId,this->getId());
+}
+
+//=============================================================================
+//
+// Posture Commands
+//
+
+void PlayerObject::setSitting(Message* message)
+{
+	//uint8			currentPosture	= this->getPosture();
+	string			data;
+    glm::vec3       chair_position;
+	uint64			chairCell		= 0;
+	uint32			elementCount	= 0;
+
+	
+	if(this->checkPlayerCustomFlag(PlayerCustomFlag_LogOut))
+	{
+		this->togglePlayerFlagOff(PlayerCustomFlag_LogOut);	
+		gMessageLib->sendSystemMessage(this,L"","logout","aborted");
+	}
+
+	if(this->isConnected())
+		gMessageLib->sendHeartBeat(this->getClient());
+
+	// see if we need to get out of sampling mode
+	if(this->getSamplingState())
+	{
+		gMessageLib->sendSystemMessage(this,L"","survey","sample_cancel");
+		this->setSamplingState(false);
+	}
+
+	message->getStringUnicode16(data); //Should be okay even if data is null! (I hope)
+
+	this->setPosture(CreaturePosture_Sitting);
+	this->getHam()->updateRegenRates();
+
+	// sitting on chair
+	if(data.getLength())
+	{
+		elementCount = swscanf(data.getUnicode16(), L"%f,%f,%f,%"WidePRIu64, &chair_position.x, &chair_position.y, &chair_position.z, &chairCell);
+
+		if(elementCount == 4)
+		{
+			// outside
+			if(!chairCell)
+			{
+				if(QTRegion* newRegion = gWorldManager->getSI()->getQTRegion(chair_position.x, chair_position.z))
+				{
+					// we didnt change so update the old one
+					if((uint32)newRegion->getId() == this->getSubZoneId())
+					{
+						// this also updates the players position
+						newRegion->mTree->updateObject(this, chair_position);
+					}
+					else
+					{
+						// remove from old
+						if(QTRegion* oldRegion = gWorldManager->getQTRegion(this->getSubZoneId()))
+						{
+							oldRegion->mTree->removeObject(this);
+						}
+
+						// update players position
+						this->mPosition = chair_position;
+
+						// put into new
+						this->setSubZoneId((uint32)newRegion->getId());
+						newRegion->mTree->addObject(this);
+					}
+				}
+				else
+				{
+					// we should never get here !
+					gLogger->logMsg("SitOnObject: could not find zone region in map");
+
+					// hammertime !
+					exit(-1);
+				}
+			}
+			// we are in a cell
+			else
+			{
+				// switch cells, if needed
+				if(this->getParentId() != chairCell)
+				{
+					CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(this->getParentId()));
+
+					if(cell)
+						cell->removeObject(this);
+					else
+						gLogger->logMsgF("Error removing %"PRIu64" from cell %"PRIu64"",MSG_NORMAL,this->getId(),this->getParentId());
+
+					this->setParentId(chairCell);
+
+					cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(chairCell));
+
+					if(cell)
+						cell->addObjectSecure(this);
+					else
+						gLogger->logMsgF("Error adding %"PRIu64" to cell %"PRIu64"",MSG_NORMAL,this->getId(),chairCell);
+				}
+
+				this->mPosition = chair_position;
+			}
+
+			//this->mDirection = Anh_Math::Quaternion();
+			this->toggleStateOn(CreatureState_SittingOnChair);
+
+			this->updateMovementProperties();
+
+			// TODO: check if we need to send transforms to others
+			if(chairCell)
+			{
+				gMessageLib->sendDataTransformWithParent(this);
+			}
+			else
+			{
+				gMessageLib->sendDataTransform(this);
+			}
+
+			gMessageLib->sendUpdateMovementProperties(this);
+			gMessageLib->sendPostureAndStateUpdate(this);
+
+			gMessageLib->sendSitOnObject(this);
+		}
+	}
+	// sitting on ground
+	else
+	{
+		gMessageLib->sendPostureUpdate(this);
+		gMessageLib->sendSelfPostureUpdate(this);
+	}
+
+	//hack-fix clientside bug by manually sending client message
+	gMessageLib->sendSystemMessage(this,L"","shared","player_sit");
+}
+
+void PlayerObject::setUpright()
+{
+	if(this->isConnected())
+		gMessageLib->sendHeartBeat(this->getClient());
+
+	// see if we need to get out of sampling mode
+	if(this->getSamplingState())
+	{
+		gMessageLib->sendSystemMessage(this,L"","survey","sample_cancel");
+		this->setSamplingState(false);
+	}
+
+	if(this->checkPlayerCustomFlag(PlayerCustomFlag_LogOut))
+	{
+		this->togglePlayerCustomFlagOff(PlayerCustomFlag_LogOut);	
+		gMessageLib->sendSystemMessage(this,L"","logout","aborted");
+	}
+
+	this->toggleStateOff(CreatureState_SittingOnChair);
+
+	this->setPosture(CreaturePosture_Upright);
+	this->getHam()->updateRegenRates();
+	this->updateMovementProperties();
+
+	gMessageLib->sendUpdateMovementProperties(this);
+	gMessageLib->sendPostureAndStateUpdate(this);
+	gMessageLib->sendSelfPostureUpdate(this);
+
+	//if player is seated on an a chair, hack-fix clientside bug by manually sending client message
+	bool IsSeatedOnChair = this->checkState(CreatureState_SittingOnChair);
+	if(IsSeatedOnChair)
+	{
+		gMessageLib->sendSystemMessage(this,L"","shared","player_stand");
+	}
+}
+
+void PlayerObject::setProne()
+{
+	if(this->isConnected())
+		gMessageLib->sendHeartBeat(this->getClient());
+
+	// see if we need to get out of sampling mode
+	if(this->getSamplingState())
+	{
+		gMessageLib->sendSystemMessage(this,L"","survey","sample_cancel");
+		this->setSamplingState(false);
+	}
+
+	if(this->checkPlayerCustomFlag(PlayerCustomFlag_LogOut))
+	{
+		this->togglePlayerCustomFlagOff(PlayerCustomFlag_LogOut);	
+		gMessageLib->sendSystemMessage(this,L"","logout","aborted");
+	}
+
+	this->toggleStateOff(CreatureState_SittingOnChair);
+	
+
+	// Can not compare bitwise data with equality... the test below will only work if ALL other states = 0.
+	
+
+	this->setPosture(CreaturePosture_Prone);
+	this->getHam()->updateRegenRates();
+	this->updateMovementProperties();
+
+	gMessageLib->sendUpdateMovementProperties(this);
+	gMessageLib->sendPostureAndStateUpdate(this);
+	gMessageLib->sendSelfPostureUpdate(this);
+
+	//if player is seated on an a chair, hack-fix clientside bug by manually sending client message
+	bool IsSeatedOnChair = this->checkState(CreatureState_SittingOnChair);
+	if(IsSeatedOnChair)
+	{
+		gMessageLib->sendSystemMessage(this,L"","shared","player_prone");
+	}
+}
+
+void PlayerObject::setCrouched()
+{
+	if(this->isConnected())
+		gMessageLib->sendHeartBeat(this->getClient());
+
+	//Get whether player is seated on a chair before we toggle it
+	// Can not compare bitwise data with equality... the test below will only work if ALL other states = 0.
+	// bool IsSeatedOnChair = (playerObject->getState() == CreatureState_SittingOnChair);
+	bool IsSeatedOnChair = this->checkState(CreatureState_SittingOnChair);
+
+	//make sure we end states
+	//the logoff states is an invention of mine btw 
+	
+	this->toggleStateOff(CreatureState_SittingOnChair);
+
+	this->setPosture(CreaturePosture_Crouched);
+	this->getHam()->updateRegenRates();
+	this->updateMovementProperties();
+
+	gMessageLib->sendUpdateMovementProperties(this);
+	gMessageLib->sendPostureAndStateUpdate(this);
+	gMessageLib->sendSelfPostureUpdate(this);
+
+	//if player is seated on an a chair, hack-fix clientside bug by manually sending client message
+	if(IsSeatedOnChair)
+	{
+		gMessageLib->sendSystemMessage(this,L"","shared","player_kneel");
+	}
 }

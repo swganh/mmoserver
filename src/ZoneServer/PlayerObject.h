@@ -369,6 +369,12 @@ class PlayerObject : public CreatureObject
 		int					getPreviousHarvestSelection() { return mPreviousHarvestingSelection;}
 		void				setPreviousHarvestSelection(int newSelection){ mPreviousHarvestingSelection = newSelection;}
 
+		//Posture
+		void				setUpright();
+		void				setSitting(Message* message=NULL);
+		void				setProne();
+		void				setCrouched();
+
 	private:
 
 		void				_verifyBadges();

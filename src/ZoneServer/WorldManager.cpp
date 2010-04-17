@@ -48,6 +48,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "QuadTree.h"
 #include "Shuttle.h"
 #include "ForageManager.h"
+#include "FireworkManager.h"
 #include "TicketCollector.h"
 #include "ConfigManager/ConfigManager.h"
 #include "DatabaseManager/Database.h"
@@ -718,9 +719,10 @@ void WorldManager::addCreatureObjectForTimedDeletion(uint64 creatureId, uint64 w
 }
 
 
-bool WorldManager::_handleScoutForagingUpdate(uint64 callTime, void* ref)
+bool WorldManager::_handleVariousUpdates(uint64 callTime, void* ref)
 {
 	gForageManager->forageUpdate();
+	gFireworkManager->Process();
 	return true;
 }
 
@@ -905,7 +907,7 @@ void WorldManager::_handleLoadComplete()
 	
 	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleGeneralObjectTimers),5,2000,NULL);
 	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleGroupObjectTimers),5,gWorldConfig->getGroupMissionUpdateTime(),NULL);
-	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleScoutForagingUpdate),7,2000, NULL);
+	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleVariousUpdates),7,2000, NULL);
 
 	// Init NPC Manager, will load lairs from the DB.
 	(void)NpcManager::Instance();

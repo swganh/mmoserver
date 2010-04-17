@@ -305,9 +305,9 @@ void MessageLib::sendUpdateTransformMessage(MovingObject* object)
 	mMessageFactory->StartMessage();
 	mMessageFactory->addUint32(opUpdateTransformMessage);          
 	mMessageFactory->addUint64(object->getId());
-	mMessageFactory->addUint16(glm::floatBitsToUint(object->mPosition.x * 4.0f + 0.5f));     
-	mMessageFactory->addUint16(glm::floatBitsToUint(object->mPosition.y * 4.0f + 0.5f));      
-	mMessageFactory->addUint16(glm::floatBitsToUint(object->mPosition.z * 4.0f + 0.5f));      
+	mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.x * 4.0f + 0.5f));     
+	mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.y * 4.0f + 0.5f));      
+	mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.z * 4.0f + 0.5f));      
 	mMessageFactory->addUint32(object->getInMoveCount()); 
 
     mMessageFactory->addUint8(static_cast<uint8>(glm::length(object->mPosition) * 4.0f + 0.5f));
@@ -331,13 +331,13 @@ void MessageLib::sendUpdateTransformMessageWithParent(MovingObject* object)
 	mMessageFactory->addUint32(opUpdateTransformMessageWithParent);   
 	mMessageFactory->addUint64(object->getParentId());
 	mMessageFactory->addUint64(object->getId());
-	mMessageFactory->addUint16(glm::floatBitsToUint(object->mPosition.x * 8.0f + 0.5f));     
-	mMessageFactory->addUint16(glm::floatBitsToUint(object->mPosition.y * 8.0f + 0.5f));    
-	mMessageFactory->addUint16(glm::floatBitsToUint(object->mPosition.z * 8.0f + 0.5f));    
+	mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.x * 8.0f + 0.5f));     
+	mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.y * 8.0f + 0.5f));    
+	mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.z * 8.0f + 0.5f));    
 	mMessageFactory->addUint32(object->getInMoveCount()); 
             
-    mMessageFactory->addUint8(glm::floatBitsToUint(glm::length(object->mPosition) * 8.0f + 0.5f));
-    mMessageFactory->addUint8(glm::floatBitsToUint(glm::gtx::quaternion::angle(object->mDirection) / 0.0625f)); 
+    mMessageFactory->addUint8(static_cast<uint8>(glm::length(object->mPosition) * 8.0f + 0.5f));
+    mMessageFactory->addUint8(static_cast<uint8>(glm::gtx::quaternion::angle(object->mDirection) / 0.0625f)); 
 
 	_sendToInRangeUnreliable(mMessageFactory->EndMessage(),object,8,false);		
 }
@@ -356,13 +356,13 @@ void MessageLib::sendUpdateTransformMessage(MovingObject* object, PlayerObject* 
 	mMessageFactory->StartMessage();
 	mMessageFactory->addUint32(opUpdateTransformMessage);          
 	mMessageFactory->addUint64(object->getId());
-	mMessageFactory->addUint16(glm::floatBitsToUint(object->mPosition.x * 4.0f + 0.5f));     
-	mMessageFactory->addUint16(glm::floatBitsToUint(object->mPosition.y * 4.0f + 0.5f));      
-	mMessageFactory->addUint16(glm::floatBitsToUint(object->mPosition.z * 4.0f + 0.5f));      
+	mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.x * 4.0f + 0.5f));     
+	mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.y * 4.0f + 0.5f));      
+	mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.z * 4.0f + 0.5f));      
 	mMessageFactory->addUint32(object->getInMoveCount()); 
             
-    mMessageFactory->addUint8(glm::floatBitsToUint(glm::length(object->mPosition) * 4.0f + 0.5f));
-    mMessageFactory->addUint8(glm::floatBitsToUint(glm::gtx::quaternion::angle(object->mDirection) / 0.0625f)); 
+    mMessageFactory->addUint8(static_cast<uint8>(glm::length(object->mPosition) * 4.0f + 0.5f));
+    mMessageFactory->addUint8(static_cast<uint8>(glm::gtx::quaternion::angle(object->mDirection) / 0.0625f)); 
 
 	_sendToInstancedPlayersUnreliable(mMessageFactory->EndMessage(), 8, player);
 }
@@ -382,13 +382,13 @@ void MessageLib::sendUpdateTransformMessageWithParent(MovingObject* object, Play
 	mMessageFactory->addUint32(opUpdateTransformMessageWithParent);   
 	mMessageFactory->addUint64(object->getParentId());
 	mMessageFactory->addUint64(object->getId());
-	mMessageFactory->addUint16(glm::floatBitsToUint(object->mPosition.x * 8.0f + 0.5f));     
-	mMessageFactory->addUint16(glm::floatBitsToUint(object->mPosition.y * 8.0f + 0.5f));    
-	mMessageFactory->addUint16(glm::floatBitsToUint(object->mPosition.z * 8.0f + 0.5f));    
+	mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.x * 8.0f + 0.5f));     
+	mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.y * 8.0f + 0.5f));    
+	mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.z * 8.0f + 0.5f));    
 	mMessageFactory->addUint32(object->getInMoveCount()); 
             
-    mMessageFactory->addUint8(glm::floatBitsToUint(glm::length(object->mPosition) * 8.0f + 0.5f));
-    mMessageFactory->addUint8(glm::floatBitsToUint(glm::gtx::quaternion::angle(object->mDirection) / 0.0625f)); 
+    mMessageFactory->addUint8(static_cast<uint8>(glm::length(object->mPosition) * 8.0f + 0.5f));
+    mMessageFactory->addUint8(static_cast<uint8>(glm::gtx::quaternion::angle(object->mDirection) / 0.0625f)); 
 
 	_sendToInstancedPlayersUnreliable(mMessageFactory->EndMessage(), 8, player);
 }

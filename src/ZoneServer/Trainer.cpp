@@ -25,7 +25,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "ZoneTree.h"
 
 #include "MessageLib/MessageLib.h"
-#include "MathLib/Quaternion.h"
 
 #include <cassert>
 
@@ -1121,49 +1120,14 @@ bool Trainer::preProcessfilterConversation(ActiveConversation* av,Conversation* 
 
 void Trainer::prepareConversation(PlayerObject* player)
 {
-
 	// Let's turn to the player asking for my attention.
+	faceObject(player);	
 
-	/*
-	gLogger->logMsgF("%"PRIu64"",MSG_NORMAL, this->getId());
-	gLogger->logMsgF("%f %f %f",MSG_NORMAL, player->mPosition.x, player->mPosition.y, player->mPosition.z);
-	gLogger->logMsgF("\n%f %f %f",MSG_NORMAL, this->mPosition.x, this->mPosition.y, this->mPosition.z);
-	
-	gLogger->logMsgF("%f %f %f %f",MSG_NORMAL, player->mDirection.x, player->mDirection.y, player->mDirection.z, player->mDirection.w);
-	gLogger->logMsgF("%f %f %f %f",MSG_NORMAL, this->mDirection.x, this->mDirection.y, this->mDirection.z, this->mDirection.w);
-	*/
-	
-	float x = player->mPosition.x - this->mPosition.x;
-	float z = player->mPosition.z - this->mPosition.z;
-	float h = sqrt(x*x + z*z);
-	
-	// gLogger->logMsgF("%f %f %f %f",MSG_NORMAL, x, z, x/h, z/h);
-	// We need to use half the angle when storing the new direction.
-
-	// gLogger->logMsgF("mY: %f %f %f %f",MSG_NORMAL, x/h, (float)asin((float)(x/h)), (float)0.5f*asin((float)(x/h)), (float)sin(0.5f*asin((float)(x/h))));
-	// gLogger->logMsgF("mW: %f %f %f %f",MSG_NORMAL, z/h, (float)acos((float)(z/h)), (float)0.5f*acos((float)(z/h)), (float)cos(0.5f*acos((float)(z/h))));
-
-	if ((z/h) < 0.0)
-	{	
-		if (x/h < 0.0)
-		{
-			this->mDirection.w = static_cast<float>(cos((3.14159354 * 0.5) + 0.5f*acos(-z/h)));
-			this->mDirection.y = static_cast<float>(sin((3.14159354 * 0.5) + 0.5f*acos(-z/h)));
-		}
-		else
-		{
-			this->mDirection.y = sin(0.5f*acos(z/h));
-			this->mDirection.w = cos(0.5f*acos(z/h));
-		}
-	}
-	else
-	{
-		this->mDirection.y = sin(0.5f*asin(x/h));	
-		this->mDirection.w = cos(0.5f*acos(z/h));
-	}
-	// gLogger->logMsgF("%f %f %f %f",MSG_NORMAL, this->mDirection.x, this->mDirection.y, this->mDirection.z, this->mDirection.w);
-	
-	// send out position updates to known players
+	// Send out the updated transform to those in range.
+	// @TODO This should not be a part of the Object's responsibility
+	//  since in theory simulation objects shouldn't know about the methods
+	//  used to transport data. Consider abstracting this into a layer similar
+	//  to the one proposed for deltas.
 	this->setInMoveCount(this->getInMoveCount() + 1);
 
 	if (!gWorldConfig->isInstance())
@@ -1194,7 +1158,6 @@ void Trainer::prepareConversation(PlayerObject* player)
 			gMessageLib->sendUpdateTransformMessage(this, player);
 		}
 	}
-	// gLogger->logMsgF("%f %f %f %f",MSG_NORMAL, this->mDirection.x, this->mDirection.y, this->mDirection.z, this->mDirection.w);
 
 	setLastConversationTarget(player->getId());
 

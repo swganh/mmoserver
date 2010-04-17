@@ -118,7 +118,6 @@ const Object* Object::getRootParent() const
 
 //=============================================================================
 
-
 bool Object::removeKnownObject(Object* object)
 {
 	if(object->getType() == ObjType_Player)

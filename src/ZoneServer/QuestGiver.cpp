@@ -185,33 +185,14 @@ bool QuestGiver::preProcessfilterConversation(ActiveConversation* av, Conversati
 
 void QuestGiver::prepareConversation(PlayerObject* player)
 {
-
 	// Let's turn to the player asking for my attention.
-	float x = player->mPosition.x - this->mPosition.x;
-	float z = player->mPosition.z - this->mPosition.z;
-	float h = sqrt(x*x + z*z);
+	faceObject(player);
 
-	if ((z/h) < 0.0)
-	{	
-		if (x/h < 0.0)
-		{
-			this->mDirection.w = static_cast<float>(cos((3.14159354 * 0.5) + 0.5f*acos(-z/h)));
-			this->mDirection.y = static_cast<float>(sin((3.14159354 * 0.5) + 0.5f*acos(-z/h)));
-		}
-		else
-		{
-			this->mDirection.y = sin(0.5f*acos(z/h));
-			this->mDirection.w = cos(0.5f*acos(z/h));
-		}
-	}
-	else
-	{
-		this->mDirection.y = sin(0.5f*asin(x/h));	
-		this->mDirection.w = cos(0.5f*acos(z/h));
-	}
-	// gLogger->logMsgF("%f %f %f %f",MSG_NORMAL, this->mDirection.x, this->mDirection.y, this->mDirection.z, this->mDirection.w);
-	
 	// send out position updates to known players
+	// @TODO This should not be a part of the Object's responsibility
+	//  since in theory simulation objects shouldn't know about the methods
+	//  used to transport data. Consider abstracting this into a layer similar
+	//  to the one proposed for deltas.
 	this->setInMoveCount(this->getInMoveCount() + 1);
 
 	if (!gWorldConfig->isInstance())

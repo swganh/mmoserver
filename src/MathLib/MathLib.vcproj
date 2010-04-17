@@ -278,14 +278,6 @@
 			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
-			<File
-				RelativePath=".\Quaternion.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Vector3.cpp"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -297,23 +289,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Math.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Quaternion.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Rectangle.h"
 				>
 			</File>
 			<File
 				RelativePath=".\Shape.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Vector3.h"
 				>
 			</File>
 		</Filter>

@@ -128,7 +128,7 @@ if "%~0" == "-h" (
     echo "    /rebuild                       Rebuilds the projects instead of incremental build"
     echo "    /clean                         Cleans the generated files"
     echo "    /build [debug-release-all]     Specifies the build type, defaults to debug"
-    echo "    /msvc-version [vc9]            Specifies the msvc version and project files to use"
+    echo "    /msvc-version [vc9|vc10]       Specifies the msvc version and project files to use"
     echo "    /buildnumber [num]             Specifies a build number to be set rather than commit hash"
 )
 
@@ -1036,23 +1036,23 @@ if exist "*.cache" del /S /Q "*.cache" >NUL
 if exist "build-aux\*.xml" del /S /Q "build-aux\*.xml" >NUL
 
 if "%BUILD_TYPE%" == "debug" (
-    "%MSBUILD%" "MMOServer_vc%MSVC_VERSION%.sln" /t:%REBUILD% /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "mmoserver_vc%MSVC_VERSION%.sln" /t:%REBUILD% /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
     if errorlevel 1 exit /b 1
     if exist "*.cache" del /S /Q "*.cache" >NUL  
 )
 
 if "%BUILD_TYPE%" == "release" (
-    "%MSBUILD%" "MMOServer_vc%MSVC_VERSION%.sln" /t:%REBUILD% /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "mmoserver_vc%MSVC_VERSION%.sln" /t:%REBUILD% /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
     if errorlevel 1 exit /b 1
     if exist "*.cache" del /S /Q "*.cache" >NUL    
 )
 
 if "%BUILD_TYPE%" == "all" (
-    "%MSBUILD%" "MMOServer_vc%MSVC_VERSION%.sln" /t:%REBUILD% /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "mmoserver_vc%MSVC_VERSION%.sln" /t:%REBUILD% /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
     if errorlevel 1 exit /b 1
     if exist "*.cache" del /S /Q "*.cache" >NUL     
 	
-    "%MSBUILD%" "MMOServer_vc%MSVC_VERSION%.sln" /t:%REBUILD% /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
+    "%MSBUILD%" "mmoserver_vc%MSVC_VERSION%.sln" /t:%REBUILD% /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
     if errorlevel 1 exit /b 1
     if exist "*.cache" del /S /Q "*.cache" >NUL 
 )

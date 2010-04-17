@@ -63,6 +63,9 @@
       <AdditionalLibraryDirectories>$(SolutionDir)deps\boost\stage\lib;$(SolutionDir)deps\lua\lib;$(SolutionDir)deps\mysql\lib\debug;$(SolutionDir)deps\noise\win32\Debug;$(SolutionDir)deps\spatialindex\Debug;$(SolutionDir)deps\tolua++\win32\vc9\withLua51_Debug;$(SolutionDir)deps\zlib\projects\visualc6\Win32_LIB_Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>winmm.lib;ws2_32.lib;lua5.1d.lib;libmysql.lib;libnoise.lib;spatialindex.lib;toluapp.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>call "$(SolutionDir)tools\postbuild.bat" "$(SolutionDir)" "$(ConfigurationName)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -84,6 +87,33 @@
       <AdditionalLibraryDirectories>$(SolutionDir)deps\boost\stage\lib;$(SolutionDir)deps\lua\lib;$(SolutionDir)deps\mysql\lib\opt;$(SolutionDir)deps\noise\win32\Release;$(SolutionDir)deps\spatialindex\Release;$(SolutionDir)deps\tolua++\win32\vc9\withLua51_Release;$(SolutionDir)deps\zlib\projects\visualc6\Win32_LIB_Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>winmm.lib;ws2_32.lib;lua5.1.lib;libmysql.lib;libnoise.lib;spatialIndex.lib;toluapp.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>if not exist "$(SolutionDir)bin\$(ConfigurationName)\libmysql.dll" (
+xcopy "$(SolutionDir)deps\mysql\bin" "$(SolutionDir)bin\$(ConfigurationName)" /I /Y /s
+)
+
+if not exist "$(SolutionDir)bin\$(ConfigurationName)\config" (
+xcopy "$(SolutionDir)data\config" "$(SolutionDir)bin\$(ConfigurationName)\config" /I /Y /s
+)
+
+if not exist "$(SolutionDir)bin\$(ConfigurationName)\logs" (
+mkdir "$(SolutionDir)bin\$(ConfigurationName)\logs"
+)
+
+"$(SolutionDir)tools\gitversion.exe" &gt; "$(SolutionDir)bin\$(ConfigurationName)\VERSION"
+
+xcopy "$(SolutionDir)data\script" "$(SolutionDir)bin\$(ConfigurationName)\script" /I /Y /s
+
+if not exist "$(SolutionDir)bin\$(ConfigurationName)\*.hmpw" (
+xcopy "$(SolutionDir)data\heightmaps\*.hmpw" "$(SolutionDir)bin\$(ConfigurationName)" /I /Y /s
+)
+
+xcopy "$(SolutionDir)data\" "$(SolutionDir)bin\$(ConfigurationName)\script" /I /Y /s
+
+if not exist "$(SolutionDir)bin\$(ConfigurationName)\ServerStart.bat" (
+xcopy "$(SolutionDir)data\ServerStart.bat" "$(SolutionDir)bin\$(ConfigurationName)" /I /Y /s
+)</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ActiveConversation.cpp" />

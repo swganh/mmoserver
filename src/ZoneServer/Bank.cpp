@@ -8,12 +8,13 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
+
+
 #include "Bank.h"
 #include "PlayerObject.h"
 #include "WorldManager.h"
 #include "MessageLib/MessageLib.h"
 #include "DatabaseManager/Database.h"
-
 
 //=============================================================================
 

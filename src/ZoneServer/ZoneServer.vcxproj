@@ -53,7 +53,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;_WIN32_WINNT=0x0501;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <AdditionalIncludeDirectories>$(SolutionDir)deps;$(SolutionDir)deps\boost;$(SolutionDir)deps\glm;$(SolutionDir)deps\lua\src;$(SolutionDir)deps\noise\src;$(SolutionDir)deps\spatialindex\include;$(SolutionDir)deps\spatialindex\tools\include;$(SolutionDir)src</AdditionalIncludeDirectories>
     </ClCompile>
@@ -75,7 +75,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;_WIN32_WINNT=0x0501;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <AdditionalIncludeDirectories>$(SolutionDir)deps;$(SolutionDir)deps\boost;$(SolutionDir)deps\glm;$(SolutionDir)deps\lua\src;$(SolutionDir)deps\noise\src;$(SolutionDir)deps\spatialindex\include;$(SolutionDir)deps\spatialindex\tools\include;$(SolutionDir)src</AdditionalIncludeDirectories>
     </ClCompile>
@@ -88,31 +88,7 @@
       <AdditionalDependencies>winmm.lib;ws2_32.lib;lua5.1.lib;libmysql.lib;libnoise.lib;spatialIndex.lib;toluapp.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>if not exist "$(SolutionDir)bin\$(ConfigurationName)\libmysql.dll" (
-xcopy "$(SolutionDir)deps\mysql\bin" "$(SolutionDir)bin\$(ConfigurationName)" /I /Y /s
-)
-
-if not exist "$(SolutionDir)bin\$(ConfigurationName)\config" (
-xcopy "$(SolutionDir)data\config" "$(SolutionDir)bin\$(ConfigurationName)\config" /I /Y /s
-)
-
-if not exist "$(SolutionDir)bin\$(ConfigurationName)\logs" (
-mkdir "$(SolutionDir)bin\$(ConfigurationName)\logs"
-)
-
-"$(SolutionDir)tools\gitversion.exe" &gt; "$(SolutionDir)bin\$(ConfigurationName)\VERSION"
-
-xcopy "$(SolutionDir)data\script" "$(SolutionDir)bin\$(ConfigurationName)\script" /I /Y /s
-
-if not exist "$(SolutionDir)bin\$(ConfigurationName)\*.hmpw" (
-xcopy "$(SolutionDir)data\heightmaps\*.hmpw" "$(SolutionDir)bin\$(ConfigurationName)" /I /Y /s
-)
-
-xcopy "$(SolutionDir)data\" "$(SolutionDir)bin\$(ConfigurationName)\script" /I /Y /s
-
-if not exist "$(SolutionDir)bin\$(ConfigurationName)\ServerStart.bat" (
-xcopy "$(SolutionDir)data\ServerStart.bat" "$(SolutionDir)bin\$(ConfigurationName)" /I /Y /s
-)</Command>
+      <Command>call "$(SolutionDir)tools\postbuild.bat" "$(SolutionDir)" "$(ConfigurationName)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

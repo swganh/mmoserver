@@ -1,10 +1,14 @@
 @echo off
 SETLOCAL EnableDelayedExpansion
 
+if not exist "%1" (
+	exit
+)
+
 cd %1
 
 if not exist "%1bin\%2\libmysql.dll" (
-    xcopy "%1deps\mysql\bin" "%0bin\%2" /I /Y /s
+    xcopy "%1deps\mysql\bin" "%1bin\%2" /I /Y /s
 )
 
 if not exist "%1bin\%2\config" (

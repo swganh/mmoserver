@@ -19,7 +19,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "UIManager.h"
 #include "WorldManager.h"
 #include "MessageLib/MessageLib.h"
-#include "MathLib/Quaternion.h"
 
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"

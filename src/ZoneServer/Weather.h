@@ -13,8 +13,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #define ANH_ZONESERVER_WEATHER_H
 
 #include "Utils/typedefs.h"
-#include "MathLib/Vector3.h"
-
+#include <glm/glm.hpp>
 
 //======================================================================================================================
 

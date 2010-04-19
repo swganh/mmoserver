@@ -19,7 +19,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "MessageLib/MessageLib.h"
 #include "LogManager/LogManager.h"
 #include "DatabaseManager/Database.h"
-#include "MathLib/Quaternion.h"
+
 
 // TODO: Make this a Var when we start use the 20% discount from player city with "Clone Lab" specializations.
 const int32 cloningCost = 1000;

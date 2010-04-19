@@ -19,7 +19,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "ZoneServer/Tutorial.h"
 #include "DatabaseManager/Database.h"
 #include "MessageLib/MessageLib.h"
-#include "MathLib/Quaternion.h"
+
 #include "Utils/clock.h"
 
 //=============================================================================

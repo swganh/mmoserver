@@ -17,7 +17,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include "utils/rand.h"
 #include "MessageLib/MessageLib.h"
-#include "MathLib/Quaternion.h"
+
 
 static const uint64	tutorialPlayersPeriodUpdateTime = 5000;		// 5000ms
 

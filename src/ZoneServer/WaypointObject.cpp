@@ -9,7 +9,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 #include "WaypointObject.h"
-#include "MathLib/Quaternion.h"
+
 
 
 

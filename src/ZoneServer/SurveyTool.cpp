@@ -25,7 +25,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "DatabaseManager/Database.h"
 #include "Common/MessageFactory.h"
 #include "Common/MessageOpcodes.h"
-#include "MathLib/Quaternion.h"
+
 #include <boost/lexical_cast.hpp>
 
 

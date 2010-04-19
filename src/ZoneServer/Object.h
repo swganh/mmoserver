@@ -17,8 +17,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "UICallback.h"
 #include "Object_Enums.h"
 #include "LogManager/LogManager.h" // @todo: this needs to go.	  where does it need to go ?
-#include "MathLib/Vector3.h"
-#include "MathLib/Quaternion.h"
 #include "Utils/EventHandler.h"
 #include "Utils/typedefs.h"
 

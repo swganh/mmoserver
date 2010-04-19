@@ -20,8 +20,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "ZoneTree.h"
 
 #include "MessageLib/MessageLib.h"
-#include "MathLib/Quaternion.h"
-#include "MathLib/Vector3.h"
 
 #include "Utils/rand.h"
 

@@ -3,11 +3,14 @@ bin/
 build-aux/
 deps/
 data/heightmaps/
+ipch/
 *.cache
 *.zip
 *.tmp_*Win32.vcproj
 *.user
 *.ncb
 *.suo
+*.sdf
+*.opensdf
 *.lnk
 .DS_Store

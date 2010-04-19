@@ -13,7 +13,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "TangibleObject.h"
 #include "PlayerStructureTerminal.h"
 #include "MessageLib/MessageLib.h"
-#include "MathLib/Quaternion.h"
+
 
 
 

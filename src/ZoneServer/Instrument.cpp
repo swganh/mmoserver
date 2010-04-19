@@ -19,7 +19,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "MessageLib/MessageLib.h"
 #include "Common/Message.h"
 #include "Common/MessageFactory.h"
-#include "MathLib/Quaternion.h"
+
 //=============================================================================
 
 Instrument::Instrument() : Item()

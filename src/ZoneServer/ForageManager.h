@@ -12,7 +12,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #pragma once
 
 #include <vector>
-#include "MathLib/Vector3.h"
 #include "Utils/typedefs.h"
 
 #define gForageManager ForageManager::getSingletonPtr()

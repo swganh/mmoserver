@@ -12,7 +12,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "PlayerObject.h"
 #include "Tutorial.h"
 #include "WorldConfig.h"
-#include "MathLib/Quaternion.h"
 
 //=============================================================================
 

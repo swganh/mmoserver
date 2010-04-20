@@ -92,8 +92,8 @@ rem --- Start of SET_DEFAULTS --------------------------------------------------
 :SET_DEFAULTS
 
 set DEPENDENCIES_VERSION=0.1.2
-set DEPENDENCIES_FILE=swganh-deps-%DEPENDENCIES_VERSION%.zip
-set DEPENDENCIES_URL=http://swganh.com/^^!^^!deps^^!^^!/%DEPENDENCIES_FILE%
+set DEPENDENCIES_FILE=mmoserver-deps-%DEPENDENCIES_VERSION%.zip
+set DEPENDENCIES_URL=http://github.com/downloads/swganh/mmoserver/%DEPENDENCIES_FILE%
 set "PROJECT_BASE=%~dp0"
 set BUILD_TYPE=debug
 set MSVC_VERSION=

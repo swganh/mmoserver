@@ -95,7 +95,10 @@ void Deed::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 					//check for city boundaries
 					
 					//check if were allowed to build that structure on this planet
-					if((data->placementMask&gWorldManager->getZoneId()) == gWorldManager->getZoneId())
+					
+					uint64 zoneId = (uint64)pow(2.0,(int)gWorldManager->getZoneId());
+					uint64 mask = data->placementMask;
+					if((mask&zoneId) == zoneId)
 					{
 						//sadly the client wont inform us when the player hit escape
 						gMessageLib->sendEnterStructurePlacement(this,data->structureObjectString,player);

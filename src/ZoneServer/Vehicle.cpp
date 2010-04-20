@@ -67,14 +67,14 @@ void Vehicle::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 		switch(messageType)
 		{
 			case radId_vehicleGenerate:
-			{
-				call();
-			}
-			break;
-
 			case radId_vehicleStore:
 			{
-				store();
+        // If a body for the vehicle exists then store it, if it doesn't then call it.
+        if (mBody) {
+          store();
+        } else {
+				  call();
+        }
 			}
 			break;
 
@@ -91,22 +91,11 @@ void Vehicle::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 //handles the radial selection
 void Vehicle::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount)
 {
-	RadialMenu* radial = new RadialMenu();	
-
-	if(mBody)
-	{
-		radial->addItem(3,0,radId_vehicleStore,radAction_ObjCallback,"@pet/pet_menu:menu_store");
-	}
-	else
-	{
-		radial->addItem(3,0,radId_vehicleGenerate,radAction_ObjCallback,"@pet/pet_menu:menu_call");
-	}
-
-	radial->addItem(1,0,radId_examine,radAction_Default);
-	radial->addItem(2,0,radId_itemDestroy,radAction_Default);
-
-	mRadialMenu = RadialMenuPtr(radial);
-
+  mRadialMenu.reset(new RadialMenu());
+  
+	mRadialMenu->addItem(1, 0, radId_vehicleGenerate, radAction_ObjCallback, "@pet/pet_menu:menu_call");
+	mRadialMenu->addItem(2, 0, radId_itemDestroy, radAction_Default);
+	mRadialMenu->addItem(3, 0, radId_examine, radAction_Default);
 }
 
 
@@ -117,8 +106,8 @@ void Vehicle::call()
 {
 	if(mBody)
 	{   //Destory the old body before creating a new one
-		gLogger->logMsgF("void Vehicle::call() destroy the old body", MSG_HIGH);
-		store();
+		gLogger->logMsgF("void Vehicle::call() body already exists", MSG_HIGH);
+    return;
 	}
 
 	if(mOwner->checkIfMountCalled())
@@ -306,7 +295,7 @@ void Vehicle::mountPlayer()
 
 	mOwner->toggleStateOn(CreatureState_RidingMount);
 	mBody->toggleStateOn(CreatureState_MountedCreature);
-	mOwner->setPosture(CreaturePosture_DrivingVehicle);
+
 	gMessageLib->sendStateUpdate(mOwner);
 	gMessageLib->sendStateUpdate(mBody);
 

@@ -27,7 +27,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 //======================================================================================================================
 //gets the information on a holoemote from the loaded db data
 //
-HoloStruct* EntertainerManager::getHoloEmote_by_CRC(uint32 crc)
+HoloStruct* EntertainerManager::getHoloEmoteByCRC(uint32 crc)
 {
 
 	HoloEmoteEffects::iterator it = mHoloList.begin();
@@ -47,7 +47,7 @@ HoloStruct* EntertainerManager::getHoloEmote_by_CRC(uint32 crc)
 //======================================================================================================================
 //gets the information on a holoemote from the loaded db data
 //
-HoloStruct* EntertainerManager::getHoloEmote_by_ClientCRC(uint32 crc)
+HoloStruct* EntertainerManager::getHoloEmoteByClientCRC(uint32 crc)
 {
 
 	HoloEmoteEffects::iterator it = mHoloList.begin();
@@ -812,7 +812,7 @@ void EntertainerManager::commitIdChanges(PlayerObject* customer,PlayerObject* de
 void EntertainerManager::applyHoloEmote(PlayerObject* customer,string holoEmote)
 {
 	//get the Data
-	HoloStruct* myEmote = getHoloEmote_by_ClientCRC(holoEmote.getCrc());
+	HoloStruct* myEmote = getHoloEmoteByClientCRC(holoEmote.getCrc());
 	if(!myEmote)
 	{
 		gLogger->logMsgF("ID : applyHoloEmote : canot retrieve HoloEmote Data %s : %u", MSG_NORMAL,holoEmote.getAnsi(),holoEmote.getCrc());

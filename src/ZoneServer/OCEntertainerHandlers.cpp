@@ -1114,7 +1114,7 @@ void ObjectController::_handlePlayHoloEmote(uint64 targetId,Message* message,Obj
 	if(!we)
 		return;
 
-	HoloStruct* myEmote = gEntertainerManager->getHoloEmote_by_CRC(we->getHoloEmote());
+	HoloStruct* myEmote = gEntertainerManager->getHoloEmoteByCRC(we->getHoloEmote());
 
 	if(!myEmote)
 	{

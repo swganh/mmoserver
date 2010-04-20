@@ -167,8 +167,8 @@ class EntertainerManager : public DatabaseCallback, public ObjectFactoryCallback
 		//get db data
 		IDStruct*				getIDAttribute(uint32 CustomizationCRC,uint32 SpeciesCRC);
 		IDStruct*				getIDAttribute(uint32 CustomizationCRC);
-		HoloStruct*				getHoloEmote_by_ClientCRC(uint32 crc);
-		HoloStruct*				getHoloEmote_by_CRC(uint32 crc);
+		HoloStruct*				getHoloEmoteByClientCRC(uint32 crc);
+		HoloStruct*				getHoloEmoteByCRC(uint32 crc);
 		string					getHoloNames();
 		HoloStruct*				getHoloEmoteIdbyName(string name);
 		PerformanceStruct*		getPerformance(string performance);

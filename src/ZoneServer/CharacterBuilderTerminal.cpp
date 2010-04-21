@@ -80,12 +80,14 @@ void CharacterBuilderTerminal::InitMenus()
 	mMainCsrMenu.push_back("Manage Resources");
 	mMainCsrMenu.push_back("Get Item by ID");
 	mMainCsrMenu.push_back("Manage Professions");
+	mMainCsrMenu.push_back("Manage Wounds");
 
 	InitExperience();
 	InitProfessions();
 	InitCredits();
 	InitBuffs();
 	InitItems();
+	InitWounds();
 }
 void CharacterBuilderTerminal::InitProfessions()
 {
@@ -120,6 +122,13 @@ void CharacterBuilderTerminal::InitBuffs()
 	mBuffMenu.push_back("+2400 Health Buffs");
 	mBuffMenu.push_back("+2400 Action Buffs");
 	mBuffMenu.push_back("+ 600 Mind   Buffs");
+}
+void CharacterBuilderTerminal::InitWounds()
+{
+	mWoundMenu.push_back("100 Health Wound");
+	mWoundMenu.push_back("100 Action Wound");
+	mWoundMenu.push_back("100 Mind Wound");
+	mWoundMenu.push_back("100 Battle Fatigue");
 }
 void CharacterBuilderTerminal::InitItems()
 {
@@ -629,7 +638,6 @@ void CharacterBuilderTerminal::_handleMainMenu(PlayerObject* playerObject, uint3
 	case 4://Resources
 		SendResourcesMenu(playerObject, action, element, inputStr, window);
 		break;
-		break;
 	default:
 		break;
 	}
@@ -673,6 +681,12 @@ void CharacterBuilderTerminal::_handleMainCsrMenu(PlayerObject* playerObject, ui
 		if(playerObject->isConnected())
 		{
 			gUIManager->createNewListBox(this,"handleGetProf","Select Profession to Master","Select from the list below.",mProfessionMenu,playerObject,SUI_Window_CharacterBuilderProfessionMastery_ListBox);
+		}
+		break;
+	case 7: //Wounds
+		if(playerObject->isConnected())
+		{
+			gUIManager->createNewListBox(this,"handleWoundMenu","Wounds","Select a Wound.",mWoundMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_WoundMenu);
 		}
 		break;
 	default:
@@ -1116,7 +1130,27 @@ void CharacterBuilderTerminal::_handleResourcesTypes(PlayerObject* playerObject,
 		gUIManager->createNewResourceSelectListBox(this,"handleResourcesMenu","Resources","Select",resourceNameList,resourceIdList,playerObject,SUI_Window_CharacterBuilderResourcesCRCMenu_ListBox);
 	}	
 }
-
+void CharacterBuilderTerminal::_handleWoundMenu(PlayerObject* playerObject, uint32 action,int32 element,string inputStr,UIWindow* window)
+{
+	switch(element)
+	{
+	case 0: //Health Wound
+		playerObject->getHam()->updatePropertyValue(HamBar_Health, HamProperty_Wounds, 100);
+		break;
+	case 1: //Action Wound
+		playerObject->getHam()->updatePropertyValue(HamBar_Action, HamProperty_Wounds, 100);
+		break;
+	case 2: //Mind Wound
+		playerObject->getHam()->updatePropertyValue(HamBar_Mind, HamProperty_Wounds, 100);
+		break;
+	case 3: //BattleFatigue
+		playerObject->getHam()->updateBattleFatigue(100);
+		break;
+	default:
+		break;
+	}
+	
+}
 
 void CharacterBuilderTerminal::_handleStructureMenu(PlayerObject* playerObject, uint32 action,int32 element,string inputStr,UIWindow* window)
 {
@@ -2312,6 +2346,9 @@ void  CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string
 			break;
 		case SUI_Window_CharacterBuilderProfessionMastery_ListBox:
 			_handleProfessionMenu(playerObject, action, element, inputStr, window);
+			break;
+		case SUI_Window_CharacterBuilder_ListBox_WoundMenu:
+			_handleWoundMenu(playerObject, action, element, inputStr, window);
 			break;
 		default:
 			break;

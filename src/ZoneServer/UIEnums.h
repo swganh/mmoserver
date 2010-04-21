@@ -146,7 +146,8 @@ enum ui_window_types
 	SUI_Window_CharacterBuilder_ListBox_ThrownMenu=92,
 	SUI_Window_CharacterBuilder_ListBox_HeavyMenu=93,
 	SUI_Window_CharacterBuilder_ListBox_PistolMenu=94,
-	SUI_Window_CharacterBuilder_ListBox_RifleMenu=95
+	SUI_Window_CharacterBuilder_ListBox_RifleMenu=95,
+	SUI_Window_CharacterBuilder_ListBox_WoundMenu=96
 
 };
 

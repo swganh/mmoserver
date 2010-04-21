@@ -499,7 +499,16 @@ bool ObjectController::checkContainingContainer(uint64 containingContainer, uint
 		{
 			if(building->hasAdminRights(playerId))
 			{
-				return true;
+				//now test whether we are in the same building
+				PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId));
+				if(CellObject* playercell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId())))
+				{
+					if(BuildingObject* playerparent = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(playercell->getParentId())))
+					{
+						//still get in a range check ???
+						return true;
+					}
+				}
 			}
 		}
 		return false;

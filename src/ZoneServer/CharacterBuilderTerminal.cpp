@@ -1283,7 +1283,7 @@ void CharacterBuilderTerminal::_handleArmorMenu(PlayerObject* playerObject, uint
 			gUIManager->createNewListBox(this,"handleCompositeArmorMenu","Composite Armor","Select a category.",mCompositeArmorMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_CompositeArmorMenu);
 		}
 		break;
-	case 2://UbeseArmor
+	case 3://UbeseArmor
 		if(playerObject->isConnected())
 		{
 			gUIManager->createNewListBox(this,"handleUbeseArmorMenu","Ubese Armor","Select a category.",mUbeseArmorMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_UbeseArmorMenu);

@@ -804,6 +804,8 @@ void ObjectFactory::deleteObjectFromDB(Object* object)
 
 			sprintf(sql,"DELETE FROM cells WHERE id = %"PRIu64"",object->getId());
 			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
+			sprintf(sql,"DELETE FROM structure_cells WHERE id = %"PRIu64"",object->getId());
+			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
 		}
 		break;
 

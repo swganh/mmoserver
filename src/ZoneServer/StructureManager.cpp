@@ -610,6 +610,7 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 			gWorldManager->createObjectinWorld(player,structure);	
 			gMessageLib->sendConstructionComplete(player,structure);
 
+			/*
 			if(structure->getPlayerStructureFamily() == PlayerStructure_House)
 			{
 				float x,y,z;
@@ -620,6 +621,7 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 				HouseObject* house = dynamic_cast<HouseObject*>(structure);
 				house->setSign(sign);
 			}
+			*/
 			
 
 		}

@@ -970,21 +970,10 @@ void	ObjectController::_handleItemMoveForward(uint64 targetId,Message* message,O
 		gLogger->logMsgF(" ObjectController::_handleItemRotation no cell",MSG_HIGH);
 		return;
 	}
-
-
-	//we somehow need to calculate the vector of the movement *away* from us
-    player->mDirection = glm::normalize(player->mDirection);
-    player->mPosition = glm::normalize(player->mPosition);
-    object->mPosition = glm::normalize(object->mPosition);
-	object->mPosition.x -= (float)((1-player->mDirection.x) * 0.10);
-	object->mPosition.z -= (float)(player->mDirection.y * 0.10);
-	object->mPosition.y -= (float)(player->mDirection.z * 0.10);
     
-	//Anh_Math::Vector3 v3 = object->mPosition - player->mPosition;
-	//v3.normalize();
-	//object->mPosition += v3 * 0.1;
-	//object->mPosition.normalize();
-	
+    // Move the object forward 1/10th of a meter.
+    object->moveForward(player->mDirection, 0.10);
+    	
 	gMessageLib->sendDataTransformWithParent(object);
 	object->updateWorldPosition();
 
@@ -1148,16 +1137,11 @@ void	ObjectController::_handleItemMoveBack(uint64 targetId,Message* message,Obje
 		return;
 	}
 
-	//we somehow need to calculate the vector of the movement *away* from us
-
-    player->mDirection = glm::normalize(player->mDirection);
-	object->mPosition.x += (float)((1-player->mDirection.x) * 0.10);
-	object->mPosition.z += (float)(player->mDirection.y * 0.10);
-	object->mPosition.y += (float)(player->mDirection.z * 0.10);
+    // Move the object back 1/10th of a meter.
+    object->moveBack(player->mDirection, 0.10f);
 
 	gMessageLib->sendDataTransformWithParent(object);
 	object->updateWorldPosition();
-
 }
 
 
@@ -1210,19 +1194,18 @@ void	ObjectController::_handleItemRotationRight90(uint64 targetId,Message* messa
 		return;
 	}
 	
-    object->mDirection = glm::gtc::quaternion::rotate(object->mDirection, 90, object->mPosition);
-	
-	gMessageLib->sendDataTransformWithParent(object);
+    // Rotate the object 90 degree's to the right
+    object->rotateRight(90.0f);
+    
+    gMessageLib->sendDataTransformWithParent(object);
 	object->updateWorldPosition();
-	
-
 }
 
 //======================================================================================================================
 //
 // rotates an item 90d to left
 //
-void	ObjectController::_handleItemRotationLeft90(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
+void ObjectController::_handleItemRotationLeft90(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
 	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
 
@@ -1264,19 +1247,18 @@ void	ObjectController::_handleItemRotationLeft90(uint64 targetId,Message* messag
 		return;
 	}
 	
-	
-    object->mDirection = glm::gtc::quaternion::rotate(object->mDirection, -90, object->mPosition);
-	gMessageLib->sendDataTransformWithParent(object);
+	// Rotate the item 90 degrees to the left
+    object->rotateLeft(90.0f);
+    
+    gMessageLib->sendDataTransformWithParent(object);
 	object->updateWorldPosition();
-	
-
 }
 
 //======================================================================================================================
 //
 // rotates an item
 //
-void	ObjectController::_handleItemRotation(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
+void ObjectController::_handleItemRotation(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
 
 	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
@@ -1330,17 +1312,16 @@ void	ObjectController::_handleItemRotation(uint64 targetId,Message* message,Obje
 
 	gLogger->logMsgF(" ObjectController::_handleItemRotation direction %s",MSG_HIGH,direction);
 	
-	if(strcmp(direction,"left") == 0)
-	{
-        object->mDirection = glm::gtc::quaternion::rotate(object->mDirection, -static_cast<float>(degrees), object->mPosition);
-		gMessageLib->sendDataTransformWithParent(object);
+	if(strcmp(direction,"left") == 0) {
+        // Rotate the item left by a specified number of degrees
+        object->rotateLeft(degrees);
 	}
 
-	if(strcmp(direction,"right") == 0)
-	{
-        object->mDirection = glm::gtc::quaternion::rotate(object->mDirection, static_cast<float>(degrees), object->mPosition);
-		gMessageLib->sendDataTransformWithParent(object);
+	if(strcmp(direction,"right") == 0) {
+        // Rotate the item right by a specified number of degrees
+        object->rotateRight(degrees);
 	}
-
+    
+    gMessageLib->sendDataTransformWithParent(object);
 	object->updateWorldPosition();
 }

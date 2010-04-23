@@ -56,11 +56,10 @@ TangibleObject* FireworkManager::createFirework(uint32 typeId, PlayerObject* pla
 	player->setCrouched();
 
     // Place the firework 1m in front of the player at the same heading.
-    firework->mPosition.x = player->mPosition.x + sin(glm::gtx::quaternion::angle(player->mDirection));
-    firework->mPosition.z = player->mPosition.z + cos(glm::gtx::quaternion::angle(player->mDirection));
-    firework->mPosition.y = player->mPosition.y;
-
 	firework->mDirection = player->mDirection;
+
+    firework->mPosition = player->mPosition;
+    firework->moveForward(1);
 
 	firework->setId(gWorldManager->getRandomNpId());
 

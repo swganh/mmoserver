@@ -972,7 +972,7 @@ void	ObjectController::_handleItemMoveForward(uint64 targetId,Message* message,O
 	}
     
     // Move the object forward 1/10th of a meter.
-    object->moveForward(player->mDirection, 0.10);
+    object->moveForward(player->mDirection, 0.10f);
     	
 	gMessageLib->sendDataTransformWithParent(object);
 	object->updateWorldPosition();
@@ -1314,12 +1314,12 @@ void ObjectController::_handleItemRotation(uint64 targetId,Message* message,Obje
 	
 	if(strcmp(direction,"left") == 0) {
         // Rotate the item left by a specified number of degrees
-        object->rotateLeft(degrees);
+        object->rotateLeft(static_cast<float>(degrees));
 	}
 
 	if(strcmp(direction,"right") == 0) {
         // Rotate the item right by a specified number of degrees
-        object->rotateRight(degrees);
+        object->rotateRight(static_cast<float>(degrees));
 	}
     
     gMessageLib->sendDataTransformWithParent(object);

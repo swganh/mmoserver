@@ -486,7 +486,7 @@ bool ObjectController::checkContainingContainer(uint64 containingContainer, uint
 
 	if(BuildingObject* building = dynamic_cast<BuildingObject*>(object))
 	{
-		if(building->hasAdminRights(playerId))
+		if(building->hasAdminRights(playerId) || gWorldConfig->isTutorial())
 		{
 			return true;
 		}

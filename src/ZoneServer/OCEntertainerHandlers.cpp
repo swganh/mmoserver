@@ -843,22 +843,22 @@ void ObjectController::_handleImageDesign(uint64 targetId,Message* message,Objec
 		gMessageLib->sendSystemMessage(imageDesigner,L"","image_designer","not_an_image_designer");
 		return;
 	}
-
+    //Sch we need to add more states and checks - Rouse
 	if(imageDesigner->checkStatesEither(CreatureState_Combat | CreatureState_Tumbling | CreatureState_Swimming | CreatureState_Crafting))
 	{
-		gMessageLib->sendSystemMessage(imageDesigner,L"You cannot do this at this time.");
+		gMessageLib->sendSystemMessage(imageDesigner,L"You cannot perform that action on a target");
 		return;
 	}
 
 	if(imageDesigner->getImageDesignSession() != IDSessionNONE)
 	{
-		gMessageLib->sendSystemMessage(imageDesigner,L"You cannot do this at this time.");
+		gMessageLib->sendSystemMessage(imageDesigner,L"","image_designer","target_is_image_designing");
 		return;
 	}
 
 	if(designObject->getImageDesignSession() != IDSessionNONE)
 	{
-		gMessageLib->sendSystemMessage(designObject,L"You cannot do this at this time.");
+		gMessageLib->sendSystemMessage(designObject,L"","image_designer","already_being_image_designed");
 		return;
 	}
 
@@ -870,7 +870,7 @@ void ObjectController::_handleImageDesign(uint64 targetId,Message* message,Objec
 
 	if((designObject != imageDesigner) && (designObject->getGroupId() != imageDesigner->getGroupId() ))
 	{
-		gMessageLib->sendSystemMessage(imageDesigner,L"You must be grouped in order to imagedesign.");
+		gMessageLib->sendSystemMessage(imageDesigner,L"","image_designer","not_in_same_group");
 		return;
 	}
 

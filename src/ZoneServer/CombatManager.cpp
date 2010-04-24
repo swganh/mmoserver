@@ -177,6 +177,12 @@ bool CombatManager::_verifyCombatState(CreatureObject* attacker, uint64 defender
 		return false;
 	}
 
+	//Do not allow player to perform combat if mounted.
+	if (playerAttacker->checkIfMounted())
+	{
+		return false;
+	}
+
 	// make sure we got both objects
 	if (playerAttacker && defender)
 	{

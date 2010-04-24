@@ -458,28 +458,30 @@ bool SkillManager::learnSkill(uint32 skillId,CreatureObject* creatureObject,bool
 
 		gMessageLib->sendSystemMessage(player,L"","skill_teacher","prose_skill_learned","skl_n",skill->mName);
 
-		// Update cap for this type of xp.
-		int32 newXpCap = getXpCap(player, skill->mXpType);
-		(void)player->UpdateXpCap(skill->mXpType, newXpCap);
+		// Update cap for this type of xp as long as it isn't of type none.
+        if (skill->mXpType != XpType_none) {
+		    int32 newXpCap = getXpCap(player, skill->mXpType);
+		    (void)player->UpdateXpCap(skill->mXpType, newXpCap);
 
-		int32 xpCost = skill->mXpCost;
-		if (!subXp)
-		{
-			// When training skillines...
-			xpCost = 0;
-		}
+		    int32 xpCost = skill->mXpCost;
+		    if (!subXp)
+		    {
+			    // When training skillines...
+			    xpCost = 0;
+		    }
 
-		// gLogger->logMsg("SkillManager::learnSkill: Trained a skill");
+		    // gLogger->logMsg("SkillManager::learnSkill: Trained a skill");
 
-		// handle XP cap and system messages.
-		int32 newXpCost = handleExperienceCap(skill->mXpType, -xpCost, player);
+		    // handle XP cap and system messages.
+		    int32 newXpCost = handleExperienceCap(skill->mXpType, -xpCost, player);
 
-		// We don't wanna miss any "You now qualify for the skill: ..."
-		(void)player->UpdateXp(skill->mXpType, newXpCost);
+		    // We don't wanna miss any "You now qualify for the skill: ..."
+		    (void)player->UpdateXp(skill->mXpType, newXpCost);
 
-		// gLogger->logMsgF("SkillManager::learnSkill: Removing %i xp of type %u",MSG_NORMAL, -newXpCost, skill->mXpType);
-		mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE character_xp SET value=value+%i WHERE xp_id=%u AND character_id=%"PRIu64"",newXpCost, skill->mXpType, player->getId());
-		gMessageLib->sendXpUpdate(skill->mXpType,player);
+		    // gLogger->logMsgF("SkillManager::learnSkill: Removing %i xp of type %u",MSG_NORMAL, -newXpCost, skill->mXpType);
+		    mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE character_xp SET value=value+%i WHERE xp_id=%u AND character_id=%"PRIu64"",newXpCost, skill->mXpType, player->getId());
+		    gMessageLib->sendXpUpdate(skill->mXpType,player);
+        }
 	}
 	else
 	{

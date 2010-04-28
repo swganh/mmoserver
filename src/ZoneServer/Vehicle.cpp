@@ -169,6 +169,19 @@ void Vehicle::call()
 	//And a little above the terrian (help prevent sticking)
 	mBody->mPosition.y =  Heightmap::Instance()->getHeight(mBody->mPosition.x, mBody->mPosition.z) - 0.3f;
 
+	//we still get nan's here occasionally
+	//which will assert our quadtree
+
+	if(_isnan(mBody->mPosition.x))
+		mBody->mPosition.x = mOwner->mPosition.x;
+	
+	if(_isnan(mBody->mPosition.y))
+		mBody->mPosition.x = mOwner->mPosition.y;
+
+	if(_isnan(mBody->mPosition.z))
+		mBody->mPosition.x = mOwner->mPosition.z;
+		
+
 	// add to world
 	if(!gWorldManager->addObject(mBody))
 	{

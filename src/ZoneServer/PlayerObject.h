@@ -242,8 +242,10 @@ class PlayerObject : public CreatureObject
 		IDSession 			getImageDesignSession(){return mIDSession;}
 		uint32				getHoloEmote(){ return mHoloEmote; }
 		void				setHoloEmote(uint32 emote){ mHoloEmote = emote; }
-		uint32				getHoloCharge(){ return mHoloCharge; }
-		void				setHoloCharge(uint32 emote){ mHoloCharge = static_cast<uint8>(emote); }
+		
+		uint8				getHoloCharge(){ return mHoloCharge; }
+		void				setHoloCharge(uint8 charge){ mHoloCharge = charge; }
+		bool				decHoloCharge(){ if(mHoloCharge == 0) return false; mHoloCharge--; return true; }
 
 		uint64				getIDPartner(){ return mIDPartner; }
 		void				setIDPartner(uint64 id){ mIDPartner= id; }
@@ -462,7 +464,7 @@ class PlayerObject : public CreatureObject
 		int8				mHomePlanet;
 		uint8				mCsrTag;
 		uint8				mFlourishCount;
-		uint8				mHoloCharge;
+		uint8				mHoloCharge; //thats the amount of charges our hologenerator has
 		uint8				mLots;
 		uint8				mNewPlayerExemptions;
 		bool				mAutoAttack;

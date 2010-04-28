@@ -746,7 +746,7 @@ void ObjectController::_handleStartBand(uint64 targetId,Message* message,ObjectC
 	while(memberIt != members.end())
 	{
 		//check if we are performing
-		if((*memberIt)->getPerformingState() == PlayerPerformance_None)
+		if(((*memberIt)->getPerformingState() == PlayerPerformance_None)&&((*memberIt)->getConnectionState() == PlayerConnState_Connected))
 		{
 			if(music)
 			{

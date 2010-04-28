@@ -1190,7 +1190,6 @@ void MessageLib::sendDataTransformWithParent(Object* object)
 	mMessageFactory->addFloat(object->mPosition.z);
 	mMessageFactory->addUint32(0);
 
-	//_sendToInRange(mMessageFactory->EndMessage(),object,5);
 	_sendToInRangeUnreliable(mMessageFactory->EndMessage(),object,5);
 }
 

@@ -109,6 +109,8 @@ void ObjectController::destroyObject(uint64 objectId)
 		gObjectFactory->deleteObjectFromDB(object);
 		gMessageLib->sendDestroyObject(objectId,playerObject);
 
+		delete(object);
+
 	}
 
 
@@ -116,25 +118,11 @@ void ObjectController::destroyObject(uint64 objectId)
 	else if(object->getType() == ObjType_Tangible)
 	{
 		TangibleObject* tangibleObject = dynamic_cast<TangibleObject*>(object);
+		Inventory* inventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 
 		// items
 		if(Item* item = dynamic_cast<Item*>(tangibleObject))
 		{
-			// Does the item have a owner?
-			/*
-			if (item->getOwner() != 0)
-			{
-				gLogger->logMsgF("ObjController::handleDestroyObject: OwnerId = %"PRIu64", playerId = %"PRIu64"", MSG_NORMAL, item->getOwner(), playerObject->getId());
-				// Yes, is it my item?
-				if (item->getOwner() != playerObject->getId())
-				{
-					// Not allowed to delete this item.
-					gMessageLib->sendSystemMessage(playerObject,L"","error_message","insufficient_permissions");
-					return;
-				}
-			}
-			*/
-
 			// handle any family specifics
 			switch(item->getItemFamily())
 			{
@@ -144,53 +132,34 @@ void ObjectController::destroyObject(uint64 objectId)
 				default:break;
 			}
 
-			// destroy it for the player
-			gMessageLib->sendDestroyObject(objectId,playerObject);
-
-			// Also update the world...if the object is not private.
-			if ((item->getParentId() != playerObject->getId()) && (item->getParentId() != dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getId()))
-			{
-				PlayerObjectSet* inRangePlayers	= playerObject->getKnownPlayers();
-				PlayerObjectSet::iterator it = inRangePlayers->begin();
-				while(it != inRangePlayers->end())
-				{
-					PlayerObject* targetObject = (*it);
-					gMessageLib->sendDestroyObject(tangibleObject->getId(),targetObject);
-					targetObject->removeKnownObject(tangibleObject);
-					++it;
-				}
-				tangibleObject->destroyKnownObjects();
-			}
-
 			// update the equiplist, if its an equipable item
 			CreatureObject* creature = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(item->getParentId()));
 			if(creature)
 			{
 				// remove from creatures slotmap
-				playerObject->getEquipManager()->removeEquippedObject(object);
+				creature->getEquipManager()->removeEquippedObject(object);
 
 				// send out the new equiplist
-				gMessageLib->sendEquippedListUpdate_InRange(playerObject);
-
-				// destroy it for players in range
-				PlayerObjectSet* objList		= playerObject->getKnownPlayers();
-				PlayerObjectSet::iterator it	= objList->begin();
-
-				while(it != objList->end())
-				{
-					gMessageLib->sendDestroyObject(objectId,(*it));
-
-					++it;
-				}
+				gMessageLib->sendEquippedListUpdate_InRange(creature);				
 			}
 		}
-		else
-		if(ResourceContainer* container = dynamic_cast<ResourceContainer*>(object))
+		//tangible includes items and resourcecontainers
+		if(TangibleObject* tangible = dynamic_cast<TangibleObject*>(object))
 		{
-			//gLogger->logMsg("destroy ressourcecontainer");
-			gMessageLib->sendDestroyObject(container->getId(),playerObject);
-		}
+			if (tangible->getParentId() != inventory->getId())
+			{
+				//this automatically destroys the object for the players in its vicinity
+				tangibleObject->destroyKnownObjects();
+			}
+			else
+			if( tangible->getParentId() == inventory->getId())
+			{
+				// destroy it for the player
+				gMessageLib->sendDestroyObject(objectId,playerObject);
+			}
 
+		}
+		
 		// reset pending ui callbacks
 		playerObject->resetUICallbacks(object);
 
@@ -198,10 +167,11 @@ void ObjectController::destroyObject(uint64 objectId)
 		// temporary placed instruments are not saved in the db
 		gObjectFactory->deleteObjectFromDB(object);
 
-		// remove from inventory
-		if(object->getParentId() == dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getId())
+		//it might be in a cell or in a container or in the inventory :)
+		ObjectContainer* oc = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(object->getParentId()));
+		if(oc)
 		{
-			dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->deleteObject(object);
+			oc->deleteObject(object);
 		}
 		// remove from world
 		else
@@ -275,7 +245,7 @@ void ObjectController::_handleDestroyInstrument(Item* item)
 
 		if(!tempInstrument)
 		{
-			gLogger->logMsg("ObjectController::handleDestroyInstrument : no temporary Instrument\n");
+			gLogger->logMsg("ObjectController::handleDestroyInstrument : no temporary Instrument");
 			return;
 		}
 
@@ -283,7 +253,7 @@ void ObjectController::_handleDestroyInstrument(Item* item)
 
 		if(!permanentInstrument)
 		{
-			gLogger->logMsg("ObjectController::handleDestroyInstrument : no parent Instrument\n");
+			gLogger->logMsg("ObjectController::handleDestroyInstrument : no parent Instrument");
 			return;
 		}
 

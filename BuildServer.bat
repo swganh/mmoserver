@@ -92,7 +92,7 @@ rem --- Start of SET_DEFAULTS --------------------------------------------------
 :SET_DEFAULTS
 
 set DEPENDENCIES_VERSION=0.1.2
-set DEPENDENCIES_FILE=mmoserver-deps-%DEPENDENCIES_VERSION%.zip
+set DEPENDENCIES_FILE=mmoserver-deps-%DEPENDENCIES_VERSION%.7z
 set DEPENDENCIES_URL=http://github.com/downloads/swganh/mmoserver/%DEPENDENCIES_FILE%
 set "PROJECT_BASE=%~dp0"
 set BUILD_TYPE=debug
@@ -360,21 +360,15 @@ rem --- Downloads datafiles such as heightmaps needed to run the project.    ---
 :DOWNLOAD_HEIGHTMAP
 
 if not exist "data\heightmaps\%1.hmpw" (
-	if not exist "data\heightmaps\%1.zip" (
+	if not exist "data\heightmaps\%1.7z" (
 		echo ** Downloading Heightmap for %1 **
 		echo.
-
-		"tools\wget.exe" http://swganh.com/^^!^^!planets^^!^^!/%1.zip -O data\heightmaps\%1.zip
+		"tools\wget.exe" http://github.com/downloads/swganh/mmoserver/heightmap-%1.7z -O data\heightmaps\heightmap-%1.7z
 
 		echo ** Downloading heightmap complete **
 	)
 
-	"tools\unzip.exe" data\heightmaps\%1.zip -d data\heightmaps >NUL
-	move "%PROJECT_BASE%data\heightmaps\%1.hmp" "%PROJECT_BASE%data\heightmaps\%1.hmpw"
-
-	if exist "data\heightmaps\%1.hmpw" (
-		del data\heightmaps\%1.zip
-	)
+	"tools\7z.exe" x -y -odata\heightmaps data\heightmaps\heightmap-%1.7z 
 )
 
 goto :eof
@@ -439,7 +433,8 @@ if not exist "%DEPENDENCIES_FILE%" (
 
 if exist "%DEPENDENCIES_FILE%" (
 	echo Extracting dependencies ...
-	"tools\unzip.exe" "%DEPENDENCIES_FILE%" >NUL
+
+	"tools\7z.exe" x -y "%DEPENDENCIES_FILE%"
 	echo %DEPENDENCIES_VERSION% >"deps\VERSION"
 	echo Complete!
 	echo.

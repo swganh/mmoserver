@@ -838,6 +838,12 @@ void ObjectController::_handleImageDesign(uint64 targetId,Message* message,Objec
 	if(!imageDesigner)
 		return;
 
+	if(designObject->getPosture() == CreaturePosture_Dead)
+	{
+		gMessageLib->sendSystemMessage(imageDesigner,L"","image_designer","target_dead");
+		return;
+	}
+
 	if(!imageDesigner->checkSkill(SMSkill_NoviceEntertainer))
 	{
 		gMessageLib->sendSystemMessage(imageDesigner,L"","image_designer","not_an_image_designer");
@@ -846,19 +852,25 @@ void ObjectController::_handleImageDesign(uint64 targetId,Message* message,Objec
     //Sch we need to add more states and checks - Rouse
 	if(imageDesigner->checkStatesEither(CreatureState_Combat | CreatureState_Tumbling | CreatureState_Swimming | CreatureState_Crafting))
 	{
-		gMessageLib->sendSystemMessage(imageDesigner,L"You cannot perform that action on a target");
+		gMessageLib->sendSystemMessage(imageDesigner,L"You cannot perform that action on this target");
 		return;
 	}
 
 	if(imageDesigner->getImageDesignSession() != IDSessionNONE)
 	{
-		gMessageLib->sendSystemMessage(imageDesigner,L"","image_designer","target_is_image_designing");
+		if(imageDesigner->getImageDesignSession() == IDSessionID)
+			gMessageLib->sendSystemMessage(imageDesigner,L"","image_designer","already_image_designing");
+		else
+			gMessageLib->sendSystemMessage(imageDesigner,L"","image_designer","already_being_image_designed");
 		return;
 	}
 
 	if(designObject->getImageDesignSession() != IDSessionNONE)
 	{
-		gMessageLib->sendSystemMessage(designObject,L"","image_designer","already_being_image_designed");
+		if(designObject->getImageDesignSession() == IDSessionID)
+			gMessageLib->sendSystemMessage(imageDesigner,L"","image_designer","target_is_image_designing");
+		else
+			gMessageLib->sendSystemMessage(imageDesigner,L"","image_designer","outstanding_offer");
 		return;
 	}
 

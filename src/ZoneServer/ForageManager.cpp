@@ -202,7 +202,7 @@ void ForageManager::forageUpdate()
 
 void ForageManager::failForage(PlayerObject* player, forageFails fail)
 {
-	if(!player || player->isForaging() == false)
+	if(!player)
 		return;
 
 	switch(fail)

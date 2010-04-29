@@ -18,7 +18,8 @@ enum BuffAttributeCRC
 	opAttributeAttr_Mind		=	0xE54F80BB,
 	opBACRC_PerformanceMind		=	0x11C1772E,
 	opBACRC_PerformanceFocus	=	0x2E77F586,
-	opBACRC_PerformanceWill		=	0x3EC6FCB6
+	opBACRC_PerformanceWill		=	0x3EC6FCB6,
+	opAttribute_Mask_Scent	    =   0xf9c0d603
 
 };
 enum BuffAttributeEnum

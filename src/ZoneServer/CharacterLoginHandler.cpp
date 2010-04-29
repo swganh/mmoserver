@@ -164,6 +164,7 @@ void CharacterLoginHandler::handleDispatchMessage(uint32 opcode, Message* messag
 			gMessageLib->sendUpdatePlayerFlags(playerObject);
 
 			playerObject->getHam()->checkForRegen();
+			playerObject->getStomach()->checkForRegen();
 		}
 		else
 		if(playerObject  && playerObject->isBeingDestroyed())

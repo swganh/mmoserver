@@ -36,6 +36,7 @@ class Food : public Item
 		void			_handleUses_Remaining(PlayerObject* playerObject);
 		void			_handleHealth_Buff(PlayerObject* playerObject);
 		void			_handleMind_Buff(PlayerObject* playerObject);
+		void			_handleMask_Scent_Buff(PlayerObject* playerObject);
 
 
 		bool			toDelete;

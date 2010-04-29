@@ -124,17 +124,20 @@ void Food::handleFoodUse(Object* srcObject)
 	//we need to start by checking whether our stomach isnt full
 
 	//we need to update our stomach
-	uint32 filling = 0;
+	double filling = 0;
 
 	if(this->hasInternalAttribute("food_icon"))
 	{
 		mIcon = 0;
 		mIcon = this->getInternalAttribute<uint32>("food_icon");					
+	} else {
+		gLogger->logMsg("Food/Drink found with no Buff Icon in food.cpp: handleFoodUse()");
 	}
 
 	if(this->hasAttribute("stomach_food"))
 	{
-		filling = this->getAttribute<uint32>("stomach_food");					
+
+		filling = this->getAttribute<double>("stomach_food");					
 		
 		//do we still have place for it ?
 		if(!playerObject->getStomach()->checkFood(filling))
@@ -145,22 +148,15 @@ void Food::handleFoodUse(Object* srcObject)
 		
 		gMessageLib->sendSysMsg(playerObject, "base_player","prose_consume_item",NULL,this);
 
-		//get a stomach Buff to handle the filling
-		BuffAttribute* foodAttribute = new BuffAttribute(Food_Filling, +filling,0,-(int)filling); 
-		Buff* foodBuff = Buff::SimpleBuff(playerObject, playerObject, 300000, 0, gWorldManager->GetCurrentGlobalTick());
-		foodBuff->AddAttribute(foodAttribute);	
-		playerObject->AddBuff(foodBuff,true);
+		playerObject->getStomach()->incFood(filling);
 
-		gMessageLib->sendPlayClientEffectLocMessage(gWorldManager->getClientEffect(548),playerObject->mPosition,playerObject);
-		
-		//gMessageLib->cli
-		
+		gMessageLib->sendPlayClientEffectLocMessage(gWorldManager->getClientEffect(548),playerObject->mPosition,playerObject);	
 	}
 
 	if(this->hasAttribute("stomach_drink"))
 	{
-		uint32 filling = 0;
-		filling = this->getAttribute<uint32>("stomach_drink");					
+		double filling = 0;
+		filling = this->getAttribute<double>("stomach_drink");					
 		
 		//do we still have place for it ?
 		if(!playerObject->getStomach()->checkDrink(filling))
@@ -170,13 +166,9 @@ void Food::handleFoodUse(Object* srcObject)
 		}
 
 		gMessageLib->sendSysMsg(playerObject, "base_player","prose_consume_item",NULL,this);
-
-		//get a stomach Buff to handle the filling
-		BuffAttribute* foodAttribute = new BuffAttribute(Drink_Filling, +filling,0,-(int)filling); 
-		Buff* foodBuff = Buff::SimpleBuff(playerObject, playerObject, 300000, 0, gWorldManager->GetCurrentGlobalTick());
-		foodBuff->AddAttribute(foodAttribute);	
-		playerObject->AddBuff(foodBuff,true);
 		
+		playerObject->getStomach()->incDrink(filling);
+	
 		if(playerObject->getGender())
 		{
 			gMessageLib->sendPlayMusicMessage(WMSound_Drink_Human_Female,playerObject);
@@ -203,7 +195,7 @@ void Food::handleFoodUse(Object* srcObject)
 		}
 		else
 		{
-			//gLogger->logMsgF("Food::processAttribute: Unhandled Attribute 0x%x for %"PRIu64"",MSG_NORMAL,key,this->getId());
+			//gLogger->logMsg("Food::processAttribute: Unhandled Attribute 0x%x for %"PRIu64"",MSG_NORMAL,key,this->getId());
 		
 		}
 		++orderIt;
@@ -229,6 +221,18 @@ void Food::handleFoodUse(Object* srcObject)
 	return;
 }
 
+void Food::_handleMask_Scent_Buff(PlayerObject* playerObject)
+{
+	uint32 amount = static_cast<uint32>(this->getAttribute<float>("bio_comp_mask_scent"));
+	uint32 duration = static_cast<uint32>(this->getAttribute<float>("duration"));
+
+	Buff* foodBuff = Buff::SimpleBuff(playerObject, playerObject, duration*1000, mIcon, gWorldManager->GetCurrentGlobalTick());
+	
+	BuffAttribute* foodAttribute = new BuffAttribute(Mask_Scent, +amount,0,-(int)amount); 
+	foodBuff->AddAttribute(foodAttribute);	
+
+	playerObject->AddBuff(foodBuff,true);
+}
 void Food::_handleHealth_Buff(PlayerObject* playerObject)
 {
 	uint32 amount = static_cast<uint32>(this->getAttribute<float>("attr_health"));
@@ -313,6 +317,8 @@ FoodCommandMapClass::FoodCommandMapClass()
 	mCommandMap.insert(std::make_pair(opAttributeUses_Remaining,&Food::_handleUses_Remaining));
 	mCommandMap.insert(std::make_pair(opAttributeAttr_Health,&Food::_handleHealth_Buff));
 	mCommandMap.insert(std::make_pair(opAttributeAttr_Mind,&Food::_handleMind_Buff));
+	mCommandMap.insert(std::make_pair(opAttribute_Mask_Scent,&Food::_handleMask_Scent_Buff));
+	//mCommandMap.insert(std::make_pair(BString::CRC("bio_comp_mask_scent"),&Food::_handleMask_Scent_Buff));
 	
 	
 }

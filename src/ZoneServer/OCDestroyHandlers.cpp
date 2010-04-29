@@ -139,6 +139,10 @@ void ObjectController::destroyObject(uint64 objectId)
 				// remove from creatures slotmap
 				creature->getEquipManager()->removeEquippedObject(object);
 
+				//unequip it
+				object->setParentId(inventory->getId());
+				gMessageLib->sendContainmentMessage_InRange(object->getId(),inventory->getId(),0xffffffff,creature);
+
 				// send out the new equiplist
 				gMessageLib->sendEquippedListUpdate_InRange(creature);				
 			}
@@ -146,13 +150,13 @@ void ObjectController::destroyObject(uint64 objectId)
 		//tangible includes items and resourcecontainers
 		if(TangibleObject* tangible = dynamic_cast<TangibleObject*>(object))
 		{
-			if (tangible->getParentId() != inventory->getId())
+			//if(tangible->getObjectMainParent(object) != inventory->getId())
+			if(tangibleObject->getKnownPlayers()->size())
 			{
 				//this automatically destroys the object for the players in its vicinity
 				tangibleObject->destroyKnownObjects();
 			}
 			else
-			if( tangible->getParentId() == inventory->getId())
 			{
 				// destroy it for the player
 				gMessageLib->sendDestroyObject(objectId,playerObject);

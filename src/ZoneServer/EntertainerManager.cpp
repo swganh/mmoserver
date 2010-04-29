@@ -2168,13 +2168,14 @@ void EntertainerManager::handleObjectReady(Object* object,DispatchClient* client
 
 			if(!permanentinstrument)
 			{
-				gLogger->logMsg("EntertainerManager::handleObjectReady: no permanent instrument\n");
+				gLogger->logMsg("EntertainerManager::handleObjectReady: no permanent instrument");
 				return;
 			}
 
 			placedInstrument->setPersistantCopy(permanentinstrument->getId());
 			permanentinstrument->setNonPersistantCopy(placedInstrument->getId());
 			placedInstrument->setPlaced(true);
+			placedInstrument->setStatic(false);
 
 			//now set the nonpersistant Instrument in the playerObject
 			player->setPlacedInstrumentId(placedInstrument->getId());
@@ -2520,8 +2521,8 @@ bool EntertainerManager::approachInstrument(PlayerObject* entertainer, uint64 in
 					//player to instrument vs instrument to player ... ???
 					//entertainer->mPosition = instrument->mPosition;
 					//entertainer->mDirection = instrument->mDirection;
-					instrument->mPosition = entertainer->mPosition;
-					instrument->mDirection = entertainer->mDirection;
+					entertainer->mPosition = instrument->mPosition;
+					entertainer->mDirection = instrument->mDirection;
 				
 					// We are both inside same cell?? otherwise leave
 					// AAAAAAAAAAAAARGHH
@@ -2536,14 +2537,14 @@ bool EntertainerManager::approachInstrument(PlayerObject* entertainer, uint64 in
 
 					if (entertainer->getParentId())
 					{						
-						gMessageLib->sendDataTransformWithParent(instrument);
-						//gMessageLib->sendUpdateTransformMessageWithParent(instrument);
+						gMessageLib->sendDataTransformWithParent(entertainer);
+						gMessageLib->sendUpdateTransformMessageWithParent(entertainer);
 					}
 					else
 					{
 						// We are both outside
-						gMessageLib->sendDataTransform(instrument);
-						//gMessageLib->sendUpdateTransformMessage(instrument);
+						gMessageLib->sendDataTransform(entertainer);
+						gMessageLib->sendUpdateTransformMessage(entertainer);
 					}
 				}
 			}

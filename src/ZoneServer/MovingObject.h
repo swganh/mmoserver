@@ -27,12 +27,6 @@ class MovingObject : public Object
 	public:
 		MovingObject();
 		virtual ~MovingObject();
-		
-		/*! Orients the current object so that it faces the object passed in.
-		 *
-		 * \param target_object The object the current object should face.
-		 */
-		void faceObject(Object* target_object);
 
 		// current movement updates sequence
 		uint32		getInMoveCount(){ return mInMoveCount; }

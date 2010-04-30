@@ -19,6 +19,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "DatabaseManager/Database.h"
 
 #include <glm/gtx/fast_trigonometry.hpp>
+#include <glm/gtx/transform2.hpp>
+#include <glm/gtx/vector_angle.hpp>
 
 using namespace glm::gtx;
 
@@ -116,21 +118,51 @@ const Object* Object::getRootParent() const {
 
 //=============================================================================
 
-void Object::rotateLeft(float degrees) {
+void Object::rotate(float degrees) {
     // Rotate the item left by the specified degrees
-    mDirection = glm::rotate(mDirection, -degrees, glm::vec3(0.0f, 1.0f, 0.0f));
-}
-
-//=============================================================================
-
-void Object::rotateRight(float degrees) {
-    // Rotate the item right by the specified degrees
     mDirection = glm::rotate(mDirection, degrees, glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
 //=============================================================================
 
-void Object::moveForward(const glm::quat& direction, float distance) {
+void Object::rotateLeft(float degrees) {
+    rotate(-degrees);
+}
+
+//=============================================================================
+
+void Object::rotateRight(float degrees) {
+    rotate(degrees);
+}
+
+//=============================================================================
+
+void Object::faceObject(Object* target_object) {	
+    facePosition(target_object->mPosition);
+}
+
+//=============================================================================
+
+void Object::facePosition(const glm::vec3& target_position) {	
+    // Create a mirror direction vector for the direction we want to face.
+    glm::vec3 direction_vector = glm::normalize(target_position - mPosition);
+    direction_vector.x = -direction_vector.x;
+
+    // Create a lookat matrix from the direction vector and convert it to a quaternion.
+    mDirection = glm::toQuat(glm::lookAt(
+        direction_vector, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)
+        ));
+
+    // If in the 3rd quadrant the signs need to be flipped.
+    if (mDirection.y <= 0.0f && mDirection.w >= 0.0f) {
+        mDirection.y = -mDirection.y;
+        mDirection.w = -mDirection.w;
+    }
+}
+
+//=============================================================================
+
+void Object::move(const glm::quat& direction, float distance) {
     // Create a vector of the length we want pointing down the x-axis.
     glm::vec3 movement_vector(0.0f, 0.0f, distance);
 
@@ -144,26 +176,13 @@ void Object::moveForward(const glm::quat& direction, float distance) {
 //=============================================================================
 
 void Object::moveForward(float distance) {
-    moveForward(mDirection, distance);
-}
-
-//=============================================================================
-
-void Object::moveBack(const glm::quat& direction, float distance) { 
-    // Create a vector of the length we want pointing down the x-axis.
-    glm::vec3 movement_vector(0.0f, 0.0f, -distance);
-
-    // Rotate the movement vector by the direction it should be facing.
-    movement_vector = direction * movement_vector;
-
-    // Add the movement vector to the current position to get the new position.
-    mPosition += movement_vector;
+    move(mDirection, distance);
 }
 
 //=============================================================================
 
 void Object::moveBack(float distance) {  
-    moveBack(mDirection, distance);
+    move(mDirection, -distance);
 }
 
 //=============================================================================

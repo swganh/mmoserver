@@ -124,7 +124,7 @@ void Food::handleFoodUse(Object* srcObject)
 	//we need to start by checking whether our stomach isnt full
 
 	//we need to update our stomach
-	double filling = 0;
+	float filling = 0;
 
 	if(this->hasInternalAttribute("food_icon"))
 	{
@@ -137,7 +137,7 @@ void Food::handleFoodUse(Object* srcObject)
 	if(this->hasAttribute("stomach_food"))
 	{
 
-		filling = this->getAttribute<double>("stomach_food");					
+		filling = this->getAttribute<float>("stomach_food");					
 		
 		//do we still have place for it ?
 		if(!playerObject->getStomach()->checkFood(filling))
@@ -155,8 +155,8 @@ void Food::handleFoodUse(Object* srcObject)
 
 	if(this->hasAttribute("stomach_drink"))
 	{
-		double filling = 0;
-		filling = this->getAttribute<double>("stomach_drink");					
+		float filling = 0;
+		filling = this->getAttribute<float>("stomach_drink");					
 		
 		//do we still have place for it ?
 		if(!playerObject->getStomach()->checkDrink(filling))
@@ -317,8 +317,7 @@ FoodCommandMapClass::FoodCommandMapClass()
 	mCommandMap.insert(std::make_pair(opAttributeUses_Remaining,&Food::_handleUses_Remaining));
 	mCommandMap.insert(std::make_pair(opAttributeAttr_Health,&Food::_handleHealth_Buff));
 	mCommandMap.insert(std::make_pair(opAttributeAttr_Mind,&Food::_handleMind_Buff));
-	mCommandMap.insert(std::make_pair(opAttribute_Mask_Scent,&Food::_handleMask_Scent_Buff));
-	//mCommandMap.insert(std::make_pair(BString::CRC("bio_comp_mask_scent"),&Food::_handleMask_Scent_Buff));
+	mCommandMap.insert(std::make_pair(BString::CRC("mask_scent"),&Food::_handleMask_Scent_Buff));
 	
 	
 }

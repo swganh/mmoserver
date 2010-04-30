@@ -429,7 +429,7 @@ int32 Buff::ModifyAttribute(BuffAttributeEnum Type, int32 Value, bool damage, bo
 	{
 		if(PlayerObject* playerObject = dynamic_cast<PlayerObject*>(this->mTarget))
 		{
-			playerObject->getStomach()->incFood(Value);
+			playerObject->getStomach()->incFood((float)Value);
 			gMessageLib->sendFoodUpdate(playerObject);
 		}
 	}
@@ -439,7 +439,7 @@ int32 Buff::ModifyAttribute(BuffAttributeEnum Type, int32 Value, bool damage, bo
 	{
 		if(PlayerObject* playerObject = dynamic_cast<PlayerObject*>(this->mTarget))
 		{
-			playerObject->getStomach()->incDrink(Value);
+			playerObject->getStomach()->incDrink((float)Value);
 			gMessageLib->sendDrinkUpdate(playerObject);
 		}
 	}
@@ -517,7 +517,6 @@ int32 Buff::ModifyAttribute(BuffAttributeEnum Type, int32 Value, bool damage, bo
 	case Carbine_Speed:{}break;
 	case Mask_Scent:
 		{
-			
 			if(mTarget->getSkillModValue(16) != 0)
 			{
 				mTarget->modifySkillModValue(16, Value);

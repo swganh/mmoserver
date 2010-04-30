@@ -1019,7 +1019,6 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 	
 		
 		itemObject->mPosition = playerObject->mPosition;
-		itemObject->mDirection = playerObject->mDirection;
 
 		gLogger->logMsgF("ObjectController::_handleTransferItemMisc: Cell added item to cell %I64u ", MSG_NORMAL,cell->getId());
 		

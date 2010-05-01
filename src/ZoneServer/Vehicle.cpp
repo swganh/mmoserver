@@ -160,14 +160,27 @@ void Vehicle::call()
 	mOwner->setMountCalled(false);
 
 	//Set direction to match the player
-	mBody->mDirection = mOwner->mDirection;
+	mBody->mDirection = glm::rotate(mOwner->mDirection, 90.0f, glm::vec3(0.0f, 1.0f, 0.0f));
 
 	//Spawn it to the side of the player
-    mBody->mPosition.x = mOwner->mPosition.x + ( 2 * cos(glm::gtx::quaternion::angle(mOwner->mDirection) + 1.5708f));
-	mBody->mPosition.z = mOwner->mPosition.z + ( 2 * sin(glm::gtx::quaternion::angle(mOwner->mDirection) + 1.5708f));
+    mBody->mPosition.x = mOwner->mPosition.x + (2 * sin(glm::gtx::quaternion::angle(mOwner->mDirection))); // mOwner->mPosition.x + ( 2 * cos(glm::gtx::quaternion::angle(mOwner->mDirection) + 1.5708f));
+	mBody->mPosition.z = mOwner->mPosition.z + (2 * cos(glm::gtx::quaternion::angle(mOwner->mDirection))); // mOwner->mPosition.z + ( 2 * sin(glm::gtx::quaternion::angle(mOwner->mDirection) + 1.5708f));
 
-	//And a little above the terrian (help prevent sticking)
-	mBody->mPosition.y =  Heightmap::Instance()->getHeight(mBody->mPosition.x, mBody->mPosition.z) + 0.3f;
+	//And a little above the terrain (help prevent sticking)
+	mBody->mPosition.y =  Heightmap::Instance()->getHeight(mBody->mPosition.x, mBody->mPosition.z) - 0.3f;
+
+	//we still get nan's here occasionally
+	//which will assert our quadtree
+
+	if(_isnan(mBody->mPosition.x))
+		mBody->mPosition.x = mOwner->mPosition.x;
+	
+	if(_isnan(mBody->mPosition.y))
+		mBody->mPosition.y = mOwner->mPosition.y;
+
+	if(_isnan(mBody->mPosition.z))
+		mBody->mPosition.z = mOwner->mPosition.z;
+		
 
 	// add to world
 	if(!gWorldManager->addObject(mBody))

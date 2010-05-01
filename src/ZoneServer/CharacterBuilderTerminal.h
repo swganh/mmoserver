@@ -52,12 +52,14 @@ private:
 	void InitWeapons();
 	void InitArmor();
 	void InitProfessions();
+	void InitWounds();
 
 	void SendXPMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
 	void SendResourcesMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
 	void _handleResourcesCRC(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
 	void _handleResourceTypes(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
 	void _handleResourcesTypes(PlayerObject* playerObject, uint32 action,int32 element,string inputStr,UIWindow* window);
+	void _handleWoundMenu(PlayerObject* playerObject, uint32 action,int32 element,string inputStr,UIWindow* window);
 
 	void _handleMainMenu(PlayerObject* player, uint32 action, int32 element, string inputStr, UIWindow* window);
 	void _handleExperienceMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
@@ -111,7 +113,7 @@ private:
 	void _handleMainCsrMenu(PlayerObject* playerObject, uint32 action,int32 element,string inputStr,UIWindow* window);
 	void _handleProfessionMenu(PlayerObject* playerObject, uint32 action,int32 element,string inputStr,UIWindow* window);
 
-int32				mInputBoxAmount;
+	int32				mInputBoxAmount;
 	BStringVector		mMainMenu;
 	BStringVector		mMainCsrMenu;
 	//BStringVector		mCreditsMenu;
@@ -126,6 +128,7 @@ int32				mInputBoxAmount;
 	BStringVector			mBuffMenu;
 	BStringVector			mItemMenu;
 	BStringVector			mResourceMenu;
+	BStringVector			mWoundMenu;
 
 	//2nd level menus
 	BStringVector			mStructureMenu;

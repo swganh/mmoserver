@@ -838,27 +838,39 @@ void ObjectController::_handleImageDesign(uint64 targetId,Message* message,Objec
 	if(!imageDesigner)
 		return;
 
+	if(designObject->getPosture() == CreaturePosture_Dead)
+	{
+		gMessageLib->sendSystemMessage(imageDesigner,L"","image_designer","target_dead");
+		return;
+	}
+
 	if(!imageDesigner->checkSkill(SMSkill_NoviceEntertainer))
 	{
 		gMessageLib->sendSystemMessage(imageDesigner,L"","image_designer","not_an_image_designer");
 		return;
 	}
-
+    //Sch we need to add more states and checks - Rouse
 	if(imageDesigner->checkStatesEither(CreatureState_Combat | CreatureState_Tumbling | CreatureState_Swimming | CreatureState_Crafting))
 	{
-		gMessageLib->sendSystemMessage(imageDesigner,L"You cannot do this at this time.");
+		gMessageLib->sendSystemMessage(imageDesigner,L"You cannot perform that action on this target");
 		return;
 	}
 
 	if(imageDesigner->getImageDesignSession() != IDSessionNONE)
 	{
-		gMessageLib->sendSystemMessage(imageDesigner,L"You cannot do this at this time.");
+		if(imageDesigner->getImageDesignSession() == IDSessionID)
+			gMessageLib->sendSystemMessage(imageDesigner,L"","image_designer","already_image_designing");
+		else
+			gMessageLib->sendSystemMessage(imageDesigner,L"","image_designer","already_being_image_designed");
 		return;
 	}
 
 	if(designObject->getImageDesignSession() != IDSessionNONE)
 	{
-		gMessageLib->sendSystemMessage(designObject,L"You cannot do this at this time.");
+		if(designObject->getImageDesignSession() == IDSessionID)
+			gMessageLib->sendSystemMessage(imageDesigner,L"","image_designer","target_is_image_designing");
+		else
+			gMessageLib->sendSystemMessage(imageDesigner,L"","image_designer","outstanding_offer");
 		return;
 	}
 
@@ -870,7 +882,7 @@ void ObjectController::_handleImageDesign(uint64 targetId,Message* message,Objec
 
 	if((designObject != imageDesigner) && (designObject->getGroupId() != imageDesigner->getGroupId() ))
 	{
-		gMessageLib->sendSystemMessage(imageDesigner,L"You must be grouped in order to imagedesign.");
+		gMessageLib->sendSystemMessage(imageDesigner,L"","image_designer","not_in_same_group");
 		return;
 	}
 
@@ -1153,10 +1165,20 @@ void ObjectController::_handlePlayHoloEmote(uint64 targetId,Message* message,Obj
 			emoteName = myEmote->pEmoteName;
 
 		//just give help
-		int8 sql[512];
-		sprintf(sql,"Your current Holo Emote is %s.\xa You have %u charges remaining. \xa To play your Holo-Emote type \x2fholoemote.\xa To delete your Holo-Emote type \x2fholoemote delete. \xa Purchasing a new Holo-Emote will automatically delete your current Holo-Emote.",emoteName.getAnsi(),we->getHoloCharge());
+		int8 sql[512], sql1[1024];
+		sprintf(sql,"Your current Holo Emote is %s.\xa You have %u charges remaining."
+		"\xa To play your Holo-Emote type \x2fholoemote <name>.\xa To delete your Holo-Emote type \x2fholoemote delete. "
+		"\xa Purchasing a new Holo-Emote will automatically delete your current Holo-Emote.",emoteName.getAnsi(),we->getHoloCharge());
 
-		gUIManager->createNewMessageBox(NULL,"holoHelpOff","Holo-Emote Help",sql,we);
+		sprintf(sql1,"%s \xa \xa The available Holo-Emote names are: \xa \xa"
+			"Beehive \x9 \x9 Blossom \x9 Brainstorm \xa"
+			"Bubblehead \x9 Bullhorns \x9 Butterflies \xa"
+			"Champagne \x9 Haunted \x9 Hearts \xa"
+			"Hologlitter \x9 \x9 Holonotes \x9 Imperial \xa"
+			"Kitty \x9 \x9 \x9 Phonytail \x9 Rebel \xa"
+			"Sparky",sql);
+
+		gUIManager->createNewMessageBox(NULL,"holoHelpOff","Holo-Emote Help",sql1,we);
 
 		return;
 	}
@@ -1172,15 +1194,25 @@ void ObjectController::_handlePlayHoloEmote(uint64 targetId,Message* message,Obj
 	if(strcmp(myEmote->pEmoteName,"all"))
 	{
 		//its *not* all
+		//only play if we give the proper name
 		if(requestedEmote->pId == myEmote->pId)
-		{
-			//only play if we give the proper name
-			string effect = gWorldManager->getClientEffect(myEmote->pId);
-			gMessageLib->sendPlayClientEffectObjectMessage(effect,"head",we);
+		{			
+			if(we->decHoloCharge())
+			{
+				string effect = gWorldManager->getClientEffect(myEmote->pId);
+				gMessageLib->sendPlayClientEffectObjectMessage(effect,"head",we);
+				int8 sql[256];
+				sprintf(sql,"update swganh.character_holoemotes set charges = charges-1 where character_id = %I64u", we->getId());
+				mDatabase->ExecuteSqlAsync(this,NULL,sql);
+			}
+			else
+			{
+				gMessageLib->sendSystemMessage(we,L"","image_designer","no_charges_holoemote","","",L"",0,"","",L"");
+				return;
+			}
 		}
 		else
 		{
-			//think of a better message ?
 			gMessageLib->sendSystemMessage(we,L"","image_designer","holoemote_help","","",L"",0,"","",L"");
 			return;
 		}
@@ -1188,8 +1220,8 @@ void ObjectController::_handlePlayHoloEmote(uint64 targetId,Message* message,Obj
 	else
 	{
 		//it is all
-		string effect = gWorldManager->getClientEffect(requestedEmote->pId);
-		gMessageLib->sendPlayClientEffectObjectMessage(effect,"head",we);
+		gMessageLib->sendSystemMessage(we,L"This is not a valid holoemote name");
+		return;
 	}
 }
 

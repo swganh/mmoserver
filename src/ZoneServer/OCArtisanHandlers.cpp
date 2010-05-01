@@ -49,6 +49,10 @@ void ObjectController::_handleRequestSurvey(uint64 targetId,Message* message,Obj
 		return;
 	}
 
+	if(playerObject->isDead() || !playerObject->getHam()->checkMainPools(1,1,1))
+		return;
+		
+
 	if(playerObject->getPerformingState() != PlayerPerformance_None)
 	{
 		gMessageLib->sendSystemMessage(playerObject,L"You cannot do this at this time.");

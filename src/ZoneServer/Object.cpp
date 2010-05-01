@@ -118,28 +118,27 @@ const Object* Object::getRootParent() const {
 
 void Object::rotateLeft(float degrees) {
     // Rotate the item left by the specified degrees
-    mDirection = glm::rotate(mDirection, -static_cast<float>(degrees), glm::vec3(0.0f, 1.0f, 0.0f));
+    mDirection = glm::rotate(mDirection, -degrees, glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
 //=============================================================================
 
 void Object::rotateRight(float degrees) {
     // Rotate the item right by the specified degrees
-    mDirection = glm::rotate(mDirection, static_cast<float>(degrees), glm::vec3(0.0f, 1.0f, 0.0f));
+    mDirection = glm::rotate(mDirection, degrees, glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
 //=============================================================================
 
 void Object::moveForward(const glm::quat& direction, float distance) {
-    float angle = glm::angle(direction);
+    // Create a vector of the length we want pointing down the x-axis.
+    glm::vec3 movement_vector(0.0f, 0.0f, distance);
 
-    if (direction.w > 0.0f && direction.y < 0.0) {
-        angle *= -1.0f;
-    }
+    // Rotate the movement vector by the direction it should be facing.
+    movement_vector = direction * movement_vector;
 
-    // Move the object forward along the specified angle by the specified distance
-    mPosition.x += static_cast<float>(distance * sin(angle));
-    mPosition.z += static_cast<float>(distance * cos(angle));
+    // Add the movement vector to the current position to get the new position.
+    mPosition += movement_vector;
 }
 
 //=============================================================================
@@ -151,15 +150,14 @@ void Object::moveForward(float distance) {
 //=============================================================================
 
 void Object::moveBack(const glm::quat& direction, float distance) { 
-    float angle = glm::angle(direction);
+    // Create a vector of the length we want pointing down the x-axis.
+    glm::vec3 movement_vector(0.0f, 0.0f, -distance);
 
-    if (direction.w > 0.0f && direction.y < 0.0) {
-        angle *= -1.0f;
-    }
+    // Rotate the movement vector by the direction it should be facing.
+    movement_vector = direction * movement_vector;
 
-    // Move the object back along the specified angle by the specified distance
-    mPosition.x -= static_cast<float>(distance * sin(angle));
-    mPosition.z -= static_cast<float>(distance * cos(angle));
+    // Add the movement vector to the current position to get the new position.
+    mPosition += movement_vector;
 }
 
 //=============================================================================

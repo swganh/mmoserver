@@ -2006,8 +2006,32 @@ void EntertainerManager::playInstrument(PlayerObject* entertainer, Item* pInstru
 	{
 		if (gWorldManager->objectsInRange(entertainer->getId(), instrumentId, 6.0))
 		{
+			if(entertainer->getParentId() != pInstrument->getParentId())
+			{
+				gMessageLib->sendSystemMessage(entertainer,L"","performance","music_must_unequip");
+				return;
+			}
+
 			// We are in range.
-			entertainer->mPosition = pInstrument->mPosition;
+			//move player to instrument vs move instrument to player
+
+			pInstrument->mDirection = entertainer->mDirection;
+			pInstrument->mPosition	= entertainer->mPosition;
+
+			if (entertainer->getParentId())
+			{
+				// We are both inside same building.
+				// Ensure we end up in the same cell also.
+				gMessageLib->sendDataTransformWithParent(entertainer);
+				gMessageLib->sendUpdateTransformMessageWithParent(entertainer);
+			}
+			else
+			{
+				gMessageLib->sendDataTransform(entertainer);
+				gMessageLib->sendUpdateTransformMessage(entertainer);
+			}
+
+			/*entertainer->mPosition = pInstrument->mPosition;
 			entertainer->mDirection = pInstrument->mDirection;
 			if (entertainer->getParentId())
 			{
@@ -2022,6 +2046,7 @@ void EntertainerManager::playInstrument(PlayerObject* entertainer, Item* pInstru
 				gMessageLib->sendDataTransform(entertainer);
 				gMessageLib->sendUpdateTransformMessage(entertainer);
 			}
+			*/
 		}
 	}
 	else
@@ -2143,13 +2168,14 @@ void EntertainerManager::handleObjectReady(Object* object,DispatchClient* client
 
 			if(!permanentinstrument)
 			{
-				gLogger->logMsg("EntertainerManager::handleObjectReady: no permanent instrument\n");
+				gLogger->logMsg("EntertainerManager::handleObjectReady: no permanent instrument");
 				return;
 			}
 
 			placedInstrument->setPersistantCopy(permanentinstrument->getId());
 			permanentinstrument->setNonPersistantCopy(placedInstrument->getId());
 			placedInstrument->setPlaced(true);
+			placedInstrument->setStatic(false);
 
 			//now set the nonpersistant Instrument in the playerObject
 			player->setPlacedInstrumentId(placedInstrument->getId());
@@ -2164,24 +2190,12 @@ void EntertainerManager::handleObjectReady(Object* object,DispatchClient* client
 			//add it to MainObjectMap and SI
 			gWorldManager->addObject(object);
 
-			//gWorldManager->initPlayersInRange(itemObject);
-			TangibleObject* tangible = dynamic_cast<TangibleObject*>(object);
+			//it needs to have a knownplayerlist!!!
+			gWorldManager->initPlayersInRange(object,NULL);
 
 			//create it for us and players around us
 			gWorldManager->createObjectinWorld(player,object);
 			
-			// We move the player, not the instrument.
-			if (player->getParentId())
-			{
-				// We are inside a cell.
-				gMessageLib->sendDataTransformWithParent(player);
-				gMessageLib->sendUpdateTransformMessageWithParent(player);
-			}
-			else
-			{
-				gMessageLib->sendDataTransform(player);
-				gMessageLib->sendUpdateTransformMessage(player);
-			}
 			// gMessageLib->sendDataTransform(placedInstrument);
 		}
 		else
@@ -2301,6 +2315,7 @@ uint64 EntertainerManager::gettargetedInstrument(PlayerObject* entertainer)
 	return 0;
 
 }
+
 bool EntertainerManager::checkInstrumentSkill(PlayerObject* entertainer,uint64 instrumentId)
 {
 	Item* instrument = dynamic_cast<Item*> (gWorldManager->getObjectById(instrumentId));
@@ -2502,13 +2517,26 @@ bool EntertainerManager::approachInstrument(PlayerObject* entertainer, uint64 in
 				{
 					// We are in range.
 					moveSucceeded = true;
+					
+					//player to instrument vs instrument to player ... ???
+					//entertainer->mPosition = instrument->mPosition;
+					//entertainer->mDirection = instrument->mDirection;
 					entertainer->mPosition = instrument->mPosition;
 					entertainer->mDirection = instrument->mDirection;
-					if (entertainer->getParentId())
+				
+					// We are both inside same cell?? otherwise leave
+					// AAAAAAAAAAAAARGHH
+					if(entertainer->getParentId() != instrument->getParentId())
 					{
-						// We are both inside same building.
-						// Ensure we end up in tyhe same cell also.
-						entertainer->setParentId(instrument->getParentId());
+						//no way we get away to change a players parentcell by just setting it 
+						//and doing an update transform!!!!! better to opt out otherwise its just an invite
+						//for crashes/weird happenings of all sorts
+						return false;
+					}
+
+
+					if (entertainer->getParentId())
+					{						
 						gMessageLib->sendDataTransformWithParent(entertainer);
 						gMessageLib->sendUpdateTransformMessageWithParent(entertainer);
 					}

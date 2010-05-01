@@ -165,12 +165,25 @@ void Vehicle::call()
 
 	// Move it forward 2 meters
     mBody->moveForward(2);
-
+	
 	// And drop it a little below the terrain to allow the client to normalize it.
 	mBody->mPosition.y = Heightmap::Instance()->getHeight(mBody->mPosition.x, mBody->mPosition.z) - 0.3f;
 
     // Finally rotate it perpendicular to the player.
     mBody->rotateRight(90.0f);
+
+	//we still get nan's here occasionally
+	//which will assert our quadtree
+
+	if(_isnan(mBody->mPosition.x))
+		mBody->mPosition.x = mOwner->mPosition.x;
+	
+	if(_isnan(mBody->mPosition.y))
+		mBody->mPosition.y = mOwner->mPosition.y;
+
+	if(_isnan(mBody->mPosition.z))
+		mBody->mPosition.z = mOwner->mPosition.z;
+		
 
 	// add to world
 	if(!gWorldManager->addObject(mBody))

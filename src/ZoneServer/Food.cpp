@@ -218,6 +218,7 @@ void Food::handleFoodUse(Object* srcObject)
 }
 void Food::_handleInstant(PlayerObject* playerObject)
 {
+	gMessageLib->sendSystemMessage(playerObject, "Sorry but instant use food has not been setup yet. Go kick a dev. Food::_handleInstant");
 }
 void Food::_handleBuff(PlayerObject* playerObject)
 {

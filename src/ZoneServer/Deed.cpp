@@ -50,6 +50,15 @@ void Deed::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 		{
 			case radId_itemUse:
 			{
+				//todo : check if the type of building is allowed on the planet
+
+				//check the region whether were allowed to build
+				if(!gStructureManager->checkCityRadius(player))
+				{
+					gMessageLib->sendSystemMessage(player,L"You cannot place this structure inside a no-build zone.");
+					return;
+				}
+
 				if(this->getItemType() >= ItemType_Deed_X34 && this->getItemType() <= ItemType_Deed_Swoop) //landspeeder x34, speederbike, swoop
 				{
 					// create the vehicle and put in datapad

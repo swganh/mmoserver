@@ -176,19 +176,20 @@ void ObjectController::_handleStructurePlacement(uint64 targetId,Message* messag
 	//now get our deed
 	//Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 
-	Deed* deed = dynamic_cast<Deed*>(gWorldManager->getObjectById(deedId));
-	if(!deed)
-	{
-		gLogger->logMsgF(" ObjectController::_handleStructurePlacement deed not found :( ",MSG_HIGH);		
-		return;
-	}
 
 	//todo : check if the type of building is allowed on the planet
 
 	//check the region whether were allowed to build
 	if(!gStructureManager->checkCityRadius(player))
 	{
-		gMessageLib->sendSystemMessage(player,L"","camp","error_nobuild");
+		gMessageLib->sendSystemMessage(player,L"You cannot place this structure inside a no-build zone.");
+		return;
+	}
+
+	Deed* deed = dynamic_cast<Deed*>(gWorldManager->getObjectById(deedId));
+	if(!deed)
+	{
+		gLogger->logMsgF(" ObjectController::_handleStructurePlacement deed not found :( ",MSG_HIGH);		
 		return;
 	}
 

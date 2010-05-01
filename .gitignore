@@ -6,6 +6,7 @@ data/heightmaps/
 ipch/
 *.cache
 *.zip
+*.7z
 *.tmp_*Win32.vcproj
 *.user
 *.ncb

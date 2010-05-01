@@ -237,87 +237,34 @@ rem ----------------------------------------------------------------------------
 rem --- Start of BUILD_ENVIRONMENT ---------------------------------------------
 :BUILD_ENVIRONMENT
 
-if %MSVC_VERSION%x == x (
-	if exist "%PROGRAMFILES(X86)%\Microsoft Visual Studio 10.0" (
+if "%MSVC_VERSION%" == "" (
+	if exist "%VS100COMNTOOLS%" (
 		set MSVC_VERSION=10
-	) else if exist "%PROGRAMFILES%\Microsoft Visual Studio 10.0" (
-		set MSVC_VERSION=10
-	) else if exist "%PROGRAMFILES(X86)%\Microsoft Visual Studio 9.0" (
+	) else if exist "%VS90COMNTOOLS%" (
 		set MSVC_VERSION=9
-	) else if exist "%PROGRAMFILES%\Microsoft Visual Studio 9.0" (
-		set MSVC_VERSION=9
+	) else (
+		echo ***** Microsoft Visual Studio 9.0 or 10.0 required *****
+		exit
 	)
 )
 
-call :BUILD_ENVIRONMENT_FOR_%MSVC_VERSION%
-
-rem Set to devenv.exe for all versions of VS except express.
-if exist "%VS_BASE_DIR%\Common7\IDE\devenv.com" (
-	set "DEVENV=%VS_BASE_DIR%\Common7\IDE\devenv.com"
+if %MSVC_VERSION% == 10 (
+	set "VSCOMMONTOOLS=%VS100COMNTOOLS%"
+	set "MSBUILD=%WINDIR%\Microsoft.NET\Framework\v4.0.30319\msbuild.exe"
+) else if %MSVC_VERSION% == 9 (
+	set "VSCOMMONTOOLS=%VS90COMNTOOLS%"
+	set "MSBUILD=%WINDIR%\Microsoft.NET\Framework\v3.5\msbuild.exe"
 ) else (
-	set "DEVENV=%VS_BASE_DIR%\Common7\IDE\vcexpress.exe"
+	echo ***** Microsoft Visual Studio 9.0 or 10.0 required *****
+	exit
 )
 
-set "MSBUILD=%DOTNET_BASE_DIR%\msbuild.exe"
-
-call "%VS_BASE_DIR%\VC\vcvarsall.bat" >NUL
+call "%VSCOMMONTOOLS%\vsvars32.bat" >NUL
 
 set environment_built=yes
 
 goto :eof
 rem --- End of BUILD_ENVIRONMENT -----------------------------------------------
-rem ----------------------------------------------------------------------------
-
-
-rem ----------------------------------------------------------------------------
-rem --- Start of BUILD_ENVIRONMENT_FOR_9 ---------------------------------------
-:BUILD_ENVIRONMENT_FOR_9
-
-set "VS_BASE_DIR=%PROGRAMFILES(X86)%\Microsoft Visual Studio 9.0"
-if not exist "!VS_BASE_DIR!" (
-	set "VS_BASE_DIR=%PROGRAMFILES%\Microsoft Visual Studio 9.0"
-	if not exist "!VS_BASE_DIR!" (
-		rem TODO: Allow user to enter a path to their base visual Studio directory.
-
-		echo ***** Microsoft Visual Studio 9.0 required *****
-exit
-	)
-)
-
-set "DOTNET_BASE_DIR=%WINDIR%\Microsoft.NET\Framework\v3.5"
-if not exist "%DOTNET_BASE_DIR%" (
-	echo ***** Microsoft .NET Framework 3.5 required *****
-	exit
-)
-
-goto :eof
-rem --- End of BUILD_ENVIRONMENT_FOR_9 -----------------------------------------
-rem ----------------------------------------------------------------------------
-
-
-rem ----------------------------------------------------------------------------
-rem --- Start of BUILD_ENVIRONMENT_FOR_10 --------------------------------------
-:BUILD_ENVIRONMENT_FOR_10
-
-set "VS_BASE_DIR=%PROGRAMFILES(X86)%\Microsoft Visual Studio 10.0"
-if not exist "!VS_BASE_DIR!" (
-	set "VS_BASE_DIR=%PROGRAMFILES%\Microsoft Visual Studio 10.0"
-	if not exist "!VS_BASE_DIR!" (
-		rem TODO: Allow user to enter a path to their base visual Studio directory.
-
-		echo ***** Microsoft Visual Studio 10.0 required *****
-		exit
-	)
-)
-
-set "DOTNET_BASE_DIR=%WINDIR%\Microsoft.NET\Framework\v4.0.30319"
-if not exist "%DOTNET_BASE_DIR%" (
-	echo ***** Microsoft .NET Framework 4.0.30319 required *****
-	exit
-)
-
-goto :eof
-rem --- End of BUILD_ENVIRONMENT_FOR_10 ----------------------------------------
 rem ----------------------------------------------------------------------------
 
 

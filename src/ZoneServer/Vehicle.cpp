@@ -117,7 +117,7 @@ void Vehicle::call()
 
 	}
 
-	if(!mOwner->isConnected())
+	if(!mOwner->isConnected() || mOwner->isDead() || !mOwner->getHam()->checkMainPools(1,1,1))
 	{
 		return;
 	}
@@ -202,7 +202,7 @@ void Vehicle::store()
 		return;
 	}
 
-	if(!mOwner)
+	if(!mOwner || mOwner->isDead() || !mOwner->getHam()->checkMainPools(1,1,1))
 	{
 		gLogger->logMsg("Vehicle::store() couldnt find owner");
 		return;

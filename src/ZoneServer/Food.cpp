@@ -121,6 +121,11 @@ void Food::handleFoodUse(Object* srcObject)
 		return;
 	}
 
+	if(playerObject->isDead() || !playerObject->getHam()->checkMainPools(1, 1, 1))
+	{
+		return;
+	}
+
 	//we need to start by checking whether our stomach isnt full
 
 	//we need to update our stomach

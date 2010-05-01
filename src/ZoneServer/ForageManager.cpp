@@ -31,12 +31,20 @@ public:
 		completed = false;
 
 		mForageClass = forageClass;
+
+		orig_x = player->mPosition.x;
+		orig_y = player->mPosition.y;
+		orig_z = player->mPosition.z;
 	}
 
 	uint64 startTime;
 	uint64 playerID;
 	forageClasses mForageClass;
 	bool completed;
+
+	float orig_x;
+	float orig_y;
+	float orig_z;
 };
 
 class ForagePocket
@@ -202,23 +210,23 @@ void ForageManager::forageUpdate()
 
 void ForageManager::failForage(PlayerObject* player, forageFails fail)
 {
-	if(!player || player->isForaging() == false)
+	if(!player || !player->isConnected())
 		return;
 
 	switch(fail)
 	{
 	case NOT_OUTSIDE:
 		gMessageLib->sendSystemMessage(player, L"", "skl_use","sys_forage_inside");
-		return;
+		break;
 	case PLAYER_MOVED:
 		gMessageLib->sendSystemMessage(player, L"", "skl_use","sys_forage_movefail");
 		break;
 	case ACTION_LOW:
 		gMessageLib->sendSystemMessage(player, L"", "skl_use","sys_forage_attrib");
-		return;
+		break;
 	case IN_COMBAT:
 		gMessageLib->sendSystemMessage(player, L"", "skl_use","sys_forage_cant");
-		return;
+		break;
 	case AREA_EMPTY:
 		gMessageLib->sendSystemMessage(player, L"", "skl_use","sys_forage_empty");
 		break;
@@ -227,7 +235,7 @@ void ForageManager::failForage(PlayerObject* player, forageFails fail)
 		break;
 	case NO_SKILL:
 		gMessageLib->sendSystemMessage(player, L"", "skl_use","sys_forage_noskill");
-		return;
+		break;
 	case ALREADY_FORAGING:
 		gMessageLib->sendSystemMessage(player, L"", "skl_use","sys_forage_already");
 		return;
@@ -284,10 +292,24 @@ bool ForagePocket::updateAttempts(uint64 currentTime)
 		else
 		{
 			PlayerObject* player = (PlayerObject*)gWorldManager->getObjectById((*it)->playerID);
-			if(!(*it)->completed && player && player->checkState(CreatureState_Combat))
+			if(!(*it)->completed && player)
 			{
-				ForageManager::failForage(player, ENTERED_COMBAT);
-				(*it)->completed = true;
+				if(player->checkState(CreatureState_Combat))
+				{
+					ForageManager::failForage(player, ENTERED_COMBAT);
+					(*it)->completed = true;
+				}
+
+				if(!(*it)->completed)
+				{
+					if((*it)->orig_x != player->mPosition.x || (*it)->orig_y != player->mPosition.y || 
+						(*it)->orig_z != player->mPosition.z)
+					{
+						ForageManager::failForage(player, PLAYER_MOVED);
+						(*it)->completed = true;
+					}
+
+				}
 			}
 
 			it++;

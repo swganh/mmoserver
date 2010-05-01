@@ -46,7 +46,7 @@ void ObjectController::_handleDuel(uint64 targetId,Message* message,ObjectContro
 		PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(target);
 
 		// don't duel ourself
-		if(player == targetPlayer)
+		if(player == targetPlayer || targetPlayer->isDead() || !targetPlayer->getHam()->checkMainPools(1, 1, 1))
 		{
 			return;
 		}

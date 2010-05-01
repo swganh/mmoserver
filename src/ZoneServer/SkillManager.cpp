@@ -580,6 +580,11 @@ bool SkillManager::learnSkillLine(uint32 skillId, CreatureObject* creatureObject
 
 void SkillManager::teach(PlayerObject* pupilObject,PlayerObject* teacherObject,string show)
 {
+	if(pupilObject->isDead() || teacherObject->isDead() || !pupilObject->getHam()->checkMainPools(1, 1, 1) 
+		|| !teacherObject->getHam()->checkMainPools(1, 1, 1))
+	{
+		return;
+	}
 	// pupil and teacher bozh exist and are grouped
 	// we will now compare the teachers skill list to the pupils skill list
 	// and assemble a list with the skills the pupil does not have but were she/he has the prerequesits

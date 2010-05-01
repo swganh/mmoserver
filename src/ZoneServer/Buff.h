@@ -30,12 +30,12 @@ class BuffAttribute
 {
 
 public:
-	BuffAttribute(BuffAttributeEnum Type, int32 InitialValue, int32	TickValue, int32 FinalValue);
+	BuffAttribute(uint32 Type, int32 InitialValue, int32	TickValue, int32 FinalValue);
 	~BuffAttribute();
 
 	static BuffAttribute* FromDB(BuffAttributeDBItem* item);
 
-	BuffAttributeEnum	GetType();
+	uint32				GetType();
 	int32				GetInitialValue();
 	int32				GetTickValue();
 	int32				GetFinalValue();
@@ -44,7 +44,7 @@ public:
 	void				SetFinalValue(int32 v){mFinalValue = v;} 
 
 private:
-	BuffAttributeEnum	mAttribute;
+	uint32				mAttribute;
 	int32				mInitialValue;
 	int32				mTickValue;
 	int32				mFinalValue;
@@ -122,7 +122,7 @@ private:
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	//Private Methods
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	int32					ModifyAttribute(BuffAttributeEnum Type, int32 Value, bool damage = false, bool debuff = false);//returns the amount of the buff that got applied
+	int32					ModifyAttribute(uint32 Type, int32 Value, bool damage = false, bool debuff = false);//returns the amount of the buff that got applied
 	void					IncrementTick();
 	uint64					GetRemainingTime(uint64 CurrentTime);
 	bool					UpdateTick(uint64 CurrentTime);

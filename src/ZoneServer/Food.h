@@ -34,13 +34,17 @@ class Food : public Item
 	private:
 
 		void			_handleUses_Remaining(PlayerObject* playerObject);
-		void			_handleHealth_Buff(PlayerObject* playerObject);
-		void			_handleMind_Buff(PlayerObject* playerObject);
-		void			_handleMask_Scent_Buff(PlayerObject* playerObject);
+		//void			_handleHealth_Buff(PlayerObject* playerObject);
+		//void			_handleMind_Buff(PlayerObject* playerObject);
+		//void			_handleMask_Scent_Buff(PlayerObject* playerObject);
+		void			_handleBuff(PlayerObject* playerObject);
+		void			_handleInstant(PlayerObject* playerObject);
 
 
 		bool			toDelete;
 		uint32			mIcon;
+		uint32			mDuration;
+		Buff*			mBuff;
 
 };
 

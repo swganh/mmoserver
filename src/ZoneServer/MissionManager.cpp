@@ -764,7 +764,7 @@ void MissionManager::checkMusicianMission(PlayerObject* player)
 				if(mission->getInProgress()) { ++it; continue; }
                 if(glm::distance(player->mPosition, mission->getDestination().Coordinates) < 20)
 				{
-					BuffAttribute* performance_timer = new BuffAttribute(Mission_Timer, 0,0,0);
+					BuffAttribute* performance_timer = new BuffAttribute(time_remaining, 0,0,0);
 					Buff* timer = Buff::SimpleBuff(player, player, 600000, 0, gWorldManager->GetCurrentGlobalTick());
 					timer->AddAttribute(performance_timer);
 					player->AddBuff(timer);
@@ -793,7 +793,7 @@ void MissionManager::checkDancerMission(PlayerObject* player)
 				if(mission->getInProgress()) { ++it; continue; }
                 if(glm::distance(player->mPosition, mission->getDestination().Coordinates) < 20)
 				{
-					BuffAttribute* performance_timer = new BuffAttribute(Mission_Timer, 0,0,0);
+					BuffAttribute* performance_timer = new BuffAttribute(time_remaining, 0,0,0);
 					Buff* timer = Buff::SimpleBuff(player, player, 600000, 0, gWorldManager->GetCurrentGlobalTick());
 					timer->AddAttribute(performance_timer);
 					player->AddBuff(timer);

@@ -18,7 +18,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include "MessageLib/MessageLib.h"
 
-BuffAttribute::BuffAttribute(BuffAttributeEnum Type, int32 InitialValue, int32	TickValue, int32 FinalValue)
+BuffAttribute::BuffAttribute(uint32 Type, int32 InitialValue, int32	TickValue, int32 FinalValue)
 : mAttribute(Type)
 , mInitialValue(InitialValue)
 , mTickValue(TickValue)
@@ -35,11 +35,11 @@ BuffAttribute::~BuffAttribute()
 
 BuffAttribute* BuffAttribute::FromDB(BuffAttributeDBItem* item)
 {
-    return new BuffAttribute((BuffAttributeEnum)item->mType, item->mInitialValue, item->mTickValue, item->mFinalValue);
+    return new BuffAttribute((uint32)item->mType, item->mInitialValue, item->mTickValue, item->mFinalValue);
 }
 
 
-BuffAttributeEnum BuffAttribute::GetType()
+uint32 BuffAttribute::GetType()
 {
     return mAttribute;
 }
@@ -409,7 +409,7 @@ void Buff::FinalChanges()
 //
 //
 
-int32 Buff::ModifyAttribute(BuffAttributeEnum Type, int32 Value, bool damage, bool debuff)
+int32 Buff::ModifyAttribute(uint32 Type, int32 Value, bool damage, bool debuff)
 {
 	//damage is dealt by a debuff like poison for example this can incapacitate so
 	//a debuff from a doctorbuff should not be able to incapacitate you
@@ -418,104 +418,60 @@ int32 Buff::ModifyAttribute(BuffAttributeEnum Type, int32 Value, bool damage, bo
 	
 	switch(Type)
 	{
-
-		case Health:
+		case health:
 			{
 				cV = this->mTarget->getHam()->updatePropertyValue(HamBar_Health, HamProperty_Modifier, Value, damage);
 			}
 		break;
 
-	case Food_Filling:
-	{
-		if(PlayerObject* playerObject = dynamic_cast<PlayerObject*>(this->mTarget))
-		{
-			playerObject->getStomach()->incFood((float)Value);
-			gMessageLib->sendFoodUpdate(playerObject);
-		}
-	}
-	break;
-
-	case Drink_Filling:
-	{
-		if(PlayerObject* playerObject = dynamic_cast<PlayerObject*>(this->mTarget))
-		{
-			playerObject->getStomach()->incDrink((float)Value);
-			gMessageLib->sendDrinkUpdate(playerObject);
-		}
-	}
-	break;
-
-	case Strength:
+	case strength:
 		{
 			cV = this->mTarget->getHam()->updatePropertyValue(HamBar_Strength, HamProperty_Modifier, Value);
 		}
 	break;
 
-	case Constitution:
+	case constitution:
 		{
 			cV = this->mTarget->getHam()->updatePropertyValue(HamBar_Constitution, HamProperty_Modifier, Value);
 		}
 	break;
 
-	case Action:
+	case action:
 		{
 			cV = this->mTarget->getHam()->updatePropertyValue(HamBar_Action, HamProperty_Modifier, Value);
 		}
 	break;
 
-	case Quickness:
+	case quickness:
 		{
 			cV = this->mTarget->getHam()->updatePropertyValue(HamBar_Quickness, HamProperty_Modifier, Value);
 		}
 	break;
 
-	case Stamina:
+	case stamina:
 		{
 			cV = this->mTarget->getHam()->updatePropertyValue(HamBar_Stamina, HamProperty_Modifier, Value);
 		}
 	break;
 
-	case Mind:
+	case mind:
 		{
 			cV = this->mTarget->getHam()->updatePropertyValue(HamBar_Mind, HamProperty_Modifier, Value);
 		}
 	break;
 
-	case Focus:
+	case focus:
 		{
 			cV = this->mTarget->getHam()->updatePropertyValue(HamBar_Focus, HamProperty_Modifier, Value);
 		}
 	break;
 
-	case Willpower:
+	case willpower:
 		{
 			cV = this->mTarget->getHam()->updatePropertyValue(HamBar_Willpower, HamProperty_Modifier, Value);
 		}
 	break;
-
-	case Burst_Run_Timer:{}break;
-	case Burst_Run_Cost_Reduction:{}break;
-	case To_Hit_Chance:{}break;
-	case Crafting_Assembly:{}break;
-	case Entertainer_Buff_Timer_Reduction:{}break;
-	case Timer_Reduction_on_Fire_DOT:{}break;
-	case Timer_Reduction_on_Bleed_DOT:{}break;
-	case Timer_Reduction_on_Poison_DOT:{}break;
-	case Timer_Reduction_on_Disease_DOT:{}break;
-	case DOT_Avoidance_Chance_Fire:{}break;
-	case DOT_Avoidance_Chance_Bleed:{}break;
-	case DOT_Avoidance_Chance_Poison:{}break;
-	case DOT_Avoidance_Chance_Disease:{}break;
-	case Heat_Damage_Reduction_Percent:{}break;
-	case Experimentation_Chance:{}break;
-	case Damage_Reduction_Percent:{}break;
-	case Constitution_Regen_Percent:{}break;
-	case Incap_Timer_Reduction:{}break;
-	case Heal_Time_Reduction_Percentage:{}break;
-	case Accuracy:{}break;
-	case Carbine_Accuracy:{}break;
-	case Carbine_Speed:{}break;
-	case Mask_Scent:
+	case mask_scent:
 		{
 			if(mTarget->getSkillModValue(16) != 0)
 			{
@@ -525,23 +481,7 @@ int32 Buff::ModifyAttribute(BuffAttributeEnum Type, int32 Value, bool damage, bo
 			}
 		}
 	break;
-	case Onehandmelee_Accuracy:{}break;
-	case Onehandmelee_Speed:{}break;
-	case Pistol_Accuracy:{}break;
-	case Pistol_Speed:{}break;
-	case Polearm_Accuracy:{}break;
-	case Polearm_Speed:{}break;
-	case Rifle_Accuracy:{}break;
-	case Rifle_Speed:{}break;
-	case Thrown_Accuracy:{}break;
-	case Thrown_Speed:{}break;
-	case Twohandmelee_Accuracy:{}break;
-	case Twohandmelee_Speed:{}break;
-	case Unarmed_Accuracy:{}break;
-	case Unarmed_Speed:{}break;
-	case Spice_Downer_Time_Reduction:{}break;
-	case Enhance_Wookie_Roar_Ability:{}break;
-	case Mission_Timer:	{ } break;
+
 	default:
 		{
 		}

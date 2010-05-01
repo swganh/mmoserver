@@ -231,13 +231,12 @@ void Food::_handleBuff(PlayerObject* playerObject)
 		try
 		{
 			amount =static_cast<uint32>(boost::lexical_cast<float>(it->second));
-			std::cout << "Good Cast! Found value. Enum= " << it->first << " Attribute Value = " << it->second << std::endl;
 			BuffAttribute* foodAttribute = new BuffAttribute(it->first, +(int)amount,0,-(int)amount); 
 			mBuff->AddAttribute(foodAttribute);	
 		}
 		catch(boost::bad_lexical_cast &)
 		{
-			std::cout << "Bad Cast. Enum= " << it->first << " Attribute Value = " << it->second << std::endl;
+			//skip past as these are attributes we don't want to handle (such as string names etc)
 		}
 
 		++it;

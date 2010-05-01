@@ -1715,7 +1715,7 @@ void ObjectController::_BurstRun(uint64 targetId,Message* message,ObjectControll
 
 	if(!player->getHam()->checkMainPools(healthcost,actioncost,mindcost))
 	{
-		gMessageLib->sendSystemMessage(player,L"","combat_effects","burst_run_no");
+		gMessageLib->sendSystemMessage(player,L"You cannot burst run right now."); // the stf doesn't work!
 		return;
 	}
 

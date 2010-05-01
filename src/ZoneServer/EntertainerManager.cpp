@@ -1621,12 +1621,12 @@ void EntertainerManager::stopListening(PlayerObject* audience,bool ooRange)
 				will				= static_cast<uint32>(will*buffPercentageDance);
 
 				//yay!!! we got ourselves a buff!!!
-				BuffAttribute* focusAttribute = new BuffAttribute(focus, +focus,0,-(int)focus);
+				BuffAttribute* focusAttribute = new BuffAttribute(attr_focus, +focus,0,-(int)focus);
 				Buff* focusBuff = Buff::SimpleBuff(audience, audience, time*1000, opBACRC_PerformanceFocus, gWorldManager->GetCurrentGlobalTick());
 				focusBuff->AddAttribute(focusAttribute);
 				audience->AddBuff(focusBuff,true);
 
-				BuffAttribute* willAttribute = new BuffAttribute(willpower, +will,0,-(int)will);
+				BuffAttribute* willAttribute = new BuffAttribute(attr_willpower, +will,0,-(int)will);
 				Buff* willBuff = Buff::SimpleBuff(audience, audience, time*1000, opBACRC_PerformanceWill, gWorldManager->GetCurrentGlobalTick());
 				willBuff->AddAttribute(willAttribute);
 				audience->AddBuff(willBuff,true);

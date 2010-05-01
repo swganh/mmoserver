@@ -418,60 +418,60 @@ int32 Buff::ModifyAttribute(uint32 Type, int32 Value, bool damage, bool debuff)
 	
 	switch(Type)
 	{
-		case health:
+		case attr_health:
 			{
 				cV = this->mTarget->getHam()->updatePropertyValue(HamBar_Health, HamProperty_Modifier, Value, damage);
 			}
 		break;
 
-	case strength:
+	case attr_strength:
 		{
 			cV = this->mTarget->getHam()->updatePropertyValue(HamBar_Strength, HamProperty_Modifier, Value);
 		}
 	break;
 
-	case constitution:
+	case attr_constitution:
 		{
 			cV = this->mTarget->getHam()->updatePropertyValue(HamBar_Constitution, HamProperty_Modifier, Value);
 		}
 	break;
 
-	case action:
+	case attr_action:
 		{
 			cV = this->mTarget->getHam()->updatePropertyValue(HamBar_Action, HamProperty_Modifier, Value);
 		}
 	break;
 
-	case quickness:
+	case attr_quickness:
 		{
 			cV = this->mTarget->getHam()->updatePropertyValue(HamBar_Quickness, HamProperty_Modifier, Value);
 		}
 	break;
 
-	case stamina:
+	case attr_stamina:
 		{
 			cV = this->mTarget->getHam()->updatePropertyValue(HamBar_Stamina, HamProperty_Modifier, Value);
 		}
 	break;
 
-	case mind:
+	case attr_mind:
 		{
 			cV = this->mTarget->getHam()->updatePropertyValue(HamBar_Mind, HamProperty_Modifier, Value);
 		}
 	break;
 
-	case focus:
+	case attr_focus:
 		{
 			cV = this->mTarget->getHam()->updatePropertyValue(HamBar_Focus, HamProperty_Modifier, Value);
 		}
 	break;
 
-	case willpower:
+	case attr_willpower:
 		{
 			cV = this->mTarget->getHam()->updatePropertyValue(HamBar_Willpower, HamProperty_Modifier, Value);
 		}
 	break;
-	case mask_scent:
+	case bio_comp_mask_scent:
 		{
 			if(mTarget->getSkillModValue(16) != 0)
 			{

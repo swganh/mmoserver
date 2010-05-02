@@ -400,7 +400,7 @@ void Buff::FinalChanges()
 	}
 
 	//Complete entertainer mission
-	gMissionManager->missionCompleteEntertainer(Player);
+	gMissionManager->missionCompleteEntertainer(Player,this);
 
 
 }

@@ -19,6 +19,7 @@ class NPCObject;
 class WaypointObject;
 class Terminal;
 class ResourceType;
+class Buff;
 
 //=============================================================================
 
@@ -101,7 +102,7 @@ class MissionObject : public Object
 		void				setDetail(const char* detail) { mDetail = detail; }
 
 		int					getRefreshCount() { return mRefreshCount; }
-		int				setRefreshCount(int refresh_count) { mRefreshCount = refresh_count; return mRefreshCount; }
+		int					setRefreshCount(int refresh_count) { mRefreshCount = refresh_count; return mRefreshCount; }
 
 		uint32				getMissionType() { return mMissionType; }
 		void				setMissionType(uint32 mission_type) { mMissionType = mission_type; }
@@ -117,6 +118,8 @@ class MissionObject : public Object
 		void				setStartNPC(NPCObject* npc) { mStartNPC = npc; }
 		void				setDestinationNPC(NPCObject* npc)   { mDestinationNPC = npc; }
 
+		Buff*				getEntertainingTimer() { return mEntertainingTimer; }
+		void				setEntertainingTimer(Buff* timer) { mEntertainingTimer = timer; }
 		bool				getInProgress()  { return mInProgress; }
 		void				setInProgress(bool is) { mInProgress = is; }
 
@@ -159,7 +162,8 @@ class MissionObject : public Object
 		NPCObject*				mStartNPC;
 		NPCObject*				mDestinationNPC;
 
-		bool					mInProgress;			//set to true when the player starts the buff
+		Buff*					mEntertainingTimer;		//The buff used for entertainer missions
+		bool					mInProgress;			//set to true when the player starts the buff used in entertainer missions
 
 		uint64					mTaskId;
 

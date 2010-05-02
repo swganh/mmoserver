@@ -206,6 +206,8 @@ bool MessageLib::sendBankTipDustOff(PlayerObject* playerObject, uint64 tipRecipi
 		return(false);
 	}
 
+	//informs chatserver on succesful banktip
+
 	mMessageFactory->StartMessage();      
 	mMessageFactory->addUint32(opBankTipDustOff);  
 	mMessageFactory->addUint64(tipRecipient);  

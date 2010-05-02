@@ -636,6 +636,19 @@ void MissionManager::missionAbort(PlayerObject* player, uint64 mission_id)
 	MissionObject* mission = datapad->getMissionById(mission_id);
 	if(mission)
 	{
+		//If we failed an entertainer mission then we need to remove the timer associated with it.
+		if(mission->getMissionType() == dancer || mission->getMissionType() == musician)
+		{
+			if(mission->getInProgress())
+			{
+				Buff* timer = mission->getEntertainingTimer();
+				player->RemoveBuff(timer);
+				mission->setInProgress(false);			
+				SAFE_DELETE(timer);
+				mission->setEntertainingTimer(NULL);
+			}
+		}
+
 		datapad->removeMission(mission);
 		gMessageLib->sendSystemMessage(player,L"","mission/mission_generic","incomplete");
 		gMessageLib->sendSetWaypointActiveStatus(mission->getWaypoint(),false,player);

@@ -768,8 +768,10 @@ bool MessageLib::sendEmptyObjectMenuResponse(uint64 requestedId,PlayerObject* ta
 // starting location list
 //
 
-bool MessageLib::sendStartingLocationList(PlayerObject* player)
+bool MessageLib::sendStartingLocationList(PlayerObject* player, uint8 tatooine, uint8 corellia, uint8 talus, uint8 rori, uint8 naboo)
 {
+	gLogger->logMsg("Sending Starting Location List\n");
+
 	if(!(player->isConnected()))
 	{
 		return(false);
@@ -792,7 +794,7 @@ bool MessageLib::sendStartingLocationList(PlayerObject* player)
 	mMessageFactory->addString("");
 	mMessageFactory->addString("styles.location.tatooine.bestine");
 	mMessageFactory->addString("");
-	mMessageFactory->addUint8(1);
+	mMessageFactory->addUint8(tatooine);
 
 	mMessageFactory->addString("mos_espa");
 	mMessageFactory->addString("tatooine");
@@ -801,7 +803,7 @@ bool MessageLib::sendStartingLocationList(PlayerObject* player)
 	mMessageFactory->addString("");
 	mMessageFactory->addString("styles.location.tatooine.mos_espa");
 	mMessageFactory->addString("");
-	mMessageFactory->addUint8(1);
+	mMessageFactory->addUint8(tatooine);
 
 	mMessageFactory->addString("mos_eisley");
 	mMessageFactory->addString("tatooine");
@@ -810,7 +812,7 @@ bool MessageLib::sendStartingLocationList(PlayerObject* player)
 	mMessageFactory->addString("");
 	mMessageFactory->addString("styles.location.tatooine.mos_eisley");
 	mMessageFactory->addString("");
-	mMessageFactory->addUint8(1);
+	mMessageFactory->addUint8(tatooine);
 
 	mMessageFactory->addString("mos_entha");
 	mMessageFactory->addString("tatooine");
@@ -819,7 +821,7 @@ bool MessageLib::sendStartingLocationList(PlayerObject* player)
 	mMessageFactory->addString("");
 	mMessageFactory->addString("styles.location.tatooine.mos_entha");
 	mMessageFactory->addString("");
-	mMessageFactory->addUint8(1);
+	mMessageFactory->addUint8(tatooine);
 
 	//corellia =======================================
 	mMessageFactory->addString("coronet");
@@ -829,7 +831,7 @@ bool MessageLib::sendStartingLocationList(PlayerObject* player)
 	mMessageFactory->addString("");
 	mMessageFactory->addString("styles.location.corellia.coronet");
 	mMessageFactory->addString("");
-	mMessageFactory->addUint8(1);
+	mMessageFactory->addUint8(corellia);
 
 	mMessageFactory->addString("tyrena");
 	mMessageFactory->addString("corellia");
@@ -838,7 +840,7 @@ bool MessageLib::sendStartingLocationList(PlayerObject* player)
 	mMessageFactory->addString("");
 	mMessageFactory->addString("styles.location.corellia.tyrena");
 	mMessageFactory->addString("");
-	mMessageFactory->addUint8(1);
+	mMessageFactory->addUint8(corellia);
 
 	mMessageFactory->addString("kor_vella");
 	mMessageFactory->addString("corellia");
@@ -847,7 +849,7 @@ bool MessageLib::sendStartingLocationList(PlayerObject* player)
 	mMessageFactory->addString("");
 	mMessageFactory->addString("styles.location.corellia.kor_vella");
 	mMessageFactory->addString("");
-	mMessageFactory->addUint8(1);
+	mMessageFactory->addUint8(corellia);
 
 	mMessageFactory->addString("doaba_guerfel");
 	mMessageFactory->addString("corellia");
@@ -856,7 +858,7 @@ bool MessageLib::sendStartingLocationList(PlayerObject* player)
 	mMessageFactory->addString("");
 	mMessageFactory->addString("styles.location.corellia.doaba_guerfel");
 	mMessageFactory->addString("");
-	mMessageFactory->addUint8(1);
+	mMessageFactory->addUint8(corellia);
 
 	//talus =============================================
 	mMessageFactory->addString("dearic");
@@ -866,7 +868,7 @@ bool MessageLib::sendStartingLocationList(PlayerObject* player)
 	mMessageFactory->addString("");
 	mMessageFactory->addString("styles.location.talus.dearic");
 	mMessageFactory->addString("");
-	mMessageFactory->addUint8(1);
+	mMessageFactory->addUint8(talus);
 
 	mMessageFactory->addString("nashal");
 	mMessageFactory->addString("talus");
@@ -875,7 +877,7 @@ bool MessageLib::sendStartingLocationList(PlayerObject* player)
 	mMessageFactory->addString("");
 	mMessageFactory->addString("styles.location.talus.nashal");
 	mMessageFactory->addString("");
-	mMessageFactory->addUint8(1);
+	mMessageFactory->addUint8(talus);
 
 	//rori ==============================================
 	mMessageFactory->addString("narmle");
@@ -885,7 +887,7 @@ bool MessageLib::sendStartingLocationList(PlayerObject* player)
 	mMessageFactory->addString("");
 	mMessageFactory->addString("styles.location.rori.narmle");
 	mMessageFactory->addString("");
-	mMessageFactory->addUint8(1);
+	mMessageFactory->addUint8(rori);
 
 	mMessageFactory->addString("restuss");
 	mMessageFactory->addString("rori");
@@ -894,7 +896,7 @@ bool MessageLib::sendStartingLocationList(PlayerObject* player)
 	mMessageFactory->addString("");
 	mMessageFactory->addString("styles.location.rori.restuss");
 	mMessageFactory->addString("");
-	mMessageFactory->addUint8(1);
+	mMessageFactory->addUint8(rori);
 
 	// naboo ============================================
 	mMessageFactory->addString("theed");
@@ -904,7 +906,7 @@ bool MessageLib::sendStartingLocationList(PlayerObject* player)
 	mMessageFactory->addString("");
 	mMessageFactory->addString("styles.location.naboo.theed");
 	mMessageFactory->addString("");
-	mMessageFactory->addUint8(1);
+	mMessageFactory->addUint8(naboo);
 
 	mMessageFactory->addString("moenia");
 	mMessageFactory->addString("naboo");
@@ -913,7 +915,7 @@ bool MessageLib::sendStartingLocationList(PlayerObject* player)
 	mMessageFactory->addString("");
 	mMessageFactory->addString("styles.location.naboo.moenia");
 	mMessageFactory->addString("");
-	mMessageFactory->addUint8(1);
+	mMessageFactory->addUint8(naboo);
 
 	mMessageFactory->addString("keren");
 	mMessageFactory->addString("naboo");
@@ -922,7 +924,7 @@ bool MessageLib::sendStartingLocationList(PlayerObject* player)
 	mMessageFactory->addString("");
 	mMessageFactory->addString("styles.location.naboo.keren");
 	mMessageFactory->addString("");
-	mMessageFactory->addUint8(1);
+	mMessageFactory->addUint8(naboo);
 
 	mMessageFactory->addString("kaadara");
 	mMessageFactory->addString("naboo");
@@ -931,7 +933,7 @@ bool MessageLib::sendStartingLocationList(PlayerObject* player)
 	mMessageFactory->addString("");
 	mMessageFactory->addString("styles.location.naboo.kaadara");
 	mMessageFactory->addString("");
-	mMessageFactory->addUint8(1);
+	mMessageFactory->addUint8(naboo);
 
 	(player->getClient())->SendChannelA(mMessageFactory->EndMessage(),player->getAccountId(),CR_Client,5);
 

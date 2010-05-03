@@ -137,6 +137,7 @@ public:
 		TravelMapHandler(Database* database,MessageDispatch* dispatch,uint32 zoneId);
 
 		void				_processTravelPointListRequest(Message* message,DispatchClient* client);
+		void				_processTutorialTravelList(Message* message, DispatchClient* client);
 
 		static TravelMapHandler*	mSingleton;
 		static bool					mInsFlag;

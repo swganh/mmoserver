@@ -258,3 +258,11 @@ bool MessageLib::sendGroupLootMasterResponse(PlayerObject* masterLooter, PlayerO
 
 //======================================================================================================================
 
+void MessageLib::sendTutorialServerStatusRequest(DispatchClient* client, uint64 playerId, uint32 accountID)
+{
+	mMessageFactory->StartMessage();
+	mMessageFactory->addUint32(opTutorialServerStatusRequest);
+	mMessageFactory->addUint64(playerId);
+
+	client->SendChannelA(mMessageFactory->EndMessage(), accountID, CR_Connection, 5);
+}

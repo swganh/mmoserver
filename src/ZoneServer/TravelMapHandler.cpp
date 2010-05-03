@@ -56,6 +56,7 @@ TravelMapHandler::TravelMapHandler(Database* database, MessageDispatch* dispatch
 
 {
 	mMessageDispatch->RegisterMessageCallback(opPlanetTravelPointListRequest,this);
+	mMessageDispatch->RegisterMessageCallback(opTutorialServerStatusReply, this);
 
 	// load our points in world
 	mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.malloc()) TravelMapAsyncContainer(TMQuery_PointsInWorld),
@@ -135,6 +136,11 @@ void TravelMapHandler::handleDispatchMessage(uint32 opcode, Message* message, Di
 			_processTravelPointListRequest(message,client);
 		}
 		break;
+
+		case opTutorialServerStatusReply:
+		{
+			_processTutorialTravelList(message, client);
+		}
 
 		default:
 			gLogger->logMsgF("TravelMapHandler::handleDispatchMessage: Unhandled opcode %u",MSG_NORMAL,opcode);
@@ -251,6 +257,23 @@ void TravelMapHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 		else
 			gLogger->logMsgLoadFailure("TravelMapHandler::Loading Travel Routes/Points...",MSG_NORMAL);
 
+	}
+}
+
+void TravelMapHandler::_processTutorialTravelList(Message* message, DispatchClient* client)
+{
+	PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(message->getUint64()));
+
+	if(player)
+	{
+		gMessageLib->sendStartingLocationList(
+			player,
+			message->getUint8(), //Tatooine
+			message->getUint8(), //Corellia
+			message->getUint8(), //Talus
+			message->getUint8(), //Rori
+			message->getUint8()  //Naboo
+			);
 	}
 }
 

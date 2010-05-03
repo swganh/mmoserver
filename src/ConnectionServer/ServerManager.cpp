@@ -55,6 +55,7 @@ mClientManager(clientManager)
 	mConnectionDispatch->RegisterMessageCallback(opClusterRegisterServer, this);
 	mConnectionDispatch->RegisterMessageCallback(opClusterZoneTransferRequestByTicket, this);
 	mConnectionDispatch->RegisterMessageCallback(opClusterZoneTransferRequestByPosition, this);
+	mConnectionDispatch->RegisterMessageCallback(opTutorialServerStatusRequest, this);
 
 	// Update our id
 	mClusterId = gConfig->read<uint32>("ClusterId");
@@ -73,6 +74,7 @@ ServerManager::~ServerManager(void)
 	mConnectionDispatch->UnregisterMessageCallback(opClusterRegisterServer);
 	mConnectionDispatch->UnregisterMessageCallback(opClusterZoneTransferRequestByTicket);
 	mConnectionDispatch->UnregisterMessageCallback(opClusterZoneTransferRequestByPosition);
+	mConnectionDispatch->UnregisterMessageCallback(opTutorialServerStatusRequest);
 
 	_destroyDataBindings();
 }
@@ -223,6 +225,11 @@ void ServerManager::handleDispatchMessage(uint32 opcode,Message* message,Connect
 		}
 		break;
 
+		case opTutorialServerStatusRequest:
+		{
+			_processClusterZoneTutorialTerminal(client,message);
+		}
+
 		default: break;
 	}
 }
@@ -304,6 +311,48 @@ void ServerManager::_processClusterZoneTransferRequestByTicket(ConnectionClient*
     newMessage->setRouted(true);
     mMessageRouter->RouteMessage(newMessage, client);
   }
+}
+
+void ServerManager::_processClusterZoneTutorialTerminal(ConnectionClient* client, Message* message)
+{
+	gLogger->logMsg("Sending Tutorial Status Reply\n");
+
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opTutorialServerStatusReply);
+	gMessageFactory->addUint64(message->getInt64());
+
+	if(mServerAddressMap[16].mConnectionClient)
+		gMessageFactory->addUint8(1);
+	else
+		gMessageFactory->addUint8(0);
+
+	if(mServerAddressMap[8].mConnectionClient)
+		gMessageFactory->addUint8(1);
+	else
+		gMessageFactory->addUint8(0);
+
+	if(mServerAddressMap[15].mConnectionClient)
+		gMessageFactory->addUint8(1);
+	else
+		gMessageFactory->addUint8(0);
+
+	if(mServerAddressMap[14].mConnectionClient)
+		gMessageFactory->addUint8(1);
+	else
+		gMessageFactory->addUint8(0);
+
+	if(mServerAddressMap[13].mConnectionClient)
+		gMessageFactory->addUint8(1);
+	else
+		gMessageFactory->addUint8(0);
+
+	Message* newMessage = gMessageFactory->EndMessage();
+
+	// This one goes back from whence it came
+    newMessage->setAccountId(message->getAccountId());
+    newMessage->setDestinationId(static_cast<uint8>(client->getServerId()));
+    newMessage->setRouted(true);
+    mMessageRouter->RouteMessage(newMessage, client);
 }
 
 //======================================================================================================================

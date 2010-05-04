@@ -177,9 +177,21 @@ bool CombatManager::_verifyCombatState(CreatureObject* attacker, uint64 defender
 		return false;
 	}
 
+	//Do not attack if we are incapped or already dead
+	if (attacker->isIncapacitated() || attacker->isDead())
+	{
+		return false;
+	}
+
 	// make sure we got both objects
 	if (playerAttacker && defender)
 	{
+		//Do not attack if we are mounted
+		if(playerAttacker->checkIfMounted())
+		{
+			return false;
+		}
+
 		// if our target is a player, he must be dueling us or both need to be overt(TODO)
 		if (PlayerObject* defenderPlayer = dynamic_cast<PlayerObject*>(defender))
 		{

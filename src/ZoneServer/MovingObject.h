@@ -36,6 +36,7 @@ class MovingObject : public Object
 
 		// current movement updates sequence
 		uint32		getInMoveCount(){ return mInMoveCount; }
+		uint32		incInMoveCount(){ return ++mInMoveCount; }
 		void		setInMoveCount(uint32 moveCount){ mInMoveCount = moveCount; }
 
 		// walk speed

@@ -2538,12 +2538,14 @@ bool EntertainerManager::approachInstrument(PlayerObject* entertainer, uint64 in
 					if (entertainer->getParentId())
 					{						
 						gMessageLib->sendDataTransformWithParent(entertainer);
+						entertainer->incInMoveCount();
 						gMessageLib->sendUpdateTransformMessageWithParent(entertainer);
 					}
 					else
 					{
 						// We are both outside
 						gMessageLib->sendDataTransform(entertainer);
+						entertainer->incInMoveCount();
 						gMessageLib->sendUpdateTransformMessage(entertainer);
 					}
 				}

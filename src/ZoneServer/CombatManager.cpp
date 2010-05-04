@@ -177,8 +177,8 @@ bool CombatManager::_verifyCombatState(CreatureObject* attacker, uint64 defender
 		return false;
 	}
 
-	//Do not attack if we are incapped or already dead
-	if (attacker->isIncapacitated() || attacker->isDead())
+	//Do not attack if we are incapped or already dead or mounted.
+	if (attacker->isIncapacitated() || attacker->isDead() || playerAttacker->checkIfMounted())
 	{
 		return false;
 	}

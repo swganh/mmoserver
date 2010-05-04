@@ -28,6 +28,7 @@ class DispatchClient;
 class MissionObject;
 class NPCObject;
 class PlayerObject;
+class Buff;
 
 typedef struct tagResourceLocation ResourceLocation;
 
@@ -202,7 +203,7 @@ public:     // methods
 	///  @param[in] mission_id The id of the mission accepted
 	void	missionRequest(PlayerObject* player, uint64 mission_id);
 	void    missionComplete(PlayerObject* player, MissionObject* mission);
-	void	missionCompleteEntertainer(PlayerObject* player);
+	void	missionCompleteEntertainer(PlayerObject* player,Buff* timer);
 	void	missionAbort(PlayerObject* player, uint64 mission_id);
 	void	missionFailed(PlayerObject* player, MissionObject* mission);
 	void	missionFailedEntertainer(PlayerObject* player);
@@ -212,7 +213,7 @@ public:     // methods
 	void	checkMusicianMission(PlayerObject* player);
 	void    checkDancerMission(PlayerObject* player);
 	void    checkSurveyMission(PlayerObject* player,CurrentResource* resource,ResourceLocation highestDist);
-	bool   checkCraftingMission(PlayerObject* player,NPCObject* npc);
+	bool	checkCraftingMission(PlayerObject* player,NPCObject* npc);
 	bool	checkReconMission(MissionObject* mission);
 
 

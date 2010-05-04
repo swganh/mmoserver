@@ -16,6 +16,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Terminal.h"
 #include "WaypointObject.h"
 #include "ZoneOpcodes.h"
+#include "Buff.h"
 
 #include "Common/Message.h"
 #include "Common/MessageFactory.h"
@@ -55,6 +56,7 @@ MissionObject::MissionObject() : Object(0,0,"object/mission/shared_mission_objec
 	mDestinationNPC	 = NULL;
 
 	mInProgress	= false;
+	mEntertainingTimer = NULL;
 }
 
 //=============================================================================

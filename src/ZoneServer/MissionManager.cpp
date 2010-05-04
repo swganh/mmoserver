@@ -595,7 +595,7 @@ return;
 //======================================================================================================================
 
 
-void MissionManager::missionCompleteEntertainer(PlayerObject* player)
+void MissionManager::missionCompleteEntertainer(PlayerObject* player,Buff* timer)
 {
 	Datapad* datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
 	if(datapad->hasMission()) //player has a mission
@@ -604,9 +604,10 @@ void MissionManager::missionCompleteEntertainer(PlayerObject* player)
 		while(it != datapad->getMissions()->end())
 		{
 			MissionObject* mission = dynamic_cast<MissionObject*>(*it);
-			if(mission->getInProgress() == false) { ++it; continue; }
+			if(mission->getInProgress() == false) { ++it; continue; }			
 			if(mission->getMissionType() == dancer || mission->getMissionType() == musician)
 			{
+				//if(mission->getEntertainingTimer() != timer) { ++it; continue; } //check to see if this is the mission who's timer is expiring
                 if(glm::distance(player->mPosition, mission->getDestination().Coordinates) < 20)
 				{
 						missionComplete(player,mission);
@@ -635,6 +636,19 @@ void MissionManager::missionAbort(PlayerObject* player, uint64 mission_id)
 	MissionObject* mission = datapad->getMissionById(mission_id);
 	if(mission)
 	{
+		//If we failed an entertainer mission then we need to remove the timer associated with it.
+		if(mission->getMissionType() == dancer || mission->getMissionType() == musician)
+		{
+			if(mission->getInProgress())
+			{
+				Buff* timer = mission->getEntertainingTimer();
+				player->RemoveBuff(timer);
+				mission->setInProgress(false);			
+				SAFE_DELETE(timer);
+				mission->setEntertainingTimer(NULL);
+			}
+		}
+
 		datapad->removeMission(mission);
 		gMessageLib->sendSystemMessage(player,L"","mission/mission_generic","incomplete");
 		gMessageLib->sendSetWaypointActiveStatus(mission->getWaypoint(),false,player);
@@ -657,6 +671,20 @@ return;
 void MissionManager::missionFailed(PlayerObject* player, MissionObject* mission)
 {
 	gMessageLib->sendSystemMessage(player,L"","mission/mission_generic","failed");
+
+
+	//If we failed an entertainer mission then we need to remove the timer associated with it.
+	if(mission->getMissionType() == dancer || mission->getMissionType() == musician)
+	{
+		if(mission->getInProgress())
+		{
+			Buff* timer = mission->getEntertainingTimer();
+			player->RemoveBuff(timer);
+			mission->setInProgress(false);			
+			SAFE_DELETE(timer);
+			mission->setEntertainingTimer(NULL);
+		}
+	}
 
 	//remove mission
 	gMessageLib->sendSetWaypointActiveStatus(mission->getWaypoint(),false,player);
@@ -768,6 +796,7 @@ void MissionManager::checkMusicianMission(PlayerObject* player)
 					Buff* timer = Buff::SimpleBuff(player, player, 600000, 0, gWorldManager->GetCurrentGlobalTick());
 					timer->AddAttribute(performance_timer);
 					player->AddBuff(timer);
+					mission->setEntertainingTimer(timer);
 					mission->setInProgress(true);
 				}
 			}
@@ -781,7 +810,6 @@ void MissionManager::checkMusicianMission(PlayerObject* player)
 void MissionManager::checkDancerMission(PlayerObject* player)
 {
 	Datapad* datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
-
 	if(datapad->hasMission()) //player has a mission
 	{
 		MissionList::iterator it = datapad->getMissions()->begin();

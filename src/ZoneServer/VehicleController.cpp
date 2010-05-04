@@ -42,7 +42,7 @@ mFlatAcceleration(0),
 mOwner(0)
 {
 	mType		= ObjType_Intangible;
-	mItnoGroup	= ItnoGroup_VehicleController;
+	mItnoGroup	= ItnoGroup_Vehicle;
 	mName		= L"";
 	mBody		= NULL;
 }
@@ -130,7 +130,7 @@ void VehicleController::call()
 	string cust;
 	cust.initRawBSTR((int8*)Swoop_Customization,BSTRType_ANSI);
 	mBody->setCustomizationStr(cust.getAnsi());
-	mBody->setCreoGroup(CreoGroup_VehicleController);
+	mBody->setCreoGroup(CreoGroup_Vehicle);
 	mBody->setTypeOptions(0x1080);
 	mBody->setMoodId(0);
 	mBody->setCL(0);

@@ -41,7 +41,7 @@ enum CreatureGroup
 	CreoGroup_Player		= 2,
 	CreoGroup_Shuttle		= 3,
 	CreoGroup_AttackableObject	= 4,	// Better naming?
-	CreoGroup_VehicleController		= 5
+	CreoGroup_Vehicle		= 5
 };
 
 //=============================================================================
@@ -98,7 +98,7 @@ enum CreaturePosture
 	CreaturePosture_LyingDown			=	7,
 	CreaturePosture_Sitting				=	8,
 	CreaturePosture_SkillAnimating		=	9,
-	CreaturePosture_DrivingVehicleController		=	10,
+	CreaturePosture_DrivingVehicle		=	10,
 	CreaturePosture_RidingCreature		=	11,
 	CreaturePosture_KnockedDown			=	12,
 	CreaturePosture_Incapacitated		=	13,

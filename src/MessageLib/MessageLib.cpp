@@ -554,7 +554,7 @@ bool MessageLib::sendCreatePlayer(PlayerObject* playerObject,PlayerObject* targe
 
 					switch(itno->getItnoGroup())
 					{
-						case ItnoGroup_VehicleController:
+						case ItnoGroup_Vehicle:
 						{
 							// set Owner for VehicleControllers
 							if(VehicleController* controller = dynamic_cast<VehicleController*>(itno))
@@ -628,7 +628,7 @@ bool MessageLib::sendCreateCreature(CreatureObject* creatureObject,PlayerObject*
 	sendBaselinesCREO_3(creatureObject,targetObject);
 	sendBaselinesCREO_6(creatureObject,targetObject);
 
-	if(creatureObject->getParentId() && creatureObject->getCreoGroup() != CreoGroup_VehicleController)
+	if(creatureObject->getParentId() && creatureObject->getCreoGroup() != CreoGroup_Vehicle)
 	{
 		sendContainmentMessage(creatureObject->getId(),creatureObject->getParentId(),0xffffffff,targetObject);
 	}

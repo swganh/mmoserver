@@ -260,7 +260,7 @@ bool WorldManager::addObject(Object* object,bool manual)
 				switch(creature->getCreoGroup())
 				{
 					// moving creature, add to QT
-					case CreoGroup_VehicleController :
+					case CreoGroup_Vehicle :
 					{
 						if(QTRegion* region = mSpatialIndex->getQTRegion(creature->mPosition.x,creature->mPosition.z))
 						{

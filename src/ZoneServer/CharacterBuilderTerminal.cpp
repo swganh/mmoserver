@@ -142,7 +142,7 @@ void CharacterBuilderTerminal::InitItems()
 
 	InitStructures();
 	InitFurniture();
-	InitVehicleControllers();
+	InitVehicles();
 	InitInstruments();
 	InitTools();
 	InitWeapons();
@@ -281,11 +281,11 @@ void CharacterBuilderTerminal::InitFurniture()
 	mCheapMenu.push_back("End Table");
 	mCheapMenu.push_back("Love Seat");
 }
-void CharacterBuilderTerminal::InitVehicleControllers()
+void CharacterBuilderTerminal::InitVehicles()
 {
-	mVehicleControllerMenu.push_back("x34 Landspeeder");
-	mVehicleControllerMenu.push_back("Speederbike");
-	mVehicleControllerMenu.push_back("Swoop");
+	mVehicleMenu.push_back("x34 Landspeeder");
+	mVehicleMenu.push_back("Speederbike");
+	mVehicleMenu.push_back("Swoop");
 }
 void CharacterBuilderTerminal::InitInstruments()
 {
@@ -877,7 +877,7 @@ void CharacterBuilderTerminal::_handleItemMenu(PlayerObject* playerObject, uint3
 	case 2://VehicleControllers
 		if(playerObject->isConnected())
 		{
-			gUIManager->createNewListBox(this,"handleVehicleControllerMenu","VehicleController","Select a category.",mVehicleControllerMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_VehicleControllerMenu);
+			gUIManager->createNewListBox(this,"handleVehicleControllerMenu","VehicleController","Select a category.",mVehicleMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_VehicleMenu);
 		}
 		break;
 	case 3://Instruments
@@ -2218,7 +2218,7 @@ void  CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string
 		case SUI_Window_CharacterBuilder_ListBox_FurnitureMenu:
 			_handleFurnitureMenu(playerObject, action, element, inputStr, window);
 			break;
-		case SUI_Window_CharacterBuilder_ListBox_VehicleControllerMenu:
+		case SUI_Window_CharacterBuilder_ListBox_VehicleMenu:
 			GiveItem(playerObject, 1736+element);
 			break;
 		case SUI_Window_CharacterBuilder_ListBox_InstrumentMenu:

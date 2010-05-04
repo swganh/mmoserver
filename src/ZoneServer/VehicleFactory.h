@@ -35,8 +35,8 @@ enum VehicleControllerQuery
 {
 	VehicleControllerFactoryQuery_Create		= 1,
 	VehicleControllerFactoryQuery_TypesId		= 2,
-	VehicleControllerFactoryQuery_ItnoData	= 3,
-	VehicleControllerFactoryQuery_MainData	= 4,
+	VehicleControllerFactoryQuery_ItnoData		= 3,
+	VehicleControllerFactoryQuery_MainData		= 4,
 	VehicleControllerFactoryQuery_Attributes	= 5
 };
 
@@ -54,7 +54,7 @@ class VehicleControllerFactory : public FactoryBase, public ObjectFactoryCallbac
 		virtual void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
 		virtual void			handleObjectReady(Object* object,DispatchClient* client);
 		void					requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
-		void					createVehicleController(uint32 VehicleController_type,PlayerObject* targetPlayer);
+		void					createVehicleController(uint32 Vehicle_type,PlayerObject* targetPlayer);
 
 
 	private:

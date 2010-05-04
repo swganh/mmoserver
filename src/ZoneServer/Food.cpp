@@ -114,14 +114,14 @@ void Food::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 void Food::handleFoodUse(Object* srcObject)
 {
 	toDelete = true;
-
+    
 	PlayerObject* playerObject = dynamic_cast<PlayerObject*>(srcObject);
 	if(!playerObject)
 	{
 		return;
 	}
 
-	if(playerObject->isDead() || !playerObject->getHam()->checkMainPools(1, 1, 1))
+	if (playerObject->isDead() || playerObject->isIncapacitated())
 	{
 		return;
 	}

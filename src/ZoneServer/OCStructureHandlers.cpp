@@ -973,7 +973,7 @@ void	ObjectController::_handleItemMoveForward(uint64 targetId,Message* message,O
 	}
     
     // Move the object forward 1/10th of a meter.
-    object->moveForward(player->mDirection, 0.10f);
+    object->move(player->mDirection, 0.10f);
     	
 	gMessageLib->sendDataTransformWithParent(object);
 	object->updateWorldPosition();
@@ -1139,7 +1139,7 @@ void	ObjectController::_handleItemMoveBack(uint64 targetId,Message* message,Obje
 	}
 
     // Move the object back 1/10th of a meter.
-    object->moveBack(player->mDirection, 0.10f);
+    object->move(player->mDirection, -0.10f);
 
 	gMessageLib->sendDataTransformWithParent(object);
 	object->updateWorldPosition();

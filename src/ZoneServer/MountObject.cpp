@@ -41,12 +41,12 @@ void MountObject::prepareCustomRadialMenu(CreatureObject* creature, uint8 item_c
 
     // Check to see if the player is mounted or not and display the appropriate exit/enter option.
     if(player->checkIfMounted())	{
-      mRadialMenu->addItem(2, 0, radId_serverVehicleControllerExit,radAction_Default, "@pet/pet_menu:menu_exit");
+      mRadialMenu->addItem(2, 0, radId_serverVehicleExit,radAction_Default, "@pet/pet_menu:menu_exit");
     }	else {
-		  mRadialMenu->addItem(2, 0, radId_serverVehicleControllerEnter,radAction_Default, "@pet/pet_menu:menu_enter");
+		  mRadialMenu->addItem(2, 0, radId_serverVehicleEnter,radAction_Default, "@pet/pet_menu:menu_enter");
     }
     
-    mRadialMenu->addItem(3, 0, radId_VehicleControllerStore,radAction_ObjCallback, "@pet/pet_menu:menu_store");
+    mRadialMenu->addItem(3, 0, radId_VehicleStore,radAction_ObjCallback, "@pet/pet_menu:menu_store");
 
     // @TODO: Check if near a garage then add repair
   }
@@ -74,7 +74,7 @@ void MountObject::handleObjectMenuSelect(uint8 message_type, Object* source_obje
 
 	switch (message_type) 
 	{
-		case radId_VehicleControllerStore:
+		case radId_VehicleStore:
 		{	
 			if(Datapad* datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad))) 
 			{			
@@ -86,8 +86,8 @@ void MountObject::handleObjectMenuSelect(uint8 message_type, Object* source_obje
       }
     break;
 
-    case radId_serverVehicleControllerEnter:
-    case radId_serverVehicleControllerExit:
+    case radId_serverVehicleEnter:
+    case radId_serverVehicleExit:
       {
 				gLogger->logErrorF("radials", "MountObject::handleObjectMenuSelect - still in radial selection", MSG_NORMAL);
       }

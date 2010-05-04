@@ -66,8 +66,8 @@ void VehicleController::handleObjectMenuSelect(uint8 messageType,Object* srcObje
 	{
 		switch(messageType)
 		{
-			case radId_VehicleControllerGenerate:
-			case radId_VehicleControllerStore:
+			case radId_VehicleGenerate:
+			case radId_VehicleStore:
 			{
         // If a body for the VehicleController exists then store it, if it doesn't then call it.
         if (mBody) {
@@ -93,7 +93,7 @@ void VehicleController::prepareCustomRadialMenu(CreatureObject* creatureObject, 
 {
   mRadialMenu.reset(new RadialMenu());
   
-	mRadialMenu->addItem(1, 0, radId_VehicleControllerGenerate, radAction_ObjCallback, "@pet/pet_menu:menu_call");
+	mRadialMenu->addItem(1, 0, radId_VehicleGenerate, radAction_ObjCallback, "@pet/pet_menu:menu_call");
 	mRadialMenu->addItem(2, 0, radId_itemDestroy, radAction_Default);
 	mRadialMenu->addItem(3, 0, radId_examine, radAction_Default);
 }

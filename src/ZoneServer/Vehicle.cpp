@@ -117,8 +117,7 @@ void Vehicle::call()
 
 	}
 
-	if(!mOwner->isConnected() || mOwner->isDead() || !mOwner->getHam()->checkMainPools(1,1,1))
-	{
+	if(!mOwner->isConnected() || mOwner->isDead() || mOwner->isIncapacitated()) {
 		return;
 	}
 

@@ -182,6 +182,7 @@ bool WorldManager::addObject(Object* object,bool manual)
 			// add ham to regeneration scheduler
 			player->getHam()->updateRegenRates();	// ERU: Note sure if this is needed here.
 			player->getHam()->checkForRegen();
+			player->getStomach()->checkForRegen();
 
 			// onPlayerEntered event, notify scripts
 			string params;

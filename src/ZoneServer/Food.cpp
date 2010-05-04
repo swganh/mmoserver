@@ -22,12 +22,15 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include "Utils/clock.h"
 
+#include <iostream>
+
 //=============================================================================
 
 Food::Food() : Item()
 {
 	toDelete = false;
-	
+	mDuration=0;
+	mBuff = 0;
 }
 
 //=============================================================================
@@ -124,17 +127,25 @@ void Food::handleFoodUse(Object* srcObject)
 	//we need to start by checking whether our stomach isnt full
 
 	//we need to update our stomach
-	uint32 filling = 0;
+	float filling = 0;
 
 	if(this->hasInternalAttribute("food_icon"))
 	{
 		mIcon = 0;
 		mIcon = this->getInternalAttribute<uint32>("food_icon");					
+	} else {
+		gLogger->logMsg("Food/Drink found with no Buff Icon in food.cpp: handleFoodUse()");
+	}
+
+	if(this->hasAttribute("counter_uses_remaining"))
+	{
+		_handleUses_Remaining(playerObject);
 	}
 
 	if(this->hasAttribute("stomach_food"))
 	{
-		filling = this->getAttribute<uint32>("stomach_food");					
+
+		filling = this->getAttribute<float>("stomach_food");					
 		
 		//do we still have place for it ?
 		if(!playerObject->getStomach()->checkFood(filling))
@@ -145,22 +156,15 @@ void Food::handleFoodUse(Object* srcObject)
 		
 		gMessageLib->sendSysMsg(playerObject, "base_player","prose_consume_item",NULL,this);
 
-		//get a stomach Buff to handle the filling
-		BuffAttribute* foodAttribute = new BuffAttribute(Food_Filling, +filling,0,-(int)filling); 
-		Buff* foodBuff = Buff::SimpleBuff(playerObject, playerObject, 300000, 0, gWorldManager->GetCurrentGlobalTick());
-		foodBuff->AddAttribute(foodAttribute);	
-		playerObject->AddBuff(foodBuff,true);
+		playerObject->getStomach()->incFood(filling);
 
-		gMessageLib->sendPlayClientEffectLocMessage(gWorldManager->getClientEffect(548),playerObject->mPosition,playerObject);
-		
-		//gMessageLib->cli
-		
+		gMessageLib->sendPlayClientEffectLocMessage(gWorldManager->getClientEffect(548),playerObject->mPosition,playerObject);	
 	}
 
 	if(this->hasAttribute("stomach_drink"))
 	{
-		uint32 filling = 0;
-		filling = this->getAttribute<uint32>("stomach_drink");					
+		float filling = 0;
+		filling = this->getAttribute<float>("stomach_drink");					
 		
 		//do we still have place for it ?
 		if(!playerObject->getStomach()->checkDrink(filling))
@@ -170,13 +174,9 @@ void Food::handleFoodUse(Object* srcObject)
 		}
 
 		gMessageLib->sendSysMsg(playerObject, "base_player","prose_consume_item",NULL,this);
-
-		//get a stomach Buff to handle the filling
-		BuffAttribute* foodAttribute = new BuffAttribute(Drink_Filling, +filling,0,-(int)filling); 
-		Buff* foodBuff = Buff::SimpleBuff(playerObject, playerObject, 300000, 0, gWorldManager->GetCurrentGlobalTick());
-		foodBuff->AddAttribute(foodAttribute);	
-		playerObject->AddBuff(foodBuff,true);
 		
+		playerObject->getStomach()->incDrink(filling);
+	
 		if(playerObject->getGender())
 		{
 			gMessageLib->sendPlayMusicMessage(WMSound_Drink_Human_Female,playerObject);
@@ -187,26 +187,15 @@ void Food::handleFoodUse(Object* srcObject)
 		}
 
 	}
-
-
-	AttributeOrderList::iterator	orderIt = mAttributeOrderList.begin();
-
-	while(orderIt != mAttributeOrderList.end())
+	if(this->hasAttribute("duration"))
 	{
-		uint32 key = *orderIt;
-
-		FoodCommandMap::iterator it = gFoodCmdMap.find(key);
-
-		if(it != gFoodCmdMap.end())
-		{
-			(this->*((*it).second))(playerObject);
-		}
-		else
-		{
-			//gLogger->logMsgF("Food::processAttribute: Unhandled Attribute 0x%x for %"PRIu64"",MSG_NORMAL,key,this->getId());
-		
-		}
-		++orderIt;
+		mDuration= static_cast<uint32>(this->getAttribute<float>("duration"));
+	}
+	if(mDuration >0)
+	{
+		_handleBuff(playerObject);
+	} else {
+		_handleInstant(playerObject);
 	}
 
 	//when empty delete
@@ -223,51 +212,90 @@ void Food::handleFoodUse(Object* srcObject)
 		uint64 now = Anh_Utils::Clock::getSingleton()->getLocalTime();
 		playerObject->getController()->addEvent(new ItemDeleteEvent(now+100,this->getId()),100);
 		return;
-
 	}
 		
 	return;
 }
-
-void Food::_handleHealth_Buff(PlayerObject* playerObject)
+void Food::_handleInstant(PlayerObject* playerObject)
 {
-	uint32 amount = static_cast<uint32>(this->getAttribute<float>("attr_health"));
-	uint32 duration = 0;
-	if(this->hasAttribute("duration"))
-	{
-		duration = static_cast<uint32>(this->getAttribute<float>("duration"));
-		//get a stomach Buff to handle the filling
-		BuffAttribute* foodAttribute = new BuffAttribute(Health, +amount,0,-(int)amount); 
-		Buff* foodBuff = Buff::SimpleBuff(playerObject, playerObject, duration*1000, mIcon, gWorldManager->GetCurrentGlobalTick());
-		foodBuff->AddAttribute(foodAttribute);	
-		playerObject->AddBuff(foodBuff,true);
-	}
-	else
-	{
-		playerObject->getHam()->updatePropertyValue(HamBar_Health,HamProperty_CurrentHitpoints,amount);
-		
-	}
+	gMessageLib->sendSystemMessage(playerObject, "Sorry but instant use food has not been setup yet. Go kick a dev. Food::_handleInstant");
 }
-
-void Food::_handleMind_Buff(PlayerObject* playerObject)
+void Food::_handleBuff(PlayerObject* playerObject)
 {
-	uint32 amount = static_cast<uint32>(this->getAttribute<float>("attr_health"));
-	uint32 duration = 0;
-	if(this->hasAttribute("duration"))
+	mBuff = Buff::SimpleBuff(playerObject, playerObject, mDuration*1000, mIcon, gWorldManager->GetCurrentGlobalTick());
+
+	AttributeMap::iterator it = mAttributeMap.begin();
+
+	while(it != mAttributeMap.end())
 	{
-		duration = static_cast<uint32>(this->getAttribute<float>("duration"));
-		//get a stomach Buff to handle the filling
-		BuffAttribute* foodAttribute = new BuffAttribute(Mind, +amount,0,-(int)amount); 
-		Buff* foodBuff = Buff::SimpleBuff(playerObject, playerObject, duration*1000, mIcon, gWorldManager->GetCurrentGlobalTick());
-		foodBuff->AddAttribute(foodAttribute);	
-		playerObject->AddBuff(foodBuff,true);
+		uint32 amount = 0;
+		try
+		{
+			amount =static_cast<uint32>(boost::lexical_cast<float>(it->second));
+			BuffAttribute* foodAttribute = new BuffAttribute(it->first, +(int)amount,0,-(int)amount); 
+			mBuff->AddAttribute(foodAttribute);	
+		}
+		catch(boost::bad_lexical_cast &)
+		{
+			//skip past as these are attributes we don't want to handle (such as string names etc)
+		}
+
+		++it;
 	}
-	else
-	{
-		playerObject->getHam()->updatePropertyValue(HamBar_Health,HamProperty_CurrentHitpoints,amount);
-		
-	}
+
+	playerObject->AddBuff(mBuff,true);
 }
+//void Food::_handleMask_Scent_Buff(PlayerObject* playerObject)
+//{
+//	uint32 amount = static_cast<uint32>(this->getAttribute<float>("bio_comp_mask_scent"));
+//	uint32 duration = static_cast<uint32>(this->getAttribute<float>("duration"));
+//
+//	Buff* foodBuff = Buff::SimpleBuff(playerObject, playerObject, duration*1000, mIcon, gWorldManager->GetCurrentGlobalTick());
+//	
+//	BuffAttribute* foodAttribute = new BuffAttribute(mask_scent, +amount,0,-(int)amount); 
+//	foodBuff->AddAttribute(foodAttribute);	
+//
+//	playerObject->AddBuff(foodBuff,true);
+//}
+//void Food::_handleHealth_Buff(PlayerObject* playerObject)
+//{
+//	uint32 amount = static_cast<uint32>(this->getAttribute<float>("attr_health"));
+//	uint32 duration = 0;
+//	if(this->hasAttribute("duration"))
+//	{
+//		duration = static_cast<uint32>(this->getAttribute<float>("duration"));
+//		//get a stomach Buff to handle the filling
+//		BuffAttribute* foodAttribute = new BuffAttribute(health, +amount,0,-(int)amount); 
+//		Buff* foodBuff = Buff::SimpleBuff(playerObject, playerObject, duration*1000, mIcon, gWorldManager->GetCurrentGlobalTick());
+//		foodBuff->AddAttribute(foodAttribute);	
+//		playerObject->AddBuff(foodBuff,true);
+//	}
+//	else
+//	{
+//		playerObject->getHam()->updatePropertyValue(HamBar_Health,HamProperty_CurrentHitpoints,amount);
+//		
+//	}
+//}
+//
+//void Food::_handleMind_Buff(PlayerObject* playerObject)
+//{
+//	uint32 amount = static_cast<uint32>(this->getAttribute<float>("attr_health"));
+//	uint32 duration = 0;
+//	if(this->hasAttribute("duration"))
+//	{
+//		duration = static_cast<uint32>(this->getAttribute<float>("duration"));
+//		//get a stomach Buff to handle the filling
+//		BuffAttribute* foodAttribute = new BuffAttribute(mind, +amount,0,-(int)amount); 
+//		Buff* foodBuff = Buff::SimpleBuff(playerObject, playerObject, duration*1000, mIcon, gWorldManager->GetCurrentGlobalTick());
+//		foodBuff->AddAttribute(foodAttribute);	
+//		playerObject->AddBuff(foodBuff,true);
+//	}
+//	else
+//	{
+//		playerObject->getHam()->updatePropertyValue(HamBar_Health,HamProperty_CurrentHitpoints,amount);
+//		
+//	}
+//}
 
 void Food::_handleUses_Remaining(PlayerObject* playerObject)
 {
@@ -310,9 +338,10 @@ FoodCommandMapClass* FoodCommandMapClass::Init()
 
 FoodCommandMapClass::FoodCommandMapClass()
 {
-	mCommandMap.insert(std::make_pair(opAttributeUses_Remaining,&Food::_handleUses_Remaining));
+	/*mCommandMap.insert(std::make_pair(opAttributeUses_Remaining,&Food::_handleUses_Remaining));
 	mCommandMap.insert(std::make_pair(opAttributeAttr_Health,&Food::_handleHealth_Buff));
 	mCommandMap.insert(std::make_pair(opAttributeAttr_Mind,&Food::_handleMind_Buff));
+	mCommandMap.insert(std::make_pair(BString::CRC("mask_scent"),&Food::_handleMask_Scent_Buff));*/
 	
 	
 }

@@ -106,7 +106,7 @@ PlayerObject::PlayerObject()
 	mIsForaging			= false;
 	mType				= ObjType_Player;
 	mCreoGroup			= CreoGroup_Player;
-	mStomach			= new Stomach();
+	mStomach			= new Stomach(this);
 	mMarriage			= L"";					// Unmarried
 	mTrade				= new Trade(this);
 
@@ -156,8 +156,12 @@ PlayerObject::~PlayerObject()
 	// remove any timers we got running
 	gWorldManager->removeObjControllerToProcess(mObjectController.getTaskId());
 	gWorldManager->removeCreatureHamToProcess(mHam.getTaskId());
+	gWorldManager->removeCreatureStomachToProcess(mStomach->mDrinkTaskId);
+	gWorldManager->removeCreatureStomachToProcess(mStomach->mFoodTaskId);
 	mObjectController.setTaskId(0);
 	mHam.setTaskId(0);
+	mStomach->mFoodTaskId = 0;
+	mStomach->mDrinkTaskId = 0;
 
 	// remove player from movement update timer.
 	gWorldManager->removePlayerMovementUpdateTime(this);

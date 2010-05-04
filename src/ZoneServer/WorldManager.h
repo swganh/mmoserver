@@ -54,6 +54,7 @@ class ZoneServer;
 class Ham;
 class Buff;
 class MissionObject;
+class Stomach;
 
 //======================================================================================================================
 
@@ -190,6 +191,12 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		// adds a creatures commandqueue to the main process queue
 		uint64					addObjControllerToProcess(ObjectController* objController);
 		void					removeObjControllerToProcess(uint64 taskId);
+
+		// adds a creatures stomach which needs regeneration
+		uint64					addCreatureDrinkToProccess(Stomach* stomach);
+		uint64					addCreatureFoodToProccess(Stomach* stomach);
+		void					removeCreatureStomachToProcess(uint64 taskId);
+		bool					checkStomachTask(uint64 id);
 
 		// adds a creatures ham which needs regeneration
 		uint64					addCreatureHamToProccess(Ham* ham);
@@ -447,6 +454,7 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		Anh_Utils::Scheduler*		mEntertainerScheduler;
 		Anh_Utils::Scheduler*		mScoutScheduler;
 		Anh_Utils::Scheduler*		mHamRegenScheduler;
+		Anh_Utils::Scheduler*		mStomachFillingScheduler;
 		Anh_Utils::Scheduler*		mMissionScheduler;
 		Anh_Utils::Scheduler*		mNpcManagerScheduler;
 		Anh_Utils::Scheduler*		mObjControllerScheduler;

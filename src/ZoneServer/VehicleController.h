@@ -19,7 +19,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 class IntangibleObject;
 class Creatureobject;
 
-//This reflects the VehicleController types id from the database
+//This reflects the Vehicle types id from the database
 enum Vehicle_types
 {
 

@@ -134,7 +134,7 @@ void CharacterBuilderTerminal::InitItems()
 {
 	mItemMenu.push_back("Structures");
 	mItemMenu.push_back("Furniture");
-	mItemMenu.push_back("VehicleControllers");
+	mItemMenu.push_back("Vehicles");
 	mItemMenu.push_back("Instruments");
 	mItemMenu.push_back("Tools");
 	mItemMenu.push_back("Weapons");
@@ -874,10 +874,10 @@ void CharacterBuilderTerminal::_handleItemMenu(PlayerObject* playerObject, uint3
 			gUIManager->createNewListBox(this,"handleFurnitureMenu","Furniture","Select a category.",mFurnitureMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_FurnitureMenu);
 		}
 		break;
-	case 2://VehicleControllers
+	case 2://Vehicles
 		if(playerObject->isConnected())
 		{
-			gUIManager->createNewListBox(this,"handleVehicleControllerMenu","VehicleController","Select a category.",mVehicleMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_VehicleMenu);
+			gUIManager->createNewListBox(this,"handleVehicleMenu","Vehicle","Select a category.",mVehicleMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_VehicleMenu);
 		}
 		break;
 	case 3://Instruments

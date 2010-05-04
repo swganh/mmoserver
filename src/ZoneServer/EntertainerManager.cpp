@@ -2216,6 +2216,13 @@ void EntertainerManager::handleObjectReady(Object* object,DispatchClient* client
 //=======================================================================================================================
 bool EntertainerManager::handleStartBandIndividual(PlayerObject* performer, string performance)
 {
+
+	//we cant start performing when were about to log out!
+	if(performer->getConnectionState() != PlayerConnState_Connected)
+	{
+		return false;
+	}
+
 	SkillCommandList*	entertainerSkillCommands = performer->getSkillCommands();
 	SkillCommandList::iterator entertainerIt = entertainerSkillCommands->begin();
 

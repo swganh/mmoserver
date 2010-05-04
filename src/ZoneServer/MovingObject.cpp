@@ -11,6 +11,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include "MovingObject.h"
 
+#include <glm/gtx/transform2.hpp>
+
 //=============================================================================
 
 MovingObject::MovingObject()
@@ -40,16 +42,20 @@ MovingObject::~MovingObject()
 
 void MovingObject::faceObject(Object* object_to_face)
 {	
-	// Build the direction vector between the object to face and us.
-	glm::vec3 direction = glm::normalize(object_to_face->mPosition - mPosition);
+    // Create a mirror direction vector for the direction we want to face.
+    glm::vec3 direction_vector = glm::normalize(object_to_face->mPosition - mPosition);
+    direction_vector.x = -direction_vector.x;
 
-	// Build the vectors needed for the direction matrix (used to create the quaternion).
-	glm::vec3 up(0.0f, 1.0f, 0.0f);					// Y is the default up direction
-	glm::vec3 right = glm::cross(up, direction);	// The perpendicular vector to up and direction
-	up = glm::cross(direction, right);				// The true up vector
+    // Create a lookat matrix from the direction vector and convert it to a quaternion.
+    mDirection = glm::toQuat(glm::lookAt(
+        direction_vector, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)
+        ));
 
-	// Calculate the quaternion from the given matrix.
-	mDirection = glm::normalize(glm::toQuat(glm::mat3(right, up, direction)));
+    // If in the 3rd quadrant the signs need to be flipped.
+    if (mDirection.y <= 0.0f && mDirection.w >= 0.0f) {
+        mDirection.y = -mDirection.y;
+        mDirection.w = -mDirection.w;
+    }
 }
 
 //=============================================================================

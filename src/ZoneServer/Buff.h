@@ -81,6 +81,7 @@ public:
 	void setTarget(CreatureObject* creature);
 	void EraseAttributes();
 	bool GetIsMarkedForDeletion();
+	void MarkForDeletion(){mMarkedForDeletion=true;}
 
 	//mID is the process ID for the timer
 	uint64 GetID();

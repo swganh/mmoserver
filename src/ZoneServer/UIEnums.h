@@ -93,7 +93,7 @@ enum ui_window_types
 	//2nd level menus
 	SUI_Window_CharacterBuilder_ListBox_StructureMenu=53,
 	SUI_Window_CharacterBuilder_ListBox_FurnitureMenu=54,
-	SUI_Window_CharacterBuilder_ListBox_VehicleMenu=55,
+	SUI_Window_CharacterBuilder_ListBox_VehicleControllerMenu=55,
 	SUI_Window_CharacterBuilder_ListBox_InstrumentMenu=56,
 	SUI_Window_CharacterBuilder_ListBox_ToolMenu=57,
 	SUI_Window_CharacterBuilder_ListBox_WeaponMenu=58,

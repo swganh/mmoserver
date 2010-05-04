@@ -9,8 +9,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
-#ifndef ANH_ZONESERVER_VEHICLE_H
-#define ANH_ZONESERVER_VEHICLE_H
+#ifndef ANH_ZONESERVER_VehicleController_H
+#define ANH_ZONESERVER_VehicleController_H
 
 #include "IntangibleObject.h"
 #include "MountObject.h"
@@ -19,31 +19,31 @@ Copyright (c) 2006 - 2010 The swgANH Team
 class IntangibleObject;
 class Creatureobject;
 
-//This reflects the vehicle types id from the database
-enum vehicle_types
+//This reflects the VehicleController types id from the database
+enum VehicleController_types
 {
 
-	VehicleType_JetPack				= 1,
-	VehicleType_LandSpeeder_av21	= 2,
-	VehicleType_LandSpeeder_base	= 3,
-	VehicleType_LandSpeeder_x31		= 4,
-	VehicleType_LandSpeeder_x34		= 5,
-	VehicleType_LandSpeeder_xp38	= 6,
-	VehicleType_SpeederBike			= 7,
-	VehicleType_SpeederBike_base	= 8,
-	VehicleType_SpeederBike_flash	= 9,
-	VehicleType_SpeederBike_swoop	= 10,
-	VehicleType_shared				= 11
+	VehicleControllerType_JetPack				= 1,
+	VehicleControllerType_LandSpeeder_av21	= 2,
+	VehicleControllerType_LandSpeeder_base	= 3,
+	VehicleControllerType_LandSpeeder_x31		= 4,
+	VehicleControllerType_LandSpeeder_x34		= 5,
+	VehicleControllerType_LandSpeeder_xp38	= 6,
+	VehicleControllerType_SpeederBike			= 7,
+	VehicleControllerType_SpeederBike_base	= 8,
+	VehicleControllerType_SpeederBike_flash	= 9,
+	VehicleControllerType_SpeederBike_swoop	= 10,
+	VehicleControllerType_shared				= 11
 };
 
 
-class Vehicle : public IntangibleObject
+class VehicleController : public IntangibleObject
 {
-	friend class VehicleFactory;
+	friend class VehicleControllerFactory;
 
 public:
-	Vehicle();
-	~Vehicle();
+	VehicleController();
+	~VehicleController();
 
 	int		getTypesId() { return mTypesId; }
 	void	setTypesId(int types_id) { mTypesId = types_id; }

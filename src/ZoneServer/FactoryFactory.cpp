@@ -32,7 +32,7 @@ weapons = 1
 armor = 2
 food 4
 clothing 8
-vehicle 16
+VehicleController 16
 droid 32
 chemical 64
 tissue 128

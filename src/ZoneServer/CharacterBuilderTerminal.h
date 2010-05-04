@@ -46,7 +46,7 @@ private:
 	void InitItems();
 	void InitStructures();
 	void InitFurniture();
-	void InitVehicles();
+	void InitVehicleControllers();
 	void InitInstruments();
 	void InitTools();
 	void InitWeapons();
@@ -69,7 +69,7 @@ private:
 	void _handleResourceMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
 	void _handleStructureMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
 	void _handleFurnitureMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handleVehicleMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
+	void _handleVehicleControllerMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
 	void _handleInstrumentMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
 	void _handleToolMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
 	void _handleWeaponMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
@@ -133,7 +133,7 @@ private:
 	//2nd level menus
 	BStringVector			mStructureMenu;
 	BStringVector			mFurnitureMenu;
-	BStringVector			mVehicleMenu;
+	BStringVector			mVehicleControllerMenu;
 	BStringVector			mInstrumentMenu;
 	BStringVector			mToolMenu;
 	BStringVector			mWeaponMenu;

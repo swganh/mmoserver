@@ -11,7 +11,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include "MountObject.h"
 #include "Datapad.h"
-#include "Vehicle.h"
+#include "VehicleController.h"
 #include "PlayerObject.h"
 
 //=============================================================================
@@ -41,12 +41,12 @@ void MountObject::prepareCustomRadialMenu(CreatureObject* creature, uint8 item_c
 
     // Check to see if the player is mounted or not and display the appropriate exit/enter option.
     if(player->checkIfMounted())	{
-      mRadialMenu->addItem(2, 0, radId_serverVehicleExit,radAction_Default, "@pet/pet_menu:menu_exit");
+      mRadialMenu->addItem(2, 0, radId_serverVehicleControllerExit,radAction_Default, "@pet/pet_menu:menu_exit");
     }	else {
-		  mRadialMenu->addItem(2, 0, radId_serverVehicleEnter,radAction_Default, "@pet/pet_menu:menu_enter");
+		  mRadialMenu->addItem(2, 0, radId_serverVehicleControllerEnter,radAction_Default, "@pet/pet_menu:menu_enter");
     }
     
-    mRadialMenu->addItem(3, 0, radId_vehicleStore,radAction_ObjCallback, "@pet/pet_menu:menu_store");
+    mRadialMenu->addItem(3, 0, radId_VehicleControllerStore,radAction_ObjCallback, "@pet/pet_menu:menu_store");
 
     // @TODO: Check if near a garage then add repair
   }
@@ -66,24 +66,28 @@ void MountObject::handleObjectMenuSelect(uint8 message_type, Object* source_obje
   assert(player && "MountObject::handleObjectMenuSelect - Menu selection requested from a non-player object.");
 
   // In release mode asserts don't trigger so an additional check is needed.
-	if(! player) {
+	if(! player) 
+	{
 		gLogger->logErrorF("radials", "MountObject::handleObjectMenuSelect - Menu selection requested from a non-player object", MSG_NORMAL);
 		return;
 	}
 
-  switch (message_type) {
-    case radId_vehicleStore:
-      {
-				if(Datapad* datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad))) {			
-          if(Vehicle* vehicle = dynamic_cast<Vehicle*>(datapad->getDataById(mId-1)))	{
-            vehicle->store();
-          }
+	switch (message_type) 
+	{
+		case radId_VehicleControllerStore:
+		{	
+			if(Datapad* datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad))) 
+			{			
+				if(VehicleController* controller = dynamic_cast<VehicleController*>(datapad->getDataById(getPetController())))	
+				{
+					controller->store();
 				}
+			}
       }
     break;
 
-    case radId_serverVehicleEnter:
-    case radId_serverVehicleExit:
+    case radId_serverVehicleControllerEnter:
+    case radId_serverVehicleControllerExit:
       {
 				gLogger->logErrorF("radials", "MountObject::handleObjectMenuSelect - still in radial selection", MSG_NORMAL);
       }

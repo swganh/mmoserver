@@ -24,7 +24,7 @@ class PlayerObject;
 enum IntangibleGroup
 {
 	ItnoGroup_None					= 0,
-	ItnoGroup_Vehicle				= 1,
+	ItnoGroup_VehicleController				= 1,
 	ItnoGroup_Mount					= 2,
 	ItnoGroup_Pet					= 3,
 	ItnoGroup_Droid					= 4
@@ -33,7 +33,7 @@ enum IntangibleGroup
 class IntangibleObject : public Object
 {
 	friend class ObjectFactory;
-	friend class VehicleFactory;
+	friend class VehicleControllerFactory;
 
 public:
 		IntangibleObject();

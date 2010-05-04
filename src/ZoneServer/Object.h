@@ -216,6 +216,12 @@ class Object : public UICallback, public Anh_Utils::EventHandler
          */
         void moveBack(float distance);
 
+		/*! Moves an object to a certain 
+         *
+         * \param distance The distance to move (measured in meters).
+         */
+        //void moveBack(float distance);
+
         glm::quat   mDirection;
         glm::vec3   mPosition;
 		//Anh_Math::Quaternion	mDirection;

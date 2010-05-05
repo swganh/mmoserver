@@ -319,29 +319,29 @@ void ServerManager::_processClusterZoneTutorialTerminal(ConnectionClient* client
 
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opTutorialServerStatusReply);
-	gMessageFactory->addUint64(message->getInt64());
+	gMessageFactory->addUint64(message->getUint64());
 
-	if(mServerAddressMap[16].mConnectionClient)
+	if(mServerAddressMap[16].mStatus == 2)
 		gMessageFactory->addUint8(1);
 	else
 		gMessageFactory->addUint8(0);
 
-	if(mServerAddressMap[8].mConnectionClient)
+	if(mServerAddressMap[8].mStatus == 2)
 		gMessageFactory->addUint8(1);
 	else
 		gMessageFactory->addUint8(0);
 
-	if(mServerAddressMap[15].mConnectionClient)
+	if(mServerAddressMap[15].mStatus == 2)
 		gMessageFactory->addUint8(1);
 	else
 		gMessageFactory->addUint8(0);
 
-	if(mServerAddressMap[14].mConnectionClient)
+	if(mServerAddressMap[14].mStatus == 2)
 		gMessageFactory->addUint8(1);
 	else
 		gMessageFactory->addUint8(0);
 
-	if(mServerAddressMap[13].mConnectionClient)
+	if(mServerAddressMap[13].mStatus == 2)
 		gMessageFactory->addUint8(1);
 	else
 		gMessageFactory->addUint8(0);

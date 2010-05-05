@@ -84,7 +84,6 @@ void ObjectController::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 				ourHam->setTargetStatValue(HamBar_Mind,theTargets.TargetMind);
 				ourHam->setTargetStatValue(HamBar_Focus,theTargets.TargetFocus);
 				ourHam->setTargetStatValue(HamBar_Willpower,theTargets.TargetWillpower);
-
 			}
 
 			mDatabase->DestroyDataBinding(binding);

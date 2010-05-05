@@ -264,15 +264,23 @@ void TravelMapHandler::_processTutorialTravelList(Message* message, DispatchClie
 {
 	PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(message->getUint64()));
 
+
+	//Why do we do this? Because I spent 2 days trying to get it work to discover it was call order.
+	uint8 tatooine	= message->getUint8();
+	uint8 corellia	= message->getUint8();
+	uint8 talus		= message->getUint8();
+	uint8 rori		= message->getUint8();
+	uint8 naboo		= message->getUint8();
+
 	if(player)
 	{
 		gMessageLib->sendStartingLocationList(
 			player,
-			message->getUint8(), //Tatooine
-			message->getUint8(), //Corellia
-			message->getUint8(), //Talus
-			message->getUint8(), //Rori
-			message->getUint8()  //Naboo
+			tatooine, //Tatooine
+			corellia, //Corellia
+			talus, //Talus
+			rori, //Rori
+			naboo  //Naboo
 			);
 	}
 }

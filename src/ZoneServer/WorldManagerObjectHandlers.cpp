@@ -141,6 +141,7 @@ bool WorldManager::addObject(Object* object,bool manual)
 		{
 
 			PlayerObject* player = dynamic_cast<PlayerObject*>(object);
+
 			gLogger->logMsgF("New Player: %"PRIu64", Total Players on zone : %i",MSG_NORMAL,player->getId(),(getPlayerAccMap())->size() + 1);
 			// insert into the player map
 			mPlayerAccMap.insert(std::make_pair(player->getAccountId(),player));

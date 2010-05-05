@@ -1088,6 +1088,71 @@ void ObjectController::_handleRequestStatMigrationData(uint64 targetId,Message* 
 	ObjControllerAsyncContainer* asyncContainer;
 	asyncContainer = new ObjControllerAsyncContainer(OCQuery_Nope);
 	mDatabase->ExecuteProcedureAsync(this,asyncContainer,sql);
+
+	//We need to check to see if we're in the tutorial. If so these changes are INSTANT!
+	if(gWorldConfig->isTutorial())
+	{
+		Ham* pHam = we->getHam();
+		uint32 currentAmount = pHam->getTotalHamCount();
+
+		uint32 nextAmount = pHam->getTargetStatValue(HamBar_Health);
+		nextAmount += pHam->getTargetStatValue(HamBar_Strength);
+		nextAmount += pHam->getTargetStatValue(HamBar_Constitution);
+		nextAmount += pHam->getTargetStatValue(HamBar_Action);
+		nextAmount += pHam->getTargetStatValue(HamBar_Quickness);
+		nextAmount += pHam->getTargetStatValue(HamBar_Stamina);
+		nextAmount += pHam->getTargetStatValue(HamBar_Mind);
+		nextAmount += pHam->getTargetStatValue(HamBar_Focus);
+		nextAmount += pHam->getTargetStatValue(HamBar_Willpower);
+
+		if(currentAmount == nextAmount)
+		{
+			int32 value;
+			
+			value = pHam->getTargetStatValue(HamBar_Health) - pHam->getPropertyValue(HamBar_Health,HamProperty_BaseHitpoints);
+			pHam->updatePropertyValue(HamBar_Health,HamProperty_BaseHitpoints,value,true);
+
+			value = pHam->getTargetStatValue(HamBar_Strength) - pHam->getPropertyValue(HamBar_Strength,HamProperty_BaseHitpoints);
+			pHam->updatePropertyValue(HamBar_Strength,HamProperty_BaseHitpoints,value,true);
+
+			value = pHam->getTargetStatValue(HamBar_Constitution) - pHam->getPropertyValue(HamBar_Constitution,HamProperty_BaseHitpoints);
+			pHam->updatePropertyValue(HamBar_Constitution,HamProperty_BaseHitpoints,value,true);
+
+
+
+			value = pHam->getTargetStatValue(HamBar_Action) - pHam->getPropertyValue(HamBar_Action,HamProperty_BaseHitpoints);
+			pHam->updatePropertyValue(HamBar_Action,HamProperty_BaseHitpoints,value,true);
+
+			value = pHam->getTargetStatValue(HamBar_Quickness) - pHam->getPropertyValue(HamBar_Quickness,HamProperty_BaseHitpoints);
+			pHam->updatePropertyValue(HamBar_Quickness,HamProperty_BaseHitpoints,value,true);
+
+			value = pHam->getTargetStatValue(HamBar_Stamina) - pHam->getPropertyValue(HamBar_Stamina,HamProperty_BaseHitpoints);
+			pHam->updatePropertyValue(HamBar_Stamina,HamProperty_BaseHitpoints,value,true);
+
+
+
+			value = pHam->getTargetStatValue(HamBar_Mind) - pHam->getPropertyValue(HamBar_Mind,HamProperty_BaseHitpoints);
+			pHam->updatePropertyValue(HamBar_Mind,HamProperty_BaseHitpoints,value,true);
+
+			value = pHam->getTargetStatValue(HamBar_Focus) - pHam->getPropertyValue(HamBar_Focus,HamProperty_BaseHitpoints);
+			pHam->updatePropertyValue(HamBar_Focus,HamProperty_BaseHitpoints,value,true);
+
+			value = pHam->getTargetStatValue(HamBar_Willpower) - pHam->getPropertyValue(HamBar_Willpower,HamProperty_BaseHitpoints);
+			pHam->updatePropertyValue(HamBar_Willpower,HamProperty_BaseHitpoints,value,true);
+
+			//now the db
+			ObjControllerAsyncContainer* asyncContainer2;
+					
+			int8 sql[1024];
+			asyncContainer2 = new ObjControllerAsyncContainer(OCQuery_Null);
+			sprintf(sql,"UPDATE swganh.character_attributes SET health_max = %i, strength_max = %i, constitution_max = %i, action_max = %i, quickness_max = %i, stamina_max = %i, mind_max = %i, focus_max = %i, willpower_max = %i where character_id = %"PRIu64"",pHam->getTargetStatValue(HamBar_Health),pHam->getTargetStatValue(HamBar_Strength),pHam->getTargetStatValue(HamBar_Constitution), pHam->getTargetStatValue(HamBar_Action),pHam->getTargetStatValue(HamBar_Quickness),pHam->getTargetStatValue(HamBar_Stamina),pHam->getTargetStatValue(HamBar_Mind) ,pHam->getTargetStatValue(HamBar_Focus) ,pHam->getTargetStatValue(HamBar_Willpower) ,we->getId());
+			mDatabase->ExecuteSqlAsync(this,asyncContainer2,sql);
+
+			asyncContainer2 = new ObjControllerAsyncContainer(OCQuery_Null);
+			sprintf(sql,"UPDATE swganh.character_attributes SET health_current = %i, strength_current = %i, constitution_current = %i, action_current = %i, quickness_current = %i, stamina_current = %i, mind_current = %i, focus_current = %i, willpower_current = %i where character_id = %"PRIu64"",pHam->getTargetStatValue(HamBar_Health),pHam->getTargetStatValue(HamBar_Strength),pHam->getTargetStatValue(HamBar_Constitution), pHam->getTargetStatValue(HamBar_Action),pHam->getTargetStatValue(HamBar_Quickness),pHam->getTargetStatValue(HamBar_Stamina),pHam->getTargetStatValue(HamBar_Mind) ,pHam->getTargetStatValue(HamBar_Focus) ,pHam->getTargetStatValue(HamBar_Willpower) ,we->getId());
+			mDatabase->ExecuteSqlAsync(this,asyncContainer2,sql);
+		}
+	}
 }
 
 //=============================================================================================================================

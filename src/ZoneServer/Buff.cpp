@@ -164,7 +164,7 @@ uint64 Buff::Update(uint64 CurrentTime, void* ref)
 			gWorldManager->addBuffToProcess(mChild);
 		}
 		mMarkedForDeletion = true;
-		mTarget->RemoveBuff(this);
+		mTarget->CleanUpBuffs();
 		return 0;
 	}
 }

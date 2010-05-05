@@ -322,6 +322,7 @@ class CreatureObject : public MovingObject
 
 	public:
 
+		void				ClearAllBuffs();
 		void				AddBuff(Buff* buff,  bool stackable = false, bool overwrite = false);
 		void				RemoveBuff(Buff* buff);
 		void				CleanUpBuffs();

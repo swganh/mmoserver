@@ -119,9 +119,13 @@ void CharacterBuilderTerminal::InitCredits()
 }
 void CharacterBuilderTerminal::InitBuffs()
 {
-	mBuffMenu.push_back("+2400 Health Buffs");
-	mBuffMenu.push_back("+2400 Action Buffs");
-	mBuffMenu.push_back("+ 600 Mind   Buffs");
+	mBuffMenu.push_back("+2400 Health Buffs (60secs)");
+	mBuffMenu.push_back("+2400 Action Buffs (60secs)");
+	mBuffMenu.push_back("+ 600 Mind   Buffs (60secs)");
+	mBuffMenu.push_back("+2400 Health Buffs (3hour)");
+	mBuffMenu.push_back("+2400 Action Buffs (3hour)");
+	mBuffMenu.push_back("+ 600 Mind   Buffs (3hour)");
+	mBuffMenu.push_back("Clear All Buffs");
 }
 void CharacterBuilderTerminal::InitWounds()
 {
@@ -803,58 +807,115 @@ void CharacterBuilderTerminal::_handleBuffMenu(PlayerObject* playerObject, uint3
 	{
 	case 0:
 		{
-		BuffAttribute* tempAttribute1 = new BuffAttribute(attr_health, +2400,0,-2400);
-		Buff* tempBuff1 = Buff::SimpleBuff(playerObject, playerObject, 600000, medical_enhance_health, gWorldManager->GetCurrentGlobalTick());
-		tempBuff1->AddAttribute(tempAttribute1);
-		playerObject->AddBuff(tempBuff1);
+			BuffAttribute* tempAttribute1 = new BuffAttribute(attr_health, +2400,0,-2400);
+			Buff* tempBuff1 = Buff::SimpleBuff(playerObject, playerObject, 60000, medical_enhance_health, gWorldManager->GetCurrentGlobalTick());
+			tempBuff1->AddAttribute(tempAttribute1);
+			playerObject->AddBuff(tempBuff1);
 
-		BuffAttribute* tempAttribute2 = new BuffAttribute(attr_strength, +2400,0,-2400);
-		Buff* tempBuff2 = Buff::SimpleBuff(playerObject, playerObject, 600000, medical_enhance_strength, gWorldManager->GetCurrentGlobalTick());
-		tempBuff2->AddAttribute(tempAttribute2);
-		playerObject->AddBuff(tempBuff2);
+			BuffAttribute* tempAttribute2 = new BuffAttribute(attr_strength, +2400,0,-2400);
+			Buff* tempBuff2 = Buff::SimpleBuff(playerObject, playerObject, 60000, medical_enhance_strength, gWorldManager->GetCurrentGlobalTick());
+			tempBuff2->AddAttribute(tempAttribute2);
+			playerObject->AddBuff(tempBuff2);
 
-		BuffAttribute* tempAttribute3 = new BuffAttribute(attr_constitution, +2400,0,-2400);
-		Buff* tempBuff3 = Buff::SimpleBuff(playerObject, playerObject, 600000, medical_enhance_constitution, gWorldManager->GetCurrentGlobalTick());
-		tempBuff3->AddAttribute(tempAttribute3);
-		playerObject->AddBuff(tempBuff3);
-		
+			BuffAttribute* tempAttribute3 = new BuffAttribute(attr_constitution, +2400,0,-2400);
+			Buff* tempBuff3 = Buff::SimpleBuff(playerObject, playerObject, 60000, medical_enhance_constitution, gWorldManager->GetCurrentGlobalTick());
+			tempBuff3->AddAttribute(tempAttribute3);
+			playerObject->AddBuff(tempBuff3);
+
 		}break;
 	case 1: 
 		{
-		BuffAttribute* tempAttribute1 = new BuffAttribute(attr_action, +2400,0,-2400);
-		Buff* tempBuff1 = Buff::SimpleBuff(playerObject, playerObject, 600000, medical_enhance_action, gWorldManager->GetCurrentGlobalTick());
-		tempBuff1->AddAttribute(tempAttribute1);
-		playerObject->AddBuff(tempBuff1);
+			BuffAttribute* tempAttribute1 = new BuffAttribute(attr_action, +2400,0,-2400);
+			Buff* tempBuff1 = Buff::SimpleBuff(playerObject, playerObject, 60000, medical_enhance_action, gWorldManager->GetCurrentGlobalTick());
+			tempBuff1->AddAttribute(tempAttribute1);
+			playerObject->AddBuff(tempBuff1);
 
-		BuffAttribute* tempAttribute2 = new BuffAttribute(attr_quickness, +2400,0,-2400);
-		Buff* tempBuff2 = Buff::SimpleBuff(playerObject, playerObject, 600000, medical_enhance_quickness, gWorldManager->GetCurrentGlobalTick());
-		tempBuff2->AddAttribute(tempAttribute2);
-		playerObject->AddBuff(tempBuff2);
+			BuffAttribute* tempAttribute2 = new BuffAttribute(attr_quickness, +2400,0,-2400);
+			Buff* tempBuff2 = Buff::SimpleBuff(playerObject, playerObject, 60000, medical_enhance_quickness, gWorldManager->GetCurrentGlobalTick());
+			tempBuff2->AddAttribute(tempAttribute2);
+			playerObject->AddBuff(tempBuff2);
 
-		BuffAttribute* tempAttribute3 = new BuffAttribute(attr_stamina, +2400,0,-2400);
-		Buff* tempBuff3 = Buff::SimpleBuff(playerObject, playerObject, 600000, medical_enhance_stamina, gWorldManager->GetCurrentGlobalTick());
-		tempBuff3->AddAttribute(tempAttribute3);
-		playerObject->AddBuff(tempBuff3);
-		
+			BuffAttribute* tempAttribute3 = new BuffAttribute(attr_stamina, +2400,0,-2400);
+			Buff* tempBuff3 = Buff::SimpleBuff(playerObject, playerObject, 60000, medical_enhance_stamina, gWorldManager->GetCurrentGlobalTick());
+			tempBuff3->AddAttribute(tempAttribute3);
+			playerObject->AddBuff(tempBuff3);
+
 		}break;
 	case 2: 
 		{
-		BuffAttribute* tempAttribute1 = new BuffAttribute(attr_mind, +600,0,-600);
-		Buff* tempBuff1 = Buff::SimpleBuff(playerObject, playerObject, 600000, performance_enhance_dance_mind, gWorldManager->GetCurrentGlobalTick());
-		tempBuff1->AddAttribute(tempAttribute1);
-		playerObject->AddBuff(tempBuff1);
+			BuffAttribute* tempAttribute1 = new BuffAttribute(attr_mind, +600,0,-600);
+			Buff* tempBuff1 = Buff::SimpleBuff(playerObject, playerObject, 60000, performance_enhance_dance_mind, gWorldManager->GetCurrentGlobalTick());
+			tempBuff1->AddAttribute(tempAttribute1);
+			playerObject->AddBuff(tempBuff1);
 
-		BuffAttribute* tempAttribute2 = new BuffAttribute(attr_focus, +600,0,-600);
-		Buff* tempBuff2 = Buff::SimpleBuff(playerObject, playerObject, 600000, performance_enhance_music_focus, gWorldManager->GetCurrentGlobalTick());
-		tempBuff2->AddAttribute(tempAttribute2);
-		playerObject->AddBuff(tempBuff2);
+			BuffAttribute* tempAttribute2 = new BuffAttribute(attr_focus, +600,0,-600);
+			Buff* tempBuff2 = Buff::SimpleBuff(playerObject, playerObject, 60000, performance_enhance_music_focus, gWorldManager->GetCurrentGlobalTick());
+			tempBuff2->AddAttribute(tempAttribute2);
+			playerObject->AddBuff(tempBuff2);
 
-		BuffAttribute* tempAttribute3 = new BuffAttribute(attr_willpower, +600,0,-600);
-		Buff* tempBuff3 = Buff::SimpleBuff(playerObject, playerObject, 600000, performance_enhance_music_willpower, gWorldManager->GetCurrentGlobalTick());
-		tempBuff3->AddAttribute(tempAttribute3);
-		playerObject->AddBuff(tempBuff3);
-		
+			BuffAttribute* tempAttribute3 = new BuffAttribute(attr_willpower, +600,0,-600);
+			Buff* tempBuff3 = Buff::SimpleBuff(playerObject, playerObject, 60000, performance_enhance_music_willpower, gWorldManager->GetCurrentGlobalTick());
+			tempBuff3->AddAttribute(tempAttribute3);
+			playerObject->AddBuff(tempBuff3);
+
 		}break;
+	case 3:
+		{
+			BuffAttribute* tempAttribute1 = new BuffAttribute(attr_health, +2400,0,-2400);
+			Buff* tempBuff1 = Buff::SimpleBuff(playerObject, playerObject, 10800000, medical_enhance_health, gWorldManager->GetCurrentGlobalTick());
+			tempBuff1->AddAttribute(tempAttribute1);
+			playerObject->AddBuff(tempBuff1);
+
+			BuffAttribute* tempAttribute2 = new BuffAttribute(attr_strength, +2400,0,-2400);
+			Buff* tempBuff2 = Buff::SimpleBuff(playerObject, playerObject, 10800000, medical_enhance_strength, gWorldManager->GetCurrentGlobalTick());
+			tempBuff2->AddAttribute(tempAttribute2);
+			playerObject->AddBuff(tempBuff2);
+
+			BuffAttribute* tempAttribute3 = new BuffAttribute(attr_constitution, +2400,0,-2400);
+			Buff* tempBuff3 = Buff::SimpleBuff(playerObject, playerObject, 10800000, medical_enhance_constitution, gWorldManager->GetCurrentGlobalTick());
+			tempBuff3->AddAttribute(tempAttribute3);
+			playerObject->AddBuff(tempBuff3);
+
+		}break;
+	case 4: 
+		{
+			BuffAttribute* tempAttribute1 = new BuffAttribute(attr_action, +2400,0,-2400);
+			Buff* tempBuff1 = Buff::SimpleBuff(playerObject, playerObject, 10800000, medical_enhance_action, gWorldManager->GetCurrentGlobalTick());
+			tempBuff1->AddAttribute(tempAttribute1);
+			playerObject->AddBuff(tempBuff1);
+
+			BuffAttribute* tempAttribute2 = new BuffAttribute(attr_quickness, +2400,0,-2400);
+			Buff* tempBuff2 = Buff::SimpleBuff(playerObject, playerObject, 10800000, medical_enhance_quickness, gWorldManager->GetCurrentGlobalTick());
+			tempBuff2->AddAttribute(tempAttribute2);
+			playerObject->AddBuff(tempBuff2);
+
+			BuffAttribute* tempAttribute3 = new BuffAttribute(attr_stamina, +2400,0,-2400);
+			Buff* tempBuff3 = Buff::SimpleBuff(playerObject, playerObject, 10800000, medical_enhance_stamina, gWorldManager->GetCurrentGlobalTick());
+			tempBuff3->AddAttribute(tempAttribute3);
+			playerObject->AddBuff(tempBuff3);
+
+		}break;
+	case 5: 
+		{
+			BuffAttribute* tempAttribute1 = new BuffAttribute(attr_mind, +600,0,-600);
+			Buff* tempBuff1 = Buff::SimpleBuff(playerObject, playerObject, 10800000, performance_enhance_dance_mind, gWorldManager->GetCurrentGlobalTick());
+			tempBuff1->AddAttribute(tempAttribute1);
+			playerObject->AddBuff(tempBuff1);
+
+			BuffAttribute* tempAttribute2 = new BuffAttribute(attr_focus, +600,0,-600);
+			Buff* tempBuff2 = Buff::SimpleBuff(playerObject, playerObject, 10800000, performance_enhance_music_focus, gWorldManager->GetCurrentGlobalTick());
+			tempBuff2->AddAttribute(tempAttribute2);
+			playerObject->AddBuff(tempBuff2);
+
+			BuffAttribute* tempAttribute3 = new BuffAttribute(attr_willpower, +600,0,-600);
+			Buff* tempBuff3 = Buff::SimpleBuff(playerObject, playerObject, 10800000, performance_enhance_music_willpower, gWorldManager->GetCurrentGlobalTick());
+			tempBuff3->AddAttribute(tempAttribute3);
+			playerObject->AddBuff(tempBuff3);
+
+		}break;
+	case 6:
+		playerObject->ClearAllBuffs();
+		break;
 	default:break;
 	}
 }

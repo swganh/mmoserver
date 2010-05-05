@@ -452,6 +452,14 @@ bool CreatureObject::GetBuffExists(uint32 BuffIcon)
 //=============================================================================
 void CreatureObject::AddBuff(Buff* buff,  bool stackable, bool overwrite)
 {
+	if(!buff) return;
+
+	if(buff->GetRemainingTime(gWorldManager->GetCurrentGlobalTick()) <= 0)
+	{
+		SAFE_DELETE(buff);
+		return;
+	}
+
 	//Use this opportunity to clean up any dead buffs in BuffList
 	this->CleanUpBuffs();
 
@@ -534,17 +542,23 @@ void CreatureObject::RemoveBuff(Buff* buff)
 	buff->SetID(0);
 
 	//Perform any Final changes
-	if(!buff->GetIsMarkedForDeletion())
-		buff->FinalChanges();
-
-	buff->MarkForDeletion();
-
-	CleanUpBuffs();
+	buff->FinalChanges();
 }
 
 //================================================
 //
-
+void CreatureObject::ClearAllBuffs()
+{
+	BuffList::iterator it = mBuffList.begin();
+	while(it != mBuffList.end())
+	{
+		(*it)->FinalChanges();
+		gWorldManager->removeBuffToProcess((*it)->GetID());
+		(*it)->MarkForDeletion();
+		++it;
+	}
+	CleanUpBuffs();
+}
 void CreatureObject::CleanUpBuffs()
 {
 	BuffList::iterator it = mBuffList.begin();
@@ -553,7 +567,7 @@ void CreatureObject::CleanUpBuffs()
 		if((*it)->GetIsMarkedForDeletion())
 		{
 			SAFE_DELETE(*it);
-			it = mBuffList.erase(it);
+			mBuffList.erase(it++);
 		}
 		else
 		{

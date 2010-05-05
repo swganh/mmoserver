@@ -121,8 +121,9 @@ void Food::handleFoodUse(Object* srcObject)
 		return;
 	}
 
-	if(playerObject->isDead() || !playerObject->getHam()->checkMainPools(1, 1, 1))
+	if(playerObject->isDead() || !playerObject->isIncapacitated())
 	{
+		gMessageLib->sendSystemMessage(playerObject, L"","error_message","wrong_state");
 		return;
 	}
 

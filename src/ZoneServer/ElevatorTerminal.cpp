@@ -44,35 +44,10 @@ void ElevatorTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObjec
 	{
 		gMessageLib->sendPlayClientEffectObjectMessage(gWorldManager->getClientEffect(mEffectUp),"",playerObject);
 
-		// remove player from current position, elevators can only be inside
-		CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(playerObject->getParentId()));
-
-		if(cell)
-		{
-			cell->removeObject(playerObject);
-		}
-		else
-		{
-			gLogger->logMsgF("could not find cell %"PRIu64"",MSG_HIGH,playerObject->getParentId());
-		}
-
 		// put him into new one
 		playerObject->mDirection = mDstDirUp;
-		playerObject->mPosition  = mDstPosUp;
-		playerObject->setParentId(mDstCellUp);
 
-		cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(mDstCellUp));
-
-		if(cell)
-		{
-			cell->addObjectSecure(playerObject);
-		}
-		else
-		{
-			gLogger->logMsgF("could not find cell %"PRIu64"",MSG_HIGH,mDstCellUp);
-		}
-
-		gMessageLib->sendDataTransformWithParent(playerObject);
+		playerObject->updatePosition(mDstCellUp,mDstPosUp);
 
 	}
 	else if(messageType == radId_elevatorDown)
@@ -80,34 +55,10 @@ void ElevatorTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObjec
 		gMessageLib->sendPlayClientEffectObjectMessage(gWorldManager->getClientEffect(mEffectDown),"",playerObject);
 	
 		// remove player from current position, elevators can only be inside
-		CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(playerObject->getParentId()));
-
-		if(cell)
-		{
-			cell->removeObject(playerObject);
-		}
-		else
-		{
-			gLogger->logMsgF("could not find cell %"PRIu64"",MSG_HIGH,playerObject->getParentId());
-		}
-
-		// put him into new one
 		playerObject->mDirection = mDstDirDown;
-		playerObject->mPosition  = mDstPosDown;
-		playerObject->setParentId(mDstCellDown);
-		
-		cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(mDstCellDown));
 
-		if(cell)
-		{
-			cell->addObjectSecure(playerObject);
-		}
-		else
-		{
-			gLogger->logMsgF("could not find cell %"PRIu64"",MSG_HIGH,mDstCellDown);
-		}
+		playerObject->updatePosition(mDstCellDown,mDstPosDown);
 
-		gMessageLib->sendDataTransformWithParent(playerObject);
 	}
 	else
 	{

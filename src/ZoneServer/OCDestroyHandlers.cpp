@@ -18,7 +18,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "ObjectControllerCommandMap.h"
 #include "ObjectFactory.h"
 #include "PlayerObject.h"
-#include "Vehicle.h"
+#include "VehicleController.h"
 
 //#include "IntangibleObject.h"
 #include "ResourceContainer.h"
@@ -101,9 +101,9 @@ void ObjectController::destroyObject(uint64 objectId)
 			gLogger->logMsgF("ObjController::handleDestroyObject: Error removing Data from datapad %"PRIu64"",MSG_NORMAL,objectId);
 		}
 
-		if(Vehicle* vehicle = dynamic_cast<Vehicle*>(object))
+		if(VehicleController* controller = dynamic_cast<VehicleController*>(object))
 		{
-			vehicle->store();
+			controller->store();
 		}
 		
 		gObjectFactory->deleteObjectFromDB(object);

@@ -313,7 +313,7 @@ void MessageLib::sendUpdateTransformMessage(MovingObject* object)
     mMessageFactory->addUint8(static_cast<uint8>(glm::length(object->mPosition) * 4.0f + 0.5f));
     mMessageFactory->addUint8(static_cast<uint8>(glm::gtx::quaternion::angle(object->mDirection) / 0.0625f)); 
 
-	_sendToInRangeUnreliable(mMessageFactory->EndMessage(),object,8,true);
+	_sendToInRangeUnreliable(mMessageFactory->EndMessage(),object,8);
 }
 
 //======================================================================================================================
@@ -339,7 +339,8 @@ void MessageLib::sendUpdateTransformMessageWithParent(MovingObject* object)
     mMessageFactory->addUint8(static_cast<uint8>(glm::length(object->mPosition) * 8.0f + 0.5f));
     mMessageFactory->addUint8(static_cast<uint8>(glm::gtx::quaternion::angle(object->mDirection) / 0.0625f)); 
 
-	_sendToInRangeUnreliable(mMessageFactory->EndMessage(),object,8,false);		
+	//always send to self
+	_sendToInRangeUnreliable(mMessageFactory->EndMessage(),object,8);		
 }
 
 //======================================================================================================================
@@ -1379,8 +1380,8 @@ bool MessageLib::broadcastContainmentMessage(uint64 objectId,uint64 parentId,uin
 //
 // updates an object parent<->child relationship
 // Used when Creatures updates their cell positions.
-//
-bool MessageLib::broadcastContainmentMessage(uint64 objectId,uint64 parentId,uint32 linkType,Object* targetObject)
+// why have targetObject and ObjectId separate ??? TODO::
+bool MessageLib::broadcastContainmentMessage(Object* targetObject,uint64 parentId,uint32 linkType)
 {
 	if(!targetObject)
 	{
@@ -1390,7 +1391,7 @@ bool MessageLib::broadcastContainmentMessage(uint64 objectId,uint64 parentId,uin
 	mMessageFactory->StartMessage();
 	mMessageFactory->addUint32(opUpdateContainmentMessage);  
 
-	mMessageFactory->addUint64(objectId);  
+	mMessageFactory->addUint64(targetObject->getId());  
 	mMessageFactory->addUint64(parentId);
 	mMessageFactory->addUint32(linkType);				
 

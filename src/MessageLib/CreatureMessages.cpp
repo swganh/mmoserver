@@ -191,10 +191,10 @@ bool MessageLib::sendBaselinesCREO_3(CreatureObject* creatureObject,PlayerObject
 
 	// For now, we use the Health bar when using a single H-bar.
 
-	//8 condition damage (vehicle) //this is the amount of damage... used to set appearence of swoop
+	//8 condition damage (Vehicle) //this is the amount of damage... used to set appearence of swoop
 	mMessageFactory->addUint32(creatureHam->getPropertyValue(HamBar_Health,HamProperty_MaxHitpoints) - creatureHam->getPropertyValue(HamBar_Health,HamProperty_CurrentHitpoints));
 
-	//9 max condition (vehicle)
+	//9 max condition (Vehicle)
 	mMessageFactory->addUint32(creatureHam->getPropertyValue(HamBar_Health,HamProperty_MaxHitpoints));
 
 	//10 posture updatecounter
@@ -206,7 +206,11 @@ bool MessageLib::sendBaselinesCREO_3(CreatureObject* creatureObject,PlayerObject
 	//13 owner id
 	if(creatureObject->getCreoGroup()  == CreoGroup_Vehicle)
 	{
-		mMessageFactory->addUint64(creatureObject->getOwner());
+		MountObject* mount = dynamic_cast<MountObject*>(creatureObject);
+		if(mount)
+			mMessageFactory->addUint64(mount->getOwner());
+		else
+			mMessageFactory->addUint64(0);
 		mMessageFactory->addFloat(creatureObject->getScale());
 		mMessageFactory->addUint32(0);
 		mMessageFactory->addUint64(0);
@@ -235,7 +239,7 @@ bool MessageLib::sendBaselinesCREO_3(CreatureObject* creatureObject,PlayerObject
 	}
 	else if(creatureObject->getCreoGroup() == CreoGroup_Vehicle)
 	{
-		//no wounds for vehicles
+		//no wounds for Vehicle
 		mMessageFactory->addUint32(0);
 		mMessageFactory->addUint32(0);
 	}
@@ -1068,7 +1072,7 @@ void MessageLib::sendStateUpdate(CreatureObject* creatureObject)
 //======================================================================================================================
 //
 // Creature Deltas Type 3
-// update: single ham health, used by statics like debris and vehicles.
+// update: single ham health, used by statics like debris and Vehicles.
 //
 
 void MessageLib::sendSingleBarUpdate(CreatureObject* creatureObject)
@@ -1090,7 +1094,7 @@ void MessageLib::sendSingleBarUpdate(CreatureObject* creatureObject)
 		mMessageFactory->addUint8(3);
 		mMessageFactory->addUint32(8); // bytes
 		mMessageFactory->addUint16(1);	// No of items
-		mMessageFactory->addUint16(8);	// Index 8 condition damage (vehicle)
+		mMessageFactory->addUint16(8);	// Index 8 condition damage (Vehicle)
 		uint32 damage = ham->getPropertyValue(HamBar_Health,HamProperty_MaxHitpoints);
 		damage -= ham->getPropertyValue(HamBar_Health,HamProperty_CurrentHitpoints);
 		// mMessageFactory->addUint32(ham->getPropertyValue(HamBar_Health,HamProperty_CurrentHitpoints));
@@ -1508,14 +1512,14 @@ void MessageLib::sendBFUpdateCreo3(CreatureObject* playerObject)
 //
 // Creature Deltas Type 3
 // update: owner id
-// used for mountable creatures (pets, vehicles..)
+// used for mountable creatures (pets, Vehicles..)
 
 
-void MessageLib::sendOwnerUpdateCreo3(CreatureObject* creatureObject)
+void MessageLib::sendOwnerUpdateCreo3(MountObject* mount)
 {
 	mMessageFactory->StartMessage();
 	mMessageFactory->addUint32(opDeltasMessage);
-	mMessageFactory->addUint64(creatureObject->getId());
+	mMessageFactory->addUint64(mount->getId());
 	mMessageFactory->addUint32(opCREO);
 	mMessageFactory->addUint8(3);
 
@@ -1523,9 +1527,9 @@ void MessageLib::sendOwnerUpdateCreo3(CreatureObject* creatureObject)
 	mMessageFactory->addUint16(2);
 	mMessageFactory->addUint16(13); // CREO 3 owner id
 
-	mMessageFactory->addInt64(creatureObject->getOwner());
+	mMessageFactory->addInt64(mount->getOwner());
 
-	_sendToInRange(mMessageFactory->EndMessage(),creatureObject,5);
+	_sendToInRange(mMessageFactory->EndMessage(),mount,5);
 	//(pObject)->getClient()->SendChannelA(mMessageFactory->EndMessage(),pObject->getAccountId(),CR_Client,5);
 }
 

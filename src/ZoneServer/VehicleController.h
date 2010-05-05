@@ -9,8 +9,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
-#ifndef ANH_ZONESERVER_VEHICLE_H
-#define ANH_ZONESERVER_VEHICLE_H
+#ifndef ANH_ZONESERVER_VehicleController_H
+#define ANH_ZONESERVER_VehicleController_H
 
 #include "IntangibleObject.h"
 #include "MountObject.h"
@@ -19,8 +19,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 class IntangibleObject;
 class Creatureobject;
 
-//This reflects the vehicle types id from the database
-enum vehicle_types
+//This reflects the Vehicle types id from the database
+enum Vehicle_types
 {
 
 	VehicleType_JetPack				= 1,
@@ -37,13 +37,13 @@ enum vehicle_types
 };
 
 
-class Vehicle : public IntangibleObject
+class VehicleController : public IntangibleObject
 {
-	friend class VehicleFactory;
+	friend class VehicleControllerFactory;
 
 public:
-	Vehicle();
-	~Vehicle();
+	VehicleController();
+	~VehicleController();
 
 	int		getTypesId() { return mTypesId; }
 	void	setTypesId(int types_id) { mTypesId = types_id; }

@@ -20,7 +20,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "PlayerObject.h"
 #include "SpawnPoint.h"
 #include "UIManager.h"
-#include "Vehicle.h"
+#include "VehicleController.h"
 #include "WorldManager.h"
 #include "WorldConfig.h"
 #include "ZoneTree.h"
@@ -54,13 +54,12 @@ CreatureObject::CreatureObject()
 , mEntertainerListenToId(0)
 , mFirstIncapTime(0)
 , mGroupId(0)
-, mOwner(0)
 , mState(0)
 , mLastEntertainerXP(0)
 , mScale(1.0)
 
 , mLanguage(1)
-,	mLastMoveTick(0)
+, mLastMoveTick(0)
 , mPerformanceCounter(0)
 , mPerformanceId(0)
 , mRaceGenderMask(0)
@@ -654,10 +653,10 @@ void CreatureObject::incap()
 		if(player->checkIfMounted())
 		{
 			//Get the player's mount
-			if(Vehicle* vehicle = dynamic_cast<Vehicle*>(gWorldManager->getObjectById(player->getMount()->getPetController())))
+			if(VehicleController* controller = dynamic_cast<VehicleController*>(gWorldManager->getObjectById(player->getMount()->getPetController())))
 			{
 				//Now dismount
-				vehicle->dismountPlayer();
+				controller->dismountPlayer();
 			}
 
 		}

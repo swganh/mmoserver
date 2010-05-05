@@ -62,6 +62,7 @@ class ServerManager : public NetworkCallback, public ConnectionDispatchCallback,
 		void                            _processClusterRegisterServer(ConnectionClient* client, Message* message);
 		void                            _processClusterZoneTransferRequestByTicket(ConnectionClient* client, Message* message);
 		void                            _processClusterZoneTransferRequestByPosition(ConnectionClient* client, Message* message);
+		void							_processClusterZoneTutorialTerminal(ConnectionClient* client, Message* message);
 
 		MessageRouter*                  mMessageRouter;
 		Service*                        mServerService;

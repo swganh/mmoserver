@@ -265,6 +265,8 @@ void CharacterAdminHandler::_processCreateCharacter(Message* message, DispatchCl
 
   if(tutorialFlag)
 	  characterInfo.mStartCity = "tutorial";
+  else
+	  characterInfo.mStartCity = "default_location";
 
   // Setup our statement
   int8 sql[4096];

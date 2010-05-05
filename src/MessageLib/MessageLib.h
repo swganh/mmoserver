@@ -217,7 +217,7 @@ public:
 	bool				sendEmptyObjectMenuResponse(uint64 requestedId,PlayerObject* targetObject,uint8 responseNr, MenuItemList mMenuItemList);
 
 	// starting location list
-	bool				sendStartingLocationList(PlayerObject* player);
+	bool				sendStartingLocationList(PlayerObject* player, uint8 tatooine, uint8 corellia, uint8 talus, uint8 rori, uint8 naboo);
 
 	// position updates
 	void				sendDataTransform(Object* object);
@@ -488,6 +488,8 @@ public:
 	// Buffs
 	void				sendPlayerAddBuff(PlayerObject* target, int32 CRC, float Duration);
 	void				sendPlayerRemoveBuff(PlayerObject* playerObject, int32 CRC);
+
+	void				sendTutorialServerStatusRequest(DispatchClient* client, uint64 playerId, uint32 accountID);
 
 	~MessageLib();
 

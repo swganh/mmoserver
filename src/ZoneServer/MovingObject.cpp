@@ -19,6 +19,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "WorldManager.h"
 #include "ZoneTree.h"
 
+#include <glm/gtx/transform2.hpp>
+
 //=============================================================================
 
 MovingObject::MovingObject()

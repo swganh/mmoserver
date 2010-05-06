@@ -22,8 +22,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include "Utils/clock.h"
 
-#include <iostream>
-
 //=============================================================================
 
 Food::Food() : Item()
@@ -124,8 +122,9 @@ void Food::handleFoodUse(Object* srcObject)
 		return;
 	}
 
-	if (playerObject->isDead() || playerObject->isIncapacitated())
+	if(playerObject->isDead() || !playerObject->isIncapacitated())
 	{
+		gMessageLib->sendSystemMessage(playerObject, L"","error_message","wrong_state");
 		return;
 	}
 

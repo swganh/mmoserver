@@ -11,7 +11,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include "MountObject.h"
 #include "Datapad.h"
-#include "Vehicle.h"
+#include "VehicleController.h"
 #include "PlayerObject.h"
 
 //=============================================================================
@@ -46,7 +46,7 @@ void MountObject::prepareCustomRadialMenu(CreatureObject* creature, uint8 item_c
 		  mRadialMenu->addItem(2, 0, radId_serverVehicleEnter,radAction_Default, "@pet/pet_menu:menu_enter");
     }
     
-    mRadialMenu->addItem(3, 0, radId_vehicleStore,radAction_ObjCallback, "@pet/pet_menu:menu_store");
+    mRadialMenu->addItem(3, 0, radId_VehicleStore,radAction_ObjCallback, "@pet/pet_menu:menu_store");
 
     // @TODO: Check if near a garage then add repair
   }
@@ -66,19 +66,23 @@ void MountObject::handleObjectMenuSelect(uint8 message_type, Object* source_obje
   assert(player && "MountObject::handleObjectMenuSelect - Menu selection requested from a non-player object.");
 
   // In release mode asserts don't trigger so an additional check is needed.
-	if(! player) {
+	if(! player) 
+	{
 		gLogger->logErrorF("radials", "MountObject::handleObjectMenuSelect - Menu selection requested from a non-player object", MSG_NORMAL);
 		return;
 	}
 
-  switch (message_type) {
-    case radId_vehicleStore:
-      {
-				if(Datapad* datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad))) {			
-          if(Vehicle* vehicle = dynamic_cast<Vehicle*>(datapad->getDataById(mId-1)))	{
-            vehicle->store();
-          }
+	switch (message_type) 
+	{
+		case radId_VehicleStore:
+		{	
+			if(Datapad* datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad))) 
+			{			
+				if(VehicleController* controller = dynamic_cast<VehicleController*>(datapad->getDataById(getPetController())))	
+				{
+					controller->store();
 				}
+			}
       }
     break;
 

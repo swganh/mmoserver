@@ -25,7 +25,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Tutorial.h"
 #include "WorldConfig.h"
 #include "WorldManager.h"
-#include "Vehicle.h"
+#include "VehicleController.h"
 #include "ZoneTree.h"
 
 #include "MessageLib/MessageLib.h"
@@ -85,7 +85,6 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 	{
 		//Player is mounted lets update his mount too
 		player->getMount()->setLastMoveTick(tickCount);
-		//player->getMount()->setInMoveCount((inMoveCount+1));
 		player->getMount()->setInMoveCount((inMoveCount)); // + 1 or nor does not matter, as long as we update inMoveCount.
 	}
 
@@ -101,19 +100,11 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 	pos.z = message->getFloat();
 	speed  = message->getFloat();
 
-	// gLogger->logMsgF("Position outside = %.2f, %.2f, %.2f",MSG_NORMAL, pos.x,  pos.y, pos.z);
-	/*
-	if (Heightmap::isHeightmapCacheAvaliable())
-	{
-	gLogger->logMsgF("Heightmap value = %.2f",MSG_NORMAL, Heightmap::Instance()->getCachedHeightAt2DPosition(pos.x, pos.z));
-	}
-	*/
-
 	// gLogger->logMsgF("Direction = %f, %f, %f, %f",MSG_NORMAL, dir.x, dir.y, dir.z, dir.w);
 
 	// stop entertaining, if we were
 	// important is, that if we move we change our posture to NOT skill animating anymore!
-	// so only stop entertaining when we are performing and NOT skillanimationg
+	// so only stop entertaining when we are performing and NOT skillanimating
 	if(player->getPerformingState() != PlayerPerformance_None && player->getPosture() != CreaturePosture_SkillAnimating)
 	{
 		gEntertainerManager->stopEntertaining(player);
@@ -173,8 +164,9 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 	}
 	else //we are not in a building
 	{
+		//TODO does this need to be updated every single time ?
 		// we should be in a qt at this point
-		// get the qt of the new position
+		// get the qt region of the new position
 		if(QTRegion* newRegion = mSI->getQTRegion((double)pos.x,(double)pos.z))
 		{
 			// we didnt change so update the old one
@@ -422,9 +414,9 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 							//However, its easy to do so we have handling incase the client is tricked.
 
 
-							// the vehicle is the INTANGIBLE Datapad Controller
-							// the *vehicle* itself is the BODY
-							if(Vehicle* datapad_pet = dynamic_cast<Vehicle*>(gWorldManager->getObjectById(player->getMount()->getPetController())))
+							// the VehicleController is the INTANGIBLE Datapad Controller
+							// the *Vehicle* itself is the BODY
+							if(VehicleController* datapad_pet = dynamic_cast<VehicleController*>(gWorldManager->getObjectById(player->getMount()->getPetController())))
 							{
 								datapad_pet->dismountPlayer();
 								datapad_pet->store();
@@ -1021,13 +1013,17 @@ bool ObjectController::_destroyOutOfRangeObjects(ObjectSet *inRangeObjects)
 //
 //	Update the world around the player.
 //
-//	NOTE (by ERU): This code need to be re-written,
-//	right now it's hard to follow and very difficult to do changes without getting secondary effects not wanted...
+//	This code fulfills 2 purposes
+//	1st we do full updates of our world around us when prompted
+//	2nd when the amount of update Objects is to big (>50) this function gets revisited 
+//		and _updateInRangeObjectsInside updates the remaining objects
+//		UNLESS we need to force another update
 //
-//	THIS IS AN EXAMPLE OF HOW NOT TO WRITE CODE, MIXING EVERYTHING ETC....
+//TODO simplyfy
 
 uint64 ObjectController::playerWorldUpdate(bool forcedUpdate)
 {
+
 	PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
 
 	// If we already are busy, don't start another update.
@@ -1060,7 +1056,7 @@ uint64 ObjectController::playerWorldUpdate(bool forcedUpdate)
 		if (mUpdatingObjects || forcedUpdate)
 		{
 			// Just entered the building?
-			// if (!mUpdatingObjects)
+		
 			// We need to abort any pending operation if we get a forcedUpdate (meaning entered, changed or left a cell or subzone).
 			if (forcedUpdate)
 			{

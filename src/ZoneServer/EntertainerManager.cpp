@@ -802,7 +802,7 @@ void	EntertainerManager::startMusicPerformance(PlayerObject* entertainer,string 
 		{
 			entertainer->setPerformingState(PlayerPerformance_None);
 			gMessageLib->sendSystemMessage(entertainer,L"Your instrument cannot be initialized.");
-			gLogger->logMsgF("EntertainerManager::startMusicPerformance() This I don't understand\n", MSG_NORMAL);
+			gLogger->logMsgF("EntertainerManager::startMusicPerformance() no Performance found", MSG_NORMAL);
 
 			return;
 		}
@@ -1967,9 +1967,9 @@ bool EntertainerManager::handlePerformanceTick(CreatureObject* mObject)
 //warp the instrument to the user display a list of known songs and then start playing
 //=======================================================================================================================
 
-void EntertainerManager::playInstrument(PlayerObject* entertainer, Item* pInstrument)
+void EntertainerManager::playInstrument(PlayerObject* entertainer, Item* instrument)
 {
-	if(!entertainer || !pInstrument)
+	if(!entertainer || !instrument)
 	{
 		return;
 	}
@@ -2002,11 +2002,11 @@ void EntertainerManager::playInstrument(PlayerObject* entertainer, Item* pInstru
 		return;
 	}
 
-	if ((pInstrument->getItemType() == ItemType_Nalargon) || (pInstrument->getItemType() == ItemType_nalargon_max_reebo) || (pInstrument->getItemType() == ItemType_omni_box))
+	if ((instrument->getItemType() == ItemType_Nalargon) || (instrument->getItemType() == ItemType_nalargon_max_reebo) || (instrument->getItemType() == ItemType_omni_box))
 	{
 		if (gWorldManager->objectsInRange(entertainer->getId(), instrumentId, 6.0))
 		{
-			if(entertainer->getParentId() != pInstrument->getParentId())
+			if(entertainer->getParentId() != instrument->getParentId())
 			{
 				gMessageLib->sendSystemMessage(entertainer,L"","performance","music_must_unequip");
 				return;
@@ -2015,47 +2015,12 @@ void EntertainerManager::playInstrument(PlayerObject* entertainer, Item* pInstru
 			// We are in range.
 			//move player to instrument vs move instrument to player
 
-			pInstrument->mDirection = entertainer->mDirection;
-			pInstrument->mPosition	= entertainer->mPosition;
-
-			if (entertainer->getParentId())
-			{
-				// We are both inside same building.
-				// Ensure we end up in the same cell also.
-				gMessageLib->sendDataTransformWithParent(entertainer);
-				gMessageLib->sendUpdateTransformMessageWithParent(entertainer);
-			}
-			else
-			{
-				gMessageLib->sendDataTransform(entertainer);
-				gMessageLib->sendUpdateTransformMessage(entertainer);
-			}
-
-			/*entertainer->mPosition = pInstrument->mPosition;
-			entertainer->mDirection = pInstrument->mDirection;
-			if (entertainer->getParentId())
-			{
-				// We are both inside same building.
-				// Ensure we end up in the same cell also.
-				entertainer->setParentId(pInstrument->getParentId());
-				gMessageLib->sendDataTransformWithParent(entertainer);
-				gMessageLib->sendUpdateTransformMessageWithParent(entertainer);
-			}
-			else
-			{
-				gMessageLib->sendDataTransform(entertainer);
-				gMessageLib->sendUpdateTransformMessage(entertainer);
-			}
-			*/
+			entertainer->mDirection = instrument->mDirection;
+			entertainer->updatePosition(instrument->getParentId(),instrument->mPosition);
+		
 		}
 	}
-	else
-	{
-		pInstrument->mPosition  = entertainer->mPosition;
-		pInstrument->mDirection = entertainer->mDirection;
-
-		gMessageLib->sendDataTransform(pInstrument);
-	}
+	
 
 	//start the selection list
 	handlestartmusic(entertainer);
@@ -2094,21 +2059,6 @@ void EntertainerManager::useInstrument(PlayerObject* entertainer, Item* usedInst
 			gMessageLib->sendSystemMessage(entertainer,L"","performance","music_fail");
 			return;
 		}
-
-		/*
-		// update position
-		usedInstrument->mPosition	= entertainer->mPosition;
-		usedInstrument->mDirection	= entertainer->mDirection;
-
-		if(usedInstrument->getParentId())
-		{
-			gMessageLib->sendDataTransformWithParent(usedInstrument);
-		}
-		else
-		{
-			gMessageLib->sendDataTransform(usedInstrument);
-		}
-		*/
 
 		playInstrument(entertainer,usedInstrument);
 
@@ -2216,13 +2166,6 @@ void EntertainerManager::handleObjectReady(Object* object,DispatchClient* client
 //=======================================================================================================================
 bool EntertainerManager::handleStartBandIndividual(PlayerObject* performer, string performance)
 {
-
-	//we cant start performing when were about to log out!
-	if(performer->getConnectionState() != PlayerConnState_Connected)
-	{
-		return false;
-	}
-
 	SkillCommandList*	entertainerSkillCommands = performer->getSkillCommands();
 	SkillCommandList::iterator entertainerIt = entertainerSkillCommands->begin();
 
@@ -2525,34 +2468,9 @@ bool EntertainerManager::approachInstrument(PlayerObject* entertainer, uint64 in
 					// We are in range.
 					moveSucceeded = true;
 					
-					//player to instrument vs instrument to player ... ???
-					//entertainer->mPosition = instrument->mPosition;
-					//entertainer->mDirection = instrument->mDirection;
-					entertainer->mPosition = instrument->mPosition;
 					entertainer->mDirection = instrument->mDirection;
-				
-					// We are both inside same cell?? otherwise leave
-					// AAAAAAAAAAAAARGHH
-					if(entertainer->getParentId() != instrument->getParentId())
-					{
-						//no way we get away to change a players parentcell by just setting it 
-						//and doing an update transform!!!!! better to opt out otherwise its just an invite
-						//for crashes/weird happenings of all sorts
-						return false;
-					}
+					entertainer->updatePosition(instrument->getParentId(),instrument->mPosition);
 
-
-					if (entertainer->getParentId())
-					{						
-						gMessageLib->sendDataTransformWithParent(entertainer);
-						gMessageLib->sendUpdateTransformMessageWithParent(entertainer);
-					}
-					else
-					{
-						// We are both outside
-						gMessageLib->sendDataTransform(entertainer);
-						gMessageLib->sendUpdateTransformMessage(entertainer);
-					}
 				}
 			}
 			else
@@ -2564,10 +2482,7 @@ bool EntertainerManager::approachInstrument(PlayerObject* entertainer, uint64 in
 					if (item->getId() == instrumentId)
 					{
 						moveSucceeded = true;
-						instrument->mPosition  = entertainer->mPosition;
-						instrument->mDirection = entertainer->mDirection;
-
-						gMessageLib->sendDataTransform(instrument);
+						
 					}
 				}
 			}

@@ -53,12 +53,12 @@ void Deed::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
 				if(this->getItemType() >= ItemType_Deed_X34 && this->getItemType() <= ItemType_Deed_Swoop) //landspeeder x34, speederbike, swoop
 				{
-					// create the vehicle and put in datapad
+					// create the VehicleController and put in datapad
 					Datapad*		datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
 
 					if(datapad->getCapacity())
 					{
-						gVehicleFactory->createVehicle(this->getItemType(),player);
+						gVehicleControllerFactory->createVehicleController(this->getItemType(),player);
 
 						Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 						inventory->removeObject(this);
@@ -68,7 +68,7 @@ void Deed::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 					}
 					else
 					{
-						gMessageLib->sendSystemMessage(player,L"Error datapad at max capacity. Couldn't create the vehicle.");
+						gMessageLib->sendSystemMessage(player,L"Error datapad at max capacity. Couldn't create the VehicleController.");
 					}
 				}
 				else

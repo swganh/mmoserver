@@ -11,7 +11,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include <math.h>
 
-#include "Vehicle.h"
+#include "VehicleController.h"
 #include "CreatureObject.h"
 #include "IntangibleObject.h"
 #include "PlayerObject.h"
@@ -34,7 +34,7 @@ unsigned char Swoop_Customization[99] =	{ 0x61, 0x00, 0x02, 0x11, 0xC3, //custom
 0xC3, 0x9B, 0xC3, 0xBF, 0x01, 0x02, 0x11, 0xC3, 0xBF, 0x03 };
 
 
-Vehicle::Vehicle() : IntangibleObject(),
+VehicleController::VehicleController() : IntangibleObject(),
 mTypesId(0),
 mHitPointLoss(0), //amount of hitpoints lost during travel
 mInclineAcceleration(0),
@@ -47,7 +47,7 @@ mOwner(0)
 	mBody		= NULL;
 }
 
-Vehicle::~Vehicle()
+VehicleController::~VehicleController()
 {
 	if(mBody)
 	{
@@ -59,17 +59,17 @@ Vehicle::~Vehicle()
 //=============================================================================
 //handles the radial selection
 
-void Vehicle::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
+void VehicleController::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 {
 
 	if(dynamic_cast<PlayerObject*>(srcObject))
 	{
 		switch(messageType)
 		{
-			case radId_vehicleGenerate:
-			case radId_vehicleStore:
+			case radId_VehicleGenerate:
+			case radId_VehicleStore:
 			{
-        // If a body for the vehicle exists then store it, if it doesn't then call it.
+        // If a body for the VehicleController exists then store it, if it doesn't then call it.
         if (mBody) {
           store();
         } else {
@@ -80,7 +80,7 @@ void Vehicle::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
 			default:
 			{
-				gLogger->logMsgF("Vehicle::Error: unknown radial selection: %d", MSG_NORMAL, messageType);
+				gLogger->logMsgF("VehicleController::Error: unknown radial selection: %d", MSG_NORMAL, messageType);
 			}
 			break;
 		}
@@ -89,11 +89,11 @@ void Vehicle::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
 //=============================================================================
 //handles the radial selection
-void Vehicle::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount)
+void VehicleController::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount)
 {
   mRadialMenu.reset(new RadialMenu());
   
-	mRadialMenu->addItem(1, 0, radId_vehicleGenerate, radAction_ObjCallback, "@pet/pet_menu:menu_call");
+	mRadialMenu->addItem(1, 0, radId_VehicleGenerate, radAction_ObjCallback, "@pet/pet_menu:menu_call");
 	mRadialMenu->addItem(2, 0, radId_itemDestroy, radAction_Default);
 	mRadialMenu->addItem(3, 0, radId_examine, radAction_Default);
 }
@@ -102,17 +102,17 @@ void Vehicle::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 item
 //===============================================================================================
 //spawns the physical body (CreatureObject)
 
-void Vehicle::call()
+void VehicleController::call()
 {
 	if(mBody)
 	{   //Destory the old body before creating a new one
-		gLogger->logMsgF("void Vehicle::call() body already exists", MSG_HIGH);
+		gLogger->logMsgF("void VehicleController::call() body already exists", MSG_HIGH);
     return;
 	}
 
 	if(mOwner->checkIfMountCalled())
 	{
-		gLogger->logMsgF("void Vehicle::call() mount already called", MSG_HIGH);
+		gLogger->logMsgF("void VehicleController::call() mount already called", MSG_HIGH);
 		return;
 
 	}
@@ -121,8 +121,8 @@ void Vehicle::call()
 		return;
 	}
 
-	// create the vehicle creature
-	gLogger->logMsgF("void Vehicle::call() create new body", MSG_HIGH);
+	// create the VehicleController creature
+	gLogger->logMsgF("void VehicleController::call() create new body", MSG_HIGH);
 
 	mBody = new MountObject();
 
@@ -134,7 +134,7 @@ void Vehicle::call()
 	mBody->setMoodId(0);
 	mBody->setCL(0);
 
-	mBody->setId(mId + 1);	// Vehicles are created by the vehiclefactory with +2 step for IDs
+	mBody->setId(mId + 1);	// VehicleControllers are created by the VehicleControllerfactory with +2 step for IDs
 
 	setBodyId(mBody->getId());
 
@@ -187,7 +187,7 @@ void Vehicle::call()
 	// add to world
 	if(!gWorldManager->addObject(mBody))
 	{
-		gLogger->logMsgF("void Vehicle::call() creating vehicle with id % "PRIu64" failed : couldnt add to world", MSG_HIGH, mBody->getId());
+		gLogger->logMsgF("void VehicleController::call() creating VehicleController with id % "PRIu64" failed : couldnt add to world", MSG_HIGH, mBody->getId());
 		SAFE_DELETE(mBody);
 		return;
 	}
@@ -206,17 +206,17 @@ void Vehicle::call()
 
 //===============================================================================================
 //stores the physical body
-void Vehicle::store()
+void VehicleController::store()
 {
 	if(!mBody)
 	{
-		gLogger->logMsg("Vehicle::store() Error: Store was called for a nonexistant body object!");
+		gLogger->logMsg("VehicleController::store() Error: Store was called for a nonexistant body object!");
 		return;
 	}
 
 	if(!mOwner || mOwner->isDead() || !mOwner->getHam()->checkMainPools(1,1,1))
 	{
-		gLogger->logMsg("Vehicle::store() couldnt find owner");
+		gLogger->logMsg("VehicleController::store() couldnt find owner");
 		return;
 	}
 
@@ -228,7 +228,7 @@ void Vehicle::store()
 
 	if(!mOwner->checkIfMountCalled())
 	{
-		gLogger->logMsg("Vehicle::store() Mount wasnt called !!!");
+		gLogger->logMsg("VehicleController::store() Mount wasnt called !!!");
 		return;
 	}
 
@@ -241,7 +241,7 @@ void Vehicle::store()
 	mOwner->setMounted(false);
 	mOwner->setMountCalled(false);
 
-	// finally unload & destroy the vehicle creature
+	// finally unload & destroy the VehicleController creature
 	gWorldManager->destroyObject(mBody);
 
 	// null the reference
@@ -253,17 +253,17 @@ void Vehicle::store()
 //===============================================================================================
 //dismount the owner from the physical body
 
-void Vehicle::dismountPlayer()
+void VehicleController::dismountPlayer()
 {
  	if(!mBody)
 	{
-		gLogger->logMsg("Vehicle::dismountPlayer() no Vehicle Body!!!");
+		gLogger->logMsg("VehicleController::dismountPlayer() no VehicleController Body!!!");
 		return;
 	}
 
 	if(!mOwner->checkIfMounted())
 	{
-		gLogger->logMsg("Vehicle::dismountPlayer() not mounted");
+		gLogger->logMsg("VehicleController::dismountPlayer() not mounted");
 		return;
 	}
 
@@ -288,18 +288,18 @@ void Vehicle::dismountPlayer()
 //mount the owner on the physical body
 //
 
-void Vehicle::mountPlayer()
+void VehicleController::mountPlayer()
 {
 	if(!mBody)
 	{
-		gLogger->logMsg("Vehicle::mountPlayer() no Vehicle Body!!!");
+		gLogger->logMsg("VehicleController::mountPlayer() no VehicleController Body!!!");
 		 return;
 	}
 
 	CreatureObject* body = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(this->getId()+1));
 	if(!body)
 	{
-		gLogger->logMsg("Vehicle::mountPlayer() no Vehicle Body by Id :(!!!");
+		gLogger->logMsg("VehicleController::mountPlayer() no VehicleController Body by Id :(!!!");
 		return;
 	}
 
@@ -328,7 +328,7 @@ void Vehicle::mountPlayer()
 		if (!(*it))
 		{
 			++it;
-			gLogger->logMsg("Vehicle::mountPlayer() getObjects in Range :: PlayerObject invalid!!!");
+			gLogger->logMsg("VehicleController::mountPlayer() getObjects in Range :: PlayerObject invalid!!!");
 			continue;
 		}
 
@@ -336,7 +336,7 @@ void Vehicle::mountPlayer()
 		if (!tested)
 		{
 			++it;
-			gLogger->logMsg("Vehicle::mountPlayer() getObjects in Range :: PlayerObject invalid!!!");
+			gLogger->logMsg("VehicleController::mountPlayer() getObjects in Range :: PlayerObject invalid!!!");
 			continue;
 		}
 

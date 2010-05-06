@@ -43,11 +43,11 @@ void TravelTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
 		if (gWorldConfig->isTutorial())
 		{
-#if defined(_MSC_VER)
+			#if defined(_MSC_VER)
 			if (this->getId() == 4294968329)
-#else
+			#else
 			if (this->getId() == 4294968329LLU)
-#endif
+			#endif
 			{
 				// This is the Travel Terminal in the tutorial.
 				Tutorial* tutorial = playerObject->getTutorial();
@@ -56,16 +56,25 @@ void TravelTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 				if (tutorial->getSubState() < 26)
 				{
 					// The quatermaster speaks...
-#if defined(_MSC_VER)
+					#if defined(_MSC_VER)
 					tutorial->spatialChat(47513085685, "Wait a minute there!  You can't use that travel terminal without the proper authorization.  Do you have your release documents on you?");
-#else
+					#else
 					tutorial->spatialChat(47513085685LLU, "Wait a minute there!  You can't use that travel terminal without the proper authorization.  Do you have your release documents on you?");
-#endif
+					#endif
 				}
 				else
 				{
 					tutorial->sendStartingLocationList();
 				}
+			}
+			#if defined(_MSC_VER)
+			else if (this->getId() == 4294968331)
+			#else
+			else if (this->getId() == 4294968331LLU)
+			#endif
+			{
+				Tutorial* tutorial = playerObject->getTutorial();
+				tutorial->sendStartingLocationList();
 			}
 		}
 		else

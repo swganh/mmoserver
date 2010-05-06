@@ -838,6 +838,12 @@ bool ObjectController::_validateEnqueueCommand(uint32 &reply1,uint32 &reply2,uin
 	{
 		if(!((*it)->validate(reply1,reply2,targetId,opcode,cmdProperties)))
 		{
+			PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
+			if(opcode == opOCRequestCraftingSession)
+			{
+				gMessageLib->sendCraftAcknowledge(opCraftCancelResponse,0,0,player);
+			}
+			gMessageLib->sendSystemMessage(player,L"You cannot do this at this time.");
 			return(false);
 		}
 
@@ -861,6 +867,12 @@ bool ObjectController::_validateProcessCommand(uint32 &reply1,uint32 &reply2,uin
 	{
 		if(!((*it)->validate(reply1,reply2,targetId,opcode,cmdProperties)))
 		{
+			PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
+			if(opcode == opOCRequestCraftingSession)
+			{
+				gMessageLib->sendCraftAcknowledge(opCraftCancelResponse,0,0,player);
+			}
+			gMessageLib->sendSystemMessage(player,L"You cannot do this at this time.");
 			return(false);
 		}
 

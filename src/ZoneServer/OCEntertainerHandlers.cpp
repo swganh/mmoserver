@@ -829,6 +829,7 @@ void ObjectController::_handleBandFlourish(uint64 targetId,Message* message,Obje
 
 void ObjectController::_handleImageDesign(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
+
 	PlayerObject* designObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetId));
 	PlayerObject*	imageDesigner	= dynamic_cast<PlayerObject*>(mObject);
 
@@ -899,19 +900,19 @@ void ObjectController::handleImageDesignChangeMessage(Message* message,uint64 ta
 {
 	message->getUint32();
 
-	uint64 dsgObjectId = message->getUint64();//Id of the one being Ided
-	uint64 idObjectId = message->getUint64(); // our object id?
+	uint64 dsgObjectId	= message->getUint64();//Id of the one being Ided
+	uint64 idObjectId	= message->getUint64(); // our object id?
 
-	uint64 buildingId = message->getUint64();//probably the buildings ID
+	uint64 buildingId	= message->getUint64();//probably the buildings ID
 
 	uint32 ColorCounter;
 	uint32 AttributeCounter;
 	string hair;
 	string holoEmote;
 
-	PlayerObject*	imageDesigner	= dynamic_cast<PlayerObject*>(mObject);
-	PlayerObject*	customer	= dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(dsgObjectId));
-	PlayerObject*	idObject	= dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(idObjectId));
+	PlayerObject*	messageGenerator	=	dynamic_cast<PlayerObject*>(mObject);
+	PlayerObject*	imageDesigner		=	dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(dsgObjectId));
+	PlayerObject*	customer			=	dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(idObjectId));
 
 
 	if(!customer)
@@ -958,7 +959,7 @@ void ObjectController::handleImageDesignChangeMessage(Message* message,uint64 ta
 		message->getStringAnsi(attribute);
 		value = message->getFloat();
 
-		idObject->UpdateIdAttributes(attribute,value);
+		customer->UpdateIdAttributes(attribute,value);
 	}
 
 	uint32 colorvalue;
@@ -968,12 +969,12 @@ void ObjectController::handleImageDesignChangeMessage(Message* message,uint64 ta
 		message->getStringAnsi(attribute);
 		colorvalue = message->getUint32();
 
-		idObject->UpdateIdColors(attribute,static_cast<uint16>(colorvalue));
+		customer->UpdateIdColors(attribute,static_cast<uint16>(colorvalue));
 	}
 
 	message->getStringAnsi(holoEmote);
 
-	if(((imageDesigner==idObject)||customerAccept) &&designerCommit)
+	if(customerAccept &&designerCommit)
 	{
 		if(imageDesigner->getImageDesignSession() == IDSessionNONE)
 			return;
@@ -984,17 +985,17 @@ void ObjectController::handleImageDesignChangeMessage(Message* message,uint64 ta
 		imageDesigner->SetImageDesignSession(IDSessionNONE);
 		customer->SetImageDesignSession(IDSessionNONE);
 		//changelists get deleted
-		gEntertainerManager->commitIdChanges(imageDesigner,customer,hair,creditsOffered, statMigration,holoEmote,flagHair);
+		gEntertainerManager->commitIdChanges(customer,imageDesigner,hair,creditsOffered, statMigration,holoEmote,flagHair);
 	}
 
 
-	if(imageDesigner->getImageDesignSession() == IDSessionPREY)
-		gMessageLib->sendIDChangeMessage(customer,customer,imageDesigner,hair, sessionId,creditsOffered, creditsDemanded,customerAccept,designerCommit,statMigration,smTimer,flagHair,buildingId,holoEmote);
+	//if(imageDesigner->getImageDesignSession() == IDSessionPREY)
+		//gMessageLib->sendIDChangeMessage(customer,customer,imageDesigner,hair, sessionId,creditsOffered, creditsDemanded,customerAccept,designerCommit,statMigration,smTimer,flagHair,buildingId,holoEmote);
 
-	if(imageDesigner->getImageDesignSession() == IDSessionID)
-	{
-		gMessageLib->sendIDChangeMessage(idObject,imageDesigner,idObject,hair, sessionId,creditsOffered, creditsDemanded,customerAccept,designerCommit,statMigration,smTimer,flagHair,buildingId,holoEmote);
-	}
+	//if(imageDesigner->getImageDesignSession() == IDSessionID)
+	//{
+	gMessageLib->sendIDChangeMessage(customer,imageDesigner,customer,hair, sessionId,creditsOffered, creditsDemanded,customerAccept,designerCommit,statMigration,smTimer,flagHair,buildingId,holoEmote);
+	//}
 
 }
 
@@ -1006,13 +1007,20 @@ void ObjectController::handleImageDesignStopMessage(Message* message,uint64 targ
 	uint64 idObjectId = message->getUint64(); // our object id?
 	message->getUint64();
 
-	PlayerObject*	imageDesigner	= dynamic_cast<PlayerObject*>(mObject);
-	PlayerObject*	customer	= dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(dsgObjectId));
-	PlayerObject*	idObject	= dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(idObjectId));
+	//the one who send the message - either id or customer
+	PlayerObject*	messageGenerator	=	dynamic_cast<PlayerObject*>(mObject);
+
+	//the imagedesigner 
+	PlayerObject*	imageDesigner		=	dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(dsgObjectId));//
+	
+	//the customer
+	PlayerObject*	customer			=	dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(idObjectId));
 
 
 	if(!customer)
+	{
 		return;
+	}
 
 	if(!imageDesigner)
 		return;
@@ -1044,11 +1052,14 @@ void ObjectController::handleImageDesignStopMessage(Message* message,uint64 targ
 	message->getUint32(skillLevel3);
 	message->getUint32(skillLevel4);
 
-	if(imageDesigner->getImageDesignSession() == IDSessionPREY)
-		gMessageLib->sendIDEndMessage(customer,customer,imageDesigner,hair, counter2,creditsOffered, 0,unknown2,flag2,flag3,counter1);
+	if(messageGenerator->getImageDesignSession() == IDSessionPREY)
+	{
+		gMessageLib->sendIDEndMessage(imageDesigner,customer,imageDesigner,hair, counter2,creditsOffered, 0,unknown2,flag2,flag3,counter1);
+		gMessageLib->sendSystemMessage(imageDesigner,L"The Customer cancelled the session.");
+	}
 
-	if(imageDesigner->getImageDesignSession() == IDSessionID)
-		gMessageLib->sendIDEndMessage(idObject,imageDesigner,idObject,hair, counter2,creditsOffered, 0,unknown2,flag2,flag3,counter1);
+	if(messageGenerator->getImageDesignSession() == IDSessionID)
+		gMessageLib->sendIDEndMessage(customer,customer,imageDesigner,hair, counter2,creditsOffered, 0,unknown2,flag2,flag3,counter1);
 
 	imageDesigner->setIDPartner(0);
 	customer->setIDPartner(0);
@@ -1203,7 +1214,7 @@ void ObjectController::_handlePlayHoloEmote(uint64 targetId,Message* message,Obj
 				gMessageLib->sendPlayClientEffectObjectMessage(effect,"head",we);
 				int8 sql[256];
 				sprintf(sql,"update swganh.character_holoemotes set charges = charges-1 where character_id = %I64u", we->getId());
-				mDatabase->ExecuteSqlAsync(this,NULL,sql);
+				mDatabase->ExecuteSqlAsync(this,new(mDBAsyncContainerPool.malloc()) ObjControllerAsyncContainer(OCQuery_Nope),sql);
 			}
 			else
 			{

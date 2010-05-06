@@ -224,17 +224,7 @@ PlayerObject::~PlayerObject()
 	if(GroupObject* group = gGroupManager->getGroupObject(mGroupId))
 	{
 		group->removePlayer(mId);
-		if(this->getIDPartner() != 0)
-		{
-			if(PlayerObject* idPartner = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getIDPartner())))
-			{
-				idPartner->SetImageDesignSession(IDSessionNONE);
-				idPartner->setIDPartner(0);
-				this->SetImageDesignSession(IDSessionNONE);
-				this->setIDPartner(0);
-			}
-
-		}
+		
 	}
 
 	// can't zone or logout while in combat

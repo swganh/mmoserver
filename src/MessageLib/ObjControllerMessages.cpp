@@ -2202,11 +2202,11 @@ void MessageLib::sendIDEndMessage(PlayerObject* targetObject,PlayerObject* srcOb
 	mMessageFactory->addUint32(opObjControllerMessage);
 	mMessageFactory->addUint32(0x0000000B);
 	mMessageFactory->addUint32(opImageDesignStopMessage);
-	mMessageFactory->addUint64(targetObject->getId());//the object were manipulating
+	mMessageFactory->addUint64(targetObject->getId());//the recipient
 	mMessageFactory->addUint32(0);                    // unknown
 
-	mMessageFactory->addUint64(srcObject->getId()); //the recipient
-	mMessageFactory->addUint64(otherObject->getId());   //the manipulator
+	mMessageFactory->addUint64(otherObject->getId()); //the recipient
+	mMessageFactory->addUint64(srcObject->getId());   //the manipulator
 	mMessageFactory->addUint64(otherObject->getParentId()-1);
 
 	if(hair.getLength() > 0)

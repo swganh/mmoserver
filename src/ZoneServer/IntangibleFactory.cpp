@@ -44,7 +44,7 @@ IntangibleFactory*	IntangibleFactory::Init(Database* database)
 
 IntangibleFactory::IntangibleFactory(Database* database) : FactoryBase(database)
 {
-	mVehicleControllerFactory = VehicleControllerFactory::Init(mDatabase);
+	mVehicleFactory = VehicleFactory::Init(mDatabase);
 }
 
 
@@ -61,14 +61,14 @@ IntangibleFactory::~IntangibleFactory()
 
 void IntangibleFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client)
 {
-	mVehicleControllerFactory->requestObject(ofCallback,id,subGroup,subType,client);
+	mVehicleFactory->requestObject(ofCallback,id,subGroup,subType,client);
 }
 
 //=============================================================================
 
 void IntangibleFactory::releaseAllPoolsMemory()
 {
-	mVehicleControllerFactory->releaseQueryContainerPoolMemory();
+	mVehicleFactory->releaseQueryContainerPoolMemory();
 }
 
 //=============================================================================

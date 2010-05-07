@@ -38,7 +38,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "UIOfferTeachBox.h"
 #include "UIPlayerSelectBox.h"
 #include "UICloneSelectListBox.h"
-#include "VehicleController.h"
+#include "Vehicle.h"
 #include "WorldConfig.h"
 #include "WorldManager.h"
 #include "ZoneOpcodes.h"
@@ -138,12 +138,12 @@ PlayerObject::PlayerObject()
 
 PlayerObject::~PlayerObject()
 {
-	// store any eventually spawned VehicleController
+	// store any eventually spawned vehicle
 	Datapad* datapad = dynamic_cast<Datapad*>(mEquipManager.getEquippedObject(CreatureEquipSlot_Datapad));
 
 	if(mMount && datapad)
 	{
-		if(VehicleController* datapad_pet = dynamic_cast<VehicleController*>(datapad->getDataById(mMount->getPetController())))
+		if(Vehicle* datapad_pet = dynamic_cast<Vehicle*>(datapad->getDataById(mMount->getPetController())))
 		{
 			datapad_pet->dismountPlayer();
 			datapad_pet->store();

@@ -66,7 +66,7 @@ class Datapad : public TangibleObject
 		
 		MissionList::iterator removeMission(MissionList::iterator it);
 
-		//data -- aka mounts,pets,VehicleControllers, etc
+		//data -- aka mounts,pets,vehicles, etc
 		DataList*		   getData() { return &mData; }
 		IntangibleObject*  getDataById(uint64 id);
 		bool		       addData(IntangibleObject* Data);

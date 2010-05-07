@@ -91,6 +91,7 @@ class NPCObject : public CreatureObject
 		void			setDirection(float deltaX, float deltaZ);
 
 		void			moveAndUpdatePosition(void);
+		void			updatePosition(uint64 parentId, const glm::vec3& newPosition);
 
 		uint64			getLastConversationTarget()const { return mLastConversationTarget; }
 		uint64			getLastConversationRequest() const { return mLastConversationRequest; }

@@ -16,7 +16,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "ObjectControllerCommandMap.h"
 #include "PlayerObject.h"
 #include "Weapon.h"
-#include "VehicleController.h"
+#include "Vehicle.h"
 #include "WorldManager.h"
 #include "WorldConfig.h"
 
@@ -727,10 +727,10 @@ uint8 CombatManager::_tryStateEffects(CreatureObject* attacker,CreatureObject* d
 			if(player->checkIfMounted())
 			{
 				//Get the player's mount
-				if(VehicleController* controller = dynamic_cast<VehicleController*>(gWorldManager->getObjectById(player->getMount()->getPetController())))
+				if(Vehicle* vehicle = dynamic_cast<Vehicle*>(gWorldManager->getObjectById(player->getMount()->getPetController())))
 				{
 					//Now dismount
-					controller->dismountPlayer();
+					vehicle->dismountPlayer();
 				}
 			}
 

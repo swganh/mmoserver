@@ -317,7 +317,7 @@ void AttackableStaticNpc::spawn(void)
 	}
 
 	// Add us to the world.
-	gMessageLib->broadcastContainmentMessage(this,this->getParentId(),4);
+	gMessageLib->broadcastContainmentMessage(this->getId(),this->getParentId(),4,this);
 
 	// send out position updates to known players
 	this->setInMoveCount(this->getInMoveCount() + 1);

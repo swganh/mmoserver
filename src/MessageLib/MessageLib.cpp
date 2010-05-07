@@ -33,7 +33,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "ZoneServer/PlayerObject.h"
 #include "ZoneServer/ResourceContainer.h"
 #include "ZoneServer/UIOpcodes.h"
-#include "ZoneServer/VehicleController.h"
+#include "ZoneServer/Vehicle.h"
 #include "ZoneServer/Wearable.h"
 #include "ZoneServer/WorldConfig.h"
 #include "ZoneServer/WorldManager.h"
@@ -91,6 +91,8 @@ MessageLib::~MessageLib()
 //
 bool MessageLib::_checkPlayer(const PlayerObject* const player) const
 {
+	if(!player)
+		return false;
 
 	//PlayerObject* tested = gWorldManager->getPlayerByAccId(player->getAccountId());
 
@@ -99,14 +101,8 @@ bool MessageLib::_checkPlayer(const PlayerObject* const player) const
 	//	gLogger->logMsgF("Player account (%u) invalid",MSG_NORMAL,player->getAccountId());
 	//	return false;
 	//}
-	
-	//player gets PlayerConnState_LinkDead when he disconnects but is still in the world
-	//we in theory could still send updates 
-	//return((player->isConnected())&&(player->getClient()));
 
-	//the idea is that this check gets useless when the SI / knownobjectscode is stable
-	
-	return(player&&player->getClient());
+	return((player->isConnected())&&(player->getClient()));
 }
 
 //======================================================================================================================
@@ -128,6 +124,8 @@ bool MessageLib::_checkPlayer(uint64 playerId) const
 //send movement based on messageheap size and distance
 bool MessageLib::_checkDistance(const glm::vec3& mPosition1, Object* object, uint32 heapWarningLevel)
 {
+	if(mMessageFactory->getHeapsize() > 98.0)
+		return false;
 
 	//just send everything we have
 	if(heapWarningLevel < 4)
@@ -177,57 +175,29 @@ void MessageLib::_sendToInRangeUnreliable(Message* message, Object* const object
 	PlayerObjectSet::iterator	playerIt		= inRangePlayers->begin();
 
 	bool failed = false;
-	
-	//save us some cycles if traffic is low
-	if(mMessageFactory->HeapWarningLevel() <= 4)
+	while(playerIt != inRangePlayers->end())
 	{
-		while(playerIt != inRangePlayers->end())
+		if(_checkPlayer((*playerIt)))
 		{
-			if(_checkPlayer((*playerIt)))
+			bool yn = _checkDistance((*playerIt)->mPosition,object,mMessageFactory->HeapWarningLevel());
+			if(yn)
 			{
 				// clone our message
 				mMessageFactory->StartMessage();
 				mMessageFactory->addData(message->getData(),message->getSize());
 
 				((*playerIt)->getClient())->SendChannelAUnreliable(mMessageFactory->EndMessage(),(*playerIt)->getAccountId(),CR_Client,static_cast<uint8>(priority));
-				
 			}
 			else
 			{
-				//an invalid player at this point is like armageddon and Ultymas birthday combined at one time
-				assert(false && "Invalid Player in sendtoInrange");
+				failed = true;
 			}
-
-			++playerIt;
 		}
 
-		if( failed)
-			gLogger->logMsgF("MessageLib Heap Protection engaged Heap Warning Level %u Heap size %f",MSG_NORMAL,mMessageFactory->HeapWarningLevel(),mMessageFactory->getHeapsize());
+		++playerIt;
 	}
-	else
-	{
-		while(playerIt != inRangePlayers->end())
-		{
-			if(_checkPlayer((*playerIt)))
-			{
-				bool yn = _checkDistance((*playerIt)->mPosition,object,mMessageFactory->HeapWarningLevel());
-				if(yn)
-				{
-					// clone our message
-					mMessageFactory->StartMessage();
-					mMessageFactory->addData(message->getData(),message->getSize());
-
-					((*playerIt)->getClient())->SendChannelAUnreliable(mMessageFactory->EndMessage(),(*playerIt)->getAccountId(),CR_Client,static_cast<uint8>(priority));
-				}
-				else
-				{
-					failed = true;
-				}
-			}
-
-			++playerIt;
-		}
-	}
+	if( failed)
+		gLogger->logMsgF("MessageLib Heap Protection engaged Heap Warning Level %u Heap size %f",MSG_NORMAL,mMessageFactory->HeapWarningLevel(),mMessageFactory->getHeapsize());
 
 	if(toSelf)
 	{
@@ -539,7 +509,7 @@ bool MessageLib::sendCreatePlayer(PlayerObject* playerObject,PlayerObject* targe
 				++it;
 			}
 
-			//Send player's intangibles VehicleControllers,pets,droids...etc
+			//Send player's intangibles vehicles,pets,droids...etc
 			DataList* intangibles = dpad->getData();
 			DataList::iterator ite = intangibles->begin();
 
@@ -556,10 +526,10 @@ bool MessageLib::sendCreatePlayer(PlayerObject* playerObject,PlayerObject* targe
 					{
 						case ItnoGroup_Vehicle:
 						{
-							// set Owner for VehicleControllers
-							if(VehicleController* controller = dynamic_cast<VehicleController*>(itno))
+							// set Owner for vehicles
+							if(Vehicle* vehicle = dynamic_cast<Vehicle*>(itno))
 							{
-								controller->setOwner(playerObject);
+								vehicle->setOwner(playerObject);
 							}
 						}
 						break;

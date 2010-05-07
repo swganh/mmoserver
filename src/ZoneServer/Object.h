@@ -229,6 +229,7 @@ class Object : public UICallback, public Anh_Utils::EventHandler
          */
         void moveBack(float distance);
 
+
         glm::quat   mDirection;
         glm::vec3   mPosition;
 		//Anh_Math::Quaternion	mDirection;

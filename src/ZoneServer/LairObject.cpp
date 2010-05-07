@@ -489,7 +489,7 @@ void LairObject::spawn(void)
 	}
 
 	// Add us to the world.
-	gMessageLib->broadcastContainmentMessage(this,this->getParentId(), -1);//(0xffffff)
+	gMessageLib->broadcastContainmentMessage(this->getId(),this->getParentId(), -1, this);
 
 	// send out position updates to known players
 	this->setInMoveCount(this->getInMoveCount() + 1);

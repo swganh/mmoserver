@@ -26,7 +26,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #define	 gMessageLib	MessageLib::getSingletonPtr()
 
 class MessageFactory;
-class MountObject;
 class Item;
 class IntangibleObject;
 class BuildingObject;
@@ -112,7 +111,7 @@ public:
 	bool				sendContainmentMessage_InRange(uint64 objectId,uint64 parentId,uint32 linkType,PlayerObject* targetObject);
 	bool				sendContainmentMessage_InRange(uint64 objectId,uint64 parentId,uint32 linkType,CreatureObject* targetObject);
 	bool				broadcastContainmentMessage(uint64 objectId,uint64 parentId,uint32 linkType,PlayerObject* targetObject);
-	bool				broadcastContainmentMessage(Object* targetObject,uint64 parentId,uint32 linkType);	// Used by Creatures.
+	bool				broadcastContainmentMessage(uint64 objectId,uint64 parentId,uint32 linkType,Object* targetObject);	// Used by Creatures.
 	bool				sendOpenedContainer(uint64 objectId, PlayerObject* targetObject);
 	bool				sendPostureMessage(CreatureObject* creatureObject,PlayerObject* targetObject);
 	bool				sendEndBaselines(uint64 objectId,const PlayerObject* const targetObject) const;
@@ -222,7 +221,6 @@ public:
 	// position updates
 	void				sendDataTransform(Object* object);
 	void				sendDataTransformWithParent(Object* object);
-	void				sendDataTransformWithParent0B(Object* object);
 	void				sendSitOnObject(CreatureObject* creatureObject);
 
 	// position updates for tutorial
@@ -272,7 +270,7 @@ public:
 	void				sendBFUpdateCreo3(CreatureObject* playerObject);
 
 	// creature owner
-	void				sendOwnerUpdateCreo3(MountObject* mount);
+	void				sendOwnerUpdateCreo3(CreatureObject* creatureObject);
 
 	// group
 	void				sendGroupIdUpdateDeltasCreo6(uint64 groupId, const PlayerObject* const player, const PlayerObject* const target) const;

@@ -27,25 +27,9 @@ class MovingObject : public Object
 	public:
 		MovingObject();
 		virtual ~MovingObject();
-		
-		/*! Orients the current object so that it faces the object passed in.
-		 *
-		 * \param target_object The object the current object should face.
-		 */
-		void faceObject(Object* target_object);
-		
-		/* ==============================================================
-		 *	moves the object to the new position and updates qt and cells and knownobjects
-		 *	this is used for long range warps of players (elevators / playing instruments)
-		 *	aswell as npc / creature movement
-		*/
-		void updatePosition(uint64 parentId, const glm::vec3& newPosition);
-		void updatePositionInCell(uint64 parentId, const glm::vec3& newPosition);
-		void updatePositionOutside(uint64 parentId, const glm::vec3& newPosition);
 
 		// current movement updates sequence
 		uint32		getInMoveCount(){ return mInMoveCount; }
-		uint32		incInMoveCount(){ return ++mInMoveCount; }
 		void		setInMoveCount(uint32 moveCount){ mInMoveCount = moveCount; }
 
 		// walk speed

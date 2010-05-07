@@ -112,7 +112,7 @@ void DatapadFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				mDatabase->ExecuteSqlAsync(this,asContainer,
 						"(SELECT \'waypoints\',waypoints.waypoint_id FROM waypoints WHERE owner_id = %"PRIu64")"
 						" UNION (SELECT \'manschematics\',items.id FROM items WHERE (parent_id=%"PRIu64"))"
-						" UNION (SELECT \'Vehicles\',Vehicles.id FROM Vehicles WHERE (parent=%"PRIu64"))"
+						" UNION (SELECT \'vehicles\',vehicles.id FROM vehicles WHERE (parent=%"PRIu64"))"
 						,dtpId-3,dtpId,dtpId);
 
 			}
@@ -204,10 +204,10 @@ void DatapadFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					gTangibleFactory->requestObject(this,queryContainer.mId,TanGroup_Item,0,asyncContainer->mClient);
 
 				}
-				else if(strcmp(queryContainer.mString.getAnsi(),"Vehicles") == 0)
+				else if(strcmp(queryContainer.mString.getAnsi(),"vehicles") == 0)
 				{
-					//datapad counter gets updated in VehicleController factory
-					gVehicleControllerFactory->requestObject(this,queryContainer.mId,0,0,asyncContainer->mClient);
+					//datapad counter gets updated in vehicle factory
+					gVehicleFactory->requestObject(this,queryContainer.mId,0,0,asyncContainer->mClient);
 
 				}
 

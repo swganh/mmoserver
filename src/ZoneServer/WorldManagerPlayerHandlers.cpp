@@ -36,7 +36,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "ResourceManager.h"
 #include "SchematicManager.h"
 #include "TreasuryManager.h"
-#include "VehicleController.h"
+#include "Vehicle.h"
 #include "WorldConfig.h"
 #include "ZoneOpcodes.h"
 #include "ZoneServer.h"
@@ -231,7 +231,7 @@ void WorldManager::addDisconnectedPlayer(PlayerObject* playerObject)
 
 	if(playerObject->getMount() && datapad)
 	{
-		if(VehicleController* datapad_pet = dynamic_cast<VehicleController*>(datapad->getDataById(playerObject->getMount()->getPetController())))
+		if(Vehicle* datapad_pet = dynamic_cast<Vehicle*>(datapad->getDataById(playerObject->getMount()->getPetController())))
 		{
 			datapad_pet->dismountPlayer();
 			datapad_pet->store();

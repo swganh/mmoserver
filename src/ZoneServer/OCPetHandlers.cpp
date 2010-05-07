@@ -17,7 +17,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "ObjectControllerCommandMap.h"
 #include "PlayerObject.h"
 #include "UIManager.h"
-#include "VehicleController.h"
+#include "Vehicle.h"
 #include "VehicleFactory.h"
 #include "WorldConfig.h"
 #include "WorldManager.h"
@@ -35,7 +35,7 @@ void ObjectController::_handleMount(uint64 targetId,Message* message,ObjectContr
 	// And some parameter validation...
 	if (targetId == 0)
 	{
-		gLogger->logMsg("ObjectController::_handleMount : Cannot find VehicleController ID :(");
+		gLogger->logMsg("ObjectController::_handleMount : Cannot find vehicle ID :(");
 		return;
 	}
 
@@ -47,17 +47,17 @@ void ObjectController::_handleMount(uint64 targetId,Message* message,ObjectContr
 		if (!player->checkIfMounted())
 		{
 			// verify its player's mount
-			MountObject* pet	= dynamic_cast<MountObject*>(gWorldManager->getObjectById(targetId));
+			CreatureObject* pet	= dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(targetId));
 			if (pet && (pet->getOwner() == player->getId()))
 			{
-				// get the mount VehicleController object by the id (Creature object id - 1 )
+				// get the mount Vehicle object by the id (Creature object id - 1 )
 
-				if(VehicleController* controller = dynamic_cast<VehicleController*>(gWorldManager->getObjectById(pet->getPetController())))
+				if(Vehicle* vehicle = dynamic_cast<Vehicle*>(gWorldManager->getObjectById(pet->getPetController())))
 				{
 					//The /mount command can work up to 32m on live
-                    if(glm::distance(controller->getBody()->mPosition, player->mPosition) <= 32)
+                    if(glm::distance(vehicle->getBody()->mPosition, player->mPosition) <= 32)
 					{
-						controller->mountPlayer();
+						vehicle->mountPlayer();
 					}
 					else
 					{
@@ -66,7 +66,7 @@ void ObjectController::_handleMount(uint64 targetId,Message* message,ObjectContr
 				}
 				else
 				{
-					gLogger->logMsg("ObjectController::_handleMount : Cannot find VehicleController");
+					gLogger->logMsg("ObjectController::_handleMount : Cannot find vehicle");
 				}
 			}
 		}
@@ -91,7 +91,7 @@ void ObjectController::_handleDismount(uint64 targetId,Message* message,ObjectCo
 		if (player->checkIfMounted())
 		{
 			// verify its player's mount
-			MountObject* pet = NULL;
+			CreatureObject* pet = NULL;
 			if (targetId == 0)
 			{
 				// No object targeted, assume the one we are riding.	- what else should we dismount ???
@@ -99,15 +99,15 @@ void ObjectController::_handleDismount(uint64 targetId,Message* message,ObjectCo
 			}
 			else
 			{
-				pet = dynamic_cast<MountObject*>(gWorldManager->getObjectById(targetId));
+				pet = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(targetId));
 			}
 
 			if (pet && (pet->getOwner() == player->getId()))
 			{
-				// get the pets controller for a swoop its the VehicleController
-				if(VehicleController* controller = dynamic_cast<VehicleController*>(gWorldManager->getObjectById(pet->getPetController())))
+				// get the pets controller for a swoop its the vehicle
+				if(Vehicle* vehicle = dynamic_cast<Vehicle*>(gWorldManager->getObjectById(pet->getPetController())))
 				{
-					controller->dismountPlayer();
+					vehicle->dismountPlayer();
 				}
 			}
 		}

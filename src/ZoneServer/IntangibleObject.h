@@ -33,7 +33,7 @@ enum IntangibleGroup
 class IntangibleObject : public Object
 {
 	friend class ObjectFactory;
-	friend class VehicleControllerFactory;
+	friend class VehicleFactory;
 
 public:
 		IntangibleObject();

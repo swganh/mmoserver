@@ -9,8 +9,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
-#ifndef ANH_ZONESERVER_VehicleController_FACTORY_H
-#define ANH_ZONESERVER_VehicleController_FACTORY_H
+#ifndef ANH_ZONESERVER_VEHICLE_FACTORY_H
+#define ANH_ZONESERVER_VEHICLE_FACTORY_H
 
 #include "FactoryBase.h"
 #include "ObjectFactoryCallback.h"
@@ -22,55 +22,55 @@ class DataBinding;
 class DispatchClient;
 class IntangibleObject;
 class PlayerObject;
-class VehicleController;
+class Vehicle;
 
-#define	 gVehicleControllerFactory	VehicleControllerFactory::getSingletonPtr()
-
-//=============================================================================
-
+#define	 gVehicleFactory	VehicleFactory::getSingletonPtr()
 
 //=============================================================================
 
-enum VehicleControllerQuery
+
+//=============================================================================
+
+enum VehicleQuery
 {
-	VehicleControllerFactoryQuery_Create		= 1,
-	VehicleControllerFactoryQuery_TypesId		= 2,
-	VehicleControllerFactoryQuery_ItnoData		= 3,
-	VehicleControllerFactoryQuery_MainData		= 4,
-	VehicleControllerFactoryQuery_Attributes	= 5
+	VehicleFactoryQuery_Create		= 1,
+	VehicleFactoryQuery_TypesId		= 2,
+	VehicleFactoryQuery_ItnoData	= 3,
+	VehicleFactoryQuery_MainData	= 4,
+	VehicleFactoryQuery_Attributes	= 5
 };
 
 //=============================================================================
 
-class VehicleControllerFactory : public FactoryBase, public ObjectFactoryCallback
+class VehicleFactory : public FactoryBase, public ObjectFactoryCallback
 {
 	public:
 
-		static	VehicleControllerFactory*	getSingletonPtr() { return mSingleton; }
-		static	VehicleControllerFactory*	Init(Database* database);
+		static	VehicleFactory*	getSingletonPtr() { return mSingleton; }
+		static	VehicleFactory*	Init(Database* database);
 
-		~VehicleControllerFactory();
+		~VehicleFactory();
 
 		virtual void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
 		virtual void			handleObjectReady(Object* object,DispatchClient* client);
 		void					requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
-		void					createVehicleController(uint32 Vehicle_type,PlayerObject* targetPlayer);
+		void					createVehicle(uint32 vehicle_type,PlayerObject* targetPlayer);
 
 
 	private:
 
-		VehicleControllerFactory(Database* database);
+		VehicleFactory(Database* database);
 
 		void				_setupDatabindings();
 		void				_destroyDatabindings();
 
-		VehicleController*			_createVehicleController(DatabaseResult* result);
+		Vehicle*			_createVehicle(DatabaseResult* result);
 
-		static VehicleControllerFactory*	mSingleton;
+		static VehicleFactory*	mSingleton;
 		static bool					mInsFlag;
 
-		DataBinding*				mVehicleControllerItno_Binding;
-		DataBinding*				mVehicleControllerCreo_Binding;
+		DataBinding*				mVehicleItno_Binding;
+		DataBinding*				mVehicleCreo_Binding;
 
 };
 

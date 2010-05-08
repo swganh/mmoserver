@@ -282,6 +282,9 @@ void Vehicle::dismountPlayer()
 
 	mOwner->setMounted(false);
 
+	// Player should begin moving at their own speed again.
+	gMessageLib->sendUpdateMovementProperties(mOwner);
+
 }
 
 //===============================================================================================
@@ -315,6 +318,9 @@ void Vehicle::mountPlayer()
 	gMessageLib->sendStateUpdate(mBody);
 
 	mOwner->setMounted(true);
+
+	// Player should begin moving at the rate of the vehicle.
+	gMessageLib->sendUpdateMovementProperties(mOwner);
 
 	// TEST ERUPTOR
 	// This will ensure the Swoop is seen by other players.

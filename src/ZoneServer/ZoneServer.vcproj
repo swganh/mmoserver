@@ -1390,11 +1390,11 @@
 					Name="Vehicles"
 					>
 					<File
-						RelativePath=".\Vehicle.cpp"
+						RelativePath=".\VehicleController.cpp"
 						>
 					</File>
 					<File
-						RelativePath=".\Vehicle.h"
+						RelativePath=".\VehicleController.h"
 						>
 					</File>
 					<File

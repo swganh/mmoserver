@@ -70,7 +70,7 @@ VehicleFactory::~VehicleFactory()
 
 void VehicleFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client)
 {
-	mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,VehicleFactoryQuery_TypesId,client,id),
+	mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,VehicleControllerFactoryQuery_TypesId,client,id),
 		"SELECT vehicle_types_id FROM vehicles WHERE id = %"PRIu64"",id);
 
 }
@@ -126,7 +126,7 @@ void VehicleFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 			QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,VehicleFactoryQuery_ItnoData,asyncContainer->mClient,asyncContainer->mId);
 
-			mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT vehicle_object_string, vehicle_itno_object_string, vehicle_name_file, vehicle_detail_file, vehicle_name FROM vehicle_types WHERE id = %u",vehicleType);
+			mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT vehicle_object_string, vehicle_itno_object_string, vehicle_name_file, vehicle_detail_file, vehicle_name FROM vehicle_types WHERE id = %u",VehicleControllerType);
 
 		}
 		break;
@@ -144,8 +144,7 @@ void VehicleFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			QueryContainerBase* aContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,VehicleFactoryQuery_MainData,asyncContainer->mClient,asyncContainer->mId);
 			aContainer->mObject = (Object*)(IntangibleObject*)vehicle;
 
-			mDatabase->ExecuteSqlAsync(this,aContainer,"SELECT vehicle_types_id, parent, vehicle_hitpoint_loss,vehicle_incline_acceleration,vehicle_flat_acceleration FROM vehicles WHERE id = %"PRIu64"",vehicle->getId());
-
+			mDatabase->ExecuteSqlAsync(this,aContainer,"SELECT vehicle_types_id, parent, vehicle_hitpoint_loss,vehicle_incline_acceleration,vehicle_flat_acceleration FROM vehicles WHERE id = %"PRIu64"",VehicleController->getId());
 
 		}
 		break;
@@ -198,9 +197,9 @@ void VehicleFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 void VehicleFactory::createVehicle(uint32 vehicle_type,PlayerObject* targetPlayer)
 {
 	int8 sql[256];
-	sprintf(sql,"SELECT sf_DefaultVehicleCreate(%u, %"PRIu64")",vehicle_type,targetPlayer->getId());
-	 gLogger->logMsgF("VehicleFactory::createVehicle query %s", MSG_NORMAL, sql);
-	mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(this,VehicleFactoryQuery_Create,targetPlayer->getClient()),
+	sprintf(sql,"SELECT sf_DefaultVehicleCreate(%u, %"PRIu64")",VehicleController_type,targetPlayer->getId());
+	 gLogger->logMsgF("VehicleControllerFactory::createVehicleController query %s", MSG_NORMAL, sql);
+	mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(this,VehicleControllerFactoryQuery_Create,targetPlayer->getClient()),
 		sql);
 }
 //=============================================================================

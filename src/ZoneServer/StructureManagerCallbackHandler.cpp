@@ -820,7 +820,7 @@ void StructureManager::_HandleCheckPermission(StructureManagerAsyncContainer* as
 				building->updateCellPermissions(player,true);
 		}
 		else
-			gMessageLib->sendSystemMessage(player,L"You are not an admin of this structure");
+			gMessageLib->sendSystemMessage(player,L"", "player_strucuter","not_admin");
 	}
 
 	mDatabase->DestroyDataBinding(binding);

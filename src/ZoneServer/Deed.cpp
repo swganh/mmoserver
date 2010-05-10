@@ -78,7 +78,7 @@ void Deed::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 					//check the region whether were allowed to build
 					if(!gStructureManager->checkCityRadius(player))
 					{
-						gMessageLib->sendSystemMessage(player,L"You cannot place this structure inside a no-build zone.");
+						gMessageLib->sendSystemMessage(player,L"","faction_perk","no_build_area");
 						return;
 					}
 

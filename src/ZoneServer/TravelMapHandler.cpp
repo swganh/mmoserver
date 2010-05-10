@@ -341,7 +341,7 @@ void TravelMapHandler::_processTravelPointListRequest(Message* message,DispatchC
 			{
 				printListing.push_back((*it));
 			}
-			it++;			
+			++it;			
 		}
 
 		//Build our message.
@@ -351,13 +351,13 @@ void TravelMapHandler::_processTravelPointListRequest(Message* message,DispatchC
 
 		end = printListing.end();
 		gMessageFactory->addUint32(printListing.size());
-		for(it = printListing.begin(); it != end; it++)
+		for(it = printListing.begin(); it != end; ++it)
 		{
 			gMessageFactory->addString((*it)->descriptor);
 		}
 
 		gMessageFactory->addUint32(printListing.size());
-		for(it = printListing.begin(); it != end; it++)
+		for(it = printListing.begin(); it != end; ++it)
 		{
 			gMessageFactory->addFloat((*it)->x);
 			gMessageFactory->addFloat((*it)->y);
@@ -365,13 +365,13 @@ void TravelMapHandler::_processTravelPointListRequest(Message* message,DispatchC
 		}
 
 		gMessageFactory->addUint32(printListing.size());
-		for(it = printListing.begin(); it != end; it++)
+		for(it = printListing.begin(); it != end; ++it)
 		{
 			gMessageFactory->addUint32((*it)->taxes);
 		}
 
 		gMessageFactory->addUint32(printListing.size());
-		for(it = printListing.begin(); it != end; it++)
+		for(it = printListing.begin(); it != end; ++it)
 		{
 			gMessageFactory->addUint8(1);
 		}

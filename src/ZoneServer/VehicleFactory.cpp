@@ -71,7 +71,7 @@ VehicleControllerFactory::~VehicleControllerFactory()
 void VehicleControllerFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client)
 {
 	mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,VehicleControllerFactoryQuery_TypesId,client,id),
-		"SELECT VehicleController_types_id FROM VehicleControllers WHERE id = %"PRIu64"",id);
+		"SELECT vehicle_types_id FROM vehicles WHERE id = %"PRIu64"",id);
 
 }
 
@@ -126,7 +126,7 @@ void VehicleControllerFactory::handleDatabaseJobComplete(void* ref,DatabaseResul
 
 			QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,VehicleControllerFactoryQuery_ItnoData,asyncContainer->mClient,asyncContainer->mId);
 
-			mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT VehicleController_object_string, VehicleController_itno_object_string, VehicleController_name_file, VehicleController_detail_file, VehicleController_name FROM VehicleController_types WHERE id = %u",VehicleControllerType);
+			mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT vehicle_object_string, vehicle_itno_object_string, vehicle_name_file, vehicle_detail_file, vehicle_name FROM vehicle_types WHERE id = %u",VehicleControllerType);
 
 		}
 		break;
@@ -144,7 +144,7 @@ void VehicleControllerFactory::handleDatabaseJobComplete(void* ref,DatabaseResul
 			QueryContainerBase* aContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,VehicleControllerFactoryQuery_MainData,asyncContainer->mClient,asyncContainer->mId);
 			aContainer->mObject = (Object*)(IntangibleObject*)VehicleController;
 
-			mDatabase->ExecuteSqlAsync(this,aContainer,"SELECT VehicleController_types_id, parent, VehicleController_hitpoint_loss,VehicleController_incline_acceleration,VehicleController_flat_acceleration FROM VehicleControllers WHERE id = %"PRIu64"",VehicleController->getId());
+			mDatabase->ExecuteSqlAsync(this,aContainer,"SELECT vehicle_types_id, parent, vehicle_hitpoint_loss,vehicle_incline_acceleration,vehicle_flat_acceleration FROM vehicles WHERE id = %"PRIu64"",VehicleController->getId());
 
 
 		}
@@ -164,10 +164,10 @@ void VehicleControllerFactory::handleDatabaseJobComplete(void* ref,DatabaseResul
 				QueryContainerBase* asyncrContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,VehicleControllerFactoryQuery_Attributes,asyncContainer->mClient,asyncContainer->mId);
 				asyncrContainer->mObject = (Object*)(IntangibleObject*)controller;
 
-				mDatabase->ExecuteSqlAsync(this,asyncrContainer,"SELECT attributes.name, VehicleController_attributes.attribute_value, attributes.internal"
+				mDatabase->ExecuteSqlAsync(this,asyncrContainer,"SELECT attributes.name, vehicle_attributes.attribute_value, attributes.internal"
 					" FROM attributes"
-					" INNER JOIN VehicleController_attributes ON (attributes.id = VehicleController_attributes.attribute_id)"
-					" WHERE VehicleController_attributes.VehicleControllers_id = %"PRIu64" ORDER BY VehicleController_attributes.attribute_order",asyncContainer->mId);
+					" INNER JOIN vehicle_attributes ON (attributes.id = vehicle_attributes.attribute_id)"
+					" WHERE vehicle_attributes.vehicles_id = %"PRIu64" ORDER BY vehicle_attributes.attribute_order",asyncContainer->mId);
 			}
 
 		}
@@ -198,7 +198,7 @@ void VehicleControllerFactory::handleDatabaseJobComplete(void* ref,DatabaseResul
 void VehicleControllerFactory::createVehicleController(uint32 VehicleController_type,PlayerObject* targetPlayer)
 {
 	int8 sql[256];
-	sprintf(sql,"SELECT sf_DefaultVehicleControllerCreate(%u, %"PRIu64")",VehicleController_type,targetPlayer->getId());
+	sprintf(sql,"SELECT sf_DefaultVehicleCreate(%u, %"PRIu64")",VehicleController_type,targetPlayer->getId());
 	 gLogger->logMsgF("VehicleControllerFactory::createVehicleController query %s", MSG_NORMAL, sql);
 	mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(this,VehicleControllerFactoryQuery_Create,targetPlayer->getClient()),
 		sql);

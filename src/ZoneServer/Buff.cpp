@@ -15,6 +15,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "MissionManager.h"
 #include "PlayerObject.h"
 #include "WorldManager.h"
+#include "SkillEnums.h"
 
 #include "MessageLib/MessageLib.h"
 
@@ -141,7 +142,7 @@ uint64 Buff::Update(uint64 CurrentTime, void* ref)
 			BuffAttribute* temp = (*It);
 			ModifyAttribute(temp->GetType(), temp->GetTickValue());	 
 			//were not interested in the return value here as ticking buffs are not applying final changes to restore an attribute
-			It++;
+			++It;
 		}
 
 		//Increment the Tick Counter
@@ -158,11 +159,12 @@ uint64 Buff::Update(uint64 CurrentTime, void* ref)
 	{ //If  Buff is on final tick
 
 		FinalChanges();
-		/*if(mDowner!=0)
+		if(mChild!=0)
 		{
-			gWorldManager->addBuffToProcess(&mDowner);
-		}*/
+			gWorldManager->addBuffToProcess(mChild);
+		}
 		mMarkedForDeletion = true;
+		mTarget->CleanUpBuffs();
 		return 0;
 	}
 }
@@ -473,15 +475,122 @@ int32 Buff::ModifyAttribute(uint32 Type, int32 Value, bool damage, bool debuff)
 	break;
 	case bio_comp_mask_scent:
 		{
-			if(mTarget->getSkillModValue(16) != 0)
+			if(mTarget->getSkillModValue(SMod_mask_scent) != 0)
 			{
-				mTarget->modifySkillModValue(16, Value);
+				mTarget->modifySkillModValue(SMod_mask_scent, Value);
 			} else { //we don't have skill mods for Mask Scent, hence erase attributes
 				EraseAttributes();
 			}
 		}
 	break;
-
+	case accuracy:
+		{
+			mTarget->modifySkillModValue(SMod_ranged_accuracy, Value);
+			mTarget->modifySkillModValue(SMod_melee_accuracy, Value);
+		}
+		break;
+	case bleed_resist : {gLogger->logMsg("Unhandled Attribute: bleed_resist in Buff.cpp");} break;
+	case blind_defense : {
+			mTarget->modifySkillModValue(SMod_blind_defense, Value);
+		}
+		break;
+	case block : 
+		{
+			mTarget->modifySkillModValue(SMod_block, Value);
+		}
+		break;
+	case burst_run : {
+			mTarget->modifySkillModValue(SMod_burst_run, Value);
+		} break;
+	case camouflage : {
+			if(mTarget->getSkillModValue(SMod_camouflage) != 0)
+				mTarget->modifySkillModValue(SMod_camouflage, Value);
+		} break;
+	case creature_action : {gLogger->logMsg("Unhandled Attribute: creature_action in Buff.cpp");} break;
+	case creature_health : {gLogger->logMsg("Unhandled Attribute creature_health in Buff.cpp");} break;
+	case creature_mind : {gLogger->logMsg("Unhandled Attribute creature_mind in Buff.cpp");} break; 
+	case creature_tohit : {gLogger->logMsg("Unhandled Attribute creature_tohit in Buff.cpp");} break;
+	case dizzy_defense : {
+			mTarget->modifySkillModValue(SMod_dizzy_defense, Value);
+		} break;
+	case dodge : {
+			mTarget->modifySkillModValue(SMod_dodge, Value);
+		} break;
+	case experiment_bonus : {gLogger->logMsg("Unhandled Attribute: experimentation_bonus in Buff.cpp");} break; 
+	case fire_resist : {gLogger->logMsg("Unhandled Attribute: fire_resist in Buff.cpp");} break;
+	case food_reduce : {gLogger->logMsg("Unhandled Attribute in Buff.cpp");} break; 
+	case general_assembly : {
+			mTarget->modifySkillModValue(SMod_general_assembly, Value);
+		} break;
+	case harvesting : {
+		if(mTarget->getSkillModValue(SMod_creature_harvesting) != 0)
+			mTarget->modifySkillModValue(SMod_creature_harvesting, Value);
+		} break;
+	case healer_speed : {
+		if(mTarget->getSkillModValue(SMod_healing_wound_speed) != 0)
+			mTarget->modifySkillModValue(SMod_healing_wound_speed, Value);
+		if(mTarget->getSkillModValue(SMod_healing_injury_speed) != 0)
+			mTarget->modifySkillModValue(SMod_healing_injury_speed, Value);
+		if(mTarget->getSkillModValue(SMod_healing_range_speed) != 0)
+			mTarget->modifySkillModValue(SMod_healing_range_speed, Value);
+		} break;
+	case healing_dance_wound :  {
+		if(mTarget->getSkillModValue(SMod_healing_dance_wound) != 0)
+			mTarget->modifySkillModValue(SMod_healing_dance_wound, Value);
+		} break;
+	case healing_music_wound :  {
+		if(mTarget->getSkillModValue(SMod_healing_music_wound) != 0)
+			mTarget->modifySkillModValue(SMod_healing_music_wound, Value);
+		} break;
+	case healing_wound_treatment :  {
+		if(mTarget->getSkillModValue(SMod_healing_wound_treatment) != 0)
+			mTarget->modifySkillModValue(SMod_healing_wound_treatment, Value);
+		} break;
+	case incap_recovery : {gLogger->logMsg("Unhandled Attribute: incap_recovery in Buff.cpp");} break; 
+	case innate_regeneration :  {
+		if(mTarget->getSkillModValue(SMod_private_innate_regeneration) != 0)
+			mTarget->modifySkillModValue(SMod_private_innate_regeneration, Value);
+		} break; 
+	case innate_roar :  {
+		if(mTarget->getSkillModValue(SMod_private_innate_roar) != 0)
+			mTarget->modifySkillModValue(SMod_private_innate_roar, Value);
+		} break;
+	case intimidate_defense :  {
+			mTarget->modifySkillModValue(SMod_intimidate_defense, Value);
+		} break;
+	case knockdown_defense :  {
+			mTarget->modifySkillModValue(SMod_knockdown_defense, Value);
+		} break;
+	case melee_defense :  {
+			mTarget->modifySkillModValue(SMod_melee_defense, Value);
+		} break;
+	case mind_heal : {gLogger->logMsg("Unhandled Attribute: mind_heal in Buff.cpp");} break; 
+	case mitigate_damage : {gLogger->logMsg("Unhandled Attribute: mitigate_damage in Buff.cpp");} break; 
+	case poison_disease_resist : {gLogger->logMsg("Unhandled Attribute: poison_disease_resist in Buff.cpp");} break;
+	case ranged_defense :  {
+			mTarget->modifySkillModValue(SMod_ranged_defense, Value);
+		} break;
+	case reduce_clone_wounds : {gLogger->logMsg("Unhandled Attribute: reduce_clone_wounds in Buff.cpp");} break;
+	case reduce_spice_downtime : {gLogger->logMsg("Unhandled Attribute: reduce_spice_downtime in Buff.cpp");} break;
+	case stun_defense :  {
+			mTarget->modifySkillModValue(SMod_stun_defense, Value);
+		} break;
+	case surveying :  {
+		if(mTarget->getSkillModValue(SMod_surveying) != 0)
+			mTarget->modifySkillModValue(SMod_surveying, Value);
+		} break;
+	case tame_bonus :  {
+		if(mTarget->getSkillModValue(SMod_tame_bonus) != 0)
+			mTarget->modifySkillModValue(SMod_tame_bonus, Value);
+		} break;
+	case trapping :  {
+		if(mTarget->getSkillModValue(SMod_trapping) != 0)
+			mTarget->modifySkillModValue(SMod_trapping, Value);
+		} break; 
+	case unarmed_damage :  {
+			mTarget->modifySkillModValue(SMod_unarmed_damage, Value);
+		} break;
+	case xp_increase : {gLogger->logMsg("Unhandled Attribute: xp_increase in Buff.cpp");} break; 
 	default:
 		{
 		}

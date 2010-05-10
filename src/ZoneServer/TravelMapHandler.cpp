@@ -308,14 +308,7 @@ void TravelMapHandler::_processTravelPointListRequest(Message* message,DispatchC
 		message->getStringAnsi(requestedPlanet);
 
 		// find our planetId
-		uint8 planetId = 0;
-
-
-		//This seems like a nice way to put the server into an infinite loop with a specially crafted packet.
-		//I'm not sure how exactly to fix it, so I'll just add this note
-		//@TODO: FIX THIS OMG OMG HAXORS ARE COMIN' FOR US!
-		while((strcmp(requestedPlanet.getAnsi(),gWorldManager->getPlanetNameById(planetId)) != 0))
-			planetId++;
+		uint8 planetId = gWorldManager->getPlanetIdByName(requestedPlanet);
 
 		uint32 pointCount = 0;
 		char	queryPoint[64];
@@ -363,7 +356,6 @@ void TravelMapHandler::_processTravelPointListRequest(Message* message,DispatchC
 			gMessageFactory->addString((*it)->descriptor);
 		}
 
-		end = printListing.end();
 		gMessageFactory->addUint32(printListing.size());
 		for(it = printListing.begin(); it != end; it++)
 		{
@@ -372,14 +364,12 @@ void TravelMapHandler::_processTravelPointListRequest(Message* message,DispatchC
 			gMessageFactory->addFloat((*it)->z);
 		}
 
-		end = printListing.end();
 		gMessageFactory->addUint32(printListing.size());
 		for(it = printListing.begin(); it != end; it++)
 		{
 			gMessageFactory->addUint32((*it)->taxes);
 		}
 
-		end = printListing.end();
 		gMessageFactory->addUint32(printListing.size());
 		for(it = printListing.begin(); it != end; it++)
 		{

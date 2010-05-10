@@ -214,7 +214,7 @@ void Vehicle::store()
 		return;
 	}
 
-	if(!mOwner || mOwner->isDead() || !mOwner->getHam()->checkMainPools(1,1,1))
+	if(!mOwner || mOwner->isDead() || mOwner->isIncapacitated())
 	{
 		gLogger->logMsg("Vehicle::store() couldnt find owner");
 		return;

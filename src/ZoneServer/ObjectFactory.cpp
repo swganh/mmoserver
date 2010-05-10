@@ -756,6 +756,10 @@ void ObjectFactory::deleteObjectFromDB(Object* object)
 			{
 				case ItnoGroup_Vehicle:
 				{
+					sprintf(sql,"DELETE FROM vehicle_cutomization WHERE vehicles_id = %"PRIu64"",object->getId());
+					mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
+					sprintf(sql,"DELETE FROM vehicle_attributes WHERE vehicles_id = %"PRIu64"",object->getId());
+					mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
 					sprintf(sql,"DELETE FROM vehicles WHERE id = %"PRIu64"",object->getId());
 					mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
 				}

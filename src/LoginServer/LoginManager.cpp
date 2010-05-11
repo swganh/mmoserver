@@ -66,7 +66,8 @@ void LoginManager::Process(void)
 	if (Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastStatusQuery > 5000)
 	{
 		mLastStatusQuery = static_cast<uint32>(Anh_Utils::Clock::getSingleton()->getLocalTime());
-		mDatabase->ExecuteSqlAsync(this, (void*)1, "SELECT galaxy_id, name, address, port, pingport, population, status, UNIX_TIMESTAMP(last_update) FROM galaxy;");
+		mDatabase->ExecuteProcedureAsync(this, (void*)1, "CALL swganh.sp_return_galaxy_status;");
+		//mDatabase->ExecuteProcedure("CALL swganh.sp_return_galaxy_status();");
 	}
 }
 
@@ -93,7 +94,7 @@ void LoginManager::handleSessionDisconnect(NetworkClient* client)
 	//gLogger->logMsgF("handleSessionDisconnect account %u",MSG_HIGH,loginClient->getAccountId());
 
 	// Client has disconnected.  Update the db to show they are no longer authenticated.
-	mDatabase->ExecuteSqlAsync(0, 0, "UPDATE account SET authenticated=0 WHERE account_id=%u;", loginClient->getAccountId());
+	mDatabase->ExecuteProcedureAsync(0, 0, "UPDATE account SET authenticated=0 WHERE account_id=%u;", loginClient->getAccountId());
 
 	LoginClientList::iterator iter = mLoginClientList.begin();
 
@@ -177,7 +178,7 @@ void LoginManager::handleDatabaseJobComplete(void* ref, DatabaseResult* result)
 
 		  // Execute our query
 		  client->setState(LCSTATE_QueryCharacterList);
-		  mDatabase->ExecuteSqlAsync(this, ref, "SELECT characters.id, characters.firstname, characters.lastname, characters.galaxy_id, character_appearance.base_model_string  FROM characters JOIN (character_appearance) ON (characters.id = character_appearance.character_id) WHERE characters.account_id=%u AND characters.archived=0;", client->getAccountId());
+		  mDatabase->ExecuteProcedureAsync(this, ref, "CALL swganh.sp_return_account_characters(%u);", client->getAccountId());
 		  break;
 		}
 	  case LCSTATE_QueryCharacterList:
@@ -247,11 +248,11 @@ void LoginManager::_handleLoginClientId(LoginClient* client, Message* message)
   {
 	  //the problem with the marked authentication is, that if a connection drops without a sessiondisconnect packet
 	  //the connection to the loginserver cannot be established anymore - need to have the sessiontimeout think of that
-	sprintf(sql,"SELECT account_id, username, password, station_id, banned, active,characters_allowed,csr FROM account WHERE banned=0 AND authenticated=0 AND loggedin=0   AND username='");
+	sprintf(sql,"CALL swganh.sp_return_user_account('");
 	//sprintf(sql,"SELECT account_id, username, password, station_id, banned, active,characters_allowed FROM account WHERE banned=0 AND loggedin=0   AND username='");
 	sqlPointer = sql + strlen(sql);
 	sqlPointer += mDatabase->Escape_String(sqlPointer,username.getAnsi(),username.getLength());
-	strcat(sql,"' AND password=SHA1('");
+	strcat(sql,"' , '");
 	sqlPointer = sql + strlen(sql);
 	sqlPointer += mDatabase->Escape_String(sqlPointer,password.getAnsi(),password.getLength());
   *sqlPointer++ = '\'';
@@ -261,7 +262,7 @@ void LoginManager::_handleLoginClientId(LoginClient* client, Message* message)
 
  // Setup an async query for checking authentication.
   client->setState(LCSTATE_QueryAuth);
-  mDatabase->ExecuteSqlAsync(this,client,sql);
+  mDatabase->ExecuteProcedureAsync(this,client,sql);
 }
 
 
@@ -350,7 +351,7 @@ void LoginManager::_sendAuthSucceeded(LoginClient* client)
 
   // Execute our query for sending the server list.
   client->setState(LCSTATE_QueryServerList);
-  mDatabase->ExecuteSqlAsync(this, (void*)client, "SELECT galaxy_id, name, address, port, pingport, population, status FROM galaxy;");
+  mDatabase->ExecuteProcedureAsync(this, (void*)client, "CALL swganh.sp_return_server_list;");
 }
 
 

@@ -59,14 +59,15 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 	uint32			inMoveCount;
 	uint32			tickCount;
 	float			speed;
-	bool updateAll = false;
+	bool			updateAll = false;
+	bool			updateMoveRange = false;
 
 	// get tick and move counters
 	tickCount	= message->getUint32();
 	inMoveCount = message->getUint32();
 
-	// gLogger->logMsg("ObjectController::handleDataTransform");
-	//uint64 localTimeStart = Anh_Utils::Clock::getSingleton()->getLocalTime();
+	gLogger->logMsg("ObjectController::handleDataTransform");
+	uint64 localTimeStart = Anh_Utils::Clock::getSingleton()->getLocalTime();
 
 	// only process if its in sequence
 	if(player->getInMoveCount() >= inMoveCount)
@@ -81,15 +82,6 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 
 	player->setInMoveCount(inMoveCount);
 
-	if(player->checkIfMounted() && player->getMount())
-	{
-		//Player is mounted lets update his mount too
-		player->getMount()->setLastMoveTick(tickCount);
-		//player->getMount()->setInMoveCount((inMoveCount+1));
-		player->getMount()->setInMoveCount((inMoveCount)); // + 1 or nor does not matter, as long as we update inMoveCount.
-	}
-
-
 	// get new direction, position and speed
 	dir.x = message->getFloat();
 	dir.y = message->getFloat();	 
@@ -101,20 +93,10 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 	pos.z = message->getFloat();
 	speed  = message->getFloat();
 
-	// gLogger->logMsgF("Position outside = %.2f, %.2f, %.2f",MSG_NORMAL, pos.x,  pos.y, pos.z);
-	/*
-	if (Heightmap::isHeightmapCacheAvaliable())
-	{
-	gLogger->logMsgF("Heightmap value = %.2f",MSG_NORMAL, Heightmap::Instance()->getCachedHeightAt2DPosition(pos.x, pos.z));
-	}
-	*/
-
-	// gLogger->logMsgF("Direction = %f, %f, %f, %f",MSG_NORMAL, dir.x, dir.y, dir.z, dir.w);
-
-	// stop entertaining, if we were
+	// stop entertaining ???
 	// important is, that if we move we change our posture to NOT skill animating anymore!
 	// so only stop entertaining when we are performing and NOT skillanimationg
-	if(player->getPerformingState() != PlayerPerformance_None && player->getPosture() != CreaturePosture_SkillAnimating)
+	if((player->getPerformingState() != PlayerPerformance_None) && (player->getPosture() != CreaturePosture_SkillAnimating))
 	{
 		gEntertainerManager->stopEntertaining(player);
 	}
@@ -175,86 +157,88 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 	{
 		// we should be in a qt at this point
 		// get the qt of the new position
-		if(QTRegion* newRegion = mSI->getQTRegion((double)pos.x,(double)pos.z))
+		float p = (pos.x - player->mPosition.x);
+		float p1 = (pos.z - player->mPosition.z);
+		if((pow(p,p) > 4)||(pow(p1,p1) > 4))
 		{
-			// we didnt change so update the old one
-			if((uint32)newRegion->getId() == player->getSubZoneId())
+			updateMoveRange = true;
+			if(QTRegion* newRegion = mSI->getQTRegion((double)pos.x,(double)pos.z))
 			{
-				// this also updates the players position
-				newRegion->mTree->updateObject(player,pos);
-				//If our player is mounted lets update his mount aswell
-				if(player->checkIfMounted() && player->getMount())
+				// we didnt change so update the old one
+				if((uint32)newRegion->getId() == player->getSubZoneId())
 				{
-					newRegion->mTree->updateObject(player->getMount(),pos);
+					// this also updates the players position
+					newRegion->mTree->updateObject(player,pos);
+					//If our player is mounted lets update his mount aswell
+					if(player->checkIfMounted() && player->getMount())
+					{
+						newRegion->mTree->updateObject(player->getMount(),pos);
+					}
+				}
+				else
+				{
+					updateAll = true;
+
+					gLogger->logMsg("ObjController::DataTransform: Changing subzone");
+					// remove from old
+					if(QTRegion* oldRegion = gWorldManager->getQTRegion(player->getSubZoneId()))
+					{
+						oldRegion->mTree->removeObject(player);
+						//If our player is mounted lets update his mount aswell
+						if(player->checkIfMounted() && player->getMount())
+						{
+							oldRegion->mTree->removeObject(player->getMount());
+						}
+					}
+
+					// update players position
+					player->mPosition = pos;
+					
+					// put into new
+					player->setSubZoneId((uint32)newRegion->getId());
+					newRegion->mTree->addObject(player);
+					
+					//If our player is mounted lets update his mount aswell
+					if(player->checkIfMounted() && player->getMount())
+					{
+						player->getMount()->mPosition = pos;
+						player->getMount()->setSubZoneId((uint32)newRegion->getId());
+						newRegion->mTree->addObject(player->getMount());
+					}
+
 				}
 			}
 			else
 			{
-				updateAll = true;
+				// we should never get here !
+				gLogger->logMsg("ObjController::DataTransform: could not find zone region in map");
 
-				gLogger->logMsg("ObjController::DataTransform: Changing subzone");
-				// remove from old
-				if(QTRegion* oldRegion = gWorldManager->getQTRegion(player->getSubZoneId()))
-				{
-					oldRegion->mTree->removeObject(player);
-					//If our player is mounted lets update his mount aswell
-					if(player->checkIfMounted() && player->getMount())
-					{
-						oldRegion->mTree->removeObject(player->getMount());
-					}
-				}
+				gLogger->logMsg("ObjController:: probably a bot : %I64u",static_cast<int>(player->getId()));
 
-				// update players position
-				player->mPosition = pos;
-				//If our player is mounted lets update his mount aswell
-				if(player->checkIfMounted() && player->getMount())
-				{
-					player->getMount()->mPosition = pos;
-				}
+				// hammertime !
+				// muglies botter sometimes sends us weird positions  with X or Y far out of possible regions
+				// however other 3rd party tools might do the same
+				// we need to get rid of the client at this point nad probably should ban the player / add him to
+				// a monitoring list when the coordinates were indeed out of bounds
 
-				// put into new
-				player->setSubZoneId((uint32)newRegion->getId());
-				newRegion->mTree->addObject(player);
-				//If our player is mounted lets update his mount aswell
-				if(player->checkIfMounted() && player->getMount())
-				{
-					player->getMount()->setSubZoneId((uint32)newRegion->getId());
-					newRegion->mTree->addObject(player->getMount());
-				}
-
+				gWorldManager->addDisconnectedPlayer(player);
+				return;
 			}
 		}
 		else
 		{
-			// we should never get here !
-			gLogger->logMsg("ObjController::DataTransform: could not find zone region in map");
-
-			gLogger->logMsg("ObjController:: probably a bot : %I64u",static_cast<int>(player->getId()));
-
-			// hammertime !
-			// muglies botter sometimes sends us weird positions  with X or Y far out of possible regions
-			// however other 3rd party tools might do the same
-			// we need to get rid of the client at this point nad probably should ban the player / add him to
-			// a monitoring list when the coordinates were indeed out of bounds
-
-			gWorldManager->addDisconnectedPlayer(player);
-			return;
+			player->mPosition = pos;
 		}
 	}
 
 	player->mDirection = dir;
 	player->setCurrentSpeed(speed);
 
-	//If our player is mounted lets update his mount aswell
-	if(player->checkIfMounted() && player->getMount())
+	//we moved at least 2 m - check our range checks
+	if(updateMoveRange)
 	{
-		player->getMount()->mDirection = dir;
-		player->getMount()->setCurrentSpeed(speed);
-	}
-
-
-	// destroy the instanced instrument if out of range
-	if (player->getPlacedInstrumentId())
+		// destroy the instanced instrument if out of range
+		if (player->getPlacedInstrumentId())
 	{
 		if (!gWorldManager->objectsInRange(player->getId(), player->getPlacedInstrumentId(), 5.0))
 		{
@@ -265,9 +249,9 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 		}
 	}
 
-	// Terminate active conversation with npc if to far away (trainers only so far).
-	ActiveConversation* ac = gConversationManager->getActiveConversation(player->getId());
-	if (ac != NULL)
+		// Terminate active conversation with npc if to far away (trainers only so far).
+		ActiveConversation* ac = gConversationManager->getActiveConversation(player->getId());
+		if (ac != NULL)
 	{
 		// We do have a npc conversation going.
 		if (!gWorldManager->objectsInRange(player->getId(), (ac->getNpc())->getId(), 11.0))
@@ -276,6 +260,8 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 			gMessageLib->sendSystemMessage(player,L"","system_msg","out_of_range");
 			gConversationManager->stopConversation(player, true);			// We will get the current dialog text in a chat bubble, only seen by me. Impressive :)
 		}
+	}
+
 	}
 
 	if (updateAll)
@@ -294,16 +280,28 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 			//If player is mounted... move his mount too!
 			if(player->checkIfMounted() && player->getMount())
 			{
+				//Player is mounted lets update his mount too
+				player->getMount()->setLastMoveTick(tickCount);
+				//player->getMount()->setInMoveCount((inMoveCount+1));
+				player->getMount()->setInMoveCount((inMoveCount)); // + 1 or nor does not matter, as long as we update inMoveCount.
+
 				//gMessageLib->sendDataTransform(player->getMount());
+				player->getMount()->mDirection = dir;
+				player->getMount()->setCurrentSpeed(speed);
+	
 				gMessageLib->sendUpdateTransformMessage(player->getMount());
 			}
 			else
 			{
 				// send out position updates to known players
-				// please note that these updates mess up our dance performance
+				// please note that these updates mess up our dance performance - so sadly we have to check here
 				if(player->getPerformingState() == PlayerPerformance_None)
 				{
 					gMessageLib->sendUpdateTransformMessage(player);
+				}
+				else
+				{
+					gMessageLib->sendDataTransform(player);
 				}
 		
 
@@ -317,8 +315,8 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 		}
 	}
 
-	 //uint64 localTimeEnd = Anh_Utils::Clock::getSingleton()->getLocalTime();
-	 //gLogger->logMsgF("Exec time PRId32",MSG_NORMAL, localTimeEnd - localTimeStart);
+	 uint64 localTimeEnd = Anh_Utils::Clock::getSingleton()->getLocalTime();
+	 gLogger->logMsgF("Exec time :"PRId32"",MSG_NORMAL, localTimeEnd - localTimeStart);
 }
 
 //=============================================================================

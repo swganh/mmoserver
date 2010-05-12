@@ -240,9 +240,6 @@ void MovingObject::updatePosition(uint64 parentId, const glm::vec3& newPosition)
 		}
 	}
 
-	// send out position updates to known players
-	this->incInMoveCount();
-
 	//check whether updates are necessary before building the packet and then destroying it
 	if ((!isPlayer) && this->getKnownPlayers()->empty())
 	{
@@ -253,13 +250,22 @@ void MovingObject::updatePosition(uint64 parentId, const glm::vec3& newPosition)
 	{
 		// We are inside a cell.
 		//needs to be 0000000B as unknown int otherwise the datatransform gets ignored
-		gMessageLib->sendDataTransformWithParent0B(this);
-
-		gMessageLib->sendUpdateTransformMessageWithParent(this);
+		if(isPlayer)
+			gMessageLib->sendDataTransformWithParent0B(this);
+		else
+		{
+			this->incInMoveCount();
+			gMessageLib->sendUpdateTransformMessageWithParent(this);
+		}
 	}
 	else
 	{
-		gMessageLib->sendDataTransform(this);
-		gMessageLib->sendUpdateTransformMessage(this);
+		if(isPlayer)
+			gMessageLib->sendDataTransform0B(this);
+		else
+		{
+			this->incInMoveCount();
+			gMessageLib->sendUpdateTransformMessage(this);
+		}
 	}
 }

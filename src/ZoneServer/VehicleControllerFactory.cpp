@@ -167,10 +167,10 @@ void VehicleControllerFactory::handleDatabaseJobComplete(void* ref,DatabaseResul
 				QueryContainerBase* asyncrContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,VehicleControllerFactoryQuery_Attributes,asyncContainer->mClient,asyncContainer->mId);
 				asyncrContainer->mObject = (Object*)(IntangibleObject*)vehicle;
 
-				mDatabase->ExecuteSqlAsync(this,asyncrContainer,"SELECT attributes.name, Vehicle_attributes.attribute_value, attributes.internal"
+				mDatabase->ExecuteSqlAsync(this,asyncrContainer,"SELECT attributes.name, vehicle_attributes.attribute_value, attributes.internal"
 					" FROM attributes"
-					" INNER JOIN Vehicle_attributes ON (attributes.id = Vehicle_attributes.attribute_id)"
-					" WHERE Vehicle_attributes.Vehicle_id = %"PRIu64" ORDER BY Vehicle_attributes.attribute_order",asyncContainer->mId);
+					" INNER JOIN vehicle_attributes ON (attributes.id = vehicle_attributes.attribute_id)"
+					" WHERE Vehicle_attributes.vehicles_id = %"PRIu64" ORDER BY vehicle_attributes.attribute_order",asyncContainer->mId);
 			}
 
 		}

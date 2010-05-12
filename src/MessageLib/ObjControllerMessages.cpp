@@ -1167,6 +1167,32 @@ void MessageLib::sendDataTransformWithParent0B(Object* object)
 	_sendToInRangeUnreliable(mMessageFactory->EndMessage(),object,5);
 }
 
+//======================================================================================================================
+//
+// move object in world
+//
+
+void MessageLib::sendDataTransform0B(Object* object)
+{
+	mMessageFactory->StartMessage();
+	mMessageFactory->addUint32(opObjControllerMessage);
+	mMessageFactory->addUint32(0x0000000B);
+	mMessageFactory->addUint32(opDataTransform);
+	mMessageFactory->addUint64(object->getId());
+	mMessageFactory->addUint32(0);
+	mMessageFactory->addUint32(object->incDataTransformCounter());
+
+	mMessageFactory->addFloat(object->mDirection.x);
+	mMessageFactory->addFloat(object->mDirection.y);
+	mMessageFactory->addFloat(object->mDirection.z);
+	mMessageFactory->addFloat(object->mDirection.w);
+	mMessageFactory->addFloat(object->mPosition.x);
+	mMessageFactory->addFloat(object->mPosition.y);
+	mMessageFactory->addFloat(object->mPosition.z);
+	mMessageFactory->addUint32(0);
+
+	_sendToInRangeUnreliable(mMessageFactory->EndMessage(),object,5);
+}
 
 //======================================================================================================================
 //

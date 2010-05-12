@@ -13,10 +13,11 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #define ANH_ZONESERVER_MOVING_OBJECT_H
 
 #include "Object.h"
+//#include "QuadTree.h"
 
 class Message;
 class DispatchClient;
-
+class QTRegion;
 //=============================================================================
 
 class MovingObject : public Object
@@ -79,6 +80,10 @@ class MovingObject : public Object
 
 		virtual void	prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount){}
 
+
+		QTRegion*					getSubZone() const { return mSubZone; }
+		void						setSubZone(QTRegion* zone){ mSubZone = zone; }
+
 	protected:
 
 		uint32		mInMoveCount;
@@ -93,6 +98,9 @@ class MovingObject : public Object
 		float		mCurrentTurnRate;
 		float		mCurrentSpeedMod;
 		float		mBaseSpeedMod;
+
+		
+		QTRegion*	mSubZone;
 };
 
 //=============================================================================

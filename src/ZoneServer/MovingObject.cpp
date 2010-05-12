@@ -26,6 +26,7 @@ MovingObject::MovingObject()
 , mCurrentTurnRate(1.0f)
 , mCurrentSpeedMod(1.0f)
 , mBaseSpeedMod(1.0f)
+, mSubZone(NULL)
 {
 }
 

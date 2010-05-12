@@ -136,8 +136,11 @@ QTRegion* ZoneTree::getQTRegion(double x,double z)
 	dP[1] = z;
 
 	Region r = Region(dP,dP,2);
-
-	mTree->intersectsWithQuery(r,vis);
+	Tools::Geometry::Point p(dP,2);
+	
+	//mTree->containsWhatQuery(r,vis);
+	//mTree->intersectsWithQuery(r,vis);
+	mTree->pointLocationQuery(p,vis);
 
 	// find the region
 	ObjectIdList::iterator it = resultIdList.begin();

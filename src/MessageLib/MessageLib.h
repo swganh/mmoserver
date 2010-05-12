@@ -26,7 +26,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #define	 gMessageLib	MessageLib::getSingletonPtr()
 
 class MessageFactory;
-class MountObject;
 class Item;
 class IntangibleObject;
 class BuildingObject;
@@ -44,6 +43,7 @@ class FactoryObject;
 class ManufacturingSchematic;
 class PlayerObject;
 class MovingObject;
+class MountObject;
 class MissionObject;
 class CellObject;
 class StaticObject;
@@ -217,13 +217,13 @@ public:
 	bool				sendEmptyObjectMenuResponse(uint64 requestedId,PlayerObject* targetObject,uint8 responseNr, MenuItemList mMenuItemList);
 
 	// starting location list
-	bool				sendStartingLocationList(PlayerObject* player);
+	bool				sendStartingLocationList(PlayerObject* player, uint8 tatooine, uint8 corellia, uint8 talus, uint8 rori, uint8 naboo);
 
 	// position updates
 	void				sendDataTransform(Object* object);
 	void				sendDataTransformWithParent(Object* object);
-	void				sendDataTransformWithParent0B(Object* object);
 	void				sendSitOnObject(CreatureObject* creatureObject);
+	void				sendDataTransformWithParent0B(Object* object);
 
 	// position updates for tutorial
 	void				sendDataTransform(Object* object, PlayerObject* player);
@@ -488,6 +488,8 @@ public:
 	// Buffs
 	void				sendPlayerAddBuff(PlayerObject* target, int32 CRC, float Duration);
 	void				sendPlayerRemoveBuff(PlayerObject* playerObject, int32 CRC);
+
+	void				sendTutorialServerStatusRequest(DispatchClient* client, uint64 playerId, uint32 accountID);
 
 	~MessageLib();
 

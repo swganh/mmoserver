@@ -470,53 +470,6 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 			continue;
 		}
 
-		if(structure->getTTS()->todo == ttE_UpdateHopper)
-		{
-
-			if(Anh_Utils::Clock::getSingleton()->getLocalTime() < structure->getTTS()->projectedTime)
-			{
-				gLogger->logMsg("StructureManager::_handleStructureObjectTimers: intervall to short - delayed");
-				break;
-			}
-
-			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById( structure->getTTS()->playerId ));
-			if(!player)
-			{
-				it = objectList->erase(it);
-				continue;
-			}
-
-			HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(structure);
-
-			if(!harvester)
-			{
-				gLogger->logMsg("StructureManager::_handleStructureObjectTimers: No structure");
-				it = objectList->erase(it);
-				continue;
-			}
-
-			// TODO
-			// read the current resource hopper contents
-			StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(Structure_HopperUpdate,player->getClient());
-
-			asyncContainer->mStructureId	= structure->getId();
-			asyncContainer->mPlayerId		= player->getId();
-			
-			int8 sql[250];
-			sprintf(sql,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",asyncContainer->mStructureId);
-			
-			mDatabase->ExecuteSqlAsync(harvester,asyncContainer,sql);	
-
-			//is the structure in Range??? - otherwise stop updating
-			float fTransferDistance = gWorldConfig->getConfiguration("Player_Structure_Operate_Distance",(float)20.0);
-            if(glm::distance(player->mPosition, structure->mPosition) < fTransferDistance)
-			{
-				structure->getTTS()->projectedTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 5000;
-				addStructureforHopperUpdate(structure->getId());
-			}
-		
-
-		}
 
 		if(structure->getTTS()->todo == ttE_Delete)
 		{
@@ -527,6 +480,7 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 				if(!inventory->checkSlots(1))
 				{
 					gMessageLib->sendSystemMessage(player,L"","player_structure","inventory_full");
+					it = objectList->erase(it);
 					continue;
 				}
 
@@ -1213,8 +1167,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 				createRenameStructureBox(player, structure);
 			}
 			else
-				gMessageLib->sendSystemMessage(player,L"You must be the owner to rename a structure.");
-				//gMessageLib->sendSystemMessage(player,L"","player_structure","rename_must_be_owner ");
+				gMessageLib->sendSystemMessage(player,L"","player_structure","rename_must_be_owner");
 
 			
 		}
@@ -1225,8 +1178,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			if(owner)
 				gStructureManager->TransferStructureOwnership(command);
 			else
-				gMessageLib->sendSystemMessage(player,L"You must be the owner to transfer a structure.");
-				//gMessageLib->sendSystemMessage(player,L"You cannot transfer ownership of this structure");
+				gMessageLib->sendSystemMessage(player,L"","player_structure","not_owner");
 			
 		}
 		return;
@@ -1248,13 +1200,13 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 					TangibleObject* hopper = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(factory->getIngredientHopper()));
 					if(hopper&&hopper->getObjects()->size())
 					{
-						gMessageLib->sendSystemMessage(player,L"You need to empty the hoppers before destroying the structure");
+						gMessageLib->sendSystemMessage(player,L"","player_structure","clear_input_hopper_for_delete");
 						return;
 					}
 					hopper = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(factory->getOutputHopper()));
 					if(hopper&&hopper->getObjects()->size())
 					{
-						gMessageLib->sendSystemMessage(player,L"You need to empty the hoppers before destroying the structure");
+						gMessageLib->sendSystemMessage(player,L"","player_structure","clear_output_hopper_for_delete");
 						return;
 					}
 				}
@@ -1262,8 +1214,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 				gStructureManager->getDeleteStructureMaintenanceData(command.StructureId, command.PlayerId);
 			}
 			else
-				gMessageLib->sendSystemMessage(player,L"You must be the owner to destroy a structure.");
-				//gMessageLib->sendSystemMessage(player,L"","player_structure","destroy_must_be_owner");
+				gMessageLib->sendSystemMessage(player,L"","player_structure","destroy_must_be_owner");
 			
 			
 		}

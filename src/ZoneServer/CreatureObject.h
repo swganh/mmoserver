@@ -248,7 +248,7 @@ class CreatureObject : public MovingObject
 		virtual void		killEvent(void) { }
 		virtual void		respawn(void) { }
 
-
+		
 		// flow control vars
 		uint64				mTargetId;
 		uint32				mDefenderUpdateCounter;
@@ -289,6 +289,7 @@ class CreatureObject : public MovingObject
 		uint64				mEntertainerListenToId;
 		uint64				mFirstIncapTime;
 		uint64				mGroupId;
+	
 		uint64				mState; //char states like peace, combat etc
 		float				mLastEntertainerXP;
 		float				mScale;
@@ -314,6 +315,7 @@ class CreatureObject : public MovingObject
 
 	public:
 
+		void				ClearAllBuffs();
 		void				AddBuff(Buff* buff,  bool stackable = false, bool overwrite = false);
 		void				RemoveBuff(Buff* buff);
 		void				CleanUpBuffs();

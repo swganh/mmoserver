@@ -17,7 +17,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "ManufacturingSchematic.h"
 #include "ObjectFactoryCallback.h"
 #include "TangibleFactory.h"
-#include "VehicleFactory.h"
+#include "VehicleControllerFactory.h"
 #include "WaypointFactory.h"
 #include "WaypointObject.h"
 #include "WorldManager.h"
@@ -206,7 +206,7 @@ void DatapadFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				}
 				else if(strcmp(queryContainer.mString.getAnsi(),"vehicles") == 0)
 				{
-					//datapad counter gets updated in VehicleController factory
+					//datapad counter gets updated in vehicle factory
 					gVehicleControllerFactory->requestObject(this,queryContainer.mId,0,0,asyncContainer->mClient);
 
 				}

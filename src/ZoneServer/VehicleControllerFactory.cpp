@@ -32,8 +32,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 //=============================================================================
 
-bool					VehicleControllerFactory::mInsFlag    = false;
-VehicleControllerFactory*			VehicleControllerFactory::mSingleton  = NULL;
+bool							VehicleControllerFactory::mInsFlag    = false;
+VehicleControllerFactory*		VehicleControllerFactory::mSingleton  = NULL;
 
 //=============================================================================
 
@@ -70,8 +70,10 @@ VehicleControllerFactory::~VehicleControllerFactory()
 
 void VehicleControllerFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client)
 {
+
 	mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,VehicleControllerFactoryQuery_TypesId,client,id),
 		"SELECT Vehicle_types_id FROM Vehicles WHERE id = %"PRIu64"",id);
+
 
 }
 
@@ -85,14 +87,14 @@ void VehicleControllerFactory::handleDatabaseJobComplete(void* ref,DatabaseResul
 
 		case VehicleControllerFactoryQuery_Create:
 		{
-			//get id of newly created VehicleController
+			//get id of newly created vehicle
 			DataBinding* binding = mDatabase->CreateDataBinding(1);
 			binding->addField(DFT_uint64,0,8);
 			uint64	id		= 0;
 			uint64	count	= result->getRowCount();
 			if(!count)
 			{
-				gLogger->logMsgF("VehicleControllerFactory::createVehicleController query without result", MSG_NORMAL);				
+				gLogger->logMsgF("VehicleControllerFactory::createVehicle query without result", MSG_NORMAL);				
 				mDatabase->DestroyDataBinding(binding);
 				return;
 			}
@@ -102,7 +104,7 @@ void VehicleControllerFactory::handleDatabaseJobComplete(void* ref,DatabaseResul
 
 			if(!id)
 			{
-				gLogger->logMsgF("VehicleControllerFactory::createVehicleController query with invalid result", MSG_NORMAL);				
+				gLogger->logMsgF("VehicleControllerFactory::createVehicle query with invalid result", MSG_NORMAL);				
 				mDatabase->DestroyDataBinding(binding);
 				return;
 			}
@@ -115,18 +117,18 @@ void VehicleControllerFactory::handleDatabaseJobComplete(void* ref,DatabaseResul
 		case VehicleControllerFactoryQuery_TypesId:
 		{
 
-			uint32 VehicleControllerType = 0;
+			uint32 vehicleType = 0;
 			DataBinding* binding = mDatabase->CreateDataBinding(1);
 			binding->addField(DFT_uint32,0,4);
 
 			uint64	count = result->getRowCount();
 
-			result->GetNextRow(binding,&VehicleControllerType);
+			result->GetNextRow(binding,&vehicleType);
 			mDatabase->DestroyDataBinding(binding);
 
 			QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,VehicleControllerFactoryQuery_ItnoData,asyncContainer->mClient,asyncContainer->mId);
 
-			mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT Vehicle_object_string, Vehicle_itno_object_string, Vehicle_name_file, Vehicle_detail_file, Vehicle_name FROM Vehicle_types WHERE id = %u",VehicleControllerType);
+			mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT vehicle_object_string, vehicle_itno_object_string, vehicle_name_file, vehicle_detail_file, vehicle_name FROM vehicle_types WHERE id = %u",vehicleType);
 
 		}
 		break;
@@ -134,17 +136,18 @@ void VehicleControllerFactory::handleDatabaseJobComplete(void* ref,DatabaseResul
 		case VehicleControllerFactoryQuery_ItnoData:
 		{
 
-			VehicleController * VehicleController = _createVehicleController(result);
+			VehicleController* vehicleController = _createVehicle(result);
 
-			result->GetNextRow(mVehicleControllerItno_Binding,VehicleController);
+			result->GetNextRow(mVehicleItno_Binding,vehicleController);
 
-			VehicleController->setId(asyncContainer->mId);
-			VehicleController->setDetail(VehicleController->getName().getAnsi());
+			vehicleController->setId(asyncContainer->mId);
+			vehicleController->setDetail(vehicleController->getName().getAnsi());
 
 			QueryContainerBase* aContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,VehicleControllerFactoryQuery_MainData,asyncContainer->mClient,asyncContainer->mId);
-			aContainer->mObject = (Object*)(IntangibleObject*)VehicleController;
+			aContainer->mObject = (Object*)(IntangibleObject*)vehicleController;
 
-			mDatabase->ExecuteSqlAsync(this,aContainer,"SELECT Vehicle_types_id, parent, Vehicle_hitpoint_loss,Vehicle_incline_acceleration,Vehicle_flat_acceleration FROM Vehicles WHERE id = %"PRIu64"",VehicleController->getId());
+
+			mDatabase->ExecuteSqlAsync(this,aContainer,"SELECT Vehicle_types_id, parent, Vehicle_hitpoint_loss,Vehicle_incline_acceleration,Vehicle_flat_acceleration FROM Vehicles WHERE id = %"PRIu64"",vehicleController->getId());
 
 
 		}
@@ -153,16 +156,16 @@ void VehicleControllerFactory::handleDatabaseJobComplete(void* ref,DatabaseResul
 		case VehicleControllerFactoryQuery_MainData:
 		{
 
-			VehicleController* controller = dynamic_cast<VehicleController*>(asyncContainer->mObject);
+			VehicleController* vehicle = dynamic_cast<VehicleController*>(asyncContainer->mObject);
 
 			uint64	count = result->getRowCount();
 
 			if(count == 1)
 			{
-				result->GetNextRow(mVehicleControllerCreo_Binding,controller);
+				result->GetNextRow(mVehicleCreo_Binding,vehicle);
 
 				QueryContainerBase* asyncrContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,VehicleControllerFactoryQuery_Attributes,asyncContainer->mClient,asyncContainer->mId);
-				asyncrContainer->mObject = (Object*)(IntangibleObject*)controller;
+				asyncrContainer->mObject = (Object*)(IntangibleObject*)vehicle;
 
 				mDatabase->ExecuteSqlAsync(this,asyncrContainer,"SELECT attributes.name, Vehicle_attributes.attribute_value, attributes.internal"
 					" FROM attributes"
@@ -195,45 +198,45 @@ void VehicleControllerFactory::handleDatabaseJobComplete(void* ref,DatabaseResul
 
 //=============================================================================
 
-void VehicleControllerFactory::createVehicleController(uint32 VehicleController_type,PlayerObject* targetPlayer)
+void VehicleControllerFactory::createVehicle(uint32 vehicle_type,PlayerObject* targetPlayer)
 {
 	int8 sql[256];
-	sprintf(sql,"SELECT sf_DefaultVehicleCreate(%u, %"PRIu64")",VehicleController_type,targetPlayer->getId());
-	 gLogger->logMsgF("VehicleFactory::createVehicle query %s", MSG_NORMAL, sql);
-	mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(this,VehicleControllerFactoryQuery_Create,targetPlayer->getClient()),
-		sql);
+
+	sprintf(sql,"SELECT sf_DefaultVehicleCreate(%u, %"PRIu64")",vehicle_type,targetPlayer->getId());
+	 gLogger->logMsgF("VehicleControllerFactory::createVehicle query %s", MSG_NORMAL, sql);
+	mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(this,VehicleControllerFactoryQuery_Create,targetPlayer->getClient()),sql);
 }
 //=============================================================================
 
-VehicleController* VehicleControllerFactory::_createVehicleController(DatabaseResult* result)
+VehicleController* VehicleControllerFactory::_createVehicle(DatabaseResult* result)
 {
-	VehicleController* controller = new VehicleController();
+	VehicleController* vehicle = new VehicleController();
 
-	result->GetNextRow(mVehicleControllerItno_Binding,controller);
+	result->GetNextRow(mVehicleItno_Binding,vehicle);
 
-	controller->setLoadState(LoadState_Loaded);
+	vehicle->setLoadState(LoadState_Loaded);
 
-	return controller;
+	return vehicle;
 }
 //=============================================================================
 
 void VehicleControllerFactory::_setupDatabindings()
 {
-	//1VehicleController_object_string, 1VehicleController_itno_object_string, 2VehicleController_name_file, 3VehicleController_detail_file, 4VehicleController_name
-	mVehicleControllerItno_Binding = mDatabase->CreateDataBinding(5);
-	mVehicleControllerItno_Binding->addField(DFT_bstring,offsetof(VehicleController,mPhysicalModel),256,0); //creo model
-	mVehicleControllerItno_Binding->addField(DFT_bstring,offsetof(VehicleController,mModel),256,1);
-	mVehicleControllerItno_Binding->addField(DFT_bstring,offsetof(VehicleController,mNameFile),64,2);
-	mVehicleControllerItno_Binding->addField(DFT_bstring,offsetof(VehicleController,mDetailFile),64,3);
-	mVehicleControllerItno_Binding->addField(DFT_bstring,offsetof(VehicleController,mName),64,4);
+	//1vehicle_object_string, 1vehicle_itno_object_string, 2vehicle_name_file, 3vehicle_detail_file, 4vehicle_name
+	mVehicleItno_Binding = mDatabase->CreateDataBinding(5);
+	mVehicleItno_Binding->addField(DFT_bstring,offsetof(VehicleController,mPhysicalModel),256,0); //creo model
+	mVehicleItno_Binding->addField(DFT_bstring,offsetof(VehicleController,mModel),256,1);
+	mVehicleItno_Binding->addField(DFT_bstring,offsetof(VehicleController,mNameFile),64,2);
+	mVehicleItno_Binding->addField(DFT_bstring,offsetof(VehicleController,mDetailFile),64,3);
+	mVehicleItno_Binding->addField(DFT_bstring,offsetof(VehicleController,mName),64,4);
 
-	//VehicleControllers_types_id, parent, VehicleController_hitpoint_loss,VehicleController_incline_acceleration,VehicleController_flat_acceleration
-	mVehicleControllerCreo_Binding = mDatabase->CreateDataBinding(5);
-	mVehicleControllerCreo_Binding->addField(DFT_uint32,offsetof(VehicleController,mTypesId),4,0);
-	mVehicleControllerCreo_Binding->addField(DFT_uint64,offsetof(VehicleController,mParentId),8,1);
-	mVehicleControllerCreo_Binding->addField(DFT_uint32,offsetof(VehicleController,mHitPointLoss),4,2);
-	mVehicleControllerCreo_Binding->addField(DFT_uint32,offsetof(VehicleController,mInclineAcceleration),4,3);
-	mVehicleControllerCreo_Binding->addField(DFT_uint32,offsetof(VehicleController,mFlatAcceleration),4,4);
+	//vehicles_types_id, parent, vehicle_hitpoint_loss,vehicle_incline_acceleration,vehicle_flat_acceleration
+	mVehicleCreo_Binding = mDatabase->CreateDataBinding(5);
+	mVehicleCreo_Binding->addField(DFT_uint32,offsetof(VehicleController,mTypesId),4,0);
+	mVehicleCreo_Binding->addField(DFT_uint64,offsetof(VehicleController,mParentId),8,1);
+	mVehicleCreo_Binding->addField(DFT_uint32,offsetof(VehicleController,mHitPointLoss),4,2);
+	mVehicleCreo_Binding->addField(DFT_uint32,offsetof(VehicleController,mInclineAcceleration),4,3);
+	mVehicleCreo_Binding->addField(DFT_uint32,offsetof(VehicleController,mFlatAcceleration),4,4);
 
 
 }
@@ -241,8 +244,8 @@ void VehicleControllerFactory::_setupDatabindings()
 
 void VehicleControllerFactory::_destroyDatabindings()
 {
-	mDatabase->DestroyDataBinding(mVehicleControllerItno_Binding);
-	mDatabase->DestroyDataBinding(mVehicleControllerCreo_Binding);
+	mDatabase->DestroyDataBinding(mVehicleItno_Binding);
+	mDatabase->DestroyDataBinding(mVehicleCreo_Binding);
 }
 
 //=============================================================================
@@ -251,22 +254,22 @@ void VehicleControllerFactory::_destroyDatabindings()
 void VehicleControllerFactory::handleObjectReady(Object* object,DispatchClient* client)
 {
 
-	if(VehicleController* controller = dynamic_cast<VehicleController*>(object))
+	if(VehicleController* vehicle = dynamic_cast<VehicleController*>(object))
 	{
 
 		PlayerObject* player = gWorldManager->getPlayerByAccId(client->getAccountId());
 		if(player)
 		{
-			controller->setOwner(player);
+			vehicle->setOwner(player);
 			if(Datapad* datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad)))
 			{
-				datapad->addData(controller);
-				gWorldManager->addObject(controller,true);
+				datapad->addData(vehicle);
+				gWorldManager->addObject(vehicle,true);
 				//spawn it in the player's datapad
-				gMessageLib->sendCreateInTangible(controller, datapad->getId(), player);
+				gMessageLib->sendCreateInTangible(vehicle, datapad->getId(), player);
 
 				//now spawn it in the world
-				controller->call();
+				vehicle->call();
 			}
 		}
 

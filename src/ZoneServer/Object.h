@@ -177,6 +177,14 @@ class Object : public UICallback, public Anh_Utils::EventHandler
          * \returns const Object* Root parent for the current object.
          */
         const Object* getRootParent() const;
+        
+
+        /*! Rotates an object by the specified degrees.
+         *
+         * \param degrees The degree of rotation.
+         */
+        void rotate(float degrees);
+
 
         /*! Rotates an object left by the specified degrees.
          *
@@ -188,14 +196,26 @@ class Object : public UICallback, public Anh_Utils::EventHandler
          *
          * \param degrees The degree of rotation.
          */
-        void rotateRight(float degrees);
-        
-        /*! Moves an object forward along a directional facing by a certain distance.
+        void rotateRight(float degrees);        
+		
+		/*! Orients the current object so that it faces the object passed in.
+		 *
+		 * \param target_object The object the current object should face.
+		 */
+		void faceObject(Object* target_object);
+		
+		/*! Orients the current object so that it faces the position passed in.
+		 *
+		 * \param target_position The position the current object should face.
+		 */
+		void facePosition(const glm::vec3& target_position);
+               
+        /*! Moves an object along a directional facing by a certain distance.
          *
          * \param direction The direction to consider as the front facing
          * \param distance The distance to move (measured in meters).
          */
-        void moveForward(const glm::quat& direction, float distance);
+        void move(const glm::quat& direction, float distance);
                 
         /*! Moves an object forward along it's own directional facing by a certain distance.
          *
@@ -203,24 +223,12 @@ class Object : public UICallback, public Anh_Utils::EventHandler
          */
         void moveForward(float distance);
         
-        /*! Moves an object back along a directional facing by a certain distance.
-         *
-         * \param direction The direction to consider as the front facing
-         * \param distance The distance to move (measured in meters).
-         */
-        void moveBack(const glm::quat& direction, float distance);
-        
         /*! Moves an object back along it's own directional facing by a certain distance.
          *
          * \param distance The distance to move (measured in meters).
          */
         void moveBack(float distance);
 
-		/*! Moves an object to a certain 
-         *
-         * \param distance The distance to move (measured in meters).
-         */
-        //void moveBack(float distance);
 
         glm::quat   mDirection;
         glm::vec3   mPosition;

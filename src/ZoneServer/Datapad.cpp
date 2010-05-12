@@ -71,19 +71,19 @@ Datapad::~Datapad()
 	DataList::iterator iter = mData.begin(); 	
 	while(iter != mData.end())
 	{
-		//check to see whether its a VehicleController controller
+		//check to see whether its a vehicle controller
 		// PlayerObject* player = dynamic_cast<PlayerObject*>(creatureObject);
-		//Object* VehicleController = dynamic_cast<Object*>(*iter);
-		VehicleController* controller = dynamic_cast<VehicleController*>(*iter);
+		//Object* vehicle = dynamic_cast<Object*>(*iter);
+		//VehicleController* vehicle = dynamic_cast<VehicleController*>(*iter);
 		
-		if(controller)
-		{
-			uint64 id = controller->getId();
+		//if(vehicle)
+		//{
+			uint64 id = (*iter)->getId();
 			iter = mData.erase(iter);
 			gWorldManager->eraseObject(id);
-		}
-		else
-			iter = mData.erase(iter);
+		//}
+		//else
+			//iter = mData.erase(iter);
 		
 			
 	}

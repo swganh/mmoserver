@@ -182,7 +182,6 @@ void ObjectControllerCommandMap::_registerCppHooks()
 	mCommandMap.insert(std::make_pair(opOCrequestDraftslotsBatch,&ObjectController::_handleRequestDraftslotsBatch));
 	mCommandMap.insert(std::make_pair(opOCrequestResourceWeightsBatch,&ObjectController::_handleRequestResourceWeightsBatch));
 	mCommandMap.insert(std::make_pair(opOCSynchronizedUIListen,&ObjectController::_handleSynchronizedUIListen));
-	mCommandMap.insert(std::make_pair(opOCRequestCraftingSession,&ObjectController::_handleRequestCraftingSession));
 	mCommandMap.insert(std::make_pair(opOCsetcurrentskilltitle,&ObjectController::_handleSetCurrentSkillTitle));
 	mCommandMap.insert(std::make_pair(opOCrequestbadges,&ObjectController::_handleRequestBadges));
 	mCommandMap.insert(std::make_pair(opOCsetspokenlanguage, &ObjectController::_handleSetSpokenLanguage));
@@ -239,6 +238,7 @@ void ObjectControllerCommandMap::_registerCppHooks()
 	mCommandMap.insert(std::make_pair(opOCfiendfriend,&ObjectController::_handlefindfriend));
 
 	//crafting
+	mCommandMap.insert(std::make_pair(opOCRequestCraftingSession,&ObjectController::_handleRequestCraftingSession));
 	mCommandMap.insert(std::make_pair(opOCCancelCraftingSession,&ObjectController::_handleCancelCraftingSession));
 	mCommandMap.insert(std::make_pair(opOCSelectDraftSchematic,&ObjectController::_handleSelectDraftSchematic));
 	mCommandMap.insert(std::make_pair(opOCnextcraftingstage,&ObjectController::_handleNextCraftingStage));

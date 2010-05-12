@@ -18,8 +18,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "VehicleController.h"
 #include "WorldManager.h"
 #include "ZoneTree.h"
-
-#include <glm/gtx/transform2.hpp>
+ 
 
 //=============================================================================
 
@@ -46,25 +45,6 @@ MovingObject::~MovingObject()
 }
 
 //=============================================================================
-
-
-void MovingObject::faceObject(Object* object_to_face)
-{	
-    // Create a mirror direction vector for the direction we want to face.
-    glm::vec3 direction_vector = glm::normalize(object_to_face->mPosition - mPosition);
-    direction_vector.x = -direction_vector.x;
-
-    // Create a lookat matrix from the direction vector and convert it to a quaternion.
-    mDirection = glm::toQuat(glm::lookAt(
-        direction_vector, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)
-        ));
-
-    // If in the 3rd quadrant the signs need to be flipped.
-    if (mDirection.y <= 0.0f && mDirection.w >= 0.0f) {
-        mDirection.y = -mDirection.y;
-        mDirection.w = -mDirection.w;
-    }
-}
 
 //=============================================================================
 
@@ -96,7 +76,6 @@ void MovingObject::updatePositionOutside(uint64 parentId, const glm::vec3& newPo
 
 		// now set our new ParentId
 		this->setParentId(0);
-
 		//and update the position
 		this->mPosition = newPosition;
 
@@ -107,7 +86,8 @@ void MovingObject::updatePositionOutside(uint64 parentId, const glm::vec3& newPo
 		}
 
 		// add us to the qtree
-		if (QTRegion* newRegion = gWorldManager->getSI()->getQTRegion((double)this->mPosition.x,(double)this->mPosition.z))
+
+		if (QTRegion* newRegion = gWorldManager->getSI()->getQTRegion((double)this->mPosition.x,(double)this->mPosition.z))		
 		{
 			this->setSubZoneId((uint32)newRegion->getId());
 			newRegion->mTree->addObject(this);
@@ -272,7 +252,6 @@ void MovingObject::updatePosition(uint64 parentId, const glm::vec3& newPosition)
 	if (this->getParentId())
 	{
 		// We are inside a cell.
-
 		//needs to be 0000000B as unknown int otherwise the datatransform gets ignored
 		gMessageLib->sendDataTransformWithParent0B(this);
 
@@ -284,4 +263,3 @@ void MovingObject::updatePosition(uint64 parentId, const glm::vec3& newPosition)
 		gMessageLib->sendUpdateTransformMessage(this);
 	}
 }
-

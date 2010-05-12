@@ -689,17 +689,6 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 						GroupObject* group = gGroupManager->getGroupObject(playerObject->getGroupId());
 						if(group)
 						{
-							if(playerObject->getIDPartner() != 0)
-							{
-								if(PlayerObject* idPartner = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerObject->getIDPartner())))
-								{
-									idPartner->SetImageDesignSession(IDSessionNONE);
-									idPartner->setIDPartner(0);
-									playerObject->SetImageDesignSession(IDSessionNONE);
-									playerObject->setIDPartner(0);
-								}
-
-							}
 							group->removePlayer(playerObject->getId());
 						}
 

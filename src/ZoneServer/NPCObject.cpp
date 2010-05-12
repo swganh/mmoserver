@@ -204,6 +204,7 @@ void NPCObject::moveAndUpdatePosition(void)
 
 }
 
+
 //=============================================================================
 //
 //	Set AI state.

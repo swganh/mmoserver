@@ -15,10 +15,11 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "MissionManager.h"
 #include "PlayerObject.h"
 #include "WorldManager.h"
+#include "SkillEnums.h"
 
 #include "MessageLib/MessageLib.h"
 
-BuffAttribute::BuffAttribute(BuffAttributeEnum Type, int32 InitialValue, int32	TickValue, int32 FinalValue)
+BuffAttribute::BuffAttribute(uint32 Type, int32 InitialValue, int32	TickValue, int32 FinalValue)
 : mAttribute(Type)
 , mInitialValue(InitialValue)
 , mTickValue(TickValue)
@@ -35,11 +36,11 @@ BuffAttribute::~BuffAttribute()
 
 BuffAttribute* BuffAttribute::FromDB(BuffAttributeDBItem* item)
 {
-    return new BuffAttribute((BuffAttributeEnum)item->mType, item->mInitialValue, item->mTickValue, item->mFinalValue);
+    return new BuffAttribute((uint32)item->mType, item->mInitialValue, item->mTickValue, item->mFinalValue);
 }
 
 
-BuffAttributeEnum BuffAttribute::GetType()
+uint32 BuffAttribute::GetType()
 {
     return mAttribute;
 }
@@ -141,7 +142,7 @@ uint64 Buff::Update(uint64 CurrentTime, void* ref)
 			BuffAttribute* temp = (*It);
 			ModifyAttribute(temp->GetType(), temp->GetTickValue());	 
 			//were not interested in the return value here as ticking buffs are not applying final changes to restore an attribute
-			It++;
+			++It;
 		}
 
 		//Increment the Tick Counter
@@ -158,11 +159,12 @@ uint64 Buff::Update(uint64 CurrentTime, void* ref)
 	{ //If  Buff is on final tick
 
 		FinalChanges();
-		/*if(mDowner!=0)
+		if(mChild!=0)
 		{
-			gWorldManager->addBuffToProcess(&mDowner);
-		}*/
+			gWorldManager->addBuffToProcess(mChild);
+		}
 		mMarkedForDeletion = true;
+		mTarget->CleanUpBuffs();
 		return 0;
 	}
 }
@@ -400,7 +402,7 @@ void Buff::FinalChanges()
 	}
 
 	//Complete entertainer mission
-	gMissionManager->missionCompleteEntertainer(Player);
+	gMissionManager->missionCompleteEntertainer(Player,this);
 
 
 }
@@ -409,7 +411,7 @@ void Buff::FinalChanges()
 //
 //
 
-int32 Buff::ModifyAttribute(BuffAttributeEnum Type, int32 Value, bool damage, bool debuff)
+int32 Buff::ModifyAttribute(uint32 Type, int32 Value, bool damage, bool debuff)
 {
 	//damage is dealt by a debuff like poison for example this can incapacitate so
 	//a debuff from a doctorbuff should not be able to incapacitate you
@@ -418,131 +420,177 @@ int32 Buff::ModifyAttribute(BuffAttributeEnum Type, int32 Value, bool damage, bo
 	
 	switch(Type)
 	{
-
-		case Health:
+		case attr_health:
 			{
 				cV = this->mTarget->getHam()->updatePropertyValue(HamBar_Health, HamProperty_Modifier, Value, damage);
 			}
 		break;
 
-	case Food_Filling:
-	{
-		if(PlayerObject* playerObject = dynamic_cast<PlayerObject*>(this->mTarget))
-		{
-			playerObject->getStomach()->incFood(Value);
-			gMessageLib->sendFoodUpdate(playerObject);
-		}
-	}
-	break;
-
-	case Drink_Filling:
-	{
-		if(PlayerObject* playerObject = dynamic_cast<PlayerObject*>(this->mTarget))
-		{
-			playerObject->getStomach()->incDrink(Value);
-			gMessageLib->sendDrinkUpdate(playerObject);
-		}
-	}
-	break;
-
-	case Strength:
+	case attr_strength:
 		{
 			cV = this->mTarget->getHam()->updatePropertyValue(HamBar_Strength, HamProperty_Modifier, Value);
 		}
 	break;
 
-	case Constitution:
+	case attr_constitution:
 		{
 			cV = this->mTarget->getHam()->updatePropertyValue(HamBar_Constitution, HamProperty_Modifier, Value);
 		}
 	break;
 
-	case Action:
+	case attr_action:
 		{
 			cV = this->mTarget->getHam()->updatePropertyValue(HamBar_Action, HamProperty_Modifier, Value);
 		}
 	break;
 
-	case Quickness:
+	case attr_quickness:
 		{
 			cV = this->mTarget->getHam()->updatePropertyValue(HamBar_Quickness, HamProperty_Modifier, Value);
 		}
 	break;
 
-	case Stamina:
+	case attr_stamina:
 		{
 			cV = this->mTarget->getHam()->updatePropertyValue(HamBar_Stamina, HamProperty_Modifier, Value);
 		}
 	break;
 
-	case Mind:
+	case attr_mind:
 		{
 			cV = this->mTarget->getHam()->updatePropertyValue(HamBar_Mind, HamProperty_Modifier, Value);
 		}
 	break;
 
-	case Focus:
+	case attr_focus:
 		{
 			cV = this->mTarget->getHam()->updatePropertyValue(HamBar_Focus, HamProperty_Modifier, Value);
 		}
 	break;
 
-	case Willpower:
+	case attr_willpower:
 		{
 			cV = this->mTarget->getHam()->updatePropertyValue(HamBar_Willpower, HamProperty_Modifier, Value);
 		}
 	break;
-
-	case Burst_Run_Timer:{}break;
-	case Burst_Run_Cost_Reduction:{}break;
-	case To_Hit_Chance:{}break;
-	case Crafting_Assembly:{}break;
-	case Entertainer_Buff_Timer_Reduction:{}break;
-	case Timer_Reduction_on_Fire_DOT:{}break;
-	case Timer_Reduction_on_Bleed_DOT:{}break;
-	case Timer_Reduction_on_Poison_DOT:{}break;
-	case Timer_Reduction_on_Disease_DOT:{}break;
-	case DOT_Avoidance_Chance_Fire:{}break;
-	case DOT_Avoidance_Chance_Bleed:{}break;
-	case DOT_Avoidance_Chance_Poison:{}break;
-	case DOT_Avoidance_Chance_Disease:{}break;
-	case Heat_Damage_Reduction_Percent:{}break;
-	case Experimentation_Chance:{}break;
-	case Damage_Reduction_Percent:{}break;
-	case Constitution_Regen_Percent:{}break;
-	case Incap_Timer_Reduction:{}break;
-	case Heal_Time_Reduction_Percentage:{}break;
-	case Accuracy:{}break;
-	case Carbine_Accuracy:{}break;
-	case Carbine_Speed:{}break;
-	case Mask_Scent:
+	case bio_comp_mask_scent:
 		{
-			
-			if(mTarget->getSkillModValue(16) != 0)
+			if(mTarget->getSkillModValue(SMod_mask_scent) != 0)
 			{
-				mTarget->modifySkillModValue(16, Value);
+				mTarget->modifySkillModValue(SMod_mask_scent, Value);
 			} else { //we don't have skill mods for Mask Scent, hence erase attributes
 				EraseAttributes();
 			}
 		}
 	break;
-	case Onehandmelee_Accuracy:{}break;
-	case Onehandmelee_Speed:{}break;
-	case Pistol_Accuracy:{}break;
-	case Pistol_Speed:{}break;
-	case Polearm_Accuracy:{}break;
-	case Polearm_Speed:{}break;
-	case Rifle_Accuracy:{}break;
-	case Rifle_Speed:{}break;
-	case Thrown_Accuracy:{}break;
-	case Thrown_Speed:{}break;
-	case Twohandmelee_Accuracy:{}break;
-	case Twohandmelee_Speed:{}break;
-	case Unarmed_Accuracy:{}break;
-	case Unarmed_Speed:{}break;
-	case Spice_Downer_Time_Reduction:{}break;
-	case Enhance_Wookie_Roar_Ability:{}break;
-	case Mission_Timer:	{ } break;
+	case accuracy:
+		{
+			mTarget->modifySkillModValue(SMod_ranged_accuracy, Value);
+			mTarget->modifySkillModValue(SMod_melee_accuracy, Value);
+		}
+		break;
+	case bleed_resist : {gLogger->logMsg("Unhandled Attribute: bleed_resist in Buff.cpp");} break;
+	case blind_defense : {
+			mTarget->modifySkillModValue(SMod_blind_defense, Value);
+		}
+		break;
+	case block : 
+		{
+			mTarget->modifySkillModValue(SMod_block, Value);
+		}
+		break;
+	case burst_run : {
+			mTarget->modifySkillModValue(SMod_burst_run, Value);
+		} break;
+	case camouflage : {
+			if(mTarget->getSkillModValue(SMod_camouflage) != 0)
+				mTarget->modifySkillModValue(SMod_camouflage, Value);
+		} break;
+	case creature_action : {gLogger->logMsg("Unhandled Attribute: creature_action in Buff.cpp");} break;
+	case creature_health : {gLogger->logMsg("Unhandled Attribute creature_health in Buff.cpp");} break;
+	case creature_mind : {gLogger->logMsg("Unhandled Attribute creature_mind in Buff.cpp");} break; 
+	case creature_tohit : {gLogger->logMsg("Unhandled Attribute creature_tohit in Buff.cpp");} break;
+	case dizzy_defense : {
+			mTarget->modifySkillModValue(SMod_dizzy_defense, Value);
+		} break;
+	case dodge : {
+			mTarget->modifySkillModValue(SMod_dodge, Value);
+		} break;
+	case experiment_bonus : {gLogger->logMsg("Unhandled Attribute: experimentation_bonus in Buff.cpp");} break; 
+	case fire_resist : {gLogger->logMsg("Unhandled Attribute: fire_resist in Buff.cpp");} break;
+	case food_reduce : {gLogger->logMsg("Unhandled Attribute in Buff.cpp");} break; 
+	case general_assembly : {
+			mTarget->modifySkillModValue(SMod_general_assembly, Value);
+		} break;
+	case harvesting : {
+		if(mTarget->getSkillModValue(SMod_creature_harvesting) != 0)
+			mTarget->modifySkillModValue(SMod_creature_harvesting, Value);
+		} break;
+	case healer_speed : {
+		if(mTarget->getSkillModValue(SMod_healing_wound_speed) != 0)
+			mTarget->modifySkillModValue(SMod_healing_wound_speed, Value);
+		if(mTarget->getSkillModValue(SMod_healing_injury_speed) != 0)
+			mTarget->modifySkillModValue(SMod_healing_injury_speed, Value);
+		if(mTarget->getSkillModValue(SMod_healing_range_speed) != 0)
+			mTarget->modifySkillModValue(SMod_healing_range_speed, Value);
+		} break;
+	case healing_dance_wound :  {
+		if(mTarget->getSkillModValue(SMod_healing_dance_wound) != 0)
+			mTarget->modifySkillModValue(SMod_healing_dance_wound, Value);
+		} break;
+	case healing_music_wound :  {
+		if(mTarget->getSkillModValue(SMod_healing_music_wound) != 0)
+			mTarget->modifySkillModValue(SMod_healing_music_wound, Value);
+		} break;
+	case healing_wound_treatment :  {
+		if(mTarget->getSkillModValue(SMod_healing_wound_treatment) != 0)
+			mTarget->modifySkillModValue(SMod_healing_wound_treatment, Value);
+		} break;
+	case incap_recovery : {gLogger->logMsg("Unhandled Attribute: incap_recovery in Buff.cpp");} break; 
+	case innate_regeneration :  {
+		if(mTarget->getSkillModValue(SMod_private_innate_regeneration) != 0)
+			mTarget->modifySkillModValue(SMod_private_innate_regeneration, Value);
+		} break; 
+	case innate_roar :  {
+		if(mTarget->getSkillModValue(SMod_private_innate_roar) != 0)
+			mTarget->modifySkillModValue(SMod_private_innate_roar, Value);
+		} break;
+	case intimidate_defense :  {
+			mTarget->modifySkillModValue(SMod_intimidate_defense, Value);
+		} break;
+	case knockdown_defense :  {
+			mTarget->modifySkillModValue(SMod_knockdown_defense, Value);
+		} break;
+	case melee_defense :  {
+			mTarget->modifySkillModValue(SMod_melee_defense, Value);
+		} break;
+	case mind_heal : {gLogger->logMsg("Unhandled Attribute: mind_heal in Buff.cpp");} break; 
+	case mitigate_damage : {gLogger->logMsg("Unhandled Attribute: mitigate_damage in Buff.cpp");} break; 
+	case poison_disease_resist : {gLogger->logMsg("Unhandled Attribute: poison_disease_resist in Buff.cpp");} break;
+	case ranged_defense :  {
+			mTarget->modifySkillModValue(SMod_ranged_defense, Value);
+		} break;
+	case reduce_clone_wounds : {gLogger->logMsg("Unhandled Attribute: reduce_clone_wounds in Buff.cpp");} break;
+	case reduce_spice_downtime : {gLogger->logMsg("Unhandled Attribute: reduce_spice_downtime in Buff.cpp");} break;
+	case stun_defense :  {
+			mTarget->modifySkillModValue(SMod_stun_defense, Value);
+		} break;
+	case surveying :  {
+		if(mTarget->getSkillModValue(SMod_surveying) != 0)
+			mTarget->modifySkillModValue(SMod_surveying, Value);
+		} break;
+	case tame_bonus :  {
+		if(mTarget->getSkillModValue(SMod_tame_bonus) != 0)
+			mTarget->modifySkillModValue(SMod_tame_bonus, Value);
+		} break;
+	case trapping :  {
+		if(mTarget->getSkillModValue(SMod_trapping) != 0)
+			mTarget->modifySkillModValue(SMod_trapping, Value);
+		} break; 
+	case unarmed_damage :  {
+			mTarget->modifySkillModValue(SMod_unarmed_damage, Value);
+		} break;
+	case xp_increase : {gLogger->logMsg("Unhandled Attribute: xp_increase in Buff.cpp");} break; 
 	default:
 		{
 		}

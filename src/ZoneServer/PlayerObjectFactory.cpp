@@ -639,6 +639,7 @@ PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
 
 	playerObject->mHam.updateRegenRates();
 	playerObject->mHam.checkForRegen();
+	playerObject->mStomach->checkForRegen();
 
 	// setup controller validators
 	playerObject->mObjectController.initEnqueueValidators();

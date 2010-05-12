@@ -106,7 +106,7 @@ PlayerObject::PlayerObject()
 	mIsForaging			= false;
 	mType				= ObjType_Player;
 	mCreoGroup			= CreoGroup_Player;
-	mStomach			= new Stomach();
+	mStomach			= new Stomach(this);
 	mMarriage			= L"";					// Unmarried
 	mTrade				= new Trade(this);
 
@@ -138,7 +138,7 @@ PlayerObject::PlayerObject()
 
 PlayerObject::~PlayerObject()
 {
-	// store any eventually spawned VehicleController
+	// store any eventually spawned vehicle
 	Datapad* datapad = dynamic_cast<Datapad*>(mEquipManager.getEquippedObject(CreatureEquipSlot_Datapad));
 
 	if(mMount && datapad)
@@ -156,8 +156,12 @@ PlayerObject::~PlayerObject()
 	// remove any timers we got running
 	gWorldManager->removeObjControllerToProcess(mObjectController.getTaskId());
 	gWorldManager->removeCreatureHamToProcess(mHam.getTaskId());
+	gWorldManager->removeCreatureStomachToProcess(mStomach->mDrinkTaskId);
+	gWorldManager->removeCreatureStomachToProcess(mStomach->mFoodTaskId);
 	mObjectController.setTaskId(0);
 	mHam.setTaskId(0);
+	mStomach->mFoodTaskId = 0;
+	mStomach->mDrinkTaskId = 0;
 
 	// remove player from movement update timer.
 	gWorldManager->removePlayerMovementUpdateTime(this);
@@ -220,17 +224,7 @@ PlayerObject::~PlayerObject()
 	if(GroupObject* group = gGroupManager->getGroupObject(mGroupId))
 	{
 		group->removePlayer(mId);
-		if(this->getIDPartner() != 0)
-		{
-			if(PlayerObject* idPartner = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getIDPartner())))
-			{
-				idPartner->SetImageDesignSession(IDSessionNONE);
-				idPartner->setIDPartner(0);
-				this->SetImageDesignSession(IDSessionNONE);
-				this->setIDPartner(0);
-			}
-
-		}
+		
 	}
 
 	// can't zone or logout while in combat

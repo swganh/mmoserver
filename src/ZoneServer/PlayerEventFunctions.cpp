@@ -232,12 +232,12 @@ void PlayerObject::onSample(const SampleEvent* event)
 		
 		//this should be a timed debuff per instance -- Do not cause wounds unless potential energy >= 500
 		
-		BuffAttribute* healthdebuffAttribute = new BuffAttribute(Health, -(int)hamReduc,0,hamReduc); 
+		BuffAttribute* healthdebuffAttribute = new BuffAttribute(attr_health, -(int)hamReduc,0,hamReduc); 
 		Buff* healthdebuff = Buff::SimpleBuff(this, this, 300000, 0, gWorldManager->GetCurrentGlobalTick());
 		healthdebuff->AddAttribute(healthdebuffAttribute);	
 		this->AddBuff(healthdebuff,true);
 
-		healthdebuffAttribute = new BuffAttribute(Action, -(int)hamReduc,0,hamReduc); 
+		healthdebuffAttribute = new BuffAttribute(attr_action, -(int)hamReduc,0,hamReduc); 
 		healthdebuff = Buff::SimpleBuff(this, this, 300000, 0, gWorldManager->GetCurrentGlobalTick());
 		healthdebuff->AddAttribute(healthdebuffAttribute);	
 		this->AddBuff(healthdebuff,true);

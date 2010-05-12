@@ -27,7 +27,8 @@ enum MessageOpcodes
 	opClusterZoneTransferApprovedByTicket	= 0xA608F0B2,
 	opClusterZoneTransferDenied				= 0x7B4AF214,
 	opClusterZoneTransferCharacter			= 0x74C4FC34,
-
+	opTutorialServerStatusRequest			= 0x5E48A399,
+	opTutorialServerStatusReply				= 0x989EDF5A,
 	opSelectCharacter						= 0xb5098d76,
 	opConGenericMessage						= 0x08C5FC76,
 	opErrorMessage							= 0xb5abf91a,

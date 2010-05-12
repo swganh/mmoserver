@@ -455,7 +455,7 @@ int32 Ham::updatePropertyValue(uint8 barIndex,uint8 valueIndex,int32 propertyDel
 
 //===========================================================================
 //
-// gets called in order to modify the special H-bar used by Vehicles and some static objects.
+// gets called in order to modify the special H-bar used by vehicles and some static objects.
 //
 
 void Ham::updateSingleHam(int32 propertyDelta, bool damage)

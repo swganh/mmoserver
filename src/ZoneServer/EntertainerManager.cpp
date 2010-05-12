@@ -802,7 +802,7 @@ void	EntertainerManager::startMusicPerformance(PlayerObject* entertainer,string 
 		{
 			entertainer->setPerformingState(PlayerPerformance_None);
 			gMessageLib->sendSystemMessage(entertainer,L"Your instrument cannot be initialized.");
-			gLogger->logMsgF("EntertainerManager::startMusicPerformance() no Performance found", MSG_NORMAL);
+			//gLogger->logMsgF("EntertainerManager::startMusicPerformance() no performance found", MSG_NORMAL);
 
 			return;
 		}
@@ -1515,7 +1515,7 @@ void EntertainerManager::stopWatching(PlayerObject* audience,bool ooRange)
 				mind				= static_cast<uint32>(mind*buffPercentageDance);
 
 				//yay!!! we got ourselves a buff!!!
-				BuffAttribute* mindAttribute = new BuffAttribute(Mind, +mind,0,-(int)mind);
+				BuffAttribute* mindAttribute = new BuffAttribute(mind, +mind,0,-(int)mind);
 				Buff* mindBuff = Buff::SimpleBuff(audience, audience, time*1000, opBACRC_PerformanceMind, gWorldManager->GetCurrentGlobalTick());
 				mindBuff->AddAttribute(mindAttribute);
 				audience->AddBuff(mindBuff,true);
@@ -1621,12 +1621,12 @@ void EntertainerManager::stopListening(PlayerObject* audience,bool ooRange)
 				will				= static_cast<uint32>(will*buffPercentageDance);
 
 				//yay!!! we got ourselves a buff!!!
-				BuffAttribute* focusAttribute = new BuffAttribute(Focus, +focus,0,-(int)focus);
+				BuffAttribute* focusAttribute = new BuffAttribute(attr_focus, +focus,0,-(int)focus);
 				Buff* focusBuff = Buff::SimpleBuff(audience, audience, time*1000, opBACRC_PerformanceFocus, gWorldManager->GetCurrentGlobalTick());
 				focusBuff->AddAttribute(focusAttribute);
 				audience->AddBuff(focusBuff,true);
 
-				BuffAttribute* willAttribute = new BuffAttribute(Willpower, +will,0,-(int)will);
+				BuffAttribute* willAttribute = new BuffAttribute(attr_willpower, +will,0,-(int)will);
 				Buff* willBuff = Buff::SimpleBuff(audience, audience, time*1000, opBACRC_PerformanceWill, gWorldManager->GetCurrentGlobalTick());
 				willBuff->AddAttribute(willAttribute);
 				audience->AddBuff(willBuff,true);
@@ -2014,14 +2014,13 @@ void EntertainerManager::playInstrument(PlayerObject* entertainer, Item* instrum
 
 			// We are in range.
 			//move player to instrument vs move instrument to player
-
 			entertainer->mDirection = instrument->mDirection;
 			entertainer->updatePosition(instrument->getParentId(),instrument->mPosition);
 		
+
 		}
 	}
 	
-
 	//start the selection list
 	handlestartmusic(entertainer);
 }
@@ -2166,6 +2165,13 @@ void EntertainerManager::handleObjectReady(Object* object,DispatchClient* client
 //=======================================================================================================================
 bool EntertainerManager::handleStartBandIndividual(PlayerObject* performer, string performance)
 {
+
+	//we cant start performing when were about to log out!
+	if(performer->getConnectionState() != PlayerConnState_Connected)
+	{
+		return false;
+	}
+
 	SkillCommandList*	entertainerSkillCommands = performer->getSkillCommands();
 	SkillCommandList::iterator entertainerIt = entertainerSkillCommands->begin();
 
@@ -2468,9 +2474,11 @@ bool EntertainerManager::approachInstrument(PlayerObject* entertainer, uint64 in
 					// We are in range.
 					moveSucceeded = true;
 					
+					entertainer->mPosition = instrument->mPosition;
 					entertainer->mDirection = instrument->mDirection;
-					entertainer->updatePosition(instrument->getParentId(),instrument->mPosition);
 
+					entertainer->updatePosition(instrument->getParentId(),instrument->mPosition);
+				
 				}
 			}
 			else
@@ -2482,7 +2490,10 @@ bool EntertainerManager::approachInstrument(PlayerObject* entertainer, uint64 in
 					if (item->getId() == instrumentId)
 					{
 						moveSucceeded = true;
-						
+						instrument->mPosition  = entertainer->mPosition;
+						instrument->mDirection = entertainer->mDirection;
+
+						gMessageLib->sendDataTransform(instrument);
 					}
 				}
 			}

@@ -405,54 +405,21 @@ void ScriptSupport::npcTestDir(NPCObject* npc, float dirX, float dirZ)
 	npc->mDirection.x = dirZ;
 }
 
-void ScriptSupport::npcDirection(NPCObject* npc, float deltaX, float deltaZ)
-{
-	// gLogger->logMsgF("ScriptSupport::npcDirection() this = PRId32, NPC is: PRId32",MSG_HIGH, this, mSpawnedNpc);
-
-	// Let's turn to the direction we are heading.
-	float x = deltaX;
-	float z = deltaZ;
-	float h = sqrt(x*x + z*z);
-
-	// if ((z/h) < 0.0)
-	if ((z) < 0.0)
-	{
-		// if (x/h < 0.0)
-		if (x < 0.0)
-		{
-			npc->mDirection.w = static_cast<float>(cos((3.14159354 * 0.5) + 0.5f*acos(-z/h)));
-			npc->mDirection.y = static_cast<float>(sin((3.14159354 * 0.5) + 0.5f*acos(-z/h)));
-		}
-		else
-		{
-			npc->mDirection.y = sin(0.5f*acos(z/h));
-			npc->mDirection.w = cos(0.5f*acos(z/h));
-		}
-	}
-	else
-	{
-		npc->mDirection.y = sin(0.5f*asin(x/h));
-		npc->mDirection.w = cos(0.5f*acos(z/h));
-	}
+void ScriptSupport::npcDirection(NPCObject* npc, float deltaX, float deltaZ) {
+    // Turn to the direction heading.
+    npc->facePosition(glm::vec3(deltaX, 0.0f, deltaZ));
 
 	// send out position updates to known players
 	// updateNpcPosition(npc);
-	if(npc->getKnownPlayers()->empty())
-	{
+	if(npc->getKnownPlayers()->empty()) {
 		return;
 	}
 
-	if (npc->getParentId())
-	{
-		// We are inside a cell.
+    // Send out the appropriate data transform depending if the npc is in a cell or not.
+	if (npc->getParentId())	{
 		gMessageLib->sendDataTransformWithParent(npc);
-		// gMessageLib->sendUpdateTransformMessageWithParent(npc, false);
-	}
-	else
-	{
-
+	} else {
 		gMessageLib->sendDataTransform(npc);
-		// gMessageLib->sendUpdateTransformMessage(npc, false);
 	}
 }
 

@@ -18,7 +18,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "PlayerObject.h"
 #include "ScoutManager.h"
 #include "StructureManager.h"
-#include "VehicleFactory.h"
+#include "VehicleControllerFactory.h"
 #include "WorldManager.h"
 #include "ZoneOpcodes.h"
 
@@ -53,12 +53,12 @@ void Deed::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
 				if(this->getItemType() >= ItemType_Deed_X34 && this->getItemType() <= ItemType_Deed_Swoop) //landspeeder x34, speederbike, swoop
 				{
-					// create the VehicleController and put in datapad
+					// create the vehicle and put in datapad
 					Datapad*		datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
 
 					if(datapad->getCapacity())
 					{
-						gVehicleControllerFactory->createVehicleController(this->getItemType(),player);
+						gVehicleControllerFactory->createVehicle(this->getItemType(),player);
 
 						Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 						inventory->removeObject(this);
@@ -68,7 +68,7 @@ void Deed::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 					}
 					else
 					{
-						gMessageLib->sendSystemMessage(player,L"Error datapad at max capacity. Couldn't create the VehicleController.");
+						gMessageLib->sendSystemMessage(player,L"Error datapad at max capacity. Couldn't create the vehicle.");
 					}
 				}
 				else
@@ -78,7 +78,7 @@ void Deed::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 					//check the region whether were allowed to build
 					if(!gStructureManager->checkCityRadius(player))
 					{
-						gMessageLib->sendSystemMessage(player,L"You cannot place this structure inside a no-build zone.");
+						gMessageLib->sendSystemMessage(player,L"","faction_perk","no_build_area");
 						return;
 					}
 

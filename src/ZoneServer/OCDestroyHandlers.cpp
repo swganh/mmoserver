@@ -101,9 +101,9 @@ void ObjectController::destroyObject(uint64 objectId)
 			gLogger->logMsgF("ObjController::handleDestroyObject: Error removing Data from datapad %"PRIu64"",MSG_NORMAL,objectId);
 		}
 
-		if(VehicleController* controller = dynamic_cast<VehicleController*>(object))
+		if(VehicleController* vehicle = dynamic_cast<VehicleController*>(object))
 		{
-			controller->store();
+			vehicle->store();
 		}
 		
 		gObjectFactory->deleteObjectFromDB(object);

@@ -31,12 +31,12 @@ class VehicleController;
 
 //=============================================================================
 
-enum VehicleControllerQuery
+enum VehicleQuery
 {
 	VehicleControllerFactoryQuery_Create		= 1,
 	VehicleControllerFactoryQuery_TypesId		= 2,
-	VehicleControllerFactoryQuery_ItnoData		= 3,
-	VehicleControllerFactoryQuery_MainData		= 4,
+	VehicleControllerFactoryQuery_ItnoData	= 3,
+	VehicleControllerFactoryQuery_MainData	= 4,
 	VehicleControllerFactoryQuery_Attributes	= 5
 };
 
@@ -54,23 +54,23 @@ class VehicleControllerFactory : public FactoryBase, public ObjectFactoryCallbac
 		virtual void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
 		virtual void			handleObjectReady(Object* object,DispatchClient* client);
 		void					requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
-		void					createVehicleController(uint32 Vehicle_type,PlayerObject* targetPlayer);
+		void					createVehicle(uint32 vehicle_type,PlayerObject* targetPlayer);
 
 
 	private:
 
 		VehicleControllerFactory(Database* database);
 
-		void				_setupDatabindings();
-		void				_destroyDatabindings();
+		void						_setupDatabindings();
+		void						_destroyDatabindings();
 
-		VehicleController*			_createVehicleController(DatabaseResult* result);
+		VehicleController*			_createVehicle(DatabaseResult* result);
 
 		static VehicleControllerFactory*	mSingleton;
 		static bool					mInsFlag;
 
-		DataBinding*				mVehicleControllerItno_Binding;
-		DataBinding*				mVehicleControllerCreo_Binding;
+		DataBinding*				mVehicleItno_Binding;
+		DataBinding*				mVehicleCreo_Binding;
 
 };
 

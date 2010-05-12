@@ -49,7 +49,6 @@ CreatureObject::CreatureObject()
 , mPerformance(NULL)
 , mPvPStatus(CreaturePvPStatus_None)
 , mPendingPerform(PlayerPerformance_None)
-
 , mCurrentIncapTime(0)
 , mEntertainerListenToId(0)
 , mFirstIncapTime(0)
@@ -57,9 +56,8 @@ CreatureObject::CreatureObject()
 , mState(0)
 , mLastEntertainerXP(0)
 , mScale(1.0)
-
 , mLanguage(1)
-, mLastMoveTick(0)
+,	mLastMoveTick(0)
 , mPerformanceCounter(0)
 , mPerformanceId(0)
 , mRaceGenderMask(0)
@@ -546,7 +544,18 @@ void CreatureObject::RemoveBuff(Buff* buff)
 
 //================================================
 //
-
+void CreatureObject::ClearAllBuffs()
+{
+	BuffList::iterator it = mBuffList.begin();
+	while(it != mBuffList.end())
+	{
+		(*it)->FinalChanges();
+		gWorldManager->removeBuffToProcess((*it)->GetID());
+		(*it)->MarkForDeletion();
+		++it;
+	}
+	CleanUpBuffs();
+}
 void CreatureObject::CleanUpBuffs()
 {
 	BuffList::iterator it = mBuffList.begin();
@@ -555,7 +564,7 @@ void CreatureObject::CleanUpBuffs()
 		if((*it)->GetIsMarkedForDeletion())
 		{
 			SAFE_DELETE(*it);
-			it = mBuffList.erase(it);
+			mBuffList.erase(it++);
 		}
 		else
 		{
@@ -653,10 +662,10 @@ void CreatureObject::incap()
 		if(player->checkIfMounted())
 		{
 			//Get the player's mount
-			if(VehicleController* controller = dynamic_cast<VehicleController*>(gWorldManager->getObjectById(player->getMount()->getPetController())))
+			if(VehicleController* vehicle = dynamic_cast<VehicleController*>(gWorldManager->getObjectById(player->getMount()->getPetController())))
 			{
 				//Now dismount
-				controller->dismountPlayer();
+				vehicle->dismountPlayer();
 			}
 
 		}

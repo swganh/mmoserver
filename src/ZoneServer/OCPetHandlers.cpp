@@ -18,7 +18,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "PlayerObject.h"
 #include "UIManager.h"
 #include "VehicleController.h"
-#include "VehicleFactory.h"
+#include "VehicleControllerFactory.h"
 #include "WorldConfig.h"
 #include "WorldManager.h"
 #include "MessageLib/MessageLib.h"
@@ -35,7 +35,7 @@ void ObjectController::_handleMount(uint64 targetId,Message* message,ObjectContr
 	// And some parameter validation...
 	if (targetId == 0)
 	{
-		gLogger->logMsg("ObjectController::_handleMount : Cannot find VehicleController ID :(");
+		gLogger->logMsg("ObjectController::_handleMount : Cannot find vehicle ID :(");
 		return;
 	}
 
@@ -50,14 +50,14 @@ void ObjectController::_handleMount(uint64 targetId,Message* message,ObjectContr
 			MountObject* pet	= dynamic_cast<MountObject*>(gWorldManager->getObjectById(targetId));
 			if (pet && (pet->getOwner() == player->getId()))
 			{
-				// get the mount VehicleController object by the id (Creature object id - 1 )
+				// get the mount Vehicle object by the id (Creature object id - 1 )
 
-				if(VehicleController* controller = dynamic_cast<VehicleController*>(gWorldManager->getObjectById(pet->getPetController())))
+				if(VehicleController* vehicle = dynamic_cast<VehicleController*>(gWorldManager->getObjectById(pet->getPetController())))
 				{
 					//The /mount command can work up to 32m on live
-                    if(glm::distance(controller->getBody()->mPosition, player->mPosition) <= 32)
+                    if(glm::distance(vehicle->getBody()->mPosition, player->mPosition) <= 32)
 					{
-						controller->mountPlayer();
+						vehicle->mountPlayer();
 					}
 					else
 					{
@@ -66,7 +66,7 @@ void ObjectController::_handleMount(uint64 targetId,Message* message,ObjectContr
 				}
 				else
 				{
-					gLogger->logMsg("ObjectController::_handleMount : Cannot find VehicleController");
+					gLogger->logMsg("ObjectController::_handleMount : Cannot find vehicle");
 				}
 			}
 		}
@@ -104,10 +104,10 @@ void ObjectController::_handleDismount(uint64 targetId,Message* message,ObjectCo
 
 			if (pet && (pet->getOwner() == player->getId()))
 			{
-				// get the pets controller for a swoop its the VehicleController
-				if(VehicleController* controller = dynamic_cast<VehicleController*>(gWorldManager->getObjectById(pet->getPetController())))
+				// get the pets controller for a swoop its the vehicle
+				if(VehicleController* vehicle = dynamic_cast<VehicleController*>(gWorldManager->getObjectById(pet->getPetController())))
 				{
-					controller->dismountPlayer();
+					vehicle->dismountPlayer();
 				}
 			}
 		}

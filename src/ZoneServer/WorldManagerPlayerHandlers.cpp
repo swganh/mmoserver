@@ -260,6 +260,8 @@ void WorldManager::addDisconnectedPlayer(PlayerObject* playerObject)
 
 	removeObjControllerToProcess(playerObject->getController()->getTaskId());
 	removeCreatureHamToProcess(playerObject->getHam()->getTaskId());
+	removeCreatureStomachToProcess(playerObject->getStomach()->mDrinkTaskId);
+	removeCreatureStomachToProcess(playerObject->getStomach()->mFoodTaskId);
 	removeEntertainerToProcess(playerObject->getEntertainerTaskId());
 
 	gCraftingSessionFactory->destroySession(playerObject->getCraftingSession());
@@ -374,6 +376,8 @@ void WorldManager::warpPlanet(PlayerObject* playerObject, const glm::vec3& desti
 	
 	//why remove that ?	
 	removeCreatureHamToProcess(playerObject->getHam()->getTaskId());
+	removeCreatureStomachToProcess(playerObject->getStomach()->mDrinkTaskId);
+	removeCreatureStomachToProcess(playerObject->getStomach()->mFoodTaskId);
 	//playerObject->getHam()->setTaskId(0);
 
 	// reset player properties
@@ -422,6 +426,7 @@ void WorldManager::warpPlanet(PlayerObject* playerObject, const glm::vec3& desti
 
 	// initialize ham regeneration
 	playerObject->getHam()->checkForRegen();
+	playerObject->getStomach()->checkForRegen();
 }
 
 //======================================================================================================================

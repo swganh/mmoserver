@@ -266,8 +266,6 @@ class PlayerObject : public CreatureObject
 		void				setGender(bool gender){mFemale = gender;}
 		bool				getGender(){return mFemale;}
 
-		//===================================================================
-		//PlayerMounts
 		bool				checkIfMounted() { return mMounted; }
 		void				setMounted(bool mounted) { mMounted = mounted; }
 

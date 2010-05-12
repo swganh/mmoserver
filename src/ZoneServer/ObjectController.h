@@ -62,6 +62,7 @@ typedef Anh_Utils::priority_vector<ObjControllerEvent*,CompareEvent >				EventQu
 
 enum OCQueryType
 {
+	OCQuery_Null			= 0,
 	OCQuery_AddFriend		= 1,
 	OCQuery_RemoveFriend	= 2,
 	OCQuery_AddIgnore		= 3,
@@ -217,7 +218,7 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback, 
 		void					handleResourceEmptyHopper(Message* message);
 
 		//permissionsystem
-		bool	checkContainingContainer(uint64 containingContainer, uint64 playerId);
+		bool					checkContainingContainer(uint64 containingContainer, uint64 playerId);
 								// Utility
 		bool					objectsInRange(uint64 obj1Id, uint64 obj2Id, float range);
 

@@ -1121,7 +1121,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
 	if(mBazaarsLoaded)
 	{
 		mBazaarsLoaded = false;
-		gLogger->logMsgF("TradeManager::Load complete (%u bazaars )",MSG_NORMAL,mBazaarCount);
+		gLogger->logMsgF("Loaded %u bazaars ",MSG_NORMAL,mBazaarCount);
 	}
 
 }

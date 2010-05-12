@@ -227,7 +227,14 @@ gLogger->logMsgLoadSuccess("WorldConfig:: %u attributes mapped...",MSG_NORMAL,co
 	}
 	else
 	{
-		gLogger->logMsgLoadFailure("WorldConfig::mapping attributes...",MSG_NORMAL);					
+	#if !defined(_DEBUG)
+		gLogger->logMsgLoadFailure(" Mapping attributes...",MSG_NORMAL);
+	#endif
+	
+	#if defined(_DEBUG)
+		gLogger->logMsgLoadFailure("WorldConfig::mapping attributes...",MSG_NORMAL);
+	#endif
+				
 	}
 
 }

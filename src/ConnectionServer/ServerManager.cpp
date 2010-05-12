@@ -115,11 +115,15 @@ NetworkClient* ServerManager::handleSessionConnect(Session* session, Service* se
 	int8 sql[500];
 	sprintf(sql,"SELECT id, address, port, status, active FROM config_process_list WHERE address='%s' AND port=%u;", session->getAddressString(), session->getPortHost());
 	DatabaseResult* result = mDatabase->ExecuteSynchSql(sql);
-	gLogger->logMsgF(sql,MSG_HIGH);
-	gLogger->logMsg("\n");
+	#if defined(_DEBUG)
+		gLogger->logMsgF(sql,MSG_HIGH);
+		gLogger->logMsg("\n");
+	#endif
+							
 	// If we found them
 	if(result->getRowCount() == 1)
 	{
+		gLogger->logMsg("get routes\n");
 		// Retrieve our routes and add them to the map.
 		result->GetNextRow(mServerBinding,&serverAddress);
 
@@ -135,10 +139,12 @@ NetworkClient* ServerManager::handleSessionConnect(Session* session, Service* se
 		// If this is one of the servers we're waiting for, then update our count
 		if(mServerAddressMap[serverAddress.mId].mActive)
 		{
+			
 			++mTotalConnectedServers;
-
+			gLogger->logMsgF("total: %d active %d\n",MSG_NORMAL,mTotalConnectedServers, mTotalActiveServers);
 			if(mTotalConnectedServers == mTotalActiveServers)
 			{
+				gLogger->logMsg("set gal\n");
 				mDatabase->ExecuteSqlAsync(0,0,"UPDATE galaxy SET status=2, last_update=NOW() WHERE galaxy_id=%u;", mClusterId);
 			}
 		}

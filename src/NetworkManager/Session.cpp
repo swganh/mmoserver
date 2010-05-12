@@ -117,8 +117,9 @@ lowest(0)
 Session::~Session(void)
 {				
 	uint32 savedPackets = 0;
-
-	gLogger->logMsgF("Session::~Session ",MSG_HIGH,this->getId());
+						#if defined(_DEBUG)
+							gLogger->logMsgF("Session::~Session ",MSG_HIGH,this->getId());
+						#endif
 	Message* message = 0;
 	
     boost::recursive_mutex::scoped_lock lk(mSessionMutex);
@@ -725,9 +726,10 @@ void Session::HandleSessionPacket(Packet* packet)
 	// Remote side disconnceted
 	case SESSIONOP_Disconnect:
 	{
-	
-			gLogger->logMsgF("Session::remote side disconnected", MSG_HIGH);
-	  mStatus = SSTAT_Disconnecting;
+							#if defined(_DEBUG)
+						gLogger->logMsgF("Session::remote side disconnected", MSG_HIGH);
+						#endif
+			 mStatus = SSTAT_Disconnecting;
 	  _processDisconnectPacket(packet);
 	  return;
 	}

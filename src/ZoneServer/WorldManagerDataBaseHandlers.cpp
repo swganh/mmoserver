@@ -590,7 +590,13 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					gLogger->logMsgLoadSuccess("WorldManager::Loading %u city regions...",MSG_NORMAL,count);
 				#endif
 					else
-						gLogger->logMsgLoadFailure("WorldManager::Loading city regions...",MSG_NORMAL);
+						#if !defined(_DEBUG)
+gLogger->logMsgLoadFailure(" Loading city regions...",MSG_NORMAL);
+#endif
+				#if defined(_DEBUG)
+gLogger->logMsgLoadFailure("WorldManager::Loading city regions...",MSG_NORMAL);
+#endif
+					
 
 					mDatabase->DestroyDataBinding(cityBinding);
 				}
@@ -620,7 +626,13 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					gLogger->logMsgLoadSuccess("WorldManager::Loading %u badge regions...",MSG_NORMAL,count);
 				#endif
 					else
-						gLogger->logMsgLoadFailure("WorldManager::Loading badge regions...",MSG_NORMAL);
+						#if !defined(_DEBUG)
+					gLogger->logMsgLoadFailure(" Loading badge regions...",MSG_NORMAL);
+				#endif
+				#if defined(_DEBUG)
+					gLogger->logMsgLoadFailure("WorldManager::Loading badge regions...",MSG_NORMAL);
+				#endif
+					
 
 					mDatabase->DestroyDataBinding(badgeBinding);
 				}

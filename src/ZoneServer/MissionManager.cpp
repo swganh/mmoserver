@@ -601,7 +601,7 @@ return;
 void MissionManager::missionComplete(PlayerObject* player, MissionObject* mission)
 {
 	wchar_t sm[100];
-	swprintf(sm,100, L"","mission/mission_generic",L"success",mission->getReward());
+	swprintf(sm,100, L"","mission/mission_generic",L"success_w_amount",mission->getReward());
 	gMessageLib->sendSystemMessage(player,sm);
 
 	//remove mission

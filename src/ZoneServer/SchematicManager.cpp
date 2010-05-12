@@ -243,7 +243,13 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
 			if(!--mGroupLoadCount)
 			{
-				gLogger->logMsgLoadSuccess("SchematicManager::Loaded %u Groups %u Schematics",MSG_NORMAL,mGroupCount,mSchematicCount);
+				#if !defined(_DEBUG) && defined(_WIN32)
+					gLogger->logMsgLoadSuccess(" Loaded %u groups and %u schematics",MSG_NORMAL,mGroupCount,mSchematicCount);
+				#endif
+				#if defined(_DEBUG) && defined(_WIN32)
+					gLogger->logMsgLoadSuccess("SchematicManager::Loaded %u Groups %u Schematics",MSG_NORMAL,mGroupCount,mSchematicCount);
+				#endif
+		
 			}
 
 			mDatabase->DestroyDataBinding(binding);

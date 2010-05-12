@@ -179,8 +179,13 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 			// not all missions have associated names ...
 			if(result->getRowCount())
-				gLogger->logMsgLoadSuccess("MissionManager::Loading %u Mission stfs...",MSG_NORMAL,count);
-			else
+				#if !defined(_DEBUG) && defined(_WIN32)
+					gLogger->logMsgLoadSuccess(" Loading %u mission stfs...",MSG_NORMAL,count);
+				#endif
+				#if defined(_DEBUG) && defined(_WIN32)
+					gLogger->logMsgLoadSuccess("MissionManager::Loading %u Mission stfs...",MSG_NORMAL,count);
+				#endif
+				else
 				gLogger->logMsgLoadFailure("MissionManager::Loading Mission stfs...",MSG_NORMAL);
 
 		}
@@ -205,7 +210,14 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			}
 
 			if(result->getRowCount())
-				gLogger->logMsgLoadSuccess("MissionManager::Loading %u Mission Names...",MSG_NORMAL,count);
+				#if !defined(_DEBUG) && defined(_WIN32)
+					gLogger->logMsgLoadSuccess(" Loading %u mission names...",MSG_NORMAL,count);
+				#endif
+		
+				#if defined(_DEBUG) && defined(_WIN32)
+					gLogger->logMsgLoadSuccess("MissionManager::Loading %u Mission Names...",MSG_NORMAL,count);
+				#endif
+			
 			else
 				gLogger->logMsgLoadFailure("MissionManager::Loading Mission Names...",MSG_NORMAL);
 
@@ -240,7 +252,14 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			mDatabase->ExecuteSqlAsyncNoArguments(this,asyncContainer,"SELECT m_t.mission_type, m_t.mission_name, m_t.mission_text FROM swganh.mission_text m_t INNER JOIN swganh.mission_types mty ON mty.id = m_t.mission_type WHERE mission_name like 'm%o' AND (mty.type NOT like 'mission_npc_%')");
 
 			if(result->getRowCount())
-				gLogger->logMsgLoadSuccess("MissionManager::Loading %u Mission Types...",MSG_NORMAL,result->getRowCount());
+				#if !defined(_DEBUG) && defined(_WIN32)
+			gLogger->logMsgLoadSuccess(" Loading %u mission types...",MSG_NORMAL,result->getRowCount());
+			#endif
+	
+			#if defined(_DEBUG) && defined(_WIN32)
+			gLogger->logMsgLoadSuccess("MissionManager::Loading %u Mission Types...",MSG_NORMAL,result->getRowCount());
+			#endif
+			
 			else
 				gLogger->logMsgLoadFailure("MissionManager::Loading Mission Types...",MSG_NORMAL);
 
@@ -394,7 +413,13 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			}
 
 			if(result->getRowCount())
-				gLogger->logMsgLoadSuccess("MissionManager::Loading %u Mission Terminal Links...",MSG_NORMAL,result->getRowCount());
+					#if !defined(_DEBUG) && defined(_WIN32)
+	gLogger->logMsgLoadSuccess(" Loading %u mission terminal links...",MSG_NORMAL,result->getRowCount());
+	#endif
+	#if defined(_DEBUG) && defined(_WIN32)
+		gLogger->logMsgLoadSuccess("MissionManager::Loading %u Mission Terminal Links...",MSG_NORMAL,result->getRowCount());
+	#endif
+		
 			else
 				gLogger->logMsgLoadFailure("MissionManager::Loading Mission Terminal Links...",MSG_NORMAL);
 

@@ -55,7 +55,7 @@ ChatServer::ChatServer() : mNetworkManager(0),mDatabaseManager(0),mRouterService
 {
 	Anh_Utils::Clock::Init();
 	//gLogger->printSmallLogo();
-	gLogger->logMsg("ChatServer Startup");
+	gLogger->logMsg(" Chat Server Startup", FOREGROUND_GREEN);
 
 	// Create and startup our core services.
 	mDatabaseManager = new DatabaseManager();

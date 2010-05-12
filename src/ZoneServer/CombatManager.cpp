@@ -100,7 +100,13 @@ void CombatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 	}
 	if(result->getRowCount())
 	{
-		gLogger->logMsgLoadSuccess("CombatManager::Loading %"PRIu64" weapon groups...",MSG_NORMAL, count);
+						#if !defined(_DEBUG) && defined(_WIN32)
+							gLogger->logMsgLoadSuccess(" Loading %"PRIu64" weapon groups...",MSG_NORMAL, count);
+						#endif
+						#if defined(_DEBUG) && defined(_WIN32)
+							gLogger->logMsgLoadSuccess("CombatManager::Loading %"PRIu64" weapon groups...",MSG_NORMAL, count);
+						#endif
+							
 	}
 	else
 	{

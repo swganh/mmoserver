@@ -50,7 +50,14 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					result->GetNextRow(binding,&mTotalObjectCount);
 
 					if(result->getRowCount())
-						gLogger->logMsgLoadSuccess("WorldManager::Loading %u Objects...",MSG_NORMAL,mTotalObjectCount);
+						#if !defined(_DEBUG) && defined(_WIN32)
+							gLogger->logMsgLoadSuccess(" Loading %u objects...",MSG_NORMAL,mTotalObjectCount);
+						#endif
+				
+						#if defined(_DEBUG) && defined(_WIN32)
+							gLogger->logMsgLoadSuccess("WorldManager::Loading %u Objects...",MSG_NORMAL,mTotalObjectCount);
+						#endif
+						
 					else
 						gLogger->logMsgLoadFailure("WorldManager::Loading Objects...",MSG_NORMAL);
 
@@ -136,9 +143,20 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					uint64 count = result->getRowCount();
 
 					if(result->getRowCount())
-						gLogger->logMsgLoadSuccess("WorldManager::Loading %u harvesters...",MSG_NORMAL,count);
-					else
-						gLogger->logMsgLoadFailure("WorldManager::Loading harvesters...",MSG_NORMAL);
+						#if !defined(_DEBUG) && defined(_WIN32)
+					gLogger->logMsgLoadSuccess(" Loading %u harvesters...",MSG_NORMAL,count);
+				#endif
+				#if defined(_DEBUG) && defined(_WIN32)
+					gLogger->logMsgLoadSuccess("WorldManager::Loading %u harvesters...",MSG_NORMAL,count);
+				#endif
+						else
+						#if !defined(_DEBUG) && defined(_WIN32)
+					gLogger->logMsgLoadFailure(" Loading harvesters...",MSG_NORMAL);
+				#endif
+				#if defined(_DEBUG) && defined(_WIN32)
+					gLogger->logMsgLoadFailure("WorldManager::Loading harvesters...",MSG_NORMAL);
+				#endif
+					
 
 					for(uint64 i = 0;i < count;i++)
 					{
@@ -160,10 +178,20 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					uint64 count = result->getRowCount();
 
 					if(result->getRowCount())
-						gLogger->logMsgLoadSuccess("WorldManager::Loading %u playerhouses...",MSG_NORMAL,count);
+						#if !defined(_DEBUG) && defined(_WIN32)
+					gLogger->logMsgLoadSuccess(" Loading %u playerhouses...",MSG_NORMAL,count);
+				#endif
+				#if defined(_DEBUG) && defined(_WIN32)
+					gLogger->logMsgLoadSuccess("WorldManager::Loading %u playerhouses...",MSG_NORMAL,count);
+				#endif
 					else
-						gLogger->logMsgLoadFailure("WorldManager::Loading playerhouses...",MSG_NORMAL);
-
+						#if !defined(_DEBUG) && defined(_WIN32)
+					gLogger->logMsgLoadFailure(" Loading playerhouses...",MSG_NORMAL);
+				#endif
+				#if defined(_DEBUG) && defined(_WIN32)
+					gLogger->logMsgLoadFailure("WorldManager::Loading playerhouses...",MSG_NORMAL);
+				#endif
+						
 					for(uint64 i = 0;i < count;i++)
 					{
 						result->GetNextRow(houseBinding,&houseId);
@@ -185,11 +213,21 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					uint64 count = result->getRowCount();
 
 					if(result->getRowCount())
+						#if !defined(_DEBUG) && defined(_WIN32)
+						gLogger->logMsgLoadSuccess(" Loading %u factories...",MSG_NORMAL,count);
+				#endif
+				#if defined(_DEBUG) && defined(_WIN32)
 						gLogger->logMsgLoadSuccess("WorldManager::Loading %u factories...",MSG_NORMAL,count);
+				#endif
+					
 					else
-						gLogger->logMsgLoadFailure("WorldManager::Loading factories...",MSG_NORMAL);
-
-					for(uint64 i = 0;i < count;i++)
+						#if !defined(_DEBUG) && defined(_WIN32)
+					gLogger->logMsgLoadFailure(" Loading factories...",MSG_NORMAL);
+				#endif
+				#if defined(_DEBUG) && defined(_WIN32)
+					gLogger->logMsgLoadFailure("WorldManager::Loading factories...",MSG_NORMAL);
+				#endif
+						for(uint64 i = 0;i < count;i++)
 					{
 						result->GetNextRow(factoryBinding,&factoryId);
 
@@ -212,7 +250,12 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					uint64 count = result->getRowCount();
 
 					if(result->getRowCount())
-						gLogger->logMsgLoadSuccess("WorldManager::Loading %u Zone Regions...",MSG_NORMAL,count);
+						#if !defined(_DEBUG) && defined(_WIN32)
+					gLogger->logMsgLoadSuccess(" Loading %u zone regions...",MSG_NORMAL,count);
+				#endif
+				#if defined(_DEBUG) && defined(_WIN32)
+					gLogger->logMsgLoadSuccess("WorldManager::Loading %u Zone Regions...",MSG_NORMAL,count);
+				#endif
 					else
 						gLogger->logMsgLoadFailure("WorldManager::Loading Zone Regions...",MSG_NORMAL);
 
@@ -285,8 +328,13 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					}
 
 					if(result->getRowCount())
-						gLogger->logMsgLoadSuccess("WorldManager::Loading %u Attribute Keys...",MSG_NORMAL,attributeCount);
-					else
+						#if !defined(_DEBUG) && defined(_WIN32)
+					gLogger->logMsgLoadSuccess(" Loading %u attribute keys...",MSG_NORMAL,attributeCount);
+				#endif
+				#if defined(_DEBUG) && defined(_WIN32)
+					gLogger->logMsgLoadSuccess("WorldManager::Loading %u Attribute Keys...",MSG_NORMAL,attributeCount);
+				#endif
+						else
 						gLogger->logMsgLoadFailure("WorldManager::Loading Attribute Keys...",MSG_NORMAL);
 
 					mDatabase->DestroyDataBinding(binding);
@@ -310,7 +358,12 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					}
 
 					if(result->getRowCount())
+					#if !defined(_DEBUG) && defined(_WIN32)
+						gLogger->logMsgLoadSuccess(" Loading %u Client Effects...",MSG_NORMAL,effectCount);
+					#endif
+					#if defined(_DEBUG) && defined(_WIN32)
 						gLogger->logMsgLoadSuccess("WorldManager::Loading %u Client Effects...",MSG_NORMAL,effectCount);
+					#endif
 					else
 						gLogger->logMsgLoadFailure("WorldManager::Loading Client Effects...",MSG_NORMAL);
 
@@ -336,7 +389,12 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					}
 
 					if(result->getRowCount())
-						gLogger->logMsgLoadSuccess("WorldManager::Loading %u Sound Effects...",MSG_NORMAL,effectCount);
+						#if !defined(_DEBUG) && defined(_WIN32)
+					gLogger->logMsgLoadSuccess(" Loading %u sound effects...",MSG_NORMAL,effectCount);
+				#endif
+				#if defined(_DEBUG) && defined(_WIN32)
+					gLogger->logMsgLoadSuccess("WorldManager::Loading %u Sound Effects...",MSG_NORMAL,effectCount);
+				#endif
 					else
 						gLogger->logMsgLoadFailure("WorldManager::Loading Sound Effects...",MSG_NORMAL);
 
@@ -361,7 +419,12 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					}
 
 					if(result->getRowCount())
-						gLogger->logMsgLoadSuccess("WorldManager::Loading %u moods...",MSG_NORMAL,effectCount);
+						#if !defined(_DEBUG) && defined(_WIN32)
+					gLogger->logMsgLoadSuccess(" Loading %u moods...",MSG_NORMAL,effectCount);
+				#endif
+				#if defined(_DEBUG) && defined(_WIN32)
+					gLogger->logMsgLoadSuccess("WorldManager::Loading %u moods...",MSG_NORMAL,effectCount);
+				#endif
 					else
 						gLogger->logMsgLoadFailure("WorldManager::Loading moods...",MSG_NORMAL);
 
@@ -387,7 +450,12 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					}
 
 					if(result->getRowCount())
-						gLogger->logMsgLoadSuccess("WorldManager::Loading %u  Npc Converse Animations...",MSG_NORMAL,animCount);
+						#if !defined(_DEBUG) && defined(_WIN32)
+					gLogger->logMsgLoadSuccess(" Loading %u NPC conversational animations...",MSG_NORMAL,animCount);
+				#endif
+				#if defined(_DEBUG) && defined(_WIN32)
+					gLogger->logMsgLoadSuccess("WorldManager::Loading %u  Npc Converse Animations...",MSG_NORMAL,animCount);
+				#endif
 					else
 						gLogger->logMsgLoadFailure("WorldManager::Loading  Npc Converse Animations...",MSG_NORMAL);
 
@@ -420,7 +488,12 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					}
 
 					if(result->getRowCount())
-						gLogger->logMsgLoadSuccess("WorldManager::Loading %u  Npc Phrases...",MSG_NORMAL,phraseCount);
+						#if !defined(_DEBUG) && defined(_WIN32)
+					gLogger->logMsgLoadSuccess(" Loading %u NPC phrases...",MSG_NORMAL,phraseCount);
+				#endif
+				#if defined(_DEBUG) && defined(_WIN32)
+					gLogger->logMsgLoadSuccess("WorldManager::Loading %u  Npc Phrases...",MSG_NORMAL,phraseCount);
+				#endif
 					else
 						gLogger->logMsgLoadFailure("WorldManager::Loading  Npc Phrases...",MSG_NORMAL);
 
@@ -448,7 +521,12 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					}
 
 					if(result->getRowCount())
-						gLogger->logMsgLoadSuccess("WorldManager::Loading %u   world scripts...",MSG_NORMAL,scriptCount);
+						#if !defined(_DEBUG) && defined(_WIN32)
+					gLogger->logMsgLoadSuccess(" Loading %u world scripts...",MSG_NORMAL,scriptCount);
+				#endif
+				#if defined(_DEBUG) && defined(_WIN32)
+					gLogger->logMsgLoadSuccess("WorldManager::Loading %u   world scripts...",MSG_NORMAL,scriptCount);
+				#endif
 					else
 						gLogger->logMsgLoadFailure("WorldManager::Loading   world scripts...",MSG_NORMAL);
 
@@ -475,7 +553,12 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					}
 
 					if(result->getRowCount())
-						gLogger->logMsgLoadSuccess("WorldManager::Loading %u buildings...",MSG_NORMAL,buildingCount);
+						#if !defined(_DEBUG) && defined(_WIN32)
+					gLogger->logMsgLoadSuccess(" Loading %u buildings...",MSG_NORMAL,buildingCount);
+				#endif
+				#if defined(_DEBUG) && defined(_WIN32)
+					gLogger->logMsgLoadSuccess("WorldManager::Loading %u buildings...",MSG_NORMAL,buildingCount);
+				#endif
 					else
 						gLogger->logMsgLoadFailure("WorldManager::Loading buildings...",MSG_NORMAL);
 
@@ -500,7 +583,12 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					}
 
 					if(result->getRowCount())
-						gLogger->logMsgLoadSuccess("WorldManager::Loading %u city regions...",MSG_NORMAL,count);
+						#if !defined(_DEBUG) && defined(_WIN32)
+					gLogger->logMsgLoadSuccess(" Loading %u city regions...",MSG_NORMAL,count);
+				#endif
+				#if defined(_DEBUG) && defined(_WIN32)
+					gLogger->logMsgLoadSuccess("WorldManager::Loading %u city regions...",MSG_NORMAL,count);
+				#endif
 					else
 						gLogger->logMsgLoadFailure("WorldManager::Loading city regions...",MSG_NORMAL);
 
@@ -525,7 +613,12 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					}
 
 					if(result->getRowCount())
-						gLogger->logMsgLoadSuccess("WorldManager::Loading %u badge regions...",MSG_NORMAL,count);
+						#if !defined(_DEBUG) && defined(_WIN32)
+					gLogger->logMsgLoadSuccess(" Loading %u badge regions...",MSG_NORMAL,count);
+				#endif
+				#if defined(_DEBUG) && defined(_WIN32)
+					gLogger->logMsgLoadSuccess("WorldManager::Loading %u badge regions...",MSG_NORMAL,count);
+				#endif
 					else
 						gLogger->logMsgLoadFailure("WorldManager::Loading badge regions...",MSG_NORMAL);
 
@@ -550,9 +643,20 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					}
 
 					if(result->getRowCount())
-						gLogger->logMsgLoadSuccess("WorldManager::Loading %u spawn regions...",MSG_NORMAL,count);
+						#if !defined(_DEBUG) && defined(_WIN32)
+					gLogger->logMsgLoadSuccess(" Loading %u spawn regions...",MSG_NORMAL,count);
+				#endif
+				#if defined(_DEBUG) && defined(_WIN32)
+					gLogger->logMsgLoadSuccess("WorldManager::Loading %u spawn regions...",MSG_NORMAL,count);
+				#endif
 					else
-						gLogger->logMsgLoadFailure("WorldManager::Loading spawn regions...",MSG_NORMAL);
+						#if !defined(_DEBUG) && defined(_WIN32)
+					gLogger->logMsgLoadFailure(" Loading spawn regions...",MSG_NORMAL);
+				#endif
+				#if defined(_DEBUG) && defined(_WIN32)
+					gLogger->logMsgLoadFailure("WorldManager::Loading spawn regions...",MSG_NORMAL);
+				#endif
+					
 
 					mDatabase->DestroyDataBinding(spawnBinding);
 				}
@@ -578,7 +682,12 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					}
 
 					if(result->getRowCount())
-						gLogger->logMsgLoadSuccess("WorldManager::Loading %u creature spawn regions...",MSG_NORMAL,count);
+						#if !defined(_DEBUG) && defined(_WIN32)
+					gLogger->logMsgLoadSuccess(" Loading %u creature spawn regions...",MSG_NORMAL,count);
+				#endif
+				#if defined(_DEBUG) && defined(_WIN32)
+					gLogger->logMsgLoadSuccess("WorldManager::Loading %u creature spawn regions...",MSG_NORMAL,count);
+				#endif
 					else
 						gLogger->logMsgLoadFailure("WorldManager::Loading creature spawn regions...",MSG_NORMAL);
 
@@ -627,7 +736,13 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					}
 
 					if(result->getRowCount())
-						gLogger->logMsgLoadSuccess("WorldManager::Loading %u cell children...",MSG_NORMAL,count);
+						#if !defined(_DEBUG) && defined(_WIN32)
+					gLogger->logMsgLoadSuccess(" Loading %u cell children...",MSG_NORMAL,count);
+				#endif
+				#if defined(_DEBUG) && defined(_WIN32)
+					gLogger->logMsgLoadSuccess("WorldManager::Loading %u cell children...",MSG_NORMAL,count);
+				#endif
+					
 					else
 						gLogger->logMsgLoadFailure("WorldManager::Loading cell children...",MSG_NORMAL);
 

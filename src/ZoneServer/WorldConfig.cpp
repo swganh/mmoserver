@@ -186,12 +186,24 @@ void WorldConfig::buildAttributeMap(DatabaseResult* result)
 	mConfigurationBinding = mDatabase->CreateDataBinding(2);
 	mConfigurationBinding->addField(DFT_bstring,offsetof(Configuration_QueryContainer,mKey),64,0);
 	mConfigurationBinding->addField(DFT_bstring,offsetof(Configuration_QueryContainer,mValue),128,1);
-
-	gLogger->logMsg("WorldConfig::adding Configuration: ");
+	
+	#if !defined(_DEBUG) && defined(_WIN32)
+	#endif
+		gLogger->logMsg(" Adding Configuration:");
+	#if defined(_DEBUG) && defined(_WIN32)
+		gLogger->logMsg(" WorldConfig::adding Configuration: ");
+	#endif
+	
 	for(uint64 i = 0;i < count;i++)
 	{
 		result->GetNextRow(mConfigurationBinding,(void*)&attribute);
+		#if !defined(_DEBUG) && defined(_WIN32)
+	#endif
+		gLogger->logMsgF("Adding Attribute %s: %s ",MSG_NORMAL,attribute.mKey.getAnsi(),attribute.mValue.getAnsi());
+	#if defined(_DEBUG) && defined(_WIN32)
 		gLogger->logMsgF("WorldConfig::adding Attribute %s :: %s ",MSG_NORMAL,attribute.mKey.getAnsi(),attribute.mValue.getAnsi());
+	#endif
+		
 
 		if(hasConfiguration(attribute.mKey))
 		{
@@ -205,7 +217,13 @@ void WorldConfig::buildAttributeMap(DatabaseResult* result)
 
 	if(count > 0)
 	{
-		gLogger->logMsgLoadSuccess("WorldConfig:: %u attributes mapped...",MSG_NORMAL,count);
+				#if !defined(_DEBUG) && defined(_WIN32)
+	gLogger->logMsgLoadSuccess(" %u attributes mapped...",MSG_NORMAL,count);
+#endif
+	
+#if defined(_DEBUG) && defined(_WIN32)
+gLogger->logMsgLoadSuccess("WorldConfig:: %u attributes mapped...",MSG_NORMAL,count);		
+#endif
 	}
 	else
 	{

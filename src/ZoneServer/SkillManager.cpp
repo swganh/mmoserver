@@ -390,7 +390,14 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 	if(++mLoadCounter == mTotalLoadCount)
 	{
-		gLogger->logMsgLoadSuccess("SkillManager::loading %u Skilldatasets...",MSG_NORMAL,mTotalLoadCount);
+		#if !defined(_DEBUG) && defined(_WIN32)
+			gLogger->logMsgLoadSuccess(" Loading %u Skilldatasets...",MSG_NORMAL,mTotalLoadCount);
+			#endif
+	
+			#if defined(_DEBUG) && defined(_WIN32)
+			gLogger->logMsgLoadSuccess("SkillManager::loading %u Skilldatasets...",MSG_NORMAL,mTotalLoadCount);
+			#endif
+				
 	}
 
 	mDBAsyncPool.ordered_free(asyncContainer);

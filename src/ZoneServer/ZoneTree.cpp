@@ -42,8 +42,15 @@ ZoneTree::~ZoneTree(void)
 
 void ZoneTree::Init(double fillFactor,uint32 indexCap,uint32 leafCap,uint32 dimensions,double horizon)
 {
-	gLogger->logMsgF("SpatialIndex initializing...\n\tFillFactor:%.2f,\n\tIndexCap:%u,\n\tLeafCap:%u,\n\tDimensions:%u,\n\tHorizon:%.2f",MSG_NORMAL,fillFactor,indexCap,leafCap,dimensions,horizon);
-
+	
+	#if !defined(_DEBUG) && defined(_WIN32)
+		gLogger->logMsgF("SpatialIndex initializing...",MSG_NORMAL);	
+	#endif
+	
+	#if defined(_DEBUG) && defined(_WIN32)
+		gLogger->logMsgF("SpatialIndex initializing...\n\tFillFactor:%.2f,\n\tIndexCap:%u,\n\tLeafCap:%u,\n\tDimensions:%u,\n\tHorizon:%.2f",MSG_NORMAL,fillFactor,indexCap,leafCap,dimensions,horizon);		
+	#endif
+	
 	try
 	{
 		mStorageManager = StorageManager::createNewMemoryStorageManager();

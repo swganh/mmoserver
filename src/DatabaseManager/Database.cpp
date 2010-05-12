@@ -125,17 +125,19 @@ void Database::Process(void)
 //======================================================================================================================
 DatabaseResult* Database::ExecuteSynchSql(const int8* sql, ...)
 {
-	int8 message[8192];
-
-
 	// format our sql string
 	va_list args;
 	va_start(args, sql);
 	int8    localSql[8192];
 	/*int32 len = */vsnprintf(localSql, sizeof(localSql), sql, args);
+	#if !defined(_DEBUG) && defined(_WIN32)
+	#endif
 
-	sprintf(message, "WARNING: SYNCHRONOUS SQL STATEMENT: %s",localSql);
-	gLogger->logMsg(message, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | BACKGROUND_RED);
+	#if defined(_DEBUG) && defined(_WIN32)
+		int8 message[8192];
+		sprintf(message, "WARNING: SYNCHRONOUS SQL STATEMENT: %s",localSql);
+		gLogger->logMsg(message, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | BACKGROUND_RED);
+	#endif
 
 	va_end(args);
 	return ExecuteSql(localSql);

@@ -253,7 +253,13 @@ void TravelMapHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 		mRoutesLoaded = false;
 
 		if(result->getRowCount())
-			gLogger->logMsgLoadSuccess("TravelMapHandler::Loading %u TravelRoutes and %u TravelPoints...",MSG_NORMAL,mPointCount,mRouteCount);
+						#if !defined(_DEBUG) && defined(_WIN32)
+							gLogger->logMsgLoadSuccess(" Loading %u travel routes and %u travel points...",MSG_NORMAL,mPointCount,mRouteCount);
+						#endif
+						#if defined(_DEBUG) && defined(_WIN32)
+							gLogger->logMsgLoadSuccess("TravelMapHandler::Loading %u TravelRoutes and %u TravelPoints...",MSG_NORMAL,mPointCount,mRouteCount);
+						#endif
+	
 		else
 			gLogger->logMsgLoadFailure("TravelMapHandler::Loading Travel Routes/Points...",MSG_NORMAL);
 

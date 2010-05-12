@@ -43,7 +43,7 @@ mNetworkManager(0)
 	// log msg to default log
   
   Anh_Utils::Clock::Init();
-  gLogger->logMsg("LoginServer Startup");
+  gLogger->logMsg(" Login Server Startup",FOREGROUND_GREEN);
 
 	// Initialize our modules.
 
@@ -86,12 +86,12 @@ mNetworkManager(0)
 	// We're done initializing.
 	mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE config_process_list SET address='%s', port=%u, status=%u WHERE name='login';", mService->getLocalAddress(), mService->getLocalPort(), 2));
 
-	gLogger->logMsg("LoginServer Startup complete");
+	gLogger->logMsg(" Login Server startup complete",FOREGROUND_GREEN);
 	//gLogger->printLogo();
 	// std::string BuildString(GetBuildString());	
 
-	gLogger->logMsgF("LoginServer - Build %s",MSG_NORMAL,ConfigManager::getBuildString().c_str());
-	gLogger->logMsg("Welcome to your SWGANH Experience!");
+	gLogger->logMsgF("Login Server - Build %s",MSG_NORMAL,ConfigManager::getBuildString().c_str());
+	gLogger->logMsg(" Welcome to your SWGANH Experience!");
 }
 
 

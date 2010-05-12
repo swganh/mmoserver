@@ -94,8 +94,16 @@ void ConversationManager::handleDatabaseJobComplete(void* ref, DatabaseResult* r
 			}
 
 			if(result->getRowCount())
+			#if !defined(_DEBUG) && defined(_WIN32)
+				gLogger->logMsgLoadSuccess(" Loading %u conversations...",MSG_NORMAL,result->getRowCount());
+			#endif
+	
+			#if defined(_DEBUG) && defined(_WIN32)
 				gLogger->logMsgLoadSuccess("ConversationManager::loading %u Conversations...",MSG_NORMAL,result->getRowCount());
-			else
+			#endif
+
+				
+							else
 				gLogger->logMsgLoadFailure("ConversationManager::loading Conversations...",MSG_NORMAL);					
 
 			

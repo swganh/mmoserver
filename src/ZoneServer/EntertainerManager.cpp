@@ -448,7 +448,13 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
 			}
 
 			if(result->getRowCount())
-				gLogger->logMsgLoadSuccess("EntertainerManager::loaded %u HoloEmotes...",MSG_NORMAL,result->getRowCount());
+				#if !defined(_DEBUG) && defined(_WIN32)
+							gLogger->logMsgLoadSuccess(" Loaded %u holo emotes...",MSG_NORMAL,result->getRowCount());
+						#endif
+						#if defined(_DEBUG) && defined(_WIN32)
+							gLogger->logMsgLoadSuccess("EntertainerManager::loaded %u HoloEmotes...",MSG_NORMAL,result->getRowCount());
+						#endif
+							
 			else
 				gLogger->logMsgLoadFailure("EntertainerManager::loaded HoloEmotes...",MSG_NORMAL);
 		}
@@ -664,7 +670,13 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
 			}
 
 			if(result->getRowCount())
-				gLogger->logMsgLoadSuccess("EntertainerManager::loaded %u ID-Attributes...",MSG_NORMAL,result->getRowCount());
+				#if !defined(_DEBUG) && defined(_WIN32)
+							gLogger->logMsgLoadSuccess(" Loaded %u image designer attributes...",MSG_NORMAL,result->getRowCount());
+						#endif
+						#if defined(_DEBUG) && defined(_WIN32)
+							gLogger->logMsgLoadSuccess("EntertainerManager::loaded %u ID-Attributes...",MSG_NORMAL,result->getRowCount());
+						#endif
+				
 			else
 				gLogger->logMsgLoadFailure("EntertainerManager::loaded ID-Attributes...",MSG_NORMAL);
 
@@ -699,7 +711,12 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
 			}
 
 			if(result->getRowCount())
-				gLogger->logMsgLoadSuccess("EntertainerManager::loaded %u performances...",MSG_NORMAL,result->getRowCount());
+						#if !defined(_DEBUG) && defined(_WIN32)
+							gLogger->logMsgLoadSuccess(" Loaded %u performances...",MSG_NORMAL,result->getRowCount());
+						#endif
+						#if defined(_DEBUG) && defined(_WIN32)
+							gLogger->logMsgLoadSuccess("EntertainerManager::loaded %u performances...",MSG_NORMAL,result->getRowCount());
+						#endif
 			else
 				gLogger->logMsgLoadFailure("EntertainerManager::loaded performances...",MSG_NORMAL);
 		}

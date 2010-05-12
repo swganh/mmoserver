@@ -123,7 +123,6 @@ NetworkClient* ServerManager::handleSessionConnect(Session* session, Service* se
 	// If we found them
 	if(result->getRowCount() == 1)
 	{
-		gLogger->logMsg("get routes\n");
 		// Retrieve our routes and add them to the map.
 		result->GetNextRow(mServerBinding,&serverAddress);
 
@@ -141,10 +140,8 @@ NetworkClient* ServerManager::handleSessionConnect(Session* session, Service* se
 		{
 			
 			++mTotalConnectedServers;
-			gLogger->logMsgF("total: %d active %d\n",MSG_NORMAL,mTotalConnectedServers, mTotalActiveServers);
 			if(mTotalConnectedServers == mTotalActiveServers)
 			{
-				gLogger->logMsg("set gal\n");
 				mDatabase->ExecuteSqlAsync(0,0,"UPDATE galaxy SET status=2, last_update=NOW() WHERE galaxy_id=%u;", mClusterId);
 			}
 		}

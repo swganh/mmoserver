@@ -251,10 +251,10 @@ void Heightmap::Connect(void)
 	}
 	else
 	{
-		#if !defined(_DEBUG) && defined(_WIN32)
+		#if !defined(_DEBUG)
 					gLogger->logMsgLoadSuccess(" Heightmap succesfully opened...",MSG_NORMAL);
 				#endif
-				#if defined(_DEBUG) && defined(_WIN32)
+				#if defined(_DEBUG)
 					gLogger->logMsgLoadSuccess("Heightmap::Heightmap succesfully opened...",MSG_NORMAL);
 				#endif
 					

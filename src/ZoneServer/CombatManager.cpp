@@ -100,10 +100,10 @@ void CombatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 	}
 	if(result->getRowCount())
 	{
-						#if !defined(_DEBUG) && defined(_WIN32)
+						#if !defined(_DEBUG)
 							gLogger->logMsgLoadSuccess(" Loading %"PRIu64" weapon groups...",MSG_NORMAL, count);
 						#endif
-						#if defined(_DEBUG) && defined(_WIN32)
+						#if defined(_DEBUG)
 							gLogger->logMsgLoadSuccess("CombatManager::Loading %"PRIu64" weapon groups...",MSG_NORMAL, count);
 						#endif
 							

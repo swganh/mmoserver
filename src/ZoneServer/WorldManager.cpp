@@ -78,9 +78,9 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
 , mTotalObjectCount(0)
 , mZoneId(zoneId)
 {
-	#if !defined(_DEBUG) && defined(_WIN32)
+	#if !defined(_DEBUG)
 	#endif
-	#if defined(_DEBUG) && defined(_WIN32)
+	#if defined(_DEBUG)
 		gLogger->logMsg("WorldManager::StartUp");
 	#endif
 	
@@ -867,20 +867,20 @@ void WorldManager::_handleLoadComplete()
 	{
 		resolution = gConfig->read<int>("heightMapResolution");
 	}
-	#if !defined(_DEBUG) && defined(_WIN32)
+	#if !defined(_DEBUG)
 					gLogger->logMsgF("Height map resolution = %d", MSG_NORMAL, resolution);
 				#endif
-				#if defined(_DEBUG) && defined(_WIN32)
+				#if defined(_DEBUG)
 				gLogger->logMsgF("WorldManager::_handleLoadComplete heightMapResolution = %d", MSG_NORMAL, resolution);
 				#endif
 					
 
 	if (Heightmap::Instance()->setupCache(resolution))
 	{
-		#if !defined(_DEBUG) && defined(_WIN32)
+		#if !defined(_DEBUG)
 					gLogger->logMsgF("Heigth map cache setup successfully with resolution %d", MSG_NORMAL, resolution);
 				#endif
-				#if defined(_DEBUG) && defined(_WIN32)
+				#if defined(_DEBUG)
 					gLogger->logMsgF("WorldManager::_handleLoadComplete heigthmap cache setup successfully with resolution %d", MSG_NORMAL, resolution);
 				#endif
 	}
@@ -892,10 +892,10 @@ void WorldManager::_handleLoadComplete()
 	// register script hooks
 	_startWorldScripts();
 
-	#if !defined(_DEBUG) && defined(_WIN32)
+	#if !defined(_DEBUG)
 					gLogger->logMsg(" World load complete");
 				#endif
-				#if defined(_DEBUG) && defined(_WIN32)
+				#if defined(_DEBUG)
 					gLogger->logMsg("WorldManager::Load complete");
 				#endif
 					

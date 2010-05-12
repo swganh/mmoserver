@@ -270,18 +270,18 @@ void ResourceManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 					delete(resource);
 			}
 			if(result->getRowCount())
-				#if !defined(_DEBUG) && defined(_WIN32)
+				#if !defined(_DEBUG)
 					gLogger->logMsgLoadSuccess(" Loading %u resources...",MSG_NORMAL,result->getRowCount());
 				#endif
-				#if defined(_DEBUG) && defined(_WIN32)
+				#if defined(_DEBUG)
 					gLogger->logMsgLoadSuccess("ResourceManager::loading %u Resources...",MSG_NORMAL,result->getRowCount());
 				#endif
 				
 			else
-				#if !defined(_DEBUG) && defined(_WIN32)
+				#if !defined(_DEBUG)
 					gLogger->logMsgLoadFailure(" Loading resources...",MSG_NORMAL);
 				#endif
-				#if defined(_DEBUG) && defined(_WIN32)
+				#if defined(_DEBUG)
 					gLogger->logMsgLoadFailure("ResourceManager::loading Resources...",MSG_NORMAL);
 				#endif
 		}
@@ -307,17 +307,17 @@ void ResourceManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 			}
 
 			if(result->getRowCount())
-				#if !defined(_DEBUG) && defined(_WIN32)
+				#if !defined(_DEBUG)
 					gLogger->logMsgLoadSuccess(" Generating %u maps...",MSG_NORMAL,result->getRowCount());
 				#endif
-				#if defined(_DEBUG) && defined(_WIN32)
+				#if defined(_DEBUG)
 					gLogger->logMsgLoadSuccess("ResourceManager::generating %u Maps...",MSG_NORMAL,result->getRowCount());
 				#endif
 			else
-				#if !defined(_DEBUG) && defined(_WIN32)
+				#if !defined(_DEBUG)
 					gLogger->logMsgLoadFailure(" Generating maps...",MSG_NORMAL);
 				#endif
-				#if defined(_DEBUG) && defined(_WIN32)
+				#if defined(_DEBUG)
 					gLogger->logMsgLoadFailure("ResourceManager::generating Maps...",MSG_NORMAL);
 				#endif
 					

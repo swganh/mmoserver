@@ -145,11 +145,11 @@ void ObjectControllerCommandMap::handleDatabaseJobComplete(void* ref,DatabaseRes
 	mDatabase->DestroyDataBinding(binding);
 
 	if(result->getRowCount())
-						#if !defined(_DEBUG) && defined(_WIN32)
+						#if !defined(_DEBUG)
 	gLogger->logMsgLoadSuccess(" Mapping %u functions...",MSG_NORMAL,result->getRowCount());
 #endif
 	
-#if defined(_DEBUG) && defined(_WIN32)
+#if defined(_DEBUG)
 gLogger->logMsgLoadSuccess("ObjectController::mapping %u functions...",MSG_NORMAL,result->getRowCount());	
 #endif
 		

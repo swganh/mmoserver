@@ -465,10 +465,10 @@ void TradeManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 				}
 				if(result->getRowCount())
-						#if !defined(_DEBUG) && defined(_WIN32)
+						#if !defined(_DEBUG)
 							gLogger->logMsgLoadSuccess(" Loading %u frog items...",MSG_NORMAL,result->getRowCount());
 						#endif
-						#if defined(_DEBUG) && defined(_WIN32)
+						#if defined(_DEBUG)
 							gLogger->logMsgLoadSuccess("TradeManager::Loading %u FrogItems...",MSG_NORMAL,result->getRowCount());
 						#endif
 							

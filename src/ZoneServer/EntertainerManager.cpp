@@ -448,10 +448,10 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
 			}
 
 			if(result->getRowCount())
-				#if !defined(_DEBUG) && defined(_WIN32)
+				#if !defined(_DEBUG)
 							gLogger->logMsgLoadSuccess(" Loaded %u holo emotes...",MSG_NORMAL,result->getRowCount());
 						#endif
-						#if defined(_DEBUG) && defined(_WIN32)
+						#if defined(_DEBUG)
 							gLogger->logMsgLoadSuccess("EntertainerManager::loaded %u HoloEmotes...",MSG_NORMAL,result->getRowCount());
 						#endif
 							
@@ -670,10 +670,10 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
 			}
 
 			if(result->getRowCount())
-				#if !defined(_DEBUG) && defined(_WIN32)
+				#if !defined(_DEBUG)
 							gLogger->logMsgLoadSuccess(" Loaded %u image designer attributes...",MSG_NORMAL,result->getRowCount());
 						#endif
-						#if defined(_DEBUG) && defined(_WIN32)
+						#if defined(_DEBUG)
 							gLogger->logMsgLoadSuccess("EntertainerManager::loaded %u ID-Attributes...",MSG_NORMAL,result->getRowCount());
 						#endif
 				
@@ -711,10 +711,10 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
 			}
 
 			if(result->getRowCount())
-						#if !defined(_DEBUG) && defined(_WIN32)
+						#if !defined(_DEBUG)
 							gLogger->logMsgLoadSuccess(" Loaded %u performances...",MSG_NORMAL,result->getRowCount());
 						#endif
-						#if defined(_DEBUG) && defined(_WIN32)
+						#if defined(_DEBUG)
 							gLogger->logMsgLoadSuccess("EntertainerManager::loaded %u performances...",MSG_NORMAL,result->getRowCount());
 						#endif
 			else

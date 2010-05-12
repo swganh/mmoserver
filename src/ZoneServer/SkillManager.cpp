@@ -390,11 +390,11 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 	if(++mLoadCounter == mTotalLoadCount)
 	{
-		#if !defined(_DEBUG) && defined(_WIN32)
+		#if !defined(_DEBUG)
 			gLogger->logMsgLoadSuccess(" Loading %u Skilldatasets...",MSG_NORMAL,mTotalLoadCount);
 			#endif
 	
-			#if defined(_DEBUG) && defined(_WIN32)
+			#if defined(_DEBUG)
 			gLogger->logMsgLoadSuccess("SkillManager::loading %u Skilldatasets...",MSG_NORMAL,mTotalLoadCount);
 			#endif
 				

@@ -243,10 +243,10 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
 			if(!--mGroupLoadCount)
 			{
-				#if !defined(_DEBUG) && defined(_WIN32)
+				#if !defined(_DEBUG)
 					gLogger->logMsgLoadSuccess(" Loaded %u groups and %u schematics",MSG_NORMAL,mGroupCount,mSchematicCount);
 				#endif
-				#if defined(_DEBUG) && defined(_WIN32)
+				#if defined(_DEBUG)
 					gLogger->logMsgLoadSuccess("SchematicManager::Loaded %u Groups %u Schematics",MSG_NORMAL,mGroupCount,mSchematicCount);
 				#endif
 		

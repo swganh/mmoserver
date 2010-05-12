@@ -501,10 +501,10 @@ void StructureManager::_HandleQueryLoadDeedData(StructureManagerAsyncContainer* 
 	}
 
 	if(result->getRowCount())
-						#if !defined(_DEBUG) && defined(_WIN32)
+						#if !defined(_DEBUG)
 							gLogger->logMsgLoadSuccess(" Loading %u structures...",MSG_NORMAL,result->getRowCount());
 						#endif
-						#if defined(_DEBUG) && defined(_WIN32)
+						#if defined(_DEBUG)
 							gLogger->logMsgLoadSuccess("StructureManager::Loading %u Structures...",MSG_NORMAL,result->getRowCount());
 						#endif
 	else
@@ -751,18 +751,18 @@ void StructureManager::_HandleNonPersistantLoadStructureItem(StructureManagerAsy
 	}
 
 	if(result->getRowCount())
-		#if !defined(_DEBUG) && defined(_WIN32)
+		#if !defined(_DEBUG)
 							gLogger->logMsgLoadSuccess(" Loading %u structure items...",MSG_NORMAL,result->getRowCount());
 						#endif
-						#if defined(_DEBUG) && defined(_WIN32)
+						#if defined(_DEBUG)
 							gLogger->logMsgLoadSuccess("StructureManager::Loading %u Structure Items...",MSG_NORMAL,result->getRowCount());
 						#endif
 							
 	else
-		#if !defined(_DEBUG) && defined(_WIN32)
+		#if !defined(_DEBUG)
 							gLogger->logMsgLoadFailure(" Loading structure items...",MSG_NORMAL);
 						#endif
-						#if defined(_DEBUG) && defined(_WIN32)
+						#if defined(_DEBUG)
 							gLogger->logMsgLoadFailure("StructureManager::Loading Structure Items...",MSG_NORMAL);
 						#endif
 							

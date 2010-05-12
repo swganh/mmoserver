@@ -134,7 +134,7 @@ void handleExit(void)
 int main(int argc, char* argv[])
 {
 	// In release mode, catch any unhandled exceptions that may cause the program to crash and create a dump report.
-#if !defined(_DEBUG) && defined(_WIN32)
+#if !defined(_DEBUG)
 	SetUnhandledExceptionFilter(CreateMiniDump);
 #endif
 

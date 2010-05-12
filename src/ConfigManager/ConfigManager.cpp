@@ -35,10 +35,10 @@ ConfigManager::ConfigManager(const std::string& name)
 		gLogger->logMsgLoadFailure("ConfigManager::ConfigFile not found [ %s ], exiting...",MSG_HIGH,name.c_str());
 		exit(-1);
 	}
-	#if !defined(_DEBUG) && defined(_WIN32)
+	#if !defined(_DEBUG)
 	gLogger->logMsgLoadSuccess(" Loaded Configuration...",MSG_NORMAL);
 	#endif
-	#if defined(_DEBUG) && defined(_WIN32)
+	#if defined(_DEBUG)
 		gLogger->logMsgLoadSuccess("ConfigManager::loaded Configuration...",MSG_NORMAL);
 	#endif
 	

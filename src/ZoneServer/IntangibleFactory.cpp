@@ -12,7 +12,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "IntangibleFactory.h"
 #include "FactoryBase.h"
 #include "Object.h"
-#include "VehicleFactory.h"
+#include "VehicleControllerFactory.h"
 
 #include "DatabaseManager/DatabaseCallback.h"
 

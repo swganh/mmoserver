@@ -328,7 +328,7 @@
     <ClCompile Include="UITransferBox.cpp" />
     <ClCompile Include="UIWindow.cpp" />
     <ClCompile Include="VehicleController.cpp" />
-    <ClCompile Include="VehicleFactory.cpp" />
+    <ClCompile Include="VehicleControllerFactory.cpp" />
     <ClCompile Include="WaypointFactory.cpp" />
     <ClCompile Include="WaypointObject.cpp" />
     <ClCompile Include="Weapon.cpp" />
@@ -561,7 +561,7 @@
     <ClInclude Include="UITransferBox.h" />
     <ClInclude Include="UIWindow.h" />
     <ClInclude Include="VehicleController.h" />
-    <ClInclude Include="VehicleFactory.h" />
+    <ClInclude Include="VehicleControllerFactory.h" />
     <ClInclude Include="WaypointFactory.h" />
     <ClInclude Include="WaypointObject.h" />
     <ClInclude Include="Weapon.h" />

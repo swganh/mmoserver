@@ -145,6 +145,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 		else
 		{
 			// we should never get here !
+			// it basically means we left the map 
 			gLogger->logMsg("ObjController::handleDataTransform: could not find zone region in map");
 			gLogger->logMsg("ObjController:: probably a bot : %i64u",static_cast<int>(player->getId()));
 
@@ -310,7 +311,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 	}
 
 	 //uint64 localTimeEnd = Anh_Utils::Clock::getSingleton()->getLocalTime();
-	 //gLogger->logMsgF("Exec time PRId32",MSG_NORMAL, localTimeEnd - localTimeStart);
+	 //gLogger->logMsgF("Exec time :%"PRId32"",MSG_NORMAL, localTimeEnd - localTimeStart);
 }
 
 //=============================================================================

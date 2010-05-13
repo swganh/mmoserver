@@ -1015,7 +1015,7 @@ void ChatManager::_processClusterClientDisconnect(Message* message,DispatchClien
 		ChatAvatarId* ava = channel->findUser(player); // findUser() converts toLower.
 		if (ava != NULL)
 		{
-			gLogger->logMsgF("See you soon %s ",MSG_NORMAL, player->getName().getAnsi());
+			//gLogger->logMsgF("See you soon %s ",MSG_NORMAL, player->getName().getAnsi());
 			gChatMessageLib->sendChatOnLeaveRoom(client, channel->findUser(player->getName().getAnsi()), channel, 0);
 			channel->removeUser(player);
 		}

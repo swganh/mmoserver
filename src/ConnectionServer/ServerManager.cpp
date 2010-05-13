@@ -149,6 +149,8 @@ NetworkClient* ServerManager::handleSessionConnect(Session* session, Service* se
 	else
 	{
 		gLogger->logMsg("*** Backend server connect error - Server not found in DB\n");
+		gLogger->logMsgF(sql,MSG_HIGH);
+		gLogger->logMsg("\n");
 	}
 
 	// Delete our DB objects.

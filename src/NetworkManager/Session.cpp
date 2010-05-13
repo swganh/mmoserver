@@ -2447,7 +2447,10 @@ void Session::_processDisconnectCommand(void)
 	newPacket->setIsEncrypted(true);
 
 	mService->AddSessionToProcessQueue(this);
-	gLogger->logMsgF("Session::_processDisconnectCommand added session to processqueue", MSG_HIGH);
+	#if defined(_DEBUG)
+					gLogger->logMsgF("Session::_processDisconnectCommand added session to processqueue", MSG_HIGH);
+				#endif
+					
 	// Send out packet out.
 	_addOutgoingUnreliablePacket(newPacket);
 }

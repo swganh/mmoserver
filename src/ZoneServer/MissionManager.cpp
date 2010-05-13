@@ -600,9 +600,7 @@ return;
 
 void MissionManager::missionComplete(PlayerObject* player, MissionObject* mission)
 {
-	wchar_t sm[100];
-	swprintf(sm,100, L"","mission/mission_generic",L"success_w_amount",mission->getReward());
-	gMessageLib->sendSystemMessage(player,sm);
+	gMessageLib->sendSystemMessage(player,L"","mission/mission_generic","success_w_amount","", "", L"",mission->getReward());
 
 	//remove mission
 	gMessageLib->sendSetWaypointActiveStatus(mission->getWaypoint(),false,player);
@@ -998,20 +996,26 @@ MissionObject* MissionManager::generateDestroyMission(MissionObject* mission, ui
 	TerminalMap::iterator terminalMapIt = mTerminalMap.find(terminal);
 	if(terminalMapIt != mTerminalMap.end())
 	{
-		gLogger->logMsgF("MissionManager : found the terminal",MSG_HIGH);
+		#if defined(_DEBUG)
+					gLogger->logMsgF("MissionManager : found the terminal",MSG_HIGH);
+				#endif
+					
 		Terminal_Type* terminal = (*terminalMapIt).second;
 
 		//now get the amount of stfs and get one per chance
 		uint32 amount = terminal->list.size();
 		uint32 chosen = gRandom->getRand() % amount;
 
-		gLogger->logMsgF("MissionManager : random : %u",MSG_HIGH,chosen);
-
+		#if defined(_DEBUG)
+					gLogger->logMsgF("MissionManager : random : %u",MSG_HIGH,chosen);
+				#endif
 		bool found = false;
 		uint32 counter = 0;
 		while(!found)
 		{
-			gLogger->logMsgF("MissionManager : != found ",MSG_HIGH);
+			#if defined(_DEBUG)
+					gLogger->logMsgF("MissionManager : != found ",MSG_HIGH);
+				#endif	
 			MissionLinkList::iterator it = 	terminal->list.begin();
 			while(it != terminal->list.end())
 			{
@@ -1038,7 +1042,10 @@ MissionObject* MissionManager::generateDestroyMission(MissionObject* mission, ui
 
 	if(link)
 	{
-		gLogger->logMsgF("MissionManager : found db destroy missions",MSG_HIGH);
+		#if defined(_DEBUG)
+					gLogger->logMsgF("MissionManager : found db destroy missions",MSG_HIGH);
+				#endif
+					
 
 		//now set the stf
 		char s[255];
@@ -1064,7 +1071,10 @@ MissionObject* MissionManager::generateDestroyMission(MissionObject* mission, ui
 	}
 	else
 	{
-		gLogger->logMsgF("MissionManager : No mission file associated :(",MSG_HIGH);
+		#if defined(_DEBUG)
+					gLogger->logMsgF("MissionManager : No mission file associated :(",MSG_HIGH);
+				#endif
+					
 		return NULL;
 
 	}
@@ -1102,7 +1112,9 @@ MissionObject* MissionManager::generateDestroyMission(MissionObject* mission, ui
 
 	sprintf(mo,"m%do",mission_num);
 	string moS(mo);
-	gLogger->logMsgF("MissionManager : creator :%s",MSG_HIGH,moS.getAnsi());
+	#if defined(_DEBUG)
+		gLogger->logMsgF("MissionManager : creator :%s",MSG_HIGH,moS.getAnsi());
+	#endif
 	NameMap nameMap = link->missiontype->names;
 	NameMap::iterator NameMapIt = nameMap.find(moS.getCrc());
 	if(NameMapIt != nameMap.end())

@@ -528,7 +528,13 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					gLogger->logMsgLoadSuccess("WorldManager::Loading %u   world scripts...",MSG_NORMAL,scriptCount);
 				#endif
 					else
-						gLogger->logMsgLoadFailure("WorldManager::Loading   world scripts...",MSG_NORMAL);
+						#if !defined(_DEBUG)
+					gLogger->logMsgLoadFailure(" Loading world scripts...",MSG_NORMAL);
+				#endif
+				#if defined(_DEBUG)
+					gLogger->logMsgLoadFailure("WorldManager::Loading   world scripts...",MSG_NORMAL);
+				#endif
+					
 
 					mDatabase->DestroyDataBinding(scriptBinding);
 				}

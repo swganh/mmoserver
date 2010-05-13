@@ -270,7 +270,8 @@ bool ForagePocket::updateAttempts(uint64 currentTime)
 				{
 					ForageManager::failForage(player, ENTERED_COMBAT);
 					(*it)->completed = true;
-					it++; AttemptCount++;
+					it++; 
+					AttemptCount++;
 					continue;
 				}
 
@@ -282,12 +283,12 @@ bool ForagePocket::updateAttempts(uint64 currentTime)
 				}
 				else
 				{
-					(*it)->completed = true;
 					ForageManager::failForage(player, AREA_EMPTY);
+					(*it)->completed = true;
 				}
 			}
-			it++;
 			AttemptCount++;
+			it++;
 		}
 		else
 		{
@@ -308,12 +309,10 @@ bool ForagePocket::updateAttempts(uint64 currentTime)
 						ForageManager::failForage(player, PLAYER_MOVED);
 						(*it)->completed = true;
 					}
-
 				}
 			}
-
-			it++;
 			AttemptCount++;
+			it++;
 		}
 	}
 

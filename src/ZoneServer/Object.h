@@ -172,7 +172,7 @@ class Object : public UICallback, public Anh_Utils::EventHandler
          */
         glm::vec3 getWorldPosition() const;
 
-        /*! Returns the current object's root parent. If the object is the root it returns itself.
+        /*! Returns the current object's root (permission giving) parent. If the object is the root it returns itself.
          *
          * \returns const Object* Root parent for the current object.
          */
@@ -269,7 +269,9 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 
 		uint64					mId;
 		uint64					mParentId;
-		uint64					mPrivateOwner; // If object is used as a private object, like in an Instance, we should only update the owner.
+		
+		// If object is used as a private object in an Instance, this references the instances (objects) owner
+		uint64					mPrivateOwner; 
 		uint32					mEquipRestrictions;
 		uint32					mEquipSlots;
 		uint32					mInMoveCount;

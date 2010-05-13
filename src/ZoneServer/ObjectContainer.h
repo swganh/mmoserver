@@ -48,7 +48,7 @@ class ObjectContainer :	public Object, public ObjectFactoryCallback
 		ObjectContainer();
 		virtual ~ObjectContainer();
 
-		//handles Object ready in case our item is container
+		//handles Object ready in case our item is in the container
 		void				handleObjectReady(Object* object,DispatchClient* client);
 
 		uint64				getObjectMainParent(Object* object);
@@ -90,6 +90,8 @@ class ObjectContainer :	public Object, public ObjectFactoryCallback
 		uint16				getCapacity(){return mCapacity;}
 		uint16				getHeadCount();
 		
+		//===========================================================================================
+		//gets the contents of containers including their subcontainers
 		uint16				getContentSize(uint16 iteration)
 		{
 			uint16 content = mData.size();

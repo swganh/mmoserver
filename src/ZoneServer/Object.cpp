@@ -77,7 +77,8 @@ Object::~Object()
 
 //=============================================================================
 
-glm::vec3 Object::getWorldPosition() const {
+glm::vec3 Object::getWorldPosition() const 
+{
     const Object* root_parent = getRootParent();
 
     // Is this object the root? If so it's position is the world position.
@@ -103,9 +104,14 @@ glm::vec3 Object::getWorldPosition() const {
 
 // @TODO: This is a dependency on WorldManager that could be avoided by having an
 //        Object instance hold a reference to it's parent.
-const Object* Object::getRootParent() const {
+// objects reference their parents - we just do not know who is the final (permissiongiving) container
+// as it is it will return either the player or the building owning the item regardless in what container it is
+
+const Object* Object::getRootParent() const 
+{
     // If there's no parent id then this is the root object.
-    if (! getParentId()) {
+    if (! getParentId()) 
+	{
         return this;
     }
 

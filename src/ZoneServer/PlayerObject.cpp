@@ -1675,13 +1675,13 @@ void PlayerObject::addToDuelList(PlayerObject* player)
 //
 // sets and returns the nearest crafting station
 //
-CraftingStation* PlayerObject::getCraftingStation(ObjectSet	inRangeObjects, ItemType toolType)
+CraftingStation* PlayerObject::getCraftingStation(ObjectSet*	inRangeObjects, ItemType toolType)
 {
-	ObjectSet::iterator it = inRangeObjects.begin();
+	ObjectSet::iterator it = inRangeObjects->begin();
 
 	mNearestCraftingStation = 0;
 
-	while(it != inRangeObjects.end())
+	while(it != inRangeObjects->end())
 	{
 		if(CraftingStation*	station = dynamic_cast<CraftingStation*>(*it))
 		{
@@ -1694,9 +1694,11 @@ CraftingStation* PlayerObject::getCraftingStation(ObjectSet	inRangeObjects, Item
 				{
 					if(stationType == ItemType_ClothingStation || stationType == ItemType_ClothingStationPublic)
 					{
-						mNearestCraftingStation = station->getId();
-
-						return(station);
+						if (glm::distance(this->getWorldPosition(), station->getWorldPosition()) <= 25)
+						{
+							mNearestCraftingStation = station->getId();
+							return(station);
+						}
 					}
 				}
 				break;
@@ -1705,9 +1707,11 @@ CraftingStation* PlayerObject::getCraftingStation(ObjectSet	inRangeObjects, Item
 				{
 					if(stationType == ItemType_WeaponStation || stationType == ItemType_WeaponStationPublic)
 					{
-						mNearestCraftingStation = station->getId();
-
-						return(station);
+						if (glm::distance(this->getWorldPosition(), station->getWorldPosition()) <= 25)
+						{
+							mNearestCraftingStation = station->getId();
+							return(station);
+						}
 					}
 				}
 				break;
@@ -1716,9 +1720,11 @@ CraftingStation* PlayerObject::getCraftingStation(ObjectSet	inRangeObjects, Item
 				{
 					if(stationType == ItemType_FoodStation || stationType == ItemType_FoodStationPublic)
 					{
-						mNearestCraftingStation = station->getId();
-
-						return(station);
+						if (glm::distance(this->getWorldPosition(), station->getWorldPosition()) <= 25)
+						{
+							mNearestCraftingStation = station->getId();
+							return(station);
+						}
 					}
 				}
 				break;
@@ -1727,9 +1733,11 @@ CraftingStation* PlayerObject::getCraftingStation(ObjectSet	inRangeObjects, Item
 				{
 					if(stationType == ItemType_StructureStation || stationType == ItemType_StructureStationPublic)
 					{
-						mNearestCraftingStation = station->getId();
-
-						return(station);
+						if (glm::distance(this->getWorldPosition(), station->getWorldPosition()) <= 25)
+						{
+							mNearestCraftingStation = station->getId();
+							return(station);
+						}
 					}
 				}
 				break;
@@ -1738,9 +1746,11 @@ CraftingStation* PlayerObject::getCraftingStation(ObjectSet	inRangeObjects, Item
 				{
 					if(stationType == ItemType_SpaceStation || stationType == ItemType_SpaceStationPublic)
 					{
-						mNearestCraftingStation = station->getId();
-
-						return(station);
+						if (glm::distance(this->getWorldPosition(), station->getWorldPosition()) <= 25)
+						{
+							mNearestCraftingStation = station->getId();
+							return(station);
+						}
 					}
 				}
 				break;

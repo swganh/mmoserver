@@ -425,7 +425,7 @@ void MissionManager::listRequest(PlayerObject* player, uint64 terminal_id,uint8 
 
  	int count = 0;
 	int len = strlen(terminal_name);
-	MissionBag* mission_bag = dynamic_cast<MissionBag*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_MissionBag));
+	MissionBag* mission_bag = dynamic_cast<MissionBag*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Mission));
 
 	MissionList::iterator it = mission_bag->getMissions()->begin();
 	while(it != mission_bag->getMissions()->end())
@@ -493,7 +493,7 @@ void MissionManager::missionRequest(PlayerObject* player, uint64 mission_id)
 	Datapad* datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
 
 	//Move the mission from the player's mission bag to his datapad.
-	MissionBag* mission_bag = dynamic_cast<MissionBag*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_MissionBag));
+	MissionBag* mission_bag = dynamic_cast<MissionBag*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Mission));
 	MissionObject* mission =  mission_bag->getMissionById(mission_id);
 	if(mission == NULL)
 	{

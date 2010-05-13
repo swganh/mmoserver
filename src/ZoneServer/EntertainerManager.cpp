@@ -1977,7 +1977,7 @@ void EntertainerManager::playInstrument(PlayerObject* entertainer, Item* pInstru
 	uint64	instrumentId	= 0;
 
 	// check if the weapon slot is in use by something else than the unarmed default weapon
-	if(Object* object = entertainer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Weapon))
+	if(Object* object = entertainer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Both))
 	{
 		if(object != entertainer->getEquipManager()->getDefaultWeapon())
 		{
@@ -1988,7 +1988,7 @@ void EntertainerManager::playInstrument(PlayerObject* entertainer, Item* pInstru
 	}
 
 	//check if another instrument is equipped
-	Item* item = dynamic_cast<Item*>(entertainer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Instrument));
+	Item* item = dynamic_cast<Item*>(entertainer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Both));
 
 	if(item && item->getItemFamily() == ItemFamily_Instrument)
 	{
@@ -2428,7 +2428,7 @@ uint64 EntertainerManager::getInstrument(PlayerObject* entertainer)
 	//need to get the equipped or targeted instrument
 	uint64	instrumentId = 0;
 
-	Item* item = dynamic_cast<Item*>(entertainer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Instrument));
+	Item* item = dynamic_cast<Item*>(entertainer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Both));
 
 	if(item && item->getItemFamily() == ItemFamily_Instrument)
 	{
@@ -2558,7 +2558,7 @@ bool EntertainerManager::approachInstrument(PlayerObject* entertainer, uint64 in
 			else
 			{
 				// We approach the instrument to the entertainer, if we have it equipped.
-				Item* item = dynamic_cast<Item*>(entertainer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Instrument));
+				Item* item = dynamic_cast<Item*>(entertainer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Both));
 				if (item && item->getItemFamily() == ItemFamily_Instrument)
 				{
 					if (item->getId() == instrumentId)
@@ -2600,7 +2600,7 @@ void EntertainerManager::handlestartmusic(PlayerObject* entertainer)
 	}
 
 	// check if the weapon slot is in use by something else than the unarmed default weapon
-	if(Object* object = entertainer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Weapon))
+	if(Object* object = entertainer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Both))
 	{
 		if(object != entertainer->getEquipManager()->getDefaultWeapon())
 		{
@@ -2612,7 +2612,7 @@ void EntertainerManager::handlestartmusic(PlayerObject* entertainer)
 	}
 
 	// check if the instrument slot is in use
-	if(entertainer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Instrument))
+	if(entertainer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Both))
 	{
 		gMessageLib->sendSystemMessage(entertainer,L"","performance","music_must_unequip");
 
@@ -2779,7 +2779,7 @@ void EntertainerManager::usePlacedInstrument(PlayerObject* entertainer, Item* us
 	if ((usedInstrument->getItemType() == ItemType_Nalargon) || (usedInstrument->getItemType() == ItemType_nalargon_max_reebo) || (usedInstrument->getItemType() == ItemType_omni_box))
 	{
 		// check if another instrument is equipped
-		Item* item = dynamic_cast<Item*>(entertainer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Instrument));
+		Item* item = dynamic_cast<Item*>(entertainer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Both));
 
 		if (item && item->getItemFamily() == ItemFamily_Instrument)
 		{
@@ -2817,7 +2817,7 @@ void EntertainerManager::playPlacedInstrument(PlayerObject* entertainer)
 	*/
 
 	// check if the weapon slot is in use by something else than the unarmed default weapon
-	if(Object* object = entertainer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Weapon))
+	if(Object* object = entertainer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Both))
 	{
 		if(object != entertainer->getEquipManager()->getDefaultWeapon())
 		{
@@ -2828,7 +2828,7 @@ void EntertainerManager::playPlacedInstrument(PlayerObject* entertainer)
 	}
 
 	// check if the instrument slot is in use
-	if(entertainer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Instrument))
+	if(entertainer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Both))
 	{
 		gMessageLib->sendSystemMessage(entertainer,L"","performance","music_must_unequip");
 		return;

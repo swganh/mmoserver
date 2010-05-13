@@ -570,7 +570,7 @@ bool NpcManager::handleAttack(CreatureObject *attacker, uint64 targetId) // , Ob
 	if (_verifyCombatState(attacker, targetId))
 	{
 		// get the current weapon
-		Weapon* weapon = dynamic_cast<Weapon*>(attacker->getEquipManager()->getEquippedObject(CreatureEquipSlot_Weapon));
+		Weapon* weapon = dynamic_cast<Weapon*>(attacker->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Both));
 
 		if (!weapon)
 		{

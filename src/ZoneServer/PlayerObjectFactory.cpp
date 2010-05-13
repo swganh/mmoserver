@@ -563,9 +563,9 @@ PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
 
 	// mission bag
 	playerMissionBag = new MissionBag(playerObject->mId + 2,playerObject,"object/tangible/mission_bag/shared_mission_bag.iff","item_n","mission_bag");
-	playerMissionBag->setEquipSlotMask(CreatureEquipSlot_MissionBag);
+	playerMissionBag->setEquipSlotMask(CreatureEquipSlot_Mission);
 
-	playerObject->mEquipManager.addEquippedObject(CreatureEquipSlot_MissionBag,playerMissionBag);
+	playerObject->mEquipManager.addEquippedObject(CreatureEquipSlot_Mission,playerMissionBag);
 
 	// bank
 	playerBank->setId(playerObject->mId + 4);
@@ -584,7 +584,7 @@ PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
 	playerWeapon->setParentId(playerObject->mId);
 	playerWeapon->setModelString("object/weapon/melee/unarmed/shared_unarmed_default_player.iff");
 	playerWeapon->setGroup(WeaponGroup_Unarmed);
-	playerWeapon->setEquipSlotMask(CreatureEquipSlot_Weapon);
+	playerWeapon->setEquipSlotMask(CreatureEquipSlot_Hold_Both);
 	playerWeapon->addInternalAttribute("weapon_group","1");
 
 	playerObject->mEquipManager.setDefaultWeapon(playerWeapon);
@@ -824,7 +824,7 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
 			gLogger->logMsg("PlayerObjectFactory: Failed removing object from loadmap");
 
 		// if weapon slot is empty, equip the unarmed default weapon
-		if(!playerObject->mEquipManager.getEquippedObject(CreatureEquipSlot_Weapon))
+		if(!playerObject->mEquipManager.getEquippedObject(CreatureEquipSlot_Hold_Both))
 		{
 			// gLogger->logMsg("equip default weapon");
 			playerObject->mEquipManager.equipDefaultWeapon();

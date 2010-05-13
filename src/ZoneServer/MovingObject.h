@@ -28,9 +28,15 @@ class MovingObject : public Object
 		MovingObject();
 		virtual ~MovingObject();
 
+		//NPC Player movement through server (warping, elevators)
+		void updatePosition(uint64 parentId, const glm::vec3& newPosition);
+		void updatePositionInCell(uint64 parentId, const glm::vec3& newPosition);
+		void updatePositionOutside(uint64 parentId, const glm::vec3& newPosition);
+
 		// current movement updates sequence
 		uint32		getInMoveCount(){ return mInMoveCount; }
 		void		setInMoveCount(uint32 moveCount){ mInMoveCount = moveCount; }
+		uint32		incInMoveCount(){ return ++mInMoveCount; }
 
 		// walk speed
 		float		getBaseAcceleration(){ return mBaseAcceleration; }

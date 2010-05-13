@@ -18,10 +18,12 @@ Copyright (c) 2006 - 2010 The swgANH Team
 /**
  * The MountObject class handles mount specific functionality like custom radial actions.
  */
-class MountObject : public CreatureObject {
+class MountObject : public CreatureObject 
+{
  public:  
-   // Declare and define the default constructor and destructor.
-   MountObject() : CreatureObject() {}
+
+	 // Declare and define the default constructor and destructor.
+   MountObject() : CreatureObject() { mOwner = 0;mController = 0;}
    virtual ~MountObject() {}
    
    /// Prepares the custom radial menu for MountObject's.
@@ -29,6 +31,17 @@ class MountObject : public CreatureObject {
    
    /// Handles a menu selection from MountObject's custom radial menu.
    virtual void handleObjectMenuSelect(uint8 message_type, Object* source_object);
+
+   //pet,mount,vehicle
+	uint64				getOwner() { return mOwner; }
+	void				setOwner(uint64 owner_id) { mOwner = owner_id; }
+
+	uint64				getPetController(){ return mController;}
+	void				setPetController(uint64 c){mController = c;}
+
+private:
+	uint64				mController;
+	uint64				mOwner; //If creature is a mount,pet,or vehicle it has an owner
 };
 
 //=============================================================================

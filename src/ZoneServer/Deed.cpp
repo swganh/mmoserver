@@ -18,7 +18,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "PlayerObject.h"
 #include "ScoutManager.h"
 #include "StructureManager.h"
-#include "VehicleFactory.h"
+#include "VehicleControllerFactory.h"
 #include "WorldManager.h"
 #include "ZoneOpcodes.h"
 
@@ -58,7 +58,7 @@ void Deed::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
 					if(datapad->getCapacity())
 					{
-						gVehicleFactory->createVehicle(this->getItemType(),player);
+						gVehicleControllerFactory->createVehicle(this->getItemType(),player);
 
 						Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 						inventory->removeObject(this);

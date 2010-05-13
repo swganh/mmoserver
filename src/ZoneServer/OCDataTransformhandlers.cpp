@@ -25,7 +25,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Tutorial.h"
 #include "WorldConfig.h"
 #include "WorldManager.h"
-#include "Vehicle.h"
+#include "VehicleController.h"
 #include "ZoneTree.h"
 
 #include "MessageLib/MessageLib.h"
@@ -154,6 +154,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 		else
 		{
 			// we should never get here !
+			// it basically means we left the map 
 			gLogger->logMsg("ObjController::handleDataTransform: could not find zone region in map");
 			gLogger->logMsg("ObjController:: probably a bot : %i64u",static_cast<int>(player->getId()));
 
@@ -318,7 +319,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 	}
 
 	 //uint64 localTimeEnd = Anh_Utils::Clock::getSingleton()->getLocalTime();
-	 //gLogger->logMsgF("Exec time PRId32",MSG_NORMAL, localTimeEnd - localTimeStart);
+	 //gLogger->logMsgF("Exec time :%"PRId32"",MSG_NORMAL, localTimeEnd - localTimeStart);
 }
 
 //=============================================================================
@@ -424,7 +425,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 
 							// the vehicle is the INTANGIBLE Datapad Controller
 							// the *vehicle* itself is the BODY
-							if(Vehicle* datapad_pet = dynamic_cast<Vehicle*>(gWorldManager->getObjectById(player->getMount()->getPetController())))
+							if(VehicleController* datapad_pet = dynamic_cast<VehicleController*>(gWorldManager->getObjectById(player->getMount()->getPetController())))
 							{
 								datapad_pet->dismountPlayer();
 								datapad_pet->store();
@@ -1021,10 +1022,11 @@ bool ObjectController::_destroyOutOfRangeObjects(ObjectSet *inRangeObjects)
 //
 //	Update the world around the player.
 //
-//	NOTE (by ERU): This code need to be re-written,
-//	right now it's hard to follow and very difficult to do changes without getting secondary effects not wanted...
-//
-//	THIS IS AN EXAMPLE OF HOW NOT TO WRITE CODE, MIXING EVERYTHING ETC....
+//	This code fulfills 2 purposes
+//	1st we do full updates of our world around us when prompted
+//	2nd when the amount of update Objects is to big (>50) this function gets revisited 
+//		and _updateInRangeObjectsInside updates the remaining objects
+//		UNLESS we need to force another update
 
 uint64 ObjectController::playerWorldUpdate(bool forcedUpdate)
 {

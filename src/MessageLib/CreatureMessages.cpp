@@ -206,7 +206,12 @@ bool MessageLib::sendBaselinesCREO_3(CreatureObject* creatureObject,PlayerObject
 	//13 owner id
 	if(creatureObject->getCreoGroup()  == CreoGroup_Vehicle)
 	{
-		mMessageFactory->addUint64(creatureObject->getOwner());
+		MountObject* mount = dynamic_cast<MountObject*>(creatureObject);
+		if(mount)
+			mMessageFactory->addUint64(mount->getOwner());
+		else
+			mMessageFactory->addUint64(0);
+
 		mMessageFactory->addFloat(creatureObject->getScale());
 		mMessageFactory->addUint32(0);
 		mMessageFactory->addUint64(0);
@@ -1511,11 +1516,11 @@ void MessageLib::sendBFUpdateCreo3(CreatureObject* playerObject)
 // used for mountable creatures (pets, vehicles..)
 
 
-void MessageLib::sendOwnerUpdateCreo3(CreatureObject* creatureObject)
+void MessageLib::sendOwnerUpdateCreo3(MountObject* mount)
 {
 	mMessageFactory->StartMessage();
 	mMessageFactory->addUint32(opDeltasMessage);
-	mMessageFactory->addUint64(creatureObject->getId());
+	mMessageFactory->addUint64(mount->getId());
 	mMessageFactory->addUint32(opCREO);
 	mMessageFactory->addUint8(3);
 
@@ -1523,9 +1528,9 @@ void MessageLib::sendOwnerUpdateCreo3(CreatureObject* creatureObject)
 	mMessageFactory->addUint16(2);
 	mMessageFactory->addUint16(13); // CREO 3 owner id
 
-	mMessageFactory->addInt64(creatureObject->getOwner());
+	mMessageFactory->addInt64(mount->getOwner());
 
-	_sendToInRange(mMessageFactory->EndMessage(),creatureObject,5);
+	_sendToInRange(mMessageFactory->EndMessage(),mount,5);
 	//(pObject)->getClient()->SendChannelA(mMessageFactory->EndMessage(),pObject->getAccountId(),CR_Client,5);
 }
 

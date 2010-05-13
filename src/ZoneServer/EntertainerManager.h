@@ -246,7 +246,7 @@ class EntertainerManager : public DatabaseCallback, public ObjectFactoryCallback
 
 		EntertainerManager(Database* database,MessageDispatch* dispatch);
 
-		void					playInstrument(PlayerObject* entertainer, Item* pInstrument);
+		void					playInstrument(PlayerObject* entertainer, Item* instrument);
 		uint64					getInstrument(PlayerObject* entertainer);
 		bool					approachInstrument(PlayerObject* entertainer, uint64 instrumentId);
 

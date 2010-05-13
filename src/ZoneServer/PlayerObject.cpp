@@ -38,7 +38,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "UIOfferTeachBox.h"
 #include "UIPlayerSelectBox.h"
 #include "UICloneSelectListBox.h"
-#include "Vehicle.h"
+#include "VehicleController.h"
 #include "WorldConfig.h"
 #include "WorldManager.h"
 #include "ZoneOpcodes.h"
@@ -143,7 +143,7 @@ PlayerObject::~PlayerObject()
 
 	if(mMount && datapad)
 	{
-		if(Vehicle* datapad_pet = dynamic_cast<Vehicle*>(datapad->getDataById(mMount->getPetController())))
+		if(VehicleController* datapad_pet = dynamic_cast<VehicleController*>(datapad->getDataById(mMount->getPetController())))
 		{
 			datapad_pet->dismountPlayer();
 			datapad_pet->store();

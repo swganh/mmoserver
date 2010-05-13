@@ -9,8 +9,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
-#ifndef ANH_ZONESERVER_VEHICLE_FACTORY_H
-#define ANH_ZONESERVER_VEHICLE_FACTORY_H
+#ifndef ANH_ZONESERVER_VEHICLECONTROLLER_FACTORY_H
+#define ANH_ZONESERVER_VEHICLECONTROLLER_FACTORY_H
 
 #include "FactoryBase.h"
 #include "ObjectFactoryCallback.h"
@@ -22,9 +22,9 @@ class DataBinding;
 class DispatchClient;
 class IntangibleObject;
 class PlayerObject;
-class Vehicle;
+class VehicleController;
 
-#define	 gVehicleFactory	VehicleFactory::getSingletonPtr()
+#define	 gVehicleControllerFactory	VehicleControllerFactory::getSingletonPtr()
 
 //=============================================================================
 
@@ -33,23 +33,23 @@ class Vehicle;
 
 enum VehicleQuery
 {
-	VehicleFactoryQuery_Create		= 1,
-	VehicleFactoryQuery_TypesId		= 2,
-	VehicleFactoryQuery_ItnoData	= 3,
-	VehicleFactoryQuery_MainData	= 4,
-	VehicleFactoryQuery_Attributes	= 5
+	VehicleControllerFactoryQuery_Create		= 1,
+	VehicleControllerFactoryQuery_TypesId		= 2,
+	VehicleControllerFactoryQuery_ItnoData	= 3,
+	VehicleControllerFactoryQuery_MainData	= 4,
+	VehicleControllerFactoryQuery_Attributes	= 5
 };
 
 //=============================================================================
 
-class VehicleFactory : public FactoryBase, public ObjectFactoryCallback
+class VehicleControllerFactory : public FactoryBase, public ObjectFactoryCallback
 {
 	public:
 
-		static	VehicleFactory*	getSingletonPtr() { return mSingleton; }
-		static	VehicleFactory*	Init(Database* database);
+		static	VehicleControllerFactory*	getSingletonPtr() { return mSingleton; }
+		static	VehicleControllerFactory*	Init(Database* database);
 
-		~VehicleFactory();
+		~VehicleControllerFactory();
 
 		virtual void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
 		virtual void			handleObjectReady(Object* object,DispatchClient* client);
@@ -59,14 +59,14 @@ class VehicleFactory : public FactoryBase, public ObjectFactoryCallback
 
 	private:
 
-		VehicleFactory(Database* database);
+		VehicleControllerFactory(Database* database);
 
-		void				_setupDatabindings();
-		void				_destroyDatabindings();
+		void						_setupDatabindings();
+		void						_destroyDatabindings();
 
-		Vehicle*			_createVehicle(DatabaseResult* result);
+		VehicleController*			_createVehicle(DatabaseResult* result);
 
-		static VehicleFactory*	mSingleton;
+		static VehicleControllerFactory*	mSingleton;
 		static bool					mInsFlag;
 
 		DataBinding*				mVehicleItno_Binding;

@@ -44,34 +44,14 @@ void ElevatorTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObjec
 	{
 		gMessageLib->sendPlayClientEffectObjectMessage(gWorldManager->getClientEffect(mEffectUp),"",playerObject);
 
-		// remove player from current position, elevators can only be inside
-		CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(playerObject->getParentId()));
-
-		if(cell)
-		{
-			cell->removeObject(playerObject);
-		}
-		else
-		{
-			gLogger->logMsgF("could not find cell %"PRIu64"",MSG_HIGH,playerObject->getParentId());
-		}
-
+		
 		// put him into new one
 		playerObject->mDirection = mDstDirUp;
 		playerObject->mPosition  = mDstPosUp;
 		playerObject->setParentId(mDstCellUp);
+		playerObject->updatePosition(mDstCellUp,mDstPosUp);
 
-		cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(mDstCellUp));
-
-		if(cell)
-		{
-			cell->addObjectSecure(playerObject);
-		}
-		else
-		{
-			gLogger->logMsgF("could not find cell %"PRIu64"",MSG_HIGH,mDstCellUp);
-		}
-
+		
 		gMessageLib->sendDataTransformWithParent(playerObject);
 
 	}
@@ -80,33 +60,14 @@ void ElevatorTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObjec
 		gMessageLib->sendPlayClientEffectObjectMessage(gWorldManager->getClientEffect(mEffectDown),"",playerObject);
 	
 		// remove player from current position, elevators can only be inside
-		CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(playerObject->getParentId()));
-
-		if(cell)
-		{
-			cell->removeObject(playerObject);
-		}
-		else
-		{
-			gLogger->logMsgF("could not find cell %"PRIu64"",MSG_HIGH,playerObject->getParentId());
-		}
 
 		// put him into new one
 		playerObject->mDirection = mDstDirDown;
 		playerObject->mPosition  = mDstPosDown;
 		playerObject->setParentId(mDstCellDown);
+
+		playerObject->updatePosition(mDstCellDown,mDstPosDown);		
 		
-		cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(mDstCellDown));
-
-		if(cell)
-		{
-			cell->addObjectSecure(playerObject);
-		}
-		else
-		{
-			gLogger->logMsgF("could not find cell %"PRIu64"",MSG_HIGH,mDstCellDown);
-		}
-
 		gMessageLib->sendDataTransformWithParent(playerObject);
 	}
 	else

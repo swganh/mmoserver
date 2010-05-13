@@ -11,7 +11,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include <math.h>
 
-#include "Vehicle.h"
+#include "VehicleController.h"
 #include "CreatureObject.h"
 #include "IntangibleObject.h"
 #include "PlayerObject.h"
@@ -34,7 +34,7 @@ unsigned char Swoop_Customization[99] =	{ 0x61, 0x00, 0x02, 0x11, 0xC3, //custom
 0xC3, 0x9B, 0xC3, 0xBF, 0x01, 0x02, 0x11, 0xC3, 0xBF, 0x03 };
 
 
-Vehicle::Vehicle() : IntangibleObject(),
+VehicleController::VehicleController() : IntangibleObject(),
 mTypesId(0),
 mHitPointLoss(0), //amount of hitpoints lost during travel
 mInclineAcceleration(0),
@@ -47,7 +47,7 @@ mOwner(0)
 	mBody		= NULL;
 }
 
-Vehicle::~Vehicle()
+VehicleController::~VehicleController()
 {
 	if(mBody)
 	{
@@ -59,7 +59,7 @@ Vehicle::~Vehicle()
 //=============================================================================
 //handles the radial selection
 
-void Vehicle::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
+void VehicleController::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 {
 
 	if(dynamic_cast<PlayerObject*>(srcObject))
@@ -89,7 +89,7 @@ void Vehicle::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
 //=============================================================================
 //handles the radial selection
-void Vehicle::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount)
+void VehicleController::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount)
 {
   mRadialMenu.reset(new RadialMenu());
   
@@ -102,7 +102,7 @@ void Vehicle::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 item
 //===============================================================================================
 //spawns the physical body (CreatureObject)
 
-void Vehicle::call()
+void VehicleController::call()
 {
 	if(mBody)
 	{   //Destory the old body before creating a new one
@@ -134,7 +134,7 @@ void Vehicle::call()
 	mBody->setMoodId(0);
 	mBody->setCL(0);
 
-	mBody->setId(mId + 1);	// Vehicles are created by the vehiclefactory with +2 step for IDs
+	mBody->setId(mId + 1);	// Vehicles are created by the VehicleControllerFactory with +2 step for IDs
 
 	setBodyId(mBody->getId());
 
@@ -206,7 +206,7 @@ void Vehicle::call()
 
 //===============================================================================================
 //stores the physical body
-void Vehicle::store()
+void VehicleController::store()
 {
 	if(!mBody)
 	{
@@ -253,7 +253,7 @@ void Vehicle::store()
 //===============================================================================================
 //dismount the owner from the physical body
 
-void Vehicle::dismountPlayer()
+void VehicleController::dismountPlayer()
 {
  	if(!mBody)
 	{
@@ -288,7 +288,7 @@ void Vehicle::dismountPlayer()
 //mount the owner on the physical body
 //
 
-void Vehicle::mountPlayer()
+void VehicleController::mountPlayer()
 {
 	if(!mBody)
 	{

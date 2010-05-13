@@ -17,8 +17,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "ObjectControllerCommandMap.h"
 #include "PlayerObject.h"
 #include "UIManager.h"
-#include "Vehicle.h"
-#include "VehicleFactory.h"
+#include "VehicleController.h"
+#include "VehicleControllerFactory.h"
 #include "WorldConfig.h"
 #include "WorldManager.h"
 #include "MessageLib/MessageLib.h"
@@ -47,12 +47,12 @@ void ObjectController::_handleMount(uint64 targetId,Message* message,ObjectContr
 		if (!player->checkIfMounted())
 		{
 			// verify its player's mount
-			CreatureObject* pet	= dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(targetId));
+			MountObject* pet	= dynamic_cast<MountObject*>(gWorldManager->getObjectById(targetId));
 			if (pet && (pet->getOwner() == player->getId()))
 			{
 				// get the mount Vehicle object by the id (Creature object id - 1 )
 
-				if(Vehicle* vehicle = dynamic_cast<Vehicle*>(gWorldManager->getObjectById(pet->getPetController())))
+				if(VehicleController* vehicle = dynamic_cast<VehicleController*>(gWorldManager->getObjectById(pet->getPetController())))
 				{
 					//The /mount command can work up to 32m on live
                     if(glm::distance(vehicle->getBody()->mPosition, player->mPosition) <= 32)
@@ -91,7 +91,7 @@ void ObjectController::_handleDismount(uint64 targetId,Message* message,ObjectCo
 		if (player->checkIfMounted())
 		{
 			// verify its player's mount
-			CreatureObject* pet = NULL;
+			MountObject* pet = NULL;
 			if (targetId == 0)
 			{
 				// No object targeted, assume the one we are riding.	- what else should we dismount ???
@@ -99,13 +99,13 @@ void ObjectController::_handleDismount(uint64 targetId,Message* message,ObjectCo
 			}
 			else
 			{
-				pet = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(targetId));
+				pet = dynamic_cast<MountObject*>(gWorldManager->getObjectById(targetId));
 			}
 
 			if (pet && (pet->getOwner() == player->getId()))
 			{
 				// get the pets controller for a swoop its the vehicle
-				if(Vehicle* vehicle = dynamic_cast<Vehicle*>(gWorldManager->getObjectById(pet->getPetController())))
+				if(VehicleController* vehicle = dynamic_cast<VehicleController*>(gWorldManager->getObjectById(pet->getPetController())))
 				{
 					vehicle->dismountPlayer();
 				}

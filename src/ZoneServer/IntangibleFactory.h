@@ -19,7 +19,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 class DatabaseCallback;
 class FactoryBase;
 class IntangibleObject;
-class VehicleFactory;
+class VehicleControllerFactory;
 
 #define		gIntangibleFactory	IntangibleFactory::getSingletonPtr()
 
@@ -57,7 +57,7 @@ class IntangibleFactory : public FactoryBase, public ObjectFactoryCallback
 		static IntangibleFactory*	mSingleton;
 		static bool					mInsFlag;
 
-		VehicleFactory*				mVehicleFactory;
+		VehicleControllerFactory*				mVehicleControllerFactory;
 
 };
 

@@ -1138,6 +1138,62 @@ bool MessageLib::sendDraftWeightsResponse(DraftSchematic* schematic,PlayerObject
 	return(true);
 }
 
+// move (moving???)object in cell
+//
+//we need 0x0000000B to move players in elevators ... 0x00000053 might be specifically for static items ???
+//evtly divide between object and movingobject ????
+void MessageLib::sendDataTransformWithParent0B(Object* object)
+{
+	mMessageFactory->StartMessage();
+	mMessageFactory->addUint32(opObjControllerMessage);
+	mMessageFactory->addUint32(0x0000000B);
+	mMessageFactory->addUint32(opDataTransformWithParent);
+	mMessageFactory->addUint64(object->getId());
+	mMessageFactory->addUint32(0);
+	uint32 u = object->incDataTransformCounter();
+	mMessageFactory->addUint32(u);
+	//gLogger->logMsgF("datatransform counter : %u",MSG_HIGH,u);
+
+	mMessageFactory->addUint64(object->getParentId());
+	mMessageFactory->addFloat(object->mDirection.x);
+	mMessageFactory->addFloat(object->mDirection.y);
+	mMessageFactory->addFloat(object->mDirection.z);
+	mMessageFactory->addFloat(object->mDirection.w);
+	mMessageFactory->addFloat(object->mPosition.x);
+	mMessageFactory->addFloat(object->mPosition.y);
+	mMessageFactory->addFloat(object->mPosition.z);
+	mMessageFactory->addUint32(0);
+
+	_sendToInRangeUnreliable(mMessageFactory->EndMessage(),object,5);
+}
+
+//======================================================================================================================
+//
+// move object in world
+//
+
+void MessageLib::sendDataTransform0B(Object* object)
+{
+	mMessageFactory->StartMessage();
+	mMessageFactory->addUint32(opObjControllerMessage);
+	mMessageFactory->addUint32(0x0000000B);
+	mMessageFactory->addUint32(opDataTransform);
+	mMessageFactory->addUint64(object->getId());
+	mMessageFactory->addUint32(0);
+	mMessageFactory->addUint32(object->incDataTransformCounter());
+
+	mMessageFactory->addFloat(object->mDirection.x);
+	mMessageFactory->addFloat(object->mDirection.y);
+	mMessageFactory->addFloat(object->mDirection.z);
+	mMessageFactory->addFloat(object->mDirection.w);
+	mMessageFactory->addFloat(object->mPosition.x);
+	mMessageFactory->addFloat(object->mPosition.y);
+	mMessageFactory->addFloat(object->mPosition.z);
+	mMessageFactory->addUint32(0);
+
+	_sendToInRangeUnreliable(mMessageFactory->EndMessage(),object,5);
+}
+
 //======================================================================================================================
 //
 // move object in world
@@ -1147,7 +1203,7 @@ void MessageLib::sendDataTransform(Object* object)
 {
 	mMessageFactory->StartMessage();
 	mMessageFactory->addUint32(opObjControllerMessage);
-	mMessageFactory->addUint32(0x0000000B);
+	mMessageFactory->addUint32(0x00000053);
 	mMessageFactory->addUint32(opDataTransform);
 	mMessageFactory->addUint64(object->getId());
 	mMessageFactory->addUint32(0);

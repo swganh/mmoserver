@@ -12,7 +12,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "IntangibleFactory.h"
 #include "FactoryBase.h"
 #include "Object.h"
-#include "VehicleFactory.h"
+#include "VehicleControllerFactory.h"
 
 #include "DatabaseManager/DatabaseCallback.h"
 
@@ -44,7 +44,7 @@ IntangibleFactory*	IntangibleFactory::Init(Database* database)
 
 IntangibleFactory::IntangibleFactory(Database* database) : FactoryBase(database)
 {
-	mVehicleFactory = VehicleFactory::Init(mDatabase);
+	mVehicleControllerFactory = VehicleControllerFactory::Init(mDatabase);
 }
 
 
@@ -61,14 +61,14 @@ IntangibleFactory::~IntangibleFactory()
 
 void IntangibleFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client)
 {
-	mVehicleFactory->requestObject(ofCallback,id,subGroup,subType,client);
+	mVehicleControllerFactory->requestObject(ofCallback,id,subGroup,subType,client);
 }
 
 //=============================================================================
 
 void IntangibleFactory::releaseAllPoolsMemory()
 {
-	mVehicleFactory->releaseQueryContainerPoolMemory();
+	mVehicleControllerFactory->releaseQueryContainerPoolMemory();
 }
 
 //=============================================================================

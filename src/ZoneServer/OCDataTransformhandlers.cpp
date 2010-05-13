@@ -1173,21 +1173,17 @@ uint64 ObjectController::playerWorldUpdate(bool forcedUpdate)
 					mDestroyOutOfRangeObjects = false;
 
 					// If active target out of range, clear.
-					if (player->getTarget())
+					if (player->getTargetId())
 					{
 						// gLogger->logMsgF("playerWorldUpdate have a Target of type %d", MSG_NORMAL, player->getTarget()->getType());
 
-						// The list of objects we shall check for untargeting consist of all objects that we can "interact with".
-						if ((player->getTarget()->getType() & (ObjType_Player | ObjType_NPC | ObjType_Creature)) ||
-							((player->getTarget()->getType() == ObjType_Tangible) && (dynamic_cast<TangibleObject*>(player->getTarget())->getTangibleGroup() == TanGroup_TicketCollector)))
+						if (!(player->checkKnownObjects(player->getTarget())))
 						{
-							if (!(player->checkKnownObjects(player->getTarget())))
-							{
-								player->setTarget(NULL);
-								gMessageLib->sendTargetUpdateDeltasCreo6(player);
-								// gLogger->logMsg("playerWorldUpdate clear Target");
-							}
+							player->setTarget(0);
+							gMessageLib->sendTargetUpdateDeltasCreo6(player);
+							// gLogger->logMsg("playerWorldUpdate clear Target");
 						}
+						
 					}
 				}
 			}

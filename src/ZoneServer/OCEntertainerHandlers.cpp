@@ -841,7 +841,8 @@ void ObjectController::_handleImageDesign(uint64 targetId,Message* message,Objec
 
 	if(designObject->getPosture() == CreaturePosture_Dead)
 	{
-		gMessageLib->sendSystemMessage(imageDesigner,L"","image_designer","target_dead");
+		gMessageLib->sendSysMsg(imageDesigner,"image_designer","target_dead",NULL,designObject);
+		//gMessageLib->sendSystemMessage(imageDesigner,L"","image_designer","target_dead");
 		return;
 	}
 

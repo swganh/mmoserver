@@ -1207,13 +1207,13 @@ void ObjectController::_handlePlayHoloEmote(uint64 targetId,Message* message,Obj
 
 	if(!myEmote)
 	{
-		gMessageLib->sendSystemMessage(we,L"","image_designer","no_holoemote","","",L"",0,"","",L"");
+		gMessageLib->sendSystemMessage(we,L"","image_designer","no_holoemote");
 		return;
 	}
 
 	if(we->getHoloCharge()<= 0)
 	{
-		gMessageLib->sendSystemMessage(we,L"","image_designer","no_charges_holoemote","","",L"",0,"","",L"");
+		gMessageLib->sendSystemMessage(we,L"","image_designer","no_charges_holoemote");
 		return;
 	}
 
@@ -1223,7 +1223,7 @@ void ObjectController::_handlePlayHoloEmote(uint64 targetId,Message* message,Obj
 	if(!strcmp(cmdLine,"remove"))
 	{
 		//remove from playerObject
-		gMessageLib->sendSystemMessage(we,L"","image_designer","remove_holoemote","","",L"",0,"","",L"");
+		gMessageLib->sendSystemMessage(we,L"","image_designer","remove_holoemote");
 		we->setHoloCharge(0);
 		we->setHoloEmote(0);
 		//dont forget to remove from db, too
@@ -1232,10 +1232,13 @@ void ObjectController::_handlePlayHoloEmote(uint64 targetId,Message* message,Obj
 
 	string emoteName;
 
+	bool lotsOfStuff = false;
+
 	if(!strcmp(cmdLine,"help"))
 	{
 		if(!strcmp(myEmote->pEmoteName,"all"))
 		{
+			lotsOfStuff = true;
 			emoteName = gEntertainerManager->getHoloNames();
 		}
 		else
@@ -1243,9 +1246,19 @@ void ObjectController::_handlePlayHoloEmote(uint64 targetId,Message* message,Obj
 
 		//just give help
 		int8 sql[512], sql1[1024];
-		sprintf(sql,"Your current Holo Emote is %s.\xa You have %u charges remaining."
-		"\xa To play your Holo-Emote type \x2fholoemote <name>.\xa To delete your Holo-Emote type \x2fholoemote delete. "
-		"\xa Purchasing a new Holo-Emote will automatically delete your current Holo-Emote.",emoteName.getAnsi(),we->getHoloCharge());
+
+		if(lotsOfStuff)
+		{
+			sprintf(sql,"Your current Holo Emotes are %s.\xa You have %u charges remaining."
+			"\xa To play your Holo-Emote type \x2fholoemote <name>.\xa To delete your Holo-Emote type \x2fholoemote delete. "
+			"\xa Purchasing a new Holo-Emote will automatically delete your current Holo-Emote.",emoteName.getAnsi(),we->getHoloCharge());
+		}
+		else
+		{
+			sprintf(sql,"Your current Holo Emote is %s.\xa You have %u charges remaining."
+			"\xa To play your Holo-Emote type \x2fholoemote <name>.\xa To delete your Holo-Emote type \x2fholoemote delete. "
+			"\xa Purchasing a new Holo-Emote will automatically delete your current Holo-Emote.",emoteName.getAnsi(),we->getHoloCharge());
+		}
 
 		sprintf(sql1,"%s \xa \xa The available Holo-Emote names are: \xa \xa"
 			"Beehive \x9 \x9 Blossom \x9 Brainstorm \xa"
@@ -1264,42 +1277,34 @@ void ObjectController::_handlePlayHoloEmote(uint64 targetId,Message* message,Obj
 
 	if(!requestedEmote)
 	{
-		gMessageLib->sendSystemMessage(we,L"","image_designer","holoemote_help","","",L"",0,"","",L"");
+		gMessageLib->sendSystemMessage(we,L"","image_designer","holoemote_help");
 		return;
 	}
 
-	if(strcmp(myEmote->pEmoteName,"all"))
-	{
-		//its *not* all
-		//only play if we give the proper name
-		if(requestedEmote->pId == myEmote->pId)
-		{			
-			if(we->decHoloCharge())
-			{
-				string effect = gWorldManager->getClientEffect(myEmote->pId);
-				gMessageLib->sendPlayClientEffectObjectMessage(effect,"head",we);
-				int8 sql[256];
-				sprintf(sql,"update swganh.character_holoemotes set charges = charges-1 where character_id = %I64u", we->getId());
-				mDatabase->ExecuteSqlAsync(this,new(mDBAsyncContainerPool.malloc()) ObjControllerAsyncContainer(OCQuery_Nope),sql);
-			}
-			else
-			{
-				gMessageLib->sendSystemMessage(we,L"","image_designer","no_charges_holoemote","","",L"",0,"","",L"");
-				return;
-			}
+	//its *not* all
+	//only play if we own the relevant generator and havnt requested holoemote all
+	if(((requestedEmote->pId == myEmote->pId)||(myEmote->pId == 0))&& (requestedEmote->pId != 0))
+	{			
+		if(we->decHoloCharge())
+		{
+			string effect = gWorldManager->getClientEffect(requestedEmote->pId);
+			gMessageLib->sendPlayClientEffectObjectMessage(effect,"head",we);
+			int8 sql[256];
+			sprintf(sql,"update swganh.character_holoemotes set charges = charges-1 where character_id = %I64u", we->getId());
+			mDatabase->ExecuteSqlAsync(this,new(mDBAsyncContainerPool.malloc()) ObjControllerAsyncContainer(OCQuery_Nope),sql);
 		}
 		else
 		{
-			gMessageLib->sendSystemMessage(we,L"","image_designer","holoemote_help","","",L"",0,"","",L"");
+			gMessageLib->sendSystemMessage(we,L"","image_designer","no_charges_holoemote");
 			return;
 		}
 	}
 	else
 	{
-		//it is all
-		gMessageLib->sendSystemMessage(we,L"This is not a valid holoemote name");
+		gMessageLib->sendSystemMessage(we,L"","image_designer","holoemote_help");
 		return;
 	}
+	
 }
 
 //======================================================================================================================

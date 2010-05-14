@@ -489,7 +489,7 @@ bool MessageLib::sendCreatePlayer(PlayerObject* playerObject,PlayerObject* targe
 		}
 
 		// mission bag
-		if(TangibleObject* missionBag = dynamic_cast<TangibleObject*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_MissionBag)))
+		if(TangibleObject* missionBag = dynamic_cast<TangibleObject*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Mission)))
 		{
 			gMessageLib->sendCreateTangible(missionBag,playerObject);
 

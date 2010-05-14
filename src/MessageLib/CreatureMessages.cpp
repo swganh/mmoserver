@@ -417,7 +417,7 @@ bool MessageLib::sendBaselinesCREO_6(CreatureObject* creatureObject,PlayerObject
 	mMessageFactory->addString(creatureObject->getCurrentAnimation());   // music/dance string here - current animation
 	mMessageFactory->addString(moodStr);
 
-	if(Object* weapon = creatureObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Weapon))
+	if(Object* weapon = creatureObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Both))
 	{
 		mMessageFactory->addUint64(weapon->getId());
 	}
@@ -1791,7 +1791,7 @@ void MessageLib::sendWeaponIdUpdate(CreatureObject* creatureObject)
 	mMessageFactory->addUint16(1);
 	mMessageFactory->addUint16(5);
 
-	if(Object* weapon = creatureObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Weapon))
+	if(Object* weapon = creatureObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Both))
 	{
 		mMessageFactory->addUint64(weapon->getId());
 	}

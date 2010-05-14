@@ -234,7 +234,7 @@ void ObjectController::_handleDestroyInstrument(Item* item)
 	if(playerObject->getPerformingState() == PlayerPerformance_Music)
 	{
 		// equipped instrument
-		if(item == dynamic_cast<Item*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Instrument))
+		if(item == dynamic_cast<Item*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Both))
 		|| playerObject->getPlacedInstrumentId())
 		{
 			gEntertainerManager->stopEntertaining(playerObject);

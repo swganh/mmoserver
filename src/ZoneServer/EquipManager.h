@@ -55,8 +55,8 @@ class EquipManager
 		uint8				removeEquippedObject(Object* object);
 
 		// manually equip by slots given
-		uint8				addEquippedObject(uint32 slotMask,Object* object);
-		uint8				removeEquippedObject(uint32 slotMask);
+		uint8				addEquippedObject(uint64 slotMask,Object* object);
+		uint8				removeEquippedObject(uint64 slotMask);
 
 		bool				addtoEquipList(Object* object);
 
@@ -74,13 +74,13 @@ class EquipManager
 		bool				equipDefaultWeapon();
 
 		// quick slot checks
-		uint32				getEquipSlots(){ return mEquipSlots; }
-		void				setEquipSlots(uint32 slots){ mEquipSlots = slots; }
+		uint64				getEquipSlots(){ return mEquipSlots; }
+		void				setEquipSlots(uint64 slots){ mEquipSlots = slots; }
 		void				occupyEquipSlot(CreatureEquipSlot slot){ mEquipSlots = mEquipSlots | slot; }
 		void				freeEquipSlot(CreatureEquipSlot slot){ mEquipSlots = mEquipSlots & ~slot; }
 		void				toggleEquipSlot(CreatureEquipSlot slot){ mEquipSlots = mEquipSlots ^ slot; }
 		bool				checkEquipSlot(CreatureEquipSlot slot){ return((mEquipSlots & slot) == static_cast<uint32>(slot)); }
-		bool				checkEquipSlots(uint32 slots){ return((mEquipSlots & slots) == slots); }
+		bool				checkEquipSlots(uint64 slots){ return((mEquipSlots & slots) == slots); }
 
 		bool				EquipItem(Object* object);
 		bool				unEquipItem(Object* object);
@@ -97,7 +97,7 @@ class EquipManager
 		CreatureObject*		mParent;
 
 		// slot bitmask for fast checks
-		uint32				mEquipSlots;
+		uint64			mEquipSlots;
 
 		// flow control
 		uint32				mEquippedObjectsUpdateCounter;

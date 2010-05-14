@@ -32,7 +32,7 @@ bool EVWeapon::validate(uint32 &reply1, uint32 &reply2, uint64 targetId, uint32 
     // check our equipped weapon
     uint32	weaponGroup = WeaponGroup_Unarmed;
 
-    if(Item* weapon = dynamic_cast<Item*>(creature->getEquipManager()->getEquippedObject(CreatureEquipSlot_Weapon)))
+    if(Item* weapon = dynamic_cast<Item*>(creature->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Both)))
     {
         // could be an instrument
         if(weapon->getItemFamily() == ItemFamily_Weapon)

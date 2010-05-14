@@ -28,6 +28,7 @@ class QTRegion : public RegionObject
 		virtual ~QTRegion();
 
 		void		initTree();
+		bool		checkPlayerPosition(float x, float y);
 
 		QuadTree*	mTree;
 

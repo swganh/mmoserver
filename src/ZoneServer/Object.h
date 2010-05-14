@@ -148,7 +148,7 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 		bool						hasInternalAttribute(string key);
 		void						removeInternalAttribute(string key);
 
-		// subzone
+		// subzone this isused by spqwnregions - get it out there
 		uint32						getSubZoneId() const { return mSubZoneId; }
 		void						setSubZoneId(uint32 id){ mSubZoneId = id; }
 

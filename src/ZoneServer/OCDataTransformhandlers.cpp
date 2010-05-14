@@ -66,7 +66,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 	inMoveCount = message->getUint32();
 
 	// gLogger->logMsg("ObjectController::handleDataTransform");
-	//uint64 localTimeStart = Anh_Utils::Clock::getSingleton()->getLocalTime();
+	uint64 localTimeStart = Anh_Utils::Clock::getSingleton()->getLocalTime();
 
 	// only process if its in sequence
 	if(player->getInMoveCount() >= inMoveCount)
@@ -81,14 +81,6 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 
 	player->setInMoveCount(inMoveCount);
 
-	if(player->checkIfMounted() && player->getMount())
-	{
-		//Player is mounted lets update his mount too
-		player->getMount()->setLastMoveTick(tickCount);
-		//player->getMount()->setInMoveCount((inMoveCount+1));
-		player->getMount()->setInMoveCount((inMoveCount)); // + 1 or nor does not matter, as long as we update inMoveCount.
-	}
-
 
 	// get new direction, position and speed
 	dir.x = message->getFloat();
@@ -101,17 +93,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 	pos.z = message->getFloat();
 	speed  = message->getFloat();
 
-	// gLogger->logMsgF("Position outside = %.2f, %.2f, %.2f",MSG_NORMAL, pos.x,  pos.y, pos.z);
-	/*
-	if (Heightmap::isHeightmapCacheAvaliable())
-	{
-	gLogger->logMsgF("Heightmap value = %.2f",MSG_NORMAL, Heightmap::Instance()->getCachedHeightAt2DPosition(pos.x, pos.z));
-	}
-	*/
-
-	// gLogger->logMsgF("Direction = %f, %f, %f, %f",MSG_NORMAL, dir.x, dir.y, dir.z, dir.w);
-
-	// stop entertaining, if we were
+	// stop entertaining ???
 	// important is, that if we move we change our posture to NOT skill animating anymore!
 	// so only stop entertaining when we are performing and NOT skillanimationg
 	if(player->getPerformingState() != PlayerPerformance_None && player->getPosture() != CreaturePosture_SkillAnimating)
@@ -149,6 +131,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 		if(QTRegion* newRegion = mSI->getQTRegion((double)pos.x,(double)pos.z))
 		{
 			player->setSubZoneId((uint32)newRegion->getId());
+			player->setSubZone(newRegion);
 			newRegion->mTree->addObject(player);
 		}
 		else
@@ -171,58 +154,63 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 			player->getTutorial()->setCellId(0);
 		}
 
+		uint64 localTimeEnd = Anh_Utils::Clock::getSingleton()->getLocalTime();
+		gLogger->logMsgF("Exec time so far : update si after left building :%"PRIu64"",MSG_NORMAL, localTimeEnd - localTimeStart);
 	}
 	else //we are not in a building
 	{
-		// we should be in a qt at this point
-		// get the qt of the new position
+		// we should be in a qt at this point check our qt if we still are inside its bounds
+		// please note, that there is exactly *one* qtregion per planet and qtregions do *not* overlap
+		// so there is no need to search the region everytime even if we should decide to add more qtregions
+		// subzone is NULL however, when we just left a building
+		if(player->getSubZone() && player->getSubZone()->checkPlayerPosition(pos.x, pos.z))
+		{
+			// this also updates the players position
+			player->getSubZone()->mTree->updateObject(player,pos);
+			//If our player is mounted lets update his mount aswell
+			if(player->checkIfMounted() && player->getMount())
+			{
+				player->getSubZone()->mTree->updateObject(player->getMount(),pos);
+			}
+		}
+		else
+		//do an intersectsWithQuery of objects in the si to find our new region -
+		//CAVE shouldnt it be a contains query ?
+		//what do we do if several regions overlap ?
 		if(QTRegion* newRegion = mSI->getQTRegion((double)pos.x,(double)pos.z))
 		{
-			// we didnt change so update the old one
-			if((uint32)newRegion->getId() == player->getSubZoneId())
+			updateAll = true;
+
+			gLogger->logMsg("ObjController::DataTransform: Changing subzone");
+			// remove from old
+			if(QTRegion* oldRegion = player->getSubZone())
 			{
-				// this also updates the players position
-				newRegion->mTree->updateObject(player,pos);
+				oldRegion->mTree->removeObject(player);
 				//If our player is mounted lets update his mount aswell
 				if(player->checkIfMounted() && player->getMount())
 				{
-					newRegion->mTree->updateObject(player->getMount(),pos);
+					oldRegion->mTree->removeObject(player->getMount());
 				}
 			}
-			else
+
+			// update players position
+			player->mPosition = pos;
+			//If our player is mounted lets update his mount aswell
+			if(player->checkIfMounted() && player->getMount())
 			{
-				updateAll = true;
+				player->getMount()->mPosition = pos;
+			}
 
-				gLogger->logMsg("ObjController::DataTransform: Changing subzone");
-				// remove from old
-				if(QTRegion* oldRegion = gWorldManager->getQTRegion(player->getSubZoneId()))
-				{
-					oldRegion->mTree->removeObject(player);
-					//If our player is mounted lets update his mount aswell
-					if(player->checkIfMounted() && player->getMount())
-					{
-						oldRegion->mTree->removeObject(player->getMount());
-					}
-				}
+			// put into new
+			player->setSubZoneId((uint32)newRegion->getId());
+			player->setSubZone(newRegion);
 
-				// update players position
-				player->mPosition = pos;
-				//If our player is mounted lets update his mount aswell
-				if(player->checkIfMounted() && player->getMount())
-				{
-					player->getMount()->mPosition = pos;
-				}
-
-				// put into new
-				player->setSubZoneId((uint32)newRegion->getId());
-				newRegion->mTree->addObject(player);
-				//If our player is mounted lets update his mount aswell
-				if(player->checkIfMounted() && player->getMount())
-				{
-					player->getMount()->setSubZoneId((uint32)newRegion->getId());
-					newRegion->mTree->addObject(player->getMount());
-				}
-
+			newRegion->mTree->addObject(player);
+			//If our player is mounted lets update his mount aswell
+			if(player->checkIfMounted() && player->getMount())
+			{
+				player->getMount()->setSubZoneId((uint32)newRegion->getId());
+				newRegion->mTree->addObject(player->getMount());
 			}
 		}
 		else
@@ -245,14 +233,6 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 
 	player->mDirection = dir;
 	player->setCurrentSpeed(speed);
-
-	//If our player is mounted lets update his mount aswell
-	if(player->checkIfMounted() && player->getMount())
-	{
-		player->getMount()->mDirection = dir;
-		player->getMount()->setCurrentSpeed(speed);
-	}
-
 
 	// destroy the instanced instrument if out of range
 	if (player->getPlacedInstrumentId())
@@ -296,7 +276,13 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 			if(player->checkIfMounted() && player->getMount())
 			{
 				//gMessageLib->sendDataTransform(player->getMount());
+				player->getMount()->mDirection = dir;
+				player->getMount()->setCurrentSpeed(speed);
+				player->getMount()->setLastMoveTick(tickCount);
+				player->getMount()->setInMoveCount((inMoveCount)); // + 1 or nor does not matter, as long as we update inMoveCount.
 				gMessageLib->sendUpdateTransformMessage(player->getMount());
+	
+	
 			}
 			else
 			{
@@ -318,8 +304,8 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 		}
 	}
 
-	 //uint64 localTimeEnd = Anh_Utils::Clock::getSingleton()->getLocalTime();
-	 //gLogger->logMsgF("Exec time :%"PRId32"",MSG_NORMAL, localTimeEnd - localTimeStart);
+	 uint64 localTimeEnd = Anh_Utils::Clock::getSingleton()->getLocalTime();
+	 gLogger->logMsgF("Exec time :%"PRIu64"",MSG_NORMAL, localTimeEnd - localTimeStart);
 }
 
 //=============================================================================
@@ -338,6 +324,9 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 	uint64			parentId;
 	float			speed;
 	bool			updateAll = false;
+
+	gLogger->logMsg("ObjectController::handleDataTransformWithParent");
+	uint64 localTimeStart = Anh_Utils::Clock::getSingleton()->getLocalTime();
 
 	// get tick and move counters
 	tickCount	= message->getUint32();
@@ -378,9 +367,6 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 		// if we changed cell
 		if (oldParentId != parentId)
 		{
-
-			
-
 			CellObject* cell = NULL;
 
 			// gLogger->logMsgF("We changed cell from (%"PRIu64") to (%"PRIu64")",MSG_NORMAL, oldParentId, parentId);
@@ -411,6 +397,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 				{
 					if(QTRegion* region = gWorldManager->getQTRegion(player->getSubZoneId()))
 					{
+						player->setSubZone(NULL);
 						player->setSubZoneId(0);
 						region->mTree->removeObject(player);
 						//If our player is mounted lets update his mount aswell
@@ -508,6 +495,9 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 			}
 		}
 	}
+	
+	uint64 localTimeEnd = Anh_Utils::Clock::getSingleton()->getLocalTime();
+	gLogger->logMsgF("Exec time :%"PRIu64"",MSG_NORMAL, localTimeEnd - localTimeStart);
 }
 
 

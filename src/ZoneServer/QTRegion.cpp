@@ -47,5 +47,19 @@ void QTRegion::initTree()
 	mTree = new QuadTree(mPosition.x,mPosition.z,mWidth,mHeight,mQTDepth);
 }
 
+//==============================================================================
+//
+//returns true when the player is inside us
+//
+bool QTRegion::checkPlayerPosition(float x, float z)
+{
+	if(mPosition.x + getWidth() > x)
+		if(mPosition.z + getHeight() > z)
+			return true;
+
+	return false;
+	
+}
+
 //=============================================================================
 

@@ -311,7 +311,7 @@ void MessageLib::sendUpdateTransformMessage(MovingObject* object)
 	mMessageFactory->addUint32(object->getInMoveCount()); 
 
     mMessageFactory->addUint8(static_cast<uint8>(glm::length(object->mPosition) * 4.0f + 0.5f));
-    mMessageFactory->addUint8(static_cast<uint8>(glm::gtx::quaternion::angle(object->mDirection) / 0.0625f)); 
+    mMessageFactory->addUint8(static_cast<uint8>(object->rotation_angle() / 0.0625f)); 
 
 	_sendToInRangeUnreliable(mMessageFactory->EndMessage(),object,8,true);
 }
@@ -337,7 +337,7 @@ void MessageLib::sendUpdateTransformMessageWithParent(MovingObject* object)
 	mMessageFactory->addUint32(object->getInMoveCount()); 
             
     mMessageFactory->addUint8(static_cast<uint8>(glm::length(object->mPosition) * 8.0f + 0.5f));
-    mMessageFactory->addUint8(static_cast<uint8>(glm::gtx::quaternion::angle(object->mDirection) / 0.0625f)); 
+    mMessageFactory->addUint8(static_cast<uint8>(object->rotation_angle() / 0.0625f)); 
 
 	_sendToInRangeUnreliable(mMessageFactory->EndMessage(),object,8);		
 }
@@ -362,7 +362,7 @@ void MessageLib::sendUpdateTransformMessage(MovingObject* object, PlayerObject* 
 	mMessageFactory->addUint32(object->getInMoveCount()); 
             
     mMessageFactory->addUint8(static_cast<uint8>(glm::length(object->mPosition) * 4.0f + 0.5f));
-    mMessageFactory->addUint8(static_cast<uint8>(glm::gtx::quaternion::angle(object->mDirection) / 0.0625f)); 
+    mMessageFactory->addUint8(static_cast<uint8>(object->rotation_angle() / 0.0625f)); 
 
 	_sendToInstancedPlayersUnreliable(mMessageFactory->EndMessage(), 8, player);
 }
@@ -388,7 +388,7 @@ void MessageLib::sendUpdateTransformMessageWithParent(MovingObject* object, Play
 	mMessageFactory->addUint32(object->getInMoveCount()); 
             
     mMessageFactory->addUint8(static_cast<uint8>(glm::length(object->mPosition) * 8.0f + 0.5f));
-    mMessageFactory->addUint8(static_cast<uint8>(glm::gtx::quaternion::angle(object->mDirection) / 0.0625f)); 
+    mMessageFactory->addUint8(static_cast<uint8>(object->rotation_angle() / 0.0625f)); 
 
 	_sendToInstancedPlayersUnreliable(mMessageFactory->EndMessage(), 8, player);
 }

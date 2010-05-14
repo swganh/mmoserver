@@ -230,6 +230,13 @@ class Object : public UICallback, public Anh_Utils::EventHandler
         void moveBack(float distance);
 
 
+        /*! Determins the angle used by update transform messages for rotation.
+         *
+         * \returns Current rotation angle.
+         */
+        float rotation_angle() const;
+
+
         glm::quat   mDirection;
         glm::vec3   mPosition;
 		//Anh_Math::Quaternion	mDirection;

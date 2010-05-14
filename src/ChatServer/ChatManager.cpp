@@ -57,13 +57,13 @@ mMessageDispatch(dispatch)
 	ChatAsyncContainer* asyncContainer = new ChatAsyncContainer(ChatQuery_GalaxyName);
 	// Commented out the filter for now, at a later time this needs to be updated to not be bound to a single galaxy
 	// mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT name FROM galaxy;"); // WHERE galaxy_id=3");
-	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT name FROM galaxy WHERE galaxy_id=2");
+	mDatabase->ExecuteProcedureAsync(this,asyncContainer,"CALL swganh.sp_ReturnGalaxyName(2);");
 
 	asyncContainer = new ChatAsyncContainer(ChatQuery_Channels);
-	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT chat_channels.id,chat_channels.name,chat_channels.private,chat_channels.moderated,chat_channels.creator, chat_channels.owner, chat_channels.title FROM chat_channels;");
+	mDatabase->ExecuteProcedureAsync(this,asyncContainer,"CALL swganh.sp_ReturnChatChannels;");
 
 	asyncContainer = new ChatAsyncContainer(ChatQuery_PlanetNames);
-	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT planet.name FROM planet ORDER BY planet.planet_id;");
+	mDatabase->ExecuteProcedureAsync(this,asyncContainer,"CALL swganh.sp_ReturnChatPlanetNames;");
 }
 
 //======================================================================================================================
@@ -203,9 +203,9 @@ void ChatManager::_loadChannels(DatabaseResult* result)
 		bannedContainer->mChannel = channel;
 		inviteContainer->mChannel = channel;
 
-		mDatabase->ExecuteSqlAsync(this, modContainer, "SELECT char_name FROM chat_channels_moderators WHERE channel_id = %u", channel->getId());
-		mDatabase->ExecuteSqlAsync(this, bannedContainer, "SELECT char_name FROM chat_channels_banned WHERE channel_id = %u", channel->getId());
-		mDatabase->ExecuteSqlAsync(this, inviteContainer, "SELECT char_name FROM chat_channels_invited WHERE channel_id = %u", channel->getId());
+		mDatabase->ExecuteProcedureAsync(this, modContainer, "CALL swganh.sp_ReturnChatChannelMod(%u);", channel->getId());
+		mDatabase->ExecuteProcedureAsync(this, bannedContainer, "CALL swganh.sp_ReturnChatChannelBan(%u);", channel->getId());
+		mDatabase->ExecuteProcedureAsync(this, inviteContainer, "CALL swganh.sp_ReturnChatChannelInvite(%u);", channel->getId());
 	}
 }
 
@@ -442,9 +442,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				asContainer->mClient = asyncContainer->mClient;
 				asContainer->mReceiver	= player;
 
-				mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT characters.firstname FROM chat_friendlist "
-															"INNER JOIN characters ON (chat_friendlist.friend_id = characters.id) "
-															"WHERE (chat_friendlist.character_id = %"PRIu64")",asContainer->mReceiver->getCharId());
+				mDatabase->ExecuteProcedureAsync(this,asContainer,"CALL swganh.sp_ReturnChatFriendlist(%"PRIu64");",asContainer->mReceiver->getCharId());
 			}
 			else
 				gLogger->logMsgF("Could not find account %u",MSG_NORMAL,asyncContainer->mClient->getAccountId());
@@ -549,9 +547,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			asContainer->mMailCounter = asyncContainer->mMailCounter;
 			asContainer->mReceiverId = asyncContainer->mReceiverId;
 
-			mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT characters.firstname FROM chat_ignorelist "
-														"INNER JOIN characters ON (chat_ignorelist.ignore_id = characters.id) "
-														"WHERE (chat_ignorelist.character_id = %"PRIu64")",asyncContainer->mReceiverId);
+			mDatabase->ExecuteProcedureAsync(this,asContainer,"CALL swganh.sp_ReturnChatIgnoreList(%"PRIu64");",asyncContainer->mReceiverId);
 			mDatabase->DestroyDataBinding(binding);
 		}
 		break;
@@ -710,9 +706,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			asContainer->mClient	= asyncContainer->mClient;
 			asContainer->mReceiver	= asyncContainer->mReceiver;
 
-			mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT characters.firstname FROM chat_ignorelist "
-														"INNER JOIN characters ON (chat_ignorelist.ignore_id = characters.id) "
-														"WHERE (chat_ignorelist.character_id = %"PRIu64")",asContainer->mReceiver->getCharId());
+			mDatabase->ExecuteProcedureAsync(this,asContainer,"CALL swganh.sp_ReturnChatIgnorelist(%"PRIu64");",asContainer->mReceiver->getCharId());
 		}
 		break;
 
@@ -742,9 +736,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 			Player* currentPlayer = getPlayerByAccId(asyncContainer->mClient->getAccountId());
 
-			mDatabase->ExecuteSqlAsync(this, asContainer,"SELECT channel_id"
-											" FROM chat_char_channels"
-											" WHERE	(character_id = %"PRIu64")", currentPlayer->getCharId());
+			mDatabase->ExecuteProcedureAsync(this, asContainer,"CALL swganh.sp_ReturnChatCharChannels(%"PRIu64");", currentPlayer->getCharId());
 
 		}
 		break;
@@ -959,7 +951,7 @@ void ChatManager::_processClusterClientConnect(Message* message,DispatchClient* 
 	ChatAsyncContainer* asyncContainer = new ChatAsyncContainer(ChatQuery_Player);
 	asyncContainer->mClient = client;
 
-	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT firstname,lastname FROM characters WHERE id=%"PRIu64"",charId);
+	mDatabase->ExecuteProcedureAsync(this,asyncContainer,"CALL swganh.sp_ReturnCharacterName(%"PRIu64")",charId);
 
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opChatOnConnectAvatar);
@@ -1130,9 +1122,7 @@ void ChatManager::_processWhenLoaded(Message* message,DispatchClient* client)
 				// Update friends list
 				updateFriendsOnline(asContainer->mReceiver,true);
 
-				mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT chat_mail.id,chat_mail.from,chat_mail.subject,chat_mail.status,chat_mail.time"
-															" FROM chat_mail"
-															" WHERE	(chat_mail.to = %"PRIu64")",asContainer->mReceiver->getCharId());
+				mDatabase->ExecuteProcedureAsync(this,asContainer,"CALL swganh.sp_ReturnChatMailHeaders(%"PRIu64");",asContainer->mReceiver->getCharId());
 			}
 		}
 		GroupObject* group = gGroupManager->getGroupById(player->getGroupId());
@@ -2626,11 +2616,9 @@ void ChatManager::_processRequestPersistentMessage(Message* message,DispatchClie
 	asyncContainer->mRequestId = dbMailId;
 
 	int8 sql[256];
-	sprintf(sql,"SELECT chat_mail.id,chat_mail.from,chat_mail.subject,chat_mail.body,chat_mail.time,chat_mail.attachments,chat_mail.attachmentSize"
-				" FROM chat_mail"
-				" WHERE	(chat_mail.id = %"PRIu32")",dbMailId);
+	sprintf(sql,"CALL swganh.sp_ReturnChatMailById(%"PRIu32");",dbMailId);
 
-	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
+	mDatabase->ExecuteProcedureAsync(this,asyncContainer,sql);
 }
 
 //======================================================================================================================

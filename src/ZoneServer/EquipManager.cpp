@@ -98,11 +98,11 @@ uint8 EquipManager::removeEquippedObject(Object* object)
 // remove object(s) from the slotmask given
 //
 
-uint8 EquipManager::removeEquippedObject(uint32 slotMask)
+uint8 EquipManager::removeEquippedObject(uint64 slotMask)
 {
 	uint8 occurance = 0;
 
-	for(uint32 slot = 1; slot < CREATURE_MAX_SLOT;slot = slot << 1)
+	for(uint64 slot = 1; slot < CREATURE_MAX_SLOT;slot = slot << 1)
 	{
 		if((slotMask & slot) == slot)
 		{
@@ -178,13 +178,13 @@ bool EquipManager::addEquippedObject(Object* object)
 // add an object manually to the slots given, remove objects with slot conflicts
 //
 
-uint8 EquipManager::addEquippedObject(uint32 slotMask,Object* object)
+uint8 EquipManager::addEquippedObject(uint64 slotMask,Object* object)
 {
 	SlotMap::iterator	it;
 	ObjectSlotMap::iterator ot;
 	uint8			occurance = 0;
 
-	for(uint32 slot = 1; slot < CREATURE_MAX_SLOT;slot = slot << 1)
+	for(uint64 slot = 1; slot < CREATURE_MAX_SLOT;slot = slot << 1)
 	{
 		if((slotMask & slot) == slot)
 		{
@@ -218,14 +218,14 @@ uint8 EquipManager::addEquippedObject(uint32 slotMask,Object* object)
 bool EquipManager::equipDefaultWeapon()
 {
 	// make sure slot is empty
-	if(getEquippedObject(CreatureEquipSlot_Weapon))
+	if(getEquippedObject(CreatureEquipSlot_Hold_Both))
 	{
 		return(false);
 		//removeEquippedObject(CreatureEquipSlot_Weapon);
 	}
 
 	// equip the default weapon
-	addEquippedObject(CreatureEquipSlot_Weapon,mDefaultWeapon);
+	addEquippedObject(CreatureEquipSlot_Hold_Both,mDefaultWeapon);
 	return(true);
 }
 
@@ -323,7 +323,7 @@ bool EquipManager::unEquipItem(Object* object)
 	}
 
 	// if we unequiped our weapon, set the unarmed default weapon
-	if(item->getItemFamily() == ItemFamily_Weapon && (item->getEquipSlotMask() & CreatureEquipSlot_Weapon) == CreatureEquipSlot_Weapon)
+	if(item->getItemFamily() == ItemFamily_Weapon && (item->getEquipSlotMask() & CreatureEquipSlot_Hold_Both) == CreatureEquipSlot_Hold_Both)
 	{
 		equipDefaultWeapon();
 	}

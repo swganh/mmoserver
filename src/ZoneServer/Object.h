@@ -230,7 +230,7 @@ class Object : public UICallback, public Anh_Utils::EventHandler
         void moveBack(float distance);
 
 
-        /*! Determins the angle used by update transform messages for rotation.
+        /*! Determines the angle used by update transform messages for rotation.
          *
          * \returns Current rotation angle.
          */

@@ -179,7 +179,7 @@ void ObjectControllerDispatch::_dispatchMessage(Message* message, DispatchClient
 				{
 					case opOCCurrentTarget:
 					{
-						ObjController->setTarget(message);
+						ObjController->handleSetTarget(message);
 					}
 					break;
 

@@ -174,7 +174,7 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback, 
 		void					clearQueues();
 
 		// target
-		void					setTarget(Message* message);
+		void					handleSetTarget(Message* message);
 
 		// radial request
 		void					handleObjectMenuRequest(Message* message);

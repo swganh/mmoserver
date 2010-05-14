@@ -263,7 +263,7 @@ void ObjectController::_handlePeace(uint64 targetId,Message* message,ObjectContr
 // set target
 //
 
-void ObjectController::setTarget(Message* message)
+void ObjectController::handleSetTarget(Message* message)
 {
 	CreatureObject*  creatureObject = dynamic_cast<CreatureObject*>(mObject);
 

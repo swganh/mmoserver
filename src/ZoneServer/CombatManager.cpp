@@ -331,7 +331,7 @@ bool CombatManager::handleAttack(CreatureObject *attacker, uint64 targetId, Obje
 	CreatureObject* defender = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(targetId));
 
 	// get the current weapon
-	Weapon* weapon = dynamic_cast<Weapon*>(attacker->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Both));
+	Weapon* weapon = dynamic_cast<Weapon*>(attacker->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Left));
 	if (!weapon)
 	{
 		return(false);

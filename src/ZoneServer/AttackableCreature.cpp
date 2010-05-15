@@ -828,10 +828,10 @@ void AttackableCreature::equipPrimaryWeapon(void)
 {
 	if (mPrimaryWeapon)
 	{
-		this->mEquipManager.removeEquippedObject(CreatureEquipSlot_Hold_Both);
+		this->mEquipManager.removeEquippedObject(CreatureEquipSlot_Hold_Left);
 
 		// if (!this->getEquipManager()->addEquippedObject(mPrimaryWeapon))
-		if (this->mEquipManager.addEquippedObject(CreatureEquipSlot_Hold_Both, mPrimaryWeapon))
+		if (this->mEquipManager.addEquippedObject(CreatureEquipSlot_Hold_Left, mPrimaryWeapon))
 		{
 			mPrimaryWeapon->setParentId(this->getId());
 			gMessageLib->sendEquippedListUpdate_InRange(this);
@@ -870,7 +870,7 @@ void AttackableCreature::equipSecondaryWeapon(void)
 {
 	if (mSecondaryWeapon)
 	{
-		if (this->mEquipManager.addEquippedObject(CreatureEquipSlot_Hold_Both, mSecondaryWeapon))
+		if (this->mEquipManager.addEquippedObject(CreatureEquipSlot_Hold_Left, mSecondaryWeapon))
 		{
 			gMessageLib->sendEquippedListUpdate_InRange(this);
 			gMessageLib->sendWeaponIdUpdate(this);
@@ -884,10 +884,10 @@ void AttackableCreature::equipSecondaryWeapon(void)
 
 void AttackableCreature::unequipWeapon(void)
 {
-	Weapon* weapon = dynamic_cast<Weapon*>(this->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Both));
+	Weapon* weapon = dynamic_cast<Weapon*>(this->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Left));
 	if (weapon)
 	{
-		this->mEquipManager.removeEquippedObject(CreatureEquipSlot_Hold_Both);
+		this->mEquipManager.removeEquippedObject(CreatureEquipSlot_Hold_Left);
 
 		gMessageLib->sendContainmentMessage_InRange(weapon->getId(), this->getId(), 0xffffffff, this);
 		gMessageLib->sendDestroyObject(weapon->getId(), this);
@@ -906,7 +906,7 @@ void AttackableCreature::unequipWeapon(void)
 	}
 
 	// if weapon slot is empty, equip the unarmed default weapon
-	if (!this->mEquipManager.getEquippedObject(CreatureEquipSlot_Hold_Both))
+	if (!this->mEquipManager.getEquippedObject(CreatureEquipSlot_Hold_Left))
 	{
 		// gLogger->logMsg("equip default weapon");
 		this->mEquipManager.equipDefaultWeapon();

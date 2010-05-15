@@ -957,7 +957,7 @@ void MessageLib::sendCombatAction(CreatureObject* attacker,Object* defender,uint
 	mMessageFactory->addUint32(animation);
 	mMessageFactory->addUint64(attacker->getId());
 
-	if(Weapon* weapon = dynamic_cast<Weapon*>(attacker->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Both)))
+	if(Weapon* weapon = dynamic_cast<Weapon*>(attacker->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Left)))
 	{
 		mMessageFactory->addUint64(weapon->getId());
 	}

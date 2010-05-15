@@ -755,7 +755,6 @@
     <ClCompile Include="VehicleControllerFactory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ActiveConversation.h">
@@ -1446,6 +1445,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="VehicleControllerFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GroupManagerCallback.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GroupManagerCallbackContainer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

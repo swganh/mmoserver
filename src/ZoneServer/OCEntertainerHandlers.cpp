@@ -594,27 +594,8 @@ void ObjectController::_handlestartmusic(uint64 targetId,Message* message,Object
 void ObjectController::_handleStopBand(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
 	PlayerObject*	performer	= dynamic_cast<PlayerObject*>(mObject);
-	bool music = false;
 
-	PlayerList members;
-	members = performer->getInRangeGroupMembers(true);
-	PlayerList::iterator memberIt = members.begin();
-	while(memberIt != members.end())
-	{
-		//check if we are performing
-		if((*memberIt)->getPerformingState() != PlayerPerformance_None)
-		{
-			music = true;
-			gEntertainerManager->stopEntertaining((*memberIt));
-
-			if((*memberIt) != performer)
-				gMessageLib->sendSystemMessage((*memberIt),L"","performance","music_stop_band_members","","",L"",0,"","",L"",0,0,performer->getId());
-
-		}
-		memberIt++;
-	}
-	if(music)
-			gMessageLib->sendSystemMessage(performer,L"","performance","music_stop_band_self");
+	gEntertainerManager->StopBand(performer);
 }
 
 //======================================================================================================================
@@ -627,7 +608,7 @@ void ObjectController::_handleStartBand(uint64 targetId,Message* message,ObjectC
 
 	if(performer->checkStatesEither(CreatureState_Combat | CreatureState_Tumbling | CreatureState_Swimming))
 	{
-		gMessageLib->sendSystemMessage(performer,L"You cannot do this at this time.");
+		gMessageLib->sendSystemMessage(performer,L"You cannot do that in your current state.");
 		return;
 	}
 
@@ -645,128 +626,12 @@ void ObjectController::_handleStartBand(uint64 targetId,Message* message,ObjectC
 
 	}
 
-	PlayerList members;
-
-	members = performer->getInRangeGroupMembers(true);
-	bool music = true;
-
 	//get song
 	string dataStr;
 	message->getStringUnicode16(dataStr);
 	dataStr.convert(BSTRType_ANSI);
 
-	//check if this is a valid song we - as bandleader - can perform.
-	//then pass it to the band
-	//otherwise open listbox to check
-
-	SkillCommandList*	entertainerSkillCommands = performer->getSkillCommands();
-	SkillCommandList::iterator entertainerIt = entertainerSkillCommands->begin();
-
-	int8 musicStr[32];
-	sprintf(musicStr,"startmusic+%s",dataStr.getAnsi());
-
-	//check if we can perform the song
-	bool found = false;
-	if(dataStr.getLength() >0 )
-	{
-		//check if we are able to perform this piece of music
-		while(entertainerIt != entertainerSkillCommands->end())
-		{
-			string mEntertainerString = gSkillManager->getSkillCmdById((*entertainerIt));
-			//look for our selected dance
-			if(BString(musicStr).getCrc() == mEntertainerString.getCrc() )
-			{
-				//yay we are able to perform this dance :)
-				found = true;
-			}
-			entertainerIt++;
-		}
-	}
-
-	if (found == false)
-	{
-		//gMessageLib->sendSystemMessage(performer,L"","performance","music_invalid_song");
-		//however we might be able to squeeze the dancers in
-		music = false;
-		SkillCommandList::iterator entertainerIt = entertainerSkillCommands->begin();
-		sprintf(musicStr,"startdance+%s",dataStr.getAnsi());
-
-		//check if we can perform the dance
-		found = false;
-		if(dataStr.getLength() >0 )
-		{
-			//check if we are able to perform this piece of dance
-			while(entertainerIt != entertainerSkillCommands->end())
-			{
-				string mEntertainerString = gSkillManager->getSkillCmdById((*entertainerIt));
-				//look for our selected dance
-				if(BString(musicStr).getCrc() == mEntertainerString.getCrc() )
-				{
-					//yay we are able to perform this dance :)
-					found = true;
-				}
-				entertainerIt++;
-			}
-		}
-
-
-	}
-
-	if (found == false)
-	{
-		gMessageLib->sendSystemMessage(performer,L"","performance","music_invalid_song");
-		return;
-	}
-
-	//iterate through every groupmember and invoke starband on the EntertainerManager who will check if the song
-	//is playable by the bandmember
-
-	//check if anybody is still playing
-	bool playCheck = true;
-
-	PlayerList::iterator memberIt = members.begin();
-	while(memberIt != members.end())
-	{
-		//check if we are performing
-		if((*memberIt)->getPerformingState() != PlayerPerformance_None)
-		{
-			playCheck = false;
-		}
-		memberIt++;
-	}
-
-	if(!playCheck)
-	{
-		gMessageLib->sendSystemMessage(performer,L"","performance","music_still_playing");
-		return;
-	}
-
-	bool skillCheck = true;
-	memberIt = members.begin();
-	while(memberIt != members.end())
-	{
-		//check if we are performing
-		if(((*memberIt)->getPerformingState() == PlayerPerformance_None)&&((*memberIt)->getConnectionState() == PlayerConnState_Connected))
-		{
-			if(music)
-			{
-				if(!gEntertainerManager->handleStartBandIndividual((*memberIt),dataStr))
-					skillCheck = false;
-			}
-			else
-			{
-				if(!gEntertainerManager->handleStartBandDanceIndividual((*memberIt),dataStr))
-					skillCheck = false;
-			}
-		}
-
-		memberIt++;
-	}
-
-	if (!skillCheck)
-	{
-		gMessageLib->sendSystemMessage(performer,L"","performance","music_lack_skill_band_member");
-	}
+	gEntertainerManager->StartBand(performer, dataStr);
 }
 
 //======================================================================================================================
@@ -793,33 +658,17 @@ void ObjectController::_handleBandFlourish(uint64 targetId,Message* message,Obje
 	message->getStringUnicode16(dataStr);
 	//dataStr.convert(BSTRType_ANSI);
 	//printf(" flourish : %s",dataStr.getAnsi());
-	uint32 mFlourishId;
-	swscanf(dataStr.getUnicode16(),L"%u",&mFlourishId);
 
-	if((mFlourishId < 1)||(mFlourishId > flourishMax))
+	uint32 FlourishId;
+	swscanf(dataStr.getUnicode16(),L"%u",&FlourishId);
+
+	if((FlourishId < 1)||(FlourishId > flourishMax))
 	{
 		gMessageLib->sendSystemMessage(entertainer,L"","performance","flourish_not_valid");
 		return;
 	}
 
-	//give notice
-	gMessageLib->sendSystemMessage(entertainer,L"","performance","flourish_perform_band_self");
-
-	PlayerList members;
-	members = entertainer->getInRangeGroupMembers(true);
-	PlayerList::iterator memberIt = members.begin();
-	while(memberIt != members.end())
-	{
-		//check if we are performing
-		if((*memberIt)->getPerformingState() != PlayerPerformance_None)
-		{
-			//give notice
-			gMessageLib->sendSystemMessage((*memberIt),L"","performance","flourish_perform_band_member","","",L"",0,"","",L"",entertainer->getId());
-			gEntertainerManager->flourish((*memberIt),mFlourishId);
-
-		}
-		memberIt++;
-	}
+	gEntertainerManager->BandFlourish(entertainer, FlourishId);
 }
 
 //=============================================================================================================================

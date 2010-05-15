@@ -268,3 +268,17 @@ void MessageLib::sendTutorialServerStatusRequest(DispatchClient* client, uint64 
 
 	client->SendChannelA(mMessageFactory->EndMessage(), accountID, CR_Connection, 5);
 }
+
+void MessageLib::sendGroupLeaderRequest(PlayerObject* sender, uint64 requestId, uint32 operation, uint64 groupId)
+{
+	mMessageFactory->StartMessage();
+
+	mMessageFactory->addUint32(opIsmIsGroupLeaderRequest);
+	mMessageFactory->addUint64(requestId);
+	mMessageFactory->addUint64(sender->getId());
+	mMessageFactory->addUint64(groupId);
+	mMessageFactory->addUint32(operation);
+
+	sender->getClient()->SendChannelA(mMessageFactory->EndMessage(), sender->getAccountId(), CR_Chat, 3);
+	
+}

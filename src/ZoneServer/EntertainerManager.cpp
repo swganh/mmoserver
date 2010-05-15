@@ -10,6 +10,9 @@ Copyright (c) 2006 - 2010 The swgANH Team
 */
 
 #include "EntertainerManager.h"
+#include "GroupManager.h"
+#include "GroupManagerCallbackContainer.h"
+
 
 #include "Buff.h"
 #include "Instrument.h"
@@ -113,6 +116,55 @@ bool	EntertainerManager::checkAudience(PlayerObject* entertainer,CreatureObject*
 		++it;
 	}
 	return false;
+}
+
+void EntertainerManager::handleGroupManagerCallback(uint64 playerId, GroupManagerCallbackContainer* container)
+{
+	PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId));
+
+	bool notLeader = true;
+
+	if(player)
+	{
+		switch(container->operation)
+		{
+			case GROUPMANAGERCALLBACK_STARTBAND: //Start Band
+			{
+				if(container->isLeader)
+					_handleCompleteStartBand(player, container->arg);
+				else
+					notLeader = false;
+			}
+			break;
+
+			case GROUPMANAGERCALLBACK_STOPBAND: //Stop Band
+			{
+				if(container->isLeader)
+					_handleCompleteStopBand(player);
+				else
+					notLeader = false;
+			}
+			break;
+
+			case GROUPMANAGERCALLBACK_BANDFLOURISH: //Band Flourish
+			{
+				if(container->isLeader)
+					_handleCompleteBandFlourish(player, container->flourishId);
+				else
+					notLeader = false;
+			}
+			break;
+		}
+	}
+
+	if(!notLeader)
+	{
+		//You cannot do that because you're not the damn Leader...Stupid!
+		PlayerObject* notLeader = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(container->requestingPlayer));
+
+		if(notLeader)
+			gMessageLib->sendSystemMessage(notLeader,L"","group","must_be_leader");
+	}
 }
 
 //======================================================================================================================
@@ -1994,7 +2046,7 @@ void EntertainerManager::playInstrument(PlayerObject* entertainer, Item* instrum
 	uint64	instrumentId	= 0;
 
 	// check if the weapon slot is in use by something else than the unarmed default weapon
-	if(Object* object = entertainer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Both))
+	if(Object* object = entertainer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Left))
 	{
 		if(object != entertainer->getEquipManager()->getDefaultWeapon())
 		{
@@ -2005,7 +2057,7 @@ void EntertainerManager::playInstrument(PlayerObject* entertainer, Item* instrum
 	}
 
 	//check if another instrument is equipped
-	Item* item = dynamic_cast<Item*>(entertainer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Both));
+	Item* item = dynamic_cast<Item*>(entertainer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Left));
 
 	if(item && item->getItemFamily() == ItemFamily_Instrument)
 	{
@@ -2394,7 +2446,7 @@ uint64 EntertainerManager::getInstrument(PlayerObject* entertainer)
 	//need to get the equipped or targeted instrument
 	uint64	instrumentId = 0;
 
-	Item* item = dynamic_cast<Item*>(entertainer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Both));
+	Item* item = dynamic_cast<Item*>(entertainer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Left));
 
 	if(item && item->getItemFamily() == ItemFamily_Instrument)
 	{
@@ -2501,7 +2553,7 @@ bool EntertainerManager::approachInstrument(PlayerObject* entertainer, uint64 in
 			else
 			{
 				// We approach the instrument to the entertainer, if we have it equipped.
-				Item* item = dynamic_cast<Item*>(entertainer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Both));
+				Item* item = dynamic_cast<Item*>(entertainer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Left));
 				if (item && item->getItemFamily() == ItemFamily_Instrument)
 				{
 					if (item->getId() == instrumentId)
@@ -2543,7 +2595,7 @@ void EntertainerManager::handlestartmusic(PlayerObject* entertainer)
 	}
 
 	// check if the weapon slot is in use by something else than the unarmed default weapon
-	if(Object* object = entertainer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Both))
+	if(Object* object = entertainer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Left))
 	{
 		if(object != entertainer->getEquipManager()->getDefaultWeapon())
 		{
@@ -2555,7 +2607,7 @@ void EntertainerManager::handlestartmusic(PlayerObject* entertainer)
 	}
 
 	// check if the instrument slot is in use
-	if(entertainer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Both))
+	if(entertainer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Left))
 	{
 		gMessageLib->sendSystemMessage(entertainer,L"","performance","music_must_unequip");
 
@@ -2722,7 +2774,7 @@ void EntertainerManager::usePlacedInstrument(PlayerObject* entertainer, Item* us
 	if ((usedInstrument->getItemType() == ItemType_Nalargon) || (usedInstrument->getItemType() == ItemType_nalargon_max_reebo) || (usedInstrument->getItemType() == ItemType_omni_box))
 	{
 		// check if another instrument is equipped
-		Item* item = dynamic_cast<Item*>(entertainer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Both));
+		Item* item = dynamic_cast<Item*>(entertainer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Left));
 
 		if (item && item->getItemFamily() == ItemFamily_Instrument)
 		{
@@ -2760,7 +2812,7 @@ void EntertainerManager::playPlacedInstrument(PlayerObject* entertainer)
 	*/
 
 	// check if the weapon slot is in use by something else than the unarmed default weapon
-	if(Object* object = entertainer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Both))
+	if(Object* object = entertainer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Left))
 	{
 		if(object != entertainer->getEquipManager()->getDefaultWeapon())
 		{
@@ -2771,7 +2823,7 @@ void EntertainerManager::playPlacedInstrument(PlayerObject* entertainer)
 	}
 
 	// check if the instrument slot is in use
-	if(entertainer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Both))
+	if(entertainer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Left))
 	{
 		gMessageLib->sendSystemMessage(entertainer,L"","performance","music_must_unequip");
 		return;
@@ -2810,3 +2862,190 @@ void EntertainerManager::playPlacedInstrument(PlayerObject* entertainer)
 	}
 }
 
+void EntertainerManager::StartBand(PlayerObject* player, string songName)
+{
+	gGroupManager->getGroupLeader(player, player->getGroupId(), GROUPMANAGERCALLBACK_STARTBAND, this, songName);
+}
+
+void EntertainerManager::StopBand(PlayerObject* player)
+{
+	gGroupManager->getGroupLeader(player, player->getGroupId(), GROUPMANAGERCALLBACK_STOPBAND, this);
+}
+
+void EntertainerManager::BandFlourish(PlayerObject* player, uint32 flourishId)
+{
+	gGroupManager->getGroupLeader(player, player->getGroupId(), GROUPMANAGERCALLBACK_BANDFLOURISH, this, flourishId);
+}
+
+void EntertainerManager::_handleCompleteStartBand(PlayerObject* performer, string dataStr)
+{
+	PlayerList members;
+
+	members = performer->getInRangeGroupMembers(true);
+	bool music = true;
+
+	//check if this is a valid song we - as bandleader - can perform.
+	//then pass it to the band
+	//otherwise open listbox to check
+
+	SkillCommandList*	entertainerSkillCommands = performer->getSkillCommands();
+	SkillCommandList::iterator entertainerIt = entertainerSkillCommands->begin();
+
+	int8 musicStr[32];
+	sprintf(musicStr,"startmusic+%s",dataStr.getAnsi());
+
+	//check if we can perform the song
+	bool found = false;
+	if(dataStr.getLength() >0 )
+	{
+		//check if we are able to perform this piece of music
+		while(entertainerIt != entertainerSkillCommands->end())
+		{
+			string mEntertainerString = gSkillManager->getSkillCmdById((*entertainerIt));
+			//look for our selected dance
+			if(BString(musicStr).getCrc() == mEntertainerString.getCrc() )
+			{
+				//yay we are able to perform this dance :)
+				found = true;
+			}
+			entertainerIt++;
+		}
+	}
+
+	if (found == false)
+	{
+		//gMessageLib->sendSystemMessage(performer,L"","performance","music_invalid_song");
+		//however we might be able to squeeze the dancers in
+		music = false;
+		SkillCommandList::iterator entertainerIt = entertainerSkillCommands->begin();
+		sprintf(musicStr,"startdance+%s",dataStr.getAnsi());
+
+		//check if we can perform the dance
+		found = false;
+		if(dataStr.getLength() >0 )
+		{
+			//check if we are able to perform this piece of dance
+			while(entertainerIt != entertainerSkillCommands->end())
+			{
+				string mEntertainerString = gSkillManager->getSkillCmdById((*entertainerIt));
+				//look for our selected dance
+				if(BString(musicStr).getCrc() == mEntertainerString.getCrc() )
+				{
+					//yay we are able to perform this dance :)
+					found = true;
+				}
+				entertainerIt++;
+			}
+		}
+
+
+	}
+
+	if (found == false)
+	{
+		gMessageLib->sendSystemMessage(performer,L"","performance","music_invalid_song");
+		return;
+	}
+
+	//iterate through every groupmember and invoke starband on the EntertainerManager who will check if the song
+	//is playable by the bandmember
+
+	//check if anybody is still playing
+	bool playCheck = true;
+
+	PlayerList::iterator memberIt = members.begin();
+	while(memberIt != members.end())
+	{
+		//check if we are performing
+		if((*memberIt)->getPerformingState() != PlayerPerformance_None)
+		{
+			playCheck = false;
+		}
+		memberIt++;
+	}
+
+	if(!playCheck)
+	{
+		gMessageLib->sendSystemMessage(performer,L"","performance","music_still_playing");
+		return;
+	}
+
+	bool skillCheck = true;
+	memberIt = members.begin();
+	while(memberIt != members.end())
+	{
+		//check if we are performing
+		if(((*memberIt)->getPerformingState() == PlayerPerformance_None)&&((*memberIt)->getConnectionState() == PlayerConnState_Connected))
+		{
+			if((*memberIt)->checkSkill(11))//Novice Entertainer
+			{
+				if(music)
+				{
+					if(!handleStartBandIndividual((*memberIt),dataStr))
+						skillCheck = false;
+				}
+				else
+				{
+					if(!handleStartBandDanceIndividual((*memberIt),dataStr))
+						skillCheck = false;
+				}
+			}
+		}
+
+		memberIt++;
+	}
+
+	if (!skillCheck)
+	{
+		gMessageLib->sendSystemMessage(performer,L"","performance","music_lack_skill_band_member");
+	}
+}
+
+
+
+void EntertainerManager::_handleCompleteStopBand(PlayerObject* performer)
+{
+	bool music = false;
+	
+	PlayerList members;
+	members = performer->getInRangeGroupMembers(true);
+	PlayerList::iterator memberIt = members.begin();
+	while(memberIt != members.end())
+	{
+		//check if we are performing
+		if((*memberIt)->getPerformingState() != PlayerPerformance_None)
+		{
+			music = true;
+			gEntertainerManager->stopEntertaining((*memberIt));
+
+			if((*memberIt) != performer)
+				gMessageLib->sendSystemMessage((*memberIt),L"","performance","music_stop_band_members","","",L"",0,"","",L"",0,0,performer->getId());
+
+		}
+		memberIt++;
+	}
+	if(music)
+			gMessageLib->sendSystemMessage(performer,L"","performance","music_stop_band_self");
+}
+
+void EntertainerManager::_handleCompleteBandFlourish(PlayerObject* entertainer, uint32 FlourishId)
+{
+	//give notice
+	gMessageLib->sendSystemMessage(entertainer,L"","performance","flourish_perform_band_self");
+
+	PlayerList members;
+	members = entertainer->getInRangeGroupMembers(true);
+	PlayerList::iterator memberIt = members.begin();
+	while(memberIt != members.end())
+	{
+		//check if we are performing
+		if((*memberIt)->getPerformingState() != PlayerPerformance_None)
+		{
+			//give notice
+			gMessageLib->sendSystemMessage((*memberIt),L"","performance","flourish_perform_band_member","","",L"",0,"","",L"",entertainer->getId());
+			gEntertainerManager->flourish((*memberIt),FlourishId);
+
+		}
+		memberIt++;
+	}
+}

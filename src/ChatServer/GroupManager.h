@@ -62,6 +62,7 @@ public:
 	void				_processGroupLootMasterRequest(Message* message, DispatchClient* client);
 	void				_processGroupLootMasterResponse(Message* message, DispatchClient* client);
 	void				_processIsmInviteInRangeResponse(Message* message, DispatchClient* client);
+	void				_processIsmIsGroupLeaderRequest(Message* message, DispatchClient* client);
 
 private:
 

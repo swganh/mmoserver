@@ -59,6 +59,25 @@ void ChatMessageLib::sendIsmGroupLootMasterResponse(Player* target) const
 	target->getClient()->SendChannelA(newMessage,target->getClient()->getAccountId(),static_cast<uint8>(target->getPlanetId())+8, 3);
 }
 
+void ChatMessageLib::sendIsmIsGroupLeaderResponse(Player* player, uint64 requestId, bool isLeader)
+{
+	gMessageFactory->StartMessage();
+
+	gMessageFactory->addUint32(opIsmIsGroupLeaderResponse);
+
+	gMessageFactory->addUint64(requestId);
+	gMessageFactory->addUint64(player->getCharId()); //Player Id
+
+	if(isLeader)
+		gMessageFactory->addUint8(1);
+	else
+		gMessageFactory->addUint8(0);
+
+	Message* newMessage = gMessageFactory->EndMessage();
+
+	player->getClient()->SendChannelA(newMessage, player->getClient()->getAccountId(), static_cast<uint8>(player->getPlanetId())+8, 3);
+}
+
 //======================================================================================================================
 
 void ChatMessageLib::sendIsmGroupCREO6deltaGroupId(uint64 groupId, Player* target) const

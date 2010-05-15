@@ -18,6 +18,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include "DatabaseManager/DatabaseCallback.h"
 #include "ObjectFactoryCallback.h"
+#include "GroupManagerCallback.h"
 
 #define gEntertainerManager	EntertainerManager::getSingletonPtr()
 
@@ -144,7 +145,7 @@ public:
 
 //======================================================================================================================
 
-class EntertainerManager : public DatabaseCallback, public ObjectFactoryCallback
+class EntertainerManager : public DatabaseCallback, public ObjectFactoryCallback, public GroupManagerCallback
 {
 	friend class ObjectFactory;
 	friend class PlayerObject;
@@ -161,6 +162,7 @@ class EntertainerManager : public DatabaseCallback, public ObjectFactoryCallback
 
 		virtual void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
 		void					handleObjectReady(Object* object,DispatchClient* client);
+		void					handleGroupManagerCallback(uint64 playerId, GroupManagerCallbackContainer* container);
 
 		//=========================================================
 		//=========================================================
@@ -230,6 +232,9 @@ class EntertainerManager : public DatabaseCallback, public ObjectFactoryCallback
 		void					flourish(PlayerObject* entertainer, uint32 mFlourishId);
 		void					entertainInRangeNPCs(PlayerObject* entertainer);
 
+		void					StartBand(PlayerObject* player, string songName);
+		void					StopBand(PlayerObject* player);
+		void					BandFlourish(PlayerObject* player, uint32 flourishId);
 		//=========================================================
 		//=========================================================
 		// Imagedesigner
@@ -249,7 +254,10 @@ class EntertainerManager : public DatabaseCallback, public ObjectFactoryCallback
 		void					playInstrument(PlayerObject* entertainer, Item* instrument);
 		uint64					getInstrument(PlayerObject* entertainer);
 		bool					approachInstrument(PlayerObject* entertainer, uint64 instrumentId);
-
+		
+		void					_handleCompleteStartBand(PlayerObject* performer, string dataStr);
+		void					_handleCompleteStopBand(PlayerObject* performer);
+		void					_handleCompleteBandFlourish(PlayerObject* entertainer, uint32 FlourishId);
 
 
 		static EntertainerManager*	mSingleton;

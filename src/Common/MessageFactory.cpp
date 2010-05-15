@@ -143,10 +143,7 @@ Message* MessageFactory::EndMessage(void)
 	assert(mCurrentMessage && "Must call StartMessage before EndMessage.");
 
   // Do some garbage collection if we can.
-  _processGarbageCollection();
-
-  // Add one more zero byte at the end of the message
-  //addUint8(0);
+  //_processGarbageCollection();
 
   // Just cast the message start
   Message* message = mCurrentMessage;
@@ -158,6 +155,8 @@ Message* MessageFactory::EndMessage(void)
 
   // Zero out our mCurrentMessage so we know we're not working on one.
   mCurrentMessage = 0;
+
+  //adjust heapstart to past our new message
   mHeapStart += message->getSize() + sizeof(Message);
 
   //Update our stats.
@@ -432,21 +431,21 @@ void MessageFactory::_processGarbageCollection(void)
 	//when the oldest Message wont get deleted No other messages get deleted from the heap !!!!!!!!
 
 
-	uint64 timestart, time;
+	uint32 count = 0;
 	bool further = true;
-	//this needs to be precise - use localtime
-	timestart = time = Anh_Utils::Clock::getSingleton()->getLocalTime();
-    while(((time - timestart ) < 1) && further)
+	
+	
+    while((count < 50) && further)
 	{
 		if (mHeapEnd != mHeapStart)
 		{
 			if (message->getPendingDelete())
 			{
 
-				uint32 size = message->getSize();
+				//uint32 size = message->getSize();
 				message->~Message();
-				memset(mHeapEnd, 0xed, size + sizeof(Message));
-				mHeapEnd += size + sizeof(Message);
+				//memset(mHeapEnd, 0xed, size + sizeof(Message));
+				mHeapEnd += message->getSize() + sizeof(Message);
 
 				mMessagesDestroyed++;
 
@@ -480,9 +479,7 @@ void MessageFactory::_processGarbageCollection(void)
 				{
 					gLogger->logMsgF("MessageFactory::_processGarbageCollection : New stuck Message !!! ",MSG_HIGH);
 					gLogger->logMsgF("age : %u ",MSG_HIGH, uint32((Anh_Utils::Clock::getSingleton()->getStoredTime() - message->getCreateTime())/1000));
-					gLogger->logMsgF("Source : %u ",MSG_HIGH, message->mSourceId);
-					gLogger->logMsgF("Path : %u ",MSG_HIGH, message->mPath);
-					
+					gLogger->logMsgF("Source : %u ",MSG_HIGH, message->mSourceId);					
 					
 
 					gLogger->hexDump(message->getData(), message->getSize());
@@ -524,7 +521,6 @@ void MessageFactory::_processGarbageCollection(void)
 					gLogger->logMsgF("MessageFactory::_processGarbageCollection : Old stuck Message !!! ",MSG_HIGH);
 					gLogger->logMsgF("age : %u ",MSG_HIGH, uint32((Anh_Utils::Clock::getSingleton()->getStoredTime() - message->getCreateTime())/1000));
 					gLogger->logMsgF("Source : %u ",MSG_HIGH, message->mSourceId);
-					gLogger->logMsgF("Path : %u ",MSG_HIGH, message->mPath);
 					gLogger->logMsgF("Session status : %u ",MSG_HIGH, session->getStatus());
 					gLogger->hexDump(message->getData(), message->getSize());
 					message->mLogTime  = Anh_Utils::Clock::getSingleton()->getStoredTime();
@@ -562,9 +558,7 @@ void MessageFactory::_processGarbageCollection(void)
 			}
 			else
 				return;
-
-			//we need to be accurate here
-			time = Anh_Utils::Clock::getSingleton()->getLocalTime();
+			
 		}//Heap start != Heapend
 		else
 		{
@@ -572,7 +566,7 @@ void MessageFactory::_processGarbageCollection(void)
 		}
 
 		//we need to be accurate here
-		time = Anh_Utils::Clock::getSingleton()->getLocalTime();
+		count++;
 	}
 
 }

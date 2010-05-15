@@ -244,11 +244,11 @@ void SocketWriteThread::_sendPacket(Packet* packet, Session* session)
 
 
 	// Some basic bounds checking.
-	if(packet->getSize() > mMessageMaxSize)
-	{
-		gLogger->logErrorF("Netcode","packet (%u) is longer than mMessageMaxSize (%u)",MSG_HIGH,packet->getSize(),mMessageMaxSize);
-		return;
-	}
+	//if(packet->getSize() > mMessageMaxSize)
+	//{
+	//	gLogger->logErrorF("Netcode","packet (%u) is longer than mMessageMaxSize (%u)",MSG_HIGH,packet->getSize(),mMessageMaxSize);
+	//	return;
+	//}
 	//assert(packet->getSize() <= mMessageMaxSize);
 
 	// Want a fresh send buffer for debugging purposes.
@@ -270,7 +270,7 @@ void SocketWriteThread::_sendPacket(Packet* packet, Session* session)
 	//gLogger->logMsgF("OnWire, Type:0x%.4x, Session:0x%x%.4x, IP: 0x%.8x, port:%u", MSG_LOW, packetType, session->getService()->getId(), session->getId(), session->getAddress(), ntohs(session->getPort()));
 
 	// Set our TimeSent
-	packet->setTimeSent(Anh_Utils::Clock::getSingleton()->getLocalTime());
+	packet->setTimeSent(Anh_Utils::Clock::getSingleton()->getStoredTime());
 
 	// Setup our to address
 	toAddr.sa_family = AF_INET;
@@ -359,12 +359,6 @@ void SocketWriteThread::_sendPacket(Packet* packet, Session* session)
 	}
 
 	sent = sendto(mSocket, mSendBuffer, outLen, 0, &toAddr, toLen);
-
-	if((outLen > mMessageMaxSize) )
-	  {
-		  gLogger->logMsgF("Cave Wrote Packetsize : %u Max Allowed Size : %u", MSG_HIGH, outLen,mMessageMaxSize);
-		  gLogger->hexDump(mSendBuffer,outLen);
-	  }
 
 	if (sent < 0)
 	{

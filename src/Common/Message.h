@@ -49,7 +49,6 @@ public:
 							  , mLogged(false)
 							  , mLogTime(0)
 							  , mSession(NULL)
-							  , mPath(MP_None)
                               {}
 
   void                        Init(int8* data, uint16 len)      { mData = data; mSize = len; mIndex = 0;}
@@ -117,7 +116,6 @@ public:
   uint16                      getStringUnicode16(BString& data)  { data.initRawBSTR(&mData[mIndex], BSTRType_Unicode16); mIndex += data.getLength() * 2 + 4; return data.getLength(); }
 
   uint8                       mSourceId;
-  MessagePath                 mPath;
   
   bool                        mLogged;
   uint64                      mLogTime;

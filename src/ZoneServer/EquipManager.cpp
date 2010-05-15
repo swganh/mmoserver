@@ -218,14 +218,14 @@ uint8 EquipManager::addEquippedObject(uint64 slotMask,Object* object)
 bool EquipManager::equipDefaultWeapon()
 {
 	// make sure slot is empty
-	if(getEquippedObject(CreatureEquipSlot_Hold_Both))
+	if(getEquippedObject(CreatureEquipSlot_Hold_Left))
 	{
 		return(false);
 		//removeEquippedObject(CreatureEquipSlot_Weapon);
 	}
 
 	// equip the default weapon
-	addEquippedObject(CreatureEquipSlot_Hold_Both,mDefaultWeapon);
+	addEquippedObject(CreatureEquipSlot_Hold_Left,mDefaultWeapon);
 	return(true);
 }
 
@@ -323,7 +323,7 @@ bool EquipManager::unEquipItem(Object* object)
 	}
 
 	// if we unequiped our weapon, set the unarmed default weapon
-	if(item->getItemFamily() == ItemFamily_Weapon && (item->getEquipSlotMask() & CreatureEquipSlot_Hold_Both) == CreatureEquipSlot_Hold_Both)
+	if(item->getItemFamily() == ItemFamily_Weapon && (item->getEquipSlotMask() & CreatureEquipSlot_Hold_Left) == CreatureEquipSlot_Hold_Left)
 	{
 		equipDefaultWeapon();
 	}

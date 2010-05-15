@@ -584,7 +584,7 @@ PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
 	playerWeapon->setParentId(playerObject->mId);
 	playerWeapon->setModelString("object/weapon/melee/unarmed/shared_unarmed_default_player.iff");
 	playerWeapon->setGroup(WeaponGroup_Unarmed);
-	playerWeapon->setEquipSlotMask(CreatureEquipSlot_Hold_Both);
+	playerWeapon->setEquipSlotMask(CreatureEquipSlot_Hold_Left);
 	playerWeapon->addInternalAttribute("weapon_group","1");
 
 	playerObject->mEquipManager.setDefaultWeapon(playerWeapon);
@@ -824,7 +824,7 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
 			gLogger->logMsg("PlayerObjectFactory: Failed removing object from loadmap");
 
 		// if weapon slot is empty, equip the unarmed default weapon
-		if(!playerObject->mEquipManager.getEquippedObject(CreatureEquipSlot_Hold_Both))
+		if(!playerObject->mEquipManager.getEquippedObject(CreatureEquipSlot_Hold_Left))
 		{
 			// gLogger->logMsg("equip default weapon");
 			playerObject->mEquipManager.equipDefaultWeapon();

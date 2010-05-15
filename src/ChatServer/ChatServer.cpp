@@ -150,7 +150,7 @@ ChatServer::~ChatServer()
 
 	delete mDatabaseManager;
 
-	gLogger->logMsg("ChatServer Shutdown Complete\n");
+	gLogger->logMsg("ChatServer Shutdown Complete");
 }
 
 //======================================================================================================================

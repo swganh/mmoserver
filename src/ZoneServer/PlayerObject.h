@@ -276,7 +276,7 @@ class PlayerObject : public CreatureObject
 		void				setMountCalled(bool mount_called) { mMountCalled = mount_called; }
 
 		// crafting
-		CraftingStation*	getCraftingStation(ObjectSet	inRangeObjects, ItemType	toolType);
+		CraftingStation*	getCraftingStation(ObjectSet*	inRangeObjects, ItemType	toolType);
 		uint32				getCraftingStage(){ return mCraftingStage; }
 		void				setCraftingStage(uint32 stage){ mCraftingStage = stage; }
 		uint32				getExperimentationFlag(){ return mExperimentationFlag; }

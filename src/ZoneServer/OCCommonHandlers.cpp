@@ -82,7 +82,7 @@ void ObjectController::_handleBoardTransport(uint64 targetId,Message* message,Ob
 		return;
 	}
 
-	mSI->getObjectsInRange(playerObject,&inRangeObjects,ObjType_Creature | ObjType_NPC,boardingRange);
+	mSI->getObjectsInRange(playerObject,&inRangeObjects,ObjType_Creature | ObjType_NPC, boardingRange);
 
 	// iterate through the results
 	ObjectSet::iterator it = inRangeObjects.begin();
@@ -127,7 +127,7 @@ void ObjectController::_handleOpenContainer(uint64 targetId,Message* message,Obj
 
 	if (itemObject)
 	{
-        if(glm::distance(playerObject->mPosition, itemObject->mPosition) > 10)
+		if(glm::distance(playerObject->getWorldPosition(), itemObject->getWorldPosition()) > 10)
 		{
 			gMessageLib->sendSystemMessage(playerObject, L"", "system_msg", "out_of_range");
 			return;
@@ -151,9 +151,10 @@ void ObjectController::_handleOpenContainer(uint64 targetId,Message* message,Obj
 			}
 
 			//this might be a backpack
-			//or a chest
+			//or a chest - it needs to have a capacity to be a container!
 			if (tangObj->getCapacity())
 			{
+				//checkContainingContainer checks the permission
 				if(checkContainingContainer(tangObj->getId(),playerObject->getId()))
 				{
 					aContainer = true;
@@ -171,12 +172,7 @@ void ObjectController::_handleOpenContainer(uint64 targetId,Message* message,Obj
 		}
 		else
 		{
-            if (glm::distance(playerObject->mPosition, itemObject->mPosition) < 10)
-			{
-				gMessageLib->sendSystemMessage(playerObject, L"", "system_msg", "out_of_range");
-			}
-
-			gMessageLib->sendOpenedContainer(targetId, playerObject);
+            gMessageLib->sendOpenedContainer(targetId, playerObject);
 		}
 	}
 	else

@@ -151,6 +151,8 @@ enum zone_opcodes
 	opIsmGroupAlterMissions			= 0x2F46E3A3,	//[ZO->CH]
 	opIsmGroupInviteInRangeRequest	= 0x19F89B8E,	//[CH->ZO]  <uint32 sender><uint32 target>
 	opIsmGroupInviteInRangeResponse	= 0xA4B7CA4C,   //[ZO->CH]  <uint32 sender><uint32 target><bool inRange>
+	opIsmIsGroupLeaderRequest		= 0xC85225C9,
+	opIsmIsGroupLeaderResponse		= 0x1B53DB12,
 
 	// Fake code, crc-based an the word "opIsmGroupSay".
 	opIsmGroupSay					= 0x39360616,	//[ZO->CH]  // Fake code, crc-based on the word "opIsmGroupSay".

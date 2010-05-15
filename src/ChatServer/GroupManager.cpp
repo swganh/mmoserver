@@ -75,6 +75,7 @@ GroupManager::GroupManager(MessageDispatch* dispatch)
 	mMessageDispatch->RegisterMessageCallback(opIsmGroupLootMasterRequest,this);
 	mMessageDispatch->RegisterMessageCallback(opIsmGroupLootMasterResponse,this);
 	mMessageDispatch->RegisterMessageCallback(opIsmGroupInviteInRangeResponse, this);
+	mMessageDispatch->RegisterMessageCallback(opIsmIsGroupLeaderRequest, this);
 }
 
 
@@ -248,10 +249,26 @@ void GroupManager::handleDispatchMessage(uint32 opcode, Message* message, Dispat
 		}
 		break;
 
+		case opIsmIsGroupLeaderRequest:
+		{
+			_processIsmIsGroupLeaderRequest(message, client);
+		}
+
 		default:
 		gLogger->logMsgF("GroupManager::handleDispatchMessage: Unhandled opcode %u",MSG_NORMAL,opcode);
 		break;
 	} 
+}
+
+void GroupManager::_processIsmIsGroupLeaderRequest(Message* message, DispatchClient* client)
+{
+	uint64 requestId = message->getUint64();
+	uint64 playerId = message->getUint64();
+	uint64 groupId	= message->getUint64();
+
+	GroupObject* group = this->getGroupById(groupId);
+
+	gChatMessageLib->sendIsmIsGroupLeaderResponse(group->getLeader(), requestId, (group->getLeader()->getCharId() == playerId));
 }
 
 //======================================================================================================================

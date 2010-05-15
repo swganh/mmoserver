@@ -508,7 +508,7 @@ void Session::ProcessWriteThread(void)
 	  //!!! as receiving packets happens in the readthread and this code is executed in the write thread
 	  //it can happen that a packet was received AFTER the now is read out - especially when our thread gets interrupted at this point!!!!
 	  //to solve this we take an int instead an uint as lastpacket can be bigger than now :)
-      if (t > 60000)
+      if (false)
       {
 		  if(this->mServerService)
 		  {

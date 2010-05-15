@@ -120,7 +120,7 @@ public:
 	bool				sendDestroyObject(uint64 objectId, CreatureObject* owner);
 	bool				sendDestroyObject_InRange(uint64 objectId,PlayerObject* const owner, bool self);
 	bool				sendDestroyObject_InRangeofObject(Object* object);
-
+	void				sendGroupLeaderRequest(PlayerObject* sender, uint64 requestId, uint32 operation, uint64 groupId);
 	bool				sendLogout(PlayerObject* playerObject);
 
 	bool				sendHeartBeat(DispatchClient* client);

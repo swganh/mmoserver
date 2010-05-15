@@ -10,6 +10,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 */
 
 #include "GroupManager.h"
+#include "GroupManagerCallbackContainer.h"
 
 #include "Datapad.h"
 #include "GroupObject.h"
@@ -42,7 +43,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 bool						GroupManager::mInsFlag    = false;
 GroupManager*		GroupManager::mSingleton  = NULL;
 
-
 //======================================================================================================================
 
 GroupManager::GroupManager(Database* database, MessageDispatch* dispatch)
@@ -55,6 +55,7 @@ GroupManager::GroupManager(Database* database, MessageDispatch* dispatch)
 	mMessageDispatch->RegisterMessageCallback(opIsmGroupLootModeResponse,this); 
 	mMessageDispatch->RegisterMessageCallback(opIsmGroupLootMasterResponse,this); 
 	mMessageDispatch->RegisterMessageCallback(opIsmGroupInviteInRangeRequest, this);
+	mMessageDispatch->RegisterMessageCallback(opIsmIsGroupLeaderResponse, this);
 }
 
 
@@ -129,14 +130,101 @@ void GroupManager::handleDispatchMessage(uint32 opcode, Message* message, Dispat
 		}
 		break;
 
+		case opIsmIsGroupLeaderResponse:
+		{
+			_processIsmIsGroupLeaderResponse(message);
+		}
+		break;
+
 		default:
 			gLogger->logMsgF("GroupManagerMessage::handleDispatchMessage: Unhandled opcode %u",MSG_NORMAL,opcode);
 		break;
 	} 
 }
 
-//=======================================================================================================================
+void GroupManager::_processIsmIsGroupLeaderResponse(Message* message)
+{
+	std::map<uint64, GroupManagerCallbackContainer*>::iterator it = mLeaderRequests.find(message->getUint64());
+	std::map<uint64, GroupManagerCallbackContainer*>::iterator end = mLeaderRequests.end();
 
+	if(it != end)
+	{
+		uint64 playerId = message->getUint64();
+
+		if(message->getUint8() == 1)
+			(*it).second->isLeader = true;
+		else
+			(*it).second->isLeader = false;
+
+		(*it).second->callback->handleGroupManagerCallback(playerId, (*it).second);
+
+		delete (*it).second;
+		mLeaderRequests.erase(it);
+	}
+}
+
+uint64 GroupManager::_insertLeaderRequest(GroupManagerCallbackContainer* container)
+{
+	uint64 requestId = mLeaderRequestInc;
+
+	uint32 maxCount=0;//To insure we don't infinite loop.
+	std::map<uint64, GroupManagerCallbackContainer*>::iterator it = mLeaderRequests.find(requestId);
+	while(it != mLeaderRequests.end() && requestId != 0)
+	{
+		requestId = mLeaderRequestInc++;
+		it = mLeaderRequests.find(requestId);
+		
+		if(maxCount >= 50)
+			return 0; //Lets not continue this little ordeal.
+	}
+
+	mLeaderRequests.insert(std::make_pair(requestId, container));
+
+	return requestId;
+}
+
+void GroupManager::getGroupLeader(PlayerObject* requester, uint64 groupId, uint32 operation, GroupManagerCallback* callback, string arg)
+{
+	GroupManagerCallbackContainer* container = new GroupManagerCallbackContainer();
+	container->requestingPlayer = requester->getId();
+	container->arg = arg;
+	container->callback = callback;
+	container->operation = operation;
+
+	uint64 requestId = _insertLeaderRequest(container);
+
+	if(requestId != 0)
+		gMessageLib->sendGroupLeaderRequest(requester, requestId, operation, groupId);
+}
+
+void GroupManager::getGroupLeader(PlayerObject* requester, uint64 groupId, uint32 operation, GroupManagerCallback* callback)
+{
+	GroupManagerCallbackContainer* container = new GroupManagerCallbackContainer();
+	container->requestingPlayer = requester->getId();
+	container->callback = callback;
+	container->operation = operation;
+
+	uint64 requestId = _insertLeaderRequest(container);
+	
+	if(requestId != 0)
+		gMessageLib->sendGroupLeaderRequest(requester, requestId, operation, groupId);
+}
+
+void GroupManager::getGroupLeader(PlayerObject* requester, uint64 groupId, uint32 operation, GroupManagerCallback* callback, uint32 flourishId)
+{
+	GroupManagerCallbackContainer* container = new GroupManagerCallbackContainer();
+	container->requestingPlayer = requester->getId();
+	container->flourishId = flourishId;
+	container->callback = callback;
+	container->operation = operation;
+
+	uint64 requestId = _insertLeaderRequest(container);
+
+	if(requestId != 0)
+		gMessageLib->sendGroupLeaderRequest(requester, requestId, operation, groupId);
+}
+
+//=======================================================================================================================
 
 void GroupManager::_processIsmInviteRequest(Message* message)
 {

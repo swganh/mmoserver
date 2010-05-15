@@ -177,6 +177,8 @@ enum chat_opcodes
 	opISMUpdateStructureCondition	= 0xED4643B6,
 	opIsmGroupInviteInRangeRequest	= 0x19F89B8E,	//[CH->ZO]  <uint32 sender><uint32 target>
 	opIsmGroupInviteInRangeResponse	= 0xA4B7CA4C,   //[ZO->CH]  <uint32 sender><uint32 target><bool inRange>
+	opIsmIsGroupLeaderRequest		= 0xC85225C9,
+	opIsmIsGroupLeaderResponse		= 0x1B53DB12,
 
 	opIsmGroupSay					= 0x39360616,	//[ZO->CH]
 	opChatNotifySceneReady			= 0x75C4DD84,	//[ZO->CH]  // Fake code, crc-based on the word "chatcmdsceneready".

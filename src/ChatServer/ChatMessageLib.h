@@ -100,6 +100,7 @@ public:
 	void sendIsmGroupLootMasterResponse(Player* target) const;
 	void sendIsmGroupCREO6deltaGroupId(uint64 groupId, Player* target) const;
 	void sendIsmInviteInRangeRequest(Player* sender, Player* target);
+	void sendIsmIsGroupLeaderResponse(Player* player, uint64 requestId, bool isLeader);
 
 	void sendFriendOnlineStatus(Player* player,Player* playerFriend,uint8 status, string category, string name) const;
 	void sendFindFriendCreateWaypoint(DispatchClient* client, Player* player, Player* friendPlayer) const;

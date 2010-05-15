@@ -165,6 +165,7 @@ bool WorldManager::addObject(Object* object,bool manual)
 			{
 				if(QTRegion* region = mSpatialIndex->getQTRegion(player->mPosition.x,player->mPosition.z))
 				{
+					player->setSubZone(region);
 					player->setSubZoneId((uint32)region->getId());
 					region->mTree->addObject(player);
 				}

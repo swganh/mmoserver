@@ -187,6 +187,19 @@ void Object::moveBack(float distance) {
 
 //=============================================================================
 
+float Object::rotation_angle() const {	
+  glm::quat tmp = mDirection;
+
+  if (tmp.y < 0.0f && tmp.w > 0.0f) {
+    tmp.y *= -1;
+    tmp.w *= -1;
+  }
+
+  return glm::angle(tmp);
+}
+
+//=============================================================================
+
 bool Object::removeKnownObject(Object* object)
 {
 	if(object->getType() == ObjType_Player)

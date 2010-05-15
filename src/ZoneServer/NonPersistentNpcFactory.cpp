@@ -545,7 +545,7 @@ NPCObject* NonPersistentNpcFactory::createNonPersistentNpc(DatabaseResult* resul
 		defaultWeapon->setParentId(npc->mId);
 		defaultWeapon->setModelString("object/weapon/melee/unarmed/shared_unarmed_default_player.iff");
 		defaultWeapon->setGroup(WeaponGroup_Unarmed);
-		defaultWeapon->setEquipSlotMask(CreatureEquipSlot_Weapon);
+		defaultWeapon->setEquipSlotMask(CreatureEquipSlot_Hold_Both);
 		defaultWeapon->addInternalAttribute("weapon_group","1");
  
 		npc->mEquipManager.setDefaultWeapon(defaultWeapon);
@@ -559,7 +559,7 @@ NPCObject* NonPersistentNpcFactory::createNonPersistentNpc(DatabaseResult* resul
 		pistol->setParentId(npc->mId);
 		pistol->setModelString("object/weapon/ranged/pistol/shared_pistol_cdef.iff");
 		pistol->setGroup(WeaponGroup_Pistol);
-		pistol->setEquipSlotMask(CreatureEquipSlot_Weapon);
+		pistol->setEquipSlotMask(CreatureEquipSlot_Hold_Both);
 		pistol->addInternalAttribute("weapon_group","32");
 		attackableNpc->setPrimaryWeapon(pistol);
 
@@ -571,7 +571,7 @@ NPCObject* NonPersistentNpcFactory::createNonPersistentNpc(DatabaseResult* resul
 		saber->setParentId(npc->mId);
 		saber->setModelString("object/weapon/melee/sword/shared_sword_lightsaber_vader.iff");
 		saber->setGroup(WeaponGroup_2h);
-		saber->setEquipSlotMask(CreatureEquipSlot_Weapon);
+		saber->setEquipSlotMask(CreatureEquipSlot_Hold_Both);
 		saber->addInternalAttribute("weapon_group","4");
 		attackableNpc->setSecondaryWeapon(saber);
 

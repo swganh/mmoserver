@@ -148,7 +148,7 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 		bool						hasInternalAttribute(string key);
 		void						removeInternalAttribute(string key);
 
-		// subzone
+		// subzone this isused by spqwnregions - get it out there
 		uint32						getSubZoneId() const { return mSubZoneId; }
 		void						setSubZoneId(uint32 id){ mSubZoneId = id; }
 
@@ -228,6 +228,13 @@ class Object : public UICallback, public Anh_Utils::EventHandler
          * \param distance The distance to move (measured in meters).
          */
         void moveBack(float distance);
+
+
+        /*! Determines the angle used by update transform messages for rotation.
+         *
+         * \returns Current rotation angle.
+         */
+        float rotation_angle() const;
 
 
         glm::quat   mDirection;

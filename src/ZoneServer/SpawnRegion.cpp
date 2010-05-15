@@ -38,6 +38,8 @@ SpawnRegion::~SpawnRegion()
 
 void SpawnRegion::update()
 {
+	//this is very problematic - currently we assume an object entered us when it is in the same qtregion we are in
+
 	//run about every 4.5 seconds
 	if(!mSubZoneId)
 	{

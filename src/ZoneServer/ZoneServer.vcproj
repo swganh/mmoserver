@@ -220,7 +220,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\nonPersistantObjectFactory.cpp"
+				RelativePath=".\NonPersistantObjectFactory.cpp"
 				>
 			</File>
 			<File
@@ -1288,7 +1288,7 @@
 							Name="noise"
 							>
 							<File
-								RelativePath=".\noiseutils.cpp"
+								RelativePath=".\Noiseutils.cpp"
 								>
 							</File>
 							<File
@@ -2524,6 +2524,14 @@
 				</File>
 				<File
 					RelativePath=".\GroupManager.h"
+					>
+				</File>
+				<File
+					RelativePath=".\GroupManagerCallback.h"
+					>
+				</File>
+				<File
+					RelativePath=".\GroupManagerCallbackContainer.h"
 					>
 				</File>
 				<File

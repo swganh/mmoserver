@@ -93,7 +93,7 @@ void LoginManager::handleSessionDisconnect(NetworkClient* client)
 	//gLogger->logMsgF("handleSessionDisconnect account %u",MSG_HIGH,loginClient->getAccountId());
 
 	// Client has disconnected.  Update the db to show they are no longer authenticated.
-	mDatabase->ExecuteSqlAsync(0, 0, "UPDATE account SET authenticated=0 WHERE account_id=%u;", loginClient->getAccountId());
+	mDatabase->ExecuteProcedureAsync(0, 0, "UPDATE account SET authenticated=0 WHERE account_id=%u;", loginClient->getAccountId());
 
 	LoginClientList::iterator iter = mLoginClientList.begin();
 

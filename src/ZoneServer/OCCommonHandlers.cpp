@@ -82,7 +82,7 @@ void ObjectController::_handleBoardTransport(uint64 targetId,Message* message,Ob
 		return;
 	}
 
-	mSI->getObjectsInRange(playerObject,&inRangeObjects,ObjType_Creature | ObjType_NPC,boardingRange);
+	mSI->getObjectsInRange(playerObject,&inRangeObjects,ObjType_Creature | ObjType_NPC, boardingRange);
 
 	// iterate through the results
 	ObjectSet::iterator it = inRangeObjects.begin();
@@ -127,7 +127,7 @@ void ObjectController::_handleOpenContainer(uint64 targetId,Message* message,Obj
 
 	if (itemObject)
 	{
-        if(glm::distance(playerObject->mPosition, itemObject->mPosition) > 10)
+		if(glm::distance(playerObject->getWorldPosition(), itemObject->getWorldPosition()) > 10)
 		{
 			gMessageLib->sendSystemMessage(playerObject, L"", "system_msg", "out_of_range");
 			return;
@@ -151,9 +151,10 @@ void ObjectController::_handleOpenContainer(uint64 targetId,Message* message,Obj
 			}
 
 			//this might be a backpack
-			//or a chest
+			//or a chest - it needs to have a capacity to be a container!
 			if (tangObj->getCapacity())
 			{
+				//checkContainingContainer checks the permission
 				if(checkContainingContainer(tangObj->getId(),playerObject->getId()))
 				{
 					aContainer = true;
@@ -171,12 +172,7 @@ void ObjectController::_handleOpenContainer(uint64 targetId,Message* message,Obj
 		}
 		else
 		{
-            if (glm::distance(playerObject->mPosition, itemObject->mPosition) < 10)
-			{
-				gMessageLib->sendSystemMessage(playerObject, L"", "system_msg", "out_of_range");
-			}
-
-			gMessageLib->sendOpenedContainer(targetId, playerObject);
+            gMessageLib->sendOpenedContainer(targetId, playerObject);
 		}
 	}
 	else
@@ -499,7 +495,16 @@ bool ObjectController::checkContainingContainer(uint64 containingContainer, uint
 		{
 			if(building->hasAdminRights(playerId))
 			{
-				return true;
+				//now test whether we are in the same building
+				PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId));
+				if(CellObject* playercell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId())))
+				{
+					if(BuildingObject* playerparent = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(playercell->getParentId())))
+					{
+						//still get in a range check ???
+						return true;
+					}
+				}
 			}
 		}
 		return false;
@@ -1019,7 +1024,6 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 	
 		
 		itemObject->mPosition = playerObject->mPosition;
-		itemObject->mDirection = playerObject->mDirection;
 
 		gLogger->logMsgF("ObjectController::_handleTransferItemMisc: Cell added item to cell %I64u ", MSG_NORMAL,cell->getId());
 		
@@ -1715,7 +1719,7 @@ void ObjectController::_BurstRun(uint64 targetId,Message* message,ObjectControll
 
 	if(!player->getHam()->checkMainPools(healthcost,actioncost,mindcost))
 	{
-		gMessageLib->sendSystemMessage(player,L"","combat_effects","burst_run_no");
+		gMessageLib->sendSystemMessage(player,L"You cannot burst run right now."); // the stf doesn't work!
 		return;
 	}
 

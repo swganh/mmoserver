@@ -36,7 +36,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "ResourceManager.h"
 #include "SchematicManager.h"
 #include "TreasuryManager.h"
-#include "Vehicle.h"
+#include "VehicleController.h"
 #include "WorldConfig.h"
 #include "ZoneOpcodes.h"
 #include "ZoneServer.h"
@@ -231,7 +231,7 @@ void WorldManager::addDisconnectedPlayer(PlayerObject* playerObject)
 
 	if(playerObject->getMount() && datapad)
 	{
-		if(Vehicle* datapad_pet = dynamic_cast<Vehicle*>(datapad->getDataById(playerObject->getMount()->getPetController())))
+		if(VehicleController* datapad_pet = dynamic_cast<VehicleController*>(datapad->getDataById(playerObject->getMount()->getPetController())))
 		{
 			datapad_pet->dismountPlayer();
 			datapad_pet->store();
@@ -260,6 +260,8 @@ void WorldManager::addDisconnectedPlayer(PlayerObject* playerObject)
 
 	removeObjControllerToProcess(playerObject->getController()->getTaskId());
 	removeCreatureHamToProcess(playerObject->getHam()->getTaskId());
+	removeCreatureStomachToProcess(playerObject->getStomach()->mDrinkTaskId);
+	removeCreatureStomachToProcess(playerObject->getStomach()->mFoodTaskId);
 	removeEntertainerToProcess(playerObject->getEntertainerTaskId());
 
 	gCraftingSessionFactory->destroySession(playerObject->getCraftingSession());
@@ -374,6 +376,8 @@ void WorldManager::warpPlanet(PlayerObject* playerObject, const glm::vec3& desti
 	
 	//why remove that ?	
 	removeCreatureHamToProcess(playerObject->getHam()->getTaskId());
+	removeCreatureStomachToProcess(playerObject->getStomach()->mDrinkTaskId);
+	removeCreatureStomachToProcess(playerObject->getStomach()->mFoodTaskId);
 	//playerObject->getHam()->setTaskId(0);
 
 	// reset player properties
@@ -422,6 +426,7 @@ void WorldManager::warpPlanet(PlayerObject* playerObject, const glm::vec3& desti
 
 	// initialize ham regeneration
 	playerObject->getHam()->checkForRegen();
+	playerObject->getStomach()->checkForRegen();
 }
 
 //======================================================================================================================

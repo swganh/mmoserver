@@ -69,14 +69,21 @@ HoloStruct* EntertainerManager::getHoloEmoteByClientCRC(uint32 crc)
 string EntertainerManager::getHoloNames()
 {
 	int8 collection[512];
-	//sprintf(collection,"");
+	sprintf(collection,"");
+	bool isNew = true;
 
 	HoloEmoteEffects::iterator it = mHoloList.begin();
 	while(it != mHoloList.end())
 	{
 		if ((*it)->pCRC != BString("all").getCrc())
 		{
-			sprintf(collection,"%s, %s",collection,(*it)->pEmoteName);
+			if(isNew)
+			{
+				sprintf(collection,"%s",(*it)->pEmoteName);
+				isNew = false;
+			}
+			else
+				sprintf(collection,"%s, %s",collection,(*it)->pEmoteName);
 		}
 		it++;
 	}

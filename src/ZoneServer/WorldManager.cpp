@@ -78,7 +78,12 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
 , mTotalObjectCount(0)
 , mZoneId(zoneId)
 {
-	gLogger->logMsg("WorldManager::StartUp");
+	#if !defined(_DEBUG)
+	#endif
+	#if defined(_DEBUG)
+		gLogger->logMsg("WorldManager::StartUp");
+	#endif
+	
 
 	// set up spatial index
 	mSpatialIndex = new ZoneTree();
@@ -102,6 +107,7 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
 	mSubsystemScheduler		= new Anh_Utils::Scheduler();
 	mObjControllerScheduler = new Anh_Utils::Scheduler();
 	mHamRegenScheduler		= new Anh_Utils::Scheduler();
+	mStomachFillingScheduler= new Anh_Utils::Scheduler();
 	mPlayerScheduler		= new Anh_Utils::Scheduler();
 	mEntertainerScheduler	= new Anh_Utils::Scheduler();
 	mBuffScheduler			= new Anh_Utils::VariableTimeScheduler(100, 100);
@@ -189,6 +195,7 @@ void WorldManager::Shutdown()
 	delete(mAdminScheduler);
 	delete(mNpcManagerScheduler);
 	delete(mObjControllerScheduler);
+	delete(mStomachFillingScheduler);
 	delete(mHamRegenScheduler);
 	delete(mMissionScheduler);
 	delete(mPlayerScheduler);
@@ -365,7 +372,7 @@ void WorldManager::LoadCurrentGlobalTick()
 	mDatabase->DestroyResult(temp);
 
 	char strtemp[100];
-	sprintf(strtemp, "Current Global Tick Count = %"PRIu64"\n",Tick);
+	sprintf(strtemp, " Current Global Tick Count = %"PRIu64"\n",Tick);
 	gLogger->logMsg(strtemp, FOREGROUND_GREEN);
 	mTick = Tick;
 	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleTick),7,1000,NULL);
@@ -411,6 +418,7 @@ void WorldManager::Process()
 void WorldManager::_processSchedulers()
 {
 	mHamRegenScheduler->process();
+	mStomachFillingScheduler->process();
 	mSubsystemScheduler->process();
 	mObjControllerScheduler->process();
 	mPlayerScheduler->process();
@@ -445,17 +453,6 @@ bool WorldManager::_handleDisconnectUpdate(uint64 callTime,void* ref)
 			GroupObject* group = gGroupManager->getGroupObject(playerObject->getGroupId());
 			if(group)
 			{
-				if(playerObject->getIDPartner() != 0)
-				{
-					if(PlayerObject* idPartner = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerObject->getIDPartner())))
-					{
-						idPartner->SetImageDesignSession(IDSessionNONE);
-						idPartner->setIDPartner(0);
-						playerObject->SetImageDesignSession(IDSessionNONE);
-						playerObject->setIDPartner(0);
-					}
-
-				}
 				group->removePlayer(playerObject->getId());
 			}
 
@@ -870,11 +867,22 @@ void WorldManager::_handleLoadComplete()
 	{
 		resolution = gConfig->read<int>("heightMapResolution");
 	}
-	gLogger->logMsgF("WorldManager::_handleLoadComplete heightMapResolution = %d", MSG_NORMAL, resolution);
+	#if !defined(_DEBUG)
+					gLogger->logMsgF("Height map resolution = %d", MSG_NORMAL, resolution);
+				#endif
+				#if defined(_DEBUG)
+				gLogger->logMsgF("WorldManager::_handleLoadComplete heightMapResolution = %d", MSG_NORMAL, resolution);
+				#endif
+					
 
 	if (Heightmap::Instance()->setupCache(resolution))
 	{
-		gLogger->logMsgF("WorldManager::_handleLoadComplete heigthmap cache setup successfully with resolution %d", MSG_NORMAL, resolution);
+		#if !defined(_DEBUG)
+					gLogger->logMsgF("Heigth map cache setup successfully with resolution %d", MSG_NORMAL, resolution);
+				#endif
+				#if defined(_DEBUG)
+					gLogger->logMsgF("WorldManager::_handleLoadComplete heigthmap cache setup successfully with resolution %d", MSG_NORMAL, resolution);
+				#endif
 	}
 	else
 	{
@@ -884,8 +892,13 @@ void WorldManager::_handleLoadComplete()
 	// register script hooks
 	_startWorldScripts();
 
-	gLogger->logMsg("WorldManager::Load complete");
-
+	#if !defined(_DEBUG)
+					gLogger->logMsg(" World load complete");
+				#endif
+				#if defined(_DEBUG)
+					gLogger->logMsg("WorldManager::Load complete");
+				#endif
+					
 	// switch into running state
 	mState = WMState_Running;
 
@@ -907,7 +920,7 @@ void WorldManager::_handleLoadComplete()
 	
 	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleGeneralObjectTimers),5,2000,NULL);
 	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleGroupObjectTimers),5,gWorldConfig->getGroupMissionUpdateTime(),NULL);
-	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleVariousUpdates),7,2000, NULL);
+	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleVariousUpdates),7,1000, NULL);
 
 	// Init NPC Manager, will load lairs from the DB.
 	(void)NpcManager::Instance();
@@ -1024,7 +1037,26 @@ void WorldManager::removeEntertainerToProcess(uint64 taskId)
 	mEntertainerScheduler->removeTask(taskId);
 }
 
-
+//======================================================================================================================
+//
+// add a creature from the Stomach Filling scheduler
+//
+uint64 WorldManager::addCreatureDrinkToProccess(Stomach* stomach)
+{
+    return((mStomachFillingScheduler->addTask(fastdelegate::MakeDelegate(stomach,&Stomach::regenDrink),1,stomach->getDrinkInterval(),NULL)));
+}
+uint64 WorldManager::addCreatureFoodToProccess(Stomach* stomach)
+{
+    return((mStomachFillingScheduler->addTask(fastdelegate::MakeDelegate(stomach,&Stomach::regenFood),1,stomach->getFoodInterval(),NULL)));
+}
+void WorldManager::removeCreatureStomachToProcess(uint64 taskId)
+{
+	mStomachFillingScheduler->removeTask(taskId);
+}
+bool WorldManager::checkStomachTask(uint64 id)
+{
+	return mStomachFillingScheduler->checkTask(id);
+}
 //======================================================================================================================
 //
 // add a creature from the ham regeneration scheduler
@@ -1178,7 +1210,7 @@ uint32 WorldManager::getAttributeId(uint32 keyId)
 
 void WorldManager::_startWorldScripts()
 {
-	gLogger->logMsg("Loading world scripts...");
+	gLogger->logMsg(" Loading world scripts...");
 
 	ScriptList::iterator scriptIt = mWorldScripts.begin();
 

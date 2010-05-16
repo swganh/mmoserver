@@ -266,25 +266,31 @@ void  Trade::processTradeListPostTransaction()
 	//only process our list this will be called by both trade partners
 	//The transaction has now been approved so we can do all the other stuff
 
-	ItemTradeList::iterator it			= mItemTradeList.begin();
-	Inventory*				inventory	= dynamic_cast<Inventory*>(getPlayerObject()->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+	ItemTradeList::iterator it					= mItemTradeList.begin();
+	Inventory*				inventory			= dynamic_cast<Inventory*>(getPlayerObject()->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+
+	//Tradepartners Inventory
+	Inventory*				partnerInventory	= dynamic_cast<Inventory*>((*it)->getNewOwner()->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 
 	while(it != mItemTradeList.end())
 	{
 		uint64 itemId = (*it)->getObject()->getId();
 		TangibleGroup tanGroup = (*it)->getObject()->getTangibleGroup();
 
-		//delete out of our inventory
-		gMessageLib->sendDestroyObject(itemId,getPlayerObject());
-		inventory->deleteObject((*it)->getObject());
+		//delete out of our inventory / backpack
+		gMessageLib->sendDestroyObject(itemId,getPlayerObject());		
 
-		//need to access new Owner over id to prevent problems with outlogging players
-		//or we need to put the logtime higher so that might be unnecessary after all
+		//assign the Bazaar as the new owner to the item
+		gObjectFactory->GiveNewOwnerInDB((*it)->getObject(),partnerInventory->getId());
+
+		//the item could be in a backpack or in a different container - get it out
+		TangibleObject* container = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)->getObject()->getParentId()));
+		container->deleteObject((*it)->getObject());
 
 		//create in our tradepartners Inventory
 		if((*it)->getNewOwner() && (*it)->getNewOwner()->isConnected())
 		{
-			gObjectFactory->createIteminInventory(dynamic_cast<Inventory*>((*it)->getNewOwner()->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)),itemId,tanGroup);
+			gObjectFactory->createIteminInventory(partnerInventory,itemId,tanGroup);
 		}
 
 		it = mItemTradeList.erase(it);

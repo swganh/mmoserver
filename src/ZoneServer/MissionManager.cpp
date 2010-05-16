@@ -179,8 +179,13 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 			// not all missions have associated names ...
 			if(result->getRowCount())
-				gLogger->logMsgLoadSuccess("MissionManager::Loading %u Mission stfs...",MSG_NORMAL,count);
-			else
+				#if !defined(_DEBUG)
+					gLogger->logMsgLoadSuccess(" Loading %u mission stfs...",MSG_NORMAL,count);
+				#endif
+				#if defined(_DEBUG)
+					gLogger->logMsgLoadSuccess("MissionManager::Loading %u Mission stfs...",MSG_NORMAL,count);
+				#endif
+				else
 				gLogger->logMsgLoadFailure("MissionManager::Loading Mission stfs...",MSG_NORMAL);
 
 		}
@@ -205,7 +210,14 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			}
 
 			if(result->getRowCount())
-				gLogger->logMsgLoadSuccess("MissionManager::Loading %u Mission Names...",MSG_NORMAL,count);
+				#if !defined(_DEBUG)
+					gLogger->logMsgLoadSuccess(" Loading %u mission names...",MSG_NORMAL,count);
+				#endif
+		
+				#if defined(_DEBUG)
+					gLogger->logMsgLoadSuccess("MissionManager::Loading %u Mission Names...",MSG_NORMAL,count);
+				#endif
+			
 			else
 				gLogger->logMsgLoadFailure("MissionManager::Loading Mission Names...",MSG_NORMAL);
 
@@ -240,7 +252,14 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			mDatabase->ExecuteSqlAsyncNoArguments(this,asyncContainer,"SELECT m_t.mission_type, m_t.mission_name, m_t.mission_text FROM swganh.mission_text m_t INNER JOIN swganh.mission_types mty ON mty.id = m_t.mission_type WHERE mission_name like 'm%o' AND (mty.type NOT like 'mission_npc_%')");
 
 			if(result->getRowCount())
-				gLogger->logMsgLoadSuccess("MissionManager::Loading %u Mission Types...",MSG_NORMAL,result->getRowCount());
+				#if !defined(_DEBUG)
+			gLogger->logMsgLoadSuccess(" Loading %u mission types...",MSG_NORMAL,result->getRowCount());
+			#endif
+	
+			#if defined(_DEBUG)
+			gLogger->logMsgLoadSuccess("MissionManager::Loading %u Mission Types...",MSG_NORMAL,result->getRowCount());
+			#endif
+			
 			else
 				gLogger->logMsgLoadFailure("MissionManager::Loading Mission Types...",MSG_NORMAL);
 
@@ -394,7 +413,13 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			}
 
 			if(result->getRowCount())
-				gLogger->logMsgLoadSuccess("MissionManager::Loading %u Mission Terminal Links...",MSG_NORMAL,result->getRowCount());
+					#if !defined(_DEBUG)
+	gLogger->logMsgLoadSuccess(" Loading %u mission terminal links...",MSG_NORMAL,result->getRowCount());
+	#endif
+	#if defined(_DEBUG)
+		gLogger->logMsgLoadSuccess("MissionManager::Loading %u Mission Terminal Links...",MSG_NORMAL,result->getRowCount());
+	#endif
+		
 			else
 				gLogger->logMsgLoadFailure("MissionManager::Loading Mission Terminal Links...",MSG_NORMAL);
 
@@ -575,9 +600,7 @@ return;
 
 void MissionManager::missionComplete(PlayerObject* player, MissionObject* mission)
 {
-	wchar_t sm[100];
-	swprintf(sm,100, L"","mission/mission_generic",L"success_w_amount",mission->getReward());
-	gMessageLib->sendSystemMessage(player,sm);
+	gMessageLib->sendSystemMessage(player,L"","mission/mission_generic","success_w_amount","", "", L"",mission->getReward());
 
 	//remove mission
 	gMessageLib->sendSetWaypointActiveStatus(mission->getWaypoint(),false,player);
@@ -595,7 +618,7 @@ return;
 //======================================================================================================================
 
 
-void MissionManager::missionCompleteEntertainer(PlayerObject* player)
+void MissionManager::missionCompleteEntertainer(PlayerObject* player,Buff* timer)
 {
 	Datapad* datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
 	if(datapad->hasMission()) //player has a mission
@@ -604,9 +627,10 @@ void MissionManager::missionCompleteEntertainer(PlayerObject* player)
 		while(it != datapad->getMissions()->end())
 		{
 			MissionObject* mission = dynamic_cast<MissionObject*>(*it);
-			if(mission->getInProgress() == false) { ++it; continue; }
+			if(mission->getInProgress() == false) { ++it; continue; }			
 			if(mission->getMissionType() == dancer || mission->getMissionType() == musician)
 			{
+				//if(mission->getEntertainingTimer() != timer) { ++it; continue; } //check to see if this is the mission who's timer is expiring
                 if(glm::distance(player->mPosition, mission->getDestination().Coordinates) < 20)
 				{
 						missionComplete(player,mission);
@@ -635,6 +659,19 @@ void MissionManager::missionAbort(PlayerObject* player, uint64 mission_id)
 	MissionObject* mission = datapad->getMissionById(mission_id);
 	if(mission)
 	{
+		//If we failed an entertainer mission then we need to remove the timer associated with it.
+		if(mission->getMissionType() == dancer || mission->getMissionType() == musician)
+		{
+			if(mission->getInProgress())
+			{
+				Buff* timer = mission->getEntertainingTimer();
+				player->RemoveBuff(timer);
+				mission->setInProgress(false);			
+				SAFE_DELETE(timer);
+				mission->setEntertainingTimer(NULL);
+			}
+		}
+
 		datapad->removeMission(mission);
 		gMessageLib->sendSystemMessage(player,L"","mission/mission_generic","incomplete");
 		gMessageLib->sendSetWaypointActiveStatus(mission->getWaypoint(),false,player);
@@ -657,6 +694,20 @@ return;
 void MissionManager::missionFailed(PlayerObject* player, MissionObject* mission)
 {
 	gMessageLib->sendSystemMessage(player,L"","mission/mission_generic","failed");
+
+
+	//If we failed an entertainer mission then we need to remove the timer associated with it.
+	if(mission->getMissionType() == dancer || mission->getMissionType() == musician)
+	{
+		if(mission->getInProgress())
+		{
+			Buff* timer = mission->getEntertainingTimer();
+			player->RemoveBuff(timer);
+			mission->setInProgress(false);			
+			SAFE_DELETE(timer);
+			mission->setEntertainingTimer(NULL);
+		}
+	}
 
 	//remove mission
 	gMessageLib->sendSetWaypointActiveStatus(mission->getWaypoint(),false,player);
@@ -764,10 +815,11 @@ void MissionManager::checkMusicianMission(PlayerObject* player)
 				if(mission->getInProgress()) { ++it; continue; }
                 if(glm::distance(player->mPosition, mission->getDestination().Coordinates) < 20)
 				{
-					BuffAttribute* performance_timer = new BuffAttribute(Mission_Timer, 0,0,0);
+					BuffAttribute* performance_timer = new BuffAttribute(time_remaining, 0,0,0);
 					Buff* timer = Buff::SimpleBuff(player, player, 600000, 0, gWorldManager->GetCurrentGlobalTick());
 					timer->AddAttribute(performance_timer);
 					player->AddBuff(timer);
+					mission->setEntertainingTimer(timer);
 					mission->setInProgress(true);
 				}
 			}
@@ -781,7 +833,6 @@ void MissionManager::checkMusicianMission(PlayerObject* player)
 void MissionManager::checkDancerMission(PlayerObject* player)
 {
 	Datapad* datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
-
 	if(datapad->hasMission()) //player has a mission
 	{
 		MissionList::iterator it = datapad->getMissions()->begin();
@@ -793,7 +844,7 @@ void MissionManager::checkDancerMission(PlayerObject* player)
 				if(mission->getInProgress()) { ++it; continue; }
                 if(glm::distance(player->mPosition, mission->getDestination().Coordinates) < 20)
 				{
-					BuffAttribute* performance_timer = new BuffAttribute(Mission_Timer, 0,0,0);
+					BuffAttribute* performance_timer = new BuffAttribute(time_remaining, 0,0,0);
 					Buff* timer = Buff::SimpleBuff(player, player, 600000, 0, gWorldManager->GetCurrentGlobalTick());
 					timer->AddAttribute(performance_timer);
 					player->AddBuff(timer);
@@ -945,20 +996,26 @@ MissionObject* MissionManager::generateDestroyMission(MissionObject* mission, ui
 	TerminalMap::iterator terminalMapIt = mTerminalMap.find(terminal);
 	if(terminalMapIt != mTerminalMap.end())
 	{
-		gLogger->logMsgF("MissionManager : found the terminal",MSG_HIGH);
+		#if defined(_DEBUG)
+					gLogger->logMsgF("MissionManager : found the terminal",MSG_HIGH);
+				#endif
+					
 		Terminal_Type* terminal = (*terminalMapIt).second;
 
 		//now get the amount of stfs and get one per chance
 		uint32 amount = terminal->list.size();
 		uint32 chosen = gRandom->getRand() % amount;
 
-		gLogger->logMsgF("MissionManager : random : %u",MSG_HIGH,chosen);
-
+		#if defined(_DEBUG)
+					gLogger->logMsgF("MissionManager : random : %u",MSG_HIGH,chosen);
+				#endif
 		bool found = false;
 		uint32 counter = 0;
 		while(!found)
 		{
-			gLogger->logMsgF("MissionManager : != found ",MSG_HIGH);
+			#if defined(_DEBUG)
+					gLogger->logMsgF("MissionManager : != found ",MSG_HIGH);
+				#endif	
 			MissionLinkList::iterator it = 	terminal->list.begin();
 			while(it != terminal->list.end())
 			{
@@ -985,7 +1042,10 @@ MissionObject* MissionManager::generateDestroyMission(MissionObject* mission, ui
 
 	if(link)
 	{
-		gLogger->logMsgF("MissionManager : found db destroy missions",MSG_HIGH);
+		#if defined(_DEBUG)
+					gLogger->logMsgF("MissionManager : found db destroy missions",MSG_HIGH);
+				#endif
+					
 
 		//now set the stf
 		char s[255];
@@ -1011,7 +1071,10 @@ MissionObject* MissionManager::generateDestroyMission(MissionObject* mission, ui
 	}
 	else
 	{
-		gLogger->logMsgF("MissionManager : No mission file associated :(",MSG_HIGH);
+		#if defined(_DEBUG)
+					gLogger->logMsgF("MissionManager : No mission file associated :(",MSG_HIGH);
+				#endif
+					
 		return NULL;
 
 	}
@@ -1049,7 +1112,9 @@ MissionObject* MissionManager::generateDestroyMission(MissionObject* mission, ui
 
 	sprintf(mo,"m%do",mission_num);
 	string moS(mo);
-	gLogger->logMsgF("MissionManager : creator :%s",MSG_HIGH,moS.getAnsi());
+	#if defined(_DEBUG)
+		gLogger->logMsgF("MissionManager : creator :%s",MSG_HIGH,moS.getAnsi());
+	#endif
 	NameMap nameMap = link->missiontype->names;
 	NameMap::iterator NameMapIt = nameMap.find(moS.getCrc());
 	if(NameMapIt != nameMap.end())

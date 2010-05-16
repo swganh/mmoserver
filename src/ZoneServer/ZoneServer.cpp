@@ -78,7 +78,7 @@ mDatabase(0)
 	Anh_Utils::Clock::Init();
 	
 	// gLogger->logMsgF("ZoneServer - %s Startup %s",MSG_NORMAL,zoneName,GetBuildString());
-	gLogger->logMsg("ZoneServer Startup", FOREGROUND_GREEN | FOREGROUND_RED);
+	gLogger->logMsg(" ZoneServer Startup", FOREGROUND_GREEN);
 
 	// Create and startup our core services.
 	mDatabaseManager = new DatabaseManager();
@@ -239,12 +239,12 @@ ZoneServer::~ZoneServer(void)
 void ZoneServer::handleWMReady()
 {
 	_updateDBServerList(2);
-	gLogger->logMsg("ZoneServer::Startup Complete");
+	gLogger->logMsg(" Zone Server startup complete",FOREGROUND_GREEN);
 	//gLogger->printLogo();
 	// std::string BuildString(GetBuildString());
 
-	gLogger->logMsgF("ZoneServer:%s %s",MSG_NORMAL,getZoneName().getAnsi(),ConfigManager::getBuildString().c_str());
-	gLogger->logMsg("Welcome to your SWGANH Experience!");
+	gLogger->logMsgF("Zone Server:%s %s",MSG_NORMAL,getZoneName().getAnsi(),ConfigManager::getBuildString().c_str());
+	gLogger->logMsg(" Welcome to your SWGANH Experience!");
 
 	// Connect to the ConnectionServer;
 	_connectToConnectionServer();

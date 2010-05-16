@@ -55,7 +55,7 @@ ChatServer::ChatServer() : mNetworkManager(0),mDatabaseManager(0),mRouterService
 {
 	Anh_Utils::Clock::Init();
 	//gLogger->printSmallLogo();
-	gLogger->logMsg("ChatServer Startup");
+	gLogger->logMsg(" Chat Server Startup", FOREGROUND_GREEN);
 
 	// Create and startup our core services.
 	mDatabaseManager = new DatabaseManager();
@@ -113,12 +113,12 @@ ChatServer::ChatServer() : mNetworkManager(0),mDatabaseManager(0),mRouterService
 	// We're done initializing.
 	_updateDBServerList(2);
 
-	gLogger->logMsg("ChatServer::Startup Complete");
+	gLogger->logMsg(" Chat Server startup complete", FOREGROUND_GREEN);
 	//gLogger->printLogo();
 	// std::string BuildString(GetBuildString());
 
-	gLogger->logMsgF("ChatServer - Build %s",MSG_NORMAL,ConfigManager::getBuildString().c_str());
-	gLogger->logMsg("Welcome to your SWGANH Experience!");
+	gLogger->logMsgF("Chat Server - Build %s",MSG_NORMAL,ConfigManager::getBuildString().c_str());
+	gLogger->logMsg(" Welcome to your SWGANH Experience!");
 }
 
 //======================================================================================================================
@@ -150,7 +150,7 @@ ChatServer::~ChatServer()
 
 	delete mDatabaseManager;
 
-	gLogger->logMsg("ChatServer Shutdown Complete\n");
+	gLogger->logMsg("ChatServer Shutdown Complete");
 }
 
 //======================================================================================================================

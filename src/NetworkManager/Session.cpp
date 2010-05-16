@@ -117,8 +117,9 @@ lowest(0)
 Session::~Session(void)
 {				
 	uint32 savedPackets = 0;
-
-	gLogger->logMsgF("Session::~Session ",MSG_HIGH,this->getId());
+						#if defined(_DEBUG)
+							gLogger->logMsgF("Session::~Session ",MSG_HIGH,this->getId());
+						#endif
 	Message* message = 0;
 	
     boost::recursive_mutex::scoped_lock lk(mSessionMutex);
@@ -483,22 +484,6 @@ void Session::ProcessWriteThread(void)
   } //end switch(mCommand)
 
   // Process our timeouts.
-  // MUAHARHARHARHAR Welcome to the Netlayer /me laughs dirtily
-  // please note several things!!!!!!
-  // ZONESERVER DO NOT HAVE ( I repeat : zoneservers DONOTHAVE) ha clientsession!!!! 
-  // this means that in a zoneserver mServerSession will always be true
-  // the only server with a (several truth be told, as much as we have clients) clientsession is the connectionserver
-  // mServerSession is set to true via the netlayer initialization in connectionserver/ zoneserver.cpp
-  // if we are spamming pings to the zone ( they are actually filtered out by our toolset) it is a good idea to look at
-  // the pingserver 
-  // to send 50 pings per second with the keep alive code here we would need 250 servers pinging.
-  // interisting is however the question on how we decide which pings to mirror, and which to ignore
-  // so for startes I will limit the (back) pinging to once per second.
-  // (_processPingPacket)
-  // What happened with the current code, was that every ping, once started caused the server to mirror it
-  // there never was a throttle - so pinging between servers once started - never stopped.
-  // As fast as it could possibly happen. Given another reason to send a ping - the pinging just was doubled.
-
 
   if (mStatus == SSTAT_Connected)
   {
@@ -538,16 +523,6 @@ void Session::ProcessWriteThread(void)
 //======================================================================================================================
 void Session::SendChannelA(Message* message)
 {
-	// Do some boundschecking.
-	if (message->getPriority() > 0x10)
-	{
-		gLogger->logMsgF("Session::SendChannelA priority messup!!!", MSG_HIGH );
-		gLogger->hexDump(message->getData(), message->getSize());
-
-		//ALWAYS delete messages -never orphan them!!!
-		message->setPendingDelete(true);		
-		return;
-	}
 
 	message->mSession = this;
 	//check whether we are disconnecting  this happens when a client or server crashes without sending a disconnect
@@ -578,14 +553,6 @@ void Session::SendChannelA(Message* message)
 
 void Session::SendChannelAUnreliable(Message* message)
 {
-	// Do some boundschecking.
-	if (message->getPriority() > 0x10)
-	{
-		gLogger->logMsgF("Session::SendChannelAUnreliablepriority messup!!!", MSG_HIGH );
-		gLogger->hexDump(message->getData(), message->getSize());
-		return;
-	}
-
 	message->mSession = this;
 
 	//check whether we are disconnecting
@@ -671,7 +638,8 @@ void Session::HandleSessionPacket(Packet* packet)
   mLastPacketReceived = Anh_Utils::Clock::getSingleton()->getStoredTime();
   mClientPacketsReceived++;
 
-  // If this is fastpath data, send it up.
+  // If this is fastpath data, send it up. all fastpath data should go the other pathway
+  // this still needed ???
   if (packetType < 0x0100)
   {
     HandleFastpathPacket(packet);
@@ -725,9 +693,10 @@ void Session::HandleSessionPacket(Packet* packet)
 	// Remote side disconnceted
 	case SESSIONOP_Disconnect:
 	{
-	
-			gLogger->logMsgF("Session::remote side disconnected", MSG_HIGH);
-	  mStatus = SSTAT_Disconnecting;
+							#if defined(_DEBUG)
+						gLogger->logMsgF("Session::remote side disconnected", MSG_HIGH);
+						#endif
+			 mStatus = SSTAT_Disconnecting;
 	  _processDisconnectPacket(packet);
 	  return;
 	}
@@ -764,6 +733,23 @@ void Session::HandleSessionPacket(Packet* packet)
 
    //gLogger->logMsgF("Incoming data - seq: %i expect: %u Session:0x%x%.4x", MSG_HIGH, sequence, mInSequenceNext, mService->getId(), getId());
 
+
+   if (mInSequenceNext == sequence)
+   {
+		SortSessionPacket(packet,packetType);
+
+		//no use anymore for our stored ooops
+		PacketWindowList::iterator ooopsIt = mOutOfOrderPackets.begin();
+
+		while(ooopsIt != mOutOfOrderPackets.end())
+		{
+			Packet* ooopsPacket = (*ooopsIt);
+			mPacketFactory->DestroyPacket(ooopsPacket);
+			mOutOfOrderPackets.erase(ooopsIt++);
+		}
+
+   }
+   else
    if (mInSequenceNext < sequence)
    {
 	   //last line of defense synchronization
@@ -872,23 +858,6 @@ void Session::HandleSessionPacket(Packet* packet)
 		return;
 	   
    }
-
-   else
-   if (mInSequenceNext == sequence)
-   {
-		SortSessionPacket(packet,packetType);
-
-		//no use anymore for our stored ooops
-		PacketWindowList::iterator ooopsIt = mOutOfOrderPackets.begin();
-
-		while(ooopsIt != mOutOfOrderPackets.end())
-		{
-			Packet* ooopsPacket = (*ooopsIt);
-			mPacketFactory->DestroyPacket(ooopsPacket);
-			mOutOfOrderPackets.erase(ooopsIt++);
-		}
-
-   }
    else
    {
    		mPacketFactory->DestroyPacket(packet);
@@ -939,11 +908,6 @@ void Session::HandleFastpathPacket(Packet* packet)
 	packet->setReadIndex(0);
 
 	priority = packet->getUint8();
-	if (priority > 0x10)
-	{
-		gLogger->logMsgF("Session::HandleFastpathPacket priority messup!!!", MSG_HIGH );
-		return;
-	}
 
 	routed = packet->getUint8();
 	if (routed)
@@ -973,8 +937,10 @@ void Session::HandleFastpathPacket(Packet* packet)
 	newMessage->setAccountId(accountId);
 	newMessage->setFastpath(true);
 	
-	if (routed)
-	  newMessage->setRouted(true);
+	if(routed)
+		newMessage->setRouted(true);
+	else
+		newMessage->setRouted(false);
 
 	_addIncomingMessage(newMessage, priority);
 	
@@ -1016,14 +982,6 @@ Packet* Session::getOutgoingReliablePacket(void)
   lk.unlock();
 
   mLastPacketSent = Anh_Utils::Clock::getSingleton()->getStoredTime();
-
-  //packet->setReadIndex(2);
-  //uint16 sequence = ntohs(packet->getUint16());
-
- 
-  //gLogger->logMsgF("Session::getOutgoingReliablePacket Sequence  : %u ", MSG_HIGH, sequence);
- 
-
   
   return packet;
 }
@@ -1048,10 +1006,6 @@ Packet* Session::getOutgoingUnreliablePacket(void)
   lk.unlock();
 
   mLastPacketSent = Anh_Utils::Clock::getSingleton()->getStoredTime();
-
-  // Temp debug logging for client only.
-  //packet->setReadIndex(2);
-  
 
   return packet;
 }
@@ -1078,12 +1032,6 @@ Message* Session::getIncomingQueueMessage()
 //======================================================================================================================
 void Session::_processSessionRequestPacket(Packet* packet)
 {   
-	// one problem of the bots is that we might get an IP port combination several times
-	if(mStatus > SSTAT_Connected)
-	{
-		gLogger->logMsgF("IP Port given multiple times ??",MSG_HIGH);
-		return;
-	}
 
   // retrieve our request id.
   packet->getUint32();                      // Unknown
@@ -1141,33 +1089,19 @@ void Session::_processMultiPacket(Packet* packet)
   // Iterate through our multi-packet
 
   while (packet->getReadIndex() < packet->getSize())
-  {
-
-	 if (packet->getReadIndex() >= packet->getSize())
-	  gLogger->logMsgF("bad Multi-03 index:%u size:%u",MSG_HIGH,packet->getReadIndex(),packet->getSize());
-    
+  {    
 	 // Create a new packet
     newPacket = mPacketFactory->CreatePacket();
 
     // Get the size of our next packet and increment our index
     packetSize = packet->getUint8();
 
-    if(packetSize > 0)
-    {
-      // insert the data.
-      newPacket->Reset();
-      newPacket->addData(&(packet->getData()[packet->getReadIndex()]), packetSize);
-      packet->setReadIndex(packet->getReadIndex() + packetSize);
-
-      // Process the new packet.
-      this->HandleSessionPacket(newPacket);
-    }
-	else
-	{
-		gLogger->logMsgF("bad Multi-03 index:%u size:%u oacket size == 0",MSG_HIGH,packet->getReadIndex(),packet->getSize());
-		gLogger->hexDump(&(packet->getData()[0]),packet->getSize());
-
-	}
+    // insert the data.
+     newPacket->Reset();
+     newPacket->addData(&(packet->getData()[packet->getReadIndex()]), packetSize);
+     packet->setReadIndex(packet->getReadIndex() + packetSize);
+	 // Process the new packet.
+     this->HandleSessionPacket(newPacket);
   }
 
   // Destroy our incoming packet, it's not needed any longer.
@@ -1175,126 +1109,7 @@ void Session::_processMultiPacket(Packet* packet)
 }
 
 
-//======================================================================================================================
-/*
-void Session::_processDataChannelPacket(Packet* packet, bool fastPath)
-{
-  uint8		priority		= 0;
-  uint8		routed			= 0;
-  uint8		dest			= 0;
-  uint32	accountId		= 0;
-  //bool		destroyPacket	= true;
-  
 
-  // If we're fastpath, just send it up.  
-  if(fastPath)
-  {
-		gLogger->logMsgF("Session::_processDataChannel :: fastpath", MSG_HIGH);
-		assert(false);
-
-		
-  }
-  else
-  {
-		// Otherwise ack this packet then send it up
-		packet->setReadIndex(0);
-		uint16 packetType = packet->getUint16();
-		uint16 sequence = ntohs(packet->getUint16());
-
-		//if (mService->getId() == 1)
-		{
-		  //gLogger->logMsgF("Incoming data - seq: %i expect: %u Session:0x%x%.4x", MSG_LOW, sequence, mInSequenceNext, mService->getId(), getId());
-		}
-
-	  // check to see if this is a multi-message message
-	  //uint16 len = packet->getSize() - 4;  // -2 header, -2 sequence
-	  priority = packet->getUint8();
-	  routed = packet->getUint8();
-	  
-	  // If we're from the server, strip off our routing header.
-	  if(routed == 1)
-		{
-			gLogger->logMsgF("Session::_processDataChannelB :: thats not routed ... sob :(", MSG_HIGH);
-			assert(false);
-		}
-  
-	  if (routed == 0x19)
-	  {
-		// Next byte is size
-		uint32 size = packet->getUint8();
-
-		do 
-		{
-		  // More size bytes?
-		  if (size == 0xff)
-		  {
-			  size = ntohs(packet->getUint16());
-		  }
-	      
-		  // We need to get theses again.
-		  priority = packet->getUint8();
-		  packet->getUint8();  // Routing byte not used inside a multi-message, just dump it. (only for channel A!!!)
-
-		  // Init a new message for this data.
-		  mMessageFactory->StartMessage();
-		  mMessageFactory->addData(packet->getData() + packet->getReadIndex(), static_cast<uint16>(size) - 2); // -1 priority, -1 routing
-		  Message* newMessage = mMessageFactory->EndMessage();
-
-		  // set our account and server id's
-		  newMessage->setAccountId(accountId);
-		  newMessage->setDestinationId(dest);
-		  newMessage->setPriority(priority);
-		  assert(newMessage->getPriority() < 0x10);
-
-		  // Need to specify whether this is routed or not here, so we know in the app
-		  newMessage->setRouted(false);
-
-		  // Push the message on our incoming queue
-		  _addIncomingMessage(newMessage, priority);
-
-		  // Advance the message index
-		  packet->setReadIndex(packet->getReadIndex() + static_cast<uint16>(size) - 2); // -1 priority, -1 routing
-
-		  size = packet->getUint8();
-		}
-		while (packet->getReadIndex() < packet->getSize() && size != 0);
-	  }
-	  else
-	  {
-		// Create our new message and send it up.
-		mMessageFactory->StartMessage();
-		mMessageFactory->addData(packet->getData() + packet->getReadIndex(), packet->getSize() - packet->getReadIndex());
-		Message* newMessage = mMessageFactory->EndMessage();
-
-		// Need to specify whether this is routed or not here, so we know in the app
-		newMessage->setRouted(false);
-
-		// set our message parameters
-		newMessage->setAccountId(accountId);
-		newMessage->setDestinationId(dest);
-		newMessage->setPriority(priority);
-		assert(newMessage->getPriority() < 0x10);
-
-		// Push the message on our incoming queue
-		_addIncomingMessage(newMessage, priority);
-	  }
-
-   // Set our inSequence number so we know we recieved this packet.
-   // in sequence is per packet not per message 
-   // with the one exception of 03's
-   
-	//gLogger->logMsgF("_processDataChannelPacket::increasing mInSequence by 1 %u", MSG_HIGH, mInSequenceNext);  
-	mInSequenceNext++;
-	mSendDelayedAck = true;
-	//gLogger->logMsgF("_processDataChannelPacket::send ack sequence %u", MSG_HIGH, mInSequenceNext-1);  
-
-
-  }
-
-  // Destroy our incoming packet, it's not needed any longer.
-	mPacketFactory->DestroyPacket(packet);
-}
-*/
 void Session::_processDataChannelPacket(Packet* packet, bool fastPath)
 {
   uint8		priority		= 0;
@@ -1304,85 +1119,67 @@ void Session::_processDataChannelPacket(Packet* packet, bool fastPath)
   bool		destroyPacket	= true;
   
 
-  // If we're fastpath, just send it up.  
-  if(fastPath)
-  {
-		gLogger->logMsgF("Session::_processDataChannel :: fastpath", MSG_HIGH);
-		return;
-  }
-  else
-  {
-		// Otherwise ack this packet then send it up
-		packet->setReadIndex(0);
-		uint16 packetType = packet->getUint16();
-		uint16 sequence = ntohs(packet->getUint16());
+  
+	// Otherwise ack this packet then send it up
+	packet->setReadIndex(0);
+	uint16 packetType = packet->getUint16();
+	uint16 sequence = ntohs(packet->getUint16());
 
-		//if (mService->getId() == 1)
-		{
-		  //gLogger->logMsgF("Incoming data - seq: %i expect: %u Session:0x%x%.4x", MSG_LOW, sequence, mInSequenceNext, mService->getId(), getId());
-		}
+	// check to see if this is a multi-message message
+	//uint16 len = packet->getSize() - 4;  // -2 header, -2 sequence
+	priority = packet->getUint8();
 
-		// check to see if this is a multi-message message
-		//uint16 len = packet->getSize() - 4;  // -2 header, -2 sequence
-		priority = packet->getUint8();
-		if (priority > 0x10)
-		{
-			gLogger->logMsgF("Session::_processDataChannelPacket priority messup!!!", MSG_HIGH );
-			gLogger->hexDump(packet->getData(), packet->getSize());
-			return;
-		}
-
-	  routed = packet->getUint8();
+	routed = packet->getUint8();
 	  
-	  // If we're from the server, strip off our routing header.
-	  if (routed == 0x01)
-	  {
+	// If we're from the server, strip off our routing header.
+	if (routed == 0x01)
+	{
 		dest = packet->getUint8();
 		accountId = packet->getUint32();
-	  }
+	}
   
-	  if (routed == 0x19)
-	  {
+	if (routed == 0x19)
+	{
 		// Next byte is size
 		uint32 size = packet->getUint8();
 
 		do 
 		{
-		  // More size bytes?
-		  if (size == 0xff)
-		  {
-			  size = ntohs(packet->getUint16());
-		  }
+			// More size bytes?
+			if (size == 0xff)
+			{
+				size = ntohs(packet->getUint16());
+			}
 	      
-		  // We need to get theses again.
-		  priority = packet->getUint8();
-		  packet->getUint8();  // Routing byte not used inside a multi-message, just dump it. (only for channel A!!!)
+			// We need to get theses again.
+			priority = packet->getUint8();
+			packet->getUint8();  // Routing byte not used inside a multi-message, just dump it. (only for channel A!!!)
 
-		  // Init a new message for this data.
-		  mMessageFactory->StartMessage();
-		  mMessageFactory->addData(packet->getData() + packet->getReadIndex(), static_cast<uint16>(size) - 2); // -1 priority, -1 routing
-		  Message* newMessage = mMessageFactory->EndMessage();
+			// Init a new message for this data.
+			mMessageFactory->StartMessage();
+			mMessageFactory->addData(packet->getData() + packet->getReadIndex(), static_cast<uint16>(size) - 2); // -1 priority, -1 routing
+			Message* newMessage = mMessageFactory->EndMessage();
 
-		  // set our account and server id's
-		  newMessage->setAccountId(accountId);
-		  newMessage->setDestinationId(dest);
-		  newMessage->setPriority(priority);
+			// set our account and server id's
+			newMessage->setAccountId(accountId);
+			newMessage->setDestinationId(dest);
+			newMessage->setPriority(priority);
 
-		  // Need to specify whether this is routed or not here, so we know in the app
-		  newMessage->setRouted(false);
+			// Need to specify whether this is routed or not here, so we know in the app
+			newMessage->setRouted(false);
 
-		  // Push the message on our incoming queue
-		  _addIncomingMessage(newMessage, priority);
+			// Push the message on our incoming queue
+			_addIncomingMessage(newMessage, priority);
 
-		  // Advance the message index
-		  packet->setReadIndex(packet->getReadIndex() + static_cast<uint16>(size) - 2); // -1 priority, -1 routing
+			// Advance the message index
+			packet->setReadIndex(packet->getReadIndex() + static_cast<uint16>(size) - 2); // -1 priority, -1 routing
 
-		  size = packet->getUint8();
+			size = packet->getUint8();
 		}
-		while (packet->getReadIndex() < packet->getSize() && size != 0);
-	  }
-	  else
-	  {
+		while (packet->getReadIndex() < packet->getSize() && size != 0);//do while
+	}
+	else
+	{
 		// Create our new message and send it up.
 		mMessageFactory->StartMessage();
 		mMessageFactory->addData(packet->getData() + packet->getReadIndex(), packet->getSize() - packet->getReadIndex());
@@ -1390,9 +1187,9 @@ void Session::_processDataChannelPacket(Packet* packet, bool fastPath)
 
 		// Need to specify whether this is routed or not here, so we know in the app
 		if (routed)
-		  newMessage->setRouted(true);
+			newMessage->setRouted(true);
 		else
-		  newMessage->setRouted(false);
+			newMessage->setRouted(false);
 
 		// set our message parameters
 		newMessage->setAccountId(accountId);
@@ -1401,19 +1198,16 @@ void Session::_processDataChannelPacket(Packet* packet, bool fastPath)
 
 		// Push the message on our incoming queue
 		_addIncomingMessage(newMessage, priority);
-	  }
+	}
 
    // Set our inSequence number so we know we recieved this packet.
    // in sequence is per packet not per message 
    // with the one exception of 03's
    
-	//gLogger->logMsgF("_processDataChannelPacket::increasing mInSequence by 1 %u", MSG_HIGH, mInSequenceNext);  
 	mInSequenceNext++;
 	mSendDelayedAck = true;
-	//gLogger->logMsgF("_processDataChannelPacket::send ack sequence %u", MSG_HIGH, mInSequenceNext-1);  
+	
 
-
-  }
 
   // Destroy our incoming packet, it's not needed any longer.
   if(destroyPacket)
@@ -1440,31 +1234,11 @@ void Session::_processDataChannelB(Packet* packet)
 	uint16 packetType = packet->getUint16();   //session op
 	uint16 sequence = ntohs(packet->getUint16());
 
-	if (!mInSequenceNext == sequence)
-	{
-		gLogger->logMsgF("Session::_processDataChannelB :: Incoming data - seq: %i expect: %u Session:0x%x%.4x", MSG_HIGH, sequence, mInSequenceNext, mService->getId(), getId());
-		return;
-	}
-
 	// check to see if this is a multi-message message
 	
 	priority = packet->getUint8();
-	if (priority > 0x10)
-	{
-		gLogger->logMsgF("Session::_processDataChannelB priority messup!!!", MSG_HIGH );
-		gLogger->hexDump(packet->getData(), packet->getSize());
-		return;
-	}
 
 	routed = packet->getUint8();
-	  
-	// If we're from the server, strip off our routing header.
-	if (!routed)
-	{
-		gLogger->logMsgF("Session::_processDataChannelB :: thats not routed ... sob :(", MSG_HIGH);			
-		return;
-	}
-
   
 	//this is a nultimessage ??
 	if (routed== 0x19)//routed
@@ -1482,13 +1256,7 @@ void Session::_processDataChannelB(Packet* packet)
 		  
 				// We need to get these again.
 				priority = packet->getUint8();
-				if (priority > 0x10)
-				{
-					gLogger->logMsgF("Session::_processDataChannelB priority messup!!!", MSG_HIGH );
-					gLogger->hexDump(packet->getData(), packet->getSize());
-					return;
-				}
-
+				
 				routed =  packet->getUint8();  // Routing byte in a B 019 used!!! as we have interserver communication here
 
 				dest = packet->getUint8();
@@ -1508,13 +1276,6 @@ void Session::_processDataChannelB(Packet* packet)
 				newMessage->setDestinationId(dest);
 				newMessage->setPriority(priority);
 			  
-				if(priority >= 0x10)
-				{
-					gLogger->logMsgF("Session::_processDataChannelB  packet messup message (!) priority size : %u!!!",MSG_HIGH, size);
-					gLogger->hexDump(packet->getData(),packet->getSize());
-					return;
-				}
-
 				// Need to specify whether this is routed or not here, so we know in the app
 				newMessage->setRouted(true);
 
@@ -1529,14 +1290,6 @@ void Session::_processDataChannelB(Packet* packet)
 			}
 			while ((packet->getReadIndex() < packet->getSize()) && size != 0);
 
-			if(packet->getReadIndex() > (uint32)(packet->getSize()+1))
-			{
-				gLogger->logMsgF("Session::_processDataChannelB  Multi packet messup message size : %u!!!",MSG_HIGH, size);
-				gLogger->hexDump(packet->getData(),packet->getSize());
-				return;
-
-			}
-
 		}
 		else // no 019
 		{
@@ -1548,12 +1301,6 @@ void Session::_processDataChannelB(Packet* packet)
 			mMessageFactory->addData(packet->getData() + packet->getReadIndex(), packet->getSize() - packet->getReadIndex());
 			Message* newMessage = mMessageFactory->EndMessage();
 
-			// Need to specify whether this is routed or not here, so we know in the app
-			if (!routed)
-			{
-				gLogger->logMsgF("Session::_processDataChannelB :: thats not routed ... sob :(", MSG_HIGH);
-				return;
-			}
 			newMessage->setRouted(true);
 		
 
@@ -1563,13 +1310,7 @@ void Session::_processDataChannelB(Packet* packet)
 			newMessage->setDestinationId(dest);
 			
 			newMessage->setPriority(priority);
-			if (priority > 0x10)
-				{
-					gLogger->logMsgF("Session::_processDataChannelB priority messup!!!", MSG_HIGH );
-					gLogger->hexDump(newMessage->getData(), newMessage->getSize());
-					return;
-				}
-
+			
 			// Push the message on our incoming queue
 			_addIncomingMessage(newMessage, priority);
 
@@ -1698,7 +1439,7 @@ void Session::_processDataChannelAck(Packet* packet)
 					windowPacketSequence = ntohs(windowPacket->getUint16());
 				}//while(sequence >= windowPacketSequence)
 
-				mLastRemotePacketAckReceived = Anh_Utils::Clock::getSingleton()->getLocalTime();
+				mLastRemotePacketAckReceived = Anh_Utils::Clock::getSingleton()->getStoredTime();
 
 				// Our current window increases here, as we know come communication is back.
 			
@@ -1761,7 +1502,7 @@ void Session::_processDataChannelAck(Packet* packet)
 			windowPacketSequence = ntohs(windowPacket->getUint16());
 		}
 
-		mLastRemotePacketAckReceived = Anh_Utils::Clock::getSingleton()->getLocalTime();
+		mLastRemotePacketAckReceived = Anh_Utils::Clock::getSingleton()->getStoredTime();
 		//gLogger->logMsgF("Received ACK  - Sequence: %u, Session:0x%x%.4x", MSG_HIGH, sequence, mService->getId(), getId());
 
 	}
@@ -2267,7 +2008,7 @@ void Session::_processPingPacket(Packet* packet)
 	//when we then decided to add a ping we just doubled the pinging
 	//as fast as the servers possibly could spam packets
 
-   if((Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastPingPacketSent) < 1000)
+   if((Anh_Utils::Clock::getSingleton()->getStoredTime() - mLastPingPacketSent) < 1000)
    {
 	   mPacketFactory->DestroyPacket(packet);
 	   return;
@@ -2285,7 +2026,7 @@ void Session::_processPingPacket(Packet* packet)
 
     // Push the packet on our outgoing queue
     _addOutgoingUnreliablePacket(newPacket);
-	mLastPingPacketSent = Anh_Utils::Clock::getSingleton()->getLocalTime();
+	mLastPingPacketSent = Anh_Utils::Clock::getSingleton()->getStoredTime();
   }
   // Backend servers are larger to incorporate more features, 9 bytes(packet size).
   else
@@ -2304,7 +2045,7 @@ void Session::_processPingPacket(Packet* packet)
 
       // Push the packet on our outgoing queue
       _addOutgoingUnreliablePacket(newPacket);
-	  mLastPingPacketSent = Anh_Utils::Clock::getSingleton()->getLocalTime();
+	  mLastPingPacketSent = Anh_Utils::Clock::getSingleton()->getStoredTime();
     }
   }
   
@@ -2445,7 +2186,10 @@ void Session::_processDisconnectCommand(void)
 	newPacket->setIsEncrypted(true);
 
 	mService->AddSessionToProcessQueue(this);
-	gLogger->logMsgF("Session::_processDisconnectCommand added session to processqueue", MSG_HIGH);
+	#if defined(_DEBUG)
+					gLogger->logMsgF("Session::_processDisconnectCommand added session to processqueue", MSG_HIGH);
+				#endif
+					
 	// Send out packet out.
 	_addOutgoingUnreliablePacket(newPacket);
 }
@@ -2782,8 +2526,6 @@ uint32 Session::_buildPackets()
 	Message* message = mOutgoingMessageQueue.front();
 	mOutgoingMessageQueue.pop();
 
-	message->mPath = MP_buildPacketStarted;
-
 	//are there still any fastpath packets around at this point ?
 	assert(!message->getFastpath() && "No Fastpath messages should reach this point");
 
@@ -2846,7 +2588,6 @@ uint32 Session::_buildPackets()
 			packetsbuild++;
 			while(baseSize < mMaxPacketSize && mOutgoingMessageQueue.size())
 			{
-				message->mPath = MP_Multi;
 				message = mOutgoingMessageQueue.front();
 							
 				baseSize += (message->getSize() + 5); // size + prio + routing   cave size *might be > 255 so using 3 (1+2) for size as a standard!!
@@ -2871,8 +2612,7 @@ uint32 Session::_buildPackets()
 			message->setPendingDelete(true);
 		}
 	}
-	if(message)
-		message->mPath = MP_buildPacketEnded;
+
 	return(packetsbuild);
 }
 
@@ -2888,7 +2628,6 @@ uint32 Session::_buildPacketsUnreliable()
 
 	Message* message = mUnreliableMessageQueue.front();
 	mUnreliableMessageQueue.pop();
-	message->mPath = MP_buildPacketUnreliable;
 
 	// no larger ones than ff yet, we want at least 2 messages to fit in, dont use routed mesages, so the frontline server does packing only
 	if(!mUnreliableMessageQueue.size()
@@ -2910,7 +2649,6 @@ uint32 Session::_buildPacketsUnreliable()
 		while(baseSize < mMaxUnreliableSize && mUnreliableMessageQueue.size())
 		{
 			message = mUnreliableMessageQueue.front();
-			message->mPath = MP_buildPacketUnreliable;
 						
 			baseSize += message->getSize() + 3; // size + prio + routing
 

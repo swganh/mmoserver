@@ -124,7 +124,10 @@ void LoginManager::handleSessionMessage(NetworkClient* client, Message* message)
     case opLoginClientId:  // sent username and password.
     {
       // Start the login process
+		#if defined(_DEBUG)
 		gLogger->logMsgF("opLoginClientId",MSG_HIGH);
+	#endif
+		
       _handleLoginClientId(loginClient, message);
       break;
     }
@@ -289,9 +292,13 @@ void LoginManager::_authenticateClient(LoginClient* client, DatabaseResult* resu
     client->setAccountId(data.mId);
 	  client->setCharsAllowed(data.mCharsAllowed);
 	  client->setCsr(data.mCsr);
-
-    gLogger->logErrorF("login","void LoginManager::_authenticateClient Login: AccountId: %u Name: %s",MSG_NORMAL,data.mId,data.mUsername);
-    _sendAuthSucceeded(client);
+						#if !defined(_DEBUG)
+							gLogger->logErrorF("login"," Login: AccountId: %u Name: %s",MSG_NORMAL,data.mId,data.mUsername);
+						#endif
+						#if defined(_DEBUG)
+						gLogger->logErrorF("login","void LoginManager::_authenticateClient Login: AccountId: %u Name: %s",MSG_NORMAL,data.mId,data.mUsername);
+						#endif
+        _sendAuthSucceeded(client);
   }
   else
   {
@@ -301,7 +308,7 @@ void LoginManager::_authenticateClient(LoginClient* client, DatabaseResult* resu
     errType = "@cpt_login_fail";
     errMsg = "@msg_login_fail";
 
-    gLogger->logErrorF("login","Login failed for username: %s, password: %s", MSG_NORMAL, client->getUsername().getAnsi(), client->getPassword().getAnsi());
+    gLogger->logErrorF("login"," Login failed for username: %s, password: %s", MSG_NORMAL, client->getUsername().getAnsi(), client->getPassword().getAnsi());
 
 	  gMessageFactory->StartMessage();
 	  gMessageFactory->addUint32(opErrorMessage);

@@ -38,7 +38,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "UIOfferTeachBox.h"
 #include "UIPlayerSelectBox.h"
 #include "UICloneSelectListBox.h"
-#include "Vehicle.h"
+#include "VehicleController.h"
 #include "WorldConfig.h"
 #include "WorldManager.h"
 #include "ZoneOpcodes.h"
@@ -106,7 +106,7 @@ PlayerObject::PlayerObject()
 	mIsForaging			= false;
 	mType				= ObjType_Player;
 	mCreoGroup			= CreoGroup_Player;
-	mStomach			= new Stomach();
+	mStomach			= new Stomach(this);
 	mMarriage			= L"";					// Unmarried
 	mTrade				= new Trade(this);
 
@@ -143,7 +143,7 @@ PlayerObject::~PlayerObject()
 
 	if(mMount && datapad)
 	{
-		if(Vehicle* datapad_pet = dynamic_cast<Vehicle*>(datapad->getDataById(mMount->getPetController())))
+		if(VehicleController* datapad_pet = dynamic_cast<VehicleController*>(datapad->getDataById(mMount->getPetController())))
 		{
 			datapad_pet->dismountPlayer();
 			datapad_pet->store();
@@ -156,8 +156,12 @@ PlayerObject::~PlayerObject()
 	// remove any timers we got running
 	gWorldManager->removeObjControllerToProcess(mObjectController.getTaskId());
 	gWorldManager->removeCreatureHamToProcess(mHam.getTaskId());
+	gWorldManager->removeCreatureStomachToProcess(mStomach->mDrinkTaskId);
+	gWorldManager->removeCreatureStomachToProcess(mStomach->mFoodTaskId);
 	mObjectController.setTaskId(0);
 	mHam.setTaskId(0);
+	mStomach->mFoodTaskId = 0;
+	mStomach->mDrinkTaskId = 0;
 
 	// remove player from movement update timer.
 	gWorldManager->removePlayerMovementUpdateTime(this);
@@ -220,17 +224,7 @@ PlayerObject::~PlayerObject()
 	if(GroupObject* group = gGroupManager->getGroupObject(mGroupId))
 	{
 		group->removePlayer(mId);
-		if(this->getIDPartner() != 0)
-		{
-			if(PlayerObject* idPartner = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getIDPartner())))
-			{
-				idPartner->SetImageDesignSession(IDSessionNONE);
-				idPartner->setIDPartner(0);
-				this->SetImageDesignSession(IDSessionNONE);
-				this->setIDPartner(0);
-			}
-
-		}
+		
 	}
 
 	// can't zone or logout while in combat
@@ -1681,13 +1675,13 @@ void PlayerObject::addToDuelList(PlayerObject* player)
 //
 // sets and returns the nearest crafting station
 //
-CraftingStation* PlayerObject::getCraftingStation(ObjectSet	inRangeObjects, ItemType toolType)
+CraftingStation* PlayerObject::getCraftingStation(ObjectSet*	inRangeObjects, ItemType toolType)
 {
-	ObjectSet::iterator it = inRangeObjects.begin();
+	ObjectSet::iterator it = inRangeObjects->begin();
 
 	mNearestCraftingStation = 0;
 
-	while(it != inRangeObjects.end())
+	while(it != inRangeObjects->end())
 	{
 		if(CraftingStation*	station = dynamic_cast<CraftingStation*>(*it))
 		{
@@ -1700,9 +1694,11 @@ CraftingStation* PlayerObject::getCraftingStation(ObjectSet	inRangeObjects, Item
 				{
 					if(stationType == ItemType_ClothingStation || stationType == ItemType_ClothingStationPublic)
 					{
-						mNearestCraftingStation = station->getId();
-
-						return(station);
+						if (glm::distance(this->getWorldPosition(), station->getWorldPosition()) <= 25)
+						{
+							mNearestCraftingStation = station->getId();
+							return(station);
+						}
 					}
 				}
 				break;
@@ -1711,9 +1707,11 @@ CraftingStation* PlayerObject::getCraftingStation(ObjectSet	inRangeObjects, Item
 				{
 					if(stationType == ItemType_WeaponStation || stationType == ItemType_WeaponStationPublic)
 					{
-						mNearestCraftingStation = station->getId();
-
-						return(station);
+						if (glm::distance(this->getWorldPosition(), station->getWorldPosition()) <= 25)
+						{
+							mNearestCraftingStation = station->getId();
+							return(station);
+						}
 					}
 				}
 				break;
@@ -1722,9 +1720,11 @@ CraftingStation* PlayerObject::getCraftingStation(ObjectSet	inRangeObjects, Item
 				{
 					if(stationType == ItemType_FoodStation || stationType == ItemType_FoodStationPublic)
 					{
-						mNearestCraftingStation = station->getId();
-
-						return(station);
+						if (glm::distance(this->getWorldPosition(), station->getWorldPosition()) <= 25)
+						{
+							mNearestCraftingStation = station->getId();
+							return(station);
+						}
 					}
 				}
 				break;
@@ -1733,9 +1733,11 @@ CraftingStation* PlayerObject::getCraftingStation(ObjectSet	inRangeObjects, Item
 				{
 					if(stationType == ItemType_StructureStation || stationType == ItemType_StructureStationPublic)
 					{
-						mNearestCraftingStation = station->getId();
-
-						return(station);
+						if (glm::distance(this->getWorldPosition(), station->getWorldPosition()) <= 25)
+						{
+							mNearestCraftingStation = station->getId();
+							return(station);
+						}
 					}
 				}
 				break;
@@ -1744,9 +1746,11 @@ CraftingStation* PlayerObject::getCraftingStation(ObjectSet	inRangeObjects, Item
 				{
 					if(stationType == ItemType_SpaceStation || stationType == ItemType_SpaceStationPublic)
 					{
-						mNearestCraftingStation = station->getId();
-
-						return(station);
+						if (glm::distance(this->getWorldPosition(), station->getWorldPosition()) <= 25)
+						{
+							mNearestCraftingStation = station->getId();
+							return(station);
+						}
 					}
 				}
 				break;

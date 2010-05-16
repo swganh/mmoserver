@@ -111,7 +111,14 @@ void ResourceCollectionManager::handleDatabaseJobComplete(void* ref,DatabaseResu
 				}
 
 				if(result->getRowCount())
-					gLogger->logMsgLoadSuccess("ResourceCollectionManager::Loading sample costs...",MSG_NORMAL);
+											#if !defined(_DEBUG)
+	gLogger->logMsgLoadSuccess(" Loading sample costs...",MSG_NORMAL);
+#endif
+	
+#if defined(_DEBUG)
+gLogger->logMsgLoadSuccess("ResourceCollectionManager::Loading sample costs...",MSG_NORMAL);	
+#endif
+
 				else
 					gLogger->logMsgLoadFailure("ResourceCollectionManager::Loading sample costs...",MSG_NORMAL);					
 
@@ -134,7 +141,14 @@ void ResourceCollectionManager::handleDatabaseJobComplete(void* ref,DatabaseResu
 				}
 				
 				if(result->getRowCount())
-					gLogger->logMsgLoadSuccess("ResourceCollectionManager::Loading %u survey costs...",MSG_NORMAL,result->getRowCount());
+					#if !defined(_DEBUG)
+						gLogger->logMsgLoadSuccess(" Loading %u survey costs...",MSG_NORMAL,result->getRowCount());	
+					#endif
+					
+					#if defined(_DEBUG)
+						gLogger->logMsgLoadSuccess("ResourceCollectionManager::Loading %u survey costs...",MSG_NORMAL,result->getRowCount());		
+					#endif
+					
 				else
 					gLogger->logMsgLoadFailure("ResourceCollectionManager::Loading survey costs...",MSG_NORMAL);					
 			}

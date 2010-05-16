@@ -501,7 +501,12 @@ void StructureManager::_HandleQueryLoadDeedData(StructureManagerAsyncContainer* 
 	}
 
 	if(result->getRowCount())
-		gLogger->logMsgLoadSuccess("StructureManager::Loading %u Structures...",MSG_NORMAL,result->getRowCount());
+						#if !defined(_DEBUG)
+							gLogger->logMsgLoadSuccess(" Loading %u structures...",MSG_NORMAL,result->getRowCount());
+						#endif
+						#if defined(_DEBUG)
+							gLogger->logMsgLoadSuccess("StructureManager::Loading %u Structures...",MSG_NORMAL,result->getRowCount());
+						#endif
 	else
 		gLogger->logMsgLoadFailure("StructureManager::Loading Structures...",MSG_NORMAL);
 
@@ -746,9 +751,21 @@ void StructureManager::_HandleNonPersistantLoadStructureItem(StructureManagerAsy
 	}
 
 	if(result->getRowCount())
-		gLogger->logMsgLoadSuccess("StructureManager::Loading %u Structure Items...",MSG_NORMAL,result->getRowCount());
+		#if !defined(_DEBUG)
+							gLogger->logMsgLoadSuccess(" Loading %u structure items...",MSG_NORMAL,result->getRowCount());
+						#endif
+						#if defined(_DEBUG)
+							gLogger->logMsgLoadSuccess("StructureManager::Loading %u Structure Items...",MSG_NORMAL,result->getRowCount());
+						#endif
+							
 	else
-		gLogger->logMsgLoadFailure("StructureManager::Loading Structure Items...",MSG_NORMAL);
+		#if !defined(_DEBUG)
+							gLogger->logMsgLoadFailure(" Loading structure items...",MSG_NORMAL);
+						#endif
+						#if defined(_DEBUG)
+							gLogger->logMsgLoadFailure("StructureManager::Loading Structure Items...",MSG_NORMAL);
+						#endif
+							
 
 	mDatabase->DestroyDataBinding(binding);
 
@@ -820,7 +837,7 @@ void StructureManager::_HandleCheckPermission(StructureManagerAsyncContainer* as
 				building->updateCellPermissions(player,true);
 		}
 		else
-			gMessageLib->sendSystemMessage(player,L"You are not an admin of this structure");
+			gMessageLib->sendSystemMessage(player,L"", "player_strucuter","not_admin");
 	}
 
 	mDatabase->DestroyDataBinding(binding);

@@ -14,7 +14,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include "ChatManager.h"
 #include "ChatMessageLib.h"
-#include "TradeManagerHelp.h"
+//#include "TradeManagerHelp.h"
 
 #include "DatabaseManager/DatabaseCallback.h"
 

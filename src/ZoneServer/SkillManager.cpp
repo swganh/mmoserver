@@ -390,7 +390,14 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 	if(++mLoadCounter == mTotalLoadCount)
 	{
-		gLogger->logMsgLoadSuccess("SkillManager::loading %u Skilldatasets...",MSG_NORMAL,mTotalLoadCount);
+		#if !defined(_DEBUG)
+			gLogger->logMsgLoadSuccess(" Loading %u Skilldatasets...",MSG_NORMAL,mTotalLoadCount);
+			#endif
+	
+			#if defined(_DEBUG)
+			gLogger->logMsgLoadSuccess("SkillManager::loading %u Skilldatasets...",MSG_NORMAL,mTotalLoadCount);
+			#endif
+				
 	}
 
 	mDBAsyncPool.ordered_free(asyncContainer);
@@ -580,6 +587,11 @@ bool SkillManager::learnSkillLine(uint32 skillId, CreatureObject* creatureObject
 
 void SkillManager::teach(PlayerObject* pupilObject,PlayerObject* teacherObject,string show)
 {
+	if(pupilObject->isDead() || teacherObject->isDead() || !pupilObject->getHam()->checkMainPools(1, 1, 1) 
+		|| !teacherObject->getHam()->checkMainPools(1, 1, 1))
+	{
+		return;
+	}
 	// pupil and teacher bozh exist and are grouped
 	// we will now compare the teachers skill list to the pupils skill list
 	// and assemble a list with the skills the pupil does not have but were she/he has the prerequesits

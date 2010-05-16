@@ -58,7 +58,7 @@ mLocked(false)
 	Anh_Utils::Clock::Init();
 	// log msg to default log
 	//gLogger->printSmallLogo();
-	gLogger->logMsg("ConnectionServer Startup", FOREGROUND_GREEN | FOREGROUND_RED);
+	gLogger->logMsg(" ConnectionServer Startup", FOREGROUND_GREEN);
 	
 	// Startup our core modules
 	mNetworkManager = new NetworkManager();
@@ -111,12 +111,12 @@ mLocked(false)
   
 	// We're done initiailizing.
 	_updateDBServerList(2);
-	gLogger->logMsg("ConnectionServer::Server Boot Complete", FOREGROUND_GREEN);
+	gLogger->logMsg(" Connection Server Boot Complete", FOREGROUND_GREEN);
 	//gLogger->printLogo();
 	// std::string BuildString(GetBuildString());	
 
-	gLogger->logMsgF("ConnectionServer - Build %s",MSG_NORMAL,ConfigManager::getBuildString().c_str());
-	gLogger->logMsg("Welcome to your SWGANH Experience!");
+	gLogger->logMsgF("Connection Server - Build %s",MSG_NORMAL,ConfigManager::getBuildString().c_str());
+	gLogger->logMsg(" Welcome to your SWGANH Experience!");
 }
 
 //======================================================================================================================

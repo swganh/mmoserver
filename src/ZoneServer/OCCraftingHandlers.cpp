@@ -149,19 +149,22 @@ void ObjectController::_handleRequestCraftingSession(uint64 targetId,Message* me
 		return;
 	}
 
-//	if()
-//	{
-//	}
 
 	// get the tangible objects in range
 	mSI->getObjectsInRange(playerObject,&inRangeObjects,(ObjType_Tangible),range);
 
 	//and see if a fitting crafting station is near
-	station = playerObject->getCraftingStation(inRangeObjects,(ItemType) tool->getItemType());
+	station = playerObject->getCraftingStation(&inRangeObjects,(ItemType) tool->getItemType());
 
 	if(!station)
 	{
 		expFlag = false;
+	}
+
+	if(playerObject->isDead() || playerObject->isIncapacitated())
+	{
+		gMessageLib->sendSystemMessage(playerObject,L"You cannot do this at this time.");
+		return;
 	}
 
 	if(playerObject->getPerformingState() != PlayerPerformance_None)

@@ -57,6 +57,7 @@
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <AdditionalIncludeDirectories>$(SolutionDir)deps;$(SolutionDir)deps\boost;$(SolutionDir)deps\glm;$(SolutionDir)deps\lua\src;$(SolutionDir)deps\noise\src;$(SolutionDir)deps\spatialindex\include;$(SolutionDir)deps\spatialindex\tools\include;$(SolutionDir)src</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -79,6 +80,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;_WIN32_WINNT=0x0501;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <AdditionalIncludeDirectories>$(SolutionDir)deps;$(SolutionDir)deps\boost;$(SolutionDir)deps\glm;$(SolutionDir)deps\lua\src;$(SolutionDir)deps\noise\src;$(SolutionDir)deps\spatialindex\include;$(SolutionDir)deps\spatialindex\tools\include;$(SolutionDir)src</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -326,8 +328,8 @@
     <ClCompile Include="UIMessageBox.cpp" />
     <ClCompile Include="UITransferBox.cpp" />
     <ClCompile Include="UIWindow.cpp" />
-    <ClCompile Include="Vehicle.cpp" />
-    <ClCompile Include="VehicleFactory.cpp" />
+    <ClCompile Include="VehicleController.cpp" />
+    <ClCompile Include="VehicleControllerFactory.cpp" />
     <ClCompile Include="WaypointFactory.cpp" />
     <ClCompile Include="WaypointObject.cpp" />
     <ClCompile Include="Weapon.cpp" />
@@ -559,8 +561,8 @@
     <ClInclude Include="UITicketSelectListBox.h" />
     <ClInclude Include="UITransferBox.h" />
     <ClInclude Include="UIWindow.h" />
-    <ClInclude Include="Vehicle.h" />
-    <ClInclude Include="VehicleFactory.h" />
+    <ClInclude Include="VehicleController.h" />
+    <ClInclude Include="VehicleControllerFactory.h" />
     <ClInclude Include="WaypointFactory.h" />
     <ClInclude Include="WaypointObject.h" />
     <ClInclude Include="Weapon.h" />

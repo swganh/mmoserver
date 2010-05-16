@@ -180,6 +180,10 @@ while tutorial:getState() == 0 do
 	print("Waiting for Tutorial to become ready...");
 end;
 
+if tutorial:getRoom() == 16 then
+	state = 3;
+end
+
 local npcDebris;
 local npcDebrisId;
 if (tutorial:getSubState() < 18) then
@@ -2003,10 +2007,19 @@ while state == 1 do
 	end	
 end
 
+if state == 3 then
 
+	-- No funny business
+	tutorial:enableHudElement("all");		-- Enable full UI
 
+	-- "Welcome to Star Wars Galaxies."
+	tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:welcome");
+	tutorial:scriptPlayMusic(1267);		-- sound/tut_01_welcome.snd
+	
+	LuaScriptEngine.WaitMSec(5000);
+	
+	-- Stat Migration Sililoquy.
+	tutorial:scriptSystemMessage("@newbie_tutorial/system_messages:stat_migration");
+	tutorial:scriptPlayMusic(1838);
 
-
-
-
-
+end

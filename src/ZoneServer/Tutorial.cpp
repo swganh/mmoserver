@@ -1009,7 +1009,8 @@ void Tutorial::npcSendAnimation(uint64 npcId, uint32 animId, uint64 targetId)
 
 void Tutorial::sendStartingLocationList(void)
 {
-	(void)gMessageLib->sendStartingLocationList(mPlayerObject);
+
+	(void)gMessageLib->sendTutorialServerStatusRequest(mPlayerObject->getClient(), mPlayerObject->getId(), mPlayerObject->getAccountId());
 
 	// "Select your destination by clicking on one of the planets on the screen.  When you have selected the planet, select which city you wish to travel to by clicking on the picture to the right of the screen.  When you are ready to travel to the city, click on the arrow in the lower right-hand corner of the screen."
 	this->scriptSystemMessage("@newbie_tutorial/system_messages:select_dest");

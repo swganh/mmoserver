@@ -11,7 +11,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include "MountObject.h"
 #include "Datapad.h"
-#include "Vehicle.h"
+#include "VehicleController.h"
 #include "PlayerObject.h"
 
 //=============================================================================
@@ -71,14 +71,17 @@ void MountObject::handleObjectMenuSelect(uint8 message_type, Object* source_obje
 		return;
 	}
 
-  switch (message_type) {
+  switch (message_type) 
+  {
     case radId_vehicleStore:
       {
-				if(Datapad* datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad))) {			
-          if(Vehicle* vehicle = dynamic_cast<Vehicle*>(datapad->getDataById(mId-1)))	{
+		if(Datapad* datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad))) 
+		{			
+          if(VehicleController* vehicle = dynamic_cast<VehicleController*>(datapad->getDataById(mId-1)))	
+		  {
             vehicle->store();
           }
-				}
+		}
       }
     break;
 

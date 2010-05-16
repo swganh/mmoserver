@@ -248,13 +248,7 @@ class CreatureObject : public MovingObject
 		virtual void		killEvent(void) { }
 		virtual void		respawn(void) { }
 
-		//pet,mount,vehicle
-		uint64				getOwner() { return mOwner; }
-		void				setOwner(uint64 owner_id) { mOwner = owner_id; }
-
-		uint64				getPetController(){ return mController;}
-		void				setPetController(uint64 c){mController = c;}
-
+		
 		// flow control vars
 		uint64				mTargetId;
 		uint32				mDefenderUpdateCounter;
@@ -291,12 +285,11 @@ class CreatureObject : public MovingObject
 		PerformingPause		mPerformancePaused;
 		PerformingState		mPendingPerform;
 
-		uint64				mController;
 		uint64				mCurrentIncapTime;
 		uint64				mEntertainerListenToId;
 		uint64				mFirstIncapTime;
 		uint64				mGroupId;
-		uint64				mOwner; //If creature is a mount,pet,or vehicle it has an owner
+	
 		uint64				mState; //char states like peace, combat etc
 		float				mLastEntertainerXP;
 		float				mScale;
@@ -322,6 +315,7 @@ class CreatureObject : public MovingObject
 
 	public:
 
+		void				ClearAllBuffs();
 		void				AddBuff(Buff* buff,  bool stackable = false, bool overwrite = false);
 		void				RemoveBuff(Buff* buff);
 		void				CleanUpBuffs();

@@ -110,6 +110,19 @@ class Ham
 		uint64			getTaskId(){ return mTaskId; }
 		void			setTaskId(uint64 id){ mTaskId = id; }
 
+		/// Checks that the main pools are greater than the passed values.
+		/**
+		 * This method checks the main pools and verifies that each is
+		 * currently greater than respective value that is passed in.
+		 *
+		 * @param health Value that the health pool should be greater than.
+		 *
+		 * @param action Value that the action pool should be greater than.
+		 *
+		 * @param mind Value that the mind pool should be greater than.
+		 *
+		 * @returns True if the main pools are exceed the specified values, false if not.
+		 */
 		bool			checkMainPools(int32 health,int32 action,int32 mind);
 		void			checkForRegen();
 

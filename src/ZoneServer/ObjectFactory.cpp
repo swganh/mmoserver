@@ -348,7 +348,7 @@ void ObjectFactory::requestNewDefaultItemWithUses(ObjectFactoryCallback* ofCallb
 {
 	OFAsyncContainer* asyncContainer = new(mDbAsyncPool.ordered_malloc()) OFAsyncContainer(ofCallback,OFQuery_Item,NULL);
 
-	mDatabase->ExecuteSqlAsync(this,asyncContainer,"CALL sp_CreateForagedItem(%u,%u,%"PRIu64",%"PRIu64",%u,%f,%f,%f,'%s',%d)",familyId,typeId,parentId,(uint64) 0,planetId,position.x,position.y,position.z,customName.getAnsi(), useCount);
+	mDatabase->ExecuteProcedureAsync(this,asyncContainer,"CALL sp_CreateForagedItem(%u,%u,%"PRIu64",%"PRIu64",%u,%f,%f,%f,'%s',%d)",familyId,typeId,parentId,(uint64) 0,planetId,position.x,position.y,position.z,customName.getAnsi(), useCount);
 }
 
 
@@ -803,6 +803,8 @@ void ObjectFactory::deleteObjectFromDB(Object* object)
 			}
 
 			sprintf(sql,"DELETE FROM cells WHERE id = %"PRIu64"",object->getId());
+			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
+			sprintf(sql,"DELETE FROM structure_cells WHERE id = %"PRIu64"",object->getId());
 			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
 		}
 		break;

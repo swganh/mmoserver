@@ -138,7 +138,12 @@ void CharSheetManager::handleDatabaseJobComplete(void* ref, DatabaseResult* resu
 			}
 
 			if(result->getRowCount())
-				gLogger->logMsgLoadSuccess("CharSheetManager::loaded %u Factions...",MSG_NORMAL,result->getRowCount());
+						#if !defined(_DEBUG)
+							gLogger->logMsgLoadSuccess(" Loaded %u factions...",MSG_NORMAL,result->getRowCount());
+						#endif
+						#if defined(_DEBUG)
+							gLogger->logMsgLoadSuccess("CharSheetManager::loaded %u Factions...",MSG_NORMAL,result->getRowCount());
+						#endif
 			else
 				gLogger->logMsgLoadFailure("CharSheetManager::loaded Factions...",MSG_NORMAL);					
 
@@ -191,7 +196,13 @@ void CharSheetManager::handleDatabaseJobComplete(void* ref, DatabaseResult* resu
 			mDatabase->DestroyDataBinding(binding);
 
 			if(result->getRowCount())
-				gLogger->logMsgLoadSuccess("CombatManager::Loading %u weapon groups...",MSG_NORMAL,result->getRowCount());
+						#if !defined(_DEBUG)
+							gLogger->logMsgLoadSuccess(" Loading %u weapon groups...",MSG_NORMAL,result->getRowCount());
+						#endif
+				
+						#if defined(_DEBUG)
+							gLogger->logMsgLoadSuccess("CombatManager::Loading %u weapon groups...",MSG_NORMAL,result->getRowCount());
+						#endif
 			else
 				gLogger->logMsgLoadFailure("CombatManager::Loading weapon groups...",MSG_NORMAL);					
 		}

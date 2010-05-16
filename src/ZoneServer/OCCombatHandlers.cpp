@@ -46,7 +46,7 @@ void ObjectController::_handleDuel(uint64 targetId,Message* message,ObjectContro
 		PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(target);
 
 		// don't duel ourself
-		if(player == targetPlayer)
+		if(player == targetPlayer || targetPlayer->isDead() || !targetPlayer->getHam()->checkMainPools(1, 1, 1))
 		{
 			return;
 		}
@@ -263,7 +263,7 @@ void ObjectController::_handlePeace(uint64 targetId,Message* message,ObjectContr
 // set target
 //
 
-void ObjectController::setTarget(Message* message)
+void ObjectController::handleSetTarget(Message* message)
 {
 	CreatureObject*  creatureObject = dynamic_cast<CreatureObject*>(mObject);
 

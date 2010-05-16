@@ -55,6 +55,7 @@ mClientManager(clientManager)
 	mConnectionDispatch->RegisterMessageCallback(opClusterRegisterServer, this);
 	mConnectionDispatch->RegisterMessageCallback(opClusterZoneTransferRequestByTicket, this);
 	mConnectionDispatch->RegisterMessageCallback(opClusterZoneTransferRequestByPosition, this);
+	mConnectionDispatch->RegisterMessageCallback(opTutorialServerStatusRequest, this);
 
 	// Update our id
 	mClusterId = gConfig->read<uint32>("ClusterId");
@@ -73,6 +74,7 @@ ServerManager::~ServerManager(void)
 	mConnectionDispatch->UnregisterMessageCallback(opClusterRegisterServer);
 	mConnectionDispatch->UnregisterMessageCallback(opClusterZoneTransferRequestByTicket);
 	mConnectionDispatch->UnregisterMessageCallback(opClusterZoneTransferRequestByPosition);
+	mConnectionDispatch->UnregisterMessageCallback(opTutorialServerStatusRequest);
 
 	_destroyDataBindings();
 }
@@ -113,8 +115,11 @@ NetworkClient* ServerManager::handleSessionConnect(Session* session, Service* se
 	int8 sql[500];
 	sprintf(sql,"SELECT id, address, port, status, active FROM config_process_list WHERE address='%s' AND port=%u;", session->getAddressString(), session->getPortHost());
 	DatabaseResult* result = mDatabase->ExecuteSynchSql(sql);
-	gLogger->logMsgF(sql,MSG_HIGH);
-	gLogger->logMsg("\n");
+	#if defined(_DEBUG)
+		gLogger->logMsgF(sql,MSG_HIGH);
+		gLogger->logMsg("\n");
+	#endif
+							
 	// If we found them
 	if(result->getRowCount() == 1)
 	{
@@ -133,8 +138,8 @@ NetworkClient* ServerManager::handleSessionConnect(Session* session, Service* se
 		// If this is one of the servers we're waiting for, then update our count
 		if(mServerAddressMap[serverAddress.mId].mActive)
 		{
+			
 			++mTotalConnectedServers;
-
 			if(mTotalConnectedServers == mTotalActiveServers)
 			{
 				mDatabase->ExecuteSqlAsync(0,0,"UPDATE galaxy SET status=2, last_update=NOW() WHERE galaxy_id=%u;", mClusterId);
@@ -144,6 +149,8 @@ NetworkClient* ServerManager::handleSessionConnect(Session* session, Service* se
 	else
 	{
 		gLogger->logMsg("*** Backend server connect error - Server not found in DB\n");
+		gLogger->logMsgF(sql,MSG_HIGH);
+		gLogger->logMsg("\n");
 	}
 
 	// Delete our DB objects.
@@ -222,6 +229,11 @@ void ServerManager::handleDispatchMessage(uint32 opcode,Message* message,Connect
 			_processClusterZoneTransferRequestByPosition(client,message);
 		}
 		break;
+
+		case opTutorialServerStatusRequest:
+		{
+			_processClusterZoneTutorialTerminal(client,message);
+		}
 
 		default: break;
 	}
@@ -304,6 +316,48 @@ void ServerManager::_processClusterZoneTransferRequestByTicket(ConnectionClient*
     newMessage->setRouted(true);
     mMessageRouter->RouteMessage(newMessage, client);
   }
+}
+
+void ServerManager::_processClusterZoneTutorialTerminal(ConnectionClient* client, Message* message)
+{
+	gLogger->logMsg("Sending Tutorial Status Reply\n");
+
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opTutorialServerStatusReply);
+	gMessageFactory->addUint64(message->getUint64());
+
+	if(mServerAddressMap[16].mStatus == 2)
+		gMessageFactory->addUint8(1);
+	else
+		gMessageFactory->addUint8(0);
+
+	if(mServerAddressMap[8].mStatus == 2)
+		gMessageFactory->addUint8(1);
+	else
+		gMessageFactory->addUint8(0);
+
+	if(mServerAddressMap[15].mStatus == 2)
+		gMessageFactory->addUint8(1);
+	else
+		gMessageFactory->addUint8(0);
+
+	if(mServerAddressMap[14].mStatus == 2)
+		gMessageFactory->addUint8(1);
+	else
+		gMessageFactory->addUint8(0);
+
+	if(mServerAddressMap[13].mStatus == 2)
+		gMessageFactory->addUint8(1);
+	else
+		gMessageFactory->addUint8(0);
+
+	Message* newMessage = gMessageFactory->EndMessage();
+
+	// This one goes back from whence it came
+    newMessage->setAccountId(message->getAccountId());
+    newMessage->setDestinationId(static_cast<uint8>(client->getServerId()));
+    newMessage->setRouted(true);
+    mMessageRouter->RouteMessage(newMessage, client);
 }
 
 //======================================================================================================================

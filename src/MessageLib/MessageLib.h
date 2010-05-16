@@ -43,6 +43,7 @@ class FactoryObject;
 class ManufacturingSchematic;
 class PlayerObject;
 class MovingObject;
+class MountObject;
 class MissionObject;
 class CellObject;
 class StaticObject;
@@ -111,7 +112,7 @@ public:
 	bool				sendContainmentMessage_InRange(uint64 objectId,uint64 parentId,uint32 linkType,PlayerObject* targetObject);
 	bool				sendContainmentMessage_InRange(uint64 objectId,uint64 parentId,uint32 linkType,CreatureObject* targetObject);
 	bool				broadcastContainmentMessage(uint64 objectId,uint64 parentId,uint32 linkType,PlayerObject* targetObject);
-	bool				broadcastContainmentMessage(uint64 objectId,uint64 parentId,uint32 linkType,Object* targetObject);	// Used by Creatures.
+	bool				broadcastContainmentMessage(Object* targetObject,uint64 parentId,uint32 linkType);	// Used by Creatures.
 	bool				sendOpenedContainer(uint64 objectId, PlayerObject* targetObject);
 	bool				sendPostureMessage(CreatureObject* creatureObject,PlayerObject* targetObject);
 	bool				sendEndBaselines(uint64 objectId,const PlayerObject* const targetObject) const;
@@ -216,12 +217,14 @@ public:
 	bool				sendEmptyObjectMenuResponse(uint64 requestedId,PlayerObject* targetObject,uint8 responseNr, MenuItemList mMenuItemList);
 
 	// starting location list
-	bool				sendStartingLocationList(PlayerObject* player);
+	bool				sendStartingLocationList(PlayerObject* player, uint8 tatooine, uint8 corellia, uint8 talus, uint8 rori, uint8 naboo);
 
 	// position updates
 	void				sendDataTransform(Object* object);
 	void				sendDataTransformWithParent(Object* object);
 	void				sendSitOnObject(CreatureObject* creatureObject);
+	void				sendDataTransformWithParent0B(Object* object);
+	void				sendDataTransform0B(Object* object);
 
 	// position updates for tutorial
 	void				sendDataTransform(Object* object, PlayerObject* player);
@@ -270,7 +273,7 @@ public:
 	void				sendBFUpdateCreo3(CreatureObject* playerObject);
 
 	// creature owner
-	void				sendOwnerUpdateCreo3(CreatureObject* creatureObject);
+	void				sendOwnerUpdateCreo3(MountObject* mount);
 
 	// group
 	void				sendGroupIdUpdateDeltasCreo6(uint64 groupId, const PlayerObject* const player, const PlayerObject* const target) const;
@@ -486,6 +489,8 @@ public:
 	// Buffs
 	void				sendPlayerAddBuff(PlayerObject* target, int32 CRC, float Duration);
 	void				sendPlayerRemoveBuff(PlayerObject* playerObject, int32 CRC);
+
+	void				sendTutorialServerStatusRequest(DispatchClient* client, uint64 playerId, uint32 accountID);
 
 	~MessageLib();
 

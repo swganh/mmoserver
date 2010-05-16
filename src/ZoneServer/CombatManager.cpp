@@ -16,7 +16,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "ObjectControllerCommandMap.h"
 #include "PlayerObject.h"
 #include "Weapon.h"
-#include "Vehicle.h"
+#include "VehicleController.h"
 #include "WorldManager.h"
 #include "WorldConfig.h"
 
@@ -100,7 +100,13 @@ void CombatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 	}
 	if(result->getRowCount())
 	{
-		gLogger->logMsgLoadSuccess("CombatManager::Loading %"PRIu64" weapon groups...",MSG_NORMAL, count);
+						#if !defined(_DEBUG)
+							gLogger->logMsgLoadSuccess(" Loading %"PRIu64" weapon groups...",MSG_NORMAL, count);
+						#endif
+						#if defined(_DEBUG)
+							gLogger->logMsgLoadSuccess("CombatManager::Loading %"PRIu64" weapon groups...",MSG_NORMAL, count);
+						#endif
+							
 	}
 	else
 	{
@@ -177,9 +183,21 @@ bool CombatManager::_verifyCombatState(CreatureObject* attacker, uint64 defender
 		return false;
 	}
 
+	//Do not attack if we are incapped or already dead or mounted.
+	if (attacker->isIncapacitated() || attacker->isDead() || playerAttacker->checkIfMounted())
+	{
+		return false;
+	}
+
 	// make sure we got both objects
 	if (playerAttacker && defender)
 	{
+		//Do not attack if we are mounted
+		if(playerAttacker->checkIfMounted())
+		{
+			return false;
+		}
+
 		// if our target is a player, he must be dueling us or both need to be overt(TODO)
 		if (PlayerObject* defenderPlayer = dynamic_cast<PlayerObject*>(defender))
 		{
@@ -715,7 +733,7 @@ uint8 CombatManager::_tryStateEffects(CreatureObject* attacker,CreatureObject* d
 			if(player->checkIfMounted())
 			{
 				//Get the player's mount
-				if(Vehicle* vehicle = dynamic_cast<Vehicle*>(gWorldManager->getObjectById(player->getMount()->getPetController())))
+				if(VehicleController* vehicle = dynamic_cast<VehicleController*>(gWorldManager->getObjectById(player->getMount()->getPetController())))
 				{
 					//Now dismount
 					vehicle->dismountPlayer();

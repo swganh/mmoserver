@@ -1325,7 +1325,7 @@ void Trainer::spawn(void)
 	}
 
 	// Add us to the world.
-	gMessageLib->broadcastContainmentMessage(this->getId(),this->getParentId(),4,this);
+	gMessageLib->broadcastContainmentMessage(this,this->getParentId(),4);
 
 	// send out position updates to known players
 	this->setInMoveCount(this->getInMoveCount() + 1);

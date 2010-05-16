@@ -448,7 +448,13 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
 			}
 
 			if(result->getRowCount())
-				gLogger->logMsgLoadSuccess("EntertainerManager::loaded %u HoloEmotes...",MSG_NORMAL,result->getRowCount());
+				#if !defined(_DEBUG)
+							gLogger->logMsgLoadSuccess(" Loaded %u holo emotes...",MSG_NORMAL,result->getRowCount());
+						#endif
+						#if defined(_DEBUG)
+							gLogger->logMsgLoadSuccess("EntertainerManager::loaded %u HoloEmotes...",MSG_NORMAL,result->getRowCount());
+						#endif
+							
 			else
 				gLogger->logMsgLoadFailure("EntertainerManager::loaded HoloEmotes...",MSG_NORMAL);
 		}
@@ -664,7 +670,13 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
 			}
 
 			if(result->getRowCount())
-				gLogger->logMsgLoadSuccess("EntertainerManager::loaded %u ID-Attributes...",MSG_NORMAL,result->getRowCount());
+				#if !defined(_DEBUG)
+							gLogger->logMsgLoadSuccess(" Loaded %u image designer attributes...",MSG_NORMAL,result->getRowCount());
+						#endif
+						#if defined(_DEBUG)
+							gLogger->logMsgLoadSuccess("EntertainerManager::loaded %u ID-Attributes...",MSG_NORMAL,result->getRowCount());
+						#endif
+				
 			else
 				gLogger->logMsgLoadFailure("EntertainerManager::loaded ID-Attributes...",MSG_NORMAL);
 
@@ -699,7 +711,12 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
 			}
 
 			if(result->getRowCount())
-				gLogger->logMsgLoadSuccess("EntertainerManager::loaded %u performances...",MSG_NORMAL,result->getRowCount());
+						#if !defined(_DEBUG)
+							gLogger->logMsgLoadSuccess(" Loaded %u performances...",MSG_NORMAL,result->getRowCount());
+						#endif
+						#if defined(_DEBUG)
+							gLogger->logMsgLoadSuccess("EntertainerManager::loaded %u performances...",MSG_NORMAL,result->getRowCount());
+						#endif
 			else
 				gLogger->logMsgLoadFailure("EntertainerManager::loaded performances...",MSG_NORMAL);
 		}
@@ -802,7 +819,7 @@ void	EntertainerManager::startMusicPerformance(PlayerObject* entertainer,string 
 		{
 			entertainer->setPerformingState(PlayerPerformance_None);
 			gMessageLib->sendSystemMessage(entertainer,L"Your instrument cannot be initialized.");
-			gLogger->logMsgF("EntertainerManager::startMusicPerformance() This I don't understand\n", MSG_NORMAL);
+			//gLogger->logMsgF("EntertainerManager::startMusicPerformance() no performance found", MSG_NORMAL);
 
 			return;
 		}
@@ -1515,7 +1532,7 @@ void EntertainerManager::stopWatching(PlayerObject* audience,bool ooRange)
 				mind				= static_cast<uint32>(mind*buffPercentageDance);
 
 				//yay!!! we got ourselves a buff!!!
-				BuffAttribute* mindAttribute = new BuffAttribute(Mind, +mind,0,-(int)mind);
+				BuffAttribute* mindAttribute = new BuffAttribute(mind, +mind,0,-(int)mind);
 				Buff* mindBuff = Buff::SimpleBuff(audience, audience, time*1000, opBACRC_PerformanceMind, gWorldManager->GetCurrentGlobalTick());
 				mindBuff->AddAttribute(mindAttribute);
 				audience->AddBuff(mindBuff,true);
@@ -1621,12 +1638,12 @@ void EntertainerManager::stopListening(PlayerObject* audience,bool ooRange)
 				will				= static_cast<uint32>(will*buffPercentageDance);
 
 				//yay!!! we got ourselves a buff!!!
-				BuffAttribute* focusAttribute = new BuffAttribute(Focus, +focus,0,-(int)focus);
+				BuffAttribute* focusAttribute = new BuffAttribute(attr_focus, +focus,0,-(int)focus);
 				Buff* focusBuff = Buff::SimpleBuff(audience, audience, time*1000, opBACRC_PerformanceFocus, gWorldManager->GetCurrentGlobalTick());
 				focusBuff->AddAttribute(focusAttribute);
 				audience->AddBuff(focusBuff,true);
 
-				BuffAttribute* willAttribute = new BuffAttribute(Willpower, +will,0,-(int)will);
+				BuffAttribute* willAttribute = new BuffAttribute(attr_willpower, +will,0,-(int)will);
 				Buff* willBuff = Buff::SimpleBuff(audience, audience, time*1000, opBACRC_PerformanceWill, gWorldManager->GetCurrentGlobalTick());
 				willBuff->AddAttribute(willAttribute);
 				audience->AddBuff(willBuff,true);
@@ -1967,9 +1984,9 @@ bool EntertainerManager::handlePerformanceTick(CreatureObject* mObject)
 //warp the instrument to the user display a list of known songs and then start playing
 //=======================================================================================================================
 
-void EntertainerManager::playInstrument(PlayerObject* entertainer, Item* pInstrument)
+void EntertainerManager::playInstrument(PlayerObject* entertainer, Item* instrument)
 {
-	if(!entertainer || !pInstrument)
+	if(!entertainer || !instrument)
 	{
 		return;
 	}
@@ -2002,36 +2019,25 @@ void EntertainerManager::playInstrument(PlayerObject* entertainer, Item* pInstru
 		return;
 	}
 
-	if ((pInstrument->getItemType() == ItemType_Nalargon) || (pInstrument->getItemType() == ItemType_nalargon_max_reebo) || (pInstrument->getItemType() == ItemType_omni_box))
+	if ((instrument->getItemType() == ItemType_Nalargon) || (instrument->getItemType() == ItemType_nalargon_max_reebo) || (instrument->getItemType() == ItemType_omni_box))
 	{
 		if (gWorldManager->objectsInRange(entertainer->getId(), instrumentId, 6.0))
 		{
+			if(entertainer->getParentId() != instrument->getParentId())
+			{
+				gMessageLib->sendSystemMessage(entertainer,L"","performance","music_must_unequip");
+				return;
+			}
+
 			// We are in range.
-			entertainer->mPosition = pInstrument->mPosition;
-			entertainer->mDirection = pInstrument->mDirection;
-			if (entertainer->getParentId())
-			{
-				// We are both inside same building.
-				// Ensure we end up in the same cell also.
-				entertainer->setParentId(pInstrument->getParentId());
-				gMessageLib->sendDataTransformWithParent(entertainer);
-				gMessageLib->sendUpdateTransformMessageWithParent(entertainer);
-			}
-			else
-			{
-				gMessageLib->sendDataTransform(entertainer);
-				gMessageLib->sendUpdateTransformMessage(entertainer);
-			}
+			//move player to instrument vs move instrument to player
+			entertainer->mDirection = instrument->mDirection;
+			entertainer->updatePosition(instrument->getParentId(),instrument->mPosition);
+		
+
 		}
 	}
-	else
-	{
-		pInstrument->mPosition  = entertainer->mPosition;
-		pInstrument->mDirection = entertainer->mDirection;
-
-		gMessageLib->sendDataTransform(pInstrument);
-	}
-
+	
 	//start the selection list
 	handlestartmusic(entertainer);
 }
@@ -2069,21 +2075,6 @@ void EntertainerManager::useInstrument(PlayerObject* entertainer, Item* usedInst
 			gMessageLib->sendSystemMessage(entertainer,L"","performance","music_fail");
 			return;
 		}
-
-		/*
-		// update position
-		usedInstrument->mPosition	= entertainer->mPosition;
-		usedInstrument->mDirection	= entertainer->mDirection;
-
-		if(usedInstrument->getParentId())
-		{
-			gMessageLib->sendDataTransformWithParent(usedInstrument);
-		}
-		else
-		{
-			gMessageLib->sendDataTransform(usedInstrument);
-		}
-		*/
 
 		playInstrument(entertainer,usedInstrument);
 
@@ -2143,13 +2134,14 @@ void EntertainerManager::handleObjectReady(Object* object,DispatchClient* client
 
 			if(!permanentinstrument)
 			{
-				gLogger->logMsg("EntertainerManager::handleObjectReady: no permanent instrument\n");
+				gLogger->logMsg("EntertainerManager::handleObjectReady: no permanent instrument");
 				return;
 			}
 
 			placedInstrument->setPersistantCopy(permanentinstrument->getId());
 			permanentinstrument->setNonPersistantCopy(placedInstrument->getId());
 			placedInstrument->setPlaced(true);
+			placedInstrument->setStatic(false);
 
 			//now set the nonpersistant Instrument in the playerObject
 			player->setPlacedInstrumentId(placedInstrument->getId());
@@ -2164,24 +2156,12 @@ void EntertainerManager::handleObjectReady(Object* object,DispatchClient* client
 			//add it to MainObjectMap and SI
 			gWorldManager->addObject(object);
 
-			//gWorldManager->initPlayersInRange(itemObject);
-			TangibleObject* tangible = dynamic_cast<TangibleObject*>(object);
+			//it needs to have a knownplayerlist!!!
+			gWorldManager->initPlayersInRange(object,NULL);
 
 			//create it for us and players around us
 			gWorldManager->createObjectinWorld(player,object);
 			
-			// We move the player, not the instrument.
-			if (player->getParentId())
-			{
-				// We are inside a cell.
-				gMessageLib->sendDataTransformWithParent(player);
-				gMessageLib->sendUpdateTransformMessageWithParent(player);
-			}
-			else
-			{
-				gMessageLib->sendDataTransform(player);
-				gMessageLib->sendUpdateTransformMessage(player);
-			}
 			// gMessageLib->sendDataTransform(placedInstrument);
 		}
 		else
@@ -2202,6 +2182,13 @@ void EntertainerManager::handleObjectReady(Object* object,DispatchClient* client
 //=======================================================================================================================
 bool EntertainerManager::handleStartBandIndividual(PlayerObject* performer, string performance)
 {
+
+	//we cant start performing when were about to log out!
+	if(performer->getConnectionState() != PlayerConnState_Connected)
+	{
+		return false;
+	}
+
 	SkillCommandList*	entertainerSkillCommands = performer->getSkillCommands();
 	SkillCommandList::iterator entertainerIt = entertainerSkillCommands->begin();
 
@@ -2301,6 +2288,7 @@ uint64 EntertainerManager::gettargetedInstrument(PlayerObject* entertainer)
 	return 0;
 
 }
+
 bool EntertainerManager::checkInstrumentSkill(PlayerObject* entertainer,uint64 instrumentId)
 {
 	Item* instrument = dynamic_cast<Item*> (gWorldManager->getObjectById(instrumentId));
@@ -2502,22 +2490,12 @@ bool EntertainerManager::approachInstrument(PlayerObject* entertainer, uint64 in
 				{
 					// We are in range.
 					moveSucceeded = true;
+					
 					entertainer->mPosition = instrument->mPosition;
 					entertainer->mDirection = instrument->mDirection;
-					if (entertainer->getParentId())
-					{
-						// We are both inside same building.
-						// Ensure we end up in tyhe same cell also.
-						entertainer->setParentId(instrument->getParentId());
-						gMessageLib->sendDataTransformWithParent(entertainer);
-						gMessageLib->sendUpdateTransformMessageWithParent(entertainer);
-					}
-					else
-					{
-						// We are both outside
-						gMessageLib->sendDataTransform(entertainer);
-						gMessageLib->sendUpdateTransformMessage(entertainer);
-					}
+
+					entertainer->updatePosition(instrument->getParentId(),instrument->mPosition);
+				
 				}
 			}
 			else

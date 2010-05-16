@@ -65,15 +65,16 @@ void Medicine::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 		{
 			case radId_itemRotateRight:
 			{
-                this->mDirection = glm::gtc::quaternion::rotate(this->mDirection, 10, this->mPosition);
-				//this->mDirection.rotatex(10);
+                // Rotate the item 90 degrees to the right
+                rotateRight(90.0f);
 				gMessageLib->sendDataTransform(this);
 			}
 			break;
 
 			case radId_itemRotateLeft:
 			{
-                this->mDirection = glm::gtc::quaternion::rotate(this->mDirection, -10, this->mPosition);
+                // Rotate the item 90 degrees to the left
+                rotateLeft(90.0f);
 				gMessageLib->sendDataTransform(this);
 			}
 			break;

@@ -317,10 +317,22 @@ void ChatMessageLib::sendSystemMessageProper(Player* playerObject,uint8 system, 
 		system = 2;
 	gMessageFactory->addUint8(system);
 
+	if(customMessage.getType() != BSTRType_Unicode16)
+		customMessage.convert(BSTRType_Unicode16);
+
+	if(toCustom.getType() != BSTRType_Unicode16)
+		toCustom.convert(BSTRType_Unicode16);
+
+	if(tuCustom.getType() != BSTRType_Unicode16)
+		tuCustom.convert(BSTRType_Unicode16);
+
+	if(ttCustom.getType() != BSTRType_Unicode16)
+		ttCustom.convert(BSTRType_Unicode16);
+
 	// simple message
 	if(customMessage.getLength())
 	{
-		gMessageFactory->addString(customMessage);
+		gMessageFactory->addString(customMessage.getUnicode16());
 		gMessageFactory->addUint32(0);				 
 	}
 	// templated message
@@ -347,19 +359,19 @@ void ChatMessageLib::sendSystemMessageProper(Player* playerObject,uint8 system, 
 		gMessageFactory->addString(tuFile);
 		gMessageFactory->addUint32(0);
 		gMessageFactory->addString(tuVar);
-		gMessageFactory->addString(tuCustom);
+		gMessageFactory->addString(tuCustom.getUnicode16());
 
 		gMessageFactory->addUint64(ttId);
 		gMessageFactory->addString(ttFile);
 		gMessageFactory->addUint32(0);
 		gMessageFactory->addString(ttVar);
-		gMessageFactory->addString(ttCustom);
+		gMessageFactory->addString(ttCustom.getUnicode16());
 
 		gMessageFactory->addUint64(toId);
 		gMessageFactory->addString(toFile);
 		gMessageFactory->addUint32(0);
 		gMessageFactory->addString(toVar);
-		gMessageFactory->addString(toCustom);
+		gMessageFactory->addString(toCustom.getUnicode16());
 
 		gMessageFactory->addInt32(di);
 		gMessageFactory->addUint32(0);

@@ -75,8 +75,7 @@ Object::~Object()
 
 //=============================================================================
 
-glm::vec3 Object::getWorldPosition() const
-{
+glm::vec3 Object::getWorldPosition() const {
     const Object* root_parent = getRootParent();
 
     // Is this object the root? If so it's position is the world position.
@@ -88,7 +87,7 @@ glm::vec3 Object::getWorldPosition() const
     float length = glm::length(mPosition);
 
     // Determine the translation angle.
-    float theta = quaternion::angle(root_parent->mDirection) - fast_trigonometry::fastAtan(mPosition.x, mPosition.z);
+    float theta = glm::angle(root_parent->mDirection) - glm::fastAtan(mPosition.x, mPosition.z);
 
     // Calculate and return the object's position relative to root parent's position in the world.
     return glm::vec3(
@@ -102,8 +101,7 @@ glm::vec3 Object::getWorldPosition() const
 
 // @TODO: This is a dependency on WorldManager that could be avoided by having an
 //        Object instance hold a reference to it's parent.
-const Object* Object::getRootParent() const
-{
+const Object* Object::getRootParent() const {
     // If there's no parent id then this is the root object.
     if (! getParentId()) {
         return this;
@@ -114,6 +112,60 @@ const Object* Object::getRootParent() const
     assert(parent && "Unable to find root parent in WorldManager");
 
     return parent->getRootParent();
+}
+
+//=============================================================================
+
+void Object::rotateLeft(float degrees) {
+    // Rotate the item left by the specified degrees
+    mDirection = glm::rotate(mDirection, -static_cast<float>(degrees), glm::vec3(0.0f, 1.0f, 0.0f));
+}
+
+//=============================================================================
+
+void Object::rotateRight(float degrees) {
+    // Rotate the item right by the specified degrees
+    mDirection = glm::rotate(mDirection, static_cast<float>(degrees), glm::vec3(0.0f, 1.0f, 0.0f));
+}
+
+//=============================================================================
+
+void Object::moveForward(const glm::quat& direction, float distance) {
+    float angle = glm::angle(direction);
+
+    if (direction.w > 0.0f && direction.y < 0.0) {
+        angle *= -1.0f;
+    }
+
+    // Move the object forward along the specified angle by the specified distance
+    mPosition.x += static_cast<float>(distance * sin(angle));
+    mPosition.z += static_cast<float>(distance * cos(angle));
+}
+
+//=============================================================================
+
+void Object::moveForward(float distance) {
+    moveForward(mDirection, distance);
+}
+
+//=============================================================================
+
+void Object::moveBack(const glm::quat& direction, float distance) { 
+    float angle = glm::angle(direction);
+
+    if (direction.w > 0.0f && direction.y < 0.0) {
+        angle *= -1.0f;
+    }
+
+    // Move the object back along the specified angle by the specified distance
+    mPosition.x -= static_cast<float>(distance * sin(angle));
+    mPosition.z -= static_cast<float>(distance * cos(angle));
+}
+
+//=============================================================================
+
+void Object::moveBack(float distance) {  
+    moveBack(mDirection, distance);
 }
 
 //=============================================================================

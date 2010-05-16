@@ -159,15 +159,18 @@ void Vehicle::call()
 	mOwner->setMounted(false);
 	mOwner->setMountCalled(false);
 
-	//Set direction to match the player
-	mBody->mDirection = glm::rotate(mOwner->mDirection, 90.0f, glm::vec3(0.0f, 1.0f, 0.0f));
+	// Set default direction and position for the body.
+	mBody->mDirection = mOwner->mDirection;
+    mBody->mPosition = mOwner->mPosition;
 
-	//Spawn it to the side of the player
-    mBody->mPosition.x = mOwner->mPosition.x + (2 * sin(glm::gtx::quaternion::angle(mOwner->mDirection))); // mOwner->mPosition.x + ( 2 * cos(glm::gtx::quaternion::angle(mOwner->mDirection) + 1.5708f));
-	mBody->mPosition.z = mOwner->mPosition.z + (2 * cos(glm::gtx::quaternion::angle(mOwner->mDirection))); // mOwner->mPosition.z + ( 2 * sin(glm::gtx::quaternion::angle(mOwner->mDirection) + 1.5708f));
+	// Move it forward 2 meters
+    mBody->moveForward(2);
 
-	//And a little above the terrian (help prevent sticking)
-	mBody->mPosition.y =  Heightmap::Instance()->getHeight(mBody->mPosition.x, mBody->mPosition.z) - 0.3f;
+	// And drop it a little below the terrain to allow the client to normalize it.
+	mBody->mPosition.y = Heightmap::Instance()->getHeight(mBody->mPosition.x, mBody->mPosition.z) - 0.3f;
+
+    // Finally rotate it perpendicular to the player.
+    mBody->rotateRight(90.0f);
 
 	// add to world
 	if(!gWorldManager->addObject(mBody))

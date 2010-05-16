@@ -1259,70 +1259,58 @@ void ObjectController::_handleItemRotationLeft90(uint64 targetId,Message* messag
 //
 // rotates an item
 //
-void ObjectController::_handleItemRotation(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
-{
-
-	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
-
-	if(!player)
-	{
-		gLogger->logMsgF(" ObjectController::_handleItemRotation Player not found",MSG_HIGH);
-		return;
-	}
-
-	//do we have a valid item ??? 
-	uint64 id = targetId;
-	Object* object = gWorldManager->getObjectById(id);
-
-	if(!object)
-	{
-		gLogger->logMsgF(" ObjectController::_handleItemRotation item not found",MSG_HIGH);
-		return;
-	}
-
-	if(CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId())))
-	{
-		if(BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId())))
-		{
-			if(!building->hasAdminRights(player->getId()))
-			{
-				gLogger->logMsgF(" ObjectController::_handleItemRotation no admin rights",MSG_HIGH);
-				return;
-			}
-		}
-		else
-		{
-			gLogger->logMsgF(" ObjectController::_handleItemRotation no structure",MSG_HIGH);
-			return;
-		}
-	}
-	else
-	{
-		gLogger->logMsgF(" ObjectController::_handleItemRotation no cell",MSG_HIGH);
-		return;
-	}
-
-
-	string dataStr;
-	message->getStringUnicode16(dataStr);
-
-	uint32 degrees;
-	int8 direction[32];
-	dataStr.convert(BSTRType_ANSI);
-	sscanf(dataStr.getAnsi(),"%s %u",&direction, &degrees);
-
-	gLogger->logMsgF(" ObjectController::_handleItemRotation direction %s",MSG_HIGH,direction);
-	
-	if(strcmp(direction,"left") == 0) {
-        // Rotate the item left by a specified number of degrees
-        object->rotateLeft(static_cast<float>(degrees));
-	}
-
-	if(strcmp(direction,"right") == 0) {
-        // Rotate the item right by a specified number of degrees
-        object->rotateRight(static_cast<float>(degrees));
-	}
+void ObjectController::_handleItemRotation(
+  uint64 targetId, 
+  Message* message,
+  ObjectControllerCmdProperties* cmdProperties) {
+  
+  PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+  
+  if (!player)	{
+    assert(false && "ObjectController::_handleItemRotation Player not found");
+    return;
+  }
+  
+  Object* object = gWorldManager->getObjectById(targetId);
+  
+  if(!object)	{
+    assert(false && "ObjectController::_handleItemRotation item not found");
+    return;
+  }
+  
+  if (CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()))) {
+    if (BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()))) {
+      if (!building->hasAdminRights(player->getId())) {    
+        gMessageLib->sendSystemMessage(player, L"", "player_structure", "admin_move_only");
+        return;
+      }
+    }	else {
+      assert(false && "ObjectController::_handleItemRotation no structure");
+      return;
+    }
+  } else {
+    assert(false && "ObjectController::_handleItemRotation no cell");
+    return;
+  }  
+  
+  string dataStr;
+  message->getStringUnicode16(dataStr);
+  
+  uint32 degrees;
+  int8 direction[32];
+  dataStr.convert(BSTRType_ANSI);
+  sscanf(dataStr.getAnsi(),"%s %u",&direction, &degrees);
+  
+  if(strcmp(direction,"left") == 0) {
+    // Rotate the item left by a specified number of degrees
+    object->rotateLeft(static_cast<float>(degrees));
+  }
+  
+  if(strcmp(direction,"right") == 0) {
+    // Rotate the item right by a specified number of degrees
+    object->rotateRight(static_cast<float>(degrees));
+  }
     
-    gMessageLib->sendDataTransformWithParent(object);
-	object->updateWorldPosition();
+  gMessageLib->sendDataTransformWithParent(object);
+  object->updateWorldPosition();
 }

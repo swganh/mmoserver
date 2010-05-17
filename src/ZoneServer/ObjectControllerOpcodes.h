@@ -345,6 +345,8 @@ enum object_controller_generic_functions
 	opItemMoveBack						= 0x67ac3903,
 	opItemMoveDown						= 0xefe50324,
 
+  opMoveFurniture           = 0x4b74a403,
+
 
 	//social
 	opOCtip								= 0xc64d8cb0,

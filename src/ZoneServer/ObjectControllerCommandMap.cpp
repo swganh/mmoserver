@@ -490,8 +490,6 @@ void ObjectControllerCommandMap::_registerCppHooks()
 	mCommandMap.insert(std::make_pair(opHarvesterDeActivate,&ObjectController::_handleHarvesterDeActivate));
 	mCommandMap.insert(std::make_pair(opDiscardHopper,&ObjectController::_handleDiscardHopper));
 
-	mCommandMap.insert(std::make_pair(opItemRotation,&ObjectController::_handleItemRotation));
-
 	mCommandMap.insert(std::make_pair(opItemRotationRight90,&ObjectController::_handleItemRotationRight90));
 	mCommandMap.insert(std::make_pair(opItemRotationLeft90,&ObjectController::_handleItemRotationLeft90));
 
@@ -502,10 +500,9 @@ void ObjectControllerCommandMap::_registerCppHooks()
 	mCommandMap.insert(std::make_pair(opItemMoveBack,&ObjectController::_handleItemMoveBack));
 	mCommandMap.insert(std::make_pair(opItemMoveDown,&ObjectController::_handleItemMoveDown));
 	
-	
-	
 
-	
+  mCommandMap.insert(std::make_pair(opMoveFurniture, &ObjectController::HandleMoveFurniture_));	
+	mCommandMap.insert(std::make_pair(opItemRotation, &ObjectController::HandleRotateFurniture_));
 }
 
 //======================================================================================================================

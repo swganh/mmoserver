@@ -565,16 +565,37 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback, 
 		
 		void	_handleItemRotationLeft90(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleItemRotationRight90(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
-		void	_handleItemRotation(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleItemMoveUp(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 
 		void	_handleItemMoveForward(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleItemMoveBack(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleItemMoveDown(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
-		
-		
 
-		
+
+    /// This command is used to move items about a structure.
+    /**
+     * This command is invoked by the client to move items around in a structure.
+     *
+     * The client enters the message in the following format:
+     *   /moveFurniture <FORWARD/BACK/UP/DOWN> <distance>
+     *
+     * @param target_id The targeted item is the one being moved.
+     * @param message The message from the client requesting this command.
+     * @param cmd_properties Contextual information for use during processing this command.
+     */
+    void HandleMoveFurniture_(uint64 target_id, Message* message, ObjectControllerCmdProperties* cmd_properties);
+				
+    /// This command is used to rotate items in a structure.
+    /**
+     * This command is invoked by the client to rotate items around in a structure.
+     *
+     * Format: /rotateFurniture <LEFT/RIGHT> <degrees>
+     * 
+     * @param target_id The targeted item is the one being rotated.
+     * @param message The message from the client requesting this command.
+     * @param cmd_properties Contextual information for use during processing this command.
+     */
+    void HandleRotateFurniture_(uint64 target_id, Message* message, ObjectControllerCmdProperties* cmd_properties);
 
 		//pets
 		void	_handleMount(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);

@@ -186,8 +186,6 @@ void ItemFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					// no need to worry about iteration depth with resourceContainers
 					gTangibleFactory->requestObject(this,queryContainer.mId,TanGroup_ResourceContainer, 0, asyncContainer->mClient);
 				}
-				
-				//gLogger->logMsgF("ItemFactory::requested child %I64u from parent %I64u",MSG_HIGH,queryContainer.mId, item->getId());
 			}
 		}
 		break;
@@ -288,7 +286,7 @@ Item* ItemFactory::_createItem(DatabaseResult* result)
 		default:
 		{
 			item = new Item();
-			gLogger->logMsgF("ItemFactory::createItem unknown Family %u",MSG_HIGH,itemIdentifier.mFamilyId);
+			gLogger->log(LogManager::NOTICE,"ItemFactory::createItem unknown Family %u",itemIdentifier.mFamilyId);
 		}
 		break;
 	}
@@ -446,7 +444,7 @@ void ItemFactory::handleObjectReady(Object* object,DispatchClient* client)
 		ilc->mOfCallback->handleObjectReady(item,ilc->mClient);
 		
 		if(!(_removeFromObjectLoadMap(item->getId())))
-			gLogger->logMsg("ItemFactory: Failed removing object from loadmap");
+			gLogger->log(LogManager::DEBUG,"ItemFactory: Failed removing object from loadmap");
 
 		mILCPool.free(ilc);
 		return;

@@ -72,7 +72,7 @@ void ElevatorTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObjec
 	}
 	else
 	{
-		gLogger->logMsgF("ElevatorTerminal: Unhandled MenuSelect: %u",MSG_HIGH,messageType);
+		gLogger->log(LogManager::NOTICE,"ElevatorTerminal: Unhandled MenuSelect: %u",messageType);
 	}
 }
 

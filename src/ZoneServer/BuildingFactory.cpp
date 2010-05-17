@@ -104,7 +104,7 @@ void BuildingFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 
 			if(!spawnCount)
 			{
-				gLogger->logMsgF("BuildingFactory: Cloning facility %"PRIu64" has no spawn points",MSG_NORMAL,building->getId());
+				gLogger->log(LogManager::DEBUG,"BuildingFactory: Cloning facility %"PRIu64" has no spawn points",building->getId());
 			}
 
 			for(uint64 i = 0;i < spawnCount;i++)
@@ -240,7 +240,7 @@ void BuildingFactory::handleObjectReady(Object* object,DispatchClient* client)
 	if(building->getLoadCount() == (building->getCellList())->size())
 	{
 		if(!(_removeFromObjectLoadMap(building->getId())))
-			gLogger->logMsg("BuildingFactory: Failed removing object from loadmap");
+			gLogger->log(LogManager::DEBUG,"BuildingFactory: Failed removing object from loadmap");
 
 		ilc->mOfCallback->handleObjectReady(building,ilc->mClient);
 

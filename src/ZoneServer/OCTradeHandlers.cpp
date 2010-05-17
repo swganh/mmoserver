@@ -77,7 +77,7 @@ void ObjectController::handleSecureTradeInvitation(uint64 targetId,Message* mess
 		default:
 		{
 			// Always use a default if message damaged....
-			gLogger->logMsgF("ObjController:: Error in trade invitation",MSG_LOW);
+			gLogger->log(LogManager::DEBUG,"ObjController:: Error in trade invitation");
 			// Since receiver is default NULL, we can use the error message below
 			// return;
 		}
@@ -119,7 +119,7 @@ void ObjectController::handleSecureTradeInvitation(uint64 targetId,Message* mess
 
 	if (error == 0)
 	{
-		gLogger->logMsgF("ObjController:: %s invited %s to trade",MSG_HIGH,invitingPlayer->getFirstName().getAnsi(),invitedPlayer->getFirstName().getAnsi());
+		gLogger->log(LogManager::DEBUG,"ObjController:: %s invited %s to trade",invitingPlayer->getFirstName().getAnsi(),invitedPlayer->getFirstName().getAnsi());
 
 		if (invitedPlayer->getTradeStatus() == false )
 		{
@@ -148,7 +148,7 @@ void ObjectController::handleSecureTradeInvitation(uint64 targetId,Message* mess
 	}
 	else
 	{
-		gLogger->logMsgF("ObjController:: Error in trade invitation",MSG_LOW);
+		gLogger->log(LogManager::DEBUG,"ObjController:: Error in trade invitation");
 	}
 }
 

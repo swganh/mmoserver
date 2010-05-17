@@ -52,7 +52,7 @@ void ObjectController::_handleResourceContainerTransfer(uint64 targetId,Message*
 
 		if(!elementCount)
 		{
-			gLogger->logMsg("ObjectController::_handleResourceContainerTransfer: Error in requestStr");
+			gLogger->log(LogManager::DEBUG,"ObjectController::_handleResourceContainerTransfer: Error in requestStr");
 			return;
 		}
 
@@ -65,7 +65,7 @@ void ObjectController::_handleResourceContainerTransfer(uint64 targetId,Message*
 			uint32	maxAmount		= targetContainer->getMaxAmount();
 			uint32	newAmount;
 
-			gLogger->logMsg("transfer  resi");
+			gLogger->log(LogManager::DEBUG,"transfer  resi");
 			// all fits
 			if((newAmount = targetAmount + selectedAmount) <= maxAmount)
 			{
@@ -114,11 +114,11 @@ void ObjectController::_handleResourceContainerSplit(uint64 targetId,Message* me
 
 	Inventory* inventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 
-	gLogger->logMsgF("ObjectController::_handleResourceContainerSplit: Container : %I64u",MSG_NORMAL,targetId);
+	gLogger->log(LogManager::DEBUG,"ObjectController::_handleResourceContainerSplit: Container : %I64u",targetId);
 
 	if(!selectedContainer)
 	{
-		gLogger->logMsg("ObjectController::_handleResourceContainerSplit: Container does not exist!");
+		gLogger->log(LogManager::DEBUG,"ObjectController::_handleResourceContainerSplit: Container does not exist!");
 		return;
 	}
 
@@ -132,7 +132,7 @@ void ObjectController::_handleResourceContainerSplit(uint64 targetId,Message* me
 
 	if(!elementCount)
 	{
-		gLogger->logMsg("ObjectController::_handleResourceContainerSplit: Error in requestStr");
+		gLogger->log(LogManager::DEBUG,"ObjectController::_handleResourceContainerSplit: Error in requestStr");
 		return;
 	}
 
@@ -163,7 +163,7 @@ void ObjectController::_handleResourceContainerSplit(uint64 targetId,Message* me
 	Item* item = dynamic_cast<Item*>(gWorldManager->getObjectById(parentId));
 	if(!item)
 	{
-		gLogger->logMsg("ObjectController::_ExtractObject: resourcecontainers parent does not exist!");
+		gLogger->log(LogManager::DEBUG,"ObjectController::_ExtractObject: resourcecontainers parent does not exist!");
 		assert(false && "ObjectController::_ExtractObject resourcecontainers parent does not exist");
 		return;
 	}

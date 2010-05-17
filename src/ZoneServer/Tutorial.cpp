@@ -127,7 +127,7 @@ Tutorial::~Tutorial()
 
 void Tutorial::warpToStartingLocation(string startingLocation)
 {
-	gLogger->logMsgF("Tutorial::warpToStartingLocation: Starting city = %s",MSG_NORMAL, startingLocation.getAnsi());
+	gLogger->log(LogManager::DEBUG,"Tutorial::warpToStartingLocation: Starting city = %s", startingLocation.getAnsi());
 
 	TutorialQueryContainer* asContainer = new TutorialQueryContainer();
 	asContainer->mQueryType = TutorialQuery_PlanetLocation;
@@ -155,7 +155,7 @@ void Tutorial::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			if (count == 1)
 			{
 				result->GetNextRow(binding,this);
-				gLogger->logMsgF("Tutorial::handleDatabaseJobComplete: Starting profession = %s",MSG_NORMAL, mStartingProfession.getAnsi());
+				gLogger->log(LogManager::DEBUG,"Tutorial::handleDatabaseJobComplete: Starting profession = %s", mStartingProfession.getAnsi());
 			}
 			else if (count == 0)
 			{
@@ -191,7 +191,7 @@ void Tutorial::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				startingLocation.destX += (gRandom->getRand()%5 - 2);
 				startingLocation.destZ += (gRandom->getRand()%5 - 2);
 
-				gLogger->logMsgF("Tutorial::handleDatabaseJobComplete: New destination planet = %u",MSG_NORMAL, startingLocation.destinationPlanet);
+				gLogger->log(LogManager::DEBUG,"Tutorial::handleDatabaseJobComplete: New destination planet = %u", startingLocation.destinationPlanet);
 
 				gMessageLib->sendClusterZoneTransferRequestByPosition(player, 
                     glm::vec3(startingLocation.destX, startingLocation.destY, startingLocation.destZ), 
@@ -199,14 +199,14 @@ void Tutorial::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			}
 			else
 			{
-				gLogger->logMsgF("Tutorial::handleDatabaseJobComplete: Player gone!",MSG_NORMAL);
+				gLogger->log(LogManager::DEBUG,"Tutorial::handleDatabaseJobComplete: Player gone!");
 			}
 		}
 		break;
 
 		default:
 		{
-			gLogger->logMsgF("Tutorial::handleDatabaseJobComplete: Unknown query = %u\n", MSG_NORMAL, asyncContainer->mQueryType);
+			gLogger->log(LogManager::DEBUG,"Tutorial::handleDatabaseJobComplete: Unknown query = %u\n",  asyncContainer->mQueryType);
 		}
 		break;
 	}
@@ -258,7 +258,7 @@ void Tutorial::scriptSystemMessage(std::string message)
 
 void Tutorial::updateTutorial(std::string customMessage)
 {
-	// gLogger->logMsgF("Tutorial::updateTutorial sending %s",MSG_NORMAL,(int8*)(customMessage.c_str()));
+	// gLogger->log(LogManager::DEBUG,"Tutorial::updateTutorial sending %s",(int8*)(customMessage.c_str()));
 	if (strcmp((int8*)(customMessage.c_str()), "chatActive") == 0)
 	{
 		// I don't know how to get chat-info via client newbie-function, so here is a local fix.
@@ -299,7 +299,7 @@ void Tutorial::updateTutorial(std::string customMessage)
 
 void Tutorial::openHolocron()
 {
-	// gLogger->logMsg("Tutorial::sendOpenHolocron");
+	// gLogger->log(LogManager::DEBUG,"Tutorial::sendOpenHolocron");
 	gMessageLib->sendOpenHolocron(mPlayerObject);
 }
 
@@ -311,7 +311,7 @@ void Tutorial::openHolocron()
 
 void Tutorial::enableHudElement(std::string customMessage)
 {
-	// gLogger->logMsgF("Tutorial::enableHudElement sending %s",MSG_NORMAL,(int8*)(customMessage.c_str()));
+	// gLogger->log(LogManager::DEBUG,"Tutorial::enableHudElement sending %s",(int8*)(customMessage.c_str()));
 	gMessageLib->sendEnableHudElement(mPlayerObject, BString((int8*)(customMessage.c_str())));
 }
 
@@ -323,7 +323,7 @@ void Tutorial::enableHudElement(std::string customMessage)
 
 void Tutorial::disableHudElement(std::string customMessage)
 {
-	// gLogger->logMsgF("Tutorial::disableHudElement sending %s",MSG_NORMAL,(int8*)(customMessage.c_str()));
+	// gLogger->log(LogManager::DEBUG,"Tutorial::disableHudElement sending %s",(int8*)(customMessage.c_str()));
 	gMessageLib->sendDisableHudElement(mPlayerObject, BString((int8*)(customMessage.c_str())));
 }
 
@@ -807,7 +807,7 @@ uint64 Tutorial::getPlayer(void)
 
 void Tutorial::addQuestWeapon(uint32 familyId, uint32 typeId)
 {
-	// gLogger->logMsgF("Tutorial::addItem Invoked",MSG_NORMAL);
+	// gLogger->log(LogManager::DEBUG,"Tutorial::addItem Invoked",MSG_NORMAL);
 	if (mPlayerObject && mPlayerObject->isConnected())
 	{
 		Inventory* inventory = dynamic_cast<Inventory*>(mPlayerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
@@ -870,7 +870,7 @@ uint64 Tutorial::getSkillTrainerTypeId(void)
 	uint64 typeId = getSkillTrainerTypeId(this->mStartingProfession);
 	if (typeId == 0)
 	{
-		gLogger->logMsgF("Tutorial::getSkillTrainerTypeId WARNING: Player have no starting profession set.",MSG_NORMAL);
+		gLogger->log(LogManager::DEBUG,"Tutorial::getSkillTrainerTypeId WARNING: Player have no starting profession set.");
 	}
 	return typeId;
 }
@@ -980,11 +980,11 @@ void Tutorial::makeCreatureAttackable(uint64 npcId)
 	{
 		creature->togglePvPStateOn(CreaturePvPStatus_Attackable);
 		gMessageLib->sendUpdatePvpStatus(creature,mPlayerObject);
-		// gLogger->logMsgF("Tutorial::makeCreatureAttackable DONE OK" ,MSG_NORMAL);
+		// gLogger->log(LogManager::DEBUG,"Tutorial::makeCreatureAttackable DONE OK" ,MSG_NORMAL);
 	}
 	else
 	{
-		gLogger->logMsgF("Tutorial::makeCreatureAttackable FAILED\n" ,MSG_NORMAL);
+		gLogger->log(LogManager::DEBUG,"Tutorial::makeCreatureAttackable FAILED\n");
 	}
 }
 
@@ -998,7 +998,7 @@ void Tutorial::npcSendAnimation(uint64 npcId, uint32 animId, uint64 targetId)
 		{
 			if (creature->getTargetId() != targetId)
 			{
-				gLogger->logMsgF("Tutorial::npcSendAnimation Setting new target for npc\n" ,MSG_NORMAL);
+				gLogger->log(LogManager::DEBUG,"Tutorial::npcSendAnimation Setting new target for npc\n");
 				creature->setTarget(targetId);
 				gMessageLib->sendTargetUpdateDeltasCreo6(creature);
 			}

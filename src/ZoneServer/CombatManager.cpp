@@ -98,20 +98,10 @@ void CombatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 		mWeaponGroups.push_back(weaponGroup);
 	}
+	
 	if(result->getRowCount())
-	{
-						#if !defined(_DEBUG)
-							gLogger->logMsgLoadSuccess(" Loading %"PRIu64" weapon groups...",MSG_NORMAL, count);
-						#endif
-						#if defined(_DEBUG)
-							gLogger->logMsgLoadSuccess("CombatManager::Loading %"PRIu64" weapon groups...",MSG_NORMAL, count);
-						#endif
-							
-	}
-	else
-	{
-		gLogger->logMsgLoadFailure("CombatManager::Loading weapon groups...",MSG_NORMAL);
-	}
+		gLogger->log(LogManager::INFORMATION,"Loading %"PRIu64" weapon groups...", count);	
+
 	mDatabase->DestroyDataBinding(binding);
 }
 
@@ -419,12 +409,10 @@ uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* def
 		if (weapon->hasAttribute("cat_wpn_damage.wpn_damage_min"))
 		{
 			baseMinDamage = weapon->getAttribute<int32>("cat_wpn_damage.wpn_damage_min");
-			// gLogger->logMsgF("CombatManager::_executeAttack Weapon baseMinDamage = %d", MSG_NORMAL, baseMinDamage);
 		}
 		if (weapon->hasAttribute("cat_wpn_damage.wpn_damage_max"))
 		{
 			baseMaxDamage = weapon->getAttribute<int32>("cat_wpn_damage.wpn_damage_max");
-			// gLogger->logMsgF("CombatManager::_executeAttack Weapon baseMaxDamage = %d", MSG_NORMAL, baseMaxDamage);
 		}
 
 		int32 baseDamage	= -((gRandom->getRand()%(baseMaxDamage - baseMinDamage)) + baseMinDamage);

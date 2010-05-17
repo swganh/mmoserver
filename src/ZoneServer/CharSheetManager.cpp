@@ -111,7 +111,7 @@ void CharSheetManager::handleDispatchMessage(uint32 opcode,Message* message,Disp
 	if(it != mCommandMap.end())
 		(this->*((*it).second))(message,client);
 	else
-		gLogger->logMsgF("CharSheetManager: Unhandled DispatchMsg %u",MSG_NORMAL,opcode);
+		gLogger->log(LogManager::DEBUG,"CharSheetManager: Unhandled DispatchMsg %u",opcode);
 }
 
 //=========================================================================================
@@ -138,14 +138,7 @@ void CharSheetManager::handleDatabaseJobComplete(void* ref, DatabaseResult* resu
 			}
 
 			if(result->getRowCount())
-						#if !defined(_DEBUG)
-							gLogger->logMsgLoadSuccess(" Loaded %u factions...",MSG_NORMAL,result->getRowCount());
-						#endif
-						#if defined(_DEBUG)
-							gLogger->logMsgLoadSuccess("CharSheetManager::loaded %u Factions...",MSG_NORMAL,result->getRowCount());
-						#endif
-			else
-				gLogger->logMsgLoadFailure("CharSheetManager::loaded Factions...",MSG_NORMAL);					
+				gLogger->log(LogManager::INFORMATION," Loaded %u factions...",result->getRowCount());				
 
 			mDatabase->DestroyDataBinding(binding);
 
@@ -196,15 +189,7 @@ void CharSheetManager::handleDatabaseJobComplete(void* ref, DatabaseResult* resu
 			mDatabase->DestroyDataBinding(binding);
 
 			if(result->getRowCount())
-						#if !defined(_DEBUG)
-							gLogger->logMsgLoadSuccess(" Loading %u weapon groups...",MSG_NORMAL,result->getRowCount());
-						#endif
-				
-						#if defined(_DEBUG)
-							gLogger->logMsgLoadSuccess("CombatManager::Loading %u weapon groups...",MSG_NORMAL,result->getRowCount());
-						#endif
-			else
-				gLogger->logMsgLoadFailure("CombatManager::Loading weapon groups...",MSG_NORMAL);					
+				gLogger->log(LogManager::INFORMATION,"Loading %u weapon groups...",result->getRowCount());				
 		}
 		break;
 
@@ -222,7 +207,7 @@ void CharSheetManager::_processFactionRequest(Message* message,DispatchClient* c
 
 	if(player == NULL)
 	{
-		gLogger->logMsgF("CharSheetManager::_processFactionRequest: could not find player %u",MSG_NORMAL,client->getAccountId());
+		gLogger->log(LogManager::DEBUG,"CharSheetManager::_processFactionRequest: could not find player %u",client->getAccountId());
 		return;
 	}
 
@@ -268,7 +253,7 @@ void CharSheetManager::_processPlayerMoneyRequest(Message* message,DispatchClien
 
 	if(player == NULL)
 	{
-		gLogger->logMsgF("CharSheetManager::_processPlayerMoneyRequest: could not find player %u",MSG_NORMAL,client->getAccountId());
+		gLogger->log(LogManager::DEBUG,"CharSheetManager::_processPlayerMoneyRequest: could not find player %u",client->getAccountId());
 		return;
 	}
 

@@ -88,7 +88,7 @@ void BankTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
 		default:
 
-			gLogger->logMsgF("BazaarTerminal: Unhandled MenuSelect: %u",MSG_HIGH,messageType);
+			gLogger->log(LogManager::NOTICE,"BazaarTerminal: Unhandled MenuSelect: %u",messageType);
 		
 		break;
 	}

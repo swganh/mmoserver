@@ -111,16 +111,7 @@ void ResourceCollectionManager::handleDatabaseJobComplete(void* ref,DatabaseResu
 				}
 
 				if(result->getRowCount())
-											#if !defined(_DEBUG)
-	gLogger->logMsgLoadSuccess(" Loading sample costs...",MSG_NORMAL);
-#endif
-	
-#if defined(_DEBUG)
-gLogger->logMsgLoadSuccess("ResourceCollectionManager::Loading sample costs...",MSG_NORMAL);	
-#endif
-
-				else
-					gLogger->logMsgLoadFailure("ResourceCollectionManager::Loading sample costs...",MSG_NORMAL);					
+					gLogger->log(LogManager::DEBUG,"Loading sample costs...");
 
 			}
 			break;
@@ -141,16 +132,8 @@ gLogger->logMsgLoadSuccess("ResourceCollectionManager::Loading sample costs...",
 				}
 				
 				if(result->getRowCount())
-					#if !defined(_DEBUG)
-						gLogger->logMsgLoadSuccess(" Loading %u survey costs...",MSG_NORMAL,result->getRowCount());	
-					#endif
-					
-					#if defined(_DEBUG)
-						gLogger->logMsgLoadSuccess("ResourceCollectionManager::Loading %u survey costs...",MSG_NORMAL,result->getRowCount());		
-					#endif
-					
-				else
-					gLogger->logMsgLoadFailure("ResourceCollectionManager::Loading survey costs...",MSG_NORMAL);					
+					gLogger->log(LogManager::DEBUG,"Loading %u survey costs...",result->getRowCount());						
+
 			}
 			break;
 
@@ -204,7 +187,7 @@ void ResourceCollectionManager::handleUIEvent(uint32 action,int32 element,string
 			}
 			else
 			{
-				gLogger->logMsg("sampling radioactive box: Yes");
+				gLogger->log(LogManager::DEBUG,"sampling radioactive box: Yes");
 	
 				player->getSampleData()->mPassRadioactive = true;
 				player->getSampleData()->mPendingSample = true;
@@ -251,7 +234,7 @@ void ResourceCollectionManager::handleUIEvent(uint32 action,int32 element,string
 				}
 				else
 				{
-					gLogger->logMsg("sampling gamble box ... gamble");
+					gLogger->log(LogManager::DEBUG,"sampling gamble box ... gamble");
 					//action costs
 					if(!ham->checkMainPools(0,sampleActionCost*2,0))
 					{
@@ -339,7 +322,7 @@ void ResourceCollectionManager::handleUIEvent(uint32 action,int32 element,string
 			}
 			else
 			{
-				gLogger->logMsg("sampling wayp node box action != 1 (stay here?)");
+				gLogger->log(LogManager::DEBUG,"sampling wayp node box action != 1 (stay here?)");
 				player->getSampleData()->mPendingSample = false;
 				player->getSampleData()->mSampleNodeFlag = false;
 				player->getSampleData()->Position.x = 0;

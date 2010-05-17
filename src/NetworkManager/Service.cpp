@@ -114,7 +114,7 @@ mServerService(serverservice)
 	int valuelength = sizeof(value);
 	value = 524288;
 	int configvalue = gConfig->read<int32>("UDPBufferSize",4096);
-	gLogger->logMsgF("UDPBuffer set to %ukb",MSG_HIGH,configvalue);
+	gLogger->log(LogManager::INFORMATION, "UDPBuffer set to %ukb", configvalue);
 
 	if(configvalue < 128)
 		configvalue = 128;

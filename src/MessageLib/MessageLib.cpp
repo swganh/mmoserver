@@ -108,7 +108,7 @@ bool MessageLib::_checkPlayer(uint64 playerId) const
 
 	if(!tested)
 	{
-		gLogger->logMsgF("Player Id (%I64u) invalid",MSG_NORMAL,playerId);
+		gLogger->log(LogManager::NOTICE,"Player Id (%I64u) invalid",playerId);
 		return false;
 	}
 
@@ -193,7 +193,7 @@ void MessageLib::_sendToInRangeUnreliable(Message* message, Object* const object
  		}
  
 		if( failed)
-			gLogger->logMsgF("MessageLib Heap Protection engaged Heap Warning Level %u Heap size %f",MSG_NORMAL,mMessageFactory->HeapWarningLevel(),mMessageFactory->getHeapsize());
+			gLogger->log(LogManager::NOTICE,"MessageLib Heap Protection engaged Heap Warning Level %u Heap size %f",mMessageFactory->HeapWarningLevel(),mMessageFactory->getHeapsize());
 	}
 	else
 	{
@@ -391,7 +391,7 @@ bool MessageLib::sendEquippedItems(PlayerObject* srcObject,PlayerObject* targetO
 			}
 			else
 			{
-				gLogger->logMsgF("MssageLib send equipped objects: Its not equipped ... %I64u",MSG_NORMAL,item->getId());
+				gLogger->log(LogManager::DEBUG,"MessageLib send equipped objects: Its not equipped ... %I64u",item->getId());
 			}
 		}
 
@@ -655,15 +655,9 @@ void MessageLib::sendCreateTangible(TangibleObject* tangibleObject, PlayerObject
 
 bool MessageLib::sendCreateStaticObject(TangibleObject* tangibleObject,PlayerObject* targetObject)
 {
-	if(!_checkPlayer(targetObject))
+	if(!_checkPlayer(targetObject) || !tangibleObject)
 	{
-		gLogger->logMsgF("MessageLib::sendCreateStaticObject No valid player :(",MSG_HIGH);
-		return(false);
-	}
-
-	if(!tangibleObject)
-	{
-		gLogger->logMsgF("MessageLib::sendCreateStaticObject No valid object :(",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG,"MessageLib::sendCreateStaticObject No valid player");
 		return(false);
 	}
 	
@@ -681,15 +675,9 @@ bool MessageLib::sendCreateStaticObject(TangibleObject* tangibleObject,PlayerObj
 //
 bool MessageLib::sendCreateInTangible(IntangibleObject* intangibleObject,uint64 containmentId,PlayerObject* targetObject) 
 {
-	if(!_checkPlayer(targetObject))
+	if(!_checkPlayer(targetObject) || !intangibleObject)
 	{
-		gLogger->logMsgF("MessageLib::sendCreateInTangible No valid player :(",MSG_HIGH);
-		return(false);
-	}
-
-	if(!intangibleObject)
-	{
-		gLogger->logMsgF("MessageLib::sendCreateInTangible No valid intangible :(",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG,"MessageLib::sendCreateInTangible No valid player");
 		return(false);
 	}
 
@@ -710,11 +698,9 @@ bool MessageLib::sendCreateInTangible(IntangibleObject* intangibleObject,uint64 
 //
 bool MessageLib::sendCreateTangible(TangibleObject* tangibleObject,PlayerObject* targetObject, bool sendchildren) 
 {
-	//gLogger->logMsgF("MessageLib::send create tangible  %I64u name %s",MSG_HIGH,tangibleObject->getId(),tangibleObject->getName().getAnsi());
-
 	if(!_checkPlayer(targetObject))
 	{
-		gLogger->logMsgF("MessageLib::sendCreateTangible No valid player :(",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG,"MessageLib::sendCreateTangible No valid player");
 		return(false);
 	}
 
@@ -777,13 +763,12 @@ bool MessageLib::sendCreateTangible(TangibleObject* tangibleObject,PlayerObject*
 	ObjectIDList*			ol = tangibleObject->getObjects();
 	ObjectIDList::iterator	it = ol->begin();
 
-	//gLogger->logMsgF("Now add our children (container %I64u)",MSG_HIGH,tangibleObject->getId());
 	while(it != ol->end())
 	{
 		TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)));
 		if(!tO)
 		{
-			gLogger->logMsgF("Unable to find object with ID %PRIu64", MSG_HIGH, (*it));
+			gLogger->log(LogManager::DEBUG,"Unable to find object with ID %PRIu64", (*it));
 			it++;
 			continue;
 		}
@@ -828,7 +813,7 @@ bool MessageLib::sendCreateFactoryCrate(FactoryCrate* crate,PlayerObject* target
 		TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)));
 		if(!tO)
 		{
-			gLogger->logMsgF("Unable to find object with ID %PRIu64", MSG_HIGH, (*it));
+			gLogger->log(LogManager::DEBUG,"Unable to find object with ID %PRIu64", (*it));
 			continue;
 		}
 
@@ -887,7 +872,6 @@ bool MessageLib::sendCreateBuilding(BuildingObject* buildingObject,PlayerObject*
 	//perhaps move to on cell basis sometime ?
 	if(HouseObject* house = dynamic_cast<HouseObject*>(buildingObject))
 	{
-		//gLogger->logMsgF("check cell permission",MSG_NORMAL);
 		house->checkCellPermission(playerObject);
 		publicBuilding = buildingObject->getPublic();
 	}
@@ -943,8 +927,6 @@ bool MessageLib::sendCreateHarvester(HarvesterObject* harvester,PlayerObject* pl
 	if(!_checkPlayer(player))
 		return(false);
 
-	//gLogger->logMsgF("MessageLib::sendCreateHarvester:ID %I64u parentId %I64u x : %f   y : %f",MSG_HIGH,harvester->getId(),harvester->getParentId(),harvester->mPosition.x,harvester->mPosition.z);
-
 	sendCreateObjectByCRC(harvester,player,false);
 
 	sendBaselinesHINO_3(harvester,player);
@@ -969,8 +951,6 @@ bool MessageLib::sendCreateFactory(FactoryObject* factory,PlayerObject* player)
 {
 	if(!_checkPlayer(player))
 		return(false);
-
-	//gLogger->logMsgF("MessageLib::sendCreateHarvester:ID %I64u parentId %I64u x : %f   y : %f",MSG_HIGH,harvester->getId(),harvester->getParentId(),harvester->mPosition.x,harvester->mPosition.z);
 
 	sendCreateObjectByCRC(factory,player,false);
 
@@ -1020,7 +1000,7 @@ bool MessageLib::sendCreateStructure(PlayerStructure* structure,PlayerObject* pl
 		return(sendCreateInstallation(structure, player));
 	}
 
-	gLogger->logMsgF("MessageLib::sendCreateStructure:ID %I64u : couldnt cast structure",MSG_HIGH,structure->getId());
+	gLogger->log(LogManager::DEBUG,"MessageLib::sendCreateStructure:ID %I64u : couldnt cast structure",structure->getId());
 
 	return(false);
 }
@@ -1110,7 +1090,6 @@ void MessageLib::sendInventory(PlayerObject* playerObject)
 		return;
 
 	inventory->setTypeOptions(256);
-	//gLogger->logMsgF("MessageLib::inventory: ID %I64u parentId %I64u",MSG_HIGH,inventory->getId(),inventory->getParentId());
 
 	//todo - just use sendcreate tangible and have it send the children, too!!!!
 
@@ -1141,14 +1120,11 @@ void MessageLib::sendInventory(PlayerObject* playerObject)
 	{
 		if(TangibleObject* tangible = dynamic_cast<TangibleObject*>(*objEIt))
 		{
-			//gLogger->logMsgF("MessageLib::inventory: equipped tangible %I64u parentId %I64u",MSG_HIGH,tangible->getId(),tangible->getParentId());
 			sendCreateTangible(tangible,playerObject);
 		}
 
 		++objEIt;
 	}
-
-	//gLogger->logMsgF("MessageLib::inventory: end",MSG_HIGH);
 }
 
 //======================================================================================================================
@@ -1159,7 +1135,7 @@ bool MessageLib::sendCreateObject(Object* object,PlayerObject* player,bool sendS
 {
 	if(!object)
 	{
-		gLogger->logMsg("Attempting sendCreateObject on an invalid object instance", MSG_HIGH);
+		gLogger->log(LogManager::DEBUG,"Attempting sendCreateObject on an invalid object instance");
 		return false;
 	}
 
@@ -1284,7 +1260,7 @@ bool MessageLib::sendCreateObject(Object* object,PlayerObject* player,bool sendS
 		// unknown types
 		default:
 		{
-			gLogger->logMsgF("MessageLib::createObject: Unhandled object type: %i",MSG_HIGH,object->getType());
+			gLogger->log(LogManager::DEBUG,"MessageLib::createObject: Unhandled object type: %i",object->getType());
 		}
 		break;
 	}

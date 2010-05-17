@@ -78,8 +78,6 @@ void FillerNPC::handleEvents(void)
 
 uint64 FillerNPC::handleState(uint64 timeOverdue)
 {
-	// gLogger->logMsgF("FillerNPC::handleState() Entering",MSG_NORMAL);
-
 	uint64 waitTime = tutorialPlayersPeriodUpdateTime;
 	if (tutorialPlayersPeriodUpdateTime >= timeOverdue)
 	{
@@ -104,7 +102,6 @@ uint64 FillerNPC::handleState(uint64 timeOverdue)
 			else
 			{
 				// Remove the expired player, and his data, please...
-				// gLogger->logMsgF("FillerNPC::handleState: Remove the expired player with id %"PRIu64"",MSG_NORMAL, (*it).first);
 				delete ((*it).second);
 				mTutorialPlayers.erase(it++);
 			}
@@ -119,7 +116,6 @@ uint64 FillerNPC::handleState(uint64 timeOverdue)
 		// We have to un-register this npc for service.
 		waitTime = 0;
 
-		// gLogger->logMsgF("FillerNPC::handleState: Unregister this service, since we have no players.",MSG_NORMAL);
 		// No-no... do not fiddle with other objects iterators, when we are used by them.
 		// gWorldManager->removeDormantNpc(this->getId());
 	}
@@ -141,7 +137,6 @@ void FillerNPC::addTutorialPlayer(uint64 playerId, TutorialTauntConfigData* conf
 	if (mTutorialPlayers.empty())
 	{
 		// We have to register this npc for service.
-		// gLogger->logMsgF("FillerNPC::handleState: Register this service, since we now have a player.",MSG_NORMAL);
 		gWorldManager->addDormantNpc(this->getId(), (uint64)tutorialPlayersPeriodUpdateTime);
 	}
 	mTutorialPlayers.insert(std::make_pair(playerId, configData));

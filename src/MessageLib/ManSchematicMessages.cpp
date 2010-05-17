@@ -120,8 +120,8 @@ bool MessageLib::sendBaselinesMSCO_3(ManufacturingSchematic* manSchem,PlayerObje
 			{
 				float attributeValue = boost::lexical_cast<float,std::string>((*it).second);
 				float attributeAddValue = manSchem->getPPAttribute<float>(gWorldManager->getAttributeKey((*it).first));
-				gLogger->logMsgF("MessageLib::sendBaselinesMSCO_3 Attribute Add Value",MSG_NORMAL);
-				gLogger->logMsgF("MessageLib::sendBaselinesMSCO_3 we will add %f to %S",MSG_NORMAL,attributeAddValue,gWorldManager->getAttributeKey((*it).first).getAnsi());
+				gLogger->log(LogManager::DEBUG,"MessageLib::sendBaselinesMSCO_3 Attribute Add Value");
+				gLogger->log(LogManager::DEBUG,"MessageLib::sendBaselinesMSCO_3 we will add %f to %S",attributeAddValue,gWorldManager->getAttributeKey((*it).first).getAnsi());
 				mMessageFactory->addFloat(attributeValue+attributeAddValue);
 			}
 			else

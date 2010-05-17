@@ -1,0 +1,6 @@
+#ifndef LOG_MANAGER_LOGENUMS_H
+#define LOG_MANAGER_LOGENUMS_H
+
+
+
+#endif

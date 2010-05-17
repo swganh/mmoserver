@@ -745,7 +745,7 @@ void ChatMessageLib::sendChatOnDestroyRoom(DispatchClient* client, Channel* chan
 	else
 	{
 		// For debugging purpose
-		gLogger->logErrorF("chat","ChatMessageLib::sendChatOnDestroyRoom: ERROR: channel is NULL",MSG_NORMAL);
+		gLogger->log(LogManager::CRITICAL,"ChatMessageLib::sendChatOnDestroyRoom: ERROR: channel is NULL");
 	}
 }
 
@@ -1308,7 +1308,7 @@ void ChatMessageLib::sendChatRoomMessage(Channel* channel, string galaxy, string
 			
 			if (client == NULL)
 			{
-				gLogger->logErrorF("chat","sendChatRoomMessage: Client not found for channel %u", MSG_NORMAL, channel->getId());	
+				gLogger->log(LogManager::CRITICAL,"sendChatRoomMessage: Client not found for channel %u", channel->getId());	
 			}
 			else
 			{

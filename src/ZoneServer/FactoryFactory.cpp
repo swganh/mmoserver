@@ -116,7 +116,7 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				TangibleObject* tangible = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(asyncContainer->mId));
 				if(!tangible)
 				{
-					gLogger->logMsg("FactoryFactory::FFQuery_HopperItemAttributeUpdate No tangible :(");
+					gLogger->log(LogManager::DEBUG,"FactoryFactory::FFQuery_HopperItemAttributeUpdate No tangible");
 					mDatabase->DestroyDataBinding(binding);
 					return;
 				}
@@ -128,9 +128,9 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			
 			if((--ilc->mLoadCounter)== 0)
 			{
-				gLogger->logMsg("FactoryFactory: FFQuery_HopperItemAttributeUpdate attribute load ended item refresh!");
+				gLogger->log(LogManager::DEBUG,"FactoryFactory: FFQuery_HopperItemAttributeUpdate attribute load ended item refresh!");
 				if(!(_removeFromObjectLoadMap(asyncContainer->mHopper)))
-					gLogger->logMsg("FactoryFactory: Failed removing object from loadmap");
+					gLogger->log(LogManager::DEBUG,"FactoryFactory: Failed removing object from loadmap");
 
 				ilc->mOfCallback->handleObjectReady(asyncContainer->mObject,ilc->mClient,asyncContainer->mHopper);
 
@@ -430,7 +430,7 @@ void FactoryFactory::handleObjectReady(Object* object,DispatchClient* client)
 	TangibleObject* tangible = dynamic_cast<TangibleObject*>(object);
 	if(!tangible)
 	{		   	
-		gLogger->logMsg("FactoryFactory: No Tangible on handleObjectReady!!!!!!!!!!!!!!!!");
+		gLogger->log(LogManager::DEBUG,"FactoryFactory: No Tangible on handleObjectReady!!!!!!!!!!!!!!!!");
 		return;
 	}
 
@@ -461,7 +461,7 @@ void FactoryFactory::handleObjectReady(Object* object,DispatchClient* client)
 
 		if(!hopper)
 		{
-			gLogger->logMsg("FactoryFactory: outputHopper not found on item load !!!!!!!");
+			gLogger->log(LogManager::CRITICAL,"FactoryFactory: outputHopper not found on item load !!!!!!!");
 			assert(false && "FactoryFactory::handleObjectReady WorldManager could not find output hopper");	
 		}
 
@@ -476,7 +476,7 @@ void FactoryFactory::handleObjectReady(Object* object,DispatchClient* client)
 	if(( --ilc->mLoadCounter) == 0)
 	{
 		if(!(_removeFromObjectLoadMap(object->getParentId())))
-			gLogger->logMsg("FactoryFactory: Failed removing object from loadmap");
+			gLogger->log(LogManager::DEBUG,"FactoryFactory: Failed removing object from loadmap");
 
 		factory->setLoadState(LoadState_Loaded);
 		if(!parent)			   //factories dont have a parent! main cell is 0!!!

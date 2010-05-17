@@ -289,13 +289,13 @@ void ObjectController::_handleGroupChat(uint64 targetId,Message* message,ObjectC
 	// make sure its a fully grouped player
 	if (!player)
 	{
-		gLogger->logMsg("ObjectController::_handleGroupChat NO PLAYER\n");
+		gLogger->log(LogManager::DEBUG,"ObjectController::_handleGroupChat NO PLAYER\n");
 	}
 
 	if(!player->getGroupId())
 	{
 
-		gLogger->logMsg("ObjectController::_handleGroupChat NO GROUP");
+		gLogger->log(LogManager::DEBUG,"ObjectController::_handleGroupChat NO GROUP");
 	}
 
 	// let the chatserver handle this.
@@ -323,7 +323,7 @@ void ObjectController::_handleGroupLootMode(uint64 targetId,Message* message,Obj
 	// disabled for now
 	//return;
 
-	gLogger->logMsg("_handleGroupLootMode");
+	gLogger->log(LogManager::DEBUG,"_handleGroupLootMode");
 	PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
 
 	// make sure its a fully grouped player
@@ -350,7 +350,7 @@ void ObjectController::_handleMakeMasterLooter(uint64 targetId,Message* message,
 	// disabled for now
 	//return;
 
-	gLogger->logMsg("_handleMakeMasterLooter");
+	gLogger->log(LogManager::DEBUG,"_handleMakeMasterLooter");
 
 	PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
 

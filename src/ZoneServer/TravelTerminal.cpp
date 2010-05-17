@@ -89,7 +89,7 @@ void TravelTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 	}
 	else
 	{
-		gLogger->logMsgF("TravelTerminal: Unhandled MenuSelect: %u",MSG_HIGH,messageType);
+		gLogger->log(LogManager::DEBUG,"TravelTerminal: Unhandled MenuSelect: %u",messageType);
 	}
 }
 

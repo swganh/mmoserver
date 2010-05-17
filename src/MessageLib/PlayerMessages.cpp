@@ -308,14 +308,10 @@ bool MessageLib::sendBaselinesPLAY_9(PlayerObject* playerObject,PlayerObject* ta
 	
 	Datapad* datapad = dynamic_cast<Datapad*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
 	
-	//gLogger->logMsgF("Yalp9 Baseline Schematicslist::Listsize %u",MSG_HIGH,schemIdList->size());
-	
 	mMessageFactory->addUint32(schemIdList->size());
 	
 	datapad->mSchematicUpdateCounter += schemIdList->size();
 	mMessageFactory->addUint32(datapad->mSchematicUpdateCounter);
-	
-	//gLogger->logMsgF("Yalp9 Baseline Schematicslist::UpdateCounter %u",MSG_HIGH,datapad->mSchematicUpdateCounter);
 
 	SchematicsIdList::iterator schemIt = schemIdList->begin();
 
@@ -673,10 +669,7 @@ bool MessageLib::sendSchematicDeltasPLAY_9(PlayerObject* playerObject)
 
 	mMessageFactory->addUint32(sList->size()+1);
 
-	//gLogger->logMsgF("Yalp9 Baseline Schematicslist::Listsize %u",MSG_HIGH,sList->size());
-
 	datapad->mSchematicUpdateCounter += sList->size()+1;
-	//gLogger->logMsgF("Yalp9 Baseline Schematicslist::UpdateCounter %u",MSG_HIGH,datapad->mSchematicUpdateCounter);
 	
 	mMessageFactory->addUint32(datapad->mSchematicUpdateCounter);
 	
@@ -818,10 +811,9 @@ bool MessageLib::sendUpdateXpTypes(SkillXpTypesList newXpTypes,uint8 remove,Play
 
 bool MessageLib::sendFriendListPlay9(PlayerObject* playerObject)
 {
-	// gLogger->logMsg("MessageLib::sendFriendListPlay9...");
 	if(!(playerObject->isConnected()))
 		return(false);
-	// gLogger->logMsg("... connected");
+
 	ContactMap*				friendList	= playerObject->getFriendsList();
 	ContactMap::iterator	nameIt		= friendList->begin();
 
@@ -873,10 +865,8 @@ bool MessageLib::sendFriendListPlay9(PlayerObject* playerObject)
 
 bool MessageLib::sendIgnoreListPlay9(PlayerObject* playerObject)
 {
-	// gLogger->logMsg("MessageLib::sendIgnoreListPlay9...");
 	if(!(playerObject->isConnected()))
 		return(false);
-	// gLogger->logMsg("... connected");
 
 	ContactMap*				ignoreList	= playerObject->getIgnoreList();
 	ContactMap::iterator	nameIt		= ignoreList->begin();
@@ -911,7 +901,6 @@ bool MessageLib::sendIgnoreListPlay9(PlayerObject* playerObject)
 
 	while(nameIt != ignoreList->end())
 	{
-		// gLogger->logMsgF("Ignore: %s",MSG_NORMAL, (*nameIt).second.getAnsi());
 		mMessageFactory->addString((*nameIt).second);
 		++nameIt;
 	}

@@ -233,7 +233,7 @@ void CellFactory::handleObjectReady(Object* object,DispatchClient* client)
 	if(cell->getLoadCount() == cell->getObjects()->size())
 	{
 		if(!(_removeFromObjectLoadMap(cell->getId())))
-			gLogger->logMsg("CellFactory: Failed removing object from loadmap");
+			gLogger->log(LogManager::DEBUG,"CellFactory: Failed removing object from loadmap");
 
 		ilc->mOfCallback->handleObjectReady(cell,ilc->mClient);
 

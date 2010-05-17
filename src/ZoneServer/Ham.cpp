@@ -440,7 +440,7 @@ int32 Ham::updatePropertyValue(uint8 barIndex,uint8 valueIndex,int32 propertyDel
 
 		case HamProperty_Encumbrance:
 		{
-			gLogger->logMsg("couldnt update encumbrance");
+			gLogger->log(LogManager::DEBUG,"couldnt update encumbrance");
 			// TODO
 		}
 		break;
@@ -460,7 +460,6 @@ int32 Ham::updatePropertyValue(uint8 barIndex,uint8 valueIndex,int32 propertyDel
 
 void Ham::updateSingleHam(int32 propertyDelta, bool damage)
 {
-	//gLogger->logMsgF("Ham::updateSingleHam with health %d", MSG_NORMAL, propertyDelta);
 	if(propertyDelta == 0)
 	{
 		return;
@@ -473,7 +472,6 @@ void Ham::updateSingleHam(int32 propertyDelta, bool damage)
 		{
 			// gMessageLib->sendCurrentHitpointDeltasCreo6_Single(mParent,barIndex);
 			gMessageLib->sendSingleBarUpdate(mParent);
-			// gLogger->logMsgF("Ham::updateSingleHam Action = 1", MSG_NORMAL);
 		}
 		break;
 
@@ -482,7 +480,6 @@ void Ham::updateSingleHam(int32 propertyDelta, bool damage)
 		{
 			// gMessageLib->sendCurrentHitpointDeltasCreo6_Single(mParent,barIndex);
 			gMessageLib->sendSingleBarUpdate(mParent);
-			// gLogger->logMsgF("Ham::updateSingleHam Action = 2", MSG_NORMAL);
 
 			if(mParent)
 			{
@@ -495,7 +492,7 @@ void Ham::updateSingleHam(int32 propertyDelta, bool damage)
 
 		default:
 		{
-			gLogger->logMsgF("Ham::updateSingleHam Action = Default", MSG_NORMAL);
+			gLogger->log(LogManager::DEBUG,"Ham::updateSingleHam Action = Default");
 		}
 		break;
 	}

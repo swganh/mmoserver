@@ -84,12 +84,7 @@ void ClientManager::SendMessageToClient(Message* message)
 	}
 	else
 	{
-		//gLogger->logMsgF("ClientManager: failed routing message to client %u",MSG_NORMAL,message->getAccountId());
 		//happens when the client logs out
-
-		//if(!message->getAccountId())
-			//gLogger->hexDump(message->getData(),message->getSize());
-
 		gMessageFactory->DestroyMessage(message);
 	}
 }
@@ -371,7 +366,7 @@ void ClientManager::_processClusterZoneTransferCharacter(ConnectionClient* clien
   else
   {
     // client may have disconnected right in the middle of the transfer
-    gLogger->logMsg("*** Client not found during zone transfer.\n");
+    gLogger->log(LogManager::WARNING,"Client not found during zone transfer.\n");
   }
 }
 

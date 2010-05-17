@@ -67,7 +67,7 @@ void ObjectController::_handleRequestWaypointAtPosition(uint64 targetId,Message*
 	{
 		if(elementCount < 4)
 		{
-			gLogger->logMsgF("ObjController::handleCreateWaypointAtPosition: Error in parameters(count %u)",MSG_NORMAL,elementCount);
+			gLogger->log(LogManager::DEBUG,"ObjController::handleCreateWaypointAtPosition: Error in parameters(count %u)",elementCount);
 			return;
 		}
 		else
@@ -88,7 +88,7 @@ void ObjectController::_handleRequestWaypointAtPosition(uint64 targetId,Message*
 	}
 
 	string	planetStr	= dataElements[0].getAnsi();
-	gLogger->logMsgF("ObjController::handleCreateWaypointAtPosition: planet %s",MSG_NORMAL,planetStr.getAnsi());
+	gLogger->log(LogManager::DEBUG,"ObjController::handleCreateWaypointAtPosition: planet %s",planetStr.getAnsi());
 	float	x			= static_cast<float>(atof(dataElements[1].getAnsi()));
 	float	y			= static_cast<float>(atof(dataElements[2].getAnsi()));
 	float	z			= static_cast<float>(atof(dataElements[3].getAnsi()));
@@ -97,7 +97,7 @@ void ObjectController::_handleRequestWaypointAtPosition(uint64 targetId,Message*
 
 	if(planetId == -1)
 	{
-		gLogger->logMsgF("ObjController::handleCreateWaypointAtPosition: could not find planet id for %s",MSG_NORMAL,planetStr.getAnsi());
+		gLogger->log(LogManager::DEBUG,"ObjController::handleCreateWaypointAtPosition: could not find planet id for %s",planetStr.getAnsi());
 		return;
 	}
 
@@ -124,7 +124,7 @@ void ObjectController::_handleSetWaypointActiveStatus(uint64 targetId,Message* m
 	}
 	else
 	{
-		gLogger->logMsgF("ObjController::handleSetWaypointStatus: could not find waypoint %"PRIu64"",MSG_LOW,targetId);
+		gLogger->log(LogManager::DEBUG,"ObjController::handleSetWaypointStatus: could not find waypoint %"PRIu64"",targetId);
 	}
 }
 
@@ -199,7 +199,7 @@ void ObjectController::_handleSetWaypointName(uint64 targetId,Message* message,O
 
 	if(waypoint == NULL)
 	{
-		gLogger->logMsgF("ObjController::handlesetwaypointname: could not find waypoint %"PRIu64"",MSG_NORMAL,targetId);
+		gLogger->log(LogManager::DEBUG,"ObjController::handlesetwaypointname: could not find waypoint %"PRIu64"",targetId);
 		return;
 	}
 

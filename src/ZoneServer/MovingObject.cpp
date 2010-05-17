@@ -72,7 +72,7 @@ void MovingObject::updatePositionOutside(uint64 parentId, const glm::vec3& newPo
 		}
 		else
 		{
-			gLogger->logMsgF("Error removing %"PRIu64" from cell(%"PRIu64")",MSG_HIGH,this->getId(),this->getParentId());
+			gLogger->log(LogManager::NOTICE,"Error removing %"PRIu64" from cell(%"PRIu64")",this->getId(),this->getParentId());
 		}
 
 		// now set our new ParentId
@@ -96,7 +96,7 @@ void MovingObject::updatePositionOutside(uint64 parentId, const glm::vec3& newPo
 		else
 		{
 			// we should never get here !
-			gLogger->logMsg("NPCObject::updatePosition: could not find zone region in map");
+			gLogger->log(LogManager::DEBUG,"NPCObject::updatePosition: could not find zone region in map");
 		}
 	}
 	else
@@ -151,7 +151,6 @@ void MovingObject::updatePositionInCell(uint64 parentId, const glm::vec3& newPos
 		{
 			gMessageLib->broadcastContainmentMessage(this,oldParentId,0);
 		}
-		// gLogger->logMsgF("NPC changed cell from (%"PRIu64") to (%"PRIu64")",MSG_NORMAL, oldParentId, parentId);
 
 		// only remove us from si, if we just entered the building
 		if (oldParentId != 0)
@@ -163,7 +162,7 @@ void MovingObject::updatePositionInCell(uint64 parentId, const glm::vec3& newPos
 			}
 			else
 			{
-				gLogger->logMsgF("Error removing %"PRIu64" from cell(%"PRIu64")",MSG_NORMAL,this->getId(),oldParentId);
+				gLogger->log(LogManager::NOTICE,"Error removing %"PRIu64" from cell(%"PRIu64")",this->getId(),oldParentId);
 			}
 		}
 		else
@@ -191,7 +190,7 @@ void MovingObject::updatePositionInCell(uint64 parentId, const glm::vec3& newPos
 		}
 		else
 		{
-			gLogger->logMsgF("Error adding %"PRIu64" to cell(%"PRIu64")",MSG_NORMAL,this->getId(),parentId);
+			gLogger->log(LogManager::NOTICE,"Error adding %"PRIu64" to cell(%"PRIu64")",this->getId(),parentId);
 		}
 		// update the player
 		this->setParentId(parentId);
@@ -200,7 +199,6 @@ void MovingObject::updatePositionInCell(uint64 parentId, const glm::vec3& newPos
 
 void MovingObject::updatePosition(uint64 parentId, const glm::vec3& newPosition)
 {
-	// gLogger->logMsgF("NPCObject::updatePosition: update NPC position)", MSG_NORMAL);
 
 	if (parentId == 0)
 	{

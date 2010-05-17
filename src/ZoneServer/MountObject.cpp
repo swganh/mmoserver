@@ -26,7 +26,7 @@ void MountObject::prepareCustomRadialMenu(CreatureObject* creature, uint8 item_c
 
   // In release mode asserts don't trigger so an additional check is needed.
 	if(! player) {
-		gLogger->logErrorF("radials", "MountObject::prepareCustomRadialMenu - Menu preparation requested for a non-player object",MSG_NORMAL);
+		gLogger->log(LogManager::NOTICE, "MountObject::prepareCustomRadialMenu - Menu preparation requested for a non-player object");
 		return;
 	}
 
@@ -67,7 +67,7 @@ void MountObject::handleObjectMenuSelect(uint8 message_type, Object* source_obje
 
   // In release mode asserts don't trigger so an additional check is needed.
 	if(! player) {
-		gLogger->logErrorF("radials", "MountObject::handleObjectMenuSelect - Menu selection requested from a non-player object", MSG_NORMAL);
+		gLogger->log(LogManager::DEBUG, "MountObject::handleObjectMenuSelect - Menu selection requested from a non-player object");
 		return;
 	}
 
@@ -88,13 +88,13 @@ void MountObject::handleObjectMenuSelect(uint8 message_type, Object* source_obje
     case radId_serverVehicleEnter:
     case radId_serverVehicleExit:
       {
-				gLogger->logErrorF("radials", "MountObject::handleObjectMenuSelect - still in radial selection", MSG_NORMAL);
+				gLogger->log(LogManager::DEBUG, "MountObject::handleObjectMenuSelect - still in radial selection");
       }
     break;
 
     default:
       {
-				gLogger->logErrorF("radials", "MountObject::handleObjectMenuSelect - unknown radial selection: %d",MSG_NORMAL,message_type);
+				gLogger->log(LogManager::DEBUG, "MountObject::handleObjectMenuSelect - unknown radial selection: %d",message_type);
       }
     break;
   }

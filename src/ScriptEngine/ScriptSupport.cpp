@@ -81,11 +81,8 @@ ScriptSupport* ScriptSupport::Instance()
 
 void ScriptSupport::handleObjectReady(Object* object)
 {
-	// gLogger->logMsgF("ScriptSupport::handleObjectReady() Entering", MSG_NORMAL);
 	if (object)
 	{
-		// gLogger->logMsgF("ScriptSupport::handleObjectReady() Got an object and adding it locally", MSG_NORMAL);
-
 		// Save this object internally with it's id.
 		mObjectMap.insert(std::make_pair(object->getId(), object));
 
@@ -129,7 +126,6 @@ uint64 ScriptSupport::getObjectOwnedBy(uint64 theOwner)
 		if ( ((*it).second)->getPrivateOwner() == theOwner)
 		{
 			ownerId = (*it).first;
-			// gLogger->logMsgF("ScriptSupport::getObjectOwnedBy: Found an object with id = %"PRIu64"",MSG_NORMAL, ownerId);
 			break;
 		}
 		it++;
@@ -139,13 +135,10 @@ uint64 ScriptSupport::getObjectOwnedBy(uint64 theOwner)
 
 void ScriptSupport::eraseObject(uint64 id)
 {
-	// gLogger->logMsgF("ScriptSupport::eraseObject: Invoked",MSG_NORMAL);
-
 	ScriptSupportObjectMap::iterator it = mObjectMap.find(id);
 	if (it != mObjectMap.end())
 	{
 		mObjectMap.erase(it);
-		// gLogger->logMsgF("ScriptSupport::eraseObject: Erased an object with id %"PRIu64"",MSG_NORMAL, id);
 	}
 }
 
@@ -175,12 +168,10 @@ NPCObject* ScriptSupport::npcGetObject(uint64 id)
 
 uint64 ScriptSupport::npcCreate(uint64 templateId) //, uint64 npcPrivateOwnerId, uint64 cellForSpawn, std::string firstname, std::string lastname, float dirY, float dirW, float posX, float posY, float posZ, uint64 respawnDelay)
 {
-	// gLogger->logMsgF("ScriptSupport::npcCreate Entering", MSG_NORMAL);
 	uint64 npcId = gWorldManager->getRandomNpNpcIdSequence();
 	if (npcId != 0)
 	{
 		// Let's create a npc.
-		//gLogger->logMsgF("ScriptSupport::npcCreate Requesting npc from template %"PRIu64" with id = %"PRIu64"", MSG_NORMAL, templateId, npcId);
         NonPersistentNpcFactory::Instance()->requestNpcObject(this, templateId, npcId, 0, glm::vec3(), glm::quat(), 0);
 	}
 	else
@@ -195,8 +186,6 @@ uint64 ScriptSupport::npcCreate(uint64 templateId) //, uint64 npcPrivateOwnerId,
 void ScriptSupport::npcSpawnPersistent(NPCObject* npc, uint64 npcId, uint64 cellForSpawn, std::string firstname, std::string lastname, float dirY, float dirW, float posX, float posY, float posZ,
 									   uint64 respawnPeriod, uint64 templateId)
 {
-	// gLogger->logMsgF("ScriptSupport::npcSpawnPersistent: Added NPC with ID = %"PRIu64" with template = %"PRIu64"", MSG_NORMAL, npcId, templateId);
-
 	// Do not allow any spwans if not heightmap avaliable.
 	if (Heightmap::Instance()->Open())
 	{
@@ -206,7 +195,7 @@ void ScriptSupport::npcSpawnPersistent(NPCObject* npc, uint64 npcId, uint64 cell
 	}
 	else
 	{
-		gLogger->logMsgF("ScriptSupport::npcSpawnPersistent: Heightmap is missing, can NOT use dynamic spawned npc's.", MSG_NORMAL);
+		gLogger->log(LogManager::NOTICE, "ScriptSupport::npcSpawnPersistent: Heightmap is missing, can NOT use dynamic spawned npc's.");
 	}
 }
 
@@ -239,11 +228,9 @@ void ScriptSupport::npcSpawnGeneral(uint64 npcId, uint64 npcPrivateOwnerId, uint
 	if (!npc)
 	{
 		// Fallback for running in release mode.
-		gLogger->logMsgF("ScriptSupport::npcSpawnGeneral: Failed to access NPC id %"PRIu64"", MSG_NORMAL, npcId);
+		gLogger->log(LogManager::WARNING, "ScriptSupport::npcSpawnGeneral: Failed to access NPC id %"PRIu64"", npcId);
 		return;
 	}
-
-	// gLogger->logMsgF("ScriptSupport::npcSpawnGeneral: Spawning NPC with template = %"PRIu64", ID = %"PRIu64"", MSG_NORMAL, npc->getTemplateId(), npcId);
 
 	// npc->setId(npcId);
 	npc->setParentId(cellForSpawn);	// The cell we will spawn in.
@@ -267,8 +254,6 @@ void ScriptSupport::npcSpawnGeneral(uint64 npcId, uint64 npcPrivateOwnerId, uint
 	npc->setSpawnDirection(direction);
 	npc->setRespawnDelay(respawnDelay);
 
-	// gLogger->logMsgF("ScriptSupport::npcSpawnGeneral: Pos and Dir set!", MSG_NORMAL);
-
 	// Register object with WorldManager.
 	// gWorldManager->addObject(npc, true);
 
@@ -285,14 +270,12 @@ void ScriptSupport::npcSpawnGeneral(uint64 npcId, uint64 npcPrivateOwnerId, uint
 		}
 		else
 		{
-			gLogger->logMsgF("ScriptSupport::npcSpawn: couldn't find cell %"PRIu64"",MSG_HIGH,npc->getParentId());
 		}
 	}
 	else
 	{
 		if (QTRegion* region = gWorldManager->getSI()->getQTRegion(npc->mPosition.x,npc->mPosition.z))
 		{
-			// gLogger->logMsg("ScriptSupport::npcSpawn QTRegion found");
 			npc->setSubZoneId((uint32)region->getId());
 			region->mTree->addObject(npc);
 		}
@@ -307,7 +290,6 @@ void ScriptSupport::npcSpawnGeneral(uint64 npcId, uint64 npcPrivateOwnerId, uint
 		// Just to make sure we do not have any old scripts running.
 		assert(false);
 	}
-	// gLogger->logMsgF("ScriptSupport::npcSpawnGeneral: Calling respawn()", MSG_NORMAL);
 	npc->respawn();
 
 	// Now we can remove this object from our internal list. WorldManager will handle the destruction.
@@ -335,15 +317,12 @@ void ScriptSupport::npcSpawnGeneral(uint64 npcId, uint64 npcPrivateOwnerId, uint
 	npc->setInMoveCount(npc->getInMoveCount() + 1);
 	if (gWorldConfig->isTutorial())
 	{
-		// gLogger->logMsgF("ScriptSupport::npcSpawn: gWorldConfig->isTutorial()", MSG_NORMAL);
-
 		// We need to get the player object that is the owner of this npc.
 		if (npcPrivateOwnerId != 0)
 		{
 			PlayerObject* playerObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(npcPrivateOwnerId));
 			if (playerObject)
 			{
-				// gLogger->logMsgF("ScriptSupport::npcSpawn: We have a PlayerObject", MSG_NORMAL);
 
 				if (npc->getParentId())
 				{
@@ -379,15 +358,12 @@ void ScriptSupport::npcSpawnGeneral(uint64 npcId, uint64 npcPrivateOwnerId, uint
 
 void ScriptSupport::npcMove(NPCObject* npc, float posX, float posY, float posZ)
 {
-	// gLogger->logMsgF("ScriptSupport::npcMove() this = PRId32, NPC is: PRId32",MSG_HIGH, this, mSpawnedNpc);
-
 	// send out position updates to known players
     npc->updatePosition(npc->getParentId(), glm::vec3(posX, posY, posZ));
 }
 
 void ScriptSupport::npcMoveToZone(NPCObject* npc, uint64 zoneId, float posX, float posY, float posZ)
 {
-	// gLogger->logMsgF("ScriptSupport::npcMoveToZone() %.0f %.0f %.0f", MSG_NORMAL, posX, posY, posZ);
 	// send out position updates to known players
 	npc->updatePosition(zoneId, glm::vec3(posX, posY, posZ));
 }
@@ -430,8 +406,6 @@ void ScriptSupport::npcDirection(NPCObject* npc, float deltaX, float deltaZ) {
 
 void ScriptSupport::npcFormationPosition(NPCObject* npcMember, float xOffset, float zOffset)
 {
-	// gLogger->logMsgF("ScriptSupport::npcDirection() this = PRId32, NPC is: PRId32",MSG_HIGH, this, mSpawnedNpc);
-
 	// Update formation members direction.
 	// npcMember->mDirection = npcLeader->mDirection;
 
@@ -451,7 +425,6 @@ void ScriptSupport::npcFormationPosition(NPCObject* npcMember, float xOffset, fl
 		}
 	}
 	float angle = 2.0f*acos(w);
-	// gLogger->logMsgF("Heading: %d",MSG_NORMAL, (uint32)((angle / (2 * 3.1415936539)) * 360));
 
 	// We assume all formation is following the leader, ie. located behind him.
 	angle += static_cast<float>(alpha + 3.1415936539);	// alpha + 180
@@ -471,7 +444,6 @@ void ScriptSupport::npcFormationPosition(NPCObject* npcMember, float xOffset, fl
 
 void ScriptSupport::npcFormationMoveEx(NPCObject* npc, float posX, float posY, float posZ , float xOffset, float zOffset)
 {
-	// gLogger->logMsgF("ScriptSupport::npcMove() this = PRId32, NPC is: PRId32",MSG_HIGH, this, mSpawnedNpc);
 	float length = sqrt((xOffset * xOffset) + (zOffset * zOffset));
 
 	float alpha = atan(xOffset/zOffset);
@@ -488,7 +460,6 @@ void ScriptSupport::npcFormationMoveEx(NPCObject* npc, float posX, float posY, f
 		}
 	}
 	float angle = 2.0f*acos(w);
-	// gLogger->logMsgF("Heading: %d",MSG_NORMAL, (uint32)((angle / (2 * 3.1415936539)) * 360));
 
 	// We assume all formation is following the leader, ie. located behind him.
 	angle += static_cast<float>(alpha + 3.1415936539);	// alpha + 180
@@ -549,8 +520,6 @@ uint64 ScriptSupport::containerCreate(uint64 containerId)
 	// const uint64 tatt_drum = 11;
 	NonPersistentContainerFactory::getSingletonPtr()->requestObject(this, containerId, newId);
 
-	gLogger->logMsg("ScriptSupport::containerCreate");
-
 	return newId;
 }
 */
@@ -574,7 +543,6 @@ void ScriptSupport::containerSpawn(Container* container,
 									float posY,
 									float posZ)
 {
-	gLogger->logMsg("ScriptSupport::containerSpawn");
 
 	Anh_Math::Quaternion	direction;
 	Anh_Math::Vector3		position;
@@ -600,8 +568,6 @@ void ScriptSupport::containerSpawn(Container* container,
 
 	// WorldManager will only add us to the global object map if we use true.
 	gWorldManager->addObject(container, false);
-
-	// gLogger->logMsgF("ScriptSupport::npcSpawn: Added NPC with ID = %"PRIu64"", MSG_HIGH, npcId);
 
 	// Add us to the world.
 	gMessageLib->broadcastContainmentMessage(container->getId(),container->getParentId(),4,container);
@@ -677,7 +643,6 @@ uint64 ScriptSupport::itemCreate(uint64 itemTypesId)
 		// Let us get an object from/via the WRONG database (the Persistent... one).
 		NonPersistentItemFactory::Instance()->requestObject(this, itemTypesId, itemNewId);
 	}
-	// gLogger->logMsg("ScriptSupport::itemCreate");
 	return itemNewId;
 }
 
@@ -693,7 +658,6 @@ void ScriptSupport::itemPopulateInventory(uint64 itemId, uint64 npcId, uint64 pl
 
 	if (creature && itemObject && playerObject)
 	{
-		// gLogger->logMsgF("ScriptSupport::itemPopulateInventory() Got an object to add",MSG_NORMAL);
 		Inventory* inventory = dynamic_cast<Inventory*>(creature->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 		if (inventory)
 		{
@@ -717,7 +681,6 @@ void ScriptSupport::itemSpawn(Item* item,
 									float posY,
 									float posZ)
 {
-	gLogger->logMsg("ScriptSupport::itemSpawn");
 
 	Anh_Math::Quaternion	direction;
 	Anh_Math::Vector3		position;
@@ -747,7 +710,6 @@ void ScriptSupport::itemSpawn(Item* item,
 
 	if (parentId == 0)
 	{
-		gLogger->logMsgF("ScriptSupport::itemGetObject BIG TODO HERE" ,MSG_NORMAL);
 		// gWorldManager->getSI()->InsertPoint(itemId, item->mPosition.x, item->mPosition.z);
 	}
 	else
@@ -917,12 +879,10 @@ void ScriptSupport::setPlayerPosition(uint64 playerId, uint64 cellId, float posX
 
 void ScriptSupport::lairSpawn(uint64 lairTypeId)
 {
-	// gLogger->logMsgF("ScriptSupport::lairSpawn Entering", MSG_NORMAL);
 	uint64 npcNewId = gWorldManager->getRandomNpNpcIdSequence();
 	if (npcNewId != 0)
 	{
 		// Let's put this sucker into play again.
-		// gLogger->logMsgF("ScriptSupport::lairSpawn Requesting lair of type = %"PRIu64" with id %"PRIu64"", MSG_NORMAL, lairTypeId, npcNewId);
 		NonPersistentNpcFactory::Instance()->requestLairObject(NpcManager::Instance(), lairTypeId, npcNewId);
 	}
 }

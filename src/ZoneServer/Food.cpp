@@ -39,7 +39,6 @@ Food::~Food()
 
 void Food::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount)
 {
-	// gLogger->logMsg("Food::prepareCustomRadialMenu(");
 	RadialMenu* radial	= new RadialMenu();
 		
 	CreatureObject* unknownCreature;
@@ -50,15 +49,12 @@ void Food::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCou
 		(creatureInventory->getId() == this->getParentId()))
 	{
 		// Its an object in an inventory
-		// gLogger->logMsgF("Food::prepareCustomRadialMenu creatureInventory", MSG_NORMAL);
 
 		NPCObject* npcObject = dynamic_cast<NPCObject*>(unknownCreature);
 		if (npcObject)
 		{
-			// gLogger->logMsgF("Food::prepareCustomRadialMenu npcObject", MSG_NORMAL);
 			if ((npcObject->getNpcFamily() == NpcFamily_AttackableCreatures) && npcObject->isDead())
 			{
-				// gLogger->logMsgF("Food::prepareCustomRadialMenu NpcFamily_AttackableCreatures and DEAD", MSG_NORMAL);
 				// I'm pretty sure we are a loot item.
 				radial->addItem(1,0,radId_itemPickup,radAction_ObjCallback,"@ui_radial:loot");
 				radial->addItem(2,0,radId_examine,radAction_Default);
@@ -68,7 +64,6 @@ void Food::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCou
 		}
 	}
 
-	// gLogger->logMsgF("Food::prepareCustomRadialMenu Standard radial stuff", MSG_NORMAL);
 	// Note: If we are to never use the default "Eat", THEN remove the isTutorial()-condition test.
 	if (gWorldConfig->isTutorial())
 	{
@@ -96,7 +91,6 @@ void Food::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 			{
 				if (gWorldConfig->isTutorial())
 				{
-					// gLogger->logMsgF("Item::handleObjectMenuSelect: Use food",MSG_NORMAL);
 					if (playerObject->isConnected())
 					{
 						playerObject->getTutorial()->tutorialResponse("foodUsed");
@@ -138,7 +132,7 @@ void Food::handleFoodUse(Object* srcObject)
 		mIcon = 0;
 		mIcon = this->getInternalAttribute<uint32>("food_icon");					
 	} else {
-		gLogger->logMsg("Food/Drink found with no Buff Icon in food.cpp: handleFoodUse()");
+		gLogger->log(LogManager::DEBUG,"Food/Drink found with no Buff Icon in food.cpp: handleFoodUse()");
 	}
 
 	if(this->hasAttribute("counter_uses_remaining"))

@@ -208,7 +208,7 @@ bool ScoutManager::createCamp(uint32 typeId,uint64 parentId, const glm::vec3& po
 //================================================================================
 void ScoutManager::successForage(PlayerObject* player)
 {
-	//gLogger->logMsg("FORAGING ATTEMPT SUCCESS!", FOREGROUND_RED);
+	//gLogger->log(LogManager::DEBUG,"FORAGING ATTEMPT SUCCESS!", FOREGROUND_RED);
 	//Chance of success = sqrt(skill)/20 + 0.15
 	//Chance in down = chance/2
 

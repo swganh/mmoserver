@@ -43,7 +43,7 @@ mNetworkManager(0)
 	// log msg to default log
   
   Anh_Utils::Clock::Init();
-  gLogger->logMsg(" Login Server Startup",FOREGROUND_GREEN);
+  gLogger->log(LogManager::INFORMATION, "Login Server Startup");
 
 	// Initialize our modules.
 
@@ -60,13 +60,6 @@ mNetworkManager(0)
 										 (char*)(gConfig->read<std::string>("DBUser")).c_str(),
 										 (char*)(gConfig->read<std::string>("DBPass")).c_str(),
 										 (char*)(gConfig->read<std::string>("DBName")).c_str());
-
-	gLogger->connecttoDB(mDatabaseManager);
-	gLogger->createErrorLog("LoginServer",(LogLevel)(gConfig->read<int>("LogLevel",2)),
-										(bool)(gConfig->read<bool>("LogToFile", true)),
-										(bool)(gConfig->read<bool>("ConsoleOut",true)),
-										(bool)(gConfig->read<bool>("LogAppend",true)));
-
 
   mDatabase->ExecuteSqlAsync(0,0,"UPDATE config_process_list SET serverstartID = serverstartID+1 WHERE name like 'login'");
   mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE config_process_list SET status=%u WHERE name='login';", 1));
@@ -86,12 +79,12 @@ mNetworkManager(0)
 	// We're done initializing.
 	mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE config_process_list SET address='%s', port=%u, status=%u WHERE name='login';", mService->getLocalAddress(), mService->getLocalPort(), 2));
 
-	gLogger->logMsg(" Login Server startup complete",FOREGROUND_GREEN);
+	gLogger->log(LogManager::INFORMATION, "Login Server startup complete");
 	//gLogger->printLogo();
 	// std::string BuildString(GetBuildString());	
 
-	gLogger->logMsgF("Login Server - Build %s",MSG_NORMAL,ConfigManager::getBuildString().c_str());
-	gLogger->logMsg(" Welcome to your SWGANH Experience!");
+	gLogger->log(LogManager::INFORMATION, "Login Server - Build %s", ConfigManager::getBuildString().c_str());
+	gLogger->log(LogManager::CRITICAL,"Welcome to your SWGANH Experience!");
 }
 
 
@@ -99,7 +92,7 @@ mNetworkManager(0)
 LoginServer::~LoginServer(void)
 {
 	mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE config_process_list SET status=%u WHERE name='login';", 0));
-	gLogger->logMsg("LoginServer shutting down...");
+	gLogger->log(LogManager::CRITICAL, "LoginServer shutting down...");
 
 	delete mLoginManager;
 
@@ -110,7 +103,7 @@ LoginServer::~LoginServer(void)
 
 	delete mDatabaseManager;
 
-	gLogger->logMsg("LoginServer Shutdown complete");
+	gLogger->log(LogManager::CRITICAL, "LoginServer Shutdown complete");
 }
 
 //======================================================================================================================
@@ -140,11 +133,15 @@ int main(int argc, char* argv[])
 
   bool exit = false;
 
-  // init our logmanager singleton,set global level normal, create the default log with normal priority, output to file + console, also truncate
-  LogManager::Init(G_LEVEL_NORMAL,"LoginServer.log", LEVEL_NORMAL, true, true);
+  LogManager::Init();
+  gLogger->setupConsoleLogging((LogManager::LOG_PRIORITY)1); //Fake for any Errors we encounter inside ConfigManager
 
   // init out configmanager singleton (access configvariables with gConfig Macro,like: gConfig->readInto(test,"test");)
   ConfigManager::Init("LoginServer.cfg");
+
+  gLogger->setupConsoleLogging((LogManager::LOG_PRIORITY)gConfig->read<int>("ConsoleLog_MinPriority"));
+  gLogger->setupFileLogging((LogManager::LOG_PRIORITY)gConfig->read<int>("FileLog_MinPriority"), gConfig->read<std::string>("FileLog_Name"));
+  //We cannot startup Database Logging until we startup the Database.
 
   gLoginServer = new LoginServer();
 
@@ -165,8 +162,6 @@ int main(int argc, char* argv[])
 
 	// Shutdown things
 	delete gLoginServer;
-
-	delete LogManager::getSingletonPtr();
 
   return 0;
 }

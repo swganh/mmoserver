@@ -277,7 +277,7 @@ void ManufacturingSchematic::setPPAttribute(string key,std::string value)
 
 	if(it == mPPAttributeMap.end())
 	{
-		gLogger->logMsgF("ManufacturingSchematic::setPPAttribute: could not find %s",MSG_HIGH,key.getAnsi());
+		gLogger->log(LogManager::DEBUG,"ManufacturingSchematic::setPPAttribute: could not find %s",key.getAnsi());
 		return;
 	}
 
@@ -304,7 +304,7 @@ void ManufacturingSchematic::removePPAttribute(string key)
 	if(it != mPPAttributeMap.end())
 		mPPAttributeMap.erase(it);
 	else
-		gLogger->logMsgF("ManufacturingSchematic::removePostProcessAttribute: could not find %s",MSG_HIGH,key.getAnsi());
+		gLogger->log(LogManager::DEBUG,"ManufacturingSchematic::removePostProcessAttribute: could not find %s",key.getAnsi());
 }
 
 //===============================================================

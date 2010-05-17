@@ -41,7 +41,7 @@ void StructureManager::handleObjectReady(Object* object,DispatchClient* client)
 
 	if(!structure)
 	{
-			gLogger->logMsg("StructureManager::handleObjectReady: No structure");
+			gLogger->log(LogManager::DEBUG,"StructureManager::handleObjectReady: No structure");
 	}
 
 	if(gWorldManager->getWMState() == WMState_Running)
@@ -209,7 +209,7 @@ void StructureManager::_HandleUpdateCharacterLots(StructureManagerAsyncContainer
 
 	if (!count)
 	{
-		gLogger->logMsgLoadFailure("StructureManager::add Permission no return value...",MSG_NORMAL);
+		gLogger->log(LogManager::DEBUG,"StructureManager::add Permission no return value...");
 		return;
 	}
 	result->GetNextRow(binding,&lotCount);
@@ -267,7 +267,7 @@ void StructureManager::_HandleStructureRedeedCallBack(StructureManagerAsyncConta
 
 	if (!count)
 	{
-		gLogger->logMsgLoadFailure("StructureManager::create deed no result...",MSG_NORMAL);
+		gLogger->log(LogManager::DEBUG,"StructureManager::create deed no result...");
 		mDatabase->DestroyDataBinding(binding);
 		return;
 	}
@@ -276,14 +276,14 @@ void StructureManager::_HandleStructureRedeedCallBack(StructureManagerAsyncConta
 	//return value of 0 means something wasnt found
 	if(!deedId)
 	{
-		gLogger->logMsgF("StructureManager::create deed no valid return value...",MSG_NORMAL);
+		gLogger->log(LogManager::DEBUG,"StructureManager::create deed no valid return value...");
 		mDatabase->DestroyDataBinding(binding);
 		return;
 	}
 	//returnvalue of 1 means that there wasnt enough money on the deed
 	if(deedId == 1)
 	{
-		gLogger->logMsgF("StructureManager::create deed with not enough maintenance...",MSG_NORMAL);
+		gLogger->log(LogManager::DEBUG,"StructureManager::create deed with not enough maintenance...");
 		gMessageLib->sendSysMsg(player, "player_structure","structure_destroyed ");	
 		mDatabase->DestroyDataBinding(binding);
 		return;
@@ -334,7 +334,7 @@ void StructureManager::_HandleStructureDestruction(StructureManagerAsyncContaine
 		PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(sd.id));
 		if(structure)
 		{
-			gLogger->logMsgF("StructureManager::delete structure due to zero condition %I64u",MSG_NORMAL,structure->getId());
+			gLogger->log(LogManager::DEBUG,"StructureManager::delete structure due to zero condition %I64u",structure->getId());
 			//delete the deed in the db
 			//the parent is the structure and the item family is 15
 			int8 sql[100];
@@ -425,7 +425,7 @@ void StructureManager::_HandleStructureTransferLotsRecipient(StructureManagerAsy
 	count = result->getRowCount();
 	if(!count)
 	{
-		gLogger->logMsgF("StructureManager::Transfer Structure Admin List Callback couldnt get recipients lots",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG,"StructureManager::Transfer Structure Admin List Callback couldnt get recipients lots");
 		mDatabase->DestroyDataBinding(binding);			
 		return;
 	}
@@ -501,14 +501,7 @@ void StructureManager::_HandleQueryLoadDeedData(StructureManagerAsyncContainer* 
 	}
 
 	if(result->getRowCount())
-						#if !defined(_DEBUG)
-							gLogger->logMsgLoadSuccess(" Loading %u structures...",MSG_NORMAL,result->getRowCount());
-						#endif
-						#if defined(_DEBUG)
-							gLogger->logMsgLoadSuccess("StructureManager::Loading %u Structures...",MSG_NORMAL,result->getRowCount());
-						#endif
-	else
-		gLogger->logMsgLoadFailure("StructureManager::Loading Structures...",MSG_NORMAL);
+		gLogger->log(LogManager::DEBUG,"Loading %u structures...",result->getRowCount());
 
 	mDatabase->DestroyDataBinding(binding);
 }
@@ -533,7 +526,7 @@ void StructureManager::_HandleRemovePermission(StructureManagerAsyncContainer* a
 
 	if (!count)
 	{
-		gLogger->logMsgLoadFailure("StructureManager::Structure_Query_Remove_Permission no return value...",MSG_NORMAL);
+		gLogger->log(LogManager::DEBUG,"StructureManager::Structure_Query_Remove_Permission no return value...");
 	}
 	result->GetNextRow(binding,&returnValue);
 	// 0 is sucess
@@ -646,7 +639,7 @@ void StructureManager::_HandleAddPermission(StructureManagerAsyncContainer* asyn
 
 	if (!count)
 	{
-		gLogger->logMsgLoadFailure("StructureManager::add Permission no return value...",MSG_NORMAL);
+		gLogger->log(LogManager::DEBUG,"StructureManager::add Permission no return value...");
 	}
 	result->GetNextRow(binding,&returnValue);
 	// 0 is sucess
@@ -681,7 +674,7 @@ void StructureManager::_HandleAddPermission(StructureManagerAsyncContainer* asyn
 		string name;
 		name = asynContainer->name;
 		name.convert(BSTRType_ANSI);
-		gLogger->logMsgF("StructurManager add %s failed ", MSG_HIGH,name.getAnsi());
+		gLogger->log(LogManager::DEBUG,"StructurManager add %s failed ",name.getAnsi());
 		name.convert(BSTRType_Unicode16);
 		
 		gMessageLib->sendSystemMessage(player,L"","player_structure","modify_list_invalid_player","","",name.getUnicode16());
@@ -751,21 +744,7 @@ void StructureManager::_HandleNonPersistantLoadStructureItem(StructureManagerAsy
 	}
 
 	if(result->getRowCount())
-		#if !defined(_DEBUG)
-							gLogger->logMsgLoadSuccess(" Loading %u structure items...",MSG_NORMAL,result->getRowCount());
-						#endif
-						#if defined(_DEBUG)
-							gLogger->logMsgLoadSuccess("StructureManager::Loading %u Structure Items...",MSG_NORMAL,result->getRowCount());
-						#endif
-							
-	else
-		#if !defined(_DEBUG)
-							gLogger->logMsgLoadFailure(" Loading structure items...",MSG_NORMAL);
-						#endif
-						#if defined(_DEBUG)
-							gLogger->logMsgLoadFailure("StructureManager::Loading Structure Items...",MSG_NORMAL);
-						#endif
-							
+		gLogger->log(LogManager::DEBUG,"Loading %u structure items...",result->getRowCount());
 
 	mDatabase->DestroyDataBinding(binding);
 
@@ -792,7 +771,7 @@ void StructureManager::_HandleCheckPermission(StructureManagerAsyncContainer* as
 
 	if (!count)
 	{
-		gLogger->logMsgLoadFailure("StructureManager::check Permission no return value...",MSG_NORMAL);
+		gLogger->log(LogManager::DEBUG,"StructureManager::check Permission no return value...");
 		mDatabase->DestroyDataBinding(binding);
 		return;
 	}
@@ -816,7 +795,7 @@ void StructureManager::_HandleCheckPermission(StructureManagerAsyncContainer* as
 		name = asynContainer->name;
 		name.convert(BSTRType_ANSI);
 		
-		gLogger->logMsgF("StructurManager check Permission name %s doesnt exist ", MSG_HIGH,name.getAnsi());
+		gLogger->log(LogManager::DEBUG,"StructurManager check Permission name %s doesnt exist ",name.getAnsi());
 		
 	}
 
@@ -873,7 +852,7 @@ void StructureManager::_HandleUpdateAttributes(StructureManagerAsyncContainer* a
 			FactoryObject* factory = dynamic_cast<FactoryObject*>(structure);
 			if(factory)
 				factory->setSchematicCustomName(container.mValue);
-			gLogger->logMsgF("StructureManager::GetCustomName : %s",MSG_HIGH, container.mValue.getAnsi());
+			gLogger->log(LogManager::DEBUG,"StructureManager::GetCustomName : %s", container.mValue.getAnsi());
 		}
 
 		if(strcmp(container.mString.getAnsi(),"schematicName") == 0)
@@ -881,7 +860,7 @@ void StructureManager::_HandleUpdateAttributes(StructureManagerAsyncContainer* a
 			FactoryObject* factory = dynamic_cast<FactoryObject*>(structure);
 			if(factory)
 				factory->setSchematicName(container.mValue);
-			gLogger->logMsgF("StructureManager::GetName : %s",MSG_HIGH, container.mValue.getAnsi());
+			gLogger->log(LogManager::DEBUG,"StructureManager::GetName : %s", container.mValue.getAnsi());
 		}
 
 		if(strcmp(container.mString.getAnsi(),"schematicFile") == 0)
@@ -889,7 +868,7 @@ void StructureManager::_HandleUpdateAttributes(StructureManagerAsyncContainer* a
 			FactoryObject* factory = dynamic_cast<FactoryObject*>(structure);
 			if(factory)
 				factory->setSchematicFile(container.mValue);
-			gLogger->logMsgF("StructureManager::GetNameFile : %s",MSG_HIGH, container.mValue.getAnsi());
+			gLogger->log(LogManager::DEBUG,"StructureManager::GetNameFile : %s", container.mValue.getAnsi());
 		}
 
 		if(strcmp(container.mString.getAnsi(),"maintenance") == 0)
@@ -925,7 +904,7 @@ void StructureManager::_HandleUpdateAttributes(StructureManagerAsyncContainer* a
 			
 			container.mValue.setLength(4);
 			structure->setDamage(boost::lexical_cast<uint32>(container.mValue.getAnsi()));
-			gLogger->logMsgF("StructureManager::GetConditionData : %u",MSG_HIGH, structure->getDamage());
+			gLogger->log(LogManager::DEBUG,"StructureManager::GetConditionData : %u", structure->getDamage());
 		}
 
 		if(strcmp(container.mString.getAnsi(),"name") == 0)

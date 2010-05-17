@@ -192,7 +192,7 @@ void InsuranceTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObje
 
 				default:
 				{
-					gLogger->logMsgF("InsuranceTerminal::handleObjectMenuSelect Unhandled MenuSelect: %u",MSG_NORMAL,messageType);
+					gLogger->log(LogManager::NOTICE,"InsuranceTerminal::handleObjectMenuSelect Unhandled MenuSelect: %u",messageType);
 				}
 				break;
 			}
@@ -205,7 +205,6 @@ void InsuranceTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObje
 
 void InsuranceTerminal::handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window)
 {
-	// gLogger->logMsgF("InsuranceTerminal::handleUIEvent You are here!",MSG_NORMAL);
 
 	if(window == NULL)
 	{
@@ -228,7 +227,6 @@ void InsuranceTerminal::handleUIEvent(uint32 action,int32 element,string inputSt
 				case 0: // Yes
 				{
 					// Player selected to continue with insurance of item even if no need for.
-					// gLogger->logMsgF("SUI_Window_Insurance_Newbie_MessageBox Yes",MSG_NORMAL);
 
 					// Build the items list and optional use error-messages if needed.
 					BStringVector insuranceList;
@@ -243,13 +241,12 @@ void InsuranceTerminal::handleUIEvent(uint32 action,int32 element,string inputSt
 				case 1: // No
 				{
 					// Player selected to abort, since all items are still treated as insured.
-					// gLogger->logMsgF("SUI_Window_Insurance_Newbie_MessageBox No",MSG_NORMAL);
 				}
 				break;
 
 				default:
 				{
-					gLogger->logMsgF("SUI_Window_Insurance_Newbie_MessageBox Invalid selection!",MSG_NORMAL);
+					gLogger->log(LogManager::DEBUG,"SUI_Window_Insurance_Newbie_MessageBox Invalid selection!");
 				}
 				break;
 			}
@@ -263,7 +260,6 @@ void InsuranceTerminal::handleUIEvent(uint32 action,int32 element,string inputSt
 				case 0: // OK
 				{
 					// Insure one item.
-					// gLogger->logMsgF("SUI_Window_Insurance_ListBox OK",MSG_NORMAL);
 					
 					Inventory* inventoryObject = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)); 
 					Bank* bankObject = dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
@@ -341,8 +337,6 @@ void InsuranceTerminal::handleUIEvent(uint32 action,int32 element,string inputSt
 							// string str("insured");
 							tangibleObject->setInternalAttribute("insured","1");
 							gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE item_attributes SET value=1 WHERE item_id=%"PRIu64" AND attribute_id=%u",tangibleObject->getId(), 1270);
-
-							//gLogger->logMsgF("UPDATE item_attributes SET value=1 WHERE item_id=%"PRIu64" AND attribute_id=%u", MSG_NORMAL, tangibleObject->getId(), 1270);
 							
 							tangibleObject->setTypeOptions(tangibleObject->getTypeOptions() | 4);
 
@@ -363,13 +357,11 @@ void InsuranceTerminal::handleUIEvent(uint32 action,int32 element,string inputSt
 
 				case 1: // Cancel
 				{
-					// gLogger->logMsgF("SUI_Window_Insurance_ListBox Cancel",MSG_NORMAL);
 				}
 				break;
 
 				default:
 				{
-					// gLogger->logMsgF("SUI_Window_Insurance_ListBox Invalid selection!",MSG_NORMAL);
 				}
 				break;
 			}
@@ -383,7 +375,6 @@ void InsuranceTerminal::handleUIEvent(uint32 action,int32 element,string inputSt
 				case 0: // Yes
 				{
 					// Player selected to continue with insurance of item even if no need for.
-					// gLogger->logMsgF("SUI_Window_InsureAll_Newbie_MessageBox Yes",MSG_NORMAL);
 
 					// Fetch all items that can be insured.
 					BStringVector insuranceList;
@@ -399,13 +390,12 @@ void InsuranceTerminal::handleUIEvent(uint32 action,int32 element,string inputSt
 				case 1: // No
 				{
 					// Player selected to abort, since all items are still treated as insured.
-					// gLogger->logMsgF("SUI_Window_InsureAll_Newbie_MessageBox No",MSG_NORMAL);
 				}
 				break;
 
 				default:
 				{
-					gLogger->logMsgF("SUI_Window_InsureAll_Newbie_MessageBox Invalid selection!",MSG_NORMAL);
+					gLogger->log(LogManager::DEBUG,"SUI_Window_InsureAll_Newbie_MessageBox Invalid selection!");
 				}
 				break;
 			}
@@ -536,13 +526,12 @@ void InsuranceTerminal::handleUIEvent(uint32 action,int32 element,string inputSt
 
 				case 1: // No
 				{
-					// gLogger->logMsgF("SUI_Window_InsuranceAll_MessageBox No",MSG_NORMAL);
 				}
 				break;
 
 				default:
 				{
-					gLogger->logMsgF("SUI_Window_InsuranceAll_MessageBox Invalid selection!",MSG_NORMAL);
+					gLogger->log(LogManager::DEBUG,"SUI_Window_InsuranceAll_MessageBox Invalid selection!");
 				}
 				break;
 			}
@@ -554,8 +543,6 @@ void InsuranceTerminal::handleUIEvent(uint32 action,int32 element,string inputSt
 		}
 		break;
 	}
-	
-	// gLogger->logMsgF("CloningTerminal::handleUIEvent You sure handled this UI-event!, Action = %d",MSG_NORMAL, action);
 }
 //=============================================================================
 //

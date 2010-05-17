@@ -434,8 +434,6 @@ void ObjectController::_handleAddIgnoreDBReply(uint32 retCode,string ignoreName)
 	
 	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
 
-	// gLogger->logMsgF("_handleAddIgnoreDBReply retCode = %u",MSG_NORMAL, retCode);
-
 	switch(retCode)
 	{
 		// no such name
@@ -483,7 +481,6 @@ void ObjectController::_handleAddIgnoreDBReply(uint32 retCode,string ignoreName)
 void ObjectController::_handleRemoveIgnoreDBReply(uint32 retCode,string ignoreName)
 {
 	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
-	// gLogger->logMsgF("_handleRemoveIgnoreDBReply retCode = %u",MSG_NORMAL, retCode);
 
 	switch(retCode)
 	{

@@ -84,7 +84,7 @@ void PlayerStructureTerminal::handleObjectMenuSelect(uint8 messageType,Object* s
 
 	if ((!player) ||(!player->isConnected()))
 	{
-		gLogger->logMsgF("HarvesterObject::handleObjectMenuSelect::could not find player",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG,"HarvesterObject::handleObjectMenuSelect::could not find player");
 		return;
 	}
 	
@@ -183,7 +183,7 @@ void PlayerStructureTerminal::handleObjectMenuSelect(uint8 messageType,Object* s
 
 void PlayerStructureTerminal::handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window)
 {
-	// gLogger->logMsgF("InsuranceTerminal::handleUIEvent You are here!",MSG_NORMAL);
+	// gLogger->log(LogManager::DEBUG,"InsuranceTerminal::handleUIEvent You are here!",MSG_NORMAL);
 
 	if(window == NULL)
 	{
@@ -212,5 +212,5 @@ void PlayerStructureTerminal::handleUIEvent(uint32 action,int32 element,string i
 		break;
 	}
 	 */
-	// gLogger->logMsgF("CloningTerminal::handleUIEvent You sure handled this UI-event!, Action = %d",MSG_NORMAL, action);
+	// gLogger->log(LogManager::DEBUG,"CloningTerminal::handleUIEvent You sure handled this UI-event!, Action = %d", action);
 }

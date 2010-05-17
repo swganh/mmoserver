@@ -632,7 +632,6 @@ void MessageLib::sendCreatureAnimation(CreatureObject* srcObject,string animatio
 
 void MessageLib::sendCreatureAnimation(CreatureObject* srcObject,string animation, PlayerObject* player)
 {
-	// gLogger->logMsg("MessageLib::sendCreatureAnimation: For tutorial");
 	mMessageFactory->StartMessage();
 	mMessageFactory->addUint32(opObjControllerMessage);
 	mMessageFactory->addUint32(0x0000001B);
@@ -770,7 +769,7 @@ bool MessageLib::sendEmptyObjectMenuResponse(uint64 requestedId,PlayerObject* ta
 
 bool MessageLib::sendStartingLocationList(PlayerObject* player, uint8 tatooine, uint8 corellia, uint8 talus, uint8 rori, uint8 naboo)
 {
-	gLogger->logMsg("Sending Starting Location List\n");
+	gLogger->log(LogManager::DEBUG,"Sending Starting Location List\n");
 
 	if(!(player->isConnected()))
 	{
@@ -1152,7 +1151,6 @@ void MessageLib::sendDataTransformWithParent0B(Object* object)
 	mMessageFactory->addUint32(0);
 	uint32 u = object->incDataTransformCounter();
 	mMessageFactory->addUint32(u);
-	//gLogger->logMsgF("datatransform counter : %u",MSG_HIGH,u);
 
 	mMessageFactory->addUint64(object->getParentId());
 	mMessageFactory->addFloat(object->mDirection.x);
@@ -1236,7 +1234,6 @@ void MessageLib::sendDataTransformWithParent(Object* object)
 	mMessageFactory->addUint32(0);
 	uint32 u = object->incDataTransformCounter();
 	mMessageFactory->addUint32(u);
-	//gLogger->logMsgF("datatransform counter : %u",MSG_HIGH,u);
 
 	mMessageFactory->addUint64(object->getParentId());
 	mMessageFactory->addFloat(object->mDirection.x);

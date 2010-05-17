@@ -250,7 +250,7 @@ bool ObjectController::_processCommandQueue()
 	PlayerObject* player  = dynamic_cast<PlayerObject*>(mObject);
 	if (!player)
 	{
-		gLogger->logMsgF("ObjectController::_processCommandQueue() Invalid object", MSG_NORMAL);
+		gLogger->log(LogManager::CRITICAL,"ObjectController::_processCommandQueue() Invalid object");
 		assert(false && "ObjectController::_processCommandQueue mObject is not a PlayerObject");
 		return false;
 	}
@@ -262,12 +262,10 @@ bool ObjectController::_processCommandQueue()
 		uint64 autoTargetId = player->getCombatTargetId();
 		if (autoTargetId != 0)
 		{
-			// gLogger->logMsgF("Player generated auto target with id %"PRIu64"", MSG_NORMAL, autoTargetId);
 			this->enqueueAutoAttack(autoTargetId);
 		}
 		else
 		{
-			// gLogger->logMsgF("No more targets avaliable, stop auto-attacking.", MSG_NORMAL);
 			player->disableAutoAttack();
 		}
 	}
@@ -282,7 +280,6 @@ bool ObjectController::_processCommandQueue()
 
 		if (++loopCounter > 1)
 		{
-			// gLogger->logMsgF("ObjectController::_processCommandQueue() Doing loop # %d at single request", MSG_NORMAL, loopCounter);
 		}
 
 		// see if we got something to execute yet
@@ -312,7 +309,6 @@ bool ObjectController::_processCommandQueue()
 			// validate if we are still able to execute
 			if (cmdProperties && _validateProcessCommand(reply1,reply2,targetId,command,cmdProperties))
 			{
-				// gLogger->logMsgF("ObjectController::processCommandQueue: ObjController Cmd = 0x%x",MSG_NORMAL, command);
 
 				// Do not mess with cooldowns for non combat commands, those timer values are for preventing spam of the same message,
 				// and spam preventing is not implemented yet.
@@ -363,7 +359,7 @@ bool ObjectController::_processCommandQueue()
 						}
 						else
 						{
-							gLogger->logMsgF("ObjectController::processCommandQueue: ObjControllerCmdGroup_Common Unhandled Cmd 0x%x for %"PRIu64"",MSG_NORMAL,command,mObject->getId());
+							gLogger->log(LogManager::DEBUG,"ObjectController::processCommandQueue: ObjControllerCmdGroup_Common Unhandled Cmd 0x%x for %"PRIu64"",command,mObject->getId());
 							//gLogger->hexDump(message->getData(),message->getSize());
 
 							consumeHam = false;
@@ -373,7 +369,6 @@ bool ObjectController::_processCommandQueue()
 
 					case ObjControllerCmdGroup_Attack:
 					{
-						// gLogger->logMsgF("ObjectController::processCommandQueue: ObjControllerCmdGroup_Attack Handled Cmd 0x%x for %"PRIu64"",MSG_NORMAL,command,mObject->getId());
 						// If player activated combat or me returning fire, the peace is ended, and auto-attack allowed.
 						player->toggleStateOff(CreatureState_Peace);
 						gMessageLib->sendStateUpdate(player);
@@ -382,11 +377,9 @@ bool ObjectController::_processCommandQueue()
 						// CreatureObject* creature = NULL;
 						if (targetId != 0)
 						{
-							// gLogger->logMsg("ObjectController::processCommandQueue: We have a New target");
 							cmdExecutedOk = gCombatManager->handleAttack(player, targetId, cmdProperties);
 							if (!cmdExecutedOk)
 							{
-								// gLogger->logMsg("ObjectController::processCommandQueue: handleAttack error");
 								// We have lost our target.
 								player->setCombatTargetId(0);
 								player->disableAutoAttack();
@@ -403,19 +396,16 @@ bool ObjectController::_processCommandQueue()
 									// new target still valid?
 									if (player->setAsActiveDefenderAndUpdateList(targetId))
 									{
-										// gLogger->logMsgF("We have a new valid target %"PRIu64"",MSG_NORMAL,targetId);
 										player->setCombatTargetId(targetId);
 									}
 									else
 									{
-										// gLogger->logMsgF("We have a NEW and INVALID target %"PRIu64"",MSG_NORMAL,targetId);	// One shot kill :)
 										player->disableAutoAttack();
 										player->setCombatTargetId(0);
 									}
 								}
 								else
 								{
-									// gLogger->logMsgF("We have same target as before %"PRIu64"",MSG_NORMAL,targetId);
 									player->setCombatTargetId(targetId);
 								}
 							}
@@ -430,7 +420,7 @@ bool ObjectController::_processCommandQueue()
 
 					default:
 					{
-						gLogger->logMsgF("ObjectController::processCommandQueue: Default Unhandled CmdGroup %u for %"PRIu64"",MSG_NORMAL,cmdProperties->mCmdGroup,mObject->getId());
+						gLogger->log(LogManager::DEBUG,"ObjectController::processCommandQueue: Default Unhandled CmdGroup %u for %"PRIu64"",cmdProperties->mCmdGroup,mObject->getId());
 
 						consumeHam = false;
 					}
@@ -443,18 +433,12 @@ bool ObjectController::_processCommandQueue()
 					if (cmdExecutedOk)
 					{
 						mNextCommandExecution = currentTime + timeToNextCommand;
-						// gLogger->logMsgF("Setting up next command in %"PRIu64", at %"PRIu64"", MSG_NORMAL, timeToNextCommand, mNextCommandExecution);
 					}
 					else
 					{
 						// we will not spam the command queue if auto-attack is set to an invalid target.
 						mNextCommandExecution = currentTime;
 					}
-				}
-
-				if(consumeHam && !_consumeHam(cmdProperties))
-				{
-					//gLogger->logMsgF("ObjectController::processCommandQueue: consume ham fail");
 				}
 
 				// execute any attached scripts
@@ -467,11 +451,6 @@ bool ObjectController::_processCommandQueue()
 
 					gObjectControllerCommands->mCmdScriptListener.handleScriptEvent(cmdProperties->mCommandStr.getAnsi(),params);
 				}
-			}
-			else
-			{
-				// Command not allowed.
-				// gLogger->logMsgF("Dumping command at = %"PRIu64"", MSG_NORMAL, currentTime);
 			}
 
 			//its processed, so ack and delete it
@@ -574,9 +553,6 @@ void ObjectController::enqueueCommandMessage(Message* message)
 
 	ObjectControllerCmdProperties* cmdProperties = NULL;
 
-	// gLogger->logMsgF("ObjController enqueue tick: %u counter: 0x%4x",MSG_NORMAL,clientTicks,sequence);
-
-	// gLogger->logMsgF("ObjController enqueue opcode = 0x%8x",MSG_NORMAL,opcode);
 	if (_validateEnqueueCommand(reply1,reply2,targetId,opcode,cmdProperties))
 	{
 		// schedule it for immidiate execution initially
@@ -680,8 +656,6 @@ void ObjectController::enqueueCommandMessage(Message* message)
 
 void ObjectController::enqueueAutoAttack(uint64 targetId)
 {
-
-	// gLogger->logMsgF("ObjectController::enqueueAutoAttack() Entering...", MSG_NORMAL);
 	if (mCommandQueue.empty())
 	{
 		uint32 sequence = 0;
@@ -690,7 +664,7 @@ void ObjectController::enqueueAutoAttack(uint64 targetId)
 		CreatureObject* creature = dynamic_cast<CreatureObject*>(mObject);
 		if (!creature)
 		{
-			gLogger->logMsgF("ObjectController::enqueueAutoAttack() Invalid object", MSG_NORMAL);
+			gLogger->log(LogManager::CRITICAL,"ObjectController::enqueueAutoAttack() Invalid object");
 			assert(false && "ObjectController::enqueueAutoAttack mObject is not a CreatureObject");
 		}
 
@@ -742,7 +716,7 @@ void ObjectController::enqueueAutoAttack(uint64 targetId)
 			if (player)
 			{
 				player->disableAutoAttack();
-				gLogger->logMsgF("ObjectController::enqueueAutoAttack() Error adding command.", MSG_NORMAL);
+				gLogger->log(LogManager::DEBUG,"ObjectController::enqueueAutoAttack() Error adding command.");
 			}
 		}
 	}
@@ -801,7 +775,7 @@ void ObjectController::removeMsgFromCommandQueueBySequence(uint32 sequence)
 	// sanity check
 	if (!sequence)
 	{
-		gLogger->logMsgF("ObjectController::removeMsgFromCommandQueueBySequence No sequence :(!!!!", MSG_NORMAL);
+		gLogger->log(LogManager::DEBUG,"ObjectController::removeMsgFromCommandQueueBySequence No sequence!!!!");
 		return;
 	}
 

@@ -82,7 +82,7 @@ void PingServer::HandleReceive(const boost::system::error_code& error, size_t by
 
     // Check if an error occurred.
     if (error && error != boost::asio::error::message_size) {
-        gLogger->logMsgF("Error reading from socket: %s", MSG_NORMAL, error.message().c_str());     
+        gLogger->log(LogManager::NOTICE, "Error reading from socket: %s", error.message().c_str());     
 
     // Otherwise return the ping response to the sender.
     } else {
@@ -114,17 +114,22 @@ void PingServer::HandleSend(const boost::system::error_code& error, size_t bytes
 
 int main(int argc, char* argv[])
 {
-	LogManager::Init(G_LEVEL_NORMAL, "PingServer.log", LEVEL_NORMAL, true, true, false);
+	LogManager::Init();
+	gLogger->setupConsoleLogging((LogManager::LOG_PRIORITY)1);
+
 	ConfigManager::Init("PingServer.cfg");
+
+	gLogger->setupConsoleLogging((LogManager::LOG_PRIORITY)gConfig->read<int>("ConsoleLog_MinPriority"));
+	gLogger->setupFileLogging((LogManager::LOG_PRIORITY)gConfig->read<int>("FileLog_MinPriority"), gConfig->read<std::string>("FileLog_Name"));
 	
-	gLogger->logMsgF("PingServer - Build %s", MSG_NORMAL, ConfigManager::getBuildString().c_str());
+	gLogger->log(LogManager::INFORMATION, "PingServer - Build %s", ConfigManager::getBuildString().c_str());
 
 	// Read in the address and port to start the ping server on.
 	int port            = gConfig->read<int>("BindPort");
 
     // Start the ping server.
 	PingServer ping_server(port);
-	gLogger->logMsgF("PingServer listening on port %d", MSG_NORMAL, port);
+	gLogger->log(LogManager::INFORMATION, "PingServer listening on port %d", port);
 
 	while (true) {
 		// Check for incoming messages and handle them.
@@ -136,8 +141,6 @@ int main(int argc, char* argv[])
 			if(std::cin.get() == 'q')
 				break;
 	}
-
-	delete LogManager::getSingletonPtr();
 
 	return 0;
 }

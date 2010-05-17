@@ -399,7 +399,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
 			uint64 count = result->getRowCount();
 			if(!count)
 			{
-				gLogger->logMsg("PlayerObjectFactory: sf_getLotCount did not return a value");
+				gLogger->log(LogManager::DEBUG,"PlayerObjectFactory: sf_getLotCount did not return a value");
 				//now we have a problem ...
 				mDatabase->DestroyDataBinding(binding);
 				break;
@@ -410,7 +410,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
 
 			maxLots -= static_cast<uint8>(lotCount);
 			playerObject->setLots((uint8)maxLots);
-			gLogger->logMsgF("PlayerObjectFactory: %I64u has %u lots remaining",MSG_HIGH,playerObject->getId(),maxLots);
+			gLogger->log(LogManager::DEBUG,"PlayerObjectFactory: %I64u has %u lots remaining",playerObject->getId(),maxLots);
 
 			mDatabase->DestroyDataBinding(binding);
 		}
@@ -605,8 +605,8 @@ PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
 
 	// logging in dead or incapped, shouldn't happen. (player is moved to cloning facility when disconnecting in those states
 
-	// gLogger->logMsgF("PlayerObjectFactory::_createPlayer Posture = %u",MSG_NORMAL, playerObject->getPosture());
-	// gLogger->logMsgF("PlayerObjectFactory::_createPlayer State = %"PRIu64"",MSG_NORMAL, playerObject->getState());
+	// gLogger->log(LogManager::DEBUG,"PlayerObjectFactory::_createPlayer Posture = %u", playerObject->getPosture());
+	// gLogger->log(LogManager::DEBUG,"PlayerObjectFactory::_createPlayer State = %"PRIu64"", playerObject->getState());
 
 	if(playerObject->getPosture() == CreaturePosture_SkillAnimating
 	|| playerObject->getPosture() == CreaturePosture_Incapacitated
@@ -774,7 +774,7 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
 	mIlc = _getObject(object->getParentId());
 	if(!mIlc)
 	{
-		gLogger->logMsg("no mIlc :(");
+		gLogger->log(LogManager::DEBUG,"no mIlc :(");
 		return;
 	}
 	mIlc->mLoadCounter--;
@@ -815,18 +815,18 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
 	}
 	else
 	{
-		gLogger->logMsg("PlayerObjectFactory: no idea what this was");
+		gLogger->log(LogManager::DEBUG,"PlayerObjectFactory: no idea what this was");
 	}
 
 	if(!mIlc->mLoadCounter)
 	{
 		if(!(_removeFromObjectLoadMap(playerObject->getId())))
-			gLogger->logMsg("PlayerObjectFactory: Failed removing object from loadmap");
+			gLogger->log(LogManager::DEBUG,"PlayerObjectFactory: Failed removing object from loadmap");
 
 		// if weapon slot is empty, equip the unarmed default weapon
 		if(!playerObject->mEquipManager.getEquippedObject(CreatureEquipSlot_Hold_Left))
 		{
-			// gLogger->logMsg("equip default weapon");
+			// gLogger->log(LogManager::DEBUG,"equip default weapon");
 			playerObject->mEquipManager.equipDefaultWeapon();
 		}
 

@@ -178,7 +178,6 @@ void Instrument::sendAttributes(PlayerObject* playerObject)
 
 void Instrument::prepareCustomRadialMenu(CreatureObject* player, uint8 itemCount)
 {
-	// gLogger->logMsgF("Instrument::prepareCustomRadialMenu() Entered", MSG_HIGH);
 
 	// NOTE: player is also of type CreatureObject* !!!
 	PlayerObject* playerObject = dynamic_cast<PlayerObject*>(player);
@@ -193,7 +192,6 @@ void Instrument::prepareCustomRadialMenu(CreatureObject* player, uint8 itemCount
 
 	if ((instrumentNr == ItemType_Nalargon) || (instrumentNr == ItemType_omni_box) || (instrumentNr == ItemType_nalargon_max_reebo))
 	{
-		//gLogger->logMsgF("Nalargon : %s", MSG_NORMAL,instrument->getName().getAnsi());
 
 		uint32 radId = 1;
 		//  We have to know if this is the real one or the copy.
@@ -202,7 +200,6 @@ void Instrument::prepareCustomRadialMenu(CreatureObject* player, uint8 itemCount
 			// We are handling the copy
 			if ((playerObject->getId() == this->getOwner()) && this->getPlaced())
 			{
-				// gLogger->logMsgF("Radial: A placed instrument", MSG_NORMAL);
 				if ((playerObject->getPerformingState() == PlayerPerformance_Music))
 				{
 					mRadialMenu->addItem(static_cast<uint8>(radId++),0,radId_itemUse,radAction_ObjCallback, "@radial_performance:stop_playing");
@@ -214,7 +211,6 @@ void Instrument::prepareCustomRadialMenu(CreatureObject* player, uint8 itemCount
 			}
 			else
 			{
-				// gLogger->logMsgF("Radial: Not our instrument, but is should be", MSG_NORMAL);
 				// radial->addItem(radId++,0,radId_examine,radAction_Default);
 				// radial->addItem(radId++,0,radId_itemPickup,radAction_Default);
 				return;
@@ -231,7 +227,6 @@ void Instrument::prepareCustomRadialMenu(CreatureObject* player, uint8 itemCount
 				if (inventory->getId() == this->getParentId())
 				{
 					// We have our real instrument in the inventory.
-					// gLogger->logMsgF("Radial: Original instrument in inventory.", MSG_NORMAL);
 
 					// We can't drop if outside in the world.
 					if (player->getParentId() == 0)
@@ -250,7 +245,6 @@ void Instrument::prepareCustomRadialMenu(CreatureObject* player, uint8 itemCount
 					if (playerObject->getPlacedInstrumentId() == 0)
 					{
 						// We do not have any other placed intrument out.
-						// gLogger->logMsgF("Radial: We don't have any copy placed, activate Use radial option.", MSG_NORMAL);
 						mRadialMenu->addItem(static_cast<uint8>(radId++),0,radId_itemUse,radAction_ObjCallback,"Use");
 					}
 				}
@@ -267,7 +261,6 @@ void Instrument::prepareCustomRadialMenu(CreatureObject* player, uint8 itemCount
 						// Yes, are we handling the original instrument.
 						// if (cell->getId() == this->getParentId())
 						{
-							// gLogger->logMsgF("Radial: Original instrument in a cell.", MSG_NORMAL);
 							if ((playerObject->getPerformingState() == PlayerPerformance_Music))
 							{
 								mRadialMenu->addItem(static_cast<uint8>(radId++),0,radId_itemUse,radAction_ObjCallback, "@radial_performance:stop_playing");
@@ -287,7 +280,6 @@ void Instrument::prepareCustomRadialMenu(CreatureObject* player, uint8 itemCount
 						// gMessageLib->sendSystemMessage(playerObject,L"","error_message","insufficient_permissions");
 						mRadialMenu->addItem(static_cast<uint8>(radId++),0,radId_examine,radAction_Default);
 						// radial->addItem(radId++,0,radId_itemPickup,radAction_Default);
-						// gLogger->logMsgF("Radial: Not my instrument", MSG_NORMAL);
 					}
 				}
 			}

@@ -119,7 +119,7 @@ void HarvesterObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject
 	PlayerObject* player = dynamic_cast<PlayerObject*>(srcObject);
 	if(!player)
 	{	
-		gLogger->logMsgF("HarvesterObject::handleObjectMenuSelect::could not find player",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG,"HarvesterObject::handleObjectMenuSelect::could not find player");
 		return;
 	}
 	
@@ -232,7 +232,7 @@ void HarvesterObject::prepareCustomRadialMenu(CreatureObject* creatureObject, ui
 	PlayerObject* player = dynamic_cast<PlayerObject*>(creatureObject);
 	if(!player)
 	{	
-		gLogger->logMsgF("HarvesterObject::prepareCustomRadialMenu::could not find player",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG,"HarvesterObject::prepareCustomRadialMenu::could not find player");
 		return;
 	}
 	

@@ -156,7 +156,6 @@ void ObjectController::_handleNPCConversationStart(uint64 targetId,Message* mess
 				memset(quack, 0, sizeof(quack));
 				std::pair<string,uint32> chat = gWorldManager->getRandNpcChatter();
 
-				// gLogger->logMsgF("NPC id %"PRIu64" in cell(%"PRIu64")",MSG_NORMAL, npc->getId(),npcParentId);
 				if (!gWorldConfig->isInstance())
 				{
 					gMessageLib->sendSpatialChat(npc,chat.first,quack);
@@ -177,7 +176,7 @@ void ObjectController::_handleNPCConversationStart(uint64 targetId,Message* mess
 		}
 	}
 	else
-		gLogger->logMsgF("ObjController::_handleNPCConversationStart: Couldn't find object %"PRIu64"",MSG_HIGH,targetId);
+		gLogger->log(LogManager::DEBUG,"ObjController::_handleNPCConversationStart: Couldn't find object %"PRIu64"",targetId);
 }
 
 //=============================================================================
@@ -207,7 +206,7 @@ void ObjectController::_handleNPCConversationSelect(uint64 targetId,Message* mes
 
 	if(swscanf(dataStr.getUnicode16(),L"%u",&selectId) != 1)
 	{
-		gLogger->logMsg("ObjController::handleNPCConversationSelect: Error in parameters\n");
+		gLogger->log(LogManager::DEBUG,"ObjController::handleNPCConversationSelect: Error in parameters\n");
 		return;
 	}
 

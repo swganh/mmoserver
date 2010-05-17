@@ -245,7 +245,7 @@ void PlayerObject::onSample(const SampleEvent* event)
 
 		//mHam.updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints,-hamReduc,true);
 		//mHam.updatePropertyValue(HamBar_Health,HamProperty_CurrentHitpoints,-hamReduc,true); 
-		//gLogger->logMsgF("applied ham costs H/A w/ reduc: %u", MSG_NORMAL, hamReduc);
+		//gLogger->log(LogManager::DEBUG,"applied ham costs H/A w/ reduc: %u",  hamReduc);
 	
 	}
 
@@ -492,7 +492,7 @@ void PlayerObject::onSample(const SampleEvent* event)
 	// update ham for standard sample action oc does this already - only the first time though???  !!!
 	mHam.updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints,-(int32)actionCost,true);
 
-	gLogger->logMsgF("PlayerObject::sample : %i actiopn taken ",MSG_HIGH,actionCost);
+	gLogger->log(LogManager::DEBUG,"PlayerObject::sample : %i actiopn taken ",actionCost);
 	if(mHam.checkMainPools(0,actionCost,0) && (resAvailable))
 	{
 		getSampleData()->mNextSampleTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 3000; //change back to 30000 after testing is finished
@@ -624,7 +624,7 @@ void PlayerObject::onItemDeleteEvent(const ItemDeleteEvent* event)
 	Item* item = dynamic_cast<Item*>(gWorldManager->getObjectById(event->getItem()));
 	if(!item)
 	{
-		gLogger->logMsgF("PlayerObject::onItemDeleteEvent: Item %I64u not found",MSG_HIGH,event->getItem());
+		gLogger->log(LogManager::DEBUG,"PlayerObject::onItemDeleteEvent: Item %I64u not found",event->getItem());
 		return;
 	}
 	
@@ -640,7 +640,7 @@ void PlayerObject::onInjuryTreatment(const InjuryTreatmentEvent* event)
 {
 
 		// We've healed, now we need to set the delay...
-	gLogger->logMsg("Starting medic injury heal delay...", FOREGROUND_BLUE);
+	gLogger->log(LogManager::DEBUG,"Starting medic injury heal delay...", FOREGROUND_BLUE);
 
 	//Math...
 	uint32 healingspeed = this->getSkillModValue(SMod_healing_range_speed);

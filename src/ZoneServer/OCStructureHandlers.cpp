@@ -54,7 +54,7 @@ void	ObjectController::_handleModifyPermissionList(uint64 targetId,Message* mess
 
 	if(!player)
 	{
-		gLogger->logMsgF(" ObjectController::_handleModifyPermissionList Player not found",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG," ObjectController::_handleModifyPermissionList Player not found");
 		return;
 	}
 	
@@ -78,7 +78,7 @@ void	ObjectController::_handleModifyPermissionList(uint64 targetId,Message* mess
 		return;
 	}
 
-	gLogger->logMsgF(" %s %s %s",MSG_HIGH, playerStr.getAnsi(), list.getAnsi(), action.getAnsi());
+	gLogger->log(LogManager::DEBUG," %s %s %s", playerStr.getAnsi(), list.getAnsi(), action.getAnsi());
 
 	//TODO is target a structure?? used when using the commandline option
 	uint64 id = player->getTargetId();
@@ -95,7 +95,7 @@ void	ObjectController::_handleModifyPermissionList(uint64 targetId,Message* mess
 	
 	if(!structure)
 	{
-		gLogger->logMsgF("ObjectController::_handleModifyPermissionList No structure found :(",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG,"ObjectController::_handleModifyPermissionList No structure found :(");
 		return;
 	}
 
@@ -170,7 +170,7 @@ void ObjectController::_handleStructurePlacement(uint64 targetId,Message* messag
 
 	swscanf(dataStr.getUnicode16(),L"%I64u %f %f %f",&deedId, &x, &z, &dir);
 
-	gLogger->logMsgF(" ID %I64u x %f y %f dir %f",MSG_HIGH, deedId, x, z, dir);
+	gLogger->log(LogManager::DEBUG," ID %I64u x %f y %f dir %f", deedId, x, z, dir);
 	
 	
 	//now get our deed
@@ -189,7 +189,7 @@ void ObjectController::_handleStructurePlacement(uint64 targetId,Message* messag
 	Deed* deed = dynamic_cast<Deed*>(gWorldManager->getObjectById(deedId));
 	if(!deed)
 	{
-		gLogger->logMsgF(" ObjectController::_handleStructurePlacement deed not found :( ",MSG_HIGH);		
+		gLogger->log(LogManager::DEBUG," ObjectController::_handleStructurePlacement deed not found :( ");		
 		return;
 	}
 
@@ -310,13 +310,13 @@ void ObjectController::_handleStructurePlacement(uint64 targetId,Message* messag
 			{
 				//Orientation 1
 				container->addToBatch(x-halfLength, z-halfWidth);
-				gLogger->logMsgF("%f %f\n", MSG_NORMAL,x-halfLength, z-halfWidth);
+				gLogger->log(LogManager::DEBUG,"%f %f\n", x-halfLength, z-halfWidth);
 				container->addToBatch(x+halfLength, z-halfWidth);
-				gLogger->logMsgF("%f %f\n", MSG_NORMAL,x+halfLength, z-halfWidth);
+				gLogger->log(LogManager::DEBUG,"%f %f\n", x+halfLength, z-halfWidth);
 				container->addToBatch(x-halfLength, z+halfWidth);
-				gLogger->logMsgF("%f %f\n", MSG_NORMAL,x-halfLength, z+halfWidth);
+				gLogger->log(LogManager::DEBUG,"%f %f\n", x-halfLength, z+halfWidth);
 				container->addToBatch(x+halfLength, z+halfWidth);
-				gLogger->logMsgF("%f %f\n", MSG_NORMAL,x+halfLength, z+halfWidth);
+				gLogger->log(LogManager::DEBUG,"%f %f\n", x+halfLength, z+halfWidth);
 			}
 
 			if(dir == 1 || dir == 3)
@@ -409,7 +409,7 @@ void	ObjectController::_handleTransferStructure(uint64 targetId,Message* message
 
 	if(!player)
 	{
-		gLogger->logMsgF(" ObjectController::_handleTransferStructure Player not found",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG," ObjectController::_handleTransferStructure Player not found");
 		return;
 	}
 
@@ -437,7 +437,7 @@ void	ObjectController::_handleTransferStructure(uint64 targetId,Message* message
 		// we need to get the nearest structure that we own
 		// for now dustoff
 		gMessageLib->sendSystemMessage(player,L"","player_structure","command_no_building");
-		gLogger->logMsgF("ObjectController::_handleTransferStructure No structure found :(",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG,"ObjectController::_handleTransferStructure No structure found :(");
 		return;
 	}
 	
@@ -479,7 +479,7 @@ void	ObjectController::_handleNameStructure(uint64 targetId,Message* message,Obj
 
 	if(!player)
 	{
-		gLogger->logMsgF(" ObjectController::_handleTransferStructure Player not found",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG," ObjectController::_handleTransferStructure Player not found");
 		return;
 	}
 
@@ -538,7 +538,7 @@ void	ObjectController::_handleHarvesterGetResourceData(uint64 targetId,Message* 
 
 	if(!player)
 	{
-		gLogger->logMsgF(" ObjectController::_handleHarvesterGetResourceData Player not found",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterGetResourceData Player not found");
 		return;
 	}
 
@@ -550,7 +550,7 @@ void	ObjectController::_handleHarvesterGetResourceData(uint64 targetId,Message* 
 	if(!structure)
 	{
 		//gMessageLib->sendSystemMessage(player,L"","player_structure","command_no_building");
-		gLogger->logMsgF(" ObjectController::_handleHarvesterGetResourceData Structure not found",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterGetResourceData Structure not found");
 		return;
 	}
 	
@@ -558,7 +558,7 @@ void	ObjectController::_handleHarvesterGetResourceData(uint64 targetId,Message* 
 	float fTransferDistance = gWorldConfig->getConfiguration("Player_Structure_Operate_Distance",(float)10.0);
 	if(glm::distance(player->mPosition, structure->mPosition) > fTransferDistance)
 	{
-		gLogger->logMsgF(" ObjectController::_handleHarvesterGetResourceData Structure not in Range",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterGetResourceData Structure not in Range");
 		return;
 	}
 
@@ -575,7 +575,7 @@ void	ObjectController::_handleHarvesterGetResourceData(uint64 targetId,Message* 
 	return;
 	gMessageLib->sendHarvesterResourceData(structure,player);
 
-	gLogger->logMsgF(" ObjectController::_handleHarvesterGetResourceData :: hino 7 baseline",MSG_HIGH);
+	gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterGetResourceData :: hino 7 baseline");
 	gMessageLib->sendBaselinesHINO_7(harvester,player);
 
 	//add the structure to the timer so the resource amounts are updated while we look at the hopper
@@ -599,13 +599,13 @@ void	ObjectController::_handleHarvesterGetResourceData(uint64 targetId,Message* 
 //
 void	ObjectController::_handleHarvesterSelectResource(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	gLogger->logMsgF(" ObjectController::_handleHarvesterSelectResource",MSG_HIGH);
+	gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterSelectResource");
 
 	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
 
 	if(!player)
 	{
-		gLogger->logMsgF(" ObjectController::_handleHarvesterSelectResource Player not found",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterSelectResource Player not found");
 		return;
 	}
 
@@ -617,7 +617,7 @@ void	ObjectController::_handleHarvesterSelectResource(uint64 targetId,Message* m
 	if(!structure)
 	{
 		//gMessageLib->sendSystemMessage(player,L"","player_structure","command_no_building");
-		gLogger->logMsgF(" ObjectController::_handleHarvesterSelectResource Structure not found",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterSelectResource Structure not found");
 		return;
 	}
 	
@@ -625,7 +625,7 @@ void	ObjectController::_handleHarvesterSelectResource(uint64 targetId,Message* m
 	float fTransferDistance = gWorldConfig->getConfiguration("Player_Structure_Operate_Distance",(float)10.0);
 	if(glm::distance(player->mPosition, structure->mPosition) > fTransferDistance)
 	{
-		gLogger->logMsgF(" ObjectController::_handleHarvesterGetResourceData Structure not in Range",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterGetResourceData Structure not in Range");
 		return;
 	}
 
@@ -642,7 +642,7 @@ void	ObjectController::_handleHarvesterSelectResource(uint64 targetId,Message* m
 	
 	if((!tmpResource)||(!tmpResource->getCurrent()))
 	{
-		gLogger->logMsgF(" ObjectController::_handleHarvesterGetResourceData No valid resource!",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterGetResourceData No valid resource!");
 		return;
 	}
 
@@ -710,7 +710,7 @@ void	ObjectController::_handleHarvesterActivate(uint64 targetId,Message* message
 
 	if(!player)
 	{
-		gLogger->logMsgF(" ObjectController::_handleHarvesterSelectResource Player not found",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterSelectResource Player not found");
 		return;
 	}
 
@@ -722,7 +722,7 @@ void	ObjectController::_handleHarvesterActivate(uint64 targetId,Message* message
 	if(!structure)
 	{
 		//gMessageLib->sendSystemMessage(player,L"","player_structure","command_no_building");
-		gLogger->logMsgF(" ObjectController::_handleHarvesterSelectResource Structure not found",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterSelectResource Structure not found");
 		return;
 	}
 	
@@ -730,7 +730,7 @@ void	ObjectController::_handleHarvesterActivate(uint64 targetId,Message* message
 	float fTransferDistance = gWorldConfig->getConfiguration("Player_Structure_Operate_Distance",(float)10.0);
 	if(glm::distance(player->mPosition, structure->mPosition) > fTransferDistance)
 	{
-		gLogger->logMsgF(" ObjectController::_handleHarvesterActivate Structure not in Range",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterActivate Structure not in Range");
 		return;
 	}
 
@@ -758,7 +758,7 @@ void	ObjectController::_handleHarvesterDeActivate(uint64 targetId,Message* messa
 
 	if(!player)
 	{
-		gLogger->logMsgF(" ObjectController::_handleHarvesterSelectResource Player not found",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterSelectResource Player not found");
 		return;
 	}
 
@@ -770,7 +770,7 @@ void	ObjectController::_handleHarvesterDeActivate(uint64 targetId,Message* messa
 	if(!structure)
 	{
 		//gMessageLib->sendSystemMessage(player,L"","player_structure","command_no_building");
-		gLogger->logMsgF(" ObjectController::_handleHarvesterSelectResource Structure not found",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterSelectResource Structure not found");
 		return;
 	}
 	
@@ -778,7 +778,7 @@ void	ObjectController::_handleHarvesterDeActivate(uint64 targetId,Message* messa
 	float fTransferDistance = gWorldConfig->getConfiguration("Player_Structure_Operate_Distance",(float)10.0);
 	if(glm::distance(player->mPosition, structure->mPosition) > fTransferDistance)
 	{
-		gLogger->logMsgF(" ObjectController::_handleHarvesterGetResourceData Structure not in Range",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterGetResourceData Structure not in Range");
 		return;
 	}
 
@@ -806,7 +806,7 @@ void	ObjectController::_handleDiscardHopper(uint64 targetId,Message* message,Obj
 
 	if(!player)
 	{
-		gLogger->logMsgF(" ObjectController::_handleHarvesterSelectResource Player not found",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterSelectResource Player not found");
 		return;
 	}
 
@@ -818,7 +818,7 @@ void	ObjectController::_handleDiscardHopper(uint64 targetId,Message* message,Obj
 	if(!structure)
 	{
 		//gMessageLib->sendSystemMessage(player,L"","player_structure","command_no_building");
-		gLogger->logMsgF(" ObjectController::_handleHarvesterSelectResource Structure not found",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterSelectResource Structure not found");
 		return;
 	}
 	
@@ -826,7 +826,7 @@ void	ObjectController::_handleDiscardHopper(uint64 targetId,Message* message,Obj
 	float fTransferDistance = gWorldConfig->getConfiguration("Player_Structure_Operate_Distance",(float)10.0);
 	if(glm::distance(player->mPosition, structure->mPosition) > fTransferDistance)
 	{
-		gLogger->logMsgF(" ObjectController::_handleHarvesterGetResourceData Structure not in Range",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterGetResourceData Structure not in Range");
 		return;
 	}
 
@@ -861,7 +861,7 @@ void	ObjectController::handleResourceEmptyHopper(Message* message)
 
 	if(!player)
 	{
-		gLogger->logMsgF(" ObjectController::ResourceEmptyHopper Player not found",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG," ObjectController::ResourceEmptyHopper Player not found");
 		return;
 	}
 
@@ -872,7 +872,7 @@ void	ObjectController::handleResourceEmptyHopper(Message* message)
 	if(!structure)
 	{
 		//gMessageLib->sendSystemMessage(player,L"","player_structure","command_no_building");
-		gLogger->logMsgF(" ObjectController::_handleHarvesterSelectResource Structure not found",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterSelectResource Structure not found");
 		return;
 	}
 	
@@ -880,7 +880,7 @@ void	ObjectController::handleResourceEmptyHopper(Message* message)
 	float fTransferDistance = gWorldConfig->getConfiguration("Player_Structure_Operate_Distance",(float)10.0);
 	if(glm::distance(player->mPosition, structure->mPosition) > fTransferDistance)
 	{
-		gLogger->logMsgF(" ObjectController::_handleHarvesterGetResourceData Structure not in Range",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterGetResourceData Structure not in Range");
 		return;
 	}
 
@@ -936,7 +936,7 @@ void	ObjectController::_handleItemMoveForward(uint64 targetId,Message* message,O
 
 	if(!player)
 	{
-		gLogger->logMsgF(" ObjectController::_handleItemRotation Player not found",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG," ObjectController::_handleItemRotation Player not found");
 		return;
 	}
 
@@ -946,7 +946,7 @@ void	ObjectController::_handleItemMoveForward(uint64 targetId,Message* message,O
 
 	if(!object)
 	{
-		gLogger->logMsgF(" ObjectController::_handleItemRotation item not found",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG," ObjectController::_handleItemRotation item not found");
 		return;
 	}
 
@@ -956,19 +956,19 @@ void	ObjectController::_handleItemMoveForward(uint64 targetId,Message* message,O
 		{
 			if(!building->hasAdminRights(player->getId()))
 			{
-				gLogger->logMsgF(" ObjectController::_handleItemRotation no admin rights",MSG_HIGH);
+				gLogger->log(LogManager::DEBUG," ObjectController::_handleItemRotation no admin rights");
 				return;
 			}
 		}
 		else
 		{
-			gLogger->logMsgF(" ObjectController::_handleItemRotation no structure",MSG_HIGH);
+			gLogger->log(LogManager::DEBUG," ObjectController::_handleItemRotation no structure");
 			return;
 		}
 	}
 	else
 	{
-		gLogger->logMsgF(" ObjectController::_handleItemRotation no cell",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG," ObjectController::_handleItemRotation no cell");
 		return;
 	}
     
@@ -992,7 +992,7 @@ void	ObjectController::_handleItemMoveUp(uint64 targetId,Message* message,Object
 
 	if(!player)
 	{
-		gLogger->logMsgF(" ObjectController::_handleItemRotation Player not found",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG," ObjectController::_handleItemRotation Player not found");
 		return;
 	}
 
@@ -1002,7 +1002,7 @@ void	ObjectController::_handleItemMoveUp(uint64 targetId,Message* message,Object
 
 	if(!object)
 	{
-		gLogger->logMsgF(" ObjectController::_handleItemRotation item not found",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG," ObjectController::_handleItemRotation item not found");
 		return;
 	}
 
@@ -1012,19 +1012,19 @@ void	ObjectController::_handleItemMoveUp(uint64 targetId,Message* message,Object
 		{
 			if(!building->hasAdminRights(player->getId()))
 			{
-				gLogger->logMsgF(" ObjectController::_handleItemRotation no admin rights",MSG_HIGH);
+				gLogger->log(LogManager::DEBUG," ObjectController::_handleItemRotation no admin rights");
 				return;
 			}
 		}
 		else
 		{
-			gLogger->logMsgF(" ObjectController::_handleItemRotation no structure",MSG_HIGH);
+			gLogger->log(LogManager::DEBUG," ObjectController::_handleItemRotation no structure");
 			return;
 		}
 	}
 	else
 	{
-		gLogger->logMsgF(" ObjectController::_handleItemRotation no cell",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG," ObjectController::_handleItemRotation no cell");
 		return;
 	}
 
@@ -1046,7 +1046,7 @@ void	ObjectController::_handleItemMoveDown(uint64 targetId,Message* message,Obje
 
 	if(!player)
 	{
-		gLogger->logMsgF(" ObjectController::_handleItemRotation Player not found",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG," ObjectController::_handleItemRotation Player not found");
 		return;
 	}
 
@@ -1056,7 +1056,7 @@ void	ObjectController::_handleItemMoveDown(uint64 targetId,Message* message,Obje
 
 	if(!object)
 	{
-		gLogger->logMsgF(" ObjectController::_handleItemRotation item not found",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG," ObjectController::_handleItemRotation item not found");
 		return;
 	}
 
@@ -1066,19 +1066,19 @@ void	ObjectController::_handleItemMoveDown(uint64 targetId,Message* message,Obje
 		{
 			if(!building->hasAdminRights(player->getId()))
 			{
-				gLogger->logMsgF(" ObjectController::_handleItemRotation no admin rights",MSG_HIGH);
+				gLogger->log(LogManager::DEBUG," ObjectController::_handleItemRotation no admin rights");
 				return;
 			}
 		}
 		else
 		{
-			gLogger->logMsgF(" ObjectController::_handleItemRotation no structure",MSG_HIGH);
+			gLogger->log(LogManager::DEBUG," ObjectController::_handleItemRotation no structure");
 			return;
 		}
 	}
 	else
 	{
-		gLogger->logMsgF(" ObjectController::_handleItemRotation no cell",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG," ObjectController::_handleItemRotation no cell");
 		return;
 	}
 
@@ -1102,7 +1102,7 @@ void	ObjectController::_handleItemMoveBack(uint64 targetId,Message* message,Obje
 
 	if(!player)
 	{
-		gLogger->logMsgF(" ObjectController::_handleItemRotation Player not found",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG," ObjectController::_handleItemRotation Player not found");
 		return;
 	}
 
@@ -1112,7 +1112,7 @@ void	ObjectController::_handleItemMoveBack(uint64 targetId,Message* message,Obje
 
 	if(!object)
 	{
-		gLogger->logMsgF(" ObjectController::_handleItemRotation item not found",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG," ObjectController::_handleItemRotation item not found");
 		return;
 	}
 
@@ -1122,19 +1122,19 @@ void	ObjectController::_handleItemMoveBack(uint64 targetId,Message* message,Obje
 		{
 			if(!building->hasAdminRights(player->getId()))
 			{
-				gLogger->logMsgF(" ObjectController::_handleItemRotation no admin rights",MSG_HIGH);
+				gLogger->log(LogManager::DEBUG," ObjectController::_handleItemRotation no admin rights");
 				return;
 			}
 		}
 		else
 		{
-			gLogger->logMsgF(" ObjectController::_handleItemRotation no structure",MSG_HIGH);
+			gLogger->log(LogManager::DEBUG," ObjectController::_handleItemRotation no structure");
 			return;
 		}
 	}
 	else
 	{
-		gLogger->logMsgF(" ObjectController::_handleItemRotation no cell",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG," ObjectController::_handleItemRotation no cell");
 		return;
 	}
 
@@ -1159,7 +1159,7 @@ void	ObjectController::_handleItemRotationRight90(uint64 targetId,Message* messa
 
 	if(!player)
 	{
-		gLogger->logMsgF(" ObjectController::_handleItemRotation Player not found",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG," ObjectController::_handleItemRotation Player not found");
 		return;
 	}
 
@@ -1169,7 +1169,7 @@ void	ObjectController::_handleItemRotationRight90(uint64 targetId,Message* messa
 
 	if(!object)
 	{
-		gLogger->logMsgF(" ObjectController::_handleItemRotation item not found",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG," ObjectController::_handleItemRotation item not found");
 		return;
 	}
 
@@ -1179,19 +1179,19 @@ void	ObjectController::_handleItemRotationRight90(uint64 targetId,Message* messa
 		{
 			if(!building->hasAdminRights(player->getId()))
 			{
-				gLogger->logMsgF(" ObjectController::_handleItemRotation no admin rights",MSG_HIGH);
+				gLogger->log(LogManager::DEBUG," ObjectController::_handleItemRotation no admin rights");
 				return;
 			}
 		}
 		else
 		{
-			gLogger->logMsgF(" ObjectController::_handleItemRotation no structure",MSG_HIGH);
+			gLogger->log(LogManager::DEBUG," ObjectController::_handleItemRotation no structure");
 			return;
 		}
 	}
 	else
 	{
-		gLogger->logMsgF(" ObjectController::_handleItemRotation no cell",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG," ObjectController::_handleItemRotation no cell");
 		return;
 	}
 	
@@ -1212,7 +1212,7 @@ void ObjectController::_handleItemRotationLeft90(uint64 targetId,Message* messag
 
 	if(!player)
 	{
-		gLogger->logMsgF(" ObjectController::_handleItemRotation Player not found",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG," ObjectController::_handleItemRotation Player not found");
 		return;
 	}
 
@@ -1222,7 +1222,7 @@ void ObjectController::_handleItemRotationLeft90(uint64 targetId,Message* messag
 
 	if(!object)
 	{
-		gLogger->logMsgF(" ObjectController::_handleItemRotation item not found",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG," ObjectController::_handleItemRotation item not found");
 		return;
 	}
 
@@ -1232,19 +1232,19 @@ void ObjectController::_handleItemRotationLeft90(uint64 targetId,Message* messag
 		{
 			if(!building->hasAdminRights(player->getId()))
 			{
-				gLogger->logMsgF(" ObjectController::_handleItemRotation no admin rights",MSG_HIGH);
+				gLogger->log(LogManager::DEBUG," ObjectController::_handleItemRotation no admin rights");
 				return;
 			}
 		}
 		else
 		{
-			gLogger->logMsgF(" ObjectController::_handleItemRotation no structure",MSG_HIGH);
+			gLogger->log(LogManager::DEBUG," ObjectController::_handleItemRotation no structure");
 			return;
 		}
 	}
 	else
 	{
-		gLogger->logMsgF(" ObjectController::_handleItemRotation no cell",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG," ObjectController::_handleItemRotation no cell");
 		return;
 	}
 	
@@ -1266,7 +1266,7 @@ void ObjectController::_handleItemRotation(uint64 targetId,Message* message,Obje
 
 	if(!player)
 	{
-		gLogger->logMsgF(" ObjectController::_handleItemRotation Player not found",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG," ObjectController::_handleItemRotation Player not found");
 		return;
 	}
 
@@ -1276,7 +1276,7 @@ void ObjectController::_handleItemRotation(uint64 targetId,Message* message,Obje
 
 	if(!object)
 	{
-		gLogger->logMsgF(" ObjectController::_handleItemRotation item not found",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG," ObjectController::_handleItemRotation item not found");
 		return;
 	}
 
@@ -1286,19 +1286,19 @@ void ObjectController::_handleItemRotation(uint64 targetId,Message* message,Obje
 		{
 			if(!building->hasAdminRights(player->getId()))
 			{
-				gLogger->logMsgF(" ObjectController::_handleItemRotation no admin rights",MSG_HIGH);
+				gLogger->log(LogManager::DEBUG," ObjectController::_handleItemRotation no admin rights");
 				return;
 			}
 		}
 		else
 		{
-			gLogger->logMsgF(" ObjectController::_handleItemRotation no structure",MSG_HIGH);
+			gLogger->log(LogManager::DEBUG," ObjectController::_handleItemRotation no structure");
 			return;
 		}
 	}
 	else
 	{
-		gLogger->logMsgF(" ObjectController::_handleItemRotation no cell",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG," ObjectController::_handleItemRotation no cell");
 		return;
 	}
 
@@ -1311,7 +1311,7 @@ void ObjectController::_handleItemRotation(uint64 targetId,Message* message,Obje
 	dataStr.convert(BSTRType_ANSI);
 	sscanf(dataStr.getAnsi(),"%s %u",&direction, &degrees);
 
-	gLogger->logMsgF(" ObjectController::_handleItemRotation direction %s",MSG_HIGH,direction);
+	gLogger->log(LogManager::DEBUG," ObjectController::_handleItemRotation direction %s",direction);
 	
 	if(strcmp(direction,"left") == 0) {
         // Rotate the item left by a specified number of degrees

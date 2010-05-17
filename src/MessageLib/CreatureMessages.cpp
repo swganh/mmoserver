@@ -649,7 +649,7 @@ void MessageLib::sendDefenderUpdate(CreatureObject* creatureObject,uint8 updateT
 	{
 		// Reset all
 		// Not suported yet
-		gLogger->logMsgF("MessageLib::sendDefenderUpdate Invalid option = %u", MSG_NORMAL,updateType);
+		gLogger->log(LogManager::DEBUG,"MessageLib::sendDefenderUpdate Invalid option = %u",updateType);
 		return;
 	}
 
@@ -876,7 +876,7 @@ bool MessageLib::sendEquippedItemUpdate_InRange(CreatureObject* creatureObject, 
 
 	if(!found)
 	{
-		gLogger->logMsgF("MessageLib::sendEquippedItemUpdate_InRange : Item not found : %I64u", MSG_NORMAL,itemId);
+		gLogger->log(LogManager::DEBUG,"MessageLib::sendEquippedItemUpdate_InRange : Item not found : %I64u",itemId);
 		return false;
 	}
 
@@ -953,7 +953,6 @@ bool MessageLib::sendUpdatePvpStatus(CreatureObject* creatureObject,PlayerObject
 	if (!statusMask)
 	{
 		mMessageFactory->addUint32(creatureObject->getPvPStatus());
-		// gLogger->logMsgF("MessageLib::sendUpdatePvpStatus: creatureObject = %"PRIu64", State = %x", MSG_NORMAL, creatureObject->getId(), (uint32)creatureObject->getPvPStatus());
 	}
 	else
 	{
@@ -1051,8 +1050,6 @@ void MessageLib::sendPostureAndStateUpdate(CreatureObject* creatureObject)
 
 void MessageLib::sendStateUpdate(CreatureObject* creatureObject)
 {
-	// gLogger->logMsgF("MessageLib::sendStateUpdate: creatureObject = %"PRIu64", State = %llx", MSG_NORMAL, creatureObject->getId(), creatureObject->getState());
-
 	// Test code for npc combat with objects that can have no states, like debris.
 	if (creatureObject->getCreoGroup() != CreoGroup_AttackableObject)
 	{
@@ -1320,14 +1317,10 @@ void MessageLib::sendCurrentHitpointDeltasCreo6_Single(CreatureObject* creatureO
 	ham->advanceCurrentHitpointsUpdateCounter();
 	mMessageFactory->addUint32(1);
 	mMessageFactory->addUint32(ham->getCurrentHitpointsUpdateCounter());
-	//	gLogger->logMsgF("updatecounter : %u",MSG_NORMAL,ham->getCurrentHitpointsUpdateCounter());
-
 
 	mMessageFactory->addUint8(2);
 	mMessageFactory->addUint16(barIndex);
 	mMessageFactory->addInt32(ham->getPropertyValue(barIndex,HamProperty_CurrentHitpoints));
-	//gLogger->logMsg("sendcurrenthitpoints delta single");
-	//gLogger->logMsgF("current hitpoints : %u",MSG_NORMAL,ham->getPropertyValue(barIndex,HamProperty_CurrentHitpoints));
 
 	_sendToInRange(mMessageFactory->EndMessage(),creatureObject,5);
 }

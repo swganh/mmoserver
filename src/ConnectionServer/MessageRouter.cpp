@@ -82,8 +82,6 @@ void MessageRouter::RouteMessage(Message* message, ConnectionClient* client)
 			message->setDestinationId(dest);
 			message->setSourceId(0);
 			message->setRouted(true);
-			
-			//gLogger->logMsgF("Routing client %u message 0x%.8x to server %u", MSG_NORMAL, client->getAccountId(), opcode, dest);
 
 			// If it's for the connection server, route it locally.
 			if(dest == 1)
@@ -103,7 +101,6 @@ void MessageRouter::RouteMessage(Message* message, ConnectionClient* client)
 			message->setSourceId(0);
 			message->setRouted(true);
 			mServerManager->SendMessageToServer(message);
-			//gLogger->logMsgF("Routing client %u message 0x%.8x to default zone %u", MSG_NORMAL, client->getAccountId(), opcode, client->getServerId());
 		}
 	}
 	else  // This is from a server and already has a routing header
@@ -114,11 +111,9 @@ void MessageRouter::RouteMessage(Message* message, ConnectionClient* client)
 		if(message->getDestinationId() == 0)
 		{
 			mClientManager->SendMessageToClient(message);
-			//gLogger->logMsgF("Routing server %u message 0x%.8x to client %u", MSG_NORMAL, message->getSourceId(), opcode, message->getAccountId());
 		}
 		else // Send it to the ServerManager
 		{
-			//gLogger->logMsgF("Routing server %u message 0x%.8x to server %u", MSG_NORMAL, message->getSourceId(), opcode, message->getDestinationId());
 			if(message->getDestinationId() == 1)  // This is for us, route it locally.
 			{
 				mConnectionDispatch->handleIncomingMessage(client, message);

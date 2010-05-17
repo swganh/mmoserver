@@ -38,21 +38,11 @@ mBaseConversation(baseConv),mPlayer(player),mNpc(npc),mDI(0),mTTId(0),mTOId(0)
 	if (mNpc->getTitle().getLength() == 0)
 	{
 		mNpc->setTitle(mCurrentPage->mStfVariable);
-		// gLogger->logMsgF("ActiveConversation::ActiveConversation: NPC got new Title = %s", MSG_NORMAL, mNpc->getTitle().getAnsi());
-	}
-	else
-	{
-		// gLogger->logMsgF("ActiveConversation::ActiveConversation: NPC already have a Title = %s", MSG_NORMAL, mNpc->getTitle().getAnsi());
 	}
 	
 	if (mNpc->getFirstName().getLength() == 0)
 	{
 		// mNpc->setFirstName("MrRandom Name");
-		// gLogger->logMsgF("ActiveConversation::ActiveConversation: NPC got new Name = %s", MSG_NORMAL, mNpc->getFirstName().getAnsi());
-	}
-	else
-	{
-		// gLogger->logMsgF("ActiveConversation::ActiveConversation: NPC already have a Name = %s", MSG_NORMAL, mNpc->getFirstName().getAnsi());
 	}
 
 	// Moved to the owner of this conversation.
@@ -72,7 +62,6 @@ void ActiveConversation::updateCurrentPage(uint32 selectId)
 {
 	ConversationOption* option = mSelectOptionMap[selectId];
 	
-	// gLogger->logMsgF("ActiveConversation::updateCurrentPage: selectId = %u",MSG_NORMAL,selectId);
 	uint32 pageLink = option->mPageLinkId;	// The state we are going to enter as default.
 
 	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mPlayer);
@@ -87,8 +76,6 @@ void ActiveConversation::updateCurrentPage(uint32 selectId)
 
 	if(option->mEvent)
 	{
-		// gLogger->logMsgF("ActiveConversation::updateCurrentPage: option->mEvent = %u",MSG_NORMAL,option->mEvent);
-
 		int32 DI = 0;
 
 		// buffer data for the next page
@@ -166,8 +153,6 @@ void ActiveConversation::prepareFilteredOptions()
 
 void ActiveConversation::postProcessCurrentPage()
 {
-	// gLogger->logMsg("ActiveConversation::postProcessCurrentPage");
-
 	if (mCurrentPage)
 	{
 		mNpc->postProcessfilterConversation(this, mCurrentPage,mPlayer);
@@ -178,7 +163,6 @@ void ActiveConversation::postProcessCurrentPage()
 
 bool ActiveConversation::preProcessConversation()
 {
-	// gLogger->logMsg("ActiveConversation::preProcessConversation");
 	bool status = false;
 	if (mCurrentPage)
 	{

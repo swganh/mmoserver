@@ -466,7 +466,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
 			}
 			else
 			{
-				gLogger->logMsgF("Image Designer : transaction failed",MSG_NORMAL);
+				gLogger->log(LogManager::DEBUG,"Image Designer : transaction failed");
 				// oh woe we need to rollback :(
 				// (ie do nothing)
 
@@ -500,15 +500,8 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
 			}
 
 			if(result->getRowCount())
-				#if !defined(_DEBUG)
-							gLogger->logMsgLoadSuccess(" Loaded %u holo emotes...",MSG_NORMAL,result->getRowCount());
-						#endif
-						#if defined(_DEBUG)
-							gLogger->logMsgLoadSuccess("EntertainerManager::loaded %u HoloEmotes...",MSG_NORMAL,result->getRowCount());
-						#endif
-							
-			else
-				gLogger->logMsgLoadFailure("EntertainerManager::loaded HoloEmotes...",MSG_NORMAL);
+				gLogger->log(LogManager::INFORMATION,"Loading %u holo emotes...",result->getRowCount());
+
 		}
 		break;
 
@@ -603,7 +596,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
 				else
 				{
 					//somebodies trying to cheat here
-					gLogger->logMsgF("EntertainerManager: CHEATER : newHamCount != oldHamCount : %"PRIu64"",MSG_HIGH,asynContainer->customer->getId());
+					gLogger->log(LogManager::WARNING,"EntertainerManager: CHEATER : newHamCount != oldHamCount : %"PRIu64"",asynContainer->customer->getId());
 
 				}
 
@@ -722,16 +715,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
 			}
 
 			if(result->getRowCount())
-				#if !defined(_DEBUG)
-							gLogger->logMsgLoadSuccess(" Loaded %u image designer attributes...",MSG_NORMAL,result->getRowCount());
-						#endif
-						#if defined(_DEBUG)
-							gLogger->logMsgLoadSuccess("EntertainerManager::loaded %u ID-Attributes...",MSG_NORMAL,result->getRowCount());
-						#endif
-				
-			else
-				gLogger->logMsgLoadFailure("EntertainerManager::loaded ID-Attributes...",MSG_NORMAL);
-
+				gLogger->log(LogManager::INFORMATION,"Loaded %u image designer attributes...",result->getRowCount());
 		}
 		break;
 
@@ -763,14 +747,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
 			}
 
 			if(result->getRowCount())
-						#if !defined(_DEBUG)
-							gLogger->logMsgLoadSuccess(" Loaded %u performances...",MSG_NORMAL,result->getRowCount());
-						#endif
-						#if defined(_DEBUG)
-							gLogger->logMsgLoadSuccess("EntertainerManager::loaded %u performances...",MSG_NORMAL,result->getRowCount());
-						#endif
-			else
-				gLogger->logMsgLoadFailure("EntertainerManager::loaded performances...",MSG_NORMAL);
+				gLogger->log(LogManager::INFORMATION,"Loaded %u performances...",result->getRowCount());
 		}
 		break;
 
@@ -871,8 +848,6 @@ void	EntertainerManager::startMusicPerformance(PlayerObject* entertainer,string 
 		{
 			entertainer->setPerformingState(PlayerPerformance_None);
 			gMessageLib->sendSystemMessage(entertainer,L"Your instrument cannot be initialized.");
-			//gLogger->logMsgF("EntertainerManager::startMusicPerformance() no performance found", MSG_NORMAL);
-
 			return;
 		}
 		//music
@@ -1469,7 +1444,7 @@ void EntertainerManager::CheckDistances(PlayerObject* entertainer)
 
 	if(!entertainer->getAudienceList())
 	{
-		gLogger->logErrorF("Entertainer","CheckDistances(PlayerObject* entertainer) getAudienceList does not exist !!!!!", MSG_NORMAL);
+		gLogger->log(LogManager::DEBUG,"CheckDistances(PlayerObject* entertainer) getAudienceList does not exist !!!!!");
 		return;
 	}
 
@@ -1671,13 +1646,11 @@ void EntertainerManager::stopListening(PlayerObject* audience,bool ooRange)
 				// SMod_healing_dance_mind determines how big the mindbuff is
 				// 100% is the mind the customer has
 				float buffPercentageDance = static_cast<float>(entertainer->getSkillModValue(SMod_healing_music_mind)/100);
-				//gLogger->logMsgF(" Skillmod %i",MSG_HIGH,entertainer->getSkillModValue(SMod_healing_music_mind));
 
 
 				// buffvaluepercent tells us how much of the 100% value of the mind we can apply
 				// (in other words the buffstrength according to the time we have been listening)
 				float	percentage  = ((*buffIt).second->buffValuePercent/100);
-				//gLogger->logMsgF(" the skillmod as percentage %f",MSG_HIGH,percentage);
 				uint32	time	    = (*buffIt).second->buffLengthSeconds;
 
 				// apply it
@@ -1969,7 +1942,6 @@ bool EntertainerManager::handlePerformanceTick(CreatureObject* mObject)
 	if(!entertainer)
 		return false;
 
-	//gLogger->logMsgF("handle performance tick %"PRIu64"",MSG_HIGH,entertainer->getId());
 	//check if we need to stop the performance or if it already has been stopped
 	//Mind the pausing dancer though
 	handlePerformancePause(entertainer);
@@ -1981,7 +1953,7 @@ bool EntertainerManager::handlePerformanceTick(CreatureObject* mObject)
 	}
 
 	//check distance and remove offending audience
-	gLogger->logMsgF("check the audience distances %"PRIu64"",MSG_HIGH,entertainer->getId());
+	gLogger->log(LogManager::DEBUG,"check the audience distances %"PRIu64"",entertainer->getId());
 	CheckDistances(entertainer);
 
 	//heal BF and Mindwounds
@@ -2022,11 +1994,11 @@ bool EntertainerManager::handlePerformanceTick(CreatureObject* mObject)
 		aMS->addTextModule();
 		gMessageLib->sendMacroSystemMessage(entertainer,L"",aMS->assemble());
 		delete aMS;
-		gLogger->logMsgF("end tick %"PRIu64"",MSG_HIGH,entertainer->getId());
+		gLogger->log(LogManager::DEBUG,"end tick %"PRIu64"",entertainer->getId());
 		return (false);
 
 	}
-	gLogger->logMsgF("end tick %"PRIu64"",MSG_HIGH,entertainer->getId());
+	gLogger->log(LogManager::DEBUG,"end tick %"PRIu64"",entertainer->getId());
 	return (true);
 }
 
@@ -2186,7 +2158,7 @@ void EntertainerManager::handleObjectReady(Object* object,DispatchClient* client
 
 			if(!permanentinstrument)
 			{
-				gLogger->logMsg("EntertainerManager::handleObjectReady: no permanent instrument");
+				gLogger->log(LogManager::DEBUG,"EntertainerManager::handleObjectReady: no permanent instrument");
 				return;
 			}
 
@@ -2471,13 +2443,7 @@ uint64 EntertainerManager::getInstrument(PlayerObject* entertainer)
 				{
 					// Now we know it's placeble instrument, or it's original.
 					// Is it my placed instrument?
-					if (entertainer->getPlacedInstrumentId() == instrument->getId())
-					{
-						// It's my placed instrument.
-						// For debug
-						// gLogger->logMsg("EntertainerManager::getInstrument Instrument is my PLACED TEMP instrument.");
-					}
-					else
+					if (entertainer->getPlacedInstrumentId() != instrument->getId())
 					{
 						// I just allowed the original item to have a owner tag, just to simulate the missing cell-building access system.
 
@@ -2485,33 +2451,16 @@ uint64 EntertainerManager::getInstrument(PlayerObject* entertainer)
 						{
 							// It's NOT an item, owned by me.
 							// For debug
-							// gLogger->logMsg("EntertainerManager::getInstrument Instrument is NOT owned by me");
 							return 0;
 						}
 						// Whats left?
 						// It's a permanet placed instrument, owned by me.
-						// gLogger->logMsg("EntertainerManager::getInstrument Instrument is original and owned by me");
 
 						// We do have to make a building access rights functionality.
 					}
 				}
-				else
-				{
-					// For debug
-					// gLogger->logMsg("EntertainerManager::getInstrument Instrument is NOT a Nalargon or an Omni Box.");
-				}
 			}
 		}
-		else
-		{
-			// For debug
-			// gLogger->logMsg("EntertainerManager::getInstrument No instrument equipped or targeted.");
-		}
-	}
-	else
-	{
-		// For debug
-		// gLogger->logMsg("EntertainerManager::getInstrument Using a equipped instrument.");
 	}
 	return instrumentId;
 }
@@ -2523,7 +2472,6 @@ uint64 EntertainerManager::getInstrument(PlayerObject* entertainer)
 //======================================================================================================
 bool EntertainerManager::approachInstrument(PlayerObject* entertainer, uint64 instrumentId)
 {
-	// gLogger->logMsg("EntertainerManager::approachInstrument Entering.");
 	bool moveSucceeded = false;
 
 	// make sure the instrument is placed properly.

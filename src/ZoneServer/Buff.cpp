@@ -378,7 +378,7 @@ void Buff::FinalChanges()
 	CreatureObject*	creature = dynamic_cast<PlayerObject*>(mTarget);
 	if(!creature)
 	{
-		gLogger->logMsgF("Buff::FinalChanges :Creature Object nonexistant)",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG,"Buff::FinalChanges :Creature Object nonexistant)");
 		mMarkedForDeletion =true;
 		EraseAttributes();
 		return;
@@ -489,7 +489,7 @@ int32 Buff::ModifyAttribute(uint32 Type, int32 Value, bool damage, bool debuff)
 			mTarget->modifySkillModValue(SMod_melee_accuracy, Value);
 		}
 		break;
-	case bleed_resist : {gLogger->logMsg("Unhandled Attribute: bleed_resist in Buff.cpp");} break;
+	case bleed_resist : {gLogger->log(LogManager::NOTICE,"Unhandled Attribute: bleed_resist in Buff.cpp");} break;
 	case blind_defense : {
 			mTarget->modifySkillModValue(SMod_blind_defense, Value);
 		}
@@ -506,19 +506,19 @@ int32 Buff::ModifyAttribute(uint32 Type, int32 Value, bool damage, bool debuff)
 			if(mTarget->getSkillModValue(SMod_camouflage) != 0)
 				mTarget->modifySkillModValue(SMod_camouflage, Value);
 		} break;
-	case creature_action : {gLogger->logMsg("Unhandled Attribute: creature_action in Buff.cpp");} break;
-	case creature_health : {gLogger->logMsg("Unhandled Attribute creature_health in Buff.cpp");} break;
-	case creature_mind : {gLogger->logMsg("Unhandled Attribute creature_mind in Buff.cpp");} break; 
-	case creature_tohit : {gLogger->logMsg("Unhandled Attribute creature_tohit in Buff.cpp");} break;
+	case creature_action : {gLogger->log(LogManager::DEBUG,"Unhandled Attribute: creature_action in Buff.cpp");} break;
+	case creature_health : {gLogger->log(LogManager::DEBUG,"Unhandled Attribute creature_health in Buff.cpp");} break;
+	case creature_mind : {gLogger->log(LogManager::DEBUG,"Unhandled Attribute creature_mind in Buff.cpp");} break; 
+	case creature_tohit : {gLogger->log(LogManager::DEBUG,"Unhandled Attribute creature_tohit in Buff.cpp");} break;
 	case dizzy_defense : {
 			mTarget->modifySkillModValue(SMod_dizzy_defense, Value);
 		} break;
 	case dodge : {
 			mTarget->modifySkillModValue(SMod_dodge, Value);
 		} break;
-	case experiment_bonus : {gLogger->logMsg("Unhandled Attribute: experimentation_bonus in Buff.cpp");} break; 
-	case fire_resist : {gLogger->logMsg("Unhandled Attribute: fire_resist in Buff.cpp");} break;
-	case food_reduce : {gLogger->logMsg("Unhandled Attribute in Buff.cpp");} break; 
+	case experiment_bonus : {gLogger->log(LogManager::DEBUG,"Unhandled Attribute: experimentation_bonus in Buff.cpp");} break; 
+	case fire_resist : {gLogger->log(LogManager::DEBUG,"Unhandled Attribute: fire_resist in Buff.cpp");} break;
+	case food_reduce : {gLogger->log(LogManager::DEBUG,"Unhandled Attribute in Buff.cpp");} break; 
 	case general_assembly : {
 			mTarget->modifySkillModValue(SMod_general_assembly, Value);
 		} break;
@@ -546,7 +546,7 @@ int32 Buff::ModifyAttribute(uint32 Type, int32 Value, bool damage, bool debuff)
 		if(mTarget->getSkillModValue(SMod_healing_wound_treatment) != 0)
 			mTarget->modifySkillModValue(SMod_healing_wound_treatment, Value);
 		} break;
-	case incap_recovery : {gLogger->logMsg("Unhandled Attribute: incap_recovery in Buff.cpp");} break; 
+	case incap_recovery : {gLogger->log(LogManager::DEBUG,"Unhandled Attribute: incap_recovery in Buff.cpp");} break; 
 	case innate_regeneration :  {
 		if(mTarget->getSkillModValue(SMod_private_innate_regeneration) != 0)
 			mTarget->modifySkillModValue(SMod_private_innate_regeneration, Value);
@@ -564,14 +564,14 @@ int32 Buff::ModifyAttribute(uint32 Type, int32 Value, bool damage, bool debuff)
 	case melee_defense :  {
 			mTarget->modifySkillModValue(SMod_melee_defense, Value);
 		} break;
-	case mind_heal : {gLogger->logMsg("Unhandled Attribute: mind_heal in Buff.cpp");} break; 
-	case mitigate_damage : {gLogger->logMsg("Unhandled Attribute: mitigate_damage in Buff.cpp");} break; 
-	case poison_disease_resist : {gLogger->logMsg("Unhandled Attribute: poison_disease_resist in Buff.cpp");} break;
+	case mind_heal : {gLogger->log(LogManager::DEBUG,"Unhandled Attribute: mind_heal in Buff.cpp");} break; 
+	case mitigate_damage : {gLogger->log(LogManager::DEBUG,"Unhandled Attribute: mitigate_damage in Buff.cpp");} break; 
+	case poison_disease_resist : {gLogger->log(LogManager::DEBUG,"Unhandled Attribute: poison_disease_resist in Buff.cpp");} break;
 	case ranged_defense :  {
 			mTarget->modifySkillModValue(SMod_ranged_defense, Value);
 		} break;
-	case reduce_clone_wounds : {gLogger->logMsg("Unhandled Attribute: reduce_clone_wounds in Buff.cpp");} break;
-	case reduce_spice_downtime : {gLogger->logMsg("Unhandled Attribute: reduce_spice_downtime in Buff.cpp");} break;
+	case reduce_clone_wounds : {gLogger->log(LogManager::DEBUG,"Unhandled Attribute: reduce_clone_wounds in Buff.cpp");} break;
+	case reduce_spice_downtime : {gLogger->log(LogManager::DEBUG,"Unhandled Attribute: reduce_spice_downtime in Buff.cpp");} break;
 	case stun_defense :  {
 			mTarget->modifySkillModValue(SMod_stun_defense, Value);
 		} break;
@@ -590,7 +590,7 @@ int32 Buff::ModifyAttribute(uint32 Type, int32 Value, bool damage, bool debuff)
 	case unarmed_damage :  {
 			mTarget->modifySkillModValue(SMod_unarmed_damage, Value);
 		} break;
-	case xp_increase : {gLogger->logMsg("Unhandled Attribute: xp_increase in Buff.cpp");} break; 
+	case xp_increase : {gLogger->log(LogManager::DEBUG,"Unhandled Attribute: xp_increase in Buff.cpp");} break; 
 	default:
 		{
 		}

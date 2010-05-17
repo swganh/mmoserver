@@ -57,7 +57,6 @@ void CampRegion::update()
 	//Camps have a max timer of 55 minutes
 	if(gWorldManager->GetCurrentGlobalTick() - mSetUpTime > 3300000)
 	{
-		//gLogger->logMsg("55 Minutes OLD! DEATH TO THE CAMP!", BACKGROUND_RED);
 		despawnCamp();
 		return;
 	}
@@ -136,7 +135,6 @@ void CampRegion::update()
 
 			if(!alreadyExists)
 			{
-				//gLogger->logMsg("CREATING A NEW LINK!");
 				campLink* temp = new campLink;
 				temp->objectID = object->getId();
 				temp->lastSeenTime = gWorldManager->GetCurrentGlobalTick();
@@ -147,7 +145,6 @@ void CampRegion::update()
 		}
 		else
 		{
-			//gLogger->logMsg("HANDLING TICK!");
 			//Find the right link
 			std::list<campLink*>::iterator i;
 
@@ -176,7 +173,6 @@ void CampRegion::update()
 			//to allow the adding of items without much effort.
 			int8 text[256];
 			sprintf(text,"Position: mX=%f mY=%f mZ=%f\nDirection: mX=%f mY=%f mZ=%f mW=%f", (object->mPosition.x - this->mPosition.x), (object->mPosition.y - this->mPosition.y), (object->mPosition.z - this->mPosition.z), object->mDirection.x,object->mDirection.y,object->mDirection.z,object->mDirection.w);
-			gLogger->logMsg(text, BACKGROUND_RED);
 			*/
 		}
 
@@ -205,7 +201,6 @@ void CampRegion::update()
 	{
 		if(gWorldManager->GetCurrentGlobalTick() - (*i)->lastSeenTime >= 30000)
 		{
-			//gLogger->logMsg("ERASING AN ENTRY!");
 			delete (*i);
 			i = links.erase(i);
 		}
@@ -247,8 +242,6 @@ void CampRegion::onObjectEnter(Object* object)
 		{
 			//ensure it's not time to destroy the camp
 			mAbandoned = false;
-
-			//gLogger->logMsg("ENTERED CAMP", BACKGROUND_RED);
 		}
 
 	}
@@ -266,8 +259,6 @@ void CampRegion::onObjectLeave(Object* object)
 	if(object->getId() == mOwnerId)
 	{
 		mAbandoned	= true;
-
-			//gLogger->logMsg("LEFT CAMP", BACKGROUND_RED);
 
 		//We want to have this camp die after the owner has been gone longer 
 		//than he stayed in the camp, with a max of two minutes.
@@ -339,8 +330,6 @@ void	CampRegion::despawnCamp()
 void	CampRegion::applyWoundHealing(Object* object)
 {
 	PlayerObject* player = dynamic_cast<PlayerObject*>(object);
-
-	//gLogger->logMsg("APPLYING WOUND HEALING!");
 
 	//Make sure it's a player.
 	if(player == NULL)

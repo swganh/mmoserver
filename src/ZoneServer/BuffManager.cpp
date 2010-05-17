@@ -196,7 +196,6 @@ void BuffManager::LoadBuffsFromResult(buffAsyncContainer* asyncContainer, Databa
 
 void BuffManager::LoadBuffAttributesFromResult(buffAsyncContainer* asyncContainer, DatabaseResult* result)
 {
-	//gLogger->logMsg("Loading an Attribute", FOREGROUND_GREEN);
 
 	DataBinding*	buffBinding = mDatabase->CreateDataBinding(4);
 	buffBinding->addField(DFT_int32,offsetof(BuffAttributeDBItem,mType),4,0);
@@ -303,8 +302,8 @@ void BuffManager::LoadBuffs(PlayerObject* playerObject, uint64 currenttime)
 	//check we don't have ghosted buffs
 	if(playerObject->GetNoOfBuffs() > 0)
 	{
-		gLogger->logMsg("PlayerObject has ghosted Buffs. Inform a developer\n", FOREGROUND_RED);
-		gMessageLib->sendSystemMessage(playerObject, "You appear to have Ghosted Buffs (Bug #958). Please inform a developer you saw this message");
+		gLogger->log(LogManager::WARNING,"PlayerObject has ghosted Buffs. Inform a developer\n", FOREGROUND_RED);
+		gMessageLib->sendSystemMessage(playerObject, "You appear to have Ghosted Buffs (Bug #958). Please inform an SWG:ANH developer or Server Admin you saw this message");
 		return;
 	}
 
@@ -491,8 +490,6 @@ void BuffManager::AddBuffToDB(Buff* buff, uint64 currenttime)
 		sprintf(sql+strlen(sql), "%"PRIu64",", currenttime);
 		sprintf(sql+strlen(sql), "%"PRIu64");", buff->GetStartGlobalTick());
 
-		//gLogger->logMsg(sql,FOREGROUND_BLUE | FOREGROUND_GREEN);
-
 		//Lloydyboy Changed Save SQL back to Sync, not ASync to ensure this is saved, before new zone loads
 		//mDatabase->ExecuteSqlAsync(this,envelope,sql);
 		mDatabase->DestroyResult(mDatabase->ExecuteSynchSql(sql));
@@ -530,7 +527,6 @@ void BuffManager::AddBuffToDB(Buff* buff, uint64 currenttime)
 			}
 			it++;
 		}
-		//gLogger->logMsg(sql2,FOREGROUND_BLUE | FOREGROUND_GREEN);
 
 		//Lloydyboy Changed Save SQL back to Sync, not ASync to ensure this is saved, before new zone loads
 		//mDatabase->ExecuteSqlAsync(this,envelope,sql2);

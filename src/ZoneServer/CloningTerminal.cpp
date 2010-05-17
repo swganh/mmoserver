@@ -93,7 +93,7 @@ void CloningTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject
 		break;
 
 		default:
-			gLogger->logMsgF("CloningTerminal::handleObjectMenuSelect Unhandled MenuSelect: %u",MSG_HIGH,messageType);
+			gLogger->log(LogManager::NOTICE,"CloningTerminal::handleObjectMenuSelect Unhandled MenuSelect: %u",messageType);
 
 		break;
 	}
@@ -106,8 +106,6 @@ void CloningTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject
 // void CloningTerminal::handleUIEvent(string strInventoryCash, string strBankCash, UIWindow* window)
 void CloningTerminal::handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window)
 {
-	// gLogger->logMsgF("CloningTerminal::handleUIEvent You are here!",MSG_NORMAL);
-
 	if(window == NULL)
 	{
 		return;
@@ -124,12 +122,7 @@ void CloningTerminal::handleUIEvent(uint32 action,int32 element,string inputStr,
 	{
 		// We are located inside a building.
 
-		if (action == 1)
-		{
-			// That's the Cancel.
-			// gLogger->logMsgF("CloningTerminal::handleUIEvent That's the Cancel?",MSG_NORMAL);
-		}
-		else
+		if (action != 1)
 		{
 			// This is the OK.  (action == 0)
 			// TODO: If the player have the "coupon", they should get a special message.
@@ -175,8 +168,6 @@ void CloningTerminal::handleUIEvent(uint32 action,int32 element,string inputStr,
 				const glm::vec3& bindPosition = gWorldManager->getObjectById(playerObject->getPreDesignatedCloningFacilityId())->mPosition;
 				playerObject->setBindCoords(bindPosition);
 
-				// gLogger->logMsgF("CloningTerminal::handleUIEvent Saving clone facility id %"PRIu64"",MSG_HIGH,playerObject->getPreDesignatedCloningFacilityId());
-
 				int8 sql[128];
 				sprintf(sql,"call swganh.sp_CharacterCreateClone(%"PRIu64",%"PRIu64")", playerObject->getId(),playerObject->getPreDesignatedCloningFacilityId());
 				(gWorldManager->getDatabase())->ExecuteSqlAsync(NULL,NULL,sql);
@@ -197,10 +188,9 @@ void CloningTerminal::handleUIEvent(uint32 action,int32 element,string inputStr,
 
 				// You lack the bank funds to complete this transaction request
 				gMessageLib->sendSystemMessage(playerObject, L"", "error_message", "insufficient_funds_bank", "", "", L"");
-				gLogger->logMsg("CloningTerminal::handleUIEvent: ERROR: Error verifying credits\n");
+				gLogger->log(LogManager::DEBUG,"CloningTerminal::handleUIEvent: ERROR: Error verifying credits\n");
 			}
 		}
 	}
-	// gLogger->logMsgF("CloningTerminal::handleUIEvent You sure handled this UI-event!, Action = %d",MSG_NORMAL, action);
 }
 //=============================================================================

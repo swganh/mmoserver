@@ -162,8 +162,6 @@ void ContainerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult*
 
 void ContainerObjectFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client)
 {
-	// gLogger->logMsg("ContainerObjectFactory::requestObject:");
-
 	if (!gWorldManager->getObjectById(id))
 	{
 		// The container does not exist.
@@ -176,7 +174,6 @@ void ContainerObjectFactory::requestObject(ObjectFactoryCallback* ofCallback,uin
 	else
 	{
 		// Just update the contence, if needed.
-		// gLogger->logMsg("Doing an update...");
 
 		// If not a player as parent, we will not have to send any create updates.
 		PlayerObject* player = NULL;
@@ -248,7 +245,6 @@ void ContainerObjectFactory::_destroyDatabindings()
 
 void ContainerObjectFactory::handleObjectReady(Object* object,DispatchClient* client)
 {
-	// gLogger->logMsg("ContainerObjectFactory::handleObjectReady");
 	InLoadingContainer* ilc	= _getObject(object->getParentId());
 	ilc->mLoadCounter--;
 
@@ -266,11 +262,10 @@ void ContainerObjectFactory::handleObjectReady(Object* object,DispatchClient* cl
 	// if (container->getObjectLoadCounter() == (container->getObjects())->size())
 	if(!ilc->mLoadCounter)
 	{
-		// gLogger->logMsg("ContainerObjectFactory::handleObjectReady: DONE!!!");
 		container->setLoadState(LoadState_Loaded);
 	
 		if (!(_removeFromObjectLoadMap(container->getId())))
-			gLogger->logMsg("ContainerObjectFactory: Failed removing object from loadmap");
+			gLogger->log(LogManager::DEBUG,"ContainerObjectFactory: Failed removing object from loadmap");
 
 		ilc->mOfCallback->handleObjectReady(container,ilc->mClient);
 

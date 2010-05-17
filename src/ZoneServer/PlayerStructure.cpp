@@ -50,11 +50,11 @@ uint32 PlayerStructure::getCurrentMaintenance()
 	if (this->hasAttribute("examine_maintenance"))
 	{
 		uint32 maintenance = this->getAttribute<uint32>("examine_maintenance");					
-		gLogger->logMsgF("structure maintenance = %u", MSG_NORMAL, maintenance);
+		gLogger->log(LogManager::DEBUG,"structure maintenance = %u",  maintenance);
 		return maintenance;
 	}
 
-	gLogger->logMsgF("PlayerStructure::getMaintenance structure maintenance not set!!!!", MSG_NORMAL);
+	gLogger->log(LogManager::DEBUG,"PlayerStructure::getMaintenance structure maintenance not set!!!!");
 	setCurrentMaintenance(0);
 	return 0;
 }
@@ -74,7 +74,7 @@ void PlayerStructure::setCurrentMaintenance(uint32 maintenance)
 	
 	
 	this->addAttribute("examine_maintenance",boost::lexical_cast<std::string>(maintenance));
-	gLogger->logMsgF("PlayerStructure::setMaintenanceRate structure maintenance rate not set!!!!", MSG_NORMAL);
+	gLogger->log(LogManager::DEBUG,"PlayerStructure::setMaintenanceRate structure maintenance rate not set!!!!");
 
 }
 
@@ -86,11 +86,11 @@ uint32 PlayerStructure::getCurrentPower()
 	if (this->hasAttribute("examine_power"))
 	{
 		uint32 power = this->getAttribute<uint32>("examine_power");					
-		gLogger->logMsgF("structure power = %u", MSG_NORMAL, power);
+		gLogger->log(LogManager::DEBUG,"structure power = %u",  power);
 		return power;
 	}
 
-	gLogger->logMsgF("PlayerStructure::getCurrentPower structure power not set!!!!", MSG_NORMAL);
+	gLogger->log(LogManager::DEBUG,"PlayerStructure::getCurrentPower structure power not set!!!!");
 	setCurrentPower(0);
 	return 0;
 }
@@ -111,7 +111,7 @@ void PlayerStructure::setCurrentPower(uint32 power)
 	
 	
 	this->addAttribute("examine_power",boost::lexical_cast<std::string>(power));
-	gLogger->logMsgF("PlayerStructure::setCurrentPower structure Power not set!!!!", MSG_NORMAL);
+	gLogger->log(LogManager::DEBUG,"PlayerStructure::setCurrentPower structure Power not set!!!!");
 
 }
 
@@ -269,8 +269,8 @@ void PlayerStructure::handleUIEvent(string strCharacterCash, string strHarvester
 			
 			if(inventoryFunds < 0)
 			{
-				gLogger->logMsgF("PlayerStructure::PayMaintenance finances screwed up !!!!!!!!", MSG_NORMAL);
-				gLogger->logMsgF("Player : %I64u !!!!!", MSG_NORMAL,player->getId());
+				gLogger->log(LogManager::DEBUG,"PlayerStructure::PayMaintenance finances screwed up !!!!!!!!");
+				gLogger->log(LogManager::DEBUG,"Player : %I64u !!!!!", player->getId());
 				return;
 			}
 
@@ -278,8 +278,8 @@ void PlayerStructure::handleUIEvent(string strCharacterCash, string strHarvester
 
 			if(maintenance < 0)
 			{
-				gLogger->logMsgF("PlayerStructure::PayMaintenance finances screwed up !!!!!!!!", MSG_NORMAL);
-				gLogger->logMsgF("Player : %I64u !!!!!", MSG_NORMAL,player->getId());
+				gLogger->log(LogManager::DEBUG,"PlayerStructure::PayMaintenance finances screwed up !!!!!!!!");
+				gLogger->log(LogManager::DEBUG,"Player : %I64u !!!!!", player->getId());
 				return;
 			}
 
@@ -359,11 +359,11 @@ void PlayerStructure::handleUIEvent(uint32 action,int32 element,string inputStr,
 			b.convert(BSTRType_ANSI);
 			if(strcmp(b.getAnsi(),"false") == 0)
 			{
-				gLogger->logMsgF("PlayerStructure:: Button 3 (ok) was pressed!!!!", MSG_NORMAL);
+				gLogger->log(LogManager::DEBUG,"PlayerStructure:: Button 3 (ok) was pressed!!!!");
 				WindowAsyncContainerCommand* asyncContainer = (WindowAsyncContainerCommand*)window->getAsyncContainer();	
 				if(!asyncContainer)
 				{
-					gLogger->logMsgF("PlayerStructure:: Handle Add Manufacture Schematic Asynccontainer is NULL!!!!", MSG_NORMAL);
+					gLogger->log(LogManager::DEBUG,"PlayerStructure:: Handle Add Manufacture Schematic Asynccontainer is NULL!!!!");
 					return;
 				}
 				if(asyncContainer->SortedList.size())
@@ -388,7 +388,7 @@ void PlayerStructure::handleUIEvent(uint32 action,int32 element,string inputStr,
 			else
 			if(strcmp(b.getAnsi(),"true") == 0) //remove schematic pressed
 			{
-				gLogger->logMsgF("PlayerStructure:: Button 4 (other) was pressed!!!!", MSG_NORMAL);
+				gLogger->log(LogManager::DEBUG,"PlayerStructure:: Button 4 (other) was pressed!!!!");
 
 				WindowAsyncContainerCommand* asyncContainer = (WindowAsyncContainerCommand*)window->getAsyncContainer();	
 				SAFE_DELETE(asyncContainer);
@@ -467,7 +467,7 @@ void PlayerStructure::handleUIEvent(uint32 action,int32 element,string inputStr,
 
 			gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,sql);
 
-			gLogger->logMsgF("PlayerStructure::Rename Structure sql : %s", MSG_NORMAL,sql);
+			gLogger->log(LogManager::DEBUG,"PlayerStructure::Rename Structure sql : %s", sql);
 
 		}
 		break;

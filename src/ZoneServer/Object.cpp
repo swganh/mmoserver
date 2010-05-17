@@ -330,8 +330,6 @@ void Object::sendAttributes(PlayerObject* playerObject)
 			value = valueInt;
 
 		}
-			//gLogger->logMsgF("Object::sendAttribute: %s : %s",MSG_HIGH,gWorldManager->getAttributeKey((*mapIt).first).getAnsi(),value.getAnsi());
-
 
 		value.convert(BSTRType_Unicode16);
 		gMessageFactory->addString(value);
@@ -356,7 +354,7 @@ void Object::setAttribute(string key,std::string value)
 
 	if(it == mAttributeMap.end())
 	{
-		gLogger->logMsgF("Object::setAttribute: could not find %s",MSG_HIGH,key.getAnsi());
+		gLogger->log(LogManager::DEBUG,"Object::setAttribute: could not find %s",key.getAnsi());
 		return;
 	}
 
@@ -377,7 +375,7 @@ void Object::setAttributeIncDB(string key,std::string value)
 
 	if(it == mAttributeMap.end())
 	{
-		gLogger->logMsgF("Object::setAttribute: could not find %s",MSG_HIGH,key.getAnsi());
+		gLogger->log(LogManager::DEBUG,"Object::setAttribute: could not find %s",key.getAnsi());
 		return;
 	}
 
@@ -386,7 +384,7 @@ void Object::setAttributeIncDB(string key,std::string value)
 	uint32 attributeID = gWorldManager->getAttributeId(key.getCrc());
 	if(!attributeID)
 	{
-		gLogger->logMsgF("Object::addAttribute DB: no such attribute in the attribute table :%s",MSG_HIGH,key.getAnsi());
+		gLogger->log(LogManager::DEBUG,"Object::addAttribute DB: no such attribute in the attribute table :%s",key.getAnsi());
 		return;
 	}
 
@@ -431,7 +429,7 @@ void Object::addAttributeIncDB(string key,std::string value)
 	uint32 attributeID = gWorldManager->getAttributeId(key.getCrc());
 	if(!attributeID)
 	{
-		gLogger->logMsgF("Object::addAttribute DB: no such attribute in the attribute table :%s",MSG_HIGH,key.getAnsi());
+		gLogger->log(LogManager::DEBUG,"Object::addAttribute DB: no such attribute in the attribute table :%s",key.getAnsi());
 		return;
 	}
 	int8 sql[512],*sqlPointer,restStr[128];
@@ -467,7 +465,7 @@ void Object::removeAttribute(string key)
 	if(it != mAttributeMap.end())
 		mAttributeMap.erase(it);
 	else
-		gLogger->logMsgF("Object::removeAttribute: could not find %s",MSG_HIGH,key.getAnsi());
+		gLogger->log(LogManager::DEBUG,"Object::removeAttribute: could not find %s",key.getAnsi());
 }
 
 //=========================================================================
@@ -486,7 +484,7 @@ void Object::setInternalAttributeIncDB(string key,std::string value)
 
 	if(it == mInternalAttributeMap.end())
 	{
-		gLogger->logMsgF("Object::setAttribute: could not find %s",MSG_HIGH,key.getAnsi());
+		gLogger->log(LogManager::DEBUG,"Object::setAttribute: could not find %s",key.getAnsi());
 		return;
 	}
 
@@ -495,7 +493,7 @@ void Object::setInternalAttributeIncDB(string key,std::string value)
 	uint32 attributeID = gWorldManager->getAttributeId(key.getCrc());
 	if(!attributeID)
 	{
-		gLogger->logMsgF("Object::addAttribute DB: no such attribute in the attribute table :%s",MSG_HIGH,key.getAnsi());
+		gLogger->log(LogManager::DEBUG,"Object::addAttribute DB: no such attribute in the attribute table :%s",key.getAnsi());
 		return;
 	}
 
@@ -519,7 +517,7 @@ void	Object::setInternalAttribute(string key,std::string value)
 
 	if(it == mInternalAttributeMap.end())
 	{
-		gLogger->logMsgF("Object::setInternalAttribute: could not find %s",MSG_HIGH,key.getAnsi());
+		gLogger->log(LogManager::DEBUG,"Object::setInternalAttribute: could not find %s",key.getAnsi());
 		return;
 	}
 
@@ -542,7 +540,7 @@ void Object::addInternalAttributeIncDB(string key,std::string value)
 	uint32 attributeID = gWorldManager->getAttributeId(key.getCrc());
 	if(!attributeID)
 	{
-		gLogger->logMsgF("Object::addAttribute DB: no such attribute in the attribute table :%s",MSG_HIGH,key.getAnsi());
+		gLogger->log(LogManager::DEBUG,"Object::addAttribute DB: no such attribute in the attribute table :%s",key.getAnsi());
 		return;
 	}
 	int8 sql[512],*sqlPointer,restStr[128];
@@ -586,7 +584,7 @@ void Object::removeInternalAttribute(string key)
 	if(it != mInternalAttributeMap.end())
 		mInternalAttributeMap.erase(it);
 	else
-		gLogger->logMsgF("Object::removeInternalAttribute: could not find %s",MSG_HIGH,key.getAnsi());
+		gLogger->log(LogManager::DEBUG,"Object::removeInternalAttribute: could not find %s",key.getAnsi());
 }
 
 
@@ -618,7 +616,7 @@ void Object::addKnownObject(Object* object)
 	}
 	if(checkKnownObjects(object))
 	{
-		gLogger->logMsgF("Object::addKnownObject %I64u couldnt be added to %I64u - already in it", MSG_NORMAL, object->getId(), this->getId());
+		gLogger->log(LogManager::DEBUG,"Object::addKnownObject %I64u couldnt be added to %I64u - already in it", object->getId(), this->getId());
 		return;
 	}
 
@@ -645,10 +643,8 @@ void Object::destroyKnownObjects()
 	while(IDIt != mKnownObjectsIDs.end())
 	{		
 		Object* object = gWorldManager->getObjectById(*IDIt);
-		gLogger->logMsgF("Object::removeKnownObject removing %I64u from %I64u", MSG_NORMAL, object->getId(), this->getId());
 		if(!object)
 		{
-			gLogger->logMsgF("Object::removeKnownObject %I64u couldnt be removed from %I64u - not found", MSG_NORMAL, (*IDIt), this->getId());	
 			(*IDIt)++;
 		}
 		ObjectIDSet::iterator itID = mKnownObjectsIDs.find(object->getId());
@@ -659,7 +655,6 @@ void Object::destroyKnownObjects()
 		}
 		else
 		{
-			gLogger->logMsgF("Object::removeKnownObject %I64u couldnt be removed from %I64u - not found", MSG_NORMAL, object->getId(), this->getId());
 			IDIt++;
 		}		
 	

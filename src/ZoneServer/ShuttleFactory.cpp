@@ -166,13 +166,13 @@ Shuttle* ShuttleFactory::_createShuttle(DatabaseResult* result)
 
 		if (shuttleTimeExpired <= shuttle->getInPortInterval())
 		{
-			// gLogger->logMsgF("Shuttlee start InPort, time expired %u",MSG_NORMAL, shuttleTimeExpired);
+			// gLogger->log(LogManager::DEBUG,"Shuttlee start InPort, time expired %u", shuttleTimeExpired);
 			shuttle->setShuttleState(ShuttleState_InPort);
 			shuttle->setInPortTime(shuttleTimeExpired);
 		}
 		else
 		{
-			// gLogger->logMsgF("Shuttlee start Away, time expired %u",MSG_NORMAL, shuttleTimeExpired - shuttle->getInPortInterval());
+			// gLogger->log(LogManager::DEBUG,"Shuttlee start Away, time expired %u", shuttleTimeExpired - shuttle->getInPortInterval());
 			shuttle->setShuttleState(ShuttleState_Away);
 			shuttle->setAwayTime(shuttleTimeExpired - shuttle->getInPortInterval()); // Set the part corresponding to this state only.
 		}

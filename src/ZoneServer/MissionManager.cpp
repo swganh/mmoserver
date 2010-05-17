@@ -179,14 +179,7 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 			// not all missions have associated names ...
 			if(result->getRowCount())
-				#if !defined(_DEBUG)
-					gLogger->logMsgLoadSuccess(" Loading %u mission stfs...",MSG_NORMAL,count);
-				#endif
-				#if defined(_DEBUG)
-					gLogger->logMsgLoadSuccess("MissionManager::Loading %u Mission stfs...",MSG_NORMAL,count);
-				#endif
-				else
-				gLogger->logMsgLoadFailure("MissionManager::Loading Mission stfs...",MSG_NORMAL);
+				gLogger->log(LogManager::INFORMATION,"Loading %u mission stfs...",count);
 
 		}
 		break;
@@ -210,16 +203,8 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			}
 
 			if(result->getRowCount())
-				#if !defined(_DEBUG)
-					gLogger->logMsgLoadSuccess(" Loading %u mission names...",MSG_NORMAL,count);
-				#endif
-		
-				#if defined(_DEBUG)
-					gLogger->logMsgLoadSuccess("MissionManager::Loading %u Mission Names...",MSG_NORMAL,count);
-				#endif
-			
-			else
-				gLogger->logMsgLoadFailure("MissionManager::Loading Mission Names...",MSG_NORMAL);
+				gLogger->log(LogManager::INFORMATION,"Loading %u mission names...",count);
+
 
 		}
 		break;
@@ -252,16 +237,7 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			mDatabase->ExecuteSqlAsyncNoArguments(this,asyncContainer,"SELECT m_t.mission_type, m_t.mission_name, m_t.mission_text FROM swganh.mission_text m_t INNER JOIN swganh.mission_types mty ON mty.id = m_t.mission_type WHERE mission_name like 'm%o' AND (mty.type NOT like 'mission_npc_%')");
 
 			if(result->getRowCount())
-				#if !defined(_DEBUG)
-			gLogger->logMsgLoadSuccess(" Loading %u mission types...",MSG_NORMAL,result->getRowCount());
-			#endif
-	
-			#if defined(_DEBUG)
-			gLogger->logMsgLoadSuccess("MissionManager::Loading %u Mission Types...",MSG_NORMAL,result->getRowCount());
-			#endif
-			
-			else
-				gLogger->logMsgLoadFailure("MissionManager::Loading Mission Types...",MSG_NORMAL);
+				gLogger->log(LogManager::INFORMATION,"Loading %u mission types...",result->getRowCount());
 
 		}
 		break;
@@ -413,15 +389,8 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			}
 
 			if(result->getRowCount())
-					#if !defined(_DEBUG)
-	gLogger->logMsgLoadSuccess(" Loading %u mission terminal links...",MSG_NORMAL,result->getRowCount());
-	#endif
-	#if defined(_DEBUG)
-		gLogger->logMsgLoadSuccess("MissionManager::Loading %u Mission Terminal Links...",MSG_NORMAL,result->getRowCount());
-	#endif
-		
-			else
-				gLogger->logMsgLoadFailure("MissionManager::Loading Mission Terminal Links...",MSG_NORMAL);
+				gLogger->log(LogManager::INFORMATION,"Loading %u mission terminal links...",result->getRowCount());
+
 
 		}
 		break;
@@ -446,7 +415,7 @@ void MissionManager::listRequest(PlayerObject* player, uint64 terminal_id,uint8 
 	int8		terminal_name[255];
 	strcpy(terminal_name,terminal->getName().getAnsi());
 
-	gLogger->logMsgF("Terminal id %"PRIu64" is type '%s'", MSG_NORMAL, terminal_id, terminal_name);
+	gLogger->log(LogManager::DEBUG,"Terminal id %"PRIu64" is type '%s'", terminal_id, terminal_name);
 
  	int count = 0;
 	int len = strlen(terminal_name);
@@ -479,7 +448,7 @@ void MissionManager::listRequest(PlayerObject* player, uint64 terminal_id,uint8 
 				generateEntertainerMission(mission,count);
 			break;
 			default:
-				gLogger->logMsgF("Terminal id %"PRIu64" is type '%s'", MSG_NORMAL, terminal_id, terminal_name);
+				gLogger->log(LogManager::DEBUG,"Terminal id %"PRIu64" is type '%s'", terminal_id, terminal_name);
 				mission->setRefreshCount(0);
 		}
 
@@ -496,7 +465,7 @@ void MissionManager::listRequest(PlayerObject* player, uint64 terminal_id,uint8 
 
 void MissionManager::detailsRequest(PlayerObject* player)
 {
-    gLogger->logMsgF("Player id %"PRIu64" requested mission details", MSG_NORMAL, player->getId());
+    gLogger->log(LogManager::DEBUG,"Player id %"PRIu64" requested mission details", player->getId());
 
     // this request likely requires a MissionDetailsResponse (000000F8) packet response
 }
@@ -505,7 +474,7 @@ void MissionManager::detailsRequest(PlayerObject* player)
 
 void MissionManager::createRequest(PlayerObject* player)
 {
-    gLogger->logMsgF("Player id %"PRIu64" accepted mission", MSG_NORMAL, player->getId());
+    gLogger->log(LogManager::DEBUG,"Player id %"PRIu64" accepted mission", player->getId());
 }
 
 //======================================================================================================================
@@ -522,7 +491,7 @@ void MissionManager::missionRequest(PlayerObject* player, uint64 mission_id)
 	MissionObject* mission =  mission_bag->getMissionById(mission_id);
 	if(mission == NULL)
 	{
-		gLogger->logMsgF("ERROR: Failed to retrieve mission with id %"PRIu64". Unable to accept mission!", MSG_HIGH, mission_id);
+		gLogger->log(LogManager::NOTICE,"ERROR: Failed to retrieve mission with id %"PRIu64". Unable to accept mission!", mission_id);
 		return;
 	}
 
@@ -653,7 +622,7 @@ return;
 */
 void MissionManager::missionAbort(PlayerObject* player, uint64 mission_id)
 {
-	gLogger->logMsg("ABORT MISSION");
+	gLogger->log(LogManager::DEBUG,"ABORT MISSION");
 	Datapad* datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
 
 	MissionObject* mission = datapad->getMissionById(mission_id);
@@ -683,7 +652,7 @@ void MissionManager::missionAbort(PlayerObject* player, uint64 mission_id)
 	}
 	else
 	{
-		gLogger->logMsg("ERROR: Attempt to abort an invalid mission, with id %.8X, from the datapad.", static_cast<int>(mission_id));
+		gLogger->log(LogManager::WARNING,"ERROR: Attempt to abort an invalid mission, with id %.8X, from the datapad.", static_cast<int>(mission_id));
 	}
 
 return;
@@ -877,7 +846,7 @@ void MissionManager::checkSurveyMission(PlayerObject* player,CurrentResource* re
 					{
                         if(glm::distance(mission->getIssuingTerminal()->mPosition, highestDist.position) > 1024)
 						{
-							gLogger->logMsg("PE > 500: ready to apply new BF/wound dmg");
+							gLogger->log(LogManager::DEBUG,"PE > 500: ready to apply new BF/wound dmg");
 							missionComplete(player,mission);
 							it = datapad->removeMission(it);
 							delete mission;
@@ -996,9 +965,7 @@ MissionObject* MissionManager::generateDestroyMission(MissionObject* mission, ui
 	TerminalMap::iterator terminalMapIt = mTerminalMap.find(terminal);
 	if(terminalMapIt != mTerminalMap.end())
 	{
-		#if defined(_DEBUG)
-					gLogger->logMsgF("MissionManager : found the terminal",MSG_HIGH);
-				#endif
+		gLogger->log(LogManager::DEBUG,"MissionManager : found the terminal");
 					
 		Terminal_Type* terminal = (*terminalMapIt).second;
 
@@ -1006,16 +973,14 @@ MissionObject* MissionManager::generateDestroyMission(MissionObject* mission, ui
 		uint32 amount = terminal->list.size();
 		uint32 chosen = gRandom->getRand() % amount;
 
-		#if defined(_DEBUG)
-					gLogger->logMsgF("MissionManager : random : %u",MSG_HIGH,chosen);
-				#endif
+		gLogger->log(LogManager::DEBUG,"MissionManager : random : %u", chosen);
+
 		bool found = false;
 		uint32 counter = 0;
 		while(!found)
 		{
-			#if defined(_DEBUG)
-					gLogger->logMsgF("MissionManager : != found ",MSG_HIGH);
-				#endif	
+			gLogger->log(LogManager::DEBUG,"MissionManager : != found ");
+
 			MissionLinkList::iterator it = 	terminal->list.begin();
 			while(it != terminal->list.end())
 			{
@@ -1042,9 +1007,7 @@ MissionObject* MissionManager::generateDestroyMission(MissionObject* mission, ui
 
 	if(link)
 	{
-		#if defined(_DEBUG)
-					gLogger->logMsgF("MissionManager : found db destroy missions",MSG_HIGH);
-				#endif
+		gLogger->log(LogManager::DEBUG,"MissionManager : found db destroy missions");
 					
 
 		//now set the stf
@@ -1071,9 +1034,7 @@ MissionObject* MissionManager::generateDestroyMission(MissionObject* mission, ui
 	}
 	else
 	{
-		#if defined(_DEBUG)
-					gLogger->logMsgF("MissionManager : No mission file associated :(",MSG_HIGH);
-				#endif
+		gLogger->log(LogManager::DEBUG,"MissionManager : No mission file associated");
 					
 		return NULL;
 
@@ -1112,9 +1073,7 @@ MissionObject* MissionManager::generateDestroyMission(MissionObject* mission, ui
 
 	sprintf(mo,"m%do",mission_num);
 	string moS(mo);
-	#if defined(_DEBUG)
-		gLogger->logMsgF("MissionManager : creator :%s",MSG_HIGH,moS.getAnsi());
-	#endif
+	gLogger->log(LogManager::DEBUG,"MissionManager : creator :%s",moS.getAnsi());
 	NameMap nameMap = link->missiontype->names;
 	NameMap::iterator NameMapIt = nameMap.find(moS.getCrc());
 	if(NameMapIt != nameMap.end())

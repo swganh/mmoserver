@@ -206,13 +206,13 @@ void CSRManager::handleDispatchMessage(uint32 opcode,Message* message,DispatchCl
 {
 	CSRCommandMap::iterator it = mCommandMap.find(opcode);
 
-	gLogger->logMsgF("Incomming CSR Command: %u",MSG_NORMAL, opcode);
+	gLogger->log(LogManager::DEBUG,"Incomming CSR Command: %u", opcode);
 
 
 	if(it != mCommandMap.end())
 		(this->*((*it).second))(message,client);
 	else
-		gLogger->logMsgF("Unhandled DispatchMsg %u",MSG_NORMAL,opcode);
+		gLogger->log(LogManager::DEBUG,"Unhandled DispatchMsg %u",opcode);
 }
 
 //======================================================================================================================
@@ -220,7 +220,7 @@ void CSRManager::handleDispatchMessage(uint32 opcode,Message* message,DispatchCl
 void CSRManager::_processConnectPlayerMessage(Message* message, DispatchClient* client)
 {
 	uint32 errorcode = message->getUint32();
-	gLogger->logMsgF("CSRManager::_processConnectPlayer, Errorcode: %u\n", MSG_NORMAL, errorcode);
+	gLogger->log(LogManager::DEBUG,"CSRManager::_processConnectPlayer, Errorcode: %u\n", errorcode);
 	gChatMessageLib->sendConnectPlayerResponseMessage(client);
 }
 
@@ -228,7 +228,7 @@ void CSRManager::_processConnectPlayerMessage(Message* message, DispatchClient* 
 
 void CSRManager::_processAppendCommentMessage( Message* message, DispatchClient* client )
 {
-	gLogger->logMsg("CSRManager::_processAppendCommentMessage");
+	gLogger->log(LogManager::DEBUG,"CSRManager::_processAppendCommentMessage");
 	string poster;
 	string comment;
 
@@ -324,7 +324,6 @@ void CSRManager::_processGetArticleMessage(Message *message, DispatchClient* cli
 
 void CSRManager::_processGetCommentsMessage(Message *message, DispatchClient* client)
 {
-	//gLogger->logMsg("CSRManager::_processGetCommentsMessage\n");
 	uint32 ticketid = message->getUint32();
 
 	CSRAsyncContainer* asyncContainer = new CSRAsyncContainer(CSRQuery_CommentsByTicket);
@@ -336,7 +335,6 @@ void CSRManager::_processGetCommentsMessage(Message *message, DispatchClient* cl
 
 void CSRManager::_processGetTicketsMessage(Message *message, DispatchClient* client)
 {
-	//gLogger->logMsg("CSRManager::_processGetTicketsMessage\n");
 	CSRAsyncContainer* asyncContainer = new CSRAsyncContainer(CSRQuery_Tickets);
 	asyncContainer->mClient = client;
 
@@ -347,7 +345,7 @@ void CSRManager::_processGetTicketsMessage(Message *message, DispatchClient* cli
 
 void CSRManager::_processNewTicketActivityMessage(Message *message, DispatchClient* client)
 {
-	gLogger->logMsg("CSRManager::_processNewTicketActivityMessage\n");
+	gLogger->log(LogManager::DEBUG,"CSRManager::_processNewTicketActivityMessage\n");
 	CSRAsyncContainer* asyncContainer = new CSRAsyncContainer(CSRQuery_TicketActivity);
 	asyncContainer->mClient = client;
 
@@ -360,7 +358,7 @@ void CSRManager::_processRequestCategoriesMessage(Message *message, DispatchClie
 {
 	string language;
 	message->getStringAnsi(language);
-	gLogger->logMsgF("CSRManager::_processRequestCategoriesMessage %s\n", MSG_NORMAL, language.getAnsi());
+	gLogger->log(LogManager::DEBUG,"CSRManager::_processRequestCategoriesMessage %s\n", language.getAnsi());
 	gChatMessageLib->sendRequestCategoriesResponseMessage(client, &mCategoryList);
 
 }
@@ -369,7 +367,6 @@ void CSRManager::_processRequestCategoriesMessage(Message *message, DispatchClie
 
 void CSRManager::_processSearchKnowledgeBaseMessage(Message *message, DispatchClient* client)
 {
-	//gLogger->logMsg("CSRManager::_processSearchKnowledgeBaseMessage\n");
 	string search;
 	message->getStringUnicode16(search);
 	search.convert(BSTRType_ANSI);

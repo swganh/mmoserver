@@ -222,59 +222,49 @@ void TradeManagerChatHandler::handleDispatchMessage(uint32 opcode, Message* mess
 		case opGetCommoditiesTypeList:
 		{
 			//_ProcessRequestTypeList(message,client);
-			//gLogger->logMsgF("opCommoditiesTypeList:: handled opcode %u : sendTypeList",MSG_NORMAL,opcode);
 		}
 		break;
 		case opProcessCreateAuction:
 		{
 			ProcessCreateAuction(message,client);
-			//gLogger->logMsgF("opProcessCreateAuction::handleDispatchMessage: handled opcode %u",MSG_NORMAL,opcode);
-
 		}
 		break;
 		case opRetrieveAuctionItemMessage:
 		{
 			processRetrieveAuctionItemMessage(message,client);
-			//gLogger->logMsgF("opRetrieveAuctionItemMessage::handleDispatchMessage: handled opcode %u",MSG_NORMAL,opcode);
 		}
 		break;
 
 		case opBidAuctionMessage:
 		{
 			processBidAuctionMessage(message,client);
-			//gLogger->logMsgF("opBidAuctionAcceptedMessage",MSG_NORMAL);
 		}
 		break;
 		case opCancelLiveAuctionMessage:
 		{
 			processCancelLiveAuctionMessage(message,client);
-			//gLogger->logMsgF("opCanceLiveAuctionMessage::handleDispatchMessage:",MSG_NORMAL);
 		}
 		break;
 		case opIsVendorMessage:
 		{
 			processHandleIsVendorMessage(message,client);
-			//gLogger->logMsgF("opIsVendorMessage::handleDispatchMessage: handled opcode %u",MSG_NORMAL,opcode);
 		}
 		break;
 
 		case opGetAuctionDetails:
 		{
 			processGetAuctionDetails(message,client);
-			//gLogger->logMsgF("opGetAuctionDetails::handleDispatchMessage: handled opcode %u",MSG_NORMAL,opcode);
 		}
 		break;
 
 		case opAuctionQueryHeadersMessage:
 		{
 			processHandleopAuctionQueryHeadersMessage(message,client);
-			//gLogger->logMsgF("opIsVendorMessage::handleDispatchMessage: handled opcode %u",MSG_NORMAL,opcode);
-
 		}
 		break;
 
 		default:
-			gLogger->logMsgF("TradeManagerMessage::handleDispatchMessage: Unhandled opcode %u",MSG_NORMAL,opcode);
+			gLogger->log(LogManager::NOTICE, "TradeManagerMessage::handleDispatchMessage: Unhandled opcode %u",opcode);
 		break;
 	}
 }
@@ -309,7 +299,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
 			player = (*accIt).second;
 		else
 		{
-			gLogger->logMsgF("Error getting player from account map %u",MSG_NORMAL,asynContainer->mClient->getAccountId());
+			gLogger->log(LogManager::WARNING,"Error getting player from account map %u",asynContainer->mClient->getAccountId());
 			return;
 		}
 	}
@@ -639,7 +629,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
 				else
 				{
 					gChatMessageLib->sendCanceLiveAuctionResponseMessage(asynContainer->mClient, 1,asynContainer->AuctionID);
-					gLogger->logMsgF("TradeManager::TRMQuery_CancelAuction::Aucction not found : %I64u",MSG_NORMAL,asynContainer->AuctionID);
+					gLogger->log(LogManager::NOTICE,"TradeManager::TRMQuery_CancelAuction::Aucction not found : %I64u",asynContainer->AuctionID);
 
 				}
 			}
@@ -937,7 +927,6 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
 					//do we need to refund money???
 					if(auctionTemp->AuctionTyp == TRMVendor_Auction)
 					{
-						//gLogger->logMsgF("check refund",MSG_NORMAL);
 						//read in the bidhistory and iterate through the bidders of the auction
 						//refund money to everybody but the winning bidder
 
@@ -1052,7 +1041,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
 					//_processAuctionBid(AuctionTemp,asynContainer,player);
 					TradeManagerAsyncContainer* asyncContainer;
 
-					gLogger->logMsgF("TMR query bidauction",MSG_NORMAL);
+					gLogger->log(LogManager::DEBUG,"TMR query bidauction");
 					int8 name[40],*sqlPointer;
 					sqlPointer = name;
 					sqlPointer += mDatabase->Escape_String(name,AuctionTemp->bidder_name,strlen(AuctionTemp->bidder_name));
@@ -1121,7 +1110,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
 	if(mBazaarsLoaded)
 	{
 		mBazaarsLoaded = false;
-		gLogger->logMsgF("Loaded %u bazaars ",MSG_NORMAL,mBazaarCount);
+		gLogger->log(LogManager::DEBUG, "Loaded %u bazaars ",mBazaarCount);
 	}
 
 }
@@ -1130,7 +1119,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
 
 void TradeManagerChatHandler::processAuctionEMails(AuctionItem* auctionTemp)
 {
-	gLogger->logMsgF("processAuctionEMails",MSG_NORMAL);
+	gLogger->log(LogManager::DEBUG,"processAuctionEMails");
 	Bazaar* mBazaarInfo = getBazaarInfo(auctionTemp->BazaarID);
 
 	char *Token;
@@ -1158,7 +1147,7 @@ void TradeManagerChatHandler::processAuctionEMails(AuctionItem* auctionTemp)
 	if(auctionTemp->AuctionTyp == TRMVendor_Instant)
 	{
 		//any instant getting here has not been purchased
-		gLogger->logMsgF("trade manager vendor instant",MSG_NORMAL);
+		gLogger->log(LogManager::DEBUG,"trade manager vendor instant");
 		atMacroString* aMS = new atMacroString();
 
 		aMS->addMBstf("auction","seller_fail");
@@ -1176,13 +1165,13 @@ void TradeManagerChatHandler::processAuctionEMails(AuctionItem* auctionTemp)
 		//mail->setAttachments(attachment);
 
 		gChatManager->sendSystemMailMessage(mail,auctionTemp->OwnerID);
-		gLogger->logMsgF("trade manager vendor instant ended",MSG_NORMAL);
+		gLogger->log(LogManager::DEBUG,"trade manager vendor instant ended");
 
 	}
 
 	if(auctionTemp->AuctionTyp == TRMVendor_Auction)
 	{
-		gLogger->logMsgF("trm vendor auction",MSG_NORMAL);
+		gLogger->log(LogManager::DEBUG,"trm vendor auction");
 		//has it been sold??
 		if(auctionTemp->BidderID == 0)
 		{
@@ -1266,7 +1255,7 @@ void TradeManagerChatHandler::processAuctionEMails(AuctionItem* auctionTemp)
 
 	if(auctionTemp->AuctionTyp == TRMVendor_Ended)
 	{
-		gLogger->logMsgF("trm vendor auction ended",MSG_NORMAL);
+		gLogger->log(LogManager::DEBUG,"trm vendor auction ended");
 		//auction is ended and stored longer than the time limit so it gets deleted
 		atMacroString* aMS = new atMacroString();
 
@@ -1421,7 +1410,7 @@ void TradeManagerChatHandler::ProcessCreateAuction(Message* message,DispatchClie
 		player = (*accIt).second;
 	else
 	{
-		gLogger->logMsgF("Error getting player from account map %u",MSG_NORMAL,client->getAccountId());
+		gLogger->log(LogManager::EMERGENCY,"Error getting player from account map %u",client->getAccountId());
 		return;
 	}
 
@@ -1462,7 +1451,7 @@ void TradeManagerChatHandler::processRetrieveAuctionItemMessage(Message* message
 		player = (*accIt).second;
 	else
 	{
-		gLogger->logMsgF("Error getting player from account map %u",MSG_NORMAL,client->getAccountId());
+		gLogger->log(LogManager::EMERGENCY,"Error getting player from account map %u",client->getAccountId());
 		return;
 	}
 
@@ -1492,7 +1481,7 @@ void TradeManagerChatHandler::processBidAuctionMessage(Message* message,Dispatch
 		player = (*accIt).second;
 	else
 	{
-		gLogger->logMsgF("processBidAuctionMessage :: Error getting the player from account map %u",MSG_NORMAL,client->getAccountId());
+		gLogger->log(LogManager::EMERGENCY,"processBidAuctionMessage :: Error getting the player from account map %u",client->getAccountId());
 		return;
 	}
 
@@ -1543,7 +1532,7 @@ void TradeManagerChatHandler::processCancelLiveAuctionMessage(Message* message,D
 		player = (*accIt).second;
 	else
 	{
-		gLogger->logMsgF("Error getting player from account map %u",MSG_NORMAL,client->getAccountId());
+		gLogger->log(LogManager::EMERGENCY,"Error getting player from account map %u",client->getAccountId());
 		return;
 	}
 
@@ -1575,7 +1564,7 @@ void TradeManagerChatHandler::processGetAuctionDetails(Message* message,Dispatch
 		player = (*accIt).second;
 	else
 	{
-		gLogger->logMsgF("Error getting player from account map %u",MSG_NORMAL,client->getAccountId());
+		gLogger->log(LogManager::EMERGENCY,"Error getting player from account map %u",client->getAccountId());
 		return;
 	}
 
@@ -1609,7 +1598,7 @@ void TradeManagerChatHandler::processHandleopAuctionQueryHeadersMessage(Message*
 		player = (*accIt).second;
 	else
 	{
-		gLogger->logMsgF("Error getting player from account map ",MSG_NORMAL);
+		gLogger->log(LogManager::EMERGENCY,"Error getting player from account map");
 		return;
 	}
 	//squeeze our Packet for all usefull information
@@ -1698,8 +1687,6 @@ void TradeManagerChatHandler::processHandleopAuctionQueryHeadersMessage(Message*
 			//strcat(query.WindowQuery,tmp);
 			//sprintf(sql,"SELECT c.auction_id, owner_id, c.bazaar_id, type, start, premium, category, itemtype, price, name, description, c.region_id, c.bidder_name, c.planet_id, firstname, bazaar_string, cbh.proxy_bid, cbh.max_bid FROM swganh.commerce_auction c INNER JOIN swganh.characters ch on (c.owner_id = ch.id) INNER join swganh.commerce_bazaar cb ON (cb.bazaar_id = c.bazaar_id) inner join swganh.commerce_bidhistory cbh ON (cbh.auction_id = c.auction_id) AND c.owner_id = ch.id WHERE");
 
-
-			//gLogger->logMsgF("trm vendor my bids",MSG_NORMAL);
 			sprintf(query.WindowQuery," ((c.type = %"PRIu32") or (c.type = %"PRIu32")) AND",TRMVendor_Auction,TRMVendor_Instant);
 			int8 tmp[128],end[128],*sqlPointer;
 			sprintf(tmp," (cbh.bidder_name = '");
@@ -1730,7 +1717,7 @@ void TradeManagerChatHandler::processHandleopAuctionQueryHeadersMessage(Message*
 		break;
 		case TRMVendor_ForSale:
 		{
-			gLogger->logMsgF("trm vendor for sale",MSG_NORMAL);
+			gLogger->log(LogManager::DEBUG,"trm vendor for sale");
 			sprintf(query.WindowQuery," ((c.type = %"PRIu32") or (c.type = %"PRIu32")) AND",TRMVendor_Auction,TRMVendor_Instant);
 			int8 tmp[128],end[128],*sqlPointer;
 			sprintf(tmp," (c.bidder_name = '");
@@ -1843,7 +1830,6 @@ void TradeManagerChatHandler::ProcessRequestTypeList(Message* message,DispatchCl
 		player = (*accIt).second;
 	else
 	{
-		gLogger->logMsgF("Error getting player from account map %u",MSG_NORMAL,client->getAccountId());
 		return;
 	}
 
@@ -1900,7 +1886,7 @@ void TradeManagerChatHandler::processHandleIsVendorMessage(Message* message,Disp
 		player = (*accIt).second;
 	else
 	{
-		gLogger->logMsgF("Error getting player from account map %u",MSG_NORMAL,client->getAccountId());
+		gLogger->log(LogManager::EMERGENCY,"Error getting player from account map %u",client->getAccountId());
 		return;
 	}
 
@@ -1917,7 +1903,7 @@ void TradeManagerChatHandler::processHandleIsVendorMessage(Message* message,Disp
 
 	if (mBazaarString == ""){
 		error = 1;
-		gLogger->logMsgF("TradeManager::_processIsVendorRequest: Planet  %u : Vendor %I64u not found in db",MSG_HIGH,player->getPlanetId(),mVendorId);
+		gLogger->log(LogManager::DEBUG,"TradeManager::_processIsVendorRequest: Planet  %u : Vendor %I64u not found in db",player->getPlanetId(),mVendorId);
 	}
 
 	//permission hardcoded as 2 until player Vendors are in
@@ -1959,7 +1945,6 @@ void TradeManagerChatHandler::handleCheckAuctions()
 
 	//sprintf(sql,"CALL sp_CommerceFindExpiredListing()");
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
-	//gLogger->logMsgF("TradeManagerChatHandler::handleCheckAuctions()",MSG_NORMAL);
 }
 
 //=======================================================================================================================
@@ -2004,7 +1989,7 @@ void TradeManagerChatHandler::processTimerEvents()
 			break;
 
 			default:
-				gLogger->logMsgF("WorldManager::processTimerEvents: Unknown Timer %u",MSG_HIGH,id);
+				gLogger->log(LogManager::DEBUG,"WorldManager::processTimerEvents: Unknown Timer %u",id);
 			break;
 		}
 
@@ -2032,7 +2017,7 @@ void TradeManagerChatHandler::ProcessBankTip(Message* message,DispatchClient* cl
 		player = (*accIt).second;
 	else
 	{
-		gLogger->logMsgF("Error getting player from account map %u",MSG_NORMAL,client->getAccountId());
+		gLogger->log(LogManager::EMERGENCY,"Error getting player from account map %u",client->getAccountId());
 		return;
 	}
 

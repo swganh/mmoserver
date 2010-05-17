@@ -244,7 +244,6 @@ CampTerminal* NonPersistantObjectFactory::spawnTerminal(StructureItemTemplate* p
 
 	//tangible->setOwner(player->getId());
 	
-	//gLogger->logMsgF("place %s",MSG_HIGH,placableTemplate->structureObjectString.getAnsi());
 	terminal->setModelString(placableTemplate->structureObjectString);
 
 	//create it in the world
@@ -319,9 +318,6 @@ PlayerStructure* NonPersistantObjectFactory::requestBuildingFenceObject(float x,
 	structure->setId(gWorldManager->getRandomNpId());
 
 	//tangible->setOwner(player->getId());
-	
-	//gLogger->logMsgF("place %s",MSG_HIGH,placableTemplate->structureObjectString.getAnsi());
-	
 
 	//create it in the world
 	structure->setModelString("object/installation/base/shared_construction_installation_base.iff");
@@ -360,7 +356,6 @@ PlayerStructure* NonPersistantObjectFactory::requestBuildingSignObject(float x, 
 
 	//tangible->setOwner(player->getId());
 	
-	//gLogger->logMsgF("place %s",MSG_HIGH,placableTemplate->structureObjectString.getAnsi());
 	structure->setModelString("object/static/structure/tatooine/shared_streetsign_wall_style_01.iff");
 	
 

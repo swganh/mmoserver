@@ -253,8 +253,6 @@ void FireworkShow::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
 					float delay = event.delay;
 					delay/=10;
-					gLogger->logMsgF("Delay: %0.1f",MSG_NORMAL,delay);
-
 
 					sprintf(text,"(%i:%0.1fs) %s",fireworkNumber++,delay,_getType(event.typeId).getAnsi());
 
@@ -309,9 +307,8 @@ void FireworkShow::handleUIEvent(uint32 action,int32 element,string inputStr,UIW
 					dynamic_cast<Inventory*>(window->getOwner()->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->deleteObject(item);
 				}
 
-/*				gLogger->logMsgF("array size:%i element:%i",MSG_NORMAL,_getInventoryFireworks(window->getOwner())->size(),element);
+/*
 				Item* item = dynamic_cast<Item*>(_getInventoryFireworks(window->getOwner())->at(element));
-				gLogger->logMsgF("Firework added: element:%i, customname:%s",MSG_NORMAL,element,item->getCustomName().getAnsi());
 				dynamic_cast<Firework*>(item)->setDelay(1000);
 				objList->push_back(item);	*/	/*		
 
@@ -357,7 +354,7 @@ void FireworkShow::handleUIEvent(string strAvailable, string strDelay, UIWindow*
 	//uint32 delay = atoi(strDelay.getAnsi());
 	strDelay.convert(BSTRType_ANSI);
 	int32 delay = atoi(strDelay.getAnsi());
-	gLogger->logMsgF("strDealay atoi = %i",MSG_NORMAL,delay);
+	gLogger->log(LogManager::DEBUG,"strDealay atoi = %i",delay);
 	fireworkShowList.at(this->fireworkShowListModify).delay = delay;
 
 }

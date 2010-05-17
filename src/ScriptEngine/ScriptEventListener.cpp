@@ -52,11 +52,11 @@ void ScriptEventListener::registerFunction(const int8* functionName)
 
 	if(scriptList)
 	{
-		gLogger->logMsgF("ScriptEventListener Error: function already registered %s",MSG_NORMAL,functionName);
+		gLogger->log(LogManager::NOTICE, "Script Event Listener: function already registered %s", functionName);
 		return;
 	}
 
-	gLogger->logMsgF("ScriptEventListener:registered function %s",MSG_LOW,functionName);
+	gLogger->log(LogManager::DEBUG, "Script Event Listener:registered function %s",functionName);
 
 	mScriptListMap.insert(std::make_pair(functionName,new ScriptList));
 
@@ -70,7 +70,7 @@ void ScriptEventListener::unregisterFunction(const int8* functionName)
 
 	if(!scriptList)
 	{
-		gLogger->logMsgF("ScriptEventListener Error: unregisterFunction could not find %s",MSG_NORMAL,functionName);
+		gLogger->log(LogManager::NOTICE, "Script Event Listener could not find %s to unregister.", functionName);
 		return;
 	}
 
@@ -99,7 +99,7 @@ void ScriptEventListener::registerScript(Script* script,const int8* functionName
 
 	if(!scriptList)
 	{
-		gLogger->logMsgF("ScriptEventListener Error: no function mapped for %s",MSG_NORMAL,functionName);
+		gLogger->log(LogManager::NOTICE,"Script Event Listener: No function mapped for %s",functionName);
 		return;
 	}
 
@@ -117,12 +117,11 @@ void ScriptEventListener::unregisterScript(Script* script)
 
 void ScriptEventListener::handleScriptEvent(const int8* functionName,string params)
 {
-	// gLogger->logMsgF("ScriptEventListener Entering with function name %s and param = %s",MSG_NORMAL,functionName, params.getAnsi());
 	ScriptList* scriptList = getScriptList(functionName);
 
 	if(!scriptList)
 	{
-		gLogger->logMsgF("ScriptEventListener Error: no function mapped for %s",MSG_NORMAL,functionName);
+		gLogger->log(LogManager::NOTICE, "Script Event Listener: No function mapped for %s",functionName);
 		return;
 	}
 

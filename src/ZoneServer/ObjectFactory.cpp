@@ -100,7 +100,7 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asyncContainer->PlayerId));
 			if(!result->getRowCount())
 			{
-				gLogger->logMsg("ObjFactory::handleDatabaseJobComplete   :  create house failed : no result");
+				gLogger->log(LogManager::DEBUG,"ObjFactory::handleDatabaseJobComplete   :  create house failed : no result");
 				break;
 			}
 
@@ -112,7 +112,7 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 			if(!requestId)
 			{
-				gLogger->logMsg("ObjFactory::handleDatabaseJobComplete   :  create house failed : result is 0");
+				gLogger->log(LogManager::DEBUG,"ObjFactory::handleDatabaseJobComplete   :  create house failed : result is 0");
 			}
 			mHouseFactory->requestObject(asyncContainer->ofCallback,requestId,0,0,asyncContainer->client);
 
@@ -148,7 +148,7 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asyncContainer->PlayerId));
 			if(!result->getRowCount())
 			{
-				gLogger->logMsg("ObjFactory::handleDatabaseJobComplete   :  create Factory failed : no result");
+				gLogger->log(LogManager::DEBUG,"ObjFactory::handleDatabaseJobComplete   :  create Factory failed : no result");
 				break;
 			}
 
@@ -160,7 +160,7 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 			if(!requestId)
 			{
-				gLogger->logMsg("ObjFactory::handleDatabaseJobComplete   :  create Factory failed : result is 0");
+				gLogger->log(LogManager::DEBUG,"ObjFactory::handleDatabaseJobComplete   :  create Factory failed : result is 0");
 			}
 			mFactoryFactory->requestObject(asyncContainer->ofCallback,requestId,0,0,asyncContainer->client);
 
@@ -195,7 +195,7 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 		{
 			if(!result->getRowCount())
 			{
-				gLogger->logMsg("ObjFactory::handleDatabaseJobComplete   :  create Harvester failed");
+				gLogger->log(LogManager::DEBUG,"ObjFactory::handleDatabaseJobComplete   :  create Harvester failed");
 				break;
 			}
 
@@ -236,7 +236,7 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
 			}
 			else
-				gLogger->logMsg("ObjFactory::handleDatabaseJobComplete   :  create Harvester failed");
+				gLogger->log(LogManager::DEBUG,"ObjFactory::handleDatabaseJobComplete   :  create Harvester failed");
 		}
 		break;
 
@@ -251,7 +251,7 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			if(requestId)
 				mWaypointFactory->requestObject(asyncContainer->ofCallback,requestId,0,0,asyncContainer->client);
 			else
-				gLogger->logMsg("ObjFactory::createWaypoint failed");
+				gLogger->log(LogManager::DEBUG,"ObjFactory::createWaypoint failed");
 		}
 		break;
 
@@ -266,7 +266,7 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			if(requestId)
 				mTangibleFactory->requestObject(asyncContainer->ofCallback,requestId,TanGroup_Item,0,asyncContainer->client);
 			else
-				gLogger->logMsg("ObjFactory::createItem failed");
+				gLogger->log(LogManager::DEBUG,"ObjFactory::createItem failed");
 		}
 		break;
 
@@ -281,7 +281,7 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			if(requestId)
 				mTangibleFactory->requestObject(asyncContainer->ofCallback,requestId,TanGroup_ResourceContainer,0,asyncContainer->client);
 			else
-				gLogger->logMsg("ObjFactory::createResourceContainer failed");
+				gLogger->log(LogManager::DEBUG,"ObjFactory::createResourceContainer failed");
 		}
 		break;
 
@@ -439,11 +439,11 @@ void ObjectFactory::requestnewHarvesterbyDeed(ObjectFactoryCallback* ofCallback,
 	}
 
 
-	gLogger->logMsgF("New Harvester dir is %f, x:%f, y:%f, z:%f, w:%f",MSG_HIGH,dir,oX, oY, oZ, oW);
+	gLogger->log(LogManager::DEBUG,"New Harvester dir is %f, x:%f, y:%f, z:%f, w:%f",dir,oX, oY, oZ, oW);
 
 	sprintf(sql,"SELECT sf_DefaultHarvesterCreate(%u,0,%"PRIu64",%u,%f,%f,%f,%f,%f,%f,%f,'%s',%I64u)",deedLink->structure_type, player->getId(), gWorldManager->getZoneId(),oX,oY,oZ,oW,x,y,z,customName.getAnsi(),deed->getId());
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
-	gLogger->logMsgF(sql,MSG_HIGH);
+	gLogger->log(LogManager::DEBUG,sql);
 
 }
 
@@ -501,11 +501,11 @@ void ObjectFactory::requestnewFactorybyDeed(ObjectFactoryCallback* ofCallback,De
 	}
 
 
-	gLogger->logMsgF("New Factory dir is %f, x:%f, y:%f, z:%f, w:%f",MSG_HIGH,dir,oX, oY, oZ, oW);
+	gLogger->log(LogManager::DEBUG,"New Factory dir is %f, x:%f, y:%f, z:%f, w:%f",dir,oX, oY, oZ, oW);
 
 	sprintf(sql,"SELECT sf_DefaultFactoryCreate(%u,0,%"PRIu64",%u,%f,%f,%f,%f,%f,%f,%f,'%s',%I64u)",deedLink->structure_type, player->getId(), gWorldManager->getZoneId(),oX,oY,oZ,oW,x,y,z,customName.getAnsi(),deed->getId());
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
-	gLogger->logMsgF(sql,MSG_HIGH);
+	gLogger->log(LogManager::DEBUG,sql);
 
 }
 
@@ -559,11 +559,11 @@ void ObjectFactory::requestnewHousebyDeed(ObjectFactoryCallback* ofCallback,Deed
 	}
 
 
-	gLogger->logMsgF("New House dir is %f, x:%f, y:%f, z:%f, w:%f",MSG_HIGH,dir,oX, oY, oZ, oW);
+	gLogger->log(LogManager::DEBUG,"New House dir is %f, x:%f, y:%f, z:%f, w:%f",dir,oX, oY, oZ, oW);
 
 	sprintf(sql,"SELECT sf_DefaultHouseCreate(%u,0,%"PRIu64",%u,%f,%f,%f,%f,%f,%f,%f,'%s',%I64u)",deedLink->structure_type, player->getId(), gWorldManager->getZoneId(),oX,oY,oZ,oW,x,y,z,customName.getAnsi(),deed->getId());
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
-	gLogger->logMsgF(sql,MSG_HIGH);
+	gLogger->log(LogManager::DEBUG,sql);
 }
 
 //=============================================================================
@@ -933,7 +933,7 @@ void ObjectFactory::requestObject(ObjectType objType,uint16 subGroup,uint16 subT
 		break;
 
 		default:
-			gLogger->logMsg("ObjectFactory::requestObject Unknown Object type");
+			gLogger->log(LogManager::DEBUG,"ObjectFactory::requestObject Unknown Object type");
 		break;
 	}
 }

@@ -158,12 +158,12 @@ void ObjectController::_handleAdminSysMsg(uint64 targetId,Message* message,Objec
 		// gMessageLib->sendSystemMessage(player, dataStr, true);
 
 		dataStr.convert(BSTRType_ANSI);
-		gLogger->logMsgF("Admin (%s): %s", MSG_NORMAL, player->getFirstName().getAnsi(), dataStr.getAnsi());
+		gLogger->log(LogManager::DEBUG,"Admin (%s): %s", player->getFirstName().getAnsi(), dataStr.getAnsi());
 	}
 	else
 	{
 		dataStr.convert(BSTRType_ANSI);
-		gLogger->logMsgF("Admin (anon): %s", MSG_NORMAL, dataStr.getAnsi());
+		gLogger->log(LogManager::DEBUG,"Admin (anon): %s", dataStr.getAnsi());
 	}
 
 	int8 rawData[128];
@@ -175,7 +175,6 @@ void ObjectController::_handleAdminSysMsg(uint64 targetId,Message* message,Objec
 		string adminCommand(rawData);
 		if (elementCount > 0)
 		{
-			// gLogger->logMsgF("Command = %s", MSG_NORMAL, adminCommand.getAnsi());
 			int32 commandIndex = this->getAdminCommandFunction(adminCommand);
 			if (commandIndex >= 0)
 			{
@@ -195,8 +194,6 @@ void ObjectController::_handleAdminSysMsg(uint64 targetId,Message* message,Objec
 				newCommandString.setLength(adminCommands[commandIndex].command.getLength() + ansiData.getLength() + 1);
 				sprintf(newCommandString.getAnsi(),"%s %s", adminCommands[commandIndex].command.getAnsi(), ansiData.getAnsi());
 
-				// gLogger->logMsgF("_handleAdminSysMsg() New message = %s", MSG_NORMAL, newCommandString.getAnsi());
-
 				// Execute the command.
 				string opcodeStr(adminCommands[commandIndex].command);
 				opcodeStr.toLower();
@@ -207,7 +204,6 @@ void ObjectController::_handleAdminSysMsg(uint64 targetId,Message* message,Objec
 				gMessageFactory->addUint32(0);						// clientTicks, We do not have these, here.
 				gMessageFactory->addUint32(0);						// sequence number, we really need this
 				gMessageFactory->addUint32(opcodeStr.getCrc());		// opCode for new command.
-				// gLogger->logMsgF("_handleAdminSysMsg() New opcode = 0x%8x",MSG_NORMAL, opcodeStr.getCrc());
 				gMessageFactory->addUint64(targetId);
 				gMessageFactory->addString(newCommandString);
 				Message* newMessage = gMessageFactory->EndMessage();
@@ -265,8 +261,6 @@ void ObjectController::_handleBroadcast(uint64 targetId, Message* message, Objec
 
 string ObjectController::handleBroadcast(string message) const
 {
-
-	// gLogger->logMsgF("ObjectController::_handleBroadcast() Handling message <%s>", MSG_NORMAL, message.getAnsi());
 	int8 rawData[128];
 
 	int8* replyStr = "OK";
@@ -327,8 +321,6 @@ void ObjectController::_handleBroadcastPlanet(uint64 targetId, Message* message,
 
 string ObjectController::handleBroadcastPlanet(string message) const
 {
-	// gLogger->logMsgF("ObjectController::handleBroadcastPlanet() Handling message <%s>", MSG_NORMAL, message.getAnsi());
-
 	// Get planet name
 	int8 rawData[128];
 	rawData[0] = 0;
@@ -356,7 +348,6 @@ string ObjectController::handleBroadcastPlanet(string message) const
 				if (elementCount > 0)
 				{
 					// string planetName(gWorldManager->getPlanetNameById(planetId));
-					// gLogger->logMsgF("ObjectController::_handleBroadcastPlanet() Sending System Message %s to planet %s", MSG_NORMAL, ansiData.getAnsi(), planetName.getAnsi());
 
 					this->broadcastGalaxyMessage(ansiData, planetId);
 					sprintf(rawData,"OK");
@@ -379,7 +370,6 @@ string ObjectController::handleBroadcastPlanet(string message) const
 	else
 	{
 		sprintf(rawData,"Missing planet name");
-		// gLogger->logMsgF("ObjectController::_handleBroadcastPlanet() No planet name supplied", MSG_NORMAL);
 	}
 	return rawData;
 }
@@ -411,7 +401,6 @@ void ObjectController::_handleBroadcastGalaxy(uint64 targetId, Message* message,
 
 string ObjectController::handleBroadcastGalaxy(string message) const
 {
-	// gLogger->logMsgF("ObjectController::handleBroadcastGalaxy() Handling message %s", MSG_NORMAL, message.getAnsi());
 	int8* replyStr = "OK";
 
 	int8 rawData[128];
@@ -430,19 +419,16 @@ string ObjectController::handleBroadcastGalaxy(string message) const
 		int32 elementCount = sscanf(ansiData.getAnsi(), "%80s", rawData);
 		if (elementCount > 0)
 		{
-			// gLogger->logMsgF("ObjectController::handleBroadcastGalaxy() Sending System Message %s to Galaxy", MSG_NORMAL, ansiData.getAnsi());
 			this->broadcastGalaxyMessage(ansiData, -1);
 		}
 		else
 		{
 			replyStr = "No broadcast supplied";
-			// gLogger->logMsgF("ObjectController::handleBroadcastGalaxy() No message supplied", MSG_NORMAL);
 		}
 	}
 	else
 	{
 		replyStr = "No valid broadcast supplied";
-		// gLogger->logMsgF("ObjectController::handleBroadcastGalaxy() No message supplied or invalid input", MSG_NORMAL);
 	}
 	return replyStr;
 }
@@ -476,7 +462,6 @@ void ObjectController::_handleShutdownGalaxy(uint64 targetId, Message* message, 
 
 string ObjectController::handleShutdownGalaxy(string message) const
 {
-	// gLogger->logMsgF("ObjectController::handleShutdownGalaxy() Handling message %s", MSG_NORMAL, message.getAnsi());
 	int8 replyData[128];
 
 	if (AdminManager::Instance()->shutdownPending())
@@ -516,27 +501,17 @@ string ObjectController::handleShutdownGalaxy(string message) const
 				// Any valid message?
 				int8 rawData[128];
 				elementCount = sscanf(ansiData.getAnsi(), "%80s", rawData);
-				if (elementCount > 0)
-				{
-					// gLogger->logMsgF("ObjectController::handleShutdownGalaxy() Activating scheduled shutdown in %d minutes, with optional message %s", MSG_NORMAL, minutesToShutdown, ansiData.getAnsi());
-				}
-				else
-				{
-					// gLogger->logMsgF("ObjectController::handleShutdownGalaxy() Activating scheduled shutdown in %d minutes, without any optional message", MSG_NORMAL, minutesToShutdown);
-				}
 				// Send request to all zones, via chatserver.
 				this->scheduleShutdown(minutesToShutdown*60, ansiData);
 			}
 			else
 			{
 				sprintf(replyData,"%d is not valid shutdown time", minutesToShutdown);
-				// gLogger->logMsgF("ObjectController::handleShutdownGalaxy() Not a valid shuttdown time, %d", MSG_NORMAL, minutesToShutdown);
 			}
 		}
 		else
 		{
 			sprintf(replyData,"No shutdown time supplied");
-			// gLogger->logMsgF("ObjectController::handleShutdownGalaxy() No planet name supplied", MSG_NORMAL);
 		}
 	}
 	return replyData;
@@ -570,7 +545,6 @@ void ObjectController::_handleCancelShutdownGalaxy(uint64 targetId, Message* mes
 
 string ObjectController::handleCancelShutdownGalaxy(string message) const
 {
-	// gLogger->logMsgF("ObjectController::handleShutdownGalaxy() Handling message %s", MSG_NORMAL, message.getAnsi());
 	int8 replyData[128];
 
 	if (!AdminManager::Instance()->shutdownPending())
@@ -614,8 +588,6 @@ string ObjectController::handleCancelShutdownGalaxy(string message) const
 
 void ObjectController::broadcastGalaxyMessage(string theBroadcast, int32 planetId) const
 {
-	// gLogger->logMsgF("ObjectController::handleBroadcastGalaxy() Handling message %s", MSG_NORMAL, theBroadcast.getAnsi());
-
 	if (theBroadcast.getLength())
 	{
 		PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
@@ -635,7 +607,6 @@ void ObjectController::broadcastGalaxyMessage(string theBroadcast, int32 planetI
 
 			// Convert since we are going to print it.
 			// theBroadcast.convert(BSTRType_ANSI);
-			// gLogger->logMsgF("ObjectController::handleBroadcastGalaxy() Sending System Message %s to the galaxy", MSG_NORMAL, theBroadcast.getAnsi());
 		}
 	}
 
@@ -649,7 +620,6 @@ void ObjectController::broadcastGalaxyMessage(string theBroadcast, int32 planetI
 
 void ObjectController::scheduleShutdown(int32 scheduledTime, string shutdownReason) const
 {
-	// gLogger->logMsgF("ObjectController::scheduleShutdown() Handling message %s", MSG_NORMAL, theBroadcast.getAnsi());
 
 	PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
 	if (player)
@@ -771,13 +741,13 @@ void ObjectController::sendAdminFeedback(string reply) const
 	{
 		if (reply.getLength())
 		{
-			gLogger->logMsgF("Admin (%s): %s", MSG_NORMAL, player->getFirstName().getAnsi(), reply.getAnsi());
+			gLogger->log(LogManager::NOTICE,"Admin (%s): %s", player->getFirstName().getAnsi(), reply.getAnsi());
 			reply.convert(BSTRType_Unicode16);
 			gMessageLib->sendSystemMessage(player, reply, true);
 		}
 		else
 		{
-			gLogger->logMsgF("Admin (%s):", MSG_NORMAL, player->getFirstName().getAnsi());
+			gLogger->log(LogManager::NOTICE,"Admin (%s):", player->getFirstName().getAnsi());
 			reply.convert(BSTRType_Unicode16);
 			gMessageLib->sendSystemMessage(player, reply , true);
 		}
@@ -786,11 +756,11 @@ void ObjectController::sendAdminFeedback(string reply) const
 	{
 		if (reply.getDataLength())
 		{
-			gLogger->logMsgF("Admin (anon): %s", MSG_NORMAL, reply.getAnsi());
+			gLogger->log(LogManager::NOTICE,"Admin (anon): %s", reply.getAnsi());
 		}
 		else
 		{
-			gLogger->logMsgF("Admin (anon):", MSG_NORMAL);
+			gLogger->log(LogManager::NOTICE,"Admin (anon):");
 		}
 	}
 }
@@ -835,15 +805,10 @@ int32 ObjectController::getAdminCommandFunction(string command) const
 {
 	for (int i = 0; i < noOfAdminCommands; i++)
 	{
-		// gLogger->logMsgF("Comparing: %s", MSG_NORMAL, command.getAnsi());
-		// gLogger->logMsgF("with     : %s", MSG_NORMAL, adminCommands[i].command.getAnsi());
 		if(Anh_Utils::cmpnistr(command.getAnsi(),adminCommands[i].command.getAnsi(), adminCommands[i].testLength) == 0)
 		{
-			// gLogger->logMsgF("Found the command: %s", MSG_NORMAL, adminCommands[i].command.getAnsi());
 			return i;
 		}
 	}
-	// gLogger->logMsgF("No match, compared %d command names", MSG_NORMAL, id);
-	// gLogger->logMsgF("No match", MSG_NORMAL);
 	return -1;
 }

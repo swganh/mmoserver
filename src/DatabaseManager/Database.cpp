@@ -133,11 +133,9 @@ DatabaseResult* Database::ExecuteSynchSql(const int8* sql, ...)
 	#if !defined(_DEBUG)
 	#endif
 
-	#if defined(_DEBUG)
-		int8 message[8192];
-		sprintf(message, "WARNING: SYNCHRONOUS SQL STATEMENT: %s",localSql);
-		gLogger->logMsg(message, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | BACKGROUND_RED);
-	#endif
+	int8 message[8192];
+	sprintf(message, "SYNCHRONOUS SQL STATEMENT: %s",localSql);
+	gLogger->log(LogManager::DEBUG, message);
 
 	va_end(args);
 	return ExecuteSql(localSql);
@@ -152,8 +150,6 @@ DatabaseResult* Database::ExecuteSql(const int8* sql, ...)
 	va_start(args, sql);
 	int8    localSql[8192];
 	/*int32 len = */vsnprintf(localSql, sizeof(localSql), sql, args);
-
-	//gLogger->logMsgF("SqlDump: len:%u - %s", MSG_LOW, len, localSql);
 
 	// Run our query and return our result set.
 	newResult = mDatabaseImplementation->ExecuteSql(localSql);
@@ -172,8 +168,6 @@ void Database::ExecuteSqlAsync(DatabaseCallback* callback, void* ref, const int8
 	va_start(args, sql);
 	int8    localSql[20192];
 	/*int32 len = */vsnprintf(localSql, sizeof(localSql), sql, args);
-
-	//gLogger->logMsgF("SqlDump: len:%u - %s", MSG_LOW, len, localSql);
 
 	// Setup our job.
 	DatabaseJob* job = new(mJobPool.ordered_malloc()) DatabaseJob();
@@ -224,8 +218,6 @@ DatabaseResult* Database::ExecuteProcedure(const int8* sql, ...)
 	int8    localSql[20192];
 	//int32 len = vsnprintf(localSql, sizeof(localSql), sql, args);
 
-	//gLogger->logMsgF("SqlDump: len:%u - %s", MSG_LOW, len, localSql);
-
 	// Run our query and return our result set.
 	newResult = mDatabaseImplementation->ExecuteSql(localSql,true);
 
@@ -244,8 +236,6 @@ void Database::ExecuteProcedureAsync(DatabaseCallback* callback, void* ref, cons
 	va_start(args, sql);
 	int8    localSql[20192];
 	/*int32 len = */vsnprintf(localSql, sizeof(localSql), sql, args);
-
-	//gLogger->logMsgF("SqlDump: len:%u - %s", MSG_LOW, len, localSql);
 
 	// Setup our job.
 	DatabaseJob* job = new(mJobPool.ordered_malloc()) DatabaseJob();

@@ -90,8 +90,6 @@ void LoginManager::handleSessionDisconnect(NetworkClient* client)
 {
 	LoginClient* loginClient = reinterpret_cast<LoginClient*>(client);
 
-	//gLogger->logMsgF("handleSessionDisconnect account %u",MSG_HIGH,loginClient->getAccountId());
-
 	// Client has disconnected.  Update the db to show they are no longer authenticated.
 	mDatabase->ExecuteProcedureAsync(0, 0, "UPDATE account SET authenticated=0 WHERE account_id=%u;", loginClient->getAccountId());
 
@@ -124,9 +122,7 @@ void LoginManager::handleSessionMessage(NetworkClient* client, Message* message)
     case opLoginClientId:  // sent username and password.
     {
       // Start the login process
-		#if defined(_DEBUG)
-		gLogger->logMsgF("opLoginClientId",MSG_HIGH);
-	#endif
+	gLogger->log(LogManager::DEBUG,"opLoginClientId");
 		
       _handleLoginClientId(loginClient, message);
       break;
@@ -227,7 +223,7 @@ void LoginManager::_handleLoginClientId(LoginClient* client, Message* message)
 
 	if(strcmp("SWGANHVER00001",clientId.getAnsi()) != 0)
 	{
-		gLogger->logMsgF("illegal client: %s",MSG_NORMAL,clientId.getAnsi());
+		gLogger->log(LogManager::NOTICE, "illegal client: %s",clientId.getAnsi());
 		client->Disconnect(0);
 		return;
 	}
@@ -292,12 +288,7 @@ void LoginManager::_authenticateClient(LoginClient* client, DatabaseResult* resu
     client->setAccountId(data.mId);
 	  client->setCharsAllowed(data.mCharsAllowed);
 	  client->setCsr(data.mCsr);
-						#if !defined(_DEBUG)
-							gLogger->logErrorF("login"," Login: AccountId: %u Name: %s",MSG_NORMAL,data.mId,data.mUsername);
-						#endif
-						#if defined(_DEBUG)
-						gLogger->logErrorF("login","void LoginManager::_authenticateClient Login: AccountId: %u Name: %s",MSG_NORMAL,data.mId,data.mUsername);
-						#endif
+	gLogger->log(LogManager::DEBUG,"void LoginManager::_authenticateClient Login: AccountId: %u Name: %s",data.mId,data.mUsername);
         _sendAuthSucceeded(client);
   }
   else
@@ -308,7 +299,7 @@ void LoginManager::_authenticateClient(LoginClient* client, DatabaseResult* resu
     errType = "@cpt_login_fail";
     errMsg = "@msg_login_fail";
 
-    gLogger->logErrorF("login"," Login failed for username: %s, password: %s", MSG_NORMAL, client->getUsername().getAnsi(), client->getPassword().getAnsi());
+    gLogger->log(LogManager::DEBUG," Login failed for username: %s, password: ********", client->getUsername().getAnsi(), client->getPassword().getAnsi());
 
 	  gMessageFactory->StartMessage();
 	  gMessageFactory->addUint32(opErrorMessage);

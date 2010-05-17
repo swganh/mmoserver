@@ -59,7 +59,7 @@ void ObjectController::_handleRequestDraftslotsBatch(uint64 targetId,Message* me
 
 	if(!elementCount)
 	{
-		gLogger->logMsg("ObjectController::_handleRequestDraftslotsBatch: Error in requestStr");
+		gLogger->log(LogManager::DEBUG,"ObjectController::_handleRequestDraftslotsBatch: Error in requestStr");
 		return;
 	}
 
@@ -96,7 +96,7 @@ void ObjectController::_handleRequestResourceWeightsBatch(uint64 targetId,Messag
 
 	if(!elementCount)
 	{
-		gLogger->logMsg("ObjectController::_handleRequestResourceWeightsBatch: Error in requestStr");
+		gLogger->log(LogManager::DEBUG,"ObjectController::_handleRequestResourceWeightsBatch: Error in requestStr");
 		return;
 	}
 
@@ -144,7 +144,7 @@ void ObjectController::_handleRequestCraftingSession(uint64 targetId,Message* me
 
 	if(!tool)
 	{
-		gLogger->logMsgF("ObjController::handleRequestcraftingsession: could not find tool %"PRIu64"",MSG_NORMAL,targetId);
+		gLogger->log(LogManager::DEBUG,"ObjController::handleRequestcraftingsession: could not find tool %"PRIu64"",targetId);
 		gMessageLib->sendCraftAcknowledge(opCraftCancelResponse,0,0,playerObject);
 		return;
 	}
@@ -175,7 +175,7 @@ void ObjectController::_handleRequestCraftingSession(uint64 targetId,Message* me
 
 	if(playerObject->checkState(CreatureState_Crafting) || playerObject->getCraftingSession())
 	{
-		gLogger->logMsgF("ObjController::handleRequestcraftingsession: state or session",MSG_NORMAL);
+		gLogger->log(LogManager::DEBUG,"ObjController::handleRequestcraftingsession: state or session");
 		gMessageLib->sendCraftAcknowledge(opCraftCancelResponse,0,0,playerObject);
 		return;
 	}
@@ -194,7 +194,7 @@ void ObjectController::_handleRequestCraftingSession(uint64 targetId,Message* me
 		return;
 	}
 
-	gLogger->logMsgF("ObjController::handleRequestcraftingsession: new session :)",MSG_NORMAL);
+	gLogger->log(LogManager::DEBUG,"ObjController::handleRequestcraftingsession: new session :)");
 	playerObject->setCraftingSession(gCraftingSessionFactory->createSession(Anh_Utils::Clock::getSingleton(),playerObject,tool,station,expFlag));
 }
 
@@ -237,7 +237,7 @@ void ObjectController::_handleCancelCraftingSession(uint64 targetId,Message* mes
 
 	gCraftingSessionFactory->destroySession(playerObject->getCraftingSession());
 
-	gLogger->logMsg("session canceled");
+	gLogger->log(LogManager::DEBUG,"session canceled");
 	//client complains over crafting tool already hacing an item when we go out of the slot screen!!!!!
 }
 
@@ -349,9 +349,9 @@ void ObjectController::handleCraftCustomization(Message* message)
 	while((custIt != cList->end())&&(i < hmmm2))
 	{
 		message->getUint32(color);
-		gLogger->logMsgF("craft customization int1 : %u",MSG_HIGH,color);
+		gLogger->log(LogManager::DEBUG,"craft customization int1 : %u",color);
 		message->getUint32(color);
-		gLogger->logMsgF("craft customization int2 : %u at index : %u",MSG_HIGH,color,(*custIt)->cutomizationIndex);
+		gLogger->log(LogManager::DEBUG,"craft customization int2 : %u at index : %u",color,(*custIt)->cutomizationIndex);
 		session->getItem()->setCustomization(static_cast<uint8>((*custIt)->cutomizationIndex),(uint16)color,3);
 
 		i++;
@@ -397,8 +397,8 @@ void ObjectController::_handleNextCraftingStage(uint64 targetId,Message* message
 			gCraftingSessionFactory->destroySession(session);
 			return;
 		}
-		gLogger->logMsgF("Counter We Got: %u", MSG_NORMAL, counter);
-		gLogger->logMsgF("Counter We'd Use: %u", MSG_NORMAL, session->getCounter());
+		gLogger->log(LogManager::DEBUG,"Counter We Got: %u", counter);
+		gLogger->log(LogManager::DEBUG,"Counter We'd Use: %u", session->getCounter());
 	}
 
 	switch(session->getStage())
@@ -437,7 +437,7 @@ void ObjectController::_handleNextCraftingStage(uint64 targetId,Message* message
 
 		default:
 		{
-			gLogger->logMsgF("ObjController::_handlenextcraftingstage: unhandled stage %u",MSG_NORMAL,session->getStage());
+			gLogger->log(LogManager::NOTICE,"ObjController::_handlenextcraftingstage: unhandled stage %u",session->getStage());
 		}
 		break;
 	}

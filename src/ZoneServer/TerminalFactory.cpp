@@ -323,7 +323,7 @@ Terminal* TerminalFactory::_createTerminal(DatabaseResult* result)
 		break;
 
 		default:
-			gLogger->logMsgF("TerminalFactory::_createTerminal: unknown eType: %u",MSG_HIGH,tanType);
+			gLogger->log(LogManager::DEBUG,"TerminalFactory::_createTerminal: unknown eType: %u",tanType);
 		break;
 	}
 

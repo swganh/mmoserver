@@ -43,13 +43,10 @@ ZoneTree::~ZoneTree(void)
 void ZoneTree::Init(double fillFactor,uint32 indexCap,uint32 leafCap,uint32 dimensions,double horizon)
 {
 	
-	#if !defined(_DEBUG)
-		gLogger->logMsgF("SpatialIndex initializing...",MSG_NORMAL);	
-	#endif
+	gLogger->log(LogManager::DEBUG,"SpatialIndex initializing...");	
 	
-	#if defined(_DEBUG)
-		gLogger->logMsgF("SpatialIndex initializing...\n\tFillFactor:%.2f,\n\tIndexCap:%u,\n\tLeafCap:%u,\n\tDimensions:%u,\n\tHorizon:%.2f",MSG_NORMAL,fillFactor,indexCap,leafCap,dimensions,horizon);		
-	#endif
+	gLogger->log(LogManager::DEBUG,"SpatialIndex initializing...\n\tFillFactor:%.2f,\n\tIndexCap:%u,\n\tLeafCap:%u,\n\tDimensions:%u,\n\tHorizon:%.2f",fillFactor,indexCap,leafCap,dimensions,horizon);		
+
 	
 	try
 	{
@@ -59,16 +56,14 @@ void ZoneTree::Init(double fillFactor,uint32 indexCap,uint32 leafCap,uint32 dime
 		mTree = RTree::createNewRTree(*mStorageBuffer,fillFactor,indexCap,leafCap,dimensions,SpatialIndex::RTree::RV_RSTAR,mIndexIdentifier);
 
 		mResourceUsage.start();
-		gLogger->logMsgOk(54);
 	}
 	catch(Tools::Exception& e)
 	{
-		gLogger->logMsgFailed(54);
-		gLogger->logMsg("*** ERROR: " + e.what() + " ***\n");
+		gLogger->log(LogManager::EMERGENCY,"*** ERROR: " + e.what() + " ***\n");
 	}
 	catch(...)
 	{
-		gLogger->logMsg("*** ERROR: Unknown Exception ***\n");
+		gLogger->log(LogManager::EMERGENCY,"*** ERROR: Unknown Exception ***\n");
 	}
 }
 
@@ -86,7 +81,7 @@ void ZoneTree::InsertPoint(int64 objId,double x,double z)
 
 	/*std::ostringstream ss;
 	ss << "SI(InsertPoint): " << objId << " at " << p;
-	gLogger->logMsg(ss.str(),MSG_LOW);*/
+	gLogger->log(LogManager::DEBUG,ss.str(),MSG_LOW);*/
 }
 
 //=============================================================================
@@ -106,7 +101,7 @@ void ZoneTree::InsertRegion(int64 objId,double x,double z,double width,double he
 
 	/*std::ostringstream ss;
 	ss << "SI(InsertRegion): " << objId << " at " << r;
-	gLogger->logMsg(ss.str(),MSG_LOW);*/
+	gLogger->log(LogManager::DEBUG,ss.str(),MSG_LOW);*/
 }
 
 //=============================================================================
@@ -162,7 +157,7 @@ QTRegion* ZoneTree::getQTRegion(double x,double z)
 	}
 
 	// We need a region for the Tutorial...
-	// gLogger->logMsgF("SI could not find qtregion at %f %f",MSG_HIGH,x,z);
+	// gLogger->log(LogManager::DEBUG,"SI could not find qtregion at %f %f",x,z);
 
 	return(NULL);
 }
@@ -212,7 +207,7 @@ void ZoneTree::getObjectsInRangeIntersection(Object* object,ObjectSet* resultSet
 					// if its a building, add objects of our types it contains
 					if(tmpType == ObjType_Building)
 					{
-						// gLogger->logMsg("Found a building");
+						// gLogger->log(LogManager::DEBUG,"Found a building");
 
 						ObjectList cellChilds = (dynamic_cast<BuildingObject*>(tmpObject))->getAllCellChilds();
 						ObjectList::iterator cellChildsIt = cellChilds.begin();
@@ -251,13 +246,13 @@ void ZoneTree::getObjectsInRangeIntersection(Object* object,ObjectSet* resultSet
 		}
 		else
 		{
-			gLogger->logMsgF("SI could not find cell %"PRIu64"",MSG_HIGH,object->getParentId());
+			gLogger->log(LogManager::WARNING,"SI could not find cell %"PRIu64"",object->getParentId());
 			return;
 		}
 
 		if(!buildingObject)
 		{
-			gLogger->logMsgF("SI could not find building %"PRIu64"",MSG_HIGH,cell->getParentId());
+			gLogger->log(LogManager::WARNING,"SI could not find building %"PRIu64"",cell->getParentId());
 			return;
 		}
 
@@ -388,7 +383,7 @@ void ZoneTree::getObjectsInRange(const Object* const object,ObjectSet* resultSet
 					//should we query cellchildren here or rather just create them with their cell regardless
 					if((tmpType == ObjType_Building)&&cellContent)
 					{
-						// gLogger->logMsg("Found a building");
+						// gLogger->log(LogManager::DEBUG,"Found a building");
 
 						ObjectList cellChilds = (dynamic_cast<BuildingObject*>(tmpObject))->getAllCellChilds();
 						ObjectList::iterator cellChildsIt = cellChilds.begin();
@@ -423,7 +418,7 @@ void ZoneTree::getObjectsInRange(const Object* const object,ObjectSet* resultSet
 
 		if(!cell)
 		{
-			gLogger->logMsgF("SI could not find cell %"PRIu64"",MSG_HIGH,object->getParentId());
+			gLogger->log(LogManager::WARNING,"SI could not find cell %"PRIu64"",object->getParentId());
 			return;
 		}
 
@@ -431,7 +426,7 @@ void ZoneTree::getObjectsInRange(const Object* const object,ObjectSet* resultSet
 		buildingObject = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()));
 		if(!buildingObject)
 		{
-			gLogger->logMsgF("SI could not find building %"PRIu64"",MSG_HIGH,cell->getParentId());
+			gLogger->log(LogManager::WARNING,"SI could not find building %"PRIu64"",cell->getParentId());
 			return;
 		}
 		float buildingWidth		= buildingObject->getWidth();
@@ -492,7 +487,7 @@ void ZoneTree::getObjectsInRange(const Object* const object,ObjectSet* resultSet
 				if((tmpType & objTypes) == static_cast<uint32>(tmpType))
 				{
 					resultSet->insert(tmpObject);
-					//gLogger->logMsgF("inserted %"PRIu64"",MSG_HIGH,tmpObject->getId());
+					//gLogger->log(LogManager::DEBUG,"inserted %"PRIu64"",tmpObject->getId());
 				}
 		
 				// if its a building, add objects of queried types it contains				
@@ -512,7 +507,7 @@ void ZoneTree::getObjectsInRange(const Object* const object,ObjectSet* resultSet
 						{
 							// TODO: We could add a range check to every object...
 							resultSet->insert(cellChild);
-							//gLogger->logMsgF("inserted cellchild %"PRIu64"",MSG_HIGH,cellChild->getId());
+							//gLogger->log(LogManager::DEBUG,"inserted cellchild %"PRIu64"",cellChild->getId());
 						}
 						
 						++cellChildsIt;
@@ -539,13 +534,13 @@ void ZoneTree::RemovePoint(int64 objId,double x,double z)
 	{
 		std::ostringstream ss;
 		ss << "ZoneTree::RemovePoint *** ERROR: Cannot delete id: " << objId << std::endl;
-		gLogger->logMsg(ss.str());
+		gLogger->log(LogManager::DEBUG,ss.str());
 	}
 	else
 	{
 		/*std::ostringstream ss;
 		ss << "SI(RemovePoint): " << objId << " at " << p;
-		gLogger->logMsg(ss.str(),MSG_LOW);*/
+		gLogger->log(LogManager::DEBUG,ss.str(),MSG_LOW);*/
 	}
 }
 
@@ -566,13 +561,13 @@ void ZoneTree::RemoveRegion(int64 objId,double xLow,double zLow,double xHigh,dou
 	{
 		std::ostringstream ss;
 		ss << " ZoneTree::RemoveRegion *** ERROR: Cannot delete id: " << objId << std::endl;
-		gLogger->logMsg(ss.str());
+		gLogger->log(LogManager::DEBUG,ss.str());
 	}
 	else
 	{
 		/*std::ostringstream ss;
 		ss << "SI(RemoveRegion): " << objId << " at " << r;
-		gLogger->logMsg(ss.str(),MSG_LOW);*/
+		gLogger->log(LogManager::DEBUG,ss.str(),MSG_LOW);*/
 	}
 }
 
@@ -585,14 +580,14 @@ void ZoneTree::DumpStats()
 	ss << *mTree;
 	ss << "Buffer Hits: " << mStorageBuffer->getHits() << std::endl;
 	ss << "IndexIdentifier: " << mIndexIdentifier << std::endl;
-	gLogger->logMsg(ss.str());
+	gLogger->log(LogManager::DEBUG,ss.str());
 }
 
 //=============================================================================
 
 void ZoneTree::ShutDown()
 {
-	gLogger->logMsg("SpatialIndex Shutdown\n");
+	gLogger->log(LogManager::DEBUG,"SpatialIndex Shutdown\n");
 
 	try
 	{
@@ -600,11 +595,11 @@ void ZoneTree::ShutDown()
 	}
 	catch(Tools::Exception& e)
 	{
-		gLogger->logMsg("*** ERROR: " + e.what() + " ***\n");
+		gLogger->log(LogManager::WARNING,"*** ERROR: " + e.what() + " ***\n");
 	}
 	catch(...)
 	{
-		gLogger->logMsg("*** ERROR: Unknown Exception ***\n");
+		gLogger->log(LogManager::WARNING,"*** ERROR: Unknown Exception ***\n");
 	}
 
 	delete(mTree);
@@ -613,7 +608,7 @@ void ZoneTree::ShutDown()
 
 	mIndexIdentifier = 0;
 
-	gLogger->logMsg("SpatialIndex Shutdown complete\n");
+	gLogger->log(LogManager::WARNING,"SpatialIndex Shutdown complete\n");
 }
 //=============================================================================
 
@@ -663,7 +658,7 @@ void ZoneTree::getObjectsInRangeEx(Object* object,ObjectSet* resultSet,uint32 ob
 					// if its a building, add objects of our types it contains
 					if(tmpType == ObjType_Building)
 					{
-						// gLogger->logMsg("Found a building");
+						// gLogger->log(LogManager::DEBUG,"Found a building");
 
 						ObjectList cellChilds = (dynamic_cast<BuildingObject*>(tmpObject))->getAllCellChilds();
 						ObjectList::iterator cellChildsIt = cellChilds.begin();
@@ -677,7 +672,7 @@ void ZoneTree::getObjectsInRangeEx(Object* object,ObjectSet* resultSet,uint32 ob
 							if((tmpType & objTypes) == static_cast<uint32>(tmpType))
 							{
 								// TODO: We could add a range check to every object...
-								// gLogger->logMsgF("Found object PRId32",MSG_NORMAL,cellChild->getId());
+								// gLogger->log(LogManager::DEBUG,"Found object PRId32",cellChild->getId());
 								resultSet->insert(cellChild);
 							}
 
@@ -703,13 +698,13 @@ void ZoneTree::getObjectsInRangeEx(Object* object,ObjectSet* resultSet,uint32 ob
 		}
 		else
 		{
-			gLogger->logMsgF("SI could not find cell %"PRIu64"",MSG_HIGH,object->getParentId());
+			gLogger->log(LogManager::WARNING,"SI could not find cell %"PRIu64"",object->getParentId());
 			return;
 		}
 
 		if(!buildingObject)
 		{
-			gLogger->logMsgF("SI could not find building %"PRIu64"",MSG_HIGH,cell->getParentId());
+			gLogger->log(LogManager::WARNING,"SI could not find building %"PRIu64"",cell->getParentId());
 			return;
 		}
 

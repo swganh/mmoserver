@@ -31,14 +31,14 @@ void ChatAvatarId::setPlayer(Player* player)
 	//lcName.toLower();
 	mName = player->getName();
 	mName.toLower();
-	gLogger->logMsgF("Chatavatar:: setplayer %s\n", MSG_NORMAL, mName.getAnsi());
+	gLogger->log(LogManager::DEBUG,"Chatavatar:: setplayer %s\n", mName.getAnsi());
 }
 
 //======================================================================================================================
 
 void ChatAvatarId::setPlayer(const string player)
 {
-	gLogger->logMsgF("Chatavatar:: setplayer %s string only\n", MSG_NORMAL, mName.getAnsi());
+	gLogger->log(LogManager::DEBUG,"Chatavatar:: setplayer %s string only\n", mName.getAnsi());
 	mPlayer = gChatManager->getPlayerByName(player); 
 	
 	mName = player;

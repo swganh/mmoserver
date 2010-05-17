@@ -17,8 +17,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 Container::Container() : TangibleObject(), mParent(NULL)
 {
-	// gLogger->logMsg("Container::Container()");
-
 	mTanGroup = TanGroup_Container;
 	mObjectLoadCounter = 1000;
 	//mObjects.reserve(80);

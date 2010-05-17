@@ -305,7 +305,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 	}
 
 	 uint64 localTimeEnd = Anh_Utils::Clock::getSingleton()->getLocalTime();
-	 gLogger->logMsgF("Exec time :%"PRIu64"",MSG_NORMAL, localTimeEnd - localTimeStart);
+	 //gLogger->logMsgF("Exec time :%"PRIu64"",MSG_NORMAL, localTimeEnd - localTimeStart);
 }
 
 //=============================================================================
@@ -497,7 +497,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 	}
 	
 	uint64 localTimeEnd = Anh_Utils::Clock::getSingleton()->getLocalTime();
-	gLogger->logMsgF("Exec time :%"PRIu64"",MSG_NORMAL, localTimeEnd - localTimeStart);
+	//gLogger->logMsgF("Exec time :%"PRIu64"",MSG_NORMAL, localTimeEnd - localTimeStart);
 }
 
 

@@ -105,12 +105,12 @@ mLocked(false)
   
 	// We're done initiailizing.
 	_updateDBServerList(2);
-	gLogger->log(LogManager::INFORMATION, "Connection Server Boot Complete");
+	gLogger->log(LogManager::CRITICAL, "Connection Server Boot Complete");
 	//gLogger->printLogo();
 	// std::string BuildString(GetBuildString());	
 
 	gLogger->log(LogManager::INFORMATION,"Connection Server - Build %s",ConfigManager::getBuildString().c_str());
-	gLogger->log(LogManager::CRITICAL," Welcome to your SWGANH Experience!");
+	gLogger->log(LogManager::CRITICAL,"Welcome to your SWGANH Experience!");
 }
 
 //======================================================================================================================

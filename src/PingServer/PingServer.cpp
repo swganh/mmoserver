@@ -131,6 +131,8 @@ int main(int argc, char* argv[])
 	PingServer ping_server(port);
 	gLogger->log(LogManager::INFORMATION, "PingServer listening on port %d", port);
 
+	gLogger->log(LogManager::CRITICAL, "Welcome to your SWGANH Experience!");
+
 	while (true) {
 		// Check for incoming messages and handle them.
 		ping_server.Poll();

@@ -138,7 +138,7 @@ void CharSheetManager::handleDatabaseJobComplete(void* ref, DatabaseResult* resu
 			}
 
 			if(result->getRowCount())
-				gLogger->log(LogManager::INFORMATION," Loaded %u factions...",result->getRowCount());				
+				gLogger->log(LogManager::NOTICE,"Loaded factions.");
 
 			mDatabase->DestroyDataBinding(binding);
 

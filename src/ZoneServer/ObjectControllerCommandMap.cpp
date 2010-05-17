@@ -145,7 +145,7 @@ void ObjectControllerCommandMap::handleDatabaseJobComplete(void* ref,DatabaseRes
 	mDatabase->DestroyDataBinding(binding);
 
 	if(result->getRowCount())
-		gLogger->log(LogManager::INFORMATION," Mapping %u functions...",result->getRowCount());
+		gLogger->log(LogManager::NOTICE,"Mapped functions.");
 }
 
 //======================================================================================================================

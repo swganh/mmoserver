@@ -78,7 +78,7 @@ mDatabase(0)
 	Anh_Utils::Clock::Init();
 	
 	// gLogger->log(LogManager::DEBUG,"ZoneServer - %s Startup %s",zoneName,GetBuildString());
-	gLogger->log(LogManager::CRITICAL,"ZoneServer Startup");
+	gLogger->log(LogManager::CRITICAL,"ZoneServer initializing for zone %s", zoneName);
 
 	// Create and startup our core services.
 	mDatabaseManager = new DatabaseManager();
@@ -110,8 +110,6 @@ mDatabase(0)
 	}
 
 	//  Yea, I'm getting annoyed with the DataBinding for such simple tasks.  Will implement a simple interface soon.
-	gLogger->log(LogManager::DEBUG,"ZoneServer initializing for zone %s", zoneName);
-
 
 	DataBinding* binding = mDatabase->CreateDataBinding(1);
 	binding->addField(DFT_uint32, 0, 4);
@@ -163,7 +161,9 @@ mDatabase(0)
 	AdminManager::Init(mMessageDispatch);
 	EntertainerManager::Init(mDatabase,mMessageDispatch);
 	GroupManager::Init(mDatabase,mMessageDispatch);
-	StructureManager::Init(mDatabase,mMessageDispatch);
+
+	if(zoneId != 41)
+		StructureManager::Init(mDatabase,mMessageDispatch);
 	// Invoked when all creature regions for spawning of lairs are loaded
 	// (void)NpcManager::Instance();
 
@@ -233,8 +233,8 @@ void ZoneServer::handleWMReady()
 	//gLogger->printLogo();
 	// std::string BuildString(GetBuildString());
 
-	gLogger->log(LogManager::CRITICAL,"Zone Server:%s %s",getZoneName().getAnsi(),ConfigManager::getBuildString().c_str());
-	gLogger->log(LogManager::CRITICAL," Welcome to your SWGANH Experience!");
+	gLogger->log(LogManager::INFORMATION,"Zone Server:%s %s",getZoneName().getAnsi(),ConfigManager::getBuildString().c_str());
+	gLogger->log(LogManager::CRITICAL,"Welcome to your SWGANH Experience!");
 
 	// Connect to the ConnectionServer;
 	_connectToConnectionServer();

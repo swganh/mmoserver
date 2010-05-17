@@ -135,7 +135,7 @@ DatabaseResult* Database::ExecuteSynchSql(const int8* sql, ...)
 
 	int8 message[8192];
 	sprintf(message, "SYNCHRONOUS SQL STATEMENT: %s",localSql);
-	gLogger->log(LogManager::DEBUG, message);
+	gLogger->logS(LogManager::DEBUG,(LOG_CHANNEL_FILE | LOG_CHANNEL_SYSLOG), message);
 
 	va_end(args);
 	return ExecuteSql(localSql);

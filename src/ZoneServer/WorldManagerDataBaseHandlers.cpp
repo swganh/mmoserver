@@ -50,18 +50,21 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					result->GetNextRow(binding,&mTotalObjectCount);
 
 					if(result->getRowCount())
-						gLogger->log(LogManager::INFORMATION,"Loading %u objects...",mTotalObjectCount);
+						gLogger->log(LogManager::NOTICE,"Loading objects...");
 
 					if(mTotalObjectCount > 0)
 					{
 						// this loads all buildings with cells and objects they contain
 						_loadBuildings();	 //NOT PlayerStructures!!!!!!!!!!!!!!!!!!!!!!!!!! they are handled seperately further down
-						// load objects in world
-						_loadAllObjects(0);
+						
+						if(mZoneId!=41)
+						{
+							// load objects in world
+							_loadAllObjects(0);
 
-						// load zone regions
-						mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_ZoneRegions),"SELECT id FROM zone_regions WHERE planet_id=%u ORDER BY id;",mZoneId);
-
+							// load zone regions
+							mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_ZoneRegions),"SELECT id FROM zone_regions WHERE planet_id=%u ORDER BY id;",mZoneId);
+						}
 						// load client effects
 						if(!mDebug)
 						mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_ClientEffects),"SELECT * FROM clienteffects ORDER BY id;");
@@ -87,21 +90,24 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 						if(!mDebug)
 						mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_NpcChatter),"SELECT * FROM npc_chatter WHERE planetId=%u OR planetId=99;",mZoneId);
 
-						// load cities
-						mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_Cities),"SELECT id FROM cities WHERE planet_id=%u ORDER BY id;",mZoneId);
+						if(mZoneId != 41)
+						{
+							// load cities
+							mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_Cities),"SELECT id FROM cities WHERE planet_id=%u ORDER BY id;",mZoneId);
 
-						// load badge regions
-						if(!mDebug)
-						mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_BadgeRegions),"SELECT id FROM badge_regions WHERE planet_id=%u ORDER BY id;",mZoneId);
+							// load badge regions
+							if(!mDebug)
+							mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_BadgeRegions),"SELECT id FROM badge_regions WHERE planet_id=%u ORDER BY id;",mZoneId);
 
-						//load spawn regions
-						mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_SpawnRegions),"SELECT id FROM spawn_regions WHERE planet_id=%u ORDER BY id;",mZoneId);
+							//load spawn regions
+							mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_SpawnRegions),"SELECT id FROM spawn_regions WHERE planet_id=%u ORDER BY id;",mZoneId);
 
-						// load world scripts
-						mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_WorldScripts),"SELECT priority,file FROM config_zone_scripts WHERE planet_id=%u ORDER BY id;",mZoneId);
+							// load world scripts
+							mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_WorldScripts),"SELECT priority,file FROM config_zone_scripts WHERE planet_id=%u ORDER BY id;",mZoneId);
 
-						//load creature spawn regions, and optionally heightmaps cache.
-						mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_CreatureSpawnRegions),"SELECT id, spawn_x, spawn_z, spawn_width, spawn_length FROM spawns WHERE spawn_planet=%u ORDER BY id;",mZoneId);
+							//load creature spawn regions, and optionally heightmaps cache.
+							mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_CreatureSpawnRegions),"SELECT id, spawn_x, spawn_z, spawn_width, spawn_length FROM spawns WHERE spawn_planet=%u ORDER BY id;",mZoneId);
+						}
 
 						// load harvesters
 						mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_Harvesters),"SELECT s.id FROM structures s INNER JOIN harvesters h ON (s.id = h.id) WHERE zone=%u ORDER BY id;",mZoneId);
@@ -133,9 +139,6 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					uint64 harvesterId;
 					uint64 count = result->getRowCount();
 
-					if(result->getRowCount())
-						gLogger->log(LogManager::INFORMATION,"Loading %u harvesters...",count);
-
 					for(uint64 i = 0;i < count;i++)
 					{
 						result->GetNextRow(harvesterBinding,&harvesterId);
@@ -143,7 +146,12 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 						gHarvesterFactory->requestObject(this,harvesterId,0,0,asyncContainer->mClient);
 					}
 
+					if(result->getRowCount())
+						gLogger->log(LogManager::NOTICE,"Loaded harvesters.");
+
 					mDatabase->DestroyDataBinding(harvesterBinding);
+
+
 				}
 				break;
 
@@ -155,8 +163,6 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					uint64 houseId;
 					uint64 count = result->getRowCount();
 
-					if(result->getRowCount())
-						gLogger->log(LogManager::INFORMATION,"Loading %u playerhouses...",count);
 						
 					for(uint64 i = 0;i < count;i++)
 					{
@@ -164,6 +170,9 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 						gHouseFactory->requestObject(this,houseId,0,0,asyncContainer->mClient);
 					}
+
+					if(result->getRowCount())
+						gLogger->log(LogManager::NOTICE,"Loaded playerhouses.");
 
 					mDatabase->DestroyDataBinding(houseBinding);
 				}
@@ -178,15 +187,15 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					uint64 factoryId;
 					uint64 count = result->getRowCount();
 
-					if(result->getRowCount())
-						gLogger->log(LogManager::INFORMATION,"Loading %u factories...",count);
-
-						for(uint64 i = 0;i < count;i++)
+					for(uint64 i = 0;i < count;i++)
 					{
 						result->GetNextRow(factoryBinding,&factoryId);
 
 						gFactoryFactory->requestObject(this,factoryId,0,0,asyncContainer->mClient);
 					}
+
+					if(result->getRowCount())
+						gLogger->log(LogManager::NOTICE,"Loaded factories.");
 
 					mDatabase->DestroyDataBinding(factoryBinding);
 				}
@@ -203,15 +212,15 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					uint64 regionId;
 					uint64 count = result->getRowCount();
 
-					if(result->getRowCount())
-						gLogger->log(LogManager::INFORMATION,"Loading %u zone regions...",count);
-
 					for(uint64 i = 0;i < count;i++)
 					{
 						result->GetNextRow(regionBinding,&regionId);
 
 						gObjectFactory->requestObject(ObjType_Region,Region_Zone,0,this,regionId,asyncContainer->mClient);
 					}
+
+					if(result->getRowCount())
+						gLogger->log(LogManager::NOTICE,"Loaded zone regions.");
 
 					mDatabase->DestroyDataBinding(regionBinding);
 				}
@@ -275,7 +284,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					}
 
 					if(result->getRowCount())
-						gLogger->log(LogManager::INFORMATION,"Loading %u attribute keys...",attributeCount);
+						gLogger->log(LogManager::NOTICE,"Loaded attribute keys.");
 
 					mDatabase->DestroyDataBinding(binding);
 				}
@@ -298,7 +307,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					}
 
 					if(result->getRowCount())
-						gLogger->log(LogManager::INFORMATION,"Loading %u Client Effects...",effectCount);
+						gLogger->log(LogManager::NOTICE,"Loaded Client Effects.");
 
 
 					mDatabase->DestroyDataBinding(binding);
@@ -322,7 +331,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					}
 
 					if(result->getRowCount())
-						gLogger->log(LogManager::INFORMATION,"Loading %u sound effects...",effectCount);
+						gLogger->log(LogManager::NOTICE,"Loaded sound effects.");
 
 					mDatabase->DestroyDataBinding(binding);
 				}
@@ -345,7 +354,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					}
 
 					if(result->getRowCount())
-						gLogger->log(LogManager::INFORMATION,"Loading %u moods...",effectCount);
+						gLogger->log(LogManager::NOTICE,"Loaded moods.");
 
 
 					mDatabase->DestroyDataBinding(binding);
@@ -369,7 +378,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					}
 
 					if(result->getRowCount())
-						gLogger->log(LogManager::INFORMATION,"Loading %u NPC conversational animations...",animCount);
+						gLogger->log(LogManager::NOTICE,"Loaded NPC conversational animations.");
 
 					mDatabase->DestroyDataBinding(binding);
 				}
@@ -400,7 +409,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					}
 
 					if(result->getRowCount())
-						gLogger->log(LogManager::INFORMATION,"Loading %u NPC phrases...",phraseCount);
+						gLogger->log(LogManager::NOTICE,"Loaded NPC phrases.");
 
 					mDatabase->DestroyDataBinding(binding);
 					mDatabase->DestroyDataBinding(animbinding);
@@ -426,7 +435,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					}
 
 					if(result->getRowCount())
-						gLogger->log(LogManager::INFORMATION," Loading %u world scripts...",scriptCount);
+						gLogger->log(LogManager::NOTICE,"Loaded world scripts.");
 
 					mDatabase->DestroyDataBinding(scriptBinding);
 				}
@@ -451,7 +460,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					}
 
 					if(result->getRowCount())
-						gLogger->log(LogManager::INFORMATION," Loading %u buildings...",buildingCount);
+						gLogger->log(LogManager::NOTICE,"Loaded buildings");
 
 					mDatabase->DestroyDataBinding(buildingBinding);
 				}
@@ -474,7 +483,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					}
 
 					if(result->getRowCount())
-						gLogger->log(LogManager::INFORMATION,"Loading %u city regions...",count);
+						gLogger->log(LogManager::NOTICE,"Loaded city regions.");
 
 					
 
@@ -499,7 +508,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					}
 
 					if(result->getRowCount())
-						gLogger->log(LogManager::INFORMATION,"Loading %u badge regions...",count);
+						gLogger->log(LogManager::NOTICE,"Loaded badge regions.");
 					
 
 					mDatabase->DestroyDataBinding(badgeBinding);
@@ -523,7 +532,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					}
 
 					if(result->getRowCount())
-						gLogger->log(LogManager::INFORMATION,"Loading %u spawn regions...",count);
+						gLogger->log(LogManager::NOTICE,"Loaded spawn regions.");
 					
 
 					mDatabase->DestroyDataBinding(spawnBinding);
@@ -550,7 +559,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					}
 
 					if(result->getRowCount())
-						gLogger->log(LogManager::INFORMATION,"Loading %u creature spawn regions...",count);
+						gLogger->log(LogManager::NOTICE,"Loaded creature spawn regions.");
 
 
 					mDatabase->DestroyDataBinding(creatureSpawnBinding);
@@ -598,7 +607,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					}
 
 					if(result->getRowCount())
-						gLogger->log(LogManager::INFORMATION,"Loading %u cell children...",count);
+						gLogger->log(LogManager::NOTICE,"Loaded cell children...");
 
 					mDatabase->DestroyDataBinding(binding);
 				}

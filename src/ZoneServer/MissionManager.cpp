@@ -179,7 +179,7 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 			// not all missions have associated names ...
 			if(result->getRowCount())
-				gLogger->log(LogManager::INFORMATION,"Loading %u mission stfs...",count);
+				gLogger->log(LogManager::NOTICE,"Loaded mission STFs.");
 
 		}
 		break;
@@ -203,7 +203,7 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			}
 
 			if(result->getRowCount())
-				gLogger->log(LogManager::INFORMATION,"Loading %u mission names...",count);
+				gLogger->log(LogManager::NOTICE,"Loaded mission names.");
 
 
 		}
@@ -237,7 +237,7 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			mDatabase->ExecuteSqlAsyncNoArguments(this,asyncContainer,"SELECT m_t.mission_type, m_t.mission_name, m_t.mission_text FROM swganh.mission_text m_t INNER JOIN swganh.mission_types mty ON mty.id = m_t.mission_type WHERE mission_name like 'm%o' AND (mty.type NOT like 'mission_npc_%')");
 
 			if(result->getRowCount())
-				gLogger->log(LogManager::INFORMATION,"Loading %u mission types...",result->getRowCount());
+				gLogger->log(LogManager::NOTICE,"Loaded mission types.");
 
 		}
 		break;
@@ -389,7 +389,7 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			}
 
 			if(result->getRowCount())
-				gLogger->log(LogManager::INFORMATION,"Loading %u mission terminal links...",result->getRowCount());
+				gLogger->log(LogManager::NOTICE,"Loading %u mission terminal links...",result->getRowCount());
 
 
 		}

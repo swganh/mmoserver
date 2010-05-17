@@ -100,7 +100,7 @@ void CombatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 	}
 	
 	if(result->getRowCount())
-		gLogger->log(LogManager::INFORMATION,"Loading %"PRIu64" weapon groups...", count);	
+		gLogger->log(LogManager::NOTICE,"Loaded weapon groups.");	
 
 	mDatabase->DestroyDataBinding(binding);
 }

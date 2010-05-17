@@ -56,7 +56,7 @@ void ScriptEventListener::registerFunction(const int8* functionName)
 		return;
 	}
 
-	gLogger->log(LogManager::DEBUG, "Script Event Listener:registered function %s",functionName);
+	//gLogger->log(LogManager::DEBUG, "Script Event Listener:registered function %s",functionName);
 
 	mScriptListMap.insert(std::make_pair(functionName,new ScriptList));
 

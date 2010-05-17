@@ -111,7 +111,7 @@ void ResourceCollectionManager::handleDatabaseJobComplete(void* ref,DatabaseResu
 				}
 
 				if(result->getRowCount())
-					gLogger->log(LogManager::DEBUG,"Loading sample costs...");
+					gLogger->log(LogManager::NOTICE,"Loaded sample costs.");
 
 			}
 			break;
@@ -132,7 +132,7 @@ void ResourceCollectionManager::handleDatabaseJobComplete(void* ref,DatabaseResu
 				}
 				
 				if(result->getRowCount())
-					gLogger->log(LogManager::DEBUG,"Loading %u survey costs...",result->getRowCount());						
+					gLogger->log(LogManager::NOTICE,"Loaded survey costs.");						
 
 			}
 			break;

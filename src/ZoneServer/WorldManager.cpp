@@ -128,12 +128,14 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
 
 	SkillManager::Init(database);
 	SchematicManager::Init(database);
-	ResourceManager::Init(database,mZoneId);
+	if(zoneId != 41)
+		ResourceManager::Init(database,mZoneId);
 	ResourceCollectionManager::Init(database);
 	TreasuryManager::Init(database);
 	ConversationManager::Init(database);
 	CraftingSessionFactory::Init(database);
-    MissionManager::Init(database,mZoneId);
+	if(zoneId != 41)
+		MissionManager::Init(database,mZoneId);
 
 	// register world script hooks
 	_registerScriptHooks();
@@ -372,7 +374,7 @@ void WorldManager::LoadCurrentGlobalTick()
 	mDatabase->DestroyResult(temp);
 
 	char strtemp[100];
-	sprintf(strtemp, "Current Global Tick Count = %"PRIu64"\n",Tick);
+	sprintf(strtemp, "Current Global Tick Count = %"PRIu64"",Tick);
 	gLogger->log(LogManager::INFORMATION,strtemp, FOREGROUND_GREEN);
 	mTick = Tick;
 	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleTick),7,1000,NULL);
@@ -852,31 +854,35 @@ void WorldManager::_handleLoadComplete()
 	mDatabase->releaseBindingPoolMemory();
 	mWM_DB_AsyncPool.release_memory();
 	gObjectFactory->releaseAllPoolsMemory();
-	gResourceManager->releaseAllPoolsMemory();
+	if(mZoneId != 41)
+		gResourceManager->releaseAllPoolsMemory();
 	gSchematicManager->releaseAllPoolsMemory();
 	gSkillManager->releaseAllPoolsMemory();
 
-	if (!Heightmap::Instance())
+	if(mZoneId != 41)
 	{
-		assert(false && "WorldManager::_handleLoadComplete Missing heightmap, download at http://www.swganh.com/!!planets!!/PLANET_NAME.rar");
-	}
+		if (!Heightmap::Instance())
+		{
+			assert(false && "WorldManager::_handleLoadComplete Missing heightmap, download at http://www.swganh.com/!!planets!!/PLANET_NAME.rar");
+		}
 
-	// create a height-map cashe.
-	int16 resolution = 0;
-	if (gConfig->keyExists("heightMapResolution"))
-	{
-		resolution = gConfig->read<int>("heightMapResolution");
-	}
+		// create a height-map cashe.
+		int16 resolution = 0;
+		if (gConfig->keyExists("heightMapResolution"))
+		{
+			resolution = gConfig->read<int>("heightMapResolution");
+		}
 		
-	gLogger->log(LogManager::NOTICE,"Height map resolution = %d", resolution);
+		gLogger->log(LogManager::NOTICE,"Height map resolution = %d", resolution);
 
-	if (Heightmap::Instance()->setupCache(resolution))
-	{
-		gLogger->log(LogManager::NOTICE,"Height map cache setup successfully with resolution %d", resolution);
-	}
-	else
-	{
-		gLogger->log(LogManager::NOTICE,"WorldManager::_handleLoadComplete heigthmap cache setup FAILED");
+		if (Heightmap::Instance()->setupCache(resolution))
+		{
+			gLogger->log(LogManager::NOTICE,"Height map cache setup successfully with resolution %d", resolution);
+		}
+		else
+		{
+			gLogger->log(LogManager::NOTICE,"WorldManager::_handleLoadComplete heigthmap cache setup FAILED");
+		}
 	}
 
 	// register script hooks
@@ -1195,8 +1201,6 @@ uint32 WorldManager::getAttributeId(uint32 keyId)
 
 void WorldManager::_startWorldScripts()
 {
-	gLogger->log(LogManager::DEBUG,"Loading world scripts...");
-
 	ScriptList::iterator scriptIt = mWorldScripts.begin();
 
 	while(scriptIt != mWorldScripts.end())
@@ -1205,6 +1209,7 @@ void WorldManager::_startWorldScripts()
 
 		++scriptIt;
 	}
+	gLogger->log(LogManager::DEBUG,"Loaded world scripts.");
 }
 
 //======================================================================================================================

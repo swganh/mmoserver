@@ -42,11 +42,12 @@ ZoneTree::~ZoneTree(void)
 
 void ZoneTree::Init(double fillFactor,uint32 indexCap,uint32 leafCap,uint32 dimensions,double horizon)
 {
-	
-	gLogger->log(LogManager::DEBUG,"SpatialIndex initializing...");	
-	
-	gLogger->log(LogManager::DEBUG,"SpatialIndex initializing...\n\tFillFactor:%.2f,\n\tIndexCap:%u,\n\tLeafCap:%u,\n\tDimensions:%u,\n\tHorizon:%.2f",fillFactor,indexCap,leafCap,dimensions,horizon);		
-
+	gLogger->log(LogManager::NOTICE,"SpatialIndex initializing...");		
+	gLogger->logCont(LogManager::INFORMATION, "FillFactor:%.2f,",fillFactor);
+	gLogger->logCont(LogManager::INFORMATION, "IndexCap:%u,",indexCap);
+	gLogger->logCont(LogManager::INFORMATION, "LeafCap:%u,",leafCap);
+	gLogger->logCont(LogManager::INFORMATION, "Dimensions:%u,",dimensions);
+	gLogger->logCont(LogManager::INFORMATION, "Horizon:%.2f",horizon);
 	
 	try
 	{

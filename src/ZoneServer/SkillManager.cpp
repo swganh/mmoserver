@@ -215,7 +215,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			mDatabase->DestroyDataBinding(binding);
 
 			if(result->getRowCount())
-				gLogger->log(LogManager::DEBUG,"SkillManager::loading Skills...");
+				gLogger->log(LogManager::NOTICE,"Loaded Skills.");
 		}
 		break;
 
@@ -390,7 +390,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 	if(++mLoadCounter == mTotalLoadCount)
 	{
-		gLogger->log(LogManager::DEBUG,"Loading %u Skilldatasets...",mTotalLoadCount);
+		gLogger->log(LogManager::NOTICE,"Loaded Skilldatasets.");
 	}
 
 	mDBAsyncPool.ordered_free(asyncContainer);

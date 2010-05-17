@@ -501,7 +501,7 @@ void StructureManager::_HandleQueryLoadDeedData(StructureManagerAsyncContainer* 
 	}
 
 	if(result->getRowCount())
-		gLogger->log(LogManager::DEBUG,"Loading %u structures...",result->getRowCount());
+		gLogger->log(LogManager::NOTICE,"Loaded structures.");
 
 	mDatabase->DestroyDataBinding(binding);
 }
@@ -744,7 +744,7 @@ void StructureManager::_HandleNonPersistantLoadStructureItem(StructureManagerAsy
 	}
 
 	if(result->getRowCount())
-		gLogger->log(LogManager::DEBUG,"Loading %u structure items...",result->getRowCount());
+		gLogger->log(LogManager::NOTICE,"Loaded structure items.");
 
 	mDatabase->DestroyDataBinding(binding);
 

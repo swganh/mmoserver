@@ -77,7 +77,9 @@ void LogManager::_LoggerThread()
 			if((*it)->mChannels & LOG_CHANNEL_CONSOLE && ((*it)->mPriority <= mMinPriorities[0]))
 			{
 				if(!(*it)->mContinuation)
-					printf("[%d:%d:%d]<%d> ",t->tm_hour,t->tm_min,t->tm_sec, (int)(*it)->mPriority);
+					printf("[%02d:%02d:%02d]<%d> ",t->tm_hour,t->tm_min,t->tm_sec, (int)(*it)->mPriority);
+				else
+					printf("              ");
 
 				printf("%s\n", (*it)->mMessage.c_str());
 			}
@@ -87,7 +89,9 @@ void LogManager::_LoggerThread()
 				if(mOutputFile)
 				{
 					if(!(*it)->mContinuation)
-						fprintf(mOutputFile, "[%d:%d:%d]<%d> ",t->tm_hour,t->tm_min,t->tm_sec, (int)(*it)->mPriority);
+						fprintf(mOutputFile, "[%02d:%02d:%02d]<%d> ",t->tm_hour,t->tm_min,t->tm_sec, (int)(*it)->mPriority);
+					else
+						fprintf(mOutputFile, "              ");
 					
 					fprintf(mOutputFile, "%s\n", (*it)->mMessage.c_str());
 				}
@@ -108,12 +112,12 @@ void LogManager::_LoggerThread()
 
 void	LogManager::_printLogo()
 {
-printf("There is Another...                                          \n");
 printf("                    ______        ______    _    _   _ _   _ \n");
 printf("                   / ___\\ \\      / / ___|  / \\  | \\ | | | | |\n");
 printf("                   \\___ \\\\ \\ /\\ / / |  _  / _ \\ |  \\| | |_| |\n");
 printf("                    ___) |\\ V  V /| |_| |/ ___ \\| |\\  |  _  |\n");
 printf("                   |____/  \\_/\\_/  \\____/_/   \\_\\_| \\_|_| |_|\n");
+printf("                                               There is Another...\n\n");
 }
 	
 void LogManager::log(LOG_PRIORITY priority, std::string format, ...)

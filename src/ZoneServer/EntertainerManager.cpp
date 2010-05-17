@@ -500,7 +500,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
 			}
 
 			if(result->getRowCount())
-				gLogger->log(LogManager::INFORMATION,"Loading %u holo emotes...",result->getRowCount());
+				gLogger->log(LogManager::NOTICE,"Loading holo emotes.");
 
 		}
 		break;
@@ -715,7 +715,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
 			}
 
 			if(result->getRowCount())
-				gLogger->log(LogManager::INFORMATION,"Loaded %u image designer attributes...",result->getRowCount());
+				gLogger->log(LogManager::NOTICE,"Loaded image designer attributes.");
 		}
 		break;
 
@@ -747,7 +747,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
 			}
 
 			if(result->getRowCount())
-				gLogger->log(LogManager::INFORMATION,"Loaded %u performances...",result->getRowCount());
+				gLogger->log(LogManager::NOTICE,"Loaded performances.");
 		}
 		break;
 

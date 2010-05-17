@@ -35,7 +35,7 @@ ConfigManager::ConfigManager(const std::string& name)
 		gLogger->log(LogManager::CRITICAL, "ConfigFile not found [ %s ], exiting...", name.c_str());
 		exit(-1);
 	}
-	gLogger->log(LogManager::INFORMATION, "Configuration Loaded.");
+	gLogger->log(LogManager::NOTICE, "Configuration Loaded.");
 }
 
 //======================================================================================================================

@@ -122,7 +122,7 @@ void HarvesterFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
 			harvester->setLoadState(LoadState_Loaded);
 
-			gLogger->log(LogManager::DEBUG,"HarvesterFactory: loaded Harvester %I64u", harvester->getId());
+			gLogger->log(LogManager::NOTICE,"HarvesterFactory: loaded Harvester %I64u", harvester->getId());
 			asyncContainer->mOfCallback->handleObjectReady(harvester,asyncContainer->mClient);
 			
 		}

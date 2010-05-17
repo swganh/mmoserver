@@ -1069,8 +1069,6 @@ void ChatManager::_processClusterClientDisconnect(Message* message,DispatchClien
 // The client is loaded, after a connect or zone transfer.
 void ChatManager::_processWhenLoaded(Message* message,DispatchClient* client)
 {
-	gLogger->log(LogManager::DEBUG,"ChatManager::_processWhenLoaded");
-
 	// enter planet channel
 	Player* player = getPlayerByAccId(client->getAccountId());
 

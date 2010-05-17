@@ -107,7 +107,7 @@ ChatServer::ChatServer() : mNetworkManager(0),mDatabaseManager(0),mRouterService
 	// We're done initializing.
 	_updateDBServerList(2);
 
-	gLogger->log(LogManager::INFORMATION,"Chat Server startup complete");
+	gLogger->log(LogManager::CRITICAL,"Chat Server startup complete");
 	//gLogger->printLogo();
 	// std::string BuildString(GetBuildString());
 

@@ -79,7 +79,7 @@ mNetworkManager(0)
 	// We're done initializing.
 	mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE config_process_list SET address='%s', port=%u, status=%u WHERE name='login';", mService->getLocalAddress(), mService->getLocalPort(), 2));
 
-	gLogger->log(LogManager::INFORMATION, "Login Server startup complete");
+	gLogger->log(LogManager::CRITICAL, "Login Server startup complete");
 	//gLogger->printLogo();
 	// std::string BuildString(GetBuildString());	
 

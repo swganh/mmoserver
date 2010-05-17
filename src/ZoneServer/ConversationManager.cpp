@@ -94,7 +94,7 @@ void ConversationManager::handleDatabaseJobComplete(void* ref, DatabaseResult* r
 			}
 
 			if(result->getRowCount())
-				gLogger->log(LogManager::INFORMATION,"Loading %u conversations...",result->getRowCount());				
+				gLogger->log(LogManager::NOTICE,"Loaded conversations.");				
 
 			
 			mDatabase->DestroyDataBinding(binding);

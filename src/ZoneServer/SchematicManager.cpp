@@ -243,7 +243,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
 			if(!--mGroupLoadCount)
 			{
-				gLogger->log(LogManager::DEBUG,"Loaded %u groups and %u schematics",mGroupCount,mSchematicCount);
+				gLogger->log(LogManager::NOTICE,"Loaded groups and schematics.");
 
 		
 			}

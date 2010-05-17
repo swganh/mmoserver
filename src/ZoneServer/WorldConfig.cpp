@@ -187,12 +187,12 @@ void WorldConfig::buildAttributeMap(DatabaseResult* result)
 	mConfigurationBinding->addField(DFT_bstring,offsetof(Configuration_QueryContainer,mKey),64,0);
 	mConfigurationBinding->addField(DFT_bstring,offsetof(Configuration_QueryContainer,mValue),128,1);
 	
-	gLogger->log(LogManager::NOTICE,"Adding Configuration");
+	//gLogger->log(LogManager::DEBUG,"Adding Attribute Configuration");
 	
 	for(uint64 i = 0;i < count;i++)
 	{
 		result->GetNextRow(mConfigurationBinding,(void*)&attribute);
-		gLogger->logCont(LogManager::INFORMATION,"Adding Attribute %s: %s ",attribute.mKey.getAnsi(),attribute.mValue.getAnsi());
+		//gLogger->logCont(LogManager::DEBUG,"Adding Attribute %s: %s ",attribute.mKey.getAnsi(),attribute.mValue.getAnsi());
 		
 
 		if(hasConfiguration(attribute.mKey))
@@ -207,7 +207,7 @@ void WorldConfig::buildAttributeMap(DatabaseResult* result)
 
 	if(count > 0)
 	{
-		gLogger->log(LogManager::INFORMATION,"%u attributes mapped...",count);		
+		gLogger->log(LogManager::NOTICE,"Mapped %u Server Attributes.",count);		
 	}
 
 }

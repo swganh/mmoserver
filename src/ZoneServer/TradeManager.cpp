@@ -465,7 +465,7 @@ void TradeManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 				}
 				if(result->getRowCount())
-					gLogger->log(LogManager::DEBUG,"Loading %u frog items...",result->getRowCount());
+					gLogger->log(LogManager::NOTICE,"Loaded frog items.");
 
 			}
 		break;

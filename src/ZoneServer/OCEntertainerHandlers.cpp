@@ -824,7 +824,7 @@ void ObjectController::handleImageDesignChangeMessage(Message* message,uint64 ta
 
 	message->getStringAnsi(holoEmote);
 
-	if(customerAccept &&designerCommit)
+	if(((imageDesigner == customer)||customerAccept) &&designerCommit)
 	{
 		if(imageDesigner->getImageDesignSession() == IDSessionNONE)
 			return;
@@ -1079,8 +1079,6 @@ void ObjectController::_handlePlayHoloEmote(uint64 targetId,Message* message,Obj
 		return;
 	}
 
-	string emoteName;
-
 	bool lotsOfStuff = false;
 
 	if(!strcmp(cmdLine,"help"))
@@ -1088,36 +1086,35 @@ void ObjectController::_handlePlayHoloEmote(uint64 targetId,Message* message,Obj
 		if(!strcmp(myEmote->pEmoteName,"all"))
 		{
 			lotsOfStuff = true;
-			emoteName = gEntertainerManager->getHoloNames();
 		}
-		else
-			emoteName = myEmote->pEmoteName;
 
 		//just give help
-		int8 sql[512], sql1[1024];
+		int8 sql[512], sql1[512];
 
 		if(lotsOfStuff)
 		{
-			sprintf(sql,"Your current Holo Emotes are %s.\xa You have %u charges remaining."
-			"\xa To play your Holo-Emote type \x2fholoemote <name>.\xa To delete your Holo-Emote type \x2fholoemote delete. "
-			"\xa Purchasing a new Holo-Emote will automatically delete your current Holo-Emote.",emoteName.getAnsi(),we->getHoloCharge());
-		}
-		else
-		{
-			sprintf(sql,"Your current Holo Emote is %s.\xa You have %u charges remaining."
-			"\xa To play your Holo-Emote type \x2fholoemote <name>.\xa To delete your Holo-Emote type \x2fholoemote delete. "
-			"\xa Purchasing a new Holo-Emote will automatically delete your current Holo-Emote.",emoteName.getAnsi(),we->getHoloCharge());
-		}
+			sprintf(sql1,"Your Holo-Emote generator can play all Holo-Emotes available. You have %u charges remaining."
+			"\xa To play your Holo-Emote type \x2fholoemote \x3cname\x3e.\xa To delete your Holo-Emote type \x2fholoemote delete. "
+			"\xa Purchasing a new Holo-Emote will automatically delete your current Holo-Emote.",we->getHoloCharge());
 
-		sprintf(sql1,"%s \xa \xa The available Holo-Emote names are: \xa \xa"
+			sprintf(sql,"%s \xa \xa The available Holo-Emote names are: \xa \xa"
 			"Beehive \x9 \x9 Blossom \x9 Brainstorm \xa"
 			"Bubblehead \x9 Bullhorns \x9 Butterflies \xa"
 			"Champagne \x9 Haunted \x9 Hearts \xa"
 			"Hologlitter \x9 \x9 Holonotes \x9 Imperial \xa"
 			"Kitty \x9 \x9 \x9 Phonytail \x9 Rebel \xa"
-			"Sparky",sql);
+			"Sparky",sql1);
+		}
+		else
+		{
+			sprintf(sql,"Your current Holo Emote is %s.\xa You have %u charges remaining."
+			"\xa To play your Holo-Emote type \x2fholoemote %s.\xa To delete your Holo-Emote type \x2fholoemote delete. "
+			"\xa Purchasing a new Holo-Emote will automatically delete your current Holo-Emote.",myEmote->pEmoteName,we->getHoloCharge(),myEmote->pEmoteName);
+		}
 
-		gUIManager->createNewMessageBox(NULL,"holoHelpOff","Holo-Emote Help",sql1,we);
+		
+
+		gUIManager->createNewMessageBox(NULL,"holoHelpOff","Holo-Emote Help",sql,we);
 
 		return;
 	}

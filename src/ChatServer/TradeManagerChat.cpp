@@ -1975,7 +1975,7 @@ void TradeManagerChatHandler::handleGlobalTickUpdate()
 //=======================================================================================================================
 void TradeManagerChatHandler::handleTimer(uint32 id, void* container)
 {
-    boost::mutex::scoped_lock (mTimerMutex);
+    boost::mutex::scoped_lock lock(mTimerMutex);
 	mTimerEventQueue.push(id);
 }
 

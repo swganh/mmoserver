@@ -297,10 +297,6 @@ bool MessageLib::sendOpenedContainer(uint64 objectId, PlayerObject* targetObject
 //
 void MessageLib::sendUpdateTransformMessage(MovingObject* object)
 {
-	if(!object)
-	{
-		return;
-	}
 
 	mMessageFactory->StartMessage();
 	mMessageFactory->addUint32(opUpdateTransformMessage);          

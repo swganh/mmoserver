@@ -561,16 +561,90 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback, 
 		void	_handleHarvesterActivate(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleHarvesterDeActivate(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleDiscardHopper(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
-
-		
-		void	_handleItemRotationLeft90(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
-		void	_handleItemRotationRight90(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
-		void	_handleItemMoveUp(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
-
-		void	_handleItemMoveForward(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
-		void	_handleItemMoveBack(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
-		void	_handleItemMoveDown(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
-
+    
+    /// This command is used to move an item forward .1 of a meter.
+    /**
+     * This command is invoked by the client to move items forward by .1 of a 
+     * meter while inside a structure.
+     *
+     * The client enters the message in the following format:
+     *   /itemMoveForward
+     *
+     * @param target_id The targeted item is the one being moved.
+     * @param message The message from the client requesting this command.
+     * @param cmd_properties Contextual information for use during processing this command.
+     */
+		void HandleItemMoveForward_(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
+    
+    /// This command is used to move an item back .1 of a meter.
+    /**
+     * This command is invoked by the client to move items backwards by .1 of a 
+     * meter while inside a structure.
+     *
+     * The client enters the message in the following format:
+     *   /itemMoveBack
+     *
+     * @param target_id The targeted item is the one being moved.
+     * @param message The message from the client requesting this command.
+     * @param cmd_properties Contextual information for use during processing this command.
+     */
+		void HandleItemMoveBack_(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
+    
+    /// This command is used to move an item up .1 of a meter.
+    /**
+     * This command is invoked by the client to move items up by .1 of a meter
+     * while inside a structure.
+     *
+     * The client enters the message in the following format:
+     *   /itemMoveUp
+     *
+     * @param target_id The targeted item is the one being moved.
+     * @param message The message from the client requesting this command.
+     * @param cmd_properties Contextual information for use during processing this command.
+     */
+		void HandleItemMoveUp_(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
+    
+    /// This command is used to move an item down .1 of a meter.
+    /**
+     * This command is invoked by the client to move items down by .1 of a meter
+     * while inside a structure.
+     *
+     * The client enters the message in the following format:
+     *   /itemMoveDown
+     *
+     * @param target_id The targeted item is the one being moved.
+     * @param message The message from the client requesting this command.
+     * @param cmd_properties Contextual information for use during processing this command.
+     */
+		void HandleItemMoveDown_(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
+    
+    /// This command is used to rotate an item left by 90 degrees.
+    /**
+     * This command is invoked by the client to rotate items by 90 degrees
+     * while inside a structure.
+     *
+     * The client enters the message in the following format:
+     *   /itemRotateLeft
+     *
+     * @param target_id The targeted item is the one being rotated.
+     * @param message The message from the client requesting this command.
+     * @param cmd_properties Contextual information for use during processing this command.
+     */
+		void HandleItemRotateLeft_(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
+    
+    /// This command is used to rotate an item right by 90 degrees.
+    /**
+     * This command is invoked by the client to rotate items by 90 degrees
+     * while inside a structure.
+     *
+     * The client enters the message in the following format:
+     *   /itemRotateRight
+     *
+     * @param target_id The targeted item is the one being rotated.
+     * @param message The message from the client requesting this command.
+     * @param cmd_properties Contextual information for use during processing this command.
+     */
+		void HandleItemRotateRight_(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 
     /// This command is used to move items about a structure.
     /**

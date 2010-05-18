@@ -336,16 +336,16 @@ enum object_controller_generic_functions
 	opHarvesterActivate					= 0xCE645C94,
 	opHarvesterDeActivate				= 0x2C61CB03,
 	opDiscardHopper						= 0xC89B9E26,
-	opItemRotation						= 0xa8eb1d48,
-	opItemRotationRight90				= 0x8dfc28ab,
-	opItemRotationLeft90				= 0x3816ae47,
 
-	opItemMoveUp						= 0xf6a83a09,
-	opItemMoveForward					= 0xb8effe04,
-	opItemMoveBack						= 0x67ac3903,
-	opItemMoveDown						= 0xefe50324,
+	opItemMoveUp      = 0xf6a83a09,
+	opItemMoveForward	= 0xb8effe04,
+	opItemMoveBack		= 0x67ac3903,
+	opItemMoveDown		= 0xefe50324,
+	opItemRotateRight	= 0x8dfc28ab,
+	opItemRotateLeft	= 0x3816ae47,
 
-  opMoveFurniture           = 0x4b74a403,
+  opMoveFurniture   = 0x4b74a403,
+  opRotateFurniture = 0xa8eb1d48,
 
 
 	//social

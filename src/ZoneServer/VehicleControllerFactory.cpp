@@ -72,7 +72,7 @@ void VehicleControllerFactory::requestObject(ObjectFactoryCallback* ofCallback,u
 {
 
 	mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,VehicleControllerFactoryQuery_TypesId,client,id),
-		"SELECT Vehicle_types_id FROM Vehicles WHERE id = %"PRIu64"",id);
+		"SELECT vehicle_types_id FROM vehicles WHERE id = %"PRIu64"",id);
 
 
 }
@@ -147,7 +147,7 @@ void VehicleControllerFactory::handleDatabaseJobComplete(void* ref,DatabaseResul
 			aContainer->mObject = (Object*)(IntangibleObject*)vehicleController;
 
 
-			mDatabase->ExecuteSqlAsync(this,aContainer,"SELECT Vehicle_types_id, parent, Vehicle_hitpoint_loss,Vehicle_incline_acceleration,Vehicle_flat_acceleration FROM Vehicles WHERE id = %"PRIu64"",vehicleController->getId());
+			mDatabase->ExecuteSqlAsync(this,aContainer,"SELECT vehicle_types_id, parent, vehicle_hitpoint_loss, vehicle_incline_acceleration, vehicle_flat_acceleration FROM vehicles WHERE id = %"PRIu64"",vehicleController->getId());
 
 
 		}
@@ -170,7 +170,7 @@ void VehicleControllerFactory::handleDatabaseJobComplete(void* ref,DatabaseResul
 				mDatabase->ExecuteSqlAsync(this,asyncrContainer,"SELECT attributes.name, vehicle_attributes.attribute_value, attributes.internal"
 					" FROM attributes"
 					" INNER JOIN vehicle_attributes ON (attributes.id = vehicle_attributes.attribute_id)"
-					" WHERE Vehicle_attributes.vehicles_id = %"PRIu64" ORDER BY vehicle_attributes.attribute_order",asyncContainer->mId);
+					" WHERE Vehicle_attributes.vehicles_id = %"PRIu64" ORDER BY vehicle_attributes.attribute_order", asyncContainer->mId);
 			}
 
 		}
@@ -272,8 +272,5 @@ void VehicleControllerFactory::handleObjectReady(Object* object,DispatchClient* 
 				vehicle->call();
 			}
 		}
-
-
 	}
-
 }

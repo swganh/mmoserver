@@ -10,6 +10,16 @@ Copyright (c) 2006 - 2010 The swgANH Team
 */
 
 //common includes
+#include "ObjectController.h"
+
+#include <cstdint>
+
+#ifdef _MSC_VER
+#include <regex>  // NOLINT
+#else
+#include <boost/regex.hpp>  // NOLINT
+#endif
+
 #include "Deed.h"
 #include "HarvesterFactory.h"
 #include "Heightmap.h"
@@ -20,7 +30,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "PlayerObject.h"
 #include "Inventory.h"
 #include "Item.h"
-#include "ObjectController.h"
 #include "ObjectControllerCommandMap.h"
 #include "ObjectControllerOpcodes.h"
 #include "ObjectFactory.h"
@@ -41,6 +50,24 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include "StructureHeightmapAsyncContainer.h"
 
+// GCC doesn't fully support regex yet (some methods are unimplemented at this
+// time), so fall back to the boost regex (which is essentially the same
+// interface, different namespace). Once GCC finishes their implementation all
+// boost/regex references can be removed.
+#ifdef WIN32
+using ::std::regex;
+using ::std::smatch;
+using ::std::regex_search;
+using ::std::sregex_token_iterator;
+#else
+using ::boost::regex;
+using ::boost::smatch;
+using ::boost::regex_search;
+using ::boost::sregex_token_iterator;
+#endif
+
+const float MOVE_INCREMENT   = 0.10f;
+const float ROTATE_INCREMENT = 90.0f;
 
 //======================================================================================================================
 //
@@ -929,55 +956,57 @@ void	ObjectController::handleResourceEmptyHopper(Message* message)
 //
 // moves an item
 //
-void	ObjectController::_handleItemMoveForward(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
-{
+void	ObjectController::HandleItemMoveForward_(
+  uint64 targetId,
+  Message* message,
+  ObjectControllerCmdProperties* cmdProperties) {
 
-	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+  PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+  
+  if (!player)	{
+    assert(false && "ObjectController::HandleItemMoveForward_ Player not found");
+    return;
+  }
 
-	if(!player)
-	{
-		gLogger->logMsgF(" ObjectController::_handleItemRotation Player not found",MSG_HIGH);
-		return;
-	}
+  // Verify that there was a target passed.
+  if (!targetId) {
+    gMessageLib->sendSystemMessage(player, L"", "player_structure", "move_what");
+    return;
+  }
+  
+  Object* object = gWorldManager->getObjectById(targetId);
+  
+  if(!object)	{
+    assert(false && "ObjectController::HandleItemMoveForward_ item not found");
+    return;
+  }
 
-	//do we have a valid item ??? 
-	uint64 id = targetId;
-	Object* object = gWorldManager->getObjectById(id);
-
-	if(!object)
-	{
-		gLogger->logMsgF(" ObjectController::_handleItemRotation item not found",MSG_HIGH);
-		return;
-	}
-
-	if(CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId())))
-	{
-		if(BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId())))
-		{
-			if(!building->hasAdminRights(player->getId()))
-			{
-				gLogger->logMsgF(" ObjectController::_handleItemRotation no admin rights",MSG_HIGH);
-				return;
-			}
-		}
-		else
-		{
-			gLogger->logMsgF(" ObjectController::_handleItemRotation no structure",MSG_HIGH);
-			return;
-		}
-	}
-	else
-	{
-		gLogger->logMsgF(" ObjectController::_handleItemRotation no cell",MSG_HIGH);
-		return;
-	}
-    
-    // Move the object forward 1/10th of a meter.
-    object->move(player->mDirection, 0.10f);
+  // Verify that the item and player are in the same structure.
+  if (object->getParentId() != player->getParentId()) {
+    gMessageLib->sendSystemMessage(player, L"", "player_structure", "move_what");
+  }
+  
+  // Verify that the player has appropriate rights on this structure.
+  if (CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()))) {
+    if (BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()))) {
+      if (!building->hasAdminRights(player->getId())) {    
+        gMessageLib->sendSystemMessage(player, L"", "player_structure", "admin_move_only");
+        return;
+      }
+    }	else {
+      assert(false && "ObjectController::HandleItemMoveForward_ no structure");
+      return;
+    }
+  } else {
+    assert(false && "ObjectController::HandleItemMoveForward_ no cell");
+    return;
+  }
+  
+  // Move the object forward 1/10th of a meter.
+  object->move(player->mDirection, MOVE_INCREMENT);
     	
 	gMessageLib->sendDataTransformWithParent(object);
 	object->updateWorldPosition();
-
 }
 
 
@@ -985,52 +1014,113 @@ void	ObjectController::_handleItemMoveForward(uint64 targetId,Message* message,O
 //
 // moves an item
 //
-void	ObjectController::_handleItemMoveUp(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
-{
+void	ObjectController::HandleItemMoveBack_(
+  uint64 targetId,
+  Message* message,
+  ObjectControllerCmdProperties* cmdProperties) {
 
-	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+  PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+  
+  if (!player)	{
+    assert(false && "ObjectController::HandleItemMoveBack_ Player not found");
+    return;
+  }
 
-	if(!player)
-	{
-		gLogger->logMsgF(" ObjectController::_handleItemRotation Player not found",MSG_HIGH);
-		return;
-	}
+  // Verify that there was a target passed.
+  if (!targetId) {
+    gMessageLib->sendSystemMessage(player, L"", "player_structure", "move_what");
+    return;
+  }
+  
+  Object* object = gWorldManager->getObjectById(targetId);
+  
+  if(!object)	{
+    assert(false && "ObjectController::HandleItemMoveBack_ item not found");
+    return;
+  }
 
-	//do we have a valid item ??? 
-	uint64 id = targetId;
-	Object* object = gWorldManager->getObjectById(id);
-
-	if(!object)
-	{
-		gLogger->logMsgF(" ObjectController::_handleItemRotation item not found",MSG_HIGH);
-		return;
-	}
-
-	if(CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId())))
-	{
-		if(BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId())))
-		{
-			if(!building->hasAdminRights(player->getId()))
-			{
-				gLogger->logMsgF(" ObjectController::_handleItemRotation no admin rights",MSG_HIGH);
-				return;
-			}
-		}
-		else
-		{
-			gLogger->logMsgF(" ObjectController::_handleItemRotation no structure",MSG_HIGH);
-			return;
-		}
-	}
-	else
-	{
-		gLogger->logMsgF(" ObjectController::_handleItemRotation no cell",MSG_HIGH);
-		return;
-	}
+  // Verify that the item and player are in the same structure.
+  if (object->getParentId() != player->getParentId()) {
+    gMessageLib->sendSystemMessage(player, L"", "player_structure", "move_what");
+  }
+  
+  // Verify that the player has appropriate rights on this structure.
+  if (CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()))) {
+    if (BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()))) {
+      if (!building->hasAdminRights(player->getId())) {    
+        gMessageLib->sendSystemMessage(player, L"", "player_structure", "admin_move_only");
+        return;
+      }
+    }	else {
+      assert(false && "ObjectController::HandleItemMoveBack_ no structure");
+      return;
+    }
+  } else {
+    assert(false && "ObjectController::HandleItemMoveBack_ no cell");
+    return;
+  }
+  
+  // Move the object back 1/10th of a meter.
+  object->move(player->mDirection, -MOVE_INCREMENT);
+  
+  gMessageLib->sendDataTransformWithParent(object);
+  object->updateWorldPosition();
+}
 
 
-	object->mPosition.y += static_cast<float>(0.10);
-	gMessageLib->sendDataTransformWithParent(object);
+//======================================================================================================================
+//
+// moves an item
+//
+void	ObjectController::HandleItemMoveUp_(
+  uint64 targetId,
+  Message* message,
+  ObjectControllerCmdProperties* cmdProperties) {
+
+  PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+  
+  if (!player)	{
+    assert(false && "ObjectController::HandleItemMoveUp_ Player not found");
+    return;
+  }
+
+  // Verify that there was a target passed.
+  if (!targetId) {
+    gMessageLib->sendSystemMessage(player, L"", "player_structure", "move_what");
+    return;
+  }
+  
+  Object* object = gWorldManager->getObjectById(targetId);
+  
+  if(!object)	{
+    assert(false && "ObjectController::HandleItemMoveUp_ item not found");
+    return;
+  }
+
+  // Verify that the item and player are in the same structure.
+  if (object->getParentId() != player->getParentId()) {
+    gMessageLib->sendSystemMessage(player, L"", "player_structure", "move_what");
+  }
+  
+  // Verify that the player has appropriate rights on this structure.
+  if (CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()))) {
+    if (BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()))) {
+      if (!building->hasAdminRights(player->getId())) {    
+        gMessageLib->sendSystemMessage(player, L"", "player_structure", "admin_move_only");
+        return;
+      }
+    }	else {
+      assert(false && "ObjectController::HandleItemMoveUp_ no structure");
+      return;
+    }
+  } else {
+    assert(false && "ObjectController::HandleItemMoveUp_ no cell");
+    return;
+  }
+  
+	object->mPosition.y += MOVE_INCREMENT;
+	
+  gMessageLib->sendDataTransformWithParent(object);
 	object->updateWorldPosition();
 }
 
@@ -1039,219 +1129,170 @@ void	ObjectController::_handleItemMoveUp(uint64 targetId,Message* message,Object
 //
 // moves an item
 //
-void	ObjectController::_handleItemMoveDown(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
-{
+void	ObjectController::HandleItemMoveDown_(
+  uint64 targetId,
+  Message* message,
+  ObjectControllerCmdProperties* cmdProperties) {
 
-	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+  PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+  
+  if (!player)	{
+    assert(false && "ObjectController::HandleItemMoveDown_ Player not found");
+    return;
+  }
 
-	if(!player)
-	{
-		gLogger->logMsgF(" ObjectController::_handleItemRotation Player not found",MSG_HIGH);
-		return;
-	}
+  // Verify that there was a target passed.
+  if (!targetId) {
+    gMessageLib->sendSystemMessage(player, L"", "player_structure", "move_what");
+    return;
+  }
+  
+  Object* object = gWorldManager->getObjectById(targetId);
+  
+  if(!object)	{
+    assert(false && "ObjectController::HandleItemMoveDown_ item not found");
+    return;
+  }
 
-	//do we have a valid item ??? 
-	uint64 id = targetId;
-	Object* object = gWorldManager->getObjectById(id);
+  // Verify that the item and player are in the same structure.
+  if (object->getParentId() != player->getParentId()) {
+    gMessageLib->sendSystemMessage(player, L"", "player_structure", "move_what");
+  }
+  
+  // Verify that the player has appropriate rights on this structure.
+  if (CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()))) {
+    if (BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()))) {
+      if (!building->hasAdminRights(player->getId())) {    
+        gMessageLib->sendSystemMessage(player, L"", "player_structure", "admin_move_only");
+        return;
+      }
+    }	else {
+      assert(false && "ObjectController::HandleItemMoveDown_ no structure");
+      return;
+    }
+  } else {
+    assert(false && "ObjectController::HandleItemMoveDown_ no cell");
+    return;
+  }
 
-	if(!object)
-	{
-		gLogger->logMsgF(" ObjectController::_handleItemRotation item not found",MSG_HIGH);
-		return;
-	}
+  object->mPosition.y -= MOVE_INCREMENT;
 
-	if(CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId())))
-	{
-		if(BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId())))
-		{
-			if(!building->hasAdminRights(player->getId()))
-			{
-				gLogger->logMsgF(" ObjectController::_handleItemRotation no admin rights",MSG_HIGH);
-				return;
-			}
-		}
-		else
-		{
-			gLogger->logMsgF(" ObjectController::_handleItemRotation no structure",MSG_HIGH);
-			return;
-		}
-	}
-	else
-	{
-		gLogger->logMsgF(" ObjectController::_handleItemRotation no cell",MSG_HIGH);
-		return;
-	}
-
-
-	object->mPosition.y -= static_cast<float>(0.10);
-	gMessageLib->sendDataTransformWithParent(object);
-	object->updateWorldPosition();
+  gMessageLib->sendDataTransformWithParent(object);
+  object->updateWorldPosition();
 }
-
-
-
-
-//======================================================================================================================
-//
-// moves an item
-//
-void	ObjectController::_handleItemMoveBack(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
-{
-
-	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
-
-	if(!player)
-	{
-		gLogger->logMsgF(" ObjectController::_handleItemRotation Player not found",MSG_HIGH);
-		return;
-	}
-
-	//do we have a valid item ??? 
-	uint64 id = targetId;
-	Object* object = gWorldManager->getObjectById(id);
-
-	if(!object)
-	{
-		gLogger->logMsgF(" ObjectController::_handleItemRotation item not found",MSG_HIGH);
-		return;
-	}
-
-	if(CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId())))
-	{
-		if(BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId())))
-		{
-			if(!building->hasAdminRights(player->getId()))
-			{
-				gLogger->logMsgF(" ObjectController::_handleItemRotation no admin rights",MSG_HIGH);
-				return;
-			}
-		}
-		else
-		{
-			gLogger->logMsgF(" ObjectController::_handleItemRotation no structure",MSG_HIGH);
-			return;
-		}
-	}
-	else
-	{
-		gLogger->logMsgF(" ObjectController::_handleItemRotation no cell",MSG_HIGH);
-		return;
-	}
-
-    // Move the object back 1/10th of a meter.
-    object->move(player->mDirection, -0.10f);
-
-	gMessageLib->sendDataTransformWithParent(object);
-	object->updateWorldPosition();
-}
-
-
-
 
 
 //======================================================================================================================
 //
 // rotates an item	 90d to right
 //
-void	ObjectController::_handleItemRotationRight90(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
-{
-	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+void	ObjectController::HandleItemRotateRight_(
+  uint64 targetId,
+  Message* message,
+  ObjectControllerCmdProperties* cmdProperties) {
 
-	if(!player)
-	{
-		gLogger->logMsgF(" ObjectController::_handleItemRotation Player not found",MSG_HIGH);
-		return;
-	}
+  PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+  
+  if (!player)	{
+    assert(false && "ObjectController::HandleItemRotateRight_ Player not found");
+    return;
+  }
 
-	//do we have a valid item ??? 
-	uint64 id = targetId;
-	Object* object = gWorldManager->getObjectById(id);
+  // Verify that there was a target passed.
+  if (!targetId) {
+    gMessageLib->sendSystemMessage(player, L"", "player_structure", "rotate_what");
+    return;
+  }
+  
+  Object* object = gWorldManager->getObjectById(targetId);
+  
+  if(!object)	{
+    assert(false && "ObjectController::HandleItemRotateRight_ item not found");
+    return;
+  }
 
-	if(!object)
-	{
-		gLogger->logMsgF(" ObjectController::_handleItemRotation item not found",MSG_HIGH);
-		return;
-	}
-
-	if(CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId())))
-	{
-		if(BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId())))
-		{
-			if(!building->hasAdminRights(player->getId()))
-			{
-				gLogger->logMsgF(" ObjectController::_handleItemRotation no admin rights",MSG_HIGH);
-				return;
-			}
-		}
-		else
-		{
-			gLogger->logMsgF(" ObjectController::_handleItemRotation no structure",MSG_HIGH);
-			return;
-		}
-	}
-	else
-	{
-		gLogger->logMsgF(" ObjectController::_handleItemRotation no cell",MSG_HIGH);
-		return;
-	}
+  // Verify that the item and player are in the same structure.
+  if (object->getParentId() != player->getParentId()) {
+    gMessageLib->sendSystemMessage(player, L"", "player_structure", "rotate_what");
+  }
+  
+  // Verify that the player has appropriate rights on this structure.
+  if (CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()))) {
+    if (BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()))) {
+      if (!building->hasAdminRights(player->getId())) {    
+        gMessageLib->sendSystemMessage(player, L"", "player_structure", "admin_move_only");
+        return;
+      }
+    }	else {
+      assert(false && "ObjectController::HandleItemRotateRight_ no structure");
+      return;
+    }
+  } else {
+    assert(false && "ObjectController::HandleItemRotateRight_ no cell");
+    return;
+  }
 	
-    // Rotate the object 90 degree's to the right
-    object->rotateRight(90.0f);
-    
-    gMessageLib->sendDataTransformWithParent(object);
-	object->updateWorldPosition();
+  // Rotate the object 90 degree's to the right
+  object->rotateRight(ROTATE_INCREMENT);
+  
+  gMessageLib->sendDataTransformWithParent(object);
+  object->updateWorldPosition();
 }
 
 //======================================================================================================================
 //
 // rotates an item 90d to left
 //
-void ObjectController::_handleItemRotationLeft90(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
-{
-	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+void ObjectController::HandleItemRotateLeft_(
+  uint64 targetId,
+  Message* message,
+  ObjectControllerCmdProperties* cmdProperties) {
 
-	if(!player)
-	{
-		gLogger->logMsgF(" ObjectController::_handleItemRotation Player not found",MSG_HIGH);
-		return;
-	}
+  PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+  
+  if (!player)	{
+    assert(false && "ObjectController::HandleItemRotateLeft_ Player not found");
+    return;
+  }
 
-	//do we have a valid item ??? 
-	uint64 id = targetId;
-	Object* object = gWorldManager->getObjectById(id);
+  // Verify that there was a target passed.
+  if (!targetId) {
+    gMessageLib->sendSystemMessage(player, L"", "player_structure", "rotate_what");
+    return;
+  }
+  
+  Object* object = gWorldManager->getObjectById(targetId);
+  
+  if(!object)	{
+    assert(false && "ObjectController::HandleItemRotateLeft_ item not found");
+    return;
+  }
 
-	if(!object)
-	{
-		gLogger->logMsgF(" ObjectController::_handleItemRotation item not found",MSG_HIGH);
-		return;
-	}
-
-	if(CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId())))
-	{
-		if(BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId())))
-		{
-			if(!building->hasAdminRights(player->getId()))
-			{
-				gLogger->logMsgF(" ObjectController::_handleItemRotation no admin rights",MSG_HIGH);
-				return;
-			}
-		}
-		else
-		{
-			gLogger->logMsgF(" ObjectController::_handleItemRotation no structure",MSG_HIGH);
-			return;
-		}
-	}
-	else
-	{
-		gLogger->logMsgF(" ObjectController::_handleItemRotation no cell",MSG_HIGH);
-		return;
-	}
+  // Verify that the item and player are in the same structure.
+  if (object->getParentId() != player->getParentId()) {
+    gMessageLib->sendSystemMessage(player, L"", "player_structure", "rotate_what");
+  }
+  
+  // Verify that the player has appropriate rights on this structure.
+  if (CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()))) {
+    if (BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()))) {
+      if (!building->hasAdminRights(player->getId())) {    
+        gMessageLib->sendSystemMessage(player, L"", "player_structure", "admin_move_only");
+        return;
+      }
+    }	else {
+      assert(false && "ObjectController::HandleItemRotateLeft_ no structure");
+      return;
+    }
+  } else {
+    assert(false && "ObjectController::HandleItemRotateLeft_ no cell");
+    return;
+  }
 	
 	// Rotate the item 90 degrees to the left
-    object->rotateLeft(90.0f);
-    
-    gMessageLib->sendDataTransformWithParent(object);
+  object->rotateLeft(ROTATE_INCREMENT);
+  
+  gMessageLib->sendDataTransformWithParent(object);
 	object->updateWorldPosition();
 }
 
@@ -1259,70 +1300,197 @@ void ObjectController::_handleItemRotationLeft90(uint64 targetId,Message* messag
 //
 // rotates an item
 //
-void ObjectController::_handleItemRotation(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
-{
+void ObjectController::HandleRotateFurniture_(
+  uint64 targetId, 
+  Message* message,
+  ObjectControllerCmdProperties* cmdProperties) {
+  
+  PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+  
+  if (!player)	{
+    assert(false && "ObjectController::HandleRotateFurniture_ Player not found");
+    return;
+  }
 
-	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+  // Verify that there was a target passed.
+  if (!targetId) {
+    gMessageLib->sendSystemMessage(player, L"", "player_structure", "rotate_what");
+    return;
+  }
+  
+  Object* object = gWorldManager->getObjectById(targetId);
+  
+  if(!object)	{
+    assert(false && "ObjectController::HandleRotateFurniture_ item not found");
+    return;
+  }
 
-	if(!player)
-	{
-		gLogger->logMsgF(" ObjectController::_handleItemRotation Player not found",MSG_HIGH);
-		return;
-	}
+  // Verify that the item and player are in the same structure.
+  if (object->getParentId() != player->getParentId()) {
+    gMessageLib->sendSystemMessage(player, L"", "player_structure", "rotate_what");
+  }
+  
+  // Verify that the player has appropriate rights on this structure.
+  if (CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()))) {
+    if (BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()))) {
+      if (!building->hasAdminRights(player->getId())) {    
+        gMessageLib->sendSystemMessage(player, L"", "player_structure", "admin_move_only");
+        return;
+      }
+    }	else {
+      assert(false && "ObjectController::HandleRotateFurniture_ no structure");
+      return;
+    }
+  } else {
+    assert(false && "ObjectController::HandleRotateFurniture_ no cell");
+    return;
+  }
+  
+  // Read the message out of the packet.
+  string tmp;
+  message->getStringUnicode16(tmp);
 
-	//do we have a valid item ??? 
-	uint64 id = targetId;
-	Object* object = gWorldManager->getObjectById(id);
+  // If the string has no length the message is ill-formatted, send the
+  // proper format to the client.
+  if (!tmp.getLength()) {
+    gMessageLib->sendSystemMessage(player, L"", "player_structure", "formet_rotratefurniture_degrees");
+    return;
+  }
 
-	if(!object)
-	{
-		gLogger->logMsgF(" ObjectController::_handleItemRotation item not found",MSG_HIGH);
-		return;
-	}
+  // Convert the string to an ansi string for ease with the regex.
+  tmp.convert(BSTRType_ANSI);
+  std::string input_string(tmp.getAnsi());
 
-	if(CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId())))
-	{
-		if(BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId())))
-		{
-			if(!building->hasAdminRights(player->getId()))
-			{
-				gLogger->logMsgF(" ObjectController::_handleItemRotation no admin rights",MSG_HIGH);
-				return;
-			}
-		}
-		else
-		{
-			gLogger->logMsgF(" ObjectController::_handleItemRotation no structure",MSG_HIGH);
-			return;
-		}
-	}
-	else
-	{
-		gLogger->logMsgF(" ObjectController::_handleItemRotation no cell",MSG_HIGH);
-		return;
-	}
+  static const regex pattern("(right|left) ([0-9]+)");
+  smatch result;
 
+  regex_search(input_string, result, pattern);
+  
+  // If the pattern doesn't match all elements then send the proper format
+  // to the client.
+  if (result.length() < 2) {
+    gMessageLib->sendSystemMessage(player, L"", "player_structure", "formet_rotratefurniture_degrees");
+    return;
+  }
+  
+  // Gather the results of the pattern for validation and use.
+  std::string direction(result[1]);
+  float degrees = boost::lexical_cast<float>(result[2]);
 
-	string dataStr;
-	message->getStringUnicode16(dataStr);
+  // If the the specified amount is not within the valid range notify the client.
+  if (degrees < 1.0f || degrees > 180.0f) {
+    gMessageLib->sendSystemMessage(player, L"", "player_structure", "rotate_params");
+    return;
+  }
 
-	uint32 degrees;
-	int8 direction[32];
-	dataStr.convert(BSTRType_ANSI);
-	sscanf(dataStr.getAnsi(),"%s %u",&direction, &degrees);
+  // Rotate by the necessary amount.
+  if (direction.compare("left") == 0) {
+    object->rotateLeft(degrees);
+  } else {
+    object->rotateRight(degrees);
+  }
 
-	gLogger->logMsgF(" ObjectController::_handleItemRotation direction %s",MSG_HIGH,direction);
-	
-	if(strcmp(direction,"left") == 0) {
-        // Rotate the item left by a specified number of degrees
-        object->rotateLeft(static_cast<float>(degrees));
-	}
-
-	if(strcmp(direction,"right") == 0) {
-        // Rotate the item right by a specified number of degrees
-        object->rotateRight(static_cast<float>(degrees));
-	}
-    
-    gMessageLib->sendDataTransformWithParent(object);
-	object->updateWorldPosition();
+  // Update the world with the changes.
+  gMessageLib->sendDataTransformWithParent(object);
+  object->updateWorldPosition();
 }
+
+void ObjectController::HandleMoveFurniture_(
+  uint64 targetId,
+  Message* message,
+  ObjectControllerCmdProperties* cmdProperties) {
+
+  PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+  
+  if (!player)	{
+    assert(false && "ObjectController::HandleItemMoveDown_ Player not found");
+    return;
+  }
+
+  // Verify that there was a target passed.
+  if (!targetId) {
+    gMessageLib->sendSystemMessage(player, L"", "player_structure", "move_what");
+    return;
+  }
+  
+  Object* object = gWorldManager->getObjectById(targetId);
+  
+  if(!object)	{
+    assert(false && "ObjectController::HandleItemMoveDown_ item not found");
+    return;
+  }
+
+  // Verify that the item and player are in the same structure.
+  if (object->getParentId() != player->getParentId()) {
+    gMessageLib->sendSystemMessage(player, L"", "player_structure", "move_what");
+  }
+  
+  // Verify that the player has appropriate rights on this structure.
+  if (CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()))) {
+    if (BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()))) {
+      if (!building->hasAdminRights(player->getId())) {    
+        gMessageLib->sendSystemMessage(player, L"", "player_structure", "admin_move_only");
+        return;
+      }
+    }	else {
+      assert(false && "ObjectController::HandleItemMoveDown_ no structure");
+      return;
+    }
+  } else {
+    assert(false && "ObjectController::HandleItemMoveDown_ no cell");
+    return;
+  }
+  
+  // Read the message out of the packet.
+  string tmp;
+  message->getStringUnicode16(tmp);
+
+  // If the string has no length the message is ill-formatted, send the
+  // proper format to the client.
+  if (!tmp.getLength()) {
+    gMessageLib->sendSystemMessage(player, L"", "player_structure", "format_movefurniture_distance");
+    return;
+  }
+
+  // Convert the string to an ansi string for ease with the regex.
+  tmp.convert(BSTRType_ANSI);
+  std::string input_string(tmp.getAnsi());
+
+  static const regex pattern("(forward|back|up|down) ([0-9]+)");
+  smatch result;
+
+  regex_search(input_string, result, pattern);
+  
+  // If the pattern doesn't match all elements then send the proper format
+  // to the client.
+  if (result.length() < 2) {
+    gMessageLib->sendSystemMessage(player, L"", "player_structure", "format_movefurniture_distance");
+    return;
+  }
+  
+  // Gather the results of the pattern for validation and use.
+  std::string direction(result[1]);
+  float distance = boost::lexical_cast<float>(result[2]);
+
+  // If the the specified amount is not within the valid range notify the client.
+  if ((distance < 1.0f) || (distance > 500.0f)) {
+    gMessageLib->sendSystemMessage(player, L"", "player_structure", "movefurniture_params");
+    return;
+  }
+
+  // Move object an MOVE_INCREMENT times by the amount and direction specified.
+  if (direction == "forward") {
+    object->move(player->mDirection, distance * MOVE_INCREMENT);
+  } else if (direction == "back") {
+    object->move(player->mDirection, -distance * MOVE_INCREMENT);
+  } else if (direction == "up") {
+    object->mPosition.y += distance * MOVE_INCREMENT;
+  } else if (direction == "down") {
+    object->mPosition.y -= distance * MOVE_INCREMENT;
+  }
+
+  // Update the world with the changes.
+  gMessageLib->sendDataTransformWithParent(object);
+  object->updateWorldPosition();
+}
+

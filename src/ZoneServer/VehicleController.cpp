@@ -267,8 +267,6 @@ void VehicleController::dismountPlayer()
 		return;
 	}
 
-	gMessageLib->sendContainmentMessage_InRange(mOwner->getId(),mId, 4, mOwner);
-
 	//For safe measures make the player equipped by nothing
 	gMessageLib->sendContainmentMessage_InRange(mOwner->getId(), 0, 0xffffffff, mOwner);
 

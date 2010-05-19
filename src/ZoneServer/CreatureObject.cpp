@@ -662,10 +662,10 @@ void CreatureObject::incap()
 		if(player->checkIfMounted())
 		{
 			//Get the player's mount
-			if(VehicleController* vehicle = dynamic_cast<VehicleController*>(gWorldManager->getObjectById(player->getMount()->getPetController())))
+			if(VehicleController* vehicle = dynamic_cast<VehicleController*>(gWorldManager->getObjectById(player->getMount()->controller())))
 			{
 				//Now dismount
-				vehicle->dismountPlayer();
+				vehicle->DismountPlayer();
 			}
 
 		}

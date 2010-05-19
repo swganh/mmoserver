@@ -19,12 +19,12 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 MountObject::MountObject()
 : CreatureObject()
-, mOwner(0)
-, mController(0) {}
+, controller_(0)
+, owner_(0) {}
 
 //=============================================================================
 
-void MountObject::prepareCustomRadialMenu(CreatureObject* creature, uint8 item_count) {
+void MountObject::prepareCustomRadialMenu(CreatureObject* creature, uint8_t item_count) {
 
 	PlayerObject*	player	= dynamic_cast<PlayerObject*>(creature);
   
@@ -42,7 +42,7 @@ void MountObject::prepareCustomRadialMenu(CreatureObject* creature, uint8 item_c
 	mRadialMenu->addItem(1, 0, radId_examine, radAction_Default);
 
   // Check to see if the player requesting the menu is the owner of the mount.
-  if(player->getId() == mOwner)	{
+  if(player->getId() == owner_)	{
 
     // Check to see if the player is mounted or not and display the appropriate exit/enter option.
     if(player->checkIfMounted())	{
@@ -75,7 +75,7 @@ void MountObject::handleObjectMenuSelect(uint8 message_type, Object* source_obje
     {
 		  if(Datapad* datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad))) {			
         if(VehicleController* vehicle = dynamic_cast<VehicleController*>(datapad->getDataById(mId-1))) {
-          vehicle->store();
+          vehicle->Store();
         }
 		  }
     }

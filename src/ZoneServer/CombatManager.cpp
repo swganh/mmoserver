@@ -733,10 +733,10 @@ uint8 CombatManager::_tryStateEffects(CreatureObject* attacker,CreatureObject* d
 			if(player->checkIfMounted())
 			{
 				//Get the player's mount
-				if(VehicleController* vehicle = dynamic_cast<VehicleController*>(gWorldManager->getObjectById(player->getMount()->getPetController())))
+				if(VehicleController* vehicle = dynamic_cast<VehicleController*>(gWorldManager->getObjectById(player->getMount()->controller())))
 				{
 					//Now dismount
-					vehicle->dismountPlayer();
+					vehicle->DismountPlayer();
 				}
 			}
 

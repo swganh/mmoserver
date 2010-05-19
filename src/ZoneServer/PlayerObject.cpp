@@ -143,10 +143,9 @@ PlayerObject::~PlayerObject()
 
 	if(mMount && datapad)
 	{
-		if(VehicleController* datapad_pet = dynamic_cast<VehicleController*>(datapad->getDataById(mMount->getPetController())))
+		if(VehicleController* datapad_pet = dynamic_cast<VehicleController*>(datapad->getDataById(mMount->controller())))
 		{
-			datapad_pet->dismountPlayer();
-			datapad_pet->store();
+			datapad_pet->Store();
 		}
 	}
 

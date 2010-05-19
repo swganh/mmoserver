@@ -54,95 +54,102 @@ class VehicleController : public IntangibleObject {
 	~VehicleController();
 
   
-	int getTypesId() const { return mTypesId; }
-	void setTypesId(int types_id) { mTypesId = types_id; }
+  /// Returns the type id of the vehicle.
+  /**
+   * @returns uint32_t The type id of the vehicle.
+   */  
+	uint32_t type_id() const { return type_id_; }
+  
+  /// Sets the type id of the vehicle.
+  /**
+   * @returns type_id The type id of the vehicle.
+   */  
+	void set_type_id(uint32_t type_id) { type_id_ = type_id; }
 	
   /// Returns the rate of hitpoint loss for the vehicle.
   /**
    * @returns uint32_t The rate of hitpoint loss for the vehicle.
    */  
-  uint32_t getHitPointLoss() const { return mHitPointLoss; }
+  uint32_t hit_point_loss() const { return hit_point_loss_; }
 
   /// Sets the rate of hitpoint loss for the vehicle.
   /**
    * @returns hitpoint_loss The rate of hitpoint loss for the vehicle.
    */  
-  void setHitPointLoss(uint32_t hitpoint_loss) { mHitPointLoss = hitpoint_loss; }
+  void set_hit_point_loss(uint32_t hitpoint_loss) { hit_point_loss_ = hitpoint_loss; }
 
   /// Returns the acceleration rate of the vehicle on an incline.
   /**
    * @returns uint32_t The acceleration rate of the vehicle on an incline.
    */  
-  uint32_t getInclineAcceleration() const { return mInclineAcceleration; }
+  uint32_t incline_acceleration() const { return incline_acceleration_; }
 
   /// Sets the acceleration rate of the vehicle on an incline.
   /**
    * @returns uint32_t The acceleration rate of the vehicle on an incline.
    */  
-  void setInclineAcceleration(uint32_t incline_acceleration) { mInclineAcceleration = incline_acceleration; }
+  void set_incline_acceleration(uint32_t incline_acceleration) { incline_acceleration_ = incline_acceleration; }
 
   /// Returns the acceleration rate of the vehicle on a flat stretch.
   /**
    * @returns uint32_t The acceleration rate of the vehicle on a flat stretch.
    */  
-  int getFlatAcceleration() const { return mFlatAcceleration; }
+  int flat_acceleration() const { return flat_acceleration_; }
 
   /// Returns the acceleration rate of the vehicle on a flat stretch.
   /**
    * @returns uint32_t The acceleration rate of the vehicle on a flat stretch.
    */  
-  void setFlatAcceleration(int flat_acceleration) { mFlatAcceleration = flat_acceleration; }
+  void set_flat_acceleration(int flat_acceleration) { flat_acceleration_ = flat_acceleration; }
 
   /// Returns the player object that owns this vehicle.
   /**
    * @returns PlayerObject The player object that owns this vehicle.
    */  
-  PlayerObject* getOwner() { return mOwner; }
+  PlayerObject* owner() { return owner_; }
   
   /// Sets the player object that owns this vehicle.
   /**
    * @returns owner The player object that owns this vehicle.
    */  
-  void setOwner(PlayerObject* owner) { mOwner = owner; }
+  void set_owner(PlayerObject* owner) { owner_ = owner; }
 
   /// Returns the vehicle this controller is maintaining.
   /**
    * @returns PlayerObject The vehicle this controller is maintaining.
    */  
-  MountObject* getBody() { return mBody; }
+  MountObject* body() { return body_; }
 
   /// Returns the called state of the vehicle.
   /**
    * @returns bool The called state of the vehicle, true if called false if not.
    */ 
-  bool isCalled() const { return mBody != NULL; }
+  bool IsCalled() const { return body_ != NULL; }
   
   /// Calls the vehicle this controller maintains.
-  void call();
+  void Call();
   
   /// Stores the vehicle this controller maintains.
-  void store();
+  void Store();
 
   /// Mounts the owner onto the vehicle.
-  void mountPlayer();
+  void MountPlayer();
   
   /// Dismounts the owner off the vehicle.
-  void dismountPlayer();
+  void DismountPlayer();
 
-  virtual void prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
-  virtual void handleObjectMenuSelect(uint8 messageType, Object* srcObject);
+  virtual void prepareCustomRadialMenu(CreatureObject* creature, uint8_t item_count);
+  virtual void handleObjectMenuSelect(uint8_t message_type, Object* source_object);
 
  private:
 
-  uint64 mBodyId;
+  PlayerObject* owner_;
+  MountObject* body_;
 
-  PlayerObject* mOwner;
-  MountObject* mBody;
-
-  int mTypesId;
-  int mHitPointLoss; //amount of hitpoints lost during travel
-  int mInclineAcceleration;
-  int mFlatAcceleration;
+  uint32_t flat_acceleration_;
+  uint32_t hit_point_loss_; //amount of hitpoints lost during travel
+  uint32_t incline_acceleration_;
+  uint32_t type_id_;
 };
 
 

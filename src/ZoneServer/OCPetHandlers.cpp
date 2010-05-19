@@ -48,30 +48,23 @@ void ObjectController::_handleMount(uint64 targetId,Message* message,ObjectContr
 		{
 			// verify its player's mount
 			MountObject* pet	= dynamic_cast<MountObject*>(gWorldManager->getObjectById(targetId));
-			if (pet && (pet->getOwner() == player->getId()))
+			if (pet && (pet->owner() == player->getId()))
 			{
 				// get the mount Vehicle object by the id (Creature object id - 1 )
 
-				if(VehicleController* vehicle = dynamic_cast<VehicleController*>(gWorldManager->getObjectById(pet->getPetController())))
+				if(VehicleController* vehicle = dynamic_cast<VehicleController*>(gWorldManager->getObjectById(pet->controller())))
 				{
 					//The /mount command can work up to 32m on live
-                    if(glm::distance(vehicle->getBody()->mPosition, player->mPosition) <= 32)
-					{
-						vehicle->mountPlayer();
-					}
-					else
-					{
+          if(glm::distance(vehicle->body()->mPosition, player->mPosition) <= 32)	{
+						vehicle->MountPlayer();
+					}	else {
 						gMessageLib->sendSystemMessage(player,L"Your target is too far away to mount.");
 					}
-				}
-				else
-				{
+				} else {
 					gLogger->logMsg("ObjectController::_handleMount : Cannot find vehicle");
 				}
 			}
-		}
-		else
-		{
+		} else {
 			gMessageLib->sendSystemMessage(player,L"You cannot mount this because you are already mounted.");
 		}
 	}
@@ -102,12 +95,12 @@ void ObjectController::_handleDismount(uint64 targetId,Message* message,ObjectCo
 				pet = dynamic_cast<MountObject*>(gWorldManager->getObjectById(targetId));
 			}
 
-			if (pet && (pet->getOwner() == player->getId()))
+			if (pet && (pet->owner() == player->getId()))
 			{
 				// get the pets controller for a swoop its the vehicle
-				if(VehicleController* vehicle = dynamic_cast<VehicleController*>(gWorldManager->getObjectById(pet->getPetController())))
+				if(VehicleController* vehicle = dynamic_cast<VehicleController*>(gWorldManager->getObjectById(pet->controller())))
 				{
-					vehicle->dismountPlayer();
+					vehicle->DismountPlayer();
 				}
 			}
 		}

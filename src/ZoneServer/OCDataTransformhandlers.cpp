@@ -412,10 +412,9 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 
 							// the vehicle is the INTANGIBLE Datapad Controller
 							// the *vehicle* itself is the BODY
-							if(VehicleController* datapad_pet = dynamic_cast<VehicleController*>(gWorldManager->getObjectById(player->getMount()->getPetController())))
+							if(VehicleController* datapad_pet = dynamic_cast<VehicleController*>(gWorldManager->getObjectById(player->getMount()->controller())))
 							{
-								datapad_pet->dismountPlayer();
-								datapad_pet->store();
+								datapad_pet->Store();
 							}
 						}
 					}

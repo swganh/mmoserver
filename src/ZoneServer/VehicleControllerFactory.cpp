@@ -232,11 +232,11 @@ void VehicleControllerFactory::_setupDatabindings()
 
 	//vehicles_types_id, parent, vehicle_hitpoint_loss,vehicle_incline_acceleration,vehicle_flat_acceleration
 	mVehicleCreo_Binding = mDatabase->CreateDataBinding(5);
-	mVehicleCreo_Binding->addField(DFT_uint32,offsetof(VehicleController,mTypesId),4,0);
+	mVehicleCreo_Binding->addField(DFT_uint32,offsetof(VehicleController,type_id_),4,0);
 	mVehicleCreo_Binding->addField(DFT_uint64,offsetof(VehicleController,mParentId),8,1);
-	mVehicleCreo_Binding->addField(DFT_uint32,offsetof(VehicleController,mHitPointLoss),4,2);
-	mVehicleCreo_Binding->addField(DFT_uint32,offsetof(VehicleController,mInclineAcceleration),4,3);
-	mVehicleCreo_Binding->addField(DFT_uint32,offsetof(VehicleController,mFlatAcceleration),4,4);
+	mVehicleCreo_Binding->addField(DFT_uint32,offsetof(VehicleController,hit_point_loss_),4,2);
+	mVehicleCreo_Binding->addField(DFT_uint32,offsetof(VehicleController,incline_acceleration_),4,3);
+	mVehicleCreo_Binding->addField(DFT_uint32,offsetof(VehicleController,flat_acceleration_),4,4);
 
 
 }
@@ -260,7 +260,7 @@ void VehicleControllerFactory::handleObjectReady(Object* object,DispatchClient* 
 		PlayerObject* player = gWorldManager->getPlayerByAccId(client->getAccountId());
 		if(player)
 		{
-			vehicle->setOwner(player);
+			vehicle->set_owner(player);
 			if(Datapad* datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad)))
 			{
 				datapad->addData(vehicle);
@@ -269,7 +269,7 @@ void VehicleControllerFactory::handleObjectReady(Object* object,DispatchClient* 
 				gMessageLib->sendCreateInTangible(vehicle, datapad->getId(), player);
 
 				//now spawn it in the world
-				vehicle->call();
+				vehicle->Call();
 			}
 		}
 	}

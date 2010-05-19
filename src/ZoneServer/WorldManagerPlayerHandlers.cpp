@@ -231,9 +231,9 @@ void WorldManager::addDisconnectedPlayer(PlayerObject* playerObject)
 
 	if(playerObject->getMount() && datapad)
 	{
-		if(VehicleController* datapad_pet = dynamic_cast<VehicleController*>(datapad->getDataById(playerObject->getMount()->getPetController())))
+		if(VehicleController* datapad_pet = dynamic_cast<VehicleController*>(datapad->getDataById(playerObject->getMount()->controller())))
 		{
-			datapad_pet->store();
+			datapad_pet->Store();
 		}
 	}
 

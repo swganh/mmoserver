@@ -305,7 +305,7 @@ void VehicleController::mountPlayer()
 
 	//Make the mount equip the player
 
-	gMessageLib->sendContainmentMessage_InRange(mOwner->getId(), mBody->getId(), 0xffffffff, mOwner);
+	gMessageLib->sendContainmentMessage_InRange(mOwner->getId(), mBody->getId(), 4, mOwner);
 	gMessageLib->sendUpdateTransformMessage(mBody);
 
 	mOwner->toggleStateOn(CreatureState_RidingMount);

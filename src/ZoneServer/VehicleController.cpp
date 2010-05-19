@@ -9,15 +9,12 @@ Copyright (c) 2006 - 2010 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
-#include <math.h>
-
 #include "VehicleController.h"
 #include "CreatureObject.h"
 #include "IntangibleObject.h"
 #include "PlayerObject.h"
 #include "MountObject.h"
 #include "Heightmap.h"
-#include "Object.h"
 #include "WorldManager.h"
 #include "MessageLib/MessageLib.h"
 
@@ -136,9 +133,6 @@ void VehicleController::call()
 
 	mBody->setId(mId + 1);	// Vehicles are created by the VehicleControllerFactory with +2 step for IDs
 
-	setBodyId(mBody->getId());
-
-	//mBody->setId(gWorldManager->getRandomNpId());
 	mBody->setPetController(this->getId());
 
 	mBody->setOwner(mOwner->getId());
@@ -160,10 +154,10 @@ void VehicleController::call()
 
 	// Set default direction and position for the body.
 	mBody->mDirection = mOwner->mDirection;
-    mBody->mPosition = mOwner->mPosition;
+  mBody->mPosition = mOwner->mPosition;
 
 	// Move it forward 2 meters
-    mBody->moveForward(2);
+  mBody->moveForward(2);
 	
 	// And drop it a little below the terrain to allow the client to normalize it.
 	mBody->mPosition.y = Heightmap::Instance()->getHeight(mBody->mPosition.x, mBody->mPosition.z) - 0.3f;
@@ -185,8 +179,7 @@ void VehicleController::call()
 		
 
 	// add to world
-	if(!gWorldManager->addObject(mBody))
-	{
+	if(!gWorldManager->addObject(mBody)) 	{
 		gLogger->logMsgF("void Vehicle::call() creating vehicle with id % "PRIu64" failed : couldnt add to world", MSG_HIGH, mBody->getId());
 		SAFE_DELETE(mBody);
 		return;

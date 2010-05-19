@@ -208,7 +208,7 @@ bool MessageLib::sendBaselinesCREO_3(CreatureObject* creatureObject,PlayerObject
 	{
 		MountObject* mount = dynamic_cast<MountObject*>(creatureObject);
 		if(mount)
-			mMessageFactory->addUint64(mount->getOwner());
+			mMessageFactory->addUint64(mount->owner());
 		else
 			mMessageFactory->addUint64(0);
 
@@ -1528,7 +1528,7 @@ void MessageLib::sendOwnerUpdateCreo3(MountObject* mount)
 	mMessageFactory->addUint16(2);
 	mMessageFactory->addUint16(13); // CREO 3 owner id
 
-	mMessageFactory->addInt64(mount->getOwner());
+	mMessageFactory->addInt64(mount->owner());
 
 	_sendToInRange(mMessageFactory->EndMessage(),mount,5);
 	//(pObject)->getClient()->SendChannelA(mMessageFactory->EndMessage(),pObject->getAccountId(),CR_Client,5);

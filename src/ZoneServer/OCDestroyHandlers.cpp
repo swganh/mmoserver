@@ -103,7 +103,7 @@ void ObjectController::destroyObject(uint64 objectId)
 
 		if(VehicleController* vehicle = dynamic_cast<VehicleController*>(object))
 		{
-			vehicle->store();
+			vehicle->Store();
 		}
 		
 		gObjectFactory->deleteObjectFromDB(object);

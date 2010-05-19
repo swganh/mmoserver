@@ -9,15 +9,12 @@ Copyright (c) 2006 - 2010 The swgANH Team
 ---------------------------------------------------------------------------------------
 */
 
-#include <math.h>
-
 #include "VehicleController.h"
 #include "CreatureObject.h"
 #include "IntangibleObject.h"
 #include "PlayerObject.h"
 #include "MountObject.h"
 #include "Heightmap.h"
-#include "Object.h"
 #include "WorldManager.h"
 #include "MessageLib/MessageLib.h"
 
@@ -34,53 +31,48 @@ unsigned char Swoop_Customization[99] =	{ 0x61, 0x00, 0x02, 0x11, 0xC3, //custom
 0xC3, 0x9B, 0xC3, 0xBF, 0x01, 0x02, 0x11, 0xC3, 0xBF, 0x03 };
 
 
-VehicleController::VehicleController() : IntangibleObject(),
-mTypesId(0),
-mHitPointLoss(0), //amount of hitpoints lost during travel
-mInclineAcceleration(0),
-mFlatAcceleration(0),
-mOwner(0)
-{
-	mType		= ObjType_Intangible;
-	mItnoGroup	= ItnoGroup_Vehicle;
-	mName		= L"";
-	mBody		= NULL;
+VehicleController::VehicleController() 
+: IntangibleObject()
+, owner_(0)
+, body_(0)
+, flat_acceleration_(0)
+, hit_point_loss_(0)
+, incline_acceleration_(0) {
+
+  // Over-ride base settings.
+  mType       = ObjType_Intangible;
+  mItnoGroup  = ItnoGroup_Vehicle;
+  mName       = L"";
 }
 
-VehicleController::~VehicleController()
-{
-	if(mBody)
-	{
-		gWorldManager->destroyObject(mBody);
-		//delete mBody;
+VehicleController::~VehicleController() {
+	if (body_)	{
+		gWorldManager->destroyObject(body_);
 	}
 }
 
 //=============================================================================
 //handles the radial selection
 
-void VehicleController::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
-{
+void VehicleController::handleObjectMenuSelect(uint8_t message_type, Object* source_object) {
 
-	if(dynamic_cast<PlayerObject*>(srcObject))
-	{
-		switch(messageType)
-		{
+	if(dynamic_cast<PlayerObject*>(source_object)) {
+		switch(message_type)	{
 			case radId_vehicleGenerate:
 			case radId_vehicleStore:
 			{
         // If a body for the vehicle exists then store it, if it doesn't then call it.
-        if (mBody) {
-          store();
+        if (body_) {
+          Store();
         } else {
-				  call();
+				  Call();
         }
 			}
 			break;
 
 			default:
 			{
-				gLogger->logMsgF("Vehicle::Error: unknown radial selection: %d", MSG_NORMAL, messageType);
+        assert(false && "Vehicle::handleObjectMenuSelect Unknown radial selection!");
 			}
 			break;
 		}
@@ -89,9 +81,9 @@ void VehicleController::handleObjectMenuSelect(uint8 messageType,Object* srcObje
 
 //=============================================================================
 //handles the radial selection
-void VehicleController::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount)
-{
-  mRadialMenu.reset(new RadialMenu());
+void VehicleController::prepareCustomRadialMenu(CreatureObject* creature, uint8_t item_count) {
+  
+  mRadialMenu = std::make_shared<RadialMenu>();
   
 	mRadialMenu->addItem(1, 0, radId_vehicleGenerate, radAction_ObjCallback, "@pet/pet_menu:menu_call");
 	mRadialMenu->addItem(2, 0, radId_itemDestroy, radAction_Default);
@@ -102,103 +94,78 @@ void VehicleController::prepareCustomRadialMenu(CreatureObject* creatureObject, 
 //===============================================================================================
 //spawns the physical body (CreatureObject)
 
-void VehicleController::call()
-{
-	if(mBody)
-	{   //Destory the old body before creating a new one
-		gLogger->logMsgF("void Vehicle::call() body already exists", MSG_HIGH);
+void VehicleController::Call() {
+  
+	if(body_)	{
+	  assert(false && "void Vehicle::call() body already exists");
     return;
 	}
 
-	if(mOwner->checkIfMountCalled())
-	{
+	if(owner_->checkIfMountCalled()) {
 		gLogger->logMsgF("void Vehicle::call() mount already called", MSG_HIGH);
 		return;
-
 	}
 
-	if(!mOwner->isConnected() || mOwner->isDead() || mOwner->isIncapacitated()) {
+	if(!owner_->isConnected() || owner_->isDead() || owner_->isIncapacitated()) {
 		return;
 	}
 
-	// create the vehicle creature
-	gLogger->logMsgF("void Vehicle::call() create new body", MSG_HIGH);
-
-	mBody = new MountObject();
+	body_ = new MountObject();
 
 	string cust;
-	cust.initRawBSTR((int8*)Swoop_Customization,BSTRType_ANSI);
-	mBody->setCustomizationStr(cust.getAnsi());
-	mBody->setCreoGroup(CreoGroup_Vehicle);
-	mBody->setTypeOptions(0x1080);
-	mBody->setMoodId(0);
-	mBody->setCL(0);
+	cust.initRawBSTR((int8*)Swoop_Customization, BSTRType_ANSI);
+	body_->setCustomizationStr(cust.getAnsi());
+	body_->setCreoGroup(CreoGroup_Vehicle);
+	body_->setTypeOptions(0x1080);
+	body_->setMoodId(0);
+	body_->setCL(0);
 
-	mBody->setId(mId + 1);	// Vehicles are created by the VehicleControllerFactory with +2 step for IDs
+	body_->setId(mId + 1);	// Vehicles are created by the VehicleControllerFactory with +2 step for IDs
 
-	setBodyId(mBody->getId());
+	body_->set_controller(this->getId());
 
-	//mBody->setId(gWorldManager->getRandomNpId());
-	mBody->setPetController(this->getId());
-
-	mBody->setOwner(mOwner->getId());
-	mBody->setParentId(0);
-	mBody->setModelString(mPhysicalModel);
-	mBody->setSpeciesGroup(mNameFile.getAnsi());
-	mBody->setSpeciesString(mName.getAnsi());
-	mBody->setPosture(0);
-	mBody->setScale(1.0f);
+	body_->set_owner(owner_->getId());
+	body_->setParentId(0);
+	body_->setModelString(mPhysicalModel);
+	body_->setSpeciesGroup(mNameFile.getAnsi());
+	body_->setSpeciesString(mName.getAnsi());
+	body_->setPosture(0);
+	body_->setScale(1.0f);
 
 
 	std::string con = this->getAttribute<std::string>("condition");
-	mBody->getHam()->setPropertyValue(HamBar_Health, HamProperty_CurrentHitpoints,atoi(con.substr(0,con.find_first_of("/")).c_str()));
-	mBody->getHam()->setPropertyValue(HamBar_Health, HamProperty_MaxHitpoints,atoi(con.substr(con.find_first_of("/")+1,con.find_first_of("/")).c_str()));
+	body_->getHam()->setPropertyValue(HamBar_Health, HamProperty_CurrentHitpoints,atoi(con.substr(0,con.find_first_of("/")).c_str()));
+	body_->getHam()->setPropertyValue(HamBar_Health, HamProperty_MaxHitpoints,atoi(con.substr(con.find_first_of("/")+1,con.find_first_of("/")).c_str()));
 
-	mOwner->setMount(mBody);
-	mOwner->setMounted(false);
-	mOwner->setMountCalled(false);
+	owner_->setMount(body_);
+	owner_->setMounted(false);
+	owner_->setMountCalled(false);
 
 	// Set default direction and position for the body.
-	mBody->mDirection = mOwner->mDirection;
-    mBody->mPosition = mOwner->mPosition;
+	body_->mDirection = owner_->mDirection;
+  body_->mPosition  = owner_->mPosition;
 
 	// Move it forward 2 meters
-    mBody->moveForward(2);
+  body_->moveForward(2);
 	
 	// And drop it a little below the terrain to allow the client to normalize it.
-	mBody->mPosition.y = Heightmap::Instance()->getHeight(mBody->mPosition.x, mBody->mPosition.z) - 0.3f;
+	body_->mPosition.y = Heightmap::Instance()->getHeight(body_->mPosition.x, body_->mPosition.z) - 0.3f;
 
-    // Finally rotate it perpendicular to the player.
-    mBody->rotateRight(90.0f);
-
-	//we still get nan's here occasionally
-	//which will assert our quadtree
-
-	if(_isnan(mBody->mPosition.x))
-		mBody->mPosition.x = mOwner->mPosition.x;
-	
-	if(_isnan(mBody->mPosition.y))
-		mBody->mPosition.y = mOwner->mPosition.y;
-
-	if(_isnan(mBody->mPosition.z))
-		mBody->mPosition.z = mOwner->mPosition.z;
-		
+  // Finally rotate it perpendicular to the player.
+  body_->rotateRight(90.0f);
 
 	// add to world
-	if(!gWorldManager->addObject(mBody))
-	{
-		gLogger->logMsgF("void Vehicle::call() creating vehicle with id % "PRIu64" failed : couldnt add to world", MSG_HIGH, mBody->getId());
-		SAFE_DELETE(mBody);
+	if(!gWorldManager->addObject(body_)) {
+		gLogger->logMsgF("void Vehicle::call() creating vehicle with id % "PRIu64" failed : couldnt add to world", MSG_HIGH, body_->getId());
+		SAFE_DELETE(body_);
 		return;
 	}
 
-	gWorldManager->createObjectinWorld(mOwner,mBody);	
+	gWorldManager->createObjectinWorld(owner_, body_);	
 
-	//gMessageLib->sendOwnerUpdateCreo3(mOwner);
-	gMessageLib->sendUpdateTransformMessage(mBody);
+	gMessageLib->sendUpdateTransformMessage(body_);
 
-
-	mOwner->setMountCalled(true);
+	owner_->setMountCalled(true);
 	
 	return;
 }
@@ -206,46 +173,46 @@ void VehicleController::call()
 
 //===============================================================================================
 //stores the physical body
-void VehicleController::store()
+void VehicleController::Store()
 {
-	if(!mBody)
+	if(!body_)
 	{
 		gLogger->logMsg("Vehicle::store() Error: Store was called for a nonexistant body object!");
 		return;
 	}
 
-	if(!mOwner || mOwner->isDead() || mOwner->isIncapacitated())
+	if(!owner_ || owner_->isDead() || owner_->isIncapacitated())
 	{
 		gLogger->logMsg("Vehicle::store() couldnt find owner");
 		return;
 	}
 
 	// todo auto dismount
-	if(mOwner->checkIfMounted())
+	if(owner_->checkIfMounted())
 	{
-		dismountPlayer();
+		DismountPlayer();
 	}
 
-	if(!mOwner->checkIfMountCalled())
+	if(!owner_->checkIfMountCalled())
 	{
 		gLogger->logMsg("Vehicle::store() Mount wasnt called !!!");
 		return;
 	}
 
 	//the body is a creature_object!!!
-	gMessageLib->sendDestroyObject_InRangeofObject(mBody);
+	gMessageLib->sendDestroyObject_InRangeofObject(body_);
 
-	mOwner->setMount(NULL);
+	owner_->setMount(NULL);
 
 
-	mOwner->setMounted(false);
-	mOwner->setMountCalled(false);
+	owner_->setMounted(false);
+	owner_->setMountCalled(false);
 
 	// finally unload & destroy the vehicle creature
-	gWorldManager->destroyObject(mBody);
+	gWorldManager->destroyObject(body_);
 
 	// null the reference
-	mBody = NULL;
+	body_ = NULL;
 
 }
 
@@ -253,101 +220,51 @@ void VehicleController::store()
 //===============================================================================================
 //dismount the owner from the physical body
 
-void VehicleController::dismountPlayer()
-{
- 	if(!mBody)
-	{
-		gLogger->logMsg("Vehicle::dismountPlayer() no Vehicle Body!!!");
+void VehicleController::DismountPlayer() {
+ 	if(!body_) {
+    assert(false && "Vehicle::mountPlayer() no vehicle body!");
 		return;
 	}
 
-	if(!mOwner->checkIfMounted())
-	{
-		gLogger->logMsg("Vehicle::dismountPlayer() not mounted");
+	if(!owner_->checkIfMounted()) {
+    assert(false && "Vehicle::mountPlayer() owner is not mounted!");
 		return;
 	}
-
-	gMessageLib->sendContainmentMessage_InRange(mOwner->getId(),mId, 4, mOwner);
 
 	//For safe measures make the player equipped by nothing
-	gMessageLib->sendContainmentMessage_InRange(mOwner->getId(), 0, 0xffffffff, mOwner);
+	gMessageLib->sendContainmentMessage_InRange(owner_->getId(), 0, 0xffffffff, owner_);
 
-	mBody->toggleStateOff(CreatureState_MountedCreature);
+	body_->toggleStateOff(CreatureState_MountedCreature);
+	gMessageLib->sendStateUpdate(body_);
 
-	mOwner->toggleStateOff(CreatureState_RidingMount);
-	mOwner->setPosture(CreaturePosture_Upright);
+	owner_->toggleStateOff(CreatureState_RidingMount);
+	gMessageLib->sendStateUpdate(owner_);
 
-	gMessageLib->sendStateUpdate(mBody);
-	gMessageLib->sendStateUpdate(mOwner);
-
-	mOwner->setMounted(false);
-
+	owner_->setMounted(false);
 }
 
 //===============================================================================================
 //mount the owner on the physical body
 //
 
-void VehicleController::mountPlayer()
+void VehicleController::MountPlayer()
 {
-	if(!mBody)
-	{
-		gLogger->logMsg("Vehicle::mountPlayer() no Vehicle Body!!!");
-		 return;
-	}
-
-	CreatureObject* body = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(this->getId()+1));
-	if(!body)
-	{
-		gLogger->logMsg("Vehicle::mountPlayer() no Vehicle Body by Id :(!!!");
-		return;
-	}
+  if (!body_) {
+    assert(false && "Vehicle::mountPlayer() no vehicle body!");
+    return;
+  }
 
 	//Make the mount equip the player
+	gMessageLib->sendContainmentMessage_InRange(owner_->getId(), body_->getId(), 4, owner_);
+	gMessageLib->sendUpdateTransformMessage(body_);
+  
+	body_->toggleStateOn(CreatureState_MountedCreature);
+	gMessageLib->sendStateUpdate(body_);
 
-	gMessageLib->sendContainmentMessage_InRange(mOwner->getId(), mBody->getId(), 0xffffffff, mOwner);
-	gMessageLib->sendUpdateTransformMessage(mBody);
+	owner_->toggleStateOn(CreatureState_RidingMount);
+	gMessageLib->sendStateUpdate(owner_);
 
-	mOwner->toggleStateOn(CreatureState_RidingMount);
-	mBody->toggleStateOn(CreatureState_MountedCreature);
-
-	gMessageLib->sendStateUpdate(mOwner);
-	gMessageLib->sendStateUpdate(mBody);
-
-	mOwner->setMounted(true);
-
-	// TEST ERUPTOR
-	// This will ensure the Swoop is seen by other players.
-	// I'm sure this can be solved by identifying what's missing, instead of doing the complete sequense below.
-	// But as a starter, lets test this solution first.
-	PlayerObjectSet* inRangePlayers	= mOwner->getKnownPlayers();
-	PlayerObjectSet::iterator it = inRangePlayers->begin();
-
-	while (it != inRangePlayers->end())
-	{
-		if (!(*it))
-		{
-			++it;
-			gLogger->logMsg("Vehicle::mountPlayer() getObjects in Range :: PlayerObject invalid!!!");
-			continue;
-		}
-
-		PlayerObject* tested = gWorldManager->getPlayerByAccId((*it)->getAccountId());
-		if (!tested)
-		{
-			++it;
-			gLogger->logMsg("Vehicle::mountPlayer() getObjects in Range :: PlayerObject invalid!!!");
-			continue;
-		}
-
-		if ((tested->isConnected()) && (tested->getClient()))
-		{
-			gMessageLib->sendCreateObject(mBody, *it);
-			gMessageLib->sendContainmentMessage(mOwner->getId(), mBody->getId(), 0xffffffff, *it);
-		}
-		++it;
-	}
-
+	owner_->setMounted(true);
 }
 
 //===============================================================================================

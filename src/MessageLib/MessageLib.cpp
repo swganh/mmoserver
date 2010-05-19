@@ -550,7 +550,7 @@ bool MessageLib::sendCreatePlayer(PlayerObject* playerObject,PlayerObject* targe
 							// set Owner for vehicles
 							if(VehicleController* vehicle = dynamic_cast<VehicleController*>(itno))
 							{
-								vehicle->setOwner(playerObject);
+								vehicle->set_owner(playerObject);
 							}
 						}
 						break;

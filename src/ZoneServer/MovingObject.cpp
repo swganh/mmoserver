@@ -232,10 +232,9 @@ void MovingObject::updatePosition(uint64 parentId, const glm::vec3& newPosition)
 
 			if(datapad)
 			{
-				if(VehicleController* datapad_pet = dynamic_cast<VehicleController*>(datapad->getDataById(player->getMount()->getPetController())))
+				if(VehicleController* datapad_pet = dynamic_cast<VehicleController*>(datapad->getDataById(player->getMount()->controller())))
 				{
-					datapad_pet->dismountPlayer();
-					datapad_pet->store();
+					datapad_pet->Store();
 				}
 			}
 		}

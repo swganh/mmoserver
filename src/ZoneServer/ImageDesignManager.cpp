@@ -841,9 +841,40 @@ void EntertainerManager::applyHoloEmote(PlayerObject* customer,string holoEmote)
 
 	//send message box holoemote bought
 
-	sprintf(sql,"Your current Holo Emote is %s.\xa You have 20 charges remaining. \xa To play your Holoemote type \x2fHoloemote.\xa To delete your Holo Emote type \x2fHoloemote delete. \xa Purchasing a new Holo Emote will automatically delete your current Holo Emote.",myEmote->pEmoteName);
+	bool lotsOfStuff = false;
 
-	gUIManager->createNewMessageBox(NULL,"holoHelpOff","Holo Help",sql,customer);
+	if(!strcmp(myEmote->pEmoteName,"all"))
+		{
+			lotsOfStuff = true;
+		}
+
+		//just give help
+		int8 sql1[512];
+
+		if(lotsOfStuff)
+		{
+			sprintf(sql1,"Your Holo-Emote generator can play all Holo-Emotes available. You have %u charges remaining."
+			"\xa To play your Holo-Emote type \x2fholoemote \x3cname\x3e.\xa To delete your Holo-Emote type \x2fholoemote delete. "
+			"\xa Purchasing a new Holo-Emote will automatically delete your current Holo-Emote.",customer->getHoloCharge());
+
+			sprintf(sql,"%s \xa \xa The available Holo-Emote names are: \xa \xa"
+			"Beehive \x9 \x9 Blossom \x9 Brainstorm \xa"
+			"Bubblehead \x9 Bullhorns \x9 Butterflies \xa"
+			"Champagne \x9 Haunted \x9 Hearts \xa"
+			"Hologlitter \x9 \x9 Holonotes \x9 Imperial \xa"
+			"Kitty \x9 \x9 \x9 Phonytail \x9 Rebel \xa"
+			"Sparky",sql1);
+		}
+		else
+		{
+			sprintf(sql,"Your current Holo Emote is %s.\xa You have %u charges remaining."
+			"\xa To play your Holo-Emote type \x2fholoemote %s.\xa To delete your Holo-Emote type \x2fholoemote delete. "
+			"\xa Purchasing a new Holo-Emote will automatically delete your current Holo-Emote.",myEmote->pEmoteName,customer->getHoloCharge(),myEmote->pEmoteName);
+		}
+
+		
+
+		gUIManager->createNewMessageBox(NULL,"holoHelpOff","Holo-Emote Help",sql,customer);
 }
 
 //=============================================================================

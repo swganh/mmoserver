@@ -255,15 +255,13 @@ void VehicleController::store()
 
 void VehicleController::dismountPlayer()
 {
- 	if(!mBody)
-	{
-		gLogger->logMsg("Vehicle::dismountPlayer() no Vehicle Body!!!");
+ 	if(!mBody) {
+    assert(false && "Vehicle::mountPlayer() no vehicle body!");
 		return;
 	}
 
-	if(!mOwner->checkIfMounted())
-	{
-		gLogger->logMsg("Vehicle::dismountPlayer() not mounted");
+	if(!mOwner->checkIfMounted()) {
+    assert(false && "Vehicle::mountPlayer() owner is not mounted!");
 		return;
 	}
 
@@ -271,11 +269,9 @@ void VehicleController::dismountPlayer()
 	gMessageLib->sendContainmentMessage_InRange(mOwner->getId(), 0, 0xffffffff, mOwner);
 
 	mBody->toggleStateOff(CreatureState_MountedCreature);
+	gMessageLib->sendStateUpdate(mBody);
 
 	mOwner->toggleStateOff(CreatureState_RidingMount);
-	mOwner->setPosture(CreaturePosture_Upright);
-
-	gMessageLib->sendStateUpdate(mBody);
 	gMessageLib->sendStateUpdate(mOwner);
 
 	mOwner->setMounted(false);
@@ -288,64 +284,30 @@ void VehicleController::dismountPlayer()
 
 void VehicleController::mountPlayer()
 {
-	if(!mBody)
-	{
-		gLogger->logMsg("Vehicle::mountPlayer() no Vehicle Body!!!");
-		 return;
-	}
+  if (!mBody) {
+    assert(false && "Vehicle::mountPlayer() no vehicle body!");
+    return;
+  }
 
 	CreatureObject* body = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(this->getId()+1));
-	if(!body)
-	{
+	assert(body && "Vehicle::mountPlayer() no vehicle body by id");
+	
+	if (!body)	{
 		gLogger->logMsg("Vehicle::mountPlayer() no Vehicle Body by Id :(!!!");
 		return;
 	}
 
 	//Make the mount equip the player
-
 	gMessageLib->sendContainmentMessage_InRange(mOwner->getId(), mBody->getId(), 4, mOwner);
 	gMessageLib->sendUpdateTransformMessage(mBody);
-
-	mOwner->toggleStateOn(CreatureState_RidingMount);
+  
 	mBody->toggleStateOn(CreatureState_MountedCreature);
-
-	gMessageLib->sendStateUpdate(mOwner);
 	gMessageLib->sendStateUpdate(mBody);
 
+	mOwner->toggleStateOn(CreatureState_RidingMount);
+	gMessageLib->sendStateUpdate(mOwner);
+
 	mOwner->setMounted(true);
-
-	// TEST ERUPTOR
-	// This will ensure the Swoop is seen by other players.
-	// I'm sure this can be solved by identifying what's missing, instead of doing the complete sequense below.
-	// But as a starter, lets test this solution first.
-	PlayerObjectSet* inRangePlayers	= mOwner->getKnownPlayers();
-	PlayerObjectSet::iterator it = inRangePlayers->begin();
-
-	while (it != inRangePlayers->end())
-	{
-		if (!(*it))
-		{
-			++it;
-			gLogger->logMsg("Vehicle::mountPlayer() getObjects in Range :: PlayerObject invalid!!!");
-			continue;
-		}
-
-		PlayerObject* tested = gWorldManager->getPlayerByAccId((*it)->getAccountId());
-		if (!tested)
-		{
-			++it;
-			gLogger->logMsg("Vehicle::mountPlayer() getObjects in Range :: PlayerObject invalid!!!");
-			continue;
-		}
-
-		if ((tested->isConnected()) && (tested->getClient()))
-		{
-			gMessageLib->sendCreateObject(mBody, *it);
-			gMessageLib->sendContainmentMessage(mOwner->getId(), mBody->getId(), 0xffffffff, *it);
-		}
-		++it;
-	}
-
 }
 
 //===============================================================================================

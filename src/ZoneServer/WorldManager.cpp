@@ -632,6 +632,8 @@ bool WorldManager::_handleCraftToolTimers(uint64 callTime,void* ref)
 
 					gMessageLib->sendCreateTangible(item,player);
 
+					gMessageLib->sendSystemMessage(player,L"","system_msg","prototype_transferred");
+
 					tool->setCurrentItem(NULL);
 				}
 				//in case of logout/in interplanetary travel it will be in the inventory already

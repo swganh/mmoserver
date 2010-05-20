@@ -695,6 +695,12 @@ void ObjectController::_handleImageDesign(uint64 targetId,Message* message,Objec
 		return;
 	}
 
+	if(designObject->isIncapacitated())
+	{
+		gMessageLib->sendSysMsg(imageDesigner,"image_designer","target_dead",NULL,designObject);
+		return;
+	}
+
 	if(!imageDesigner->checkSkill(SMSkill_NoviceEntertainer))
 	{
 		gMessageLib->sendSystemMessage(imageDesigner,L"","image_designer","not_an_image_designer");

@@ -237,6 +237,10 @@ rem ----------------------------------------------------------------------------
 rem --- Start of BUILD_ENVIRONMENT ---------------------------------------------
 :BUILD_ENVIRONMENT
 
+if not exist "%VS100COMNTOOLS%" (
+	set "VS100COMNTOOLS=C:\Program Files\Microsoft Visual Studio 10.0\Common7\Tools"
+)
+
 if "%MSVC_VERSION%" == "" (
 	if exist "%VS100COMNTOOLS%" (
 		set MSVC_VERSION=10

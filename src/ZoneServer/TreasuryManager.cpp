@@ -318,7 +318,8 @@ void TreasuryManager::bankTipOffline(int32 amount,PlayerObject* playerObject,str
 	//============================================
 	//check whether we have sufficient funds
 	//dont forget the surcharge
-	int32 credits = dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->getCredits();
+	Bank* bank = dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
+	int32 credits = bank->getCredits();
 
 	int32 surcharge = (int32)((amount/100)*5);
 

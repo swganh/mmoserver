@@ -15,7 +15,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #define 	gTreasuryManager	TreasuryManager::getSingletonPtr()
 
 #include "RadialMenu.h"
-
+#include "UIManager.h"
+#include "UICallback.h"
 #include "Utils/typedefs.h"
 #include "DatabaseManager/DatabaseCallback.h"
 
@@ -68,7 +69,7 @@ class TreasuryManagerAsyncContainer
 
 //======================================================================================================================
 
-class TreasuryManager : public DatabaseCallback
+class TreasuryManager : public DatabaseCallback, UICallback
 {
 	public:
 
@@ -79,6 +80,7 @@ class TreasuryManager : public DatabaseCallback
 		static TreasuryManager*		    getSingletonPtr() { return mSingleton; }
 
 		virtual void				    handleDatabaseJobComplete(void* ref,DatabaseResult* result);
+		virtual void					handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window);
 
 		void						    bankDepositAll(PlayerObject* playerObject);
 		void						    bankWithdrawAll(PlayerObject* playerObject);
@@ -92,6 +94,7 @@ class TreasuryManager : public DatabaseCallback
 		void						    saveAndUpdateBankCredits(PlayerObject* playerObject);
 
 		//handles bank tip to offline player
+		void							handleBankTipSurchargeConfirmed(TreasuryManagerAsyncContainer* asyncContainer);
 		void						    bankTipOffline(int32 amount, PlayerObject* playerObject, string targetName);
 		void						    inventoryTipOnline(int32 amount, PlayerObject* playerObject, PlayerObject* targetObject );
 		void						    bankTipOnline(int32 amount, PlayerObject* playerObject, PlayerObject* targetObject );

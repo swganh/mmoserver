@@ -170,7 +170,7 @@ void VehicleControllerFactory::handleDatabaseJobComplete(void* ref,DatabaseResul
 				mDatabase->ExecuteSqlAsync(this,asyncrContainer,"SELECT attributes.name, vehicle_attributes.attribute_value, attributes.internal"
 					" FROM attributes"
 					" INNER JOIN vehicle_attributes ON (attributes.id = vehicle_attributes.attribute_id)"
-					" WHERE Vehicle_attributes.vehicles_id = %"PRIu64" ORDER BY vehicle_attributes.attribute_order", asyncContainer->mId);
+					" WHERE vehicle_attributes.vehicles_id = %"PRIu64" ORDER BY vehicle_attributes.attribute_order", asyncContainer->mId);
 			}
 
 		}

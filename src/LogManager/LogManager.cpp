@@ -53,6 +53,8 @@ void LogManager::_LoggerThread()
 {
 	std::vector<LOG_ENTRY*> mTempEntries;
 
+	char* priority_strings[] = {"EMER", "ALRT", "CRIT", "ERRO", "WARN", "NOTI", "INFO", "DEBG"};
+
 	while(true)
 	{
 		this->mEntriesMutex.lock();
@@ -77,9 +79,9 @@ void LogManager::_LoggerThread()
 			if((*it)->mChannels & LOG_CHANNEL_CONSOLE && ((*it)->mPriority <= mMinPriorities[0]))
 			{
 				if(!(*it)->mContinuation)
-					printf("[%02d:%02d:%02d]<%d> ",t->tm_hour,t->tm_min,t->tm_sec, (int)(*it)->mPriority);
+					printf("[%02d:%02d:%02d]<%s> ",t->tm_hour,t->tm_min,t->tm_sec, priority_strings[(int)(*it)->mPriority - 1]);
 				else
-					printf("              ");
+					printf("                 ");
 
 				printf("%s\n", (*it)->mMessage.c_str());
 			}
@@ -89,9 +91,9 @@ void LogManager::_LoggerThread()
 				if(mOutputFile)
 				{
 					if(!(*it)->mContinuation)
-						fprintf(mOutputFile, "[%02d:%02d:%02d]<%d> ",t->tm_hour,t->tm_min,t->tm_sec, (int)(*it)->mPriority);
+						fprintf(mOutputFile, "[%02d:%02d:%02d]<%s> ",t->tm_hour,t->tm_min,t->tm_sec, priority_strings[(int)(*it)->mPriority - 1]);
 					else
-						fprintf(mOutputFile, "              ");
+						fprintf(mOutputFile, "                 ");
 					
 					fprintf(mOutputFile, "%s\n", (*it)->mMessage.c_str());
 				}

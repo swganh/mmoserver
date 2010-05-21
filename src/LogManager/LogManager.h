@@ -30,15 +30,16 @@ public:
 	static LogManager*	getSingleton() { return mSingleton;}
 	static void			Init() { mSingleton = new LogManager();}
 
-	enum LOG_PRIORITY
+	enum LOG_PRIORITY 
 	{
-		CRITICAL	=	1,
-		EMERGENCY	=	2,
-		ALERT		=	3,
-		WARNING		=	4,
-		NOTICE		=	5,
-		INFORMATION	=	6,
-		DEBUG		=	7
+		EMERGENCY		= 1,
+		ALERT			= 2,
+		CRITICAL		= 3,
+		ERR				= 4,
+		WARNING			= 5,
+		NOTICE			= 6,
+		INFORMATION		= 7,
+		DEBUG			= 8
 	};
 
 	bool setupConsoleLogging(LOG_PRIORITY min_priority);

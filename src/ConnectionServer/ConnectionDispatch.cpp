@@ -86,7 +86,7 @@ void ConnectionDispatch::handleIncomingMessage(ConnectionClient* client, Message
 	}
 	else
 	{
-		gLogger->logMsgF("Unhandled opcode in ConnectionDispatch - 0x%x (%i)",MSG_NORMAL,opcode,opcode);
+		gLogger->log(LogManager::NOTICE,"Unhandled opcode in ConnectionDispatch - 0x%x (%i)",opcode,opcode);
 	}
 
 	// Delete our message

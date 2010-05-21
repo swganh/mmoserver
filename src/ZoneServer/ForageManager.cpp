@@ -179,7 +179,6 @@ void ForageManager::startForage(PlayerObject* player, forageClasses forageClass)
 		previousHead->pNext = new_pocket;
 
 	new_pocket->addAttempt(attempt);
-	//gLogger->logMsg("NEW FORAGING ATTEMPT", FOREGROUND_RED);
 }
 
 void ForageManager::forageUpdate()
@@ -190,7 +189,6 @@ void ForageManager::forageUpdate()
 	{
 		if(it->updateAttempts(gWorldManager->GetCurrentGlobalTick())) //If true we delete this Pocket
 		{
-			//gLogger->logMsg("FORAGING TICK", FOREGROUND_RED);
 			if(previousHead == NULL)
 			{
 				pHead = it->pNext;
@@ -258,11 +256,9 @@ bool ForagePocket::updateAttempts(uint64 currentTime)
 			delete (*it);
 			it = attempts.erase(it);
 			AttemptCount--;
-			//gLogger->logMsg("POCKET REMOVED DUE TO TIMER", FOREGROUND_RED);
 		}
 		else if((currentTime - (*it)->startTime) >= 8000 && !(*it)->completed)
 		{
-			//gLogger->logMsg("ATTEMPT FINISHED", FOREGROUND_RED);
 			PlayerObject* player = (PlayerObject*)gWorldManager->getObjectById((*it)->playerID);
 			if(player != NULL)
 			{

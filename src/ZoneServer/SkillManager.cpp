@@ -214,8 +214,8 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 			mDatabase->DestroyDataBinding(binding);
 
-			if(!result->getRowCount())
-				gLogger->logMsgLoadFailure("SkillManager::loading Skills...",MSG_NORMAL);
+			if(result->getRowCount())
+				gLogger->log(LogManager::NOTICE,"Loaded Skills.");
 		}
 		break;
 
@@ -390,14 +390,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 	if(++mLoadCounter == mTotalLoadCount)
 	{
-		#if !defined(_DEBUG)
-			gLogger->logMsgLoadSuccess(" Loading %u Skilldatasets...",MSG_NORMAL,mTotalLoadCount);
-			#endif
-	
-			#if defined(_DEBUG)
-			gLogger->logMsgLoadSuccess("SkillManager::loading %u Skilldatasets...",MSG_NORMAL,mTotalLoadCount);
-			#endif
-				
+		gLogger->log(LogManager::NOTICE,"Loaded Skilldatasets.");
 	}
 
 	mDBAsyncPool.ordered_free(asyncContainer);
@@ -415,13 +408,13 @@ bool SkillManager::learnSkill(uint32 skillId,CreatureObject* creatureObject,bool
 
 	if (skill == NULL)
 	{
-		gLogger->logMsgF("SkillManager::learnSkill: could not find skill %u",MSG_NORMAL,skillId);
+		gLogger->log(LogManager::DEBUG,"SkillManager::learnSkill: could not find skill %u",skillId);
 		return false;
 	}
 
 	if (creatureObject->checkSkill(skillId))
 	{
-		gLogger->logMsgF("SkillManager::learnSkill: %"PRIu64" already got skill %u",MSG_NORMAL,creatureObject->getId(),skillId);
+		gLogger->log(LogManager::DEBUG,"SkillManager::learnSkill: %"PRIu64" already got skill %u",creatureObject->getId(),skillId);
 		return false;
 	}
 
@@ -477,7 +470,7 @@ bool SkillManager::learnSkill(uint32 skillId,CreatureObject* creatureObject,bool
 			    xpCost = 0;
 		    }
 
-		    // gLogger->logMsg("SkillManager::learnSkill: Trained a skill");
+		    // gLogger->log(LogManager::DEBUG,"SkillManager::learnSkill: Trained a skill");
 
 		    // handle XP cap and system messages.
 		    int32 newXpCost = handleExperienceCap(skill->mXpType, -xpCost, player);
@@ -485,7 +478,7 @@ bool SkillManager::learnSkill(uint32 skillId,CreatureObject* creatureObject,bool
 		    // We don't wanna miss any "You now qualify for the skill: ..."
 		    (void)player->UpdateXp(skill->mXpType, newXpCost);
 
-		    // gLogger->logMsgF("SkillManager::learnSkill: Removing %i xp of type %u",MSG_NORMAL, -newXpCost, skill->mXpType);
+		    // gLogger->log(LogManager::DEBUG,"SkillManager::learnSkill: Removing %i xp of type %u", -newXpCost, skill->mXpType);
 		    mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE character_xp SET value=value+%i WHERE xp_id=%u AND character_id=%"PRIu64"",newXpCost, skill->mXpType, player->getId());
 		    gMessageLib->sendXpUpdate(skill->mXpType,player);
         }
@@ -751,18 +744,18 @@ void SkillManager::dropSkill(uint32 skillId,CreatureObject* creatureObject)
 
 	if(skill == NULL)
 	{
-		gLogger->logMsgF("SkillManager::dropSkill: could not find skill %u",MSG_NORMAL,skillId);
+		gLogger->log(LogManager::DEBUG,"SkillManager::dropSkill: could not find skill %u",skillId);
 		return;
 	}
 
 	if(!(creatureObject->checkSkill(skillId)))
 	{
-		gLogger->logMsgF("SkillManager::dropSkill: %"PRIu64" hasn't got skill %u",MSG_NORMAL,creatureObject->getId(),skillId);
+		gLogger->log(LogManager::DEBUG,"SkillManager::dropSkill: %"PRIu64" hasn't got skill %u",creatureObject->getId(),skillId);
 		return;
 	}
 
 	if(!(creatureObject->removeSkill(skill)))
-		gLogger->logMsgF("SkillManager::dropSkill: failed removing %u from %"PRIu64"",MSG_NORMAL,skillId,creatureObject->getId());
+		gLogger->log(LogManager::DEBUG,"SkillManager::dropSkill: failed removing %u from %"PRIu64"",skillId,creatureObject->getId());
 
 	creatureObject->prepareSkillMods();
 	creatureObject->prepareSkillCommands();
@@ -875,11 +868,11 @@ void SkillManager::initExperience(PlayerObject* playerObject)
 	{
 		if (!playerObject->checkXpType(xpType))
 		{
-			// gLogger->logMsgF("SkillManager::initExperience: Did not have xpType %u",MSG_NORMAL, xpType);
+			// gLogger->log(LogManager::DEBUG,"SkillManager::initExperience: Did not have xpType %u", xpType);
 			// Check if xpType is valid, in regards to JTL, Jedi and Pre-Pub14.
 			if (!playerObject->restrictedXpType(xpType))
 			{
-				// gLogger->logMsgF("SkillManager::initExperience: Updating xpType %u",MSG_NORMAL, xpType);
+				// gLogger->log(LogManager::DEBUG,"SkillManager::initExperience: Updating xpType %u", xpType);
 
 				// Add this type of xp.
 				playerObject->addXpType(xpType);
@@ -899,7 +892,7 @@ void SkillManager::initExperience(PlayerObject* playerObject)
 			// Add this type of xp cap.
 			int32 newXpCap = getXpCap(playerObject, xpType);
 			playerObject->addXpCapType(xpType, newXpCap);
-			// gLogger->logMsgF("SkillManager::addExperience: New Cap for %u = %u",MSG_NORMAL, xpType, newXpCap);
+			// gLogger->log(LogManager::DEBUG,"SkillManager::addExperience: New Cap for %u = %u", xpType, newXpCap);
 		}
 	}
 }
@@ -915,18 +908,18 @@ int32 SkillManager::handleExperienceCap(uint32 xpType,int32 valueDiff, PlayerObj
 
 	if (valueDiff > 0)
 	{
-		// gLogger->logMsgF("SkillManager::handleExperienceCap: Request Add of %d xp, amount = %d, Cap = %u", MSG_NORMAL, valueDiff, xpAmount, xpCap);
+		// gLogger->log(LogManager::DEBUG,"SkillManager::handleExperienceCap: Request Add of %d xp, amount = %d, Cap = %u",  valueDiff, xpAmount, xpCap);
 		if (xpAmount + valueDiff >= xpCap)
 		{
 			// We are or will become capped at xp.
 			if (xpAmount == xpCap)
 			{
 				// We already have been through the process of advertisingat cap etc....
-				// gLogger->logMsgF("SkillManager::handleExperienceCap: At Cap, pxp amount %u = Cap %u",MSG_NORMAL, xpAmount, xpCap);
+				// gLogger->log(LogManager::DEBUG,"SkillManager::handleExperienceCap: At Cap, pxp amount %u = Cap %u", xpAmount, xpCap);
 			}
 			else if (xpAmount > xpCap)
 			{
-				// gLogger->logMsgF("SkillManager::handleExperienceCap: xp amount %u > Cap %u",MSG_NORMAL, xpAmount, xpCap);
+				// gLogger->log(LogManager::DEBUG,"SkillManager::handleExperienceCap: xp amount %u > Cap %u", xpAmount, xpCap);
 				// We where already capped and above, and will lose xp.
 				delta = xpCap - xpAmount;	// add negative number to subtract overflow of xp so we reach xp cap.
 				if (delta == -1)
@@ -943,12 +936,12 @@ int32 SkillManager::handleExperienceCap(uint32 xpType,int32 valueDiff, PlayerObj
 				// You have achieved your current limit for %TO experience.
 				gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_hit_xp_cap","exp_n",getXPTypeById(xpType),L"",0);
 
-				// gLogger->logMsgF("SkillManager::handleExperienceCap: Sub %u XP",MSG_NORMAL, -delta);
+				// gLogger->log(LogManager::DEBUG,"SkillManager::handleExperienceCap: Sub %u XP", -delta);
 			}
 			else // (xpAmount < xpCap)
 			{
 				// We become capped now.
-				// gLogger->logMsgF("SkillManager::handleExperienceCap: We become capped now. xp amount %u, Cap %u",MSG_NORMAL, xpAmount, xpCap);
+				// gLogger->log(LogManager::DEBUG,"SkillManager::handleExperienceCap: We become capped now. xp amount %u, Cap %u", xpAmount, xpCap);
 
 				delta = xpCap - xpAmount;	// Add a positive number to reach the cap level.
 				if (delta == 1)
@@ -973,13 +966,13 @@ int32 SkillManager::handleExperienceCap(uint32 xpType,int32 valueDiff, PlayerObj
 					// You have achieved your current limit for %TO experience.
 					gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_hit_xp_cap","exp_n",getXPTypeById(xpType));
 				}
-				// gLogger->logMsgF("SkillManager::handleExperienceCap: Adding %u XP",MSG_NORMAL, delta);
+				// gLogger->log(LogManager::DEBUG,"SkillManager::handleExperienceCap: Adding %u XP", delta);
 			}
 		}
 		else
 		{
 			// We will not be capped after this xp addition.
-			// gLogger->logMsgF("SkillManager::handleExperienceCap: Adding all xp %u",MSG_NORMAL, valueDiff);
+			// gLogger->log(LogManager::DEBUG,"SkillManager::handleExperienceCap: Adding all xp %u", valueDiff);
 			delta = valueDiff;	// Return amount of xp to add.
 			if (delta == 1)
 			{
@@ -995,18 +988,18 @@ int32 SkillManager::handleExperienceCap(uint32 xpType,int32 valueDiff, PlayerObj
 	}
 	else if (valueDiff < 0)
 	{
-		// gLogger->logMsgF("SkillManager::handleExperienceCap: Request Sub of %d xp, amount = %d, Cap = %u", MSG_NORMAL, -valueDiff, xpAmount, xpCap);
+		// gLogger->log(LogManager::DEBUG,"SkillManager::handleExperienceCap: Request Sub of %d xp, amount = %d, Cap = %u",  -valueDiff, xpAmount, xpCap);
 
 		delta = valueDiff;	// Amount of xp to sub.
 		if (xpAmount >= xpCap)	// We where already capped.
 		{
-			// gLogger->logMsgF("SkillManager::handleExperienceCap: We where already capped. xp amount %d, Cap %u",MSG_NORMAL, xpAmount, xpCap);
+			// gLogger->log(LogManager::DEBUG,"SkillManager::handleExperienceCap: We where already capped. xp amount %d, Cap %u", xpAmount, xpCap);
 			if (xpAmount + valueDiff > xpCap)	// Reduce xp?
 			{
 				// Still capped after reducution of XP. Inform user about theXP loss.
 				// This is the value we show the client (Only the reduction due to the cap overflow).
 				delta = xpCap - (xpAmount + valueDiff);
-				// gLogger->logMsgF("SkillManager::handleExperienceCap: Show XP reduction of %d, Cap %u",MSG_NORMAL, -delta);
+				// gLogger->log(LogManager::DEBUG,"SkillManager::handleExperienceCap: Show XP reduction of %d, Cap %u", -delta);
 				if (delta == -1)
 				{
 					// You lose 1 point of %TO experience
@@ -1023,25 +1016,25 @@ int32 SkillManager::handleExperienceCap(uint32 xpType,int32 valueDiff, PlayerObj
 
 				// This is the value we should sub from DB (Everything down to the cap level.
 				delta = xpCap - xpAmount;
-				// gLogger->logMsgF("SkillManager::handleExperienceCap: Reduce XP with %d",MSG_NORMAL, -delta);
+				// gLogger->log(LogManager::DEBUG,"SkillManager::handleExperienceCap: Reduce XP with %d", -delta);
 			}
 			else if (xpAmount + valueDiff == xpCap)
 			{
 				// We landed at the cap level.
 				// You have achieved your current limit for %TO experience.
 				gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_hit_xp_cap","exp_n",getXPTypeById(xpType),L"",0);
-				// gLogger->logMsgF("SkillManager::handleExperienceCap: At XP Cap limit, reduce XP with %d",MSG_NORMAL, -delta);
+				// gLogger->log(LogManager::DEBUG,"SkillManager::handleExperienceCap: At XP Cap limit, reduce XP with %d", -delta);
 			}
 			else
 			{
 				// We will not be capped after this xp reduction.
-				// gLogger->logMsgF("SkillManager::handleExperienceCap: Subtracted all the XP %d",MSG_NORMAL, -delta);
+				// gLogger->log(LogManager::DEBUG,"SkillManager::handleExperienceCap: Subtracted all the XP %d", -delta);
 			}
 		}
 		else
 		{
 			// We will not be capped after this xp reduction.
-			// gLogger->logMsgF("SkillManager::handleExperienceCap: Subtracted all the XP %d",MSG_NORMAL, -delta);
+			// gLogger->log(LogManager::DEBUG,"SkillManager::handleExperienceCap: Subtracted all the XP %d", -delta);
 		}
 	}
 	return delta;
@@ -1059,11 +1052,11 @@ void SkillManager::addExperience(uint32 xpType,int32 valueDiff,PlayerObject* pla
 
 		if (!(playerObject->UpdateXp(xpType, newXpBoost)))
 		{
-			gLogger->logMsgF("SkillManager::addExperience: could not find xptype %u for %"PRIu64"",MSG_NORMAL,xpType,playerObject->getId());
+			gLogger->log(LogManager::DEBUG,"SkillManager::addExperience: could not find xptype %u for %"PRIu64"",xpType,playerObject->getId());
 			return;
 		}
-		// gLogger->logMsgF("SkillManager::addExperience: XP cap = %u",MSG_NORMAL, xpCap);
-		// gLogger->logMsgF("SkillManager::addExperience: Adding %u xp of type %u to database",MSG_NORMAL, newXpBoost, xpType);
+		// gLogger->log(LogManager::DEBUG,"SkillManager::addExperience: XP cap = %u", xpCap);
+		// gLogger->log(LogManager::DEBUG,"SkillManager::addExperience: Adding %u xp of type %u to database", newXpBoost, xpType);
 
 		mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE character_xp SET value=value+%i WHERE character_id=%"PRIu64" AND xp_id=%u", newXpBoost, playerObject->getId(), xpType);
 
@@ -1080,11 +1073,11 @@ void SkillManager::removeExperience(uint32 xpType,int32 valueDiff,PlayerObject* 
 {
 	if(!(playerObject->UpdateXp(xpType,-valueDiff)))
 	{
-		gLogger->logMsgF("SkillManager::gainXp: could not find xptype %u for %"PRIu64"",MSG_NORMAL,xpType,playerObject->getId());
+		gLogger->log(LogManager::DEBUG,"SkillManager::gainXp: could not find xptype %u for %"PRIu64"",xpType,playerObject->getId());
 		return;
 	}
 
-	gLogger->logMsgF("SkillManager::removeExperience: Removing %i xp of type %u",MSG_NORMAL, -valueDiff, xpType);
+	gLogger->log(LogManager::DEBUG,"SkillManager::removeExperience: Removing %i xp of type %u", -valueDiff, xpType);
 	mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE character_xp SET value=value-%i WHERE character_id=%"PRIu64" AND xp_id=%u",valueDiff,playerObject->getId(),xpType);
 
 	gMessageLib->sendXpUpdate(xpType,playerObject);

@@ -117,9 +117,7 @@ lowest(0)
 Session::~Session(void)
 {				
 	uint32 savedPackets = 0;
-						#if defined(_DEBUG)
-							gLogger->logMsgF("Session::~Session ",MSG_HIGH,this->getId());
-						#endif
+	gLogger->log(LogManager::DEBUG, "Session::~Session ",this->getId());
 	Message* message = 0;
 	
     boost::recursive_mutex::scoped_lock lk(mSessionMutex);
@@ -264,8 +262,6 @@ Session::~Session(void)
 		mPacketFactory->DestroyPacket(packet);
 	}
 
-	//gLogger->logMsgF("Session::~Session %u Packets saved !!!!!",MSG_HIGH,savedPackets);
-
 	 //PacketQueue                 mOutgoingReliablePacketQueue;		//these are packets put on by the sessionwrite thread to send
 	  //PacketQueue                 mOutgoingUnreliablePacketQueue;   //build unreliables they will get send directly by the socket write thread  without storing for possible r esends
 
@@ -337,7 +333,6 @@ void Session::ProcessWriteThread(void)
     
     //if (mService->getId() == 1)
     //{
-    //    gLogger->logMsgF("Sending ACK - Sequence: %u, Session:0x%x%.4x", MSG_HIGH, mInSequenceNext - 1, mService->getId(), getId());
     //}
 
     // Acks only need encryption
@@ -474,7 +469,7 @@ void Session::ProcessWriteThread(void)
     }
     case SCOM_Disconnect:
     {
-		gLogger->logMsgF("handle Session disconnect %u endcount %u", MSG_HIGH, this->getId(),endCount);   
+		gLogger->log(LogManager::DEBUG,"Handle Session Disconnect %u endcount %u", this->getId(),endCount);   
       _processDisconnectCommand();      
       break;
     }
@@ -496,13 +491,13 @@ void Session::ProcessWriteThread(void)
       {
 		  if(this->mServerService)
 		  {
-				gLogger->logMsgF("Session disconnect last received packet > 60 (%I64u) seconds session Id :%u", MSG_HIGH, t/1000, this->getId());   
-				gLogger->logMsgF("Session lastpacket %I64u now %I64u diff : %I64u", MSG_HIGH, mLastPacketReceived, now,(now - mLastPacketReceived));   
+				gLogger->log(LogManager::INFORMATION,"Session disconnect last received packet > 60 (%I64u) seconds session Id :%u", t/1000, this->getId());   
+				gLogger->log(LogManager::INFORMATION,"Session lastpacket %I64u now %I64u diff : %I64u", mLastPacketReceived, now,(now - mLastPacketReceived));   
 				mCommand = SCOM_Disconnect;
 		  }
 		  else
 		  {
-			gLogger->logMsgF("Session disconnect last received packet > 60 (%I64u) seconds session Id :%u", MSG_HIGH, float(t/1000.0), this->getId());   
+			gLogger->log(LogManager::INFORMATION,"Session disconnect last received packet > 60 (%I64u) seconds session Id :%u", float(t/1000.0), this->getId());   
  
 			mCommand = SCOM_Disconnect;
 		  }
@@ -510,7 +505,6 @@ void Session::ProcessWriteThread(void)
 	  else	  
 	  if (this->mServerService && ((t - mLastPacketReceived) > 20000))
 	  {
-		  //gLogger->logMsgF("Session send server server ping", MSG_HIGH);   
 		  if((t - mLastPingPacketSent) > 2000)
 				_sendPingPacket();
 	  }
@@ -529,13 +523,9 @@ void Session::SendChannelA(Message* message)
 	//however in these cases we get a lot of stuck messages on the heap which are orphaned
 	if(mStatus != SSTAT_Connected)
 	{
-		//gLogger->logMsgF("Session::SendChannelA :: we are not connected -destroy message", MSG_HIGH);
 		message->setPendingDelete(true);		
 		return;
 	}
-
-  
-  //gLogger->logMsgF("Sending message - Session:0x%x%.4x", MSG_LOW, mService->getId(), getId());
 
     boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
@@ -558,12 +548,9 @@ void Session::SendChannelAUnreliable(Message* message)
 	//check whether we are disconnecting
 	if(mStatus != SSTAT_Connected)
 	{
-		//gLogger->logMsgF("Session::SendChannelA :: we are not connected -destroy packet", MSG_HIGH);
 		message->setPendingDelete(true);		
 		return;
 	}
-  
-  //gLogger->logMsgF("Sending message - Session:0x%x%.4x", MSG_LOW, mService->getId(), getId());
 
   boost::recursive_mutex::scoped_lock lk(mSessionMutex);
   if(message->getSize() > mMaxUnreliableSize)	//I send the attribute messages as unreliables	 but they can be to big!!
@@ -619,7 +606,7 @@ void Session::SortSessionPacket(Packet* packet, uint16 type)
 		default:
 		{
 		  // Unknown SESSIONOP code
-		  gLogger->logMsgF("Destroying packet because!!! --tmr",MSG_HIGH);
+		  gLogger->log(LogManager::DEBUG, "Destroying packet because!!! --tmr <3");
 		  mPacketFactory->DestroyPacket(packet);
 		  break;
 		}
@@ -693,10 +680,9 @@ void Session::HandleSessionPacket(Packet* packet)
 	// Remote side disconnceted
 	case SESSIONOP_Disconnect:
 	{
-							#if defined(_DEBUG)
-						gLogger->logMsgF("Session::remote side disconnected", MSG_HIGH);
-						#endif
-			 mStatus = SSTAT_Disconnecting;
+		gLogger->log(LogManager::DEBUG,"Session::remote side disconnected");
+
+		mStatus = SSTAT_Disconnecting;
 	  _processDisconnectPacket(packet);
 	  return;
 	}
@@ -730,9 +716,6 @@ void Session::HandleSessionPacket(Packet* packet)
   //now we have a sequenced packet
   //check if we are in sequence
    uint16 sequence = ntohs(packet->getUint16());
-
-   //gLogger->logMsgF("Incoming data - seq: %i expect: %u Session:0x%x%.4x", MSG_HIGH, sequence, mInSequenceNext, mService->getId(), getId());
-
 
    if (mInSequenceNext == sequence)
    {
@@ -778,29 +761,26 @@ void Session::HandleSessionPacket(Packet* packet)
 
 		   if(ooopsSequence == mInSequenceNext)
 		   {
-			   gLogger->logMsgF("use stored packet - sequence %u", MSG_HIGH, ooopsSequence);
+			   gLogger->log(LogManager::DEBUG, "Use stored packet - sequence %u", ooopsSequence);
 			   HandleSessionPacket(ooopsPacket);
 			   mOutOfOrderPackets.erase(ooopsIt++);
 		   }
 		   else
 		   if(ooopsSequence < mInSequenceNext)
 		   {
-			   gLogger->logMsgF("destroy stored packet - sequence %u", MSG_HIGH, ooopsSequence);
+			   gLogger->log(LogManager::DEBUG, "Destroy stored packet - sequence %u", ooopsSequence);
 			   mPacketFactory->DestroyPacket(ooopsPacket);
 			   mOutOfOrderPackets.erase(ooopsIt++);
 		   }
 		   else
 		   {
-			   gLogger->logMsgF("ignore stored packet - sequence %u", MSG_HIGH, ooopsSequence);
+			   gLogger->log(LogManager::DEBUG, "Ignore stored packet - sequence %u", ooopsSequence);
 				ooopsIt++;
 		   }
 	   }
 	  
 	   //were missing something
-	   gLogger->logMsgF("Session::HandleSessionPacket :: Incoming data - seq: %i expect: %u Session:0x%x%.4x", MSG_HIGH, sequence, mInSequenceNext, mService->getId(), getId());
-
-	   // now send an out of order
-		//gLogger->logMsgF("OO %u < %u",MSG_NORMAL,mInSequenceNext,sequence);
+	   gLogger->log(LogManager::DEBUG, "Handle Session Packet :: Incoming data - seq: %i expect: %u Session:0x%x%.4x", sequence, mInSequenceNext, mService->getId(), getId());
 			
 		switch(packetType )
 		{
@@ -838,8 +818,7 @@ void Session::HandleSessionPacket(Packet* packet)
 
 			default:
 			{
-				gLogger->logMsgF("Session::HandleSessionPacket :: *** wanted to send Out-of-Order packet with weird opcode - Sequence: %i, Service %u Session:0x%.4x", MSG_HIGH, sequence, mService->getId(), getId());
-				gLogger->hexDump(packet->getData(),packet->getSize());
+				gLogger->log(LogManager::DEBUG, "HandleSessionPacket :: wanted to send Out-of-Order packet - Sequence: %i, Service %u Session:0x%.4x", sequence, mService->getId(), getId());
 				Packet* orderPacket;
 				orderPacket = mPacketFactory->CreatePacket();
 				orderPacket->addUint16(SESSIONOP_DataOrder2);
@@ -865,7 +844,7 @@ void Session::HandleSessionPacket(Packet* packet)
 
    if(mOutOfOrderPackets.size() > 50)
    {
-	   gLogger->logMsgF("stored packet count > 50!!!!!!!! (- %u)", MSG_HIGH,mOutOfOrderPackets.size());
+	   gLogger->log(LogManager::NOTICE, "Stored packet count > 50! (%u)", mOutOfOrderPackets.size());
 		
 	   PacketWindowList::iterator ooopsIt = mOutOfOrderPackets.begin();
 
@@ -1318,9 +1297,7 @@ void Session::_processDataChannelB(Packet* packet)
 
 		// Set our inSequence number so we know we recieved this packet.
 		// in sequence is per packet not per message 
-		//gLogger->logMsgF("_processDataChannelPacket B::increasing mInSequence by 1 %u", MSG_HIGH, mInSequenceNext);  
 		mInSequenceNext++;
-		//gLogger->logMsgF("_processDataChannelPacket B::send ack sequence %u", MSG_HIGH, mInSequenceNext-1);  
 		mSendDelayedAck = true;
   
 
@@ -1347,8 +1324,6 @@ void Session::_processDataChannelAck(Packet* packet)
 	packet->setReadIndex(2);  //skip the header
 	uint16 sequence = ntohs(packet->getUint16());
 
-	//gLogger->logMsgF("Received ACK  - Sequence: %u, Session:0x%x%.4x", MSG_HIGH, sequence, mService->getId(), getId());
-
     boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 	uint32 pDel = 0;
 
@@ -1363,7 +1338,7 @@ void Session::_processDataChannelAck(Packet* packet)
 		else if((sequence < (0xFFFF - (mRolloverWindowPacketList.size()+mNewRolloverWindowPacketList.size()))))
 		{
 		
-			gLogger->logMsgF("_processDataChannelAck::Rollover complete Windowsize %u ack seq new queue %u",MSG_HIGH,mWindowSizeCurrent,sequence);
+			gLogger->log(LogManager::DEBUG,"Data Channel Ack Rollover complete. Windowsize %u ack seq new queue %u",mWindowSizeCurrent,sequence);
 			mLastRemotePacketAckReceived = Anh_Utils::Clock::getSingleton()->getLocalTime();
 
 			mOutSequenceRollover = false;
@@ -1398,7 +1373,6 @@ void Session::_processDataChannelAck(Packet* packet)
 
 			if(sequence < windowPacketSequence)
 			{
-				//gLogger->logMsg("dupe rollover queue ack");
 			}
 			else
 			{
@@ -1423,7 +1397,7 @@ void Session::_processDataChannelAck(Packet* packet)
 					// If the list is empty, break out
 					if(mRolloverWindowPacketList.size() == 0)
 					{
-						gLogger->logMsgF("_processDataChannelAck::Rollover complete Windowsize %u ack seq %u",MSG_HIGH,mWindowSizeCurrent,sequence);
+						gLogger->log(LogManager::DEBUG,"Data Channel Ack: Rollover complete Windowsize %u ack seq %u", mWindowSizeCurrent,sequence);
 						windowPacket = 0;
 						windowPacketSequence = 0;
 						
@@ -1446,7 +1420,7 @@ void Session::_processDataChannelAck(Packet* packet)
 			}//if(sequence < windowPacketSequence)
 
 			mPacketFactory->DestroyPacket(packet);
-			gLogger->logMsgF("_processDataChannelAck::Rollover Ack Windowsize %u ack seq new queue %u",MSG_HIGH,mWindowSizeCurrent,sequence);
+			gLogger->log(LogManager::DEBUG, "Data Channel Ack::Rollover Ack Windowsize %u ack seq new queue %u",mWindowSizeCurrent,sequence);
 
 			return;
 		}//else if(sequence < 0xFFFF - mRolloverWindowPacketList.size())
@@ -1454,7 +1428,7 @@ void Session::_processDataChannelAck(Packet* packet)
 
 	if (mWindowPacketList.size() == 0)
 	{
-		gLogger->logMsgF("Dupe ACK received - Nothing in resend window - seq: %u, Session:0x%x%.4x", MSG_LOW, sequence, mService->getId(), getId());
+		gLogger->log(LogManager::DEBUG,"Dupe ACK received - Nothing in resend window - seq: %u, Session:0x%x%.4x", sequence, mService->getId(), getId());
 		mPacketFactory->DestroyPacket(packet);
 		return;
 	}
@@ -1467,12 +1441,12 @@ void Session::_processDataChannelAck(Packet* packet)
 	if (sequence < windowPacketSequence)
 	{
 		// Dpulicate ack, drop it.
-		gLogger->logMsgF("Dupe ACK received - No such packet in window - ackSeq: %u, expect: %u, Session:0x%x%.4x", MSG_HIGH, sequence, windowPacketSequence, mService->getId(), getId());
+		gLogger->log(LogManager::DEBUG, "Dupe ACK received - No such packet in window - ackSeq: %u, expect: %u, Session:0x%x%.4x", sequence, windowPacketSequence, mService->getId(), getId());
 	}
 	else if (sequence > windowPacketSequence + mWindowPacketList.size())
 	{
 		// This ack is way out of bounds, log a message and drop it. 
-		gLogger->logMsgF("_processDataChannelAck::*** Ack out of bounds - ackSeq: %u, expect: %u, Session:0x%x%.4x", MSG_HIGH, sequence, windowPacketSequence, mService->getId(), getId());
+		gLogger->log(LogManager::DEBUG, "DataChannelAck:  Ack out of bounds - ackSeq: %u, expect: %u, Session:0x%x%.4x", sequence, windowPacketSequence, mService->getId(), getId());
 	}
 	else
 	{
@@ -1486,7 +1460,6 @@ void Session::_processDataChannelAck(Packet* packet)
 
 		while (sequence >= windowPacketSequence)
 		{
-			//gLogger->logMsgF("Received ACK  - Destroyed Packet Sequence: %u, Session:0x%x%.4x", MSG_HIGH, windowPacketSequence);
 			pDel ++;
 			mPacketFactory->DestroyPacket(*iter);
 			mWindowPacketList.erase(iter);
@@ -1503,7 +1476,6 @@ void Session::_processDataChannelAck(Packet* packet)
 		}
 
 		mLastRemotePacketAckReceived = Anh_Utils::Clock::getSingleton()->getStoredTime();
-		//gLogger->logMsgF("Received ACK  - Sequence: %u, Session:0x%x%.4x", MSG_HIGH, sequence, mService->getId(), getId());
 
 	}
 
@@ -1527,17 +1499,17 @@ void Session::_processDataOrderPacket(Packet* packet)
   uint16 windowSequence = ntohs(windowPacket->getUint16());
 
   
-  gLogger->logErrorF("Netcode","_processDataOrderPacket::Out-Of-order packet session 0x%x%.4x seq: %u, windowsequ : %u", MSG_HIGH, mService->getId(), mId, sequence, windowSequence);
+  gLogger->log(LogManager::WARNING, "Out-Of-order packet session 0x%x%.4x seq: %u, windowsequ : %u", mService->getId(), mId, sequence, windowSequence);
 
   //Do some bounds checking
   if (sequence < windowSequence)
   {
-	  gLogger->logErrorF("Netcode","_processDataOrderPacket::*** Order packet sequence too small, may be a duplicate or we handled our acks wrong.  seq: %u, expect >: %u", MSG_HIGH, sequence, windowSequence);
+	  gLogger->log(LogManager::WARNING,"Out-Of-Order packet sequence too small, may be a duplicate or we handled our acks wrong.  seq: %u, expect >: %u", sequence, windowSequence);
   }
 
   if (sequence > windowSequence + mWindowPacketList.size())
   {
-	  gLogger->logErrorF("Netcode","_processDataOrderPacket::*** Rollover Order packet  seq: %u, expect >: %u", MSG_HIGH, sequence, windowSequence);
+	  gLogger->log(LogManager::WARNING, "Rollover Out-Of-Order packet  seq: %u, expect >: %u", sequence, windowSequence);
   }
 	
 	//The location of the packetsequence out of order has NOBEARING on the question on which list we will find the last properly received Packet!!!
@@ -1638,18 +1610,17 @@ void Session::_processDataOrderChannelB(Packet* packet)
   uint16 windowSequence = ntohs(windowPacket->getUint16());
   
 
-  gLogger->logErrorF("Netcode","_processDataOrderChannelB::Out-Of-order packet session 0x%x%.4x seq: %u, windowsequ : %u, bottom %u", MSG_HIGH, mService->getId(), mId, sequence, windowSequence, bottomSequence);
+  gLogger->log(LogManager::WARNING, "Out-Of-order packet session 0x%x%.4x seq: %u, windowsequ : %u", mService->getId(), mId, sequence, windowSequence);
 
   //Do some bounds checking
-  if (bottomSequence < windowSequence)
+  if (sequence < windowSequence)
   {
-	  gLogger->logErrorF("Netcode","_processDataOrderChannelB::*** Order packet bottomsequence too small bottom seq: %u, expect >: %u", MSG_HIGH, bottomSequence, windowSequence);
-
+	  gLogger->log(LogManager::WARNING,"Out-Of-Order packet sequence too small, may be a duplicate or we handled our acks wrong.  seq: %u, expect >: %u", sequence, windowSequence);
   }
 
   if (sequence > windowSequence + mWindowPacketList.size())
   {
-	  gLogger->logErrorF("Netcode","_processDataOrderChannelB::*** Rollover Order packet  seq: %u, expect >: %u", MSG_HIGH, sequence, windowSequence);
+	  gLogger->log(LogManager::WARNING, "Rollover Out-Of-Order packet  seq: %u, expect >: %u", sequence, windowSequence);
   }
 	
 	//The location of the packetsequence out of order has NOBEARING on the question on which list we will find the last properly received Packet!!!
@@ -1739,14 +1710,13 @@ void Session::_processFragmentedPacket(Packet* packet)
 
 	//if (mService->getId() == 1)
 	{
-	//gLogger->logMsgF("Incoming fragment - seq: %i expect: %u Session:0x%x%.4x", MSG_LOW, sequence, mInSequenceNext, mService->getId(), getId());
 	}
 
 	// check our sequence number.
 	if (sequence < mInSequenceNext)
 	{
 		// This is a duplicate packet that we've already recieved.
-		gLogger->logMsgF("*** Duplicate Fragged Packet Recieved.  seq: %u", MSG_HIGH, sequence);
+		gLogger->log(LogManager::NOTICE,"Duplicate Fragged Packet Recieved.  seq: %u", sequence);
 
 		// Destroy our incoming packet, it's not needed any longer.
 		mPacketFactory->DestroyPacket(packet);
@@ -1754,19 +1724,17 @@ void Session::_processFragmentedPacket(Packet* packet)
 	}
 	else if (sequence > mInSequenceNext)
 	{
-		gLogger->logMsgF("*** Fragged packet received out of order - expect: %u, received: %u", MSG_HIGH, mInSequenceNext, sequence);
+		gLogger->log(LogManager::NOTICE,"Fragged packet received out of order - expect: %u, received: %u", mInSequenceNext, sequence);
 
 		mPacketFactory->DestroyPacket(packet);
 		return;
 	}
 
 	// Inc our in seq
-	//gLogger->logMsgF("_processFragmentedPacket::increasing mInSequence by 1 %u", MSG_HIGH, mInSequenceNext);  
 	mInSequenceNext++;
   
 	// Need to send out acks
 	mSendDelayedAck = true;
-	//gLogger->logMsgF("_processFragmentedPacket::send ack sequence %u", MSG_HIGH, mInSequenceNext-1);  
 
 	// If we are not already processing a multi-packet message, start to.
 	if (mFragmentedPacketTotalSize == 0)
@@ -1782,9 +1750,7 @@ void Session::_processFragmentedPacket(Packet* packet)
 		if (priority > 0x10)
 		{
 			// the packet has had a proper sequence .. otherwise we wouldnt be here ...
-			gLogger->logMsgF("Start incoming fragged packets - total: %u seq:%u", MSG_HIGH, mFragmentedPacketTotalSize, sequence);
-			gLogger->logMsgF("Session::_processFragmentedPacket priority messup!!!", MSG_HIGH );
-			gLogger->hexDump(packet->getData(), packet->getSize());
+			gLogger->log(LogManager::WARNING,"Start incoming fragged packets - total: %u seq:%u", mFragmentedPacketTotalSize, sequence);
 
 		}
 
@@ -1799,13 +1765,11 @@ void Session::_processFragmentedPacket(Packet* packet)
 
 		//if (mService->getId() == 1)
 		{
-			//gLogger->logMsgF("Incoming fragged packet - size: %u, total: %u current: %u seq:%u", MSG_LOW, packet->getSize() - 4, mFragmentedPacketTotalSize, mFragmentedPacketCurrentSize, sequence);
 		}
 
 		// If this is our last packet, send them all up to the application
 		if (mFragmentedPacketCurrentSize >= mFragmentedPacketTotalSize)
 		{
-			//gLogger->logMsgF("Finalize received fragged packet - size: %u, total: %u current: %u seq:%u", MSG_LOW, packet->getSize() - 4, mFragmentedPacketTotalSize, mFragmentedPacketCurrentSize, sequence);
 			mIncomingFragmentedPacketQueue.push(packet);
 			Packet* fragment = 0;
 
@@ -1858,8 +1822,7 @@ void Session::_processFragmentedPacket(Packet* packet)
 		  
 		  if (priority > 0x10)
 		  {
-			  gLogger->logMsgF("Session::_processFragmentedPacket priority messup!!!", MSG_HIGH );
-			  gLogger->hexDump(newMessage->getData(), newMessage->getSize());
+			  gLogger->log(LogManager::NOTICE,"Fragmented Packet priority messup!!!");
 			  return;
 		  }
 
@@ -1896,20 +1859,15 @@ void Session::_processRoutedFragmentedPacket(Packet* packet)
 	 
 	
 	// Inc our in seq
-	//gLogger->logMsgF("_processFragmentedPacket::increasing mInSequence by 1 %u", MSG_HIGH, mInSequenceNext);  
 	mInSequenceNext++;
   
 	// Need to send out acks
 	mSendDelayedAck = true;
-	//gLogger->logMsgF("_processFragmentedPacket::send ack sequence %u", MSG_HIGH, mInSequenceNext-1);  
 
 	// If we are not already processing a multi-packet message, start to.
 	if (mRoutedFragmentedPacketTotalSize == 0)
 	{
 	    mRoutedFragmentedPacketTotalSize = ntohl(packet->getUint32());
-
-		//gLogger->logMsgF("Session::_processRoutedFragmentedPacket started sequence:%u size %u", MSG_HIGH,sequence , mRoutedFragmentedPacketTotalSize);
-		//gLogger->hexDump(packet->getData(), packet->getSize());
 
 		mRoutedFragmentedPacketCurrentSize = packet->getSize() - 8;  // -2 header, -2 sequence, -4 size - 
 		mRoutedFragmentedPacketCurrentSequence = mRoutedFragmentedPacketStartSequence = sequence;
@@ -1927,7 +1885,6 @@ void Session::_processRoutedFragmentedPacket(Packet* packet)
 		// If this is our last packet, send them all up to the application
 		if (mRoutedFragmentedPacketCurrentSize == mRoutedFragmentedPacketTotalSize)
 		{
-			//gLogger->logMsgF("Finalize received fragged packet - size: %u, total: %u current: %u seq:%u", MSG_HIGH, packet->getSize() - 4, mFragmentedPacketTotalSize, mFragmentedPacketCurrentSize, sequence);
 			mIncomingRoutedFragmentedPacketQueue.push(packet);
 			Packet* fragment = 0;
 
@@ -1973,8 +1930,7 @@ void Session::_processRoutedFragmentedPacket(Packet* packet)
 		  if (priority > 0x10)
 		  {
 	
-			gLogger->logMsgF("Session::_processFragmentedPacket priority messup!!!", MSG_HIGH );
-			gLogger->hexDump(newMessage->getData(), newMessage->getSize());
+			gLogger->log(LogManager::NOTICE, "Fragmented Packet priority messup!!!");
 			return;
 		  }
 
@@ -2170,8 +2126,6 @@ void Session::_processConnectCommand(void)
 //======================================================================================================================
 void Session::_processDisconnectCommand(void)
 {
-
-	//gLogger->logMsgF("Session::_processDisconnectCommand",MSG_HIGH);
 	// Set our status and clear the command
 	mStatus = SSTAT_Disconnecting;
 	mCommand = SCOM_None;
@@ -2186,9 +2140,8 @@ void Session::_processDisconnectCommand(void)
 	newPacket->setIsEncrypted(true);
 
 	mService->AddSessionToProcessQueue(this);
-	#if defined(_DEBUG)
-					gLogger->logMsgF("Session::_processDisconnectCommand added session to processqueue", MSG_HIGH);
-				#endif
+	
+	gLogger->log(LogManager::DEBUG,"Disconnect Command added session to processqueue");
 					
 	// Send out packet out.
 	_addOutgoingUnreliablePacket(newPacket);
@@ -2236,7 +2189,6 @@ void Session::_buildOutgoingReliableRoutedPackets(Message* message)
   // If we're too large to fit in a single packet, split us up.  
   if(messageSize + envelopeSize > mMaxPacketSize)		   //why >= ??
   {
-	  //gLogger->logMsgF("Session::_buildRoutedfragmentedPacket sequence :  %u", MSG_HIGH,mOutSequenceNext);
 
     // Build our first packet with the total size.
     newPacket = mPacketFactory->CreatePacket(); 
@@ -2475,8 +2427,6 @@ void Session::_addOutgoingReliablePacket(Packet* packet)
   // Set our last packet sent time index
   packet->setTimeQueued(Anh_Utils::Clock::getSingleton()->getLocalTime());
   mOutgoingReliablePacketQueue.push(packet); 
-
-  //gLogger->logMsgF("ReliableQueueAdd: Type:0x%.4x, Session:0x%x%.4x", MSG_LOW, packet->getPacketType(), mService->getId(), getId());
 }
 
 
@@ -2489,8 +2439,6 @@ void Session::_addOutgoingUnreliablePacket(Packet* packet)
   // Set our last packet sent time index
   packet->setTimeQueued(Anh_Utils::Clock::getSingleton()->getLocalTime());
   mOutgoingUnreliablePacketQueue.push(packet);
-
-  //gLogger->logMsgF("UnreliableQueueAdd: Type:0x%.4x, Session:0x%x%.4x", MSG_LOW, packet->getPacketType(), mService->getId(), getId());
 }
 
 
@@ -2623,8 +2571,6 @@ uint32 Session::_buildPacketsUnreliable()
 
 	uint32 packetsbuild = 0;
 	boost::recursive_mutex::scoped_lock lk(mSessionMutex);
-
-	//gLogger->logMsgF("session build packets queue size : %u ",MSG_NORMAL,mOutgoingMessageQueue.size());
 
 	Message* message = mUnreliableMessageQueue.front();
 	mUnreliableMessageQueue.pop();
@@ -2805,7 +2751,7 @@ void Session::_buildUnreliableMultiDataPacket()
 void Session::_handleOutSequenceRollover()
 {
 	//rollover of the packet sequence from 0xffff to 0
-	gLogger->logMsgF("Session Sequence Rollover queuesize %u nextseqsent: %u Service %u",MSG_HIGH,mWindowPacketList.size(),mNextPacketSequenceSent,mService->getId());
+	gLogger->log(LogManager::DEBUG, "Session Sequence Rollover queuesize %u nextseqsent: %u Service %u", mWindowPacketList.size(),mNextPacketSequenceSent,mService->getId());
 	mOutSequenceRollover = true;
 	
 	mRolloverWindowPacketList = mWindowPacketList;

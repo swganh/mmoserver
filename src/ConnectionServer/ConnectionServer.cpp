@@ -58,7 +58,7 @@ mLocked(false)
 	Anh_Utils::Clock::Init();
 	// log msg to default log
 	//gLogger->printSmallLogo();
-	gLogger->logMsg(" ConnectionServer Startup", FOREGROUND_GREEN);
+	gLogger->log(LogManager::INFORMATION,"ConnectionServer Startup");
 	
 	// Startup our core modules
 	mNetworkManager = new NetworkManager();
@@ -81,12 +81,6 @@ mLocked(false)
 	mClusterId = gConfig->read<uint32>("ClusterId");
 	
 	mDatabase->ExecuteSqlAsync(0, 0, "UPDATE galaxy SET status=1, last_update=NOW() WHERE galaxy_id=%u;", mClusterId);
-
-	gLogger->connecttoDB(mDatabaseManager);
-	gLogger->createErrorLog("connection.log",(LogLevel)(gConfig->read<int>("LogLevel",2)),
-										(bool)(gConfig->read<bool>("LogToFile", true)),
-										(bool)(gConfig->read<bool>("ConsoleOut",true)),
-										(bool)(gConfig->read<bool>("LogAppend",true)));
 
 	mDatabase->ExecuteSqlAsync(0,0,"UPDATE config_process_list SET serverstartID = serverstartID+1 WHERE name like 'connection'");
 	// In case of a crash, we need to cleanup the DB a little.
@@ -111,19 +105,19 @@ mLocked(false)
   
 	// We're done initiailizing.
 	_updateDBServerList(2);
-	gLogger->logMsg(" Connection Server Boot Complete", FOREGROUND_GREEN);
+	gLogger->log(LogManager::CRITICAL, "Connection Server Boot Complete");
 	//gLogger->printLogo();
 	// std::string BuildString(GetBuildString());	
 
-	gLogger->logMsgF("Connection Server - Build %s",MSG_NORMAL,ConfigManager::getBuildString().c_str());
-	gLogger->logMsg(" Welcome to your SWGANH Experience!");
+	gLogger->log(LogManager::INFORMATION,"Connection Server - Build %s",ConfigManager::getBuildString().c_str());
+	gLogger->log(LogManager::CRITICAL,"Welcome to your SWGANH Experience!");
 }
 
 //======================================================================================================================
 
 ConnectionServer::~ConnectionServer(void)
 {
-	gLogger->logMsg("ConnectionServer Shutting down...");
+	gLogger->log(LogManager::CRITICAL,"ConnectionServer Shutting down...");
 
 	// Update our status for the LoginServer
 	mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE galaxy SET status=0 WHERE galaxy_id=%u;",mClusterId));
@@ -147,7 +141,7 @@ ConnectionServer::~ConnectionServer(void)
 
 	MessageFactory::getSingleton()->destroySingleton();	// Delete message factory and call shutdown();
 
-	gLogger->logMsg("ConnectionServer Shutdown Complete");
+	gLogger->log(LogManager::CRITICAL,"ConnectionServer Shutdown Complete");
 }
 
 //======================================================================================================================
@@ -187,11 +181,11 @@ void ConnectionServer::ToggleLock()
 	{
 		// Update our status for the LoginServer
 		mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE galaxy SET status=3,last_update=NOW() WHERE galaxy_id=%u;",mClusterId));
-		gLogger->logMsg("Locking server to normal users");
+		gLogger->log(LogManager::NOTICE,"Locking server to normal users");
 	} else {
 		// Update our status for the LoginServer
 		mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE galaxy SET status=2,last_update=NOW() WHERE galaxy_id=%u;",mClusterId));
-		gLogger->logMsg("unlocking server to normal users");
+		gLogger->log(LogManager::NOTICE,"unlocking server to normal users");
 	}
 }
 //======================================================================================================================
@@ -204,10 +198,14 @@ int main(int argc, char* argv[])
 #endif
 
 	// init our logmanager singleton,set global level normal, create the default log with normal priority, output to file + console, also truncate
-	LogManager::Init(G_LEVEL_NORMAL, "ConnectionServer.log", LEVEL_NORMAL, true, true);
+	LogManager::Init();
+	gLogger->setupConsoleLogging((LogManager::LOG_PRIORITY)1);
 
 	// init out configmanager singleton (access configvariables with gConfig Macro,like: gConfig->readInto(test,"test");)
 	ConfigManager::Init("ConnectionServer.cfg");
+
+	gLogger->setupConsoleLogging((LogManager::LOG_PRIORITY)gConfig->read<int>("ConsoleLog_MinPriority"));
+	gLogger->setupFileLogging((LogManager::LOG_PRIORITY)gConfig->read<int>("FileLog_MinPriority"), gConfig->read<std::string>("FileLog_Name"));
 
 
 	gConnectionServer = new ConnectionServer();
@@ -232,8 +230,6 @@ int main(int argc, char* argv[])
 
 	// Shutdown things
 	delete gConnectionServer;
-
-	delete LogManager::getSingletonPtr();
 
 	return 0;
 }

@@ -187,22 +187,12 @@ void WorldConfig::buildAttributeMap(DatabaseResult* result)
 	mConfigurationBinding->addField(DFT_bstring,offsetof(Configuration_QueryContainer,mKey),64,0);
 	mConfigurationBinding->addField(DFT_bstring,offsetof(Configuration_QueryContainer,mValue),128,1);
 	
-	#if !defined(_DEBUG)
-	#endif
-		gLogger->logMsg(" Adding Configuration:");
-	#if defined(_DEBUG)
-		gLogger->logMsg(" WorldConfig::adding Configuration: ");
-	#endif
+	//gLogger->log(LogManager::DEBUG,"Adding Attribute Configuration");
 	
 	for(uint64 i = 0;i < count;i++)
 	{
 		result->GetNextRow(mConfigurationBinding,(void*)&attribute);
-		#if !defined(_DEBUG)
-	#endif
-		gLogger->logMsgF("Adding Attribute %s: %s ",MSG_NORMAL,attribute.mKey.getAnsi(),attribute.mValue.getAnsi());
-	#if defined(_DEBUG)
-		gLogger->logMsgF("WorldConfig::adding Attribute %s :: %s ",MSG_NORMAL,attribute.mKey.getAnsi(),attribute.mValue.getAnsi());
-	#endif
+		//gLogger->logCont(LogManager::DEBUG,"Adding Attribute %s: %s ",attribute.mKey.getAnsi(),attribute.mValue.getAnsi());
 		
 
 		if(hasConfiguration(attribute.mKey))
@@ -217,24 +207,7 @@ void WorldConfig::buildAttributeMap(DatabaseResult* result)
 
 	if(count > 0)
 	{
-				#if !defined(_DEBUG)
-	gLogger->logMsgLoadSuccess(" %u attributes mapped...",MSG_NORMAL,count);
-#endif
-	
-#if defined(_DEBUG)
-gLogger->logMsgLoadSuccess("WorldConfig:: %u attributes mapped...",MSG_NORMAL,count);		
-#endif
-	}
-	else
-	{
-	#if !defined(_DEBUG)
-		gLogger->logMsgLoadFailure(" Mapping attributes...",MSG_NORMAL);
-	#endif
-	
-	#if defined(_DEBUG)
-		gLogger->logMsgLoadFailure("WorldConfig::mapping attributes...",MSG_NORMAL);
-	#endif
-				
+		gLogger->log(LogManager::NOTICE,"Mapped %u Server Attributes.",count);		
 	}
 
 }
@@ -247,7 +220,7 @@ void WorldConfig::setConfiguration(string key,std::string value)
 
 	if(it == mConfigurationMap.end())
 	{
-		gLogger->logMsgF("WorldConfig::setConfiguration: could not find %s",MSG_HIGH,key.getAnsi());
+		gLogger->log(LogManager::INFORMATION,"WorldConfig::setConfiguration: could not find %s",key.getAnsi());
 		return;
 	}
 
@@ -280,7 +253,7 @@ void WorldConfig::removeConfiguration(string key)
 	if(it != mConfigurationMap.end())
 		mConfigurationMap.erase(it);
 	else
-		gLogger->logMsgF("WorldConfig::removeConfiguration: could not find %s",MSG_HIGH,key.getAnsi());
+		gLogger->log(LogManager::INFORMATION,"WorldConfig::removeConfiguration: could not find %s",key.getAnsi());
 }
 
 //=========================================================================

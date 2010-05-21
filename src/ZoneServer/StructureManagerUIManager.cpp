@@ -66,7 +66,7 @@ void StructureManager::createNewFactorySchematicBox(PlayerObject* player, Factor
 		ManufacturingSchematic* man = (*mListIt);
 		if(!man)
 		{
-			gLogger->logMsgF("UIManager::Man Schematic doesnt exist",MSG_NORMAL);
+			gLogger->log(LogManager::DEBUG,"UIManager::Man Schematic doesnt exist");
 			mListIt++;
 			continue;
 
@@ -75,7 +75,7 @@ void StructureManager::createNewFactorySchematicBox(PlayerObject* player, Factor
 		Item* item = man->getItem();
 		if(!item)
 		{
-			gLogger->logMsgF("UIManager::Man Schematic Item doesnt exist",MSG_NORMAL);
+			gLogger->log(LogManager::DEBUG,"UIManager::Man Schematic Item doesnt exist");
 			mListIt++;
 			continue;
 

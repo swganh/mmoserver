@@ -106,7 +106,6 @@ inline MessageFactory* MessageFactory::getSingleton(void)
 {
 	if(!mSingleton)
 	{
-		// gLogger->logMsgF("MessageFactory::getSingleton()",MSG_NORMAL);
 		mSingleton = new MessageFactory(gConfig->read<uint32>("GlobalMessageHeap")*1024);
 	}
 

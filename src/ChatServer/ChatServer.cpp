@@ -55,7 +55,7 @@ ChatServer::ChatServer() : mNetworkManager(0),mDatabaseManager(0),mRouterService
 {
 	Anh_Utils::Clock::Init();
 	//gLogger->printSmallLogo();
-	gLogger->logMsg(" Chat Server Startup", FOREGROUND_GREEN);
+	gLogger->log(LogManager::CRITICAL,"Chat Server Startup");
 
 	// Create and startup our core services.
 	mDatabaseManager = new DatabaseManager();
@@ -72,12 +72,6 @@ ChatServer::ChatServer() : mNetworkManager(0),mDatabaseManager(0),mRouterService
 
 
 	mDatabase->ExecuteSqlAsync(0,0,"UPDATE config_process_list SET serverstartID = serverstartID+1 WHERE name like 'chat'");
-
-	gLogger->connecttoDB(mDatabaseManager);
-	gLogger->createErrorLog("chatserver.log",(LogLevel)(gConfig->read<int>("LogLevel",2)),
-										(bool)(gConfig->read<bool>("LogToFile", true)),
-										(bool)(gConfig->read<bool>("ConsoleOut",true)),
-										(bool)(gConfig->read<bool>("LogAppend",true)));
 
 	mRouterService = mNetworkManager->GenerateService((char*)gConfig->read<std::string>("BindAddress").c_str(), gConfig->read<uint16>("BindPort"),gConfig->read<uint32>("ServiceMessageHeap")*1024,true);
 
@@ -113,19 +107,19 @@ ChatServer::ChatServer() : mNetworkManager(0),mDatabaseManager(0),mRouterService
 	// We're done initializing.
 	_updateDBServerList(2);
 
-	gLogger->logMsg(" Chat Server startup complete", FOREGROUND_GREEN);
+	gLogger->log(LogManager::CRITICAL,"Chat Server startup complete");
 	//gLogger->printLogo();
 	// std::string BuildString(GetBuildString());
 
-	gLogger->logMsgF("Chat Server - Build %s",MSG_NORMAL,ConfigManager::getBuildString().c_str());
-	gLogger->logMsg(" Welcome to your SWGANH Experience!");
+	gLogger->log(LogManager::INFORMATION,"Chat Server - Build %s",ConfigManager::getBuildString().c_str());
+	gLogger->log(LogManager::CRITICAL,"Welcome to your SWGANH Experience!");
 }
 
 //======================================================================================================================
 
 ChatServer::~ChatServer()
 {
-	gLogger->logMsg("ChatServer shutting down...");
+	gLogger->log(LogManager::CRITICAL,"ChatServer shutting down...");
 
 	// We're shutting down, so update the DB again.
 	_updateDBServerList(0);
@@ -150,7 +144,7 @@ ChatServer::~ChatServer()
 
 	delete mDatabaseManager;
 
-	gLogger->logMsg("ChatServer Shutdown Complete");
+	gLogger->log(LogManager::CRITICAL,"ChatServer Shutdown Complete");
 }
 
 //======================================================================================================================
@@ -233,9 +227,13 @@ int main(int argc, char* argv[])
 
 	bool exit = false;
 
-	LogManager::Init(G_LEVEL_NORMAL, "ChatServer.log", LEVEL_NORMAL, true, true);
+	LogManager::Init();
+	gLogger->setupConsoleLogging((LogManager::LOG_PRIORITY)1);
 
 	ConfigManager::Init("ChatServer.cfg");
+
+	gLogger->setupConsoleLogging((LogManager::LOG_PRIORITY)gConfig->read<int>("ConsoleLog_MinPriority"));
+	gLogger->setupFileLogging((LogManager::LOG_PRIORITY)gConfig->read<int>("FileLog_MinPriority"), gConfig->read<std::string>("FileLog_Name"));
 
 	gChatServer = new ChatServer();
 
@@ -258,9 +256,6 @@ int main(int argc, char* argv[])
 
 	// Shutdown things
 	delete gChatServer;
-
-	// Delete LogManager
-	delete LogManager::getSingletonPtr();
 
 	delete ConfigManager::getSingletonPtr();
 

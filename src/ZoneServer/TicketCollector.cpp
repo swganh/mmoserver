@@ -52,13 +52,13 @@ void TicketCollector::handleObjectMenuSelect(uint8 messageType,Object* srcObject
 		
 		if(!playerObject)
 		{
-			gLogger->logMsgF("TicketCollector: no player",MSG_HIGH);
+			gLogger->log(LogManager::DEBUG,"TicketCollector: no player");
 			return;
 		}
 
 		if(!mShuttle)
 		{
-			gLogger->logMsgF("TicketCollector: no shuttle",MSG_HIGH);
+			gLogger->log(LogManager::DEBUG,"TicketCollector: no shuttle");
 			return;
 		}
 
@@ -87,7 +87,7 @@ void TicketCollector::handleObjectMenuSelect(uint8 messageType,Object* srcObject
 		}
 	}
 	else
-		gLogger->logMsgF("TravelTerminal: Unhandled MenuSelect: %u",MSG_HIGH,messageType);
+		gLogger->log(LogManager::DEBUG,"TravelTerminal: Unhandled MenuSelect: %u",messageType);
 }
 
 //=============================================================================
@@ -197,7 +197,7 @@ void TicketCollector::handleUIEvent(uint32 action,int32 element,string inputStr,
 					}
 					else
 					{
-						gLogger->logMsg("TicketCollector: Error getting TravelPoint");
+						gLogger->log(LogManager::DEBUG,"TicketCollector: Error getting TravelPoint");
 					}
 					break;
 				}
@@ -254,7 +254,7 @@ void TicketCollector::travelRequest(TravelTicket* ticket,PlayerObject* playerObj
 			}
 			else
 			{
-				gLogger->logMsg("TicketCollector: Error getting TravelPoint\n");
+				gLogger->log(LogManager::DEBUG,"TicketCollector: Error getting TravelPoint\n");
 			}
 		}
 	}

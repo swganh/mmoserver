@@ -95,7 +95,7 @@ TangibleObject* FireworkManager::createFirework(uint32 typeId, PlayerObject* pla
 
 	default:
 		{
-			gLogger->logMsgF("Error creating firework, type:%u",MSG_NORMAL, typeId);
+			gLogger->log(LogManager::NOTICE,"Error creating firework, type:%u", typeId);
 			return NULL;
 		}
 	}

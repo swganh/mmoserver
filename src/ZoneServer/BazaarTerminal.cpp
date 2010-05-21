@@ -35,7 +35,7 @@ void BazaarTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 		
 	}
 	else
-		gLogger->logMsgF("BazaarTerminal: Unhandled MenuSelect: %u",MSG_HIGH,messageType);
+		gLogger->log(LogManager::NOTICE,"BazaarTerminal: Unhandled MenuSelect: %u",messageType);
 }
 
 

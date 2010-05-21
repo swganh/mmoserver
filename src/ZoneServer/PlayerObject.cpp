@@ -338,7 +338,7 @@ PlayerObject::~PlayerObject()
 		}
 		else
 		{
-			gLogger->logMsgF("PlayerObject::destructor: couldn't find cell %"PRIu64"",MSG_HIGH,mParentId);
+			gLogger->log(LogManager::DEBUG,"PlayerObject::destructor: couldn't find cell %"PRIu64"",mParentId);
 		}
 	}
 	else if(mSubZoneId)
@@ -1011,7 +1011,7 @@ void PlayerObject::addBadge(uint32 badgeId)
 
 		(gWorldManager->getDatabase())->ExecuteSqlAsync(0,0,"INSERT INTO character_badges VALUES (%"PRIu64",%u)",mId,badgeId);
 
-		gLogger->logMsgF("Badge %u granted to %"PRIu64"",MSG_NORMAL,badgeId,mId);
+		gLogger->log(LogManager::DEBUG,"Badge %u granted to %"PRIu64"",badgeId,mId);
 
 		_verifyBadges();
 
@@ -1023,7 +1023,7 @@ void PlayerObject::addBadge(uint32 badgeId)
 	else
 	{
 		// This is an unexpected condition.
-		gLogger->logMsgF("Badge %u already exists for player with id %"PRIu64"",MSG_NORMAL,badgeId,mId);
+		gLogger->log(LogManager::DEBUG,"Badge %u already exists for player with id %"PRIu64"",badgeId,mId);
 	}
 }
 
@@ -1270,7 +1270,7 @@ void PlayerObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
 		default:
 		{
-			gLogger->logMsgF("PlayerObject: Unhandled MenuSelect: %u",MSG_HIGH,messageType);
+			gLogger->log(LogManager::DEBUG,"PlayerObject: Unhandled MenuSelect: %u",messageType);
 		}
 		break;
 	}
@@ -1311,7 +1311,7 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,string inputStr,UIW
 		// clone activation list box
 		case SUI_Window_CloneSelect_ListBox:
 		{
-			// gLogger->logMsgF("PlayerObject::handleUIEvent element = %d",MSG_NORMAL,element);
+			// gLogger->log(LogManager::DEBUG,"PlayerObject::handleUIEvent element = %d",element);
 
 			// Handle non-selected response as if closest cloning facility was selected,
 			// until we learn how to restart the dialog when nothing selected.
@@ -1431,7 +1431,7 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,string inputStr,UIW
 
 			if(!skill)
 			{
-				gLogger->logMsg("PlayerObject: teach skill : skill list surprisingly empty\n");
+				gLogger->log(LogManager::DEBUG,"PlayerObject: teach skill : skill list surprisingly empty\n");
 				return;
 			}
 
@@ -1597,7 +1597,7 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,string inputStr,UIW
 
 			if(selectedPlayer == NULL)
 			{
-				gLogger->logMsg("SUI_Window_SelectGroupLootMaster_Listbox: Invalid player selection");
+				gLogger->log(LogManager::DEBUG,"SUI_Window_SelectGroupLootMaster_Listbox: Invalid player selection");
 				break;
 			}
 
@@ -1607,7 +1607,7 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,string inputStr,UIW
 
 		default:
 		{
-			gLogger->logMsgF("handleUIEvent:Default: %u, %u, %s,",MSG_NORMAL, action, element, inputStr.getAnsi());
+			gLogger->log(LogManager::DEBUG,"handleUIEvent:Default: %u, %u, %s,", action, element, inputStr.getAnsi());
 		}
 		break;
 	}
@@ -1668,7 +1668,7 @@ void PlayerObject::addToDuelList(PlayerObject* player)
 	if(this->getId()!= player->getId())
 		mDuelList.push_back(player); 
 	else
-		gLogger->logMsgF("PlayerObject::addToDuelList: %I64u wanted to add himself to his/her duel list",MSG_NORMAL, player->getId());
+		gLogger->log(LogManager::DEBUG,"PlayerObject::addToDuelList: %I64u wanted to add himself to his/her duel list", player->getId());
 }
 //=============================================================================
 //
@@ -2137,7 +2137,7 @@ void PlayerObject::setSitting(Message* message)
 				else
 				{
 					// we should never get here !
-					gLogger->logMsg("SitOnObject: could not find zone region in map");
+					gLogger->log(LogManager::DEBUG,"SitOnObject: could not find zone region in map");
 
 					// hammertime !
 					exit(-1);
@@ -2154,7 +2154,7 @@ void PlayerObject::setSitting(Message* message)
 					if(cell)
 						cell->removeObject(this);
 					else
-						gLogger->logMsgF("Error removing %"PRIu64" from cell %"PRIu64"",MSG_NORMAL,this->getId(),this->getParentId());
+						gLogger->log(LogManager::DEBUG,"Error removing %"PRIu64" from cell %"PRIu64"",this->getId(),this->getParentId());
 
 					this->setParentId(chairCell);
 
@@ -2163,7 +2163,7 @@ void PlayerObject::setSitting(Message* message)
 					if(cell)
 						cell->addObjectSecure(this);
 					else
-						gLogger->logMsgF("Error adding %"PRIu64" to cell %"PRIu64"",MSG_NORMAL,this->getId(),chairCell);
+						gLogger->log(LogManager::DEBUG,"Error adding %"PRIu64" to cell %"PRIu64"",this->getId(),chairCell);
 				}
 
 				this->mPosition = chair_position;

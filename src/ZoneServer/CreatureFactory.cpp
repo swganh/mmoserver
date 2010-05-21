@@ -64,7 +64,7 @@ void CreatureFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,
 		case CreoGroup_Shuttle:			mShuttleFactory->requestObject(ofCallback,id,subGroup,subType,client);			break;
 
 		default:
-			gLogger->logMsg("CreatureFactory::requestObject Unknown Group\n");
+			gLogger->log(LogManager::DEBUG,"CreatureFactory::requestObject Unknown Group\n");
 		break;
 	}
 }

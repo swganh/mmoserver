@@ -287,7 +287,7 @@ void HouseFactory::handleObjectReady(Object* object,DispatchClient* client)
 	//Perform checking.
 	if(!ilc)
 	{
-		gLogger->logMsg("House creation failed (HouseFactory.cpp line 289)", FOREGROUND_RED);
+		gLogger->log(LogManager::NOTICE,"House creation failed (HouseFactory.cpp line 289)");
 		return;
 	}
 
@@ -302,7 +302,7 @@ void HouseFactory::handleObjectReady(Object* object,DispatchClient* client)
 	if(house->getLoadCount() == (house->getCellList())->size())
 	{
 		if(!(_removeFromObjectLoadMap(house->getId())))
-			gLogger->logMsg("BuildingFactory: Failed removing object from loadmap");
+			gLogger->log(LogManager::NOTICE,"BuildingFactory: Failed removing object from loadmap");
 
 		ilc->mOfCallback->handleObjectReady(house,ilc->mClient);
 

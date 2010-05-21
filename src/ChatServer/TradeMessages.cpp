@@ -166,7 +166,7 @@ void ChatMessageLib::sendBazaarTransactionMessage(DispatchClient* client, Auctio
 		x = "";
 		y = "";
 		region = "";
-		gLogger->logMsgF("ChatMessageLib :: Bazaar not found",MSG_NORMAL);
+		gLogger->log(LogManager::NOTICE, "ChatMessageLib :: Bazaar not found");
 	}
 	else
 	{
@@ -238,7 +238,7 @@ void ChatMessageLib::SendHarvesterHopperUpdate(StructureManagerAsyncContainer* a
 	gMessageFactory->addUint32(mHopperList->size());
 	gMessageFactory->addUint32(asynContainer->updateCounter+mHopperList->size());
 
-	gLogger->logMsgF("SendHarvesterHopperUpdate:: listsize %u updatecounter %u",MSG_NORMAL,mHopperList->size(),asynContainer->updateCounter);
+	gLogger->log(LogManager::DEBUG, "SendHarvesterHopperUpdate:: listsize %u updatecounter %u",mHopperList->size(),asynContainer->updateCounter);
 
 	gMessageFactory->addUint8(3);
 	gMessageFactory->addUint16(mHopperList->size());
@@ -246,7 +246,7 @@ void ChatMessageLib::SendHarvesterHopperUpdate(StructureManagerAsyncContainer* a
 	asynContainer->updateCounter += mHopperList->size();
 	while(it != mHopperList->end())
 	{
-		gLogger->logMsgF("SendHarvesterHopperUpdate:: resource %I64u quantity %f",MSG_NORMAL,(*it)->ResourceID,(float)asynContainer->updateCounter);
+		gLogger->log(LogManager::DEBUG,"SendHarvesterHopperUpdate:: resource %I64u quantity %f",(*it)->ResourceID,(float)asynContainer->updateCounter);
 		gMessageFactory->addUint64((*it)->ResourceID);		
 		//gMessageFactory->addFloat((*it)->Quantity);		
 		gMessageFactory->addFloat((float)asynContainer->updateCounter);	

@@ -87,7 +87,7 @@ void Shuttle::useShuttle(PlayerObject* playerObject)
 
 		gMessageLib->sendSystemMessage(playerObject,u.getUnicode16());
 
-		gLogger->logMsgF(sql,MSG_HIGH);
+		gLogger->log(LogManager::DEBUG,sql);
 
 		return;
 	}

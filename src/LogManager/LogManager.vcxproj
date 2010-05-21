@@ -11,11 +11,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Log.cpp" />
     <ClCompile Include="LogManager.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Log.h" />
+    <ClInclude Include="LogEntry.h" />
+    <ClInclude Include="LogEnums.h" />
     <ClInclude Include="LogManager.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

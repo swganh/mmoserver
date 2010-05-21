@@ -30,15 +30,15 @@ bool PVState::validate(uint32 &reply1, uint32 &reply2, uint64 targetId, uint32 o
     {
 
 		if(!creature)
-			gLogger->logMsgF("ObjController::PVState::validate: creature not found %"PRIu64"",MSG_HIGH,mController->getObject()->getId());
+			gLogger->log(LogManager::DEBUG,"ObjController::PVState::validate: creature not found %"PRIu64"",mController->getObject()->getId());
 
 		if((creature->getState() & cmdProperties->mStates) != 0)
-			gLogger->logMsgF("ObjController::PVState::validate: state denial state :  %"PRIu64"",MSG_HIGH,((creature->getState() & cmdProperties->mStates)));
+			gLogger->log(LogManager::DEBUG,"ObjController::PVState::validate: state denial state :  %"PRIu64"",((creature->getState() & cmdProperties->mStates)));
 
         reply1 = 0;
         reply2 = 0;
 
-		gLogger->logMsgF("ObjController::PVState::validate: state denial state Command crc :  %u",MSG_HIGH,cmdProperties->mCmdCrc);
+		gLogger->log(LogManager::DEBUG,"ObjController::PVState::validate: state denial state Command crc :  %u",cmdProperties->mCmdCrc);
 		//handle canceling of crafting session if it was denied
 		
         

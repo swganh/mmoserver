@@ -1,487 +1,209 @@
-/*
----------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
-
-
-Copyright (c) 2006 - 2010 The swgANH Team
-
----------------------------------------------------------------------------------------
-*/
 #include "LogManager.h"
 
-#include "DatabaseManager/Database.h"
-#include "DatabaseManager/DatabaseManager.h"
-
-#include "ConfigManager/ConfigManager.h"
-#include "Utils/StreamColors.h"
-
-#include <iomanip>
-#include <string>
+#include <cstdarg>
 #include <stdarg.h>
-#include <stdio.h> 
+#include <stdio.h>
+#include <time.h>
 
+LogManager* LogManager::mSingleton;
 
-//======================================================================================================================
-LogManager*   LogManager::mSingleton  = NULL;
-
-
-//======================================================================================================================
-LogManager::LogManager(GlobalLogLevel glevel,const std::string& name,LogLevel level,bool fileOut,bool consoleOut,bool append)
+class LOG_ENTRY
 {
-	mDatabase				= NULL;
-	mDefaultLog				= NULL;
-	mDefaultErrorLog		= NULL;
-	mDefaultAdminLog		= NULL;
-	mDefaultTransactionLog	= NULL;
-	mGlobalLogLevel			= glevel;
-	createLog(name,level,fileOut,consoleOut,append);
+public:
+	LogManager::LOG_PRIORITY	mPriority;
+	uint8			mChannels;
+	std::string		mMessage;
 
+	bool mContinuation;
+};
+
+LogManager::LogManager()
+{
+	_printLogo();
+
+	boost::thread t(std::tr1::bind(&LogManager::_LoggerThread, this));
+	mThread = boost::move(t);
+
+	//Set the Defaults to No Logs.
+	mMinPriorities[0] = 0;
+	mMinPriorities[1] = 0;
+	mMinPriorities[2] = 0;
 }
 
-
-//======================================================================================================================
-LogManager* LogManager::Init(GlobalLogLevel glevel,const std::string& name,LogLevel level,bool fileOut,bool consoleOut,bool append)
+bool LogManager::setupConsoleLogging(LOG_PRIORITY min_priority)
 {
-	if(!mSingleton)
+	mMinPriorities[0] = min_priority;
+	return true;
+}
+
+bool LogManager::setupFileLogging(LOG_PRIORITY min_priority, std::string filename)
+{
+	mMinPriorities[1] = min_priority;
+	FILE* tempFile = fopen(filename.c_str(), "w");
+
+	if(!tempFile)
+		return false;
+
+	mOutputFile = tempFile;
+
+	return true;
+}
+
+void LogManager::_LoggerThread()
+{
+	std::vector<LOG_ENTRY*> mTempEntries;
+
+	char* priority_strings[] = {"EMER", "ALRT", "CRIT", "ERRO", "WARN", "NOTI", "INFO", "DEBG"};
+
+	while(true)
 	{
-		mSingleton = new LogManager(glevel,name,level,fileOut,consoleOut,append);
-	}
+		this->mEntriesMutex.lock();
 
-  return mSingleton;
+		mTempEntries.reserve(mEntries.size());
+
+		while(mEntries.size() > 0)
+		{
+			mTempEntries.push_back(mEntries.front());
+			mEntries.pop();
+		}
+		this->mEntriesMutex.unlock();
+
+		std::vector<LOG_ENTRY*>::iterator end = mTempEntries.end();
+
+		struct tm * t;
+		time_t te = time(NULL);
+		t = localtime (&te);
+
+		for(std::vector<LOG_ENTRY*>::iterator it=mTempEntries.begin(); it != end; it++)
+		{
+			if((*it)->mChannels & LOG_CHANNEL_CONSOLE && ((*it)->mPriority <= mMinPriorities[0]))
+			{
+				if(!(*it)->mContinuation)
+					printf("[%02d:%02d:%02d]<%s> ",t->tm_hour,t->tm_min,t->tm_sec, priority_strings[(int)(*it)->mPriority - 1]);
+				else
+					printf("                 ");
+
+				printf("%s\n", (*it)->mMessage.c_str());
+			}
+			
+			if((*it)->mChannels & LOG_CHANNEL_FILE && ((*it)->mPriority <= mMinPriorities[1]))
+			{
+				if(mOutputFile)
+				{
+					if(!(*it)->mContinuation)
+						fprintf(mOutputFile, "[%02d:%02d:%02d]<%s> ",t->tm_hour,t->tm_min,t->tm_sec, priority_strings[(int)(*it)->mPriority - 1]);
+					else
+						fprintf(mOutputFile, "                 ");
+					
+					fprintf(mOutputFile, "%s\n", (*it)->mMessage.c_str());
+				}
+			}
+
+			//if((*it)->mChannels & LOG_CHANNEL_DATABASE && ((*it)->mPriority <= mMinPriorities[2]))
+			//{
+			//}
+
+			delete (*it);
+		}
+
+		mTempEntries.clear();
+
+		boost::this_thread::sleep(boost::posix_time::milliseconds(10));
+	}
 }
 
-
-//======================================================================================================================
-LogManager::~LogManager()
+void	LogManager::_printLogo()
 {
-	LogList::iterator it = mLogs.begin();
-
-	while(it != mLogs.end())
-	{
-		delete(it->second);
-		it = mLogs.erase(it);
-	}
+printf("                    ______        ______    _    _   _ _   _ \n");
+printf("                   / ___\\ \\      / / ___|  / \\  | \\ | | | | |\n");
+printf("                   \\___ \\\\ \\ /\\ / / |  _  / _ \\ |  \\| | |_| |\n");
+printf("                    ___) |\\ V  V /| |_| |/ ___ \\| |\\  |  _  |\n");
+printf("                   |____/  \\_/\\_/  \\____/_/   \\_\\_| \\_|_| |_|\n");
+printf("                                               There is Another...\n\n");
 }
-
-
-//======================================================================================================================
-
-Log* LogManager::createLog(const std::string& name,LogLevel level,bool fileOut,bool consoleOut,bool append)
-{
-    boost::mutex::scoped_lock lk(mGlobalLogMutex);
-
-	std::string zone = "";
-
-	Log* newLog = new Log(name, level, mGlobalLogLevel, fileOut,  consoleOut,append,NULL);
-
-	mLogs.insert(LogList::value_type(name,newLog));
-
-	if(!mDefaultLog)
-	{
-		mDefaultLog = newLog;
-	}
-
-	return newLog;
-}
-
-//======================================================================================================================
-// we connect to our separate log db
-//
-
-void LogManager::connecttoDB(DatabaseManager* dbManager)
-{
-	std::string server	= (char*)(gConfig->read<std::string>("DBServer")).c_str();
-	int port			= (int)(gConfig->read<int>("DBPort"));
-	std::string user	= (char*)(gConfig->read<std::string>("DBUser")).c_str();
-	std::string pass	= (char*)(gConfig->read<std::string>("DBPass")).c_str();
-	std::string name	= (char*)(gConfig->read<std::string>("DBName")).c_str();
-
-	mDatabase = dbManager->Connect(DBTYPE_MYSQL, 
-									   (char*)(gConfig->read<std::string>("DBLogServer",server)).c_str(),
-									   gConfig->read<int>("DBLogPort",port),
-									   (char*)(gConfig->read<std::string>("DBLogUser",user)).c_str(),
-									   (char*)(gConfig->read<std::string>("DBLogPass",pass)).c_str(),
-									   (char*)(gConfig->read<std::string>("DBLogName",name)).c_str());
 	
-}
-
-//======================================================================================================================
-// we create a separate log for errors
-//
-
-Log* LogManager::createErrorLog(const std::string& zone, LogLevel level ,bool fileOut,bool consoleOut,bool append)
+void LogManager::log(LOG_PRIORITY priority, std::string format, ...)
 {
-	mZone = zone.c_str();
-	std::string logname = "error_log ";
-	logname += zone;
 
-    boost::mutex::scoped_lock lk(mGlobalLogMutex);
-
-	Log* newLog = new Log(logname, level, mGlobalLogLevel, fileOut,  consoleOut,append,mDatabase);
-
-	mLogs.insert(LogList::value_type(logname,newLog));
-
-	if(!mDefaultErrorLog)
-	{
-		mDefaultErrorLog = newLog;
-	}
-
-	return newLog;
-}
-
-
-//======================================================================================================================
-
-Log* LogManager::getLog(const std::string& name)
-{
-	Log* log = 0;
-
-    boost::mutex::scoped_lock lk(mGlobalLogMutex);
-
-	LogList::iterator it = mLogs.find(name);
-
-	if (it != mLogs.end())
-	{
-		log = it->second;
-	}
-
-	return log;
-}
-
-//======================================================================================================================
-
-void LogManager::logMsg(const std::string& logname,const std::string& msg,MsgPriority mp,bool fileOut,bool consoleOut,bool timestamp)
-{
-    boost::mutex::scoped_lock lk(mGlobalLogMutex);
-
-	Log* tmpLog = getLog(logname);
-
-	if(tmpLog != NULL)
-	{
-		tmpLog->logMsg(msg, mp, fileOut, consoleOut, timestamp);
-	}
-}
-
-//======================================================================================================================
-
-void LogManager::logMsg(Log* log,const std::string& msg,MsgPriority mp,bool fileOut,bool consoleOut,bool timestamp)
-{
-    boost::mutex::scoped_lock lk(mGlobalLogMutex);
-
-	log->logMsg(msg, mp, fileOut, consoleOut, timestamp);
-}
-
-//======================================================================================================================
-void LogManager::logMsg(const std::string& msg, int Color)
-{
-	logMsg(msg, MSG_NORMAL, true, true, true, Color);
-}
-//======================================================================================================================
-
-void LogManager::logMsg(const std::string& msg,MsgPriority mp,bool fileOut,bool consoleOut,bool timestamp, int Color)
-{
-    boost::mutex::scoped_lock lk(mGlobalLogMutex);
-
-	if(mDefaultLog != NULL)
-	{
-		mDefaultLog->logMsg(msg, mp, fileOut, consoleOut, timestamp, Color);
-	}
-}
-
-//======================================================================================================================
-
-void LogManager::logMsgStartUp(const std::string& msg, MsgPriority priority, ...)
-{
+	//Read the VA List Info
+	char buffer[256];
 	va_list args;
-	va_start(args, priority);
-	
-	boost::mutex::scoped_lock lk(mGlobalLogMutex);
-
-	if(mDefaultLog != NULL)
-	{
-		mDefaultLog->logMsgNolf(msg, priority, true, true, true, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE, args);
-	}
-
+	va_start(args, format);
+	vsprintf(buffer, format.c_str(), args);
 	va_end(args);
+
+	LOG_ENTRY* entry = new LOG_ENTRY();
+
+	entry->mPriority = priority;
+	entry->mChannels = LOG_CHANNEL_ALL;
+	entry->mMessage	 = buffer;
+	entry->mContinuation = false;
+
+	mEntriesMutex.lock();
+	mEntries.push(entry);
+	mEntriesMutex.unlock();
 }
 
-void LogManager::logMsgFollowUp(const std::string& msg, MsgPriority priority, ...)
+void LogManager::logCont(LOG_PRIORITY priority, std::string format, ...)
 {
+
+	//Read the VA List Info
+	char buffer[256];
 	va_list args;
-	va_start(args, priority);
-
-	boost::mutex::scoped_lock lk(mGlobalLogMutex);
-
-	if(mDefaultLog != NULL)
-	{
-
-		mDefaultLog->logMsgNolf(msg, priority, true, true, false,FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE, args);
-	}
-
+	va_start(args, format);
+	vsprintf(buffer, format.c_str(), args);
 	va_end(args);
+
+	LOG_ENTRY* entry = new LOG_ENTRY();
+
+	entry->mPriority = priority;
+	entry->mChannels = LOG_CHANNEL_ALL;
+	entry->mMessage	 = buffer;
+	entry->mContinuation = true;
+
+	mEntriesMutex.lock();
+	mEntries.push(entry);
+	mEntriesMutex.unlock();
 }
 
-//======================================================================================================================
-
-void LogManager::logMsgF(const std::string& msg, MsgPriority priority, ...)
+void LogManager::logS(LOG_PRIORITY priority, uint8 channels, std::string format, ...)
 {
+	//Read the VA List Info
+	char buffer[256];
 	va_list args;
-	va_start(args, priority);
-	
-	boost::mutex::scoped_lock lk(mGlobalLogMutex);
-
-	if(mDefaultLog != NULL)
-	{
-		mDefaultLog->logMsg(msg, priority, args);
-	}
-
+	va_start(args, format);
+	vsprintf(buffer, format.c_str(), args);
 	va_end(args);
+
+	LOG_ENTRY* entry = new LOG_ENTRY();
+
+	entry->mPriority = priority;
+	entry->mChannels = channels;
+	entry->mMessage	 = buffer;
+	entry->mContinuation = false;
+
+	mEntriesMutex.lock();
+	mEntries.push(entry);
+	mEntriesMutex.unlock();
 }
 
-//======================================================================================================================
-
-void LogManager::hexDump(int8* data,uint32 len,MsgPriority mp)
+void LogManager::logContS(LOG_PRIORITY priority, uint8 channels, std::string format, ...)
 {
-    boost::mutex::scoped_lock lk(mGlobalLogMutex);
-
-	if(mDefaultLog != NULL)
-	{
-		mDefaultLog->hexDump(data,len,mp);
-	}
-}
-
-void LogManager::hexDump(int8* data,uint32 len,const char* filename)
-{
-	if(mDefaultLog != NULL)
-	{
-		mDefaultLog->hexDump(data,len,filename);
-	}
-}
-
-//======================================================================================================================
-
-void LogManager::logMsgF(Log* log, const std::string& msg, MsgPriority priority, ...)
-{
+	//Read the VA List Info
+	char buffer[256];
 	va_list args;
-	va_start(args, priority);
-
-	log->logMsg(msg, priority, args);
+	va_start(args, format);
+	vsprintf(buffer, format.c_str(), args);
 	va_end(args);
-}
 
-//======================================================================================================================
+	LOG_ENTRY* entry = new LOG_ENTRY();
 
-void LogManager::logMsgOk(int width)
-{
-	boost::mutex::scoped_lock lk(mGlobalLogMutex);
+	entry->mPriority = priority;
+	entry->mChannels = channels;
+	entry->mMessage	 = buffer;
+	entry->mContinuation = true;
 
-	std::cout << std::setw(width-5); // Width minus the [ OK ] message length.
-	std::cout << std::right << "[ " << green << "OK" << white << " ]" << std::endl;
-}
-
-
-void LogManager::logMsgLoadSuccess(const std::string& msg, MsgPriority priority, ...)
-{
-	va_list args;
-	va_start(args, priority);
-
-	uint16 textLength = 0;
-	if(mDefaultLog != NULL)
-	{
-		textLength = mDefaultLog->logMsgNolf(msg, priority, args);
-	}
-
-	int16 length = 80 - textLength + 1; // Add an extra 1 for the null terminator at the end of the string.
-	
-	if(length < 0)
-		length = 80;
-
-	logMsgOk(length);
-	va_end(args);
-}
-
-
-void LogManager::logMsgLoadFailure(const std::string& msg, MsgPriority priority, ...)
-{
-	va_list args;
-	va_start(args, priority);
-
-	uint16 textLength = 0;
-	if(mDefaultLog != NULL)
-	{
-		textLength = mDefaultLog->logMsgNolf(msg, priority, args);
-	}
-
-	int16 length = 80 - textLength + 1; // Add an extra 1 for the null terminator at the end of the string.
-	
-	if(length < 0)
-		length = 80;
-
-	logMsgFailed(length);
-	va_end(args);
-}
-
-//======================================================================================================================
-
-void LogManager::logMsgFailed(int width)
-{
-    boost::mutex::scoped_lock lk(mGlobalLogMutex);	
-
-		std::cout << std::setw(width-6); // Width minus the [FAIL] message length.
-		std::cout << std::right << "[" << red << "FAIL" << white << "]" << std::endl;
-}
-
-//======================================================================================================================
-
-void LogManager::setLogLevel(const std::string& logname,LogLevel level)
-{
-	Log* tmpLog = getLog(logname);
-
-	if(tmpLog != NULL)
-	{
-		tmpLog->setLogLevel(level);
-	}
-}
-
-//======================================================================================================================
-
-void LogManager::setLogLevel(Log* log,LogLevel level)
-{
-	log->setLogLevel(level);
-}
-
-//======================================================================================================================
-
-void LogManager::setLogLevel(LogLevel level)
-{
-	if(mDefaultLog)
-	{
-		mDefaultLog->setLogLevel(level);
-	}
-}
-
-//======================================================================================================================
-
-Log* LogManager::setDefaultLog(Log* log)
-{
-	boost::mutex::scoped_lock lk(mGlobalLogMutex);
-
-	Log* old = mDefaultLog;
-	mDefaultLog = log;
-
-	return old;
-}
-
-//======================================================================================================================
-
-void LogManager::setGlobalLogLevel(GlobalLogLevel glevel)
-{
-	boost::mutex::scoped_lock lk(mGlobalLogMutex);
-
-	LogList::iterator it = mLogs.begin();
-
-	while(it != mLogs.end())
-	{
-		it->second->setGlobalLogLevel(glevel);
-		++it;
-	}
-}
-
-//======================================================================================================================
-using namespace std;
-void LogManager::printLogo()
-{
- //int spacing = 20; //std::cout.width(spacing) and std::setw(spacing)  don't line up correctly >.<
-char spacing[38] = "                            \0";
-cout<<spacing<<white<<"                             "<<endl;
-cout<<spacing<<aqua<<"fffffffff"<<white<<"             "<<aqua<<"Lfffff"<<white<<" "<<endl;
-cout<<spacing<<aqua<<"ffffffff"<<white<<"     "<<":"<<"           "<<aqua<<"Lff"<<white<<" "<<endl;
-cout<<spacing<<aqua<<"ffffff"<<white<<"       "<<"##"<<"            "<<aqua<<"f"<<white<<" "<<endl;
-cout<<spacing<<aqua<<"fffffj"<<white<<"                       "<<endl;
-cout<<spacing<<aqua<<"fffff"<<white<<"                        "<<endl;
-cout<<spacing<<aqua<<"ffffL"<<white<<"                        "<<endl;
-cout<<spacing<<aqua<<"fffff"<<white<<"                        "<<endl;
-cout<<spacing<<aqua<<"ffff"<<white<<"                         "<<endl;
-cout<<spacing<<aqua<<"ffff"<<white<<"        "<<":j###;:"<<"          "<<white<<endl;
-cout<<spacing<<aqua<<"ffff"<<white<<"     "<<"#############"<<"       "<<white<<endl;
-cout<<spacing<<aqua<<"ffff"<<white<<"        "<<"####"<<" "<<"D"<<"    D##"<<"    "<<white<<endl;
-cout<<spacing<<aqua<<"fffff"<<white<<"       "<<"#####"<<"       "<<"##"<<"   "<<white<<endl;
-cout<<spacing<<aqua<<"fffff"<<white<<"      "<<"#######"<<"       "<<"##"<<"  "<<white<<endl;
-cout<<spacing<<aqua<<"ffff"<<white<<"      "<<"#"<<" "<<"########"<<"    "<<"####"<<" "<<white<<endl;
-cout<<spacing<<aqua<<"fff"<<white<<"      "<<"#"<<"  "<<"#########"<<"  "<<"#####"<<" "<<white<<endl;
-cout<<spacing<<aqua<<"fL"<<white<<"      "<<"#"<<"  "<<":"<<"  "<<"##########"<<" "<<"###"<<" "<<white<<endl;
-cout<<spacing<<aqua<<"f"<<white<<"               "<<"########"<<" "<<"###"<<" "<<white<<endl;
-cout<<spacing<<aqua<<"ff"<<white<<"          "<<"###"<<"  "<<"#######"<<" "<<"###"<<" "<<white<<endl;
-cout<<spacing<<aqua<<"ff"<<white<<"          "<<"####"<<" "<<"#######"<<" "<<"###"<<" "<<white<<endl;
-cout<<spacing<<aqua<<"ff"<<white<<"         "<<"t################"<<" "<<white<<endl;
-cout<<spacing<<aqua<<"ff"<<white<<"         "<<"#################"<<" "<<white<<endl;
-cout<<spacing<<aqua<<"ff"<<white<<"         "<<"#################"<<" "<<white<<endl;
-cout<<spacing<<aqua<<"ff"<<white<<"        "<<"##################"<<" "<<white<<endl;
-cout<<spacing<<aqua<<"f"<<white<<"       "<<":##"<<"   "<<"##############"<<" "<<white<<endl;
-cout<<spacing<<blue<<";,;"<<white<<""<<"     "<<"###"<<"    "<<"#############"<<" "<<white<<endl;
-cout<<spacing<<blue<<";;;;"<<white<<"   "<<":##"<<"     "<<"#############"<<" "<<white<<endl;
-cout<<spacing<<blue<<"; ,"<<white<<"     "<<"##"<<"     "<<"##"<<"  "<<"#########"<<" "<<white<<endl;
-cout<<spacing<<blue<<";;"<<white<<"       "<<"#"<<"      "<<"#:"<<"  "<<"#######"<<"  "<<white<<endl;
-cout<<spacing<<blue<<";,"<<white<<"       "<<"#"<<"     "<<"###"<<"  "<<"######"<<"   "<<white<<endl;
-cout<<spacing<<blue<<";;"<<white<<"              "<<"#########"<<"    "<<white<<endl;
-cout<<spacing<<blue<<";;;,"<<white<<"             #######"<<"     "<<white<<endl;
-cout<<spacing<<blue<<";;;"<<white<<"                ###       "<<white<<endl;
-cout<<spacing<<blue<<";;;,;;"<<white<<"                       "<<white<<endl;
-cout<<spacing<<blue<<";;;;;;"<<white<<"                       "<<white<<endl;
-cout<<spacing<<blue<<";;;;;;"<<white<<"                       "<<white<<endl;
-cout<<"     _______.____    __    ____  _______      ___      .__   __.  __    __  "<<endl;
-cout<<"    /       |\\   \\  /  \\  /   / /  _____|    /   \\     |  \\ |  | |  |  |  | "<<endl;
-cout<<"   |   (----` \\   \\/    \\/   / |  |  __     /  ^  \\    |   \\|  | |  |__|  | "<<endl;
-cout<<"    \\   \\      \\            /  |  | |_ |   /  /_\\  \\   |  . `  | |   __   | "<<endl;
-cout<<".----)   |      \\    /\\    /   |  |__| |  /  _____  \\  |  |\\   | |  |  |  | "<<endl;
-cout<<"|_______/        \\__/  \\__/     \\______| /__/     \\__\\ |__| \\__| |__|  |__| "<<endl;
-cout<<setw(49)<<"THERE IS ANOTHER"<<endl;
-  
-return;
-}
-
-//======================================================================================================================
-void LogManager::printSmallLogo()
-{
-char spacing[5] = "  \0";
-cout<<spacing<<aqua<<"LLLLt"<<white<<"                         "<<endl; 
-cout<<spacing<<aqua<<"LLLLi"<<white<<"      t#########f,       "<<endl;
-cout<<spacing<<aqua<<"LLLLj"<<white<<"   t##L,####f,ifE###     "<<endl;
-cout<<spacing<<aqua<<"LLLLL"<<white<<"   ,   i####Wi     f##,  "<<endl; 
-cout<<spacing<<aqua<<"LLLLL"<<white<<"       K#####W       ##i "<<endl;
-cout<<spacing<<aqua<<"LLLLL"<<white<<"      tD######W L    D##,"<<endl; 
-cout<<spacing<<aqua<<"LLLLi"<<white<<"     ,K ########     ####"<<endl; 
-cout<<spacing<<aqua<<"LLLf"<<white<<"     ,#  #########   #####"<<endl; 
-cout<<spacing<<aqua<<"LL"<<white<<"      ,#  t, ###########,###"<<endl; 
-cout<<spacing<<aqua<<"L"<<white<<"       #   i,  #########t,###"<<endl; 
-cout<<spacing<<aqua<<"LG"<<white<<"           ##, ########, ###"<<endl; 
-cout<<spacing<<aqua<<"LL"<<white<<"           ###L ######## ###"<<endl; 
-cout<<spacing<<aqua<<"LL"<<white<<"          K##### #######G###"<<endl;
-cout<<spacing<<aqua<<"LL"<<white<<"          #######,##########"<<endl;
-cout<<spacing<<aqua<<"LL"<<white<<"          ########K#########"<<endl; 
-//cout<<aqua<<" _____      _____   _   _  _ _  _"<<endl;
-//cout<<"/ __\\ \\    / / __| /_\\ | \\| | || |"<<endl;
-//cout<<"\\__ \\\\ \\/\\/ / (_ |/ _ \\| .` | __ |"<<endl;
-//cout<<"|___/ \\_/\\_/ \\___/_/ \\_\\_|\\_|_||_|"<<white<<endl;
-
-}
-
-//======================================================================================================================
-
-void LogManager::logErrorF(const std::string& system, const std::string& msg, MsgPriority priority, ...)
-{
-	if(!mDefaultErrorLog)
-		return;
-	
-	boost::mutex::scoped_lock lk(mGlobalLogMutex);	
-
-	va_list args;
-	va_start(args, priority);
-	
-	mDefaultErrorLog->logMsg(mZone, system, msg, priority, args);
-
-//	mGlobalLogMutex.release();
-
-	va_end(args);
+	mEntriesMutex.lock();
+	mEntries.push(entry);
+	mEntriesMutex.unlock();
 }

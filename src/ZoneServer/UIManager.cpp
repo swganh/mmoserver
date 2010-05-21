@@ -122,7 +122,7 @@ void UIManager::_processEventNotification(Message* message,DispatchClient* clien
 
 	if(window == NULL)
 	{
-		gLogger->logMsgF("UIManager::_processEventNotification: could not find window %u",MSG_HIGH,windowId);
+		gLogger->log(LogManager::DEBUG,"UIManager::_processEventNotification: could not find window %u",windowId);
 		return;
 	}
 
@@ -341,7 +341,7 @@ void UIManager::destroyUIWindow(uint32 id,bool sendForceClose)
 		mUIWindows.erase(it);	
 	}
 	else
-		gLogger->logMsgF("UIManager::destroyWindow: couldn't find window %u",MSG_NORMAL,id);
+		gLogger->log(LogManager::DEBUG,"UIManager::destroyWindow: couldn't find window %u",id);
 }
 
 //======================================================================================================================

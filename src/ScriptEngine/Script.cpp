@@ -65,7 +65,7 @@ void Script::run()
 	else
 	{
 		_formatError();
-		gLogger->logMsgF("ScriptingEngine::Syntax Error: %s",MSG_NORMAL,mLastError);
+		gLogger->log(LogManager::EMERGENCY,"ScriptingEngine::Syntax Error: %s",mLastError);
 	}
 }
 
@@ -83,7 +83,7 @@ void Script::runFile(const int8 *fileName)
 	else
 	{
 		_formatError();
-		gLogger->logMsgF("ScriptingEngine::Syntax Error: %s",MSG_NORMAL,mLastError);
+		gLogger->log(LogManager::EMERGENCY,"ScriptingEngine::Syntax Error: %s",mLastError);
 	}
 }
 
@@ -166,7 +166,7 @@ void Script::_resumeScript(uint32 param)
 		default:
 		{
 			_formatError();
-			gLogger->logMsgF("ScriptingEngine::_resumeScript Runtime Error: %s",MSG_NORMAL,mLastError);
+			gLogger->log(LogManager::EMERGENCY,"ScriptingEngine::_resumeScript Runtime Error: %s",mLastError);
 		}
 		break;
 	}
@@ -226,7 +226,7 @@ void Script::callFunction(const char *func,const char *sig,...)
 		if(lua_pcall(mThreadState,narg,nres,0) != 0)
 		{
 			_formatError();
-			gLogger->logMsgF("ScriptingEngine::callFunction Runtime Error: %s",MSG_NORMAL,mLastError);
+			gLogger->log(LogManager::EMERGENCY,"ScriptingEngine::callFunction Runtime Error: %s",mLastError);
 		}
 
 		nres = -nres;
@@ -240,7 +240,7 @@ void Script::callFunction(const char *func,const char *sig,...)
 					if(!lua_isnumber(mThreadState,nres))
 					{
 						_formatError();
-						gLogger->logMsgF("ScriptingEngine::callFunction wrong result type: %s",MSG_NORMAL,mLastError);
+						gLogger->log(LogManager::EMERGENCY,"ScriptingEngine::callFunction wrong result type: %s",mLastError);
 					}
 
 					*va_arg(vl,double *) = lua_tonumber(mThreadState,nres);
@@ -252,7 +252,7 @@ void Script::callFunction(const char *func,const char *sig,...)
 					if(!lua_isnumber(mThreadState,nres))
 					{
 						_formatError();
-						gLogger->logMsgF("ScriptingEngine::callFunction wrong result type: %s",MSG_NORMAL,mLastError);
+						gLogger->log(LogManager::EMERGENCY, "ScriptingEngine::callFunction wrong result type: %s",mLastError);
 					}
 
 					*va_arg(vl,int*) = (int)lua_tonumber(mThreadState,nres);
@@ -264,7 +264,7 @@ void Script::callFunction(const char *func,const char *sig,...)
 					if(!lua_isstring(mThreadState,nres))
 					{
 						_formatError();
-						gLogger->logMsgF("ScriptingEngine::callFunction wrong result type: %s",MSG_NORMAL,mLastError);
+						gLogger->log(LogManager::EMERGENCY,"ScriptingEngine::callFunction wrong result type: %s",mLastError);
 					}
 
 					*va_arg(vl,const char **) = lua_tostring(mThreadState,nres);
@@ -274,7 +274,7 @@ void Script::callFunction(const char *func,const char *sig,...)
 				default:
 				{
 					_formatError();
-					gLogger->logMsgF("ScriptingEngine::callFunction invalid option: %s",MSG_NORMAL,mLastError);
+					gLogger->log(LogManager::EMERGENCY,"ScriptingEngine::callFunction invalid option: %s",mLastError);
 				}
 				break;
 			}

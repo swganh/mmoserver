@@ -35,7 +35,7 @@ DatabaseImplementationMySql::DatabaseImplementationMySql(char* host, uint16 port
   // Any errors from the connection attempt?
   if(mysql_errno(mConnection) != 0)
   {
-    gLogger->logMsgF("DatabaseError: %s", MSG_HIGH, mysql_error(mConnection));
+    gLogger->log(LogManager::EMERGENCY, "DatabaseError: %s", mysql_error(mConnection));
   }
 
  // int i = 0;
@@ -62,7 +62,7 @@ DatabaseResult* DatabaseImplementationMySql::ExecuteSql(int8* sql,bool procedure
 
   if(mysql_errno(mConnection) != 0)
   {
-    gLogger->logMsgF("DatabaseError: %s", MSG_HIGH, mysql_error(mConnection));
+    gLogger->log(LogManager::EMERGENCY, "DatabaseError: %s", mysql_error(mConnection));
 
 
   }

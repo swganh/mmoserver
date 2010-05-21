@@ -35,7 +35,7 @@ void ObjectController::_handleMount(uint64 targetId,Message* message,ObjectContr
 	// And some parameter validation...
 	if (targetId == 0)
 	{
-		gLogger->logMsg("ObjectController::_handleMount : Cannot find vehicle ID :(");
+		gLogger->log(LogManager::DEBUG,"ObjectController::_handleMount : Cannot find vehicle ID :(");
 		return;
 	}
 
@@ -60,8 +60,10 @@ void ObjectController::_handleMount(uint64 targetId,Message* message,ObjectContr
 					}	else {
 						gMessageLib->sendSystemMessage(player,L"Your target is too far away to mount.");
 					}
-				} else {
-					gLogger->logMsg("ObjectController::_handleMount : Cannot find vehicle");
+				}
+				else
+				{
+					gLogger->log(LogManager::DEBUG,"ObjectController::_handleMount : Cannot find vehicle");
 				}
 			}
 		} else {

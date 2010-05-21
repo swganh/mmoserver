@@ -271,8 +271,6 @@ void ObjectController::handleSetTarget(Message* message)
 	creatureObject->setTarget(message->getUint64());	
 	// There is a reason we get data like targets from the client, as handlers (id's) instead of references (pointers).
 
-	// gLogger->logMsgF("ObjectController::setTarget: Object %"PRIu64" targets = %"PRIu64"", MSG_NORMAL, creatureObject->getId(), creatureObject->getTargetId());
-
 	gMessageLib->sendTargetUpdateDeltasCreo6(creatureObject);
 } 
 
@@ -285,7 +283,6 @@ void ObjectController::handleSetTarget(Message* message)
 
 void ObjectController::_handleDeathBlow(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	// gLogger->logMsgF("ObjectController::_handleDeathBlow: targetId = %"PRIu64"", MSG_NORMAL, targetId);
 	PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
 
 	if (player && targetId)	// Any object targeted?
@@ -316,9 +313,7 @@ void ObjectController::_handleDeathBlow(uint64 targetId,Message* message,ObjectC
 //
 
 void ObjectController::_handleLoot(uint64 targetId, Message *message, ObjectControllerCmdProperties *cmdProperties)
-{
-	// gLogger->logMsgF("ObjectController::_handleLoot: targetId = %"PRIu64"",MSG_NORMAL, targetId);
-	
+{	
 	PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
 	Datapad* datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
 
@@ -392,8 +387,6 @@ void ObjectController::cloneAtPreDesignatedFacility(PlayerObject* player, SpawnP
 
 void ObjectController::lootAll(uint64 targetId, PlayerObject* playerObject)
 {
-	// gLogger->logMsgF("ObjectController::lootAll Handle for loot_all", MSG_NORMAL);
-
 	// First, we have to have a connected player and a valid source to loot.
 	AttackableCreature* creatureObject = dynamic_cast<AttackableCreature*>(gWorldManager->getObjectById(targetId));
 

@@ -77,8 +77,8 @@ mDatabase(0)
 {
 	Anh_Utils::Clock::Init();
 	
-	// gLogger->logMsgF("ZoneServer - %s Startup %s",MSG_NORMAL,zoneName,GetBuildString());
-	gLogger->logMsg(" ZoneServer Startup", FOREGROUND_GREEN);
+	// gLogger->log(LogManager::DEBUG,"ZoneServer - %s Startup %s",zoneName,GetBuildString());
+	gLogger->log(LogManager::CRITICAL,"ZoneServer initializing for zone %s", zoneName);
 
 	// Create and startup our core services.
 	mDatabaseManager = new DatabaseManager();
@@ -93,16 +93,6 @@ mDatabase(0)
 										   (int8*)(gConfig->read<std::string>("DBPass")).c_str(),
 										   (int8*)(gConfig->read<std::string>("DBName")).c_str());
 
-	//make sure our logger has db access
-	gLogger->connecttoDB(mDatabaseManager);
-
-	//create an error log
-	int8 log[128];
-	sprintf(log,"%s.log",zoneName);
-	gLogger->createErrorLog(log,(LogLevel)(gConfig->read<int>("LogLevel",2)),
-										(bool)(gConfig->read<bool>("LogToFile", true)),
-										(bool)(gConfig->read<bool>("ConsoleOut",true)),
-										(bool)(gConfig->read<bool>("LogAppend",true)));
 
 	//increase the server start that will help us to organize our logs to the corresponding serverstarts (mostly for errors)
 	mDatabase->ExecuteSqlAsync(0,0,"UPDATE config_process_list SET serverstartID = serverstartID+1 WHERE name like \'%s\'",zoneName);
@@ -115,13 +105,11 @@ mDatabase(0)
 
 	if (!result->getRowCount())
 	{
-		gLogger->logMsgF("FATAL: Map \'%s\' not found.  Aborting startup.", MSG_HIGH, zoneName);
+		gLogger->log(LogManager::CRITICAL, "FATAL: Map \'%s\' not found.  Aborting startup.", zoneName);
 		abort();
 	}
 
 	//  Yea, I'm getting annoyed with the DataBinding for such simple tasks.  Will implement a simple interface soon.
-	gLogger->logMsgF("ZoneServer initializing for zone %s", MSG_NORMAL, zoneName);
-
 
 	DataBinding* binding = mDatabase->CreateDataBinding(1);
 	binding->addField(DFT_uint32, 0, 4);
@@ -173,7 +161,9 @@ mDatabase(0)
 	AdminManager::Init(mMessageDispatch);
 	EntertainerManager::Init(mDatabase,mMessageDispatch);
 	GroupManager::Init(mDatabase,mMessageDispatch);
-	StructureManager::Init(mDatabase,mMessageDispatch);
+
+	if(zoneId != 41)
+		StructureManager::Init(mDatabase,mMessageDispatch);
 	// Invoked when all creature regions for spawning of lairs are loaded
 	// (void)NpcManager::Instance();
 
@@ -189,7 +179,7 @@ mDatabase(0)
 
 ZoneServer::~ZoneServer(void)
 {
-	gLogger->logMsg("ZoneServer shutting down...");
+	gLogger->log(LogManager::CRITICAL,"ZoneServer shutting down...");
 
 	// We're shutting down, so update the DB again.
 	_updateDBServerList(0);
@@ -231,7 +221,7 @@ ZoneServer::~ZoneServer(void)
 	// NOW, I can feel that it should be safe to delete the data holding messages.
 	gMessageFactory->destroySingleton();
 
-	gLogger->logMsg("ZoneServer::Shutdown Complete\n");
+	gLogger->log(LogManager::CRITICAL,"ZoneServer::Shutdown Complete\n");
 }
 
 //======================================================================================================================
@@ -239,12 +229,12 @@ ZoneServer::~ZoneServer(void)
 void ZoneServer::handleWMReady()
 {
 	_updateDBServerList(2);
-	gLogger->logMsg(" Zone Server startup complete",FOREGROUND_GREEN);
+	gLogger->log(LogManager::CRITICAL,"Zone Server startup complete",FOREGROUND_GREEN);
 	//gLogger->printLogo();
 	// std::string BuildString(GetBuildString());
 
-	gLogger->logMsgF("Zone Server:%s %s",MSG_NORMAL,getZoneName().getAnsi(),ConfigManager::getBuildString().c_str());
-	gLogger->logMsg(" Welcome to your SWGANH Experience!");
+	gLogger->log(LogManager::INFORMATION,"Zone Server:%s %s",getZoneName().getAnsi(),ConfigManager::getBuildString().c_str());
+	gLogger->log(LogManager::CRITICAL,"Welcome to your SWGANH Experience!");
 
 	// Connect to the ConnectionServer;
 	_connectToConnectionServer();
@@ -350,13 +340,24 @@ int main(int argc, char* argv[])
 		sprintf(zone,"%s",argv[1]);
 	}
 
-	int8 logfileName[64], configfileName[64];
-	sprintf(logfileName, "%s.log", zone);
+	int8 configfileName[64];
 	sprintf(configfileName, "%s.cfg", zone);
 
-	LogManager::Init(G_LEVEL_NORMAL,logfileName,LEVEL_NORMAL,true,true);
+	LogManager::Init();
+	gLogger->setupConsoleLogging((LogManager::LOG_PRIORITY)1);
+
 	ConfigManager::Init(configfileName);
 
+	try
+	{
+		gLogger->setupConsoleLogging((LogManager::LOG_PRIORITY)gConfig->read<int>("ConsoleLog_MinPriority"));
+		gLogger->setupFileLogging((LogManager::LOG_PRIORITY)gConfig->read<int>("FileLog_MinPriority"), gConfig->read<std::string>("FileLog_Name"));
+	}
+	catch(...)
+	{
+		gLogger->log(LogManager::CRITICAL, "One of your settings is setup incorrectly. The server will not be able to log ANY messages until you configure the settings properly.");
+		return -1;
+	}
 	// Start things up
 	gZoneServer = new ZoneServer((int8*)(gConfig->read<std::string>("ZoneName")).c_str());
 

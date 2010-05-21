@@ -122,7 +122,7 @@ void HarvesterFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
 			harvester->setLoadState(LoadState_Loaded);
 
-			gLogger->logMsgF("HarvesterFactory: loaded Harvester %I64u", MSG_HIGH, harvester->getId());
+			gLogger->log(LogManager::NOTICE,"HarvesterFactory: loaded Harvester %I64u", harvester->getId());
 			asyncContainer->mOfCallback->handleObjectReady(harvester,asyncContainer->mClient);
 			
 		}
@@ -138,7 +138,6 @@ void HarvesterFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 			asynContainer->mObject = harvester;
 			asynContainer->mClient = asyncContainer->mClient;
 
-			//gLogger->logMsgF("HarvesterFactory: loaded Harvester %I64u", MSG_HIGH, harvester->getId());
 			//asyncContainer->mOfCallback->handleObjectReady(harvester,asyncContainer->mClient);
 
 			//now request the associated resource container count
@@ -249,7 +248,7 @@ void HarvesterFactory::handleObjectReady(Object* object,DispatchClient* client)
 	if(harvester->decLoadCount() == 0)
 	{
 		if(!(_removeFromObjectLoadMap(harvester->getId())))
-			gLogger->logMsg("HarvesterFactory: Failed removing object from loadmap");
+			gLogger->log(LogManager::DEBUG,"HarvesterFactory: Failed removing object from loadmap");
 
 		ilc->mOfCallback->handleObjectReady(harvester,ilc->mClient);
 

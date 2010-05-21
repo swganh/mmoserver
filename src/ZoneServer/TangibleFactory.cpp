@@ -76,7 +76,7 @@ void TangibleFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,
 		case TanGroup_Hopper:					mItemFactory->requestObject(ofCallback,id,subGroup,subType,client);				break;
 
 		default:
-			gLogger->logMsg("TangibleFactory::requestObject Unknown Group");
+			gLogger->log(LogManager::DEBUG,"TangibleFactory::requestObject Unknown Group");
 		break;
 	}
 }

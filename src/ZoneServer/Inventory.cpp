@@ -52,7 +52,7 @@ bool Inventory::checkSlots(uint8 amount)
 	if((mMaxSlots - getObjects()->size()) >= amount)
 		return true;
 
-	gLogger->logMsgF("Inventory::checkslots(): Inventory full : max Inv capacity :%u, current capacity %u, nr of items we tried to add", MSG_NORMAL, mMaxSlots,getObjects()->size(),amount);
+	gLogger->log(LogManager::DEBUG,"Inventory::checkslots(): Inventory full : max Inv capacity :%u, current capacity %u, nr of items we tried to add", mMaxSlots,getObjects()->size(),amount);
 	return false;
 }
 
@@ -80,7 +80,7 @@ void Inventory::handleObjectReady(Object* object,DispatchClient* client)
 	TangibleObject* tangibleObject = dynamic_cast<TangibleObject*>(object);
 	if(!tangibleObject)
 	{
-		gLogger->logMsgF("Inventory::handleObjectReady : Not a tangible ???", MSG_NORMAL);
+		gLogger->log(LogManager::CRITICAL,"Inventory::handleObjectReady : Not a tangible ???");
 		assert(false && "Inventory::handleObjectReady object is not tangible");
 		return;
 	}
@@ -123,11 +123,9 @@ void Inventory::getUninsuredItems(SortedInventoryItemList* insuranceList)
 		Object* object = gWorldManager->getObjectById((*invObjectIt));
 		if (object&&object->hasInternalAttribute("insured"))
 		{
-			// gLogger->logMsgF("Inventory::insuranceListCreate: Found item with insurance attribute inside the inventory: %"PRIu64"", MSG_NORMAL,object->getId());
 			if (!object->getInternalAttribute<bool>("insured"))
 			{
 				// Add the item to the insurance list.
-				// gLogger->logMsgF("Inventory::insuranceListCreate: Found an uninsured item inside Inventory: %"PRIu64"", MSG_NORMAL,object->getId());
 
 				// Handle the list.
 				if (object->hasAttribute("original_name"))
@@ -163,11 +161,9 @@ void Inventory::getUninsuredItems(SortedInventoryItemList* insuranceList)
 		Object* object = (*equippedObjectIt);
 		if (object&&object->hasInternalAttribute("insured"))
 		{
-			// gLogger->logMsgF("Inventory::insuranceListCreate: Found equipped item with insurance attribute: %"PRIu64"", MSG_NORMAL,object->getId());
 			if (!object->getInternalAttribute<bool>("insured"))
 			{
 				// Add the item to the insurance list.
-				// gLogger->logMsgF("Inventory::insuranceListCreate: Found an uninsured equipped item: %"PRIu64"", MSG_NORMAL,object->getId());
 
 				// Handle the list.
 				if (object->hasAttribute("original_name"))
@@ -212,11 +208,9 @@ void Inventory::getInsuredItems(SortedInventoryItemList* insuranceList)
 		Object* object = gWorldManager->getObjectById((*invObjectIt));
 		if (object&&object->hasInternalAttribute("insured"))
 		{
-			// gLogger->logMsgF("Inventory::insuranceListCreate: Found item with insurance attribute inside the inventory: %"PRIu64"", MSG_NORMAL,object->getId());
 			if (object->getInternalAttribute<bool>("insured"))
 			{
 				// Add the item to the insurance list.
-				// gLogger->logMsgF("Inventory::insuranceListCreate: Found an insured item inside Inventory: %"PRIu64"", MSG_NORMAL,object->getId());
 
 				// Handle the list.
 				if (object->hasAttribute("original_name"))
@@ -251,11 +245,9 @@ void Inventory::getInsuredItems(SortedInventoryItemList* insuranceList)
 		Object* object = (*equippedObjectIt);
 		if (object->hasInternalAttribute("insured"))
 		{
-			// gLogger->logMsgF("Inventory::insuranceListCreate: Found equipped item with insurance attribute: %"PRIu64"", MSG_NORMAL,object->getId());
 			if (object->getInternalAttribute<bool>("insured"))
 			{
 				// Add the item to the insurance list.
-				// gLogger->logMsgF("Inventory::insuranceListCreate: Found an insured equipped item: %"PRIu64"", MSG_NORMAL,object->getId());
 
 				// Handle the list.
 				if (object->hasAttribute("original_name"))

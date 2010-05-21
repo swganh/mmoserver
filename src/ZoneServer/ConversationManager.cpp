@@ -94,17 +94,7 @@ void ConversationManager::handleDatabaseJobComplete(void* ref, DatabaseResult* r
 			}
 
 			if(result->getRowCount())
-			#if !defined(_DEBUG)
-				gLogger->logMsgLoadSuccess(" Loading %u conversations...",MSG_NORMAL,result->getRowCount());
-			#endif
-	
-			#if defined(_DEBUG)
-				gLogger->logMsgLoadSuccess("ConversationManager::loading %u Conversations...",MSG_NORMAL,result->getRowCount());
-			#endif
-
-				
-							else
-				gLogger->logMsgLoadFailure("ConversationManager::loading Conversations...",MSG_NORMAL);					
+				gLogger->log(LogManager::NOTICE,"Loaded conversations.");				
 
 			
 			mDatabase->DestroyDataBinding(binding);
@@ -237,7 +227,6 @@ void ConversationManager::startConversation(NPCObject* npc,PlayerObject* player)
 	// make sure theres no conversation running yet
 	if(getActiveConversation(player->getId()) != NULL)
 	{
-		// gLogger->logMsg("ConversationManager::startConversation: Stoped previous conversatiion.");
 		stopConversation(player);
 	}
 
@@ -258,7 +247,6 @@ void ConversationManager::startConversation(NPCObject* npc,PlayerObject* player)
 		// Get the options dialog data.
 		av->prepareFilteredOptions();
 
-		 // gLogger->logMsg("ConversationManager::startConversation: Started a new conversatiion.");
 		gMessageLib->sendStartNPCConversation(npc,player);
 
 		if(currentPage->mAnimation)
@@ -281,7 +269,6 @@ void ConversationManager::startConversation(NPCObject* npc,PlayerObject* player)
 	else
 	{
 		// We terminate (do not start) this conversation.
-		// gLogger->logMsg("ConversationManager::startConversation: We NEVER started this conversation.");
 		stopConversation(player);
 	}
 }
@@ -316,7 +303,7 @@ void ConversationManager::updateConversation(uint32 selectId,PlayerObject* playe
 	
 	if(!av)
 	{
-		gLogger->logMsgF("ConversationManager::updateConversation: could not find conversation for %"PRIu64,MSG_NORMAL,player->getId());
+		gLogger->log(LogManager::DEBUG,"ConversationManager::updateConversation: could not find conversation for %"PRIu64,player->getId());
 		return;
 	}
 

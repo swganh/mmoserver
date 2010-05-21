@@ -108,7 +108,7 @@ void GroupManagerHandler::handleDispatchMessage(uint32 opcode, Message* message,
 		break;
 
 		default:
-			gLogger->logMsgF("GroupManagerHandlerMessage::handleDispatchMessage: Unhandled opcode %u",MSG_NORMAL,opcode);
+			gLogger->log(LogManager::NOTICE,"GroupManagerHandlerMessage::handleDispatchMessage: Unhandled opcode %u",opcode);
 		break;
 	}
 }
@@ -124,7 +124,7 @@ void GroupManagerHandler::_processIsmInviteRequest(Message* message)
 
 	if(sender == NULL || target == NULL)
 	{
-		gLogger->logMsg("GroupManagerHandler::_processIsmInviteRequest PlayerAccId not found");
+		gLogger->log(LogManager::DEBUG,"GroupManagerHandler::_processIsmInviteRequest PlayerAccId not found");
 		return;
 	}
 
@@ -144,7 +144,7 @@ void GroupManagerHandler::_processIsmGroupCREO6deltaGroupId(Message* message)
 	PlayerObject* const player = gWorldManager->getPlayerByAccId(message->getUint32());  // the player whos group_id has changed
 	if(player == NULL)
 	{
-		gLogger->logMsg("GroupManagerHandler::_processIsmGroupCREO6deltaGroupId PlayerAccId not found");
+		gLogger->log(LogManager::DEBUG,"GroupManagerHandler::_processIsmGroupCREO6deltaGroupId PlayerAccId not found");
 		return;
 	}
 
@@ -176,16 +176,16 @@ void GroupManagerHandler::_processIsmGroupCREO6deltaGroupId(Message* message)
 
 void GroupManagerHandler::_processIsmGroupLootModeResponse(Message* message)
 {
-	gLogger->logMsg("_processIsmGroupLootModeResponse");
+	gLogger->log(LogManager::DEBUG,"_processIsmGroupLootModeResponse");
 	PlayerObject* playerObject = gWorldManager->getPlayerByAccId(message->getUint32());  // the player whos group_id has changed
 	if(playerObject == NULL)
 	{
-		gLogger->logMsg("GroupManagerHandler::processIsmGroupLootModeResponse PlayerAccId not found");
+		gLogger->log(LogManager::DEBUG,"GroupManagerHandler::processIsmGroupLootModeResponse PlayerAccId not found");
 		return;
 	}
 
 	//send the SUI
-	gLogger->logMsg("ok");
+	gLogger->log(LogManager::DEBUG,"ok");
 
 	BStringVector availableLootModes;
 	availableLootModes.push_back("Free for all");
@@ -200,16 +200,16 @@ void GroupManagerHandler::_processIsmGroupLootModeResponse(Message* message)
 
 void GroupManagerHandler::_processIsmGroupLootMasterResponse(Message* message)
 {
-	gLogger->logMsg("_processIsmGroupLootMasterResponse");
+	gLogger->log(LogManager::DEBUG,"_processIsmGroupLootMasterResponse");
 	PlayerObject* playerObject = gWorldManager->getPlayerByAccId(message->getUint32());  // the player whos group_id has changed
 	if(playerObject == NULL)
 	{
-		gLogger->logMsg("GroupManagerHandler::_processIsmGroupLootMasterResponse PlayerAccId not found");
+		gLogger->log(LogManager::DEBUG,"GroupManagerHandler::_processIsmGroupLootMasterResponse PlayerAccId not found");
 		return;
 	}
 
 	//send the SUI
-	gLogger->logMsg("ok");
+	gLogger->log(LogManager::DEBUG,"ok");
 
 	PlayerList inRangeMembers	= playerObject->getInRangeGroupMembers(true);
 	PlayerList::iterator it		= inRangeMembers.begin();

@@ -193,7 +193,7 @@ bool Trade::checkTradeListtoInventory()
 
 	if(!inventory)
 	{
-		gLogger->logMsgF("Trade::checkTradeListtoInventory():: No inventory for %I64u",MSG_NORMAL,getPlayerObject()->getId());
+		gLogger->log(LogManager::DEBUG,"Trade::checkTradeListtoInventory():: No inventory for %I64u",getPlayerObject()->getId());
 		return(false);
 	}
 
@@ -325,7 +325,7 @@ bool Trade::ItemTradeCheck(uint64 ItemId)
 	{
 		if ((*it)->getObject()->getId() == ItemId)
 		{
-			gLogger->logMsgF("PlayerObject: Item already on the tradeList",MSG_HIGH);
+			gLogger->log(LogManager::DEBUG,"PlayerObject: Item already on the tradeList");
 			return(true);
 		}
 

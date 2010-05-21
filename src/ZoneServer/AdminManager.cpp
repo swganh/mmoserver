@@ -45,7 +45,6 @@ class AdminRequestObject
 
 		~AdminRequestObject()
 		{
-			// gLogger->logMsgF("AdminRequestObject::~AdminRequestObject() invoked", MSG_NORMAL);
 		}
 
 		uint64 mAdminRequestType;
@@ -102,7 +101,6 @@ AdminManager::AdminManager(MessageDispatch* messageDispatch) :
 							mTerminateServer(false)
 
 {
-	// gLogger->logMsgF("AdminManager::AdminManager() invoked", MSG_NORMAL);
 	this->registerCallbacks();
 }
 
@@ -114,7 +112,6 @@ AdminManager::AdminManager(MessageDispatch* messageDispatch) :
 
 AdminManager::~AdminManager()
 {
-	// gLogger->logMsgF("AdminManager::~AdminManager() invoked", MSG_NORMAL);
 	this->unregisterCallbacks();
 
 	AdminRequests::iterator adminRequestIterator = mAdminRequests.begin();
@@ -214,7 +211,7 @@ void AdminManager::addAdminRequest(uint64 requestType, string message, int32 ttl
 	{
 		if (timeToFirstEvent > 0)
 		{
-			gLogger->logMsgF("AdminManager::addAdminRequest() You have to wait %d seconds until first announcement", MSG_NORMAL, timeToFirstEvent);
+			gLogger->log(LogManager::WARNING,"Admin Manager: You have to wait %d seconds until first announcement", timeToFirstEvent);
 		}
 		mAdminRequests.insert(std::make_pair(requestType, requestObject));
 		gWorldManager->addAdminRequest(requestType, (uint64)(timeToFirstEvent * 1000));
@@ -256,8 +253,6 @@ void AdminManager::cancelAdminRequest(uint64 requestType, string message)
 
 uint64 AdminManager::handleAdminRequest(uint64 requestType, uint64 timeOverdue)
 {
-	// gLogger->logMsgF("AdminManager::handleAdminRequest() Entering...", MSG_NORMAL);
-
 	uint64 waitTime = 0;
 
 	// Find the object.
@@ -273,7 +268,6 @@ uint64 AdminManager::handleAdminRequest(uint64 requestType, uint64 timeOverdue)
 			{
 				// We are done.
 				// TODO: halt this zone.
-				// gLogger->logMsgF("AdminManager::handleAdminRequest() HALTING this service.", MSG_NORMAL);
 				sprintf(rawData,"Server shutting down.");
 				mTerminateServer = true;
 			}
@@ -320,9 +314,9 @@ uint64 AdminManager::handleAdminRequest(uint64 requestType, uint64 timeOverdue)
 
 			if (optReason.getLength())
 			{
-				gLogger->logMsgF(optReason.getAnsi(), MSG_NORMAL);
+				gLogger->log(LogManager::CRITICAL,optReason.getAnsi());
 			}
-			gLogger->logMsgF(broadcast.getAnsi(), MSG_NORMAL);
+			gLogger->log(LogManager::CRITICAL,broadcast.getAnsi());
 
 			// For logging, we need ansi versions.
 			string logOptReason(optReason);
@@ -340,10 +334,8 @@ uint64 AdminManager::handleAdminRequest(uint64 requestType, uint64 timeOverdue)
 				{
 					if (optReason.getLength())
 					{
-						gLogger->logMsgF("%s", MSG_NORMAL, logOptReason.getAnsi());
 						gMessageLib->sendSystemMessage((PlayerObject*)player, optReason);
 					}
-					gLogger->logMsgF("%s", MSG_NORMAL, logBroadcast.getAnsi());
 					gMessageLib->sendSystemMessage((PlayerObject*)player, broadcast);
 				}
 				++it;
@@ -379,8 +371,6 @@ uint64 AdminManager::handleAdminRequest(uint64 requestType, uint64 timeOverdue)
 
 void AdminManager::_processScheduleShutdown(Message* message, DispatchClient* client)
 {
-	gLogger->logMsg("AdminManager::_processScheduleShutdown");
-
 	message->ResetIndex();
 
 	string msg;
@@ -397,8 +387,6 @@ void AdminManager::_processScheduleShutdown(Message* message, DispatchClient* cl
 
 void AdminManager::_processCancelScheduledShutdown(Message* message, DispatchClient* client)
 {
-	gLogger->logMsg("AdminManager::_processCancelScheduledShutdown");
-
 	message->ResetIndex();
 
 	string msg;

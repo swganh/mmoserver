@@ -221,7 +221,7 @@ void WorldManager::addDisconnectedPlayer(PlayerObject* playerObject)
 {
 	uint32 timeOut = gWorldConfig->getConfiguration("Zone_Player_Logout",300);
 
-	gLogger->logMsgF("Player(%"PRIu64") disconnected,reconnect timeout in %u seconds",MSG_NORMAL,playerObject->getId(),timeOut);
+	gLogger->log(LogManager::DEBUG,"Player(%"PRIu64") disconnected,reconnect timeout in %u seconds",playerObject->getId(),timeOut);
 
 	// Halt the tutorial scripts, if running.
 	playerObject->stopTutorial();
@@ -251,7 +251,7 @@ void WorldManager::addDisconnectedPlayer(PlayerObject* playerObject)
 			playerObject->removeDefenderAndUpdateList(object->getId());
 
 			destroyObject(object);
-			// gLogger->logMsgF("WorldManager::addDisconnectedPlayer Deleted object with id  %"PRIu64"",MSG_NORMAL,privateOwnedObjectId);
+			// gLogger->log(LogManager::DEBUG,"WorldManager::addDisconnectedPlayer Deleted object with id  %"PRIu64"",privateOwnedObjectId);
 		}
 
 		privateOwnedObjectId = ScriptSupport::Instance()->getObjectOwnedBy(playerObject->getId());
@@ -301,7 +301,7 @@ void WorldManager::addReconnectedPlayer(PlayerObject* playerObject)
 	playerObject->setInMoveCount(0);
 	playerObject->setClientTickCount(0);
 
-	gLogger->logMsgF("Player(%"PRIu64") reconnected",MSG_NORMAL,playerObject->getId());
+	gLogger->log(LogManager::DEBUG,"Player(%"PRIu64") reconnected",playerObject->getId());
 
 	removePlayerFromDisconnectedList(playerObject);
 }
@@ -314,7 +314,7 @@ void WorldManager::removePlayerFromDisconnectedList(PlayerObject* playerObject)
 
 	if((it = std::find(mPlayersToRemove.begin(),mPlayersToRemove.end(),playerObject)) == mPlayersToRemove.end())
 	{
-		gLogger->logMsgF("WorldManager::addReconnectedPlayer: Error removing Player from Disconnected List: %"PRIu64"",MSG_HIGH,playerObject->getId());
+		gLogger->log(LogManager::DEBUG,"WorldManager::addReconnectedPlayer: Error removing Player from Disconnected List: %"PRIu64"",playerObject->getId());
 	}
 	else
 	{
@@ -352,7 +352,7 @@ void WorldManager::warpPlanet(PlayerObject* playerObject, const glm::vec3& desti
 		}
 		else
 		{
-			gLogger->logMsgF("WorldManager::removePlayer: couldn't find cell %"PRIu64"",MSG_HIGH,playerObject->getParentId());
+			gLogger->log(LogManager::DEBUG,"WorldManager::removePlayer: couldn't find cell %"PRIu64"",playerObject->getParentId());
 		}
 	}
 	else
@@ -399,7 +399,7 @@ void WorldManager::warpPlanet(PlayerObject* playerObject, const glm::vec3& desti
 		}
 		else
 		{
-			gLogger->logMsgF("WorldManager::warpPlanet: couldn't find cell %"PRIu64"",MSG_HIGH,parentId);
+			gLogger->log(LogManager::DEBUG,"WorldManager::warpPlanet: couldn't find cell %"PRIu64"",parentId);
 		}
 	}
 	else
@@ -412,7 +412,7 @@ void WorldManager::warpPlanet(PlayerObject* playerObject, const glm::vec3& desti
 		else
 		{
 			// we should never get here !
-			gLogger->logMsg("WorldManager::addObject: could not find zone region in map");
+			gLogger->log(LogManager::DEBUG,"WorldManager::addObject: could not find zone region in map");
 			return;
 		}
 	}
@@ -445,12 +445,12 @@ bool WorldManager::_handlePlayerMovementUpdateTimers(uint64 callTime, void* ref)
 		{
 			if (player->isConnected())
 			{
-				// gLogger->logMsgF("WorldManager::_handleObjectMovementUpdateTimers: Checking player update time %"PRIu64" againts %"PRIu64"",MSG_NORMAL, callTime, (*it).second);
+				// gLogger->log(LogManager::DEBUG,"WorldManager::_handleObjectMovementUpdateTimers: Checking player update time %"PRIu64" againts %"PRIu64"", callTime, (*it).second);
 				//  The timer has expired?
 				if (callTime >= ((*it).second))
 				{
 					// Yes, handle it.
-					// gLogger->logMsg("Calling UPDATEPOSITION-bla-ha ()");
+					// gLogger->log(LogManager::DEBUG,"Calling UPDATEPOSITION-bla-ha ()");
 
 					ObjectController* ObjCtl = player->getController();
 
@@ -491,7 +491,7 @@ bool WorldManager::_handlePlayerMovementUpdateTimers(uint64 callTime, void* ref)
 void WorldManager::addPlayerMovementUpdateTime(PlayerObject* player, uint64 when)
 {
 	uint64 expireTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
-	// gLogger->logMsgF("Adding new at %"PRIu64"",MSG_NORMAL, expireTime + when);
+	// gLogger->log(LogManager::DEBUG,"Adding new at %"PRIu64"", expireTime + when);
 	mPlayerMovementUpdateMap.insert(std::make_pair(player->getId(), expireTime + when));
 }
 

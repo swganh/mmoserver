@@ -48,11 +48,9 @@ void	ObjectController::_ExtractObject(uint64 targetId,Message* message,ObjectCon
 
 	Inventory* inventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 
-	//gLogger->logMsgF("ObjectController::_ExtractObject: Container : %I64u",MSG_NORMAL,targetId);
-
 	if(!crate)
 	{
-		gLogger->logMsg("ObjectController::_ExtractObject: Crate does not exist!");
+		gLogger->log(LogManager::DEBUG,"ObjectController::_ExtractObject: Crate does not exist!");
 		return;
 	}
 
@@ -64,7 +62,7 @@ void	ObjectController::_ExtractObject(uint64 targetId,Message* message,ObjectCon
 		tO = dynamic_cast<TangibleObject* >(inventory);
 		if(!tO)
 		{
-			gLogger->logMsg("ObjectController::_ExtractObject: Crates parent does not exist!");
+			gLogger->log(LogManager::CRITICAL,"ObjectController::_ExtractObject: Crates parent does not exist!");
 			assert(false && "ObjectController::_ExtractObject inventory must be a tangible object");
 			return;
 		}
@@ -92,7 +90,7 @@ void	ObjectController::_ExtractObject(uint64 targetId,Message* message,ObjectCon
 	
 	if(content < 0)
 	{
-		gLogger->logMsg("ObjectController::_ExtractObject: the crate now has negative content!");
+		gLogger->log(LogManager::CRITICAL,"ObjectController::_ExtractObject: the crate now has negative content!");
 		assert(false && "ObjectController::_ExtractObject crate must not have negative content");
 		return;
 	}

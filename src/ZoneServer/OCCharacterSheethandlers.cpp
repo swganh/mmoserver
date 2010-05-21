@@ -175,7 +175,7 @@ void ObjectController::_handleRequestBadges(uint64 targetId,Message* message,Obj
 
 	if(targetObject == NULL)
 	{
-		gLogger->logMsgF("ObjController::_handleRequestbages: could not find %"PRIu64"",MSG_NORMAL,targetId);
+		gLogger->log(LogManager::DEBUG,"ObjController::_handleRequestbages: could not find %"PRIu64"",targetId);
 		return;
 	}
 
@@ -206,7 +206,7 @@ void ObjectController::_handleRequestBiography(uint64 targetId,Message* message,
 
 	if(targetObject == NULL)
 	{
-		gLogger->logMsgF("ObjController::_handleRequestBiography: could not find %"PRIu64"",MSG_NORMAL,targetId);
+		gLogger->log(LogManager::DEBUG,"ObjController::_handleRequestBiography: could not find %"PRIu64"",targetId);
 		return;
 	}
 
@@ -276,7 +276,7 @@ void ObjectController::_handleRequestCharacterMatch(uint64 targetId,Message* mes
 
 	if(elementCount != 9)
 	{
-		gLogger->logMsgF("ObjController::_handleRequestCharacterMatch: argument mismatch %"PRIu64"",MSG_NORMAL,player->getId());
+		gLogger->log(LogManager::DEBUG,"ObjController::_handleRequestCharacterMatch: argument mismatch %"PRIu64"",player->getId());
 		return;
 	}
 
@@ -286,7 +286,7 @@ void ObjectController::_handleRequestCharacterMatch(uint64 targetId,Message* mes
 
 		if(skill == NULL)
 		{
-			gLogger->logMsgF("ObjController::_handleRequestCharacterMatch: could not find matching skill for %s",MSG_NORMAL,titleStr);
+			gLogger->log(LogManager::DEBUG,"ObjController::_handleRequestCharacterMatch: could not find matching skill for %s",titleStr);
 			return;
 		}
 	}

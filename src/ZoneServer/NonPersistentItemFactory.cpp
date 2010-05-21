@@ -114,7 +114,6 @@ void NonPersistentItemFactory::requestObject(ObjectFactoryCallback* ofCallback,u
 
 void NonPersistentItemFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id, uint64 newId)
 {
-	// gLogger->logMsgF("NonPersistentItemFactory::requestObject: item_types = %"PRIu64"",MSG_NORMAL, id);
 	mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryNonPersistentItemFactory(ofCallback,NPQuery_MainData,newId),
 							"SELECT item_family_attribute_defaults.family_id, item_family_attribute_defaults.item_type_id, item_types.object_string, item_types.stf_name, item_types.stf_file, item_types.stf_detail_file"
 							" FROM item_types"
@@ -152,7 +151,7 @@ Item* NonPersistentItemFactory::_createItem(DatabaseResult* result, uint64 newId
 		default:
 		{
 			item = new Item();
-			gLogger->logMsgF("ItemFactory::NonPersistentItemFactory::_createItem unknown Family %u",MSG_NORMAL,itemIdentifier.mFamilyId);
+			gLogger->log(LogManager::DEBUG,"ItemFactory::NonPersistentItemFactory::_createItem unknown Family %u",itemIdentifier.mFamilyId);
 		}
 		break;
 	}

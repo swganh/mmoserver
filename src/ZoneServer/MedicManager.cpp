@@ -80,19 +80,19 @@ bool MedicManager::CheckStim(PlayerObject* Medic, CreatureObject* Target, Object
 
 	uint64 StimPackObjectID = 0;
 
-	gLogger->logMsg("Heal Damage Called", FOREGROUND_BLUE);
+	gLogger->log(LogManager::DEBUG,"Heal Damage Called");
 
 	//If we don't have an OC Controller Cmd Property (ie we have been called by using an item) - go get one
 	if(cmdProperties == 0)
 	{
-		gLogger->logMsg("We need to get Object Properties", FOREGROUND_BLUE);
+		gLogger->log(LogManager::DEBUG,"We need to get Object Properties");
 
 		CmdPropertyMap::iterator it = gObjControllerCmdPropertyMap.find(opOChealdamage);
 
 		if(it == gObjControllerCmdPropertyMap.end())
 		{
 			//Cannot find properties
-			gLogger->logMsg("Failed to get Object Properties", FOREGROUND_RED);
+			gLogger->log(LogManager::DEBUG,"Failed to get Object Properties");
 			return false;
 		} else {
 			cmdProperties = ((*it).second);
@@ -158,16 +158,16 @@ bool MedicManager::CheckStim(PlayerObject* Medic, CreatureObject* Target, Object
 		//Check if a Stim was found
 		if(Stim == 0)
 		{
-			gLogger->logMsg("No Stim Found", FOREGROUND_RED);
+			gLogger->log(LogManager::DEBUG,"No Stim Found");
 			gMessageLib->sendSystemMessage(Medic,L"","healing_response","healing_response_60");
 			return false;
 		}
 	} else 
 	{
-		gLogger->logMsg("We already have a Stim Selected", FOREGROUND_BLUE);
+		gLogger->log(LogManager::DEBUG,"We already have a Stim Selected");
 		Stim = dynamic_cast<Medicine*>(gWorldManager->getObjectById(StimPackObjectID));
 	}
-	gLogger->logMsg("Stim ID Found OK", FOREGROUND_BLUE);
+	gLogger->log(LogManager::DEBUG,"Stim ID Found OK");
 
 	//Is the stim suitable for skill level
 
@@ -178,7 +178,7 @@ bool MedicManager::CheckStim(PlayerObject* Medic, CreatureObject* Target, Object
 	if(healingskill < req)
 	{
 		gMessageLib->sendSystemMessage(Medic,L"","healing","insufficient_skill_heal","",L"healingskill",L"req");
-		gLogger->logMsg("The selected stim is too high level.", FOREGROUND_RED);
+		gLogger->log(LogManager::DEBUG,"The selected stim is too high level.");
 		return false;
 	}
 
@@ -208,11 +208,11 @@ bool MedicManager::HealDamage(PlayerObject* Medic, CreatureObject* Target, uint6
 	{
 		//We are looking at a critter, not a player
 		critter = true;
-		gLogger->logMsg("Heal is targetting a Critter", FOREGROUND_BLUE);
+		gLogger->log(LogManager::DEBUG,"Heal is targetting a Critter");
 	} else {
 		player = true;
 		self = (Medic->getId() == PlayerTarget->getId());
-		gLogger->logMsg("Heal is targetting a player", FOREGROUND_BLUE);
+		gLogger->log(LogManager::DEBUG,"Heal is targetting a player");
 	}
 
 	//Get Medic Skill Mods
@@ -232,23 +232,23 @@ bool MedicManager::HealDamage(PlayerObject* Medic, CreatureObject* Target, uint6
 
     if(glm::distance(Medic->mPosition, Target->mPosition) > distance)
 	{
-		gLogger->logMsg("Heal Target is out of range", FOREGROUND_RED);
+		gLogger->log(LogManager::DEBUG,"Heal Target is out of range");
 		gMessageLib->sendSystemMessage(Medic,L"","healing","no_line_of_sight");
 		return false;
 	}
-	gLogger->logMsg("Heal Target is within range", FOREGROUND_BLUE);
+	gLogger->log(LogManager::DEBUG,"Heal Target is within range");
 
 	//If we don't have an OC Controller Cmd Property (ie we have been called by using an item) - go get one
 	if(cmdProperties == 0)
 	{
-		gLogger->logMsg("We need to get Object Properties", FOREGROUND_BLUE);
+		gLogger->log(LogManager::DEBUG,"We need to get Object Properties");
 
 		CmdPropertyMap::iterator it = gObjControllerCmdPropertyMap.find(opOChealdamage);
 
 		if(it == gObjControllerCmdPropertyMap.end())
 		{
 			//Cannot find properties
-			gLogger->logMsg("Failed to get Object Properties", FOREGROUND_RED);
+			gLogger->log(LogManager::DEBUG,"Failed to get Object Properties");
 			return false;
 		} else {
 			cmdProperties = ((*it).second);
@@ -259,11 +259,11 @@ bool MedicManager::HealDamage(PlayerObject* Medic, CreatureObject* Target, uint6
 	//Does Medic have ability
 	if(!Medic->verifyAbility(cmdProperties->mAbilityCrc))
 	{
-		gLogger->logMsg("Medic does not have ability", FOREGROUND_RED);
+		gLogger->log(LogManager::DEBUG,"Medic does not have ability");
 		gMessageLib->sendSystemMessage(Medic,L"","healing_response","cannot_heal");
 		return false;
 	}
-	gLogger->logMsg("Medic has Ability Rights", FOREGROUND_BLUE);
+	gLogger->log(LogManager::DEBUG,"Medic has Ability Rights");
 
 	//Do PVP Alignments Match - only check if targetting player.
 
@@ -274,12 +274,12 @@ bool MedicManager::HealDamage(PlayerObject* Medic, CreatureObject* Target, uint6
 	if(Medic->getPvPStatus() != PlayerTarget->getPvPStatus())
 	{
 		//send pvp_no_help
-		gLogger->logMsg("PVP Flag not right", FOREGROUND_RED);
+		gLogger->log(LogManager::DEBUG,"PVP Flag not right");
 		gMessageLib->sendSystemMessage(Medic,L"","healing","pvp_no_help");
 		return false;
 	}
 
-	gLogger->logMsg("PVP Flags OK", FOREGROUND_BLUE);
+	gLogger->log(LogManager::DEBUG,"PVP Flags OK");
 
 	//Does Target Need Healing
 	int TargetHealth = Target->getHam()->mHealth.getCurrentHitPoints();
@@ -292,18 +292,18 @@ bool MedicManager::HealDamage(PlayerObject* Medic, CreatureObject* Target, uint6
 		if(!(TargetAction < TargetMaxAction))
 		{
 			if (self){
-				gLogger->logMsg("You don't need healing", FOREGROUND_RED);
+				gLogger->log(LogManager::DEBUG,"You don't need healing");
 				gMessageLib->sendSystemMessage(Medic,L"","healing","no_damage_to_heal_self");
 				return false;
 			}
 			if (!self) {
-				gLogger->logMsg("Target does not need healing", FOREGROUND_RED);
+				gLogger->log(LogManager::DEBUG,"Target does not need healing");
 				gMessageLib->sendSystemMessage(Medic,L"","healing","no_damage_to_heal_target");
 				return false;
 			}
 		}
 	}
-	gLogger->logMsg("Target Needs Healing", FOREGROUND_BLUE);
+	gLogger->log(LogManager::DEBUG,"Target Needs Healing");
 
 
 	//Get Heal Strength
@@ -427,11 +427,11 @@ bool MedicManager::HealDamageRanged(PlayerObject* Medic, CreatureObject* Target,
 	if(PlayerTarget == 0)
 	{
 		//We are looking at a critter, not a player
-		gLogger->logMsg("Heal is targetting a Critter", FOREGROUND_BLUE);
+		gLogger->log(LogManager::DEBUG,"Heal is targetting a Critter");
 	} else {
 		player = true;
 		self = (Medic->getId() == PlayerTarget->getId());
-		gLogger->logMsg("Heal is targetting a player", FOREGROUND_BLUE);
+		gLogger->log(LogManager::DEBUG,"Heal is targetting a player");
 	}
 
 	//Get Medic Skill Mods
@@ -451,20 +451,20 @@ bool MedicManager::HealDamageRanged(PlayerObject* Medic, CreatureObject* Target,
 
     if(glm::distance(Medic->mPosition, Target->mPosition) > distance)
 	{
-		gLogger->logMsg("Heal Target is out of range", FOREGROUND_RED);
+		gLogger->log(LogManager::DEBUG,"Heal Target is out of range");
 		gMessageLib->sendSystemMessage(Medic,L"","healing","no_line_of_sight");
 		return false;
 	}
-	gLogger->logMsg("Heal Target is within range", FOREGROUND_BLUE);
+	gLogger->log(LogManager::DEBUG,"Heal Target is within range");
 
 	//Does Medic have ability
 	if(!Medic->verifyAbility(cmdProperties->mAbilityCrc))
 	{
-		gLogger->logMsg("Medic does not have ability", FOREGROUND_RED);
+		gLogger->log(LogManager::DEBUG,"Medic does not have ability");
 		gMessageLib->sendSystemMessage(Medic,L"","healing_response","cannot_heal");
 		return false;
 	}
-	gLogger->logMsg("Medic has Ability Rights", FOREGROUND_BLUE);
+	gLogger->log(LogManager::DEBUG,"Medic has Ability Rights");
 
 	//Do PVP Alignments Match
 	if(Medic->getPvPStatus() != Target->getPvPStatus())
@@ -474,7 +474,7 @@ bool MedicManager::HealDamageRanged(PlayerObject* Medic, CreatureObject* Target,
 		}
 		else {
 		//send pvp_no_help
-		gLogger->logMsg("PVP Flag not right", FOREGROUND_RED);
+		gLogger->log(LogManager::DEBUG,"PVP Flag not right");
 		gMessageLib->sendSystemMessage(Medic,L"","healing","pvp_no_help");
 		return false;
 		}
@@ -488,7 +488,7 @@ bool MedicManager::HealDamageRanged(PlayerObject* Medic, CreatureObject* Target,
 		}
 	}
 
-	gLogger->logMsg("PVP Flags OK", FOREGROUND_BLUE);
+	gLogger->log(LogManager::DEBUG,"PVP Flags OK");
 
 	//Does Target Need Healing
 	int TargetHealth = Target->getHam()->mHealth.getCurrentHitPoints();
@@ -500,12 +500,12 @@ bool MedicManager::HealDamageRanged(PlayerObject* Medic, CreatureObject* Target,
 	{
 		if(!(TargetAction < TargetMaxAction))
 		{
-			gLogger->logMsg("Target doesn't need healing", FOREGROUND_RED);
+			gLogger->log(LogManager::DEBUG,"Target doesn't need healing");
 			gMessageLib->sendSystemMessage(Medic,L"","healing_response","healing_response_63");
 			return false;
 		}
 	}
-	gLogger->logMsg("Target Needs Healing", FOREGROUND_BLUE);
+	gLogger->log(LogManager::DEBUG,"Target Needs Healing");
 
 	
 	//Get Heal Strength
@@ -622,7 +622,6 @@ bool MedicManager::HealDamageRanged(PlayerObject* Medic, CreatureObject* Target,
 //Foraging
 void MedicManager::successForage(PlayerObject* player)
 {
-	//gLogger->logMsg("FORAGING ATTEMPT SUCCESS!", FOREGROUND_RED);
 	//Chance of success = sqrt(skill)/20 + 0.15
 	//Chance in down = chance/2
 

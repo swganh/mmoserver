@@ -292,7 +292,7 @@ uint32 EntertainerManager::getIdXP(string attribute, uint16 value)
 	IDStruct*	iDContainer = getIDAttribute(attribute.getCrc());
 	if(!iDContainer)
 	{
-		gLogger->logMsgF("couldnt find attribute container", MSG_NORMAL);
+		gLogger->log(LogManager::DEBUG,"couldnt find attribute container");
 		return 0;
 	}
 	return iDContainer->XP;
@@ -304,7 +304,7 @@ uint32 EntertainerManager::getIdXP(string attribute, uint16 value)
 string EntertainerManager::commitIdColor(PlayerObject* customer, string attribute, uint16 value)
 {
 
-	gLogger->logMsgF("ID : Color Attribute : %s", MSG_NORMAL,attribute.getAnsi());
+	gLogger->log(LogManager::DEBUG,"ID : Color Attribute : %s",attribute.getAnsi());
 
 	string		genderrace;
 	int8		mString[64];
@@ -318,12 +318,12 @@ string EntertainerManager::commitIdColor(PlayerObject* customer, string attribut
 	Token = strtok(mString,separation);
 	genderrace = Token;
 
-	gLogger->logMsgF("ID commit color : gender / race crc : %u", MSG_NORMAL,genderrace.getCrc());
+	gLogger->log(LogManager::DEBUG,"ID commit color : gender / race crc : %u", genderrace.getCrc());
 
 	IDStruct*	iDContainer = getIDAttribute(attribute.getCrc(),genderrace.getCrc());
 	if(!iDContainer)
 	{
-		gLogger->logMsgF("ID : Color Attribute : couldnt find attribute container", MSG_NORMAL);
+		gLogger->log(LogManager::DEBUG,"ID : Color Attribute : couldnt find attribute container");
 		return(BString(""));
 	}
 
@@ -374,7 +374,7 @@ string EntertainerManager::commitIdColor(PlayerObject* customer, string attribut
 		}
 		else
 		{
-			gLogger->logMsgF("ID : Color Attribute : No hair object exists", MSG_NORMAL);
+			gLogger->log(LogManager::DEBUG,"ID : Color Attribute : No hair object exists");
 			return BString("");
 		}
 	}
@@ -417,12 +417,12 @@ string EntertainerManager::commitIdAttribute(PlayerObject* customer, string attr
 	Token = strtok(mString,separation); //
 	genderrace = Token;
 
-	gLogger->logMsgF("ID commit attribute : gender / race crc : %u", MSG_NORMAL,genderrace.getCrc());
+	gLogger->log(LogManager::DEBUG,"ID commit attribute : gender / race crc : %u",genderrace.getCrc());
 	IDStruct*	iDContainer = getIDAttribute(attribute.getCrc(),genderrace.getCrc());
 
 	if(!iDContainer)
 	{
-		gLogger->logMsgF("couldnt find attribute container", MSG_NORMAL);
+		gLogger->log(LogManager::DEBUG,"couldnt find attribute container");
 		return(BString(""));
 	}
 
@@ -435,7 +435,7 @@ string EntertainerManager::commitIdAttribute(PlayerObject* customer, string attr
 	if (uVal == 255)
 		uVal = 767;
 
-	gLogger->logMsgF("ID commit attribute : value : %f %u (%f)", MSG_NORMAL,value,uVal,fValue);
+	gLogger->log(LogManager::DEBUG,"ID commit attribute : value : %f %u (%f)",value,uVal,fValue);
 
 	//CAVE chest is handled over 2 attributes I cant find the 2nd apart from 2b in the list
 	//however when you ahh 80h to the 2b (first attribute) you get to the so called 2 attribute version
@@ -685,7 +685,7 @@ void EntertainerManager::commitIdChanges(PlayerObject* customer,PlayerObject* de
 
 	while(it != aList->end())
 	{
-		gLogger->logMsgF("ID apply changes : attribute : %s crc : %u", MSG_NORMAL,it->first.getAnsi(),it->first.getCrc());
+		gLogger->log(LogManager::DEBUG,"ID apply changes : attribute : %s crc : %u", it->first.getAnsi(),it->first.getCrc());
 		//apply the attributes and retrieve the data to update the db
 		if(it->first.getCrc() != BString("height").getCrc())
 		{
@@ -713,7 +713,7 @@ void EntertainerManager::commitIdChanges(PlayerObject* customer,PlayerObject* de
 	ColorList::iterator cIt = cList->begin();
 	while(cIt != cList->end())
 	{
-		gLogger->logMsgF("ID apply changes : attribute : %s crc : %u", MSG_NORMAL,cIt->first.getAnsi(),cIt->first.getCrc());
+		gLogger->log(LogManager::DEBUG,"ID apply changes : attribute : %s crc : %u",cIt->first.getAnsi(),cIt->first.getCrc());
 		data = commitIdColor(customer, cIt->first, cIt->second);
 		if(data.getLength())
 		{
@@ -734,7 +734,7 @@ void EntertainerManager::commitIdChanges(PlayerObject* customer,PlayerObject* de
 	if(strlen(mySQL) > 33)
 	{
 		sprintf(sql,"%s where character_id = '%"PRIu64"'",mySQL,customer->getId());
-		gLogger->logMsgF("ID apply changes : sql: %s ", MSG_NORMAL,sql);
+		gLogger->log(LogManager::DEBUG,"ID apply changes : sql: %s ",sql);
 		asyncContainer = new EntertainerManagerAsyncContainer(EMQuery_NULL,0);
 		mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
 	}
@@ -822,7 +822,7 @@ void EntertainerManager::applyHoloEmote(PlayerObject* customer,string holoEmote)
 	HoloStruct* myEmote = getHoloEmoteByClientCRC(holoEmote.getCrc());
 	if(!myEmote)
 	{
-		gLogger->logMsgF("ID : applyHoloEmote : canot retrieve HoloEmote Data %s : %u", MSG_NORMAL,holoEmote.getAnsi(),holoEmote.getCrc());
+		gLogger->log(LogManager::DEBUG,"ID : applyHoloEmote : canot retrieve HoloEmote Data %s : %u",holoEmote.getAnsi(),holoEmote.getCrc());
 		return;
 	}
 

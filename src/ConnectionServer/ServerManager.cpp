@@ -98,7 +98,7 @@ void ServerManager::SendMessageToServer(Message* message)
 	}
 	else
 	{
-		gLogger->logMsgF("ServerManager: failed routing message to server %u",MSG_NORMAL,message->getDestinationId());
+		gLogger->log(LogManager::INFORMATION,"ServerManager: failed routing message to server %u",message->getDestinationId());
 		gMessageFactory->DestroyMessage(message);
 	}
 }
@@ -115,10 +115,8 @@ NetworkClient* ServerManager::handleSessionConnect(Session* session, Service* se
 	int8 sql[500];
 	sprintf(sql,"SELECT id, address, port, status, active FROM config_process_list WHERE address='%s' AND port=%u;", session->getAddressString(), session->getPortHost());
 	DatabaseResult* result = mDatabase->ExecuteSynchSql(sql);
-	#if defined(_DEBUG)
-		gLogger->logMsgF(sql,MSG_HIGH);
-		gLogger->logMsg("\n");
-	#endif
+	gLogger->log(LogManager::DEBUG, sql);
+	gLogger->logCont(LogManager::DEBUG,"\n");
 							
 	// If we found them
 	if(result->getRowCount() == 1)
@@ -148,9 +146,9 @@ NetworkClient* ServerManager::handleSessionConnect(Session* session, Service* se
 	}
 	else
 	{
-		gLogger->logMsg("*** Backend server connect error - Server not found in DB\n");
-		gLogger->logMsgF(sql,MSG_HIGH);
-		gLogger->logMsg("\n");
+		gLogger->log(LogManager::CRITICAL,"*** Backend server connect error - Server not found in DB\n");
+		gLogger->log(LogManager::DEBUG,sql);
+		gLogger->log(LogManager::DEBUG,"\n");
 	}
 
 	// Delete our DB objects.
@@ -189,7 +187,7 @@ void ServerManager::handleSessionDisconnect(NetworkClient* client)
 		mDatabase->ExecuteSqlAsync(0,0,"UPDATE galaxy SET status=1,last_update=NOW() WHERE galaxy_id=%u;", mClusterId);
 	}
 
-	gLogger->logMsgF("Servermanager handle server down\n", MSG_HIGH);
+	gLogger->log(LogManager::DEBUG,"Servermanager handle server down\n");
 	mClientManager->handleServerDown(connClient->getServerId());
 
 	delete(client);
@@ -320,7 +318,7 @@ void ServerManager::_processClusterZoneTransferRequestByTicket(ConnectionClient*
 
 void ServerManager::_processClusterZoneTutorialTerminal(ConnectionClient* client, Message* message)
 {
-	gLogger->logMsg("Sending Tutorial Status Reply\n");
+	gLogger->log(LogManager::DEBUG,"Sending Tutorial Status Reply\n");
 
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opTutorialServerStatusReply);

@@ -95,7 +95,6 @@ void CharacterAdminHandler::_processRandomNameRequest(Message* message, Dispatch
 {
 	if(!client)
 	{
-		// gLogger->logMsgF("CharacterAdminHandler::_processRandomNameRequest Missing Client", MSG_NORMAL);
 		return;
 	}
 
@@ -122,7 +121,6 @@ void CharacterAdminHandler::_processRandomNameRequest(Message* message, Dispatch
 //======================================================================================================================
 void CharacterAdminHandler::_processCreateCharacter(Message* message, DispatchClient* client)
 {
-	// gLogger->logMsgF("CharacterAdminHandler::_processCreateCharacter Entering", MSG_NORMAL);
   CharacterCreateInfo characterInfo;
   memset(&characterInfo, 0, sizeof(characterInfo));
 
@@ -164,7 +162,6 @@ void CharacterAdminHandler::_processCreateCharacter(Message* message, DispatchCl
   if(characterInfo.mFirstName.getLength() < 3)
   {
 	  // characterInfo.mFirstName.convert(BSTRType_ANSI);
-	  // gLogger->logMsgF("Invalid first name, %s less than 3 characters", MSG_NORMAL, characterInfo.mFirstName.getAnsi());
 	_sendCreateCharacterFailed(1,client);
 	return;
   }
@@ -172,7 +169,6 @@ void CharacterAdminHandler::_processCreateCharacter(Message* message, DispatchCl
   else if(characterInfo.mFirstName.getLength() > 16)
   {
 	  // characterInfo.mFirstName.convert(BSTRType_ANSI);
-	  // gLogger->logMsgF("Invalid first name, %s more than 16 characters", MSG_NORMAL, characterInfo.mFirstName.getAnsi());
 	  _sendCreateCharacterFailed(11,client);
 	  return;
   }
@@ -206,7 +202,7 @@ void CharacterAdminHandler::_processCreateCharacter(Message* message, DispatchCl
 
 			if(++specialCount > 2)
 			{
-				gLogger->logMsgF("specialCount > 2 in name", MSG_NORMAL);
+				gLogger->log(LogManager::DEBUG,"specialCount > 2 in name");
 				_sendCreateCharacterFailed(10,client);
 				return;
 			}
@@ -219,7 +215,7 @@ void CharacterAdminHandler::_processCreateCharacter(Message* message, DispatchCl
 		}
 		else
 		{
-			gLogger->logMsgF("Invalid chars in name", MSG_NORMAL);
+			gLogger->log(LogManager::DEBUG,"Invalid chars in name");
 			_sendCreateCharacterFailed(10,client);
 			return;
 		}
@@ -349,11 +345,10 @@ void CharacterAdminHandler::_processCreateCharacter(Message* message, DispatchCl
   strcat(sql, sql2);
 
   //Logging the character create sql for debugging purposes,beware this contains binary data
-  gLogger->logMsgF("CharacterCreate: %s", MSG_NORMAL, sql);
+  gLogger->log(LogManager::DEBUG,"CharacterCreate: %s", sql);
 
   CAAsyncContainer* asyncContainer = new CAAsyncContainer(CAQuery_CreateCharacter,client);
   mDatabase->ExecuteProcedureAsync(this,asyncContainer,sql);
-  // gLogger->logMsgF("CharacterAdminHandler::_processCreateCharacter Leaving", MSG_NORMAL);
 }
 
 //======================================================================================================================
@@ -361,7 +356,6 @@ void CharacterAdminHandler::_processCreateCharacter(Message* message, DispatchCl
 void CharacterAdminHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 {
 	CAAsyncContainer* asyncContainer = reinterpret_cast<CAAsyncContainer*>(ref);
-	// gLogger->logMsgF("CharacterAdminHandler::handleDatabaseJobComplete Entering", MSG_NORMAL);
 	switch(asyncContainer->mQueryType)
 	{
 		case CAQuery_CreateCharacter:
@@ -374,12 +368,10 @@ void CharacterAdminHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* 
 
 			if(queryResult >= 0x0000000200000000ULL)
 			{
-				// gLogger->logMsgF("CAQuery_CreateCharacter Success", MSG_NORMAL);
 				_sendCreateCharacterSuccess(queryResult,asyncContainer->mClient);
 			}
 			else
 			{
-				// gLogger->logMsgF("CAQuery_CreateCharacter Failed", MSG_NORMAL);
 				_sendCreateCharacterFailed(static_cast<uint32>(queryResult),asyncContainer->mClient);
 			}
 
@@ -418,7 +410,6 @@ void CharacterAdminHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* 
 		default:break;
 	}
 	SAFE_DELETE(asyncContainer);
-	// gLogger->logMsgF("CharacterAdminHandler::handleDatabaseJobComplete Leaving", MSG_NORMAL);
 }
 
 //======================================================================================================================
@@ -430,7 +421,7 @@ void CharacterAdminHandler::_parseHairData(Message* message, CharacterCreateInfo
 
 	  // Get the size of the data block
 	  uint16 dataSize = message->getUint16();
-	  gLogger->logMsgF("datasize : %u ", MSG_NORMAL, dataSize);
+	  gLogger->log(LogManager::DEBUG,"datasize : %u ", dataSize);
 
 	  uint8 startindex = 0;
 	  uint8 endindex = 0;
@@ -444,7 +435,7 @@ void CharacterAdminHandler::_parseHairData(Message* message, CharacterCreateInfo
 
 			  startindex = message->getUint8();
 			  endindex = message->getUint8();
-			  gLogger->logMsgF("StartIndex : %u   : EndIndex %u", MSG_NORMAL, startindex, endindex);
+			  gLogger->log(LogManager::DEBUG,"StartIndex : %u   : EndIndex %u", startindex, endindex);
 			  dataIndex = 2;
 		  }
 
@@ -478,7 +469,7 @@ void CharacterAdminHandler::_parseHairData(Message* message, CharacterCreateInfo
 
 			// Set our attribute value
 			info->mHairCustomization[attributeIndex] = ((uint16)valueHighByte << 8) | valueLowByte;
-			gLogger->logMsgF("Hair Customization Index : %u   : data %u", MSG_NORMAL, attributeIndex,info->mHairCustomization[attributeIndex]);
+			gLogger->log(LogManager::DEBUG,"Hair Customization Index : %u   : data %u", attributeIndex,info->mHairCustomization[attributeIndex]);
 		  }
 
 		  /* uint16 end2  = */message->getUint16();
@@ -578,7 +569,6 @@ void CharacterAdminHandler::_sendCreateCharacterSuccess(uint64 characterId,Dispa
 {
 	if(!client)
 	{
-		// gLogger->logMsgF("CharacterAdminHandler::_sendCreateCharacterSuccess Missing Client", MSG_NORMAL);
 		return;
 	}
 
@@ -602,7 +592,6 @@ void CharacterAdminHandler::_sendCreateCharacterFailed(uint32 errorCode,Dispatch
 {
 	if(!client)
 	{
-		// gLogger->logMsgF("CharacterAdminHandler::_sendCreateCharacterFailed Missing Client", MSG_NORMAL);
 		return;
 	}
 
@@ -686,11 +675,9 @@ void CharacterAdminHandler::_sendCreateCharacterFailed(uint32 errorCode,Dispatch
 
 		default:
 			errorString = "name_declined_internal_error";
-			gLogger->logErrorF("charcreation","CharacterAdminHandler::_sendCreateCharacterFailed Unknown Errorcode in CharacterCreation: %u",MSG_HIGH,errorCode);
+			gLogger->log(LogManager::DEBUG,"CharacterAdminHandler::_sendCreateCharacterFailed Unknown Errorcode in CharacterCreation: %u",errorCode);
 			break;
 	}
-
-	// gLogger->logMsgF("CharacterAdminHandler::_sendCreateCharacterFailed errorString = %s", MSG_NORMAL, errorString.getAnsi());
 
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opHeartBeat);

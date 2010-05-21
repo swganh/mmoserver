@@ -155,8 +155,6 @@ bool EquipManager::checkEquipObject(Object* object)
 	// make sure we have a slot descriptor
 	if(!slotMask)
 	{
-		gLogger->logMsgF("EquipManager::addEquippedObject: Character: %"PRIu64" Object: %"PRIu64" : no slot mask set",MSG_NORMAL,mParent->getId(),object->getId());
-
 		return(false);
 	}
 	return true;
@@ -244,7 +242,6 @@ bool EquipManager::EquipItem(Object* object)
 
 	addEquippedObject(object);
 
-	//gLogger->logMsgF("Inventory::EquipItem : owner ID : %I64u", MSG_NORMAL,owner->getId());
 	//equipped objects are always contained by the Player
 	//unequipped ones by the inventory!
 
@@ -276,14 +273,14 @@ bool EquipManager::unEquipItem(Object* object)
 	Item* item = dynamic_cast<Item*>(object);
 	if(!item)
 	{
-		gLogger->logMsgF("Inventory::unEquipItem : No Item object ID : %"PRIu64"", MSG_NORMAL,object->getId());
+		gLogger->log(LogManager::DEBUG,"Inventory::unEquipItem : No Item object ID : %"PRIu64"",object->getId());
 		return false;
 	}
 
 	PlayerObject*	owner		= dynamic_cast<PlayerObject*> (this->getParent());
 	if(!owner)
 	{
-		gLogger->logMsgF("Inventory::unEquipItem : No one has it equipped :(", MSG_NORMAL);
+		gLogger->log(LogManager::DEBUG,"Inventory::unEquipItem : No one has it equipped");
 		return false;
 	}
 
@@ -293,7 +290,6 @@ bool EquipManager::unEquipItem(Object* object)
 		gEntertainerManager->stopEntertaining(owner);
 	}
 
-	//gLogger->logMsgF("Inventory::unEquipItem : owner ID : %"PRIu64"", MSG_NORMAL,owner->getId());
 	//equipped objects are always contained by the Player
 	//unequipped ones by the inventory!
 
@@ -344,13 +340,13 @@ bool EquipManager::CheckEquipable(Object* object)
 
 	if(!item)
 	{
-		gLogger->logMsgF("Inventory::EquipItem : No Item object ID : %I64u", MSG_NORMAL,object->getId());
+		gLogger->log(LogManager::DEBUG,"Inventory::EquipItem : No Item object ID : %I64u",object->getId());
 		return(false);
 	}
 	
 	if(!owner)
 	{
-		gLogger->logMsgF("Inventory::EquipItem : No owner", MSG_NORMAL);
+		gLogger->log(LogManager::DEBUG,"Inventory::EquipItem : No owner");
 		return(false);
 	}
 	

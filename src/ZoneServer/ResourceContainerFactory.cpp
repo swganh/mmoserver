@@ -125,7 +125,7 @@ ResourceContainer* ResourceContainerFactory::_createResourceContainer(DatabaseRe
 		resourceContainer->setModelString((resource->getType())->getContainerModel().getAnsi());
 	}
 	else
-		gLogger->logMsgF("ResourceContainerFactory::_createResourceContainer: Resource not found %"PRIu64"",MSG_HIGH,resourceContainer->mResourceId);
+		gLogger->log(LogManager::DEBUG,"ResourceContainerFactory::_createResourceContainer: Resource not found %"PRIu64"",resourceContainer->mResourceId);
 
 	resourceContainer->mMaxCondition = 100;
 

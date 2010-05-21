@@ -36,9 +36,9 @@ void ObjectController::handleMissionListRequest(Message* message)
     uint8           stale_flag  = message->getUint8();
     uint64          terminal_id = message->getUint64();
 
-	gLogger->logMsgF("START :: Terminal id %"PRIu64" \n", MSG_NORMAL, terminal_id);
+	gLogger->log(LogManager::DEBUG,"START :: Terminal id %"PRIu64" \n",  terminal_id);
     gMissionManager->listRequest(player, terminal_id,stale_flag);
-	gLogger->logMsgF("END :: Terminal id %"PRIu64" \n", MSG_NORMAL, terminal_id);
+	gLogger->log(LogManager::DEBUG,"END :: Terminal id %"PRIu64" \n",  terminal_id);
 }
 
 //=============================================================================================================================

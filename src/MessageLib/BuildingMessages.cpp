@@ -273,8 +273,6 @@ bool MessageLib::sendEnterStructurePlacement(Object* deed, string objectString, 
 	mMessageFactory->addString(objectString);
 
 	newMessage = mMessageFactory->EndMessage();
-	
-	//gLogger->logMsgF("placement mode : %s",MSG_HIGH,objectString.getAnsi());
 
 	(playerObject->getClient())->SendChannelA(newMessage, playerObject->getAccountId(), CR_Client, 5);
 

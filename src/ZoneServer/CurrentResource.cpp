@@ -58,7 +58,7 @@ void CurrentResource::buildDistributionMap()
 	mapBuilder.SetDestSize(512,512); 
 	mapBuilder.SetBounds(mNoiseMapBoundsX1,mNoiseMapBoundsX2,mNoiseMapBoundsY1,mNoiseMapBoundsY2);
 
-	gLogger->logMsgF("Building DistributionMap for %s(%s)",MSG_LOW,mName.getAnsi(),mType->getName().getAnsi());
+	gLogger->log(LogManager::DEBUG,"Building DistributionMap for %s(%s)",mName.getAnsi(),mType->getName().getAnsi());
 	mapBuilder.Build();
 
 	if(gConfig->read<int>("writeResourceMaps"))
@@ -66,7 +66,7 @@ void CurrentResource::buildDistributionMap()
 		string fileName = (int8*)(gConfig->read<std::string>("ZoneName")).c_str();
 		fileName << "_" << mName.getAnsi() << ".bmp";
 
-		gLogger->logMsgF("Writing File %s",MSG_LOW,fileName.getAnsi());
+		gLogger->log(LogManager::DEBUG,"Writing File %s",fileName.getAnsi());
 
 		noise::utils::RendererImage renderer;
 		noise::utils::Image image;
@@ -108,7 +108,7 @@ void CurrentResource::_verifyNoiseSettings()
 		mNoiseMapBoundsX1 = 3.0;
 
 	if(mNoiseMapBoundsX1 >= mNoiseMapBoundsX2 || mNoiseMapBoundsY1 >= mNoiseMapBoundsY2)
-		gLogger->logMsg("WARNING: invalid NoisemapBounds set");
+		gLogger->log(LogManager::WARNING,"NoiseMap: Invalid NoisemapBounds set!");
 
 	if(mNoiseMapOctaves < 1 || mNoiseMapOctaves > 6)
 		mNoiseMapOctaves = 4;

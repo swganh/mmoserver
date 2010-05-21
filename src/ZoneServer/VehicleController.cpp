@@ -102,7 +102,7 @@ void VehicleController::Call() {
 	}
 
 	if(owner_->checkIfMountCalled()) {
-		gLogger->logMsgF("void Vehicle::call() mount already called", MSG_HIGH);
+		gLogger->log(LogManager::DEBUG,"void Vehicle::call() mount already called");
 		return;
 	}
 
@@ -156,7 +156,7 @@ void VehicleController::Call() {
 
 	// add to world
 	if(!gWorldManager->addObject(body_)) {
-		gLogger->logMsgF("void Vehicle::call() creating vehicle with id % "PRIu64" failed : couldnt add to world", MSG_HIGH, body_->getId());
+    gLogger->log(LogManager::DEBUG,"void Vehicle::call() creating vehicle with id % "PRIu64" failed : couldnt add to world", body_->getId());
 		SAFE_DELETE(body_);
 		return;
 	}
@@ -177,13 +177,13 @@ void VehicleController::Store()
 {
 	if(!body_)
 	{
-		gLogger->logMsg("Vehicle::store() Error: Store was called for a nonexistant body object!");
+		gLogger->log(LogManager::DEBUG,"Vehicle::store() Error: Store was called for a nonexistant body object!");
 		return;
 	}
 
 	if(!owner_ || owner_->isDead() || owner_->isIncapacitated())
 	{
-		gLogger->logMsg("Vehicle::store() couldnt find owner");
+		gLogger->log(LogManager::DEBUG,"Vehicle::store() couldnt find owner");
 		return;
 	}
 
@@ -195,7 +195,7 @@ void VehicleController::Store()
 
 	if(!owner_->checkIfMountCalled())
 	{
-		gLogger->logMsg("Vehicle::store() Mount wasnt called !!!");
+		gLogger->log(LogManager::DEBUG,"Vehicle::store() Mount wasnt called !!!");
 		return;
 	}
 

@@ -127,7 +127,7 @@ void MessageDispatch::handleSessionMessage(NetworkClient* client, Message* messa
 			dispatchClient = (*iter).second;
 			mAccountClientMap.erase(iter);
 
-			gLogger->logMsgF("Destroying DispatchClient for account %u.", MSG_NORMAL, message->getAccountId());
+			gLogger->log(LogManager::DEBUG, "Destroying Dispatch Client for account %u.", message->getAccountId());
 
 			// Mark it for deletion
 			deleteClient = true;
@@ -135,8 +135,7 @@ void MessageDispatch::handleSessionMessage(NetworkClient* client, Message* messa
 		}
 		else
 		{
-			gLogger->logMsgF("*** Could not find DispatchClient for account %u to be deleted.", MSG_NORMAL, message->getAccountId());
-			gLogger->hexDump(message->getData(),message->getSize());
+			gLogger->log(LogManager::NOTICE, "Could not find DispatchClient for account %u to be deleted.", message->getAccountId());
 
 			client->getSession()->DestroyIncomingMessage(message);
             lk.unlock();
@@ -154,8 +153,6 @@ void MessageDispatch::handleSessionMessage(NetworkClient* client, Message* messa
 		}
 		else
 		{
-			//gLogger->logMsgF("*** Could not find DispatchClient for account %u to route message 0x%.8x", MSG_NORMAL, message->getAccountId(), opcode);
-			//gLogger->hexDump(message->getData(),message->getSize());
 			client->getSession()->DestroyIncomingMessage(message);
 
 			lk.unlock();
@@ -186,7 +183,7 @@ void MessageDispatch::handleSessionMessage(NetworkClient* client, Message* messa
 	}
 	else
 	{
-		gLogger->logMsgF("Unhandled opcode in MessageDispatch - 0x%x (%i)", MSG_NORMAL, opcode, opcode);
+		gLogger->log(LogManager::INFORMATION, "Unhandled opcode in MessageDispatch - 0x%x (%i)", opcode, opcode);
 	}
 
 	

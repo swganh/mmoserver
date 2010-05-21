@@ -84,7 +84,7 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 		//=============================================================================
 		//just sets a new ParentID and sends Containment to TargetObject
 		virtual void				setParentIdIncDB(uint64 parentId){mParentId = parentId;
-		gLogger->logMsgF("Object::setParentId no table specified id: %I64u",MSG_HIGH,this->getId());}
+		gLogger->log(LogManager::NOTICE, "Object no table specified setting ID: %I64u", this->getId());}
 		
 		
 		string						getModelString(){ return mModel; }
@@ -305,11 +305,11 @@ T	Object::getAttribute(string key) const
 		}
 		catch(boost::bad_lexical_cast &)
 		{
-			gLogger->logMsgF("Object::getAttribute: cast failed (%s)",MSG_HIGH,key.getAnsi());
+			gLogger->log(LogManager::INFORMATION, "Object::getAttribute: cast failed (%s)", key.getAnsi());
 		}
 	}
 	else
-		gLogger->logMsgF("Object::getAttribute: could not find %s",MSG_HIGH,key.getAnsi());
+		gLogger->log(LogManager::INFORMATION, "Object::getAttribute: could not find %s", key.getAnsi());
 
 	return(T());
 }
@@ -328,11 +328,11 @@ T	Object::getAttribute(uint32 keyCrc) const
 		}
 		catch(boost::bad_lexical_cast &)
 		{
-			gLogger->logMsgF("Object::getAttribute: cast failed (%s)",MSG_HIGH,keyCrc);
+			gLogger->log(LogManager::DEBUG,"Object::getAttribute: cast failed (%s)",keyCrc);
 		}
 	}
 	else
-		gLogger->logMsgF("Object::getAttribute: could not find %s",MSG_HIGH,keyCrc);
+		gLogger->log(LogManager::DEBUG,"Object::getAttribute: could not find %s",keyCrc);
 
 	return(T());
 }
@@ -353,11 +353,11 @@ T	Object::getInternalAttribute(string key)
 		}
 		catch(boost::bad_lexical_cast &)
 		{
-			gLogger->logMsgF("Object::getInternalAttribute: cast failed (%s)",MSG_HIGH,key.getAnsi());
+			gLogger->log(LogManager::DEBUG,"Object::getInternalAttribute: cast failed (%s)",key.getAnsi());
 		}
 	}
 	else
-		gLogger->logMsgF("Object::getInternalAttribute: could not find %s",MSG_HIGH,key.getAnsi());
+		gLogger->log(LogManager::DEBUG,"Object::getInternalAttribute: could not find %s",key.getAnsi());
 
 	return(T());
 }

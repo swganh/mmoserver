@@ -774,12 +774,10 @@ void MessageLib::SendHarvesterHopperUpdate(HarvesterObject* harvester, PlayerObj
 	HResourceList*	hRList = harvester->getResourceList();
 	harvester->setRListUpdateCounter(harvester->getRListUpdateCounter() + hRList->size());
 
-	gLogger->logMsgF("adding update Counter  ID %u",MSG_HIGH,harvester->getRListUpdateCounter());
+	gLogger->log(LogManager::DEBUG,"adding update Counter  ID %u",harvester->getRListUpdateCounter());
 
 	mMessageFactory->addUint32(hRList->size());
 	mMessageFactory->addUint32(harvester->getRListUpdateCounter());
-
-	//gLogger->logMsgF("SendHarvesterHopperUpdate:: listsize %u updatecounter %u",MSG_NORMAL,mHopperList->size(),asynContainer->updateCounter);
 
 	mMessageFactory->addUint8(3);
 	mMessageFactory->addUint16(hRList->size());
@@ -789,7 +787,6 @@ void MessageLib::SendHarvesterHopperUpdate(HarvesterObject* harvester, PlayerObj
 	while(it != hRList->end())
 	{
 		mMessageFactory->addUint64((*it).first);		
-		//gLogger->logMsgF("adding res ID %I64u",MSG_HIGH,(*it).first);
 		mMessageFactory->addFloat((*it).second);		
 		//mMessageFactory->addFloat((float)harvester->getRListUpdateCounter());	
 		it++;

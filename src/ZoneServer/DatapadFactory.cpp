@@ -151,7 +151,7 @@ void DatapadFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			if(!player)
 			{
 				//factoryPanic!!!!!!!!
-				gLogger->logMsg("DatapadFactory: Failed getting player to create MS");
+				gLogger->log(LogManager::DEBUG,"DatapadFactory: Failed getting player to create MS");
 				return;
 			}
 
@@ -160,7 +160,7 @@ void DatapadFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			if(!datapad)
 			{
 				//factoryPanic!!!!!!!!
-				gLogger->logMsg("DatapadFactory: Failed getting datapad to create MS");
+				gLogger->log(LogManager::DEBUG,"DatapadFactory: Failed getting datapad to create MS");
 				return;
 			}
 			mObjectLoadMap.insert(std::make_pair(datapad->getId(),new(mILCPool.ordered_malloc()) InLoadingContainer(datapad,datapad,NULL,1)));
@@ -304,7 +304,7 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
 
 			if(!mIlc)
 			{
-				gLogger->logMsg("DatapadFactory: Failed getting ilc");
+				gLogger->log(LogManager::DEBUG,"DatapadFactory: Failed getting ilc");
 				return;
 			}
 			mIlc->mLoadCounter--;
@@ -324,7 +324,7 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
 
 				if(!mIlc)
 				{
-					gLogger->logMsg("DatapadFactory: Failed getting ilc");
+					gLogger->log(LogManager::DEBUG,"DatapadFactory: Failed getting ilc");
 					return;
 				}
 
@@ -356,7 +356,7 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
 				InLoadingContainer*mIlcDPad		= _getObject(id);
 				if(!mIlcDPad)
 				{
-					gLogger->logMsg("DatapadFactory: Failed getting ilc");
+					gLogger->log(LogManager::DEBUG,"DatapadFactory: Failed getting ilc");
 					return;
 				}
 				datapad							= dynamic_cast<Datapad*>(mIlcDPad->mObject);
@@ -369,7 +369,7 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
 
 				if(!mIlc)
 				{
-					gLogger->logMsg("DatapadFactory: Failed getting ilc");
+					gLogger->log(LogManager::DEBUG,"DatapadFactory: Failed getting ilc");
 					return;
 				}
 
@@ -393,7 +393,7 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
 			{
 				if(!mIlc)
 				{
-					gLogger->logMsg("DatapadFactory: Failed getting ilc");
+					gLogger->log(LogManager::DEBUG,"DatapadFactory: Failed getting ilc");
 					return;
 				}
 				mIlc->mLoadCounter--;
@@ -409,7 +409,7 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
 					}
 					else
 					{
-						gLogger->logMsg("DatapadFactory: Datapad at max Capacity!!!");
+						gLogger->log(LogManager::DEBUG,"DatapadFactory: Datapad at max Capacity!!!");
 						delete(object);
 					}
 				}
@@ -426,7 +426,7 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
 	if(!(mIlc->mLoadCounter))
 	{
 		if(!(_removeFromObjectLoadMap(theID)))
-			gLogger->logMsg("DatapadFactory: Failed removing object from loadmap");
+			gLogger->log(LogManager::DEBUG,"DatapadFactory: Failed removing object from loadmap");
 
 		mIlc->mOfCallback->handleObjectReady(datapad,mIlc->mClient);
 

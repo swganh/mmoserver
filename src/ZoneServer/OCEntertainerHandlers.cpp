@@ -75,7 +75,7 @@ void ObjectController::_handlewatch(uint64 targetId,Message* message,ObjectContr
 	if(!targetPlayer)
 	{
 		gMessageLib->sendSystemMessage(targetPlayer,L"","performance","dance_watch_npc");
-		gLogger->logMsgF("OC :: handle startwatch No entertainer", MSG_NORMAL);
+		gLogger->log(LogManager::DEBUG,"OC :: handle startwatch No entertainer");
 		return;
 	}
 	gEntertainerManager->startWatching((PlayerObject*)mObject, targetPlayer);
@@ -98,7 +98,6 @@ void ObjectController::_handlelisten(uint64 targetId,Message* message,ObjectCont
 	if(!targetPlayer)
 	{
 		gMessageLib->sendSystemMessage(targetPlayer,L"","performance","music_listen_npc");
-		//gLogger->logMsgF("OC :: handle startwatch No entertainer", MSG_NORMAL);
 		return;
 	}
 

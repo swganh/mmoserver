@@ -47,7 +47,7 @@ GroupObject::GroupObject(Player* leader, uint64 groupId)
 
 	mMembers.push_back(leader);
 
-	gLogger->logMsgF("New group created by %s with id %"PRIu64".", MSG_NORMAL,leader->getName().getAnsi(),groupId);
+	gLogger->log(LogManager::DEBUG,"New group created by %s with id %"PRIu64".",leader->getName().getAnsi(),groupId);
 }
 
 
@@ -59,9 +59,9 @@ GroupObject::~GroupObject()
 	{
 		gChatManager->unregisterChannel(mChannel);
 		delete mChannel;
-		gLogger->logMsg("Group Channel destroyed.");
+		gLogger->log(LogManager::DEBUG,"Group Channel destroyed.");
 	}
-	gLogger->logMsg("Group destroyed.");
+	gLogger->log(LogManager::DEBUG,"Group destroyed.");
 }
 
 //======================================================================================================================
@@ -313,7 +313,7 @@ void GroupObject::createChannel()
 	tmpValueStr.setLength(swprintf(tmpValueStr.getUnicode16(),64,L"%"WidePRIu64, mId));
 	channel->setTitle(tmpValueStr);
 
-	gLogger->logMsgF("Group channel created: '%s' with id %u.", MSG_NORMAL, channel->getName().getAnsi(), channel->getId());
+	gLogger->log(LogManager::DEBUG,"Group channel created: '%s' with id %u.", channel->getName().getAnsi(), channel->getId());
 	channel->setOwner(gSystemAvatar);
 	mChannel = channel;
 	gChatManager->registerChannel(mChannel);

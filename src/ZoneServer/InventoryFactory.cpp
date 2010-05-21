@@ -235,12 +235,12 @@ void InventoryFactory::handleObjectReady(Object* object,DispatchClient* client)
 
 	if(inventory->getObjectLoadCounter() == (inventory->getObjects())->size())
 	{
-		gLogger->logMsgF("InventoryFactory: remove inventory %I64u from loadmap",MSG_HIGH,inventory->getId());
+		gLogger->log(LogManager::DEBUG,"InventoryFactory: remove inventory %I64u from loadmap",inventory->getId());
 
 		inventory->setLoadState(LoadState_Loaded);
 
 		if(!(_removeFromObjectLoadMap(inventory->getId())))
-			gLogger->logMsg("InventoryFactory: Failed removing object from loadmap");
+			gLogger->log(LogManager::DEBUG,"InventoryFactory: Failed removing object from loadmap");
 
 		ilc->mOfCallback->handleObjectReady(inventory,ilc->mClient);
 

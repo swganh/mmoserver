@@ -36,8 +36,7 @@ Datapad::Datapad() : TangibleObject()
 
 	if(mMissionCapacity	>6)
 	{
-		gLogger->logErrorF("Configuration","Datapad::Datapad() : mMissionCapacity	was bigger than 6 - bigger entries are not supported due to the way Mission IDs are handled",MSG_NORMAL);
-		//gLogger->logMsgF("Datapad::Datapad() : mMissionCapacity	was bigger than 6 - bigger entries are not supported due to the way Mission IDs are handled",MSG_NORMAL);
+		gLogger->log(LogManager::DEBUG,"Datapad::Datapad() : mMissionCapacity	was bigger than 6 - bigger entries are not supported due to the way Mission IDs are handled");
 		mMissionCapacity = 6;
 	}
 	

@@ -23,8 +23,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 void CreatureObject::onIncapRecovery(const IncapRecoveryEvent* event)
 {
-	// gLogger->logMsg("CreatureObject::onIncapRecovery");
-
 	if (mPosture == CreaturePosture_Dead)
 	{
 		// Forget it, you are dead!

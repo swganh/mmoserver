@@ -138,7 +138,7 @@ NPCObject* PersistentNpcFactory::_createPersistentNpc(DatabaseResult* result)
 		default:
 		{
 			npc = new NPCObject();
-			gLogger->logMsgF("PersistentNpcFactory::createPersistent unknown Family %u",MSG_HIGH,npcIdentifier.mFamilyId);
+			gLogger->log(LogManager::DEBUG,"PersistentNpcFactory::createPersistent unknown Family %u",npcIdentifier.mFamilyId);
 		}
 		break;
 	}

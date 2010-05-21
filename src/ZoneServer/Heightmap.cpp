@@ -95,7 +95,7 @@ void Heightmap::fillInIterator(HeightResultMap::iterator it)
 		Connect();
 		if(!Open())
 		{
-			gLogger->logMsg("Heightmap::ERROR: Unable to retrieve height. A connection to the zone heightmap was not established!",FOREGROUND_RED);
+			gLogger->log(LogManager::DEBUG,"Heightmap::ERROR: Unable to retrieve height. A connection to the zone heightmap was not established!");
 			return;
 		}
 	}
@@ -104,7 +104,7 @@ void Heightmap::fillInIterator(HeightResultMap::iterator it)
 	fseek(hmp,getOffset(it->first.first,it->first.second),SEEK_SET);
 	size_t result = fread(&height,2,1,hmp);
 	if (! result) {
-		gLogger->logMsg("Heightmap::ERROR: Unable to read height!",FOREGROUND_RED);
+		gLogger->log(LogManager::DEBUG,"Heightmap::ERROR: Unable to read height!");
 		return;
 	}
 	
@@ -153,7 +153,7 @@ void Heightmap::RunThread()
 			boost::this_thread::sleep(boost::posix_time::milliseconds(20));
 		}
 	}
-	gLogger->logMsg("HeightMap Thread Down!");
+	gLogger->log(LogManager::CRITICAL,"HeightMap Thread Down!");
 }
 
 
@@ -167,20 +167,20 @@ bool Heightmap::getRow(unsigned char* buffer, int32 x, int32 z, int32 length)
 {
 	if ((x < -(WIDTH - 1)/2) || (x > (WIDTH- 1)/2))
 	{
-		gLogger->logMsg("Heightmap::ERROR: Invalid input: x out of range",FOREGROUND_RED);
-		gLogger->logMsgF("x = %d,  -WIDTH/2 = %d", MSG_NORMAL, x, -WIDTH/2);
+		gLogger->log(LogManager::NOTICE,"Heightmap::ERROR: Invalid input: x out of range");
+		gLogger->log(LogManager::INFORMATION,"x = %d,  -WIDTH/2 = %d", x, -WIDTH/2);
 		assert(false && "Heightmap::getRow x out of range");
 		return false;
 	}
 	if ((z < -(HEIGHT- 1)/2) || (z > (HEIGHT - 1)/2))
 	{
-		gLogger->logMsg("Heightmap::ERROR: Invalid input: z out of range",FOREGROUND_RED);
+		gLogger->log(LogManager::NOTICE,"Heightmap::ERROR: Invalid input: z out of range");
 		assert(false && "Heightmap::getRow z out of range");
 		return false;
 	}
 	if (length < 0)
 	{
-		gLogger->logMsg("Heightmap::ERROR: Invalid input: length is negative",FOREGROUND_RED);
+		gLogger->log(LogManager::NOTICE,"Heightmap::ERROR: Invalid input: length is negative");
 		assert(false && "Heightmap::getRow length is negative");
 		return false;
 	}
@@ -190,27 +190,23 @@ bool Heightmap::getRow(unsigned char* buffer, int32 x, int32 z, int32 length)
 		return true;
 	}
 
-	// gLogger->logMsgF("Heightmap::getRow Reading %d bytes from position %d, %d",MSG_NORMAL, length, x, z);
-
 	if(!Open())
 	{
 		Connect();
 		if(!Open())
 		{
-			gLogger->logMsg("Heightmap::ERROR: Unable to retrieve height data.",FOREGROUND_RED);
-			assert(false && "Heightmap::getRow Missing heightmap, download at http://www.swganh.com/!!planets!!/PLANET_NAME.rar");
+			gLogger->log(LogManager::CRITICAL,"Heightmap::ERROR: Unable to retrieve height data.");
+			assert(false && "Heightmap::getRow Missing heightmap, contact a SWG:ANH Developer for info.");
 			return false;
 		}
 	}
 	int32 startOffset = 2 * (((HEIGHT/2 - z) * WIDTH) + (x + WIDTH/2));
-	// gLogger->logMsgF("startOffset = %d", MSG_NORMAL, startOffset);
 	int32 endOffset = startOffset + (2 * length);
-	// gLogger->logMsgF("endOffset = %d", MSG_NORMAL, endOffset);
 
 	if (endOffset > (int32)(2 * WIDTH * HEIGHT))
 	{
-		gLogger->logMsg("Heightmap::ERROR: Invalid input: length out of range",FOREGROUND_RED);
-		gLogger->logMsgF("endOffset = %d, (2 * WIDTH * HEIGHT) = %d", MSG_NORMAL, endOffset, (int32)(2 * WIDTH * HEIGHT));
+		gLogger->log(LogManager::NOTICE,"Heightmap::ERROR: Invalid input: length out of range");
+		gLogger->log(LogManager::INFORMATION,"endOffset = %d, (2 * WIDTH * HEIGHT) = %d", endOffset, (int32)(2 * WIDTH * HEIGHT));
 		assert(false && "Heightmap::getRow length out of range");
 		return false;
 	}
@@ -222,7 +218,7 @@ bool Heightmap::getRow(unsigned char* buffer, int32 x, int32 z, int32 length)
 
 	if (fseek(hmp,startOffset,SEEK_SET) != 0)
 	{
-		gLogger->logMsg("Heightmap::ERROR: File seek error",FOREGROUND_RED);
+		gLogger->log(LogManager::DEBUG,"Heightmap::ERROR: File seek error",FOREGROUND_RED);
 		assert(false);
 		return false;
 	}
@@ -230,8 +226,8 @@ bool Heightmap::getRow(unsigned char* buffer, int32 x, int32 z, int32 length)
 	int32 bytesRead = fread(buffer,1, len, hmp);
 	if (bytesRead != len)
 	{
-		gLogger->logMsg("Heightmap::ERROR: File read error",FOREGROUND_RED);
-		gLogger->logMsgF("bytesRead = %d", MSG_NORMAL, bytesRead);
+		gLogger->log(LogManager::DEBUG,"Heightmap::ERROR: File read error",FOREGROUND_RED);
+		gLogger->log(LogManager::DEBUG,"bytesRead = %d",  bytesRead);
 		assert(false);
 		return false;
 	}
@@ -246,18 +242,11 @@ void Heightmap::Connect(void)
 	hmp = fopen(mFilename.c_str(),"r+b");
 	if(!hmp)
 	{
-		gLogger->logMsgLoadFailure("Heightmap::Heightmap not found [ %s ], exiting...",MSG_HIGH,mFilename.c_str());
-
+		gLogger->log(LogManager::CRITICAL,"Heightmap::Heightmap not found [ %s ], exiting...",mFilename.c_str());
 	}
 	else
 	{
-		#if !defined(_DEBUG)
-					gLogger->logMsgLoadSuccess(" Heightmap succesfully opened...",MSG_NORMAL);
-				#endif
-				#if defined(_DEBUG)
-					gLogger->logMsgLoadSuccess("Heightmap::Heightmap succesfully opened...",MSG_NORMAL);
-				#endif
-					
+		gLogger->log(LogManager::NOTICE,"Heightmap succesfully opened!");
 	}
   return;
 }
@@ -366,7 +355,7 @@ bool Heightmap::setupCache(int16 cacheResoulutionDivider)
 			{
 				if (heightMapRow[i] & 0x80000)
 				{
-					gLogger->logMsgF("Found water, at position %d, %d", MSG_NORMAL, (-heightMapWidth/2) + i, heightMapLine);
+					gLogger->log(LogManager::DEBUG,"Found water, at position %d, %d", (-heightMapWidth/2) + i, heightMapLine);
 				}
 
 				// Let's do this the right way, shall we? Pretend that we have a 15 bits signed value...
@@ -401,15 +390,11 @@ bool Heightmap::setupCache(int16 cacheResoulutionDivider)
 					if (value < -135)
 					{
 						noOfIgnored++;
-						// Print all starange ones...
-						gLogger->logMsgF("Height = %.2f at position %d, %d", MSG_NORMAL, value, (-heightMapWidth/2) + x, heightMapLine);
 					}
 
 					if (value > 431)
 					{
 						noOfIgnored++;
-						// Print all starange ones...
-						gLogger->logMsgF("Height = %.2f at position %d, %d", MSG_NORMAL, value, (-heightMapWidth/2) + x, heightMapLine);
 					}
 					*/
 
@@ -433,7 +418,7 @@ bool Heightmap::setupCache(int16 cacheResoulutionDivider)
 			// assert(false);
 		}
 	}
-	gLogger->logMsgF("Have created a %d * %d heighmap cache.", MSG_NORMAL, zPos, xPos);
+	gLogger->log(LogManager::DEBUG,"Have created a %d * %d heighmap cache.", zPos, xPos);
 
 	delete [] heightMapRow;
 
@@ -441,10 +426,8 @@ bool Heightmap::setupCache(int16 cacheResoulutionDivider)
 
 	if (status)
 	{
-		gLogger->logMsgF("Min height = %.2f at position %d, %d", MSG_NORMAL, min, xPosMin, zPosMin);
-		gLogger->logMsgF("Max height = %.2f at position %d, %d", MSG_NORMAL, max, xPosMax, zPosMax);
-		// gLogger->logMsgF("noOfIgnored values are = %"PRIu64"", MSG_NORMAL, noOfIgnored);
-
+		gLogger->log(LogManager::DEBUG,"Min height = %.2f at position %d, %d", min, xPosMin, zPosMin);
+		gLogger->log(LogManager::DEBUG,"Max height = %.2f at position %d, %d", max, xPosMax, zPosMax);
 	}
 	return status;
 }
@@ -474,7 +457,7 @@ float Heightmap::getHeight(float x, float y)
 		Connect();
 		if(!Open())
 		{
-			gLogger->logMsg("Heightmap::ERROR: Unable to retrieve height. A connection to the zone heightmap was not established!",FOREGROUND_RED);
+			gLogger->log(LogManager::DEBUG,"Heightmap::ERROR: Unable to retrieve height. A connection to the zone heightmap was not established!");
 			return FLT_MIN;
 		}
 	}
@@ -483,7 +466,7 @@ float Heightmap::getHeight(float x, float y)
 	fseek(hmp,getOffset(x,y),SEEK_SET);
 	size_t result = fread(&height,2,1,hmp);
 	if (! result) {
-		gLogger->logMsg("Heightmap::ERROR: Unable to read height!",FOREGROUND_RED);
+		gLogger->log(LogManager::DEBUG,"Heightmap::ERROR: Unable to read height!");
 		return FLT_MIN;
 	}
 	height &= 0x7FFF;

@@ -28,7 +28,6 @@ NetworkManager::NetworkManager(void) :
 mServiceIdIndex(1)
 {
 	// for safety, in case someone forgot to init previously
-	LogManager::Init();
 	NetConfig::Init();
 }
 

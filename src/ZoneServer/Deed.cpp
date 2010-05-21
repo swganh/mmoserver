@@ -207,8 +207,6 @@ void Deed::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCou
 			}
 			else
 				radial->addItem((*it)->sItem,(*it)->sSubMenu,(RadialIdentifier)(*it)->sIdentifier,radAction_Default,"");
-
-			//gLogger->logMsgF("menu item id : %u",MSG_HIGH,(*it)->sIdentifier);
 			it++;
 		}
 	}

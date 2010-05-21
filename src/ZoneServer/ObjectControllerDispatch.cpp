@@ -58,7 +58,7 @@ void ObjectControllerDispatch::handleDispatchMessage(uint32 opcode,Message* mess
 		_dispatchObjectMenuSelect(message,client);
 
 	else
-		gLogger->logMsgF("ObjectControllerDispatch: Unhandled opcode %u",MSG_HIGH,opcode);
+		gLogger->log(LogManager::DEBUG,"ObjectControllerDispatch: Unhandled opcode %u",opcode);
 
 	message->setPendingDelete(true);
 	message->mSourceId = 55;
@@ -76,7 +76,6 @@ void ObjectControllerDispatch::_dispatchMessage(Message* message, DispatchClient
 	{
 		if(!object->getReady())
 		{
-			// gLogger->logMsgF("ObjectControllerDispatch: Object not ready %"PRIu64"", MSG_HIGH, object->getId());
 			return;
 		}
 
@@ -99,7 +98,7 @@ void ObjectControllerDispatch::_dispatchMessage(Message* message, DispatchClient
 					break;
 
 					default:
-						gLogger->logMsgF("ObjectControllerDispatch: Unhandled Cmd(0x00000021) %x",MSG_HIGH,subOp2);
+						gLogger->log(LogManager::DEBUG,"ObjectControllerDispatch: Unhandled Cmd(0x00000021) %x",subOp2);
 					break;
 				}
 			}
@@ -164,7 +163,7 @@ void ObjectControllerDispatch::_dispatchMessage(Message* message, DispatchClient
 					break;
 
 					default:
-						gLogger->logMsgF("ObjectControllerDispatch: Unhandled Cmd(0x00000023) %x",MSG_HIGH,subOp2);
+						gLogger->log(LogManager::DEBUG,"ObjectControllerDispatch: Unhandled Cmd(0x00000023) %x",subOp2);
 					break;
 				}
 			}
@@ -234,19 +233,19 @@ void ObjectControllerDispatch::_dispatchMessage(Message* message, DispatchClient
 						break;
 
 					default:
-						gLogger->logMsgF("ObjectControllerDispatch: Unhandled Cmd(0x00000083) %x",MSG_HIGH,subOp2);
+						gLogger->log(LogManager::DEBUG,"ObjectControllerDispatch: Unhandled Cmd(0x00000083) %x",subOp2);
 					break;
 				}
 			}
 			break;
 
 			default:
-				gLogger->logMsgF("ObjectControllerDispatch: Unhandled Cmd(op1) %x %x",MSG_HIGH,subOp1,subOp2);
+				gLogger->log(LogManager::DEBUG,"ObjectControllerDispatch: Unhandled Cmd(op1) %x %x",subOp1,subOp2);
 			break;
 		}
 	}
 	else
-		gLogger->logMsgF("ObjectControllerDispatch: Couldn't find Object %"PRIu64"",MSG_HIGH,objId);
+		gLogger->log(LogManager::DEBUG,"ObjectControllerDispatch: Couldn't find Object %"PRIu64"",objId);
 
 	message->setPendingDelete(true);
 	message->mSourceId = 56;
@@ -262,7 +261,7 @@ void ObjectControllerDispatch::_dispatchObjectMenuSelect(Message* message,Dispat
 	if(object != NULL)
 		object->handleObjectMenuSelect(message->getUint8(),gWorldManager->getPlayerByAccId(client->getAccountId()));
 	else
-		gLogger->logMsgF("ObjController::handleRadialSelect: Object not found %"PRIu64"",MSG_HIGH,objectId);
+		gLogger->log(LogManager::DEBUG,"ObjController::handleRadialSelect: Object not found %"PRIu64"",objectId);
 
 	message->setPendingDelete(true);
 	message->mSourceId = 57;

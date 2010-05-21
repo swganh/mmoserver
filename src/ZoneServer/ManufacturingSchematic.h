@@ -254,11 +254,11 @@ T	ManufacturingSchematic::getPPAttribute(string key) const
 		}
 		catch(boost::bad_lexical_cast &)
 		{
-			gLogger->logMsgF("ManufacturingSchematic::getPPAttribute: cast failed (%s)",MSG_HIGH,key.getAnsi());
+			gLogger->log(LogManager::DEBUG,"ManufacturingSchematic::getPPAttribute: cast failed (%s)",key.getAnsi());
 		}
 	}
 	else
-		gLogger->logMsgF("ManufacturingSchematic::getPPAttribute: could not find %s",MSG_HIGH,key.getAnsi());
+		gLogger->log(LogManager::DEBUG,"ManufacturingSchematic::getPPAttribute: could not find %s",key.getAnsi());
 
 	return(T());
 }
@@ -277,11 +277,11 @@ T	ManufacturingSchematic::getPPAttribute(uint32 keyCrc) const
 		}
 		catch(boost::bad_lexical_cast &)
 		{
-			gLogger->logMsgF("ManufacturingSchematic::getPPAttribute: cast failed (%u)",MSG_HIGH,keyCrc);
+			gLogger->log(LogManager::NOTICE,"ManufacturingSchematic::getPPAttribute: cast failed (%u)",dkeyCrc);
 		}
 	}
 	else
-		gLogger->logMsgF("ManufacturingSchematic::getPPAttribute: could not find %u",MSG_HIGH,keyCrc);
+		gLogger->log(LogManager::NOTICE,"ManufacturingSchematic::getPPAttribute: could not find %u",keyCrc);
 
 	return(T());
 }

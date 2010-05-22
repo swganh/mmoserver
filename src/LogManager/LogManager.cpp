@@ -4,6 +4,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <time.h>
+#include <vector>
 
 LogManager* LogManager::mSingleton;
 
@@ -124,19 +125,23 @@ printf("                                               There is Another...\n\n")
 	
 void LogManager::log(LOG_PRIORITY priority, std::string format, ...)
 {
-
 	//Read the VA List Info
-	char buffer[256];
 	va_list args;
 	va_start(args, format);
-	vsprintf(buffer, format.c_str(), args);
+
+  // Determine the size of the buffer needed and create an appropriately
+  // sized container.
+  const int size = vsnprintf(NULL, 0, format.c_str(), args);
+  std::vector<char> buffer(size+1); // Account for the \n terminator.
+
+	vsprintf(&buffer[0], format.c_str(), args);
 	va_end(args);
 
 	LOG_ENTRY* entry = new LOG_ENTRY();
 
 	entry->mPriority = priority;
 	entry->mChannels = LOG_CHANNEL_ALL;
-	entry->mMessage	 = buffer;
+  entry->mMessage.assign(buffer.begin(), buffer.end());
 	entry->mContinuation = false;
 
 	mEntriesMutex.lock();
@@ -148,17 +153,22 @@ void LogManager::logCont(LOG_PRIORITY priority, std::string format, ...)
 {
 
 	//Read the VA List Info
-	char buffer[256];
 	va_list args;
-	va_start(args, format);
-	vsprintf(buffer, format.c_str(), args);
+	va_start(args, format);  
+  
+  // Determine the size of the buffer needed and create an appropriately
+  // sized container.
+  const int size = vsnprintf(NULL, 0, format.c_str(), args);
+  std::vector<char> buffer(size+1); // Account for the \n terminator.
+
+	vsprintf(&buffer[0], format.c_str(), args);
 	va_end(args);
 
 	LOG_ENTRY* entry = new LOG_ENTRY();
 
 	entry->mPriority = priority;
 	entry->mChannels = LOG_CHANNEL_ALL;
-	entry->mMessage	 = buffer;
+  entry->mMessage.assign(buffer.begin(), buffer.end());
 	entry->mContinuation = true;
 
 	mEntriesMutex.lock();
@@ -169,17 +179,22 @@ void LogManager::logCont(LOG_PRIORITY priority, std::string format, ...)
 void LogManager::logS(LOG_PRIORITY priority, uint8 channels, std::string format, ...)
 {
 	//Read the VA List Info
-	char buffer[256];
 	va_list args;
 	va_start(args, format);
-	vsprintf(buffer, format.c_str(), args);
+  
+  // Determine the size of the buffer needed and create an appropriately
+  // sized container.
+  const int size = vsnprintf(NULL, 0, format.c_str(), args);
+  std::vector<char> buffer(size+1); // Account for the \n terminator.
+
+	vsprintf(&buffer[0], format.c_str(), args);
 	va_end(args);
 
 	LOG_ENTRY* entry = new LOG_ENTRY();
 
 	entry->mPriority = priority;
 	entry->mChannels = channels;
-	entry->mMessage	 = buffer;
+  entry->mMessage.assign(buffer.begin(), buffer.end());
 	entry->mContinuation = false;
 
 	mEntriesMutex.lock();
@@ -190,17 +205,22 @@ void LogManager::logS(LOG_PRIORITY priority, uint8 channels, std::string format,
 void LogManager::logContS(LOG_PRIORITY priority, uint8 channels, std::string format, ...)
 {
 	//Read the VA List Info
-	char buffer[256];
 	va_list args;
 	va_start(args, format);
-	vsprintf(buffer, format.c_str(), args);
+  
+  // Determine the size of the buffer needed and create an appropriately
+  // sized container.
+  const int size = vsnprintf(NULL, 0, format.c_str(), args);
+  std::vector<char> buffer(size+1); // Account for the \n terminator.
+
+	vsprintf(&buffer[0], format.c_str(), args);
 	va_end(args);
 
 	LOG_ENTRY* entry = new LOG_ENTRY();
 
 	entry->mPriority = priority;
 	entry->mChannels = channels;
-	entry->mMessage	 = buffer;
+  entry->mMessage.assign(buffer.begin(), buffer.end());
 	entry->mContinuation = true;
 
 	mEntriesMutex.lock();

@@ -447,7 +447,7 @@ void TreasuryManager::handleUIEvent(uint32 action,int32 element,string inputStr,
 
 	switch(window->getWindowType())
 	{
-		case TREMQuery_BankTipTransaction:
+		case SUI_Window_Trade_BankTip_ConfirmSurcharge:
 		{
 			if (action == 1)
 			{

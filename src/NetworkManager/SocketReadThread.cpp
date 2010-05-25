@@ -181,7 +181,7 @@ void SocketReadThread::run(void)
 
 				if(FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, errorNr, MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT),(LPTSTR)errorMsg, (sizeof(errorMsg) / sizeof(TCHAR)) - 1, NULL))
 				{
-					gLogger->log(LogManager::WARNING, "Error(recvFrom): %S",errorMsg);
+					gLogger->log(LogManager::WARNING, "Error(recvFrom): %s",errorMsg);
 				}
 				else
 				{

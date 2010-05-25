@@ -256,7 +256,7 @@ public:
 	void				sendTargetUpdateDeltasCreo6(CreatureObject* creatureObject);
 	void				sendPerformanceId(CreatureObject* creatureObject);
 	void				UpdateEntertainerPerfomanceCounter(CreatureObject* creatureObject);
-	void				sendListenToId(CreatureObject* creatureObject);
+	void				sendListenToId(PlayerObject* playerObject);
 	void				sendTerrainNegotiation(CreatureObject* creatureObject);
 	void				sendMoodString(CreatureObject* creatureObject,string animation);
 	void				sendWeaponIdUpdate(CreatureObject* creatureObject);

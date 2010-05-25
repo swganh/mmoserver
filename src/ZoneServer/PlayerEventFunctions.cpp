@@ -46,7 +46,7 @@ void PlayerObject::onSurvey(const SurveyEvent* event)
 
 	if(tool && resource && isConnected())
 	{
-		Datapad*			datapad			= dynamic_cast<Datapad*>(mEquipManager.getEquippedObject(CreatureEquipSlot_Datapad));
+		Datapad* datapad					= getDataPad();
 		ResourceLocation	highestDist		= gMessageLib->sendSurveyMessage(tool->getInternalAttribute<uint16>("survey_range"),tool->getInternalAttribute<uint16>("survey_points"),resource,this);
 
 		uint32 mindCost = gResourceCollectionManager->surveyMindCost;

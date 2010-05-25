@@ -44,7 +44,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 void ObjectController::_handleRequestWaypointAtPosition(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
 	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
-	Datapad*		datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+	Datapad* datapad			= player->getDataPad();
 
 	if(!datapad->getCapacity())
 	{
@@ -113,7 +113,7 @@ void ObjectController::_handleSetWaypointActiveStatus(uint64 targetId,Message* m
 {
 	PlayerObject*	player		= dynamic_cast<PlayerObject*>(mObject);
 	WaypointObject*	waypoint	= NULL;
-	Datapad*		datapad		= dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+	Datapad* datapad			= player->getDataPad();
 
 	waypoint = datapad->getWaypointById(targetId);
 
@@ -136,7 +136,7 @@ void ObjectController::_handleSetWaypointActiveStatus(uint64 targetId,Message* m
 void ObjectController::_handleWaypoint(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties)
 {
 	PlayerObject*	player			= dynamic_cast<PlayerObject*>(mObject);
-	Datapad*		datapad			= dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+	Datapad* datapad			= player->getDataPad();
 	string			waypoint_data;
     glm::vec3       waypoint_position;
 					
@@ -193,7 +193,7 @@ void ObjectController::_handleSetWaypointName(uint64 targetId,Message* message,O
 {
 	PlayerObject*	player		= dynamic_cast<PlayerObject*>(mObject);
 	string			name;
-	Datapad*		datapad		= dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+	Datapad* datapad			= player->getDataPad();
 	WaypointObject*	waypoint	= datapad->getWaypointById(targetId);
 	int8			sql[1024],restStr[64],*sqlPointer;
 

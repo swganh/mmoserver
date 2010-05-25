@@ -311,7 +311,7 @@ void ResourceCollectionManager::handleUIEvent(uint32 action,int32 element,string
 					player->getSampleData()->resource	= (CurrentResource*)asyncContainer->CurrentResource;
 
 					
-					Datapad* datapad= dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+					Datapad* datapad			= player->getDataPad();
                     datapad->requestNewWaypoint("Resource Node", glm::vec3(player->getSampleData()->Position.x,0.0f,player->getSampleData()->Position.z),static_cast<uint16>(gWorldManager->getZoneId()),Waypoint_blue);
 					gMessageLib->sendSystemMessage(player,L"","survey","node_waypoint");
 

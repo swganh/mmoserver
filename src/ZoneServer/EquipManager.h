@@ -94,10 +94,10 @@ class EquipManager
 		//ObjectList			mEquippedObjects;
 
 		// reference for checking race/gender restrictions
-		CreatureObject*		mParent;
+		CreatureObject*		mParent; //- we have 35 Slots
 
 		// slot bitmask for fast checks
-		uint64			mEquipSlots;
+		uint64				mEquipSlots;
 
 		// flow control
 		uint32				mEquippedObjectsUpdateCounter;

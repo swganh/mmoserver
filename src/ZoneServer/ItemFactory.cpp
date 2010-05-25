@@ -326,7 +326,7 @@ void ItemFactory::_setupDatabindings()
 	mItemBinding->addField(DFT_uint32,offsetof(Item,mMaxCondition),4,19);
 	mItemBinding->addField(DFT_uint32,offsetof(Item,mDamage),4,20);
 	mItemBinding->addField(DFT_uint32,offsetof(Item,mDynamicInt32),4,21);
-	mItemBinding->addField(DFT_uint32,offsetof(Item,mEquipSlots),4,22);
+	mItemBinding->addField(DFT_uint64,offsetof(Item,mEquipSlots),4,22);
 	mItemBinding->addField(DFT_uint32,offsetof(Item,mEquipRestrictions),4,23);
 	mItemBinding->addField(DFT_uint16,offsetof(Item,mCustomization[1]),2,24);
 	mItemBinding->addField(DFT_uint16,offsetof(Item,mCustomization[2]),2,25);

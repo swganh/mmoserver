@@ -803,6 +803,7 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
 		datapad->setEquipSlotMask(CreatureEquipSlot_Datapad);
 
 		playerObject->mEquipManager.addEquippedObject(CreatureEquipSlot_Datapad,datapad);
+		playerObject->setDataPad(datapad);
 
 		datapad->setOwner(playerObject);
 	}
@@ -828,6 +829,14 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
 		{
 			// gLogger->logMsg("equip default weapon");
 			playerObject->mEquipManager.equipDefaultWeapon();
+		}
+		Datapad* dpad = playerObject->getDataPad();
+		if(!dpad)
+		{
+			assert(dpad && "PlayerObjectFactory::No Datapad!!!!!");
+			gLogger->logMsg("PlayerObjectFactory: Failed loading DataPad");
+			return;
+			
 		}
 
 		// init equip counter

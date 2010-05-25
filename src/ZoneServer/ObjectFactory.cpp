@@ -130,8 +130,8 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				//delete it out of the inventory
 				inventory->deleteObject(deed);
 				
-				Datapad* thePad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
-				thePad->requestNewWaypoint("Player House",asyncContainer->coords,gWorldManager->getPlanetIdByName(gWorldManager->getPlanetNameThis()),1);
+				Datapad* datapad			= player->getDataPad();
+				datapad->requestNewWaypoint("Player House",asyncContainer->coords,gWorldManager->getPlanetIdByName(gWorldManager->getPlanetNameThis()),1);
 
 			}
 			
@@ -179,8 +179,8 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				//delete it out of the inventory
 				inventory->deleteObject(deed);
 
-				Datapad* thePad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
-				thePad->requestNewWaypoint("Player Factory",asyncContainer->coords,gWorldManager->getPlanetIdByName(gWorldManager->getPlanetNameThis()),1);
+				Datapad* datapad			= player->getDataPad();
+				datapad->requestNewWaypoint("Player Factory",asyncContainer->coords,gWorldManager->getPlanetIdByName(gWorldManager->getPlanetNameThis()),1);
 			}
 			
 			// now we need to link the deed to the factory in the db and remove it out of the inventory in the db
@@ -225,8 +225,8 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					//delete it out of the inventory
 					inventory->deleteObject(deed);
 
-					Datapad* thePad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
-					thePad->requestNewWaypoint("Harvester",asyncContainer->coords,gWorldManager->getPlanetIdByName(gWorldManager->getPlanetNameThis()),1);
+					Datapad* datapad			= player->getDataPad();
+					datapad->requestNewWaypoint("Harvester",asyncContainer->coords,gWorldManager->getPlanetIdByName(gWorldManager->getPlanetNameThis()),1);
 
 				}
 				

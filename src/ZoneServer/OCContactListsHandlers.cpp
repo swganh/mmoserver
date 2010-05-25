@@ -366,12 +366,12 @@ void ObjectController::_handleFindFriendDBReply(uint64 retCode,string friendName
 		return;
 	}
 
-	Datapad* thePad = dynamic_cast<Datapad*>(searchObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+	Datapad* datapad			= player->getDataPad();
 
-	if(thePad && thePad->getCapacity())
+	if(datapad && datapad->getCapacity())
 	{
 		//the datapad automatically checks for waypoint caspacity and gives the relevant error messages
-		thePad->requestNewWaypoint(searchObject->getFirstName().getAnsi(),searchObject->mPosition,static_cast<uint16>(gWorldManager->getZoneId()),Waypoint_blue);
+		datapad->requestNewWaypoint(searchObject->getFirstName().getAnsi(),searchObject->mPosition,static_cast<uint16>(gWorldManager->getZoneId()),Waypoint_blue);
 	}
 }
 

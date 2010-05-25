@@ -43,7 +43,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 void ObjectController::destroyObject(uint64 objectId)
 {
 	PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
-	Datapad*		datapad			= dynamic_cast<Datapad*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+	Datapad* datapad				= playerObject->getDataPad();
 	Object*			object			= gWorldManager->getObjectById(objectId);
 
 	//could be a schematic!

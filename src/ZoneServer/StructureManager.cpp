@@ -910,7 +910,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			}
 
 			//return the old schematic to the Datapad
-			Datapad*	datapad		= dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+			Datapad* datapad			= player->getDataPad();
 			//Inventory*	inventory	= dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 			
 			if(!datapad->getCapacity())
@@ -951,7 +951,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 				}
 
 				//first return the old schematic to the Datapad
-				Datapad*	datapad		= dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+				Datapad* datapad			= player->getDataPad();
 				//Inventory*	inventory	= dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 				
 				//change the ManSchems Owner ID and load it into the datapad
@@ -961,7 +961,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 
 			
 			PlayerObject* player	= dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(command.PlayerId));
-			Datapad*	datapad		= dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+			Datapad* datapad			= player->getDataPad();
 			
 			TangibleObject* tO = dynamic_cast<TangibleObject*>(datapad->getManufacturingSchematicById(command.SchematicId));
 			if(!tO->hasInternalAttribute("craft_tool_typemask"))

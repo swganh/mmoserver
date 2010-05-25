@@ -320,7 +320,7 @@ void ObjectController::_handleLoot(uint64 targetId, Message *message, ObjectCont
 	// gLogger->logMsgF("ObjectController::_handleLoot: targetId = %"PRIu64"",MSG_NORMAL, targetId);
 	
 	PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
-	Datapad* datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+	Datapad* datapad			= player->getDataPad();
 
 	// Loot creatures
 	this->lootAll(targetId, player);

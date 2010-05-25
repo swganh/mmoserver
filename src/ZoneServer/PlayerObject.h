@@ -33,6 +33,7 @@ class Tutorial;
 class TravelTerminal;
 class CraftingStation;
 class CraftingSession;
+class Datapad;
 //=============================================================================
 
 typedef std::list<std::pair<string,float> >	AttributesList;
@@ -91,6 +92,10 @@ class PlayerObject : public CreatureObject
 
 		void				setTravelPoint(TravelTerminal* tp){ mTravelPoint = tp; }
 		TravelTerminal*		getTravelPoint(){ return mTravelPoint; }
+
+		//datapad
+		Datapad*			getDataPad(){return mDataPad;}
+		void				setDataPad(Datapad* pad){mDataPad = pad;}
 
 		void				setMotdReceived(bool b){ mMotdReceived = b; }
 		bool				getMotdReceived(){ return mMotdReceived; }
@@ -266,6 +271,7 @@ class PlayerObject : public CreatureObject
 		void				setGender(bool gender){mFemale = gender;}
 		bool				getGender(){return mFemale;}
 
+		//mounts
 		bool				checkIfMounted() { return mMounted; }
 		void				setMounted(bool mounted) { mMounted = mounted; }
 
@@ -383,6 +389,8 @@ class PlayerObject : public CreatureObject
 		void				_verifyExplorationBadges();
 
 		bool				mHasCamp;
+
+		Datapad*			mDataPad;
 		AudienceList		mAudienceList;
 		BadgesList			mBadgeList;
 		DenyServiceList		mDenyAudienceList;

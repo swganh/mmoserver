@@ -447,7 +447,7 @@ void TreasuryManager::handleUIEvent(uint32 action,int32 element,string inputStr,
 
 	switch(window->getWindowType())
 	{
-		case SUI_Window_Insurance_Newbie_MessageBox:		// Tried to insure item when still having free rounds left.
+		case TREMQuery_BankTipTransaction:
 		{
 			if (action == 1)
 			{

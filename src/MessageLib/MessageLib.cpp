@@ -512,7 +512,8 @@ bool MessageLib::sendCreatePlayer(PlayerObject* playerObject,PlayerObject* targe
 		}
 
 		// datapad
-		if(TangibleObject* datapad = dynamic_cast<TangibleObject*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad)))
+		Datapad* datapad			= playerObject->getDataPad();
+		if(datapad)
 		{
 			//would be nice to use the tangibles objectcontainer for the datapad
 			//need to get missionobjects intangibles, Man Schematics, waypoints and stuff in though, so better do it manually

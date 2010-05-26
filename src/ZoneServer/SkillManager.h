@@ -92,7 +92,7 @@ class SkillManager : public DatabaseCallback
 		int32					getDefaultXPCapById(uint32 xpId){ return mDefaultXpCapList[xpId-1]; }
 
 		bool					learnSkill(uint32 skillId,CreatureObject* creatureObject,bool subXp);
-		void					dropSkill(uint32 skillId,CreatureObject* creatureObject);
+		void					dropSkill(uint32 skillId,CreatureObject* creatureObject, bool showMessage=true);
 		bool					learnSkillLine(uint32 skillId, CreatureObject* creatureObject, bool subXP);
 
 		void					initExperience(PlayerObject* playerObject);

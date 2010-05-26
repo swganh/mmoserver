@@ -738,7 +738,7 @@ bool SkillManager::checkRaceLearnSkill(uint32 skillId,CreatureObject* creatureOb
 //======================================================================================================================
 // TODO: figure creo4 deltas for updating
 // using baselines for now
-void SkillManager::dropSkill(uint32 skillId,CreatureObject* creatureObject)
+void SkillManager::dropSkill(uint32 skillId,CreatureObject* creatureObject, bool showMessage)
 {
 	Skill* skill = getSkillById(skillId);
 
@@ -773,7 +773,9 @@ void SkillManager::dropSkill(uint32 skillId,CreatureObject* creatureObject)
 		gMessageLib->sendBaselinesCREO_4(player);
 		gMessageLib->sendSkillCmdDeltasPLAY_9(player);
 		gMessageLib->sendSchematicDeltasPLAY_9(player);
-		gMessageLib->sendSystemMessage(player,L"Skill surrendered.");
+
+		if(showMessage)
+			gMessageLib->sendSystemMessage(player,L"Skill surrendered.");
 
 		// Update the cap for this type of xp, but do NOT adjust the xp down below cap.
 		int32 newXpCap = getXpCap(player, skill->mXpType);

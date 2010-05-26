@@ -730,7 +730,7 @@ void ObjectController::_handleImageDesign(uint64 targetId,Message* message,Objec
 		return;
 	}
 
-    if(glm::distance(designObject->mPosition, imageDesigner->mPosition) > 16)
+	if(glm::distance(designObject->getWorldPosition(), imageDesigner->getWorldPosition()) > 16)
 	{
 		gMessageLib->sendSystemMessage(imageDesigner,L"","image_designer","out_of_range");
 		return;
@@ -829,7 +829,7 @@ void ObjectController::handleImageDesignChangeMessage(Message* message,uint64 ta
 
 	message->getStringAnsi(holoEmote);
 
-	if(((imageDesigner == customer)||customerAccept) &&designerCommit)
+	if(((imageDesigner == customer) || customerAccept) && designerCommit)
 	{
 		if(imageDesigner->getImageDesignSession() == IDSessionNONE)
 			return;
@@ -842,7 +842,13 @@ void ObjectController::handleImageDesignChangeMessage(Message* message,uint64 ta
 		//changelists get deleted
 		gEntertainerManager->commitIdChanges(customer,imageDesigner,hair,creditsOffered, statMigration,holoEmote,flagHair);
 	}
-
+	
+	if((imageDesigner == messageGenerator) && designerCommit)
+	{
+		uint32 idTimer	= gWorldConfig->getConfiguration("Player_Timer_IDSessionTimeOut",(uint32)60000);
+		messageGenerator->setImageDesignerTaskId(gWorldManager->addImageDesignerToProcess(messageGenerator,idTimer));
+		gLogger->log(LogManager::DEBUG,"Added ID Tick Control !!!");
+	}
 
 	//if(imageDesigner->getImageDesignSession() == IDSessionPREY)
 		//gMessageLib->sendIDChangeMessage(customer,customer,imageDesigner,hair, sessionId,creditsOffered, creditsDemanded,customerAccept,designerCommit,statMigration,smTimer,flagHair,buildingId,holoEmote);
@@ -914,7 +920,10 @@ void ObjectController::handleImageDesignStopMessage(Message* message,uint64 targ
 	}
 
 	if(messageGenerator->getImageDesignSession() == IDSessionID)
+	{
 		gMessageLib->sendIDEndMessage(customer,customer,imageDesigner,hair, counter2,creditsOffered, 0,unknown2,flag2,flag3,counter1);
+		
+	}
 
 	imageDesigner->setIDPartner(0);
 	customer->setIDPartner(0);

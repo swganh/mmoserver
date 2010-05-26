@@ -67,7 +67,7 @@ void ObjectController::_handleAdminWarpSelf(uint64 targetId,Message* message,Obj
 
 	message->getStringUnicode16(dataStr);
 
-	int32 elementCount = swscanf(dataStr.getUnicode16(),L"%i %i %S",&x,&z,planet.getAnsi());
+	int32 elementCount = swscanf(dataStr.getUnicode16(),L"%i %i %s",&x,&z,planet.getAnsi());
 
 	switch(elementCount)
 	{

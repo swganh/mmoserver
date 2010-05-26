@@ -197,7 +197,7 @@ bool MessageLib::sendBaselinesCREO_3(CreatureObject* creatureObject,PlayerObject
 	//9 max condition (vehicle)
 	mMessageFactory->addUint32(creatureHam->getPropertyValue(HamBar_Health,HamProperty_MaxHitpoints));
 
-	//10 posture updatecounter
+	//10 locomotion ?
 	mMessageFactory->addUint8(1); // unknown
 	//11 posture
 	mMessageFactory->addUint8(creatureObject->getPosture());
@@ -1626,19 +1626,20 @@ void MessageLib::sendTerrainNegotiation(CreatureObject* creatureObject)
 // update: listen to
 //
 
-void MessageLib::sendListenToId(CreatureObject* creatureObject)
+void MessageLib::sendListenToId(PlayerObject* playerObject)
 {
 	mMessageFactory->StartMessage();
 	mMessageFactory->addUint32(opDeltasMessage);
-	mMessageFactory->addUint64(creatureObject->getId());
+	mMessageFactory->addUint64(playerObject->getId());
 	mMessageFactory->addUint32(opCREO);
 	mMessageFactory->addUint8(4);
 	mMessageFactory->addUint32(12);
 	mMessageFactory->addUint16(1);
 	mMessageFactory->addUint16(6);
-	mMessageFactory->addUint64(creatureObject->getEntertainerListenToId());
+	mMessageFactory->addUint64(playerObject->getEntertainerListenToId());
 
-	_sendToInRange(mMessageFactory->EndMessage(),creatureObject,5);
+	(playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5);
+	//_sendToInRange(mMessageFactory->EndMessage(),creatureObject,5);
 }
 
 //======================================================================================================================

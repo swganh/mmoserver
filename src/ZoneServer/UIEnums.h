@@ -84,34 +84,34 @@ enum ui_window_types
 	SUI_Window_Factory_Schematics								= 47,
 
 	//New CharBuilderTerminal Windows
-	SUI_Window_CharacterBuilder_ListBox_ExperienceMenu=48,
-	SUI_Window_CharacterBuilder_ListBox_CreditMenu=49,
-	SUI_Window_CharacterBuilder_ListBox_BuffMenu=50,
-	SUI_Window_CharacterBuilder_ListBox_ItemMenu=51,
-	SUI_Window_CharacterBuilder_ListBox_ResourceMenu=52,
+	SUI_Window_CharacterBuilder_ListBox_ExperienceMenu			= 48,
+	SUI_Window_CharacterBuilder_ListBox_CreditMenu				= 49,
+	SUI_Window_CharacterBuilder_ListBox_BuffMenu				= 50,
+	SUI_Window_CharacterBuilder_ListBox_ItemMenu				= 51,
+	SUI_Window_CharacterBuilder_ListBox_ResourceMenu			= 52,
 
 	//2nd level menus
-	SUI_Window_CharacterBuilder_ListBox_StructureMenu=53,
-	SUI_Window_CharacterBuilder_ListBox_FurnitureMenu=54,
-	SUI_Window_CharacterBuilder_ListBox_VehicleMenu=55,
-	SUI_Window_CharacterBuilder_ListBox_InstrumentMenu=56,
-	SUI_Window_CharacterBuilder_ListBox_ToolMenu=57,
-	SUI_Window_CharacterBuilder_ListBox_WeaponMenu=58,
-	SUI_Window_CharacterBuilder_ListBox_ArmorMenu=59,
+	SUI_Window_CharacterBuilder_ListBox_StructureMenu			= 53,
+	SUI_Window_CharacterBuilder_ListBox_FurnitureMenu			= 54,
+	SUI_Window_CharacterBuilder_ListBox_VehicleMenu				= 55,
+	SUI_Window_CharacterBuilder_ListBox_InstrumentMenu			= 56,
+	SUI_Window_CharacterBuilder_ListBox_ToolMenu				= 57,
+	SUI_Window_CharacterBuilder_ListBox_WeaponMenu				= 58,
+	SUI_Window_CharacterBuilder_ListBox_ArmorMenu				= 59,
 
 	//3rd level menus
 	//Structure
-	SUI_Window_CharacterBuilder_ListBox_FactoryMenu=60,
-	SUI_Window_CharacterBuilder_ListBox_HarvesterMenu=61,
-	SUI_Window_CharacterBuilder_ListBox_CampMenu=62,
-	SUI_Window_CharacterBuilder_ListBox_HouseMenu=63,
+	SUI_Window_CharacterBuilder_ListBox_FactoryMenu				= 60,
+	SUI_Window_CharacterBuilder_ListBox_HarvesterMenu			= 61,
+	SUI_Window_CharacterBuilder_ListBox_CampMenu				= 62,
+	SUI_Window_CharacterBuilder_ListBox_HouseMenu				= 63,
 	//Furniture
-	SUI_Window_CharacterBuilder_ListBox_RugMenu=64,
-	SUI_Window_CharacterBuilder_ListBox_PlantMenu=65,
-	SUI_Window_CharacterBuilder_ListBox_ElegantMenu=66,
-	SUI_Window_CharacterBuilder_ListBox_ModernMenu=67,
-	SUI_Window_CharacterBuilder_ListBox_PlainMenu=68,
-	SUI_Window_CharacterBuilder_ListBox_CheapMenu=69,
+	SUI_Window_CharacterBuilder_ListBox_RugMenu					= 64,
+	SUI_Window_CharacterBuilder_ListBox_PlantMenu				= 65,
+	SUI_Window_CharacterBuilder_ListBox_ElegantMenu				= 66,
+	SUI_Window_CharacterBuilder_ListBox_ModernMenu				= 67,
+	SUI_Window_CharacterBuilder_ListBox_PlainMenu				= 68,
+	SUI_Window_CharacterBuilder_ListBox_CheapMenu				= 69,
 	//Tools
 	SUI_Window_CharacterBuilder_ListBox_SurveyToolMenu=70,
 	SUI_Window_CharacterBuilder_ListBox_CraftingToolMenu=71,
@@ -147,7 +147,12 @@ enum ui_window_types
 	SUI_Window_CharacterBuilder_ListBox_HeavyMenu=93,
 	SUI_Window_CharacterBuilder_ListBox_PistolMenu=94,
 	SUI_Window_CharacterBuilder_ListBox_RifleMenu=95,
-	SUI_Window_CharacterBuilder_ListBox_WoundMenu=96
+	SUI_Window_CharacterBuilder_ListBox_WoundMenu=96,
+
+
+
+	//trade
+	SUI_Window_Trade_BankTip_ConfirmSurcharge						= 97
 
 };
 

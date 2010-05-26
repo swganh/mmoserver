@@ -8,7 +8,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 ---------------------------------------------------------------------------------------
 */
-
 #include "CharacterBuilderTerminal.h"
 #include "Bank.h"
 
@@ -91,6 +90,8 @@ void CharacterBuilderTerminal::InitMenus()
 }
 void CharacterBuilderTerminal::InitProfessions()
 {
+	mProfessionMenu.push_back("Drop All Skills.");
+
 	SkillList*			skillList	= gSkillManager->getMasterProfessionList();
 	SkillList::iterator skillIt		= skillList->begin();
 
@@ -104,7 +105,10 @@ void CharacterBuilderTerminal::InitProfessions()
 		//	continue;
 		//}
 
-		mProfessionMenu.push_back((*skillIt)->mName);
+		char profession_nam[64];
+
+		snprintf(profession_nam, 64, "@skl_n:%s", (*skillIt)->mName);
+		mProfessionMenu.push_back(profession_nam);
 
 		++skillIt;
 	}
@@ -129,10 +133,15 @@ void CharacterBuilderTerminal::InitBuffs()
 }
 void CharacterBuilderTerminal::InitWounds()
 {
-	mWoundMenu.push_back("100 Health Wound");
-	mWoundMenu.push_back("100 Action Wound");
-	mWoundMenu.push_back("100 Mind Wound");
-	mWoundMenu.push_back("100 Battle Fatigue");
+	mWoundMenu.push_back("+100 Health Wound");
+	mWoundMenu.push_back("+100 Action Wound");
+	mWoundMenu.push_back("+100 Mind Wound");
+	mWoundMenu.push_back("+100 Battle Fatigue");
+
+	mWoundMenu.push_back("-100 Health Wound");
+	mWoundMenu.push_back("-100 Action Wound");
+	mWoundMenu.push_back("-100 Mind Wound");
+	mWoundMenu.push_back("-100 Battle Fatigue");
 }
 void CharacterBuilderTerminal::InitItems()
 {
@@ -705,9 +714,37 @@ void CharacterBuilderTerminal::_handleProfessionMenu(PlayerObject* playerObject,
 		return;
 	}
 
+	if(element == 0)
+	{
+		//We want to drop all our skills! OH NOES!
+		SkillList::iterator it = playerObject->getSkills()->begin();
+		SkillList::iterator end = playerObject->getSkills()->end();
+
+		std::vector<uint32> skills;
+
+		while(it != end)
+		{
+			skills.push_back((*it)->mId);
+			++it;
+		}
+
+		std::vector<uint32>::iterator jt = skills.begin();
+		std::vector<uint32>::iterator jend = skills.end();
+
+		while( jt != jend )
+		{
+			gSkillManager->dropSkill((*jt), playerObject, false);
+			jt++;
+		}
+
+		gMessageLib->sendSystemMessage(playerObject,L"All skills surrendered successfully.");
+
+		return;
+	}
+
 	SkillList* skillList = gSkillManager->getMasterProfessionList();
 	SkillList::iterator newSkill = skillList->begin();
-	newSkill+=element;
+	newSkill+=element-1;
 	if(!playerObject->getJediState() && strstr((*newSkill)->mName.getAnsi(),"discipline"))
 	{
 		gMessageLib->sendSystemMessage(playerObject, L"Sorry. That profession is only available to Jedi Enabled Accounts");
@@ -1204,6 +1241,18 @@ void CharacterBuilderTerminal::_handleWoundMenu(PlayerObject* playerObject, uint
 		break;
 	case 3: //BattleFatigue
 		playerObject->getHam()->updateBattleFatigue(100);
+		break;
+	case 4: //Health Wound
+		playerObject->getHam()->updatePropertyValue(HamBar_Health, HamProperty_Wounds, -100);
+		break;
+	case 5: //Action Wound
+		playerObject->getHam()->updatePropertyValue(HamBar_Action, HamProperty_Wounds, -100);
+		break;
+	case 6: //Mind Wound
+		playerObject->getHam()->updatePropertyValue(HamBar_Mind, HamProperty_Wounds, -100);
+		break;
+	case 7: //BattleFatigue
+		playerObject->getHam()->updateBattleFatigue(-100);
 		break;
 	default:
 		break;

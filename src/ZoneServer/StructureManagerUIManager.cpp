@@ -55,7 +55,7 @@ void StructureManager::createNewFactorySchematicBox(PlayerObject* player, Factor
 	WindowAsyncContainerCommand* asyncContainer = new  WindowAsyncContainerCommand(Window_Query_Add_Schematic);
 
 	//now get all man schematics in the players datapad
-	Datapad* datapad								= dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+	Datapad* datapad								= player->getDataPad();
 	ManufacturingSchematicList*				mList	= datapad->getManufacturingSchematics();
 	ManufacturingSchematicList::iterator	mListIt	= mList->begin();
 

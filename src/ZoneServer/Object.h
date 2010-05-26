@@ -148,15 +148,20 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 		bool						hasInternalAttribute(string key);
 		void						removeInternalAttribute(string key);
 
-		// subzone this isused by spqwnregions - get it out there
+		// subzone this is used by spawnregions - get it out there and put this in movingObject
 		uint32						getSubZoneId() const { return mSubZoneId; }
 		void						setSubZoneId(uint32 id){ mSubZoneId = id; }
 
+		//===========================================================================
 		// equip management
-		uint32						getEquipSlotMask(){ return mEquipSlots; }
-		void						setEquipSlotMask(uint32 slotMask){ mEquipSlots = slotMask; }
-		uint32						getEquipRestrictions(){ return mEquipRestrictions; }
-		void						setEquipRestrictions(uint32 restrictions){ mEquipRestrictions = restrictions; }
+		
+		//equip slots set the equipmanagerslots an item occupies when equipped
+		uint64						getEquipSlotMask(){ return mEquipSlots; }
+		void						setEquipSlotMask(uint64 slotMask){ mEquipSlots = slotMask; }
+		
+		//equip restrictions are the equipmanagers restrictions based on race or gender
+		uint64						getEquipRestrictions(){ return mEquipRestrictions; }
+		void						setEquipRestrictions(uint64 restrictions){ mEquipRestrictions = restrictions; }
 
 		uint32						getDataTransformCounter(){ return mDataTransformCounter; }
 		uint32						incDataTransformCounter(){ return ++mDataTransformCounter; }
@@ -279,8 +284,8 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 		
 		// If object is used as a private object in an Instance, this references the instances (objects) owner
 		uint64					mPrivateOwner; 
-		uint32					mEquipRestrictions;
-		uint32					mEquipSlots;
+		uint64					mEquipRestrictions;
+		uint64					mEquipSlots;
 		uint32					mInMoveCount;
 		uint32					mSubZoneId;
 		uint32					mTypeOptions;

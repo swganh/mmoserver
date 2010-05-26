@@ -358,8 +358,8 @@ bool EquipManager::CheckEquipable(Object* object)
 	}
 
 	// check items equip restrictions, first check race and gender
-	uint32 filter1 = item->getEquipRestrictions() & 0xFFF;
-	uint32 filter2 = owner->getRaceGenderMask() & 0xFFF;
+	uint64 filter1 = item->getEquipRestrictions() & 0xFFF;
+	uint64 filter2 = owner->getRaceGenderMask() & 0xFFF;
 
 	if((filter1 & filter2) != filter2)
 	{
@@ -387,5 +387,11 @@ bool EquipManager::CheckEquipable(Object* object)
 		return(false);
 	}
 
+	uint64 filter3 = CreatureEquipSlot_Datapad & CreatureEquipSlot_Bank & CreatureEquipSlot_Inventory & CreatureEquipSlot_Mission;
+	if(filter3 && item->getEquipSlotMask())
+	{
+		gMessageLib->sendSystemMessage(owner,L"Attention!!! the Equip - BitMask is messedup.");
+		return(false);
+	}
 	return true;
 }

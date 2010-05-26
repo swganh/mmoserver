@@ -261,7 +261,8 @@ void VehicleControllerFactory::handleObjectReady(Object* object,DispatchClient* 
 		if(player)
 		{
 			vehicle->set_owner(player);
-			if(Datapad* datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad)))
+			Datapad* datapad			= player->getDataPad();
+			if(datapad)
 			{
 				datapad->addData(vehicle);
 				gWorldManager->addObject(vehicle,true);

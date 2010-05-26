@@ -155,7 +155,7 @@ void DatapadFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				return;
 			}
 
-			Datapad*	datapad		= dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+			Datapad* datapad = player->getDataPad();
 
 			if(!datapad)
 			{

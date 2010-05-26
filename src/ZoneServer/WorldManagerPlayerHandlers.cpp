@@ -227,7 +227,7 @@ void WorldManager::addDisconnectedPlayer(PlayerObject* playerObject)
 	playerObject->stopTutorial();
 
 
-	Datapad* datapad = dynamic_cast<Datapad*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+	Datapad* datapad			= playerObject->getDataPad();
 
 	if(playerObject->getMount() && datapad)
 	{

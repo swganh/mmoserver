@@ -397,7 +397,8 @@ void GroupManager::sendGroupMissionUpdate(GroupObject* group)
 	while(playerListIt != group->getPlayerList()->end())
 	{
 		PlayerObject*	player		= dynamic_cast<PlayerObject*> (gWorldManager->getObjectById((*playerListIt)));
-		Datapad*		datapad		= dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+		//Datapad*		datapad		= dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+		Datapad* datapad			= player->getDataPad();
 		WaypointObject*	waypoint	= datapad->getWaypointByName("@group:groupwaypoint");
 
 		// remove the old one
@@ -453,7 +454,8 @@ MissionObject* GroupManager::getZoneGroupMission(std::list<uint64>* members)
 			continue;
 		}
 
-		Datapad* datapad = dynamic_cast<Datapad*>(groupMember->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+		//Datapad* datapad = dynamic_cast<Datapad*>(groupMember->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+		Datapad* datapad			= groupMember->getDataPad();
 
 		MissionList* missionList = datapad->getMissions();
 		MissionList::iterator missionListIt = missionList->begin();

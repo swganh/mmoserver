@@ -73,7 +73,8 @@ void MountObject::handleObjectMenuSelect(uint8 message_type, Object* source_obje
   switch (message_type) {
     case radId_vehicleStore:
     {
-		  if(Datapad* datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad))) {			
+		Datapad* datapad			= player->getDataPad();
+		if(datapad){
         if(VehicleController* vehicle = dynamic_cast<VehicleController*>(datapad->getDataById(mId-1))) {
           vehicle->Store();
         }

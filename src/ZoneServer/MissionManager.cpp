@@ -484,7 +484,7 @@ void MissionManager::createRequest(PlayerObject* player)
 */
 void MissionManager::missionRequest(PlayerObject* player, uint64 mission_id)
 {
-	Datapad* datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+	Datapad* datapad			= player->getDataPad();
 
 	//Move the mission from the player's mission bag to his datapad.
 	MissionBag* mission_bag = dynamic_cast<MissionBag*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Mission));
@@ -589,7 +589,8 @@ return;
 
 void MissionManager::missionCompleteEntertainer(PlayerObject* player,Buff* timer)
 {
-	Datapad* datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+	Datapad* datapad			= player->getDataPad();
+
 	if(datapad->hasMission()) //player has a mission
 	{
 		MissionList::iterator it = datapad->getMissions()->begin();
@@ -623,8 +624,8 @@ return;
 void MissionManager::missionAbort(PlayerObject* player, uint64 mission_id)
 {
 	gLogger->log(LogManager::DEBUG,"ABORT MISSION");
-	Datapad* datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
-
+	Datapad* datapad			= player->getDataPad();
+	
 	MissionObject* mission = datapad->getMissionById(mission_id);
 	if(mission)
 	{
@@ -688,7 +689,7 @@ void MissionManager::missionFailed(PlayerObject* player, MissionObject* mission)
 
 void MissionManager::missionFailedEntertainer(PlayerObject* player)
 {
-	Datapad* datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+	Datapad* datapad			= player->getDataPad();
 
 	if(datapad->hasMission()) //player has a mission
 	{
@@ -716,7 +717,8 @@ void MissionManager::missionFailedEntertainer(PlayerObject* player)
 
 bool MissionManager::checkDeliverMission(PlayerObject* player,NPCObject* npc)
 {
-	Datapad* datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+	Datapad* datapad			= player->getDataPad();
+	
 	if(datapad->hasMission()) //player has a mission
 	{
 		MissionList::iterator it = datapad->getMissions()->begin();
@@ -771,7 +773,7 @@ return false;
 
 void MissionManager::checkMusicianMission(PlayerObject* player)
 {
-	Datapad* datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+	Datapad* datapad			= player->getDataPad();
 
 	if(datapad->hasMission()) //player has a mission
 	{
@@ -801,7 +803,8 @@ void MissionManager::checkMusicianMission(PlayerObject* player)
 
 void MissionManager::checkDancerMission(PlayerObject* player)
 {
-	Datapad* datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+	Datapad* datapad			= player->getDataPad();
+
 	if(datapad->hasMission()) //player has a mission
 	{
 		MissionList::iterator it = datapad->getMissions()->begin();
@@ -831,7 +834,8 @@ return;
 
 void MissionManager::checkSurveyMission(PlayerObject* player,CurrentResource* resource,ResourceLocation highestDist)
 {
-	Datapad* datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+	Datapad* datapad			= player->getDataPad();
+
 	if(datapad->hasMission()) //player has a mission
 	{
 		MissionList::iterator it = datapad->getMissions()->begin();
@@ -879,7 +883,7 @@ void MissionManager::checkSurveyMission(PlayerObject* player,CurrentResource* re
 
 bool MissionManager::checkCraftingMission(PlayerObject* player,NPCObject* npc)
 {
-	Datapad* datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+	Datapad* datapad			= player->getDataPad();
 	if(datapad->hasMission()) //player has a mission
 	{
 		MissionList::iterator it = datapad->getMissions()->begin();
@@ -939,7 +943,7 @@ bool MissionManager::checkReconMission(MissionObject* mission)
 
     if(glm::distance(mission->getOwner()->mPosition, mission->getDestination().Coordinates) < 20)
 	{
-		Datapad* datapad = dynamic_cast<Datapad*>(mission->getOwner()->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+		Datapad* datapad			= mission->getOwner()->getDataPad();
 		missionComplete(mission->getOwner(),mission);
 		gWorldManager->removeMissionFromProcess(mission->getTaskId());
 		datapad->removeMission(mission);

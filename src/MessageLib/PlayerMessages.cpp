@@ -158,7 +158,7 @@ bool MessageLib::sendBaselinesPLAY_8(PlayerObject* playerObject,PlayerObject* ta
 
 	// waypoint list size
 	uint32					waypointsByteCount	= 0;
-	Datapad*				datapad				= dynamic_cast<Datapad*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+	Datapad* datapad							= playerObject->getDataPad();
 	WaypointList*			waypointList		= datapad->getWaypoints();
 	WaypointList::iterator	waypointIt			= waypointList->begin();
 
@@ -306,7 +306,7 @@ bool MessageLib::sendBaselinesPLAY_9(PlayerObject* playerObject,PlayerObject* ta
 	// draft schematics
 
 	
-	Datapad* datapad = dynamic_cast<Datapad*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+	Datapad* datapad			= playerObject->getDataPad();
 	
 	mMessageFactory->addUint32(schemIdList->size());
 	
@@ -478,7 +478,7 @@ bool MessageLib::sendWaypointsUpdate(PlayerObject* playerObject)
 	if(!(playerObject->isConnected()))
 		return(false);
 
-	Datapad* datapad = dynamic_cast<Datapad*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+	Datapad* datapad			= playerObject->getDataPad();
 
 	mMessageFactory->StartMessage();               
 	mMessageFactory->addUint32(opDeltasMessage);  
@@ -557,7 +557,7 @@ bool MessageLib::sendUpdateWaypoint(WaypointObject* waypoint,ObjectUpdate update
 	if(type == 0xFF)
 		return false;
 
-	Datapad* datapad = dynamic_cast<Datapad*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+	Datapad* datapad			= playerObject->getDataPad();
 
 	mMessageFactory->StartMessage();               
 	mMessageFactory->addUint32(opDeltasMessage);  
@@ -659,7 +659,7 @@ bool MessageLib::sendSchematicDeltasPLAY_9(PlayerObject* playerObject)
 
 	SchematicsIdList*			sList		= playerObject->getSchematicsIdList();
 	SchematicsIdList::iterator	sIt			= sList->begin();
-	Datapad*					datapad		= dynamic_cast<Datapad*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+	Datapad* datapad						= playerObject->getDataPad();
 
 	mMessageFactory->StartMessage();               
 	

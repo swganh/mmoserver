@@ -1086,7 +1086,7 @@ void CraftingSession::createManufactureSchematic(uint32 counter)
 	//we have a datapad associated man schematic
 
 	//set the datapad Id of the man schematic so it wont get deleted
-	Datapad* datapad = dynamic_cast<Datapad*>(mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+	Datapad* datapad = mOwner->getDataPad();
 	mManufacturingSchematic->setParentId(datapad->getId());
 	mManufacturingSchematic->mDataPadId = datapad->getId();
 

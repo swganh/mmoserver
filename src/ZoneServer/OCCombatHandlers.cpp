@@ -315,7 +315,7 @@ void ObjectController::_handleDeathBlow(uint64 targetId,Message* message,ObjectC
 void ObjectController::_handleLoot(uint64 targetId, Message *message, ObjectControllerCmdProperties *cmdProperties)
 {	
 	PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
-	Datapad* datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+	Datapad* datapad			= player->getDataPad();
 
 	// Loot creatures
 	this->lootAll(targetId, player);

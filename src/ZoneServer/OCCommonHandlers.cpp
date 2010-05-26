@@ -1256,7 +1256,7 @@ void ObjectController::_handleGetAttributesBatch(uint64 targetId,Message* messag
 			}
 
 			//could be a schematic!
-			Datapad* datapad				= dynamic_cast<Datapad*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+			Datapad* datapad			= playerObject->getDataPad();
 			ManufacturingSchematic* schem	= datapad->getManufacturingSchematicById(itemId);
 
 			if(schem != NULL)

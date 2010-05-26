@@ -226,7 +226,7 @@ void MovingObject::updatePosition(uint64 parentId, const glm::vec3& newPosition)
 		//dismount us if we were moved inside
 		if(player->checkIfMounted() && player->getMount() && parentId)
 		{
-			Datapad* datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+			Datapad* datapad			= player->getDataPad();
 
 			if(datapad)
 			{

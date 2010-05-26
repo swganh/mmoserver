@@ -54,7 +54,7 @@ void Deed::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 				if(this->getItemType() >= ItemType_Deed_X34 && this->getItemType() <= ItemType_Deed_Swoop) //landspeeder x34, speederbike, swoop
 				{
 					// create the vehicle and put in datapad
-					Datapad*		datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+					Datapad*		datapad = player->getDataPad();
 
 					if(datapad->getCapacity())
 					{

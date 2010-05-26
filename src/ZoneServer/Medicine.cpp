@@ -67,7 +67,7 @@ void Medicine::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 			{
                 // Rotate the item 90 degrees to the right
                 rotateRight(90.0f);
-				gMessageLib->sendDataTransform(this);
+				gMessageLib->sendDataTransform053(this);
 			}
 			break;
 
@@ -75,7 +75,7 @@ void Medicine::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 			{
                 // Rotate the item 90 degrees to the left
                 rotateLeft(90.0f);
-				gMessageLib->sendDataTransform(this);
+				gMessageLib->sendDataTransform053(this);
 			}
 			break;
 

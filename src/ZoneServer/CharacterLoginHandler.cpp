@@ -242,6 +242,15 @@ void CharacterLoginHandler::handleDispatchMessage(uint32 opcode, Message* messag
 		{
 			player->setReady(true);
 
+			if(player->getParentId())
+			{
+					gMessageLib->sendDataTransformWithParent0B(player);
+			}
+			else
+			{
+				gMessageLib->sendDataTransform0B(player);
+			}
+
 			// send our message of the day
 			string moT = "welcome to swgAnh";
 			moT	= (int8*)((gWorldConfig->getConfiguration<std::string>("motD",moT.getAnsi())).c_str());

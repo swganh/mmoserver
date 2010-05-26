@@ -202,7 +202,7 @@ TangibleObject* NonPersistantObjectFactory::spawnTangible(StructureItemTemplate*
 
 	gWorldManager->addObject(tangible);			
 	gWorldManager->createObjectinWorld(player,tangible);	
-	gMessageLib->sendDataTransform(tangible);
+	gMessageLib->sendDataTransform053(tangible);
 
 	return(tangible);
 
@@ -325,7 +325,7 @@ PlayerStructure* NonPersistantObjectFactory::requestBuildingFenceObject(float x,
 	gWorldManager->addObject(structure);
 		
 	gWorldManager->createObjectinWorld(player,structure);	
-	gMessageLib->sendDataTransform(structure);
+	gMessageLib->sendDataTransform053(structure);
 
 	return structure;
 
@@ -364,7 +364,7 @@ PlayerStructure* NonPersistantObjectFactory::requestBuildingSignObject(float x, 
 	gWorldManager->addObject(structure);
 		
 	gWorldManager->createObjectinWorld(player,structure);	
-	gMessageLib->sendDataTransform(structure);
+	gMessageLib->sendDataTransform053(structure);
 
 	return structure;
 

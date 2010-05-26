@@ -1005,7 +1005,7 @@ void	ObjectController::HandleItemMoveForward_(
   // Move the object forward 1/10th of a meter.
   object->move(player->mDirection, MOVE_INCREMENT);
     	
-	gMessageLib->sendDataTransformWithParent(object);
+	gMessageLib->sendDataTransformWithParent053(object);
 	object->updateWorldPosition();
 }
 
@@ -1063,7 +1063,7 @@ void	ObjectController::HandleItemMoveBack_(
   // Move the object back 1/10th of a meter.
   object->move(player->mDirection, -MOVE_INCREMENT);
   
-  gMessageLib->sendDataTransformWithParent(object);
+  gMessageLib->sendDataTransformWithParent053(object);
   object->updateWorldPosition();
 }
 
@@ -1120,7 +1120,7 @@ void	ObjectController::HandleItemMoveUp_(
   
 	object->mPosition.y += MOVE_INCREMENT;
 	
-  gMessageLib->sendDataTransformWithParent(object);
+  gMessageLib->sendDataTransformWithParent053(object);
 	object->updateWorldPosition();
 }
 
@@ -1177,7 +1177,7 @@ void	ObjectController::HandleItemMoveDown_(
 
   object->mPosition.y -= MOVE_INCREMENT;
 
-  gMessageLib->sendDataTransformWithParent(object);
+  gMessageLib->sendDataTransformWithParent053(object);
   object->updateWorldPosition();
 }
 
@@ -1235,7 +1235,7 @@ void	ObjectController::HandleItemRotateRight_(
   // Rotate the object 90 degree's to the right
   object->rotateRight(ROTATE_INCREMENT);
   
-  gMessageLib->sendDataTransformWithParent(object);
+  gMessageLib->sendDataTransformWithParent053(object);
   object->updateWorldPosition();
 }
 
@@ -1292,7 +1292,7 @@ void ObjectController::HandleItemRotateLeft_(
 	// Rotate the item 90 degrees to the left
   object->rotateLeft(ROTATE_INCREMENT);
   
-  gMessageLib->sendDataTransformWithParent(object);
+  gMessageLib->sendDataTransformWithParent053(object);
 	object->updateWorldPosition();
 }
 
@@ -1391,7 +1391,7 @@ void ObjectController::HandleRotateFurniture_(
   }
 
   // Update the world with the changes.
-  gMessageLib->sendDataTransformWithParent(object);
+  gMessageLib->sendDataTransformWithParent053(object);
   object->updateWorldPosition();
 }
 
@@ -1490,7 +1490,7 @@ void ObjectController::HandleMoveFurniture_(
   }
 
   // Update the world with the changes.
-  gMessageLib->sendDataTransformWithParent(object);
+  gMessageLib->sendDataTransformWithParent053(object);
   object->updateWorldPosition();
 }
 

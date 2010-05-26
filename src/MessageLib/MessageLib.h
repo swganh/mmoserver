@@ -220,8 +220,8 @@ public:
 	bool				sendStartingLocationList(PlayerObject* player, uint8 tatooine, uint8 corellia, uint8 talus, uint8 rori, uint8 naboo);
 
 	// position updates
-	void				sendDataTransform(Object* object);
-	void				sendDataTransformWithParent(Object* object);
+	void				sendDataTransform053(Object* object);
+	void				sendDataTransformWithParent053(Object* object);
 	void				sendSitOnObject(CreatureObject* creatureObject);
 	void				sendDataTransformWithParent0B(Object* object);
 	void				sendDataTransform0B(Object* object);

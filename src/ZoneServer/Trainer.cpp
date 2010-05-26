@@ -1134,12 +1134,12 @@ void Trainer::prepareConversation(PlayerObject* player)
 		if (this->getParentId())
 		{
 			// We are inside a cell.
-			gMessageLib->sendDataTransformWithParent(this);
+			gMessageLib->sendDataTransformWithParent053(this);
 			gMessageLib->sendUpdateTransformMessageWithParent(this);
 		}
 		else
 		{
-			gMessageLib->sendDataTransform(this);
+			gMessageLib->sendDataTransform053(this);
 			gMessageLib->sendUpdateTransformMessage(this);
 		}
 	}
@@ -1213,12 +1213,12 @@ void Trainer::restorePosition(PlayerObject* player)
 		if (this->getParentId())
 		{
 			// We are inside a cell.
-			gMessageLib->sendDataTransformWithParent(this);
+			gMessageLib->sendDataTransformWithParent053(this);
 			gMessageLib->sendUpdateTransformMessageWithParent(this);
 		}
 		else
 		{
-			gMessageLib->sendDataTransform(this);
+			gMessageLib->sendDataTransform053(this);
 			gMessageLib->sendUpdateTransformMessage(this);
 		}
 	}
@@ -1363,12 +1363,12 @@ void Trainer::spawn(void)
 		if (this->getParentId())
 		{
 			// We are inside a cell.
-			gMessageLib->sendDataTransformWithParent(this);
+			gMessageLib->sendDataTransformWithParent053(this);
 			gMessageLib->sendUpdateTransformMessageWithParent(this);
 		}
 		else
 		{
-			gMessageLib->sendDataTransform(this);
+			gMessageLib->sendDataTransform053(this);
 			gMessageLib->sendUpdateTransformMessage(this);
 		}
 	}

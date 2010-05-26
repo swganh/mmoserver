@@ -466,12 +466,12 @@ void LairObject::spawn(void)
 	if (this->getParentId())
 	{
 		// We are inside a cell.
-		gMessageLib->sendDataTransformWithParent(this);
+		gMessageLib->sendDataTransformWithParent053(this);
 		gMessageLib->sendUpdateTransformMessageWithParent(this);
 	}
 	else
 	{
-		gMessageLib->sendDataTransform(this);
+		gMessageLib->sendDataTransform053(this);
 		gMessageLib->sendUpdateTransformMessage(this);
 	}
 }

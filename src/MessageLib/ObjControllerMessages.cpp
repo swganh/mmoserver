@@ -1197,7 +1197,7 @@ void MessageLib::sendDataTransform0B(Object* object)
 // move object in world
 //
 
-void MessageLib::sendDataTransform(Object* object)
+void MessageLib::sendDataTransform053(Object* object)
 {
 	mMessageFactory->StartMessage();
 	mMessageFactory->addUint32(opObjControllerMessage);
@@ -1224,7 +1224,7 @@ void MessageLib::sendDataTransform(Object* object)
 // move object in cell
 //
 
-void MessageLib::sendDataTransformWithParent(Object* object)
+void MessageLib::sendDataTransformWithParent053(Object* object)
 {
 	mMessageFactory->StartMessage();
 	mMessageFactory->addUint32(opObjControllerMessage);

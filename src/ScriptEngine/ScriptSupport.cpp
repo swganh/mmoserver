@@ -393,9 +393,9 @@ void ScriptSupport::npcDirection(NPCObject* npc, float deltaX, float deltaZ) {
 
     // Send out the appropriate data transform depending if the npc is in a cell or not.
 	if (npc->getParentId())	{
-		gMessageLib->sendDataTransformWithParent(npc);
+		gMessageLib->sendDataTransformWithParent053(npc);
 	} else {
-		gMessageLib->sendDataTransform(npc);
+		gMessageLib->sendDataTransform053(npc);
 	}
 }
 
@@ -859,18 +859,18 @@ void ScriptSupport::setPlayerPosition(uint64 playerId, uint64 cellId, float posX
 		if (cellId)
 		{
 			// We are inside a cell.
-			gMessageLib->sendDataTransformWithParent(player);
+			gMessageLib->sendDataTransformWithParent053(player);
 			gMessageLib->sendUpdateTransformMessageWithParent(player);
 		}
 		else
 		{
-			gMessageLib->sendDataTransform(player);
+			gMessageLib->sendDataTransform053(player);
 			gMessageLib->sendUpdateTransformMessage(player);
 			//If our player is mounted move his mount aswell
 			if(player->checkIfMounted() && player->getMount())
 			{
 				player->getMount()->mPosition = position;
-				gMessageLib->sendDataTransform(player->getMount());
+				gMessageLib->sendDataTransform053(player->getMount());
 				gMessageLib->sendUpdateTransformMessage(player->getMount());
 			}
 		}

@@ -51,12 +51,12 @@ void ObjectController::_handleDiagnose(uint64 targetId, Message* message,ObjectC
 void ObjectController::_handleHealDamage(uint64 targetId, Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
 	PlayerObject* Medic = dynamic_cast<PlayerObject*>(mObject);
-	CreatureObject* Target = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(targetId));
-	if(Target == 0) //If target is not a PlayerObject
-	{
-		gMessageLib->sendSystemMessage(Medic,L"","healing_response","healing_response_62");
-		return;
-	}
+	CreatureObject* Target = dynamic_cast<CreatureObject*>(Medic->getHealingTarget(Medic));
+	//if(Target == 0) //If target is not a PlayerObject
+	//{
+	//	gMessageLib->sendSystemMessage(Medic,L"","healing_response","healing_response_62");
+	//	return;
+	//}
 
 	mHandlerCompleted = gMedicManager->CheckStim(Medic, Target, cmdProperties);
 }

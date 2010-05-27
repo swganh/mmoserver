@@ -32,8 +32,8 @@ void Medicine::handleStimpackMenuSelect(uint8 messageType, PlayerObject* player)
 	{
 		case radId_itemUse:
 		{
-			//Check we have a valid target
-			if(CreatureObject* target = dynamic_cast<CreatureObject*>(player->getTarget()))
+			//get heal target
+			if (CreatureObject* target = dynamic_cast<CreatureObject*>(player->getHealingTarget(player)))
 			{
 				//check Medic has enough Mind
 				if(player->getHam()->checkMainPools(0, 0, 140))
@@ -44,6 +44,7 @@ void Medicine::handleStimpackMenuSelect(uint8 messageType, PlayerObject* player)
 						//If we succeed, reduce Medics Mind
 						player->getHam()->updatePropertyValue(HamBar_Mind, HamProperty_CurrentHitpoints, -140);
 					} else {
+
 					}
 				} else {
 					gMessageLib->sendSystemMessage(player,L"","healing_response","not_enough_mind");

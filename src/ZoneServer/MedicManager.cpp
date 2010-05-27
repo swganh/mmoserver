@@ -201,19 +201,23 @@ bool MedicManager::HealDamage(PlayerObject* Medic, CreatureObject* Target, uint6
 	PlayerObject* PlayerTarget = dynamic_cast<PlayerObject*>(Target);
 	bool player = false;
 	bool self = false;
-	bool critter = false;
+	//bool critter = false;
 	Medicine* Stim = dynamic_cast<Medicine*>(gWorldManager->getObjectById(StimPackObjectID));
 
-	if(PlayerTarget == 0)
-	{
-		//We are looking at a critter, not a player
-		critter = true;
-		gLogger->log(LogManager::DEBUG,"Heal is targetting a Critter");
-	} else {
-		player = true;
-		self = (Medic->getId() == PlayerTarget->getId());
-		gLogger->log(LogManager::DEBUG,"Heal is targetting a player");
-	}
+	//if(PlayerTarget == 0)
+	//{
+	//	//We are looking at a critter, not a player
+	//	critter = true;
+	//	//heal the medic by default
+	//	PlayerTarget = Medic;
+	//	Target = Medic;
+	//	self = true;
+	//	gLogger->log(LogManager::DEBUG,"Heal is targetting a Critter");
+	//	
+	//} else {
+	player = true;
+	self = (Medic->getId() == PlayerTarget->getId());
+	//}
 
 	//Get Medic Skill Mods
 	uint32 healingskill = Medic->getSkillModValue(SMod_healing_injury_treatment);
@@ -267,19 +271,15 @@ bool MedicManager::HealDamage(PlayerObject* Medic, CreatureObject* Target, uint6
 
 	//Do PVP Alignments Match - only check if targetting player.
 
-	if(critter) {
-		return false;
-	}
+	//if(Medic->getPvPStatus() != PlayerTarget->getPvPStatus())
+	//{
+	//	//send pvp_no_help
+	//	gLogger->log(LogManager::DEBUG,"PVP Flag not right");
+	//	gMessageLib->sendSystemMessage(Medic,L"","healing","pvp_no_help");
+	//	return false;
+	//}
 
-	if(Medic->getPvPStatus() != PlayerTarget->getPvPStatus())
-	{
-		//send pvp_no_help
-		gLogger->log(LogManager::DEBUG,"PVP Flag not right");
-		gMessageLib->sendSystemMessage(Medic,L"","healing","pvp_no_help");
-		return false;
-	}
-
-	gLogger->log(LogManager::DEBUG,"PVP Flags OK");
+	//gLogger->log(LogManager::DEBUG,"PVP Flags OK");
 
 	//Does Target Need Healing
 	int TargetHealth = Target->getHam()->mHealth.getCurrentHitPoints();
@@ -424,15 +424,8 @@ bool MedicManager::HealDamageRanged(PlayerObject* Medic, CreatureObject* Target,
 	bool self = false;
 	Medicine* Stim = dynamic_cast<Medicine*>(gWorldManager->getObjectById(StimPackObjectID));
 
-	if(PlayerTarget == 0)
-	{
-		//We are looking at a critter, not a player
-		gLogger->log(LogManager::DEBUG,"Heal is targetting a Critter");
-	} else {
-		player = true;
-		self = (Medic->getId() == PlayerTarget->getId());
-		gLogger->log(LogManager::DEBUG,"Heal is targetting a player");
-	}
+	player = true;
+	self = (Medic->getId() == PlayerTarget->getId());
 
 	//Get Medic Skill Mods
 	uint32 healingskill = Medic->getSkillModValue(SMod_healing_range);
@@ -467,28 +460,27 @@ bool MedicManager::HealDamageRanged(PlayerObject* Medic, CreatureObject* Target,
 	gLogger->log(LogManager::DEBUG,"Medic has Ability Rights");
 
 	//Do PVP Alignments Match
-	if(Medic->getPvPStatus() != Target->getPvPStatus())
-	{
-		if (!self && PlayerTarget == 0){
-			PlayerTarget = Medic;
-		}
-		else {
-		//send pvp_no_help
-		gLogger->log(LogManager::DEBUG,"PVP Flag not right");
-		gMessageLib->sendSystemMessage(Medic,L"","healing","pvp_no_help");
-		return false;
-		}
-	} else {
-		if(player)
-		{
-			//TODO: PVP Flags match, but Status is not correct
-			/*if(strcmp(Medic->getFaction(), Target->getFaction()) != 0)
-			{
-			}*/
-		}
-	}
-
-	gLogger->log(LogManager::DEBUG,"PVP Flags OK");
+	//if(Medic->getPvPStatus() != Target->getPvPStatus())
+	//{
+	//	if (!self && PlayerTarget == 0){
+	//		PlayerTarget = Medic;
+	//	}
+	//	else {
+	//	//send pvp_no_help
+	//	gLogger->log(LogManager::DEBUG,"PVP Flag not right");
+	//	gMessageLib->sendSystemMessage(Medic,L"","healing","pvp_no_help");
+	//	return false;
+	//	}
+	//} else {
+		//if(player)
+		//{
+		//	//TODO: PVP Flags match, but Status is not correct
+		//	/*if(strcmp(Medic->getFaction(), Target->getFaction()) != 0)
+		//	{
+		//	}*/
+		//}
+	//}
+	//gLogger->log(LogManager::DEBUG,"PVP Flags OK");
 
 	//Does Target Need Healing
 	int TargetHealth = Target->getHam()->mHealth.getCurrentHitPoints();

@@ -42,6 +42,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #if defined(_MSC_VER)
 	#define ANH_COMPILER ANH_COMPILER_MSVC
 	#define ANH_COMP_VER _MSC_VER
+	#define snprintf _snprintf
 
 #elif defined(__GNUC__)
 	#define ANH_COMPILER ANH_COMPILER_GNUC

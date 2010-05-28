@@ -87,7 +87,7 @@ void Instrument::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 							}
 							else
 							{
-								gMessageLib->sendSystemMessage(player,L"You cannot do this at this time.");
+								gMessageLib->sendSystemMessage(player,L"error_message", "wrong_state");
 							}
 						}
 						else if (dynamic_cast<CellObject*>(gWorldManager->getObjectById(this->getParentId())))

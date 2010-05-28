@@ -817,7 +817,7 @@ bool ObjectController::_validateEnqueueCommand(uint32 &reply1,uint32 &reply2,uin
 			{
 				gMessageLib->sendCraftAcknowledge(opCraftCancelResponse,0,0,player);
 			}
-			gMessageLib->sendSystemMessage(player,L"You cannot do this at this time.");
+			gMessageLib->sendSystemMessage(player,L"error_message", "wrong_state");
 			return(false);
 		}
 
@@ -846,7 +846,7 @@ bool ObjectController::_validateProcessCommand(uint32 &reply1,uint32 &reply2,uin
 			{
 				gMessageLib->sendCraftAcknowledge(opCraftCancelResponse,0,0,player);
 			}
-			gMessageLib->sendSystemMessage(player,L"You cannot do this at this time.");
+			gMessageLib->sendSystemMessage(player,L"error_message", "wrong_state");
 			return(false);
 		}
 

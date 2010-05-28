@@ -55,7 +55,7 @@ void ObjectController::_handleRequestSurvey(uint64 targetId,Message* message,Obj
 
 	if(playerObject->getPerformingState() != PlayerPerformance_None)
 	{
-		gMessageLib->sendSystemMessage(playerObject,L"You cannot do this at this time.");
+		gMessageLib->sendSystemMessage(playerObject,L"error_message", "wrong_state");
 		return;
 	}
 
@@ -120,7 +120,7 @@ void ObjectController::_handleRequestCoreSample(uint64 targetId,Message* message
 
 	if(playerObject->getPerformingState() != PlayerPerformance_None)
 	{
-		gMessageLib->sendSystemMessage(playerObject,L"You cannot do this at this time.");
+		gMessageLib->sendSystemMessage(playerObject,L"error_message", "wrong_state");
 		return;
 	}
 

@@ -72,7 +72,7 @@ void Shuttle::useShuttle(PlayerObject* playerObject)
 {
 	if(playerObject->getPosture() == CreaturePosture_SkillAnimating)
 	{
-		gMessageLib->sendSystemMessage(playerObject,L"You cannot do this at this time.");
+		gMessageLib->sendSystemMessage(playerObject,L"error_message", "wrong_state");
 		return;
 	}
 

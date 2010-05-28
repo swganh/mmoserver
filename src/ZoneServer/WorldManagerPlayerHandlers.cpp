@@ -377,7 +377,8 @@ void WorldManager::warpPlanet(PlayerObject* playerObject, const glm::vec3& desti
 	removeCreatureHamToProcess(playerObject->getHam()->getTaskId());
 	removeCreatureStomachToProcess(playerObject->getStomach()->mDrinkTaskId);
 	removeCreatureStomachToProcess(playerObject->getStomach()->mFoodTaskId);
-	//playerObject->getHam()->setTaskId(0);
+	//we've removed the taskId, now lets reset the Id
+	playerObject->getHam()->setTaskId(0);
 
 	// reset player properties
 	playerObject->resetProperties();

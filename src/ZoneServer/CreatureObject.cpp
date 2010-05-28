@@ -1371,6 +1371,26 @@ Object* CreatureObject::getTarget() const
 	return gWorldManager->getObjectById(mTargetId);
 }
 
+Object* CreatureObject::getHealingTarget(PlayerObject* Player) const
+{
+	CreatureObject* Target = dynamic_cast<CreatureObject*>(Player->getTarget());
+	if (PlayerObject* PlayerTarget = dynamic_cast<PlayerObject*>(Target))
+	{
+		//check pvp status
+		if(Player->getPvPStatus() != Target->getPvPStatus())
+		{
+		//send pvp_no_help
+		gLogger->log(LogManager::DEBUG,"PVP Flag not right");
+		gMessageLib->sendSystemMessage(Player,L"","healing","pvp_no_help");
+		//return Player as the healing target
+		return Player;
+		}
+		return PlayerTarget;
+	}
+	return Player;
+
+}
+
 //=============================================================================
 //handles building custom radials
 void CreatureObject::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount)

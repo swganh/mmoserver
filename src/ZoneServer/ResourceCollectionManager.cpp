@@ -248,7 +248,8 @@ void ResourceCollectionManager::handleUIEvent(uint32 action,int32 element,string
 						gMessageLib->sendSystemMessage(player,L"","survey","gamble_no_action");
 						return;
 					}
-					ham->updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints,300,true);
+					//reduce action points by 300 and make sure 'damage' is set to false so we don't incap ourselves
+					ham->updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints,-300,false);
 					player->getSampleData()->mPendingSample = true;
 
 					//determine whether gamble is good or not

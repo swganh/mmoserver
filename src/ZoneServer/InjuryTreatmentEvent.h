@@ -23,16 +23,14 @@ class InjuryTreatmentEvent : public Anh_Utils::Event
 {
 	public:
 
-		InjuryTreatmentEvent(uint64 time, uint32 spacer) : mInjuryTreatmentTime(time), mInjuryTreatmentSpacer(spacer){}
+		InjuryTreatmentEvent(uint64 time) : mInjuryTreatmentTime(time){}
 		
 		uint64 getInjuryTreatmentTime() const {return  mInjuryTreatmentTime;}
-		uint32 getInjuryTreatmentSpacer() const {return  mInjuryTreatmentSpacer;}
 
 
 	private:
 
 		uint64				mInjuryTreatmentTime;
-		uint32				mInjuryTreatmentSpacer;
 };
 
 

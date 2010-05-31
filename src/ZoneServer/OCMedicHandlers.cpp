@@ -22,7 +22,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Common/MessageFactory.h"
 #include "Common/Message.h"
 #include "ForageManager.h"
-#include "Utils/clock.h"
 
 
 //=============================================================================================================================

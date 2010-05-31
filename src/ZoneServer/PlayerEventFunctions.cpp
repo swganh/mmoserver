@@ -638,7 +638,7 @@ void PlayerObject::onItemDeleteEvent(const ItemDeleteEvent* event)
 //
 void PlayerObject::onInjuryTreatment(const InjuryTreatmentEvent* event)
 {
-	uint64 now = Anh_Utils::Clock::getSingleton()->getLocalTime();
+	uint64 now = gWorldManager->GetCurrentGlobalTick();
 
 	if(now >  event->getInjuryTreatmentTime())
 	{

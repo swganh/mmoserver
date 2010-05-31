@@ -617,7 +617,7 @@ void MedicManager::startInjuryTreatmentEvent(PlayerObject* Medic)
 		uint healingspeed = Medic->getSkillModValue(SMod_healing_injury_speed);
 		int delay = (int)((/* foodbuff*/ ( 100 - (float)healingspeed ) / 100 ) * 10000); 
 		uint64 cooldown = std::max(4000, delay);
-		uint64 now = Anh_Utils::Clock::getSingleton()->getLocalTime();
+		uint64 now = gWorldManager->GetCurrentGlobalTick();
 
 		Medic->getController()->addEvent(new InjuryTreatmentEvent(now + cooldown), cooldown);
 		Medic->togglePlayerCustomFlagOn(PlayerCustomFlag_InjuryTreatment);

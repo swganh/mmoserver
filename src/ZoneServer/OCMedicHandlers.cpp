@@ -22,7 +22,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "Common/MessageFactory.h"
 #include "Common/Message.h"
 #include "ForageManager.h"
-
+#include "Utils/clock.h"
 
 
 //=============================================================================================================================
@@ -52,13 +52,13 @@ void ObjectController::_handleHealDamage(uint64 targetId, Message* message,Objec
 {
 	PlayerObject* Medic = dynamic_cast<PlayerObject*>(mObject);
 	CreatureObject* Target = dynamic_cast<CreatureObject*>(Medic->getHealingTarget(Medic));
-	//if(Target == 0) //If target is not a PlayerObject
-	//{
-	//	gMessageLib->sendSystemMessage(Medic,L"","healing_response","healing_response_62");
-	//	return;
-	//}
 
 	mHandlerCompleted = gMedicManager->CheckStim(Medic, Target, cmdProperties);
+	if (mHandlerCompleted)
+	{
+		//call the event
+		gMedicManager->startInjuryTreatmentEvent(Medic);
+	}
 }
 
 //=============================================================================================================================

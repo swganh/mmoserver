@@ -17,6 +17,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "WorldManager.h"
 #include "MessageLib/MessageLib.h"
 #include "DatabaseManager/Database.h"
+#include "Utils/clock.h"
 
 Medicine::Medicine(void)
 {
@@ -43,6 +44,8 @@ void Medicine::handleStimpackMenuSelect(uint8 messageType, PlayerObject* player)
 					{
 						//If we succeed, reduce Medics Mind
 						player->getHam()->updatePropertyValue(HamBar_Mind, HamProperty_CurrentHitpoints, -140);
+						//Call the event
+						gMedicManager->startInjuryTreatmentEvent(player);
 					} else {
 
 					}
@@ -55,6 +58,7 @@ void Medicine::handleStimpackMenuSelect(uint8 messageType, PlayerObject* player)
 		}
 	}
 }
+
 //=============================================================================
 //handles the radial selection
 

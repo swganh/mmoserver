@@ -355,8 +355,14 @@ int main(int argc, char* argv[])
 	}
 	catch(...)
 	{
-		gLogger->log(LogManager::CRITICAL, "One of your settings is setup incorrectly. The server will not be able to log ANY messages until you configure the settings properly.");
-		return -1;
+		printf("You messed up - please review logging settings in the conf file");
+		printf("set standard log values");
+		gLogger->setupConsoleLogging((LogManager::LOG_PRIORITY)4);
+		gLogger->setupFileLogging((LogManager::LOG_PRIORITY)3, zone);
+
+		//how ? the logger didnt start up, you know ??
+		//gLogger->log(LogManager::CRITICAL, "One of your settings is setup incorrectly. The server will not be able to log ANY messages until you configure the settings properly.");
+		//return -1;
 	}
 	// Start things up
 	gZoneServer = new ZoneServer((int8*)(gConfig->read<std::string>("ZoneName")).c_str());

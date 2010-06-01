@@ -17,6 +17,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "WorldManager.h"
 #include "MessageLib/MessageLib.h"
 #include "DatabaseManager/Database.h"
+#include "ObjectControllerOpcodes.h"
 
 Medicine::Medicine(void)
 {
@@ -39,7 +40,7 @@ void Medicine::handleStimpackMenuSelect(uint8 messageType, PlayerObject* player)
 				if(player->getHam()->checkMainPools(0, 0, 140))
 				{
 					//Try to Heal Damage
-					if(gMedicManager->CheckStim(player, target, 0))
+					if(gMedicManager->CheckMedicine(player, target, 0, opOChealdamage))
 					{
 						//If we succeed, reduce Medics Mind
 						player->getHam()->updatePropertyValue(HamBar_Mind, HamProperty_CurrentHitpoints, -140);
@@ -56,6 +57,39 @@ void Medicine::handleStimpackMenuSelect(uint8 messageType, PlayerObject* player)
 			}
 		}
 	}
+}
+
+void Medicine::handleWoundPackMenuSelect(uint8 messageType, PlayerObject* player)
+{
+	switch(messageType)
+	{
+		case radId_itemUse:
+		{
+			//get wound heal target
+			if (CreatureObject* target = dynamic_cast<CreatureObject*>(player->getHealingTarget(player)))
+			{
+				//check Medic has enough Mind
+				if(player->getHam()->checkMainPools(0, 0, 140))
+				{
+					//Try to Heal Damage
+					if(gMedicManager->CheckMedicine(player, target, 0, opOChealwound))
+					{
+						//If we succeed, reduce Medics Mind
+						player->getHam()->updatePropertyValue(HamBar_Mind, HamProperty_CurrentHitpoints, -140);
+						//Call the event
+						gMedicManager->startInjuryTreatmentEvent(player);
+					} else {
+
+					}
+				} else {
+					gMessageLib->sendSystemMessage(player,L"","healing_response","not_enough_mind");
+				}
+			} else {
+				gMessageLib->sendSystemMessage(player,L"","healing_response","healing_response_62");
+			}
+		}
+	}
+
 }
 
 //=============================================================================
@@ -129,9 +163,9 @@ healing_ability
 		return;
 	}
 */
-uint Medicine::getSkillRequired()
+uint Medicine::getSkillRequired(string skill)
 {
-	return this->getAttribute<uint32>("healing_ability");
+	return this->getAttribute<uint32>(skill);
 }
 uint32 Medicine::getHealthHeal()
 {
@@ -141,6 +175,36 @@ uint32 Medicine::getActionHeal()
 {
 	return (uint32)this->getAttribute<float>("examine_heal_damage_action");
 }
+//Wound Heals
+uint32 Medicine::getHealWoundAction()
+{
+	return (uint32)this->getAttribute<float>("examine_heal_wound_action");
+}
+uint32 Medicine::getHealWoundConstitution()
+{
+	return (uint32)this->getAttribute<float>("examine_heal_wound_constitution");
+}
+uint32 Medicine::getHealWoundHealth()
+{
+	return (uint32)this->getAttribute<float>("examine_heal_wound_health");
+}
+uint32 Medicine::getHealWoundQuickness()
+{
+	return (uint32)this->getAttribute<float>("examine_heal_wound_quickness");
+}
+uint32 Medicine::getHealWoundStamina()
+{
+	return (uint32)this->getAttribute<float>("examine_heal_wound_stamina");
+}
+uint32 Medicine::getHealWoundStrength()
+{
+	return (uint32)this->getAttribute<float>("examine_heal_wound_strength");
+}
+uint32 Medicine::getHealWound(string attribute)
+{
+	return (uint32)this->getAttribute<float>(attribute);
+}
+
 uint32 Medicine::getUsesRemaining()
 {
 	return (uint32)this->getAttribute<float>("counter_uses_remaining");

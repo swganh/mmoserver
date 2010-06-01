@@ -39,6 +39,7 @@ public:
 	int32				GetInitialValue();
 	int32				GetTickValue();
 	int32				GetFinalValue();
+	AttributeList		GetAttributeList();
 
 	void				SetInitialValue(int32 v){mInitialValue = v;} 
 	void				SetFinalValue(int32 v){mFinalValue = v;} 

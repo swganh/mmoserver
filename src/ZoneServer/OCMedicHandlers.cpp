@@ -52,7 +52,7 @@ void ObjectController::_handleHealDamage(uint64 targetId, Message* message,Objec
 	PlayerObject* Medic = dynamic_cast<PlayerObject*>(mObject);
 	CreatureObject* Target = dynamic_cast<CreatureObject*>(Medic->getHealingTarget(Medic));
 
-	mHandlerCompleted = gMedicManager->CheckStim(Medic, Target, cmdProperties);
+	mHandlerCompleted = gMedicManager->CheckMedicine(Medic, Target, cmdProperties, opOChealdamage);
 	if (mHandlerCompleted)
 	{
 		//call the event
@@ -67,7 +67,14 @@ void ObjectController::_handleHealDamage(uint64 targetId, Message* message,Objec
 
 void ObjectController::_handleHealWound(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	//PlayerObject* Medic = dynamic_cast<PlayerObject*>(mObject);
+	PlayerObject* Medic = dynamic_cast<PlayerObject*>(mObject);
+	CreatureObject* Target = dynamic_cast<CreatureObject*>(Medic->getHealingTarget(Medic));
+	mHandlerCompleted = gMedicManager->CheckMedicine(Medic, Target, cmdProperties, opOChealwound);
+	if (mHandlerCompleted)
+	{
+		//call the event
+		//gMedicManager->startWoundTreatmentEvent(Medic);
+	}
 	//gMessageLib->sendSystemMessage(Medic, "Heal Wound has not been implemented yet. Sorry.");
 }
 

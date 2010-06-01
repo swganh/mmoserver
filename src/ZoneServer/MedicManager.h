@@ -44,8 +44,17 @@ public:
 	}
 
 	bool CheckStim(PlayerObject* Medic, CreatureObject* Target, ObjectControllerCmdProperties* cmdProperties);
+	bool CheckWoundPack(PlayerObject* Medic, CreatureObject* Target, ObjectControllerCmdProperties* cmdProperties);
+	
+	bool CheckMedicine(PlayerObject* Medic, CreatureObject* Target, ObjectControllerCmdProperties* cmdProperties, uint64 mOPCode);
+
+	bool CheckMedicRange(PlayerObject* Medic, CreatureObject* Target, float healRange);
+	int  CalculateBF(PlayerObject* Medic, CreatureObject* Target, int32 maxhealamount);
+	
 	bool HealDamage(PlayerObject* Medic, CreatureObject* Target, uint64 StimPackObjectID, ObjectControllerCmdProperties* cmdProperties);
 	bool HealDamageRanged(PlayerObject* Medic, CreatureObject* Target, uint64 StimPackObjectID, ObjectControllerCmdProperties* cmdProperties);
+	bool HealWound(PlayerObject* Medic, CreatureObject* Target, uint64 WoundPackobjectID, ObjectControllerCmdProperties* cmdProperties);
+
 	void startInjuryTreatmentEvent(PlayerObject* Medic);
 	bool Diagnose(PlayerObject* Medic, PlayerObject* Target);
 	void successForage(PlayerObject* player);

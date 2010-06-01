@@ -37,13 +37,12 @@ SchematicManager::SchematicManager(Database* database)
 , mGroupLoadCount(0)
 , mSchematicCount(0)
 {
-	//mSchematicGroupList.reserve(mDatabase->GetCount("schematic_groups"));
-	//mvExpGroups.reserve(mDatabase->GetCount("draft_experiment_groups"));
-
 	// load skillschematicgroups
+	gLogger->log(LogManager::DEBUG,"Started Loading Schematic Groups.");
 	mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) ScMAsyncContainer(ScMQuery_SchematicGroups),"SELECT * FROM schematic_groups ORDER BY id");
 
 	// load experimentation groups
+	gLogger->log(LogManager::DEBUG,"Finished Loading Experimentation Groups.");
 	mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) ScMAsyncContainer(ScMQuery_ExperimentationGroups),"SELECT * FROM draft_experiment_groups ORDER BY id");
 }
 
@@ -101,6 +100,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 			}
 
 			mDatabase->DestroyDataBinding(binding);
+			gLogger->log(LogManager::DEBUG,"Finished Loading Experimentation Groups.");
 		}
 		break;
 
@@ -124,10 +124,12 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
 				asContainer = new(mDBAsyncPool.ordered_malloc()) ScMAsyncContainer(ScMQuery_GroupSchematics);
 				asContainer->mGroupId = scGroup->mId - 1;
+				gLogger->log(LogManager::DEBUG,"Start Loading Group Schematics.");
 				mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT object_string,weightsbatch_id,complexity,datasize,subCategory,craftEnabled FROM draft_schematics WHERE group_id=%u",scGroup->mId);
 			}
 
 			mDatabase->DestroyDataBinding(binding);
+			gLogger->log(LogManager::DEBUG,"Finished Loading Schematic Groups.");
 		}
 		break;
 
@@ -179,6 +181,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 				mSchematicWeightMap.insert(std::make_pair((schematic->mWeightsBatchId ),schematic));
 
 				// now query the draftslots
+				gLogger->log(LogManager::DEBUG,"Start Loading Draft Slots.");
 				ScMAsyncContainer* asContainer = new(mDBAsyncPool.ordered_malloc()) ScMAsyncContainer(ScMQuery_SchematicSlots);
 				asContainer->mSchematic = schematic;
 				int8 sql[2048];
@@ -192,6 +195,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
 
 				// assemblybatches
+				gLogger->log(LogManager::DEBUG,"Start Loading Assembly Batches.");
 				asContainer = new(mDBAsyncPool.ordered_malloc()) ScMAsyncContainer(ScMQuery_SchematicAssemblyBatches);
 				asContainer->mSchematic = schematic;
 				sprintf(sql,"SELECT draft_assembly_batches.id,draft_assembly_batches.list_id"
@@ -204,6 +208,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 				mDatabase->ExecuteSqlAsync(this,asContainer,sql);
 
 				// experimentbatches
+				gLogger->log(LogManager::DEBUG,"Start Loading Experiment Batches.");
 				asContainer = new(mDBAsyncPool.ordered_malloc()) ScMAsyncContainer(ScMQuery_SchematicExperimentBatches);
 				asContainer->mSchematic = schematic;
 				sprintf(sql,"SELECT draft_experiment_batches.id,draft_experiment_batches.list_id"
@@ -216,6 +221,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 				mDatabase->ExecuteSqlAsync(this,asContainer,sql);
 
 				// craftingbatches
+				gLogger->log(LogManager::DEBUG,"Start Loading Crafting Batches.");
 				asContainer = new(mDBAsyncPool.ordered_malloc()) ScMAsyncContainer(ScMQuery_SchematicCraftBatches);
 				asContainer->mSchematic = schematic;
 				sprintf(sql,"SELECT draft_craft_batches.id,draft_craft_batches.list_id,draft_craft_batches.expGroup"
@@ -244,7 +250,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
 			if(!--mGroupLoadCount)
 			{
-				gLogger->log(LogManager::NOTICE,"Loaded groups and schematics.");
+				gLogger->log(LogManager::NOTICE,"Finished Loading Groups and Schematics.");
 
 		
 			}
@@ -278,6 +284,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 			}
 
 			mDatabase->DestroyDataBinding(binding);
+			gLogger->log(LogManager::DEBUG,"Finished Loading Schematic Slots.");
 		}
 		break;
 
@@ -304,11 +311,12 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 				ScMAsyncContainer* asContainer = new(mDBAsyncPool.ordered_malloc()) ScMAsyncContainer(ScMQuery_SchematicAssemblyWeights);
 				asContainer->mSchematic = schematic;
 				asContainer->mBatchId = batch->getListId();
-
+				gLogger->log(LogManager::DEBUG,"Start Loading Assembly Weights.");
 				mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT datatype,distribution FROM draft_assembly_lists WHERE id=%u",asContainer->mBatchId);
 			}
 
 			mDatabase->DestroyDataBinding(binding);
+			gLogger->log(LogManager::DEBUG,"Finished Loading Assembly Batches.");
 		}
 		break;
 
@@ -335,11 +343,12 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 				ScMAsyncContainer* asContainer = new(mDBAsyncPool.ordered_malloc()) ScMAsyncContainer(ScMQuery_SchematicExperimentWeights);
 				asContainer->mSchematic = schematic;
 				asContainer->mBatchId = batch->getListId();
-
+				gLogger->log(LogManager::DEBUG,"Start Loading Experimentation Weights.");
 				mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT datatype,distribution FROM draft_experiment_lists WHERE id=%u",asContainer->mBatchId);
 			}
 
 			mDatabase->DestroyDataBinding(binding);
+			gLogger->log(LogManager::DEBUG,"Finished Loading Experiment Batches.");
 		}
 		break;
 
@@ -368,12 +377,14 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 				asContainer->mSchematic = schematic;
 				asContainer->mBatchId = batch->getListId();
 
+				gLogger->log(LogManager::DEBUG,"Start Loading Weight Distribution.");
 				mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT type,distribution FROM draft_craft_attribute_weights WHERE id=%u",asContainer->mBatchId);
 
 				// query attribute links and ranges
 				asContainer = new(mDBAsyncPool.ordered_malloc()) ScMAsyncContainer(ScMQuery_SchematicCraftAttributeLinks);
 				asContainer->mSchematic = schematic;
 				asContainer->mBatchId = batch->getListId();
+				gLogger->log(LogManager::DEBUG,"Start Loading Attribute Links and Ranges.");
 
 				mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT attributes.name,dcial.item_attribute,dcial.attribute_min,dcial.attribute_max,dcial.attribute_type"
 															" FROM draft_craft_item_attribute_link as dcial"
@@ -395,6 +406,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 			}
 
 			mDatabase->DestroyDataBinding(binding);
+			gLogger->log(LogManager::DEBUG,"Finished Loading Schematic Craft Batches.");
 		}
 		break;
 
@@ -426,7 +438,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 			}
 
 			mDatabase->DestroyDataBinding(binding);
-
+			gLogger->log(LogManager::DEBUG,"Finished Loading Attribute Weights.");
 		}
 		break;
 
@@ -456,6 +468,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 			}
 
 			mDatabase->DestroyDataBinding(binding);
+			gLogger->log(LogManager::DEBUG,"Finished Loading Attribute Links.");
 		}
 		break;
 
@@ -481,6 +494,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 			}
 
 			mDatabase->DestroyDataBinding(binding);
+			gLogger->log(LogManager::DEBUG,"Finished Loading Craft Weights.");
 		}
 		break;
 
@@ -507,6 +521,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 			}
 
 			mDatabase->DestroyDataBinding(binding);
+			gLogger->log(LogManager::DEBUG,"Finished Loading Assembly Weights.");
 		}
 		break;
 
@@ -531,7 +546,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 				WeightsBatch* batch = schematic->getExperimentWeightsBatchByListId(asyncContainer->mBatchId);
 				batch->mWeights.push_back(weight);
 			}
-
+			gLogger->log(LogManager::DEBUG,"Finished Loading Experimental Weights.");
 			mDatabase->DestroyDataBinding(binding);
 		}
 		break;

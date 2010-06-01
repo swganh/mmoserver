@@ -537,9 +537,9 @@ void ObjectFactory::requestnewHousebyDeed(ObjectFactoryCallback* ofCallback,Deed
 	if(dir== 1.0)	 //ok
 	{
 		oX = 0.0;
-		oY = static_cast<float>(0.707107);
+		oY = 0.707107f;
 		oZ = 0.0;
-		oW = static_cast<float>(0.707107);
+		oW = 0.707107f;
 	}
 
 	if(dir== 2.0)
@@ -553,9 +553,9 @@ void ObjectFactory::requestnewHousebyDeed(ObjectFactoryCallback* ofCallback,Deed
 	if(dir== 3.0)
 	{
 		oX = 0;
-		oY = static_cast<float>(-0.707107);
+		oY = -0.707107f;
 		oZ = 0;
-		oW = static_cast<float>(0.707107);
+		oW = 0.707107f;
 	}
 
 

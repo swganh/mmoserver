@@ -73,7 +73,19 @@ void Deed::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 				}
 				else
 				{
-					//todo : check if the type of building is allowed on the planet
+					unsigned int itemType = this->getItemType();
+
+					//Is it a city hall?
+					if(itemType ==  1566 ||itemType == 1567 || itemType == 1568)
+					{
+						if(PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getOwner())))
+						{
+							if(!player->checkSkill(623)) // Must be a novice Politician
+							{
+
+							}
+						}
+					}
 
 					//check the region whether were allowed to build
 					if(!gStructureManager->checkCityRadius(player))

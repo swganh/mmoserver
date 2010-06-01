@@ -283,6 +283,30 @@ void ObjectController::_handleStructurePlacement(uint64 targetId,Message* messag
 		}
 		break;
 
+		case	ItemType_deed_cityhall_corellia:
+		case	ItemType_deed_cityhall_naboo:
+		case	ItemType_deed_cityhall_tatooine:
+		{
+			//FOR CIVIC STRUCTURES
+			PlayerObject* player = dynamic_cast<PlayerObject*>(this->mObject);
+			if(player)
+			{
+				if(!player->checkSkill(623)) //novice Politician
+				{
+					gMessageLib->sendSystemMessage(player,L"","player_structure","place_cityhall");
+					break;
+				}
+			}
+			else
+			{
+				break;
+			}
+			//NO BREAK!!!!
+		}
+
+		case	ItemType_deed_guildhall_corellian:
+		case	ItemType_deed_guildhall_naboo:
+		case	ItemType_deed_guildhall_tatooine:
 		case	ItemType_deed_naboo_large_house:
 		case	ItemType_deed_naboo_medium_house:
 		case	ItemType_deed_naboo_small_house_2:
@@ -311,7 +335,6 @@ void ObjectController::_handleStructurePlacement(uint64 targetId,Message* messag
 		case	ItemType_deed_tatooine_medium_house:
 		case	ItemType_deed_tatooine_small_house:
 		case	ItemType_deed_tatooine_small_house_2:
-
 		{
 			StructureHeightmapAsyncContainer* container = new StructureHeightmapAsyncContainer(this, HeightmapCallback_StructureHouse);
 			
@@ -337,16 +360,11 @@ void ObjectController::_handleStructurePlacement(uint64 targetId,Message* messag
 			{
 				//Orientation 1
 				container->addToBatch(x-halfLength, z-halfWidth);
-				gLogger->log(LogManager::DEBUG,"%f %f\n", x-halfLength, z-halfWidth);
 				container->addToBatch(x+halfLength, z-halfWidth);
-				gLogger->log(LogManager::DEBUG,"%f %f\n", x+halfLength, z-halfWidth);
 				container->addToBatch(x-halfLength, z+halfWidth);
-				gLogger->log(LogManager::DEBUG,"%f %f\n", x-halfLength, z+halfWidth);
 				container->addToBatch(x+halfLength, z+halfWidth);
-				gLogger->log(LogManager::DEBUG,"%f %f\n", x+halfLength, z+halfWidth);
 			}
-
-			if(dir == 1 || dir == 3)
+			else if(dir == 1 || dir == 3)
 			{
 				//Orientation 2
 				container->addToBatch(x-halfWidth, z-halfLength);

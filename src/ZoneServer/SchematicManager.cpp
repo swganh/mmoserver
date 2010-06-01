@@ -37,7 +37,8 @@ SchematicManager::SchematicManager(Database* database)
 , mGroupLoadCount(0)
 , mSchematicCount(0)
 {
-	mSchematicGroupList.reserve(350);
+	//mSchematicGroupList.reserve(mDatabase->GetCount("schematic_groups"));
+	//mvExpGroups.reserve(mDatabase->GetCount("draft_experiment_groups"));
 
 	// load skillschematicgroups
 	mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) ScMAsyncContainer(ScMQuery_SchematicGroups),"SELECT * FROM schematic_groups ORDER BY id");
@@ -92,7 +93,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 			binding->addField(DFT_bstring,0,64,1);
 
 			uint64 count = result->getRowCount();
-
+			mvExpGroups.reserve((uint32)count);
 			for(uint64 i = 0;i < count;i++)
 			{
 				result->GetNextRow(binding,&expGroup);
@@ -111,7 +112,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 			binding->addField(DFT_bstring,offsetof(SchematicGroup,mName),64,1);
 
 			uint64 count = mGroupCount = mGroupLoadCount = static_cast<uint32>(result->getRowCount());
-
+			mSchematicGroupList.reserve((uint32)count);
 			for(uint64 i = 0;i < count;i++)
 			{
 				scGroup = new SchematicGroup();
@@ -164,8 +165,8 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 				schematic->mModel.setLength(256);
 				schematic->mModel = splits[0].getAnsi();
 
-				for(int i = 1;i < elements - 1;i++)
-					schematic->mModel << "/" << splits[i].getAnsi();
+				for(int j = 1;j < elements - 1;j++)
+					schematic->mModel << "/" << splits[j].getAnsi();
 
 				schematic->mModel << "/shared_" << splits[elements-1].getAnsi();
 

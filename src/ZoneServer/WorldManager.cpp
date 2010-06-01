@@ -117,13 +117,6 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
 
 	LoadCurrentGlobalTick();
 
-
-	// preallocate
-	mvClientEffects.reserve(1000);
-	mvMoods.reserve(200);
-	mvSounds.reserve(5000);
-	mShuttleList.reserve(50);
-
 	// load up subsystems
 
 	SkillManager::Init(database);
@@ -863,6 +856,7 @@ void WorldManager::_handleLoadComplete()
 
 	if(mZoneId != 41)
 	{
+		gLogger->log(LogManager::NOTICE,"Starting Heightmap Load. This might take a while!");
 		if (!Heightmap::Instance())
 		{
 			assert(false && "WorldManager::_handleLoadComplete Missing heightmap, download at http://www.swganh.com/!!planets!!/PLANET_NAME.rar");

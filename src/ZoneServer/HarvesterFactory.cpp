@@ -79,7 +79,7 @@ void HarvesterFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 				binding->addField(DFT_float,offsetof(HarvesterHopperItem,Quantity),4,1);
 				
 				HResourceList*	hRList = harvester->getResourceList();
-				
+				hRList->resize(hRList->size()+count);
 				HResourceList::iterator it = hRList->begin();
 
 				HarvesterHopperItem hopperTemp;

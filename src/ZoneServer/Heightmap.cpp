@@ -239,6 +239,7 @@ bool Heightmap::getRow(unsigned char* buffer, int32 x, int32 z, int32 length)
 
 void Heightmap::Connect(void)
 {
+	
 	hmp = fopen(mFilename.c_str(),"r+b");
 	if(!hmp)
 	{

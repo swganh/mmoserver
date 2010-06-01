@@ -89,7 +89,8 @@ void CombatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 	binding->addField(DFT_bstring,offsetof(CMWeaponGroup,mDefaultCombatSpam),64,2);
 
 	uint64 count = result->getRowCount();
-
+	mWeaponGroups.reserve((uint32)count);
+	gLogger->log(LogManager::INFORMATION,"Start loading weapon groups.");	
 	for(uint64 i = 0;i < count;i++)
 	{
 		weaponGroup = new CMWeaponGroup();

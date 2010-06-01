@@ -33,11 +33,11 @@ SkillManager::SkillManager(Database* database)
 , mLoadCounter(0)
 , mTotalLoadCount(4)
 {
-	mSkillList.reserve(1100);
-	mSkillModList.reserve(300);
-	mSkillCommandList.reserve(1100);
-	mXpTypeList.reserve(50);
-	mSkillInfoList.reserve(1100);
+	/*mSkillList.reserve(mDatabase->GetCount("skills"));
+	mSkillModList.reserve(mDatabase->GetCount("skillmods"));
+	mSkillCommandList.reserve(mDatabase->GetCount("skillcommands"));
+	mXpTypeList.reserve(mDatabase->GetCount("xp_types"));
+	mSkillInfoList.reserve(mDatabase->GetCount("skills_description"));*/
 
 	// load skillmods
 	mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_SkillMods),"SELECT * FROM skillmods ORDER BY skillmod_id");
@@ -101,7 +101,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			binding->addField(DFT_string,offsetof(SMQueryContainer,mName),64,1);
 
 			uint64 count = result->getRowCount();
-
+			mSkillModList.reserve((uint32)count);
 			for(uint64 i = 0;i < count;i++)
 			{
 				result->GetNextRow(binding,&skillMod);
@@ -120,7 +120,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			binding->addField(DFT_string,offsetof(SMQueryContainer,mName),64,1);
 
 			uint64 count = result->getRowCount();
-
+			mSkillCommandList.reserve((uint32)count);
 			for(uint64 i = 0;i < count;i++)
 			{
 				result->GetNextRow(binding,&skillCommand);
@@ -142,7 +142,9 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			binding->addField(DFT_string,offsetof(SMQueryContainer,mName2),64,3);
 
 			uint64 count = result->getRowCount();
-
+			mDefaultXpCapList.reserve((uint32)count);
+			mXpTypeList.reserve((uint32)count);
+			mXpTypeListEx.reserve((uint32)count);
 			for(uint64 i = 0;i < count;i++)
 			{
 				result->GetNextRow(binding,&xpType);
@@ -176,7 +178,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			uint64 count = result->getRowCount();
 			mTotalLoadCount += static_cast<uint32>(count * 6);
 
-
+			mSkillList.reserve(mTotalLoadCount);
 
 			for(uint64 i = 0;i < count;i++)
 			{
@@ -236,6 +238,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			}
 
 			mDatabase->DestroyDataBinding(binding);
+			gLogger->log(LogManager::DEBUG,"Loaded Skill Species Requirements.");
 		}
 		break;
 
@@ -256,6 +259,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			}
 
 			mDatabase->DestroyDataBinding(binding);
+			gLogger->log(LogManager::DEBUG,"Loaded Skill Preclusions.");
 		}
 		break;
 
@@ -276,6 +280,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			}
 
 			mDatabase->DestroyDataBinding(binding);
+			gLogger->log(LogManager::DEBUG,"Loaded Skill Requirements.");
 		}
 		break;
 
@@ -296,6 +301,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			}
 
 			mDatabase->DestroyDataBinding(binding);
+			gLogger->log(LogManager::DEBUG,"Loaded Skill XP Types.");
 		}
 		break;
 
@@ -316,6 +322,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			}
 
 			mDatabase->DestroyDataBinding(binding);
+			gLogger->log(LogManager::DEBUG,"Loaded Skill Commands.");
 		}
 		break;
 
@@ -336,6 +343,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			}
 
 			mDatabase->DestroyDataBinding(binding);
+			gLogger->log(LogManager::DEBUG,"Loaded Skill Schematic Groups.");
 		}
 		break;
 
@@ -357,6 +365,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			}
 
 			mDatabase->DestroyDataBinding(binding);
+			gLogger->log(LogManager::DEBUG,"Loaded Skill Mods.");
 		}
 		break;
 
@@ -373,6 +382,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			binding->addField(DFT_bstring,offsetof(SkillDescriptions,skillInfo),512,1);
 
 			uint64 rowCount = result->getRowCount();
+			mSkillInfoList.reserve((uint32)rowCount);
 			for (uint64 i = 0; i < rowCount; i++)
 			{
 				SkillDescriptions *skillDescription = new SkillDescriptions;
@@ -382,6 +392,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				mSkillInfoList.push_back(std::make_pair(skillDescription->skillId, skillDescription->skillInfo));
 			}
 			mDatabase->DestroyDataBinding(binding);
+			gLogger->log(LogManager::DEBUG,"Loaded Skill Descriptions.");
 		}
 		break;
 

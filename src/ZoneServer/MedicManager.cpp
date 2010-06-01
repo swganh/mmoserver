@@ -241,6 +241,7 @@ bool MedicManager::CheckMedicine(PlayerObject* Medic, CreatureObject* Target, Ob
 					case ItemType_Wound_Quickness_E:
 						MedicinePackObjectID = item->getId();
 						medicine = dynamic_cast<Medicine*>(item);
+						woundpack = true;
 						break;
 					// health
 					case ItemType_Wound_Health_A:
@@ -480,8 +481,7 @@ bool MedicManager::HealDamage(PlayerObject* Medic, CreatureObject* Target, uint6
 		return false;
 	}
 
-
-	if (!CheckMedicRange(Medic, Target, (float)6.0))
+	if (!MedicManager::CheckMedicRange(Medic, Target, (float)6.0))
 	{
 		return false;
 	}
@@ -858,13 +858,61 @@ bool MedicManager::HealWound(PlayerObject* Medic, CreatureObject* Target, uint64
 		return false;
 	}
 	gLogger->log(LogManager::DEBUG,"Medic has Ability Rights");
+	
+	//check itemtype for woundpack
+	bool action = false;
+	bool constitution = false;
+	bool health = false;
+	bool quickness = false;
+	bool stamina = false;
+	bool strength = false;
 
-	bool action = WoundPack->hasAttribute("wound_action");
-	bool constitution = WoundPack->hasAttribute("wound_constitution");
-	bool health = WoundPack->hasAttribute("wound_health");
-	bool quickness = WoundPack->hasAttribute("wound_quickness");
-	bool stamina = WoundPack->hasAttribute("wound_stamina");
-	bool strength = WoundPack->hasAttribute("wound_strength");
+	switch (WoundPack->getItemType())
+	{
+		// action
+		case ItemType_Wound_Action_A:
+		case ItemType_Wound_Action_B:			
+		case ItemType_Wound_Action_C:
+		case ItemType_Wound_Action_D:
+		case ItemType_Wound_Action_E:
+			action = true;
+			break;
+		// quickness
+		case ItemType_Wound_Quickness_A:
+		case ItemType_Wound_Quickness_B:
+		case ItemType_Wound_Quickness_C:
+		case ItemType_Wound_Quickness_D:
+		case ItemType_Wound_Quickness_E:
+			quickness = true;
+			break;
+		// health
+		case ItemType_Wound_Health_A:
+		case ItemType_Wound_Health_B:
+		case ItemType_Wound_Health_C:
+		case ItemType_Wound_Health_D:
+		case ItemType_Wound_Health_E:
+			health = true;
+			break;
+		// stamina
+		case ItemType_Wound_Stamina_A:
+		case ItemType_Wound_Stamina_B:
+		case ItemType_Wound_Stamina_C:
+		case ItemType_Wound_Stamina_D:
+		case ItemType_Wound_Stamina_E:
+			stamina = true;
+			break;
+		// strength
+		case ItemType_Wound_Strength_A:
+		case ItemType_Wound_Strength_B:
+		case ItemType_Wound_Strength_C:
+		case ItemType_Wound_Strength_D:
+		case ItemType_Wound_Strength_E:
+			strength = true;
+			break;
+		default:
+			break;
+	}
+
 
 	int TargetActionWounds;
 	int TargetConstitutionWounds;
@@ -875,50 +923,66 @@ bool MedicManager::HealWound(PlayerObject* Medic, CreatureObject* Target, uint64
 
 	int32 WoundHealPower = 0;
 	int32 maxwoundheal = 0;
-
+	Ham* ham = Target->getHam();
 	//check the wounds also grab power of the pack
 	if (action)
 	{
-		TargetActionWounds = Target->getHam()->mAction.getWounds();
+		TargetActionWounds = ham->mAction.getWounds();
 		WoundHealPower = WoundPack->getHealWoundAction();
-		maxwoundheal = CalculateBF(Medic, Target, maxwoundheal);
+		maxwoundheal = MedicManager::CalculateBF(Medic, Target, maxwoundheal);
 		maxwoundheal = WoundHealPower * ((100 + healingskill) / 100);
 		maxwoundheal = min(maxwoundheal, TargetActionWounds);
-		Target->getHam()->mAction.updateWounds(-maxwoundheal);
+		ham->updatePropertyValue(HamBar_Action ,HamProperty_Wounds, -maxwoundheal);
 	}
 	else if	(constitution)
 	{
-		TargetConstitutionWounds = Target->getHam()->mConstitution.getWounds();
+		TargetConstitutionWounds = ham->mConstitution.getWounds();
 		WoundHealPower = WoundPack->getHealWoundConstitution();
-		maxwoundheal = CalculateBF(Medic, Target, maxwoundheal);
+		maxwoundheal = MedicManager::CalculateBF(Medic, Target, maxwoundheal);
 		maxwoundheal = WoundHealPower * ((100 + healingskill) / 100);
 		maxwoundheal = min(maxwoundheal, TargetConstitutionWounds);
-		Target->getHam()->mConstitution.updateWounds(-maxwoundheal);
+		ham->updatePropertyValue(HamBar_Constitution ,HamProperty_Wounds, -maxwoundheal);
 	}
 	else if (health)
 	{
-		TargetHealthWounds = Target->getHam()->mHealth.getWounds();
+		TargetHealthWounds = ham->mHealth.getWounds();
 		WoundHealPower = WoundPack->getHealWoundHealth();
+		maxwoundheal = MedicManager::CalculateBF(Medic, Target, maxwoundheal);
+		maxwoundheal = WoundHealPower * ((100 + healingskill) / 100);
+		maxwoundheal = min(maxwoundheal, TargetHealthWounds);
+		ham->updatePropertyValue(HamBar_Health ,HamProperty_Wounds, -maxwoundheal);
 	}
 	else if (quickness)
 	{
-		TargetQuicknessWounds = Target->getHam()->mQuickness.getWounds();
+		TargetQuicknessWounds = ham->mQuickness.getWounds();
 		WoundHealPower = WoundPack->getHealWoundQuickness();
+		maxwoundheal = MedicManager::CalculateBF(Medic, Target, maxwoundheal);
+		maxwoundheal = WoundHealPower * ((100 + healingskill) / 100);
+		maxwoundheal = min(maxwoundheal, TargetQuicknessWounds);
+		ham->updatePropertyValue(HamBar_Quickness ,HamProperty_Wounds, -maxwoundheal);
 	}
 	else if (stamina)
 	{
-		TargetStaminaWounds = Target->getHam()->mStamina.getWounds();
+		TargetStaminaWounds = ham->mStamina.getWounds();
 		WoundHealPower = WoundPack->getHealWoundStamina();
+		maxwoundheal = MedicManager::CalculateBF(Medic, Target, maxwoundheal);
+		maxwoundheal = WoundHealPower * ((100 + healingskill) / 100);
+		maxwoundheal = min(maxwoundheal, TargetStaminaWounds);
+		ham->updatePropertyValue(HamBar_Stamina ,HamProperty_Wounds, -maxwoundheal);
 	}
 	else if (strength)
 	{
-		TargetStrengthWounds = Target->getHam()->mStrength.getWounds();
+		TargetStrengthWounds = ham->mStrength.getWounds();
 		WoundHealPower = WoundPack->getHealWoundStrength();
+		maxwoundheal = MedicManager::CalculateBF(Medic, Target, maxwoundheal);
+		maxwoundheal = WoundHealPower * ((100 + healingskill) / 100);
+		maxwoundheal = min(maxwoundheal, TargetStrengthWounds);
+		ham->updatePropertyValue(HamBar_Strength ,HamProperty_Wounds, -maxwoundheal);
 	}
 		
 	// check woundpack used against which wounds they have
 
-	if( (action && TargetActionWounds > 0) || (constitution && TargetConstitutionWounds > 0) || (health && TargetHealthWounds > 0) || (quickness && TargetQuicknessWounds > 0) ||
+	/*if( (action && TargetActionWounds > 0) || (constitution && TargetConstitutionWounds > 0) || (health && TargetHealthWounds > 0) || (quickness && TargetQuicknessWounds > 0) ||
 		(stamina && TargetStaminaWounds > 0) || (strength && TargetStrengthWounds > 0))
 	{
 		if (self){
@@ -932,7 +996,7 @@ bool MedicManager::HealWound(PlayerObject* Medic, CreatureObject* Target, uint64
 			return false;
 		}
 	}
-	gLogger->log(LogManager::DEBUG,"Target Needs Wound Healing");
+	gLogger->log(LogManager::DEBUG,"Target Needs Wound Healing");*/
 
 	//Get Wound Heal Strength
 	//TODO - Food, BEClothing, and Med Center/city bonuses.
@@ -949,7 +1013,7 @@ bool MedicManager::HealWound(PlayerObject* Medic, CreatureObject* Target, uint64
 	return true;
 }
 //Check Heal Range
-bool CheckMedicRange(PlayerObject* Medic, CreatureObject* Target, float healRange)
+bool MedicManager::CheckMedicRange(PlayerObject* Medic, CreatureObject* Target, float healRange)
 {
 	float distance = gWorldConfig->getConfiguration("Player_heal_distance", healRange);
 
@@ -964,7 +1028,7 @@ bool CheckMedicRange(PlayerObject* Medic, CreatureObject* Target, float healRang
 }
 //InjuryTreatment Event
 
-int CalculateBF(PlayerObject* Medic, CreatureObject* Target, int32 maxhealamount)
+int32 MedicManager::CalculateBF(PlayerObject* Medic, CreatureObject* Target, int32 maxhealamount)
 {
 	int32 BF = Target->getHam()->getBattleFatigue();
 	if(BF > 250)

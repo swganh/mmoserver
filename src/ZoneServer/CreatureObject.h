@@ -194,6 +194,7 @@ class CreatureObject : public MovingObject
 		void				setLastEntertainerXP(float lastEntertainerXP){mLastEntertainerXP = lastEntertainerXP;}
 
 		bool				handlePerformanceTick(uint64 time,void* ref);
+		bool				handleImagedesignerTimeOut(uint64 time,void* ref);
 
 		PerformingState		getPerformingState() const { return mPendingPerform; }
 		void				setPerformingState(PerformingState state){ mPendingPerform = state; }

@@ -228,6 +228,9 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		uint64					addEntertainerToProccess(CreatureObject* entertainerObject,uint32 tick);
 		void					removeEntertainerToProcess(uint64 taskId);
 
+		uint64					addImageDesignerToProcess(CreatureObject* entertainerObject,uint32 tick);
+		void					removeImagedesignerToProcess(uint64 taskId);
+
 		// adds a Buff which Ticks
 		uint64					addBuffToProcess(Buff* buff);
 		void					removeBuffToProcess(uint64 taskId);

@@ -77,6 +77,7 @@ class TreasuryManagerAsyncContainer
 		DispatchClient*		mClient;
 
 		uint32				amount;
+		uint32				surcharge;
 		PlayerObject*		player;
 		PlayerObject*		target;
 		uint64				targetId;

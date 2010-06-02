@@ -254,6 +254,7 @@ class EntertainerManager : public DatabaseCallback, public ObjectFactoryCallback
 		//=========================================================
 		//=========================================================
 		// Imagedesigner
+		bool					handleImagedesignTimeOut(CreatureObject* designer);
 		void					commitIdChanges(PlayerObject* customer,PlayerObject* designer, string hair, uint32 amount,uint8 statMigration,string holoEmote,uint8 flagHair);
 		string					commitIdAttribute(PlayerObject* customer, string attribute, float value);
 		string					commitIdColor(PlayerObject* customer, string attribute, uint16 value);

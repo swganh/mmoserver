@@ -126,6 +126,7 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
 	mStomachFillingScheduler= new Anh_Utils::Scheduler();
 	mPlayerScheduler		= new Anh_Utils::Scheduler();
 	mEntertainerScheduler	= new Anh_Utils::Scheduler();
+	//mImagedesignerScheduler	= new Anh_Utils::Scheduler();
 	mBuffScheduler			= new Anh_Utils::VariableTimeScheduler(100, 100);
 	mMissionScheduler		= new Anh_Utils::Scheduler();
 	mNpcManagerScheduler	= new Anh_Utils::Scheduler();
@@ -217,6 +218,7 @@ void WorldManager::Shutdown()
 	delete(mHamRegenScheduler);
 	delete(mMissionScheduler);
 	delete(mPlayerScheduler);
+	//delete(mImagedesignerScheduler);
 	delete(mEntertainerScheduler);
 	delete(mBuffScheduler);
 
@@ -439,6 +441,7 @@ void WorldManager::_processSchedulers()
 	mStomachFillingScheduler->process();
 	mSubsystemScheduler->process();
 	mObjControllerScheduler->process();
+	//mImagedesignerScheduler->process();
 	mPlayerScheduler->process();
 	mEntertainerScheduler->process();
 	mBuffScheduler->process();
@@ -1046,6 +1049,11 @@ void WorldManager::removeEntertainerToProcess(uint64 taskId)
 	mEntertainerScheduler->removeTask(taskId);
 }
 
+void WorldManager::removeImagedesignerToProcess(uint64 taskId)
+{
+	mEntertainerScheduler->removeTask(taskId);
+}
+
 //======================================================================================================================
 //
 // add a creature from the Stomach Filling scheduler
@@ -1146,6 +1154,11 @@ bool WorldManager::checkForMissionProcess(uint64 taskId)
 uint64 WorldManager::addEntertainerToProccess(CreatureObject* entertainerObject,uint32 tick)
 {
     return((mEntertainerScheduler->addTask(fastdelegate::MakeDelegate(entertainerObject,&CreatureObject::handlePerformanceTick),1,tick,NULL)));
+}
+
+uint64 WorldManager::addImageDesignerToProcess(CreatureObject* entertainerObject,uint32 tick)
+{
+    return((mEntertainerScheduler->addTask(fastdelegate::MakeDelegate(entertainerObject,&CreatureObject::handleImagedesignerTimeOut),1,tick,NULL)));
 }
 
 //======================================================================================================================

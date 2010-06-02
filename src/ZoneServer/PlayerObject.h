@@ -255,6 +255,7 @@ class PlayerObject : public CreatureObject
 		void				setGroupMusicXp(uint8 groupXp){mGroupXp = groupXp;}
 
 		// ID
+		void				setImageDesignerTaskId(uint64 taskId){mImageDesignerId = taskId;}
 		bool				UpdateIdAttributes(BString attribute,float value);
 		bool				UpdateIdColors(BString attribute,uint16 value);
 		AttributesList*		getIdAttributesList(){return &mIDAttributesList;}
@@ -456,6 +457,7 @@ class PlayerObject : public CreatureObject
 		uint64				mCombatTargetId; // The actual target player are hitting, not always the same as the "look-at" target.
 		uint64				mEntertainerPauseId;
 		uint64				mEntertainerTaskId;
+		uint64				mImageDesignerId;
 		uint64				mEntertainerWatchToId;
 		uint64				mLastGroupMissionUpdateTime;
 		uint64				mNearestCraftingStation;

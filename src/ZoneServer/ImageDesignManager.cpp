@@ -657,6 +657,36 @@ void EntertainerManager::applyMoney(PlayerObject* customer,PlayerObject* designe
 }
 
 //=============================================================================
+//forcibly ends the design session should the customer refuse to
+//
+bool EntertainerManager::handleImagedesignTimeOut(CreatureObject* designer)
+{
+	//check whether (the old) ID Session is still active
+	//if the session has been ended, we have been removed, anyway
+	PlayerObject* imageDesigner = dynamic_cast<PlayerObject*>(designer);
+	
+	if(imageDesigner->getImageDesignSession() != IDSessionID)
+	{
+		//Panik!!!!!!!
+		gLogger->log(LogManager::DEBUG,"ID force close session : id is not id !!!");
+		return false;
+	}
+
+	PlayerObject* customer = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(imageDesigner->getIDPartner()));
+	//gMessageLib->sendIDEndMessage(,);
+	gMessageLib->sendIDEndMessage(customer,customer,imageDesigner,"", 0,0, 0,0,0,0,0);
+
+	imageDesigner->setIDPartner(0);
+	customer->setIDPartner(0);
+	imageDesigner->SetImageDesignSession(IDSessionNONE);
+	customer->SetImageDesignSession(IDSessionNONE);
+
+	return false;
+
+}
+
+
+//=============================================================================
 //commits the changes of the ID session
 //
 void EntertainerManager::commitIdChanges(PlayerObject* customer,PlayerObject* designer, string hair, uint32 amount,uint8 statMigration, string holoEmote,uint8 flagHair)

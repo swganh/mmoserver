@@ -356,7 +356,8 @@ void TreasuryManager::bankTipOffline(int32 amount,PlayerObject* playerObject,str
 
 	TreasuryManagerAsyncContainer* asyncContainer;
 	asyncContainer = new TreasuryManagerAsyncContainer(TREMQuery_BankTipgetId,playerObject->getClient());
-	asyncContainer->amount = (amount + surcharge);
+	asyncContainer->amount = amount;
+	asyncContainer->surcharge = surcharge;
 	asyncContainer->targetName = targetName;
 	asyncContainer->player = playerObject;
 
@@ -435,7 +436,7 @@ void TreasuryManager::handleBankTipSurchargeConfirmed(TreasuryManagerAsyncContai
 {
 	Transaction* mTransaction = mDatabase->startTransaction(this,asyncContainer);
 	int8 sql[256];
-	sprintf(sql,"UPDATE banks SET credits=credits-%i WHERE id=%"PRIu64"",asyncContainer->amount, asyncContainer->player->getId() + 4);
+	sprintf(sql,"UPDATE banks SET credits=credits-%i WHERE id=%"PRIu64"",(asyncContainer->amount+asyncContainer->surcharge), asyncContainer->player->getId() + 4);
 	mTransaction->addQuery(sql);
 	sprintf(sql,"UPDATE banks SET credits=credits+%i WHERE id=%"PRIu64"",asyncContainer->amount, asyncContainer->targetId + 4);
 	mTransaction->addQuery(sql);
@@ -513,6 +514,7 @@ void TreasuryManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 			TreasuryManagerAsyncContainer* asyncContainer = new TreasuryManagerAsyncContainer(TREMQuery_BankTipTransaction,asynContainer->player->getClient());
 
 			asyncContainer->amount		= asynContainer->amount;
+			asyncContainer->surcharge	= asynContainer->surcharge;
 			asyncContainer->player		= asynContainer->player;
 			asyncContainer->targetId	= id;
 			asyncContainer->targetName = asynContainer->targetName;

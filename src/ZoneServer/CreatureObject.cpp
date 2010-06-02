@@ -366,6 +366,11 @@ bool CreatureObject::handlePerformanceTick(uint64 time,void* ref)
 	return(gEntertainerManager->handlePerformanceTick(this));
 }
 
+bool CreatureObject::handleImagedesignerTimeOut(uint64 time,void* ref)
+{
+	return(gEntertainerManager->handleImagedesignTimeOut(this));
+}
+
 //=============================================================================
 //
 // update current movement properties

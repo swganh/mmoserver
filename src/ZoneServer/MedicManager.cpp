@@ -626,7 +626,18 @@ bool MedicManager::HealDamageRanged(PlayerObject* Medic, CreatureObject* Target,
 
 	return true;
 }
+//InjuryTreatment Event
+void MedicManager::startInjuryTreatmentEvent(PlayerObject* Medic)
+{
+		//TODO: Add foodbuffs into calculation
+		uint healingspeed = Medic->getSkillModValue(SMod_healing_injury_speed);
+		int delay = (int)((/* foodbuff*/ ( 100 - (float)healingspeed ) / 100 ) * 10000); 
+		uint64 cooldown = std::max(4000, delay);
+		uint64 now = gWorldManager->GetCurrentGlobalTick();
 
+		Medic->getController()->addEvent(new InjuryTreatmentEvent(now + cooldown), cooldown);
+		Medic->togglePlayerCustomFlagOn(PlayerCustomFlag_InjuryTreatment);
+}
 //Foraging
 void MedicManager::successForage(PlayerObject* player)
 {

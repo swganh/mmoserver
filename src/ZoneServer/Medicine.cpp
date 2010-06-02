@@ -59,6 +59,8 @@ void Medicine::handleStimpackMenuSelect(uint8 messageType, PlayerObject* player)
 					{
 						//If we succeed, reduce Medics Mind
 						player->getHam()->updatePropertyValue(HamBar_Mind, HamProperty_CurrentHitpoints, -140);
+						//Call the event
+						gMedicManager->startInjuryTreatmentEvent(player);
 					} else {
 
 					}
@@ -71,6 +73,7 @@ void Medicine::handleStimpackMenuSelect(uint8 messageType, PlayerObject* player)
 		}
 	}
 }
+
 //=============================================================================
 //handles the radial selection
 

@@ -99,7 +99,7 @@ int CompCryptor::Decompress(int8* inData, uint32 inLen, int8* outData, uint32 ou
 //======================================================================================================================
 int CompCryptor::Encrypt(int8* data, uint32 len, uint32 seed)
 {
-  seed = seed ^ 0x62491908;
+  //seed = seed ^ 0x62491908;
 
   int retVal = 0;
 
@@ -125,7 +125,7 @@ int CompCryptor::Encrypt(int8* data, uint32 len, uint32 seed)
 //======================================================================================================================
 int CompCryptor::Decrypt(int8* data, uint32 len, uint32 seed)
 {
-  seed = seed ^ 0x62491908;
+  //seed = seed ^ 0x62491908;
 
   int retVal = 0;
 
@@ -141,7 +141,7 @@ int CompCryptor::Decrypt(int8* data, uint32 len, uint32 seed)
   }
 
   for(uint32 count = blockCount * 4; count < blockCount * 4 + byteCount; count++)
-  {
+ {
     data[count] ^= seed;
   }
 

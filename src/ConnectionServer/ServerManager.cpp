@@ -132,7 +132,9 @@ NetworkClient* ServerManager::handleSessionConnect(Session* session, Service* se
 
 		memcpy(&mServerAddressMap[serverAddress.mId], &serverAddress, sizeof(ServerAddress));
 		mServerAddressMap[serverAddress.mId].mConnectionClient = connClient;
-
+		
+		gLogger->log(LogManager::DEBUG,"*** Backend server connected id: %u\n",mServerAddressMap[serverAddress.mId].mId);
+		
 		// If this is one of the servers we're waiting for, then update our count
 		if(mServerAddressMap[serverAddress.mId].mActive)
 		{

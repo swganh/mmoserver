@@ -18,6 +18,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include <map>
 #include "DatabaseManager/DatabaseCallback.h"
 #include <boost/pool/pool.hpp>
+#include <boost/unordered_map.hpp>
 
 
 
@@ -32,7 +33,7 @@ class ScMAsyncContainer;
 
 typedef std::vector<SchematicGroup*>			SchematicGroupList;
 typedef std::map<uint32,DraftSchematic*>		SchematicMap;
-typedef std::map<uint64,DraftSchematic*>		SchematicMap64;
+typedef boost::unordered_map<uint64, DraftSchematic*> SchematicMap64;
 
 //======================================================================================================================
 

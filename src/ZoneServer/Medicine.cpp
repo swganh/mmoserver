@@ -19,6 +19,18 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "DatabaseManager/Database.h"
 #include "ObjectControllerOpcodes.h"
 
+//consts
+const char* const woundpack = "woundpack";
+const char* const stim = "stim";
+const char* const rangedstim = "ranged";
+const char* const self = "self";
+const char* const action = "action";
+const char* const constitution = "constitution";
+const char* const health = "health";
+const char* const quickness = "quickness";
+const char* const stamina = "stamina";
+const char* const strength = "strength";
+
 Medicine::Medicine(void)
 {
 }
@@ -27,8 +39,10 @@ Medicine::~Medicine(void)
 {
 }
 
-void Medicine::handleStimpackMenuSelect(uint8 messageType, PlayerObject* player)
+void Medicine::handleStimpackMenuSelect(uint8 messageType, PlayerObject* player, std::string medpackType)
 {
+	if (medpackType == "")
+		medpackType = stim;
 	switch(messageType)
 	{
 		case radId_itemUse:
@@ -40,7 +54,7 @@ void Medicine::handleStimpackMenuSelect(uint8 messageType, PlayerObject* player)
 				if(player->getHam()->checkMainPools(0, 0, 140))
 				{
 					//Try to Heal Damage
-					if(gMedicManager->CheckMedicine(player, target, 0, opOChealdamage))
+					if(gMedicManager->CheckMedicine(player, target,0, medpackType))
 					{
 						//If we succeed, reduce Medics Mind
 						player->getHam()->updatePropertyValue(HamBar_Mind, HamProperty_CurrentHitpoints, -140);
@@ -59,8 +73,11 @@ void Medicine::handleStimpackMenuSelect(uint8 messageType, PlayerObject* player)
 	}
 }
 
-void Medicine::handleWoundPackMenuSelect(uint8 messageType, PlayerObject* player)
+void Medicine::handleWoundPackMenuSelect(uint8 messageType, PlayerObject* player, std::string medpackType)
 {
+	if (medpackType == "" )
+		medpackType = woundpack;
+
 	switch(messageType)
 	{
 		case radId_itemUse:
@@ -72,12 +89,12 @@ void Medicine::handleWoundPackMenuSelect(uint8 messageType, PlayerObject* player
 				if(player->getHam()->checkMainPools(0, 0, 140))
 				{
 					//Try to Heal Damage
-					if(gMedicManager->CheckMedicine(player, target, 0, opOChealwound))
+					if(gMedicManager->CheckMedicine(player, target, 0, medpackType))
 					{
 						//If we succeed, reduce Medics Mind
 						player->getHam()->updatePropertyValue(HamBar_Mind, HamProperty_CurrentHitpoints, -140);
 						//Call the event
-						gMedicManager->startInjuryTreatmentEvent(player);
+						gMedicManager->startWoundTreatmentEvent(player);
 					} else {
 
 					}
@@ -126,12 +143,56 @@ void Medicine::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 				case ItemType_Stimpack_C:
 				case ItemType_Stimpack_D:
 				case ItemType_Stimpack_E:
+					handleStimpackMenuSelect(messageType, player, stim);
+					break;
 				case ItemType_Ranged_Stimpack_A:
 				case ItemType_Ranged_Stimpack_B:
 				case ItemType_Ranged_Stimpack_C:
 				case ItemType_Ranged_Stimpack_D:
 				case ItemType_Ranged_Stimpack_E:
-					handleStimpackMenuSelect(messageType, player);
+					handleStimpackMenuSelect(messageType, player, rangedstim);
+					break;
+				case ItemType_Wound_Action_A:
+				case ItemType_Wound_Action_B:			
+				case ItemType_Wound_Action_C:
+				case ItemType_Wound_Action_D:
+				case ItemType_Wound_Action_E:
+					handleWoundPackMenuSelect(messageType, player, action);
+					break;
+				case ItemType_Wound_Constitution_A:
+				case ItemType_Wound_Constitution_B:			
+				case ItemType_Wound_Constitution_C:
+				case ItemType_Wound_Constitution_D:
+				case ItemType_Wound_Constitution_E:
+					handleWoundPackMenuSelect(messageType, player, action);
+					break;
+				case ItemType_Wound_Health_A:
+				case ItemType_Wound_Health_B:
+				case ItemType_Wound_Health_C:
+				case ItemType_Wound_Health_D:
+				case ItemType_Wound_Health_E:
+					handleWoundPackMenuSelect(messageType, player, health);
+					break;
+				case ItemType_Wound_Quickness_A:
+				case ItemType_Wound_Quickness_B:
+				case ItemType_Wound_Quickness_C:
+				case ItemType_Wound_Quickness_D:
+				case ItemType_Wound_Quickness_E:
+					handleWoundPackMenuSelect(messageType, player, quickness);
+					break;
+				case ItemType_Wound_Stamina_A:
+				case ItemType_Wound_Stamina_B:
+				case ItemType_Wound_Stamina_C:
+				case ItemType_Wound_Stamina_D:
+				case ItemType_Wound_Stamina_E:
+					handleWoundPackMenuSelect(messageType, player, stamina);
+					break;
+				case ItemType_Wound_Strength_A:
+				case ItemType_Wound_Strength_B:
+				case ItemType_Wound_Strength_C:
+				case ItemType_Wound_Strength_D:
+				case ItemType_Wound_Strength_E:
+					handleWoundPackMenuSelect(messageType, player, strength);
 					break;
 				}
 

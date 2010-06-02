@@ -646,3 +646,17 @@ void PlayerObject::onInjuryTreatment(const InjuryTreatmentEvent* event)
 		gMessageLib->sendSystemMessage(this, L"", "healing_response", "healing_response_58");
 	}
 }
+
+//=============================================================================
+// this event manages wound treatment cooldowns.
+//
+void PlayerObject::onWoundTreatment(const WoundTreatmentEvent* event)
+{
+	uint64 now = gWorldManager->GetCurrentGlobalTick();
+
+	if(now >  event->getWoundTreatmentTime())
+	{
+		this->togglePlayerCustomFlagOff(PlayerCustomFlag_WoundTreatment);
+		gMessageLib->sendSystemMessage(this, L"", "healing_response", "healing_response_59");
+	}
+}

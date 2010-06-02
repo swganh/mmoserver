@@ -24,6 +24,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "BurstRunEvent.h"
 #include "ItemDeleteEvent.h"
 #include "InjuryTreatmentEvent.h"
+#include "WoundTreatmentEvent.h"
 #include "Common/DispatchClient.h"
 #include <map>
 
@@ -324,6 +325,7 @@ class PlayerObject : public CreatureObject
 		void				onBurstRun(const BurstRunEvent* event);
 		void				onItemDeleteEvent(const ItemDeleteEvent* event);
 		void				onInjuryTreatment(const InjuryTreatmentEvent* event);
+		void				onWoundTreatment(const WoundTreatmentEvent* event);
 								 
 
 		// cloning

@@ -102,6 +102,9 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
 		mDebug = false;
 	}
 
+	// load planet names and terrain files so we can start heightmap loading
+	mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_PlanetNamesAndFiles),"SELECT * FROM planet ORDER BY planet_id;");
+	
 
 	// create schedulers
 	mSubsystemScheduler		= new Anh_Utils::Scheduler();
@@ -854,32 +857,7 @@ void WorldManager::_handleLoadComplete()
 	gSchematicManager->releaseAllPoolsMemory();
 	gSkillManager->releaseAllPoolsMemory();
 
-	if(mZoneId != 41)
-	{
-		gLogger->log(LogManager::NOTICE,"Starting Heightmap Load. This might take a while!");
-		if (!Heightmap::Instance())
-		{
-			assert(false && "WorldManager::_handleLoadComplete Missing heightmap, download at http://www.swganh.com/!!planets!!/PLANET_NAME.rar");
-		}
-
-		// create a height-map cashe.
-		int16 resolution = 0;
-		if (gConfig->keyExists("heightMapResolution"))
-		{
-			resolution = gConfig->read<int>("heightMapResolution");
-		}
-		
-		gLogger->log(LogManager::NOTICE,"Height map resolution = %d", resolution);
-
-		if (Heightmap::Instance()->setupCache(resolution))
-		{
-			gLogger->log(LogManager::NOTICE,"Height map cache setup successfully with resolution %d", resolution);
-		}
-		else
-		{
-			gLogger->log(LogManager::NOTICE,"WorldManager::_handleLoadComplete heigthmap cache setup FAILED");
-		}
-	}
+	
 
 	// register script hooks
 	_startWorldScripts();

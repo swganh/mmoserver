@@ -10,6 +10,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 */
 
 #include "BuildingObject.h"
+#include "PlayerObject.h"
 #include "CellObject.h"
 #include "MessageLib/MessageLib.h"
 #include "SpawnPoint.h"
@@ -157,6 +158,34 @@ void BuildingObject::updateCellPermissions(PlayerObject* player, bool access)
 		CellObject* cell = (*cellIt);
 					
 		gMessageLib->sendUpdateCellPermissionMessage(cell,access,player);	
+
+		//are we inside the cell ?
+		if((player->getParentId() == cell->getId()) && (!access))
+		{
+			//were no longer allowed to be inside ....
+			//so get going
+			
+			//TODO find outside position (sign position for example??) to place the player
+			
+
+			glm::vec3 playerPosition = player->mPosition;
+			glm::vec3 playerWorldPosition = player->getWorldPosition();
+			glm::vec3 position;
+
+			glm::vec3 playerNewPosition;
+			position.x = (0 - playerPosition.x) - 5;
+			position.z = (0 - playerPosition.z) - 2;
+
+			position.y = mPosition.y + 50;
+
+			position.x += playerWorldPosition.x;
+			//position.y += player->getWorldPosition.x;
+			position.z += playerWorldPosition.z;
+
+			player->updatePosition(0,position);
+			
+			
+		}
 
 		++cellIt;
 	}

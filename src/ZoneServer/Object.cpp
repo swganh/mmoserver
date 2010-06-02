@@ -208,12 +208,24 @@ float Object::rotation_angle() const {
 
 bool Object::removeKnownObject(Object* object)
 {
+	PlayerObject* player = dynamic_cast<PlayerObject*>(this);
+	if(player)
+	{
+		if(player->getTargetId() == object->getId())
+			player->setTarget(0);
+	}
+
 	if(object->getType() == ObjType_Player)
 	{
-		PlayerObjectSet::iterator it = mKnownPlayers.find(dynamic_cast<PlayerObject*>(object));
+		PlayerObject* player = dynamic_cast<PlayerObject*>(object);
+		PlayerObjectSet::iterator it = mKnownPlayers.find(player);
 
 		if(it != mKnownPlayers.end())
 		{
+			//we might be its target
+			if(player->getTargetId() == this->getId())
+				player->setTarget(0);
+
 			mKnownPlayers.erase(it);
 
 			return(true);

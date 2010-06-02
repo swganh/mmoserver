@@ -119,7 +119,10 @@ void StructureManager::updateKownPlayerPermissions(PlayerStructure* structure)
 {
 	HouseObject* house = dynamic_cast<HouseObject*>(structure);
 	if(!house)
+	{
+		gLogger->log(LogManager::DEBUG,"StructureManager::updateKownPlayerPermissions: No structure");
 		return;
+	}
 
 	PlayerObjectSet* playerSet = structure->getKnownPlayers();
 	PlayerObjectSet::iterator it = playerSet->begin();

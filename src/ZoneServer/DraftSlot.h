@@ -52,14 +52,17 @@ class DraftSlot
 		uint8	getOptional(){ return mOptional; }
 		void	setOptional(uint8 optional){ mOptional = optional; }
 		
-
+		uint64  getSchemId() {return mSchematicId;}
+		uint32  getSchemGroupId(){return mSchemGroupId;}
 	private:
 
 		string	mName;
 		string	mFile;
 		string	mResourceName;
 		uint32	mAmount;
-		
+		uint64  mSchematicId;
+		uint32  mSchemGroupId;
+
 		uint8	mType;
 		uint8	mOptional;
 };

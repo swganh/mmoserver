@@ -177,6 +177,8 @@ Terminal* TerminalFactory::_createTerminal(DatabaseResult* result)
 		case TanType_Dark_Enc_VotingTerminal:		case TanType_Light_Enc_ChallengeTerminal:
 		case TanType_PMRegisterTerminal:
 		case 14:
+		case 24:
+		case 36:
 		{
 			terminal = new Terminal();
 			terminal->setTangibleType(tanType);

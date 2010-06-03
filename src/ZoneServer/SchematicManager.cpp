@@ -195,10 +195,11 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 			// now query the draftslots
 			ScMAsyncContainer* asContainer = new(mDBAsyncPool.ordered_malloc()) ScMAsyncContainer(ScMQuery_SchematicSlots);
 			int8 sql[2048];
-			sprintf(sql,"SELECT draft_slots.component_file,draft_slots.component_name,draft_slots.resource_name,draft_slots.amount,draft_slots.optional,draft_slots.type,draft_schematics.weightsbatch_id"
-						" FROM draft_slots "
-						" INNER JOIN draft_schematics_slots ON (draft_slots.id = draft_schematics_slots.draft_slot_id) "
-						" INNER JOIN draft_schematics ON(draft_schematics_slots.schematic_id = draft_schematics.schematic_id) ");
+			sprintf(sql,"SELECT draft_slots.component_file, draft_slots.component_name, draft_slots.resource_name, draft_slots.amount, draft_slots.optional, draft_slots.`type`, draft_schematics.weightsbatch_id"
+						" FROM draft_slots"
+						" INNER JOIN draft_schematics_slots ON (draft_slots.id = draft_schematics_slots.draft_slot_id)"
+						" INNER JOIN schem_crc ON (draft_schematics_slots.schematic_id = schem_crc.crc)"
+						" INNER JOIN draft_schematics ON (schem_crc.object_string = draft_schematics.object_string)");
 			mDatabase->ExecuteSqlAsync(this,asContainer,sql);
 
 

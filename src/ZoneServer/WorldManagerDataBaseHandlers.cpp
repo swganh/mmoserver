@@ -256,6 +256,17 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					}
 
 					mDatabase->DestroyDataBinding(fileBinding);
+
+					//start loading heightmap
+					if(mZoneId != 41)
+					{
+						int16 resolution = 0;
+						if (gConfig->keyExists("heightMapResolution"))
+							resolution = gConfig->read<int>("heightMapResolution");
+
+						if (!Heightmap::Instance(resolution))
+							assert(false && "WorldManager::_handleLoadComplete Missing heightmap, look for it on the forums.");
+					}
 				}
 				break;
 

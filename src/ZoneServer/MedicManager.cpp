@@ -448,12 +448,6 @@ bool MedicManager::HealDamage(PlayerObject* Medic, PlayerObject* Target, uint64 
 	Target->getHam()->updatePropertyValue(HamBar_Health, HamProperty_CurrentHitpoints, StrengthHealth);
 	Target->getHam()->updatePropertyValue(HamBar_Action, HamProperty_CurrentHitpoints, StrengthAction);
 
-	if(Stim->ConsumeUse(Medic))
-	{
-		Inventory* inventory = dynamic_cast<Inventory*>(Medic->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-		inventory->deleteObject(Stim);
-	}
-
 	//Add XP as Total Heal / 4 if not targetting self
 	if(!isSelf)
 		gSkillManager->addExperience(XpType_medical, (int)((StrengthHealth + StrengthAction)/4), Medic);
@@ -512,6 +506,25 @@ bool MedicManager::HealDamage(PlayerObject* Medic, PlayerObject* Target, uint64 
 		//CE
 		gMessageLib->sendPlayClientEffectLocMessage("clienteffect/healing_healdamage.cef",Target->mPosition,Target);
 	}
+		//Cost.
+	int cost = 140;
+
+	int MedicMind = Medic->getHam()->mMind.getCurrentHitPoints();
+	int MedicMaxMind = Medic->getHam()->mMind.getMaxHitPoints();
+
+	if (MedicMind < cost) {
+		gMessageLib->sendSystemMessage(Medic,L"","healing","not_enough_mind");
+		return false;
+	}
+
+	Medic->getHam()->updatePropertyValue(HamBar_Mind, HamProperty_CurrentHitpoints, -cost);
+	
+	if(Stim->ConsumeUse(Medic))
+	{
+		Inventory* inventory = dynamic_cast<Inventory*>(Medic->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+		inventory->deleteObject(Stim);
+	}
+
 	return true;
 }
 
@@ -586,15 +599,15 @@ bool MedicManager::HealDamageRanged(PlayerObject* Medic, PlayerObject* Target, u
 	int cost = 50;
 	
 
-	int TargetMind = Target->getHam()->mMind.getCurrentHitPoints();
-	int TargetMaxMind = Target->getHam()->mMind.getMaxHitPoints();
+	int MedicMind = Medic->getHam()->mMind.getCurrentHitPoints();
+	int MedicMaxMind = Medic->getHam()->mMind.getMaxHitPoints();
 
-	if (TargetMind < cost) {
+	if (MedicMind < cost) {
 		gMessageLib->sendSystemMessage(Medic,L"","healing","not_enough_mind");
 		return false;
 	}
 
-	Target->getHam()->updatePropertyValue(HamBar_Mind, HamProperty_CurrentHitpoints, -cost);
+	Medic->getHam()->updatePropertyValue(HamBar_Mind, HamProperty_CurrentHitpoints, -cost);
 
 
 	if(Stim->ConsumeUse(Medic))
@@ -655,6 +668,7 @@ bool MedicManager::HealDamageRanged(PlayerObject* Medic, PlayerObject* Target, u
 bool MedicManager::HealWound(PlayerObject* Medic, PlayerObject* Target, uint64 WoundPackobjectID, ObjectControllerCmdProperties* cmdProperties, std::string healType)
 {
 	bool isSelf = false;
+	bool tendwound = false;
 	Medicine* WoundPack = dynamic_cast<Medicine*>(gWorldManager->getObjectById(WoundPackobjectID));
 	isSelf = (Medic->getId() == Target->getId());
 
@@ -677,125 +691,26 @@ bool MedicManager::HealWound(PlayerObject* Medic, PlayerObject* Target, uint64 W
 	gLogger->log(LogManager::DEBUG,"Medic has Ability Rights");
 
 	int TargetWounds = 0;
-
+	string bhealType= healType.c_str();
 	int32 WoundHealPower = 0;
-	int32 maxwoundheal = 0;
-	Ham* ham = Target->getHam();
+	if (WoundPack)
+	{
+		WoundHealPower = WoundPack->getHealWound(bhealType);
+	}
+		// random between 1-20
+	else
+	{
+		tendwound = true;
+		WoundHealPower = (gRandom->getRand() % 20)+1;
+	}
+
 	//check the wounds type
-	if (healType == action)
-	{
-		TargetWounds = ham->mAction.getWounds();
-		WoundHealPower = WoundPack->getHealWoundAction();
-		maxwoundheal = MedicManager::CalculateBF(Medic, Target, WoundHealPower);
-		maxwoundheal = maxwoundheal * ((100 + healingskill) / 100);
-		maxwoundheal = min(maxwoundheal, TargetWounds);
-		ham->updatePropertyValue(HamBar_Action ,HamProperty_Wounds, -maxwoundheal);
-		if (maxwoundheal > 0)
-		{
-			//success message
-			if (isSelf)
-				gMessageLib->sendSystemMessage(Medic,L"","healing_response","healing_response_50","","",L"",maxwoundheal);
-			else{
-				gMessageLib->sendSystemMessage(Medic ,L"", "healing_response", "healing_response_53", "", "", L"", maxwoundheal,"","",L"",Target->getId());
-				gMessageLib->sendSystemMessage(Target, L"", "healing_response", "healing_response_56", "", "", L"", maxwoundheal,"","",L"",0,Medic->getId());
-			}
-		}
-	}
-	else if	(healType == constitution)
-	{
-		TargetWounds = ham->mConstitution.getWounds();
-		WoundHealPower = WoundPack->getHealWoundConstitution();
-		maxwoundheal = MedicManager::CalculateBF(Medic, Target, WoundHealPower);
-		maxwoundheal = maxwoundheal * ((100 + healingskill) / 100);
-		maxwoundheal = min(maxwoundheal, TargetWounds);
-		ham->updatePropertyValue(HamBar_Constitution ,HamProperty_Wounds, -maxwoundheal);
-		if (maxwoundheal > 0)
-		{
-			//success message
-			if (isSelf)
-				gMessageLib->sendSystemMessage(Medic,L"","healing_response","healing_response_20","","",L"",maxwoundheal);
-			else{
-				gMessageLib->sendSystemMessage(Medic ,L"", "healing_response", "healing_response_32", "", "", L"", maxwoundheal,"","",L"",Target->getId());
-				gMessageLib->sendSystemMessage(Target, L"", "healing_response", "healing_response_41", "", "", L"", maxwoundheal,"","",L"",0,Medic->getId());
-			}
-		}
-	}
-	else if (healType == health)
-	{
-		TargetWounds = ham->mHealth.getWounds();
-		WoundHealPower = WoundPack->getHealWoundHealth();
-		maxwoundheal = MedicManager::CalculateBF(Medic, Target, WoundHealPower);
-		maxwoundheal = maxwoundheal * ((100 + healingskill) / 100);
-		maxwoundheal = min(maxwoundheal, TargetWounds);
-		ham->updatePropertyValue(HamBar_Health ,HamProperty_Wounds, -maxwoundheal);
-		if (maxwoundheal > 0)
-		{
-			//success message
-			if (isSelf)
-				gMessageLib->sendSystemMessage(Medic,L"","healing_response","healing_response_49","","",L"",maxwoundheal);
-			else{
-				gMessageLib->sendSystemMessage(Medic ,L"", "healing_response", "healing_response_52", "", "", L"", maxwoundheal,"","",L"",Target->getId());
-				gMessageLib->sendSystemMessage(Target, L"", "healing_response", "healing_response_55", "", "", L"", maxwoundheal,"","",L"",0,Medic->getId());
-			}
-		}
-	}
-	else if (healType == quickness)
-	{
-		TargetWounds = ham->mQuickness.getWounds();
-		WoundHealPower = WoundPack->getHealWoundQuickness();
-		maxwoundheal = MedicManager::CalculateBF(Medic, Target, WoundHealPower);
-		maxwoundheal = maxwoundheal * ((100 + healingskill) / 100);
-		maxwoundheal = min(maxwoundheal, TargetWounds);
-		ham->updatePropertyValue(HamBar_Quickness ,HamProperty_Wounds, -maxwoundheal);
-		if (maxwoundheal > 0)
-		{
-			//success message
-			if (isSelf)
-				gMessageLib->sendSystemMessage(Medic,L"","healing_response","healing_response_21","","",L"",maxwoundheal);
-			else{
-				gMessageLib->sendSystemMessage(Medic ,L"", "healing_response", "healing_response_33", "", "", L"", maxwoundheal,"","",L"",Target->getId());
-				gMessageLib->sendSystemMessage(Target, L"", "healing_response", "healing_response_42", "", "", L"", maxwoundheal,"","",L"",0,Medic->getId());	
-			}
-		}
-	}
-	else if (healType == stamina)
-	{
-		TargetWounds = ham->mStamina.getWounds();
-		WoundHealPower = WoundPack->getHealWoundStamina();
-		maxwoundheal = MedicManager::CalculateBF(Medic, Target, WoundHealPower);
-		maxwoundheal = maxwoundheal * ((100 + healingskill) / 100);
-		maxwoundheal = min(maxwoundheal, TargetWounds);
-		ham->updatePropertyValue(HamBar_Stamina ,HamProperty_Wounds, -maxwoundheal);
-		if (maxwoundheal > 0)
-		{
-			//success message
-			if (isSelf)
-				gMessageLib->sendSystemMessage(Medic,L"","healing_response","healing_response_22","","",L"",maxwoundheal);
-			else{
-				gMessageLib->sendSystemMessage(Medic ,L"", "healing_response", "healing_response_34", "", "", L"", maxwoundheal,"","",L"",Target->getId());
-				gMessageLib->sendSystemMessage(Target, L"", "healing_response", "healing_response_43", "", "", L"", maxwoundheal,"","",L"",0,Medic->getId());
-			}
-		}
-	}
-	else if (healType == strength)
-	{
-		TargetWounds = ham->mStrength.getWounds();
-		WoundHealPower = WoundPack->getHealWoundStrength();
-		maxwoundheal = MedicManager::CalculateBF(Medic, Target, WoundHealPower);
-		maxwoundheal = maxwoundheal * ((100 + healingskill) / 100);
-		maxwoundheal = min(maxwoundheal, TargetWounds);
-		ham->updatePropertyValue(HamBar_Strength ,HamProperty_Wounds, -maxwoundheal);
-		if (maxwoundheal > 0)
-		{
-			//success message
-			if (isSelf)
-				gMessageLib->sendSystemMessage(Medic,L"","healing_response","healing_response_19","","",L"",maxwoundheal);
-			else{
-				gMessageLib->sendSystemMessage(Medic ,L"", "healing_response", "healing_response_31", "", "", L"", maxwoundheal,"","",L"",Target->getId());
-				gMessageLib->sendSystemMessage(Target, L"", "healing_response", "healing_response_46", "", "", L"", maxwoundheal,"","",L"",0,Medic->getId());	
-			}
-		}
-	}
+	//remove tendwound
+	int found = healType.find("tendwound");
+	if (found > -1)
+		healType = healType.replace(found, 9,"");
+
+	int32 maxwoundheal = MedicManager::CalculateHealWound(Medic, Target, WoundHealPower, healType);
 
 	if(maxwoundheal <= 0)
 	{
@@ -810,13 +725,20 @@ bool MedicManager::HealWound(PlayerObject* Medic, PlayerObject* Target, uint64 W
 			return false;
 		}
 	}
+	//Cost.
+	int cost = 140;
+	if (tendwound)
+		cost = 500;
 
-	//Get Wound Heal Strength
-	//TODO - BEClothing, and Med Center/city bonuses.
-	//These will probably affect the skills
+	int MedicMind = Medic->getHam()->mMind.getCurrentHitPoints();
+	int MedicMaxMind = Medic->getHam()->mMind.getMaxHitPoints();
 
-	//uint BEClothes = NULL;
-	//uint MedCityBonus = NULL;
+	if (MedicMind < cost) {
+		gMessageLib->sendSystemMessage(Medic,L"","healing","not_enough_mind");
+		return false;
+	}
+
+	Medic->getHam()->updatePropertyValue(HamBar_Mind, HamProperty_CurrentHitpoints, -cost);
 
 	if (!isSelf)
 	{
@@ -837,13 +759,11 @@ bool MedicManager::HealWound(PlayerObject* Medic, PlayerObject* Target, uint64 W
 		gMessageLib->sendPlayClientEffectLocMessage("clienteffect/healing_healwound.cef",Target->mPosition,Target);
 	}
 		
-
-	if(WoundPack->ConsumeUse(Medic))
+	if(!tendwound && WoundPack->ConsumeUse(Medic))
 	{
 		Inventory* inventory = dynamic_cast<Inventory*>(Medic->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 		inventory->deleteObject(WoundPack);
 	}
-
 	return true;
 }
 //Check Heal Range
@@ -860,7 +780,6 @@ bool MedicManager::CheckMedicRange(PlayerObject* Medic, PlayerObject* Target, fl
 	gLogger->log(LogManager::DEBUG,"Heal Target is within range");
 	return true;
 }
-//InjuryTreatment Event
 
 int32 MedicManager::CalculateBF(PlayerObject* Medic, PlayerObject* Target, int32 maxhealamount)
 {
@@ -891,6 +810,125 @@ int32 MedicManager::CalculateBF(PlayerObject* Medic, PlayerObject* Target, int32
 	}
 	return maxhealamount;
 }
+int32 MedicManager::CalculateHealWound(PlayerObject* Medic, PlayerObject* Target, int32 WoundHealPower, std::string healType)
+{
+	bool isSelf = false;
+	isSelf = (Medic->getId() == Target->getId());
+	int TargetWounds = 0;
+	uint32 healingskill = Medic->getSkillModValue(SMod_healing_wound_treatment);
+	int32 maxwoundheal = 0;
+	Ham* ham = Target->getHam();
+
+	if (healType == action)
+	{
+		TargetWounds = ham->mAction.getWounds();
+		maxwoundheal = MedicManager::CalculateBF(Medic, Target, WoundHealPower);
+		maxwoundheal = maxwoundheal * ((100 + healingskill) / 100);
+		maxwoundheal = min(maxwoundheal, TargetWounds);
+		ham->updatePropertyValue(HamBar_Action, HamProperty_Wounds, -maxwoundheal);
+		if (maxwoundheal > 0)
+		{
+			//success message
+			if (isSelf)
+				gMessageLib->sendSystemMessage(Medic,L"","healing_response","healing_response_50","","",L"",maxwoundheal);
+			else{
+				gMessageLib->sendSystemMessage(Medic ,L"", "healing_response", "healing_response_53", "", "", L"", maxwoundheal,"","",L"",Target->getId());
+				gMessageLib->sendSystemMessage(Target, L"", "healing_response", "healing_response_56", "", "", L"", maxwoundheal,"","",L"",0,Medic->getId());
+			}
+		}
+	}
+	else if	(healType == constitution)
+	{
+		TargetWounds = ham->mConstitution.getWounds();
+		maxwoundheal = MedicManager::CalculateBF(Medic, Target, WoundHealPower);
+		maxwoundheal = maxwoundheal * ((100 + healingskill) / 100);
+		maxwoundheal = min(maxwoundheal, TargetWounds);
+		ham->updatePropertyValue(HamBar_Constitution ,HamProperty_Wounds, -maxwoundheal);
+		if (maxwoundheal > 0)
+		{
+			//success message
+			if (isSelf)
+				gMessageLib->sendSystemMessage(Medic,L"","healing_response","healing_response_20","","",L"",maxwoundheal);
+			else{
+				gMessageLib->sendSystemMessage(Medic ,L"", "healing_response", "healing_response_32", "", "", L"", maxwoundheal,"","",L"",Target->getId());
+				gMessageLib->sendSystemMessage(Target, L"", "healing_response", "healing_response_41", "", "", L"", maxwoundheal,"","",L"",0,Medic->getId());
+			}
+		}
+	}
+	else if (healType == health)
+	{
+		TargetWounds = ham->mHealth.getWounds();
+		maxwoundheal = MedicManager::CalculateBF(Medic, Target, WoundHealPower);
+		maxwoundheal = maxwoundheal * ((100 + healingskill) / 100);
+		maxwoundheal = min(maxwoundheal, TargetWounds);
+		ham->updatePropertyValue(HamBar_Health ,HamProperty_Wounds, -maxwoundheal);
+		if (maxwoundheal > 0)
+		{
+			//success message
+			if (isSelf)
+				gMessageLib->sendSystemMessage(Medic,L"","healing_response","healing_response_49","","",L"",maxwoundheal);
+			else{
+				gMessageLib->sendSystemMessage(Medic ,L"", "healing_response", "healing_response_52", "", "", L"", maxwoundheal,"","",L"",Target->getId());
+				gMessageLib->sendSystemMessage(Target, L"", "healing_response", "healing_response_55", "", "", L"", maxwoundheal,"","",L"",0,Medic->getId());
+			}
+		}
+	}
+	else if (healType == quickness)
+	{
+		TargetWounds = ham->mQuickness.getWounds();
+		maxwoundheal = MedicManager::CalculateBF(Medic, Target, WoundHealPower);
+		maxwoundheal = maxwoundheal * ((100 + healingskill) / 100);
+		maxwoundheal = min(maxwoundheal, TargetWounds);
+		ham->updatePropertyValue(HamBar_Quickness ,HamProperty_Wounds, -maxwoundheal);
+		if (maxwoundheal > 0)
+		{
+			//success message
+			if (isSelf)
+				gMessageLib->sendSystemMessage(Medic,L"","healing_response","healing_response_21","","",L"",maxwoundheal);
+			else{
+				gMessageLib->sendSystemMessage(Medic ,L"", "healing_response", "healing_response_33", "", "", L"", maxwoundheal,"","",L"",Target->getId());
+				gMessageLib->sendSystemMessage(Target, L"", "healing_response", "healing_response_42", "", "", L"", maxwoundheal,"","",L"",0,Medic->getId());	
+			}
+		}
+	}
+	else if (healType == stamina)
+	{
+		TargetWounds = ham->mStamina.getWounds();
+		maxwoundheal = MedicManager::CalculateBF(Medic, Target, WoundHealPower);
+		maxwoundheal = maxwoundheal * ((100 + healingskill) / 100);
+		maxwoundheal = min(maxwoundheal, TargetWounds);
+		ham->updatePropertyValue(HamBar_Stamina ,HamProperty_Wounds, -maxwoundheal);
+		if (maxwoundheal > 0)
+		{
+			//success message
+			if (isSelf)
+				gMessageLib->sendSystemMessage(Medic,L"","healing_response","healing_response_22","","",L"",maxwoundheal);
+			else{
+				gMessageLib->sendSystemMessage(Medic ,L"", "healing_response", "healing_response_34", "", "", L"", maxwoundheal,"","",L"",Target->getId());
+				gMessageLib->sendSystemMessage(Target, L"", "healing_response", "healing_response_43", "", "", L"", maxwoundheal,"","",L"",0,Medic->getId());
+			}
+		}
+	}
+	else if (healType == strength)
+	{
+		TargetWounds = ham->mStrength.getWounds();
+		maxwoundheal = MedicManager::CalculateBF(Medic, Target, WoundHealPower);
+		maxwoundheal = maxwoundheal * ((100 + healingskill) / 100);
+		maxwoundheal = min(maxwoundheal, TargetWounds);
+		ham->updatePropertyValue(HamBar_Strength ,HamProperty_Wounds, -maxwoundheal);
+		if (maxwoundheal > 0)
+		{
+			//success message
+			if (isSelf)
+				gMessageLib->sendSystemMessage(Medic,L"","healing_response","healing_response_19","","",L"",maxwoundheal);
+			else{
+				gMessageLib->sendSystemMessage(Medic ,L"", "healing_response", "healing_response_31", "", "", L"", maxwoundheal,"","",L"",Target->getId());
+				gMessageLib->sendSystemMessage(Target, L"", "healing_response", "healing_response_46", "", "", L"", maxwoundheal,"","",L"",0,Medic->getId());	
+			}
+		}
+	}
+	return maxwoundheal;
+}
 void MedicManager::startInjuryTreatmentEvent(PlayerObject* Medic)
 {
 		uint healingspeed = Medic->getSkillModValue(SMod_healing_injury_speed);
@@ -905,7 +943,7 @@ void MedicManager::startWoundTreatmentEvent(PlayerObject* Medic)
 {
 		uint healingspeed = Medic->getSkillModValue(SMod_healing_wound_speed);
 		int delay = (int)((( 100 - (float)healingspeed ) / 100 ) * 10000); 
-		uint64 cooldown = std::max(4000, delay);
+		uint64 cooldown = std::max(1000, delay);
 		uint64 now = gWorldManager->GetCurrentGlobalTick();
 
 		Medic->getController()->addEvent(new WoundTreatmentEvent(now + cooldown), cooldown);

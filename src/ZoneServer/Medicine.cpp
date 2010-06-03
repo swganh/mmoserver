@@ -48,7 +48,7 @@ void Medicine::handleStimpackMenuSelect(uint8 messageType, PlayerObject* player,
 		case radId_itemUse:
 		{
 			//get heal target
-			if (CreatureObject* target = dynamic_cast<CreatureObject*>(player->getHealingTarget(player)))
+			if (PlayerObject* target = dynamic_cast<PlayerObject*>(player->getHealingTarget(player)))
 			{
 				//check Medic has enough Mind
 				if(player->getHam()->checkMainPools(0, 0, 140))
@@ -83,7 +83,7 @@ void Medicine::handleWoundPackMenuSelect(uint8 messageType, PlayerObject* player
 		case radId_itemUse:
 		{
 			//get wound heal target
-			if (CreatureObject* target = dynamic_cast<CreatureObject*>(player->getHealingTarget(player)))
+			if (PlayerObject* target = dynamic_cast<PlayerObject*>(player->getHealingTarget(player)))
 			{
 				//check Medic has enough Mind
 				if(player->getHam()->checkMainPools(0, 0, 140))
@@ -164,7 +164,7 @@ void Medicine::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 				case ItemType_Wound_Constitution_C:
 				case ItemType_Wound_Constitution_D:
 				case ItemType_Wound_Constitution_E:
-					handleWoundPackMenuSelect(messageType, player, action);
+					handleWoundPackMenuSelect(messageType, player, constitution);
 					break;
 				case ItemType_Wound_Health_A:
 				case ItemType_Wound_Health_B:

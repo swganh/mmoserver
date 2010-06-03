@@ -82,7 +82,6 @@ class CreatureObject : public MovingObject
 		void				setSpeciesGroup(const int8* speciesGroup){ mSpeciesGroup = speciesGroup; }
 		//Object*			getTarget() const { return mTargetObject; }
 		Object*				getTarget() const;
-		Object*				getHealingTarget(PlayerObject* player) const;
 		// void				setTarget(Object* object){ mTargetObject = object; }
 		void				setTarget(uint64 targetId){ mTargetId = targetId; }
 		// uint64			getTargetId() const { return(mTargetObject != NULL) ? mTargetObject->getId():0; }

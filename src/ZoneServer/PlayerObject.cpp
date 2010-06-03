@@ -1983,7 +1983,25 @@ EMLocationType PlayerObject::getPlayerLocation()
 
 	return EMLocation_NULL;
 }
+Object* PlayerObject::getHealingTarget(PlayerObject* Player) const
+{
+	PlayerObject* PlayerTarget = dynamic_cast<PlayerObject*>(Player->getTarget());
 
+	if (PlayerTarget && PlayerTarget->getId() != Player->getId())
+	{
+		//check pvp status
+		if(Player->getPvPStatus() != PlayerTarget->getPvPStatus())
+		{
+			//send pvp_no_help
+			gLogger->log(LogManager::DEBUG,"PVP Flag not right");
+			gMessageLib->sendSystemMessage(Player,L"","healing","pvp_no_help");
+			//return Player as the healing target
+			return Player;
+		}
+		return PlayerTarget;
+	}
+	return Player;
+}
 //=============================================================================
 
 void PlayerObject::setCombatTargetId(uint64 targetId)

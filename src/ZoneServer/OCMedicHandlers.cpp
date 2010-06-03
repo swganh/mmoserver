@@ -47,6 +47,18 @@ using ::boost::smatch;
 using ::boost::regex_search;
 using ::boost::sregex_token_iterator;
 #endif
+
+	//consts
+	const char* const woundpack = "woundpack";
+	const char* const stim = "stim";
+	const char* const rangedstim = "ranged";
+	const char* const self = "self";
+	const char* const action = "action";
+	const char* const constitution = "constitution";
+	const char* const health = "health";
+	const char* const quickness = "quickness";
+	const char* const stamina = "stamina";
+	const char* const strength = "strength";
 //=============================================================================================================================
 //
 // diagnose
@@ -73,9 +85,9 @@ void ObjectController::_handleDiagnose(uint64 targetId, Message* message,ObjectC
 void ObjectController::_handleHealDamage(uint64 targetId, Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
 	PlayerObject* Medic = dynamic_cast<PlayerObject*>(mObject);
-	CreatureObject* Target = dynamic_cast<CreatureObject*>(Medic->getHealingTarget(Medic));
+	PlayerObject* Target = dynamic_cast<PlayerObject*>(Medic->getHealingTarget(Medic));
 
-	mHandlerCompleted = gMedicManager->CheckMedicine(Medic, Target, cmdProperties, "stim");
+	mHandlerCompleted = gMedicManager->CheckMedicine(Medic, Target, cmdProperties, stim);
 	if (mHandlerCompleted)
 	{
 		//call the event
@@ -91,18 +103,7 @@ void ObjectController::_handleHealDamage(uint64 targetId, Message* message,Objec
 void ObjectController::_handleHealWound(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
 	PlayerObject* Medic = dynamic_cast<PlayerObject*>(mObject);
-	CreatureObject* Target = dynamic_cast<CreatureObject*>(Medic->getHealingTarget(Medic));
-	//consts
-	const char* const woundpack = "woundpack";
-	const char* const stim = "stim";
-	const char* const rangedstim = "ranged";
-	const char* const self = "self";
-	const char* const action = "action";
-	const char* const constitution = "constitution";
-	const char* const health = "health";
-	const char* const quickness = "quickness";
-	const char* const stamina = "stamina";
-	const char* const strength = "strength";
+	PlayerObject* Target = dynamic_cast<PlayerObject*>(Medic->getHealingTarget(Medic));
 
 // Read the message out of the packet.
   string tmp;
@@ -111,7 +112,7 @@ void ObjectController::_handleHealWound(uint64 targetId,Message* message,ObjectC
   // If the string has no length the message is ill-formatted, send the
   // proper format to the client.
   if (!tmp.getLength()) {
-	 if(gMedicManager->CheckMedicine(Medic, Target, cmdProperties, "woundpack"))
+	 if(gMedicManager->CheckMedicine(Medic, Target, cmdProperties, woundpack))
 	 { 
 		//call the event
 		gMedicManager->startWoundTreatmentEvent(Medic);

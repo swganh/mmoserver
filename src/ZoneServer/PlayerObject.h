@@ -214,7 +214,8 @@ class PlayerObject : public CreatureObject
 		void				setContactListUpdatePending(bool b){ mContactListUpdatePending = b; }
 
 		virtual	void		handleObjectMenuSelect(uint8 messageType,Object* srcObject);
-
+		// Healing
+		Object*				getHealingTarget(PlayerObject* Player) const;
 		// Entertainment
 		EMLocationType		getPlayerLocation();
 		uint64				getPlacedInstrumentId(){return mPlacedInstrument;}

@@ -59,10 +59,16 @@ public:
 		}
 	}
 
-	bool CheckStim(PlayerObject* Medic, CreatureObject* Target, ObjectControllerCmdProperties* cmdProperties);
-	bool HealDamage(PlayerObject* Medic, CreatureObject* Target, uint64 StimPackObjectID, ObjectControllerCmdProperties* cmdProperties);
-	bool HealDamageRanged(PlayerObject* Medic, CreatureObject* Target, uint64 StimPackObjectID, ObjectControllerCmdProperties* cmdProperties);
+	bool CheckMedicine(PlayerObject* Medic, PlayerObject* Target, ObjectControllerCmdProperties* cmdProperties, std::string Type);
+	bool CheckMedicRange(PlayerObject* Medic, PlayerObject* Target, float healRange);
+	int32  CalculateBF(PlayerObject* Medic, PlayerObject* Target, int32 maxhealamount);
+	
+	bool HealDamage(PlayerObject* Medic, PlayerObject* Target, uint64 StimPackObjectID, ObjectControllerCmdProperties* cmdProperties);
+	bool HealDamageRanged(PlayerObject* Medic, PlayerObject* Target, uint64 StimPackObjectID, ObjectControllerCmdProperties* cmdProperties);
+	bool HealWound(PlayerObject* Medic, PlayerObject* Target, uint64 WoundPackobjectID, ObjectControllerCmdProperties* cmdProperties, std::string healType);
+
 	void startInjuryTreatmentEvent(PlayerObject* Medic);
+	void startWoundTreatmentEvent(PlayerObject* Medic);
 	bool Diagnose(PlayerObject* Medic, PlayerObject* Target);
 	void successForage(PlayerObject* player);
 

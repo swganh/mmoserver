@@ -150,13 +150,25 @@ void CharacterBuilderTerminal::InitBuffs()
 void CharacterBuilderTerminal::InitWounds()
 {
 	mWoundMenu.push_back("+100 Health Wound");
+	mWoundMenu.push_back("+100 Strength Wound");
+	mWoundMenu.push_back("+100 Stamina Wound");
 	mWoundMenu.push_back("+100 Action Wound");
+	mWoundMenu.push_back("+100 Constitution Wound");
+	mWoundMenu.push_back("+100 Quickness Wound");
 	mWoundMenu.push_back("+100 Mind Wound");
+	mWoundMenu.push_back("+100 Focus Wound");
+	mWoundMenu.push_back("+100 willpower Wound");
 	mWoundMenu.push_back("+100 Battle Fatigue");
 
 	mWoundMenu.push_back("-100 Health Wound");
+	mWoundMenu.push_back("-100 Strength Wound");
+	mWoundMenu.push_back("-100 Stamina Wound");
 	mWoundMenu.push_back("-100 Action Wound");
+	mWoundMenu.push_back("-100 Quickness Wound");
+	mWoundMenu.push_back("-100 Constitution Wound");
 	mWoundMenu.push_back("-100 Mind Wound");
+	mWoundMenu.push_back("-100 Focus Wound");
+	mWoundMenu.push_back("-100 willpower Wound");
 	mWoundMenu.push_back("-100 Battle Fatigue");
 }
 void CharacterBuilderTerminal::InitItems()
@@ -1249,31 +1261,66 @@ void CharacterBuilderTerminal::_handleWoundMenu(PlayerObject* playerObject, uint
 	case 0: //Health Wound
 		playerObject->getHam()->updatePropertyValue(HamBar_Health, HamProperty_Wounds, 100);
 		break;
-	case 1: //Action Wound
+	case 1: //Strength Wound
+		playerObject->getHam()->updatePropertyValue(HamBar_Strength, HamProperty_Wounds, 100);
+		break;
+	case 2: //Constitution Wound
+		playerObject->getHam()->updatePropertyValue(HamBar_Constitution, HamProperty_Wounds, 100);
+		break;
+	case 3: //Action Wound
 		playerObject->getHam()->updatePropertyValue(HamBar_Action, HamProperty_Wounds, 100);
 		break;
-	case 2: //Mind Wound
-		playerObject->getHam()->updatePropertyValue(HamBar_Mind, HamProperty_Wounds, 100);
+	case 4: //Stamina Wound
+		playerObject->getHam()->updatePropertyValue(HamBar_Stamina, HamProperty_Wounds, 100);
 		break;
-	case 3: //BattleFatigue
-		playerObject->getHam()->updateBattleFatigue(100);
-		break;
-	case 4: //Health Wound
-		playerObject->getHam()->updatePropertyValue(HamBar_Health, HamProperty_Wounds, -100);
-		break;
-	case 5: //Action Wound
-		playerObject->getHam()->updatePropertyValue(HamBar_Action, HamProperty_Wounds, -100);
+	case 5: //Quickness Wound
+		playerObject->getHam()->updatePropertyValue(HamBar_Quickness, HamProperty_Wounds, 100);
 		break;
 	case 6: //Mind Wound
+		playerObject->getHam()->updatePropertyValue(HamBar_Mind, HamProperty_Wounds, 100);
+		break;
+	case 7: //Focus Wound
+		playerObject->getHam()->updatePropertyValue(HamBar_Focus, HamProperty_Wounds, 100);
+		break;
+	case 8: //Willpower Wound
+		playerObject->getHam()->updatePropertyValue(HamBar_Willpower, HamProperty_Wounds, 100);
+		break;
+	case 9: //BattleFatigue
+		playerObject->getHam()->updateBattleFatigue(100);
+		break;
+	case 10: //Health Wound
+		playerObject->getHam()->updatePropertyValue(HamBar_Health, HamProperty_Wounds, 100);
+		break;
+	case 11: //Strength Wound
+		playerObject->getHam()->updatePropertyValue(HamBar_Strength, HamProperty_Wounds, 100);
+		break;
+	case 12: //Constitution Wound
+		playerObject->getHam()->updatePropertyValue(HamBar_Constitution, HamProperty_Wounds, 100);
+		break;
+	case 13: //Action Wound
+		playerObject->getHam()->updatePropertyValue(HamBar_Action, HamProperty_Wounds, 100);
+		break;
+	case 14: //Stamina Wound
+		playerObject->getHam()->updatePropertyValue(HamBar_Stamina, HamProperty_Wounds, 100);
+		break;
+	case 15: //Quickness Wound
+		playerObject->getHam()->updatePropertyValue(HamBar_Quickness, HamProperty_Wounds, 100);
+		break;
+	case 16: //Mind Wound
 		playerObject->getHam()->updatePropertyValue(HamBar_Mind, HamProperty_Wounds, -100);
 		break;
-	case 7: //BattleFatigue
+	case 17: //Focus Wound
+		playerObject->getHam()->updatePropertyValue(HamBar_Focus, HamProperty_Wounds, -100);
+		break;
+	case 18: //Willpower Wound
+		playerObject->getHam()->updatePropertyValue(HamBar_Willpower, HamProperty_Wounds, -100);
+		break;
+	case 19: //BattleFatigue
 		playerObject->getHam()->updateBattleFatigue(-100);
 		break;
 	default:
 		break;
-	}
-	
+	}	
 }
 
 void CharacterBuilderTerminal::_handleStructureMenu(PlayerObject* playerObject, uint32 action,int32 element,string inputStr,UIWindow* window)

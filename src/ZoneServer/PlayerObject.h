@@ -40,6 +40,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "BurstRunEvent.h"
 #include "ItemDeleteEvent.h"
 #include "InjuryTreatmentEvent.h"
+#include "WoundTreatmentEvent.h"
 #include "Common/DispatchClient.h"
 #include <map>
 
@@ -229,7 +230,8 @@ class PlayerObject : public CreatureObject
 		void				setContactListUpdatePending(bool b){ mContactListUpdatePending = b; }
 
 		virtual	void		handleObjectMenuSelect(uint8 messageType,Object* srcObject);
-
+		// Healing
+		Object*				getHealingTarget(PlayerObject* Player) const;
 		// Entertainment
 		EMLocationType		getPlayerLocation();
 		uint64				getPlacedInstrumentId(){return mPlacedInstrument;}
@@ -341,6 +343,7 @@ class PlayerObject : public CreatureObject
 		void				onBurstRun(const BurstRunEvent* event);
 		void				onItemDeleteEvent(const ItemDeleteEvent* event);
 		void				onInjuryTreatment(const InjuryTreatmentEvent* event);
+		void				onWoundTreatment(const WoundTreatmentEvent* event);
 								 
 
 		// cloning

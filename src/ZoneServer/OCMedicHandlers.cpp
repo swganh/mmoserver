@@ -24,6 +24,15 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
+#include "ObjectController.h"
+#include <cstdint>
+#ifdef _MSC_VER
+#include <regex>  // NOLINT
+#else
+#endif
+
+#include <boost/regex.hpp>  // NOLINT
+
 #include "MedicManager.h"
 #include "ObjectController.h"
 #include "ObjectControllerOpcodes.h"
@@ -39,7 +48,33 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Common/Message.h"
 #include "ForageManager.h"
 
+// GCC doesn't fully support regex yet (some methods are unimplemented at this
+// time), so fall back to the boost regex (which is essentially the same
+// interface, different namespace). Once GCC finishes their implementation all
+// boost/regex references can be removed.
+#ifdef WIN32
+using ::std::regex;
+using ::std::smatch;
+using ::std::regex_search;
+using ::std::sregex_token_iterator;
+#else
+using ::boost::regex;
+using ::boost::smatch;
+using ::boost::regex_search;
+using ::boost::sregex_token_iterator;
+#endif
 
+	//consts
+	const char* const woundpack = "woundpack";
+	const char* const stim = "stim";
+	const char* const rangedstim = "ranged";
+	const char* const self = "self";
+	const char* const action = "action";
+	const char* const constitution = "constitution";
+	const char* const health = "health";
+	const char* const quickness = "quickness";
+	const char* const stamina = "stamina";
+	const char* const strength = "strength";
 //=============================================================================================================================
 //
 // diagnose
@@ -66,9 +101,9 @@ void ObjectController::_handleDiagnose(uint64 targetId, Message* message,ObjectC
 void ObjectController::_handleHealDamage(uint64 targetId, Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
 	PlayerObject* Medic = dynamic_cast<PlayerObject*>(mObject);
-	CreatureObject* Target = dynamic_cast<CreatureObject*>(Medic->getHealingTarget(Medic));
+	PlayerObject* Target = dynamic_cast<PlayerObject*>(Medic->getHealingTarget(Medic));
 
-	mHandlerCompleted = gMedicManager->CheckStim(Medic, Target, cmdProperties);
+	mHandlerCompleted = gMedicManager->CheckMedicine(Medic, Target, cmdProperties, stim);
 	if (mHandlerCompleted)
 	{
 		//call the event
@@ -83,8 +118,42 @@ void ObjectController::_handleHealDamage(uint64 targetId, Message* message,Objec
 
 void ObjectController::_handleHealWound(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	//PlayerObject* Medic = dynamic_cast<PlayerObject*>(mObject);
-	//gMessageLib->sendSystemMessage(Medic, "Heal Wound has not been implemented yet. Sorry.");
+	PlayerObject* Medic = dynamic_cast<PlayerObject*>(mObject);
+	PlayerObject* Target = dynamic_cast<PlayerObject*>(Medic->getHealingTarget(Medic));
+
+// Read the message out of the packet.
+  string tmp;
+  message->getStringUnicode16(tmp);
+
+  // If the string has no length the message is ill-formatted, send the
+  // proper format to the client.
+  if (!tmp.getLength()) {
+	 if(gMedicManager->CheckMedicine(Medic, Target, cmdProperties, woundpack))
+	 { 
+		//call the event
+		gMedicManager->startWoundTreatmentEvent(Medic);
+		return;
+	 }
+  }
+
+  // Convert the string to an ansi string for ease with the regex.
+  tmp.convert(BSTRType_ANSI);
+  std::string input_string(tmp.getAnsi());
+
+  static const regex pattern("(action|constitution|health|quickness|stamina|strength)");
+  smatch result;
+
+  regex_search(input_string, result, pattern);
+  
+  // Gather the results of the pattern for validation and use.
+  std::string medpackType(result[1]);
+
+	if (gMedicManager->CheckMedicine(Medic, Target, cmdProperties, medpackType))
+	{
+		//call the event
+		gMedicManager->startWoundTreatmentEvent(Medic);
+		return;
+	}
 }
 
 //=============================================================================================================================

@@ -655,10 +655,37 @@ void PlayerObject::onItemDeleteEvent(const ItemDeleteEvent* event)
 void PlayerObject::onInjuryTreatment(const InjuryTreatmentEvent* event)
 {
 	uint64 now = gWorldManager->GetCurrentGlobalTick();
+	uint64 t = event->getInjuryTreatmentTime();
 
-	if(now >  event->getInjuryTreatmentTime())
+	if(now > t)
 	{
 		this->togglePlayerCustomFlagOff(PlayerCustomFlag_InjuryTreatment);
 		gMessageLib->sendSystemMessage(this, L"", "healing_response", "healing_response_58");
+	}
+	
+	//have to call once more so we can get back here...
+	else
+	{
+		mObjectController.addEvent(new InjuryTreatmentEvent(t), t-now);
+	}
+}
+
+//=============================================================================
+// this event manages wound treatment cooldowns.
+//
+void PlayerObject::onWoundTreatment(const WoundTreatmentEvent* event)
+{
+	uint64 now = gWorldManager->GetCurrentGlobalTick();
+	uint64 t = event->getWoundTreatmentTime();
+
+	if(now >  t)
+	{
+		this->togglePlayerCustomFlagOff(PlayerCustomFlag_WoundTreatment);
+		gMessageLib->sendSystemMessage(this, L"", "healing_response", "healing_response_59");
+	}
+	//have to call once more so we can get back here...
+	else
+	{
+		mObjectController.addEvent(new WoundTreatmentEvent(t), t-now);
 	}
 }

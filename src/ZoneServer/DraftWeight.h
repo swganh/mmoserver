@@ -33,15 +33,15 @@ class DraftWeight
 
 		void	prepareData();
 		uint8	getData(){ return mData; }
-		uint64  getSchemId() {return mSchematicId;}
-		uint32  getSchemGroupId(){return mSchemGroupId;}
+		uint32  getSchemWeightBatch(){return mSchemWeightBatch;}
+		uint32  getBatchListId(){return mBatchListId;}
 
 	private:
-		uint64  mSchematicId;
-		uint32  mSchemGroupId;
+		uint32  mSchemWeightBatch;
 		uint8	mDataType;
 		uint8	mDistribution;
 		uint8	mData;
+		uint32  mBatchListId;
 };
 
 #endif

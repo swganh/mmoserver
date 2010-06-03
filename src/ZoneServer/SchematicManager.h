@@ -21,7 +21,6 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include <boost/unordered_map.hpp>
 
 
-
 //======================================================================================================================
 
 class Database;
@@ -33,7 +32,8 @@ class ScMAsyncContainer;
 
 typedef std::vector<SchematicGroup*>			SchematicGroupList;
 typedef std::map<uint32,DraftSchematic*>		SchematicMap;
-typedef boost::unordered_map<uint64, DraftSchematic*> SchematicMap64;
+//typedef std::vector<DraftSchematic*>            
+typedef boost::unordered_map<uint32, DraftSchematic*> SchematicList;
 
 //======================================================================================================================
 
@@ -88,8 +88,9 @@ class SchematicManager : public DatabaseCallback
 		SchematicMap*				getWeightMap(){ return &mSchematicWeightMap; }
 		DraftSchematic*				getSchematicBySlotId(uint32 slotId);
 		DraftSchematic*				getSchematicByWeightId(uint32 weightId);
-		DraftSchematic*				getSchematicByID(uint64 schematicId);
-		DraftSchematic*				getSchematicByID(uint64 schematicId, uint32 groupid);
+		//DraftSchematic*				getSchematicByID(uint64 schematicId);
+		//DraftSchematic*				getSchematicByID(uint64 schematicId, uint32 groupid);
+		DraftSchematic*				getSchematicByWeightID(uint32 weightsbatch_Id);
 		string						getExpGroup(uint32 groupId){ return mvExpGroups[groupId - 1]; }
 
 		void						releaseAllPoolsMemory(){ mDBAsyncPool.release_memory(); }
@@ -109,7 +110,7 @@ class SchematicManager : public DatabaseCallback
 		SchematicGroupList			mSchematicGroupList;
 		SchematicMap				mSchematicSlotMap;
 		SchematicMap				mSchematicWeightMap;
-		SchematicMap64				mSchematicMap;
+		SchematicList				mSchematicList;
 
 		uint32						mGroupCount;
 		uint32						mGroupLoadCount;

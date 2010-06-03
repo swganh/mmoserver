@@ -73,14 +73,21 @@ void CellObject::prepareDestruction()
 		if(PlayerObject* player = dynamic_cast<PlayerObject*>(object))
 		{
 			//place the player in the world
-			player->setParentId(0,0xffffffff,player->getKnownPlayers(),true);
-			objIt = cellObjects->erase(objIt);
+			glm::vec3 playerWorldPosition = player->getWorldPosition();
+			playerWorldPosition.x += 2;
+			playerWorldPosition.z += 2;
+			player->updatePosition(0,playerWorldPosition);
+			player->setParentIdIncDB(0);
+			//already removed out of the cell
+			objIt = cellObjects->begin();
 		}
 		else
 		if(CreatureObject* pet = dynamic_cast<CreatureObject*>(object))
 		{
-			pet->setParentId(0,0xffffffff,pet->getKnownPlayers(),true);
-			objIt = cellObjects->erase(objIt);
+			pet->setParentIdIncDB(0);
+			pet->updatePosition(0,pet->getWorldPosition());
+			//already removed out of the cell
+			objIt = cellObjects->begin();
 		}
 		else
 		{

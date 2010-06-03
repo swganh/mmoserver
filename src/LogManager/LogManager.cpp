@@ -97,6 +97,7 @@ void LogManager::_LoggerThread()
 						fprintf(mOutputFile, "                 ");
 					
 					fprintf(mOutputFile, "%s\n", (*it)->mMessage.c_str());
+					fflush(mOutputFile);
 				}
 			}
 

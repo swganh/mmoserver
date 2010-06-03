@@ -1138,8 +1138,9 @@ uint64 ObjectController::playerWorldUpdate(bool forcedUpdate)
 					// If active target out of range, clear.
 					if (player->getTargetId())
 					{
+						Object* target = player->getTarget();
 
-						if (!(player->checkKnownObjects(player->getTarget())))
+						if (target && (!(player->checkKnownObjects(target))))
 						{
 							player->setTarget(0);
 							gMessageLib->sendTargetUpdateDeltasCreo6(player);

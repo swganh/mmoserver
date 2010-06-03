@@ -69,7 +69,7 @@ void ElevatorTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObjec
 		playerObject->updatePosition(mDstCellUp,mDstPosUp);
 
 		
-		gMessageLib->sendDataTransformWithParent053(playerObject);
+		//gMessageLib->sendDataTransformWithParent053(playerObject);
 
 	}
 	else if(messageType == radId_elevatorDown)
@@ -85,7 +85,7 @@ void ElevatorTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObjec
 
 		playerObject->updatePosition(mDstCellDown,mDstPosDown);		
 		
-		gMessageLib->sendDataTransformWithParent053(playerObject);
+		//gMessageLib->sendDataTransformWithParent053(playerObject);
 	}
 	else
 	{

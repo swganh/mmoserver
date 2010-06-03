@@ -522,7 +522,7 @@ void Session::ProcessWriteThread(void)
 		  }
       }
 	  else	  
-	  if (this->mServerService && ((t - mLastPacketReceived) > 20000))
+	  if (this->mServerService && (t > 20000))
 	  {
 		  if((t - mLastPingPacketSent) > 2000)
 				_sendPingPacket();

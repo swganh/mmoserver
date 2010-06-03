@@ -82,6 +82,8 @@ class DraftSchematic
 		void				setComplexity(uint32 comp){ mComplexity = comp; }
 		uint32				getDataSize(){ return mDataSize; }
 		void				setDataSize(uint32 datasize){ mDataSize = datasize; }
+		uint32				getGroupId(){return mGroupId;}
+		void				setGroupId(uint32 value){mGroupId=value;}
 		WeightsBatch*		getAssemblyWeightsBatchByListId(uint32 listId);
 		WeightsBatch*		getExperimentWeightsBatchByListId(uint32 listId);
 		CraftBatch*			getCraftBatchByListId(uint32 listId);
@@ -99,6 +101,7 @@ class DraftSchematic
 		uint64				mId;
 		uint32				mCrc;
 
+		uint32				mGroupId;
 		uint32				mWeightsBatchId;
 		string				mModel;
 		SchematicLoadState	mLoadState;

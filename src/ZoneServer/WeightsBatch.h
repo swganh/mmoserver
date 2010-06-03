@@ -48,12 +48,13 @@ class WeightsBatch
 		uint32			getId(){ return mId; }
 		uint32			getListId(){ return mListId; }
 		DraftWeights*	getWeights(){ return &mWeights; }
-
+		uint32  getSchemWeightBatch(){return mSchemWeightBatch;}
 	private:
 
 		uint32			mId;
 		uint32			mListId;
 		DraftWeights	mWeights;
+		uint32  mSchemWeightBatch;
 };
 
 #endif

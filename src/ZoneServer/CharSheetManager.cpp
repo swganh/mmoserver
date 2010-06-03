@@ -60,6 +60,7 @@ mDBAsyncPool(sizeof(CSAsyncContainer))
 	_registerCallbacks();
 	_loadCommandMap();
 
+	//gLogger->log(LogManager::DEBUG,"Started Loading Factions.");
 	mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.malloc()) CSAsyncContainer(CharSheetQuery_Factions),"SELECT * FROM faction ORDER BY id");
 }
 
@@ -146,7 +147,7 @@ void CharSheetManager::handleDatabaseJobComplete(void* ref, DatabaseResult* resu
 			binding->addField(DFT_bstring,0,255,1);
 
 			uint64 count = result->getRowCount();
-
+			mvFactions.reserve((uint32)count);
 			for(uint64 i = 0;i < count;i++)
 			{
 				result->GetNextRow(binding,&name);
@@ -158,7 +159,9 @@ void CharSheetManager::handleDatabaseJobComplete(void* ref, DatabaseResult* resu
 
 			mDatabase->DestroyDataBinding(binding);
 
+			gLogger->log(LogManager::DEBUG,"Finished Loading Factions.");
 			// load badge categories
+			gLogger->log(LogManager::NOTICE,"Loading Badge Categories.");
 			mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.malloc()) CSAsyncContainer(CharSheetQuery_BadgeCategories),"SELECT * FROM badge_categories ORDER BY id");
 		}
 		break;
@@ -170,7 +173,7 @@ void CharSheetManager::handleDatabaseJobComplete(void* ref, DatabaseResult* resu
 			binding->addField(DFT_bstring,0,255,1);
 
 			uint64 count = result->getRowCount();
-
+			mvBadgeCategories.reserve((uint32)count);
 			for(uint64 i = 0;i < count;i++)
 			{
 				result->GetNextRow(binding,&name);
@@ -179,6 +182,8 @@ void CharSheetManager::handleDatabaseJobComplete(void* ref, DatabaseResult* resu
 
 			mDatabase->DestroyDataBinding(binding);
 
+			//gLogger->log(LogManager::DEBUG,"Finished Loading Badge Categories.");
+			//gLogger->log(LogManager::NOTICE,"Loading Badges.");
 			mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.malloc()) CSAsyncContainer(CharSheetQuery_Badges),"SELECT * FROM badges ORDER BY id");
 		}
 		break;
@@ -194,7 +199,7 @@ void CharSheetManager::handleDatabaseJobComplete(void* ref, DatabaseResult* resu
 			binding->addField(DFT_uint8,offsetof(Badge,mCategory),1,3);
 
 			uint64 count = result->getRowCount();
-
+			mvBadges.reserve((uint32)count);
 			for(uint64 i = 0;i < count;i++)
 			{
 				badge = new Badge();
@@ -202,10 +207,8 @@ void CharSheetManager::handleDatabaseJobComplete(void* ref, DatabaseResult* resu
 				mvBadges.push_back(badge);
 			}
 
-			mDatabase->DestroyDataBinding(binding);
-
-			if(result->getRowCount())
-				gLogger->log(LogManager::INFORMATION,"Loading %u weapon groups...",result->getRowCount());				
+			mDatabase->DestroyDataBinding(binding);	
+			//gLogger->log(LogManager::DEBUG,"Finished Loading Badges.");
 		}
 		break;
 

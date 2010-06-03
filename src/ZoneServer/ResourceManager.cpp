@@ -267,11 +267,12 @@ void ResourceManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 			Resource* resource;
 
 			uint64 count = result->getRowCount();
+			//gLogger->log(LogManager::INFORMATION,"Loading %u Old Resources",count);
 
 			for(uint64 i = 0;i < count;i++)
 			{
 				resource = new Resource();
-
+				
 				result->GetNextRow(mResourceBinding,resource);
 
 				if(getResourceById(resource->mId) == NULL)
@@ -295,7 +296,7 @@ void ResourceManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 			CurrentResource* resource;
 
 			uint64 count = result->getRowCount();
-
+			gLogger->log(LogManager::INFORMATION,"Starting Build of Resource Distribution Maps");
 			for(uint64 i = 0;i < count;i++)
 			{
 				resource = new CurrentResource();
@@ -310,9 +311,9 @@ void ResourceManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 			}
 
 			if(result->getRowCount())
-				gLogger->log(LogManager::DEBUG,"Generating %u maps...",result->getRowCount());
+				gLogger->log(LogManager::DEBUG,"%u Resource Maps Generated",result->getRowCount());
 					
-
+			gLogger->log(LogManager::DEBUG,"Querying for Old Resource Spawns");
 			// query old and current resources not from this planet
 			mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) RMAsyncContainer(RMQuery_OldResources),"SELECT * FROM resources");
 		}

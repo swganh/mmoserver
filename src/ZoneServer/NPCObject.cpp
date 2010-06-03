@@ -124,13 +124,13 @@ float NPCObject::getHeightAt2DPosition(float xPos, float zPos, bool bestOffer) c
 {
 	float yPos = FLT_MIN;
 
-	if (Heightmap::isHeightmapCacheAvaliable() && (Heightmap::Instance()->isHighResCache() || !bestOffer))
+	if (Heightmap::isHeightmapCacheAvaliable() && (gHeightmap->isHighResCache() || !bestOffer))
 	{
-		yPos = Heightmap::Instance()->getCachedHeightAt2DPosition(xPos, zPos);
+		yPos = gHeightmap->getCachedHeightAt2DPosition(xPos, zPos);
 	}
 	else
 	{
-		yPos = Heightmap::Instance()->getHeight(xPos, zPos);
+		yPos = gHeightmap->getHeight(xPos, zPos);
 	}
 	if (yPos == FLT_MIN)
 	{
@@ -212,7 +212,7 @@ void NPCObject::moveAndUpdatePosition(void)
 		// Testing to actually use a somewhat real height value.
 		position.x += this->getPositionOffset().x;
 		position.z += this->getPositionOffset().z;
-		position.y = Heightmap::Instance()->getCachedHeightAt2DPosition(position.x, position.z);
+		position.y = gHeightmap->getCachedHeightAt2DPosition(position.x, position.z);
 	}
 	// send out position updates to known players
 	this->updatePosition(this->getParentId(),position);

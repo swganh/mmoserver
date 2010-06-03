@@ -84,7 +84,7 @@ void HarvesterFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 		case HFQuery_ResourceData:
 		{
 
-			uint64 count = result->getRowCount();
+			uint32 count = (uint32)result->getRowCount();
 
 			HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(asyncContainer->mObject);
 
@@ -95,7 +95,7 @@ void HarvesterFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 				binding->addField(DFT_float,offsetof(HarvesterHopperItem,Quantity),4,1);
 				
 				HResourceList*	hRList = harvester->getResourceList();
-				
+				hRList->resize(hRList->size()+count);
 				HResourceList::iterator it = hRList->begin();
 
 				HarvesterHopperItem hopperTemp;

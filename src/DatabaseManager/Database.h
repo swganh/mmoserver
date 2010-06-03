@@ -86,7 +86,8 @@ class Database
   bool									  releaseJobPoolMemory(){ return(mJobPool.release_memory()); }
   bool									  releaseTransactionPoolMemory(){ return(mTransactionPool.release_memory()); }
   bool									  releaseBindingPoolMemory(){ return(mDataBindingFactory->releasePoolMemory()); }
-  
+  int									  GetCount(const int8* tablename);
+  int									  GetSingleValueSync(const int8* sql);
 private:
 
   DBType                                  mDatabaseType;      // This denotes which DB implementation we are connecting to. MySQL, Postgres, etc.

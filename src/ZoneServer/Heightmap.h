@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_ZONESERVER_HEIGHTMAP_H
 #define ANH_ZONESERVER_HEIGHTMAP_H
 
-// #define     gHeightmap    Heightmap::getSingletonPtr()
+#define     gHeightmap    Heightmap::getSingletonPtr()
 
 #include "Utils/typedefs.h"
 #include "Utils/lockfree_queue.h"
@@ -41,7 +41,8 @@ class Heightmap
 {
 
 	public:
-		static Heightmap*  Instance(void);
+		static Heightmap*  Instance(uint16 resolution);
+		static Heightmap*  getSingletonPtr() { return mInstance; }
 		static void deleter(void)
 		{
 			if (mInstance)
@@ -62,8 +63,9 @@ class Heightmap
 		inline bool isHighResCache(void) { return (mCacheResoulutionDivider == 1);}
 		float getCachedHeightAt2DPosition(float xPos, float zPos) const;
 		float Heightmap::getHeight(float x, float y);
+		bool isReady();
 	protected:
-		Heightmap(const char* planet_name);
+		Heightmap(const char* planet_name, uint16 resolution);
 		~Heightmap();
 
 	private:
@@ -93,6 +95,7 @@ class Heightmap
 
 		int32 round_coord(float coord) const;
 
+		uint16  mResolution;
 		float	**mHeightmapCache;
 		int32	mCacheHeight;
 		int32	mCacheWidth;
@@ -115,6 +118,8 @@ class Heightmap
 
 		std::queue<HeightmapAsyncContainer*> Jobs;
 		boost::mutex mJobMutex;
+		boost::mutex mReadyMutex;
+		bool mReady;
 };
 
 #endif

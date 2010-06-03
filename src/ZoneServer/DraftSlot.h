@@ -68,14 +68,15 @@ class DraftSlot
 		uint8	getOptional(){ return mOptional; }
 		void	setOptional(uint8 optional){ mOptional = optional; }
 		
-
+		uint32  getSchemWeightBatch(){return mSchemWeightBatch;}
 	private:
 
 		string	mName;
 		string	mFile;
 		string	mResourceName;
 		uint32	mAmount;
-		
+		uint32  mSchemWeightBatch;
+
 		uint8	mType;
 		uint8	mOptional;
 };

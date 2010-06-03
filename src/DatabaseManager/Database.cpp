@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Database.h"
 
+#include "DataBinding.h"
 #include "DataBindingFactory.h"
 #include "DatabaseCallback.h"
 #include "DatabaseImplementation.h"
@@ -137,7 +138,26 @@ void Database::Process(void)
 		mJobPool.ordered_free(job);
 	}
 }
-
+//======================================================================================================================
+int Database::GetCount(const int8* tablename)
+{
+	int8    sql[100];
+	sprintf(sql, "SELECT COUNT(*) FROM %s;",tablename);
+	return GetSingleValueSync(sql);
+}
+//======================================================================================================================
+int Database::GetSingleValueSync(const int8* sql)
+{
+	uint32 value = 0;
+	DatabaseResult* result = ExecuteSql(sql);
+	
+	DataBinding* bind = CreateDataBinding(1);
+	bind->addField(DFT_uint32,0,4,0);
+	result->GetNextRow(bind,&value);
+	DestroyResult(result);
+	if(bind) SAFE_DELETE(bind);
+	return value;
+}
 //======================================================================================================================
 DatabaseResult* Database::ExecuteSynchSql(const int8* sql, ...)
 {

@@ -34,7 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <map>
 #include "DatabaseManager/DatabaseCallback.h"
 #include <boost/pool/pool.hpp>
-
+#include <boost/unordered_map.hpp>
 
 
 //======================================================================================================================
@@ -48,6 +48,8 @@ class ScMAsyncContainer;
 
 typedef std::vector<SchematicGroup*>			SchematicGroupList;
 typedef std::map<uint32,DraftSchematic*>		SchematicMap;
+//typedef std::vector<DraftSchematic*>            
+typedef boost::unordered_map<uint32, DraftSchematic*> SchematicList;
 
 //======================================================================================================================
 
@@ -102,7 +104,9 @@ class SchematicManager : public DatabaseCallback
 		SchematicMap*				getWeightMap(){ return &mSchematicWeightMap; }
 		DraftSchematic*				getSchematicBySlotId(uint32 slotId);
 		DraftSchematic*				getSchematicByWeightId(uint32 weightId);
-
+		//DraftSchematic*				getSchematicByID(uint64 schematicId);
+		//DraftSchematic*				getSchematicByID(uint64 schematicId, uint32 groupid);
+		DraftSchematic*				getSchematicByWeightID(uint32 weightsbatch_Id);
 		string						getExpGroup(uint32 groupId){ return mvExpGroups[groupId - 1]; }
 
 		void						releaseAllPoolsMemory(){ mDBAsyncPool.release_memory(); }
@@ -122,6 +126,7 @@ class SchematicManager : public DatabaseCallback
 		SchematicGroupList			mSchematicGroupList;
 		SchematicMap				mSchematicSlotMap;
 		SchematicMap				mSchematicWeightMap;
+		SchematicList				mSchematicList;
 
 		uint32						mGroupCount;
 		uint32						mGroupLoadCount;

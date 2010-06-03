@@ -54,7 +54,7 @@ class CraftBatch
 		uint32					getExpGroup(){ return mExpGroup; }
 		CraftWeights*			getCraftWeights(){ return &mWeights; }
 		CraftAttributes*		getCraftAttributes(){ return &mAttributes; }
-
+		uint32  getSchemWeightBatch(){return mSchemWeightBatch;}
 	private:
 
 		uint32					mId;
@@ -62,6 +62,7 @@ class CraftBatch
 		uint32					mExpGroup;
 		CraftWeights			mWeights;
 		CraftAttributes			mAttributes;
+		uint32  mSchemWeightBatch;
 };
 
 //=============================================================================
@@ -78,11 +79,14 @@ class CraftWeight
 		//returns the resource attribute like oq/pe etc
 		uint8	getDataType(){ return mDataType; }
 		float	getDistribution(){ return mDistribution; }
-
+		uint32  getSchemWeightBatch(){return mSchemWeightBatch;}
+		uint32  getBatchListId(){return mBatchListId;}
 	private:
 
 		uint8	mDataType;
 		float	mDistribution;
+		uint32  mSchemWeightBatch;
+		uint32  mBatchListId;
 };
 
 //=============================================================================
@@ -100,12 +104,13 @@ class CraftAttribute
 		string	getAttributeKey(){ return mAttributeKey; }
 		float	getMin(){ return mMin; }
 		float	getMax(){ return mMax; }
-
+		uint32  getSchemWeightBatch(){return mSchemWeightBatch;}
 		//determines whether the attributes value is integer or float ()draft_craft_item_attribute_link attribute_type
 		uint8	getType() { return mType; }
-
+		uint32  getListId() {return mListId;}
 	private:
-
+		uint32  mSchemWeightBatch;
+		uint32  mListId;
 		uint32	mAttributeId;
 		string	mAttributeKey;
 		uint8	mType;
@@ -136,9 +141,9 @@ class CraftAttributeWeight
 
 		uint32	getManipulation(){ return mManipulation; }
 
-
+		uint32  getSchemWeightBatch(){return mSchemWeightBatch;}
 	private:
-
+		uint32  mSchemWeightBatch;
 		uint32	mAttributeId;
 		string	mAttributeKey;
 

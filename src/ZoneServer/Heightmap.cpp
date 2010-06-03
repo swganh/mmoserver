@@ -32,13 +32,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <cfloat>
 
 //=============================================================================
-Heightmap::Heightmap(const char* planet_name)
+Heightmap::Heightmap(const char* planet_name, uint16 resolution)
 : mHeightmapCache(NULL)
 , mCacheHeight(0)
 , mCacheWidth(0)
 , mCacheResoulutionDivider(3)
 , WIDTH(15361)
 , HEIGHT(15361)
+, mResolution(resolution)
+, mReady(false)
 {
 	mFilename = planet_name;
 	mFilename += ".hmpw";
@@ -48,6 +50,15 @@ Heightmap::Heightmap(const char* planet_name)
 	mThread = boost::move(t);
 
 	mExit = false;
+}
+
+bool Heightmap::isReady()
+{
+	mReadyMutex.lock();
+	bool isReady = mReady;
+	mReadyMutex.unlock();
+
+	return isReady;
 }
 
 // Never used
@@ -89,11 +100,11 @@ bool Heightmap::mCacheAvaliable = false;
 
 //======================================================================================================================
 
-Heightmap* Heightmap::Instance(void)
+Heightmap* Heightmap::Instance(uint16 resolution)
 {
 	if (!mInstance)
 	{
-		mInstance = new Heightmap(gWorldManager->getPlanetNameThis());
+		mInstance = new Heightmap(gWorldManager->getPlanetNameThis(), resolution);
 	}
 	return mInstance;
 }
@@ -140,6 +151,23 @@ void Heightmap::fillInIterator(HeightResultMap::iterator it)
 
 void Heightmap::RunThread()
 {
+	// create a height-map cashe.
+	gLogger->log(LogManager::NOTICE,"Height map resolution = %d", mResolution);
+						
+	gLogger->log(LogManager::NOTICE,"Starting Heightmap Cache Creation. This might take a while!");
+	if (setupCache(mResolution))
+	{
+		gLogger->log(LogManager::NOTICE,"Height map cache setup successfully with resolution %d", mResolution);
+	}
+	else
+	{
+		gLogger->log(LogManager::NOTICE,"WorldManager::_handleLoadComplete heigthmap cache setup FAILED");
+	}
+
+	mReadyMutex.lock();
+	mReady = true;
+	mReadyMutex.unlock();
+
 	while(!mExit)
 	{
 		mJobMutex.lock();
@@ -255,6 +283,7 @@ bool Heightmap::getRow(unsigned char* buffer, int32 x, int32 z, int32 length)
 
 void Heightmap::Connect(void)
 {
+	
 	hmp = fopen(mFilename.c_str(),"r+b");
 	if(!hmp)
 	{

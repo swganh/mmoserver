@@ -191,7 +191,7 @@ void ObjectController::_handleRequestCoreSample(uint64 targetId,Message* message
 	container->resourceName = resourceName;
 	container->tool = tool;
 
-	Heightmap::Instance()->addNewHeightMapJob(container);
+	gHeightmap->addNewHeightMapJob(container);
 
 }
 

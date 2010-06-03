@@ -572,6 +572,7 @@
     <ClInclude Include="WorldConfig.h" />
     <ClInclude Include="WorldManager.h" />
     <ClInclude Include="WorldManagerEnums.h" />
+    <ClInclude Include="WoundTreatmentEvent.h" />
     <ClInclude Include="ZoneOpcodes.h" />
     <ClInclude Include="ZoneServer.h" />
     <ClInclude Include="ZoneTree.h" />

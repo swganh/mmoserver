@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -102,6 +118,9 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
 		mDebug = false;
 	}
 
+	// load planet names and terrain files so we can start heightmap loading
+	mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_PlanetNamesAndFiles),"SELECT * FROM planet ORDER BY planet_id;");
+	
 
 	// create schedulers
 	mSubsystemScheduler		= new Anh_Utils::Scheduler();
@@ -110,19 +129,13 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
 	mStomachFillingScheduler= new Anh_Utils::Scheduler();
 	mPlayerScheduler		= new Anh_Utils::Scheduler();
 	mEntertainerScheduler	= new Anh_Utils::Scheduler();
+	//mImagedesignerScheduler	= new Anh_Utils::Scheduler();
 	mBuffScheduler			= new Anh_Utils::VariableTimeScheduler(100, 100);
 	mMissionScheduler		= new Anh_Utils::Scheduler();
 	mNpcManagerScheduler	= new Anh_Utils::Scheduler();
 	mAdminScheduler			= new Anh_Utils::Scheduler();
 
 	LoadCurrentGlobalTick();
-
-
-	// preallocate
-	mvClientEffects.reserve(1000);
-	mvMoods.reserve(200);
-	mvSounds.reserve(5000);
-	mShuttleList.reserve(50);
 
 	// load up subsystems
 
@@ -201,6 +214,7 @@ void WorldManager::Shutdown()
 	delete(mHamRegenScheduler);
 	delete(mMissionScheduler);
 	delete(mPlayerScheduler);
+	//delete(mImagedesignerScheduler);
 	delete(mEntertainerScheduler);
 	delete(mBuffScheduler);
 
@@ -423,6 +437,7 @@ void WorldManager::_processSchedulers()
 	mStomachFillingScheduler->process();
 	mSubsystemScheduler->process();
 	mObjControllerScheduler->process();
+	//mImagedesignerScheduler->process();
 	mPlayerScheduler->process();
 	mEntertainerScheduler->process();
 	mBuffScheduler->process();
@@ -861,37 +876,19 @@ void WorldManager::_handleLoadComplete()
 	gSchematicManager->releaseAllPoolsMemory();
 	gSkillManager->releaseAllPoolsMemory();
 
-	if(mZoneId != 41)
-	{
-		if (!Heightmap::Instance())
-		{
-			assert(false && "WorldManager::_handleLoadComplete Missing heightmap, download at http://www.swganh.com/!!planets!!/PLANET_NAME.rar");
-		}
-
-		// create a height-map cashe.
-		int16 resolution = 0;
-		if (gConfig->keyExists("heightMapResolution"))
-		{
-			resolution = gConfig->read<int>("heightMapResolution");
-		}
-		
-		gLogger->log(LogManager::NOTICE,"Height map resolution = %d", resolution);
-
-		if (Heightmap::Instance()->setupCache(resolution))
-		{
-			gLogger->log(LogManager::NOTICE,"Height map cache setup successfully with resolution %d", resolution);
-		}
-		else
-		{
-			gLogger->log(LogManager::NOTICE,"WorldManager::_handleLoadComplete heigthmap cache setup FAILED");
-		}
-	}
+	
 
 	// register script hooks
 	_startWorldScripts();
 
 	gLogger->log(LogManager::NOTICE,"World load complete");
-					
+			
+	if(mZoneId != 41)
+	{
+		while(!gHeightmap->isReady())
+			boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+	}
+
 	// switch into running state
 	mState = WMState_Running;
 
@@ -1030,6 +1027,11 @@ void WorldManager::removeEntertainerToProcess(uint64 taskId)
 	mEntertainerScheduler->removeTask(taskId);
 }
 
+void WorldManager::removeImagedesignerToProcess(uint64 taskId)
+{
+	mEntertainerScheduler->removeTask(taskId);
+}
+
 //======================================================================================================================
 //
 // add a creature from the Stomach Filling scheduler
@@ -1130,6 +1132,11 @@ bool WorldManager::checkForMissionProcess(uint64 taskId)
 uint64 WorldManager::addEntertainerToProccess(CreatureObject* entertainerObject,uint32 tick)
 {
     return((mEntertainerScheduler->addTask(fastdelegate::MakeDelegate(entertainerObject,&CreatureObject::handlePerformanceTick),1,tick,NULL)));
+}
+
+uint64 WorldManager::addImageDesignerToProcess(CreatureObject* entertainerObject,uint32 tick)
+{
+    return((mEntertainerScheduler->addTask(fastdelegate::MakeDelegate(entertainerObject,&CreatureObject::handleImagedesignerTimeOut),1,tick,NULL)));
 }
 
 //======================================================================================================================

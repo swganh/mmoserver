@@ -1,15 +1,32 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 #include "MedicManager.h"
 #include "InjuryTreatmentEvent.h"
+#include "WoundTreatmentEvent.h"
 #include "Inventory.h"
 #include "Medicine.h"
 #include "ObjectControllerCommandMap.h"
@@ -31,6 +48,19 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 bool			MedicManager::mInsFlag = false;
 MedicManager*	MedicManager::mSingleton = NULL;
+
+//consts
+const char* const woundpack = "woundpack";
+const char* const stim = "stim";
+const char* const rangedstim = "ranged";
+const char* const self = "self";
+const char* const action = "action";
+const char* const constitution = "constitution";
+const char* const health = "health";
+const char* const quickness = "quickness";
+const char* const stamina = "stamina";
+const char* const strength = "strength";
+
 
 
 MedicManager::MedicManager(MessageDispatch* dispatch)
@@ -67,27 +97,35 @@ bool MedicManager::Diagnose(PlayerObject* Medic, PlayerObject* Target)
 	return true;
 }
 
-
-bool MedicManager::CheckStim(PlayerObject* Medic, CreatureObject* Target, ObjectControllerCmdProperties* cmdProperties)
+bool MedicManager::CheckMedicine(PlayerObject* Medic, PlayerObject* Target, ObjectControllerCmdProperties* cmdProperties, std::string medpackType)
 {
+	//This determines what type of medicine the player is using
+	bool wound = false;
+	uint32 opcode = 0;
+	if (medpackType == action || medpackType == constitution || medpackType == health || medpackType == quickness || 
+		medpackType == stamina || medpackType == strength || medpackType == woundpack)
+		opcode = opOChealwound;
+	else if (medpackType == rangedstim)
+	{
+		// CM
+		//uint32 opcode == opOChealdamagerange; 
+	}
+	else
+		opcode = opOChealdamage;
 
-	//This determines what type of stim the player is using (either medic or CM)
 
-	bool rangedstim = false;
-	bool stimpack = false;
+	Medicine* medicine = NULL;
 
-	Medicine* Stim = NULL;
+	uint64 MedicinePackObjectID = 0;
 
-	uint64 StimPackObjectID = 0;
-
-	gLogger->log(LogManager::DEBUG,"Heal Damage Called");
+	gLogger->log(LogManager::DEBUG,"Check the type of Medicine");
 
 	//If we don't have an OC Controller Cmd Property (ie we have been called by using an item) - go get one
 	if(cmdProperties == 0)
 	{
 		gLogger->log(LogManager::DEBUG,"We need to get Object Properties");
 
-		CmdPropertyMap::iterator it = gObjControllerCmdPropertyMap.find(opOChealdamage);
+		CmdPropertyMap::iterator it = gObjControllerCmdPropertyMap.find(opcode);
 
 		if(it == gObjControllerCmdPropertyMap.end())
 		{
@@ -99,14 +137,13 @@ bool MedicManager::CheckStim(PlayerObject* Medic, CreatureObject* Target, Object
 		}
 	}
 
-		//If we weren't triggered by a stim ie. from a command
-	if(StimPackObjectID == 0)
+	//If we weren't triggered by a stim ie. from a command
+	if(MedicinePackObjectID == 0)
 	{
-
 
 		//TODO have an automated function that looks for the first item of a certain typein ALL containers
 
-		//Look through inventory to find a StimPack
+		//Look through inventory to find the correct MedicinePack
 		Inventory* inventory = dynamic_cast<Inventory*>(Medic->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 
 		ObjectIDList::iterator It = inventory->getObjects()->begin();
@@ -121,31 +158,146 @@ bool MedicManager::CheckStim(PlayerObject* Medic, CreatureObject* Target, Object
 				It++;
 				continue;
 			}
-
-			switch(item->getItemType())
+			//ItemType
+			uint32 mItemType = item->getItemType();
+			//check the opCode to see which medicine we need ??
+			if (medpackType == stim)
 			{
+				switch(mItemType)
+				{
 				case ItemType_Stimpack_A:
 				case ItemType_Stimpack_B:
 				case ItemType_Stimpack_C:
 				case ItemType_Stimpack_D:
 				case ItemType_Stimpack_E:
-					StimPackObjectID = item->getId();
-					Stim = dynamic_cast<Medicine*>(item);
-					stimpack = true;
+					MedicinePackObjectID = item->getId();
+					medicine = dynamic_cast<Medicine*>(item);
 					break;
+				}
+			}
+			else if (medpackType == rangedstim)
+			{
+				switch(mItemType)
+				{
 				case ItemType_Ranged_Stimpack_A:
 				case ItemType_Ranged_Stimpack_B:
 				case ItemType_Ranged_Stimpack_C:
 				case ItemType_Ranged_Stimpack_D:
 				case ItemType_Ranged_Stimpack_E:
-					StimPackObjectID = item->getId();
-					Stim = dynamic_cast<Medicine*>(item);
-					rangedstim = true;
+					MedicinePackObjectID = item->getId();
+					medicine = dynamic_cast<Medicine*>(item);
 				default:
 					break;
+				}
+			}
+			else if (medpackType == action )
+			{
+				switch(mItemType)
+				{
+					//action
+					case ItemType_Wound_Action_A:
+					case ItemType_Wound_Action_B:			
+					case ItemType_Wound_Action_C:
+					case ItemType_Wound_Action_D:
+					case ItemType_Wound_Action_E:
+						MedicinePackObjectID = item->getId();
+						medicine = dynamic_cast<Medicine*>(item);
+						wound = true;
+					default:
+						break;
+				}
+			}
+			else if	(medpackType == constitution)
+			{
+				switch(mItemType)
+				{
+					//constitution
+					case ItemType_Wound_Constitution_A:
+					case ItemType_Wound_Constitution_B:			
+					case ItemType_Wound_Constitution_C:
+					case ItemType_Wound_Constitution_D:
+					case ItemType_Wound_Constitution_E:
+						MedicinePackObjectID = item->getId();
+						medicine = dynamic_cast<Medicine*>(item);
+						wound = true;
+					default:
+						break;
+				}
+			}
+			else if (medpackType == health)
+			{
+				switch(mItemType)
+				{
+					// health
+					case ItemType_Wound_Health_A:
+					case ItemType_Wound_Health_B:
+					case ItemType_Wound_Health_C:
+					case ItemType_Wound_Health_D:
+					case ItemType_Wound_Health_E:
+						MedicinePackObjectID = item->getId();
+						medicine = dynamic_cast<Medicine*>(item);
+						wound = true;
+					default:
+						break;
+				}
+			}
+			else if (medpackType == quickness)
+			{
+				switch(mItemType)
+				{
+					// quickness
+					case ItemType_Wound_Quickness_A:
+					case ItemType_Wound_Quickness_B:
+					case ItemType_Wound_Quickness_C:
+					case ItemType_Wound_Quickness_D:
+					case ItemType_Wound_Quickness_E:
+						MedicinePackObjectID = item->getId();
+						medicine = dynamic_cast<Medicine*>(item);
+						wound = true;
+					default:
+						break;
+				}
+			}
+			else if (medpackType == stamina)
+			{
+				switch(mItemType)
+				{
+					// stamina
+					case ItemType_Wound_Stamina_A:
+					case ItemType_Wound_Stamina_B:
+					case ItemType_Wound_Stamina_C:
+					case ItemType_Wound_Stamina_D:
+					case ItemType_Wound_Stamina_E:
+						MedicinePackObjectID = item->getId();
+						medicine = dynamic_cast<Medicine*>(item);
+						wound = true;
+					default:
+						break;
+				}
+			}
+			else if (medpackType == strength)
+			{
+				switch(mItemType)
+				{
+					// strength
+					case ItemType_Wound_Strength_A:
+					case ItemType_Wound_Strength_B:
+					case ItemType_Wound_Strength_C:
+					case ItemType_Wound_Strength_D:
+					case ItemType_Wound_Strength_E:
+						MedicinePackObjectID = item->getId();
+						medicine = dynamic_cast<Medicine*>(item);
+						wound = true;
+					default:
+						break;
+				}
+			}
+			else
+			{
+				gLogger->log(LogManager::DEBUG, "Invalid Medicine Type");
 			}
 
-			if(Stim)
+			if(medicine)
 			{
 				break;
 			} 
@@ -154,76 +306,62 @@ bool MedicManager::CheckStim(PlayerObject* Medic, CreatureObject* Target, Object
 				It++;
 			}
 		}
-
 		//Check if a Stim was found
-		if(Stim == 0)
+		if(medicine == 0)
 		{
-			gLogger->log(LogManager::DEBUG,"No Stim Found");
+			gLogger->log(LogManager::DEBUG,"No valid medicine Found");
 			gMessageLib->sendSystemMessage(Medic,L"","healing_response","healing_response_60");
 			return false;
 		}
 	} else 
 	{
-		gLogger->log(LogManager::DEBUG,"We already have a Stim Selected");
-		Stim = dynamic_cast<Medicine*>(gWorldManager->getObjectById(StimPackObjectID));
+		gLogger->log(LogManager::DEBUG,"We already have medicine Selected");
+		medicine = dynamic_cast<Medicine*>(gWorldManager->getObjectById(MedicinePackObjectID));
 	}
-	gLogger->log(LogManager::DEBUG,"Stim ID Found OK");
+	gLogger->log(LogManager::DEBUG,"Medicine ID Found OK");
 
-	//Is the stim suitable for skill level
-
-	uint64 healingskill = Medic->getSkillModValue(SMod_healing_ability);
-
-	uint64 req = Stim->getSkillRequired();
+	//Is the medicine suitable for skill level
+	uint64 medicSkill;
+	uint64 req = medicine->getSkillRequired("healing_ability");
+	if (wound)
+	{
+		medicSkill = Medic->getSkillModValue(SMod_healing_wound_treatment);
+	}
+	else
+	{
+		medicSkill = Medic->getSkillModValue(SMod_healing_ability);
+	};
 	
-	if(healingskill < req)
+	if(medicSkill < req)
 	{
 		gMessageLib->sendSystemMessage(Medic,L"","healing","insufficient_skill_heal","",L"healingskill",L"req");
-		gLogger->log(LogManager::DEBUG,"The selected stim is too high level.");
+		gLogger->log(LogManager::DEBUG,"The selected medicine is too high level.");
 		return false;
 	}
 
-	if (rangedstim == true){
-	return HealDamageRanged(Medic, Target, StimPackObjectID, cmdProperties);
-	}
+	if (medpackType == rangedstim)
+		return HealDamageRanged(Medic, Target, MedicinePackObjectID, cmdProperties);
+	
 
-	if (stimpack == true){
-    return HealDamage(Medic, Target, StimPackObjectID, cmdProperties);
-	}
+	if (medpackType == stim)
+		return HealDamage(Medic, Target, MedicinePackObjectID, cmdProperties);
+	
+
+	if (wound)
+		return HealWound(Medic, Target, MedicinePackObjectID, cmdProperties, medpackType);
 
 	return false;
-	
 }
 
-
-bool MedicManager::HealDamage(PlayerObject* Medic, CreatureObject* Target, uint64 StimPackObjectID, ObjectControllerCmdProperties* cmdProperties)
+bool MedicManager::HealDamage(PlayerObject* Medic, PlayerObject* Target, uint64 StimPackObjectID, ObjectControllerCmdProperties* cmdProperties)
 {
-
-	PlayerObject* PlayerTarget = dynamic_cast<PlayerObject*>(Target);
-	bool player = false;
-	bool self = false;
-	//bool critter = false;
 	Medicine* Stim = dynamic_cast<Medicine*>(gWorldManager->getObjectById(StimPackObjectID));
-
-	//if(PlayerTarget == 0)
-	//{
-	//	//We are looking at a critter, not a player
-	//	critter = true;
-	//	//heal the medic by default
-	//	PlayerTarget = Medic;
-	//	Target = Medic;
-	//	self = true;
-	//	gLogger->log(LogManager::DEBUG,"Heal is targetting a Critter");
-	//	
-	//} else {
-	player = true;
-	self = (Medic->getId() == PlayerTarget->getId());
-	//}
+	bool isSelf = (Medic->getId() == Target->getId());
 
 	//Get Medic Skill Mods
 	uint32 healingskill = Medic->getSkillModValue(SMod_healing_injury_treatment);
 
 	//If Currently in Delay Period
-
 	if(Medic->checkPlayerCustomFlag(PlayerCustomFlag_InjuryTreatment))
 	{
 		//Say you can't heal yet.
@@ -231,16 +369,10 @@ bool MedicManager::HealDamage(PlayerObject* Medic, CreatureObject* Target, uint6
 		return false;
 	}
 
-
-	float distance = gWorldConfig->getConfiguration("Player_heal_distance",(float)6.0);
-
-    if(glm::distance(Medic->mPosition, Target->mPosition) > distance)
+	if (!MedicManager::CheckMedicRange(Medic, Target, (float)6.0))
 	{
-		gLogger->log(LogManager::DEBUG,"Heal Target is out of range");
-		gMessageLib->sendSystemMessage(Medic,L"","healing","no_line_of_sight");
 		return false;
 	}
-	gLogger->log(LogManager::DEBUG,"Heal Target is within range");
 
 	//If we don't have an OC Controller Cmd Property (ie we have been called by using an item) - go get one
 	if(cmdProperties == 0)
@@ -259,6 +391,8 @@ bool MedicManager::HealDamage(PlayerObject* Medic, CreatureObject* Target, uint6
 		}
 	}
 
+	if (!CheckMedicRange(Medic, Target, (float)6.0))
+		return false;
 
 	//Does Medic have ability
 	if(!Medic->verifyAbility(cmdProperties->mAbilityCrc))
@@ -268,18 +402,6 @@ bool MedicManager::HealDamage(PlayerObject* Medic, CreatureObject* Target, uint6
 		return false;
 	}
 	gLogger->log(LogManager::DEBUG,"Medic has Ability Rights");
-
-	//Do PVP Alignments Match - only check if targetting player.
-
-	//if(Medic->getPvPStatus() != PlayerTarget->getPvPStatus())
-	//{
-	//	//send pvp_no_help
-	//	gLogger->log(LogManager::DEBUG,"PVP Flag not right");
-	//	gMessageLib->sendSystemMessage(Medic,L"","healing","pvp_no_help");
-	//	return false;
-	//}
-
-	//gLogger->log(LogManager::DEBUG,"PVP Flags OK");
 
 	//Does Target Need Healing
 	int TargetHealth = Target->getHam()->mHealth.getCurrentHitPoints();
@@ -291,12 +413,12 @@ bool MedicManager::HealDamage(PlayerObject* Medic, CreatureObject* Target, uint6
 	{
 		if(!(TargetAction < TargetMaxAction))
 		{
-			if (self){
+			if (isSelf){
 				gLogger->log(LogManager::DEBUG,"You don't need healing");
 				gMessageLib->sendSystemMessage(Medic,L"","healing","no_damage_to_heal_self");
 				return false;
 			}
-			if (!self) {
+			if (!isSelf) {
 				gLogger->log(LogManager::DEBUG,"Target does not need healing");
 				gMessageLib->sendSystemMessage(Medic,L"","healing","no_damage_to_heal_target");
 				return false;
@@ -307,32 +429,19 @@ bool MedicManager::HealDamage(PlayerObject* Medic, CreatureObject* Target, uint6
 
 
 	//Get Heal Strength
-	//TODO - Food, BEClothing, and Med Center/city bonuses.
+	//TODO - BEClothing, and Med Center/city bonuses.
 	int healthpower = Stim->getHealthHeal();
 	int actionpower = Stim->getActionHeal();
 	//uint BEClothes = NULL;
-	//uint food = NULL;
 	//uint MedCityBonus = NULL;
 	uint maxhealhealth = healthpower * ((100 + healingskill) / 100);
-	uint maxhealaction = healthpower * ((100 + healingskill) / 100);
+	uint maxhealaction = actionpower * ((100 + healingskill) / 100);
 
 
 	//Adjust for Target BF
-	int32 BF = Target->getHam()->getBattleFatigue();
-	if(BF > 250)
-	{
-		maxhealhealth -= (maxhealhealth * (BF-250) / 1000);
-		maxhealaction -= (maxhealaction * (BF-250) / 1000);
-
-		if(BF > 500) {
-			gMessageLib->sendSystemMessage(Medic,L"","healing_response","shock_effect_medium");
-		} else if(BF > 750) {
-			gMessageLib->sendSystemMessage(Medic,L"","healing_response","shock_effect_high");
-		} else {
-			gMessageLib->sendSystemMessage(Medic,L"","healing_response","shock_effect_low");
-		}
-	}
-
+	maxhealhealth = MedicManager::CalculateBF(Medic, Target, maxhealhealth);
+	maxhealaction = MedicManager::CalculateBF(Medic, Target, maxhealaction);
+	
 	int StrengthHealth = min((int)maxhealhealth, TargetMaxHealth-TargetHealth);
 	int StrengthAction = min((int)maxhealaction, TargetMaxAction-TargetAction);
 
@@ -346,10 +455,10 @@ bool MedicManager::HealDamage(PlayerObject* Medic, CreatureObject* Target, uint6
 	}
 
 	//Add XP as Total Heal / 4 if not targetting self
-	if(!self)
+	if(!isSelf)
 		gSkillManager->addExperience(XpType_medical, (int)((StrengthHealth + StrengthAction)/4), Medic);
 
-	if(self) //If targetting self
+	if(isSelf) //If targetting self
 	{
 		if(StrengthHealth > 0)
 		{
@@ -382,17 +491,11 @@ bool MedicManager::HealDamage(PlayerObject* Medic, CreatureObject* Target, uint6
 			{
 				gMessageLib->sendSystemMessage(Medic, L"", "healing_response", "healing_response_06", "", "", L"", StrengthHealth,"","",L"",Target->getId());
 				gMessageLib->sendSystemMessage(Medic, L"", "healing_response", "healing_response_04", "", "", L"", StrengthAction);
-				if(player)
-				{
-					gMessageLib->sendSystemMessage(PlayerTarget, L"", "healing_response", "healing_response_08", "", "", L"", StrengthHealth,"","",L"",0,Medic->getId());
-					gMessageLib->sendSystemMessage(PlayerTarget, L"", "healing_response", "healing_response_04", "", "", L"", StrengthAction);
-				}
+				gMessageLib->sendSystemMessage(Target, L"", "healing_response", "healing_response_08", "", "", L"", StrengthHealth,"","",L"",0,Medic->getId());
+				gMessageLib->sendSystemMessage(Target, L"", "healing_response", "healing_response_04", "", "", L"", StrengthAction);
 			} else {
 				gMessageLib->sendSystemMessage(Medic, L"", "healing_response", "healing_response_13", "", "", L"", StrengthHealth,"","",L"",Target->getId());
-				if(player)
-				{
-					gMessageLib->sendSystemMessage(PlayerTarget, L"", "healing_response", "healing_response_16", "", "", L"", StrengthHealth,"","",L"",0,Medic->getId());
-				}
+				gMessageLib->sendSystemMessage(Target, L"", "healing_response", "healing_response_16", "", "", L"", StrengthHealth,"","",L"",0,Medic->getId());
 			}
 		} 
 		else 
@@ -400,56 +503,39 @@ bool MedicManager::HealDamage(PlayerObject* Medic, CreatureObject* Target, uint6
 			if(StrengthAction > 0)
 			{
 				gMessageLib->sendSystemMessage(Medic, L"", "healing_response", "healing_response_14", "", "", L"", StrengthAction,"","",L"",Target->getId());
-				if(player)
-				{
-					gMessageLib->sendSystemMessage(PlayerTarget, L"", "healing_response", "healing_response_17", "", "", L"", StrengthAction,"","",L"",0,Medic->getId());
-				}
+				gMessageLib->sendSystemMessage(Target, L"", "healing_response", "healing_response_17", "", "", L"", StrengthAction,"","",L"",0,Medic->getId());
 			}
 		}
 		//Anim
-
 		gMessageLib->sendCreatureAnimation(Medic, BString("heal_other"));
 
 		//CE
-		gMessageLib->sendPlayClientEffectLocMessage("clienteffect/healing_healdamage.cef",PlayerTarget->mPosition,PlayerTarget);
+		gMessageLib->sendPlayClientEffectLocMessage("clienteffect/healing_healdamage.cef",Target->mPosition,Target);
 	}
 	return true;
 }
 
-bool MedicManager::HealDamageRanged(PlayerObject* Medic, CreatureObject* Target, uint64 StimPackObjectID, ObjectControllerCmdProperties* cmdProperties)
+bool MedicManager::HealDamageRanged(PlayerObject* Medic, PlayerObject* Target, uint64 StimPackObjectID, ObjectControllerCmdProperties* cmdProperties)
 {
-
-	PlayerObject* PlayerTarget = dynamic_cast<PlayerObject*>(Target);
-	bool player = false;
-	bool self = false;
+	bool isSelf = false;
 	Medicine* Stim = dynamic_cast<Medicine*>(gWorldManager->getObjectById(StimPackObjectID));
 
-	player = true;
-	self = (Medic->getId() == PlayerTarget->getId());
+	isSelf = (Medic->getId() == Target->getId());
 
 	//Get Medic Skill Mods
 	uint32 healingskill = Medic->getSkillModValue(SMod_healing_range);
 
 	//If Currently in Delay Period
-
 	
 	if(Medic->checkPlayerCustomFlag(PlayerCustomFlag_InjuryTreatment))
 	{
-		//Say you can't heal yet. Doesn't seem to be a valid string entry for this message.
+		//Say you can't heal yet.
+		gMessageLib->sendSystemMessage(Medic,L"","healing_response", "healing_must_wait");
 		return false;
 	}
-	
-
-	float distance = gWorldConfig->getConfiguration("Player_heal_distance",(float)32.0);
-
-    if(glm::distance(Medic->mPosition, Target->mPosition) > distance)
-	{
-		gLogger->log(LogManager::DEBUG,"Heal Target is out of range");
-		gMessageLib->sendSystemMessage(Medic,L"","healing","no_line_of_sight");
+	//check range
+	if (!CheckMedicRange(Medic, Target, (float)32.0))
 		return false;
-	}
-	gLogger->log(LogManager::DEBUG,"Heal Target is within range");
-
 	//Does Medic have ability
 	if(!Medic->verifyAbility(cmdProperties->mAbilityCrc))
 	{
@@ -458,29 +544,6 @@ bool MedicManager::HealDamageRanged(PlayerObject* Medic, CreatureObject* Target,
 		return false;
 	}
 	gLogger->log(LogManager::DEBUG,"Medic has Ability Rights");
-
-	//Do PVP Alignments Match
-	//if(Medic->getPvPStatus() != Target->getPvPStatus())
-	//{
-	//	if (!self && PlayerTarget == 0){
-	//		PlayerTarget = Medic;
-	//	}
-	//	else {
-	//	//send pvp_no_help
-	//	gLogger->log(LogManager::DEBUG,"PVP Flag not right");
-	//	gMessageLib->sendSystemMessage(Medic,L"","healing","pvp_no_help");
-	//	return false;
-	//	}
-	//} else {
-		//if(player)
-		//{
-		//	//TODO: PVP Flags match, but Status is not correct
-		//	/*if(strcmp(Medic->getFaction(), Target->getFaction()) != 0)
-		//	{
-		//	}*/
-		//}
-	//}
-	//gLogger->log(LogManager::DEBUG,"PVP Flags OK");
 
 	//Does Target Need Healing
 	int TargetHealth = Target->getHam()->mHealth.getCurrentHitPoints();
@@ -501,31 +564,18 @@ bool MedicManager::HealDamageRanged(PlayerObject* Medic, CreatureObject* Target,
 
 	
 	//Get Heal Strength
-	//TODO - Food, BEClothing, and Med Center/city bonuses.
+	//TODO - BEClothing, and Med Center/city bonuses.
 	int healthpower = Stim->getHealthHeal();
 	int actionpower = Stim->getActionHeal();
 	uint BEClothes = NULL;
-	uint food = NULL;
 	uint MedCityBonus = NULL;
-	uint maxhealhealth = healthpower * ((100 + healingskill + BEClothes + food) / 100) * MedCityBonus;
-	uint maxhealaction = healthpower * ((100 + healingskill + BEClothes + food) / 100) * MedCityBonus;
+	uint maxhealhealth = healthpower * ((100 + healingskill + BEClothes) / 100) * MedCityBonus;
+	uint maxhealaction = actionpower * ((100 + healingskill + BEClothes) / 100) * MedCityBonus;
 
 
 	//Adjust for Target BF
-	int32 BF = Target->getHam()->getBattleFatigue();
-	if(BF > 250)
-	{
-		maxhealhealth -= (maxhealhealth * (BF-250) / 1000);
-		maxhealaction -= (maxhealaction * (BF-250) / 1000);
-
-		if(BF > 500) {
-			gMessageLib->sendSystemMessage(Medic,L"","healing_response","shock_effect_medium");
-		} else if(BF > 750) {
-			gMessageLib->sendSystemMessage(Medic,L"","healing_response","shock_effect_high");
-		} else {
-			gMessageLib->sendSystemMessage(Medic,L"","healing_response","shock_effect_low");
-		}
-	}
+	maxhealhealth = MedicManager::CalculateBF(Medic, Target, maxhealhealth);
+	maxhealaction = MedicManager::CalculateBF(Medic, Target, maxhealaction);
 
 	int StrengthHealth = min((int)maxhealhealth, TargetMaxHealth-TargetHealth);
 	int StrengthAction = min((int)maxhealaction, TargetMaxAction-TargetAction);
@@ -554,10 +604,10 @@ bool MedicManager::HealDamageRanged(PlayerObject* Medic, CreatureObject* Target,
 	}
 
 	//Add XP as Total Heal / 4 if not targetting self
-	if(!self)
+	if(!isSelf)
 		gSkillManager->addExperience(XpType_medical, (int)((StrengthHealth + StrengthAction)/4), Medic);
 
-	if(self) //If targetting self
+	if(isSelf) //If targetting self
 	{
 		if(StrengthHealth > 0)
 		{
@@ -583,26 +633,17 @@ bool MedicManager::HealDamageRanged(PlayerObject* Medic, CreatureObject* Target,
 			{
 				gMessageLib->sendSystemMessage(Medic, L"", "healing_response", "healing_response_06", "", "", L"", StrengthHealth,"","",L"",Target->getId());
 				gMessageLib->sendSystemMessage(Medic, L"", "healing_response", "healing_response_04", "", "", L"", StrengthAction);
-				if(player)
-				{
-					gMessageLib->sendSystemMessage(PlayerTarget, L"", "healing_response", "healing_response_08", "", "", L"", StrengthHealth,"","",L"",0,Medic->getId());
-					gMessageLib->sendSystemMessage(PlayerTarget, L"", "healing_response", "healing_response_04", "", "", L"", StrengthAction);
-				}
+				gMessageLib->sendSystemMessage(Target, L"", "healing_response", "healing_response_08", "", "", L"", StrengthHealth,"","",L"",0,Medic->getId());
+				gMessageLib->sendSystemMessage(Target, L"", "healing_response", "healing_response_04", "", "", L"", StrengthAction);
 			} else {
 				gMessageLib->sendSystemMessage(Medic, L"", "healing_response", "healing_response_13", "", "", L"", StrengthHealth,"","",L"",Target->getId());
-				if(player)
-				{
-					gMessageLib->sendSystemMessage(PlayerTarget, L"", "healing_response", "healing_response_16", "", "", L"", StrengthHealth,"","",L"",0,Medic->getId());
-				}
+				gMessageLib->sendSystemMessage(Target, L"", "healing_response", "healing_response_16", "", "", L"", StrengthHealth,"","",L"",0,Medic->getId());
 			}
 		} else {
 			if(StrengthAction > 0)
 			{
 				gMessageLib->sendSystemMessage(Medic, L"", "healing_response", "healing_response_14", "", "", L"", StrengthAction,"","",L"",Target->getId());
-				if(player)
-				{
-					gMessageLib->sendSystemMessage(PlayerTarget, L"", "healing_response", "healing_response_17", "", "", L"", StrengthAction,"","",L"",0,Medic->getId());
-				}
+				gMessageLib->sendSystemMessage(Target, L"", "healing_response", "healing_response_17", "", "", L"", StrengthAction,"","",L"",0,Medic->getId());
 			}
 		}
 		gMessageLib->sendCombatAction(Medic, Target, BString::CRC("throw_grenade_medium_healing"), 0, 0, 1);
@@ -610,7 +651,266 @@ bool MedicManager::HealDamageRanged(PlayerObject* Medic, CreatureObject* Target,
 
 	return true;
 }
+//HealWounds 
+bool MedicManager::HealWound(PlayerObject* Medic, PlayerObject* Target, uint64 WoundPackobjectID, ObjectControllerCmdProperties* cmdProperties, std::string healType)
+{
+	bool isSelf = false;
+	Medicine* WoundPack = dynamic_cast<Medicine*>(gWorldManager->getObjectById(WoundPackobjectID));
+	isSelf = (Medic->getId() == Target->getId());
 
+	uint32 healingskill = Medic->getSkillModValue(SMod_healing_wound_treatment);
+	
+	if(Medic->checkPlayerCustomFlag(PlayerCustomFlag_WoundTreatment))
+	{
+		gMessageLib->sendSystemMessage(Medic,L"","healing_response", "enhancement_must_wait");
+		return false;
+	}
+	if (!CheckMedicRange(Medic, Target, (float)6.0))
+		return false;
+	//Does Medic have ability
+	if(!Medic->verifyAbility(cmdProperties->mAbilityCrc))
+	{
+		gLogger->log(LogManager::DEBUG,"Medic does not have ability");
+		gMessageLib->sendSystemMessage(Medic,L"","healing_response","cannot_enhance");
+		return false;
+	}
+	gLogger->log(LogManager::DEBUG,"Medic has Ability Rights");
+
+	int TargetWounds = 0;
+
+	int32 WoundHealPower = 0;
+	int32 maxwoundheal = 0;
+	Ham* ham = Target->getHam();
+	//check the wounds type
+	if (healType == action)
+	{
+		TargetWounds = ham->mAction.getWounds();
+		WoundHealPower = WoundPack->getHealWoundAction();
+		maxwoundheal = MedicManager::CalculateBF(Medic, Target, WoundHealPower);
+		maxwoundheal = maxwoundheal * ((100 + healingskill) / 100);
+		maxwoundheal = min(maxwoundheal, TargetWounds);
+		ham->updatePropertyValue(HamBar_Action ,HamProperty_Wounds, -maxwoundheal);
+		if (maxwoundheal > 0)
+		{
+			//success message
+			if (isSelf)
+				gMessageLib->sendSystemMessage(Medic,L"","healing_response","healing_response_50","","",L"",maxwoundheal);
+			else{
+				gMessageLib->sendSystemMessage(Medic ,L"", "healing_response", "healing_response_53", "", "", L"", maxwoundheal,"","",L"",Target->getId());
+				gMessageLib->sendSystemMessage(Target, L"", "healing_response", "healing_response_56", "", "", L"", maxwoundheal,"","",L"",0,Medic->getId());
+			}
+		}
+	}
+	else if	(healType == constitution)
+	{
+		TargetWounds = ham->mConstitution.getWounds();
+		WoundHealPower = WoundPack->getHealWoundConstitution();
+		maxwoundheal = MedicManager::CalculateBF(Medic, Target, WoundHealPower);
+		maxwoundheal = maxwoundheal * ((100 + healingskill) / 100);
+		maxwoundheal = min(maxwoundheal, TargetWounds);
+		ham->updatePropertyValue(HamBar_Constitution ,HamProperty_Wounds, -maxwoundheal);
+		if (maxwoundheal > 0)
+		{
+			//success message
+			if (isSelf)
+				gMessageLib->sendSystemMessage(Medic,L"","healing_response","healing_response_20","","",L"",maxwoundheal);
+			else{
+				gMessageLib->sendSystemMessage(Medic ,L"", "healing_response", "healing_response_32", "", "", L"", maxwoundheal,"","",L"",Target->getId());
+				gMessageLib->sendSystemMessage(Target, L"", "healing_response", "healing_response_41", "", "", L"", maxwoundheal,"","",L"",0,Medic->getId());
+			}
+		}
+	}
+	else if (healType == health)
+	{
+		TargetWounds = ham->mHealth.getWounds();
+		WoundHealPower = WoundPack->getHealWoundHealth();
+		maxwoundheal = MedicManager::CalculateBF(Medic, Target, WoundHealPower);
+		maxwoundheal = maxwoundheal * ((100 + healingskill) / 100);
+		maxwoundheal = min(maxwoundheal, TargetWounds);
+		ham->updatePropertyValue(HamBar_Health ,HamProperty_Wounds, -maxwoundheal);
+		if (maxwoundheal > 0)
+		{
+			//success message
+			if (isSelf)
+				gMessageLib->sendSystemMessage(Medic,L"","healing_response","healing_response_49","","",L"",maxwoundheal);
+			else{
+				gMessageLib->sendSystemMessage(Medic ,L"", "healing_response", "healing_response_52", "", "", L"", maxwoundheal,"","",L"",Target->getId());
+				gMessageLib->sendSystemMessage(Target, L"", "healing_response", "healing_response_55", "", "", L"", maxwoundheal,"","",L"",0,Medic->getId());
+			}
+		}
+	}
+	else if (healType == quickness)
+	{
+		TargetWounds = ham->mQuickness.getWounds();
+		WoundHealPower = WoundPack->getHealWoundQuickness();
+		maxwoundheal = MedicManager::CalculateBF(Medic, Target, WoundHealPower);
+		maxwoundheal = maxwoundheal * ((100 + healingskill) / 100);
+		maxwoundheal = min(maxwoundheal, TargetWounds);
+		ham->updatePropertyValue(HamBar_Quickness ,HamProperty_Wounds, -maxwoundheal);
+		if (maxwoundheal > 0)
+		{
+			//success message
+			if (isSelf)
+				gMessageLib->sendSystemMessage(Medic,L"","healing_response","healing_response_21","","",L"",maxwoundheal);
+			else{
+				gMessageLib->sendSystemMessage(Medic ,L"", "healing_response", "healing_response_33", "", "", L"", maxwoundheal,"","",L"",Target->getId());
+				gMessageLib->sendSystemMessage(Target, L"", "healing_response", "healing_response_42", "", "", L"", maxwoundheal,"","",L"",0,Medic->getId());	
+			}
+		}
+	}
+	else if (healType == stamina)
+	{
+		TargetWounds = ham->mStamina.getWounds();
+		WoundHealPower = WoundPack->getHealWoundStamina();
+		maxwoundheal = MedicManager::CalculateBF(Medic, Target, WoundHealPower);
+		maxwoundheal = maxwoundheal * ((100 + healingskill) / 100);
+		maxwoundheal = min(maxwoundheal, TargetWounds);
+		ham->updatePropertyValue(HamBar_Stamina ,HamProperty_Wounds, -maxwoundheal);
+		if (maxwoundheal > 0)
+		{
+			//success message
+			if (isSelf)
+				gMessageLib->sendSystemMessage(Medic,L"","healing_response","healing_response_22","","",L"",maxwoundheal);
+			else{
+				gMessageLib->sendSystemMessage(Medic ,L"", "healing_response", "healing_response_34", "", "", L"", maxwoundheal,"","",L"",Target->getId());
+				gMessageLib->sendSystemMessage(Target, L"", "healing_response", "healing_response_43", "", "", L"", maxwoundheal,"","",L"",0,Medic->getId());
+			}
+		}
+	}
+	else if (healType == strength)
+	{
+		TargetWounds = ham->mStrength.getWounds();
+		WoundHealPower = WoundPack->getHealWoundStrength();
+		maxwoundheal = MedicManager::CalculateBF(Medic, Target, WoundHealPower);
+		maxwoundheal = maxwoundheal * ((100 + healingskill) / 100);
+		maxwoundheal = min(maxwoundheal, TargetWounds);
+		ham->updatePropertyValue(HamBar_Strength ,HamProperty_Wounds, -maxwoundheal);
+		if (maxwoundheal > 0)
+		{
+			//success message
+			if (isSelf)
+				gMessageLib->sendSystemMessage(Medic,L"","healing_response","healing_response_19","","",L"",maxwoundheal);
+			else{
+				gMessageLib->sendSystemMessage(Medic ,L"", "healing_response", "healing_response_31", "", "", L"", maxwoundheal,"","",L"",Target->getId());
+				gMessageLib->sendSystemMessage(Target, L"", "healing_response", "healing_response_46", "", "", L"", maxwoundheal,"","",L"",0,Medic->getId());	
+			}
+		}
+	}
+
+	if(maxwoundheal <= 0)
+	{
+		if (isSelf){
+			gLogger->log(LogManager::DEBUG,"You don't need wound healing");
+			gMessageLib->sendSystemMessage(Medic,L"","healing_response","healing_response_67");
+			return false;
+		}
+		if (!isSelf) {
+			gLogger->log(LogManager::DEBUG,"Unable to find any wounds which you can heal");
+			gMessageLib->sendSystemMessage(Medic,L"","healing_response","healing_response_64");
+			return false;
+		}
+	}
+
+	//Get Wound Heal Strength
+	//TODO - BEClothing, and Med Center/city bonuses.
+	//These will probably affect the skills
+
+	//uint BEClothes = NULL;
+	//uint MedCityBonus = NULL;
+
+	if (!isSelf)
+	{
+		//Anim
+		gMessageLib->sendCreatureAnimation(Medic, BString("heal_other"));
+
+		//CE
+		gMessageLib->sendPlayClientEffectLocMessage("clienteffect/healing_healwound.cef",Target->mPosition,Target);
+		//XP
+		gSkillManager->addExperience(XpType_medical, (int)((maxwoundheal)*2.5), Medic);
+	}
+	else
+	{
+		//Anim
+		gMessageLib->sendCreatureAnimation(Medic, BString("heal_self"));
+
+		//CE
+		gMessageLib->sendPlayClientEffectLocMessage("clienteffect/healing_healwound.cef",Target->mPosition,Target);
+	}
+		
+
+	if(WoundPack->ConsumeUse(Medic))
+	{
+		Inventory* inventory = dynamic_cast<Inventory*>(Medic->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+		inventory->deleteObject(WoundPack);
+	}
+
+	return true;
+}
+//Check Heal Range
+bool MedicManager::CheckMedicRange(PlayerObject* Medic, PlayerObject* Target, float healRange)
+{
+	float distance = gWorldConfig->getConfiguration("Player_heal_distance", healRange);
+
+    if(glm::distance(Medic->mPosition, Target->mPosition) > distance)
+	{
+		gLogger->log(LogManager::DEBUG,"Heal Target is out of range");
+		gMessageLib->sendSystemMessage(Medic,L"","healing","no_line_of_sight");
+		return false;
+	}
+	gLogger->log(LogManager::DEBUG,"Heal Target is within range");
+	return true;
+}
+//InjuryTreatment Event
+
+int32 MedicManager::CalculateBF(PlayerObject* Medic, PlayerObject* Target, int32 maxhealamount)
+{
+	int32 BF = Target->getHam()->getBattleFatigue();
+	if(BF > 250)
+	{
+		maxhealamount -= (maxhealamount * (BF-250) / 1000);
+		if (Target && Medic->getId() != Target->getId())
+		{
+			if(BF > 500) {
+				gMessageLib->sendSystemMessage(Target,L"","healing","shock_effect_medium_target");
+			} else if(BF > 750) {
+				gMessageLib->sendSystemMessage(Target,L"","healing","shock_effec_high_target");
+			} else {
+				gMessageLib->sendSystemMessage(Target,L"","healing","shock_effect_low_target");
+			}
+		}
+		else
+		{
+			if(BF > 500) {
+				gMessageLib->sendSystemMessage(Medic,L"","healing","shock_effect_medium");
+			} else if(BF > 750) {
+				gMessageLib->sendSystemMessage(Medic,L"","healing","shoc_effect_high");
+			} else {
+				gMessageLib->sendSystemMessage(Medic,L"","healing","shock_effect_low");
+			}
+		}
+	}
+	return maxhealamount;
+}
+void MedicManager::startInjuryTreatmentEvent(PlayerObject* Medic)
+{
+		uint healingspeed = Medic->getSkillModValue(SMod_healing_injury_speed);
+		int delay = (int)((( 100 - (float)healingspeed ) / 100 ) * 10000); 
+		uint64 cooldown = std::max(4000, delay);
+		uint64 now = gWorldManager->GetCurrentGlobalTick();
+
+		Medic->getController()->addEvent(new InjuryTreatmentEvent(now + cooldown), cooldown);
+		Medic->togglePlayerCustomFlagOn(PlayerCustomFlag_InjuryTreatment);
+}
+void MedicManager::startWoundTreatmentEvent(PlayerObject* Medic)
+{
+		uint healingspeed = Medic->getSkillModValue(SMod_healing_wound_speed);
+		int delay = (int)((( 100 - (float)healingspeed ) / 100 ) * 10000); 
+		uint64 cooldown = std::max(4000, delay);
+		uint64 now = gWorldManager->GetCurrentGlobalTick();
+
+		Medic->getController()->addEvent(new WoundTreatmentEvent(now + cooldown), cooldown);
+		Medic->togglePlayerCustomFlagOn(PlayerCustomFlag_WoundTreatment);
+}
 //Foraging
 void MedicManager::successForage(PlayerObject* player)
 {

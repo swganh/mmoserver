@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 #include "CharacterBuilderTerminal.h"
@@ -134,13 +150,25 @@ void CharacterBuilderTerminal::InitBuffs()
 void CharacterBuilderTerminal::InitWounds()
 {
 	mWoundMenu.push_back("+100 Health Wound");
+	mWoundMenu.push_back("+100 Strength Wound");
+	mWoundMenu.push_back("+100 Stamina Wound");
 	mWoundMenu.push_back("+100 Action Wound");
+	mWoundMenu.push_back("+100 Constitution Wound");
+	mWoundMenu.push_back("+100 Quickness Wound");
 	mWoundMenu.push_back("+100 Mind Wound");
+	mWoundMenu.push_back("+100 Focus Wound");
+	mWoundMenu.push_back("+100 willpower Wound");
 	mWoundMenu.push_back("+100 Battle Fatigue");
 
 	mWoundMenu.push_back("-100 Health Wound");
+	mWoundMenu.push_back("-100 Strength Wound");
+	mWoundMenu.push_back("-100 Stamina Wound");
 	mWoundMenu.push_back("-100 Action Wound");
+	mWoundMenu.push_back("-100 Quickness Wound");
+	mWoundMenu.push_back("-100 Constitution Wound");
 	mWoundMenu.push_back("-100 Mind Wound");
+	mWoundMenu.push_back("-100 Focus Wound");
+	mWoundMenu.push_back("-100 willpower Wound");
 	mWoundMenu.push_back("-100 Battle Fatigue");
 }
 void CharacterBuilderTerminal::InitItems()
@@ -1248,31 +1276,66 @@ void CharacterBuilderTerminal::_handleWoundMenu(PlayerObject* playerObject, uint
 	case 0: //Health Wound
 		playerObject->getHam()->updatePropertyValue(HamBar_Health, HamProperty_Wounds, 100);
 		break;
-	case 1: //Action Wound
+	case 1: //Strength Wound
+		playerObject->getHam()->updatePropertyValue(HamBar_Strength, HamProperty_Wounds, 100);
+		break;
+	case 2: //Constitution Wound
+		playerObject->getHam()->updatePropertyValue(HamBar_Constitution, HamProperty_Wounds, 100);
+		break;
+	case 3: //Action Wound
 		playerObject->getHam()->updatePropertyValue(HamBar_Action, HamProperty_Wounds, 100);
 		break;
-	case 2: //Mind Wound
-		playerObject->getHam()->updatePropertyValue(HamBar_Mind, HamProperty_Wounds, 100);
+	case 4: //Stamina Wound
+		playerObject->getHam()->updatePropertyValue(HamBar_Stamina, HamProperty_Wounds, 100);
 		break;
-	case 3: //BattleFatigue
-		playerObject->getHam()->updateBattleFatigue(100);
-		break;
-	case 4: //Health Wound
-		playerObject->getHam()->updatePropertyValue(HamBar_Health, HamProperty_Wounds, -100);
-		break;
-	case 5: //Action Wound
-		playerObject->getHam()->updatePropertyValue(HamBar_Action, HamProperty_Wounds, -100);
+	case 5: //Quickness Wound
+		playerObject->getHam()->updatePropertyValue(HamBar_Quickness, HamProperty_Wounds, 100);
 		break;
 	case 6: //Mind Wound
+		playerObject->getHam()->updatePropertyValue(HamBar_Mind, HamProperty_Wounds, 100);
+		break;
+	case 7: //Focus Wound
+		playerObject->getHam()->updatePropertyValue(HamBar_Focus, HamProperty_Wounds, 100);
+		break;
+	case 8: //Willpower Wound
+		playerObject->getHam()->updatePropertyValue(HamBar_Willpower, HamProperty_Wounds, 100);
+		break;
+	case 9: //BattleFatigue
+		playerObject->getHam()->updateBattleFatigue(100);
+		break;
+	case 10: //Health Wound
+		playerObject->getHam()->updatePropertyValue(HamBar_Health, HamProperty_Wounds, 100);
+		break;
+	case 11: //Strength Wound
+		playerObject->getHam()->updatePropertyValue(HamBar_Strength, HamProperty_Wounds, 100);
+		break;
+	case 12: //Constitution Wound
+		playerObject->getHam()->updatePropertyValue(HamBar_Constitution, HamProperty_Wounds, 100);
+		break;
+	case 13: //Action Wound
+		playerObject->getHam()->updatePropertyValue(HamBar_Action, HamProperty_Wounds, 100);
+		break;
+	case 14: //Stamina Wound
+		playerObject->getHam()->updatePropertyValue(HamBar_Stamina, HamProperty_Wounds, 100);
+		break;
+	case 15: //Quickness Wound
+		playerObject->getHam()->updatePropertyValue(HamBar_Quickness, HamProperty_Wounds, 100);
+		break;
+	case 16: //Mind Wound
 		playerObject->getHam()->updatePropertyValue(HamBar_Mind, HamProperty_Wounds, -100);
 		break;
-	case 7: //BattleFatigue
+	case 17: //Focus Wound
+		playerObject->getHam()->updatePropertyValue(HamBar_Focus, HamProperty_Wounds, -100);
+		break;
+	case 18: //Willpower Wound
+		playerObject->getHam()->updatePropertyValue(HamBar_Willpower, HamProperty_Wounds, -100);
+		break;
+	case 19: //BattleFatigue
 		playerObject->getHam()->updateBattleFatigue(-100);
 		break;
 	default:
 		break;
-	}
-	
+	}	
 }
 
 void CharacterBuilderTerminal::_handleStructureMenu(PlayerObject* playerObject, uint32 action,int32 element,string inputStr,UIWindow* window)

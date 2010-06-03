@@ -1,16 +1,33 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
 #include "Database.h"
 
+#include "DataBinding.h"
 #include "DataBindingFactory.h"
 #include "DatabaseCallback.h"
 #include "DatabaseImplementation.h"
@@ -121,7 +138,26 @@ void Database::Process(void)
 		mJobPool.ordered_free(job);
 	}
 }
-
+//======================================================================================================================
+int Database::GetCount(const int8* tablename)
+{
+	int8    sql[100];
+	sprintf(sql, "SELECT COUNT(*) FROM %s;",tablename);
+	return GetSingleValueSync(sql);
+}
+//======================================================================================================================
+int Database::GetSingleValueSync(const int8* sql)
+{
+	uint32 value = 0;
+	DatabaseResult* result = ExecuteSql(sql);
+	
+	DataBinding* bind = CreateDataBinding(1);
+	bind->addField(DFT_uint32,0,4,0);
+	result->GetNextRow(bind,&value);
+	DestroyResult(result);
+	if(bind) SAFE_DELETE(bind);
+	return value;
+}
 //======================================================================================================================
 DatabaseResult* Database::ExecuteSynchSql(const int8* sql, ...)
 {

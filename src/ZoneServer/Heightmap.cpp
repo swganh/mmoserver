@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 #include "Heightmap.h"
@@ -16,13 +32,15 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include <cfloat>
 
 //=============================================================================
-Heightmap::Heightmap(const char* planet_name)
+Heightmap::Heightmap(const char* planet_name, uint16 resolution)
 : mHeightmapCache(NULL)
 , mCacheHeight(0)
 , mCacheWidth(0)
 , mCacheResoulutionDivider(3)
 , WIDTH(15361)
 , HEIGHT(15361)
+, mResolution(resolution)
+, mReady(false)
 {
 	mFilename = planet_name;
 	mFilename += ".hmpw";
@@ -32,6 +50,15 @@ Heightmap::Heightmap(const char* planet_name)
 	mThread = boost::move(t);
 
 	mExit = false;
+}
+
+bool Heightmap::isReady()
+{
+	mReadyMutex.lock();
+	bool isReady = mReady;
+	mReadyMutex.unlock();
+
+	return isReady;
 }
 
 // Never used
@@ -73,11 +100,11 @@ bool Heightmap::mCacheAvaliable = false;
 
 //======================================================================================================================
 
-Heightmap* Heightmap::Instance(void)
+Heightmap* Heightmap::Instance(uint16 resolution)
 {
 	if (!mInstance)
 	{
-		mInstance = new Heightmap(gWorldManager->getPlanetNameThis());
+		mInstance = new Heightmap(gWorldManager->getPlanetNameThis(), resolution);
 	}
 	return mInstance;
 }
@@ -124,6 +151,23 @@ void Heightmap::fillInIterator(HeightResultMap::iterator it)
 
 void Heightmap::RunThread()
 {
+	// create a height-map cashe.
+	gLogger->log(LogManager::NOTICE,"Height map resolution = %d", mResolution);
+						
+	gLogger->log(LogManager::NOTICE,"Starting Heightmap Cache Creation. This might take a while!");
+	if (setupCache(mResolution))
+	{
+		gLogger->log(LogManager::NOTICE,"Height map cache setup successfully with resolution %d", mResolution);
+	}
+	else
+	{
+		gLogger->log(LogManager::NOTICE,"WorldManager::_handleLoadComplete heigthmap cache setup FAILED");
+	}
+
+	mReadyMutex.lock();
+	mReady = true;
+	mReadyMutex.unlock();
+
 	while(!mExit)
 	{
 		mJobMutex.lock();
@@ -239,6 +283,7 @@ bool Heightmap::getRow(unsigned char* buffer, int32 x, int32 z, int32 length)
 
 void Heightmap::Connect(void)
 {
+	
 	hmp = fopen(mFilename.c_str(),"r+b");
 	if(!hmp)
 	{

@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -24,6 +40,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "DatabaseManager/DatabaseResult.h"
 #include "ScriptEngine/ScriptEngine.h"
 #include "ScriptEngine/ScriptSupport.h"
+#include "Heightmap.h"
+#include "ConfigManager/ConfigManager.h"
 
 
 //======================================================================================================================
@@ -69,8 +87,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 						if(!mDebug)
 						mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_ClientEffects),"SELECT * FROM clienteffects ORDER BY id;");
 
-						// load planet names and terrain files
-						mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_PlanetNamesAndFiles),"SELECT * FROM planet ORDER BY planet_id;");
+						
 
 						// load attribute keys
 						mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_AttributeKeys),"SELECT id, name FROM attributes ORDER BY id;");
@@ -234,7 +251,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					nameBinding->addField(DFT_bstring,0,255,1);
 
 					uint64 rowCount = result->getRowCount();
-
+					mvPlanetNames.reserve((uint32)rowCount);
 					for(uint64 i = 0;i < rowCount;i++)
 					{
 						result->GetNextRow(nameBinding,&tmp);
@@ -247,7 +264,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 					DataBinding*	fileBinding = mDatabase->CreateDataBinding(1);
 					fileBinding->addField(DFT_bstring,0,255,2);
-
+					mvTrnFileNames.reserve((uint32)rowCount);
 					for(uint64 i = 0;i < rowCount;i++)
 					{
 						result->GetNextRow(fileBinding,&tmp);
@@ -256,6 +273,16 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 					mDatabase->DestroyDataBinding(fileBinding);
 
+					//start loading heightmap
+					if(mZoneId != 41)
+					{
+						int16 resolution = 0;
+						if (gConfig->keyExists("heightMapResolution"))
+							resolution = gConfig->read<int>("heightMapResolution");
+
+						if (!Heightmap::Instance(resolution))
+							assert(false && "WorldManager::_handleLoadComplete Missing heightmap, look for it on the forums.");
+					}
 				}
 				break;
 
@@ -298,7 +325,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					binding->addField(DFT_bstring,0,255,1);
 
 					uint64 effectCount = result->getRowCount();
-
+					mvClientEffects.reserve((uint32)effectCount);
 					for(uint64 i = 0;i < effectCount;i++)
 					{
 						result->GetNextRow(binding,&tmp);
@@ -322,7 +349,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					binding->addField(DFT_bstring,0,255,1);
 
 					uint64 effectCount = result->getRowCount();
-
+					mvSounds.reserve((uint32)effectCount);
 					for(uint64 i = 0;i < effectCount;i++)
 					{
 						result->GetNextRow(binding,&tmp);
@@ -345,7 +372,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					binding->addField(DFT_bstring,0,255,1);
 
 					uint64 effectCount = result->getRowCount();
-
+					mvMoods.reserve((uint32)effectCount);
 					for(uint64 i = 0;i < effectCount;i++)
 					{
 						result->GetNextRow(binding,&tmp);
@@ -369,7 +396,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					binding->addField(DFT_bstring,0,255,1);
 
 					uint64 animCount = result->getRowCount();
-
+					mvNpcConverseAnimations.reserve((uint32)animCount);
 					for(uint64 i = 0;i < animCount;i++)
 					{
 						result->GetNextRow(binding,&tmp);
@@ -396,7 +423,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					animbinding->addField(DFT_uint32,0,4,2);
 
 					uint64 phraseCount = result->getRowCount();
-
+					mvNpcChatter.reserve((uint32)phraseCount);
 					for(uint64 i = 0;i < phraseCount;i++)
 					{
 						result->GetNextRow(binding,&tmp);
@@ -424,7 +451,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					scriptBinding->addField(DFT_string,offsetof(Script,mFile),255,1);
 
 					uint64 scriptCount = result->getRowCount();
-
+					
 					for(uint64 i = 0;i < scriptCount;i++)
 					{
 						Script* script = gScriptEngine->createScript();
@@ -550,7 +577,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					creatureSpawnBinding->addField(DFT_float,offsetof(CreatureSpawnRegion,mLength),4,4);
 
 					uint64 count = result->getRowCount();
-
+					
 					for(uint64 i = 0;i < count;i++)
 					{
 						CreatureSpawnRegion *creatureSpawnRegion = new CreatureSpawnRegion();

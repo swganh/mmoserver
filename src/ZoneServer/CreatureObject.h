@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -82,7 +98,6 @@ class CreatureObject : public MovingObject
 		void				setSpeciesGroup(const int8* speciesGroup){ mSpeciesGroup = speciesGroup; }
 		//Object*			getTarget() const { return mTargetObject; }
 		Object*				getTarget() const;
-		Object*				getHealingTarget(PlayerObject* player) const;
 		// void				setTarget(Object* object){ mTargetObject = object; }
 		void				setTarget(uint64 targetId){ mTargetId = targetId; }
 		// uint64			getTargetId() const { return(mTargetObject != NULL) ? mTargetObject->getId():0; }
@@ -178,6 +193,7 @@ class CreatureObject : public MovingObject
 		void				setLastEntertainerXP(float lastEntertainerXP){mLastEntertainerXP = lastEntertainerXP;}
 
 		bool				handlePerformanceTick(uint64 time,void* ref);
+		bool				handleImagedesignerTimeOut(uint64 time,void* ref);
 
 		PerformingState		getPerformingState() const { return mPendingPerform; }
 		void				setPerformingState(PerformingState state){ mPendingPerform = state; }

@@ -251,7 +251,7 @@ void ResourceManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 			Resource* resource;
 
 			uint64 count = result->getRowCount();
-			gLogger->log(LogManager::INFORMATION,"Loading %u Old Resources",count);
+			//gLogger->log(LogManager::INFORMATION,"Loading %u Old Resources",count);
 
 			for(uint64 i = 0;i < count;i++)
 			{

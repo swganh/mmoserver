@@ -44,7 +44,7 @@ mDBAsyncPool(sizeof(CSAsyncContainer))
 	_registerCallbacks();
 	_loadCommandMap();
 
-	gLogger->log(LogManager::DEBUG,"Started Loading Factions.");
+	//gLogger->log(LogManager::DEBUG,"Started Loading Factions.");
 	mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.malloc()) CSAsyncContainer(CharSheetQuery_Factions),"SELECT * FROM faction ORDER BY id");
 }
 
@@ -166,8 +166,8 @@ void CharSheetManager::handleDatabaseJobComplete(void* ref, DatabaseResult* resu
 
 			mDatabase->DestroyDataBinding(binding);
 
-			gLogger->log(LogManager::DEBUG,"Finished Loading Badge Categories.");
-			gLogger->log(LogManager::NOTICE,"Loading Badges.");
+			//gLogger->log(LogManager::DEBUG,"Finished Loading Badge Categories.");
+			//gLogger->log(LogManager::NOTICE,"Loading Badges.");
 			mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.malloc()) CSAsyncContainer(CharSheetQuery_Badges),"SELECT * FROM badges ORDER BY id");
 		}
 		break;
@@ -192,7 +192,7 @@ void CharSheetManager::handleDatabaseJobComplete(void* ref, DatabaseResult* resu
 			}
 
 			mDatabase->DestroyDataBinding(binding);	
-			gLogger->log(LogManager::DEBUG,"Finished Loading Badges.");
+			//gLogger->log(LogManager::DEBUG,"Finished Loading Badges.");
 		}
 		break;
 

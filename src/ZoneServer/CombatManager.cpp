@@ -37,7 +37,7 @@ CombatManager*	CombatManager::mSingleton	= NULL;
 CombatManager::CombatManager(Database* database) :
 mDatabase(database)
 {
-	gLogger->log(LogManager::INFORMATION,"Start loading weapon groups.");	
+	//gLogger->log(LogManager::INFORMATION,"Start loading weapon groups.");	
 	// load default attack animations
 	mDatabase->ExecuteSqlAsync(this,0,"SELECT id,defaultAttackAnimationCrc,defaultCombatSpam FROM weapon_groups ORDER BY id");
 }
@@ -100,7 +100,7 @@ void CombatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 	}
 	
 	mDatabase->DestroyDataBinding(binding);
-	gLogger->log(LogManager::NOTICE,"Finished Loading weapon groups.");	
+	//gLogger->log(LogManager::NOTICE,"Finished Loading weapon groups.");	
 }
 
 //=============================================================================================================================

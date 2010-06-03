@@ -256,34 +256,6 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					}
 
 					mDatabase->DestroyDataBinding(fileBinding);
-
-					//start loading heightmap
-					if(mZoneId != 41)
-					{
-						if (!Heightmap::Instance())
-						{
-							assert(false && "WorldManager::_handleLoadComplete Missing heightmap, download at http://www.swganh.com/!!planets!!/PLANET_NAME.rar");
-						}
-
-						// create a height-map cashe.
-						int16 resolution = 0;
-						if (gConfig->keyExists("heightMapResolution"))
-						{
-							resolution = gConfig->read<int>("heightMapResolution");
-						}
-		
-						gLogger->log(LogManager::NOTICE,"Height map resolution = %d", resolution);
-						
-						gLogger->log(LogManager::NOTICE,"Starting Heightmap Cache Creation. This might take a while!");
-						if (Heightmap::Instance()->setupCache(resolution))
-						{
-							gLogger->log(LogManager::NOTICE,"Height map cache setup successfully with resolution %d", resolution);
-						}
-						else
-						{
-							gLogger->log(LogManager::NOTICE,"WorldManager::_handleLoadComplete heigthmap cache setup FAILED");
-						}
-					}
 				}
 				break;
 

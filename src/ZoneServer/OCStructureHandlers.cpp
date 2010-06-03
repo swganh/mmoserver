@@ -257,7 +257,7 @@ void ObjectController::_handleStructurePlacement(uint64 targetId,Message* messag
 
 			container->addToBatch(x,z);
 
-			Heightmap::Instance()->addNewHeightMapJob(container);
+			gHeightmap->addNewHeightMapJob(container);
 		}
 		break;
 
@@ -279,7 +279,7 @@ void ObjectController::_handleStructurePlacement(uint64 targetId,Message* messag
 
 			container->addToBatch(x,z);
 
-			Heightmap::Instance()->addNewHeightMapJob(container);
+			gHeightmap->addNewHeightMapJob(container);
 		}
 		break;
 
@@ -355,7 +355,7 @@ void ObjectController::_handleStructurePlacement(uint64 targetId,Message* messag
 				container->addToBatch(x+halfWidth, z+halfLength);
 			}
 
-			Heightmap::Instance()->addNewHeightMapJob(container);
+			gHeightmap->addNewHeightMapJob(container);
 		}
 		break;
 

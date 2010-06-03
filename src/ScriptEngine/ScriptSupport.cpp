@@ -187,7 +187,7 @@ void ScriptSupport::npcSpawnPersistent(NPCObject* npc, uint64 npcId, uint64 cell
 									   uint64 respawnPeriod, uint64 templateId)
 {
 	// Do not allow any spwans if not heightmap avaliable.
-	if (Heightmap::Instance()->Open())
+	if (gHeightmap->Open())
 	{
 		// Test
 		// respawnPeriod = 15000;

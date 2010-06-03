@@ -68,7 +68,7 @@ void HarvesterFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 		case HFQuery_ResourceData:
 		{
 
-			uint64 count = result->getRowCount();
+			uint32 count = (uint32)result->getRowCount();
 
 			HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(asyncContainer->mObject);
 

@@ -122,6 +122,17 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
 
 	// load up subsystems
 
+	//start loading heightmap
+	if(mZoneId != 41)
+	{
+		int16 resolution = 0;
+		if (gConfig->keyExists("heightMapResolution"))
+			resolution = gConfig->read<int>("heightMapResolution");
+
+		if (!Heightmap::Instance(resolution))
+			assert(false && "WorldManager::_handleLoadComplete Missing heightmap, look for it on the forums.");
+	}
+
 	SkillManager::Init(database);
 	SchematicManager::Init(database);
 	if(zoneId != 41)
@@ -863,7 +874,10 @@ void WorldManager::_handleLoadComplete()
 	_startWorldScripts();
 
 	gLogger->log(LogManager::NOTICE,"World load complete");
-					
+			
+	while(!gHeightmap->isReady())
+		boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+
 	// switch into running state
 	mState = WMState_Running;
 

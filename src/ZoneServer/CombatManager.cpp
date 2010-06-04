@@ -429,6 +429,20 @@ uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* def
 			baseMaxDamage = weapon->getAttribute<int32>("cat_wpn_damage.wpn_damage_max");
 		}
 
+
+		//Sanity checks of db data
+		if (baseMinDamage < 1)
+			baseMinDamage = 1;
+
+		if (baseMaxDamage < 1)
+			baseMaxDamage = 1;
+
+		if(baseMaxDamage <= baseMinDamage)
+		{
+			gLogger->log(LogManager::DEBUG,"CombatManager::db min max data is NOT sane");
+			baseMaxDamage = baseMinDamage +1;
+		}
+
 		int32 baseDamage	= -((gRandom->getRand()%(baseMaxDamage - baseMinDamage)) + baseMinDamage);
 
 		// apply damage multiplier

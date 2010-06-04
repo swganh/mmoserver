@@ -113,7 +113,4 @@ Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-	GlobalSection(CppDepend) = preSolution
-		Project = ""
-	EndGlobalSection
 EndGlobal

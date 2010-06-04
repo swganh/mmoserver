@@ -73,17 +73,17 @@ void ObjectController::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 			//make sure we have some values set in case the statmigration table wont hold anything on us
 			if(count != 1)
 			{
-				ourHam->setTargetStatValue(HamBar_Health,ourHam->getPropertyValue(HamBar_Health,HamProperty_MaxHitpoints));
-				ourHam->setTargetStatValue(HamBar_Strength,ourHam->getPropertyValue(HamBar_Strength,HamProperty_MaxHitpoints));
-				ourHam->setTargetStatValue(HamBar_Constitution,ourHam->getPropertyValue(HamBar_Constitution,HamProperty_MaxHitpoints));
+				ourHam->setTargetStatValue(HamBar_Health,ourHam->getPropertyValue(HamBar_Health,HamProperty_BaseHitpoints));
+				ourHam->setTargetStatValue(HamBar_Strength,ourHam->getPropertyValue(HamBar_Strength,HamProperty_BaseHitpoints));
+				ourHam->setTargetStatValue(HamBar_Constitution,ourHam->getPropertyValue(HamBar_Constitution,HamProperty_BaseHitpoints));
 
-				ourHam->setTargetStatValue(HamBar_Action,ourHam->getPropertyValue(HamBar_Action,HamProperty_MaxHitpoints));
-				ourHam->setTargetStatValue(HamBar_Quickness,ourHam->getPropertyValue(HamBar_Quickness,HamProperty_MaxHitpoints));
-				ourHam->setTargetStatValue(HamBar_Stamina,ourHam->getPropertyValue(HamBar_Stamina,HamProperty_MaxHitpoints));
+				ourHam->setTargetStatValue(HamBar_Action,ourHam->getPropertyValue(HamBar_Action,HamProperty_BaseHitpoints));
+				ourHam->setTargetStatValue(HamBar_Quickness,ourHam->getPropertyValue(HamBar_Quickness,HamProperty_BaseHitpoints));
+				ourHam->setTargetStatValue(HamBar_Stamina,ourHam->getPropertyValue(HamBar_Stamina,HamProperty_BaseHitpoints));
 
-				ourHam->setTargetStatValue(HamBar_Mind,ourHam->getPropertyValue(HamBar_Mind,HamProperty_MaxHitpoints));
-				ourHam->setTargetStatValue(HamBar_Focus,ourHam->getPropertyValue(HamBar_Focus,HamProperty_MaxHitpoints));
-				ourHam->setTargetStatValue(HamBar_Willpower,ourHam->getPropertyValue(HamBar_Willpower,HamProperty_MaxHitpoints));
+				ourHam->setTargetStatValue(HamBar_Mind,ourHam->getPropertyValue(HamBar_Mind,HamProperty_BaseHitpoints));
+				ourHam->setTargetStatValue(HamBar_Focus,ourHam->getPropertyValue(HamBar_Focus,HamProperty_BaseHitpoints));
+				ourHam->setTargetStatValue(HamBar_Willpower,ourHam->getPropertyValue(HamBar_Willpower,HamProperty_BaseHitpoints));
 
 			}
 			else

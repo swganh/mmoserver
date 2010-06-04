@@ -25,15 +25,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 #include "ObjectController.h"
-#include <cstdint>
-#ifdef _MSC_VER
-#include <regex>  // NOLINT
-#else
-#endif
-
 #include <boost/regex.hpp>  // NOLINT
 #include "MedicManager.h"
-#include "MedicHandlerHelpers.h"
 #include "ObjectController.h"
 #include "ObjectControllerOpcodes.h"
 #include "ObjectControllerCommandMap.h"
@@ -47,22 +40,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Common/MessageFactory.h"
 #include "Common/Message.h"
 #include "ForageManager.h"
-
-// GCC doesn't fully support regex yet (some methods are unimplemented at this
-// time), so fall back to the boost regex (which is essentially the same
-// interface, different namespace). Once GCC finishes their implementation all
-// boost/regex references can be removed.
-#ifdef WIN32
-using ::std::regex;
-using ::std::smatch;
-using ::std::regex_search;
-using ::std::sregex_token_iterator;
-#else
-using ::boost::regex;
-using ::boost::smatch;
-using ::boost::regex_search;
-using ::boost::sregex_token_iterator;
-#endif
 
 	//consts
 	const char* const woundpack = "woundpack";
@@ -121,7 +98,7 @@ void ObjectController::_handleHealWound(uint64 targetId,Message* message,ObjectC
 	PlayerObject* Medic = dynamic_cast<PlayerObject*>(mObject);
 	PlayerObject* Target = dynamic_cast<PlayerObject*>(Medic->getHealingTarget(Medic));
 
-	std::string messageResponse = gMedicHandlerHelpers->handleMessage(message,"(action|constitution|health|quickness|stamina|strength)");
+	std::string messageResponse = gMedicManager->handleMessage(message,"(action|constitution|health|quickness|stamina|strength)");
 	if (messageResponse.length() == 0)
 	{
 	  //you must specify a valid wound type
@@ -165,8 +142,26 @@ void ObjectController::_handleMedicalForage(uint64 targetId,Message* message,Obj
 
 void ObjectController::_handleTendDamage(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	//PlayerObject* Medic = dynamic_cast<PlayerObject*>(mObject);
-	//gMessageLib->sendSystemMessage(Medic, "Tend Damage has not been implemented yet. Sorry.");
+	PlayerObject* Medic = dynamic_cast<PlayerObject*>(mObject);
+	PlayerObject* Target = dynamic_cast<PlayerObject*>(Medic->getHealingTarget(Medic));
+
+	//check Medic has enough Mind
+	Ham* ham = Medic->getHam();
+	if(ham->checkMainPools(cmdProperties->mHealthCost, cmdProperties->mActionCost, cmdProperties->mMindCost))
+	{
+		if (gMedicManager->HealDamage(Medic, Target, 0, cmdProperties, "tendDamage"))
+		{
+			ham->updatePropertyValue(HamBar_Focus ,HamProperty_Wounds, 5);
+			ham->updatePropertyValue(HamBar_Willpower ,HamProperty_Wounds, 5);
+			ham->updateBattleFatigue(2, true);
+			//call the event
+			gMedicManager->startInjuryTreatmentEvent(Medic);
+			return;
+		}
+	}
+	else
+		gMessageLib->sendSystemMessage(Medic,L"","healing_response","not_enough_mind");
+
 }
 
 //=============================================================================================================================
@@ -184,7 +179,7 @@ void ObjectController::_handleTendWound(uint64 targetId,Message* message,ObjectC
 	{
 		return;
 	}*/
-	std::string messageResponse = gMedicHandlerHelpers->handleMessage(message,"(action|constitution|health|quickness|stamina|strength)");
+	std::string messageResponse = gMedicManager->handleMessage(message,"(action|constitution|health|quickness|stamina|strength)");
 	if (messageResponse.length() == 0)
 	{
 	  //you must specify a valid wound type
@@ -231,8 +226,25 @@ void ObjectController::_handleFirstAid(uint64 targetId,Message* message,ObjectCo
 
 void ObjectController::_handleQuickHeal(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	//PlayerObject* Medic = dynamic_cast<PlayerObject*>(mObject);
-	//gMessageLib->sendSystemMessage(Medic, "Quick Heal has not been implemented yet. Sorry.");
+	PlayerObject* Medic = dynamic_cast<PlayerObject*>(mObject);
+	PlayerObject* Target = dynamic_cast<PlayerObject*>(Medic->getHealingTarget(Medic));
+
+	//check Medic has enough Mind
+	Ham* ham = Medic->getHam();
+	if(ham->checkMainPools(0, 0, cmdProperties->mMindCost))
+	{
+		if (gMedicManager->HealDamage(Medic, Target, 0, cmdProperties, "quickHeal"))
+		{
+			ham->updatePropertyValue(HamBar_Focus ,HamProperty_Wounds, 10);
+			ham->updatePropertyValue(HamBar_Willpower ,HamProperty_Wounds, 10);
+			ham->updateBattleFatigue(2, true);
+			//call the event
+			gMedicManager->startQuickHealInjuryTreatmentEvent(Medic);
+			return;
+		}
+	}
+	else
+		gMessageLib->sendSystemMessage(Medic,L"","healing_response","not_enough_mind");
 }
 
 //=============================================================================================================================

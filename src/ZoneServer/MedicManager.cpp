@@ -24,9 +24,16 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
+#include <cstdint>
+#ifdef _MSC_VER
+#include <regex>  // NOLINT
+#else
+#endif
+
 #include "MedicManager.h"
 #include "InjuryTreatmentEvent.h"
 #include "WoundTreatmentEvent.h"
+#include "QuickHealInjuryEvent.h"
 #include "Inventory.h"
 #include "Medicine.h"
 #include "ObjectControllerCommandMap.h"
@@ -37,13 +44,25 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldConfig.h"
 #include "ForageManager.h"
 #include "StructureManager.h"
-
+#include "Common/Message.h"
 #include "MessageLib/MessageLib.h"
 #include "Utils/rand.h"
 
 
 #ifndef min
 #define min(a,b)(((a)<(b))?(a):(b))
+#endif
+
+#ifdef WIN32
+using ::std::regex;
+using ::std::smatch;
+using ::std::regex_search;
+using ::std::sregex_token_iterator;
+#else
+using ::boost::regex;
+using ::boost::smatch;
+using ::boost::regex_search;
+using ::boost::sregex_token_iterator;
 #endif
 
 bool			MedicManager::mInsFlag = false;
@@ -172,6 +191,7 @@ bool MedicManager::CheckMedicine(PlayerObject* Medic, PlayerObject* Target, Obje
 				case ItemType_Stimpack_E:
 					MedicinePackObjectID = item->getId();
 					medicine = dynamic_cast<Medicine*>(item);
+				default:
 					break;
 				}
 			}
@@ -344,7 +364,7 @@ bool MedicManager::CheckMedicine(PlayerObject* Medic, PlayerObject* Target, Obje
 	
 
 	if (medpackType == stim)
-		return HealDamage(Medic, Target, MedicinePackObjectID, cmdProperties);
+		return HealDamage(Medic, Target, MedicinePackObjectID, cmdProperties, stim);
 	
 
 	if (wound)
@@ -353,10 +373,12 @@ bool MedicManager::CheckMedicine(PlayerObject* Medic, PlayerObject* Target, Obje
 	return false;
 }
 
-bool MedicManager::HealDamage(PlayerObject* Medic, PlayerObject* Target, uint64 StimPackObjectID, ObjectControllerCmdProperties* cmdProperties)
+bool MedicManager::HealDamage(PlayerObject* Medic, PlayerObject* Target, uint64 StimPackObjectID, ObjectControllerCmdProperties* cmdProperties, std::string healType)
 {
 	Medicine* Stim = dynamic_cast<Medicine*>(gWorldManager->getObjectById(StimPackObjectID));
 	bool isSelf = (Medic->getId() == Target->getId());
+	bool tendDamage = (healType.find("tendDamage") != std::string::npos);
+	bool quickHeal = (healType.find("quickHeal") != std::string::npos);
 
 	//Get Medic Skill Mods
 	uint32 healingskill = Medic->getSkillModValue(SMod_healing_injury_treatment);
@@ -430,8 +452,26 @@ bool MedicManager::HealDamage(PlayerObject* Medic, PlayerObject* Target, uint64 
 
 	//Get Heal Strength
 	//TODO - BEClothing, and Med Center/city bonuses.
-	int healthpower = Stim->getHealthHeal();
-	int actionpower = Stim->getActionHeal();
+	int healthpower = 0;
+	int actionpower = 0; 
+	if (tendDamage)
+	{
+		//random range between 75 and 100
+		healthpower =	gRandom->getRand()%(100-75+1)+75;	
+		actionpower =	gRandom->getRand()%(100-75+1)+75;	
+	}
+	else if (quickHeal)
+	{
+		healthpower = gRandom->getRand()%(1000-400+1)+400;	
+		actionpower = gRandom->getRand()%(1000-400+1)+400;	
+	}
+	//heal damage
+	else
+	{
+		healthpower = Stim->getHealthHeal();
+		actionpower = Stim->getActionHeal();
+	}
+
 	//uint BEClothes = NULL;
 	//uint MedCityBonus = NULL;
 	uint maxhealhealth = healthpower * ((100 + healingskill) / 100);
@@ -444,12 +484,28 @@ bool MedicManager::HealDamage(PlayerObject* Medic, PlayerObject* Target, uint64 
 	
 	int StrengthHealth = min((int)maxhealhealth, TargetMaxHealth-TargetHealth);
 	int StrengthAction = min((int)maxhealaction, TargetMaxAction-TargetAction);
+	
+	//Cost.
+	int cost = 140;
+	if (tendDamage)
+		cost = 500;
+	else if (quickHeal)
+		cost = 1000;
+
+	int MedicMind = Medic->getHam()->mMind.getCurrentHitPoints();
+	int MedicMaxMind = Medic->getHam()->mMind.getMaxHitPoints();
+
+	if (MedicMind < cost) {
+		gMessageLib->sendSystemMessage(Medic,L"","healing","not_enough_mind");
+		return false;
+	}
+	Medic->getHam()->updatePropertyValue(HamBar_Mind, HamProperty_CurrentHitpoints, -cost);
 
 	Target->getHam()->updatePropertyValue(HamBar_Health, HamProperty_CurrentHitpoints, StrengthHealth);
 	Target->getHam()->updatePropertyValue(HamBar_Action, HamProperty_CurrentHitpoints, StrengthAction);
 
 	//Add XP as Total Heal / 4 if not targetting self
-	if(!isSelf)
+	if(!isSelf && !tendDamage && !quickHeal)
 		gSkillManager->addExperience(XpType_medical, (int)((StrengthHealth + StrengthAction)/4), Medic);
 
 	if(isSelf) //If targetting self
@@ -506,25 +562,12 @@ bool MedicManager::HealDamage(PlayerObject* Medic, PlayerObject* Target, uint64 
 		//CE
 		gMessageLib->sendPlayClientEffectLocMessage("clienteffect/healing_healdamage.cef",Target->mPosition,Target);
 	}
-		//Cost.
-	int cost = 140;
-
-	int MedicMind = Medic->getHam()->mMind.getCurrentHitPoints();
-	int MedicMaxMind = Medic->getHam()->mMind.getMaxHitPoints();
-
-	if (MedicMind < cost) {
-		gMessageLib->sendSystemMessage(Medic,L"","healing","not_enough_mind");
-		return false;
-	}
-
-	Medic->getHam()->updatePropertyValue(HamBar_Mind, HamProperty_CurrentHitpoints, -cost);
 	
-	if(Stim->ConsumeUse(Medic))
+	if((!tendDamage && !quickHeal) && Stim->ConsumeUse(Medic))
 	{
 		Inventory* inventory = dynamic_cast<Inventory*>(Medic->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 		inventory->deleteObject(Stim);
 	}
-
 	return true;
 }
 
@@ -766,21 +809,66 @@ bool MedicManager::HealWound(PlayerObject* Medic, PlayerObject* Target, uint64 W
 	}
 	return true;
 }
-//Check Heal Range
-bool MedicManager::CheckMedicRange(PlayerObject* Medic, PlayerObject* Target, float healRange)
+
+void MedicManager::startInjuryTreatmentEvent(PlayerObject* Medic)
 {
-	float distance = gWorldConfig->getConfiguration("Player_heal_distance", healRange);
+		uint healingspeed = Medic->getSkillModValue(SMod_healing_injury_speed);
+		int delay = (int)((( 100 - (float)healingspeed ) / 100 ) * 10000); 
+		uint64 cooldown = std::max(4000, delay);
+		uint64 now = gWorldManager->GetCurrentGlobalTick();
 
-    if(glm::distance(Medic->mPosition, Target->mPosition) > distance)
-	{
-		gLogger->log(LogManager::DEBUG,"Heal Target is out of range");
-		gMessageLib->sendSystemMessage(Medic,L"","healing","no_line_of_sight");
-		return false;
-	}
-	gLogger->log(LogManager::DEBUG,"Heal Target is within range");
-	return true;
+		Medic->getController()->addEvent(new InjuryTreatmentEvent(now + cooldown), cooldown);
+		Medic->togglePlayerCustomFlagOn(PlayerCustomFlag_InjuryTreatment);
 }
+void MedicManager::startQuickHealInjuryTreatmentEvent(PlayerObject* Medic)
+{
+		uint healingspeed = Medic->getSkillModValue(SMod_healing_injury_speed);
+		int delay = (int)((( 100 - (float)healingspeed ) / 100 ) * 10000); 
+		uint64 cooldown = std::max(4000, delay);
+		uint64 now = gWorldManager->GetCurrentGlobalTick();
 
+		Medic->getController()->addEvent(new QuickHealInjuryTreatmentEvent(now + cooldown), cooldown);
+		Medic->togglePlayerCustomFlagOn(PlayerCustomFlag_QuickHealInjuryTreatment);
+}
+void MedicManager::startWoundTreatmentEvent(PlayerObject* Medic)
+{
+		uint healingspeed = Medic->getSkillModValue(SMod_healing_wound_speed);
+		int delay = (int)((( 100 - (float)healingspeed ) / 100 ) * 10000); 
+		uint64 cooldown = std::max(1000, delay);
+		uint64 now = gWorldManager->GetCurrentGlobalTick();
+
+		Medic->getController()->addEvent(new WoundTreatmentEvent(now + cooldown), cooldown);
+		Medic->togglePlayerCustomFlagOn(PlayerCustomFlag_WoundTreatment);
+}
+//Foraging
+void MedicManager::successForage(PlayerObject* player)
+{
+	//Chance of success = sqrt(skill)/20 + 0.15
+	//Chance in down = chance/2
+
+	//First lets calc our chance to 'win'
+	//This is the magic formula!	
+	double chance = std::sqrt((double)player->getSkillModValue(20))/20 + 0.15;
+
+	if(!gStructureManager->checkCityRadius(player)) 
+		chance = chance*50;
+	else
+		chance = chance*100;
+
+	if((gRandom->getRand() % 100) <= chance)
+	{
+		// YOU WIN!
+		gMessageLib->sendSystemMessage(player, L"", "skl_use","sys_forage_success");
+	}
+	else
+	{
+		//YOU LOSE! GOOD DAY SIR!
+		gMessageLib->sendSystemMessage(player, L"", "skl_use","sys_forage_fail");
+	}
+
+	player->setForaging(false);
+}
+//HELPERS
 int32 MedicManager::CalculateBF(PlayerObject* Medic, PlayerObject* Target, int32 maxhealamount)
 {
 	int32 BF = Target->getHam()->getBattleFatigue();
@@ -809,6 +897,34 @@ int32 MedicManager::CalculateBF(PlayerObject* Medic, PlayerObject* Target, int32
 		}
 	}
 	return maxhealamount;
+}
+std::string MedicManager::handleMessage(Message* message, std::string regexPattern)
+{
+	// Read the message out of the packet.
+	string tmp;
+	message->getStringUnicode16(tmp);
+
+	// If the string has no length the message is ill-formatted, send the
+	// proper format to the client.
+	if (!tmp.getLength())
+		return "";
+
+	// Convert the string to an ansi string for ease with the regex.
+	tmp.convert(BSTRType_ANSI);
+	std::string input_string(tmp.getAnsi());
+
+	static const regex pattern(regexPattern);
+	smatch result;
+
+	regex_search(input_string, result, pattern);
+  
+	// Gather the results of the pattern for validation and use.
+	std::string messageType(result[1]);
+	if (messageType.length() > 0)
+	{
+		return messageType;
+	}
+	return "";
 }
 int32 MedicManager::CalculateHealWound(PlayerObject* Medic, PlayerObject* Target, int32 WoundHealPower, std::string healType)
 {
@@ -929,51 +1045,17 @@ int32 MedicManager::CalculateHealWound(PlayerObject* Medic, PlayerObject* Target
 	}
 	return maxwoundheal;
 }
-void MedicManager::startInjuryTreatmentEvent(PlayerObject* Medic)
+//Check Heal Range
+bool MedicManager::CheckMedicRange(PlayerObject* Medic, PlayerObject* Target, float healRange)
 {
-		uint healingspeed = Medic->getSkillModValue(SMod_healing_injury_speed);
-		int delay = (int)((( 100 - (float)healingspeed ) / 100 ) * 10000); 
-		uint64 cooldown = std::max(4000, delay);
-		uint64 now = gWorldManager->GetCurrentGlobalTick();
+	float distance = gWorldConfig->getConfiguration("Player_heal_distance", healRange);
 
-		Medic->getController()->addEvent(new InjuryTreatmentEvent(now + cooldown), cooldown);
-		Medic->togglePlayerCustomFlagOn(PlayerCustomFlag_InjuryTreatment);
-}
-void MedicManager::startWoundTreatmentEvent(PlayerObject* Medic)
-{
-		uint healingspeed = Medic->getSkillModValue(SMod_healing_wound_speed);
-		int delay = (int)((( 100 - (float)healingspeed ) / 100 ) * 10000); 
-		uint64 cooldown = std::max(1000, delay);
-		uint64 now = gWorldManager->GetCurrentGlobalTick();
-
-		Medic->getController()->addEvent(new WoundTreatmentEvent(now + cooldown), cooldown);
-		Medic->togglePlayerCustomFlagOn(PlayerCustomFlag_WoundTreatment);
-}
-//Foraging
-void MedicManager::successForage(PlayerObject* player)
-{
-	//Chance of success = sqrt(skill)/20 + 0.15
-	//Chance in down = chance/2
-
-	//First lets calc our chance to 'win'
-	//This is the magic formula!	
-	double chance = std::sqrt((double)player->getSkillModValue(20))/20 + 0.15;
-
-	if(!gStructureManager->checkCityRadius(player)) 
-		chance = chance*50;
-	else
-		chance = chance*100;
-
-	if((gRandom->getRand() % 100) <= chance)
+    if(glm::distance(Medic->mPosition, Target->mPosition) > distance)
 	{
-		// YOU WIN!
-		gMessageLib->sendSystemMessage(player, L"", "skl_use","sys_forage_success");
+		gLogger->log(LogManager::DEBUG,"Heal Target is out of range");
+		gMessageLib->sendSystemMessage(Medic,L"","healing","no_line_of_sight");
+		return false;
 	}
-	else
-	{
-		//YOU LOSE! GOOD DAY SIR!
-		gMessageLib->sendSystemMessage(player, L"", "skl_use","sys_forage_fail");
-	}
-
-	player->setForaging(false);
+	gLogger->log(LogManager::DEBUG,"Heal Target is within range");
+	return true;
 }

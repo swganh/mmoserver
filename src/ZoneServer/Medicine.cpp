@@ -73,8 +73,6 @@ void Medicine::handleStimpackMenuSelect(uint8 messageType, PlayerObject* player,
 					//Try to Heal Damage
 					if(gMedicManager->CheckMedicine(player, target,0, medpackType))
 					{
-						//If we succeed, reduce Medics Mind
-						player->getHam()->updatePropertyValue(HamBar_Mind, HamProperty_CurrentHitpoints, -140);
 						//Call the event
 						gMedicManager->startInjuryTreatmentEvent(player);
 					} else {
@@ -108,8 +106,6 @@ void Medicine::handleWoundPackMenuSelect(uint8 messageType, PlayerObject* player
 					//Try to Heal Damage
 					if(gMedicManager->CheckMedicine(player, target, 0, medpackType))
 					{
-						//If we succeed, reduce Medics Mind
-						player->getHam()->updatePropertyValue(HamBar_Mind, HamProperty_CurrentHitpoints, -140);
 						//Call the event
 						gMedicManager->startWoundTreatmentEvent(player);
 					} else {

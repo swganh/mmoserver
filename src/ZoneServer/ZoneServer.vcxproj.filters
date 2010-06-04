@@ -755,9 +755,6 @@
     <ClCompile Include="VehicleControllerFactory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MedicHandlerHelpers.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ActiveConversation.h">
@@ -1459,7 +1456,7 @@
     <ClInclude Include="WoundTreatmentEvent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MedicHandlerHelpers.h">
+    <ClInclude Include="quickHealInjuryEvent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

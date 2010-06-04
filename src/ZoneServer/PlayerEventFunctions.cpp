@@ -669,6 +669,26 @@ void PlayerObject::onInjuryTreatment(const InjuryTreatmentEvent* event)
 		mObjectController.addEvent(new InjuryTreatmentEvent(t), t-now);
 	}
 }
+//=============================================================================
+// this event manages quickheal injury treatment cooldowns.
+//
+void PlayerObject::onQuickHealInjuryTreatment(const QuickHealInjuryTreatmentEvent* event)
+{
+	uint64 now = gWorldManager->GetCurrentGlobalTick();
+	uint64 t = event->getQuickHealInjuryTreatmentTime();
+
+	if(now > t)
+	{
+		this->togglePlayerCustomFlagOff(PlayerCustomFlag_QuickHealInjuryTreatment);
+		gMessageLib->sendSystemMessage(this, L"", "healing_response", "healing_response_58");
+	}
+	
+	//have to call once more so we can get back here...
+	else
+	{
+		mObjectController.addEvent(new QuickHealInjuryTreatmentEvent(t), t-now);
+	}
+}
 
 //=============================================================================
 // this event manages wound treatment cooldowns.

@@ -1,4 +1,3 @@
-
 /*
 ---------------------------------------------------------------------------------------
 This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
@@ -24,14 +23,13 @@ You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
-*/
-
+*/	
 #pragma once
 
 #include <vector>
 #include "Common/MessageDispatchCallback.h"
 
-#define gMedicManager MedicManager::getSingletonPtr()
+#define gMedicHandlerHelpers MedicHandlerHelpers::getSingletonPtr()
 
 class CreatureObject;
 class Database;
@@ -41,17 +39,18 @@ class ObjectControllerCommandMap;
 class ObjectControllerCmdProperties;
 class PlayerObject;
 
-class MedicManager
+
+class MedicHandlerHelpers
 {
 public:
-	~MedicManager();
+	~MedicHandlerHelpers();
 
-	static MedicManager*	getSingletonPtr() { return mSingleton; }
-	static MedicManager*	Init(MessageDispatch* dispatch) 
-	{
+	static MedicHandlerHelpers*		getSingletonPtr() { return mSingleton; }
+	static MedicHandlerHelpers*		Init(MessageDispatch* dispatch)
+	{ 
 		if(!mInsFlag)
 		{
-			mSingleton = new MedicManager(dispatch);
+			mSingleton = new MedicHandlerHelpers(dispatch);
 			mInsFlag = true;
 			return mSingleton;
 		} else {
@@ -59,26 +58,13 @@ public:
 		}
 	}
 
-	bool CheckMedicine(PlayerObject* Medic, PlayerObject* Target, ObjectControllerCmdProperties* cmdProperties, std::string Type);
-	bool CheckMedicRange(PlayerObject* Medic, PlayerObject* Target, float healRange);
-	int32  CalculateBF(PlayerObject* Medic, PlayerObject* Target, int32 maxhealamount);
-	
-	int32 CalculateHealWound(PlayerObject* Medic, PlayerObject* Target, int32 woundHealPower, std::string healType);
-	bool HealDamage(PlayerObject* Medic, PlayerObject* Target, uint64 StimPackObjectID, ObjectControllerCmdProperties* cmdProperties);
-	bool HealDamageRanged(PlayerObject* Medic, PlayerObject* Target, uint64 StimPackObjectID, ObjectControllerCmdProperties* cmdProperties);
-	bool HealWound(PlayerObject* Medic, PlayerObject* Target, uint64 WoundPackobjectID, ObjectControllerCmdProperties* cmdProperties, std::string healType);
-
-	void startInjuryTreatmentEvent(PlayerObject* Medic);
-	void startWoundTreatmentEvent(PlayerObject* Medic);
-	bool Diagnose(PlayerObject* Medic, PlayerObject* Target);
-	void successForage(PlayerObject* player);
-
-
+	std::string handleMessage(Message* message, std::string regexPattern);
 
 private:
-	static MedicManager*	mSingleton;
-	static bool				mInsFlag;
-	MessageDispatch*		Dispatch;
-
-	MedicManager(MessageDispatch* dispatch);	
+	static MedicHandlerHelpers*	mSingleton;
+	static bool					mInsFlag;
+	MessageDispatch*			Dispatch;
+	MedicHandlerHelpers(MessageDispatch* dispatch);
 };
+
+	

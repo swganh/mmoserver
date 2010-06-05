@@ -87,6 +87,9 @@ uint32 ResourceContainer::getAmount()
 void ResourceContainer::setAmount(uint32 amount)
 {
     mAmount = amount;
+	//delete the resource
+	if (mAmount = 0)
+		ResourceContainer::deleteObject(this);
 }
 
 

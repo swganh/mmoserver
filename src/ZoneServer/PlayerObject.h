@@ -40,7 +40,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "BurstRunEvent.h"
 #include "ItemDeleteEvent.h"
 #include "InjuryTreatmentEvent.h"
-#include "QuickHealInjuryEvent.h"
+#include "QuickHealInjuryTreatmentEvent.h"
 #include "WoundTreatmentEvent.h"
 #include "Common/DispatchClient.h"
 #include <map>

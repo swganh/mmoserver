@@ -496,6 +496,7 @@
     <ClInclude Include="QuadTreeNode.h" />
     <ClInclude Include="QuestGiver.h" />
     <ClInclude Include="quickHealInjuryEvent.h" />
+    <ClInclude Include="QuickHealInjuryTreatmentEvent.h" />
     <ClInclude Include="RadialEnums.h" />
     <ClInclude Include="RadialMenu.h" />
     <ClInclude Include="RadialMenuItem.h" />

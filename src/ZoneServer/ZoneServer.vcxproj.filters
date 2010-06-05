@@ -1459,5 +1459,8 @@
     <ClInclude Include="quickHealInjuryEvent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="QuickHealInjuryTreatmentEvent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

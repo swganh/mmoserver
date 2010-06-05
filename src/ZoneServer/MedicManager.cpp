@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "MedicManager.h"
 #include "InjuryTreatmentEvent.h"
 #include "WoundTreatmentEvent.h"
-#include "QuickHealInjuryEvent.h"
+#include "QuickHealInjuryTreatmentEvent.h"
 #include "Inventory.h"
 #include "Medicine.h"
 #include "ObjectControllerCommandMap.h"
@@ -384,7 +384,14 @@ bool MedicManager::HealDamage(PlayerObject* Medic, PlayerObject* Target, uint64 
 	uint32 healingskill = Medic->getSkillModValue(SMod_healing_injury_treatment);
 
 	//If Currently in Delay Period
-	if(Medic->checkPlayerCustomFlag(PlayerCustomFlag_InjuryTreatment))
+	if(!quickHeal && Medic->checkPlayerCustomFlag(PlayerCustomFlag_InjuryTreatment))
+	{
+		//Say you can't heal yet.
+		gMessageLib->sendSystemMessage(Medic,L"","healing_response", "healing_must_wait");
+		return false;
+	}
+	//quickHeal is on a seperate cooldown
+	else if (quickHeal && Medic->checkPlayerCustomFlag(PlayerCustomFlag_QuickHealInjuryTreatment))
 	{
 		//Say you can't heal yet.
 		gMessageLib->sendSystemMessage(Medic,L"","healing_response", "healing_must_wait");

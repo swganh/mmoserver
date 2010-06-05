@@ -2113,7 +2113,7 @@ void Session::_processConnectCommand(void)
     if (Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastConnectRequestSent > 5000)  // Send a request packet every 5 seconds
     {
       // If we hit our timeout, then cancel the connect
-      if (Anh_Utils::Clock::getSingleton()->getLocalTime() - mConnectStartEvent > 3000000)   // Timeout at 30 seconds
+      if (Anh_Utils::Clock::getSingleton()->getLocalTime() - mConnectStartEvent > 30000)   // Timeout at 30 seconds
       {
         // Cancel our connect command and put us in a back in an uninit state
         mStatus = SSTAT_Initialize;

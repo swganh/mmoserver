@@ -62,11 +62,11 @@ void ObjectController::_handleRequestWaypointAtPosition(uint64 targetId,Message*
 	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
 	Datapad* datapad			= player->getDataPad();
 
-	if(!datapad->getCapacity())
-	{
-		gMessageLib->sendSystemMessage(player,L"","base_player","too_many_waypoints");
-		return;
-	}
+	//if(!datapad->getCapacity())
+	//{
+	//	gMessageLib->sendSystemMessage(player,L"","base_player","too_many_waypoints");
+	//	return;
+	//}
 
 	BStringVector	dataElements;
 	string			dataStr;
@@ -104,7 +104,7 @@ void ObjectController::_handleRequestWaypointAtPosition(uint64 targetId,Message*
 	}
 
 	string	planetStr	= dataElements[0].getAnsi();
-	gLogger->log(LogManager::DEBUG,"ObjController::handleCreateWaypointAtPosition: planet %s",planetStr.getAnsi());
+	//gLogger->log(LogManager::DEBUG,"ObjController::handleCreateWaypointAtPosition: planet %s",planetStr.getAnsi());
 	float	x			= static_cast<float>(atof(dataElements[1].getAnsi()));
 	float	y			= static_cast<float>(atof(dataElements[2].getAnsi()));
 	float	z			= static_cast<float>(atof(dataElements[3].getAnsi()));

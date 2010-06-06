@@ -1,11 +1,27 @@
 			  /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -87,7 +103,7 @@ void Instrument::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 							}
 							else
 							{
-								gMessageLib->sendSystemMessage(player,L"You cannot do this at this time.");
+								gMessageLib->sendSystemMessage(player,L"error_message", "wrong_state");
 							}
 						}
 						else if (dynamic_cast<CellObject*>(gWorldManager->getObjectById(this->getParentId())))
@@ -178,7 +194,6 @@ void Instrument::sendAttributes(PlayerObject* playerObject)
 
 void Instrument::prepareCustomRadialMenu(CreatureObject* player, uint8 itemCount)
 {
-	// gLogger->logMsgF("Instrument::prepareCustomRadialMenu() Entered", MSG_HIGH);
 
 	// NOTE: player is also of type CreatureObject* !!!
 	PlayerObject* playerObject = dynamic_cast<PlayerObject*>(player);
@@ -193,7 +208,6 @@ void Instrument::prepareCustomRadialMenu(CreatureObject* player, uint8 itemCount
 
 	if ((instrumentNr == ItemType_Nalargon) || (instrumentNr == ItemType_omni_box) || (instrumentNr == ItemType_nalargon_max_reebo))
 	{
-		//gLogger->logMsgF("Nalargon : %s", MSG_NORMAL,instrument->getName().getAnsi());
 
 		uint32 radId = 1;
 		//  We have to know if this is the real one or the copy.
@@ -202,7 +216,6 @@ void Instrument::prepareCustomRadialMenu(CreatureObject* player, uint8 itemCount
 			// We are handling the copy
 			if ((playerObject->getId() == this->getOwner()) && this->getPlaced())
 			{
-				// gLogger->logMsgF("Radial: A placed instrument", MSG_NORMAL);
 				if ((playerObject->getPerformingState() == PlayerPerformance_Music))
 				{
 					mRadialMenu->addItem(static_cast<uint8>(radId++),0,radId_itemUse,radAction_ObjCallback, "@radial_performance:stop_playing");
@@ -214,7 +227,6 @@ void Instrument::prepareCustomRadialMenu(CreatureObject* player, uint8 itemCount
 			}
 			else
 			{
-				// gLogger->logMsgF("Radial: Not our instrument, but is should be", MSG_NORMAL);
 				// radial->addItem(radId++,0,radId_examine,radAction_Default);
 				// radial->addItem(radId++,0,radId_itemPickup,radAction_Default);
 				return;
@@ -231,7 +243,6 @@ void Instrument::prepareCustomRadialMenu(CreatureObject* player, uint8 itemCount
 				if (inventory->getId() == this->getParentId())
 				{
 					// We have our real instrument in the inventory.
-					// gLogger->logMsgF("Radial: Original instrument in inventory.", MSG_NORMAL);
 
 					// We can't drop if outside in the world.
 					if (player->getParentId() == 0)
@@ -250,7 +261,6 @@ void Instrument::prepareCustomRadialMenu(CreatureObject* player, uint8 itemCount
 					if (playerObject->getPlacedInstrumentId() == 0)
 					{
 						// We do not have any other placed intrument out.
-						// gLogger->logMsgF("Radial: We don't have any copy placed, activate Use radial option.", MSG_NORMAL);
 						mRadialMenu->addItem(static_cast<uint8>(radId++),0,radId_itemUse,radAction_ObjCallback,"Use");
 					}
 				}
@@ -267,7 +277,6 @@ void Instrument::prepareCustomRadialMenu(CreatureObject* player, uint8 itemCount
 						// Yes, are we handling the original instrument.
 						// if (cell->getId() == this->getParentId())
 						{
-							// gLogger->logMsgF("Radial: Original instrument in a cell.", MSG_NORMAL);
 							if ((playerObject->getPerformingState() == PlayerPerformance_Music))
 							{
 								mRadialMenu->addItem(static_cast<uint8>(radId++),0,radId_itemUse,radAction_ObjCallback, "@radial_performance:stop_playing");
@@ -287,7 +296,6 @@ void Instrument::prepareCustomRadialMenu(CreatureObject* player, uint8 itemCount
 						// gMessageLib->sendSystemMessage(playerObject,L"","error_message","insufficient_permissions");
 						mRadialMenu->addItem(static_cast<uint8>(radId++),0,radId_examine,radAction_Default);
 						// radial->addItem(radId++,0,radId_itemPickup,radAction_Default);
-						// gLogger->logMsgF("Radial: Not my instrument", MSG_NORMAL);
 					}
 				}
 			}

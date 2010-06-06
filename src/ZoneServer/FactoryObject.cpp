@@ -1,12 +1,28 @@
 
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 #include "ObjectFactory.h"
@@ -53,13 +69,13 @@ void FactoryObject::handleObjectReady(Object* object,DispatchClient* client, uin
 	Item* item = dynamic_cast<Item*>(gWorldManager->getObjectById(hopper));
 	if(!item)
 	{
-		gLogger->logMsgF("FactoryObject::handleObjectReady::could not find Hopper",MSG_HIGH);
+		gLogger->log(LogManager::CRITICAL,"FactoryObject::handleObjectReady::could not find Hopper");
 		assert(false && "FactoryObject::handleObjectReady WorldManager could not find hopper");
 	}
 
 	if((item->getId() == this->getIngredientHopper())||(item->getId() == this->getOutputHopper()))
 	{
-		gLogger->logMsgF("FactoryObject::handleObjectReady::handleObjectReady - Hopper found - open container",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG,"FactoryObject::handleObjectReady::handleObjectReady - Hopper found - open container");
 		
 		PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getPlayerByAccId(client->getAccountId()));
 		if(player)
@@ -68,14 +84,14 @@ void FactoryObject::handleObjectReady(Object* object,DispatchClient* client, uin
 		}
 		else
 		{
-			gLogger->logMsgF("FactoryObject::handleObjectReady::handleObjectReady - Player NOT found - open container",MSG_HIGH);
+			gLogger->log(LogManager::DEBUG,"FactoryObject::handleObjectReady::handleObjectReady - Player NOT found - open container");
 		}
 
 		
 	}
 	else
 	{
-		gLogger->logMsgF("FactoryObject::handleObjectReady::could not find Hopper",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG,"FactoryObject::handleObjectReady::could not find Hopper");
 	}
 
 
@@ -91,7 +107,7 @@ void FactoryObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 	PlayerObject* player = dynamic_cast<PlayerObject*>(srcObject);
 	if(!player)
 	{	
-		gLogger->logMsgF("FactoryObject::handleObjectMenuSelect::could not find player",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG,"FactoryObject::handleObjectMenuSelect::could not find player");
 		return;
 	}
 	
@@ -249,7 +265,7 @@ void FactoryObject::prepareCustomRadialMenu(CreatureObject* creatureObject, uint
 	PlayerObject* player = dynamic_cast<PlayerObject*>(creatureObject);
 	if(!player)
 	{	
-		gLogger->logMsgF("HarvesterObject::handleObjectMenuSelect::could not find player",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG,"HarvesterObject::handleObjectMenuSelect::could not find player");
 		return;
 	}
 	

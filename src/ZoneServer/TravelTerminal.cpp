@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 #include "TravelTerminal.h"
@@ -43,11 +59,11 @@ void TravelTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
 		if (gWorldConfig->isTutorial())
 		{
-#if defined(_MSC_VER)
+			#if defined(_MSC_VER)
 			if (this->getId() == 4294968329)
-#else
+			#else
 			if (this->getId() == 4294968329LLU)
-#endif
+			#endif
 			{
 				// This is the Travel Terminal in the tutorial.
 				Tutorial* tutorial = playerObject->getTutorial();
@@ -56,16 +72,25 @@ void TravelTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 				if (tutorial->getSubState() < 26)
 				{
 					// The quatermaster speaks...
-#if defined(_MSC_VER)
+					#if defined(_MSC_VER)
 					tutorial->spatialChat(47513085685, "Wait a minute there!  You can't use that travel terminal without the proper authorization.  Do you have your release documents on you?");
-#else
+					#else
 					tutorial->spatialChat(47513085685LLU, "Wait a minute there!  You can't use that travel terminal without the proper authorization.  Do you have your release documents on you?");
-#endif
+					#endif
 				}
 				else
 				{
 					tutorial->sendStartingLocationList();
 				}
+			}
+			#if defined(_MSC_VER)
+			else if (this->getId() == 4294968331)
+			#else
+			else if (this->getId() == 4294968331LLU)
+			#endif
+			{
+				Tutorial* tutorial = playerObject->getTutorial();
+				tutorial->sendStartingLocationList();
 			}
 		}
 		else
@@ -80,7 +105,7 @@ void TravelTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 	}
 	else
 	{
-		gLogger->logMsgF("TravelTerminal: Unhandled MenuSelect: %u",MSG_HIGH,messageType);
+		gLogger->log(LogManager::DEBUG,"TravelTerminal: Unhandled MenuSelect: %u",messageType);
 	}
 }
 

@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -67,7 +83,7 @@ void ObjectController::_handleBoardTransport(uint64 targetId,Message* message,Ob
 
 	if(playerObject->getPosture() == CreaturePosture_SkillAnimating)
 	{
-		gMessageLib->sendSystemMessage(playerObject,L"You cannot do that at this time.");
+		gMessageLib->sendSystemMessage(playerObject,L"error_message", "wrong_state");
 		return;
 	}
 
@@ -82,7 +98,7 @@ void ObjectController::_handleBoardTransport(uint64 targetId,Message* message,Ob
 		return;
 	}
 
-	mSI->getObjectsInRange(playerObject,&inRangeObjects,ObjType_Creature | ObjType_NPC,boardingRange);
+	mSI->getObjectsInRange(playerObject,&inRangeObjects,ObjType_Creature | ObjType_NPC, boardingRange);
 
 	// iterate through the results
 	ObjectSet::iterator it = inRangeObjects.begin();
@@ -127,7 +143,7 @@ void ObjectController::_handleOpenContainer(uint64 targetId,Message* message,Obj
 
 	if (itemObject)
 	{
-        if(glm::distance(playerObject->mPosition, itemObject->mPosition) > 10)
+		if(glm::distance(playerObject->getWorldPosition(), itemObject->getWorldPosition()) > 10)
 		{
 			gMessageLib->sendSystemMessage(playerObject, L"", "system_msg", "out_of_range");
 			return;
@@ -151,9 +167,10 @@ void ObjectController::_handleOpenContainer(uint64 targetId,Message* message,Obj
 			}
 
 			//this might be a backpack
-			//or a chest
+			//or a chest - it needs to have a capacity to be a container!
 			if (tangObj->getCapacity())
 			{
+				//checkContainingContainer checks the permission
 				if(checkContainingContainer(tangObj->getId(),playerObject->getId()))
 				{
 					aContainer = true;
@@ -171,24 +188,17 @@ void ObjectController::_handleOpenContainer(uint64 targetId,Message* message,Obj
 		}
 		else
 		{
-            if (glm::distance(playerObject->mPosition, itemObject->mPosition) < 10)
-			{
-				gMessageLib->sendSystemMessage(playerObject, L"", "system_msg", "out_of_range");
-			}
-
-			gMessageLib->sendOpenedContainer(targetId, playerObject);
+            gMessageLib->sendOpenedContainer(targetId, playerObject);
 		}
 	}
 	else
 	{
-		gLogger->logMsgF("ObjectController::_handleOpenContainer: INVALID Object id %"PRIu64"",MSG_NORMAL,targetId);
+		gLogger->log(LogManager::NOTICE,"ObjectController::_handleOpenContainer: INVALID Object id %"PRIu64"",targetId);
 	}
 }
 
 void ObjectController::_handleCloseContainer(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	// gLogger->logMsg("ObjController::_handleCloseContainer:");
-
 	PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
 	//Object*			itemObject		= gWorldManager->getObjectById(targetId);
 
@@ -197,9 +207,6 @@ void ObjectController::_handleCloseContainer(uint64 targetId,Message* message,Ob
 		playerObject->getTutorial()->containerClose(targetId);
 	}
 
-
-	// gLogger->hexDump(message->getData(),message->getSize());
-	// gLogger->logMsgF("ObjectController::_handleCloseContainer: targetId = %"PRIu64"",MSG_NORMAL,targetId);
 	// gMessageLib->sendOpenedContainer(targetId, playerObject);
 }
 
@@ -225,15 +232,13 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 	float			x,y,z;
 
 
-	gLogger->logMsgF("ObjController::_handleTransferItem: called item %I64u",MSG_HIGH,itemObject->getId());
+	gLogger->log(LogManager::DEBUG,"ObjController::_handleTransferItem: called item %I64u",itemObject->getId());
 
 	message->getStringUnicode16(dataStr);
 
-	// gLogger->logMsg("ObjectController::_handleTransferItem() THIS IS (almost) UNSUPPORTED");
-
 	if(swscanf(dataStr.getUnicode16(),L" %"WidePRIu64 L" %u %f %f %f",&targetContainerId,&linkType,&x,&y,&z) != 5)
 	{
-		gLogger->logMsg("ObjController::handleTransferItem: Error in parameters");
+		gLogger->log(LogManager::DEBUG,"ObjController::handleTransferItem: Error in parameters");
 		return;
 	}
 
@@ -242,7 +247,7 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 
 	if (!itemObject)
 	{
-		gLogger->logMsg("ObjController::_handleTransferItemMisc: No Object to transfer :(");
+		gLogger->log(LogManager::DEBUG,"ObjController::_handleTransferItemMisc: No Object to transfer :(");
 		//no Object :(
 		return;
 	}
@@ -251,7 +256,7 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 	if(!tangible)
 	{
 		//no tagible - get out of here
-		gLogger->logMsg("ObjController::_handleTransferItemMisc: No tangible to transfer :(");
+		gLogger->log(LogManager::DEBUG,"ObjController::_handleTransferItemMisc: No tangible to transfer :(");
 		return;
 	}
 
@@ -287,7 +292,7 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 
 	if (!targetContainerId)
 	{
-		gLogger->logMsg("ObjController::_handleTransferItemMisc:TargetContainer is 0 :(");
+		gLogger->log(LogManager::DEBUG,"ObjController::_handleTransferItemMisc:TargetContainer is 0 :(");
 		//return;
 
 	}
@@ -301,11 +306,11 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 
 	if(!checkTargetContainer(targetContainerId,itemObject))
 	{
-		gLogger->logMsg("ObjController::_handleTransferItemMisc:TargetContainer is not valid :(");
+		gLogger->log(LogManager::DEBUG,"ObjController::_handleTransferItemMisc:TargetContainer is not valid :(");
 		return;
 	}
 
-	gLogger->logMsg("ObjController::_handleTransferItemMisc:TargetContainer has approved :)");
+	gLogger->log(LogManager::DEBUG,"ObjController::_handleTransferItemMisc:TargetContainer has approved :)");
 	
 	// get ourselves the target container 
 	// please note THIS IS ONLY SUCCESFUL FOR TANGIBLE OBJECT BASED CONTAINERS -> no cells
@@ -315,7 +320,7 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 
 	if(!checkContainingContainer(tangible->getParentId(), playerObject->getId()))
 	{
-		gLogger->logMsg("ObjController::_handleTransferItemMisc:ContainingContainer is not allowing the transfer :(");
+		gLogger->log(LogManager::DEBUG,"ObjController::_handleTransferItemMisc:ContainingContainer is not allowing the transfer :(");
 		return;
 
 	}
@@ -323,8 +328,8 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 	// Remove the object from whatever contains it.
 	if(!removeFromContainer(targetContainerId, targetId))
 	{
-		gLogger->logMsgF("ObjectController::_handleTransferItemMisc: remove item %I64u FromContainer %I64u failed :( this ",MSG_NORMAL,itemObject->getId(),targetContainerId);
-		gLogger->logMsgF("ObjectController::_handleTransferItemMisc: This rightly happens when looting corpses as the item gets then regularly created",MSG_NORMAL);
+		gLogger->log(LogManager::DEBUG,"ObjectController::_handleTransferItemMisc: remove item %I64u FromContainer %I64u failed :( this ",itemObject->getId(),targetContainerId);
+		gLogger->log(LogManager::DEBUG,"ObjectController::_handleTransferItemMisc: This rightly happens when looting corpses as the item gets then regularly created");
 		//this we might need to revise somehow we do not always want to loot standard db items, do we ?
 
 		return;
@@ -335,7 +340,7 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 	if (cell)
 	{
 		// drop in a cell
-		gLogger->logMsgF("ObjectController::_handleTransferItemMisc: Drop into cell %"PRIu64"", MSG_NORMAL, targetContainerId);
+		gLogger->log(LogManager::DEBUG,"ObjectController::_handleTransferItemMisc: Drop into cell %"PRIu64"", targetContainerId);
 
 		//special case temp instrument
 		if (item&&item->getItemFamily() == ItemFamily_Instrument)
@@ -359,7 +364,7 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 		itemObject->mPosition = playerObject->mPosition;
 		itemObject->mDirection = playerObject->mDirection;
 
-		gLogger->logMsgF("ObjectController::_handleTransferItemMisc: Cell added item to cell %I64u ", MSG_NORMAL,cell->getId());
+		gLogger->log(LogManager::DEBUG,"ObjectController::_handleTransferItemMisc: Cell added item to cell %I64u ",cell->getId());
 		
 		//do the db update manually because of the position - unless we get an automated position save in
 		itemObject->setParentId(targetContainerId,linkType,playerObject,false); 
@@ -382,7 +387,7 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 		
 		gMessageLib->sendDestroyObject(itemObject->getId(),playerObject);
 		gMessageLib->sendCreateObject(itemObject,playerObject);
-		gLogger->logMsgF("ObjectController::_handleTransferItemMisc: Player : %I64u contained in %I64u", MSG_NORMAL,playerObject->getId(),playerObject->getParentId());
+		gLogger->log(LogManager::DEBUG,"ObjectController::_handleTransferItemMisc: Player : %I64u contained in %I64u",playerObject->getId(),playerObject->getParentId());
 		
 	}	
 
@@ -408,7 +413,6 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 		//equip / unequip handles the db side, too
 		if(!player->getEquipManager()->EquipItem(item))
 		{
-			//gLogger->logMsgF("ObjectController::_handleTransferItemMisc: Error equipping  %"PRIu64"", MSG_NORMAL, item->getId());
 			//readd it to the old parent
 			if(parentContainer)
 				parentContainer->addObjectSecure(item);
@@ -499,7 +503,16 @@ bool ObjectController::checkContainingContainer(uint64 containingContainer, uint
 		{
 			if(building->hasAdminRights(playerId))
 			{
-				return true;
+				//now test whether we are in the same building
+				PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId));
+				if(CellObject* playercell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId())))
+				{
+					if(BuildingObject* playerparent = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(playercell->getParentId())))
+					{
+						//still get in a range check ???
+						return true;
+					}
+				}
 			}
 		}
 		return false;
@@ -564,13 +577,12 @@ bool ObjectController::checkTargetContainer(uint64 targetContainerId, Object* ob
 		if(inventory && (inventory->getId() != targetContainerId))
 		{
 			return false;
-			//gLogger->logMsg("ObjController::_handleTransferItemMisc: TargetContainer is NULL :(");
 		}
 		if(inventory)
 			targetContainer = dynamic_cast<TangibleObject*>(inventory);
 		else
 		{
-			gLogger->logMsg("ObjController::_handleTransferItemMisc: TargetContainer is NULL and not an inventory :(");
+			gLogger->log(LogManager::DEBUG,"ObjController::_handleTransferItemMisc: TargetContainer is NULL and not an inventory :(");
 			return false;
 		}
 		
@@ -735,7 +747,7 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 		
 		if(!inventory->removeObject(itemObject))
 		{
-			gLogger->logMsgF("ObjectController::removeFromContainer: Internal Error could not remove  %"PRIu64" from %I64u", MSG_NORMAL, itemObject->getId(),inventory->getId());
+			gLogger->log(LogManager::DEBUG,"ObjectController::removeFromContainer: Internal Error could not remove  %"PRIu64" from %I64u", itemObject->getId(),inventory->getId());
 			return false;
 		}
 		return true;
@@ -770,17 +782,16 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 		(creatureInventory = dynamic_cast<Inventory*>(unknownCreature->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))) &&
 		(creatureInventory->getId() == itemObject->getParentId()))
 	{
-		gLogger->logMsg("Transfer item from creature inventory to player inventory (looting)");
+		gLogger->log(LogManager::DEBUG,"Transfer item from creature inventory to player inventory (looting)");
 		// gMessageLib->sendContainmentMessage(targetId,itemObject->getParentId(),-1,playerObject);
 
 		gMessageLib->sendDestroyObject(targetId,playerObject);
 		
 		if(!creatureInventory->removeObject(itemObject))
 		{
-			gLogger->logMsgF("ObjectController::removeFromContainer: Internal Error could not remove  %"PRIu64" from creature inventory %I64u", MSG_NORMAL, itemObject->getId(),creatureInventory->getId());
+			gLogger->log(LogManager::DEBUG,"ObjectController::removeFromContainer: Internal Error could not remove  %"PRIu64" from creature inventory %I64u", itemObject->getId(),creatureInventory->getId());
 			return false;
 		}
-		// gLogger->logMsg("Removed item from a creature inventory");
 
 		ObjectIDList* invObjList = creatureInventory->getObjects();
 		if (invObjList->size() == 0)
@@ -804,7 +815,7 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 	CellObject* cell;
 	if(cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(itemObject->getParentId())))
 	{
-		gLogger->logMsgF("ObjectController::_handleTransferItemMisc: pick up from cell %"PRIu64"", MSG_NORMAL, itemObject->getParentId());
+		gLogger->log(LogManager::DEBUG,"ObjectController::_handleTransferItemMisc: pick up from cell %"PRIu64"", itemObject->getParentId());
 		
 		// Stop playing if we pick up the (permanently placed) instrument we are playing
 		if (item && (item->getItemFamily() == ItemFamily_Instrument))
@@ -817,7 +828,6 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 				if (playerObject->getActiveInstrumentId() == item->getId())
 				{
 					gEntertainerManager->stopEntertaining(playerObject);
-					// gLogger->logMsgF("ObjectController::_handleTransferItemMisc: Picking up the active instrument", MSG_NORMAL);
 				}
 			}
 		}
@@ -890,7 +900,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 	float			x,y,z;
 	CellObject*		cell;
 
-	gLogger->logMsg("ObjController::_handleTransferItemMisc: Entered");
+	gLogger->log(LogManager::DEBUG,"ObjController::_handleTransferItemMisc: Entered");
 
 	//gMessageLib->sendSystemMessage(playerObject,L"","error_message","insufficient_permissions");
 
@@ -898,16 +908,13 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 
 	if(swscanf(dataStr.getUnicode16(),L"%"WidePRIu64 L" %u %f %f %f",&targetContainerId,&linkType,&x,&y,&z) != 5)
 	{
-		gLogger->logMsg("ObjController::_handleTransferItemMisc: Error in parameters");
+		gLogger->log(LogManager::DEBUG,"ObjController::_handleTransferItemMisc: Error in parameters");
 		return;
 	}
 
-	// gLogger->logMsgF("Parameters:  %"PRIu64" %d %.1f %.1f %.1f", MSG_NORMAL, targetContainerId, linkType, x, y, z);
-	// gLogger->logMsgF("TargetId = %"PRIu64"", MSG_NORMAL, targetId);
 	if (!itemObject)
 	{
-		gLogger->logMsg("ObjController::_handleTransferItemMisc: No Object to transfer :(");
-		//no Object :(
+		gLogger->log(LogManager::DEBUG,"ObjController::_handleTransferItemMisc: No Object to transfer :(");
 		return;
 	}
 
@@ -915,7 +922,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 	if(!tangible)
 	{
 		//no tagible - get out of here
-		gLogger->logMsg("ObjController::_handleTransferItemMisc: No tangible to transfer :(");
+		gLogger->log(LogManager::DEBUG,"ObjController::_handleTransferItemMisc: No tangible to transfer :(");
 		return;
 	}
 
@@ -951,7 +958,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 
 	if (!targetContainerId)
 	{
-		gLogger->logMsg("ObjController::_handleTransferItemMisc:TargetContainer is 0 :(");
+		gLogger->log(LogManager::DEBUG,"ObjController::_handleTransferItemMisc:TargetContainer is 0 :(");
 		//return;
 
 	}
@@ -964,7 +971,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 
 	if(!checkTargetContainer(targetContainerId,itemObject))
 	{
-		gLogger->logMsg("ObjController::_handleTransferItemMisc:TargetContainer is not valid :(");
+		gLogger->log(LogManager::DEBUG,"ObjController::_handleTransferItemMisc:TargetContainer is not valid :(");
 		return;
 	}
 
@@ -974,7 +981,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 
 	if(!checkContainingContainer(tangible->getParentId(), playerObject->getId()))
 	{
-		gLogger->logMsg("ObjController::_handleTransferItemMisc:ContainingContainer is not allowing the transfer :(");
+		gLogger->log(LogManager::DEBUG,"ObjController::_handleTransferItemMisc:ContainingContainer is not allowing the transfer :(");
 		return;
 
 	}
@@ -982,7 +989,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 	// Remove the object from whatever contains it.
 	if(!removeFromContainer(targetContainerId, targetId))
 	{
-		gLogger->logMsgF("ObjectController::_handleTransferItemMisc: removeFromContainer failed :( this might be caused by looting a corpse though",MSG_NORMAL);
+		gLogger->log(LogManager::DEBUG,"ObjectController::_handleTransferItemMisc: removeFromContainer failed :( this might be caused by looting a corpse though");
 		return;
 	}
 
@@ -997,7 +1004,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 	if (cell)
 	{
 		// drop in a cell
-		gLogger->logMsgF("ObjectController::_handleTransferItemMisc: Drop into cell %"PRIu64"", MSG_NORMAL, targetContainerId);
+		gLogger->log(LogManager::DEBUG,"ObjectController::_handleTransferItemMisc: Drop into cell %"PRIu64"",  targetContainerId);
 
 		//special case temp instrument
 		if (item&&item->getItemFamily() == ItemFamily_Instrument)
@@ -1019,9 +1026,8 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 	
 		
 		itemObject->mPosition = playerObject->mPosition;
-		itemObject->mDirection = playerObject->mDirection;
 
-		gLogger->logMsgF("ObjectController::_handleTransferItemMisc: Cell added item to cell %I64u ", MSG_NORMAL,cell->getId());
+		gLogger->log(LogManager::DEBUG,"ObjectController::_handleTransferItemMisc: Cell added item to cell %I64u ", cell->getId());
 		
 		//do the db update manually because of the position - unless we get an automated position save in
 		itemObject->setParentId(targetContainerId,linkType,playerObject,false); 
@@ -1040,7 +1046,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 		gMessageLib->sendDestroyObject(itemObject->getId(),playerObject);
 		gMessageLib->sendCreateObject(itemObject,playerObject);
 		
-		gLogger->logMsgF("ObjectController::_handleTransferItemMisc: Player : %I64u contained in %I64u", MSG_NORMAL,playerObject->getId(),playerObject->getParentId());
+		gLogger->log(LogManager::DEBUG,"ObjectController::_handleTransferItemMisc: Player : %I64u contained in %I64u", playerObject->getId(),playerObject->getParentId());
 		
 	}	
 
@@ -1067,7 +1073,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 		//equip / unequip handles the db side, too
 		if(!player->getEquipManager()->EquipItem(item))
 		{
-			gLogger->logMsgF("ObjectController::_handleTransferItemMisc: Error equipping  %"PRIu64"", MSG_NORMAL, item->getId());
+			gLogger->log(LogManager::DEBUG,"ObjectController::_handleTransferItemMisc: Error equipping  %"PRIu64"",  item->getId());
 			//panik!!!!!!
 		}
 		return;
@@ -1093,11 +1099,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 	{
 		receivingContainer->addObjectSecure(itemObject);
 		itemObject->setParentId(receivingContainer->getId(),linkType,playerObject,true);
-	}
-	
-
-	// gLogger->logMsgF("Object type: %d", MSG_NORMAL, itemObject->getType());
-	
+	}	
 }
 
 
@@ -1118,7 +1120,7 @@ void ObjectController::_handlePurchaseTicket(uint64 targetId,Message* message,Ob
 
 	if(playerObject->getPosture() == CreaturePosture_SkillAnimating)
 	{
-		gMessageLib->sendSystemMessage(playerObject,L"You cannot do that at this time.");
+		gMessageLib->sendSystemMessage(playerObject,L"error_message", "wrong_state");
 		return;
 	}
 	
@@ -1246,7 +1248,7 @@ void ObjectController::_handleGetAttributesBatch(uint64 targetId,Message* messag
 
 	if(!elementCount)
 	{
-		gLogger->logMsg("ObjectController::_handleAttributesBatch: Error in requestStr");
+		gLogger->log(LogManager::DEBUG,"ObjectController::_handleAttributesBatch: Error in requestStr");
 		return;
 	}
 
@@ -1257,8 +1259,6 @@ void ObjectController::_handleGetAttributesBatch(uint64 targetId,Message* messag
 
 		uint64 itemId	= boost::lexical_cast<uint64>(dataElements[i].getAnsi());
 		Object* object	= gWorldManager->getObjectById(itemId);
-
-		//gLogger->logMsgF("ObjectController::_handleAttributesBatch: ID %I64u",MSG_HIGH,itemId);
 
 		if(object == NULL)
 		{
@@ -1272,7 +1272,7 @@ void ObjectController::_handleGetAttributesBatch(uint64 targetId,Message* messag
 			}
 
 			//could be a schematic!
-			Datapad* datapad				= dynamic_cast<Datapad*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+			Datapad* datapad			= playerObject->getDataPad();
 			ManufacturingSchematic* schem	= datapad->getManufacturingSchematicById(itemId);
 
 			if(schem != NULL)
@@ -1295,8 +1295,6 @@ void ObjectController::_handleGetAttributesBatch(uint64 targetId,Message* messag
 				continue;
 			}
 
-			//gLogger->logMsgF("ObjectController::_handleAttributesBatch: get info for %"PRIu64"",MSG_HIGH,itemId);
-
 			// TODO: check our datapad items
 			if(playerObject->isConnected())
 			{
@@ -1313,14 +1311,12 @@ void ObjectController::_handleGetAttributesBatch(uint64 targetId,Message* messag
 				(playerObject->getClient())->SendChannelAUnreliable(newMessage, playerObject->getAccountId(),  CR_Client, 8);
 			}
 
-			//gLogger->logMsgF("ObjectController::_handleAttributesBatch: Object not found %"PRIu64"",MSG_HIGH,itemId);
-
 			//finally, when we are crafting this could be the new item, not yet added to the worldmanager??
 			if(playerObject->getCraftingSession())
 			{
 				if(playerObject->getCraftingSession()->getItem()&&playerObject->getCraftingSession()->getItem()->getId() == itemId)
 				{
-					gLogger->logMsgF("ObjectController::_handleAttributesBatch for crafted Item: ID %I64u",MSG_HIGH,itemId);
+					gLogger->log(LogManager::DEBUG,"ObjectController::_handleAttributesBatch for crafted Item: ID %I64u",itemId);
 					playerObject->getCraftingSession()->getItem()->sendAttributes(playerObject);
 				}
 			}
@@ -1333,7 +1329,6 @@ void ObjectController::_handleGetAttributesBatch(uint64 targetId,Message* messag
 				// Let's see if the actual object is the food item "Melon" in our inventory.
 				if (dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getId() == object->getParentId())
 				{
-					// gLogger->logMsg("Selected an object in Inventory!!!");
 					//uint64 id = object->getId();
 
 					// Is it an Item?
@@ -1344,7 +1339,6 @@ void ObjectController::_handleGetAttributesBatch(uint64 targetId,Message* messag
 					{
 						if (item->getItemFamily() == ItemFamily_Foods)
 						{
-							// gLogger->logMsg("It's a food item!!!!");
 							playerObject->getTutorial()->tutorialResponse("foodSelected");
 						}
 					}
@@ -1400,7 +1394,7 @@ void ObjectController::_handleSurrenderSkill(uint64 targetId,Message* message,Ob
 
 	if(!(skillStr.getLength()))
 	{
-		gLogger->logMsg("ObjectController::handleSurrenderSkill: no skillname\n");
+		gLogger->log(LogManager::DEBUG,"ObjectController::handleSurrenderSkill: no skillname\n");
 		return;
 	}
 
@@ -1408,7 +1402,7 @@ void ObjectController::_handleSurrenderSkill(uint64 targetId,Message* message,Ob
 
 	if(skill == NULL)
 	{
-		gLogger->logMsgF("ObjectController::handleSurrenderSkill: could not find skill %s",MSG_NORMAL,skillStr.getAnsi());
+		gLogger->log(LogManager::DEBUG,"ObjectController::handleSurrenderSkill: could not find skill %s",skillStr.getAnsi());
 		return;
 	}
 
@@ -1467,8 +1461,6 @@ void ObjectController::handleObjectMenuRequest(Message* message)
 
 	uint8 responseNr = message->getUint8();
 
-	// gLogger->logMsgF("ObjController::handleObjectMenuRequest: Entered, responseNr = %u, itemCount = %u", MSG_NORMAL, responseNr, itemCount);
-
 	if(!requestedObject)
 	{
 		if(playerObject->isConnected())
@@ -1476,7 +1468,7 @@ void ObjectController::handleObjectMenuRequest(Message* message)
 
 		//the list is cleared and items are destroyed in the message lib
 		//for the default response
-		gLogger->logMsgF("ObjController::handleObjectMenuRequest: Couldn't find object %"PRIu64"",MSG_HIGH,requestedObjectId);
+		gLogger->log(LogManager::DEBUG,"ObjController::handleObjectMenuRequest: Couldn't find object %"PRIu64"",requestedObjectId);
 		return;
 	}
 
@@ -1530,7 +1522,6 @@ void ObjectController::handleObjectMenuRequest(Message* message)
 		// send a default menu,so client stops flooding us with requests
 
 		//empty might just mean that the clients radial is sufficient
-		//gLogger->logMsgF("ObjController::handleObjectMenuRequest: Couldn't find object Radial %"PRIu64"",MSG_HIGH,requestedObjectId);
 
 		if(playerObject->isConnected())
 		 	gMessageLib->sendEmptyObjectMenuResponse(requestedObjectId,playerObject,responseNr,menuItemList);
@@ -1556,32 +1547,11 @@ void ObjectController::handleObjectReady(Object* object,DispatchClient* client)
 	PlayerObject* player = gWorldManager->getPlayerByAccId(client->getAccountId());
 	PlayerObject* playerObject = dynamic_cast<PlayerObject*>(mObject);
 
-	/*
-	if (!playerObject)
-	{
-		gLogger->logMsg("playerObject == NULL");
-	}
-
-	if (!player)
-	{
-		gLogger->logMsg("player == NULL");
-	}
-
-	if (playerObject != player)
-	{
-		gLogger->logMsg("playerObject != player");
-	}
-	*/
-
-	// gLogger->logMsgF("ObjectController::handleObjectReady: targetId = %"PRIu64" for %s",MSG_NORMAL,object->getId(), player->getFirstName().getAnsi());
-
-
 	// Get the container object.
 	Container* container = dynamic_cast<Container*>(object);
 	if (container)
 	{
 		// uint32 counter = container->getObjectLoadCounter();
-		// gLogger->logMsgF("We have %d objects in the container", MSG_NORMAL, counter);
 
 		ObjectList*	objList = container->getObjects();
 		ObjectList::iterator containerObjectIt = objList->begin();
@@ -1715,7 +1685,7 @@ void ObjectController::_BurstRun(uint64 targetId,Message* message,ObjectControll
 
 	if(!player->getHam()->checkMainPools(healthcost,actioncost,mindcost))
 	{
-		gMessageLib->sendSystemMessage(player,L"","combat_effects","burst_run_no");
+		gMessageLib->sendSystemMessage(player,L"You cannot burst run right now."); // the stf doesn't work!
 		return;
 	}
 

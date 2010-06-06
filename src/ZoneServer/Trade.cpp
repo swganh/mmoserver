@@ -1,11 +1,27 @@
  /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -193,7 +209,7 @@ bool Trade::checkTradeListtoInventory()
 
 	if(!inventory)
 	{
-		gLogger->logMsgF("Trade::checkTradeListtoInventory():: No inventory for %I64u",MSG_NORMAL,getPlayerObject()->getId());
+		gLogger->log(LogManager::DEBUG,"Trade::checkTradeListtoInventory():: No inventory for %I64u",getPlayerObject()->getId());
 		return(false);
 	}
 
@@ -266,25 +282,31 @@ void  Trade::processTradeListPostTransaction()
 	//only process our list this will be called by both trade partners
 	//The transaction has now been approved so we can do all the other stuff
 
-	ItemTradeList::iterator it			= mItemTradeList.begin();
-	Inventory*				inventory	= dynamic_cast<Inventory*>(getPlayerObject()->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+	ItemTradeList::iterator it					= mItemTradeList.begin();
+	Inventory*				inventory			= dynamic_cast<Inventory*>(getPlayerObject()->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+
+	//Tradepartners Inventory
+	Inventory*				partnerInventory	= dynamic_cast<Inventory*>((*it)->getNewOwner()->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 
 	while(it != mItemTradeList.end())
 	{
 		uint64 itemId = (*it)->getObject()->getId();
 		TangibleGroup tanGroup = (*it)->getObject()->getTangibleGroup();
 
-		//delete out of our inventory
-		gMessageLib->sendDestroyObject(itemId,getPlayerObject());
-		inventory->deleteObject((*it)->getObject());
+		//delete out of our inventory / backpack
+		gMessageLib->sendDestroyObject(itemId,getPlayerObject());		
 
-		//need to access new Owner over id to prevent problems with outlogging players
-		//or we need to put the logtime higher so that might be unnecessary after all
+		//assign the Bazaar as the new owner to the item
+		gObjectFactory->GiveNewOwnerInDB((*it)->getObject(),partnerInventory->getId());
+
+		//the item could be in a backpack or in a different container - get it out
+		TangibleObject* container = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)->getObject()->getParentId()));
+		container->deleteObject((*it)->getObject());
 
 		//create in our tradepartners Inventory
 		if((*it)->getNewOwner() && (*it)->getNewOwner()->isConnected())
 		{
-			gObjectFactory->createIteminInventory(dynamic_cast<Inventory*>((*it)->getNewOwner()->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)),itemId,tanGroup);
+			gObjectFactory->createIteminInventory(partnerInventory,itemId,tanGroup);
 		}
 
 		it = mItemTradeList.erase(it);
@@ -319,7 +341,7 @@ bool Trade::ItemTradeCheck(uint64 ItemId)
 	{
 		if ((*it)->getObject()->getId() == ItemId)
 		{
-			gLogger->logMsgF("PlayerObject: Item already on the tradeList",MSG_HIGH);
+			gLogger->log(LogManager::DEBUG,"PlayerObject: Item already on the tradeList");
 			return(true);
 		}
 

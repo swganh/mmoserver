@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -66,7 +82,7 @@ void LoginManager::Process(void)
 	if (Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastStatusQuery > 5000)
 	{
 		mLastStatusQuery = static_cast<uint32>(Anh_Utils::Clock::getSingleton()->getLocalTime());
-		mDatabase->ExecuteSqlAsync(this, (void*)1, "SELECT galaxy_id, name, address, port, pingport, population, status, UNIX_TIMESTAMP(last_update) FROM galaxy;");
+		mDatabase->ExecuteProcedureAsync(this, (void*)1, "CALL swganh.sp_ReturnGalaxyStatus;");
 	}
 }
 
@@ -90,10 +106,8 @@ void LoginManager::handleSessionDisconnect(NetworkClient* client)
 {
 	LoginClient* loginClient = reinterpret_cast<LoginClient*>(client);
 
-	//gLogger->logMsgF("handleSessionDisconnect account %u",MSG_HIGH,loginClient->getAccountId());
-
 	// Client has disconnected.  Update the db to show they are no longer authenticated.
-	mDatabase->ExecuteSqlAsync(0, 0, "UPDATE account SET authenticated=0 WHERE account_id=%u;", loginClient->getAccountId());
+	mDatabase->ExecuteProcedureAsync(0, 0, "UPDATE account SET authenticated=0 WHERE account_id=%u;", loginClient->getAccountId());
 
 	LoginClientList::iterator iter = mLoginClientList.begin();
 
@@ -124,7 +138,8 @@ void LoginManager::handleSessionMessage(NetworkClient* client, Message* message)
     case opLoginClientId:  // sent username and password.
     {
       // Start the login process
-		gLogger->logMsgF("opLoginClientId",MSG_HIGH);
+	gLogger->log(LogManager::DEBUG,"opLoginClientId");
+		
       _handleLoginClientId(loginClient, message);
       break;
     }
@@ -177,7 +192,7 @@ void LoginManager::handleDatabaseJobComplete(void* ref, DatabaseResult* result)
 
 		  // Execute our query
 		  client->setState(LCSTATE_QueryCharacterList);
-		  mDatabase->ExecuteSqlAsync(this, ref, "SELECT characters.id, characters.firstname, characters.lastname, characters.galaxy_id, character_appearance.base_model_string  FROM characters JOIN (character_appearance) ON (characters.id = character_appearance.character_id) WHERE characters.account_id=%u AND characters.archived=0;", client->getAccountId());
+		  mDatabase->ExecuteProcedureAsync(this, ref, "CALL swganh.sp_ReturnAccountCharacters(%u);", client->getAccountId());
 		  break;
 		}
 	  case LCSTATE_QueryCharacterList:
@@ -222,9 +237,10 @@ void LoginManager::_handleLoginClientId(LoginClient* client, Message* message)
   message->getStringAnsi(password);
   message->getStringAnsi(clientId);
 
-	if(strcmp("SWGANHVER00001",clientId.getAnsi()) != 0)
+	if(strcmp("SWGANHVER00001",clientId.getAnsi()) != 0 &&
+     strcmp("20050408-18:00",clientId.getAnsi()) != 0)
 	{
-		gLogger->logMsgF("illegal client: %s",MSG_NORMAL,clientId.getAnsi());
+		gLogger->log(LogManager::NOTICE, "illegal client: %s",clientId.getAnsi());
 		client->Disconnect(0);
 		return;
 	}
@@ -247,11 +263,11 @@ void LoginManager::_handleLoginClientId(LoginClient* client, Message* message)
   {
 	  //the problem with the marked authentication is, that if a connection drops without a sessiondisconnect packet
 	  //the connection to the loginserver cannot be established anymore - need to have the sessiontimeout think of that
-	sprintf(sql,"SELECT account_id, username, password, station_id, banned, active,characters_allowed,csr FROM account WHERE banned=0 AND authenticated=0 AND loggedin=0   AND username='");
+	sprintf(sql,"CALL swganh.sp_ReturnUserAccount('");
 	//sprintf(sql,"SELECT account_id, username, password, station_id, banned, active,characters_allowed FROM account WHERE banned=0 AND loggedin=0   AND username='");
 	sqlPointer = sql + strlen(sql);
 	sqlPointer += mDatabase->Escape_String(sqlPointer,username.getAnsi(),username.getLength());
-	strcat(sql,"' AND password=SHA1('");
+	strcat(sql,"' , '");
 	sqlPointer = sql + strlen(sql);
 	sqlPointer += mDatabase->Escape_String(sqlPointer,password.getAnsi(),password.getLength());
   *sqlPointer++ = '\'';
@@ -261,7 +277,7 @@ void LoginManager::_handleLoginClientId(LoginClient* client, Message* message)
 
  // Setup an async query for checking authentication.
   client->setState(LCSTATE_QueryAuth);
-  mDatabase->ExecuteSqlAsync(this,client,sql);
+  mDatabase->ExecuteProcedureAsync(this,client,sql);
 }
 
 
@@ -289,9 +305,8 @@ void LoginManager::_authenticateClient(LoginClient* client, DatabaseResult* resu
     client->setAccountId(data.mId);
 	  client->setCharsAllowed(data.mCharsAllowed);
 	  client->setCsr(data.mCsr);
-
-    gLogger->logErrorF("login","void LoginManager::_authenticateClient Login: AccountId: %u Name: %s",MSG_NORMAL,data.mId,data.mUsername);
-    _sendAuthSucceeded(client);
+	gLogger->log(LogManager::DEBUG,"void LoginManager::_authenticateClient Login: AccountId: %u Name: %s",data.mId,data.mUsername);
+        _sendAuthSucceeded(client);
   }
   else
   {
@@ -301,7 +316,7 @@ void LoginManager::_authenticateClient(LoginClient* client, DatabaseResult* resu
     errType = "@cpt_login_fail";
     errMsg = "@msg_login_fail";
 
-    gLogger->logErrorF("login","Login failed for username: %s, password: %s", MSG_NORMAL, client->getUsername().getAnsi(), client->getPassword().getAnsi());
+    gLogger->log(LogManager::DEBUG," Login failed for username: %s, password: ********", client->getUsername().getAnsi(), client->getPassword().getAnsi());
 
 	  gMessageFactory->StartMessage();
 	  gMessageFactory->addUint32(opErrorMessage);
@@ -350,7 +365,7 @@ void LoginManager::_sendAuthSucceeded(LoginClient* client)
 
   // Execute our query for sending the server list.
   client->setState(LCSTATE_QueryServerList);
-  mDatabase->ExecuteSqlAsync(this, (void*)client, "SELECT galaxy_id, name, address, port, pingport, population, status FROM galaxy;");
+  mDatabase->ExecuteProcedureAsync(this, (void*)client, "CALL swganh.sp_ReturnServerList;");
 }
 
 

@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -33,25 +49,30 @@ SkillManager::SkillManager(Database* database)
 , mLoadCounter(0)
 , mTotalLoadCount(4)
 {
-	mSkillList.reserve(1100);
-	mSkillModList.reserve(300);
-	mSkillCommandList.reserve(1100);
-	mXpTypeList.reserve(50);
-	mSkillInfoList.reserve(1100);
+	/*mSkillList.reserve(mDatabase->GetCount("skills"));
+	mSkillModList.reserve(mDatabase->GetCount("skillmods"));
+	mSkillCommandList.reserve(mDatabase->GetCount("skillcommands"));
+	mXpTypeList.reserve(mDatabase->GetCount("xp_types"));
+	mSkillInfoList.reserve(mDatabase->GetCount("skills_description"));*/
 
 	// load skillmods
+	//gLogger->log(LogManager::DEBUG,"Start Loading Skill Mods.");
 	mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_SkillMods),"SELECT * FROM skillmods ORDER BY skillmod_id");
 
 	// load skillcommands
+	//gLogger->log(LogManager::DEBUG,"Start Loading Skill Commands.");
 	mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_SkillCommands),"SELECT * FROM skillcommands ORDER BY id");
 
 	// load xp types
+	//gLogger->log(LogManager::DEBUG,"Start Loading Skill XP Types.");
 	mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_XpTypes),"SELECT * FROM xp_types ORDER BY id");
 
 	// load skills
+	//gLogger->log(LogManager::DEBUG,"Start Loading Skills.");
 	mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_Skills),"SELECT * FROM skills ORDER BY skill_id");
 
 	// load extended skill information (tex)
+	//gLogger->log(LogManager::DEBUG,"Start Loading Skill Descriptions.");
 	mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_SkillDescriptions),"SELECT * FROM skills_description ORDER BY skill_id");
 }
 
@@ -101,7 +122,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			binding->addField(DFT_string,offsetof(SMQueryContainer,mName),64,1);
 
 			uint64 count = result->getRowCount();
-
+			mSkillModList.reserve((uint32)count);
 			for(uint64 i = 0;i < count;i++)
 			{
 				result->GetNextRow(binding,&skillMod);
@@ -109,6 +130,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			}
 
 			mDatabase->DestroyDataBinding(binding);
+			//gLogger->log(LogManager::DEBUG,"Finished Loading Skill Mods.");
 		}
 		break;
 
@@ -120,7 +142,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			binding->addField(DFT_string,offsetof(SMQueryContainer,mName),64,1);
 
 			uint64 count = result->getRowCount();
-
+			mSkillCommandList.reserve((uint32)count);
 			for(uint64 i = 0;i < count;i++)
 			{
 				result->GetNextRow(binding,&skillCommand);
@@ -128,6 +150,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			}
 
 			mDatabase->DestroyDataBinding(binding);
+			//gLogger->log(LogManager::DEBUG,"Finished Loading Skill Commands.");
 		}
 		break;
 
@@ -142,7 +165,9 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			binding->addField(DFT_string,offsetof(SMQueryContainer,mName2),64,3);
 
 			uint64 count = result->getRowCount();
-
+			mDefaultXpCapList.reserve((uint32)count);
+			mXpTypeList.reserve((uint32)count);
+			mXpTypeListEx.reserve((uint32)count);
 			for(uint64 i = 0;i < count;i++)
 			{
 				result->GetNextRow(binding,&xpType);
@@ -152,6 +177,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			}
 
 			mDatabase->DestroyDataBinding(binding);
+			//gLogger->log(LogManager::DEBUG,"Finish Loading Skill XP Types.");
 		}
 		break;
 
@@ -176,7 +202,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			uint64 count = result->getRowCount();
 			mTotalLoadCount += static_cast<uint32>(count * 6);
 
-
+			mSkillList.reserve(mTotalLoadCount);
 
 			for(uint64 i = 0;i < count;i++)
 			{
@@ -190,32 +216,39 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					mMasterProfessionList.push_back(skill);
 				}
 
-				// query required species
-				mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_SkillSpecies),"SELECT * FROM skills_species_required WHERE skill_id=%u",skill->mId);
-
-				// query skill preclusions
-				mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_SkillPreclusions),"SELECT * FROM skills_preclusions WHERE skill_id=%u",skill->mId);
-
-				// query required skills
-				mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_SkillRequiredSkills),"SELECT * FROM skills_skill_skillsrequired WHERE skill_id=%u",skill->mId);
-
-				// query skill commands
-				mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_SkillSkillCommands),"SELECT * FROM skills_skillcommands WHERE skill_id=%u",skill->mId);
-
-				// query skill mods
-				mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_SkillSkillMods),"SELECT * FROM skills_skillmods WHERE skill_id=%u",skill->mId);
-
-				// query skill schematic groups
-				mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_SkillSkillSchematicGroups),"SELECT * FROM skills_schematicsgranted WHERE skill_id=%u",skill->mId);
-
-				// query skill xp types
-				mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_SkillSkillXpTypes),"SELECT * FROM skills_base_xp_groups WHERE skill_id=%u",skill->mId);
 			}
 
+			// query required species
+			//gLogger->log(LogManager::DEBUG,"Start Loading Skill Species Requirements.");
+			mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_SkillSpecies),"SELECT * FROM skills_species_required ORDER BY skill_id");
+
+			// query skill preclusions
+			//gLogger->log(LogManager::DEBUG,"Start Loading Skill Preclusions");
+			mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_SkillPreclusions),"SELECT * FROM skills_preclusions ORDER BY skill_id");
+
+			// query required skills
+			//gLogger->log(LogManager::DEBUG,"Start Loading Skill Requirements.");
+			mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_SkillRequiredSkills),"SELECT * FROM skills_skill_skillsrequired ORDER BY skill_id");
+
+			// query skill commands
+			//gLogger->log(LogManager::DEBUG,"Start Loading Skill Commands Granted.");
+			mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_SkillSkillCommands),"SELECT * FROM skills_skillcommands ORDER BY skill_id");
+
+			// query skill mods
+			//gLogger->log(LogManager::DEBUG,"Start Loading Skill Mods Granted");
+			mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_SkillSkillMods),"SELECT * FROM skills_skillmods ORDER BY skill_id");
+
+			// query skill schematic groups
+			//gLogger->log(LogManager::DEBUG,"Start Loading Skill Schematics Granted");
+			mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_SkillSkillSchematicGroups),"SELECT * FROM skills_schematicsgranted ORDER BY skill_id");
+
+			// query skill xp types
+			//gLogger->log(LogManager::DEBUG,"Start Loading Skill XP Types");
+			mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_SkillSkillXpTypes),"SELECT * FROM skills_base_xp_groups ORDER BY skill_id");
+			
 			mDatabase->DestroyDataBinding(binding);
 
-			if(!result->getRowCount())
-				gLogger->logMsgLoadFailure("SkillManager::loading Skills...",MSG_NORMAL);
+			//gLogger->log(LogManager::DEBUG,"Finished Loading %u Skills.",result->getRowCount());
 		}
 		break;
 
@@ -232,10 +265,12 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			for(uint64 i = 0;i < count;i++)
 			{
 				result->GetNextRow(binding,&iCont);
-				mSkillList[iCont.mInt-1]->mSpeciesRequired.push_back(iCont.mInt2);
+				SkillList::iterator it = mSkillList.begin()+(iCont.mInt-1);
+				(*it)->mSpeciesRequired.push_back(iCont.mInt2);
 			}
 
 			mDatabase->DestroyDataBinding(binding);
+			//gLogger->log(LogManager::DEBUG,"Finish Loading Skill Species Requirements.");
 		}
 		break;
 
@@ -252,10 +287,12 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			for(uint64 i = 0;i < count;i++)
 			{
 				result->GetNextRow(binding,&iCont);
-				mSkillList[iCont.mInt-1]->mSkillPrecusions.push_back(iCont.mInt2);
+				SkillList::iterator it = mSkillList.begin()+(iCont.mInt-1);
+				(*it)->mSkillPrecusions.push_back(iCont.mInt2);
 			}
 
 			mDatabase->DestroyDataBinding(binding);
+			//gLogger->log(LogManager::DEBUG,"Finish Loading Skill Preclusions.");
 		}
 		break;
 
@@ -272,10 +309,12 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			for(uint64 i = 0;i < count;i++)
 			{
 				result->GetNextRow(binding,&iCont);
-				mSkillList[iCont.mInt-1]->mSkillsRequired.push_back(iCont.mInt2);
+				SkillList::iterator it = mSkillList.begin()+(iCont.mInt-1);
+				(*it)->mSkillsRequired.push_back(iCont.mInt2);
 			}
 
 			mDatabase->DestroyDataBinding(binding);
+			//gLogger->log(LogManager::DEBUG,"Finished Loading Skill Requirements.");
 		}
 		break;
 
@@ -292,10 +331,12 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			for(uint64 i = 0;i < count;i++)
 			{
 				result->GetNextRow(binding,&iCont);
-				mSkillList[iCont.mInt-1]->mSkillXpTypesList.push_back(iCont.mInt2);
+				SkillList::iterator it = mSkillList.begin()+(iCont.mInt-1);
+				(*it)->mSkillXpTypesList.push_back(iCont.mInt2);
 			}
 
 			mDatabase->DestroyDataBinding(binding);
+			//gLogger->log(LogManager::DEBUG,"Finish Loading Skill XP Types.");
 		}
 		break;
 
@@ -312,10 +353,12 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			for(uint64 i = 0;i < count;i++)
 			{
 				result->GetNextRow(binding,&iCont);
-				mSkillList[iCont.mInt-1]->mCommands.push_back(iCont.mInt2);
+				SkillList::iterator it = mSkillList.begin()+(iCont.mInt-1);
+				(*it)->mCommands.push_back(iCont.mInt2);
 			}
 
 			mDatabase->DestroyDataBinding(binding);
+			//gLogger->log(LogManager::DEBUG,"Finish Loading Skill Commands Granted.");
 		}
 		break;
 
@@ -332,10 +375,12 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			for(uint64 i = 0;i < count;i++)
 			{
 				result->GetNextRow(binding,&iCont);
-				mSkillList[iCont.mInt-1]->mSchematics.push_back(iCont.mInt2);
+				SkillList::iterator it = mSkillList.begin()+(iCont.mInt-1);
+				(*it)->mSchematics.push_back(iCont.mInt2);
 			}
 
 			mDatabase->DestroyDataBinding(binding);
+			//gLogger->log(LogManager::DEBUG,"Finish Loading Skill Schematics Granted.");
 		}
 		break;
 
@@ -353,10 +398,12 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			for(uint64 i = 0;i < count;i++)
 			{
 				result->GetNextRow(binding,&iCont);
-				mSkillList[iCont.mInt-1]->mSkillMods.push_back(std::make_pair(iCont.mInt2,iCont.mInt3));
+				SkillList::iterator it = mSkillList.begin()+(iCont.mInt-1);
+				(*it)->mSkillMods.push_back(std::make_pair(iCont.mInt2,iCont.mInt3));
 			}
 
 			mDatabase->DestroyDataBinding(binding);
+			//gLogger->log(LogManager::DEBUG,"Finish Loading Skill Mods Granted.");
 		}
 		break;
 
@@ -373,6 +420,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			binding->addField(DFT_bstring,offsetof(SkillDescriptions,skillInfo),512,1);
 
 			uint64 rowCount = result->getRowCount();
+			mSkillInfoList.reserve((uint32)rowCount);
 			for (uint64 i = 0; i < rowCount; i++)
 			{
 				SkillDescriptions *skillDescription = new SkillDescriptions;
@@ -382,6 +430,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				mSkillInfoList.push_back(std::make_pair(skillDescription->skillId, skillDescription->skillInfo));
 			}
 			mDatabase->DestroyDataBinding(binding);
+			//gLogger->log(LogManager::DEBUG,"Finish Loading Skill Descriptions.");
 		}
 		break;
 
@@ -390,7 +439,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 	if(++mLoadCounter == mTotalLoadCount)
 	{
-		gLogger->logMsgLoadSuccess("SkillManager::loading %u Skilldatasets...",MSG_NORMAL,mTotalLoadCount);
+		gLogger->log(LogManager::NOTICE,"Loaded all Skill Data.");
 	}
 
 	mDBAsyncPool.ordered_free(asyncContainer);
@@ -408,13 +457,13 @@ bool SkillManager::learnSkill(uint32 skillId,CreatureObject* creatureObject,bool
 
 	if (skill == NULL)
 	{
-		gLogger->logMsgF("SkillManager::learnSkill: could not find skill %u",MSG_NORMAL,skillId);
+		gLogger->log(LogManager::DEBUG,"SkillManager::learnSkill: could not find skill %u",skillId);
 		return false;
 	}
 
 	if (creatureObject->checkSkill(skillId))
 	{
-		gLogger->logMsgF("SkillManager::learnSkill: %"PRIu64" already got skill %u",MSG_NORMAL,creatureObject->getId(),skillId);
+		gLogger->log(LogManager::DEBUG,"SkillManager::learnSkill: %"PRIu64" already got skill %u",creatureObject->getId(),skillId);
 		return false;
 	}
 
@@ -470,7 +519,7 @@ bool SkillManager::learnSkill(uint32 skillId,CreatureObject* creatureObject,bool
 			    xpCost = 0;
 		    }
 
-		    // gLogger->logMsg("SkillManager::learnSkill: Trained a skill");
+		    // gLogger->log(LogManager::DEBUG,"SkillManager::learnSkill: Trained a skill");
 
 		    // handle XP cap and system messages.
 		    int32 newXpCost = handleExperienceCap(skill->mXpType, -xpCost, player);
@@ -478,7 +527,7 @@ bool SkillManager::learnSkill(uint32 skillId,CreatureObject* creatureObject,bool
 		    // We don't wanna miss any "You now qualify for the skill: ..."
 		    (void)player->UpdateXp(skill->mXpType, newXpCost);
 
-		    // gLogger->logMsgF("SkillManager::learnSkill: Removing %i xp of type %u",MSG_NORMAL, -newXpCost, skill->mXpType);
+		    // gLogger->log(LogManager::DEBUG,"SkillManager::learnSkill: Removing %i xp of type %u", -newXpCost, skill->mXpType);
 		    mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE character_xp SET value=value+%i WHERE xp_id=%u AND character_id=%"PRIu64"",newXpCost, skill->mXpType, player->getId());
 		    gMessageLib->sendXpUpdate(skill->mXpType,player);
         }
@@ -580,6 +629,11 @@ bool SkillManager::learnSkillLine(uint32 skillId, CreatureObject* creatureObject
 
 void SkillManager::teach(PlayerObject* pupilObject,PlayerObject* teacherObject,string show)
 {
+	if(pupilObject->isDead() || teacherObject->isDead() || !pupilObject->getHam()->checkMainPools(1, 1, 1) 
+		|| !teacherObject->getHam()->checkMainPools(1, 1, 1))
+	{
+		return;
+	}
 	// pupil and teacher bozh exist and are grouped
 	// we will now compare the teachers skill list to the pupils skill list
 	// and assemble a list with the skills the pupil does not have but were she/he has the prerequesits
@@ -733,24 +787,24 @@ bool SkillManager::checkRaceLearnSkill(uint32 skillId,CreatureObject* creatureOb
 //======================================================================================================================
 // TODO: figure creo4 deltas for updating
 // using baselines for now
-void SkillManager::dropSkill(uint32 skillId,CreatureObject* creatureObject)
+void SkillManager::dropSkill(uint32 skillId,CreatureObject* creatureObject, bool showMessage)
 {
 	Skill* skill = getSkillById(skillId);
 
 	if(skill == NULL)
 	{
-		gLogger->logMsgF("SkillManager::dropSkill: could not find skill %u",MSG_NORMAL,skillId);
+		gLogger->log(LogManager::DEBUG,"SkillManager::dropSkill: could not find skill %u",skillId);
 		return;
 	}
 
 	if(!(creatureObject->checkSkill(skillId)))
 	{
-		gLogger->logMsgF("SkillManager::dropSkill: %"PRIu64" hasn't got skill %u",MSG_NORMAL,creatureObject->getId(),skillId);
+		gLogger->log(LogManager::DEBUG,"SkillManager::dropSkill: %"PRIu64" hasn't got skill %u",creatureObject->getId(),skillId);
 		return;
 	}
 
 	if(!(creatureObject->removeSkill(skill)))
-		gLogger->logMsgF("SkillManager::dropSkill: failed removing %u from %"PRIu64"",MSG_NORMAL,skillId,creatureObject->getId());
+		gLogger->log(LogManager::DEBUG,"SkillManager::dropSkill: failed removing %u from %"PRIu64"",skillId,creatureObject->getId());
 
 	creatureObject->prepareSkillMods();
 	creatureObject->prepareSkillCommands();
@@ -768,7 +822,9 @@ void SkillManager::dropSkill(uint32 skillId,CreatureObject* creatureObject)
 		gMessageLib->sendBaselinesCREO_4(player);
 		gMessageLib->sendSkillCmdDeltasPLAY_9(player);
 		gMessageLib->sendSchematicDeltasPLAY_9(player);
-		gMessageLib->sendSystemMessage(player,L"Skill surrendered.");
+
+		if(showMessage)
+			gMessageLib->sendSystemMessage(player,L"Skill surrendered.");
 
 		// Update the cap for this type of xp, but do NOT adjust the xp down below cap.
 		int32 newXpCap = getXpCap(player, skill->mXpType);
@@ -863,11 +919,11 @@ void SkillManager::initExperience(PlayerObject* playerObject)
 	{
 		if (!playerObject->checkXpType(xpType))
 		{
-			// gLogger->logMsgF("SkillManager::initExperience: Did not have xpType %u",MSG_NORMAL, xpType);
+			// gLogger->log(LogManager::DEBUG,"SkillManager::initExperience: Did not have xpType %u", xpType);
 			// Check if xpType is valid, in regards to JTL, Jedi and Pre-Pub14.
 			if (!playerObject->restrictedXpType(xpType))
 			{
-				// gLogger->logMsgF("SkillManager::initExperience: Updating xpType %u",MSG_NORMAL, xpType);
+				// gLogger->log(LogManager::DEBUG,"SkillManager::initExperience: Updating xpType %u", xpType);
 
 				// Add this type of xp.
 				playerObject->addXpType(xpType);
@@ -887,7 +943,7 @@ void SkillManager::initExperience(PlayerObject* playerObject)
 			// Add this type of xp cap.
 			int32 newXpCap = getXpCap(playerObject, xpType);
 			playerObject->addXpCapType(xpType, newXpCap);
-			// gLogger->logMsgF("SkillManager::addExperience: New Cap for %u = %u",MSG_NORMAL, xpType, newXpCap);
+			// gLogger->log(LogManager::DEBUG,"SkillManager::addExperience: New Cap for %u = %u", xpType, newXpCap);
 		}
 	}
 }
@@ -903,18 +959,18 @@ int32 SkillManager::handleExperienceCap(uint32 xpType,int32 valueDiff, PlayerObj
 
 	if (valueDiff > 0)
 	{
-		// gLogger->logMsgF("SkillManager::handleExperienceCap: Request Add of %d xp, amount = %d, Cap = %u", MSG_NORMAL, valueDiff, xpAmount, xpCap);
+		// gLogger->log(LogManager::DEBUG,"SkillManager::handleExperienceCap: Request Add of %d xp, amount = %d, Cap = %u",  valueDiff, xpAmount, xpCap);
 		if (xpAmount + valueDiff >= xpCap)
 		{
 			// We are or will become capped at xp.
 			if (xpAmount == xpCap)
 			{
 				// We already have been through the process of advertisingat cap etc....
-				// gLogger->logMsgF("SkillManager::handleExperienceCap: At Cap, pxp amount %u = Cap %u",MSG_NORMAL, xpAmount, xpCap);
+				// gLogger->log(LogManager::DEBUG,"SkillManager::handleExperienceCap: At Cap, pxp amount %u = Cap %u", xpAmount, xpCap);
 			}
 			else if (xpAmount > xpCap)
 			{
-				// gLogger->logMsgF("SkillManager::handleExperienceCap: xp amount %u > Cap %u",MSG_NORMAL, xpAmount, xpCap);
+				// gLogger->log(LogManager::DEBUG,"SkillManager::handleExperienceCap: xp amount %u > Cap %u", xpAmount, xpCap);
 				// We where already capped and above, and will lose xp.
 				delta = xpCap - xpAmount;	// add negative number to subtract overflow of xp so we reach xp cap.
 				if (delta == -1)
@@ -931,12 +987,12 @@ int32 SkillManager::handleExperienceCap(uint32 xpType,int32 valueDiff, PlayerObj
 				// You have achieved your current limit for %TO experience.
 				gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_hit_xp_cap","exp_n",getXPTypeById(xpType),L"",0);
 
-				// gLogger->logMsgF("SkillManager::handleExperienceCap: Sub %u XP",MSG_NORMAL, -delta);
+				// gLogger->log(LogManager::DEBUG,"SkillManager::handleExperienceCap: Sub %u XP", -delta);
 			}
 			else // (xpAmount < xpCap)
 			{
 				// We become capped now.
-				// gLogger->logMsgF("SkillManager::handleExperienceCap: We become capped now. xp amount %u, Cap %u",MSG_NORMAL, xpAmount, xpCap);
+				// gLogger->log(LogManager::DEBUG,"SkillManager::handleExperienceCap: We become capped now. xp amount %u, Cap %u", xpAmount, xpCap);
 
 				delta = xpCap - xpAmount;	// Add a positive number to reach the cap level.
 				if (delta == 1)
@@ -961,13 +1017,13 @@ int32 SkillManager::handleExperienceCap(uint32 xpType,int32 valueDiff, PlayerObj
 					// You have achieved your current limit for %TO experience.
 					gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_hit_xp_cap","exp_n",getXPTypeById(xpType));
 				}
-				// gLogger->logMsgF("SkillManager::handleExperienceCap: Adding %u XP",MSG_NORMAL, delta);
+				// gLogger->log(LogManager::DEBUG,"SkillManager::handleExperienceCap: Adding %u XP", delta);
 			}
 		}
 		else
 		{
 			// We will not be capped after this xp addition.
-			// gLogger->logMsgF("SkillManager::handleExperienceCap: Adding all xp %u",MSG_NORMAL, valueDiff);
+			// gLogger->log(LogManager::DEBUG,"SkillManager::handleExperienceCap: Adding all xp %u", valueDiff);
 			delta = valueDiff;	// Return amount of xp to add.
 			if (delta == 1)
 			{
@@ -983,18 +1039,18 @@ int32 SkillManager::handleExperienceCap(uint32 xpType,int32 valueDiff, PlayerObj
 	}
 	else if (valueDiff < 0)
 	{
-		// gLogger->logMsgF("SkillManager::handleExperienceCap: Request Sub of %d xp, amount = %d, Cap = %u", MSG_NORMAL, -valueDiff, xpAmount, xpCap);
+		// gLogger->log(LogManager::DEBUG,"SkillManager::handleExperienceCap: Request Sub of %d xp, amount = %d, Cap = %u",  -valueDiff, xpAmount, xpCap);
 
 		delta = valueDiff;	// Amount of xp to sub.
 		if (xpAmount >= xpCap)	// We where already capped.
 		{
-			// gLogger->logMsgF("SkillManager::handleExperienceCap: We where already capped. xp amount %d, Cap %u",MSG_NORMAL, xpAmount, xpCap);
+			// gLogger->log(LogManager::DEBUG,"SkillManager::handleExperienceCap: We where already capped. xp amount %d, Cap %u", xpAmount, xpCap);
 			if (xpAmount + valueDiff > xpCap)	// Reduce xp?
 			{
 				// Still capped after reducution of XP. Inform user about theXP loss.
 				// This is the value we show the client (Only the reduction due to the cap overflow).
 				delta = xpCap - (xpAmount + valueDiff);
-				// gLogger->logMsgF("SkillManager::handleExperienceCap: Show XP reduction of %d, Cap %u",MSG_NORMAL, -delta);
+				// gLogger->log(LogManager::DEBUG,"SkillManager::handleExperienceCap: Show XP reduction of %d, Cap %u", -delta);
 				if (delta == -1)
 				{
 					// You lose 1 point of %TO experience
@@ -1011,25 +1067,25 @@ int32 SkillManager::handleExperienceCap(uint32 xpType,int32 valueDiff, PlayerObj
 
 				// This is the value we should sub from DB (Everything down to the cap level.
 				delta = xpCap - xpAmount;
-				// gLogger->logMsgF("SkillManager::handleExperienceCap: Reduce XP with %d",MSG_NORMAL, -delta);
+				// gLogger->log(LogManager::DEBUG,"SkillManager::handleExperienceCap: Reduce XP with %d", -delta);
 			}
 			else if (xpAmount + valueDiff == xpCap)
 			{
 				// We landed at the cap level.
 				// You have achieved your current limit for %TO experience.
 				gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_hit_xp_cap","exp_n",getXPTypeById(xpType),L"",0);
-				// gLogger->logMsgF("SkillManager::handleExperienceCap: At XP Cap limit, reduce XP with %d",MSG_NORMAL, -delta);
+				// gLogger->log(LogManager::DEBUG,"SkillManager::handleExperienceCap: At XP Cap limit, reduce XP with %d", -delta);
 			}
 			else
 			{
 				// We will not be capped after this xp reduction.
-				// gLogger->logMsgF("SkillManager::handleExperienceCap: Subtracted all the XP %d",MSG_NORMAL, -delta);
+				// gLogger->log(LogManager::DEBUG,"SkillManager::handleExperienceCap: Subtracted all the XP %d", -delta);
 			}
 		}
 		else
 		{
 			// We will not be capped after this xp reduction.
-			// gLogger->logMsgF("SkillManager::handleExperienceCap: Subtracted all the XP %d",MSG_NORMAL, -delta);
+			// gLogger->log(LogManager::DEBUG,"SkillManager::handleExperienceCap: Subtracted all the XP %d", -delta);
 		}
 	}
 	return delta;
@@ -1047,11 +1103,11 @@ void SkillManager::addExperience(uint32 xpType,int32 valueDiff,PlayerObject* pla
 
 		if (!(playerObject->UpdateXp(xpType, newXpBoost)))
 		{
-			gLogger->logMsgF("SkillManager::addExperience: could not find xptype %u for %"PRIu64"",MSG_NORMAL,xpType,playerObject->getId());
+			gLogger->log(LogManager::DEBUG,"SkillManager::addExperience: could not find xptype %u for %"PRIu64"",xpType,playerObject->getId());
 			return;
 		}
-		// gLogger->logMsgF("SkillManager::addExperience: XP cap = %u",MSG_NORMAL, xpCap);
-		// gLogger->logMsgF("SkillManager::addExperience: Adding %u xp of type %u to database",MSG_NORMAL, newXpBoost, xpType);
+		// gLogger->log(LogManager::DEBUG,"SkillManager::addExperience: XP cap = %u", xpCap);
+		// gLogger->log(LogManager::DEBUG,"SkillManager::addExperience: Adding %u xp of type %u to database", newXpBoost, xpType);
 
 		mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE character_xp SET value=value+%i WHERE character_id=%"PRIu64" AND xp_id=%u", newXpBoost, playerObject->getId(), xpType);
 
@@ -1068,11 +1124,11 @@ void SkillManager::removeExperience(uint32 xpType,int32 valueDiff,PlayerObject* 
 {
 	if(!(playerObject->UpdateXp(xpType,-valueDiff)))
 	{
-		gLogger->logMsgF("SkillManager::gainXp: could not find xptype %u for %"PRIu64"",MSG_NORMAL,xpType,playerObject->getId());
+		gLogger->log(LogManager::DEBUG,"SkillManager::gainXp: could not find xptype %u for %"PRIu64"",xpType,playerObject->getId());
 		return;
 	}
 
-	gLogger->logMsgF("SkillManager::removeExperience: Removing %i xp of type %u",MSG_NORMAL, -valueDiff, xpType);
+	gLogger->log(LogManager::DEBUG,"SkillManager::removeExperience: Removing %i xp of type %u", -valueDiff, xpType);
 	mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE character_xp SET value=value-%i WHERE character_id=%"PRIu64" AND xp_id=%u",valueDiff,playerObject->getId(),xpType);
 
 	gMessageLib->sendXpUpdate(xpType,playerObject);

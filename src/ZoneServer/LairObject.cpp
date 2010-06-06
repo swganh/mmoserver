@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -57,7 +73,7 @@ LairObject::LairObject(uint64 templateId) : AttackableStaticNpc()
 LairObject::~LairObject()
 {
 	// mRadialMenu.reset();
-	gLogger->logMsgF("LairObject::~LairObject() DESTRUCTED\n", MSG_NORMAL);
+	gLogger->log(LogManager::DEBUG,"LairObject::~LairObject() DESTRUCTED\n");
 }
 
 //=============================================================================
@@ -89,7 +105,7 @@ void LairObject::addKnownObject(Object* object)
 {
 	if(checkKnownObjects(object))
 	{
-		gLogger->logMsgF("AttackableCreature::addKnownObject %I64u couldnt be added to %I64u already in it", MSG_NORMAL, object->getId(), this->getId());
+		gLogger->log(LogManager::DEBUG,"AttackableCreature::addKnownObject %I64u couldnt be added to %I64u already in it", object->getId(), this->getId());
 		return;
 	}
 
@@ -99,7 +115,6 @@ void LairObject::addKnownObject(Object* object)
 
 		if ((this->getAiState() == NpcIsDormant))
 		{
-			// gLogger->logMsgF("LairObject::addKnownObject Wakie-wakie!", MSG_NORMAL);
 			gWorldManager->forceHandlingOfDormantNpc(this->getId());
 		}
 	}
@@ -111,7 +126,6 @@ void LairObject::addKnownObject(Object* object)
 
 void LairObject::handleEvents(void)
 {
-	// gLogger->logMsgF("LairObject::handleEvents: Entering", MSG_NORMAL);
 	// General issues like life and death first.
 	if (this->isDead())
 	{
@@ -122,21 +136,16 @@ void LairObject::handleEvents(void)
 	switch (mLairState)
 	{
 		case State_LairUnspawned:
-		{
-			// gLogger->logMsgF("State_LairUnspawned", MSG_NORMAL);
-
+			{
 			// Are there any reasons for me to be alerted?
 
 			// We may not be alone. Any player in range?
 			if (playerInRange(150.0))
 			{
-				// gLogger->logMsgF("Players within spawn range", MSG_NORMAL);
-
 				// Yes, we have to spawn, if the initial spawn timer has expired.
 				if (this->mInitialSpawnDelay <= 0)
 				{
 					this->spawn();
-					// gLogger->logMsgF("Spawned this lair.", MSG_NORMAL);
 					this->spawnInitialWave();
 					this->mLairState = State_LairAlerted;
 					this->setAiState(NpcIsReady);
@@ -151,10 +160,8 @@ void LairObject::handleEvents(void)
 
 		case State_LairIdle:
 		{
-			// gLogger->logMsgF("State_LairIdle", MSG_NORMAL);
 			if (!this->getKnownPlayers()->empty())
 			{
-				// gLogger->logMsgF("Players nearby", MSG_NORMAL);
 				mLairState = State_LairAlerted;
 				this->setAiState(NpcIsReady);
 			}
@@ -163,21 +170,17 @@ void LairObject::handleEvents(void)
 
 		case State_LairAlerted:
 		{
-			// gLogger->logMsgF("State_LairAlerted", MSG_NORMAL);
 			if (this->getKnownPlayers()->empty())
 			{
-				// gLogger->logMsgF("No players nearby", MSG_NORMAL);
 				mLairState = State_LairIdle;
 				this->setAiState(NpcIsDormant);
 			}
 			// Any attacked us?
 			else if (this->getDefenders()->size() != 0)
 			{
-				// gLogger->logMsgF("We are attacked", MSG_NORMAL);
 				// Request Assistance.
 				if (getLairTarget())
 				{
-					// gLogger->logMsgF("We have a target, requesting help", MSG_NORMAL);
 					this->requestLairAssistance();
 
 					mLairState = State_LairCombatReady;
@@ -199,10 +202,8 @@ void LairObject::handleEvents(void)
 
 		case State_LairCombatReady:
 		{
-			// gLogger->logMsgF("State_LairCombatReady", MSG_NORMAL);
 			if (this->getKnownPlayers()->empty())
 			{
-				// gLogger->logMsgF("No players nearby", MSG_NORMAL);
 				mLairState = State_LairIdle;
 				this->setAiState(NpcIsDormant);
 			}
@@ -220,7 +221,6 @@ void LairObject::handleEvents(void)
 				{
 					if (currentTargetId != this->getTargetId())
 					{
-						// gLogger->logMsgF("We have a NEW target, requesting help", MSG_NORMAL);
 						this->requestLairAssistance();
 					}
 				}
@@ -248,14 +248,12 @@ void LairObject::handleEvents(void)
 uint64 LairObject::handleState(uint64 timeOverdue)
 {
 	uint64 waitTime = 0;
-	// gLogger->logMsgF("LairObject::handleState: Entering", MSG_NORMAL);
 	// General issues like life and death first.
 
 	switch (mLairState)
 	{
 		case State_LairUnspawned:
 		{
-			// gLogger->logMsgF("State_LairUnspawned", MSG_NORMAL);
 			waitTime = dormantDefaultPeriodTime - timeOverdue;
 			this->mInitialSpawnDelay -= dormantDefaultPeriodTime;
 		}
@@ -263,21 +261,18 @@ uint64 LairObject::handleState(uint64 timeOverdue)
 
 		case State_LairIdle:
 		{
-			// gLogger->logMsgF("State_LairIdle", MSG_NORMAL);
 			waitTime = (10*dormantDefaultPeriodTime); // overdue does not matter, we are just idling. // - timeOverdue;
 		}
 		break;
 
 		case State_LairAlerted:
 		{
-			// gLogger->logMsgF("State_LairAlerted", MSG_NORMAL);
 			waitTime = readyDefaultPeriodTime;
 		}
 		break;
 
 		case State_LairCombatReady:
 		{
-			// gLogger->logMsgF("State_LairCombatReady", MSG_NORMAL);
 			this->makePeaceWithDefendersOutOfRange();
 			waitTime = readyDefaultPeriodTime;
 		}
@@ -285,13 +280,12 @@ uint64 LairObject::handleState(uint64 timeOverdue)
 
 		case State_LairDead:
 		{
-			// gLogger->logMsgF("State_LairDead", MSG_NORMAL);
 		}
 		break;
 
 		default:
 		{
-			gLogger->logMsgF("UNKNOWN state", MSG_NORMAL);
+			gLogger->log(LogManager::NOTICE,"LairObject: UNKNOWN state");
 		}
 		break;
 
@@ -320,7 +314,6 @@ void LairObject::inPeace(void)
 bool LairObject::requestAssistance(uint64 targetId, uint64 sourceId) const
 {
 	// All creature not in combat will assist.
-	// gLogger->logMsgF("LairObject::requestAssistance() Entering", MSG_NORMAL);
 	bool found = false;
 
 	for (int32 i = 0; i < this->mWaveSize; i++)
@@ -340,7 +333,6 @@ bool LairObject::requestAssistance(uint64 targetId, uint64 sourceId) const
 						if (gWorldManager->objectsInRange(sourceId, this->mCreatureId[i], 45.0))
 						{
 							// Would be lovley if this creature could help me.
-							// gLogger->logMsgF("LairObject::requestAssistance() Asking creature %"PRIu64" for help.", MSG_NORMAL, creature->getId());
 							creature->assistCreature(targetId);
 							found = true;
 						}
@@ -359,7 +351,6 @@ bool LairObject::requestAssistance(uint64 targetId, uint64 sourceId) const
 void LairObject::requestLairAssistance(void) const
 {
 	// All creatures will assist.
-	// gLogger->logMsgF("LairObject::requestLairAssistance() Entering", MSG_NORMAL);
 
 	// Set the first defender as target.
 	uint64 targetId = this->getTarget()->getId();
@@ -376,7 +367,6 @@ void LairObject::requestLairAssistance(void) const
 				if (!creature->isDead())
 				{
 					// Would be lovley if this creature could help me.
-					// gLogger->logMsgF("LairObject::requestLairAssistance() Lair asking creature %"PRIu64" for help.", MSG_NORMAL, creature->getId());
 					creature->assistLair(targetId);
 				}
 			}
@@ -458,12 +448,11 @@ void LairObject::makePeaceWithDefendersOutOfRange(void)
 void LairObject::spawn(void)
 {
 	gLairSpawnCounter++;
-	gLogger->logMsgF("Spawned lair # %"PRIu64" (%"PRIu64")", MSG_NORMAL, gLairSpawnCounter, gLairSpawnCounter - gLairDeathCounter);
+	gLogger->log(LogManager::DEBUG,"Spawned lair # %"PRIu64" (%"PRIu64")", gLairSpawnCounter, gLairSpawnCounter - gLairDeathCounter);
 
 	// Update the world about my presence.
 	if (this->getParentId())
 	{
-		// gLogger->logMsg("LairObject::spawn Inside");
 		// insert into cell
 		this->setSubZoneId(0);
 
@@ -473,35 +462,32 @@ void LairObject::spawn(void)
 		}
 		else
 		{
-			gLogger->logMsgF("LairObject::spawn: couldn't find cell %"PRIu64"",MSG_HIGH, this->getParentId());
+			gLogger->log(LogManager::DEBUG,"LairObject::spawn: couldn't find cell %"PRIu64"", this->getParentId());
 		}
 	}
 	else
 	{
-		// gLogger->logMsg("LairObject::spawn Outside");
 		if (QTRegion* region = gWorldManager->getSI()->getQTRegion(this->mPosition.x, this->mPosition.z))
 		{
-			// gLogger->logMsg("LairObject::spawn QTRegion found");
 			this->setSubZoneId((uint32)region->getId());
 			region->mTree->addObject(this);
-			// gLogger->logMsgF("Spawn at %.0f %.0f", MSG_NORMAL, this->mPosition.x, this->mPosition.z);
 		}
 	}
 
 	// Add us to the world.
-	gMessageLib->broadcastContainmentMessage(this->getId(),this->getParentId(), -1, this);
+	gMessageLib->broadcastContainmentMessage(this,this->getParentId(), -1);
 
 	// send out position updates to known players
 	this->setInMoveCount(this->getInMoveCount() + 1);
 	if (this->getParentId())
 	{
 		// We are inside a cell.
-		gMessageLib->sendDataTransformWithParent(this);
+		gMessageLib->sendDataTransformWithParent053(this);
 		gMessageLib->sendUpdateTransformMessageWithParent(this);
 	}
 	else
 	{
-		gMessageLib->sendDataTransform(this);
+		gMessageLib->sendDataTransform053(this);
 		gMessageLib->sendUpdateTransformMessage(this);
 	}
 }
@@ -560,7 +546,6 @@ bool LairObject::playerInRange(float range)
 	// objectSetIt = mInRangeObjects.begin();	// Will point to end of Set
 	if (QTRegion* region = gWorldManager->getSI()->getQTRegion(this->mPosition.x, this->mPosition.z))
 	{
-		// gLogger->logMsg("LairObject::playerInRange Looking for players");
 		Anh_Math::Rectangle qRect = Anh_Math::Rectangle(this->mPosition.x - range, this->mPosition.z - range, range * 2, range * 2);
 		region->mTree->getObjectsInRange(this, &inRangeObjects, ObjType_Player, &qRect);
 	}
@@ -577,16 +562,12 @@ void LairObject::killEvent(void)
 	// One lair less in the system.
 	gLairDeathCounter++;
 
-	// gLogger->logMsgF("LairObject::killEvent: Entering", MSG_NORMAL);
 	if (this->getRespawnDelay() != 0)
 	{
-		// gLogger->logMsgF("LairObject::killEvent: Creating a new lair with template = %"PRIu64"", MSG_NORMAL, this->mTemplateId);
-
 		uint64 npcNewId = gWorldManager->getRandomNpNpcIdSequence();
 		if (npcNewId != 0)
 		{
 			// Let's put this sucker into play again.
-			// gLogger->logMsgF("Requesting lair of type = %"PRIu64" with id %"PRIu64"", MSG_NORMAL, mLairsTypeId, npcNewId);
 			NonPersistentNpcFactory::Instance()->requestLairObject(NpcManager::Instance(), mLairsTypeId, npcNewId);
 		}
 	}
@@ -596,7 +577,6 @@ void LairObject::killEvent(void)
 
 void LairObject::respawn(void)
 {
-	// gLogger->logMsgF("LairObject::respawn() Entering", MSG_NORMAL);
 
 	// The data used below ARE taken from DB, not hard coded as the script version above.
 
@@ -610,7 +590,6 @@ void LairObject::respawn(void)
 		if (this->hasInternalAttribute("lair_fix_position"))
 		{
 			this->mSpawnPositionFixed = this->getInternalAttribute<bool>("lair_fix_position");
-			// gLogger->logMsgF("lair_fix_position = %d", MSG_NORMAL, this->mSpawnPositionFixed);
 		}
 		// We only support lair spawning outside, for now.
 		this->mSpawnCell = 0;
@@ -644,12 +623,10 @@ void LairObject::respawn(void)
 			// Random direction.
 			this->setRandomDirection();
 		}
-		// gLogger->logMsgF("Lair spawn at pos: %.0f %.0f %.0f", MSG_NORMAL, this->mPosition.x, this->mPosition.y, this->mPosition.z);
 
 		if (this->hasInternalAttribute("lair_wave_size"))
 		{
 			this->mWaveSize = this->getInternalAttribute<int32>("lair_wave_size");
-			// gLogger->logMsgF("lair_wave_size = %d", MSG_NORMAL, this->mWaveSize);
 		}
 		else
 		{
@@ -660,7 +637,6 @@ void LairObject::respawn(void)
 		if (this->hasInternalAttribute("lair_passive_waves"))
 		{
 			this->mPassiveWaves = this->getInternalAttribute<int32>("lair_passive_waves");
-			// gLogger->logMsgF("lair_passive_waves = %d", MSG_NORMAL, this->mPassiveWaves);
 		}
 		else
 		{
@@ -684,7 +660,6 @@ void LairObject::respawn(void)
 		if (this->hasInternalAttribute("lair_respawn_delay"))
 		{
 			this->setRespawnDelay(this->getInternalAttribute<uint64>("lair_respawn_delay"));
-			// gLogger->logMsgF("lair_respawn_delay = %"PRIu64"", MSG_NORMAL, this->getRespawnDelay());
 		}
 		else
 		{
@@ -697,7 +672,6 @@ void LairObject::respawn(void)
 		if (this->hasInternalAttribute("lair_creatures_max_spawn_distance"))
 		{
 			this->mMaxSpawnDistance = this->getInternalAttribute<float>("lair_creatures_max_spawn_distance");
-			// gLogger->logMsgF("lair_creatures_max_spawn_distance = %.0f", MSG_NORMAL, this->mMaxSpawnDistance);
 		}
 		else
 		{
@@ -708,7 +682,6 @@ void LairObject::respawn(void)
 		if (this->hasInternalAttribute("creature_xp"))
 		{
 			uint32 xp = this->getInternalAttribute<uint32>("creature_xp");
-			// gLogger->logMsgF("creature_xp = %u", MSG_NORMAL, xp);
 			this->setWeaponXp(xp);
 		}
 		else
@@ -720,7 +693,6 @@ void LairObject::respawn(void)
 		if (this->hasAttribute("creature_health"))
 		{
 			int32 health = this->getAttribute<int32>("creature_health");
-			// gLogger->logMsgF("creature_health = %d", MSG_NORMAL, health);
 			this->mHam.mHealth.setCurrentHitPoints(health);
 			this->mHam.mHealth.setMaxHitPoints(health);
 			this->mHam.mHealth.setBaseHitPoints(health);
@@ -736,7 +708,6 @@ void LairObject::respawn(void)
 		if (this->hasAttribute("creature_strength"))
 		{
 			int32 strength = this->getAttribute<int32>("creature_strength");
-			// gLogger->logMsgF("creature_strength = %d", MSG_NORMAL, strength);
 			this->mHam.mStrength.setCurrentHitPoints(strength);
 			this->mHam.mStrength.setMaxHitPoints(strength);
 			this->mHam.mStrength.setBaseHitPoints(strength);
@@ -752,7 +723,6 @@ void LairObject::respawn(void)
 		if (this->hasAttribute("creature_constitution"))
 		{
 			int32 constitution = this->getAttribute<int32>("creature_constitution");
-			// gLogger->logMsgF("creature_constitution = %d", MSG_NORMAL, constitution);
 			this->mHam.mConstitution.setCurrentHitPoints(constitution);
 			this->mHam.mConstitution.setMaxHitPoints(constitution);
 			this->mHam.mConstitution.setBaseHitPoints(constitution);
@@ -770,13 +740,11 @@ void LairObject::respawn(void)
 		if (this->hasAttribute("challenge_level"))	// Difficulty Level
 		{
 			int32 challenge_level = this->getAttribute<int32>("challenge_level");
-			// gLogger->logMsgF("Difficulty Level (challenge_level) = %d", MSG_NORMAL, challenge_level);
 		}
 
 		if (this->hasAttribute("consider"))	// Combat Difficulty
 		{
 			int32 consider = this->getAttribute<int32>("consider");
-			// gLogger->logMsgF("Combat Difficulty (consider) = %d", MSG_NORMAL, consider);
 		}
 		*/
 
@@ -802,7 +770,6 @@ void LairObject::respawn(void)
 
 void LairObject::reportedDead(uint64 deadCreatureId)
 {
-	// gLogger->logMsgF("LairObject::reportedDead() Entering", MSG_NORMAL);
 	bool found = false;
 
 	// this->mCreatureId[i] = npcNewId;
@@ -845,7 +812,6 @@ void LairObject::reportedDead(uint64 deadCreatureId)
 	}
 	if (!found)
 	{
-		// gLogger->logMsgF("LairObject::reportedDead() Creature will NOT respawn\n", MSG_NORMAL);
 	}
 }
 

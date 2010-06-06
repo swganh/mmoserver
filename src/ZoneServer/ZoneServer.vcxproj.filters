@@ -710,12 +710,6 @@
     <ClCompile Include="UIWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Vehicle.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="VehicleFactory.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="WaypointFactory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -753,6 +747,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ZoneTree.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VehicleController.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VehicleControllerFactory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1405,12 +1405,6 @@
     <ClInclude Include="UIWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Vehicle.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VehicleFactory.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="WaypointFactory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1445,6 +1439,21 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ZoneTree.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VehicleController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VehicleControllerFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GroupManagerCallback.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GroupManagerCallbackContainer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WoundTreatmentEvent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

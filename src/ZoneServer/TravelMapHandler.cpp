@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -56,6 +72,7 @@ TravelMapHandler::TravelMapHandler(Database* database, MessageDispatch* dispatch
 
 {
 	mMessageDispatch->RegisterMessageCallback(opPlanetTravelPointListRequest,this);
+	mMessageDispatch->RegisterMessageCallback(opTutorialServerStatusReply, this);
 
 	// load our points in world
 	mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.malloc()) TravelMapAsyncContainer(TMQuery_PointsInWorld),
@@ -136,8 +153,13 @@ void TravelMapHandler::handleDispatchMessage(uint32 opcode, Message* message, Di
 		}
 		break;
 
+		case opTutorialServerStatusReply:
+		{
+			_processTutorialTravelList(message, client);
+		}
+
 		default:
-			gLogger->logMsgF("TravelMapHandler::handleDispatchMessage: Unhandled opcode %u",MSG_NORMAL,opcode);
+			gLogger->log(LogManager::DEBUG,"TravelMapHandler::handleDispatchMessage: Unhandled opcode %u",opcode);
 		break;
 	}
 }
@@ -247,10 +269,32 @@ void TravelMapHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 		mRoutesLoaded = false;
 
 		if(result->getRowCount())
-			gLogger->logMsgLoadSuccess("TravelMapHandler::Loading %u TravelRoutes and %u TravelPoints...",MSG_NORMAL,mPointCount,mRouteCount);
-		else
-			gLogger->logMsgLoadFailure("TravelMapHandler::Loading Travel Routes/Points...",MSG_NORMAL);
+			gLogger->log(LogManager::NOTICE,"Loaded travel routes and travel points.");
+	}
+}
 
+void TravelMapHandler::_processTutorialTravelList(Message* message, DispatchClient* client)
+{
+	PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(message->getUint64()));
+
+
+	//Why do we do this? Because I spent 2 days trying to get it work to discover it was call order.
+	uint8 tatooine	= message->getUint8();
+	uint8 corellia	= message->getUint8();
+	uint8 talus		= message->getUint8();
+	uint8 rori		= message->getUint8();
+	uint8 naboo		= message->getUint8();
+
+	if(player)
+	{
+		gMessageLib->sendStartingLocationList(
+			player,
+			tatooine, //Tatooine
+			corellia, //Corellia
+			talus, //Talus
+			rori, //Rori
+			naboo  //Naboo
+			);
 	}
 }
 
@@ -269,7 +313,7 @@ void TravelMapHandler::_processTravelPointListRequest(Message* message,DispatchC
 
 		if(terminal == NULL)
 		{
-			gLogger->logMsgF("TravelMapHandler::_processTravelListRequest: No TravelPosition set, player %"PRIu64"",MSG_NORMAL,playerObject->getId());
+			gLogger->log(LogManager::DEBUG,"TravelMapHandler::_processTravelListRequest: No TravelPosition set, player %"PRIu64"",playerObject->getId());
 			return;
 		}
 
@@ -277,40 +321,18 @@ void TravelMapHandler::_processTravelPointListRequest(Message* message,DispatchC
 		message->getStringAnsi(requestedPlanet);
 
 		// find our planetId
-		uint8 planetId = 0;
+		uint8 planetId = gWorldManager->getPlanetIdByName(requestedPlanet);
 
-		while((strcmp(requestedPlanet.getAnsi(),gWorldManager->getPlanetNameById(planetId)) != 0))
-			planetId++;
-
-		// see if we need to skip a point
 		uint32 pointCount = 0;
 		char	queryPoint[64];
 		TravelPoint* qP = NULL;
-
-		// exclude current position
-		if(mZoneId == planetId)
-		{
-			excludeQueryPosition = true;
-			pointCount = mTravelPoints[planetId].size()-1;
-		}
-		// exclude shuttleports from other planets
-		else
-		{
-			TravelPointList::iterator it = mTravelPoints[planetId].begin();
-			while(it != mTravelPoints[planetId].end())
-			{
-				if((*it)->portType == 1)
-					pointCount++;
-
-				++it;
-			}
-		}
 
 		// get our query point
 		strcpy(queryPoint,(playerObject->getTravelPoint())->getPosDescriptor().getAnsi());
 
 		TravelPointList::iterator it = mTravelPoints[mZoneId].begin();
-		while(it != mTravelPoints[mZoneId].end())
+		TravelPointList::iterator end = mTravelPoints[mZoneId].end();
+		while(it != end)
 		{
 			TravelPoint* tp = (*it);
 
@@ -322,134 +344,55 @@ void TravelMapHandler::_processTravelPointListRequest(Message* message,DispatchC
 			++it;
 		}
 
-		// build our response
+		TravelPointList printListing;
+		it = mTravelPoints[planetId].begin();
+		end = mTravelPoints[planetId].end();
+
+		while(it != end)
+		{
+			if((mZoneId != planetId && (*it)->portType == 1) || mZoneId == planetId)
+			{
+				printListing.push_back((*it));
+			}
+			++it;			
+		}
+
+		//Build our message.
 		gMessageFactory->StartMessage();
 		gMessageFactory->addUint32(opPlanetTravelPointListResponse);
 		gMessageFactory->addString(requestedPlanet);
 
-		// point descriptors
-		gMessageFactory->addUint32(pointCount);
-
-		it = mTravelPoints[planetId].begin();
-		while(it != mTravelPoints[planetId].end())
+		end = printListing.end();
+		gMessageFactory->addUint32(printListing.size());
+		for(it = printListing.begin(); it != end; ++it)
 		{
-			TravelPoint* tp = (*it);
-			string desc = tp->descriptor;
-
-			if(excludeQueryPosition)
-			{
-				if(qP == tp)
-				{
-					++it;
-					continue;
-				}
-				else
-					gMessageFactory->addString(desc);
-			}
-			else
-			{
-				if(tp->portType == 1)
-					gMessageFactory->addString(desc);
-			}
-
-			++it;
+			gMessageFactory->addString((*it)->descriptor);
 		}
 
-		// positions
-		gMessageFactory->addUint32(pointCount);
-
-		it = mTravelPoints[planetId].begin();
-		while(it != mTravelPoints[planetId].end())
+		gMessageFactory->addUint32(printListing.size());
+		for(it = printListing.begin(); it != end; ++it)
 		{
-			TravelPoint* tp = (*it);
-
-			if(excludeQueryPosition)
-			{
-				if(qP == tp)
-				{
-					++it;
-					continue;
-				}
-				else
-				{
-					gMessageFactory->addFloat(tp->x);
-					gMessageFactory->addFloat(tp->y);
-					gMessageFactory->addFloat(tp->z);
-				}
-			}
-			else
-			{
-				if(tp->portType == 1)
-				{
-					gMessageFactory->addFloat(tp->x);
-					gMessageFactory->addFloat(tp->y);
-					gMessageFactory->addFloat(tp->z);
-				}
-			}
-			++it;
+			gMessageFactory->addFloat((*it)->x);
+			gMessageFactory->addFloat((*it)->y);
+			gMessageFactory->addFloat((*it)->z);
 		}
 
-		// taxes
-		gMessageFactory->addUint32(pointCount);
-
-		it = mTravelPoints[planetId].begin();
-		while(it != mTravelPoints[planetId].end())
+		gMessageFactory->addUint32(printListing.size());
+		for(it = printListing.begin(); it != end; ++it)
 		{
-			TravelPoint* tp = (*it);
-
-			if(excludeQueryPosition)
-			{
-				if(qP == tp)
-				{
-					++it;
-					continue;
-				}
-				else
-					gMessageFactory->addUint32(tp->taxes);
-			}
-			else
-			{
-				if(tp->portType == 1)
-					gMessageFactory->addUint32(tp->taxes);
-			}
-			++it;
+			gMessageFactory->addUint32((*it)->taxes);
 		}
 
-		// reachable ?
-		gMessageFactory->addUint32(pointCount);
-
-		it = mTravelPoints[planetId].begin();
-		while(it != mTravelPoints[planetId].end())
+		gMessageFactory->addUint32(printListing.size());
+		for(it = printListing.begin(); it != end; ++it)
 		{
-			TravelPoint* tp = (*it);
-
-			if(excludeQueryPosition)
-			{
-				if(qP == tp)
-				{
-					++it;
-					continue;
-				}
-				// we on this planet so all reachable
-				else
-					gMessageFactory->addUint8(1);
-			}
-			else
-			{
-				if(qP->portType == 1)
-					gMessageFactory->addUint8(1);
-				else
-					gMessageFactory->addUint8(0);
-			}
-			++it;
+			gMessageFactory->addUint8(1);
 		}
-
-		Message* newMessage = gMessageFactory->EndMessage();
-
-		client->SendChannelA(newMessage, playerObject->getAccountId(),  CR_Client, 6);
+		
+		playerObject->getClient()->SendChannelA(gMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 5);
 	}
 	else
-		gLogger->logMsgF("TravelMapHandler::_processTravelListRequest: Couldnt find player for %u",MSG_NORMAL,client->getAccountId());
+		gLogger->log(LogManager::DEBUG,"TravelMapHandler::_processTravelListRequest: Couldnt find player for %u",client->getAccountId());
 }
 
 //=======================================================================================================================
@@ -662,7 +605,7 @@ void TravelMapHandler::handleUIEvent(uint32 action,int32 element,string inputStr
 					}
 					else
 					{
-						gLogger->logMsg("TicketCollector: Error getting TravelPoint");
+						gLogger->log(LogManager::DEBUG,"TicketCollector: Error getting TravelPoint");
 					}
 					break;
 				}
@@ -737,7 +680,7 @@ void TravelMapHandler::useTicket(PlayerObject* playerObject, TravelTicket* ticke
 	}
 	else
 	{
-		gLogger->logMsg("TicketCollector: Error getting TravelPoint");
+		gLogger->log(LogManager::DEBUG,"TicketCollector: Error getting TravelPoint");
 	}
 }
 

@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -253,8 +269,6 @@ void FireworkShow::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
 					float delay = event.delay;
 					delay/=10;
-					gLogger->logMsgF("Delay: %0.1f",MSG_NORMAL,delay);
-
 
 					sprintf(text,"(%i:%0.1fs) %s",fireworkNumber++,delay,_getType(event.typeId).getAnsi());
 
@@ -309,9 +323,8 @@ void FireworkShow::handleUIEvent(uint32 action,int32 element,string inputStr,UIW
 					dynamic_cast<Inventory*>(window->getOwner()->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->deleteObject(item);
 				}
 
-/*				gLogger->logMsgF("array size:%i element:%i",MSG_NORMAL,_getInventoryFireworks(window->getOwner())->size(),element);
+/*
 				Item* item = dynamic_cast<Item*>(_getInventoryFireworks(window->getOwner())->at(element));
-				gLogger->logMsgF("Firework added: element:%i, customname:%s",MSG_NORMAL,element,item->getCustomName().getAnsi());
 				dynamic_cast<Firework*>(item)->setDelay(1000);
 				objList->push_back(item);	*/	/*		
 
@@ -357,7 +370,7 @@ void FireworkShow::handleUIEvent(string strAvailable, string strDelay, UIWindow*
 	//uint32 delay = atoi(strDelay.getAnsi());
 	strDelay.convert(BSTRType_ANSI);
 	int32 delay = atoi(strDelay.getAnsi());
-	gLogger->logMsgF("strDealay atoi = %i",MSG_NORMAL,delay);
+	gLogger->log(LogManager::DEBUG,"strDealay atoi = %i",delay);
 	fireworkShowList.at(this->fireworkShowListModify).delay = delay;
 
 }

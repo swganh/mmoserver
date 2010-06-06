@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -24,6 +40,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "BurstRunEvent.h"
 #include "ItemDeleteEvent.h"
 #include "InjuryTreatmentEvent.h"
+#include "WoundTreatmentEvent.h"
 #include "Common/DispatchClient.h"
 #include <map>
 
@@ -33,6 +50,7 @@ class Tutorial;
 class TravelTerminal;
 class CraftingStation;
 class CraftingSession;
+class Datapad;
 //=============================================================================
 
 typedef std::list<std::pair<string,float> >	AttributesList;
@@ -91,6 +109,10 @@ class PlayerObject : public CreatureObject
 
 		void				setTravelPoint(TravelTerminal* tp){ mTravelPoint = tp; }
 		TravelTerminal*		getTravelPoint(){ return mTravelPoint; }
+
+		//datapad
+		Datapad*			getDataPad(){return mDataPad;}
+		void				setDataPad(Datapad* pad){mDataPad = pad;}
 
 		void				setMotdReceived(bool b){ mMotdReceived = b; }
 		bool				getMotdReceived(){ return mMotdReceived; }
@@ -208,7 +230,8 @@ class PlayerObject : public CreatureObject
 		void				setContactListUpdatePending(bool b){ mContactListUpdatePending = b; }
 
 		virtual	void		handleObjectMenuSelect(uint8 messageType,Object* srcObject);
-
+		// Healing
+		Object*				getHealingTarget(PlayerObject* Player) const;
 		// Entertainment
 		EMLocationType		getPlayerLocation();
 		uint64				getPlacedInstrumentId(){return mPlacedInstrument;}
@@ -234,6 +257,7 @@ class PlayerObject : public CreatureObject
 		void				setGroupMusicXp(uint8 groupXp){mGroupXp = groupXp;}
 
 		// ID
+		void				setImageDesignerTaskId(uint64 taskId){mImageDesignerId = taskId;}
 		bool				UpdateIdAttributes(BString attribute,float value);
 		bool				UpdateIdColors(BString attribute,uint16 value);
 		AttributesList*		getIdAttributesList(){return &mIDAttributesList;}
@@ -242,8 +266,10 @@ class PlayerObject : public CreatureObject
 		IDSession 			getImageDesignSession(){return mIDSession;}
 		uint32				getHoloEmote(){ return mHoloEmote; }
 		void				setHoloEmote(uint32 emote){ mHoloEmote = emote; }
-		uint32				getHoloCharge(){ return mHoloCharge; }
-		void				setHoloCharge(uint32 emote){ mHoloCharge = static_cast<uint8>(emote); }
+		
+		uint8				getHoloCharge(){ return mHoloCharge; }
+		void				setHoloCharge(uint8 charge){ mHoloCharge = charge; }
+		bool				decHoloCharge(){ if(mHoloCharge == 0) return false; mHoloCharge--; return true; }
 
 		uint64				getIDPartner(){ return mIDPartner; }
 		void				setIDPartner(uint64 id){ mIDPartner= id; }
@@ -264,6 +290,7 @@ class PlayerObject : public CreatureObject
 		void				setGender(bool gender){mFemale = gender;}
 		bool				getGender(){return mFemale;}
 
+		//mounts
 		bool				checkIfMounted() { return mMounted; }
 		void				setMounted(bool mounted) { mMounted = mounted; }
 
@@ -274,7 +301,7 @@ class PlayerObject : public CreatureObject
 		void				setMountCalled(bool mount_called) { mMountCalled = mount_called; }
 
 		// crafting
-		CraftingStation*	getCraftingStation(ObjectSet	inRangeObjects, ItemType	toolType);
+		CraftingStation*	getCraftingStation(ObjectSet*	inRangeObjects, ItemType	toolType);
 		uint32				getCraftingStage(){ return mCraftingStage; }
 		void				setCraftingStage(uint32 stage){ mCraftingStage = stage; }
 		uint32				getExperimentationFlag(){ return mExperimentationFlag; }
@@ -316,6 +343,7 @@ class PlayerObject : public CreatureObject
 		void				onBurstRun(const BurstRunEvent* event);
 		void				onItemDeleteEvent(const ItemDeleteEvent* event);
 		void				onInjuryTreatment(const InjuryTreatmentEvent* event);
+		void				onWoundTreatment(const WoundTreatmentEvent* event);
 								 
 
 		// cloning
@@ -381,6 +409,8 @@ class PlayerObject : public CreatureObject
 		void				_verifyExplorationBadges();
 
 		bool				mHasCamp;
+
+		Datapad*			mDataPad;
 		AudienceList		mAudienceList;
 		BadgesList			mBadgeList;
 		DenyServiceList		mDenyAudienceList;
@@ -430,6 +460,7 @@ class PlayerObject : public CreatureObject
 		uint64				mCombatTargetId; // The actual target player are hitting, not always the same as the "look-at" target.
 		uint64				mEntertainerPauseId;
 		uint64				mEntertainerTaskId;
+		uint64				mImageDesignerId;
 		uint64				mEntertainerWatchToId;
 		uint64				mLastGroupMissionUpdateTime;
 		uint64				mNearestCraftingStation;
@@ -462,7 +493,7 @@ class PlayerObject : public CreatureObject
 		int8				mHomePlanet;
 		uint8				mCsrTag;
 		uint8				mFlourishCount;
-		uint8				mHoloCharge;
+		uint8				mHoloCharge; //thats the amount of charges our hologenerator has
 		uint8				mLots;
 		uint8				mNewPlayerExemptions;
 		bool				mAutoAttack;

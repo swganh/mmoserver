@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -19,6 +35,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "DatabaseManager/Database.h"
 
 #include <glm/gtx/fast_trigonometry.hpp>
+#include <glm/gtx/transform2.hpp>
+#include <glm/gtx/vector_angle.hpp>
 
 using namespace glm::gtx;
 
@@ -75,7 +93,8 @@ Object::~Object()
 
 //=============================================================================
 
-glm::vec3 Object::getWorldPosition() const {
+glm::vec3 Object::getWorldPosition() const 
+{
     const Object* root_parent = getRootParent();
 
     // Is this object the root? If so it's position is the world position.
@@ -101,9 +120,14 @@ glm::vec3 Object::getWorldPosition() const {
 
 // @TODO: This is a dependency on WorldManager that could be avoided by having an
 //        Object instance hold a reference to it's parent.
-const Object* Object::getRootParent() const {
+// objects reference their parents - we just do not know who is the final (permissiongiving) container
+// as it is it will return either the player or the building owning the item regardless in what container it is
+
+const Object* Object::getRootParent() const 
+{
     // If there's no parent id then this is the root object.
-    if (! getParentId()) {
+    if (! getParentId()) 
+	{
         return this;
     }
 
@@ -116,68 +140,108 @@ const Object* Object::getRootParent() const {
 
 //=============================================================================
 
-void Object::rotateLeft(float degrees) {
+void Object::rotate(float degrees) {
     // Rotate the item left by the specified degrees
-    mDirection = glm::rotate(mDirection, -static_cast<float>(degrees), glm::vec3(0.0f, 1.0f, 0.0f));
+    mDirection = glm::rotate(mDirection, degrees, glm::vec3(0.0f, 1.0f, 0.0f));
+}
+
+//=============================================================================
+
+void Object::rotateLeft(float degrees) {
+    rotate(-degrees);
 }
 
 //=============================================================================
 
 void Object::rotateRight(float degrees) {
-    // Rotate the item right by the specified degrees
-    mDirection = glm::rotate(mDirection, static_cast<float>(degrees), glm::vec3(0.0f, 1.0f, 0.0f));
+    rotate(degrees);
 }
 
 //=============================================================================
 
-void Object::moveForward(const glm::quat& direction, float distance) {
-    float angle = glm::angle(direction);
+void Object::faceObject(Object* target_object) {	
+    facePosition(target_object->mPosition);
+}
 
-    if (direction.w > 0.0f && direction.y < 0.0) {
-        angle *= -1.0f;
+//=============================================================================
+
+void Object::facePosition(const glm::vec3& target_position) {	
+    // Create a mirror direction vector for the direction we want to face.
+    glm::vec3 direction_vector = glm::normalize(target_position - mPosition);
+    direction_vector.x = -direction_vector.x;
+
+    // Create a lookat matrix from the direction vector and convert it to a quaternion.
+    mDirection = glm::toQuat(glm::lookAt(
+        direction_vector, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)
+        ));
+
+    // If in the 3rd quadrant the signs need to be flipped.
+    if (mDirection.y <= 0.0f && mDirection.w >= 0.0f) {
+        mDirection.y = -mDirection.y;
+        mDirection.w = -mDirection.w;
     }
+}
 
-    // Move the object forward along the specified angle by the specified distance
-    mPosition.x += static_cast<float>(distance * sin(angle));
-    mPosition.z += static_cast<float>(distance * cos(angle));
+//=============================================================================
+
+void Object::move(const glm::quat& direction, float distance) {
+    // Create a vector of the length we want pointing down the x-axis.
+    glm::vec3 movement_vector(0.0f, 0.0f, distance);
+
+    // Rotate the movement vector by the direction it should be facing.
+    movement_vector = direction * movement_vector;
+
+    // Add the movement vector to the current position to get the new position.
+    mPosition += movement_vector;
 }
 
 //=============================================================================
 
 void Object::moveForward(float distance) {
-    moveForward(mDirection, distance);
-}
-
-//=============================================================================
-
-void Object::moveBack(const glm::quat& direction, float distance) { 
-    float angle = glm::angle(direction);
-
-    if (direction.w > 0.0f && direction.y < 0.0) {
-        angle *= -1.0f;
-    }
-
-    // Move the object back along the specified angle by the specified distance
-    mPosition.x -= static_cast<float>(distance * sin(angle));
-    mPosition.z -= static_cast<float>(distance * cos(angle));
+    move(mDirection, distance);
 }
 
 //=============================================================================
 
 void Object::moveBack(float distance) {  
-    moveBack(mDirection, distance);
+    move(mDirection, -distance);
+}
+
+//=============================================================================
+
+float Object::rotation_angle() const {	
+  glm::quat tmp = mDirection;
+
+  if (tmp.y < 0.0f && tmp.w > 0.0f) {
+    tmp.y *= -1;
+    tmp.w *= -1;
+  }
+
+  return glm::angle(tmp);
 }
 
 //=============================================================================
 
 bool Object::removeKnownObject(Object* object)
 {
+	PlayerObject* player = dynamic_cast<PlayerObject*>(this);
+	if(player)
+	{
+		if(player->getTargetId() == object->getId())
+			player->setTarget(0);
+	}
+
 	if(object->getType() == ObjType_Player)
 	{
-		PlayerObjectSet::iterator it = mKnownPlayers.find(dynamic_cast<PlayerObject*>(object));
+		PlayerObject* player = dynamic_cast<PlayerObject*>(object);
+		PlayerObjectSet::iterator it = mKnownPlayers.find(player);
 
 		if(it != mKnownPlayers.end())
 		{
+			//we might be its target
+			if(player->getTargetId() == this->getId())
+				player->setTarget(0);
+
 			mKnownPlayers.erase(it);
 
 			return(true);
@@ -294,8 +358,6 @@ void Object::sendAttributes(PlayerObject* playerObject)
 			value = valueInt;
 
 		}
-			//gLogger->logMsgF("Object::sendAttribute: %s : %s",MSG_HIGH,gWorldManager->getAttributeKey((*mapIt).first).getAnsi(),value.getAnsi());
-
 
 		value.convert(BSTRType_Unicode16);
 		gMessageFactory->addString(value);
@@ -320,7 +382,7 @@ void Object::setAttribute(string key,std::string value)
 
 	if(it == mAttributeMap.end())
 	{
-		gLogger->logMsgF("Object::setAttribute: could not find %s",MSG_HIGH,key.getAnsi());
+		gLogger->log(LogManager::DEBUG,"Object::setAttribute: could not find %s",key.getAnsi());
 		return;
 	}
 
@@ -341,7 +403,7 @@ void Object::setAttributeIncDB(string key,std::string value)
 
 	if(it == mAttributeMap.end())
 	{
-		gLogger->logMsgF("Object::setAttribute: could not find %s",MSG_HIGH,key.getAnsi());
+		gLogger->log(LogManager::DEBUG,"Object::setAttribute: could not find %s",key.getAnsi());
 		return;
 	}
 
@@ -350,7 +412,7 @@ void Object::setAttributeIncDB(string key,std::string value)
 	uint32 attributeID = gWorldManager->getAttributeId(key.getCrc());
 	if(!attributeID)
 	{
-		gLogger->logMsgF("Object::addAttribute DB: no such attribute in the attribute table :%s",MSG_HIGH,key.getAnsi());
+		gLogger->log(LogManager::DEBUG,"Object::addAttribute DB: no such attribute in the attribute table :%s",key.getAnsi());
 		return;
 	}
 
@@ -395,7 +457,7 @@ void Object::addAttributeIncDB(string key,std::string value)
 	uint32 attributeID = gWorldManager->getAttributeId(key.getCrc());
 	if(!attributeID)
 	{
-		gLogger->logMsgF("Object::addAttribute DB: no such attribute in the attribute table :%s",MSG_HIGH,key.getAnsi());
+		gLogger->log(LogManager::DEBUG,"Object::addAttribute DB: no such attribute in the attribute table :%s",key.getAnsi());
 		return;
 	}
 	int8 sql[512],*sqlPointer,restStr[128];
@@ -431,7 +493,7 @@ void Object::removeAttribute(string key)
 	if(it != mAttributeMap.end())
 		mAttributeMap.erase(it);
 	else
-		gLogger->logMsgF("Object::removeAttribute: could not find %s",MSG_HIGH,key.getAnsi());
+		gLogger->log(LogManager::DEBUG,"Object::removeAttribute: could not find %s",key.getAnsi());
 }
 
 //=========================================================================
@@ -450,7 +512,7 @@ void Object::setInternalAttributeIncDB(string key,std::string value)
 
 	if(it == mInternalAttributeMap.end())
 	{
-		gLogger->logMsgF("Object::setAttribute: could not find %s",MSG_HIGH,key.getAnsi());
+		gLogger->log(LogManager::DEBUG,"Object::setAttribute: could not find %s",key.getAnsi());
 		return;
 	}
 
@@ -459,7 +521,7 @@ void Object::setInternalAttributeIncDB(string key,std::string value)
 	uint32 attributeID = gWorldManager->getAttributeId(key.getCrc());
 	if(!attributeID)
 	{
-		gLogger->logMsgF("Object::addAttribute DB: no such attribute in the attribute table :%s",MSG_HIGH,key.getAnsi());
+		gLogger->log(LogManager::DEBUG,"Object::addAttribute DB: no such attribute in the attribute table :%s",key.getAnsi());
 		return;
 	}
 
@@ -483,7 +545,7 @@ void	Object::setInternalAttribute(string key,std::string value)
 
 	if(it == mInternalAttributeMap.end())
 	{
-		gLogger->logMsgF("Object::setInternalAttribute: could not find %s",MSG_HIGH,key.getAnsi());
+		gLogger->log(LogManager::DEBUG,"Object::setInternalAttribute: could not find %s",key.getAnsi());
 		return;
 	}
 
@@ -506,7 +568,7 @@ void Object::addInternalAttributeIncDB(string key,std::string value)
 	uint32 attributeID = gWorldManager->getAttributeId(key.getCrc());
 	if(!attributeID)
 	{
-		gLogger->logMsgF("Object::addAttribute DB: no such attribute in the attribute table :%s",MSG_HIGH,key.getAnsi());
+		gLogger->log(LogManager::DEBUG,"Object::addAttribute DB: no such attribute in the attribute table :%s",key.getAnsi());
 		return;
 	}
 	int8 sql[512],*sqlPointer,restStr[128];
@@ -550,7 +612,7 @@ void Object::removeInternalAttribute(string key)
 	if(it != mInternalAttributeMap.end())
 		mInternalAttributeMap.erase(it);
 	else
-		gLogger->logMsgF("Object::removeInternalAttribute: could not find %s",MSG_HIGH,key.getAnsi());
+		gLogger->log(LogManager::DEBUG,"Object::removeInternalAttribute: could not find %s",key.getAnsi());
 }
 
 
@@ -582,7 +644,7 @@ void Object::addKnownObject(Object* object)
 	}
 	if(checkKnownObjects(object))
 	{
-		gLogger->logMsgF("Object::addKnownObject %I64u couldnt be added to %I64u - already in it", MSG_NORMAL, object->getId(), this->getId());
+		gLogger->log(LogManager::DEBUG,"Object::addKnownObject %I64u couldnt be added to %I64u - already in it", object->getId(), this->getId());
 		return;
 	}
 
@@ -609,10 +671,8 @@ void Object::destroyKnownObjects()
 	while(IDIt != mKnownObjectsIDs.end())
 	{		
 		Object* object = gWorldManager->getObjectById(*IDIt);
-		gLogger->logMsgF("Object::removeKnownObject removing %I64u from %I64u", MSG_NORMAL, object->getId(), this->getId());
 		if(!object)
 		{
-			gLogger->logMsgF("Object::removeKnownObject %I64u couldnt be removed from %I64u - not found", MSG_NORMAL, (*IDIt), this->getId());	
 			(*IDIt)++;
 		}
 		ObjectIDSet::iterator itID = mKnownObjectsIDs.find(object->getId());
@@ -623,7 +683,6 @@ void Object::destroyKnownObjects()
 		}
 		else
 		{
-			gLogger->logMsgF("Object::removeKnownObject %I64u couldnt be removed from %I64u - not found", MSG_NORMAL, object->getId(), this->getId());
 			IDIt++;
 		}		
 	

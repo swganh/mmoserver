@@ -1,11 +1,27 @@
  /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 #include "CurrentResource.h"
@@ -58,7 +74,7 @@ void CurrentResource::buildDistributionMap()
 	mapBuilder.SetDestSize(512,512); 
 	mapBuilder.SetBounds(mNoiseMapBoundsX1,mNoiseMapBoundsX2,mNoiseMapBoundsY1,mNoiseMapBoundsY2);
 
-	gLogger->logMsgF("Building DistributionMap for %s(%s)",MSG_LOW,mName.getAnsi(),mType->getName().getAnsi());
+	gLogger->log(LogManager::DEBUG,"Building DistributionMap for %s(%s)",mName.getAnsi(),mType->getName().getAnsi());
 	mapBuilder.Build();
 
 	if(gConfig->read<int>("writeResourceMaps"))
@@ -66,7 +82,7 @@ void CurrentResource::buildDistributionMap()
 		string fileName = (int8*)(gConfig->read<std::string>("ZoneName")).c_str();
 		fileName << "_" << mName.getAnsi() << ".bmp";
 
-		gLogger->logMsgF("Writing File %s",MSG_LOW,fileName.getAnsi());
+		gLogger->log(LogManager::DEBUG,"Writing File %s",fileName.getAnsi());
 
 		noise::utils::RendererImage renderer;
 		noise::utils::Image image;
@@ -108,7 +124,7 @@ void CurrentResource::_verifyNoiseSettings()
 		mNoiseMapBoundsX1 = 3.0;
 
 	if(mNoiseMapBoundsX1 >= mNoiseMapBoundsX2 || mNoiseMapBoundsY1 >= mNoiseMapBoundsY2)
-		gLogger->logMsg("WARNING: invalid NoisemapBounds set");
+		gLogger->log(LogManager::WARNING,"NoiseMap: Invalid NoisemapBounds set!");
 
 	if(mNoiseMapOctaves < 1 || mNoiseMapOctaves > 6)
 		mNoiseMapOctaves = 4;

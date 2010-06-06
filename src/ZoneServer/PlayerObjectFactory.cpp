@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -399,7 +415,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
 			uint64 count = result->getRowCount();
 			if(!count)
 			{
-				gLogger->logMsg("PlayerObjectFactory: sf_getLotCount did not return a value");
+				gLogger->log(LogManager::DEBUG,"PlayerObjectFactory: sf_getLotCount did not return a value");
 				//now we have a problem ...
 				mDatabase->DestroyDataBinding(binding);
 				break;
@@ -410,7 +426,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
 
 			maxLots -= static_cast<uint8>(lotCount);
 			playerObject->setLots((uint8)maxLots);
-			gLogger->logMsgF("PlayerObjectFactory: %I64u has %u lots remaining",MSG_HIGH,playerObject->getId(),maxLots);
+			gLogger->log(LogManager::DEBUG,"PlayerObjectFactory: %I64u has %u lots remaining",playerObject->getId(),maxLots);
 
 			mDatabase->DestroyDataBinding(binding);
 		}
@@ -563,9 +579,9 @@ PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
 
 	// mission bag
 	playerMissionBag = new MissionBag(playerObject->mId + 2,playerObject,"object/tangible/mission_bag/shared_mission_bag.iff","item_n","mission_bag");
-	playerMissionBag->setEquipSlotMask(CreatureEquipSlot_MissionBag);
+	playerMissionBag->setEquipSlotMask(CreatureEquipSlot_Mission);
 
-	playerObject->mEquipManager.addEquippedObject(CreatureEquipSlot_MissionBag,playerMissionBag);
+	playerObject->mEquipManager.addEquippedObject(CreatureEquipSlot_Mission,playerMissionBag);
 
 	// bank
 	playerBank->setId(playerObject->mId + 4);
@@ -584,7 +600,7 @@ PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
 	playerWeapon->setParentId(playerObject->mId);
 	playerWeapon->setModelString("object/weapon/melee/unarmed/shared_unarmed_default_player.iff");
 	playerWeapon->setGroup(WeaponGroup_Unarmed);
-	playerWeapon->setEquipSlotMask(CreatureEquipSlot_Weapon);
+	playerWeapon->setEquipSlotMask(CreatureEquipSlot_Hold_Left);
 	playerWeapon->addInternalAttribute("weapon_group","1");
 
 	playerObject->mEquipManager.setDefaultWeapon(playerWeapon);
@@ -605,8 +621,8 @@ PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
 
 	// logging in dead or incapped, shouldn't happen. (player is moved to cloning facility when disconnecting in those states
 
-	// gLogger->logMsgF("PlayerObjectFactory::_createPlayer Posture = %u",MSG_NORMAL, playerObject->getPosture());
-	// gLogger->logMsgF("PlayerObjectFactory::_createPlayer State = %"PRIu64"",MSG_NORMAL, playerObject->getState());
+	// gLogger->log(LogManager::DEBUG,"PlayerObjectFactory::_createPlayer Posture = %u", playerObject->getPosture());
+	// gLogger->log(LogManager::DEBUG,"PlayerObjectFactory::_createPlayer State = %"PRIu64"", playerObject->getState());
 
 	if(playerObject->getPosture() == CreaturePosture_SkillAnimating
 	|| playerObject->getPosture() == CreaturePosture_Incapacitated
@@ -639,6 +655,7 @@ PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
 
 	playerObject->mHam.updateRegenRates();
 	playerObject->mHam.checkForRegen();
+	playerObject->mStomach->checkForRegen();
 
 	// setup controller validators
 	playerObject->mObjectController.initEnqueueValidators();
@@ -773,7 +790,7 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
 	mIlc = _getObject(object->getParentId());
 	if(!mIlc)
 	{
-		gLogger->logMsg("no mIlc :(");
+		gLogger->log(LogManager::DEBUG,"no mIlc :(");
 		return;
 	}
 	mIlc->mLoadCounter--;
@@ -802,6 +819,7 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
 		datapad->setEquipSlotMask(CreatureEquipSlot_Datapad);
 
 		playerObject->mEquipManager.addEquippedObject(CreatureEquipSlot_Datapad,datapad);
+		playerObject->setDataPad(datapad);
 
 		datapad->setOwner(playerObject);
 	}
@@ -814,19 +832,26 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
 	}
 	else
 	{
-		gLogger->logMsg("PlayerObjectFactory: no idea what this was");
+		gLogger->log(LogManager::DEBUG,"PlayerObjectFactory: no idea what this was");
 	}
 
 	if(!mIlc->mLoadCounter)
 	{
 		if(!(_removeFromObjectLoadMap(playerObject->getId())))
-			gLogger->logMsg("PlayerObjectFactory: Failed removing object from loadmap");
+			gLogger->log(LogManager::DEBUG,"PlayerObjectFactory: Failed removing object from loadmap");
 
 		// if weapon slot is empty, equip the unarmed default weapon
-		if(!playerObject->mEquipManager.getEquippedObject(CreatureEquipSlot_Weapon))
+		if(!playerObject->mEquipManager.getEquippedObject(CreatureEquipSlot_Hold_Left))
 		{
-			// gLogger->logMsg("equip default weapon");
+			// gLogger->log(LogManager::DEBUG,"equip default weapon");
 			playerObject->mEquipManager.equipDefaultWeapon();
+		}
+		Datapad* dpad = playerObject->getDataPad();
+		if(!dpad)
+		{
+			assert(dpad && "PlayerObjectFactory::No Datapad!!!!!");
+			return;
+			
 		}
 
 		// init equip counter

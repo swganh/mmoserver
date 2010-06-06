@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -30,21 +46,22 @@ class BuffAttribute
 {
 
 public:
-	BuffAttribute(BuffAttributeEnum Type, int32 InitialValue, int32	TickValue, int32 FinalValue);
+	BuffAttribute(uint32 Type, int32 InitialValue, int32	TickValue, int32 FinalValue);
 	~BuffAttribute();
 
 	static BuffAttribute* FromDB(BuffAttributeDBItem* item);
 
-	BuffAttributeEnum	GetType();
+	uint32				GetType();
 	int32				GetInitialValue();
 	int32				GetTickValue();
 	int32				GetFinalValue();
+	AttributeList		GetAttributeList();
 
 	void				SetInitialValue(int32 v){mInitialValue = v;} 
 	void				SetFinalValue(int32 v){mFinalValue = v;} 
 
 private:
-	BuffAttributeEnum	mAttribute;
+	uint32				mAttribute;
 	int32				mInitialValue;
 	int32				mTickValue;
 	int32				mFinalValue;
@@ -81,6 +98,7 @@ public:
 	void setTarget(CreatureObject* creature);
 	void EraseAttributes();
 	bool GetIsMarkedForDeletion();
+	void MarkForDeletion(){mMarkedForDeletion=true;}
 
 	//mID is the process ID for the timer
 	uint64 GetID();
@@ -108,7 +126,7 @@ private:
 	Buff*					mParent;
 	CreatureObject*			mInstigator;
 	CreatureObject*			mTarget;
-	int64					mTick; //Length of Tick in ms
+	uint64					mTick; //Length of Tick in ms
 	uint64					mDBID;
 	uint64					mID;
 	uint64					mNextTickLength; //Store the length of the next tick (for when reloading from DB)
@@ -122,7 +140,7 @@ private:
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	//Private Methods
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	int32					ModifyAttribute(BuffAttributeEnum Type, int32 Value, bool damage = false, bool debuff = false);//returns the amount of the buff that got applied
+	int32					ModifyAttribute(uint32 Type, int32 Value, bool damage = false, bool debuff = false);//returns the amount of the buff that got applied
 	void					IncrementTick();
 	uint64					GetRemainingTime(uint64 CurrentTime);
 	bool					UpdateTick(uint64 CurrentTime);

@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -78,8 +94,6 @@ void FillerNPC::handleEvents(void)
 
 uint64 FillerNPC::handleState(uint64 timeOverdue)
 {
-	// gLogger->logMsgF("FillerNPC::handleState() Entering",MSG_NORMAL);
-
 	uint64 waitTime = tutorialPlayersPeriodUpdateTime;
 	if (tutorialPlayersPeriodUpdateTime >= timeOverdue)
 	{
@@ -104,7 +118,6 @@ uint64 FillerNPC::handleState(uint64 timeOverdue)
 			else
 			{
 				// Remove the expired player, and his data, please...
-				// gLogger->logMsgF("FillerNPC::handleState: Remove the expired player with id %"PRIu64"",MSG_NORMAL, (*it).first);
 				delete ((*it).second);
 				mTutorialPlayers.erase(it++);
 			}
@@ -119,7 +132,6 @@ uint64 FillerNPC::handleState(uint64 timeOverdue)
 		// We have to un-register this npc for service.
 		waitTime = 0;
 
-		// gLogger->logMsgF("FillerNPC::handleState: Unregister this service, since we have no players.",MSG_NORMAL);
 		// No-no... do not fiddle with other objects iterators, when we are used by them.
 		// gWorldManager->removeDormantNpc(this->getId());
 	}
@@ -141,7 +153,6 @@ void FillerNPC::addTutorialPlayer(uint64 playerId, TutorialTauntConfigData* conf
 	if (mTutorialPlayers.empty())
 	{
 		// We have to register this npc for service.
-		// gLogger->logMsgF("FillerNPC::handleState: Register this service, since we now have a player.",MSG_NORMAL);
 		gWorldManager->addDormantNpc(this->getId(), (uint64)tutorialPlayersPeriodUpdateTime);
 	}
 	mTutorialPlayers.insert(std::make_pair(playerId, configData));

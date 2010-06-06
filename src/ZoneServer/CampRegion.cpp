@@ -1,11 +1,27 @@
 				  /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 #include <list>
@@ -57,7 +73,6 @@ void CampRegion::update()
 	//Camps have a max timer of 55 minutes
 	if(gWorldManager->GetCurrentGlobalTick() - mSetUpTime > 3300000)
 	{
-		//gLogger->logMsg("55 Minutes OLD! DEATH TO THE CAMP!", BACKGROUND_RED);
 		despawnCamp();
 		return;
 	}
@@ -136,7 +151,6 @@ void CampRegion::update()
 
 			if(!alreadyExists)
 			{
-				//gLogger->logMsg("CREATING A NEW LINK!");
 				campLink* temp = new campLink;
 				temp->objectID = object->getId();
 				temp->lastSeenTime = gWorldManager->GetCurrentGlobalTick();
@@ -147,7 +161,6 @@ void CampRegion::update()
 		}
 		else
 		{
-			//gLogger->logMsg("HANDLING TICK!");
 			//Find the right link
 			std::list<campLink*>::iterator i;
 
@@ -176,7 +189,6 @@ void CampRegion::update()
 			//to allow the adding of items without much effort.
 			int8 text[256];
 			sprintf(text,"Position: mX=%f mY=%f mZ=%f\nDirection: mX=%f mY=%f mZ=%f mW=%f", (object->mPosition.x - this->mPosition.x), (object->mPosition.y - this->mPosition.y), (object->mPosition.z - this->mPosition.z), object->mDirection.x,object->mDirection.y,object->mDirection.z,object->mDirection.w);
-			gLogger->logMsg(text, BACKGROUND_RED);
 			*/
 		}
 
@@ -205,7 +217,6 @@ void CampRegion::update()
 	{
 		if(gWorldManager->GetCurrentGlobalTick() - (*i)->lastSeenTime >= 30000)
 		{
-			//gLogger->logMsg("ERASING AN ENTRY!");
 			delete (*i);
 			i = links.erase(i);
 		}
@@ -247,8 +258,6 @@ void CampRegion::onObjectEnter(Object* object)
 		{
 			//ensure it's not time to destroy the camp
 			mAbandoned = false;
-
-			//gLogger->logMsg("ENTERED CAMP", BACKGROUND_RED);
 		}
 
 	}
@@ -266,8 +275,6 @@ void CampRegion::onObjectLeave(Object* object)
 	if(object->getId() == mOwnerId)
 	{
 		mAbandoned	= true;
-
-			//gLogger->logMsg("LEFT CAMP", BACKGROUND_RED);
 
 		//We want to have this camp die after the owner has been gone longer 
 		//than he stayed in the camp, with a max of two minutes.
@@ -339,8 +346,6 @@ void	CampRegion::despawnCamp()
 void	CampRegion::applyWoundHealing(Object* object)
 {
 	PlayerObject* player = dynamic_cast<PlayerObject*>(object);
-
-	//gLogger->logMsg("APPLYING WOUND HEALING!");
 
 	//Make sure it's a player.
 	if(player == NULL)

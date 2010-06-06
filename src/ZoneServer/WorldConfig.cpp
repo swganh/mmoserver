@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -186,12 +202,14 @@ void WorldConfig::buildAttributeMap(DatabaseResult* result)
 	mConfigurationBinding = mDatabase->CreateDataBinding(2);
 	mConfigurationBinding->addField(DFT_bstring,offsetof(Configuration_QueryContainer,mKey),64,0);
 	mConfigurationBinding->addField(DFT_bstring,offsetof(Configuration_QueryContainer,mValue),128,1);
-
-	gLogger->logMsg("WorldConfig::adding Configuration: ");
+	
+	//gLogger->log(LogManager::DEBUG,"Adding Attribute Configuration");
+	
 	for(uint64 i = 0;i < count;i++)
 	{
 		result->GetNextRow(mConfigurationBinding,(void*)&attribute);
-		gLogger->logMsgF("WorldConfig::adding Attribute %s :: %s ",MSG_NORMAL,attribute.mKey.getAnsi(),attribute.mValue.getAnsi());
+		//gLogger->logCont(LogManager::DEBUG,"Adding Attribute %s: %s ",attribute.mKey.getAnsi(),attribute.mValue.getAnsi());
+		
 
 		if(hasConfiguration(attribute.mKey))
 		{
@@ -205,11 +223,7 @@ void WorldConfig::buildAttributeMap(DatabaseResult* result)
 
 	if(count > 0)
 	{
-		gLogger->logMsgLoadSuccess("WorldConfig:: %u attributes mapped...",MSG_NORMAL,count);
-	}
-	else
-	{
-		gLogger->logMsgLoadFailure("WorldConfig::mapping attributes...",MSG_NORMAL);					
+		gLogger->log(LogManager::NOTICE,"Mapped %u Server Attributes.",count);		
 	}
 
 }
@@ -222,7 +236,7 @@ void WorldConfig::setConfiguration(string key,std::string value)
 
 	if(it == mConfigurationMap.end())
 	{
-		gLogger->logMsgF("WorldConfig::setConfiguration: could not find %s",MSG_HIGH,key.getAnsi());
+		gLogger->log(LogManager::INFORMATION,"WorldConfig::setConfiguration: could not find %s",key.getAnsi());
 		return;
 	}
 
@@ -255,7 +269,7 @@ void WorldConfig::removeConfiguration(string key)
 	if(it != mConfigurationMap.end())
 		mConfigurationMap.erase(it);
 	else
-		gLogger->logMsgF("WorldConfig::removeConfiguration: could not find %s",MSG_HIGH,key.getAnsi());
+		gLogger->log(LogManager::INFORMATION,"WorldConfig::removeConfiguration: could not find %s",key.getAnsi());
 }
 
 //=========================================================================

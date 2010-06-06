@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -143,24 +159,18 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult
 	{
 		case NonPersistentNpcQuery_Attributes:
 		{
-			// gLogger->logMsgF("NonPersistentNpcFactory::handleDatabaseJobComplete() AT NonPersistentNpcQuery_Attributes:", MSG_NORMAL);
 			Object* object = gWorldManager->getObjectById(asyncContainer->mId);
 			if (object)
 			{
 				_buildAttributeMap(object,result);
 				if (object->getLoadState() == LoadState_Loaded && asyncContainer->mOfCallback)
 				{
-					// gLogger->logMsgF("NonPersistentNpcFactory::handleDatabaseJobComplete() Invoking mOfCallback->handleObjectReady(npc)", MSG_NORMAL);
 					asyncContainer->mOfCallback->handleObjectReady(object);
-				}
-				else
-				{
-					// gLogger->logMsgF("NonPersistentNpcFactory::handleDatabaseJobComplete() Invoking NOTHING", MSG_NORMAL);
 				}
 			}
 			else
 			{
-				gLogger->logMsgF("NonPersistentNpcFactory::handleDatabaseJobComplete() Object is GONE", MSG_NORMAL);
+				gLogger->log(LogManager::DEBUG,"NonPersistentNpcFactory::handleDatabaseJobComplete() Object is GONE");
 			}
 		}
 		break;
@@ -172,8 +182,6 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult
 
 		case NonPersistentNpcQuery_LairTemplate:
 		{
-			// gLogger->logMsgF("NonPersistentNpcFactory::handleDatabaseJobComplete() AT NonPersistentNpcQuery_LairTemplate:", MSG_NORMAL);
-
 			NpcLairEntityEx lair;
 
 			DataBinding* lairSpawnBinding = mDatabase->CreateDataBinding(9);
@@ -265,8 +273,6 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult
 			npc->mTypeOptions = 0x0;
 			npc->togglePvPStateOn((CreaturePvPStatus)(CreaturePvPStatus_Attackable));
 
-			// gLogger->logMsgF("NonPersistentNpcFactory::handleDatabaseJobComplete() Attempting to get the creature templates for group %u used by this lair.", MSG_NORMAL, lair.mCreatureGroup);
-
 			QueryNonPersistentNpcFactory* asContainer = new QueryNonPersistentNpcFactory(asyncContainer->mOfCallback, NonPersistentNpcQuery_LairCreatureTemplates, asyncContainer->mTemplateId, asyncContainer->mId);
 			// Do not transfer object refs, use the handle, i.e. asyncContainer->mId
 			// asContainer->mObject = npc;
@@ -297,7 +303,6 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult
 			for (uint64 i = 0; i < count; i++)
 			{
 				result->GetNextRow(creatureTemplateBinding, &creatureTemplateId);
-				// gLogger->logMsgF("NonPersistentNpcFactory::handleDatabaseJobComplete() Creature template %"PRIu64" used by lair ", MSG_NORMAL, creatureTemplateId);
 				npc->setCreatureTemplate((uint32)i, creatureTemplateId);
 
 				spawnRate += spawnRateInc;
@@ -308,9 +313,6 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult
 				npc->setCreatureSpawnRate(static_cast<uint32>(count) - 1, 99);
 			}
 			mDatabase->DestroyDataBinding(creatureTemplateBinding);
-
-
-			// gLogger->logMsgF("NonPersistentNpcFactory::handleDatabaseJobComplete() Attempting to get the Attributes", MSG_NORMAL);
 
 			QueryNonPersistentNpcFactory* asContainer = new QueryNonPersistentNpcFactory(asyncContainer->mOfCallback,NonPersistentNpcQuery_Attributes, 0, npc->getId());
 
@@ -323,7 +325,6 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult
 
 		case NonPersistentNpcQuery_NpcTemplate:
 		{
-			// gLogger->logMsgF("NonPersistentNpcFactory::handleDatabaseJobComplete() AT NonPersistentNpcQuery_NpcTemplate:", MSG_NORMAL);
 			NPCObject* npc = _createNonPersistentNpc(result, asyncContainer->mTemplateId, asyncContainer->mId, asyncContainer->mParentObjectId);
 			assert(npc);
 
@@ -335,14 +336,11 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult
 
 			if( npc->getLoadState() == LoadState_Loaded && asyncContainer->mOfCallback)
 			{
-				// gLogger->logMsgF("NonPersistentNpcFactory::handleDatabaseJobComplete() Invoking mOfCallback->handleObjectReady(npc)", MSG_NORMAL);
 				asyncContainer->mOfCallback->handleObjectReady(npc);
 			}
 			else if (npc->getLoadState() == LoadState_Attributes)
 			{
 				QueryNonPersistentNpcFactory* asContainer = new QueryNonPersistentNpcFactory(asyncContainer->mOfCallback,NonPersistentNpcQuery_Attributes, 0, npc->getId());
-				
-				// gLogger->logMsgF("NonPersistentNpcFactory::handleDatabaseJobComplete() Invoking NonPersistentNpcQuery_Attributes NPC ID = %"PRIu64"", MSG_NORMAL, npc->getId());
 
 				mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT attributes.name,non_persistent_npc_attributes.value,attributes.internal"
 					" FROM non_persistent_npc_attributes"
@@ -354,7 +352,7 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult
 
 		default:
 		{
-			gLogger->logMsgF("NonPersistentNpcFactory::handleDatabaseJobComplete() UNKNOWN query = %u\n", MSG_NORMAL, asyncContainer->mQueryType);
+			gLogger->log(LogManager::DEBUG,"NonPersistentNpcFactory::handleDatabaseJobComplete() UNKNOWN query = %u\n", asyncContainer->mQueryType);
 		}
 		break;
 	}
@@ -377,13 +375,10 @@ NPCObject* NonPersistentNpcFactory::_createNonPersistentNpc(DatabaseResult* resu
 {
 	NpcIdentifier	npcIdentifier;
 
-	// gLogger->logMsgF("NonPersistentNpcFactory::_createNonPersistentNpc() ObjectId = %"PRIu64"", MSG_NORMAL, npcNewId);
 	uint64 count = result->getRowCount();
 
 	result->GetNextRow(mNpcIdentifierBinding,(void*)&npcIdentifier);
 	result->ResetRowIndex();
-
-	// gLogger->logMsgF("NonPersistentNpcFactory::_createNonPersistentNpc() TemplateId = %"PRIu64" ObjectId = %"PRIu64", familyId = %u controllingObject = %"PRIu64"", MSG_NORMAL, templateId, npcNewId, npcIdentifier.mFamilyId, controllingObject);
 
 	return this->createNonPersistentNpc(result, templateId, npcNewId, npcIdentifier.mFamilyId, controllingObject);
 }
@@ -422,7 +417,6 @@ NPCObject* NonPersistentNpcFactory::createNonPersistentNpc(DatabaseResult* resul
 
 		case NpcFamily_AttackableCreatures:
 		{
-			// gLogger->logMsgF("NonPersistentNpcFactory::_createNonPersistentNpc() Created a NpcFamily_AttackableCreatures", MSG_NORMAL);
 			// Stuff like npc's and womp rats :).
 			npc	= new AttackableCreature(templateId);
 		}
@@ -431,7 +425,6 @@ NPCObject* NonPersistentNpcFactory::createNonPersistentNpc(DatabaseResult* resul
 		case NpcFamily_NaturalLairs:
 		{
 			// First time lairs.
-			// gLogger->logMsgF("NonPersistentNpcFactory::createNonPersistentNpc() Created a NpcFamily_NaturalLairs", MSG_NORMAL);
 
 			//Lairs are not supported here, at least not yet.
 			assert(false && "NonPersistentNpcFactory::createNonPersistent NpcFamily_NaturalLairs Lairs are not supported here yet.");
@@ -441,7 +434,7 @@ NPCObject* NonPersistentNpcFactory::createNonPersistentNpc(DatabaseResult* resul
 
 		default:
 		{
-			gLogger->logMsgF("NonPersistentNpcFactory::createNonPersistent unknown Family %u",MSG_HIGH,familyId);
+			gLogger->log(LogManager::CRITICAL,"NonPersistentNpcFactory::createNonPersistent unknown Family %u",familyId);
 			assert(false && "NonPersistentNpcFactory::createNonPersistent unknown family");
 			npc = new NPCObject();
 		}
@@ -513,7 +506,6 @@ NPCObject* NonPersistentNpcFactory::createNonPersistentNpc(DatabaseResult* resul
 
 		// Let's put some credits in the inventory.
 		// npcInventory->setCredits((gRandom->getRand()%25) + 10);
-		// gLogger->logMsgF("NonPersistentNpcFactory::createNonPersistentNpc() WOW, I'm a lair", MSG_NORMAL);
 	}
 	else if (npc->getNpcFamily() == NpcFamily_AttackableCreatures)
 	{
@@ -545,7 +537,7 @@ NPCObject* NonPersistentNpcFactory::createNonPersistentNpc(DatabaseResult* resul
 		defaultWeapon->setParentId(npc->mId);
 		defaultWeapon->setModelString("object/weapon/melee/unarmed/shared_unarmed_default_player.iff");
 		defaultWeapon->setGroup(WeaponGroup_Unarmed);
-		defaultWeapon->setEquipSlotMask(CreatureEquipSlot_Weapon);
+		defaultWeapon->setEquipSlotMask(CreatureEquipSlot_Hold_Left);
 		defaultWeapon->addInternalAttribute("weapon_group","1");
  
 		npc->mEquipManager.setDefaultWeapon(defaultWeapon);
@@ -559,7 +551,7 @@ NPCObject* NonPersistentNpcFactory::createNonPersistentNpc(DatabaseResult* resul
 		pistol->setParentId(npc->mId);
 		pistol->setModelString("object/weapon/ranged/pistol/shared_pistol_cdef.iff");
 		pistol->setGroup(WeaponGroup_Pistol);
-		pistol->setEquipSlotMask(CreatureEquipSlot_Weapon);
+		pistol->setEquipSlotMask(CreatureEquipSlot_Hold_Left);
 		pistol->addInternalAttribute("weapon_group","32");
 		attackableNpc->setPrimaryWeapon(pistol);
 
@@ -571,7 +563,7 @@ NPCObject* NonPersistentNpcFactory::createNonPersistentNpc(DatabaseResult* resul
 		saber->setParentId(npc->mId);
 		saber->setModelString("object/weapon/melee/sword/shared_sword_lightsaber_vader.iff");
 		saber->setGroup(WeaponGroup_2h);
-		saber->setEquipSlotMask(CreatureEquipSlot_Weapon);
+		saber->setEquipSlotMask(CreatureEquipSlot_Hold_Left);
 		saber->addInternalAttribute("weapon_group","4");
 		attackableNpc->setSecondaryWeapon(saber);
 
@@ -636,8 +628,6 @@ void NonPersistentNpcFactory::_destroyDatabindings()
 //=============================================================================
 void NonPersistentNpcFactory::requestLairObject(ObjectFactoryCallback* ofCallback, uint64 lairsId, uint64 npcNewId)
 {
-	// gLogger->logMsgF("NonPersistentNpcFactory::requestLairObject() LairsId = %"PRIu64", ObjectId will be = %"PRIu64"", MSG_NORMAL, lairsId, npcNewId);
-
 	mDatabase->ExecuteSqlAsync(this,new QueryNonPersistentNpcFactory(ofCallback, NonPersistentNpcQuery_LairTemplate, lairsId, npcNewId),
 								"SELECT lairs.creature_spawn_region, lairs.lair_template, lairs.creature_group, lairs.count, lairs.spawn_x, lairs.spawn_z, "
 								"lairs.spawn_dir_Y, lairs.spawn_dir_W, "

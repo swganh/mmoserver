@@ -1,3 +1,30 @@
+/*
+---------------------------------------------------------------------------------------
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
+
+For more information, visit http://www.swganh.com
+
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
+
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+---------------------------------------------------------------------------------------
+*/
+
 #include <list>
 #include "QTRegion.h"
 #include "QuadTree.h"
@@ -31,12 +58,20 @@ public:
 		completed = false;
 
 		mForageClass = forageClass;
+
+		orig_x = player->mPosition.x;
+		orig_y = player->mPosition.y;
+		orig_z = player->mPosition.z;
 	}
 
 	uint64 startTime;
 	uint64 playerID;
 	forageClasses mForageClass;
 	bool completed;
+
+	float orig_x;
+	float orig_y;
+	float orig_z;
 };
 
 class ForagePocket
@@ -171,7 +206,6 @@ void ForageManager::startForage(PlayerObject* player, forageClasses forageClass)
 		previousHead->pNext = new_pocket;
 
 	new_pocket->addAttempt(attempt);
-	//gLogger->logMsg("NEW FORAGING ATTEMPT", FOREGROUND_RED);
 }
 
 void ForageManager::forageUpdate()
@@ -182,7 +216,6 @@ void ForageManager::forageUpdate()
 	{
 		if(it->updateAttempts(gWorldManager->GetCurrentGlobalTick())) //If true we delete this Pocket
 		{
-			//gLogger->logMsg("FORAGING TICK", FOREGROUND_RED);
 			if(previousHead == NULL)
 			{
 				pHead = it->pNext;
@@ -202,23 +235,23 @@ void ForageManager::forageUpdate()
 
 void ForageManager::failForage(PlayerObject* player, forageFails fail)
 {
-	if(!player || player->isForaging() == false)
+	if(!player || !player->isConnected())
 		return;
 
 	switch(fail)
 	{
 	case NOT_OUTSIDE:
 		gMessageLib->sendSystemMessage(player, L"", "skl_use","sys_forage_inside");
-		return;
+		break;
 	case PLAYER_MOVED:
 		gMessageLib->sendSystemMessage(player, L"", "skl_use","sys_forage_movefail");
 		break;
 	case ACTION_LOW:
 		gMessageLib->sendSystemMessage(player, L"", "skl_use","sys_forage_attrib");
-		return;
+		break;
 	case IN_COMBAT:
 		gMessageLib->sendSystemMessage(player, L"", "skl_use","sys_forage_cant");
-		return;
+		break;
 	case AREA_EMPTY:
 		gMessageLib->sendSystemMessage(player, L"", "skl_use","sys_forage_empty");
 		break;
@@ -227,7 +260,7 @@ void ForageManager::failForage(PlayerObject* player, forageFails fail)
 		break;
 	case NO_SKILL:
 		gMessageLib->sendSystemMessage(player, L"", "skl_use","sys_forage_noskill");
-		return;
+		break;
 	case ALREADY_FORAGING:
 		gMessageLib->sendSystemMessage(player, L"", "skl_use","sys_forage_already");
 		return;
@@ -250,11 +283,9 @@ bool ForagePocket::updateAttempts(uint64 currentTime)
 			delete (*it);
 			it = attempts.erase(it);
 			AttemptCount--;
-			//gLogger->logMsg("POCKET REMOVED DUE TO TIMER", FOREGROUND_RED);
 		}
 		else if((currentTime - (*it)->startTime) >= 8000 && !(*it)->completed)
 		{
-			//gLogger->logMsg("ATTEMPT FINISHED", FOREGROUND_RED);
 			PlayerObject* player = (PlayerObject*)gWorldManager->getObjectById((*it)->playerID);
 			if(player != NULL)
 			{
@@ -262,7 +293,8 @@ bool ForagePocket::updateAttempts(uint64 currentTime)
 				{
 					ForageManager::failForage(player, ENTERED_COMBAT);
 					(*it)->completed = true;
-					it++; AttemptCount++;
+					it++; 
+					AttemptCount++;
 					continue;
 				}
 
@@ -274,24 +306,36 @@ bool ForagePocket::updateAttempts(uint64 currentTime)
 				}
 				else
 				{
-					(*it)->completed = true;
 					ForageManager::failForage(player, AREA_EMPTY);
+					(*it)->completed = true;
 				}
 			}
-			it++;
 			AttemptCount++;
+			it++;
 		}
 		else
 		{
 			PlayerObject* player = (PlayerObject*)gWorldManager->getObjectById((*it)->playerID);
-			if(!(*it)->completed && player && player->checkState(CreatureState_Combat))
+			if(!(*it)->completed && player)
 			{
-				ForageManager::failForage(player, ENTERED_COMBAT);
-				(*it)->completed = true;
-			}
+				if(player->checkState(CreatureState_Combat))
+				{
+					ForageManager::failForage(player, ENTERED_COMBAT);
+					(*it)->completed = true;
+				}
 
-			it++;
+				if(!(*it)->completed)
+				{
+					if((*it)->orig_x != player->mPosition.x || (*it)->orig_y != player->mPosition.y || 
+						(*it)->orig_z != player->mPosition.z)
+					{
+						ForageManager::failForage(player, PLAYER_MOVED);
+						(*it)->completed = true;
+					}
+				}
+			}
 			AttemptCount++;
+			it++;
 		}
 	}
 

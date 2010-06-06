@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -72,7 +88,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 // This function is not used yet.
 uint64 WorldManager::getObjectOwnedBy(uint64 theOwner)
 {
-	gLogger->logMsgF("WorldManager::getObjectOwnedBy: Invoked",MSG_NORMAL);
+	gLogger->log(LogManager::DEBUG,"WorldManager::getObjectOwnedBy: Invoked");
 	ObjectMap::iterator it = mObjectMap.begin();
 	uint64 ownerId = 0;
 
@@ -81,7 +97,7 @@ uint64 WorldManager::getObjectOwnedBy(uint64 theOwner)
 		if ( ((*it).second)->getPrivateOwner() == theOwner)
 		{
 			ownerId = (*it).first;
-			gLogger->logMsgF("WorldManager::getObjectOwnedBy: Found an object with id = %"PRIu64"",MSG_NORMAL, ownerId);
+			gLogger->log(LogManager::DEBUG,"WorldManager::getObjectOwnedBy: Found an object with id = %"PRIu64"", ownerId);
 			break;
 		}
 		it++;
@@ -102,7 +118,7 @@ bool WorldManager::addObject(Object* object,bool manual)
 	//make sure objects arnt added several times!!!!
 	if(getObjectById(key))
 	{
-		gLogger->logMsgF("WorldManager::addObject Object already existant added several times or ID messup ???",MSG_HIGH);
+		gLogger->log(LogManager::NOTICE,"WorldManager::addObject Object already existant added several times or ID messup ???");
 		return false;
 	}
 
@@ -141,7 +157,8 @@ bool WorldManager::addObject(Object* object,bool manual)
 		{
 
 			PlayerObject* player = dynamic_cast<PlayerObject*>(object);
-			gLogger->logMsgF("New Player: %"PRIu64", Total Players on zone : %i",MSG_NORMAL,player->getId(),(getPlayerAccMap())->size() + 1);
+
+			gLogger->log(LogManager::DEBUG,"New Player: %"PRIu64", Total Players on zone : %i",player->getId(),(getPlayerAccMap())->size() + 1);
 			// insert into the player map
 			mPlayerAccMap.insert(std::make_pair(player->getAccountId(),player));
 
@@ -156,7 +173,7 @@ bool WorldManager::addObject(Object* object,bool manual)
 				}
 				else
 				{
-					gLogger->logMsgF("WorldManager::addObject: couldn't find cell %"PRIu64"",MSG_HIGH,player->getParentId());
+					gLogger->log(LogManager::DEBUG,"WorldManager::addObject: couldn't find cell %"PRIu64"",player->getParentId());
 				}
 			}
 			// query the rtree for the qt region we are in
@@ -164,13 +181,14 @@ bool WorldManager::addObject(Object* object,bool manual)
 			{
 				if(QTRegion* region = mSpatialIndex->getQTRegion(player->mPosition.x,player->mPosition.z))
 				{
+					player->setSubZone(region);
 					player->setSubZoneId((uint32)region->getId());
 					region->mTree->addObject(player);
 				}
 				else
 				{
 					// we should never get here !
-					gLogger->logMsg("WorldManager::addObject: could not find zone region in map");
+					gLogger->log(LogManager::DEBUG,"WorldManager::addObject: could not find zone region in map");
 					return false;
 				}
 			}
@@ -182,6 +200,7 @@ bool WorldManager::addObject(Object* object,bool manual)
 			// add ham to regeneration scheduler
 			player->getHam()->updateRegenRates();	// ERU: Note sure if this is needed here.
 			player->getHam()->checkForRegen();
+			player->getStomach()->checkForRegen();
 
 			// onPlayerEntered event, notify scripts
 			string params;
@@ -228,7 +247,7 @@ bool WorldManager::addObject(Object* object,bool manual)
 				if(cell)
 					cell->addObjectSecure(object);
 				else
-					gLogger->logMsgF("WorldManager::addObject couldn't find cell %"PRIu64"",MSG_NORMAL,parentId);
+					gLogger->log(LogManager::DEBUG,"WorldManager::addObject couldn't find cell %"PRIu64"",parentId);
 			}
 		}
 		break;
@@ -252,7 +271,7 @@ bool WorldManager::addObject(Object* object,bool manual)
 				if(cell)
 					cell->addObjectSecure(creature);
 				else
-					gLogger->logMsgF("WorldManager::addObject: couldn't find cell %"PRIu64"",MSG_HIGH,parentId);
+					gLogger->log(LogManager::DEBUG,"WorldManager::addObject: couldn't find cell %"PRIu64"",parentId);
 			}
 			else
 			{
@@ -269,7 +288,7 @@ bool WorldManager::addObject(Object* object,bool manual)
 						}
 						else
 						{
-							gLogger->logMsg("WorldManager::addObject: could not find zone region in map for creature");
+							gLogger->log(LogManager::DEBUG,"WorldManager::addObject: could not find zone region in map for creature");
 							return false;
 						}
 
@@ -303,13 +322,13 @@ bool WorldManager::addObject(Object* object,bool manual)
 
 		case ObjType_Intangible:
 		{
-			gLogger->logMsgF("Object of type ObjType_Intangible UNHANDLED in WorldManager::addObject:",MSG_HIGH);
+			gLogger->log(LogManager::NOTICE,"Object of type ObjType_Intangible UNHANDLED in WorldManager::addObject:");
 		}
 		break;
 
 		default:
 		{
-			gLogger->logMsgF("Unhandled ObjectType in WorldManager::addObject: PRId32",MSG_HIGH,object->getType());
+			gLogger->log(LogManager::CRITICAL,"Unhandled ObjectType in WorldManager::addObject: PRId32",object->getType());
 			// Please, when adding new stufff, at least take the time to add a stub for that type.
 			// Better fail always, than have random crashes.
 			assert(false && "WorldManager::addObject Unhandled ObjectType");
@@ -509,7 +528,7 @@ void WorldManager::destroyObject(Object* object)
 			params.setLength(sprintf(params.getAnsi(),"%s %s %u",getPlanetNameThis(),player->getFirstName().getAnsi(),static_cast<uint32>(mPlayerAccMap.size())));
 
 			mWorldScriptsListener.handleScriptEvent("onPlayerLeft",params);
-			// gLogger->logMsg("WorldManager::destroyObject: Player Client set to NULL");
+			// gLogger->log(LogManager::DEBUG,"WorldManager::destroyObject: Player Client set to NULL");
 			delete player->getClient();
 			player->setClient(NULL);
 			player->setConnectionState(PlayerConnState_Destroying);
@@ -548,7 +567,7 @@ void WorldManager::destroyObject(Object* object)
 				}
 				else
 				{
-					//gLogger->logMsgF("WorldManager::destroyObject: couldn't find cell %"PRIu64"",MSG_HIGH,object->getParentId());
+					//gLogger->log(LogManager::DEBUG,"WorldManager::destroyObject: couldn't find cell %"PRIu64"",object->getParentId());
 				}
 			}
 
@@ -640,7 +659,7 @@ void WorldManager::destroyObject(Object* object)
 			
 			}
 			else
-				gLogger->logMsgF("WorldManager::destroyObject: nearly did not remove: %"PRIu64"s knownObjectList",MSG_HIGH,object->getId());
+				gLogger->log(LogManager::DEBUG,"WorldManager::destroyObject: nearly did not remove: %"PRIu64"s knownObjectList",object->getId());
 
 
 			object->destroyKnownObjects();
@@ -678,14 +697,14 @@ void WorldManager::destroyObject(Object* object)
 						// however we should leave the object link in the worldmanagers Objectmap and only store references in the object
 						// we will have great trouble finding items otherwise 
 
-						//gLogger->logMsgF("WorldManager::destroyObject couldn't find cell %"PRIu64"",MSG_NORMAL,parentId);
+						//gLogger->log(LogManager::DEBUG,"WorldManager::destroyObject couldn't find cell %"PRIu64"",parentId);
 					}
 				}
 
 			}
 			else
 			{
-				gLogger->logMsgF("WorldManager::destroyObject: error removing : %"PRIu64"",MSG_HIGH,object->getId());
+				gLogger->log(LogManager::DEBUG,"WorldManager::destroyObject: error removing : %"PRIu64"",object->getId());
 			}
 			// destroy known objects
 			object->destroyKnownObjects();
@@ -702,7 +721,7 @@ void WorldManager::destroyObject(Object* object)
 			}
 			else
 			{
-				gLogger->logMsgF("Worldmanager::destroyObject: Could not find region %"PRIu64"",MSG_NORMAL,object->getId());
+				gLogger->log(LogManager::DEBUG,"Worldmanager::destroyObject: Could not find region %"PRIu64"",object->getId());
 			}
 
 			//camp regions are in here, too
@@ -710,7 +729,7 @@ void WorldManager::destroyObject(Object* object)
 			if(itQ != mQTRegionMap.end())
 			{
 				mQTRegionMap.erase(itQ);
-				gLogger->logMsgF("Worldmanager::destroyObject: qt region %"PRIu64"",MSG_HIGH,object->getId());
+				gLogger->log(LogManager::DEBUG,"Worldmanager::destroyObject: qt region %"PRIu64"",object->getId());
 			}
 
 			object->destroyKnownObjects();
@@ -720,7 +739,7 @@ void WorldManager::destroyObject(Object* object)
 
 		case ObjType_Intangible:
 		{
-			gLogger->logMsgF("Object of type ObjType_Intangible almost UNHANDLED in WorldManager::destroyObject:",MSG_HIGH);
+			gLogger->log(LogManager::DEBUG,"Object of type ObjType_Intangible almost UNHANDLED in WorldManager::destroyObject:");
 
 			// intangibles are controllers / pets in the datapad
 			// they are NOT in the world
@@ -733,7 +752,7 @@ void WorldManager::destroyObject(Object* object)
 
 		default:
 		{
-			gLogger->logMsgF("Unhandled ObjectType in WorldManager::destroyObject: %u",MSG_HIGH,(uint32)(object->getType()));
+			gLogger->log(LogManager::CRITICAL,"Unhandled ObjectType in WorldManager::destroyObject: %u",(uint32)(object->getType()));
 
 			// Please, when adding new stufff, at least take the time to add a stub for that type.
 			// Better fail always, than have random crashes.
@@ -754,7 +773,7 @@ void WorldManager::destroyObject(Object* object)
 	}
 	else
 	{
-		gLogger->logMsgF("WorldManager::destroyObject: error removing from objectmap: %"PRIu64"",MSG_HIGH,object->getId());
+		gLogger->log(LogManager::CRITICAL,"WorldManager::destroyObject: error removing from objectmap: %"PRIu64"",object->getId());
 	}
 }
 
@@ -782,7 +801,7 @@ void WorldManager::eraseObject(uint64 key)
 	}
 	else
 	{
-		gLogger->logMsgF("WorldManager::destroyObject: error removing from objectmap: %"PRIu64"",MSG_HIGH,key);
+		gLogger->log(LogManager::DEBUG,"WorldManager::destroyObject: error removing from objectmap: %"PRIu64"",key);
 	}
 }
 
@@ -798,7 +817,7 @@ void WorldManager::initObjectsInRange(PlayerObject* playerObject)
 	{
 		if(HouseObject* playerHouse = dynamic_cast<HouseObject*>(gWorldManager->getObjectById(cell->getParentId())))
 		{
-			//gLogger->logMsgF("create playerbuilding",MSG_HIGH);
+			//gLogger->log(LogManager::DEBUG,"create playerbuilding");
 			gMessageLib->sendCreateObject(playerHouse,playerObject);
 			playerHouse->addKnownObjectSafe(playerObject);
 			playerObject->addKnownObjectSafe(playerHouse);	

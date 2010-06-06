@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -55,8 +71,8 @@ class EquipManager
 		uint8				removeEquippedObject(Object* object);
 
 		// manually equip by slots given
-		uint8				addEquippedObject(uint32 slotMask,Object* object);
-		uint8				removeEquippedObject(uint32 slotMask);
+		uint8				addEquippedObject(uint64 slotMask,Object* object);
+		uint8				removeEquippedObject(uint64 slotMask);
 
 		bool				addtoEquipList(Object* object);
 
@@ -74,13 +90,13 @@ class EquipManager
 		bool				equipDefaultWeapon();
 
 		// quick slot checks
-		uint32				getEquipSlots(){ return mEquipSlots; }
-		void				setEquipSlots(uint32 slots){ mEquipSlots = slots; }
+		uint64				getEquipSlots(){ return mEquipSlots; }
+		void				setEquipSlots(uint64 slots){ mEquipSlots = slots; }
 		void				occupyEquipSlot(CreatureEquipSlot slot){ mEquipSlots = mEquipSlots | slot; }
 		void				freeEquipSlot(CreatureEquipSlot slot){ mEquipSlots = mEquipSlots & ~slot; }
 		void				toggleEquipSlot(CreatureEquipSlot slot){ mEquipSlots = mEquipSlots ^ slot; }
 		bool				checkEquipSlot(CreatureEquipSlot slot){ return((mEquipSlots & slot) == static_cast<uint32>(slot)); }
-		bool				checkEquipSlots(uint32 slots){ return((mEquipSlots & slots) == slots); }
+		bool				checkEquipSlots(uint64 slots){ return((mEquipSlots & slots) == slots); }
 
 		bool				EquipItem(Object* object);
 		bool				unEquipItem(Object* object);
@@ -94,10 +110,10 @@ class EquipManager
 		//ObjectList			mEquippedObjects;
 
 		// reference for checking race/gender restrictions
-		CreatureObject*		mParent;
+		CreatureObject*		mParent; //- we have 35 Slots
 
 		// slot bitmask for fast checks
-		uint32				mEquipSlots;
+		uint64				mEquipSlots;
 
 		// flow control
 		uint32				mEquippedObjectsUpdateCounter;

@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -177,6 +193,7 @@ class CreatureObject : public MovingObject
 		void				setLastEntertainerXP(float lastEntertainerXP){mLastEntertainerXP = lastEntertainerXP;}
 
 		bool				handlePerformanceTick(uint64 time,void* ref);
+		bool				handleImagedesignerTimeOut(uint64 time,void* ref);
 
 		PerformingState		getPerformingState() const { return mPendingPerform; }
 		void				setPerformingState(PerformingState state){ mPendingPerform = state; }
@@ -248,13 +265,7 @@ class CreatureObject : public MovingObject
 		virtual void		killEvent(void) { }
 		virtual void		respawn(void) { }
 
-		//pet,mount,vehicle
-		uint64				getOwner() { return mOwner; }
-		void				setOwner(uint64 owner_id) { mOwner = owner_id; }
-
-		uint64				getPetController(){ return mController;}
-		void				setPetController(uint64 c){mController = c;}
-
+		
 		// flow control vars
 		uint64				mTargetId;
 		uint32				mDefenderUpdateCounter;
@@ -291,12 +302,11 @@ class CreatureObject : public MovingObject
 		PerformingPause		mPerformancePaused;
 		PerformingState		mPendingPerform;
 
-		uint64				mController;
 		uint64				mCurrentIncapTime;
 		uint64				mEntertainerListenToId;
 		uint64				mFirstIncapTime;
 		uint64				mGroupId;
-		uint64				mOwner; //If creature is a mount,pet,or vehicle it has an owner
+	
 		uint64				mState; //char states like peace, combat etc
 		float				mLastEntertainerXP;
 		float				mScale;
@@ -322,6 +332,7 @@ class CreatureObject : public MovingObject
 
 	public:
 
+		void				ClearAllBuffs();
 		void				AddBuff(Buff* buff,  bool stackable = false, bool overwrite = false);
 		void				RemoveBuff(Buff* buff);
 		void				CleanUpBuffs();

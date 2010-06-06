@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -33,7 +49,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "ZoneServer/PlayerObject.h"
 #include "ZoneServer/ResourceContainer.h"
 #include "ZoneServer/UIOpcodes.h"
-#include "ZoneServer/Vehicle.h"
+#include "ZoneServer/VehicleController.h"
 #include "ZoneServer/Wearable.h"
 #include "ZoneServer/WorldConfig.h"
 #include "ZoneServer/WorldManager.h"
@@ -90,19 +106,14 @@ MessageLib::~MessageLib()
 // Checks the validity of the player in the global map
 //
 bool MessageLib::_checkPlayer(const PlayerObject* const player) const
-{
-	if(!player)
-		return false;
+{	
+	//player gets PlayerConnState_LinkDead when he disconnects but is still in the world
+	//we in theory could still send updates 
+	//return((player->isConnected())&&(player->getClient()));
+ 
+	//the idea is that this check gets useless when the SI / knownobjectscode is stable
 
-	//PlayerObject* tested = gWorldManager->getPlayerByAccId(player->getAccountId());
-
-	//if(!tested)
-	//{
-	//	gLogger->logMsgF("Player account (%u) invalid",MSG_NORMAL,player->getAccountId());
-	//	return false;
-	//}
-
-	return((player->isConnected())&&(player->getClient()));
+	return((player)&&(player->getClient()));
 }
 
 //======================================================================================================================
@@ -113,7 +124,7 @@ bool MessageLib::_checkPlayer(uint64 playerId) const
 
 	if(!tested)
 	{
-		gLogger->logMsgF("Player Id (%I64u) invalid",MSG_NORMAL,playerId);
+		gLogger->log(LogManager::NOTICE,"Player Id (%I64u) invalid",playerId);
 		return false;
 	}
 
@@ -124,9 +135,7 @@ bool MessageLib::_checkPlayer(uint64 playerId) const
 //send movement based on messageheap size and distance
 bool MessageLib::_checkDistance(const glm::vec3& mPosition1, Object* object, uint32 heapWarningLevel)
 {
-	if(mMessageFactory->getHeapsize() > 98.0)
-		return false;
-
+	
 	//just send everything we have
 	if(heapWarningLevel < 4)
 		return true;
@@ -175,29 +184,57 @@ void MessageLib::_sendToInRangeUnreliable(Message* message, Object* const object
 	PlayerObjectSet::iterator	playerIt		= inRangePlayers->begin();
 
 	bool failed = false;
-	while(playerIt != inRangePlayers->end())
-	{
-		if(_checkPlayer((*playerIt)))
-		{
-			bool yn = _checkDistance((*playerIt)->mPosition,object,mMessageFactory->HeapWarningLevel());
-			if(yn)
-			{
-				// clone our message
-				mMessageFactory->StartMessage();
-				mMessageFactory->addData(message->getData(),message->getSize());
+	//save us some cycles if traffic is low
 
-				((*playerIt)->getClient())->SendChannelAUnreliable(mMessageFactory->EndMessage(),(*playerIt)->getAccountId(),CR_Client,static_cast<uint8>(priority));
-			}
+	if(mMessageFactory->HeapWarningLevel() <= 4)
+	{
+		while(playerIt != inRangePlayers->end())
+ 		{
+			if(_checkPlayer((*playerIt)))
+			{
+ 				// clone our message
+ 				mMessageFactory->StartMessage();
+ 				mMessageFactory->addData(message->getData(),message->getSize());
+ 
+ 				((*playerIt)->getClient())->SendChannelAUnreliable(mMessageFactory->EndMessage(),(*playerIt)->getAccountId(),CR_Client,static_cast<uint8>(priority));		
+ 			}
 			else
 			{
+				//an invalid player at this point is like armageddon and Ultymas birthday combined at one time
+				assert(false && "Invalid Player in sendtoInrange");
 				failed = true;
-			}
-		}
-
-		++playerIt;
+ 			}
+	
+			++playerIt;
+ 		}
+ 
+		if( failed)
+			gLogger->log(LogManager::NOTICE,"MessageLib Heap Protection engaged Heap Warning Level %u Heap size %f",mMessageFactory->HeapWarningLevel(),mMessageFactory->getHeapsize());
 	}
-	if( failed)
-		gLogger->logMsgF("MessageLib Heap Protection engaged Heap Warning Level %u Heap size %f",MSG_NORMAL,mMessageFactory->HeapWarningLevel(),mMessageFactory->getHeapsize());
+	else
+	{
+		while(playerIt != inRangePlayers->end())
+		{
+			if(_checkPlayer((*playerIt)))
+			{
+				bool yn = _checkDistance((*playerIt)->mPosition,object,mMessageFactory->HeapWarningLevel());
+				if(yn)
+				{
+					// clone our message
+					mMessageFactory->StartMessage();
+					mMessageFactory->addData(message->getData(),message->getSize());
+	
+					((*playerIt)->getClient())->SendChannelAUnreliable(mMessageFactory->EndMessage(),(*playerIt)->getAccountId(),CR_Client,static_cast<uint8>(priority));
+				}
+				else
+				{
+					failed = true;
+				}
+			}
+			++playerIt;
+		}
+	
+	}
 
 	if(toSelf)
 	{
@@ -370,7 +407,7 @@ bool MessageLib::sendEquippedItems(PlayerObject* srcObject,PlayerObject* targetO
 			}
 			else
 			{
-				gLogger->logMsgF("MssageLib send equipped objects: Its not equipped ... %I64u",MSG_NORMAL,item->getId());
+				gLogger->log(LogManager::DEBUG,"MessageLib send equipped objects: Its not equipped ... %I64u",item->getId());
 			}
 		}
 
@@ -468,7 +505,7 @@ bool MessageLib::sendCreatePlayer(PlayerObject* playerObject,PlayerObject* targe
 		}
 
 		// mission bag
-		if(TangibleObject* missionBag = dynamic_cast<TangibleObject*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_MissionBag)))
+		if(TangibleObject* missionBag = dynamic_cast<TangibleObject*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Mission)))
 		{
 			gMessageLib->sendCreateTangible(missionBag,playerObject);
 
@@ -491,7 +528,8 @@ bool MessageLib::sendCreatePlayer(PlayerObject* playerObject,PlayerObject* targe
 		}
 
 		// datapad
-		if(TangibleObject* datapad = dynamic_cast<TangibleObject*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad)))
+		Datapad* datapad			= playerObject->getDataPad();
+		if(datapad)
 		{
 			//would be nice to use the tangibles objectcontainer for the datapad
 			//need to get missionobjects intangibles, Man Schematics, waypoints and stuff in though, so better do it manually
@@ -527,9 +565,9 @@ bool MessageLib::sendCreatePlayer(PlayerObject* playerObject,PlayerObject* targe
 						case ItnoGroup_Vehicle:
 						{
 							// set Owner for vehicles
-							if(Vehicle* vehicle = dynamic_cast<Vehicle*>(itno))
+							if(VehicleController* vehicle = dynamic_cast<VehicleController*>(itno))
 							{
-								vehicle->setOwner(playerObject);
+								vehicle->set_owner(playerObject);
 							}
 						}
 						break;
@@ -634,15 +672,9 @@ void MessageLib::sendCreateTangible(TangibleObject* tangibleObject, PlayerObject
 
 bool MessageLib::sendCreateStaticObject(TangibleObject* tangibleObject,PlayerObject* targetObject)
 {
-	if(!_checkPlayer(targetObject))
+	if(!_checkPlayer(targetObject) || !tangibleObject)
 	{
-		gLogger->logMsgF("MessageLib::sendCreateStaticObject No valid player :(",MSG_HIGH);
-		return(false);
-	}
-
-	if(!tangibleObject)
-	{
-		gLogger->logMsgF("MessageLib::sendCreateStaticObject No valid object :(",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG,"MessageLib::sendCreateStaticObject No valid player");
 		return(false);
 	}
 	
@@ -660,15 +692,9 @@ bool MessageLib::sendCreateStaticObject(TangibleObject* tangibleObject,PlayerObj
 //
 bool MessageLib::sendCreateInTangible(IntangibleObject* intangibleObject,uint64 containmentId,PlayerObject* targetObject) 
 {
-	if(!_checkPlayer(targetObject))
+	if(!_checkPlayer(targetObject) || !intangibleObject)
 	{
-		gLogger->logMsgF("MessageLib::sendCreateInTangible No valid player :(",MSG_HIGH);
-		return(false);
-	}
-
-	if(!intangibleObject)
-	{
-		gLogger->logMsgF("MessageLib::sendCreateInTangible No valid intangible :(",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG,"MessageLib::sendCreateInTangible No valid player");
 		return(false);
 	}
 
@@ -689,11 +715,9 @@ bool MessageLib::sendCreateInTangible(IntangibleObject* intangibleObject,uint64 
 //
 bool MessageLib::sendCreateTangible(TangibleObject* tangibleObject,PlayerObject* targetObject, bool sendchildren) 
 {
-	//gLogger->logMsgF("MessageLib::send create tangible  %I64u name %s",MSG_HIGH,tangibleObject->getId(),tangibleObject->getName().getAnsi());
-
 	if(!_checkPlayer(targetObject))
 	{
-		gLogger->logMsgF("MessageLib::sendCreateTangible No valid player :(",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG,"MessageLib::sendCreateTangible No valid player");
 		return(false);
 	}
 
@@ -756,13 +780,12 @@ bool MessageLib::sendCreateTangible(TangibleObject* tangibleObject,PlayerObject*
 	ObjectIDList*			ol = tangibleObject->getObjects();
 	ObjectIDList::iterator	it = ol->begin();
 
-	//gLogger->logMsgF("Now add our children (container %I64u)",MSG_HIGH,tangibleObject->getId());
 	while(it != ol->end())
 	{
 		TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)));
 		if(!tO)
 		{
-			gLogger->logMsgF("Unable to find object with ID %PRIu64", MSG_HIGH, (*it));
+			gLogger->log(LogManager::DEBUG,"Unable to find object with ID %PRIu64", (*it));
 			it++;
 			continue;
 		}
@@ -807,7 +830,7 @@ bool MessageLib::sendCreateFactoryCrate(FactoryCrate* crate,PlayerObject* target
 		TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)));
 		if(!tO)
 		{
-			gLogger->logMsgF("Unable to find object with ID %PRIu64", MSG_HIGH, (*it));
+			gLogger->log(LogManager::DEBUG,"Unable to find object with ID %PRIu64", (*it));
 			continue;
 		}
 
@@ -866,7 +889,6 @@ bool MessageLib::sendCreateBuilding(BuildingObject* buildingObject,PlayerObject*
 	//perhaps move to on cell basis sometime ?
 	if(HouseObject* house = dynamic_cast<HouseObject*>(buildingObject))
 	{
-		//gLogger->logMsgF("check cell permission",MSG_NORMAL);
 		house->checkCellPermission(playerObject);
 		publicBuilding = buildingObject->getPublic();
 	}
@@ -922,8 +944,6 @@ bool MessageLib::sendCreateHarvester(HarvesterObject* harvester,PlayerObject* pl
 	if(!_checkPlayer(player))
 		return(false);
 
-	//gLogger->logMsgF("MessageLib::sendCreateHarvester:ID %I64u parentId %I64u x : %f   y : %f",MSG_HIGH,harvester->getId(),harvester->getParentId(),harvester->mPosition.x,harvester->mPosition.z);
-
 	sendCreateObjectByCRC(harvester,player,false);
 
 	sendBaselinesHINO_3(harvester,player);
@@ -948,8 +968,6 @@ bool MessageLib::sendCreateFactory(FactoryObject* factory,PlayerObject* player)
 {
 	if(!_checkPlayer(player))
 		return(false);
-
-	//gLogger->logMsgF("MessageLib::sendCreateHarvester:ID %I64u parentId %I64u x : %f   y : %f",MSG_HIGH,harvester->getId(),harvester->getParentId(),harvester->mPosition.x,harvester->mPosition.z);
 
 	sendCreateObjectByCRC(factory,player,false);
 
@@ -999,7 +1017,7 @@ bool MessageLib::sendCreateStructure(PlayerStructure* structure,PlayerObject* pl
 		return(sendCreateInstallation(structure, player));
 	}
 
-	gLogger->logMsgF("MessageLib::sendCreateStructure:ID %I64u : couldnt cast structure",MSG_HIGH,structure->getId());
+	gLogger->log(LogManager::DEBUG,"MessageLib::sendCreateStructure:ID %I64u : couldnt cast structure",structure->getId());
 
 	return(false);
 }
@@ -1089,7 +1107,6 @@ void MessageLib::sendInventory(PlayerObject* playerObject)
 		return;
 
 	inventory->setTypeOptions(256);
-	//gLogger->logMsgF("MessageLib::inventory: ID %I64u parentId %I64u",MSG_HIGH,inventory->getId(),inventory->getParentId());
 
 	//todo - just use sendcreate tangible and have it send the children, too!!!!
 
@@ -1120,14 +1137,11 @@ void MessageLib::sendInventory(PlayerObject* playerObject)
 	{
 		if(TangibleObject* tangible = dynamic_cast<TangibleObject*>(*objEIt))
 		{
-			//gLogger->logMsgF("MessageLib::inventory: equipped tangible %I64u parentId %I64u",MSG_HIGH,tangible->getId(),tangible->getParentId());
 			sendCreateTangible(tangible,playerObject);
 		}
 
 		++objEIt;
 	}
-
-	//gLogger->logMsgF("MessageLib::inventory: end",MSG_HIGH);
 }
 
 //======================================================================================================================
@@ -1138,7 +1152,7 @@ bool MessageLib::sendCreateObject(Object* object,PlayerObject* player,bool sendS
 {
 	if(!object)
 	{
-		gLogger->logMsg("Attempting sendCreateObject on an invalid object instance", MSG_HIGH);
+		gLogger->log(LogManager::DEBUG,"Attempting sendCreateObject on an invalid object instance");
 		return false;
 	}
 
@@ -1263,7 +1277,7 @@ bool MessageLib::sendCreateObject(Object* object,PlayerObject* player,bool sendS
 		// unknown types
 		default:
 		{
-			gLogger->logMsgF("MessageLib::createObject: Unhandled object type: %i",MSG_HIGH,object->getType());
+			gLogger->log(LogManager::DEBUG,"MessageLib::createObject: Unhandled object type: %i",object->getType());
 		}
 		break;
 	}

@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -181,11 +197,11 @@ void SocketReadThread::run(void)
 
 				if(FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, errorNr, MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT),(LPTSTR)errorMsg, (sizeof(errorMsg) / sizeof(TCHAR)) - 1, NULL))
 				{
-					gLogger->logMsgF("Error(recvFrom): %S", MSG_NORMAL,errorMsg);
+					gLogger->log(LogManager::WARNING, "Error(recvFrom): %s",errorMsg);
 				}
 				else
 				{
-					gLogger->logMsgF("Error(recvFrom): %i", MSG_NORMAL,errorNr);
+					gLogger->log(LogManager::WARNING, "Error(recvFrom): %i",errorNr);
 				}
 					
 #elif(ANH_PLATFORM == ANH_PLATFORM_LINUX)
@@ -198,7 +214,7 @@ void SocketReadThread::run(void)
 
 			if(recvLen > mMessageMaxSize)
 			{
-				gLogger->logMsgF("*** Received Size > mMessageMaxSize: %u", MSG_NORMAL, recvLen);
+				gLogger->log(LogManager::NOTICE, "Socket Read Thread Received Size > mMessageMaxSize: %u", recvLen);
 			}
 
 			// Get our remote Address and port
@@ -213,8 +229,6 @@ void SocketReadThread::run(void)
 
 			uint8  packetTypeLow	= mReceivePacket->peekUint8();
 			uint16 packetType		= mReceivePacket->getUint16();
-
-			//gLogger->logMsgF("FromWire, Type:0x%.4x, size:%u, IP:0x%.8x, port:%u", MSG_LOW, packetType, recvLen, address, ntohs(port));
 
 			boost::mutex::scoped_lock lk(mSocketReadMutex);
 
@@ -241,11 +255,11 @@ void SocketReadThread::run(void)
 					mSocketWriteThread->NewSession(session);
 					session->mHash = hash;
 
-					gLogger->logMsgF("Added Service %i: New Session(%s, %u), AddressMap: %i",MSG_HIGH,mSessionFactory->getService()->getId(), inet_ntoa(from.sin_addr), ntohs(session->getPort()), mAddressSessionMap.size());
+					gLogger->log(LogManager::DEBUG, "Added Service %i: New Session(%s, %u), AddressMap: %i",mSessionFactory->getService()->getId(), inet_ntoa(from.sin_addr), ntohs(session->getPort()), mAddressSessionMap.size());
 				}
 				else
 				{
-					gLogger->logMsgF("*** Session not found.  Packet dropped. Type:0x%.4x", MSG_NORMAL, packetType);
+					gLogger->log(LogManager::WARNING, "Socket Read Thread Session not found. Type:0x%.4x", packetType);
 
 					lk.unlock();
 
@@ -282,13 +296,11 @@ void SocketReadThread::run(void)
 						uint8 crcLow  = (uint8)*(mReceivePacket->getData() + recvLen - 1);
 						uint8 crcHigh = (uint8)*(mReceivePacket->getData() + recvLen - 2);
 
-						//gLogger->logMsgF("checking CRC. key:0x%.8x crc:0x%.4x low:0x%.2x high:0x%.2x len:%u", MSG_LOW, session->getEncryptKey(), packetCrc, crcLow, crcHigh, recvLen);
-
 						if (crcLow != (uint8)packetCrc || crcHigh != (uint8)(packetCrc >> 8))
 						{
 							// CRC mismatch.  Dropping packet.
 							//gLogger->hexDump(mReceivePacket->getData(),mReceivePacket->getSize());
-							gLogger->logMsgF("DIS/ACK/ORDER/PING dropped.",MSG_NORMAL);
+							gLogger->log(LogManager::DEBUG, "DIS/ACK/ORDER/PING dropped.");
 							continue;
 						}
 
@@ -296,7 +308,6 @@ void SocketReadThread::run(void)
 						mCompCryptor->Decrypt(mReceivePacket->getData() + 2, recvLen - 4, session->getEncryptKey());
 
 						// Send the packet to the session.
-						//gLogger->logMsgF("DIS/ACK/ORDER size:%u",MSG_NORMAL,recvLen);
 						session->HandleSessionPacket(mReceivePacket);
 						mReceivePacket = mPacketFactory->CreatePacket();
 					}
@@ -320,16 +331,12 @@ void SocketReadThread::run(void)
 						uint8 crcLow  = (uint8)*(mReceivePacket->getData() + recvLen - 1);
 						uint8 crcHigh = (uint8)*(mReceivePacket->getData() + recvLen - 2);
 
-						//gLogger->logMsgF("checking CRC. key:0x%.8x crc:0x%.4x low:0x%.2x high:0x%.2x len:%u", MSG_LOW, session->getEncryptKey(), packetCrc, crcLow, crcHigh, recvLen);
-
 						if (crcLow != (uint8)packetCrc || crcHigh != (uint8)(packetCrc >> 8))
 						{
 							// CRC mismatch.  Dropping packet.
 
-							gLogger->logMsgF("*** Reliable Packet dropped. %X CRC mismatch.",MSG_NORMAL,packetType);
+							gLogger->log(LogManager::NOTICE, "Socket Read Thread: Reliable Packet dropped. %X CRC mismatch.", packetType);
 							mCompCryptor->Decrypt(mReceivePacket->getData() + 2, recvLen - 4, session->getEncryptKey());  // don't hardcode the header buffer or CRC len.
-
-							gLogger->hexDump(mReceivePacket->getData(),mReceivePacket->getSize());
 							continue;
 						}
 
@@ -363,7 +370,6 @@ void SocketReadThread::run(void)
 					//case SESSIONOP_Reset:
 					{
 						// Send the packet to the session.
-						//gLogger->logMsgF("SESSION size:%u",MSG_NORMAL,recvLen);
 
 						session->HandleSessionPacket(mReceivePacket);
 						mReceivePacket = mPacketFactory->CreatePacket();
@@ -372,7 +378,7 @@ void SocketReadThread::run(void)
 
 					default:
 					{
-						gLogger->logMsgF("SocketReadThread: Dont know what todo with this packet! --tmr",MSG_NORMAL);
+						gLogger->log(LogManager::NOTICE, "SocketReadThread: Dont know what todo with this packet! --tmr <3");
 					}
 					break;
 
@@ -386,12 +392,10 @@ void SocketReadThread::run(void)
 				uint8	crcLow		= (uint8)*(mReceivePacket->getData() + recvLen - 1);
 				uint8	crcHigh		= (uint8)*(mReceivePacket->getData() + recvLen - 2);
 
-				//gLogger->logMsgF("checking CRC. key:0x%.8x crc:0x%.4x low:0x%.2x high:0x%.2x len:%u", MSG_LOW, session->getEncryptKey(), packetCrc, crcLow, crcHigh, recvLen);
-
 				if(crcLow != (uint8)packetCrc || crcHigh != (uint8)(packetCrc >> 8))
 				{
 					// CRC mismatch.  Dropping packet.
-					gLogger->logMsg("*** Packet dropped.  CRC mismatch.",MSG_NORMAL);
+					gLogger->log(LogManager::NOTICE, "Packet dropped.  CRC mismatch.");
 					continue;
 				}
 
@@ -456,7 +460,7 @@ void SocketReadThread::RemoveAndDestroySession(Session* session)
 	// Find and remove the session from the address map.
 	uint64 hash = session->getAddress() | (((uint64)session->getPort()) << 32);
 
-	gLogger->logMsgF("Service %i: Removing Session(%s, %u), AddressMap: %i hash %I64u",MSG_NORMAL,mSessionFactory->getService()->getId(), inet_ntoa(*((in_addr*)(&hash))), ntohs(session->getPort()), mAddressSessionMap.size() - 1,hash);
+	gLogger->log(LogManager::INFORMATION, "Service %i: Removing Session(%s, %u), AddressMap: %i hash %I64u", mSessionFactory->getService()->getId(), inet_ntoa(*((in_addr*)(&hash))), ntohs(session->getPort()), mAddressSessionMap.size() - 1,hash);
 	
 	boost::mutex::scoped_lock lk(mSocketReadMutex);
 										
@@ -470,7 +474,7 @@ void SocketReadThread::RemoveAndDestroySession(Session* session)
 	}
 	else
 	{
-		gLogger->logMsgF("Service %i: Removing Session FAILED(%s, %u), AddressMap: %i hash %I64u",MSG_NORMAL,mSessionFactory->getService()->getId(), inet_ntoa(*((in_addr*)(&hash))), ntohs(session->getPort()), mAddressSessionMap.size(),hash);
+		gLogger->log(LogManager::WARNING, "Service %i: Removing Session FAILED(%s, %u), AddressMap: %i hash %I64u",mSessionFactory->getService()->getId(), inet_ntoa(*((in_addr*)(&hash))), ntohs(session->getPort()), mAddressSessionMap.size(),hash);
 	}
 }
 

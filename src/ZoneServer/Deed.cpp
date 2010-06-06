@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -18,7 +34,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "PlayerObject.h"
 #include "ScoutManager.h"
 #include "StructureManager.h"
-#include "VehicleFactory.h"
+#include "VehicleControllerFactory.h"
 #include "WorldManager.h"
 #include "ZoneOpcodes.h"
 
@@ -50,14 +66,15 @@ void Deed::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 		{
 			case radId_itemUse:
 			{
+
 				if(this->getItemType() >= ItemType_Deed_X34 && this->getItemType() <= ItemType_Deed_Swoop) //landspeeder x34, speederbike, swoop
 				{
 					// create the vehicle and put in datapad
-					Datapad*		datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+					Datapad*		datapad = player->getDataPad();
 
 					if(datapad->getCapacity())
 					{
-						gVehicleFactory->createVehicle(this->getItemType(),player);
+						gVehicleControllerFactory->createVehicle(this->getItemType(),player);
 
 						Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 						inventory->removeObject(this);
@@ -72,6 +89,15 @@ void Deed::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 				}
 				else
 				{
+					//todo : check if the type of building is allowed on the planet
+
+					//check the region whether were allowed to build
+					if(!gStructureManager->checkCityRadius(player))
+					{
+						gMessageLib->sendSystemMessage(player,L"","faction_perk","no_build_area");
+						return;
+					}
+
 					//enter deed placement mode
 					StructureDeedLink* data = gStructureManager->getDeedData(this->getItemType());
 					if(!data)
@@ -197,8 +223,6 @@ void Deed::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCou
 			}
 			else
 				radial->addItem((*it)->sItem,(*it)->sSubMenu,(RadialIdentifier)(*it)->sIdentifier,radAction_Default,"");
-
-			//gLogger->logMsgF("menu item id : %u",MSG_HIGH,(*it)->sIdentifier);
 			it++;
 		}
 	}

@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -307,7 +323,7 @@ void MessageLib::sendUpdateTransformMessage(MovingObject* object)
 	mMessageFactory->addUint32(object->getInMoveCount()); 
 
     mMessageFactory->addUint8(static_cast<uint8>(glm::length(object->mPosition) * 4.0f + 0.5f));
-    mMessageFactory->addUint8(static_cast<uint8>(glm::gtx::quaternion::angle(object->mDirection) / 0.0625f)); 
+    mMessageFactory->addUint8(static_cast<uint8>(object->rotation_angle() / 0.0625f)); 
 
 	_sendToInRangeUnreliable(mMessageFactory->EndMessage(),object,8,true);
 }
@@ -333,9 +349,9 @@ void MessageLib::sendUpdateTransformMessageWithParent(MovingObject* object)
 	mMessageFactory->addUint32(object->getInMoveCount()); 
             
     mMessageFactory->addUint8(static_cast<uint8>(glm::length(object->mPosition) * 8.0f + 0.5f));
-    mMessageFactory->addUint8(static_cast<uint8>(glm::gtx::quaternion::angle(object->mDirection) / 0.0625f)); 
+    mMessageFactory->addUint8(static_cast<uint8>(object->rotation_angle() / 0.0625f)); 
 
-	_sendToInRangeUnreliable(mMessageFactory->EndMessage(),object,8,false);		
+	_sendToInRangeUnreliable(mMessageFactory->EndMessage(),object,8);		
 }
 
 //======================================================================================================================
@@ -358,7 +374,7 @@ void MessageLib::sendUpdateTransformMessage(MovingObject* object, PlayerObject* 
 	mMessageFactory->addUint32(object->getInMoveCount()); 
             
     mMessageFactory->addUint8(static_cast<uint8>(glm::length(object->mPosition) * 4.0f + 0.5f));
-    mMessageFactory->addUint8(static_cast<uint8>(glm::gtx::quaternion::angle(object->mDirection) / 0.0625f)); 
+    mMessageFactory->addUint8(static_cast<uint8>(object->rotation_angle() / 0.0625f)); 
 
 	_sendToInstancedPlayersUnreliable(mMessageFactory->EndMessage(), 8, player);
 }
@@ -384,7 +400,7 @@ void MessageLib::sendUpdateTransformMessageWithParent(MovingObject* object, Play
 	mMessageFactory->addUint32(object->getInMoveCount()); 
             
     mMessageFactory->addUint8(static_cast<uint8>(glm::length(object->mPosition) * 8.0f + 0.5f));
-    mMessageFactory->addUint8(static_cast<uint8>(glm::gtx::quaternion::angle(object->mDirection) / 0.0625f)); 
+    mMessageFactory->addUint8(static_cast<uint8>(object->rotation_angle() / 0.0625f)); 
 
 	_sendToInstancedPlayersUnreliable(mMessageFactory->EndMessage(), 8, player);
 }
@@ -1376,17 +1392,12 @@ bool MessageLib::broadcastContainmentMessage(uint64 objectId,uint64 parentId,uin
 // updates an object parent<->child relationship
 // Used when Creatures updates their cell positions.
 //
-bool MessageLib::broadcastContainmentMessage(uint64 objectId,uint64 parentId,uint32 linkType,Object* targetObject)
+bool MessageLib::broadcastContainmentMessage(Object* targetObject,uint64 parentId,uint32 linkType)
 {
-	if(!targetObject)
-	{
-		return(false);
-	}
-
 	mMessageFactory->StartMessage();
 	mMessageFactory->addUint32(opUpdateContainmentMessage);  
 
-	mMessageFactory->addUint64(objectId);  
+	mMessageFactory->addUint64(targetObject->getId());  
 	mMessageFactory->addUint64(parentId);
 	mMessageFactory->addUint32(linkType);				
 

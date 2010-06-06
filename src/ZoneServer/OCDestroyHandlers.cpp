@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 #include "CraftingTool.h"
@@ -18,7 +34,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "ObjectControllerCommandMap.h"
 #include "ObjectFactory.h"
 #include "PlayerObject.h"
-#include "Vehicle.h"
+#include "VehicleController.h"
 
 //#include "IntangibleObject.h"
 #include "ResourceContainer.h"
@@ -43,7 +59,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 void ObjectController::destroyObject(uint64 objectId)
 {
 	PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
-	Datapad*		datapad			= dynamic_cast<Datapad*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+	Datapad* datapad				= playerObject->getDataPad();
 	Object*			object			= gWorldManager->getObjectById(objectId);
 
 	//could be a schematic!
@@ -70,7 +86,7 @@ void ObjectController::destroyObject(uint64 objectId)
 	// or something else
 	if(object == NULL)
 	{
-		gLogger->logMsgF("ObjController::destroyObject: could not find object %"PRIu64"",MSG_NORMAL,objectId);
+		gLogger->log(LogManager::DEBUG,"ObjController::destroyObject: could not find object %"PRIu64"",objectId);
 
 		return;
 	}
@@ -81,7 +97,7 @@ void ObjectController::destroyObject(uint64 objectId)
 		// update our datapad
 		if(!(datapad->removeWaypoint(objectId)))
 		{
-			gLogger->logMsgF("ObjController::handleDestroyObject: Error removing Waypoint from datapad %"PRIu64"",MSG_NORMAL,objectId);
+			gLogger->log(LogManager::DEBUG,"ObjController::handleDestroyObject: Error removing Waypoint from datapad %"PRIu64"",objectId);
 		}
 
 		gMessageLib->sendUpdateWaypoint(dynamic_cast<WaypointObject*>(object),ObjectUpdateDelete,playerObject);
@@ -98,16 +114,18 @@ void ObjectController::destroyObject(uint64 objectId)
 		//update the datapad
 		if(!(datapad->removeData(objectId)))
 		{
-			gLogger->logMsgF("ObjController::handleDestroyObject: Error removing Data from datapad %"PRIu64"",MSG_NORMAL,objectId);
+			gLogger->log(LogManager::DEBUG,"ObjController::handleDestroyObject: Error removing Data from datapad %"PRIu64"",objectId);
 		}
 
-		if(Vehicle* vehicle = dynamic_cast<Vehicle*>(object))
+		if(VehicleController* vehicle = dynamic_cast<VehicleController*>(object))
 		{
-			vehicle->store();
+			vehicle->Store();
 		}
 		
 		gObjectFactory->deleteObjectFromDB(object);
 		gMessageLib->sendDestroyObject(objectId,playerObject);
+
+		delete(object);
 
 	}
 
@@ -116,25 +134,11 @@ void ObjectController::destroyObject(uint64 objectId)
 	else if(object->getType() == ObjType_Tangible)
 	{
 		TangibleObject* tangibleObject = dynamic_cast<TangibleObject*>(object);
+		Inventory* inventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 
 		// items
 		if(Item* item = dynamic_cast<Item*>(tangibleObject))
 		{
-			// Does the item have a owner?
-			/*
-			if (item->getOwner() != 0)
-			{
-				gLogger->logMsgF("ObjController::handleDestroyObject: OwnerId = %"PRIu64", playerId = %"PRIu64"", MSG_NORMAL, item->getOwner(), playerObject->getId());
-				// Yes, is it my item?
-				if (item->getOwner() != playerObject->getId())
-				{
-					// Not allowed to delete this item.
-					gMessageLib->sendSystemMessage(playerObject,L"","error_message","insufficient_permissions");
-					return;
-				}
-			}
-			*/
-
 			// handle any family specifics
 			switch(item->getItemFamily())
 			{
@@ -144,53 +148,38 @@ void ObjectController::destroyObject(uint64 objectId)
 				default:break;
 			}
 
-			// destroy it for the player
-			gMessageLib->sendDestroyObject(objectId,playerObject);
-
-			// Also update the world...if the object is not private.
-			if ((item->getParentId() != playerObject->getId()) && (item->getParentId() != dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getId()))
-			{
-				PlayerObjectSet* inRangePlayers	= playerObject->getKnownPlayers();
-				PlayerObjectSet::iterator it = inRangePlayers->begin();
-				while(it != inRangePlayers->end())
-				{
-					PlayerObject* targetObject = (*it);
-					gMessageLib->sendDestroyObject(tangibleObject->getId(),targetObject);
-					targetObject->removeKnownObject(tangibleObject);
-					++it;
-				}
-				tangibleObject->destroyKnownObjects();
-			}
-
 			// update the equiplist, if its an equipable item
 			CreatureObject* creature = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(item->getParentId()));
 			if(creature)
 			{
 				// remove from creatures slotmap
-				playerObject->getEquipManager()->removeEquippedObject(object);
+				creature->getEquipManager()->removeEquippedObject(object);
+
+				//unequip it
+				object->setParentId(inventory->getId());
+				gMessageLib->sendContainmentMessage_InRange(object->getId(),inventory->getId(),0xffffffff,creature);
 
 				// send out the new equiplist
-				gMessageLib->sendEquippedListUpdate_InRange(playerObject);
-
-				// destroy it for players in range
-				PlayerObjectSet* objList		= playerObject->getKnownPlayers();
-				PlayerObjectSet::iterator it	= objList->begin();
-
-				while(it != objList->end())
-				{
-					gMessageLib->sendDestroyObject(objectId,(*it));
-
-					++it;
-				}
+				gMessageLib->sendEquippedListUpdate_InRange(creature);				
 			}
 		}
-		else
-		if(ResourceContainer* container = dynamic_cast<ResourceContainer*>(object))
+		//tangible includes items and resourcecontainers
+		if(TangibleObject* tangible = dynamic_cast<TangibleObject*>(object))
 		{
-			//gLogger->logMsg("destroy ressourcecontainer");
-			gMessageLib->sendDestroyObject(container->getId(),playerObject);
-		}
+			//if(tangible->getObjectMainParent(object) != inventory->getId())
+			if(tangibleObject->getKnownPlayers()->size())
+			{
+				//this automatically destroys the object for the players in its vicinity
+				tangibleObject->destroyKnownObjects();
+			}
+			else
+			{
+				// destroy it for the player
+				gMessageLib->sendDestroyObject(objectId,playerObject);
+			}
 
+		}
+		
 		// reset pending ui callbacks
 		playerObject->resetUICallbacks(object);
 
@@ -198,10 +187,11 @@ void ObjectController::destroyObject(uint64 objectId)
 		// temporary placed instruments are not saved in the db
 		gObjectFactory->deleteObjectFromDB(object);
 
-		// remove from inventory
-		if(object->getParentId() == dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getId())
+		//it might be in a cell or in a container or in the inventory :)
+		ObjectContainer* oc = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(object->getParentId()));
+		if(oc)
 		{
-			dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->deleteObject(object);
+			oc->deleteObject(object);
 		}
 		// remove from world
 		else
@@ -260,7 +250,7 @@ void ObjectController::_handleDestroyInstrument(Item* item)
 	if(playerObject->getPerformingState() == PlayerPerformance_Music)
 	{
 		// equipped instrument
-		if(item == dynamic_cast<Item*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Instrument))
+		if(item == dynamic_cast<Item*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Left))
 		|| playerObject->getPlacedInstrumentId())
 		{
 			gEntertainerManager->stopEntertaining(playerObject);
@@ -275,7 +265,7 @@ void ObjectController::_handleDestroyInstrument(Item* item)
 
 		if(!tempInstrument)
 		{
-			gLogger->logMsg("ObjectController::handleDestroyInstrument : no temporary Instrument\n");
+			gLogger->log(LogManager::DEBUG,"ObjectController::handleDestroyInstrument : no temporary Instrument");
 			return;
 		}
 
@@ -283,7 +273,7 @@ void ObjectController::_handleDestroyInstrument(Item* item)
 
 		if(!permanentInstrument)
 		{
-			gLogger->logMsg("ObjectController::handleDestroyInstrument : no parent Instrument\n");
+			gLogger->log(LogManager::DEBUG,"ObjectController::handleDestroyInstrument : no parent Instrument");
 			return;
 		}
 

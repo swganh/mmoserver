@@ -1,11 +1,27 @@
 				   /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -202,7 +218,7 @@ TangibleObject* NonPersistantObjectFactory::spawnTangible(StructureItemTemplate*
 
 	gWorldManager->addObject(tangible);			
 	gWorldManager->createObjectinWorld(player,tangible);	
-	gMessageLib->sendDataTransform(tangible);
+	gMessageLib->sendDataTransform053(tangible);
 
 	return(tangible);
 
@@ -244,7 +260,6 @@ CampTerminal* NonPersistantObjectFactory::spawnTerminal(StructureItemTemplate* p
 
 	//tangible->setOwner(player->getId());
 	
-	//gLogger->logMsgF("place %s",MSG_HIGH,placableTemplate->structureObjectString.getAnsi());
 	terminal->setModelString(placableTemplate->structureObjectString);
 
 	//create it in the world
@@ -319,9 +334,6 @@ PlayerStructure* NonPersistantObjectFactory::requestBuildingFenceObject(float x,
 	structure->setId(gWorldManager->getRandomNpId());
 
 	//tangible->setOwner(player->getId());
-	
-	//gLogger->logMsgF("place %s",MSG_HIGH,placableTemplate->structureObjectString.getAnsi());
-	
 
 	//create it in the world
 	structure->setModelString("object/installation/base/shared_construction_installation_base.iff");
@@ -329,7 +341,7 @@ PlayerStructure* NonPersistantObjectFactory::requestBuildingFenceObject(float x,
 	gWorldManager->addObject(structure);
 		
 	gWorldManager->createObjectinWorld(player,structure);	
-	gMessageLib->sendDataTransform(structure);
+	gMessageLib->sendDataTransform053(structure);
 
 	return structure;
 
@@ -360,7 +372,6 @@ PlayerStructure* NonPersistantObjectFactory::requestBuildingSignObject(float x, 
 
 	//tangible->setOwner(player->getId());
 	
-	//gLogger->logMsgF("place %s",MSG_HIGH,placableTemplate->structureObjectString.getAnsi());
 	structure->setModelString("object/static/structure/tatooine/shared_streetsign_wall_style_01.iff");
 	
 
@@ -369,7 +380,7 @@ PlayerStructure* NonPersistantObjectFactory::requestBuildingSignObject(float x, 
 	gWorldManager->addObject(structure);
 		
 	gWorldManager->createObjectinWorld(player,structure);	
-	gMessageLib->sendDataTransform(structure);
+	gMessageLib->sendDataTransform053(structure);
 
 	return structure;
 

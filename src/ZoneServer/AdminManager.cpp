@@ -1,16 +1,28 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
-
+Copyright (c) 2006 - 2010 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
-// NOTE: This file is now under re-construction, implementing the real non-persistent database interface.
-// So we have to live with duplicate code for a while.
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
 
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+---------------------------------------------------------------------------------------
 */
 
 #include "AdminManager.h"
@@ -45,7 +57,6 @@ class AdminRequestObject
 
 		~AdminRequestObject()
 		{
-			// gLogger->logMsgF("AdminRequestObject::~AdminRequestObject() invoked", MSG_NORMAL);
 		}
 
 		uint64 mAdminRequestType;
@@ -102,7 +113,6 @@ AdminManager::AdminManager(MessageDispatch* messageDispatch) :
 							mTerminateServer(false)
 
 {
-	// gLogger->logMsgF("AdminManager::AdminManager() invoked", MSG_NORMAL);
 	this->registerCallbacks();
 }
 
@@ -114,7 +124,6 @@ AdminManager::AdminManager(MessageDispatch* messageDispatch) :
 
 AdminManager::~AdminManager()
 {
-	// gLogger->logMsgF("AdminManager::~AdminManager() invoked", MSG_NORMAL);
 	this->unregisterCallbacks();
 
 	AdminRequests::iterator adminRequestIterator = mAdminRequests.begin();
@@ -214,7 +223,7 @@ void AdminManager::addAdminRequest(uint64 requestType, string message, int32 ttl
 	{
 		if (timeToFirstEvent > 0)
 		{
-			gLogger->logMsgF("AdminManager::addAdminRequest() You have to wait %d seconds until first announcement", MSG_NORMAL, timeToFirstEvent);
+			gLogger->log(LogManager::WARNING,"Admin Manager: You have to wait %d seconds until first announcement", timeToFirstEvent);
 		}
 		mAdminRequests.insert(std::make_pair(requestType, requestObject));
 		gWorldManager->addAdminRequest(requestType, (uint64)(timeToFirstEvent * 1000));
@@ -256,8 +265,6 @@ void AdminManager::cancelAdminRequest(uint64 requestType, string message)
 
 uint64 AdminManager::handleAdminRequest(uint64 requestType, uint64 timeOverdue)
 {
-	// gLogger->logMsgF("AdminManager::handleAdminRequest() Entering...", MSG_NORMAL);
-
 	uint64 waitTime = 0;
 
 	// Find the object.
@@ -273,7 +280,6 @@ uint64 AdminManager::handleAdminRequest(uint64 requestType, uint64 timeOverdue)
 			{
 				// We are done.
 				// TODO: halt this zone.
-				// gLogger->logMsgF("AdminManager::handleAdminRequest() HALTING this service.", MSG_NORMAL);
 				sprintf(rawData,"Server shutting down.");
 				mTerminateServer = true;
 			}
@@ -320,9 +326,9 @@ uint64 AdminManager::handleAdminRequest(uint64 requestType, uint64 timeOverdue)
 
 			if (optReason.getLength())
 			{
-				gLogger->logMsgF(optReason.getAnsi(), MSG_NORMAL);
+				gLogger->log(LogManager::CRITICAL,optReason.getAnsi());
 			}
-			gLogger->logMsgF(broadcast.getAnsi(), MSG_NORMAL);
+			gLogger->log(LogManager::CRITICAL,broadcast.getAnsi());
 
 			// For logging, we need ansi versions.
 			string logOptReason(optReason);
@@ -340,10 +346,8 @@ uint64 AdminManager::handleAdminRequest(uint64 requestType, uint64 timeOverdue)
 				{
 					if (optReason.getLength())
 					{
-						gLogger->logMsgF("%s", MSG_NORMAL, logOptReason.getAnsi());
 						gMessageLib->sendSystemMessage((PlayerObject*)player, optReason);
 					}
-					gLogger->logMsgF("%s", MSG_NORMAL, logBroadcast.getAnsi());
 					gMessageLib->sendSystemMessage((PlayerObject*)player, broadcast);
 				}
 				++it;
@@ -379,8 +383,6 @@ uint64 AdminManager::handleAdminRequest(uint64 requestType, uint64 timeOverdue)
 
 void AdminManager::_processScheduleShutdown(Message* message, DispatchClient* client)
 {
-	gLogger->logMsg("AdminManager::_processScheduleShutdown");
-
 	message->ResetIndex();
 
 	string msg;
@@ -397,8 +399,6 @@ void AdminManager::_processScheduleShutdown(Message* message, DispatchClient* cl
 
 void AdminManager::_processCancelScheduledShutdown(Message* message, DispatchClient* client)
 {
-	gLogger->logMsg("AdminManager::_processCancelScheduledShutdown");
-
 	message->ResetIndex();
 
 	string msg;

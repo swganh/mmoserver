@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 #include "CharSheetManager.h"
@@ -44,6 +60,7 @@ mDBAsyncPool(sizeof(CSAsyncContainer))
 	_registerCallbacks();
 	_loadCommandMap();
 
+	//gLogger->log(LogManager::DEBUG,"Started Loading Factions.");
 	mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.malloc()) CSAsyncContainer(CharSheetQuery_Factions),"SELECT * FROM faction ORDER BY id");
 }
 
@@ -111,7 +128,7 @@ void CharSheetManager::handleDispatchMessage(uint32 opcode,Message* message,Disp
 	if(it != mCommandMap.end())
 		(this->*((*it).second))(message,client);
 	else
-		gLogger->logMsgF("CharSheetManager: Unhandled DispatchMsg %u",MSG_NORMAL,opcode);
+		gLogger->log(LogManager::DEBUG,"CharSheetManager: Unhandled DispatchMsg %u",opcode);
 }
 
 //=========================================================================================
@@ -130,7 +147,7 @@ void CharSheetManager::handleDatabaseJobComplete(void* ref, DatabaseResult* resu
 			binding->addField(DFT_bstring,0,255,1);
 
 			uint64 count = result->getRowCount();
-
+			mvFactions.reserve((uint32)count);
 			for(uint64 i = 0;i < count;i++)
 			{
 				result->GetNextRow(binding,&name);
@@ -138,13 +155,13 @@ void CharSheetManager::handleDatabaseJobComplete(void* ref, DatabaseResult* resu
 			}
 
 			if(result->getRowCount())
-				gLogger->logMsgLoadSuccess("CharSheetManager::loaded %u Factions...",MSG_NORMAL,result->getRowCount());
-			else
-				gLogger->logMsgLoadFailure("CharSheetManager::loaded Factions...",MSG_NORMAL);					
+				gLogger->log(LogManager::NOTICE,"Loaded factions.");
 
 			mDatabase->DestroyDataBinding(binding);
 
+			gLogger->log(LogManager::DEBUG,"Finished Loading Factions.");
 			// load badge categories
+			gLogger->log(LogManager::NOTICE,"Loading Badge Categories.");
 			mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.malloc()) CSAsyncContainer(CharSheetQuery_BadgeCategories),"SELECT * FROM badge_categories ORDER BY id");
 		}
 		break;
@@ -156,7 +173,7 @@ void CharSheetManager::handleDatabaseJobComplete(void* ref, DatabaseResult* resu
 			binding->addField(DFT_bstring,0,255,1);
 
 			uint64 count = result->getRowCount();
-
+			mvBadgeCategories.reserve((uint32)count);
 			for(uint64 i = 0;i < count;i++)
 			{
 				result->GetNextRow(binding,&name);
@@ -165,6 +182,8 @@ void CharSheetManager::handleDatabaseJobComplete(void* ref, DatabaseResult* resu
 
 			mDatabase->DestroyDataBinding(binding);
 
+			//gLogger->log(LogManager::DEBUG,"Finished Loading Badge Categories.");
+			//gLogger->log(LogManager::NOTICE,"Loading Badges.");
 			mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.malloc()) CSAsyncContainer(CharSheetQuery_Badges),"SELECT * FROM badges ORDER BY id");
 		}
 		break;
@@ -180,7 +199,7 @@ void CharSheetManager::handleDatabaseJobComplete(void* ref, DatabaseResult* resu
 			binding->addField(DFT_uint8,offsetof(Badge,mCategory),1,3);
 
 			uint64 count = result->getRowCount();
-
+			mvBadges.reserve((uint32)count);
 			for(uint64 i = 0;i < count;i++)
 			{
 				badge = new Badge();
@@ -188,12 +207,8 @@ void CharSheetManager::handleDatabaseJobComplete(void* ref, DatabaseResult* resu
 				mvBadges.push_back(badge);
 			}
 
-			mDatabase->DestroyDataBinding(binding);
-
-			if(result->getRowCount())
-				gLogger->logMsgLoadSuccess("CombatManager::Loading %u weapon groups...",MSG_NORMAL,result->getRowCount());
-			else
-				gLogger->logMsgLoadFailure("CombatManager::Loading weapon groups...",MSG_NORMAL);					
+			mDatabase->DestroyDataBinding(binding);	
+			//gLogger->log(LogManager::DEBUG,"Finished Loading Badges.");
 		}
 		break;
 
@@ -211,7 +226,7 @@ void CharSheetManager::_processFactionRequest(Message* message,DispatchClient* c
 
 	if(player == NULL)
 	{
-		gLogger->logMsgF("CharSheetManager::_processFactionRequest: could not find player %u",MSG_NORMAL,client->getAccountId());
+		gLogger->log(LogManager::DEBUG,"CharSheetManager::_processFactionRequest: could not find player %u",client->getAccountId());
 		return;
 	}
 
@@ -257,7 +272,7 @@ void CharSheetManager::_processPlayerMoneyRequest(Message* message,DispatchClien
 
 	if(player == NULL)
 	{
-		gLogger->logMsgF("CharSheetManager::_processPlayerMoneyRequest: could not find player %u",MSG_NORMAL,client->getAccountId());
+		gLogger->log(LogManager::DEBUG,"CharSheetManager::_processPlayerMoneyRequest: could not find player %u",client->getAccountId());
 		return;
 	}
 

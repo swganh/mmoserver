@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -110,6 +126,19 @@ class Ham
 		uint64			getTaskId(){ return mTaskId; }
 		void			setTaskId(uint64 id){ mTaskId = id; }
 
+		/// Checks that the main pools are greater than the passed values.
+		/**
+		 * This method checks the main pools and verifies that each is
+		 * currently greater than respective value that is passed in.
+		 *
+		 * @param health Value that the health pool should be greater than.
+		 *
+		 * @param action Value that the action pool should be greater than.
+		 *
+		 * @param mind Value that the mind pool should be greater than.
+		 *
+		 * @returns True if the main pools are exceed the specified values, false if not.
+		 */
 		bool			checkMainPools(int32 health,int32 action,int32 mind);
 		void			checkForRegen();
 

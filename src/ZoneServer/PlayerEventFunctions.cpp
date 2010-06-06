@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -46,7 +62,7 @@ void PlayerObject::onSurvey(const SurveyEvent* event)
 
 	if(tool && resource && isConnected())
 	{
-		Datapad*			datapad			= dynamic_cast<Datapad*>(mEquipManager.getEquippedObject(CreatureEquipSlot_Datapad));
+		Datapad* datapad					= getDataPad();
 		ResourceLocation	highestDist		= gMessageLib->sendSurveyMessage(tool->getInternalAttribute<uint16>("survey_range"),tool->getInternalAttribute<uint16>("survey_points"),resource,this);
 
 		uint32 mindCost = gResourceCollectionManager->surveyMindCost;
@@ -232,12 +248,12 @@ void PlayerObject::onSample(const SampleEvent* event)
 		
 		//this should be a timed debuff per instance -- Do not cause wounds unless potential energy >= 500
 		
-		BuffAttribute* healthdebuffAttribute = new BuffAttribute(Health, -(int)hamReduc,0,hamReduc); 
+		BuffAttribute* healthdebuffAttribute = new BuffAttribute(attr_health, -(int)hamReduc,0,hamReduc); 
 		Buff* healthdebuff = Buff::SimpleBuff(this, this, 300000, 0, gWorldManager->GetCurrentGlobalTick());
 		healthdebuff->AddAttribute(healthdebuffAttribute);	
 		this->AddBuff(healthdebuff,true);
 
-		healthdebuffAttribute = new BuffAttribute(Action, -(int)hamReduc,0,hamReduc); 
+		healthdebuffAttribute = new BuffAttribute(attr_action, -(int)hamReduc,0,hamReduc); 
 		healthdebuff = Buff::SimpleBuff(this, this, 300000, 0, gWorldManager->GetCurrentGlobalTick());
 		healthdebuff->AddAttribute(healthdebuffAttribute);	
 		this->AddBuff(healthdebuff,true);
@@ -245,7 +261,7 @@ void PlayerObject::onSample(const SampleEvent* event)
 
 		//mHam.updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints,-hamReduc,true);
 		//mHam.updatePropertyValue(HamBar_Health,HamProperty_CurrentHitpoints,-hamReduc,true); 
-		//gLogger->logMsgF("applied ham costs H/A w/ reduc: %u", MSG_NORMAL, hamReduc);
+		//gLogger->log(LogManager::DEBUG,"applied ham costs H/A w/ reduc: %u",  hamReduc);
 	
 	}
 
@@ -492,7 +508,7 @@ void PlayerObject::onSample(const SampleEvent* event)
 	// update ham for standard sample action oc does this already - only the first time though???  !!!
 	mHam.updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints,-(int32)actionCost,true);
 
-	gLogger->logMsgF("PlayerObject::sample : %i actiopn taken ",MSG_HIGH,actionCost);
+	gLogger->log(LogManager::DEBUG,"PlayerObject::sample : %i actiopn taken ",actionCost);
 	if(mHam.checkMainPools(0,actionCost,0) && (resAvailable))
 	{
 		getSampleData()->mNextSampleTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 3000; //change back to 30000 after testing is finished
@@ -624,7 +640,7 @@ void PlayerObject::onItemDeleteEvent(const ItemDeleteEvent* event)
 	Item* item = dynamic_cast<Item*>(gWorldManager->getObjectById(event->getItem()));
 	if(!item)
 	{
-		gLogger->logMsgF("PlayerObject::onItemDeleteEvent: Item %I64u not found",MSG_HIGH,event->getItem());
+		gLogger->log(LogManager::DEBUG,"PlayerObject::onItemDeleteEvent: Item %I64u not found",event->getItem());
 		return;
 	}
 	
@@ -638,34 +654,38 @@ void PlayerObject::onItemDeleteEvent(const ItemDeleteEvent* event)
 //
 void PlayerObject::onInjuryTreatment(const InjuryTreatmentEvent* event)
 {
+	uint64 now = gWorldManager->GetCurrentGlobalTick();
+	uint64 t = event->getInjuryTreatmentTime();
 
-		// We've healed, now we need to set the delay...
-	gLogger->logMsg("Starting medic injury heal delay...", FOREGROUND_BLUE);
-
-	//Math...
-	uint32 healingspeed = this->getSkillModValue(SMod_healing_range_speed);
-	int delay = (int)floor((healingspeed * -(1.0f / 8.0f)) + 21.0f);
-
-	//Foods that could reduce time.
-	uint64 foodbuff = NULL;
-
-	// Make it at least 4 seconds.
-    uint64 cooldown = std::max(4, delay);
-
-	//If they don't have it, no need to continue.
-	if(!this->checkPlayerCustomFlag(PlayerCustomFlag_InjuryTreatment))
+	if(now > t)
 	{
-		return;
-	}
-
-	// If they do have it, start timer to turn it off.
-	if(this->checkPlayerCustomFlag(PlayerCustomFlag_InjuryTreatment)){
-	this->getController()->addEvent(new InjuryTreatmentEvent(event->getInjuryTreatmentTime(),event->getInjuryTreatmentSpacer()), cooldown);
-	}
-
-
-	if(Anh_Utils::Clock::getSingleton()->getLocalTime() >  event->getInjuryTreatmentTime()){
 		this->togglePlayerCustomFlagOff(PlayerCustomFlag_InjuryTreatment);
 		gMessageLib->sendSystemMessage(this, L"", "healing_response", "healing_response_58");
+	}
+	
+	//have to call once more so we can get back here...
+	else
+	{
+		mObjectController.addEvent(new InjuryTreatmentEvent(t), t-now);
+	}
+}
+
+//=============================================================================
+// this event manages wound treatment cooldowns.
+//
+void PlayerObject::onWoundTreatment(const WoundTreatmentEvent* event)
+{
+	uint64 now = gWorldManager->GetCurrentGlobalTick();
+	uint64 t = event->getWoundTreatmentTime();
+
+	if(now >  t)
+	{
+		this->togglePlayerCustomFlagOff(PlayerCustomFlag_WoundTreatment);
+		gMessageLib->sendSystemMessage(this, L"", "healing_response", "healing_response_59");
+	}
+	//have to call once more so we can get back here...
+	else
+	{
+		mObjectController.addEvent(new WoundTreatmentEvent(t), t-now);
 	}
 }

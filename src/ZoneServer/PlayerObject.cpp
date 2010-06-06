@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -38,7 +54,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "UIOfferTeachBox.h"
 #include "UIPlayerSelectBox.h"
 #include "UICloneSelectListBox.h"
-#include "Vehicle.h"
+#include "VehicleController.h"
 #include "WorldConfig.h"
 #include "WorldManager.h"
 #include "ZoneOpcodes.h"
@@ -106,7 +122,7 @@ PlayerObject::PlayerObject()
 	mIsForaging			= false;
 	mType				= ObjType_Player;
 	mCreoGroup			= CreoGroup_Player;
-	mStomach			= new Stomach();
+	mStomach			= new Stomach(this);
 	mMarriage			= L"";					// Unmarried
 	mTrade				= new Trade(this);
 
@@ -117,6 +133,7 @@ PlayerObject::PlayerObject()
 	registerEventFunction(this,&PlayerObject::onBurstRun);
 	registerEventFunction(this,&PlayerObject::onItemDeleteEvent);
 	registerEventFunction(this,&PlayerObject::onInjuryTreatment);
+	registerEventFunction(this,&PlayerObject::onWoundTreatment);
 	
 	mLots = gWorldConfig->getConfiguration("Player_Max_Lots",(uint8)10);
 
@@ -139,14 +156,13 @@ PlayerObject::PlayerObject()
 PlayerObject::~PlayerObject()
 {
 	// store any eventually spawned vehicle
-	Datapad* datapad = dynamic_cast<Datapad*>(mEquipManager.getEquippedObject(CreatureEquipSlot_Datapad));
+	Datapad* datapad			= getDataPad();
 
 	if(mMount && datapad)
 	{
-		if(Vehicle* datapad_pet = dynamic_cast<Vehicle*>(datapad->getDataById(mMount->getPetController())))
+		if(VehicleController* datapad_pet = dynamic_cast<VehicleController*>(datapad->getDataById(mMount->controller())))
 		{
-			datapad_pet->dismountPlayer();
-			datapad_pet->store();
+			datapad_pet->Store();
 		}
 	}
 
@@ -156,8 +172,12 @@ PlayerObject::~PlayerObject()
 	// remove any timers we got running
 	gWorldManager->removeObjControllerToProcess(mObjectController.getTaskId());
 	gWorldManager->removeCreatureHamToProcess(mHam.getTaskId());
+	gWorldManager->removeCreatureStomachToProcess(mStomach->mDrinkTaskId);
+	gWorldManager->removeCreatureStomachToProcess(mStomach->mFoodTaskId);
 	mObjectController.setTaskId(0);
 	mHam.setTaskId(0);
+	mStomach->mFoodTaskId = 0;
+	mStomach->mDrinkTaskId = 0;
 
 	// remove player from movement update timer.
 	gWorldManager->removePlayerMovementUpdateTime(this);
@@ -220,17 +240,7 @@ PlayerObject::~PlayerObject()
 	if(GroupObject* group = gGroupManager->getGroupObject(mGroupId))
 	{
 		group->removePlayer(mId);
-		if(this->getIDPartner() != 0)
-		{
-			if(PlayerObject* idPartner = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getIDPartner())))
-			{
-				idPartner->SetImageDesignSession(IDSessionNONE);
-				idPartner->setIDPartner(0);
-				this->SetImageDesignSession(IDSessionNONE);
-				this->setIDPartner(0);
-			}
-
-		}
+		
 	}
 
 	// can't zone or logout while in combat
@@ -345,7 +355,7 @@ PlayerObject::~PlayerObject()
 		}
 		else
 		{
-			gLogger->logMsgF("PlayerObject::destructor: couldn't find cell %"PRIu64"",MSG_HIGH,mParentId);
+			gLogger->log(LogManager::DEBUG,"PlayerObject::destructor: couldn't find cell %"PRIu64"",mParentId);
 		}
 	}
 	else if(mSubZoneId)
@@ -425,7 +435,8 @@ void PlayerObject::resetProperties()
 	mDefenderUpdateCounter				= 0;
 	mReady								= false;
 
-	if(Datapad* datapad = dynamic_cast<Datapad*>(mEquipManager.getEquippedObject(CreatureEquipSlot_Datapad)))
+	Datapad* datapad			= getDataPad();
+	if(datapad)
 	{
 		datapad->mWaypointUpdateCounter = datapad->getWaypoints()->size();
 	}
@@ -1018,7 +1029,7 @@ void PlayerObject::addBadge(uint32 badgeId)
 
 		(gWorldManager->getDatabase())->ExecuteSqlAsync(0,0,"INSERT INTO character_badges VALUES (%"PRIu64",%u)",mId,badgeId);
 
-		gLogger->logMsgF("Badge %u granted to %"PRIu64"",MSG_NORMAL,badgeId,mId);
+		gLogger->log(LogManager::DEBUG,"Badge %u granted to %"PRIu64"",badgeId,mId);
 
 		_verifyBadges();
 
@@ -1030,7 +1041,7 @@ void PlayerObject::addBadge(uint32 badgeId)
 	else
 	{
 		// This is an unexpected condition.
-		gLogger->logMsgF("Badge %u already exists for player with id %"PRIu64"",MSG_NORMAL,badgeId,mId);
+		gLogger->log(LogManager::DEBUG,"Badge %u already exists for player with id %"PRIu64"",badgeId,mId);
 	}
 }
 
@@ -1277,7 +1288,7 @@ void PlayerObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
 		default:
 		{
-			gLogger->logMsgF("PlayerObject: Unhandled MenuSelect: %u",MSG_HIGH,messageType);
+			gLogger->log(LogManager::DEBUG,"PlayerObject: Unhandled MenuSelect: %u",messageType);
 		}
 		break;
 	}
@@ -1318,7 +1329,7 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,string inputStr,UIW
 		// clone activation list box
 		case SUI_Window_CloneSelect_ListBox:
 		{
-			// gLogger->logMsgF("PlayerObject::handleUIEvent element = %d",MSG_NORMAL,element);
+			// gLogger->log(LogManager::DEBUG,"PlayerObject::handleUIEvent element = %d",element);
 
 			// Handle non-selected response as if closest cloning facility was selected,
 			// until we learn how to restart the dialog when nothing selected.
@@ -1438,7 +1449,7 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,string inputStr,UIW
 
 			if(!skill)
 			{
-				gLogger->logMsg("PlayerObject: teach skill : skill list surprisingly empty\n");
+				gLogger->log(LogManager::DEBUG,"PlayerObject: teach skill : skill list surprisingly empty\n");
 				return;
 			}
 
@@ -1604,7 +1615,7 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,string inputStr,UIW
 
 			if(selectedPlayer == NULL)
 			{
-				gLogger->logMsg("SUI_Window_SelectGroupLootMaster_Listbox: Invalid player selection");
+				gLogger->log(LogManager::DEBUG,"SUI_Window_SelectGroupLootMaster_Listbox: Invalid player selection");
 				break;
 			}
 
@@ -1614,7 +1625,7 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,string inputStr,UIW
 
 		default:
 		{
-			gLogger->logMsgF("handleUIEvent:Default: %u, %u, %s,",MSG_NORMAL, action, element, inputStr.getAnsi());
+			gLogger->log(LogManager::DEBUG,"handleUIEvent:Default: %u, %u, %s,", action, element, inputStr.getAnsi());
 		}
 		break;
 	}
@@ -1675,19 +1686,19 @@ void PlayerObject::addToDuelList(PlayerObject* player)
 	if(this->getId()!= player->getId())
 		mDuelList.push_back(player); 
 	else
-		gLogger->logMsgF("PlayerObject::addToDuelList: %I64u wanted to add himself to his/her duel list",MSG_NORMAL, player->getId());
+		gLogger->log(LogManager::DEBUG,"PlayerObject::addToDuelList: %I64u wanted to add himself to his/her duel list", player->getId());
 }
 //=============================================================================
 //
 // sets and returns the nearest crafting station
 //
-CraftingStation* PlayerObject::getCraftingStation(ObjectSet	inRangeObjects, ItemType toolType)
+CraftingStation* PlayerObject::getCraftingStation(ObjectSet*	inRangeObjects, ItemType toolType)
 {
-	ObjectSet::iterator it = inRangeObjects.begin();
+	ObjectSet::iterator it = inRangeObjects->begin();
 
 	mNearestCraftingStation = 0;
 
-	while(it != inRangeObjects.end())
+	while(it != inRangeObjects->end())
 	{
 		if(CraftingStation*	station = dynamic_cast<CraftingStation*>(*it))
 		{
@@ -1700,9 +1711,11 @@ CraftingStation* PlayerObject::getCraftingStation(ObjectSet	inRangeObjects, Item
 				{
 					if(stationType == ItemType_ClothingStation || stationType == ItemType_ClothingStationPublic)
 					{
-						mNearestCraftingStation = station->getId();
-
-						return(station);
+						if (glm::distance(this->getWorldPosition(), station->getWorldPosition()) <= 25)
+						{
+							mNearestCraftingStation = station->getId();
+							return(station);
+						}
 					}
 				}
 				break;
@@ -1711,9 +1724,11 @@ CraftingStation* PlayerObject::getCraftingStation(ObjectSet	inRangeObjects, Item
 				{
 					if(stationType == ItemType_WeaponStation || stationType == ItemType_WeaponStationPublic)
 					{
-						mNearestCraftingStation = station->getId();
-
-						return(station);
+						if (glm::distance(this->getWorldPosition(), station->getWorldPosition()) <= 25)
+						{
+							mNearestCraftingStation = station->getId();
+							return(station);
+						}
 					}
 				}
 				break;
@@ -1722,9 +1737,11 @@ CraftingStation* PlayerObject::getCraftingStation(ObjectSet	inRangeObjects, Item
 				{
 					if(stationType == ItemType_FoodStation || stationType == ItemType_FoodStationPublic)
 					{
-						mNearestCraftingStation = station->getId();
-
-						return(station);
+						if (glm::distance(this->getWorldPosition(), station->getWorldPosition()) <= 25)
+						{
+							mNearestCraftingStation = station->getId();
+							return(station);
+						}
 					}
 				}
 				break;
@@ -1733,9 +1750,11 @@ CraftingStation* PlayerObject::getCraftingStation(ObjectSet	inRangeObjects, Item
 				{
 					if(stationType == ItemType_StructureStation || stationType == ItemType_StructureStationPublic)
 					{
-						mNearestCraftingStation = station->getId();
-
-						return(station);
+						if (glm::distance(this->getWorldPosition(), station->getWorldPosition()) <= 25)
+						{
+							mNearestCraftingStation = station->getId();
+							return(station);
+						}
 					}
 				}
 				break;
@@ -1744,9 +1763,11 @@ CraftingStation* PlayerObject::getCraftingStation(ObjectSet	inRangeObjects, Item
 				{
 					if(stationType == ItemType_SpaceStation || stationType == ItemType_SpaceStationPublic)
 					{
-						mNearestCraftingStation = station->getId();
-
-						return(station);
+						if (glm::distance(this->getWorldPosition(), station->getWorldPosition()) <= 25)
+						{
+							mNearestCraftingStation = station->getId();
+							return(station);
+						}
 					}
 				}
 				break;
@@ -1978,7 +1999,25 @@ EMLocationType PlayerObject::getPlayerLocation()
 
 	return EMLocation_NULL;
 }
+Object* PlayerObject::getHealingTarget(PlayerObject* Player) const
+{
+	PlayerObject* PlayerTarget = dynamic_cast<PlayerObject*>(Player->getTarget());
 
+	if (PlayerTarget && PlayerTarget->getId() != Player->getId())
+	{
+		//check pvp status
+		if(Player->getPvPStatus() != PlayerTarget->getPvPStatus())
+		{
+			//send pvp_no_help
+			gLogger->log(LogManager::DEBUG,"PVP Flag not right");
+			gMessageLib->sendSystemMessage(Player,L"","healing","pvp_no_help");
+			//return Player as the healing target
+			return Player;
+		}
+		return PlayerTarget;
+	}
+	return Player;
+}
 //=============================================================================
 
 void PlayerObject::setCombatTargetId(uint64 targetId)
@@ -2134,7 +2173,7 @@ void PlayerObject::setSitting(Message* message)
 				else
 				{
 					// we should never get here !
-					gLogger->logMsg("SitOnObject: could not find zone region in map");
+					gLogger->log(LogManager::DEBUG,"SitOnObject: could not find zone region in map");
 
 					// hammertime !
 					exit(-1);
@@ -2151,7 +2190,7 @@ void PlayerObject::setSitting(Message* message)
 					if(cell)
 						cell->removeObject(this);
 					else
-						gLogger->logMsgF("Error removing %"PRIu64" from cell %"PRIu64"",MSG_NORMAL,this->getId(),this->getParentId());
+						gLogger->log(LogManager::DEBUG,"Error removing %"PRIu64" from cell %"PRIu64"",this->getId(),this->getParentId());
 
 					this->setParentId(chairCell);
 
@@ -2160,7 +2199,7 @@ void PlayerObject::setSitting(Message* message)
 					if(cell)
 						cell->addObjectSecure(this);
 					else
-						gLogger->logMsgF("Error adding %"PRIu64" to cell %"PRIu64"",MSG_NORMAL,this->getId(),chairCell);
+						gLogger->log(LogManager::DEBUG,"Error adding %"PRIu64" to cell %"PRIu64"",this->getId(),chairCell);
 				}
 
 				this->mPosition = chair_position;
@@ -2174,11 +2213,11 @@ void PlayerObject::setSitting(Message* message)
 			// TODO: check if we need to send transforms to others
 			if(chairCell)
 			{
-				gMessageLib->sendDataTransformWithParent(this);
+				gMessageLib->sendDataTransformWithParent053(this);
 			}
 			else
 			{
-				gMessageLib->sendDataTransform(this);
+				gMessageLib->sendDataTransform053(this);
 			}
 
 			gMessageLib->sendUpdateMovementProperties(this);

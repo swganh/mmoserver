@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 #include "ServerManager.h"
@@ -55,6 +71,7 @@ mClientManager(clientManager)
 	mConnectionDispatch->RegisterMessageCallback(opClusterRegisterServer, this);
 	mConnectionDispatch->RegisterMessageCallback(opClusterZoneTransferRequestByTicket, this);
 	mConnectionDispatch->RegisterMessageCallback(opClusterZoneTransferRequestByPosition, this);
+	mConnectionDispatch->RegisterMessageCallback(opTutorialServerStatusRequest, this);
 
 	// Update our id
 	mClusterId = gConfig->read<uint32>("ClusterId");
@@ -73,6 +90,7 @@ ServerManager::~ServerManager(void)
 	mConnectionDispatch->UnregisterMessageCallback(opClusterRegisterServer);
 	mConnectionDispatch->UnregisterMessageCallback(opClusterZoneTransferRequestByTicket);
 	mConnectionDispatch->UnregisterMessageCallback(opClusterZoneTransferRequestByPosition);
+	mConnectionDispatch->UnregisterMessageCallback(opTutorialServerStatusRequest);
 
 	_destroyDataBindings();
 }
@@ -96,7 +114,7 @@ void ServerManager::SendMessageToServer(Message* message)
 	}
 	else
 	{
-		gLogger->logMsgF("ServerManager: failed routing message to server %u",MSG_NORMAL,message->getDestinationId());
+		gLogger->log(LogManager::INFORMATION,"ServerManager: failed routing message to server %u",message->getDestinationId());
 		gMessageFactory->DestroyMessage(message);
 	}
 }
@@ -113,8 +131,9 @@ NetworkClient* ServerManager::handleSessionConnect(Session* session, Service* se
 	int8 sql[500];
 	sprintf(sql,"SELECT id, address, port, status, active FROM config_process_list WHERE address='%s' AND port=%u;", session->getAddressString(), session->getPortHost());
 	DatabaseResult* result = mDatabase->ExecuteSynchSql(sql);
-	gLogger->logMsgF(sql,MSG_HIGH);
-	gLogger->logMsg("\n");
+	gLogger->log(LogManager::DEBUG, sql);
+	gLogger->logCont(LogManager::DEBUG,"\n");
+							
 	// If we found them
 	if(result->getRowCount() == 1)
 	{
@@ -129,12 +148,14 @@ NetworkClient* ServerManager::handleSessionConnect(Session* session, Service* se
 
 		memcpy(&mServerAddressMap[serverAddress.mId], &serverAddress, sizeof(ServerAddress));
 		mServerAddressMap[serverAddress.mId].mConnectionClient = connClient;
-
+		
+		gLogger->log(LogManager::DEBUG,"*** Backend server connected id: %u\n",mServerAddressMap[serverAddress.mId].mId);
+		
 		// If this is one of the servers we're waiting for, then update our count
 		if(mServerAddressMap[serverAddress.mId].mActive)
 		{
+			
 			++mTotalConnectedServers;
-
 			if(mTotalConnectedServers == mTotalActiveServers)
 			{
 				mDatabase->ExecuteSqlAsync(0,0,"UPDATE galaxy SET status=2, last_update=NOW() WHERE galaxy_id=%u;", mClusterId);
@@ -143,7 +164,9 @@ NetworkClient* ServerManager::handleSessionConnect(Session* session, Service* se
 	}
 	else
 	{
-		gLogger->logMsg("*** Backend server connect error - Server not found in DB\n");
+		gLogger->log(LogManager::CRITICAL,"*** Backend server connect error - Server not found in DB\n");
+		gLogger->log(LogManager::DEBUG,sql);
+		gLogger->log(LogManager::DEBUG,"\n");
 	}
 
 	// Delete our DB objects.
@@ -182,7 +205,7 @@ void ServerManager::handleSessionDisconnect(NetworkClient* client)
 		mDatabase->ExecuteSqlAsync(0,0,"UPDATE galaxy SET status=1,last_update=NOW() WHERE galaxy_id=%u;", mClusterId);
 	}
 
-	gLogger->logMsgF("Servermanager handle server down\n", MSG_HIGH);
+	gLogger->log(LogManager::DEBUG,"Servermanager handle server down\n");
 	mClientManager->handleServerDown(connClient->getServerId());
 
 	delete(client);
@@ -222,6 +245,11 @@ void ServerManager::handleDispatchMessage(uint32 opcode,Message* message,Connect
 			_processClusterZoneTransferRequestByPosition(client,message);
 		}
 		break;
+
+		case opTutorialServerStatusRequest:
+		{
+			_processClusterZoneTutorialTerminal(client,message);
+		}
 
 		default: break;
 	}
@@ -304,6 +332,48 @@ void ServerManager::_processClusterZoneTransferRequestByTicket(ConnectionClient*
     newMessage->setRouted(true);
     mMessageRouter->RouteMessage(newMessage, client);
   }
+}
+
+void ServerManager::_processClusterZoneTutorialTerminal(ConnectionClient* client, Message* message)
+{
+	gLogger->log(LogManager::DEBUG,"Sending Tutorial Status Reply\n");
+
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opTutorialServerStatusReply);
+	gMessageFactory->addUint64(message->getUint64());
+
+	if(mServerAddressMap[16].mStatus == 2)
+		gMessageFactory->addUint8(1);
+	else
+		gMessageFactory->addUint8(0);
+
+	if(mServerAddressMap[8].mStatus == 2)
+		gMessageFactory->addUint8(1);
+	else
+		gMessageFactory->addUint8(0);
+
+	if(mServerAddressMap[15].mStatus == 2)
+		gMessageFactory->addUint8(1);
+	else
+		gMessageFactory->addUint8(0);
+
+	if(mServerAddressMap[14].mStatus == 2)
+		gMessageFactory->addUint8(1);
+	else
+		gMessageFactory->addUint8(0);
+
+	if(mServerAddressMap[13].mStatus == 2)
+		gMessageFactory->addUint8(1);
+	else
+		gMessageFactory->addUint8(0);
+
+	Message* newMessage = gMessageFactory->EndMessage();
+
+	// This one goes back from whence it came
+    newMessage->setAccountId(message->getAccountId());
+    newMessage->setDestinationId(static_cast<uint8>(client->getServerId()));
+    newMessage->setRouted(true);
+    mMessageRouter->RouteMessage(newMessage, client);
 }
 
 //======================================================================================================================

@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -163,7 +179,7 @@ uint32 CraftingSession::getComponentOffer(Item* component, uint32 needed)
 	{
 		if(!fC->hasAttribute("factory_count"))
 		{
-			gLogger->logMsgF("CraftingSession::prepareComponent crate without factory_count attribute",MSG_HIGH);
+			gLogger->log(LogManager::DEBUG,"CraftingSession::prepareComponent crate without factory_count attribute");
 			return 0;
 		}
 		
@@ -219,7 +235,7 @@ bool CraftingSession::prepareComponentOffer(Item* component, uint32 needed, Manu
 	{
 		if(!fC->hasAttribute("factory_count"))					  
 		{
-			gLogger->logMsgF("CraftingSession::prepareComponentoffer crate without factory_count attribute",MSG_HIGH);
+			gLogger->log(LogManager::DEBUG,"CraftingSession::prepareComponentoffer crate without factory_count attribute");
 			return false;
 		}
 		
@@ -234,7 +250,7 @@ bool CraftingSession::prepareComponentOffer(Item* component, uint32 needed, Manu
 		
 		if(crateTaken>crateSize)
 		{
-			gLogger->logMsgF("CraftingSession::prepareComponentOffer crate does not have enough content",MSG_HIGH);
+			gLogger->log(LogManager::DEBUG,"CraftingSession::prepareComponentOffer crate does not have enough content");
 			return false;
 		}
 
@@ -287,7 +303,7 @@ bool CraftingSession::prepareComponentOffer(Item* component, uint32 needed, Manu
 	
 	if(stackTaken>stackSize)
 	{
-		gLogger->logMsgF("CraftingSession::prepareComponentOffer stack does not have enough content",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG,"CraftingSession::prepareComponentOffer stack does not have enough content");
 		return false;
 	}
 
@@ -757,7 +773,7 @@ void CraftingSession::bagComponents(ManufactureSlot* manSlot,uint64 containerId)
 
 		if(!filledComponent)
 		{
-			gLogger->logMsgF("CraftingSession::bagComponents filledComponent not found",MSG_HIGH);
+			gLogger->log(LogManager::DEBUG,"CraftingSession::bagComponents filledComponent not found");
 			return;
 		}
 
@@ -770,7 +786,7 @@ void CraftingSession::bagComponents(ManufactureSlot* manSlot,uint64 containerId)
 
 		if(!container)
 		{
-			gLogger->logMsgF("CraftingSession::bagComponents couldnt find components parent container",MSG_HIGH);
+			gLogger->log(LogManager::DEBUG,"CraftingSession::bagComponents couldnt find components parent container");
 			return;
 		}
 		
@@ -779,7 +795,7 @@ void CraftingSession::bagComponents(ManufactureSlot* manSlot,uint64 containerId)
 		{
 			if(!fC->hasAttribute("factory_count"))					  
 			{
-				gLogger->logMsgF("CraftingSession::prepareComponentoffer crate without factory_count attribute",MSG_HIGH);
+				gLogger->log(LogManager::DEBUG,"CraftingSession::prepareComponentoffer crate without factory_count attribute");
 				return;
 			}
 		
@@ -851,7 +867,7 @@ void CraftingSession::destroyComponents()
 
 			if(!filledComponent)
 			{
-				gLogger->logMsgF("CraftingSession::bagComponents filledComponent not found",MSG_HIGH);
+				gLogger->log(LogManager::DEBUG,"CraftingSession::bagComponents filledComponent not found");
 				return;
 			}
 			
@@ -861,7 +877,7 @@ void CraftingSession::destroyComponents()
 			{
 				if(!fC->hasAttribute("factory_count"))					  
 				{
-					gLogger->logMsgF("CraftingSession::prepareComponentoffer crate without factory_count attribute",MSG_HIGH);
+					gLogger->log(LogManager::DEBUG,"CraftingSession::prepareComponentoffer crate without factory_count attribute");
 					return;
 				}
 			
@@ -1113,14 +1129,14 @@ uint8 CraftingSession::_experimentRoll(uint32 expPoints)
 	//ok we have some sort of success
 	assRoll = (int32) floor( (double)gRandom->getRand() / (RAND_MAX  + 1.0f) * (100.0f - 1.0f) + 1.0f) ;
 
-	gLogger->logErrorF("crafting","CraftingSession:: assembly Roll preMod %u",MSG_NORMAL,assRoll);
+	gLogger->log(LogManager::DEBUG,"CraftingSession:: assembly Roll preMod %u",assRoll);
 
 	int32 modRoll = static_cast<int32>(((assRoll - (rating * 0.4f)) / 15.0f) - (mToolEffectivity / 50.0f));
 
 	++modRoll;
 
 	//int32 modRoll = (gRandom->getRand() - (rating*0.2))/15;
-	gLogger->logErrorF("crafting","CraftingSession:: assembly Roll postMod %i",MSG_NORMAL,modRoll);
+	gLogger->log(LogManager::DEBUG,"CraftingSession:: assembly Roll postMod %i",modRoll);
 
 	//0 is amazing success
 	//1 is great success
@@ -1162,36 +1178,27 @@ uint8 CraftingSession::_assembleRoll()
 		mOwnerAssSkillMod = 125;
 	}
 
-
 	float rating	= 50.0f + ((ma - 500.0f) / 40.0f) +  mOwnerAssSkillMod - 5.0f;
-	//gLogger->logMsgF("CraftingSession:: relevant rating %f",MSG_NORMAL,rating);
-	//gLogger->logErrorF("Crafting","CraftingSession::_assembleRoll() relevant rating %f",MSG_NORMAL,rating);
 
 	rating	+= (mToolEffectivity/10);
 	rating -= (mManufacturingSchematic->getComplexity()/10);
 
-	//gLogger->logErrorF("Crafting","CraftingSession::_assembleRoll() relevant rating modified with tool %f",MSG_NORMAL,rating);
-
 	float risk		= 100.0f - rating;
-
-	//gLogger->logErrorF("Crafting","CraftingSession::_assembleRoll() relevant Skill Mod %u",MSG_NORMAL,mOwnerAssSkillMod);
-	//gLogger->logErrorF("Crafting","CraftingSession::_assembleRoll() relevant risk %f",MSG_NORMAL,risk);
-
 
 	mManufacturingSchematic->setExpFailureChance(risk);
 
 	riskRoll		= (int32)(floor(((double)gRandom->getRand() / (RAND_MAX  + 1.0f) * (100.0f - 1.0f) + 1.0f)));
 
-	//gLogger->logErrorF("Crafting","CraftingSession::_assembleRoll() relevant riskroll %u",MSG_NORMAL,riskRoll);
+	//gLogger->logErrorF("Crafting","CraftingSession::_assembleRoll() relevant riskroll %u",riskRoll);
 
 
 	// ensure that every critical makes the nect critical less likely
 	// we dont want to have more than 3 criticals in a row
 
-	//gLogger->logErrorF("Crafting","CraftingSession::_assembleRoll() relevant criticalCount %u",MSG_NORMAL,mCriticalCount);
+	//gLogger->logErrorF("Crafting","CraftingSession::_assembleRoll() relevant criticalCount %u",mCriticalCount);
 
 	riskRoll += (mCriticalCount*5);
-	//gLogger->logErrorF("Crafting","CraftingSession::_assembleRoll() modified riskroll %u",MSG_NORMAL,riskRoll);
+	//gLogger->logErrorF("Crafting","CraftingSession::_assembleRoll() modified riskroll %u",riskRoll);
 
 	if((mCriticalCount = 3))
 		riskRoll = static_cast<uint32>(risk+1);
@@ -1208,11 +1215,7 @@ uint8 CraftingSession::_assembleRoll()
 	//ok we have some sort of success
 	assRoll = (int32)floor((double)gRandom->getRand() / (RAND_MAX  + 1.0f) * (100.0f - 1.0f) + 1.0f) ;
 
-	//gLogger->logMsgF("CraftingSession:: assembly Roll preMod %u",MSG_NORMAL,assRoll);
-
 	int32 modRoll = static_cast<uint32>(((assRoll - (rating * 0.4f)) / 15.0f) - (mToolEffectivity / 50.0f));
-
-	//gLogger->logMsgF("CraftingSession:: assembly Roll postMod %u",MSG_NORMAL,modRoll);
 
 	//0 is amazing success
 	//1 is great success
@@ -1425,7 +1428,7 @@ void CraftingSession::collectComponents()
 		Item* tO = dynamic_cast<Item*>(gWorldManager->getObjectById((*checkResIt).first));
 		if(!tO)
 		{
-			gLogger->logErrorF("Crafting","CraftingSession::collectComponents() no component",MSG_NORMAL);
+			gLogger->log(LogManager::DEBUG,"CraftingSession::collectComponents() no component");
 			continue;
 		}
 		string componentSerial = "";
@@ -1578,7 +1581,7 @@ uint8 CraftingSession::getExperimentationRoll(ExperimentationProperty* expProper
 
 	if(expProperty->mRoll == -1)
 	{
-		gLogger->logMsgF("CraftingSession:: expProperty is a Virgin!",MSG_NORMAL);
+		gLogger->log(LogManager::DEBUG,"CraftingSession:: expProperty is a Virgin!");
 		
 		// get our Roll and take into account the relevant modifiers
 		roll			= _experimentRoll(expPoints);
@@ -1590,10 +1593,10 @@ uint8 CraftingSession::getExperimentationRoll(ExperimentationProperty* expProper
 		{
 			ExperimentationProperty* tempProperty = (*itAll);
 
-			gLogger->logMsgF("CraftingSession:: now testing expProperty : %s",MSG_NORMAL,tempProperty->mExpAttributeName.getAnsi());
+			gLogger->log(LogManager::DEBUG,"CraftingSession:: now testing expProperty : %s",tempProperty->mExpAttributeName.getAnsi());
 			if(expProperty->mExpAttributeName.getCrc() == tempProperty->mExpAttributeName.getCrc())
 			{
-				gLogger->logMsgF("CraftingSession:: yay :) lets assign it our roll : %u",MSG_NORMAL,roll);
+				gLogger->log(LogManager::DEBUG,"CraftingSession:: assign it our roll : %u",roll);
 				tempProperty->mRoll = roll;
 			}
 
@@ -1604,7 +1607,7 @@ uint8 CraftingSession::getExperimentationRoll(ExperimentationProperty* expProper
 	else
 	{
 		roll = static_cast<uint8>(expProperty->mRoll);
-		gLogger->logMsgF("CraftingSession:: experiment expProperty isnt a virgin anymore ...(roll:%u)",MSG_NORMAL,roll);
+		gLogger->log(LogManager::DEBUG,"CraftingSession:: experiment expProperty isnt a virgin anymore ...(roll:%u)",roll);
 	}
 
 	return roll;

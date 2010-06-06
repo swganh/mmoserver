@@ -92,12 +92,12 @@ rem --- Start of SET_DEFAULTS --------------------------------------------------
 :SET_DEFAULTS
 
 set DEPENDENCIES_VERSION=0.1.2
-set DEPENDENCIES_FILE=mmoserver-deps-%DEPENDENCIES_VERSION%.zip
+set DEPENDENCIES_FILE=mmoserver-deps-%DEPENDENCIES_VERSION%.7z
 set DEPENDENCIES_URL=http://github.com/downloads/swganh/mmoserver/%DEPENDENCIES_FILE%
 set "PROJECT_BASE=%~dp0"
 set BUILD_TYPE=debug
-set MSVC_VERSION=
 set REBUILD=build
+set MSVC_VERSION=10
 set ALLHEIGHTMAPS=false
 set SKIPHEIGHTMAPS=false
 set DEPENDENCIESONLY=false
@@ -128,7 +128,6 @@ if "%~0" == "-h" (
 	echo "    /rebuild                       Rebuilds the projects instead of incremental build"
 	echo "    /clean                         Cleans the generated files"
 	echo "    /build [debug-release-all]     Specifies the build type, defaults to debug"
-	echo "    /msvc-version [vc9|vc10]       Specifies the msvc version and project files to use"
 	echo "    /buildnumber [num]             Specifies a build number to be set rather than commit hash"
 )
 
@@ -168,21 +167,6 @@ if "%~0" == "/buildnumber" (
 rem Check for /build:x format and then set BUILD_TYPE
 if "%~0" == "/build" (
 	set BUILD_TYPE=%~1
-	shift
-)
-
-
-rem Check for /msvc-version:x format and then set MSVC_VERSION
-if "%~0" == "/msvc-version" (
-	rem Only set if it's an allowed version
-	if "%~1" == "vc9" (
-		set MSVC_VERSION=9
-	)
-
-	if "%~1" == "vc10" (
-		set MSVC_VERSION=10
-	)
-
 	shift
 )
 
@@ -237,87 +221,27 @@ rem ----------------------------------------------------------------------------
 rem --- Start of BUILD_ENVIRONMENT ---------------------------------------------
 :BUILD_ENVIRONMENT
 
-if %MSVC_VERSION%x == x (
-	if exist "%PROGRAMFILES(X86)%\Microsoft Visual Studio 10.0" (
-		set MSVC_VERSION=10
-	) else if exist "%PROGRAMFILES%\Microsoft Visual Studio 10.0" (
-		set MSVC_VERSION=10
-	) else if exist "%PROGRAMFILES(X86)%\Microsoft Visual Studio 9.0" (
-		set MSVC_VERSION=9
-	) else if exist "%PROGRAMFILES%\Microsoft Visual Studio 9.0" (
-		set MSVC_VERSION=9
-	)
+if not exist "%VS100COMNTOOLS%" (
+  set "VS100COMNTOOLS=%PROGRAMFILES(X86)%\Microsoft Visual Studio 10.0\Common7\Tools"
+  if not exist "!VS100COMNTOOLS!" (
+  	  set "VS100COMNTOOLS=%PROGRAMFILES%\Microsoft Visual Studio 10.0\Common7\Tools"
+  	  if not exist "!VS100COMNTOOLS!" (          
+  		    rem TODO: Allow user to enter a path to their base visual Studio directory.
+         
+    	    echo ***** Microsoft Visual Studio 10.0 required *****
+    	    exit /b 1
+  	  )
+  )
 )
 
-call :BUILD_ENVIRONMENT_FOR_%MSVC_VERSION%
+set "MSBUILD=%WINDIR%\Microsoft.NET\Framework\v4.0.30319\msbuild.exe"
 
-rem Set to devenv.exe for all versions of VS except express.
-if exist "%VS_BASE_DIR%\Common7\IDE\devenv.com" (
-	set "DEVENV=%VS_BASE_DIR%\Common7\IDE\devenv.com"
-) else (
-	set "DEVENV=%VS_BASE_DIR%\Common7\IDE\vcexpress.exe"
-)
-
-set "MSBUILD=%DOTNET_BASE_DIR%\msbuild.exe"
-
-call "%VS_BASE_DIR%\VC\vcvarsall.bat" >NUL
+call "%VS100COMNTOOLS%\vsvars32.bat" >NUL
 
 set environment_built=yes
 
 goto :eof
 rem --- End of BUILD_ENVIRONMENT -----------------------------------------------
-rem ----------------------------------------------------------------------------
-
-
-rem ----------------------------------------------------------------------------
-rem --- Start of BUILD_ENVIRONMENT_FOR_9 ---------------------------------------
-:BUILD_ENVIRONMENT_FOR_9
-
-set "VS_BASE_DIR=%PROGRAMFILES(X86)%\Microsoft Visual Studio 9.0"
-if not exist "!VS_BASE_DIR!" (
-	set "VS_BASE_DIR=%PROGRAMFILES%\Microsoft Visual Studio 9.0"
-	if not exist "!VS_BASE_DIR!" (
-		rem TODO: Allow user to enter a path to their base visual Studio directory.
-
-		echo ***** Microsoft Visual Studio 9.0 required *****
-exit
-	)
-)
-
-set "DOTNET_BASE_DIR=%WINDIR%\Microsoft.NET\Framework\v3.5"
-if not exist "%DOTNET_BASE_DIR%" (
-	echo ***** Microsoft .NET Framework 3.5 required *****
-	exit
-)
-
-goto :eof
-rem --- End of BUILD_ENVIRONMENT_FOR_9 -----------------------------------------
-rem ----------------------------------------------------------------------------
-
-
-rem ----------------------------------------------------------------------------
-rem --- Start of BUILD_ENVIRONMENT_FOR_10 --------------------------------------
-:BUILD_ENVIRONMENT_FOR_10
-
-set "VS_BASE_DIR=%PROGRAMFILES(X86)%\Microsoft Visual Studio 10.0"
-if not exist "!VS_BASE_DIR!" (
-	set "VS_BASE_DIR=%PROGRAMFILES%\Microsoft Visual Studio 10.0"
-	if not exist "!VS_BASE_DIR!" (
-		rem TODO: Allow user to enter a path to their base visual Studio directory.
-
-		echo ***** Microsoft Visual Studio 10.0 required *****
-		exit
-	)
-)
-
-set "DOTNET_BASE_DIR=%WINDIR%\Microsoft.NET\Framework\v4.0.30319"
-if not exist "%DOTNET_BASE_DIR%" (
-	echo ***** Microsoft .NET Framework 4.0.30319 required *****
-	exit
-)
-
-goto :eof
-rem --- End of BUILD_ENVIRONMENT_FOR_10 ----------------------------------------
 rem ----------------------------------------------------------------------------
 
 
@@ -360,21 +284,15 @@ rem --- Downloads datafiles such as heightmaps needed to run the project.    ---
 :DOWNLOAD_HEIGHTMAP
 
 if not exist "data\heightmaps\%1.hmpw" (
-	if not exist "data\heightmaps\%1.zip" (
+	if not exist "data\heightmaps\%1.7z" (
 		echo ** Downloading Heightmap for %1 **
 		echo.
-
-		"tools\wget.exe" http://swganh.com/^^!^^!planets^^!^^!/%1.zip -O data\heightmaps\%1.zip
+		"tools\wget.exe" http://github.com/downloads/swganh/mmoserver/heightmap-%1.7z -O data\heightmaps\heightmap-%1.7z
 
 		echo ** Downloading heightmap complete **
 	)
 
-	"tools\unzip.exe" data\heightmaps\%1.zip -d data\heightmaps >NUL
-	move "%PROJECT_BASE%data\heightmaps\%1.hmp" "%PROJECT_BASE%data\heightmaps\%1.hmpw"
-
-	if exist "data\heightmaps\%1.hmpw" (
-		del data\heightmaps\%1.zip
-	)
+	"tools\7z.exe" x -y -odata\heightmaps data\heightmaps\heightmap-%1.7z 
 )
 
 goto :eof
@@ -439,7 +357,8 @@ if not exist "%DEPENDENCIES_FILE%" (
 
 if exist "%DEPENDENCIES_FILE%" (
 	echo Extracting dependencies ...
-	"tools\unzip.exe" "%DEPENDENCIES_FILE%" >NUL
+
+	"tools\7z.exe" x -y "%DEPENDENCIES_FILE%"
 	echo %DEPENDENCIES_VERSION% >"deps\VERSION"
 	echo Complete!
 	echo.

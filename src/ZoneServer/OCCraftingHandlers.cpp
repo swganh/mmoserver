@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -59,7 +75,7 @@ void ObjectController::_handleRequestDraftslotsBatch(uint64 targetId,Message* me
 
 	if(!elementCount)
 	{
-		gLogger->logMsg("ObjectController::_handleRequestDraftslotsBatch: Error in requestStr");
+		gLogger->log(LogManager::DEBUG,"ObjectController::_handleRequestDraftslotsBatch: Error in requestStr");
 		return;
 	}
 
@@ -96,7 +112,7 @@ void ObjectController::_handleRequestResourceWeightsBatch(uint64 targetId,Messag
 
 	if(!elementCount)
 	{
-		gLogger->logMsg("ObjectController::_handleRequestResourceWeightsBatch: Error in requestStr");
+		gLogger->log(LogManager::DEBUG,"ObjectController::_handleRequestResourceWeightsBatch: Error in requestStr");
 		return;
 	}
 
@@ -144,35 +160,38 @@ void ObjectController::_handleRequestCraftingSession(uint64 targetId,Message* me
 
 	if(!tool)
 	{
-		gLogger->logMsgF("ObjController::handleRequestcraftingsession: could not find tool %"PRIu64"",MSG_NORMAL,targetId);
+		gLogger->log(LogManager::DEBUG,"ObjController::handleRequestcraftingsession: could not find tool %"PRIu64"",targetId);
 		gMessageLib->sendCraftAcknowledge(opCraftCancelResponse,0,0,playerObject);
 		return;
 	}
 
-//	if()
-//	{
-//	}
 
 	// get the tangible objects in range
 	mSI->getObjectsInRange(playerObject,&inRangeObjects,(ObjType_Tangible),range);
 
 	//and see if a fitting crafting station is near
-	station = playerObject->getCraftingStation(inRangeObjects,(ItemType) tool->getItemType());
+	station = playerObject->getCraftingStation(&inRangeObjects,(ItemType) tool->getItemType());
 
 	if(!station)
 	{
 		expFlag = false;
 	}
 
+	if(playerObject->isDead() || playerObject->isIncapacitated())
+	{
+		gMessageLib->sendSystemMessage(playerObject,L"error_message", "wrong_state");
+		return;
+	}
+
 	if(playerObject->getPerformingState() != PlayerPerformance_None)
 	{
-		gMessageLib->sendSystemMessage(playerObject,L"You cannot do this at this time.");
+		gMessageLib->sendSystemMessage(playerObject,L"error_message", "wrong_state");
 		return;
 	}
 
 	if(playerObject->checkState(CreatureState_Crafting) || playerObject->getCraftingSession())
 	{
-		gLogger->logMsgF("ObjController::handleRequestcraftingsession: state or session",MSG_NORMAL);
+		gLogger->log(LogManager::DEBUG,"ObjController::handleRequestcraftingsession: state or session");
 		gMessageLib->sendCraftAcknowledge(opCraftCancelResponse,0,0,playerObject);
 		return;
 	}
@@ -191,7 +210,7 @@ void ObjectController::_handleRequestCraftingSession(uint64 targetId,Message* me
 		return;
 	}
 
-	gLogger->logMsgF("ObjController::handleRequestcraftingsession: new session :)",MSG_NORMAL);
+	gLogger->log(LogManager::DEBUG,"ObjController::handleRequestcraftingsession: new session :)");
 	playerObject->setCraftingSession(gCraftingSessionFactory->createSession(Anh_Utils::Clock::getSingleton(),playerObject,tool,station,expFlag));
 }
 
@@ -234,7 +253,7 @@ void ObjectController::_handleCancelCraftingSession(uint64 targetId,Message* mes
 
 	gCraftingSessionFactory->destroySession(playerObject->getCraftingSession());
 
-	gLogger->logMsg("session canceled");
+	gLogger->log(LogManager::DEBUG,"session canceled");
 	//client complains over crafting tool already hacing an item when we go out of the slot screen!!!!!
 }
 
@@ -346,9 +365,9 @@ void ObjectController::handleCraftCustomization(Message* message)
 	while((custIt != cList->end())&&(i < hmmm2))
 	{
 		message->getUint32(color);
-		gLogger->logMsgF("craft customization int1 : %u",MSG_HIGH,color);
+		gLogger->log(LogManager::DEBUG,"craft customization int1 : %u",color);
 		message->getUint32(color);
-		gLogger->logMsgF("craft customization int2 : %u at index : %u",MSG_HIGH,color,(*custIt)->cutomizationIndex);
+		gLogger->log(LogManager::DEBUG,"craft customization int2 : %u at index : %u",color,(*custIt)->cutomizationIndex);
 		session->getItem()->setCustomization(static_cast<uint8>((*custIt)->cutomizationIndex),(uint16)color,3);
 
 		i++;
@@ -394,8 +413,8 @@ void ObjectController::_handleNextCraftingStage(uint64 targetId,Message* message
 			gCraftingSessionFactory->destroySession(session);
 			return;
 		}
-		gLogger->logMsgF("Counter We Got: %u", MSG_NORMAL, counter);
-		gLogger->logMsgF("Counter We'd Use: %u", MSG_NORMAL, session->getCounter());
+		gLogger->log(LogManager::DEBUG,"Counter We Got: %u", counter);
+		gLogger->log(LogManager::DEBUG,"Counter We'd Use: %u", session->getCounter());
 	}
 
 	switch(session->getStage())
@@ -434,7 +453,7 @@ void ObjectController::_handleNextCraftingStage(uint64 targetId,Message* message
 
 		default:
 		{
-			gLogger->logMsgF("ObjController::_handlenextcraftingstage: unhandled stage %u",MSG_NORMAL,session->getStage());
+			gLogger->log(LogManager::NOTICE,"ObjController::_handlenextcraftingstage: unhandled stage %u",session->getStage());
 		}
 		break;
 	}

@@ -1,0 +1,8 @@
+mission_text.sql holds the text - unimportant for us - we need a file and a number.
+thus mission_types.sql should hold the amount of missions in the file.
+
+the table mission_terminal_mission_types will connect the terminal to the mission_types given
+
+the table mission_spawn_areas will hold spawn areas for missions, 
+the table mission_spawn_area_terminal will connect terminals with spawn areas
+the table mission_spawn_types will connect mobs with spawn areas for missions

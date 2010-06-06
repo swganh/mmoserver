@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -36,7 +52,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "ResourceManager.h"
 #include "SchematicManager.h"
 #include "TreasuryManager.h"
-#include "Vehicle.h"
+#include "VehicleController.h"
 #include "WorldConfig.h"
 #include "ZoneOpcodes.h"
 #include "ZoneServer.h"
@@ -221,20 +237,19 @@ void WorldManager::addDisconnectedPlayer(PlayerObject* playerObject)
 {
 	uint32 timeOut = gWorldConfig->getConfiguration("Zone_Player_Logout",300);
 
-	gLogger->logMsgF("Player(%"PRIu64") disconnected,reconnect timeout in %u seconds",MSG_NORMAL,playerObject->getId(),timeOut);
+	gLogger->log(LogManager::DEBUG,"Player(%"PRIu64") disconnected,reconnect timeout in %u seconds",playerObject->getId(),timeOut);
 
 	// Halt the tutorial scripts, if running.
 	playerObject->stopTutorial();
 
 
-	Datapad* datapad = dynamic_cast<Datapad*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+	Datapad* datapad			= playerObject->getDataPad();
 
 	if(playerObject->getMount() && datapad)
 	{
-		if(Vehicle* datapad_pet = dynamic_cast<Vehicle*>(datapad->getDataById(playerObject->getMount()->getPetController())))
+		if(VehicleController* datapad_pet = dynamic_cast<VehicleController*>(datapad->getDataById(playerObject->getMount()->controller())))
 		{
-			datapad_pet->dismountPlayer();
-			datapad_pet->store();
+			datapad_pet->Store();
 		}
 	}
 
@@ -252,7 +267,7 @@ void WorldManager::addDisconnectedPlayer(PlayerObject* playerObject)
 			playerObject->removeDefenderAndUpdateList(object->getId());
 
 			destroyObject(object);
-			// gLogger->logMsgF("WorldManager::addDisconnectedPlayer Deleted object with id  %"PRIu64"",MSG_NORMAL,privateOwnedObjectId);
+			// gLogger->log(LogManager::DEBUG,"WorldManager::addDisconnectedPlayer Deleted object with id  %"PRIu64"",privateOwnedObjectId);
 		}
 
 		privateOwnedObjectId = ScriptSupport::Instance()->getObjectOwnedBy(playerObject->getId());
@@ -260,6 +275,8 @@ void WorldManager::addDisconnectedPlayer(PlayerObject* playerObject)
 
 	removeObjControllerToProcess(playerObject->getController()->getTaskId());
 	removeCreatureHamToProcess(playerObject->getHam()->getTaskId());
+	removeCreatureStomachToProcess(playerObject->getStomach()->mDrinkTaskId);
+	removeCreatureStomachToProcess(playerObject->getStomach()->mFoodTaskId);
 	removeEntertainerToProcess(playerObject->getEntertainerTaskId());
 
 	gCraftingSessionFactory->destroySession(playerObject->getCraftingSession());
@@ -300,7 +317,7 @@ void WorldManager::addReconnectedPlayer(PlayerObject* playerObject)
 	playerObject->setInMoveCount(0);
 	playerObject->setClientTickCount(0);
 
-	gLogger->logMsgF("Player(%"PRIu64") reconnected",MSG_NORMAL,playerObject->getId());
+	gLogger->log(LogManager::DEBUG,"Player(%"PRIu64") reconnected",playerObject->getId());
 
 	removePlayerFromDisconnectedList(playerObject);
 }
@@ -313,7 +330,7 @@ void WorldManager::removePlayerFromDisconnectedList(PlayerObject* playerObject)
 
 	if((it = std::find(mPlayersToRemove.begin(),mPlayersToRemove.end(),playerObject)) == mPlayersToRemove.end())
 	{
-		gLogger->logMsgF("WorldManager::addReconnectedPlayer: Error removing Player from Disconnected List: %"PRIu64"",MSG_HIGH,playerObject->getId());
+		gLogger->log(LogManager::DEBUG,"WorldManager::addReconnectedPlayer: Error removing Player from Disconnected List: %"PRIu64"",playerObject->getId());
 	}
 	else
 	{
@@ -351,7 +368,7 @@ void WorldManager::warpPlanet(PlayerObject* playerObject, const glm::vec3& desti
 		}
 		else
 		{
-			gLogger->logMsgF("WorldManager::removePlayer: couldn't find cell %"PRIu64"",MSG_HIGH,playerObject->getParentId());
+			gLogger->log(LogManager::DEBUG,"WorldManager::removePlayer: couldn't find cell %"PRIu64"",playerObject->getParentId());
 		}
 	}
 	else
@@ -374,7 +391,10 @@ void WorldManager::warpPlanet(PlayerObject* playerObject, const glm::vec3& desti
 	
 	//why remove that ?	
 	removeCreatureHamToProcess(playerObject->getHam()->getTaskId());
-	//playerObject->getHam()->setTaskId(0);
+	removeCreatureStomachToProcess(playerObject->getStomach()->mDrinkTaskId);
+	removeCreatureStomachToProcess(playerObject->getStomach()->mFoodTaskId);
+	//we've removed the taskId, now lets reset the Id
+	playerObject->getHam()->setTaskId(0);
 
 	// reset player properties
 	playerObject->resetProperties();
@@ -396,7 +416,7 @@ void WorldManager::warpPlanet(PlayerObject* playerObject, const glm::vec3& desti
 		}
 		else
 		{
-			gLogger->logMsgF("WorldManager::warpPlanet: couldn't find cell %"PRIu64"",MSG_HIGH,parentId);
+			gLogger->log(LogManager::DEBUG,"WorldManager::warpPlanet: couldn't find cell %"PRIu64"",parentId);
 		}
 	}
 	else
@@ -409,7 +429,7 @@ void WorldManager::warpPlanet(PlayerObject* playerObject, const glm::vec3& desti
 		else
 		{
 			// we should never get here !
-			gLogger->logMsg("WorldManager::addObject: could not find zone region in map");
+			gLogger->log(LogManager::DEBUG,"WorldManager::addObject: could not find zone region in map");
 			return;
 		}
 	}
@@ -422,6 +442,7 @@ void WorldManager::warpPlanet(PlayerObject* playerObject, const glm::vec3& desti
 
 	// initialize ham regeneration
 	playerObject->getHam()->checkForRegen();
+	playerObject->getStomach()->checkForRegen();
 }
 
 //======================================================================================================================
@@ -441,12 +462,12 @@ bool WorldManager::_handlePlayerMovementUpdateTimers(uint64 callTime, void* ref)
 		{
 			if (player->isConnected())
 			{
-				// gLogger->logMsgF("WorldManager::_handleObjectMovementUpdateTimers: Checking player update time %"PRIu64" againts %"PRIu64"",MSG_NORMAL, callTime, (*it).second);
+				// gLogger->log(LogManager::DEBUG,"WorldManager::_handleObjectMovementUpdateTimers: Checking player update time %"PRIu64" againts %"PRIu64"", callTime, (*it).second);
 				//  The timer has expired?
 				if (callTime >= ((*it).second))
 				{
 					// Yes, handle it.
-					// gLogger->logMsg("Calling UPDATEPOSITION-bla-ha ()");
+					// gLogger->log(LogManager::DEBUG,"Calling UPDATEPOSITION-bla-ha ()");
 
 					ObjectController* ObjCtl = player->getController();
 
@@ -487,7 +508,7 @@ bool WorldManager::_handlePlayerMovementUpdateTimers(uint64 callTime, void* ref)
 void WorldManager::addPlayerMovementUpdateTime(PlayerObject* player, uint64 when)
 {
 	uint64 expireTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
-	// gLogger->logMsgF("Adding new at %"PRIu64"",MSG_NORMAL, expireTime + when);
+	// gLogger->log(LogManager::DEBUG,"Adding new at %"PRIu64"", expireTime + when);
 	mPlayerMovementUpdateMap.insert(std::make_pair(player->getId(), expireTime + when));
 }
 

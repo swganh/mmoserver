@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -43,7 +59,7 @@ void QuestGiver::filterConversationOptions(ConversationPage* page,std::vector<Co
 {
 	std::vector<ConversationOption*>::iterator optionIt = page->mOptions.begin();
 
-	// gLogger->logMsgF("QuestGiver::filterConversationOptions: page->mId = %u",MSG_NORMAL,page->mId);
+	// gLogger->log(LogManager::DEBUG,"QuestGiver::filterConversationOptions: page->mId = %u",page->mId);
 	switch(page->mId)
 	{
 
@@ -51,10 +67,10 @@ void QuestGiver::filterConversationOptions(ConversationPage* page,std::vector<Co
 		case 0:
 		default:
 		{
-			// gLogger->logMsg("Trainer::filterConversationOptions: default");
+			// gLogger->log(LogManager::DEBUG,"Trainer::filterConversationOptions: default");
 			while(optionIt != page->mOptions.end())
 			{
-				// gLogger->logMsg("Trainer::filterConversationOptions: pushed something");
+				// gLogger->log(LogManager::DEBUG,"Trainer::filterConversationOptions: pushed something");
 				filteredOptions->push_back(*optionIt);
 				++optionIt;
 			}
@@ -94,7 +110,7 @@ bool QuestGiver::preProcessfilterConversation(ActiveConversation* av, Conversati
 			if (subState < 16)
 			{
 				// av->setCurrentPage(8);	// "Move along."
-				// gLogger->logMsgF("QuestGiver::preProcessfilterConversation: Returned modified pagelink %u",MSG_NORMAL, 8);
+				// gLogger->log(LogManager::DEBUG,"QuestGiver::preProcessfilterConversation: Returned modified pagelink %u", 8);
 				status = false;
 				char elements[5][32];
 				memset(elements, 0, sizeof(elements));
@@ -114,7 +130,7 @@ bool QuestGiver::preProcessfilterConversation(ActiveConversation* av, Conversati
 			if ((subState == 17) || (subState == 18))
 			{
 				// av->setCurrentPage(7);	/// "What are you doing here?  Get a move on.  I'm, uh, still guarding here."
-				// gLogger->logMsgF("QuestGiver::preProcessfilterConversation: Returned modified pagelink %u",MSG_NORMAL, 7);
+				// gLogger->log(LogManager::DEBUG,"QuestGiver::preProcessfilterConversation: Returned modified pagelink %u", 7);
 
 				// If player has "lost" his gun, we let the npc-officer give him a new.
 				Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
@@ -200,12 +216,12 @@ void QuestGiver::prepareConversation(PlayerObject* player)
 		if (this->getParentId())
 		{
 			// We are inside a cell.
-			gMessageLib->sendDataTransformWithParent(this);
+			gMessageLib->sendDataTransformWithParent053(this);
 			gMessageLib->sendUpdateTransformMessageWithParent(this);
 		}
 		else
 		{
-			gMessageLib->sendDataTransform(this);
+			gMessageLib->sendDataTransform053(this);
 			gMessageLib->sendUpdateTransformMessage(this);
 		}
 	}
@@ -223,7 +239,7 @@ void QuestGiver::prepareConversation(PlayerObject* player)
 			gMessageLib->sendUpdateTransformMessage(this, player);
 		}
 	}
-	// gLogger->logMsgF("%f %f %f %f",MSG_NORMAL, this->mDirection.x, this->mDirection.y, this->mDirection.z, this->mDirection.w);
+	// gLogger->log(LogManager::DEBUG,"%f %f %f %f", this->mDirection.x, this->mDirection.y, this->mDirection.z, this->mDirection.w);
 
 	setLastConversationTarget(player->getId());
 
@@ -284,12 +300,12 @@ void QuestGiver::restorePosition(PlayerObject* player)
 		if (this->getParentId())
 		{
 			// We are inside a cell.
-			gMessageLib->sendDataTransformWithParent(this);
+			gMessageLib->sendDataTransformWithParent053(this);
 			gMessageLib->sendUpdateTransformMessageWithParent(this);
 		}
 		else
 		{
-			gMessageLib->sendDataTransform(this);
+			gMessageLib->sendDataTransform053(this);
 			gMessageLib->sendUpdateTransformMessage(this);
 		}
 	}
@@ -316,7 +332,7 @@ void QuestGiver::restorePosition(PlayerObject* player)
 // Return pageLink for next conversation.
 uint32 QuestGiver::handleConversationEvent(ActiveConversation* av,ConversationPage* page,ConversationOption* option,PlayerObject* player)
 {
-	// gLogger->logMsgF("QuestGiver::conversationEvent: page->mId = %u",MSG_NORMAL,page->mId);
+	// gLogger->log(LogManager::DEBUG,"QuestGiver::conversationEvent: page->mId = %u",page->mId);
 		
 	std::vector<ConversationOption*>::iterator optionIt = page->mOptions.begin();
 	uint32 pageLink = page->mId;

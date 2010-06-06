@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -632,7 +648,6 @@ void MessageLib::sendCreatureAnimation(CreatureObject* srcObject,string animatio
 
 void MessageLib::sendCreatureAnimation(CreatureObject* srcObject,string animation, PlayerObject* player)
 {
-	// gLogger->logMsg("MessageLib::sendCreatureAnimation: For tutorial");
 	mMessageFactory->StartMessage();
 	mMessageFactory->addUint32(opObjControllerMessage);
 	mMessageFactory->addUint32(0x0000001B);
@@ -768,8 +783,10 @@ bool MessageLib::sendEmptyObjectMenuResponse(uint64 requestedId,PlayerObject* ta
 // starting location list
 //
 
-bool MessageLib::sendStartingLocationList(PlayerObject* player)
+bool MessageLib::sendStartingLocationList(PlayerObject* player, uint8 tatooine, uint8 corellia, uint8 talus, uint8 rori, uint8 naboo)
 {
+	gLogger->log(LogManager::DEBUG,"Sending Starting Location List\n");
+
 	if(!(player->isConnected()))
 	{
 		return(false);
@@ -792,7 +809,7 @@ bool MessageLib::sendStartingLocationList(PlayerObject* player)
 	mMessageFactory->addString("");
 	mMessageFactory->addString("styles.location.tatooine.bestine");
 	mMessageFactory->addString("");
-	mMessageFactory->addUint8(1);
+	mMessageFactory->addUint8(tatooine);
 
 	mMessageFactory->addString("mos_espa");
 	mMessageFactory->addString("tatooine");
@@ -801,7 +818,7 @@ bool MessageLib::sendStartingLocationList(PlayerObject* player)
 	mMessageFactory->addString("");
 	mMessageFactory->addString("styles.location.tatooine.mos_espa");
 	mMessageFactory->addString("");
-	mMessageFactory->addUint8(1);
+	mMessageFactory->addUint8(tatooine);
 
 	mMessageFactory->addString("mos_eisley");
 	mMessageFactory->addString("tatooine");
@@ -810,7 +827,7 @@ bool MessageLib::sendStartingLocationList(PlayerObject* player)
 	mMessageFactory->addString("");
 	mMessageFactory->addString("styles.location.tatooine.mos_eisley");
 	mMessageFactory->addString("");
-	mMessageFactory->addUint8(1);
+	mMessageFactory->addUint8(tatooine);
 
 	mMessageFactory->addString("mos_entha");
 	mMessageFactory->addString("tatooine");
@@ -819,7 +836,7 @@ bool MessageLib::sendStartingLocationList(PlayerObject* player)
 	mMessageFactory->addString("");
 	mMessageFactory->addString("styles.location.tatooine.mos_entha");
 	mMessageFactory->addString("");
-	mMessageFactory->addUint8(1);
+	mMessageFactory->addUint8(tatooine);
 
 	//corellia =======================================
 	mMessageFactory->addString("coronet");
@@ -829,7 +846,7 @@ bool MessageLib::sendStartingLocationList(PlayerObject* player)
 	mMessageFactory->addString("");
 	mMessageFactory->addString("styles.location.corellia.coronet");
 	mMessageFactory->addString("");
-	mMessageFactory->addUint8(1);
+	mMessageFactory->addUint8(corellia);
 
 	mMessageFactory->addString("tyrena");
 	mMessageFactory->addString("corellia");
@@ -838,7 +855,7 @@ bool MessageLib::sendStartingLocationList(PlayerObject* player)
 	mMessageFactory->addString("");
 	mMessageFactory->addString("styles.location.corellia.tyrena");
 	mMessageFactory->addString("");
-	mMessageFactory->addUint8(1);
+	mMessageFactory->addUint8(corellia);
 
 	mMessageFactory->addString("kor_vella");
 	mMessageFactory->addString("corellia");
@@ -847,7 +864,7 @@ bool MessageLib::sendStartingLocationList(PlayerObject* player)
 	mMessageFactory->addString("");
 	mMessageFactory->addString("styles.location.corellia.kor_vella");
 	mMessageFactory->addString("");
-	mMessageFactory->addUint8(1);
+	mMessageFactory->addUint8(corellia);
 
 	mMessageFactory->addString("doaba_guerfel");
 	mMessageFactory->addString("corellia");
@@ -856,7 +873,7 @@ bool MessageLib::sendStartingLocationList(PlayerObject* player)
 	mMessageFactory->addString("");
 	mMessageFactory->addString("styles.location.corellia.doaba_guerfel");
 	mMessageFactory->addString("");
-	mMessageFactory->addUint8(1);
+	mMessageFactory->addUint8(corellia);
 
 	//talus =============================================
 	mMessageFactory->addString("dearic");
@@ -866,7 +883,7 @@ bool MessageLib::sendStartingLocationList(PlayerObject* player)
 	mMessageFactory->addString("");
 	mMessageFactory->addString("styles.location.talus.dearic");
 	mMessageFactory->addString("");
-	mMessageFactory->addUint8(1);
+	mMessageFactory->addUint8(talus);
 
 	mMessageFactory->addString("nashal");
 	mMessageFactory->addString("talus");
@@ -875,7 +892,7 @@ bool MessageLib::sendStartingLocationList(PlayerObject* player)
 	mMessageFactory->addString("");
 	mMessageFactory->addString("styles.location.talus.nashal");
 	mMessageFactory->addString("");
-	mMessageFactory->addUint8(1);
+	mMessageFactory->addUint8(talus);
 
 	//rori ==============================================
 	mMessageFactory->addString("narmle");
@@ -885,7 +902,7 @@ bool MessageLib::sendStartingLocationList(PlayerObject* player)
 	mMessageFactory->addString("");
 	mMessageFactory->addString("styles.location.rori.narmle");
 	mMessageFactory->addString("");
-	mMessageFactory->addUint8(1);
+	mMessageFactory->addUint8(rori);
 
 	mMessageFactory->addString("restuss");
 	mMessageFactory->addString("rori");
@@ -894,7 +911,7 @@ bool MessageLib::sendStartingLocationList(PlayerObject* player)
 	mMessageFactory->addString("");
 	mMessageFactory->addString("styles.location.rori.restuss");
 	mMessageFactory->addString("");
-	mMessageFactory->addUint8(1);
+	mMessageFactory->addUint8(rori);
 
 	// naboo ============================================
 	mMessageFactory->addString("theed");
@@ -904,7 +921,7 @@ bool MessageLib::sendStartingLocationList(PlayerObject* player)
 	mMessageFactory->addString("");
 	mMessageFactory->addString("styles.location.naboo.theed");
 	mMessageFactory->addString("");
-	mMessageFactory->addUint8(1);
+	mMessageFactory->addUint8(naboo);
 
 	mMessageFactory->addString("moenia");
 	mMessageFactory->addString("naboo");
@@ -913,7 +930,7 @@ bool MessageLib::sendStartingLocationList(PlayerObject* player)
 	mMessageFactory->addString("");
 	mMessageFactory->addString("styles.location.naboo.moenia");
 	mMessageFactory->addString("");
-	mMessageFactory->addUint8(1);
+	mMessageFactory->addUint8(naboo);
 
 	mMessageFactory->addString("keren");
 	mMessageFactory->addString("naboo");
@@ -922,7 +939,7 @@ bool MessageLib::sendStartingLocationList(PlayerObject* player)
 	mMessageFactory->addString("");
 	mMessageFactory->addString("styles.location.naboo.keren");
 	mMessageFactory->addString("");
-	mMessageFactory->addUint8(1);
+	mMessageFactory->addUint8(naboo);
 
 	mMessageFactory->addString("kaadara");
 	mMessageFactory->addString("naboo");
@@ -931,7 +948,7 @@ bool MessageLib::sendStartingLocationList(PlayerObject* player)
 	mMessageFactory->addString("");
 	mMessageFactory->addString("styles.location.naboo.kaadara");
 	mMessageFactory->addString("");
-	mMessageFactory->addUint8(1);
+	mMessageFactory->addUint8(naboo);
 
 	(player->getClient())->SendChannelA(mMessageFactory->EndMessage(),player->getAccountId(),CR_Client,5);
 
@@ -955,7 +972,7 @@ void MessageLib::sendCombatAction(CreatureObject* attacker,Object* defender,uint
 	mMessageFactory->addUint32(animation);
 	mMessageFactory->addUint64(attacker->getId());
 
-	if(Weapon* weapon = dynamic_cast<Weapon*>(attacker->getEquipManager()->getEquippedObject(CreatureEquipSlot_Weapon)))
+	if(Weapon* weapon = dynamic_cast<Weapon*>(attacker->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Left)))
 	{
 		mMessageFactory->addUint64(weapon->getId());
 	}
@@ -1136,12 +1153,40 @@ bool MessageLib::sendDraftWeightsResponse(DraftSchematic* schematic,PlayerObject
 	return(true);
 }
 
+// move (moving???)object in cell
+//
+//we need 0x0000000B to move players in elevators ... 0x00000053 might be specifically for static items ???
+//evtly divide between object and movingobject ????
+void MessageLib::sendDataTransformWithParent0B(Object* object)
+{
+	mMessageFactory->StartMessage();
+	mMessageFactory->addUint32(opObjControllerMessage);
+	mMessageFactory->addUint32(0x0000000B);
+	mMessageFactory->addUint32(opDataTransformWithParent);
+	mMessageFactory->addUint64(object->getId());
+	mMessageFactory->addUint32(0);
+	uint32 u = object->incDataTransformCounter();
+	mMessageFactory->addUint32(u);
+
+	mMessageFactory->addUint64(object->getParentId());
+	mMessageFactory->addFloat(object->mDirection.x);
+	mMessageFactory->addFloat(object->mDirection.y);
+	mMessageFactory->addFloat(object->mDirection.z);
+	mMessageFactory->addFloat(object->mDirection.w);
+	mMessageFactory->addFloat(object->mPosition.x);
+	mMessageFactory->addFloat(object->mPosition.y);
+	mMessageFactory->addFloat(object->mPosition.z);
+	mMessageFactory->addUint32(0);
+
+	_sendToInRangeUnreliable(mMessageFactory->EndMessage(),object,5);
+}
+
 //======================================================================================================================
 //
 // move object in world
 //
 
-void MessageLib::sendDataTransform(Object* object)
+void MessageLib::sendDataTransform0B(Object* object)
 {
 	mMessageFactory->StartMessage();
 	mMessageFactory->addUint32(opObjControllerMessage);
@@ -1165,10 +1210,37 @@ void MessageLib::sendDataTransform(Object* object)
 
 //======================================================================================================================
 //
+// move object in world
+//
+
+void MessageLib::sendDataTransform053(Object* object)
+{
+	mMessageFactory->StartMessage();
+	mMessageFactory->addUint32(opObjControllerMessage);
+	mMessageFactory->addUint32(0x00000053);
+	mMessageFactory->addUint32(opDataTransform);
+	mMessageFactory->addUint64(object->getId());
+	mMessageFactory->addUint32(0);
+	mMessageFactory->addUint32(object->incDataTransformCounter());
+
+	mMessageFactory->addFloat(object->mDirection.x);
+	mMessageFactory->addFloat(object->mDirection.y);
+	mMessageFactory->addFloat(object->mDirection.z);
+	mMessageFactory->addFloat(object->mDirection.w);
+	mMessageFactory->addFloat(object->mPosition.x);
+	mMessageFactory->addFloat(object->mPosition.y);
+	mMessageFactory->addFloat(object->mPosition.z);
+	mMessageFactory->addUint32(0);
+
+	_sendToInRangeUnreliable(mMessageFactory->EndMessage(),object,5);
+}
+
+//======================================================================================================================
+//
 // move object in cell
 //
 
-void MessageLib::sendDataTransformWithParent(Object* object)
+void MessageLib::sendDataTransformWithParent053(Object* object)
 {
 	mMessageFactory->StartMessage();
 	mMessageFactory->addUint32(opObjControllerMessage);
@@ -1178,7 +1250,6 @@ void MessageLib::sendDataTransformWithParent(Object* object)
 	mMessageFactory->addUint32(0);
 	uint32 u = object->incDataTransformCounter();
 	mMessageFactory->addUint32(u);
-	//gLogger->logMsgF("datatransform counter : %u",MSG_HIGH,u);
 
 	mMessageFactory->addUint64(object->getParentId());
 	mMessageFactory->addFloat(object->mDirection.x);
@@ -1190,7 +1261,6 @@ void MessageLib::sendDataTransformWithParent(Object* object)
 	mMessageFactory->addFloat(object->mPosition.z);
 	mMessageFactory->addUint32(0);
 
-	//_sendToInRange(mMessageFactory->EndMessage(),object,5);
 	_sendToInRangeUnreliable(mMessageFactory->EndMessage(),object,5);
 }
 
@@ -2203,11 +2273,11 @@ void MessageLib::sendIDEndMessage(PlayerObject* targetObject,PlayerObject* srcOb
 	mMessageFactory->addUint32(opObjControllerMessage);
 	mMessageFactory->addUint32(0x0000000B);
 	mMessageFactory->addUint32(opImageDesignStopMessage);
-	mMessageFactory->addUint64(targetObject->getId());//the object were manipulating
+	mMessageFactory->addUint64(targetObject->getId());//the recipient
 	mMessageFactory->addUint32(0);                    // unknown
 
-	mMessageFactory->addUint64(srcObject->getId()); //the recipient
-	mMessageFactory->addUint64(otherObject->getId());   //the manipulator
+	mMessageFactory->addUint64(otherObject->getId()); //the recipient
+	mMessageFactory->addUint64(srcObject->getId());   //the manipulator
 	mMessageFactory->addUint64(otherObject->getParentId()-1);
 
 	if(hair.getLength() > 0)

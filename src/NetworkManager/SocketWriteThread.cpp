@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -98,7 +114,7 @@ mIsRunning(false)
 
 SocketWriteThread::~SocketWriteThread()
 {
-	gLogger->logMsg("SocketWriteThread ended");
+	gLogger->log(LogManager::INFORMATION, "Socket Write Thread Ended.");
 
 	// shutdown our thread
 	mExit = true;
@@ -176,7 +192,8 @@ void SocketWriteThread::run()
 			}
 			else
 			{
-				gLogger->logMsg("SocketWriteThread destroy session");
+				gLogger->log(LogManager::DEBUG, "Socket Write Thread: Destroy Session");
+				
 				session->setStatus(SSTAT_Destroy);
 				mService->AddSessionToProcessQueue(session);
 			}
@@ -202,7 +219,6 @@ void SocketWriteThread::run()
 				mThreadTime = mNewThreadTime - mLastThreadTime;
 
 				mCpuUsage = (uint32)((100.0 * mThreadTime) / timePassed);
-				gLogger->logMsgF("SocketReadThread Currently at (%u) cpu load",MSG_HIGH,mCpuUsage);
 				
 			}
 		}
@@ -242,11 +258,11 @@ void SocketWriteThread::_sendPacket(Packet* packet, Session* session)
 
 
 	// Some basic bounds checking.
-	if(packet->getSize() > mMessageMaxSize)
-	{
-		gLogger->logErrorF("Netcode","packet (%u) is longer than mMessageMaxSize (%u)",MSG_HIGH,packet->getSize(),mMessageMaxSize);
-		return;
-	}
+	//if(packet->getSize() > mMessageMaxSize)
+	//{
+	//	gLogger->logErrorF("Netcode","packet (%u) is longer than mMessageMaxSize (%u)",packet->getSize(),mMessageMaxSize);
+	//	return;
+	//}
 	//assert(packet->getSize() <= mMessageMaxSize);
 
 	// Want a fresh send buffer for debugging purposes.
@@ -256,7 +272,6 @@ void SocketWriteThread::_sendPacket(Packet* packet, Session* session)
   seed_rand_mwc1616(mClock->getLocalTime());
   if (rand_mwc1616() < 0xffffffff / 5)  // 20%
   {
-    gLogger->logMsg("*** Packet dropped for loss simulation.", MSG_HIGH);
     return;
   }
 */
@@ -265,10 +280,8 @@ void SocketWriteThread::_sendPacket(Packet* packet, Session* session)
 	uint8  packetTypeLow = *(packet->getData());
 	//uint8  packetTypeHigh = *(packet->getData()+1);
 
-	//gLogger->logMsgF("OnWire, Type:0x%.4x, Session:0x%x%.4x, IP: 0x%.8x, port:%u", MSG_LOW, packetType, session->getService()->getId(), session->getId(), session->getAddress(), ntohs(session->getPort()));
-
 	// Set our TimeSent
-	packet->setTimeSent(Anh_Utils::Clock::getSingleton()->getLocalTime());
+	packet->setTimeSent(Anh_Utils::Clock::getSingleton()->getStoredTime());
 
 	// Setup our to address
 	toAddr.sa_family = AF_INET;
@@ -340,11 +353,6 @@ void SocketWriteThread::_sendPacket(Packet* packet, Session* session)
 		{
 			mCompCryptor->Encrypt(mSendBuffer + 1, outLen - 1, session->getEncryptKey()); // - 1 header is not encrypted
 		}
-		else
-		{
-			gLogger->hexDump(packet->getData(),packet->getSize());
-		}
-		//assert(packetTypeLow < 0x0d);
 
 		packet->setCRC(mCompCryptor->GenerateCRC(mSendBuffer, outLen, session->getEncryptKey()));
 
@@ -352,21 +360,13 @@ void SocketWriteThread::_sendPacket(Packet* packet, Session* session)
 		mSendBuffer[outLen] = (uint8)(packet->getCRC() >> 8);
 		mSendBuffer[outLen + 1] = (uint8)packet->getCRC();
 		outLen += 2;
-
-
 	}
 
 	sent = sendto(mSocket, mSendBuffer, outLen, 0, &toAddr, toLen);
 
-	if((outLen > mMessageMaxSize) )
-	  {
-		  gLogger->logMsgF("Cave Wrote Packetsize : %u Max Allowed Size : %u", MSG_HIGH, outLen,mMessageMaxSize);
-		  gLogger->hexDump(mSendBuffer,outLen);
-	  }
-
 	if (sent < 0)
 	{
-		gLogger->logMsgF("*** Unkown error from socket sendto: %u", MSG_HIGH, errno);
+		gLogger->log(LogManager::ALERT, "Unkown Error from socket sendto: %u", errno);
 	}
 }
 

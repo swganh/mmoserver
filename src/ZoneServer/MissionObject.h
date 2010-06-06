@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -19,6 +35,7 @@ class NPCObject;
 class WaypointObject;
 class Terminal;
 class ResourceType;
+class Buff;
 
 //=============================================================================
 
@@ -101,7 +118,7 @@ class MissionObject : public Object
 		void				setDetail(const char* detail) { mDetail = detail; }
 
 		int					getRefreshCount() { return mRefreshCount; }
-		int				setRefreshCount(int refresh_count) { mRefreshCount = refresh_count; return mRefreshCount; }
+		int					setRefreshCount(int refresh_count) { mRefreshCount = refresh_count; return mRefreshCount; }
 
 		uint32				getMissionType() { return mMissionType; }
 		void				setMissionType(uint32 mission_type) { mMissionType = mission_type; }
@@ -117,6 +134,8 @@ class MissionObject : public Object
 		void				setStartNPC(NPCObject* npc) { mStartNPC = npc; }
 		void				setDestinationNPC(NPCObject* npc)   { mDestinationNPC = npc; }
 
+		Buff*				getEntertainingTimer() { return mEntertainingTimer; }
+		void				setEntertainingTimer(Buff* timer) { mEntertainingTimer = timer; }
 		bool				getInProgress()  { return mInProgress; }
 		void				setInProgress(bool is) { mInProgress = is; }
 
@@ -159,7 +178,8 @@ class MissionObject : public Object
 		NPCObject*				mStartNPC;
 		NPCObject*				mDestinationNPC;
 
-		bool					mInProgress;			//set to true when the player starts the buff
+		Buff*					mEntertainingTimer;		//The buff used for entertainer missions
+		bool					mInProgress;			//set to true when the player starts the buff used in entertainer missions
 
 		uint64					mTaskId;
 

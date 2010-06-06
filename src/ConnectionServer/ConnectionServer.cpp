@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -58,7 +74,7 @@ mLocked(false)
 	Anh_Utils::Clock::Init();
 	// log msg to default log
 	//gLogger->printSmallLogo();
-	gLogger->logMsg("ConnectionServer Startup", FOREGROUND_GREEN | FOREGROUND_RED);
+	gLogger->log(LogManager::INFORMATION,"ConnectionServer Startup");
 	
 	// Startup our core modules
 	mNetworkManager = new NetworkManager();
@@ -81,12 +97,6 @@ mLocked(false)
 	mClusterId = gConfig->read<uint32>("ClusterId");
 	
 	mDatabase->ExecuteSqlAsync(0, 0, "UPDATE galaxy SET status=1, last_update=NOW() WHERE galaxy_id=%u;", mClusterId);
-
-	gLogger->connecttoDB(mDatabaseManager);
-	gLogger->createErrorLog("connection.log",(LogLevel)(gConfig->read<int>("LogLevel",2)),
-										(bool)(gConfig->read<bool>("LogToFile", true)),
-										(bool)(gConfig->read<bool>("ConsoleOut",true)),
-										(bool)(gConfig->read<bool>("LogAppend",true)));
 
 	mDatabase->ExecuteSqlAsync(0,0,"UPDATE config_process_list SET serverstartID = serverstartID+1 WHERE name like 'connection'");
 	// In case of a crash, we need to cleanup the DB a little.
@@ -111,19 +121,19 @@ mLocked(false)
   
 	// We're done initiailizing.
 	_updateDBServerList(2);
-	gLogger->logMsg("ConnectionServer::Server Boot Complete", FOREGROUND_GREEN);
+	gLogger->log(LogManager::CRITICAL, "Connection Server Boot Complete");
 	//gLogger->printLogo();
 	// std::string BuildString(GetBuildString());	
 
-	gLogger->logMsgF("ConnectionServer - Build %s",MSG_NORMAL,ConfigManager::getBuildString().c_str());
-	gLogger->logMsg("Welcome to your SWGANH Experience!");
+	gLogger->log(LogManager::INFORMATION,"Connection Server - Build %s",ConfigManager::getBuildString().c_str());
+	gLogger->log(LogManager::CRITICAL,"Welcome to your SWGANH Experience!");
 }
 
 //======================================================================================================================
 
 ConnectionServer::~ConnectionServer(void)
 {
-	gLogger->logMsg("ConnectionServer Shutting down...");
+	gLogger->log(LogManager::CRITICAL,"ConnectionServer Shutting down...");
 
 	// Update our status for the LoginServer
 	mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE galaxy SET status=0 WHERE galaxy_id=%u;",mClusterId));
@@ -147,7 +157,7 @@ ConnectionServer::~ConnectionServer(void)
 
 	MessageFactory::getSingleton()->destroySingleton();	// Delete message factory and call shutdown();
 
-	gLogger->logMsg("ConnectionServer Shutdown Complete");
+	gLogger->log(LogManager::CRITICAL,"ConnectionServer Shutdown Complete");
 }
 
 //======================================================================================================================
@@ -187,11 +197,11 @@ void ConnectionServer::ToggleLock()
 	{
 		// Update our status for the LoginServer
 		mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE galaxy SET status=3,last_update=NOW() WHERE galaxy_id=%u;",mClusterId));
-		gLogger->logMsg("Locking server to normal users");
+		gLogger->log(LogManager::NOTICE,"Locking server to normal users");
 	} else {
 		// Update our status for the LoginServer
 		mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE galaxy SET status=2,last_update=NOW() WHERE galaxy_id=%u;",mClusterId));
-		gLogger->logMsg("unlocking server to normal users");
+		gLogger->log(LogManager::NOTICE,"unlocking server to normal users");
 	}
 }
 //======================================================================================================================
@@ -204,10 +214,14 @@ int main(int argc, char* argv[])
 #endif
 
 	// init our logmanager singleton,set global level normal, create the default log with normal priority, output to file + console, also truncate
-	LogManager::Init(G_LEVEL_NORMAL, "ConnectionServer.log", LEVEL_NORMAL, true, true);
+	LogManager::Init();
+	gLogger->setupConsoleLogging((LogManager::LOG_PRIORITY)1);
 
 	// init out configmanager singleton (access configvariables with gConfig Macro,like: gConfig->readInto(test,"test");)
 	ConfigManager::Init("ConnectionServer.cfg");
+
+	gLogger->setupConsoleLogging((LogManager::LOG_PRIORITY)gConfig->read<int>("ConsoleLog_MinPriority"));
+	gLogger->setupFileLogging((LogManager::LOG_PRIORITY)gConfig->read<int>("FileLog_MinPriority"), gConfig->read<std::string>("FileLog_Name"));
 
 
 	gConnectionServer = new ConnectionServer();
@@ -232,8 +246,6 @@ int main(int argc, char* argv[])
 
 	// Shutdown things
 	delete gConnectionServer;
-
-	delete LogManager::getSingletonPtr();
 
 	return 0;
 }

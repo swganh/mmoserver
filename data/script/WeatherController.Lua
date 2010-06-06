@@ -11,7 +11,7 @@ while (1) do
   cloudX = math.random();
   cloudY = math.random();
   cloudZ = math.random();
-  type = math.random() * 3;
+  type = math.random(0, 5);
 
   wm:updateWeather(cloudX,cloudY,cloudZ,type);
 end;

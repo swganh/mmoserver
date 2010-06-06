@@ -53,8 +53,6 @@ class BadgeRegion : public RegionObject
 		void			setBadgeId(uint32 id){ mBadgeId = id; }
 
 		virtual void	update();
-		virtual void	onObjectEnter(Object* object);
-		virtual void	onObjectLeave(Object* object);
 
 	protected:
 

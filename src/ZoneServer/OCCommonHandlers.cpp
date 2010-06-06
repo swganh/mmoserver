@@ -1675,7 +1675,7 @@ void ObjectController::_BurstRun(uint64 targetId,Message* message,ObjectControll
 
 	if(player->checkPlayerCustomFlag(PlayerCustomFlag_BurstRunCD))
 	{
-		gMessageLib->sendSystemMessage(player,L"","combat_effects","burst_run_tired");
+		gMessageLib->sendSystemMessage(player,L"","combat_effects","burst_run_wait");
 		return;
 	}
 

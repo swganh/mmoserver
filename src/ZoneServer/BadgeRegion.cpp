@@ -77,53 +77,13 @@ void BadgeRegion::update()
 
 	while(objIt != objList.end())
 	{
-		object = (*objIt);
-
-		if(!(checkKnownObjects(object)))
+		if(object->getParentId() == mParentId)
 		{
-			onObjectEnter(object);
-		}
+			PlayerObject* player = dynamic_cast<PlayerObject*>((*objIt));
 
+			if(player && !(player->checkBadges(mBadgeId)))
+				player->addBadge(mBadgeId);
+		}
 		++objIt;
 	}
-
-	PlayerObjectSet oldKnownObjects = mKnownPlayers;
-	PlayerObjectSet::iterator objSetIt = oldKnownObjects.begin();
-
-	while(objSetIt != oldKnownObjects.end())
-	{
-		object = dynamic_cast<Object*>(*objSetIt);
-
-		if(objList.find(object) == objList.end())
-		{
-			onObjectLeave(object);
-		}
-
-		++objSetIt;
-	}
 }
-
-//=============================================================================
-
-void BadgeRegion::onObjectEnter(Object* object)
-{
-	if(object->getParentId() == mParentId)
-	{
-		PlayerObject* player = (PlayerObject*)object;
-		addKnownObjectSafe(object);
-
-		if(!(player->checkBadges(mBadgeId)))
-			player->addBadge(mBadgeId);
-	}
-}
-
-//=============================================================================
-
-void BadgeRegion::onObjectLeave(Object* object)
-{
-//	PlayerObject* player = (PlayerObject*)object;
-	removeKnownObject(object);
-}
-
-//=============================================================================
-

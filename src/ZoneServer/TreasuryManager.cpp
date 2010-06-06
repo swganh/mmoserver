@@ -469,10 +469,33 @@ void TreasuryManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 				gMessageLib->sendBankCreditsUpdate(asynContainer->player);
 				gMessageLib->sendBankTipDustOff(asynContainer->player,asynContainer->targetId,asynContainer->amount,asynContainer->targetName);
 				//notify the chatserver for the EMails and the off zone accounts
+
+				int8 sql[1024];
+
+				//CAVE galaxy id is hardcoded!!!!!!1
+				int8 galaxyId = 2;
+
+				sprintf(sql, "CALL sp_GalaxyAccountDepositCredits(%u, %u, %"PRIu64",%u",galaxyId, Account_TipSurcharge, asynContainer->player, asynContainer->amount);
+				TreasuryManagerAsyncContainer* asyncContainer = new TreasuryManagerAsyncContainer(TREMQuery_BankTipUpdateGalaxyAccount,0);
+				
+				mDatabase->ExecuteProcedureAsync(this,asyncContainer,sql);
 			}
 			else
 			{
 				gMessageLib->sendSystemMessage(asynContainer->player, L"","error_message","bank_error");
+			}
+		}
+		break;
+
+		case TREMQuery_BankTipUpdateGalaxyAccount:
+		{
+			uint32 error;
+			DataBinding* binding = mDatabase->CreateDataBinding(1);
+			binding->addField(DFT_uint32,0,4);
+			result->GetNextRow(binding,&error);
+
+			if (error > 0)
+			{
 			}
 		}
 		break;

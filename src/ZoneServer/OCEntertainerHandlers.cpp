@@ -450,7 +450,7 @@ void ObjectController::_handlestartdance(uint64 targetId,Message* message,Object
 
 	if(performer->checkStatesEither(CreatureState_Combat | CreatureState_Tumbling | CreatureState_Swimming | CreatureState_Crafting))
 	{
-		gMessageLib->sendSystemMessage(performer,L"error_message", "wrong_state");
+		gMessageLib->sendSystemMessage(performer,L"", "error_message", "wrong_state");
 		return;
 	}
 
@@ -534,7 +534,7 @@ void ObjectController::_handlestartmusic(uint64 targetId,Message* message,Object
 
 	if(performer->checkStatesEither(CreatureState_Combat | CreatureState_Tumbling | CreatureState_Swimming))
 	{
-		gMessageLib->sendSystemMessage(performer,L"error_message", "wrong_state");
+		gMessageLib->sendSystemMessage(performer,L"", "error_message", "wrong_state");
 		return;
 	}
 
@@ -623,7 +623,7 @@ void ObjectController::_handleStartBand(uint64 targetId,Message* message,ObjectC
 
 	if(performer->checkStatesEither(CreatureState_Combat | CreatureState_Tumbling | CreatureState_Swimming))
 	{
-		gMessageLib->sendSystemMessage(performer,L"error_message", "wrong_state");
+		gMessageLib->sendSystemMessage(performer,L"", "error_message", "wrong_state");
 		return;
 	}
 

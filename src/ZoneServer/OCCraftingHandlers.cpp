@@ -179,13 +179,13 @@ void ObjectController::_handleRequestCraftingSession(uint64 targetId,Message* me
 
 	if(playerObject->isDead() || playerObject->isIncapacitated())
 	{
-		gMessageLib->sendSystemMessage(playerObject,L"error_message", "wrong_state");
+		gMessageLib->sendSystemMessage(playerObject,L"", "error_message", "wrong_state");
 		return;
 	}
 
 	if(playerObject->getPerformingState() != PlayerPerformance_None)
 	{
-		gMessageLib->sendSystemMessage(playerObject,L"error_message", "wrong_state");
+		gMessageLib->sendSystemMessage(playerObject,L"", "error_message", "wrong_state");
 		return;
 	}
 

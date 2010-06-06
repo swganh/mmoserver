@@ -134,6 +134,7 @@ PlayerObject::PlayerObject()
 	registerEventFunction(this,&PlayerObject::onItemDeleteEvent);
 	registerEventFunction(this,&PlayerObject::onInjuryTreatment);
 	registerEventFunction(this,&PlayerObject::onWoundTreatment);
+	registerEventFunction(this,&PlayerObject::onQuickHealInjuryTreatment);
 	
 	mLots = gWorldConfig->getConfiguration("Player_Max_Lots",(uint8)10);
 
@@ -2005,6 +2006,9 @@ Object* PlayerObject::getHealingTarget(PlayerObject* Player) const
 
 	if (PlayerTarget && PlayerTarget->getId() != Player->getId())
 	{
+		//check duel
+		if (Player->checkDuelList(PlayerTarget))
+			return Player;
 		//check pvp status
 		if(Player->getPvPStatus() != PlayerTarget->getPvPStatus())
 		{

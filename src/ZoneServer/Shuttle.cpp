@@ -88,7 +88,7 @@ void Shuttle::useShuttle(PlayerObject* playerObject)
 {
 	if(playerObject->getPosture() == CreaturePosture_SkillAnimating)
 	{
-		gMessageLib->sendSystemMessage(playerObject,L"error_message", "wrong_state");
+		gMessageLib->sendSystemMessage(playerObject,L"", "error_message", "wrong_state");
 		return;
 	}
 

@@ -432,11 +432,11 @@ bool MedicManager::HealDamage(PlayerObject* Medic, PlayerObject* Target, uint64 
 	}
 	gLogger->log(LogManager::DEBUG,"Medic has Ability Rights");
 
-	//Does Target Need Healing
+	//Does Target Need Healing take into account wounds
 	int TargetHealth = Target->getHam()->mHealth.getCurrentHitPoints();
 	int TargetAction = Target->getHam()->mAction.getCurrentHitPoints();
-	int TargetMaxHealth = Target->getHam()->mHealth.getMaxHitPoints();
-	int TargetMaxAction = Target->getHam()->mAction.getMaxHitPoints();
+	int TargetMaxHealth = Target->getHam()->mHealth.getMaxHitPoints()  - Target->getHam()->mHealth.getWounds();
+	int TargetMaxAction = Target->getHam()->mAction.getMaxHitPoints()  - Target->getHam()->mAction.getWounds();
 
 	if(!(TargetHealth < TargetMaxHealth))
 	{
@@ -449,7 +449,7 @@ bool MedicManager::HealDamage(PlayerObject* Medic, PlayerObject* Target, uint64 
 			}
 			if (!isSelf) {
 				gLogger->log(LogManager::DEBUG,"Target does not need healing");
-				gMessageLib->sendSystemMessage(Medic,L"","healing","no_damage_to_heal_target");
+				gMessageLib->sendSystemMessage(Medic,L"","healing","no_damage_to_heal_target","","",L"",0,"","",L"",Target->getId());
 				return false;
 			}
 		}

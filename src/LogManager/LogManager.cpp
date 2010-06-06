@@ -29,8 +29,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <cstdarg>
 #include <stdarg.h>
 #include <stdio.h>
-#include <time.h>
 #include <vector>
+
+#include "Utils/clock.h"
 
 LogManager* LogManager::mSingleton;
 
@@ -66,12 +67,17 @@ bool LogManager::setupConsoleLogging(LOG_PRIORITY min_priority)
 bool LogManager::setupFileLogging(LOG_PRIORITY min_priority, std::string filename)
 {
 	mMinPriorities[1] = min_priority;
-	FILE* tempFile = fopen(filename.c_str(), "w");
+	mOutputFile = fopen(filename.c_str(), "w");
 
-	if(!tempFile)
+	if(ferror(mOutputFile))
+	{
+		printf("Error dealing with the log file.");
+		mOutputFile = 0;
 		return false;
+	}
 
-	mOutputFile = tempFile;
+	if(!mOutputFile)
+		return false;
 
 	return true;
 }
@@ -97,18 +103,18 @@ void LogManager::_LoggerThread()
 
 		std::vector<LOG_ENTRY*>::iterator end = mTempEntries.end();
 
-		struct tm * t;
+		struct tm t;
 		time_t te = time(NULL);
-		t = localtime (&te);
+		localtime_r(&te, &t);
 
 		for(std::vector<LOG_ENTRY*>::iterator it=mTempEntries.begin(); it != end; it++)
 		{
 			if((*it)->mChannels & LOG_CHANNEL_CONSOLE && ((*it)->mPriority <= mMinPriorities[0]))
 			{
 				if(!(*it)->mContinuation)
-					printf("[%02d:%02d:%02d]<%s> ",t->tm_hour,t->tm_min,t->tm_sec, priority_strings[(int)(*it)->mPriority - 1]);
+					printf("[%02d:%02d:%02d] [%s] ",t.tm_hour,t.tm_min,t.tm_sec, priority_strings[(int)(*it)->mPriority - 1]);
 				else
-					printf("                 ");
+					printf("                  ");
 
 				printf("%s\n", (*it)->mMessage.c_str());
 			}
@@ -118,11 +124,12 @@ void LogManager::_LoggerThread()
 				if(mOutputFile)
 				{
 					if(!(*it)->mContinuation)
-						fprintf(mOutputFile, "[%02d:%02d:%02d]<%s> ",t->tm_hour,t->tm_min,t->tm_sec, priority_strings[(int)(*it)->mPriority - 1]);
+						fprintf(mOutputFile, "[%02d:%02d:%02d] [%s] ",t.tm_hour,t.tm_min,t.tm_sec, priority_strings[(int)(*it)->mPriority - 1]);
 					else
-						fprintf(mOutputFile, "                 ");
+						fprintf(mOutputFile, "                  ");
 					
 					fprintf(mOutputFile, "%s\n", (*it)->mMessage.c_str());
+					fflush(mOutputFile);
 				}
 			}
 

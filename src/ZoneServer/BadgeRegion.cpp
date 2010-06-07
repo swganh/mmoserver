@@ -77,6 +77,8 @@ void BadgeRegion::update()
 
 	while(objIt != objList.end())
 	{
+		object = *objIt;
+
 		if(object->getParentId() == mParentId)
 		{
 			PlayerObject* player = dynamic_cast<PlayerObject*>((*objIt));

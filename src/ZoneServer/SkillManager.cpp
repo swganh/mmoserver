@@ -505,7 +505,7 @@ bool SkillManager::learnSkill(uint32 skillId,CreatureObject* creatureObject,bool
 		gMessageLib->sendSchematicDeltasPLAY_9(player);
 		//gMessageLib->sendSchematicDeltasAddPLAY_9(player);
 
-		gMessageLib->sendSystemMessage(player,L"","skill_teacher","prose_skill_learned","skl_n",skill->mName);
+		gMessageLib->sendSystemMessage(player,L"","skill_teacher","prose_skill_learned","skl_n",skill->mName.getAnsi());
 
 		// Update cap for this type of xp as long as it isn't of type none.
         if (skill->mXpType != XpType_none) {
@@ -976,16 +976,16 @@ int32 SkillManager::handleExperienceCap(uint32 xpType,int32 valueDiff, PlayerObj
 				if (delta == -1)
 				{
 					// You lose 1 point of %TO experience
-					gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_revoke_xp1","exp_n",getXPTypeById(xpType),L"",-delta);
+					gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_revoke_xp1","exp_n",getXPTypeById(xpType).getAnsi(),L"",-delta);
 				}
 				else
 				{
 					// You lose %DI points of %TO experience.
-					gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_revoke_xp","exp_n",getXPTypeById(xpType),L"",-delta);
+					gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_revoke_xp","exp_n",getXPTypeById(xpType).getAnsi(),L"",-delta);
 				}
 
 				// You have achieved your current limit for %TO experience.
-				gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_hit_xp_cap","exp_n",getXPTypeById(xpType),L"",0);
+				gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_hit_xp_cap","exp_n",getXPTypeById(xpType).getAnsi(),L"",0);
 
 				// gLogger->log(LogManager::DEBUG,"SkillManager::handleExperienceCap: Sub %u XP", -delta);
 			}
@@ -998,24 +998,24 @@ int32 SkillManager::handleExperienceCap(uint32 xpType,int32 valueDiff, PlayerObj
 				if (delta == 1)
 				{
 					// You receive 1 point of %TO experience.
-					gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_grant_xp1","exp_n",getXPTypeById(xpType),L"",delta);
+					gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_grant_xp1","exp_n",getXPTypeById(xpType).getAnsi(),L"",delta);
 				}
 				else
 				{
 					// You receive %DI points of %TO experience.
-					gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_grant_xp","exp_n",getXPTypeById(xpType),L"",delta);
+					gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_grant_xp","exp_n",getXPTypeById(xpType).getAnsi(),L"",delta);
 				}
 				// Do we have the max cap?
 				if (xpCap == getMaxXpCap(static_cast<uint8>(xpType)))
 				{
 					// Yes.
 					// You have achieved your limit of %DIpts for experience type '%TO'.
-					gMessageLib->sendSystemMessage(playerObject,L"","error_message","prose_hit_xp_limit","exp_n",getXPTypeById(xpType),L"",xpCap);
+					gMessageLib->sendSystemMessage(playerObject,L"","error_message","prose_hit_xp_limit","exp_n",getXPTypeById(xpType).getAnsi(),L"",xpCap);
 				}
 				else
 				{
 					// You have achieved your current limit for %TO experience.
-					gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_hit_xp_cap","exp_n",getXPTypeById(xpType));
+					gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_hit_xp_cap","exp_n",getXPTypeById(xpType).getAnsi());
 				}
 				// gLogger->log(LogManager::DEBUG,"SkillManager::handleExperienceCap: Adding %u XP", delta);
 			}
@@ -1028,12 +1028,12 @@ int32 SkillManager::handleExperienceCap(uint32 xpType,int32 valueDiff, PlayerObj
 			if (delta == 1)
 			{
 				// You receive 1 point of %TO experience.
-				gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_grant_xp1","exp_n",getXPTypeById(xpType),L"",delta);
+				gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_grant_xp1","exp_n",getXPTypeById(xpType).getAnsi(),L"",delta);
 			}
 			else
 			{
 				// You receive %DI points of %TO experience.
-				gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_grant_xp","exp_n",getXPTypeById(xpType),L"",delta);
+				gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_grant_xp","exp_n",getXPTypeById(xpType).getAnsi(),L"",delta);
 			}
 		}
 	}
@@ -1054,16 +1054,16 @@ int32 SkillManager::handleExperienceCap(uint32 xpType,int32 valueDiff, PlayerObj
 				if (delta == -1)
 				{
 					// You lose 1 point of %TO experience
-					gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_revoke_xp1","exp_n",getXPTypeById(xpType),L"",-delta);
+					gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_revoke_xp1","exp_n",getXPTypeById(xpType).getAnsi(),L"",-delta);
 				}
 				else
 				{
 					// You lose %DI points of %TO experience.
-					gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_revoke_xp","exp_n",getXPTypeById(xpType),L"",-delta);
+					gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_revoke_xp","exp_n",getXPTypeById(xpType).getAnsi(),L"",-delta);
 				}
 
 				// You have achieved your current limit for %TO experience.
-				gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_hit_xp_cap","exp_n",getXPTypeById(xpType),L"",0);
+				gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_hit_xp_cap","exp_n",getXPTypeById(xpType).getAnsi(),L"",0);
 
 				// This is the value we should sub from DB (Everything down to the cap level.
 				delta = xpCap - xpAmount;
@@ -1073,7 +1073,7 @@ int32 SkillManager::handleExperienceCap(uint32 xpType,int32 valueDiff, PlayerObj
 			{
 				// We landed at the cap level.
 				// You have achieved your current limit for %TO experience.
-				gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_hit_xp_cap","exp_n",getXPTypeById(xpType),L"",0);
+				gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_hit_xp_cap","exp_n",getXPTypeById(xpType).getAnsi(),L"",0);
 				// gLogger->log(LogManager::DEBUG,"SkillManager::handleExperienceCap: At XP Cap limit, reduce XP with %d", -delta);
 			}
 			else

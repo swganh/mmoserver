@@ -460,7 +460,7 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
 				// gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Player needs %u credits, but only have %u as cash", av->getDI(),
 				// 				dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits());
 				// System message: You lack the %DI credits required for training in %TO. 
-				gMessageLib->sendSystemMessage(player,L"","skill_teacher","prose_nsf",av->getTOStfFile(),av->getTOStfVariable(),L"",av->getDI());
+        gMessageLib->sendSystemMessage(player,L"","skill_teacher","prose_nsf",av->getTOStfFile().getAnsi(),av->getTOStfVariable().getAnsi(),L"",av->getDI());
 
 				break;
 			}
@@ -604,7 +604,7 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
 			{
 				// Let's train this skill...
 				// gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Processing %DI credit payment for %TO training.");
-				gMessageLib->sendSystemMessage(player,L"","skill_teacher","prose_pay",av->getTOStfFile(),av->getTOStfVariable(),L"",av->getDI());
+				gMessageLib->sendSystemMessage(player,L"","skill_teacher","prose_pay",av->getTOStfFile().getAnsi(),av->getTOStfVariable().getAnsi(),L"",av->getDI());
 
 				// if (strstr(skill->mName.getAnsi(),"master"))
 				if (mPlayerGotRequirementsForMasterSkill)
@@ -834,7 +834,7 @@ void Trainer::postProcessfilter(ActiveConversation* av, PlayerObject* player, ui
 												"prose_pay_acct_success",
 												"",
 												"",
-												av->getNpc()->getFirstName(),		// TODO: Use the complete descripton "Opsa Venfo (a scout trainer)"
+                        av->getNpc()->getFirstName().getUnicode16(),		// TODO: Use the complete descripton "Opsa Venfo (a scout trainer)"
 												av->getDI()
 												);
 			}
@@ -845,7 +845,7 @@ void Trainer::postProcessfilter(ActiveConversation* av, PlayerObject* player, ui
 												"base_player",
 												"prose_pay_acct_success",
 												"mob/creature_names",
-												av->getNpc()->getTitle(),
+                        av->getNpc()->getTitle().getAnsi(),
 												L"",
 												av->getDI()
 												);

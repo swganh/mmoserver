@@ -99,7 +99,7 @@ void ObjectController::_handleNPCConversationStart(uint64 targetId,Message* mess
 			sprintf(buffer, "You are out of range (%f m).", distance);
 			string msg(buffer);
 			msg.convert(BSTRType_Unicode16);
-			gMessageLib->sendSystemMessage(player,msg);
+      gMessageLib->sendSystemMessage(player,msg.getUnicode16());
 			// gMessageLib->sendSystemMessage(player,L"","system_msg","out_of_range");
 			return;
 		}

@@ -302,7 +302,7 @@ void PlayerObject::onSample(const SampleEvent* event)
 
 	if(ratio <= 0.0f)
 	{
-		gMessageLib->sendSystemMessage(this,L"","survey","density_below_threshold","","",resName);
+    gMessageLib->sendSystemMessage(this,L"","survey","density_below_threshold","","",resName.getUnicode16());
 		getSampleData()->mPendingSample = false;
 		return;
 
@@ -328,7 +328,7 @@ void PlayerObject::onSample(const SampleEvent* event)
 			// FAILED ATTEMPT
 			sampleAmount = 0;
 			successSample =false;
-			gMessageLib->sendSystemMessage(this,L"","survey","sample_failed","","",resName);
+      gMessageLib->sendSystemMessage(this,L"","survey","sample_failed","","",resName.getUnicode16());
 		}
 
 		else if((dieRoll > 91)&&(dieRoll < 96))
@@ -404,7 +404,7 @@ void PlayerObject::onSample(const SampleEvent* event)
 				//CRITICAL SUCCESS
 					sampleAmount = (static_cast<uint32>(2*maxSample));
                     sampleAmount = std::max(sampleAmount, static_cast<uint>(1));
-					gMessageLib->sendSystemMessage(this,L"","survey","critical_success","","",resName);
+                    gMessageLib->sendSystemMessage(this,L"","survey","critical_success","","",resName.getUnicode16());
 				}
 			} 
 			else 
@@ -412,13 +412,13 @@ void PlayerObject::onSample(const SampleEvent* event)
 				//NORMAL SUCCESS
 				sampleAmount = (static_cast<uint32>(floor(static_cast<float>((maxSample-minSample)*(dieRoll-failureChance)/(90-failureChance)+minSample))));         // floor == round down, so 9.9 == 9
                 sampleAmount = std::max(sampleAmount, static_cast<uint>(1));
-				gMessageLib->sendSystemMessage(this,L"","survey","sample_located","","",resName,sampleAmount);
+                gMessageLib->sendSystemMessage(this,L"","survey","sample_located","","",resName.getUnicode16(),sampleAmount);
 			}
 		}
 	}
 	else
 	{
-		gMessageLib->sendSystemMessage(this,L"","survey","density_below_threshold","","",resName);
+    gMessageLib->sendSystemMessage(this,L"","survey","density_below_threshold","","",resName.getUnicode16());
 		successSample = false;
 		resAvailable = false;
 	}

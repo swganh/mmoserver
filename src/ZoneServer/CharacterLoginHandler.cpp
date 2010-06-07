@@ -276,7 +276,7 @@ void CharacterLoginHandler::handleDispatchMessage(uint32 opcode, Message* messag
 			if(player && !(player->getMotdReceived()) && moT.getLength())
 			{
 				player->setMotdReceived(true);
-				gMessageLib->sendSystemMessage(player,moT);
+        gMessageLib->sendSystemMessage(player,moT.getUnicode16());
 			}
 
 			// Send newbie info.

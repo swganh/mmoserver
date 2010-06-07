@@ -639,7 +639,10 @@ bool MessageLib::sendSystemMessageInRange(PlayerObject* playerObject,bool toSelf
 //
 // system message
 //
-bool MessageLib::sendSystemMessage(PlayerObject* playerObject,string customMessage,string mainFile,string mainVar,string toFile,string toVar,string toCustom,int32 di,string ttFile,string ttVar,string ttCustom,uint64 ttId,uint64 toId,uint64 tuId,string tuFile,string tuVar,string tuCustom )
+bool MessageLib::sendSystemMessage(PlayerObject* playerObject, std::wstring customMessage, std::string mainFile,
+											std::string mainVar, std::string toFile, std::string toVar, std::wstring toCustom, int32 di,
+											std::string ttFile, std::string ttVar, std::wstring ttCustom, uint64 ttId, uint64 toId, uint64 tuId,
+											std::string tuFile, std::string tuVar, std::wstring tuCustom)
 {
 	if(!playerObject || !playerObject->isConnected())
 	{
@@ -651,9 +654,9 @@ bool MessageLib::sendSystemMessage(PlayerObject* playerObject,string customMessa
 	mMessageFactory->addUint8(0);
 
 	// simple message
-	if(customMessage.getLength())
+	if(customMessage.length())
 	{
-		mMessageFactory->addString(customMessage);
+		mMessageFactory->addString(customMessage.c_str());
 		mMessageFactory->addUint32(0);				 
 	}
 	// templated message
@@ -661,9 +664,9 @@ bool MessageLib::sendSystemMessage(PlayerObject* playerObject,string customMessa
 	{ 
 		mMessageFactory->addUint32(0);				 
 
-		uint32	realSize = mainFile.getLength() + mainVar.getLength() + toFile.getLength() + toVar.getLength() + ttFile.getLength() + ttVar.getLength() + tuFile.getLength() + tuVar.getLength();
+		uint32	realSize = mainFile.length() + mainVar.length() + toFile.length() + toVar.length() + ttFile.length() + ttVar.length() + tuFile.length() + tuVar.length();
 
-		mMessageFactory->addUint32(42 + ((uint32)ceil(((double)realSize) / 2.0)) + toCustom.getLength() + ttCustom.getLength() + tuCustom.getLength());
+		mMessageFactory->addUint32(42 + ((uint32)ceil(((double)realSize) / 2.0)) + toCustom.length() + ttCustom.length() + tuCustom.length());
 
 		if(realSize % 2)
 			mMessageFactory->addUint16(1);
@@ -674,30 +677,30 @@ bool MessageLib::sendSystemMessage(PlayerObject* playerObject,string customMessa
 		mMessageFactory->addUint32(0xFFFFFFFF);
 
 		//main message		
-		mMessageFactory->addString(mainFile);
+		mMessageFactory->addString(mainFile.c_str());
 		mMessageFactory->addUint32(0);//spacer
-		mMessageFactory->addString(mainVar);
+		mMessageFactory->addString(mainVar.c_str());
 
 		//object 1
 		mMessageFactory->addUint64(tuId);
-		mMessageFactory->addString(tuFile);
+		mMessageFactory->addString(tuFile.c_str());
 		mMessageFactory->addUint32(0);//spacer
-		mMessageFactory->addString(tuVar);
-		mMessageFactory->addString(tuCustom.getUnicode16());
+		mMessageFactory->addString(tuVar.c_str());
+		mMessageFactory->addString(tuCustom.c_str());
 
 		//object 2		
 		mMessageFactory->addUint64(ttId);  //object id2
-		mMessageFactory->addString(ttFile);
+		mMessageFactory->addString(ttFile.c_str());
 		mMessageFactory->addUint32(0);//spacer
-		mMessageFactory->addString(ttVar);
-		mMessageFactory->addString(ttCustom.getUnicode16());
+		mMessageFactory->addString(ttVar.c_str());
+		mMessageFactory->addString(ttCustom.c_str());
 
 		//object 3
 		mMessageFactory->addUint64(toId);
-		mMessageFactory->addString(toFile);
+		mMessageFactory->addString(toFile.c_str());
 		mMessageFactory->addUint32(0);//spacer
-		mMessageFactory->addString(toVar);
-		mMessageFactory->addString(toCustom.getUnicode16());
+		mMessageFactory->addString(toVar.c_str());
+		mMessageFactory->addString(toCustom.c_str());
 
 		mMessageFactory->addInt32(di);
 		mMessageFactory->addUint32(0);

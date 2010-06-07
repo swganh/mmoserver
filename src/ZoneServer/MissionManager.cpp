@@ -883,7 +883,7 @@ void MissionManager::checkSurveyMission(PlayerObject* player,CurrentResource* re
 
 							string s = BString(sm);
 							s.convert(BSTRType_Unicode16);
-							gMessageLib->sendSystemMessage(player,s);
+              gMessageLib->sendSystemMessage(player,s.getUnicode16());
 						}
 					}
 				}

@@ -537,11 +537,11 @@ uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* def
 					string playerName(str);
 					playerName.convert(BSTRType_Unicode16);
 
-					gMessageLib->sendSystemMessage(playerAttacker,L"","base_player","prose_target_incap", "", "", L"", 0, "", "", playerName);
+          gMessageLib->sendSystemMessage(playerAttacker,L"","base_player","prose_target_incap", "", "", L"", 0, "", "", playerName.getUnicode16());
 				}
 				else
 				{
-					gMessageLib->sendSystemMessage(playerAttacker,L"","base_player","prose_target_incap", "", "", L"", 0, defender->getSpeciesGroup(), defender->getSpeciesString());
+          gMessageLib->sendSystemMessage(playerAttacker,L"","base_player","prose_target_incap", "", "", L"", 0, defender->getSpeciesGroup().getAnsi(), defender->getSpeciesString().getAnsi());
 				}
 			}
 		}
@@ -563,7 +563,7 @@ uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* def
 					}
 					string playerName(str);
 					playerName.convert(BSTRType_Unicode16);
-					gMessageLib->sendSystemMessage(playerAttacker,L"","base_player","prose_target_dead", "", "", L"", 0, "", "", playerName);
+          gMessageLib->sendSystemMessage(playerAttacker,L"","base_player","prose_target_dead", "", "", L"", 0, "", "", playerName.getUnicode16());
 				}
 				else
 				{

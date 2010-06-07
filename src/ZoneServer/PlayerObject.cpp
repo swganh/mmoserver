@@ -1026,7 +1026,7 @@ void PlayerObject::addBadge(uint32 badgeId)
 		Badge* badge = gCharSheetManager->getBadgeById(badgeId);
 
 		gMessageLib->sendPlayMusicMessage(badge->getSoundId(),this);
-		gMessageLib->sendSystemMessage(this,L"","badge_n","prose_grant","badge_n",badge->getName(),L"");
+    gMessageLib->sendSystemMessage(this,L"","badge_n","prose_grant","badge_n",badge->getName().getAnsi(),L"");
 
 		(gWorldManager->getDatabase())->ExecuteSqlAsync(0,0,"INSERT INTO character_badges VALUES (%"PRIu64",%u)",mId,badgeId);
 
@@ -1492,7 +1492,7 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,string inputStr,UIW
 			string convName = teachBox->getPupil()->getFirstName().getAnsi();
 			convName.convert(BSTRType_Unicode16);
 
-			gMessageLib->sendSystemMessage(this,L"","teaching","teacher_skill_learned","skl_n",teachBox->getSkill()->mName,L"",0,"","",convName);
+      gMessageLib->sendSystemMessage(this,L"","teaching","teacher_skill_learned","skl_n",teachBox->getSkill()->mName.getAnsi(),L"",0,"","",convName.getUnicode16());
 
 			//add skill to our pupils repertoir and send mission accomplished to our pupil
 			gSkillManager->learnSkill(teachBox->getSkill()->mId,teachBox->getPupil(),true);

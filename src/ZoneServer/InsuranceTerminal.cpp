@@ -128,14 +128,14 @@ void InsuranceTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObje
 								// This is not a fatal error, but should never happen.
 
 								// [Insurance] Item uninsurable: %TT.
-								gMessageLib->sendSystemMessage(playerObject,L"","error_message","prose_item_uninsurable", "","", L"", 0, "", "", selectedItemm);
+                gMessageLib->sendSystemMessage(playerObject,L"","error_message","prose_item_uninsurable", "","", L"", 0, "", "", selectedItemm.getUnicode16());
 							}
 							else if (tangibleObject->getInternalAttribute<bool>("insured"))
 							{
 								// This is not a fatal error, but should never happen.
 
 								// [Insurance] Item already insured: %TT. 
-								gMessageLib->sendSystemMessage(playerObject,L"","error_message","prose_item_already_insured", "","", L"", 0, "", "", selectedItemm);
+                gMessageLib->sendSystemMessage(playerObject,L"","error_message","prose_item_already_insured", "","", L"", 0, "", "", selectedItemm.getUnicode16());
 							}
 							else
 							{
@@ -319,17 +319,17 @@ void InsuranceTerminal::handleUIEvent(uint32 action,int32 element,string inputSt
 						else if (!tangibleObject->hasInternalAttribute("insured"))
 						{
 							// [Insurance] Item uninsurable: %TT.
-							gMessageLib->sendSystemMessage(playerObject,L"","error_message","prose_item_uninsurable", "","", L"", 0, "", "", selectedItemm);
+              gMessageLib->sendSystemMessage(playerObject,L"","error_message","prose_item_uninsurable", "","", L"", 0, "", "", selectedItemm.getUnicode16());
 						}
 						else if (tangibleObject->getInternalAttribute<bool>("insured"))
 						{
 							// [Insurance] Item already insured: %TT. 
-							gMessageLib->sendSystemMessage(playerObject,L"","error_message","prose_item_already_insured", "","", L"", 0, "", "", selectedItemm);
+              gMessageLib->sendSystemMessage(playerObject,L"","error_message","prose_item_already_insured", "","", L"", 0, "", "", selectedItemm.getUnicode16());
 						}
 						else if ((creditsAtBank+creditsInInventory) < mInsuranceFee)
 						{
 							// You have insufficient funds to insure your %TT. 
-							gMessageLib->sendSystemMessage(playerObject,L"","error_message","prose_nsf_insure", "","", L"", 0, "", "", selectedItemm);
+              gMessageLib->sendSystemMessage(playerObject,L"","error_message","prose_nsf_insure", "","", L"", 0, "", "", selectedItemm.getUnicode16());
 						}
 						else
 						{
@@ -360,7 +360,7 @@ void InsuranceTerminal::handleUIEvent(uint32 action,int32 element,string inputSt
 							(void)gMessageLib->sendUpdateTypeOption(tangibleObject, playerObject);
 
 							// You successfully insure your %TT. 
-							gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_insure_success", "","", L"", 0, "", "", selectedItemm);
+              gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_insure_success", "","", L"", 0, "", "", selectedItemm.getUnicode16());
 						}
 						/*else
 						{
@@ -496,7 +496,7 @@ void InsuranceTerminal::handleUIEvent(uint32 action,int32 element,string inputSt
 									// This is not a fatal error, but should never happen.
 
 									// [Insurance] Item uninsurable: %TT.
-									gMessageLib->sendSystemMessage(playerObject,L"","error_message","prose_item_uninsurable", "","", L"", 0, "", "", selectedItemm);
+                  gMessageLib->sendSystemMessage(playerObject,L"","error_message","prose_item_uninsurable", "","", L"", 0, "", "", selectedItemm.getUnicode16());
 									// fee -= insuranceFee;
 									it++;
 									continue;
@@ -507,7 +507,7 @@ void InsuranceTerminal::handleUIEvent(uint32 action,int32 element,string inputSt
 									// This is not a fatal error, but should never happen.
 
 									// [Insurance] Item already insured: %TT. 
-									gMessageLib->sendSystemMessage(playerObject,L"","error_message","prose_item_already_insured", "","", L"", 0, "", "", selectedItemm);
+                  gMessageLib->sendSystemMessage(playerObject,L"","error_message","prose_item_already_insured", "","", L"", 0, "", "", selectedItemm.getUnicode16());
 									// fee -= insuranceFee;
 									it++;
 									continue;

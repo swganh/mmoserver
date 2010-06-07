@@ -155,7 +155,7 @@ void Shuttle::useShuttle(PlayerObject* playerObject)
 			else
 				awayMsg.setLength(swprintf(awayMsg.getUnicode16(),80,L"The next shuttle will be ready to board in %u seconds.",seconds));
 
-			gMessageLib->sendSystemMessage(playerObject,awayMsg);
+      gMessageLib->sendSystemMessage(playerObject,awayMsg.getUnicode16());
 		}
 		break;
 

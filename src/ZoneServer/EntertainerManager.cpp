@@ -276,7 +276,7 @@ void EntertainerManager::toggleOutcastId(PlayerObject* entertainer,uint64 outCas
 			gMessageLib->sendSystemMessage(entertainer,L"","performance","deny_service_remove_self","","",L"",0,"","",L"",outCastId);
 		}
 		outCastName.convert(BSTRType_Unicode16);
-		gMessageLib->sendSystemMessage(entertainer,L"","performance","deny_service_remove_self","","",L"",0,"","",outCastName);
+    gMessageLib->sendSystemMessage(entertainer,L"","performance","deny_service_remove_self","","",L"",0,"","",outCastName.getUnicode16());
 
 		//remove it from the db
 		int8 sql[150];
@@ -297,7 +297,7 @@ void EntertainerManager::toggleOutcastId(PlayerObject* entertainer,uint64 outCas
 	}
 
 	outCastName.convert(BSTRType_Unicode16);
-	gMessageLib->sendSystemMessage(entertainer,L"","performance","deny_service_add_self","","",L"",0,"","",outCastName);
+  gMessageLib->sendSystemMessage(entertainer,L"","performance","deny_service_add_self","","",L"",0,"","",outCastName.getUnicode16());
 	deniedAudienceList->push_back(outCastId);
 
 	//add it to the db
@@ -701,7 +701,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
 				string sstr;
 				sstr = BString(str);
 				sstr.convert(BSTRType_Unicode16);
-				gMessageLib->sendSystemMessage(entertainer,sstr);
+        gMessageLib->sendSystemMessage(entertainer,sstr.getUnicode16());
 			}
 		}
 		break;
@@ -1872,7 +1872,7 @@ void EntertainerManager::startWatching(PlayerObject* audience, PlayerObject* ent
 
 	//add the caller to our audience List
 	gEntertainerManager->addAudience(entertainer,audience);
-	gMessageLib->sendSystemMessage(audience,L"","performance","dance_watch_self","","","",0,"","",L"",entertainer->getId());
+	gMessageLib->sendSystemMessage(audience,L"","performance","dance_watch_self","","",L"",0,"","",L"",entertainer->getId());
 
 	//are we in one group???
 	if((entertainer->getGroupId() != 0) &&(entertainer->getGroupId() == audience->getGroupId()))

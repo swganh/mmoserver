@@ -487,7 +487,7 @@ void ObjectController::lootAll(uint64 targetId, PlayerObject* playerObject)
 							{
 								// To little to split.
 								// "GROUP] You split %TU credits and receive %TT credits as your share."
-								gMessageLib->sendSystemMessage(playerObject, L"", "group", "prose_split_coins_self", "", "", L"", 0, "", "", lootCreditsString, 0, 0, 0, "", "", lootCreditsString);
+                gMessageLib->sendSystemMessage(playerObject, L"", "group", "prose_split_coins_self", "", "", L"", 0, "", "", lootCreditsString.getUnicode16(), 0, 0, 0, "", "", lootCreditsString.getUnicode16());
 								// "There are insufficient group funds to split"
 								gMessageLib->sendSystemMessage(playerObject, L"", "error_message", "nsf_to_split");
 							}
@@ -516,7 +516,7 @@ void ObjectController::lootAll(uint64 targetId, PlayerObject* playerObject)
 								splitedLootCreditsString.convert(BSTRType_Unicode16);
 
 								// "GROUP] You split %TU credits and receive %TT credits as your share."
-								gMessageLib->sendSystemMessage(playerObject, L"", "group", "prose_split_coins_self", "", "", L"", 0, "", "", splitedLootCreditsString, 0, 0, 0, "", "", lootCreditsString);
+                gMessageLib->sendSystemMessage(playerObject, L"", "group", "prose_split_coins_self", "", "", L"", 0, "", "", splitedLootCreditsString.getUnicode16(), 0, 0, 0, "", "", lootCreditsString.getUnicode16());
 
 								// Now we need to add the credits to our own inventory.
 								Inventory* playerInventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));

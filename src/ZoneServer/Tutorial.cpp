@@ -257,12 +257,9 @@ void Tutorial::scriptPlayMusic(uint32 soundId)
 
 void Tutorial::scriptSystemMessage(std::string message)
 {
-	string msg = (int8*)message.c_str();
-
-	msg.convert(BSTRType_Unicode16);
-
 	if (mPlayerObject && mPlayerObject->isConnected())
 	{
+    std::wstring msg(message.begin(), message.end());
 		gMessageLib->sendSystemMessage(mPlayerObject, msg);
 	}
 }

@@ -111,7 +111,7 @@ void ObjectController::_handleRequestSurvey(uint64 targetId,Message* message,Obj
 
 		// send system message
 		resourceName.convert(BSTRType_Unicode16);
-		gMessageLib->sendSystemMessage(playerObject,L"","survey","start_survey","","",resourceName);
+    gMessageLib->sendSystemMessage(playerObject,L"","survey","start_survey","","",resourceName.getUnicode16());
 
 		// schedule execution
 		addEvent(new SurveyEvent(tool,resource),5000);
@@ -213,7 +213,7 @@ void ObjectController::HeightmapArtisanHandler(HeightmapAsyncContainer* ref)
 			container->playerObject->setSamplingState(true);
 
 			container->resourceName.convert(BSTRType_Unicode16);
-			gMessageLib->sendSystemMessage(container->playerObject,L"","survey","start_sampling","","",container->resourceName);
+      gMessageLib->sendSystemMessage(container->playerObject,L"","survey","start_sampling","","",container->resourceName.getUnicode16());
 
 			// change posture
 			_handleKneel(0,NULL,NULL);

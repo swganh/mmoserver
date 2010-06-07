@@ -294,7 +294,7 @@ string ObjectController::handleBroadcast(string message) const
 				const PlayerObject* const player = (*it).second;
 				if (player->isConnected())
 				{
-					gMessageLib->sendSystemMessage((PlayerObject*)player, message);
+					gMessageLib->sendSystemMessage((PlayerObject*)player, message.getUnicode16());
 				}
 				++it;
 			}

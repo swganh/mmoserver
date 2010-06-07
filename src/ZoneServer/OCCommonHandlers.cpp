@@ -83,7 +83,7 @@ void ObjectController::_handleBoardTransport(uint64 targetId,Message* message,Ob
 
 	if(playerObject->getPosture() == CreaturePosture_SkillAnimating)
 	{
-		gMessageLib->sendSystemMessage(playerObject,L"error_message", "wrong_state");
+		gMessageLib->sendSystemMessage(playerObject,L"", "error_message", "wrong_state");
 		return;
 	}
 
@@ -1120,7 +1120,7 @@ void ObjectController::_handlePurchaseTicket(uint64 targetId,Message* message,Ob
 
 	if(playerObject->getPosture() == CreaturePosture_SkillAnimating)
 	{
-		gMessageLib->sendSystemMessage(playerObject,L"error_message", "wrong_state");
+		gMessageLib->sendSystemMessage(playerObject,L"", "error_message", "wrong_state");
 		return;
 	}
 	

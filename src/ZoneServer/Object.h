@@ -145,6 +145,7 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 		// common attributes, send to the client
 		AttributeMap*				getAttributeMap(){ return &mAttributeMap; }
 		template<typename T> T		getAttribute(string key) const;
+//		template<typename T> T		getAttribute(std::string) const;
 		template<typename T> T		getAttribute(uint32 keyCrc) const;
 		void						setAttribute(string key,std::string value);
 		void						setAttributeIncDB(string key,std::string value);
@@ -334,6 +335,29 @@ T	Object::getAttribute(string key) const
 
 	return(T());
 }
+//=============================================================================
+
+//template<typename T>
+//T	Object::getAttribute(std::string key) const
+//{
+//	AttributeMap::const_iterator it = mAttributeMap.find(key.getCrc());
+//
+//	if(it != mAttributeMap.end())
+//	{
+//		try
+//		{
+//			return(boost::lexical_cast<T>((*it).second));
+//		}
+//		catch(boost::bad_lexical_cast &)
+//		{
+//			gLogger->log(LogManager::INFORMATION, "Object::getAttribute: cast failed (%s)", key.getAnsi());
+//		}
+//	}
+//	else
+//		gLogger->log(LogManager::INFORMATION, "Object::getAttribute: could not find %s", key.getAnsi());
+//
+//	return(T());
+//}
 //=============================================================================
 
 template<typename T>

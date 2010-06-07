@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "MessageLib/MessageLib.h"
 #include "DatabaseManager/Database.h"
 #include "ObjectControllerOpcodes.h"
+#include "Utils\rand.h"
 
 //consts
 const char* const woundpack = "woundpack";
@@ -72,8 +73,6 @@ void Medicine::handleStimpackMenuSelect(uint8 messageType, PlayerObject* player,
 					//Try to Heal Damage
 					if(gMedicManager->CheckMedicine(player, target,0, medpackType))
 					{
-						//If we succeed, reduce Medics Mind
-						player->getHam()->updatePropertyValue(HamBar_Mind, HamProperty_CurrentHitpoints, -140);
 						//Call the event
 						gMedicManager->startInjuryTreatmentEvent(player);
 					} else {
@@ -107,8 +106,6 @@ void Medicine::handleWoundPackMenuSelect(uint8 messageType, PlayerObject* player
 					//Try to Heal Damage
 					if(gMedicManager->CheckMedicine(player, target, 0, medpackType))
 					{
-						//If we succeed, reduce Medics Mind
-						player->getHam()->updatePropertyValue(HamBar_Mind, HamProperty_CurrentHitpoints, -140);
 						//Call the event
 						gMedicManager->startWoundTreatmentEvent(player);
 					} else {
@@ -279,7 +276,13 @@ uint32 Medicine::getHealWoundStrength()
 }
 uint32 Medicine::getHealWound(string attribute)
 {
-	return (uint32)this->getAttribute<float>(attribute);
+	//this should return us the attribute type we are trying to heal
+	//TODO replace with std::string after bstring is removed...
+	string examine = "examine_heal_wound_";
+	std::string tmp = examine.getAnsi();
+	tmp.append(attribute.getAnsi());
+	string attr = tmp.c_str();
+	return (uint32)this->getAttribute<float>(attr);
 }
 
 uint32 Medicine::getUsesRemaining()

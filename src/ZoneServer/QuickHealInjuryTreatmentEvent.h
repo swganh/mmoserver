@@ -25,43 +25,32 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#ifndef ANH_ZONESERVER_BADGEREGION_H
-#define ANH_ZONESERVER_BADGEREGION_H
+#ifndef ANH_ZONESERVER_QUICKHEALINJURYTREATMENT_EVENT_H
+#define ANH_ZONESERVER_QUICKHEALINJURYTREATMENT_EVENT_H
 
-#include "RegionObject.h"
-#include "MathLib/Rectangle.h"
-#include "Utils/typedefs.h"
+#include "Utils/EventHandler.h"
 
-//=============================================================================
 
-class ZoneTree;
-class PlayerObject;
-class QTRegion;
 
-//=============================================================================
 
-class BadgeRegion : public RegionObject
+//======================================================================================================================
+
+class QuickHealInjuryTreatmentEvent : public Anh_Utils::Event
 {
-	friend class BadgeRegionFactory;
-
 	public:
 
-		BadgeRegion();
-		virtual ~BadgeRegion();
+		QuickHealInjuryTreatmentEvent(uint64 time) : mQuickHealInjuryTreatmentTime(time){}
+		
+		uint64 getQuickHealInjuryTreatmentTime() const {return  mQuickHealInjuryTreatmentTime;}
 
-		uint32			getBadgeId(){ return mBadgeId; }
-		void			setBadgeId(uint32 id){ mBadgeId = id; }
 
-		virtual void	update();
+	private:
 
-	protected:
-
-		uint32				mBadgeId;
-		ZoneTree*			mSI;
-		QTRegion*			mQTRegion;
-		Anh_Math::Rectangle mQueryRect;
+		uint64				mQuickHealInjuryTreatmentTime;
 };
 
+
+//======================================================================================================================
 
 #endif
 

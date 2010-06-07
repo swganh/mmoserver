@@ -276,7 +276,7 @@ int32	Ham::getTotalHamCount()
 
 	for(uint32 i = 0;i<9;i++)
 	{
-		amount += mHamBars[i]->getValue(HamProperty_MaxHitpoints);
+		amount += mHamBars[i]->getValue(HamProperty_BaseHitpoints);
 	}
 
 	return amount;

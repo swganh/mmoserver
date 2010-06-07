@@ -61,16 +61,22 @@ public:
 
 	bool CheckMedicine(PlayerObject* Medic, PlayerObject* Target, ObjectControllerCmdProperties* cmdProperties, std::string Type);
 	bool CheckMedicRange(PlayerObject* Medic, PlayerObject* Target, float healRange);
-	int32  CalculateBF(PlayerObject* Medic, PlayerObject* Target, int32 maxhealamount);
 	
-	bool HealDamage(PlayerObject* Medic, PlayerObject* Target, uint64 StimPackObjectID, ObjectControllerCmdProperties* cmdProperties);
+	bool HealDamage(PlayerObject* Medic, PlayerObject* Target, uint64 StimPackObjectID, ObjectControllerCmdProperties* cmdProperties, std::string healType);
 	bool HealDamageRanged(PlayerObject* Medic, PlayerObject* Target, uint64 StimPackObjectID, ObjectControllerCmdProperties* cmdProperties);
 	bool HealWound(PlayerObject* Medic, PlayerObject* Target, uint64 WoundPackobjectID, ObjectControllerCmdProperties* cmdProperties, std::string healType);
 
 	void startInjuryTreatmentEvent(PlayerObject* Medic);
+	void startQuickHealInjuryTreatmentEvent(PlayerObject* Medic);
 	void startWoundTreatmentEvent(PlayerObject* Medic);
 	bool Diagnose(PlayerObject* Medic, PlayerObject* Target);
 	void successForage(PlayerObject* player);
+	//helpers
+	std::string handleMessage(Message* message, std::string regexPattern);
+	int32  CalculateBF(PlayerObject* Medic, PlayerObject* Target, int32 maxhealamount);
+	int32 CalculateHealWound(PlayerObject* Medic, PlayerObject* Target, int32 woundHealPower, std::string healType);
+
+
 
 private:
 	static MedicManager*	mSingleton;

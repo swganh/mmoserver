@@ -237,8 +237,7 @@ void LoginManager::_handleLoginClientId(LoginClient* client, Message* message)
   message->getStringAnsi(password);
   message->getStringAnsi(clientId);
 
-	if(strcmp("SWGANHVER00001",clientId.getAnsi()) != 0 &&
-     strcmp("20050408-18:00",clientId.getAnsi()) != 0)
+	if(strcmp("20050408-18:00",clientId.getAnsi()) != 0)
 	{
 		gLogger->log(LogManager::NOTICE, "illegal client: %s",clientId.getAnsi());
 		client->Disconnect(0);

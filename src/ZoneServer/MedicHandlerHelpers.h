@@ -23,47 +23,48 @@ You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
-*/
+*/	
+#pragma once
 
-#ifndef ANH_ZONESERVER_BADGEREGION_H
-#define ANH_ZONESERVER_BADGEREGION_H
+#include <vector>
+#include "Common/MessageDispatchCallback.h"
 
-#include "RegionObject.h"
-#include "MathLib/Rectangle.h"
-#include "Utils/typedefs.h"
+#define gMedicHandlerHelpers MedicHandlerHelpers::getSingletonPtr()
 
-//=============================================================================
-
-class ZoneTree;
+class CreatureObject;
+class Database;
+class Message;
+class MessageDispatch;
+class ObjectControllerCommandMap;
+class ObjectControllerCmdProperties;
 class PlayerObject;
-class QTRegion;
 
-//=============================================================================
 
-class BadgeRegion : public RegionObject
+class MedicHandlerHelpers
 {
-	friend class BadgeRegionFactory;
+public:
+	~MedicHandlerHelpers();
 
-	public:
+	static MedicHandlerHelpers*		getSingletonPtr() { return mSingleton; }
+	static MedicHandlerHelpers*		Init(MessageDispatch* dispatch)
+	{ 
+		if(!mInsFlag)
+		{
+			mSingleton = new MedicHandlerHelpers(dispatch);
+			mInsFlag = true;
+			return mSingleton;
+		} else {
+			return mSingleton;
+		}
+	}
 
-		BadgeRegion();
-		virtual ~BadgeRegion();
+	std::string handleMessage(Message* message, std::string regexPattern);
 
-		uint32			getBadgeId(){ return mBadgeId; }
-		void			setBadgeId(uint32 id){ mBadgeId = id; }
-
-		virtual void	update();
-
-	protected:
-
-		uint32				mBadgeId;
-		ZoneTree*			mSI;
-		QTRegion*			mQTRegion;
-		Anh_Math::Rectangle mQueryRect;
+private:
+	static MedicHandlerHelpers*	mSingleton;
+	static bool					mInsFlag;
+	MessageDispatch*			Dispatch;
+	MedicHandlerHelpers(MessageDispatch* dispatch);
 };
 
-
-#endif
-
-
-
+	

@@ -1342,9 +1342,12 @@ uint32 StructureManager::getCurrentPower(PlayerObject* player)
 				if(pe < 1.0)
 					pe = 1.0;
 				
-				// thats actually not the classic way in precu energy was received on a
-				// 1::1 basis if pe was < 500
-				uint32 containerPower = (uint32)(resCont->getAmount()* pe);
+				uint32 containerPower = 0;
+				if (pe > 500)
+					containerPower = (uint32)(resCont->getAmount()* (pe/500));
+				else
+					containerPower = (uint32)(resCont->getAmount());
+
 				power += containerPower;
 			}
 
@@ -1377,16 +1380,19 @@ uint32 StructureManager::deductPower(PlayerObject* player, uint32 amount)
 			{
 				float pe = resCont->getResource()->getAttribute(ResAttr_PE);//7
 				
-				// thats actually not the classic way in precu energy was received on a
-				// 1::1 basis if pe was < 500
-				uint32 containerPower = (uint32)(resCont->getAmount()* (pe/500));
+				uint32 containerPower = 0;
+				if (pe > 500)
+					containerPower = (uint32)(resCont->getAmount()* (pe/500));
+				else
+					containerPower = (uint32)(resCont->getAmount());
 				
 				uint32 tdAmount = amount;
 				if(tdAmount >containerPower)
 					tdAmount = containerPower;
-
-				
-				uint32 todelete = (uint32)(tdAmount /(pe/500));
+				//default amount is how much to delete, unless pe > 500
+				uint32 todelete = tdAmount;
+				 if (pe > 500)
+					 todelete /= (uint32)(pe/500);
 				uint32 newAmount = resCont->getAmount()-todelete;
 				if(newAmount <0)
 				{
@@ -1394,8 +1400,21 @@ uint32 StructureManager::deductPower(PlayerObject* player, uint32 amount)
 				}
 				
 				resCont->setAmount(newAmount);
-				gMessageLib->sendResourceContainerUpdateAmount(resCont,player);
-				mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",newAmount,resCont->getId());				
+				if (resCont->getAmount() == 0)
+				{
+					// delete container at 0 amount
+					gMessageLib->sendDestroyObject(resCont->getId(),player);
+
+					gObjectFactory->deleteObjectFromDB(resCont);
+					dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->deleteObject(resCont);
+					amount -= tdAmount;
+					break;
+				}
+				else
+				{
+					gMessageLib->sendResourceContainerUpdateAmount(resCont,player);
+					mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",newAmount,resCont->getId());				
+				}
 
 				
 				amount -= tdAmount;

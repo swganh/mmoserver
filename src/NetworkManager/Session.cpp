@@ -2200,13 +2200,11 @@ void Session::_buildOutgoingReliableRoutedPackets(Message* message)
   uint16	envelopeSize = 0;
   uint16	messageSize = message->getSize();
 
-  message->mSourceId = 2;
-
   // fragments envelope sizes  
   envelopeSize = 18; // -2 header -2 seq -4 size -1 priority -1 routed flag -1 route destination -4 account id -3 comp/CRC 
 
   // If we're too large to fit in a single packet, split us up.  
-  if(messageSize + envelopeSize > mMaxPacketSize)		   //why >= ??
+  if(messageSize + envelopeSize > mMaxPacketSize)		 
   {
 
     // Build our first packet with the total size.

@@ -110,7 +110,6 @@ void MessageDispatch::handleSessionDisconnect(NetworkClient* client)
 
 void MessageDispatch::handleSessionMessage(NetworkClient* client, Message* message)
 {
-	message->mSourceId = 60;
 
 	DispatchClient* dispatchClient = 0;
 	bool deleteClient = false;
@@ -194,7 +193,6 @@ void MessageDispatch::handleSessionMessage(NetworkClient* client, Message* messa
 		message->setIndex(4);
 
 		// Call our handler
-		message->mSourceId = 61;
 		(*iter).second->handleDispatchMessage(opcode, message, dispatchClient);
 	}
 	else

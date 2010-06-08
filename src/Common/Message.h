@@ -50,8 +50,7 @@ class Message
 {
 public:
                               Message(void)
-                              : mSourceId(0)
-                              , mCreateTime(0)
+                              : mCreateTime(0)
                               , mQueueTime(0)
                               , mAccountId(0xffffffff)
                               , mSize(0)
@@ -75,7 +74,6 @@ public:
   uint16                      getIndex(void)                    { return mIndex; }
   inline uint8                getPriority(void)                 { return mPriority; }
   uint32                      getAccountId(void)                { return mAccountId; }
-  uint8                       getSourceId(void)                 { return mSourceId; }
   uint8                       getDestinationId(void)            { return mDestinationId; }
   bool                        getRouted(void)                   { return mRouted; }
   uint64                      getCreateTime(void)               { return mCreateTime; }
@@ -88,7 +86,6 @@ public:
   void                        setIndex(uint16 index)            { mIndex = index; }
   void                        setPriority(uint8 priority)       { mPriority = priority; }
   void                        setAccountId(uint32 id)           { mAccountId = id; }
-  void                        setSourceId(uint8 id)             { mSourceId = id; }
   void                        setDestinationId(uint8 id)        { mDestinationId = id; }
   void                        setRouted(bool routed)            { mRouted = routed; }
   void                        setCreateTime(uint64 time)        { mCreateTime = time; }
@@ -130,8 +127,6 @@ public:
   // Max length of a string is uint16 - 4 (two bytes for length at beginning of buffer, and 2 bytes at end for NULL terminator.)
   uint16                      getStringAnsi(BString& data)       { data.initRawBSTR(&mData[mIndex], BSTRType_ANSI); mIndex += data.getLength()+2; return data.getLength(); }
   uint16                      getStringUnicode16(BString& data)  { data.initRawBSTR(&mData[mIndex], BSTRType_Unicode16); mIndex += data.getLength() * 2 + 4; return data.getLength(); }
-
-  uint8                       mSourceId;
   
   bool                        mLogged;
   uint64                      mLogTime;

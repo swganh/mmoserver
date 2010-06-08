@@ -80,6 +80,7 @@ mLocalPort(0),
 mQueued(false),
 mServerService(serverservice)
 {
+	mCallBack = NULL;
 	mId = id;
 
 	//localAddress = (char*)gConfig->read<std::string>("BindAddress").c_str();
@@ -218,9 +219,10 @@ void Service::Process()
 		// Check to see if we're in the process of connecting or disconnecting.
 		if(session->getStatus() == SSTAT_Connecting)
 		{
-			for(NetworkCallbackList::iterator iter = mNetworkCallbackList.begin(); iter != mNetworkCallbackList.end(); ++iter)
-			{
-				newClient = (*iter)->handleSessionConnect(session, this);
+			//for(NetworkCallbackList::iterator iter = mNetworkCallbackList.begin(); iter != mNetworkCallbackList.end(); ++iter)
+			//{
+			//mCallBack->handleSessionMessage(session->getClient(), message);
+				newClient = mCallBack->handleSessionConnect(session, this);
 
 				// They returned a client to us, so keep the session.
 				if(newClient)
@@ -234,21 +236,21 @@ void Service::Process()
 					// Remove the session, they don't want it.
 					session->setCommand(SCOM_Disconnect);
 				}
-			}
+			//}
 		}
 		else if(session->getStatus() == SSTAT_Disconnecting)
 		{
 
 			NetworkCallbackList::iterator iter;
 
-			for(iter = mNetworkCallbackList.begin(); iter != mNetworkCallbackList.end(); ++iter)
-			{
+			//for(iter = mNetworkCallbackList.begin(); iter != mNetworkCallbackList.end(); ++iter)
+			//{
 				if(session->getClient())
 				{
-					(*iter)->handleSessionDisconnect(session->getClient());
+					mCallBack->handleSessionDisconnect(session->getClient());
 					session->setClient(0);
 				}
-			}
+			//}
 
 			// We're now dis connected.
 			session->setStatus(SSTAT_Disconnected);
@@ -259,6 +261,7 @@ void Service::Process()
 		{
 		  mSocketReadThread->RemoveAndDestroySession(session);
 
+
 		  continue;
 		}
 
@@ -267,10 +270,7 @@ void Service::Process()
 		// Iterate through our priority queue's looking for messages.
 		uint32 messageCount = session->getIncomingQueueMessageCount();
 
-		if(messageCount >avgPacketsbuild )
-			avgPacketsbuild = messageCount;
-
-		if((session->getStatus() == SSTAT_Destroy)||(!session->getClient()))
+		if(!session->getClient())
 		{
 			for(uint32 j = 0; j < messageCount; j++)
 			{
@@ -288,12 +288,13 @@ void Service::Process()
 
 				// At this point we can assume we have a client object, so send the data up.
 				// actually when a server crashed it happens that we crash the connectionserver this way
-				NetworkCallbackList::iterator iter;
+				//NetworkCallbackList::iterator iter;
 
-				for(iter = mNetworkCallbackList.begin(); iter != mNetworkCallbackList.end(); ++iter)
-				{
-					(*iter)->handleSessionMessage(session->getClient(), message);
-				}
+				mCallBack->handleSessionMessage(session->getClient(), message);
+				//for(iter = mNetworkCallbackList.begin(); iter != mNetworkCallbackList.end(); ++iter)
+				//{
+					//(*iter)->handleSessionMessage(session->getClient(), message);
+				//}
 			}
 		}
 

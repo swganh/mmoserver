@@ -87,9 +87,13 @@ uint32 ResourceContainer::getAmount()
 void ResourceContainer::setAmount(uint32 amount)
 {
     mAmount = amount;
-	//delete the resource
-	if (mAmount = 0)
-		ResourceContainer::deleteObject(this);
+	//This cannot work until we do a) == instead of =
+	//and b call our parent to destroy us
+	//in which case we still would already be destroyed when we would have to finish the last line of code
+	//PLUS if it actually worked, it would send the destroyobject several times to the client, thus crashing the zone
+	//right now it crashes the server randomly when we try to access / delete the resource stack
+	//if (mAmount = 0)// -> ==
+		//ResourceContainer::deleteObject(this);//we are NOT a child of ourselves what you do is basically this->deleteObject(this);
 }
 
 

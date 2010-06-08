@@ -171,7 +171,7 @@ void UIManager::createNewListBox(UICallback* callback,const int8* eventStr,strin
 {
 	if((!distance)&&object)
 	{
-		distance = gWorldConfig->getConfiguration("Player_UI_Closure",(float)30.0);
+		distance = gWorldConfig->getConfiguration<float>("Player_UI_Closure",(float)30.0);
 	}
 
 	uint32 lbId = _getFreeId();

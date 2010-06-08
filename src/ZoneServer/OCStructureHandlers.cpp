@@ -143,7 +143,7 @@ void	ObjectController::_handleModifyPermissionList(uint64 targetId,Message* mess
 	}
 
 	//is the structure in Range???
-	float fAdminListDistance = gWorldConfig->getConfiguration("Player_Admin_List_Distance",(float)32.0);
+	float fAdminListDistance = gWorldConfig->getConfiguration<float>("Player_Admin_List_Distance",(float)32.0);
 	
 	if(player->getParentId())
 	{
@@ -485,7 +485,7 @@ void	ObjectController::_handleTransferStructure(uint64 targetId,Message* message
 	}
 	
 	//is the structure in Range???
-	float fTransferDistance = gWorldConfig->getConfiguration("Player_Transfer_Structure_Distance",(float)8.0);
+	float fTransferDistance = gWorldConfig->getConfiguration<float>("Player_Transfer_Structure_Distance",(float)8.0);
     if(glm::distance(player->mPosition, structure->mPosition) > fTransferDistance)
 	{
 		gMessageLib->sendSystemMessage(player,L"","player_structure","command_no_building");
@@ -538,7 +538,7 @@ void	ObjectController::_handleNameStructure(uint64 targetId,Message* message,Obj
 	}
 	
 	//is the structure in Range???
-	float fTransferDistance = gWorldConfig->getConfiguration("Player_Structure_Operate_Distance",(float)10.0);
+	float fTransferDistance = gWorldConfig->getConfiguration<float>("Player_Structure_Operate_Distance",(float)10.0);
     if(glm::distance(player->mPosition, structure->mPosition) > fTransferDistance)
 	{
 		gMessageLib->sendSystemMessage(player,L"","player_structure","command_no_building");
@@ -598,7 +598,7 @@ void	ObjectController::_handleHarvesterGetResourceData(uint64 targetId,Message* 
 	}
 	
 	//is the structure in Range???
-	float fTransferDistance = gWorldConfig->getConfiguration("Player_Structure_Operate_Distance",(float)10.0);
+	float fTransferDistance = gWorldConfig->getConfiguration<float>("Player_Structure_Operate_Distance",(float)10.0);
 	if(glm::distance(player->mPosition, structure->mPosition) > fTransferDistance)
 	{
 		gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterGetResourceData Structure not in Range");
@@ -665,7 +665,7 @@ void	ObjectController::_handleHarvesterSelectResource(uint64 targetId,Message* m
 	}
 	
 	//is the structure in Range???
-	float fTransferDistance = gWorldConfig->getConfiguration("Player_Structure_Operate_Distance",(float)10.0);
+	float fTransferDistance = gWorldConfig->getConfiguration<float>("Player_Structure_Operate_Distance",(float)10.0);
 	if(glm::distance(player->mPosition, structure->mPosition) > fTransferDistance)
 	{
 		gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterGetResourceData Structure not in Range");
@@ -770,7 +770,7 @@ void	ObjectController::_handleHarvesterActivate(uint64 targetId,Message* message
 	}
 	
 	//is the structure in Range???
-	float fTransferDistance = gWorldConfig->getConfiguration("Player_Structure_Operate_Distance",(float)10.0);
+	float fTransferDistance = gWorldConfig->getConfiguration<float>("Player_Structure_Operate_Distance",(float)10.0);
 	if(glm::distance(player->mPosition, structure->mPosition) > fTransferDistance)
 	{
 		gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterActivate Structure not in Range");
@@ -818,7 +818,7 @@ void	ObjectController::_handleHarvesterDeActivate(uint64 targetId,Message* messa
 	}
 	
 	//is the structure in Range???
-	float fTransferDistance = gWorldConfig->getConfiguration("Player_Structure_Operate_Distance",(float)10.0);
+	float fTransferDistance = gWorldConfig->getConfiguration<float>("Player_Structure_Operate_Distance",(float)10.0);
 	if(glm::distance(player->mPosition, structure->mPosition) > fTransferDistance)
 	{
 		gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterGetResourceData Structure not in Range");
@@ -866,7 +866,7 @@ void	ObjectController::_handleDiscardHopper(uint64 targetId,Message* message,Obj
 	}
 	
 	//is the structure in Range???
-	float fTransferDistance = gWorldConfig->getConfiguration("Player_Structure_Operate_Distance",(float)10.0);
+	float fTransferDistance = gWorldConfig->getConfiguration<float>("Player_Structure_Operate_Distance",(float)10.0);
 	if(glm::distance(player->mPosition, structure->mPosition) > fTransferDistance)
 	{
 		gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterGetResourceData Structure not in Range");
@@ -920,7 +920,7 @@ void	ObjectController::handleResourceEmptyHopper(Message* message)
 	}
 	
 	//is the structure in Range???
-	float fTransferDistance = gWorldConfig->getConfiguration("Player_Structure_Operate_Distance",(float)10.0);
+	float fTransferDistance = gWorldConfig->getConfiguration<float>("Player_Structure_Operate_Distance",(float)10.0);
 	if(glm::distance(player->mPosition, structure->mPosition) > fTransferDistance)
 	{
 		gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterGetResourceData Structure not in Range");

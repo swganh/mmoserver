@@ -368,7 +368,7 @@ void TradeManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			//to many listings ??  default is 25
 			 //max price on public bazaar
 
-			if(count >= static_cast<uint64>(gWorldConfig->getConfiguration("Server_Bazaar_MaxListing",25)))
+			if(count >= static_cast<uint64>(gWorldConfig->getConfiguration<uint32>("Server_Bazaar_MaxListing",(uint32)25)))
 			{
 				gMessageLib->sendCreateAuctionItemResponseMessage(playerObject,asynContainer->tangible->getId(),13);
 				return;
@@ -731,7 +731,7 @@ void TradeManager::_processHandleAuctionCreateMessage(Message* message,DispatchC
 		return;
 	}
 
-	if(price > (uint32)gWorldConfig->getConfiguration("Server_Bazaar_MaxPrice",20000))
+	if(price > (uint32)gWorldConfig->getConfiguration<uint32>("Server_Bazaar_MaxPrice",20000))
 	{
 		//to expensive!!!
 		gMessageLib->sendCreateAuctionItemResponseMessage(playerObject,ItemID,4);

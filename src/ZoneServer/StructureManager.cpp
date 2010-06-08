@@ -59,9 +59,9 @@ StructureManager*			StructureManager::mSingleton  = NULL;
 
 StructureManager::StructureManager(Database* database,MessageDispatch* dispatch)
 {
-	mBuildingFenceInterval = gWorldConfig->getConfiguration("Zone_BuildingFenceInterval",(uint16)10000);
+	mBuildingFenceInterval = gWorldConfig->getConfiguration<uint16>("Zone_BuildingFenceInterval",(uint16)10000);
 	//uint32 structureCheckIntervall = gWorldConfig->getConfiguration("Zone_structureCheckIntervall",(uint32)3600);
-	uint32 structureCheckIntervall = gWorldConfig->getConfiguration("Zone_structureCheckIntervall",(uint32)30);
+	uint32 structureCheckIntervall = gWorldConfig->getConfiguration<uint32>("Zone_structureCheckIntervall",(uint32)30);
 
 	mDatabase = database;
 	mMessageDispatch = dispatch;

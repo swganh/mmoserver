@@ -235,7 +235,7 @@ PlayerObject*	WorldManager::getPlayerByAccId(uint32 accId)
 
 void WorldManager::addDisconnectedPlayer(PlayerObject* playerObject)
 {
-	uint32 timeOut = gWorldConfig->getConfiguration("Zone_Player_Logout",300);
+	uint32 timeOut = gWorldConfig->getConfiguration<uint32>("Zone_Player_Logout",300);
 
 	gLogger->log(LogManager::DEBUG,"Player(%"PRIu64") disconnected,reconnect timeout in %u seconds",playerObject->getId(),timeOut);
 
@@ -303,7 +303,7 @@ void WorldManager::addDisconnectedPlayer(PlayerObject* playerObject)
 
 void WorldManager::addReconnectedPlayer(PlayerObject* playerObject)
 {
-	uint32 timeOut = gWorldConfig->getConfiguration("Zone_Player_Logout",300);
+	uint32 timeOut = gWorldConfig->getConfiguration<uint32>("Zone_Player_Logout",300);
 
 	playerObject->togglePlayerFlagOff(PlayerFlag_LinkDead);
 	playerObject->setConnectionState(PlayerConnState_Connected);

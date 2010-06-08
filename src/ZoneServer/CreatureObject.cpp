@@ -686,7 +686,8 @@ void CreatureObject::incap()
 		}
 
 		// advance incaps counter
-		if(++mIncapCount < gWorldConfig->getConfiguration("Player_Incapacitation",3))
+		uint32 configIncapCount = gWorldConfig->getConfiguration<uint32>("Player_Incapacitation",3);
+		if(++mIncapCount < (uint8)configIncapCount)
 		{
 			// update the posture
 			mPosture = CreaturePosture_Incapacitated;

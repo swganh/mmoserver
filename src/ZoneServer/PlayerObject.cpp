@@ -136,7 +136,7 @@ PlayerObject::PlayerObject()
 	registerEventFunction(this,&PlayerObject::onWoundTreatment);
 	registerEventFunction(this,&PlayerObject::onQuickHealInjuryTreatment);
 	
-	mLots = gWorldConfig->getConfiguration("Player_Max_Lots",(uint8)10);
+	mLots = gWorldConfig->getConfiguration<uint32>("Player_Max_Lots",(uint32)10);
 
 	mPermissionId = 0;
 
@@ -2082,7 +2082,7 @@ bool PlayerObject::useLots(uint8 usedLots)
 //
 bool PlayerObject::regainLots(uint8 lots)
 {
-	uint8 maxLots = gWorldConfig->getConfiguration("Player_Max_Lots",(uint8)10);
+	uint32 maxLots = gWorldConfig->getConfiguration<uint32>("Player_Max_Lots",(uint32)10);
 
 	if((mLots + lots) > maxLots)
 	{

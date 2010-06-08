@@ -861,7 +861,7 @@ void ObjectController::handleImageDesignChangeMessage(Message* message,uint64 ta
 	
 	if((imageDesigner == messageGenerator) && designerCommit)
 	{
-		uint32 idTimer	= gWorldConfig->getConfiguration("Player_Timer_IDSessionTimeOut",(uint32)60000);
+		uint32 idTimer	= gWorldConfig->getConfiguration<uint32>("Player_Timer_IDSessionTimeOut",(uint32)60000);
 		messageGenerator->setImageDesignerTaskId(gWorldManager->addImageDesignerToProcess(messageGenerator,idTimer));
 		gLogger->log(LogManager::DEBUG,"Added ID Tick Control !!!");
 	}

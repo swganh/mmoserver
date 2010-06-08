@@ -61,7 +61,7 @@ void Instrument::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 			{
 				if (player->getPlacedInstrumentId() == this->getId())
 				{
-					float range = gWorldConfig->getConfiguration("Zone_Player_ItemUse",(float)6.0);
+					float range = gWorldConfig->getConfiguration<float>("Zone_Player_ItemUse",(float)6.0);
 					if (!gWorldManager->objectsInRange(player->getId(), this->getId(), range))
 					{
 						// We where out of range. (using 6.0 m as default range,this value not verified).

@@ -46,9 +46,9 @@ Datapad::Datapad() : TangibleObject()
 	mTanGroup					= TanGroup_Datapad;
 	mTanType					= TanType_CharacterDatapad;
 	mSchematicUpdateCounter		= 0;
-	mWayPointCapacity			= gWorldConfig->getConfiguration("Player_DataPad_WayPointCapacity",(uint8)100);
-	mCapacity					= gWorldConfig->getConfiguration("Player_Datapad_Capacity",(uint8)100);
-	mMissionCapacity			= gWorldConfig->getConfiguration("Player_Datapad_MissionCapacity",(uint8)2);
+	mWayPointCapacity			= (uint8)gWorldConfig->getConfiguration<uint32>("Player_DataPad_WayPointCapacity",(uint32)100);
+	mCapacity					= (uint8)gWorldConfig->getConfiguration<uint32>("Player_Datapad_Capacity",(uint32)100);
+	mMissionCapacity			= (uint8)gWorldConfig->getConfiguration<uint32>("Player_Datapad_MissionCapacity",(uint32)2);
 
 	if(mMissionCapacity	>6)
 	{

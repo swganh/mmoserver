@@ -45,7 +45,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 InsuranceTerminal::InsuranceTerminal() : Terminal()
 {
-	mInsuranceFee		= gWorldConfig->getConfiguration("Player_ItemInsuranceFee",(int)100);
+	mInsuranceFee		= gWorldConfig->getConfiguration<int>("Player_ItemInsuranceFee",(int)100);
 }
 
 //=============================================================================

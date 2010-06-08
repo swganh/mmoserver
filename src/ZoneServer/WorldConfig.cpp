@@ -86,7 +86,7 @@ void WorldConfig::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 	// verify loaded settings, unless we cant do table level checks with crap mysql
 	
 	// Container Depth
-	mContainerDepth= gWorldConfig->getConfiguration("Player_ContainerDepth",(uint16)5);
+	mContainerDepth= gWorldConfig->getConfiguration<uint16>("Player_ContainerDepth",(uint16)5);
 	if(mContainerDepth > 256)
 		mContainerDepth= 256;
 	else if(mContainerDepth< 3)
@@ -97,7 +97,7 @@ void WorldConfig::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 	// Message of the day
 
 	// Player viewing range
-	mPlayerViewingRange = gWorldConfig->getConfiguration("Zone_Player_ViewingRange",(uint16)128);
+	mPlayerViewingRange = gWorldConfig->getConfiguration<uint16>("Zone_Player_ViewingRange",(uint16)128);
 	if(mPlayerViewingRange > 256)
 		mPlayerViewingRange = 256;
 	else if(mPlayerViewingRange < 32)
@@ -107,7 +107,7 @@ void WorldConfig::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 	mPlayerViewingRangeMax = mPlayerViewingRange;
 
 	// Player chat range
-	mPlayerChatRange = gWorldConfig->getConfiguration("Zone_Player_ChatRange",(uint16)128);
+	mPlayerChatRange = gWorldConfig->getConfiguration<uint16>("Zone_Player_ChatRange",(uint16)128);
 	
 	if(mPlayerChatRange > 256)
 		mPlayerChatRange = 256;
@@ -117,7 +117,7 @@ void WorldConfig::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 	// Server Time Update Frequency
 	
-	mServerTimeInterval = gWorldConfig->getConfiguration("Server_Time_Interval",30);
+	mServerTimeInterval = gWorldConfig->getConfiguration<uint32>("Server_Time_Interval",(uint32)30);
 	
 	if(mServerTimeInterval < 10)
 		mServerTimeInterval = 10;
@@ -126,7 +126,7 @@ void WorldConfig::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 	// Server Time Speed
 
-	mServerTimeSpeed = gWorldConfig->getConfiguration("Server_Time_Speed",0);
+	mServerTimeSpeed = gWorldConfig->getConfiguration<uint32>("Server_Time_Speed",(uint32)0);
 
 	if(mServerTimeSpeed < 0)
 		mServerTimeSpeed = 0;
@@ -134,34 +134,34 @@ void WorldConfig::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 		mServerTimeSpeed = 5000;
 
 	// ham regen
-	mHealthRegenDivider = static_cast<float>(gWorldConfig->getConfiguration("Player_Health_RegenDivider",100));
+	mHealthRegenDivider = static_cast<float>(gWorldConfig->getConfiguration<float>("Player_Health_RegenDivider",(float)100.0));
 	
 	if(mHealthRegenDivider < 1.0f || mHealthRegenDivider > 500.0f)
 		mHealthRegenDivider = 100.0f;
 
-	mActionRegenDivider = static_cast<float>(gWorldConfig->getConfiguration("Player_Action_RegenDivider",100));
+	mActionRegenDivider = static_cast<float>(gWorldConfig->getConfiguration<float>("Player_Action_RegenDivider",100));
 	if(mActionRegenDivider < 1.0f || mActionRegenDivider > 500.0f)
 		mActionRegenDivider = 100.0f;
 
-	mMindRegenDivider = static_cast<float>(gWorldConfig->getConfiguration("Player_Mind_RegenDivider",100));
+	mMindRegenDivider = static_cast<float>(gWorldConfig->getConfiguration<float>("Player_Mind_RegenDivider",100));
 	if(mMindRegenDivider < 1.0f || mMindRegenDivider > 500.0f)
 		mMindRegenDivider = 100.0f;
 
 	// incapacitation
-	mPlayerMaxIncaps = static_cast<uint8>(gWorldConfig->getConfiguration("Player_Incapacitation",3));
+	mPlayerMaxIncaps = static_cast<uint8>(gWorldConfig->getConfiguration<uint32>("Player_Incapacitation",(uint32)3));
 	
 	if(mPlayerMaxIncaps < 1 || mPlayerMaxIncaps > 50)
 	{
 		mPlayerMaxIncaps = 3;
 	}
 
-	mPlayerBaseIncapTime = gWorldConfig->getConfiguration("Player_Incap_Time",30);
+	mPlayerBaseIncapTime = gWorldConfig->getConfiguration<uint32>("Player_Incap_Time",30);
 	if(mPlayerBaseIncapTime < 1 || mPlayerBaseIncapTime > 300)
 	{
 		mPlayerBaseIncapTime = 300;
 	}
 
-	mIncapResetTime = gWorldConfig->getConfiguration("Player_Incap_Reset",300);
+	mIncapResetTime = gWorldConfig->getConfiguration<uint32>("Player_Incap_Reset",300);
 	if(mIncapResetTime < 1 || mIncapResetTime > 3600)
 	{
 		mIncapResetTime = 300;
@@ -176,7 +176,7 @@ void WorldConfig::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 		mDatabase->ExecuteSqlAsync(this,NULL,sql);
 	}
 
-	mGroupMissionUpdateTime = gWorldConfig->getConfiguration("Group_MissionUpdate_Time",10000);
+	mGroupMissionUpdateTime = gWorldConfig->getConfiguration<uint32>("Group_MissionUpdate_Time",10000);
 	if(mGroupMissionUpdateTime < 1000 || mGroupMissionUpdateTime > 60000)
 	{
 		mGroupMissionUpdateTime = 30000;

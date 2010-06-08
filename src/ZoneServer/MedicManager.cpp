@@ -1055,7 +1055,7 @@ int32 MedicManager::CalculateHealWound(PlayerObject* Medic, PlayerObject* Target
 //Check Heal Range
 bool MedicManager::CheckMedicRange(PlayerObject* Medic, PlayerObject* Target, float healRange)
 {
-	float distance = gWorldConfig->getConfiguration("Player_heal_distance", healRange);
+	float distance = gWorldConfig->getConfiguration<float>("Player_heal_distance", healRange);
 
     if(glm::distance(Medic->mPosition, Target->mPosition) > distance)
 	{

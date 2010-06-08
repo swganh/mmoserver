@@ -144,6 +144,13 @@ NetworkClient* ServerManager::handleSessionConnect(Session* session, Service* se
 		newClient = new ConnectionClient();
 		ConnectionClient* connClient = reinterpret_cast<ConnectionClient*>(newClient);
 
+		ConnectionClient* oldClient = mServerAddressMap[serverAddress.mId].mConnectionClient;
+		if(oldClient)
+		{
+			delete(oldClient);
+			--mTotalConnectedServers;
+		}
+
 		connClient->setServerId(serverAddress.mId);
 
 		memcpy(&mServerAddressMap[serverAddress.mId], &serverAddress, sizeof(ServerAddress));
@@ -208,6 +215,10 @@ void ServerManager::handleSessionDisconnect(NetworkClient* client)
 	gLogger->log(LogManager::DEBUG,"Servermanager handle server down\n");
 	mClientManager->handleServerDown(connClient->getServerId());
 
+	connClient->getSession()->setStatus(SSTAT_Destroy);
+	connClient->getSession()->getService()->AddSessionToProcessQueue(connClient->getSession());
+	
+
 	delete(client);
 }
 
@@ -216,8 +227,6 @@ void ServerManager::handleSessionDisconnect(NetworkClient* client)
 void ServerManager::handleSessionMessage(NetworkClient* client, Message* message)
 {
   ConnectionClient* connClient = reinterpret_cast<ConnectionClient*>(client);
-  message->setSourceId(static_cast<uint8>(connClient->getServerId()));
-
   // Send the message off to the router.
   mMessageRouter->RouteMessage(message,connClient);
 }
@@ -279,6 +288,7 @@ void ServerManager::_loadProcessAddressMap(void)
 		// Retrieve our server data
 		result->GetNextRow(mServerBinding,&serverAddress);
 		memcpy(&mServerAddressMap[serverAddress.mId], &serverAddress, sizeof(ServerAddress));
+		mServerAddressMap[serverAddress.mId].mConnectionClient = NULL;
 	}
 
 	// Delete our DB objects.

@@ -77,7 +77,6 @@ void ObjectControllerDispatch::handleDispatchMessage(uint32 opcode,Message* mess
 		gLogger->log(LogManager::DEBUG,"ObjectControllerDispatch: Unhandled opcode %u",opcode);
 
 	message->setPendingDelete(true);
-	message->mSourceId = 55;
 }
 
 //======================================================================================================================
@@ -264,7 +263,6 @@ void ObjectControllerDispatch::_dispatchMessage(Message* message, DispatchClient
 		gLogger->log(LogManager::DEBUG,"ObjectControllerDispatch: Couldn't find Object %"PRIu64"",objId);
 
 	message->setPendingDelete(true);
-	message->mSourceId = 56;
 }
 
 //======================================================================================================================
@@ -280,7 +278,6 @@ void ObjectControllerDispatch::_dispatchObjectMenuSelect(Message* message,Dispat
 		gLogger->log(LogManager::DEBUG,"ObjController::handleRadialSelect: Object not found %"PRIu64"",objectId);
 
 	message->setPendingDelete(true);
-	message->mSourceId = 57;
 }
 
 //======================================================================================================================

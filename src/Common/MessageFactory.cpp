@@ -492,7 +492,6 @@ void MessageFactory::_processGarbageCollection(void)
 				{
 					gLogger->log(LogManager::WARNING, "Garbage Collection found a new stuck message!");
 					gLogger->logCont(LogManager::INFORMATION, "age : %u ", uint32((Anh_Utils::Clock::getSingleton()->getStoredTime() - message->getCreateTime())/1000));
-					gLogger->logCont(LogManager::INFORMATION, "Source : %u ", message->mSourceId);
 					
 					message->mLogged = true;
 					message->mLogTime = Anh_Utils::Clock::getSingleton()->getStoredTime();
@@ -521,7 +520,6 @@ void MessageFactory::_processGarbageCollection(void)
 				{
 					gLogger->log(LogManager::EMERGENCY, "Garbage Collection found a old stuck message!");
 					gLogger->logCont(LogManager::INFORMATION, "age : %u ", uint32((Anh_Utils::Clock::getSingleton()->getStoredTime() - message->getCreateTime())/1000));
-					gLogger->logCont(LogManager::INFORMATION, "Source : %u ", message->mSourceId);
 					gLogger->logCont(LogManager::INFORMATION, "Session status : %u ", session->getStatus());
 					message->mLogTime  = Anh_Utils::Clock::getSingleton()->getStoredTime();
 					return;

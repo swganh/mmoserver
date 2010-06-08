@@ -212,6 +212,8 @@ int main(int argc, char* argv[])
 #if !defined(_DEBUG) && defined(_WIN32)
 	SetUnhandledExceptionFilter(CreateMiniDump);
 #endif
+	//set stdout buffers to 0 to force instant flush
+	setvbuf( stdout, NULL, _IONBF, 0);
 
 	// init our logmanager singleton,set global level normal, create the default log with normal priority, output to file + console, also truncate
 	LogManager::Init();

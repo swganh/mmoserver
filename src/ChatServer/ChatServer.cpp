@@ -241,6 +241,9 @@ int main(int argc, char* argv[])
 	SetUnhandledExceptionFilter(CreateMiniDump);
 #endif
 
+	//set stdout buffers to 0 to force instant flush
+	setvbuf( stdout, NULL, _IONBF, 0);
+
 	bool exit = false;
 
 	LogManager::Init();

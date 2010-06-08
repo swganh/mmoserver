@@ -489,6 +489,7 @@ class PlayerObject : public CreatureObject
 		uint32				mJediState;
 		uint32				mPlayerFlags;
 		uint32				mPlayerCustomFlags;
+		uint32				mLots;
 		uint16				mGroupXp;
 		uint16				mMissionIdMask;
 		int8				mBindPlanet;
@@ -496,7 +497,6 @@ class PlayerObject : public CreatureObject
 		uint8				mCsrTag;
 		uint8				mFlourishCount;
 		uint8				mHoloCharge; //thats the amount of charges our hologenerator has
-		uint8				mLots;
 		uint8				mNewPlayerExemptions;
 		bool				mAutoAttack;
 		bool				mContactListUpdatePending;

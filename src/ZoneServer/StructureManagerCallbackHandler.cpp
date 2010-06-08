@@ -233,7 +233,7 @@ void StructureManager::_HandleUpdateCharacterLots(StructureManagerAsyncContainer
 	if(player)
 	{
 		//update the lots
-		uint8 maxLots = gWorldConfig->getConfiguration("Player_Max_Lots",(uint8)10);
+		uint32 maxLots = gWorldConfig->getConfiguration<uint32>("Player_Max_Lots",(uint32)10);
 
 		maxLots -= static_cast<uint8>(lotCount);
 		player->setLots((uint8)maxLots);
@@ -452,7 +452,7 @@ void StructureManager::_HandleStructureTransferLotsRecipient(StructureManagerAsy
 
 	uint8 requiredLots = structure->getLotCount();
 
-	uint8 freelots = gWorldConfig->getConfiguration("Player_Max_Lots",(uint8)10) - lots;
+	uint32 freelots = gWorldConfig->getConfiguration<uint32>("Player_Max_Lots",(uint32)10) - lots;
 	if(freelots >= requiredLots)
 	{
 		//yay we were succesful

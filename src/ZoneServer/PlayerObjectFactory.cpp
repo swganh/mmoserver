@@ -422,7 +422,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
 			}
 
 			result->GetNextRow(binding,&lotCount);
-			uint8 maxLots = gWorldConfig->getConfiguration("Player_Max_Lots",(uint8)10);
+			uint32 maxLots = gWorldConfig->getConfiguration<uint32>("Player_Max_Lots",(uint32)10);
 
 			maxLots -= static_cast<uint8>(lotCount);
 			playerObject->setLots((uint8)maxLots);

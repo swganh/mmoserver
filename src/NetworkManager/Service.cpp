@@ -272,7 +272,6 @@ void Service::Process()
 
 		if(!session->getClient())
 		{
-			assert(false && "no session client ???");
 			for(uint32 j = 0; j < messageCount; j++)
 			{
 				Message* message = session->getIncomingQueueMessage();

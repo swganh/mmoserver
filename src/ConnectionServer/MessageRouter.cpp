@@ -96,8 +96,7 @@ void MessageRouter::RouteMessage(Message* message, ConnectionClient* client)
 
 			// Set our destination server
 			message->setDestinationId(dest);
-			message->setRouted(true);
-
+			
 			// If it's for the connection server, route it locally.
 			if(dest == 1)
 			{
@@ -113,7 +112,6 @@ void MessageRouter::RouteMessage(Message* message, ConnectionClient* client)
 		{
 			// No route found so send it to the ZoneServer the client is on.
 			message->setDestinationId(static_cast<uint8>(client->getServerId()));
-			message->setRouted(true);
 			mServerManager->SendMessageToServer(message);
 		}
 	}

@@ -279,7 +279,6 @@ bool ObjectContainer::removeObject(Object* data)
 
 //=============================================================================
 // removes it out of the container and destroys it in the worldmanager
-// get in removal from db and zone, too ?
 //
 bool ObjectContainer::deleteObject(Object* data)
 {

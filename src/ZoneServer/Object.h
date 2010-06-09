@@ -277,6 +277,8 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 
 		bool					movementMessageToggle(){mMovementMessageToggle = !mMovementMessageToggle; return mMovementMessageToggle;}
 
+		uint32					zmapCellID;
+
 	protected:
 
 		bool						mMovementMessageToggle;

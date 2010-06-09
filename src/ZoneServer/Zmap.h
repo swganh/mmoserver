@@ -49,7 +49,17 @@ public:
 	//Get the contents of current cell of the player, looked up by CellID
 	std::list<Object*>* GetCellContents(uint32 CellID);
 	std::list<Object*>* GetGridContentsListRow(uint32 CellID);
+	//=====================================================
+	//(viewRange*2)-1 to accomodate for diametral movement
+	std::list<Object*>* GetGridContentsListRowLeft(uint32 CellID);
+
+	std::list<Object*>* GetGridContentsListRowRight(uint32 CellID);
+	
 	std::list<Object*>* GetGridContentsListColumn(uint32 CellID);
+
+	//=====================================================
+	//(viewRange*2)-1 to accomodate for diametral movement
+	std::list<Object*>* GetGridContentsListColumnDown(uint32 CellID);
 
 	//Get the contents of chatrange cells
 	std::list<Object*>* GetChatRangeCellContents(uint32 CellID);

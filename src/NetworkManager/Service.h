@@ -62,7 +62,9 @@ class Service
 		void	Connect(NetworkClient* client, int8* address, uint16 port);
 
 		void	AddSessionToProcessQueue(Session* session);
-		void	AddNetworkCallback(NetworkCallback* callback){ mNetworkCallbackList.push_back(callback); }
+		//void	AddNetworkCallback(NetworkCallback* callback){ mNetworkCallbackList.push_back(callback); }
+		void	AddNetworkCallback(NetworkCallback* callback){ assert((mCallBack == NULL) && "dammit"); mCallBack = callback; }
+		
 
 		int8*	getLocalAddress(void);
 		uint16	getLocalPort(void);
@@ -74,24 +76,25 @@ class Service
 
 	private:
 
-		NetworkCallbackList	mNetworkCallbackList;
-		SessionQueue				mSessionProcessQueue;
-		int8								mLocalAddressName[256];
+		NetworkCallback*		mCallBack;
+		//NetworkCallbackList		mNetworkCallbackList;
+		SessionQueue			mSessionProcessQueue;
+		int8					mLocalAddressName[256];
 		NetworkManager*			mNetworkManager;
 		SocketReadThread*		mSocketReadThread;
-		SocketWriteThread*	mSocketWriteThread;
-		SOCKET				mLocalSocket;
-		uint64							avgTime;
-		uint64							lasttime;
-		uint32              avgPacketsbuild;
-		uint32							mId;
-		uint32							mLocalAddress;
-		uint32							mSessionResendWindowSize;
-		uint16							mLocalPort;
-		bool								mQueued;
-		bool								mServerService;	//marks us as the serverservice / clientservice
+		SocketWriteThread*		mSocketWriteThread;
+		SOCKET					mLocalSocket;
+		uint64					avgTime;
+		uint64					lasttime;
+		uint32					avgPacketsbuild;
+		uint32					mId;
+		uint32					mLocalAddress;
+		uint32					mSessionResendWindowSize;
+		uint16					mLocalPort;
+		bool					mQueued;
+		bool					mServerService;	//marks us as the serverservice / clientservice
 
-		static bool					mSocketsSubsystemInitComplete;
+		static bool				mSocketsSubsystemInitComplete;
 };
 
 

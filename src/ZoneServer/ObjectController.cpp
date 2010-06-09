@@ -479,7 +479,6 @@ bool ObjectController::_processCommandQueue()
 			// Be aware, internally created messages are NULL (auto-attack)
 			if (message)
 			{
-				message->mSourceId = 99;
 				message->setPendingDelete(true);
 			}
 			// Remove the command from queue. Note: pop() invokes object destructor.
@@ -580,7 +579,6 @@ void ObjectController::enqueueCommandMessage(Message* message)
 
 		Message* newMessage = gMessageFactory->EndMessage();
 		newMessage->setIndex(message->getIndex());
-		newMessage->mSourceId = 80;
 
 		// create the queued message, need setters since boost pool constructor templates take 3 params max
 

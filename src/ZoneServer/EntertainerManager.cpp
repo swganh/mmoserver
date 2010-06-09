@@ -2266,6 +2266,8 @@ bool EntertainerManager::handleStartBandIndividual(PlayerObject* performer, stri
 		return false;
 	}
 
+	performer->setAcceptBandFlourishes(true);
+
 	return(true);
 }
 
@@ -2307,6 +2309,9 @@ bool EntertainerManager::handleStartBandDanceIndividual(PlayerObject* performer,
 		gMessageLib->sendSystemMessage(performer,L"","performance","dance_fail");
 		return false;
 	}
+
+	performer->setAcceptBandFlourishes(true);
+
 	return true;
 }
 
@@ -2921,7 +2926,7 @@ void EntertainerManager::_handleCompleteStartBand(PlayerObject* performer, strin
 	while(memberIt != members.end())
 	{
 		//check if we are performing
-		if((*memberIt)->getPerformingState() != PlayerPerformance_None)
+		if((*memberIt)->getPerformingState() == PlayerPerformance_Music)
 		{
 			playCheck = false;
 		}
@@ -3007,7 +3012,9 @@ void EntertainerManager::_handleCompleteBandFlourish(PlayerObject* entertainer, 
 		{
 			//give notice
 			gMessageLib->sendSystemMessage((*memberIt),L"","performance","flourish_perform_band_member","","",L"",0,"","",L"",entertainer->getId());
-			gEntertainerManager->flourish((*memberIt),FlourishId);
+
+			if((*memberIt)->getAcceptBandFlourishes())
+				gEntertainerManager->flourish((*memberIt),FlourishId);
 
 		}
 		memberIt++;

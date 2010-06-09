@@ -196,6 +196,10 @@ enum ItemType
 	ItemType_deed_guildhall_naboo		= 1599,
 	ItemType_deed_guildhall_tatooine	= 1600,
 
+	ItemType_deed_cityhall_corellia		= 1566,
+	ItemType_deed_cityhall_naboo		= 1567,
+	ItemType_deed_cityhall_tatooine		= 1568,
+
 	//====================================================
 	// bikes
 	ItemType_Deed_X34					= 1736,

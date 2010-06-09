@@ -123,6 +123,10 @@ void LogManager::_LoggerThread()
 			{
 				if(mOutputFile)
 				{
+          // Use a lock guard for the mutex which will unlock when it goes out of scope,
+          // in this case at the end of this inner if statement.
+          boost::lock_guard<boost::mutex> guard(mEntriesMutex);
+
 					if(!(*it)->mContinuation)
 						fprintf(mOutputFile, "[%02d:%02d:%02d] [%s] ",t.tm_hour,t.tm_min,t.tm_sec, priority_strings[(int)(*it)->mPriority - 1]);
 					else

@@ -403,13 +403,13 @@ bool WorldManager::removeNpId(uint64 id)
 // get a random npc phrase
 //
 
-std::pair<string,uint32> WorldManager::getRandNpcChatter()
+std::pair<std::wstring,uint32> WorldManager::getRandNpcChatter()
 {
 
 	if(mvNpcChatter.size())
 		return(mvNpcChatter[gRandom->getRand()%mvNpcChatter.size()]);
 	else
-		return(std::make_pair(BString(L"quack"),2));
+		return(std::make_pair(std::wstring(L"quack"),2));
 }
 
 //======================================================================================================================

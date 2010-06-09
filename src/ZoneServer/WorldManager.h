@@ -325,8 +325,8 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		// get a npc animation
 		string					getNpcConverseAnimation(uint32 animId){ return mvNpcConverseAnimations[animId - 1]; }
 		// get a random chat phrase
-		std::pair<string,uint32>	getNpcChatter(uint32 id){ return mvNpcChatter[id]; }
-		std::pair<string,uint32>	getRandNpcChatter();
+		std::pair<std::wstring,uint32>	getNpcChatter(uint32 id){ return mvNpcChatter[id]; }
+		std::pair<std::wstring,uint32>	getRandNpcChatter();
 
 		// get planet, trn file name
 		const int8* getPlanetNameThis() const { return mvPlanetNames[mZoneId].getAnsi(); }
@@ -458,7 +458,7 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		BStringVector				mvTrnFileNames;
 		ActiveRegions				mActiveRegions;
 		CraftTools					mBusyCraftTools;
-		std::vector<std::pair<string,uint32> >	mvNpcChatter;
+		std::vector<std::pair<std::wstring,uint32> >	mvNpcChatter;
 		NpcConversionTimers			mNpcConversionTimers;
 		PlayerList					mPlayersToRemove;
 		RegionDeleteList			mRegionDeleteList;

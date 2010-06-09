@@ -94,6 +94,9 @@ private:
 	void _handleHarvesterMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
 	void _handleCampMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
 	void _handleHouseMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
+	void _handleCivicMenu(PlayerObject* player, uint32 action, int32 element, string inputStr, UIWindow* window);
+	void _handleGuildMenu(PlayerObject* player, uint32 action, int32 element, string inputStr, UIWindow* window);
+	void _handleCityMenu(PlayerObject* player, uint32 action, int32 element, string inputStr, UIWindow* window);
 	void _handleRugMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
 	void _handlePlantMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
 	void _handleElegantMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
@@ -161,6 +164,7 @@ private:
 	BStringVector			mHarvesterMenu;
 	BStringVector			mCampMenu;
 	BStringVector			mHouseMenu;
+	BStringVector			mCivicMenu;
 	//Furniture
 	BStringVector			mRugMenu;
 	BStringVector			mPlantMenu;
@@ -189,6 +193,9 @@ private:
 	//Houses
 	BStringVector			mGenericMenu;
 	BStringVector			mTatooineMenu;
+	//Civic Structures
+	BStringVector			mGuildHallMenu;
+	BStringVector			mCityHallMenu;
 	//Melee Weapon
 	BStringVector			mOneHandSwordMenu;
 	BStringVector			mTwoHandSwordMenu;

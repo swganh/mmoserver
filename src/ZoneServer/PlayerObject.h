@@ -405,6 +405,9 @@ class PlayerObject : public CreatureObject
 		void				setProne();
 		void				setCrouched();
 
+		bool				getAcceptBandFlourishes() {return mAcceptsBandFlourishes;}
+		void				setAcceptBandFlourishes(bool b) { mAcceptsBandFlourishes = b;}
+
 	private:
 
 		void				_verifyBadges();
@@ -413,6 +416,7 @@ class PlayerObject : public CreatureObject
 		bool				mHasCamp;
 
 		Datapad*			mDataPad;
+		bool				mAcceptsBandFlourishes;
 		AudienceList		mAudienceList;
 		BadgesList			mBadgeList;
 		DenyServiceList		mDenyAudienceList;

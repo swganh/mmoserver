@@ -755,6 +755,9 @@
     <ClCompile Include="VehicleControllerFactory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Zmap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ActiveConversation.h">
@@ -1460,6 +1463,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="QuickHealInjuryTreatmentEvent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Zmap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

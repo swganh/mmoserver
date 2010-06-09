@@ -56,6 +56,8 @@
       <PreprocessorDefinitions>WIN32;BOOST_HAS_STDINT_H;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;_WIN32_WINNT=0x0501;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <AdditionalIncludeDirectories>$(SolutionDir)deps;$(SolutionDir)deps\boost;$(SolutionDir)deps\glm;$(SolutionDir)deps\lua\src;$(SolutionDir)deps\noise\src;$(SolutionDir)deps\spatialindex\include;$(SolutionDir)deps\spatialindex\tools\include;$(SolutionDir)src</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -339,6 +341,7 @@
     <ClCompile Include="WorldManagerNPCHandlers.cpp" />
     <ClCompile Include="WorldManagerObjectHandlers.cpp" />
     <ClCompile Include="WorldManagerPlayerHandlers.cpp" />
+    <ClCompile Include="Zmap.cpp" />
     <ClCompile Include="ZoneServer.cpp" />
     <ClCompile Include="ZoneTree.cpp" />
   </ItemGroup>
@@ -575,6 +578,7 @@
     <ClInclude Include="WorldManager.h" />
     <ClInclude Include="WorldManagerEnums.h" />
     <ClInclude Include="WoundTreatmentEvent.h" />
+    <ClInclude Include="Zmap.h" />
     <ClInclude Include="ZoneOpcodes.h" />
     <ClInclude Include="ZoneServer.h" />
     <ClInclude Include="ZoneTree.h" />

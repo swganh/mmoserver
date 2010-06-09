@@ -46,11 +46,11 @@ private:
 	typedef std::map<uint32, std::list<Object*>>		MapHandler;
 	std::map<uint32, std::list<Object*>>				ZMapCells;
 
-	uint32	zmap_lookup[411][411]; // one extra for pretection
+	uint32	zmap_lookup[411][411]; // one extra for protection
 	
 protected:
 
-	FILE*			ZoneLogs;
+	//FILE*			ZoneLogs;
 
 	static zmap*	ZMAP;
 

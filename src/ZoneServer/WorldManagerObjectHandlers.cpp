@@ -184,6 +184,7 @@ bool WorldManager::addObject(Object* object,bool manual)
 					player->setSubZone(region);
 					player->setSubZoneId((uint32)region->getId());
 					region->mTree->addObject(player);
+					mSpatialGrid->AddObject(object);
 				}
 				else
 				{
@@ -218,6 +219,7 @@ bool WorldManager::addObject(Object* object,bool manual)
 		//	HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(object);
 			mStructureList.push_back(object->getId());
 			mSpatialIndex->InsertPoint(key,object->mPosition.x,object->mPosition.z);
+			mSpatialGrid->AddObject(object);
 
 		}
 		break;
@@ -228,6 +230,7 @@ bool WorldManager::addObject(Object* object,bool manual)
 			BuildingObject* building = dynamic_cast<BuildingObject*>(object);
 			
 			mSpatialIndex->InsertRegion(key,building->mPosition.x,building->mPosition.z,building->getWidth(),building->getHeight());
+			mSpatialGrid->AddObject(object);
 		}
 		break;
 
@@ -239,6 +242,7 @@ bool WorldManager::addObject(Object* object,bool manual)
 			if(parentId == 0)
 			{
 				mSpatialIndex->InsertPoint(key,object->mPosition.x,object->mPosition.z);
+				mSpatialGrid->AddObject(object);
 			}
 			else
 			{
@@ -285,6 +289,7 @@ bool WorldManager::addObject(Object* object,bool manual)
 						{
 							creature->setSubZoneId((uint32)region->getId());
 							region->mTree->addObject(creature);
+							mSpatialGrid->AddObject(object);
 						}
 						else
 						{
@@ -299,6 +304,8 @@ bool WorldManager::addObject(Object* object,bool manual)
 					default :
 					{
 						mSpatialIndex->InsertPoint(key,creature->mPosition.x,creature->mPosition.z);
+						mSpatialGrid->AddObject(object);
+
 					}
 				}
 
@@ -314,6 +321,7 @@ bool WorldManager::addObject(Object* object,bool manual)
 			mRegionMap.insert(std::make_pair(key,region));
 
 			mSpatialIndex->InsertRegion(key,region->mPosition.x,region->mPosition.z,region->getWidth(),region->getHeight());
+			mSpatialGrid->AddObject(object);
 
 			if(region->getActive())
 				addActiveRegion(region);

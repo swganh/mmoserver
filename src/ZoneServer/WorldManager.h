@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ObjectFactoryCallback.h"
 #include "QTRegion.h"
 #include "Weather.h"
+#include "zmap.h"
 #include "WorldManagerEnums.h"
 
 #include "ScriptEngine/ScriptEventListener.h"
@@ -307,6 +308,7 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 
 		// retrieve spatial index for this zone
 		ZoneTree*				getSI(){ return mSpatialIndex; }
+		zmap*					getGrid(){ return mSpatialGrid; }
 
 		// removes player from the current scene, and starts a new one after updating his position
 		void					warpPlanet(PlayerObject* playerObject, const glm::vec3& destination,uint64 parentId, const glm::quat& direction = glm::quat());
@@ -372,7 +374,6 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		void					LoadCurrentGlobalTick();
 
 		bool					_handleTick(uint64 callTime,void* ref);
-		bool					_getFastDebugLoad(){return mDebug;}
 
 		void					removePlayerMovementUpdateTime(PlayerObject* player);
 
@@ -478,7 +479,8 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		Anh_Utils::Scheduler*		mNpcManagerScheduler;
 		Anh_Utils::Scheduler*		mObjControllerScheduler;
 		Anh_Utils::Scheduler*		mPlayerScheduler;
-		ZoneTree*								mSpatialIndex;
+		ZoneTree*					mSpatialIndex;
+		zmap*						mSpatialGrid;
 		Anh_Utils::Scheduler*		mSubsystemScheduler;
 		ZoneServer*					mZoneServer;
 		WMState						mState;
@@ -489,7 +491,6 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		uint32						mTotalObjectCount;
 		uint32						mZoneId;
 		
-		bool						mDebug;
 };
 
 

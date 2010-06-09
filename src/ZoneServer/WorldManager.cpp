@@ -109,14 +109,7 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
 						2,
 						gConfig->read<float>("Horizon"));
 
-	try
-	{
-		mDebug = gConfig->read<bool>("LoadReduceDebug");
-	}
-	catch (...)
-	{
-		mDebug = false;
-	}
+
 
 	// load planet names and terrain files so we can start heightmap loading
 	mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_PlanetNamesAndFiles),"SELECT * FROM planet ORDER BY planet_id;");
@@ -154,13 +147,7 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
 	_registerScriptHooks();
 
 	// initiate loading of objects
-	if(mDebug)
-	{
-		gLogger->log(LogManager::INFORMATION,"World Manager Debug StartUp with culled items, npcs, resources and stuff");
-		mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_ObjectCount),"SELECT sf_getZoneObjectCountDebug(%i);",mZoneId);
-	}
-	else
-		mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_ObjectCount),"SELECT sf_getZoneObjectCount(%i);",mZoneId);
+	mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_ObjectCount),"SELECT sf_getZoneObjectCount(%i);",mZoneId);
 
 #if defined(_MSC_VER)
 	mNonPersistantId =   422212465065984;

@@ -84,7 +84,6 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 							mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_ZoneRegions),"SELECT id FROM zone_regions WHERE planet_id=%u ORDER BY id;",mZoneId);
 						}
 						// load client effects
-						if(!mDebug)
 						mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_ClientEffects),"SELECT * FROM clienteffects ORDER BY id;");
 
 						
@@ -93,18 +92,15 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 						mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_AttributeKeys),"SELECT id, name FROM attributes ORDER BY id;");
 
 						// load sounds
-						if(!mDebug)
 						mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_Sounds),"SELECT * FROM sounds ORDER BY id;");
 
 						// load moods
 						mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_Moods),"SELECT * FROM moods ORDER BY id;");
 
 						// load npc converse animations
-						if(!mDebug)
 						mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_NpcConverseAnimations),"SELECT * FROM conversation_animations ORDER BY id;");
 
 						// load npc chatter
-						if(!mDebug)
 						mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_NpcChatter),"SELECT * FROM npc_chatter WHERE planetId=%u OR planetId=99;",mZoneId);
 
 						if(mZoneId != 41)
@@ -113,7 +109,6 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 							mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_Cities),"SELECT id FROM cities WHERE planet_id=%u ORDER BY id;",mZoneId);
 
 							// load badge regions
-							if(!mDebug)
 							mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_BadgeRegions),"SELECT id FROM badge_regions WHERE planet_id=%u ORDER BY id;",mZoneId);
 
 							//load spawn regions
@@ -616,11 +611,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 						else if(strcmp(queryContainer.mString.getAnsi(),"shuttles") == 0)
 							gObjectFactory->requestObject(ObjType_Creature,CreoGroup_Shuttle,0,this,queryContainer.mId,asyncContainer->mClient);
 
-						if(mDebug)
-						{
-							mTotalObjectCount--;
-							continue;
-						}
+
 						// now to the ugly part
 						
 						 if(strcmp(queryContainer.mString.getAnsi(),"containers") == 0)

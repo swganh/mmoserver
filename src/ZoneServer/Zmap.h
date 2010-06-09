@@ -60,6 +60,7 @@ public:
 	//=====================================================
 	//(viewRange*2)-1 to accomodate for diametral movement
 	std::list<Object*>* GetGridContentsListColumnDown(uint32 CellID);
+	std::list<Object*>* GetGridContentsListColumnUp(uint32 CellID);
 
 	//Get the contents of chatrange cells
 	std::list<Object*>* GetChatRangeCellContents(uint32 CellID);

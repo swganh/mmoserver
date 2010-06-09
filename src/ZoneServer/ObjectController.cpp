@@ -77,8 +77,8 @@ ObjectController::ObjectController()
 , mUpdatingObjects(false)
 {
 	mSI		= gWorldManager->getSI();
-	// We do have a global clock object, don't use seperate clock and times for every process.
-	// mClock	= new Anh_Utils::Clock();
+	mGrid	= gWorldManager->getGrid();
+	
 }
 
 //=============================================================================
@@ -105,6 +105,7 @@ ObjectController::ObjectController(Object* object)
 , mUpdatingObjects(false)
 {
 	mSI		= gWorldManager->getSI();
+	mGrid	= gWorldManager->getGrid();
 }
 
 //=============================================================================

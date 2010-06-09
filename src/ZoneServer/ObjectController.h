@@ -38,6 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "HeightMapCallback.h"
 #include "ObjControllerEvent.h"
 #include <boost/pool/pool.hpp>
+#include "zmap.h"
 
 // maximum commands allowed to be queued
 #define COMMAND_QUEUE_MAX_SIZE 10
@@ -744,6 +745,7 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback, 
 
 		Database*			mDatabase;
 		ZoneTree*			mSI;
+		zmap*				mGrid;
 		Object*				mObject;
 
 		uint64				mCommandQueueProcessTimeLimit;

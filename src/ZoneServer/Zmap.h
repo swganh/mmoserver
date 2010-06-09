@@ -8,6 +8,12 @@
 #include <map>
 
 class Object;
+class PlayerObject;
+
+#define GRIDWIDTH 410
+#define GRIDHEIGHT 410
+
+#define VIEWRANGE 3
 
 class zmap
 {
@@ -29,13 +35,21 @@ public:
 
 	//Get the contents of current cell of the player, looked up by CellID
 	std::list<Object*>* GetCellContents(uint32 CellID);
+	std::list<Object*>* GetGridContentsListRow(uint32 CellID);
+	std::list<Object*>* GetGridContentsListColumn(uint32 CellID);
 
 	//Get the contents of chatrange cells
-	std::list<Object*>* zmap::GetChatRangeCellContents(uint32 CellID);
+	std::list<Object*>* GetChatRangeCellContents(uint32 CellID);
+
+	std::list<Object*>* GetViewingRangeCellContents(uint32 CellID);
 
 	//Update functions for spawn and despawn
 	void zmap::UpdateBackCells(Object* updateObject,uint32);
 	void zmap::UpdateFrontCells(Object* updateObject, uint32);
+
+	void CheckObjectIterationForDestruction(Object* toBeTested, Object* toBeUpdated);
+	void CheckObjectIterationForCreation(Object* toBeTested, Object* toBeUpdated);
+	void ObjectCreationIteration(std::list<Object*>* FinalList, Object* updateObject);
 
 	static inline zmap*	GetZmap() { return ZMAP; };
 
@@ -45,8 +59,10 @@ private:
 	//This is the accual Hashtable that stores the data
 	typedef std::map<uint32, std::list<Object*>>		MapHandler;
 	std::map<uint32, std::list<Object*>>				ZMapCells;
+	
+	std::list<Object*>									EmptyCell;//for the return of nonexisting grids
 
-	uint32	zmap_lookup[411][411]; // one extra for protection
+	uint32	zmap_lookup[GRIDWIDTH+1][GRIDHEIGHT+1]; // one extra for protection
 	
 protected:
 

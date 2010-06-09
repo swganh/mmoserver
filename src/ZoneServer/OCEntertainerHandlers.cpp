@@ -673,17 +673,51 @@ void ObjectController::_handleBandFlourish(uint64 targetId,Message* message,Obje
 	message->getStringUnicode16(dataStr);
 	//dataStr.convert(BSTRType_ANSI);
 	//printf(" flourish : %s",dataStr.getAnsi());
+	wchar_t temp[64];
 
-	uint32 FlourishId;
-	swscanf(dataStr.getUnicode16(),L"%u",&FlourishId);
+	swscanf(dataStr.getUnicode16(),L"%s",&temp);
 
-	if((FlourishId < 1)||(FlourishId > flourishMax))
+	if(wcsncmp(temp, L"on", sizeof(temp)) == 0)
 	{
-		gMessageLib->sendSystemMessage(entertainer,L"","performance","flourish_not_valid");
-		return;
-	}
+		if(entertainer->checkSkill(10))
+		{
+			if(entertainer->getAcceptBandFlourishes() == false)
+			{
+				entertainer->setAcceptBandFlourishes(true);
 
-	gEntertainerManager->BandFlourish(entertainer, FlourishId);
+				gMessageLib->sendSystemMessage(entertainer,L"","performance","band_flourish_on");
+			}
+			else
+				gMessageLib->sendSystemMessage(entertainer,L"","performance","band_flourish_status_on");
+		}
+	}
+	else if(wcsncmp(temp, L"off", sizeof(temp)) == 0)
+	{
+		if(entertainer->checkSkill(10))
+		{
+			if(entertainer->getAcceptBandFlourishes() == true)
+			{
+				entertainer->setAcceptBandFlourishes(false);
+
+				gMessageLib->sendSystemMessage(entertainer,L"","performance","band_flourish_off");
+			}
+			else
+				gMessageLib->sendSystemMessage(entertainer,L"","performance","band_flourish_status_off");
+		}
+	}
+	else
+	{
+		uint32 FlourishId;
+		swscanf(dataStr.getUnicode16(), L"%d", &FlourishId);
+
+		if((FlourishId < 1)||(FlourishId > flourishMax))
+		{
+			gMessageLib->sendSystemMessage(entertainer,L"","performance","flourish_not_valid");
+			return;
+		}
+
+		gEntertainerManager->BandFlourish(entertainer, FlourishId);
+	}
 }
 
 //=============================================================================================================================

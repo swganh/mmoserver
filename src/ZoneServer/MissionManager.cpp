@@ -620,7 +620,7 @@ void MissionManager::missionCompleteEntertainer(PlayerObject* player,Buff* timer
                 if(glm::distance(player->mPosition, mission->getDestination().Coordinates) < 20)
 				{
 						missionComplete(player,mission);
-						it = datapad->removeMission(it);
+						datapad->removeMission(mission);
 						delete mission;
 						return;
 				}
@@ -688,8 +688,13 @@ void MissionManager::missionFailed(PlayerObject* player, MissionObject* mission)
 		if(mission->getInProgress())
 		{
 			Buff* timer = mission->getEntertainingTimer();
-			player->RemoveBuff(timer);
+			
+			//help the mission is a success if its still in progress
+			//as the bufftimer executes when its stopped
+			//so set progress to false
+			//argh
 			mission->setInProgress(false);			
+			player->RemoveBuff(timer);			
 			SAFE_DELETE(timer);
 			mission->setEntertainingTimer(NULL);
 		}
@@ -799,11 +804,16 @@ void MissionManager::checkMusicianMission(PlayerObject* player)
 			MissionObject* mission = dynamic_cast<MissionObject*>(*it);
 			if(mission->getMissionType() == musician)
 			{
-				if(mission->getInProgress()) { ++it; continue; }
+				if(mission->getInProgress()) 
+				{ 
+					++it; 
+					continue; 
+				}
+
                 if(glm::distance(player->mPosition, mission->getDestination().Coordinates) < 20)
 				{
 					BuffAttribute* performance_timer = new BuffAttribute(time_remaining, 0,0,0);
-					Buff* timer = Buff::SimpleBuff(player, player, 600000, 0, gWorldManager->GetCurrentGlobalTick());
+					Buff* timer = Buff::SimpleBuff(player, player, 60000, 0, gWorldManager->GetCurrentGlobalTick());
 					timer->AddAttribute(performance_timer);
 					player->AddBuff(timer);
 					mission->setEntertainingTimer(timer);

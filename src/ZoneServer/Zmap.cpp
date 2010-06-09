@@ -22,6 +22,8 @@ public:
 
 zmap::zmap()
 {
+	mCurrentSubCellID = 0;
+
 	ZMAP = this;
 
 	uint32 x = 0, i = 0, j = 0;
@@ -62,6 +64,7 @@ uint32	zmap::AddSubCell(float low_x, float low_z, float height, float width, Zma
 	pSubCell->height		= height;
 	pSubCell->width			= width;
 	pSubCell->callback		= callback;
+	pSubCell->subCellId		= mCurrentSubCellID++;
 
 	uint32 lowerLeft		= _getCellId(low_x,			low_z);
 	uint32 lowerRight		= _getCellId(low_x+width,	low_z);
@@ -78,6 +81,8 @@ uint32	zmap::AddSubCell(float low_x, float low_z, float height, float width, Zma
 			subCells.insert(std::make_pair((lowerLeft + j + i * 410), pSubCell));
 		}
 	}
+
+	return pSubCell->subCellId;
 }
 
 bool zmap::isObjectInSubCell(Object* object, uint32 subCellId)

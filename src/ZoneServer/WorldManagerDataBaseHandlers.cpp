@@ -432,7 +432,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 						tmp.convert(BSTRType_Unicode16);
 
-						mvNpcChatter.push_back(std::make_pair(BString(tmp.getUnicode16()),animId));
+						mvNpcChatter.push_back(std::make_pair(std::wstring(tmp.getUnicode16()),animId));
 					}
 
 					if(result->getRowCount())

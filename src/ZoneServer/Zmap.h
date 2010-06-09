@@ -9,7 +9,7 @@
 #include <map>
 
 class Object;
-class SubCell;
+struct SubCell;
 
 class ZmapSubCellCallback
 {
@@ -91,6 +91,8 @@ private:
 	
 	// CellId -> List of SubCells
 	std::multimap<uint32, SubCell*> subCells;
+
+	uint32		mCurrentSubCellID;
 
 protected:
 

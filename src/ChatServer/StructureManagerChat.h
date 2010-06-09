@@ -165,7 +165,7 @@ enum STRMQueryType
 	STRMQuery_HopperUpdate				=	1,
 	STRMQuery_DoneHarvestUpdate			=	2,
 	STRMQuery_DoneHarvesterUsePower		=	3,
-	STRMQuery_DoneHarvesterMaintenance	=	4,
+	STRMQuery_DoneStructureMaintenance	=	4,
 	STRMQuery_StructureMailOOFMaint		=	5,
 	STRMQuery_StructureMailDamage		=	6,
 	STRMQuery_StructureMailCondZero		=	7,

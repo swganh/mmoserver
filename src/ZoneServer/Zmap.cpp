@@ -4,6 +4,19 @@
 
 zmap* zmap::ZMAP = NULL;
 
+struct SubCell
+{
+public:
+	uint32 subCellId;
+
+	float x;
+	float z; 
+	float height; 
+	float width;
+
+	ZmapSubCellCallback* callback;
+};
+
 zmap::zmap()
 {
 	ZMAP = this;
@@ -29,6 +42,80 @@ zmap::~zmap()
 
 }
 
+bool zmap::_isInSubCellExtent(SubCell* subCell, float x, float z)
+{
+	if(((x >= subCell->x) && (x <= (subCell->x + subCell->height))) && 
+		((z >= subCell->z) && (z <= (subCell->z + subCell->width))))
+		return true;
+	else
+		return false;
+}
+
+uint32	zmap::AddSubCell(float low_x, float low_z, float height, float width, ZmapSubCellCallback* callback)
+{
+	SubCell* pSubCell		= new SubCell();
+	pSubCell->x				= low_x;
+	pSubCell->z				= low_z;
+	pSubCell->height		= height;
+	pSubCell->width			= width;
+	pSubCell->callback		= callback;
+
+	uint32 lowerLeft		= _getCellId(low_x,			low_z);
+	uint32 lowerRight		= _getCellId(low_x+width,	low_z);
+	uint32 upperLeft		= _getCellId(low_x,			low_z+height);
+	uint32 upperRight		= _getCellId(low_x+width,	low_z+height);
+
+	unsigned int cellCountZ = (lowerLeft - upperLeft)/410;
+	unsigned int cellCountX = (lowerLeft - lowerRight);
+
+	for(unsigned int i=0; i < cellCountZ; i++)
+	{
+		for(unsigned int j=0; j < cellCountX; j++)
+		{
+			subCells.insert(std::make_pair((lowerLeft + j + i * 410), pSubCell));
+		}
+	}
+}
+
+bool zmap::isObjectInSubCell(Object* object, uint32 subCellId)
+{
+	std::multimap<uint32, SubCell*>::iterator it;
+
+	std::pair<std::multimap<uint32, SubCell*>::iterator, std::multimap<uint32, SubCell*>::iterator> multi_pairing;
+
+	multi_pairing = subCells.equal_range(object->zmapCellID);
+
+	for(std::multimap<uint32, SubCell*>::iterator it = multi_pairing.first; it != multi_pairing.second; ++it)
+	{
+		if((*it).second->subCellId == subCellId)
+			return _isInSubCellExtent((*it).second, object->mPosition.x, object->mPosition.z);
+	}
+
+	return false;
+}
+
+void	zmap::RemoveSubCell(uint32 subCellId)
+{
+	std::multimap<uint32, SubCell*>::iterator it = subCells.begin();
+	std::multimap<uint32, SubCell*>::iterator end = subCells.end();
+
+	while(it != end)
+	{
+		if((*it).second->subCellId == subCellId)
+		{
+			it = subCells.erase(it);
+		}
+		else
+		{
+			++it;
+		}
+	}
+}
+
+uint32 zmap::_getCellId(float x, float z)
+{
+	return zmap_lookup[((((uint32)z) + 8500)/150)][((((uint32)x) + 8500)/150)];
+}
 
 void zmap::AddObject(Object *newObject)
 {
@@ -37,11 +124,7 @@ void zmap::AddObject(Object *newObject)
 	// 2. Set CellID
 	// 3. Insert object into the cell in the hast table
 
-	uint32 CellX = ((((uint32)newObject->mPosition.x) + 8500)/150);
-	uint32 CellY = ((((uint32)newObject->mPosition.y) + 8500)/150);
-	uint32 FinalCell = zmap_lookup[CellY][CellX];
-
-	
+	uint32 FinalCell = _getCellId(newObject->mPosition.x, newObject->mPosition.y);
 
 
 	newObject->zmapCellID = FinalCell;
@@ -75,10 +158,6 @@ void zmap::RemoveObject(Object *removeObject)
 			}
 		}
 	}
-	else
-	{
-		
-	}
 
 	return;
 }
@@ -91,9 +170,7 @@ void zmap::UpdateObject(Object *updateObject)
 	//		2a. Remove him from the current cell, insert into new cell at new cell
 	//		2b. Update info....
 
-	uint32 CellX = ((((uint32)updateObject->mPosition.x) + 8500)/150);
-	uint32 CellY = ((((uint32)updateObject->mPosition.y) + 8500)/150);
-	uint32 FinalCell = zmap_lookup[CellY][CellX];
+	uint32 FinalCell = _getCellId(updateObject->mPosition.x, updateObject->mPosition.y);
 	
 	if(updateObject->zmapCellID != FinalCell)
 	{
@@ -104,9 +181,39 @@ void zmap::UpdateObject(Object *updateObject)
 		AddObject(updateObject);
 	
 	}
-	else
+
+	//We need to check subregions
+	std::multimap<uint32, SubCell*>::iterator it;
+	std::pair<std::multimap<uint32, SubCell*>::iterator, std::multimap<uint32, SubCell*>::iterator> multi_pairing;
+
+	multi_pairing = subCells.equal_range(updateObject->zmapCellID);
+
+	for(std::multimap<uint32, SubCell*>::iterator it = multi_pairing.first; it != multi_pairing.second; ++it)
 	{
-	
+		bool isInRegion = false;
+		bool isTrulyInRegion = isObjectInSubCell(updateObject, (*it).second->subCellId);
+
+		std::set<uint32>::iterator subCell = updateObject->zmapSubCells.find((*it).second->subCellId);
+
+		if(subCell != updateObject->zmapSubCells.end())
+			isInRegion = true;
+
+		if(isTrulyInRegion && !isInRegion)
+		{
+			//Has just entered the region
+			updateObject->zmapSubCells.insert((*it).second->subCellId);
+			(*it).second->callback->ZmapCallback_OnEnterSubCell();
+		}
+		else if(!isTrulyInRegion && isInRegion)
+		{
+			//Has just left the region
+			updateObject->zmapSubCells.erase(subCell);
+			(*it).second->callback->ZmapCallback_OnExitSubCell();
+		}
+		else
+		{
+			//No change has occurred.
+		}
 	}
 }
 
@@ -163,8 +270,6 @@ void zmap::UpdateBackCells(Object* updateObject, uint32 newCell)
 	//ZMAP Northbound! TODO: Sync with game
 	if((updateObject->zmapCellID + 411) == newCell)
 	{
-	
-
 		std::list<Object*> FinalList;
 		std::list<Object*>::iterator it = FinalList.end();
 
@@ -763,11 +868,5 @@ void zmap::UpdateFrontCells(Object* updateObject, uint32 newCell)
 		}
 
 		return;
-	}
-
-
-	else
-	{
-		
 	}
 }

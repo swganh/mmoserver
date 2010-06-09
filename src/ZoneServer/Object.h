@@ -279,6 +279,9 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 
 		uint32					zmapCellID;
 
+		//Set of Subcells we're in.
+		std::set<uint32>		zmapSubCells;
+
 	protected:
 
 		bool						mMovementMessageToggle;

@@ -98,7 +98,8 @@ void Deed::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 						{
 							if(!player->checkSkill(623)) // Must be a novice Politician
 							{
-
+								gMessageLib->sendSystemMessage(player,L"","player_structure","place_cityhall");
+								return;
 							}
 						}
 					}

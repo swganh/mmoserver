@@ -1,6 +1,9 @@
 #include "zmap.h"
 
 #include "Object.h"
+#include "PlayerObject.h"
+#include "MessageLib/MessageLib.h"
+
 
 zmap* zmap::ZMAP = NULL;
 
@@ -221,7 +224,11 @@ std::list<Object*>*	zmap::GetCellContents(uint32 CellID)
 {
 	//Pesudo
 	// 1. Return list of objects in cell
-
+	//if(CellID) >
+	
+	if(CellID > (GRIDWIDTH*GRIDHEIGHT))
+		return &EmptyCell;
+	
 	return &ZMapCells[CellID];
 }
 
@@ -264,8 +271,110 @@ std::list<Object*>* zmap::GetChatRangeCellContents(uint32 CellID)
 	return ReturnList;
 }
 
+//=====================================================
+//Get Contents for a Row based on a middle cell
+
+std::list<Object*>* zmap::GetGridContentsListRow(uint32 CellID)
+{
+	std::list<Object*>* ReturnList = new std::list<Object*>;
+	std::list<Object*>::iterator it = ReturnList->begin();
+
+	std::list<Object*> temp = *GetCellContents(CellID);
+	ReturnList->splice(it, temp);
+
+	for(int i = 0; i < VIEWRANGE; i++)
+	{
+		//if(fmod(CellID+1,))
+		temp = *GetCellContents(CellID + i);
+		ReturnList->splice(it, temp);
+		
+		temp = *GetCellContents(CellID - i);
+		ReturnList->splice(it, temp);
+	}
+
+	return ReturnList;
+
+}
+
+std::list<Object*>* zmap::GetGridContentsListColumn(uint32 CellID)
+{
+	std::list<Object*>* ReturnList = new std::list<Object*>;
+	std::list<Object*>::iterator it = ReturnList->begin();
+
+	std::list<Object*> temp = *GetCellContents(CellID);
+	ReturnList->splice(it, temp);
+
+	for(int i = 1; i <= VIEWRANGE; i++)
+	{
+		//if(fmod(CellID+1,))
+		temp = *GetCellContents(CellID + (i*GRIDWIDTH));
+		ReturnList->splice(it, temp);
+		
+		temp = *GetCellContents(CellID - (i*GRIDWIDTH));
+		ReturnList->splice(it, temp);
+	}
+
+	return ReturnList;
+
+}
+
+std::list<Object*>* zmap::GetViewingRangeCellContents(uint32 CellID)
+{
+	//Pesudo
+	// 1. Combine the lists of Neiboring cells to 1
+
+	std::list<Object*>* ReturnList = new std::list<Object*>;
+	std::list<Object*>::iterator it = ReturnList->begin();
+
+	std::list<Object*> temp = *GetCellContents(CellID);
+	ReturnList->splice(it, temp);
+
+	for(int i = 0; i < VIEWRANGE; i++)
+	{
+		temp = *GetGridContentsListRow(CellID + (i*GRIDWIDTH));
+		ReturnList->splice(it, temp);
+		
+		temp = *GetGridContentsListRow(CellID - (i*GRIDWIDTH));
+		ReturnList->splice(it, temp);
+	}
+
+	return ReturnList;
+}
+
+void zmap::CheckObjectIterationForDestruction(Object* toBeTested, Object* toBeUpdated)
+{
+	PlayerObject* us = dynamic_cast<PlayerObject*>(toBeUpdated);
+
+	if(toBeTested->getId() != toBeUpdated->getId())
+	{
+		//we (updateObject) got out of range of the following (*i) objects
+		//destroy them for us
+		//if its a player, destroy us for him
+		if(us)
+		{
+			gMessageLib->sendDestroyObject(toBeTested->getId(),us);
+		}
+				
+		PlayerObject* them = dynamic_cast<PlayerObject*> (toBeTested);
+		if(them)
+		{
+			gMessageLib->sendDestroyObject(toBeUpdated->getId(),them);
+			
+			//now what to do with 
+			if(toBeUpdated->getType() == ObjType_Structure)
+			{
+				//specialized factory despawn
+				
+			}
+		}
+	}
+}
+
 void zmap::UpdateBackCells(Object* updateObject, uint32 newCell)
 {
+	//are all the cells on our lefz or right valid ??
+	//arnt we looking to the other side of the map ???
+	
 
 	//ZMAP Northbound! TODO: Sync with game
 	if((updateObject->zmapCellID + 411) == newCell)
@@ -282,21 +391,10 @@ void zmap::UpdateBackCells(Object* updateObject, uint32 newCell)
 		temp = *GetCellContents((updateObject->zmapCellID - 410));
 		FinalList.splice(it, temp);
 
+
 		for(std::list<Object*>::iterator i = FinalList.begin(); i != FinalList.end(); i++)
 		{
-			
-			if((*i)->getId() != updateObject->getId())
-			{
-				/*
-				(*i)->Despawn((*i)->getId(),updateObject->getId()); //Despawn them
-
-				if((*i)->ClassType == TYPE_CHARACTER)
-				{
-					(*i)->pkt.QUEUE_SceneDestroyObject(&updateObject->getId());
-					(*i)->pkt.SEND_QueuedPackets((*i)->getId(),(*i)->getId(),false);
-				}
-				*/
-			}
+			CheckObjectIterationForDestruction((*i),updateObject);
 		}
 
 		return;
@@ -320,18 +418,7 @@ void zmap::UpdateBackCells(Object* updateObject, uint32 newCell)
 
 		for(std::list<Object*>::iterator i = FinalList.begin(); i != FinalList.end(); i++)
 		{
-			if((*i)->getId() != updateObject->getId())
-			{
-				/*
-				(*i)->Despawn((*i)->getId(),updateObject->getId()); //Despawn them
-
-				if((*i)->ClassType == TYPE_CHARACTER)
-				{
-					(*i)->pkt.QUEUE_SceneDestroyObject(&updateObject->getId());
-					(*i)->pkt.SEND_QueuedPackets((*i)->getId(),(*i)->getId(),false);
-				}
-				*/
-			}
+			CheckObjectIterationForDestruction((*i),updateObject);			
 		}
 
 		return;
@@ -355,18 +442,7 @@ void zmap::UpdateBackCells(Object* updateObject, uint32 newCell)
 
 		for(std::list<Object*>::iterator i = FinalList.begin(); i != FinalList.end(); i++)
 		{
-			if((*i)->getId() != updateObject->getId())
-			{
-			/*
-				(*i)->Despawn((*i)->getId(),updateObject->getId()); //Despawn them
-
-				if((*i)->ClassType == TYPE_CHARACTER)
-				{
-					(*i)->pkt.QUEUE_SceneDestroyObject(&updateObject->getId());
-					(*i)->pkt.SEND_QueuedPackets((*i)->getId(),(*i)->getId(),false);
-				}
-				*/
-			}
+			CheckObjectIterationForDestruction((*i),updateObject);
 		}
 
 		return;
@@ -390,18 +466,7 @@ void zmap::UpdateBackCells(Object* updateObject, uint32 newCell)
 
 		for(std::list<Object*>::iterator i = FinalList.begin(); i != FinalList.end(); i++)
 		{
-			if((*i)->getId() != updateObject->getId())
-			{
-				/*
-				(*i)->Despawn((*i)->getId(),updateObject->getId()); //Despawn them
-
-				if((*i)->ClassType == TYPE_CHARACTER)
-				{
-					(*i)->pkt.QUEUE_SceneDestroyObject(&updateObject->getId());
-					(*i)->pkt.SEND_QueuedPackets((*i)->getId(),(*i)->getId(),false);
-				}
-				*/
-			}
+			CheckObjectIterationForDestruction((*i),updateObject);
 		}
 
 		return;
@@ -431,18 +496,7 @@ void zmap::UpdateBackCells(Object* updateObject, uint32 newCell)
 
 		for(std::list<Object*>::iterator i = FinalList.begin(); i != FinalList.end(); i++)
 		{
-			if((*i)->getId() != updateObject->getId())
-			{
-			/*
-				(*i)->Despawn((*i)->getId(),updateObject->getId()); //Despawn them
-
-				if((*i)->ClassType == TYPE_CHARACTER)
-				{
-					(*i)->pkt.QUEUE_SceneDestroyObject(&updateObject->getId());
-					(*i)->pkt.SEND_QueuedPackets((*i)->getId(),(*i)->getId(),false);
-				}
-				*/
-			}
+			CheckObjectIterationForDestruction((*i),updateObject);
 		}
 
 		return;
@@ -472,19 +526,8 @@ void zmap::UpdateBackCells(Object* updateObject, uint32 newCell)
 
 		for(std::list<Object*>::iterator i = FinalList.begin(); i != FinalList.end(); i++)
 		{
-			if((*i)->getId() != updateObject->getId())
-			{
-				/*
-		
-				(*i)->Despawn((*i)->getId(),updateObject->getId()); //Despawn them
-
-				if((*i)->ClassType == TYPE_CHARACTER)
-				{
-					(*i)->pkt.QUEUE_SceneDestroyObject(&updateObject->getId());
-					(*i)->pkt.SEND_QueuedPackets((*i)->getId(),(*i)->getId(),false);
-				}
-				*/
-			}
+			CheckObjectIterationForDestruction((*i),updateObject);
+			
 		}
 
 		return;
@@ -514,24 +557,13 @@ void zmap::UpdateBackCells(Object* updateObject, uint32 newCell)
 
 		for(std::list<Object*>::iterator i = FinalList.begin(); i != FinalList.end(); i++)
 		{
-			if((*i)->getId() != updateObject->getId())
-			{
-				/*
-				(*i)->Despawn((*i)->getId(),updateObject->getId()); //Despawn them
-
-				if((*i)->ClassType == TYPE_CHARACTER)
-				{
-					(*i)->pkt.QUEUE_SceneDestroyObject(&updateObject->getId());
-					(*i)->pkt.SEND_QueuedPackets((*i)->getId(),(*i)->getId(),false);
-				}
-				*/
-			}
+			CheckObjectIterationForDestruction((*i),updateObject);
 		}
 
 		return;
 	}
 
-		// SouthEestbound
+		// SouthEastbound
 	else if((updateObject->zmapCellID - 410) == newCell)
 	{
 		
@@ -555,28 +587,47 @@ void zmap::UpdateBackCells(Object* updateObject, uint32 newCell)
 
 		for(std::list<Object*>::iterator i = FinalList.begin(); i != FinalList.end(); i++)
 		{
-			if((*i)->getId() != updateObject->getId())
-			{
-		/*
-		(*i)->Despawn((*i)->getId(),updateObject->getId()); //Despawn them
-
-				if((*i)->ClassType == TYPE_CHARACTER)
-				{
-					(*i)->pkt.QUEUE_SceneDestroyObject(&updateObject->getId());
-					(*i)->pkt.SEND_QueuedPackets((*i)->getId(),(*i)->getId(),false);
-				}
-				*/
-			}
+			CheckObjectIterationForDestruction((*i),updateObject);
 		}
 
 		return;
 	}
-	else
-	{
 	
+}
+
+void zmap::CheckObjectIterationForCreation(Object* toBeTested, Object* toBeUpdated)
+{
+	PlayerObject* us = dynamic_cast<PlayerObject*>(toBeUpdated);
+
+	if(toBeTested->getId() != toBeUpdated->getId())
+	{
+		//we (toBeUpdated) need to create the following objects
+		//if its a player create us for him
+		
+		if(us)
+		{
+			gMessageLib->sendCreateObject(toBeTested,us);
+		}
+				
+		PlayerObject* them = dynamic_cast<PlayerObject*> (toBeTested);
+		if(them)
+		{
+			gMessageLib->sendCreateObject(toBeUpdated,them);
+		}
 	}
 }
 
+
+void zmap::ObjectCreationIteration(std::list<Object*>* FinalList, Object* updateObject)
+{
+	//at some point we need to throttle ObjectCreates!!!
+	//one possibility would be to only send one grid at a time and keep track of up / unup dated Grids
+
+	for(std::list<Object*>::iterator i = FinalList->begin(); i != FinalList->end(); i++)
+	{
+		CheckObjectIterationForCreation((*i),updateObject);
+	}
+}
 
 void zmap::UpdateFrontCells(Object* updateObject, uint32 newCell)
 {
@@ -597,20 +648,7 @@ void zmap::UpdateFrontCells(Object* updateObject, uint32 newCell)
 		temp = *GetCellContents((updateObject->zmapCellID + 411) + 410);
 		FinalList.splice(it, temp);
 
-		for(std::list<Object*>::iterator i = FinalList.begin(); i != FinalList.end(); i++)
-		{
-			//printf("OBJECT!!!!!!!!!!!!!!\n");
-			if((*i)->getId() != updateObject->getId())
-			{
-				/*
-				(*i)->Spawn((*i)->getId(),updateObject->getId()); //Spawn them
-				fprintf(ZoneLogs,"Spawning Object [%u][%u] \n",(*i)->getId(),(*i)->zmapCellID);
-				if((*i)->ClassType == TYPE_CHARACTER)
-				updateObject->Spawn(updateObject->getId(),(*i)->getId()); //Have them Spawn you
-				fprintf(ZoneLogs,"Spawning Object [%u][%u] \n",updateObject->getId(),updateObject->zmapCellID);
-				  */
-			}
-		}
+		ObjectCreationIteration(&FinalList,updateObject);
 
 		return;
 	}
@@ -629,21 +667,8 @@ void zmap::UpdateFrontCells(Object* updateObject, uint32 newCell)
 
 		temp = *GetCellContents((updateObject->zmapCellID - 411) -410);
 		FinalList.splice(it, temp);
-
-		for(std::list<Object*>::iterator i = FinalList.begin(); i != FinalList.end(); i++)
-		{
-			if((*i)->getId() != updateObject->getId())
-			{
-		/*		(*i)->Spawn((*i)->getId(),updateObject->getId()); //Spawn them
-		  
-				if((*i)->ClassType == TYPE_CHARACTER)
-				{
-					updateObject->Spawn(updateObject->getId(),(*i)->getId()); //Have them Spawn you
-				}
-		  */
-			
-			}
-		}
+	 
+		ObjectCreationIteration(&FinalList,updateObject);
 
 		return;
 	}
@@ -664,19 +689,7 @@ void zmap::UpdateFrontCells(Object* updateObject, uint32 newCell)
 		temp = *GetCellContents((updateObject->zmapCellID + 1) - 410);
 		FinalList.splice(it, temp);
 
-		for(std::list<Object*>::iterator i = FinalList.begin(); i != FinalList.end(); i++)
-		{
-	
-			if((*i)->getId() != updateObject->getId())
-			{
-			/*	(*i)->Spawn((*i)->getId(),updateObject->getId()); //Spawn them
-					fprintf(ZoneLogs,"Spawning Object [%u][%u] \n",(*i)->getId(),(*i)->zmapCellID);
-				if((*i)->ClassType == TYPE_CHARACTER)
-				updateObject->Spawn(updateObject->getId(),(*i)->getId()); //Have them Spawn you
-				fprintf(ZoneLogs,"Spawning Object [%u][%u] \n",updateObject->getId(),updateObject->zmapCellID);
-			  */
-			}
-		}
+		ObjectCreationIteration(&FinalList,updateObject);
 
 		return;
 	}
@@ -697,19 +710,7 @@ void zmap::UpdateFrontCells(Object* updateObject, uint32 newCell)
 		temp = *GetCellContents((updateObject->zmapCellID - 1) + 410);
 		FinalList.splice(it, temp);
 
-		for(std::list<Object*>::iterator i = FinalList.begin(); i != FinalList.end(); i++)
-		{
-		
-			if((*i)->getId() != updateObject->getId())
-			{
-		/*		(*i)->Spawn((*i)->getId(),updateObject->getId()); //Spawn them
-				fprintf(ZoneLogs,"Spawning Object [%u][%u] \n",(*i)->getId(),(*i)->zmapCellID);
-				if((*i)->ClassType == TYPE_CHARACTER)
-				updateObject->Spawn(updateObject->getId(),(*i)->getId()); //Have them Spawn you
-				fprintf(ZoneLogs,"Spawning Object [%u][%u] \n",updateObject->getId(),updateObject->zmapCellID);
-				*/
-			}
-		}
+		ObjectCreationIteration(&FinalList,updateObject);
 
 		return;
 	}
@@ -736,19 +737,7 @@ void zmap::UpdateFrontCells(Object* updateObject, uint32 newCell)
 		temp = *GetCellContents((updateObject->zmapCellID + 412) + 411);//
 		FinalList.splice(it, temp);
 
-		for(std::list<Object*>::iterator i = FinalList.begin(); i != FinalList.end(); i++)
-		{
-		
-			if((*i)->getId() != updateObject->getId())
-			{
-		/*		(*i)->Spawn((*i)->getId(),updateObject->getId()); //Spawn them
-				fprintf(ZoneLogs,"Spawning Object [%u][%u] \n",(*i)->getId(),(*i)->zmapCellID);
-				if((*i)->ClassType == TYPE_CHARACTER)
-				updateObject->Spawn(updateObject->getId(),(*i)->getId()); //Have them Spawn you
-							fprintf(ZoneLogs,"Spawning Object [%u][%u] \n",updateObject->getId(),updateObject->zmapCellID);
-		*/
-			}
-		}
+		ObjectCreationIteration(&FinalList,updateObject);
 
 		return;
 	}
@@ -774,19 +763,7 @@ void zmap::UpdateFrontCells(Object* updateObject, uint32 newCell)
 		std::list<Object*> objList5 = *GetCellContents((updateObject->zmapCellID + 410) + 411);
 		FinalList.splice(it, temp);
 
-		for(std::list<Object*>::iterator i = FinalList.begin(); i != FinalList.end(); i++)
-		{
-	
-			if((*i)->getId() != updateObject->getId())
-			{
-	/*			(*i)->Spawn((*i)->getId(),updateObject->getId()); //Spawn them
-				fprintf(ZoneLogs,"Spawning Object [%u][%u] \n",(*i)->getId(),(*i)->zmapCellID);
-				if((*i)->ClassType == TYPE_CHARACTER)
-				updateObject->Spawn(updateObject->getId(),(*i)->getId()); //Have them Spawn you
-				fprintf(ZoneLogs,"Spawning Object [%u][%u] \n",updateObject->getId(),updateObject->zmapCellID);
-				*/
-			}
-		}
+		ObjectCreationIteration(&FinalList,updateObject);
 
 		return;
 	}
@@ -813,19 +790,7 @@ void zmap::UpdateFrontCells(Object* updateObject, uint32 newCell)
 		temp = *GetCellContents((updateObject->zmapCellID - 412) - 411);
 		FinalList.splice(it, temp);
 
-		for(std::list<Object*>::iterator i = FinalList.begin(); i != FinalList.end(); i++)
-		{
-		
-			if((*i)->getId() != updateObject->getId())
-			{
-		/*		(*i)->Spawn((*i)->getId(),updateObject->getId()); //Spawn them
-				fprintf(ZoneLogs,"Spawning Object [%u][%u] \n",(*i)->getId(),(*i)->zmapCellID);
-				if((*i)->ClassType == TYPE_CHARACTER)
-				updateObject->Spawn(updateObject->getId(),(*i)->getId()); //Have them Spawn you
-				fprintf(ZoneLogs,"Spawning Object [%u][%u] \n",updateObject->getId(),updateObject->zmapCellID);
-		  */
-			}
-		}
+		ObjectCreationIteration(&FinalList,updateObject);
 
 		return;
 	}
@@ -852,20 +817,7 @@ void zmap::UpdateFrontCells(Object* updateObject, uint32 newCell)
 		temp = *GetCellContents((updateObject->zmapCellID - 410) - 411);//
 		FinalList.splice(it, temp);
 
-		for(std::list<Object*>::iterator i = FinalList.begin(); i != FinalList.end(); i++)
-		{
-			
-			if((*i)->getId() != updateObject->getId())
-			{
-				/*
-				(*i)->Spawn((*i)->getId(),updateObject->getId()); //Spawn them
-				fprintf(ZoneLogs,"Spawning Object [%u][%u] \n",(*i)->getId(),(*i)->zmapCellID);
-				if((*i)->ClassType == TYPE_CHARACTER)
-				updateObject->Spawn(updateObject->getId(),(*i)->getId()); //Have them Spawn you
-				fprintf(ZoneLogs,"Spawning Object [%u][%u] \n",updateObject->getId(),updateObject->zmapCellID);
-				  */
-			}
-		}
+		ObjectCreationIteration(&FinalList,updateObject);
 
 		return;
 	}

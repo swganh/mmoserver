@@ -43,6 +43,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldManager.h"
 #include "VehicleController.h"
 #include "ZoneTree.h"
+#include "zmap.h"
 
 #include "MessageLib/MessageLib.h"
 #include "LogManager/LogManager.h"
@@ -139,7 +140,8 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 		// Add us to the world.
 		gMessageLib->broadcastContainmentMessage(player->getId(),0,4,player);
 
-		// add us to the qtree
+		// add us to the qtree	/ Grid
+		mGrid->AddObject(player);
 
 		if(QTRegion* newRegion = mSI->getQTRegion((double)pos.x,(double)pos.z))
 		{
@@ -173,6 +175,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 		// please note, that there is exactly *one* qtregion per planet and qtregions do *not* overlap
 		// so there is no need to search the region everytime even if we should decide to add more qtregions
 		// subzone is NULL however, when we just left a building
+		mGrid->UpdateObject(player);
 		if(player->getSubZone() && player->getSubZone()->checkPlayerPosition(pos.x, pos.z))
 		{
 			// this also updates the players position
@@ -180,7 +183,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 			//If our player is mounted lets update his mount aswell
 			if(player->checkIfMounted() && player->getMount())
 			{
-				player->getSubZone()->mTree->updateObject(player->getMount(),pos);
+				player->getSubZone()->mTree->updateObject(player->getMount(),pos);		
 			}
 		}
 		else
@@ -209,6 +212,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 			if(player->checkIfMounted() && player->getMount())
 			{
 				player->getMount()->mPosition = pos;
+				mGrid->UpdateObject(player->getMount());
 			}
 
 			// put into new

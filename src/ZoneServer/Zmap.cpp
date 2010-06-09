@@ -139,35 +139,35 @@ std::list<Object*>* zmap::GetChatRangeCellContents(uint32 CellID)
 	//Pesudo
 	// 1. Combine the lists of Neiboring cells to 1
 
-	//TEMPORARY!!!!!!!!
-	//TEMPORARY!!!!!!!!
-	// This is just a wi bit slow, and needs a little more optimization
-
 	std::list<Object*>* ReturnList = new std::list<Object*>;
-	std::list<Object*> CenterCell = *GetCellContents(CellID);
+	std::list<Object*>::iterator it = ReturnList->begin();
 
-	std::list<Object*> NorthCell = *GetCellContents(CellID + 411);
-	std::list<Object*> SouthCell = *GetCellContents(CellID - 411);
+	std::list<Object*> temp = *GetCellContents(CellID);
+	ReturnList->splice(it, temp);
 
-	std::list<Object*> EastCell = *GetCellContents(CellID + 1);
-	std::list<Object*> WestCell = *GetCellContents(CellID - 1);
+	temp = *GetCellContents(CellID + 411);
+	ReturnList->splice(it, temp);
 
-	std::list<Object*> NorthWestCell = *GetCellContents(CellID + 410);
-	std::list<Object*> NorthEastCell = *GetCellContents(CellID + 412);
+	temp = *GetCellContents(CellID - 411);
+	ReturnList->splice(it, temp);
 
-	std::list<Object*> SouthWestCell = *GetCellContents(CellID - 412);
-	std::list<Object*> SouthEastCell = *GetCellContents(CellID - 410);
+	temp = *GetCellContents(CellID + 1);
+	ReturnList->splice(it, temp);
 
+	temp = *GetCellContents(CellID - 1);
+	ReturnList->splice(it, temp);
 
-	ReturnList->merge(CenterCell); //Center Cell
-	ReturnList->merge(NorthCell); //North Cell
-	ReturnList->merge(SouthCell); //South Cell
-	ReturnList->merge(WestCell); //West Cell
-	ReturnList->merge(EastCell); //East Cell
-	ReturnList->merge(NorthWestCell); //NorthWest Cell
-	ReturnList->merge(NorthEastCell); //NorthEast Cell
-	ReturnList->merge(SouthWestCell); //SouthWest Cell
-	ReturnList->merge(SouthEastCell); //SouthEast Cell
+	temp = *GetCellContents(CellID + 410);
+	ReturnList->splice(it, temp);
+
+	temp = *GetCellContents(CellID + 412);
+	ReturnList->splice(it, temp);
+
+	temp = *GetCellContents(CellID - 412);
+	ReturnList->splice(it, temp);
+
+	temp = *GetCellContents(CellID - 410);
+	ReturnList->splice(it, temp);
 
 	fprintf(ZoneLogs,"Request for list of objects in cell.\n");
 	for(std::list<Object*>::iterator i = ReturnList->begin(); i != ReturnList->end(); i++)
@@ -191,13 +191,16 @@ void zmap::UpdateBackCells(Object* updateObject, uint32 newCell)
 		fprintf(ZoneLogs,"Northbound!\n");
 		fprintf(ZoneLogs,"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
 		std::list<Object*> FinalList;
-		std::list<Object*> objList1 = *GetCellContents((updateObject->zmapCellID - 411));
-		std::list<Object*> objList2 = *GetCellContents((updateObject->zmapCellID - 412));
-		std::list<Object*> objList3 = *GetCellContents((updateObject->zmapCellID - 410));
+		std::list<Object*>::iterator it = FinalList.end();
 
-		FinalList.merge(objList1);
-		FinalList.merge(objList2);
-		FinalList.merge(objList3);
+		std::list<Object*> temp = *GetCellContents((updateObject->zmapCellID - 411));
+		FinalList.splice(it, temp);
+
+		temp = *GetCellContents((updateObject->zmapCellID - 412));
+		FinalList.splice(it, temp);
+
+		temp = *GetCellContents((updateObject->zmapCellID - 410));
+		FinalList.splice(it, temp);
 
 		for(std::list<Object*>::iterator i = FinalList.begin(); i != FinalList.end(); i++)
 		{
@@ -224,13 +227,16 @@ void zmap::UpdateBackCells(Object* updateObject, uint32 newCell)
 		fprintf(ZoneLogs,"Southbound!\n");
 		fprintf(ZoneLogs,"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
 		std::list<Object*> FinalList;
-		std::list<Object*> objList1 = *GetCellContents(updateObject->zmapCellID + 411);
-		std::list<Object*> objList2 = *GetCellContents(updateObject->zmapCellID + 412);
-		std::list<Object*> objList3 = *GetCellContents(updateObject->zmapCellID + 410);
+		std::list<Object*>::iterator it = FinalList.end();
+		
+		std::list<Object*> temp = *GetCellContents(updateObject->zmapCellID + 411);
+		FinalList.splice(it, temp);
 
-		FinalList.merge(objList1);
-		FinalList.merge(objList2);
-		FinalList.merge(objList3);
+		temp = *GetCellContents(updateObject->zmapCellID + 412);
+		FinalList.splice(it, temp);
+
+		temp = *GetCellContents(updateObject->zmapCellID + 410);
+		FinalList.splice(it, temp);
 
 		for(std::list<Object*>::iterator i = FinalList.begin(); i != FinalList.end(); i++)
 		{
@@ -257,13 +263,16 @@ void zmap::UpdateBackCells(Object* updateObject, uint32 newCell)
 		fprintf(ZoneLogs,"Westbound!\n");
 		fprintf(ZoneLogs,"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
 		std::list<Object*> FinalList;
-		std::list<Object*> objList1 = *GetCellContents(updateObject->zmapCellID - 410);
-		std::list<Object*> objList2 = *GetCellContents(updateObject->zmapCellID + 1 );
-		std::list<Object*> objList3 = *GetCellContents(updateObject->zmapCellID + 412);
+		std::list<Object*>::iterator it = FinalList.end();
 
-		FinalList.merge(objList1);
-		FinalList.merge(objList2);
-		FinalList.merge(objList3);
+		std::list<Object*> temp = *GetCellContents(updateObject->zmapCellID - 410);
+		FinalList.splice(it, temp);
+
+		temp = *GetCellContents(updateObject->zmapCellID + 1 );
+		FinalList.splice(it, temp);
+
+		temp = *GetCellContents(updateObject->zmapCellID + 412);
+		FinalList.splice(it, temp);
 
 		for(std::list<Object*>::iterator i = FinalList.begin(); i != FinalList.end(); i++)
 		{
@@ -290,13 +299,16 @@ void zmap::UpdateBackCells(Object* updateObject, uint32 newCell)
 		fprintf(ZoneLogs,"Eastbound!\n");
 		fprintf(ZoneLogs,"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
 		std::list<Object*> FinalList;
-		std::list<Object*> objList1 = *GetCellContents(updateObject->zmapCellID + 410);
-		std::list<Object*> objList2 = *GetCellContents(updateObject->zmapCellID - 1 );
-		std::list<Object*> objList3 = *GetCellContents(updateObject->zmapCellID - 412);
+		std::list<Object*>::iterator it = FinalList.end();
 
-		FinalList.merge(objList1);
-		FinalList.merge(objList2);
-		FinalList.merge(objList3);
+		std::list<Object*> temp = *GetCellContents(updateObject->zmapCellID + 410);
+		FinalList.splice(it, temp);
+		
+		temp = *GetCellContents(updateObject->zmapCellID - 1 );
+		FinalList.splice(it, temp);
+
+		temp = *GetCellContents(updateObject->zmapCellID - 412);
+		FinalList.splice(it, temp);
 
 		for(std::list<Object*>::iterator i = FinalList.begin(); i != FinalList.end(); i++)
 		{
@@ -323,17 +335,22 @@ void zmap::UpdateBackCells(Object* updateObject, uint32 newCell)
 		fprintf(ZoneLogs,"NorthEast bound!\n");
 		fprintf(ZoneLogs,"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
 		std::list<Object*> FinalList;
-		std::list<Object*> objList1 = *GetCellContents(updateObject->zmapCellID + 410);
-		std::list<Object*> objList2 = *GetCellContents(updateObject->zmapCellID - 410);
-		std::list<Object*> objList3 = *GetCellContents(updateObject->zmapCellID - 1 );
-		std::list<Object*> objList4 = *GetCellContents(updateObject->zmapCellID - 412);
-		std::list<Object*> objList5 = *GetCellContents(updateObject->zmapCellID - 411);
+		std::list<Object*>::iterator it = FinalList.end();
 
-		FinalList.merge(objList1);
-		FinalList.merge(objList2);
-		FinalList.merge(objList3);
-		FinalList.merge(objList4);
-		FinalList.merge(objList5);
+		std::list<Object*> temp = *GetCellContents(updateObject->zmapCellID + 410);
+		FinalList.splice(it, temp);
+		
+		temp = *GetCellContents(updateObject->zmapCellID - 410);
+		FinalList.splice(it, temp);
+
+		temp = *GetCellContents(updateObject->zmapCellID - 1 );
+		FinalList.splice(it, temp);
+
+		temp = *GetCellContents(updateObject->zmapCellID - 412);
+		FinalList.splice(it, temp);
+
+		temp = *GetCellContents(updateObject->zmapCellID - 411);
+		FinalList.splice(it, temp);
 
 		for(std::list<Object*>::iterator i = FinalList.begin(); i != FinalList.end(); i++)
 		{
@@ -360,17 +377,22 @@ void zmap::UpdateBackCells(Object* updateObject, uint32 newCell)
 		fprintf(ZoneLogs,"NorthWest bound!\n");
 		fprintf(ZoneLogs,"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
 		std::list<Object*> FinalList;
-		std::list<Object*> objList1 = *GetCellContents(updateObject->zmapCellID - 412);
-		std::list<Object*> objList2 = *GetCellContents(updateObject->zmapCellID - 410);
-		std::list<Object*> objList3 = *GetCellContents(updateObject->zmapCellID + 1 );
-		std::list<Object*> objList4 = *GetCellContents(updateObject->zmapCellID + 412);
-		std::list<Object*> objList5 = *GetCellContents(updateObject->zmapCellID - 411);
+		std::list<Object*>::iterator it = FinalList.end();
 
-		FinalList.merge(objList1);
-		FinalList.merge(objList2);
-		FinalList.merge(objList3);
-		FinalList.merge(objList4);
-		FinalList.merge(objList5);
+		std::list<Object*> temp = *GetCellContents(updateObject->zmapCellID - 412);
+		FinalList.splice(it, temp);
+
+		temp = *GetCellContents(updateObject->zmapCellID - 410);
+		FinalList.splice(it, temp);
+
+		temp = *GetCellContents(updateObject->zmapCellID + 1 );
+		FinalList.splice(it, temp);
+
+		temp = *GetCellContents(updateObject->zmapCellID + 412);
+		FinalList.splice(it, temp);
+
+		temp = *GetCellContents(updateObject->zmapCellID - 411);
+		FinalList.splice(it, temp);
 
 		for(std::list<Object*>::iterator i = FinalList.begin(); i != FinalList.end(); i++)
 		{
@@ -397,17 +419,22 @@ void zmap::UpdateBackCells(Object* updateObject, uint32 newCell)
 		printf("SouthWest bound!\n");
 		printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
 		std::list<Object*> FinalList;
-		std::list<Object*> objList1 = *GetCellContents(updateObject->zmapCellID + 410);
-		std::list<Object*> objList2 = *GetCellContents(updateObject->zmapCellID - 410);
-		std::list<Object*> objList3 = *GetCellContents(updateObject->zmapCellID + 1 );
-		std::list<Object*> objList4 = *GetCellContents(updateObject->zmapCellID + 412);
-		std::list<Object*> objList5 = *GetCellContents(updateObject->zmapCellID + 411);
+		std::list<Object*>::iterator it = FinalList.end();
 
-		FinalList.merge(objList1);
-		FinalList.merge(objList2);
-		FinalList.merge(objList3);
-		FinalList.merge(objList4);
-		FinalList.merge(objList5);
+		std::list<Object*> temp = *GetCellContents(updateObject->zmapCellID + 410);
+		FinalList.splice(it, temp);
+
+		temp = *GetCellContents(updateObject->zmapCellID - 410);
+		FinalList.splice(it, temp);
+
+		temp = *GetCellContents(updateObject->zmapCellID + 1 );
+		FinalList.splice(it, temp);
+
+		temp = *GetCellContents(updateObject->zmapCellID + 412);
+		FinalList.splice(it, temp);
+
+		temp = *GetCellContents(updateObject->zmapCellID + 411);
+		FinalList.splice(it, temp);
 
 		for(std::list<Object*>::iterator i = FinalList.begin(); i != FinalList.end(); i++)
 		{
@@ -433,17 +460,22 @@ void zmap::UpdateBackCells(Object* updateObject, uint32 newCell)
 		printf("SouthEast bound!\n");
 		printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
 		std::list<Object*> FinalList;
-		std::list<Object*> objList1 = *GetCellContents(updateObject->zmapCellID + 412);
-		std::list<Object*> objList2 = *GetCellContents(updateObject->zmapCellID + 410);
-		std::list<Object*> objList3 = *GetCellContents(updateObject->zmapCellID - 1 );
-		std::list<Object*> objList4 = *GetCellContents(updateObject->zmapCellID - 412);
-		std::list<Object*> objList5 = *GetCellContents(updateObject->zmapCellID + 411);
+		std::list<Object*>::iterator it = FinalList.end();
 
-		FinalList.merge(objList1);
-		FinalList.merge(objList2);
-		FinalList.merge(objList3);
-		FinalList.merge(objList4);
-		FinalList.merge(objList5);
+		std::list<Object*> temp = *GetCellContents(updateObject->zmapCellID + 412);
+		FinalList.splice(it, temp);
+
+		temp = *GetCellContents(updateObject->zmapCellID + 410);
+		FinalList.splice(it, temp);
+
+		temp = *GetCellContents(updateObject->zmapCellID - 1 );
+		FinalList.splice(it, temp);
+
+		temp = *GetCellContents(updateObject->zmapCellID - 412);
+		FinalList.splice(it, temp);
+
+		temp = *GetCellContents(updateObject->zmapCellID + 411);
+		FinalList.splice(it, temp);
 
 		for(std::list<Object*>::iterator i = FinalList.begin(); i != FinalList.end(); i++)
 		{
@@ -481,13 +513,16 @@ void zmap::UpdateFrontCells(Object* updateObject, uint32 newCell)
 		printf("Northbound!\n");
 		printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
 		std::list<Object*> FinalList;
-		std::list<Object*> objList1 = *GetCellContents((updateObject->zmapCellID + 411) + 411);
-		std::list<Object*> objList2 = *GetCellContents((updateObject->zmapCellID + 411) + 412);
-		std::list<Object*> objList3 = *GetCellContents((updateObject->zmapCellID + 411) + 410);
+		std::list<Object*>::iterator it = FinalList.end();
 
-		FinalList.merge(objList1);
-		FinalList.merge(objList2);
-		FinalList.merge(objList3);
+		std::list<Object*> temp = *GetCellContents((updateObject->zmapCellID + 411) + 411);
+		FinalList.splice(it, temp);
+
+		temp = *GetCellContents((updateObject->zmapCellID + 411) + 412);
+		FinalList.splice(it, temp);
+
+		temp = *GetCellContents((updateObject->zmapCellID + 411) + 410);
+		FinalList.splice(it, temp);
 
 		for(std::list<Object*>::iterator i = FinalList.begin(); i != FinalList.end(); i++)
 		{
@@ -513,13 +548,16 @@ void zmap::UpdateFrontCells(Object* updateObject, uint32 newCell)
 		printf("Southbound!\n");
 		printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
 		std::list<Object*> FinalList;
-		std::list<Object*> objList1 = *GetCellContents((updateObject->zmapCellID - 411) - 411);
-		std::list<Object*> objList2 = *GetCellContents((updateObject->zmapCellID - 411) - 412);
-		std::list<Object*> objList3 = *GetCellContents((updateObject->zmapCellID - 411) -410);
+		std::list<Object*>::iterator it = FinalList.end();
 
-		FinalList.merge(objList1);
-		FinalList.merge(objList2);
-		FinalList.merge(objList3);
+		std::list<Object*> temp = *GetCellContents((updateObject->zmapCellID - 411) - 411);
+		FinalList.splice(it, temp);
+
+		temp = *GetCellContents((updateObject->zmapCellID - 411) - 412);
+		FinalList.splice(it, temp);
+
+		temp = *GetCellContents((updateObject->zmapCellID - 411) -410);
+		FinalList.splice(it, temp);
 
 		for(std::list<Object*>::iterator i = FinalList.begin(); i != FinalList.end(); i++)
 		{
@@ -546,13 +584,16 @@ void zmap::UpdateFrontCells(Object* updateObject, uint32 newCell)
 		printf("Eastbound!\n");
 		printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
 		std::list<Object*> FinalList;
-		std::list<Object*> objList1 = *GetCellContents((updateObject->zmapCellID + 1) + 412);
-		std::list<Object*> objList2 = *GetCellContents((updateObject->zmapCellID + 1) + 1 );
-		std::list<Object*> objList3 = *GetCellContents((updateObject->zmapCellID + 1) - 410);
+		std::list<Object*>::iterator it = FinalList.end();
 
-		FinalList.merge(objList1);
-		FinalList.merge(objList2);
-		FinalList.merge(objList3);
+		std::list<Object*> temp = *GetCellContents((updateObject->zmapCellID + 1) + 412);
+		FinalList.splice(it, temp);
+
+		temp = *GetCellContents((updateObject->zmapCellID + 1) + 1 );
+		FinalList.splice(it, temp);
+
+		temp = *GetCellContents((updateObject->zmapCellID + 1) - 410);
+		FinalList.splice(it, temp);
 
 		for(std::list<Object*>::iterator i = FinalList.begin(); i != FinalList.end(); i++)
 		{
@@ -578,13 +619,16 @@ void zmap::UpdateFrontCells(Object* updateObject, uint32 newCell)
 		printf("Westbound!\n");
 		printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
 		std::list<Object*> FinalList;
-		std::list<Object*> objList1 = *GetCellContents((updateObject->zmapCellID - 1) - 412);
-		std::list<Object*> objList2 = *GetCellContents((updateObject->zmapCellID - 1) - 1 );
-		std::list<Object*> objList3 = *GetCellContents((updateObject->zmapCellID - 1) + 410);
+		std::list<Object*>::iterator it = FinalList.end();
 
-		FinalList.merge(objList1);
-		FinalList.merge(objList2);
-		FinalList.merge(objList3);
+		std::list<Object*> temp = *GetCellContents((updateObject->zmapCellID - 1) - 412);
+		FinalList.splice(it, temp);
+
+		temp = *GetCellContents((updateObject->zmapCellID - 1) - 1 );
+		FinalList.splice(it, temp);
+
+		temp = *GetCellContents((updateObject->zmapCellID - 1) + 410);
+		FinalList.splice(it, temp);
 
 		for(std::list<Object*>::iterator i = FinalList.begin(); i != FinalList.end(); i++)
 		{
@@ -609,17 +653,22 @@ void zmap::UpdateFrontCells(Object* updateObject, uint32 newCell)
 		printf("NorthEast bound!\n");
 		printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
 		std::list<Object*> FinalList;
-		std::list<Object*> objList1 = *GetCellContents((updateObject->zmapCellID + 412) + 410);//
-		std::list<Object*> objList2 = *GetCellContents((updateObject->zmapCellID + 412) - 410);//
-		std::list<Object*> objList3 = *GetCellContents((updateObject->zmapCellID + 412) + 1 );//
-		std::list<Object*> objList4 = *GetCellContents((updateObject->zmapCellID + 412) + 412);//
-		std::list<Object*> objList5 = *GetCellContents((updateObject->zmapCellID + 412) + 411);//
+		std::list<Object*>::iterator it = FinalList.end();
 
-		FinalList.merge(objList1);
-		FinalList.merge(objList2);
-		FinalList.merge(objList3);
-		FinalList.merge(objList4);
-		FinalList.merge(objList5);
+		std::list<Object*> temp = *GetCellContents((updateObject->zmapCellID + 412) + 410);//
+		FinalList.splice(it, temp);
+
+		temp = *GetCellContents((updateObject->zmapCellID + 412) - 410);//
+		FinalList.splice(it, temp);
+
+		temp = *GetCellContents((updateObject->zmapCellID + 412) + 1 );//
+		FinalList.splice(it, temp);
+
+		temp = *GetCellContents((updateObject->zmapCellID + 412) + 412);//
+		FinalList.splice(it, temp);
+
+		temp = *GetCellContents((updateObject->zmapCellID + 412) + 411);//
+		FinalList.splice(it, temp);
 
 		for(std::list<Object*>::iterator i = FinalList.begin(); i != FinalList.end(); i++)
 		{
@@ -644,17 +693,22 @@ void zmap::UpdateFrontCells(Object* updateObject, uint32 newCell)
 		printf("NorthWest bound!\n");
 		printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
 		std::list<Object*> FinalList;
-		std::list<Object*> objList1 = *GetCellContents((updateObject->zmapCellID + 410) - 412);
-		std::list<Object*> objList2 = *GetCellContents((updateObject->zmapCellID + 410) + 410);
-		std::list<Object*> objList3 = *GetCellContents((updateObject->zmapCellID + 410) - 1 );
-		std::list<Object*> objList4 = *GetCellContents((updateObject->zmapCellID + 410) + 412);
-		std::list<Object*> objList5 = *GetCellContents((updateObject->zmapCellID + 410) + 411);
+		std::list<Object*>::iterator it = FinalList.end();
 
-		FinalList.merge(objList1);
-		FinalList.merge(objList2);
-		FinalList.merge(objList3);
-		FinalList.merge(objList4);
-		FinalList.merge(objList5);
+		std::list<Object*> temp = *GetCellContents((updateObject->zmapCellID + 410) - 412);
+		FinalList.splice(it, temp);
+
+		std::list<Object*> objList2 = *GetCellContents((updateObject->zmapCellID + 410) + 410);
+		FinalList.splice(it, temp);
+
+		std::list<Object*> objList3 = *GetCellContents((updateObject->zmapCellID + 410) - 1 );
+		FinalList.splice(it, temp);
+
+		std::list<Object*> objList4 = *GetCellContents((updateObject->zmapCellID + 410) + 412);
+		FinalList.splice(it, temp);
+
+		std::list<Object*> objList5 = *GetCellContents((updateObject->zmapCellID + 410) + 411);
+		FinalList.splice(it, temp);
 
 		for(std::list<Object*>::iterator i = FinalList.begin(); i != FinalList.end(); i++)
 		{
@@ -679,17 +733,22 @@ void zmap::UpdateFrontCells(Object* updateObject, uint32 newCell)
 		printf("SouthWest bound!\n");
 		printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
 		std::list<Object*> FinalList;
-		std::list<Object*> objList1 = *GetCellContents((updateObject->zmapCellID - 412) + 410);
-		std::list<Object*> objList2 = *GetCellContents((updateObject->zmapCellID - 412) - 410);
-		std::list<Object*> objList3 = *GetCellContents((updateObject->zmapCellID - 412) - 1 );
-		std::list<Object*> objList4 = *GetCellContents((updateObject->zmapCellID - 412) - 412);
-		std::list<Object*> objList5 = *GetCellContents((updateObject->zmapCellID - 412) - 411);
+		std::list<Object*>::iterator it = FinalList.end();
 
-		FinalList.merge(objList1);
-		FinalList.merge(objList2);
-		FinalList.merge(objList3);
-		FinalList.merge(objList4);
-		FinalList.merge(objList5);
+		std::list<Object*> temp = *GetCellContents((updateObject->zmapCellID - 412) + 410);
+		FinalList.splice(it, temp);
+
+		temp = *GetCellContents((updateObject->zmapCellID - 412) - 410);
+		FinalList.splice(it, temp);
+
+		temp = *GetCellContents((updateObject->zmapCellID - 412) - 1 );
+		FinalList.splice(it, temp);
+
+		temp = *GetCellContents((updateObject->zmapCellID - 412) - 412);
+		FinalList.splice(it, temp);
+
+		temp = *GetCellContents((updateObject->zmapCellID - 412) - 411);
+		FinalList.splice(it, temp);
 
 		for(std::list<Object*>::iterator i = FinalList.begin(); i != FinalList.end(); i++)
 		{
@@ -715,17 +774,22 @@ void zmap::UpdateFrontCells(Object* updateObject, uint32 newCell)
 		printf("SouthEast bound!\n");
 		printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
 		std::list<Object*> FinalList;
-		std::list<Object*> objList1 = *GetCellContents((updateObject->zmapCellID - 410) + 412);//
-		std::list<Object*> objList2 = *GetCellContents((updateObject->zmapCellID - 410) - 410);//
-		std::list<Object*> objList3 = *GetCellContents((updateObject->zmapCellID - 410) + 1 );//
-		std::list<Object*> objList4 = *GetCellContents((updateObject->zmapCellID - 410) - 412);//
-		std::list<Object*> objList5 = *GetCellContents((updateObject->zmapCellID - 410) - 411);//
+		std::list<Object*>::iterator it = FinalList.end();
 
-		FinalList.merge(objList1);
-		FinalList.merge(objList2);
-		FinalList.merge(objList3);
-		FinalList.merge(objList4);
-		FinalList.merge(objList5);
+		std::list<Object*> temp = *GetCellContents((updateObject->zmapCellID - 410) + 412);//
+		FinalList.splice(it, temp);
+
+		temp = *GetCellContents((updateObject->zmapCellID - 410) - 410);//
+		FinalList.splice(it, temp);
+
+		temp = *GetCellContents((updateObject->zmapCellID - 410) + 1 );//
+		FinalList.splice(it, temp);
+
+		temp = *GetCellContents((updateObject->zmapCellID - 410) - 412);//
+		FinalList.splice(it, temp);
+
+		temp = *GetCellContents((updateObject->zmapCellID - 410) - 411);//
+		FinalList.splice(it, temp);
 
 		for(std::list<Object*>::iterator i = FinalList.begin(); i != FinalList.end(); i++)
 		{

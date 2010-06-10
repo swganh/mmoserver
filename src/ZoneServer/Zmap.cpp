@@ -31,9 +31,9 @@ zmap::zmap()
 	
 	// Setup the lookup array...
 	i = 0;
-	for(x = 0; x <= 410; x++)
+	for(x = 0; x <= GRIDWIDTH; x++)
 	{
-		for(j = 0; j <= 410; j++)
+		for(j = 0; j <= GRIDHEIGHT; j++)
 		{
 			zmap_lookup[x][j] = i;
 			i++;
@@ -248,10 +248,10 @@ std::list<Object*>* zmap::GetChatRangeCellContents(uint32 CellID)
 	std::list<Object*> temp = *GetCellContents(CellID);
 	ReturnList->splice(it, temp);
 
-	temp = *GetCellContents(CellID + 411);
+	temp = *GetCellContents(CellID + GRIDWIDTH);
 	ReturnList->splice(it, temp);
 
-	temp = *GetCellContents(CellID - 411);
+	temp = *GetCellContents(CellID - GRIDWIDTH);
 	ReturnList->splice(it, temp);
 
 	temp = *GetCellContents(CellID + 1);
@@ -260,16 +260,16 @@ std::list<Object*>* zmap::GetChatRangeCellContents(uint32 CellID)
 	temp = *GetCellContents(CellID - 1);
 	ReturnList->splice(it, temp);
 
-	temp = *GetCellContents(CellID + 410);
+	temp = *GetCellContents(CellID + GRIDWIDTH-1);
 	ReturnList->splice(it, temp);
 
-	temp = *GetCellContents(CellID + 412);
+	temp = *GetCellContents(CellID + GRIDWIDTH+1);
 	ReturnList->splice(it, temp);
 
-	temp = *GetCellContents(CellID - 412);
+	temp = *GetCellContents(CellID - GRIDWIDTH+1);
 	ReturnList->splice(it, temp);
 
-	temp = *GetCellContents(CellID - 410);
+	temp = *GetCellContents(CellID - GRIDWIDTH-1);
 	ReturnList->splice(it, temp);
 
 
@@ -447,25 +447,18 @@ void zmap::CheckObjectIterationForDestruction(Object* toBeTested, Object* toBeUp
 
 void zmap::UpdateBackCells(Object* updateObject, uint32 newCell)
 {
-	//are all the cells on our lefz or right valid ??
+	//are all the cells on our left or right valid ??
 	//arnt we looking to the other side of the map ???
 	
 
 	//ZMAP Northbound! TODO: Sync with game
-	if((updateObject->zmapCellID + 411) == newCell)
+	if((updateObject->zmapCellID + GRIDWIDTH) == newCell)
 	{
 		std::list<Object*> FinalList;
 		std::list<Object*>::iterator it = FinalList.end();
 
-		std::list<Object*> temp = *GetCellContents((updateObject->zmapCellID - 411));
+		std::list<Object*> temp = *GetGridContentsListRow((updateObject->zmapCellID + (GRIDWIDTH*VIEWRANGE)) + GRIDWIDTH);
 		FinalList.splice(it, temp);
-
-		temp = *GetCellContents((updateObject->zmapCellID - 412));
-		FinalList.splice(it, temp);
-
-		temp = *GetCellContents((updateObject->zmapCellID - 410));
-		FinalList.splice(it, temp);
-
 
 		for(std::list<Object*>::iterator i = FinalList.begin(); i != FinalList.end(); i++)
 		{
@@ -476,19 +469,13 @@ void zmap::UpdateBackCells(Object* updateObject, uint32 newCell)
 	}
 
 	//ZMAP Southbound! TODO: Sync with game
-	else if((updateObject->zmapCellID - 411) == newCell)
+	else if((updateObject->zmapCellID - GRIDWIDTH) == newCell)
 	{
 		
 		std::list<Object*> FinalList;
 		std::list<Object*>::iterator it = FinalList.end();
 		
-		std::list<Object*> temp = *GetCellContents(updateObject->zmapCellID + 411);
-		FinalList.splice(it, temp);
-
-		temp = *GetCellContents(updateObject->zmapCellID + 412);
-		FinalList.splice(it, temp);
-
-		temp = *GetCellContents(updateObject->zmapCellID + 410);
+		std::list<Object*> temp = *GetGridContentsListRow((updateObject->zmapCellID - (GRIDWIDTH*VIEWRANGE)) - GRIDWIDTH);
 		FinalList.splice(it, temp);
 
 		for(std::list<Object*>::iterator i = FinalList.begin(); i != FinalList.end(); i++)
@@ -506,13 +493,7 @@ void zmap::UpdateBackCells(Object* updateObject, uint32 newCell)
 		std::list<Object*> FinalList;
 		std::list<Object*>::iterator it = FinalList.end();
 
-		std::list<Object*> temp = *GetCellContents(updateObject->zmapCellID - 410);
-		FinalList.splice(it, temp);
-
-		temp = *GetCellContents(updateObject->zmapCellID + 1 );
-		FinalList.splice(it, temp);
-
-		temp = *GetCellContents(updateObject->zmapCellID + 412);
+		std::list<Object*> temp = *GetGridContentsListColumn((updateObject->zmapCellID - VIEWRANGE) - 1 );
 		FinalList.splice(it, temp);
 
 		for(std::list<Object*>::iterator i = FinalList.begin(); i != FinalList.end(); i++)
@@ -523,20 +504,14 @@ void zmap::UpdateBackCells(Object* updateObject, uint32 newCell)
 		return;
 	}
 
-			//ZMAP Eastbound! TODO: Sync with game
+	//Eastbound! TODO: Sync with game
 	else if((updateObject->zmapCellID + 1) == newCell)
 	{
 		
 		std::list<Object*> FinalList;
 		std::list<Object*>::iterator it = FinalList.end();
 
-		std::list<Object*> temp = *GetCellContents(updateObject->zmapCellID + 410);
-		FinalList.splice(it, temp);
-		
-		temp = *GetCellContents(updateObject->zmapCellID - 1 );
-		FinalList.splice(it, temp);
-
-		temp = *GetCellContents(updateObject->zmapCellID - 412);
+		std::list<Object*> temp = *GetGridContentsListColumn((updateObject->zmapCellID - VIEWRANGE) + 1 );
 		FinalList.splice(it, temp);
 
 		for(std::list<Object*>::iterator i = FinalList.begin(); i != FinalList.end(); i++)
@@ -548,25 +523,19 @@ void zmap::UpdateBackCells(Object* updateObject, uint32 newCell)
 	}
 
 	// NorthEastbound
-	else if((updateObject->zmapCellID + 412) == newCell)
+	else if((updateObject->zmapCellID + (GRIDWIDTH+1)) == newCell)
 	{
 		
 		std::list<Object*> FinalList;
 		std::list<Object*>::iterator it = FinalList.end();
 
-		std::list<Object*> temp = *GetCellContents(updateObject->zmapCellID + 410);
-		FinalList.splice(it, temp);
-		
-		temp = *GetCellContents(updateObject->zmapCellID - 410);
+		std::list<Object*> temp = *GetCellContents((updateObject->zmapCellID - (GRIDWIDTH+1)*VIEWRANGE) - (GRIDWIDTH+1));
 		FinalList.splice(it, temp);
 
-		temp = *GetCellContents(updateObject->zmapCellID - 1 );
+		temp = *GetGridContentsListColumnUp((updateObject->zmapCellID - ((GRIDWIDTH+1)*VIEWRANGE)) - (GRIDWIDTH+1) +GRIDWIDTH );//		FinalList.splice(it, temp);
 		FinalList.splice(it, temp);
 
-		temp = *GetCellContents(updateObject->zmapCellID - 412);
-		FinalList.splice(it, temp);
-
-		temp = *GetCellContents(updateObject->zmapCellID - 411);
+		temp = *GetGridContentsListRowRight((updateObject->zmapCellID - ((GRIDWIDTH+1)*VIEWRANGE)) - (GRIDWIDTH+1) + 1);//
 		FinalList.splice(it, temp);
 
 		for(std::list<Object*>::iterator i = FinalList.begin(); i != FinalList.end(); i++)
@@ -577,26 +546,21 @@ void zmap::UpdateBackCells(Object* updateObject, uint32 newCell)
 		return;
 	}
 
-	// NorthWestbound
-	else if((updateObject->zmapCellID + 410) == newCell)
+	// NorthWestbound -> up left
+	else if((updateObject->zmapCellID + GRIDWIDTH-1) == newCell)
 	{
 		
 		std::list<Object*> FinalList;
 		std::list<Object*>::iterator it = FinalList.end();
 
-		std::list<Object*> temp = *GetCellContents(updateObject->zmapCellID - 412);
+		//so we need to delete down right (Southeast)
+		std::list<Object*> temp = *GetCellContents((updateObject->zmapCellID - (GRIDWIDTH-1)*VIEWRANGE) - (GRIDWIDTH-1));
+		FinalList.splice(it, temp);							  
+
+		temp = *GetGridContentsListColumnUp((updateObject->zmapCellID - ((GRIDWIDTH-1)*VIEWRANGE)) - (GRIDWIDTH-1) +GRIDWIDTH );//		FinalList.splice(it, temp);
 		FinalList.splice(it, temp);
 
-		temp = *GetCellContents(updateObject->zmapCellID - 410);
-		FinalList.splice(it, temp);
-
-		temp = *GetCellContents(updateObject->zmapCellID + 1 );
-		FinalList.splice(it, temp);
-
-		temp = *GetCellContents(updateObject->zmapCellID + 412);
-		FinalList.splice(it, temp);
-
-		temp = *GetCellContents(updateObject->zmapCellID - 411);
+		temp = *GetGridContentsListRowLeft((updateObject->zmapCellID - ((GRIDWIDTH-1)*VIEWRANGE)) - (GRIDWIDTH-1) -1);//
 		FinalList.splice(it, temp);
 
 		for(std::list<Object*>::iterator i = FinalList.begin(); i != FinalList.end(); i++)
@@ -608,26 +572,21 @@ void zmap::UpdateBackCells(Object* updateObject, uint32 newCell)
 		return;
 	}
 
-		// SouthWestbound
-	else if((updateObject->zmapCellID - 412) == newCell)
+		// SouthWestbound	  -> down left
+	else if((updateObject->zmapCellID - (GRIDWIDTH+1)) == newCell)
 	{
 		
 		std::list<Object*> FinalList;
 		std::list<Object*>::iterator it = FinalList.end();
 
-		std::list<Object*> temp = *GetCellContents(updateObject->zmapCellID + 410);
+		//so we need to delete up right (Northeast)
+		std::list<Object*> temp = *GetCellContents((updateObject->zmapCellID + (GRIDWIDTH+1)*VIEWRANGE) + (GRIDWIDTH+1));
 		FinalList.splice(it, temp);
 
-		temp = *GetCellContents(updateObject->zmapCellID - 410);
+		temp = *GetGridContentsListColumnDown((updateObject->zmapCellID + ((GRIDWIDTH+1)*VIEWRANGE)) + (GRIDWIDTH+1) -GRIDWIDTH );//		FinalList.splice(it, temp);
 		FinalList.splice(it, temp);
 
-		temp = *GetCellContents(updateObject->zmapCellID + 1 );
-		FinalList.splice(it, temp);
-
-		temp = *GetCellContents(updateObject->zmapCellID + 412);
-		FinalList.splice(it, temp);
-
-		temp = *GetCellContents(updateObject->zmapCellID + 411);
+		temp = *GetGridContentsListRowLeft((updateObject->zmapCellID + ((GRIDWIDTH+1)*VIEWRANGE)) + (GRIDWIDTH+1) -1);//
 		FinalList.splice(it, temp);
 
 		for(std::list<Object*>::iterator i = FinalList.begin(); i != FinalList.end(); i++)
@@ -638,27 +597,23 @@ void zmap::UpdateBackCells(Object* updateObject, uint32 newCell)
 		return;
 	}
 
-		// SouthEastbound
-	else if((updateObject->zmapCellID - 410) == newCell)
+		// SouthEastbound	-> down right
+	else if((updateObject->zmapCellID - (GRIDWIDTH-1)) == newCell)
 	{
 		
 		std::list<Object*> FinalList;
 		std::list<Object*>::iterator it = FinalList.end();
 
-		std::list<Object*> temp = *GetCellContents(updateObject->zmapCellID + 412);
+		//so we need to delete up left (Northwest)
+		std::list<Object*> temp = *GetCellContents((updateObject->zmapCellID + (GRIDWIDTH-1)*VIEWRANGE) + (GRIDWIDTH-1));
 		FinalList.splice(it, temp);
 
-		temp = *GetCellContents(updateObject->zmapCellID + 410);
+		temp = *GetGridContentsListColumnDown((updateObject->zmapCellID + ((GRIDWIDTH-1)*VIEWRANGE)) + (GRIDWIDTH-1) -GRIDWIDTH );//		FinalList.splice(it, temp);
 		FinalList.splice(it, temp);
 
-		temp = *GetCellContents(updateObject->zmapCellID - 1 );
+		temp = *GetGridContentsListRowRight((updateObject->zmapCellID + ((GRIDWIDTH-1)*VIEWRANGE)) + (GRIDWIDTH-1) +1);//
 		FinalList.splice(it, temp);
-
-		temp = *GetCellContents(updateObject->zmapCellID - 412);
-		FinalList.splice(it, temp);
-
-		temp = *GetCellContents(updateObject->zmapCellID + 411);
-		FinalList.splice(it, temp);
+		
 
 		for(std::list<Object*>::iterator i = FinalList.begin(); i != FinalList.end(); i++)
 		{
@@ -793,10 +748,10 @@ void zmap::UpdateFrontCells(Object* updateObject, uint32 newCell)
 		std::list<Object*> temp = *GetCellContents((updateObject->zmapCellID + ((GRIDWIDTH-1)*VIEWRANGE)) + (GRIDWIDTH-1));//
 		FinalList.splice(it, temp);
 
-		temp = *GetGridContentsListColumnDown((updateObject->zmapCellID + ((GRIDWIDTH-1)*VIEWRANGE)) - GRIDWIDTH);//
+		temp = *GetGridContentsListColumnDown((updateObject->zmapCellID + ((GRIDWIDTH-1)*VIEWRANGE))  + (GRIDWIDTH-1) - GRIDWIDTH);//
 		FinalList.splice(it, temp);
 
-		temp = *GetGridContentsListRowRight((updateObject->zmapCellID + ((GRIDWIDTH-1)*VIEWRANGE)) + 1);//
+		temp = *GetGridContentsListRowRight((updateObject->zmapCellID + ((GRIDWIDTH-1)*VIEWRANGE))  + (GRIDWIDTH-1) + 1);//
 		FinalList.splice(it, temp);
 		ObjectCreationIteration(&FinalList,updateObject);
 
@@ -813,10 +768,10 @@ void zmap::UpdateFrontCells(Object* updateObject, uint32 newCell)
 		std::list<Object*> temp = *GetCellContents((updateObject->zmapCellID - (GRIDWIDTH+1)*VIEWRANGE) - (GRIDWIDTH+1));
 		FinalList.splice(it, temp);
 
-		temp = *GetGridContentsListColumnUp((updateObject->zmapCellID - ((GRIDWIDTH+1)*VIEWRANGE)) + GRIDWIDTH);//		FinalList.splice(it, temp);
+		temp = *GetGridContentsListColumnUp((updateObject->zmapCellID - ((GRIDWIDTH+1)*VIEWRANGE)) - (GRIDWIDTH+1) + GRIDWIDTH);//		FinalList.splice(it, temp);
 		FinalList.splice(it, temp);
 
-		temp = *GetGridContentsListRowRight((updateObject->zmapCellID + ((GRIDWIDTH+1)*VIEWRANGE)) + 1);//
+		temp = *GetGridContentsListRowRight((updateObject->zmapCellID + ((GRIDWIDTH+1)*VIEWRANGE)) - (GRIDWIDTH+1) + 1);//
 		FinalList.splice(it, temp);
 
 		
@@ -836,10 +791,10 @@ void zmap::UpdateFrontCells(Object* updateObject, uint32 newCell)
 		std::list<Object*> temp = *GetCellContents((updateObject->zmapCellID - (GRIDWIDTH-1)*VIEWRANGE) - (GRIDWIDTH-1));
 		FinalList.splice(it, temp);
 
-		temp = *GetGridContentsListColumnUp((updateObject->zmapCellID - ((GRIDWIDTH-1)*VIEWRANGE)) + GRIDWIDTH);//		FinalList.splice(it, temp);
+		temp = *GetGridContentsListColumnUp((updateObject->zmapCellID - ((GRIDWIDTH-1)*VIEWRANGE)) - (GRIDWIDTH-1) + GRIDWIDTH);//		FinalList.splice(it, temp);
 		FinalList.splice(it, temp);
 
-		temp = *GetGridContentsListRowLeft((updateObject->zmapCellID + ((GRIDWIDTH-1)*VIEWRANGE)) - 1);//
+		temp = *GetGridContentsListRowLeft((updateObject->zmapCellID + ((GRIDWIDTH-1)*VIEWRANGE)) - (GRIDWIDTH-1) - 1);//
 		FinalList.splice(it, temp);
 
 

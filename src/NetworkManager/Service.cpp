@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -64,6 +80,7 @@ mLocalPort(0),
 mQueued(false),
 mServerService(serverservice)
 {
+	mCallBack = NULL;
 	mId = id;
 
 	//localAddress = (char*)gConfig->read<std::string>("BindAddress").c_str();
@@ -114,7 +131,7 @@ mServerService(serverservice)
 	int valuelength = sizeof(value);
 	value = 524288;
 	int configvalue = gConfig->read<int32>("UDPBufferSize",4096);
-	gLogger->logMsgF("UDPBuffer set to %ukb",MSG_HIGH,configvalue);
+	gLogger->log(LogManager::INFORMATION, "UDPBuffer set to %ukb", configvalue);
 
 	if(configvalue < 128)
 		configvalue = 128;
@@ -202,9 +219,10 @@ void Service::Process()
 		// Check to see if we're in the process of connecting or disconnecting.
 		if(session->getStatus() == SSTAT_Connecting)
 		{
-			for(NetworkCallbackList::iterator iter = mNetworkCallbackList.begin(); iter != mNetworkCallbackList.end(); ++iter)
-			{
-				newClient = (*iter)->handleSessionConnect(session, this);
+			//for(NetworkCallbackList::iterator iter = mNetworkCallbackList.begin(); iter != mNetworkCallbackList.end(); ++iter)
+			//{
+			//mCallBack->handleSessionMessage(session->getClient(), message);
+				newClient = mCallBack->handleSessionConnect(session, this);
 
 				// They returned a client to us, so keep the session.
 				if(newClient)
@@ -218,21 +236,21 @@ void Service::Process()
 					// Remove the session, they don't want it.
 					session->setCommand(SCOM_Disconnect);
 				}
-			}
+			//}
 		}
 		else if(session->getStatus() == SSTAT_Disconnecting)
 		{
 
 			NetworkCallbackList::iterator iter;
 
-			for(iter = mNetworkCallbackList.begin(); iter != mNetworkCallbackList.end(); ++iter)
-			{
+			//for(iter = mNetworkCallbackList.begin(); iter != mNetworkCallbackList.end(); ++iter)
+			//{
 				if(session->getClient())
 				{
-					(*iter)->handleSessionDisconnect(session->getClient());
+					mCallBack->handleSessionDisconnect(session->getClient());
 					session->setClient(0);
 				}
-			}
+			//}
 
 			// We're now dis connected.
 			session->setStatus(SSTAT_Disconnected);
@@ -243,6 +261,7 @@ void Service::Process()
 		{
 		  mSocketReadThread->RemoveAndDestroySession(session);
 
+
 		  continue;
 		}
 
@@ -251,10 +270,7 @@ void Service::Process()
 		// Iterate through our priority queue's looking for messages.
 		uint32 messageCount = session->getIncomingQueueMessageCount();
 
-		if(messageCount >avgPacketsbuild )
-			avgPacketsbuild = messageCount;
-
-		if((session->getStatus() == SSTAT_Destroy)||(!session->getClient()))
+		if(!session->getClient())
 		{
 			for(uint32 j = 0; j < messageCount; j++)
 			{
@@ -272,12 +288,13 @@ void Service::Process()
 
 				// At this point we can assume we have a client object, so send the data up.
 				// actually when a server crashed it happens that we crash the connectionserver this way
-				NetworkCallbackList::iterator iter;
+				//NetworkCallbackList::iterator iter;
 
-				for(iter = mNetworkCallbackList.begin(); iter != mNetworkCallbackList.end(); ++iter)
-				{
-					(*iter)->handleSessionMessage(session->getClient(), message);
-				}
+				mCallBack->handleSessionMessage(session->getClient(), message);
+				//for(iter = mNetworkCallbackList.begin(); iter != mNetworkCallbackList.end(); ++iter)
+				//{
+					//(*iter)->handleSessionMessage(session->getClient(), message);
+				//}
 			}
 		}
 

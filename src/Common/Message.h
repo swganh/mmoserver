@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -34,8 +50,7 @@ class Message
 {
 public:
                               Message(void)
-                              : mSourceId(0)
-                              , mCreateTime(0)
+                              : mCreateTime(0)
                               , mQueueTime(0)
                               , mAccountId(0xffffffff)
                               , mSize(0)
@@ -49,7 +64,6 @@ public:
 							  , mLogged(false)
 							  , mLogTime(0)
 							  , mSession(NULL)
-							  , mPath(MP_None)
                               {}
 
   void                        Init(int8* data, uint16 len)      { mData = data; mSize = len; mIndex = 0;}
@@ -60,7 +74,6 @@ public:
   uint16                      getIndex(void)                    { return mIndex; }
   inline uint8                getPriority(void)                 { return mPriority; }
   uint32                      getAccountId(void)                { return mAccountId; }
-  uint8                       getSourceId(void)                 { return mSourceId; }
   uint8                       getDestinationId(void)            { return mDestinationId; }
   bool                        getRouted(void)                   { return mRouted; }
   uint64                      getCreateTime(void)               { return mCreateTime; }
@@ -73,7 +86,6 @@ public:
   void                        setIndex(uint16 index)            { mIndex = index; }
   void                        setPriority(uint8 priority)       { mPriority = priority; }
   void                        setAccountId(uint32 id)           { mAccountId = id; }
-  void                        setSourceId(uint8 id)             { mSourceId = id; }
   void                        setDestinationId(uint8 id)        { mDestinationId = id; }
   void                        setRouted(bool routed)            { mRouted = routed; }
   void                        setCreateTime(uint64 time)        { mCreateTime = time; }
@@ -115,9 +127,6 @@ public:
   // Max length of a string is uint16 - 4 (two bytes for length at beginning of buffer, and 2 bytes at end for NULL terminator.)
   uint16                      getStringAnsi(BString& data)       { data.initRawBSTR(&mData[mIndex], BSTRType_ANSI); mIndex += data.getLength()+2; return data.getLength(); }
   uint16                      getStringUnicode16(BString& data)  { data.initRawBSTR(&mData[mIndex], BSTRType_Unicode16); mIndex += data.getLength() * 2 + 4; return data.getLength(); }
-
-  uint8                       mSourceId;
-  MessagePath                 mPath;
   
   bool                        mLogged;
   uint64                      mLogTime;

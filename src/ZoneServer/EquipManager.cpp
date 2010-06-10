@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -98,11 +114,11 @@ uint8 EquipManager::removeEquippedObject(Object* object)
 // remove object(s) from the slotmask given
 //
 
-uint8 EquipManager::removeEquippedObject(uint32 slotMask)
+uint8 EquipManager::removeEquippedObject(uint64 slotMask)
 {
 	uint8 occurance = 0;
 
-	for(uint32 slot = 1; slot < CREATURE_MAX_SLOT;slot = slot << 1)
+	for(uint64 slot = 1; slot < CREATURE_MAX_SLOT;slot = slot << 1)
 	{
 		if((slotMask & slot) == slot)
 		{
@@ -155,8 +171,6 @@ bool EquipManager::checkEquipObject(Object* object)
 	// make sure we have a slot descriptor
 	if(!slotMask)
 	{
-		gLogger->logMsgF("EquipManager::addEquippedObject: Character: %"PRIu64" Object: %"PRIu64" : no slot mask set",MSG_NORMAL,mParent->getId(),object->getId());
-
 		return(false);
 	}
 	return true;
@@ -178,13 +192,13 @@ bool EquipManager::addEquippedObject(Object* object)
 // add an object manually to the slots given, remove objects with slot conflicts
 //
 
-uint8 EquipManager::addEquippedObject(uint32 slotMask,Object* object)
+uint8 EquipManager::addEquippedObject(uint64 slotMask,Object* object)
 {
 	SlotMap::iterator	it;
 	ObjectSlotMap::iterator ot;
 	uint8			occurance = 0;
 
-	for(uint32 slot = 1; slot < CREATURE_MAX_SLOT;slot = slot << 1)
+	for(uint64 slot = 1; slot < CREATURE_MAX_SLOT;slot = slot << 1)
 	{
 		if((slotMask & slot) == slot)
 		{
@@ -218,14 +232,14 @@ uint8 EquipManager::addEquippedObject(uint32 slotMask,Object* object)
 bool EquipManager::equipDefaultWeapon()
 {
 	// make sure slot is empty
-	if(getEquippedObject(CreatureEquipSlot_Weapon))
+	if(getEquippedObject(CreatureEquipSlot_Hold_Left))
 	{
 		return(false);
 		//removeEquippedObject(CreatureEquipSlot_Weapon);
 	}
 
 	// equip the default weapon
-	addEquippedObject(CreatureEquipSlot_Weapon,mDefaultWeapon);
+	addEquippedObject(CreatureEquipSlot_Hold_Left,mDefaultWeapon);
 	return(true);
 }
 
@@ -244,7 +258,6 @@ bool EquipManager::EquipItem(Object* object)
 
 	addEquippedObject(object);
 
-	//gLogger->logMsgF("Inventory::EquipItem : owner ID : %I64u", MSG_NORMAL,owner->getId());
 	//equipped objects are always contained by the Player
 	//unequipped ones by the inventory!
 
@@ -276,14 +289,14 @@ bool EquipManager::unEquipItem(Object* object)
 	Item* item = dynamic_cast<Item*>(object);
 	if(!item)
 	{
-		gLogger->logMsgF("Inventory::unEquipItem : No Item object ID : %"PRIu64"", MSG_NORMAL,object->getId());
+		gLogger->log(LogManager::DEBUG,"Inventory::unEquipItem : No Item object ID : %"PRIu64"",object->getId());
 		return false;
 	}
 
 	PlayerObject*	owner		= dynamic_cast<PlayerObject*> (this->getParent());
 	if(!owner)
 	{
-		gLogger->logMsgF("Inventory::unEquipItem : No one has it equipped :(", MSG_NORMAL);
+		gLogger->log(LogManager::DEBUG,"Inventory::unEquipItem : No one has it equipped");
 		return false;
 	}
 
@@ -293,7 +306,6 @@ bool EquipManager::unEquipItem(Object* object)
 		gEntertainerManager->stopEntertaining(owner);
 	}
 
-	//gLogger->logMsgF("Inventory::unEquipItem : owner ID : %"PRIu64"", MSG_NORMAL,owner->getId());
 	//equipped objects are always contained by the Player
 	//unequipped ones by the inventory!
 
@@ -323,7 +335,7 @@ bool EquipManager::unEquipItem(Object* object)
 	}
 
 	// if we unequiped our weapon, set the unarmed default weapon
-	if(item->getItemFamily() == ItemFamily_Weapon && (item->getEquipSlotMask() & CreatureEquipSlot_Weapon) == CreatureEquipSlot_Weapon)
+	if(item->getItemFamily() == ItemFamily_Weapon && (item->getEquipSlotMask() & CreatureEquipSlot_Hold_Left) == CreatureEquipSlot_Hold_Left)
 	{
 		equipDefaultWeapon();
 	}
@@ -344,13 +356,13 @@ bool EquipManager::CheckEquipable(Object* object)
 
 	if(!item)
 	{
-		gLogger->logMsgF("Inventory::EquipItem : No Item object ID : %I64u", MSG_NORMAL,object->getId());
+		gLogger->log(LogManager::DEBUG,"Inventory::EquipItem : No Item object ID : %I64u",object->getId());
 		return(false);
 	}
 	
 	if(!owner)
 	{
-		gLogger->logMsgF("Inventory::EquipItem : No owner", MSG_NORMAL);
+		gLogger->log(LogManager::DEBUG,"Inventory::EquipItem : No owner");
 		return(false);
 	}
 	
@@ -362,8 +374,8 @@ bool EquipManager::CheckEquipable(Object* object)
 	}
 
 	// check items equip restrictions, first check race and gender
-	uint32 filter1 = item->getEquipRestrictions() & 0xFFF;
-	uint32 filter2 = owner->getRaceGenderMask() & 0xFFF;
+	uint64 filter1 = item->getEquipRestrictions() & 0xFFF;
+	uint64 filter2 = owner->getRaceGenderMask() & 0xFFF;
 
 	if((filter1 & filter2) != filter2)
 	{
@@ -391,5 +403,11 @@ bool EquipManager::CheckEquipable(Object* object)
 		return(false);
 	}
 
+	uint64 filter3 = CreatureEquipSlot_Datapad & CreatureEquipSlot_Bank & CreatureEquipSlot_Inventory & CreatureEquipSlot_Mission;
+	if(filter3 && item->getEquipSlotMask())
+	{
+		gMessageLib->sendSystemMessage(owner,L"Attention!!! the Equip - BitMask is messedup.");
+		return(false);
+	}
 	return true;
 }

@@ -96,8 +96,8 @@ set DEPENDENCIES_FILE=mmoserver-deps-%DEPENDENCIES_VERSION%.7z
 set DEPENDENCIES_URL=http://github.com/downloads/swganh/mmoserver/%DEPENDENCIES_FILE%
 set "PROJECT_BASE=%~dp0"
 set BUILD_TYPE=debug
-set MSVC_VERSION=
 set REBUILD=build
+set MSVC_VERSION=10
 set ALLHEIGHTMAPS=false
 set SKIPHEIGHTMAPS=false
 set DEPENDENCIESONLY=false
@@ -128,7 +128,6 @@ if "%~0" == "-h" (
 	echo "    /rebuild                       Rebuilds the projects instead of incremental build"
 	echo "    /clean                         Cleans the generated files"
 	echo "    /build [debug-release-all]     Specifies the build type, defaults to debug"
-	echo "    /msvc-version [vc9|vc10]       Specifies the msvc version and project files to use"
 	echo "    /buildnumber [num]             Specifies a build number to be set rather than commit hash"
 )
 
@@ -168,21 +167,6 @@ if "%~0" == "/buildnumber" (
 rem Check for /build:x format and then set BUILD_TYPE
 if "%~0" == "/build" (
 	set BUILD_TYPE=%~1
-	shift
-)
-
-
-rem Check for /msvc-version:x format and then set MSVC_VERSION
-if "%~0" == "/msvc-version" (
-	rem Only set if it's an allowed version
-	if "%~1" == "vc9" (
-		set MSVC_VERSION=9
-	)
-
-	if "%~1" == "vc10" (
-		set MSVC_VERSION=10
-	)
-
 	shift
 )
 
@@ -237,29 +221,22 @@ rem ----------------------------------------------------------------------------
 rem --- Start of BUILD_ENVIRONMENT ---------------------------------------------
 :BUILD_ENVIRONMENT
 
-if "%MSVC_VERSION%" == "" (
-	if exist "%VS100COMNTOOLS%" (
-		set MSVC_VERSION=10
-	) else if exist "%VS90COMNTOOLS%" (
-		set MSVC_VERSION=9
-	) else (
-		echo ***** Microsoft Visual Studio 9.0 or 10.0 required *****
-		exit
-	)
+if not exist "%VS100COMNTOOLS%" (
+  set "VS100COMNTOOLS=%PROGRAMFILES(X86)%\Microsoft Visual Studio 10.0\Common7\Tools"
+  if not exist "!VS100COMNTOOLS!" (
+  	  set "VS100COMNTOOLS=%PROGRAMFILES%\Microsoft Visual Studio 10.0\Common7\Tools"
+  	  if not exist "!VS100COMNTOOLS!" (          
+  		    rem TODO: Allow user to enter a path to their base visual Studio directory.
+         
+    	    echo ***** Microsoft Visual Studio 10.0 required *****
+    	    exit /b 1
+  	  )
+  )
 )
 
-if %MSVC_VERSION% == 10 (
-	set "VSCOMMONTOOLS=%VS100COMNTOOLS%"
-	set "MSBUILD=%WINDIR%\Microsoft.NET\Framework\v4.0.30319\msbuild.exe"
-) else if %MSVC_VERSION% == 9 (
-	set "VSCOMMONTOOLS=%VS90COMNTOOLS%"
-	set "MSBUILD=%WINDIR%\Microsoft.NET\Framework\v3.5\msbuild.exe"
-) else (
-	echo ***** Microsoft Visual Studio 9.0 or 10.0 required *****
-	exit
-)
+set "MSBUILD=%WINDIR%\Microsoft.NET\Framework\v4.0.30319\msbuild.exe"
 
-call "%VSCOMMONTOOLS%\vsvars32.bat" >NUL
+call "%VS100COMNTOOLS%\vsvars32.bat" >NUL
 
 set environment_built=yes
 

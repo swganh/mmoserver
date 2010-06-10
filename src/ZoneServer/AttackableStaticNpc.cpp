@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -52,8 +68,6 @@ void AttackableStaticNpc::playDeathAnimation(void)
 
 void AttackableStaticNpc::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount)
 {
-	// gLogger->logMsgF("AttackableStaticNpc::prepareCustomRadialMenu Entering" ,MSG_NORMAL);
-
 	// For test.
 	// PlayerObject* playerObject = dynamic_cast<PlayerObject*>(creatureObject);
 	// gMessageLib->sendUpdatePvpStatus(this, playerObject);
@@ -63,7 +77,7 @@ void AttackableStaticNpc::prepareCustomRadialMenu(CreatureObject* creatureObject
 
 	if (this->checkPvPState(CreaturePvPStatus_Attackable))
 	{
-		gLogger->logMsgF("AttackableStaticNpc::prepareCustomRadialMenu IS attackable\n" ,MSG_NORMAL);
+		gLogger->log(LogManager::DEBUG,"AttackableStaticNpc::prepareCustomRadialMenu IS attackable\n");
 
 		// mRadialMenu = RadialMenuPtr(new RadialMenu());
 		mRadialMenu->addItem(1,0,radId_combatAttack,radAction_Default); 
@@ -71,14 +85,14 @@ void AttackableStaticNpc::prepareCustomRadialMenu(CreatureObject* creatureObject
 	}
 	else
 	{
-		gLogger->logMsgF("AttackableStaticNpc::prepareCustomRadialMenu is NOT attackable\n" ,MSG_NORMAL);
+		gLogger->log(LogManager::DEBUG,"AttackableStaticNpc::prepareCustomRadialMenu is NOT attackable\n");
 		mRadialMenu->addItem(1,0,radId_examine,radAction_Default); 
 	}
 }
 
 void AttackableStaticNpc::respawn(void)
 {
-	gLogger->logMsgF("AttackableStaticNpc::respawn: Added new static object for spawn, with id = %"PRIu64"", MSG_NORMAL, this->getId());
+	gLogger->log(LogManager::DEBUG,"AttackableStaticNpc::respawn: Added new static object for spawn, with id = %"PRIu64"", this->getId());
 
 	// The cell we will spawn in.
 	this->setParentId(getCellIdForSpawn());
@@ -91,7 +105,6 @@ void AttackableStaticNpc::respawn(void)
 	if (this->hasInternalAttribute("creature_respawn_delay"))
 	{
 		uint64 respawnDelay = this->getInternalAttribute<uint64>("creature_respawn_delay");					
-		// gLogger->logMsgF("creature_respawn_delay = %"PRIu64"", MSG_NORMAL, respawnDelay);
 		// mRespawnDelay = respawnDelay;
 		this->setRespawnDelay(respawnDelay);
 	}
@@ -106,7 +119,6 @@ void AttackableStaticNpc::respawn(void)
 		position.y = this->getHeightAt2DPosition(position.x, position.z, true);
 	}
 	
-	// gLogger->logMsgF("Setting up spawn of creature at %.0f %.0f %.0f", MSG_NORMAL, position.x, position.y, position.z);
 	this->mPosition = this->getSpawnPosition();		// Default spawn position.
 
 	// mSpawned = false;
@@ -114,7 +126,6 @@ void AttackableStaticNpc::respawn(void)
 	if (this->hasInternalAttribute("creature_xp"))
 	{
 		uint32 xp = this->getInternalAttribute<uint32>("creature_xp");					
-		// gLogger->logMsgF("creature_xp = %u", MSG_NORMAL, xp);
 		this->setWeaponXp(xp);
 	}
 	else
@@ -127,7 +138,6 @@ void AttackableStaticNpc::respawn(void)
 	if (this->hasAttribute("creature_health"))
 	{
 		int32 health = this->getAttribute<int32>("creature_health");					
-		// gLogger->logMsgF("creature_health = %d", MSG_NORMAL, health);
 		this->mHam.mHealth.setCurrentHitPoints(health);
 		this->mHam.mHealth.setMaxHitPoints(health);
 		this->mHam.mHealth.setBaseHitPoints(health);
@@ -143,7 +153,6 @@ void AttackableStaticNpc::respawn(void)
 	if (this->hasAttribute("creature_strength"))
 	{
 		int32 strength = this->getAttribute<int32>("creature_strength");					
-		// gLogger->logMsgF("creature_strength = %d", MSG_NORMAL, strength);
 		this->mHam.mStrength.setCurrentHitPoints(strength);
 		this->mHam.mStrength.setMaxHitPoints(strength);
 		this->mHam.mStrength.setBaseHitPoints(strength);
@@ -159,7 +168,6 @@ void AttackableStaticNpc::respawn(void)
 	if (this->hasAttribute("creature_constitution"))
 	{
 		int32 constitution = this->getAttribute<int32>("creature_constitution");					
-		// gLogger->logMsgF("creature_constitution = %d", MSG_NORMAL, constitution);
 		this->mHam.mConstitution.setCurrentHitPoints(constitution);
 		this->mHam.mConstitution.setMaxHitPoints(constitution);
 		this->mHam.mConstitution.setBaseHitPoints(constitution);
@@ -177,7 +185,6 @@ void AttackableStaticNpc::respawn(void)
 	if (this->hasAttribute("creature_action"))
 	{
 		int32 action = this->getAttribute<int32>("creature_action");					
-		// gLogger->logMsgF("creature_action = %d", MSG_NORMAL, action);
 		this->mHam.mAction.setCurrentHitPoints(action);
 		this->mHam.mAction.setMaxHitPoints(action);
 		this->mHam.mAction.setBaseHitPoints(action);
@@ -193,7 +200,6 @@ void AttackableStaticNpc::respawn(void)
 	if (this->hasAttribute("creature_quickness"))
 	{
 		int32 quickness = this->getAttribute<int32>("creature_quickness");					
-		// gLogger->logMsgF("creature_quickness = %d", MSG_NORMAL, quickness);
 		this->mHam.mQuickness.setCurrentHitPoints(quickness);
 		this->mHam.mQuickness.setMaxHitPoints(quickness);
 		this->mHam.mQuickness.setBaseHitPoints(quickness);
@@ -209,7 +215,6 @@ void AttackableStaticNpc::respawn(void)
 	if (this->hasAttribute("creature_stamina"))
 	{
 		int32 stamina = this->getAttribute<int32>("creature_stamina");					
-		// gLogger->logMsgF("creature_stamina = %d", MSG_NORMAL, stamina);
 		this->mHam.mStamina.setCurrentHitPoints(stamina);
 		this->mHam.mStamina.setMaxHitPoints(stamina);
 		this->mHam.mStamina.setBaseHitPoints(stamina);
@@ -226,7 +231,6 @@ void AttackableStaticNpc::respawn(void)
 	if (this->hasAttribute("creature_mind"))
 	{
 		int32 mind = this->getAttribute<int32>("creature_mind");					
-		// gLogger->logMsgF("creature_mind = %d", MSG_NORMAL, mind);
 		this->mHam.mMind.setCurrentHitPoints(mind);
 		this->mHam.mMind.setMaxHitPoints(mind);
 		this->mHam.mMind.setBaseHitPoints(mind);
@@ -242,7 +246,6 @@ void AttackableStaticNpc::respawn(void)
 	if (this->hasAttribute("creature_focus"))
 	{
 		int32 focus = this->getAttribute<int32>("creature_focus");					
-		// gLogger->logMsgF("creature_focus = %d", MSG_NORMAL, focus);
 		this->mHam.mFocus.setCurrentHitPoints(focus);
 		this->mHam.mFocus.setMaxHitPoints(focus);
 		this->mHam.mFocus.setBaseHitPoints(focus);
@@ -258,7 +261,6 @@ void AttackableStaticNpc::respawn(void)
 	if (this->hasAttribute("creature_willpower"))
 	{
 		int32 willpower = this->getAttribute<int32>("creature_willpower");					
-		// gLogger->logMsgF("creature_willpower = %d", MSG_NORMAL, willpower);
 		this->mHam.mWillpower.setCurrentHitPoints(willpower);
 		this->mHam.mWillpower.setMaxHitPoints(willpower);
 		this->mHam.mWillpower.setBaseHitPoints(willpower);
@@ -285,9 +287,6 @@ void AttackableStaticNpc::respawn(void)
 
 void AttackableStaticNpc::spawn(void)
 {
-	// gLogger->logMsgF("AttackableStaticNpc::spawn: Spawning creature %"PRIu64"", MSG_NORMAL, this->getId());
-	// gLogger->logMsgF("Spawned static objects # %"PRIu64" (%"PRIu64")", MSG_NORMAL, gCreatureSpawnCounter, gCreatureSpawnCounter - gCreatureDeathCounter);
-
 	// Update the world about my presence.
 	
 	if (this->getParentId())
@@ -301,7 +300,7 @@ void AttackableStaticNpc::spawn(void)
 		}
 		else
 		{
-			gLogger->logMsgF("AttackableStaticNpc::spawn: couldn't find cell %"PRIu64"\n", MSG_HIGH, this->getParentId());
+			gLogger->log(LogManager::DEBUG,"AttackableStaticNpc::spawn: couldn't find cell %"PRIu64"\n", this->getParentId());
 			
 			// It's a serious isse that we need to investigate.
 			assert(cell);
@@ -317,7 +316,7 @@ void AttackableStaticNpc::spawn(void)
 	}
 
 	// Add us to the world.
-	gMessageLib->broadcastContainmentMessage(this->getId(),this->getParentId(),4,this);
+	gMessageLib->broadcastContainmentMessage(this,this->getParentId(),4);
 
 	// send out position updates to known players
 	this->setInMoveCount(this->getInMoveCount() + 1);
@@ -330,7 +329,7 @@ void AttackableStaticNpc::spawn(void)
 			PlayerObject* playerObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getPrivateOwner()));
 			if (playerObject)
 			{
-				gLogger->logMsgF("AttackableStaticNpc::spawn: Spawned a private object.", MSG_NORMAL);
+				gLogger->log(LogManager::DEBUG,"AttackableStaticNpc::spawn: Spawned a private object.");
 				if (this->getParentId())
 				{
 					// We are inside a cell.
@@ -346,22 +345,22 @@ void AttackableStaticNpc::spawn(void)
 			else
 			{
 				assert(false);
-				gLogger->logMsgF("AttackableStaticNpc::spawn: Failed to spawn a private object.", MSG_NORMAL);
+				gLogger->log(LogManager::DEBUG,"AttackableStaticNpc::spawn: Failed to spawn a private object.");
 			}
 		}
 	}
 	else
 	{
-		gLogger->logMsgF("AttackableStaticNpc::spawn: Spawned an object.", MSG_NORMAL);
+		gLogger->log(LogManager::DEBUG,"AttackableStaticNpc::spawn: Spawned an object.");
 		if (this->getParentId())
 		{
 			// We are inside a cell.
-			gMessageLib->sendDataTransformWithParent(this);
+			gMessageLib->sendDataTransformWithParent053(this);
 			gMessageLib->sendUpdateTransformMessageWithParent(this);
 		}
 		else
 		{
-			gMessageLib->sendDataTransform(this);
+			gMessageLib->sendDataTransform053(this);
 			gMessageLib->sendUpdateTransformMessage(this);
 		}
 	}

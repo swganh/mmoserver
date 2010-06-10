@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -38,21 +54,11 @@ mBaseConversation(baseConv),mPlayer(player),mNpc(npc),mDI(0),mTTId(0),mTOId(0)
 	if (mNpc->getTitle().getLength() == 0)
 	{
 		mNpc->setTitle(mCurrentPage->mStfVariable);
-		// gLogger->logMsgF("ActiveConversation::ActiveConversation: NPC got new Title = %s", MSG_NORMAL, mNpc->getTitle().getAnsi());
-	}
-	else
-	{
-		// gLogger->logMsgF("ActiveConversation::ActiveConversation: NPC already have a Title = %s", MSG_NORMAL, mNpc->getTitle().getAnsi());
 	}
 	
 	if (mNpc->getFirstName().getLength() == 0)
 	{
 		// mNpc->setFirstName("MrRandom Name");
-		// gLogger->logMsgF("ActiveConversation::ActiveConversation: NPC got new Name = %s", MSG_NORMAL, mNpc->getFirstName().getAnsi());
-	}
-	else
-	{
-		// gLogger->logMsgF("ActiveConversation::ActiveConversation: NPC already have a Name = %s", MSG_NORMAL, mNpc->getFirstName().getAnsi());
 	}
 
 	// Moved to the owner of this conversation.
@@ -72,7 +78,6 @@ void ActiveConversation::updateCurrentPage(uint32 selectId)
 {
 	ConversationOption* option = mSelectOptionMap[selectId];
 	
-	// gLogger->logMsgF("ActiveConversation::updateCurrentPage: selectId = %u",MSG_NORMAL,selectId);
 	uint32 pageLink = option->mPageLinkId;	// The state we are going to enter as default.
 
 	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mPlayer);
@@ -87,8 +92,6 @@ void ActiveConversation::updateCurrentPage(uint32 selectId)
 
 	if(option->mEvent)
 	{
-		// gLogger->logMsgF("ActiveConversation::updateCurrentPage: option->mEvent = %u",MSG_NORMAL,option->mEvent);
-
 		int32 DI = 0;
 
 		// buffer data for the next page
@@ -166,8 +169,6 @@ void ActiveConversation::prepareFilteredOptions()
 
 void ActiveConversation::postProcessCurrentPage()
 {
-	// gLogger->logMsg("ActiveConversation::postProcessCurrentPage");
-
 	if (mCurrentPage)
 	{
 		mNpc->postProcessfilterConversation(this, mCurrentPage,mPlayer);
@@ -178,7 +179,6 @@ void ActiveConversation::postProcessCurrentPage()
 
 bool ActiveConversation::preProcessConversation()
 {
-	// gLogger->logMsg("ActiveConversation::preProcessConversation");
 	bool status = false;
 	if (mCurrentPage)
 	{

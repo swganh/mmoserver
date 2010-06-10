@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -632,7 +648,6 @@ void MessageLib::sendCreatureAnimation(CreatureObject* srcObject,string animatio
 
 void MessageLib::sendCreatureAnimation(CreatureObject* srcObject,string animation, PlayerObject* player)
 {
-	// gLogger->logMsg("MessageLib::sendCreatureAnimation: For tutorial");
 	mMessageFactory->StartMessage();
 	mMessageFactory->addUint32(opObjControllerMessage);
 	mMessageFactory->addUint32(0x0000001B);
@@ -770,7 +785,7 @@ bool MessageLib::sendEmptyObjectMenuResponse(uint64 requestedId,PlayerObject* ta
 
 bool MessageLib::sendStartingLocationList(PlayerObject* player, uint8 tatooine, uint8 corellia, uint8 talus, uint8 rori, uint8 naboo)
 {
-	gLogger->logMsg("Sending Starting Location List\n");
+	gLogger->log(LogManager::DEBUG,"Sending Starting Location List\n");
 
 	if(!(player->isConnected()))
 	{
@@ -957,7 +972,7 @@ void MessageLib::sendCombatAction(CreatureObject* attacker,Object* defender,uint
 	mMessageFactory->addUint32(animation);
 	mMessageFactory->addUint64(attacker->getId());
 
-	if(Weapon* weapon = dynamic_cast<Weapon*>(attacker->getEquipManager()->getEquippedObject(CreatureEquipSlot_Weapon)))
+	if(Weapon* weapon = dynamic_cast<Weapon*>(attacker->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Left)))
 	{
 		mMessageFactory->addUint64(weapon->getId());
 	}
@@ -1138,12 +1153,40 @@ bool MessageLib::sendDraftWeightsResponse(DraftSchematic* schematic,PlayerObject
 	return(true);
 }
 
+// move (moving???)object in cell
+//
+//we need 0x0000000B to move players in elevators ... 0x00000053 might be specifically for static items ???
+//evtly divide between object and movingobject ????
+void MessageLib::sendDataTransformWithParent0B(Object* object)
+{
+	mMessageFactory->StartMessage();
+	mMessageFactory->addUint32(opObjControllerMessage);
+	mMessageFactory->addUint32(0x0000000B);
+	mMessageFactory->addUint32(opDataTransformWithParent);
+	mMessageFactory->addUint64(object->getId());
+	mMessageFactory->addUint32(0);
+	uint32 u = object->incDataTransformCounter();
+	mMessageFactory->addUint32(u);
+
+	mMessageFactory->addUint64(object->getParentId());
+	mMessageFactory->addFloat(object->mDirection.x);
+	mMessageFactory->addFloat(object->mDirection.y);
+	mMessageFactory->addFloat(object->mDirection.z);
+	mMessageFactory->addFloat(object->mDirection.w);
+	mMessageFactory->addFloat(object->mPosition.x);
+	mMessageFactory->addFloat(object->mPosition.y);
+	mMessageFactory->addFloat(object->mPosition.z);
+	mMessageFactory->addUint32(0);
+
+	_sendToInRangeUnreliable(mMessageFactory->EndMessage(),object,5);
+}
+
 //======================================================================================================================
 //
 // move object in world
 //
 
-void MessageLib::sendDataTransform(Object* object)
+void MessageLib::sendDataTransform0B(Object* object)
 {
 	mMessageFactory->StartMessage();
 	mMessageFactory->addUint32(opObjControllerMessage);
@@ -1167,10 +1210,37 @@ void MessageLib::sendDataTransform(Object* object)
 
 //======================================================================================================================
 //
+// move object in world
+//
+
+void MessageLib::sendDataTransform053(Object* object)
+{
+	mMessageFactory->StartMessage();
+	mMessageFactory->addUint32(opObjControllerMessage);
+	mMessageFactory->addUint32(0x00000053);
+	mMessageFactory->addUint32(opDataTransform);
+	mMessageFactory->addUint64(object->getId());
+	mMessageFactory->addUint32(0);
+	mMessageFactory->addUint32(object->incDataTransformCounter());
+
+	mMessageFactory->addFloat(object->mDirection.x);
+	mMessageFactory->addFloat(object->mDirection.y);
+	mMessageFactory->addFloat(object->mDirection.z);
+	mMessageFactory->addFloat(object->mDirection.w);
+	mMessageFactory->addFloat(object->mPosition.x);
+	mMessageFactory->addFloat(object->mPosition.y);
+	mMessageFactory->addFloat(object->mPosition.z);
+	mMessageFactory->addUint32(0);
+
+	_sendToInRangeUnreliable(mMessageFactory->EndMessage(),object,5);
+}
+
+//======================================================================================================================
+//
 // move object in cell
 //
 
-void MessageLib::sendDataTransformWithParent(Object* object)
+void MessageLib::sendDataTransformWithParent053(Object* object)
 {
 	mMessageFactory->StartMessage();
 	mMessageFactory->addUint32(opObjControllerMessage);
@@ -1180,7 +1250,6 @@ void MessageLib::sendDataTransformWithParent(Object* object)
 	mMessageFactory->addUint32(0);
 	uint32 u = object->incDataTransformCounter();
 	mMessageFactory->addUint32(u);
-	//gLogger->logMsgF("datatransform counter : %u",MSG_HIGH,u);
 
 	mMessageFactory->addUint64(object->getParentId());
 	mMessageFactory->addFloat(object->mDirection.x);

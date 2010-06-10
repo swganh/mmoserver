@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -80,11 +96,7 @@ void MessageRouter::RouteMessage(Message* message, ConnectionClient* client)
 
 			// Set our destination server
 			message->setDestinationId(dest);
-			message->setSourceId(0);
-			message->setRouted(true);
 			
-			//gLogger->logMsgF("Routing client %u message 0x%.8x to server %u", MSG_NORMAL, client->getAccountId(), opcode, dest);
-
 			// If it's for the connection server, route it locally.
 			if(dest == 1)
 			{
@@ -100,10 +112,7 @@ void MessageRouter::RouteMessage(Message* message, ConnectionClient* client)
 		{
 			// No route found so send it to the ZoneServer the client is on.
 			message->setDestinationId(static_cast<uint8>(client->getServerId()));
-			message->setSourceId(0);
-			message->setRouted(true);
 			mServerManager->SendMessageToServer(message);
-			//gLogger->logMsgF("Routing client %u message 0x%.8x to default zone %u", MSG_NORMAL, client->getAccountId(), opcode, client->getServerId());
 		}
 	}
 	else  // This is from a server and already has a routing header
@@ -114,11 +123,9 @@ void MessageRouter::RouteMessage(Message* message, ConnectionClient* client)
 		if(message->getDestinationId() == 0)
 		{
 			mClientManager->SendMessageToClient(message);
-			//gLogger->logMsgF("Routing server %u message 0x%.8x to client %u", MSG_NORMAL, message->getSourceId(), opcode, message->getAccountId());
 		}
 		else // Send it to the ServerManager
 		{
-			//gLogger->logMsgF("Routing server %u message 0x%.8x to server %u", MSG_NORMAL, message->getSourceId(), opcode, message->getDestinationId());
 			if(message->getDestinationId() == 1)  // This is for us, route it locally.
 			{
 				mConnectionDispatch->handleIncomingMessage(client, message);

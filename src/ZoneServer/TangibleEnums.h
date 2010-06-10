@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -94,17 +110,36 @@ enum TangibleType
 	TanType_BountyDroidTerminal			= 20,
 	TanType_GuildTerminal				= 21,
 	TanType_MissionNewbieTerminal		= 22,
+	TanType_MissionStatueTerminal		= 23,
+	TanType_NewbieClothingTerminal		= 24,
+	TanType_NewbieFoodTerminal			= 25,
+	TanType_NewbieInstrumentTerminal	= 26,
+	TanType_NewbieMedicineTerminal		= 27,
+	TanType_NewbieToolTerminal			= 28,
 	TanType_PlayerStructureTerminal		= 29,
-	TanType_CityVoteTerminal			= 30,
+	TanType_HQRebelTerminal				= 30,
+	TanType_HQImperialTerminal			= 31,
 	TanType_PMRegisterTerminal			= 32,
+	TanType_SKillTerminal				= 33,
+	TanType_CityTerminal				= 34,
+	TanType_PlayerStructureNoSnapTerm	= 35,
+	TanType_CityVoteTerminal			= 36,
+	TanType_PlayerStructureNoSnapMini	= 37,
 	TanType_NymCaveTerminal				= 38,
+	TanType_CommandConsoleTerminal		= 39,
 	TanType_GeoBunkerTerminal			= 40,
+	TanType_BestineQuests3				= 41,
 	TanType_ElevatorUpTerminal			= 42,
 	TanType_ElevatorDownTerminal		= 43,
+	TanType_HQTurrentControlTermainl	= 44,
+	TanType_ImageDesignTerminal			= 45,
+	TanType_WaterPressureTerminal		= 46,
 	TanType_Light_Enc_VotingTerminal	= 47,
 	TanType_Dark_Enc_ChallengeTerminal	= 48,
 	TanType_Dark_Enc_VotingTerminal		= 49,
 	TanType_CharacterBuilderTerminal	= 50,
+	TanType_ShipInteriorSecurity1		= 51,
+	TanType_POBShipTerminal				= 52,
 	TanType_Light_Enc_ChallengeTerminal = 53,
 	TanType_CampTerminal				= 54,
 

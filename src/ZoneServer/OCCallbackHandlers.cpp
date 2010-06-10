@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -57,17 +73,17 @@ void ObjectController::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 			//make sure we have some values set in case the statmigration table wont hold anything on us
 			if(count != 1)
 			{
-				ourHam->setTargetStatValue(HamBar_Health,ourHam->getPropertyValue(HamBar_Health,HamProperty_MaxHitpoints));
-				ourHam->setTargetStatValue(HamBar_Strength,ourHam->getPropertyValue(HamBar_Strength,HamProperty_MaxHitpoints));
-				ourHam->setTargetStatValue(HamBar_Constitution,ourHam->getPropertyValue(HamBar_Constitution,HamProperty_MaxHitpoints));
+				ourHam->setTargetStatValue(HamBar_Health,ourHam->getPropertyValue(HamBar_Health,HamProperty_BaseHitpoints));
+				ourHam->setTargetStatValue(HamBar_Strength,ourHam->getPropertyValue(HamBar_Strength,HamProperty_BaseHitpoints));
+				ourHam->setTargetStatValue(HamBar_Constitution,ourHam->getPropertyValue(HamBar_Constitution,HamProperty_BaseHitpoints));
 
-				ourHam->setTargetStatValue(HamBar_Action,ourHam->getPropertyValue(HamBar_Action,HamProperty_MaxHitpoints));
-				ourHam->setTargetStatValue(HamBar_Quickness,ourHam->getPropertyValue(HamBar_Quickness,HamProperty_MaxHitpoints));
-				ourHam->setTargetStatValue(HamBar_Stamina,ourHam->getPropertyValue(HamBar_Stamina,HamProperty_MaxHitpoints));
+				ourHam->setTargetStatValue(HamBar_Action,ourHam->getPropertyValue(HamBar_Action,HamProperty_BaseHitpoints));
+				ourHam->setTargetStatValue(HamBar_Quickness,ourHam->getPropertyValue(HamBar_Quickness,HamProperty_BaseHitpoints));
+				ourHam->setTargetStatValue(HamBar_Stamina,ourHam->getPropertyValue(HamBar_Stamina,HamProperty_BaseHitpoints));
 
-				ourHam->setTargetStatValue(HamBar_Mind,ourHam->getPropertyValue(HamBar_Mind,HamProperty_MaxHitpoints));
-				ourHam->setTargetStatValue(HamBar_Focus,ourHam->getPropertyValue(HamBar_Focus,HamProperty_MaxHitpoints));
-				ourHam->setTargetStatValue(HamBar_Willpower,ourHam->getPropertyValue(HamBar_Willpower,HamProperty_MaxHitpoints));
+				ourHam->setTargetStatValue(HamBar_Mind,ourHam->getPropertyValue(HamBar_Mind,HamProperty_BaseHitpoints));
+				ourHam->setTargetStatValue(HamBar_Focus,ourHam->getPropertyValue(HamBar_Focus,HamProperty_BaseHitpoints));
+				ourHam->setTargetStatValue(HamBar_Willpower,ourHam->getPropertyValue(HamBar_Willpower,HamProperty_BaseHitpoints));
 
 			}
 			else

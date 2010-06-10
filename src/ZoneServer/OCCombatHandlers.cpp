@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 #include "AttackableCreature.h"
@@ -263,15 +279,13 @@ void ObjectController::_handlePeace(uint64 targetId,Message* message,ObjectContr
 // set target
 //
 
-void ObjectController::setTarget(Message* message)
+void ObjectController::handleSetTarget(Message* message)
 {
 	CreatureObject*  creatureObject = dynamic_cast<CreatureObject*>(mObject);
 
 	//creatureObject->setTarget(gWorldManager->getObjectById(message->getUint64()));
 	creatureObject->setTarget(message->getUint64());	
 	// There is a reason we get data like targets from the client, as handlers (id's) instead of references (pointers).
-
-	// gLogger->logMsgF("ObjectController::setTarget: Object %"PRIu64" targets = %"PRIu64"", MSG_NORMAL, creatureObject->getId(), creatureObject->getTargetId());
 
 	gMessageLib->sendTargetUpdateDeltasCreo6(creatureObject);
 } 
@@ -285,7 +299,6 @@ void ObjectController::setTarget(Message* message)
 
 void ObjectController::_handleDeathBlow(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	// gLogger->logMsgF("ObjectController::_handleDeathBlow: targetId = %"PRIu64"", MSG_NORMAL, targetId);
 	PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
 
 	if (player && targetId)	// Any object targeted?
@@ -316,11 +329,9 @@ void ObjectController::_handleDeathBlow(uint64 targetId,Message* message,ObjectC
 //
 
 void ObjectController::_handleLoot(uint64 targetId, Message *message, ObjectControllerCmdProperties *cmdProperties)
-{
-	// gLogger->logMsgF("ObjectController::_handleLoot: targetId = %"PRIu64"",MSG_NORMAL, targetId);
-	
+{	
 	PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
-	Datapad* datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+	Datapad* datapad			= player->getDataPad();
 
 	// Loot creatures
 	this->lootAll(targetId, player);
@@ -392,8 +403,6 @@ void ObjectController::cloneAtPreDesignatedFacility(PlayerObject* player, SpawnP
 
 void ObjectController::lootAll(uint64 targetId, PlayerObject* playerObject)
 {
-	// gLogger->logMsgF("ObjectController::lootAll Handle for loot_all", MSG_NORMAL);
-
 	// First, we have to have a connected player and a valid source to loot.
 	AttackableCreature* creatureObject = dynamic_cast<AttackableCreature*>(gWorldManager->getObjectById(targetId));
 
@@ -478,7 +487,7 @@ void ObjectController::lootAll(uint64 targetId, PlayerObject* playerObject)
 							{
 								// To little to split.
 								// "GROUP] You split %TU credits and receive %TT credits as your share."
-								gMessageLib->sendSystemMessage(playerObject, L"", "group", "prose_split_coins_self", "", "", L"", 0, "", "", lootCreditsString, 0, 0, 0, "", "", lootCreditsString);
+                gMessageLib->sendSystemMessage(playerObject, L"", "group", "prose_split_coins_self", "", "", L"", 0, "", "", lootCreditsString.getUnicode16(), 0, 0, 0, "", "", lootCreditsString.getUnicode16());
 								// "There are insufficient group funds to split"
 								gMessageLib->sendSystemMessage(playerObject, L"", "error_message", "nsf_to_split");
 							}
@@ -507,7 +516,7 @@ void ObjectController::lootAll(uint64 targetId, PlayerObject* playerObject)
 								splitedLootCreditsString.convert(BSTRType_Unicode16);
 
 								// "GROUP] You split %TU credits and receive %TT credits as your share."
-								gMessageLib->sendSystemMessage(playerObject, L"", "group", "prose_split_coins_self", "", "", L"", 0, "", "", splitedLootCreditsString, 0, 0, 0, "", "", lootCreditsString);
+                gMessageLib->sendSystemMessage(playerObject, L"", "group", "prose_split_coins_self", "", "", L"", 0, "", "", splitedLootCreditsString.getUnicode16(), 0, 0, 0, "", "", lootCreditsString.getUnicode16());
 
 								// Now we need to add the credits to our own inventory.
 								Inventory* playerInventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));

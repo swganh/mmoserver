@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -17,8 +33,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "ObjectControllerCommandMap.h"
 #include "PlayerObject.h"
 #include "UIManager.h"
-#include "Vehicle.h"
-#include "VehicleFactory.h"
+#include "VehicleController.h"
+#include "VehicleControllerFactory.h"
 #include "WorldConfig.h"
 #include "WorldManager.h"
 #include "MessageLib/MessageLib.h"
@@ -35,7 +51,7 @@ void ObjectController::_handleMount(uint64 targetId,Message* message,ObjectContr
 	// And some parameter validation...
 	if (targetId == 0)
 	{
-		gLogger->logMsg("ObjectController::_handleMount : Cannot find vehicle ID :(");
+		gLogger->log(LogManager::DEBUG,"ObjectController::_handleMount : Cannot find vehicle ID :(");
 		return;
 	}
 
@@ -47,31 +63,26 @@ void ObjectController::_handleMount(uint64 targetId,Message* message,ObjectContr
 		if (!player->checkIfMounted())
 		{
 			// verify its player's mount
-			CreatureObject* pet	= dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(targetId));
-			if (pet && (pet->getOwner() == player->getId()))
+			MountObject* pet	= dynamic_cast<MountObject*>(gWorldManager->getObjectById(targetId));
+			if (pet && (pet->owner() == player->getId()))
 			{
 				// get the mount Vehicle object by the id (Creature object id - 1 )
 
-				if(Vehicle* vehicle = dynamic_cast<Vehicle*>(gWorldManager->getObjectById(pet->getPetController())))
+				if(VehicleController* vehicle = dynamic_cast<VehicleController*>(gWorldManager->getObjectById(pet->controller())))
 				{
 					//The /mount command can work up to 32m on live
-                    if(glm::distance(vehicle->getBody()->mPosition, player->mPosition) <= 32)
-					{
-						vehicle->mountPlayer();
-					}
-					else
-					{
+          if(glm::distance(vehicle->body()->mPosition, player->mPosition) <= 32)	{
+						vehicle->MountPlayer();
+					}	else {
 						gMessageLib->sendSystemMessage(player,L"Your target is too far away to mount.");
 					}
 				}
 				else
 				{
-					gLogger->logMsg("ObjectController::_handleMount : Cannot find vehicle");
+					gLogger->log(LogManager::DEBUG,"ObjectController::_handleMount : Cannot find vehicle");
 				}
 			}
-		}
-		else
-		{
+		} else {
 			gMessageLib->sendSystemMessage(player,L"You cannot mount this because you are already mounted.");
 		}
 	}
@@ -91,7 +102,7 @@ void ObjectController::_handleDismount(uint64 targetId,Message* message,ObjectCo
 		if (player->checkIfMounted())
 		{
 			// verify its player's mount
-			CreatureObject* pet = NULL;
+			MountObject* pet = NULL;
 			if (targetId == 0)
 			{
 				// No object targeted, assume the one we are riding.	- what else should we dismount ???
@@ -99,15 +110,15 @@ void ObjectController::_handleDismount(uint64 targetId,Message* message,ObjectCo
 			}
 			else
 			{
-				pet = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(targetId));
+				pet = dynamic_cast<MountObject*>(gWorldManager->getObjectById(targetId));
 			}
 
-			if (pet && (pet->getOwner() == player->getId()))
+			if (pet && (pet->owner() == player->getId()))
 			{
 				// get the pets controller for a swoop its the vehicle
-				if(Vehicle* vehicle = dynamic_cast<Vehicle*>(gWorldManager->getObjectById(pet->getPetController())))
+				if(VehicleController* vehicle = dynamic_cast<VehicleController*>(gWorldManager->getObjectById(pet->controller())))
 				{
-					vehicle->dismountPlayer();
+					vehicle->DismountPlayer();
 				}
 			}
 		}

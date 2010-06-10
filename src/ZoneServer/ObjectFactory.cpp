@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -100,7 +116,7 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asyncContainer->PlayerId));
 			if(!result->getRowCount())
 			{
-				gLogger->logMsg("ObjFactory::handleDatabaseJobComplete   :  create house failed : no result");
+				gLogger->log(LogManager::DEBUG,"ObjFactory::handleDatabaseJobComplete   :  create house failed : no result");
 				break;
 			}
 
@@ -112,7 +128,7 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 			if(!requestId)
 			{
-				gLogger->logMsg("ObjFactory::handleDatabaseJobComplete   :  create house failed : result is 0");
+				gLogger->log(LogManager::DEBUG,"ObjFactory::handleDatabaseJobComplete   :  create house failed : result is 0");
 			}
 			mHouseFactory->requestObject(asyncContainer->ofCallback,requestId,0,0,asyncContainer->client);
 
@@ -130,8 +146,8 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				//delete it out of the inventory
 				inventory->deleteObject(deed);
 				
-				Datapad* thePad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
-				thePad->requestNewWaypoint("Player House",asyncContainer->coords,gWorldManager->getPlanetIdByName(gWorldManager->getPlanetNameThis()),1);
+				Datapad* datapad			= player->getDataPad();
+				datapad->requestNewWaypoint("Player House",asyncContainer->coords,gWorldManager->getPlanetIdByName(gWorldManager->getPlanetNameThis()),1);
 
 			}
 			
@@ -148,7 +164,7 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asyncContainer->PlayerId));
 			if(!result->getRowCount())
 			{
-				gLogger->logMsg("ObjFactory::handleDatabaseJobComplete   :  create Factory failed : no result");
+				gLogger->log(LogManager::DEBUG,"ObjFactory::handleDatabaseJobComplete   :  create Factory failed : no result");
 				break;
 			}
 
@@ -160,7 +176,7 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 			if(!requestId)
 			{
-				gLogger->logMsg("ObjFactory::handleDatabaseJobComplete   :  create Factory failed : result is 0");
+				gLogger->log(LogManager::DEBUG,"ObjFactory::handleDatabaseJobComplete   :  create Factory failed : result is 0");
 			}
 			mFactoryFactory->requestObject(asyncContainer->ofCallback,requestId,0,0,asyncContainer->client);
 
@@ -179,8 +195,8 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				//delete it out of the inventory
 				inventory->deleteObject(deed);
 
-				Datapad* thePad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
-				thePad->requestNewWaypoint("Player Factory",asyncContainer->coords,gWorldManager->getPlanetIdByName(gWorldManager->getPlanetNameThis()),1);
+				Datapad* datapad			= player->getDataPad();
+				datapad->requestNewWaypoint("Player Factory",asyncContainer->coords,gWorldManager->getPlanetIdByName(gWorldManager->getPlanetNameThis()),1);
 			}
 			
 			// now we need to link the deed to the factory in the db and remove it out of the inventory in the db
@@ -195,7 +211,7 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 		{
 			if(!result->getRowCount())
 			{
-				gLogger->logMsg("ObjFactory::handleDatabaseJobComplete   :  create Harvester failed");
+				gLogger->log(LogManager::DEBUG,"ObjFactory::handleDatabaseJobComplete   :  create Harvester failed");
 				break;
 			}
 
@@ -225,8 +241,8 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					//delete it out of the inventory
 					inventory->deleteObject(deed);
 
-					Datapad* thePad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
-					thePad->requestNewWaypoint("Harvester",asyncContainer->coords,gWorldManager->getPlanetIdByName(gWorldManager->getPlanetNameThis()),1);
+					Datapad* datapad			= player->getDataPad();
+					datapad->requestNewWaypoint("Harvester",asyncContainer->coords,gWorldManager->getPlanetIdByName(gWorldManager->getPlanetNameThis()),1);
 
 				}
 				
@@ -236,7 +252,7 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
 			}
 			else
-				gLogger->logMsg("ObjFactory::handleDatabaseJobComplete   :  create Harvester failed");
+				gLogger->log(LogManager::DEBUG,"ObjFactory::handleDatabaseJobComplete   :  create Harvester failed");
 		}
 		break;
 
@@ -251,7 +267,7 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			if(requestId)
 				mWaypointFactory->requestObject(asyncContainer->ofCallback,requestId,0,0,asyncContainer->client);
 			else
-				gLogger->logMsg("ObjFactory::createWaypoint failed");
+				gLogger->log(LogManager::DEBUG,"ObjFactory::createWaypoint failed");
 		}
 		break;
 
@@ -266,7 +282,7 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			if(requestId)
 				mTangibleFactory->requestObject(asyncContainer->ofCallback,requestId,TanGroup_Item,0,asyncContainer->client);
 			else
-				gLogger->logMsg("ObjFactory::createItem failed");
+				gLogger->log(LogManager::DEBUG,"ObjFactory::createItem failed");
 		}
 		break;
 
@@ -281,7 +297,7 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			if(requestId)
 				mTangibleFactory->requestObject(asyncContainer->ofCallback,requestId,TanGroup_ResourceContainer,0,asyncContainer->client);
 			else
-				gLogger->logMsg("ObjFactory::createResourceContainer failed");
+				gLogger->log(LogManager::DEBUG,"ObjFactory::createResourceContainer failed");
 		}
 		break;
 
@@ -348,7 +364,7 @@ void ObjectFactory::requestNewDefaultItemWithUses(ObjectFactoryCallback* ofCallb
 {
 	OFAsyncContainer* asyncContainer = new(mDbAsyncPool.ordered_malloc()) OFAsyncContainer(ofCallback,OFQuery_Item,NULL);
 
-	mDatabase->ExecuteSqlAsync(this,asyncContainer,"CALL sp_CreateForagedItem(%u,%u,%"PRIu64",%"PRIu64",%u,%f,%f,%f,'%s',%d)",familyId,typeId,parentId,(uint64) 0,planetId,position.x,position.y,position.z,customName.getAnsi(), useCount);
+	mDatabase->ExecuteProcedureAsync(this,asyncContainer,"CALL sp_CreateForagedItem(%u,%u,%"PRIu64",%"PRIu64",%u,%f,%f,%f,'%s',%d)",familyId,typeId,parentId,(uint64) 0,planetId,position.x,position.y,position.z,customName.getAnsi(), useCount);
 }
 
 
@@ -439,11 +455,11 @@ void ObjectFactory::requestnewHarvesterbyDeed(ObjectFactoryCallback* ofCallback,
 	}
 
 
-	gLogger->logMsgF("New Harvester dir is %f, x:%f, y:%f, z:%f, w:%f",MSG_HIGH,dir,oX, oY, oZ, oW);
+	gLogger->log(LogManager::DEBUG,"New Harvester dir is %f, x:%f, y:%f, z:%f, w:%f",dir,oX, oY, oZ, oW);
 
 	sprintf(sql,"SELECT sf_DefaultHarvesterCreate(%u,0,%"PRIu64",%u,%f,%f,%f,%f,%f,%f,%f,'%s',%I64u)",deedLink->structure_type, player->getId(), gWorldManager->getZoneId(),oX,oY,oZ,oW,x,y,z,customName.getAnsi(),deed->getId());
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
-	gLogger->logMsgF(sql,MSG_HIGH);
+	gLogger->log(LogManager::DEBUG,sql);
 
 }
 
@@ -501,11 +517,11 @@ void ObjectFactory::requestnewFactorybyDeed(ObjectFactoryCallback* ofCallback,De
 	}
 
 
-	gLogger->logMsgF("New Factory dir is %f, x:%f, y:%f, z:%f, w:%f",MSG_HIGH,dir,oX, oY, oZ, oW);
+	gLogger->log(LogManager::DEBUG,"New Factory dir is %f, x:%f, y:%f, z:%f, w:%f",dir,oX, oY, oZ, oW);
 
 	sprintf(sql,"SELECT sf_DefaultFactoryCreate(%u,0,%"PRIu64",%u,%f,%f,%f,%f,%f,%f,%f,'%s',%I64u)",deedLink->structure_type, player->getId(), gWorldManager->getZoneId(),oX,oY,oZ,oW,x,y,z,customName.getAnsi(),deed->getId());
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
-	gLogger->logMsgF(sql,MSG_HIGH);
+	gLogger->log(LogManager::DEBUG,sql);
 
 }
 
@@ -537,9 +553,9 @@ void ObjectFactory::requestnewHousebyDeed(ObjectFactoryCallback* ofCallback,Deed
 	if(dir== 1.0)	 //ok
 	{
 		oX = 0.0;
-		oY = static_cast<float>(0.707107);
+		oY = 0.707107f;
 		oZ = 0.0;
-		oW = static_cast<float>(0.707107);
+		oW = 0.707107f;
 	}
 
 	if(dir== 2.0)
@@ -553,17 +569,17 @@ void ObjectFactory::requestnewHousebyDeed(ObjectFactoryCallback* ofCallback,Deed
 	if(dir== 3.0)
 	{
 		oX = 0;
-		oY = static_cast<float>(-0.707107);
+		oY = -0.707107f;
 		oZ = 0;
-		oW = static_cast<float>(0.707107);
+		oW = 0.707107f;
 	}
 
 
-	gLogger->logMsgF("New House dir is %f, x:%f, y:%f, z:%f, w:%f",MSG_HIGH,dir,oX, oY, oZ, oW);
+	gLogger->log(LogManager::DEBUG,"New House dir is %f, x:%f, y:%f, z:%f, w:%f",dir,oX, oY, oZ, oW);
 
 	sprintf(sql,"SELECT sf_DefaultHouseCreate(%u,0,%"PRIu64",%u,%f,%f,%f,%f,%f,%f,%f,'%s',%I64u)",deedLink->structure_type, player->getId(), gWorldManager->getZoneId(),oX,oY,oZ,oW,x,y,z,customName.getAnsi(),deed->getId());
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
-	gLogger->logMsgF(sql,MSG_HIGH);
+	gLogger->log(LogManager::DEBUG,sql);
 }
 
 //=============================================================================
@@ -933,7 +949,7 @@ void ObjectFactory::requestObject(ObjectType objType,uint16 subGroup,uint16 subT
 		break;
 
 		default:
-			gLogger->logMsg("ObjectFactory::requestObject Unknown Object type");
+			gLogger->log(LogManager::DEBUG,"ObjectFactory::requestObject Unknown Object type");
 		break;
 	}
 }

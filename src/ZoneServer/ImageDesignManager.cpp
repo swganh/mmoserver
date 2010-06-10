@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -69,14 +85,21 @@ HoloStruct* EntertainerManager::getHoloEmoteByClientCRC(uint32 crc)
 string EntertainerManager::getHoloNames()
 {
 	int8 collection[512];
-	//sprintf(collection,"");
+	sprintf(collection,"");
+	bool isNew = true;
 
 	HoloEmoteEffects::iterator it = mHoloList.begin();
 	while(it != mHoloList.end())
 	{
 		if ((*it)->pCRC != BString("all").getCrc())
 		{
-			sprintf(collection,"%s, %s",collection,(*it)->pEmoteName);
+			if(isNew)
+			{
+				sprintf(collection,"%s",(*it)->pEmoteName);
+				isNew = false;
+			}
+			else
+				sprintf(collection,"%s, %s",collection,(*it)->pEmoteName);
 		}
 		it++;
 	}
@@ -285,7 +308,7 @@ uint32 EntertainerManager::getIdXP(string attribute, uint16 value)
 	IDStruct*	iDContainer = getIDAttribute(attribute.getCrc());
 	if(!iDContainer)
 	{
-		gLogger->logMsgF("couldnt find attribute container", MSG_NORMAL);
+		gLogger->log(LogManager::DEBUG,"couldnt find attribute container");
 		return 0;
 	}
 	return iDContainer->XP;
@@ -297,7 +320,7 @@ uint32 EntertainerManager::getIdXP(string attribute, uint16 value)
 string EntertainerManager::commitIdColor(PlayerObject* customer, string attribute, uint16 value)
 {
 
-	gLogger->logMsgF("ID : Color Attribute : %s", MSG_NORMAL,attribute.getAnsi());
+	gLogger->log(LogManager::DEBUG,"ID : Color Attribute : %s",attribute.getAnsi());
 
 	string		genderrace;
 	int8		mString[64];
@@ -311,12 +334,12 @@ string EntertainerManager::commitIdColor(PlayerObject* customer, string attribut
 	Token = strtok(mString,separation);
 	genderrace = Token;
 
-	gLogger->logMsgF("ID commit color : gender / race crc : %u", MSG_NORMAL,genderrace.getCrc());
+	gLogger->log(LogManager::DEBUG,"ID commit color : gender / race crc : %u", genderrace.getCrc());
 
 	IDStruct*	iDContainer = getIDAttribute(attribute.getCrc(),genderrace.getCrc());
 	if(!iDContainer)
 	{
-		gLogger->logMsgF("ID : Color Attribute : couldnt find attribute container", MSG_NORMAL);
+		gLogger->log(LogManager::DEBUG,"ID : Color Attribute : couldnt find attribute container");
 		return(BString(""));
 	}
 
@@ -367,7 +390,7 @@ string EntertainerManager::commitIdColor(PlayerObject* customer, string attribut
 		}
 		else
 		{
-			gLogger->logMsgF("ID : Color Attribute : No hair object exists", MSG_NORMAL);
+			gLogger->log(LogManager::DEBUG,"ID : Color Attribute : No hair object exists");
 			return BString("");
 		}
 	}
@@ -410,12 +433,12 @@ string EntertainerManager::commitIdAttribute(PlayerObject* customer, string attr
 	Token = strtok(mString,separation); //
 	genderrace = Token;
 
-	gLogger->logMsgF("ID commit attribute : gender / race crc : %u", MSG_NORMAL,genderrace.getCrc());
+	gLogger->log(LogManager::DEBUG,"ID commit attribute : gender / race crc : %u",genderrace.getCrc());
 	IDStruct*	iDContainer = getIDAttribute(attribute.getCrc(),genderrace.getCrc());
 
 	if(!iDContainer)
 	{
-		gLogger->logMsgF("couldnt find attribute container", MSG_NORMAL);
+		gLogger->log(LogManager::DEBUG,"couldnt find attribute container");
 		return(BString(""));
 	}
 
@@ -428,7 +451,7 @@ string EntertainerManager::commitIdAttribute(PlayerObject* customer, string attr
 	if (uVal == 255)
 		uVal = 767;
 
-	gLogger->logMsgF("ID commit attribute : value : %f %u (%f)", MSG_NORMAL,value,uVal,fValue);
+	gLogger->log(LogManager::DEBUG,"ID commit attribute : value : %f %u (%f)",value,uVal,fValue);
 
 	//CAVE chest is handled over 2 attributes I cant find the 2nd apart from 2b in the list
 	//however when you ahh 80h to the 2b (first attribute) you get to the so called 2 attribute version
@@ -634,6 +657,36 @@ void EntertainerManager::applyMoney(PlayerObject* customer,PlayerObject* designe
 }
 
 //=============================================================================
+//forcibly ends the design session should the customer refuse to
+//
+bool EntertainerManager::handleImagedesignTimeOut(CreatureObject* designer)
+{
+	//check whether (the old) ID Session is still active
+	//if the session has been ended, we have been removed, anyway
+	PlayerObject* imageDesigner = dynamic_cast<PlayerObject*>(designer);
+	
+	if(imageDesigner->getImageDesignSession() != IDSessionID)
+	{
+		//Panik!!!!!!!
+		gLogger->log(LogManager::DEBUG,"ID force close session : id is not id !!!");
+		return false;
+	}
+
+	PlayerObject* customer = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(imageDesigner->getIDPartner()));
+	//gMessageLib->sendIDEndMessage(,);
+	gMessageLib->sendIDEndMessage(customer,customer,imageDesigner,"", 0,0, 0,0,0,0,0);
+
+	imageDesigner->setIDPartner(0);
+	customer->setIDPartner(0);
+	imageDesigner->SetImageDesignSession(IDSessionNONE);
+	customer->SetImageDesignSession(IDSessionNONE);
+
+	return false;
+
+}
+
+
+//=============================================================================
 //commits the changes of the ID session
 //
 void EntertainerManager::commitIdChanges(PlayerObject* customer,PlayerObject* designer, string hair, uint32 amount,uint8 statMigration, string holoEmote,uint8 flagHair)
@@ -678,7 +731,7 @@ void EntertainerManager::commitIdChanges(PlayerObject* customer,PlayerObject* de
 
 	while(it != aList->end())
 	{
-		gLogger->logMsgF("ID apply changes : attribute : %s crc : %u", MSG_NORMAL,it->first.getAnsi(),it->first.getCrc());
+		gLogger->log(LogManager::DEBUG,"ID apply changes : attribute : %s crc : %u", it->first.getAnsi(),it->first.getCrc());
 		//apply the attributes and retrieve the data to update the db
 		if(it->first.getCrc() != BString("height").getCrc())
 		{
@@ -706,7 +759,7 @@ void EntertainerManager::commitIdChanges(PlayerObject* customer,PlayerObject* de
 	ColorList::iterator cIt = cList->begin();
 	while(cIt != cList->end())
 	{
-		gLogger->logMsgF("ID apply changes : attribute : %s crc : %u", MSG_NORMAL,cIt->first.getAnsi(),cIt->first.getCrc());
+		gLogger->log(LogManager::DEBUG,"ID apply changes : attribute : %s crc : %u",cIt->first.getAnsi(),cIt->first.getCrc());
 		data = commitIdColor(customer, cIt->first, cIt->second);
 		if(data.getLength())
 		{
@@ -727,7 +780,7 @@ void EntertainerManager::commitIdChanges(PlayerObject* customer,PlayerObject* de
 	if(strlen(mySQL) > 33)
 	{
 		sprintf(sql,"%s where character_id = '%"PRIu64"'",mySQL,customer->getId());
-		gLogger->logMsgF("ID apply changes : sql: %s ", MSG_NORMAL,sql);
+		gLogger->log(LogManager::DEBUG,"ID apply changes : sql: %s ",sql);
 		asyncContainer = new EntertainerManagerAsyncContainer(EMQuery_NULL,0);
 		mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
 	}
@@ -815,7 +868,7 @@ void EntertainerManager::applyHoloEmote(PlayerObject* customer,string holoEmote)
 	HoloStruct* myEmote = getHoloEmoteByClientCRC(holoEmote.getCrc());
 	if(!myEmote)
 	{
-		gLogger->logMsgF("ID : applyHoloEmote : canot retrieve HoloEmote Data %s : %u", MSG_NORMAL,holoEmote.getAnsi(),holoEmote.getCrc());
+		gLogger->log(LogManager::DEBUG,"ID : applyHoloEmote : canot retrieve HoloEmote Data %s : %u",holoEmote.getAnsi(),holoEmote.getCrc());
 		return;
 	}
 
@@ -834,9 +887,40 @@ void EntertainerManager::applyHoloEmote(PlayerObject* customer,string holoEmote)
 
 	//send message box holoemote bought
 
-	sprintf(sql,"Your current Holo Emote is %s.\xa You have 20 charges remaining. \xa To play your Holoemote type \x2fHoloemote.\xa To delete your Holo Emote type \x2fHoloemote delete. \xa Purchasing a new Holo Emote will automatically delete your current Holo Emote.",myEmote->pEmoteName);
+	bool lotsOfStuff = false;
 
-	gUIManager->createNewMessageBox(NULL,"holoHelpOff","Holo Help",sql,customer);
+	if(!strcmp(myEmote->pEmoteName,"all"))
+		{
+			lotsOfStuff = true;
+		}
+
+		//just give help
+		int8 sql1[512];
+
+		if(lotsOfStuff)
+		{
+			sprintf(sql1,"Your Holo-Emote generator can play all Holo-Emotes available. You have %u charges remaining."
+			"\xa To play your Holo-Emote type \x2fholoemote \x3cname\x3e.\xa To delete your Holo-Emote type \x2fholoemote delete. "
+			"\xa Purchasing a new Holo-Emote will automatically delete your current Holo-Emote.",customer->getHoloCharge());
+
+			sprintf(sql,"%s \xa \xa The available Holo-Emote names are: \xa \xa"
+			"Beehive \x9 \x9 Blossom \x9 Brainstorm \xa"
+			"Bubblehead \x9 Bullhorns \x9 Butterflies \xa"
+			"Champagne \x9 Haunted \x9 Hearts \xa"
+			"Hologlitter \x9 \x9 Holonotes \x9 Imperial \xa"
+			"Kitty \x9 \x9 \x9 Phonytail \x9 Rebel \xa"
+			"Sparky",sql1);
+		}
+		else
+		{
+			sprintf(sql,"Your current Holo Emote is %s.\xa You have %u charges remaining."
+			"\xa To play your Holo-Emote type \x2fholoemote %s.\xa To delete your Holo-Emote type \x2fholoemote delete. "
+			"\xa Purchasing a new Holo-Emote will automatically delete your current Holo-Emote.",myEmote->pEmoteName,customer->getHoloCharge(),myEmote->pEmoteName);
+		}
+
+		
+
+		gUIManager->createNewMessageBox(NULL,"holoHelpOff","Holo-Emote Help",sql,customer);
 }
 
 //=============================================================================

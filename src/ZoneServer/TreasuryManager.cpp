@@ -1,11 +1,27 @@
  /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -314,7 +330,16 @@ void TreasuryManager::saveAndUpdateBankCredits(PlayerObject* playerObject)
 
 void TreasuryManager::bankTipOffline(int32 amount,PlayerObject* playerObject,string targetName)
 {
-	if(amount > dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->getCredits())
+
+	//============================================
+	//check whether we have sufficient funds
+	//dont forget the surcharge
+	Bank* bank = dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
+	int32 credits = bank->getCredits();
+
+	int32 surcharge = (int32)((amount/100)*5);
+
+	if((amount + surcharge) > credits)
 	{
 		string uniName = targetName;
 		uniName.convert(BSTRType_Unicode16);
@@ -332,6 +357,7 @@ void TreasuryManager::bankTipOffline(int32 amount,PlayerObject* playerObject,str
 	TreasuryManagerAsyncContainer* asyncContainer;
 	asyncContainer = new TreasuryManagerAsyncContainer(TREMQuery_BankTipgetId,playerObject->getClient());
 	asyncContainer->amount = amount;
+	asyncContainer->surcharge = surcharge;
 	asyncContainer->targetName = targetName;
 	asyncContainer->player = playerObject;
 
@@ -404,6 +430,63 @@ void TreasuryManager::inventoryTipOnline(int32 amount, PlayerObject* playerObjec
 }
 
 //======================================================================================================================
+//we confirmed that we are content with the surcharge and go on
+//reuse the asynccontainer
+void TreasuryManager::handleBankTipSurchargeConfirmed(TreasuryManagerAsyncContainer* asyncContainer)
+{
+	Transaction* mTransaction = mDatabase->startTransaction(this,asyncContainer);
+	int8 sql[256];
+	sprintf(sql,"UPDATE banks SET credits=credits-%i WHERE id=%"PRIu64"",(asyncContainer->amount+asyncContainer->surcharge), asyncContainer->player->getId() + 4);
+	mTransaction->addQuery(sql);
+	sprintf(sql,"UPDATE banks SET credits=credits+%i WHERE id=%"PRIu64"",asyncContainer->amount, asyncContainer->targetId + 4);
+	mTransaction->addQuery(sql);
+	mTransaction->execute();
+
+}
+
+//======================================================================================================================
+
+void TreasuryManager::handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window)
+{
+	// gLogger->logMsgF("CloningTerminal::handleUIEvent You are here!",MSG_NORMAL);
+
+	if(window == NULL)
+	{
+		return;
+	}
+
+	PlayerObject* playerObject = window->getOwner(); // window owner
+
+	if(playerObject == NULL || !playerObject->isConnected() || playerObject->getSamplingState() || playerObject->isIncapacitated() || playerObject->isDead() || playerObject->checkState(CreatureState_Combat))
+	{
+		return;
+	}
+
+	switch(window->getWindowType())
+	{
+		case SUI_Window_Trade_BankTip_ConfirmSurcharge:
+		{
+			if (action == 1)
+			{
+				// That's the Cancel.
+				//what 
+			}
+			else
+			{
+				// This is the OK.  (action == 0)
+				
+				TreasuryManagerAsyncContainer* asynContainer = (TreasuryManagerAsyncContainer*) window->getAsyncContainer();
+				handleBankTipSurchargeConfirmed(asynContainer);
+			}
+		}
+		break;
+	}
+
+
+}
+
+
+//======================================================================================================================
 
 void TreasuryManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 {
@@ -426,26 +509,20 @@ void TreasuryManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 			binding->addField(DFT_uint64,0,8);
 			result->GetNextRow(binding,&id);
 
-			//uint32 amount = asynContainer->amount;
-
 			//ok we just established that our target exists
 			//we now need to update the bank on the db side
 			TreasuryManagerAsyncContainer* asyncContainer = new TreasuryManagerAsyncContainer(TREMQuery_BankTipTransaction,asynContainer->player->getClient());
 
-			asyncContainer->amount = asynContainer->amount;
-			asyncContainer->player = asynContainer->player;
-			asyncContainer->targetId = id;
+			asyncContainer->amount		= asynContainer->amount;
+			asyncContainer->surcharge	= asynContainer->surcharge;
+			asyncContainer->player		= asynContainer->player;
+			asyncContainer->targetId	= id;
 			asyncContainer->targetName = asynContainer->targetName;
 
-			Transaction* mTransaction = mDatabase->startTransaction(this,asyncContainer);
-			int8 sql[256];
-			sprintf(sql,"UPDATE banks SET credits=credits-%i WHERE id=%"PRIu64"",asynContainer->amount, asynContainer->player->getId()+4);
-			mTransaction->addQuery(sql);
-			sprintf(sql,"UPDATE banks SET credits=credits+%i WHERE id=%"PRIu64"",asynContainer->amount, id+4);
-			mTransaction->addQuery(sql);
-
-			mTransaction->execute();
-
+			//=======================================================
+			//now remind the other player of the surcharge
+			gUIManager->createNewMessageBox(this,"","@base_player:tip_wire_title","@base_player:tip_wire_prompt",asynContainer->player, SUI_Window_Trade_BankTip_ConfirmSurcharge, SUI_MB_OKCANCEL,asyncContainer);
+			
 		   break;
 
 
@@ -469,10 +546,34 @@ void TreasuryManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 				gMessageLib->sendBankCreditsUpdate(asynContainer->player);
 				gMessageLib->sendBankTipDustOff(asynContainer->player,asynContainer->targetId,asynContainer->amount,asynContainer->targetName);
 				//notify the chatserver for the EMails and the off zone accounts
+
+				int8 sql[1024];
+
+				//CAVE galaxy id is hardcoded!!!!!!1
+				int8 galaxyId = 2;
+
+				sprintf(sql, "CALL sp_GalaxyAccountDepositCredits(%u, %u, %"PRIu64",%u",galaxyId, Account_TipSurcharge, asynContainer->player, asynContainer->surcharge);
+				TreasuryManagerAsyncContainer* asyncContainer = new TreasuryManagerAsyncContainer(TREMQuery_BankTipUpdateGalaxyAccount,0);
+				
+				mDatabase->ExecuteProcedureAsync(this,asyncContainer,sql);
 			}
 			else
 			{
 				gMessageLib->sendSystemMessage(asynContainer->player, L"","error_message","bank_error");
+			}
+		}
+		break;
+
+		case TREMQuery_BankTipUpdateGalaxyAccount:
+		{
+			uint32 error;
+			DataBinding* binding = mDatabase->CreateDataBinding(1);
+			binding->addField(DFT_uint32,0,4);
+			result->GetNextRow(binding,&error);
+
+			if (error > 0)
+			{
+				gLogger->log(LogManager::DEBUG,"TreasuryManager::Account_TipSurcharge: error %u", error);
 			}
 		}
 		break;

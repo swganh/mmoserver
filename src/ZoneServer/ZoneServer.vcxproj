@@ -53,7 +53,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;_WIN32_WINNT=0x0501;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;BOOST_HAS_STDINT_H;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;_WIN32_WINNT=0x0501;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <AdditionalIncludeDirectories>$(SolutionDir)deps;$(SolutionDir)deps\boost;$(SolutionDir)deps\glm;$(SolutionDir)deps\lua\src;$(SolutionDir)deps\noise\src;$(SolutionDir)deps\spatialindex\include;$(SolutionDir)deps\spatialindex\tools\include;$(SolutionDir)src</AdditionalIncludeDirectories>
     </ClCompile>
@@ -75,7 +75,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;_WIN32_WINNT=0x0501;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;BOOST_HAS_STDINT_H;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;_WIN32_WINNT=0x0501;BOOST_HAS_STDINT_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <AdditionalIncludeDirectories>$(SolutionDir)deps;$(SolutionDir)deps\boost;$(SolutionDir)deps\glm;$(SolutionDir)deps\lua\src;$(SolutionDir)deps\noise\src;$(SolutionDir)deps\spatialindex\include;$(SolutionDir)deps\spatialindex\tools\include;$(SolutionDir)src</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -193,8 +193,8 @@
     <ClCompile Include="MissionTerminal.cpp" />
     <ClCompile Include="MountObject.cpp" />
     <ClCompile Include="MovingObject.cpp" />
-    <ClCompile Include="noiseutils.cpp" />
-    <ClCompile Include="nonPersistantObjectFactory.cpp" />
+    <ClCompile Include="Noiseutils.cpp" />
+    <ClCompile Include="NonPersistantObjectFactory.cpp" />
     <ClCompile Include="NonPersistentItemFactory.cpp" />
     <ClCompile Include="NonPersistentNpcFactory.cpp" />
     <ClCompile Include="NpcManager.cpp" />
@@ -326,8 +326,8 @@
     <ClCompile Include="UIMessageBox.cpp" />
     <ClCompile Include="UITransferBox.cpp" />
     <ClCompile Include="UIWindow.cpp" />
-    <ClCompile Include="Vehicle.cpp" />
-    <ClCompile Include="VehicleFactory.cpp" />
+    <ClCompile Include="VehicleController.cpp" />
+    <ClCompile Include="VehicleControllerFactory.cpp" />
     <ClCompile Include="WaypointFactory.cpp" />
     <ClCompile Include="WaypointObject.cpp" />
     <ClCompile Include="Weapon.cpp" />
@@ -424,6 +424,8 @@
     <ClInclude Include="ForageManager.h" />
     <ClInclude Include="Furniture.h" />
     <ClInclude Include="GroupManager.h" />
+    <ClInclude Include="GroupManagerCallback.h" />
+    <ClInclude Include="GroupManagerCallbackContainer.h" />
     <ClInclude Include="GroupManagerHandler.h" />
     <ClInclude Include="GroupObject.h" />
     <ClInclude Include="Ham.h" />
@@ -493,6 +495,8 @@
     <ClInclude Include="QuadTree.h" />
     <ClInclude Include="QuadTreeNode.h" />
     <ClInclude Include="QuestGiver.h" />
+    <ClInclude Include="quickHealInjuryEvent.h" />
+    <ClInclude Include="QuickHealInjuryTreatmentEvent.h" />
     <ClInclude Include="RadialEnums.h" />
     <ClInclude Include="RadialMenu.h" />
     <ClInclude Include="RadialMenuItem.h" />
@@ -559,8 +563,8 @@
     <ClInclude Include="UITicketSelectListBox.h" />
     <ClInclude Include="UITransferBox.h" />
     <ClInclude Include="UIWindow.h" />
-    <ClInclude Include="Vehicle.h" />
-    <ClInclude Include="VehicleFactory.h" />
+    <ClInclude Include="VehicleController.h" />
+    <ClInclude Include="VehicleControllerFactory.h" />
     <ClInclude Include="WaypointFactory.h" />
     <ClInclude Include="WaypointObject.h" />
     <ClInclude Include="Weapon.h" />
@@ -570,6 +574,7 @@
     <ClInclude Include="WorldConfig.h" />
     <ClInclude Include="WorldManager.h" />
     <ClInclude Include="WorldManagerEnums.h" />
+    <ClInclude Include="WoundTreatmentEvent.h" />
     <ClInclude Include="ZoneOpcodes.h" />
     <ClInclude Include="ZoneServer.h" />
     <ClInclude Include="ZoneTree.h" />

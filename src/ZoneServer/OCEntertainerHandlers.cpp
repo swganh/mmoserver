@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 #include "BankTerminal.h"
@@ -75,7 +91,7 @@ void ObjectController::_handlewatch(uint64 targetId,Message* message,ObjectContr
 	if(!targetPlayer)
 	{
 		gMessageLib->sendSystemMessage(targetPlayer,L"","performance","dance_watch_npc");
-		gLogger->logMsgF("OC :: handle startwatch No entertainer", MSG_NORMAL);
+		gLogger->log(LogManager::DEBUG,"OC :: handle startwatch No entertainer");
 		return;
 	}
 	gEntertainerManager->startWatching((PlayerObject*)mObject, targetPlayer);
@@ -98,7 +114,6 @@ void ObjectController::_handlelisten(uint64 targetId,Message* message,ObjectCont
 	if(!targetPlayer)
 	{
 		gMessageLib->sendSystemMessage(targetPlayer,L"","performance","music_listen_npc");
-		//gLogger->logMsgF("OC :: handle startwatch No entertainer", MSG_NORMAL);
 		return;
 	}
 
@@ -435,7 +450,7 @@ void ObjectController::_handlestartdance(uint64 targetId,Message* message,Object
 
 	if(performer->checkStatesEither(CreatureState_Combat | CreatureState_Tumbling | CreatureState_Swimming | CreatureState_Crafting))
 	{
-		gMessageLib->sendSystemMessage(performer,L"You cannot do this at this time.");
+		gMessageLib->sendSystemMessage(performer,L"", "error_message", "wrong_state");
 		return;
 	}
 
@@ -519,7 +534,7 @@ void ObjectController::_handlestartmusic(uint64 targetId,Message* message,Object
 
 	if(performer->checkStatesEither(CreatureState_Combat | CreatureState_Tumbling | CreatureState_Swimming))
 	{
-		gMessageLib->sendSystemMessage(performer,L"You cannot do this at this time.");
+		gMessageLib->sendSystemMessage(performer,L"", "error_message", "wrong_state");
 		return;
 	}
 
@@ -594,27 +609,8 @@ void ObjectController::_handlestartmusic(uint64 targetId,Message* message,Object
 void ObjectController::_handleStopBand(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
 	PlayerObject*	performer	= dynamic_cast<PlayerObject*>(mObject);
-	bool music = false;
 
-	PlayerList members;
-	members = performer->getInRangeGroupMembers(true);
-	PlayerList::iterator memberIt = members.begin();
-	while(memberIt != members.end())
-	{
-		//check if we are performing
-		if((*memberIt)->getPerformingState() != PlayerPerformance_None)
-		{
-			music = true;
-			gEntertainerManager->stopEntertaining((*memberIt));
-
-			if((*memberIt) != performer)
-				gMessageLib->sendSystemMessage((*memberIt),L"","performance","music_stop_band_members","","",L"",0,"","",L"",0,0,performer->getId());
-
-		}
-		memberIt++;
-	}
-	if(music)
-			gMessageLib->sendSystemMessage(performer,L"","performance","music_stop_band_self");
+	gEntertainerManager->StopBand(performer);
 }
 
 //======================================================================================================================
@@ -627,7 +623,7 @@ void ObjectController::_handleStartBand(uint64 targetId,Message* message,ObjectC
 
 	if(performer->checkStatesEither(CreatureState_Combat | CreatureState_Tumbling | CreatureState_Swimming))
 	{
-		gMessageLib->sendSystemMessage(performer,L"You cannot do this at this time.");
+		gMessageLib->sendSystemMessage(performer,L"", "error_message", "wrong_state");
 		return;
 	}
 
@@ -645,128 +641,12 @@ void ObjectController::_handleStartBand(uint64 targetId,Message* message,ObjectC
 
 	}
 
-	PlayerList members;
-
-	members = performer->getInRangeGroupMembers(true);
-	bool music = true;
-
 	//get song
 	string dataStr;
 	message->getStringUnicode16(dataStr);
 	dataStr.convert(BSTRType_ANSI);
 
-	//check if this is a valid song we - as bandleader - can perform.
-	//then pass it to the band
-	//otherwise open listbox to check
-
-	SkillCommandList*	entertainerSkillCommands = performer->getSkillCommands();
-	SkillCommandList::iterator entertainerIt = entertainerSkillCommands->begin();
-
-	int8 musicStr[32];
-	sprintf(musicStr,"startmusic+%s",dataStr.getAnsi());
-
-	//check if we can perform the song
-	bool found = false;
-	if(dataStr.getLength() >0 )
-	{
-		//check if we are able to perform this piece of music
-		while(entertainerIt != entertainerSkillCommands->end())
-		{
-			string mEntertainerString = gSkillManager->getSkillCmdById((*entertainerIt));
-			//look for our selected dance
-			if(BString(musicStr).getCrc() == mEntertainerString.getCrc() )
-			{
-				//yay we are able to perform this dance :)
-				found = true;
-			}
-			entertainerIt++;
-		}
-	}
-
-	if (found == false)
-	{
-		//gMessageLib->sendSystemMessage(performer,L"","performance","music_invalid_song");
-		//however we might be able to squeeze the dancers in
-		music = false;
-		SkillCommandList::iterator entertainerIt = entertainerSkillCommands->begin();
-		sprintf(musicStr,"startdance+%s",dataStr.getAnsi());
-
-		//check if we can perform the dance
-		found = false;
-		if(dataStr.getLength() >0 )
-		{
-			//check if we are able to perform this piece of dance
-			while(entertainerIt != entertainerSkillCommands->end())
-			{
-				string mEntertainerString = gSkillManager->getSkillCmdById((*entertainerIt));
-				//look for our selected dance
-				if(BString(musicStr).getCrc() == mEntertainerString.getCrc() )
-				{
-					//yay we are able to perform this dance :)
-					found = true;
-				}
-				entertainerIt++;
-			}
-		}
-
-
-	}
-
-	if (found == false)
-	{
-		gMessageLib->sendSystemMessage(performer,L"","performance","music_invalid_song");
-		return;
-	}
-
-	//iterate through every groupmember and invoke starband on the EntertainerManager who will check if the song
-	//is playable by the bandmember
-
-	//check if anybody is still playing
-	bool playCheck = true;
-
-	PlayerList::iterator memberIt = members.begin();
-	while(memberIt != members.end())
-	{
-		//check if we are performing
-		if((*memberIt)->getPerformingState() != PlayerPerformance_None)
-		{
-			playCheck = false;
-		}
-		memberIt++;
-	}
-
-	if(!playCheck)
-	{
-		gMessageLib->sendSystemMessage(performer,L"","performance","music_still_playing");
-		return;
-	}
-
-	bool skillCheck = true;
-	memberIt = members.begin();
-	while(memberIt != members.end())
-	{
-		//check if we are performing
-		if(((*memberIt)->getPerformingState() == PlayerPerformance_None)&&((*memberIt)->getConnectionState() == PlayerConnState_Connected))
-		{
-			if(music)
-			{
-				if(!gEntertainerManager->handleStartBandIndividual((*memberIt),dataStr))
-					skillCheck = false;
-			}
-			else
-			{
-				if(!gEntertainerManager->handleStartBandDanceIndividual((*memberIt),dataStr))
-					skillCheck = false;
-			}
-		}
-
-		memberIt++;
-	}
-
-	if (!skillCheck)
-	{
-		gMessageLib->sendSystemMessage(performer,L"","performance","music_lack_skill_band_member");
-	}
+	gEntertainerManager->StartBand(performer, dataStr);
 }
 
 //======================================================================================================================
@@ -793,32 +673,50 @@ void ObjectController::_handleBandFlourish(uint64 targetId,Message* message,Obje
 	message->getStringUnicode16(dataStr);
 	//dataStr.convert(BSTRType_ANSI);
 	//printf(" flourish : %s",dataStr.getAnsi());
-	uint32 mFlourishId;
-	swscanf(dataStr.getUnicode16(),L"%u",&mFlourishId);
+	wchar_t temp[64];
 
-	if((mFlourishId < 1)||(mFlourishId > flourishMax))
+	swscanf(dataStr.getUnicode16(),L"%s",&temp);
+
+	if(wcsncmp(temp, L"on", sizeof(temp)) == 0)
 	{
-		gMessageLib->sendSystemMessage(entertainer,L"","performance","flourish_not_valid");
-		return;
-	}
-
-	//give notice
-	gMessageLib->sendSystemMessage(entertainer,L"","performance","flourish_perform_band_self");
-
-	PlayerList members;
-	members = entertainer->getInRangeGroupMembers(true);
-	PlayerList::iterator memberIt = members.begin();
-	while(memberIt != members.end())
-	{
-		//check if we are performing
-		if((*memberIt)->getPerformingState() != PlayerPerformance_None)
+		if(entertainer->checkSkill(10))
 		{
-			//give notice
-			gMessageLib->sendSystemMessage((*memberIt),L"","performance","flourish_perform_band_member","","",L"",0,"","",L"",entertainer->getId());
-			gEntertainerManager->flourish((*memberIt),mFlourishId);
+			if(entertainer->getAcceptBandFlourishes() == false)
+			{
+				entertainer->setAcceptBandFlourishes(true);
 
+				gMessageLib->sendSystemMessage(entertainer,L"","performance","band_flourish_on");
+			}
+			else
+				gMessageLib->sendSystemMessage(entertainer,L"","performance","band_flourish_status_on");
 		}
-		memberIt++;
+	}
+	else if(wcsncmp(temp, L"off", sizeof(temp)) == 0)
+	{
+		if(entertainer->checkSkill(10))
+		{
+			if(entertainer->getAcceptBandFlourishes() == true)
+			{
+				entertainer->setAcceptBandFlourishes(false);
+
+				gMessageLib->sendSystemMessage(entertainer,L"","performance","band_flourish_off");
+			}
+			else
+				gMessageLib->sendSystemMessage(entertainer,L"","performance","band_flourish_status_off");
+		}
+	}
+	else
+	{
+		uint32 FlourishId;
+		swscanf(dataStr.getUnicode16(), L"%d", &FlourishId);
+
+		if((FlourishId < 1)||(FlourishId > flourishMax))
+		{
+			gMessageLib->sendSystemMessage(entertainer,L"","performance","flourish_not_valid");
+			return;
+		}
+
+		gEntertainerManager->BandFlourish(entertainer, FlourishId);
 	}
 }
 
@@ -841,7 +739,14 @@ void ObjectController::_handleImageDesign(uint64 targetId,Message* message,Objec
 
 	if(designObject->getPosture() == CreaturePosture_Dead)
 	{
-		gMessageLib->sendSystemMessage(imageDesigner,L"","image_designer","target_dead");
+		gMessageLib->sendSysMsg(imageDesigner,"image_designer","target_dead",NULL,designObject);
+		//gMessageLib->sendSystemMessage(imageDesigner,L"","image_designer","target_dead");
+		return;
+	}
+
+	if(designObject->isIncapacitated())
+	{
+		gMessageLib->sendSysMsg(imageDesigner,"image_designer","target_dead",NULL,designObject);
 		return;
 	}
 
@@ -875,7 +780,7 @@ void ObjectController::_handleImageDesign(uint64 targetId,Message* message,Objec
 		return;
 	}
 
-    if(glm::distance(designObject->mPosition, imageDesigner->mPosition) > 16)
+	if(glm::distance(designObject->getWorldPosition(), imageDesigner->getWorldPosition()) > 16)
 	{
 		gMessageLib->sendSystemMessage(imageDesigner,L"","image_designer","out_of_range");
 		return;
@@ -974,7 +879,7 @@ void ObjectController::handleImageDesignChangeMessage(Message* message,uint64 ta
 
 	message->getStringAnsi(holoEmote);
 
-	if(customerAccept &&designerCommit)
+	if(((imageDesigner == customer) || customerAccept) && designerCommit)
 	{
 		if(imageDesigner->getImageDesignSession() == IDSessionNONE)
 			return;
@@ -987,7 +892,13 @@ void ObjectController::handleImageDesignChangeMessage(Message* message,uint64 ta
 		//changelists get deleted
 		gEntertainerManager->commitIdChanges(customer,imageDesigner,hair,creditsOffered, statMigration,holoEmote,flagHair);
 	}
-
+	
+	if((imageDesigner == messageGenerator) && designerCommit)
+	{
+		uint32 idTimer	= gWorldConfig->getConfiguration<uint32>("Player_Timer_IDSessionTimeOut",(uint32)60000);
+		messageGenerator->setImageDesignerTaskId(gWorldManager->addImageDesignerToProcess(messageGenerator,idTimer));
+		gLogger->log(LogManager::DEBUG,"Added ID Tick Control !!!");
+	}
 
 	//if(imageDesigner->getImageDesignSession() == IDSessionPREY)
 		//gMessageLib->sendIDChangeMessage(customer,customer,imageDesigner,hair, sessionId,creditsOffered, creditsDemanded,customerAccept,designerCommit,statMigration,smTimer,flagHair,buildingId,holoEmote);
@@ -1059,7 +970,10 @@ void ObjectController::handleImageDesignStopMessage(Message* message,uint64 targ
 	}
 
 	if(messageGenerator->getImageDesignSession() == IDSessionID)
+	{
 		gMessageLib->sendIDEndMessage(customer,customer,imageDesigner,hair, counter2,creditsOffered, 0,unknown2,flag2,flag3,counter1);
+		
+	}
 
 	imageDesigner->setIDPartner(0);
 	customer->setIDPartner(0);
@@ -1206,13 +1120,13 @@ void ObjectController::_handlePlayHoloEmote(uint64 targetId,Message* message,Obj
 
 	if(!myEmote)
 	{
-		gMessageLib->sendSystemMessage(we,L"","image_designer","no_holoemote","","",L"",0,"","",L"");
+		gMessageLib->sendSystemMessage(we,L"","image_designer","no_holoemote");
 		return;
 	}
 
 	if(we->getHoloCharge()<= 0)
 	{
-		gMessageLib->sendSystemMessage(we,L"","image_designer","no_charges_holoemote","","",L"",0,"","",L"");
+		gMessageLib->sendSystemMessage(we,L"","image_designer","no_charges_holoemote");
 		return;
 	}
 
@@ -1222,39 +1136,49 @@ void ObjectController::_handlePlayHoloEmote(uint64 targetId,Message* message,Obj
 	if(!strcmp(cmdLine,"remove"))
 	{
 		//remove from playerObject
-		gMessageLib->sendSystemMessage(we,L"","image_designer","remove_holoemote","","",L"",0,"","",L"");
+		gMessageLib->sendSystemMessage(we,L"","image_designer","remove_holoemote");
 		we->setHoloCharge(0);
 		we->setHoloEmote(0);
 		//dont forget to remove from db, too
 		return;
 	}
 
-	string emoteName;
+	bool lotsOfStuff = false;
 
 	if(!strcmp(cmdLine,"help"))
 	{
 		if(!strcmp(myEmote->pEmoteName,"all"))
 		{
-			emoteName = gEntertainerManager->getHoloNames();
+			lotsOfStuff = true;
 		}
-		else
-			emoteName = myEmote->pEmoteName;
 
 		//just give help
-		int8 sql[512], sql1[1024];
-		sprintf(sql,"Your current Holo Emote is %s.\xa You have %u charges remaining."
-		"\xa To play your Holo-Emote type \x2fholoemote <name>.\xa To delete your Holo-Emote type \x2fholoemote delete. "
-		"\xa Purchasing a new Holo-Emote will automatically delete your current Holo-Emote.",emoteName.getAnsi(),we->getHoloCharge());
+		int8 sql[512], sql1[512];
 
-		sprintf(sql1,"%s \xa \xa The available Holo-Emote names are: \xa \xa"
+		if(lotsOfStuff)
+		{
+			sprintf(sql1,"Your Holo-Emote generator can play all Holo-Emotes available. You have %u charges remaining."
+			"\xa To play your Holo-Emote type \x2fholoemote \x3cname\x3e.\xa To delete your Holo-Emote type \x2fholoemote delete. "
+			"\xa Purchasing a new Holo-Emote will automatically delete your current Holo-Emote.",we->getHoloCharge());
+
+			sprintf(sql,"%s \xa \xa The available Holo-Emote names are: \xa \xa"
 			"Beehive \x9 \x9 Blossom \x9 Brainstorm \xa"
 			"Bubblehead \x9 Bullhorns \x9 Butterflies \xa"
 			"Champagne \x9 Haunted \x9 Hearts \xa"
 			"Hologlitter \x9 \x9 Holonotes \x9 Imperial \xa"
 			"Kitty \x9 \x9 \x9 Phonytail \x9 Rebel \xa"
-			"Sparky",sql);
+			"Sparky",sql1);
+		}
+		else
+		{
+			sprintf(sql,"Your current Holo Emote is %s.\xa You have %u charges remaining."
+			"\xa To play your Holo-Emote type \x2fholoemote %s.\xa To delete your Holo-Emote type \x2fholoemote delete. "
+			"\xa Purchasing a new Holo-Emote will automatically delete your current Holo-Emote.",myEmote->pEmoteName,we->getHoloCharge(),myEmote->pEmoteName);
+		}
 
-		gUIManager->createNewMessageBox(NULL,"holoHelpOff","Holo-Emote Help",sql1,we);
+		
+
+		gUIManager->createNewMessageBox(NULL,"holoHelpOff","Holo-Emote Help",sql,we);
 
 		return;
 	}
@@ -1263,42 +1187,34 @@ void ObjectController::_handlePlayHoloEmote(uint64 targetId,Message* message,Obj
 
 	if(!requestedEmote)
 	{
-		gMessageLib->sendSystemMessage(we,L"","image_designer","holoemote_help","","",L"",0,"","",L"");
+		gMessageLib->sendSystemMessage(we,L"","image_designer","holoemote_help");
 		return;
 	}
 
-	if(strcmp(myEmote->pEmoteName,"all"))
-	{
-		//its *not* all
-		//only play if we give the proper name
-		if(requestedEmote->pId == myEmote->pId)
-		{			
-			if(we->decHoloCharge())
-			{
-				string effect = gWorldManager->getClientEffect(myEmote->pId);
-				gMessageLib->sendPlayClientEffectObjectMessage(effect,"head",we);
-				int8 sql[256];
-				sprintf(sql,"update swganh.character_holoemotes set charges = charges-1 where character_id = %I64u", we->getId());
-				mDatabase->ExecuteSqlAsync(this,new(mDBAsyncContainerPool.malloc()) ObjControllerAsyncContainer(OCQuery_Nope),sql);
-			}
-			else
-			{
-				gMessageLib->sendSystemMessage(we,L"","image_designer","no_charges_holoemote","","",L"",0,"","",L"");
-				return;
-			}
+	//its *not* all
+	//only play if we own the relevant generator and havnt requested holoemote all
+	if(((requestedEmote->pId == myEmote->pId)||(myEmote->pId == 0))&& (requestedEmote->pId != 0))
+	{			
+		if(we->decHoloCharge())
+		{
+			string effect = gWorldManager->getClientEffect(requestedEmote->pId);
+			gMessageLib->sendPlayClientEffectObjectMessage(effect,"head",we);
+			int8 sql[256];
+			sprintf(sql,"update swganh.character_holoemotes set charges = charges-1 where character_id = %I64u", we->getId());
+			mDatabase->ExecuteSqlAsync(this,new(mDBAsyncContainerPool.malloc()) ObjControllerAsyncContainer(OCQuery_Nope),sql);
 		}
 		else
 		{
-			gMessageLib->sendSystemMessage(we,L"","image_designer","holoemote_help","","",L"",0,"","",L"");
+			gMessageLib->sendSystemMessage(we,L"","image_designer","no_charges_holoemote");
 			return;
 		}
 	}
 	else
 	{
-		//it is all
-		gMessageLib->sendSystemMessage(we,L"This is not a valid holoemote name");
+		gMessageLib->sendSystemMessage(we,L"","image_designer","holoemote_help");
 		return;
 	}
+	
 }
 
 //======================================================================================================================

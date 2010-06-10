@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -128,41 +144,48 @@ enum CreaturePvPStatus
 
 //=============================================================================
 
-enum CreatureEquipSlot
+enum CreatureEquipSlot : unsigned long long
 {
-	CreatureEquipSlot_Head					= 0x00000001,
-	CreatureEquipSlot_Neck					= 0x00000002,
-	CreatureEquipSlot_Chest1				= 0x00000004,
-	CreatureEquipSlot_Chest2				= 0x00000008,
-	CreatureEquipSlot_LeftBicep				= 0x00000010,
-	CreatureEquipSlot_LeftBracer			= 0x00000020,
-	CreatureEquipSlot_RightBicep			= 0x00000040,
-	CreatureEquipSlot_RightBracer			= 0x00000080,
-	CreatureEquipSlot_Gloves				= 0x00000100,
-	CreatureEquipSlot_Belt					= 0x00000200,
-	CreatureEquipSlot_Legs1					= 0x00000400,
-	CreatureEquipSlot_Legs2					= 0x00000800,
-	CreatureEquipSlot_Shoes					= 0x00001000,
-	CreatureEquipSlot_LeftFinger			= 0x00002000,
-	CreatureEquipSlot_Back					= 0x00004000,
-	CreatureEquipSlot_Weapon				= 0x00008000,
-	CreatureEquipSlot_MissionBag			= 0x00010000,
-	CreatureEquipSlot_Hair					= 0x00020000,
-	CreatureEquipSlot_Inventory				= 0x00040000,
-	CreatureEquipSlot_Datapad				= 0x00080000,
-	CreatureEquipSlot_Bank					= 0x00100000,
-	CreatureEquipSlot_Wrists				= 0x00200000,
-	CreatureEquipSlot_RightFinger			= 0x00400000,
-	CreatureEquipSlot_Instrument			= 0x00800000,
-	CreatureEquipSlot_Googles				= 0x01000000,
-	CreatureEquipSlot_Mouth					= 0x02000000,
-	CreatureEquipSlot_RightWrist			= 0x04000000,
-	CreatureEquipSlot_LeftWrist				= 0x08000000,
-	CreatureEquipSlot_Rider					= 0x10000000
+	CreatureEquipSlot_Back					= 0x000000001,
+	CreatureEquipSlot_Bandolier				= 0x000000002,
+	CreatureEquipSlot_Bank					= 0x000000004,
+	CreatureEquipSlot_Bicep_Left			= 0x000000008,
+	CreatureEquipSlot_Bicep_Right			= 0x000000010,
+	CreatureEquipSlot_Bracer_Lower_Left		= 0x000000020,
+	CreatureEquipSlot_Bracer_Lower_Right	= 0x000000040,
+	CreatureEquipSlot_Bracer_Upper_Left		= 0x000000080,
+	CreatureEquipSlot_Bracer_Upper_Right	= 0x000000100,
+	CreatureEquipSlot_Chest1				= 0x000000200,
+	CreatureEquipSlot_Chest2				= 0x000000400,
+	CreatureEquipSlot_Chest3_Left			= 0x000000800,
+	CreatureEquipSlot_Chest3_Right			= 0x000001000,
+	CreatureEquipSlot_Cloak					= 0x000002000,
+	CreatureEquipSlot_Datapad				= 0x000004000,
+	CreatureEquipSlot_Earring_Left			= 0x000008000,
+	CreatureEquipSlot_Earring_Right			= 0x000010000,
+	CreatureEquipSlot_Eyes					= 0x000020000,
+	CreatureEquipSlot_Gloves				= 0x000040000,
+	CreatureEquipSlot_Hair					= 0x000080000,
+	CreatureEquipSlot_Hat					= 0x000100000,
+	CreatureEquipSlot_Hold_Left				= 0x000200000,
+	CreatureEquipSlot_Hold_Right			= 0x000400000,
+	CreatureEquipSlot_Hold_Both				= 0x000600000,
+	CreatureEquipSlot_Inventory				= 0x000800000,
+	CreatureEquipSlot_Mission				= 0x001000000,
+	CreatureEquipSlot_Mouth					= 0x002000000,	
+	CreatureEquipSlot_Neck					= 0x004000000,
+	CreatureEquipSlot_Pants1				= 0x008000000,
+	CreatureEquipSlot_Pants2				= 0x010000000,
+	CreatureEquipSlot_Finger_Left			= 0x020000000,
+	CreatureEquipSlot_Finger_Right			= 0x040000000,
+	CreatureEquipSlot_Shoes					= 0x080000000,
+	CreatureEquipSlot_Utility_Belt			= 0x100000000,
+	CreatureEquipSlot_Wrist_Left			= 0x200000000,
+	CreatureEquipSlot_Wrist_Right			= 0x400000000,
 };
 
-#define CREATURE_SLOT_COUNT	29
-#define CREATURE_MAX_SLOT	1 << CREATURE_SLOT_COUNT
+#define CREATURE_SLOT_COUNT	35ULL
+#define CREATURE_MAX_SLOT	1ULL << CREATURE_SLOT_COUNT
 
 //=============================================================================
 

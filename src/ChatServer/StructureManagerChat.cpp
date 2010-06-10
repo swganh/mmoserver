@@ -1,11 +1,27 @@
  /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 #include "ChatOpcodes.h"
@@ -131,7 +147,7 @@ void StructureManagerChatHandler::handleDispatchMessage(uint32 opcode, Message* 
 
 		
 		default:
-			gLogger->logMsgF("StructureManagerChatHandler::handleDispatchMessage: Unhandled opcode %u",MSG_NORMAL,opcode);
+			gLogger->log(LogManager::NOTICE,"StructureManagerChatHandler::handleDispatchMessage: Unhandled opcode %u",opcode);
 		break;
 	}
 	
@@ -147,7 +163,6 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
 	 /*
 	if (!asynContainer->mClient) 
 	{
-		gLogger->logMsgF("StructureManagerChatHandler:: No client !!!",MSG_NORMAL);
 		return;
 	}
 
@@ -157,7 +172,6 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
 		player = (*accIt).second;
 	else
 	{
-		gLogger->logMsgF("StructureManagerChatHandler:: Error getting player from account map %u",MSG_NORMAL,asynContainer->mClient->getAccountId());
 		return;
 	}
 
@@ -394,7 +408,6 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
 				sprintf(sql,"SELECT s.owner, st.stf_file, st.stf_name, s.x, s.z, p.name, s.lastMail FROM structures s INNER JOIN structure_type_data st ON (s.type = st.type) INNER JOIN planet p ON (p.planet_id = s.zone)WHERE ID = %I64u",asynContainer->harvesterID);
 				StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(STRMQuery_StructureMailOOFMaint,0);
 				asyncContainer->harvesterID = asynContainer->harvesterID;
-				//gLogger->logMsgF("StructureManagerChatHandler:: %s",MSG_NORMAL,sql);
 				
 				mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
 
@@ -409,7 +422,6 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
 				sprintf(sql,"SELECT s.owner, st.stf_file, st.stf_name, s.x, s.z, p.name, st.max_condition, s.condition, s.lastMail FROM structures s INNER JOIN structure_type_data st ON (s.type = st.type) INNER JOIN planet p ON (p.planet_id = s.zone)WHERE ID = %I64u",asynContainer->harvesterID);
 				StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(STRMQuery_StructureMailDamage,0);
 				asyncContainer->harvesterID = asynContainer->harvesterID;
-				//gLogger->logMsgF("StructureManagerChatHandler:: %s",MSG_NORMAL,sql);
 				
 				mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
 
@@ -424,7 +436,6 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
 				sprintf(sql,"SELECT s.owner, st.stf_file, st.stf_name, s.x, s.z, p.name, st.max_condition, st.maint_cost_wk, s.lastMail FROM structures s INNER JOIN structure_type_data st ON (s.type = st.type) INNER JOIN planet p ON (p.planet_id = s.zone)WHERE ID = %I64u",asynContainer->harvesterID);
 				StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(STRMQuery_StructureMailCondZero,0);
 				asyncContainer->harvesterID = asynContainer->harvesterID;
-				//gLogger->logMsgF("StructureManagerChatHandler:: %s",MSG_NORMAL,sql);
 				
 				mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
 
@@ -434,7 +445,6 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
 			if(exitCode > 3)
 			{
 				//unspecified db error
-				//gLogger->logMsgF("StructureManagerChat::HarvesterMaintenanceUsage %I64u unspecified db error",MSG_HIGH,asynContainer->harvesterID);
 				
 				//most likely the structure reached condition zero and awaits destruction
 			}
@@ -471,7 +481,7 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
 			if(exitCode == 3)
 			{
 				//unspecified db error
-				gLogger->logMsgF("StructureManagerChat::HarvesterPowerUsage %I64u unspecified db error",MSG_HIGH,asynContainer->harvesterID);
+				gLogger->log(LogManager::NOTICE,"StructureManagerChat::HarvesterPowerUsage %I64u unspecified db error",asynContainer->harvesterID);
 			}
 			
 
@@ -503,17 +513,15 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
 				if(exitCode == 1)
 				{
 					//resource never existed in the first place
-				//	gLogger->logMsgF("StructureMabagerChat::Harvester %I64u hopper full",MSG_HIGH,asynContainer->harvesterID);
 				}
 				if(exitCode == 2)
 				{
 					//resource never existed in the first place
-				//	gLogger->logMsgF("StructureMabagerChat::Harvester %I64u resourcechange",MSG_HIGH,asynContainer->harvesterID);
 				}
 				if(exitCode == 3)
 				{
 					//resource never existed in the first place
-					gLogger->logMsgF("StructureMabagerChat::Factory %I64u general error",MSG_HIGH,asynContainer->harvesterID);
+					gLogger->log(LogManager::DEBUG,"StructureMabagerChat::Factory %I64u general error",asynContainer->harvesterID);
 				}
 
 			}
@@ -547,17 +555,17 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
 				if(exitCode == 1)
 				{
 					//resource never existed in the first place
-					gLogger->logMsgF("StructureMabagerChat::Harvester %I64u hopper full",MSG_HIGH,asynContainer->harvesterID);
+					gLogger->log(LogManager::DEBUG,"StructureMabagerChat::Harvester %I64u hopper full",asynContainer->harvesterID);
 				}
 				if(exitCode == 2)
 				{
 					//resource never existed in the first place
-					gLogger->logMsgF("StructureMabagerChat::Harvester %I64u resourcechange",MSG_HIGH,asynContainer->harvesterID);
+					gLogger->log(LogManager::DEBUG,"StructureMabagerChat::Harvester %I64u resourcechange",asynContainer->harvesterID);
 				}
 				if(exitCode == 3)
 				{
 					//resource never existed in the first place
-					gLogger->logMsgF("StructureMabagerChat::Harvester %I64u harvested an invalid resource",MSG_HIGH,asynContainer->harvesterID);
+					gLogger->log(LogManager::DEBUG,"StructureMabagerChat::Harvester %I64u harvested an invalid resource",asynContainer->harvesterID);
 				}
 
 			}
@@ -586,7 +594,6 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
 				sprintf(sql,"SELECT sf_HarvesterUseMaintenance(%I64u)",harvesterID);
 				StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(STRMQuery_DoneHarvesterMaintenance,0);
 				asyncContainer->harvesterID = harvesterID;
-				//gLogger->logMsgF("StructureManagerChatHandler:: %s",MSG_NORMAL,sql);
 				
 				mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
 
@@ -615,7 +622,6 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
 				sprintf(sql,"SELECT sf_HarvesterUsePower(%I64u)",harvesterID);
 				StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(STRMQuery_DoneHarvesterUsePower,0);
 				asyncContainer->harvesterID = harvesterID;
-				//gLogger->logMsgF("StructureManagerChatHandler:: %s",MSG_NORMAL,sql);
 				
 				mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
 
@@ -651,7 +657,6 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
 				sprintf(sql,"SELECT sf_FactoryProduce(%I64u)",factoryID);
 				StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(STRMQuery_DoneFactoryUpdate,0);
 				asyncContainer->harvesterID = factoryID;
-				//gLogger->logMsgF("StructureManagerChatHandler:: %s",MSG_NORMAL,sql);
 				
 				mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
 
@@ -686,7 +691,6 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
 				sprintf(sql,"SELECT sf_HarvestResource(%I64u)",harvesterID);
 				StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(STRMQuery_DoneHarvestUpdate,0);
 				asyncContainer->harvesterID = harvesterID;
-				//gLogger->logMsgF("StructureManagerChatHandler:: %s",MSG_NORMAL,sql);
 				
 				mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
 
@@ -717,7 +721,7 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
 //=======================================================================================================================
 void StructureManagerChatHandler::handleTimer(uint32 id, void* container)
 {
-    boost::mutex::scoped_lock (mTimerMutex);
+    boost::mutex::scoped_lock lock(mTimerMutex);
 	mTimerEventQueue.push(id);
 }
 
@@ -762,7 +766,7 @@ void StructureManagerChatHandler::processTimerEvents()
 			break;
 
 			default:
-				gLogger->logMsgF("WorldManager::processTimerEvents: Unknown Timer %u",MSG_HIGH,id);
+				gLogger->log(LogManager::DEBUG,"WorldManager::processTimerEvents: Unknown Timer %u",id);
 			break;
 		}
 
@@ -862,7 +866,7 @@ void StructureManagerChatHandler::ProcessAddHarvesterHopperUpdate(Message* messa
 		player = (*accIt).second;
 	else
 	{
-		gLogger->logMsgF("StructureManagerChatHandler::ProcessAddHarvesterHopperUpdate Error getting player from account map %u",MSG_NORMAL,client->getAccountId());
+		gLogger->log(LogManager::DEBUG,"StructureManagerChatHandler::ProcessAddHarvesterHopperUpdate Error getting player from account map %u",client->getAccountId());
 		return;
 	}
 

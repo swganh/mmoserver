@@ -1,11 +1,27 @@
  /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -84,7 +100,7 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 		//=============================================================================
 		//just sets a new ParentID and sends Containment to TargetObject
 		virtual void				setParentIdIncDB(uint64 parentId){mParentId = parentId;
-		gLogger->logMsgF("Object::setParentId no table specified id: %I64u",MSG_HIGH,this->getId());}
+		gLogger->log(LogManager::NOTICE, "Object no table specified setting ID: %I64u", this->getId());}
 		
 		
 		string						getModelString(){ return mModel; }
@@ -129,6 +145,7 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 		// common attributes, send to the client
 		AttributeMap*				getAttributeMap(){ return &mAttributeMap; }
 		template<typename T> T		getAttribute(string key) const;
+//		template<typename T> T		getAttribute(std::string) const;
 		template<typename T> T		getAttribute(uint32 keyCrc) const;
 		void						setAttribute(string key,std::string value);
 		void						setAttributeIncDB(string key,std::string value);
@@ -148,15 +165,20 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 		bool						hasInternalAttribute(string key);
 		void						removeInternalAttribute(string key);
 
-		// subzone
+		// subzone this is used by spawnregions - get it out there and put this in movingObject
 		uint32						getSubZoneId() const { return mSubZoneId; }
 		void						setSubZoneId(uint32 id){ mSubZoneId = id; }
 
+		//===========================================================================
 		// equip management
-		uint32						getEquipSlotMask(){ return mEquipSlots; }
-		void						setEquipSlotMask(uint32 slotMask){ mEquipSlots = slotMask; }
-		uint32						getEquipRestrictions(){ return mEquipRestrictions; }
-		void						setEquipRestrictions(uint32 restrictions){ mEquipRestrictions = restrictions; }
+		
+		//equip slots set the equipmanagerslots an item occupies when equipped
+		uint64						getEquipSlotMask(){ return mEquipSlots; }
+		void						setEquipSlotMask(uint64 slotMask){ mEquipSlots = slotMask; }
+		
+		//equip restrictions are the equipmanagers restrictions based on race or gender
+		uint64						getEquipRestrictions(){ return mEquipRestrictions; }
+		void						setEquipRestrictions(uint64 restrictions){ mEquipRestrictions = restrictions; }
 
 		uint32						getDataTransformCounter(){ return mDataTransformCounter; }
 		uint32						incDataTransformCounter(){ return ++mDataTransformCounter; }
@@ -172,7 +194,7 @@ class Object : public UICallback, public Anh_Utils::EventHandler
          */
         glm::vec3 getWorldPosition() const;
 
-        /*! Returns the current object's root parent. If the object is the root it returns itself.
+        /*! Returns the current object's root (permission giving) parent. If the object is the root it returns itself.
          *
          * \returns const Object* Root parent for the current object.
          */
@@ -230,6 +252,13 @@ class Object : public UICallback, public Anh_Utils::EventHandler
         void moveBack(float distance);
 
 
+        /*! Determines the angle used by update transform messages for rotation.
+         *
+         * \returns Current rotation angle.
+         */
+        float rotation_angle() const;
+
+
         glm::quat   mDirection;
         glm::vec3   mPosition;
 		//Anh_Math::Quaternion	mDirection;
@@ -269,9 +298,11 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 
 		uint64					mId;
 		uint64					mParentId;
-		uint64					mPrivateOwner; // If object is used as a private object, like in an Instance, we should only update the owner.
-		uint32					mEquipRestrictions;
-		uint32					mEquipSlots;
+		
+		// If object is used as a private object in an Instance, this references the instances (objects) owner
+		uint64					mPrivateOwner; 
+		uint64					mEquipRestrictions;
+		uint64					mEquipSlots;
 		uint32					mInMoveCount;
 		uint32					mSubZoneId;
 		uint32					mTypeOptions;
@@ -296,14 +327,37 @@ T	Object::getAttribute(string key) const
 		}
 		catch(boost::bad_lexical_cast &)
 		{
-			gLogger->logMsgF("Object::getAttribute: cast failed (%s)",MSG_HIGH,key.getAnsi());
+			gLogger->log(LogManager::INFORMATION, "Object::getAttribute: cast failed (%s)", key.getAnsi());
 		}
 	}
 	else
-		gLogger->logMsgF("Object::getAttribute: could not find %s",MSG_HIGH,key.getAnsi());
+		gLogger->log(LogManager::INFORMATION, "Object::getAttribute: could not find %s", key.getAnsi());
 
 	return(T());
 }
+//=============================================================================
+
+//template<typename T>
+//T	Object::getAttribute(std::string key) const
+//{
+//	AttributeMap::const_iterator it = mAttributeMap.find(key.getCrc());
+//
+//	if(it != mAttributeMap.end())
+//	{
+//		try
+//		{
+//			return(boost::lexical_cast<T>((*it).second));
+//		}
+//		catch(boost::bad_lexical_cast &)
+//		{
+//			gLogger->log(LogManager::INFORMATION, "Object::getAttribute: cast failed (%s)", key.getAnsi());
+//		}
+//	}
+//	else
+//		gLogger->log(LogManager::INFORMATION, "Object::getAttribute: could not find %s", key.getAnsi());
+//
+//	return(T());
+//}
 //=============================================================================
 
 template<typename T>
@@ -319,11 +373,11 @@ T	Object::getAttribute(uint32 keyCrc) const
 		}
 		catch(boost::bad_lexical_cast &)
 		{
-			gLogger->logMsgF("Object::getAttribute: cast failed (%s)",MSG_HIGH,keyCrc);
+			gLogger->log(LogManager::DEBUG,"Object::getAttribute: cast failed (%s)",keyCrc);
 		}
 	}
 	else
-		gLogger->logMsgF("Object::getAttribute: could not find %s",MSG_HIGH,keyCrc);
+		gLogger->log(LogManager::DEBUG,"Object::getAttribute: could not find %s",keyCrc);
 
 	return(T());
 }
@@ -344,11 +398,11 @@ T	Object::getInternalAttribute(string key)
 		}
 		catch(boost::bad_lexical_cast &)
 		{
-			gLogger->logMsgF("Object::getInternalAttribute: cast failed (%s)",MSG_HIGH,key.getAnsi());
+			gLogger->log(LogManager::DEBUG,"Object::getInternalAttribute: cast failed (%s)",key.getAnsi());
 		}
 	}
 	else
-		gLogger->logMsgF("Object::getInternalAttribute: could not find %s",MSG_HIGH,key.getAnsi());
+		gLogger->log(LogManager::DEBUG,"Object::getInternalAttribute: could not find %s",key.getAnsi());
 
 	return(T());
 }

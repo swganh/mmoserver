@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -158,7 +174,7 @@ bool MessageLib::sendBaselinesPLAY_8(PlayerObject* playerObject,PlayerObject* ta
 
 	// waypoint list size
 	uint32					waypointsByteCount	= 0;
-	Datapad*				datapad				= dynamic_cast<Datapad*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+	Datapad* datapad							= playerObject->getDataPad();
 	WaypointList*			waypointList		= datapad->getWaypoints();
 	WaypointList::iterator	waypointIt			= waypointList->begin();
 
@@ -306,16 +322,12 @@ bool MessageLib::sendBaselinesPLAY_9(PlayerObject* playerObject,PlayerObject* ta
 	// draft schematics
 
 	
-	Datapad* datapad = dynamic_cast<Datapad*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
-	
-	//gLogger->logMsgF("Yalp9 Baseline Schematicslist::Listsize %u",MSG_HIGH,schemIdList->size());
+	Datapad* datapad			= playerObject->getDataPad();
 	
 	mMessageFactory->addUint32(schemIdList->size());
 	
 	datapad->mSchematicUpdateCounter += schemIdList->size();
 	mMessageFactory->addUint32(datapad->mSchematicUpdateCounter);
-	
-	//gLogger->logMsgF("Yalp9 Baseline Schematicslist::UpdateCounter %u",MSG_HIGH,datapad->mSchematicUpdateCounter);
 
 	SchematicsIdList::iterator schemIt = schemIdList->begin();
 
@@ -482,7 +494,7 @@ bool MessageLib::sendWaypointsUpdate(PlayerObject* playerObject)
 	if(!(playerObject->isConnected()))
 		return(false);
 
-	Datapad* datapad = dynamic_cast<Datapad*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+	Datapad* datapad			= playerObject->getDataPad();
 
 	mMessageFactory->StartMessage();               
 	mMessageFactory->addUint32(opDeltasMessage);  
@@ -561,7 +573,7 @@ bool MessageLib::sendUpdateWaypoint(WaypointObject* waypoint,ObjectUpdate update
 	if(type == 0xFF)
 		return false;
 
-	Datapad* datapad = dynamic_cast<Datapad*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+	Datapad* datapad			= playerObject->getDataPad();
 
 	mMessageFactory->StartMessage();               
 	mMessageFactory->addUint32(opDeltasMessage);  
@@ -663,7 +675,7 @@ bool MessageLib::sendSchematicDeltasPLAY_9(PlayerObject* playerObject)
 
 	SchematicsIdList*			sList		= playerObject->getSchematicsIdList();
 	SchematicsIdList::iterator	sIt			= sList->begin();
-	Datapad*					datapad		= dynamic_cast<Datapad*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+	Datapad* datapad						= playerObject->getDataPad();
 
 	mMessageFactory->StartMessage();               
 	
@@ -673,10 +685,7 @@ bool MessageLib::sendSchematicDeltasPLAY_9(PlayerObject* playerObject)
 
 	mMessageFactory->addUint32(sList->size()+1);
 
-	//gLogger->logMsgF("Yalp9 Baseline Schematicslist::Listsize %u",MSG_HIGH,sList->size());
-
 	datapad->mSchematicUpdateCounter += sList->size()+1;
-	//gLogger->logMsgF("Yalp9 Baseline Schematicslist::UpdateCounter %u",MSG_HIGH,datapad->mSchematicUpdateCounter);
 	
 	mMessageFactory->addUint32(datapad->mSchematicUpdateCounter);
 	
@@ -818,10 +827,9 @@ bool MessageLib::sendUpdateXpTypes(SkillXpTypesList newXpTypes,uint8 remove,Play
 
 bool MessageLib::sendFriendListPlay9(PlayerObject* playerObject)
 {
-	// gLogger->logMsg("MessageLib::sendFriendListPlay9...");
 	if(!(playerObject->isConnected()))
 		return(false);
-	// gLogger->logMsg("... connected");
+
 	ContactMap*				friendList	= playerObject->getFriendsList();
 	ContactMap::iterator	nameIt		= friendList->begin();
 
@@ -873,10 +881,8 @@ bool MessageLib::sendFriendListPlay9(PlayerObject* playerObject)
 
 bool MessageLib::sendIgnoreListPlay9(PlayerObject* playerObject)
 {
-	// gLogger->logMsg("MessageLib::sendIgnoreListPlay9...");
 	if(!(playerObject->isConnected()))
 		return(false);
-	// gLogger->logMsg("... connected");
 
 	ContactMap*				ignoreList	= playerObject->getIgnoreList();
 	ContactMap::iterator	nameIt		= ignoreList->begin();
@@ -911,7 +917,6 @@ bool MessageLib::sendIgnoreListPlay9(PlayerObject* playerObject)
 
 	while(nameIt != ignoreList->end())
 	{
-		// gLogger->logMsgF("Ignore: %s",MSG_NORMAL, (*nameIt).second.getAnsi());
 		mMessageFactory->addString((*nameIt).second);
 		++nameIt;
 	}

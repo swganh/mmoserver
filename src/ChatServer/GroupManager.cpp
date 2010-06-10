@@ -1,13 +1,30 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006, 2009 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
+
 #include "Channel.h"
 #include "ChatAvatarId.h"
 #include "ChatOpcodes.h"
@@ -75,6 +92,7 @@ GroupManager::GroupManager(MessageDispatch* dispatch)
 	mMessageDispatch->RegisterMessageCallback(opIsmGroupLootMasterRequest,this);
 	mMessageDispatch->RegisterMessageCallback(opIsmGroupLootMasterResponse,this);
 	mMessageDispatch->RegisterMessageCallback(opIsmGroupInviteInRangeResponse, this);
+	mMessageDispatch->RegisterMessageCallback(opIsmIsGroupLeaderRequest, this);
 }
 
 
@@ -132,7 +150,7 @@ GroupObject* GroupManager::getGroupById(uint64 groupId)
 	if(it !=  mGroups.end())
 		return((*it).second);
 	else
-		gLogger->logMsgF("GroupManager::getGroupById: Could not find group %"PRIu64"",MSG_NORMAL,groupId);
+		gLogger->log(LogManager::DEBUG, "GroupManager::getGroupById: Could not find group %"PRIu64"",groupId);
 
 	return(NULL);
 }
@@ -151,7 +169,7 @@ void GroupManager::removeGroup(uint64 groupId)
 	}
 	else
 	{
-		gLogger->logMsgF("GroupManager::removeGroup: Could not find group for removing %"PRIu64"",MSG_NORMAL,groupId);
+		gLogger->log(LogManager::DEBUG,"GroupManager::removeGroup: Could not find group for removing %"PRIu64"",groupId);
 	}
 
 }
@@ -248,10 +266,26 @@ void GroupManager::handleDispatchMessage(uint32 opcode, Message* message, Dispat
 		}
 		break;
 
+		case opIsmIsGroupLeaderRequest:
+		{
+			_processIsmIsGroupLeaderRequest(message, client);
+		}
+
 		default:
-		gLogger->logMsgF("GroupManager::handleDispatchMessage: Unhandled opcode %u",MSG_NORMAL,opcode);
+		gLogger->log(LogManager::DEBUG,"GroupManager::handleDispatchMessage: Unhandled opcode %u",opcode);
 		break;
 	} 
+}
+
+void GroupManager::_processIsmIsGroupLeaderRequest(Message* message, DispatchClient* client)
+{
+	uint64 requestId = message->getUint64();
+	uint64 playerId = message->getUint64();
+	uint64 groupId	= message->getUint64();
+
+	GroupObject* group = this->getGroupById(groupId);
+
+	gChatMessageLib->sendIsmIsGroupLeaderResponse(group->getLeader(), requestId, (group->getLeader()->getCharId() == playerId));
 }
 
 //======================================================================================================================
@@ -264,7 +298,7 @@ void GroupManager::_processGroupInviteRequest(Message* message, DispatchClient* 
 
 	if(targetPlayer == NULL || player == NULL)
 	{
-		gLogger->logMsg("GroupManager::_processGroupInviteRequest player not found");
+		gLogger->log(LogManager::DEBUG,"GroupManager::_processGroupInviteRequest player not found");
 		return;
 	}
 
@@ -288,7 +322,7 @@ void GroupManager::_processGroupInviteResponse(Message* message, DispatchClient*
 
 	if(player == NULL)
 	{
-		gLogger->logMsg("GroupManager::_processGroupInviteResponse: player not found");
+		gLogger->log(LogManager::DEBUG,"GroupManager::_processGroupInviteResponse: player not found");
 		return;
 	}
 
@@ -394,14 +428,14 @@ void GroupManager::_processGroupUnInvite(Message* message, DispatchClient* clien
 
 	if(player == NULL)
 	{
-		gLogger->logMsg("GroupManager::_processGroupUnInvite: player not found");
+		gLogger->log(LogManager::DEBUG,"GroupManager::_processGroupUnInvite: player not found");
 		return;
 	}
 
 	Player* targetPlayer	= gChatManager->getPlayerByAccId(message->getUint32());
 	if(targetPlayer== NULL)
 	{
-		gLogger->logMsg("GroupManager::_processGroupUnInvite: target not found");
+		gLogger->log(LogManager::DEBUG,"GroupManager::_processGroupUnInvite: target not found");
 		return;
 	}
 
@@ -451,7 +485,7 @@ void GroupManager::_processGroupDisband(Message* message, DispatchClient* client
 
 	if(player == NULL)
 	{
-		gLogger->logMsg("GroupManager::_processGroupDisband: player not found\n");
+		gLogger->log(LogManager::DEBUG,"GroupManager::_processGroupDisband: player not found\n");
 	}
 
 	if(player->getGroupMemberIndex() == 0xFFFF)
@@ -485,7 +519,7 @@ void GroupManager::_processGroupLeave(Message* message, DispatchClient* client)
 
 	if(player == NULL)
 	{
-		gLogger->logMsg("GroupManager::_processGroupLeave: player not found\n");
+		gLogger->log(LogManager::DEBUG,"GroupManager::_processGroupLeave: player not found\n");
 	}
 
 	if(player->getGroupMemberIndex() == 0xFFFF)
@@ -516,7 +550,7 @@ void GroupManager::_processGroupDismissGroupMember(Message* message, DispatchCli
 
 	if(targetPlayer == NULL || player == NULL)
 	{
-		gLogger->logMsg("GroupManager::_processGroupDismissGroupMember player not found");
+		gLogger->log(LogManager::DEBUG,"GroupManager::_processGroupDismissGroupMember player not found");
 		return;
 	}
 
@@ -558,7 +592,7 @@ void GroupManager::_processGroupMakeLeader(Message* message, DispatchClient* cli
 
 	if(targetPlayer == NULL || player == NULL)
 	{
-		gLogger->logMsg("GroupManager::_processGroupMakeLeader player not found");
+		gLogger->log(LogManager::DEBUG,"GroupManager::_processGroupMakeLeader player not found");
 		return;
 	}
 
@@ -599,7 +633,7 @@ void GroupManager::_processGroupPositionNotification(Message* message, DispatchC
 
 	if(player == NULL)
 	{
-		gLogger->logMsg("GroupManager::_processGroupZoneNotification player not found\n");
+		gLogger->log(LogManager::DEBUG,"GroupManager::_processGroupZoneNotification player not found\n");
 		return;
 	}
 
@@ -626,7 +660,7 @@ void GroupManager::_processGroupBaselineRequest(Message* message, DispatchClient
 
 	if(player == NULL)
 	{
-		gLogger->logMsg("GroupManager::_processGroupBaselineRequest player not found\n");
+		gLogger->log(LogManager::DEBUG,"GroupManager::_processGroupBaselineRequest player not found\n");
 		return;
 	}
 
@@ -650,12 +684,12 @@ void GroupManager::_processGroupBaselineRequest(Message* message, DispatchClient
 // someone requests to change the loot mode
 void GroupManager::_processGroupLootModeRequest(Message* message, DispatchClient* client)
 {
-	gLogger->logMsg("_processGroupLootModeRequest\n");
+	gLogger->log(LogManager::DEBUG,"_processGroupLootModeRequest\n");
 	Player* player = gChatManager->getPlayerByAccId(client->getAccountId());
 
 	if(player == NULL)
 	{
-		gLogger->logMsg("GroupManager::_processGroupBaselineRequest player not found\n");
+		gLogger->log(LogManager::DEBUG,"GroupManager::_processGroupBaselineRequest player not found\n");
 		return;
 	}
 
@@ -683,12 +717,12 @@ void GroupManager::_processGroupLootModeRequest(Message* message, DispatchClient
 // Leader has chosen a new mode
 void GroupManager::_processGroupLootModeResponse(Message* message, DispatchClient* client)
 {
-	gLogger->logMsg("_processGroupLootModeResponse\n");
+	gLogger->log(LogManager::DEBUG,"_processGroupLootModeResponse\n");
 
 	Player* player = gChatManager->getPlayerByAccId(client->getAccountId());
 	if(player == NULL)
 	{
-		gLogger->logMsg("GroupManager::_processGroupBaselineRequest player not found\n");
+		gLogger->log(LogManager::DEBUG,"GroupManager::_processGroupBaselineRequest player not found\n");
 		return;
 	}
 
@@ -717,12 +751,12 @@ void GroupManager::_processGroupLootModeResponse(Message* message, DispatchClien
 // someone wants to set master looter
 void GroupManager::_processGroupLootMasterRequest(Message* message, DispatchClient* client)
 {
-	gLogger->logMsg("_processGroupLootMasterRequest\n");
+	gLogger->log(LogManager::DEBUG,"_processGroupLootMasterRequest\n");
 
 	Player* player = gChatManager->getPlayerByAccId(client->getAccountId());
 	if(player == NULL)
 	{
-		gLogger->logMsg("GroupManager::_processGroupBaselineRequest player not found\n");
+		gLogger->log(LogManager::DEBUG,"GroupManager::_processGroupBaselineRequest player not found\n");
 		return;
 	}
 
@@ -749,7 +783,7 @@ void GroupManager::_processGroupLootMasterRequest(Message* message, DispatchClie
 // Leader choosen a new master looter
 void GroupManager::_processGroupLootMasterResponse(Message* message, DispatchClient* client)
 {
-	gLogger->logMsg("_processGroupLootMasterResponse");
+	gLogger->log(LogManager::DEBUG,"_processGroupLootMasterResponse");
 
 	Player* player			= gChatManager->getPlayerByAccId(client->getAccountId());
 	Player* targetPlayer	= gChatManager->getPlayerByAccId(message->getUint32());
@@ -757,7 +791,7 @@ void GroupManager::_processGroupLootMasterResponse(Message* message, DispatchCli
 
 	if(targetPlayer == NULL || player == NULL)
 	{
-		gLogger->logMsg("GroupManager::_processGroupLootMasterResponse player not found");
+		gLogger->log(LogManager::DEBUG,"GroupManager::_processGroupLootMasterResponse player not found");
 		return;
 	}
 
@@ -807,7 +841,7 @@ void GroupManager::_processIsmInviteInRangeResponse(Message* message, DispatchCl
 
 	if(targetPlayer == NULL || player == NULL)
 	{
-		gLogger->logMsg("GroupManager::_processIsmInviteInRangeResponse player not found");
+		gLogger->log(LogManager::DEBUG,"GroupManager::_processIsmInviteInRangeResponse player not found");
 		return;
 	}
 

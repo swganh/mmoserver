@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -70,7 +86,7 @@ void WorldConfig::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 	// verify loaded settings, unless we cant do table level checks with crap mysql
 	
 	// Container Depth
-	mContainerDepth= gWorldConfig->getConfiguration("Player_ContainerDepth",(uint16)5);
+	mContainerDepth= gWorldConfig->getConfiguration<uint16>("Player_ContainerDepth",(uint16)5);
 	if(mContainerDepth > 256)
 		mContainerDepth= 256;
 	else if(mContainerDepth< 3)
@@ -81,7 +97,7 @@ void WorldConfig::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 	// Message of the day
 
 	// Player viewing range
-	mPlayerViewingRange = gWorldConfig->getConfiguration("Zone_Player_ViewingRange",(uint16)128);
+	mPlayerViewingRange = gWorldConfig->getConfiguration<uint16>("Zone_Player_ViewingRange",(uint16)128);
 	if(mPlayerViewingRange > 256)
 		mPlayerViewingRange = 256;
 	else if(mPlayerViewingRange < 32)
@@ -91,7 +107,7 @@ void WorldConfig::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 	mPlayerViewingRangeMax = mPlayerViewingRange;
 
 	// Player chat range
-	mPlayerChatRange = gWorldConfig->getConfiguration("Zone_Player_ChatRange",(uint16)128);
+	mPlayerChatRange = gWorldConfig->getConfiguration<uint16>("Zone_Player_ChatRange",(uint16)128);
 	
 	if(mPlayerChatRange > 256)
 		mPlayerChatRange = 256;
@@ -101,7 +117,7 @@ void WorldConfig::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 	// Server Time Update Frequency
 	
-	mServerTimeInterval = gWorldConfig->getConfiguration("Server_Time_Interval",30);
+	mServerTimeInterval = gWorldConfig->getConfiguration<uint32>("Server_Time_Interval",(uint32)30);
 	
 	if(mServerTimeInterval < 10)
 		mServerTimeInterval = 10;
@@ -110,7 +126,7 @@ void WorldConfig::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 	// Server Time Speed
 
-	mServerTimeSpeed = gWorldConfig->getConfiguration("Server_Time_Speed",0);
+	mServerTimeSpeed = gWorldConfig->getConfiguration<uint32>("Server_Time_Speed",(uint32)0);
 
 	if(mServerTimeSpeed < 0)
 		mServerTimeSpeed = 0;
@@ -118,34 +134,34 @@ void WorldConfig::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 		mServerTimeSpeed = 5000;
 
 	// ham regen
-	mHealthRegenDivider = static_cast<float>(gWorldConfig->getConfiguration("Player_Health_RegenDivider",100));
+	mHealthRegenDivider = static_cast<float>(gWorldConfig->getConfiguration<float>("Player_Health_RegenDivider",(float)100.0));
 	
 	if(mHealthRegenDivider < 1.0f || mHealthRegenDivider > 500.0f)
 		mHealthRegenDivider = 100.0f;
 
-	mActionRegenDivider = static_cast<float>(gWorldConfig->getConfiguration("Player_Action_RegenDivider",100));
+	mActionRegenDivider = static_cast<float>(gWorldConfig->getConfiguration<float>("Player_Action_RegenDivider",100));
 	if(mActionRegenDivider < 1.0f || mActionRegenDivider > 500.0f)
 		mActionRegenDivider = 100.0f;
 
-	mMindRegenDivider = static_cast<float>(gWorldConfig->getConfiguration("Player_Mind_RegenDivider",100));
+	mMindRegenDivider = static_cast<float>(gWorldConfig->getConfiguration<float>("Player_Mind_RegenDivider",100));
 	if(mMindRegenDivider < 1.0f || mMindRegenDivider > 500.0f)
 		mMindRegenDivider = 100.0f;
 
 	// incapacitation
-	mPlayerMaxIncaps = static_cast<uint8>(gWorldConfig->getConfiguration("Player_Incapacitation",3));
+	mPlayerMaxIncaps = static_cast<uint8>(gWorldConfig->getConfiguration<uint32>("Player_Incapacitation",(uint32)3));
 	
 	if(mPlayerMaxIncaps < 1 || mPlayerMaxIncaps > 50)
 	{
 		mPlayerMaxIncaps = 3;
 	}
 
-	mPlayerBaseIncapTime = gWorldConfig->getConfiguration("Player_Incap_Time",30);
+	mPlayerBaseIncapTime = gWorldConfig->getConfiguration<uint32>("Player_Incap_Time",30);
 	if(mPlayerBaseIncapTime < 1 || mPlayerBaseIncapTime > 300)
 	{
 		mPlayerBaseIncapTime = 300;
 	}
 
-	mIncapResetTime = gWorldConfig->getConfiguration("Player_Incap_Reset",300);
+	mIncapResetTime = gWorldConfig->getConfiguration<uint32>("Player_Incap_Reset",300);
 	if(mIncapResetTime < 1 || mIncapResetTime > 3600)
 	{
 		mIncapResetTime = 300;
@@ -160,7 +176,7 @@ void WorldConfig::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 		mDatabase->ExecuteSqlAsync(this,NULL,sql);
 	}
 
-	mGroupMissionUpdateTime = gWorldConfig->getConfiguration("Group_MissionUpdate_Time",10000);
+	mGroupMissionUpdateTime = gWorldConfig->getConfiguration<uint32>("Group_MissionUpdate_Time",10000);
 	if(mGroupMissionUpdateTime < 1000 || mGroupMissionUpdateTime > 60000)
 	{
 		mGroupMissionUpdateTime = 30000;
@@ -186,12 +202,14 @@ void WorldConfig::buildAttributeMap(DatabaseResult* result)
 	mConfigurationBinding = mDatabase->CreateDataBinding(2);
 	mConfigurationBinding->addField(DFT_bstring,offsetof(Configuration_QueryContainer,mKey),64,0);
 	mConfigurationBinding->addField(DFT_bstring,offsetof(Configuration_QueryContainer,mValue),128,1);
-
-	gLogger->logMsg("WorldConfig::adding Configuration: ");
+	
+	//gLogger->log(LogManager::DEBUG,"Adding Attribute Configuration");
+	
 	for(uint64 i = 0;i < count;i++)
 	{
 		result->GetNextRow(mConfigurationBinding,(void*)&attribute);
-		gLogger->logMsgF("WorldConfig::adding Attribute %s :: %s ",MSG_NORMAL,attribute.mKey.getAnsi(),attribute.mValue.getAnsi());
+		//gLogger->logCont(LogManager::DEBUG,"Adding Attribute %s: %s ",attribute.mKey.getAnsi(),attribute.mValue.getAnsi());
+		
 
 		if(hasConfiguration(attribute.mKey))
 		{
@@ -205,11 +223,7 @@ void WorldConfig::buildAttributeMap(DatabaseResult* result)
 
 	if(count > 0)
 	{
-		gLogger->logMsgLoadSuccess("WorldConfig:: %u attributes mapped...",MSG_NORMAL,count);
-	}
-	else
-	{
-		gLogger->logMsgLoadFailure("WorldConfig::mapping attributes...",MSG_NORMAL);					
+		gLogger->log(LogManager::NOTICE,"Mapped %u Server Attributes.",count);		
 	}
 
 }
@@ -222,7 +236,7 @@ void WorldConfig::setConfiguration(string key,std::string value)
 
 	if(it == mConfigurationMap.end())
 	{
-		gLogger->logMsgF("WorldConfig::setConfiguration: could not find %s",MSG_HIGH,key.getAnsi());
+		gLogger->log(LogManager::INFORMATION,"WorldConfig::setConfiguration: could not find %s",key.getAnsi());
 		return;
 	}
 
@@ -255,7 +269,7 @@ void WorldConfig::removeConfiguration(string key)
 	if(it != mConfigurationMap.end())
 		mConfigurationMap.erase(it);
 	else
-		gLogger->logMsgF("WorldConfig::removeConfiguration: could not find %s",MSG_HIGH,key.getAnsi());
+		gLogger->log(LogManager::INFORMATION,"WorldConfig::removeConfiguration: could not find %s",key.getAnsi());
 }
 
 //=========================================================================

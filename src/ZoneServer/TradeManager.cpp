@@ -1,11 +1,27 @@
  /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -202,40 +218,40 @@ void TradeManager::handleDispatchMessage(uint32 opcode, Message* message, Dispat
 		case opAcceptTransactionMessage:
 		{
 			_processAcceptTransactionMessage(message,client);
-			//gLogger->logMsgF("TradeManager AcceptTransactionMessage",MSG_HIGH);
+			//gLogger->log(LogManager::DEBUG,"TradeManager AcceptTransactionMessage");
 		}
 		break;
 
 		case opBeginVerificationMessage:
 		{
 			_processBeginVerificationMessage(message,client);
-			//gLogger->logMsgF("TradeManager BeginVerificationMessage",MSG_HIGH);
+			//gLogger->log(LogManager::DEBUG,"TradeManager BeginVerificationMessage");
 		}
 		break;
 
 		case opVerifyTradeMessage:
 		{
 			_processVerificationMessage(message,client);
-			//gLogger->logMsgF("TradeManager VerificationMessage",MSG_HIGH);
+			//gLogger->log(LogManager::DEBUG,"TradeManager VerificationMessage");
 		}
 		break;
 
 		case opUnacceptTransactionMessage:
 		{
 			_processUnacceptTransactionMessage(message,client);
-			//gLogger->logMsgF("TradeManager UnacceptTransactionMessage",MSG_HIGH);
+			//gLogger->log(LogManager::DEBUG,"TradeManager UnacceptTransactionMessage");
 		}
 		break;
 
 		case opGiveMoneyMessage:
 		{
 			_processGiveMoneyMessage(message,client);
-			//gLogger->logMsgF("TradeManager GiveMoneyMessage",MSG_HIGH);
+			//gLogger->log(LogManager::DEBUG,"TradeManager GiveMoneyMessage");
 		}
 		break;
 
 		default:
-			gLogger->logMsgF("TradeManagerMessage::handleDispatchMessage: Unhandled opcode %u",MSG_NORMAL,opcode);
+			gLogger->log(LogManager::DEBUG,"TradeManagerMessage::handleDispatchMessage: Unhandled opcode %u",opcode);
 		break;
 	}
 }
@@ -261,13 +277,13 @@ void TradeManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 				if((!asynContainer->player1)||(!asynContainer->player2))
 				{
-					gLogger->logMsgF("TradeManager TRMQuery_MoneyTransaction : one of the tradepartners doesnt exist",MSG_NORMAL);
+					gLogger->log(LogManager::DEBUG,"TradeManager TRMQuery_MoneyTransaction : one of the tradepartners doesnt exist");
 					error = 1;
 				}
 
 				if (error )
 				{
-					gLogger->logMsgF("TradeManager Trade transaction failed",MSG_NORMAL);
+					gLogger->log(LogManager::DEBUG,"TradeManager Trade transaction failed");
 					// oh woe we need to rollback :(
 					// (ie do nothing)
 					//oh and send an error to the client!
@@ -352,7 +368,7 @@ void TradeManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			//to many listings ??  default is 25
 			 //max price on public bazaar
 
-			if(count >= static_cast<uint64>(gWorldConfig->getConfiguration("Server_Bazaar_MaxListing",25)))
+			if(count >= static_cast<uint64>(gWorldConfig->getConfiguration<uint32>("Server_Bazaar_MaxListing",(uint32)25)))
 			{
 				gMessageLib->sendCreateAuctionItemResponseMessage(playerObject,asynContainer->tangible->getId(),13);
 				return;
@@ -397,7 +413,7 @@ void TradeManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				
 			if (error)
 			{
-				gLogger->logMsgF("TradeManager TRMQuery_CreateAuctionTransaction: transaction failed",MSG_NORMAL);
+				gLogger->log(LogManager::DEBUG,"TradeManager TRMQuery_CreateAuctionTransaction: transaction failed");
 				gMessageLib->sendCreateAuctionItemResponseMessage(asynContainer->player1,itemId,2);
 				return;
 			}
@@ -465,9 +481,7 @@ void TradeManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 				}
 				if(result->getRowCount())
-					gLogger->logMsgLoadSuccess("TradeManager::Loading %u FrogItems...",MSG_NORMAL,result->getRowCount());
-				else
-					gLogger->logMsgLoadFailure("TradeManager::Loading FrogItems...",MSG_NORMAL);
+					gLogger->log(LogManager::NOTICE,"Loaded frog items.");
 
 			}
 		break;
@@ -533,21 +547,21 @@ void TradeManager::_processFindFriendCreateWaypointMessage(Message* message,Disp
 
 	PlayerObject* playerObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId));
 
-	Datapad* thePad = dynamic_cast<Datapad*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+	Datapad* datapad			= playerObject->getDataPad();
 
     glm::vec3 position;
 	position.x = x;
 	position.z = z;
 
-	WaypointObject* wp = thePad->getWaypointByName(playerFriendName);
+	WaypointObject* wp = datapad->getWaypointByName(playerFriendName);
 	if(wp)
 	{
-		thePad->removeWaypoint(wp->getId());
+		datapad->removeWaypoint(wp->getId());
 	}
 
-	if(thePad->getCapacity())
+	if(datapad->getCapacity())
 	{
-		thePad->requestNewWaypoint(playerFriendName.getAnsi(),position,static_cast<uint16>(planet),Waypoint_blue);
+		datapad->requestNewWaypoint(playerFriendName.getAnsi(),position,static_cast<uint16>(planet),Waypoint_blue);
 	}
 }
 
@@ -680,7 +694,7 @@ void TradeManager::_processHandleAuctionCreateMessage(Message* message,DispatchC
 	if(!(playerObject && playerObject->isConnected()))
 	{
 		//some error
-		gLogger->logMsg("TradeManager::_processHandleAuctionCreateMessage No player!!!");
+		gLogger->log(LogManager::DEBUG,"TradeManager::_processHandleAuctionCreateMessage No player!!!");
 		gMessageLib->sendCreateAuctionItemResponseMessage(playerObject,ItemID,1);
 		return;
 	}
@@ -712,12 +726,12 @@ void TradeManager::_processHandleAuctionCreateMessage(Message* message,DispatchC
 	if(!requestedObject)
 	{
 		//cave we might sell datapad schematics, too
-		gLogger->logMsg("TradeManager::_processHandleCreateAuction could not find object");
+		gLogger->log(LogManager::DEBUG,"TradeManager::_processHandleCreateAuction could not find object");
 
 		return;
 	}
 
-	if(price > (uint32)gWorldConfig->getConfiguration("Server_Bazaar_MaxPrice",20000))
+	if(price > (uint32)gWorldConfig->getConfiguration<uint32>("Server_Bazaar_MaxPrice",20000))
 	{
 		//to expensive!!!
 		gMessageLib->sendCreateAuctionItemResponseMessage(playerObject,ItemID,4);
@@ -846,7 +860,7 @@ void TradeManager::_processAbortTradeMessage(Message* message,DispatchClient* cl
 
 			playerObject->getTrade()->cancelTradeSession();
 
-			gLogger->logMsgF("TradeManager Canceled Trade",MSG_NORMAL);
+			gLogger->log(LogManager::DEBUG,"TradeManager Canceled Trade");
 		}
 	}
 }
@@ -901,7 +915,7 @@ void TradeManager::_processTradeCompleteMessage(Message* message,DispatchClient*
 		}
 		else
 		{
-			gLogger->logMsgF("TradeManager Trade finished without Accept !!!!!",MSG_HIGH);
+			gLogger->log(LogManager::DEBUG,"TradeManager Trade finished without Accept !!!!!");
 		}
 	}
 }
@@ -945,15 +959,15 @@ void TradeManager::TradeTransaction(DispatchClient* client,PlayerObject* player1
 		player1->getTrade()->cancelTradeSession();
 		player2->getTrade()->cancelTradeSession();
 
-		gLogger->logMsgF("TradeManager Trade likely to have been tampered with",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG,"TradeManager Trade likely to have been tampered with");
 
 		if (!player1->testCash(asyncContainer->amount1) )
 		{
-			gLogger->logMsgF("Player : %S, id %"PRIu64" wanted to trade %u credits but had only %u left",MSG_HIGH,player1->getFirstName().getAnsi(),player1->getId(),asyncContainer->amount1,dynamic_cast<Inventory*>(player1->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits());
+			gLogger->log(LogManager::DEBUG,"Player : %s, id %"PRIu64" wanted to trade %u credits but had only %u left",player1->getFirstName().getAnsi(),player1->getId(),asyncContainer->amount1,dynamic_cast<Inventory*>(player1->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits());
 		}
 		if (!player2->testCash(asyncContainer->amount2) )
 		{
-			gLogger->logMsgF("Player : %S, id %"PRIu64" wanted to trade %u credits but had only %u left",MSG_HIGH,player2->getFirstName().getAnsi(),player2->getId(),asyncContainer->amount2,dynamic_cast<Inventory*>(player2->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits());
+			gLogger->log(LogManager::DEBUG,"Player : %s, id %"PRIu64" wanted to trade %u credits but had only %u left",player2->getFirstName().getAnsi(),player2->getId(),asyncContainer->amount2,dynamic_cast<Inventory*>(player2->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits());
 		}
 	}
 }
@@ -1071,13 +1085,13 @@ void TradeManager::_processAddItemMessage(Message* message,DispatchClient* clien
 
 	if(!(playerObject && playerObject->isConnected()))
 	{
-		gLogger->logMsgF("TradeManager::_processAddItemMessage:: No player",MSG_NORMAL);
+		gLogger->log(LogManager::DEBUG,"TradeManager::_processAddItemMessage:: No player");
 		return;
 	}
 
 	if (!playerObject->getTradeStatus())
 	{
-		gLogger->logMsgF("TradeManager::_processAddItemMessage:: Not trading",MSG_NORMAL);
+		gLogger->log(LogManager::DEBUG,"TradeManager::_processAddItemMessage:: Not trading");
 		return;
 	}
 
@@ -1086,7 +1100,7 @@ void TradeManager::_processAddItemMessage(Message* message,DispatchClient* clien
 
 	if (!addedItem)
 	{
-		gLogger->logMsgF("TradeManager::_processAddItemMessage:: No (tangible) Item",MSG_NORMAL);
+		gLogger->log(LogManager::DEBUG,"TradeManager::_processAddItemMessage:: No (tangible) Item");
 		return;
 	}
 

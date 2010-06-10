@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -212,6 +228,9 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		uint64					addEntertainerToProccess(CreatureObject* entertainerObject,uint32 tick);
 		void					removeEntertainerToProcess(uint64 taskId);
 
+		uint64					addImageDesignerToProcess(CreatureObject* entertainerObject,uint32 tick);
+		void					removeImagedesignerToProcess(uint64 taskId);
+
 		// adds a Buff which Ticks
 		uint64					addBuffToProcess(Buff* buff);
 		void					removeBuffToProcess(uint64 taskId);
@@ -306,8 +325,8 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		// get a npc animation
 		string					getNpcConverseAnimation(uint32 animId){ return mvNpcConverseAnimations[animId - 1]; }
 		// get a random chat phrase
-		std::pair<string,uint32>	getNpcChatter(uint32 id){ return mvNpcChatter[id]; }
-		std::pair<string,uint32>	getRandNpcChatter();
+		std::pair<std::wstring,uint32>	getNpcChatter(uint32 id){ return mvNpcChatter[id]; }
+		std::pair<std::wstring,uint32>	getRandNpcChatter();
 
 		// get planet, trn file name
 		const int8* getPlanetNameThis() const { return mvPlanetNames[mZoneId].getAnsi(); }
@@ -439,7 +458,7 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		BStringVector				mvTrnFileNames;
 		ActiveRegions				mActiveRegions;
 		CraftTools					mBusyCraftTools;
-		std::vector<std::pair<string,uint32> >	mvNpcChatter;
+		std::vector<std::pair<std::wstring,uint32> >	mvNpcChatter;
 		NpcConversionTimers			mNpcConversionTimers;
 		PlayerList					mPlayersToRemove;
 		RegionDeleteList			mRegionDeleteList;

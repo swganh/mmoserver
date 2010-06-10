@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -297,10 +313,6 @@ bool MessageLib::sendOpenedContainer(uint64 objectId, PlayerObject* targetObject
 //
 void MessageLib::sendUpdateTransformMessage(MovingObject* object)
 {
-	if(!object)
-	{
-		return;
-	}
 
 	mMessageFactory->StartMessage();
 	mMessageFactory->addUint32(opUpdateTransformMessage);          
@@ -311,7 +323,7 @@ void MessageLib::sendUpdateTransformMessage(MovingObject* object)
 	mMessageFactory->addUint32(object->getInMoveCount()); 
 
     mMessageFactory->addUint8(static_cast<uint8>(glm::length(object->mPosition) * 4.0f + 0.5f));
-    mMessageFactory->addUint8(static_cast<uint8>(glm::gtx::quaternion::angle(object->mDirection) / 0.0625f)); 
+    mMessageFactory->addUint8(static_cast<uint8>(object->rotation_angle() / 0.0625f)); 
 
 	_sendToInRangeUnreliable(mMessageFactory->EndMessage(),object,8,true);
 }
@@ -337,9 +349,9 @@ void MessageLib::sendUpdateTransformMessageWithParent(MovingObject* object)
 	mMessageFactory->addUint32(object->getInMoveCount()); 
             
     mMessageFactory->addUint8(static_cast<uint8>(glm::length(object->mPosition) * 8.0f + 0.5f));
-    mMessageFactory->addUint8(static_cast<uint8>(glm::gtx::quaternion::angle(object->mDirection) / 0.0625f)); 
+    mMessageFactory->addUint8(static_cast<uint8>(object->rotation_angle() / 0.0625f)); 
 
-	_sendToInRangeUnreliable(mMessageFactory->EndMessage(),object,8,false);		
+	_sendToInRangeUnreliable(mMessageFactory->EndMessage(),object,8);		
 }
 
 //======================================================================================================================
@@ -362,7 +374,7 @@ void MessageLib::sendUpdateTransformMessage(MovingObject* object, PlayerObject* 
 	mMessageFactory->addUint32(object->getInMoveCount()); 
             
     mMessageFactory->addUint8(static_cast<uint8>(glm::length(object->mPosition) * 4.0f + 0.5f));
-    mMessageFactory->addUint8(static_cast<uint8>(glm::gtx::quaternion::angle(object->mDirection) / 0.0625f)); 
+    mMessageFactory->addUint8(static_cast<uint8>(object->rotation_angle() / 0.0625f)); 
 
 	_sendToInstancedPlayersUnreliable(mMessageFactory->EndMessage(), 8, player);
 }
@@ -388,7 +400,7 @@ void MessageLib::sendUpdateTransformMessageWithParent(MovingObject* object, Play
 	mMessageFactory->addUint32(object->getInMoveCount()); 
             
     mMessageFactory->addUint8(static_cast<uint8>(glm::length(object->mPosition) * 8.0f + 0.5f));
-    mMessageFactory->addUint8(static_cast<uint8>(glm::gtx::quaternion::angle(object->mDirection) / 0.0625f)); 
+    mMessageFactory->addUint8(static_cast<uint8>(object->rotation_angle() / 0.0625f)); 
 
 	_sendToInstancedPlayersUnreliable(mMessageFactory->EndMessage(), 8, player);
 }
@@ -627,7 +639,10 @@ bool MessageLib::sendSystemMessageInRange(PlayerObject* playerObject,bool toSelf
 //
 // system message
 //
-bool MessageLib::sendSystemMessage(PlayerObject* playerObject,string customMessage,string mainFile,string mainVar,string toFile,string toVar,string toCustom,int32 di,string ttFile,string ttVar,string ttCustom,uint64 ttId,uint64 toId,uint64 tuId,string tuFile,string tuVar,string tuCustom )
+bool MessageLib::sendSystemMessage(PlayerObject* playerObject, std::wstring customMessage, std::string mainFile,
+											std::string mainVar, std::string toFile, std::string toVar, std::wstring toCustom, int32 di,
+											std::string ttFile, std::string ttVar, std::wstring ttCustom, uint64 ttId, uint64 toId, uint64 tuId,
+											std::string tuFile, std::string tuVar, std::wstring tuCustom)
 {
 	if(!playerObject || !playerObject->isConnected())
 	{
@@ -639,9 +654,9 @@ bool MessageLib::sendSystemMessage(PlayerObject* playerObject,string customMessa
 	mMessageFactory->addUint8(0);
 
 	// simple message
-	if(customMessage.getLength())
+	if(customMessage.length())
 	{
-		mMessageFactory->addString(customMessage);
+		mMessageFactory->addString(customMessage.c_str());
 		mMessageFactory->addUint32(0);				 
 	}
 	// templated message
@@ -649,9 +664,9 @@ bool MessageLib::sendSystemMessage(PlayerObject* playerObject,string customMessa
 	{ 
 		mMessageFactory->addUint32(0);				 
 
-		uint32	realSize = mainFile.getLength() + mainVar.getLength() + toFile.getLength() + toVar.getLength() + ttFile.getLength() + ttVar.getLength() + tuFile.getLength() + tuVar.getLength();
+		uint32	realSize = mainFile.length() + mainVar.length() + toFile.length() + toVar.length() + ttFile.length() + ttVar.length() + tuFile.length() + tuVar.length();
 
-		mMessageFactory->addUint32(42 + ((uint32)ceil(((double)realSize) / 2.0)) + toCustom.getLength() + ttCustom.getLength() + tuCustom.getLength());
+		mMessageFactory->addUint32(42 + ((uint32)ceil(((double)realSize) / 2.0)) + toCustom.length() + ttCustom.length() + tuCustom.length());
 
 		if(realSize % 2)
 			mMessageFactory->addUint16(1);
@@ -662,30 +677,30 @@ bool MessageLib::sendSystemMessage(PlayerObject* playerObject,string customMessa
 		mMessageFactory->addUint32(0xFFFFFFFF);
 
 		//main message		
-		mMessageFactory->addString(mainFile);
+		mMessageFactory->addString(mainFile.c_str());
 		mMessageFactory->addUint32(0);//spacer
-		mMessageFactory->addString(mainVar);
+		mMessageFactory->addString(mainVar.c_str());
 
 		//object 1
 		mMessageFactory->addUint64(tuId);
-		mMessageFactory->addString(tuFile);
+		mMessageFactory->addString(tuFile.c_str());
 		mMessageFactory->addUint32(0);//spacer
-		mMessageFactory->addString(tuVar);
-		mMessageFactory->addString(tuCustom.getUnicode16());
+		mMessageFactory->addString(tuVar.c_str());
+		mMessageFactory->addString(tuCustom.c_str());
 
 		//object 2		
 		mMessageFactory->addUint64(ttId);  //object id2
-		mMessageFactory->addString(ttFile);
+		mMessageFactory->addString(ttFile.c_str());
 		mMessageFactory->addUint32(0);//spacer
-		mMessageFactory->addString(ttVar);
-		mMessageFactory->addString(ttCustom.getUnicode16());
+		mMessageFactory->addString(ttVar.c_str());
+		mMessageFactory->addString(ttCustom.c_str());
 
 		//object 3
 		mMessageFactory->addUint64(toId);
-		mMessageFactory->addString(toFile);
+		mMessageFactory->addString(toFile.c_str());
 		mMessageFactory->addUint32(0);//spacer
-		mMessageFactory->addString(toVar);
-		mMessageFactory->addString(toCustom.getUnicode16());
+		mMessageFactory->addString(toVar.c_str());
+		mMessageFactory->addString(toCustom.c_str());
 
 		mMessageFactory->addInt32(di);
 		mMessageFactory->addUint32(0);
@@ -1380,17 +1395,12 @@ bool MessageLib::broadcastContainmentMessage(uint64 objectId,uint64 parentId,uin
 // updates an object parent<->child relationship
 // Used when Creatures updates their cell positions.
 //
-bool MessageLib::broadcastContainmentMessage(uint64 objectId,uint64 parentId,uint32 linkType,Object* targetObject)
+bool MessageLib::broadcastContainmentMessage(Object* targetObject,uint64 parentId,uint32 linkType)
 {
-	if(!targetObject)
-	{
-		return(false);
-	}
-
 	mMessageFactory->StartMessage();
 	mMessageFactory->addUint32(opUpdateContainmentMessage);  
 
-	mMessageFactory->addUint64(objectId);  
+	mMessageFactory->addUint64(targetObject->getId());  
 	mMessageFactory->addUint64(parentId);
 	mMessageFactory->addUint32(linkType);				
 

@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 #include "Food.h"
@@ -39,7 +55,6 @@ Food::~Food()
 
 void Food::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount)
 {
-	// gLogger->logMsg("Food::prepareCustomRadialMenu(");
 	RadialMenu* radial	= new RadialMenu();
 		
 	CreatureObject* unknownCreature;
@@ -50,15 +65,12 @@ void Food::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCou
 		(creatureInventory->getId() == this->getParentId()))
 	{
 		// Its an object in an inventory
-		// gLogger->logMsgF("Food::prepareCustomRadialMenu creatureInventory", MSG_NORMAL);
 
 		NPCObject* npcObject = dynamic_cast<NPCObject*>(unknownCreature);
 		if (npcObject)
 		{
-			// gLogger->logMsgF("Food::prepareCustomRadialMenu npcObject", MSG_NORMAL);
 			if ((npcObject->getNpcFamily() == NpcFamily_AttackableCreatures) && npcObject->isDead())
 			{
-				// gLogger->logMsgF("Food::prepareCustomRadialMenu NpcFamily_AttackableCreatures and DEAD", MSG_NORMAL);
 				// I'm pretty sure we are a loot item.
 				radial->addItem(1,0,radId_itemPickup,radAction_ObjCallback,"@ui_radial:loot");
 				radial->addItem(2,0,radId_examine,radAction_Default);
@@ -68,7 +80,6 @@ void Food::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCou
 		}
 	}
 
-	// gLogger->logMsgF("Food::prepareCustomRadialMenu Standard radial stuff", MSG_NORMAL);
 	// Note: If we are to never use the default "Eat", THEN remove the isTutorial()-condition test.
 	if (gWorldConfig->isTutorial())
 	{
@@ -96,7 +107,6 @@ void Food::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 			{
 				if (gWorldConfig->isTutorial())
 				{
-					// gLogger->logMsgF("Item::handleObjectMenuSelect: Use food",MSG_NORMAL);
 					if (playerObject->isConnected())
 					{
 						playerObject->getTutorial()->tutorialResponse("foodUsed");
@@ -122,7 +132,7 @@ void Food::handleFoodUse(Object* srcObject)
 		return;
 	}
 
-	if(playerObject->isDead() || !playerObject->isIncapacitated())
+	if(playerObject->isDead() || playerObject->isIncapacitated())
 	{
 		gMessageLib->sendSystemMessage(playerObject, L"","error_message","wrong_state");
 		return;
@@ -138,7 +148,7 @@ void Food::handleFoodUse(Object* srcObject)
 		mIcon = 0;
 		mIcon = this->getInternalAttribute<uint32>("food_icon");					
 	} else {
-		gLogger->logMsg("Food/Drink found with no Buff Icon in food.cpp: handleFoodUse()");
+		gLogger->log(LogManager::DEBUG,"Food/Drink found with no Buff Icon in food.cpp: handleFoodUse()");
 	}
 
 	if(this->hasAttribute("counter_uses_remaining"))
@@ -222,7 +232,7 @@ void Food::handleFoodUse(Object* srcObject)
 }
 void Food::_handleInstant(PlayerObject* playerObject)
 {
-	gMessageLib->sendSystemMessage(playerObject, "Sorry but instant use food has not been setup yet. Go kick a dev. Food::_handleInstant");
+	gMessageLib->sendSystemMessage(playerObject, L"Sorry but instant use food has not been setup yet. Go kick a dev. Food::_handleInstant");
 }
 void Food::_handleBuff(PlayerObject* playerObject)
 {

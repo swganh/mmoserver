@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -96,7 +112,6 @@ glm::vec3 NPCObject::getRandomPosition(const glm::vec3& currentPos, int32 offset
 		assert(false);
 	}
 	*/
-	// gLogger->logMsgF("NPCObject::getRandomPosition: %.0f, %.0f, %.0f ", MSG_NORMAL, v.x, v.y, v.z);
 	return v;
 }
 
@@ -109,13 +124,13 @@ float NPCObject::getHeightAt2DPosition(float xPos, float zPos, bool bestOffer) c
 {
 	float yPos = FLT_MIN;
 
-	if (Heightmap::isHeightmapCacheAvaliable() && (Heightmap::Instance()->isHighResCache() || !bestOffer))
+	if (Heightmap::isHeightmapCacheAvaliable() && (gHeightmap->isHighResCache() || !bestOffer))
 	{
-		yPos = Heightmap::Instance()->getCachedHeightAt2DPosition(xPos, zPos);
+		yPos = gHeightmap->getCachedHeightAt2DPosition(xPos, zPos);
 	}
 	else
 	{
-		yPos = Heightmap::Instance()->getHeight(xPos, zPos);
+		yPos = gHeightmap->getHeight(xPos, zPos);
 	}
 	if (yPos == FLT_MIN)
 	{
@@ -169,12 +184,12 @@ void NPCObject::setDirection(float deltaX, float deltaZ)
 	if (this->getParentId())
 	{
 		// We are inside a cell.
-		gMessageLib->sendDataTransformWithParent(this);
+		gMessageLib->sendDataTransformWithParent053(this);
 		gMessageLib->sendUpdateTransformMessageWithParent(this);
 	}
 	else
 	{
-		gMessageLib->sendDataTransform(this);
+		gMessageLib->sendDataTransform053(this);
 		gMessageLib->sendUpdateTransformMessage(this);
 	}
 }
@@ -197,176 +212,11 @@ void NPCObject::moveAndUpdatePosition(void)
 		// Testing to actually use a somewhat real height value.
 		position.x += this->getPositionOffset().x;
 		position.z += this->getPositionOffset().z;
-		position.y = Heightmap::Instance()->getCachedHeightAt2DPosition(position.x, position.z);
+		position.y = gHeightmap->getCachedHeightAt2DPosition(position.x, position.z);
 	}
 	// send out position updates to known players
 	this->updatePosition(this->getParentId(),position);
 
-}
-
-//=============================================================================
-//
-//	Update npc position in game world.
-//
-
-void NPCObject::updatePosition(uint64 parentId, const glm::vec3& newPosition)
-{
-	// gLogger->logMsgF("NPCObject::updatePosition: update NPC position)", MSG_NORMAL);
-
-	if (parentId == 0)
-	{
-		if (this->getParentId() != 0)
-		{
-			// if we just left a building
-			if (!this->getKnownPlayers()->empty())
-			{
-				gMessageLib->broadcastContainmentMessage(this->getId(),this->getParentId(),0,this);
-			}
-
-			// remove us from the last cell we were in
-			if (CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(this->getParentId())))
-			{
-				cell->removeObject(this);
-			}
-			else
-			{
-				gLogger->logMsgF("Error removing %"PRIu64" from cell(%"PRIu64")",MSG_HIGH,this->getId(),this->getParentId());
-			}
-
-			// we are outside again
-			this->setParentId(0);
-
-			this->mPosition = newPosition;
-
-			// Add us to the world.
-			if (!this->getKnownPlayers()->empty())
-			{
-				gMessageLib->broadcastContainmentMessage(this->getId(),0,4,this);
-			}
-
-			// add us to the qtree
-			if (QTRegion* newRegion = gWorldManager->getSI()->getQTRegion((double)this->mPosition.x,(double)this->mPosition.z))
-			{
-				this->setSubZoneId((uint32)newRegion->getId());
-				newRegion->mTree->addObject(this);
-			}
-			else
-			{
-				// we should never get here !
-				gLogger->logMsg("NPCObject::updatePosition: could not find zone region in map\n");
-			}
-		}
-		else
-		{
-			// We are still outside.
-
-			// get the qt of the new position
-			// if (QTRegion* newRegion = gWorldManager->getSI()->getQTRegion((double)this->mPosition.x,(double)this->mPosition.z))
-			if (QTRegion* newRegion = gWorldManager->getSI()->getQTRegion((double)newPosition.x, (double)newPosition.z))
-			{
-				// we didnt change so update the old one
-				if((uint32)newRegion->getId() == this->getSubZoneId())
-				{
-					// this also updates the object (npcs) position
-					newRegion->mTree->updateObject(this, newPosition);
-				}
-				else
-				{
-					// remove from old
-					if (QTRegion* oldRegion = gWorldManager->getQTRegion(this->getSubZoneId()))
-					{
-						oldRegion->mTree->removeObject(this);
-					}
-
-					// put into new
-					this->mPosition = newPosition;
-					this->setSubZoneId((uint32)newRegion->getId());
-					newRegion->mTree->addObject(this);
-				}
-			}
-		}
-	}
-	else
-	{
-		uint64 oldParentId = this->getParentId();
-		if (oldParentId != parentId)
-		{
-			// We changed cell
-			CellObject* cell = NULL;
-
-			// Remove us.
-			if (!this->getKnownPlayers()->empty())
-			{
-				gMessageLib->broadcastContainmentMessage(this->getId(),oldParentId,0,this);
-			}
-			// gLogger->logMsgF("NPC changed cell from (%"PRIu64") to (%"PRIu64")",MSG_NORMAL, oldParentId, parentId);
-
-			// only remove us from si, if we just entered the building
-			if (oldParentId != 0)
-			{
-				// We are still inside.
-				if ((cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(oldParentId))))
-				{
-					cell->removeObject(this);
-				}
-				else
-				{
-					gLogger->logMsgF("Error removing %"PRIu64" from cell(%"PRIu64")",MSG_NORMAL,this->getId(),oldParentId);
-				}
-			}
-			else
-			{
-				// remove us from qt
-				// We just entered a building.
-				if (this->getSubZoneId())
-				{
-					if (QTRegion* region = gWorldManager->getQTRegion(this->getSubZoneId()))
-					{
-						this->setSubZoneId(0);
-						region->mTree->removeObject(this);
-					}
-				}
-			}
-
-			// put us into new one
-			if (!this->getKnownPlayers()->empty())
-			{
-				gMessageLib->broadcastContainmentMessage(this->getId(),parentId,4,this);
-			}
-			if ((cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(parentId))))
-			{
-				cell->addObjectSecure(this);
-			}
-			else
-			{
-				gLogger->logMsgF("Error adding %"PRIu64" to cell(%"PRIu64")",MSG_NORMAL,this->getId(),parentId);
-			}
-			// update the player
-			this->setParentId(parentId);
-		}
-	}
-	this->mPosition = newPosition;
-
-	// send out position updates to known players
-	this->setInMoveCount(this->getInMoveCount() + 1);
-
-	//check whether updates are necessary before building the packet and then destroying it
-	if (this->getKnownPlayers()->empty())
-	{
-		return;
-	}
-
-	if (this->getParentId())
-	{
-		// We are inside a cell.
-		// gMessageLib->sendDataTransformWithParent(this);
-		gMessageLib->sendUpdateTransformMessageWithParent(this);
-	}
-	else
-	{
-		// gMessageLib->sendDataTransform(this);
-		gMessageLib->sendUpdateTransformMessage(this);
-	}
 }
 
 
@@ -404,8 +254,6 @@ void NPCObject::setRandomDirection(void)
 	float x = (float)(ux - 100);	// -100.0 <= x <= 100.0
 	float z = (float)(uz - 100);	// -100.0 <= z <= 100.0
 
-	// gLogger->logMsgF("NPCObject::setRandomDirection: %.0f, %.0f", MSG_NORMAL, x, z);
-
 	float h = sqrt(x*x + z*z);
 
 	// if ((z/h) < 0.0) h always positive.
@@ -428,7 +276,6 @@ void NPCObject::setRandomDirection(void)
 		this->mDirection.y = sin(0.5f*asin(x/h));
 		this->mDirection.w = cos(0.5f*acos(z/h));
 	}
-	// gLogger->logMsgF("Translates to: %.3f, %.3f", MSG_NORMAL, this->mDirection.y, this->mDirection.w);
 }
 
 //=============================================================================
@@ -438,7 +285,6 @@ void NPCObject::setRandomDirection(void)
 
 void NPCObject::updateDamage(uint64 playerId, uint64 groupId, uint32 weaponGroup, int32 damage, uint8 attackerPosture, float attackerDistance)
 {
-	// gLogger->logMsgF("NPCObject::updateDamage() %d", MSG_NORMAL, damage);
 
 	// Players alone, player in group A, same player in group B, another player in group A...
 	DamageDealer* damageDealer = NULL;
@@ -459,7 +305,6 @@ void NPCObject::updateDamage(uint64 playerId, uint64 groupId, uint32 weaponGroup
 	if (it == mDamageDealers.end())
 	{
 		// Add this attacker.
-		// gLogger->logMsgF("New damage dealer, id = %"PRIu64", group %"PRIu64"", MSG_NORMAL, playerId, groupId);
 		damageDealer = new DamageDealer();
 		damageDealer->mPlayerId = playerId;
 		damageDealer->mGroupId = groupId;
@@ -501,7 +346,6 @@ void NPCObject::updateDamage(uint64 playerId, uint64 groupId, uint32 weaponGroup
 			}
 		}
 		damageDealer->mAggroPoints += aggroPoints;
-		// gLogger->logMsgF("NPCObject::updateDamage() Damage=%d aggro = %.0f total aggro = %.0f", MSG_NORMAL, damage, aggroPoints, damageDealer->mAggroPoints);
 	}
 }
 
@@ -512,7 +356,6 @@ void NPCObject::updateDamage(uint64 playerId, uint64 groupId, uint32 weaponGroup
 
 void NPCObject::updateAggro(uint64 playerId, uint64 groupId, uint8 attackerPosture)
 {
-	// gLogger->logMsgF("NPCObject::updateAggro()", MSG_NORMAL);
 
 	DamageDealer* damageDealer = NULL;
 	DamageDealers::iterator it = mDamageDealers.begin();
@@ -521,7 +364,6 @@ void NPCObject::updateAggro(uint64 playerId, uint64 groupId, uint8 attackerPostu
 		if (((*it)->mPlayerId == playerId) && ((*it)->mGroupId == groupId))
 		{
 			// Already have this attacker in list. Let's update damage and weapon usage.
-			// gLogger->logMsgF("Already have this attacker in list.", MSG_NORMAL);
 			damageDealer = (*it);
 			break;
 		}
@@ -531,7 +373,6 @@ void NPCObject::updateAggro(uint64 playerId, uint64 groupId, uint8 attackerPostu
 	if (it == mDamageDealers.end())
 	{
 		// Add aggro for this attacker.
-		// gLogger->logMsgF("New aggro, id = %"PRIu64", group %"PRIu64"", MSG_NORMAL, playerId, groupId);
 		damageDealer = new DamageDealer();
 		damageDealer->mPlayerId = playerId;
 		damageDealer->mGroupId = groupId;
@@ -543,7 +384,6 @@ void NPCObject::updateAggro(uint64 playerId, uint64 groupId, uint8 attackerPostu
 
 	if ((attackerPosture == CreaturePosture_Incapacitated) || (attackerPosture == CreaturePosture_Dead))
 	{
-		// gLogger->logMsgF("Removed aggro, target is incapped or dead.", MSG_NORMAL);
 		damageDealer->mAggroPoints = 0;
 
 		// Let's this player rebuild is aggro before we attack him again.
@@ -602,16 +442,6 @@ bool NPCObject::attackerHaveAggro(uint64 attackerId)
 		}
 		it++;
 	}
-	/*
-	if (aggro)
-	{
-		gLogger->logMsgF("AttackableCreature::attackerHaveAggro = TRUE", MSG_NORMAL);
-	}
-	else
-	{
-		gLogger->logMsgF("AttackableCreature::attackerHaveAggro = FALSE", MSG_NORMAL);
-	}
-	*/
 	return aggro;
 }
 
@@ -624,7 +454,6 @@ bool NPCObject::attackerHaveAggro(uint64 attackerId)
 
 void NPCObject::updateAttackersXp(void)
 {
-	// gLogger->logMsgF("NPCObject::updateAttackersXp() Entering", MSG_NORMAL);
 
 	// First we need to figure out who has done most damage.
 
@@ -645,10 +474,8 @@ void NPCObject::updateAttackersXp(void)
 	DamageDealers::iterator it = mDamageDealers.begin();
 	while (it != mDamageDealers.end())
 	{
-		// gLogger->logMsgF("Handling Player id %"PRIu64", group %"PRIu64", damage %u", MSG_NORMAL, (*it)->mPlayerId, (*it)->mGroupId, (*it)->mDamage);
 		if ((*it)->mGroupId == 0)
 		{
-			// gLogger->logMsgF("Player %"PRIu64" hit with %u", MSG_NORMAL, (*it)->mPlayerId, (*it)->mDamage);
 			if ((*it)->mDamage >= topDamageByPlayer)
 			{
 				topDamageByPlayer = (*it)->mDamage;
@@ -671,7 +498,6 @@ void NPCObject::updateAttackersXp(void)
 	DamageDealers::iterator groupIt = mDamageByGroups.begin();
 	while (groupIt != mDamageByGroups.end())
 	{
-		// gLogger->logMsgF("Group %"PRIu64" hit with %u", MSG_NORMAL, (*groupIt)->mGroupId, (*groupIt)->mDamage);
 		if ((*groupIt)->mDamage >= topDamageByGroup)
 		{
 			topDamageByGroup = (*groupIt)->mDamage;
@@ -695,14 +521,12 @@ void NPCObject::updateAttackersXp(void)
 	// And the winner is....
 	if (topDamageByPlayer >= topDamageByGroup)
 	{
-		// gLogger->logMsgF("Player %"PRIu64" did the most damage", MSG_NORMAL, topPlayerId);
 		// An individual player did the most damage.
 		this->updateAttackersWeaponAndCombatXp(topPlayerId, 0, weaponXp, topPlayerWeaponMasks);
 		this->mLootAllowedById = topPlayerId;
 	}
 	else
 	{
-		// gLogger->logMsgF("Group %"PRIu64" did the most damage", MSG_NORMAL, groupTopId);
 		// The players in this group have to divide the XP, any group bonuses are not implemented yet.
 		this->mLootAllowedById = groupTopId;
 
@@ -746,10 +570,8 @@ void NPCObject::updateGroupDamage(DamageDealer* damageDealer)
 	DamageDealers::iterator it = mDamageByGroups.begin();
 	while (it != mDamageByGroups.end())
 	{
-		// gLogger->logMsgF("Comparing group %"PRIu64" with existing group %"PRIu64"", MSG_NORMAL, (*it)->mGroupId, damageDealer->mGroupId);
 		if ((*it)->mGroupId == damageDealer->mGroupId)
 		{
-			// gLogger->logMsgF("Adding group %"PRIu64" with damage %u", MSG_NORMAL, damageDealer->mGroupId, damageDealer->mDamage);
 			// Already have this group as an attacker in list. Let's update damage.
 			(*it)->mDamage += damageDealer->mDamage;
 			break;
@@ -759,7 +581,6 @@ void NPCObject::updateGroupDamage(DamageDealer* damageDealer)
 
 	if (it == mDamageByGroups.end())
 	{
-		// gLogger->logMsgF("New group as damage dealer, group = %"PRIu64", damage = %u", MSG_NORMAL, damageDealer->mGroupId, damageDealer->mDamage);
 		// Add this attacker.
 		DamageDealer* groupDamageDealer = new DamageDealer();
 		groupDamageDealer->mGroupId = damageDealer->mGroupId;

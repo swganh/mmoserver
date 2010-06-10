@@ -1,3 +1,30 @@
+/*
+---------------------------------------------------------------------------------------
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
+
+For more information, visit http://www.swganh.com
+
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
+
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+---------------------------------------------------------------------------------------
+*/
+
 #include <list>
 #include "QTRegion.h"
 #include "QuadTree.h"
@@ -179,7 +206,6 @@ void ForageManager::startForage(PlayerObject* player, forageClasses forageClass)
 		previousHead->pNext = new_pocket;
 
 	new_pocket->addAttempt(attempt);
-	//gLogger->logMsg("NEW FORAGING ATTEMPT", FOREGROUND_RED);
 }
 
 void ForageManager::forageUpdate()
@@ -190,7 +216,6 @@ void ForageManager::forageUpdate()
 	{
 		if(it->updateAttempts(gWorldManager->GetCurrentGlobalTick())) //If true we delete this Pocket
 		{
-			//gLogger->logMsg("FORAGING TICK", FOREGROUND_RED);
 			if(previousHead == NULL)
 			{
 				pHead = it->pNext;
@@ -258,11 +283,9 @@ bool ForagePocket::updateAttempts(uint64 currentTime)
 			delete (*it);
 			it = attempts.erase(it);
 			AttemptCount--;
-			//gLogger->logMsg("POCKET REMOVED DUE TO TIMER", FOREGROUND_RED);
 		}
 		else if((currentTime - (*it)->startTime) >= 8000 && !(*it)->completed)
 		{
-			//gLogger->logMsg("ATTEMPT FINISHED", FOREGROUND_RED);
 			PlayerObject* player = (PlayerObject*)gWorldManager->getObjectById((*it)->playerID);
 			if(player != NULL)
 			{
@@ -270,7 +293,8 @@ bool ForagePocket::updateAttempts(uint64 currentTime)
 				{
 					ForageManager::failForage(player, ENTERED_COMBAT);
 					(*it)->completed = true;
-					it++; AttemptCount++;
+					it++; 
+					AttemptCount++;
 					continue;
 				}
 
@@ -282,12 +306,12 @@ bool ForagePocket::updateAttempts(uint64 currentTime)
 				}
 				else
 				{
-					(*it)->completed = true;
 					ForageManager::failForage(player, AREA_EMPTY);
+					(*it)->completed = true;
 				}
 			}
-			it++;
 			AttemptCount++;
+			it++;
 		}
 		else
 		{
@@ -308,12 +332,10 @@ bool ForagePocket::updateAttempts(uint64 currentTime)
 						ForageManager::failForage(player, PLAYER_MOVED);
 						(*it)->completed = true;
 					}
-
 				}
 			}
-
-			it++;
 			AttemptCount++;
+			it++;
 		}
 	}
 

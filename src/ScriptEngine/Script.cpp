@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -65,7 +81,7 @@ void Script::run()
 	else
 	{
 		_formatError();
-		gLogger->logMsgF("ScriptingEngine::Syntax Error: %s",MSG_NORMAL,mLastError);
+		gLogger->log(LogManager::EMERGENCY,"ScriptingEngine::Syntax Error: %s",mLastError);
 	}
 }
 
@@ -83,7 +99,7 @@ void Script::runFile(const int8 *fileName)
 	else
 	{
 		_formatError();
-		gLogger->logMsgF("ScriptingEngine::Syntax Error: %s",MSG_NORMAL,mLastError);
+		gLogger->log(LogManager::EMERGENCY,"ScriptingEngine::Syntax Error: %s",mLastError);
 	}
 }
 
@@ -166,7 +182,7 @@ void Script::_resumeScript(uint32 param)
 		default:
 		{
 			_formatError();
-			gLogger->logMsgF("ScriptingEngine::_resumeScript Runtime Error: %s",MSG_NORMAL,mLastError);
+			gLogger->log(LogManager::EMERGENCY,"ScriptingEngine::_resumeScript Runtime Error: %s",mLastError);
 		}
 		break;
 	}
@@ -226,7 +242,7 @@ void Script::callFunction(const char *func,const char *sig,...)
 		if(lua_pcall(mThreadState,narg,nres,0) != 0)
 		{
 			_formatError();
-			gLogger->logMsgF("ScriptingEngine::callFunction Runtime Error: %s",MSG_NORMAL,mLastError);
+			gLogger->log(LogManager::EMERGENCY,"ScriptingEngine::callFunction Runtime Error: %s",mLastError);
 		}
 
 		nres = -nres;
@@ -240,7 +256,7 @@ void Script::callFunction(const char *func,const char *sig,...)
 					if(!lua_isnumber(mThreadState,nres))
 					{
 						_formatError();
-						gLogger->logMsgF("ScriptingEngine::callFunction wrong result type: %s",MSG_NORMAL,mLastError);
+						gLogger->log(LogManager::EMERGENCY,"ScriptingEngine::callFunction wrong result type: %s",mLastError);
 					}
 
 					*va_arg(vl,double *) = lua_tonumber(mThreadState,nres);
@@ -252,7 +268,7 @@ void Script::callFunction(const char *func,const char *sig,...)
 					if(!lua_isnumber(mThreadState,nres))
 					{
 						_formatError();
-						gLogger->logMsgF("ScriptingEngine::callFunction wrong result type: %s",MSG_NORMAL,mLastError);
+						gLogger->log(LogManager::EMERGENCY, "ScriptingEngine::callFunction wrong result type: %s",mLastError);
 					}
 
 					*va_arg(vl,int*) = (int)lua_tonumber(mThreadState,nres);
@@ -264,7 +280,7 @@ void Script::callFunction(const char *func,const char *sig,...)
 					if(!lua_isstring(mThreadState,nres))
 					{
 						_formatError();
-						gLogger->logMsgF("ScriptingEngine::callFunction wrong result type: %s",MSG_NORMAL,mLastError);
+						gLogger->log(LogManager::EMERGENCY,"ScriptingEngine::callFunction wrong result type: %s",mLastError);
 					}
 
 					*va_arg(vl,const char **) = lua_tostring(mThreadState,nres);
@@ -274,7 +290,7 @@ void Script::callFunction(const char *func,const char *sig,...)
 				default:
 				{
 					_formatError();
-					gLogger->logMsgF("ScriptingEngine::callFunction invalid option: %s",MSG_NORMAL,mLastError);
+					gLogger->log(LogManager::EMERGENCY,"ScriptingEngine::callFunction invalid option: %s",mLastError);
 				}
 				break;
 			}

@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -50,7 +66,7 @@ ObjectContainer::~ObjectContainer()
 	 	Object* object = gWorldManager->getObjectById((*objectIt));
 		if(!object)
 		{
-			gLogger->logMsgF("ObjectContainer::remove Object : No Object!!!!",MSG_HIGH);
+			gLogger->log(LogManager::DEBUG,"ObjectContainer::remove Object : No Object!!!!");
 			assert(false && "ObjectContainer::~ObjectContainer WorldManager unable to find object instance");
 			objectIt = removeObject(objectIt);
 			
@@ -84,7 +100,7 @@ bool ObjectContainer::addObjectSecure(Object* Data)
 	}
 	else
 	{
-		gLogger->logMsgF("ObjectContainer::addObjectSecure No Capacity!!!!",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG,"ObjectContainer::addObjectSecure No Capacity!!!!");
 		return true;
 
 	}
@@ -103,7 +119,7 @@ bool ObjectContainer::addObject(Object* Data)
 	else
 	{
 		//PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getParentId()));					
-		gLogger->logMsgF("ObjectContainer::addObject No Capacity!!!!",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG,"ObjectContainer::addObject No Capacity!!!!");
 		//assert(false);// Another case where....why crash? We can continue just fine.
 		//because crashing is fun :)))
 		//plus obvioulsly someone uses the code without proper failsafes
@@ -125,7 +141,7 @@ bool ObjectContainer::addObject(Object* Data, PlayerObject* player)
 	if(!player)
 	{
 		//its still added to the container
-		gLogger->logMsgF("ObjectContainer::addObject No Capacity!!!!",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG,"ObjectContainer::addObject No Capacity!!!!");
 		return true;
 
 	}
@@ -145,7 +161,7 @@ bool ObjectContainer::addObjectSecure(Object* Data, PlayerObject* player)
 
 	if(!player)
 	{
-		gLogger->logMsgF("ObjectContainer::addObject No Capacity!!!!",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG,"ObjectContainer::addObject No Capacity!!!!");
 		return addObjectSecure(Data);
 		
 	}
@@ -171,7 +187,7 @@ bool ObjectContainer::addObject(Object* Data,PlayerObjectSet*	knownPlayers)
 	if(!knownPlayers||(!knownPlayers->size()))
 	{
 		//its still added to the container
-		gLogger->logMsgF("ObjectContainer::addObject No Capacity!!!!",MSG_HIGH);
+		gLogger->log(LogManager::DEBUG,"ObjectContainer::addObject No Capacity!!!!");
 		return true;
 
 	}
@@ -237,7 +253,7 @@ Object* ObjectContainer::getObjectById(uint64 id)
 
 		++it;
 	}
-	gLogger->logMsgF("ObjectContainer::getDataById Data %I64u not found",MSG_HIGH, id);
+	gLogger->log(LogManager::DEBUG,"ObjectContainer::getDataById Data %I64u not found", id);
 	return NULL;
 }
 
@@ -256,14 +272,13 @@ bool ObjectContainer::removeObject(Object* data)
 		}
 		++it;
 	}
-	gLogger->logMsgF("ObjectContainer::removeDataByPointer Data %I64u not found",MSG_HIGH, data->getId());
+	gLogger->log(LogManager::DEBUG,"ObjectContainer::removeDataByPointer Data %I64u not found", data->getId());
 //	assert(false);
 	return false;
 }
 
 //=============================================================================
 // removes it out of the container and destroys it in the worldmanager
-// get in removal from db and zone, too ?
 //
 bool ObjectContainer::deleteObject(Object* data)
 {
@@ -278,7 +293,7 @@ bool ObjectContainer::deleteObject(Object* data)
 		}
 		++it;
 	}
-	gLogger->logMsgF("ObjectContainer::removeDataByPointer Data %I64u not found",MSG_HIGH, data->getId());
+	gLogger->log(LogManager::DEBUG,"ObjectContainer::removeDataByPointer Data %I64u not found", data->getId());
 	return false;
 }
 
@@ -297,7 +312,7 @@ bool ObjectContainer::removeObject(uint64 id)
 		}
 		++it;
 	}
-	gLogger->logMsgF("ObjectContainer::removeDataById  %I64u not found",MSG_HIGH, id);
+	gLogger->log(LogManager::DEBUG,"ObjectContainer::removeDataById  %I64u not found", id);
 	return false;
 }
 
@@ -398,7 +413,7 @@ void ObjectContainer::handleObjectReady(Object* object,DispatchClient* client)
 	TangibleObject* tO = dynamic_cast<TangibleObject*>(object);
 	if(!tO)
 	{
-		gLogger->logMsgF("ObjectContainer::handleObjectReady :No tangible ????", MSG_NORMAL);
+		gLogger->log(LogManager::DEBUG,"ObjectContainer::handleObjectReady :No tangible ????");
 		return;
 	}
 	// reminder: objects are owned by the global map, our item (container) only keeps references
@@ -417,7 +432,7 @@ void ObjectContainer::handleObjectReady(Object* object,DispatchClient* client)
 
 	if(!mainParent)
 	{
-		gLogger->logMsgF("ObjectContainer::handleObjectReady :No main parent ???? Object ID %I64u", MSG_NORMAL, object->getId());
+		gLogger->log(LogManager::DEBUG,"ObjectContainer::handleObjectReady :No main parent ???? Object ID %I64u", object->getId());
 		return;
 
 	}

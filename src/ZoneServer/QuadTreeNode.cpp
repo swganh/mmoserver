@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -89,7 +105,7 @@ int32 QuadTreeNode::addObject(Object* object)
 	assert(object && "QuadTreeNode::addObject this method does not accept NULL objects");
 	assert(object->getId() && "QuadTreeNode::addObject this method requires an object with a valid id");
 
-	// gLogger->logMsgF("Trying to add Object %"PRIu64" @ %.2f %.2f ", MSG_NORMAL, object->getId(), object->mPosition.x, object->mPosition.z);
+	// gLogger->log(LogManager::DEBUG,"Trying to add Object %"PRIu64" @ %.2f %.2f ",  object->getId(), object->mPosition.x, object->mPosition.z);
 
 	// its a leaf, add it
 	if(!mSubNodes)
@@ -100,11 +116,11 @@ int32 QuadTreeNode::addObject(Object* object)
 		if (it == mObjects.end())
 		{
 			mObjects.insert(std::make_pair(object->getId(),object));
-			// gLogger->logMsgF("QuadTreeNode::addObject: INSERTED OBJECT with id = %"PRIu64"", MSG_NORMAL, object->getId());
+			// gLogger->log(LogManager::DEBUG,"QuadTreeNode::addObject: INSERTED OBJECT with id = %"PRIu64"",  object->getId());
 		}
 		else
 		{
-			gLogger->logMsgF("QuadTreeNode::addObject: INSERTED OBJECT already exist = %"PRIu64"", MSG_NORMAL, object->getId());
+			gLogger->log(LogManager::DEBUG,"QuadTreeNode::addObject: INSERTED OBJECT already exist = %"PRIu64"",  object->getId());
 			return(2);
 		}
 
@@ -167,13 +183,13 @@ void QuadTreeNode::getObjectsInRange(Object* object,ObjectSet* resultSet,uint32 
 				// don't add ourself
 				if(currentObject != object && ((currentObject->getType() & typeMask) == static_cast<uint32>(currentObject->getType())))
 				{
-					// gLogger->logMsgF("QuadTreeNode::getObjectsInRange FINDING object with id = %"PRIu64"", MSG_NORMAL, currentObject->getId());
+					// gLogger->log(LogManager::DEBUG,"QuadTreeNode::getObjectsInRange FINDING object with id = %"PRIu64"",  currentObject->getId());
 					resultSet->insert(currentObject);
 				}					
 			}
 			else
 			{
-				gLogger->logMsgF("QuadTreeNode::getObjectsInRange ERROR INVALID ID\n", MSG_NORMAL);
+				gLogger->log(LogManager::CRITICAL,"QuadTreeNode::getObjectsInRange ERROR INVALID ID\n");
 				assert(false && "QuadTreeNode::getObjectsInRange ERROR INVALID ID");
 			}
 			++it;
@@ -305,13 +321,13 @@ int32 QuadTreeNode::removeObject(Object* object)
 
 		if (it != mObjects.end())
 		{
-			// gLogger->logMsgF("QuadTreeNode::removeObject REMOVE object with id = %"PRIu64"", MSG_NORMAL, object->getId());
+			// gLogger->log(LogManager::DEBUG,"QuadTreeNode::removeObject REMOVE object with id = %"PRIu64"",  object->getId());
 
 			mObjects.erase(it);
 
 			return(1);
 		}
-		gLogger->logMsgF("QuadTreeNode::removeObject ERROR FAILED to REMOVE object with id = %"PRIu64"", MSG_NORMAL, object->getId());
+		gLogger->log(LogManager::DEBUG,"QuadTreeNode::removeObject ERROR FAILED to REMOVE object with id = %"PRIu64"",  object->getId());
 		return(2);
 	}
 	// traverse our children
@@ -349,12 +365,12 @@ int32 QuadTreeNode::updateObject(Object* object, const glm::vec3& newPosition)
 	// shouldnt be called on leafs
 	if(mSubNodes)
 	{
-		// gLogger->logMsgF("Remove Object %"PRIu64" @ %.2f %.2f ", MSG_NORMAL, object->getId(), object->mPosition.x, object->mPosition.z);
+		// gLogger->log(LogManager::DEBUG,"Remove Object %"PRIu64" @ %.2f %.2f ",  object->getId(), object->mPosition.x, object->mPosition.z);
 		removeObject(object);
 
 		object->mPosition = newPosition;
 
-		// gLogger->logMsgF("Add Object %"PRIu64" @ %.2f %.2f ", MSG_NORMAL, object->getId(), object->mPosition.x, object->mPosition.z);
+		// gLogger->log(LogManager::DEBUG,"Add Object %"PRIu64" @ %.2f %.2f ",  object->getId(), object->mPosition.x, object->mPosition.z);
 		addObject(object);
 		// addMyObject(object);
 	}
@@ -386,11 +402,11 @@ int32 QuadTreeNode::addMyObject(Object* object)
 		if (it == mObjects.end())
 		{
 			mObjects.insert(std::make_pair(object->getId(),object));
-			gLogger->logMsgF("QuadTreeNode::addMyObject: INSERTED OBJECT with id = %"PRIu64"", MSG_NORMAL, object->getId());
+			gLogger->log(LogManager::DEBUG,"QuadTreeNode::addMyObject: INSERTED OBJECT with id = %"PRIu64"",  object->getId());
 		}
 		else
 		{
-			gLogger->logMsgF("QuadTreeNode::addMyObject: ERROR INSERTED OBJECT already exist = %"PRIu64"", MSG_NORMAL, object->getId());
+			gLogger->log(LogManager::DEBUG,"QuadTreeNode::addMyObject: ERROR INSERTED OBJECT already exist = %"PRIu64"",  object->getId());
 			return(2);
 		}
 

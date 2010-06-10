@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -13,10 +29,11 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #define ANH_ZONESERVER_MOVING_OBJECT_H
 
 #include "Object.h"
+//#include "QuadTree.h"
 
 class Message;
 class DispatchClient;
-
+class QTRegion;
 //=============================================================================
 
 class MovingObject : public Object
@@ -28,9 +45,15 @@ class MovingObject : public Object
 		MovingObject();
 		virtual ~MovingObject();
 
+		//NPC Player movement through server (warping, elevators)
+		void updatePosition(uint64 parentId, const glm::vec3& newPosition);
+		void updatePositionInCell(uint64 parentId, const glm::vec3& newPosition);
+		void updatePositionOutside(uint64 parentId, const glm::vec3& newPosition);
+
 		// current movement updates sequence
 		uint32		getInMoveCount(){ return mInMoveCount; }
 		void		setInMoveCount(uint32 moveCount){ mInMoveCount = moveCount; }
+		uint32		incInMoveCount(){ return ++mInMoveCount; }
 
 		// walk speed
 		float		getBaseAcceleration(){ return mBaseAcceleration; }
@@ -73,6 +96,10 @@ class MovingObject : public Object
 
 		virtual void	prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount){}
 
+
+		QTRegion*					getSubZone() const { return mSubZone; }
+		void						setSubZone(QTRegion* zone){ mSubZone = zone; }
+
 	protected:
 
 		uint32		mInMoveCount;
@@ -87,6 +114,9 @@ class MovingObject : public Object
 		float		mCurrentTurnRate;
 		float		mCurrentSpeedMod;
 		float		mBaseSpeedMod;
+
+		
+		QTRegion*	mSubZone;
 };
 
 //=============================================================================

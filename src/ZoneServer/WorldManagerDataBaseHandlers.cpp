@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -24,6 +40,8 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "DatabaseManager/DatabaseResult.h"
 #include "ScriptEngine/ScriptEngine.h"
 #include "ScriptEngine/ScriptSupport.h"
+#include "Heightmap.h"
+#include "ConfigManager/ConfigManager.h"
 
 
 //======================================================================================================================
@@ -50,26 +68,26 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					result->GetNextRow(binding,&mTotalObjectCount);
 
 					if(result->getRowCount())
-						gLogger->logMsgLoadSuccess("WorldManager::Loading %u Objects...",MSG_NORMAL,mTotalObjectCount);
-					else
-						gLogger->logMsgLoadFailure("WorldManager::Loading Objects...",MSG_NORMAL);
+						gLogger->log(LogManager::NOTICE,"Loading objects...");
 
 					if(mTotalObjectCount > 0)
 					{
 						// this loads all buildings with cells and objects they contain
 						_loadBuildings();	 //NOT PlayerStructures!!!!!!!!!!!!!!!!!!!!!!!!!! they are handled seperately further down
-						// load objects in world
-						_loadAllObjects(0);
+						
+						if(mZoneId!=41)
+						{
+							// load objects in world
+							_loadAllObjects(0);
 
-						// load zone regions
-						mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_ZoneRegions),"SELECT id FROM zone_regions WHERE planet_id=%u ORDER BY id;",mZoneId);
-
+							// load zone regions
+							mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_ZoneRegions),"SELECT id FROM zone_regions WHERE planet_id=%u ORDER BY id;",mZoneId);
+						}
 						// load client effects
 						if(!mDebug)
 						mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_ClientEffects),"SELECT * FROM clienteffects ORDER BY id;");
 
-						// load planet names and terrain files
-						mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_PlanetNamesAndFiles),"SELECT * FROM planet ORDER BY planet_id;");
+						
 
 						// load attribute keys
 						mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_AttributeKeys),"SELECT id, name FROM attributes ORDER BY id;");
@@ -89,21 +107,24 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 						if(!mDebug)
 						mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_NpcChatter),"SELECT * FROM npc_chatter WHERE planetId=%u OR planetId=99;",mZoneId);
 
-						// load cities
-						mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_Cities),"SELECT id FROM cities WHERE planet_id=%u ORDER BY id;",mZoneId);
+						if(mZoneId != 41)
+						{
+							// load cities
+							mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_Cities),"SELECT id FROM cities WHERE planet_id=%u ORDER BY id;",mZoneId);
 
-						// load badge regions
-						if(!mDebug)
-						mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_BadgeRegions),"SELECT id FROM badge_regions WHERE planet_id=%u ORDER BY id;",mZoneId);
+							// load badge regions
+							if(!mDebug)
+							mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_BadgeRegions),"SELECT id FROM badge_regions WHERE planet_id=%u ORDER BY id;",mZoneId);
 
-						//load spawn regions
-						mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_SpawnRegions),"SELECT id FROM spawn_regions WHERE planet_id=%u ORDER BY id;",mZoneId);
+							//load spawn regions
+							mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_SpawnRegions),"SELECT id FROM spawn_regions WHERE planet_id=%u ORDER BY id;",mZoneId);
 
-						// load world scripts
-						mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_WorldScripts),"SELECT priority,file FROM config_zone_scripts WHERE planet_id=%u ORDER BY id;",mZoneId);
+							// load world scripts
+							mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_WorldScripts),"SELECT priority,file FROM config_zone_scripts WHERE planet_id=%u ORDER BY id;",mZoneId);
 
-						//load creature spawn regions, and optionally heightmaps cache.
-						mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_CreatureSpawnRegions),"SELECT id, spawn_x, spawn_z, spawn_width, spawn_length FROM spawns WHERE spawn_planet=%u ORDER BY id;",mZoneId);
+							//load creature spawn regions, and optionally heightmaps cache.
+							mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_CreatureSpawnRegions),"SELECT id, spawn_x, spawn_z, spawn_width, spawn_length FROM spawns WHERE spawn_planet=%u ORDER BY id;",mZoneId);
+						}
 
 						// load harvesters
 						mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_Harvesters),"SELECT s.id FROM structures s INNER JOIN harvesters h ON (s.id = h.id) WHERE zone=%u ORDER BY id;",mZoneId);
@@ -135,11 +156,6 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					uint64 harvesterId;
 					uint64 count = result->getRowCount();
 
-					if(result->getRowCount())
-						gLogger->logMsgLoadSuccess("WorldManager::Loading %u harvesters...",MSG_NORMAL,count);
-					else
-						gLogger->logMsgLoadFailure("WorldManager::Loading harvesters...",MSG_NORMAL);
-
 					for(uint64 i = 0;i < count;i++)
 					{
 						result->GetNextRow(harvesterBinding,&harvesterId);
@@ -147,7 +163,12 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 						gHarvesterFactory->requestObject(this,harvesterId,0,0,asyncContainer->mClient);
 					}
 
+					if(result->getRowCount())
+						gLogger->log(LogManager::NOTICE,"Loaded harvesters.");
+
 					mDatabase->DestroyDataBinding(harvesterBinding);
+
+
 				}
 				break;
 
@@ -159,17 +180,16 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					uint64 houseId;
 					uint64 count = result->getRowCount();
 
-					if(result->getRowCount())
-						gLogger->logMsgLoadSuccess("WorldManager::Loading %u playerhouses...",MSG_NORMAL,count);
-					else
-						gLogger->logMsgLoadFailure("WorldManager::Loading playerhouses...",MSG_NORMAL);
-
+						
 					for(uint64 i = 0;i < count;i++)
 					{
 						result->GetNextRow(houseBinding,&houseId);
 
 						gHouseFactory->requestObject(this,houseId,0,0,asyncContainer->mClient);
 					}
+
+					if(result->getRowCount())
+						gLogger->log(LogManager::NOTICE,"Loaded playerhouses.");
 
 					mDatabase->DestroyDataBinding(houseBinding);
 				}
@@ -184,17 +204,15 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					uint64 factoryId;
 					uint64 count = result->getRowCount();
 
-					if(result->getRowCount())
-						gLogger->logMsgLoadSuccess("WorldManager::Loading %u factories...",MSG_NORMAL,count);
-					else
-						gLogger->logMsgLoadFailure("WorldManager::Loading factories...",MSG_NORMAL);
-
 					for(uint64 i = 0;i < count;i++)
 					{
 						result->GetNextRow(factoryBinding,&factoryId);
 
 						gFactoryFactory->requestObject(this,factoryId,0,0,asyncContainer->mClient);
 					}
+
+					if(result->getRowCount())
+						gLogger->log(LogManager::NOTICE,"Loaded factories.");
 
 					mDatabase->DestroyDataBinding(factoryBinding);
 				}
@@ -211,17 +229,15 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					uint64 regionId;
 					uint64 count = result->getRowCount();
 
-					if(result->getRowCount())
-						gLogger->logMsgLoadSuccess("WorldManager::Loading %u Zone Regions...",MSG_NORMAL,count);
-					else
-						gLogger->logMsgLoadFailure("WorldManager::Loading Zone Regions...",MSG_NORMAL);
-
 					for(uint64 i = 0;i < count;i++)
 					{
 						result->GetNextRow(regionBinding,&regionId);
 
 						gObjectFactory->requestObject(ObjType_Region,Region_Zone,0,this,regionId,asyncContainer->mClient);
 					}
+
+					if(result->getRowCount())
+						gLogger->log(LogManager::NOTICE,"Loaded zone regions.");
 
 					mDatabase->DestroyDataBinding(regionBinding);
 				}
@@ -235,7 +251,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					nameBinding->addField(DFT_bstring,0,255,1);
 
 					uint64 rowCount = result->getRowCount();
-
+					mvPlanetNames.reserve((uint32)rowCount);
 					for(uint64 i = 0;i < rowCount;i++)
 					{
 						result->GetNextRow(nameBinding,&tmp);
@@ -248,7 +264,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 					DataBinding*	fileBinding = mDatabase->CreateDataBinding(1);
 					fileBinding->addField(DFT_bstring,0,255,2);
-
+					mvTrnFileNames.reserve((uint32)rowCount);
 					for(uint64 i = 0;i < rowCount;i++)
 					{
 						result->GetNextRow(fileBinding,&tmp);
@@ -257,6 +273,16 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 					mDatabase->DestroyDataBinding(fileBinding);
 
+					//start loading heightmap
+					if(mZoneId != 41)
+					{
+						int16 resolution = 0;
+						if (gConfig->keyExists("heightMapResolution"))
+							resolution = gConfig->read<int>("heightMapResolution");
+
+						if (!Heightmap::Instance(resolution))
+							assert(false && "WorldManager::_handleLoadComplete Missing heightmap, look for it on the forums.");
+					}
 				}
 				break;
 
@@ -285,9 +311,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					}
 
 					if(result->getRowCount())
-						gLogger->logMsgLoadSuccess("WorldManager::Loading %u Attribute Keys...",MSG_NORMAL,attributeCount);
-					else
-						gLogger->logMsgLoadFailure("WorldManager::Loading Attribute Keys...",MSG_NORMAL);
+						gLogger->log(LogManager::NOTICE,"Loaded attribute keys.");
 
 					mDatabase->DestroyDataBinding(binding);
 				}
@@ -301,7 +325,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					binding->addField(DFT_bstring,0,255,1);
 
 					uint64 effectCount = result->getRowCount();
-
+					mvClientEffects.reserve((uint32)effectCount);
 					for(uint64 i = 0;i < effectCount;i++)
 					{
 						result->GetNextRow(binding,&tmp);
@@ -310,9 +334,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					}
 
 					if(result->getRowCount())
-						gLogger->logMsgLoadSuccess("WorldManager::Loading %u Client Effects...",MSG_NORMAL,effectCount);
-					else
-						gLogger->logMsgLoadFailure("WorldManager::Loading Client Effects...",MSG_NORMAL);
+						gLogger->log(LogManager::NOTICE,"Loaded Client Effects.");
 
 
 					mDatabase->DestroyDataBinding(binding);
@@ -327,7 +349,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					binding->addField(DFT_bstring,0,255,1);
 
 					uint64 effectCount = result->getRowCount();
-
+					mvSounds.reserve((uint32)effectCount);
 					for(uint64 i = 0;i < effectCount;i++)
 					{
 						result->GetNextRow(binding,&tmp);
@@ -336,9 +358,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					}
 
 					if(result->getRowCount())
-						gLogger->logMsgLoadSuccess("WorldManager::Loading %u Sound Effects...",MSG_NORMAL,effectCount);
-					else
-						gLogger->logMsgLoadFailure("WorldManager::Loading Sound Effects...",MSG_NORMAL);
+						gLogger->log(LogManager::NOTICE,"Loaded sound effects.");
 
 					mDatabase->DestroyDataBinding(binding);
 				}
@@ -352,7 +372,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					binding->addField(DFT_bstring,0,255,1);
 
 					uint64 effectCount = result->getRowCount();
-
+					mvMoods.reserve((uint32)effectCount);
 					for(uint64 i = 0;i < effectCount;i++)
 					{
 						result->GetNextRow(binding,&tmp);
@@ -361,9 +381,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					}
 
 					if(result->getRowCount())
-						gLogger->logMsgLoadSuccess("WorldManager::Loading %u moods...",MSG_NORMAL,effectCount);
-					else
-						gLogger->logMsgLoadFailure("WorldManager::Loading moods...",MSG_NORMAL);
+						gLogger->log(LogManager::NOTICE,"Loaded moods.");
 
 
 					mDatabase->DestroyDataBinding(binding);
@@ -378,7 +396,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					binding->addField(DFT_bstring,0,255,1);
 
 					uint64 animCount = result->getRowCount();
-
+					mvNpcConverseAnimations.reserve((uint32)animCount);
 					for(uint64 i = 0;i < animCount;i++)
 					{
 						result->GetNextRow(binding,&tmp);
@@ -387,9 +405,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					}
 
 					if(result->getRowCount())
-						gLogger->logMsgLoadSuccess("WorldManager::Loading %u  Npc Converse Animations...",MSG_NORMAL,animCount);
-					else
-						gLogger->logMsgLoadFailure("WorldManager::Loading  Npc Converse Animations...",MSG_NORMAL);
+						gLogger->log(LogManager::NOTICE,"Loaded NPC conversational animations.");
 
 					mDatabase->DestroyDataBinding(binding);
 				}
@@ -407,7 +423,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					animbinding->addField(DFT_uint32,0,4,2);
 
 					uint64 phraseCount = result->getRowCount();
-
+					mvNpcChatter.reserve((uint32)phraseCount);
 					for(uint64 i = 0;i < phraseCount;i++)
 					{
 						result->GetNextRow(binding,&tmp);
@@ -416,13 +432,11 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 						tmp.convert(BSTRType_Unicode16);
 
-						mvNpcChatter.push_back(std::make_pair(BString(tmp.getUnicode16()),animId));
+						mvNpcChatter.push_back(std::make_pair(std::wstring(tmp.getUnicode16()),animId));
 					}
 
 					if(result->getRowCount())
-						gLogger->logMsgLoadSuccess("WorldManager::Loading %u  Npc Phrases...",MSG_NORMAL,phraseCount);
-					else
-						gLogger->logMsgLoadFailure("WorldManager::Loading  Npc Phrases...",MSG_NORMAL);
+						gLogger->log(LogManager::NOTICE,"Loaded NPC phrases.");
 
 					mDatabase->DestroyDataBinding(binding);
 					mDatabase->DestroyDataBinding(animbinding);
@@ -437,7 +451,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					scriptBinding->addField(DFT_string,offsetof(Script,mFile),255,1);
 
 					uint64 scriptCount = result->getRowCount();
-
+					
 					for(uint64 i = 0;i < scriptCount;i++)
 					{
 						Script* script = gScriptEngine->createScript();
@@ -448,9 +462,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					}
 
 					if(result->getRowCount())
-						gLogger->logMsgLoadSuccess("WorldManager::Loading %u   world scripts...",MSG_NORMAL,scriptCount);
-					else
-						gLogger->logMsgLoadFailure("WorldManager::Loading   world scripts...",MSG_NORMAL);
+						gLogger->log(LogManager::NOTICE,"Loaded world scripts.");
 
 					mDatabase->DestroyDataBinding(scriptBinding);
 				}
@@ -475,9 +487,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					}
 
 					if(result->getRowCount())
-						gLogger->logMsgLoadSuccess("WorldManager::Loading %u buildings...",MSG_NORMAL,buildingCount);
-					else
-						gLogger->logMsgLoadFailure("WorldManager::Loading buildings...",MSG_NORMAL);
+						gLogger->log(LogManager::NOTICE,"Loaded buildings");
 
 					mDatabase->DestroyDataBinding(buildingBinding);
 				}
@@ -500,9 +510,9 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					}
 
 					if(result->getRowCount())
-						gLogger->logMsgLoadSuccess("WorldManager::Loading %u city regions...",MSG_NORMAL,count);
-					else
-						gLogger->logMsgLoadFailure("WorldManager::Loading city regions...",MSG_NORMAL);
+						gLogger->log(LogManager::NOTICE,"Loaded city regions.");
+
+					
 
 					mDatabase->DestroyDataBinding(cityBinding);
 				}
@@ -525,9 +535,8 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					}
 
 					if(result->getRowCount())
-						gLogger->logMsgLoadSuccess("WorldManager::Loading %u badge regions...",MSG_NORMAL,count);
-					else
-						gLogger->logMsgLoadFailure("WorldManager::Loading badge regions...",MSG_NORMAL);
+						gLogger->log(LogManager::NOTICE,"Loaded badge regions.");
+					
 
 					mDatabase->DestroyDataBinding(badgeBinding);
 				}
@@ -550,9 +559,8 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					}
 
 					if(result->getRowCount())
-						gLogger->logMsgLoadSuccess("WorldManager::Loading %u spawn regions...",MSG_NORMAL,count);
-					else
-						gLogger->logMsgLoadFailure("WorldManager::Loading spawn regions...",MSG_NORMAL);
+						gLogger->log(LogManager::NOTICE,"Loaded spawn regions.");
+					
 
 					mDatabase->DestroyDataBinding(spawnBinding);
 				}
@@ -569,7 +577,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					creatureSpawnBinding->addField(DFT_float,offsetof(CreatureSpawnRegion,mLength),4,4);
 
 					uint64 count = result->getRowCount();
-
+					
 					for(uint64 i = 0;i < count;i++)
 					{
 						CreatureSpawnRegion *creatureSpawnRegion = new CreatureSpawnRegion();
@@ -578,9 +586,8 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					}
 
 					if(result->getRowCount())
-						gLogger->logMsgLoadSuccess("WorldManager::Loading %u creature spawn regions...",MSG_NORMAL,count);
-					else
-						gLogger->logMsgLoadFailure("WorldManager::Loading creature spawn regions...",MSG_NORMAL);
+						gLogger->log(LogManager::NOTICE,"Loaded creature spawn regions.");
+
 
 					mDatabase->DestroyDataBinding(creatureSpawnBinding);
 				}
@@ -627,9 +634,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					}
 
 					if(result->getRowCount())
-						gLogger->logMsgLoadSuccess("WorldManager::Loading %u cell children...",MSG_NORMAL,count);
-					else
-						gLogger->logMsgLoadFailure("WorldManager::Loading cell children...",MSG_NORMAL);
+						gLogger->log(LogManager::NOTICE,"Loaded cell children...");
 
 					mDatabase->DestroyDataBinding(binding);
 				}
@@ -731,7 +736,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 		break;
 
 		default:
-			gLogger->logMsgF("WorldManager::DatabaseCallback: unknown state: %i",MSG_HIGH,mState);
+			gLogger->log(LogManager::EMERGENCY,"World Manager Database Callback: unknown state: %i",mState);
 		break;
 	}
 

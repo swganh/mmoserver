@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -20,7 +36,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "PlayerObject.h"
 #include "SpawnPoint.h"
 #include "UIManager.h"
-#include "Vehicle.h"
+#include "VehicleController.h"
 #include "WorldManager.h"
 #include "WorldConfig.h"
 #include "ZoneTree.h"
@@ -49,16 +65,13 @@ CreatureObject::CreatureObject()
 , mPerformance(NULL)
 , mPvPStatus(CreaturePvPStatus_None)
 , mPendingPerform(PlayerPerformance_None)
-
 , mCurrentIncapTime(0)
 , mEntertainerListenToId(0)
 , mFirstIncapTime(0)
 , mGroupId(0)
-, mOwner(0)
 , mState(0)
 , mLastEntertainerXP(0)
 , mScale(1.0)
-
 , mLanguage(1)
 ,	mLastMoveTick(0)
 , mPerformanceCounter(0)
@@ -353,6 +366,11 @@ bool CreatureObject::handlePerformanceTick(uint64 time,void* ref)
 	return(gEntertainerManager->handlePerformanceTick(this));
 }
 
+bool CreatureObject::handleImagedesignerTimeOut(uint64 time,void* ref)
+{
+	return(gEntertainerManager->handleImagedesignTimeOut(this));
+}
+
 //=============================================================================
 //
 // update current movement properties
@@ -490,7 +508,7 @@ void CreatureObject::AddBuff(Buff* buff,  bool stackable, bool overwrite)
 		if(player != 0)
 		{
 			//gMessageLib->sendSystemMessage(player, "You appear to have attempted to stack Buffs. The server has prevented this");
-			gLogger->logMsg("Attempt to duplicate buffs prevented.");
+			gLogger->log(LogManager::DEBUG,"Attempt to duplicate buffs prevented.");
 		}
 		SAFE_DELETE(buff);
 		return;
@@ -547,7 +565,18 @@ void CreatureObject::RemoveBuff(Buff* buff)
 
 //================================================
 //
-
+void CreatureObject::ClearAllBuffs()
+{
+	BuffList::iterator it = mBuffList.begin();
+	while(it != mBuffList.end())
+	{
+		(*it)->FinalChanges();
+		gWorldManager->removeBuffToProcess((*it)->GetID());
+		(*it)->MarkForDeletion();
+		++it;
+	}
+	CleanUpBuffs();
+}
 void CreatureObject::CleanUpBuffs()
 {
 	BuffList::iterator it = mBuffList.begin();
@@ -556,7 +585,7 @@ void CreatureObject::CleanUpBuffs()
 		if((*it)->GetIsMarkedForDeletion())
 		{
 			SAFE_DELETE(*it);
-			it = mBuffList.erase(it);
+			mBuffList.erase(it++);
 		}
 		else
 		{
@@ -620,8 +649,6 @@ void CreatureObject::incap()
 
 	if (this->getType() == ObjType_Player)
 	{
-		// gLogger->logMsgF("Player incapped, mIncapCount = %u.", MSG_NORMAL, mIncapCount);
-
 		// first incap, update the initial time
 		uint64 localTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
 		if(!mIncapCount)
@@ -631,16 +658,12 @@ void CreatureObject::incap()
 		// reset the counter if the reset time has passed
 		else if(mIncapCount != 0 && (localTime - mFirstIncapTime) >= gWorldConfig->getIncapResetTime() * 1000)
 		{
-			// gLogger->logMsgF("Time since first incap = %"PRIu64"", MSG_NORMAL, localTime - mFirstIncapTime);
-			// gLogger->logMsgF("Resetting mFirstIncapTime", MSG_NORMAL);
-
 			mIncapCount = 0;
 			mFirstIncapTime = localTime;
 		}
 		/*
 		if (mIncapCount != 0)
 		{
-			gLogger->logMsgF("Time since first incap = %"PRIu64"", MSG_NORMAL, localTime - mFirstIncapTime);
 		}
 		*/
 
@@ -654,19 +677,18 @@ void CreatureObject::incap()
 		if(player->checkIfMounted())
 		{
 			//Get the player's mount
-			if(Vehicle* vehicle = dynamic_cast<Vehicle*>(gWorldManager->getObjectById(player->getMount()->getPetController())))
+			if(VehicleController* vehicle = dynamic_cast<VehicleController*>(gWorldManager->getObjectById(player->getMount()->controller())))
 			{
 				//Now dismount
-				vehicle->dismountPlayer();
+				vehicle->DismountPlayer();
 			}
 
 		}
 
 		// advance incaps counter
-		if(++mIncapCount < gWorldConfig->getConfiguration("Player_Incapacitation",3))
+		uint32 configIncapCount = gWorldConfig->getConfiguration<uint32>("Player_Incapacitation",3);
+		if(++mIncapCount < (uint8)configIncapCount)
 		{
-			// gLogger->logMsgF("Player incapped, mIncapCount set to = %u, setting timer..", MSG_NORMAL, mIncapCount);
-
 			// update the posture
 			mPosture = CreaturePosture_Incapacitated;
 
@@ -698,7 +720,6 @@ void CreatureObject::incap()
 		// we hit the max -> death
 		else
 		{
-			// gLogger->logMsgF("Player died.", MSG_NORMAL);
 			die();
 		}
 	}
@@ -708,7 +729,7 @@ void CreatureObject::incap()
 	}
 	else
 	{
-		gLogger->logMsgF("CreatureObject::incap Incapped unsupported type %u\n", MSG_NORMAL, this->getType());
+		gLogger->log(LogManager::NOTICE,"CreatureObject::incap Incapped unsupported type %u\n", this->getType());
 	}
 
 }
@@ -720,8 +741,6 @@ void CreatureObject::die()
 	mIncapCount			= 0;
 	mCurrentIncapTime	= 0;
 	mFirstIncapTime		= 0;
-
-	// gLogger->logMsg("CreatureObject::die I'm dead");
 
 	gMessageLib->sendIncapTimerUpdate(this);
 
@@ -817,13 +836,11 @@ void CreatureObject::die()
 				// Do we have any personal clone location?
 				if (building->getId() == player->getPreDesignatedCloningFacilityId())
 				{
-					// gLogger->logMsg("Found a pre-designated cloning facility");
 					preDesignatedBuilding = building;
 				}
 
 				if (building->getBuildingFamily() == BuildingFamily_Cloning_Facility)
 				{
-					// gLogger->logMsg("Found a cloning facility");
 					// TODO: This code is not working as intended if player dies inside, since buildings use world coordinates and players inside have cell coordinates.
 					// Tranformation is needed before the correct distance can be calculated.
 					if(!nearestBuilding	||
@@ -868,7 +885,7 @@ void CreatureObject::die()
 		}
 		else
 		{
-			gLogger->logMsg("No cloning facility available\n");
+			gLogger->log(LogManager::DEBUG,"No cloning facility available\n");
 		}
 	}
 	else // if(CreatureObject* creature = dynamic_cast<CreatureObject*>(this))
@@ -938,7 +955,6 @@ void CreatureObject::addDefender(uint64 defenderId)
 	{
 		if((*it) == defenderId)
 		{
-			// gLogger->logMsg("CreatureObject:: defender already added :(\n");
 			return;
 		}
 
@@ -956,10 +972,6 @@ void CreatureObject::clearDefenders()
 	if (mDefenders.size())
 	{
 		mDefenders.clear();
-	}
-	else
-	{
-		// gLogger->logMsg("CreatureObject::clearing defenders albeit empty :(\n");
 	}
 }
 
@@ -1020,8 +1032,6 @@ bool CreatureObject::setAsActiveDefenderAndUpdateList(uint64 defenderId)
 	{
 		if (index != 0)
 		{
-			// gLogger->logMsg("setAsActiveDefenderAndUpdateList: Moved defender to active.");
-
 			// Move the defender to top of list.
 			(void)mDefenders.erase(it);
 			mDefenders.push_front(defenderId);
@@ -1039,10 +1049,6 @@ bool CreatureObject::setAsActiveDefenderAndUpdateList(uint64 defenderId)
 			// gMessageLib->sendDefenderUpdate(this,0,0,0);
 			// gMessageLib->sendDefenderUpdate(this,1,0,defenderId);		// Overwrite whatever we have there
 		}
-		else
-		{
-			// gLogger->logMsg("setAsActiveDefenderAndUpdateList: Defender already at top set to active.");
-		}
 	}
 	else
 	{
@@ -1051,7 +1057,6 @@ bool CreatureObject::setAsActiveDefenderAndUpdateList(uint64 defenderId)
 		CreatureObject* defender = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(defenderId));
 		if (defenderId && defender && !defender->isDead() && !defender->isIncapacitated())
 		{
-			// gLogger->logMsg("setAsActiveDefenderAndUpdateList: Adding defender to top of list.");
 			mDefenders.push_front(defenderId);
 			gMessageLib->sendDefenderUpdate(this,1,0,defenderId);
 			valid = true;
@@ -1061,7 +1066,6 @@ bool CreatureObject::setAsActiveDefenderAndUpdateList(uint64 defenderId)
 			// We have lost our target.
 			// Refresh list to get around targeting rectile problems with corpse
 			// gMessageLib->sendNewDefenderList(this);
-			// gLogger->logMsg("setAsActiveDefenderAndUpdateList: Lost target, refreshing defender list.");
 		}
 		*/
 	}
@@ -1278,8 +1282,6 @@ void CreatureObject::buildCustomization(uint16 customization[])
 
 void CreatureObject::makePeaceWithDefender(uint64 defenderId)
 {
-	// gLogger->logMsgF("CreatureObject::makePeaceWithDefender()", MSG_NORMAL);
-
 	// Atempting a forced peace is no good.
 
 	PlayerObject* attackerPlayer = dynamic_cast<PlayerObject*>(this);
@@ -1292,15 +1294,6 @@ void CreatureObject::makePeaceWithDefender(uint64 defenderId)
 		defenderPlayer = dynamic_cast<PlayerObject*>(defenderCreature);
 	}
 
-	if (attackerPlayer)
-	{
-		// gLogger->logMsgF("Attacker is a Player", MSG_NORMAL);
-	}
-	else
-	{
-		// gLogger->logMsgF("Attacker is a Npc", MSG_NORMAL);
-	}
-
 	if (defenderPlayer)
 	{
 		if (attackerPlayer)
@@ -1309,13 +1302,9 @@ void CreatureObject::makePeaceWithDefender(uint64 defenderId)
 			return;
 		}
 	}
-	else if (defenderCreature)
-	{
-		// gLogger->logMsgF("Defender is a Npc", MSG_NORMAL);
-	}
 	else
 	{
-		gLogger->logMsgF("Defender is of unknown type...", MSG_NORMAL);
+		gLogger->log(LogManager::NOTICE,"Defender is of unknown type...");
 		return;
 	}
 
@@ -1334,7 +1323,6 @@ void CreatureObject::makePeaceWithDefender(uint64 defenderId)
 	if (this->getDefenders()->size() == 0)
 	{
 		// I have no more defenders.
-		// gLogger->logMsgF("Attacker: My last defender", MSG_NORMAL);
 		if (attackerPlayer)
 		{
 			// Update player (my self) with the new status.
@@ -1351,7 +1339,6 @@ void CreatureObject::makePeaceWithDefender(uint64 defenderId)
 	}
 	else
 	{
-		// gLogger->logMsgF("Attacker: Have more defenders", MSG_NORMAL);
 		// gMessageLib->sendNewDefenderList(this);
 	}
 	// gMessageLib->sendNewDefenderList(this);
@@ -1371,7 +1358,6 @@ void CreatureObject::makePeaceWithDefender(uint64 defenderId)
 		if (defenderCreature->getDefenders()->size() == 0)
 		{
 			// He have no more defenders.
-			// gLogger->logMsgF("Defender: My last defender", MSG_NORMAL);
 
 			if (defenderPlayer)
 			{
@@ -1388,7 +1374,6 @@ void CreatureObject::makePeaceWithDefender(uint64 defenderId)
 		}
 		else
 		{
-			// gLogger->logMsgF("Defender: Have more defenders", MSG_NORMAL);
 			//gMessageLib->sendNewDefenderList(defenderCreature);
 		}
 		// gMessageLib->sendNewDefenderList(defenderCreature);
@@ -1407,6 +1392,7 @@ Object* CreatureObject::getTarget() const
 {
 	return gWorldManager->getObjectById(mTargetId);
 }
+
 
 //=============================================================================
 //handles building custom radials

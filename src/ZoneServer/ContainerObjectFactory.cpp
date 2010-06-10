@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -162,8 +178,6 @@ void ContainerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult*
 
 void ContainerObjectFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client)
 {
-	// gLogger->logMsg("ContainerObjectFactory::requestObject:");
-
 	if (!gWorldManager->getObjectById(id))
 	{
 		// The container does not exist.
@@ -176,7 +190,6 @@ void ContainerObjectFactory::requestObject(ObjectFactoryCallback* ofCallback,uin
 	else
 	{
 		// Just update the contence, if needed.
-		// gLogger->logMsg("Doing an update...");
 
 		// If not a player as parent, we will not have to send any create updates.
 		PlayerObject* player = NULL;
@@ -248,7 +261,6 @@ void ContainerObjectFactory::_destroyDatabindings()
 
 void ContainerObjectFactory::handleObjectReady(Object* object,DispatchClient* client)
 {
-	// gLogger->logMsg("ContainerObjectFactory::handleObjectReady");
 	InLoadingContainer* ilc	= _getObject(object->getParentId());
 	ilc->mLoadCounter--;
 
@@ -266,11 +278,10 @@ void ContainerObjectFactory::handleObjectReady(Object* object,DispatchClient* cl
 	// if (container->getObjectLoadCounter() == (container->getObjects())->size())
 	if(!ilc->mLoadCounter)
 	{
-		// gLogger->logMsg("ContainerObjectFactory::handleObjectReady: DONE!!!");
 		container->setLoadState(LoadState_Loaded);
 	
 		if (!(_removeFromObjectLoadMap(container->getId())))
-			gLogger->logMsg("ContainerObjectFactory: Failed removing object from loadmap");
+			gLogger->log(LogManager::DEBUG,"ContainerObjectFactory: Failed removing object from loadmap");
 
 		ilc->mOfCallback->handleObjectReady(container,ilc->mClient);
 

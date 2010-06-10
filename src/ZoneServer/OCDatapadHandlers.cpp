@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 #include "BankTerminal.h"
@@ -44,13 +60,13 @@ Copyright (c) 2006 - 2010 The swgANH Team
 void ObjectController::_handleRequestWaypointAtPosition(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
 	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
-	Datapad*		datapad = dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+	Datapad* datapad			= player->getDataPad();
 
-	if(!datapad->getCapacity())
-	{
-		gMessageLib->sendSystemMessage(player,L"","base_player","too_many_waypoints");
-		return;
-	}
+	//if(!datapad->getCapacity())
+	//{
+	//	gMessageLib->sendSystemMessage(player,L"","base_player","too_many_waypoints");
+	//	return;
+	//}
 
 	BStringVector	dataElements;
 	string			dataStr;
@@ -67,7 +83,7 @@ void ObjectController::_handleRequestWaypointAtPosition(uint64 targetId,Message*
 	{
 		if(elementCount < 4)
 		{
-			gLogger->logMsgF("ObjController::handleCreateWaypointAtPosition: Error in parameters(count %u)",MSG_NORMAL,elementCount);
+			gLogger->log(LogManager::DEBUG,"ObjController::handleCreateWaypointAtPosition: Error in parameters(count %u)",elementCount);
 			return;
 		}
 		else
@@ -88,7 +104,7 @@ void ObjectController::_handleRequestWaypointAtPosition(uint64 targetId,Message*
 	}
 
 	string	planetStr	= dataElements[0].getAnsi();
-	gLogger->logMsgF("ObjController::handleCreateWaypointAtPosition: planet %s",MSG_NORMAL,planetStr.getAnsi());
+	//gLogger->log(LogManager::DEBUG,"ObjController::handleCreateWaypointAtPosition: planet %s",planetStr.getAnsi());
 	float	x			= static_cast<float>(atof(dataElements[1].getAnsi()));
 	float	y			= static_cast<float>(atof(dataElements[2].getAnsi()));
 	float	z			= static_cast<float>(atof(dataElements[3].getAnsi()));
@@ -97,7 +113,7 @@ void ObjectController::_handleRequestWaypointAtPosition(uint64 targetId,Message*
 
 	if(planetId == -1)
 	{
-		gLogger->logMsgF("ObjController::handleCreateWaypointAtPosition: could not find planet id for %s",MSG_NORMAL,planetStr.getAnsi());
+		gLogger->log(LogManager::DEBUG,"ObjController::handleCreateWaypointAtPosition: could not find planet id for %s",planetStr.getAnsi());
 		return;
 	}
 
@@ -113,7 +129,7 @@ void ObjectController::_handleSetWaypointActiveStatus(uint64 targetId,Message* m
 {
 	PlayerObject*	player		= dynamic_cast<PlayerObject*>(mObject);
 	WaypointObject*	waypoint	= NULL;
-	Datapad*		datapad		= dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+	Datapad* datapad			= player->getDataPad();
 
 	waypoint = datapad->getWaypointById(targetId);
 
@@ -124,7 +140,7 @@ void ObjectController::_handleSetWaypointActiveStatus(uint64 targetId,Message* m
 	}
 	else
 	{
-		gLogger->logMsgF("ObjController::handleSetWaypointStatus: could not find waypoint %"PRIu64"",MSG_LOW,targetId);
+		gLogger->log(LogManager::DEBUG,"ObjController::handleSetWaypointStatus: could not find waypoint %"PRIu64"",targetId);
 	}
 }
 
@@ -136,7 +152,7 @@ void ObjectController::_handleSetWaypointActiveStatus(uint64 targetId,Message* m
 void ObjectController::_handleWaypoint(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties)
 {
 	PlayerObject*	player			= dynamic_cast<PlayerObject*>(mObject);
-	Datapad*		datapad			= dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+	Datapad* datapad			= player->getDataPad();
 	string			waypoint_data;
     glm::vec3       waypoint_position;
 					
@@ -193,13 +209,13 @@ void ObjectController::_handleSetWaypointName(uint64 targetId,Message* message,O
 {
 	PlayerObject*	player		= dynamic_cast<PlayerObject*>(mObject);
 	string			name;
-	Datapad*		datapad		= dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+	Datapad* datapad			= player->getDataPad();
 	WaypointObject*	waypoint	= datapad->getWaypointById(targetId);
 	int8			sql[1024],restStr[64],*sqlPointer;
 
 	if(waypoint == NULL)
 	{
-		gLogger->logMsgF("ObjController::handlesetwaypointname: could not find waypoint %"PRIu64"",MSG_NORMAL,targetId);
+		gLogger->log(LogManager::DEBUG,"ObjController::handlesetwaypointname: could not find waypoint %"PRIu64"",targetId);
 		return;
 	}
 

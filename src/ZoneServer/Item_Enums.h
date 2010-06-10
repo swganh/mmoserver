@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -180,6 +196,10 @@ enum ItemType
 	ItemType_deed_guildhall_naboo		= 1599,
 	ItemType_deed_guildhall_tatooine	= 1600,
 
+	ItemType_deed_cityhall_corellia		= 1566,
+	ItemType_deed_cityhall_naboo		= 1567,
+	ItemType_deed_cityhall_tatooine		= 1568,
+
 	//====================================================
 	// bikes
 	ItemType_Deed_X34					= 1736,
@@ -197,10 +217,43 @@ enum ItemType
 	ItemType_Ranged_Stimpack_C			= 1877,
 	ItemType_Ranged_Stimpack_D			= 1878,
 	ItemType_Ranged_Stimpack_E			= 1879,
+	// woundpacks
+	ItemType_Wound_Action_A				= 1901,
+	ItemType_Wound_Action_B				= 1902,
+	ItemType_Wound_Action_C				= 1903,
+	ItemType_Wound_Action_D				= 1904,
+	ItemType_Wound_Action_E				= 1905,
+	ItemType_Wound_Constitution_A		= 1906,
+	ItemType_Wound_Constitution_B		= 1907,
+	ItemType_Wound_Constitution_C		= 1908,
+	ItemType_Wound_Constitution_D		= 1909,
+	ItemType_Wound_Constitution_E		= 1910,
+	ItemType_Wound_Health_A				= 1911,
+	ItemType_Wound_Health_B				= 1912,
+	ItemType_Wound_Health_C				= 1913,
+	ItemType_Wound_Health_D				= 1914,
+	ItemType_Wound_Health_E				= 1915,
+	ItemType_Wound_Quickness_A			= 1916,
+	ItemType_Wound_Quickness_B			= 1917,
+	ItemType_Wound_Quickness_C			= 1918,
+	ItemType_Wound_Quickness_D			= 1919,
+	ItemType_Wound_Quickness_E			= 1920,
+	ItemType_Wound_Stamina_A			= 1921,
+	ItemType_Wound_Stamina_B			= 1922,
+	ItemType_Wound_Stamina_C			= 1923,
+	ItemType_Wound_Stamina_D			= 1924,
+	ItemType_Wound_Stamina_E			= 1925,
+	ItemType_Wound_Strength_A			= 1926,
+	ItemType_Wound_Strength_B			= 1927,
+	ItemType_Wound_Strength_C			= 1928,
+	ItemType_Wound_Strength_D			= 1929,
+	ItemType_Wound_Strength_E			= 1930,
+	// pet packs
 	ItemType_Pet_Stimpack_A				= 1939,
 	ItemType_Pet_Stimpack_B				= 1940,
 	ItemType_Pet_Stimpack_C				= 1941,
 	ItemType_Pet_Stimpack_D				= 1942,
+	
 
 	// camps
 	ItemType_Camp_basic					= 1970, //Basic Camp Kit

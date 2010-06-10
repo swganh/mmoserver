@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -43,6 +59,7 @@ class FactoryObject;
 class ManufacturingSchematic;
 class PlayerObject;
 class MovingObject;
+class MountObject;
 class MissionObject;
 class CellObject;
 class StaticObject;
@@ -111,7 +128,7 @@ public:
 	bool				sendContainmentMessage_InRange(uint64 objectId,uint64 parentId,uint32 linkType,PlayerObject* targetObject);
 	bool				sendContainmentMessage_InRange(uint64 objectId,uint64 parentId,uint32 linkType,CreatureObject* targetObject);
 	bool				broadcastContainmentMessage(uint64 objectId,uint64 parentId,uint32 linkType,PlayerObject* targetObject);
-	bool				broadcastContainmentMessage(uint64 objectId,uint64 parentId,uint32 linkType,Object* targetObject);	// Used by Creatures.
+	bool				broadcastContainmentMessage(Object* targetObject,uint64 parentId,uint32 linkType);	// Used by Creatures.
 	bool				sendOpenedContainer(uint64 objectId, PlayerObject* targetObject);
 	bool				sendPostureMessage(CreatureObject* creatureObject,PlayerObject* targetObject);
 	bool				sendEndBaselines(uint64 objectId,const PlayerObject* const targetObject) const;
@@ -119,7 +136,7 @@ public:
 	bool				sendDestroyObject(uint64 objectId, CreatureObject* owner);
 	bool				sendDestroyObject_InRange(uint64 objectId,PlayerObject* const owner, bool self);
 	bool				sendDestroyObject_InRangeofObject(Object* object);
-
+	void				sendGroupLeaderRequest(PlayerObject* sender, uint64 requestId, uint32 operation, uint64 groupId);
 	bool				sendLogout(PlayerObject* playerObject);
 
 	bool				sendHeartBeat(DispatchClient* client);
@@ -133,10 +150,10 @@ public:
 	
 	bool				sendSysMsg(PlayerObject* playerObject,string mainFile,string mainVar,Object* to= NULL, Object* tt = NULL, Object* tu = NULL, int32 di = 0);
 	
-	bool				sendSystemMessage(PlayerObject* playerObject,string customMessage = L"",string mainFile = "",
-											string mainVar = "",string toFile = "",string toVar = "",string toCustom = L"",int32 di = 0,
-											string ttFile = "",string ttVar = "",string ttCustom = L"",uint64 ttId = 0,uint64 toId = 0,uint64 tuId = 0,
-											string tuFile = "",string tuVar = "",string tuCustom = L"");
+	bool				sendSystemMessage(PlayerObject* playerObject, std::wstring customMessage = L"", std::string mainFile = "",
+											std::string mainVar = "",std::string toFile = "",std::string toVar = "", std::wstring toCustom = L"",int32 di = 0,
+											std::string ttFile = "",std::string ttVar = "",std::wstring ttCustom = L"",uint64 ttId = 0,uint64 toId = 0,uint64 tuId = 0,
+											std::string tuFile = "",std::string tuVar = "",std::wstring tuCustom = L"");
 
 	bool				sendSystemMessageInRange(PlayerObject* playerObject, bool toSelf, string customMessage = L"",string mainFile = "",
 											string mainVar = "",string toFile = "",string toVar = "",string toCustom = L"",int32 di = 0,
@@ -219,9 +236,11 @@ public:
 	bool				sendStartingLocationList(PlayerObject* player, uint8 tatooine, uint8 corellia, uint8 talus, uint8 rori, uint8 naboo);
 
 	// position updates
-	void				sendDataTransform(Object* object);
-	void				sendDataTransformWithParent(Object* object);
+	void				sendDataTransform053(Object* object);
+	void				sendDataTransformWithParent053(Object* object);
 	void				sendSitOnObject(CreatureObject* creatureObject);
+	void				sendDataTransformWithParent0B(Object* object);
+	void				sendDataTransform0B(Object* object);
 
 	// position updates for tutorial
 	void				sendDataTransform(Object* object, PlayerObject* player);
@@ -253,7 +272,7 @@ public:
 	void				sendTargetUpdateDeltasCreo6(CreatureObject* creatureObject);
 	void				sendPerformanceId(CreatureObject* creatureObject);
 	void				UpdateEntertainerPerfomanceCounter(CreatureObject* creatureObject);
-	void				sendListenToId(CreatureObject* creatureObject);
+	void				sendListenToId(PlayerObject* playerObject);
 	void				sendTerrainNegotiation(CreatureObject* creatureObject);
 	void				sendMoodString(CreatureObject* creatureObject,string animation);
 	void				sendWeaponIdUpdate(CreatureObject* creatureObject);
@@ -270,7 +289,7 @@ public:
 	void				sendBFUpdateCreo3(CreatureObject* playerObject);
 
 	// creature owner
-	void				sendOwnerUpdateCreo3(CreatureObject* creatureObject);
+	void				sendOwnerUpdateCreo3(MountObject* mount);
 
 	// group
 	void				sendGroupIdUpdateDeltasCreo6(uint64 groupId, const PlayerObject* const player, const PlayerObject* const target) const;

@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -186,8 +202,6 @@ void ItemFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					// no need to worry about iteration depth with resourceContainers
 					gTangibleFactory->requestObject(this,queryContainer.mId,TanGroup_ResourceContainer, 0, asyncContainer->mClient);
 				}
-				
-				//gLogger->logMsgF("ItemFactory::requested child %I64u from parent %I64u",MSG_HIGH,queryContainer.mId, item->getId());
 			}
 		}
 		break;
@@ -288,7 +302,7 @@ Item* ItemFactory::_createItem(DatabaseResult* result)
 		default:
 		{
 			item = new Item();
-			gLogger->logMsgF("ItemFactory::createItem unknown Family %u",MSG_HIGH,itemIdentifier.mFamilyId);
+			gLogger->log(LogManager::NOTICE,"ItemFactory::createItem unknown Family %u",itemIdentifier.mFamilyId);
 		}
 		break;
 	}
@@ -326,7 +340,7 @@ void ItemFactory::_setupDatabindings()
 	mItemBinding->addField(DFT_uint32,offsetof(Item,mMaxCondition),4,19);
 	mItemBinding->addField(DFT_uint32,offsetof(Item,mDamage),4,20);
 	mItemBinding->addField(DFT_uint32,offsetof(Item,mDynamicInt32),4,21);
-	mItemBinding->addField(DFT_uint32,offsetof(Item,mEquipSlots),4,22);
+	mItemBinding->addField(DFT_uint64,offsetof(Item,mEquipSlots),4,22);
 	mItemBinding->addField(DFT_uint32,offsetof(Item,mEquipRestrictions),4,23);
 	mItemBinding->addField(DFT_uint16,offsetof(Item,mCustomization[1]),2,24);
 	mItemBinding->addField(DFT_uint16,offsetof(Item,mCustomization[2]),2,25);
@@ -446,7 +460,7 @@ void ItemFactory::handleObjectReady(Object* object,DispatchClient* client)
 		ilc->mOfCallback->handleObjectReady(item,ilc->mClient);
 		
 		if(!(_removeFromObjectLoadMap(item->getId())))
-			gLogger->logMsg("ItemFactory: Failed removing object from loadmap");
+			gLogger->log(LogManager::DEBUG,"ItemFactory: Failed removing object from loadmap");
 
 		mILCPool.free(ilc);
 		return;

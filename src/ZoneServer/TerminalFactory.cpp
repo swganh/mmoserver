@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 #include "TerminalFactory.h"
@@ -166,18 +182,43 @@ Terminal* TerminalFactory::_createTerminal(DatabaseResult* result)
 
 	switch(tanType)
 	{
-		// split these as needed
-		case TanType_EntertainerMissionTerminal:	case TanType_BestineQuest1Terminal:
-		case TanType_NewsNetTerminal:				case TanType_HQTerminal:
-		case TanType_SpaceTerminal:					case TanType_BallotBoxTerminal:
-		case TanType_BountyDroidTerminal:			case TanType_GuildTerminal:
-		case TanType_CityVoteTerminal:
-		case TanType_NymCaveTerminal:				case TanType_GeoBunkerTerminal:
-		case TanType_Light_Enc_VotingTerminal:		case TanType_Dark_Enc_ChallengeTerminal:
-		case TanType_Dark_Enc_VotingTerminal:		case TanType_Light_Enc_ChallengeTerminal:
+		case TanType_HQTerminal:
+		case TanType_SpaceTerminal:
+		case TanType_NewsNetTerminal:
+		case TanType_BestineQuest1Terminal:
+		case TanType_BestineQuest2Terminal:
+		case TanType_BallotBoxTerminal:
+		case TanType_BountyDroidTerminal:
+		case TanType_GuildTerminal:
+		case TanType_MissionStatueTerminal:
+		case TanType_NewbieClothingTerminal:
+		case TanType_NewbieFoodTerminal:
+		case TanType_NewbieInstrumentTerminal:
+		case TanType_NewbieMedicineTerminal:
+		case TanType_NewbieToolTerminal:
+		case TanType_HQRebelTerminal:
+		case TanType_HQImperialTerminal:
 		case TanType_PMRegisterTerminal:
-		case 14:
-		{
+		case TanType_SKillTerminal:
+		case TanType_CityTerminal:
+		case TanType_PlayerStructureNoSnapTerm:
+		case TanType_CityVoteTerminal:
+		case TanType_PlayerStructureNoSnapMini:
+		case TanType_NymCaveTerminal:
+		case TanType_CommandConsoleTerminal:
+		case TanType_GeoBunkerTerminal:
+		case TanType_BestineQuests3:
+		case TanType_HQTurrentControlTermainl:
+		case TanType_ImageDesignTerminal:
+		case TanType_WaterPressureTerminal:
+		case TanType_Light_Enc_VotingTerminal:
+		case TanType_Dark_Enc_ChallengeTerminal:
+		case TanType_Dark_Enc_VotingTerminal:
+		case TanType_ShipInteriorSecurity1:
+		case TanType_POBShipTerminal:
+		case TanType_Light_Enc_ChallengeTerminal:
+		case TanType_CampTerminal:
+		{			
 			terminal = new Terminal();
 			terminal->setTangibleType(tanType);
 
@@ -282,6 +323,7 @@ Terminal* TerminalFactory::_createTerminal(DatabaseResult* result)
 
 
 		case TanType_MissionTerminal:
+		case TanType_EntertainerMissionTerminal:
 		case TanType_BountyMissionTerminal:
 		case TanType_RebelMissionTerminal:
 		case TanType_ImperialMissionTerminal:
@@ -309,7 +351,8 @@ Terminal* TerminalFactory::_createTerminal(DatabaseResult* result)
 		}
 		break;
 
-		case TanType_ElevatorUpTerminal:case TanType_ElevatorDownTerminal:
+		case TanType_ElevatorUpTerminal:
+		case TanType_ElevatorDownTerminal:
 		case TanType_ElevatorTerminal:
 		{
 			terminal = new ElevatorTerminal();
@@ -323,7 +366,34 @@ Terminal* TerminalFactory::_createTerminal(DatabaseResult* result)
 		break;
 
 		default:
-			gLogger->logMsgF("TerminalFactory::_createTerminal: unknown eType: %u",MSG_HIGH,tanType);
+		{
+			gLogger->log(LogManager::DEBUG,"TerminalFactory::_createTerminal: unknown eType: %u",tanType);
+
+			terminal = new Terminal();
+			terminal->setTangibleType(tanType);
+
+			DataBinding* terminalBinding = mDatabase->CreateDataBinding(14);
+			terminalBinding->addField(DFT_uint64,offsetof(Terminal,mId),8,0);
+			terminalBinding->addField(DFT_uint64,offsetof(Terminal,mParentId),8,1);
+			terminalBinding->addField(DFT_float,offsetof(Terminal,mDirection.x),4,2);
+			terminalBinding->addField(DFT_float,offsetof(Terminal,mDirection.y),4,3);
+			terminalBinding->addField(DFT_float,offsetof(Terminal,mDirection.z),4,4);
+			terminalBinding->addField(DFT_float,offsetof(Terminal,mDirection.w),4,5);
+			terminalBinding->addField(DFT_float,offsetof(Terminal,mPosition.x),4,6);
+			terminalBinding->addField(DFT_float,offsetof(Terminal,mPosition.y),4,7);
+			terminalBinding->addField(DFT_float,offsetof(Terminal,mPosition.z),4,8);
+			terminalBinding->addField(DFT_uint32,offsetof(Terminal,mTerminalType),4,9);
+			terminalBinding->addField(DFT_bstring,offsetof(Terminal,mModel),256,10);
+			terminalBinding->addField(DFT_bstring,offsetof(Terminal,mName),64,11);
+			terminalBinding->addField(DFT_bstring,offsetof(Terminal,mNameFile),64,12);
+			terminalBinding->addField(DFT_bstring,offsetof(Terminal,mCustomName),256,15);
+
+			result->GetNextRow(terminalBinding,(void*)terminal);
+
+			mDatabase->DestroyDataBinding(terminalBinding);
+
+			terminal->setLoadState(LoadState_Loaded);
+		}
 		break;
 	}
 

@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 #include "ServerManager.h"
@@ -98,7 +114,7 @@ void ServerManager::SendMessageToServer(Message* message)
 	}
 	else
 	{
-		gLogger->logMsgF("ServerManager: failed routing message to server %u",MSG_NORMAL,message->getDestinationId());
+		gLogger->log(LogManager::INFORMATION,"ServerManager: failed routing message to server %u",message->getDestinationId());
 		gMessageFactory->DestroyMessage(message);
 	}
 }
@@ -115,8 +131,9 @@ NetworkClient* ServerManager::handleSessionConnect(Session* session, Service* se
 	int8 sql[500];
 	sprintf(sql,"SELECT id, address, port, status, active FROM config_process_list WHERE address='%s' AND port=%u;", session->getAddressString(), session->getPortHost());
 	DatabaseResult* result = mDatabase->ExecuteSynchSql(sql);
-	gLogger->logMsgF(sql,MSG_HIGH);
-	gLogger->logMsg("\n");
+	gLogger->log(LogManager::DEBUG, sql);
+	gLogger->logCont(LogManager::DEBUG,"\n");
+							
 	// If we found them
 	if(result->getRowCount() == 1)
 	{
@@ -127,16 +144,25 @@ NetworkClient* ServerManager::handleSessionConnect(Session* session, Service* se
 		newClient = new ConnectionClient();
 		ConnectionClient* connClient = reinterpret_cast<ConnectionClient*>(newClient);
 
+		ConnectionClient* oldClient = mServerAddressMap[serverAddress.mId].mConnectionClient;
+		if(oldClient)
+		{
+			delete(oldClient);
+			--mTotalConnectedServers;
+		}
+
 		connClient->setServerId(serverAddress.mId);
 
 		memcpy(&mServerAddressMap[serverAddress.mId], &serverAddress, sizeof(ServerAddress));
 		mServerAddressMap[serverAddress.mId].mConnectionClient = connClient;
-
+		
+		gLogger->log(LogManager::DEBUG,"*** Backend server connected id: %u\n",mServerAddressMap[serverAddress.mId].mId);
+		
 		// If this is one of the servers we're waiting for, then update our count
 		if(mServerAddressMap[serverAddress.mId].mActive)
 		{
+			
 			++mTotalConnectedServers;
-
 			if(mTotalConnectedServers == mTotalActiveServers)
 			{
 				mDatabase->ExecuteSqlAsync(0,0,"UPDATE galaxy SET status=2, last_update=NOW() WHERE galaxy_id=%u;", mClusterId);
@@ -145,7 +171,9 @@ NetworkClient* ServerManager::handleSessionConnect(Session* session, Service* se
 	}
 	else
 	{
-		gLogger->logMsg("*** Backend server connect error - Server not found in DB\n");
+		gLogger->log(LogManager::CRITICAL,"*** Backend server connect error - Server not found in DB\n");
+		gLogger->log(LogManager::DEBUG,sql);
+		gLogger->log(LogManager::DEBUG,"\n");
 	}
 
 	// Delete our DB objects.
@@ -184,8 +212,12 @@ void ServerManager::handleSessionDisconnect(NetworkClient* client)
 		mDatabase->ExecuteSqlAsync(0,0,"UPDATE galaxy SET status=1,last_update=NOW() WHERE galaxy_id=%u;", mClusterId);
 	}
 
-	gLogger->logMsgF("Servermanager handle server down\n", MSG_HIGH);
+	gLogger->log(LogManager::DEBUG,"Servermanager handle server down\n");
 	mClientManager->handleServerDown(connClient->getServerId());
+
+	connClient->getSession()->setStatus(SSTAT_Destroy);
+	connClient->getSession()->getService()->AddSessionToProcessQueue(connClient->getSession());
+	
 
 	delete(client);
 }
@@ -195,8 +227,6 @@ void ServerManager::handleSessionDisconnect(NetworkClient* client)
 void ServerManager::handleSessionMessage(NetworkClient* client, Message* message)
 {
   ConnectionClient* connClient = reinterpret_cast<ConnectionClient*>(client);
-  message->setSourceId(static_cast<uint8>(connClient->getServerId()));
-
   // Send the message off to the router.
   mMessageRouter->RouteMessage(message,connClient);
 }
@@ -258,6 +288,7 @@ void ServerManager::_loadProcessAddressMap(void)
 		// Retrieve our server data
 		result->GetNextRow(mServerBinding,&serverAddress);
 		memcpy(&mServerAddressMap[serverAddress.mId], &serverAddress, sizeof(ServerAddress));
+		mServerAddressMap[serverAddress.mId].mConnectionClient = NULL;
 	}
 
 	// Delete our DB objects.
@@ -315,7 +346,7 @@ void ServerManager::_processClusterZoneTransferRequestByTicket(ConnectionClient*
 
 void ServerManager::_processClusterZoneTutorialTerminal(ConnectionClient* client, Message* message)
 {
-	gLogger->logMsg("Sending Tutorial Status Reply\n");
+	gLogger->log(LogManager::DEBUG,"Sending Tutorial Status Reply\n");
 
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opTutorialServerStatusReply);

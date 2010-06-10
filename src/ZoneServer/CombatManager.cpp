@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -16,7 +32,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include "ObjectControllerCommandMap.h"
 #include "PlayerObject.h"
 #include "Weapon.h"
-#include "Vehicle.h"
+#include "VehicleController.h"
 #include "WorldManager.h"
 #include "WorldConfig.h"
 
@@ -37,9 +53,8 @@ CombatManager*	CombatManager::mSingleton	= NULL;
 CombatManager::CombatManager(Database* database) :
 mDatabase(database)
 {
+	//gLogger->log(LogManager::INFORMATION,"Start loading weapon groups.");	
 	// load default attack animations
-	mWeaponGroups.reserve(10);
-
 	mDatabase->ExecuteSqlAsync(this,0,"SELECT id,defaultAttackAnimationCrc,defaultCombatSpam FROM weapon_groups ORDER BY id");
 }
 
@@ -89,7 +104,8 @@ void CombatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 	binding->addField(DFT_bstring,offsetof(CMWeaponGroup,mDefaultCombatSpam),64,2);
 
 	uint64 count = result->getRowCount();
-
+	mWeaponGroups.reserve((uint32)count);
+	
 	for(uint64 i = 0;i < count;i++)
 	{
 		weaponGroup = new CMWeaponGroup();
@@ -98,15 +114,9 @@ void CombatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 		mWeaponGroups.push_back(weaponGroup);
 	}
-	if(result->getRowCount())
-	{
-		gLogger->logMsgLoadSuccess("CombatManager::Loading %"PRIu64" weapon groups...",MSG_NORMAL, count);
-	}
-	else
-	{
-		gLogger->logMsgLoadFailure("CombatManager::Loading weapon groups...",MSG_NORMAL);
-	}
+	
 	mDatabase->DestroyDataBinding(binding);
+	//gLogger->log(LogManager::NOTICE,"Finished Loading weapon groups.");	
 }
 
 //=============================================================================================================================
@@ -325,7 +335,7 @@ bool CombatManager::handleAttack(CreatureObject *attacker, uint64 targetId, Obje
 	CreatureObject* defender = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(targetId));
 
 	// get the current weapon
-	Weapon* weapon = dynamic_cast<Weapon*>(attacker->getEquipManager()->getEquippedObject(CreatureEquipSlot_Weapon));
+	Weapon* weapon = dynamic_cast<Weapon*>(attacker->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Left));
 	if (!weapon)
 	{
 		return(false);
@@ -413,12 +423,24 @@ uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* def
 		if (weapon->hasAttribute("cat_wpn_damage.wpn_damage_min"))
 		{
 			baseMinDamage = weapon->getAttribute<int32>("cat_wpn_damage.wpn_damage_min");
-			// gLogger->logMsgF("CombatManager::_executeAttack Weapon baseMinDamage = %d", MSG_NORMAL, baseMinDamage);
 		}
 		if (weapon->hasAttribute("cat_wpn_damage.wpn_damage_max"))
 		{
 			baseMaxDamage = weapon->getAttribute<int32>("cat_wpn_damage.wpn_damage_max");
-			// gLogger->logMsgF("CombatManager::_executeAttack Weapon baseMaxDamage = %d", MSG_NORMAL, baseMaxDamage);
+		}
+
+
+		//Sanity checks of db data
+		if (baseMinDamage < 1)
+			baseMinDamage = 1;
+
+		if (baseMaxDamage < 1)
+			baseMaxDamage = 1;
+
+		if(baseMaxDamage <= baseMinDamage)
+		{
+			gLogger->log(LogManager::DEBUG,"CombatManager::db min max data is NOT sane");
+			baseMaxDamage = baseMinDamage +1;
 		}
 
 		int32 baseDamage	= -((gRandom->getRand()%(baseMaxDamage - baseMinDamage)) + baseMinDamage);
@@ -515,11 +537,11 @@ uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* def
 					string playerName(str);
 					playerName.convert(BSTRType_Unicode16);
 
-					gMessageLib->sendSystemMessage(playerAttacker,L"","base_player","prose_target_incap", "", "", L"", 0, "", "", playerName);
+          gMessageLib->sendSystemMessage(playerAttacker,L"","base_player","prose_target_incap", "", "", L"", 0, "", "", playerName.getUnicode16());
 				}
 				else
 				{
-					gMessageLib->sendSystemMessage(playerAttacker,L"","base_player","prose_target_incap", "", "", L"", 0, defender->getSpeciesGroup(), defender->getSpeciesString());
+          gMessageLib->sendSystemMessage(playerAttacker,L"","base_player","prose_target_incap", "", "", L"", 0, defender->getSpeciesGroup().getAnsi(), defender->getSpeciesString().getAnsi());
 				}
 			}
 		}
@@ -541,7 +563,7 @@ uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* def
 					}
 					string playerName(str);
 					playerName.convert(BSTRType_Unicode16);
-					gMessageLib->sendSystemMessage(playerAttacker,L"","base_player","prose_target_dead", "", "", L"", 0, "", "", playerName);
+          gMessageLib->sendSystemMessage(playerAttacker,L"","base_player","prose_target_dead", "", "", L"", 0, "", "", playerName.getUnicode16());
 				}
 				else
 				{
@@ -727,10 +749,10 @@ uint8 CombatManager::_tryStateEffects(CreatureObject* attacker,CreatureObject* d
 			if(player->checkIfMounted())
 			{
 				//Get the player's mount
-				if(Vehicle* vehicle = dynamic_cast<Vehicle*>(gWorldManager->getObjectById(player->getMount()->getPetController())))
+				if(VehicleController* vehicle = dynamic_cast<VehicleController*>(gWorldManager->getObjectById(player->getMount()->controller())))
 				{
 					//Now dismount
-					vehicle->dismountPlayer();
+					vehicle->DismountPlayer();
 				}
 			}
 

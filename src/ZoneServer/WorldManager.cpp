@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -78,7 +94,12 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
 , mTotalObjectCount(0)
 , mZoneId(zoneId)
 {
-	gLogger->logMsg("WorldManager::StartUp");
+	#if !defined(_DEBUG)
+	#endif
+	#if defined(_DEBUG)
+		gLogger->log(LogManager::DEBUG,"WorldManager::StartUp");
+	#endif
+	
 
 	// set up spatial index
 	mSpatialIndex = new ZoneTree();
@@ -97,6 +118,9 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
 		mDebug = false;
 	}
 
+	// load planet names and terrain files so we can start heightmap loading
+	mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_PlanetNamesAndFiles),"SELECT * FROM planet ORDER BY planet_id;");
+	
 
 	// create schedulers
 	mSubsystemScheduler		= new Anh_Utils::Scheduler();
@@ -105,6 +129,7 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
 	mStomachFillingScheduler= new Anh_Utils::Scheduler();
 	mPlayerScheduler		= new Anh_Utils::Scheduler();
 	mEntertainerScheduler	= new Anh_Utils::Scheduler();
+	//mImagedesignerScheduler	= new Anh_Utils::Scheduler();
 	mBuffScheduler			= new Anh_Utils::VariableTimeScheduler(100, 100);
 	mMissionScheduler		= new Anh_Utils::Scheduler();
 	mNpcManagerScheduler	= new Anh_Utils::Scheduler();
@@ -112,23 +137,18 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
 
 	LoadCurrentGlobalTick();
 
-
-	// preallocate
-	mvClientEffects.reserve(1000);
-	mvMoods.reserve(200);
-	mvSounds.reserve(5000);
-	mShuttleList.reserve(50);
-
 	// load up subsystems
 
 	SkillManager::Init(database);
 	SchematicManager::Init(database);
-	ResourceManager::Init(database,mZoneId);
+	if(zoneId != 41)
+		ResourceManager::Init(database,mZoneId);
 	ResourceCollectionManager::Init(database);
 	TreasuryManager::Init(database);
 	ConversationManager::Init(database);
 	CraftingSessionFactory::Init(database);
-    MissionManager::Init(database,mZoneId);
+	if(zoneId != 41)
+		MissionManager::Init(database,mZoneId);
 
 	// register world script hooks
 	_registerScriptHooks();
@@ -136,7 +156,7 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
 	// initiate loading of objects
 	if(mDebug)
 	{
-		gLogger->logMsg("WorldManager::DebugStartUp with culled items, npcs, resources and stuff");
+		gLogger->log(LogManager::INFORMATION,"World Manager Debug StartUp with culled items, npcs, resources and stuff");
 		mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_ObjectCount),"SELECT sf_getZoneObjectCountDebug(%i);",mZoneId);
 	}
 	else
@@ -194,6 +214,7 @@ void WorldManager::Shutdown()
 	delete(mHamRegenScheduler);
 	delete(mMissionScheduler);
 	delete(mPlayerScheduler);
+	//delete(mImagedesignerScheduler);
 	delete(mEntertainerScheduler);
 	delete(mBuffScheduler);
 
@@ -251,9 +272,9 @@ void WorldManager::Shutdown()
 #endif
 		if (container)
 		{
-			gLogger->logMsg("WorldManager::Shutdown(): Deleting the Tutorial container");
+			gLogger->log(LogManager::DEBUG,"WorldManager::Shutdown(): Deleting the Tutorial container");
 			this->destroyObject(container);
-			gLogger->logMsg("WorldManager::Shutdown(): Delete done!");
+			gLogger->log(LogManager::INFORMATION,"WorldManager::Shutdown(): Delete done!");
 		}
 	}
 
@@ -335,7 +356,7 @@ RegionObject* WorldManager::getRegionById(uint64 regionId)
 	if(it != mRegionMap.end())
 		return((*it).second);
 	else
-		gLogger->logMsgF("Worldmanager::getRegionById: Could not find region %"PRIu64"",MSG_NORMAL,regionId);
+		gLogger->log(LogManager::NOTICE,"Worldmanager::getRegionById: Could not find region %"PRIu64"",regionId);
 
 	return(NULL);
 }
@@ -367,8 +388,8 @@ void WorldManager::LoadCurrentGlobalTick()
 	mDatabase->DestroyResult(temp);
 
 	char strtemp[100];
-	sprintf(strtemp, "Current Global Tick Count = %"PRIu64"\n",Tick);
-	gLogger->logMsg(strtemp, FOREGROUND_GREEN);
+	sprintf(strtemp, "Current Global Tick Count = %"PRIu64"",Tick);
+	gLogger->log(LogManager::INFORMATION,strtemp, FOREGROUND_GREEN);
 	mTick = Tick;
 	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleTick),7,1000,NULL);
 }
@@ -416,6 +437,7 @@ void WorldManager::_processSchedulers()
 	mStomachFillingScheduler->process();
 	mSubsystemScheduler->process();
 	mObjControllerScheduler->process();
+	//mImagedesignerScheduler->process();
 	mPlayerScheduler->process();
 	mEntertainerScheduler->process();
 	mBuffScheduler->process();
@@ -602,7 +624,7 @@ bool WorldManager::_handleCraftToolTimers(uint64 callTime,void* ref)
 		CraftingTool*	tool	=	dynamic_cast<CraftingTool*>(getObjectById((*it)));
 		if(!tool)
 		{
-			gLogger->logMsgF("WorldManager::_handleCraftToolTimers missing crafting tool :(",MSG_NORMAL);
+			gLogger->log(LogManager::DEBUG,"WorldManager::_handleCraftToolTimers missing crafting tool");
 			it = mBusyCraftTools.erase(it);
 			continue;
 		}
@@ -627,6 +649,8 @@ bool WorldManager::_handleCraftToolTimers(uint64 callTime,void* ref)
 
 					gMessageLib->sendCreateTangible(item,player);
 
+					gMessageLib->sendSystemMessage(player,L"","system_msg","prototype_transferred");
+
 					tool->setCurrentItem(NULL);
 				}
 				//in case of logout/in interplanetary travel it will be in the inventory already
@@ -646,7 +670,7 @@ bool WorldManager::_handleCraftToolTimers(uint64 callTime,void* ref)
 			gMessageLib->sendUpdateTimer(tool,player);
 
 			tool->setAttribute("craft_tool_time",boost::lexical_cast<std::string>(tool->getTimer()));
-			//gLogger->logMsgF("timer : %i",MSG_HIGH,tool->getTimer());
+			//gLogger->log(LogManager::DEBUG,"timer : %i",tool->getTimer());
 			gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%i' WHERE item_id=%"PRIu64" AND attribute_id=%u",tool->getId(),tool->getTimer(),AttrType_CraftToolTime);
 		}
 
@@ -689,7 +713,7 @@ void WorldManager::addCreatureObjectForTimedDeletion(uint64 creatureId, uint64 w
 {
 	uint64 expireTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
 
-	// gLogger->logMsgF("WorldManager::addCreatureObjectForTimedDeletion Adding new at %"PRIu64"",MSG_NORMAL, expireTime + when);
+	// gLogger->log(LogManager::DEBUG,"WorldManager::addCreatureObjectForTimedDeletion Adding new at %"PRIu64"", expireTime + when);
 
 	CreatureObjectDeletionMap::iterator it = mCreatureObjectDeletionMap.find(creatureId);
 	if (it != mCreatureObjectDeletionMap.end())
@@ -697,7 +721,7 @@ void WorldManager::addCreatureObjectForTimedDeletion(uint64 creatureId, uint64 w
 		// Only remove object if new expire time is earlier than old. (else people can use "lootall" to add 10 new seconds to a corpse forever).
 		if (expireTime + when < (*it).second)
 		{
-			// gLogger->logMsgF("Removing object with id %"PRIu64"",MSG_NORMAL, creatureId);
+			// gLogger->log(LogManager::DEBUG,"Removing object with id %"PRIu64"", creatureId);
 			mCreatureObjectDeletionMap.erase(it);
 		}
 		else
@@ -706,7 +730,7 @@ void WorldManager::addCreatureObjectForTimedDeletion(uint64 creatureId, uint64 w
 		}
 
 	}
-	// gLogger->logMsgF("Adding new object with id %"PRIu64"",MSG_NORMAL, creatureId);
+	// gLogger->log(LogManager::DEBUG,"Adding new object with id %"PRIu64"", creatureId);
 	mCreatureObjectDeletionMap.insert(std::make_pair(creatureId, expireTime + when));
 }
 
@@ -766,7 +790,7 @@ void WorldManager::updateWeather(float cloudX,float cloudY,float cloudZ,uint32 w
 
 void WorldManager::addAdminRequest(uint64 requestId, uint64 when)
 {
-	gLogger->logMsgF("Adding admin request %d for schedule in %"PRIu64" minutes(s) and %"PRIu64" second(s)", MSG_NORMAL, requestId, when/60000, when % 60000);
+	gLogger->log(LogManager::NOTICE,"Adding admin request %d for schedule in %"PRIu64" minutes(s) and %"PRIu64" second(s)", requestId, when/60000, when % 60000);
 
 	uint64 expireTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
 	mAdminRequestHandlers.insert(std::make_pair(requestId, expireTime + when));
@@ -814,7 +838,7 @@ bool WorldManager::_handleAdminRequests(uint64 callTime, void* ref)
 			}
 			else
 			{
-				gLogger->logMsgF("Removed expired handler for admin request %d", MSG_NORMAL, (*it).first);
+				gLogger->log(LogManager::DEBUG,"Removed expired handler for admin request %d", (*it).first);
 
 				// Requested to remove the handler.
 				mAdminRequestHandlers.erase(it++);
@@ -847,36 +871,23 @@ void WorldManager::_handleLoadComplete()
 	mDatabase->releaseBindingPoolMemory();
 	mWM_DB_AsyncPool.release_memory();
 	gObjectFactory->releaseAllPoolsMemory();
-	gResourceManager->releaseAllPoolsMemory();
+	if(mZoneId != 41)
+		gResourceManager->releaseAllPoolsMemory();
 	gSchematicManager->releaseAllPoolsMemory();
 	gSkillManager->releaseAllPoolsMemory();
 
-	if (!Heightmap::Instance())
-	{
-		assert(false && "WorldManager::_handleLoadComplete Missing heightmap, download at http://www.swganh.com/!!planets!!/PLANET_NAME.rar");
-	}
-
-	// create a height-map cashe.
-	int16 resolution = 0;
-	if (gConfig->keyExists("heightMapResolution"))
-	{
-		resolution = gConfig->read<int>("heightMapResolution");
-	}
-	gLogger->logMsgF("WorldManager::_handleLoadComplete heightMapResolution = %d", MSG_NORMAL, resolution);
-
-	if (Heightmap::Instance()->setupCache(resolution))
-	{
-		gLogger->logMsgF("WorldManager::_handleLoadComplete heigthmap cache setup successfully with resolution %d", MSG_NORMAL, resolution);
-	}
-	else
-	{
-		gLogger->logMsgF("WorldManager::_handleLoadComplete heigthmap cache setup FAILED", MSG_NORMAL);
-	}
+	
 
 	// register script hooks
 	_startWorldScripts();
 
-	gLogger->logMsg("WorldManager::Load complete");
+	gLogger->log(LogManager::NOTICE,"World load complete");
+			
+	if(mZoneId != 41)
+	{
+		while(!gHeightmap->isReady())
+			boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+	}
 
 	// switch into running state
 	mState = WMState_Running;
@@ -991,17 +1002,17 @@ int32 WorldManager::getPlanetIdByNameLike(string name)
 
 	while(it != mvPlanetNames.end())
 	{
-		// gLogger->logMsgF("Comparing: %s", MSG_NORMAL, name.getAnsi());
-		// gLogger->logMsgF("with     : %s", MSG_NORMAL, (*it).getAnsi());
+		// gLogger->log(LogManager::DEBUG,"Comparing: %s",  name.getAnsi());
+		// gLogger->log(LogManager::DEBUG,"with     : %s",  (*it).getAnsi());
 		if(Anh_Utils::cmpnistr((*it).getAnsi(),name.getAnsi(), 3) == 0)
 		{
-			// gLogger->logMsgF("Matched with planet id = %d", MSG_NORMAL, id);
+			// gLogger->log(LogManager::DEBUG,"Matched with planet id = %d",  id);
 			return (id);
 		}
 		++it;
 		id++;
 	}
-	// gLogger->logMsgF("No match, compared %d planet names", MSG_NORMAL, id);
+	// gLogger->log(LogManager::DEBUG,"No match, compared %d planet names",  id);
 	return(-1);
 }
 
@@ -1012,6 +1023,11 @@ int32 WorldManager::getPlanetIdByNameLike(string name)
 //
 
 void WorldManager::removeEntertainerToProcess(uint64 taskId)
+{
+	mEntertainerScheduler->removeTask(taskId);
+}
+
+void WorldManager::removeImagedesignerToProcess(uint64 taskId)
 {
 	mEntertainerScheduler->removeTask(taskId);
 }
@@ -1118,6 +1134,11 @@ uint64 WorldManager::addEntertainerToProccess(CreatureObject* entertainerObject,
     return((mEntertainerScheduler->addTask(fastdelegate::MakeDelegate(entertainerObject,&CreatureObject::handlePerformanceTick),1,tick,NULL)));
 }
 
+uint64 WorldManager::addImageDesignerToProcess(CreatureObject* entertainerObject,uint32 tick)
+{
+    return((mEntertainerScheduler->addTask(fastdelegate::MakeDelegate(entertainerObject,&CreatureObject::handleImagedesignerTimeOut),1,tick,NULL)));
+}
+
 //======================================================================================================================
 //
 // returns true if object exist in world manager object list.
@@ -1189,8 +1210,6 @@ uint32 WorldManager::getAttributeId(uint32 keyId)
 
 void WorldManager::_startWorldScripts()
 {
-	gLogger->logMsg("Loading world scripts...");
-
 	ScriptList::iterator scriptIt = mWorldScripts.begin();
 
 	while(scriptIt != mWorldScripts.end())
@@ -1199,6 +1218,7 @@ void WorldManager::_startWorldScripts()
 
 		++scriptIt;
 	}
+	gLogger->log(LogManager::DEBUG,"Loaded world scripts.");
 }
 
 //======================================================================================================================
@@ -1219,10 +1239,6 @@ void WorldManager::ScriptRegisterEvent(void* script,std::string eventFunction)
 
 void WorldManager::	zoneSystemMessage(std::string message)
 {
-	string msg = (int8*)message.c_str();
-
-	msg.convert(BSTRType_Unicode16);
-
 	PlayerAccMap::iterator it = mPlayerAccMap.begin();
 
 	while(it != mPlayerAccMap.end())
@@ -1231,6 +1247,7 @@ void WorldManager::	zoneSystemMessage(std::string message)
 
 		if(player->isConnected())
 		{
+      std::wstring msg(message.begin(), message.end());
 			gMessageLib->sendSystemMessage((PlayerObject*)player,msg);
 		}
 
@@ -1432,16 +1449,16 @@ void WorldManager::removePlayerfromAccountMap(uint64 playerID)
 
 		if(playerAccIt != mPlayerAccMap.end())
 		{
-			gLogger->logMsgF("Player left: %"PRIu64", Total Players on zone : %i",MSG_NORMAL,player->getId(),(getPlayerAccMap())->size() -1);
+			gLogger->log(LogManager::INFORMATION,"Player left: %"PRIu64", Total Players on zone : %i",player->getId(),(getPlayerAccMap())->size() -1);
 			mPlayerAccMap.erase(playerAccIt);
 		}
 		else
 		{
-			gLogger->logErrorF("Worldmanager","WorldManager::destroyObject: error removing from playeraccmap : %u",MSG_HIGH,player->getAccountId());
+			gLogger->log(LogManager::WARNING,"WorldManager::destroyObject: error removing from playeraccmap : %u",player->getAccountId());
 		}
 	}
 	else
 	{
-		gLogger->logErrorF("Worldmanager","WorldManager::destroyObject: error removing from playeraccmap : %u",MSG_HIGH,player->getAccountId());
+		gLogger->log(LogManager::WARNING,"Worldmanager","WorldManager::destroyObject: error removing from playeraccmap : %u",player->getAccountId());
 	}
 }

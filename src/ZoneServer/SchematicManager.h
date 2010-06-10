@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -18,7 +34,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 #include <map>
 #include "DatabaseManager/DatabaseCallback.h"
 #include <boost/pool/pool.hpp>
-
+#include <boost/unordered_map.hpp>
 
 
 //======================================================================================================================
@@ -32,6 +48,8 @@ class ScMAsyncContainer;
 
 typedef std::vector<SchematicGroup*>			SchematicGroupList;
 typedef std::map<uint32,DraftSchematic*>		SchematicMap;
+//typedef std::vector<DraftSchematic*>            
+typedef boost::unordered_map<uint32, DraftSchematic*> SchematicList;
 
 //======================================================================================================================
 
@@ -86,7 +104,9 @@ class SchematicManager : public DatabaseCallback
 		SchematicMap*				getWeightMap(){ return &mSchematicWeightMap; }
 		DraftSchematic*				getSchematicBySlotId(uint32 slotId);
 		DraftSchematic*				getSchematicByWeightId(uint32 weightId);
-
+		//DraftSchematic*				getSchematicByID(uint64 schematicId);
+		//DraftSchematic*				getSchematicByID(uint64 schematicId, uint32 groupid);
+		DraftSchematic*				getSchematicByWeightID(uint32 weightsbatch_Id);
 		string						getExpGroup(uint32 groupId){ return mvExpGroups[groupId - 1]; }
 
 		void						releaseAllPoolsMemory(){ mDBAsyncPool.release_memory(); }
@@ -106,6 +126,7 @@ class SchematicManager : public DatabaseCallback
 		SchematicGroupList			mSchematicGroupList;
 		SchematicMap				mSchematicSlotMap;
 		SchematicMap				mSchematicWeightMap;
+		SchematicList				mSchematicList;
 
 		uint32						mGroupCount;
 		uint32						mGroupLoadCount;

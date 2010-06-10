@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -197,7 +213,7 @@ bool MessageLib::sendBaselinesCREO_3(CreatureObject* creatureObject,PlayerObject
 	//9 max condition (vehicle)
 	mMessageFactory->addUint32(creatureHam->getPropertyValue(HamBar_Health,HamProperty_MaxHitpoints));
 
-	//10 posture updatecounter
+	//10 locomotion ?
 	mMessageFactory->addUint8(1); // unknown
 	//11 posture
 	mMessageFactory->addUint8(creatureObject->getPosture());
@@ -206,7 +222,12 @@ bool MessageLib::sendBaselinesCREO_3(CreatureObject* creatureObject,PlayerObject
 	//13 owner id
 	if(creatureObject->getCreoGroup()  == CreoGroup_Vehicle)
 	{
-		mMessageFactory->addUint64(creatureObject->getOwner());
+		MountObject* mount = dynamic_cast<MountObject*>(creatureObject);
+		if(mount)
+			mMessageFactory->addUint64(mount->owner());
+		else
+			mMessageFactory->addUint64(0);
+
 		mMessageFactory->addFloat(creatureObject->getScale());
 		mMessageFactory->addUint32(0);
 		mMessageFactory->addUint64(0);
@@ -412,7 +433,7 @@ bool MessageLib::sendBaselinesCREO_6(CreatureObject* creatureObject,PlayerObject
 	mMessageFactory->addString(creatureObject->getCurrentAnimation());   // music/dance string here - current animation
 	mMessageFactory->addString(moodStr);
 
-	if(Object* weapon = creatureObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Weapon))
+	if(Object* weapon = creatureObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Left))
 	{
 		mMessageFactory->addUint64(weapon->getId());
 	}
@@ -644,7 +665,7 @@ void MessageLib::sendDefenderUpdate(CreatureObject* creatureObject,uint8 updateT
 	{
 		// Reset all
 		// Not suported yet
-		gLogger->logMsgF("MessageLib::sendDefenderUpdate Invalid option = %u", MSG_NORMAL,updateType);
+		gLogger->log(LogManager::DEBUG,"MessageLib::sendDefenderUpdate Invalid option = %u",updateType);
 		return;
 	}
 
@@ -871,7 +892,7 @@ bool MessageLib::sendEquippedItemUpdate_InRange(CreatureObject* creatureObject, 
 
 	if(!found)
 	{
-		gLogger->logMsgF("MessageLib::sendEquippedItemUpdate_InRange : Item not found : %I64u", MSG_NORMAL,itemId);
+		gLogger->log(LogManager::DEBUG,"MessageLib::sendEquippedItemUpdate_InRange : Item not found : %I64u",itemId);
 		return false;
 	}
 
@@ -948,7 +969,6 @@ bool MessageLib::sendUpdatePvpStatus(CreatureObject* creatureObject,PlayerObject
 	if (!statusMask)
 	{
 		mMessageFactory->addUint32(creatureObject->getPvPStatus());
-		// gLogger->logMsgF("MessageLib::sendUpdatePvpStatus: creatureObject = %"PRIu64", State = %x", MSG_NORMAL, creatureObject->getId(), (uint32)creatureObject->getPvPStatus());
 	}
 	else
 	{
@@ -1046,8 +1066,6 @@ void MessageLib::sendPostureAndStateUpdate(CreatureObject* creatureObject)
 
 void MessageLib::sendStateUpdate(CreatureObject* creatureObject)
 {
-	// gLogger->logMsgF("MessageLib::sendStateUpdate: creatureObject = %"PRIu64", State = %llx", MSG_NORMAL, creatureObject->getId(), creatureObject->getState());
-
 	// Test code for npc combat with objects that can have no states, like debris.
 	if (creatureObject->getCreoGroup() != CreoGroup_AttackableObject)
 	{
@@ -1321,14 +1339,10 @@ void MessageLib::sendCurrentHitpointDeltasCreo6_Single(CreatureObject* creatureO
 	ham->advanceCurrentHitpointsUpdateCounter();
 	mMessageFactory->addUint32(1);
 	mMessageFactory->addUint32(ham->getCurrentHitpointsUpdateCounter());
-	//	gLogger->logMsgF("updatecounter : %u",MSG_NORMAL,ham->getCurrentHitpointsUpdateCounter());
-
 
 	mMessageFactory->addUint8(2);
 	mMessageFactory->addUint16(barIndex);
 	mMessageFactory->addInt32(ham->getPropertyValue(barIndex,HamProperty_CurrentHitpoints));
-	//gLogger->logMsg("sendcurrenthitpoints delta single");
-	//gLogger->logMsgF("current hitpoints : %u",MSG_NORMAL,ham->getPropertyValue(barIndex,HamProperty_CurrentHitpoints));
 
 	_sendToInRange(mMessageFactory->EndMessage(),creatureObject,5);
 }
@@ -1517,11 +1531,11 @@ void MessageLib::sendBFUpdateCreo3(CreatureObject* playerObject)
 // used for mountable creatures (pets, vehicles..)
 
 
-void MessageLib::sendOwnerUpdateCreo3(CreatureObject* creatureObject)
+void MessageLib::sendOwnerUpdateCreo3(MountObject* mount)
 {
 	mMessageFactory->StartMessage();
 	mMessageFactory->addUint32(opDeltasMessage);
-	mMessageFactory->addUint64(creatureObject->getId());
+	mMessageFactory->addUint64(mount->getId());
 	mMessageFactory->addUint32(opCREO);
 	mMessageFactory->addUint8(3);
 
@@ -1529,9 +1543,9 @@ void MessageLib::sendOwnerUpdateCreo3(CreatureObject* creatureObject)
 	mMessageFactory->addUint16(2);
 	mMessageFactory->addUint16(13); // CREO 3 owner id
 
-	mMessageFactory->addInt64(creatureObject->getOwner());
+	mMessageFactory->addInt64(mount->owner());
 
-	_sendToInRange(mMessageFactory->EndMessage(),creatureObject,5);
+	_sendToInRange(mMessageFactory->EndMessage(),mount,5);
 	//(pObject)->getClient()->SendChannelA(mMessageFactory->EndMessage(),pObject->getAccountId(),CR_Client,5);
 }
 
@@ -1634,19 +1648,20 @@ void MessageLib::sendTerrainNegotiation(CreatureObject* creatureObject)
 // update: listen to
 //
 
-void MessageLib::sendListenToId(CreatureObject* creatureObject)
+void MessageLib::sendListenToId(PlayerObject* playerObject)
 {
 	mMessageFactory->StartMessage();
 	mMessageFactory->addUint32(opDeltasMessage);
-	mMessageFactory->addUint64(creatureObject->getId());
+	mMessageFactory->addUint64(playerObject->getId());
 	mMessageFactory->addUint32(opCREO);
 	mMessageFactory->addUint8(4);
 	mMessageFactory->addUint32(12);
 	mMessageFactory->addUint16(1);
 	mMessageFactory->addUint16(6);
-	mMessageFactory->addUint64(creatureObject->getEntertainerListenToId());
+	mMessageFactory->addUint64(playerObject->getEntertainerListenToId());
 
-	_sendToInRange(mMessageFactory->EndMessage(),creatureObject,5);
+	(playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5);
+	//_sendToInRange(mMessageFactory->EndMessage(),creatureObject,5);
 }
 
 //======================================================================================================================
@@ -1792,7 +1807,7 @@ void MessageLib::sendWeaponIdUpdate(CreatureObject* creatureObject)
 	mMessageFactory->addUint16(1);
 	mMessageFactory->addUint16(5);
 
-	if(Object* weapon = creatureObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Weapon))
+	if(Object* weapon = creatureObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Left))
 	{
 		mMessageFactory->addUint64(weapon->getId());
 	}

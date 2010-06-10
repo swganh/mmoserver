@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 #include "Ham.h"
@@ -260,7 +276,7 @@ int32	Ham::getTotalHamCount()
 
 	for(uint32 i = 0;i<9;i++)
 	{
-		amount += mHamBars[i]->getValue(HamProperty_MaxHitpoints);
+		amount += mHamBars[i]->getValue(HamProperty_BaseHitpoints);
 	}
 
 	return amount;
@@ -440,7 +456,7 @@ int32 Ham::updatePropertyValue(uint8 barIndex,uint8 valueIndex,int32 propertyDel
 
 		case HamProperty_Encumbrance:
 		{
-			gLogger->logMsg("couldnt update encumbrance");
+			gLogger->log(LogManager::DEBUG,"couldnt update encumbrance");
 			// TODO
 		}
 		break;
@@ -460,7 +476,6 @@ int32 Ham::updatePropertyValue(uint8 barIndex,uint8 valueIndex,int32 propertyDel
 
 void Ham::updateSingleHam(int32 propertyDelta, bool damage)
 {
-	//gLogger->logMsgF("Ham::updateSingleHam with health %d", MSG_NORMAL, propertyDelta);
 	if(propertyDelta == 0)
 	{
 		return;
@@ -473,7 +488,6 @@ void Ham::updateSingleHam(int32 propertyDelta, bool damage)
 		{
 			// gMessageLib->sendCurrentHitpointDeltasCreo6_Single(mParent,barIndex);
 			gMessageLib->sendSingleBarUpdate(mParent);
-			// gLogger->logMsgF("Ham::updateSingleHam Action = 1", MSG_NORMAL);
 		}
 		break;
 
@@ -482,7 +496,6 @@ void Ham::updateSingleHam(int32 propertyDelta, bool damage)
 		{
 			// gMessageLib->sendCurrentHitpointDeltasCreo6_Single(mParent,barIndex);
 			gMessageLib->sendSingleBarUpdate(mParent);
-			// gLogger->logMsgF("Ham::updateSingleHam Action = 2", MSG_NORMAL);
 
 			if(mParent)
 			{
@@ -495,7 +508,7 @@ void Ham::updateSingleHam(int32 propertyDelta, bool damage)
 
 		default:
 		{
-			gLogger->logMsgF("Ham::updateSingleHam Action = Default", MSG_NORMAL);
+			gLogger->log(LogManager::DEBUG,"Ham::updateSingleHam Action = Default");
 		}
 		break;
 	}

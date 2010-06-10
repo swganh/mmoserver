@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 #include "BuffManager.h"
@@ -196,7 +212,6 @@ void BuffManager::LoadBuffsFromResult(buffAsyncContainer* asyncContainer, Databa
 
 void BuffManager::LoadBuffAttributesFromResult(buffAsyncContainer* asyncContainer, DatabaseResult* result)
 {
-	//gLogger->logMsg("Loading an Attribute", FOREGROUND_GREEN);
 
 	DataBinding*	buffBinding = mDatabase->CreateDataBinding(4);
 	buffBinding->addField(DFT_int32,offsetof(BuffAttributeDBItem,mType),4,0);
@@ -303,8 +318,8 @@ void BuffManager::LoadBuffs(PlayerObject* playerObject, uint64 currenttime)
 	//check we don't have ghosted buffs
 	if(playerObject->GetNoOfBuffs() > 0)
 	{
-		gLogger->logMsg("PlayerObject has ghosted Buffs. Inform a developer\n", FOREGROUND_RED);
-		gMessageLib->sendSystemMessage(playerObject, "You appear to have Ghosted Buffs (Bug #958). Please inform a developer you saw this message");
+		gLogger->log(LogManager::WARNING,"PlayerObject has ghosted Buffs. Inform a developer\n", FOREGROUND_RED);
+		gMessageLib->sendSystemMessage(playerObject, L"You appear to have Ghosted Buffs (Bug #958). Please inform an SWG:ANH developer or Server Admin you saw this message");
 		return;
 	}
 
@@ -491,8 +506,6 @@ void BuffManager::AddBuffToDB(Buff* buff, uint64 currenttime)
 		sprintf(sql+strlen(sql), "%"PRIu64",", currenttime);
 		sprintf(sql+strlen(sql), "%"PRIu64");", buff->GetStartGlobalTick());
 
-		//gLogger->logMsg(sql,FOREGROUND_BLUE | FOREGROUND_GREEN);
-
 		//Lloydyboy Changed Save SQL back to Sync, not ASync to ensure this is saved, before new zone loads
 		//mDatabase->ExecuteSqlAsync(this,envelope,sql);
 		mDatabase->DestroyResult(mDatabase->ExecuteSynchSql(sql));
@@ -530,7 +543,6 @@ void BuffManager::AddBuffToDB(Buff* buff, uint64 currenttime)
 			}
 			it++;
 		}
-		//gLogger->logMsg(sql2,FOREGROUND_BLUE | FOREGROUND_GREEN);
 
 		//Lloydyboy Changed Save SQL back to Sync, not ASync to ensure this is saved, before new zone loads
 		//mDatabase->ExecuteSqlAsync(this,envelope,sql2);

@@ -1,11 +1,27 @@
  /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -111,9 +127,7 @@ void ResourceCollectionManager::handleDatabaseJobComplete(void* ref,DatabaseResu
 				}
 
 				if(result->getRowCount())
-					gLogger->logMsgLoadSuccess("ResourceCollectionManager::Loading sample costs...",MSG_NORMAL);
-				else
-					gLogger->logMsgLoadFailure("ResourceCollectionManager::Loading sample costs...",MSG_NORMAL);					
+					gLogger->log(LogManager::NOTICE,"Loaded sample costs.");
 
 			}
 			break;
@@ -134,9 +148,8 @@ void ResourceCollectionManager::handleDatabaseJobComplete(void* ref,DatabaseResu
 				}
 				
 				if(result->getRowCount())
-					gLogger->logMsgLoadSuccess("ResourceCollectionManager::Loading %u survey costs...",MSG_NORMAL,result->getRowCount());
-				else
-					gLogger->logMsgLoadFailure("ResourceCollectionManager::Loading survey costs...",MSG_NORMAL);					
+					gLogger->log(LogManager::NOTICE,"Loaded survey costs.");						
+
 			}
 			break;
 
@@ -190,7 +203,7 @@ void ResourceCollectionManager::handleUIEvent(uint32 action,int32 element,string
 			}
 			else
 			{
-				gLogger->logMsg("sampling radioactive box: Yes");
+				gLogger->log(LogManager::DEBUG,"sampling radioactive box: Yes");
 	
 				player->getSampleData()->mPassRadioactive = true;
 				player->getSampleData()->mPendingSample = true;
@@ -237,7 +250,7 @@ void ResourceCollectionManager::handleUIEvent(uint32 action,int32 element,string
 				}
 				else
 				{
-					gLogger->logMsg("sampling gamble box ... gamble");
+					gLogger->log(LogManager::DEBUG,"sampling gamble box ... gamble");
 					//action costs
 					if(!ham->checkMainPools(0,sampleActionCost*2,0))
 					{
@@ -251,7 +264,8 @@ void ResourceCollectionManager::handleUIEvent(uint32 action,int32 element,string
 						gMessageLib->sendSystemMessage(player,L"","survey","gamble_no_action");
 						return;
 					}
-					ham->updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints,300,true);
+					//reduce action points by 300 and make sure 'damage' is set to false so we don't incap ourselves
+					ham->updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints,-300,false);
 					player->getSampleData()->mPendingSample = true;
 
 					//determine whether gamble is good or not
@@ -297,7 +311,7 @@ void ResourceCollectionManager::handleUIEvent(uint32 action,int32 element,string
 					player->getSampleData()->resource	= (CurrentResource*)asyncContainer->CurrentResource;
 
 					
-					Datapad* datapad= dynamic_cast<Datapad*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Datapad));
+					Datapad* datapad			= player->getDataPad();
                     datapad->requestNewWaypoint("Resource Node", glm::vec3(player->getSampleData()->Position.x,0.0f,player->getSampleData()->Position.z),static_cast<uint16>(gWorldManager->getZoneId()),Waypoint_blue);
 					gMessageLib->sendSystemMessage(player,L"","survey","node_waypoint");
 
@@ -325,7 +339,7 @@ void ResourceCollectionManager::handleUIEvent(uint32 action,int32 element,string
 			}
 			else
 			{
-				gLogger->logMsg("sampling wayp node box action != 1 (stay here?)");
+				gLogger->log(LogManager::DEBUG,"sampling wayp node box action != 1 (stay here?)");
 				player->getSampleData()->mPendingSample = false;
 				player->getSampleData()->mSampleNodeFlag = false;
 				player->getSampleData()->Position.x = 0;

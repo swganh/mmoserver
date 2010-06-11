@@ -666,7 +666,8 @@ void CharacterBuilderTerminal::SendResourcesMenu(PlayerObject* playerObject, uin
 
 void CharacterBuilderTerminal::_handleMainMenu(PlayerObject* playerObject, uint32 action,int32 element,string inputStr,UIWindow* window)
 {
-	if(element >= (int)mMainMenu.size())
+  // Check if the player is a csr and handle the menu appropriately.
+  if (playerObject->getCsrTag())
 		return _handleMainCsrMenu(playerObject, action, element, inputStr, window);
 
 	switch(element)

@@ -257,6 +257,8 @@ void VehicleController::DismountPlayer() {
 	gMessageLib->sendStateUpdate(owner_);
 
 	owner_->setMounted(false);
+	
+	gMessageLib->sendUpdateMovementProperties(owner_);
 }
 
 //===============================================================================================
@@ -281,6 +283,8 @@ void VehicleController::MountPlayer()
 	gMessageLib->sendStateUpdate(owner_);
 
 	owner_->setMounted(true);
+	
+	gMessageLib->sendUpdateMovementProperties(owner_);
 }
 
 //===============================================================================================

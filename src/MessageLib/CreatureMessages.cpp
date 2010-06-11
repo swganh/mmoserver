@@ -1197,6 +1197,12 @@ bool MessageLib::sendUpdateMovementProperties(PlayerObject* playerObject)
 	if(!(playerObject->isConnected()))
 		return(false);
 
+	MovingObject* object = dynamic_cast<MovingObject*>(playerObject);
+
+	if (playerObject->checkIfMounted()) {
+		object = dynamic_cast<MovingObject*>(playerObject->getMount());
+	}
+
 	mMessageFactory->StartMessage();
 	mMessageFactory->addUint32(opDeltasMessage);
 	mMessageFactory->addUint64(playerObject->getId());
@@ -1207,16 +1213,16 @@ bool MessageLib::sendUpdateMovementProperties(PlayerObject* playerObject)
 	mMessageFactory->addUint16(4);
 
 	mMessageFactory->addUint16(5);
-	mMessageFactory->addFloat(playerObject->getCurrentSpeedModifier());
+	mMessageFactory->addFloat(object->getCurrentSpeedModifier());
 
 	mMessageFactory->addUint16(7);
-	mMessageFactory->addFloat(playerObject->getCurrentRunSpeedLimit());
+	mMessageFactory->addFloat(object->getCurrentRunSpeedLimit());
 
 	mMessageFactory->addUint16(10);
-	mMessageFactory->addFloat(playerObject->getCurrentTurnRate());
+	mMessageFactory->addFloat(object->getCurrentTurnRate());
 
 	mMessageFactory->addUint16(11);
-	mMessageFactory->addFloat(playerObject->getCurrentAcceleration());
+	mMessageFactory->addFloat(object->getCurrentAcceleration());
 
 	(playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5);
 

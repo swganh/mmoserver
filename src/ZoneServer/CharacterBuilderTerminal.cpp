@@ -87,6 +87,7 @@ void CharacterBuilderTerminal::InitMenus()
 	mMainMenu.push_back("Manage Buffs");
 	mMainMenu.push_back("Manage Items");
 	mMainMenu.push_back("Manage Resources");
+	mMainMenu.push_back("Manage Professions");
 	
 	mMainCsrMenu.push_back("Manage Experience");
 	mMainCsrMenu.push_back("Manage Credits");
@@ -693,6 +694,12 @@ void CharacterBuilderTerminal::_handleMainMenu(PlayerObject* playerObject, uint3
 		break;
 	case 4://Resources
 		SendResourcesMenu(playerObject, action, element, inputStr, window);
+		break;
+	case 5: //Professions
+		if(playerObject->isConnected())
+		{
+			gUIManager->createNewListBox(this,"handleGetProf","Select Profession to Master","Select from the list below.",mProfessionMenu,playerObject,SUI_Window_CharacterBuilderProfessionMastery_ListBox);
+		}
 		break;
 	default:
 		break;

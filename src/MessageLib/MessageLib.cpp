@@ -482,22 +482,21 @@ bool MessageLib::sendCreatePlayer(PlayerObject* playerObject,PlayerObject* targe
 
 	if(playerObject->getParentId())
 	{
-		sendContainmentMessage(playerObject->getId(),playerObject->getParentId(),0xffffffff,targetObject);
-	}
-
-	// tangible objects
-	if(TangibleObject* hair = dynamic_cast<TangibleObject*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hair)))
-	{
-		//only create the hair as the helmet will be created at a different time
-		if(hair->getTangibleType() == TanType_Hair)
-		{
-			sendCreateTangible(hair,targetObject);
-		}
+		sendContainmentMessage(playerObject->getId(),playerObject->getParentId(),4,targetObject);
 	}
 
 	if(targetObject == playerObject)
 	{
-		
+		// tangible objects
+		if(TangibleObject* hair = dynamic_cast<TangibleObject*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hair)))
+		{
+			//only create the hair as the helmet will be created at a different time
+			if(hair->getTangibleType() == TanType_Hair)
+			{
+				sendCreateTangible(hair,targetObject);
+			}
+		}
+
 		// create inventory and contents
 		if(dynamic_cast<TangibleObject*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)))
 		{
@@ -516,7 +515,7 @@ bool MessageLib::sendCreatePlayer(PlayerObject* playerObject,PlayerObject* targe
 			{
 				MissionObject* mission = dynamic_cast<MissionObject*>(*it);
 				sendCreateObjectByCRC(mission, targetObject, false);
-				sendContainmentMessage(mission->getId(), mbag->getId(), 0xffffffff, targetObject);
+				sendContainmentMessage(mission->getId(), mbag->getId(), 4, targetObject);
 				sendBaselinesMISO_3(mission, targetObject);
 				sendBaselinesMISO_6(mission, targetObject);
 				sendBaselinesMISO_8(mission, targetObject);
@@ -583,11 +582,7 @@ bool MessageLib::sendCreatePlayer(PlayerObject* playerObject,PlayerObject* targe
 
 		}
 	}
-	else
-	{
-		//sendEndBaselines(playerObject->getId(),targetObject);
-		sendEquippedItems(playerObject,targetObject);
-	}
+	//equipped items are already in the creo6 so only send them for ourselves
 	
 	sendEndBaselines(playerObject->getId(),targetObject);
 
@@ -745,17 +740,17 @@ bool MessageLib::sendCreateTangible(TangibleObject* tangibleObject,PlayerObject*
 		{
 			// could be inside a crafting tool
 			Object* parent = gWorldManager->getObjectById(parentId);
-			CreatureObject* creatureObject = dynamic_cast<CreatureObject*>(parent);
+			CreatureObject* parentObject = dynamic_cast<CreatureObject*>(parent);
 
 			if(parent && dynamic_cast<CraftingTool*>(parent))
 			{
 				sendContainmentMessage(tangibleObject->getId(),parentId,0,targetObject);
 			}
 			// if equipped, also tie it to the object
-			else if(creatureObject)
+			else if(parentObject)
 			{
 				Item* item = dynamic_cast<Item*>(tangibleObject);
-				sendContainmentMessage(tangibleObject->getId(),creatureObject->getId(),4,targetObject);				
+				sendContainmentMessage(tangibleObject->getId(),parentObject->getId(),4,targetObject);				
 			}
 			else
 			{

@@ -241,6 +241,8 @@ public:
 	void				sendSitOnObject(CreatureObject* creatureObject);
 	void				sendDataTransformWithParent0B(Object* object);
 	void				sendDataTransform0B(Object* object);
+	void				sendDataTransform023(Object* object);
+	void				sendDataTransform071(Object* object);
 
 	// position updates for tutorial
 	void				sendDataTransform(Object* object, PlayerObject* player);

@@ -1235,6 +1235,50 @@ void MessageLib::sendDataTransform053(Object* object)
 	_sendToInRangeUnreliable(mMessageFactory->EndMessage(),object,5);
 }
 
+void MessageLib::sendDataTransform071(Object* object)
+{
+	mMessageFactory->StartMessage();
+	mMessageFactory->addUint32(opObjControllerMessage);
+	mMessageFactory->addUint32(0x00000071);
+	mMessageFactory->addUint32(opDataTransform);
+	mMessageFactory->addUint64(object->getId());
+	mMessageFactory->addUint32(0);
+	mMessageFactory->addUint32(object->incDataTransformCounter());
+
+	mMessageFactory->addFloat(object->mDirection.x);
+	mMessageFactory->addFloat(object->mDirection.y);
+	mMessageFactory->addFloat(object->mDirection.z);
+	mMessageFactory->addFloat(object->mDirection.w);
+	mMessageFactory->addFloat(object->mPosition.x);
+	mMessageFactory->addFloat(object->mPosition.y);
+	mMessageFactory->addFloat(object->mPosition.z);
+	mMessageFactory->addUint32(0);
+
+	_sendToInRangeUnreliable(mMessageFactory->EndMessage(),object,5);
+}
+
+void MessageLib::sendDataTransform023(Object* object)
+{
+	mMessageFactory->StartMessage();
+	mMessageFactory->addUint32(opObjControllerMessage);
+	mMessageFactory->addUint32(0x00000023);
+	mMessageFactory->addUint32(opDataTransform);
+	mMessageFactory->addUint64(object->getId());
+	mMessageFactory->addUint32(0);
+	mMessageFactory->addUint32(object->incDataTransformCounter());
+
+	mMessageFactory->addFloat(object->mDirection.x);
+	mMessageFactory->addFloat(object->mDirection.y);
+	mMessageFactory->addFloat(object->mDirection.z);
+	mMessageFactory->addFloat(object->mDirection.w);
+	mMessageFactory->addFloat(object->mPosition.x);
+	mMessageFactory->addFloat(object->mPosition.y);
+	mMessageFactory->addFloat(object->mPosition.z);
+	mMessageFactory->addUint32(0);
+
+	_sendToInRangeUnreliable(mMessageFactory->EndMessage(),object,5);
+}
+
 //======================================================================================================================
 //
 // move object in cell

@@ -257,8 +257,8 @@ void CharacterBuilderTerminal::InitStructures()
 	mWaterMenu.push_back("Medium");
 	
 	//BStringVector			mMineralMenu;
-	mMineralMenu.push_back("Small");
 	mMineralMenu.push_back("Heavy");
+	mMineralMenu.push_back("Small");
 	mMineralMenu.push_back("Medium");
 	
 

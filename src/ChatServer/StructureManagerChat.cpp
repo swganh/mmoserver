@@ -319,7 +319,7 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
 		//=================================================
 		//
 		//the structure is out of maintenance - the bank account will be used
-		//
+		//we just need to send the appropriate mail
 		case STRMQuery_StructureMailOOFMaint:
 		{
 			
@@ -381,7 +381,11 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
 		}
 		break;
 
-		case STRMQuery_DoneHarvesterMaintenance:
+		//=================================================
+		//
+		//we deducted the maintenance - or tried too
+		//read out the answer and proceed
+		case STRMQuery_DoneStructureMaintenance:
 		{
 			uint32 exitCode;
 			DataBinding* binding = mDatabase->CreateDataBinding(1);
@@ -404,7 +408,7 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
 				// get the Owners ID
 				int8 sql[500];
 
-				//start by using power
+				//inform the owner on the maintenance issue
 				sprintf(sql,"SELECT s.owner, st.stf_file, st.stf_name, s.x, s.z, p.name, s.lastMail FROM structures s INNER JOIN structure_type_data st ON (s.type = st.type) INNER JOIN planet p ON (p.planet_id = s.zone)WHERE ID = %I64u",asynContainer->harvesterID);
 				StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(STRMQuery_StructureMailOOFMaint,0);
 				asyncContainer->harvesterID = asynContainer->harvesterID;
@@ -592,7 +596,7 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
 
 				// then use maintenance
 				sprintf(sql,"SELECT sf_HarvesterUseMaintenance(%I64u)",harvesterID);
-				StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(STRMQuery_DoneHarvesterMaintenance,0);
+				StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(STRMQuery_DoneStructureMaintenance,0);
 				asyncContainer->harvesterID = harvesterID;
 				
 				mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
@@ -829,8 +833,7 @@ void StructureManagerChatHandler::handleFactoryUpdate()
 
 //=======================================================================================================================
 //
-// iterates through the list of hoppers we need to update on a regular basis
-// and reads the relevant resource data - then sends it to the client
+// iterates through all structures in structures.sql to take off maintenance
 //
 void StructureManagerChatHandler::handleCheckHarvesterMaintenance()
 {
@@ -838,7 +841,7 @@ void StructureManagerChatHandler::handleCheckHarvesterMaintenance()
 	StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(STRMQuery_MaintenanceUpdate,0);
 
 	int8 sql[100];
-	sprintf(sql,"SELECT h.ID FROM harvesters h");
+	sprintf(sql,"SELECT s.ID FROM structures s");
 	
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
 

@@ -286,7 +286,8 @@ void  Trade::processTradeListPostTransaction()
 	Inventory*				inventory			= dynamic_cast<Inventory*>(getPlayerObject()->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 
 	//Tradepartners Inventory
-	Inventory*				partnerInventory	= dynamic_cast<Inventory*>((*it)->getNewOwner()->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+	PlayerObject*			TradePartner		= dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(getPlayerObject()->getTradePartner()));
+	Inventory*				partnerInventory	= dynamic_cast<Inventory*>(TradePartner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 
 	while(it != mItemTradeList.end())
 	{

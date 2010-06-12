@@ -370,7 +370,8 @@ bool ObjectController::_processCommandQueue()
 
 						if (message && it != gObjControllerCmdMap.end())
 						{
-							(this->*((*it).second))(targetId,message,cmdProperties);
+              ((*it).second)(this, targetId, message, cmdProperties);
+							//(this->*((*it).second))(targetId,message,cmdProperties);
 							consumeHam = mHandlerCompleted;
 						}
 						else

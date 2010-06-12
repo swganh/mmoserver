@@ -28,10 +28,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_ZONESERVER_OBJECTCONTROLLERCOMMANDMAP_H
 #define ANH_ZONESERVER_OBJECTCONTROLLERCOMMANDMAP_H
 
+#include <cstdint>
+#include <map>
+
+#ifdef _MSC_VER
+#include <functional>  // NOLINT
+#else
+#include <tr1/functional>  // NOLINT
+#endif
+
 #include "Utils/typedefs.h"
 #include "ScriptEngine/ScriptEventListener.h"
 #include "DatabaseManager/DatabaseCallback.h"
-#include <map>
 
 
 //======================================================================================================================
@@ -48,9 +56,12 @@ class Script;
 #define gObjControllerCmdMap			((ObjectControllerCommandMap::getSingletonPtr())->mCommandMap)
 #define gObjControllerCmdPropertyMap	((ObjectControllerCommandMap::getSingletonPtr())->mCmdPropertyMap)
 
-typedef void											(ObjectController::*funcPointer)(uint64,Message*,ObjectControllerCmdProperties*);
-typedef std::map<uint32,funcPointer>					CommandMap;
-typedef std::map<uint32,ObjectControllerCmdProperties*>	CmdPropertyMap;
+typedef std::function<void (ObjectController*, uint64, Message*, ObjectControllerCmdProperties*)> ObjectControllerHandler;
+typedef std::map<uint32,ObjectControllerHandler> CommandMap;
+
+//typedef void											(ObjectController::*funcPointer)(ObjectController*, uint64,Message*,ObjectControllerCmdProperties*);
+//typedef std::map<uint32,funcPointer>					CommandMap;
+typedef std::map<uint32_t,ObjectControllerCmdProperties*>	CmdPropertyMap;
 
 //======================================================================================================================
 

@@ -365,22 +365,31 @@ bool ObjectController::_processCommandQueue()
 				{
 					case ObjControllerCmdGroup_Common:
 					{
-						// get the command
-						CommandMap::iterator it = gObjControllerCmdMap.find(command);
+						// Check the new style of handlers first.
+            CommandMap::const_iterator it = gObjectControllerCommands->getCommandMap().find(command);
 
-						if (message && it != gObjControllerCmdMap.end())
-						{
-              ((*it).second)(this, targetId, message, cmdProperties);
-							//(this->*((*it).second))(targetId,message,cmdProperties);
+            // If a new style handler is found process it.
+            if (message && it != gObjectControllerCommands->getCommandMap().end()) {
+              ((*it).second)(mObject, targetId, message, cmdProperties);
 							consumeHam = mHandlerCompleted;
-						}
-						else
-						{
-							gLogger->log(LogManager::DEBUG,"ObjectController::processCommandQueue: ObjControllerCmdGroup_Common Unhandled Cmd 0x%x for %"PRIu64"",command,mObject->getId());
-							//gLogger->hexDump(message->getData(),message->getSize());
+            } else {
+              // Otherwise, process the old style handler.
+						  OriginalCommandMap::iterator it = gObjControllerCmdMap.find(command);
 
-							consumeHam = false;
-						}
+						  if (message && it != gObjControllerCmdMap.end())
+						  {
+                ((*it).second)(this, targetId, message, cmdProperties);
+						  	//(this->*((*it).second))(targetId,message,cmdProperties);
+						  	consumeHam = mHandlerCompleted;
+						  }
+						  else
+						  {
+						  	gLogger->log(LogManager::DEBUG,"ObjectController::processCommandQueue: ObjControllerCmdGroup_Common Unhandled Cmd 0x%x for %"PRIu64"",command,mObject->getId());
+						  	//gLogger->hexDump(message->getData(),message->getSize());
+
+						  	consumeHam = false;
+						  }
+            }
 					}
 					break;
 

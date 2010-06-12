@@ -50,6 +50,9 @@ mDatabase(database)
 	// setup cpp hooks
 	_registerCppHooks();
 
+  // Set up new style hooks
+  RegisterCppHooks_();
+
 	// load the property map
 	mDatabase->ExecuteSqlAsync(this,NULL,"SELECT commandname,characterability,deny_in_states,healthcost,actioncost,mindcost,"
 										 "animationCrc,addtocombatqueue,defaulttime,scripthook,requiredweapongroup,"
@@ -162,6 +165,10 @@ void ObjectControllerCommandMap::handleDatabaseJobComplete(void* ref,DatabaseRes
 
 	if(result->getRowCount())
 		gLogger->log(LogManager::NOTICE,"Mapped functions.");
+}
+
+const CommandMap& ObjectControllerCommandMap::getCommandMap() {
+  return command_map_;
 }
 
 //======================================================================================================================
@@ -506,6 +513,11 @@ void ObjectControllerCommandMap::_registerCppHooks()
 
   mCommandMap.insert(std::make_pair(opMoveFurniture, std::bind(&ObjectController::HandleMoveFurniture_, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));	
 	mCommandMap.insert(std::make_pair(opRotateFurniture, std::bind(&ObjectController::HandleRotateFurniture_, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
+}
+
+
+void ObjectControllerCommandMap::RegisterCppHooks_()
+{
 }
 
 //======================================================================================================================

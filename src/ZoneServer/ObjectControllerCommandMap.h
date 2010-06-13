@@ -28,16 +28,25 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_ZONESERVER_OBJECTCONTROLLERCOMMANDMAP_H
 #define ANH_ZONESERVER_OBJECTCONTROLLERCOMMANDMAP_H
 
+#include <cstdint>
+#include <map>
+
+#ifdef _MSC_VER
+#include <functional>  // NOLINT
+#else
+#include <tr1/functional>  // NOLINT
+#endif
+
 #include "Utils/typedefs.h"
 #include "ScriptEngine/ScriptEventListener.h"
 #include "DatabaseManager/DatabaseCallback.h"
-#include <map>
 
 
 //======================================================================================================================
 
 class ObjectController;
 class ObjectControllerCmdProperties;
+class Object;
 class Message;
 class Database;
 class DatabaseCallback;
@@ -48,9 +57,15 @@ class Script;
 #define gObjControllerCmdMap			((ObjectControllerCommandMap::getSingletonPtr())->mCommandMap)
 #define gObjControllerCmdPropertyMap	((ObjectControllerCommandMap::getSingletonPtr())->mCmdPropertyMap)
 
-typedef void											(ObjectController::*funcPointer)(uint64,Message*,ObjectControllerCmdProperties*);
-typedef std::map<uint32,funcPointer>					CommandMap;
-typedef std::map<uint32,ObjectControllerCmdProperties*>	CmdPropertyMap;
+// Rename the old style handler and map.
+typedef std::function<void (ObjectController*, uint64, Message*, ObjectControllerCmdProperties*)> OriginalObjectControllerHandler;
+typedef std::map<uint32,OriginalObjectControllerHandler> OriginalCommandMap;
+
+// New style ObjectController handlers accept an Object* as the first arguement.
+typedef std::function<void (Object* object, Object* target, Message*, ObjectControllerCmdProperties*)> ObjectControllerHandler;
+typedef std::map<uint32,ObjectControllerHandler> CommandMap;
+
+typedef std::map<uint32_t,ObjectControllerCmdProperties*>	CmdPropertyMap;
 
 //======================================================================================================================
 
@@ -65,9 +80,11 @@ class ObjectControllerCommandMap : public DatabaseCallback
 
 		void								ScriptRegisterEvent(void* script,std::string eventFunction);
 
+    const CommandMap& getCommandMap();
+
 		~ObjectControllerCommandMap();
 
-		CommandMap				mCommandMap;
+		OriginalCommandMap				mCommandMap;
 		CmdPropertyMap			mCmdPropertyMap;
 		ScriptEventListener		mCmdScriptListener;
 		
@@ -77,8 +94,13 @@ class ObjectControllerCommandMap : public DatabaseCallback
 
 		void								_registerCppHooks();
 
+    // This is here for utility purposes during the transition and is used to load
+    // up the new command map.
+    void RegisterCppHooks_();
+
 		static bool							mInsFlag;
 		static ObjectControllerCommandMap*	mSingleton;
+    CommandMap  command_map_;
 		Database*							mDatabase;
 };
 

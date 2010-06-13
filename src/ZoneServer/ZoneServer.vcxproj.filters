@@ -1462,5 +1462,8 @@
     <ClInclude Include="QuickHealInjuryTreatmentEvent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="OCStructureHandlers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

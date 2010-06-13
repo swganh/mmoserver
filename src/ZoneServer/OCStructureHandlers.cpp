@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 //common includes
 #include "ObjectController.h"
+#include "OCStructureHandlers.h"
 
 #include <cstdint>
 
@@ -1429,12 +1430,14 @@ void ObjectController::HandleRotateFurniture_(
   object->updateWorldPosition();
 }
 
-void ObjectController::HandleMoveFurniture_(
-  uint64 targetId,
+
+void HandleMoveFurniture(
+  Object* object,
+  Object* target,
   Message* message,
   ObjectControllerCmdProperties* cmdProperties) {
 
-  PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+  PlayerObject*	player	= dynamic_cast<PlayerObject*>(object);
   
   if (!player)	{
     assert(false && "ObjectController::HandleItemMoveDown_ Player not found");
@@ -1442,20 +1445,18 @@ void ObjectController::HandleMoveFurniture_(
   }
 
   // Verify that there was a target passed.
-  if (!targetId) {
+  if (!target) {
     gMessageLib->sendSystemMessage(player, L"", "player_structure", "move_what");
     return;
   }
   
-  Object* object = gWorldManager->getObjectById(targetId);
-  
-  if(!object)	{
+  if(!target)	{
     assert(false && "ObjectController::HandleItemMoveDown_ item not found");
     return;
   }
 
   // Verify that the item and player are in the same structure.
-  if (object->getParentId() != player->getParentId()) {
+  if (target->getParentId() != player->getParentId()) {
     gMessageLib->sendSystemMessage(player, L"", "player_structure", "move_what");
   }
   
@@ -1514,17 +1515,16 @@ void ObjectController::HandleMoveFurniture_(
 
   // Move object an MOVE_INCREMENT times by the amount and direction specified.
   if (direction == "forward") {
-    object->move(player->mDirection, distance * MOVE_INCREMENT);
+    target->move(player->mDirection, distance * MOVE_INCREMENT);
   } else if (direction == "back") {
-    object->move(player->mDirection, -distance * MOVE_INCREMENT);
+    target->move(player->mDirection, -distance * MOVE_INCREMENT);
   } else if (direction == "up") {
-    object->mPosition.y += distance * MOVE_INCREMENT;
+    target->mPosition.y += distance * MOVE_INCREMENT;
   } else if (direction == "down") {
-    object->mPosition.y -= distance * MOVE_INCREMENT;
+    target->mPosition.y -= distance * MOVE_INCREMENT;
   }
 
   // Update the world with the changes.
-  gMessageLib->sendDataTransformWithParent053(object);
-  object->updateWorldPosition();
+  gMessageLib->sendDataTransformWithParent053(target);
+  target->updateWorldPosition();
 }
-

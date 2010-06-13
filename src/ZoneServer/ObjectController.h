@@ -661,19 +661,6 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback, 
      * @param cmd_properties Contextual information for use during processing this command.
      */
 		void HandleItemRotateRight_(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
-
-    /// This command is used to move items about a structure.
-    /**
-     * This command is invoked by the client to move items around in a structure.
-     *
-     * The client enters the message in the following format:
-     *   /moveFurniture <FORWARD/BACK/UP/DOWN> <distance>
-     *
-     * @param target_id The targeted item is the one being moved.
-     * @param message The message from the client requesting this command.
-     * @param cmd_properties Contextual information for use during processing this command.
-     */
-    void HandleMoveFurniture_(uint64 target_id, Message* message, ObjectControllerCmdProperties* cmd_properties);
 				
     /// This command is used to rotate items in a structure.
     /**

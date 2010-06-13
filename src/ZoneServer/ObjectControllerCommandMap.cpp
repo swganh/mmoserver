@@ -35,7 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/DatabaseResult.h"
 #include "Common/Message.h"
 
-
+#include "OCStructureHandlers.h"
 
 //======================================================================================================================
 
@@ -510,14 +510,14 @@ void ObjectControllerCommandMap::_registerCppHooks()
 	
 	mCommandMap.insert(std::make_pair(opItemRotateLeft, std::bind(&ObjectController::HandleItemRotateLeft_, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
 	mCommandMap.insert(std::make_pair(opItemRotateRight, std::bind(&ObjectController::HandleItemRotateRight_, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
-
-  mCommandMap.insert(std::make_pair(opMoveFurniture, std::bind(&ObjectController::HandleMoveFurniture_, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));	
+	
 	mCommandMap.insert(std::make_pair(opRotateFurniture, std::bind(&ObjectController::HandleRotateFurniture_, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
 }
 
 
 void ObjectControllerCommandMap::RegisterCppHooks_()
 {
+  command_map_.insert(std::make_pair(opMoveFurniture, std::bind(&HandleMoveFurniture, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));	
 }
 
 //======================================================================================================================

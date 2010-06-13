@@ -367,10 +367,18 @@ bool ObjectController::_processCommandQueue()
 					{
 						// Check the new style of handlers first.
             CommandMap::const_iterator it = gObjectControllerCommands->getCommandMap().find(command);
+            
+            // Find the target object (if one is given) and pass it in.
+            Object* target = NULL;
+            
+            if (targetId) {
+              target = gWorldManager->getObjectById(targetId);
+            }
 
             // If a new style handler is found process it.
             if (message && it != gObjectControllerCommands->getCommandMap().end()) {
-              ((*it).second)(mObject, targetId, message, cmdProperties);
+
+              ((*it).second)(mObject, target, message, cmdProperties);
 							consumeHam = mHandlerCompleted;
             } else {
               // Otherwise, process the old style handler.

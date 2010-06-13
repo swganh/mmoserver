@@ -480,6 +480,7 @@
     <ClInclude Include="ObjectFactory.h" />
     <ClInclude Include="ObjectFactoryCallback.h" />
     <ClInclude Include="Object_Enums.h" />
+    <ClInclude Include="OCStructureHandlers.h" />
     <ClInclude Include="PersistentNpcFactory.h" />
     <ClInclude Include="PlayerEnums.h" />
     <ClInclude Include="PlayerObject.h" />

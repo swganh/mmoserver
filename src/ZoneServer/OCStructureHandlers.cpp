@@ -1431,7 +1431,7 @@ void ObjectController::HandleRotateFurniture_(
 }
 
 
-void HandleMoveFurniture(
+bool HandleMoveFurniture(
   Object* object,
   Object* target,
   Message* message,
@@ -1441,18 +1441,18 @@ void HandleMoveFurniture(
   
   if (!player)	{
     assert(false && "ObjectController::HandleItemMoveDown_ Player not found");
-    return;
+    return false;
   }
 
   // Verify that there was a target passed.
   if (!target) {
     gMessageLib->sendSystemMessage(player, L"", "player_structure", "move_what");
-    return;
+    return false;
   }
   
   if(!target)	{
     assert(false && "ObjectController::HandleItemMoveDown_ item not found");
-    return;
+    return false;
   }
 
   // Verify that the item and player are in the same structure.
@@ -1465,15 +1465,15 @@ void HandleMoveFurniture(
     if (BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()))) {
       if (!building->hasAdminRights(player->getId())) {    
         gMessageLib->sendSystemMessage(player, L"", "player_structure", "admin_move_only");
-        return;
+        return false;
       }
     }	else {
       assert(false && "ObjectController::HandleItemMoveDown_ no structure");
-      return;
+      return false;
     }
   } else {
     assert(false && "ObjectController::HandleItemMoveDown_ no cell");
-    return;
+    return false;
   }
   
   // Read the message out of the packet.
@@ -1484,7 +1484,7 @@ void HandleMoveFurniture(
   // proper format to the client.
   if (!tmp.getLength()) {
     gMessageLib->sendSystemMessage(player, L"", "player_structure", "format_movefurniture_distance");
-    return;
+    return false;
   }
 
   // Convert the string to an ansi string for ease with the regex.
@@ -1500,7 +1500,7 @@ void HandleMoveFurniture(
   // to the client.
   if (result.length() < 2) {
     gMessageLib->sendSystemMessage(player, L"", "player_structure", "format_movefurniture_distance");
-    return;
+    return false;
   }
   
   // Gather the results of the pattern for validation and use.
@@ -1510,7 +1510,7 @@ void HandleMoveFurniture(
   // If the the specified amount is not within the valid range notify the client.
   if ((distance < 1.0f) || (distance > 500.0f)) {
     gMessageLib->sendSystemMessage(player, L"", "player_structure", "movefurniture_params");
-    return;
+    return false;
   }
 
   // Move object an MOVE_INCREMENT times by the amount and direction specified.
@@ -1527,4 +1527,6 @@ void HandleMoveFurniture(
   // Update the world with the changes.
   gMessageLib->sendDataTransformWithParent053(target);
   target->updateWorldPosition();
+
+  return true;
 }

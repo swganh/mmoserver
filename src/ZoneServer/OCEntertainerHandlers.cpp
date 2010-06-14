@@ -610,6 +610,13 @@ void ObjectController::_handleStopBand(uint64 targetId,Message* message,ObjectCo
 {
 	PlayerObject*	performer	= dynamic_cast<PlayerObject*>(mObject);
 
+	if(performer->getGroupId() == 0)
+	{
+		gMessageLib->sendSystemMessage(performer,L"You are not in a band.");
+		return;
+
+	}
+
 	gEntertainerManager->StopBand(performer);
 }
 
@@ -657,6 +664,13 @@ void ObjectController::_handleBandFlourish(uint64 targetId,Message* message,Obje
 {
 	PlayerObject*	entertainer	= dynamic_cast<PlayerObject*>(mObject);
 	//gMessageLib->sendSystemMessage(performer,L"","performance","music_stop_band_self");
+
+	if(entertainer->getGroupId() == 0)
+	{
+		gMessageLib->sendSystemMessage(entertainer,L"You are not in a band.");
+		return;
+
+	}
 
 	uint8 flourishMax = 8;
 	//are we performing???

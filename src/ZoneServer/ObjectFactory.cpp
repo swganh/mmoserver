@@ -137,14 +137,14 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			if(player)
 			{
 				gStructureManager->UpdateCharacterLots(asyncContainer->PlayerId);
-				Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 				Deed* deed = dynamic_cast<Deed*>(gWorldManager->getObjectById(asyncContainer->DeedId));
 				
+				TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(deed->getParentId()));
 				//destroy it in the client
 				gMessageLib->sendDestroyObject(asyncContainer->DeedId,player);
 	
 				//delete it out of the inventory
-				inventory->deleteObject(deed);
+				tO->deleteObject(deed);
 				
 				Datapad* datapad			= player->getDataPad();
 				datapad->requestNewWaypoint("Player House",asyncContainer->coords,gWorldManager->getPlanetIdByName(gWorldManager->getPlanetNameThis()),1);
@@ -186,14 +186,14 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			if(player)
 			{
 				gStructureManager->UpdateCharacterLots(asyncContainer->PlayerId);
-				Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 				Deed* deed = dynamic_cast<Deed*>(gWorldManager->getObjectById(asyncContainer->DeedId));
 				
 				//destroy it in the client
 				gMessageLib->sendDestroyObject(asyncContainer->DeedId,player);
 	
 				//delete it out of the inventory
-				inventory->deleteObject(deed);
+				TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(deed->getParentId()));
+				tO->deleteObject(deed);
 
 				Datapad* datapad			= player->getDataPad();
 				datapad->requestNewWaypoint("Player Factory",asyncContainer->coords,gWorldManager->getPlanetIdByName(gWorldManager->getPlanetNameThis()),1);
@@ -239,7 +239,8 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					gMessageLib->sendDestroyObject(asyncContainer->DeedId,player);
 		
 					//delete it out of the inventory
-					inventory->deleteObject(deed);
+					TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(deed->getParentId()));
+					tO->deleteObject(deed);
 
 					Datapad* datapad			= player->getDataPad();
 					datapad->requestNewWaypoint("Harvester",asyncContainer->coords,gWorldManager->getPlanetIdByName(gWorldManager->getPlanetNameThis()),1);

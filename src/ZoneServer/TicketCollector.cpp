@@ -201,7 +201,9 @@ void TicketCollector::handleUIEvent(uint32 action,int32 element,string inputStr,
 							// only delete the ticket if we are warping on this planet.
 							gMessageLib->sendDestroyObject(ticket->getId(),playerObject);
 							gObjectFactory->deleteObjectFromDB(ticket);
-							dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->deleteObject(ticket);
+							
+							TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(ticket->getParentId()));
+							tO->deleteObject(ticket);
 
 							gWorldManager->warpPlanet(playerObject,destination,0);
 						}
@@ -259,7 +261,8 @@ void TicketCollector::travelRequest(TravelTicket* ticket,PlayerObject* playerObj
 					gMessageLib->sendDestroyObject(ticket->getId(),playerObject);
 					gObjectFactory->deleteObjectFromDB(ticket);
 
-					dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->deleteObject(ticket);
+					TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(ticket->getParentId()));
+					tO->deleteObject(ticket);
 
 					gWorldManager->warpPlanet(playerObject,destination,0);
 				}

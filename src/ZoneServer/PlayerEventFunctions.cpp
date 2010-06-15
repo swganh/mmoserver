@@ -644,8 +644,8 @@ void PlayerObject::onItemDeleteEvent(const ItemDeleteEvent* event)
 		return;
 	}
 	
-	Inventory* inventory = dynamic_cast<Inventory*>(this->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-	inventory->deleteObject(item);
+	TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(item->getParentId()));
+	tO->deleteObject(item);
 		
 }
 

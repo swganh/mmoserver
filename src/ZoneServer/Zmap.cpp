@@ -122,48 +122,63 @@ void	zmap::RemoveSubCell(uint32 subCellId)
 
 uint32 zmap::_getCellId(float x, float z)
 {
-	return zmap_lookup[((((uint32)z) + 8500)/150)][((((uint32)x) + 8500)/150)];
+	return zmap_lookup[((((uint32)z) + 8500)/GRIDWIDTH)][((((uint32)x) + 8500)/GRIDHEIGHT)];
 }
 
-void zmap::AddObject(Object *newObject)
+bool zmap::AddObject(Object *newObject)
 {
 	//Pesudo
 	// 1. Calculate CellID
 	// 2. Set CellID
-	// 3. Insert object into the cell in the hast table
+	// 3. Insert object into the cell in the hash table
 
 	uint32 FinalCell = _getCellId(newObject->mPosition.x, newObject->mPosition.y);
 
-
 	newObject->zmapCellID = FinalCell;
-	for(std::list<Object*>::iterator i = ZMapCells[FinalCell].begin(); i != ZMapCells[FinalCell].end(); i++)
+	std::list<Object*> list;
+
+	if(newObject->getType() == ObjType_Player)
+	{
+		list = ZMapCells[FinalCell].Players;
+	}
+	else
+	{
+		list = ZMapCells[FinalCell].Objects;
+	}
+
+	for(std::list<Object*>::iterator i = list.begin(); i != list.end(); i++)
 	{
 		if((*i)->getId() == newObject->getId())
 		{
-			
-			return;
+			return false;
 		}
-
 	}
-	ZMapCells[FinalCell].push_back(newObject);
-	return;
+
+	list.push_back(newObject);
+	return true;
 
 }
 
 void zmap::RemoveObject(Object *removeObject)
 {
-	MapHandler::iterator i = ZMapCells.find(removeObject->zmapCellID);
+	uint32 cellId = removeObject->zmapCellID;
 
-	if(i != ZMapCells.end())
+	std::list<Object*> list;
+	if(removeObject->getType() == ObjType_Player)
 	{
-		for(std::list<Object*>::iterator i = ZMapCells[removeObject->zmapCellID].begin(); i != ZMapCells[removeObject->zmapCellID].end(); i++)
+		list = ZMapCells[cellId].Players;
+	}
+	else
+	{
+		list = ZMapCells[cellId].Objects;
+	}
+
+	for(std::list<Object*>::iterator i = list.begin(); i != list.end(); i++)
+	{
+		if((*i)->getId() == removeObject->getId())
 		{
-			if((*i)->getId() == removeObject->getId())
-			{
-				
-				ZMapCells[removeObject->zmapCellID].erase(i);
-				break;
-			}
+			list.erase(i);
+			break;
 		}
 	}
 
@@ -225,7 +240,52 @@ void zmap::UpdateObject(Object *updateObject)
 	}
 }
 
-std::list<Object*>*	zmap::GetCellContents(uint32 CellID)
+ObjectStruct*	zmap::GetCellContents(uint32 CellID)
+{
+	//Pesudo
+	// 1. Return list of objects in cell
+	//if(CellID) >
+	
+	if(CellID > (GRIDWIDTH*GRIDHEIGHT))
+		return &EmptyStruct;
+
+	return &ZMapCells[CellID];
+}
+
+std::list<Object*>*	zmap::GetAllCellContents(uint32 CellID)
+{
+	//Pesudo
+	// 1. Return list of objects in cell
+	//if(CellID) >
+	
+	if(CellID > (GRIDWIDTH*GRIDHEIGHT))
+		return &EmptyCell;
+
+	std::list<Object*>* ReturnList = new std::list<Object*>;
+	std::list<Object*>::iterator it = ReturnList->begin();
+
+	std::list<Object*> temp = ZMapCells[CellID].Objects;
+	ReturnList->splice(it, temp);
+
+	temp = ZMapCells[CellID].Players;
+	ReturnList->splice(it, temp);
+
+	return ReturnList;
+}
+
+std::list<Object*>*	zmap::GetPlayerCellContents(uint32 CellID)
+{
+	//Pesudo
+	// 1. Return list of objects in cell
+	//if(CellID) >
+	
+	if(CellID > (GRIDWIDTH*GRIDHEIGHT))
+		return &EmptyCell;
+
+	return &ZMapCells[CellID].Players;
+}
+
+std::list<Object*>*	zmap::GetObjectCellContents(uint32 CellID)
 {
 	//Pesudo
 	// 1. Return list of objects in cell
@@ -234,8 +294,11 @@ std::list<Object*>*	zmap::GetCellContents(uint32 CellID)
 	if(CellID > (GRIDWIDTH*GRIDHEIGHT))
 		return &EmptyCell;
 	
-	return &ZMapCells[CellID];
+	return &ZMapCells[CellID].Objects;
 }
+
+//=================================================
+//returns Players in chatrange
 
 std::list<Object*>* zmap::GetChatRangeCellContents(uint32 CellID)
 {
@@ -245,31 +308,31 @@ std::list<Object*>* zmap::GetChatRangeCellContents(uint32 CellID)
 	std::list<Object*>* ReturnList = new std::list<Object*>;
 	std::list<Object*>::iterator it = ReturnList->begin();
 
-	std::list<Object*> temp = *GetCellContents(CellID);
+	std::list<Object*> temp = *GetPlayerCellContents(CellID);
 	ReturnList->splice(it, temp);
 
-	temp = *GetCellContents(CellID + GRIDWIDTH);
+	temp = *GetPlayerCellContents(CellID + GRIDWIDTH);
 	ReturnList->splice(it, temp);
 
-	temp = *GetCellContents(CellID - GRIDWIDTH);
+	temp = *GetPlayerCellContents(CellID - GRIDWIDTH);
 	ReturnList->splice(it, temp);
 
-	temp = *GetCellContents(CellID + 1);
+	temp = *GetPlayerCellContents(CellID + 1);
 	ReturnList->splice(it, temp);
 
-	temp = *GetCellContents(CellID - 1);
+	temp = *GetPlayerCellContents(CellID - 1);
 	ReturnList->splice(it, temp);
 
-	temp = *GetCellContents(CellID + GRIDWIDTH-1);
+	temp = *GetPlayerCellContents(CellID + GRIDWIDTH-1);
 	ReturnList->splice(it, temp);
 
-	temp = *GetCellContents(CellID + GRIDWIDTH+1);
+	temp = *GetPlayerCellContents(CellID + GRIDWIDTH+1);
 	ReturnList->splice(it, temp);
 
-	temp = *GetCellContents(CellID - GRIDWIDTH+1);
+	temp = *GetPlayerCellContents(CellID - GRIDWIDTH+1);
 	ReturnList->splice(it, temp);
 
-	temp = *GetCellContents(CellID - GRIDWIDTH-1);
+	temp = *GetPlayerCellContents(CellID - GRIDWIDTH-1);
 	ReturnList->splice(it, temp);
 
 
@@ -278,92 +341,201 @@ std::list<Object*>* zmap::GetChatRangeCellContents(uint32 CellID)
 
 //=====================================================
 //Get Contents for a Row based on a middle cell
+//depending on how far we are away of the player we need to resize the row
+//this will be done by the var iteration
 
-std::list<Object*>* zmap::GetGridContentsListRow(uint32 CellID)
+std::list<Object*>* zmap::GetAllGridContentsListRow(uint32 CellID)
 {
 	std::list<Object*>* ReturnList = new std::list<Object*>;
 	std::list<Object*>::iterator it = ReturnList->begin();
 
-	std::list<Object*> temp = *GetCellContents(CellID);
-	ReturnList->splice(it, temp);
+	ObjectStruct temp = *GetCellContents(CellID);
+	ReturnList->splice(it, temp.Objects);
+	ReturnList->splice(it, temp.Players);
+	
 
 	for(int i = 1; i <= VIEWRANGE; i++)
 	{
 		//if(fmod(CellID+1,))
 		temp = *GetCellContents(CellID + i);
-		ReturnList->splice(it, temp);
+		ReturnList->splice(it, temp.Objects);
+		ReturnList->splice(it, temp.Players);
 		
 		temp = *GetCellContents(CellID - i);
-		ReturnList->splice(it, temp);
+		ReturnList->splice(it, temp.Objects);
+		ReturnList->splice(it, temp.Players);
 	}
 
 	return ReturnList;
 
 }
 
-std::list<Object*>* zmap::GetGridContentsListColumnDown(uint32 CellID)
+std::list<Object*>* zmap::GetPlayerGridContentsListRow(uint32 CellID)
 {
 	std::list<Object*>* ReturnList = new std::list<Object*>;
 	std::list<Object*>::iterator it = ReturnList->begin();
 
-	std::list<Object*> temp = *GetCellContents(CellID);
-	ReturnList->splice(it, temp);
+	ObjectStruct temp = *GetCellContents(CellID);
+	ReturnList->splice(it, temp.Players);
+	
 
-	for(int i = 1; i <= (VIEWRANGE*2)-1; i++)
-	{		
-		temp = *GetCellContents(CellID - (i*GRIDWIDTH));
-		ReturnList->splice(it, temp);
-	}
-
-	return ReturnList;
-}
-
-std::list<Object*>* zmap::GetGridContentsListColumnUp(uint32 CellID)
-{
-	std::list<Object*>* ReturnList = new std::list<Object*>;
-	std::list<Object*>::iterator it = ReturnList->begin();
-
-	std::list<Object*> temp = *GetCellContents(CellID);
-	ReturnList->splice(it, temp);
-
-	for(int i = 1; i <= (VIEWRANGE*2)-1; i++)
-	{		
-		temp = *GetCellContents(CellID + (i*GRIDWIDTH));
-		ReturnList->splice(it, temp);
-	}
-
-	return ReturnList;
-}
-
-std::list<Object*>* zmap::GetGridContentsListRowLeft(uint32 CellID)
-{
-	std::list<Object*>* ReturnList = new std::list<Object*>;
-	std::list<Object*>::iterator it = ReturnList->begin();
-
-	std::list<Object*> temp = *GetCellContents(CellID);
-	ReturnList->splice(it, temp);
-
-	for(int i = 0; i < ((VIEWRANGE*2)-1); i++)
+	for(int i = 1; i <= VIEWRANGE; i++)
 	{
-		temp = *GetCellContents(CellID - i);
-		ReturnList->splice(it, temp);
-	}
-
-	return ReturnList;
-
-}
-
-std::list<Object*>* zmap::GetGridContentsListRowRight(uint32 CellID)
-{
-	std::list<Object*>* ReturnList = new std::list<Object*>;
-	std::list<Object*>::iterator it = ReturnList->begin();
-
-	std::list<Object*> temp = *GetCellContents(CellID);
-	ReturnList->splice(it, temp);
-
-	for(int i = 0; i < ((VIEWRANGE*2)-1); i++)
-	{
+		//if(fmod(CellID+1,))
 		temp = *GetCellContents(CellID + i);
+		ReturnList->splice(it, temp.Players);
+		
+		temp = *GetCellContents(CellID - i);
+		ReturnList->splice(it, temp.Players);
+	}
+
+	return ReturnList;
+
+}
+
+std::list<Object*>* zmap::GetObjectGridContentsListRow(uint32 CellID)
+{
+	std::list<Object*>* ReturnList = new std::list<Object*>;
+	std::list<Object*>::iterator it = ReturnList->begin();
+
+	ObjectStruct temp = *GetCellContents(CellID);
+	ReturnList->splice(it, temp.Objects);
+	
+
+	for(int i = 1; i <= VIEWRANGE; i++)
+	{
+		//if(fmod(CellID+1,))
+		temp = *GetCellContents(CellID + i);
+		ReturnList->splice(it, temp.Objects);
+		
+		temp = *GetCellContents(CellID - i);
+		ReturnList->splice(it, temp.Objects);
+	}
+
+	return ReturnList;
+
+}
+
+//==========================================================================
+//column downwards
+//when we move along the edges
+///15.6 sch
+//
+std::list<Object*>* zmap::GetPlayerGridContentsListColumnDown(uint32 CellID)
+{
+	std::list<Object*>* ReturnList = new std::list<Object*>;
+	std::list<Object*>::iterator it = ReturnList->begin();
+
+	std::list<Object*> temp = *GetPlayerCellContents(CellID);
+	ReturnList->splice(it, temp);
+
+	for(int i = 1; i <= (VIEWRANGE*2)-1; i++)
+	{		
+		temp = *GetPlayerCellContents(CellID - (i*GRIDWIDTH));
+		ReturnList->splice(it, temp);
+	}
+
+	return ReturnList;
+}
+
+std::list<Object*>* zmap::GetObjectGridContentsListColumnDown(uint32 CellID)
+{
+	std::list<Object*>* ReturnList = new std::list<Object*>;
+	std::list<Object*>::iterator it = ReturnList->begin();
+
+	std::list<Object*> temp = *GetObjectCellContents(CellID);
+	ReturnList->splice(it, temp);
+
+	for(int i = 1; i <= (VIEWRANGE*2)-1; i++)
+	{		
+		temp = *GetObjectCellContents(CellID - (i*GRIDWIDTH));
+		ReturnList->splice(it, temp);
+	}
+
+	return ReturnList;
+}
+
+std::list<Object*>* zmap::GetAllGridContentsListColumnDown(uint32 CellID)
+{
+	std::list<Object*>* ReturnList = new std::list<Object*>;
+	std::list<Object*>::iterator it = ReturnList->begin();
+								 
+	std::list<Object*> temp = *GetAllCellContents(CellID);
+	ReturnList->splice(it, temp);
+
+	for(int i = 1; i <= (VIEWRANGE*2)-1; i++)
+	{		
+		temp = *GetAllCellContents(CellID - (i*GRIDWIDTH));
+		ReturnList->splice(it, temp);
+	}
+
+	return ReturnList;
+}
+
+std::list<Object*>* zmap::GetAllGridContentsListColumnUp(uint32 CellID)
+{
+	std::list<Object*>* ReturnList = new std::list<Object*>;
+	std::list<Object*>::iterator it = ReturnList->begin();
+
+	std::list<Object*> temp = *GetAllCellContents(CellID);
+	ReturnList->splice(it, temp);
+
+	for(int i = 1; i <= (VIEWRANGE*2)-1; i++)
+	{		
+		temp = *GetAllCellContents(CellID + (i*GRIDWIDTH));
+		ReturnList->splice(it, temp);
+	}
+
+	return ReturnList;
+}
+
+std::list<Object*>* zmap::GetPlayerGridContentsListColumnUp(uint32 CellID)
+{
+	std::list<Object*>* ReturnList = new std::list<Object*>;
+	std::list<Object*>::iterator it = ReturnList->begin();
+
+	std::list<Object*> temp = *GetPlayerCellContents(CellID);
+	ReturnList->splice(it, temp);
+
+	for(int i = 1; i <= (VIEWRANGE*2)-1; i++)
+	{		
+		temp = *GetPlayerCellContents(CellID + (i*GRIDWIDTH));
+		ReturnList->splice(it, temp);
+	}
+
+	return ReturnList;
+}
+
+std::list<Object*>* zmap::GetObjectGridContentsListColumnUp(uint32 CellID)
+{
+	std::list<Object*>* ReturnList = new std::list<Object*>;
+	std::list<Object*>::iterator it = ReturnList->begin();
+
+	std::list<Object*> temp = *GetObjectCellContents(CellID);
+	ReturnList->splice(it, temp);
+
+	for(int i = 1; i <= (VIEWRANGE*2)-1; i++)
+	{		
+		temp = *GetObjectCellContents(CellID + (i*GRIDWIDTH));
+		ReturnList->splice(it, temp);
+	}
+
+	return ReturnList;
+}
+
+//===============================================================0
+// when getting content on the edges just spare the *middle* (pointy) cell
+std::list<Object*>* zmap::GetAllGridContentsListRowLeft(uint32 CellID)
+{
+	std::list<Object*>* ReturnList = new std::list<Object*>;
+	std::list<Object*>::iterator it = ReturnList->begin();
+
+	std::list<Object*> temp = *GetAllCellContents(CellID);
+	ReturnList->splice(it, temp);
+
+	for(int i = 1; i < ((VIEWRANGE*2)-1); i++)
+	{
+		temp = *GetAllCellContents(CellID - i);
 		ReturnList->splice(it, temp);
 	}
 
@@ -371,21 +543,110 @@ std::list<Object*>* zmap::GetGridContentsListRowRight(uint32 CellID)
 
 }
 
-std::list<Object*>* zmap::GetGridContentsListColumn(uint32 CellID)
+std::list<Object*>* zmap::GetPlayerGridContentsListRowLeft(uint32 CellID)
 {
 	std::list<Object*>* ReturnList = new std::list<Object*>;
 	std::list<Object*>::iterator it = ReturnList->begin();
 
-	std::list<Object*> temp = *GetCellContents(CellID);
+	std::list<Object*> temp = *GetPlayerCellContents(CellID);
+	ReturnList->splice(it, temp);
+
+	for(int i = 1; i < ((VIEWRANGE*2)-1); i++)
+	{
+		temp = *GetPlayerCellContents(CellID - i);
+		ReturnList->splice(it, temp);
+	}
+
+	return ReturnList;
+
+}
+
+std::list<Object*>* zmap::GetObjectGridContentsListRowLeft(uint32 CellID)
+{
+	std::list<Object*>* ReturnList = new std::list<Object*>;
+	std::list<Object*>::iterator it = ReturnList->begin();
+
+	std::list<Object*> temp = *GetObjectCellContents(CellID);
+	ReturnList->splice(it, temp);
+
+	for(int i = 1; i < ((VIEWRANGE*2)-1); i++)
+	{
+		temp = *GetObjectCellContents(CellID - i);
+		ReturnList->splice(it, temp);
+	}
+
+	return ReturnList;
+
+}
+
+std::list<Object*>* zmap::GetAllGridContentsListRowRight(uint32 CellID)
+{
+	std::list<Object*>* ReturnList = new std::list<Object*>;
+	std::list<Object*>::iterator it = ReturnList->begin();
+
+	std::list<Object*> temp = *GetAllCellContents(CellID);
+	ReturnList->splice(it, temp);
+
+	for(int i = 1; i < ((VIEWRANGE*2)-1); i++)
+	{
+		temp = *GetAllCellContents(CellID + i);
+		ReturnList->splice(it, temp);
+	}
+
+	return ReturnList;
+
+}
+
+std::list<Object*>* zmap::GetPlayerGridContentsListRowRight(uint32 CellID)
+{
+	std::list<Object*>* ReturnList = new std::list<Object*>;
+	std::list<Object*>::iterator it = ReturnList->begin();
+
+	std::list<Object*> temp = *GetPlayerCellContents(CellID);
+	ReturnList->splice(it, temp);
+
+	for(int i = 1; i < ((VIEWRANGE*2)-1); i++)
+	{
+		temp = *GetPlayerCellContents(CellID + i);
+		ReturnList->splice(it, temp);
+	}
+
+	return ReturnList;
+
+}
+
+std::list<Object*>* zmap::GetObjectGridContentsListRowRight(uint32 CellID)
+{
+	std::list<Object*>* ReturnList = new std::list<Object*>;
+	std::list<Object*>::iterator it = ReturnList->begin();
+
+	std::list<Object*> temp = *GetObjectCellContents(CellID);
+	ReturnList->splice(it, temp);
+
+	for(int i = 1; i < ((VIEWRANGE*2)-1); i++)
+	{
+		temp = *GetObjectCellContents(CellID + i);
+		ReturnList->splice(it, temp);
+	}
+
+	return ReturnList;
+}
+
+std::list<Object*>* zmap::GetAllGridContentsListColumn(uint32 CellID)
+{
+	std::list<Object*>* ReturnList = new std::list<Object*>;
+	std::list<Object*>::iterator it = ReturnList->begin();
+
+	std::list<Object*> temp = *GetAllCellContents(CellID);
 	ReturnList->splice(it, temp);
 
 	for(int i = 1; i <= VIEWRANGE; i++)
 	{
 		//if(fmod(CellID+1,))
-		temp = *GetCellContents(CellID + (i*GRIDWIDTH));
+		temp = *GetAllCellContents(CellID + (i*GRIDWIDTH));
 		ReturnList->splice(it, temp);
 		
-		temp = *GetCellContents(CellID - (i*GRIDWIDTH));
+		temp = *GetAllCellContents(CellID - (i*GRIDWIDTH));
 		ReturnList->splice(it, temp);
 	}
 
@@ -393,7 +654,53 @@ std::list<Object*>* zmap::GetGridContentsListColumn(uint32 CellID)
 
 }
 
-std::list<Object*>* zmap::GetViewingRangeCellContents(uint32 CellID)
+std::list<Object*>* zmap::GetPlayerGridContentsListColumn(uint32 CellID)
+{
+	std::list<Object*>* ReturnList = new std::list<Object*>;
+	std::list<Object*>::iterator it = ReturnList->begin();
+
+	std::list<Object*> temp = *GetPlayerCellContents(CellID);
+	ReturnList->splice(it, temp);
+
+	for(int i = 1; i <= VIEWRANGE; i++)
+	{
+		//if(fmod(CellID+1,))
+		temp = *GetPlayerCellContents(CellID + (i*GRIDWIDTH));
+		ReturnList->splice(it, temp);
+		
+		temp = *GetPlayerCellContents(CellID - (i*GRIDWIDTH));
+		ReturnList->splice(it, temp);
+	}
+
+	return ReturnList;
+
+}
+
+
+std::list<Object*>* zmap::GetObjectGridContentsListColumn(uint32 CellID)
+{
+	std::list<Object*>* ReturnList = new std::list<Object*>;
+	std::list<Object*>::iterator it = ReturnList->begin();
+
+	std::list<Object*> temp = *GetObjectCellContents(CellID);
+	ReturnList->splice(it, temp);
+
+	for(int i = 1; i <= VIEWRANGE; i++)
+	{
+		//if(fmod(CellID+1,))
+		temp = *GetObjectCellContents(CellID + (i*GRIDWIDTH));
+		ReturnList->splice(it, temp);
+		
+		temp = *GetObjectCellContents(CellID - (i*GRIDWIDTH));
+		ReturnList->splice(it, temp);
+	}
+
+	return ReturnList;
+
+}
+
+
+std::list<Object*>* zmap::GetAllViewingRangeCellContents(uint32 CellID)
 {
 	//Pesudo
 	// 1. Combine the lists of Neiboring cells to 1
@@ -401,21 +708,69 @@ std::list<Object*>* zmap::GetViewingRangeCellContents(uint32 CellID)
 	std::list<Object*>* ReturnList = new std::list<Object*>;
 	std::list<Object*>::iterator it = ReturnList->begin();
 
-	std::list<Object*> temp = *GetCellContents(CellID);
+	std::list<Object*> temp = *GetAllCellContents(CellID);
 	ReturnList->splice(it, temp);
 
 	for(int i = 0; i < VIEWRANGE; i++)
 	{
-		temp = *GetGridContentsListRow(CellID + (i*GRIDWIDTH));
+		temp = *GetAllGridContentsListRow(CellID + (i*GRIDWIDTH));
 		ReturnList->splice(it, temp);
 		
-		temp = *GetGridContentsListRow(CellID - (i*GRIDWIDTH));
+		temp = *GetAllGridContentsListRow(CellID - (i*GRIDWIDTH));
 		ReturnList->splice(it, temp);
 	}
 
 	return ReturnList;
 }
 
+std::list<Object*>* zmap::GetPlayerViewingRangeCellContents(uint32 CellID)
+{
+	//Pesudo
+	// 1. Combine the lists of Neiboring cells to 1
+
+	std::list<Object*>* ReturnList = new std::list<Object*>;
+	std::list<Object*>::iterator it = ReturnList->begin();
+
+	std::list<Object*> temp = *GetPlayerCellContents(CellID);
+	ReturnList->splice(it, temp);
+
+	for(int i = 0; i < VIEWRANGE; i++)
+	{
+		temp = *GetPlayerGridContentsListRow(CellID + (i*GRIDWIDTH));
+		ReturnList->splice(it, temp);
+		
+		temp = *GetPlayerGridContentsListRow(CellID - (i*GRIDWIDTH));
+		ReturnList->splice(it, temp);
+	}
+
+	return ReturnList;
+}
+
+std::list<Object*>* zmap::GetObjectViewingRangeCellContents(uint32 CellID)
+{
+	//Pesudo
+	// 1. Combine the lists of Neiboring cells to 1
+
+	std::list<Object*>* ReturnList = new std::list<Object*>;
+	std::list<Object*>::iterator it = ReturnList->begin();
+
+	std::list<Object*> temp = *GetObjectCellContents(CellID);
+	ReturnList->splice(it, temp);
+
+	for(int i = 0; i < VIEWRANGE; i++)
+	{
+		temp = *GetObjectGridContentsListRow(CellID + (i*GRIDWIDTH));
+		ReturnList->splice(it, temp);
+		
+		temp = *GetObjectGridContentsListRow(CellID - (i*GRIDWIDTH));
+		ReturnList->splice(it, temp);
+	}
+
+	return ReturnList;
+}
+
+//============================================================================
+//destroy an object if its not us
 void zmap::CheckObjectIterationForDestruction(Object* toBeTested, Object* toBeUpdated)
 {
 	PlayerObject* us = dynamic_cast<PlayerObject*>(toBeUpdated);
@@ -445,10 +800,14 @@ void zmap::CheckObjectIterationForDestruction(Object* toBeTested, Object* toBeUp
 	}
 }
 
+//=================================================================================
+//destroy objects out of our range
+//
+//
 void zmap::UpdateBackCells(Object* updateObject, uint32 newCell)
 {
 	//are all the cells on our left or right valid ??
-	//arnt we looking to the other side of the map ???
+	//arnt we looking to the other side of the map ???		we cant the map has a 400m buffer to all sides
 	
 
 	//ZMAP Northbound! TODO: Sync with game
@@ -457,13 +816,12 @@ void zmap::UpdateBackCells(Object* updateObject, uint32 newCell)
 		std::list<Object*> FinalList;
 		std::list<Object*>::iterator it = FinalList.end();
 
-		std::list<Object*> temp = *GetGridContentsListRow((updateObject->zmapCellID + (GRIDWIDTH*VIEWRANGE)) + GRIDWIDTH);
-		FinalList.splice(it, temp);
+		FinalList = *GetAllGridContentsListRow(updateObject->zmapCellID - (GRIDWIDTH*VIEWRANGE));
 
 		for(std::list<Object*>::iterator i = FinalList.begin(); i != FinalList.end(); i++)
 		{
-			CheckObjectIterationForDestruction((*i),updateObject);
-		}
+			CheckObjectIterationForDestruction((*i),updateObject);			
+		}	
 
 		return;
 	}
@@ -475,7 +833,7 @@ void zmap::UpdateBackCells(Object* updateObject, uint32 newCell)
 		std::list<Object*> FinalList;
 		std::list<Object*>::iterator it = FinalList.end();
 		
-		std::list<Object*> temp = *GetGridContentsListRow((updateObject->zmapCellID - (GRIDWIDTH*VIEWRANGE)) - GRIDWIDTH);
+		std::list<Object*> temp = *GetAllGridContentsListRow(updateObject->zmapCellID + (GRIDWIDTH*VIEWRANGE));
 		FinalList.splice(it, temp);
 
 		for(std::list<Object*>::iterator i = FinalList.begin(); i != FinalList.end(); i++)
@@ -493,7 +851,7 @@ void zmap::UpdateBackCells(Object* updateObject, uint32 newCell)
 		std::list<Object*> FinalList;
 		std::list<Object*>::iterator it = FinalList.end();
 
-		std::list<Object*> temp = *GetGridContentsListColumn((updateObject->zmapCellID - VIEWRANGE) - 1 );
+		std::list<Object*> temp = *GetAllGridContentsListRow(updateObject->zmapCellID + VIEWRANGE);
 		FinalList.splice(it, temp);
 
 		for(std::list<Object*>::iterator i = FinalList.begin(); i != FinalList.end(); i++)
@@ -511,7 +869,7 @@ void zmap::UpdateBackCells(Object* updateObject, uint32 newCell)
 		std::list<Object*> FinalList;
 		std::list<Object*>::iterator it = FinalList.end();
 
-		std::list<Object*> temp = *GetGridContentsListColumn((updateObject->zmapCellID - VIEWRANGE) + 1 );
+		std::list<Object*> temp = *GetAllGridContentsListColumn(updateObject->zmapCellID - VIEWRANGE);
 		FinalList.splice(it, temp);
 
 		for(std::list<Object*>::iterator i = FinalList.begin(); i != FinalList.end(); i++)
@@ -529,13 +887,13 @@ void zmap::UpdateBackCells(Object* updateObject, uint32 newCell)
 		std::list<Object*> FinalList;
 		std::list<Object*>::iterator it = FinalList.end();
 
-		std::list<Object*> temp = *GetCellContents((updateObject->zmapCellID - (GRIDWIDTH+1)*VIEWRANGE) - (GRIDWIDTH+1));
+		std::list<Object*> temp = *GetAllCellContents(updateObject->zmapCellID - (GRIDWIDTH+1)*VIEWRANGE);
 		FinalList.splice(it, temp);
 
-		temp = *GetGridContentsListColumnUp((updateObject->zmapCellID - ((GRIDWIDTH+1)*VIEWRANGE)) - (GRIDWIDTH+1) +GRIDWIDTH );//		FinalList.splice(it, temp);
+		temp = *GetAllGridContentsListColumnUp(updateObject->zmapCellID - ((GRIDWIDTH+1)*VIEWRANGE) +GRIDWIDTH );//		FinalList.splice(it, temp);
 		FinalList.splice(it, temp);
 
-		temp = *GetGridContentsListRowRight((updateObject->zmapCellID - ((GRIDWIDTH+1)*VIEWRANGE)) - (GRIDWIDTH+1) + 1);//
+		temp = *GetAllGridContentsListRowRight(updateObject->zmapCellID - ((GRIDWIDTH+1)*VIEWRANGE) + 1);//
 		FinalList.splice(it, temp);
 
 		for(std::list<Object*>::iterator i = FinalList.begin(); i != FinalList.end(); i++)
@@ -554,13 +912,13 @@ void zmap::UpdateBackCells(Object* updateObject, uint32 newCell)
 		std::list<Object*>::iterator it = FinalList.end();
 
 		//so we need to delete down right (Southeast)
-		std::list<Object*> temp = *GetCellContents((updateObject->zmapCellID - (GRIDWIDTH-1)*VIEWRANGE) - (GRIDWIDTH-1));
+		std::list<Object*> temp = *GetAllCellContents(updateObject->zmapCellID - ((GRIDWIDTH-1)*VIEWRANGE));
 		FinalList.splice(it, temp);							  
 
-		temp = *GetGridContentsListColumnUp((updateObject->zmapCellID - ((GRIDWIDTH-1)*VIEWRANGE)) - (GRIDWIDTH-1) +GRIDWIDTH );//		FinalList.splice(it, temp);
+		temp = *GetAllGridContentsListColumnUp(updateObject->zmapCellID - ((GRIDWIDTH-1)*VIEWRANGE) +GRIDWIDTH );//		FinalList.splice(it, temp);
 		FinalList.splice(it, temp);
 
-		temp = *GetGridContentsListRowLeft((updateObject->zmapCellID - ((GRIDWIDTH-1)*VIEWRANGE)) - (GRIDWIDTH-1) -1);//
+		temp = *GetAllGridContentsListRowLeft(updateObject->zmapCellID - ((GRIDWIDTH-1)*VIEWRANGE)-1);//
 		FinalList.splice(it, temp);
 
 		for(std::list<Object*>::iterator i = FinalList.begin(); i != FinalList.end(); i++)
@@ -580,13 +938,15 @@ void zmap::UpdateBackCells(Object* updateObject, uint32 newCell)
 		std::list<Object*>::iterator it = FinalList.end();
 
 		//so we need to delete up right (Northeast)
-		std::list<Object*> temp = *GetCellContents((updateObject->zmapCellID + (GRIDWIDTH+1)*VIEWRANGE) + (GRIDWIDTH+1));
+		std::list<Object*> temp = *GetAllCellContents(updateObject->zmapCellID + (GRIDWIDTH+1)*VIEWRANGE);
 		FinalList.splice(it, temp);
 
-		temp = *GetGridContentsListColumnDown((updateObject->zmapCellID + ((GRIDWIDTH+1)*VIEWRANGE)) + (GRIDWIDTH+1) -GRIDWIDTH );//		FinalList.splice(it, temp);
+		//get the column down 
+		temp = *GetAllGridContentsListColumnDown(updateObject->zmapCellID + ((GRIDWIDTH+1)*VIEWRANGE) - GRIDWIDTH );//		FinalList.splice(it, temp);
 		FinalList.splice(it, temp);
 
-		temp = *GetGridContentsListRowLeft((updateObject->zmapCellID + ((GRIDWIDTH+1)*VIEWRANGE)) + (GRIDWIDTH+1) -1);//
+		//get the row 
+		temp = *GetAllGridContentsListRowLeft(updateObject->zmapCellID + ((GRIDWIDTH+1)*VIEWRANGE) -1);//
 		FinalList.splice(it, temp);
 
 		for(std::list<Object*>::iterator i = FinalList.begin(); i != FinalList.end(); i++)
@@ -605,13 +965,13 @@ void zmap::UpdateBackCells(Object* updateObject, uint32 newCell)
 		std::list<Object*>::iterator it = FinalList.end();
 
 		//so we need to delete up left (Northwest)
-		std::list<Object*> temp = *GetCellContents((updateObject->zmapCellID + (GRIDWIDTH-1)*VIEWRANGE) + (GRIDWIDTH-1));
+		std::list<Object*> temp = *GetAllCellContents(updateObject->zmapCellID + ((GRIDWIDTH-1)*VIEWRANGE) );
 		FinalList.splice(it, temp);
 
-		temp = *GetGridContentsListColumnDown((updateObject->zmapCellID + ((GRIDWIDTH-1)*VIEWRANGE)) + (GRIDWIDTH-1) -GRIDWIDTH );//		FinalList.splice(it, temp);
+		temp = *GetAllGridContentsListColumnDown(updateObject->zmapCellID + ((GRIDWIDTH-1)*VIEWRANGE) -GRIDWIDTH );//		FinalList.splice(it, temp);
 		FinalList.splice(it, temp);
 
-		temp = *GetGridContentsListRowRight((updateObject->zmapCellID + ((GRIDWIDTH-1)*VIEWRANGE)) + (GRIDWIDTH-1) +1);//
+		temp = *GetAllGridContentsListRowRight(updateObject->zmapCellID + ((GRIDWIDTH-1)*VIEWRANGE) +1);//
 		FinalList.splice(it, temp);
 		
 
@@ -659,6 +1019,8 @@ void zmap::ObjectCreationIteration(std::list<Object*>* FinalList, Object* update
 	}
 }
 
+//=============================================================================================
+//collect Objects in the new cells
 void zmap::UpdateFrontCells(Object* updateObject, uint32 newCell)
 {
 
@@ -668,7 +1030,7 @@ void zmap::UpdateFrontCells(Object* updateObject, uint32 newCell)
 		std::list<Object*> FinalList;
 		std::list<Object*>::iterator it = FinalList.end();
 
-		std::list<Object*> temp = *GetGridContentsListRow((updateObject->zmapCellID + (GRIDWIDTH*VIEWRANGE)) + GRIDWIDTH);
+		std::list<Object*> temp = *GetAllGridContentsListRow((updateObject->zmapCellID + (GRIDWIDTH*VIEWRANGE)) + GRIDWIDTH);
 		FinalList.splice(it, temp);
 
 		ObjectCreationIteration(&FinalList,updateObject);
@@ -682,7 +1044,7 @@ void zmap::UpdateFrontCells(Object* updateObject, uint32 newCell)
 		std::list<Object*> FinalList;
 		std::list<Object*>::iterator it = FinalList.end();
 
-		std::list<Object*> temp = *GetGridContentsListRow((updateObject->zmapCellID - (GRIDWIDTH*VIEWRANGE)) - GRIDWIDTH);
+		std::list<Object*> temp = *GetAllGridContentsListRow((updateObject->zmapCellID - (GRIDWIDTH*VIEWRANGE)) - GRIDWIDTH);
 		FinalList.splice(it, temp);
 		ObjectCreationIteration(&FinalList,updateObject);
 
@@ -696,7 +1058,7 @@ void zmap::UpdateFrontCells(Object* updateObject, uint32 newCell)
 		std::list<Object*> FinalList;
 		std::list<Object*>::iterator it = FinalList.end();
 
-		std::list<Object*> temp = *GetGridContentsListColumn((updateObject->zmapCellID + VIEWRANGE) + 1 );
+		std::list<Object*> temp = *GetAllGridContentsListColumn((updateObject->zmapCellID + VIEWRANGE) + 1 );
 		FinalList.splice(it, temp);
 
 		ObjectCreationIteration(&FinalList,updateObject);
@@ -711,7 +1073,7 @@ void zmap::UpdateFrontCells(Object* updateObject, uint32 newCell)
 		std::list<Object*> FinalList;
 		std::list<Object*>::iterator it = FinalList.end();
 
-		std::list<Object*> temp = *GetGridContentsListColumn((updateObject->zmapCellID - VIEWRANGE) - 1 );
+		std::list<Object*> temp = *GetAllGridContentsListColumn((updateObject->zmapCellID - VIEWRANGE) - 1 );
 		FinalList.splice(it, temp);
 
 		ObjectCreationIteration(&FinalList,updateObject);
@@ -725,13 +1087,13 @@ void zmap::UpdateFrontCells(Object* updateObject, uint32 newCell)
 		std::list<Object*> FinalList;
 		std::list<Object*>::iterator it = FinalList.end();
 
-		std::list<Object*> temp = *GetCellContents((updateObject->zmapCellID + ((GRIDWIDTH+1)*VIEWRANGE)) + (GRIDWIDTH+1));//
+		std::list<Object*> temp = *GetAllCellContents((updateObject->zmapCellID + ((GRIDWIDTH+1)*VIEWRANGE)) + (GRIDWIDTH+1));//
 		FinalList.splice(it, temp);
 
-		temp = *GetGridContentsListColumnDown((updateObject->zmapCellID + ((GRIDWIDTH+1)*VIEWRANGE)) - GRIDWIDTH);//
+		temp = *GetAllGridContentsListColumnDown((updateObject->zmapCellID + ((GRIDWIDTH+1)*VIEWRANGE)) - GRIDWIDTH);//
 		FinalList.splice(it, temp);
 
-		temp = *GetGridContentsListRowLeft((updateObject->zmapCellID + ((GRIDWIDTH+1)*VIEWRANGE)) - 1);//
+		temp = *GetAllGridContentsListRowLeft((updateObject->zmapCellID + ((GRIDWIDTH+1)*VIEWRANGE)) - 1);//
 		FinalList.splice(it, temp);
 		
 		ObjectCreationIteration(&FinalList,updateObject);
@@ -745,13 +1107,13 @@ void zmap::UpdateFrontCells(Object* updateObject, uint32 newCell)
 		std::list<Object*> FinalList;
 		std::list<Object*>::iterator it = FinalList.end();
 
-		std::list<Object*> temp = *GetCellContents((updateObject->zmapCellID + ((GRIDWIDTH-1)*VIEWRANGE)) + (GRIDWIDTH-1));//
+		std::list<Object*> temp = *GetAllCellContents((updateObject->zmapCellID + ((GRIDWIDTH-1)*VIEWRANGE)) + (GRIDWIDTH-1));//
 		FinalList.splice(it, temp);
 
-		temp = *GetGridContentsListColumnDown((updateObject->zmapCellID + ((GRIDWIDTH-1)*VIEWRANGE))  + (GRIDWIDTH-1) - GRIDWIDTH);//
+		temp = *GetAllGridContentsListColumnDown((updateObject->zmapCellID + ((GRIDWIDTH-1)*VIEWRANGE))  + (GRIDWIDTH-1) - GRIDWIDTH);//
 		FinalList.splice(it, temp);
 
-		temp = *GetGridContentsListRowRight((updateObject->zmapCellID + ((GRIDWIDTH-1)*VIEWRANGE))  + (GRIDWIDTH-1) + 1);//
+		temp = *GetAllGridContentsListRowRight((updateObject->zmapCellID + ((GRIDWIDTH-1)*VIEWRANGE))  + (GRIDWIDTH-1) + 1);//
 		FinalList.splice(it, temp);
 		ObjectCreationIteration(&FinalList,updateObject);
 
@@ -765,16 +1127,14 @@ void zmap::UpdateFrontCells(Object* updateObject, uint32 newCell)
 		std::list<Object*> FinalList;
 		std::list<Object*>::iterator it = FinalList.end();
 
-		std::list<Object*> temp = *GetCellContents((updateObject->zmapCellID - (GRIDWIDTH+1)*VIEWRANGE) - (GRIDWIDTH+1));
+		std::list<Object*> temp = *GetAllCellContents((updateObject->zmapCellID - (GRIDWIDTH+1)*VIEWRANGE) - (GRIDWIDTH+1));
 		FinalList.splice(it, temp);
 
-		temp = *GetGridContentsListColumnUp((updateObject->zmapCellID - ((GRIDWIDTH+1)*VIEWRANGE)) - (GRIDWIDTH+1) + GRIDWIDTH);//		FinalList.splice(it, temp);
+		temp = *GetAllGridContentsListColumnUp((updateObject->zmapCellID - ((GRIDWIDTH+1)*VIEWRANGE)) - (GRIDWIDTH+1) + GRIDWIDTH);//		FinalList.splice(it, temp);
 		FinalList.splice(it, temp);
 
-		temp = *GetGridContentsListRowRight((updateObject->zmapCellID + ((GRIDWIDTH+1)*VIEWRANGE)) - (GRIDWIDTH+1) + 1);//
+		temp = *GetAllGridContentsListRowRight((updateObject->zmapCellID + ((GRIDWIDTH+1)*VIEWRANGE)) - (GRIDWIDTH+1) + 1);//
 		FinalList.splice(it, temp);
-
-		
 
 		ObjectCreationIteration(&FinalList,updateObject);
 
@@ -788,15 +1148,14 @@ void zmap::UpdateFrontCells(Object* updateObject, uint32 newCell)
 		std::list<Object*> FinalList;
 		std::list<Object*>::iterator it = FinalList.end();
 
-		std::list<Object*> temp = *GetCellContents((updateObject->zmapCellID - (GRIDWIDTH-1)*VIEWRANGE) - (GRIDWIDTH-1));
+		std::list<Object*> temp = *GetAllCellContents((updateObject->zmapCellID - (GRIDWIDTH-1)*VIEWRANGE) - (GRIDWIDTH-1));
 		FinalList.splice(it, temp);
 
-		temp = *GetGridContentsListColumnUp((updateObject->zmapCellID - ((GRIDWIDTH-1)*VIEWRANGE)) - (GRIDWIDTH-1) + GRIDWIDTH);//		FinalList.splice(it, temp);
+		temp = *GetAllGridContentsListColumnUp((updateObject->zmapCellID - ((GRIDWIDTH-1)*VIEWRANGE)) - (GRIDWIDTH-1) + GRIDWIDTH);//		FinalList.splice(it, temp);
 		FinalList.splice(it, temp);
 
-		temp = *GetGridContentsListRowLeft((updateObject->zmapCellID + ((GRIDWIDTH-1)*VIEWRANGE)) - (GRIDWIDTH-1) - 1);//
+		temp = *GetAllGridContentsListRowLeft((updateObject->zmapCellID + ((GRIDWIDTH-1)*VIEWRANGE)) - (GRIDWIDTH-1) - 1);//
 		FinalList.splice(it, temp);
-
 
 		ObjectCreationIteration(&FinalList,updateObject);
 

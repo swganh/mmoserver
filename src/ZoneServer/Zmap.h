@@ -24,6 +24,22 @@ class PlayerObject;
 #define GRIDHEIGHT 410
 
 #define VIEWRANGE 3
+#define CHATRANGE 3
+
+enum qtype
+{
+	q_all = 1,
+	q_player = 2,
+	q_object = 3
+};
+
+struct ObjectStruct
+{
+public:
+	
+	std::list<Object*>		Objects;
+	std::list<Object*>		Players;
+};
 
 class zmap
 {
@@ -34,10 +50,10 @@ public:
 	~zmap();
 
 	// Add an object to zmap
-	void AddObject(Object* newObject);
+	bool		AddObject(Object* newObject);
 
 	// Remove object from zmap
-	void RemoveObject(Object* removeObject);
+	void		RemoveObject(Object* removeObject);
 
 	// Update the object in the zmap
 	void UpdateObject(Object* updateObject);
@@ -47,25 +63,48 @@ public:
 	void	RemoveSubCell(uint32 subCellId);
 
 	//Get the contents of current cell of the player, looked up by CellID
-	std::list<Object*>* GetCellContents(uint32 CellID);
-	std::list<Object*>* GetGridContentsListRow(uint32 CellID);
-	//=====================================================
-	//(viewRange*2)-1 to accomodate for diametral movement
-	std::list<Object*>* GetGridContentsListRowLeft(uint32 CellID);
-
-	std::list<Object*>* GetGridContentsListRowRight(uint32 CellID);
+	ObjectStruct*		GetCellContents(uint32 CellID);
+	std::list<Object*>* GetAllCellContents(uint32 CellID);
+	std::list<Object*>* GetPlayerCellContents(uint32 CellID);
+	std::list<Object*>* GetObjectCellContents(uint32 CellID);
 	
-	std::list<Object*>* GetGridContentsListColumn(uint32 CellID);
+	//=====================================================
+	//row
+	std::list<Object*>* GetAllGridContentsListRow(uint32 CellID);
+	std::list<Object*>* GetPlayerGridContentsListRow(uint32 CellID);
+	std::list<Object*>* GetObjectGridContentsListRow(uint32 CellID);
+	
+	
+	//=====================================================
+	//(viewRange*2)-1 to accomodate for diametral movement
+	std::list<Object*>* GetAllGridContentsListRowLeft(uint32 CellID);
+	std::list<Object*>* GetPlayerGridContentsListRowLeft(uint32 CellID);
+	std::list<Object*>* GetObjectGridContentsListRowLeft(uint32 CellID);
+
+	std::list<Object*>* GetAllGridContentsListRowRight(uint32 CellID);
+	std::list<Object*>* GetPlayerGridContentsListRowRight(uint32 CellID);
+	std::list<Object*>* GetObjectGridContentsListRowRight(uint32 CellID);
+	
+	std::list<Object*>* GetAllGridContentsListColumn(uint32 CellID);
+	std::list<Object*>* GetPlayerGridContentsListColumn(uint32 CellID);
+	std::list<Object*>* GetObjectGridContentsListColumn(uint32 CellID);
 
 	//=====================================================
 	//(viewRange*2)-1 to accomodate for diametral movement
-	std::list<Object*>* GetGridContentsListColumnDown(uint32 CellID);
-	std::list<Object*>* GetGridContentsListColumnUp(uint32 CellID);
+	std::list<Object*>* GetPlayerGridContentsListColumnDown(uint32 CellID);
+	std::list<Object*>* GetAllGridContentsListColumnDown(uint32 CellID);
+	std::list<Object*>* GetObjectGridContentsListColumnDown(uint32 CellID);
+
+	std::list<Object*>* GetPlayerGridContentsListColumnUp(uint32 CellID);
+	std::list<Object*>* GetAllGridContentsListColumnUp(uint32 CellID);
+	std::list<Object*>* GetObjectGridContentsListColumnUp(uint32 CellID);
 
 	//Get the contents of chatrange cells
 	std::list<Object*>* GetChatRangeCellContents(uint32 CellID);
 
-	std::list<Object*>* GetViewingRangeCellContents(uint32 CellID);
+	std::list<Object*>* GetAllViewingRangeCellContents(uint32 CellID);
+	std::list<Object*>* GetPlayerViewingRangeCellContents(uint32 CellID);
+	std::list<Object*>* GetObjectViewingRangeCellContents(uint32 CellID);
 
 	//Update functions for spawn and despawn
 	void zmap::UpdateBackCells(Object* updateObject,uint32);
@@ -84,9 +123,12 @@ private:
 
 	//This is the accual Hashtable that stores the data
 	typedef std::map<uint32, std::list<Object*>>		MapHandler;
-	std::map<uint32, std::list<Object*>>				ZMapCells;
+	std::map<uint32, ObjectStruct>						ZMapCells;
+
+
 	
 	std::list<Object*>									EmptyCell;//for the return of nonexisting grids
+	ObjectStruct										EmptyStruct;
 
 	uint32	zmap_lookup[GRIDWIDTH+1][GRIDHEIGHT+1]; // one extra for protection
 	

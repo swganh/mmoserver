@@ -285,6 +285,11 @@ void GroupManager::_processIsmIsGroupLeaderRequest(Message* message, DispatchCli
 
 	GroupObject* group = this->getGroupById(groupId);
 
+	if(!group)
+	{
+		gLogger->log(LogManager::DEBUG,"GroupManager::_processIsmIsGroupLeaderRequest: Couldnt find group with id %I64u; player %I64u",groupId,playerId);
+	}
+
 	gChatMessageLib->sendIsmIsGroupLeaderResponse(group->getLeader(), requestId, (group->getLeader()->getCharId() == playerId));
 }
 

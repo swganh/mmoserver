@@ -369,7 +369,9 @@ void TreasuryManager::bankTipOffline(int32 amount,PlayerObject* playerObject,str
 void TreasuryManager::bankTipOnline(int32 amount, PlayerObject* playerObject, PlayerObject* targetObject )
 {
 	//check if we have enough money
-	if(amount > dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits())
+	int32 surcharge = (int32)((amount/100)*5);
+
+	if((amount+surcharge) > dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits())
 	{
 		string s;
 		s = targetObject->getFirstName();
@@ -381,7 +383,7 @@ void TreasuryManager::bankTipOnline(int32 amount, PlayerObject* playerObject, Pl
 	Bank* playerBank = dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
 	Bank* targetBank = dynamic_cast<Bank*>(targetObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
 
-	playerBank->setCredits(playerBank->getCredits() - amount);
+	playerBank->setCredits(playerBank->getCredits() - (amount+surcharge));
 	targetBank->setCredits(targetBank->getCredits() + amount);
 
 	saveAndUpdateBankCredits(playerObject);
@@ -436,7 +438,7 @@ void TreasuryManager::handleBankTipSurchargeConfirmed(TreasuryManagerAsyncContai
 {
 	Transaction* mTransaction = mDatabase->startTransaction(this,asyncContainer);
 	int8 sql[256];
-	sprintf(sql,"UPDATE banks SET credits=credits-%i WHERE id=%"PRIu64"",(asyncContainer->amount+asyncContainer->surcharge), asyncContainer->player->getId() + 4);
+	sprintf(sql,"UPDATE banks SET credits=credits-%i WHERE id=%"PRIu64"",(asyncContainer->amount + asyncContainer->surcharge), asyncContainer->player->getId() + 4);
 	mTransaction->addQuery(sql);
 	sprintf(sql,"UPDATE banks SET credits=credits+%i WHERE id=%"PRIu64"",asyncContainer->amount, asyncContainer->targetId + 4);
 	mTransaction->addQuery(sql);

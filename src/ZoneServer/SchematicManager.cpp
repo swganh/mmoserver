@@ -199,7 +199,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 				//mSchematicList.push_back(schematic);
 
 				mSchematicList.insert(std::make_pair(schematic->getWeightsBatchId(), schematic));
-				mSchematicGroupList[schematic->getGroupId()]->mSchematics.push_back(schematic);
+				mSchematicGroupList[schematic->getGroupId()-1]->mSchematics.push_back(schematic);
 				mSchematicSlotMap.insert(std::make_pair(schematic->mModel.getCrc(),schematic));
 				mSchematicWeightMap.insert(std::make_pair((schematic->mWeightsBatchId ),schematic));
 				num++;

@@ -44,6 +44,6 @@ class ObjectControllerCmdProperties;
  * @param message The message from the client requesting this command.
  * @param cmd_properties Contextual information for use during processing this command.
  */
-void HandleMoveFurniture(Object* object, Object* target, Message* message, ObjectControllerCmdProperties* cmdProperties);
+bool HandleMoveFurniture(Object* object, Object* target, Message* message, ObjectControllerCmdProperties* cmdProperties);
 
 #endif  // ZONESERVER_OCSTRUCTUREHANDLERS_H_

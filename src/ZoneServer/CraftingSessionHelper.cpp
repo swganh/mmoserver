@@ -563,7 +563,9 @@ void CraftingSession::handleFillSlotResource(uint64 resContainerId,uint32 slotId
 
 
 			gObjectFactory->deleteObjectFromDB(resContainer);
-			dynamic_cast<Inventory*>(mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->deleteObject(resContainer);
+			TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(resContainer->getParentId()));
+			tO->deleteObject(resContainer);
+
 		}
 		// update it
 		else
@@ -622,7 +624,9 @@ void CraftingSession::handleFillSlotResource(uint64 resContainerId,uint32 slotId
 		// destroy the container as its empty now
 		gMessageLib->sendDestroyObject(resContainerId,mOwner);
 		gObjectFactory->deleteObjectFromDB(resContainer);
-		dynamic_cast<Inventory*>(mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->deleteObject(resContainer);
+		
+		TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(resContainer->getParentId()));
+		tO->deleteObject(resContainer);
 
 		// update the slot total resource amount
 		manSlot->mFilled += availableAmount;
@@ -1476,7 +1480,10 @@ void CraftingSession::updateResourceContainer(uint64 containerID, uint32 newAmou
 
 		gObjectFactory->deleteObjectFromDB(containerID);
 		ResourceContainer*			resContainer	= dynamic_cast<ResourceContainer*>(gWorldManager->getObjectById(containerID));
-		dynamic_cast<Inventory*>(mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->deleteObject(resContainer);
+		
+		TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(resContainer->getParentId()));
+		tO->deleteObject(resContainer);
+		
 	}
 	// update it
 	else

@@ -193,12 +193,6 @@ void ObjectController::destroyObject(uint64 objectId)
 		{
 			oc->deleteObject(object);
 		}
-		// remove from world
-		else
-		if(inventory->getId() == object->getParentId())
-		{
-			inventory->deleteObject(object);
-		}
 		else
 		{
 			gWorldManager->destroyObject(object);

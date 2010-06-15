@@ -170,21 +170,10 @@ PlayerObject::~PlayerObject()
 	// make sure we stop entertaining if we are an entertainer
 	gEntertainerManager->stopEntertaining(this);
 
-	// remove any timers we got running
-	gWorldManager->removeObjControllerToProcess(mObjectController.getTaskId());
-	gWorldManager->removeCreatureHamToProcess(mHam.getTaskId());
-	gWorldManager->removeCreatureStomachToProcess(mStomach->mDrinkTaskId);
-	gWorldManager->removeCreatureStomachToProcess(mStomach->mFoodTaskId);
 	mObjectController.setTaskId(0);
 	mHam.setTaskId(0);
 	mStomach->mFoodTaskId = 0;
 	mStomach->mDrinkTaskId = 0;
-
-	// remove player from movement update timer.
-	gWorldManager->removePlayerMovementUpdateTime(this);
-
-	// remove us from the player map
-	gWorldManager->removePlayerfromAccountMap(mId);
 
 	// delete currently placed instrument
 	if(mPlacedInstrument)
@@ -195,23 +184,6 @@ PlayerObject::~PlayerObject()
 		}
 	}
 
-	// remove us from active regions we are in
-	ObjectSet regions;
-	gWorldManager->getSI()->getObjectsInRange(this,&regions,ObjType_Region,20);
-
-	ObjectSet::iterator objListIt = regions.begin();
-
-	while(objListIt != regions.end())
-	{
-		RegionObject* region = dynamic_cast<RegionObject*>(*objListIt);
-
-		if(region->getActive())
-		{
-			region->onObjectLeave(this);
-		}
-
-		++objListIt;
-	}
 
 	// make sure we are deleted out of entertainer Ticks when entertained
 	if(mEntertainerWatchToId)
@@ -236,13 +208,6 @@ PlayerObject::~PlayerObject()
 	this->toggleStateOff(CreatureState_Crafting);
 	this->setCraftingStage(0);
 	this->setExperimentationFlag(0);
-
-	// remove the player out of his group - if any
-	if(GroupObject* group = gGroupManager->getGroupObject(mGroupId))
-	{
-		group->removePlayer(mId);
-		
-	}
 
 	// can't zone or logout while in combat
 	this->toggleStateOff(CreatureState_Combat);
@@ -270,53 +235,7 @@ PlayerObject::~PlayerObject()
 	}		 
 	mDuelList.clear();
 
-	// move to the nearest cloning center, if we are incapped or dead
-	if(mPosture == CreaturePosture_Incapacitated
-	|| mPosture == CreaturePosture_Dead)
-	{
-		// bring up the clone selection window
-		ObjectSet						inRangeBuildings;
-		BStringVector					buildingNames;
-		std::vector<BuildingObject*>	buildings;
-		BuildingObject*					nearestBuilding = NULL;
-
-		gWorldManager->getSI()->getObjectsInRange(this,&inRangeBuildings,ObjType_Building,8192);
-
-		ObjectSet::iterator buildingIt = inRangeBuildings.begin();
-
-		while(buildingIt != inRangeBuildings.end())
-		{
-			BuildingObject* building = dynamic_cast<BuildingObject*>(*buildingIt);
-
-			// TODO: This code is not working as intended if player dies inside, since buildings use world coordinates and players inside have cell coordinates.
-			// Tranformation is needed before the correct distance can be calculated.
-			if(building && building->getBuildingFamily() == BuildingFamily_Cloning_Facility)
-			{
-				if(!nearestBuilding
-                    || (nearestBuilding != building && (glm::distance(mPosition, building->mPosition) < glm::distance(mPosition, nearestBuilding->mPosition))))
-				{
-					nearestBuilding = building;
-				}
-			}
-
-			++buildingIt;
-		}
-
-		if(nearestBuilding)
-		{
-			if(nearestBuilding->getSpawnPoints()->size())
-			{
-				if(SpawnPoint* sp = nearestBuilding->getRandomSpawnPoint())
-				{
-					// update the database with the new values
-					gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE characters SET parent_id=%"PRIu64",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f WHERE id=%"PRIu64"",sp->mCellId
-						,sp->mDirection.x,sp->mDirection.y,sp->mDirection.z,sp->mDirection.w
-						,sp->mPosition.x,sp->mPosition.y,sp->mPosition.z
-						,mId);
-				}
-			}
-		}
-	}
+	
 
 	// update defender lists
 	ObjectIDList::iterator defenderIt = mDefenders.begin();
@@ -347,28 +266,6 @@ PlayerObject::~PlayerObject()
 	// destroy known objects
 	destroyKnownObjects();
 
-	// remove us from cell / SI
-	if(mParentId)
-	{
-		if(CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(mParentId)))
-		{
-			cell->removeObject(this);
-		}
-		else
-		{
-			gLogger->log(LogManager::DEBUG,"PlayerObject::destructor: couldn't find cell %"PRIu64"",mParentId);
-		}
-	}
-	else if(mSubZoneId)
-	{
-		if(QTRegion* region = gWorldManager->getQTRegion(mSubZoneId))
-		{
-			mSubZoneId = 0;
-
-			region->mTree->removeObject(this);
-		}
-	}
-
 	clearAllUIWindows();
 
 	stopTutorial();
@@ -389,6 +286,9 @@ PlayerObject::~PlayerObject()
 
 	delete(mStomach);
 	delete(mTrade);
+	
+	delete getClient();
+	setClient(NULL);
 }
 
 //=============================================================================

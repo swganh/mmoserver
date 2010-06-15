@@ -51,6 +51,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ResourceCollectionManager.h"
 #include "ResourceManager.h"
 #include "SchematicManager.h"
+#include "SpawnPoint.h"
 #include "TreasuryManager.h"
 #include "Terminal.h"
 #include "WorldConfig.h"
@@ -519,7 +520,85 @@ void WorldManager::destroyObject(Object* object)
 			//destroys knownObjects in the destructor
 			PlayerObject* player = dynamic_cast<PlayerObject*>(object);
 
-			// moved most of the code to the players destructor
+			// remove the player out of his group - if any
+			if(GroupObject* group = gGroupManager->getGroupObject(player->getGroupId()))
+			{
+				group->removePlayer(player->getId());
+			}
+
+			// remove player from movement update timer.
+			removePlayerMovementUpdateTime(player);
+
+			// remove us from the player map
+			removePlayerfromAccountMap(player->getId());
+
+			// remove us from active regions we are in
+			ObjectSet regions;
+			getSI()->getObjectsInRange(player,&regions,ObjType_Region,20);
+
+			ObjectSet::iterator objListIt = regions.begin();
+
+			while(objListIt != regions.end())
+			{
+				RegionObject* region = dynamic_cast<RegionObject*>(*objListIt);
+
+				if(region->getActive())
+				{
+					region->onObjectLeave(player);
+				}
+
+				++objListIt;
+			}
+
+			// remove any timers we got running
+			gWorldManager->removeObjControllerToProcess(player->getController()->getTaskId());
+			gWorldManager->removeCreatureHamToProcess(player->getHam()->getTaskId());
+			gWorldManager->removeCreatureStomachToProcess(player->getStomach()->mDrinkTaskId);
+			gWorldManager->removeCreatureStomachToProcess(player->getStomach()->mFoodTaskId);
+
+			// move to the nearest cloning center, if we are incapped or dead
+			if(player->getPosture() == CreaturePosture_Incapacitated
+			|| player->getPosture() == CreaturePosture_Dead)
+			{
+				// bring up the clone selection window
+				ObjectSet						inRangeBuildings;
+				BStringVector					buildingNames;
+				std::vector<BuildingObject*>	buildings;
+				BuildingObject*					nearestBuilding = NULL;
+
+				gWorldManager->getSI()->getObjectsInRange(player,&inRangeBuildings,ObjType_Building,8192);
+
+				ObjectSet::iterator buildingIt = inRangeBuildings.begin();
+
+				while(buildingIt != inRangeBuildings.end())
+				{
+					BuildingObject* building = dynamic_cast<BuildingObject*>(*buildingIt);
+					if(building && building->getBuildingFamily() == BuildingFamily_Cloning_Facility)
+					{
+						if(!nearestBuilding	|| (nearestBuilding != building && (glm::distance(player->getWorldPosition(), building->mPosition) < glm::distance(player->getWorldPosition(), nearestBuilding->mPosition))))
+						{
+							nearestBuilding = building;
+						}
+					}
+
+					++buildingIt;
+				}
+
+				if(nearestBuilding)
+				{
+					if(nearestBuilding->getSpawnPoints()->size())
+					{
+						if(SpawnPoint* sp = nearestBuilding->getRandomSpawnPoint())
+						{
+							// update the database with the new values
+							gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE characters SET parent_id=%"PRIu64",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f WHERE id=%"PRIu64"",sp->mCellId
+								,sp->mDirection.x,sp->mDirection.y,sp->mDirection.z,sp->mDirection.w
+								,sp->mPosition.x,sp->mPosition.y,sp->mPosition.z
+								,player->getId());
+						}
+					}
+				}
+			}
 
 
 
@@ -529,9 +608,33 @@ void WorldManager::destroyObject(Object* object)
 
 			mWorldScriptsListener.handleScriptEvent("onPlayerLeft",params);
 			// gLogger->log(LogManager::DEBUG,"WorldManager::destroyObject: Player Client set to NULL");
-			delete player->getClient();
-			player->setClient(NULL);
+			
 			player->setConnectionState(PlayerConnState_Destroying);
+
+			// remove us from cell / SI
+			uint64 cellId = player->getParentId();
+			if(player->getParentId())
+			{
+				CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(cellId));
+				if(cell)
+				{
+					cell->removeObject(player);
+				}
+				else
+				{
+					gLogger->log(LogManager::DEBUG,"PlayerObject::destructor: couldn't find cell %"PRIu64"",cellId);
+				}
+			}
+			else if(player->getSubZoneId())
+			{
+				if(QTRegion* region = gWorldManager->getQTRegion(player->getSubZoneId()))
+				{
+					player->setSubZoneId(0);
+
+					region->mTree->removeObject(player);
+				}
+			}
+
 		}
 		break;
 		case ObjType_NPC:

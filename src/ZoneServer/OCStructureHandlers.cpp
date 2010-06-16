@@ -1313,20 +1313,20 @@ void	ObjectController::HandleItemRotateRight_(
   // Verify that the item and player are in the same structure.
   CellObject* playerCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()));
   if(!playerCell)	{
-	gMessageLib->sendSystemMessage(player, L"", "player_structure", "move_what");
+	gMessageLib->sendSystemMessage(player, L"", "player_structure", "rotate_what");
     return;
   }
   uint64 playerStructure = playerCell->getParentId();
 
   CellObject* objectCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(object->getParentId()));
   if(!objectCell)	{
-	gMessageLib->sendSystemMessage(player, L"", "player_structure", "move_what");
+	gMessageLib->sendSystemMessage(player, L"", "player_structure", "rotate_what");
     return;
   }
   uint64 objectStructure = objectCell->getParentId();
 
   if (objectStructure != playerStructure) {
-    gMessageLib->sendSystemMessage(player, L"", "player_structure", "move_what");
+    gMessageLib->sendSystemMessage(player, L"", "player_structure", "rotate_what");
 	return;
   }
   
@@ -1386,20 +1386,20 @@ void ObjectController::HandleItemRotateLeft_(
   // Verify that the item and player are in the same structure.
   CellObject* playerCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()));
   if(!playerCell)	{
-	gMessageLib->sendSystemMessage(player, L"", "player_structure", "move_what");
+	gMessageLib->sendSystemMessage(player, L"", "player_structure", "rotate_what");
     return;
   }
   uint64 playerStructure = playerCell->getParentId();
 
   CellObject* objectCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(object->getParentId()));
   if(!objectCell)	{
-	gMessageLib->sendSystemMessage(player, L"", "player_structure", "move_what");
+	gMessageLib->sendSystemMessage(player, L"", "player_structure", "rotate_what");
     return;
   }
   uint64 objectStructure = objectCell->getParentId();
 
   if (objectStructure != playerStructure) {
-    gMessageLib->sendSystemMessage(player, L"", "player_structure", "move_what");
+    gMessageLib->sendSystemMessage(player, L"", "player_structure", "rotate_what");
 	return;
   }
   
@@ -1459,20 +1459,20 @@ void ObjectController::HandleRotateFurniture_(
   // Verify that the item and player are in the same structure.
   CellObject* playerCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()));
   if(!playerCell)	{
-	gMessageLib->sendSystemMessage(player, L"", "player_structure", "move_what");
+	gMessageLib->sendSystemMessage(player, L"", "player_structure", "rotate_what");
     return;
   }
   uint64 playerStructure = playerCell->getParentId();
 
   CellObject* objectCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(object->getParentId()));
   if(!objectCell)	{
-	gMessageLib->sendSystemMessage(player, L"", "player_structure", "move_what");
+	gMessageLib->sendSystemMessage(player, L"", "player_structure", "rotate_what");
     return;
   }
   uint64 objectStructure = objectCell->getParentId();
 
   if (objectStructure != playerStructure) {
-    gMessageLib->sendSystemMessage(player, L"", "player_structure", "move_what");
+    gMessageLib->sendSystemMessage(player, L"", "player_structure", "rotate_what");
 	return;
   }
   

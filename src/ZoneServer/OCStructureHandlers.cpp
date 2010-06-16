@@ -1033,7 +1033,8 @@ void	ObjectController::HandleItemMoveForward_(
       return;
     }
   } else {
-    assert(false && "ObjectController::HandleItemMoveForward_ no cell");
+	  //we might just be in front of the structure looking in
+    gMessageLib->sendSystemMessage(player, L"", "player_structure", "cant_move_object");
     return;
   }
   
@@ -1091,7 +1092,8 @@ void	ObjectController::HandleItemMoveBack_(
       return;
     }
   } else {
-    assert(false && "ObjectController::HandleItemMoveBack_ no cell");
+	  //we might just be in front of the structure looking in
+    gMessageLib->sendSystemMessage(player, L"", "player_structure", "cant_move_object");
     return;
   }
   
@@ -1149,7 +1151,8 @@ void	ObjectController::HandleItemMoveUp_(
       return;
     }
   } else {
-    assert(false && "ObjectController::HandleItemMoveUp_ no cell");
+	  //we might just be in front of the structure looking in
+    gMessageLib->sendSystemMessage(player, L"", "player_structure", "cant_move_object");
     return;
   }
   
@@ -1206,7 +1209,8 @@ void	ObjectController::HandleItemMoveDown_(
       return;
     }
   } else {
-    assert(false && "ObjectController::HandleItemMoveDown_ no cell");
+	  //we might just be in front of the structure looking in
+    gMessageLib->sendSystemMessage(player, L"", "player_structure", "cant_move_object");
     return;
   }
 
@@ -1263,7 +1267,8 @@ void	ObjectController::HandleItemRotateRight_(
       return;
     }
   } else {
-    assert(false && "ObjectController::HandleItemRotateRight_ no cell");
+	  //we might just be in front of the structure looking in
+    gMessageLib->sendSystemMessage(player, L"", "player_structure", "cant_move_object");
     return;
   }
 	
@@ -1320,7 +1325,8 @@ void ObjectController::HandleItemRotateLeft_(
       return;
     }
   } else {
-    assert(false && "ObjectController::HandleItemRotateLeft_ no cell");
+	  //we might just be in front of the structure looking in
+    gMessageLib->sendSystemMessage(player, L"", "player_structure", "cant_move_object");
     return;
   }
 	
@@ -1377,8 +1383,9 @@ void ObjectController::HandleRotateFurniture_(
       return;
     }
   } else {
-    assert(false && "ObjectController::HandleRotateFurniture_ no cell");
-    return;
+		//we might just be in front of the structure looking in
+		gMessageLib->sendSystemMessage(player, L"", "player_structure", "cant_move_object");
+		return;
   }
   
   // Read the message out of the packet.
@@ -1472,7 +1479,8 @@ bool HandleMoveFurniture(
       return false;
     }
   } else {
-    assert(false && "ObjectController::HandleItemMoveDown_ no cell");
+	//we might just be in front of the structure looking in
+	gMessageLib->sendSystemMessage(player, L"", "player_structure", "cant_move_object");
     return false;
   }
   

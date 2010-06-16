@@ -1480,16 +1480,21 @@ void ObjectController::handleObjectMenuRequest(Message* message)
     //just implement this virtual function for items as we need just one central point instead
 	//of the same code over and over for all items
 
-	Item* item = dynamic_cast<Item*>(requestedObject);
-	ResourceContainer* rc = dynamic_cast<ResourceContainer*>(requestedObject);
-	if(item && requestedObject->getParentId())
+	CellObject* itemCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(requestedObject->getParentId()));
+
+	//Item* item = dynamic_cast<Item*>(requestedObject);
+	//ResourceContainer* rc = dynamic_cast<ResourceContainer*>(requestedObject);
+
+	//only display that menu when *we* and the item are in the same structure
+	if(requestedObject && itemCell)
 	{
-		if(CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(requestedObject->getParentId())))
+		CellObject* playerCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(playerObject->getParentId()));
+		if(playerCell && (playerCell->getParentId() == itemCell->getParentId()))
 		{
 			requestedObject->prepareCustomRadialMenuInCell(playerObject,static_cast<uint8>(itemCount));
 		}
 	}
-
+	/*
 	if(rc && requestedObject->getParentId())
 	{
 		if(CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(requestedObject->getParentId())))
@@ -1497,7 +1502,7 @@ void ObjectController::handleObjectMenuRequest(Message* message)
 			requestedObject->prepareCustomRadialMenuInCell(playerObject,static_cast<uint8>(itemCount));
 		}
 	}
-
+	*/
 	//delete the radials after every use or provide every object with set rules when to delete it ?
 
 	if(!requestedObject->getRadialMenu())

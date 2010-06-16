@@ -1009,20 +1009,36 @@ void	ObjectController::HandleItemMoveForward_(
   }
   
   Object* object = gWorldManager->getObjectById(targetId);
-  
+
   if(!object)	{
     assert(false && "ObjectController::HandleItemMoveForward_ item not found");
     return;
   }
 
   // Verify that the item and player are in the same structure.
-  if (object->getParentId() != player->getParentId()) {
+  CellObject* playerCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()));
+  if(!playerCell)	{
+	gMessageLib->sendSystemMessage(player, L"", "player_structure", "move_what");
+    return;
+  }
+  uint64 playerStructure = playerCell->getParentId();
+
+  CellObject* objectCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(object->getParentId()));
+  if(!objectCell)	{
+	gMessageLib->sendSystemMessage(player, L"", "player_structure", "move_what");
+    return;
+  }
+  uint64 objectStructure = objectCell->getParentId();
+
+  if (objectStructure != playerStructure) {
     gMessageLib->sendSystemMessage(player, L"", "player_structure", "move_what");
+	return;
   }
   
   // Verify that the player has appropriate rights on this structure.
-  if (CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()))) {
-    if (BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()))) {
+  if (playerCell) 
+  {
+    if (BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(playerCell->getParentId()))) {
       if (!building->hasAdminRights(player->getId())) {    
         gMessageLib->sendSystemMessage(player, L"", "player_structure", "admin_move_only");
         return;
@@ -1032,8 +1048,7 @@ void	ObjectController::HandleItemMoveForward_(
       return;
     }
   } else {
-	  //we might just be in front of the structure looking in
-    gMessageLib->sendSystemMessage(player, L"", "player_structure", "cant_move_object");
+    //so were not in a building ??
     return;
   }
   
@@ -1075,13 +1090,29 @@ void	ObjectController::HandleItemMoveBack_(
   }
 
   // Verify that the item and player are in the same structure.
-  if (object->getParentId() != player->getParentId()) {
+  // Verify that the item and player are in the same structure.
+  CellObject* playerCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()));
+  if(!playerCell)	{
+	gMessageLib->sendSystemMessage(player, L"", "player_structure", "move_what");
+    return;
+  }
+  uint64 playerStructure = playerCell->getParentId();
+
+  CellObject* objectCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(object->getParentId()));
+  if(!objectCell)	{
+	gMessageLib->sendSystemMessage(player, L"", "player_structure", "move_what");
+    return;
+  }
+  uint64 objectStructure = objectCell->getParentId();
+
+  if (objectStructure != playerStructure) {
     gMessageLib->sendSystemMessage(player, L"", "player_structure", "move_what");
+	return;
   }
   
   // Verify that the player has appropriate rights on this structure.
-  if (CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()))) {
-    if (BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()))) {
+  if (playerCell) {
+    if (BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(playerCell->getParentId()))) {
       if (!building->hasAdminRights(player->getId())) {    
         gMessageLib->sendSystemMessage(player, L"", "player_structure", "admin_move_only");
         return;
@@ -1091,8 +1122,7 @@ void	ObjectController::HandleItemMoveBack_(
       return;
     }
   } else {
-	  //we might just be in front of the structure looking in
-    gMessageLib->sendSystemMessage(player, L"", "player_structure", "cant_move_object");
+    //so were just outside ??
     return;
   }
   
@@ -1134,13 +1164,29 @@ void	ObjectController::HandleItemMoveUp_(
   }
 
   // Verify that the item and player are in the same structure.
-  if (object->getParentId() != player->getParentId()) {
+  // Verify that the item and player are in the same structure.
+  CellObject* playerCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()));
+  if(!playerCell)	{
+	gMessageLib->sendSystemMessage(player, L"", "player_structure", "move_what");
+    return;
+  }
+  uint64 playerStructure = playerCell->getParentId();
+
+  CellObject* objectCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(object->getParentId()));
+  if(!objectCell)	{
+	gMessageLib->sendSystemMessage(player, L"", "player_structure", "move_what");
+    return;
+  }
+  uint64 objectStructure = objectCell->getParentId();
+
+  if (objectStructure != playerStructure) {
     gMessageLib->sendSystemMessage(player, L"", "player_structure", "move_what");
+	return;
   }
   
   // Verify that the player has appropriate rights on this structure.
-  if (CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()))) {
-    if (BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()))) {
+  if (playerCell) {
+    if (BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(playerCell->getParentId()))) {
       if (!building->hasAdminRights(player->getId())) {    
         gMessageLib->sendSystemMessage(player, L"", "player_structure", "admin_move_only");
         return;
@@ -1150,8 +1196,7 @@ void	ObjectController::HandleItemMoveUp_(
       return;
     }
   } else {
-	  //we might just be in front of the structure looking in
-    gMessageLib->sendSystemMessage(player, L"", "player_structure", "cant_move_object");
+    //so were just outside
     return;
   }
   
@@ -1192,13 +1237,29 @@ void	ObjectController::HandleItemMoveDown_(
   }
 
   // Verify that the item and player are in the same structure.
-  if (object->getParentId() != player->getParentId()) {
+  // Verify that the item and player are in the same structure.
+  CellObject* playerCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()));
+  if(!playerCell)	{
+	gMessageLib->sendSystemMessage(player, L"", "player_structure", "move_what");
+    return;
+  }
+  uint64 playerStructure = playerCell->getParentId();
+
+  CellObject* objectCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(object->getParentId()));
+  if(!objectCell)	{
+	gMessageLib->sendSystemMessage(player, L"", "player_structure", "move_what");
+    return;
+  }
+  uint64 objectStructure = objectCell->getParentId();
+
+  if (objectStructure != playerStructure) {
     gMessageLib->sendSystemMessage(player, L"", "player_structure", "move_what");
+	return;
   }
   
   // Verify that the player has appropriate rights on this structure.
-  if (CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()))) {
-    if (BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()))) {
+  if (playerCell) {
+    if (BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(playerCell->getParentId()))) {
       if (!building->hasAdminRights(player->getId())) {    
         gMessageLib->sendSystemMessage(player, L"", "player_structure", "admin_move_only");
         return;
@@ -1208,8 +1269,7 @@ void	ObjectController::HandleItemMoveDown_(
       return;
     }
   } else {
-	  //we might just be in front of the structure looking in
-    gMessageLib->sendSystemMessage(player, L"", "player_structure", "cant_move_object");
+    //were just outside??
     return;
   }
 
@@ -1250,13 +1310,29 @@ void	ObjectController::HandleItemRotateRight_(
   }
 
   // Verify that the item and player are in the same structure.
-  if (object->getParentId() != player->getParentId()) {
-    gMessageLib->sendSystemMessage(player, L"", "player_structure", "rotate_what");
+  // Verify that the item and player are in the same structure.
+  CellObject* playerCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()));
+  if(!playerCell)	{
+	gMessageLib->sendSystemMessage(player, L"", "player_structure", "move_what");
+    return;
+  }
+  uint64 playerStructure = playerCell->getParentId();
+
+  CellObject* objectCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(object->getParentId()));
+  if(!objectCell)	{
+	gMessageLib->sendSystemMessage(player, L"", "player_structure", "move_what");
+    return;
+  }
+  uint64 objectStructure = objectCell->getParentId();
+
+  if (objectStructure != playerStructure) {
+    gMessageLib->sendSystemMessage(player, L"", "player_structure", "move_what");
+	return;
   }
   
   // Verify that the player has appropriate rights on this structure.
-  if (CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()))) {
-    if (BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()))) {
+  if (playerCell) {
+    if (BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(playerCell->getParentId()))) {
       if (!building->hasAdminRights(player->getId())) {    
         gMessageLib->sendSystemMessage(player, L"", "player_structure", "admin_move_only");
         return;
@@ -1266,8 +1342,7 @@ void	ObjectController::HandleItemRotateRight_(
       return;
     }
   } else {
-	  //we might just be in front of the structure looking in
-    gMessageLib->sendSystemMessage(player, L"", "player_structure", "cant_move_object");
+    //were just outside
     return;
   }
 	
@@ -1308,13 +1383,29 @@ void ObjectController::HandleItemRotateLeft_(
   }
 
   // Verify that the item and player are in the same structure.
-  if (object->getParentId() != player->getParentId()) {
-    gMessageLib->sendSystemMessage(player, L"", "player_structure", "rotate_what");
+  // Verify that the item and player are in the same structure.
+  CellObject* playerCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()));
+  if(!playerCell)	{
+	gMessageLib->sendSystemMessage(player, L"", "player_structure", "move_what");
+    return;
+  }
+  uint64 playerStructure = playerCell->getParentId();
+
+  CellObject* objectCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(object->getParentId()));
+  if(!objectCell)	{
+	gMessageLib->sendSystemMessage(player, L"", "player_structure", "move_what");
+    return;
+  }
+  uint64 objectStructure = objectCell->getParentId();
+
+  if (objectStructure != playerStructure) {
+    gMessageLib->sendSystemMessage(player, L"", "player_structure", "move_what");
+	return;
   }
   
   // Verify that the player has appropriate rights on this structure.
-  if (CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()))) {
-    if (BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()))) {
+  if (playerCell) {
+    if (BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(playerCell->getParentId()))) {
       if (!building->hasAdminRights(player->getId())) {    
         gMessageLib->sendSystemMessage(player, L"", "player_structure", "admin_move_only");
         return;
@@ -1324,8 +1415,7 @@ void ObjectController::HandleItemRotateLeft_(
       return;
     }
   } else {
-	  //we might just be in front of the structure looking in
-    gMessageLib->sendSystemMessage(player, L"", "player_structure", "cant_move_object");
+    //were just outside
     return;
   }
 	
@@ -1366,13 +1456,29 @@ void ObjectController::HandleRotateFurniture_(
   }
 
   // Verify that the item and player are in the same structure.
-  if (object->getParentId() != player->getParentId()) {
-    gMessageLib->sendSystemMessage(player, L"", "player_structure", "rotate_what");
+  // Verify that the item and player are in the same structure.
+  CellObject* playerCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()));
+  if(!playerCell)	{
+	gMessageLib->sendSystemMessage(player, L"", "player_structure", "move_what");
+    return;
+  }
+  uint64 playerStructure = playerCell->getParentId();
+
+  CellObject* objectCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(object->getParentId()));
+  if(!objectCell)	{
+	gMessageLib->sendSystemMessage(player, L"", "player_structure", "move_what");
+    return;
+  }
+  uint64 objectStructure = objectCell->getParentId();
+
+  if (objectStructure != playerStructure) {
+    gMessageLib->sendSystemMessage(player, L"", "player_structure", "move_what");
+	return;
   }
   
   // Verify that the player has appropriate rights on this structure.
-  if (CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()))) {
-    if (BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()))) {
+  if (playerCell) {
+    if (BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(playerCell->getParentId()))) {
       if (!building->hasAdminRights(player->getId())) {    
         gMessageLib->sendSystemMessage(player, L"", "player_structure", "admin_move_only");
         return;
@@ -1382,9 +1488,8 @@ void ObjectController::HandleRotateFurniture_(
       return;
     }
   } else {
-		//we might just be in front of the structure looking in
-		gMessageLib->sendSystemMessage(player, L"", "player_structure", "cant_move_object");
-		return;
+    //were just outside??
+    return;
   }
   
   // Read the message out of the packet.
@@ -1462,13 +1567,29 @@ void ObjectController::HandleMoveFurniture_(
   }
 
   // Verify that the item and player are in the same structure.
-  if (object->getParentId() != player->getParentId()) {
+  // Verify that the item and player are in the same structure.
+  CellObject* playerCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()));
+  if(!playerCell)	{
+	gMessageLib->sendSystemMessage(player, L"", "player_structure", "move_what");
+    return;
+  }
+  uint64 playerStructure = playerCell->getParentId();
+
+  CellObject* objectCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(object->getParentId()));
+  if(!objectCell)	{
+	gMessageLib->sendSystemMessage(player, L"", "player_structure", "move_what");
+    return;
+  }
+  uint64 objectStructure = objectCell->getParentId();
+
+  if (objectStructure != playerStructure) {
     gMessageLib->sendSystemMessage(player, L"", "player_structure", "move_what");
+	return;
   }
   
   // Verify that the player has appropriate rights on this structure.
-  if (CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()))) {
-    if (BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()))) {
+  if (playerCell) {
+    if (BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(playerCell->getParentId()))) {
       if (!building->hasAdminRights(player->getId())) {    
         gMessageLib->sendSystemMessage(player, L"", "player_structure", "admin_move_only");
         return;
@@ -1478,8 +1599,7 @@ void ObjectController::HandleMoveFurniture_(
       return;
     }
   } else {
-		//we might just be in front of the structure looking in
-		gMessageLib->sendSystemMessage(player, L"", "player_structure", "cant_move_object");
+    //were just outside ??
     return;
   }
   

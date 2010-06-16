@@ -100,7 +100,8 @@ void	ObjectController::_ExtractObject(uint64 targetId,Message* message,ObjectCon
 	{
 		gMessageLib->sendDestroyObject(crate->getId(),playerObject);
 		gObjectFactory->deleteObjectFromDB(crate->getId());
-		inventory->deleteObject(crate);
+		TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(crate->getParentId()));
+		tO->deleteObject(crate);
 		return;
 	}
 	

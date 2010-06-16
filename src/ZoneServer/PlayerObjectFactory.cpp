@@ -517,6 +517,8 @@ PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
 	Bank*			playerBank		= new Bank();
 	Weapon*			playerWeapon	= new Weapon();
 
+	gWorldManager->addObject(playerBank,true);
+
 	playerBank->setParent(playerObject);
 
 	uint64 count = result->getRowCount();

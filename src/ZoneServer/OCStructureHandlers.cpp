@@ -83,7 +83,7 @@ using ::boost::regex_search;
 using ::boost::sregex_token_iterator;
 #endif
 
-const float MOVE_INCREMENT   = 0.10f;
+const float MOVE_INCREMENT   = 0.01f;
 const float ROTATE_INCREMENT = 90.0f;
 
 //======================================================================================================================

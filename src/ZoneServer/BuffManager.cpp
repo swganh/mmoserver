@@ -175,14 +175,20 @@ void BuffManager::LoadBuffsFromResult(buffAsyncContainer* asyncContainer, Databa
 	for(uint64 i = 0;i < rowCount;i++)
 	{
 		result->GetNextRow(buffBinding,tmp);
-		Buff* buffTemp = Buff::FromDB(tmp, envelope->currentTime);
-		if(buffTemp->GetRemainingTime(envelope->currentTime) >0) //Check there is time left
+		
+		//Check player hasn't been logged out for more than 10mins
+		if((envelope->currentTime - tmp->mPausedGlobalTick) < 600000)
 		{
-			buffTemp->setTarget(player);
-			player->AddBuff(buffTemp);
-			player->IncBuffAsyncCount();
-		} else {
-			SAFE_DELETE(buffTemp);
+			Buff* buffTemp = Buff::FromDB(tmp, envelope->currentTime);
+			//Check there is time left
+			if(buffTemp->GetRemainingTime(envelope->currentTime) >0) 
+			{
+				buffTemp->setTarget(player);
+				player->AddBuff(buffTemp);
+				player->IncBuffAsyncCount();
+			} else {
+				SAFE_DELETE(buffTemp);
+			}
 		}
 	}
 	SAFE_DELETE(tmp);

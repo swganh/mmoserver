@@ -214,7 +214,7 @@ void BuffManager::LoadBuffAttributesFromResult(buffAsyncContainer* asyncContaine
 {
 
 	DataBinding*	buffBinding = mDatabase->CreateDataBinding(4);
-	buffBinding->addField(DFT_int32,offsetof(BuffAttributeDBItem,mType),4,0);
+	buffBinding->addField(DFT_uint64,offsetof(BuffAttributeDBItem,mType),8,0);
 	buffBinding->addField(DFT_int32,offsetof(BuffAttributeDBItem,mInitialValue),4,1);
 	buffBinding->addField(DFT_int32,offsetof(BuffAttributeDBItem,mTickValue),4,2);
 	buffBinding->addField(DFT_int32,offsetof(BuffAttributeDBItem,mFinalValue),4,3);
@@ -426,7 +426,7 @@ bool BuffManager::AddBuffToDB(WMAsyncContainer* asyncContainer,DatabaseCallback*
 
 			sprintf(sql2+strlen(sql2), "(%"PRIu64",", buff->GetID());
 			sprintf(sql2+strlen(sql2), "%"PRIu64",", player->getId());
-			sprintf(sql2+strlen(sql2), "%d,", (int32)batemp->GetType());
+			sprintf(sql2+strlen(sql2), "%"PRIu64",", batemp->GetType());
 			sprintf(sql2+strlen(sql2), "%d,", batemp->GetInitialValue());
 			sprintf(sql2+strlen(sql2), "%d,", batemp->GetTickValue());
 			
@@ -530,7 +530,7 @@ void BuffManager::AddBuffToDB(Buff* buff, uint64 currenttime)
 
 			sprintf(sql2+strlen(sql2), "(%"PRIu64",", buff->GetID());
 			sprintf(sql2+strlen(sql2), "%"PRIu64",", Player->getId());
-			sprintf(sql2+strlen(sql2), "%d,", (int32)batemp->GetType());
+			sprintf(sql2+strlen(sql2), "%"PRIu64",", batemp->GetType());
 			sprintf(sql2+strlen(sql2), "%d,", batemp->GetInitialValue());
 			sprintf(sql2+strlen(sql2), "%d,", batemp->GetTickValue());
 			

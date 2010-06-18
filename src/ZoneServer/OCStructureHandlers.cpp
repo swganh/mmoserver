@@ -1457,7 +1457,6 @@ void ObjectController::HandleRotateFurniture_(
   }
 
   // Verify that the item and player are in the same structure.
-  // Verify that the item and player are in the same structure.
   CellObject* playerCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()));
   if(!playerCell)	{
 	gMessageLib->sendSystemMessage(player, L"", "player_structure", "rotate_what");
@@ -1561,13 +1560,12 @@ bool HandleMoveFurniture(
     gMessageLib->sendSystemMessage(player, L"", "player_structure", "move_what");
     return false;
   }
-  
+ 
   if(!target)	{
     assert(false && "ObjectController::HandleItemMoveDown_ item not found");
     return false;
   }
 
-  // Verify that the item and player are in the same structure.
   // Verify that the item and player are in the same structure.
   CellObject* playerCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()));
   if(!playerCell)	{
@@ -1585,7 +1583,7 @@ bool HandleMoveFurniture(
 
   if (objectStructure != playerStructure) {
     gMessageLib->sendSystemMessage(player, L"", "player_structure", "move_what");
-	return false;
+	  return false;
   }
   
   // Verify that the player has appropriate rights on this structure.

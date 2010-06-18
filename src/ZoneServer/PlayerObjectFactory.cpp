@@ -517,8 +517,6 @@ PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
 	Bank*			playerBank		= new Bank();
 	Weapon*			playerWeapon	= new Weapon();
 
-	gWorldManager->addObject(playerBank,true);
-
 	playerBank->setParent(playerObject);
 
 	uint64 count = result->getRowCount();
@@ -596,6 +594,7 @@ PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
 	playerBank->setEquipSlotMask(CreatureEquipSlot_Bank);
 
 	playerObject->mEquipManager.addEquippedObject(CreatureEquipSlot_Bank,playerBank);
+	gWorldManager->addObject(playerBank,true);
 
 	// weapon
 	playerWeapon->setId(playerObject->mId + 5);

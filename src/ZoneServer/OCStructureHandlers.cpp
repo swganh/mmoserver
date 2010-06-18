@@ -1560,6 +1560,11 @@ bool HandleMoveFurniture(
     gMessageLib->sendSystemMessage(player, L"", "player_structure", "move_what");
     return false;
   }
+ 
+  if(!target)	{
+    assert(false && "ObjectController::HandleItemMoveDown_ item not found");
+    return false;
+  }
 
   // Verify that the item and player are in the same structure.
   CellObject* playerCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()));

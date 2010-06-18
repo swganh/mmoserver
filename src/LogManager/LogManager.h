@@ -46,10 +46,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 class LOG_ENTRY;
 class Database;
 
-#ifndef _FILE_DEFINED
-struct FILE;
-#endif
-
 #define gLogger LogManager::getSingleton()
 
 class LogManager
@@ -95,7 +91,7 @@ private:
 
 
 	uint8						mMinPriorities[3];
-	FILE*						mOutputFile;
+	std::string					mFileName;
 };
 
 #endif

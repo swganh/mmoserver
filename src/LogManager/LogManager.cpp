@@ -31,6 +31,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <stdio.h>
 #include <vector>
 
+#include <fstream>
+#include <iomanip>
+
 #include "Utils/clock.h"
 
 LogManager* LogManager::mSingleton;
@@ -67,17 +70,8 @@ bool LogManager::setupConsoleLogging(LOG_PRIORITY min_priority)
 bool LogManager::setupFileLogging(LOG_PRIORITY min_priority, std::string filename)
 {
 	mMinPriorities[1] = min_priority;
-	mOutputFile = fopen(filename.c_str(), "w");
 
-	if(ferror(mOutputFile))
-	{
-		printf("Error dealing with the log file.");
-		mOutputFile = 0;
-		return false;
-	}
-
-	if(!mOutputFile)
-		return false;
+	mFileName = filename;
 
 	return true;
 }
@@ -85,6 +79,15 @@ bool LogManager::setupFileLogging(LOG_PRIORITY min_priority, std::string filenam
 void LogManager::_LoggerThread()
 {
 	std::vector<LOG_ENTRY*> mTempEntries;
+
+	std::ofstream mOutputFile;
+
+	mOutputFile.open(mFileName, std::ios_base::out);
+
+	if(!mOutputFile.is_open())
+	{
+		this->log(EMERGENCY, "File Log Setup Error.");
+	}
 
 	char* priority_strings[] = {"EMER", "ALRT", "CRIT", "ERRO", "WARN", "NOTI", "INFO", "DEBG"};
 
@@ -121,19 +124,27 @@ void LogManager::_LoggerThread()
 			
 			if((*it)->mChannels & LOG_CHANNEL_FILE && ((*it)->mPriority <= mMinPriorities[1]))
 			{
-				if(mOutputFile)
+				if(mOutputFile.is_open())
 				{
-          // Use a lock guard for the mutex which will unlock when it goes out of scope,
-          // in this case at the end of this inner if statement.
-          boost::lock_guard<boost::mutex> guard(mEntriesMutex);
-
 					if(!(*it)->mContinuation)
-						fprintf(mOutputFile, "[%02d:%02d:%02d] [%s] ",t.tm_hour,t.tm_min,t.tm_sec, priority_strings[(int)(*it)->mPriority - 1]);
+					{
+						mOutputFile << "[" << std::setw(2) << t.tm_hour;
+						mOutputFile << ":" << std::setw(2) << t.tm_min;
+						mOutputFile << ":" << std::setw(2) << t.tm_sec;
+						mOutputFile << "] [" << priority_strings[(int)(*it)->mPriority - 1] << "] ";
+
+						//fprintf(mOutputFile, "[%02d:%02d:%02d] [%s] ",t.tm_hour,t.tm_min,t.tm_sec, priority_strings[(int)(*it)->mPriority - 1]);
+					}
 					else
-						fprintf(mOutputFile, "                  ");
+					{
+						mOutputFile << "                  ";
+						//fprintf(mOutputFile, "                  ");
+					}
 					
-					fprintf(mOutputFile, "%s\n", (*it)->mMessage.c_str());
-					fflush(mOutputFile);
+					mOutputFile << (*it)->mMessage.c_str() << std::endl;
+					mOutputFile.flush();
+					//fprintf(mOutputFile, "%s\n", (*it)->mMessage.c_str());
+					//fflush(mOutputFile);
 				}
 			}
 

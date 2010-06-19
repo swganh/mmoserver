@@ -1482,16 +1482,19 @@ void ObjectController::handleObjectMenuRequest(Message* message)
 
 	CellObject* itemCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(requestedObject->getParentId()));
 
-	//Item* item = dynamic_cast<Item*>(requestedObject);
-	//ResourceContainer* rc = dynamic_cast<ResourceContainer*>(requestedObject);
+	Item* item = dynamic_cast<Item*>(requestedObject);
+	ResourceContainer* rC = dynamic_cast<ResourceContainer*>(requestedObject);
+	TangibleObject* tO = dynamic_cast<TangibleObject*>(requestedObject);
 
 	//only display that menu when *we* and the item are in the same structure
-	if(requestedObject && itemCell)
+	if((rC || item) && itemCell && (!tO->getStatic()))
 	{
 		CellObject* playerCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(playerObject->getParentId()));
 		if(playerCell && (playerCell->getParentId() == itemCell->getParentId()))
 		{
-			requestedObject->prepareCustomRadialMenuInCell(playerObject,static_cast<uint8>(itemCount));
+			PlayerStructure* pS = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(playerCell->getParentId()));
+			if(pS)
+				requestedObject->prepareCustomRadialMenuInCell(playerObject,static_cast<uint8>(itemCount));
 		}
 	}
 	/*

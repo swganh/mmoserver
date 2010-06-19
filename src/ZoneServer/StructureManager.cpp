@@ -506,6 +506,7 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 				gMessageLib->sendSystemMessage(player,L"","player_structure","deed_reclaimed");
 
 				//update the deeds attributes and set the new owner id (owners inventory = characterid +1)
+				//enum INVENTORY_OFFSET
 				StructureManagerAsyncContainer* asyncContainer;
 				asyncContainer = new StructureManagerAsyncContainer(Structure_UpdateStructureDeed, 0);
 				asyncContainer->mPlayerId		= structure->getOwner();

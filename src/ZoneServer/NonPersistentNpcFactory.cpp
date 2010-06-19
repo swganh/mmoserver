@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "NonPersistentNpcFactory.h"
+#include "PlayerEnums.h"
 #include "AttackableCreature.h"
 #include "AttackableStaticNpc.h"
 #include "FillerNPC.h"
@@ -256,7 +257,7 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult
 			npc->mHam.calcAllModifiedHitPoints();
 
 			// inventory
-			npcInventory->setId(npc->mId + 1);
+			npcInventory->setId(npc->mId + INVENTORY_OFFSET);
 			npcInventory->setParentId(npc->mId);
 			npcInventory->setModelString("object/tangible/inventory/shared_creature_inventory.iff");
 			
@@ -465,7 +466,7 @@ NPCObject* NonPersistentNpcFactory::createNonPersistentNpc(DatabaseResult* resul
 	npc->mHam.calcAllModifiedHitPoints();
 
 	// inventory
-	npcInventory->setId(npc->mId + 1);
+	npcInventory->setId(npc->mId + INVENTORY_OFFSET);
 	npcInventory->setParentId(npc->mId);
 	npcInventory->setModelString("object/tangible/inventory/shared_creature_inventory.iff");
 	

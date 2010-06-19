@@ -453,12 +453,13 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 bool ObjectController::checkContainingContainer(uint64 containingContainer, uint64 playerId)
 {
 	ObjectContainer* container = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(containingContainer));
+	PlayerObject*	 playerObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId));
 	
 	if(!container)
 	{
 		//it might be our inventory or the inventory of a creature were looting
 		//PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId));
-		if(containingContainer == (playerId+1))
+		if(containingContainer == (playerId+INVENTORY_OFFSET))
 		{
 			//its our inventory ... - return true
 			return true;
@@ -494,6 +495,7 @@ bool ObjectController::checkContainingContainer(uint64 containingContainer, uint
 		{
 			return true;
 		}
+		gMessageLib->sendSystemMessage(playerObject, L"", "player_structure", "not_admin");
 		return false;
 	}
 
@@ -514,6 +516,8 @@ bool ObjectController::checkContainingContainer(uint64 containingContainer, uint
 					}
 				}
 			}
+			else
+				gMessageLib->sendSystemMessage(playerObject, L"", "player_structure", "not_admin");
 		}
 		return false;
 	}

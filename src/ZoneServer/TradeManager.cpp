@@ -388,9 +388,9 @@ void TradeManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			Transaction* mTransaction = mDatabase->startTransaction(this,asyncContainer);
 			int8 sql[200];
 
-			sprintf(sql,"UPDATE inventories SET credits=credits-%i WHERE id=%"PRIu64"",asyncContainer->amountcash, playerObject->getId()+1);
+			sprintf(sql,"UPDATE inventories SET credits=credits-%i WHERE id=%"PRIu64"",asyncContainer->amountcash, playerObject->getId()+INVENTORY_OFFSET);
 			mTransaction->addQuery(sql);
-			sprintf(sql,"UPDATE banks SET credits=credits-%i WHERE id=%"PRIu64"",asyncContainer->amountbank, playerObject->getId()+4);
+			sprintf(sql,"UPDATE banks SET credits=credits-%i WHERE id=%"PRIu64"",asyncContainer->amountbank, playerObject->getId()+BANK_OFFSET);
 			mTransaction->addQuery(sql);
 			int8 query[2000];
 			sprintf(query,"INSERT INTO commerce_auction SET auction_id = %"PRIu64", owner_id = %"PRIu64", bazaar_id = %"PRIu64", type = %u, start = %u ,premium = %u, category = 0, itemtype = %u, price = %u, name = '%s', description = '%s', region_id = 0, planet_id = 0, bidder_name = '', object_string = '%s'", asynContainer->tangible->getId(),playerObject->getId(),asynContainer->BazaarID,asynContainer->auctionType,asynContainer->time,asynContainer->premium,asynContainer->itemType,asynContainer->price, asynContainer->name.getAnsi(),asynContainer->description.getAnsi(),asynContainer->tang.getAnsi());
@@ -636,11 +636,11 @@ void TradeManager::_processDeductMoneyMessage(Message* message,DispatchClient* c
 	//ok use transactions and see to the object in memory in the postransaction
 	Transaction* mTransaction = mDatabase->startTransaction(this,asyncContainer);
 	int8 sql[200];
-	sprintf(sql,"UPDATE inventories SET credits=credits-%i WHERE id=%"PRIu64"",asyncContainer->amountcash, buyerID+1);
+	sprintf(sql,"UPDATE inventories SET credits=credits-%i WHERE id=%"PRIu64"",asyncContainer->amountcash, buyerID+INVENTORY_OFFSET);
 	mTransaction->addQuery(sql);
-	sprintf(sql,"UPDATE banks SET credits=credits-%i WHERE id=%"PRIu64"",asyncContainer->amountbank, buyerID+4);
+	sprintf(sql,"UPDATE banks SET credits=credits-%i WHERE id=%"PRIu64"",asyncContainer->amountbank, buyerID+BANK_OFFSET);
 	mTransaction->addQuery(sql);
-	sprintf(sql,"UPDATE banks SET credits=credits+%i WHERE id=%"PRIu64"",amount, sellerID+4);
+	sprintf(sql,"UPDATE banks SET credits=credits+%i WHERE id=%"PRIu64"",amount, sellerID+BANK_OFFSET);
 	mTransaction->addQuery(sql);
 	//set owner id to new owner. the item will be taken out of the bazaar in the next step IF the buyer is near
 	sprintf(sql,"UPDATE commerce_auction SET owner_id = %"PRIu64", type = %u,start = %u WHERE auction_id = %"PRIu64"",buyerID,TRMVendor_Cancelled,time,itemID);

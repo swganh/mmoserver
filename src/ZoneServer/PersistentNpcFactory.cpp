@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "PersistentNpcFactory.h"
+#include "PlayerEnums.h"
 #include "FillerNPC.h"
 #include "Inventory.h"
 #include "NPCObject.h"
@@ -170,7 +171,7 @@ NPCObject* PersistentNpcFactory::_createPersistentNpc(DatabaseResult* result)
 	npc->mHam.calcAllModifiedHitPoints();
 
 	// inventory
-	npcInventory->setId(npc->mId + 1);
+	npcInventory->setId(npc->mId + INVENTORY_OFFSET);
 	npcInventory->setParentId(npc->mId);
 	npcInventory->setModelString("object/tangible/inventory/shared_creature_inventory.iff");
 	npcInventory->setName("inventory");

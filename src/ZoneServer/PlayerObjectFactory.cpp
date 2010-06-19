@@ -517,6 +517,7 @@ PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
 	Bank*			playerBank		= new Bank();
 	Weapon*			playerWeapon	= new Weapon();
 
+	playerBank->setId(playerObject->getId()+4);
 	gWorldManager->addObject(playerBank,true);
 
 	playerBank->setParent(playerObject);

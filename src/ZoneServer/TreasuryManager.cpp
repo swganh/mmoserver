@@ -161,7 +161,6 @@ void TreasuryManager::bankWithdrawAll(PlayerObject* playerObject)
 				bank->setCredits(0);
 
 				// save to the db
-				// FIXME: will need to replace (playerID+4) by the real bankID
 				mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE banks SET credits=%u WHERE id=%"PRIu64"",bank->getCredits(),bank->getId()));
 				mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE inventories SET credits=%u WHERE id=%"PRIu64"",inventory->getCredits(),inventory->getId()));
 
@@ -438,7 +437,7 @@ void TreasuryManager::handleBankTipSurchargeConfirmed(TreasuryManagerAsyncContai
 	int8 sql[256];
 	sprintf(sql,"UPDATE banks SET credits=credits-%i WHERE id=%"PRIu64"",(asyncContainer->amount+asyncContainer->surcharge), asyncContainer->player->getId() + 4);
 	mTransaction->addQuery(sql);
-	sprintf(sql,"UPDATE banks SET credits=credits+%i WHERE id=%"PRIu64"",asyncContainer->amount, asyncContainer->targetId + 4);
+	sprintf(sql,"UPDATE banks SET credits=credits+%i WHERE id=%"PRIu64"",asyncContainer->amount, asyncContainer->targetId + BANK_OFFSET);
 	mTransaction->addQuery(sql);
 	mTransaction->execute();
 

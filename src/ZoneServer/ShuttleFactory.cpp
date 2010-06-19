@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "ShuttleFactory.h"
+#include "PlayerEnums.h"
 #include "Inventory.h"
 #include "ObjectFactoryCallback.h"
 #include "Shuttle.h"
@@ -133,7 +134,7 @@ Shuttle* ShuttleFactory::_createShuttle(DatabaseResult* result)
 	shuttle->mHam.calcAllModifiedHitPoints();
 
 	// inventory
-	shuttleInventory->setId(shuttle->mId + 1);
+	shuttleInventory->setId(shuttle->mId + INVENTORY_OFFSET);
 	shuttleInventory->setParentId(shuttle->mId);
 	shuttleInventory->setModelString("object/tangible/inventory/shared_creature_inventory.iff");
 	shuttleInventory->setName("inventory");

@@ -832,7 +832,7 @@ void StructureManager::_HandleCheckPermission(StructureManagerAsyncContainer* as
 				building->updateCellPermissions(player,true);
 		}
 		else
-			gMessageLib->sendSystemMessage(player,L"", "player_strucuter","not_admin");
+			gMessageLib->sendSystemMessage(player,L"", "player_structure","not_admin");
 	}
 
 	mDatabase->DestroyDataBinding(binding);

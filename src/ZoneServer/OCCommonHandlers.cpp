@@ -453,6 +453,7 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 bool ObjectController::checkContainingContainer(uint64 containingContainer, uint64 playerId)
 {
 	ObjectContainer* container = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(containingContainer));
+	PlayerObject*	 playerObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId));
 	
 	if(!container)
 	{
@@ -494,6 +495,7 @@ bool ObjectController::checkContainingContainer(uint64 containingContainer, uint
 		{
 			return true;
 		}
+		gMessageLib->sendSystemMessage(playerObject, L"", "player_structure", "not_admin");
 		return false;
 	}
 
@@ -514,6 +516,8 @@ bool ObjectController::checkContainingContainer(uint64 containingContainer, uint
 					}
 				}
 			}
+			else
+				gMessageLib->sendSystemMessage(playerObject, L"", "player_structure", "not_admin");
 		}
 		return false;
 	}

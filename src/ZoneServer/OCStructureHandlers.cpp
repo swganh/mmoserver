@@ -1189,7 +1189,7 @@ void	ObjectController::HandleItemMoveUp_(
   if (playerCell) {
     if (BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(playerCell->getParentId()))) {
       if (!building->hasAdminRights(player->getId())) {    
-        gMessageLib->sendSystemMessage(player, L"", "player_structure", "admin_move_only");
+        gMessageLib->sendSystemMessage(player, L"", "player_structure","not_admin");
         return;
       }
     }	else {

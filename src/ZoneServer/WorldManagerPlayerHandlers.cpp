@@ -327,8 +327,9 @@ void WorldManager::addReconnectedPlayer(PlayerObject* playerObject)
 void WorldManager::removePlayerFromDisconnectedList(PlayerObject* playerObject)
 {
 	PlayerList::iterator it;
-
-	if((it = std::find(mPlayersToRemove.begin(),mPlayersToRemove.end(),playerObject)) == mPlayersToRemove.end())
+	
+	it = std::find(mPlayersToRemove.begin(),mPlayersToRemove.end(),playerObject);
+	if(it == mPlayersToRemove.end())
 	{
 		gLogger->log(LogManager::DEBUG,"WorldManager::addReconnectedPlayer: Error removing Player from Disconnected List: %"PRIu64"",playerObject->getId());
 	}
@@ -341,8 +342,8 @@ void WorldManager::removePlayerFromDisconnectedList(PlayerObject* playerObject)
 void WorldManager::addPlayerToDisconnectedList(PlayerObject* playerObject)
 {
 	PlayerList::iterator it;
-
-	if((it = std::find(mPlayersToRemove.begin(),mPlayersToRemove.end(),playerObject)) == mPlayersToRemove.end())
+	it = std::find(mPlayersToRemove.begin(),mPlayersToRemove.end(),playerObject);
+	if( it == mPlayersToRemove.end())
 	{
 		mPlayersToRemove.push_back(playerObject);
 	}

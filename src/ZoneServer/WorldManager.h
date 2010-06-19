@@ -262,6 +262,9 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		// removes player from the timeout list
 		void					removePlayerFromDisconnectedList(PlayerObject* playerObject);
 
+		// adds a player to the timeout list
+		void					addPlayerToDisconnectedList(PlayerObject* playerObject);
+
 		// adds a shuttle
 		void					addShuttle(Shuttle* shuttle){ mShuttleList.push_back(shuttle); }
 

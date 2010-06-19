@@ -283,8 +283,6 @@ void WorldManager::addDisconnectedPlayer(PlayerObject* playerObject)
 	playerObject->setCraftingSession(NULL);
 	playerObject->toggleStateOff(CreatureState_Crafting);
 
-	//any speeder out?
-
 	//despawn camps ??? - every reference is over id though
 
 	playerObject->getController()->setTaskId(0);
@@ -294,7 +292,9 @@ void WorldManager::addDisconnectedPlayer(PlayerObject* playerObject)
 	playerObject->togglePlayerFlagOn(PlayerFlag_LinkDead);
 	playerObject->setConnectionState(PlayerConnState_LinkDead);
 	playerObject->setDisconnectTime(timeOut);
-	mPlayersToRemove.push_back(playerObject);
+	
+	//add to the disconnect list
+	addPlayerToDisconnectedList(playerObject);
 
 	gMessageLib->sendUpdatePlayerFlags(playerObject);
 }
@@ -335,6 +335,20 @@ void WorldManager::removePlayerFromDisconnectedList(PlayerObject* playerObject)
 	else
 	{
 		mPlayersToRemove.erase(it);
+	}
+}
+
+void WorldManager::addPlayerToDisconnectedList(PlayerObject* playerObject)
+{
+	PlayerList::iterator it;
+
+	if((it = std::find(mPlayersToRemove.begin(),mPlayersToRemove.end(),playerObject)) == mPlayersToRemove.end())
+	{
+		mPlayersToRemove.push_back(playerObject);
+	}
+	else
+	{
+		gLogger->log(LogManager::DEBUG,"WorldManager::addPlayerToDisconnectedList: Error adding Player : already on List: %"PRIu64"",playerObject->getId());
 	}
 }
 

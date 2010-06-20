@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "BuildingObject.h"
 #include "CharSheetManager.h"
 #include "Container.h"
+#include "Datapad.h"
 #include "FillerNPC.h"
 #include "Inventory.h"
 #include "NonPersistentNpcFactory.h"
@@ -46,6 +47,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "UIPlayerSelectBox.h"
 #include "WorldConfig.h"
 #include "WorldManager.h"
+#include "WaypointObject.h"
 
 #include "Utils/EventHandler.h"
 #include "MessageLib/MessageLib.h"
@@ -150,7 +152,6 @@ void Tutorial::warpToStartingLocation(string startingLocation)
 	asContainer->mId = mPlayerObject->getId(); 
 
 	(gWorldManager->getDatabase())->ExecuteSqlAsync(this,asContainer,"SELECT planet_id, x, y, z FROM starting_location WHERE location LIKE '%s'", startingLocation.getAnsi());	
-
 }
 
 void Tutorial::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
@@ -212,6 +213,22 @@ void Tutorial::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				gMessageLib->sendClusterZoneTransferRequestByPosition(player, 
                     glm::vec3(startingLocation.destX, startingLocation.destY, startingLocation.destZ), 
 																	  startingLocation.destinationPlanet);
+					
+				// create waypoint at starting location.
+				glm::vec3 position;
+				position.x = startingLocation.destX;
+				position.z = startingLocation.destZ;
+
+				Datapad* datapad = player->getDataPad();
+
+				WaypointObject* wp = datapad->getWaypointByName("Starting Location");
+				if(wp)
+				{
+					datapad->removeWaypoint(wp->getId());
+				}
+
+				datapad->requestNewWaypoint("Starting Location", position, startingLocation.destinationPlanet, Waypoint_blue);
+				
 			}
 			else
 			{

@@ -221,13 +221,13 @@ void Tutorial::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 				Datapad* datapad = player->getDataPad();
 
-				WaypointObject* wp = datapad->getWaypointByName("Starting Location");
+				WaypointObject* wp = datapad->getWaypointByName("@ui:cpt_avatar_location");
 				if(wp)
 				{
 					datapad->removeWaypoint(wp->getId());
 				}
 
-				datapad->requestNewWaypoint("Starting Location", position, startingLocation.destinationPlanet, Waypoint_blue);
+				datapad->requestNewWaypoint("@ui:cpt_avatar_location", position, startingLocation.destinationPlanet, Waypoint_blue);
 				
 			}
 			else

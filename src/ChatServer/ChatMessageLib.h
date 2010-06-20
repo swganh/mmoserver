@@ -77,6 +77,7 @@ public:
 	void sendChatonPersistantMessage(DispatchClient* client, uint64 mailCounter) const;
 	void sendChatPersistantMessagetoClient(DispatchClient* client,Mail* mail, uint32 mailId,uint32 mailCounter,uint8 status) const;
 	void sendChatPersistantMessagetoClient(DispatchClient* client,Mail* mail) const;
+	void sendSystemMailMessage(DispatchClient* client,Mail* mail, uint64 recepient);
 
 	//Bazaar
 	void ItemExpiredMail(DispatchClient* client, uint64 Receiver, int8 ItemName[128]) const;

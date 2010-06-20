@@ -499,6 +499,7 @@ public:
 	bool				sendTradeCompleteMessage(PlayerObject* playerObject);
 	bool				sendGiveMoneyMessage(PlayerObject* playerObject,uint32 Money);
 	bool				sendCreateAuctionItemResponseMessage(PlayerObject* targetPlayer,uint64 AuctionId,uint32 error);
+	void				sendNewbieMail(PlayerObject* playerObject, string subject,string bodyDir, string bodyStr);
 	void				sendSoldInstantMail(uint64 oldOwner, PlayerObject* newOwner, string ItemName, uint32 Credits, string planet, string region);
 	void				sendBoughtInstantMail(PlayerObject* newOwner, string ItemName, string SellerName, uint32 Credits, string planet, string region, int32 mX, int32 mY);
 	void				sendBanktipMail(PlayerObject* playerObject, PlayerObject* targetObject, uint32 amount);

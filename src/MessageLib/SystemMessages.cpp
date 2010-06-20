@@ -177,6 +177,28 @@ void MessageLib::sendSoldInstantMail(uint64 oldOwner, PlayerObject* newOwner, st
 
 }
 
+void MessageLib::sendNewbieMail(PlayerObject* playerObject, string subject, string bodyDir, string bodyStr)
+{
+	atMacroString* aMS = new atMacroString();
+
+	aMS->addMBstf(bodyDir, bodyStr);
+	aMS->addTextModule();
+
+	mMessageFactory->StartMessage();
+	mMessageFactory->addUint32(opIsmSendSystemMailMessage);
+	mMessageFactory->addUint64(playerObject->getId());
+	mMessageFactory->addUint64(playerObject->getId());
+	mMessageFactory->addString(BString("Star Wars Galaxies"));
+	mMessageFactory->addString(BString(subject));
+	mMessageFactory->addUint32(0);
+	//mMessageFactory->addString(BString(body));
+	mMessageFactory->addString(aMS->assemble());
+	delete aMS;
+
+	Message* newMessage = mMessageFactory->EndMessage();
+	playerObject->getClient()->SendChannelA(newMessage, playerObject->getAccountId(), CR_Chat, 6);
+}
+
 //======================================================================================================================
 
  void MessageLib::sendConstructionComplete(PlayerObject* playerObject, PlayerStructure* structure)

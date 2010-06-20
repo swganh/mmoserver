@@ -1042,7 +1042,7 @@ void Tutorial::sendStartingMails(void)
 
 	//sends the starting email
 	SendSystemMailMessage* message = new SendSystemMailMessage();
-	message->SendMailMessage(mPlayerObject, subject, bodyDir, bodyStr);
+	message->SendNewbieMailMessage(mPlayerObject, subject, bodyDir, bodyStr);
 
 	if (strcmp(startingProfession.getAnsi(), "crafting_artisan") == 0)
 	{
@@ -1082,7 +1082,7 @@ void Tutorial::sendStartingMails(void)
 		bodyStr = "outdoors_scout_body";
 	}
 	//sends the starting profession email
-	message->SendMailMessage(mPlayerObject, subject, bodyDir, bodyStr);
+	message->SendNewbieMailMessage(mPlayerObject, subject, bodyDir, bodyStr);
 	message = NULL;
 	delete message;
 }

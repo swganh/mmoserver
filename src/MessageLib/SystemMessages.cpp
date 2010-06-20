@@ -183,15 +183,16 @@ void MessageLib::sendNewbieMail(PlayerObject* playerObject, string subject, stri
 
 	aMS->addMBstf(bodyDir, bodyStr);
 	aMS->addTextModule();
+	//needed this extra one for some reason
+	aMS->addTextModule();
 
 	mMessageFactory->StartMessage();
 	mMessageFactory->addUint32(opIsmSendSystemMailMessage);
 	mMessageFactory->addUint64(playerObject->getId());
 	mMessageFactory->addUint64(playerObject->getId());
-	mMessageFactory->addString(BString("Star Wars Galaxies"));
-	mMessageFactory->addString(BString(subject));
+	mMessageFactory->addString("Star Wars Galaxies");
+	mMessageFactory->addString(subject);
 	mMessageFactory->addUint32(0);
-	//mMessageFactory->addString(BString(body));
 	mMessageFactory->addString(aMS->assemble());
 	delete aMS;
 

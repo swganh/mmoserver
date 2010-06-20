@@ -755,6 +755,9 @@
     <ClCompile Include="VehicleControllerFactory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SendSystemMailMessage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ActiveConversation.h">
@@ -1463,6 +1466,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="OCStructureHandlers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SendSystemMailMessage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

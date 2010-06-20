@@ -288,6 +288,7 @@
     <ClCompile Include="SchematicManager.cpp" />
     <ClCompile Include="Scout.cpp" />
     <ClCompile Include="ScoutManager.cpp" />
+    <ClCompile Include="SendSystemMailMessage.cpp" />
     <ClCompile Include="Shuttle.cpp" />
     <ClCompile Include="ShuttleFactory.cpp" />
     <ClCompile Include="Skill.cpp" />
@@ -516,6 +517,7 @@
     <ClInclude Include="SchematicManager.h" />
     <ClInclude Include="Scout.h" />
     <ClInclude Include="ScoutManager.h" />
+    <ClInclude Include="SendSystemMailMessage.h" />
     <ClInclude Include="Shuttle.h" />
     <ClInclude Include="ShuttleFactory.h" />
     <ClInclude Include="Skill.h" />

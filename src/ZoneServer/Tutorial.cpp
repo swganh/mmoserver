@@ -48,6 +48,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldConfig.h"
 #include "WorldManager.h"
 #include "WaypointObject.h"
+#include "SendSystemMailMessage.h"
 
 #include "Utils/EventHandler.h"
 #include "MessageLib/MessageLib.h"
@@ -57,10 +58,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
 #include "Common/atMacroString.h"
-
+#include "ChatServer/Mail.h"
+#include "ChatServer/ChatOpcodes.h"
 
 #include "utils/rand.h"
-
 
 class TutorialQueryContainer
 {
@@ -229,6 +230,8 @@ void Tutorial::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 				datapad->requestNewWaypoint("@ui:cpt_avatar_location", position, startingLocation.destinationPlanet, Waypoint_blue);
 				
+				//send starting emails
+				sendStartingMails();
 			}
 			else
 			{
@@ -1045,4 +1048,58 @@ void Tutorial::sendStartingLocationList(void)
 	// "Select your destination by clicking on one of the planets on the screen.  When you have selected the planet, select which city you wish to travel to by clicking on the picture to the right of the screen.  When you are ready to travel to the city, click on the arrow in the lower right-hand corner of the screen."
 	this->scriptSystemMessage("@newbie_tutorial/system_messages:select_dest");
 
+}
+
+void Tutorial::sendStartingMails(void)
+{
+	string startingProfession = mStartingProfession;
+	string subject = "@newbie_tutorial/newbie_mail:welcome_subject";
+	string bodyDir = "newbie_tutorial/newbie_mail";
+	string bodyStr = "welcome_body";
+
+	//sends the starting email
+	SendSystemMailMessage* message = new SendSystemMailMessage();
+	message->SendNewbieMailMessage(mPlayerObject, subject, bodyDir, bodyStr);
+
+	if (strcmp(startingProfession.getAnsi(), "crafting_artisan") == 0)
+	{
+		subject = "@newbie_tutorial/newbie_mail:crafting_artisan_subject";
+		bodyDir = "newbie_tutorial/newbie_mail";
+		bodyStr = "crafting_artisan_body";
+	}
+	else if (strcmp(startingProfession.getAnsi(), "combat_brawler") == 0)
+	{
+		subject = "@newbie_tutorial/newbie_mail:combat_brawler_subject";
+		bodyDir = "newbie_tutorial/newbie_mail";
+		bodyStr = "combat_brawler_body";
+	}
+	else if (strcmp(startingProfession.getAnsi(), "social_entertainer") == 0)
+	{
+		subject = "@newbie_tutorial/newbie_mail:social_entertainer_subject";
+		bodyDir = "newbie_tutorial/newbie_mail";
+		bodyStr = "social_entertainer_body";
+	}
+	else if (strcmp(startingProfession.getAnsi(), "combat_marksman") == 0)
+	{
+		subject = "@newbie_tutorial/newbie_mail:combat_marksman_subject";
+		bodyDir = "newbie_tutorial/newbie_mail";
+		bodyStr = "combat_marksman_body";
+
+	}
+	else if (strcmp(startingProfession.getAnsi(), "science_medic") == 0)
+	{
+		subject = "@newbie_tutorial/newbie_mail:science_medic_subject";
+		bodyDir = "newbie_tutorial/newbie_mail";
+		bodyStr = "science_medic_body";
+	}
+	else if (strcmp(startingProfession.getAnsi(), "outdoors_scout") == 0)
+	{
+		subject = "@newbie_tutorial/newbie_mail:outdoors_scout_subject";
+		bodyDir = "newbie_tutorial/newbie_mail";
+		bodyStr = "outdoors_scout_body";
+	}
+	//sends the starting profession email
+	message->SendNewbieMailMessage(mPlayerObject, subject, bodyDir, bodyStr);
+	message = NULL;
+	delete message;
 }

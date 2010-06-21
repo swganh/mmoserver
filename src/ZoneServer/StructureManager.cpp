@@ -502,7 +502,16 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 					it = objectList->erase(it);
 					continue;
 				}
-
+				//if its a playerstructure boot all players and pets inside
+				HouseObject* house = dynamic_cast<HouseObject*>(structure);
+				if(house)
+				{
+					if (house->getCellContentCount() > 0)
+					{
+						gMessageLib->sendSysMsg(player, "player_structure", "clear_building_for_delete");
+						return false;
+					}
+				}
 				gMessageLib->sendSystemMessage(player,L"","player_structure","deed_reclaimed");
 
 				//update the deeds attributes and set the new owner id (owners inventory = characterid +1)
@@ -524,6 +533,11 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 				HouseObject* house = dynamic_cast<HouseObject*>(structure);
 				if(house)
 				{
+					if (house->getCellContentCount() > 0)
+					{
+						gMessageLib->sendSysMsg(player, "player_structure", "clear_building_for_delete");
+						return false;
+					}
 					house->prepareDestruction();
 				}
 

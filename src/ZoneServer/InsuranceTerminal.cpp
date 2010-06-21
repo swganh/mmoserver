@@ -106,7 +106,7 @@ void InsuranceTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObje
 					SortedInventoryItemList::iterator it = mSortedInsuranceList.begin();
 					while (it != mSortedInsuranceList.end())
 					{
-						string selectedItemm = (*it).first;
+						BString selectedItemm = (*it).first;
 						selectedItemm.convert(BSTRType_Unicode16);
 
 						Object* object = gWorldManager->getObjectById((*it).second);
@@ -219,7 +219,7 @@ void InsuranceTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObje
 
 //=============================================================================
 
-void InsuranceTerminal::handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window)
+void InsuranceTerminal::handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
 
 	if(window == NULL)
@@ -298,7 +298,7 @@ void InsuranceTerminal::handleUIEvent(uint32 action,int32 element,string inputSt
 					}
 					else
 					{
-						string selectedItemm((mSortedInsuranceList.at(element).first).getAnsi());
+						BString selectedItemm((mSortedInsuranceList.at(element).first).getAnsi());
 						selectedItemm.convert(BSTRType_Unicode16);
 
 						Object* object = gWorldManager->getObjectById(mSortedInsuranceList.at(element).second);
@@ -426,7 +426,7 @@ void InsuranceTerminal::handleUIEvent(uint32 action,int32 element,string inputSt
 				{
 					// Insure all insurable items.
 					int32 creditsAtBank = (dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->getCredits());
-					string selectedItemm;
+					BString selectedItemm;
 					int32 fee = mSortedInsuranceList.size() * mInsuranceFee;
 
 					if (mSortedInsuranceList.size() ==  0)

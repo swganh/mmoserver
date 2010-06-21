@@ -215,7 +215,7 @@ bool MessageLib::sendFindFriendLocation(PlayerObject* friendPlayer, uint64 frien
 //
 // Dust off for Banktips
 //
-bool MessageLib::sendBankTipDustOff(PlayerObject* playerObject, uint64 tipRecipient, uint32 amount, string recipientName)
+bool MessageLib::sendBankTipDustOff(PlayerObject* playerObject, uint64 tipRecipient, uint32 amount, BString recipientName)
 {
 	if(!playerObject || !playerObject->isConnected())
 	{

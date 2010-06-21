@@ -79,7 +79,7 @@ void CurrentResource::buildDistributionMap()
 
 	if(gConfig->read<int>("writeResourceMaps"))
 	{
-		string fileName = (int8*)(gConfig->read<std::string>("ZoneName")).c_str();
+		BString fileName = (int8*)(gConfig->read<std::string>("ZoneName")).c_str();
 		fileName << "_" << mName.getAnsi() << ".bmp";
 
 		gLogger->log(LogManager::DEBUG,"Writing File %s",fileName.getAnsi());

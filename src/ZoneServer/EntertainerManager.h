@@ -154,7 +154,7 @@ public:
 
 	PlayerObject*		performer;
 	PlayerObject*		customer;
-	string				outCastName;
+	BString				outCastName;
 	int32				amountcash;
 	int32				amountbank;
 };
@@ -187,18 +187,18 @@ class EntertainerManager : public DatabaseCallback, public ObjectFactoryCallback
 		IDStruct*				getIDAttribute(uint32 CustomizationCRC);
 		HoloStruct*				getHoloEmoteByClientCRC(uint32 crc);
 		HoloStruct*				getHoloEmoteByCRC(uint32 crc);
-		string					getHoloNames();
-		HoloStruct*				getHoloEmoteIdbyName(string name);
-		PerformanceStruct*		getPerformance(string performance);
-		PerformanceStruct*		getPerformance(string performance,uint32 type);
+		BString					getHoloNames();
+		HoloStruct*				getHoloEmoteIdbyName(BString name);
+		PerformanceStruct*		getPerformance(BString performance);
+		PerformanceStruct*		getPerformance(BString performance,uint32 type);
 
 		//=========================================================
 		//=========================================================
 		// Entertainer
 
 		//Music
-		void					startMusicPerformance(PlayerObject* pEntertainer,string performance);
-		void					changeMusic(PlayerObject* entertainer,string performance);
+		void					startMusicPerformance(PlayerObject* pEntertainer,BString performance);
+		void					changeMusic(PlayerObject* entertainer,BString performance);
 
 		void					stopListening(PlayerObject* audience,bool ooRange = false);
 		void					startListening(PlayerObject* audience, PlayerObject* entertainer);
@@ -210,15 +210,15 @@ class EntertainerManager : public DatabaseCallback, public ObjectFactoryCallback
 		void					playPlacedInstrument(PlayerObject* entertainer);
 
 		void					handlestartmusic(PlayerObject* performer);
-		bool					handleStartBandIndividual(PlayerObject* performer, string performance);
-		bool					handleStartBandDanceIndividual(PlayerObject* performer, string performance);
+		bool					handleStartBandIndividual(PlayerObject* performer, BString performance);
+		bool					handleStartBandDanceIndividual(PlayerObject* performer, BString performance);
 		uint64					gettargetedInstrument(PlayerObject* entertainer);
 		bool					checkInstrumentSkillbyType(PlayerObject* entertainer,uint32 instrumentType);
 		bool					checkInstrumentSkill(PlayerObject* entertainer,uint64 instrumentID);
 
 		//Dance
-		void					startDancePerformance(PlayerObject* mPerformer,string performance);
-		void					changeDance(PlayerObject* entertainer,string performance);
+		void					startDancePerformance(PlayerObject* mPerformer,BString performance);
+		void					changeDance(PlayerObject* entertainer,BString performance);
 
 		void					stopWatching(PlayerObject* audience,bool ooRange = false);
 		void					startWatching(PlayerObject* audience, PlayerObject* entertainer);
@@ -227,8 +227,8 @@ class EntertainerManager : public DatabaseCallback, public ObjectFactoryCallback
 		bool					checkAudience(PlayerObject* entertainer,CreatureObject* audience);
 		void					addAudience(PlayerObject* entertainer,CreatureObject* audience);
 		void					addOutcastName(PlayerObject* entertainer,PlayerObject* outcast);
-		void					toggleOutcastId(PlayerObject* entertainer,uint64 outCastId, string outCastName);
-		void					verifyOutcastName(PlayerObject* entertainer,string outCastName);
+		void					toggleOutcastId(PlayerObject* entertainer,uint64 outCastId, BString outCastName);
+		void					verifyOutcastName(PlayerObject* entertainer,BString outCastName);
 		void					removeAudience(PlayerObject* entertainer,CreatureObject* mAudience);
 
 		bool					checkDenyServiceList(PlayerObject* audience, PlayerObject* entertainer);
@@ -248,20 +248,20 @@ class EntertainerManager : public DatabaseCallback, public ObjectFactoryCallback
 		void					flourish(PlayerObject* entertainer, uint32 mFlourishId);
 		void					entertainInRangeNPCs(PlayerObject* entertainer);
 
-		void					StartBand(PlayerObject* player, string songName);
+		void					StartBand(PlayerObject* player, BString songName);
 		void					StopBand(PlayerObject* player);
 		void					BandFlourish(PlayerObject* player, uint32 flourishId);
 		//=========================================================
 		//=========================================================
 		// Imagedesigner
 		bool					handleImagedesignTimeOut(CreatureObject* designer);
-		void					commitIdChanges(PlayerObject* customer,PlayerObject* designer, string hair, uint32 amount,uint8 statMigration,string holoEmote,uint8 flagHair);
-		string					commitIdAttribute(PlayerObject* customer, string attribute, float value);
-		string					commitIdColor(PlayerObject* customer, string attribute, uint16 value);
-		string					commitIdheight(PlayerObject* customer, float value);
-		uint32					getIdXP(string attribute, uint16 value);
-		void					applyHoloEmote(PlayerObject* customer,string holoEmote);
-		void					applyHair(PlayerObject* customer,string hair);
+		void					commitIdChanges(PlayerObject* customer,PlayerObject* designer, BString hair, uint32 amount,uint8 statMigration,BString holoEmote,uint8 flagHair);
+		BString					commitIdAttribute(PlayerObject* customer, BString attribute, float value);
+		BString					commitIdColor(PlayerObject* customer, BString attribute, uint16 value);
+		BString					commitIdheight(PlayerObject* customer, float value);
+		uint32					getIdXP(BString attribute, uint16 value);
+		void					applyHoloEmote(PlayerObject* customer,BString holoEmote);
+		void					applyHair(PlayerObject* customer,BString hair);
 		void					applyMoney(PlayerObject* customer,PlayerObject* designer,int32 amount);
 
 	private:
@@ -272,7 +272,7 @@ class EntertainerManager : public DatabaseCallback, public ObjectFactoryCallback
 		uint64					getInstrument(PlayerObject* entertainer);
 		bool					approachInstrument(PlayerObject* entertainer, uint64 instrumentId);
 		
-		void					_handleCompleteStartBand(PlayerObject* performer, string dataStr);
+		void					_handleCompleteStartBand(PlayerObject* performer, BString dataStr);
 		void					_handleCompleteStopBand(PlayerObject* performer);
 		void					_handleCompleteBandFlourish(PlayerObject* entertainer, uint32 FlourishId);
 

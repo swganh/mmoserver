@@ -34,7 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <vector>
 
-typedef std::vector<std::pair<string,uint64> >	SortedInventoryItemList;
+typedef std::vector<std::pair<BString,uint64> >	SortedInventoryItemList;
 class CreatureObject;
 class PlayerObject;
 

@@ -102,7 +102,7 @@ class TradeManagerChatHandler : public MessageDispatchCallback, public DatabaseC
 
 		uint32				TerminalRegionbyID(uint64 id);
 		uint32				getBazaarRegion(uint64 ID);
-		string				getBazaarString(uint64 ID);
+		BString				getBazaarString(uint64 ID);
 		Bazaar*				getBazaarInfo(uint64 ID);
 
 

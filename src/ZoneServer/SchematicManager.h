@@ -107,7 +107,7 @@ class SchematicManager : public DatabaseCallback
 		//DraftSchematic*				getSchematicByID(uint64 schematicId);
 		//DraftSchematic*				getSchematicByID(uint64 schematicId, uint32 groupid);
 		DraftSchematic*				getSchematicByWeightID(uint32 weightsbatch_Id);
-		string						getExpGroup(uint32 groupId){ return mvExpGroups[groupId - 1]; }
+		BString						getExpGroup(uint32 groupId){ return mvExpGroups[groupId - 1]; }
 
 		void						releaseAllPoolsMemory(){ mDBAsyncPool.release_memory(); }
 

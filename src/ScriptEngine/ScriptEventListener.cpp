@@ -131,7 +131,7 @@ void ScriptEventListener::unregisterScript(Script* script)
 
 //======================================================================================================================
 
-void ScriptEventListener::handleScriptEvent(const int8* functionName,string params)
+void ScriptEventListener::handleScriptEvent(const int8* functionName,BString params)
 {
 	ScriptList* scriptList = getScriptList(functionName);
 

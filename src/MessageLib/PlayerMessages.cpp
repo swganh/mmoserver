@@ -743,7 +743,7 @@ bool MessageLib::sendXpUpdate(uint32 xpType,PlayerObject* playerObject)
 
 	// We must be able to set the value of 0, when we use up all xp.
 
-	string		xpTypeName = gSkillManager->getXPTypeById(xpType);
+	BString		xpTypeName = gSkillManager->getXPTypeById(xpType);
 
 	mMessageFactory->StartMessage();               
 	mMessageFactory->addUint32(opDeltasMessage);  

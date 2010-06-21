@@ -120,8 +120,8 @@ void CloningTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject
 //=============================================================================
 
 
-// void CloningTerminal::handleUIEvent(string strInventoryCash, string strBankCash, UIWindow* window)
-void CloningTerminal::handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window)
+// void CloningTerminal::handleUIEvent(BString strInventoryCash, string strBankCash, UIWindow* window)
+void CloningTerminal::handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
 	if(window == NULL)
 	{

@@ -51,7 +51,7 @@ atMacroString::~atMacroString(void)
 // copies ASCII or Unicode string byte for byte into our array keeping the charwidth
 // the length of the string gets added correctly in front as either uint16 or uint32
 
-void	atMacroString::_addString(string mString)
+void	atMacroString::_addString(BString mString)
 {
 	uint32 length = (uint32)mString.getLength();
 	//start by adding the size
@@ -129,7 +129,7 @@ void	atMacroString::_adduint64(uint64 mLong)
 
 }
 
-void	atMacroString::setPlanetString(string planet)
+void	atMacroString::setPlanetString(BString planet)
 {
 
 	mPlanetCRC = planet.getCrc();
@@ -251,7 +251,7 @@ void	atMacroString::addTextModule()
 }
 
 
-string	atMacroString::assemble()
+BString	atMacroString::assemble()
 {
 
 	//make sure we have the right amount of bytes
@@ -266,7 +266,7 @@ string	atMacroString::assemble()
 	}
 
 	uint32 tempsize = mSize  >> 1;
-	string mContainer;
+	BString mContainer;
 	mContainer.convert(BSTRType_Unicode16);
 	mContainer.setLength(static_cast<uint16>(tempsize));
 	memcpy(mContainer.getRawData(),mPoint,mSize);

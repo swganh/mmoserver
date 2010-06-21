@@ -478,7 +478,7 @@ bool ObjectController::_processCommandQueue()
 				// execute any attached scripts
 				if (message)	// Auto-attack commands have no message body.
 				{
-					string params;
+					BString params;
 					message->setIndex(paramsIndex);
 					message->getStringUnicode16(params);
 					params.convert(BSTRType_ANSI);

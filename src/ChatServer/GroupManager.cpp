@@ -886,7 +886,7 @@ void GroupManager::_processIsmInviteInRangeResponse(Message* message, DispatchCl
 	}
 	
 	// If target have me ignored, auto decline my invitation.
-	string ignoreName = player->getName();
+	BString ignoreName = player->getName();
 	ignoreName.toLower();
 
 	// check our ignorelist

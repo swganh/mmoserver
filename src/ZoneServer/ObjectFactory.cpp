@@ -406,7 +406,7 @@ void ObjectFactory::requestNewResourceContainer(ObjectFactoryCallback* ofCallbac
 //
 // creates a harvester based on the supplied deed
 //
-void ObjectFactory::requestnewHarvesterbyDeed(ObjectFactoryCallback* ofCallback,Deed* deed,DispatchClient* client, float x, float y, float z, float dir, string customName, PlayerObject* player)
+void ObjectFactory::requestnewHarvesterbyDeed(ObjectFactoryCallback* ofCallback,Deed* deed,DispatchClient* client, float x, float y, float z, float dir, BString customName, PlayerObject* player)
 {
 	//create a new Harvester Object with the attributes as specified by the deed
 	OFAsyncContainer* asyncContainer = new(mDbAsyncPool.ordered_malloc()) OFAsyncContainer(ofCallback,OFQuery_Harvester,client);
@@ -468,7 +468,7 @@ void ObjectFactory::requestnewHarvesterbyDeed(ObjectFactoryCallback* ofCallback,
 //
 // creates a fatory based on the supplied deed
 //
-void ObjectFactory::requestnewFactorybyDeed(ObjectFactoryCallback* ofCallback,Deed* deed,DispatchClient* client, float x, float y, float z, float dir, string customName, PlayerObject* player)
+void ObjectFactory::requestnewFactorybyDeed(ObjectFactoryCallback* ofCallback,Deed* deed,DispatchClient* client, float x, float y, float z, float dir, BString customName, PlayerObject* player)
 {
 	//create a new Harvester Object with the attributes as specified by the deed
 	OFAsyncContainer* asyncContainer = new(mDbAsyncPool.ordered_malloc()) OFAsyncContainer(ofCallback,OFQuery_Factory,client);
@@ -526,7 +526,7 @@ void ObjectFactory::requestnewFactorybyDeed(ObjectFactoryCallback* ofCallback,De
 
 }
 
-void ObjectFactory::requestnewHousebyDeed(ObjectFactoryCallback* ofCallback,Deed* deed,DispatchClient* client, float x, float y, float z, float dir, string customName, PlayerObject* player)
+void ObjectFactory::requestnewHousebyDeed(ObjectFactoryCallback* ofCallback,Deed* deed,DispatchClient* client, float x, float y, float z, float dir, BString customName, PlayerObject* player)
 {
 		//create a new Harvester Object with the attributes as specified by the deed
 	OFAsyncContainer* asyncContainer = new(mDbAsyncPool.ordered_malloc()) OFAsyncContainer(ofCallback,OFQuery_House,client);
@@ -588,7 +588,7 @@ void ObjectFactory::requestnewHousebyDeed(ObjectFactoryCallback* ofCallback,Deed
 // create a new waypoint
 // never call this directly - always go over the datapad!!!!!  we need to check the capacity
 //
-void ObjectFactory::requestNewWaypoint(ObjectFactoryCallback* ofCallback,string name, const glm::vec3& coords,uint16 planetId,uint64 ownerId,uint8 wpType)
+void ObjectFactory::requestNewWaypoint(ObjectFactoryCallback* ofCallback,BString name, const glm::vec3& coords,uint16 planetId,uint64 ownerId,uint8 wpType)
 {
 
 	OFAsyncContainer* asyncContainer = new(mDbAsyncPool.ordered_malloc()) OFAsyncContainer(ofCallback,OFQuery_WaypointCreate,NULL);

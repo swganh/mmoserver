@@ -164,7 +164,7 @@ void ResourceCollectionManager::handleDatabaseJobComplete(void* ref,DatabaseResu
 // handles any UIWindow callbacks for sampling events
 //
 
-void ResourceCollectionManager::handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window)
+void ResourceCollectionManager::handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
 	PlayerObject* player = window->getOwner();
 	if(!player)

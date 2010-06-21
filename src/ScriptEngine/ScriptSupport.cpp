@@ -793,7 +793,7 @@ void ScriptSupport::sendFlyText(uint64 targetId, uint64 playerId, std::string st
 /*
 void Tutorial::scriptSystemMessage(std::string message)
 {
-	string msg = (int8*)message.c_str();
+	BString msg = (int8*)message.c_str();
 
 	msg.convert(BSTRType_Unicode16);
 
@@ -811,7 +811,7 @@ void ScriptSupport::scriptSystemMessage(uint64 playerId, uint64 targetId, std::s
 	CreatureObject* creature = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(targetId));
 	if (object && creature && playerObject && playerObject->isConnected())
 	{
-		string msg = (int8*)message.c_str();
+		BString msg = (int8*)message.c_str();
 		// gMessageLib->sendPlayClientEffectLocMessage(msg, object->mPosition, playerObject);
 		gMessageLib->sendPlayClientEffectObjectMessage(msg,"",creature,playerObject);
 		// "clienteffect/combat_explosion_lair_large.cef"

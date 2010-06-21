@@ -70,10 +70,10 @@ class CreatureObject : public MovingObject
 
 		Ham*				getHam(){ return &mHam; }
 
-		string				getFirstName() const { return mFirstName; }
-		void				setFirstName(string name){ mFirstName = name; }
-		string				getLastName() const { return mLastName; }
-		void				setLastName(string name){ mLastName = name; }
+		BString				getFirstName() const { return mFirstName; }
+		void				setFirstName(BString name){ mFirstName = name; }
+		BString				getLastName() const { return mLastName; }
+		void				setLastName(BString name){ mLastName = name; }
 
 		uint8				getPosture() const { return mPosture; }
 		void				setPosture(uint8 posture){ mPosture = posture; }
@@ -92,9 +92,9 @@ class CreatureObject : public MovingObject
 		void				setCL(uint16 cl){ mCL = cl; }
 		uint8				getRaceId() const { return mRaceId; }
 		void				setRaced(uint8 id){ mRaceId = id; }
-		string				getSpeciesString(){ return mSpecies; }
+		BString				getSpeciesString(){ return mSpecies; }
 		void				setSpeciesString(const int8* species){ mSpecies = species; }
-		string				getSpeciesGroup(){ return mSpeciesGroup; }
+		BString				getSpeciesGroup(){ return mSpeciesGroup; }
 		void				setSpeciesGroup(const int8* speciesGroup){ mSpeciesGroup = speciesGroup; }
 		//Object*			getTarget() const { return mTargetObject; }
 		Object*				getTarget() const;
@@ -107,7 +107,7 @@ class CreatureObject : public MovingObject
 
 		uint16*				getCustomization(){ return &mCustomization[0]; }
 		void				setCustomization(uint8 index, uint16 val){ mCustomization[index] = val; }
-		string				getCustomizationStr(){ return mCustomizationStr; }
+		BString				getCustomizationStr(){ return mCustomizationStr; }
 		void				setCustomizationStr(const int8* customization){ mCustomizationStr = customization; }
 
 		//we need to reference hair outside of the equipmanager as the hairslot can be occupied by helmets
@@ -168,7 +168,7 @@ class CreatureObject : public MovingObject
 		bool				checkStatesEither(uint64 states){ return((mState & states) != 0); }
 
 		// factions
-		string				getFaction(){ return mFaction; }
+		BString				getFaction(){ return mFaction; }
 		void				setFaction(const int8* faction){ mFaction = faction; }
 		uint8				getFactionRank(){ return mFactionRank; }
 		void				setFactionRank(uint8 rank){ mFactionRank = rank; }
@@ -201,8 +201,8 @@ class CreatureObject : public MovingObject
 		uint32				getPerformanceId(){ return mPerformanceId; }
 		void				setPerformanceId(uint32 Id){ mPerformanceId = Id; }
 
-		string				getCurrentAnimation(){ return mCurrentAnimation; }
-		void				setCurrentAnimation(string state){ mCurrentAnimation = state; }
+		BString				getCurrentAnimation(){ return mCurrentAnimation; }
+		void				setCurrentAnimation(BString state){ mCurrentAnimation = state; }
 
 		bool				isStationary(){ return mStationary; }
 		void				setStationary(bool val){ mStationary = val; }
@@ -284,13 +284,13 @@ class CreatureObject : public MovingObject
 		SkillModsList		mSkillMods;
 		EquipManager		mEquipManager;
 		Ham					mHam;
-		string				mCurrentAnimation;
-		string				mCustomizationStr;
-		string				mFaction;
-		string				mFirstName;
-		string				mLastName;
-		string				mSpecies;
-		string				mSpeciesGroup;
+		BString				mCurrentAnimation;
+		BString				mCustomizationStr;
+		BString				mFaction;
+		BString				mFirstName;
+		BString				mLastName;
+		BString				mSpecies;
+		BString				mSpeciesGroup;
 
 		//reference Hair here so it is not lost when we put on a helmet that occupies the equipslot!!!
 		//on unequipping the helmet and on logout we use this reference to destroy the hair!!!!!

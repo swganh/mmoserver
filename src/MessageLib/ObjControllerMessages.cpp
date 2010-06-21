@@ -70,7 +70,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 // Spatial Chat
 //
 
-void MessageLib::sendSpatialChat(CreatureObject* const srcObject,string chatMsg,char chatElement[5][32])
+void MessageLib::sendSpatialChat(CreatureObject* const srcObject,BString chatMsg,char chatElement[5][32])
 {
 	using boost::lexical_cast;
     using boost::bad_lexical_cast;
@@ -116,7 +116,7 @@ void MessageLib::sendSpatialChat(CreatureObject* const srcObject,string chatMsg,
 	PlayerObjectSet* inRangePlayers	= srcObject->getKnownPlayers();
 	PlayerObjectSet::iterator it	= inRangePlayers->begin();
 	uint32 loweredNameCrc			= 0;
-	string loweredName;
+	BString loweredName;
 	Message* clonedMessage;
 	bool crcValid = false;
 
@@ -188,7 +188,7 @@ void MessageLib::sendSpatialChat(CreatureObject* const srcObject,string chatMsg,
 //
 /* Not good enough when we run instanced groups
 
-void MessageLib::sendSpatialChat(CreatureObject* srcObject,string chatMsg,char chatElement[5][32], PlayerObject* player)
+void MessageLib::sendSpatialChat(CreatureObject* srcObject,BString chatMsg,char chatElement[5][32], PlayerObject* player)
 {
 	uint64 chatElementTarget	= _atoi64(chatElement[0]);
 	uint16 chatElementMood1		= atoi(chatElement[1]);
@@ -235,7 +235,7 @@ void MessageLib::sendSpatialChat(CreatureObject* srcObject,string chatMsg,char c
 }
 */
 
-void MessageLib::sendSpatialChat(const CreatureObject* const srcObject,string chatMsg,char chatElement[5][32], const PlayerObject* const playerObject) const
+void MessageLib::sendSpatialChat(const CreatureObject* const srcObject,BString chatMsg,char chatElement[5][32], const PlayerObject* const playerObject) const
 {
 
 	using boost::lexical_cast;
@@ -279,7 +279,7 @@ void MessageLib::sendSpatialChat(const CreatureObject* const srcObject,string ch
 	newMessage = mMessageFactory->EndMessage();
 
 	uint32 loweredNameCrc			= 0;
-	string loweredName;
+	BString loweredName;
 	bool crcValid = false;
 
 	// Get the source for this emote.
@@ -340,7 +340,7 @@ void MessageLib::sendSpatialChat(const CreatureObject* const srcObject,string ch
 	mMessageFactory->DestroyMessage(newMessage);
 }
 
-bool MessageLib::sendSpatialChat(const CreatureObject* const srcObject,const PlayerObject* const playerObject,string customMessage,string mainFile,string mainVar,string toFile,string toVar,string toCustom,int32 di,string ttFile,string ttVar,string ttCustom,uint64 ttId,uint64 toId,uint64 tuId) const
+bool MessageLib::sendSpatialChat(const CreatureObject* const srcObject,const PlayerObject* const playerObject,BString customMessage,BString mainFile,BString mainVar,BString toFile,BString toVar,BString toCustom,int32 di,BString ttFile,BString ttVar,BString ttCustom,uint64 ttId,uint64 toId,uint64 tuId) const
 {
 	uint16 chatElementMood2	= srcObject->getMoodId();
 
@@ -414,7 +414,7 @@ bool MessageLib::sendSpatialChat(const CreatureObject* const srcObject,const Pla
 	newMessage = mMessageFactory->EndMessage();
 
 	uint32 loweredNameCrc			= 0;
-	string loweredName;
+	BString loweredName;
 	bool crcValid = false;
 
 	// Get the source for this emote.
@@ -502,7 +502,7 @@ void MessageLib::sendSpatialEmote(CreatureObject* srcObject,uint16 emoteId,uint1
 	const PlayerObjectSet* const inRangePlayers	= srcObject->getKnownPlayers();
 	PlayerObjectSet::const_iterator it	= inRangePlayers->begin();
 	uint32 loweredNameCrc			= 0;
-	string loweredName;
+	BString loweredName;
 	Message* clonedMessage;
 	bool crcValid = false;
 
@@ -628,7 +628,7 @@ void MessageLib::sendperformFlourish(PlayerObject* playerObject,uint32 flourish)
 // animate a creature
 //
 
-void MessageLib::sendCreatureAnimation(CreatureObject* srcObject,string animation)
+void MessageLib::sendCreatureAnimation(CreatureObject* srcObject,BString animation)
 {
 	mMessageFactory->StartMessage();
 	mMessageFactory->addUint32(opObjControllerMessage);
@@ -646,7 +646,7 @@ void MessageLib::sendCreatureAnimation(CreatureObject* srcObject,string animatio
 // animate a creature, used by tutorial
 //
 
-void MessageLib::sendCreatureAnimation(CreatureObject* srcObject,string animation, PlayerObject* player)
+void MessageLib::sendCreatureAnimation(CreatureObject* srcObject,BString animation, PlayerObject* player)
 {
 	mMessageFactory->StartMessage();
 	mMessageFactory->addUint32(opObjControllerMessage);
@@ -709,7 +709,7 @@ bool MessageLib::sendObjectMenuResponse(Object* object,PlayerObject* targetObjec
 		while(it != itemList->end())
 		{
 			RadialMenuItem* item = (*it);
-			string description = item->mExtendedDescription.getAnsi();
+			BString description = item->mExtendedDescription.getAnsi();
 
 			mMessageFactory->addUint8(item->mIndex);
 			mMessageFactory->addUint8(item->mParentItem);
@@ -1420,7 +1420,7 @@ bool MessageLib::sendCharacterMatchResults(const PlayerList* const matchedPlayer
 		mMessageFactory->addUint32(0);
 		mMessageFactory->addUint32(0);
 
-		string playerName = player->getFirstName().getAnsi();
+		BString playerName = player->getFirstName().getAnsi();
 
 		if(player->getLastName().getLength())
 		{
@@ -1438,7 +1438,7 @@ bool MessageLib::sendCharacterMatchResults(const PlayerList* const matchedPlayer
 		gWorldManager->getSI()->getObjectsInRange(player,&regions,ObjType_Region,1);
 
 		ObjectSet::iterator	objIt = regions.begin();
-		string				regionName;
+		BString				regionName;
 
 		while(objIt != regions.end())
 		{
@@ -1933,7 +1933,7 @@ bool MessageLib::sendGenericIntResponse(uint32 value,uint8 counter,PlayerObject*
 // combat spam
 //
 
-void MessageLib::sendCombatSpam(Object* attacker,Object* defender,int32 damage,string stfFile,string stfVar,Item* item,uint8 colorFlag,string customText)
+void MessageLib::sendCombatSpam(Object* attacker,Object* defender,int32 damage,BString stfFile,BString stfVar,Item* item,uint8 colorFlag,BString customText)
 {
 	mMessageFactory->StartMessage();
 	mMessageFactory->addUint32(opObjControllerMessage);
@@ -2013,8 +2013,8 @@ void MessageLib::sendCombatSpam(Object* attacker,Object* defender,int32 damage,s
 //
 
 // We may have to use flytexts on more things than just Creatures...
-// void MessageLib::sendFlyText(CreatureObject* srcCreature,string stfFile,string stfVar,uint8 red,uint8 green,uint8 blue,uint8 display)
-void MessageLib::sendFlyText(Object* srcCreature,string stfFile,string stfVar,uint8 red,uint8 green,uint8 blue,uint8 display)
+// void MessageLib::sendFlyText(CreatureObject* srcCreature,BString stfFile,string stfVar,uint8 red,uint8 green,uint8 blue,uint8 display)
+void MessageLib::sendFlyText(Object* srcCreature,BString stfFile,BString stfVar,uint8 red,uint8 green,uint8 blue,uint8 display)
 {
 	mMessageFactory->StartMessage();
 	mMessageFactory->addUint32(opObjControllerMessage);
@@ -2082,7 +2082,7 @@ void MessageLib::sendFlyText(Object* srcCreature,string stfFile,string stfVar,ui
 // fly text, to be used by Tutorial or other instances
 //
 
-void MessageLib::sendFlyText(Object* srcCreature, PlayerObject* playerObject, string stfFile,string stfVar,uint8 red,uint8 green,uint8 blue,uint8 display)
+void MessageLib::sendFlyText(Object* srcCreature, PlayerObject* playerObject, BString stfFile,BString stfVar,uint8 red,uint8 green,uint8 blue,uint8 display)
 {
 	mMessageFactory->StartMessage();
 	mMessageFactory->addUint32(opObjControllerMessage);
@@ -2187,7 +2187,7 @@ void MessageLib::sendImageDesignStartMessage(PlayerObject* srcObject,PlayerObjec
 
 		if(parentObject)
 		{
-			// string modelname = object->getModelString();
+			// BString modelname = object->getModelString();
 			if(strstr(parentObject->getModelString().getAnsi(),"salon") == NULL)
 			{
 				parentID = 0;
@@ -2226,7 +2226,7 @@ void MessageLib::sendImageDesignStartMessage(PlayerObject* srcObject,PlayerObjec
 
 //======================================================================================================================
 
-void MessageLib::sendIDChangeMessage(PlayerObject* targetObject,PlayerObject* srcObject,PlayerObject* otherObject, string hair, uint32 iDsession,uint32 moneyOffered, uint32 moneyDemanded,uint32 customerAccept, uint8 designerCommit, uint8 flag3,uint32 smTimer, uint8 flagHair, uint64 parentId,string holoEmote)
+void MessageLib::sendIDChangeMessage(PlayerObject* targetObject,PlayerObject* srcObject,PlayerObject* otherObject, BString hair, uint32 iDsession,uint32 moneyOffered, uint32 moneyDemanded,uint32 customerAccept, uint8 designerCommit, uint8 flag3,uint32 smTimer, uint8 flagHair, uint64 parentId,BString holoEmote)
 {
 	if(!(targetObject->isConnected()))
 		return;
@@ -2307,7 +2307,7 @@ void MessageLib::sendIDChangeMessage(PlayerObject* targetObject,PlayerObject* sr
 
 //======================================================================================================================
 
-void MessageLib::sendIDEndMessage(PlayerObject* targetObject,PlayerObject* srcObject,PlayerObject* otherObject, string hair, uint32 iDsession,uint32 moneyOffered, uint32 moneyDemanded,uint32 unknown2, uint8 flag2, uint8 flag3,uint32 counter1)
+void MessageLib::sendIDEndMessage(PlayerObject* targetObject,PlayerObject* srcObject,PlayerObject* otherObject, BString hair, uint32 iDsession,uint32 moneyOffered, uint32 moneyDemanded,uint32 unknown2, uint8 flag2, uint8 flag3,uint32 counter1)
 {
 	if(!(targetObject->isConnected()))
 		return;

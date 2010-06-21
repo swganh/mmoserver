@@ -538,7 +538,7 @@ void TradeManager::_processFindFriendCreateWaypointMessage(Message* message,Disp
 {
 	uint64	playerId	= message->getUint64();//is on this zone
 
-	string	playerFriendName;
+	BString	playerFriendName;
 	message->getStringAnsi(playerFriendName);
 
 	uint32 planet = message->getUint32();//
@@ -595,17 +595,17 @@ void TradeManager::_processDeductMoneyMessage(Message* message,DispatchClient* c
 	uint64	itemID		= message->getUint64();
 	int32	amount		= message->getUint32();
 	uint32	time		= message->getUint32();
-	string	name;
+	BString	name;
 	message->getStringAnsi(name);
-	string	planet;
+	BString	planet;
 	message->getStringAnsi(planet);
-	string	region;
+	BString	region;
 	message->getStringAnsi(region);
-	string	owner;
+	BString	owner;
 	message->getStringAnsi(owner);
-	string	x;
+	BString	x;
 	message->getStringAnsi(x);
-	string	y;
+	BString	y;
 	message->getStringAnsi(y);
 
 	TradeManagerAsyncContainer* asyncContainer;
@@ -678,7 +678,7 @@ void TradeManager::_processHandleAuctionCreateMessage(Message* message,DispatchC
 	Inventory*		inventory		= dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 	
 	//the items description we provide
-	string			Description;
+	BString			Description;
 
 	//squeeze our Packet for all usefull information
 	uint64	ItemID		= message->getUint64();
@@ -742,7 +742,7 @@ void TradeManager::_processHandleAuctionCreateMessage(Message* message,DispatchC
 	//just initialize some things in case we get something which is not a tano
 	uint32 category = requestedObject->getCategoryBazaar();
 
-	string name, customName, tang;
+	BString name, customName, tang;
 
 	uint32 itemType = 0;
 

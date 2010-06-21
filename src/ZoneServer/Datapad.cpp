@@ -166,13 +166,13 @@ bool Datapad::removeWaypoint(uint64 id)
 
 //=============================================================================
 
-WaypointObject* Datapad::getWaypointByName(string name)
+WaypointObject* Datapad::getWaypointByName(BString name)
 {
 	WaypointList::iterator it = mWaypoints.begin();
 
 	while(it != mWaypoints.end())
 	{
-		string wpName = (*it)->getName();
+		BString wpName = (*it)->getName();
 		wpName.convert(BSTRType_ANSI);
 
 		if(strcmp(wpName.getAnsi(),name.getAnsi()) == 0)
@@ -430,7 +430,7 @@ return it;
 //=============================================================================
 
 
-void Datapad::requestNewWaypoint(string name, const glm::vec3& coords, uint16 planetId, uint8 wpType)
+void Datapad::requestNewWaypoint(BString name, const glm::vec3& coords, uint16 planetId, uint8 wpType)
 {
 	
 	if(!mCapacity)

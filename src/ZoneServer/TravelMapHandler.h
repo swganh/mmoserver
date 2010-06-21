@@ -138,15 +138,15 @@ public:
 		void				Shutdown();
 
 		void				getTicketInformation(BStringVector vQuery,TicketProperties* ticketProperties);
-		TravelPoint*		getTravelPoint(uint16 planetId,string name);
+		TravelPoint*		getTravelPoint(uint16 planetId,BString name);
 
 		virtual void		handleDispatchMessage(uint32 opcode,Message* message,DispatchClient* client);
 		virtual void		handleDatabaseJobComplete(void* ref,DatabaseResult* result);
-		bool				findTicket(PlayerObject* player, string port);
-		void				createTicketSelectMenu(PlayerObject* playerObject, Shuttle* shuttle, string port);
+		bool				findTicket(PlayerObject* player, BString port);
+		void				createTicketSelectMenu(PlayerObject* playerObject, Shuttle* shuttle, BString port);
 		void				useTicket(PlayerObject* player, TravelTicket* ticket,Shuttle* shuttle);
 
-		virtual void		handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window);
+		virtual void		handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window);
 
 	private:
 

@@ -90,9 +90,9 @@ class CharSheetManager : public DatabaseCallback, public MessageDispatchCallback
 		virtual void			handleDatabaseJobComplete(void* ref, DatabaseResult* result);
 		virtual void			handleDispatchMessage(uint32 opcode,Message* message,DispatchClient* client);
 
-		string					getFactionById(uint32 id){ return mvFactions[id - 1]; }
+		BString					getFactionById(uint32 id){ return mvFactions[id - 1]; }
 
-		string					getBadgeCategory(uint8 id){ return mvBadgeCategories[id - 1]; }
+		BString					getBadgeCategory(uint8 id){ return mvBadgeCategories[id - 1]; }
 		Badge*					getBadgeById(uint32 id){ return mvBadges[id]; }
 
 	private:

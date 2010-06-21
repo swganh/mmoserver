@@ -46,7 +46,7 @@ string ResourceType::getContainerModel()
 {
 	// gotta put shared_resource_container_ into the name
 	BStringVector splits;
-	string tmpStr;
+	BString tmpStr;
 	tmpStr.setLength(512);
 
 	int elements = mModel.split(splits,'/');

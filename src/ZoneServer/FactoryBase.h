@@ -157,7 +157,7 @@ class Type1_QueryContainer
 		Type1_QueryContainer(){}
 		uint32	mVolume;
 		uint64	mId;
-		string	mString;
+		BString	mString;
 
 };
 
@@ -169,8 +169,8 @@ class Attribute_QueryContainer
 
 		Attribute_QueryContainer(){}
 
-		string	mKey;
-		string	mValue;
+		BString	mKey;
+		BString	mValue;
 		uint8	mInternal;
 };
 

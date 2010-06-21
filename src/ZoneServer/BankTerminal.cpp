@@ -114,7 +114,7 @@ void BankTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
 //=============================================================================
 
-void BankTerminal::handleUIEvent(string strInventoryCash, string strBankCash, UIWindow* window)
+void BankTerminal::handleUIEvent(BString strInventoryCash, BString strBankCash, UIWindow* window)
 {
 
 	if(window == NULL)

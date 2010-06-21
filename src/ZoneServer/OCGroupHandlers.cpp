@@ -277,7 +277,7 @@ void ObjectController::_handleGroupChat(uint64 targetId,Message* message,ObjectC
 {	
 	PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
 
-	string msgText;
+	BString msgText;
  
 	msgText.setType(BSTRType_Unicode16);
 	msgText.setLength(512);

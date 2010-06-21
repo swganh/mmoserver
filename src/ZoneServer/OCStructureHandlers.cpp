@@ -103,7 +103,7 @@ void	ObjectController::_handleModifyPermissionList(uint64 targetId,Message* mess
 	}
 	
 	//find out where our structure is
-	string dataStr;
+	BString dataStr;
 	message->getStringUnicode16(dataStr);
 	
 	string playerStr,list,action;
@@ -206,7 +206,7 @@ void ObjectController::_handleStructurePlacement(uint64 targetId,Message* messag
 	}	
 
 	//find out where our structure is
-	string dataStr;
+	BString dataStr;
 	message->getStringUnicode16(dataStr);
 	
 	float x,z,dir;
@@ -565,10 +565,10 @@ void	ObjectController::_handleNameStructure(uint64 targetId,Message* message,Obj
 	}
 
 	//find out where our structure is
-	string dataStr;
+	BString dataStr;
 	message->getStringUnicode16(dataStr);
 	
-	string nameStr;
+	BString nameStr;
 	
 	dataStr.convert(BSTRType_ANSI);
 
@@ -694,7 +694,7 @@ void	ObjectController::_handleHarvesterSelectResource(uint64 targetId,Message* m
 	HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(structure);
 
 	//get the relevant Resource
-	string dataStr;
+	BString dataStr;
 	message->getStringUnicode16(dataStr);
 
 	uint64 resourceId;
@@ -1493,7 +1493,7 @@ void ObjectController::HandleRotateFurniture_(
   }
   
   // Read the message out of the packet.
-  string tmp;
+  BString tmp;
   message->getStringUnicode16(tmp);
 
   // If the string has no length the message is ill-formatted, send the
@@ -1603,7 +1603,7 @@ bool HandleMoveFurniture(
   }
   
   // Read the message out of the packet.
-  string tmp;
+  BString tmp;
   message->getStringUnicode16(tmp);
 
   // If the string has no length the message is ill-formatted, send the

@@ -70,12 +70,12 @@ void Resource::sendAttributes(PlayerObject* playerObject)
 	gMessageFactory->addUint32(attrCount);
 
 	char	tmpStr[128];
-	string	tmpValueStr;
+	BString	tmpValueStr;
 
 	for(uint8 i = 0;i < 11;i++)
 	{
 		uint16	attrValue = 0;
-		string	attrName;
+		BString	attrName;
 
 		if((attrValue = mAttributes[i]) != 0)
 		{

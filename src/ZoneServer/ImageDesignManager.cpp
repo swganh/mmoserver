@@ -109,7 +109,7 @@ string EntertainerManager::getHoloNames()
 
 //======================================================================================================================
 
-HoloStruct* EntertainerManager::getHoloEmoteIdbyName(string name)
+HoloStruct* EntertainerManager::getHoloEmoteIdbyName(BString name)
 {
 
 	HoloEmoteEffects::iterator it = mHoloList.begin();
@@ -303,7 +303,7 @@ string EntertainerManager::commitIdheight(PlayerObject* customer, float value)
 //returns the XP for a given attribute change
 //
 
-uint32 EntertainerManager::getIdXP(string attribute, uint16 value)
+uint32 EntertainerManager::getIdXP(BString attribute, uint16 value)
 {
 	IDStruct*	iDContainer = getIDAttribute(attribute.getCrc());
 	if(!iDContainer)
@@ -317,12 +317,12 @@ uint32 EntertainerManager::getIdXP(string attribute, uint16 value)
 //looks up the corresponding index and indexstring for Colors
 //updates the indexvalue and prepares the attribute string to be added to the sql string
 //
-string EntertainerManager::commitIdColor(PlayerObject* customer, string attribute, uint16 value)
+string EntertainerManager::commitIdColor(PlayerObject* customer, BString attribute, uint16 value)
 {
 
 	gLogger->log(LogManager::DEBUG,"ID : Color Attribute : %s",attribute.getAnsi());
 
-	string		genderrace;
+	BString		genderrace;
 	int8		mString[64];
 	char		*Token;
 	char		separation[] = ".";
@@ -414,12 +414,12 @@ string EntertainerManager::commitIdColor(PlayerObject* customer, string attribut
 //updates the indexvalue and prepares the attribute string to be added to the sql string
 //
 
-string EntertainerManager::commitIdAttribute(PlayerObject* customer, string attribute, float value)
+string EntertainerManager::commitIdAttribute(PlayerObject* customer, BString attribute, float value)
 {
 	uint32	crc = attribute.getCrc();
 	int8	add[50],mString[64];
 	uint16	uVal,sk;
-	string genderrace;
+	BString genderrace;
 
 	//sprintf(attrName,"");
 	//sprintf(add,"");
@@ -528,7 +528,7 @@ string EntertainerManager::commitIdAttribute(PlayerObject* customer, string attr
 //gets called by commitIdChanges to
 //apply the Hair changes
 //
-void EntertainerManager::applyHair(PlayerObject* customer,string newHairString)
+void EntertainerManager::applyHair(PlayerObject* customer,BString newHairString)
 {
 	int8 sql[1024];
 
@@ -545,7 +545,7 @@ void EntertainerManager::applyHair(PlayerObject* customer,string newHairString)
 	else
 		hairEquipped = (playerHairSlot->getTangibleType() == TanType_Hair);
 
-	string						customization	= "";
+	BString						customization	= "";
 
 	if(playerHair)
 	{
@@ -689,7 +689,7 @@ bool EntertainerManager::handleImagedesignTimeOut(CreatureObject* designer)
 //=============================================================================
 //commits the changes of the ID session
 //
-void EntertainerManager::commitIdChanges(PlayerObject* customer,PlayerObject* designer, string hair, uint32 amount,uint8 statMigration, string holoEmote,uint8 flagHair)
+void EntertainerManager::commitIdChanges(PlayerObject* customer,PlayerObject* designer, BString hair, uint32 amount,uint8 statMigration, BString holoEmote,uint8 flagHair)
 {
 	Ham* ham = designer->getHam();
 	if(ham->checkMainPools(0,0,66))
@@ -724,7 +724,7 @@ void EntertainerManager::commitIdChanges(PlayerObject* customer,PlayerObject* de
 	int8						mySQL[2048];
 	AttributesList*				aList			 = customer->getIdAttributesList();
 	AttributesList::iterator	it				 = aList->begin();
-	string						data;
+	BString						data;
 	bool						firstUpdate		 = true;
 
 	sprintf(mySQL,"UPDATE character_appearance set ");
@@ -862,7 +862,7 @@ void EntertainerManager::commitIdChanges(PlayerObject* customer,PlayerObject* de
 //=============================================================================
 //Holoemot data is retrieved and the HoloEmote applied to the player Object
 
-void EntertainerManager::applyHoloEmote(PlayerObject* customer,string holoEmote)
+void EntertainerManager::applyHoloEmote(PlayerObject* customer,BString holoEmote)
 {
 	//get the Data
 	HoloStruct* myEmote = getHoloEmoteByClientCRC(holoEmote.getCrc());

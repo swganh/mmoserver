@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class PlayerObject;
 
-typedef std::vector<std::pair<string,uint32> >	SortedList;
+typedef std::vector<std::pair<BString,uint32> >	SortedList;
 typedef std::vector<std::pair<uint32,uint32> >	ItemEntryList;
 typedef	std::vector<uint32>						ResCatLookupList;
 
@@ -50,7 +50,7 @@ public:
 
 	virtual void		prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
 	void		handleObjectMenuSelect(uint8 messageType,Object* srcObject);
-	void		handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window);
+	void		handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window);
 
 private:
 
@@ -70,67 +70,67 @@ private:
 	void InitProfessions();
 	void InitWounds();
 
-	void SendXPMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void SendResourcesMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handleResourcesCRC(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handleResourceTypes(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handleResourcesTypes(PlayerObject* playerObject, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handleWoundMenu(PlayerObject* playerObject, uint32 action,int32 element,string inputStr,UIWindow* window);
+	void SendXPMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void SendResourcesMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handleResourcesCRC(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handleResourceTypes(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handleResourcesTypes(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handleWoundMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window);
 
-	void _handleMainMenu(PlayerObject* player, uint32 action, int32 element, string inputStr, UIWindow* window);
-	void _handleExperienceMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handleCreditMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handleBuffMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handleItemMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handleResourceMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handleStructureMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handleFurnitureMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handleVehicleMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handleInstrumentMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handleToolMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handleWeaponMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handleArmorMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handleFactoryMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handleHarvesterMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handleCampMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handleHouseMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handleCivicMenu(PlayerObject* player, uint32 action, int32 element, string inputStr, UIWindow* window);
-	void _handleGuildMenu(PlayerObject* player, uint32 action, int32 element, string inputStr, UIWindow* window);
-	void _handleCityMenu(PlayerObject* player, uint32 action, int32 element, string inputStr, UIWindow* window);
-	void _handleRugMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handlePlantMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handleElegantMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handleModernMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handlePlainMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handleCheapMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handleSurveyToolMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handleCraftingToolMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handleMeleeMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handleRangedMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handleBoneArmorMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handleCompositeArmorMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handleUbeseArmorMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handleFloraMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handleGasMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handleChemicalMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handleWaterMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handleMineralMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handleGenericMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handleTatooineMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handleOneHandSwordMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handleTwoHandSwordMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handleAxeMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handleBatonMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handlePolearmMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handleKnifeMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handleCarbineMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handleThrownMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handleHeavyMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handlePistolMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handleRifleMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handleCSRItemSelect(PlayerObject* playerObject, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handleMainCsrMenu(PlayerObject* playerObject, uint32 action,int32 element,string inputStr,UIWindow* window);
-	void _handleProfessionMenu(PlayerObject* playerObject, uint32 action,int32 element,string inputStr,UIWindow* window);
+	void _handleMainMenu(PlayerObject* player, uint32 action, int32 element, BString inputStr, UIWindow* window);
+	void _handleExperienceMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handleCreditMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handleBuffMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handleItemMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handleResourceMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handleStructureMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handleFurnitureMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handleVehicleMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handleInstrumentMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handleToolMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handleWeaponMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handleArmorMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handleFactoryMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handleHarvesterMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handleCampMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handleHouseMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handleCivicMenu(PlayerObject* player, uint32 action, int32 element, BString inputStr, UIWindow* window);
+	void _handleGuildMenu(PlayerObject* player, uint32 action, int32 element, BString inputStr, UIWindow* window);
+	void _handleCityMenu(PlayerObject* player, uint32 action, int32 element, BString inputStr, UIWindow* window);
+	void _handleRugMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handlePlantMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handleElegantMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handleModernMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handlePlainMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handleCheapMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handleSurveyToolMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handleCraftingToolMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handleMeleeMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handleRangedMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handleBoneArmorMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handleCompositeArmorMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handleUbeseArmorMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handleFloraMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handleGasMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handleChemicalMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handleWaterMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handleMineralMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handleGenericMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handleTatooineMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handleOneHandSwordMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handleTwoHandSwordMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handleAxeMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handleBatonMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handlePolearmMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handleKnifeMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handleCarbineMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handleThrownMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handleHeavyMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handlePistolMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handleRifleMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handleCSRItemSelect(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handleMainCsrMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void _handleProfessionMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window);
 
 	int32				mInputBoxAmount;
 	BStringVector		mMainMenu;
@@ -229,8 +229,8 @@ public:
 	~ItemFrogItemClass (){}; 
 
 	//void AddCommoditie(TypeListItem theCommoditie){Commoditie = theCommoditie;}
-	string	GetName() {return(name);}
-	void	SetName(string n) {name = n;}
+	BString	GetName() {return(name);}
+	void	SetName(BString n) {name = n;}
 	
 	uint32	GetType(){return type;}
 	void	SetType(uint32 n) {type = n;}
@@ -244,9 +244,9 @@ public:
 	uint64			id;
 	uint32			type;
 	uint32			family;
-	string			name;
+	BString			name;
 	uint8			active;
-	string			f_name;
+	BString			f_name;
 
 };
 
@@ -269,7 +269,7 @@ public:
 	ItemFrogItemClass*	getType(uint32 type);
 
 	uint32			family;
-	string			f_name;
+	BString			f_name;
 
 };
 

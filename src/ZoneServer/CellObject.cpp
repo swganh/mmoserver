@@ -43,7 +43,7 @@ CellObject::CellObject() : StaticObject()
 
 //=============================================================================
 
-CellObject::CellObject(uint64 id,uint64 parentId,string model) : StaticObject(id,parentId,model,ObjType_Cell)
+CellObject::CellObject(uint64 id,uint64 parentId,BString model) : StaticObject(id,parentId,model,ObjType_Cell)
 {
 }
 

@@ -578,7 +578,7 @@ void CharacterBuilderTerminal::GiveItem(PlayerObject* playerObject, uint32 input
 		gMessageLib->sendSystemMessage(playerObject, L"No such item.");
 	}
 }
-void CharacterBuilderTerminal::SendXPMenu(PlayerObject* playerObject, uint32 action,int32 element,string inputStr,UIWindow* window)
+void CharacterBuilderTerminal::SendXPMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
 	BStringVector availableXpTypes;
 	XPList* xpList = playerObject->getXpList();
@@ -628,7 +628,7 @@ void CharacterBuilderTerminal::SendXPMenu(PlayerObject* playerObject, uint32 act
 		gUIManager->createNewListBox(this,"handleGetXp","Select Xp Type","Select from the list below.", availableXpTypes, playerObject, SUI_Window_CharacterBuilder_ListBox_ExperienceMenu);
 	}
 }
-void CharacterBuilderTerminal::SendResourcesMenu(PlayerObject* playerObject, uint32 action,int32 element,string inputStr,UIWindow* window)
+void CharacterBuilderTerminal::SendResourcesMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
 	if(playerObject->isConnected())
 	{
@@ -664,7 +664,7 @@ void CharacterBuilderTerminal::SendResourcesMenu(PlayerObject* playerObject, uin
 	}
 }
 
-void CharacterBuilderTerminal::_handleMainMenu(PlayerObject* playerObject, uint32 action,int32 element,string inputStr,UIWindow* window)
+void CharacterBuilderTerminal::_handleMainMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
   // Check if the player is a csr and handle the menu appropriately.
   if (playerObject->getCsrTag())
@@ -706,7 +706,7 @@ void CharacterBuilderTerminal::_handleMainMenu(PlayerObject* playerObject, uint3
 		break;
 	}
 }
-void CharacterBuilderTerminal::_handleMainCsrMenu(PlayerObject* playerObject, uint32 action,int32 element,string inputStr,UIWindow* window)
+void CharacterBuilderTerminal::_handleMainCsrMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
 	switch(element)
 	{
@@ -758,7 +758,7 @@ void CharacterBuilderTerminal::_handleMainCsrMenu(PlayerObject* playerObject, ui
 	}
 }
 
-void CharacterBuilderTerminal::_handleProfessionMenu(PlayerObject* playerObject, uint32 action,int32 element,string inputStr,UIWindow* window)
+void CharacterBuilderTerminal::_handleProfessionMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
 	if(element < 0)
 	{
@@ -807,7 +807,7 @@ void CharacterBuilderTerminal::_handleProfessionMenu(PlayerObject* playerObject,
 		gSkillManager->learnSkillLine((*newSkill)->mId, playerObject, false);
 	}
 }
-void CharacterBuilderTerminal::_handleExperienceMenu(PlayerObject* playerObject, uint32 action,int32 element,string inputStr,UIWindow* window)
+void CharacterBuilderTerminal::_handleExperienceMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
 	if (element > (int32)playerObject->getXpList()->size() - 1 || element < 0)
 	{
@@ -820,7 +820,7 @@ void CharacterBuilderTerminal::_handleExperienceMenu(PlayerObject* playerObject,
 	}
 	SAFE_DELETE(mSortedList);
 }
-void CharacterBuilderTerminal::_handleCreditMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window)
+void CharacterBuilderTerminal::_handleCreditMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
 	if(window->getWindowType() == SUI_Window_CharacterBuilder_ListBox_CreditMenu)
 	{
@@ -889,7 +889,7 @@ void CharacterBuilderTerminal::_handleCreditMenu(PlayerObject* player, uint32 ac
 		}
 	}	
 }
-void CharacterBuilderTerminal::_handleBuffMenu(PlayerObject* playerObject, uint32 action,int32 element,string inputStr,UIWindow* window)
+void CharacterBuilderTerminal::_handleBuffMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
 	switch(element)
 	{
@@ -1007,7 +1007,7 @@ void CharacterBuilderTerminal::_handleBuffMenu(PlayerObject* playerObject, uint3
 	default:break;
 	}
 }
-void CharacterBuilderTerminal::_handleItemMenu(PlayerObject* playerObject, uint32 action,int32 element,string inputStr,UIWindow* window)
+void CharacterBuilderTerminal::_handleItemMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
 	switch(element)
 	{
@@ -1056,7 +1056,7 @@ void CharacterBuilderTerminal::_handleItemMenu(PlayerObject* playerObject, uint3
 	default:break;
 	}
 }
-void CharacterBuilderTerminal::_handleResourceMenu(PlayerObject* playerObject, uint32 action,int32 element,string inputStr,UIWindow* window)
+void CharacterBuilderTerminal::_handleResourceMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
 	ResourceIdList resourceIdList = dynamic_cast<UIResourceSelectListBox*>(window)->getResourceIdList();
 	ResourceTypeMap*				rtMap				= gResourceManager->getResourceTypeMap();
@@ -1208,7 +1208,7 @@ void CharacterBuilderTerminal::_handleResourceMenu(PlayerObject* playerObject, u
 		}
 	}
 }	
-void CharacterBuilderTerminal::_handleResourcesCRC(PlayerObject* playerObject, uint32 action,int32 element,string inputStr,UIWindow* window)
+void CharacterBuilderTerminal::_handleResourcesCRC(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
 	if(element < 0)
 	{
@@ -1235,7 +1235,7 @@ void CharacterBuilderTerminal::_handleResourcesCRC(PlayerObject* playerObject, u
 		}
 	}
 }
-void CharacterBuilderTerminal::_handleResourcesTypes(PlayerObject* playerObject, uint32 action,int32 element,string inputStr,UIWindow* window)
+void CharacterBuilderTerminal::_handleResourcesTypes(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
 	ResourceIdList resourceIdList = dynamic_cast<UIResourceSelectListBox*>(window)->getResourceIdList();
 	if(element < 0)
@@ -1277,7 +1277,7 @@ void CharacterBuilderTerminal::_handleResourcesTypes(PlayerObject* playerObject,
 		gUIManager->createNewResourceSelectListBox(this,"handleResourcesMenu","Resources","Select",resourceNameList,resourceIdList,playerObject,SUI_Window_CharacterBuilderResourcesCRCMenu_ListBox);
 	}	
 }
-void CharacterBuilderTerminal::_handleWoundMenu(PlayerObject* playerObject, uint32 action,int32 element,string inputStr,UIWindow* window)
+void CharacterBuilderTerminal::_handleWoundMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
 	switch(element)
 	{
@@ -1346,7 +1346,7 @@ void CharacterBuilderTerminal::_handleWoundMenu(PlayerObject* playerObject, uint
 	}	
 }
 
-void CharacterBuilderTerminal::_handleStructureMenu(PlayerObject* playerObject, uint32 action,int32 element,string inputStr,UIWindow* window)
+void CharacterBuilderTerminal::_handleStructureMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
 	switch(element)
 	{
@@ -1382,7 +1382,7 @@ void CharacterBuilderTerminal::_handleStructureMenu(PlayerObject* playerObject, 
 	default:break;
 	}
 }
-void CharacterBuilderTerminal::_handleFurnitureMenu(PlayerObject* playerObject, uint32 action,int32 element,string inputStr,UIWindow* window)
+void CharacterBuilderTerminal::_handleFurnitureMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
 	switch(element)
 	{
@@ -1425,7 +1425,7 @@ void CharacterBuilderTerminal::_handleFurnitureMenu(PlayerObject* playerObject, 
 	default:break;
 	}
 }
-void CharacterBuilderTerminal::_handleInstrumentMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window)
+void CharacterBuilderTerminal::_handleInstrumentMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
 	switch(element)
 	{
@@ -1462,7 +1462,7 @@ void CharacterBuilderTerminal::_handleInstrumentMenu(PlayerObject* player, uint3
 	default:break;
 	}
 }
-void CharacterBuilderTerminal::_handleToolMenu(PlayerObject* playerObject, uint32 action,int32 element,string inputStr,UIWindow* window)
+void CharacterBuilderTerminal::_handleToolMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
 	switch(element)
 	{
@@ -1481,7 +1481,7 @@ void CharacterBuilderTerminal::_handleToolMenu(PlayerObject* playerObject, uint3
 	default:break;
 	}
 }
-void CharacterBuilderTerminal::_handleWeaponMenu(PlayerObject* playerObject, uint32 action,int32 element,string inputStr,UIWindow* window)
+void CharacterBuilderTerminal::_handleWeaponMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
 	switch(element)
 	{
@@ -1500,7 +1500,7 @@ void CharacterBuilderTerminal::_handleWeaponMenu(PlayerObject* playerObject, uin
 	default:break;
 	}
 }
-void CharacterBuilderTerminal::_handleArmorMenu(PlayerObject* playerObject, uint32 action,int32 element,string inputStr,UIWindow* window)
+void CharacterBuilderTerminal::_handleArmorMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
 		switch(element)
 	{
@@ -1525,7 +1525,7 @@ void CharacterBuilderTerminal::_handleArmorMenu(PlayerObject* playerObject, uint
 	default:break;
 	}
 }
-void CharacterBuilderTerminal::_handleHarvesterMenu(PlayerObject* playerObject, uint32 action,int32 element,string inputStr,UIWindow* window)
+void CharacterBuilderTerminal::_handleHarvesterMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {	
 	switch(element)
 	{
@@ -1564,7 +1564,7 @@ void CharacterBuilderTerminal::_handleHarvesterMenu(PlayerObject* playerObject, 
 	}
 
 }
-void CharacterBuilderTerminal::_handleHouseMenu(PlayerObject* playerObject, uint32 action,int32 element,string inputStr,UIWindow* window)
+void CharacterBuilderTerminal::_handleHouseMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
 	switch(element)
 	{
@@ -1583,7 +1583,7 @@ void CharacterBuilderTerminal::_handleHouseMenu(PlayerObject* playerObject, uint
 	default:break;
 	}
 }
-void CharacterBuilderTerminal::_handleRugMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window)
+void CharacterBuilderTerminal::_handleRugMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
 	switch(element)
 	{
@@ -1600,7 +1600,7 @@ void CharacterBuilderTerminal::_handleRugMenu(PlayerObject* player, uint32 actio
 			break;
 	}
 }
-void CharacterBuilderTerminal::_handlePlantMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window)
+void CharacterBuilderTerminal::_handlePlantMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
 		switch(element)
 	{
@@ -1614,7 +1614,7 @@ void CharacterBuilderTerminal::_handlePlantMenu(PlayerObject* player, uint32 act
 			break;
 	}
 }
-void CharacterBuilderTerminal::_handleElegantMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window)
+void CharacterBuilderTerminal::_handleElegantMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
 	switch(element)
 	{
@@ -1649,7 +1649,7 @@ void CharacterBuilderTerminal::_handleElegantMenu(PlayerObject* player, uint32 a
 			break;
 	}
 }
-void CharacterBuilderTerminal::_handleModernMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window)
+void CharacterBuilderTerminal::_handleModernMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
 	switch(element)
 	{
@@ -1691,7 +1691,7 @@ void CharacterBuilderTerminal::_handleModernMenu(PlayerObject* player, uint32 ac
 			break;
 	}
 }
-void CharacterBuilderTerminal::_handlePlainMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window)
+void CharacterBuilderTerminal::_handlePlainMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
 	switch(element)
 	{
@@ -1726,7 +1726,7 @@ void CharacterBuilderTerminal::_handlePlainMenu(PlayerObject* player, uint32 act
 			break;
 	}
 }
-void CharacterBuilderTerminal::_handleCheapMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window)
+void CharacterBuilderTerminal::_handleCheapMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
 	switch(element)
 	{
@@ -1761,7 +1761,7 @@ void CharacterBuilderTerminal::_handleCheapMenu(PlayerObject* player, uint32 act
 			break;
 	}
 }
-void CharacterBuilderTerminal::_handleMeleeMenu(PlayerObject* playerObject, uint32 action,int32 element,string inputStr,UIWindow* window)
+void CharacterBuilderTerminal::_handleMeleeMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
 	switch(element)
 	{
@@ -1810,7 +1810,7 @@ void CharacterBuilderTerminal::_handleMeleeMenu(PlayerObject* playerObject, uint
 	default:break;
 	}
 }
-void CharacterBuilderTerminal::_handleRangedMenu(PlayerObject* playerObject, uint32 action,int32 element,string inputStr,UIWindow* window)
+void CharacterBuilderTerminal::_handleRangedMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
 	switch(element)
 	{
@@ -1847,7 +1847,7 @@ void CharacterBuilderTerminal::_handleRangedMenu(PlayerObject* playerObject, uin
 	default:break;
 	}
 }
-void CharacterBuilderTerminal::_handleBoneArmorMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window)
+void CharacterBuilderTerminal::_handleBoneArmorMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
 	switch(element)
 	{
@@ -1897,7 +1897,7 @@ void CharacterBuilderTerminal::_handleBoneArmorMenu(PlayerObject* player, uint32
 	default:break;
 	}
 }
-void CharacterBuilderTerminal::_handleCompositeArmorMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window)
+void CharacterBuilderTerminal::_handleCompositeArmorMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
 	switch(element)
 	{
@@ -1944,7 +1944,7 @@ void CharacterBuilderTerminal::_handleCompositeArmorMenu(PlayerObject* player, u
 	default:break;
 	}
 }
-void CharacterBuilderTerminal::_handleUbeseArmorMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window)
+void CharacterBuilderTerminal::_handleUbeseArmorMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
 	switch(element)
 	{
@@ -1987,7 +1987,7 @@ void CharacterBuilderTerminal::_handleUbeseArmorMenu(PlayerObject* player, uint3
 	default:break;
 	}
 }
-void CharacterBuilderTerminal::_handleOneHandSwordMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window)
+void CharacterBuilderTerminal::_handleOneHandSwordMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
 	switch(element)
 	{
@@ -2003,7 +2003,7 @@ void CharacterBuilderTerminal::_handleOneHandSwordMenu(PlayerObject* player, uin
 	default:break;
 	}
 }
-void CharacterBuilderTerminal::_handleTwoHandSwordMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window)
+void CharacterBuilderTerminal::_handleTwoHandSwordMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
 		switch(element)
 	{
@@ -2025,7 +2025,7 @@ void CharacterBuilderTerminal::_handleTwoHandSwordMenu(PlayerObject* player, uin
 	default:break;
 	}
 }
-void CharacterBuilderTerminal::_handleBatonMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window)
+void CharacterBuilderTerminal::_handleBatonMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
 	switch(element)
 	{
@@ -2041,7 +2041,7 @@ void CharacterBuilderTerminal::_handleBatonMenu(PlayerObject* player, uint32 act
 	default:break;
 	}
 }
-void CharacterBuilderTerminal::_handlePolearmMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window)
+void CharacterBuilderTerminal::_handlePolearmMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
 	switch(element)
 	{
@@ -2069,7 +2069,7 @@ void CharacterBuilderTerminal::_handlePolearmMenu(PlayerObject* player, uint32 a
 	default:break;
 	}
 }
-void CharacterBuilderTerminal::_handleKnifeMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window)
+void CharacterBuilderTerminal::_handleKnifeMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
 	switch(element)
 	{
@@ -2097,7 +2097,7 @@ void CharacterBuilderTerminal::_handleKnifeMenu(PlayerObject* player, uint32 act
 	default:break;
 	}
 }
-void CharacterBuilderTerminal::_handleCarbineMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window)
+void CharacterBuilderTerminal::_handleCarbineMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
 	switch(element)
 	{
@@ -2137,7 +2137,7 @@ void CharacterBuilderTerminal::_handleCarbineMenu(PlayerObject* player, uint32 a
 	default:break;
 	}
 }
-void CharacterBuilderTerminal::_handleThrownMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window)
+void CharacterBuilderTerminal::_handleThrownMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
 	switch(element)
 	{
@@ -2174,7 +2174,7 @@ void CharacterBuilderTerminal::_handleThrownMenu(PlayerObject* player, uint32 ac
 	default:break;
 	}
 }
-void CharacterBuilderTerminal::_handleHeavyMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window)
+void CharacterBuilderTerminal::_handleHeavyMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
 	switch(element)
 	{
@@ -2196,7 +2196,7 @@ void CharacterBuilderTerminal::_handleHeavyMenu(PlayerObject* player, uint32 act
 	default:break;
 	}
 }
-void CharacterBuilderTerminal::_handlePistolMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window)
+void CharacterBuilderTerminal::_handlePistolMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
 	switch(element)
 	{
@@ -2267,7 +2267,7 @@ void CharacterBuilderTerminal::_handlePistolMenu(PlayerObject* player, uint32 ac
 			break;
 	}
 }
-void CharacterBuilderTerminal::_handleRifleMenu(PlayerObject* player, uint32 action,int32 element,string inputStr,UIWindow* window)
+void CharacterBuilderTerminal::_handleRifleMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
 	switch(element)
 	{
@@ -2333,7 +2333,7 @@ void CharacterBuilderTerminal::_handleRifleMenu(PlayerObject* player, uint32 act
 	}
 }
 
-void CharacterBuilderTerminal::_handleCSRItemSelect(PlayerObject* playerObject, uint32 action,int32 element,string inputStr,UIWindow* window)
+void CharacterBuilderTerminal::_handleCSRItemSelect(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
 	uint32 inputId = 0;
 	
@@ -2374,7 +2374,7 @@ void CharacterBuilderTerminal::handleObjectMenuSelect(uint8 messageType,Object* 
 }
 
 //=============================================================================
-void  CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window)
+void  CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
 		PlayerObject* playerObject = window->getOwner();
 
@@ -2566,7 +2566,7 @@ void  CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,string
 //=============================================================================
 
 
-void CharacterBuilderTerminal::_handleCivicMenu(PlayerObject* player, uint32 action, int32 element, string inputStr, UIWindow* window)
+void CharacterBuilderTerminal::_handleCivicMenu(PlayerObject* player, uint32 action, int32 element, BString inputStr, UIWindow* window)
 {
 	switch(element)
 	{
@@ -2581,7 +2581,7 @@ void CharacterBuilderTerminal::_handleCivicMenu(PlayerObject* player, uint32 act
 	}
 }
 
-void CharacterBuilderTerminal::_handleGuildMenu(PlayerObject* player, uint32 action, int32 element, string inputStr, UIWindow* window)
+void CharacterBuilderTerminal::_handleGuildMenu(PlayerObject* player, uint32 action, int32 element, BString inputStr, UIWindow* window)
 {
 	switch(element)
 	{
@@ -2602,7 +2602,7 @@ void CharacterBuilderTerminal::_handleGuildMenu(PlayerObject* player, uint32 act
 	}	
 }
 
-void CharacterBuilderTerminal::_handleCityMenu(PlayerObject* player, uint32 action, int32 element, string inputStr, UIWindow* window)
+void CharacterBuilderTerminal::_handleCityMenu(PlayerObject* player, uint32 action, int32 element, BString inputStr, UIWindow* window)
 {
 	switch(element)
 	{

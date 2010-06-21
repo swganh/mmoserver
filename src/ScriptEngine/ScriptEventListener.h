@@ -54,7 +54,7 @@ class ScriptEventListener
 		void		registerScript(Script* script,const int8* functionName);
 		void		unregisterScript(Script* script);
 
-		void		handleScriptEvent(const int8* functionName,string params);
+		void		handleScriptEvent(const int8* functionName,BString params);
 
 		ScriptList*	getScriptList(const int8* functionName);
 

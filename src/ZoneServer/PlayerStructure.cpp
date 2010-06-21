@@ -219,7 +219,7 @@ void PlayerStructure::sendStructureHopperList(uint64 playerId)
 // thats for the transferbox
 //
 
-void PlayerStructure::handleUIEvent(string strCharacterCash, string strHarvesterCash, UIWindow* window)
+void PlayerStructure::handleUIEvent(BString strCharacterCash, BString strHarvesterCash, UIWindow* window)
 {
 
 	PlayerObject* player = window->getOwner();
@@ -234,10 +234,10 @@ void PlayerStructure::handleUIEvent(string strCharacterCash, string strHarvester
 		case SUI_Window_Deposit_Power:
 		{
 				strCharacterCash.convert(BSTRType_ANSI);
-				string characterPower = strCharacterCash;
+				BString characterPower = strCharacterCash;
 
 				strHarvesterCash.convert(BSTRType_ANSI);
-				string harvesterPower = strHarvesterCash;
+				BString harvesterPower = strHarvesterCash;
 
 				int32 harvesterPowerDelta = atoi(harvesterPower.getAnsi());
 
@@ -353,7 +353,7 @@ void PlayerStructure::handleUIEvent(string strCharacterCash, string strHarvester
 //=============================================================================
 // 
 
-void PlayerStructure::handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window)
+void PlayerStructure::handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
 
 	PlayerObject* player = window->getOwner();
@@ -371,7 +371,7 @@ void PlayerStructure::handleUIEvent(uint32 action,int32 element,string inputStr,
 		{
 			uint64 ManSchemId = 0;
 			//check for use schematic
-			string b = window->getOption3();
+			BString b = window->getOption3();
 			b.convert(BSTRType_ANSI);
 			if(strcmp(b.getAnsi(),"false") == 0)
 			{

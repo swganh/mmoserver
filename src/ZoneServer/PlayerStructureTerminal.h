@@ -43,7 +43,7 @@ class PlayerStructureTerminal : public Terminal
 		~PlayerStructureTerminal();
 
 		void		handleObjectMenuSelect(uint8 messageType,Object* srcObject);
-		void		handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window);
+		void		handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window);
 
 		void		prepareCustomRadialMenu(CreatureObject* player, uint8 itemCount);
 

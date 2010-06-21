@@ -60,7 +60,7 @@ TangibleObject::TangibleObject()
 
 //=============================================================================
 
-TangibleObject::TangibleObject(uint64 id,uint64 parentId,string model,TangibleGroup tanGroup,TangibleType tanType,string name,string nameFile,string detailFile)
+TangibleObject::TangibleObject(uint64 id,uint64 parentId,BString model,TangibleGroup tanGroup,TangibleType tanType,BString name,BString nameFile,BString detailFile)
 			  : ObjectContainer(id,parentId,model,ObjType_Tangible),mName(name),mNameFile(nameFile),mDetailFile(detailFile),mTanGroup(tanGroup),mTanType(tanType)
 {
 	mColorStr			= "";

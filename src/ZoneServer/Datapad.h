@@ -65,12 +65,12 @@ class Datapad : public TangibleObject
 		// waypoints
 		WaypointList*	getWaypoints(){ return &mWaypoints; }
 		WaypointObject*	getWaypointById(uint64 id);
-		WaypointObject*	getWaypointByName(string name);
+		WaypointObject*	getWaypointByName(BString name);
 		bool			addWaypoint(WaypointObject* waypoint);
 		bool			removeWaypoint(uint64 id);
 		bool			removeWaypoint(WaypointObject* waypoint);
 		void			setObjectLoadCounter(uint32 count){ mObjectLoadCounter = count; }
-		void			requestNewWaypoint(string name, const glm::vec3& coords, uint16 planetId, uint8 wpType);
+		void			requestNewWaypoint(BString name, const glm::vec3& coords, uint16 planetId, uint8 wpType);
 
 		//missions
 		MissionList*   getMissions() { return &mMissions; }

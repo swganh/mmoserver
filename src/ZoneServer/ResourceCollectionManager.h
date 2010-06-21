@@ -99,7 +99,7 @@ class ResourceCollectionManager : public DatabaseCallback,public  UICallback
 
 		ResourceCollectionManager(Database* database);
 
-		void									handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window);
+		void									handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window);
 		void									_setupDatabindings();
 		void									_destroyDatabindings();
 

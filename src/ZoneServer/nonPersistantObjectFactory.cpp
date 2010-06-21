@@ -142,7 +142,7 @@ void NonPersistantObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseRes
 //creates a non persistant tangible object
 //loads the necessary blueprints from db
 //////////////////////////////////////////////////////////////////////////////////
-void NonPersistantObjectFactory::createTangible(ObjectFactoryCallback* ofCallback, uint32 familyId,uint32 typeId,uint64 parentId, const glm::vec3& position,string customName,DispatchClient* client)
+void NonPersistantObjectFactory::createTangible(ObjectFactoryCallback* ofCallback, uint32 familyId,uint32 typeId,uint64 parentId, const glm::vec3& position,BString customName,DispatchClient* client)
 //gObjectFactory->requestNewDefaultItem
 //(this,11,1320,entertainer->getId(),99,Anh_Math::Vector3(),"");
 {
@@ -347,7 +347,7 @@ PlayerStructure* NonPersistantObjectFactory::requestBuildingFenceObject(float x,
 
 }
 
-PlayerStructure* NonPersistantObjectFactory::requestBuildingSignObject(float x, float y, float z, PlayerObject* player, string name, string namefile, string custom)
+PlayerStructure* NonPersistantObjectFactory::requestBuildingSignObject(float x, float y, float z, PlayerObject* player, BString name, BString namefile, BString custom)
 {
 	
 	PlayerStructure* structure = new(PlayerStructure);

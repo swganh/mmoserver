@@ -125,7 +125,7 @@ void CharacterAdminHandler::_processRandomNameRequest(Message* message, Dispatch
   client->SendChannelAUnreliable(newMessage, client->getAccountId(), CR_Client, 1);
 
   // set our object type string.
-  string objectType;
+  BString objectType;
   message->getStringAnsi(objectType);
 
   CAAsyncContainer* asyncContainer = new CAAsyncContainer(CAQuery_RequestName,client);
@@ -143,7 +143,7 @@ void CharacterAdminHandler::_processCreateCharacter(Message* message, DispatchCl
   // Using a string as a buffer object for the appearance data.  The string class can parse the message format
   _parseAppearanceData(message, &characterInfo);
 
-  string characterName;
+  BString characterName;
   characterName.setType(BSTRType_Unicode16);
 
   message->getStringUnicode16(characterName);
@@ -192,7 +192,7 @@ void CharacterAdminHandler::_processCreateCharacter(Message* message, DispatchCl
   // check the name further, allow no numbers,only 3 special signs
   // other verifications are done via the database
   uint8 specialCount = 0;
-  string checkName;
+  BString checkName;
   bool needsEscape = false;
   checkName.setType(BSTRType_Unicode16);
 
@@ -399,7 +399,7 @@ void CharacterAdminHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* 
 		{
 			Message* newMessage;
 
-			string randomName,ui,state;
+			BString randomName,ui,state;
 			ui = "ui";
 			state = "name_approved";
 
@@ -611,9 +611,9 @@ void CharacterAdminHandler::_sendCreateCharacterFailed(uint32 errorCode,Dispatch
 		return;
 	}
 
-	string unknown = L"o_O";
-	string stfFile = "ui";
-	string errorString;
+	BString unknown = L"o_O";
+	BString stfFile = "ui";
+	BString errorString;
 
 	switch(errorCode)
 	{

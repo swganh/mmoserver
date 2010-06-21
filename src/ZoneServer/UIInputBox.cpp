@@ -66,7 +66,7 @@ void UIInputBox::handleEvent(Message* message)
 {
 	uint32	action				= message->getUint32();
 	uint32	items				= message->getUint32();
-	string	inputStr;
+	BString	inputStr;
 
 	if(items)
 	{

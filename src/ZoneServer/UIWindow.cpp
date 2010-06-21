@@ -32,7 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 //================================================================================
 
-UIWindow::UIWindow(UICallback* callback,uint32 id,uint8 windowType,const string windowTypeStr,const int8* eventStr, void* container)
+UIWindow::UIWindow(UICallback* callback,uint32 id,uint8 windowType,const BString windowTypeStr,const int8* eventStr, void* container)
 : UIElement(id,SUI_Element_Window)
 , mWindowTypeStr(windowTypeStr)
 , mUICallback(callback)

@@ -245,7 +245,7 @@ void EntertainerManager::showOutcastList(PlayerObject* entertainer)
 //toggle a player on the entertainers denyServiceList
 //======================================================================================================================
 
-void EntertainerManager::toggleOutcastId(PlayerObject* entertainer,uint64 outCastId, string outCastName)
+void EntertainerManager::toggleOutcastId(PlayerObject* entertainer,uint64 outCastId, BString outCastName)
 {
 	//check if the player is already on our list - add or remove the player
 
@@ -332,7 +332,7 @@ bool	EntertainerManager::checkDenyServiceList(PlayerObject* audience, PlayerObje
 //======================================================================================================================
 //verifies if a player exists in the db
 //======================================================================================================================
-void EntertainerManager::verifyOutcastName(PlayerObject* entertainer,string outCastName)
+void EntertainerManager::verifyOutcastName(PlayerObject* entertainer,BString outCastName)
 {
 	int8 sql[256], name[50];
 	mDatabase->Escape_String(name,outCastName.getAnsi(),outCastName.getLength());
@@ -378,7 +378,7 @@ void EntertainerManager::removeAudience(PlayerObject* mEntertainer,CreatureObjec
 //======================================================================================================================
 //looks up the data for a specific performance
 //======================================================================================================================
-PerformanceStruct* EntertainerManager::getPerformance(string performance,uint32 type)
+PerformanceStruct* EntertainerManager::getPerformance(BString performance,uint32 type)
 {
 	PerformanceList::iterator it = mPerformanceList.begin();
 	//bool found = false;
@@ -436,7 +436,7 @@ IDStruct* EntertainerManager::getIDAttribute(uint32 CustomizationCRC)
 //looks up the data for a specific performance
 //======================================================================================================================
 
-PerformanceStruct* EntertainerManager::getPerformance(string performance)
+PerformanceStruct* EntertainerManager::getPerformance(BString performance)
 {
 
 	PerformanceList::iterator it = mPerformanceList.begin();
@@ -507,7 +507,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
 				holo = new(HoloStruct);
 				result->GetNextRow(binding,holo);
 				mHoloList.push_back(holo);
-				string emote("holoemote_");
+				BString emote("holoemote_");
 				emote << holo->pEmoteName;
 				holo->pClientCRC = emote.getCrc();
 
@@ -648,7 +648,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
 
 		case EMQuery_DenyServiceListNames:
 		{
-			string outCast;
+			BString outCast;
 			outCast.setLength(40);
 			BStringVector availableOutCasts;
 
@@ -698,7 +698,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
 			{
 				int8 str[111];
 				sprintf(str,"'%s' does not exist in the known universe",asynContainer->outCastName.getAnsi());
-				string sstr;
+				BString sstr;
 				sstr = BString(str);
 				sstr.convert(BSTRType_Unicode16);
         gMessageLib->sendSystemMessage(entertainer,sstr.getUnicode16());
@@ -775,7 +775,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
 //=======================================================================================================================
 // changes the entertainers dance
 //=======================================================================================================================
-void	EntertainerManager::changeDance(PlayerObject* pEntertainer,string performance)
+void	EntertainerManager::changeDance(PlayerObject* pEntertainer,BString performance)
 {
 	PerformanceStruct* mPerformance;
 	if(pEntertainer->getPerformingState()==PlayerPerformance_Dance)
@@ -801,7 +801,7 @@ void	EntertainerManager::changeDance(PlayerObject* pEntertainer,string performan
 //=======================================================================================================================
 // changes the entertainers music
 //=======================================================================================================================
-void EntertainerManager::changeMusic(PlayerObject* entertainer,string songString)
+void EntertainerManager::changeMusic(PlayerObject* entertainer,BString songString)
 {
 	PerformanceStruct* performance;
 
@@ -824,7 +824,7 @@ void EntertainerManager::changeMusic(PlayerObject* entertainer,string songString
 //=======================================================================================================================
 // starts a music performance for the specified entertainer
 //=======================================================================================================================
-void	EntertainerManager::startMusicPerformance(PlayerObject* entertainer,string performance)
+void	EntertainerManager::startMusicPerformance(PlayerObject* entertainer,BString performance)
 {
 	entertainer->setFlourishCount(0);
 	PerformanceStruct* performanceStuct;
@@ -922,7 +922,7 @@ void	EntertainerManager::startMusicPerformance(PlayerObject* entertainer,string 
 //=======================================================================================================================
 // starts a dancing performance for the specified Entertainer
 //=======================================================================================================================
-void	EntertainerManager::startDancePerformance(PlayerObject* entertainer,string performance)
+void	EntertainerManager::startDancePerformance(PlayerObject* entertainer,BString performance)
 {
 	entertainer->setFlourishCount(0);
 	PerformanceStruct* performanceStruct;
@@ -2216,7 +2216,7 @@ void EntertainerManager::handleObjectReady(Object* object,DispatchClient* client
 //=======================================================================================================================
 //handles the start of the individual performances on starting a band
 //=======================================================================================================================
-bool EntertainerManager::handleStartBandIndividual(PlayerObject* performer, string performance)
+bool EntertainerManager::handleStartBandIndividual(PlayerObject* performer, BString performance)
 {
 
 	//we cant start performing when were about to log out!
@@ -2243,7 +2243,7 @@ bool EntertainerManager::handleStartBandIndividual(PlayerObject* performer, stri
 	//check if we are able to perform this piece of music
 	while(entertainerIt != entertainerSkillCommands->end())
 	{
-		string mEntertainerString = gSkillManager->getSkillCmdById((*entertainerIt));
+		BString mEntertainerString = gSkillManager->getSkillCmdById((*entertainerIt));
 		//look for our selected dance
 		if(BString(musicStr).getCrc() == mEntertainerString.getCrc() )
 		{
@@ -2270,7 +2270,7 @@ bool EntertainerManager::handleStartBandIndividual(PlayerObject* performer, stri
 //=======================================================================================================================
 //handles the start of the individual performances for dancers on starting a band
 //=======================================================================================================================
-bool EntertainerManager::handleStartBandDanceIndividual(PlayerObject* performer, string performance)
+bool EntertainerManager::handleStartBandDanceIndividual(PlayerObject* performer, BString performance)
 {
 	SkillCommandList*	entertainerSkillCommands = performer->getSkillCommands();
 	SkillCommandList::iterator entertainerIt = entertainerSkillCommands->begin();
@@ -2285,7 +2285,7 @@ bool EntertainerManager::handleStartBandDanceIndividual(PlayerObject* performer,
 		//check if we are able to perform this dance
 		while(entertainerIt != entertainerSkillCommands->end())
 		{
-			string mEntertainerString = gSkillManager->getSkillCmdById((*entertainerIt));
+			BString mEntertainerString = gSkillManager->getSkillCmdById((*entertainerIt));
 			//look for our selected dance
 			if(BString(musicStr).getCrc() == mEntertainerString.getCrc() )
 			{
@@ -2827,7 +2827,7 @@ void EntertainerManager::playPlacedInstrument(PlayerObject* entertainer)
 	}
 }
 
-void EntertainerManager::StartBand(PlayerObject* player, string songName)
+void EntertainerManager::StartBand(PlayerObject* player, BString songName)
 {
 	gGroupManager->getGroupLeader(player, player->getGroupId(), GROUPMANAGERCALLBACK_STARTBAND, this, songName);
 }
@@ -2842,7 +2842,7 @@ void EntertainerManager::BandFlourish(PlayerObject* player, uint32 flourishId)
 	gGroupManager->getGroupLeader(player, player->getGroupId(), GROUPMANAGERCALLBACK_BANDFLOURISH, this, flourishId);
 }
 
-void EntertainerManager::_handleCompleteStartBand(PlayerObject* performer, string dataStr)
+void EntertainerManager::_handleCompleteStartBand(PlayerObject* performer, BString dataStr)
 {
 	PlayerList members;
 
@@ -2866,7 +2866,7 @@ void EntertainerManager::_handleCompleteStartBand(PlayerObject* performer, strin
 		//check if we are able to perform this piece of music
 		while(entertainerIt != entertainerSkillCommands->end())
 		{
-			string mEntertainerString = gSkillManager->getSkillCmdById((*entertainerIt));
+			BString mEntertainerString = gSkillManager->getSkillCmdById((*entertainerIt));
 			//look for our selected dance
 			if(BString(musicStr).getCrc() == mEntertainerString.getCrc() )
 			{
@@ -2892,7 +2892,7 @@ void EntertainerManager::_handleCompleteStartBand(PlayerObject* performer, strin
 			//check if we are able to perform this piece of dance
 			while(entertainerIt != entertainerSkillCommands->end())
 			{
-				string mEntertainerString = gSkillManager->getSkillCmdById((*entertainerIt));
+				BString mEntertainerString = gSkillManager->getSkillCmdById((*entertainerIt));
 				//look for our selected dance
 				if(BString(musicStr).getCrc() == mEntertainerString.getCrc() )
 				{

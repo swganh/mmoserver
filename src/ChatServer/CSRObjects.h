@@ -46,7 +46,7 @@ public:
 	SubCategoryList* GetSubCategories() { return &mSubCategories; }
 
 	uint32 mId;
-	string mName;
+	BString mName;
 
 private:
 	SubCategoryList mSubCategories;
@@ -63,7 +63,7 @@ public:
 	~SubCategory(){}
 
 	uint32			mId;
-	string			mName;
+	BString			mName;
 };
 
 //======================================================================================================================
@@ -76,8 +76,8 @@ public:
 	~Article(){}
 
 	uint32			mId;
-	string			mTitle;
-	string			mBody;
+	BString			mTitle;
+	BString			mBody;
 };
 
 //======================================================================================================================
@@ -90,13 +90,13 @@ public:
 	~Ticket(){}
 
 	uint32		mId;
-	string		mPlayer;
+	BString		mPlayer;
 	uint32		mCategoryId;
 	uint32		mSubCategoryId;
-	string		mComment;
-	string		mInfo;
-	string		mHarrasingUser;
-	string		mLanguage;
+	BString		mComment;
+	BString		mInfo;
+	BString		mHarrasingUser;
+	BString		mLanguage;
 	uint8		mBugReport;
 	uint8		mClosed;
 	uint8		mActivity;
@@ -112,10 +112,10 @@ public:
 	Comment(){}
 	~Comment(){}
 
-	string	mText;
+	BString	mText;
 	uint32	mId;
 	uint32	mTicketId;
-	string  mAuthor;
+	BString  mAuthor;
 };
 
 #endif

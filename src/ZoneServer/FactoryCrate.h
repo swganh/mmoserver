@@ -46,7 +46,7 @@ class FactoryCrate : public Item
 		virtual void	handleObjectMenuSelect(uint8 messageType,Object* srcObject);
 		void			sendAttributes(PlayerObject* playerObject);
 
-		virtual void	upDateFactoryVolume(string amount);
+		virtual void	upDateFactoryVolume(BString amount);
 
 		TangibleObject*	getLinkedObject();
 		int32			decreaseContent(uint32 amount);

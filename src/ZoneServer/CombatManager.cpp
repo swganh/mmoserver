@@ -406,7 +406,7 @@ uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* def
 	//uint8	randomPoolHitChance		= 100;
 	uint8	stateApplied			= 0;
 	int32	multipliedDamage		= 0;
-	string	combatSpam				= "melee";
+	BString	combatSpam				= "melee";
 
 	// first see if we actually hit our target
 	uint8 attackResult = _hitCheck(attacker,defender,cmdProperties,weapon);
@@ -534,7 +534,7 @@ uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* def
 					{
 						sprintf(str,"%s", defender->getFirstName().getAnsi());
 					}
-					string playerName(str);
+					BString playerName(str);
 					playerName.convert(BSTRType_Unicode16);
 
           gMessageLib->sendSystemMessage(playerAttacker,L"","base_player","prose_target_incap", "", "", L"", 0, "", "", playerName.getUnicode16());
@@ -561,7 +561,7 @@ uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* def
 					{
 						sprintf(str,"%s", defender->getFirstName().getAnsi());
 					}
-					string playerName(str);
+					BString playerName(str);
 					playerName.convert(BSTRType_Unicode16);
           gMessageLib->sendSystemMessage(playerAttacker,L"","base_player","prose_target_dead", "", "", L"", 0, "", "", playerName.getUnicode16());
 				}

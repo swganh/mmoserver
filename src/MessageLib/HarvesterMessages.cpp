@@ -69,7 +69,7 @@ bool MessageLib::sendBaselinesHINO_3(HarvesterObject* harvester,PlayerObject* pl
 	mMessageFactory->addUint32(0);
 	mMessageFactory->addString(harvester->getName());
 	
-	string name;
+	BString name;
 	name = harvester->getCustomName();
 	name.convert(BSTRType_Unicode16);
 
@@ -345,7 +345,7 @@ bool MessageLib::sendBaselinesINSO_3(FactoryObject* factory,PlayerObject* player
 	mMessageFactory->addUint32(0);
 	mMessageFactory->addString(factory->getName());
 	
-	string name;
+	BString name;
 	name = factory->getCustomName();
 	name.convert(BSTRType_Unicode16);
 
@@ -466,7 +466,7 @@ bool MessageLib::sendBaselinesINSO_3(PlayerStructure* structure,PlayerObject* pl
 	mMessageFactory->addUint32(0);
 	mMessageFactory->addString(structure->getName());
 	
-	string name;
+	BString name;
 	name = structure->getCustomName();
 	name.convert(BSTRType_Unicode16);
 
@@ -580,7 +580,7 @@ void MessageLib::sendNewHarvesterName(PlayerStructure* harvester)
 	mMessageFactory->addUint16(1);
 	mMessageFactory->addUint16(2);
 	//Unicode
-	string name;
+	BString name;
 	name = harvester->getCustomName();
 	name.convert(BSTRType_Unicode16);
 
@@ -843,7 +843,7 @@ bool MessageLib::sendHopperList(PlayerStructure* structure, PlayerObject* player
 	mMessageFactory->addUint32(opSendPermissionList);  
 	mMessageFactory->addUint32(structure->getStrucureHopperList().size() );
 
-	string name;
+	BString name;
 	BStringVector vector = 	structure->getStrucureHopperList();
 	BStringVector::iterator it = vector.begin();
 	while(it != vector.end())

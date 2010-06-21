@@ -43,38 +43,38 @@ class TangibleObject :	public ObjectContainer
 	public:
 
 		TangibleObject();
-		TangibleObject(uint64 id,uint64 parentId,const string model,TangibleGroup tanGroup = TanGroup_None,TangibleType tanType = TanType_None,const string name = "",const string nameFile = "",const string detailFile = "");
+		TangibleObject(uint64 id,uint64 parentId,const BString model,TangibleGroup tanGroup = TanGroup_None,TangibleType tanType = TanType_None,const BString name = "",const BString nameFile = "",const BString detailFile = "");
 		virtual ~TangibleObject();
 
 		virtual void		prepareCustomRadialMenuInCell(CreatureObject* creatureObject, uint8 itemCount);
 
-		virtual void		upDateFactoryVolume(string amount){;}
-		string				getName() const { return mName; }
+		virtual void		upDateFactoryVolume(BString amount){;}
+		BString				getName() const { return mName; }
 		void				setName(const int8* name){ mName = name; }
-		string				getNameFile() const { return mNameFile; }
+		BString				getNameFile() const { return mNameFile; }
 		void				setNameFile(const int8* file){ mNameFile = file; }
-		string				getDetailFile(){ return mDetailFile; }
+		BString				getDetailFile(){ return mDetailFile; }
 		void				setDetailFile(const int8* file){ mDetailFile = file; }
-		string				getColorStr(){ return mColorStr; }
+		BString				getColorStr(){ return mColorStr; }
 		void				setColorStr(const int8* coloStr){ mColorStr = coloStr; }
 
 		//============================================================
 		//sets ParentId - for item table objects in the db and Object
 		virtual void		setParentIdIncDB(uint64 parentId);
 
-		string				getCustomizationStr() const { return mCustomizationStr; }
+		BString				getCustomizationStr() const { return mCustomizationStr; }
 		void				setCustomizationStr(const uint8* custStr){ mCustomizationStr = (int8*)custStr; }
 		void				setCustomization(uint8 index, uint16 val, uint8 length = 73){ mCustomization[index] = val;buildTanoCustomization(length); }
 		uint16*				getCustomization(){ return &mCustomization[0]; }
 		uint16				getCustomization(uint8 index){ return mCustomization[index]; }
 		void				buildTanoCustomization(uint8 len);
 
-		string				getUnknownStr1() const { return mUnknownStr1; }
+		BString				getUnknownStr1() const { return mUnknownStr1; }
 		void				setUnknownStr1(const int8* unknownStr){ mUnknownStr1 = unknownStr; }
-		string				getUnknownStr2() const { return mUnknownStr2; }
+		BString				getUnknownStr2() const { return mUnknownStr2; }
 		void				setUnknownStr2(const int8* unknownStr){ mUnknownStr2 = unknownStr; }
 		
-		string				getCustomName() const { return mCustomName; }
+		BString				getCustomName() const { return mCustomName; }
 		void				setCustomName(const int8* name){ mCustomName = name; }
 		void				setCustomNameIncDB(const int8* name);
 
@@ -89,7 +89,7 @@ class TangibleObject :	public ObjectContainer
 		void				setDamage(uint32 damage){ mDamage = damage; }
 
 		virtual uint32		getCategoryBazaar(){ return 0; }
-		string				getBazaarTang(){ return getModelString(); }
+		BString				getBazaarTang(){ return getModelString(); }
 
 		float				getComplexity(){ return mComplexity; }
 		void				setComplexity(float complexity){ mComplexity = complexity; }
@@ -103,14 +103,14 @@ class TangibleObject :	public ObjectContainer
 		void				setStatic(bool isStatic){ mStatic = isStatic; }
 	protected:
 
-		string				mCustomizationStr;
-		string				mCustomName;
-		string				mName;
-		string				mNameFile;
-		string				mColorStr;
-		string				mDetailFile;
-		string				mUnknownStr1;
-		string				mUnknownStr2;
+		BString				mCustomizationStr;
+		BString				mCustomName;
+		BString				mName;
+		BString				mNameFile;
+		BString				mColorStr;
+		BString				mDetailFile;
+		BString				mUnknownStr1;
+		BString				mUnknownStr2;
 		uint16				mCustomization[256];
 		TangibleGroup		mTanGroup;
 		TangibleType		mTanType;

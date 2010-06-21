@@ -159,7 +159,7 @@ void StructureManager::updateKownPlayerPermissions(PlayerStructure* structure)
 //=======================================================================================================================
 //checks for a name on a permission list
 //=======================================================================================================================
-void StructureManager::checkNameOnPermissionList(uint64 structureId, uint64 playerId, string name, string list, StructureAsyncCommand command)
+void StructureManager::checkNameOnPermissionList(uint64 structureId, uint64 playerId, BString name, string list, StructureAsyncCommand command)
 {
 
 	StructureManagerAsyncContainer* asyncContainer;
@@ -193,7 +193,7 @@ void StructureManager::checkNameOnPermissionList(uint64 structureId, uint64 play
 //=======================================================================================================================
 //removes a name from a permission list
 //=======================================================================================================================
-void StructureManager::removeNamefromPermissionList(uint64 structureId, uint64 playerId, string name, string list)
+void StructureManager::removeNamefromPermissionList(uint64 structureId, uint64 playerId, BString name, string list)
 {
 	int8 playerName[64];
 
@@ -219,7 +219,7 @@ void StructureManager::removeNamefromPermissionList(uint64 structureId, uint64 p
 //=======================================================================================================================
 //adds a name to a permission list
 //=======================================================================================================================
-void StructureManager::addNametoPermissionList(uint64 structureId, uint64 playerId, string name, string list)
+void StructureManager::addNametoPermissionList(uint64 structureId, uint64 playerId, BString name, string list)
 {
 	int8 playerName[64];
 	//we have shown that we are on the admin list, so the name we proposed now will get added
@@ -998,7 +998,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 					
 					int8 s[512];
 					sprintf(s,"schematic Mask %u vs factory Mask %u",mask,factory->getMask());
-					string message(s);
+					BString message(s);
 					message.convert(BSTRType_Unicode16);
 					gMessageLib->sendSystemMessage(player,message.getUnicode16());
 			}

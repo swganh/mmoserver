@@ -58,8 +58,8 @@ bool MessageLib::sendBaselinesRCNO_3(ResourceContainer* resourceContainer,Player
 		return(false);
 
 	Message*	message;
-	string		resourceNameFile = "kb/kb_resources_n";
-	string		resourceTypeName = ((resourceContainer->getResource())->getType())->getTypeName();
+	BString		resourceNameFile = "kb/kb_resources_n";
+	BString		resourceTypeName = ((resourceContainer->getResource())->getType())->getTypeName();
 
 	mMessageFactory->StartMessage();       
 	mMessageFactory->addUint32(opBaselinesMessage);   
@@ -133,9 +133,9 @@ bool MessageLib::sendBaselinesRCNO_6(ResourceContainer* resourceContainer,Player
 		return(false);
 
 	Message*	message;
-	string		unknownStr = "";
-	string		resourceTypeDescriptor = (((resourceContainer->getResource())->getType())->getDescriptor());
-	string		resourceName = (resourceContainer->getResource())->getName().getAnsi();
+	BString		unknownStr = "";
+	BString		resourceTypeDescriptor = (((resourceContainer->getResource())->getType())->getDescriptor());
+	BString		resourceName = (resourceContainer->getResource())->getName().getAnsi();
 	resourceName.convert(BSTRType_Unicode16);
 
 	mMessageFactory->StartMessage();        

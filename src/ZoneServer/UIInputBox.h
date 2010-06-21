@@ -50,8 +50,8 @@ class UIInputBox : public UIWindow
 
 		void	_initChildren(BStringVector dropdownElements);
 
-		string			mCaption;
-		string			mPrompt;
+		BString			mCaption;
+		BString			mPrompt;
 		uint8			mIbType;
 		uint16			mMaxInputLength;
 };

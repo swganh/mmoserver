@@ -49,8 +49,8 @@ class UIMessageBox : public UIWindow
 
 		void	_initChildren();
 
-		string		mCaption;
-		string		mText;
+		BString		mCaption;
+		BString		mText;
 		uint8		mMBType;
 
 };

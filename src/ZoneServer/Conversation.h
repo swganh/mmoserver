@@ -78,9 +78,9 @@ class ConversationOption
 	public:
 
 		uint32	mId;
-		string	mCustomText;
-		string	mStfFile;
-		string	mStfVariable;
+		BString	mCustomText;
+		BString	mStfFile;
+		BString	mStfVariable;
 		uint32	mEvent;
 		uint32	mPageLinkId;
 };
@@ -92,9 +92,9 @@ class ConversationPage
 	public:
 
 		uint32					mId;
-		string					mCustomText;
-		string					mStfFile;
-		string					mStfVariable;
+		BString					mCustomText;
+		BString					mStfFile;
+		BString					mStfVariable;
 		ConversationOptions		mOptions;
 		uint32					mAnimation;
 };

@@ -199,7 +199,7 @@ uint64 GroupManager::_insertLeaderRequest(GroupManagerCallbackContainer* contain
 	return requestId;
 }
 
-void GroupManager::getGroupLeader(PlayerObject* requester, uint64 groupId, uint32 operation, GroupManagerCallback* callback, string arg)
+void GroupManager::getGroupLeader(PlayerObject* requester, uint64 groupId, uint32 operation, GroupManagerCallback* callback, BString arg)
 {
 	GroupManagerCallbackContainer* container = new GroupManagerCallbackContainer();
 	container->requestingPlayer = requester->getId();

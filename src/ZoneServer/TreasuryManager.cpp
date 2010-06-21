@@ -327,7 +327,7 @@ void TreasuryManager::saveAndUpdateBankCredits(PlayerObject* playerObject)
 
 //======================================================================================================================
 
-void TreasuryManager::bankTipOffline(int32 amount,PlayerObject* playerObject,string targetName)
+void TreasuryManager::bankTipOffline(int32 amount,PlayerObject* playerObject,BString targetName)
 {
 
 	//============================================
@@ -340,7 +340,7 @@ void TreasuryManager::bankTipOffline(int32 amount,PlayerObject* playerObject,str
 
 	if((amount + surcharge) > credits)
 	{
-		string uniName = targetName;
+		BString uniName = targetName;
 		uniName.convert(BSTRType_Unicode16);
 
 		gMessageLib->sendSystemMessage(playerObject, L"","base_player","prose_tip_nsf_bank","","",uniName.getUnicode16(),amount);
@@ -370,7 +370,7 @@ void TreasuryManager::bankTipOnline(int32 amount, PlayerObject* playerObject, Pl
 	//check if we have enough money
 	if(amount > dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits())
 	{
-		string s;
+		BString s;
 		s = targetObject->getFirstName();
 		s.convert(BSTRType_Unicode16);
 		gMessageLib->sendSystemMessage(playerObject, L"","base_player","prose_tip_nsf_cash","","",L"",amount,"","",s.getUnicode16());
@@ -445,7 +445,7 @@ void TreasuryManager::handleBankTipSurchargeConfirmed(TreasuryManagerAsyncContai
 
 //======================================================================================================================
 
-void TreasuryManager::handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window)
+void TreasuryManager::handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
 	// gLogger->logMsgF("CloningTerminal::handleUIEvent You are here!",MSG_NORMAL);
 

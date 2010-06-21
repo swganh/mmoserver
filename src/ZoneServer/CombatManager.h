@@ -58,7 +58,7 @@ class CombatManager : public DatabaseCallback
 		void					handleDatabaseJobComplete(void* ref,DatabaseResult* result);
 
 		uint32					getDefaultAttackAnimation(uint32 weaponGroup);
-		string					getDefaultSpam(uint32 weaponGroup);
+		BString					getDefaultSpam(uint32 weaponGroup);
 
 		bool					handleAttack(CreatureObject*  attacker,uint64 targetId,ObjectControllerCmdProperties* cmdProperties);
 

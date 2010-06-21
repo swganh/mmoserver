@@ -61,13 +61,13 @@ class ActiveConversation
 		NPCObject*				getNpc(){ return mNpc; }
 
 		int32					getDI(){ return mDI; }
-		string					getTTStfFile(){ return mTTStfFile; }
-		string					getTTStfVariable(){ return mTTStfVariable; }
-		string					getTTCustom(){ return mTTCustom; }
+		BString					getTTStfFile(){ return mTTStfFile; }
+		BString					getTTStfVariable(){ return mTTStfVariable; }
+		BString					getTTCustom(){ return mTTCustom; }
 		uint64					getTTId(){ return mTTId; }
-		string					getTOStfFile(){ return mTOStfFile; }
-		string					getTOStfVariable(){ return mTOStfVariable; }
-		string					getTOCustom(){ return mTOCustom; }
+		BString					getTOStfFile(){ return mTOStfFile; }
+		BString					getTOStfVariable(){ return mTOStfVariable; }
+		BString					getTOCustom(){ return mTOCustom; }
 		uint64					getTOId(){ return mTOId; }
 		
 	private:
@@ -83,13 +83,13 @@ class ActiveConversation
 		ConversationOptions	mSelectOptionMap;
 
 		int32				mDI;
-		string				mTTStfFile;
-		string				mTTStfVariable;
-		string				mTTCustom;
+		BString				mTTStfFile;
+		BString				mTTStfVariable;
+		BString				mTTCustom;
 		uint64				mTTId;
-		string				mTOStfFile;
-		string				mTOStfVariable;
-		string				mTOCustom;
+		BString				mTOStfFile;
+		BString				mTOStfVariable;
+		BString				mTOCustom;
 		uint64				mTOId;
 };
 

@@ -38,11 +38,11 @@ class UIInputField : public UIElement
 	public:
 
 		UIInputField(){}
-		UIInputField(uint32 id,string name,bool enabled = true,uint16 maxLength = 127);
+		UIInputField(uint32 id,BString name,bool enabled = true,uint16 maxLength = 127);
 		virtual ~UIInputField();
 
-		string			getName(){ return mName; }
-		void			setName(string name){ mName = name; }
+		BString			getName(){ return mName; }
+		void			setName(BString name){ mName = name; }
 
 		bool			getEnabled(){ return mEnabled; }
 		void			setEnabled(bool e){ mEnabled = e; }
@@ -56,7 +56,7 @@ class UIInputField : public UIElement
 
 	private:
 
-		string	mName;
+		BString	mName;
 		bool	mEnabled;
 		uint16	mMaxLength;
 };

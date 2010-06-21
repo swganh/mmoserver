@@ -207,7 +207,7 @@ void ObjectController::destroyObject(uint64 objectId)
 
 void ObjectController::_handleServerDestroyObject(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	string volume;
+	BString volume;
 
 	message->getStringUnicode16(volume);
 

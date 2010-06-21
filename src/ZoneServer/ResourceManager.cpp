@@ -55,12 +55,12 @@ mDBAsyncPool(sizeof(RMAsyncContainer))
 	rootCat->setParentId(0);
 	mResourceCategoryMap.insert(std::make_pair(1,rootCat));
 
-	_setupDatabindings();
-
 	//the tutorial will not assign us a db so we cannot load resources
 	//this way we will save the resources and time but still have a resourcemanager for our lowlevelID lookups
 	if(!database)
 		return;
+	
+	_setupDatabindings();
 
 	// load resource types
 	mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) RMAsyncContainer(RMQuery_ResourceTypes),

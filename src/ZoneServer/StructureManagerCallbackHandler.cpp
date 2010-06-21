@@ -256,7 +256,6 @@ void StructureManager::_HandleUpdateCharacterLots(StructureManagerAsyncContainer
 void StructureManager::_HandleStructureRedeedCallBack(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result)
 {
 	PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(asynContainer->mStructureId));
-	PlayerObject* playerObj = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
 
 	//if its a playerstructure boot all players and pets inside
 	HouseObject* house = dynamic_cast<HouseObject*>(structure);

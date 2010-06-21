@@ -57,6 +57,11 @@ mDBAsyncPool(sizeof(RMAsyncContainer))
 
 	_setupDatabindings();
 
+	//the tutorial will not assign us a db so we cannot load resources
+	//this way we will save the resources and time but still have a resourcemanager for our lowlevelID lookups
+	if(!database)
+		return;
+
 	// load resource types
 	mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) RMAsyncContainer(RMQuery_ResourceTypes),
 		"SELECT id,category_id,namefile_name,type_name,type_swg,tang,bazaar_catID,type FROM resource_template ORDER BY id");

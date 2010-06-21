@@ -1634,6 +1634,14 @@ void ObjectController::_handleClientLogout(uint64 targetId,Message* message,Obje
 	PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
 	// gLogger->hexDump(message->getData(),message->getSize());
 	
+	//make sure we cannot use the /logout multiple times
+	//as this will invalidate our disconnect lists
+	if(player->checkPlayerCustomFlag(PlayerCustomFlag_LogOut))
+	{
+		
+		return;
+	}
+
 	player->togglePlayerCustomFlagOn(PlayerCustomFlag_LogOut);	
 
 	//// we need to kneel

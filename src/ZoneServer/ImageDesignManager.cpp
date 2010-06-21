@@ -82,7 +82,7 @@ HoloStruct* EntertainerManager::getHoloEmoteByClientCRC(uint32 crc)
 
 //======================================================================================================================
 
-string EntertainerManager::getHoloNames()
+BString EntertainerManager::getHoloNames()
 {
 	int8 collection[512];
 	sprintf(collection,"");
@@ -131,7 +131,7 @@ HoloStruct* EntertainerManager::getHoloEmoteIdbyName(BString name)
 //max and min values might need to be DB based at some point
 //however the client has his own max and min values in the iffs so hardcoding at this time should be viable
 
-string EntertainerManager::commitIdheight(PlayerObject* customer, float value)
+BString EntertainerManager::commitIdheight(PlayerObject* customer, float value)
 {
 	float addtoMinScale = 0.0F;
 	float minScale = 1.0F;
@@ -317,7 +317,7 @@ uint32 EntertainerManager::getIdXP(BString attribute, uint16 value)
 //looks up the corresponding index and indexstring for Colors
 //updates the indexvalue and prepares the attribute string to be added to the sql string
 //
-string EntertainerManager::commitIdColor(PlayerObject* customer, BString attribute, uint16 value)
+BString EntertainerManager::commitIdColor(PlayerObject* customer, BString attribute, uint16 value)
 {
 
 	gLogger->log(LogManager::DEBUG,"ID : Color Attribute : %s",attribute.getAnsi());
@@ -414,7 +414,7 @@ string EntertainerManager::commitIdColor(PlayerObject* customer, BString attribu
 //updates the indexvalue and prepares the attribute string to be added to the sql string
 //
 
-string EntertainerManager::commitIdAttribute(PlayerObject* customer, BString attribute, float value)
+BString EntertainerManager::commitIdAttribute(PlayerObject* customer, BString attribute, float value)
 {
 	uint32	crc = attribute.getCrc();
 	int8	add[50],mString[64];

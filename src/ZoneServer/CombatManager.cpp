@@ -147,7 +147,7 @@ uint32 CombatManager::getDefaultAttackAnimation(uint32 weaponGroup)
 // get the combat spam for the default attack belonging to a weapongroup
 //
 
-string CombatManager::getDefaultSpam(uint32 weaponGroup)
+BString CombatManager::getDefaultSpam(uint32 weaponGroup)
 {
 	WeaponGroups::iterator it = mWeaponGroups.begin();
 

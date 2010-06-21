@@ -177,7 +177,7 @@ void NonPersistantObjectFactory::createTangible(ObjectFactoryCallback* ofCallbac
 //we create a camp at the given coordinates together with all the necessary additions as found in structure_item_template
 //
 
-TangibleObject* NonPersistantObjectFactory::spawnTangible(StructureItemTemplate* placableTemplate, uint64 parentId, const glm::vec3& position, const string& customName, PlayerObject* player)
+TangibleObject* NonPersistantObjectFactory::spawnTangible(StructureItemTemplate* placableTemplate, uint64 parentId, const glm::vec3& position, const BString& customName, PlayerObject* player)
 {
 	
 	//we dont set the types here as we are factually placing statics / and or items / terminals
@@ -224,7 +224,7 @@ TangibleObject* NonPersistantObjectFactory::spawnTangible(StructureItemTemplate*
 
 }
 
-CampTerminal* NonPersistantObjectFactory::spawnTerminal(StructureItemTemplate* placableTemplate, uint64 parentId, const glm::vec3& position, const string& customName, PlayerObject* player, StructureDeedLink*	deedData)
+CampTerminal* NonPersistantObjectFactory::spawnTerminal(StructureItemTemplate* placableTemplate, uint64 parentId, const glm::vec3& position, const BString& customName, PlayerObject* player, StructureDeedLink*	deedData)
 {
 	
 	//we dont set the types here as we are factually placing statics / and or items / terminals

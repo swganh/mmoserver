@@ -42,7 +42,7 @@ ResourceType::~ResourceType()
 
 //=============================================================================
 
-string ResourceType::getContainerModel()
+BString ResourceType::getContainerModel()
 {
 	// gotta put shared_resource_container_ into the name
 	BStringVector splits;

@@ -159,7 +159,7 @@ void StructureManager::updateKownPlayerPermissions(PlayerStructure* structure)
 //=======================================================================================================================
 //checks for a name on a permission list
 //=======================================================================================================================
-void StructureManager::checkNameOnPermissionList(uint64 structureId, uint64 playerId, BString name, string list, StructureAsyncCommand command)
+void StructureManager::checkNameOnPermissionList(uint64 structureId, uint64 playerId, BString name, BString list, StructureAsyncCommand command)
 {
 
 	StructureManagerAsyncContainer* asyncContainer;
@@ -193,7 +193,7 @@ void StructureManager::checkNameOnPermissionList(uint64 structureId, uint64 play
 //=======================================================================================================================
 //removes a name from a permission list
 //=======================================================================================================================
-void StructureManager::removeNamefromPermissionList(uint64 structureId, uint64 playerId, BString name, string list)
+void StructureManager::removeNamefromPermissionList(uint64 structureId, uint64 playerId, BString name, BString list)
 {
 	int8 playerName[64];
 
@@ -219,7 +219,7 @@ void StructureManager::removeNamefromPermissionList(uint64 structureId, uint64 p
 //=======================================================================================================================
 //adds a name to a permission list
 //=======================================================================================================================
-void StructureManager::addNametoPermissionList(uint64 structureId, uint64 playerId, BString name, string list)
+void StructureManager::addNametoPermissionList(uint64 structureId, uint64 playerId, BString name, BString list)
 {
 	int8 playerName[64];
 	//we have shown that we are on the admin list, so the name we proposed now will get added
@@ -436,7 +436,7 @@ bool StructureManager::checkinCamp(PlayerObject* player)
 //=========================================================================================0
 // gets the code to confirm structure destruction
 //
-string StructureManager::getCode()
+BString StructureManager::getCode()
 {
 	int8	serial[12],chance[9];
 	bool	found = false;

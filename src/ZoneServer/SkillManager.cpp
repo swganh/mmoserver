@@ -565,7 +565,7 @@ bool SkillManager::checkLearnSkill(uint32 skillId,PlayerObject* pupilObject)
 //************************************************************************************
 //returns either the name of the profession if its not already on the skillist or the language string
 //************************************************************************************
-string SkillManager::getSkillProfession(uint32 skillId,BString leaveAsIs)
+BString SkillManager::getSkillProfession(uint32 skillId,BString leaveAsIs)
 {
 	Skill* theSkill= getSkillById(skillId);
 	BString skillString = theSkill->mName.getAnsi();
@@ -854,7 +854,7 @@ Skill* SkillManager::getSkillByName(BString skillName)
 //======================================================================================================================
 BString SkillManager::getSkillInfoById(uint32 skillId)
 {
-	static string empty("");
+	static BString empty("");
 	SkillInfoList::iterator it = mSkillInfoList.begin();	// find(skillId);
 	while (it != mSkillInfoList.end())
 	{

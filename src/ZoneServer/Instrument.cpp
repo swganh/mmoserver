@@ -158,7 +158,7 @@ void Instrument::sendAttributes(PlayerObject* playerObject)
 
 	gMessageFactory->addUint32(1 + mAttributeMap.size());
 
-	BString	tmpValueStr = string(BSTRType_Unicode16,64);
+	BString	tmpValueStr = BString(BSTRType_Unicode16,64);
 	BString	value;
 
 	tmpValueStr.setLength(swprintf(tmpValueStr.getUnicode16(),50,L"%u/%u",mMaxCondition - mDamage,mMaxCondition));

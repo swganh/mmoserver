@@ -94,7 +94,7 @@ void FactoryCrate::sendAttributes(PlayerObject* playerObject)
 
 	gMessageFactory->addUint32(2 + mAttributeMap.size()+iAttributeMap->size());
 
-	BString	tmpValueStr = string(BSTRType_Unicode16,64);
+	BString	tmpValueStr = BString(BSTRType_Unicode16,64);
 	BString	value,aStr;
 
 	tmpValueStr.setLength(swprintf(tmpValueStr.getUnicode16(),50,L"%u/%u",mMaxCondition - mDamage,mMaxCondition));

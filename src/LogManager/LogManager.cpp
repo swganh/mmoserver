@@ -30,13 +30,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <stdarg.h>
 #include <stdio.h>
 #include <vector>
-
+#include <boost/thread/thread.hpp>
 #include <fstream>
 #include <iomanip>
 
 #include "Utils/clock.h"
 
 LogManager* LogManager::mSingleton;
+
+class threadDataHider
+{
+public: 
+    boost::thread				mThread;
+	boost::mutex				mEntriesMutex;
+};
 
 class LOG_ENTRY
 {
@@ -52,13 +59,23 @@ LogManager::LogManager()
 {
 	_printLogo();
 
+    threadData = new threadDataHider();
+
 	boost::thread t(std::tr1::bind(&LogManager::_LoggerThread, this));
-	mThread = boost::move(t);
+	threadData->mThread = boost::move(t);
 
 	//Set the Defaults to No Logs.
 	mMinPriorities[0] = 0;
 	mMinPriorities[1] = 0;
 	mMinPriorities[2] = 0;
+}
+
+LogManager::~LogManager()
+{
+    threadData->mThread.interrupt();
+    threadData->mThread.join();
+
+    delete threadData;
 }
 
 bool LogManager::setupConsoleLogging(LOG_PRIORITY min_priority)
@@ -93,7 +110,7 @@ void LogManager::_LoggerThread()
 
 	while(true)
 	{
-		this->mEntriesMutex.lock();
+		threadData->mEntriesMutex.lock();
 
 		mTempEntries.reserve(mEntries.size());
 
@@ -102,7 +119,7 @@ void LogManager::_LoggerThread()
 			mTempEntries.push_back(mEntries.front());
 			mEntries.pop();
 		}
-		this->mEntriesMutex.unlock();
+		threadData->mEntriesMutex.unlock();
 
 		std::vector<LOG_ENTRY*>::iterator end = mTempEntries.end();
 
@@ -192,9 +209,9 @@ void LogManager::log(LOG_PRIORITY priority, std::string format, ...)
   entry->mMessage.assign(buffer.begin(), buffer.end());
 	entry->mContinuation = false;
 
-	mEntriesMutex.lock();
+	threadData->mEntriesMutex.lock();
 	mEntries.push(entry);
-	mEntriesMutex.unlock();
+	threadData->mEntriesMutex.unlock();
 }
 
 void LogManager::logCont(LOG_PRIORITY priority, std::string format, ...)
@@ -219,9 +236,9 @@ void LogManager::logCont(LOG_PRIORITY priority, std::string format, ...)
   entry->mMessage.assign(buffer.begin(), buffer.end());
 	entry->mContinuation = true;
 
-	mEntriesMutex.lock();
+	threadData->mEntriesMutex.lock();
 	mEntries.push(entry);
-	mEntriesMutex.unlock();
+	threadData->mEntriesMutex.unlock();
 }
 
 void LogManager::logS(LOG_PRIORITY priority, uint8 channels, std::string format, ...)
@@ -245,9 +262,9 @@ void LogManager::logS(LOG_PRIORITY priority, uint8 channels, std::string format,
   entry->mMessage.assign(buffer.begin(), buffer.end());
 	entry->mContinuation = false;
 
-	mEntriesMutex.lock();
+	threadData->mEntriesMutex.lock();
 	mEntries.push(entry);
-	mEntriesMutex.unlock();
+	threadData->mEntriesMutex.unlock();
 }
 
 void LogManager::logContS(LOG_PRIORITY priority, uint8 channels, std::string format, ...)
@@ -271,7 +288,7 @@ void LogManager::logContS(LOG_PRIORITY priority, uint8 channels, std::string for
   entry->mMessage.assign(buffer.begin(), buffer.end());
 	entry->mContinuation = true;
 
-	mEntriesMutex.lock();
+	threadData->mEntriesMutex.lock();
 	mEntries.push(entry);
-	mEntriesMutex.unlock();
+	threadData->mEntriesMutex.unlock();
 }

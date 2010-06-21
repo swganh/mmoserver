@@ -103,7 +103,7 @@ void Scout::sendAttributes(PlayerObject* playerObject)
 
 	gMessageFactory->addUint32(1 + mAttributeMap.size());
 
-	BString	tmpValueStr = string(BSTRType_Unicode16,64);
+	BString	tmpValueStr = BString(BSTRType_Unicode16,64);
 	BString	value;
 
 	tmpValueStr.setLength(swprintf(reinterpret_cast<wchar_t*>(tmpValueStr.getUnicode16()),20,L"%u/%u",mMaxCondition - mDamage,mMaxCondition));

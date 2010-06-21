@@ -30,11 +30,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define ANH_LOGMANAGER_H
 
 #include "Utils\typedefs.h"
-
-#include <boost/thread/thread.hpp>
 #include <string>
 #include <queue>
-#include <memory>
 
 #define LOG_CHANNEL_CONSOLE	 1
 #define LOG_CHANNEL_FILE	 2
@@ -45,6 +42,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class LOG_ENTRY;
 class Database;
+
+class threadDataHider;
 
 #define gLogger LogManager::getSingleton()
 
@@ -81,12 +80,12 @@ private:
 	LogManager();
 	LogManager(const LogManager&);
 	LogManager& operator=(const LogManager&);
+    ~LogManager();
 
 	void _printLogo();
 	void _LoggerThread();
 
-	boost::thread				mThread;
-	boost::mutex				mEntriesMutex;
+    threadDataHider* threadData;
 	std::queue<LOG_ENTRY*>		mEntries;
 
 

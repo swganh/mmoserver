@@ -299,13 +299,13 @@ bool Object::checkKnownPlayer(PlayerObject* player)
 }
 
 
-string Object::getBazaarName()
+BString Object::getBazaarName()
 {
     return "";
 }
 
 
-string Object::getBazaarTang()
+BString Object::getBazaarTang()
 {
     return "";
 }

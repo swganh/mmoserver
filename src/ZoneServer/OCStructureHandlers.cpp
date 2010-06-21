@@ -106,7 +106,7 @@ void	ObjectController::_handleModifyPermissionList(uint64 targetId,Message* mess
 	BString dataStr;
 	message->getStringUnicode16(dataStr);
 	
-	string playerStr,list,action;
+	BString playerStr,list,action;
 	
 	dataStr.convert(BSTRType_ANSI);
 

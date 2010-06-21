@@ -140,7 +140,7 @@ bool CraftingSession::AdjustComponentStack(Item* item, Inventory* inventory, uin
 // thats easy for stacks and a little more involved for factory crates
 // 
 
-string CraftingSession::ComponentGetSerial(Item* component)
+BString CraftingSession::ComponentGetSerial(Item* component)
 {
 
 	BString componentSerial = "";
@@ -1056,7 +1056,7 @@ void CraftingSession::emptySlot(uint32 slotId,ManufactureSlot* manSlot,uint64 co
 
 //=============================================================================
  //this creates the serial for a crafted item
-string CraftingSession::getSerial()
+BString CraftingSession::getSerial()
 {
 	int8	serial[12],chance[9];
 	bool	found = false;

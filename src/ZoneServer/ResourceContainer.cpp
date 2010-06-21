@@ -109,16 +109,16 @@ void ResourceContainer::setMaxAmount(uint32 max)
 }
 
 
-string ResourceContainer::getBazaarTang()
+BString ResourceContainer::getBazaarTang()
 {
     return getModelString();
 }
 
 //=============================================================================
 
-string	ResourceContainer::getBazaarName()
+BString	ResourceContainer::getBazaarName()
 {
-	BString value = string(BSTRType_ANSI,256);
+	BString value = BString(BSTRType_ANSI,256);
 
 	value.setLength(sprintf(value.getAnsi(),"%s (%s)",getResource()->getType()->getName().getAnsi(),getResource()->getName().getAnsi()));
 
@@ -139,7 +139,7 @@ void ResourceContainer::sendAttributes(PlayerObject* playerObject)
 		return;
 
 	Message*	newMessage;
-	BString		tmpValueStr = string(BSTRType_Unicode16,64);
+	BString		tmpValueStr = BString(BSTRType_Unicode16,64);
 	BString		value;
 
 	gMessageFactory->StartMessage();
@@ -213,7 +213,7 @@ void ResourceContainer::sendAttributes(PlayerObject* playerObject)
 				case ResAttr_FL: attrName = "res_flavor";				break;
 			}
 
-			tmpValueStr = string(BSTRType_Unicode16,64);
+			tmpValueStr = BString(BSTRType_Unicode16,64);
 			tmpValueStr.setLength(swprintf(tmpValueStr.getUnicode16(),10,L"%u",attrValue));
 
 			gMessageFactory->addString(attrName);

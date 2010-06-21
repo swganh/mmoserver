@@ -404,7 +404,7 @@ ObjectList* FireworkShow::_getInventoryFireworks(PlayerObject* playerObject)
 	return returnList;
 }
 
-string FireworkShow::_getType(uint32 type)
+BString FireworkShow::_getType(uint32 type)
 {
 	switch(type)
 	{

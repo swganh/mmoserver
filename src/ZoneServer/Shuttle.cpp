@@ -141,7 +141,7 @@ void Shuttle::useShuttle(PlayerObject* playerObject)
 
 		case ShuttleState_Away:
 		{
-			BString	awayMsg = string(BSTRType_Unicode16,256);
+			BString	awayMsg = BString(BSTRType_Unicode16,256);
 			uint32	minutes = (mAwayInterval - mAwayTime) / 60000;
 			uint32	seconds = (60000 - (mAwayTime%60000)) / 1000;
 

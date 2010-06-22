@@ -612,9 +612,17 @@ void ObjectController::_handleStopBand(uint64 targetId,Message* message,ObjectCo
 
 	if(performer->getGroupId() == 0)
 	{
-		gMessageLib->sendSystemMessage(performer,L"You are not in a band.");
+		gMessageLib->sendSystemMessage(performer,L"", "error_message", "not_grouped");
 		return;
 
+	}
+	// first check if the player can issue this command
+	// novice entertainer
+	// should setup an enum for skills
+	if (!performer->checkSkill(11))
+	{
+		gMessageLib->sendSystemMessage(performer, L"","error_message", "prose_nsf_skill_cmd","","",L"stopband");
+		return;
 	}
 
 	gEntertainerManager->StopBand(performer);
@@ -643,11 +651,10 @@ void ObjectController::_handleStartBand(uint64 targetId,Message* message,ObjectC
 
 	if(performer->getGroupId() == 0)
 	{
-		gMessageLib->sendSystemMessage(performer,L"You are not in a band.");
+		gMessageLib->sendSystemMessage(performer,L"", "error_message", "not_grouped");
 		return;
 
 	}
-
 	//get song
 	string dataStr;
 	message->getStringUnicode16(dataStr);
@@ -667,7 +674,7 @@ void ObjectController::_handleBandFlourish(uint64 targetId,Message* message,Obje
 
 	if(entertainer->getGroupId() == 0)
 	{
-		gMessageLib->sendSystemMessage(entertainer,L"You are not in a band.");
+		gMessageLib->sendSystemMessage(entertainer,L"", "error_message", "not_grouped");
 		return;
 
 	}

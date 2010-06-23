@@ -417,15 +417,15 @@ if not exist "tools\jam\src\bin.ntx86\bjam.exe" (
 rem Build the boost libraries we need.
 
 if "%BUILD_TYPE%" == "debug" (
-	cmd /c "tools\jam\src\bin.ntx86\bjam.exe" --toolset=msvc-%MSVC_VERSION%.0 --with-date_time --with-thread --with-regex --with-system variant=debug link=static runtime-link=shared threading=multi define=_SCL_SECURE_NO_WARNINGS=0
+	cmd /c "tools\jam\src\bin.ntx86\bjam.exe" --toolset=msvc-%MSVC_VERSION%.0 --with-date_time --with-thread --with-regex --with-system variant=debug link=static runtime-link=shared threading=multi define=_SCL_SECURE_NO_WARNINGS=0 >NUL
 )
 
 if "%BUILD_TYPE%" == "release" (
-	cmd /c "tools\jam\src\bin.ntx86\bjam.exe" --toolset=msvc-%MSVC_VERSION%.0 --with-date_time --with-thread --with-regex --with-system variant=release link=static runtime-link=shared threading=multi define=_SCL_SECURE_NO_WARNINGS=0
+	cmd /c "tools\jam\src\bin.ntx86\bjam.exe" --toolset=msvc-%MSVC_VERSION%.0 --with-date_time --with-thread --with-regex --with-system variant=release link=static runtime-link=shared threading=multi define=_SCL_SECURE_NO_WARNINGS=0 >NUL
 )
 
 if "%BUILD_TYPE%" == "all" (
-	cmd /c "tools\jam\src\bin.ntx86\bjam.exe" --toolset=msvc-%MSVC_VERSION%.0 --with-date_time --with-thread --with-regex --with-system variant=debug,release link=static runtime-link=shared threading=multi define=_SCL_SECURE_NO_WARNINGS=0
+	cmd /c "tools\jam\src\bin.ntx86\bjam.exe" --toolset=msvc-%MSVC_VERSION%.0 --with-date_time --with-thread --with-regex --with-system variant=debug,release link=static runtime-link=shared threading=multi define=_SCL_SECURE_NO_WARNINGS=0 >NUL
 )
 
 cd "%PROJECT_BASE%"

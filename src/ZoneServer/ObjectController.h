@@ -47,6 +47,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //=======================================================================
 
 class Message;
+class BuildingObject;
 class Object;
 class ObjectControllerCmdProperties;
 class ObjectControllerCommandMap;
@@ -200,6 +201,8 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback, 
 		void					handleDataTransform(Message* message,bool inRangeUpdate);
 		void					handleDataTransformWithParent(Message* message,bool inRangeUpdate);
 		uint64					playerWorldUpdate(bool forcedUpdate);	// Is called from the two above AND from timer function. We need updates even when client are not moving the player.
+
+		void					handleBuildingContentDespawn(BuildingObject* building, PlayerObject* player);
 
 		// trade
 		void					handleSecureTradeInvitation(uint64 targetId,Message* message);

@@ -153,10 +153,36 @@ bool zmap::AddObject(Object *newObject)
 			return false;
 		}
 	}
+	
+	//now create it for everyone around
+	if(newObject->getType() == ObjType_Player)
+	{
+		PlayerObject* player = dynamic_cast<PlayerObject*>(newObject);
+		std::list<Object*>* playerList = GetAllViewingRangeCellContents(FinalCell);
+		for(std::list<Object*>::iterator i = list.begin(); i != list.end(); i++)
+		{
+			gMessageLib->sendCreateObject((*i),player);
 
+			if((*i)->getType() == ObjType_Player)
+			{
+				PlayerObject* otherPlayer = dynamic_cast<PlayerObject*>((*i));
+				gMessageLib->sendCreateObject(player,otherPlayer);
+			}
+		}
+	}
+	else 
+	{
+		std::list<Object*>* playerList = GetPlayerViewingRangeCellContents(FinalCell);
+		for(std::list<Object*>::iterator i = list.begin(); i != list.end(); i++)
+		{
+			PlayerObject* otherPlayer = dynamic_cast<PlayerObject*>((*i));
+			gMessageLib->sendCreateObject(newObject,otherPlayer);
+		}
+	}
+	
 	list.push_back(newObject);
-	return true;
 
+	return true;
 }
 
 void zmap::RemoveObject(Object *removeObject)
@@ -180,6 +206,14 @@ void zmap::RemoveObject(Object *removeObject)
 			list.erase(i);
 			break;
 		}
+	}
+
+	//now destroy it for everyone around and around for it
+	std::list<Object*>* playerList = GetPlayerViewingRangeCellContents(cellId);
+	for(std::list<Object*>::iterator i = list.begin(); i != list.end(); i++)
+	{
+		PlayerObject* player = dynamic_cast<PlayerObject*>((*i));
+		gMessageLib->sendDestroyObject(removeObject->getId(),player);
 	}
 
 	return;

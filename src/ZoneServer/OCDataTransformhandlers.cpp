@@ -83,18 +83,16 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 	inMoveCount = message->getUint32();
   
 	// only process if its in sequence
-	if(player->getInMoveCount() >= inMoveCount)
+	if(player->getInMoveCount() > inMoveCount)
 	{
 		return;
 	}
-	//uint32 ticks = tickCount - player->getClientTickCount();
 
 	// update tick and move counters...
 	player->setLastMoveTick(tickCount);
 	player->setClientTickCount(tickCount);
 
 	player->setInMoveCount(inMoveCount);
-
 
 	// get new direction, position and speed
 	dir.x = message->getFloat();
@@ -118,131 +116,51 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 	// if we just left a building
 	if(player->getParentId() != 0)
 	{
-		updateAll = true;
 
 		// Testing with 4 for add and 0 for remove.
 		// Remove us from previous cell.
 		gMessageLib->broadcastContainmentMessage(player->getId(),player->getParentId(),0,player);
 
 		// remove us from the last cell we were in
-		if(CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId())))
+		CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()));
+		if(cell)
 		{
 			cell->removeObject(player);
 		}
 		else
 		{
 			gLogger->log(LogManager::DEBUG,"Error removing %"PRIu64" from cell(%"PRIu64")",player->getId(),player->getParentId());
+			assert(false && "cell not found");
 		}
 
 		// we are outside again
 		player->setParentId(0);
 		player->mPosition = pos;
+	
 		// Add us to the world.
 		gMessageLib->broadcastContainmentMessage(player->getId(),0,4,player);
+		mGrid->UpdateObject(player);
 
-		// add us to the qtree	/ Grid
-		mGrid->AddObject(player);
-
-		if(QTRegion* newRegion = mSI->getQTRegion((double)pos.x,(double)pos.z))
-		{
-			player->setSubZoneId((uint32)newRegion->getId());
-			player->setSubZone(newRegion);
-			newRegion->mTree->addObject(player);
-		}
-		else
-		{
-			// we should never get here !
-			// it basically means we left the map 
-			gLogger->log(LogManager::DEBUG,"ObjController::handleDataTransform: could not find zone region in map");
-			gLogger->log(LogManager::DEBUG,"ObjController:: probably a bot : %i64u",static_cast<int>(player->getId()));
-
-			// hammertime !
-			//muglies botter sometimes sends us weird positions
-			//however other 3rd party tools might do the same
-
-			gWorldManager->addDisconnectedPlayer(player);
-			return;
-		}
 		// Inform tutorial about cell change.
 		if (gWorldConfig->isTutorial())
 		{
 			player->getTutorial()->setCellId(0);
 		}
+
+		//now destroy the buildings contents
+		BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()));
+		handleBuildingContentDespawn(building,player);
+
+
 	}
-	else //we are not in a building
+	else //we have not been in a building
 	{
-		// we should be in a qt at this point check our qt if we still are inside its bounds
-		// please note, that there is exactly *one* qtregion per planet and qtregions do *not* overlap
-		// so there is no need to search the region everytime even if we should decide to add more qtregions
-		// subzone is NULL however, when we just left a building
 		mGrid->UpdateObject(player);
-		if(player->getSubZone() && player->getSubZone()->checkPlayerPosition(pos.x, pos.z))
+		
+		if(player->checkIfMounted() && player->getMount())
 		{
-			// this also updates the players position
-			player->getSubZone()->mTree->updateObject(player,pos);
-			//If our player is mounted lets update his mount aswell
-			if(player->checkIfMounted() && player->getMount())
-			{
-				player->getSubZone()->mTree->updateObject(player->getMount(),pos);		
-			}
-		}
-		else
-		//do an intersectsWithQuery of objects in the si to find our new region -
-		//CAVE shouldnt it be a contains query ?
-		//what do we do if several regions overlap ?
-		if(QTRegion* newRegion = mSI->getQTRegion((double)pos.x,(double)pos.z))
-		{
-			updateAll = true;
-
-			gLogger->log(LogManager::DEBUG,"ObjController::DataTransform: Changing subzone");
-			// remove from old
-			if(QTRegion* oldRegion = player->getSubZone())
-			{
-				oldRegion->mTree->removeObject(player);
-				//If our player is mounted lets update his mount aswell
-				if(player->checkIfMounted() && player->getMount())
-				{
-					oldRegion->mTree->removeObject(player->getMount());
-				}
-			}
-
-			// update players position
-			player->mPosition = pos;
-			//If our player is mounted lets update his mount aswell
-			if(player->checkIfMounted() && player->getMount())
-			{
-				player->getMount()->mPosition = pos;
-				mGrid->UpdateObject(player->getMount());
-			}
-
-			// put into new
-			player->setSubZoneId((uint32)newRegion->getId());
-			player->setSubZone(newRegion);
-
-			newRegion->mTree->addObject(player);
-			//If our player is mounted lets update his mount aswell
-			if(player->checkIfMounted() && player->getMount())
-			{
-				player->getMount()->setSubZoneId((uint32)newRegion->getId());
-				newRegion->mTree->addObject(player->getMount());
-			}
-		}
-		else
-		{
-			// we should never get here !
-			gLogger->log(LogManager::DEBUG,"ObjController::DataTransform: could not find zone region in map");
-
-			gLogger->log(LogManager::DEBUG,"ObjController:: probably a bot : %I64u",static_cast<int>(player->getId()));
-
-			// hammertime !
-			// muglies botter sometimes sends us weird positions  with X or Y far out of possible regions
-			// however other 3rd party tools might do the same
-			// we need to get rid of the client at this point nad probably should ban the player / add him to
-			// a monitoring list when the coordinates were indeed out of bounds
-
-			gWorldManager->addDisconnectedPlayer(player);
-			return;
-		}
+			mGrid->UpdateObject(player->getMount());		
+		}		
 	}
 
 	player->mDirection = dir;
@@ -273,49 +191,48 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 		}
 	}
 
-	if (updateAll)
+	if (gWorldConfig->isInstance())
 	{
-		// Update our world.
-		playerWorldUpdate(true);
+		// send out position updates to known players in group or self only
+		gMessageLib->sendUpdateTransformMessage(player, player);
+		return;
+	}
 
-		// Speed up the timed update, if any pending.
-		gWorldManager->addPlayerMovementUpdateTime(player, 250);
+	//If player is mounted... move his mount too!
+	if(player->checkIfMounted() && player->getMount())
+	{
+		//gMessageLib->sendDataTransform(player->getMount());
+		player->getMount()->mDirection = dir;
+		player->getMount()->setCurrentSpeed(speed);
+		player->getMount()->setLastMoveTick(tickCount);
+		player->getMount()->setInMoveCount((inMoveCount));
+		gMessageLib->sendUpdateTransformMessage(player->getMount());
 	}
 	else
 	{
-		if (!gWorldConfig->isInstance())
+		// send out position updates to known players
+		// please note that these updates mess up our dance performance
+		if(player->getPerformingState() == PlayerPerformance_None)
 		{
-
-			//If player is mounted... move his mount too!
-			if(player->checkIfMounted() && player->getMount())
-			{
-				//gMessageLib->sendDataTransform(player->getMount());
-				player->getMount()->mDirection = dir;
-				player->getMount()->setCurrentSpeed(speed);
-				player->getMount()->setLastMoveTick(tickCount);
-				player->getMount()->setInMoveCount((inMoveCount)); // + 1 or nor does not matter, as long as we update inMoveCount.
-				gMessageLib->sendUpdateTransformMessage(player->getMount());
-	
-	
-			}
-			else
-			{
-				// send out position updates to known players
-				// please note that these updates mess up our dance performance
-				if(player->getPerformingState() == PlayerPerformance_None)
-				{
-					gMessageLib->sendUpdateTransformMessage(player);
-				}
-		
-
-			}
-
+			gMessageLib->sendUpdateTransformMessage(player);
 		}
-		else
-		{
-			// send out position updates to known players in group or self only
-			gMessageLib->sendUpdateTransformMessage(player, player);
-		}
+	
+	}
+}
+//=============================================================================
+//
+// position update in cell
+//
+
+void ObjectController::handleBuildingContentDespawn(BuildingObject* building, PlayerObject* player)
+{
+
+	ObjectList list = building->getAllCellChilds();
+	ObjectList::iterator cellChildsIt = list.begin();
+	
+	while(cellChildsIt != list.end())
+	{
+		gMessageLib->sendDestroyObject((*cellChildsIt),player);
 	}
 }
 
@@ -341,161 +258,137 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 	inMoveCount = message->getUint32();
 
 	// only process if its in sequence
-	if (player->getInMoveCount() <= inMoveCount)
+	if (player->getInMoveCount() > inMoveCount)
 	{
-		uint64 oldParentId = player->getParentId();
+		return;
+	}
 
-		//uint32 ticks = tickCount - player->getClientTickCount();
+	uint64 oldParentId = player->getParentId();
 
-		// update tick and move counters
-		player->setClientTickCount(tickCount);
-		player->setInMoveCount(inMoveCount);
+	// update tick and move counters
+	player->setClientTickCount(tickCount);
+	player->setInMoveCount(inMoveCount);
 
-		// get new direction, position, parent and speed
-		parentId = message->getUint64();
-		dir.x = message->getFloat();
-		dir.y = message->getFloat();
-		dir.z = message->getFloat();
-		dir.w = message->getFloat();
-		pos.x = message->getFloat();
-		pos.y = message->getFloat();
-		pos.z = message->getFloat();
-		speed  = message->getFloat();
+	// get new direction, position, parent and speed
+	parentId = message->getUint64();
+	dir.x = message->getFloat();
+	dir.y = message->getFloat();
+	dir.z = message->getFloat();
+	dir.w = message->getFloat();
+	pos.x = message->getFloat();
+	pos.y = message->getFloat();
+	pos.z = message->getFloat();
+	speed  = message->getFloat();
 
-		// stop entertaining, if we were
-		if(player->getPerformingState() != PlayerPerformance_None && player->getPosture() != CreaturePosture_SkillAnimating)
+	// stop entertaining, if we were
+	if(player->getPerformingState() != PlayerPerformance_None && player->getPosture() != CreaturePosture_SkillAnimating)
+	{
+		gEntertainerManager->stopEntertaining(player);
+	}
+
+	// if we changed cell
+	if (oldParentId != parentId)
+	{
+		CellObject* cell = NULL;
+		// Remove us from whatever we where in before.
+		// (4 for add and 0 for remove)
+		gMessageLib->broadcastContainmentMessage(player->getId(),oldParentId,0,player);
+
+		if (oldParentId != 0)
 		{
-			gEntertainerManager->stopEntertaining(player);
-		}
-
-		// if we changed cell
-		if (oldParentId != parentId)
-		{
-			CellObject* cell = NULL;
-
-			// Remove us from whatever we where in before.
-			// (4 for add and 0 for remove)
-			gMessageLib->broadcastContainmentMessage(player->getId(),oldParentId,0,player);
-
-			// only remove us from si, if we just entered the building
-			if (oldParentId != 0)
+			if((cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(oldParentId))))
 			{
-				if((cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(oldParentId))))
-				{
-					cell->removeObject(player);
-					// Done above.. gMessageLib->broadcastContainmentMessage(player->getId(),parentId,4,player);
-				}
-				else
-				{
-					gLogger->log(LogManager::DEBUG,"Error removing %"PRIu64" from cell(%"PRIu64")",player->getId(),oldParentId);
-				}
+				cell->removeObject(player);
 			}
 			else
 			{
-				updateAll = true;		// We just entered the building.
-
-				// remove us from qt
-				if(player->getSubZoneId())
-				{
-					if(QTRegion* region = gWorldManager->getQTRegion(player->getSubZoneId()))
-					{
-						player->setSubZone(NULL);
-						player->setSubZoneId(0);
-						region->mTree->removeObject(player);
-						//If our player is mounted lets update his mount aswell
-						if(player->checkIfMounted() && player->getMount())
-						{
-							player->getMount()->setSubZoneId(0);
-							region->mTree->removeObject(player->getMount());
-
-							//Can't ride into a building with a mount! :-p
-							//However, its easy to do so we have handling incase the client is tricked.
-
-
-							// the vehicle is the INTANGIBLE Datapad Controller
-							// the *vehicle* itself is the BODY
-							if(VehicleController* datapad_pet = dynamic_cast<VehicleController*>(gWorldManager->getObjectById(player->getMount()->controller())))
-							{
-								datapad_pet->Store();
-							}
-						}
-					}
-				}
+				gLogger->log(LogManager::DEBUG,"Error removing %"PRIu64" from cell(%"PRIu64")",player->getId(),oldParentId);
 			}
-
-			// put us into new one
-			gMessageLib->broadcastContainmentMessage(player->getId(),parentId,4,player);
-			if((cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(parentId))))
-			{
-
-				cell->addObjectSecure(player);
-
-				// Inform tutorial about cell change.
-				if (gWorldConfig->isTutorial())
-				{
-					player->getTutorial()->setCellId(parentId);
-				}
-			}
-			else
-			{
-				gLogger->log(LogManager::DEBUG,"Error adding %"PRIu64" to cell(%"PRIu64")",player->getId(),parentId);
-			}
-		}
-
-		// update the player
-		player->setParentId(parentId);
-		player->mDirection = dir;
-		player->mPosition  = pos;
-		player->setCurrentSpeed(speed);
-
-		// destroy the instanced instrument if out of range
-		if (player->getPlacedInstrumentId())
-		{
-			if (!gWorldManager->objectsInRange(player->getId(), player->getPlacedInstrumentId(), 5.0))
-			{
-				if (Item* item = dynamic_cast<Item*>(gWorldManager->getObjectById(player->getPlacedInstrumentId())))
-				{
-					destroyObject(item->getId());
-				}
-			}
-		}
-
-		// Terminate active conversation with npc if to far away (trainers only so far).
-		ActiveConversation* ac = gConversationManager->getActiveConversation(player->getId());
-		if (ac != NULL)
-		{
-			// We do have a npc conversation going.
-			if (!gWorldManager->objectsInRange(player->getId(), (ac->getNpc())->getId(), 11.0))
-			{
-				// Terminate conversation, since we are out of range.
-				gMessageLib->sendSystemMessage(player,L"","system_msg","out_of_range");
-				gConversationManager->stopConversation(player, true);			// We will get the current dialog text in a chat bubble, only seen by me. Impressive :)
-			}
-		}
-
-		if (updateAll)
-		{
-			// Update our world.
-			playerWorldUpdate(true);
-
-			// Speed up the timed update, if any pending.
-			gWorldManager->addPlayerMovementUpdateTime(player, 250);
 		}
 		else
 		{
-			if (!gWorldConfig->isInstance())
+		 	// update grid with world position / building position???
+			// just screw it were in the same grid the building is and thats it
+			// mGrid->UpdateObject(player);//wed need to use playerworldposition anyway
+
+			if(player->checkIfMounted() && player->getMount())
 			{
-				// send out updates
-				gMessageLib->sendUpdateTransformMessageWithParent(player);
+				player->getMount()->setSubZoneId(0);
+				region->mTree->removeObject(player->getMount());
+
+				//Can't ride into a building with a mount! :-p
+				//However, its easy to do so we have handling incase the client is tricked.
+				// the vehicle is the INTANGIBLE Datapad Controller
+				// the *vehicle* itself is the BODY
+				if(VehicleController* datapad_pet = dynamic_cast<VehicleController*>(gWorldManager->getObjectById(player->getMount()->controller())))
+				{
+					datapad_pet->Store();
+				}
+					
 			}
-			else
+		}
+		
+		// put us into new cell
+		gMessageLib->broadcastContainmentMessage(player->getId(),parentId,4,player);
+		if((cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(parentId))))
+		{
+			cell->addObjectSecure(player);
+			// Inform tutorial about cell change.
+			if (gWorldConfig->isTutorial())
 			{
-				// send out position updates to known players in group or self only
-				gMessageLib->sendUpdateTransformMessageWithParent(player, player);
+				player->getTutorial()->setCellId(parentId);
+			}
+		}
+		else
+		{
+			gLogger->log(LogManager::DEBUG,"Error adding %"PRIu64" to cell(%"PRIu64")",player->getId(),parentId);
+			assert(false && "handleDataTransformWithParent::cell cannot be found");
+		}
+	}
+
+	// update the player
+	player->setParentId(parentId);
+	player->mDirection = dir;
+	player->mPosition  = pos;
+	player->setCurrentSpeed(speed);
+
+	// destroy the instanced instrument if out of range
+	if (player->getPlacedInstrumentId())
+	{
+		if (!gWorldManager->objectsInRange(player->getId(), player->getPlacedInstrumentId(), 5.0))
+		{
+			if (Item* item = dynamic_cast<Item*>(gWorldManager->getObjectById(player->getPlacedInstrumentId())))
+			{
+				destroyObject(item->getId());
 			}
 		}
 	}
+
+	// Terminate active conversation with npc if to far away (trainers only so far).
+	ActiveConversation* ac = gConversationManager->getActiveConversation(player->getId());
+	if (ac != NULL)
+	{
+		// We do have a npc conversation going.
+		if (!gWorldManager->objectsInRange(player->getId(), (ac->getNpc())->getId(), 11.0))
+		{
+			// Terminate conversation, since we are out of range.
+			gMessageLib->sendSystemMessage(player,L"","system_msg","out_of_range");
+			gConversationManager->stopConversation(player, true);			// We will get the current dialog text in a chat bubble, only seen by me. Impressive :)
+		}
+	}
+
+	if (!gWorldConfig->isInstance())
+	{
+		// send out updates
+		gMessageLib->sendUpdateTransformMessageWithParent(player);
+	}
+	else
+	{
+		// send out position updates to known players in group or self only
+		gMessageLib->sendUpdateTransformMessageWithParent(player, player);
+	}
 }
+
 
 
 //=========================================================================================

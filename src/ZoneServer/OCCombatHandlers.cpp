@@ -269,7 +269,7 @@ void ObjectController::_handlePeace(uint64 targetId,Message* message,ObjectContr
 		while(it != pList->end())
 		{
 			// check the target's peace state
-			if ((*it)->checkState(CreatureState_Peace) || !(*it)->checkState(CreatureState_Combat) )
+			if (!(*it)->checkState(CreatureState_Combat) )
 			{
 				_handleEndDuel((*it)->getId(), NULL, NULL);
 				it = pList->begin();

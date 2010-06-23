@@ -261,16 +261,26 @@ void ObjectController::_handlePeace(uint64 targetId,Message* message,ObjectContr
 		gMessageLib->sendStateUpdate(player);
 		player->disableAutoAttack();
 
-		//End any duels
-
+		//End any duels if both players press peace
+		
 		PlayerList* pList = player->getDuelList();
 		PlayerList::iterator it = pList->begin();
 
 		while(it != pList->end())
 		{
-			_handleEndDuel((*it)->getId(), NULL, NULL);
-			it = pList->begin();
+			// check the target's peace state
+			if ((*it)->checkState(CreatureState_Peace) || !(*it)->checkState(CreatureState_Combat) )
+			{
+				_handleEndDuel((*it)->getId(), NULL, NULL);
+				it = pList->begin();
+			}
+			else
+			{
+				++it;
+			}
+			
 		}
+
 	}
 }
 

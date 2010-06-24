@@ -331,10 +331,6 @@ void ZoneServer::_connectToConnectionServer(void)
 
 int main(int argc, char* argv[])
 {	
-#if !defined(_DEBUG) && defined(_WIN32)
-	SetUnhandledExceptionFilter(CreateMiniDump);
-#endif
-
 	// The second argument on the command line should be the zone name.
 	//OnlyInstallUnhandeldExceptionFilter(); // Part of stackwalker
 	char zone[50];
@@ -358,28 +354,24 @@ int main(int argc, char* argv[])
 
 	int8 configfileName[64];
 	sprintf(configfileName, "%s.cfg", zone);
+    
+    try {
+	    ConfigManager::Init(configfileName);
+    } catch (file_not_found) {
+        std::cout << "Unable to find configuration file: " << CONFIG_DIR << configfileName << std::endl;
+        exit(-1);
+    }
 
-	LogManager::Init();
-	gLogger->setupConsoleLogging((LogManager::LOG_PRIORITY)1);
+    try {
+	    LogManager::Init(
+            static_cast<LogManager::LOG_PRIORITY>(gConfig->read<int>("ConsoleLog_MinPriority", 6)),
+            static_cast<LogManager::LOG_PRIORITY>(gConfig->read<int>("FileLog_MinPriority", 6)),
+            gConfig->read<std::string>("FileLog_Name", std::string(zone)+std::string(".log")));
+    } catch (...) {
+        std::cout << "Unable to open log file for writing" << std::endl;
+        exit(-1);
+    }
 
-	ConfigManager::Init(configfileName);
-
-	try
-	{
-		gLogger->setupConsoleLogging((LogManager::LOG_PRIORITY)gConfig->read<int>("ConsoleLog_MinPriority"));
-		gLogger->setupFileLogging((LogManager::LOG_PRIORITY)gConfig->read<int>("FileLog_MinPriority"), gConfig->read<std::string>("FileLog_Name"));
-	}
-	catch(...)
-	{
-		printf("You messed up - please review logging settings in the conf file");
-		printf("set standard log values");
-		gLogger->setupConsoleLogging((LogManager::LOG_PRIORITY)4);
-		gLogger->setupFileLogging((LogManager::LOG_PRIORITY)3, zone);
-
-		//how ? the logger didnt start up, you know ??
-		//gLogger->log(LogManager::CRITICAL, "One of your settings is setup incorrectly. The server will not be able to log ANY messages until you configure the settings properly.");
-		//return -1;
-	}
 	// Start things up
 	gZoneServer = new ZoneServer((int8*)(gConfig->read<std::string>("ZoneName")).c_str());
 

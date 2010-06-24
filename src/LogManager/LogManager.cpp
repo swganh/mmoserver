@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <stdio.h>
 #include <vector>
 
+#include <exception>
 #include <fstream>
 #include <iomanip>
 
@@ -48,47 +49,34 @@ public:
 	bool mContinuation;
 };
 
-LogManager::LogManager()
+LogManager::LogManager(LOG_PRIORITY console_priority, LOG_PRIORITY file_priority, std::string filename)
 {
+	mMinPriorities[0] = console_priority;
+	mMinPriorities[1] = file_priority;
+
+	mFileName = filename;
+    
+    mOutputFile = std::unique_ptr<std::ofstream>(new std::ofstream(mFileName, std::ios_base::out));
+	if(!mOutputFile->is_open())
+	{
+		throw std::exception();
+	}
+
 	_printLogo();
 
 	boost::thread t(std::tr1::bind(&LogManager::_LoggerThread, this));
 	mThread = boost::move(t);
-
-	//Set the Defaults to No Logs.
-	mMinPriorities[0] = 0;
-	mMinPriorities[1] = 0;
-	mMinPriorities[2] = 0;
 }
 
-bool LogManager::setupConsoleLogging(LOG_PRIORITY min_priority)
+LogManager::~LogManager()
 {
-	mMinPriorities[0] = min_priority;
-	return true;
-}
-
-bool LogManager::setupFileLogging(LOG_PRIORITY min_priority, std::string filename)
-{
-	mMinPriorities[1] = min_priority;
-
-	mFileName = filename;
-
-	return true;
+    mOutputFile->close();
 }
 
 void LogManager::_LoggerThread()
 {
 	std::vector<LOG_ENTRY*> mTempEntries;
-
-	std::ofstream mOutputFile;
-
-	mOutputFile.open(mFileName, std::ios_base::out);
-
-	if(!mOutputFile.is_open())
-	{
-		this->log(EMERGENCY, "File Log Setup Error.");
-	}
-
+    
 	char* priority_strings[] = {"EMER", "ALRT", "CRIT", "ERRO", "WARN", "NOTI", "INFO", "DEBG"};
 
 	while(true)
@@ -124,34 +112,30 @@ void LogManager::_LoggerThread()
 			
 			if((*it)->mChannels & LOG_CHANNEL_FILE && ((*it)->mPriority <= mMinPriorities[1]))
 			{
-				if(mOutputFile.is_open())
+				if(mOutputFile->is_open())
 				{
 					if(!(*it)->mContinuation)
 					{
-						mOutputFile << "[" << std::setw(2) << t.tm_hour;
-						mOutputFile << ":" << std::setw(2) << t.tm_min;
-						mOutputFile << ":" << std::setw(2) << t.tm_sec;
-						mOutputFile << "] [" << priority_strings[(int)(*it)->mPriority - 1] << "] ";
+						*mOutputFile << "[" << std::setw(2) << t.tm_hour;
+						*mOutputFile << ":" << std::setw(2) << t.tm_min;
+						*mOutputFile << ":" << std::setw(2) << t.tm_sec;
+						*mOutputFile << "] [" << priority_strings[(int)(*it)->mPriority - 1] << "] ";
 
 						//fprintf(mOutputFile, "[%02d:%02d:%02d] [%s] ",t.tm_hour,t.tm_min,t.tm_sec, priority_strings[(int)(*it)->mPriority - 1]);
 					}
 					else
 					{
-						mOutputFile << "                  ";
+						*mOutputFile << "                  ";
 						//fprintf(mOutputFile, "                  ");
 					}
 					
-					mOutputFile << (*it)->mMessage.c_str() << std::endl;
-					mOutputFile.flush();
+					*mOutputFile << (*it)->mMessage.c_str() << std::endl;
+					mOutputFile->flush();
 					//fprintf(mOutputFile, "%s\n", (*it)->mMessage.c_str());
 					//fflush(mOutputFile);
 				}
 			}
-
-			//if((*it)->mChannels & LOG_CHANNEL_DATABASE && ((*it)->mPriority <= mMinPriorities[2]))
-			//{
-			//}
-
+            
 			delete (*it);
 		}
 

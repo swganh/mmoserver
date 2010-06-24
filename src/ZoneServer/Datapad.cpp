@@ -292,10 +292,8 @@ bool Datapad::addData(IntangibleObject* Data)
 
 void Datapad::updateWaypoint(uint64 wpId, string name, const glm::vec3& coords, uint16 planetId, uint64 owner, uint8 activeStatus)
 {
-	// check if the wp is found by names
-	// if they update the name, we don't want to update by id
 
-	if (getWaypointByName(name))
+	if (getWaypointById(wpId))
 	{
 		gObjectFactory->requestUpdatedWaypoint(this, wpId, name, coords, planetId, owner, activeStatus);
 	}

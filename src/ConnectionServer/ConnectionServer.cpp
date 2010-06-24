@@ -208,21 +208,22 @@ void ConnectionServer::ToggleLock()
 
 int main(int argc, char* argv[])
 {
-	// In release mode, catch any unhandled exceptions that may cause the program to crash and create a dump report.
-#if !defined(_DEBUG) && defined(_WIN32)
-	SetUnhandledExceptionFilter(CreateMiniDump);
-#endif
+    try {
+	    ConfigManager::Init("ConnectionServer.cfg");
+    } catch (file_not_found) {
+        std::cout << "Unable to find configuration file: " << CONFIG_DIR << "ConnectionServer.cfg" << std::endl;
+        exit(-1);
+    }
 
-	// init our logmanager singleton,set global level normal, create the default log with normal priority, output to file + console, also truncate
-	LogManager::Init();
-	gLogger->setupConsoleLogging((LogManager::LOG_PRIORITY)1);
-
-	// init out configmanager singleton (access configvariables with gConfig Macro,like: gConfig->readInto(test,"test");)
-	ConfigManager::Init("ConnectionServer.cfg");
-
-	gLogger->setupConsoleLogging((LogManager::LOG_PRIORITY)gConfig->read<int>("ConsoleLog_MinPriority"));
-	gLogger->setupFileLogging((LogManager::LOG_PRIORITY)gConfig->read<int>("FileLog_MinPriority"), gConfig->read<std::string>("FileLog_Name"));
-
+    try {
+	    LogManager::Init(
+            static_cast<LogManager::LOG_PRIORITY>(gConfig->read<int>("ConsoleLog_MinPriority", 6)),
+            static_cast<LogManager::LOG_PRIORITY>(gConfig->read<int>("FileLog_MinPriority", 6)),
+            gConfig->read<std::string>("FileLog_Name", "connection_server.log"));
+    } catch (...) {
+        std::cout << "Unable to open log file for writing" << std::endl;
+        exit(-1);
+    }
 
 	gConnectionServer = new ConnectionServer();
 

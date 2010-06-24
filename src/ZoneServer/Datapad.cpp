@@ -287,6 +287,21 @@ bool Datapad::addData(IntangibleObject* Data)
 }
 
 //=============================================================================
+// given a waypoint object, this will update the player and database to the new waypoint location
+// used for Surveying, FindFriend, Missions, anything where we would have deleted and then created a new waypoint
+
+void Datapad::updateWaypoint(uint64 wpId, string name, const glm::vec3& coords, uint16 planetId, uint64 owner, uint8 activeStatus)
+{
+	// check if the wp is found by names
+	// if they update the name, we don't want to update by id
+
+	if (getWaypointByName(name))
+	{
+		gObjectFactory->requestUpdatedWaypoint(this, wpId, name, coords, planetId, owner, activeStatus);
+	}
+		
+}
+//=============================================================================
 
 void Datapad::handleObjectReady(Object* object,DispatchClient* client)
 {

@@ -69,7 +69,8 @@ enum OFQuery
 	OFQuery_Item						= 3,
 	OFQuery_Harvester					= 4,
 	OFQuery_Factory						= 5,
-	OFQuery_House						= 6
+	OFQuery_House						= 6,
+	QFQuery_WaypointUpdate				= 7
 };
 
 //=============================================================================
@@ -93,6 +94,7 @@ class ObjectFactory : public DatabaseCallback
 		void					requestNewDefaultItem(ObjectFactoryCallback* ofCallback,uint32 familyId,uint32 typeId,uint64 parentId,uint16 planetId, const glm::vec3& position, const string& customName = "");
 		void					requestNewDefaultManufactureSchematic(ObjectFactoryCallback* ofCallback,uint32 schemCrc,uint64 parentId);
 		void					requestNewWaypoint(ObjectFactoryCallback* ofCallback,string name, const glm::vec3& coords,uint16 planetId,uint64 ownerId,uint8 wpType);
+		void					requestUpdatedWaypoint(ObjectFactoryCallback* ofCallback,uint64 wpId,string name, const glm::vec3& coords,uint16 planetId,uint64 ownerId,uint8 activeStatus);
 		void					requestNewTravelTicket(ObjectFactoryCallback* ofCallback,TicketProperties ticketProperties,uint64 parentId,uint16 planetId);
 		void					requestNewResourceContainer(ObjectFactoryCallback* ofCallback,uint64 resourceId,uint64 parentId,uint16 planetId,uint32 amount);
 		void					requestnewHarvesterbyDeed(ObjectFactoryCallback* ofCallback,Deed* deed,DispatchClient* client, float x, float y, float z, float dir, string customName, PlayerObject* player);

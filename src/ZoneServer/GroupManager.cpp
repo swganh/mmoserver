@@ -421,16 +421,19 @@ void GroupManager::sendGroupMissionUpdate(GroupObject* group)
 		if(waypoint)
 		{
 			gMessageLib->sendUpdateWaypoint(waypoint,ObjectUpdateAdd,player);
-			datapad->removeWaypoint(waypoint);
-			gObjectFactory->deleteObjectFromDB(waypoint);
-
+			// now update the DB
+			datapad->updateWaypoint(waypoint->getId(), waypoint->getName(), mission->getDestination().Coordinates,
+				static_cast<uint16>(gWorldManager->getZoneId()), player->getId(), WAYPOINT_ACTIVE);
+			gMessageLib->sendSystemMessage(player,L"","group","groupwaypoint");
 		}
 		else
-		// create a new one
-		if(datapad->getCapacity())
 		{
-			datapad->requestNewWaypoint("@group:groupwaypoint",mission->getDestination().Coordinates,static_cast<uint16>(gWorldManager->getZoneId()),Waypoint_blue);
-			gMessageLib->sendSystemMessage(player,L"","group","groupwaypoint");
+			// create a new one
+			if(datapad->getCapacity())
+			{
+				datapad->requestNewWaypoint("@group:groupwaypoint",mission->getDestination().Coordinates,static_cast<uint16>(gWorldManager->getZoneId()),Waypoint_blue);
+				gMessageLib->sendSystemMessage(player,L"","group","groupwaypoint");
+			}
 		}
 
 		

@@ -556,6 +556,8 @@ void TradeManager::_processFindFriendCreateWaypointMessage(Message* message,Disp
 	WaypointObject* wp = datapad->getWaypointByName(playerFriendName);
 	if(wp)
 	{
+		gMessageLib->sendUpdateWaypoint(wp,ObjectUpdateDelete,playerObject);
+		gObjectFactory->deleteObjectFromDB(wp);
 		datapad->removeWaypoint(wp->getId());
 	}
 

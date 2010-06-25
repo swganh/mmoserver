@@ -541,9 +541,9 @@ void TradeManager::_processFindFriendCreateWaypointMessage(Message* message,Disp
 	string	playerFriendName;
 	message->getStringAnsi(playerFriendName);
 
-	uint32 planet = message->getUint32();//
-	float x = message->getFloat();//
-	float z = message->getFloat();//
+	uint32 planet = message->getUint32();
+	float x = message->getFloat();
+	float z = message->getFloat();
 
 	PlayerObject* playerObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId));
 
@@ -556,12 +556,17 @@ void TradeManager::_processFindFriendCreateWaypointMessage(Message* message,Disp
 	WaypointObject* wp = datapad->getWaypointByName(playerFriendName);
 	if(wp)
 	{
-		datapad->removeWaypoint(wp->getId());
+		//update instead of deleting and re-creating...
+		
+		gMessageLib->sendUpdateWaypoint(wp, ObjectUpdateAdd, playerObject);
+		datapad->updateWaypoint(wp->getId(), playerFriendName.getAnsi(), position, static_cast<uint16>(planet), playerObject->getId(), WAYPOINT_ACTIVE);
 	}
-
-	if(datapad->getCapacity())
+	else
 	{
-		datapad->requestNewWaypoint(playerFriendName.getAnsi(),position,static_cast<uint16>(planet),Waypoint_blue);
+		if(datapad->getCapacity())
+		{
+			datapad->requestNewWaypoint(playerFriendName.getAnsi(),position,static_cast<uint16>(planet),Waypoint_blue);
+		}
 	}
 }
 

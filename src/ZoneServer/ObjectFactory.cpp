@@ -271,7 +271,25 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				gLogger->log(LogManager::DEBUG,"ObjFactory::createWaypoint failed");
 		}
 		break;
-
+		case QFQuery_WaypointUpdate:
+		{
+			// we're looking for a value of the waypoint that was updated
+			uint8 returnId = 0;
+			DataBinding* binding = mDatabase->CreateDataBinding(1);
+			binding->addField(DFT_uint8,0,1);
+			result->GetNextRow(binding,&returnId);
+			mDatabase->DestroyDataBinding(binding);
+			switch (returnId)
+			{
+				case 0:
+				case 3:
+					mWaypointFactory->requestObject(asyncContainer->ofCallback,asyncContainer->Id,0,0,asyncContainer->client);
+					break;
+				default:
+					gLogger->log(LogManager::DEBUG,"ObjFactory::updateWaypoint failed");
+			}
+		}
+		break;
 		case OFQuery_Item:
 		{
 			uint64 requestId = 0;
@@ -604,7 +622,29 @@ void ObjectFactory::requestNewWaypoint(ObjectFactoryCallback* ofCallback,string 
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
 
 }
+//=============================================================================
+//
+// update existing waypoint
+// never call this directly - always go over the datapad!!!!!  
+//
+void ObjectFactory::requestUpdatedWaypoint(ObjectFactoryCallback* ofCallback,uint64 wpId,string name, 
+	 const glm::vec3& coords,uint16 planetId,uint64 ownerId, uint8 activeStatus)
+{
+	PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(ownerId));
+	OFAsyncContainer* asyncContainer = new(mDbAsyncPool.ordered_malloc()) OFAsyncContainer(ofCallback,QFQuery_WaypointUpdate,player->getClient());
+	asyncContainer->Id = wpId;
 
+	int8 sql[512],*sqlPointer;
+	int8 restStr[128];
+
+	sprintf(sql,"CALL sp_WaypointUpdate('");
+	sqlPointer = sql + strlen(sql);
+	sqlPointer += mDatabase->Escape_String(sqlPointer,name.getAnsi(),name.getLength());
+	sprintf(restStr,"',%"PRIu64",%f,%f,%f,%u,%u)",wpId, coords.x, coords.y, coords.z, planetId, activeStatus);
+	strcat(sql,restStr);
+
+	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
+}
 //=============================================================================
 
 void ObjectFactory::requestTanoNewParent(ObjectFactoryCallback* ofCallback,uint64 ObjectId,uint64 parentID, TangibleGroup Group)

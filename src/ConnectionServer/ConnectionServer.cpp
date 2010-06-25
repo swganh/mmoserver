@@ -197,11 +197,11 @@ void ConnectionServer::ToggleLock()
 	{
 		// Update our status for the LoginServer
 		mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE galaxy SET status=3,last_update=NOW() WHERE galaxy_id=%u;",mClusterId));
-		gLogger->log(LogManager::NOTICE,"Locking server to normal users");
+		gLogger->log(LogManager::INFORMATION,"Locking server to normal users");
 	} else {
 		// Update our status for the LoginServer
 		mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE galaxy SET status=2,last_update=NOW() WHERE galaxy_id=%u;",mClusterId));
-		gLogger->log(LogManager::NOTICE,"unlocking server to normal users");
+		gLogger->log(LogManager::INFORMATION,"unlocking server to normal users");
 	}
 }
 //======================================================================================================================

@@ -249,6 +249,16 @@ uint64 DatabaseImplementationMySql::GetInsertId(void)
 
 uint32 DatabaseImplementationMySql::Escape_String(int8* target,const int8* source,uint32 length)
 {
+	if(!target) 
+	{
+		gLogger->log(LogManager::CRITICAL,"Bad Ptr 'int8* target' at DatabaseImplementationMySql::Escape_String.");
+		return 0;
+	}
+	if(!source) 
+	{
+		gLogger->log(LogManager::CRITICAL,"Bad Ptr 'const int8* source' at DatabaseImplementationMySql::Escape_String.");
+		return 0;
+	}
 	return(mysql_real_escape_string(mConnection,target,source,length));
 }
 

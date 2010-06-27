@@ -233,7 +233,7 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult
 			{
 				// We do not have support for handling creatures inside.
 				//assert(false && "NonPersistentNpcFactory::handleDatabaseJobComplete NonPersistentNpcQuery_LairTemplate No support for handling creatures inside");
-				gLogger->log(LogManager::CRITICAL,"NonPersistentNpcFactory::handleDatabaseJobComplete NonPersistentNpcQuery_LairTemplate No support for handling creatures inside.",familyId);
+				gLogger->log(LogManager::CRITICAL,"NonPersistentNpcFactory::handleDatabaseJobComplete NonPersistentNpcQuery_LairTemplate No support for handling creatures inside.");
 				npc->mPosition.y = 0;
 			}
 			

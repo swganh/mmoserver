@@ -175,8 +175,12 @@ bool MessageLib::sendBaselinesPLAY_8(PlayerObject* playerObject,PlayerObject* ta
 	// waypoint list size
 	uint32					waypointsByteCount	= 0;
 	Datapad* datapad							= playerObject->getDataPad();
-	WaypointList*			waypointList		= datapad->getWaypoints();
-	WaypointList::iterator	waypointIt			= waypointList->begin();
+	if(datapad){
+		WaypointList*			waypointList		= datapad->getWaypoints();
+		WaypointList::iterator	waypointIt			= waypointList->begin();
+	}else{//Crashbug patch: http://paste.swganh.org/viewp.php?id=20100627075254-3882bd68067f13266819ae6d0c4428e4
+		gLogger->log(LogManager::WARNING,"MessageLib::sendBaselinesPLAY_8: Failed to find datapad for playerId:%u. Did not initialize waypList(s).", playerObject->getId());
+	}
 
 	while(waypointIt != waypointList->end())
 	{

@@ -141,7 +141,13 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				
 			}
 			InLoadingContainer* ilc = _getObject(asyncContainer->mHopper);
-			
+
+			if(!ilc){//Crashbug patch for: http://paste.swganh.org/viewp.php?id=20100627075436-83ca0076fa8abc2a4347e45ee3ede3eb
+				mDatabase->DestroyDataBinding(binding);
+				gLogger->log(LogManager::CRITICAL,"FactoryFactory::handleObjectReady: No ILC found for asyncContainer->mHopper:%u", asyncContainer->mId);
+				return;
+			}
+
 			if((--ilc->mLoadCounter)== 0)
 			{
 				gLogger->log(LogManager::DEBUG,"FactoryFactory: FFQuery_HopperItemAttributeUpdate attribute load ended item refresh!");

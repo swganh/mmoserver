@@ -494,6 +494,7 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 		{
 			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById( structure->getTTS()->playerId ));
 			if(!player){//Crash bug patch: http://paste.swganh.org/viewp.php?id=20100627004133-026ea7b07136cfad7a5463216da5ab96
+				gLogger->log(LogManager::WARNING,"StructureManager::_handleStructureObjectTimers could not find the player with ID:%u.",structure->getTTS()->playerId);
 				return false;
 			}
 			if(structure->canRedeed())

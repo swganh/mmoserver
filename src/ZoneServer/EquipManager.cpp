@@ -153,6 +153,7 @@ uint8 EquipManager::removeEquippedObject(uint64 slotMask)
 Object* EquipManager::getEquippedObject(CreatureEquipSlot slot)
 {
 	if(!slot || !mSlotMap.empty()){//Crash bug patch: http://paste.swganh.org/viewp.php?id=20100627004133-026ea7b07136cfad7a5463216da5ab96
+		gLogger->log(LogManager::WARNING,"EquipManager::getEquippedObject could not locate slot given(%u), or the SlotMap was empty.",slot);
 		return(NULL);
 	}
 	SlotMap::iterator it = mSlotMap.find(slot);

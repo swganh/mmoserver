@@ -201,6 +201,12 @@ void CellFactory::_destroyDatabindings()
 void CellFactory::handleObjectReady(Object* object,DispatchClient* client)
 {
 	InLoadingContainer* ilc = _getObject(object->getParentId());
+
+	if (! ilc) {//Crashbug fix: http://paste.swganh.org/viewp.php?id=20100627114151-8f7df7f74013af71c0d0b00bc240770d
+		gLogger->log(LogManager::WARNING,"CellFactory::handleObjectReady could not locate ILC for objectParentId:%I64u",object->getParentId());
+		return;
+	}
+
 	CellObject*			cell = dynamic_cast<CellObject*>(ilc->mObject);
 
 	gWorldManager->addObject(object,true);

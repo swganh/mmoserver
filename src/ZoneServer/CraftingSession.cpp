@@ -340,7 +340,11 @@ void CraftingSession::handleObjectReady(Object* object,DispatchClient* client)
 {
 
 	Item* item = dynamic_cast<Item*>(object);
-
+	if(!item){//removal of schem? Crashbug patch for: http://paste.swganh.org/viewp.php?id=20100627064849-3d026388be3dc63f7d9706f737e6d510
+		gLogger->log(LogManager::CRITICAL,"CraftingSession::handleObjectReady: Cast except from object to item, likely unloading a schem. Setting schem to null, but we need to handle this correctly.");
+		mManufacturingSchematic = NULL;
+		return;
+	}
 	// its the manufacturing schematic
 	if(item->getItemFamily() == ItemFamily_ManufacturingSchematic)
 	{
@@ -357,8 +361,8 @@ void CraftingSession::handleObjectReady(Object* object,DispatchClient* client)
 		mItem = item;
 
 		// link item data
-		mManufacturingSchematic->setName(mItem->getName().getAnsi());
-		mManufacturingSchematic->setItemModel(mItem->getModelString().getAnsi());
+			mManufacturingSchematic->setName(mItem->getName().getAnsi());
+			mManufacturingSchematic->setItemModel(mItem->getModelString().getAnsi());
 		//mManufacturingSchematic->setModelString(mItem->getModelString());
 
 		// set up initial configuration
@@ -377,9 +381,6 @@ void CraftingSession::handleObjectReady(Object* object,DispatchClient* client)
 		//% just upsets the standard query
 		mDatabase->ExecuteSqlAsyncNoArguments(this,container,sql);
 		//mDatabase->ExecuteSqlAsync(this,container,sql);
-
-
-
 	}
 }
 

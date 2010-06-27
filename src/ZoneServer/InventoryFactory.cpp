@@ -239,7 +239,7 @@ void InventoryFactory::handleObjectReady(Object* object,DispatchClient* client)
 
 	InLoadingContainer* ilc	= _getObject(object->getParentId());
 
-	if (! ilc) {
+	if (! ilc) {//Crashbug fix
 		gLogger->log(LogManager::WARNING,"InventoryFactory::handleObjectReady could not locate ILC for objectId:%I64u",object->getId());
 		return;
 	}

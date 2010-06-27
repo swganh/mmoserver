@@ -314,15 +314,17 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
 	{
 		case ObjType_Waypoint:
 		{
-			theID	= object->getParentId()+3;
-			mIlc	= _getObject(theID);
-			datapad = dynamic_cast<Datapad*>(mIlc->mObject);
 
-			if(!mIlc)
+			if(!mIlc)//Crashbug: http://paste.swganh.org/viewp.php?id=20100627115039-d2b72a7217f5134f431fd7aaea6a0c15
 			{
 				gLogger->log(LogManager::DEBUG,"DatapadFactory: Failed getting ilc");
 				return;
 			}
+
+			theID	= object->getParentId()+3;
+			mIlc	= _getObject(theID);
+			datapad = dynamic_cast<Datapad*>(mIlc->mObject);
+
 			mIlc->mLoadCounter--;
 
 			datapad->addWaypoint(dynamic_cast<WaypointObject*>(object));

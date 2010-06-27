@@ -98,8 +98,13 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
 	{
 		case POFQuery_MainPlayerData:
 		{
-
+			
 			PlayerObject* playerObject = _createPlayer(result);
+			if(!playerObject) 
+			{
+				gLogger->log(LogManager::CRITICAL,"Failed to Load Player (Account id=%u) at PlayerObjectFactory::handleDatabaseJobComplete.",asyncContainer->mClient->getAccountId());
+				return;
+			}
 
 			playerObject->setClient(asyncContainer->mClient);
 			QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,POFQuery_Skills,asyncContainer->mClient);
@@ -521,6 +526,8 @@ PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
 	playerBank->setParent(playerObject);
 
 	uint64 count = result->getRowCount();
+
+	if(count < 3) return NULL;
 
 	// get our results
 	result->GetNextRow(mPlayerBinding,(void*)playerObject);

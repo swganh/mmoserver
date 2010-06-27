@@ -235,7 +235,17 @@ void DatabaseImplementationMySql::GetNextRow(DatabaseResult* result, DataBinding
 //======================================================================================================================
 void DatabaseImplementationMySql::ResetRowIndex(DatabaseResult* result, uint64 index)
 {
-  mysql_data_seek((MYSQL_RES*)result->getResultSetReference(), index);
+	if(!result){
+		gLogger->log(LogManager::CRITICAL,"Bad Ptr 'DatabaseResult* result' at DatabaseImplementationMySql::ResetRowIndex.");
+		return;
+	}
+	MYSQL_RES* temp = (MYSQL_RES*)result->getResultSetReference();
+	if(!temp)
+	{
+		gLogger->log(LogManager::CRITICAL,"Bad Ptr '(MYSQL_RES*)result->getResultSetReference()' at DatabaseImplementationMySql::ResetRowIndex.");
+		return;
+	}
+  mysql_data_seek(temp, index);
 }
 
 

@@ -493,6 +493,9 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 		if(structure->getTTS()->todo == ttE_Delete)
 		{
 			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById( structure->getTTS()->playerId ));
+			if(!player){//Crash bug patch: http://paste.swganh.org/viewp.php?id=20100627004133-026ea7b07136cfad7a5463216da5ab96
+				return false;
+			}
 			if(structure->canRedeed())
 			{	
 				Inventory* inventory	= dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));

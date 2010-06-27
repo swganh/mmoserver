@@ -153,7 +153,10 @@ NonPersistentNpcFactory::~NonPersistentNpcFactory()
 
 void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 {
-	
+	if(!result){//Crash bug; http://paste.swganh.org/viewp.php?id=20100627073558-0930186c997f6dae885bf5b9b0655b8f
+		gLogger->log(LogManager::CRITICAL,"NonPersistentNpcFactory::handleDatabaseJobComplete() DatabaseResult object passed was invalid!");
+		return;
+	}
 	QueryNonPersistentNpcFactory* asyncContainer = reinterpret_cast<QueryNonPersistentNpcFactory*>(ref);
 
 	switch(asyncContainer->mQueryType)

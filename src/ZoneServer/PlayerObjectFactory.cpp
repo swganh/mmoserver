@@ -543,8 +543,13 @@ PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
 
 	//male or female ?
 	BStringVector				dataElements;
-	playerObject->mModel.split(dataElements,'_');
-	playerObject->setGender(dataElements[1].getCrc() == BString("female.iff").getCrc());
+	playerObject->mModel.split(dataElements,'_');	
+	if(dataElements.size() > 1){
+		playerObject->setGender(dataElements[1].getCrc() == BString("female.iff").getCrc());
+	}else{//couldn't find data, default to male. Is this acceptable? Crash bug patch: http://paste.swganh.org/viewp.php?id=20100627013612-b69ab274646815fb2a9befa4553c93f7
+		gLogger->log(LogManager::WARNING,"PlayerObjectFactory::_createPlayer: Could not determine requested gender, defaulting to male. PlayerId:%u", playerObject->getId());
+		playerObject->setGender(false);
+	}
 
 	// player object
 	int8 tmpModel[128];

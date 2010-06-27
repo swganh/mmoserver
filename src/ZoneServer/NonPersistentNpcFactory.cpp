@@ -232,7 +232,8 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult
 			else
 			{
 				// We do not have support for handling creatures inside.
-				assert(false && "NonPersistentNpcFactory::handleDatabaseJobComplete NonPersistentNpcQuery_LairTemplate No support for handling creatures inside");
+				//assert(false && "NonPersistentNpcFactory::handleDatabaseJobComplete NonPersistentNpcQuery_LairTemplate No support for handling creatures inside");
+				gLogger->log(LogManager::CRITICAL,"NonPersistentNpcFactory::handleDatabaseJobComplete NonPersistentNpcQuery_LairTemplate No support for handling creatures inside.",familyId);
 				npc->mPosition.y = 0;
 			}
 			
@@ -431,16 +432,17 @@ NPCObject* NonPersistentNpcFactory::createNonPersistentNpc(DatabaseResult* resul
 			// First time lairs.
 
 			//Lairs are not supported here, at least not yet.
-			assert(false && "NonPersistentNpcFactory::createNonPersistent NpcFamily_NaturalLairs Lairs are not supported here yet.");
-			npc	= new LairObject(templateId);
+			gLogger->log(LogManager::WARNING,"NonPersistentNpcFactory::createNonPersistent NpcFamily_NaturalLairs Family(%u), but this is not implemented.",familyId);
+			return NULL;
+			//npc	= new LairObject(templateId);
 		}
 		break;
 
 		default:
 		{
-			gLogger->log(LogManager::CRITICAL,"NonPersistentNpcFactory::createNonPersistent unknown Family %u",familyId);
-			assert(false && "NonPersistentNpcFactory::createNonPersistent unknown family");
-			npc = new NPCObject();
+			gLogger->log(LogManager::WARNING,"NonPersistentNpcFactory::createNonPersistent unknown Family(%u).",familyId);
+			return NULL;
+			//npc = new NPCObject();
 		}
 		break;
 	}
@@ -493,7 +495,8 @@ NPCObject* NonPersistentNpcFactory::createNonPersistentNpc(DatabaseResult* resul
 	else if (npc->getNpcFamily() == NpcFamily_NaturalLairs)
 	{
 		//Lairs are not supported here, at least not yet.
-		assert(false && "NonPersistentNpcFactory::createNonPersistent NpcFamily_NaturalLairs Lairs not supported here yet");
+		gLogger->log(LogManager::WARNING,"NonPersistentNpcFactory::createNonPersistent NpcFamily_NaturalLairs Family(%u), but this is not implemented.",familyId);
+		return NULL;
 
 		// Dynamic spawned pve-enabled "static" creatures like lairs.
 		npc->setType(ObjType_Creature);

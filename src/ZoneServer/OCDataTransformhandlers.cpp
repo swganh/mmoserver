@@ -849,9 +849,9 @@ bool ObjectController::_destroyOutOfRangeObjects(ObjectSet *inRangeObjects)
 	// iterate our knowns
 	PlayerObject*				player			= dynamic_cast<PlayerObject*>(mObject);
 	ObjectSet*					knownObjects	= player->getKnownObjects();
-	ObjectSet::iterator			objIt			= knownObjects->begin();
+	ObjectSet::const_iterator			objIt			= knownObjects->begin();
 	PlayerObjectSet*			knownPlayers	= player->getKnownPlayers();
-	PlayerObjectSet::iterator	playerIt		= knownPlayers->begin();
+	PlayerObjectSet::const_iterator	playerIt		= knownPlayers->begin();
 
 	const uint32 objectDestroyLimit = 5000;
 

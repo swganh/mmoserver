@@ -528,11 +528,11 @@ PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
 	uint64 count = result->getRowCount();
 
 	//check for 3 rows as we need to call GetNextRow 3 times
-	if(count < 3) 
+	/*if(count < 3) 
 	{
 		gLogger->log(LogManager::CRITICAL,"Insufficient Rows Returned when Loading a Player at PlayerObjectFactory::_createPlayer.");
 		return NULL;
-	}
+	}*/
 
 	// get our results
 	result->GetNextRow(mPlayerBinding,(void*)playerObject);

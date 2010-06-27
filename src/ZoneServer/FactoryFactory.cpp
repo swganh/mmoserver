@@ -432,6 +432,11 @@ void FactoryFactory::handleObjectReady(Object* object,DispatchClient* client)
 	//ILC ID on hoppercontent load is the hoppers ID
 
 	InLoadingContainer* ilc = _getObject(object->getParentId());
+	if(!ilc){//Crashbug patch for: http://paste.swganh.org/viewp.php?id=20100627071644-6c8c2b45ecb37f7914372484cd105bfe
+		factory = NULL;
+		gLogger->log(LogManager::CRITICAL,"FactoryFactory::handleObjectReady: No ILC found for object parentId:%u", object->getParentId());
+		return;
+	}
 	FactoryObject*		factory = dynamic_cast<FactoryObject*>(ilc->mObject);
 	if(!factory)
 	{

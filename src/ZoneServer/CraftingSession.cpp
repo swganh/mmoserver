@@ -339,11 +339,6 @@ void CraftingSession::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 void CraftingSession::handleObjectReady(Object* object,DispatchClient* client)
 {
 
-	//if(!client){//Crashbug patch 
-	//	gLogger->log(LogManager::CRITICAL,"CraftingSession::handleObjectReady: Client passed is not valid, ignoring...");
-	//	mManufacturingSchematic = NULL;
-	//	return;
-	//}
 	Item* item = dynamic_cast<Item*>(object);
 	if(!item){//removal of schem? Crashbug patch for: http://paste.swganh.org/viewp.php?id=20100627064849-3d026388be3dc63f7d9706f737e6d510
 		gLogger->log(LogManager::CRITICAL,"CraftingSession::handleObjectReady: Cast except from object to item, likely unloading a schem. Setting schem to null, but we need to handle this correctly.");
@@ -366,18 +361,8 @@ void CraftingSession::handleObjectReady(Object* object,DispatchClient* client)
 		mItem = item;
 
 		// link item data
-		if(mItem->getName().getLength() > 0){//Crashbug patch for: http://paste.swganh.org/viewp.php?id=20100627064849-3d026388be3dc63f7d9706f737e6d510
 			mManufacturingSchematic->setName(mItem->getName().getAnsi());
-		}else{
-			mManufacturingSchematic->setName("Error");
-			gLogger->log(LogManager::CRITICAL,"CraftingSession::handleObjectReady: mItem(%u) had a 0 length name, defaulted to Error. Behavior unpredictable.", mItem->getId());
-		}
-		if(mItem->getModelString().getLength() > 0){
 			mManufacturingSchematic->setItemModel(mItem->getModelString().getAnsi());
-		}else{
-			mManufacturingSchematic->setItemModel("Error");
-			gLogger->log(LogManager::CRITICAL,"CraftingSession::handleObjectReady: mItem(%u) had a 0 length model, defaulted to Error. Behavior unpredictable.", mItem->getId());
-		}
 		//mManufacturingSchematic->setModelString(mItem->getModelString());
 
 		// set up initial configuration

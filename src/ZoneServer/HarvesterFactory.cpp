@@ -255,6 +255,11 @@ void HarvesterFactory::handleObjectReady(Object* object,DispatchClient* client)
 	//never used ....
 
 	InLoadingContainer* ilc = _getObject(object->getParentId());
+	if (! ilc) {//ILC sanity check...
+		gLogger->log(LogManager::WARNING,"HarvesterFactory::handleObjectReady could not locate ILC for objectParentId:%I64u",object->getParentId());
+		return;
+	}
+
 	HarvesterObject*		harvester = dynamic_cast<HarvesterObject*>(ilc->mObject);
 
 	//add res containers

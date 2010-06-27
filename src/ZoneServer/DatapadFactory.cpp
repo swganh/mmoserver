@@ -405,13 +405,15 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
 		{
 			theID	= object->getParentId();
 			mIlc	= _getObject(theID);
+			if(!mIlc)//Crashbug: http://paste.swganh.org/viewp.php?id=20100627092941-87b1fdbb094ae3c39c0444d26c40262a
+			{
+				gLogger->log(LogManager::DEBUG,"DatapadFactory: Failed getting ilc");
+				return;
+			}
+
 			if((datapad = dynamic_cast<Datapad*>(mIlc->mObject)))
 			{
-				if(!mIlc)
-				{
-					gLogger->log(LogManager::DEBUG,"DatapadFactory: Failed getting ilc");
-					return;
-				}
+				
 				mIlc->mLoadCounter--;
 
 				if(IntangibleObject* itno = dynamic_cast<IntangibleObject*>(object))

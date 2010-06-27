@@ -1224,11 +1224,11 @@ void CharacterBuilderTerminal::_handleResourcesCRC(PlayerObject* playerObject, u
 		{
 			return;
 		}
-
-		if(!resourceIdList[element]){//not sure if this will catch the case or not, worth a shot. Crash bug patch: http://paste.swganh.org/viewp.php?id=20100626223514-c5382a0920ce58ada331f5d3b6828c66
-			gLogger->log(LogManager::WARNING,"CharacterBuilderTerminal::_handleResourcesCRC could not locate resource in list for element index:%I32u",element);
-			return;
-		}
+		//The following won't actually work, need to do something else. Notice the difference in int32 above and uint32 below.
+		//if(!resourceIdList[element]){//not sure if this will catch the case or not, worth a shot. Crash bug patch: http://paste.swganh.org/viewp.php?id=20100626223514-c5382a0920ce58ada331f5d3b6828c66
+		//	gLogger->log(LogManager::WARNING,"CharacterBuilderTerminal::_handleResourcesCRC could not locate resource in list for element index:%I32u",element);
+		//	return;
+		//}
 		uint32		crc			= static_cast<uint32>(resourceIdList[element]);
 		Resource*	resource	= gResourceManager->getResourceByNameCRC(crc);
 

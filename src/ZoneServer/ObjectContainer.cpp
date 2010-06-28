@@ -537,7 +537,7 @@ uint16 ObjectContainer::getHeadCount()
 	{
 		//do NOT count static tangibles like the playerStructureTerminal
 		TangibleObject* to = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(*it));
-		if(to && (!to->getStatic()))
+		if(to && (to != this) && (!to->getStatic()))
 		{
 		 	count += to->getHeadCount();
 			count += 1; //implememt items counting more than 1 at one time	

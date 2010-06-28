@@ -38,14 +38,14 @@ class UIButton : public UIElement
 	public:
 
 		UIButton(){}
-		UIButton(uint32 id,string name,bool enabled = true,string text = "", bool three = false);
+		UIButton(uint32 id,BString name,bool enabled = true,BString text = "", bool three = false);
 		virtual ~UIButton();
 
-		string			getName(){ return mName; }
-		void			setName(string name){ mName = name; }
+		BString			getName(){ return mName; }
+		void			setName(BString name){ mName = name; }
 
-		string			getText(){ return mText; }
-		void			setText(string text){ mText = text; }
+		BString			getText(){ return mText; }
+		void			setText(BString text){ mText = text; }
 		
 		bool			getEnabled(){ return mEnabled; }
 		void			setEnabled(bool e){ mEnabled = e; }
@@ -56,8 +56,8 @@ class UIButton : public UIElement
 
 	private:
 
-		string	mName;
-		string	mText;
+		BString	mName;
+		BString	mText;
 		bool	mEnabled;
 		bool	m3B;
 };

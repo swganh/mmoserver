@@ -42,7 +42,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 // maximum commands allowed to be queued
 #define COMMAND_QUEUE_MAX_SIZE 10
 
-// typedef void (ObjectController::*adminFuncPointer)(string message);
+// typedef void (ObjectController::*adminFuncPointer)(BString message);
 //=======================================================================
 
 class Message;
@@ -133,7 +133,7 @@ class ObjControllerAsyncContainer
 		~ObjControllerAsyncContainer(){}
 
 		OCQueryType		mQueryType;
-		string			mString;
+		BString			mString;
 		PlayerObject*	playerObject;
 		void*			anyPtr;			// generall purpose pointer.
 };
@@ -365,11 +365,11 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback, 
 		void	_endBurstRun(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 
 		// friend / ignore replies
-		void	_handleAddFriendDBReply(uint32 retCode,string friendName);
-		void	_handleFindFriendDBReply(uint64 retCode,string friendName);
-		void	_handleRemoveFriendDBReply(uint32 retCode,string friendName);
-		void	_handleAddIgnoreDBReply(uint32 retCode,string ignoreName);
-		void	_handleRemoveIgnoreDBReply(uint32 retCode,string ignoreName);
+		void	_handleAddFriendDBReply(uint32 retCode,BString friendName);
+		void	_handleFindFriendDBReply(uint64 retCode,BString friendName);
+		void	_handleRemoveFriendDBReply(uint32 retCode,BString friendName);
+		void	_handleAddIgnoreDBReply(uint32 retCode,BString ignoreName);
+		void	_handleRemoveIgnoreDBReply(uint32 retCode,BString ignoreName);
 		void	_handlefindfriend(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 
 		// groups
@@ -687,22 +687,22 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback, 
 		void	_handleCancelShutdownGalaxy(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties);
 
 
-		string	handleBroadcast(string message) const;
-		string	handleBroadcastPlanet(string message) const;
-		string	handleBroadcastGalaxy(string message) const;
-		string	handleShutdownGalaxy(string message) const;
-		string handleCancelShutdownGalaxy(string message) const;
+		BString	handleBroadcast(BString message) const;
+		BString	handleBroadcastPlanet(BString message) const;
+		BString	handleBroadcastGalaxy(BString message) const;
+		BString	handleShutdownGalaxy(BString message) const;
+		BString handleCancelShutdownGalaxy(BString message) const;
 
 		// Admin
-		int32	getAdminCommandFunction(string command) const;
-		int32	indexOfFirstField(const string message) const;
-		int32	indexOfNextField(const string message) const;
-		void	broadcastGalaxyMessage(string theBroadcast, int32 planetId) const;
-		void	scheduleShutdown(int32 scheduledTime, string shutdownReason) const;
-		void	cancelScheduledShutdown(string cancelShutdownReason) const;
-		void	sendAdminFeedback(string reply) const;
-		string	removeWhiteSpace(string str) const;
-		string	skipToNextField(string str) const;
+		int32	getAdminCommandFunction(BString command) const;
+		int32	indexOfFirstField(const BString message) const;
+		int32	indexOfNextField(const BString message) const;
+		void	broadcastGalaxyMessage(BString theBroadcast, int32 planetId) const;
+		void	scheduleShutdown(int32 scheduledTime, BString shutdownReason) const;
+		void	cancelScheduledShutdown(BString cancelShutdownReason) const;
+		void	sendAdminFeedback(BString reply) const;
+		BString	removeWhiteSpace(BString str) const;
+		BString	skipToNextField(BString str) const;
 
 		// spatial object updates
 		float	_GetMessageHeapLoadViewingRange();

@@ -57,7 +57,7 @@ void ObjectController::_handleSpatialChatInternal(uint64 targetId,Message* messa
 {
 	// FIXME: for now assume only players send chat
 	PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
-	string			chatData;
+	BString			chatData;
 
 
 	message->getStringUnicode16(chatData);
@@ -90,7 +90,7 @@ void ObjectController::_handleSpatialChatInternal(uint64 targetId,Message* messa
 		data++;
 	}
 
-	string chatMessage(data);
+	BString chatMessage(data);
 
 	// need to truncate or we may get in trouble
 	if(len - byteCount > 256)
@@ -125,7 +125,7 @@ void ObjectController::_handleSocialInternal(uint64 targetId,Message* message,Ob
 {
 	// FIXME: for now assume only players send chat
 	PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
-	string			emoteData;
+	BString			emoteData;
 	BStringVector	emoteElement;
 
 	message->getStringUnicode16(emoteData);
@@ -155,7 +155,7 @@ void ObjectController::_handleSetMoodInternal(uint64 targetId,Message* message,O
 {
 	// FIXME: for now assume only players send chat
 	PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
-	string			moodStr;
+	BString			moodStr;
 	int8			sql[256];
 
 	message->getStringUnicode16(moodStr);

@@ -36,7 +36,7 @@ public:
 	SendSystemMailMessage(void);
 	~SendSystemMailMessage(void);
 
-	void SendNewbieMailMessage(PlayerObject* player, string subject, string bodyDir, string bodyStr);
+	void SendNewbieMailMessage(PlayerObject* player, BString subject, BString bodyDir, BString bodyStr);
 };
 
 #endif

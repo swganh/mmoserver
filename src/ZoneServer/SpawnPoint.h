@@ -43,7 +43,7 @@ class SpawnPoint
 	uint64		mCellId;
     glm::quat	mDirection;
     glm::vec3	mPosition;
-	string		mName;
+	BString		mName;
 };
 
 //=============================================================================

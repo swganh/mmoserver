@@ -891,7 +891,7 @@ void MissionManager::checkSurveyMission(PlayerObject* player,CurrentResource* re
                                 static_cast<uint32>(glm::distance(mission->getIssuingTerminal()->mPosition, highestDist.position)),
                                     (1024 - (int)glm::distance(mission->getIssuingTerminal()->mPosition, highestDist.position)));
 
-							string s = BString(sm);
+							BString s = BString(sm);
 							s.convert(BSTRType_Unicode16);
               gMessageLib->sendSystemMessage(player,s.getUnicode16());
 						}
@@ -1102,7 +1102,7 @@ MissionObject* MissionManager::generateDestroyMission(MissionObject* mission, ui
 	//Creator
 
 	sprintf(mo,"m%do",mission_num);
-	string moS(mo);
+	BString moS(mo);
 	gLogger->log(LogManager::DEBUG,"MissionManager : creator :%s",moS.getAnsi());
 	NameMap nameMap = link->missiontype->names;
 	NameMap::iterator NameMapIt = nameMap.find(moS.getCrc());
@@ -1399,7 +1399,7 @@ MissionObject* MissionManager::generateCraftingMission(MissionObject* mission)
 	mission->setMissionType(crafting);
 
 	//TEMP!
-	string targets[8][2] =
+	BString targets[8][2] =
 	{
 		{"@item_n:output_governor","object/tangible/mission/quest_item/shared_attunement_grid.iff"},
 		{"@item_n:current_alternator","object/tangible/mission/quest_item/shared_current_alternator.iff"},

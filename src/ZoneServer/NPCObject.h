@@ -79,8 +79,8 @@ class NPCObject : public CreatureObject
 		const glm::quat& getSpawnDirection() const {return mSpawnDirection;}
 
 
-		string			getTitle() const { return mTitle; }
-		void			setTitle(string title){ mTitle = title; }
+		BString			getTitle() const { return mTitle; }
+		void			setTitle(BString title){ mTitle = title; }
 
 		virtual void	filterConversationOptions(ConversationPage* page,std::vector<ConversationOption*>* filteredOptions,PlayerObject* player){}
 		virtual uint32	handleConversationEvent(ActiveConversation* av,ConversationPage* page,ConversationOption* option,PlayerObject* player){return 0;}
@@ -140,7 +140,7 @@ class NPCObject : public CreatureObject
 
 		void			setAiState(Npc_AI_State state);
 
-		string	mTitle;
+		BString	mTitle;
 		uint64	mLastConversationRequest;
 		uint64	mLastConversationTarget;
 		uint64  mSpeciesId;

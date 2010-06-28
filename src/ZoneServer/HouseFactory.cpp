@@ -137,7 +137,7 @@ void HouseFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			struct adminStruct
 			{
 				uint64 playerID;
-				string adminList;
+				BString adminList;
 			};
 
 			adminStruct adminData;

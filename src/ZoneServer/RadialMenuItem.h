@@ -41,7 +41,7 @@ class RadialMenuItem
 		uint8				mParentItem;
 		RadialIdentifier	mIdentifier;
 		uint8				mAction;
-		string				mExtendedDescription;
+		BString				mExtendedDescription;
 };
 
 #endif

@@ -68,7 +68,7 @@ class Tutorial : public DatabaseCallback
 		void				ScriptRegisterEvent(void* script,std::string eventFunction);
 		void				scriptPlayMusic(uint32 soundId);
 		void				scriptSystemMessage(std::string message);
-		void				tutorialResponse(string tutorialEventString);
+		void				tutorialResponse(BString tutorialEventString);
 		void				updateTutorial(std::string customMessage);
 		void				openHolocron();
 		void				spatialChat(uint64 targetId, std::string chatMsg);
@@ -129,13 +129,13 @@ class Tutorial : public DatabaseCallback
 		uint32				getQuestWeaponFamily(void);
 		uint32				getQuestWeaponType(void);
 		void				sendStartingLocationList(void);
-		void				warpToStartingLocation(string startingLocation);
+		void				warpToStartingLocation(BString startingLocation);
 
 		void				sendStartingMails(void);
 		
 	private:
-		void				tutorialResponseReset(string tutorialEventString);
-		uint64				getSkillTrainerTypeId(string startingProfession);
+		void				tutorialResponseReset(BString tutorialEventString);
+		uint64				getSkillTrainerTypeId(BString startingProfession);
 
 		PlayerObject*		mPlayerObject;
 
@@ -146,7 +146,7 @@ class Tutorial : public DatabaseCallback
 		// state
 		uint32				mState;
 		uint32				mSubState;
-		string				mStartingProfession;
+		BString				mStartingProfession;
 
 		bool				mZoomCamera;
 		bool				mChatBox;

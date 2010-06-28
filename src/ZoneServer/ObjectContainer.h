@@ -60,7 +60,7 @@ class ObjectContainer :	public Object, public ObjectFactoryCallback
 	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
 	public:
 
-		ObjectContainer(uint64 id,uint64 parentId,const string model,ObjectType type);
+		ObjectContainer(uint64 id,uint64 parentId,const BString model,ObjectType type);
 		ObjectContainer();
 		virtual ~ObjectContainer();
 

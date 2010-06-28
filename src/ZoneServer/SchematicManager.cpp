@@ -103,7 +103,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 		// index table for experimentation properties
 		case ScMQuery_ExperimentationGroups:
 		{
-			string expGroup;
+			BString expGroup;
 			DataBinding* binding = mDatabase->CreateDataBinding(1);
 			binding->addField(DFT_bstring,0,64,1);
 

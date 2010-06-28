@@ -131,8 +131,6 @@ typedef int64_t		sint64;
 // do not move the order of this include.  Needs to be after all the standard
 // type definitions.
 
-typedef BString             string;
-
 typedef unsigned int        SOCKET;
 
 // Windows and unix handle their long long specifiers differently since windows doesn't

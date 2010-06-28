@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 //================================================================================
 
-UIButton::UIButton(uint32 id,string name,bool enabled,string text, bool three)
+UIButton::UIButton(uint32 id,BString name,bool enabled,BString text, bool three)
 : UIElement(id,SUI_Element_Button),mEnabled(enabled)
 {
 	mName	= name.getAnsi();
@@ -70,8 +70,8 @@ uint32 UIButton::getPropertyCount()
 
 void UIButton::addMessageData()						  
 {
-	string	strFalse	= L"False";
-	string	strTrue		= L"True";
+	BString	strFalse	= L"False";
+	BString	strTrue		= L"True";
 
 	if(mEnabled)
 	{

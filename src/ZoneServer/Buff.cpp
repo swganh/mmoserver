@@ -280,7 +280,7 @@ uint32 Buff::GetIcon()
 }
 
 
-string Buff::GetName()
+BString Buff::GetName()
 {
     return mName;
 }

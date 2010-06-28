@@ -106,10 +106,10 @@ class NpcLairEntityEx
 		float	mSpawnDirY;
 		float	mSpawnDirW;
 		uint32	mFamily;
-		string	mFaction;
-		string	mObjectString;
-		string	mStfName;
-		string	mStfFile;
+		BString	mFaction;
+		BString	mObjectString;
+		BString	mStfName;
+		BString	mStfFile;
 };
 
 //=============================================================================

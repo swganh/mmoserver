@@ -76,7 +76,7 @@ public:
 	}
 
 	//camps
-	bool createCamp(uint32 typeId,uint64 parentId, const glm::vec3& position, const string& customName, PlayerObject* player);
+	bool createCamp(uint32 typeId,uint64 parentId, const glm::vec3& position, const BString& customName, PlayerObject* player);
 
 	//foraging
 	static void successForage(PlayerObject* player);

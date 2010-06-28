@@ -74,8 +74,8 @@ class CampRegion : public RegionObject
 				uint32	getCurrentVisitors(){return(mKnownPlayers.size());}
 				
 
-				void	setCampOwnerName(string name){mOwnerName = name;}
-				string	getCampOwnerName(){return mOwnerName;}
+				void	setCampOwnerName(BString name){mOwnerName = name;}
+				BString	getCampOwnerName(){return mOwnerName;}
 
 				void	setHealingModifier(float mod){mHealingModifier = mod;}
 				float	getHealingModifier(){return mHealingModifier;}
@@ -98,7 +98,7 @@ class CampRegion : public RegionObject
 		uint64				mExpiresTime;
 		uint32				mXpMax;
 		uint32				mXp;
-		string				mOwnerName;
+		BString				mOwnerName;
 		float				mHealingModifier;
 
 		uint32				mHealingDone;

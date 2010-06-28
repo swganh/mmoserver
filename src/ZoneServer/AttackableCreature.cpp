@@ -207,7 +207,7 @@ void AttackableCreature::handleObjectMenuSelect(uint8 messageType,Object* srcObj
 
 									int8 str[64];
 									sprintf(str,"%u", lootedCredits);
-									string lootCreditsString(str);
+									BString lootCreditsString(str);
 									lootCreditsString.convert(BSTRType_Unicode16);
 
 									if (splittedCredits == 0)
@@ -239,7 +239,7 @@ void AttackableCreature::handleObjectMenuSelect(uint8 messageType,Object* srcObj
 
 										int8 str[64];
 										sprintf(str,"%u", totalProse);
-										string splitedLootCreditsString(str);
+										BString splitedLootCreditsString(str);
 										splitedLootCreditsString.convert(BSTRType_Unicode16);
 
 										// "GROUP] You split %TU credits and receive %TT credits as your share."
@@ -258,7 +258,7 @@ void AttackableCreature::handleObjectMenuSelect(uint8 messageType,Object* srcObj
 									// We looted some credits, always a start.
 									// int8 str[128];
 									// sprintf(str,"%u credits", lootedCredits);
-									// string lootCreditsString(str);
+									// BString lootCreditsString(str);
 									// lootCreditsString.convert(BSTRType_Unicode16);
 									// gMessageLib->sendSystemMessage(playerObject, L"", "spam", "loot_item_self", "", "", L"", 0, getSpeciesGroup(), getSpeciesString(), L"", 0, 0, 0, "", "", lootCreditsString);
 									gMessageLib->sendSystemMessage(playerObject, L"", "base_player", "prose_coin_loot", "", "", L"", lootedCredits, getSpeciesGroup().getAnsi(), getSpeciesString().getAnsi());
@@ -450,7 +450,7 @@ bool AttackableCreature::setTargetInAttackRange(void)
 		if (this->getAttackStartMessage().getLength())
 		{
 			// for now, let's just taunt him.
-			string msg(this->getAttackStartMessage());
+			BString msg(this->getAttackStartMessage());
 			msg.convert(BSTRType_Unicode16);
 			char quack[5][32];
 			memset(quack, 0, sizeof(quack));
@@ -548,7 +548,7 @@ bool AttackableCreature::showWarningInRange(void)
 
 		if (getAttackWarningMessage().getLength())
 		{
-			string msg(getAttackWarningMessage());
+			BString msg(getAttackWarningMessage());
 			msg.convert(BSTRType_Unicode16);
 			char quack[5][32];
 			memset(quack, 0, sizeof(quack));
@@ -620,7 +620,7 @@ bool AttackableCreature::setTargetDefenderWithinWeaponRange(void)
 		if (getAttackedMessage().getLength())
 		{
 			// for now, let's just taunt him.
-			string msg(getAttackedMessage());
+			BString msg(getAttackedMessage());
 			msg.convert(BSTRType_Unicode16);
 			char quack[5][32];
 			memset(quack, 0, sizeof(quack));
@@ -2152,7 +2152,7 @@ void AttackableCreature::respawn(void)
 
 	if (this->hasInternalAttribute("creature_warning_message"))
 	{
-		string warningMessage = (int8*)(this->getInternalAttribute<std::string>("creature_warning_message").c_str());
+		BString warningMessage = (int8*)(this->getInternalAttribute<std::string>("creature_warning_message").c_str());
 		mAttackWarningMessage = warningMessage;
 	}
 	else
@@ -2163,7 +2163,7 @@ void AttackableCreature::respawn(void)
 
 	if (this->hasInternalAttribute("creature_attacking_message"))
 	{
-		string attackingMessage = (int8*)(this->getInternalAttribute<std::string>("creature_attacking_message").c_str());
+		BString attackingMessage = (int8*)(this->getInternalAttribute<std::string>("creature_attacking_message").c_str());
 		mAttackStartMessage = attackingMessage;
 	}
 	else
@@ -2175,7 +2175,7 @@ void AttackableCreature::respawn(void)
 
 	if (this->hasInternalAttribute("creature_attacked_message"))
 	{
-		string attackedMessage = (int8*)(this->getInternalAttribute<std::string>("creature_attacked_message").c_str());
+		BString attackedMessage = (int8*)(this->getInternalAttribute<std::string>("creature_attacked_message").c_str());
 		mAttackedMessage = attackedMessage;
 	}
 	else

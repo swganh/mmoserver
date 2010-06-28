@@ -412,7 +412,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			struct SkillDescriptions
 			{
 				uint32 skillId;
-				string skillInfo;
+				BString skillInfo;
 			};
 
 			DataBinding* binding = mDatabase->CreateDataBinding(2);
@@ -565,10 +565,10 @@ bool SkillManager::checkLearnSkill(uint32 skillId,PlayerObject* pupilObject)
 //************************************************************************************
 //returns either the name of the profession if its not already on the skillist or the language string
 //************************************************************************************
-string SkillManager::getSkillProfession(uint32 skillId,string leaveAsIs)
+BString SkillManager::getSkillProfession(uint32 skillId,BString leaveAsIs)
 {
 	Skill* theSkill= getSkillById(skillId);
-	string skillString = theSkill->mName.getAnsi();
+	BString skillString = theSkill->mName.getAnsi();
 	int8 str[128];
 
 	//just return languages
@@ -627,7 +627,7 @@ bool SkillManager::learnSkillLine(uint32 skillId, CreatureObject* creatureObject
 
 //======================================================================================================================
 
-void SkillManager::teach(PlayerObject* pupilObject,PlayerObject* teacherObject,string show)
+void SkillManager::teach(PlayerObject* pupilObject,PlayerObject* teacherObject,BString show)
 {
 	if(pupilObject->isDead() || teacherObject->isDead() || !pupilObject->getHam()->checkMainPools(1, 1, 1) 
 		|| !teacherObject->getHam()->checkMainPools(1, 1, 1))
@@ -657,7 +657,7 @@ void SkillManager::teach(PlayerObject* pupilObject,PlayerObject* teacherObject,s
 				//is it teachable???
 				if (checkTeachSkill((*teacherIt)->mId,pupilObject))
 				{
-					string str;
+					BString str;
 
 					//now get the corresponding profession
 					//languages or the profession provided are just returned as is
@@ -701,7 +701,7 @@ void SkillManager::teach(PlayerObject* pupilObject,PlayerObject* teacherObject,s
 bool SkillManager::checkTeachSkill(uint32 skillId,PlayerObject* pupilObject)
 {
 	Skill* theSkill= getSkillById(skillId);
-	string skillString = theSkill->mName.getAnsi();
+	BString skillString = theSkill->mName.getAnsi();
 
 	//make sure its no novice profession
 	if(strstr(skillString.getAnsi(),"novice"))
@@ -837,7 +837,7 @@ void SkillManager::dropSkill(uint32 skillId,CreatureObject* creatureObject, bool
 
 //======================================================================================================================
 
-Skill* SkillManager::getSkillByName(string skillName)
+Skill* SkillManager::getSkillByName(BString skillName)
 {
 	SkillList::iterator it = mSkillList.begin();
 
@@ -852,9 +852,9 @@ Skill* SkillManager::getSkillByName(string skillName)
 }
 
 //======================================================================================================================
-string SkillManager::getSkillInfoById(uint32 skillId)
+BString SkillManager::getSkillInfoById(uint32 skillId)
 {
-	static string empty("");
+	static BString empty("");
 	SkillInfoList::iterator it = mSkillInfoList.begin();	// find(skillId);
 	while (it != mSkillInfoList.end())
 	{

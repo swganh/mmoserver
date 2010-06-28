@@ -75,14 +75,14 @@ class FireworkShow : public Item
 		
 		virtual void	prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
 		virtual void	handleObjectMenuSelect(uint8 messageType,Object* srcObject);
-		void			handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window);
-		void			handleUIEvent(string available, string delay, UIWindow* window);
+		void			handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window);
+		void			handleUIEvent(BString available, BString delay, UIWindow* window);
 		void			onLaunch(const FireworkEvent* event);
 
 
 	private:
 		ObjectList*		_getInventoryFireworks(PlayerObject* playerObject);
-		string			_getType(uint32 type);
+		BString			_getType(uint32 type);
 
 		FireworkShowList	fireworkShowList;
 		uint32				fireworkShowListModify; //Bit of a filthy hack, but couldn't find an alternative due to ui callback system

@@ -209,7 +209,7 @@ void DatabaseImplementationMySql::GetNextRow(DatabaseResult* result, DataBinding
         case DFT_bstring:
           {
             // get our string object
-            string* bindingString = reinterpret_cast<BString*>(((char*)object) + binding->mDataFields[i].mDataOffset);
+            BString* bindingString = reinterpret_cast<BString*>(((char*)object) + binding->mDataFields[i].mDataOffset);
             // Now assign the string to the object
             *bindingString = row[binding->mDataFields[i].mColumn];
             break;

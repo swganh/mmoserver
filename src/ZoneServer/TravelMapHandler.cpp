@@ -317,7 +317,7 @@ void TravelMapHandler::_processTravelPointListRequest(Message* message,DispatchC
 			return;
 		}
 
-		string requestedPlanet;
+		BString requestedPlanet;
 		message->getStringAnsi(requestedPlanet);
 
 		// find our planetId
@@ -422,7 +422,7 @@ void TravelMapHandler::getTicketInformation(BStringVector vQuery,TicketPropertie
 	while(tpIt != mTravelPoints[ticketProperties->srcPlanetId].end())
 	{
 		TravelPoint* tp = (*tpIt);
-		string desc = tp->descriptor;
+		BString desc = tp->descriptor;
 
 		if(strcmp(strRep(std::string(vQuery[1].getAnsi()),"_"," ").c_str(),desc.getAnsi()) == 0)
 		{
@@ -440,7 +440,7 @@ void TravelMapHandler::getTicketInformation(BStringVector vQuery,TicketPropertie
 	{
 		//tp = (*tpIt);
 
-		string desc = (*tpIt)->descriptor;
+		BString desc = (*tpIt)->descriptor;
 
 		if(strcmp(strRep(std::string(vQuery[3].getAnsi()),"_"," ").c_str(),desc.getAnsi()) == 0)
 		{
@@ -455,7 +455,7 @@ void TravelMapHandler::getTicketInformation(BStringVector vQuery,TicketPropertie
 
 //=======================================================================================================================
 
-TravelPoint* TravelMapHandler::getTravelPoint(uint16 planetId,string name)
+TravelPoint* TravelMapHandler::getTravelPoint(uint16 planetId,BString name)
 {
 	TravelPointList::iterator it = mTravelPoints[planetId].begin();
 	while(it != mTravelPoints[planetId].end())
@@ -470,7 +470,7 @@ TravelPoint* TravelMapHandler::getTravelPoint(uint16 planetId,string name)
 
 //=======================================================================================================================
 
-bool TravelMapHandler::findTicket(PlayerObject* player, string port)
+bool TravelMapHandler::findTicket(PlayerObject* player, BString port)
 {
 	uint32	zoneId = gWorldManager->getZoneId();
 
@@ -482,7 +482,7 @@ bool TravelMapHandler::findTicket(PlayerObject* player, string port)
 		TravelTicket* ticket = dynamic_cast<TravelTicket*>(gWorldManager->getObjectById((*it)));
 		if(ticket)
 		{
-			string srcPoint		= (int8*)((ticket->getAttribute<std::string>("travel_departure_point")).c_str());
+			BString srcPoint		= (int8*)((ticket->getAttribute<std::string>("travel_departure_point")).c_str());
 			uint16 srcPlanetId	= static_cast<uint16>(gWorldManager->getPlanetIdByName((int8*)((ticket->getAttribute<std::string>("travel_departure_planet")).c_str())));
 
 			// see if we got at least 1
@@ -498,7 +498,7 @@ bool TravelMapHandler::findTicket(PlayerObject* player, string port)
 
 //=======================================================================================================================
 
-void TravelMapHandler::createTicketSelectMenu(PlayerObject* playerObject, Shuttle* shuttle, string port)
+void TravelMapHandler::createTicketSelectMenu(PlayerObject* playerObject, Shuttle* shuttle, BString port)
 {
 	BStringVector	availableTickets;
 	uint32			zoneId = gWorldManager->getZoneId();
@@ -511,12 +511,12 @@ void TravelMapHandler::createTicketSelectMenu(PlayerObject* playerObject, Shuttl
 		TravelTicket* ticket = dynamic_cast<TravelTicket*>(gWorldManager->getObjectById((*it)));
 		if(ticket)
 		{
-			string srcPoint		= (int8*)((ticket->getAttribute<std::string>("travel_departure_point")).c_str());
+			BString srcPoint		= (int8*)((ticket->getAttribute<std::string>("travel_departure_point")).c_str());
 			uint16 srcPlanetId	= static_cast<uint8>(gWorldManager->getPlanetIdByName((int8*)((ticket->getAttribute<std::string>("travel_departure_planet")).c_str())));
 
 			if(srcPlanetId == zoneId && strcmp(srcPoint.getAnsi(),port.getAnsi()) == 0)
 			{
-				string dstPoint = (int8*)((ticket->getAttribute<std::string>("travel_arrival_point")).c_str());
+				BString dstPoint = (int8*)((ticket->getAttribute<std::string>("travel_arrival_point")).c_str());
 
 				availableTickets.push_back(dstPoint.getAnsi());
 			}
@@ -529,7 +529,7 @@ void TravelMapHandler::createTicketSelectMenu(PlayerObject* playerObject, Shuttl
 
 //=======================================================================================================================
 
-void TravelMapHandler::handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window)
+void TravelMapHandler::handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
 	if(!action && element != -1 )
 	{
@@ -568,13 +568,13 @@ void TravelMapHandler::handleUIEvent(uint32 action,int32 element,string inputStr
 			TravelTicket* ticket = dynamic_cast<TravelTicket*>(gWorldManager->getObjectById((*it)));
 			if(ticket)
 			{
-				string srcPoint		= (int8*)((ticket->getAttribute<std::string>("travel_departure_point")).c_str());
-				string dstPointStr	= (int8*)((ticket->getAttribute<std::string>("travel_arrival_point")).c_str());
+				BString srcPoint		= (int8*)((ticket->getAttribute<std::string>("travel_departure_point")).c_str());
+				BString dstPointStr	= (int8*)((ticket->getAttribute<std::string>("travel_arrival_point")).c_str());
 				uint16 srcPlanetId	= static_cast<uint8>(gWorldManager->getPlanetIdByName((int8*)((ticket->getAttribute<std::string>("travel_departure_planet")).c_str())));
 				uint16 dstPlanetId	= static_cast<uint8>(gWorldManager->getPlanetIdByName((int8*)((ticket->getAttribute<std::string>("travel_arrival_planet")).c_str())));
 
 				BStringVector* items = (dynamic_cast<UIListBox*>(window))->getDataItems();
-				string selectedDst = items->at(element);
+				BString selectedDst = items->at(element);
 				selectedDst.convert(BSTRType_ANSI);
 
 				if(srcPlanetId == zoneId && (strcmp(dstPointStr.getAnsi(),selectedDst.getAnsi()) == 0)&&(strcmp(srcPoint.getAnsi(),listBox->getPort().getAnsi()) == 0))
@@ -631,7 +631,7 @@ void TravelMapHandler::useTicket(PlayerObject* playerObject, TravelTicket* ticke
 	}
 
 	TicketCollector* collector = dynamic_cast<TicketCollector*>(gWorldManager->getObjectById(shuttle->getCollectorId()));
-	string port = collector->getPortDescriptor();
+	BString port = collector->getPortDescriptor();
 
 	if(port.getCrc() == BString("Theed Starport").getCrc())
 	{
@@ -644,10 +644,10 @@ void TravelMapHandler::useTicket(PlayerObject* playerObject, TravelTicket* ticke
 		return;
 	}
 
-	string srcPoint		= (int8*)((ticket->getAttribute<std::string>("travel_departure_point")).c_str());
+	BString srcPoint		= (int8*)((ticket->getAttribute<std::string>("travel_departure_point")).c_str());
 	uint16 srcPlanetId	= static_cast<uint8>(gWorldManager->getPlanetIdByName((int8*)((ticket->getAttribute<std::string>("travel_departure_planet")).c_str())));
 	uint16 dstPlanetId	= static_cast<uint8>(gWorldManager->getPlanetIdByName((int8*)((ticket->getAttribute<std::string>("travel_arrival_planet")).c_str())));
-	string dstPointStr	= (int8*)((ticket->getAttribute<std::string>("travel_arrival_point")).c_str());
+	BString dstPointStr	= (int8*)((ticket->getAttribute<std::string>("travel_arrival_point")).c_str());
 
 	// see if we are at the right location
 	if(srcPlanetId != zoneId || strcmp(srcPoint.getAnsi(),port.getAnsi()) != 0)

@@ -41,7 +41,7 @@ class	TutorialTauntConfigData
 	public:
 		int64		when;
 		uint64		tauntBasePeriodTime;
-		string		taunts[5];
+		BString		taunts[5];
 };
 
 typedef std::map<uint64, TutorialTauntConfigData*>	TutorialPlayers;
@@ -66,7 +66,7 @@ class FillerNPC : public NPCObject
 
 
 		void	removeTutorialPlayer(uint64 playerId);
-		void	setupTutorialTaunts(uint64 playerId, uint64 baseTauntPeriod, string taunt1, string taunt2, string taunt3, string taunt4, string taunt5);
+		void	setupTutorialTaunts(uint64 playerId, uint64 baseTauntPeriod, BString taunt1, BString taunt2, BString taunt3, BString taunt4, BString taunt5);
 
 	private:
 		void	addTutorialPlayer(uint64 playerId, TutorialTauntConfigData* configData);

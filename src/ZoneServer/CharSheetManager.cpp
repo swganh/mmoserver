@@ -142,7 +142,7 @@ void CharSheetManager::handleDatabaseJobComplete(void* ref, DatabaseResult* resu
 		case CharSheetQuery_Factions:
 		{
 
-			string name;
+			BString name;
 			DataBinding* binding = mDatabase->CreateDataBinding(1);
 			binding->addField(DFT_bstring,0,255,1);
 
@@ -168,7 +168,7 @@ void CharSheetManager::handleDatabaseJobComplete(void* ref, DatabaseResult* resu
 
 		case CharSheetQuery_BadgeCategories:
 		{
-			string name;
+			BString name;
 			DataBinding* binding = mDatabase->CreateDataBinding(1);
 			binding->addField(DFT_bstring,0,255,1);
 

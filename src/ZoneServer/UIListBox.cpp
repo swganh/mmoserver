@@ -37,7 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 //================================================================================
 
-UIListBox::UIListBox(UICallback* callback,uint32 id,uint8 windowType,const int8* eventStr,string caption,BString prompt,const BStringVector dataItems,PlayerObject* playerObject,uint8 lbType, float distance, uint64 object, void* container)
+UIListBox::UIListBox(UICallback* callback,uint32 id,uint8 windowType,const int8* eventStr,BString caption,BString prompt,const BStringVector dataItems,PlayerObject* playerObject,uint8 lbType, float distance, uint64 object, void* container)
 : UIWindow(callback,id,windowType,"Script.listBox",eventStr,container),mLbType(lbType)
 {
 	mDistance	= distance;
@@ -67,8 +67,8 @@ void UIListBox::handleEvent(Message* message)
 {
 	uint32	action				= message->getUint32();
 	uint32	items				= message->getUint32();
-	string	selectedDataItemStr;
-	string	caption;
+	BString	selectedDataItemStr;
+	BString	caption;
 	int32	selectedItem		= -1;
 
 	if(items)
@@ -198,15 +198,15 @@ void UIListBox::sendCreate()
 	while(it != mDataItems.end())
 	{
 		count ++;
-		string indexStr;
+		BString indexStr;
 		indexStr.setLength(sprintf(indexStr.getAnsi(),"%u",index));
 
-		string itemName = "List.dataList.";
+		BString itemName = "List.dataList.";
 		itemName << indexStr.getAnsi();
 
 		indexStr.convert(BSTRType_Unicode16);
 
-		string item = (*it).getAnsi();
+		BString item = (*it).getAnsi();
 		item.convert(BSTRType_Unicode16);
 
 		gMessageFactory->addUint8(4);

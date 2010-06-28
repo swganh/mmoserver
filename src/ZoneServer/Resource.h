@@ -65,8 +65,8 @@ class Resource
 
 		uint64			getId(){ return mId; }
 		void			setId(uint64 id){ mId = id; }
-		string			getName(){ return mName; }
-		void			setName(const string name){ mName = name; }
+		BString			getName(){ return mName; }
+		void			setName(const BString name){ mName = name; }
 		uint32			getTypeId(){ return mTypeId; }
 		uint16			getAttribute(uint8 nr){ return mAttributes[nr]; }
 		void			setAttribute(uint8 nr,uint16 value){ mAttributes[nr] = value; }
@@ -79,7 +79,7 @@ class Resource
 	protected:
 
 		uint64			mId;
-		string			mName;
+		BString			mName;
 		uint32			mTypeId;
 		uint16			mAttributes[11];
 		uint8			mCurrent;

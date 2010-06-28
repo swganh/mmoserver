@@ -1021,7 +1021,7 @@ bool PlayerObject::removeUIWindow(uint32 id)
 
 //=============================================================================
 
-bool PlayerObject::checkUIWindow(string text)
+bool PlayerObject::checkUIWindow(BString text)
 {
 	UIWindowList::iterator it = mUIWindowList.begin();
 
@@ -1223,7 +1223,7 @@ void PlayerObject::giveInventoryCredits(uint32 amount)
 //
 // handles any UIWindow callbacks for this player
 //
-void PlayerObject::handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window)
+void PlayerObject::handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
 	switch(window->getWindowType())
 	{
@@ -1339,7 +1339,7 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,string inputStr,UIW
 			BStringVector*		dataItems	= skillSelectBox->getDataItems();
 			BStringVector		splitSkill;
 			BStringVector		splitProf;
-			string				skillString = dataItems->at(element);
+			BString				skillString = dataItems->at(element);
 
 			if(!skillString.getLength() || skillString.split(splitSkill,':') < 2)
 			{
@@ -1389,7 +1389,7 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,string inputStr,UIW
 			teachBox->getPupil()->getTrade()->setTeacher(NULL);
 
 			//send mission accomplished to teacher
-			string convName = teachBox->getPupil()->getFirstName().getAnsi();
+			BString convName = teachBox->getPupil()->getFirstName().getAnsi();
 			convName.convert(BSTRType_Unicode16);
 
       gMessageLib->sendSystemMessage(this,L"","teaching","teacher_skill_learned","skl_n",teachBox->getSkill()->mName.getAnsi(),L"",0,"","",convName.getUnicode16());
@@ -1411,14 +1411,14 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,string inputStr,UIW
 
 			if(element > -1)
 			{
-				string	danceString = dataItems->at(element);
+				BString	danceString = dataItems->at(element);
 
 				if(!danceString.getLength() || danceString.split(splitDance,'+') < 2)
 				{
 					return;
 				}
 
-				string mDance = splitDance[1];
+				BString mDance = splitDance[1];
 
 				// if we are already dancing, only change the dance, otherwise start entertaining
 				if(mPendingPerform == PlayerPerformance_None)
@@ -1442,7 +1442,7 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,string inputStr,UIW
 
 			if(element > -1)
 			{
-				string outcastString = dataItems->at(element);
+				BString outcastString = dataItems->at(element);
 
 				if(!outcastString.getLength())
 				{
@@ -1466,14 +1466,14 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,string inputStr,UIW
 
 			if(element > -1)
 			{
-				string	danceString = dataItems->at(element);
+				BString	danceString = dataItems->at(element);
 
 				if(!danceString.getLength() || danceString.split(splitDance,'+') < 2)
 				{
 					return;
 				}
 
-				string mDance = splitDance[1];
+				BString mDance = splitDance[1];
 
 				// if we are already making music, only change the piece, otherwise start entertaining
 				if(mPendingPerform == PlayerPerformance_None)
@@ -2013,7 +2013,7 @@ void PlayerObject::setParentIdIncDB(uint64 parentId)
 void PlayerObject::setSitting(Message* message)
 {
 	//uint8			currentPosture	= this->getPosture();
-	string			data;
+	BString			data;
     glm::vec3       chair_position;
 	uint64			chairCell		= 0;
 	uint32			elementCount	= 0;

@@ -58,7 +58,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 void ObjectController::_handleSetCurrentSkillTitle(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
 	PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
-	string			newTitle;
+	BString			newTitle;
 
 	message->getStringUnicode16(newTitle);
 	newTitle.convert(BSTRType_ANSI);
@@ -87,7 +87,7 @@ void ObjectController::_handleSetCurrentSkillTitle(uint64 targetId,Message* mess
 void ObjectController::_handleSetSpokenLanguage(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
 	PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
-	string			tmpStr;
+	BString			tmpStr;
 
 	message->getStringUnicode16(tmpStr);
 	tmpStr.convert(BSTRType_ANSI);
@@ -237,7 +237,7 @@ void ObjectController::_handleRequestBiography(uint64 targetId,Message* message,
 void ObjectController::_handleSetBiography(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
 	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
-	string			bio;
+	BString			bio;
 	int8			sql[5000],end[64],*sqlPointer;
 
 	message->getStringUnicode16(bio);
@@ -271,7 +271,7 @@ void ObjectController::_handleEditBiography(uint64 targetId,Message* message,Obj
 void ObjectController::_handleRequestCharacterMatch(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
 	PlayerObject*	player			= dynamic_cast<PlayerObject*>(mObject);
-	string			dataStr;
+	BString			dataStr;
 	PlayerList		playersMatched;
 	uint32			masksCount		= 0;
 	uint32			playerFlags		= 0;
@@ -349,7 +349,7 @@ void ObjectController::_handleRequestCharacterMatch(uint64 targetId,Message* mes
 void ObjectController::_handleMatch(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
 	PlayerObject*	matchObject	= dynamic_cast<PlayerObject*>(mObject);
-	string			matchfield;
+	BString			matchfield;
 	uint32			i1,i2,i3,i4,i5;
 
 	message->getStringUnicode16(matchfield);

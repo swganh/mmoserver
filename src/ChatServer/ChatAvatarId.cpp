@@ -52,7 +52,7 @@ void ChatAvatarId::setPlayer(Player* player)
 
 //======================================================================================================================
 
-void ChatAvatarId::setPlayer(const string player)
+void ChatAvatarId::setPlayer(const BString player)
 {
 	gLogger->log(LogManager::DEBUG,"Chatavatar:: setplayer %s string only\n", mName.getAnsi());
 	mPlayer = gChatManager->getPlayerByName(player); 
@@ -63,7 +63,7 @@ void ChatAvatarId::setPlayer(const string player)
 
 //======================================================================================================================
 
-string ChatAvatarId::getPath()
+BString ChatAvatarId::getPath()
 {
 	BString path = "SWG.";
 	path << mGalaxy.getAnsi() << ".";
@@ -85,7 +85,7 @@ ChatSystemAvatar* ChatSystemAvatar::GetSingleton()
 
 //======================================================================================================================
 
-string ChatSystemAvatar::getLoweredName()
+BString ChatSystemAvatar::getLoweredName()
 {
 	return BString("SYSTEM");
 }

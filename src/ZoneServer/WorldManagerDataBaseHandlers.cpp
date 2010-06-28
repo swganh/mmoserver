@@ -246,7 +246,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				// planet names and according terrain file names
 				case WMQuery_PlanetNamesAndFiles:
 				{
-					string			tmp;
+					BString			tmp;
 					DataBinding*	nameBinding = mDatabase->CreateDataBinding(1);
 					nameBinding->addField(DFT_bstring,0,255,1);
 
@@ -292,7 +292,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					struct loadstruct
 					{
 						uint32 id;
-						string attribute;
+						BString attribute;
 					};
 
 					loadstruct	tmp;
@@ -320,7 +320,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				// global client effects map
 				case WMQuery_ClientEffects:
 				{
-					string			tmp;
+					BString			tmp;
 					DataBinding*	binding = mDatabase->CreateDataBinding(1);
 					binding->addField(DFT_bstring,0,255,1);
 
@@ -344,7 +344,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				// global sounds map
 				case WMQuery_Sounds:
 				{
-					string			tmp;
+					BString			tmp;
 					DataBinding*	binding = mDatabase->CreateDataBinding(1);
 					binding->addField(DFT_bstring,0,255,1);
 
@@ -367,7 +367,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				// global moods map
 				case WMQuery_Moods:
 				{
-					string			tmp;
+					BString			tmp;
 					DataBinding*	binding = mDatabase->CreateDataBinding(1);
 					binding->addField(DFT_bstring,0,255,1);
 
@@ -391,7 +391,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				// global npc animations map
 				case WMQuery_NpcConverseAnimations:
 				{
-					string			tmp;
+					BString			tmp;
 					DataBinding*	binding = mDatabase->CreateDataBinding(1);
 					binding->addField(DFT_bstring,0,255,1);
 
@@ -414,7 +414,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				// random npc phrases/animations map
 				case WMQuery_NpcChatter:
 				{
-					string			tmp;
+					BString			tmp;
 					DataBinding*	binding = mDatabase->CreateDataBinding(1);
 					binding->addField(DFT_bstring,0,255,1);
 

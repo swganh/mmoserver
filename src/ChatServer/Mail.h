@@ -40,23 +40,23 @@ class Mail
 
 	public:
 
-		Mail(){ mAttachments = string(BSTRType_Unicode16,2048); }
+		Mail(){ mAttachments = BString(BSTRType_Unicode16,2048); }
 		~Mail(){}
 
 		uint32	getId(){ return mId; }
 		void	setId(uint32 id){mId = id; }
 
-		string	getSender(){ return mSender; }
-		void	setSender(const string sender){ mSender = sender; }
+		BString	getSender(){ return mSender; }
+		void	setSender(const BString sender){ mSender = sender; }
 
-		string	getReceiver(){ return mReceiver; }
-		void	setReceiver(const string receiver){ mReceiver = receiver; }
+		BString	getReceiver(){ return mReceiver; }
+		void	setReceiver(const BString receiver){ mReceiver = receiver; }
 
-		string	getSubject(){ return mSubject; }
-		void	setSubject(const string subject){ mSubject = subject; }
+		BString	getSubject(){ return mSubject; }
+		void	setSubject(const BString subject){ mSubject = subject; }
 
-		string	getText(){ return mText; }
-		void	setText(const string text){ mText = text; }
+		BString	getText(){ return mText; }
+		void	setText(const BString text){ mText = text; }
 
 		uint32	getTime(){ return mTime; }
 		void	setTime(uint32 time){ mTime = time; }
@@ -64,8 +64,8 @@ class Mail
 		uint8	getStatus(){ return mStatus; }
 		void	setStatus(uint8 status){ mStatus = status; }
 
-		string	getAttachments(){ return mAttachments; }
-		void	setAttachments(const string attachments){ mAttachments = attachments; }
+		BString	getAttachments(){ return mAttachments; }
+		void	setAttachments(const BString attachments){ mAttachments = attachments; }
 
 		uint32	getAttachmentSize(){ return mAttachmentSize; }
 		void	setAttachmentSize(uint32 size){ mAttachmentSize = size; }
@@ -73,11 +73,11 @@ class Mail
 	private:
 
 		uint32	mId;
-		string	mSender;
-		string	mReceiver;
-		string	mSubject;
-		string	mText;
-		string	mAttachments;
+		BString	mSender;
+		BString	mReceiver;
+		BString	mSubject;
+		BString	mText;
+		BString	mAttachments;
 		uint32	mAttachmentSize;
 		uint32	mTime;
 		uint8	mStatus;

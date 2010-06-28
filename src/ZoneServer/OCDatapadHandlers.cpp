@@ -69,8 +69,8 @@ void ObjectController::_handleRequestWaypointAtPosition(uint64 targetId,Message*
 	//}
 
 	BStringVector	dataElements;
-	string			dataStr;
-	string			nameStr;
+	BString			dataStr;
+	BString			nameStr;
 
 	message->getStringUnicode16(dataStr);
 
@@ -103,7 +103,7 @@ void ObjectController::_handleRequestWaypointAtPosition(uint64 targetId,Message*
 		}
 	}
 
-	string	planetStr	= dataElements[0].getAnsi();
+	BString	planetStr	= dataElements[0].getAnsi();
 	//gLogger->log(LogManager::DEBUG,"ObjController::handleCreateWaypointAtPosition: planet %s",planetStr.getAnsi());
 	float	x			= static_cast<float>(atof(dataElements[1].getAnsi()));
 	float	y			= static_cast<float>(atof(dataElements[2].getAnsi()));
@@ -153,7 +153,7 @@ void ObjectController::_handleWaypoint(uint64 targetId, Message* message, Object
 {
 	PlayerObject*	player			= dynamic_cast<PlayerObject*>(mObject);
 	Datapad* datapad			= player->getDataPad();
-	string			waypoint_data;
+	BString			waypoint_data;
     glm::vec3       waypoint_position;
 					
     // Before anything else verify the datapad can hold another waypoint.
@@ -208,7 +208,7 @@ void ObjectController::_handleWaypoint(uint64 targetId, Message* message, Object
 void ObjectController::_handleSetWaypointName(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
 	PlayerObject*	player		= dynamic_cast<PlayerObject*>(mObject);
-	string			name;
+	BString			name;
 	Datapad* datapad			= player->getDataPad();
 	WaypointObject*	waypoint	= datapad->getWaypointById(targetId);
 	int8			sql[1024],restStr[64],*sqlPointer;

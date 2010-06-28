@@ -50,7 +50,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 class AdminRequestObject
 {
 	public:
-		AdminRequestObject(uint64 adminRequestType, string reason, int32 timeToLive) :
+		AdminRequestObject(uint64 adminRequestType, BString reason, int32 timeToLive) :
 			mAdminRequestType(adminRequestType),
 			mReason(reason),
 			mTimeToLive(timeToLive){ }
@@ -60,7 +60,7 @@ class AdminRequestObject
 		}
 
 		uint64 mAdminRequestType;
-		string mReason;
+		BString mReason;
 		int32 mTimeToLive;
 
 	private:
@@ -182,7 +182,7 @@ void AdminManager::handleDispatchMessage(uint32 opcode,Message* message,Dispatch
 
 
 
-void AdminManager::addAdminRequest(uint64 requestType, string message, int32 ttl)
+void AdminManager::addAdminRequest(uint64 requestType, BString message, int32 ttl)
 {
 	// We will only handle one request at the time for each type.
 	gWorldManager->cancelAdminRequest(static_cast<uint32>(requestType));	// Even though map's fix duplicate issues, the lower level implementation may change.
@@ -230,7 +230,7 @@ void AdminManager::addAdminRequest(uint64 requestType, string message, int32 ttl
 	}
 }
 
-void AdminManager::cancelAdminRequest(uint64 requestType, string message)
+void AdminManager::cancelAdminRequest(uint64 requestType, BString message)
 {
 	// We will only handle one request at the time for each type.
 	gWorldManager->cancelAdminRequest(static_cast<uint8>(requestType));	// Even though map's fix duplicate issues, the lower level implementation may change.
@@ -288,7 +288,7 @@ uint64 AdminManager::handleAdminRequest(uint64 requestType, uint64 timeOverdue)
 				int32 minutes = ((*adminRequestIterator).second)->mTimeToLive/60;
 				int32 seconds = ((*adminRequestIterator).second)->mTimeToLive % 60;
 
-				string unit("minutes");
+				BString unit("minutes");
 				int32 value = minutes;
 
 				if (minutes > 1)
@@ -321,8 +321,8 @@ uint64 AdminManager::handleAdminRequest(uint64 requestType, uint64 timeOverdue)
 				sprintf(rawData,"Server shutting down in %"PRId32" %s.", value, unit.getAnsi());
 			}
 
-			string broadcast(rawData);
-			string optReason(((*adminRequestIterator).second)->mReason);
+			BString broadcast(rawData);
+			BString optReason(((*adminRequestIterator).second)->mReason);
 
 			if (optReason.getLength())
 			{
@@ -331,8 +331,8 @@ uint64 AdminManager::handleAdminRequest(uint64 requestType, uint64 timeOverdue)
 			gLogger->log(LogManager::CRITICAL,broadcast.getAnsi());
 
 			// For logging, we need ansi versions.
-			string logOptReason(optReason);
-			string logBroadcast(broadcast);
+			BString logOptReason(optReason);
+			BString logBroadcast(broadcast);
 
 			// Update players in zone.
 			optReason.convert(BSTRType_Unicode16);
@@ -385,7 +385,7 @@ void AdminManager::_processScheduleShutdown(Message* message, DispatchClient* cl
 {
 	message->ResetIndex();
 
-	string msg;
+	BString msg;
 	msg.setType(BSTRType_Unicode16);
 	msg.setLength(512);
 
@@ -401,7 +401,7 @@ void AdminManager::_processCancelScheduledShutdown(Message* message, DispatchCli
 {
 	message->ResetIndex();
 
-	string msg;
+	BString msg;
 	msg.setType(BSTRType_Unicode16);
 	msg.setLength(512);
 

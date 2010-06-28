@@ -181,13 +181,13 @@ void MissionObject::sendAttributes(PlayerObject* playerObject)
 	gMessageFactory->addString("description");
 	char buff[255];//crude method but effective for using char %s to wchar_t buffer
 	sprintf(buff,"@%s:%s",mDetailFile.getRawData(),mDetail.getRawData());
-	string desc = buff;
+	BString desc = buff;
 	desc.convert(BSTRType_Unicode16);
 	gMessageFactory->addString(desc);
 
 	//Creator
 	gMessageFactory->addString("@ui_mission:table_creator");
-	string str = mCreator; 
+	BString str = mCreator; 
 	str.convert(BSTRType_Unicode16);
 	gMessageFactory->addString(str);
 

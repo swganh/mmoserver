@@ -203,7 +203,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
 		case POFQuery_Friends:
 		{
 			PlayerObject* playerObject = dynamic_cast<PlayerObject*>(asyncContainer->mObject);
-			string name;
+			BString name;
 
 			DataBinding* binding = mDatabase->CreateDataBinding(1);
 			binding->addField(DFT_bstring,0,64);
@@ -281,7 +281,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
 		case POFQuery_Ignores:
 		{
 			PlayerObject* playerObject = dynamic_cast<PlayerObject*>(asyncContainer->mObject);
-			string name;
+			BString name;
 
 			DataBinding* binding = mDatabase->CreateDataBinding(1);
 			binding->addField(DFT_bstring,0,64);

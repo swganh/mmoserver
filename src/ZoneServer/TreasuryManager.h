@@ -121,7 +121,7 @@ class TreasuryManagerAsyncContainer
 		PlayerObject*		player;
 		PlayerObject*		target;
 		uint64				targetId;
-		string				targetName;
+		BString				targetName;
 };
 
 //======================================================================================================================
@@ -137,7 +137,7 @@ class TreasuryManager : public DatabaseCallback, UICallback
 		static TreasuryManager*		    getSingletonPtr() { return mSingleton; }
 
 		virtual void				    handleDatabaseJobComplete(void* ref,DatabaseResult* result);
-		virtual void					handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window);
+		virtual void					handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window);
 
 		void						    bankDepositAll(PlayerObject* playerObject);
 		void						    bankWithdrawAll(PlayerObject* playerObject);
@@ -152,7 +152,7 @@ class TreasuryManager : public DatabaseCallback, UICallback
 
 		//handles bank tip to offline player
 		void							handleBankTipSurchargeConfirmed(TreasuryManagerAsyncContainer* asyncContainer);
-		void						    bankTipOffline(int32 amount, PlayerObject* playerObject, string targetName);
+		void						    bankTipOffline(int32 amount, PlayerObject* playerObject, BString targetName);
 		void						    inventoryTipOnline(int32 amount, PlayerObject* playerObject, PlayerObject* targetObject );
 		void						    bankTipOnline(int32 amount, PlayerObject* playerObject, PlayerObject* targetObject );
 

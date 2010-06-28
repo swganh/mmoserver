@@ -58,8 +58,8 @@ class WaypointObject : public Object
 		bool				getActive(){ return mActive; }
 		void				setActive(bool active){ mActive = active; }
 		void				toggleActive(){ mActive = !mActive; };
-		string				getName(){ return mName; }
-		void				setName(const string name){ mName = name; }
+		BString				getName(){ return mName; }
+		void				setName(const BString name){ mName = name; }
 		uint8				getWPType(){ return mWPType; }
 		void				setWPType(uint8 type){ mWPType = type; }
 
@@ -73,7 +73,7 @@ class WaypointObject : public Object
 
         glm::vec3	mCoords;
 		bool				mActive;
-		string				mName;
+		BString				mName;
 		uint8				mWPType;
 		uint32				mPlanetCRC;
 };

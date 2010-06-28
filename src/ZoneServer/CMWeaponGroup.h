@@ -39,7 +39,7 @@ class CMWeaponGroup
 
 		uint32	mId;
 		uint32	mDefaultAttackAnimationCrc;
-		string	mDefaultCombatSpam;
+		BString	mDefaultCombatSpam;
 };
 
 //=========================================================================================

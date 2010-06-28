@@ -59,7 +59,7 @@ ScoutManager::~ScoutManager(void)
 //================================================================================
 //CAMPS!
 //================================================================================
-bool ScoutManager::createCamp(uint32 typeId,uint64 parentId, const glm::vec3& position, const string& customName, PlayerObject* player)
+bool ScoutManager::createCamp(uint32 typeId,uint64 parentId, const glm::vec3& position, const BString& customName, PlayerObject* player)
 //gObjectFactory->requestNewDefaultItem
 //(this,11,1320,entertainer->getId(),99,Anh_Math::Vector3(),"");
 {

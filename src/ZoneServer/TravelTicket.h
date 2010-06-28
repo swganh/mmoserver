@@ -43,7 +43,7 @@ class TravelTicket : public Item
 
 		virtual void	prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
 		void	handleObjectMenuSelect(uint8 messageType,Object* srcObject);
-		string	getBazaarName();
+		BString	getBazaarName();
 
 	private:
 };

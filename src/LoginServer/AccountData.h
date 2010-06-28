@@ -52,8 +52,8 @@ class ServerData
 {
 public:
   uint32                mId;
-  string                mName;
-  string                mAddress;
+  BString                mName;
+  BString                mAddress;
   uint16                mConnectionPort;
   uint16                mPingPort;
   uint32                mPopulation;

@@ -144,7 +144,7 @@ void ObjectController::handleSecureTradeInvitation(uint64 targetId,Message* mess
 			{
 				// We are not invited, check Ignore.
 				// If receiver have sender ignored, auto decline trade request.
-				string ignoreName = invitingPlayer->getFirstName();
+				BString ignoreName = invitingPlayer->getFirstName();
 				ignoreName.toLower();
 
 				// check receivers ignorelist
@@ -188,7 +188,7 @@ void ObjectController::_handleTip(uint64 targetId,Message* message,ObjectControl
 	// can't inventory-tip someone out of range so we can assume
 	// the client will send the ID rather than the name in case
 	// of an inventory tip.
-	string attribute, str;
+	BString attribute, str;
 	message->getStringUnicode16(str);
 	attribute = str;
 	attribute.convert(BSTRType_ANSI);
@@ -196,12 +196,12 @@ void ObjectController::_handleTip(uint64 targetId,Message* message,ObjectControl
 	PlayerObject*	player		 = dynamic_cast<PlayerObject*>(mObject);
 	PlayerObject*	target		 = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetId));
 
-	string			targetName;
-	string			dataStr;
+	BString			targetName;
+	BString			dataStr;
 	//int32			amount		 = 0;
 	//uint64			transferType = 0;
 	BStringVector	dataElements;
-	string			bank;
+	BString			bank;
 
 	attribute.getRawData()[attribute.getLength()] = 0;
 
@@ -214,7 +214,7 @@ void ObjectController::_handleTip(uint64 targetId,Message* message,ObjectControl
 		return;
 	}
 
-	string lower = dataElements[elementCount-1];
+	BString lower = dataElements[elementCount-1];
 
 	// Have to convert BEFORE using toLower, since the conversion done there is removed It will assert().
 	// Either do the conversion HERE, or better fix the toLower so it handles unicode also.
@@ -227,7 +227,7 @@ void ObjectController::_handleTip(uint64 targetId,Message* message,ObjectControl
 		uint32 amount	= atoi(dataElements[elementCount-2].getAnsi());
 		bool havetarget = false;
 
-		string name;
+		BString name;
 		if(target && (target != player))
 		{
 			havetarget = true;

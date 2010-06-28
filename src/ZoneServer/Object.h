@@ -85,7 +85,7 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 	public:
 
 		Object();
-		Object(uint64 id,uint64 parentId,const string model,ObjectType type);
+		Object(uint64 id,uint64 parentId,const BString model,ObjectType type);
 
 		ObjectLoadState				getLoadState(){ return mLoadState; }
 		void						setLoadState(ObjectLoadState state){ mLoadState = state; }
@@ -103,12 +103,12 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 		gLogger->log(LogManager::NOTICE, "Object no table specified setting ID: %I64u", this->getId());}
 		
 		
-		string						getModelString(){ return mModel; }
+		BString						getModelString(){ return mModel; }
 		ObjectType					getType() const { return mType; }
 		uint32						getTypeOptions() const { return mTypeOptions; }
 
 		
-		void						setModelString(const string model){ mModel = model; }
+		void						setModelString(const BString model){ mModel = model; }
 		void						setType(ObjectType type){ mType = type; }
 		void						setTypeOptions(uint32 options){ mTypeOptions = options; }
 
@@ -128,7 +128,7 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 		RadialMenuPtr				getRadialMenu(){ return mRadialMenu; }
         virtual void				ResetRadialMenu() {}//	RadialMenu* radial	= NULL;RadialMenuPtr radialPtr(radial);	mRadialMenu = radialPtr;}
 
-		virtual void				handleUIEvent(uint32 action,int32 element,string inputStr = "",UIWindow* window = NULL) {}
+		virtual void				handleUIEvent(uint32 action,int32 element,BString inputStr = "",UIWindow* window = NULL) {}
 
 		virtual void				prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount){}
 		virtual void				prepareCustomRadialMenuInCell(CreatureObject* creatureObject, uint8 itemCount){}
@@ -137,33 +137,33 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 		virtual void				updateWorldPosition(){}
 
 		virtual void				sendAttributes(PlayerObject* playerObject);
-		virtual string				getBazaarName();
-		virtual string				getBazaarTang();
+		virtual BString				getBazaarName();
+		virtual BString				getBazaarTang();
 
 		ObjectController*			getController();
 
 		// common attributes, send to the client
 		AttributeMap*				getAttributeMap(){ return &mAttributeMap; }
-		template<typename T> T		getAttribute(string key) const;
+		template<typename T> T		getAttribute(BString key) const;
 //		template<typename T> T		getAttribute(std::string) const;
 		template<typename T> T		getAttribute(uint32 keyCrc) const;
-		void						setAttribute(string key,std::string value);
-		void						setAttributeIncDB(string key,std::string value);
-		void						addAttribute(string key,std::string value);
-		void						addAttributeIncDB(string key,std::string value);
-		bool						hasAttribute(string key) const;
-		void						removeAttribute(string key);
+		void						setAttribute(BString key,std::string value);
+		void						setAttributeIncDB(BString key,std::string value);
+		void						addAttribute(BString key,std::string value);
+		void						addAttributeIncDB(BString key,std::string value);
+		bool						hasAttribute(BString key) const;
+		void						removeAttribute(BString key);
 		AttributeOrderList*			getAttributeOrder(){ return &mAttributeOrderList; }
 
 		// internal attributes, only used server side
 		AttributeMap*				getInternalAttributeMap(){ return &mInternalAttributeMap; }
-		template<typename T> T		getInternalAttribute(string key);
-		void						setInternalAttribute(string key,std::string value);
-		void						addInternalAttribute(string key,std::string value);
-		void						setInternalAttributeIncDB(string key,std::string value);
-		void						addInternalAttributeIncDB(string key,std::string value);
-		bool						hasInternalAttribute(string key);
-		void						removeInternalAttribute(string key);
+		template<typename T> T		getInternalAttribute(BString key);
+		void						setInternalAttribute(BString key,std::string value);
+		void						addInternalAttribute(BString key,std::string value);
+		void						setInternalAttributeIncDB(BString key,std::string value);
+		void						addInternalAttributeIncDB(BString key,std::string value);
+		bool						hasInternalAttribute(BString key);
+		void						removeInternalAttribute(BString key);
 
 		// subzone this is used by spawnregions - get it out there and put this in movingObject
 		uint32						getSubZoneId() const { return mSubZoneId; }
@@ -287,7 +287,7 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 		PlayerObjectSet				mKnownPlayers;
 		ObjectIDSet					mKnownObjectsIDs;
 		ObjectController			mObjectController;
-		string						mModel;
+		BString						mModel;
 
 		MenuItemList*				mMenuItemList;
 
@@ -315,7 +315,7 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 //=============================================================================
 
 template<typename T>
-T	Object::getAttribute(string key) const
+T	Object::getAttribute(BString key) const
 {
 	AttributeMap::const_iterator it = mAttributeMap.find(key.getCrc());
 
@@ -386,7 +386,7 @@ T	Object::getAttribute(uint32 keyCrc) const
 //=============================================================================
 
 template<typename T>
-T	Object::getInternalAttribute(string key)
+T	Object::getInternalAttribute(BString key)
 {
 	AttributeMap::iterator it = mInternalAttributeMap.find(key.getCrc());
 

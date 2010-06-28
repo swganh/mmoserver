@@ -88,10 +88,10 @@ public:
 	void sendAuctionOutbidMail(DispatchClient* client, uint64 Sender, uint64 Receiver, int8 ItemName[128]) const;
 	void sendAuctionWonMail(DispatchClient* client, uint64 Sender, uint64 Receiver,int8 ItemName[128],int8 Sellerame[32],uint32 Credits) const;
 
-	void sendTestMail(DispatchClient* client, uint64 Sender, uint64 Receiver, int8 ItemName[128], string test) const;
+	void sendTestMail(DispatchClient* client, uint64 Sender, uint64 Receiver, int8 ItemName[128], BString test) const;
 
 	void sendBidAuctionResponse(DispatchClient* client, uint32 error, uint64 AuctionID) const;
-	void sendIsVendorOwnerResponseMessage(DispatchClient* client, string mBazaarString, uint32 mPermission, uint32 error, uint64 mId) const;
+	void sendIsVendorOwnerResponseMessage(DispatchClient* client, BString mBazaarString, uint32 mPermission, uint32 error, uint64 mId) const;
 	void processSendCreateItem(DispatchClient* client, uint64 mPlayerID, uint64 mItemID,uint32 mItemGroup, uint32 mPlanetID) const;
 	void SendRetrieveAuctionItemResponseMessage(DispatchClient* client, uint64 mItemId, uint32 error) const;
 	void SendGetAuctionDetailsResponse(TradeManagerAsyncContainer* asynContainer, AttributesList* mAttributesList) const;
@@ -108,10 +108,10 @@ public:
 	void sendSceneCreateObjectByCrc(uint64 objectId, uint32 objectCrc, Player* player) const;
 	void sendSceneDestroyObject(uint64 objectId, Player* player) const;
 	void sendSceneEndBaselines(uint64 objectId, Player* player) const;
-	void sendSystemMessage(Player* target, string message) const;
-	void sendSystemMessageProper(Player* playerObject,uint8 system,string customMessage,string mainFile,string mainVar,string toFile,string toVar,string toCustom,int32 di,string ttFile,string ttVar,string ttCustom,uint64 ttId,uint64 toId,uint64 tuId,string tuFile,string tuVar,string tuCustom) const;
-	void sendGroupSystemMessage(string message, GroupObject* group, bool ignoreLeader = false) const;
-	void sendGroupSystemMessage(string name, string pointer, Player* target, GroupObject* group, bool unicode = false) const;
+	void sendSystemMessage(Player* target, BString message) const;
+	void sendSystemMessageProper(Player* playerObject,uint8 system,BString customMessage,BString mainFile,BString mainVar,BString toFile,BString toVar,BString toCustom,int32 di,BString ttFile,BString ttVar,BString ttCustom,uint64 ttId,uint64 toId,uint64 tuId,BString tuFile,BString tuVar,BString tuCustom) const;
+	void sendGroupSystemMessage(BString message, GroupObject* group, bool ignoreLeader = false) const;
+	void sendGroupSystemMessage(BString name, BString pointer, Player* target, GroupObject* group, bool unicode = false) const;
 	
 	void sendIsmInviteRequest(Player* sender, Player* target) const;
 	void sendIsmGroupLootModeResponse(Player* target) const;
@@ -120,12 +120,12 @@ public:
 	void sendIsmInviteInRangeRequest(Player* sender, Player* target);
 	void sendIsmIsGroupLeaderResponse(Player* player, uint64 requestId, bool isLeader);
 
-	void sendFriendOnlineStatus(Player* player,Player* playerFriend,uint8 status, string category, string name) const;
+	void sendFriendOnlineStatus(Player* player,Player* playerFriend,uint8 status, BString category, BString name) const;
 	void sendFindFriendCreateWaypoint(DispatchClient* client, Player* player, Player* friendPlayer) const;
 	void sendFindFriendRequestPosition(DispatchClient* client, Player* playerFriend, Player* player) const;
 
 	//BankTips
-	void sendBanktipMail(DispatchClient* client, Player*  playerObject, string receiverName,uint64 receiverId, uint32 amount) const;
+	void sendBanktipMail(DispatchClient* client, Player*  playerObject, BString receiverName,uint64 receiverId, uint32 amount) const;
 
 	//CSR
 	void sendConnectPlayerResponseMessage(DispatchClient* client) const;
@@ -142,22 +142,22 @@ public:
 	void sendChatOnDestroyRoom(DispatchClient* client, Channel* channel, uint32 requestId) const;
 	void sendChatQueryRoomResults(DispatchClient* client, Channel* channel, uint32 requestId) const;
 	void sendChatOnLeaveRoom(DispatchClient* client, ChatAvatarId* avatar, Channel* channel, uint32 requestId, uint32 errorCode=0) const;
-	void sendChatRoomMessage(Channel* channel, string galaxy, string sender, string message) const;
+	void sendChatRoomMessage(Channel* channel, BString galaxy, BString sender, BString message) const;
 	void sendChatOnSendRoomMessage(DispatchClient* client, uint32 errorcode, uint32 requestId) const;
-	void sendChatOnRemoveModeratorFromRoom(DispatchClient* client, string galaxy, string sender, string target, Channel* channel, uint32 requestId) const;
-	void sendChatOnAddModeratorToRoom(DispatchClient* client, string galaxy, string sender, string target, Channel* channel, uint32 requestId) const;
-	void sendChatOnInviteToRoom(DispatchClient* client, string galaxy, string sender, string target, Channel* channel, uint32 requestId) const;
-	void sendChatOnBanAvatarFromRoom(DispatchClient* client, string galaxy, string sender, string target, Channel* channel, uint32 requestId) const;
-	void sendChatOnUnBanAvatarFromRoom(DispatchClient* client, string galaxy, string sender, string target, Channel* channel, uint32 requestId) const;
+	void sendChatOnRemoveModeratorFromRoom(DispatchClient* client, BString galaxy, BString sender, BString target, Channel* channel, uint32 requestId) const;
+	void sendChatOnAddModeratorToRoom(DispatchClient* client, BString galaxy, BString sender, BString target, Channel* channel, uint32 requestId) const;
+	void sendChatOnInviteToRoom(DispatchClient* client, BString galaxy, BString sender, BString target, Channel* channel, uint32 requestId) const;
+	void sendChatOnBanAvatarFromRoom(DispatchClient* client, BString galaxy, BString sender, BString target, Channel* channel, uint32 requestId) const;
+	void sendChatOnUnBanAvatarFromRoom(DispatchClient* client, BString galaxy, BString sender, BString target, Channel* channel, uint32 requestId) const;
 
 	void sendChatFailedToEnterRoom(DispatchClient* client, ChatAvatarId* player, uint32 errorcode, Channel* channel, uint32 requestId) const;
-	void sendChatFailedToAddMod(DispatchClient* client, string galaxy, string sender, string target, Channel* channel, uint32 errorcode, uint32 requestId) const;
-	void sendChatFailedToInvite(DispatchClient* client, string galaxy, string sender, string target, Channel* channel, uint32 errorcode, uint32 requestId) const;
-	void sendChatFailedToRemoveMod(DispatchClient* client, string galaxy, string sender, string target, Channel* channel, uint32 errorcode, uint32 requestId) const;
-	void sendChatFailedToBan(DispatchClient* client, string galaxy, string sender, string target, Channel* channel, uint32 errorcode, uint32 requestId) const;
-	void sendChatFailedToUnban(DispatchClient* client, string galaxy, string sender, string target, Channel* channel, uint32 errorcode, uint32 requestId) const;
-	void sendChatOnUninviteFromRoom(DispatchClient* client, string galaxy, string sender, string target, Channel* channel, uint32 requestId) const;
-	void sendChatFailedToUninviteFromRoom(DispatchClient* client, string galaxy, string sender, string target, Channel* channel, uint32 errorcode, uint32 requestId) const;
+	void sendChatFailedToAddMod(DispatchClient* client, BString galaxy, BString sender, BString target, Channel* channel, uint32 errorcode, uint32 requestId) const;
+	void sendChatFailedToInvite(DispatchClient* client, BString galaxy, BString sender, BString target, Channel* channel, uint32 errorcode, uint32 requestId) const;
+	void sendChatFailedToRemoveMod(DispatchClient* client, BString galaxy, BString sender, BString target, Channel* channel, uint32 errorcode, uint32 requestId) const;
+	void sendChatFailedToBan(DispatchClient* client, BString galaxy, BString sender, BString target, Channel* channel, uint32 errorcode, uint32 requestId) const;
+	void sendChatFailedToUnban(DispatchClient* client, BString galaxy, BString sender, BString target, Channel* channel, uint32 errorcode, uint32 requestId) const;
+	void sendChatOnUninviteFromRoom(DispatchClient* client, BString galaxy, BString sender, BString target, Channel* channel, uint32 requestId) const;
+	void sendChatFailedToUninviteFromRoom(DispatchClient* client, BString galaxy, BString sender, BString target, Channel* channel, uint32 errorcode, uint32 requestId) const;
 
 private:
     /* Disable the default constructor, copy constructor and assignment operators */

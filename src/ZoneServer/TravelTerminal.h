@@ -49,7 +49,7 @@ class TravelTerminal : public Terminal
 		TravelTerminal();
 		~TravelTerminal();
 
-		string		getPosDescriptor(){ return mPositionDescriptor; }
+		BString		getPosDescriptor(){ return mPositionDescriptor; }
 		void		setPosDescriptor(const int8* desc){ mPositionDescriptor = desc; }
 
 		PortType	getPortType(){ return mPortType; }
@@ -61,7 +61,7 @@ class TravelTerminal : public Terminal
 
 	private:
 
-		string		mPositionDescriptor;
+		BString		mPositionDescriptor;
 		PortType	mPortType;
 
 };

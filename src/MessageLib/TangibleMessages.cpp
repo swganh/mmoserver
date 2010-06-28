@@ -55,7 +55,7 @@ bool MessageLib::sendBaselinesTANO_3(const TangibleObject* const tangibleObject,
 		return(false);
 
 	Message* message;
-	string customName = tangibleObject->getCustomName().getAnsi();
+	BString customName = tangibleObject->getCustomName().getAnsi();
 	customName.convert(BSTRType_Unicode16);
 
 	mMessageFactory->StartMessage();

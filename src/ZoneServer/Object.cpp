@@ -58,7 +58,7 @@ Object::Object()
 
 //=============================================================================
 
-Object::Object(uint64 id,uint64 parentId,string model,ObjectType type)
+Object::Object(uint64 id,uint64 parentId,BString model,ObjectType type)
 : mModel(model)
 , mLoadState(LoadState_Loading)
 , mType(type)
@@ -295,13 +295,13 @@ bool Object::checkKnownPlayer(PlayerObject* player)
 }
 
 
-string Object::getBazaarName()
+BString Object::getBazaarName()
 {
     return "";
 }
 
 
-string Object::getBazaarTang()
+BString Object::getBazaarTang()
 {
     return "";
 }
@@ -323,7 +323,7 @@ void Object::sendAttributes(PlayerObject* playerObject)
 		return;
 
 	Message*	newMessage;
-	string		value;
+	BString		value;
 
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opAttributeListMessage);
@@ -372,7 +372,7 @@ void Object::sendAttributes(PlayerObject* playerObject)
 
 //=========================================================================
 
-void Object::setAttribute(string key,std::string value)
+void Object::setAttribute(BString key,std::string value)
 {
 	AttributeMap::iterator it = mAttributeMap.find(key.getCrc());
 
@@ -388,7 +388,7 @@ void Object::setAttribute(string key,std::string value)
 //=========================================================================
 //set the attribute and alter the db
 
-void Object::setAttributeIncDB(string key,std::string value)
+void Object::setAttributeIncDB(BString key,std::string value)
 {
 	if(!hasAttribute(key))
 	{
@@ -430,7 +430,7 @@ void Object::setAttributeIncDB(string key,std::string value)
 //=============================================================================
 //adds the attribute to the objects attribute list
 
-void Object::addAttribute(string key,std::string value)
+void Object::addAttribute(BString key,std::string value)
 {
 	mAttributeMap.insert(std::make_pair(key.getCrc(),value));
 	mAttributeOrderList.push_back(key.getCrc());
@@ -439,7 +439,7 @@ void Object::addAttribute(string key,std::string value)
 //=============================================================================
 //adds the attribute to the objects attribute list AND to the db - it needs a valid entry in the attribute table for that
 
-void Object::addAttributeIncDB(string key,std::string value)
+void Object::addAttributeIncDB(BString key,std::string value)
 {
 	if(hasAttribute(key))
 	{
@@ -472,7 +472,7 @@ void Object::addAttributeIncDB(string key,std::string value)
 
 //=============================================================================
 
-bool Object::hasAttribute(string key) const
+bool Object::hasAttribute(BString key) const
 {
 	if(mAttributeMap.find(key.getCrc()) != mAttributeMap.end())
 		return(true);
@@ -482,7 +482,7 @@ bool Object::hasAttribute(string key) const
 
 //=============================================================================
 
-void Object::removeAttribute(string key)
+void Object::removeAttribute(BString key)
 {
 	AttributeMap::iterator it = mAttributeMap.find(key.getCrc());
 
@@ -497,7 +497,7 @@ void Object::removeAttribute(string key)
 //=========================================================================
 //set the attribute and alter the db
 
-void Object::setInternalAttributeIncDB(string key,std::string value)
+void Object::setInternalAttributeIncDB(BString key,std::string value)
 {
 	if(!hasInternalAttribute(key))
 	{
@@ -535,7 +535,7 @@ void Object::setInternalAttributeIncDB(string key,std::string value)
 	gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,sql);
 }
 
-void	Object::setInternalAttribute(string key,std::string value)
+void	Object::setInternalAttribute(BString key,std::string value)
 {
 	AttributeMap::iterator it = mInternalAttributeMap.find(key.getCrc());
 
@@ -551,7 +551,7 @@ void	Object::setInternalAttribute(string key,std::string value)
 //=============================================================================
 //adds the attribute to the objects attribute list AND to the db - it needs a valid entry in the attribute table for that
 
-void Object::addInternalAttributeIncDB(string key,std::string value)
+void Object::addInternalAttributeIncDB(BString key,std::string value)
 {
 	if(hasInternalAttribute(key))
 	{
@@ -584,14 +584,14 @@ void Object::addInternalAttributeIncDB(string key,std::string value)
 
 //=============================================================================
 
-void Object::addInternalAttribute(string key,std::string value)
+void Object::addInternalAttribute(BString key,std::string value)
 {
 	mInternalAttributeMap.insert(std::make_pair(key.getCrc(),value));
 }
 
 //=============================================================================
 
-bool Object::hasInternalAttribute(string key)
+bool Object::hasInternalAttribute(BString key)
 {
 	if(mInternalAttributeMap.find(key.getCrc()) != mInternalAttributeMap.end())
 		return(true);
@@ -601,7 +601,7 @@ bool Object::hasInternalAttribute(string key)
 
 //=============================================================================
 
-void Object::removeInternalAttribute(string key)
+void Object::removeInternalAttribute(BString key)
 {
 	AttributeMap::iterator it = mInternalAttributeMap.find(key.getCrc());
 

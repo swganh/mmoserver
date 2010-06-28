@@ -160,7 +160,7 @@ Tutorial::~Tutorial()
 	}
 }
 
-void Tutorial::warpToStartingLocation(string startingLocation)
+void Tutorial::warpToStartingLocation(BString startingLocation)
 {
 	gLogger->log(LogManager::DEBUG,"Tutorial::warpToStartingLocation: Starting city = %s", startingLocation.getAnsi());
 
@@ -380,7 +380,7 @@ void Tutorial::disableHudElement(std::string customMessage)
 //
 //
 
-void Tutorial::tutorialResponse(string tutorialEventString)
+void Tutorial::tutorialResponse(BString tutorialEventString)
 {
 	if (strcmp(tutorialEventString.getAnsi(), "zoomCamera") == 0)
 	{
@@ -428,7 +428,7 @@ void Tutorial::tutorialResponse(string tutorialEventString)
 //
 //
 
-void Tutorial::tutorialResponseReset(string tutorialEventString)
+void Tutorial::tutorialResponseReset(BString tutorialEventString)
 {
 	if (strcmp(tutorialEventString.getAnsi(), "zoomCamera") == 0)
 	{
@@ -992,7 +992,7 @@ static const uint64 MarksmanTrainerId[3] = {47244640339, 47244640363, 4724464045
 static const uint64 ScoutTrainerId[3] = {47244640311, 47244640461, 47244640525};
 */
 
-uint64 Tutorial::getSkillTrainerTypeId(string startingProfession)
+uint64 Tutorial::getSkillTrainerTypeId(BString startingProfession)
 {
 	uint64 typeId = 0;
 	uint8 index = (uint8)(gRandom->getRand() % 3);
@@ -1049,11 +1049,11 @@ void Tutorial::setTutorialRefugeeTaunts(uint64 npcId)
 	{
 		npc->setupTutorialTaunts(mPlayerObject->getId(),
 								 120000,
-								 "newbie_tutorial/newbie_convo:refugee1",
-								 "newbie_tutorial/newbie_convo:refugee2",
-								 "newbie_tutorial/newbie_convo:refugee3",
-								 "newbie_tutorial/newbie_convo:refugee4",
-								 "newbie_tutorial/newbie_convo:refugee5");
+								 "@newbie_tutorial/newbie_convo:refugee1",
+								 "@newbie_tutorial/newbie_convo:refugee2",
+								 "@newbie_tutorial/newbie_convo:refugee3",
+								 "@newbie_tutorial/newbie_convo:refugee4",
+								 "@newbie_tutorial/newbie_convo:refugee5");
 	}
 }
 
@@ -1065,11 +1065,11 @@ void Tutorial::setTutorialCelebTaunts(uint64 npcId)
 	{
 		npc->setupTutorialTaunts(mPlayerObject->getId(),
 								 90000,
-								 "newbie_tutorial/newbie_convo:celeb_guy1",
-								 "newbie_tutorial/newbie_convo:celeb_guy2",
-								 "newbie_tutorial/newbie_convo:celeb_guy3",
-								 "newbie_tutorial/newbie_convo:celeb_guy4",
-								 "newbie_tutorial/newbie_convo:celeb_guy5");
+								 "@newbie_tutorial/newbie_convo:celeb_guy1",
+								 "@newbie_tutorial/newbie_convo:celeb_guy2",
+								 "@newbie_tutorial/newbie_convo:celeb_guy3",
+								 "@newbie_tutorial/newbie_convo:celeb_guy4",
+								 "@newbie_tutorial/newbie_convo:celeb_guy5");
 	}
 }
 
@@ -1119,10 +1119,10 @@ void Tutorial::sendStartingLocationList(void)
 
 void Tutorial::sendStartingMails(void)
 {
-	string startingProfession = mStartingProfession;
-	string subject = "@newbie_tutorial/newbie_mail:welcome_subject";
-	string bodyDir = "newbie_tutorial/newbie_mail";
-	string bodyStr = "welcome_body";
+	BString startingProfession = mStartingProfession;
+	BString subject = "@newbie_tutorial/newbie_mail:welcome_subject";
+	BString bodyDir = "newbie_tutorial/newbie_mail";
+	BString bodyStr = "welcome_body";
 
 	//sends the starting email
 	SendSystemMailMessage* message = new SendSystemMailMessage();

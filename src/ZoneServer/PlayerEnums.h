@@ -120,7 +120,7 @@ class TimerAsyncContainer
 
 struct DenyServiceStruct2
 {
-	string			Name;
+	BString			Name;
 };
 
 struct BuffStruct

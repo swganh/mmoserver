@@ -44,20 +44,20 @@ public:
 	ChatAvatarId(){};
 	~ChatAvatarId(){};
 
-	string			getGalaxy() { return mGalaxy; }
-	void			setGalaxy(const string name) { mGalaxy = name; }
+	BString			getGalaxy() { return mGalaxy; }
+	void			setGalaxy(const BString name) { mGalaxy = name; }
 
 	Player*			getPlayer() { return mPlayer; }
 	void			setPlayer(Player* player);
-	void			setPlayer(const string player);
+	void			setPlayer(const BString player);
 
-	virtual string	getLoweredName() { return mName; }
+	virtual BString	getLoweredName() { return mName; }
 
-	string	getPath();
+	BString	getPath();
 
 protected:
-	string		mGalaxy;
-	string		mName;
+	BString		mGalaxy;
+	BString		mName;
 	Player*		mPlayer;
 };
 
@@ -70,7 +70,7 @@ public:
 	~ChatSystemAvatar(){}
 	static ChatSystemAvatar* GetSingleton();
 
-	string getLoweredName();
+	BString getLoweredName();
 
 private:
 

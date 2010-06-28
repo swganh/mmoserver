@@ -45,7 +45,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 void ObjectController::_handleAdminSysMsg(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
 	PlayerObject*		playerObject	= dynamic_cast<PlayerObject*>(mObject);
-	string				dataStr;
+	BString				dataStr;
 
 	message->getStringUnicode16(dataStr);
 
@@ -76,8 +76,8 @@ void ObjectController::_handleAdminSysMsg(uint64 targetId,Message* message,Objec
 void ObjectController::_handleAdminWarpSelf(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
 	PlayerObject*		player		= dynamic_cast<PlayerObject*>(mObject);
-	string				dataStr;
-	string				planet;
+	BString				dataStr;
+	BString				planet;
 	int32				planetId	= 0;
 	int32				x,z;
 
@@ -147,7 +147,7 @@ void ObjectController::_handleAdminWarpSelf(uint64 targetId,Message* message,Obj
 // typedef string (ObjectController::*adminFuncPointer)(string);
 typedef struct _AdminCommands
 {
-	string command;
+	BString command;
 	const int32 testLength;
 	// string (ObjectController::*adminFuncPointer)(string) const;
 } AdminCommands;
@@ -165,7 +165,7 @@ void ObjectController::_handleAdminSysMsg(uint64 targetId,Message* message,Objec
 {
 	bool status = false;
 
-	string dataStr;
+	BString dataStr;
 	message->getStringUnicode16(dataStr);
 
 	PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
@@ -188,7 +188,7 @@ void ObjectController::_handleAdminSysMsg(uint64 targetId,Message* message,Objec
 	if (dataStr.getLength())
 	{
 		int32 elementCount = sscanf(dataStr.getAnsi(), "%80s", rawData);
-		string adminCommand(rawData);
+		BString adminCommand(rawData);
 		if (elementCount > 0)
 		{
 			int32 commandIndex = this->getAdminCommandFunction(adminCommand);
@@ -201,17 +201,17 @@ void ObjectController::_handleAdminSysMsg(uint64 targetId,Message* message,Objec
 					// Not all commands have payload.
 					index = dataStr.getLength();
 				}
-				string ansiData;
+				BString ansiData;
 				ansiData.setLength(dataStr.getLength());
 				dataStr.substring(ansiData,static_cast<uint16>(index), dataStr.getLength());
 
 				// Now ADD a proper spelled command. It HAS to match the crc.
-				string newCommandString;
+				BString newCommandString;
 				newCommandString.setLength(adminCommands[commandIndex].command.getLength() + ansiData.getLength() + 1);
 				sprintf(newCommandString.getAnsi(),"%s %s", adminCommands[commandIndex].command.getAnsi(), ansiData.getAnsi());
 
 				// Execute the command.
-				string opcodeStr(adminCommands[commandIndex].command);
+				BString opcodeStr(adminCommands[commandIndex].command);
 				opcodeStr.toLower();
 				newCommandString.convert(BSTRType_Unicode16);
 
@@ -262,20 +262,20 @@ void ObjectController::_handleBroadcast(uint64 targetId, Message* message, Objec
 {
 	int8 rawData[128];
 	rawData[0] = 0;
-	string msgString;
+	BString msgString;
 	message->getStringUnicode16(msgString);
 	msgString.convert(BSTRType_ANSI);
 
 	// Remove current command and leadig white space.
 	msgString = skipToNextField(msgString);
 
-	string feedback(this->handleBroadcast(msgString));
+	BString feedback(this->handleBroadcast(msgString));
 	sprintf(rawData,"%s: [%s]", cmdProperties->mCommandStr.getAnsi(), feedback.getAnsi());
 	this->sendAdminFeedback(rawData);
 }
 
 
-string ObjectController::handleBroadcast(string message) const
+BString ObjectController::handleBroadcast(BString message) const
 {
 	int8 rawData[128];
 
@@ -321,7 +321,7 @@ void ObjectController::_handleBroadcastPlanet(uint64 targetId, Message* message,
 {
 	int8 rawData[128];
 	rawData[0] = 0;
-	string msgString;
+	BString msgString;
 	message->getStringUnicode16(msgString);
 	msgString.convert(BSTRType_ANSI);
 
@@ -329,20 +329,20 @@ void ObjectController::_handleBroadcastPlanet(uint64 targetId, Message* message,
 	// msgString = skipToNextField(msgString);
 	msgString = skipToNextField(msgString);
 
-	string feedback = this->handleBroadcastPlanet(msgString);
+	BString feedback = this->handleBroadcastPlanet(msgString);
 	sprintf(rawData,"%s: [%s]", cmdProperties->mCommandStr.getAnsi(), feedback.getAnsi());
 	this->sendAdminFeedback(rawData);
 }
 
 
-string ObjectController::handleBroadcastPlanet(string message) const
+BString ObjectController::handleBroadcastPlanet(BString message) const
 {
 	// Get planet name
 	int8 rawData[128];
 	rawData[0] = 0;
 
 	int32 elementCount = sscanf(message.getAnsi(), "%80s", rawData);
-	string planet(rawData);
+	BString planet(rawData);
 	if (elementCount > 0)
 	{
 		// Yes. Validate the planet name.
@@ -355,7 +355,7 @@ string ObjectController::handleBroadcastPlanet(string message) const
 			{
 				// Now we can get the broadcaste from the message.
 				// Remove planet name from message.
-				string ansiData;
+				BString ansiData;
 				ansiData.setLength(message.getLength());
 				message.substring(ansiData, static_cast<uint16>(index), message.getLength());
 
@@ -402,20 +402,20 @@ void ObjectController::_handleBroadcastGalaxy(uint64 targetId, Message* message,
 {
 	int8 rawData[128];
 	rawData[0] = 0;
-	string msgString;
+	BString msgString;
 	message->getStringUnicode16(msgString);
 	msgString.convert(BSTRType_ANSI);
 
 	// Remove current command and leadig white space.
 	msgString = skipToNextField(msgString);
 
-	string feedback = this->handleBroadcastGalaxy(msgString);
+	BString feedback = this->handleBroadcastGalaxy(msgString);
 	sprintf(rawData,"%s: [%s]", cmdProperties->mCommandStr.getAnsi(), feedback.getAnsi());
 	this->sendAdminFeedback(rawData);
 }
 
 
-string ObjectController::handleBroadcastGalaxy(string message) const
+BString ObjectController::handleBroadcastGalaxy(BString message) const
 {
 	int8* replyStr = "OK";
 
@@ -427,7 +427,7 @@ string ObjectController::handleBroadcastGalaxy(string message) const
 		// Now we can get the broadcast from the message.
 
 		// Remove white space from start of message.
-		string ansiData;
+		BString ansiData;
 		ansiData.setLength(message.getLength());
 		message.substring(ansiData, static_cast<uint16>(index), message.getLength());
 
@@ -463,20 +463,20 @@ void ObjectController::_handleShutdownGalaxy(uint64 targetId, Message* message, 
 {
 	int8 rawData[128];
 	rawData[0] = 0;
-	string msgString;
+	BString msgString;
 	message->getStringUnicode16(msgString);
 	msgString.convert(BSTRType_ANSI);
 
 	// Remove current command and leadig white space.
 	msgString = skipToNextField(msgString);
 
-	string feedback = this->handleShutdownGalaxy(msgString);
+	BString feedback = this->handleShutdownGalaxy(msgString);
 	sprintf(rawData,"%s: [%s]", cmdProperties->mCommandStr.getAnsi(), feedback.getAnsi());
 	this->sendAdminFeedback(rawData);
 }
 
 
-string ObjectController::handleShutdownGalaxy(string message) const
+BString ObjectController::handleShutdownGalaxy(BString message) const
 {
 	int8 replyData[128];
 
@@ -495,7 +495,7 @@ string ObjectController::handleShutdownGalaxy(string message) const
 		if (elementCount > 0)
 		{
 			// We have no idea of how much white space are inserted in string...
-			string ansiData;
+			BString ansiData;
 			int32 index = indexOfNextField(message);
 			if (index < 0)
 			{
@@ -546,20 +546,20 @@ void ObjectController::_handleCancelShutdownGalaxy(uint64 targetId, Message* mes
 {
 	int8 rawData[128];
 	rawData[0] = 0;
-	string msgString;
+	BString msgString;
 	message->getStringUnicode16(msgString);
 	msgString.convert(BSTRType_ANSI);
 
 	// Remove current command and leadig white space.
 	msgString = skipToNextField(msgString);
 
-	string feedback = this->handleCancelShutdownGalaxy(msgString);
+	BString feedback = this->handleCancelShutdownGalaxy(msgString);
 	sprintf(rawData,"%s: [%s]", cmdProperties->mCommandStr.getAnsi(), feedback.getAnsi());
 	this->sendAdminFeedback(rawData);
 }
 
 
-string ObjectController::handleCancelShutdownGalaxy(string message) const
+BString ObjectController::handleCancelShutdownGalaxy(BString message) const
 {
 	int8 replyData[128];
 
@@ -572,7 +572,7 @@ string ObjectController::handleCancelShutdownGalaxy(string message) const
 		sprintf(replyData,"OK");
 
 		// We have no idea of how much white space are inserted in string...
-		string ansiData;
+		BString ansiData;
 		int32 index = indexOfFirstField(message);
 		if (index < 0)
 		{
@@ -602,7 +602,7 @@ string ObjectController::handleCancelShutdownGalaxy(string message) const
 //
 //
 
-void ObjectController::broadcastGalaxyMessage(string theBroadcast, int32 planetId) const
+void ObjectController::broadcastGalaxyMessage(BString theBroadcast, int32 planetId) const
 {
 	if (theBroadcast.getLength())
 	{
@@ -634,7 +634,7 @@ void ObjectController::broadcastGalaxyMessage(string theBroadcast, int32 planetI
 //
 //
 
-void ObjectController::scheduleShutdown(int32 scheduledTime, string shutdownReason) const
+void ObjectController::scheduleShutdown(int32 scheduledTime, BString shutdownReason) const
 {
 
 	PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
@@ -660,7 +660,7 @@ void ObjectController::scheduleShutdown(int32 scheduledTime, string shutdownReas
 //
 //
 
-void ObjectController::cancelScheduledShutdown(string cancelShutdownReason) const
+void ObjectController::cancelScheduledShutdown(BString cancelShutdownReason) const
 {
 	PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
 	if (player)
@@ -685,7 +685,7 @@ void ObjectController::cancelScheduledShutdown(string cancelShutdownReason) cons
 //
 //
 
-int32 ObjectController::indexOfFirstField(const string message) const
+int32 ObjectController::indexOfFirstField(const BString message) const
 {
 	int32 index = -1;
 	int8 *ptr = message.getRawData();
@@ -709,7 +709,7 @@ int32 ObjectController::indexOfFirstField(const string message) const
 //
 //
 
-int32 ObjectController::indexOfNextField(const string message) const
+int32 ObjectController::indexOfNextField(const BString message) const
 {
 	int32 index = -1;
 	int8 *ptr = message.getRawData();
@@ -750,7 +750,7 @@ int32 ObjectController::indexOfNextField(const string message) const
 //	Echo command feedback to user.
 //
 
-void ObjectController::sendAdminFeedback(string reply) const
+void ObjectController::sendAdminFeedback(BString reply) const
 {
 	PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
 	if ((player) && (player->isConnected()))
@@ -781,13 +781,13 @@ void ObjectController::sendAdminFeedback(string reply) const
 	}
 }
 
-string ObjectController::removeWhiteSpace(string str) const
+BString ObjectController::removeWhiteSpace(BString str) const
 {
 	int32 index = indexOfFirstField(str);
 	if (index > 0)
 	{
 		// Remove white space from start of message.
-		string resultStr;
+		BString resultStr;
 		resultStr.setLength(str.getLength());
 		str.substring(resultStr, static_cast<uint16>(index), str.getLength());
 		return resultStr;
@@ -798,7 +798,7 @@ string ObjectController::removeWhiteSpace(string str) const
 
 
 
-string ObjectController::skipToNextField(string str) const
+BString ObjectController::skipToNextField(BString str) const
 {
 	int32 index = indexOfNextField(str);
 	if (index < 0)
@@ -808,7 +808,7 @@ string ObjectController::skipToNextField(string str) const
 	}
 
 	// Remove white space from start of message.
-	string resultStr;
+	BString resultStr;
 	resultStr.setLength(str.getLength());
 	str.substring(resultStr, static_cast<uint16>(index), str.getLength());
 	return resultStr;
@@ -817,7 +817,7 @@ string ObjectController::skipToNextField(string str) const
 
 //======================================================================================================================
 
-int32 ObjectController::getAdminCommandFunction(string command) const
+int32 ObjectController::getAdminCommandFunction(BString command) const
 {
 	for (int i = 0; i < noOfAdminCommands; i++)
 	{

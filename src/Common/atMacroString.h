@@ -34,36 +34,36 @@ class atMacroString
 public:
 	atMacroString();
 	~atMacroString();
-	void			addTO(string TO) {mTO = TO;}
+	void			addTO(BString TO) {mTO = TO;}
 	void			addTOId(uint64 toid) {mTOId = toid;}
-	void			addTOstf(string dir, string str) {mTOdir = dir;mTOstr = str;}
+	void			addTOstf(BString dir, BString str) {mTOdir = dir;mTOstr = str;}
 
 	void			addDI(uint32 di) {mDI = di;}
 
-	void			addTT(string tt) {mTT = tt;}
+	void			addTT(BString tt) {mTT = tt;}
 	void			addTTId(uint64 ttid) {mTTId = ttid;}
-	void			addTTstf(string dir, string str) {mTTdir = dir;mTTstr = str;}
+	void			addTTstf(BString dir, BString str) {mTTdir = dir;mTTstr = str;}
 
-	void			addTU(string tu) {mTU = tu;}
+	void			addTU(BString tu) {mTU = tu;}
 	void			addTUId(uint64 tuid) {mTUId = tuid;}
-	void			addTUstf(string dir, string str) {mTUdir = dir;mTUstr = str;}
+	void			addTUstf(BString dir, BString str) {mTUdir = dir;mTUstr = str;}
 
-	void			addMB(string mb) {mMB = mb;}
-	void			addMBstf(string dir, string str) {mMBdir = dir;mMBstr = str;}
+	void			addMB(BString mb) {mMB = mb;}
+	void			addMBstf(BString dir, BString str) {mMBdir = dir;mMBstr = str;}
 	
-	string			assemble();
+	BString			assemble();
 	void			addTextModule();
 
-	void			setPlanetString(string planet);
+	void			setPlanetString(BString planet);
 	void			addWaypoint();
 
-	void			setWP(float x, float y, float z, string name){mX = x; mY = y; mZ = z; mWPName = name;}
+	void			setWP(float x, float y, float z, BString name){mX = x; mY = y; mZ = z; mWPName = name;}
 
 
 private:
 
 	void			_addByte(uint8 mByte);
-	void			_addString(string mString);
+	void			_addString(BString mString);
 	void			_adduint16(uint16 mWord);
 	void			_adduint32(uint32 mInteger);
 	void			_adduint64(uint64 mLong);
@@ -73,30 +73,30 @@ private:
 	bool	mAssembled;
 	
 	uint64	mTOId;
-	string	mTO;
-	string	mTOdir;
-	string	mTOstr;
+	BString	mTO;
+	BString	mTOdir;
+	BString	mTOstr;
 
 	uint64	mTTId;
-	string	mTT;
-	string	mTTdir;
-	string	mTTstr;
+	BString	mTT;
+	BString	mTTdir;
+	BString	mTTstr;
 	
 
 	uint64	mTUId;
-	string	mTU;
-	string	mTUdir;
-	string	mTUstr;
+	BString	mTU;
+	BString	mTUdir;
+	BString	mTUstr;
 
-	string	mMB;
-	string	mMBdir;
-	string	mMBstr;
+	BString	mMB;
+	BString	mMBdir;
+	BString	mMBstr;
 
 	float		mX;
 	float		mY;
 	float		mZ;
 	uint32		mPlanetCRC;
-	string		mWPName;
+	BString		mWPName;
 
 	uint8 Hallo[5000];
 	uint8* mPoint; 

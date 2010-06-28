@@ -89,11 +89,11 @@ enum SRMTimer
 struct structure
 {
 	uint64 owner;
-	string file;
-	string dir;
+	BString file;
+	BString dir;
 	float x;
 	float z;
-	string planet;
+	BString planet;
 	uint32 maxcondition;
 	uint32 condition;
 	uint32 maint;

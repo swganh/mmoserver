@@ -40,6 +40,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldConfig.h"
 #include "ZoneTree.h"
 #include "ZoneServer/NonPersistentNpcFactory.h"
+#include "Tutorial.h"
 #include "utils/rand.h"
 
 // TODO: Implement by functionality.
@@ -66,6 +67,7 @@ AttackableCreature::AttackableCreature(uint64 templateId)
 , mAssistedTargetId(0)
 , mLairNeedAssistanceWithId(0)
 , mAttackTauntSent(false)
+, mAttackedTauntSent(false)
 , mHoming(false)
 , mIsAssistingLair(false)
 , mWarningTauntSent(false)
@@ -465,7 +467,7 @@ bool AttackableCreature::setTargetInAttackRange(void)
 				PlayerObject* playerObject = dynamic_cast<PlayerObject*>(this->getTarget());
 				if (playerObject)
 				{
-					gMessageLib->sendSpatialChat(this, msg, quack, playerObject);
+		            playerObject->getTutorial()->spatialChat(this->getId(), this->getAttackStartMessage().getAnsi());
 					// gMessageLib->sendCreatureAnimation(this,gWorldManager->getNpcConverseAnimation(27), playerObject);
 				}
 			}
@@ -563,7 +565,7 @@ bool AttackableCreature::showWarningInRange(void)
 				PlayerObject* playerObject = dynamic_cast<PlayerObject*>(this->getTarget());
 				if (playerObject)
 				{
-					gMessageLib->sendSpatialChat(this, msg, quack, playerObject);
+		            playerObject->getTutorial()->spatialChat(this->getId(), getAttackWarningMessage().getAnsi());
 					// gMessageLib->sendCreatureAnimation(this,gWorldManager->getNpcConverseAnimation(27), playerObject);
 				}
 			}
@@ -615,8 +617,10 @@ bool AttackableCreature::setTargetDefenderWithinWeaponRange(void)
 		++defenderIt;
 	}
 
-	if (foundTarget)
+	if (foundTarget && !this->isAttackedTauntSent())
 	{
+		this->setAttackedTauntSent();
+
 		if (getAttackedMessage().getLength())
 		{
 			// for now, let's just taunt him.
@@ -635,7 +639,7 @@ bool AttackableCreature::setTargetDefenderWithinWeaponRange(void)
 				PlayerObject* playerObject = dynamic_cast<PlayerObject*>(this->getTarget());
 				if (playerObject)
 				{
-					gMessageLib->sendSpatialChat(this, msg, quack, playerObject);
+		            playerObject->getTutorial()->spatialChat(this->getId(), getAttackedMessage().getAnsi());
 					// gMessageLib->sendCreatureAnimation(this,gWorldManager->getNpcConverseAnimation(27), playerObject);
 				}
 			}
@@ -1887,6 +1891,16 @@ void AttackableCreature::setWarningTauntSent(void)
 void AttackableCreature::clearWarningTauntSent(void)
 {
 	mWarningTauntSent = false;
+}
+
+bool AttackableCreature::isAttackedTauntSent(void) const
+{
+	return mAttackedTauntSent;
+}
+
+void AttackableCreature::setAttackedTauntSent(void)
+{
+	mAttackedTauntSent = true;
 }
 
 void AttackableCreature::killEvent(void)

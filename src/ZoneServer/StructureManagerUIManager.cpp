@@ -332,9 +332,15 @@ void StructureManager::createPayMaintenanceTransferBox(PlayerObject* player, Pla
 		
 	}
 
-
+	
 	uint32 funds = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits();
-	funds += dynamic_cast<Bank*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->getCredits();
+	//safety checks to get to bank. crashbug: http://paste.swganh.org/viewp.php?id=20100627203548-c53f2480c978a48669f668890396560f
+	if(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank)){//we can access the bank
+		Bank* pBank = dynamic_cast<Bank*> (player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
+		if(pBank){
+			funds += pBank->getCredits();
+		}
+	}
 
 	gUIManager->createNewTransferBox(structure,sName,caption,text,"Total Funds","To Pay",funds,structureFunds,player,SUI_Window_Pay_Maintenance);
 	

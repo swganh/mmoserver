@@ -130,6 +130,9 @@ void PingServer::HandleSend(const boost::system::error_code& error, size_t bytes
 
 int main(int argc, char* argv[])
 {
+	//set stdout buffers to 0 to force instant flush
+	setvbuf( stdout, NULL, _IONBF, 0);
+
     try {
 	    ConfigManager::Init("PingServer.cfg");
     } catch (file_not_found) {

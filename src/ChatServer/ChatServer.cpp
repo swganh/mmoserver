@@ -253,6 +253,9 @@ int main(int argc, char* argv[])
         exit(-1);
     }
 
+	//set stdout buffers to 0 to force instant flush
+	setvbuf( stdout, NULL, _IONBF, 0);
+
 	bool exit = false;
 
 	gChatServer = new ChatServer();

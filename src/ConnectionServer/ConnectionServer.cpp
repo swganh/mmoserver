@@ -208,6 +208,9 @@ void ConnectionServer::ToggleLock()
 
 int main(int argc, char* argv[])
 {
+	//set stdout buffers to 0 to force instant flush
+	setvbuf( stdout, NULL, _IONBF, 0);
+
     try {
 	    ConfigManager::Init("ConnectionServer.cfg");
     } catch (file_not_found) {

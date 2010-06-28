@@ -331,6 +331,9 @@ void ZoneServer::_connectToConnectionServer(void)
 
 int main(int argc, char* argv[])
 {	
+	//set stdout buffers to 0 to force instant flush
+	setvbuf( stdout, NULL, _IONBF, 0);
+
 	// The second argument on the command line should be the zone name.
 	//OnlyInstallUnhandeldExceptionFilter(); // Part of stackwalker
 	char zone[50];

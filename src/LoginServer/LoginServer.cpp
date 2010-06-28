@@ -159,6 +159,9 @@ int main(int argc, char* argv[])
         exit(-1);
     }
 
+	//set stdout buffers to 0 to force instant flush
+	setvbuf( stdout, NULL, _IONBF, 0);
+
   bool exit = false;
 
   //We cannot startup Database Logging until we startup the Database.

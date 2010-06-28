@@ -335,7 +335,7 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
 
 				if(!mIlc)
 				{
-					gLogger->log(LogManager::DEBUG,"DatapadFactory: Failed getting ilc");
+					gLogger->log(LogManager::DEBUG,"DatapadFactory::handleObjectReady: Failed getting ilc during ObjType_Tangible where ItemType_ManSchematic");
 					return;
 				}
 
@@ -367,7 +367,7 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
 				InLoadingContainer*mIlcDPad		= _getObject(id);
 				if(!mIlcDPad)
 				{
-					gLogger->log(LogManager::DEBUG,"DatapadFactory: Failed getting ilc");
+					gLogger->log(LogManager::DEBUG,"DatapadFactory::handleObjectReady: Failed getting mIlcDPad during ObjType_Tangible");
 					return;
 				}
 				datapad							= dynamic_cast<Datapad*>(mIlcDPad->mObject);
@@ -380,7 +380,7 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
 
 				if(!mIlc)
 				{
-					gLogger->log(LogManager::DEBUG,"DatapadFactory: Failed getting ilc");
+					gLogger->log(LogManager::DEBUG,"DatapadFactory::handleObjectReady: Failed getting ilc during ObjType_Tangible");
 					return;
 				}
 
@@ -402,10 +402,10 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
 			mIlc	= _getObject(theID);
 			if(!mIlc)//sanity
 			{
-				gLogger->log(LogManager::DEBUG,"DatapadFactory: Failed getting ilc");
+				gLogger->log(LogManager::DEBUG,"DatapadFactory::handleObjectReady: Failed getting ilc during ObjType_Intangible");
 				return;
 			}
-			
+
 			if((datapad = dynamic_cast<Datapad*>(mIlc->mObject)))
 			{
 				mIlc->mLoadCounter--;

@@ -215,6 +215,9 @@ public:
 	bool				sendSpatialChat(const CreatureObject* const srcObject, const PlayerObject* const playerObject,string customMessage = L"",string mainFile = "",
 										string mainVar = "",string toFile = "",string toVar = "",string toCustom = L"",int32 di = 0,
 										string ttFile = "",string ttVar = "",string ttCustom = L"",uint64 ttId = 0,uint64 toId = 0,uint64 tuId = 0) const;
+	bool				sendSpatialChat(const CreatureObject* const srcObject, const PlayerObject* const playerObject,char chatElement[5][32],string customMessage = L"",string mainFile = "",
+										string mainVar = "",string toFile = "",string toVar = "",string toCustom = L"",int32 di = 0,
+										string ttFile = "",string ttVar = "",string ttCustom = L"",uint64 ttId = 0,uint64 toId = 0,uint64 tuId = 0) const;
 	void				sendSpatialEmote(CreatureObject* srcObject,uint16 emoteId,uint16 sendText,uint64 emoteTarget);
 	void				sendCreatureAnimation(CreatureObject* srcObject,string animation);
 

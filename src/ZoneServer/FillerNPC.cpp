@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "FillerNPC.h"
+#include "Tutorial.h"
 #include "Conversation.h"
 #include "PlayerObject.h"
 #include "WorldConfig.h"
@@ -190,11 +191,8 @@ void FillerNPC::randomChatWithPlayer(PlayerObject* player, TutorialTauntConfigDa
 	if (player && player->isConnected())
 	{
 		uint8 index = gRandom->getRand() % 5;
-		string chatMsg = configData->taunts[index];
-		chatMsg.convert(BSTRType_Unicode16);
-		char quack[5][32];
-		memset(quack, 0, sizeof(quack));
-		gMessageLib->sendSpatialChat(this, chatMsg, quack, player);
+		std::string chatMsg = configData->taunts[index].getAnsi();
+		player->getTutorial()->spatialChat(this->getId(), chatMsg);
 	}
 }
 

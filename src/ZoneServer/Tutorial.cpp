@@ -61,6 +61,22 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ChatServer/Mail.h"
 #include "ChatServer/ChatOpcodes.h"
 
+#ifdef _MSC_VER
+#include <regex>  // NOLINT
+#else
+#include <boost/regex.hpp>  // NOLINT
+#endif
+
+#ifdef WIN32
+using ::std::wregex;
+using ::std::wsmatch;
+using ::std::regex_search;
+#else
+using ::boost::wregex;
+using ::boost::wsmatch;
+using ::boost::regex_search;
+#endif
+
 #include "utils/rand.h"
 
 class TutorialQueryContainer
@@ -630,26 +646,77 @@ void Tutorial::spatialChat(uint64 targetId, std::string chatMsg)
 	NPCObject* npc = dynamic_cast<NPCObject*>(gWorldManager->getObjectById(targetId));
 	if (mPlayerObject && mPlayerObject->isConnected() && npc)
 	{
-		string msg = (int8*)chatMsg.c_str();
-		msg.convert(BSTRType_Unicode16);
-		char quack[5][32];
-		memset(quack, 0, sizeof(quack));
-		gMessageLib->sendSpatialChat(npc, msg, quack, mPlayerObject);
+		// Use regex to check if the chat string matches the stf string format.
+		static const wregex pattern(L"@([a-zA-Z0-9/_]+):([a-zA-Z0-9_]+)");
+		wsmatch result;
+      
+		std::wstring npc_chat;
+
+		npc_chat = std::wstring(chatMsg.begin(), chatMsg.end());
+		regex_search(npc_chat, result, pattern);
+
+		// If not an exact match (2 sub-patterns + the full string = 3 elements) it's just a pain text string.
+      if (result.size() != 3) 
+	  {     
+			  char quack[5][32];
+			  memset(quack, 0, sizeof(quack));
+			  gMessageLib->sendSpatialChat(npc, chatMsg.c_str(), quack, mPlayerObject);
+      }
+	  else 
+	  {
+        // This is an STF dialog send it out appropriately.
+        std::wstring filename = result[1].str();
+        std::wstring varname  = result[2].str();	
+
+        // If there was a match send it out as an stf spatial message.
+        gMessageLib->sendSpatialChat(npc, mPlayerObject, L"", 
+          std::string(filename.begin(), filename.end()).c_str(), 
+          std::string(varname.begin(), varname.end()).c_str());
+      }
 	}
 }
+
+/*
+
+*/
 
 void Tutorial::spatialChatShout(uint64 targetId, std::string chatMsg)
 {
 	NPCObject* npc = dynamic_cast<NPCObject*>(gWorldManager->getObjectById(targetId));
 	if (mPlayerObject && mPlayerObject->isConnected() && npc)
 	{
-		string msg = (int8*)chatMsg.c_str();
-		msg.convert(BSTRType_Unicode16);
+		// Use regex to check if the chat string matches the stf string format.
+		static const wregex pattern(L"@([a-zA-Z0-9/_]+):([a-zA-Z0-9_]+)");
+		wsmatch result;
+      
+		std::wstring npc_chat;
+
+		npc_chat = std::wstring(chatMsg.begin(), chatMsg.end());
+		regex_search(npc_chat, result, pattern);
+
+		// If not an exact match (2 sub-patterns + the full string = 3 elements) it's just a pain text string.
+      if (result.size() != 3) 
+	  {     
+			  char quack[5][32];
+			  memset(quack, 0, sizeof(quack));
+			  gMessageLib->sendSpatialChat(npc, chatMsg.c_str(), quack, mPlayerObject);
+      }
+	  else 
+	  {
+        // This is an STF dialog send it out appropriately.
+        std::wstring filename = result[1].str();
+        std::wstring varname  = result[2].str();	
+
 		char quack[5][32];
 		memset(quack, 0, sizeof(quack));
 		quack[1][0] = '8';
 		quack[1][1] = '0';
-		gMessageLib->sendSpatialChat(npc, msg, quack, mPlayerObject);
+
+        // If there was a match send it out as an stf spatial message.
+        gMessageLib->sendSpatialChat(npc, mPlayerObject, quack, L"", 
+          std::string(filename.begin(), filename.end()).c_str(), 
+          std::string(varname.begin(), varname.end()).c_str());
+      }
 	}
 }
 
@@ -982,11 +1049,11 @@ void Tutorial::setTutorialRefugeeTaunts(uint64 npcId)
 	{
 		npc->setupTutorialTaunts(mPlayerObject->getId(),
 								 120000,
-								 "They're going to ship us off to the spice mines of Kessel.",
-								 "The Emperor has disbanded the Senate, now the Empire can do whatever it wants.",
-								 "But we're innocent!  We weren't carrying any contraband.  They attacked us for no reason.",
-								 "I never should have left Alderaan... Oh, wait...",
-								 "I told you we couldn't outrun an Imperial Star Destroyer.");
+								 "newbie_tutorial/newbie_convo:refugee1",
+								 "newbie_tutorial/newbie_convo:refugee2",
+								 "newbie_tutorial/newbie_convo:refugee3",
+								 "newbie_tutorial/newbie_convo:refugee4",
+								 "newbie_tutorial/newbie_convo:refugee5");
 	}
 }
 
@@ -998,11 +1065,11 @@ void Tutorial::setTutorialCelebTaunts(uint64 npcId)
 	{
 		npc->setupTutorialTaunts(mPlayerObject->getId(),
 								 90000,
-								 "I can't believe that crazy pirate is dead.",
-								 "That must have been a tough battle.",
-								 "I'm sure glad that's over with.",
-								 "Good thing someone came along to kill that pirate.  We'd have been trapped in here forever.",
-								 "I hate pirates.");
+								 "newbie_tutorial/newbie_convo:celeb_guy1",
+								 "newbie_tutorial/newbie_convo:celeb_guy2",
+								 "newbie_tutorial/newbie_convo:celeb_guy3",
+								 "newbie_tutorial/newbie_convo:celeb_guy4",
+								 "newbie_tutorial/newbie_convo:celeb_guy5");
 	}
 }
 

@@ -340,6 +340,145 @@ void MessageLib::sendSpatialChat(const CreatureObject* const srcObject,string ch
 	mMessageFactory->DestroyMessage(newMessage);
 }
 
+bool MessageLib::sendSpatialChat(const CreatureObject* const srcObject,const PlayerObject* const playerObject,char chatElement[5][32],string customMessage,string mainFile,string mainVar,string toFile,string toVar,string toCustom,int32 di,string ttFile,string ttVar,string ttCustom,uint64 ttId,uint64 toId,uint64 tuId) const
+{
+	uint16 chatElementMood1		= atoi(chatElement[1]);
+	uint16 chatElementMood2		= atoi(chatElement[2]);
+
+	Message*	newMessage;
+
+	mMessageFactory->StartMessage();
+	mMessageFactory->addUint32(opObjControllerMessage);
+	mMessageFactory->addUint32(0x0000000B);
+	mMessageFactory->addUint32(opSpatialChat);
+	mMessageFactory->addUint64(srcObject->getId());
+	mMessageFactory->addUint32(0);
+	mMessageFactory->addUint64(srcObject->getId());
+	mMessageFactory->addUint64(playerObject->getId());
+	mMessageFactory->addString(L"");
+	mMessageFactory->addUint16(0x32);
+	mMessageFactory->addUint16(chatElementMood1);
+	mMessageFactory->addUint16(chatElementMood2);
+	mMessageFactory->addUint8(0);
+	mMessageFactory->addUint8(static_cast<uint8>(srcObject->getLanguage()));
+
+	// simple message
+	if(customMessage.getLength())
+	{
+		mMessageFactory->addString(customMessage);
+	}
+	// templated message
+	else
+	{
+		uint32	realSize = mainFile.getLength() + mainVar.getLength() + toFile.getLength() + toVar.getLength() + ttFile.getLength() + ttVar.getLength();
+
+		mMessageFactory->addUint32(42 + ((uint32)ceil(((double)realSize) / 2.0)) + toCustom.getLength() + ttCustom.getLength());
+
+		if(realSize % 2)
+			mMessageFactory->addUint16(1);
+		else
+			mMessageFactory->addUint16(0);
+
+		mMessageFactory->addUint8(1);
+		mMessageFactory->addUint32(0xFFFFFFFF);
+		mMessageFactory->addString(mainFile);
+		mMessageFactory->addUint32(0);
+		mMessageFactory->addString(mainVar);
+		mMessageFactory->addUint64(tuId);
+
+		mMessageFactory->addUint16(0);
+		mMessageFactory->addUint32(0);
+		mMessageFactory->addUint16(0);
+
+		mMessageFactory->addUint32(0);
+
+		mMessageFactory->addUint64(ttId);
+		mMessageFactory->addString(ttFile);
+		mMessageFactory->addUint32(0);
+		mMessageFactory->addString(ttVar);
+		mMessageFactory->addString(ttCustom);
+		mMessageFactory->addUint64(toId);
+		mMessageFactory->addString(toFile);
+		mMessageFactory->addUint32(0);
+		mMessageFactory->addString(toVar);
+		mMessageFactory->addString(toCustom);
+		mMessageFactory->addInt32(di);
+		mMessageFactory->addUint32(0);
+		mMessageFactory->addUint8(0);
+
+		if(realSize % 2)
+			mMessageFactory->addUint8(0);
+	}
+
+	mMessageFactory->addUint32(0);
+
+	newMessage = mMessageFactory->EndMessage();
+
+	uint32 loweredNameCrc			= 0;
+	string loweredName;
+	bool crcValid = false;
+
+	// Get the source for this emote.
+	if (srcObject->getType() == ObjType_Player)
+	{
+		const PlayerObject* const srcPlayer = dynamic_cast<const PlayerObject*>(srcObject);
+
+		if (srcPlayer->isConnected())
+		{
+			loweredName = srcPlayer->getFirstName().getAnsi();
+			loweredName.toLower();
+			loweredNameCrc = loweredName.getCrc();
+			crcValid = true;
+		}
+	}
+
+	if (_checkPlayer(playerObject))
+	{
+		if (gWorldConfig->isTutorial())
+		{
+			// Update tutorial about "chatActive"
+			playerObject->getTutorial()->tutorialResponse("chatActive");
+		}
+
+		PlayerList inRangeMembers = playerObject->getInRangeGroupMembers(true);
+		PlayerList::iterator it	= inRangeMembers.begin();
+		Message* clonedMessage;
+
+		while (it != inRangeMembers.end())
+		{
+			const PlayerObject* const player = (*it);
+
+			// If player online, send emote.
+			if (player->isConnected())
+			{
+				if ((crcValid) && (player->checkIgnoreList(loweredNameCrc)))
+ 				{
+					// I am at recivers ignore list.
+					// Don't send any message.
+				}
+				else
+				{
+					// clone our message
+					mMessageFactory->StartMessage();
+					mMessageFactory->addData(newMessage->getData(),newMessage->getSize());
+					clonedMessage = mMessageFactory->EndMessage();
+
+					// replace the target id
+					int8* data = clonedMessage->getData() + 12;
+					*((uint64*)data) = player->getId();
+
+					(player->getClient())->SendChannelAUnreliable(clonedMessage,player->getAccountId(),CR_Client,5);
+				}
+			}
+			++it;
+		}
+	}
+
+	mMessageFactory->DestroyMessage(newMessage);
+
+return true;
+}
+
 bool MessageLib::sendSpatialChat(const CreatureObject* const srcObject,const PlayerObject* const playerObject,string customMessage,string mainFile,string mainVar,string toFile,string toVar,string toCustom,int32 di,string ttFile,string ttVar,string ttCustom,uint64 ttId,uint64 toId,uint64 tuId) const
 {
 	uint16 chatElementMood2	= srcObject->getMoodId();

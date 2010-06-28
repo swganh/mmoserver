@@ -758,11 +758,14 @@ void ObjectFactory::deleteObjectFromDB(Object* object)
 					if(item->getItemType() == ItemFamily_ManufacturingSchematic)
 					{
 						ManufacturingSchematic* schem = dynamic_cast<ManufacturingSchematic*> (object);
-						//first associated item
-						sprintf(sql,"DELETE FROM items WHERE id = %"PRIu64"",schem->getItem()->getId());
-						mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
-						sprintf(sql,"DELETE FROM item_attributes WHERE item_id = %"PRIu64"",schem->getItem()->getId());
-						mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
+						if (schem)
+						{
+							//first associated item
+							sprintf(sql,"DELETE FROM items WHERE id = %"PRIu64"",schem->getItem()->getId());
+							mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
+							sprintf(sql,"DELETE FROM item_attributes WHERE item_id = %"PRIu64"",schem->getItem()->getId());
+							mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
+						}
 
 					}
 

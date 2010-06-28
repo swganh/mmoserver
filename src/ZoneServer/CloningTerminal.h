@@ -42,7 +42,7 @@ class CloningTerminal : public Terminal
 		~CloningTerminal();
 
 		void		handleObjectMenuSelect(uint8 messageType,Object* srcObject);
-		void		handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window);
+		void		handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window);
 
 	private:
 

@@ -94,8 +94,8 @@ void FactoryCrate::sendAttributes(PlayerObject* playerObject)
 
 	gMessageFactory->addUint32(2 + mAttributeMap.size()+iAttributeMap->size());
 
-	string	tmpValueStr = string(BSTRType_Unicode16,64);
-	string	value,aStr;
+	BString	tmpValueStr = BString(BSTRType_Unicode16,64);
+	BString	value,aStr;
 
 	tmpValueStr.setLength(swprintf(tmpValueStr.getUnicode16(),50,L"%u/%u",mMaxCondition - mDamage,mMaxCondition));
 
@@ -213,7 +213,7 @@ int32 FactoryCrate::decreaseContent(uint32 amount)
 //========================================================================================
 //used by the factoryfactory to update hoppercontent when looking at a hopper
 //
-void FactoryCrate::upDateFactoryVolume(string amount)
+void FactoryCrate::upDateFactoryVolume(BString amount)
 {
 	if(!this->hasAttribute("factory_count"))
 	{

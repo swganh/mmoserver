@@ -128,7 +128,7 @@ void ManufacturingSchematic::prepareCraftingAttributes()
 
 	while(expCraftBatchIt != expCraftBatches->end())
 	{
-		string						attName		= gSchematicManager->getExpGroup((*expCraftBatchIt)->getExpGroup());
+		BString						attName		= gSchematicManager->getExpGroup((*expCraftBatchIt)->getExpGroup());
 		ExperimentationProperty*	expProperty	= new ExperimentationProperty(attName.getAnsi(),(*expCraftBatchIt)->getCraftWeights(),(*expCraftBatchIt)->getCraftAttributes(),0.0f,0.0f,0.0f);
 
 		mExperimentationProperties.push_back(expProperty);
@@ -194,7 +194,7 @@ void ManufacturingSchematic::sendAttributes(PlayerObject* playerObject)
 	//DraftSlots*					draftSlots			= draftSchematic->getDraftSlots();
 
 	Message*					newMessage;
-	string						value,aStr;
+	BString						value,aStr;
 	BStringVector				dataElements;
 
 	//uint32	amountSlots		= draftSlots->size();
@@ -287,7 +287,7 @@ bool	ManufacturingSchematic::expPropStorefind(uint32 crc)
 // and can not be experimented on
 
 
-void ManufacturingSchematic::setPPAttribute(string key,std::string value)
+void ManufacturingSchematic::setPPAttribute(BString key,std::string value)
 {
 	AttributeMap::iterator it = mPPAttributeMap.find(key.getCrc());
 
@@ -300,7 +300,7 @@ void ManufacturingSchematic::setPPAttribute(string key,std::string value)
 	(*it).second = value;
 }
 
-bool ManufacturingSchematic::hasPPAttribute(string key) const
+bool ManufacturingSchematic::hasPPAttribute(BString key) const
 {
 	if(mPPAttributeMap.find(key.getCrc()) != mPPAttributeMap.end())
 		return(true);
@@ -308,12 +308,12 @@ bool ManufacturingSchematic::hasPPAttribute(string key) const
 	return(false);
 }
 
-void ManufacturingSchematic::addPPAttribute(string key,std::string value)
+void ManufacturingSchematic::addPPAttribute(BString key,std::string value)
 {
 	mPPAttributeMap.insert(std::make_pair(key.getCrc(),value));
 }
 
-void ManufacturingSchematic::removePPAttribute(string key)
+void ManufacturingSchematic::removePPAttribute(BString key)
 {
 	AttributeMap::iterator it = mPPAttributeMap.find(key.getCrc());
 

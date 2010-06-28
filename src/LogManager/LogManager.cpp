@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <vector>
 
 #include <exception>
+#include <boost/thread/thread.hpp>
 #include <fstream>
 #include <iomanip>
 
@@ -63,13 +64,15 @@ LogManager::LogManager(LOG_PRIORITY console_priority, LOG_PRIORITY file_priority
 	}
 
 	_printLogo();
-
-	boost::thread t(std::tr1::bind(&LogManager::_LoggerThread, this));
-	mThread = boost::move(t);
+    
+    mEntriesMutex = std::unique_ptr<boost::mutex>(new boost::mutex());
+	mThread = std::unique_ptr<boost::thread>(new boost::thread(std::tr1::bind(&LogManager::_LoggerThread, this)));
 }
 
 LogManager::~LogManager()
 {
+    mThread->interrupt();
+    mThread->join();
     mOutputFile->close();
 }
 
@@ -81,7 +84,7 @@ void LogManager::_LoggerThread()
 
 	while(true)
 	{
-		this->mEntriesMutex.lock();
+		mEntriesMutex->lock();
 
 		mTempEntries.reserve(mEntries.size());
 
@@ -90,7 +93,7 @@ void LogManager::_LoggerThread()
 			mTempEntries.push_back(mEntries.front());
 			mEntries.pop();
 		}
-		this->mEntriesMutex.unlock();
+		mEntriesMutex->unlock();
 
 		std::vector<LOG_ENTRY*>::iterator end = mTempEntries.end();
 
@@ -176,9 +179,9 @@ void LogManager::log(LOG_PRIORITY priority, std::string format, ...)
   entry->mMessage.assign(buffer.begin(), buffer.end());
 	entry->mContinuation = false;
 
-	mEntriesMutex.lock();
+	mEntriesMutex->lock();
 	mEntries.push(entry);
-	mEntriesMutex.unlock();
+	mEntriesMutex->unlock();
 }
 
 void LogManager::logCont(LOG_PRIORITY priority, std::string format, ...)
@@ -203,12 +206,12 @@ void LogManager::logCont(LOG_PRIORITY priority, std::string format, ...)
   entry->mMessage.assign(buffer.begin(), buffer.end());
 	entry->mContinuation = true;
 
-	mEntriesMutex.lock();
+	mEntriesMutex->lock();
 	mEntries.push(entry);
-	mEntriesMutex.unlock();
+	mEntriesMutex->unlock();
 }
 
-void LogManager::logS(LOG_PRIORITY priority, uint8 channels, std::string format, ...)
+void LogManager::logS(LOG_PRIORITY priority, uint8_t channels, std::string format, ...)
 {
 	//Read the VA List Info
 	va_list args;
@@ -229,12 +232,12 @@ void LogManager::logS(LOG_PRIORITY priority, uint8 channels, std::string format,
   entry->mMessage.assign(buffer.begin(), buffer.end());
 	entry->mContinuation = false;
 
-	mEntriesMutex.lock();
+	mEntriesMutex->lock();
 	mEntries.push(entry);
-	mEntriesMutex.unlock();
+	mEntriesMutex->unlock();
 }
 
-void LogManager::logContS(LOG_PRIORITY priority, uint8 channels, std::string format, ...)
+void LogManager::logContS(LOG_PRIORITY priority, uint8_t channels, std::string format, ...)
 {
 	//Read the VA List Info
 	va_list args;
@@ -255,7 +258,7 @@ void LogManager::logContS(LOG_PRIORITY priority, uint8 channels, std::string for
   entry->mMessage.assign(buffer.begin(), buffer.end());
 	entry->mContinuation = true;
 
-	mEntriesMutex.lock();
+	mEntriesMutex->lock();
 	mEntries.push(entry);
-	mEntriesMutex.unlock();
+	mEntriesMutex->unlock();
 }

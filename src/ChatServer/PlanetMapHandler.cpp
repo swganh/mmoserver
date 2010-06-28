@@ -143,7 +143,7 @@ void PlanetMapHandler::handleDatabaseJobComplete(void* ref, DatabaseResult* resu
 
 		gMessageFactory->addUint64(location.mId);
 
-		string tempString;
+		BString tempString;
 		tempString = location.mName;
 		tempString.convert(BSTRType_Unicode16);
 		gMessageFactory->addString(tempString);

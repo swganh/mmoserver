@@ -107,7 +107,7 @@ void GroupObject::addTempMember(Player* player)
 
 	// debug
 	/*
-	string		tmpValueStr = string(BSTRType_Unicode16,128);
+	BString		tmpValueStr = string(BSTRType_Unicode16,128);
 	swprintf(tmpValueStr.getUnicode16(),L"[Debug] Temp member added. Free slots: %u   ",20 - group->mMemberCount);
 	sendSystemMessage(group->getLeader(), tmpValueStr.getUnicode16());*/
 }
@@ -123,7 +123,7 @@ void GroupObject::removeTempMember(Player* player)
 	mMemberCount--;
 
 	/* debug
-	string		tmpValueStr = string(BSTRType_Unicode16,128);
+	BString		tmpValueStr = string(BSTRType_Unicode16,128);
 	swprintf(tmpValueStr.getUnicode16(),L"[Debug] Temp member removed. Free slots: %u   ",20 - group->mMemberCount);
 	sendSystemMessage(group->getLeader(), tmpValueStr.getUnicode16());*/
 
@@ -326,7 +326,7 @@ void GroupObject::createChannel()
 	channel->setName(BString(channelName));
 	channel->setGalaxy(gChatManager->getGalaxyName());
 
-	string tmpValueStr = string(BSTRType_Unicode16,64);
+	BString tmpValueStr = BString(BSTRType_Unicode16,64);
 	tmpValueStr.setLength(swprintf(tmpValueStr.getUnicode16(),64,L"%"WidePRIu64, mId));
 	channel->setTitle(tmpValueStr);
 

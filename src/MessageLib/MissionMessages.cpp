@@ -112,7 +112,7 @@ bool MessageLib::sendBaselinesMISO_3(MissionObject* missionObject,PlayerObject* 
 
 	//7 -- Creator
 	//mMessageFactory->addUint32(0);
-	string data = missionObject->getCreator();
+	BString data = missionObject->getCreator();
 	data.convert(BSTRType_Unicode16);
 	mMessageFactory->addString(data); //UNICODE 56
 

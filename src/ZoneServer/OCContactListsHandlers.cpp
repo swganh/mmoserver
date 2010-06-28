@@ -65,7 +65,7 @@ void ObjectController::_handleAddFriend(uint64 targetId,Message* message,ObjectC
 	else
 		player->setContactListUpdatePending(true);
 
-	string	friendName;
+	BString	friendName;
 	int8	sql[1024],end[16],*sqlPointer;
 
 	message->getStringUnicode16(friendName);
@@ -102,7 +102,7 @@ void ObjectController::_handleAddFriend(uint64 targetId,Message* message,ObjectC
 	}
 
 	// check our own name
-	string firstName = player->getFirstName().getAnsi();
+	BString firstName = player->getFirstName().getAnsi();
 	firstName.toLower();
 
 	if(strcmp(firstName.getAnsi(),friendName.getAnsi()) == 0)
@@ -139,7 +139,7 @@ void ObjectController::_handleRemoveFriend(uint64 targetId,Message* message,Obje
 	else
 		player->setContactListUpdatePending(true);
 
-	string	friendName;
+	BString	friendName;
 	int8	sql[1024],end[16],*sqlPointer;
 
 	message->getStringUnicode16(friendName);
@@ -194,7 +194,7 @@ void ObjectController::_handleAddIgnore(uint64 targetId,Message* message,ObjectC
 		player->setContactListUpdatePending(true);
 	}
 
-	string	ignoreName;
+	BString	ignoreName;
 	int8	sql[2048],end[16],*sqlPointer;
 
 	message->getStringUnicode16(ignoreName);
@@ -230,7 +230,7 @@ void ObjectController::_handleAddIgnore(uint64 targetId,Message* message,ObjectC
 	//}
 
 	// check our own name
-	string firstName = player->getFirstName().getAnsi();
+	BString firstName = player->getFirstName().getAnsi();
 	firstName.toLower();
 
 	if(strcmp(firstName.getAnsi(),ignoreName.getAnsi()) == 0)
@@ -267,7 +267,7 @@ void ObjectController::_handleRemoveIgnore(uint64 targetId,Message* message,Obje
 	else
 		player->setContactListUpdatePending(true);
 
-	string	ignoreName;
+	BString	ignoreName;
 	int8	sql[2048],end[16],*sqlPointer;
 
 	message->getStringUnicode16(ignoreName);
@@ -308,7 +308,7 @@ void ObjectController::_handleRemoveIgnore(uint64 targetId,Message* message,Obje
 // add friend db reply
 //
 
-void ObjectController::_handleAddFriendDBReply(uint32 retCode,string friendName)
+void ObjectController::_handleAddFriendDBReply(uint32 retCode,BString friendName)
 {
 	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
 
@@ -357,7 +357,7 @@ void ObjectController::_handleAddFriendDBReply(uint32 retCode,string friendName)
 // add friend db reply
 //
 
-void ObjectController::_handleFindFriendDBReply(uint64 retCode,string friendName)
+void ObjectController::_handleFindFriendDBReply(uint64 retCode,BString friendName)
 {
 	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
 	friendName.convert(BSTRType_Unicode16);
@@ -396,7 +396,7 @@ void ObjectController::_handleFindFriendDBReply(uint64 retCode,string friendName
 // remove friend db reply
 //
 
-void ObjectController::_handleRemoveFriendDBReply(uint32 retCode,string friendName)
+void ObjectController::_handleRemoveFriendDBReply(uint32 retCode,BString friendName)
 {
 	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
 
@@ -445,7 +445,7 @@ void ObjectController::_handleRemoveFriendDBReply(uint32 retCode,string friendNa
 // add ignore db reply
 //
 
-void ObjectController::_handleAddIgnoreDBReply(uint32 retCode,string ignoreName)
+void ObjectController::_handleAddIgnoreDBReply(uint32 retCode,BString ignoreName)
 {
 	
 	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
@@ -494,7 +494,7 @@ void ObjectController::_handleAddIgnoreDBReply(uint32 retCode,string ignoreName)
 // remove ignore db reply
 //
 
-void ObjectController::_handleRemoveIgnoreDBReply(uint32 retCode,string ignoreName)
+void ObjectController::_handleRemoveIgnoreDBReply(uint32 retCode,BString ignoreName)
 {
 	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
 
@@ -549,7 +549,7 @@ void ObjectController::_handleRemoveIgnoreDBReply(uint32 retCode,string ignoreNa
 void ObjectController::_handlefindfriend(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
 	PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
-	string			friendName;
+	BString			friendName;
 
 	message->getStringUnicode16(friendName);
 
@@ -567,9 +567,7 @@ void ObjectController::_handlefindfriend(uint64 targetId,Message* message,Object
 		gMessageFactory->addString(friendName);
 		Message* message = gMessageFactory->EndMessage();
 
-		playerObject->getClient()->SendChannelA(message,playerObject->getAccountId(),CR_Chat,2);
-		
-	}
-	
+		playerObject->getClient()->SendChannelA(message,playerObject->getAccountId(),CR_Chat,2);		
+	}	
 }
 

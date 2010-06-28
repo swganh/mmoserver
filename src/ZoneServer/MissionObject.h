@@ -82,16 +82,16 @@ class MissionObject : public Object
 		Terminal*			getIssuingTerminal() { return mIssuingTerminal; }
 		void				setIssuingTerminal(Terminal* issuing_terminal) { mIssuingTerminal = issuing_terminal; }
 
-		string 				getNameFile() { return mNameFile; }
+		BString 				getNameFile() { return mNameFile; }
 		void				setNameFile(const char* name_file) { mNameFile = name_file; }
-		string				getName() { return mName; }
+		BString				getName() { return mName; }
 		void				setName(const char* name) { mName = name; }
-		string				getTitleFile() { return mTitleFile; }
+		BString				getTitleFile() { return mTitleFile; }
 		void				setTitleFile(const char* title_file) { mTitleFile = title_file; }
-		string				getTitle() { return mTitle; }
+		BString				getTitle() { return mTitle; }
 		void				setTitle(const char* title) { mTitle = title; }
 
-		string				getTarget() { return mTarget; }
+		BString				getTarget() { return mTarget; }
 		void				setTarget(const char* target) { mTarget = target; }
 		uint32				getTargetModel() { return mTargetModel; }
 		void				setTargetModel(uint32 target_model) { mTargetModel = target_model; }
@@ -109,12 +109,12 @@ class MissionObject : public Object
 		int					getDifficulty() { return mDifficulty; }
 		void				setDifficulty(int difficulty) { mDifficulty = difficulty; }
 
-		string				getCreator() { return mCreator; }
+		BString				getCreator() { return mCreator; }
 		void				setCreator(const char* creator) { mCreator = creator; }
 
-		string				getDetailFile() { return mDetailFile; }
+		BString				getDetailFile() { return mDetailFile; }
 		void				setDetailFile(const char* detail_file) { mDetailFile = detail_file; }
-		string				getDetail()	{ return mDetail; }
+		BString				getDetail()	{ return mDetail; }
 		void				setDetail(const char* detail) { mDetail = detail; }
 
 		int					getRefreshCount() { return mRefreshCount; }
@@ -148,12 +148,12 @@ class MissionObject : public Object
 		PlayerObject*			mOwner;					//Player Object that this mission belongs too
 		Terminal*				mIssuingTerminal;       //Terminal that issued this mission
 
-		string					mNameFile;				//ASCII
-		string					mName;					//ASCII
-		string					mTitleFile;				//ASCII
-		string					mTitle;					//ASCII
+		BString					mNameFile;				//ASCII
+		BString					mName;					//ASCII
+		BString					mTitleFile;				//ASCII
+		BString					mTitle;					//ASCII
 
-		string					mTarget;				//'@stf:name' format - ASCII
+		BString					mTarget;				//'@stf:name' format - ASCII
 		uint32					mTargetModel;			//CRC of .iff
 		ResourceType*			mTargetResource;		/* Type of resource we must survey for. The "Diffaculty"
 														   variable is the needed efficiency.                 */
@@ -162,10 +162,10 @@ class MissionObject : public Object
 
 		int						mReward;				//Credit amount to reward upon mission complete
 		int						mDifficulty;            //Diffaculty\Efficiency
-		string					mCreator;				//UNICODE
+		BString					mCreator;				//UNICODE
 
-		string					mDetailFile;			//ASCII
-		string					mDetail;				//Description - ASCII
+		BString					mDetailFile;			//ASCII
+		BString					mDetail;				//Description - ASCII
 
 		int						mRefreshCount;			//Counter Provided By the Terminal
 		uint32					mMissionType;			//CRC Value

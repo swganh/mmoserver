@@ -67,8 +67,8 @@ class AdminManager : public MessageDispatchCallback
 		void _processCancelScheduledShutdown(Message* message, DispatchClient* client);
 
 		uint64 handleAdminRequest(uint64 requestId, uint64 timeOverdue);
-		void addAdminRequest(uint64 type, string message, int32 ttl);
-		void cancelAdminRequest(uint64 type, string message);
+		void addAdminRequest(uint64 type, BString message, int32 ttl);
+		void cancelAdminRequest(uint64 type, BString message);
 
 		bool shutdownPending(void) { return mPendingShutdown;}
 		bool shutdownZone(void) { return mTerminateServer;}

@@ -57,7 +57,7 @@ void ObjectController::_handleHarvestCorpse(uint64 targetId,Message* message,Obj
 	if(!target)
 		gMessageLib->sendSystemMessage(playerObject, L"", "internal_command_string","target_not_creature");
 
-	string cmdString;
+	BString cmdString;
 	message->getStringAnsi(cmdString);
 
 	int8 rawData[128];
@@ -70,7 +70,7 @@ void ObjectController::_handleHarvestCorpse(uint64 targetId,Message* message,Obj
 	}
 	else if(elementCount == 1)
 	{
-		string data(rawData);
+		BString data(rawData);
 		data.toLower();
 		
 		if(data == "meat")

@@ -59,7 +59,7 @@ class Item : public TangibleObject
 		void	setDynamicInt32(uint32 value){ mDynamicInt32 = value; }
 
 		virtual void	handleObjectMenuSelect(uint8 messageType,Object* srcObject);
-		virtual string	getBazaarName(){int8 name[128];
+		virtual BString	getBazaarName(){int8 name[128];
 									sprintf(name,"@%s:%s",getNameFile().getAnsi(),getName().getAnsi()); 
 									return name;  }
 

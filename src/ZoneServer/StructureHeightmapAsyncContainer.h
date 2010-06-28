@@ -40,6 +40,6 @@ public:
 	float x;
 	float z;
 	float dir; 
-	string customName;
+	BString customName;
 	PlayerObject* player;
 };

@@ -74,44 +74,44 @@ void Channel::setId(uint32 id)
 
 //======================================================================================================================
 	
-string Channel::getName() const
+BString Channel::getName() const
 { 
 	return mChannelData.name; 
 }
 
 //======================================================================================================================
 	
-void Channel::setName(const string name)
+void Channel::setName(const BString name)
 { 
 	mChannelData.name = name; 
 }
 
 //======================================================================================================================
 	
-string Channel::getGalaxy() const
+BString Channel::getGalaxy() const
 { 
 	return mGalaxy;
 }
 
 //======================================================================================================================
 	
-void Channel::setGalaxy(const string galaxy)
+void Channel::setGalaxy(const BString galaxy)
 { 
 	mGalaxy = galaxy; 
 }
 
 //======================================================================================================================
 
-string Channel::getTitle() const
+BString Channel::getTitle() const
 { 
-	string title = mChannelData.title;
+	BString title = mChannelData.title;
 	title.convert(BSTRType_Unicode16);
 	return title; 
 }
 
 //======================================================================================================================
 	
-void Channel::setTitle(const string title)
+void Channel::setTitle(const BString title)
 { 
 	mChannelData.title = title; 
 }
@@ -205,7 +205,7 @@ NameByCrcMap* Channel::getInvited()
 void Channel::addUser(ChatAvatarId *avatar)
 {
 	mUsers.push_back(avatar);
-	string key = avatar->getLoweredName();
+	BString key = avatar->getLoweredName();
 	// chat avatar id should be lowercase already avatar->getLoweredName().toLower();
 	//strcpy(key, avatar->getLoweredName().getAnsi());
 	mUserMap.insert(std::make_pair(key.getCrc(), avatar));
@@ -213,9 +213,9 @@ void Channel::addUser(ChatAvatarId *avatar)
 
 //======================================================================================================================
 
-ChatAvatarId* Channel::findUser(string name)
+ChatAvatarId* Channel::findUser(BString name)
 {
-	// string strname = name.getAnsi();		// Don't compare lowercase with mix of upper-lower.
+	// BString strname = name.getAnsi();		// Don't compare lowercase with mix of upper-lower.
 	// strname.toLower();
 	name.toLower();
 
@@ -266,7 +266,7 @@ void Channel::removeUser(Player* player)
 
 //======================================================================================================================
 
-ChatAvatarId* Channel::removeUser(string name)
+ChatAvatarId* Channel::removeUser(BString name)
 {
 	ChatAvatarIdList::iterator iter = mUsers.begin();
 	while (iter != mUsers.end())
@@ -296,19 +296,19 @@ ChatAvatarId* Channel::removeUser(string name)
 
 //======================================================================================================================
 
-void Channel::addModerator(string* name)
+void Channel::addModerator(BString* name)
 {
-	string* modName = new string (name->getAnsi());
+	BString* modName = new BString (name->getAnsi());
 	modName->toLower();
 	mModerators.insert(CrcStringPair(modName->getCrc(), modName));
 }
 
 //======================================================================================================================
 
-string* Channel::removeModerator(string name)
+BString* Channel::removeModerator(BString name)
 {
 	NameByCrcMap::iterator iter = mModerators.find(name.getCrc());
-	string* ret = NULL;
+	BString* ret = NULL;
 	if (iter != mModerators.end())
 	{
 		ret = (*iter).second;
@@ -320,7 +320,7 @@ string* Channel::removeModerator(string name)
 
 //======================================================================================================================
 
-bool Channel::isModerator(string name) const
+bool Channel::isModerator(BString name) const
 {
 	// name.toLower(); // Always handle search-able names (data) as lowercase. 
 	NameByCrcMap::const_iterator iter = mModerators.find(name.getCrc());
@@ -329,17 +329,17 @@ bool Channel::isModerator(string name) const
 
 //======================================================================================================================
 
-bool Channel::isOwner(string name) const
+bool Channel::isOwner(BString name) const
 {
 	return (strcmp(name.getAnsi(), mOwner->getLoweredName().getAnsi()) == 0);
 }
 
 //======================================================================================================================
 
-string* Channel::removeInvitedUser(string name)
+BString* Channel::removeInvitedUser(BString name)
 {
 	NameByCrcMap::iterator iter = mInvited.find(name.getCrc());
-	string* ret = NULL;
+	BString* ret = NULL;
 	if (iter != mInvited.end())
 	{
 		ret = (*iter).second;
@@ -351,7 +351,7 @@ string* Channel::removeInvitedUser(string name)
 
 //======================================================================================================================
 
-bool Channel::isInvited(string name) const
+bool Channel::isInvited(BString name) const
 {
 	// name.toLower(); // Always handle search-able names (data) as lowercase. 
 	NameByCrcMap::const_iterator iter = mInvited.find(name.getCrc());
@@ -360,10 +360,10 @@ bool Channel::isInvited(string name) const
 
 //======================================================================================================================
 
-string* Channel::unBanUser(string name)
+BString* Channel::unBanUser(BString name)
 {
 	NameByCrcMap::iterator iter = mBanned.find(name.getCrc());
-	string* ret = NULL;
+	BString* ret = NULL;
 	if (iter != mBanned.end())
 	{
 		ret = (*iter).second;
@@ -375,16 +375,16 @@ string* Channel::unBanUser(string name)
 
 //======================================================================================================================
 
-void Channel::banUser(string* name)
+void Channel::banUser(BString* name)
 {
-	string* banName = new string (name->getAnsi());
+	BString* banName = new BString (name->getAnsi());
 	banName->toLower();
 	mBanned.insert(CrcStringPair(banName->getCrc(), banName));
 }
 
 //======================================================================================================================
 
-bool Channel::isBanned(string name) const
+bool Channel::isBanned(BString name) const
 {
 	NameByCrcMap::const_iterator iter = mBanned.find(name.getCrc());
 	return iter != mBanned.end();
@@ -392,18 +392,18 @@ bool Channel::isBanned(string name) const
 
 //======================================================================================================================
 
-void Channel::addInvitedUser(string* name)
+void Channel::addInvitedUser(BString* name)
 {
-	string* invName = new string (name->getAnsi());
+	BString* invName = new BString (name->getAnsi());
 	invName->toLower();
 	mInvited.insert(CrcStringPair(invName->getCrc(), invName));
 }
 
 //======================================================================================================================
 
-string Channel::getFullPath() const
+BString Channel::getFullPath() const
 {
-	string path = "SWG.";
+	BString path = "SWG.";
 	path << getGalaxy().getAnsi() << ".";
 	path << getName().getAnsi();
 	return path;

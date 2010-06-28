@@ -83,7 +83,7 @@ class GroupManager : public MessageDispatchCallback, public DatabaseCallback
 		GroupObject*		getGroupObject(uint64 id);
 		
 		void				getGroupLeader(PlayerObject* requester, uint64 groupId, uint32 operation, GroupManagerCallback* callback);
-		void				getGroupLeader(PlayerObject* requester, uint64 groupId, uint32 operation, GroupManagerCallback* callback, string arg);
+		void				getGroupLeader(PlayerObject* requester, uint64 groupId, uint32 operation, GroupManagerCallback* callback, BString arg);
 		void				getGroupLeader(PlayerObject* requester, uint64 groupId, uint32 operation, GroupManagerCallback* callback, uint32 flourishId);
 
 		void				addGroupObject(GroupObject* group){mGroupList.push_back(group);}

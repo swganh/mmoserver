@@ -139,16 +139,16 @@ struct StructureAsyncCommand
 	uint32						Amount;
 	uint8						b1;
 	uint8						b2;
-	string						CommandString;
-	string						PlayerStr;
-	string						List;
-	string						Name;
+	BString						CommandString;
+	BString						PlayerStr;
+	BString						List;
+	BString						Name;
 	Structure_Async_CommandEnum	Command;
 };
 
 struct attributeDetail
 {
-	string	value;
+	BString	value;
 	uint32	attributeId;
 };
 
@@ -165,10 +165,10 @@ struct StructureDeedLink
 	uint32	skill_Requirement;
 	uint32	repair_cost;
 	uint32	item_type;
-	string	structureObjectString;
+	BString	structureObjectString;
 	uint8	requiredLots;
-	string	stf_file;
-	string	stf_name;
+	BString	stf_file;
+	BString	stf_name;
 	float	healing_modifier;
 
 	uint32 length;
@@ -182,12 +182,12 @@ struct StructureItemTemplate
 	uint32				CellNr;
 	uint32				structure_id;
 	uint32				item_type;
-	string				structureObjectString;
+	BString				structureObjectString;
 
 	TangibleGroup		tanType;
 
-	string				name;
-	string				file;
+	BString				name;
+	BString				file;
 
 	glm::vec3	mPosition;
 	glm::quat	mDirection;
@@ -291,14 +291,14 @@ class StructureManager : public DatabaseCallback,public ObjectFactoryCallback
 		//PlayerStructures
 		void					getDeleteStructureMaintenanceData(uint64 structureId, uint64 playerId);
 
-		void					addNametoPermissionList(uint64 structureId, uint64 playerId, string name, string list);
-		void					removeNamefromPermissionList(uint64 structureId, uint64 playerId, string name, string list);
-		void					checkNameOnPermissionList(uint64 structureId, uint64 playerId, string name, string list, StructureAsyncCommand command);
+		void					addNametoPermissionList(uint64 structureId, uint64 playerId, BString name, BString list);
+		void					removeNamefromPermissionList(uint64 structureId, uint64 playerId, BString name, BString list);
+		void					checkNameOnPermissionList(uint64 structureId, uint64 playerId, BString name, BString list, StructureAsyncCommand command);
 		void					processVerification(StructureAsyncCommand command, bool owner);
 		void					TransferStructureOwnership(StructureAsyncCommand command);
 
 		//returns a confirmatioon code for structure destruction
-		string					getCode();
+		BString					getCode();
 
 		//
 		ObjectIDList*			getStrucureDeleteList(){return &mStructureDeleteList;}

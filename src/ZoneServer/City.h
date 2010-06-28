@@ -49,8 +49,8 @@ class City : public RegionObject
 		City();
 		virtual ~City();
 
-		string			getCityName(){ return mCityName; }
-		void			setCityName(const string cityName){ mCityName = cityName; }
+		BString			getCityName(){ return mCityName; }
+		void			setCityName(const BString cityName){ mCityName = cityName; }
 
 		virtual void	update();
 		virtual void	onObjectEnter(Object* object);
@@ -58,7 +58,7 @@ class City : public RegionObject
 
 	protected:
 
-		string				mCityName;
+		BString				mCityName;
 		ZoneTree*			mSI;
 		QTRegion*			mQTRegion;
 		Anh_Math::Rectangle mQueryRect;

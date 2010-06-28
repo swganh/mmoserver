@@ -46,7 +46,7 @@ class GroupManagerCallbackContainer
 public:
 	uint32 operation;
 	bool isLeader;
-	string arg;
+	BString arg;
 	uint32 flourishId;
 	uint64 requestingPlayer;
 

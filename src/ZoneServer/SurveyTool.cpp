@@ -185,7 +185,7 @@ void SurveyTool::StartUsing(PlayerObject* player)
 //
 // TODO: verify with skillmod
 //
-void SurveyTool::handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window)
+void SurveyTool::handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
 	if(!action && element != -1)
 	{

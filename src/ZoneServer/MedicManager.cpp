@@ -741,7 +741,7 @@ bool MedicManager::HealWound(PlayerObject* Medic, PlayerObject* Target, uint64 W
 	gLogger->log(LogManager::DEBUG,"Medic has Ability Rights");
 
 	int TargetWounds = 0;
-	string bhealType= healType.c_str();
+	BString bhealType= healType.c_str();
 	int32 WoundHealPower = 0;
 	if (WoundPack)
 	{
@@ -908,7 +908,7 @@ int32 MedicManager::CalculateBF(PlayerObject* Medic, PlayerObject* Target, int32
 std::string MedicManager::handleMessage(Message* message, std::string regexPattern)
 {
 	// Read the message out of the packet.
-	string tmp;
+	BString tmp;
 	message->getStringUnicode16(tmp);
 
 	// If the string has no length the message is ill-formatted, send the

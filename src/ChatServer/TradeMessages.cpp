@@ -68,7 +68,7 @@ void ChatMessageLib::sendBidAuctionResponse(DispatchClient* client, uint32 mErro
 
 //=======================================================================================================================
 
-void ChatMessageLib::sendIsVendorOwnerResponseMessage(DispatchClient* client, string mBazaarString, uint32 mPermission, uint32 mError, uint64 mId) const
+void ChatMessageLib::sendIsVendorOwnerResponseMessage(DispatchClient* client, BString mBazaarString, uint32 mPermission, uint32 mError, uint64 mId) const
 {
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opIsVendorOwnerResponseMessage);
@@ -114,7 +114,7 @@ void ChatMessageLib::processSendCreateItem(DispatchClient* client, uint64 mPlaye
 void ChatMessageLib::SendGetAuctionDetailsResponse(TradeManagerAsyncContainer* asynContainer, AttributesList* mAttributesList) const
 {
 
-	string mDescriptionString;
+	BString mDescriptionString;
 	mDescriptionString = asynContainer->mItemDescription->Description;
 	mDescriptionString.convert(BSTRType_Unicode16);
 
@@ -127,7 +127,7 @@ void ChatMessageLib::SendGetAuctionDetailsResponse(TradeManagerAsyncContainer* a
 
 
 	AttributesList::iterator it = mAttributesList->begin();
-	string value,name;
+	BString value,name;
 	uint32 size = mAttributesList->size();
 	gMessageFactory->addUint32(size);
 
@@ -174,7 +174,7 @@ void ChatMessageLib::sendBazaarTransactionMessage(DispatchClient* client, Auctio
 
 	char *token;
 	char separation[] = ".#,";
-	string mString, planet, x, y, region;
+	BString mString, planet, x, y, region;
 	
 	if (!mBazaarInfo)
 	{

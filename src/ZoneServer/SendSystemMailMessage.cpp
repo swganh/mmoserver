@@ -32,7 +32,7 @@ SendSystemMailMessage::SendSystemMailMessage(){};
 SendSystemMailMessage::~SendSystemMailMessage(){};
 //this is basically just a fascade, I had some typdef problems connecting directly to it from some classes.
 
-void SendSystemMailMessage::SendNewbieMailMessage(PlayerObject* player, string subject, string bodyDir, string bodyStr)
+void SendSystemMailMessage::SendNewbieMailMessage(PlayerObject* player, BString subject, BString bodyDir, BString bodyStr)
 {
 	gMessageLib->sendNewbieMail(player, subject, bodyDir, bodyStr);
 }

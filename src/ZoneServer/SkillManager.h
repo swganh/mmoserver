@@ -47,9 +47,9 @@ class PlayerObject;
 class SMAsyncContainer;
 
 typedef std::vector<Skill*>					SkillList;
-typedef std::vector<string>					ModList,CommandList,XpTypeList;
+typedef std::vector<BString>					ModList,CommandList,XpTypeList;
 typedef std::vector<int32>					XpCapList;
-typedef std::vector<std::pair<uint32,string> >	SkillInfoList;
+typedef std::vector<std::pair<uint32,BString> >	SkillInfoList;
 
 
 //======================================================================================================================
@@ -99,12 +99,12 @@ class SkillManager : public DatabaseCallback
 		XpTypeList*				getXPTypeList(){ return &mXpTypeList; }
 
 		Skill*					getSkillById(uint32 skillId){ return mSkillList[skillId-1]; }
-		Skill*					getSkillByName(string skillName);
-		string					getSkillInfoById(uint32 skillId);
-		string					getSkillModById(uint32 skillModId){ return mSkillModList[skillModId-1]; }
-		string					getSkillCmdById(uint32 skillCmdId){ return mSkillCommandList[skillCmdId-1]; }
-		string					getXPTypeById(uint32 xpId){ return mXpTypeList[xpId-1]; }
-		string					getXPTypeExById(uint32 xpId){ return mXpTypeListEx[xpId-1]; }
+		Skill*					getSkillByName(BString skillName);
+		BString					getSkillInfoById(uint32 skillId);
+		BString					getSkillModById(uint32 skillModId){ return mSkillModList[skillModId-1]; }
+		BString					getSkillCmdById(uint32 skillCmdId){ return mSkillCommandList[skillCmdId-1]; }
+		BString					getXPTypeById(uint32 xpId){ return mXpTypeList[xpId-1]; }
+		BString					getXPTypeExById(uint32 xpId){ return mXpTypeListEx[xpId-1]; }
 		int32					getDefaultXPCapById(uint32 xpId){ return mDefaultXpCapList[xpId-1]; }
 
 		bool					learnSkill(uint32 skillId,CreatureObject* creatureObject,bool subXp);
@@ -117,9 +117,9 @@ class SkillManager : public DatabaseCallback
 
 		bool					checkRaceLearnSkill(uint32 skillId,CreatureObject* creatureObject);
 		bool					checkTeachSkill(uint32 skillId,PlayerObject* pupilObject);
-		void					teach(PlayerObject* pupilObject,PlayerObject* teacherObject,string show);
+		void					teach(PlayerObject* pupilObject,PlayerObject* teacherObject,BString show);
 		bool					checkLearnSkill(uint32 skillId,PlayerObject* pupilObject);
-		string					getSkillProfession(uint32 skillId,string leaveAsIs);
+		BString					getSkillProfession(uint32 skillId,BString leaveAsIs);
 
 		void					releaseAllPoolsMemory(){ mDBAsyncPool.release_memory(); }
 

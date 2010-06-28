@@ -43,7 +43,7 @@ class SurveyTool : public Item
 
 		virtual void	prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
 		void	handleObjectMenuSelect(uint8 messageType,Object* srcObject);
-		void	handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window);
+		void	handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window);
 		void	StartUsing(PlayerObject* player);
 
 

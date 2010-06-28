@@ -212,7 +212,7 @@ void ObjectController::_handleflourish(uint64 targetId,Message* message,ObjectCo
 		flourishMax = 9;
 
 	//find out what flourish we are supposed to play
-	string dataStr;
+	BString dataStr;
 	message->getStringUnicode16(dataStr);
 	uint32 mFlourishId;
 	swscanf(dataStr.getUnicode16(),L"%u",&mFlourishId);
@@ -246,7 +246,7 @@ void ObjectController::_handleChangeDance(uint64 targetId,Message* message,Objec
 	SkillCommandList*	dancerSkillCommands = entertainer->getSkillCommands();
 	SkillCommandList::iterator dancerIt = dancerSkillCommands->begin();
 
-	string dataStr;
+	BString dataStr;
 	message->getStringUnicode16(dataStr);
 	dataStr.convert(BSTRType_ANSI);
 
@@ -259,7 +259,7 @@ void ObjectController::_handleChangeDance(uint64 targetId,Message* message,Objec
 		//check if we are able to perform this dance
 		while(dancerIt != dancerSkillCommands->end())
 		{
-			string mDanceString = gSkillManager->getSkillCmdById((*dancerIt));
+			BString mDanceString = gSkillManager->getSkillCmdById((*dancerIt));
 			//look for our selected dance
 			if(BString(danceStr).getCrc() == mDanceString.getCrc() ){
 				//yay we are able to perform this dance :)
@@ -314,7 +314,7 @@ void ObjectController::_handleDenyService(uint64 targetId,Message* message,Objec
 	//either add or remove a player from the list if one is added to the commandline
 	//or show a list box with all Players on the List to select one to be removed
 
-	string dataStr;
+	BString dataStr;
 	dataStr.setType(BSTRType_Unicode16);
 	PlayerObject* outcast;
 	//find out the id of the player if he should happen to be near
@@ -366,7 +366,7 @@ void ObjectController::_handleChangeMusic(uint64 targetId,Message* message,Objec
 	SkillCommandList*	entertainerSkillCommands = entertainer->getSkillCommands();
 	SkillCommandList::iterator entertainerIt = entertainerSkillCommands->begin();
 
-	string dataStr;
+	BString dataStr;
 	message->getStringUnicode16(dataStr);
 	dataStr.convert(BSTRType_ANSI);
 	int8 musicStr[32];
@@ -378,7 +378,7 @@ void ObjectController::_handleChangeMusic(uint64 targetId,Message* message,Objec
 		//check if we are able to perform this dance
 		while(entertainerIt != entertainerSkillCommands->end())
 		{
-			string mEntertainerString = gSkillManager->getSkillCmdById((*entertainerIt));
+			BString mEntertainerString = gSkillManager->getSkillCmdById((*entertainerIt));
 			//look for our selected dance
 			if(BString(musicStr).getCrc() == mEntertainerString.getCrc() )
 			{
@@ -457,7 +457,7 @@ void ObjectController::_handlestartdance(uint64 targetId,Message* message,Object
 	SkillCommandList*	dancerSkillCommands = performer->getSkillCommands();
 	SkillCommandList::iterator dancerIt = dancerSkillCommands->begin();
 
-	string dataStr;
+	BString dataStr;
 	message->getStringUnicode16(dataStr);
 	dataStr.convert(BSTRType_ANSI);
 
@@ -470,7 +470,7 @@ void ObjectController::_handlestartdance(uint64 targetId,Message* message,Object
 		//check if we are able to perform this dance
 		while(dancerIt != dancerSkillCommands->end())
 		{
-			string mDanceString = gSkillManager->getSkillCmdById((*dancerIt));
+			BString mDanceString = gSkillManager->getSkillCmdById((*dancerIt));
 			//look for our selected dance
 			if(BString(danceStr).getCrc() == mDanceString.getCrc() ){
 				//yay we are able to perform this dance :)
@@ -543,7 +543,7 @@ void ObjectController::_handlestartmusic(uint64 targetId,Message* message,Object
 	SkillCommandList*	entertainerSkillCommands = performer->getSkillCommands();
 	SkillCommandList::iterator entertainerIt = entertainerSkillCommands->begin();
 
-	string dataStr;
+	BString dataStr;
 	message->getStringUnicode16(dataStr);
 	dataStr.convert(BSTRType_ANSI);
 	int8 musicStr[32];
@@ -555,7 +555,7 @@ void ObjectController::_handlestartmusic(uint64 targetId,Message* message,Object
 		//check if we are able to perform this piece of music
 		while(entertainerIt != entertainerSkillCommands->end())
 		{
-			string mEntertainerString = gSkillManager->getSkillCmdById((*entertainerIt));
+			BString mEntertainerString = gSkillManager->getSkillCmdById((*entertainerIt));
 			//look for our selected dance
 			if(BString(musicStr).getCrc() == mEntertainerString.getCrc() )
 			{
@@ -656,7 +656,7 @@ void ObjectController::_handleStartBand(uint64 targetId,Message* message,ObjectC
 
 	}
 	//get song
-	string dataStr;
+	BString dataStr;
 	message->getStringUnicode16(dataStr);
 	dataStr.convert(BSTRType_ANSI);
 
@@ -690,7 +690,7 @@ void ObjectController::_handleBandFlourish(uint64 targetId,Message* message,Obje
 		flourishMax = 9;
 
 
-	string dataStr;
+	BString dataStr;
 	message->getStringUnicode16(dataStr);
 	//dataStr.convert(BSTRType_ANSI);
 	//printf(" flourish : %s",dataStr.getAnsi());
@@ -833,8 +833,8 @@ void ObjectController::handleImageDesignChangeMessage(Message* message,uint64 ta
 
 	uint32 ColorCounter;
 	uint32 AttributeCounter;
-	string hair;
-	string holoEmote;
+	BString hair;
+	BString holoEmote;
 
 	PlayerObject*	messageGenerator	=	dynamic_cast<PlayerObject*>(mObject);
 	PlayerObject*	imageDesigner		=	dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(dsgObjectId));
@@ -878,7 +878,7 @@ void ObjectController::handleImageDesignChangeMessage(Message* message,uint64 ta
 	message->getUint32(skillLevel4);
 
 	message->getUint32(AttributeCounter);
-	string attribute;
+	BString attribute;
 	float value;
 	for(uint32 i=0; i<AttributeCounter;i++)
 	{
@@ -961,7 +961,7 @@ void ObjectController::handleImageDesignStopMessage(Message* message,uint64 targ
 
 	//always remember id and prey are swapped here
 	message->getUint8(flag1);
-	string hair;
+	BString hair;
 	message->getStringAnsi(hair);
 	uint16 unknown1;
 	uint32 counter1,counter2,creditsDemanded,creditsOffered;
@@ -1009,7 +1009,7 @@ void ObjectController::handleImageDesignStopMessage(Message* message,uint64 targ
 void ObjectController::_handleRequestStatMigrationData(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
 	PlayerObject*	we	= dynamic_cast<PlayerObject*>(mObject);
-	string dataStr;
+	BString dataStr;
 	message->getStringUnicode16(dataStr);
 
 	uint32 value1,value2,value3,value4,value5,value6,value7,value8,value9;
@@ -1124,7 +1124,7 @@ void ObjectController::_handlePlayHoloEmote(uint64 targetId,Message* message,Obj
 	//start parsing the commandline
 	//either we need to give help
 	//or we have a request for a specific emote
-	string dataStr;
+	BString dataStr;
 	message->getStringUnicode16(dataStr);
 
 	// Have to convert BEFORE using toLower, since the conversion done there is removed It will assert().
@@ -1218,7 +1218,7 @@ void ObjectController::_handlePlayHoloEmote(uint64 targetId,Message* message,Obj
 	{			
 		if(we->decHoloCharge())
 		{
-			string effect = gWorldManager->getClientEffect(requestedEmote->pId);
+			BString effect = gWorldManager->getClientEffect(requestedEmote->pId);
 			gMessageLib->sendPlayClientEffectObjectMessage(effect,"head",we);
 			int8 sql[256];
 			sprintf(sql,"update swganh.character_holoemotes set charges = charges-1 where character_id = %I64u", we->getId());
@@ -1245,7 +1245,7 @@ void ObjectController::_handleDistract(uint64 targetId,Message* message,ObjectCo
 	//start parsing the commandline
 	//either we need to give help
 	//or we have a request for a specific emote
-	string dataStr;
+	BString dataStr;
 	message->getStringUnicode16(dataStr);
 	// Have to convert BEFORE using toLower, since the conversion done there is removed It will assert().
 	// Either do the conversion HERE, or better fix the toLower so it handles unicode also.
@@ -1310,7 +1310,7 @@ void ObjectController::_handleFireJet(uint64 targetId,Message* message,ObjectCon
 	//start parsing the commandline
 	//either we need to give help
 	//or we have a request for a specific emote
-	string dataStr;
+	BString dataStr;
 	message->getStringUnicode16(dataStr);
 
 	// Have to convert BEFORE using toLower, since the conversion done there is removed It will assert().
@@ -1374,7 +1374,7 @@ void ObjectController::_handleDazzle(uint64 targetId,Message* message,ObjectCont
 	//start parsing the commandline
 	//either we need to give help
 	//or we have a request for a specific emote
-	string dataStr;
+	BString dataStr;
 	message->getStringUnicode16(dataStr);
 
 	// Have to convert BEFORE using toLower, since the conversion done there is removed It will assert().
@@ -1438,7 +1438,7 @@ void ObjectController::_handleColorLights(uint64 targetId,Message* message,Objec
 	//start parsing the commandline
 	//either we need to give help
 	//or we have a request for a specific emote
-	string dataStr;
+	BString dataStr;
 	message->getStringUnicode16(dataStr);
 
 	// Have to convert BEFORE using toLower, since the conversion done there is removed It will assert().
@@ -1502,7 +1502,7 @@ void ObjectController::_handleSmokeBomb(uint64 targetId,Message* message,ObjectC
 	//start parsing the commandline
 	//either we need to give help
 	//or we have a request for a specific emote
-	string dataStr;
+	BString dataStr;
 	message->getStringUnicode16(dataStr);
 
 	// Have to convert BEFORE using toLower, since the conversion done there is removed It will assert().
@@ -1566,7 +1566,7 @@ void ObjectController::_handleSpotLight(uint64 targetId,Message* message,ObjectC
 	//start parsing the commandline
 	//either we need to give help
 	//or we have a request for a specific emote
-	string dataStr;
+	BString dataStr;
 	message->getStringUnicode16(dataStr);
 	// Have to convert BEFORE using toLower, since the conversion done there is removed It will assert().
 	// Either do the conversion HERE, or better fix the toLower so it handles unicode also.
@@ -1629,7 +1629,7 @@ void ObjectController::_handleVentriloquism(uint64 targetId,Message* message,Obj
 	//start parsing the commandline
 	//either we need to give help
 	//or we have a request for a specific emote
-	string dataStr;
+	BString dataStr;
 	message->getStringUnicode16(dataStr);
 
 	// Have to convert BEFORE using toLower, since the conversion done there is removed It will assert().

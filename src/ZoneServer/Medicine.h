@@ -38,7 +38,7 @@ public:
 	void			handleWoundPackMenuSelect(uint8 messageType, PlayerObject* player, std::string medpackType);
 	bool			ConsumeUse(PlayerObject* playerObject);
 	uint			getUsesRemaining();
-	uint			getSkillRequired(string skill);
+	uint			getSkillRequired(BString skill);
 	uint			getHealthHeal();
 	uint			getActionHeal();
 	uint			getHealWoundAction();
@@ -47,7 +47,7 @@ public:
 	uint			getHealWoundQuickness();
 	uint			getHealWoundStamina();
 	uint			getHealWoundStrength();
-	uint			getHealWound(string attribute);
+	uint			getHealWound(BString attribute);
 
 	Medicine(void);
 	~Medicine(void);

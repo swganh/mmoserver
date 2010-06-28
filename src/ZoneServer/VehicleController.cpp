@@ -128,7 +128,7 @@ void VehicleController::Call() {
 
 	body_ = new MountObject();
 
-	string cust;
+	BString cust;
 	cust.initRawBSTR((int8*)Swoop_Customization, BSTRType_ANSI);
 	body_->setCustomizationStr(cust.getAnsi());
 	body_->setCreoGroup(CreoGroup_Vehicle);

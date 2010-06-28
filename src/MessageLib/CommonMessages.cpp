@@ -462,7 +462,7 @@ bool MessageLib::sendStartScene(uint64 zoneId,PlayerObject* player)
 	mMessageFactory->addUint8(0);             
 	mMessageFactory->addUint64(player->getId());           
 
-	string mapName = gWorldManager->getTrnFileThis();
+	BString mapName = gWorldManager->getTrnFileThis();
 	mMessageFactory->addString(mapName);
 
 	mMessageFactory->addFloat(player->mPosition.x);     
@@ -545,7 +545,7 @@ bool MessageLib::sendEnterTicketPurchaseModeMessage(TravelTerminal* terminal,Pla
 		return(false);
 	}
 
-	string planet = gWorldManager->getPlanetNameThis();
+	BString planet = gWorldManager->getPlanetNameThis();
 
 	mMessageFactory->StartMessage();   
 	mMessageFactory->addUint32(opEnterTicketPurchaseModeMessage);  
@@ -562,7 +562,7 @@ bool MessageLib::sendEnterTicketPurchaseModeMessage(TravelTerminal* terminal,Pla
 //
 // system message
 //
-bool MessageLib::sendSystemMessageInRange(PlayerObject* playerObject,bool toSelf, string customMessage,string mainFile,string mainVar,string toFile,string toVar,string toCustom,int32 di,string ttFile,string ttVar,string ttCustom,uint64 ttId,uint64 toId,uint64 tuId,string tuFile,string tuVar,string tuCustom )
+bool MessageLib::sendSystemMessageInRange(PlayerObject* playerObject,bool toSelf, BString customMessage,BString mainFile,BString mainVar,BString toFile,BString toVar,BString toCustom,int32 di,BString ttFile,BString ttVar,BString ttCustom,uint64 ttId,uint64 toId,uint64 tuId,BString tuFile,BString tuVar,BString tuCustom )
 {
 	if(!playerObject || !playerObject->isConnected())
 	{
@@ -719,7 +719,7 @@ bool MessageLib::sendSystemMessage(PlayerObject* playerObject, std::wstring cust
 //
 // system message
 //
-bool MessageLib::sendMacroSystemMessage(PlayerObject* playerObject,string message,string macro)
+bool MessageLib::sendMacroSystemMessage(PlayerObject* playerObject,BString message,BString macro)
 {
 	if(!playerObject || !playerObject->isConnected())
 	{
@@ -741,7 +741,7 @@ bool MessageLib::sendMacroSystemMessage(PlayerObject* playerObject,string messag
 //
 // system message, can be directed to chat only
 //
-bool MessageLib::sendSystemMessage(PlayerObject* playerObject, string message, bool chatOnly)
+bool MessageLib::sendSystemMessage(PlayerObject* playerObject, BString message, bool chatOnly)
 {
 	if(!playerObject || !playerObject->isConnected())
 	{
@@ -772,7 +772,7 @@ bool MessageLib::sendSystemMessage(PlayerObject* playerObject, string message, b
 //
 // error message
 //
-bool MessageLib::sendErrorMessage(PlayerObject* playerObject,string errType,string errMsg,uint8 fatal)
+bool MessageLib::sendErrorMessage(PlayerObject* playerObject,BString errType,BString errMsg,uint8 fatal)
 {
 	if(!playerObject || !playerObject->isConnected())
 	{
@@ -841,7 +841,7 @@ bool MessageLib::sendUpdateCellPermissionMessage(CellObject* cellObject,uint8 pe
 //
 // play a clienteffect, if a player is given it will be sent to him only, otherwise to everyone in range of the effectObject
 //
-bool MessageLib::sendPlayClientEffectObjectMessage(string effect,string location,Object* effectObject,PlayerObject* playerObject)
+bool MessageLib::sendPlayClientEffectObjectMessage(BString effect,BString location,Object* effectObject,PlayerObject* playerObject)
 {
 	if((playerObject && !playerObject->isConnected()) || !effectObject)
 	{
@@ -878,14 +878,14 @@ bool MessageLib::sendPlayClientEffectObjectMessage(string effect,string location
 //
 // play a clienteffect at location
 //
-bool MessageLib::sendPlayClientEffectLocMessage(string effect, const glm::vec3& pos, PlayerObject* targetObject)
+bool MessageLib::sendPlayClientEffectLocMessage(BString effect, const glm::vec3& pos, PlayerObject* targetObject)
 {
 	if(!targetObject || !targetObject->isConnected())
 	{
 		return(false);
 	}
 
-	string		planet = gWorldManager->getPlanetNameThis();
+	BString		planet = gWorldManager->getPlanetNameThis();
 
 	mMessageFactory->StartMessage();            
 	mMessageFactory->addUint32(opPlayClientEffectLocMessage);
@@ -1081,7 +1081,7 @@ bool MessageLib::sendCharacterSheetResponse(PlayerObject* playerObject)
 		mMessageFactory->addFloat(bindLoc.x);
 		mMessageFactory->addFloat(bindLoc.y);
 		mMessageFactory->addFloat(bindLoc.z);
-		string bindPlanet(gWorldManager->getPlanetNameById(playerObject->getBindPlanet()));
+		BString bindPlanet(gWorldManager->getPlanetNameById(playerObject->getBindPlanet()));
 		mMessageFactory->addString(bindPlanet);
 	}
 
@@ -1413,7 +1413,7 @@ bool MessageLib::broadcastContainmentMessage(Object* targetObject,uint64 parentI
 //
 // Tutorial: update tutorial trigger
 //
-bool MessageLib::sendUpdateTutorialRequest(PlayerObject* playerObject, string request)
+bool MessageLib::sendUpdateTutorialRequest(PlayerObject* playerObject, BString request)
 {
 	if(!playerObject || !playerObject->isConnected())
 	{
@@ -1453,7 +1453,7 @@ bool MessageLib::sendOpenHolocron(PlayerObject* playerObject)
 //
 // enable hud element
 //
-bool MessageLib::sendEnableHudElement(PlayerObject* playerObject, string hudElement)
+bool MessageLib::sendEnableHudElement(PlayerObject* playerObject, BString hudElement)
 {
 	if(!playerObject || !playerObject->isConnected())
 	{
@@ -1475,7 +1475,7 @@ bool MessageLib::sendEnableHudElement(PlayerObject* playerObject, string hudElem
 //
 // disable hud element
 //
-bool MessageLib::sendDisableHudElement(PlayerObject* playerObject, string hudElement)
+bool MessageLib::sendDisableHudElement(PlayerObject* playerObject, BString hudElement)
 {
 	if(!playerObject || !playerObject->isConnected())
 	{
@@ -1514,7 +1514,7 @@ bool MessageLib::sendLogout(PlayerObject* playerObject)
 
 //======================================================================================================================
 
-bool MessageLib::sendSysMsg(PlayerObject* playerObject,string mainFile,string mainVar,Object* to, Object* tt, Object* tu, int32 di)
+bool MessageLib::sendSysMsg(PlayerObject* playerObject,BString mainFile,BString mainVar,Object* to, Object* tt, Object* tu, int32 di)
 {
 	if(!playerObject || !playerObject->isConnected())
 	{
@@ -1526,9 +1526,9 @@ bool MessageLib::sendSysMsg(PlayerObject* playerObject,string mainFile,string ma
 	mMessageFactory->addUint8(0);
 	mMessageFactory->addUint32(0);				 
 
-	string ttCustom, toCustom, tuCustom;
-	string ttdir, tudir, todir;
-	string ttfile, tufile, tofile;
+	BString ttCustom, toCustom, tuCustom;
+	BString ttdir, tudir, todir;
+	BString ttfile, tufile, tofile;
 
 	uint32	realSize = mainFile.getLength() + mainVar.getLength();
 	

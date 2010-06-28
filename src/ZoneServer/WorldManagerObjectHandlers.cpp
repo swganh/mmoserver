@@ -204,7 +204,7 @@ bool WorldManager::addObject(Object* object,bool manual)
 			player->getStomach()->checkForRegen();
 
 			// onPlayerEntered event, notify scripts
-			string params;
+			BString params;
 			params.setLength(sprintf(params.getAnsi(),"%s %s %u",getPlanetNameThis(),player->getFirstName().getAnsi(),static_cast<uint32>(mPlayerAccMap.size())));
 
 			mWorldScriptsListener.handleScriptEvent("onPlayerEntered",params);
@@ -603,7 +603,7 @@ void WorldManager::destroyObject(Object* object)
 
 
 			// onPlayerLeft event, notify scripts
-			string params;
+			BString params;
 			params.setLength(sprintf(params.getAnsi(),"%s %s %u",getPlanetNameThis(),player->getFirstName().getAnsi(),static_cast<uint32>(mPlayerAccMap.size())));
 
 			mWorldScriptsListener.handleScriptEvent("onPlayerLeft",params);

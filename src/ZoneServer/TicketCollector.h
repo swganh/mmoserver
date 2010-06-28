@@ -52,19 +52,19 @@ class TicketCollector : public TangibleObject
 		void			setShuttle(Shuttle* shuttle){ mShuttle = shuttle; }
 		Shuttle*		getShuttle(){ return mShuttle; }
 
-		void			setPortDescriptor(string des){ mPortDescriptor = des; }
-		string			getPortDescriptor(){ return mPortDescriptor; }
+		void			setPortDescriptor(BString des){ mPortDescriptor = des; }
+		BString			getPortDescriptor(){ return mPortDescriptor; }
 
 		void			travelRequest(TravelTicket* ticket,PlayerObject* playerObject);
 
-		virtual void	handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window);
+		virtual void	handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window);
 
 	private:
 
 		void			_createTicketSelectMenu(PlayerObject* playerObject);
 
 		Shuttle*		mShuttle;
-		string			mPortDescriptor;
+		BString			mPortDescriptor;
 
 };
 

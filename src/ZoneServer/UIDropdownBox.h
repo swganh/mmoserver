@@ -38,11 +38,11 @@ class UIDropdownBox : public UIElement
 	public:
 
 		UIDropdownBox(){}
-		UIDropdownBox(uint32 id,string name,bool enabled,const BStringVector elements,uint16 maxLength);
+		UIDropdownBox(uint32 id,BString name,bool enabled,const BStringVector elements,uint16 maxLength);
 		virtual ~UIDropdownBox();
 
-		string			getName(){ return mName; }
-		void			setName(string name){ mName = name; }
+		BString			getName(){ return mName; }
+		void			setName(BString name){ mName = name; }
 
 		bool			getEnabled(){ return mEnabled; }
 		void			setEnabled(bool e){ mEnabled = e; }
@@ -58,7 +58,7 @@ class UIDropdownBox : public UIElement
 
 	private:
 
-		string			mName;
+		BString			mName;
 		bool			mEnabled;
 		BStringVector	mElements;
 		uint16			mMaxLength;

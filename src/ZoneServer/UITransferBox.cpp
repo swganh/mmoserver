@@ -76,8 +76,8 @@ void UITransferBox::handleEvent(Message* message)
 {
 	uint32	action				= message->getUint32();
 	uint32	items				= message->getUint32();
-	string	leftValue;
-	string	rightValue;
+	BString	leftValue;
+	BString	rightValue;
 
 	if(items)
 	{

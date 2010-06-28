@@ -38,10 +38,10 @@ class UIWindow;
 class UICallback
 {
 	public:
-		virtual void	handleUIEvent(uint32 action,int32 element,string inputStr = "",UIWindow* window = NULL) {};
-		virtual void	handleUIEvent(string leftValue = "", string rightValue = "", UIWindow* window = NULL){};
-		virtual void	handleAsktoTeachSkill(uint32 action,int32 element,string inputStr,UIWindow* window, void* pupil, void* skill){};
-		virtual void	handleSelectSkilltoTeach(uint32 action,int32 element,string inputStr,UIWindow* window, void* pupil, void* skillContainer){};
+		virtual void	handleUIEvent(uint32 action,int32 element,BString inputStr = "",UIWindow* window = NULL) {};
+		virtual void	handleUIEvent(BString leftValue = "", BString rightValue = "", UIWindow* window = NULL){};
+		virtual void	handleAsktoTeachSkill(uint32 action,int32 element,BString inputStr,UIWindow* window, void* pupil, void* skill){};
+		virtual void	handleSelectSkilltoTeach(uint32 action,int32 element,BString inputStr,UIWindow* window, void* pupil, void* skillContainer){};
 };
 
 #endif 

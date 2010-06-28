@@ -87,7 +87,7 @@ class CraftingSession : public DatabaseCallback, public ObjectFactoryCallback
 
 		bool					prepareComponentOffer(Item* component, uint32 needed, ManufactureSlot* manSlot);
 		uint32					getComponentOffer(Item* component, uint32 needed);
-		string					ComponentGetSerial(Item* component);
+		BString					ComponentGetSerial(Item* component);
 
 		uint32					getComponentSerial(ManufactureSlot*	manSlot, Inventory* inventory);
 		bool					AdjustComponentStack(Item* item, Inventory* inventory, uint32 uses);
@@ -125,7 +125,7 @@ class CraftingSession : public DatabaseCallback, public ObjectFactoryCallback
 		void					experimentationStage(uint32 counter);
 		void					customize(const int8* itemName);
 		void					createPrototype(uint32 noPractice,uint32 counter);
-		string					getSerial();
+		BString					getSerial();
 
 		void					addComponentAttribute();
 
@@ -172,7 +172,7 @@ class CraftingSession : public DatabaseCallback, public ObjectFactoryCallback
 			return boost::lexical_cast<float>(str);
 		}
 
-		string rndFloattoStr(float x)
+		BString rndFloattoStr(float x)
 		{
 			int32 i = (int32)floorf(x * 100 + 0.5f);
 		//	(float)(i / 100.00);

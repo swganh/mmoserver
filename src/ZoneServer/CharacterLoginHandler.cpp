@@ -268,7 +268,7 @@ void CharacterLoginHandler::handleDispatchMessage(uint32 opcode, Message* messag
 			}
 
 			// send our message of the day
-			string moT = "welcome to swgAnh";
+			BString moT = "welcome to swgAnh";
 			moT	= (int8*)((gWorldConfig->getConfiguration<std::string>("motD",moT.getAnsi())).c_str());
 
 			moT.convert(BSTRType_Unicode16);
@@ -309,7 +309,7 @@ void CharacterLoginHandler::handleDispatchMessage(uint32 opcode, Message* messag
 			// sprintf(rawData,"Running %s",ConfigManager::getBuildString());
 			sprintf(rawData,"Running build %s created %s", ConfigManager::getBuildNumber().c_str(), ConfigManager::getBuildTime().c_str());
 
-			string buildString(rawData);
+			BString buildString(rawData);
 			buildString.convert(BSTRType_Unicode16);
 			gMessageLib->sendSystemMessage(player,buildString.getUnicode16());
 
@@ -345,7 +345,7 @@ void CharacterLoginHandler::handleDispatchMessage(uint32 opcode, Message* messag
 		PlayerObject* player = gWorldManager->getPlayerByAccId(client->getAccountId());
 		if (player && player->isConnected())
 		{
-			string tutorialEventString;
+			BString tutorialEventString;
 			message->getStringAnsi(tutorialEventString);
 			gLogger->log(LogManager::DEBUG,"%s",tutorialEventString.getAnsi());
 			if (gWorldConfig->isTutorial())
@@ -431,7 +431,7 @@ void CharacterLoginHandler::_processClusterZoneTransferApprovedByTicket(Message*
 	{
 		// remove the ticket from the DB so they can't use it again.
 		TravelTicket* ticket	= dynamic_cast<TravelTicket*>(dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getObjectById(ticketId));
-		string dstPointStr		= (int8*)((ticket->getAttribute<std::string>("travel_arrival_point")).c_str());
+		BString dstPointStr		= (int8*)((ticket->getAttribute<std::string>("travel_arrival_point")).c_str());
 		uint16 dstPlanetId		= static_cast<uint16>(gWorldManager->getPlanetIdByName((int8*)((ticket->getAttribute<std::string>("travel_arrival_planet")).c_str())));
 
 		TravelPoint* dstPoint = gTravelMapHandler->getTravelPoint(dstPlanetId,dstPointStr);

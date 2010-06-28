@@ -111,7 +111,7 @@ public:
 	uint32 GetNoOfTicks();
 	uint32 GetCurrentTickNumber();
 	uint32 GetIcon();
-	string GetName();
+	BString GetName();
 	uint64 GetStartGlobalTick();
 	void SetInit(bool init);
 
@@ -121,7 +121,7 @@ private:
 	///////////////////////////////////////////////////////////////////////////////////////////////
 
 	AttributeList			Attributes;
-	string					mName;
+	BString					mName;
 	Buff*					mChild;
 	Buff*					mParent;
 	CreatureObject*			mInstigator;

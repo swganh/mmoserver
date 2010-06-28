@@ -125,10 +125,10 @@ class ObjectControllerCmdProperties
 		uint32	mAbilityCrc;
 		uint64	mStates;
 		uint8	mCmdGroup;
-		string	mScriptHook;
-		string	mFailScriptHook;
-		string	mCommandStr;
-		string	mAbilityStr;
+		BString	mScriptHook;
+		BString	mFailScriptHook;
+		BString	mCommandStr;
+		BString	mAbilityStr;
 		uint64	mDefaultTime;
 		float	mMaxRangeToTarget;
 		uint8	mAddToCombatQueue;
@@ -140,7 +140,7 @@ class ObjectControllerCmdProperties
 		// combat
 		uint32	mAnimationCrc;
 		uint32	mRequiredWeaponGroup;
-		string	mCbtSpam;
+		BString	mCbtSpam;
 		uint8	mTrail1;
 		uint8	mTrail2;
 		float	mHealthHitChance;

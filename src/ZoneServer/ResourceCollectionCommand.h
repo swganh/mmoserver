@@ -43,7 +43,7 @@ class ResourceCollectionCommand
 
 		// getters
 		uint32	getId()							{ return mId; }
-		string	getCommandName()				{ return mCommandName; }
+		BString	getCommandName()				{ return mCommandName; }
 		int32	getHealthCost()					{ return mHealthCost; }
 		int32	getActionCost()					{ return mActionCost; }
 		int32	getMindCost()					{ return mMindCost; }
@@ -51,7 +51,7 @@ class ResourceCollectionCommand
 
 		// setters
 		void	setId(uint32 id)				{ mId = id; }
-		void	setCommandName(string cName)	{ mCommandName = cName; }
+		void	setCommandName(BString cName)	{ mCommandName = cName; }
 		void	setHealthCost(int32 hCost)		{ mHealthCost = hCost; }
 		void	setActionCost(int32 aCost)		{ mActionCost = aCost; }
 		void	setMindCost(int32 mCost)		{ mMindCost = mCost; }
@@ -61,7 +61,7 @@ class ResourceCollectionCommand
 	private:
 
 		uint32	mId;
-		string	mCommandName;
+		BString	mCommandName;
 		int32	mHealthCost;
 		int32	mActionCost;
 		int32	mMindCost;

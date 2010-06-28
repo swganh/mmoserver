@@ -71,7 +71,7 @@ ShuttleState Shuttle::getShuttleState()
 //
 bool Shuttle::availableInPort(void)
 {
-	string port("");
+	BString port("");
 
 	// Some shuttles are not linked to any collectors.
 	if (TicketCollector* collector = dynamic_cast<TicketCollector*>(gWorldManager->getObjectById(mTicketCollectorId)))
@@ -98,7 +98,7 @@ void Shuttle::useShuttle(PlayerObject* playerObject)
 	{
 		int8 sql[128];
 		sprintf(sql,"No ticket collector on duty error : %"PRIu64,mTicketCollectorId);
-		string u = BString(sql);
+		BString u = BString(sql);
 		u.convert(BSTRType_Unicode16);
 
 		gMessageLib->sendSystemMessage(playerObject,u.getUnicode16());
@@ -120,7 +120,7 @@ void Shuttle::useShuttle(PlayerObject* playerObject)
 	{
 		case ShuttleState_InPort:
 		{
-			string port = collector->getPortDescriptor();
+			BString port = collector->getPortDescriptor();
 
 			bool noTicket = gTravelMapHandler->findTicket(playerObject,port);
 
@@ -141,7 +141,7 @@ void Shuttle::useShuttle(PlayerObject* playerObject)
 
 		case ShuttleState_Away:
 		{
-			string	awayMsg = string(BSTRType_Unicode16,256);
+			BString	awayMsg = BString(BSTRType_Unicode16,256);
 			uint32	minutes = (mAwayInterval - mAwayTime) / 60000;
 			uint32	seconds = (60000 - (mAwayTime%60000)) / 1000;
 

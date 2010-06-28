@@ -100,7 +100,7 @@ void MessageLib::sendBanktipMail(PlayerObject* playerObject, PlayerObject* targe
 
 //======================================================================================================================
 
-void MessageLib::sendBoughtInstantMail(PlayerObject* newOwner, string ItemName, string SellerName, uint32 Credits, string planet, string region, int32 mX, int32 mY)
+void MessageLib::sendBoughtInstantMail(PlayerObject* newOwner, BString ItemName, BString SellerName, uint32 Credits, BString planet, BString region, int32 mX, int32 mY)
 {
 
 	atMacroString* aMS = new atMacroString();
@@ -130,7 +130,7 @@ void MessageLib::sendBoughtInstantMail(PlayerObject* newOwner, string ItemName, 
 	mMessageFactory->addString(BString("auctioner"));
 	mMessageFactory->addString(BString("@auction:subject_auction_buyer"));
 	mMessageFactory->addUint32(0);
-	string attachment = aMS->assemble();
+	BString attachment = aMS->assemble();
 	mMessageFactory->addString(attachment);
 	
 	Message* newMessage = mMessageFactory->EndMessage();
@@ -144,7 +144,7 @@ void MessageLib::sendBoughtInstantMail(PlayerObject* newOwner, string ItemName, 
 
 //======================================================================================================================
 
-void MessageLib::sendSoldInstantMail(uint64 oldOwner, PlayerObject* newOwner, string ItemName, uint32 Credits, string planet, string region)
+void MessageLib::sendSoldInstantMail(uint64 oldOwner, PlayerObject* newOwner, BString ItemName, uint32 Credits, BString planet, BString region)
 {
 	//seller_success       Your auction of %TO has been sold to %TT for %DI credits
 
@@ -177,7 +177,7 @@ void MessageLib::sendSoldInstantMail(uint64 oldOwner, PlayerObject* newOwner, st
 
 }
 
-void MessageLib::sendNewbieMail(PlayerObject* playerObject, string subject, string bodyDir, string bodyStr)
+void MessageLib::sendNewbieMail(PlayerObject* playerObject, BString subject, BString bodyDir, BString bodyStr)
 {
 	atMacroString* aMS = new atMacroString();
 
@@ -212,12 +212,12 @@ void MessageLib::sendNewbieMail(PlayerObject* playerObject, string subject, stri
 	aMS->addTOstf(structure->getNameFile(),structure->getName());
 	aMS->addTextModule();
 
-	string planet;
+	BString planet;
 	planet = gWorldManager->getPlanetNameThis();
 	planet.toLowerFirst();
 	
-	string wText = "";
-	string name = structure->getCustomName();
+	BString wText = "";
+	BString name = structure->getCustomName();
 	name.convert(BSTRType_ANSI);
 	wText << name.getAnsi();	
 	

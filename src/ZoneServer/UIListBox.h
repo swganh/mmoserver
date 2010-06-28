@@ -38,11 +38,11 @@ class UIListBox : public UIWindow
 {
 	public:
 
-		UIListBox(UICallback* callback,uint32 id,uint8 windowType,const int8* eventStr,string caption,string prompt,const BStringVector dataItems,PlayerObject* playerObject,uint8 lbType = SUI_LB_OK, float distance = 0, uint64 object = 0, void* container = NULL);
+		UIListBox(UICallback* callback,uint32 id,uint8 windowType,const int8* eventStr,BString caption,BString prompt,const BStringVector dataItems,PlayerObject* playerObject,uint8 lbType = SUI_LB_OK, float distance = 0, uint64 object = 0, void* container = NULL);
 		virtual ~UIListBox();
 
 		BStringVector*	getDataItems(){ return &mDataItems; }
-		void			addDataItem(string item){ mDataItems.push_back(item); }
+		void			addDataItem(BString item){ mDataItems.push_back(item); }
 
 		virtual void	handleEvent(Message* message);
 		void			sendCreate();
@@ -51,9 +51,9 @@ class UIListBox : public UIWindow
 
 		void		_initChildren();
 
-		string			mCaption;
+		BString			mCaption;
 
-		string			mPrompt;
+		BString			mPrompt;
 		uint8			mLbType;
 		BStringVector	mDataItems;
 		float			mDistance;

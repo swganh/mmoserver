@@ -673,7 +673,7 @@ void CraftingSession::assemble(uint32 counter)
 	mCounter = counter;
 
 	// get the items serial
-	string serial;
+	BString serial;
 	serial = getSerial();
 	mItem->addAttributeIncDB("serial_number",serial.getAnsi());
 
@@ -849,7 +849,7 @@ void CraftingSession::createPrototype(uint32 noPractice,uint32 counter)
 		mItem->setAttributeIncDB("crafter",mOwner->getFirstName().getAnsi());
 
 		// now the serial
-		string serial = getSerial();
+		BString serial = getSerial();
 
 		// adds automatically when necessary
 		mItem->setAttributeIncDB("serial_number",serial.getAnsi());
@@ -1180,12 +1180,12 @@ void CraftingSession::createManufactureSchematic(uint32 counter)
 	collectComponents();
 
 	//manufacturing limit
-	string limit = boost::lexical_cast<std::string>(this->getProductionAmount()).c_str();
+	BString limit = boost::lexical_cast<std::string>(this->getProductionAmount()).c_str();
 	
 	mManufacturingSchematic->addAttributeIncDB("manf_limit",limit.getAnsi());
 
 
-	string mask = boost::lexical_cast<std::string>(mDraftSchematic->getSubCategory()).c_str();
+	BString mask = boost::lexical_cast<std::string>(mDraftSchematic->getSubCategory()).c_str();
 	mManufacturingSchematic->addInternalAttributeIncDB("craft_tool_typemask",mask.getAnsi());
 
 	gMessageLib->sendCraftAcknowledge(opCreatePrototypeResponse,CraftCreate_2,static_cast<uint8>(counter),mOwner);

@@ -853,7 +853,7 @@ void GroupManager::_processIsmInviteInRangeResponse(Message* message, DispatchCl
 	// If we are not in range, inform the player and return.
 	if(!inRange)
 	{
-		gChatMessageLib->sendSystemMessage(player, L"@group:out_of_range_suffix");
+		gChatMessageLib->sendSystemMessage(player, L"@error_message:error_invite_ran");
 		return;
 	}
 
@@ -886,7 +886,7 @@ void GroupManager::_processIsmInviteInRangeResponse(Message* message, DispatchCl
 	}
 	
 	// If target have me ignored, auto decline my invitation.
-	string ignoreName = player->getName();
+	BString ignoreName = player->getName();
 	ignoreName.toLower();
 
 	// check our ignorelist

@@ -54,22 +54,22 @@ public:
 
   LoginClientState            getState(void)                            { return mState; };
   uint32                      getAccountId(void)                        { return mAccountId; };
-  string&                     getUsername(void)                         { return mUsername; };
-  string&                     getPassword(void)                         { return mPassword; };
+  BString&                     getUsername(void)                         { return mUsername; };
+  BString&                     getPassword(void)                         { return mPassword; };
   uint32                      getCharsAllowed()                         { return mCharsAllowed; }
   int8						  getCsr()									{ return mCsr; }
 
   void                        setState(LoginClientState state)          { mState = state; };
   void                        setAccountId(uint32 id)                   { mAccountId = id; };
-  void                        setUsername(string username)              { mUsername = username; };
-  void                        setPassword(string password)              { mPassword = password; };
+  void                        setUsername(BString username)              { mUsername = username; };
+  void                        setPassword(BString password)              { mPassword = password; };
   void                        setCharsAllowed(uint32 count)             { mCharsAllowed = count; }
   void                        setCsr(int8 csr)							{ mCsr = csr; };
 private:
   LoginClientState            mState;
   uint32                      mAccountId;
-  string                      mUsername;
-  string                      mPassword;
+  BString                      mUsername;
+  BString                      mPassword;
   uint32                      mCharsAllowed;
   int8						  mCsr;
 };

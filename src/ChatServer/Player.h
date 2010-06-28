@@ -35,7 +35,7 @@ class DispatchClient;
 
 //======================================================================================================================
 
-typedef std::map<uint32,string> ContactMap;
+typedef std::map<uint32,BString> ContactMap;
 
 //======================================================================================================================
 
@@ -52,8 +52,8 @@ struct Bazaar
 
 struct PlayerData
 {
-		string name;
-		string last_name;
+		BString name;
+		BString last_name;
 };
 
 class Player
@@ -78,12 +78,12 @@ public:
 	uint64			getCharId(){ return mCharId; }
 	void			setCharId(uint64 charId){ mCharId = charId; }
 
-	string&			getName(){ return mPlayerData.name; }
-	void			setName(const string name){ mPlayerData.name = name; }
+	BString&			getName(){ return mPlayerData.name; }
+	void			setName(const BString name){ mPlayerData.name = name; }
 
 	PlayerData* getPlayerData() { return &mPlayerData; }
-	string&			getLastName(){ return mPlayerData.last_name; }
-	void			setLastName(const string lastName){ mPlayerData.last_name = lastName; }
+	BString&			getLastName(){ return mPlayerData.last_name; }
+	void			setLastName(const BString lastName){ mPlayerData.last_name = lastName; }
 
 	DispatchClient*	getClient(){ return mClient; }
 	void			setClient(DispatchClient* client){ mClient = client; }
@@ -95,15 +95,15 @@ public:
 	void			setAddPending(bool b){ mAddPending = b; }
 
 	uint32			getKey(){ return mKey; }
-	void			setKey() { string name = getName(); name.toLower(); mKey = name.getCrc(); }
+	void			setKey() { BString name = getName(); name.toLower(); mKey = name.getCrc(); }
 
 	ContactMap*		getFriendsList(){ return &mFriendsList; }
-	void			addFriend(string name){ mFriendsList.insert(std::make_pair(name.getCrc(),name.getAnsi())); }
+	void			addFriend(BString name){ mFriendsList.insert(std::make_pair(name.getCrc(),name.getAnsi())); }
 	void			removeFriend(uint32 nameCrc);
 	bool			checkFriend(uint32 nameCrc);
 
 	ContactMap*		getIgnoreList(){ return &mIgnoreList; }
-	void			addIgnore(string name){ mIgnoreList.insert(std::make_pair(name.getCrc(),name.getAnsi())); }
+	void			addIgnore(BString name){ mIgnoreList.insert(std::make_pair(name.getCrc(),name.getAnsi())); }
 	void			removeIgnore(uint32 nameCrc);
 	bool			checkIgnore(uint32 nameCrc);
 

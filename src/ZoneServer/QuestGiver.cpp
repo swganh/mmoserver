@@ -114,7 +114,7 @@ bool QuestGiver::preProcessfilterConversation(ActiveConversation* av, Conversati
 				status = false;
 				char elements[5][32];
 				memset(elements, 0, sizeof(elements));
-				string aMess("Move along.");	// @newbie_convo:trooper_move_along
+				BString aMess("Move along.");	// @newbie_convo:trooper_move_along
 				aMess.convert(BSTRType_Unicode16);
 				if (!gWorldConfig->isInstance())
 				{
@@ -141,7 +141,7 @@ bool QuestGiver::preProcessfilterConversation(ActiveConversation* av, Conversati
 						status = false;
 						char elements[5][32];
 						memset(elements, 0, sizeof(elements));
-						string aMess("What are you doing here?  Get a move on.  I'm, uh, still guarding here."); // @newbie_convo:convo_4_repeat
+						BString aMess("What are you doing here?  Get a move on.  I'm, uh, still guarding here."); // @newbie_convo:convo_4_repeat
 						aMess.convert(BSTRType_Unicode16);
 						if (!gWorldConfig->isInstance())
 						{
@@ -165,7 +165,7 @@ bool QuestGiver::preProcessfilterConversation(ActiveConversation* av, Conversati
 				status = false;
 				char elements[5][32];
 				memset(elements, 0, sizeof(elements));
-				string aMess("Good job with that pirate, but what are you doing back here?  Go back through the big room where the pirate was."); // @newbie_convo:good_job
+				BString aMess("Good job with that pirate, but what are you doing back here?  Go back through the big room where the pirate was."); // @newbie_convo:good_job
 				aMess.convert(BSTRType_Unicode16);
 				if (!gWorldConfig->isInstance())
 				{

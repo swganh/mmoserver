@@ -72,14 +72,14 @@ class UIWindow : public UIElement
 {
 	public:
 
-		UIWindow(UICallback* callback,uint32 id,uint8 windowType,const string windowTypeStr,const int8* eventStr, void* container = NULL);
+		UIWindow(UICallback* callback,uint32 id,uint8 windowType,const BString windowTypeStr,const int8* eventStr, void* container = NULL);
 		virtual ~UIWindow();
 
 		uint8			getWindowType(){ return mWindowType; }
 		void			setWindowType(uint8 type){ mWindowType = type; }
 
-		string			getWindowTypeStr(){ return mWindowTypeStr; }
-		void			setWindowTypeStr(const string typeStr){ mWindowTypeStr = typeStr; }
+		BString			getWindowTypeStr(){ return mWindowTypeStr; }
+		void			setWindowTypeStr(const BString typeStr){ mWindowTypeStr = typeStr; }
 
 		PlayerObject*	getOwner(){ return mOwner; }
 		void			setOwner(PlayerObject* owner){ mOwner = owner; }
@@ -87,8 +87,8 @@ class UIWindow : public UIElement
 		uint64			getTimeOut(){ return mTimeOut; }
 		void			setTimeOut(uint64 timeOut){ mTimeOut = timeOut; }
 
-		string			getEventStr(){ return mEventStr; }
-		void			setEventStr(string eventStr){ mEventStr = eventStr; }
+		BString			getEventStr(){ return mEventStr; }
+		void			setEventStr(BString eventStr){ mEventStr = eventStr; }
 
 		uint32			getChildrenPropertyCount();
 		Children*		getChildren(){ return &mChildElements; }
@@ -105,21 +105,21 @@ class UIWindow : public UIElement
 		UICallback*		getCallback(){ return mUICallback; }
 		void			setCallback(UICallback* callback){ mUICallback = callback; }
 
-		string			getOption3(){return mOption3;}
-		string			getOption4(){return mOption4;}
+		BString			getOption3(){return mOption3;}
+		BString			getOption4(){return mOption4;}
 
 	protected:
 		Children		mChildElements;
-		string			mEventStr;
-		string			mWindowTypeStr;
+		BString			mEventStr;
+		BString			mWindowTypeStr;
 		PlayerObject*	mOwner;
 		UICallback*		mUICallback;
 		uint64			mTimeOut;
 		uint8			mWindowType;
 		void*			mContainer;
 
-		string			mOption3;
-		string			mOption4;
+		BString			mOption3;
+		BString			mOption4;
 };
 
 #endif

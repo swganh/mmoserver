@@ -29,13 +29,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_LOGMANAGER_H
 #define ANH_LOGMANAGER_H
 
-#include "Utils\typedefs.h"
-
-#include <boost/thread/thread.hpp>
+#include <cstdint>
 #include <iosfwd>
-#include <string>
 #include <queue>
-#include <memory>
+#include <string>
 
 #define LOG_CHANNEL_CONSOLE	 1
 #define LOG_CHANNEL_FILE	 2
@@ -46,6 +43,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class LOG_ENTRY;
 class Database;
+
+namespace boost {
+    class mutex;
+    class thread;
+}
 
 #define gLogger LogManager::getSingleton()
 
@@ -71,8 +73,8 @@ public:
 	void log(LOG_PRIORITY priority, std::string format, ...);
 	void logCont(LOG_PRIORITY priority, std::string format, ...);
 
-	void logS(LOG_PRIORITY priority, uint8 channels, std::string format, ...);
-	void logContS(LOG_PRIORITY priority, uint8 channels, std::string format, ...);
+	void logS(LOG_PRIORITY priority, uint8_t channels, std::string format, ...);
+	void logContS(LOG_PRIORITY priority, uint8_t channels, std::string format, ...);
 
 	static LogManager* mSingleton;
 
@@ -85,15 +87,15 @@ private:
 	void _printLogo();
 	void _LoggerThread();
 
-	boost::thread				mThread;
-	boost::mutex				mEntriesMutex;
 	std::queue<LOG_ENTRY*>		mEntries;
 
 
-	uint8						mMinPriorities[3];
+	uint8_t						mMinPriorities[3];
 	std::string					mFileName;
 
 	std::unique_ptr<std::ofstream> mOutputFile;
+    std::unique_ptr<boost::thread> mThread;
+    std::unique_ptr<boost::mutex> mEntriesMutex;
 };
 
 #endif

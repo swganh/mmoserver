@@ -148,9 +148,9 @@ bool MessageLib::sendBaselinesCREO_3(CreatureObject* creatureObject,PlayerObject
 
 	Message*		message;
 	Ham*			creatureHam = creatureObject->getHam();
-	string			firstName = creatureObject->getFirstName().getAnsi();
-	string			lastName = creatureObject->getLastName().getAnsi();
-	string			fullName;
+	BString			firstName = creatureObject->getFirstName().getAnsi();
+	BString			lastName = creatureObject->getLastName().getAnsi();
+	BString			fullName;
 	uint32			creoByteCount;
 	uint32			byteCount;
 
@@ -395,14 +395,14 @@ bool MessageLib::sendBaselinesCREO_6(CreatureObject* creatureObject,PlayerObject
 	// Test ERU
 	// If no mood is set, use neutral for avatar / npc, then they will look less angry as default.
 	// This will NOT affect the chat-mood
-	// string			moodStr			= gWorldManager->getMood(creatureObject->getMoodId());
+	// BString			moodStr			= gWorldManager->getMood(creatureObject->getMoodId());
 	uint8 moodId = creatureObject->getMoodId();
 	if (moodId == 0)
 	{
 		moodId = 74;
 	}
 	
-	string			moodStr			= gWorldManager->getMood(moodId);
+	BString			moodStr			= gWorldManager->getMood(moodId);
 
 	ObjectList*		equippedObjects = creatureObject->getEquipManager()->getEquippedObjects();
 	ObjectIDList*	defenders		= creatureObject->getDefenders();
@@ -1733,7 +1733,7 @@ void MessageLib::sendAnimationString(CreatureObject* creatureObject)
 // update: mood
 //
 
-void MessageLib::sendMoodString(CreatureObject* creatureObject,string animation)
+void MessageLib::sendMoodString(CreatureObject* creatureObject,BString animation)
 {
 	mMessageFactory->StartMessage();
 	mMessageFactory->addUint32(opDeltasMessage);

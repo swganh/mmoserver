@@ -103,7 +103,7 @@ struct TypeListItem
 
 struct ListStringStruct
 {
-		string Name;
+		BString Name;
 		uint32 id;
 };
 
@@ -124,7 +124,7 @@ struct Query
 		uint32 ItemTyp;
 		int8   ItemTypQuery[64];
 
-		string searchstring;
+		BString searchstring;
 		uint32 unknown;
 		uint32 minprice;
 		uint32 maxprice;
@@ -256,10 +256,10 @@ public:
 	uint32				MyProxy;
 	uint32				crc;
 	uint32				time;
-	string				name;
-	string				mPlanet;
-	string				mRegion;
-	string				mOwner;
+	BString				name;
+	BString				mPlanet;
+	BString				mRegion;
+	BString				mOwner;
 
 	//trading
 	int32				amount1,amount2;//inv credits
@@ -277,8 +277,8 @@ public:
 	uint8				premium;
 	uint32				itemType;
 	uint32				price;
-	string				description;
-	string				tang;
+	BString				description;
+	BString				tang;
 };
 
 //======================================================================================================================
@@ -293,14 +293,14 @@ public:
 	~ListStringClass () {}
 
 	uint64 GetID(){return(ID);}
-	string GetString(){return(Name);}
+	BString GetString(){return(Name);}
 	uint32 GetStringID(){return(Stringid);}
 
-	void   InsertString(uint64 id,string name,uint32 stringid){ID = id;Name = name;Stringid = stringid;}
+	void   InsertString(uint64 id,BString name,uint32 stringid){ID = id;Name = name;Stringid = stringid;}
 
 private:
 		uint64			ID;
-		string			Name;
+		BString			Name;
 		uint32			Stringid;
 
 };
@@ -318,13 +318,13 @@ public:
 
 	// oh and delete the lists in the destructor.....!!!
 
-	void InsertName(string Des,uint32 num){Name = Des;nr = num;}
-	string GetName() {return(Name);}
+	void InsertName(BString Des,uint32 num){Name = Des;nr = num;}
+	BString GetName() {return(Name);}
 	uint32 GetNr() {return(nr);}
 	void SetNr(uint32 Nr) {nr = Nr;}
 
 	uint32			nr;
-	string			Name;
+	BString			Name;
 
 };
 
@@ -365,7 +365,7 @@ public:
 	uint32 GetPrice(){return(AuctionVar.Price);}
 	uint32 GetBid(){return(AuctionVar.HighBid);}
 	uint32 GetProxy(){return(AuctionVar.HighProxy);}
-	string GetHighBidder(){return(AuctionVar.bidder_name);}
+	BString GetHighBidder(){return(AuctionVar.bidder_name);}
 
 	AuctionItem		AuctionVar;
 	uint32			SellerListID;
@@ -426,8 +426,8 @@ public:
 	~CommoditiesItemClass (){};
 
 	void AddCommoditie(TypeListItem theCommoditie){Commoditie = theCommoditie;}
-	string GetName() {return(Commoditie.name);}
-	string GetDirectory() {return(Commoditie.directory);}
+	BString GetName() {return(Commoditie.name);}
+	BString GetDirectory() {return(Commoditie.directory);}
 	uint32 GetMask(){return(Commoditie.mask );}
 	uint32 GetCrc(){return(Commoditie.crc );}
 	TypeListItem GetCommoditie(){return Commoditie;}

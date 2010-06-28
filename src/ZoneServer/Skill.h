@@ -55,7 +55,7 @@ class Skill
 		~Skill();
 
 		uint32					mId;
-		string					mName;
+		BString					mName;
 		uint8					mGodOnly;
 		uint8					mIsSearchable;
 		uint8					mIsTitle;

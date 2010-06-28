@@ -195,10 +195,10 @@ public:
 	TangibleObject*		tangible;
 	uint32				crc;
 	uint32				time;
-	string				name;
-	string				mPlanet;
-	string				mRegion;
-	string				mOwner;
+	BString				name;
+	BString				mPlanet;
+	BString				mRegion;
+	BString				mOwner;
 
 	//trading
 	int32				amount1,amount2;//inv credits
@@ -217,8 +217,8 @@ public:
 	uint8				premium;
 	uint32				itemType;
 	uint32				price;
-	string				description;
-	string				tang;
+	BString				description;
+	BString				tang;
 };
 
 class Vendor

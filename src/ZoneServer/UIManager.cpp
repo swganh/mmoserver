@@ -167,7 +167,7 @@ void UIManager::createNewMessageBox(UICallback* callback,const int8* eventStr,co
 // create a listbox
 //
 
-void UIManager::createNewListBox(UICallback* callback,const int8* eventStr,string caption,BString prompt,const BStringVector dataItems,PlayerObject* playerObject,ui_window_types windowType,uint8 lbType, uint64 object, float distance, void* container)
+void UIManager::createNewListBox(UICallback* callback,const int8* eventStr,BString caption,BString prompt,const BStringVector dataItems,PlayerObject* playerObject,ui_window_types windowType,uint8 lbType, uint64 object, float distance, void* container)
 {
 	if((!distance)&&object)
 	{
@@ -222,7 +222,7 @@ void UIManager::createNewSkillSelectListBox(UICallback* callback,const int8* eve
 // create a ticket select list box(travel - by command)
 //
 
-void UIManager::createNewTicketSelectListBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* prompt,const BStringVector dataItems,PlayerObject* playerObject,string port,Shuttle* shuttle,uint8 lbType)
+void UIManager::createNewTicketSelectListBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* prompt,const BStringVector dataItems,PlayerObject* playerObject,BString port,Shuttle* shuttle,uint8 lbType)
 {
 	uint32 lbId = _getFreeId();
 

@@ -53,7 +53,7 @@ class CAAsyncContainer
 
 		QueryType		mQueryType;
 		DispatchClient*	mClient;
-		string			mObjBaseType;
+		BString			mObjBaseType;
 };
 
 //======================================================================================================================
@@ -63,17 +63,17 @@ class CharacterCreateInfo
 public:
   uint32        mAccountId;
   uint64        mCharacterId;
-  string        mFirstName;
-  string        mLastName;
-  string        mBaseModel;
-  string        mProfession;
-  string        mStartCity;
+  BString        mFirstName;
+  BString        mLastName;
+  BString        mBaseModel;
+  BString        mProfession;
+  BString        mStartCity;
   float         mScale;
-  string        mBiography;
+  BString        mBiography;
   uint16        mAppearance[0x255];
   uint16        mHairCustomization[0x71];
-  string        mHairModel;
-  string        mHairColor;
+  BString        mHairModel;
+  BString        mHairColor;
 };
 
 

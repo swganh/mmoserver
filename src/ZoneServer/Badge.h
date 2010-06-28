@@ -45,8 +45,8 @@ class Badge
 		uint32	getId(){ return mId; }
 		void	setId(uint32 id){ mId = id; }
 
-		string	getName(){ return mName; }
-		void	setName(const string name){ mName = name; }
+		BString	getName(){ return mName; }
+		void	setName(const BString name){ mName = name; }
 
 		uint32	getSoundId(){ return mSoundId; }
 		void	setSoundId(uint32 sound){ mSoundId = sound; }
@@ -57,7 +57,7 @@ class Badge
 	private:
 
 		uint32	mId;
-		string	mName;
+		BString	mName;
 		uint32	mSoundId;
 		uint8	mCategory;
 };

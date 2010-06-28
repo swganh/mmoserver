@@ -147,7 +147,7 @@ void Inventory::getUninsuredItems(SortedInventoryItemList* insuranceList)
 				if (object->hasAttribute("original_name"))
 				{
 					SortedInventoryItemList::iterator it = insuranceList->begin();
-					string itemName((int8*)object->getAttribute<std::string>("original_name").c_str());
+					BString itemName((int8*)object->getAttribute<std::string>("original_name").c_str());
 					for (uint32 index = 0; index < insuranceList->size(); index++)
 					{
 						if (Anh_Utils::cmpistr(itemName.getAnsi(), (*it).first.getAnsi()) < 0)
@@ -185,7 +185,7 @@ void Inventory::getUninsuredItems(SortedInventoryItemList* insuranceList)
 				if (object->hasAttribute("original_name"))
 				{
 					SortedInventoryItemList::iterator it = insuranceList->begin();
-					string itemName((int8*)object->getAttribute<std::string>("original_name").c_str());
+					BString itemName((int8*)object->getAttribute<std::string>("original_name").c_str());
 					for (uint32 index = 0; index < insuranceList->size(); index++)
 					{
 						if (Anh_Utils::cmpistr(itemName.getAnsi(), (*it).first.getAnsi()) < 0)
@@ -232,7 +232,7 @@ void Inventory::getInsuredItems(SortedInventoryItemList* insuranceList)
 				if (object->hasAttribute("original_name"))
 				{
 					SortedInventoryItemList::iterator it = insuranceList->begin();
-					string itemName((int8*)object->getAttribute<std::string>("original_name").c_str());
+					BString itemName((int8*)object->getAttribute<std::string>("original_name").c_str());
 					for (uint32 index = 0; index < insuranceList->size(); index++)
 					{
 						if (Anh_Utils::cmpistr(itemName.getAnsi(), (*it).first.getAnsi()) < 0)
@@ -269,7 +269,7 @@ void Inventory::getInsuredItems(SortedInventoryItemList* insuranceList)
 				if (object->hasAttribute("original_name"))
 				{
 					SortedInventoryItemList::iterator it = insuranceList->begin();
-					string itemName((int8*)object->getAttribute<std::string>("original_name").c_str());
+					BString itemName((int8*)object->getAttribute<std::string>("original_name").c_str());
 					for (uint32 index = 0; index < insuranceList->size(); index++)
 					{
 						if (Anh_Utils::cmpistr(itemName.getAnsi(), (*it).first.getAnsi()) < 0)

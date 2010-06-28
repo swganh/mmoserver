@@ -44,32 +44,32 @@ class ResourceType
 
 		uint32	getId(){ return mId; }
 		void	setId(uint32 id){ mId = id; }
-		string	getName(){ return mName; }
-		void	setName(const string name){ mName = name; }
-		string	getDescriptor(){ return mDescriptor; }
-		void	setDescriptor(const string desc){ mDescriptor = desc; }
+		BString	getName(){ return mName; }
+		void	setName(const BString name){ mName = name; }
+		BString	getDescriptor(){ return mDescriptor; }
+		void	setDescriptor(const BString desc){ mDescriptor = desc; }
 		uint16	getCategoryId(){ return mCatId; }
 		void	setCategoryId(uint16 cat){ mCatId = cat; }
-		string	getModel(){ return mModel; }
-		void	setModel(const string model){ mModel = model; }
-		string	getContainerModel();
-		string	getTypeName(){ return mTypeName; }
-		void	setTypeName(const string name){ mTypeName = name; }
+		BString	getModel(){ return mModel; }
+		void	setModel(const BString model){ mModel = model; }
+		BString	getContainerModel();
+		BString	getTypeName(){ return mTypeName; }
+		void	setTypeName(const BString name){ mTypeName = name; }
 		uint32	getCategoryBazaar(){ return mCategoryBazaar; }
 		void	setCategoryBazaar(uint32 cat) { mCategoryBazaar = cat; }
-		string	getResourceType() { return mResourceType; }
-		void	setResourceType(const string type) { mResourceType = type; }
+		BString	getResourceType() { return mResourceType; }
+		void	setResourceType(const BString type) { mResourceType = type; }
 
 	private:
 
 		uint32	mId;
-		string	mName;
-		string	mTypeName;
-		string	mDescriptor;
-		string	mModel;
+		BString	mName;
+		BString	mTypeName;
+		BString	mDescriptor;
+		BString	mModel;
 		uint16	mCatId;
 		uint32  mCategoryBazaar;
-		string	mResourceType;
+		BString	mResourceType;
 };
 
 //=============================================================================

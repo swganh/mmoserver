@@ -142,21 +142,28 @@ void handleExit(void)
 //======================================================================================================================
 int main(int argc, char* argv[])
 {
-	// In release mode, catch any unhandled exceptions that may cause the program to crash and create a dump report.
-#if !defined(_DEBUG)
-	SetUnhandledExceptionFilter(CreateMiniDump);
-#endif
+    try {
+	    ConfigManager::Init("LoginServer.cfg");
+    } catch (file_not_found) {
+        std::cout << "Unable to find configuration file: " << CONFIG_DIR << "LoginServer.cfg" << std::endl;
+        exit(-1);
+    }
+
+    try {
+	    LogManager::Init(
+            static_cast<LogManager::LOG_PRIORITY>(gConfig->read<int>("ConsoleLog_MinPriority", 6)),
+            static_cast<LogManager::LOG_PRIORITY>(gConfig->read<int>("FileLog_MinPriority", 6)),
+            gConfig->read<std::string>("FileLog_Name", "login_server.log"));
+    } catch (...) {
+        std::cout << "Unable to open log file for writing" << std::endl;
+        exit(-1);
+    }
+
+	//set stdout buffers to 0 to force instant flush
+	setvbuf( stdout, NULL, _IONBF, 0);
 
   bool exit = false;
 
-  LogManager::Init();
-  gLogger->setupConsoleLogging((LogManager::LOG_PRIORITY)1); //Fake for any Errors we encounter inside ConfigManager
-
-  // init out configmanager singleton (access configvariables with gConfig Macro,like: gConfig->readInto(test,"test");)
-  ConfigManager::Init("LoginServer.cfg");
-
-  gLogger->setupConsoleLogging((LogManager::LOG_PRIORITY)gConfig->read<int>("ConsoleLog_MinPriority"));
-  gLogger->setupFileLogging((LogManager::LOG_PRIORITY)gConfig->read<int>("FileLog_MinPriority"), gConfig->read<std::string>("FileLog_Name"));
   //We cannot startup Database Logging until we startup the Database.
 
   gLoginServer = new LoginServer();

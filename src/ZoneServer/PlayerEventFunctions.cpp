@@ -100,21 +100,20 @@ void PlayerObject::onSurvey(const SurveyEvent* event)
 			if(waypoint)
 			{
 				gMessageLib->sendUpdateWaypoint(waypoint,ObjectUpdateDelete,this);
-
-				datapad->removeWaypoint(waypoint);
-
-				gObjectFactory->deleteObjectFromDB(waypoint);
+				datapad->updateWaypoint(waypoint->getId(), waypoint->getName(), glm::vec3(highestDist.position.x,0.0f,highestDist.position.z),
+										static_cast<uint16>(gWorldManager->getZoneId()), this->getId(), WAYPOINT_ACTIVE);
 			}
-
-			// create a new one
-			if(datapad->getCapacity())
+			else
 			{
-				gMessageLib->sendSysMsg(this,"survey","survey_waypoint");
-				//gMessageLib->sendSystemMessage(this,L"","survey","survey_waypoint");
+				// create a new one
+				if(datapad->getCapacity())
+				{
+					gMessageLib->sendSysMsg(this,"survey","survey_waypoint");
+					//gMessageLib->sendSystemMessage(this,L"","survey","survey_waypoint");
+				}
+				//the datapad automatically checks if there is room and gives the relevant error message
+				datapad->requestNewWaypoint("Resource Survey", glm::vec3(highestDist.position.x,0.0f,highestDist.position.z),static_cast<uint16>(gWorldManager->getZoneId()),Waypoint_blue);
 			}
-			//the datapad automatically checks if there is room and gives the relevant error message
-            datapad->requestNewWaypoint("Resource Survey", glm::vec3(highestDist.position.x,0.0f,highestDist.position.z),static_cast<uint16>(gWorldManager->getZoneId()),Waypoint_blue);
-						
 
 			gMissionManager->checkSurveyMission(this,resource,highestDist);
 		}
@@ -644,8 +643,8 @@ void PlayerObject::onItemDeleteEvent(const ItemDeleteEvent* event)
 		return;
 	}
 	
-	Inventory* inventory = dynamic_cast<Inventory*>(this->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-	inventory->deleteObject(item);
+	TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(item->getParentId()));
+	tO->deleteObject(item);
 		
 }
 

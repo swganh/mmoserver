@@ -1224,7 +1224,11 @@ void CharacterBuilderTerminal::_handleResourcesCRC(PlayerObject* playerObject, u
 		{
 			return;
 		}
-
+		//The following won't actually work, need to do something else. Notice the difference in int32 above and uint32 below.
+		//if(!resourceIdList[element]){//not sure if this will catch the case or not, worth a shot. Crash bug patch: http://paste.swganh.org/viewp.php?id=20100626223514-c5382a0920ce58ada331f5d3b6828c66
+		//	gLogger->log(LogManager::WARNING,"CharacterBuilderTerminal::_handleResourcesCRC could not locate resource in list for element index:%I32u",element);
+		//	return;
+		//}
 		uint32		crc			= static_cast<uint32>(resourceIdList[element]);
 		Resource*	resource	= gResourceManager->getResourceByNameCRC(crc);
 
@@ -1312,22 +1316,22 @@ void CharacterBuilderTerminal::_handleWoundMenu(PlayerObject* playerObject, uint
 		playerObject->getHam()->updateBattleFatigue(100);
 		break;
 	case 10: //Health Wound
-		playerObject->getHam()->updatePropertyValue(HamBar_Health, HamProperty_Wounds, 100);
+		playerObject->getHam()->updatePropertyValue(HamBar_Health, HamProperty_Wounds, -100);
 		break;
 	case 11: //Strength Wound
-		playerObject->getHam()->updatePropertyValue(HamBar_Strength, HamProperty_Wounds, 100);
+		playerObject->getHam()->updatePropertyValue(HamBar_Strength, HamProperty_Wounds, -100);
 		break;
 	case 12: //Constitution Wound
-		playerObject->getHam()->updatePropertyValue(HamBar_Constitution, HamProperty_Wounds, 100);
+		playerObject->getHam()->updatePropertyValue(HamBar_Constitution, HamProperty_Wounds, -100);
 		break;
 	case 13: //Action Wound
-		playerObject->getHam()->updatePropertyValue(HamBar_Action, HamProperty_Wounds, 100);
+		playerObject->getHam()->updatePropertyValue(HamBar_Action, HamProperty_Wounds, -100);
 		break;
 	case 14: //Stamina Wound
-		playerObject->getHam()->updatePropertyValue(HamBar_Stamina, HamProperty_Wounds, 100);
+		playerObject->getHam()->updatePropertyValue(HamBar_Stamina, HamProperty_Wounds, -100);
 		break;
 	case 15: //Quickness Wound
-		playerObject->getHam()->updatePropertyValue(HamBar_Quickness, HamProperty_Wounds, 100);
+		playerObject->getHam()->updatePropertyValue(HamBar_Quickness, HamProperty_Wounds, -100);
 		break;
 	case 16: //Mind Wound
 		playerObject->getHam()->updatePropertyValue(HamBar_Mind, HamProperty_Wounds, -100);

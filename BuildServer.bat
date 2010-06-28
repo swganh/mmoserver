@@ -91,7 +91,7 @@ rem ----------------------------------------------------------------------------
 rem --- Start of SET_DEFAULTS --------------------------------------------------
 :SET_DEFAULTS
 
-set DEPENDENCIES_VERSION=0.1.2
+set DEPENDENCIES_VERSION=0.2.0
 set DEPENDENCIES_FILE=mmoserver-deps-%DEPENDENCIES_VERSION%.7z
 set DEPENDENCIES_URL=http://github.com/downloads/swganh/mmoserver/%DEPENDENCIES_FILE%
 set "PROJECT_BASE=%~dp0"
@@ -334,6 +334,7 @@ if exist "deps\boost" call :BUILD_BOOST
 if exist "deps\gtest" call :BUILD_GTEST
 if exist "deps\gmock" call :BUILD_GMOCK
 if exist "deps\lua" call :BUILD_LUA
+if exist "deps\mysql++" call :BUILD_MYSQLPP
 if exist "deps\noise" call :BUILD_NOISE
 if exist "deps\spatialindex" call :BUILD_SPATIALINDEX
 if exist "deps\tolua++" call :BUILD_TOLUA
@@ -416,15 +417,15 @@ if not exist "tools\jam\src\bin.ntx86\bjam.exe" (
 rem Build the boost libraries we need.
 
 if "%BUILD_TYPE%" == "debug" (
-	cmd /c "tools\jam\src\bin.ntx86\bjam.exe" --toolset=msvc-%MSVC_VERSION%.0 --with-log --with-date_time --with-thread --with-regex --with-system variant=debug link=static runtime-link=static threading=multi >NUL
+	cmd /c "tools\jam\src\bin.ntx86\bjam.exe" --toolset=msvc-%MSVC_VERSION%.0 --with-date_time --with-thread --with-regex --with-system variant=debug link=static runtime-link=shared threading=multi define=_SCL_SECURE_NO_WARNINGS=0 >NUL
 )
 
 if "%BUILD_TYPE%" == "release" (
-	cmd /c "tools\jam\src\bin.ntx86\bjam.exe" --toolset=msvc-%MSVC_VERSION%.0 --with-log --with-date_time --with-thread --with-regex --with-system variant=release link=static runtime-link=static threading=multi >NUL
+	cmd /c "tools\jam\src\bin.ntx86\bjam.exe" --toolset=msvc-%MSVC_VERSION%.0 --with-date_time --with-thread --with-regex --with-system variant=release link=static runtime-link=shared threading=multi define=_SCL_SECURE_NO_WARNINGS=0 >NUL
 )
 
 if "%BUILD_TYPE%" == "all" (
-	cmd /c "tools\jam\src\bin.ntx86\bjam.exe" --toolset=msvc-%MSVC_VERSION%.0 --with-log --with-date_time --with-thread --with-regex --with-system variant=debug,release link=static runtime-link=static threading=multi >NUL
+	cmd /c "tools\jam\src\bin.ntx86\bjam.exe" --toolset=msvc-%MSVC_VERSION%.0 --with-date_time --with-thread --with-regex --with-system variant=debug,release link=static runtime-link=shared threading=multi define=_SCL_SECURE_NO_WARNINGS=0 >NUL
 )
 
 cd "%PROJECT_BASE%"
@@ -445,7 +446,7 @@ cd "%PROJECT_BASE%deps\gtest\msvc"
 
 rem Only build gtest if it hasn't been built already.
 if "%BUILD_TYPE%" == "debug" (
-	if exist "debug\gtestd.lib" (
+	if exist "debug\gtest.lib" (
 		echo Google Test library already built ... skipping
 		echo.
 		cd "%PROJECT_BASE%"
@@ -462,7 +463,7 @@ if "%BUILD_TYPE%" == "release" (
 )
 
 if "%BUILD_TYPE%" == "all" (
-	if exist "debug\gtestd.lib" (
+	if exist "debug\gtest.lib" (
 		if exist "release\gtest.lib" (
 			echo Google Test library already built ... skipping
 			echo.
@@ -475,20 +476,20 @@ if "%BUILD_TYPE%" == "all" (
 if exist "*.cache" del /S /Q "*.cache" >NUL
 
 if "%BUILD_TYPE%" == "debug" (
-	"%MSBUILD%" "gtest_vc%MSVC_VERSION%.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
+	"%MSBUILD%" "gtest.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
 	if exist "*.cache" del /S /Q "*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "release" (
-	"%MSBUILD%" "gtest_vc%MSVC_VERSION%.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
+	"%MSBUILD%" "gtest.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
 	if exist "*.cache" del /S /Q "*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "all" (
-	"%MSBUILD%" "gtest_vc%MSVC_VERSION%.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
+	"%MSBUILD%" "gtest.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
 	if exist "*.cache" del /S /Q "*.cache" >NUL
 
-	"%MSBUILD%" "gtest_vc%MSVC_VERSION%.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
+	"%MSBUILD%" "gtest.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
 	if exist "*.cache" del /S /Q "*.cache" >NUL
 )
 
@@ -540,20 +541,20 @@ if "%BUILD_TYPE%" == "all" (
 if exist "%PROJECT_BASE%deps\gmock\msvc\*.cache" del /S /Q "%PROJECT_BASE%deps\gmock\msvc\*.cache" >NUL
 
 if "%BUILD_TYPE%" == "debug" (
-	"%MSBUILD%" "gmock_vc%MSVC_VERSION%.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
+	"%MSBUILD%" "gmock.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
 	if exist "*.cache" del /S /Q "*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "release" (
-	"%MSBUILD%" "gmock_vc%MSVC_VERSION%.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
+	"%MSBUILD%" "gmock.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
 	if exist "*.cache" del /S /Q "*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "all" (
-	"%MSBUILD%" "gmock_vc%MSVC_VERSION%.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
+	"%MSBUILD%" "gmock.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
 	if exist "*.cache" del /S /Q "*.cache" >NUL
 
-	"%MSBUILD%" "gmock_vc%MSVC_VERSION%.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
+	"%MSBUILD%" "gmock.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
 	if exist "*.cache" del /S /Q "*.cache" >NUL
 )
 
@@ -631,17 +632,17 @@ rem --- Compiles the lua library.                                            ---
 :COMPILE_LUA
 
 if "%1" == "debug" (
-	set buildcmd=cl /nologo /MTd /O2 /W3 /c /D_CRT_SECURE_NO_DEPRECATE
+	set buildcmd=cl /nologo /MDd /O2 /W3 /c /D_CRT_SECURE_NO_DEPRECATE
 	set libname=lua5.1d.lib
 )
 
 if "%1" == "release" (
-	set buildcmd=cl /nologo /MT /O2 /W3 /c /D_CRT_SECURE_NO_DEPRECATE
+	set buildcmd=cl /nologo /MD /O2 /W3 /c /D_CRT_SECURE_NO_DEPRECATE
 	set libname=lua5.1.lib
 )
 
 if "%buildcmd%" == "" (
-	set buildcmd=cl /nologo /MTd /O2 /W3 /c /D_CRT_SECURE_NO_DEPRECATE
+	set buildcmd=cl /nologo /MDd /O2 /W3 /c /D_CRT_SECURE_NO_DEPRECATE
 	set libname=lua5.1d.lib
 )
 
@@ -664,6 +665,75 @@ cd ..
 
 goto :eof
 rem --- End of COMPILE_LUA -----------------------------------------------------
+rem ----------------------------------------------------------------------------
+
+
+
+rem ----------------------------------------------------------------------------
+rem --- Start of BUILD_MYSQLPP -------------------------------------------------
+rem --- Builds the mysql c++ library for use with this project.              ---
+:BUILD_MYSQLPP
+
+echo BUILDING: Mysql++ - http://tangentsoft.net/mysql++/
+
+cd "%PROJECT_BASE%deps\mysql++\vc2010"
+
+rem Only build mysql++ if it hasn't been built already.
+if "%BUILD_TYPE%" == "debug" (
+	if exist "Debug\mysqlpp_d.lib" (
+		echo Mysql++ already built ... skipping
+		echo.
+		cd "%PROJECT_BASE%"
+		goto :eof
+	)
+)
+if "%BUILD_TYPE%" == "release" (
+	if exist "Release\mysqlpp.lib" (
+		echo Mysql++ already built ... skipping
+		echo.
+		cd "%PROJECT_BASE%"
+		goto :eof
+	)
+)
+if "%BUILD_TYPE%" == "all" (
+	if exist "Debug\mysqlpp_d.lib" (
+		if exist "Release\mysqlpp.lib" (
+			echo Mysql++ already built ... skipping
+			echo.
+			cd "%PROJECT_BASE%"
+			goto :eof
+		)
+	)
+)
+
+rem Build the mysql++ library we need.
+
+rem VS likes to create these .cache files and then complain about them existing afterwards.
+rem Removing it as it's not needed.
+if exist "*.cache" del /S /Q "*.cache" >NUL
+
+if "%BUILD_TYPE%" == "debug" (
+	"%MSBUILD%" "mysql++.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
+	if exist "*.cache" del /S /Q "*.cache" >NUL
+)
+
+if "%BUILD_TYPE%" == "release" (
+	"%MSBUILD%" "mysql++.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
+	if exist "*.cache" del /S /Q "*.cache" >NUL
+)
+
+if "%BUILD_TYPE%" == "all" (
+	"%MSBUILD%" "mysql++.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
+	if exist "*.cache" del /S /Q "*.cache" >NUL
+
+	"%MSBUILD%" "mysql++.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
+	if exist "*.cache" del /S /Q "*.cache" >NUL
+)
+
+cd "%PROJECT_BASE%"
+
+goto :eof
+rem --- End of BUILD_MYSQLPP ---------------------------------------------------
 rem ----------------------------------------------------------------------------
 
 

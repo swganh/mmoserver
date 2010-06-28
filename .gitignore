@@ -15,3 +15,4 @@ ipch/
 *.opensdf
 *.lnk
 .DS_Store
+mmoserverdb

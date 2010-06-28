@@ -453,12 +453,13 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 bool ObjectController::checkContainingContainer(uint64 containingContainer, uint64 playerId)
 {
 	ObjectContainer* container = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(containingContainer));
+	PlayerObject*	 playerObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId));
 	
 	if(!container)
 	{
 		//it might be our inventory or the inventory of a creature were looting
 		//PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId));
-		if(containingContainer == (playerId+1))
+		if(containingContainer == (playerId+INVENTORY_OFFSET))
 		{
 			//its our inventory ... - return true
 			return true;
@@ -494,6 +495,7 @@ bool ObjectController::checkContainingContainer(uint64 containingContainer, uint
 		{
 			return true;
 		}
+		gMessageLib->sendSystemMessage(playerObject, L"", "player_structure", "not_admin");
 		return false;
 	}
 
@@ -514,6 +516,8 @@ bool ObjectController::checkContainingContainer(uint64 containingContainer, uint
 					}
 				}
 			}
+			else
+				gMessageLib->sendSystemMessage(playerObject, L"", "player_structure", "not_admin");
 		}
 		return false;
 	}
@@ -1480,16 +1484,24 @@ void ObjectController::handleObjectMenuRequest(Message* message)
     //just implement this virtual function for items as we need just one central point instead
 	//of the same code over and over for all items
 
+	CellObject* itemCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(requestedObject->getParentId()));
+
 	Item* item = dynamic_cast<Item*>(requestedObject);
-	ResourceContainer* rc = dynamic_cast<ResourceContainer*>(requestedObject);
-	if(item && requestedObject->getParentId())
+	ResourceContainer* rC = dynamic_cast<ResourceContainer*>(requestedObject);
+	TangibleObject* tO = dynamic_cast<TangibleObject*>(requestedObject);
+
+	//only display that menu when *we* and the item are in the same structure
+	if((rC || item) && itemCell && (!tO->getStatic()))
 	{
-		if(CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(requestedObject->getParentId())))
+		CellObject* playerCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(playerObject->getParentId()));
+		if(playerCell && (playerCell->getParentId() == itemCell->getParentId()))
 		{
-			requestedObject->prepareCustomRadialMenuInCell(playerObject,static_cast<uint8>(itemCount));
+			PlayerStructure* pS = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(playerCell->getParentId()));
+			if(pS)
+				requestedObject->prepareCustomRadialMenuInCell(playerObject,static_cast<uint8>(itemCount));
 		}
 	}
-
+	/*
 	if(rc && requestedObject->getParentId())
 	{
 		if(CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(requestedObject->getParentId())))
@@ -1497,7 +1509,7 @@ void ObjectController::handleObjectMenuRequest(Message* message)
 			requestedObject->prepareCustomRadialMenuInCell(playerObject,static_cast<uint8>(itemCount));
 		}
 	}
-
+	*/
 	//delete the radials after every use or provide every object with set rules when to delete it ?
 
 	if(!requestedObject->getRadialMenu())
@@ -1622,6 +1634,14 @@ void ObjectController::_handleClientLogout(uint64 targetId,Message* message,Obje
 	PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
 	// gLogger->hexDump(message->getData(),message->getSize());
 	
+	//make sure we cannot use the /logout multiple times
+	//as this will invalidate our disconnect lists
+	if(player->checkPlayerCustomFlag(PlayerCustomFlag_LogOut))
+	{
+		
+		return;
+	}
+
 	player->togglePlayerCustomFlagOn(PlayerCustomFlag_LogOut);	
 
 	//// we need to kneel

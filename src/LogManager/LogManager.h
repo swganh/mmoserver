@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils\typedefs.h"
 
 #include <boost/thread/thread.hpp>
+#include <iosfwd>
 #include <string>
 #include <queue>
 #include <memory>
@@ -46,19 +47,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 class LOG_ENTRY;
 class Database;
 
-#ifndef _FILE_DEFINED
-struct FILE;
-#endif
-
 #define gLogger LogManager::getSingleton()
 
 class LogManager
 {
 public:
-	static LogManager*	getSingleton() { return mSingleton;}
-	static void			Init() { mSingleton = new LogManager();}
-
-	enum LOG_PRIORITY 
+    
+    enum LOG_PRIORITY 
 	{
 		EMERGENCY		= 1,
 		ALERT			= 2,
@@ -70,8 +65,8 @@ public:
 		DEBUG			= 8
 	};
 
-	bool setupConsoleLogging(LOG_PRIORITY min_priority);
-	bool setupFileLogging(LOG_PRIORITY min_priority, std::string filename);
+	static LogManager*	getSingleton() { return mSingleton;}
+	static void			Init(LOG_PRIORITY console_priority, LOG_PRIORITY file_priority, std::string filename) { mSingleton = new LogManager(console_priority, file_priority, filename);}
 	
 	void log(LOG_PRIORITY priority, std::string format, ...);
 	void logCont(LOG_PRIORITY priority, std::string format, ...);
@@ -82,9 +77,10 @@ public:
 	static LogManager* mSingleton;
 
 private:
-	LogManager();
+	LogManager(LOG_PRIORITY console_priority, LOG_PRIORITY file_priority, std::string filename);
 	LogManager(const LogManager&);
 	LogManager& operator=(const LogManager&);
+    ~LogManager();
 
 	void _printLogo();
 	void _LoggerThread();
@@ -95,7 +91,9 @@ private:
 
 
 	uint8						mMinPriorities[3];
-	FILE*						mOutputFile;
+	std::string					mFileName;
+
+	std::unique_ptr<std::ofstream> mOutputFile;
 };
 
 #endif

@@ -285,6 +285,11 @@ void GroupManager::_processIsmIsGroupLeaderRequest(Message* message, DispatchCli
 
 	GroupObject* group = this->getGroupById(groupId);
 
+	if(!group)
+	{
+		gLogger->log(LogManager::DEBUG,"GroupManager::_processIsmIsGroupLeaderRequest: Couldnt find group with id %I64u; player %I64u",groupId,playerId);
+	}
+
 	gChatMessageLib->sendIsmIsGroupLeaderResponse(group->getLeader(), requestId, (group->getLeader()->getCharId() == playerId));
 }
 
@@ -305,7 +310,7 @@ void GroupManager::_processGroupInviteRequest(Message* message, DispatchClient* 
 	// If they are not on the same planet, they are obviously not in-range.
 	if(player->getPlanetId() != targetPlayer->getPlanetId())
 	{
-		gChatMessageLib->sendSystemMessage(player, L"@group:out_of_range_suffix");
+		gChatMessageLib->sendSystemMessage(player, L"@error_message:error_invite_range");
 		return;
 	}
 

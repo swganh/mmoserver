@@ -62,7 +62,7 @@ typedef std::function<void (ObjectController*, uint64, Message*, ObjectControlle
 typedef std::map<uint32,OriginalObjectControllerHandler> OriginalCommandMap;
 
 // New style ObjectController handlers accept an Object* as the first arguement.
-typedef std::function<void (Object* object, Object* target, Message*, ObjectControllerCmdProperties*)> ObjectControllerHandler;
+typedef std::function<bool (Object* object, Object* target, Message*, ObjectControllerCmdProperties*)> ObjectControllerHandler;
 typedef std::map<uint32,ObjectControllerHandler> CommandMap;
 
 typedef std::map<uint32_t,ObjectControllerCmdProperties*>	CmdPropertyMap;

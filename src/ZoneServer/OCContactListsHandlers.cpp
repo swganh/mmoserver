@@ -550,7 +550,6 @@ void ObjectController::_handlefindfriend(uint64 targetId,Message* message,Object
 {
 	PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
 	string			friendName;
-	int8			sql[1024],end[16],*sqlPointer;
 
 	message->getStringUnicode16(friendName);
 
@@ -571,33 +570,6 @@ void ObjectController::_handlefindfriend(uint64 targetId,Message* message,Object
 		playerObject->getClient()->SendChannelA(message,playerObject->getAccountId(),CR_Chat,2);
 		
 	}
-	return;
-
-
-	string unicodeName = friendName;
-	friendName.convert(BSTRType_ANSI);
-
-
-	// check if he's our friend
-	if(!playerObject->checkFriendList(friendName.getCrc()))
-	{
-		gMessageLib->sendSystemMessage(playerObject,L"","cmnty","friend_not_found","","",L"",0,"","",unicodeName.getUnicode16());
-		return;
-	}
-
-	
-	// pull the db query
-	ObjControllerAsyncContainer* asyncContainer = new(mDBAsyncContainerPool.malloc()) ObjControllerAsyncContainer(OCQuery_FindFriend);
-	asyncContainer->mString = friendName.getAnsi();
-
-	sprintf(sql,"SELECT id from swganh.characters where firstname like '");
-	sprintf(end,"'");
-	sqlPointer = sql + strlen(sql);
-	sqlPointer += mDatabase->Escape_String(sqlPointer,friendName.getAnsi(),friendName.getLength());
-	strcat(sql,end);
-
-	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
-
 	
 }
 

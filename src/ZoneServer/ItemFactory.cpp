@@ -440,10 +440,11 @@ void ItemFactory::handleObjectReady(Object* object,DispatchClient* client)
 	
 	InLoadingContainer* ilc	= _getObject(object->getParentId());
 	
-	assert(ilc && "ItemFactory::handleObjectReady unable to find InLoadingContainer");
 	if (! ilc) {
+		gLogger->log(LogManager::WARNING,"ItemFactory::handleObjectReady could not locate ILC for objectParentId:%I64u",object->getParentId());
 		return;
 	}
+	assert(ilc && "ItemFactory::handleObjectReady unable to find InLoadingContainer");
 
 	Item*		item	= dynamic_cast<Item*>(ilc->mObject);
 	// we can get factory crates, resource containers and other items at this point

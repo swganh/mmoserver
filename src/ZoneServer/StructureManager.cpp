@@ -493,6 +493,10 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 		if(structure->getTTS()->todo == ttE_Delete)
 		{
 			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById( structure->getTTS()->playerId ));
+			if(!player){//Crash bug patch: http://paste.swganh.org/viewp.php?id=20100627004133-026ea7b07136cfad7a5463216da5ab96
+				gLogger->log(LogManager::WARNING,"StructureManager::_handleStructureObjectTimers could not find the player with ID:%u.",structure->getTTS()->playerId);
+				return false;
+			}
 			if(structure->canRedeed())
 			{	
 				Inventory* inventory	= dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
@@ -502,10 +506,20 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 					it = objectList->erase(it);
 					continue;
 				}
-
+				//if its a playerstructure boot all players and pets inside
+				HouseObject* house = dynamic_cast<HouseObject*>(structure);
+				if(house)
+				{
+					if (house->getCellContentCount() > 0)
+					{
+						gMessageLib->sendSysMsg(player, "player_structure", "clear_building_for_delete");
+						return false;
+					}
+				}
 				gMessageLib->sendSystemMessage(player,L"","player_structure","deed_reclaimed");
 
 				//update the deeds attributes and set the new owner id (owners inventory = characterid +1)
+				//enum INVENTORY_OFFSET
 				StructureManagerAsyncContainer* asyncContainer;
 				asyncContainer = new StructureManagerAsyncContainer(Structure_UpdateStructureDeed, 0);
 				asyncContainer->mPlayerId		= structure->getOwner();
@@ -523,6 +537,11 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 				HouseObject* house = dynamic_cast<HouseObject*>(structure);
 				if(house)
 				{
+					if (house->getCellContentCount() > 0)
+					{
+						gMessageLib->sendSysMsg(player, "player_structure", "clear_building_for_delete");
+						return false;
+					}
 					house->prepareDestruction();
 				}
 

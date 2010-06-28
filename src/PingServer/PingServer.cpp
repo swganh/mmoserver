@@ -130,13 +130,25 @@ void PingServer::HandleSend(const boost::system::error_code& error, size_t bytes
 
 int main(int argc, char* argv[])
 {
-	LogManager::Init();
-	gLogger->setupConsoleLogging((LogManager::LOG_PRIORITY)1);
+	//set stdout buffers to 0 to force instant flush
+	setvbuf( stdout, NULL, _IONBF, 0);
 
-	ConfigManager::Init("PingServer.cfg");
+    try {
+	    ConfigManager::Init("PingServer.cfg");
+    } catch (file_not_found) {
+        std::cout << "Unable to find configuration file: " << CONFIG_DIR << "PingServer.cfg" << std::endl;
+        exit(-1);
+    }
 
-	gLogger->setupConsoleLogging((LogManager::LOG_PRIORITY)gConfig->read<int>("ConsoleLog_MinPriority"));
-	gLogger->setupFileLogging((LogManager::LOG_PRIORITY)gConfig->read<int>("FileLog_MinPriority"), gConfig->read<std::string>("FileLog_Name"));
+    try {
+	    LogManager::Init(
+            static_cast<LogManager::LOG_PRIORITY>(gConfig->read<int>("ConsoleLog_MinPriority", 6)),
+            static_cast<LogManager::LOG_PRIORITY>(gConfig->read<int>("FileLog_MinPriority", 6)),
+            gConfig->read<std::string>("FileLog_Name", "ping_server.log"));
+    } catch (...) {
+        std::cout << "Unable to open log file for writing" << std::endl;
+        exit(-1);
+    }
 	
 	gLogger->log(LogManager::INFORMATION, "PingServer - Build %s", ConfigManager::getBuildString().c_str());
 

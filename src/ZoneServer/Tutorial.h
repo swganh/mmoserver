@@ -130,6 +130,8 @@ class Tutorial : public DatabaseCallback
 		uint32				getQuestWeaponType(void);
 		void				sendStartingLocationList(void);
 		void				warpToStartingLocation(string startingLocation);
+
+		void				sendStartingMails(void);
 		
 	private:
 		void				tutorialResponseReset(string tutorialEventString);

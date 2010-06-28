@@ -175,14 +175,20 @@ void BuffManager::LoadBuffsFromResult(buffAsyncContainer* asyncContainer, Databa
 	for(uint64 i = 0;i < rowCount;i++)
 	{
 		result->GetNextRow(buffBinding,tmp);
-		Buff* buffTemp = Buff::FromDB(tmp, envelope->currentTime);
-		if(buffTemp->GetRemainingTime(envelope->currentTime) >0) //Check there is time left
+		
+		//Check player hasn't been logged out for more than 10mins
+		if((envelope->currentTime - tmp->mPausedGlobalTick) < 600000)
 		{
-			buffTemp->setTarget(player);
-			player->AddBuff(buffTemp);
-			player->IncBuffAsyncCount();
-		} else {
-			SAFE_DELETE(buffTemp);
+			Buff* buffTemp = Buff::FromDB(tmp, envelope->currentTime);
+			//Check there is time left
+			if(buffTemp->GetRemainingTime(envelope->currentTime) >0) 
+			{
+				buffTemp->setTarget(player);
+				player->AddBuff(buffTemp);
+				player->IncBuffAsyncCount();
+			} else {
+				SAFE_DELETE(buffTemp);
+			}
 		}
 	}
 	SAFE_DELETE(tmp);
@@ -214,7 +220,7 @@ void BuffManager::LoadBuffAttributesFromResult(buffAsyncContainer* asyncContaine
 {
 
 	DataBinding*	buffBinding = mDatabase->CreateDataBinding(4);
-	buffBinding->addField(DFT_int32,offsetof(BuffAttributeDBItem,mType),4,0);
+	buffBinding->addField(DFT_uint64,offsetof(BuffAttributeDBItem,mType),8,0);
 	buffBinding->addField(DFT_int32,offsetof(BuffAttributeDBItem,mInitialValue),4,1);
 	buffBinding->addField(DFT_int32,offsetof(BuffAttributeDBItem,mTickValue),4,2);
 	buffBinding->addField(DFT_int32,offsetof(BuffAttributeDBItem,mFinalValue),4,3);
@@ -426,7 +432,7 @@ bool BuffManager::AddBuffToDB(WMAsyncContainer* asyncContainer,DatabaseCallback*
 
 			sprintf(sql2+strlen(sql2), "(%"PRIu64",", buff->GetID());
 			sprintf(sql2+strlen(sql2), "%"PRIu64",", player->getId());
-			sprintf(sql2+strlen(sql2), "%d,", (int32)batemp->GetType());
+			sprintf(sql2+strlen(sql2), "%"PRIu64",", batemp->GetType());
 			sprintf(sql2+strlen(sql2), "%d,", batemp->GetInitialValue());
 			sprintf(sql2+strlen(sql2), "%d,", batemp->GetTickValue());
 			
@@ -530,7 +536,7 @@ void BuffManager::AddBuffToDB(Buff* buff, uint64 currenttime)
 
 			sprintf(sql2+strlen(sql2), "(%"PRIu64",", buff->GetID());
 			sprintf(sql2+strlen(sql2), "%"PRIu64",", Player->getId());
-			sprintf(sql2+strlen(sql2), "%d,", (int32)batemp->GetType());
+			sprintf(sql2+strlen(sql2), "%"PRIu64",", batemp->GetType());
 			sprintf(sql2+strlen(sql2), "%d,", batemp->GetInitialValue());
 			sprintf(sql2+strlen(sql2), "%d,", batemp->GetTickValue());
 			

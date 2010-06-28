@@ -301,7 +301,7 @@ void ObjectControllerCommandMap::_registerCppHooks()
 	mCommandMap.insert(std::make_pair(opOCwatch, std::bind(&ObjectController::_handlewatch, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
 	mCommandMap.insert(std::make_pair(opOClisten, std::bind(&ObjectController::_handlelisten, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
 	mCommandMap.insert(std::make_pair(opOCstopwatching, std::bind(&ObjectController::_handlestopwatching, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
-	mCommandMap.insert(std::make_pair(opOCstopwatching, std::bind(&ObjectController::_handlestoplistening, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
+	mCommandMap.insert(std::make_pair(opOCstoplistening, std::bind(&ObjectController::_handlestoplistening, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
 	mCommandMap.insert(std::make_pair(opOCPauseMusic, std::bind(&ObjectController::_handlePauseMusic, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
 	mCommandMap.insert(std::make_pair(opOCPauseDance, std::bind(&ObjectController::_handlePauseDance, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
 	mCommandMap.insert(std::make_pair(opOCChangeMusic, std::bind(&ObjectController::_handleChangeMusic, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));

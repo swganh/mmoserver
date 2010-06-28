@@ -97,7 +97,8 @@ void ObjectController::_handleResourceContainerTransfer(uint64 targetId,Message*
 				gMessageLib->sendDestroyObject(selectedContainer->getId(),playerObject);
 
 				gObjectFactory->deleteObjectFromDB(selectedContainer);
-				dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->deleteObject(selectedContainer);
+				TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(selectedContainer->getParentId()));
+				tO->deleteObject(selectedContainer);
 
 
 

@@ -61,6 +61,16 @@ enum IDSession
 	IDSessionID		= 1,
 	IDSessionPREY	= 2
 };
+//=============================================================================
+enum PlayerOffSet
+{
+	INVENTORY_OFFSET = 1,
+	MISSION_OFFSET   = 2,
+	DATAPAD_OFFSET   = 3,
+	BANK_OFFSET      = 4,
+	WEAPON_OFFSET    = 5,
+	HAIR_OFFSET      = 8
+};
 
 //=============================================================================
 

@@ -343,7 +343,7 @@ void CharacterLoginHandler::handleDispatchMessage(uint32 opcode, Message* messag
 	case opNewbieTutorialResponse:   // always sent with scene_ready, contains string "clientReady"
 	{								// Updated comment (Eru): string depends on tutorial, default is "clientReady" though.
 		PlayerObject* player = gWorldManager->getPlayerByAccId(client->getAccountId());
-		if (player->isConnected())
+		if (player && player->isConnected())
 		{
 			string tutorialEventString;
 			message->getStringAnsi(tutorialEventString);
@@ -353,6 +353,8 @@ void CharacterLoginHandler::handleDispatchMessage(uint32 opcode, Message* messag
 				// Notify tutorial
 				player->getTutorial()->tutorialResponse(tutorialEventString);
 			}
+		}else{
+			gLogger->log(LogManager::DEBUG,"CharacterLoginHandler::handleDispatchMessage (case:opNewbieTutorialResponse): could not find player who was connected %u",client->getAccountId());
 		}
 	}
 	break;

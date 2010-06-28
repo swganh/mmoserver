@@ -246,6 +246,12 @@ void BuildingFactory::_destroyDatabindings()
 void BuildingFactory::handleObjectReady(Object* object,DispatchClient* client)
 {
 	InLoadingContainer* ilc = _getObject(object->getParentId());
+
+	if (! ilc) {//ILC sanity check...
+		gLogger->log(LogManager::WARNING,"BuildingFactory::handleObjectReady could not locate ILC for objectParentId:%I64u",object->getParentId());
+		return;
+	}
+
 	BuildingObject*		building = dynamic_cast<BuildingObject*>(ilc->mObject);
 	
 	//this happens on load so no reason to update players

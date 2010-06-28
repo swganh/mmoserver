@@ -204,6 +204,8 @@ Inventory* InventoryFactory::_createInventory(DatabaseResult* result)
 	inventory->setParentId(inventory->mId - 1);
 
 	inventory->setCapacity(inventory->mMaxSlots);
+	gWorldManager->addObject(inventory,true);
+
 	return inventory;
 }
 
@@ -237,10 +239,11 @@ void InventoryFactory::handleObjectReady(Object* object,DispatchClient* client)
 
 	InLoadingContainer* ilc	= _getObject(object->getParentId());
 
-	assert(ilc && "InventoryFactory::handleObjectReady unable to find InLoadingContainer");
-	if (! ilc) {
+	if (! ilc) {//Crashbug fix
+		gLogger->log(LogManager::WARNING,"InventoryFactory::handleObjectReady could not locate ILC for objectId:%I64u",object->getId());
 		return;
 	}
+	assert(ilc && "InventoryFactory::handleObjectReady unable to find InLoadingContainer");//moved below the return
 
 	Inventory*			inventory	= dynamic_cast<Inventory*>(ilc->mObject);
 

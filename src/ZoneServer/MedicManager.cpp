@@ -572,8 +572,8 @@ bool MedicManager::HealDamage(PlayerObject* Medic, PlayerObject* Target, uint64 
 	
 	if((!tendDamage && !quickHeal) && Stim->ConsumeUse(Medic))
 	{
-		Inventory* inventory = dynamic_cast<Inventory*>(Medic->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-		inventory->deleteObject(Stim);
+		TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(Stim->getParentId()));
+		tO->deleteObject(Stim);
 	}
 	return true;
 }
@@ -662,8 +662,8 @@ bool MedicManager::HealDamageRanged(PlayerObject* Medic, PlayerObject* Target, u
 
 	if(Stim->ConsumeUse(Medic))
 	{
-		Inventory* inventory = dynamic_cast<Inventory*>(Medic->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-		inventory->deleteObject(Stim);
+		TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(Stim->getParentId()));
+		tO->deleteObject(Stim);
 	}
 
 	//Add XP as Total Heal / 4 if not targetting self
@@ -811,8 +811,8 @@ bool MedicManager::HealWound(PlayerObject* Medic, PlayerObject* Target, uint64 W
 		
 	if(!tendwound && WoundPack->ConsumeUse(Medic))
 	{
-		Inventory* inventory = dynamic_cast<Inventory*>(Medic->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-		inventory->deleteObject(WoundPack);
+		TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(WoundPack->getParentId()));
+		tO->deleteObject(WoundPack);
 	}
 	return true;
 }

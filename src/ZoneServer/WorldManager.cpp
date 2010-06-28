@@ -141,8 +141,16 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
 
 	SkillManager::Init(database);
 	SchematicManager::Init(database);
+	
+	//the resourcemanager gets accessed by lowlevel functions to check the IDs we get send by the client 
+	//it will have to be initialized in the tutorial, too
 	if(zoneId != 41)
 		ResourceManager::Init(database,mZoneId);
+	else
+	{
+		//by not assigning a db we force the resourcemanager to not load db data
+		ResourceManager::Init(NULL,mZoneId);
+	}
 	ResourceCollectionManager::Init(database);
 	TreasuryManager::Init(database);
 	ConversationManager::Init(database);

@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "WaypointFactory.h"
+#include "WorldConfig.h"
 #include "ObjectFactoryCallback.h"
 #include "WaypointObject.h"
 #include "LogManager/LogManager.h"
@@ -81,7 +82,9 @@ void WaypointFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 		case WaypointFQuery_MainData:
 		{
 			WaypointObject* waypoint = _createWaypoint(result);
-			asyncContainer->mOfCallback->handleObjectReady(waypoint,asyncContainer->mClient);
+			// can't check waypoints on other planets in tutorial
+			if (!gWorldConfig->isTutorial())
+				asyncContainer->mOfCallback->handleObjectReady(waypoint,asyncContainer->mClient);
 		}
 		break;
 

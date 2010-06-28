@@ -63,6 +63,15 @@ FireworkManager::~FireworkManager(void)
 //
 TangibleObject* FireworkManager::createFirework(uint32 typeId, PlayerObject* player, const glm::vec3& position)
 {
+	if(!player) return NULL;
+
+	if(player->checkState(CreatureState_Swimming))
+	{
+		//use the system message from suveying as we don't have an appropriate one especiially for this
+		gMessageLib->sendSystemMessage(player,L"","error_message","survey_swimming");
+		return NULL;
+	}
+
 	//this is by definition a nonpersistant object - so move it there 
 	TangibleObject* firework = new TangibleObject();
 	firework->setTangibleGroup(TanGroup_Static);

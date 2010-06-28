@@ -35,7 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "MessageLib/MessageLib.h"
 
-BuffAttribute::BuffAttribute(uint32 Type, int32 InitialValue, int32	TickValue, int32 FinalValue)
+BuffAttribute::BuffAttribute(uint64 Type, int32 InitialValue, int32	TickValue, int32 FinalValue)
 : mAttribute(Type)
 , mInitialValue(InitialValue)
 , mTickValue(TickValue)
@@ -52,11 +52,11 @@ BuffAttribute::~BuffAttribute()
 
 BuffAttribute* BuffAttribute::FromDB(BuffAttributeDBItem* item)
 {
-    return new BuffAttribute((uint32)item->mType, item->mInitialValue, item->mTickValue, item->mFinalValue);
+    return new BuffAttribute(item->mType, item->mInitialValue, item->mTickValue, item->mFinalValue);
 }
 
 
-uint32 BuffAttribute::GetType()
+uint64 BuffAttribute::GetType()
 {
     return mAttribute;
 }
@@ -427,7 +427,7 @@ void Buff::FinalChanges()
 //
 //
 
-int32 Buff::ModifyAttribute(uint32 Type, int32 Value, bool damage, bool debuff)
+int32 Buff::ModifyAttribute(uint64 Type, int32 Value, bool damage, bool debuff)
 {
 	//damage is dealt by a debuff like poison for example this can incapacitate so
 	//a debuff from a doctorbuff should not be able to incapacitate you

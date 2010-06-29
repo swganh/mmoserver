@@ -65,7 +65,7 @@
       <AdditionalOptions>/NODEFAULTLIB:libcmtd.lib %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
-      <Command>"$(OutDir)$(TargetName)$(TargetExt)" --gtest_output=xml:"$(SolutionDir)\build-aux\"</Command>
+      <Command>"$(OutDir)$(TargetName)$(TargetExt)" --gtest_output=xml:$(SolutionDir)build-aux\</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -91,7 +91,7 @@
       <AdditionalOptions>/NODEFAULTLIB:libcmt.lib %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
-      <Command>"$(OutDir)$(TargetName)$(TargetExt)" --gtest_output=xml:"$(SolutionDir)\build-aux\"</Command>
+      <Command>"$(OutDir)$(TargetName)$(TargetExt)" --gtest_output=xml:$(SolutionDir)build-aux\</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

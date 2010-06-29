@@ -299,6 +299,7 @@ Item* ItemFactory::_createItem(DatabaseResult* result)
 		case ItemFamily_FactoryCrate:			item	= new FactoryCrate();				break;
 		case ItemFamily_Hopper:					item	= new Item();						break;
 		case ItemFamily_BugJar:					item	= new BugJar();						break;
+		case ItemFamily_Component:				item	= new Item();						break;
 		default:
 		{
 			item = new Item();

@@ -343,7 +343,7 @@ void StructureManager::createPayMaintenanceTransferBox(PlayerObject* player, Pla
 void StructureManager::createNewStructureDeleteConfirmBox(PlayerObject* player, PlayerStructure* structure)
 {
 	//we only want this window open once
-	if(player->checkUIWindow("handle Structure Destroy")||player->checkUIWindow("handle Structure Destroy Confirmation"))
+	if(player->checkUIWindow("handle Structure Destroy Confirmation"))
 	{
 		//gMessageLib->sendSystemMessage(player, L"You cannot open this window several times");
 		return;

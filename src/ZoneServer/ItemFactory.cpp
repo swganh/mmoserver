@@ -302,7 +302,7 @@ Item* ItemFactory::_createItem(DatabaseResult* result)
 		default:
 		{
 			item = new Item();
-			gLogger->log(LogManager::NOTICE,"ItemFactory::createItem unknown Family %u",itemIdentifier.mFamilyId);
+			gLogger->log(LogManager::NOTICE,"ItemFactory::createItem (itemType: %u) with unknown Family %u",itemIdentifier.mTypeId, itemIdentifier.mFamilyId);
 		}
 		break;
 	}

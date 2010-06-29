@@ -507,7 +507,7 @@ void PlayerObject::onSample(const SampleEvent* event)
 	// update ham for standard sample action oc does this already - only the first time though???  !!!
 	mHam.updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints,-(int32)actionCost,true);
 
-	gLogger->log(LogManager::DEBUG,"PlayerObject::sample : %i actiopn taken ",actionCost);
+	gLogger->log(LogManager::DEBUG,"PlayerObject::sample : %i action taken ",actionCost);
 	if(mHam.checkMainPools(0,actionCost,0) && (resAvailable))
 	{
 		getSampleData()->mNextSampleTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 3000; //change back to 30000 after testing is finished

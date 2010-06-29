@@ -492,10 +492,13 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 
 		if(structure->getTTS()->todo == ttE_Delete)
 		{
+
 			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById( structure->getTTS()->playerId ));
-			if(!player){//Crash bug patch: http://paste.swganh.org/viewp.php?id=20100627004133-026ea7b07136cfad7a5463216da5ab96
+			if(!player)
+			{//Crash bug patch: http://paste.swganh.org/viewp.php?id=20100627004133-026ea7b07136cfad7a5463216da5ab96
 				gLogger->log(LogManager::WARNING,"StructureManager::_handleStructureObjectTimers could not find the player with ID:%u.",structure->getTTS()->playerId);
-				return false;
+				it = objectList->erase(it);
+				continue;
 			}
 			if(structure->canRedeed())
 			{	
@@ -513,7 +516,8 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 					if (house->getCellContentCount() > 0)
 					{
 						gMessageLib->sendSysMsg(player, "player_structure", "clear_building_for_delete");
-						return false;
+						it = objectList->erase(it);
+						continue;
 					}
 				}
 				gMessageLib->sendSystemMessage(player,L"","player_structure","deed_reclaimed");
@@ -540,12 +544,12 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 					if (house->getCellContentCount() > 0)
 					{
 						gMessageLib->sendSysMsg(player, "player_structure", "clear_building_for_delete");
-						return false;
+						it = objectList->erase(it);
+						continue;
 					}
 					house->prepareDestruction();
 				}
-
-
+				
 				gMessageLib->sendSystemMessage(player,L"","player_structure","structure_destroyed");
 				int8 sql[200];
 				sprintf(sql,"DELETE FROM items WHERE parent_id = %"PRIu64" AND item_family = 15",structure->getId());
@@ -555,10 +559,7 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 				gWorldManager->destroyObject(structure);
 				UpdateCharacterLots(structure->getOwner());
 
-
-			}
-
-			
+			}			
 
 		}
 
@@ -567,7 +568,8 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 			if(Anh_Utils::Clock::getSingleton()->getLocalTime() < structure->getTTS()->projectedTime)
 			{
 				gLogger->log(LogManager::DEBUG,"StructureManager::_handleStructureObjectTimers: intervall to short - delayed");
-				break;
+				it = objectList->erase(it);
+				continue;
 			}
 
 			//gLogger->log(LogManager::DEBUG,"StructureManager::_handleStructureObjectTimers: building fence");
@@ -583,8 +585,6 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 				gWorldManager->handleObjectReady(structure,player->getClient());
 				it = objectList->erase(it);
 				continue;
-
-				return false;
 			}
 
 			if(!fence)
@@ -592,7 +592,6 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 				gLogger->log(LogManager::DEBUG,"StructureManager::_handleStructureObjectTimers: No fence");
 				it = objectList->erase(it);
 				continue;
-				return false;
 			}
 
 			//delete the fence
@@ -1252,7 +1251,9 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 				gStructureManager->getDeleteStructureMaintenanceData(command.StructureId, command.PlayerId);
 			}
 			else
+			{
 				gMessageLib->sendSystemMessage(player,L"","player_structure","destroy_must_be_owner");
+			}
 			
 			
 		}

@@ -258,10 +258,10 @@ void StructureManager::_HandleStructureRedeedCallBack(StructureManagerAsyncConta
 	PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(asynContainer->mStructureId));
 	//ensure we actually got this from the DB
 	//Crashbug patch: http://paste.swganh.org/viewp.php?id=20100627034539-8f68cacfcb354eab467bcae7158eff8c
-	if(!structure){
+	if(!structure)
+	{
 		gLogger->log(LogManager::CRITICAL,"StructureManager::_HandleStructureRedeedCallBack failed to retrieve valid structure(%u) from DB. Possible connection issues.", asynContainer->mStructureId);
 		PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
-		gMessageLib->sendSystemMessage(player, L"The Empire discovered contraband within your property and confiscated your belongings. You will not receive the deed to this structure. ");
 		gMessageLib->sendSystemMessage(player, L"(We couldn't find it in the DB, please /bug report this so we can investigate.)");
 		return;
 	}
@@ -308,7 +308,8 @@ void StructureManager::_HandleStructureRedeedCallBack(StructureManagerAsyncConta
 	if(deedId == 1)
 	{
 		gLogger->log(LogManager::DEBUG,"StructureManager::create deed with not enough maintenance...");
-		gMessageLib->sendSysMsg(player, "player_structure","structure_destroyed ");	
+		if(player)
+			gMessageLib->sendSysMsg(player, "player_structure","structure_destroyed ");	
 		mDatabase->DestroyDataBinding(binding);
 		return;
 	}

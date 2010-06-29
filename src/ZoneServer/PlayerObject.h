@@ -209,6 +209,8 @@ class PlayerObject : public CreatureObject
 		bool				removeUIWindow(uint32 id);
 		void				clearAllUIWindows();
 		void				resetUICallbacks(Object* object);
+		
+		//checks whether we have a certain window already open
 		bool				checkUIWindow(string text);
 
 		ContactMap*			getFriendsList(){ return &mFriendsList; }

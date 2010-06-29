@@ -46,6 +46,8 @@ PlayerStructure::PlayerStructure() : TangibleObject()
 	mMaxCondition	= 1000;
 	mCondition		= 1000;
 	mWillRedeed		= false;
+
+	mState			= 0;
 	
 	mHousingAdminList.clear();
 }
@@ -438,8 +440,6 @@ void PlayerStructure::handleUIEvent(uint32 action,int32 element,string inputStr,
 
 		case SUI_Window_Structure_Delete:
 		{
-			//================================
-			// now that a decision has been made get confirmation
 			gStructureManager->createNewStructureDeleteConfirmBox(player,this );
 		
 		}
@@ -493,6 +493,14 @@ void PlayerStructure::handleUIEvent(uint32 action,int32 element,string inputStr,
 			inputStr.convert(BSTRType_ANSI);
 			if(inputStr.getCrc() == this->getCode().getCrc())
 			{
+				if((this->checkStatesEither(PlayerStructureState_Destroy)))
+				{
+					//dont start structure destruction more than once
+					//gLogger->log(LogManager::DEBUG,"PlayerStructureTerminal::handleObjectMenuSelect::structure in the process of being deleted");
+					return;
+				}
+				this->toggleStateOn(PlayerStructureState_Destroy);
+		
 				//delete it
 				mTTS.todo		= ttE_Delete;
 				mTTS.playerId	= player->getId();

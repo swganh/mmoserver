@@ -61,6 +61,12 @@ struct timerTodoStruct
 
 };
 
+enum StructureState
+{
+	PlayerStructureState_Destroy					=	0x0000000000000001,
+	PlayerStructureState_Condemned					=	0x0000000000000002
+};
+
 //=============================================================================
 
 class PlayerStructure :	public TangibleObject
@@ -177,8 +183,15 @@ class PlayerStructure :	public TangibleObject
 		void					resetHousingAdminList(){mHousingAdminList.clear();}
 		bool					hasAdminRights(uint64 id);
 
-		
-
+		//check structure states - like destruction
+		uint64				getState(){ return mState; }
+		//void				setState(uint64 state){ mState = state; }
+		void				toggleStateOn(StructureState state){ mState = mState | state; }
+		void				toggleStateOff(StructureState state){ mState = mState & ~state; }
+		//void				toggleState(StructureState state){ mState = mState ^ state; }
+		bool				checkState(StructureState state){ return((mState & state) == state); }
+		bool				checkStates(uint64 states){ return((mState & states) == states); }
+		bool				checkStatesEither(uint64 states){ return((mState & states) != 0); }
 								 
 
 	private:
@@ -193,6 +206,7 @@ class PlayerStructure :	public TangibleObject
 
 		//structures Owner
 		uint64						mOwner;
+		uint64						mState; //structure states
 		ItemList					mItemList;
 		uint32						mCondition;
 		uint32						mMaintenance;

@@ -348,6 +348,12 @@ void StructureManager::createPayMaintenanceTransferBox(PlayerObject* player, Pla
 
 void StructureManager::createNewStructureDeleteConfirmBox(PlayerObject* player, PlayerStructure* structure)
 {
+	//we only want this window open once
+	if(player->checkUIWindow("handle Structure Destroy")||player->checkUIWindow("handle Structure Destroy Confirmation"))
+	{
+		//gMessageLib->sendSystemMessage(player, L"You cannot open this window several times");
+		return;
+	}
 
 	BString text = "Your structure";
 	if(structure->getRedeed())
@@ -369,12 +375,19 @@ void StructureManager::createNewStructureDeleteConfirmBox(PlayerObject* player, 
 
 	BStringVector vector;
 
-	gUIManager->createNewInputBox(structure,"",caption,text.getAnsi(),vector,player,SUI_IB_NODROPDOWN_OKCANCEL,SUI_Window_Structure_Delete_Confirm,6);
+	gUIManager->createNewInputBox(structure,"handle Structure Destroy Confirmation",caption,text.getAnsi(),vector,player,SUI_IB_NODROPDOWN_OKCANCEL,SUI_Window_Structure_Delete_Confirm,6);
 	
 }
 
 void StructureManager::createNewStructureDestroyBox(PlayerObject* player, PlayerStructure* structure, bool redeed)
 {
+	//we only want this window open once
+	if(player->checkUIWindow("handle Structure Destroy")||player->checkUIWindow("handle Structure Destroy Confirmation"))
+	{
+		//gMessageLib->sendSystemMessage(player, L"You cannot open this window several times");
+		return;
+	}
+	
 	BStringVector attributesMenu;
 
 	BString text = "You have elected to destroy a structure. Pertinent structure data can be found in the list below. Please complete the following steps to confirm structure deletion.\xa\xa";
@@ -444,6 +457,8 @@ void StructureManager::createNewStructureDestroyBox(PlayerObject* player, Player
 	//answer = x/(total/100);
 	//answer = x*(total/100);
 	// total = 100%
+
+	//make sure we can only have one structure destroybox open ...
 	
 	gUIManager->createNewListBox(structure,"handle Structure Destroy",sName, text.getAnsi(), attributesMenu, player, SUI_Window_Structure_Delete,SUI_LB_YESNO);
 }

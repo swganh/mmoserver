@@ -1044,7 +1044,7 @@ float CraftingSession::_calcWeightedResourceValue(CraftWeights* weights)
 		slotCounted	= false;
 
 		// skip if its a sub component slot
-		if(manSlot->mDraftSlot->getType() != 4)
+		if(manSlot->mDraftSlot->getType() != DST_Resource)
 		{
 			++manIt;
 			continue;
@@ -1052,6 +1052,21 @@ float CraftingSession::_calcWeightedResourceValue(CraftWeights* weights)
 
 		// we limit it so that only the same resource can go into one slot, so grab only the first entry
 		filledResIt		= manSlot->mFilledResources.begin();
+
+		if(manSlot->mFilledResources.size() == 0)
+		{
+			//PANICK - theres no resource filled !!!!!!!!!!!!!!!!!!!!!!!!!!
+			gLogger->log(LogManager::DEBUG,"CraftingSession::_calcWeightedResourceValue: NO REOURCE IN RESOURCE SLOT :");
+			
+			if(manSlot->mDraftSlot->getOptional())
+			{
+				gLogger->log(LogManager::DEBUG,"CraftingSession::_calcWeightedResourceValue: SLOT WAS OPTIONAL:");
+			}
+			assert(false&&"CraftingSession::_calcWeightedResourceValue: NO RESSOURCE IN RESOURCE SLOT ");
+			++manIt;
+			continue;
+		}
+
 		resource		= gResourceManager->getResourceById((*filledResIt).first);
 		totalResStat	= 0.0f;
 		totalQuantity	= 0.0f;

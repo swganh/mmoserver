@@ -25,56 +25,36 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#ifndef ANH_ZONESERVER_NOBUILDREGION__H
-#define ANH_ZONESERVER_NOBUILDREGION__H
+#pragma once
+#ifndef ANH_ZONESERVER_NOBUILDREGION_FACTORY_H
+#define ANH_ZONESERVER_NOBUILDREGION_FACTORY_H
+#include "factorybase.h"
+#include "NoBuildRegion.h"
 
-#include "RegionObject.h"
 //=============================================================================
+class Database;
+class DataBinding;
+class DispatchClient;
+class ObjectFactoryCallback;
 
-enum NoBuildType
-{
-	NOBUILD_CITY			= 1,
-	NOBUILD_BADGE			= 2,
-	NOBUILD_REGION			= 3,
-	NOBUILD_OTHER			= 4
-};
-enum NoBuildPlanets
-{
-	NOBUILD_CORELLIA		= 0,
-	NOBUILD_DANTOOINE		= 1,
-	NOBUILD_DATHOMIR		= 2,
-	NOBUILD_ENDOR			= 3,
-	NOBUILD_LOK				= 4,
-	NOBUILD_NABOO			= 5,
-	NOBUILD_RORI			= 6,
-	NOBUILD_TALUS			= 7,
-	NOBUILD_TATOOINE		= 8,
-	NOBUILD_YAVIN			= 9
-};
-typedef		std::vector<NoBuildRegion*>			NoBuildPlanetList;
 //=============================================================================
-class NoBuildRegion : public RegionObject
+class NoBuildRegionFactory : public FactoryBase
 {
-	friend class NoBuildRegionFactory;
 public:
-							NoBuildRegion(void);
-							~NoBuildRegion(void);
+									NoBuildRegionFactory(Database* database);
+									NoBuildRegionFactory(void);
+									~NoBuildRegionFactory(void);
+	
+	void							handleDatabaseJobComplete(void* ref,DatabaseResult* result);
+	void							requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
+	NoBuildPlanetList*				getNoBuildPlanetList(uint32 planet);
 
-	bool					CheckNoBuildZone(NoBuildType);
-	bool					CheckNoBuildPlanet(uint16 planet) { return (mPlanet == planet);}
+private:
 
-	void					setNoBuildPlanet(uint16 planet){ mPlanet = planet;}
-	uint32					getNoBuildPlanet(){ return mPlanet; }
+	void							_setupDatabindings();
+	void							_destroyDatabindings();
 
-	void					setNoBuildPlanetList(uint32 planet);
-	NoBuildPlanetList*		getNoBuildPlanetList(uint32 planet);
-
-protected:
-	uint32					mPlanet;
-	uint32					mRegionId;
-	uint8					mBuild;
-	uint8					mNoBuildType;
-	NoBuildPlanetList*		mNoBuildPlanetList;
-};
-
+	NoBuildRegion*					_createNoBuildRegion(DatabaseResult* result);
+	DataBinding*					mNoBuildRegionBinding;
+}
 #endif

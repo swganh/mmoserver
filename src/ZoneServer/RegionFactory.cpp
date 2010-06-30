@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "QTRegionFactory.h"
 #include "RegionObject.h"
 #include "SpawnRegionFactory.h"
+#include "NoBuildRegionFactory.h"
 
 #include "LogManager/LogManager.h"
 #include "Utils/utils.h"

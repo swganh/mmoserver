@@ -44,6 +44,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldManager.h"
 #include "ZoneTree.h"
 #include "MessageLib/MessageLib.h"
+#include "Common/Message.h"
+#include "Common/MessageFactory.h"
+#include "Deed.h"
+#include "StructureHeightmapAsyncContainer.h"
+#include "Heightmap.h"
+#include "NoBuildRegionFactory.h"
+#include "NoBuildRegion.h"
 
 #include "LogManager/LogManager.h"
 #include "DatabaseManager/Database.h"
@@ -107,6 +114,19 @@ StructureManager::~StructureManager()
 //======================================================================================================================
 StructureManager*	StructureManager::Init(Database* database, MessageDispatch* dispatch)
 {
+	// initialize NoBuildRegions
+	
+	NoBuildRegionFactory* nbFactory = new NoBuildRegionFactory(database);
+	//nbFactory->getPlanetRegions
+	// get vector containing list of all planets and their regions
+	// parse the vector
+	for (int i = NOBUILD_CORELLIA; i < NOBUILD_YAVIN; i++)
+	{
+		//TODO: clean this up
+		nbFactory->requestObject(NULL, i, 0, 0, NULL);
+	
+	}
+	//NoBuildRegionList 
 	if(!mInsFlag)
 	{
 		mSingleton = new StructureManager(database,dispatch);
@@ -1487,4 +1507,207 @@ void StructureManager::UpdateCharacterLots(uint64 charId)
 	asyncContainer->mPlayerId = charId;
 
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sf_getLotCount(%I64u)",charId);
+}
+//======================================================================================================================
+bool StructureManager::HandlePlaceStructure(Object* object, Message* message, ObjectControllerCmdProperties* cmdProperties)
+{
+	PlayerObject*	player	= dynamic_cast<PlayerObject*>(object);
+
+	// TODO - are we in structure placement mode ???
+	if(!player)
+	{
+		//gMessageLib->sendSystemMessage(entertainer,L"","performance","flourish_not_performing");
+		return;
+	}	
+
+	//find out where our structure is
+	string dataStr;
+	message->getStringUnicode16(dataStr);
+	
+	float x,z,dir;
+	uint64 deedId;
+
+	swscanf(dataStr.getUnicode16(),L"%I64u %f %f %f",&deedId, &x, &z, &dir);
+
+	gLogger->log(LogManager::DEBUG," ID %I64u x %f y %f dir %f", deedId, x, z, dir);
+	
+	
+	//now get our deed
+	//Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+
+
+	//todo : check if the type of building is allowed on the planet
+
+	//check the region whether were allowed to build
+	if(!checkCityRadius(player) )
+	{
+		gMessageLib->sendSystemMessage(player,L"","faction_perk","no_build_area");
+		return;
+	}
+
+	Deed* deed = dynamic_cast<Deed*>(gWorldManager->getObjectById(deedId));
+	if(!deed)
+	{
+		gLogger->log(LogManager::DEBUG," ObjectController::_handleStructurePlacement deed not found :( ");		
+		return;
+	}
+
+	switch(deed->getItemType())
+	{
+		case	ItemType_generator_fusion_personal:
+		case	ItemType_generator_solar_personal:
+		case	ItemType_generator_wind_personal:
+
+		case	ItemType_harvester_flora_personal:
+		case	ItemType_harvester_flora_heavy:
+		case	ItemType_harvester_flora_medium:
+		case	ItemType_harvester_gas_personal:
+		case	ItemType_harvester_gas_heavy:
+		case	ItemType_harvester_gas_medium:
+		case	ItemType_harvester_liquid_personal:
+		case	ItemType_harvester_liquid_heavy:
+		case	ItemType_harvester_liquid_medium:
+
+		case	ItemType_harvester_moisture_personal:
+		case	ItemType_harvester_moisture_heavy:
+		case	ItemType_harvester_moisture_medium:
+
+		case	ItemType_harvester_ore_personal:
+		case	ItemType_harvester_ore_heavy:
+		case	ItemType_harvester_ore_medium:
+		{
+			StructureHeightmapAsyncContainer* container = new StructureHeightmapAsyncContainer(this, HeightmapCallback_StructureHarvester);
+			
+			container->oCallback = gObjectFactory;
+			container->ofCallback = gStructureManager;
+			container->deed = deed;
+			container->dir = dir;
+			container->x = x;
+			container->z = z;
+			container->customName = "";
+			container->player = player;
+
+			container->addToBatch(x,z);
+
+			gHeightmap->addNewHeightMapJob(container);
+		}
+		break;
+
+		case	ItemType_factory_clothing:
+		case	ItemType_factory_food:
+		case	ItemType_factory_item:
+		case	ItemType_factory_structure:
+		{
+			StructureHeightmapAsyncContainer* container = new StructureHeightmapAsyncContainer(this, HeightmapCallback_StructureFactory);
+			
+			container->oCallback = gObjectFactory;
+			container->ofCallback = gStructureManager;
+			container->deed = deed;
+			container->dir = dir;
+			container->x = x;
+			container->z = z;
+			container->customName = "";
+			container->player = player;
+
+			container->addToBatch(x,z);
+
+			gHeightmap->addNewHeightMapJob(container);
+		}
+		break;
+
+		case	ItemType_deed_cityhall_corellia:
+		case	ItemType_deed_cityhall_naboo:
+		case	ItemType_deed_cityhall_tatooine:
+		{
+			//FOR CIVIC STRUCTURES
+			PlayerObject* player = dynamic_cast<PlayerObject*>(this->object);
+			if(player)
+			{
+				if(!player->checkSkill(623)) //novice Politician
+				{
+					gMessageLib->sendSystemMessage(player,L"","player_structure","place_cityhall");
+					break;
+				}
+			}
+			else
+			{
+				break;
+			}
+			//NO BREAK!!!!
+		}
+
+		case	ItemType_deed_guildhall_corellian:
+		case	ItemType_deed_guildhall_naboo:
+		case	ItemType_deed_guildhall_tatooine:
+		case	ItemType_deed_naboo_large_house:
+		case	ItemType_deed_naboo_medium_house:
+		case	ItemType_deed_naboo_small_house_2:
+		case	ItemType_deed_naboo_small_house:
+
+		case	ItemType_deed_corellia_large_house:
+		case	ItemType_deed_corellia_large_house_2:
+		case	ItemType_deed_corellia_medium_house:
+		case	ItemType_deed_corellia_medium_house_2:
+		
+		case	ItemType_deed_corellia_small_house_1:
+		case	ItemType_deed_corellia_small_house_2:
+		case	ItemType_deed_corellia_small_house_3:
+		case	ItemType_deed_corellia_small_house_4:
+		
+		case	ItemType_deed_generic_large_house_1:
+		case	ItemType_deed_generic_large_house_2:
+		case	ItemType_deed_generic_medium_house_1:
+		case	ItemType_deed_generic_medium_house_2:
+		case	ItemType_deed_generic_small_house_1:
+		case	ItemType_deed_generic_small_house_2:
+		case	ItemType_deed_generic_small_house_3:
+		case	ItemType_deed_generic_small_house_4:
+
+		case	ItemType_deed_tatooine_large_house:
+		case	ItemType_deed_tatooine_medium_house:
+		case	ItemType_deed_tatooine_small_house:
+		case	ItemType_deed_tatooine_small_house_2:
+		{
+			StructureHeightmapAsyncContainer* container = new StructureHeightmapAsyncContainer(this, HeightmapCallback_StructureHouse);
+			
+			container->oCallback = gObjectFactory;
+			container->ofCallback = gStructureManager;
+			container->deed = deed;
+			container->x = x;
+			container->z = z;
+			container->dir = dir;
+			container->customName = "";
+			container->player = player;
+
+			//We need to give the thing several points to grab (because we want the max height)
+			StructureDeedLink* deedLink;
+			deedLink = gStructureManager->getDeedData(deed->getItemType());
+
+			uint32 halfLength = (deedLink->length/2);
+			uint32 halfWidth = (deedLink->width/2);
+
+			container->addToBatch(x, z);
+
+			if(dir == 0 || dir == 2)
+			{
+				//Orientation 1
+				container->addToBatch(x-halfLength, z-halfWidth);
+				container->addToBatch(x+halfLength, z-halfWidth);
+				container->addToBatch(x-halfLength, z+halfWidth);
+				container->addToBatch(x+halfLength, z+halfWidth);
+			}
+			else if(dir == 1 || dir == 3)
+			{
+				//Orientation 2
+				container->addToBatch(x-halfWidth, z-halfLength);
+				container->addToBatch(x+halfWidth, z-halfLength);
+				container->addToBatch(x-halfWidth, z+halfLength);
+				container->addToBatch(x+halfWidth, z+halfLength);
+			}
+
+			gHeightmap->addNewHeightMapJob(container);
+		}
+		break;
+
+	}
 }

@@ -49,6 +49,7 @@ class FactoryObject;
 class PlayerStructure;
 class UIWindow;
 class StructureManagerCommandMapClass;
+class NoBuildRegion;
 
 namespace Anh_Utils
 {
@@ -195,6 +196,7 @@ struct StructureItemTemplate
 
 typedef		std::vector<StructureDeedLink*>		DeedLinkList;
 typedef		std::vector<StructureItemTemplate*>	StructureItemList;
+typedef		std::vector<NoBuildRegion*>			NoBuildRegionList;
 
 //======================================================================================================================
 
@@ -280,6 +282,10 @@ class StructureManager : public DatabaseCallback,public ObjectFactoryCallback
 		StructureItemList*		getStructureItemList(){return(&mItemTemplate);}
 
 		//=========================================================
+		NoBuildRegionList*		getNoBuildRegionList(){return(&mNoBuildList);}
+		
+		//=========================================================
+
 		//get db data
 
 		//camps
@@ -335,6 +341,20 @@ class StructureManager : public DatabaseCallback,public ObjectFactoryCallback
 		//asynchronously updates the lot count of a player
 		void					UpdateCharacterLots(uint64 charId);
 
+		/// New Style OC functions
+		// =======================================================================================
+		/// This command is used to place structures
+		/**
+		 * This command is invoked by the client to move items around in a structure.
+		 *
+		 * The client enters the player into a special top/down build mode
+		 *   
+		 * @param object The object placing the structure (always a PlayerObject).
+		 * @param message The message from the client requesting this command.
+		 * @param cmd_properties Contextual information for use during processing this command.
+		 */
+		bool HandlePlaceStructure(Object* object, Message* message, ObjectControllerCmdProperties* cmdProperties);
+
 	private:
 
 		//callback functions
@@ -370,6 +390,8 @@ class StructureManager : public DatabaseCallback,public ObjectFactoryCallback
 		StructureItemList			mItemTemplate;
 		ObjectIDList				mStructureDeleteList;
 		uint32						mBuildingFenceInterval;
+
+		NoBuildRegionList			mNoBuildList;
 
 };
 

@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_LOGINSERVER_MESSAGEFACTORY_H
 #define ANH_LOGINSERVER_MESSAGEFACTORY_H
 
+#include <string>
 #include "Utils/typedefs.h"
 #include "ConfigManager/ConfigManager.h"
 
@@ -74,6 +75,8 @@ class MessageFactory
 		void                    addFloat(float data);
 		void                    addDouble(double data);
 		void                    addString(const BString& data);
+		void					addString(const std::string& string);
+		void					addString(const std::wstring& string);
 		void					addString(const char* cstring);
 		void					addString(const wchar_t* ustring);
 		void					addString(const unsigned short* ustring);

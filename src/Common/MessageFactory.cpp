@@ -351,6 +351,24 @@ void MessageFactory::addDouble(double data)
 
 //======================================================================================================================
 
+void MessageFactory::addString(const std::string& string)
+{
+	BString str(string.c_str());
+	addString(str);
+//return;
+}
+
+//======================================================================================================================
+
+void MessageFactory::addString(const std::wstring& string)
+{
+	BString str(string.c_str());
+	addString(str);
+//return;
+}
+
+//======================================================================================================================
+
 void MessageFactory::addString(const char* cstring)
 {
 	BString str;

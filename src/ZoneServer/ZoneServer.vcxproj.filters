@@ -758,6 +758,9 @@
     <ClCompile Include="SendSystemMailMessage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ProsePackage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ActiveConversation.h">
@@ -1469,6 +1472,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SendSystemMailMessage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ProsePackage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

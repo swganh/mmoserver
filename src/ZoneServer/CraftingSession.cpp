@@ -340,16 +340,37 @@ void CraftingSession::handleObjectReady(Object* object,DispatchClient* client)
 {
 
 	Item* item = dynamic_cast<Item*>(object);
-	if(!item){//removal of schem? Crashbug patch for: http://paste.swganh.org/viewp.php?id=20100627064849-3d026388be3dc63f7d9706f737e6d510
-		gLogger->log(LogManager::CRITICAL,"CraftingSession::handleObjectReady: Cast except from object to item, likely unloading a schem. Setting schem to null, but we need to handle this correctly.");
+	if(!item)
+	{//Manufacturingschematic couldnt be created!!! Crashbug patch for: http://paste.swganh.org/viewp.php?id=20100627064849-3d026388be3dc63f7d9706f737e6d510
+		gLogger->log(LogManager::CRITICAL,"CraftingSession::handleObjectReady: Couldnt Cast item.");
 		mManufacturingSchematic = NULL;
+		
+		gMessageLib->sendCraftAcknowledge(opCreatePrototypeResponse,CraftCreate_Failure,this->getCounter(),mOwner);
+		// end the session
+		gCraftingSessionFactory->destroySession(this);
 		return;
 	}
 	// its the manufacturing schematic
 	if(item->getItemFamily() == ItemFamily_ManufacturingSchematic)
 	{
+		//Manufacturingschematic couldnt be created!!! possibly(!) db threading issue
 		mManufacturingSchematic = dynamic_cast<ManufacturingSchematic*>(item);
+		if(!mManufacturingSchematic)
+		{
+			gLogger->log(LogManager::CRITICAL,"CraftingSession::handleObjectReady: Couldnt Cast ManufacturingSchematic.");
 
+			if(mDraftSchematic)
+			{
+				gLogger->log(LogManager::CRITICAL,"CraftingSession::handleObjectReady: DraftSchematic : %s / Object : %I64u",mDraftSchematic->getModel(),object->getId());
+				gLogger->log(LogManager::CRITICAL,"CraftingSession::handleObjectReady: DraftSchematic batch: %4u",mDraftSchematic->getWeightsBatchId());
+			}
+			mManufacturingSchematic = NULL;
+			gMessageLib->sendCraftAcknowledge(opCreatePrototypeResponse,CraftCreate_Failure,this->getCounter(),mOwner);
+			// end the session
+			gCraftingSessionFactory->destroySession(this);
+			return;
+
+		}
 		mManufacturingSchematic->setComplexity((float)mDraftSchematic->getComplexity());
 
 		// now request the (temporary) item, based on the draft schematic defaults
@@ -1045,7 +1066,7 @@ float CraftingSession::_calcWeightedResourceValue(CraftWeights* weights)
 		slotCounted	= false;
 
 		// skip if its a sub component slot
-		if(manSlot->mDraftSlot->getType() != 4)
+		if(manSlot->mDraftSlot->getType() != DST_Resource)
 		{
 			++manIt;
 			continue;
@@ -1053,6 +1074,21 @@ float CraftingSession::_calcWeightedResourceValue(CraftWeights* weights)
 
 		// we limit it so that only the same resource can go into one slot, so grab only the first entry
 		filledResIt		= manSlot->mFilledResources.begin();
+
+		if(manSlot->mFilledResources.size() == 0)
+		{
+			//PANICK - theres no resource filled !!!!!!!!!!!!!!!!!!!!!!!!!!
+			gLogger->log(LogManager::DEBUG,"CraftingSession::_calcWeightedResourceValue: NO REOURCE IN RESOURCE SLOT :");
+			
+			if(manSlot->mDraftSlot->getOptional())
+			{
+				gLogger->log(LogManager::DEBUG,"CraftingSession::_calcWeightedResourceValue: SLOT WAS OPTIONAL:");
+			}
+			assert(false&&"CraftingSession::_calcWeightedResourceValue: NO RESSOURCE IN RESOURCE SLOT ");
+			++manIt;
+			continue;
+		}
+
 		resource		= gResourceManager->getResourceById((*filledResIt).first);
 		totalResStat	= 0.0f;
 		totalQuantity	= 0.0f;

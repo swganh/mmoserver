@@ -40,6 +40,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/ObjectControllerOpcodes.h"
 #include "ZoneServer/ObjectFactory.h"
 #include "ZoneServer/PlayerObject.h"
+#include "ZoneServer/ProsePackage.h"
 #include "ZoneServer/SchematicManager.h"
 #include "ZoneServer/Tutorial.h"
 #include "ZoneServer/UIOpcodes.h"
@@ -64,12 +65,104 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <boost/lexical_cast.hpp>
 
+#ifdef _MSC_VER
+#include <regex>  // NOLINT
+#else
+#include <boost/regex.hpp>  // NOLINT
+#endif
+
+#ifdef WIN32
+using ::std::regex;
+using ::std::smatch;
+using ::std::regex_search;
+#else
+using ::boost::regex;
+using ::boost::smatch;
+using ::boost::regex_search;
+#endif
 
 //======================================================================================================================
 //
 // Spatial Chat
 //
 
+void MessageLib::SendSpatialChat(CreatureObject* const speaking_object, const std::wstring& custom_message, const PlayerObject* const player_object, uint64_t target_id, uint16_t text_size, uint16_t chat_type_id, uint16_t mood_id, uint8_t whisper_target_animate) {
+    // First, if this is not a player object, check to see if it's an stf string.
+    if (speaking_object->getType() != ObjType_Player) {
+        // Use regex to check if the chat string matches the stf string format.
+        static const regex pattern("@([a-zA-Z0-9/_]+):([a-zA-Z0-9_]+)");
+        smatch result;
+        
+        std::string stf_string(custom_message.begin(), custom_message.end());
+
+        regex_search(stf_string, result, pattern);
+        
+        // If it's an exact match (2 sub-patterns + the full string = 3 elements) it's an stf string.
+        // Reroute the call to the appropriate overload.
+        if (result.size() == 3) 
+        {
+            std::string file(result[1].str());
+            std::string string(result[2].str());
+
+            SendSpatialChat(speaking_object, ProsePackage(file, string), player_object, target_id, text_size, chat_type_id, mood_id, whisper_target_animate);
+            return;
+        }
+    }
+
+    Message* message;
+
+    mMessageFactory->StartMessage();
+	mMessageFactory->addUint32(opObjControllerMessage);
+	mMessageFactory->addUint32(0x0000000B);
+	mMessageFactory->addUint32(opSpatialChat);
+	mMessageFactory->addUint64(speaking_object->getId());
+	mMessageFactory->addUint32(0);
+	mMessageFactory->addUint64(speaking_object->getId());
+	mMessageFactory->addUint64(target_id);
+	mMessageFactory->addString(custom_message);
+	mMessageFactory->addUint16(text_size);
+	mMessageFactory->addUint16(chat_type_id);
+	mMessageFactory->addUint16(mood_id);
+	mMessageFactory->addUint8(whisper_target_animate);
+	mMessageFactory->addUint8(static_cast<uint8>(speaking_object->getLanguage()));
+    
+	mMessageFactory->addUint32(0);
+	mMessageFactory->addUint32(0);
+    
+	message = mMessageFactory->EndMessage();
+
+    SendSpatialToInRangeUnreliable_(message, speaking_object, player_object);
+
+}
+
+void MessageLib::SendSpatialChat(CreatureObject* const speaking_object, const ProsePackage& prose_message, const PlayerObject* const player_object, uint64_t target_id, uint16_t text_size, uint16_t chat_type_id, uint16_t mood_id, uint8_t whisper_target_animate) {
+    Message* message;
+
+    mMessageFactory->StartMessage();
+	mMessageFactory->addUint32(opObjControllerMessage);
+	mMessageFactory->addUint32(0x0000000B);
+	mMessageFactory->addUint32(opSpatialChat);
+	mMessageFactory->addUint64(speaking_object->getId());
+	mMessageFactory->addUint32(0);
+	mMessageFactory->addUint64(speaking_object->getId());
+	mMessageFactory->addUint64(target_id);
+	mMessageFactory->addString(L"");
+	mMessageFactory->addUint16(text_size);
+	mMessageFactory->addUint16(chat_type_id);
+	mMessageFactory->addUint16(mood_id);
+	mMessageFactory->addUint8(whisper_target_animate);
+	mMessageFactory->addUint8(static_cast<uint8>(speaking_object->getLanguage()));
+    
+    // Add the ProsePackage to the message.
+    prose_message.WriteToMessageFactory(mMessageFactory);
+
+	mMessageFactory->addUint32(0);
+    
+	message = mMessageFactory->EndMessage();
+    
+    SendSpatialToInRangeUnreliable_(message, speaking_object, player_object);
+}
+    
 void MessageLib::sendSpatialChat(CreatureObject* const srcObject,BString chatMsg,char chatElement[5][32])
 {
 	using boost::lexical_cast;

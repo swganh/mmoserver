@@ -383,6 +383,101 @@ void MessageLib::_sendToAll(Message* message,uint16 priority,bool unreliable) co
 	mMessageFactory->DestroyMessage(message);
 }
 
+
+void MessageLib::SendSpatialToInRangeUnreliable_(Message* message, Object* const object, const PlayerObject* const player_object) {
+    uint32_t senders_name_crc = 0;
+    PlayerObject* source_player = NULL;
+
+    // Is this a player object sending the message? If so we need a crc of their name
+    // for checking recipient's ignore lists.
+    if (object->getType() == ObjType_Player) {
+        if (source_player = dynamic_cast<PlayerObject*>(object)) {
+            // Make sure the player is valid and online.
+            if (!_checkPlayer(source_player) || !source_player->isConnected()) {
+                // This is an invalid player, clean up the message and exit.
+                assert(false && "MessageLib::SendSpatialToInRangeUnreliable Message sent from an invalid player, this should never happen");
+                mMessageFactory->DestroyMessage(message);
+                return;
+            }
+            
+			BString lowercase_firstname = source_player->getFirstName().getAnsi();
+			lowercase_firstname.toLower();
+			senders_name_crc = lowercase_firstname.getCrc();
+        }
+    }
+
+    // Create a container for cloned messages.
+    // @todo: We shouldn't have to create whole copies of messages that are (with exception of the
+    // target id) the exact same. This is a waste of memory especially with denser populations.
+    Message* cloned_message = NULL;
+
+    // If no player_object is passed it means this is not an instance, send to the known
+    // players of the object initiating the spatial message.
+    //
+    // @todo For now this is how we have to deal with instances, the whole instance system
+    // needs to be redone and when it does it will simplify these types of functions.
+    if (!player_object) {
+        // Loop through the in range players and send them the message.
+        PlayerObjectSet* in_range_players = object->getKnownPlayers();
+        PlayerObjectSet::const_iterator end = in_range_players->end();
+        for (auto it = in_range_players->begin(); it != end; ++it) {
+            const PlayerObject* const player = *it;
+
+            // If the player is not online, or if the sender is in the player's ignore list
+            // then pass over this iteration.
+            if (!_checkPlayer(player) || (senders_name_crc && player->checkIgnoreList(senders_name_crc))) {
+                continue;
+            }
+
+            // Clone the message and send it out to this player.
+            mMessageFactory->StartMessage();
+            mMessageFactory->addData(message->getData(), message->getSize());
+            cloned_message = mMessageFactory->EndMessage();
+
+            // Replace the target id.
+            int8* data = cloned_message->getData() + 12;
+            *(reinterpret_cast<uint64_t*>(data)) = player->getId();
+
+            player->getClient()->SendChannelAUnreliable(cloned_message, player->getAccountId(), CR_Client, 5);
+        }
+    } else {        
+        // This is an instance message, so only send it out to known players in the instance.
+
+        // Loop through the in range players for this instance and send them the message.        
+		PlayerList in_range_players = player_object->getInRangeGroupMembers(true);
+		PlayerList::const_iterator end = in_range_players.end();
+
+        for (auto it = in_range_players.begin(); it != end; ++it) {
+            const PlayerObject* const player = *it;
+
+            // If the player is not online, or if the sender is in the player's ignore list
+            // then pass over this iteration.
+            if (!_checkPlayer(player) || (senders_name_crc && player->checkIgnoreList(senders_name_crc))) {
+                continue;
+            }
+
+            // Clone the message and send it out to this player.
+            mMessageFactory->StartMessage();
+            mMessageFactory->addData(message->getData(), message->getSize());
+            cloned_message = mMessageFactory->EndMessage();
+
+            // Replace the target id.
+            int8* data = cloned_message->getData() + 12;
+            *(reinterpret_cast<uint64_t*>(data)) = player->getId();
+
+            player->getClient()->SendChannelAUnreliable(cloned_message, player->getAccountId(), CR_Client, 5);
+        }
+    }
+    // If the sender isn't a player or the player isn't still connected we need to destroy the message
+    // and exit out at this point, otherwise send the message to the source player.
+    if (!source_player || !_checkPlayer(source_player)) {
+        mMessageFactory->DestroyMessage(message);
+        return;
+    }
+
+    source_player->getClient()->SendChannelAUnreliable(message, source_player->getAccountId(), CR_Client, 5);
+}
+
 //======================================================================================================================
 //
 // send creates of the equipped items from player to player

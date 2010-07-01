@@ -67,8 +67,8 @@ class ObjectContainer :	public Object, public ObjectFactoryCallback
 		//handles Object ready in case our item is in the container
 		void				handleObjectReady(Object* object,DispatchClient* client);
 
-		uint64				getObjectMainParent(Object* object);
-		uint64				getObjectMainParent2(Object* object);
+		Object*				getObjectMainParent(Object* object);
+		uint64				getIDMainParent(Object* object);
 
 		ObjectIDList*		getObjects() { return &mData; }
 		Object*				getObjectById(uint64 id);

@@ -780,12 +780,16 @@ bool MessageLib::sendCreateTangible(TangibleObject* tangibleObject,PlayerObject*
 		TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)));
 		if(!tO)
 		{
-			gLogger->log(LogManager::DEBUG,"Unable to find object with ID %PRIu64", (*it));
+			gLogger->log(LogManager::DEBUG,"MessageLib::sendCreateTangible::Unable to find object with ID %PRIu64", (*it));
 			it++;
 			continue;
 		}
 
 		PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetObject->getId()));
+		
+		//for children add knownPlayers!!!!
+		tO->addKnownObjectSafe(player);
+		player->addKnownObjectSafe(tO);
 		sendCreateObject(tO,player,false);
 		it++;
 	}

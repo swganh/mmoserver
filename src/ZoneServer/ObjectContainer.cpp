@@ -429,7 +429,7 @@ void ObjectContainer::handleObjectReady(Object* object,DispatchClient* client)
 	// find the main containing object
 	// thats an inventory, a cell or a factory - they are the object registered in the SI 
 	// and can tell us who we need to update
-	uint64 mainParent = getObjectMainParent(object);
+	uint64 mainParent = getIDMainParent(object);
 
 	if(!mainParent)
 	{
@@ -473,7 +473,60 @@ void ObjectContainer::handleObjectReady(Object* object,DispatchClient* client)
 // or a cell or a factory
 // additionally the size of the inventory gets calculated by the size of its containers
 //
-uint64 ObjectContainer::getObjectMainParent(Object* object)
+Object* ObjectContainer::getObjectMainParent(Object* object)
+{
+
+	uint64 parentID = object->getParentId();
+
+	Object* ob = dynamic_cast<Object*>(gWorldManager->getObjectById(parentID));
+	if(!ob)
+	{
+		return 0;
+	}
+
+	//the object is equipped - the mainparent is the player
+	PlayerObject* player = dynamic_cast<PlayerObject*>(ob);
+	if(player)
+	{
+		return player;
+	}
+
+	//the object is in the inventory - the mainparent is the inventory
+	Inventory* inventory = dynamic_cast<Inventory*>(ob);
+	if(inventory)
+	{
+		return inventory;
+	}
+
+	//the object is in the cell - the mainparent is the structure
+	CellObject* cell = dynamic_cast<CellObject*>(ob);
+	if(cell)
+	{
+		BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()));
+		if(building)
+		{
+			return building;
+		}
+	}
+	
+	//the object is in the factory - the mainparent is the factory
+	FactoryObject* factory = dynamic_cast<FactoryObject*>(ob);
+	if(factory)
+	{
+		return factory;
+		
+	}
+	
+	BuildingObject* building = dynamic_cast<BuildingObject*>(ob);
+	if(building)
+	{
+		return  building;
+	}
+
+	return getObjectMainParent(ob);
+}
+
+uint64 ObjectContainer::getIDMainParent(Object* object)
 {
 
 	uint64 parentID = object->getParentId();
@@ -519,13 +572,13 @@ uint64 ObjectContainer::getObjectMainParent(Object* object)
 		return  parentID;
 	}
 
-	parentID = getObjectMainParent(ob);
+	parentID = getIDMainParent(ob);
 
 	return parentID;
 }
 
 //deprecated
-uint64 ObjectContainer::getObjectMainParent2(Object* object)
+/*uint64 ObjectContainer::getObjectMainParent2(Object* object)
 {
 
 	uint64 parentID = object->getParentId();
@@ -579,6 +632,7 @@ uint64 ObjectContainer::getObjectMainParent2(Object* object)
 
 	return parentID;
 }
+*/
 
 //=============================================================================================
 // gets a headcount of all tangible (!!!) Objects in the container 

@@ -476,21 +476,16 @@ bool ObjectController::checkContainingContainer(uint64 containingContainer, uint
 
 	}
 
-	uint64 ownerId = container->getObjectMainParent(container);
-
-	Object* object = dynamic_cast<Object*>(gWorldManager->getObjectById(ownerId));
-
-	//it might be the inventory
-	if(!object)
+	Object* mainObject = container->getObjectMainParent(container);
+	if(!mainObject)
 	{
-		//Hack ourselves an inventory .... - its not part of the world ObjectMap
-		if((ownerId-1) == playerId)
-		{
-			object = gWorldManager->getObjectById(playerId);
-		}
+		//Panick
+		assert(false&&"ObjController::checkContainingContainer: CAN NOT FIND MAIN CONTAINING CONTAINER PARENT ");
+		gLogger->log(LogManager::DEBUG,"ObjController::checkContainingContainer: CAN NOT FIND MAIN CONTAINING CONTAINER PARENT CONTAINER ID%I64u :(",container->getId());
+		return false;
 	}
 
-	if(BuildingObject* building = dynamic_cast<BuildingObject*>(object))
+	if(BuildingObject* building = dynamic_cast<BuildingObject*>(mainObject))
 	{
 		if(building->hasAdminRights(playerId) || gWorldConfig->isTutorial())
 		{
@@ -500,7 +495,7 @@ bool ObjectController::checkContainingContainer(uint64 containingContainer, uint
 		return false;
 	}
 
-	if(CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(ownerId)))
+	if(CellObject* cell = dynamic_cast<CellObject*>(mainObject))
 	{
 		if(BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId())))
 		{
@@ -523,7 +518,7 @@ bool ObjectController::checkContainingContainer(uint64 containingContainer, uint
 		return false;
 	}
 
-	if(PlayerObject* player = dynamic_cast<PlayerObject*>(object))
+	if(PlayerObject* player = dynamic_cast<PlayerObject*>(mainObject))
 	{
 		if(player->getId() == playerId)
 		{
@@ -536,7 +531,7 @@ bool ObjectController::checkContainingContainer(uint64 containingContainer, uint
 	//todo handle factory hoppers
 
 	//todo handle loot permissions
-	if(CreatureObject* creature = dynamic_cast<CreatureObject*>(object))
+	if(CreatureObject* creature = dynamic_cast<CreatureObject*>(mainObject))
 	{
 	}
 
@@ -620,9 +615,7 @@ bool ObjectController::checkTargetContainer(uint64 targetContainerId, Object* ob
 	//get the mainOwner of the container - thats a building or a player or an inventory
 	//
 	
-	uint64 ownerId = container->getObjectMainParent(targetContainer);
-	
-	Object* objectOwner = dynamic_cast<Object*>(gWorldManager->getObjectById(ownerId));
+	Object* objectOwner = container->getObjectMainParent(targetContainer);
 
 	if(BuildingObject* building = dynamic_cast<BuildingObject*>(objectOwner))
 	{
@@ -862,18 +855,24 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 	TangibleObject* containingContainer = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(tangible->getParentId()));
 	if(containingContainer&&containingContainer->removeObject(itemObject))
 	{
-		//if it is in a cell it needs to be destoyed for all nearby objects
-		PlayerObjectSet* inRangePlayers	= playerObject->getKnownPlayers();
-		PlayerObjectSet::iterator it = inRangePlayers->begin();
-		while(it != inRangePlayers->end())
+		//if it is in a container in a cell it needs to be destroyed for all nearby objects
+		//*is* it in a container in a cell ?
+		BuildingObject* building = dynamic_cast<BuildingObject*>(containingContainer->getObjectMainParent(containingContainer));
+		if(building)
 		{
-			PlayerObject* targetObject = (*it);
-			gMessageLib->sendDestroyObject(tangible->getId(),targetObject);
+			// I am not exactly satisfied by this 
+			// In my opinion we should add players to the knownPlayerslist we create them for
+			PlayerObjectSet* inRangePlayers	= itemObject->getKnownPlayers();
+			PlayerObjectSet::iterator it = inRangePlayers->begin();
+			while(it != inRangePlayers->end())
+			{
+				PlayerObject* targetObject = (*it);
+				gMessageLib->sendDestroyObject(tangible->getId(),targetObject);
 			
-			++it;
+				++it;
+			}
+			return true;
 		}
-		return true;
-	
 	}
 	
 	return false;

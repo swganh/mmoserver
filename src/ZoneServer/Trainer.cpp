@@ -866,32 +866,16 @@ void Trainer::postProcessfilter(ActiveConversation* av, PlayerObject* player, ui
 
 			if (pageId == 13)
 			{
-				char elements[5][32];
-				memset(elements, 0, sizeof(elements));
-				char *masterStringSingleName = {"WOW! You have learned everything I have to teach... I suppose that now it's time for you to find your own path. Farewell, %s."};
-				char *masterStringDoubleName = {"WOW! You have learned everything I have to teach... I suppose that now it's time for you to find your own path. Farewell, %s %s."};
-
-				// BString aMess("@skill_teacher:no_qualify");
-				char *buffer = new char[strlen(masterStringDoubleName) + player->getFirstName().getLength() + player->getLastName().getLength()];
-				if (player->getLastName().getLength())
-				{
-					sprintf(buffer,masterStringDoubleName, player->getFirstName().getAnsi(), player->getLastName().getAnsi());
-				}
-				else
-				{
-					sprintf(buffer,masterStringSingleName, player->getFirstName().getAnsi());
-				}
-				BString aMess(buffer);
-				aMess.convert(BSTRType_Unicode16);
+                ProsePackage prose("skill_teacher", "surpass_trainer", 0, "", "", L"", player->getId());
+				
 				if (!gWorldConfig->isInstance())
 				{
-					gMessageLib->sendSpatialChat(this,aMess,elements);
+					gMessageLib->SendSpatialChat(this, prose);
 				}
 				else
 				{
-					gMessageLib->sendSpatialChat(this, aMess, elements, player);
+					gMessageLib->SendSpatialChat(this, prose, player);
 				}
-				delete buffer;
 			}
 			// TODO: Update with our new abilities.
 		}	
@@ -1035,19 +1019,15 @@ bool Trainer::preProcessfilterConversation(ActiveConversation* av,Conversation* 
 						gMessageLib->sendCreatureAnimation(av->getNpc(),gWorldManager->getNpcConverseAnimation(16), player); // giveup
 					}
 					
-					char elements[5][32];
-					memset(elements, 0, sizeof(elements));
-					// BString aMess("@skill_teacher:no_qualify");
-					BString aMess("I'm sorry, but I cannot teach you anymore. You have already learned everything I have to teach.");
-					aMess.convert(BSTRType_Unicode16);
-					// gMessageLib->sendSpatialChat(this,aMess,elements);
+                    ProsePackage prose("skill_teacher", "topped_out");
+
 					if (!gWorldConfig->isInstance())
 					{
-						gMessageLib->sendSpatialChat(this,aMess,elements);
+						gMessageLib->SendSpatialChat(this, prose);
 					}
 					else
 					{
-						gMessageLib->sendSpatialChat(this, aMess, elements, player);
+						gMessageLib->SendSpatialChat(this, prose, player);
 					}
 
 					continueConversation = false;
@@ -1082,20 +1062,15 @@ bool Trainer::preProcessfilterConversation(ActiveConversation* av,Conversation* 
 						gMessageLib->sendCreatureAnimation(av->getNpc(),gWorldManager->getNpcConverseAnimation(27), player); // poke
 					}
 
-					char elements[5][32];
-					memset(elements, 0, sizeof(elements));
+                    ProsePackage prose("skill_teacher", "no_qualify");
 
-					// BString aMess("@skill_teacher:no_qualify");
-					BString aMess("You do not qualify for any of my teachings. Come back and speak with me later if you acquire the following skills...");
-					aMess.convert(BSTRType_Unicode16);
-					// gMessageLib->sendSpatialChat(this,aMess,elements);
 					if (!gWorldConfig->isInstance())
 					{
-						gMessageLib->sendSpatialChat(this,aMess,elements);
+						gMessageLib->SendSpatialChat(this, prose);
 					}
 					else
 					{
-						gMessageLib->sendSpatialChat(this, aMess, elements, player);
+						gMessageLib->SendSpatialChat(this, prose, player);
 					}
 
 					

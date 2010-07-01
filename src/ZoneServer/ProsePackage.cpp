@@ -55,10 +55,10 @@ ProsePackage::ProsePackage()
 , display_flag_(0) {}
 
 
-ProsePackage::ProsePackage(std::string base_stf_file, std::string base_stf_string, 
-    uint64_t tu_object_id, std::string tu_stf_file, std::string tu_stf_string, std::wstring tu_custom_string,
-    uint64_t tt_object_id, std::string tt_stf_file, std::string tt_stf_string, std::wstring tt_custom_string,
-    uint64_t to_object_id, std::string to_stf_file, std::string to_stf_string, std::wstring to_custom_string,
+ProsePackage::ProsePackage(const std::string& base_stf_file, const std::string& base_stf_string, 
+    uint64_t tu_object_id, const std::string& tu_stf_file, const std::string& tu_stf_string, const std::wstring& tu_custom_string,
+    uint64_t tt_object_id, const std::string& tt_stf_file, const std::string& tt_stf_string, const std::wstring& tt_custom_string,
+    uint64_t to_object_id, const std::string& to_stf_file, const std::string& to_stf_string, const std::wstring& to_custom_string,
     int32_t di_integer, float df_float, uint8_t display_flag)
 : base_stf_file_(base_stf_file)
 , base_stf_int_(0)

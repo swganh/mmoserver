@@ -535,7 +535,8 @@ bool ObjectController::checkContainingContainer(uint64 containingContainer, uint
 	{
 	}
 
-	
+	gLogger->log(LogManager::DEBUG,"ObjController::checkContainingContainer: COULDNT CAST MAIN CONTAINING CONTAINER PARENT CONTAINER ID%I64u :(",container->getId());
+
 	return true;
 }
 
@@ -860,17 +861,7 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 		BuildingObject* building = dynamic_cast<BuildingObject*>(containingContainer->getObjectMainParent(containingContainer));
 		if(building)
 		{
-			// I am not exactly satisfied by this 
-			// In my opinion we should add players to the knownPlayerslist we create them for
-			PlayerObjectSet* inRangePlayers	= itemObject->getKnownPlayers();
-			PlayerObjectSet::iterator it = inRangePlayers->begin();
-			while(it != inRangePlayers->end())
-			{
-				PlayerObject* targetObject = (*it);
-				gMessageLib->sendDestroyObject(tangible->getId(),targetObject);
-			
-				++it;
-			}
+			itemObject->destroyKnownObjects();
 			return true;
 		}
 	}
@@ -1097,7 +1088,8 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 	ObjectContainer* receivingContainer = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(targetContainerId));
 	if(receivingContainer)
 	{
-		receivingContainer->addObjectSecure(itemObject);
+		//create theitem for all players known by the container and add them to the items knownplayerlist!!!
+		receivingContainer->addObjectSecure(itemObject,receivingContainer->getKnownPlayers());
 		itemObject->setParentId(receivingContainer->getId(),linkType,playerObject,true);
 	}	
 }

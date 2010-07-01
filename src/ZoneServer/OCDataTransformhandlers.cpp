@@ -912,6 +912,7 @@ bool ObjectController::_destroyOutOfRangeObjects(ObjectSet *inRangeObjects)
 
 			if(object->getType() == ObjType_Structure)
 			{
+				/*
 				if(FactoryObject* factory = dynamic_cast<FactoryObject*>(object))
 				{
 					//delete the hoppers contents
@@ -967,8 +968,8 @@ bool ObjectController::_destroyOutOfRangeObjects(ObjectSet *inRangeObjects)
 							player->removeKnownObject(hopper);
 							gMessageLib->sendDestroyObject(hopper->getId(),player);					
 					}
-
-				}
+					
+				}*/
 			}
 			// send a destroy to us
 			gMessageLib->sendDestroyObject(object->getId(),player);

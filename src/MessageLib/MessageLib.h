@@ -245,7 +245,6 @@ public:
      */
     void SendSpatialChat(CreatureObject* const speaking_object, const ProsePackage& prose_message, const PlayerObject* const player_object = NULL, uint64_t target_id = 0, uint16_t text_size = 0x32, SocialChatType chat_type_id = kSocialChatNone, MoodType mood_id = kMoodNone, uint8_t whisper_target_animate = 0);
 
-	void				sendSpatialChat(CreatureObject* const srcObject, BString chatMsg, char chatElement[5][32]);
 	bool				sendSpatialChat(const CreatureObject* const srcObject, const PlayerObject* const playerObject,BString customMessage = L"",BString mainFile = "",
 										BString mainVar = "",BString toFile = "",BString toVar = "",BString toCustom = L"",int32 di = 0,
 										BString ttFile = "",BString ttVar = "",BString ttCustom = L"",uint64 ttId = 0,uint64 toId = 0,uint64 tuId = 0) const;
@@ -256,7 +255,6 @@ public:
 	void				sendCreatureAnimation(CreatureObject* srcObject,BString animation);
 
 	// spatial for tutorial
-	void				sendSpatialChat(const CreatureObject* const srcObject,BString chatMsg,char chatElement[5][32], const PlayerObject* const player) const ;
 	void				sendCreatureAnimation(CreatureObject* srcObject,BString animation, PlayerObject* player);
 
 	// npc conversations

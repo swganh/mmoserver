@@ -29,6 +29,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <cstdint>
 
+/**
+ * This Enum is used by spatial chat to indicate the manner in which a given
+ * body of speach is delivered. This is reflected in the prose speach that is
+ * displayed as well as the chat bubble.
+ */
+
 enum SocialChatTypes : uint16_t {
     kSocialChatNone = 0,
     kSocialChatSay,
@@ -133,6 +139,6 @@ enum SocialChatTypes : uint16_t {
     kSocialChatYack,
     kSocialChatYell,
     kSocialChatYelp
-} SocialChatTypes;
+};
 
 #endif  // SRC_ZONESERVER_SOCIALCHATTYPES_H_

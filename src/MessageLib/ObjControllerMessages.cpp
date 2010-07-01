@@ -122,6 +122,12 @@ void MessageLib::SendSpatialChat(CreatureObject* const speaking_object, const st
 	mMessageFactory->addString(custom_message);
 	mMessageFactory->addUint16(text_size);
 	mMessageFactory->addUint16(chat_type_id);
+    
+    // If no explicit mood was passed in, use the speaking object's current mood.
+    if (!mood_id) {
+        mood_id = static_cast<MoodType>(speaking_object->getMoodId());
+    }
+
 	mMessageFactory->addUint16(mood_id);
 	mMessageFactory->addUint8(whisper_target_animate);
 	mMessageFactory->addUint8(static_cast<uint8>(speaking_object->getLanguage()));
@@ -149,6 +155,12 @@ void MessageLib::SendSpatialChat(CreatureObject* const speaking_object, const Pr
 	mMessageFactory->addString(L"");
 	mMessageFactory->addUint16(text_size);
 	mMessageFactory->addUint16(chat_type_id);
+
+    // If no explicit mood was passed in, use the speaking object's current mood.
+    if (!mood_id) {
+        mood_id = static_cast<MoodType>(speaking_object->getMoodId());
+    }
+
 	mMessageFactory->addUint16(mood_id);
 	mMessageFactory->addUint8(whisper_target_animate);
 	mMessageFactory->addUint8(static_cast<uint8>(speaking_object->getLanguage()));

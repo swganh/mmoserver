@@ -91,6 +91,7 @@ class ChatServer
 		CSRManager*					  mCSRManager;
 
 		DispatchClient*				  mClient;
+		uint32					      mLastHeartbeat;
 
 };
 

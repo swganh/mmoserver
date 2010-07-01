@@ -73,6 +73,7 @@ class ConnectionServer
 		Service*				mClientService;
 		Service*				mServerService;
 		bool					mLocked;
+		uint32					mLastHeartbeat;
 };
 
 //======================================================================================================================

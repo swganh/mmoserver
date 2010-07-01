@@ -68,6 +68,7 @@ class ObjectContainer :	public Object, public ObjectFactoryCallback
 		void				handleObjectReady(Object* object,DispatchClient* client);
 
 		uint64				getObjectMainParent(Object* object);
+		uint64				getObjectMainParent2(Object* object);
 
 		ObjectIDList*		getObjects() { return &mData; }
 		Object*				getObjectById(uint64 id);

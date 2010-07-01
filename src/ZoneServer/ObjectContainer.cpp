@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "CellObject.h"
 #include "Inventory.h"
 #include "FactoryObject.h"
+#include "BuildingObject.h"
 #include "PlayerObject.h"
 #include "MessageLib/MessageLib.h"
 #include "WorldManager.h"
@@ -161,7 +162,7 @@ bool ObjectContainer::addObjectSecure(Object* Data, PlayerObject* player)
 
 	if(!player)
 	{
-		gLogger->log(LogManager::DEBUG,"ObjectContainer::addObject No Capacity!!!!");
+		gLogger->log(LogManager::DEBUG,"ObjectContainer::addObject No player!!!!");
 		return addObjectSecure(Data);
 		
 	}
@@ -468,9 +469,63 @@ void ObjectContainer::handleObjectReady(Object* object,DispatchClient* client)
 //============================================================================================================
 // the idea is that the container holding our new item might be held by a container, too
 // should this happen, we need to find the main container to determin what kind of creates to send to our player/s
-// we will iterate through the parentObjects until the parent is either a player (item has been equipped) or in the inventory or )
+// we will iterate through the parentObjects until the parent is either a player (item has been equipped) or in the inventory,
 // or a cell or a factory
+// additionally the size of the inventory gets calculated by the size of its containers
+//
 uint64 ObjectContainer::getObjectMainParent(Object* object)
+{
+
+	uint64 parentID = object->getParentId();
+
+	Object* ob = dynamic_cast<Object*>(gWorldManager->getObjectById(parentID));
+	if(!ob)
+	{
+		return 0;
+	}
+
+	//the object is equipped - the mainparent is the player
+	PlayerObject* player = dynamic_cast<PlayerObject*>(ob);
+	if(player)
+	{
+		return parentID;
+	}
+
+	//the object is in the inventory - the mainparent is the inventory
+	Inventory* inventory = dynamic_cast<Inventory*>(ob);
+	if(inventory)
+	{
+		return parentID;
+	}
+
+	//the object is in the cell - the mainparent is the structure
+	CellObject* cell = dynamic_cast<CellObject*>(ob);
+	if(cell)
+	{
+		return cell->getParentId();
+	}
+	
+	//the object is in the factory - the mainparent is the factory
+	FactoryObject* factory = dynamic_cast<FactoryObject*>(ob);
+	if(factory)
+	{
+		return parentID;
+		
+	}
+	
+	BuildingObject* building = dynamic_cast<BuildingObject*>(ob);
+	if(building)
+	{
+		return  parentID;
+	}
+
+	parentID = getObjectMainParent(ob);
+
+	return parentID;
+}
+
+//deprecated
+uint64 ObjectContainer::getObjectMainParent2(Object* object)
 {
 
 	uint64 parentID = object->getParentId();
@@ -537,6 +592,7 @@ uint16 ObjectContainer::getHeadCount()
 	{
 		//do NOT count static tangibles like the playerStructureTerminal
 		TangibleObject* to = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(*it));
+		//do not count static objects like the cellterminal!!!
 		if(to && (to != this) && (!to->getStatic()))
 		{
 		 	count += to->getHeadCount();

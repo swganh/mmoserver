@@ -76,10 +76,6 @@ public:
     void WriteToMessageFactory(MessageFactory* message_factory) const;
 
 private:
-
-    // Return's the size of the prose package as a wide-character string.
-    uint32_t real_size_() const;
-
     std::string base_stf_file_;
     uint32_t base_stf_int_;
     std::string base_stf_string_;

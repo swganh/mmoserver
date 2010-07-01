@@ -90,9 +90,16 @@ ProsePackage::~ProsePackage() {}
 
 
 void ProsePackage::WriteToMessageFactory(MessageFactory* message_factory) const {
-    // Find the size of the prose package as wide character string and
-    // add it to the message.
-    uint32_t real_size = real_size_();
+    // Find the length of the ProsePackage.
+    uint32_t std_string_lengths = base_stf_file_.length() + base_stf_string_.length() +
+        tu_stf_file_.length() + tu_stf_string_.length() +
+        tt_stf_file_.length() + tt_stf_string_.length() +
+        to_stf_file_.length() + to_stf_string_.length();
+    
+    // The constant 42 here is the sum of the size's of all the int/float values in
+    // the ProsePackage, including the string lengths that prefix each string, divided by 2.
+    uint32_t real_size = 42 + static_cast<uint32_t>(ceil(static_cast<float>(std_string_lengths + tu_custom_string_.length() + tt_custom_string_.length() + to_custom_string_.length()) / 2.0f));
+    
     message_factory->addUint32(real_size);
 
     // Technically you can send more than one element in an OutOfBand packge but
@@ -134,16 +141,10 @@ void ProsePackage::WriteToMessageFactory(MessageFactory* message_factory) const 
     message_factory->addInt32(di_integer_);
     message_factory->addFloat(df_float_);
     message_factory->addUint8(display_flag_);
-}
-
-
-uint32_t ProsePackage::real_size_() const {
-    uint32_t real_size = base_stf_file_.length() + base_stf_string_.length() +
-        tu_stf_file_.length() + tu_stf_string_.length() +
-        tt_stf_file_.length() + tt_stf_string_.length() +
-        to_stf_file_.length() + to_stf_string_.length();
     
-    // @todo: Where does this magic 42 come from? And why divide the std::string 
-    // lengths by 2 and not the std::wstrings? More investigation is needed.
-    return 42 + (real_size / 2) + tu_custom_string_.length() + tt_custom_string_.length() + to_custom_string_.length();
+    // This whole ProsePackage is treated as a wide-character string, so if 
+    // the std::string length totals are odd then we need to add some padding.
+    if (std_string_lengths % 2) {
+        message_factory->addUint8(0);
+    }
 }

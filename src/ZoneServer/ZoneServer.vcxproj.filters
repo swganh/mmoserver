@@ -554,9 +554,6 @@
     <ClCompile Include="RadialMenuItem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="RegionFactory.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="RegionObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -758,10 +755,7 @@
     <ClCompile Include="SendSystemMailMessage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="NoBuildRegion.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="NoBuildRegionFactory.cpp">
+    <ClCompile Include="RegionFactory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1475,12 +1469,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SendSystemMailMessage.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="NoBuildRegion.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="NoBuildRegionFactory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

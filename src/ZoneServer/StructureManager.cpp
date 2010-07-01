@@ -48,9 +48,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Common/MessageFactory.h"
 #include "Deed.h"
 #include "StructureHeightmapAsyncContainer.h"
+#include "OCStructureHandlers.h"
 #include "Heightmap.h"
-#include "NoBuildRegionFactory.h"
-#include "NoBuildRegion.h"
 
 #include "LogManager/LogManager.h"
 #include "DatabaseManager/Database.h"
@@ -96,6 +95,11 @@ StructureManager::StructureManager(Database* database,MessageDispatch* dispatch)
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sit.structure_id, sit.cell, sit.item_type , sit.relX, sit.relY, sit.relZ, sit.dirX, sit.dirY, sit.dirZ, sit.dirW, sit.tan_type,  "
 													"tt.object_string, tt.name, tt.file from swganh.structure_item_template sit INNER JOIN terminal_types tt ON (tt.id = sit.item_type) WHERE sit.tan_type = %u",TanGroup_Terminal);
 
+	// load our NoBuildRegions
+	asyncContainer = new StructureManagerAsyncContainer(Structure_Query_NoBuildRegionData, 0);
+	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT planet_regions.region_id, planet_regions.region_name, planet_regions.x, planet_regions.z, planet_regions.width, planet_regions.height, planet_regions.planet_id, "
+													"planet_regions.build,planet_regions.no_build_type FROM planet_regions WHERE region_file = 'no_build_region'");
+	//mDatabase->ExecuteProcedureAsync(this, asyncContainer, "CALL sp_PlanetNoBuildRegions(%"PRIu64")",0);
 
 	//=========================
 	//check regularly the harvesters - they might have been turned off by the db, harvesters without condition might need to be deleted
@@ -114,19 +118,6 @@ StructureManager::~StructureManager()
 //======================================================================================================================
 StructureManager*	StructureManager::Init(Database* database, MessageDispatch* dispatch)
 {
-	// initialize NoBuildRegions
-	
-	NoBuildRegionFactory* nbFactory = new NoBuildRegionFactory(database);
-	//nbFactory->getPlanetRegions
-	// get vector containing list of all planets and their regions
-	// parse the vector
-	for (int i = NOBUILD_CORELLIA; i < NOBUILD_YAVIN; i++)
-	{
-		//TODO: clean this up
-		nbFactory->requestObject(NULL, i, 0, 0, NULL);
-	
-	}
-	//NoBuildRegionList 
 	if(!mInsFlag)
 	{
 		mSingleton = new StructureManager(database,dispatch);
@@ -451,8 +442,78 @@ bool StructureManager::checkinCamp(PlayerObject* player)
 	return false;
 
 }
+//======================================================================================================================
+//returns true if we're in a no build region
+//======================================================================================================================
+bool StructureManager::checkNoBuildRegion(PlayerObject* player)
+{
+	NoBuildRegionList* regionList = getNoBuildRegionList();
+	NoBuildRegionList::iterator it = regionList->begin();
+	while(it != regionList->end())
+	{
+		if (gWorldManager->getPlanetNameById((*it)->planet_id))
+		{
+			float pX = player->mPosition.x;
+			float pZ = player->mPosition.z;
+			float rX = (*it)->mPosition.x;
+			float rZ = (*it)->mPosition.z;
 
+			float height = (*it)->height;
+			float width = (*it)->width;
 
+			// math
+			checkInNoBuildRadius(player,it);
+			if ((*it)->isCircle)
+			{
+				// formula  
+				if ((((pX - rX)*(pX - rX)) + ((pZ - rZ)*(pZ - rZ))) <= (height*2)*(height*2))
+				{
+					return true;
+				}
+			}
+			
+			// get the player vector in 2d
+			glm::vec2 playerV(pX,pZ);
+			// get the bottom left corner of the rectangle
+			glm::vec2 corner(rX - (0.5*width), rZ - (0.5*height));
+			// Create a vector of the width we want pointing down the x-axis.
+			glm::vec2 xLengthVector(rX, width);
+			glm::vec2 side1 = corner + xLengthVector;
+			// Create a vector of the height we want pointing down the z-axis
+			glm::vec2 zWidthVector(rZ, height);
+			glm::vec2 side2 = corner + zWidthVector;
+
+			// v = P - C
+			glm::vec2 v = playerV - corner;
+
+			float firstDot = glm::dot(v,side1);
+			float secondDot = glm::dot(side1,side1);
+			float thirdDot =  glm::dot(v, side2);
+			float fourthDot = glm::dot(side2,side2);
+
+			if (0 <= firstDot <= secondDot && 0 <= thirdDot <= fourthDot)
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+//======================================================================================================================
+//returns true if we're in a no build region
+//======================================================================================================================
+bool StructureManager::checkInNoBuildRadius(PlayerObject*player, NoBuildRegionList::iterator noBuildIt)
+{
+	if (*noBuildIt)
+	{	
+
+	}
+	else
+	{
+
+	}
+	return true;
+}
 //=========================================================================================0
 // gets the code to confirm structure destruction
 //
@@ -1509,15 +1570,14 @@ void StructureManager::UpdateCharacterLots(uint64 charId)
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sf_getLotCount(%I64u)",charId);
 }
 //======================================================================================================================
-bool StructureManager::HandlePlaceStructure(Object* object, Message* message, ObjectControllerCmdProperties* cmdProperties)
+bool StructureManager::HandlePlaceStructure(Object* object, Object* target, Message* message, ObjectControllerCmdProperties* cmdProperties)
 {
 	PlayerObject*	player	= dynamic_cast<PlayerObject*>(object);
 
 	// TODO - are we in structure placement mode ???
 	if(!player)
 	{
-		//gMessageLib->sendSystemMessage(entertainer,L"","performance","flourish_not_performing");
-		return;
+		return false;
 	}	
 
 	//find out where our structure is
@@ -1539,17 +1599,17 @@ bool StructureManager::HandlePlaceStructure(Object* object, Message* message, Ob
 	//todo : check if the type of building is allowed on the planet
 
 	//check the region whether were allowed to build
-	if(!checkCityRadius(player) )
+	if(!checkCityRadius(player) && !checkNoBuildRegion(player))
 	{
 		gMessageLib->sendSystemMessage(player,L"","faction_perk","no_build_area");
-		return;
+		return false;
 	}
 
 	Deed* deed = dynamic_cast<Deed*>(gWorldManager->getObjectById(deedId));
 	if(!deed)
 	{
 		gLogger->log(LogManager::DEBUG," ObjectController::_handleStructurePlacement deed not found :( ");		
-		return;
+		return false;
 	}
 
 	switch(deed->getItemType())
@@ -1620,7 +1680,7 @@ bool StructureManager::HandlePlaceStructure(Object* object, Message* message, Ob
 		case	ItemType_deed_cityhall_tatooine:
 		{
 			//FOR CIVIC STRUCTURES
-			PlayerObject* player = dynamic_cast<PlayerObject*>(this->object);
+			PlayerObject* player = dynamic_cast<PlayerObject*>(object);
 			if(player)
 			{
 				if(!player->checkSkill(623)) //novice Politician
@@ -1710,4 +1770,5 @@ bool StructureManager::HandlePlaceStructure(Object* object, Message* message, Ob
 		break;
 
 	}
+	return true;
 }

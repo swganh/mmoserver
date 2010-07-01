@@ -195,8 +195,6 @@
     <ClCompile Include="MissionTerminal.cpp" />
     <ClCompile Include="MountObject.cpp" />
     <ClCompile Include="MovingObject.cpp" />
-    <ClCompile Include="NoBuildRegion.cpp" />
-    <ClCompile Include="NoBuildRegionFactory.cpp" />
     <ClCompile Include="Noiseutils.cpp" />
     <ClCompile Include="NonPersistantObjectFactory.cpp" />
     <ClCompile Include="NonPersistentItemFactory.cpp" />
@@ -466,8 +464,6 @@
     <ClInclude Include="MissionTerminal.h" />
     <ClInclude Include="MountObject.h" />
     <ClInclude Include="MovingObject.h" />
-    <ClInclude Include="NoBuildRegion.h" />
-    <ClInclude Include="NoBuildRegionFactory.h" />
     <ClInclude Include="noiseutils.h" />
     <ClInclude Include="nonPersistantObjectFactory.h" />
     <ClInclude Include="NonPersistentItemFactory.h" />

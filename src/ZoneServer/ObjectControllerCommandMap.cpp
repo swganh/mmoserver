@@ -36,6 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Common/Message.h"
 
 #include "OCStructureHandlers.h"
+#include "StructureManager.h"
 
 //======================================================================================================================
 
@@ -239,10 +240,6 @@ void ObjectControllerCommandMap::_registerCppHooks()
 	mCommandMap.insert(std::make_pair(opOCresourcecontainertransfer, std::bind(&ObjectController::_handleResourceContainerTransfer, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
 	mCommandMap.insert(std::make_pair(opOCresourcecontainersplit, std::bind(&ObjectController::_handleResourceContainerSplit, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
 	
-
-
-	
-
 	//pets,mounts
 	mCommandMap.insert(std::make_pair(opOCmount, std::bind(&ObjectController::_handleMount, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
 	mCommandMap.insert(std::make_pair(opOCdismount, std::bind(&ObjectController::_handleDismount, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
@@ -518,7 +515,7 @@ void ObjectControllerCommandMap::_registerCppHooks()
 void ObjectControllerCommandMap::RegisterCppHooks_()
 {
   command_map_.insert(std::make_pair(opMoveFurniture, std::bind(&HandleMoveFurniture, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));	
-  command_map_.insert(std::make_pair(opOCPlaceStructure, std::bind(&StructureManager::HandlePlaceStructure, gStructureManager, std::placeholders_1, std::placeholders::_2,std::placeholders::_3, std::placeholders::_4)));
+  command_map_.insert(std::make_pair(opOCPlaceStructure, std::bind(&StructureManager::HandlePlaceStructure, gStructureManager, std::placeholders::_1, std::placeholders::_2,std::placeholders::_3, std::placeholders::_4)));
 }
 
 //======================================================================================================================

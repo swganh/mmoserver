@@ -981,6 +981,45 @@ void StructureManager::_HandleUpdateAttributes(StructureManagerAsyncContainer* a
 
 
 }
+//==================================================================================================
+// 
+// all region data loaded
+// 
+
+void StructureManager::_HandleNoBuildRegionData(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result)
+{
+	NoBuildRegionTemplate* regionTemplate;
+
+	DataBinding* binding = mDatabase->CreateDataBinding(6);
+	binding->addField(DFT_uint32,offsetof(NoBuildRegionTemplate,region_id),3,0);
+	binding->addField(DFT_string,offsetof(NoBuildRegionTemplate,region_name),255,1);
+	binding->addField(DFT_float,offsetof(NoBuildRegionTemplate,mPosition.x),4,2);
+	binding->addField(DFT_float,offsetof(NoBuildRegionTemplate,mPosition.z),4,2);
+	binding->addField(DFT_float,offsetof(NoBuildRegionTemplate,width), 4, 3);
+	binding->addField(DFT_float,offsetof(NoBuildRegionTemplate,height), 4, 4);
+	binding->addField(DFT_uint8,offsetof(NoBuildRegionTemplate,build),1,5);
+	binding->addField(DFT_uint8,offsetof(NoBuildRegionTemplate,no_build_type),1,6);
+
+	uint64 count;
+	count = result->getRowCount();
+
+	for(uint64 i = 0;i < count;i++)
+	{
+		regionTemplate	= new(NoBuildRegionTemplate);
+		result->GetNextRow(binding,regionTemplate);
+		//set if it's a circle, we know it's a circle because it has a 0 width.
+		regionTemplate->isCircle	 =		(regionTemplate->width == 0);
+		regionTemplate->mRadius		 =		regionTemplate->height*2;
+		regionTemplate->mRadiusSq	 =		regionTemplate->mRadius * regionTemplate->mRadius;
+		mNoBuildList.push_back(regionTemplate);
+	}
+
+	if(result->getRowCount())
+		gLogger->log(LogManager::NOTICE,"Loaded %u NoBuildRegions.",count);
+
+	mDatabase->DestroyDataBinding(binding);
+}
+
 
 void StructureManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 {

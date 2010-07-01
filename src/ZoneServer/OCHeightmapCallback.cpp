@@ -25,10 +25,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#include "ObjectController.h"
+#include "StructureManager.h"
 #include "HeightmapAsyncContainer.h"
 
-void ObjectController::heightMapCallback(HeightmapAsyncContainer* ref)
+void StructureManager::heightMapCallback(HeightmapAsyncContainer* ref)
 {
 	switch(ref->type)
 	{

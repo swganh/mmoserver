@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  * mannerisms.
  */
 
-enum MoodTypes : uint16_t {
+enum MoodType : uint16_t {
     kMoodNone = 0,
     kMoodAbsentminded,
     kMoodAmazed,

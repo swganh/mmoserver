@@ -228,7 +228,7 @@ public:
      * @param mood_id An ID representing the mood of the speaking object. @todo: Add an ID table here.
      * @param whisper_target_animate If set to 1 the speaker will turn to the target and whisper.
      */
-    void SendSpatialChat(CreatureObject* const speaking_object, const std::wstring& custom_message, const PlayerObject* const player_object = NULL, uint64_t target_id = 0, uint16_t text_size = 0x32, uint16_t chat_type_id = kSocialChatNone, uint16_t mood_id = kMoodNone, uint8_t whisper_target_animate = 0);
+    void SendSpatialChat(CreatureObject* const speaking_object, const std::wstring& custom_message, const PlayerObject* const player_object = NULL, uint64_t target_id = 0, uint16_t text_size = 0x32, SocialChatType chat_type_id = kSocialChatNone, MoodType mood_id = kMoodNone, uint8_t whisper_target_animate = 0);
     
     /**
      * Sends a message via spatial chat using a ProsePackage (STF string), spoken by the specified object.
@@ -243,7 +243,7 @@ public:
      * @param mood_id An ID representing the mood of the speaking object. @todo: Add an ID table here.
      * @param whisper_target_animate If set to 1 the speaker will turn to the target and whisper.
      */
-    void SendSpatialChat(CreatureObject* const speaking_object, const ProsePackage& prose_message, const PlayerObject* const player_object = NULL, uint64_t target_id = 0, uint16_t text_size = 0x32, uint16_t chat_type_id = kSocialChatNone, uint16_t mood_id = kMoodNone, uint8_t whisper_target_animate = 0);
+    void SendSpatialChat(CreatureObject* const speaking_object, const ProsePackage& prose_message, const PlayerObject* const player_object = NULL, uint64_t target_id = 0, uint16_t text_size = 0x32, SocialChatType chat_type_id = kSocialChatNone, MoodType mood_id = kMoodNone, uint8_t whisper_target_animate = 0);
 
 	void				sendSpatialChat(CreatureObject* const srcObject, BString chatMsg, char chatElement[5][32]);
 	bool				sendSpatialChat(const CreatureObject* const srcObject, const PlayerObject* const playerObject,BString customMessage = L"",BString mainFile = "",

@@ -35,7 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  * displayed as well as the chat bubble.
  */
 
-enum SocialChatTypes : uint16_t {
+enum SocialChatType : uint16_t {
     kSocialChatNone = 0,
     kSocialChatSay,
     kSocialChatAdd,

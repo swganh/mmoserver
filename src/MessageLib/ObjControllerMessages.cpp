@@ -86,7 +86,7 @@ using ::boost::regex_search;
 // Spatial Chat
 //
 
-void MessageLib::SendSpatialChat(CreatureObject* const speaking_object, const std::wstring& custom_message, const PlayerObject* const player_object, uint64_t target_id, uint16_t text_size, uint16_t chat_type_id, uint16_t mood_id, uint8_t whisper_target_animate) {
+void MessageLib::SendSpatialChat(CreatureObject* const speaking_object, const std::wstring& custom_message, const PlayerObject* const player_object, uint64_t target_id, uint16_t text_size, SocialChatType chat_type_id, MoodType mood_id, uint8_t whisper_target_animate) {
     // First, if this is not a player object, check to see if it's an stf string.
     if (speaking_object->getType() != ObjType_Player) {
         // Use regex to check if the chat string matches the stf string format.
@@ -135,7 +135,7 @@ void MessageLib::SendSpatialChat(CreatureObject* const speaking_object, const st
 
 }
 
-void MessageLib::SendSpatialChat(CreatureObject* const speaking_object, const ProsePackage& prose_message, const PlayerObject* const player_object, uint64_t target_id, uint16_t text_size, uint16_t chat_type_id, uint16_t mood_id, uint8_t whisper_target_animate) {
+void MessageLib::SendSpatialChat(CreatureObject* const speaking_object, const ProsePackage& prose_message, const PlayerObject* const player_object, uint64_t target_id, uint16_t text_size, SocialChatType chat_type_id, MoodType mood_id, uint8_t whisper_target_animate) {
     Message* message;
 
     mMessageFactory->StartMessage();

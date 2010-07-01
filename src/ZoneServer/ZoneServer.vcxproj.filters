@@ -1477,5 +1477,11 @@
     <ClInclude Include="ProsePackage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SocialChatTypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MoodTypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

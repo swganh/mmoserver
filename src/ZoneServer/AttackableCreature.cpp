@@ -454,23 +454,8 @@ bool AttackableCreature::setTargetInAttackRange(void)
 			// for now, let's just taunt him.
 			BString msg(this->getAttackStartMessage());
 			msg.convert(BSTRType_Unicode16);
-			char quack[5][32];
-			memset(quack, 0, sizeof(quack));
-
-			if (!gWorldConfig->isInstance())
-			{
-				gMessageLib->sendSpatialChat(this, msg, quack);
-				// gMessageLib->sendCreatureAnimation(this,gWorldManager->getNpcConverseAnimation(27));	// poke
-			}
-			else
-			{
-				PlayerObject* playerObject = dynamic_cast<PlayerObject*>(this->getTarget());
-				if (playerObject)
-				{
-		            playerObject->getTutorial()->spatialChat(this->getId(), this->getAttackStartMessage().getAnsi());
-					// gMessageLib->sendCreatureAnimation(this,gWorldManager->getNpcConverseAnimation(27), playerObject);
-				}
-			}
+            
+            gMessageLib->SendSpatialChat(this, msg.getUnicode16());
 		}
 		else
 		{
@@ -552,23 +537,8 @@ bool AttackableCreature::showWarningInRange(void)
 		{
 			BString msg(getAttackWarningMessage());
 			msg.convert(BSTRType_Unicode16);
-			char quack[5][32];
-			memset(quack, 0, sizeof(quack));
-
-			if (!gWorldConfig->isInstance())
-			{
-				gMessageLib->sendSpatialChat(this, msg, quack);
-				// gMessageLib->sendCreatureAnimation(this,gWorldManager->getNpcConverseAnimation(27));	// poke
-			}
-			else
-			{
-				PlayerObject* playerObject = dynamic_cast<PlayerObject*>(this->getTarget());
-				if (playerObject)
-				{
-		            playerObject->getTutorial()->spatialChat(this->getId(), getAttackWarningMessage().getAnsi());
-					// gMessageLib->sendCreatureAnimation(this,gWorldManager->getNpcConverseAnimation(27), playerObject);
-				}
-			}
+            
+            gMessageLib->SendSpatialChat(this, msg.getUnicode16());
 		}
 		else
 		{
@@ -626,23 +596,8 @@ bool AttackableCreature::setTargetDefenderWithinWeaponRange(void)
 			// for now, let's just taunt him.
 			BString msg(getAttackedMessage());
 			msg.convert(BSTRType_Unicode16);
-			char quack[5][32];
-			memset(quack, 0, sizeof(quack));
 
-			if (!gWorldConfig->isInstance())
-			{
-				gMessageLib->sendSpatialChat(this, msg, quack);
-				// gMessageLib->sendCreatureAnimation(this,gWorldManager->getNpcConverseAnimation(27));	// poke
-			}
-			else
-			{
-				PlayerObject* playerObject = dynamic_cast<PlayerObject*>(this->getTarget());
-				if (playerObject)
-				{
-		            playerObject->getTutorial()->spatialChat(this->getId(), getAttackedMessage().getAnsi());
-					// gMessageLib->sendCreatureAnimation(this,gWorldManager->getNpcConverseAnimation(27), playerObject);
-				}
-			}
+            gMessageLib->SendSpatialChat(this, msg.getUnicode16());
 		}
 	}
 	return foundTarget;

@@ -34,7 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "Common/Message.h"
-
+#include "ArtisanManager.h"
 #include "OCStructureHandlers.h"
 
 //======================================================================================================================
@@ -211,11 +211,7 @@ void ObjectControllerCommandMap::_registerCppHooks()
 	mCommandMap.insert(std::make_pair(opOCtoggleAwayFromKeyboard, std::bind(&ObjectController::_handleToggleAFK, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
 	mCommandMap.insert(std::make_pair(opOCtoggleDisplayingFactionRank, std::bind(&ObjectController::_handleToggleDisplayFactionRank, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
 	mCommandMap.insert(std::make_pair(opOCanon, std::bind(&ObjectController::_handleAnon, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
-	mCommandMap.insert(std::make_pair(opOCrequestsurvey, std::bind(&ObjectController::_handleRequestSurvey, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
-	mCommandMap.insert(std::make_pair(opOCsurvey, std::bind(&ObjectController::_handleSurvey, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
-	mCommandMap.insert(std::make_pair(opOCrequestcoresample, std::bind(&ObjectController::_handleRequestCoreSample, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
-	mCommandMap.insert(std::make_pair(opOCsample, std::bind(&ObjectController::_handleSample, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
-
+	
 	mCommandMap.insert(std::make_pair(opOCrequestbadges, std::bind(&ObjectController::_handleRequestBadges, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
 	mCommandMap.insert(std::make_pair(opOCrequestwaypointatposition, std::bind(&ObjectController::_handleRequestWaypointAtPosition, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
 	mCommandMap.insert(std::make_pair(opOCsetwaypointactivestatus, std::bind(&ObjectController::_handleSetWaypointActiveStatus, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
@@ -518,6 +514,10 @@ void ObjectControllerCommandMap::_registerCppHooks()
 void ObjectControllerCommandMap::RegisterCppHooks_()
 {
   command_map_.insert(std::make_pair(opMoveFurniture, std::bind(&HandleMoveFurniture, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));	
+  command_map_.insert(std::make_pair(opOCrequestsurvey, std::bind(&ArtisanManager::handleRequestSurvey, gArtisanManager, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
+  command_map_.insert(std::make_pair(opOCsurvey, std::bind(&ArtisanManager::handleSurvey,gArtisanManager, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
+  command_map_.insert(std::make_pair(opOCrequestcoresample, std::bind(&ArtisanManager::handleRequestCoreSample,gArtisanManager, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
+  command_map_.insert(std::make_pair(opOCsample, std::bind(&ArtisanManager::handleSample,gArtisanManager, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
 }
 
 //======================================================================================================================

@@ -97,6 +97,7 @@
   <ItemGroup>
     <ClCompile Include="ActiveConversation.cpp" />
     <ClCompile Include="AdminManager.cpp" />
+    <ClCompile Include="ArtisanManager.cpp" />
     <ClCompile Include="AttackableCreature.cpp" />
     <ClCompile Include="AttackableStaticNpc.cpp" />
     <ClCompile Include="BadgeRegion.cpp" />
@@ -349,6 +350,7 @@
     <ClInclude Include="ActiveConversation.h" />
     <ClInclude Include="AdminManager.h" />
     <ClInclude Include="ArtisanHeightmapAsyncContainer.h" />
+    <ClInclude Include="ArtisanManager.h" />
     <ClInclude Include="AttackableCreature.h" />
     <ClInclude Include="AttackableStaticNpc.h" />
     <ClInclude Include="Badge.h" />

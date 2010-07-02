@@ -244,13 +244,23 @@ public:
      * @param whisper_target_animate If set to 1 the speaker will turn to the target and whisper.
      */
     void SendSpatialChat(CreatureObject* const speaking_object, const ProsePackage& prose_message, const PlayerObject* const player_object = NULL, uint64_t target_id = 0, uint16_t text_size = 0x32, SocialChatType chat_type_id = kSocialChatNone, MoodType mood_id = kMoodNone, uint8_t whisper_target_animate = 0);
+    
+    /**
+     * Sends a message via spatial chat using a ProsePackage (STF string), spoken by the specified object.
+     *
+     * @param speaking_object The object that is currently speaking this message.
+     * @param custom_message The text message to be sent via spatial chat.
+     * @param prose_message The ProsePackage to be sent via spatial chat.
+     * @param player_object This parameter allows the messages from npc's to be sent to the right instance players.
+     * @param target_id The object id of the target the speaker is talking to.
+     * @param text_size The size of the text for use in the spatial chat bubble.
+     *                  Options: 0, 2, 3, 4, 6, 8, 10
+     * @param chat_type_id An ID representing the type of chat. @todo: Add an ID table here.
+     * @param mood_id An ID representing the mood of the speaking object. @todo: Add an ID table here.
+     * @param whisper_target_animate If set to 1 the speaker will turn to the target and whisper.
+     */
+    void SendSpatialChat(CreatureObject* const speaking_object, const std::wstring& custom_message, const ProsePackage& prose_message, const PlayerObject* const player_object, uint64_t target_id, uint16_t text_size, SocialChatType chat_type_id, MoodType mood_id, uint8_t whisper_target_animate);
 
-	bool				sendSpatialChat(const CreatureObject* const srcObject, const PlayerObject* const playerObject,BString customMessage = L"",BString mainFile = "",
-										BString mainVar = "",BString toFile = "",BString toVar = "",BString toCustom = L"",int32 di = 0,
-										BString ttFile = "",BString ttVar = "",BString ttCustom = L"",uint64 ttId = 0,uint64 toId = 0,uint64 tuId = 0) const;
-	bool				sendSpatialChat(const CreatureObject* const srcObject, const PlayerObject* const playerObject,char chatElement[5][32],BString customMessage = L"",BString mainFile = "",
-										BString mainVar = "",BString toFile = "",BString toVar = "",BString toCustom = L"",int32 di = 0,
-										BString ttFile = "",BString ttVar = "",BString ttCustom = L"",uint64 ttId = 0,uint64 toId = 0,uint64 tuId = 0) const;
 	void				sendSpatialEmote(CreatureObject* srcObject,uint16 emoteId,uint16 sendText,uint64 emoteTarget);
 	void				sendCreatureAnimation(CreatureObject* srcObject,BString animation);
 

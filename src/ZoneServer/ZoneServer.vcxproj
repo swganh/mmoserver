@@ -212,7 +212,6 @@
     <ClCompile Include="ObjectFactory.cpp" />
     <ClCompile Include="ObjectFactoryCallback.cpp" />
     <ClCompile Include="OCAdminHandlers.cpp" />
-    <ClCompile Include="OCArtisanHandlers.cpp" />
     <ClCompile Include="OCBioEngineerHandlers.cpp" />
     <ClCompile Include="OCBountyHunterHandlers.cpp" />
     <ClCompile Include="OCBrawlerHandlers.cpp" />

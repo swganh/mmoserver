@@ -62,7 +62,6 @@ class PlayerObject;
 class CraftingTool;
 class Item;
 class SpawnPoint;
-class ArtisanHeightmapAsyncContainer;
 class StructureHeightmapAsyncContainer;
 
 typedef std::set<Object*>				ObjectSet;
@@ -160,7 +159,6 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback, 
 		virtual void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
 		virtual void			heightMapCallback(HeightmapAsyncContainer *ref);
 
-		void HeightmapArtisanHandler(HeightmapAsyncContainer* ref);
 		void HeightmapStructureHandler(HeightmapAsyncContainer* ref);
 
 		// Anh_Utils::Clock*		getClock(){ return mClock; }
@@ -425,10 +423,6 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback, 
 		void	_handleNextCraftingStage(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleCreatePrototype(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleCreateManufactureSchematic(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
-		void	_handleRequestSurvey(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
-		void	_handleSurvey(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
-		void	_handleRequestCoreSample(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
-		void	_handleSample(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 
 		// scout
 		void	_handleHarvestCorpse(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);

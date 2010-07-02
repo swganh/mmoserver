@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ZoneServer.h"
 #include "AdminManager.h"
+#include "ArtisanManager.h"
 #include "BuffManager.h"
 #include "CharacterLoginHandler.h"
 #include "CharSheetManager.h"
@@ -148,6 +149,9 @@ mDatabase(0)
 	MessageLib::Init();
 	ObjectFactory::Init(mDatabase);
 	
+	//ArtisanManager callback
+	ArtisanManager::Init();
+
 	//attribute commands for foodbuffs
 	FoodCommandMapClass::Init();
 	
@@ -167,7 +171,7 @@ mDatabase(0)
 	(void)ForageManager::Instance();
 	(void)ScoutManager::Instance();
 	(void)NonPersistantObjectFactory::Instance();
-
+	
 	UIManager::Init(mDatabase,mMessageDispatch);
 	CombatManager::Init(mDatabase);
 	TravelMapHandler::Init(mDatabase,mMessageDispatch,zoneId);

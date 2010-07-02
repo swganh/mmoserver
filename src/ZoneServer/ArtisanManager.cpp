@@ -52,6 +52,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 bool						ArtisanManager::mInsFlag    = false;
 ArtisanManager*				ArtisanManager::mSingleton  = NULL;
+ArtisanManager::ArtisanManager() : mObjectFactoryCallback(), mHeightMapCallback()
+{
+};
+ArtisanManager::~ArtisanManager()
+{
+};
 //======================================================================================================================
 //
 // request survey
@@ -158,7 +164,7 @@ bool ArtisanManager::handleRequestCoreSample(Object* player,Object* target, Mess
 		return false;
 	}
 
-	uint64 localTime = gWorldManager->getServerTime();
+	uint64 localTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
 	if(!playerObject->getNextSampleTime() || (int32)(playerObject->getNextSampleTime() - localTime) <= 0)
 	{
 		playerObject->setNextSampleTime(localTime + 30000);
@@ -222,7 +228,7 @@ void ArtisanManager::HeightmapArtisanHandler(HeightmapAsyncContainer* ref)
 			gMessageLib->sendSystemMessage(container->playerObject,L"","survey","start_sampling","","",container->resourceName.getUnicode16());
 
 			// change posture
-			container->playerObject->setPosture(CreaturePosture_Crouched);
+			container->playerObject->setCrouched();
 
 			// schedule execution
 			container->playerObject->getController()->addEvent(new SampleEvent(container->tool,container->resource),8000);

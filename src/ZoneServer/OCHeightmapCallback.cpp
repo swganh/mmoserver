@@ -32,11 +32,6 @@ void ObjectController::heightMapCallback(HeightmapAsyncContainer* ref)
 {
 	switch(ref->type)
 	{
-	case HeightmapCallback_ArtisanSurvey:
-	{
-		HeightmapArtisanHandler(ref);
-		break;
-	}
 
 	case HeightmapCallback_StructureHarvester:
 	case HeightmapCallback_StructureFactory:

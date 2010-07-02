@@ -43,17 +43,26 @@ class Database;
 class ZoneTree;
 class ArtisanHeightmapAsyncContainer;
 
-class ArtisanManager : public DatabaseCallback, public ObjectFactoryCallback, public HeightMapCallBack
+class ArtisanManager : public ObjectFactoryCallback, public HeightMapCallBack
 {
 public:
 	static ArtisanManager*	getSingletonPtr() { return mSingleton; }
-	static ArtisanManager*	Init(Database* database, MessageDispatch* dispatch);
-	ArtisanManager(void);
-	ArtisanManager(Object* object);
-	~ArtisanManager(void);
+	static ArtisanManager*	Init()
+	{
+		if(mInsFlag == false)
+		{
+			mSingleton = new ArtisanManager();
+			mInsFlag = true;
+			return mSingleton;
+		}
+		else
+			return mSingleton;
+	}
+	
+	ArtisanManager();
+	~ArtisanManager();
 
 	// inherited callbacks
-	virtual void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
 	virtual void			heightMapCallback(HeightmapAsyncContainer *ref){HeightmapArtisanHandler(ref);}
 	void					HeightmapArtisanHandler(HeightmapAsyncContainer* ref);
 
@@ -61,14 +70,11 @@ public:
 	bool					handleRequestCoreSample(Object* player,Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties);
 	bool					handleSurvey(Object* player, Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties);
 	bool					handleSample(Object* player, Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties);
-protected:
-	Object*					mObject;
 private:
+	ObjectFactoryCallback*	mObjectFactoryCallback;
+	HeightMapCallBack*		mHeightMapCallback;
 	static ArtisanManager*	mSingleton;
 	static bool				mInsFlag;
-
-	Database*				mDatabase;
-	MessageDispatch*		mMessageDispatch;
 };
 
 #endif

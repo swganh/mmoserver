@@ -359,9 +359,6 @@
     <ClCompile Include="OCAdminHandlers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="OCArtisanHandlers.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="OCBioEngineerHandlers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

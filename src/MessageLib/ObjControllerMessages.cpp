@@ -143,9 +143,9 @@ void MessageLib::SendSpatialChat(CreatureObject* const speaking_object, const st
     
     // Add the ProsePackage to the message if no custom string was set.
     if (!custom_message.length()) {
-        mMessageFactory->addUint32(0);
-    } else {
         prose_message.WriteToMessageFactory(mMessageFactory);
+    } else {
+        mMessageFactory->addUint32(0);
     }
 
 	mMessageFactory->addUint32(0);

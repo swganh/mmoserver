@@ -92,7 +92,6 @@ enum Structure_QueryType
 	Structure_Query_UpdateAdminPermission		=	23,
 
 	Structure_Query_NoBuildRegionData			=	24,
-	Structure_Query_NoBuildPlanetData			=	25,
 
 };
 

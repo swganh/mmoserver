@@ -466,7 +466,7 @@ bool StructureManager::checkNoBuildRegion(glm::vec3 vec3)
 	NoBuildRegionList::iterator it = regionList->begin();
 	while(it != regionList->end())
 	{
-		if (gWorldManager->getPlanetNameById((*it)->planet_id))
+		if (gWorldManager->getZoneId() == (*it)->planet_id)
 		{
 			float pX = vec3.x;
 			float pZ = vec3.z;
@@ -477,7 +477,7 @@ bool StructureManager::checkNoBuildRegion(glm::vec3 vec3)
 			float width = (*it)->width;
 			float radiusSq = (*it)->mRadiusSq;
 
-			// math
+			// are we a circle
 			if ((*it)->isCircle)
 			{
 				// formula, we do it this way to avoid the costly square root
@@ -493,23 +493,29 @@ bool StructureManager::checkNoBuildRegion(glm::vec3 vec3)
 				// get the bottom left corner of the rectangle
 				glm::vec2 corner(rX - (0.5*width), rZ - (0.5*height));
 				// Create a vector of the width we want pointing down the x-axis.
-				glm::vec2 xLengthVector(rX, width);
+				glm::vec2 xLengthVector(width, 0);
 				glm::vec2 side1 = corner + xLengthVector;
 				// Create a vector of the height we want pointing down the z-axis
-				glm::vec2 zWidthVector(rZ, height);
-				glm::vec2 side2 = corner + zWidthVector;
+				glm::vec2 zHeightVector(0, height);
+				glm::vec2 side2 = corner + zHeightVector;
 
-				// v = P - C
+				// v = Position - Corner
 				glm::vec2 v = positionV - corner;
-
 				float firstDot = glm::dot(v,side1);
 				float secondDot = glm::dot(side1,side1);
 				float thirdDot =  glm::dot(v, side2);
 				float fourthDot = glm::dot(side2,side2);
+				//* P is the point.
+				//* C is a corner of the rectangle.
+				//* v1 and v2 are the two vectors that define the sides (with C as origin).
+				//* v = P-C
+				//P is in the rectangle if and only if
+				//0<=dot_product(v,v1)<=dot_product(v1,v1) and 0<=dot_product(v,v2)<=dot_product(v2,v2)
+				// formula found here: http://www.gamedev.net/community/forums/topic.asp?topic_id=483716&whichpage=1&#3164641
 
-				if (0 <= firstDot <= secondDot && 0 <= thirdDot <= fourthDot)
+				if (0 <= firstDot && firstDot <= secondDot && 0 <= thirdDot && thirdDot <= fourthDot)
 				{
-					//return true;
+					return true;
 					gLogger->log(LogManager::DEBUG,"we're in a rectangle at location %u",(*it)->region_id);
 				}
 			}
@@ -1598,13 +1604,6 @@ bool StructureManager::HandlePlaceStructure(Object* object, Object* target, Mess
 
 	gLogger->log(LogManager::DEBUG," ID %I64u x %f y %f dir %f", deedId, pVec.x, pVec.z, dir);
 	
-	
-	//now get our deed
-	//Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-
-
-	//todo : check if the type of building is allowed on the planet
-
 	//check the region whether were allowed to build
 	if(checkNoBuildRegion(pVec) || !checkCityRadius(player))
 	{
@@ -1690,6 +1689,7 @@ bool StructureManager::HandlePlaceStructure(Object* object, Object* target, Mess
 			PlayerObject* player = dynamic_cast<PlayerObject*>(object);
 			if(player)
 			{
+				// TODO: Enum for skills
 				if(!player->checkSkill(623)) //novice Politician
 				{
 					gMessageLib->sendSystemMessage(player,L"","player_structure","place_cityhall");

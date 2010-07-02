@@ -161,7 +161,6 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback, 
 		virtual void			heightMapCallback(HeightmapAsyncContainer *ref);
 
 		void HeightmapArtisanHandler(HeightmapAsyncContainer* ref);
-		//void HeightmapStructureHandler(HeightmapAsyncContainer* ref);
 
 		// Anh_Utils::Clock*		getClock(){ return mClock; }
 

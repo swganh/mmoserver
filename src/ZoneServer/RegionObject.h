@@ -67,12 +67,6 @@ class RegionObject : public Object
 		float				getHeight(){ return mHeight; }
 		void				setHeight(float height){ mHeight = height; }
 
-		float				getRadius(){ return mRadius; }
-		void				setRadius(float radius){ mRadius = radius; }
-
-		float				getRadiusSq(){ return mRadiusSq; }
-		void				setRadiusSq(float radiusSq){ mRadiusSq = radiusSq; }
-
 		bool				getActive(){ return mActive; }
 		void				setActive(bool a){ mActive = a; }
 
@@ -85,12 +79,9 @@ class RegionObject : public Object
 		RegionType			mRegionType;
 		float				mWidth;
 		float				mHeight;
-		float				mRadius;
-		float				mRadiusSq;
 		string				mRegionName;
 		string				mNameFile;
 		bool				mActive;
-		bool				mCircle;
 };
 
 

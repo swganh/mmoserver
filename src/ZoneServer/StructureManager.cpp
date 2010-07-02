@@ -503,7 +503,7 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 			if(structure->canRedeed())
 			{	
 				Inventory* inventory	= dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-				if(!inventory->checkSlots(1))
+				if((!inventory)||(!inventory->checkSlots(1)))
 				{
 					gMessageLib->sendSystemMessage(player,L"","player_structure","inventory_full");
 					it = objectList->erase(it);

@@ -661,29 +661,7 @@ void Object::destroyKnownObjects()
 	ObjectSet::iterator			objIt		= mKnownObjects.begin();
 	PlayerObjectSet::iterator	playerIt	= mKnownPlayers.begin();
 
-	/*
-	ObjectIDSet::iterator IDIt				= mKnownObjectsIDs.begin();
 	
-	while(IDIt != mKnownObjectsIDs.end())
-	{		
-		Object* object = gWorldManager->getObjectById(*IDIt);
-		if(!object)
-		{
-			(*IDIt)++;
-		}
-		ObjectIDSet::iterator itID = mKnownObjectsIDs.find(object->getId());
-
-		if(itID != mKnownObjectsIDs.end())
-		{
-			mKnownObjectsIDs.erase(itID);
-		}
-		else
-		{
-			IDIt++;
-		}		
-	
-	}
-	*/
 	// objects
 	while(objIt != mKnownObjects.end())
 	{

@@ -96,9 +96,7 @@ StructureManager::StructureManager(Database* database,MessageDispatch* dispatch)
 
 	// load our NoBuildRegions
 	asyncContainer = new StructureManagerAsyncContainer(Structure_Query_NoBuildRegionData, 0);
-	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT planet_regions.region_id, planet_regions.region_name, planet_regions.x, planet_regions.z, planet_regions.width, planet_regions.height, planet_regions.planet_id, "
-													"planet_regions.build,planet_regions.no_build_type FROM planet_regions WHERE region_file = 'no_build_region'");
-	//mDatabase->ExecuteProcedureAsync(this, asyncContainer, "CALL sp_PlanetNoBuildRegions(%"PRIu64")",0);
+	mDatabase->ExecuteProcedureAsync(this,asyncContainer,"CALL sp_PlanetNoBuildRegions");
 
 	//=========================
 	//check regularly the harvesters - they might have been turned off by the db, harvesters without condition might need to be deleted

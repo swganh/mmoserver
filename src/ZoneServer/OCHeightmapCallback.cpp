@@ -25,10 +25,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#include "StructureManager.h"
+#include "ObjectController.h"
 #include "HeightmapAsyncContainer.h"
 
-void StructureManager::heightMapCallback(HeightmapAsyncContainer* ref)
+void ObjectController::heightMapCallback(HeightmapAsyncContainer* ref)
 {
 	switch(ref->type)
 	{
@@ -38,14 +38,14 @@ void StructureManager::heightMapCallback(HeightmapAsyncContainer* ref)
 		break;
 	}
 
-	case HeightmapCallback_StructureHarvester:
+	/*case HeightmapCallback_StructureHarvester:
 	case HeightmapCallback_StructureFactory:
 	case HeightmapCallback_StructureHouse:
 	{
 		HeightmapStructureHandler(ref);
 		break;
 	}
-
+	*/
 	}
 
 	delete ref;

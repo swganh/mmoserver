@@ -36,9 +36,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "TangibleEnums.h"
 #include "WorldManager.h"
 #include "Utils/Scheduler.h"
-#include "HeightMapCallback.h"
-#include "ObjectController.h"
-#include "OCStructureHandlers.h"
 #define 	gStructureManager	StructureManager::getSingletonPtr()
 
 //======================================================================================================================
@@ -204,13 +201,13 @@ struct StructureItemTemplate
 struct NoBuildRegionTemplate
 {
 	uint32				region_id;
-	std::string			region_name;
+	BString				region_name;
 	glm::vec3			mPosition;
 	float				width;
 	float				height;
-	uint8				planet_id;
-	uint8				build;
-	uint8				no_build_type;
+	uint32				planet_id;
+	uint32				build;
+	uint32				no_build_type;
 	float				mRadius;
 	float				mRadiusSq;
 	bool				isCircle;
@@ -285,9 +282,9 @@ class StructureManager : public DatabaseCallback,public ObjectFactoryCallback, p
 		void					Shutdown();
 		//inherited callbacks
 		virtual void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
-		virtual void			heightMapCallback(HeightmapAsyncContainer *ref){HeightmapStructureHandler(ref); }
-
-		virtual void			HeightmapStructureHandler(HeightmapAsyncContainer* ref);
+		
+		virtual void			heightMapCallback(HeightmapAsyncContainer *ref){HeightmapStructureHandler(ref);}
+		void					HeightmapStructureHandler(HeightmapAsyncContainer* ref);
 
 		void					handleObjectReady(Object* object,DispatchClient* client);
 
@@ -320,8 +317,9 @@ class StructureManager : public DatabaseCallback,public ObjectFactoryCallback, p
 		bool					checkCityRadius(PlayerObject* player);
 		bool					checkinCamp(PlayerObject* player);
 		//no build region
+		bool					checkNoBuildRegion(glm::vec3 vec3);
 		bool					checkNoBuildRegion(PlayerObject* player);
-		bool					checkInNoBuildRadius(PlayerObject* player, NoBuildRegionList::iterator noBuildList);
+		//bool					checkInNoBuildRadius(glm::vec3 dVec, glm::vec3 rVec);
 
 		//PlayerStructures
 		void					getDeleteStructureMaintenanceData(uint64 structureId, uint64 playerId);
@@ -374,9 +372,8 @@ class StructureManager : public DatabaseCallback,public ObjectFactoryCallback, p
 		// =======================================================================================
 		/// This command is used to place structures
 		/**
-		 * This command is invoked by the client to move items around in a structure.
 		 *
-		 * The client enters the player into a special top/down build mode
+		 * The client attempts to place the structure
 		 *   
 		 * @param object The object placing the structure (always a PlayerObject).
 		 * @param message The message from the client requesting this command.

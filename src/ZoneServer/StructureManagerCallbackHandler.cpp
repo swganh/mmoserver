@@ -988,30 +988,40 @@ void StructureManager::_HandleUpdateAttributes(StructureManagerAsyncContainer* a
 
 void StructureManager::_HandleNoBuildRegionData(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result)
 {
-	NoBuildRegionTemplate* regionTemplate;
+	NoBuildRegionTemplate* noBuildTemplate;
 
-	DataBinding* binding = mDatabase->CreateDataBinding(6);
+	DataBinding* binding = mDatabase->CreateDataBinding(9);
 	binding->addField(DFT_uint32,offsetof(NoBuildRegionTemplate,region_id),3,0);
-	binding->addField(DFT_string,offsetof(NoBuildRegionTemplate,region_name),255,1);
+	binding->addField(DFT_bstring,offsetof(NoBuildRegionTemplate,region_name),64,1);
 	binding->addField(DFT_float,offsetof(NoBuildRegionTemplate,mPosition.x),4,2);
-	binding->addField(DFT_float,offsetof(NoBuildRegionTemplate,mPosition.z),4,2);
-	binding->addField(DFT_float,offsetof(NoBuildRegionTemplate,width), 4, 3);
-	binding->addField(DFT_float,offsetof(NoBuildRegionTemplate,height), 4, 4);
-	binding->addField(DFT_uint8,offsetof(NoBuildRegionTemplate,build),1,5);
-	binding->addField(DFT_uint8,offsetof(NoBuildRegionTemplate,no_build_type),1,6);
+	binding->addField(DFT_float,offsetof(NoBuildRegionTemplate,mPosition.z),4,3);
+	binding->addField(DFT_float,offsetof(NoBuildRegionTemplate,width), 5, 4);
+	binding->addField(DFT_float,offsetof(NoBuildRegionTemplate,height), 5, 5);
+	binding->addField(DFT_uint32,offsetof(NoBuildRegionTemplate,planet_id), 1, 6);
+	binding->addField(DFT_uint32,offsetof(NoBuildRegionTemplate,build), 1,7);
+	binding->addField(DFT_uint32,offsetof(NoBuildRegionTemplate,no_build_type),1,8);
 
 	uint64 count;
 	count = result->getRowCount();
 
 	for(uint64 i = 0;i < count;i++)
 	{
-		regionTemplate	= new(NoBuildRegionTemplate);
-		result->GetNextRow(binding,regionTemplate);
+		noBuildTemplate	= new(NoBuildRegionTemplate);
+		result->GetNextRow(binding,noBuildTemplate);
 		//set if it's a circle, we know it's a circle because it has a 0 width.
-		regionTemplate->isCircle	 =		(regionTemplate->width == 0);
-		regionTemplate->mRadius		 =		regionTemplate->height*2;
-		regionTemplate->mRadiusSq	 =		regionTemplate->mRadius * regionTemplate->mRadius;
-		mNoBuildList.push_back(regionTemplate);
+		noBuildTemplate->isCircle			=		(noBuildTemplate->width == 0);
+		if(noBuildTemplate->isCircle)
+		{
+			noBuildTemplate->mRadius		=		noBuildTemplate->height/2;
+			noBuildTemplate->mRadiusSq		=		noBuildTemplate->mRadius * noBuildTemplate->mRadius;
+		}
+		else
+		{
+			noBuildTemplate->mRadius		=		0;
+			noBuildTemplate->mRadiusSq		=		0;
+		}
+
+		mNoBuildList.push_back(noBuildTemplate);
 	}
 
 	if(result->getRowCount())

@@ -284,8 +284,6 @@ bool MessageLib::sendEnterStructurePlacement(Object* deed, string objectString, 
 	mMessageFactory->StartMessage();
 	mMessageFactory->addUint32(opStructurePlacementMode);  
 	mMessageFactory->addUint64(deed->getId());
-	//object/building/player/shared_player_house_tatooine_large_style_01.iff
-	//char *dir = "object/installation/generators/shared_power_generator_fusion_style_1.iff";
 	mMessageFactory->addString(objectString);
 
 	newMessage = mMessageFactory->EndMessage();

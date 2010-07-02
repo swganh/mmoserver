@@ -48,7 +48,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Common/MessageFactory.h"
 #include "Deed.h"
 #include "StructureHeightmapAsyncContainer.h"
-#include "OCStructureHandlers.h"
 #include "Heightmap.h"
 
 #include "LogManager/LogManager.h"
@@ -443,76 +442,81 @@ bool StructureManager::checkinCamp(PlayerObject* player)
 
 }
 //======================================================================================================================
+//override
 //returns true if we're in a no build region
-//======================================================================================================================
 bool StructureManager::checkNoBuildRegion(PlayerObject* player)
 {
-	NoBuildRegionList* regionList = getNoBuildRegionList();
-	NoBuildRegionList::iterator it = regionList->begin();
-	while(it != regionList->end())
+	glm::vec3 pVec;
+	pVec.x = player->mPosition.x;
+	pVec.z = player->mPosition.z;
+	if (checkNoBuildRegion(pVec) ||!checkCityRadius(player))
 	{
-		if (gWorldManager->getPlanetNameById((*it)->planet_id))
-		{
-			float pX = player->mPosition.x;
-			float pZ = player->mPosition.z;
-			float rX = (*it)->mPosition.x;
-			float rZ = (*it)->mPosition.z;
-
-			float height = (*it)->height;
-			float width = (*it)->width;
-
-			// math
-			checkInNoBuildRadius(player,it);
-			if ((*it)->isCircle)
-			{
-				// formula  
-				if ((((pX - rX)*(pX - rX)) + ((pZ - rZ)*(pZ - rZ))) <= (height*2)*(height*2))
-				{
-					return true;
-				}
-			}
-			
-			// get the player vector in 2d
-			glm::vec2 playerV(pX,pZ);
-			// get the bottom left corner of the rectangle
-			glm::vec2 corner(rX - (0.5*width), rZ - (0.5*height));
-			// Create a vector of the width we want pointing down the x-axis.
-			glm::vec2 xLengthVector(rX, width);
-			glm::vec2 side1 = corner + xLengthVector;
-			// Create a vector of the height we want pointing down the z-axis
-			glm::vec2 zWidthVector(rZ, height);
-			glm::vec2 side2 = corner + zWidthVector;
-
-			// v = P - C
-			glm::vec2 v = playerV - corner;
-
-			float firstDot = glm::dot(v,side1);
-			float secondDot = glm::dot(side1,side1);
-			float thirdDot =  glm::dot(v, side2);
-			float fourthDot = glm::dot(side2,side2);
-
-			if (0 <= firstDot <= secondDot && 0 <= thirdDot <= fourthDot)
-			{
-				return true;
-			}
-		}
+		gMessageLib->sendSystemMessage(player,L"","faction_perk","no_build_area");
+		return true;
 	}
+
 	return false;
 }
 //======================================================================================================================
 //returns true if we're in a no build region
 //======================================================================================================================
-bool StructureManager::checkInNoBuildRadius(PlayerObject*player, NoBuildRegionList::iterator noBuildIt)
+bool StructureManager::checkNoBuildRegion(glm::vec3 vec3)
 {
-	if (*noBuildIt)
-	{	
-
-	}
-	else
+	NoBuildRegionList* regionList = gStructureManager->getNoBuildRegionList();
+	NoBuildRegionList::iterator it = regionList->begin();
+	while(it != regionList->end())
 	{
+		if (gWorldManager->getPlanetNameById((*it)->planet_id))
+		{
+			float pX = vec3.x;
+			float pZ = vec3.z;
+			float rX = (*it)->mPosition.x;
+			float rZ = (*it)->mPosition.z;
 
+			float height = (*it)->height;
+			float width = (*it)->width;
+			float radiusSq = (*it)->mRadiusSq;
+
+			// math
+			if ((*it)->isCircle)
+			{
+				// formula, we do it this way to avoid the costly square root
+				if ((((pX - rX)*(pX - rX)) + ((pZ - rZ)*(pZ - rZ))) <= radiusSq)
+				{
+					return true;
+				}
+			}
+			else
+			{
+				// get the position vector in 2d
+				glm::vec2 positionV(pX,pZ);
+				// get the bottom left corner of the rectangle
+				glm::vec2 corner(rX - (0.5*width), rZ - (0.5*height));
+				// Create a vector of the width we want pointing down the x-axis.
+				glm::vec2 xLengthVector(rX, width);
+				glm::vec2 side1 = corner + xLengthVector;
+				// Create a vector of the height we want pointing down the z-axis
+				glm::vec2 zWidthVector(rZ, height);
+				glm::vec2 side2 = corner + zWidthVector;
+
+				// v = P - C
+				glm::vec2 v = positionV - corner;
+
+				float firstDot = glm::dot(v,side1);
+				float secondDot = glm::dot(side1,side1);
+				float thirdDot =  glm::dot(v, side2);
+				float fourthDot = glm::dot(side2,side2);
+
+				if (0 <= firstDot <= secondDot && 0 <= thirdDot <= fourthDot)
+				{
+					//return true;
+					gLogger->log(LogManager::DEBUG,"we're in a rectangle at location %u",(*it)->region_id);
+				}
+			}
+		}
+		++it;
 	}
-	return true;
+	return false;
 }
 //=========================================================================================0
 // gets the code to confirm structure destruction
@@ -1569,12 +1573,12 @@ void StructureManager::UpdateCharacterLots(uint64 charId)
 
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sf_getLotCount(%I64u)",charId);
 }
+
 //======================================================================================================================
 bool StructureManager::HandlePlaceStructure(Object* object, Object* target, Message* message, ObjectControllerCmdProperties* cmdProperties)
 {
 	PlayerObject*	player	= dynamic_cast<PlayerObject*>(object);
 
-	// TODO - are we in structure placement mode ???
 	if(!player)
 	{
 		return false;
@@ -1584,12 +1588,15 @@ bool StructureManager::HandlePlaceStructure(Object* object, Object* target, Mess
 	string dataStr;
 	message->getStringUnicode16(dataStr);
 	
-	float x,z,dir;
+	float dir;
+	glm::vec3 pVec;
+	pVec.x = 0;
+	pVec.z = 0;
 	uint64 deedId;
 
-	swscanf(dataStr.getUnicode16(),L"%I64u %f %f %f",&deedId, &x, &z, &dir);
+	swscanf(dataStr.getUnicode16(),L"%I64u %f %f %f",&deedId, &pVec.x, &pVec.z, &dir);
 
-	gLogger->log(LogManager::DEBUG," ID %I64u x %f y %f dir %f", deedId, x, z, dir);
+	gLogger->log(LogManager::DEBUG," ID %I64u x %f y %f dir %f", deedId, pVec.x, pVec.z, dir);
 	
 	
 	//now get our deed
@@ -1599,7 +1606,7 @@ bool StructureManager::HandlePlaceStructure(Object* object, Object* target, Mess
 	//todo : check if the type of building is allowed on the planet
 
 	//check the region whether were allowed to build
-	if(!checkCityRadius(player) && !checkNoBuildRegion(player))
+	if(checkNoBuildRegion(pVec) || !checkCityRadius(player))
 	{
 		gMessageLib->sendSystemMessage(player,L"","faction_perk","no_build_area");
 		return false;
@@ -1636,18 +1643,18 @@ bool StructureManager::HandlePlaceStructure(Object* object, Object* target, Mess
 		case	ItemType_harvester_ore_heavy:
 		case	ItemType_harvester_ore_medium:
 		{
-			StructureHeightmapAsyncContainer* container = new StructureHeightmapAsyncContainer(this, HeightmapCallback_StructureHarvester);
+			StructureHeightmapAsyncContainer* container = new StructureHeightmapAsyncContainer(gStructureManager, HeightmapCallback_StructureHarvester);
 			
 			container->oCallback = gObjectFactory;
 			container->ofCallback = gStructureManager;
 			container->deed = deed;
 			container->dir = dir;
-			container->x = x;
-			container->z = z;
+			container->x = pVec.x;
+			container->z = pVec.z;
 			container->customName = "";
 			container->player = player;
 
-			container->addToBatch(x,z);
+			container->addToBatch(pVec.x,pVec.z);
 
 			gHeightmap->addNewHeightMapJob(container);
 		}
@@ -1658,18 +1665,18 @@ bool StructureManager::HandlePlaceStructure(Object* object, Object* target, Mess
 		case	ItemType_factory_item:
 		case	ItemType_factory_structure:
 		{
-			StructureHeightmapAsyncContainer* container = new StructureHeightmapAsyncContainer(this, HeightmapCallback_StructureFactory);
+			StructureHeightmapAsyncContainer* container = new StructureHeightmapAsyncContainer(gStructureManager, HeightmapCallback_StructureFactory);
 			
 			container->oCallback = gObjectFactory;
 			container->ofCallback = gStructureManager;
 			container->deed = deed;
 			container->dir = dir;
-			container->x = x;
-			container->z = z;
+			container->x = pVec.x;
+			container->z = pVec.z;
 			container->customName = "";
 			container->player = player;
 
-			container->addToBatch(x,z);
+			container->addToBatch(pVec.x,pVec.z);
 
 			gHeightmap->addNewHeightMapJob(container);
 		}
@@ -1728,13 +1735,13 @@ bool StructureManager::HandlePlaceStructure(Object* object, Object* target, Mess
 		case	ItemType_deed_tatooine_small_house:
 		case	ItemType_deed_tatooine_small_house_2:
 		{
-			StructureHeightmapAsyncContainer* container = new StructureHeightmapAsyncContainer(this, HeightmapCallback_StructureHouse);
+			StructureHeightmapAsyncContainer* container = new StructureHeightmapAsyncContainer(gStructureManager, HeightmapCallback_StructureHouse);
 			
 			container->oCallback = gObjectFactory;
 			container->ofCallback = gStructureManager;
 			container->deed = deed;
-			container->x = x;
-			container->z = z;
+			container->x = pVec.x;
+			container->z = pVec.z;
 			container->dir = dir;
 			container->customName = "";
 			container->player = player;
@@ -1746,23 +1753,23 @@ bool StructureManager::HandlePlaceStructure(Object* object, Object* target, Mess
 			uint32 halfLength = (deedLink->length/2);
 			uint32 halfWidth = (deedLink->width/2);
 
-			container->addToBatch(x, z);
+			container->addToBatch(pVec.x, pVec.z);
 
 			if(dir == 0 || dir == 2)
 			{
 				//Orientation 1
-				container->addToBatch(x-halfLength, z-halfWidth);
-				container->addToBatch(x+halfLength, z-halfWidth);
-				container->addToBatch(x-halfLength, z+halfWidth);
-				container->addToBatch(x+halfLength, z+halfWidth);
+				container->addToBatch(pVec.x-halfLength, pVec.z-halfWidth);
+				container->addToBatch(pVec.x+halfLength, pVec.z-halfWidth);
+				container->addToBatch(pVec.x-halfLength, pVec.z+halfWidth);
+				container->addToBatch(pVec.x+halfLength, pVec.z+halfWidth);
 			}
 			else if(dir == 1 || dir == 3)
 			{
 				//Orientation 2
-				container->addToBatch(x-halfWidth, z-halfLength);
-				container->addToBatch(x+halfWidth, z-halfLength);
-				container->addToBatch(x-halfWidth, z+halfLength);
-				container->addToBatch(x+halfWidth, z+halfLength);
+				container->addToBatch(pVec.x-halfWidth, pVec.z-halfLength);
+				container->addToBatch(pVec.x+halfWidth, pVec.z-halfLength);
+				container->addToBatch(pVec.x-halfWidth, pVec.z+halfLength);
+				container->addToBatch(pVec.x+halfWidth, pVec.z+halfLength);
 			}
 
 			gHeightmap->addNewHeightMapJob(container);
@@ -1771,4 +1778,61 @@ bool StructureManager::HandlePlaceStructure(Object* object, Object* target, Mess
 
 	}
 	return true;
+}
+void StructureManager::HeightmapStructureHandler(HeightmapAsyncContainer* ref)
+{
+	StructureHeightmapAsyncContainer* container = static_cast<StructureHeightmapAsyncContainer*>(ref);
+
+	switch(container->type)
+	{
+		case HeightmapCallback_StructureHouse:
+		{
+			HeightResultMap* mapping = container->getResults();
+			HeightResultMap::iterator it = mapping->begin();
+
+			float highest = 0;
+			bool worked = false;
+			while(it != mapping->end() && it->second != NULL)
+			{
+				worked = true;
+
+				if(it->second->height > highest)
+					highest = it->second->height;
+
+				it++;
+			}
+
+			if(worked)
+			{
+				container->oCallback->requestnewHousebyDeed(container->ofCallback,container->deed,container->player->getClient(),
+															container->x,highest,container->z,container->dir,container->customName,
+															container->player);
+			}
+			break;
+		}
+		case HeightmapCallback_StructureFactory:
+		{
+			HeightResultMap* mapping = container->getResults();
+			HeightResultMap::iterator it = mapping->begin();
+			if(it != mapping->end() && it->second != NULL)
+			{
+				container->oCallback->requestnewFactorybyDeed(container->ofCallback,container->deed,container->player->getClient(),
+															it->first.first,it->second->height,it->first.second,container->dir,
+															container->customName, container->player);
+			}
+			break;
+		}
+		case HeightmapCallback_StructureHarvester:
+		{
+			HeightResultMap* mapping = container->getResults();
+			HeightResultMap::iterator it = mapping->begin();
+			if(it != mapping->end() && it->second != NULL)
+			{
+				container->oCallback->requestnewHarvesterbyDeed(container->ofCallback,container->deed,container->player->getClient(),
+					it->first.first,it->second->height,it->first.second,container->dir,container->customName,
+															container->player);
+			}
+			break;
+		}
+	}
 }

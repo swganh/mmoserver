@@ -103,20 +103,19 @@ void MessageLib::SendSpatialChat(CreatureObject* const speaking_object, const st
             std::string file(result[1].str());
             std::string string(result[2].str());
 
-            SendSpatialChat(speaking_object, L"", ProsePackage(file, string), player_object, target_id, text_size, chat_type_id, mood_id, whisper_target_animate);
+            SendSpatialChat_(speaking_object, L"", ProsePackage(file, string), player_object, target_id, text_size, chat_type_id, mood_id, whisper_target_animate);
             return;
         }
     }
 
-    SendSpatialChat(speaking_object, custom_message, ProsePackage(), player_object, target_id, text_size, chat_type_id, mood_id, whisper_target_animate);
-
+    SendSpatialChat_(speaking_object, custom_message, ProsePackage(), player_object, target_id, text_size, chat_type_id, mood_id, whisper_target_animate);
 }
 
 void MessageLib::SendSpatialChat(CreatureObject* const speaking_object, const ProsePackage& prose_message, const PlayerObject* const player_object, uint64_t target_id, uint16_t text_size, SocialChatType chat_type_id, MoodType mood_id, uint8_t whisper_target_animate) {
-    SendSpatialChat(speaking_object, L"", prose_message, player_object, target_id, text_size, chat_type_id, mood_id, whisper_target_animate);
+    SendSpatialChat_(speaking_object, L"", prose_message, player_object, target_id, text_size, chat_type_id, mood_id, whisper_target_animate);
 }
 
-void MessageLib::SendSpatialChat(CreatureObject* const speaking_object, const std::wstring& custom_message, const ProsePackage& prose_message, const PlayerObject* const player_object, uint64_t target_id, uint16_t text_size, SocialChatType chat_type_id, MoodType mood_id, uint8_t whisper_target_animate) {
+void MessageLib::SendSpatialChat_(CreatureObject* const speaking_object, const std::wstring& custom_message, const ProsePackage& prose_message, const PlayerObject* const player_object, uint64_t target_id, uint16_t text_size, SocialChatType chat_type_id, MoodType mood_id, uint8_t whisper_target_animate) {
     Message* message;
 
     mMessageFactory->StartMessage();

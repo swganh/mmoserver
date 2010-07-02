@@ -56,6 +56,22 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <boost/lexical_cast.hpp>
 
+#ifdef _MSC_VER
+#include <regex>  // NOLINT
+#else
+#include <boost/regex.hpp>  // NOLINT
+#endif
+
+#ifdef WIN32
+using ::std::regex;
+using ::std::smatch;
+using ::std::regex_search;
+#else
+using ::boost::regex;
+using ::boost::smatch;
+using ::boost::regex_search;
+#endif
+
 
 //======================================================================================================================
 //
@@ -639,6 +655,73 @@ bool MessageLib::sendSystemMessageInRange(PlayerObject* playerObject,bool toSelf
 //
 // system message
 //
+
+bool MessageLib::SendSystemMessage(const std::wstring& custom_message, PlayerObject* player, bool chatbox_only, bool send_to_inrange) {
+    // Use regex to check if the chat string matches the stf string format.
+    static const regex pattern("@([a-zA-Z0-9/_]+):([a-zA-Z0-9_]+)");
+    smatch result;
+    
+    std::string stf_string(custom_message.begin(), custom_message.end());
+
+    regex_search(stf_string, result, pattern);
+    
+    // If it's an exact match (2 sub-patterns + the full string = 3 elements) it's an stf string.
+    // Reroute the call to the appropriate overload.
+    if (result.size() == 3) 
+    {
+        std::string file(result[1].str());
+        std::string string(result[2].str());
+        
+        return SendSystemMessage_(L"", ProsePackage(file, string), player, chatbox_only, send_to_inrange);
+    }   
+
+    return SendSystemMessage_(custom_message, ProsePackage(), player, chatbox_only, send_to_inrange);
+}
+
+bool MessageLib::SendSystemMessage(const ProsePackage& prose, PlayerObject* player, bool chatbox_only, bool send_to_inrange) {
+    return SendSystemMessage_(L"", prose, player, chatbox_only, send_to_inrange);
+}
+
+bool MessageLib::SendSystemMessage_(const std::wstring& custom_message, const ProsePackage& prose, PlayerObject* player, bool chatbox_only, bool send_to_inrange) {
+    // If a player was passed in but not connected return false.
+    if ((player) || (!player->isConnected())) {
+        return false;
+    }
+    
+	mMessageFactory->StartMessage(); 
+	mMessageFactory->addUint32(opChatSystemMessage);  
+
+    // This determines the bitmask switch for where a message is displayed.
+    if (chatbox_only) {
+	    mMessageFactory->addUint8(2);
+    } else {
+	    mMessageFactory->addUint8(0);
+    }
+
+    if (custom_message.length()) {
+		mMessageFactory->addString(custom_message);
+		mMessageFactory->addUint32(0);		
+    } else {
+		mMessageFactory->addUint32(0);		
+        prose.WriteToMessageFactory(mMessageFactory);
+    }
+
+    // If a player was passed in then only send out the message to the appropriate parties.
+    if (player) {
+        // If the send_to_inrange flag was set then send out to everyone in-range of the player.
+        if (send_to_inrange) {
+	        _sendToInRange(mMessageFactory->EndMessage(), player, 8, true);
+        } else {
+	        (player->getClient())->SendChannelA(mMessageFactory->EndMessage(), player->getAccountId(), CR_Client, 5);
+        }
+    } else {
+        // If no player was passed send the system message to everyone.
+	    _sendToAll(mMessageFactory->EndMessage(), 8, true);
+    }
+
+    return true;
+}
+
 bool MessageLib::sendSystemMessage(PlayerObject* playerObject, std::wstring customMessage, std::string mainFile,
 											std::string mainVar, std::string toFile, std::string toVar, std::wstring toCustom, int32 di,
 											std::string ttFile, std::string ttVar, std::wstring ttCustom, uint64 ttId, uint64 toId, uint64 tuId,

@@ -153,6 +153,28 @@ public:
 	void				sendWeatherUpdate(const glm::vec3& cloudVec, uint32 weatherType, PlayerObject* player = NULL);
 	
 	bool				sendSysMsg(PlayerObject* playerObject,BString mainFile,BString mainVar,Object* to= NULL, Object* tt = NULL, Object* tu = NULL, int32 di = 0);
+
+    /**
+     * Sends a custom text string as a system message.
+     *
+     * @param custom_message A custom text string to be sent.
+     * @param player The recepient of the system message. If no player is passed the message is sent to everyone.
+     * @param chatbox_only Determines whether the message is displayed on screen or in the chatbox 
+     *                     only. By default this is false meaning messages are by default displayed on screen and the chatbox.
+     * @param send_to_inrange If true the message is sent to all in-range players of the target recipient.
+     */
+    bool SendSystemMessage(const std::wstring& custom_message, PlayerObject* player = NULL, bool chatbox_only = false, bool send_to_inrange = false);
+
+    /**
+     * Sends a STF package as a system message.
+     *
+     * @param prose A custom STF string package.
+     * @param player The recepient of the system message. If no player is passed the message is sent to everyone.
+     * @param chatbox_only Determines whether the message is displayed on screen or in the chatbox 
+     *                     only. By default this is false meaning messages are by default displayed on screen and the chatbox.
+     * @param send_to_inrange If true the message is sent to all in-range players of the target recipient.
+     */
+    bool SendSystemMessage(const ProsePackage& prose, PlayerObject* player = NULL, bool chatbox_only = false, bool send_to_inrange = false);
 	
 	bool				sendSystemMessage(PlayerObject* playerObject, std::wstring customMessage = L"", std::string mainFile = "",
 											std::string mainVar = "",std::string toFile = "",std::string toVar = "", std::wstring toCustom = L"",int32 di = 0,
@@ -246,22 +268,6 @@ public:
      */
     void SendSpatialChat(CreatureObject* const speaking_object, const ProsePackage& prose_message, const PlayerObject* const player_object = NULL, uint64_t target_id = 0, uint16_t text_size = 0x32, SocialChatType chat_type_id = kSocialChatNone, MoodType mood_id = kMoodNone, uint8_t whisper_target_animate = 0);
     
-    /**
-     * Sends a message via spatial chat using a ProsePackage (STF string), spoken by the specified object.
-     *
-     * @param speaking_object The object that is currently speaking this message.
-     * @param custom_message The text message to be sent via spatial chat.
-     * @param prose_message The ProsePackage to be sent via spatial chat.
-     * @param player_object This parameter allows the messages from npc's to be sent to the right instance players.
-     * @param target_id The object id of the target the speaker is talking to.
-     * @param text_size The size of the text for use in the spatial chat bubble.
-     *                  Options: 0, 2, 3, 4, 6, 8, 10
-     * @param chat_type_id An ID representing the type of chat. @todo: Add an ID table here.
-     * @param mood_id An ID representing the mood of the speaking object. @todo: Add an ID table here.
-     * @param whisper_target_animate If set to 1 the speaker will turn to the target and whisper.
-     */
-    void SendSpatialChat(CreatureObject* const speaking_object, const std::wstring& custom_message, const ProsePackage& prose_message, const PlayerObject* const player_object, uint64_t target_id, uint16_t text_size, SocialChatType chat_type_id, MoodType mood_id, uint8_t whisper_target_animate);
-
 	void				sendSpatialEmote(CreatureObject* srcObject,uint16 emoteId,uint16 sendText,uint64 emoteTarget);
 	void				sendCreatureAnimation(CreatureObject* srcObject,BString animation);
 
@@ -587,6 +593,37 @@ private:
      * @param player_object This is used to send out spatial messages in a player instance.
      */
 	void SendSpatialToInRangeUnreliable_(Message* message, Object* const object, const PlayerObject* const player_object = NULL);
+    
+    /**
+     * Sends out a system message.
+     *
+     * This internal method is invoked by the two SendSystemMessage overloads to send out a system message.
+     *
+     * @param custom_message A custom text string to be sent.
+     * @param prose A custom STF string package.
+     * @param player The recepient of the system message. If no player is passed the message is sent to everyone.
+     * @param chatbox_only Determines whether the message is displayed on screen or in the chatbox 
+     *                     only. By default this is false meaning messages are by default displayed on screen and the chatbox.
+     * @param send_to_inrange If true the message is sent to all in-range players of the target recipient.
+     */
+    bool SendSystemMessage_(const std::wstring& custom_message, const ProsePackage& prose, PlayerObject* player, bool chatbox_only, bool send_to_inrange);
+    
+    /**
+     * Sends a message via spatial chat using a ProsePackage (STF string), spoken by the specified object.
+     *
+     * @param speaking_object The object that is currently speaking this message.
+     * @param custom_message The text message to be sent via spatial chat.
+     * @param prose_message The ProsePackage to be sent via spatial chat.
+     * @param player_object This parameter allows the messages from npc's to be sent to the right instance players.
+     * @param target_id The object id of the target the speaker is talking to.
+     * @param text_size The size of the text for use in the spatial chat bubble.
+     *                  Options: 0, 2, 3, 4, 6, 8, 10
+     * @param chat_type_id An ID representing the type of chat. @todo: Add an ID table here.
+     * @param mood_id An ID representing the mood of the speaking object. @todo: Add an ID table here.
+     * @param whisper_target_animate If set to 1 the speaker will turn to the target and whisper.
+     */
+    void SendSpatialChat_(CreatureObject* const speaking_object, const std::wstring& custom_message, const ProsePackage& prose_message, const PlayerObject* const player_object, uint64_t target_id, uint16_t text_size, SocialChatType chat_type_id, MoodType mood_id, uint8_t whisper_target_animate);
+
 
 	static MessageLib*	mSingleton;
 	static bool			mInsFlag;

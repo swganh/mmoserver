@@ -64,6 +64,242 @@ public:
 
     ~ProsePackage();
 
+    /* Uses the default generated copy constructor and assignment operator. */
+
+    /**
+     * Returns the current base stf filename.
+     */
+    const std::string& base_stf_file() const;
+
+    /**
+     * Sets the base stf filename.
+     *
+     * @param file The new filename.
+     */
+    void base_stf_file(const std::string& file);
+    
+    /**
+     * Returns the current base stf string
+     */
+    const std::string& base_stf_string() const;
+
+    /**
+     * Sets the base stf string.
+     *
+     * @param string The new string.
+     */
+    void base_stf_string(const std::string& string);
+
+    /**
+     * Returns the Text You object id.
+     */
+    uint64_t tu_object_id() const;
+
+    /**
+     * Sets the Text You object id.
+     *
+     * Setting this value overrides anything set via the Text YOU stf or custom string.
+     *
+     * @param object_id The new Text You object id.
+     */
+    void tu_object_id(uint64_t object_id);
+
+    /**
+     * Returns the current Text You stf filename.
+     */
+    const std::string& tu_stf_file() const;
+
+    /**
+     * Sets the Text You stf filename.
+     *
+     * If the Text You object id is not set then setting the Text You stf will override
+     * anything set by the Text You custom string.
+     *
+     * @param file The new filename.
+     */
+    void tu_stf_file(const std::string& file);
+    
+    /**
+     * Returns the current Text You stf string.
+     */
+    const std::string& tu_stf_string() const;
+
+    /**
+     * Sets the Text You stf string.
+     *
+     * If the Text You object id is not set then setting the Text You stf will override
+     * anything set by the Text You custom string.
+     *
+     * @param string The new string.
+     */
+    void tu_stf_string(const std::string& string);
+    
+    /**
+     * Returns the current Text You custom string.
+     */
+    const std::wstring& tu_custom_string() const;
+
+    /**
+     * Sets the Text You custom string.
+     *
+     * This value is only accepted if a Text You object id and stf are not set.
+     *
+     * @param string The new string.
+     */
+    void tu_custom_string(const std::wstring& string);
+
+    /**
+     * Returns the Text Target object id.
+     */
+    uint64_t tt_object_id() const;
+
+    /**
+     * Sets the Text Target object id.
+     *
+     * Setting this value overrides anything set via the Text Target stf or custom string.
+     *
+     * @param object_id The new Text Target object id.
+     */
+    void tt_object_id(uint64_t object_id);
+
+    /**
+     * Returns the current Text Target stf filename.
+     */
+    const std::string& tt_stf_file() const;
+
+    /**
+     * Sets the Text Target stf filename.
+     *
+     * If the Text Target object id is not set then setting the Text Target stf will override
+     * anything set by the Text Target custom string.
+     *
+     * @param file The new filename.
+     */
+    void tt_stf_file(const std::string& file);
+    
+    /**
+     * Returns the current Text Target stf string.
+     */
+    const std::string& tt_stf_string() const;
+
+    /**
+     * Sets the Text Target stf string.
+     *
+     * If the Text Target object id is not set then setting the Text Target stf will override
+     * anything set by the Text Target custom string.
+     *
+     * @param string The new string.
+     */
+    void tt_stf_string(const std::string& string);
+    
+    /**
+     * Returns the current Text Target custom string.
+     */
+    const std::wstring& tt_custom_string() const;
+
+    /**
+     * Sets the Text Target custom string.
+     *
+     * This value is only accepted if a Text Target object id and stf are not set.
+     *
+     * @param string The new string.
+     */
+    void tt_custom_string(const std::wstring& string);    
+
+    /**
+     * Returns the Text Object object id.
+     */
+    uint64_t to_object_id() const;
+
+    /**
+     * Sets the Text Object object id.
+     *
+     * Setting this value overrides anything set via the Text Object stf or custom string.
+     *
+     * @param object_id The new Text Object object id.
+     */
+    void to_object_id(uint64_t object_id);
+
+    /**
+     * Returns the current Text Object stf filename.
+     */
+    const std::string& to_stf_file() const;
+
+    /**
+     * Sets the Text Object stf filename.
+     *
+     * If the Text Object object id is not set then setting the Text Object stf will override
+     * anything set by the Text Object custom string.
+     *
+     * @param file The new filename.
+     */
+    void to_stf_file(const std::string& file);
+
+    /**
+     * Returns the current Text Object stf string.
+     */
+    const std::string& to_stf_string() const;
+
+    /**
+     * Sets the Text Object stf string.
+     *
+     * If the Text Object object id is not set then setting the Text Object stf will override
+     * anything set by the Text Object custom string.
+     *
+     * @param string The new string.
+     */
+    void to_stf_string(const std::string& string);
+    
+    /**
+     * Returns the current Text Object custom string.
+     */
+    const std::wstring& to_custom_string() const;
+
+    /**
+     * Sets the Text Object custom string.
+     *
+     * This value is only accepted if a Text Object object id and stf are not set.
+     *
+     * @param string The new string.
+     */
+    void to_custom_string(const std::wstring& string);
+    
+    /**
+     * Returns the current Decimal Integer value.
+     */
+    uint32_t di_integer() const;
+
+    /**
+     * Sets the Decimal Integer value.
+     *
+     * @param value The new Decimal Integer value.
+     */
+    void di_integer(uint32_t value);
+    
+    /**
+     * Returns the current Decimal Float value.
+     */
+    float df_float() const;
+
+    /**
+     * Sets the Decimal Float value.
+     *
+     * @param value The new Decimal Float value.
+     */
+    void df_float(float value);
+    
+    /**
+     * Returns the current display flag value.
+     */
+    uint8_t display_flag() const;
+
+    /**
+     * Sets the current display flag value.
+     *
+     * @param flag The new display flag value.
+     */
+    void display_flag(uint8_t flag);
+
     /**
      * Write's the ProsePackage to a message that is currently being constructed.
      *

@@ -88,6 +88,140 @@ ProsePackage::ProsePackage(const std::string& base_stf_file, const std::string& 
 
 ProsePackage::~ProsePackage() {}
 
+const std::string& ProsePackage::base_stf_file() const {
+    return base_stf_file_;
+}
+
+void ProsePackage::base_stf_file(const std::string& file) {
+    base_stf_file_ = file;
+}
+
+const std::string& ProsePackage::base_stf_string() const {
+    return base_stf_string_;
+}
+
+void ProsePackage::base_stf_string(const std::string& string) {
+    base_stf_string_ = string;
+}
+
+uint64_t ProsePackage::tu_object_id() const {
+    return tu_object_id_;
+}
+
+void ProsePackage::tu_object_id(uint64_t object_id) {
+    tu_object_id_ = object_id;
+}
+
+const std::string& ProsePackage::tu_stf_file() const {
+    return tu_stf_file_;
+}
+
+void ProsePackage::tu_stf_file(const std::string& file) {
+    tu_stf_file_ = file;
+}
+
+const std::string& ProsePackage::tu_stf_string() const {
+    return tu_stf_string_;
+}
+void ProsePackage::tu_stf_string(const std::string& string) {
+    tu_stf_string_ = string;
+}
+
+const std::wstring& ProsePackage::tu_custom_string() const {
+    return tu_custom_string_;
+}
+
+void ProsePackage::tu_custom_string(const std::wstring& string) {
+    tu_custom_string_ = string;
+}
+
+uint64_t ProsePackage::tt_object_id() const {
+    return tt_object_id_;
+}
+
+void ProsePackage::tt_object_id(uint64_t object_id) {
+    tt_object_id_ = object_id;
+}
+
+const std::string& ProsePackage::tt_stf_file() const {
+    return tt_stf_file_;
+}
+
+void ProsePackage::tt_stf_file(const std::string& file) {
+    tt_stf_file_ = file;
+}
+
+const std::string& ProsePackage::tt_stf_string() const {
+    return tt_stf_string_;
+}
+
+void ProsePackage::tt_stf_string(const std::string& string) {
+    tt_stf_string_ = string;
+}
+
+const std::wstring& ProsePackage::tt_custom_string() const {
+    return tt_custom_string_;
+}
+
+void ProsePackage::tt_custom_string(const std::wstring& string) {
+    tt_custom_string_ = string;
+}
+
+uint64_t ProsePackage::to_object_id() const {
+    return to_object_id_;
+}
+
+void ProsePackage::to_object_id(uint64_t object_id) {
+    to_object_id_ = object_id;
+}
+
+const std::string& ProsePackage::to_stf_file() const {
+    return to_stf_file_;
+}
+
+void ProsePackage::to_stf_file(const std::string& file) {
+    to_stf_file_ = file;
+}
+
+const std::string& ProsePackage::to_stf_string() const {
+    return to_stf_string_;
+}
+
+void ProsePackage::to_stf_string(const std::string& string) {
+    to_stf_string_ = string;
+}
+
+const std::wstring& ProsePackage::to_custom_string() const {
+    return to_custom_string_;
+}
+
+void ProsePackage::to_custom_string(const std::wstring& string) {
+    to_custom_string_ = string;
+}
+
+uint32_t ProsePackage::di_integer() const {
+    return di_integer_;
+}
+
+void ProsePackage::di_integer(uint32_t value) {
+    di_integer_ = value;
+}
+
+float ProsePackage::df_float() const {
+    return df_float_;
+}
+
+void ProsePackage::df_float(float value) {
+    df_float_ = value;
+}
+
+uint8_t ProsePackage::display_flag() const {
+    return display_flag_;
+}
+
+void ProsePackage::display_flag(uint8_t flag) {
+    display_flag_ = flag;
+}
 
 void ProsePackage::WriteToMessageFactory(MessageFactory* message_factory) const {
     // Find the length of the ProsePackage.

@@ -69,6 +69,7 @@ mConnectionDispatch(0),
 mClusterId(0),
 mClientService(0),
 mServerService(0),
+mLastHeartbeat(0),
 mLocked(false)
 {
 	Anh_Utils::Clock::Init();
@@ -177,6 +178,14 @@ void ConnectionServer::Process(void)
 	mClientManager->Process();
 	mServerManager->Process();
 	mMessageRouter->Process();
+
+
+	// Heartbeat once in awhile
+	if (Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastHeartbeat > 180000)//main loop every 10ms
+	{
+		mLastHeartbeat = static_cast<uint32>(Anh_Utils::Clock::getSingleton()->getLocalTime());
+		gLogger->log(LogManager::NOTICE,"ConnectionServer Heartbeat. Connected Servers:%u Active Servers:%u", mServerManager->getConnectedServers(), mServerManager->getActiveServers());
+	}
 	
 }
 

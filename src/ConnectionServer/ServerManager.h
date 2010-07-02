@@ -69,6 +69,8 @@ class ServerManager : public NetworkCallback, public ConnectionDispatchCallback,
 		void                            Process(void);
 
 		void                            SendMessageToServer(Message* message);
+		uint32							getConnectedServers(){return mTotalConnectedServers;};
+		uint32							getActiveServers(){return mTotalActiveServers;};
 
 		// Inherited NetworkCallback
 		virtual NetworkClient*	        handleSessionConnect(Session* session, Service* service);
@@ -80,6 +82,7 @@ class ServerManager : public NetworkCallback, public ConnectionDispatchCallback,
 
 		// Inherited DatabaseCallback
 		virtual void                    handleDatabaseJobComplete(void* ref, DatabaseResult* result);
+
 
 	private:
 

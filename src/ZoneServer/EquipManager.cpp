@@ -183,12 +183,12 @@ bool EquipManager::checkEquipObject(Object* object)
 //=============================================================================
 //
 // add an object according to its slot definitions, remove objects with slot conflicts
-// the return is irrelevant as it does permanent changes anyway
+// the return is NOT irrelevant as it might not have a valid slot attached
 
 bool EquipManager::addEquippedObject(Object* object)
 {
-	addEquippedObject(object->getEquipSlotMask(), object);
-	return(true);
+	int8 result = addEquippedObject(object->getEquipSlotMask(), object);
+	return(result != 0);
 }
 
 //=============================================================================
@@ -323,9 +323,6 @@ bool EquipManager::unEquipItem(Object* object)
 	//destroy for everyone in range
 	gMessageLib->sendDestroyObject_InRange(object->getId(),owner,false);
 	gMessageLib->sendEquippedListUpdate_InRange(owner);
-
-	//and add to inventories regular (unequipped) list
-	//this->addObjectSecure(object); the transferhandler will put it wherever necessary
 
 	removeEquippedObject(object);
 

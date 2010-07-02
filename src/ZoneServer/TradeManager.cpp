@@ -994,11 +994,14 @@ void TradeManager::_processVerificationMessage(Message* message,DispatchClient* 
 	{
 		playerObject->getTrade()->setTradeFinishedStatus(true);
 
-		if(tradePartner->getTrade()->getTradeFinishedStatus())
-		{
-			playerObject->getTrade()->setTradeFinishedStatus(false);
-			tradePartner->getTrade()->setTradeFinishedStatus(false);
-			_processTradeCompleteMessage(message,client);
+		//make sure 'partner' is still set to be trading...not sure how this would fail but it CAN: http://paste.swganh.org/viewp.php?id=20100627222833-5bae6fb86eda66de328ca73fb1aae6eb
+		if(tradePartner->getTradeStatus()){
+			if(tradePartner->getTrade()->getTradeFinishedStatus())
+			{
+				playerObject->getTrade()->setTradeFinishedStatus(false);
+				tradePartner->getTrade()->setTradeFinishedStatus(false);
+				_processTradeCompleteMessage(message,client);
+			}
 		}
 	}
 }

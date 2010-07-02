@@ -67,7 +67,7 @@ ChatServer* gChatServer;
 
 //======================================================================================================================
 
-ChatServer::ChatServer() : mNetworkManager(0),mDatabaseManager(0),mRouterService(0),mDatabase(0)
+ChatServer::ChatServer() : mNetworkManager(0),mDatabaseManager(0),mRouterService(0),mDatabase(0), mLastHeartbeat(0)
 {
 	Anh_Utils::Clock::Init();
 	//gLogger->printSmallLogo();
@@ -178,6 +178,14 @@ void ChatServer::Process()
 	mPlanetMapHandler->Process();
 	mTradeManagerChatHandler->Process();
 	mStructureManagerChatHandler->Process();
+
+
+	// Heartbeat once in awhile
+	if (Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastHeartbeat > 180000)//main loop every 10ms
+	{
+		mLastHeartbeat = static_cast<uint32>(Anh_Utils::Clock::getSingleton()->getLocalTime());
+		gLogger->log(LogManager::NOTICE,"ChatServer Heartbeat.");
+	}
 }
 
 

@@ -44,6 +44,7 @@ enum ItemFamily
 	ItemFamily_Generic					= 9,
 	ItemFamily_Weapon					= 10,
 	ItemFamily_Instrument				= 11,
+	ItemFamily_Component				= 13,
 	ItemFamily_BugJar					= 12,
 	ItemFamily_FireWork					= 19,
 	ItemFamily_Deed						= 15,

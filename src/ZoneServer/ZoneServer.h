@@ -75,6 +75,7 @@ class ZoneServer
 		void	_connectToConnectionServer(void);
 
 		BString                        mZoneName;
+		uint32						  mLastHeartbeat;
 
 		NetworkManager*               mNetworkManager;
 		DatabaseManager*              mDatabaseManager;

@@ -48,6 +48,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/ObjectFactory.h"
 #include "ZoneServer/PlayerObject.h"
 #include "ZoneServer/ResourceContainer.h"
+#include "ZoneServer/Tutorial.h"
 #include "ZoneServer/UIOpcodes.h"
 #include "ZoneServer/VehicleController.h"
 #include "ZoneServer/Wearable.h"
@@ -403,6 +404,11 @@ void MessageLib::SendSpatialToInRangeUnreliable_(Message* message, Object* const
 			BString lowercase_firstname = source_player->getFirstName().getAnsi();
 			lowercase_firstname.toLower();
 			senders_name_crc = lowercase_firstname.getCrc();
+
+            //@todo: This check for the tutorial is a hack and shouldn't be here.
+            if (gWorldConfig->isTutorial()) {
+                source_player->getTutorial()->tutorialResponse("chatActive");
+            }
         }
     }
 
@@ -467,6 +473,11 @@ void MessageLib::SendSpatialToInRangeUnreliable_(Message* message, Object* const
 
             player->getClient()->SendChannelAUnreliable(cloned_message, player->getAccountId(), CR_Client, 5);
         }
+        
+        // Even if the speaker is a player object the message has already been sent to them.
+        // Destroy the message and exit.
+        mMessageFactory->DestroyMessage(message);
+        return;
     }
     // If the sender isn't a player or the player isn't still connected we need to destroy the message
     // and exit out at this point, otherwise send the message to the source player.

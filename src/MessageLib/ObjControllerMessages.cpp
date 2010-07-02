@@ -40,7 +40,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/ObjectControllerOpcodes.h"
 #include "ZoneServer/ObjectFactory.h"
 #include "ZoneServer/PlayerObject.h"
-#include "ZoneServer/ProsePackage.h"
 #include "ZoneServer/SchematicManager.h"
 #include "ZoneServer/Tutorial.h"
 #include "ZoneServer/UIOpcodes.h"

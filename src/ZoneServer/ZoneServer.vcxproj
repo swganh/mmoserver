@@ -266,7 +266,6 @@
     <ClCompile Include="PlayerStructure.cpp" />
     <ClCompile Include="PlayerStructureTerminal.cpp" />
     <ClCompile Include="ProcessValidator.cpp" />
-    <ClCompile Include="ProsePackage.cpp" />
     <ClCompile Include="PVHam.cpp" />
     <ClCompile Include="PVPosture.cpp" />
     <ClCompile Include="PVState.cpp" />
@@ -486,7 +485,6 @@
     <ClInclude Include="ObjectFactoryCallback.h" />
     <ClInclude Include="Object_Enums.h" />
     <ClInclude Include="OCStructureHandlers.h" />
-    <ClInclude Include="ProsePackage.h" />
     <ClInclude Include="PersistentNpcFactory.h" />
     <ClInclude Include="PlayerEnums.h" />
     <ClInclude Include="PlayerObject.h" />

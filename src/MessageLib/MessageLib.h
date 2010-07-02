@@ -33,9 +33,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //#include "ZoneServer/ObjectFactory.h"
 #include "ZoneServer/ObjectController.h"
 #include "ZoneServer/Skill.h"   //for skillmodslist
-#include "ZoneServer/ProsePackage.h"
 #include "ZoneServer/SocialChatTypes.h"
 #include "ZoneServer/MoodTypes.h"
+
+#include "MessageLib/ProsePackage.h"
 
 #include "Common/bytebuffer.h"
 #include <vector>

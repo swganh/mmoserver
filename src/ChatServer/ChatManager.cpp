@@ -67,7 +67,6 @@ mMessageDispatch(dispatch)
 	mMainCategory = "SWG";
 
 	_registerCallbacks();
-	_loadCommandMap();
 	_loadDatabindings();
 
 	ChatAsyncContainer* asyncContainer = new ChatAsyncContainer(ChatQuery_GalaxyName);
@@ -112,54 +111,6 @@ ChatManager::~ChatManager()
 
 	mInsFlag = false;
 	mSingleton = NULL;
-}
-
-//======================================================================================================================
-
-void ChatManager::_loadCommandMap()
-{
-	mCommandMap.insert(std::make_pair(opChatRequestRoomlist,&ChatManager::_processRoomlistRequest));
-	mCommandMap.insert(std::make_pair(opChatCreateRoom,&ChatManager::_processCreateRoom));
-	mCommandMap.insert(std::make_pair(opChatDestroyRoom,&ChatManager::_processDestroyRoom));
-	mCommandMap.insert(std::make_pair(opChatEnterRoomById,&ChatManager::_processEnterRoomById));
-	mCommandMap.insert(std::make_pair(opChatQueryRoom,&ChatManager::_processRoomQuery));
-	mCommandMap.insert(std::make_pair(opChatRoomMessage,&ChatManager::_processRoomMessage));
-	mCommandMap.insert(std::make_pair(opChatSendToRoom,&ChatManager::_processSendToRoom));
-	mCommandMap.insert(std::make_pair(opChatAddModeratorToRoom,&ChatManager::_processAddModeratorToRoom));
-	mCommandMap.insert(std::make_pair(opChatInviteAvatarToRoom,&ChatManager::_processInviteAvatarToRoom));
-	mCommandMap.insert(std::make_pair(opChatUninviteFromRoom,&ChatManager::_processUninviteAvatarFromRoom));
-	mCommandMap.insert(std::make_pair(opChatRemoveModFromRoom,&ChatManager::_processRemoveModFromRoom));
-	mCommandMap.insert(std::make_pair(opChatRemoveAvatarFromRoom,&ChatManager::_processRemoveAvatarFromRoom));
-	mCommandMap.insert(std::make_pair(opChatBanAvatarFromRoom,&ChatManager::_processBanAvatarFromRoom));
-	mCommandMap.insert(std::make_pair(opChatUnbanAvatarFromRoom,&ChatManager::_processUnbanAvatarFromRoom));
-	mCommandMap.insert(std::make_pair(opChatAvatarId,&ChatManager::_processAvatarId));
-	mCommandMap.insert(std::make_pair(opChatInstantMessageToCharacter,&ChatManager::_processInstantMessageToCharacter));
-	mCommandMap.insert(std::make_pair(opChatPersistentMessageToServer,&ChatManager::_processPersistentMessageToServer));
-	mCommandMap.insert(std::make_pair(opChatRequestPersistentMessage,&ChatManager::_processRequestPersistentMessage));
-	mCommandMap.insert(std::make_pair(opChatDeletePersistentMessage,&ChatManager::_processDeletePersistentMessage));
-	mCommandMap.insert(std::make_pair(opChatFriendlistUpdate,&ChatManager::_processFriendlistUpdate));
-	mCommandMap.insert(std::make_pair(opChatAddFriend,&ChatManager::_processAddFriend));
-
-	mCommandMap.insert(std::make_pair(opClusterClientConnect,&ChatManager::_processClusterClientConnect));
-	mCommandMap.insert(std::make_pair(opClusterClientDisconnect,&ChatManager::_processClusterClientDisconnect));
-	mCommandMap.insert(std::make_pair(opClusterZoneTransferCharacter,&ChatManager::_processZoneTransfer));
-	mCommandMap.insert(std::make_pair(opChatNotifySceneReady,&ChatManager::_processWhenLoaded));
-
-
-	mCommandMap.insert(std::make_pair(opNotifyChatAddFriend,&ChatManager::_processNotifyChatAddFriend));
-	mCommandMap.insert(std::make_pair(opNotifyChatRemoveFriend,&ChatManager::_processNotifyChatRemoveFriend));
-	mCommandMap.insert(std::make_pair(opNotifyChatAddIgnore,&ChatManager::_processNotifyChatAddIgnore));
-	mCommandMap.insert(std::make_pair(opNotifyChatRemoveIgnore,&ChatManager::_processNotifyChatRemoveIgnore));
-
-	mCommandMap.insert(std::make_pair(opSendSystemMailMessage,&ChatManager::_processSystemMailMessage));
-	mCommandMap.insert(std::make_pair(opNotifyChatFindFriend,&ChatManager::_processFindFriendMessage));
-	mCommandMap.insert(std::make_pair(opFindFriendSendPosition,&ChatManager::_processFindFriendGotPosition));
-
-	mCommandMap.insert(std::make_pair(opIsmGroupSay,&ChatManager::_processGroupSaySend));
-	mCommandMap.insert(std::make_pair(opIsmBroadcastGalaxy,&ChatManager::_processBroadcastGalaxy));
-	mCommandMap.insert(std::make_pair(opIsmScheduleShutdown,&ChatManager::_processScheduleShutdown));
-	mCommandMap.insert(std::make_pair(opIsmCancelShutdown,&ChatManager::_processCancelScheduledShutdown));
-
 }
 
 //======================================================================================================================
@@ -303,48 +254,42 @@ void ChatManager::unregisterChannel(Channel* channel)
 
 void ChatManager::_registerCallbacks()
 {
-	mMessageDispatch->RegisterMessageCallback(opClusterClientConnect,this);
-	mMessageDispatch->RegisterMessageCallback(opClusterClientDisconnect,this);
-	mMessageDispatch->RegisterMessageCallback(opClusterZoneTransferCharacter,this);
-	mMessageDispatch->RegisterMessageCallback(opChatNotifySceneReady,this);
-	mMessageDispatch->RegisterMessageCallback(opChatRequestRoomlist,this);
-	mMessageDispatch->RegisterMessageCallback(opChatCreateRoom,this);
-	mMessageDispatch->RegisterMessageCallback(opChatDestroyRoom,this);
-	mMessageDispatch->RegisterMessageCallback(opChatEnterRoomById,this);
-	mMessageDispatch->RegisterMessageCallback(opChatQueryRoom,this);
-	mMessageDispatch->RegisterMessageCallback(opChatRoomMessage,this);
-	mMessageDispatch->RegisterMessageCallback(opChatSendToRoom,this);
-	mMessageDispatch->RegisterMessageCallback(opChatAddModeratorToRoom,this);
-	mMessageDispatch->RegisterMessageCallback(opChatInviteAvatarToRoom,this);
-	mMessageDispatch->RegisterMessageCallback(opChatUninviteFromRoom,this);
-	mMessageDispatch->RegisterMessageCallback(opChatRemoveModFromRoom,this);
-	mMessageDispatch->RegisterMessageCallback(opChatRemoveAvatarFromRoom,this);
-	mMessageDispatch->RegisterMessageCallback(opChatBanAvatarFromRoom,this);
-	mMessageDispatch->RegisterMessageCallback(opChatUnbanAvatarFromRoom,this);
-	mMessageDispatch->RegisterMessageCallback(opChatAvatarId,this);
-
-	mMessageDispatch->RegisterMessageCallback(opChatInstantMessageToCharacter,this);
-
-	mMessageDispatch->RegisterMessageCallback(opChatPersistentMessageToServer,this);
-	mMessageDispatch->RegisterMessageCallback(opChatRequestPersistentMessage,this);
-	mMessageDispatch->RegisterMessageCallback(opChatDeletePersistentMessage,this);
-
-	mMessageDispatch->RegisterMessageCallback(opChatFriendlistUpdate,this);
-	mMessageDispatch->RegisterMessageCallback(opChatAddFriend,this);
-
-	mMessageDispatch->RegisterMessageCallback(opNotifyChatAddFriend,this);
-	mMessageDispatch->RegisterMessageCallback(opNotifyChatRemoveFriend,this);
-	mMessageDispatch->RegisterMessageCallback(opNotifyChatAddIgnore,this);
-	mMessageDispatch->RegisterMessageCallback(opNotifyChatRemoveIgnore,this);
-	mMessageDispatch->RegisterMessageCallback(opNotifyChatFindFriend,this);
-	mMessageDispatch->RegisterMessageCallback(opFindFriendSendPosition,this);
-
-	mMessageDispatch->RegisterMessageCallback(opSendSystemMailMessage,this);
-
-	mMessageDispatch->RegisterMessageCallback(opIsmGroupSay,this);
-	mMessageDispatch->RegisterMessageCallback(opIsmBroadcastGalaxy,this);
-	mMessageDispatch->RegisterMessageCallback(opIsmScheduleShutdown,this);
-	mMessageDispatch->RegisterMessageCallback(opIsmCancelShutdown,this);
+	mMessageDispatch->RegisterMessageCallback(opClusterClientConnect,std::bind(&ChatManager::_processClusterClientConnect, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opClusterClientDisconnect,std::bind(&ChatManager::_processClusterClientDisconnect, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opClusterZoneTransferCharacter,std::bind(&ChatManager::_processZoneTransfer, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opChatNotifySceneReady,std::bind(&ChatManager::_processWhenLoaded, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opChatRequestRoomlist,std::bind(&ChatManager::_processRoomlistRequest, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opChatCreateRoom,std::bind(&ChatManager::_processCreateRoom, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opChatDestroyRoom,std::bind(&ChatManager::_processDestroyRoom, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opChatEnterRoomById,std::bind(&ChatManager::_processEnterRoomById, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opChatQueryRoom,std::bind(&ChatManager::_processRoomQuery, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opChatRoomMessage, std::bind(&ChatManager::_processRoomMessage, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opChatSendToRoom,std::bind(&ChatManager::_processSendToRoom, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opChatAddModeratorToRoom,std::bind(&ChatManager::_processAddModeratorToRoom, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opChatInviteAvatarToRoom,std::bind(&ChatManager::_processInviteAvatarToRoom, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opChatUninviteFromRoom,std::bind(&ChatManager::_processUninviteAvatarFromRoom, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opChatRemoveModFromRoom,std::bind(&ChatManager::_processRemoveModFromRoom, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opChatRemoveAvatarFromRoom,std::bind(&ChatManager::_processRemoveAvatarFromRoom, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opChatBanAvatarFromRoom,std::bind(&ChatManager::_processBanAvatarFromRoom, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opChatUnbanAvatarFromRoom,std::bind(&ChatManager::_processUnbanAvatarFromRoom, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opChatAvatarId,std::bind(&ChatManager::_processAvatarId, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opChatInstantMessageToCharacter,std::bind(&ChatManager::_processInstantMessageToCharacter, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opChatPersistentMessageToServer,std::bind(&ChatManager::_processPersistentMessageToServer, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opChatRequestPersistentMessage,std::bind(&ChatManager::_processRequestPersistentMessage, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opChatDeletePersistentMessage,std::bind(&ChatManager::_processDeletePersistentMessage, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opChatFriendlistUpdate,std::bind(&ChatManager::_processFriendlistUpdate, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opChatAddFriend,std::bind(&ChatManager::_processAddFriend, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opNotifyChatAddFriend,std::bind(&ChatManager::_processNotifyChatAddFriend, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opNotifyChatRemoveFriend,std::bind(&ChatManager::_processNotifyChatRemoveFriend, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opNotifyChatAddIgnore,std::bind(&ChatManager::_processNotifyChatAddIgnore, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opNotifyChatRemoveIgnore,std::bind(&ChatManager::_processNotifyChatRemoveIgnore, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opNotifyChatFindFriend,std::bind(&ChatManager::_processFindFriendMessage, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opFindFriendSendPosition,std::bind(&ChatManager::_processFindFriendGotPosition, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opSendSystemMailMessage,std::bind(&ChatManager::_processSystemMailMessage, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opIsmGroupSay,std::bind(&ChatManager::_processGroupSaySend, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opIsmBroadcastGalaxy,std::bind(&ChatManager::_processBroadcastGalaxy, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opIsmScheduleShutdown,std::bind(&ChatManager::_processScheduleShutdown, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opIsmCancelShutdown,std::bind(&ChatManager::_processCancelScheduledShutdown, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 //======================================================================================================================
@@ -371,42 +316,24 @@ void ChatManager::_unregisterCallbacks()
 	mMessageDispatch->UnregisterMessageCallback(opChatBanAvatarFromRoom);
 	mMessageDispatch->UnregisterMessageCallback(opChatUnbanAvatarFromRoom);
 	mMessageDispatch->UnregisterMessageCallback(opChatAvatarId);
-
 	mMessageDispatch->UnregisterMessageCallback(opChatInstantMessageToCharacter);
-
 	mMessageDispatch->UnregisterMessageCallback(opChatPersistentMessageToServer);
 	mMessageDispatch->UnregisterMessageCallback(opChatRequestPersistentMessage);
 	mMessageDispatch->UnregisterMessageCallback(opChatDeletePersistentMessage);
-
 	mMessageDispatch->UnregisterMessageCallback(opChatFriendlistUpdate);
 	mMessageDispatch->UnregisterMessageCallback(opChatAddFriend);
-
 	mMessageDispatch->UnregisterMessageCallback(opNotifyChatAddFriend);
 	mMessageDispatch->UnregisterMessageCallback(opNotifyChatRemoveFriend);
 	mMessageDispatch->UnregisterMessageCallback(opNotifyChatAddIgnore);
 	mMessageDispatch->UnregisterMessageCallback(opNotifyChatRemoveIgnore);
 	mMessageDispatch->UnregisterMessageCallback(opNotifyChatFindFriend);
 	mMessageDispatch->UnregisterMessageCallback(opFindFriendSendPosition);
-
 	mMessageDispatch->UnregisterMessageCallback(opSendSystemMailMessage);
-
 	//mMessageDispatch->UnregisterMessageCallback(opConnectPlayerMessage);
 	mMessageDispatch->UnregisterMessageCallback(opIsmGroupSay);
 	mMessageDispatch->UnregisterMessageCallback(opIsmBroadcastGalaxy);
 	mMessageDispatch->UnregisterMessageCallback(opIsmScheduleShutdown);
 	mMessageDispatch->UnregisterMessageCallback(opIsmCancelShutdown);
-}
-
-//======================================================================================================================
-
-void ChatManager::handleDispatchMessage(uint32 opcode,Message* message,DispatchClient* client)
-{
-	CommandMap::iterator it = mCommandMap.find(opcode);
-
-	if(it != mCommandMap.end())
-		(this->*((*it).second))(message,client);
-	else
-		gLogger->log(LogManager::NOTICE,"Unhandled DispatchMsg %u",opcode);
 }
 
 //======================================================================================================================

@@ -31,7 +31,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <list>
 #include <map>
 
-#include "Common/MessageDispatchCallback.h"
 #include "DatabaseManager/DatabaseCallback.h"
 #include "GroupManagerCallback.h"
 #include "Utils/typedefs.h"
@@ -55,7 +54,7 @@ typedef std::vector<std::pair<MissionObject*,uint32> >	MissionGroupRangeList;
 typedef std::vector<GroupObject*>						GroupList;
 //======================================================================================================================
 
-class GroupManager : public MessageDispatchCallback, public DatabaseCallback
+class GroupManager : public DatabaseCallback
 {
 	public:
 
@@ -76,7 +75,6 @@ class GroupManager : public MessageDispatchCallback, public DatabaseCallback
 
 		void				Shutdown();
 
-		virtual void		handleDispatchMessage(uint32 opcode,Message* message,DispatchClient* client);
 		void				sendGroupMissionUpdate(GroupObject* group);
 		MissionObject*		getZoneGroupMission(std::list<uint64>* members);
 
@@ -92,12 +90,12 @@ class GroupManager : public MessageDispatchCallback, public DatabaseCallback
 
 	private:
 
-		void				_processIsmInviteRequest(Message* message);
-		void				_processIsmGroupCREO6deltaGroupId(Message* message);
-		void				_processIsmGroupLootModeResponse(Message* message);
-		void				_processIsmGroupLootMasterResponse(Message* message);
-		void				_processIsmGroupInviteInRangeRequest(Message* message);
-		void				_processIsmIsGroupLeaderResponse(Message* message);
+		void				_processIsmInviteRequest(Message* message, DispatchClient* client);
+		void				_processIsmGroupCREO6deltaGroupId(Message* message, DispatchClient* client);
+		void				_processIsmGroupLootModeResponse(Message* message, DispatchClient* client);
+		void				_processIsmGroupLootMasterResponse(Message* message, DispatchClient* client);
+		void				_processIsmGroupInviteInRangeRequest(Message* message, DispatchClient* client);
+		void				_processIsmIsGroupLeaderResponse(Message* message, DispatchClient* client);
 
 		uint64				_insertLeaderRequest(GroupManagerCallbackContainer* container);
 

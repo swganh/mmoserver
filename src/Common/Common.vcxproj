@@ -25,7 +25,6 @@
     <ClInclude Include="DispatchClient.h" />
     <ClInclude Include="Message.h" />
     <ClInclude Include="MessageDispatch.h" />
-    <ClInclude Include="MessageDispatchCallback.h" />
     <ClInclude Include="MessageFactory.h" />
     <ClInclude Include="MessageOpcodes.h" />
   </ItemGroup>

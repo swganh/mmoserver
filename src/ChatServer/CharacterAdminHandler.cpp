@@ -56,9 +56,9 @@ CharacterAdminHandler::CharacterAdminHandler(Database* database, MessageDispatch
   mMessageDispatch = dispatch;
 
   // Register our opcodes
-  mMessageDispatch->RegisterMessageCallback(opClientCreateCharacter,this);
-  mMessageDispatch->RegisterMessageCallback(opLagRequest,this);
-  mMessageDispatch->RegisterMessageCallback(opClientRandomNameRequest,this);
+  mMessageDispatch->RegisterMessageCallback(opClientCreateCharacter,std::bind(&CharacterAdminHandler::_processCreateCharacter, this, std::placeholders::_1, std::placeholders::_2));
+  //mMessageDispatch->RegisterMessageCallback(opLagRequest,this);
+  mMessageDispatch->RegisterMessageCallback(opClientRandomNameRequest,std::bind(&CharacterAdminHandler::_processRandomNameRequest, this, std::placeholders::_1, std::placeholders::_2));
 
   // Load anything we need from the database
 }
@@ -78,33 +78,6 @@ void CharacterAdminHandler::Process(void)
 {
 
 }
-
-
-//======================================================================================================================
-void CharacterAdminHandler::handleDispatchMessage(uint32 opcode, Message* message, DispatchClient* client)
-{
-  switch(opcode)
-  {
-    case opClientCreateCharacter:
-      _processCreateCharacter(message, client);
-      break;
-    case opLagRequest:
-	 break;
-
-    case opClientRandomNameRequest:
-      _processRandomNameRequest(message, client);
-      break;
-
-    default:
-    {
-      // Unhandled opcode
-  //    int jack = opcode;
-  //    int i = 0;
-    }
-  } //end switch(opcode)
-
-}
-
 
 //======================================================================================================================
 void CharacterAdminHandler::_processRandomNameRequest(Message* message, DispatchClient* client)

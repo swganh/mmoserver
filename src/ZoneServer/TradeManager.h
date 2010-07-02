@@ -29,7 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define ANH_ZONESERVER_TRADEMANAGER_H
 
 #include <vector>
-#include "Common/MessageDispatchCallback.h"
 #include "DatabaseManager/DatabaseCallback.h"
 #include "CharacterBuilderTerminal.h"
 
@@ -234,7 +233,7 @@ class Vendor
 
 //======================================================================================================================
 
-class TradeManager : public MessageDispatchCallback, public DatabaseCallback
+class TradeManager : public DatabaseCallback
 {
 	friend class ObjectFactory;
 	public:
@@ -246,7 +245,6 @@ class TradeManager : public MessageDispatchCallback, public DatabaseCallback
 
 		void				Shutdown();
 
-		virtual void		handleDispatchMessage(uint32 opcode,Message* message,DispatchClient* client);
 		virtual void		handleDatabaseJobComplete(void* ref,DatabaseResult* result);
 
 		void				addTradeInvitation(PlayerObject* invitedPlayer, PlayerObject* invitingPlayer);
@@ -257,13 +255,16 @@ class TradeManager : public MessageDispatchCallback, public DatabaseCallback
 
 		TradeManager(Database* database,MessageDispatch* dispatch);
 
+		void				_HandleAuctionCreateMessage(Message* message,DispatchClient* client, TRMAuctionType auction);
+
 		void 				_processBankTipDeduct(Message* message,DispatchClient* client);
 		void 				_processFindFriendCreateWaypointMessage(Message* message,DispatchClient* client);
 		void 				_processFindFriendRequestPositionMessage(Message* message,DispatchClient* client);
 
 		void				_processBanktipUpdate(Message* message,DispatchClient* client);
 
-		void				_processHandleAuctionCreateMessage(Message* message,DispatchClient* client,TRMAuctionType auction);
+		void				_processHandleAuctionCreateMessage(Message* message,DispatchClient* client);
+		void				_processHandleImmediateAuctionCreateMessage(Message* message,DispatchClient* client);
 		void 				_processDeductMoneyMessage(Message* message,DispatchClient* client);
 
 

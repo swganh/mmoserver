@@ -62,23 +62,22 @@ TradeManager::TradeManager(Database* database, MessageDispatch* dispatch)
 	mMessageDispatch = dispatch;
 	TradeManagerAsyncContainer* asyncContainer;
 
-	mMessageDispatch->RegisterMessageCallback(opCreateAuctionMessage,this);
-	mMessageDispatch->RegisterMessageCallback(opCreateImmediateAuctionMessage,this);
-	mMessageDispatch->RegisterMessageCallback(opProcessSendCreateItem,this);
-	mMessageDispatch->RegisterMessageCallback(opAbortTradeMessage,this);
-	mMessageDispatch->RegisterMessageCallback(opTradeCompleteMessage,this);
-	mMessageDispatch->RegisterMessageCallback(opAddItemMessage,this);
-	mMessageDispatch->RegisterMessageCallback(opRemoveItemMessage,this);
-	mMessageDispatch->RegisterMessageCallback(opAcceptTransactionMessage,this);
-	mMessageDispatch->RegisterMessageCallback(opBeginVerificationMessage,this);
-	mMessageDispatch->RegisterMessageCallback(opVerifyTradeMessage,this);
-	mMessageDispatch->RegisterMessageCallback(opUnacceptTransactionMessage,this);
-	mMessageDispatch->RegisterMessageCallback(opGiveMoneyMessage,this);
-	mMessageDispatch->RegisterMessageCallback(opDeductMoneyMessage,this);
-	mMessageDispatch->RegisterMessageCallback(opFindFriendRequestPosition,this);
-	mMessageDispatch->RegisterMessageCallback(opFindFriendCreateWaypoint,this);
-
-	mMessageDispatch->RegisterMessageCallback(opBankTipDeduct,this);
+	mMessageDispatch->RegisterMessageCallback(opCreateAuctionMessage,std::bind(&TradeManager::_processHandleAuctionCreateMessage, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opCreateImmediateAuctionMessage,std::bind(&TradeManager::_processHandleImmediateAuctionCreateMessage, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opProcessSendCreateItem,std::bind(&TradeManager::_processCreateItemMessage, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opAbortTradeMessage,std::bind(&TradeManager::_processAbortTradeMessage, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opTradeCompleteMessage,std::bind(&TradeManager::_processTradeCompleteMessage, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opAddItemMessage,std::bind(&TradeManager::_processAddItemMessage, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opRemoveItemMessage,std::bind(&TradeManager::_processRemoveItemMessage, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opAcceptTransactionMessage,std::bind(&TradeManager::_processAcceptTransactionMessage, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opBeginVerificationMessage,std::bind(&TradeManager::_processBeginVerificationMessage, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opVerifyTradeMessage,std::bind(&TradeManager::_processVerificationMessage, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opUnacceptTransactionMessage,std::bind(&TradeManager::_processUnacceptTransactionMessage, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opGiveMoneyMessage,std::bind(&TradeManager::_processGiveMoneyMessage, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opDeductMoneyMessage,std::bind(&TradeManager::_processDeductMoneyMessage, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opFindFriendRequestPosition,std::bind(&TradeManager::_processFindFriendRequestPositionMessage, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opFindFriendCreateWaypoint,std::bind(&TradeManager::_processFindFriendCreateWaypointMessage, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opBankTipDeduct,std::bind(&TradeManager::_processBanktipUpdate, this, std::placeholders::_1, std::placeholders::_2));
 
 	mErrorCount = 1;
 	mZoneId = gWorldManager->getZoneId();
@@ -136,124 +135,6 @@ void TradeManager::Shutdown()
 
 	mMessageDispatch->UnregisterMessageCallback(opBankTipDeduct);
 
-}
-
-//======================================================================================================================
-void TradeManager::handleDispatchMessage(uint32 opcode, Message* message, DispatchClient* client)
-{
-	switch(opcode)
-	{
-		case opBankTipDeduct:
-		{
-			_processBanktipUpdate(message,client);
-
-		}
-		break;
-		case opFindFriendCreateWaypoint:
-		{
-
-			_processFindFriendCreateWaypointMessage(message,client);
-
-		}
-		break;
-
-		case opFindFriendRequestPosition:
-		{
-			//opFindFriendSendPosition
-			_processFindFriendRequestPositionMessage(message,client);
-
-		}
-		break;
-
-		case opDeductMoneyMessage:
-		{
-			_processDeductMoneyMessage(message,client);
-		}
-		break;
-
-		case opProcessSendCreateItem:
-		{
-			//send by the chatserver when we try to get an item from the bazaar!
-			_processCreateItemMessage(message,client);
-		}
-		break;
-
-		case opCreateAuctionMessage:
-		{
-			_processHandleAuctionCreateMessage(message,client,TRMVendor_Auction);
-		}
-		break;
-
-		case opCreateImmediateAuctionMessage:
-		{
-			_processHandleAuctionCreateMessage(message,client,TRMVendor_Instant);
-
-		}
-		break;
-
-		case opAbortTradeMessage:
-		{
-			_processAbortTradeMessage(message,client);
-		}
-		break;
-
-		case opTradeCompleteMessage:
-		{
-			_processTradeCompleteMessage(message,client);
-		}
-		break;
-
-		case opAddItemMessage:
-		{
-			_processAddItemMessage(message,client);
-		}
-		break;
-
-		case opRemoveItemMessage:
-		{
-			_processRemoveItemMessage(message,client);
-		}
-		break;
-
-		case opAcceptTransactionMessage:
-		{
-			_processAcceptTransactionMessage(message,client);
-			//gLogger->log(LogManager::DEBUG,"TradeManager AcceptTransactionMessage");
-		}
-		break;
-
-		case opBeginVerificationMessage:
-		{
-			_processBeginVerificationMessage(message,client);
-			//gLogger->log(LogManager::DEBUG,"TradeManager BeginVerificationMessage");
-		}
-		break;
-
-		case opVerifyTradeMessage:
-		{
-			_processVerificationMessage(message,client);
-			//gLogger->log(LogManager::DEBUG,"TradeManager VerificationMessage");
-		}
-		break;
-
-		case opUnacceptTransactionMessage:
-		{
-			_processUnacceptTransactionMessage(message,client);
-			//gLogger->log(LogManager::DEBUG,"TradeManager UnacceptTransactionMessage");
-		}
-		break;
-
-		case opGiveMoneyMessage:
-		{
-			_processGiveMoneyMessage(message,client);
-			//gLogger->log(LogManager::DEBUG,"TradeManager GiveMoneyMessage");
-		}
-		break;
-
-		default:
-			gLogger->log(LogManager::DEBUG,"TradeManagerMessage::handleDispatchMessage: Unhandled opcode %u",opcode);
-		break;
-	}
 }
 
 //=======================================================================================================================
@@ -675,7 +556,17 @@ void TradeManager::_processCreateItemMessage(Message* message,DispatchClient* cl
 
 //=======================================================================================================================
 
-void TradeManager::_processHandleAuctionCreateMessage(Message* message,DispatchClient* client, TRMAuctionType auction)
+void TradeManager::_processHandleAuctionCreateMessage(Message* message,DispatchClient* client)
+{
+	_HandleAuctionCreateMessage(message,client, TRMVendor_Auction);
+}
+
+void TradeManager::_processHandleImmediateAuctionCreateMessage(Message* message,DispatchClient* client)
+{
+	_HandleAuctionCreateMessage(message, client, TRMVendor_Instant);
+}
+
+void TradeManager::_HandleAuctionCreateMessage(Message* message,DispatchClient* client, TRMAuctionType auction)
 {
 	TradeManagerAsyncContainer* asyncContainer;
 

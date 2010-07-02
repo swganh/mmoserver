@@ -28,7 +28,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_ZONESERVER_UIMANAGER_H
 #define ANH_ZONESERVER_UIMANAGER_H
 
-#include "Common/MessageDispatchCallback.h"
 #include "UIEnums.h"
 #include "UIWindow.h"
 #include <boost/ptr_container/ptr_map.hpp>
@@ -68,15 +67,13 @@ class FactoryObject;
 
 //======================================================================================================================
 
-class UIManager : public MessageDispatchCallback
+class UIManager 
 {
 	public:
 
 		~UIManager();
 		static UIManager*	Init(Database* database,MessageDispatch* dispatch);
 		static UIManager*	getSingletonPtr() { return mSingleton; }
-
-		virtual void		handleDispatchMessage(uint32 opcode,Message* message,DispatchClient* client);
 
 		UIWindow*			getUIWindow(uint32 id);
 		void				destroyUIWindow(uint32 id,bool sendForceClose = false);

@@ -49,7 +49,7 @@ PlanetMapHandler::PlanetMapHandler(Database* database, MessageDispatch* dispatch
 	mDatabase = database;
 	mMessageDispatch = dispatch;
 
-	mMessageDispatch->RegisterMessageCallback(opGetMapLocationsMessage,this);
+	mMessageDispatch->RegisterMessageCallback(opGetMapLocationsMessage,std::bind(&PlanetMapHandler::_processMapLocationsRequest, this, std::placeholders::_1, std::placeholders::_2));
 
 
   // We're going to build our databinding here.
@@ -81,28 +81,6 @@ void PlanetMapHandler::Process()
 {
 
 }
-
-
-//======================================================================================================================
-
-void PlanetMapHandler::handleDispatchMessage(uint32 opcode, Message* message, DispatchClient* client)
-{
-	switch(opcode)
-	{
-		case opGetMapLocationsMessage:
-			_processMapLocationsRequest(message, client);
-			break;
-
-		default:
-		{
-			// Unhandled opcode
-		//	int jack = opcode;
-		//	int i = 0;
-		}
-		break;
-	} //end switch(opcode)
-}
-
 
 //======================================================================================================================
 void PlanetMapHandler::handleDatabaseJobComplete(void* ref, DatabaseResult* result)

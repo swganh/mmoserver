@@ -143,8 +143,9 @@ AdminManager::~AdminManager()
 void AdminManager::registerCallbacks(void)
 {
 	mMessageDispatch->registerSessionlessDispatchClient(AdminAccountId);
-	mMessageDispatch->RegisterMessageCallback(opIsmScheduleShutdown,this);
-	mMessageDispatch->RegisterMessageCallback(opIsmCancelShutdown,this);
+
+	mMessageDispatch->RegisterMessageCallback(opIsmScheduleShutdown, std::bind(&AdminManager::_processScheduleShutdown, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opIsmCancelShutdown,std::bind(&AdminManager::_processCancelScheduledShutdown, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 //======================================================================================================================
@@ -154,28 +155,6 @@ void AdminManager::unregisterCallbacks(void)
 	mMessageDispatch->UnregisterMessageCallback(opIsmScheduleShutdown);
 	mMessageDispatch->UnregisterMessageCallback(opIsmCancelShutdown);
 	mMessageDispatch->unregisterSessionlessDispatchClient(AdminAccountId);
-}
-
-//======================================================================================================================
-
-void AdminManager::handleDispatchMessage(uint32 opcode,Message* message,DispatchClient* client)
-{
-	switch (opcode)
-	{
-		case opIsmScheduleShutdown:
-		{
-			this->_processScheduleShutdown(message, client);
-		}
-		break;
-
-		case opIsmCancelShutdown:
-		{
-			this->_processCancelScheduledShutdown(message, client);
-		}
-		break;
-
-		default: break;
-	}
 }
 
 //======================================================================================================================

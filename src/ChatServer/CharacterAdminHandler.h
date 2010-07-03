@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef SRC_CHATSERVER_CHARACTERADMINHANDLER_H_
 #define SRC_CHATSERVER_CHARACTERADMINHANDLER_H_
 
-#include "Common/MessageDispatchCallback.h"
+#include "Utils/typedefs.h"
 #include "DatabaseManager/DatabaseCallback.h"
 
 
@@ -79,7 +79,7 @@ public:
 
 
 //======================================================================================================================
-class CharacterAdminHandler : public MessageDispatchCallback, public DatabaseCallback
+class CharacterAdminHandler : public DatabaseCallback
 {
 	public:
 
@@ -88,8 +88,6 @@ class CharacterAdminHandler : public MessageDispatchCallback, public DatabaseCal
 
 		void			Process(void);
 
-		// Inherited from MessageDispatchCallback
-		virtual void	handleDispatchMessage(uint32 opcode, Message* message, DispatchClient* client);
 		virtual void	handleDatabaseJobComplete(void* ref,DatabaseResult* result);
 
 	private:

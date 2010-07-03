@@ -44,8 +44,8 @@ ObjectControllerDispatch::ObjectControllerDispatch(Database* database,MessageDis
 mDatabase(database),
 mMessageDispatch(dispatch)
 {
-	mMessageDispatch->RegisterMessageCallback(opObjControllerMessage,this); 
-	mMessageDispatch->RegisterMessageCallback(opObjectMenuSelection,this);
+	mMessageDispatch->RegisterMessageCallback(opObjControllerMessage,std::bind(&ObjectControllerDispatch::_dispatchMessage, this, std::placeholders::_1, std::placeholders::_2)); 
+	mMessageDispatch->RegisterMessageCallback(opObjectMenuSelection,std::bind(&ObjectControllerDispatch::_dispatchObjectMenuSelect, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 //======================================================================================================================
@@ -61,22 +61,6 @@ ObjectControllerDispatch::~ObjectControllerDispatch()
 void ObjectControllerDispatch::Process(void)
 {
 
-}
-
-
-//======================================================================================================================
-
-void ObjectControllerDispatch::handleDispatchMessage(uint32 opcode,Message* message,DispatchClient* client)
-{
-	if(opcode == opObjControllerMessage)
-		_dispatchMessage(message,client);
-	else if(opcode == opObjectMenuSelection)
-		_dispatchObjectMenuSelect(message,client);
-
-	else
-		gLogger->log(LogManager::DEBUG,"ObjectControllerDispatch: Unhandled opcode %u",opcode);
-
-	message->setPendingDelete(true);
 }
 
 //======================================================================================================================

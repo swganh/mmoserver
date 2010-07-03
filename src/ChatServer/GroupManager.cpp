@@ -77,22 +77,21 @@ GroupManager::GroupManager(MessageDispatch* dispatch)
 
 	mMessageDispatch = dispatch;
 
-	mMessageDispatch->RegisterMessageCallback(opIsmGroupInviteRequest,this);
-	mMessageDispatch->RegisterMessageCallback(opIsmGroupInviteResponse,this);
-	mMessageDispatch->RegisterMessageCallback(opIsmGroupUnInvite,this);
-	mMessageDispatch->RegisterMessageCallback(opIsmGroupDisband,this);
-	mMessageDispatch->RegisterMessageCallback(opIsmGroupLeave,this);
-	mMessageDispatch->RegisterMessageCallback(opIsmGroupDismissGroupMember,this);
-	mMessageDispatch->RegisterMessageCallback(opIsmGroupMakeLeader,this);
-	mMessageDispatch->RegisterMessageCallback(opIsmGroupPositionNotification,this);
-	mMessageDispatch->RegisterMessageCallback(opIsmGroupBaselineRequest,this);
-	mMessageDispatch->RegisterMessageCallback(opIsmGroupInviteRequest,this);
-	mMessageDispatch->RegisterMessageCallback(opIsmGroupLootModeRequest,this);
-	mMessageDispatch->RegisterMessageCallback(opIsmGroupLootModeResponse,this);
-	mMessageDispatch->RegisterMessageCallback(opIsmGroupLootMasterRequest,this);
-	mMessageDispatch->RegisterMessageCallback(opIsmGroupLootMasterResponse,this);
-	mMessageDispatch->RegisterMessageCallback(opIsmGroupInviteInRangeResponse, this);
-	mMessageDispatch->RegisterMessageCallback(opIsmIsGroupLeaderRequest, this);
+	mMessageDispatch->RegisterMessageCallback(opIsmGroupInviteRequest,std::bind(&GroupManager::_processGroupInviteRequest, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opIsmGroupInviteResponse,std::bind(&GroupManager::_processGroupInviteResponse, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opIsmGroupUnInvite,std::bind(&GroupManager::_processGroupUnInvite, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opIsmGroupDisband,std::bind(&GroupManager::_processGroupDisband, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opIsmGroupLeave,std::bind(&GroupManager::_processGroupLeave, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opIsmGroupDismissGroupMember,std::bind(&GroupManager::_processGroupDismissGroupMember, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opIsmGroupMakeLeader,std::bind(&GroupManager::_processGroupMakeLeader, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opIsmGroupPositionNotification,std::bind(&GroupManager::_processGroupPositionNotification, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opIsmGroupBaselineRequest,std::bind(&GroupManager::_processGroupBaselineRequest, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opIsmGroupLootModeRequest,std::bind(&GroupManager::_processGroupLootModeRequest, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opIsmGroupLootModeResponse,std::bind(&GroupManager::_processGroupLootModeResponse, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opIsmGroupLootMasterRequest,std::bind(&GroupManager::_processGroupLootMasterRequest, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opIsmGroupLootMasterResponse,std::bind(&GroupManager::_processGroupLootMasterResponse, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opIsmGroupInviteInRangeResponse, std::bind(&GroupManager::_processIsmInviteInRangeResponse, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opIsmIsGroupLeaderRequest, std::bind(&GroupManager::_processIsmIsGroupLeaderRequest, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 
@@ -172,109 +171,6 @@ void GroupManager::removeGroup(uint64 groupId)
 		gLogger->log(LogManager::DEBUG,"GroupManager::removeGroup: Could not find group for removing %"PRIu64"",groupId);
 	}
 
-}
-
-//======================================================================================================================
-
-void GroupManager::handleDispatchMessage(uint32 opcode, Message* message, DispatchClient* client)
-{
-	switch(opcode)
-	{
-
-		case opIsmGroupInviteRequest:
-		{
-			_processGroupInviteRequest(message, client);
-		}
-		break;
-
-
-		case opIsmGroupInviteResponse:
-		{
-			_processGroupInviteResponse(message, client);	
-		}
-		break;
-
-		case opIsmGroupUnInvite:
-		{
-			_processGroupUnInvite(message, client);	
-		}
-		break;
-
-		case opIsmGroupDisband:
-		{
-			_processGroupDisband(message, client);	
-		}
-		break;
-
-		case opIsmGroupLeave:
-		{
-			_processGroupLeave(message, client);	
-		}
-		break;
-
-		case opIsmGroupDismissGroupMember:
-		{
-			_processGroupDismissGroupMember(message, client);	
-		}
-		break;
-
-		case opIsmGroupMakeLeader:
-		{
-			_processGroupMakeLeader(message, client);	
-		}
-		break;
-
-		case opIsmGroupPositionNotification:
-		{
-			_processGroupPositionNotification(message, client);	
-		}
-		break;
-
-		case opIsmGroupBaselineRequest:
-		{
-			_processGroupBaselineRequest(message, client);	
-		}
-		break;
-
-		case opIsmGroupLootModeRequest:
-		{
-			_processGroupLootModeRequest(message, client);
-		}
-		break;
-
-		case opIsmGroupLootModeResponse:
-		{
-			_processGroupLootModeResponse(message, client);
-		}
-		break;
-
-		case opIsmGroupLootMasterRequest:
-		{
-			_processGroupLootMasterRequest(message, client);
-		}
-		break;
-
-		case opIsmGroupLootMasterResponse:
-		{
-			_processGroupLootMasterResponse(message, client);
-		}
-		break;
-
-		case opIsmGroupInviteInRangeResponse:
-		{
-			_processIsmInviteInRangeResponse(message, client);
-		}
-		break;
-
-		case opIsmIsGroupLeaderRequest:
-		{
-			_processIsmIsGroupLeaderRequest(message, client);
-		}
-
-		default:
-		gLogger->log(LogManager::DEBUG,"GroupManager::handleDispatchMessage: Unhandled opcode %u",opcode);
-		break;
-	} 
 }
 
 void GroupManager::_processIsmIsGroupLeaderRequest(Message* message, DispatchClient* client)

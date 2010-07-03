@@ -31,7 +31,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "MessageOpcodes.h"
 #include "MessageFactory.h"
 #include "DispatchClient.h"
-#include "MessageDispatchCallback.h"
 #include "NetworkManager/Service.h"
 #include "NetworkManager/Session.h"
 #include "NetworkManager/NetworkClient.h"
@@ -66,7 +65,7 @@ void MessageDispatch::Process(void)
 
 //======================================================================================================================
 
-void MessageDispatch::RegisterMessageCallback(uint32 opcode, MessageDispatchCallback* callback)
+void MessageDispatch::RegisterMessageCallback(uint32 opcode, std::function<void (Message*,DispatchClient*)> callback)
 {
 	// Place our new callback in the map.
 	mMessageCallbackMap.insert(std::make_pair(opcode,callback));
@@ -193,7 +192,7 @@ void MessageDispatch::handleSessionMessage(NetworkClient* client, Message* messa
 		message->setIndex(4);
 
 		// Call our handler
-		(*iter).second->handleDispatchMessage(opcode, message, dispatchClient);
+		(*iter).second(message, dispatchClient);
 	}
 	else
 	{

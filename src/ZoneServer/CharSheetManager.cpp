@@ -58,7 +58,6 @@ mMessageDispatch(dispatch),
 mDBAsyncPool(sizeof(CSAsyncContainer))
 {
 	_registerCallbacks();
-	_loadCommandMap();
 
 	//gLogger->log(LogManager::DEBUG,"Started Loading Factions.");
 	mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.malloc()) CSAsyncContainer(CharSheetQuery_Factions),"SELECT * FROM faction ORDER BY id");
@@ -82,10 +81,10 @@ CharSheetManager* CharSheetManager::Init(Database* database,MessageDispatch* dis
 
 void CharSheetManager::_registerCallbacks()
 {
-	mMessageDispatch->RegisterMessageCallback(opFactionRequestMessage,this);
-	mMessageDispatch->RegisterMessageCallback(opPlayerMoneyRequest,this);
-	mMessageDispatch->RegisterMessageCallback(opStomachRequestMessage,this);
-	mMessageDispatch->RegisterMessageCallback(opGuildRequestMessage,this);
+	mMessageDispatch->RegisterMessageCallback(opFactionRequestMessage,std::bind(&CharSheetManager::_processFactionRequest, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opPlayerMoneyRequest,std::bind(&CharSheetManager::_processPlayerMoneyRequest, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opStomachRequestMessage,std::bind(&CharSheetManager::_processStomachRequest, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opGuildRequestMessage,std::bind(&CharSheetManager::_processGuildRequest, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 //=========================================================================================
@@ -100,35 +99,12 @@ void CharSheetManager::_unregisterCallbacks()
 
 //=========================================================================================
 
-void CharSheetManager::_loadCommandMap()
-{
-	mCommandMap.insert(std::make_pair(opFactionRequestMessage,&CharSheetManager::_processFactionRequest));
-	mCommandMap.insert(std::make_pair(opPlayerMoneyRequest,&CharSheetManager::_processPlayerMoneyRequest));
-	mCommandMap.insert(std::make_pair(opStomachRequestMessage,&CharSheetManager::_processStomachRequest));
-	mCommandMap.insert(std::make_pair(opGuildRequestMessage,&CharSheetManager::_processGuildRequest));
-}
-
-//=========================================================================================
-
 CharSheetManager::~CharSheetManager()
 {
 	_unregisterCallbacks();
-	mCommandMap.clear();
 
 	mInsFlag = false;
 	delete(mSingleton);
-}
-
-//======================================================================================================================
-
-void CharSheetManager::handleDispatchMessage(uint32 opcode,Message* message,DispatchClient* client)
-{
-	CSCommandMap::iterator it = mCommandMap.find(opcode);
-
-	if(it != mCommandMap.end())
-		(this->*((*it).second))(message,client);
-	else
-		gLogger->log(LogManager::DEBUG,"CharSheetManager: Unhandled DispatchMsg %u",opcode);
 }
 
 //=========================================================================================

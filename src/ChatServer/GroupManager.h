@@ -32,7 +32,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define	gGroupManager GroupManager::getSingletonPtr()
 
 #include <map>
-#include "Common/MessageDispatchCallback.h"
 
 //======================================================================================================================
 
@@ -47,7 +46,7 @@ typedef	std::map<uint64,GroupObject*> GroupMap;
 
 //======================================================================================================================
 
-class GroupManager : public MessageDispatchCallback
+class GroupManager
 {
 public:
 	static GroupManager*	getSingletonPtr() { return mSingleton; }
@@ -57,7 +56,6 @@ public:
 	~GroupManager();
 
 	void				Shutdown();
-	virtual void		handleDispatchMessage(uint32 opcode,Message* message,DispatchClient* client);
 
 	GroupObject*		getGroupById(uint64 groupId);
 	void				removeGroup(uint64 groupId);

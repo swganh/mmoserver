@@ -67,7 +67,7 @@ StructureManagerCommandMapClass::StructureManagerCommandMapClass()
 	mCommandMap.insert(std::make_pair(Structure_Query_LoadstructureItem,&StructureManager::_HandleNonPersistantLoadStructureItem));
 	mCommandMap.insert(std::make_pair(Structure_Query_Check_Permission,&StructureManager::_HandleCheckPermission));
 	mCommandMap.insert(std::make_pair(Structure_UpdateAttributes,&StructureManager::_HandleUpdateAttributes));
-
+	mCommandMap.insert(std::make_pair(Structure_Query_NoBuildRegionData,&StructureManager::_HandleNoBuildRegionData));
 
 	
 }

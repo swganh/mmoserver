@@ -36,7 +36,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "TangibleEnums.h"
 #include "WorldManager.h"
 #include "Utils/Scheduler.h"
-
 #define 	gStructureManager	StructureManager::getSingletonPtr()
 
 //======================================================================================================================
@@ -49,6 +48,9 @@ class FactoryObject;
 class PlayerStructure;
 class UIWindow;
 class StructureManagerCommandMapClass;
+class StructureHeightmapAsyncContainer;
+class NoBuildRegion;
+class ObjectController;
 
 namespace Anh_Utils
 {
@@ -88,6 +90,8 @@ enum Structure_QueryType
 	Structure_Query_Entry_Permission_Data		=	21,
 	Structure_Query_Ban_Permission_Data			=	22,
 	Structure_Query_UpdateAdminPermission		=	23,
+
+	Structure_Query_NoBuildRegionData			=	24,
 
 };
 
@@ -192,9 +196,25 @@ struct StructureItemTemplate
 	glm::vec3	mPosition;
 	glm::quat	mDirection;
 };
+// no build regions
+struct NoBuildRegionTemplate
+{
+	uint32				region_id;
+	BString				region_name;
+	glm::vec3			mPosition;
+	float				width;
+	float				height;
+	uint32				planet_id;
+	uint32				build;
+	uint32				no_build_type;
+	float				mRadius;
+	float				mRadiusSq;
+	bool				isCircle;
+};
 
 typedef		std::vector<StructureDeedLink*>		DeedLinkList;
 typedef		std::vector<StructureItemTemplate*>	StructureItemList;
+typedef		std::vector<NoBuildRegionTemplate*>	NoBuildRegionList;
 
 //======================================================================================================================
 
@@ -243,7 +263,7 @@ class Type_QueryContainer
 
 //======================================================================================================================
 
-class StructureManager : public DatabaseCallback,public ObjectFactoryCallback
+class StructureManager : public DatabaseCallback,public ObjectFactoryCallback, public HeightMapCallBack
 {
 	friend class ObjectFactory;
 	friend class StructureManagerCommandMapClass;
@@ -259,8 +279,12 @@ class StructureManager : public DatabaseCallback,public ObjectFactoryCallback
 		~StructureManager();
 
 		void					Shutdown();
-
+		//inherited callbacks
 		virtual void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
+		
+		virtual void			heightMapCallback(HeightmapAsyncContainer *ref){HeightmapStructureHandler(ref);}
+		void					HeightmapStructureHandler(HeightmapAsyncContainer* ref);
+
 		void					handleObjectReady(Object* object,DispatchClient* client);
 
 		void					createNewFactorySchematicBox(PlayerObject* player, FactoryObject* factory);
@@ -280,6 +304,10 @@ class StructureManager : public DatabaseCallback,public ObjectFactoryCallback
 		StructureItemList*		getStructureItemList(){return(&mItemTemplate);}
 
 		//=========================================================
+		NoBuildRegionList*		getNoBuildRegionList(){return(&mNoBuildList);}
+		
+		//=========================================================
+
 		//get db data
 
 		//camps
@@ -287,6 +315,10 @@ class StructureManager : public DatabaseCallback,public ObjectFactoryCallback
 		bool					checkCampRadius(PlayerObject* player);
 		bool					checkCityRadius(PlayerObject* player);
 		bool					checkinCamp(PlayerObject* player);
+		//no build region
+		bool					checkNoBuildRegion(glm::vec3 vec3);
+		bool					checkNoBuildRegion(PlayerObject* player);
+		//bool					checkInNoBuildRadius(glm::vec3 dVec, glm::vec3 rVec);
 
 		//PlayerStructures
 		void					getDeleteStructureMaintenanceData(uint64 structureId, uint64 playerId);
@@ -335,6 +367,19 @@ class StructureManager : public DatabaseCallback,public ObjectFactoryCallback
 		//asynchronously updates the lot count of a player
 		void					UpdateCharacterLots(uint64 charId);
 
+		/// New Style OC functions
+		// =======================================================================================
+		/// This command is used to place structures
+		/**
+		 *
+		 * The client attempts to place the structure
+		 *   
+		 * @param object The object placing the structure (always a PlayerObject).
+		 * @param message The message from the client requesting this command.
+		 * @param cmd_properties Contextual information for use during processing this command.
+		 */
+		bool HandlePlaceStructure(Object* object, Object* target,Message* message, ObjectControllerCmdProperties* cmdProperties);
+
 	private:
 
 		//callback functions
@@ -355,6 +400,8 @@ class StructureManager : public DatabaseCallback,public ObjectFactoryCallback
 		void				_HandleCheckPermission(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result);
 		void				_HandleUpdateAttributes(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result);
 
+		void				_HandleNoBuildRegionData(StructureManagerAsyncContainer* asyncContainer, DatabaseResult* result);
+
 
 		StructureManager(Database* database,MessageDispatch* dispatch);
 
@@ -370,6 +417,8 @@ class StructureManager : public DatabaseCallback,public ObjectFactoryCallback
 		StructureItemList			mItemTemplate;
 		ObjectIDList				mStructureDeleteList;
 		uint32						mBuildingFenceInterval;
+
+		NoBuildRegionList			mNoBuildList;
 
 };
 

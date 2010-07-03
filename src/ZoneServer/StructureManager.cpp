@@ -1576,7 +1576,7 @@ bool StructureManager::HandlePlaceStructure(Object* object, Object* target, Mess
 	}	
 
 	//find out where our structure is
-	string dataStr;
+	BString dataStr;
 	message->getStringUnicode16(dataStr);
 	
 	float dir;

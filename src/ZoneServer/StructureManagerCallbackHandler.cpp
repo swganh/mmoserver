@@ -308,7 +308,7 @@ void StructureManager::_HandleStructureRedeedCallBack(StructureManagerAsyncConta
 	if(deedId == 1)
 	{
 		gLogger->log(LogManager::DEBUG,"StructureManager::create deed with not enough maintenance...");
-		gMessageLib->sendSysMsg(player, "player_structure","structure_destroyed ");	
+        gMessageLib->SendSystemMessage(ProsePackage("player_structure", "structure_destroyed"), player);
 		mDatabase->DestroyDataBinding(binding);
 		return;
 	}

@@ -108,7 +108,7 @@ void PlayerObject::onSurvey(const SurveyEvent* event)
 				// create a new one
 				if(datapad->getCapacity())
 				{
-					gMessageLib->sendSysMsg(this,"survey","survey_waypoint");
+                    gMessageLib->SendSystemMessage(ProsePackage("survey", "survey_waypoint"), this);
 					//gMessageLib->sendSystemMessage(this,L"","survey","survey_waypoint");
 				}
 				//the datapad automatically checks if there is room and gives the relevant error message
@@ -560,10 +560,11 @@ void PlayerObject::onLogout(const LogOutEvent* event)
 		//tell the time and dust off
 		mObjectController.addEvent(new LogOutEvent(event->getLogOutTime(),event->getLogOutSpacer()),event->getLogOutSpacer());
 		uint32 timeLeft = (uint32)(event->getLogOutTime()- Anh_Utils::Clock::getSingleton()->getLocalTime())/1000;
-		gMessageLib->sendSysMsg(this,"logout","time_left",NULL,NULL,NULL,timeLeft);
+        gMessageLib->SendSystemMessage(ProsePackage("logout", "time_left", 0, 0, 0, timeLeft), this);
 		return;
 	}
-	gMessageLib->sendSysMsg(this,"logout","safe_to_log_out");
+            
+    gMessageLib->SendSystemMessage(ProsePackage("logout", "safe_to_log_out"), this);
 	
 	gMessageLib->sendLogout(this);
 	this->togglePlayerCustomFlagOff(PlayerCustomFlag_LogOut);	
@@ -585,9 +586,8 @@ void PlayerObject::onBurstRun(const BurstRunEvent* event)
 	{
 		if(this->checkPlayerCustomFlag(PlayerCustomFlag_BurstRunCD))
 		{
-			gMessageLib->sendSysMsg(this,"combat_effects","burst_run_not_tired");
+            gMessageLib->SendSystemMessage(ProsePackage("combat_effects", "burst_run_not_tired"), this);
 			this->togglePlayerCustomFlagOff(PlayerCustomFlag_BurstRunCD);	
-
 		}
 	}
 
@@ -602,9 +602,8 @@ void PlayerObject::onBurstRun(const BurstRunEvent* event)
 			BString bs(s);
 			bs.convert(BSTRType_Unicode16);
 			gMessageLib->sendCombatSpam(this,this,0,"","",0,0,bs.getUnicode16());
-
-
-			gMessageLib->sendSysMsg(this,"combat_effects","burst_run_tired");
+            
+            gMessageLib->SendSystemMessage(ProsePackage("combat_effects", "burst_run_tired"), this);
 			this->togglePlayerCustomFlagOff(PlayerCustomFlag_BurstRun);	
 
 			this->setCurrentSpeedModifier(this->getBaseSpeedModifier());

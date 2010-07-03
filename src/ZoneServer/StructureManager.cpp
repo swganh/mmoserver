@@ -512,7 +512,7 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 				{
 					if (house->getCellContentCount() > 0)
 					{
-						gMessageLib->sendSysMsg(player, "player_structure", "clear_building_for_delete");
+                        gMessageLib->SendSystemMessage(ProsePackage("player_structure", "clear_building_for_delete"), player);
 						return false;
 					}
 				}
@@ -539,7 +539,7 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 				{
 					if (house->getCellContentCount() > 0)
 					{
-						gMessageLib->sendSysMsg(player, "player_structure", "clear_building_for_delete");
+                        gMessageLib->SendSystemMessage(ProsePackage("player_structure", "clear_building_for_delete"), player);
 						return false;
 					}
 					house->prepareDestruction();
@@ -1034,7 +1034,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			gMessageLib->sendDestroyObject(command.SchematicId,player);
 
 			
-			gMessageLib->sendSysMsg(player,"manf_station","schematic_added",NULL,tO);
+            gMessageLib->SendSystemMessage(ProsePackage("player_structure", "clear_building_for_delete", 0, tO->getId(), 0), player);
 			//gMessageLib->sendSystemMessage(player,
 			
 			//remove the added Manufacturing schematic

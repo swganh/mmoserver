@@ -760,56 +760,55 @@ void ObjectController::_handleImageDesign(uint64 targetId,Message* message,Objec
 
 	if(designObject->getPosture() == CreaturePosture_Dead)
 	{
-		gMessageLib->sendSysMsg(imageDesigner,"image_designer","target_dead",NULL,designObject);
-		//gMessageLib->sendSystemMessage(imageDesigner,L"","image_designer","target_dead");
+        gMessageLib->SendSystemMessage(ProsePackage("image_designer","target_dead", 0, designObject->getId(), 0), imageDesigner);
 		return;
 	}
 
 	if(designObject->isIncapacitated())
 	{
-		gMessageLib->sendSysMsg(imageDesigner,"image_designer","target_dead",NULL,designObject);
+        gMessageLib->SendSystemMessage(ProsePackage("image_designer","target_dead", 0, designObject->getId(), 0), imageDesigner);
 		return;
 	}
 
 	if(!imageDesigner->checkSkill(SMSkill_NoviceEntertainer))
 	{
-		gMessageLib->sendSystemMessage(imageDesigner,L"","image_designer","not_an_image_designer");
+        gMessageLib->SendSystemMessage(ProsePackage("image_designer","not_an_image_designer"), imageDesigner);
 		return;
 	}
     //Sch we need to add more states and checks - Rouse
 	if(imageDesigner->checkStatesEither(CreatureState_Combat | CreatureState_Tumbling | CreatureState_Swimming | CreatureState_Crafting))
 	{
-		gMessageLib->sendSystemMessage(imageDesigner,L"You cannot perform that action on this target");
+        gMessageLib->SendSystemMessage(L"You cannot perform that action on this target", imageDesigner);
 		return;
 	}
 
 	if(imageDesigner->getImageDesignSession() != IDSessionNONE)
 	{
 		if(imageDesigner->getImageDesignSession() == IDSessionID)
-			gMessageLib->sendSystemMessage(imageDesigner,L"","image_designer","already_image_designing");
+            gMessageLib->SendSystemMessage(ProsePackage("image_designer","already_image_designing"), imageDesigner);
 		else
-			gMessageLib->sendSystemMessage(imageDesigner,L"","image_designer","already_being_image_designed");
+            gMessageLib->SendSystemMessage(ProsePackage("image_designer","already_being_image_designed"), imageDesigner);
 		return;
 	}
 
 	if(designObject->getImageDesignSession() != IDSessionNONE)
 	{
 		if(designObject->getImageDesignSession() == IDSessionID)
-			gMessageLib->sendSystemMessage(imageDesigner,L"","image_designer","target_is_image_designing");
+            gMessageLib->SendSystemMessage(ProsePackage("image_designer","target_is_image_designing"), imageDesigner);
 		else
-			gMessageLib->sendSystemMessage(imageDesigner,L"","image_designer","outstanding_offer");
+            gMessageLib->SendSystemMessage(ProsePackage("image_designer","outstanding_offer"), imageDesigner);
 		return;
 	}
 
 	if(glm::distance(designObject->getWorldPosition(), imageDesigner->getWorldPosition()) > 16)
 	{
-		gMessageLib->sendSystemMessage(imageDesigner,L"","image_designer","out_of_range");
+        gMessageLib->SendSystemMessage(ProsePackage("image_designer","out_of_range"), imageDesigner);
 		return;
 	}
 
 	if((designObject != imageDesigner) && (designObject->getGroupId() != imageDesigner->getGroupId() ))
 	{
-		gMessageLib->sendSystemMessage(imageDesigner,L"","image_designer","not_in_same_group");
+        gMessageLib->SendSystemMessage(ProsePackage("image_designer","not_in_same_group"), imageDesigner);
 		return;
 	}
 

@@ -32,7 +32,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 #include "DatabaseManager/DatabaseCallback.h"
-#include "Common/MessageDispatchCallback.h"
 #include "Utils/typedefs.h"
 
 #include <map>
@@ -52,8 +51,6 @@ class MessageDispatch;
 //=========================================================================================
 
 typedef std::vector<Badge*>			BadgeList;
-typedef void						(CharSheetManager::*CSFunction)(Message*,DispatchClient*);
-typedef std::map<uint32,CSFunction>	CSCommandMap;
 
 //=========================================================================================
 
@@ -78,7 +75,7 @@ class CSAsyncContainer
 
 //=========================================================================================
 
-class CharSheetManager : public DatabaseCallback, public MessageDispatchCallback
+class CharSheetManager : public DatabaseCallback
 {
 	public:
 
@@ -88,7 +85,6 @@ class CharSheetManager : public DatabaseCallback, public MessageDispatchCallback
 		~CharSheetManager();
 
 		virtual void			handleDatabaseJobComplete(void* ref, DatabaseResult* result);
-		virtual void			handleDispatchMessage(uint32 opcode,Message* message,DispatchClient* client);
 
 		BString					getFactionById(uint32 id){ return mvFactions[id - 1]; }
 
@@ -104,13 +100,11 @@ class CharSheetManager : public DatabaseCallback, public MessageDispatchCallback
 		void					_processStomachRequest(Message* message,DispatchClient* client);
 		void					_processGuildRequest(Message* message,DispatchClient* client);
 
-		void					_loadCommandMap();
 		void					_registerCallbacks();
 		void					_unregisterCallbacks();
 
 		static bool					mInsFlag;
 		static CharSheetManager*	mSingleton;
-		CSCommandMap				mCommandMap;
 		Database*					mDatabase;
 		MessageDispatch*			mMessageDispatch;
 

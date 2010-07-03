@@ -71,7 +71,7 @@ StructureManagerChatHandler::StructureManagerChatHandler(Database* database, Mes
 	mPlayerAccountMap = mChatManager->getPlayerAccountMap();
 	//StructureManagerAsyncContainer* asyncContainer;
 
-	mMessageDispatch->RegisterMessageCallback(opIsmHarvesterUpdate,this);
+	mMessageDispatch->RegisterMessageCallback(opIsmHarvesterUpdate,std::bind(&StructureManagerChatHandler::ProcessAddHarvesterHopperUpdate, this, std::placeholders::_1, std::placeholders::_2));
 	
 
 
@@ -130,26 +130,6 @@ StructureManagerChatHandler*	StructureManagerChatHandler::Init(Database* databas
 void StructureManagerChatHandler::Shutdown()
 {	
 	mMessageDispatch->UnregisterMessageCallback(opIsmHarvesterUpdate);
-	
-}
-
-//======================================================================================================================
-void StructureManagerChatHandler::handleDispatchMessage(uint32 opcode, Message* message, DispatchClient* client)
-{
-	
-	switch(opcode)
-	{
-		case opIsmHarvesterUpdate:
-		{
-			ProcessAddHarvesterHopperUpdate(message,client);
-		}
-		break;
-
-		
-		default:
-			gLogger->log(LogManager::NOTICE,"StructureManagerChatHandler::handleDispatchMessage: Unhandled opcode %u",opcode);
-		break;
-	}
 	
 }
 

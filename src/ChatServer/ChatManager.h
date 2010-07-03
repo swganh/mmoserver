@@ -31,9 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <map>
 #include <vector>
 
-#include "Common/MessageDispatchCallback.h"
 #include "DatabaseManager/DatabaseCallback.h"
-
 #include "Utils/typedefs.h"
 
 //======================================================================================================================
@@ -57,8 +55,6 @@ typedef std::vector<Player*>		PlayerList;
 typedef std::map<uint32,Channel*>	ChannelMap;
 typedef std::map<uint32,Channel*>	ChannelNameMap;
 typedef std::vector<Channel*>			ChannelList;
-typedef void (ChatManager::*funcPointer)(Message*,DispatchClient*);
-typedef std::map<uint32,funcPointer>	CommandMap;
 
 #define	gChatManager	ChatManager::getSingletonPtr()
 
@@ -116,7 +112,7 @@ public:
 
 //======================================================================================================================
 
-class ChatManager : public MessageDispatchCallback, public DatabaseCallback
+class ChatManager: public DatabaseCallback
 {
 	public:
 
@@ -126,7 +122,6 @@ class ChatManager : public MessageDispatchCallback, public DatabaseCallback
 		static ChatManager*	Init(Database* database,MessageDispatch* dispatch);
 		static ChatManager*	getSingletonPtr() { return mSingleton; }
 
-		virtual void        handleDispatchMessage(uint32 opcode,Message* message,DispatchClient* client);
 		virtual void		handleDatabaseJobComplete(void* ref,DatabaseResult* result);
 
 		void				registerChannel(Channel* channel);
@@ -162,7 +157,6 @@ class ChatManager : public MessageDispatchCallback, public DatabaseCallback
 
 		void			_loadDatabindings();
 		void			_destroyDatabindings();
-		void			_loadCommandMap();
 		void			_loadChannels(DatabaseResult* result);
 		void			_registerCallbacks();
 		void			_unregisterCallbacks();
@@ -238,8 +232,6 @@ class ChatManager : public MessageDispatchCallback, public DatabaseCallback
 		BString					mMainCategory;
 		BString					mGalaxyName;
 		BStringVector			mvPlanetNames;
-
-		CommandMap				mCommandMap;
 
 		PlayerAccountMap		mPlayerAccountMap;
 		PlayerNameMap			mPlayerNameMap;

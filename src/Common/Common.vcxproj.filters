@@ -49,9 +49,6 @@
     <ClInclude Include="MessageDispatch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MessageDispatchCallback.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="MessageFactory.h">
       <Filter>Header Files</Filter>
     </ClInclude>

@@ -31,7 +31,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <map>
 
 #include "DatabaseManager/DatabaseCallback.h"
-#include "Common/MessageDispatchCallback.h"
 #include "ChatMessageLib.h"
 
 #define gCSRManager CSRManager::GetSingletonPtr()
@@ -43,9 +42,6 @@ class MessageDispatch;
 class Category;
 class ChatManager;
 class CSRManager;
-
-typedef void (CSRManager::*CSRFuncPointer)(Message*,DispatchClient*);
-typedef std::map<uint32, CSRFuncPointer> CSRCommandMap;
 
 //======================================================================================================================
 
@@ -77,7 +73,7 @@ class CSRAsyncContainer
 
 //======================================================================================================================
 
-class CSRManager : public MessageDispatchCallback, public DatabaseCallback
+class CSRManager : public DatabaseCallback
 {
 	public:
 
@@ -87,7 +83,6 @@ class CSRManager : public MessageDispatchCallback, public DatabaseCallback
 		~CSRManager();
 
 		//Database callback
-		virtual void		handleDispatchMessage(uint32 opcode,Message* message,DispatchClient* client);
 		virtual void		handleDatabaseJobComplete(void* ref,DatabaseResult* result);
 
 	private:
@@ -104,7 +99,6 @@ class CSRManager : public MessageDispatchCallback, public DatabaseCallback
 
 		Database*					mDatabase;
 		MessageDispatch*			mMessageDispatch;
-		CSRCommandMap				mCommandMap;
 
 		DataBinding*				mTicketBinding;
 		DataBinding*				mCommentBinding;

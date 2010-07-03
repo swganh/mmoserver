@@ -52,10 +52,10 @@ GroupManagerHandler::GroupManagerHandler(Database* database, MessageDispatch* di
 	mDatabase = database;
 	mMessageDispatch = dispatch;
 
-	mMessageDispatch->RegisterMessageCallback(opIsmGroupInviteRequest,this);
-	mMessageDispatch->RegisterMessageCallback(opIsmGroupCREO6deltaGroupId,this);
-	mMessageDispatch->RegisterMessageCallback(opIsmGroupLootModeResponse,this);
-	mMessageDispatch->RegisterMessageCallback(opIsmGroupLootMasterResponse,this);
+	mMessageDispatch->RegisterMessageCallback(opIsmGroupInviteRequest,std::bind(&GroupManagerHandler::_processIsmInviteRequest, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opIsmGroupCREO6deltaGroupId,std::bind(&GroupManagerHandler::_processIsmGroupCREO6deltaGroupId, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opIsmGroupLootModeResponse,std::bind(&GroupManagerHandler::_processIsmGroupLootModeResponse, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opIsmGroupLootMasterResponse,std::bind(&GroupManagerHandler::_processIsmGroupLootMasterResponse, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 
@@ -92,47 +92,10 @@ void GroupManagerHandler::Shutdown()
 	mMessageDispatch->UnregisterMessageCallback(opIsmGroupLootMasterResponse);
 }
 
-//======================================================================================================================
-
-void GroupManagerHandler::handleDispatchMessage(uint32 opcode, Message* message, DispatchClient* client)
-{
-	switch(opcode)
-	{
-
-		case opIsmGroupInviteRequest:
-		{
-			_processIsmInviteRequest(message);
-		}
-		break;
-
-		case opIsmGroupCREO6deltaGroupId:
-		{
-			_processIsmGroupCREO6deltaGroupId(message);
-		}
-		break;
-
-		case opIsmGroupLootModeResponse:
-		{
-			_processIsmGroupLootModeResponse(message);
-		}
-		break;
-
-		case opIsmGroupLootMasterResponse:
-		{
-			_processIsmGroupLootMasterResponse(message);
-		}
-		break;
-
-		default:
-			gLogger->log(LogManager::NOTICE,"GroupManagerHandlerMessage::handleDispatchMessage: Unhandled opcode %u",opcode);
-		break;
-	}
-}
-
 //=======================================================================================================================
 
 
-void GroupManagerHandler::_processIsmInviteRequest(Message* message)
+void GroupManagerHandler::_processIsmInviteRequest(Message* message, DispatchClient* client)
 {
 
 	PlayerObject* sender = gWorldManager->getPlayerByAccId(message->getUint32()); // the player who sent the invite
@@ -152,7 +115,7 @@ void GroupManagerHandler::_processIsmInviteRequest(Message* message)
 
 //=======================================================================================================================
 
-void GroupManagerHandler::_processIsmGroupCREO6deltaGroupId(Message* message)
+void GroupManagerHandler::_processIsmGroupCREO6deltaGroupId(Message* message, DispatchClient* client)
 {
 	// this packet is sent by the chatserver to update the group_id in the CREO6
 	// it concerns the player itself and all the inrange players
@@ -190,7 +153,7 @@ void GroupManagerHandler::_processIsmGroupCREO6deltaGroupId(Message* message)
 
 //=======================================================================================================================
 
-void GroupManagerHandler::_processIsmGroupLootModeResponse(Message* message)
+void GroupManagerHandler::_processIsmGroupLootModeResponse(Message* message, DispatchClient* client)
 {
 	gLogger->log(LogManager::DEBUG,"_processIsmGroupLootModeResponse");
 	PlayerObject* playerObject = gWorldManager->getPlayerByAccId(message->getUint32());  // the player whos group_id has changed
@@ -214,7 +177,7 @@ void GroupManagerHandler::_processIsmGroupLootModeResponse(Message* message)
 
 //=======================================================================================================================
 
-void GroupManagerHandler::_processIsmGroupLootMasterResponse(Message* message)
+void GroupManagerHandler::_processIsmGroupLootMasterResponse(Message* message, DispatchClient* client)
 {
 	gLogger->log(LogManager::DEBUG,"_processIsmGroupLootMasterResponse");
 	PlayerObject* playerObject = gWorldManager->getPlayerByAccId(message->getUint32());  // the player whos group_id has changed

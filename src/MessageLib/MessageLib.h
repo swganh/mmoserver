@@ -152,8 +152,6 @@ public:
 	bool				sendServerTime(uint64 time,DispatchClient* client);
 	void				sendWeatherUpdate(const glm::vec3& cloudVec, uint32 weatherType, PlayerObject* player = NULL);
 	
-	bool				sendSysMsg(PlayerObject* playerObject,BString mainFile,BString mainVar,Object* to= NULL, Object* tt = NULL, Object* tu = NULL, int32 di = 0);
-
     /**
      * Sends a custom text string as a system message.
      *

@@ -417,12 +417,7 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback, 
 		void	_handlePlayHoloEmote(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 
 		//artisan
-		void	_handleRequestCraftingSession(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
-		void	_handleCancelCraftingSession(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
-		void	_handleSelectDraftSchematic(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
-		void	_handleNextCraftingStage(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
-		void	_handleCreatePrototype(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
-		void	_handleCreateManufactureSchematic(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
+		// in ArtisanManager and CraftingManager
 
 		// scout
 		void	_handleHarvestCorpse(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);

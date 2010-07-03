@@ -130,6 +130,7 @@
     <ClCompile Include="Conversation.cpp" />
     <ClCompile Include="ConversationManager.cpp" />
     <ClCompile Include="CraftBatch.cpp" />
+    <ClCompile Include="CraftingManager.cpp" />
     <ClCompile Include="CraftingSession.cpp" />
     <ClCompile Include="CraftingSessionFactory.cpp" />
     <ClCompile Include="CraftingSessionHelper.cpp" />
@@ -223,7 +224,6 @@
     <ClCompile Include="OCCommandoHandlers.cpp" />
     <ClCompile Include="OCCommonHandlers.cpp" />
     <ClCompile Include="OCContactListsHandlers.cpp" />
-    <ClCompile Include="OCCraftingHandlers.cpp" />
     <ClCompile Include="OCCrateHandlers.cpp" />
     <ClCompile Include="OCCreatureHandlerHandlers.cpp" />
     <ClCompile Include="OCDatapadHandlers.cpp" />
@@ -389,6 +389,7 @@
     <ClInclude Include="ConversationManager.h" />
     <ClInclude Include="CraftBatch.h" />
     <ClInclude Include="CraftingEnums.h" />
+    <ClInclude Include="CraftingManager.h" />
     <ClInclude Include="CraftingSession.h" />
     <ClInclude Include="CraftingSessionCallBack.h" />
     <ClInclude Include="CraftingSessionFactory.h" />

@@ -486,36 +486,22 @@ bool StructureManager::checkNoBuildRegion(glm::vec3 vec3)
 			}
 			else
 			{
-				// get the position vector in 2d
-				glm::vec2 positionV(pX,pZ);
-				// get the bottom left corner of the rectangle
-				glm::vec2 corner(rX - (0.5*width), rZ - (0.5*height));
-				// Create a vector of the width we want pointing down the x-axis.
-				glm::vec2 xLengthVector(width, 0);
-				glm::vec2 side1 = corner + xLengthVector;
-				// Create a vector of the height we want pointing down the z-axis
-				glm::vec2 zHeightVector(0, height);
-				glm::vec2 side2 = corner + zHeightVector;
+                // this is a rectangle region.
 
-				// v = Position - Corner
-				glm::vec2 v = positionV - corner;
-				float firstDot = glm::dot(v,side1);
-				float secondDot = glm::dot(side1,side1);
-				float thirdDot =  glm::dot(v, side2);
-				float fourthDot = glm::dot(side2,side2);
-				//* P is the point.
-				//* C is a corner of the rectangle.
-				//* v1 and v2 are the two vectors that define the sides (with C as origin).
-				//* v = P-C
-				//P is in the rectangle if and only if
-				//0<=dot_product(v,v1)<=dot_product(v1,v1) and 0<=dot_product(v,v2)<=dot_product(v2,v2)
-				// formula found here: http://www.gamedev.net/community/forums/topic.asp?topic_id=483716&whichpage=1&#3164641
+                // Convert the player position to a vec 2.
+                glm::vec2 player_position(vec3.x, vec3.z);
 
-				if (0 <= firstDot && firstDot <= secondDot && 0 <= thirdDot && thirdDot <= fourthDot)
-				{
+                // Get nobuild lower right and upper left corners.
+                glm::vec2 lower_left(rX - (0.5*width), rZ - (0.5*height));
+                glm::vec2 upper_right(rX + (0.5*width), rZ + (0.5*height));
+
+                // Check and see if the player is within this no build region.
+                glm::vec2::bool_type greater_than = glm::greaterThanEqual(player_position, lower_left);
+                glm::vec2::bool_type less_than = glm::lessThanEqual(player_position, upper_right);
+
+                if (greater_than.x && greater_than.y && less_than.x && less_than.y) {
 					return true;
-					gLogger->log(LogManager::DEBUG,"we're in a rectangle at location %u",(*it)->region_id);
-				}
+                }
 			}
 		}
 		++it;

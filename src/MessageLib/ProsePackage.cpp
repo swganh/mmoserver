@@ -85,6 +85,94 @@ ProsePackage::ProsePackage(const std::string& base_stf_file, const std::string& 
 , df_float_(df_float)
 , display_flag_(display_flag) {}
 
+ProsePackage::ProsePackage(const std::string& base_stf_file, const std::string& base_stf_string, 
+    uint64_t tu_object_id, uint64_t tt_object_id, uint64_t to_object_id,
+    int32_t di_integer, float df_float, uint8_t display_flag)
+: base_stf_file_(base_stf_file)
+, base_stf_int_(0)
+, base_stf_string_(base_stf_string)
+, tu_object_id_(tu_object_id)
+, tu_stf_file_("")
+, tu_stf_int_(0)
+, tu_stf_string_("")
+, tu_custom_string_(L"")
+
+, tt_object_id_(tt_object_id)
+, tt_stf_file_("")
+, tt_stf_int_(0)
+, tt_stf_string_("")
+, tt_custom_string_(L"")
+
+, to_object_id_(to_object_id)
+, to_stf_file_("")
+, to_stf_int_(0)
+, to_stf_string_("")
+, to_custom_string_(L"")
+
+, di_integer_(di_integer)
+, df_float_(df_float)
+, display_flag_(display_flag) {}
+
+ProsePackage::ProsePackage(const std::string& base_stf_file, const std::string& base_stf_string, 
+    const std::string& tu_stf_file, const std::string& tu_stf_string,
+    const std::string& tt_stf_file, const std::string& tt_stf_string,
+    const std::string& to_stf_file, const std::string& to_stf_string,
+    int32_t di_integer, float df_float, uint8_t display_flag)
+: base_stf_file_(base_stf_file)
+, base_stf_int_(0)
+, base_stf_string_(base_stf_string)
+, tu_object_id_(0)
+, tu_stf_file_(tu_stf_file)
+, tu_stf_int_(0)
+, tu_stf_string_(tu_stf_string)
+, tu_custom_string_(L"")
+
+, tt_object_id_(0)
+, tt_stf_file_(tt_stf_file)
+, tt_stf_int_(0)
+, tt_stf_string_(tt_stf_string)
+, tt_custom_string_(L"")
+
+, to_object_id_(0)
+, to_stf_file_(to_stf_file)
+, to_stf_int_(0)
+, to_stf_string_(to_stf_string)
+, to_custom_string_(L"")
+
+, di_integer_(di_integer)
+, df_float_(df_float)
+, display_flag_(display_flag) {}
+
+ProsePackage::ProsePackage(const std::string& base_stf_file, const std::string& base_stf_string, 
+    const std::wstring& tu_custom_string,
+    const std::wstring& tt_custom_string,
+    const std::wstring& to_custom_string,
+    int32_t di_integer, float df_float, uint8_t display_flag)
+: base_stf_file_(base_stf_file)
+, base_stf_int_(0)
+, base_stf_string_(base_stf_string)
+, tu_object_id_(0)
+, tu_stf_file_("")
+, tu_stf_int_(0)
+, tu_stf_string_("")
+, tu_custom_string_(tu_custom_string)
+
+, tt_object_id_(0)
+, tt_stf_file_("")
+, tt_stf_int_(0)
+, tt_stf_string_("")
+, tt_custom_string_(tt_custom_string)
+
+, to_object_id_(0)
+, to_stf_file_("")
+, to_stf_int_(0)
+, to_stf_string_("")
+, to_custom_string_(to_custom_string)
+
+, di_integer_(di_integer)
+, df_float_(df_float)
+, display_flag_(display_flag) {}
+
 
 ProsePackage::~ProsePackage() {}
 

@@ -54,14 +54,49 @@ class MessageFactory;
  * Credit to Xenozephyr for information.
  */
 class ProsePackage {
-public:
+public:    
+    /**
+     * Default constructor
+     */
     ProsePackage();
+
+    /**
+     * Constructor overload for ProsePackage that provides maximum flexibility 
+     * in specifying string replacements.
+     */
     ProsePackage(const std::string& base_stf_file, const std::string& base_stf_string, 
         uint64_t tu_object_id = 0, const std::string& tu_stf_file = "", const std::string& tu_stf_string ="", const std::wstring& tu_custom_string = L"",
         uint64_t tt_object_id = 0, const std::string& tt_stf_file = "", const std::string& tt_stf_string ="", const std::wstring& tt_custom_string = L"",
         uint64_t to_object_id = 0, const std::string& to_stf_file = "", const std::string& to_stf_string ="", const std::wstring& to_custom_string = L"",
         int32_t di_integer = 0, float df_float = 0.0f, uint8_t display_flag = 0);
+    
+    /**
+     * Constructor overload for ProsePackage that uses object ids for value replacement.
+     */
+    ProsePackage(const std::string& base_stf_file, const std::string& base_stf_string, 
+        uint64_t tu_object_id, uint64_t tt_object_id, uint64_t to_object_id,
+        int32_t di_integer = 0, float df_float = 0.0f, uint8_t display_flag = 0);
 
+    
+    /**
+     * Constructor overload for ProsePackage that uses stfs for value replacement.
+     */
+    ProsePackage(const std::string& base_stf_file, const std::string& base_stf_string, 
+        const std::string& tu_stf_file, const std::string& tu_stf_string,
+        const std::string& tt_stf_file, const std::string& tt_stf_string,
+        const std::string& to_stf_file, const std::string& to_stf_string,
+        int32_t di_integer = 0, float df_float = 0.0f, uint8_t display_flag = 0);
+    
+    /**
+     * Constructor overload for ProsePackage that uses custom strings for value replacement.
+     */
+    ProsePackage(const std::string& base_stf_file, const std::string& base_stf_string, 
+        const std::wstring& tu_custom_string, const std::wstring& tt_custom_string, const std::wstring& to_custom_string,
+        int32_t di_integer = 0, float df_float = 0.0f, uint8_t display_flag = 0);
+     
+    /**
+     * Default deconstructor
+     */
     ~ProsePackage();
 
     /* Uses the default generated copy constructor and assignment operator. */

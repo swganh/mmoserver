@@ -13,7 +13,7 @@
   <ItemGroup>
     <ClCompile Include="atMacroString.cpp" />
     <ClCompile Include="BuildInfo.cpp" />
-    <ClCompile Include="bytebuffer.cpp" />
+    <ClCompile Include="ByteBuffer.cpp" />
     <ClCompile Include="DispatchClient.cpp" />
     <ClCompile Include="MessageDispatch.cpp" />
     <ClCompile Include="MessageFactory.cpp" />
@@ -21,7 +21,8 @@
   <ItemGroup>
     <ClInclude Include="atMacroString.h" />
     <ClInclude Include="BuildInfo.h" />
-    <ClInclude Include="bytebuffer.h" />
+    <ClInclude Include="ByteBuffer-Inl.h" />
+    <ClInclude Include="ByteBuffer.h" />
     <ClInclude Include="DispatchClient.h" />
     <ClInclude Include="Message.h" />
     <ClInclude Include="MessageDispatch.h" />

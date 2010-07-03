@@ -8,6 +8,9 @@
     <Filter Include="Utils">
       <UniqueIdentifier>{13e814c3-3d82-4cb0-b2c6-633f27d2b998}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Common">
+      <UniqueIdentifier>{37b2b656-2086-4887-aee7-593bc303b4b8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -15,6 +18,9 @@
     </ClCompile>
     <ClCompile Include="Utils\TestCmpistr.cpp">
       <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="TestByteBuffer.cpp">
+      <Filter>Common</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

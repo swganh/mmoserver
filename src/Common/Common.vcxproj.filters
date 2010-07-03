@@ -17,9 +17,6 @@
     <ClCompile Include="BuildInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="bytebuffer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="DispatchClient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -29,15 +26,15 @@
     <ClCompile Include="MessageFactory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ByteBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="atMacroString.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BuildInfo.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="bytebuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DispatchClient.h">
@@ -56,6 +53,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MessageOpcodes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ByteBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ByteBuffer-Inl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

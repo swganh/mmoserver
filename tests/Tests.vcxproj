@@ -96,6 +96,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="TestByteBuffer.cpp" />
     <ClCompile Include="Utils\TestCmpistr.cpp" />
   </ItemGroup>
   <ItemGroup>

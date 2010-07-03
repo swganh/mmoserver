@@ -38,13 +38,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "LogManager/LogManager.h"
 
+#include "Common/ByteBuffer.h"
 #include "Common/DispatchClient.h"
 #include "Common/Message.h"
 #include "Common/MessageDispatch.h"
 #include "Common/MessageFactory.h"
 #include "Common/MessageOpcodes.h"
 
-
+using ::common::ByteBuffer;
 
 //
 // Mission Baselines Type 6
@@ -292,7 +293,7 @@ bool MessageLib::sendMISO_Delta(MissionObject* missionObject,PlayerObject* targe
 	if(!missionObject || !targetObject) return false;
 
 	int update_count = 0;
-	bytebuffer body;
+	ByteBuffer body;
 	
 	//NOTE: Do not mess with the order these are in. Being mildly AR I  
 	//      arranged them in order according to vID and it stopped working!
@@ -304,131 +305,131 @@ bool MessageLib::sendMISO_Delta(MissionObject* missionObject,PlayerObject* targe
 	if(strcmp(missionObject->getNameFile().getRawData(),"mission/mission_object"))
 	{
 		update_count++;
-		body.writeSHORT(0x01);
-		body.writeASTRING(missionObject->getNameFile().getRawData());
-		body.writeINT(0);
-		body.writeASTRING(missionObject->getName().getRawData());
+		body.Write<uint16_t>(0x01);
+        body.Write<std::string>(missionObject->getNameFile().getRawData());
+		body.Write<uint32_t>(0);
+		body.Write<std::string>(missionObject->getName().getRawData());
 	}
 
 	//vID 11 - Desciption
 	if(missionObject->getDetail().getDataLength() > 0)
 	{
 		update_count++;
-		body.writeSHORT(0x0B); 
-		body.writeASTRING(missionObject->getDetailFile().getRawData());
-		body.writeINT(0);
-		body.writeASTRING(missionObject->getDetail().getRawData());
+		body.Write<uint16_t>(0x0B); 
+		body.Write<std::string>(missionObject->getDetailFile().getRawData());
+		body.Write<uint32_t>(0);
+		body.Write<std::string>(missionObject->getDetail().getRawData());
 	}
 
 	//vID 5 - Difficulty
 	if(missionObject->getDifficulty() > 0)
 	{
 		update_count++;
-		body.writeSHORT(0x05); 
-		body.writeINT(missionObject->getDifficulty());
+		body.Write<uint16_t>(0x05); 
+		body.Write<uint32_t>(missionObject->getDifficulty());
 	}
 
     //vID 6 - mission start
 	if(missionObject->getStart().PlanetCRC > 0)
 	{
 		update_count++;
-		body.writeSHORT(0x06);
-		body.writeFLOAT(missionObject->getStart().Coordinates.x);
-		body.writeFLOAT(missionObject->getStart().Coordinates.y);
-		body.writeFLOAT(missionObject->getStart().Coordinates.z);
-		body.writeLONG(missionObject->getStart().CellID);
-		body.writeINT(missionObject->getStart().PlanetCRC);
+		body.Write<uint16_t>(0x06);
+		body.Write<float>(missionObject->getStart().Coordinates.x);
+		body.Write<float>(missionObject->getStart().Coordinates.y);
+		body.Write<float>(missionObject->getStart().Coordinates.z);
+		body.Write<uint64_t>(missionObject->getStart().CellID);
+		body.Write<uint32_t>(missionObject->getStart().PlanetCRC);
 	}
 
 	//vID 7 - Creator
 	if(missionObject->getCreator().getDataLength())
 	{
 		update_count++;
-		body.writeSHORT(0x07);  
-		body.writeUSTRING(missionObject->getCreator().getRawData());
+		body.Write<uint16_t>(0x07);  
+        body.Write<std::wstring>(missionObject->getCreator().getUnicode16());
 	}
 
 	//vID 14 - Mission Type
 	if(missionObject->getMissionType() > 0)
 	{
 		update_count++;
-		body.writeSHORT(0x0E); 
-		body.writeINT(missionObject->getMissionType());
+		body.Write<uint16_t>(0x0E); 
+		body.Write<uint32_t>(missionObject->getMissionType());
 	}
 
 	//vID 8	- payment
 	if(missionObject->getReward() > 0)
 	{
 		update_count++;
-		body.writeSHORT(0x08);
-		body.writeINT(missionObject->getReward());
+		body.Write<uint16_t>(0x08);
+		body.Write<uint32_t>(missionObject->getReward());
 	}
 
 	//vID 9 - mission location
 	if(missionObject->getDestination().PlanetCRC > 0)
 	{
 		update_count++;
-		body.writeSHORT(0x09);
-		body.writeFLOAT(missionObject->getDestination().Coordinates.x);
-		body.writeFLOAT(missionObject->getDestination().Coordinates.y);
-		body.writeFLOAT(missionObject->getDestination().Coordinates.z);
-		body.writeLONG(missionObject->getDestination().CellID);
-		body.writeINT(missionObject->getDestination().PlanetCRC);
+		body.Write<uint16_t>(0x09);
+		body.Write<float>(missionObject->getDestination().Coordinates.x);
+		body.Write<float>(missionObject->getDestination().Coordinates.y);
+		body.Write<float>(missionObject->getDestination().Coordinates.z);
+		body.Write<uint64_t>(missionObject->getDestination().CellID);
+		body.Write<uint32_t>(missionObject->getDestination().PlanetCRC);
 	}
 
 	//vID 10 - Target Model
 	if(missionObject->getTargetModel() > 0)
 	{
 		update_count++;
-		body.writeSHORT(0x0A);
-		body.writeINT(missionObject->getTargetModel());
+		body.Write<uint16_t>(0x0A);
+		body.Write<uint32_t>(missionObject->getTargetModel());
 	}
 			   
 	//vID 12 - Title
 	if(missionObject->getTitle().getDataLength() > 0)
 	{
 		update_count++;
-		body.writeSHORT(0x0C); 
-		body.writeASTRING(missionObject->getTitleFile().getRawData());
-		body.writeINT(0);
-		body.writeASTRING(missionObject->getTitle().getRawData());
+		body.Write<uint16_t>(0x0C); 
+		body.Write<std::string>(missionObject->getTitleFile().getRawData());
+		body.Write<uint32_t>(0);
+		body.Write<std::string>(missionObject->getTitle().getRawData());
 	}
 
 	//vID 13 - Refresh Count
 	if(missionObject->getRefreshCount() > 0)
 	{
 		update_count++;
-		body.writeSHORT(0x0D);
-		body.writeINT(missionObject->getRefreshCount()); //The count given by the terminal
+		body.Write<uint16_t>(0x0D);
+		body.Write<uint32_t>(missionObject->getRefreshCount()); //The count given by the terminal
 	}
 
 	//vID 15 - Target Name
 	if(missionObject->getTarget().getDataLength() > 0)
 	{
 		update_count++;
-		body.writeSHORT(0x0F); 
-		body.writeASTRING(missionObject->getTarget().getRawData());
+		body.Write<uint16_t>(0x0F); 
+		body.Write<std::string>(missionObject->getTarget().getRawData());
 	}
 
 	//vID 16 - Mission Waypoint
 	if(missionObject->getWaypoint()->getPlanetCRC() > 0)
 	{
 		update_count++;
-		body.writeSHORT(0x10);
-		body.writeINT(0);
-		body.writeFLOAT(missionObject->getWaypoint()->getCoords().x);  //X
-		body.writeFLOAT(missionObject->getWaypoint()->getCoords().y);  //Y
-		body.writeFLOAT(missionObject->getWaypoint()->getCoords().z);  //Z
-		body.writeLONG(0); //Possible Cell ID
-		body.writeINT(missionObject->getWaypoint()->getPlanetCRC()); //Planet CRC
-		body.writeUSTRING(missionObject->getWaypoint()->getName().getRawData());
-		body.writeLONG(missionObject->getWaypoint()->getId());	 //waypoint id
-		body.writeBYTE(missionObject->getWaypoint()->getWPType());   //waypoint type
-		body.writeBYTE(missionObject->getWaypoint()->getActive());	 //activated flag
+		body.Write<uint16_t>(0x10);
+		body.Write<uint32_t>(0);
+		body.Write<float>(missionObject->getWaypoint()->getCoords().x);  //X
+		body.Write<float>(missionObject->getWaypoint()->getCoords().y);  //Y
+		body.Write<float>(missionObject->getWaypoint()->getCoords().z);  //Z
+		body.Write<uint64_t>(0); //Possible Cell ID
+		body.Write<uint32_t>(missionObject->getWaypoint()->getPlanetCRC()); //Planet CRC
+		body.Write<std::wstring>(missionObject->getWaypoint()->getName().getUnicode16());
+		body.Write<uint64_t>(missionObject->getWaypoint()->getId());	 //waypoint id
+		body.Write<uint8_t>(missionObject->getWaypoint()->getWPType());   //waypoint type
+		body.Write<uint8_t>(missionObject->getWaypoint()->getActive());	 //activated flag
 	}
 
 	//Nothing to update
-	if(body.getSize() <= 0) 
+    if(body.Size() <= 0) 
 	{
 		return false;
 	}
@@ -442,9 +443,9 @@ bool MessageLib::sendMISO_Delta(MissionObject* missionObject,PlayerObject* targe
 	mMessageFactory->addUint64(missionObject->getId()); 
 	mMessageFactory->addUint32(opMISO);
 	mMessageFactory->addUint8(3);
-	mMessageFactory->addUint32(body.getSize()+2);
+	mMessageFactory->addUint32(body.Size()+2);
 	mMessageFactory->addUint16(update_count);
-	mMessageFactory->addData(body.getBuffer(),(uint16)body.getSize());
+    mMessageFactory->addData(body.Data(),(uint16)body.Size());
 	
 	
 	message = mMessageFactory->EndMessage();

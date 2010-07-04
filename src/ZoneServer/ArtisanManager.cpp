@@ -229,7 +229,8 @@ void ArtisanManager::HeightmapArtisanHandler(HeightmapAsyncContainer* ref)
 
 			// change posture
 			container->playerObject->setCrouched();
-
+			// play animation
+			gWorldManager->getClientEffect(container->tool->getInternalAttribute<uint32>("sample_effect"));
 			// schedule execution
 			container->playerObject->getController()->addEvent(new SampleEvent(container->tool,container->resource),8000);
 		}

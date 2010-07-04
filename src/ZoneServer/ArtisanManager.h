@@ -29,7 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define ANH_ZONESERVER_ARTISAN_MANAGER_H
 
 #include "DatabaseManager/DatabaseCallback.h"
-#include "Common/MessageDispatchCallback.h"
 #include "ObjectFactoryCallback.h"
 #include "HeightMapCallback.h"
 

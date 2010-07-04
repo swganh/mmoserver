@@ -325,8 +325,6 @@ void StructureManager::_HandleStructureRedeedCallBack(StructureManagerAsyncConta
 		}
 	}
 
-	UpdateCharacterLots(asynContainer->mPlayerId);
-
 	mDatabase->DestroyDataBinding(binding);
 }
 

@@ -596,7 +596,7 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 					}
 				}
 				gMessageLib->sendSystemMessage(player,L"","player_structure","deed_reclaimed");
-
+				UpdateCharacterLots(structure->getOwner());
 				//update the deeds attributes and set the new owner id (owners inventory = characterid +1)
 				//enum INVENTORY_OFFSET
 				StructureManagerAsyncContainer* asyncContainer;
@@ -605,7 +605,7 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 				asyncContainer->mStructureId	= structure->getId();
 				int8 sql[150];
 				sprintf(sql,"select sf_DefaultHarvesterUpdateDeed(%"PRIu64",%"PRIu64")", structure->getId(),structure->getOwner()+1);
-				mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
+				mDatabase->ExecuteProcedureAsync(this,asyncContainer,sql);
 
 			}
 			else

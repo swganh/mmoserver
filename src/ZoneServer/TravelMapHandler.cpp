@@ -71,8 +71,8 @@ TravelMapHandler::TravelMapHandler(Database* database, MessageDispatch* dispatch
   , mWorldPointsLoaded(false)
 
 {
-	mMessageDispatch->RegisterMessageCallback(opPlanetTravelPointListRequest,this);
-	mMessageDispatch->RegisterMessageCallback(opTutorialServerStatusReply, this);
+	mMessageDispatch->RegisterMessageCallback(opPlanetTravelPointListRequest,std::bind(&TravelMapHandler::_processTravelPointListRequest, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opTutorialServerStatusReply, std::bind(&TravelMapHandler::_processTutorialTravelList, this, std::placeholders::_1, std::placeholders::_2));
 
 	// load our points in world
 	mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.malloc()) TravelMapAsyncContainer(TMQuery_PointsInWorld),
@@ -138,29 +138,6 @@ void TravelMapHandler::Shutdown()
 			mTravelPoints[i].erase(it);
 			it = mTravelPoints[i].begin();
 		}
-	}
-}
-
-//======================================================================================================================
-
-void TravelMapHandler::handleDispatchMessage(uint32 opcode, Message* message, DispatchClient* client)
-{
-	switch(opcode)
-	{
-		case opPlanetTravelPointListRequest:
-		{
-			_processTravelPointListRequest(message,client);
-		}
-		break;
-
-		case opTutorialServerStatusReply:
-		{
-			_processTutorialTravelList(message, client);
-		}
-
-		default:
-			gLogger->log(LogManager::DEBUG,"TravelMapHandler::handleDispatchMessage: Unhandled opcode %u",opcode);
-		break;
 	}
 }
 

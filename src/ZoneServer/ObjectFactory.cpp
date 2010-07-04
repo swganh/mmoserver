@@ -276,7 +276,7 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			// we're looking for a value of the waypoint that was updated
 			uint32 returnId = 0;
 			DataBinding* binding = mDatabase->CreateDataBinding(1);
-			binding->addField(DFT_uint32,0, 4);
+			binding->addField(DFT_uint32,0,4);
 			result->GetNextRow(binding,&returnId);
 			mDatabase->DestroyDataBinding(binding);
 			switch (returnId)

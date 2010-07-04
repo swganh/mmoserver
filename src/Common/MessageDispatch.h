@@ -33,16 +33,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <boost/thread/recursive_mutex.hpp>
 #include <map>
+#include <functional>
 
 
 //======================================================================================================================
 
 class Service;
 class DispatchClient;
-class MessageDispatchCallback;
 class Message;
 
-typedef std::map<uint32, MessageDispatchCallback*>   MessageCallbackMap;
+typedef std::map<uint32, std::function<void (Message*,DispatchClient*)>>   MessageCallbackMap;
 typedef std::map<uint32, DispatchClient*>            AccountClientMap;
 
 
@@ -62,7 +62,7 @@ class MessageDispatch : public NetworkCallback
 
 		void						Process(void);
 
-		void						RegisterMessageCallback(uint32 opcode, MessageDispatchCallback* callback);
+		void						RegisterMessageCallback(uint32 opcode, std::function<void (Message*,DispatchClient*)> callback);
 		void						UnregisterMessageCallback(uint32 opcode);
 		AccountClientMap*			getClientMap(){return(&mAccountClientMap);}
 

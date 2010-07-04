@@ -238,7 +238,6 @@
     <ClCompile Include="OCForceLightsaberHandlers.cpp" />
     <ClCompile Include="OCForcePowerHandlers.cpp" />
     <ClCompile Include="OCGroupHandlers.cpp" />
-    <ClCompile Include="OCHeightmapCallback.cpp" />
     <ClCompile Include="OCMarksmanHandlers.cpp" />
     <ClCompile Include="OCMedicHandlers.cpp" />
     <ClCompile Include="OCMissionHandlers.cpp" />

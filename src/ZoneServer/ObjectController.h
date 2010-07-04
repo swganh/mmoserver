@@ -157,10 +157,7 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback, 
 
 		// inherited callbacks
 		virtual void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
-		virtual void			heightMapCallback(HeightmapAsyncContainer *ref);
-
-		void HeightmapStructureHandler(HeightmapAsyncContainer* ref);
-
+		
 		// Anh_Utils::Clock*		getClock(){ return mClock; }
 
 		// object
@@ -557,7 +554,6 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback, 
 		void	_handleJediMindTrick(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 
 		//structures
-		void	_handleStructurePlacement(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleModifyPermissionList(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleTransferStructure(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleNameStructure(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);

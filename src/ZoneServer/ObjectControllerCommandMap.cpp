@@ -37,6 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ArtisanManager.h"
 #include "OCStructureHandlers.h"
 #include "CraftingManager.h"
+#include "StructureManager.h"
 
 //======================================================================================================================
 
@@ -233,10 +234,6 @@ void ObjectControllerCommandMap::_registerCppHooks()
 	mCommandMap.insert(std::make_pair(opOCresourcecontainertransfer, std::bind(&ObjectController::_handleResourceContainerTransfer, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
 	mCommandMap.insert(std::make_pair(opOCresourcecontainersplit, std::bind(&ObjectController::_handleResourceContainerSplit, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
 	
-
-
-	
-
 	//pets,mounts
 	mCommandMap.insert(std::make_pair(opOCmount, std::bind(&ObjectController::_handleMount, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
 	mCommandMap.insert(std::make_pair(opOCdismount, std::bind(&ObjectController::_handleDismount, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
@@ -479,7 +476,7 @@ void ObjectControllerCommandMap::_registerCppHooks()
 	mCommandMap.insert(std::make_pair(opOCAdminCancelShutdownGalaxy, std::bind(&ObjectController::_handleCancelShutdownGalaxy, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
 
 	//Structures
-	mCommandMap.insert(std::make_pair(opOCPlaceStructure, std::bind(&ObjectController::_handleStructurePlacement, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
+	//mCommandMap.insert(std::make_pair(opOCPlaceStructure, std::bind(&ObjectController::_handleStructurePlacement, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
 	mCommandMap.insert(std::make_pair(opPermissionListModify, std::bind(&ObjectController::_handleModifyPermissionList, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
 	mCommandMap.insert(std::make_pair(opTransferStructure, std::bind(&ObjectController::_handleTransferStructure, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
 	mCommandMap.insert(std::make_pair(opNameStructure, std::bind(&ObjectController::_handleNameStructure, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
@@ -503,7 +500,6 @@ void ObjectControllerCommandMap::_registerCppHooks()
 
 void ObjectControllerCommandMap::RegisterCppHooks_()
 {
-	command_map_.insert(std::make_pair(opMoveFurniture, std::bind(&HandleMoveFurniture, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));	
 	//Artisan
 	command_map_.insert(std::make_pair(opOCrequestsurvey, std::bind(&ArtisanManager::handleRequestSurvey, gArtisanManager, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
 	command_map_.insert(std::make_pair(opOCsurvey, std::bind(&ArtisanManager::handleSurvey,gArtisanManager, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
@@ -520,6 +516,10 @@ void ObjectControllerCommandMap::RegisterCppHooks_()
 	command_map_.insert(std::make_pair(opOCrequestDraftslotsBatch, std::bind(&CraftingManager::HandleRequestDraftslotsBatch,gCraftingManager, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
 	command_map_.insert(std::make_pair(opOCrequestResourceWeightsBatch, std::bind(&CraftingManager::HandleRequestResourceWeightsBatch,gCraftingManager, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
 	command_map_.insert(std::make_pair(opOCSynchronizedUIListen, std::bind(&CraftingManager::HandleSynchronizedUIListen,gCraftingManager, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
+	
+	command_map_.insert(std::make_pair(opMoveFurniture, std::bind(&HandleMoveFurniture, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));	
+	
+	command_map_.insert(std::make_pair(opOCPlaceStructure, std::bind(&StructureManager::HandlePlaceStructure, gStructureManager, std::placeholders::_1, std::placeholders::_2,std::placeholders::_3, std::placeholders::_4)));
 }
 
 //======================================================================================================================

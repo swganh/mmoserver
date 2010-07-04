@@ -61,7 +61,6 @@ CSRManager::CSRManager(Database* database, MessageDispatch* dispatch, ChatManage
 	mChatManager = chatManager;
 
 	_registerCallbacks();
-	_loadCommandMap();
 	_loadDatabindings();
 
 	CSRAsyncContainer* asyncContainer = new CSRAsyncContainer(CSRQuery_Categories);
@@ -158,34 +157,18 @@ void CSRManager::_loadDatabindings()
 
 //======================================================================================================================
 
-void CSRManager::_loadCommandMap()
-{
-	mCommandMap.insert(std::make_pair(opConnectPlayerMessage,			&CSRManager::_processConnectPlayerMessage));
-	mCommandMap.insert(std::make_pair(opSearchKnowledgeBaseMessage,		&CSRManager::_processSearchKnowledgeBaseMessage));
-	mCommandMap.insert(std::make_pair(opRequestCategoriesMessage,		&CSRManager::_processRequestCategoriesMessage));
-	mCommandMap.insert(std::make_pair(opNewTicketActivityMessage,		&CSRManager::_processNewTicketActivityMessage));
-	mCommandMap.insert(std::make_pair(opGetTicketsMessage,				&CSRManager::_processGetTicketsMessage));
-	mCommandMap.insert(std::make_pair(opGetCommentsMessage,				&CSRManager::_processGetCommentsMessage));
-	mCommandMap.insert(std::make_pair(opGetArticleMessage,				&CSRManager::_processGetArticleMessage));
-	mCommandMap.insert(std::make_pair(opCreateTicketMessage,			&CSRManager::_processCreateTicketMessage));
-	mCommandMap.insert(std::make_pair(opCancelTicketMessage,			&CSRManager::_processCancelTicketMessage));
-	mCommandMap.insert(std::make_pair(opAppendCommentMessage,			&CSRManager::_processAppendCommentMessage));
-}
-
-//======================================================================================================================
-
 void CSRManager::_registerCallbacks()
 {
-	mMessageDispatch->RegisterMessageCallback(opConnectPlayerMessage, this);
-	mMessageDispatch->RegisterMessageCallback(opSearchKnowledgeBaseMessage, this);
-	mMessageDispatch->RegisterMessageCallback(opRequestCategoriesMessage, this);
-	mMessageDispatch->RegisterMessageCallback(opNewTicketActivityMessage, this);
-	mMessageDispatch->RegisterMessageCallback(opGetTicketsMessage, this);
-	mMessageDispatch->RegisterMessageCallback(opGetCommentsMessage, this);
-	mMessageDispatch->RegisterMessageCallback(opGetArticleMessage, this);
-	mMessageDispatch->RegisterMessageCallback(opCreateTicketMessage, this);
-	mMessageDispatch->RegisterMessageCallback(opCancelTicketMessage, this);
-	mMessageDispatch->RegisterMessageCallback(opAppendCommentMessage, this);
+	mMessageDispatch->RegisterMessageCallback(opConnectPlayerMessage, std::bind(&CSRManager::_processConnectPlayerMessage, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opSearchKnowledgeBaseMessage, std::bind(&CSRManager::_processSearchKnowledgeBaseMessage, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opRequestCategoriesMessage, std::bind(&CSRManager::_processRequestCategoriesMessage, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opNewTicketActivityMessage, std::bind(&CSRManager::_processNewTicketActivityMessage, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opGetTicketsMessage, std::bind(&CSRManager::_processGetTicketsMessage, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opGetCommentsMessage, std::bind(&CSRManager::_processGetCommentsMessage, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opGetArticleMessage, std::bind(&CSRManager::_processGetArticleMessage, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opCreateTicketMessage, std::bind(&CSRManager::_processCreateTicketMessage, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opCancelTicketMessage, std::bind(&CSRManager::_processCancelTicketMessage, this, std::placeholders::_1, std::placeholders::_2));
+	mMessageDispatch->RegisterMessageCallback(opAppendCommentMessage, std::bind(&CSRManager::_processAppendCommentMessage, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 //======================================================================================================================
@@ -214,21 +197,6 @@ void CSRManager::_destroyDatabindings()
 	mDatabase->DestroyDataBinding(mSubCategoryBinding);
 	mDatabase->DestroyDataBinding(mArticleSearchBinding);
 	mDatabase->DestroyDataBinding(mFullArticleBinding);
-}
-
-//======================================================================================================================
-
-void CSRManager::handleDispatchMessage(uint32 opcode,Message* message,DispatchClient* client)
-{
-	CSRCommandMap::iterator it = mCommandMap.find(opcode);
-
-	gLogger->log(LogManager::DEBUG,"Incomming CSR Command: %u", opcode);
-
-
-	if(it != mCommandMap.end())
-		(this->*((*it).second))(message,client);
-	else
-		gLogger->log(LogManager::DEBUG,"Unhandled DispatchMsg %u",opcode);
 }
 
 //======================================================================================================================

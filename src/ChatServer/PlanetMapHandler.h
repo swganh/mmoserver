@@ -29,7 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define ANH_ADMINSERVER_PLANETMAPHANDLER_H
 
 #include "DatabaseManager/DatabaseCallback.h"
-#include "Common/MessageDispatchCallback.h"
 #include "Utils/typedefs.h"
 
 
@@ -61,7 +60,7 @@ public:
 
 
 //======================================================================================================================
-class PlanetMapHandler : public MessageDispatchCallback, public DatabaseCallback
+class PlanetMapHandler : public DatabaseCallback
 {
 public:
 
@@ -69,9 +68,6 @@ public:
 	                              ~PlanetMapHandler();
 
 	void			                    Process();
-
-  // Inherited from MessageDispatchCallback
-	virtual void	                handleDispatchMessage(uint32 opcode, Message* message, DispatchClient* client);
 
   // Inherited from DatabaseCallback  
   virtual void                   handleDatabaseJobComplete(void* ref, DatabaseResult* result);

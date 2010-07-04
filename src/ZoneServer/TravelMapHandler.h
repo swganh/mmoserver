@@ -29,7 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define ANH_ZONESERVER_TRAVELMAPHANDLER_H
 
 #include "UICallback.h"
-#include "Common/MessageDispatchCallback.h"
 #include "DatabaseManager/DatabaseCallback.h"
 #include <boost/pool/pool.hpp>
 
@@ -46,6 +45,7 @@ class PlayerObject;
 class Shuttle;
 class TravelMapAsyncContainer;
 class TravelTicket;
+class DispatchClient;
 
 //======================================================================================================================
 
@@ -126,7 +126,7 @@ typedef std::vector<std::pair<uint16,int32> > TravelRoutes;
 
 //======================================================================================================================
 
-class TravelMapHandler : public MessageDispatchCallback, public DatabaseCallback, public UICallback
+class TravelMapHandler : public DatabaseCallback, public UICallback
 {
 public:
 
@@ -140,7 +140,6 @@ public:
 		void				getTicketInformation(BStringVector vQuery,TicketProperties* ticketProperties);
 		TravelPoint*		getTravelPoint(uint16 planetId,BString name);
 
-		virtual void		handleDispatchMessage(uint32 opcode,Message* message,DispatchClient* client);
 		virtual void		handleDatabaseJobComplete(void* ref,DatabaseResult* result);
 		bool				findTicket(PlayerObject* player, BString port);
 		void				createTicketSelectMenu(PlayerObject* playerObject, Shuttle* shuttle, BString port);

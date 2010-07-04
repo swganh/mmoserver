@@ -93,7 +93,7 @@ UIManager::~UIManager()
 
 void UIManager::_registerCallbacks()
 {
-	mMessageDispatch->RegisterMessageCallback(opSuiEventNotification,this);
+	mMessageDispatch->RegisterMessageCallback(opSuiEventNotification,std::bind(&UIManager::_processEventNotification, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 //======================================================================================================================
@@ -113,20 +113,6 @@ UIWindow* UIManager::getUIWindow(uint32 id)
 		return((*it).second);
 
 	return(NULL);
-}
-
-//======================================================================================================================
-
-void UIManager::handleDispatchMessage(uint32 opcode,Message* message,DispatchClient* client)
-{
-	switch(opcode)
-	{
-		case opSuiEventNotification:
-			_processEventNotification(message,client);
-		break;
-
-		default: break;
-	} 
 }
 
 //======================================================================================================================

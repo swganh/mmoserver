@@ -105,9 +105,8 @@ void Deed::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 					}
 
 					//check the region whether were allowed to build
-					if(!gStructureManager->checkCityRadius(player))
+					if(gStructureManager->checkNoBuildRegion(player))
 					{
-						gMessageLib->sendSystemMessage(player,L"","faction_perk","no_build_area");
 						return;
 					}
 

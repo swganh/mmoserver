@@ -28,8 +28,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_ZONESERVER_OBJECTCONTROLLERDISPATCH_H
 #define ANH_ZONESERVER_OBJECTCONTROLLERDISPATCH_H
 
-#include "Common/MessageDispatchCallback.h"
-
 #define ObjController object->getController()
 
 //======================================================================================================================
@@ -37,10 +35,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 class Message;
 class Database;
 class MessageDispatch;
+class DispatchClient;
 
 //======================================================================================================================
 
-class ObjectControllerDispatch : public MessageDispatchCallback
+class ObjectControllerDispatch
 {
 	public:
 
@@ -48,8 +47,6 @@ class ObjectControllerDispatch : public MessageDispatchCallback
 		~ObjectControllerDispatch();
 
 		void			Process();
-
-		virtual void	handleDispatchMessage(uint32 opcode,Message* message,DispatchClient* client);
 
 	private:
 

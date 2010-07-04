@@ -1,8 +1,8 @@
 -- WeatherController
--- sets random weather every 5 min
-print("WeatherController v.0.1");
+-- sets random weather every 10 min
+print("WeatherController v.0.2");
 
-local updateInterval = 300000;
+local updateInterval = 600000;
 local wm = WorldManager:getSingletonPtr();
 
 while (1) do
@@ -11,7 +11,17 @@ while (1) do
   cloudX = math.random();
   cloudY = math.random();
   cloudZ = math.random();
-  type = math.random(0, 5);
+  
+  tempVal = math.random(0, 5);
+  
+  if tempVal == 5 then
+	type = math.random(1,5);
+	updateInterval = 60000;
+  else
+	type = 0;
+	updateInterval = 600000;
+  end if;
+  
 
   wm:updateWeather(cloudX,cloudY,cloudZ,type);
 end;

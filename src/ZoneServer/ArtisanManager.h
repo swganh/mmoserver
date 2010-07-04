@@ -44,6 +44,7 @@ class Database;
 class ZoneTree;
 class ArtisanHeightmapAsyncContainer;
 class SampleEvent;
+class SurveyEvent;
 
 class ArtisanManager : public ObjectFactoryCallback, public HeightMapCallBack, public Anh_Utils::EventHandler
 {
@@ -85,8 +86,8 @@ public:
 	//SampleNode*				getSampleData(){return &mSampleNode;}
 
 	//events
-	void					onSample(PlayerObject* player, const SampleEvent* event);
-//	void					onSurvey(PlayerObject* player, const SurveyEvent* event);
+	void					onSample(const SampleEvent* event);
+	void					onSurvey(const SurveyEvent* event);
 private:
 	//the data for the sample node game
 //	SampleNode				mSampleNode;

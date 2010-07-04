@@ -37,6 +37,7 @@ struct SampleNode
 	uint32				zone;
 	CurrentResource*	resource;
 	SurveyTool*			tool;
+	PlayerObject*		player;
 
 	uint64				mNextSampleTime;
 
@@ -58,13 +59,14 @@ class SampleEvent : public Anh_Utils::Event
 {
 	public:
 
-		SampleEvent(SurveyTool* tool,CurrentResource* resource) : mTool(tool),mResource(resource){}
+		SampleEvent(PlayerObject* player, SurveyTool* tool,CurrentResource* resource) : mTool(tool),mResource(resource), mPlayer(player){}
 
+		PlayerObject*		getPlayer() const {return mPlayer;}
 		SurveyTool*			getTool() const { return mTool; }
 		CurrentResource*	getResource() const { return mResource; }
 
 	private:
-
+		PlayerObject*		mPlayer;
 		SurveyTool*			mTool;
 		CurrentResource*	mResource;
 };

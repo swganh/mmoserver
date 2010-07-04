@@ -214,7 +214,7 @@ void ResourceCollectionManager::handleUIEvent(uint32 action,int32 element,BStrin
 					SurveyTool*			tool					= dynamic_cast<SurveyTool*>(inventory->getObjectById(asyncContainer->ToolId));
 					CurrentResource*	resource				= (CurrentResource*)asyncContainer->CurrentResource;
 					player->getSampleData()->mNextSampleTime	= Anh_Utils::Clock::getSingleton()->getLocalTime() + 30000;
-					player->getController()->addEvent(new SampleEvent(tool,resource),10000);
+					player->getController()->addEvent(new SampleEvent(player,tool,resource),10000);
 				}
 			}
 		}
@@ -245,7 +245,7 @@ void ResourceCollectionManager::handleUIEvent(uint32 action,int32 element,BStrin
 					SurveyTool*			tool		= dynamic_cast<SurveyTool*>(inventory->getObjectById(asyncContainer->ToolId));
 					CurrentResource*	resource	= (CurrentResource*)asyncContainer->CurrentResource;
 					player->getSampleData()->mNextSampleTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 10000;
-					player->getController()->addEvent(new SampleEvent(tool,resource),10000);
+					player->getController()->addEvent(new SampleEvent(player,tool,resource),10000);
 					
 				}
 				else
@@ -288,7 +288,7 @@ void ResourceCollectionManager::handleUIEvent(uint32 action,int32 element,BStrin
 					SurveyTool*			tool		= dynamic_cast<SurveyTool*>(inventory->getObjectById(asyncContainer->ToolId));
 					CurrentResource*	resource	= (CurrentResource*)asyncContainer->CurrentResource;
 					player->getSampleData()->mNextSampleTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 10000;
-					player->getController()->addEvent(new SampleEvent(tool,resource),10000);
+					player->getController()->addEvent(new SampleEvent(player,tool,resource),10000);
 					
 				}
 			}
@@ -333,7 +333,7 @@ void ResourceCollectionManager::handleUIEvent(uint32 action,int32 element,BStrin
 					SurveyTool*			tool		= dynamic_cast<SurveyTool*>(inventory->getObjectById(asyncContainer->ToolId));
 					CurrentResource*	resource	= (CurrentResource*)asyncContainer->CurrentResource;
 					player->getSampleData()->mNextSampleTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 10000;
-					player->getController()->addEvent(new SampleEvent(tool,resource),10000);
+					player->getController()->addEvent(new SampleEvent(player,tool,resource),10000);
 					
 				}
 			}

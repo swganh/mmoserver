@@ -39,13 +39,14 @@ class SurveyEvent : public Anh_Utils::Event
 {
 	public:
 
-		SurveyEvent(SurveyTool* tool,CurrentResource* resource) : mTool(tool),mResource(resource){}
+		SurveyEvent(PlayerObject* player, SurveyTool* tool,CurrentResource* resource) : mTool(tool),mResource(resource), mPlayer(player){}
 
+		PlayerObject*		getPlayer() const { return mPlayer;}
 		SurveyTool*			getTool() const { return mTool; }
 		CurrentResource*	getResource() const { return mResource; }
 
 	private:
-
+		PlayerObject*		mPlayer;
 		SurveyTool*			mTool;
 		CurrentResource*	mResource;
 };

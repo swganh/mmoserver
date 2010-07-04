@@ -1,25 +1,22 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
     <Filter Include="Utils">
       <UniqueIdentifier>{13e814c3-3d82-4cb0-b2c6-633f27d2b998}</UniqueIdentifier>
     </Filter>
     <Filter Include="Common">
-      <UniqueIdentifier>{37b2b656-2086-4887-aee7-593bc303b4b8}</UniqueIdentifier>
+      <UniqueIdentifier>{4f3e690b-dd02-4836-b306-aa4f38394d8a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Utils\TestCmpistr.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
-    <ClCompile Include="TestByteBuffer.cpp">
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Common\TestByteBuffer.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\TestOutOfBand.cpp">
       <Filter>Common</Filter>
     </ClCompile>
   </ItemGroup>

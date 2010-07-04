@@ -114,19 +114,19 @@ std::vector<unsigned char>& ByteBuffer::Raw() {
     return data_;
 }
 
-template<> void ByteBuffer::SwapEndian_(uint16_t& data) {
+template<> void ByteBuffer::SwapEndian_(uint16_t& data) const {
 	data = (data >> 8) |
 		   (data << 8);
 }
 
-template<> void ByteBuffer::SwapEndian_(uint32_t& data) {
+template<> void ByteBuffer::SwapEndian_(uint32_t& data) const {
 	data = (data  >> 24) |
 	       ((data << 8) && 0x00FF0000) |
 	       ((data >> 8) && 0x0000FF00) |
 	       (data  << 24);
 }
 
-template<> void ByteBuffer::SwapEndian_(uint64_t& data) {
+template<> void ByteBuffer::SwapEndian_(uint64_t& data) const {
 	data = (data  >> 56) |
 #ifdef _WIN32
 		   ((data << 40) && 0x00FF000000000000) |

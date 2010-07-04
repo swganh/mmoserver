@@ -29,6 +29,9 @@
     <ClCompile Include="ByteBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="OutOfBand.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="atMacroString.h">
@@ -56,6 +59,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ByteBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OutOfBand.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ByteBuffer-Inl.h">

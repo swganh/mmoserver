@@ -17,6 +17,7 @@
     <ClCompile Include="DispatchClient.cpp" />
     <ClCompile Include="MessageDispatch.cpp" />
     <ClCompile Include="MessageFactory.cpp" />
+    <ClCompile Include="OutOfBand.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="atMacroString.h" />
@@ -29,6 +30,7 @@
     <ClInclude Include="MessageDispatchCallback.h" />
     <ClInclude Include="MessageFactory.h" />
     <ClInclude Include="MessageOpcodes.h" />
+    <ClInclude Include="OutOfBand.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{432DCBE9-1F49-49FF-9753-BE806192A917}</ProjectGuid>
@@ -76,7 +78,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;BOOST_HAS_STDINT_H;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(SolutionDir)deps;$(SolutionDir)deps\boost;$(SolutionDir)src;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)deps;$(SolutionDir)deps\boost;$(SolutionDir)deps\glm;$(SolutionDir)src</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -92,7 +94,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;BOOST_HAS_STDINT_H;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(SolutionDir)deps;$(SolutionDir)deps\boost;$(SolutionDir)src;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)deps;$(SolutionDir)deps\boost;$(SolutionDir)deps\glm;$(SolutionDir)src</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>

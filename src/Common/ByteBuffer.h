@@ -63,8 +63,8 @@ public:
 
 	template<typename T> ByteBuffer& Write(T data);
 	template<typename T> ByteBuffer& WriteAt(size_t offset, T data);
-	template<typename T> const T Peek(bool do_swap_endian = false);
-	template<typename T> const T PeekAt(size_t offset, bool do_swap_endian = false);
+	template<typename T> const T Peek(bool do_swap_endian = false) const;
+	template<typename T> const T PeekAt(size_t offset, bool do_swap_endian = false) const;
 	template<typename T> const T Read(bool do_swap_endian = false);
 
 	void Write(const unsigned char* data, size_t size);
@@ -82,12 +82,12 @@ public:
 	size_t Capacity() const;
 	const unsigned char* Data() const;
 
-    std::vector<unsigned char>& Raw();
+    std::vector<uint8_t>& Raw();
 
 private:
-	template<typename T> void SwapEndian_(T& data);
+	template<typename T> void SwapEndian_(T& data) const;
 
-	std::vector<unsigned char> data_;
+	std::vector<uint8_t> data_;
 	size_t read_position_;
 	size_t write_position_;
 

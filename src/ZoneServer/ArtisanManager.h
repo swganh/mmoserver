@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define ANH_ZONESERVER_ARTISAN_MANAGER_H
 
 #include "DatabaseManager/DatabaseCallback.h"
+#include "Utils/EventHandler.h"
 #include "ObjectFactoryCallback.h"
 #include "HeightMapCallback.h"
 
@@ -37,12 +38,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 class Message;
 class MessageDispatch;
 class Object;
+class PlayerObject;
 class ObjectControllerCmdProperties;
 class Database;
 class ZoneTree;
 class ArtisanHeightmapAsyncContainer;
+class SampleEvent;
 
-class ArtisanManager : public ObjectFactoryCallback, public HeightMapCallBack
+class ArtisanManager : public ObjectFactoryCallback, public HeightMapCallBack, public Anh_Utils::EventHandler
 {
 public:
 	static ArtisanManager*	getSingletonPtr() { return mSingleton; }
@@ -69,9 +72,29 @@ public:
 	bool					handleRequestCoreSample(Object* player,Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties);
 	bool					handleSurvey(Object* player, Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties);
 	bool					handleSample(Object* player, Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties);
+
+	//// survey
+	//bool					getSurveyState(){ return mSampleNode.mPendingSurvey; }
+	//void					setSurveyState(bool state){ mSampleNode.mPendingSurvey = state; }
+
+	//// sample
+	//bool					getSamplingState(){ return mSampleNode.mPendingSample; }
+	//void					setSamplingState(bool state){ mSampleNode.mPendingSample = state; }
+	//uint64					getNextSampleTime(){ return mSampleNode.mNextSampleTime; }
+	//void					setNextSampleTime(uint64 time){ mSampleNode.mNextSampleTime = time; }
+	//SampleNode*				getSampleData(){return &mSampleNode;}
+
+	//events
+	void					onSample(PlayerObject* player, const SampleEvent* event);
+//	void					onSurvey(PlayerObject* player, const SurveyEvent* event);
 private:
+	//the data for the sample node game
+//	SampleNode				mSampleNode;
+	PlayerObject*			mPlayer;
+
 	ObjectFactoryCallback*	mObjectFactoryCallback;
 	HeightMapCallBack*		mHeightMapCallback;
+	Anh_Utils::EventHandler* mEventHandler;
 	static ArtisanManager*	mSingleton;
 	static bool				mInsFlag;
 };

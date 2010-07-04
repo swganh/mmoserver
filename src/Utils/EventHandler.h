@@ -73,17 +73,17 @@ class HandlerFunctionBase
 // MemberFunctionHandler
 //
 
-template <class T,class EventT>
+template <class T,class EventT, class P = PlayerObject>
 class MemberFunctionHandler : public HandlerFunctionBase
 {
 	public:
 
-		typedef void (T::*MemberFunc)(const EventT*);
+		typedef void (T::*MemberFunc)(P*,const EventT*);
 		MemberFunctionHandler(T* instance,MemberFunc memFn) : mInstance(instance),mFunction(memFn){}
 
-		void call(const Event* event)
+		void call(P*, const Event* event)
 		{
-			(mInstance->*mFunction)(static_cast<const EventT*>(event));
+			(mInstance->*mFunction)(P*,static_cast<const EventT*>(event));
 		}
 
 	private:
@@ -107,6 +107,9 @@ public:
 	template <class T,class EventT>
 	void registerEventFunction(T*,void(T::*memFn)(const EventT*));
 
+	template <class T,class EventT, class P>
+	void registerEventFunction(T*,void(T::*memFn)(P* object, const EventT*));
+
 private:
 	typedef boost::ptr_map<const TypeInfo, HandlerFunctionBase> Handlers;
 	Handlers mHandlers;
@@ -123,6 +126,14 @@ void EventHandler::registerEventFunction(T* obj,void (T::*memFn)(const EventT*))
 	mHandlers.insert(TypeInfo(typeid(EventT)), new MemberFunctionHandler<T,EventT>(obj,memFn));
 }
 
+//======================================================================================================================
+//
+// registerEventFunction override
+template <class T,class EventT, class P>
+void EventHandler::registerEventFunction(T* obj,void (T::*memFn)(P* object,const EventT*))
+{
+	mHandlers.insert(TypeInfo(typeid(EventT)), new MemberFunctionHandler<T,EventT>(obj,memFn));
+}
 //======================================================================================================================
 //
 // TypeInfo

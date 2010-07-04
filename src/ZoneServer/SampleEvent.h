@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define ANH_ZONESERVER_SAMPLE_EVENT_H
 
 #include "Utils/EventHandler.h"
-
+#include "ArtisanManager.h"
 
 struct SampleNode
 {

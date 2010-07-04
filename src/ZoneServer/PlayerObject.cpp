@@ -127,14 +127,14 @@ PlayerObject::PlayerObject()
 	mTrade				= new Trade(this);
 
 	// register event functions
-	registerEventFunction(this,&PlayerObject::onSurvey);
-	registerEventFunction(this,&PlayerObject::onSample);
-	registerEventFunction(this,&PlayerObject::onLogout);
-	registerEventFunction(this,&PlayerObject::onBurstRun);
-	registerEventFunction(this,&PlayerObject::onItemDeleteEvent);
-	registerEventFunction(this,&PlayerObject::onInjuryTreatment);
-	registerEventFunction(this,&PlayerObject::onWoundTreatment);
-	registerEventFunction(this,&PlayerObject::onQuickHealInjuryTreatment);
+	//registerEventFunction(this,&PlayerObject::onSurvey);
+	//registerEventFunction(this,&PlayerObject::onSample);
+	//registerEventFunction(this,&PlayerObject::onLogout);
+	//registerEventFunction(this,&PlayerObject::onBurstRun);
+	//registerEventFunction(this,&PlayerObject::onItemDeleteEvent);
+	//registerEventFunction(this,&PlayerObject::onInjuryTreatment);
+	//registerEventFunction(this,&PlayerObject::onWoundTreatment);
+	//registerEventFunction(this,&PlayerObject::onQuickHealInjuryTreatment);
 	
 	mLots = gWorldConfig->getConfiguration<uint32>("Player_Max_Lots",(uint32)10);
 

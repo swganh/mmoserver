@@ -759,13 +759,11 @@ void ObjectController::sendAdminFeedback(BString reply) const
 		{
 			gLogger->log(LogManager::NOTICE,"Admin (%s): %s", player->getFirstName().getAnsi(), reply.getAnsi());
 			reply.convert(BSTRType_Unicode16);
-			gMessageLib->sendSystemMessage(player, reply, true);
+            gMessageLib->SendSystemMessage(reply.getUnicode16(), player, true);
 		}
 		else
 		{
 			gLogger->log(LogManager::NOTICE,"Admin (%s):", player->getFirstName().getAnsi());
-			reply.convert(BSTRType_Unicode16);
-			gMessageLib->sendSystemMessage(player, reply , true);
 		}
 	}
 	else

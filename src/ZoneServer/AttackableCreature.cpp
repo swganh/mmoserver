@@ -262,7 +262,6 @@ void AttackableCreature::handleObjectMenuSelect(uint8 messageType,Object* srcObj
 									// sprintf(str,"%u credits", lootedCredits);
 									// BString lootCreditsString(str);
 									// lootCreditsString.convert(BSTRType_Unicode16);
-									// gMessageLib->sendSystemMessage(playerObject, L"", "spam", "loot_item_self", "", "", L"", 0, getSpeciesGroup(), getSpeciesString(), L"", 0, 0, 0, "", "", lootCreditsString);
 									gMessageLib->sendSystemMessage(playerObject, L"", "base_player", "prose_coin_loot", "", "", L"", lootedCredits, getSpeciesGroup().getAnsi(), getSpeciesString().getAnsi());
 
 									// Now we need to add the credits to our own inventory.

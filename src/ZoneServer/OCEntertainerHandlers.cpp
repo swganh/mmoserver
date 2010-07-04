@@ -45,10 +45,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
+#include "Common/OutOfBand.h"
 #include "Common/atMacroString.h"
 #include "Common/Message.h"
 #include "Common/MessageFactory.h"
 
+using ::common::OutOfBand;
 
 
 
@@ -760,19 +762,19 @@ void ObjectController::_handleImageDesign(uint64 targetId,Message* message,Objec
 
 	if(designObject->getPosture() == CreaturePosture_Dead)
 	{
-        gMessageLib->SendSystemMessage(ProsePackage("image_designer","target_dead", 0, designObject->getId(), 0), imageDesigner);
+        gMessageLib->SendSystemMessage(OutOfBand("image_designer","target_dead", 0, designObject->getId(), 0), imageDesigner);
 		return;
 	}
 
 	if(designObject->isIncapacitated())
 	{
-        gMessageLib->SendSystemMessage(ProsePackage("image_designer","target_dead", 0, designObject->getId(), 0), imageDesigner);
+        gMessageLib->SendSystemMessage(OutOfBand("image_designer","target_dead", 0, designObject->getId(), 0), imageDesigner);
 		return;
 	}
 
 	if(!imageDesigner->checkSkill(SMSkill_NoviceEntertainer))
 	{
-        gMessageLib->SendSystemMessage(ProsePackage("image_designer","not_an_image_designer"), imageDesigner);
+        gMessageLib->SendSystemMessage(OutOfBand("image_designer","not_an_image_designer"), imageDesigner);
 		return;
 	}
     //Sch we need to add more states and checks - Rouse
@@ -785,30 +787,30 @@ void ObjectController::_handleImageDesign(uint64 targetId,Message* message,Objec
 	if(imageDesigner->getImageDesignSession() != IDSessionNONE)
 	{
 		if(imageDesigner->getImageDesignSession() == IDSessionID)
-            gMessageLib->SendSystemMessage(ProsePackage("image_designer","already_image_designing"), imageDesigner);
+            gMessageLib->SendSystemMessage(OutOfBand("image_designer","already_image_designing"), imageDesigner);
 		else
-            gMessageLib->SendSystemMessage(ProsePackage("image_designer","already_being_image_designed"), imageDesigner);
+            gMessageLib->SendSystemMessage(OutOfBand("image_designer","already_being_image_designed"), imageDesigner);
 		return;
 	}
 
 	if(designObject->getImageDesignSession() != IDSessionNONE)
 	{
 		if(designObject->getImageDesignSession() == IDSessionID)
-            gMessageLib->SendSystemMessage(ProsePackage("image_designer","target_is_image_designing"), imageDesigner);
+            gMessageLib->SendSystemMessage(OutOfBand("image_designer","target_is_image_designing"), imageDesigner);
 		else
-            gMessageLib->SendSystemMessage(ProsePackage("image_designer","outstanding_offer"), imageDesigner);
+            gMessageLib->SendSystemMessage(OutOfBand("image_designer","outstanding_offer"), imageDesigner);
 		return;
 	}
 
 	if(glm::distance(designObject->getWorldPosition(), imageDesigner->getWorldPosition()) > 16)
 	{
-        gMessageLib->SendSystemMessage(ProsePackage("image_designer","out_of_range"), imageDesigner);
+        gMessageLib->SendSystemMessage(OutOfBand("image_designer","out_of_range"), imageDesigner);
 		return;
 	}
 
 	if((designObject != imageDesigner) && (designObject->getGroupId() != imageDesigner->getGroupId() ))
 	{
-        gMessageLib->SendSystemMessage(ProsePackage("image_designer","not_in_same_group"), imageDesigner);
+        gMessageLib->SendSystemMessage(OutOfBand("image_designer","not_in_same_group"), imageDesigner);
 		return;
 	}
 

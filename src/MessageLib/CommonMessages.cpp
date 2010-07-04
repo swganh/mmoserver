@@ -47,6 +47,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "LogManager/LogManager.h"
 
+#include "Common/ByteBuffer.h"
 #include "Common/atMacroString.h"
 #include "Common/DispatchClient.h"
 #include "Common/Message.h"
@@ -72,6 +73,8 @@ using ::boost::smatch;
 using ::boost::regex_search;
 #endif
 
+using ::common::ByteBuffer;
+using ::common::OutOfBand;
 
 //======================================================================================================================
 //
@@ -574,82 +577,6 @@ bool MessageLib::sendEnterTicketPurchaseModeMessage(TravelTerminal* terminal,Pla
 	return(true);
 }
 
-//=======================================================================================================================
-//
-// system message
-//
-bool MessageLib::sendSystemMessageInRange(PlayerObject* playerObject,bool toSelf, BString customMessage,BString mainFile,BString mainVar,BString toFile,BString toVar,BString toCustom,int32 di,BString ttFile,BString ttVar,BString ttCustom,uint64 ttId,uint64 toId,uint64 tuId,BString tuFile,BString tuVar,BString tuCustom )
-{
-	if(!playerObject || !playerObject->isConnected())
-	{
-		return(false);
-	}
-
-	mMessageFactory->StartMessage(); 
-	mMessageFactory->addUint32(opChatSystemMessage);  
-	mMessageFactory->addUint8(0);
-
-	// simple message
-	if(customMessage.getLength())
-	{
-		mMessageFactory->addString(customMessage);
-		mMessageFactory->addUint32(0);				 
-	}
-	// templated message
-	else
-	{ 
-		mMessageFactory->addUint32(0);				 
-
-		uint32	realSize = mainFile.getLength() + mainVar.getLength() + toFile.getLength() + toVar.getLength() + ttFile.getLength() + ttVar.getLength() + tuFile.getLength() + tuVar.getLength();
-
-		mMessageFactory->addUint32(42 + ((uint32)ceil(((double)realSize) / 2.0)) + toCustom.getLength() + ttCustom.getLength() + tuCustom.getLength());
-
-		if(realSize % 2)
-			mMessageFactory->addUint16(1);
-		else
-			mMessageFactory->addUint16(0);
-
-		mMessageFactory->addUint8(1);
-		mMessageFactory->addUint32(0xFFFFFFFF);
-
-		//main message		
-		mMessageFactory->addString(mainFile);
-		mMessageFactory->addUint32(0);//spacer
-		mMessageFactory->addString(mainVar);
-
-		//object 1
-		mMessageFactory->addUint64(tuId);
-		mMessageFactory->addString(tuFile);
-		mMessageFactory->addUint32(0);//spacer
-		mMessageFactory->addString(tuVar);
-		mMessageFactory->addString(tuCustom);
-
-		//object 2		
-		mMessageFactory->addUint64(ttId);  //object id2
-		mMessageFactory->addString(ttFile);
-		mMessageFactory->addUint32(0);//spacer
-		mMessageFactory->addString(ttVar);
-		mMessageFactory->addString(ttCustom);
-
-		//object 3
-		mMessageFactory->addUint64(toId);
-		mMessageFactory->addString(toFile);
-		mMessageFactory->addUint32(0);//spacer
-		mMessageFactory->addString(toVar);
-		mMessageFactory->addString(toCustom);
-
-		mMessageFactory->addInt32(di);
-		mMessageFactory->addUint32(0);
-		mMessageFactory->addUint8(0);
-
-		if(realSize % 2)
-			mMessageFactory->addUint8(0);
-	}
-
-	_sendToInRange(mMessageFactory->EndMessage(),playerObject,8,toSelf);		
-
-	return(true);
-}
 
 //=======================================================================================================================
 //
@@ -672,17 +599,17 @@ bool MessageLib::SendSystemMessage(const std::wstring& custom_message, PlayerObj
         std::string file(result[1].str());
         std::string string(result[2].str());
         
-        return SendSystemMessage_(L"", ProsePackage(file, string), player, chatbox_only, send_to_inrange);
+        return SendSystemMessage_(L"", OutOfBand(file, string), player, chatbox_only, send_to_inrange);
     }   
 
-    return SendSystemMessage_(custom_message, ProsePackage(), player, chatbox_only, send_to_inrange);
+    return SendSystemMessage_(custom_message, OutOfBand(), player, chatbox_only, send_to_inrange);
 }
 
-bool MessageLib::SendSystemMessage(const ProsePackage& prose, PlayerObject* player, bool chatbox_only, bool send_to_inrange) {
+bool MessageLib::SendSystemMessage(const OutOfBand& prose, PlayerObject* player, bool chatbox_only, bool send_to_inrange) {
     return SendSystemMessage_(L"", prose, player, chatbox_only, send_to_inrange);
 }
 
-bool MessageLib::SendSystemMessage_(const std::wstring& custom_message, const ProsePackage& prose, PlayerObject* player, bool chatbox_only, bool send_to_inrange) {
+bool MessageLib::SendSystemMessage_(const std::wstring& custom_message, const OutOfBand& prose, PlayerObject* player, bool chatbox_only, bool send_to_inrange) {
     // If a player was passed in but not connected return false.
     if ((player) || (!player->isConnected())) {
         return false;
@@ -703,7 +630,9 @@ bool MessageLib::SendSystemMessage_(const std::wstring& custom_message, const Pr
 		mMessageFactory->addUint32(0);		
     } else {
 		mMessageFactory->addUint32(0);		
-        prose.WriteToMessageFactory(mMessageFactory);
+
+        const ByteBuffer* attachment = prose.Pack();
+        mMessageFactory->addData(attachment->Data(), attachment->Size());
     }
 
     // If a player was passed in then only send out the message to the appropriate parties.
@@ -814,37 +743,6 @@ bool MessageLib::sendMacroSystemMessage(PlayerObject* playerObject,BString messa
 	mMessageFactory->addUint8(0);
 	mMessageFactory->addString(message);
 	mMessageFactory->addString(macro);				 
-
-	(playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 5);
-
-	return(true);
-}
-
-//======================================================================================================================
-//
-// system message, can be directed to chat only
-//
-bool MessageLib::sendSystemMessage(PlayerObject* playerObject, BString message, bool chatOnly)
-{
-	if(!playerObject || !playerObject->isConnected())
-	{
-		return(false);
-	}
-
-	mMessageFactory->StartMessage(); 
-	mMessageFactory->addUint32(opChatSystemMessage); 
-
-	if (chatOnly)
-	{
-		mMessageFactory->addUint8(2);
-	}
-	else
-	{
-		mMessageFactory->addUint8(0);
-	}
-
-	mMessageFactory->addString(message);
-	mMessageFactory->addUint32(0);				 
 
 	(playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 5);
 

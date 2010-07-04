@@ -40,9 +40,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Tutorial.h"
 #include "ZoneTree.h"
 
+#include "Common/OutOfBand.h"
 #include "MessageLib/MessageLib.h"
 
 #include <cassert>
+
+using ::common::OutOfBand;
 
 //=============================================================================
 
@@ -866,7 +869,7 @@ void Trainer::postProcessfilter(ActiveConversation* av, PlayerObject* player, ui
 
 			if (pageId == 13)
 			{
-                ProsePackage prose("skill_teacher", "surpass_trainer", 0, "", "", L"", player->getId());
+                OutOfBand prose("skill_teacher", "surpass_trainer", 0, "", "", L"", player->getId());
 				
 				if (!gWorldConfig->isInstance())
 				{
@@ -1019,7 +1022,7 @@ bool Trainer::preProcessfilterConversation(ActiveConversation* av,Conversation* 
 						gMessageLib->sendCreatureAnimation(av->getNpc(),gWorldManager->getNpcConverseAnimation(16), player); // giveup
 					}
 					
-                    ProsePackage prose("skill_teacher", "topped_out");
+                    OutOfBand prose("skill_teacher", "topped_out");
 
 					if (!gWorldConfig->isInstance())
 					{
@@ -1062,7 +1065,7 @@ bool Trainer::preProcessfilterConversation(ActiveConversation* av,Conversation* 
 						gMessageLib->sendCreatureAnimation(av->getNpc(),gWorldManager->getNpcConverseAnimation(27), player); // poke
 					}
 
-                    ProsePackage prose("skill_teacher", "no_qualify");
+                    OutOfBand prose("skill_teacher", "no_qualify");
 
 					if (!gWorldConfig->isInstance())
 					{

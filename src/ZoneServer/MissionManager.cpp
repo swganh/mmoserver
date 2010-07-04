@@ -46,6 +46,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldManager.h"
 #include "ZoneTree.h"
 
+#include "Common/OutOfBand.h"
 #include "LogManager/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
@@ -57,6 +58,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils/rand.h"
 #include <cstdio>
 #include <glm/gtx/random.hpp>
+
+using ::common::OutOfBand;
 
 //======================================================================================================================
 
@@ -753,7 +756,7 @@ bool MissionManager::checkDeliverMission(PlayerObject* player,NPCObject* npc)
 					//This is the start npc for the deliver mission
 					char mp[10];
 					sprintf(mp,"m%dp",mission->getNum());
-                    gMessageLib->SendSpatialChat(npc, ProsePackage(mission->getTitleFile().getAnsi(), mp), NULL, player->getId());
+                    gMessageLib->SendSpatialChat(npc, OutOfBand(mission->getTitleFile().getAnsi(), mp), NULL, player->getId());
 					mission->setStartNPC(NULL);
 					gMessageLib->sendSystemMessage(player,L"","mission/mission_generic","deliver_received_data");
 					MissionObject* updater = new MissionObject();
@@ -775,7 +778,7 @@ bool MissionManager::checkDeliverMission(PlayerObject* player,NPCObject* npc)
 					//This is the end npc for the deliver mission.
 					char mr[10];
 					sprintf(mr,"m%dr",mission->getNum());
-                    gMessageLib->SendSpatialChat(npc, ProsePackage(mission->getTitleFile().getAnsi(), mr), NULL, player->getId());
+                    gMessageLib->SendSpatialChat(npc, OutOfBand(mission->getTitleFile().getAnsi(), mr), NULL, player->getId());
 					missionComplete(player,mission);
 					mission->setDestinationNPC(NULL);
 					it = datapad->removeMission(it);
@@ -923,7 +926,7 @@ bool MissionManager::checkCraftingMission(PlayerObject* player,NPCObject* npc)
 					//This is the start npc for the deliver mission
 					char mp[10];
 					sprintf(mp,"m%dp",mission->getNum());
-                    gMessageLib->SendSpatialChat(npc, ProsePackage(mission->getTitleFile().getAnsi(), mp), NULL, player->getId());					
+                    gMessageLib->SendSpatialChat(npc, OutOfBand(mission->getTitleFile().getAnsi(), mp), NULL, player->getId());					
 					mission->setStartNPC(NULL);
 					gMessageLib->sendSystemMessage(player,L"","mission/mission_generic","deliver_received_data");
 					MissionObject* updater = new MissionObject();
@@ -945,7 +948,7 @@ bool MissionManager::checkCraftingMission(PlayerObject* player,NPCObject* npc)
 					//This is the end npc for the deliver mission.
 					char mr[10];
 					sprintf(mr,"m%dr",mission->getNum());
-                    gMessageLib->SendSpatialChat(npc, ProsePackage(mission->getTitleFile().getAnsi(), mr), NULL, player->getId());
+                    gMessageLib->SendSpatialChat(npc, OutOfBand(mission->getTitleFile().getAnsi(), mr), NULL, player->getId());
 					missionComplete(player,mission);
 					mission->setDestinationNPC(NULL);
 					it = datapad->removeMission(it);

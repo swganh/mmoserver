@@ -43,13 +43,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "QuadTree.h"
 #include "WorldManager.h"
 #include "ZoneTree.h"
-#include "MessageLib/MessageLib.h"
 
+#include "Common/OutOfBand.h"
+#include "MessageLib/MessageLib.h"
 #include "LogManager/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "Utils/rand.h"
 
 #include <cassert>
+
+using ::common::OutOfBand;
 
 bool						StructureManager::mInsFlag    = false;
 StructureManager*			StructureManager::mSingleton  = NULL;
@@ -512,7 +515,7 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 				{
 					if (house->getCellContentCount() > 0)
 					{
-                        gMessageLib->SendSystemMessage(ProsePackage("player_structure", "clear_building_for_delete"), player);
+                        gMessageLib->SendSystemMessage(OutOfBand("player_structure", "clear_building_for_delete"), player);
 						return false;
 					}
 				}
@@ -539,7 +542,7 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 				{
 					if (house->getCellContentCount() > 0)
 					{
-                        gMessageLib->SendSystemMessage(ProsePackage("player_structure", "clear_building_for_delete"), player);
+                        gMessageLib->SendSystemMessage(OutOfBand("player_structure", "clear_building_for_delete"), player);
 						return false;
 					}
 					house->prepareDestruction();
@@ -1034,7 +1037,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			gMessageLib->sendDestroyObject(command.SchematicId,player);
 
 			
-            gMessageLib->SendSystemMessage(ProsePackage("player_structure", "clear_building_for_delete", 0, tO->getId(), 0), player);
+            gMessageLib->SendSystemMessage(OutOfBand("player_structure", "clear_building_for_delete", 0, tO->getId(), 0), player);
 			//gMessageLib->sendSystemMessage(player,
 			
 			//remove the added Manufacturing schematic

@@ -62,15 +62,9 @@
     <ClCompile Include="TangibleMessages.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ProsePackage.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MessageLib.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ProsePackage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -32,11 +32,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "PlayerObject.h"
 #include "WorldConfig.h"
 #include "WorldManager.h"
+#include "Common/OutOfBand.h"
 #include "ZoneServer/Tutorial.h"
 #include "DatabaseManager/Database.h"
 #include "MessageLib/MessageLib.h"
 
 #include "Utils/clock.h"
+
+using ::common::OutOfBand;
 
 //=============================================================================
 
@@ -164,11 +167,11 @@ void Food::handleFoodUse(Object* srcObject)
 		//do we still have place for it ?
 		if(!playerObject->getStomach()->checkFood(filling))
 		{
-            gMessageLib->SendSystemMessage(ProsePackage("error_message", "full_food"), playerObject);
+            gMessageLib->SendSystemMessage(OutOfBand("error_message", "full_food"), playerObject);
 			return;
 		}
 		
-        gMessageLib->SendSystemMessage(ProsePackage("base_player", "prose_consume_item", 0, this->getId(), 0), playerObject);
+        gMessageLib->SendSystemMessage(OutOfBand("base_player", "prose_consume_item", 0, this->getId(), 0), playerObject);
 
 		playerObject->getStomach()->incFood(filling);
 
@@ -183,11 +186,11 @@ void Food::handleFoodUse(Object* srcObject)
 		//do we still have place for it ?
 		if(!playerObject->getStomach()->checkDrink(filling))
 		{
-            gMessageLib->SendSystemMessage(ProsePackage("error_message","full_drink"), playerObject);
+            gMessageLib->SendSystemMessage(OutOfBand("error_message","full_drink"), playerObject);
 			return;
 		}
         
-        gMessageLib->SendSystemMessage(ProsePackage("base_player", "prose_consume_item", 0, this->getId(), 0), playerObject);
+        gMessageLib->SendSystemMessage(OutOfBand("base_player", "prose_consume_item", 0, this->getId(), 0), playerObject);
 		
 		playerObject->getStomach()->incDrink(filling);
 	

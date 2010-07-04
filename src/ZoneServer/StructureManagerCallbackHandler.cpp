@@ -37,6 +37,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "PlayerObject.h"
 #include "PlayerStructure.h"
 #include "WorldManager.h"
+
+#include "Common/OutOfBand.h"
 #include "MessageLib/MessageLib.h"
 
 #include "LogManager/LogManager.h"
@@ -44,8 +46,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
 
-
-
+using ::common::OutOfBand;
 
 //=======================================================================================================================
 //handles callbacks of db creation of items
@@ -308,7 +309,7 @@ void StructureManager::_HandleStructureRedeedCallBack(StructureManagerAsyncConta
 	if(deedId == 1)
 	{
 		gLogger->log(LogManager::DEBUG,"StructureManager::create deed with not enough maintenance...");
-        gMessageLib->SendSystemMessage(ProsePackage("player_structure", "structure_destroyed"), player);
+        gMessageLib->SendSystemMessage(OutOfBand("player_structure", "structure_destroyed"), player);
 		mDatabase->DestroyDataBinding(binding);
 		return;
 	}

@@ -23,7 +23,6 @@
     <ClCompile Include="MissionMessages.cpp" />
     <ClCompile Include="ObjControllerMessages.cpp" />
     <ClCompile Include="PlayerMessages.cpp" />
-    <ClCompile Include="ProsePackage.cpp" />
     <ClCompile Include="ResourceContainerMessages.cpp" />
     <ClCompile Include="StaticMessages.cpp" />
     <ClCompile Include="StructureMessages.cpp" />
@@ -32,7 +31,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MessageLib.h" />
-    <ClInclude Include="ProsePackage.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{0C19070E-EFC9-403C-AD41-79DD6F3B0E52}</ProjectGuid>

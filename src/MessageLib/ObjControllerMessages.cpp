@@ -54,6 +54,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "LogManager/LogManager.h"
 
+#include "Common/ByteBuffer.h"
 #include "Common/atMacroString.h"
 #include "Common/DispatchClient.h"
 #include "Common/Message.h"
@@ -80,6 +81,9 @@ using ::boost::smatch;
 using ::boost::regex_search;
 #endif
 
+using ::common::ByteBuffer;
+using ::common::OutOfBand;
+
 //======================================================================================================================
 //
 // Spatial Chat
@@ -103,19 +107,19 @@ void MessageLib::SendSpatialChat(CreatureObject* const speaking_object, const st
             std::string file(result[1].str());
             std::string string(result[2].str());
 
-            SendSpatialChat_(speaking_object, L"", ProsePackage(file, string), player_object, target_id, text_size, chat_type_id, mood_id, whisper_target_animate);
+            SendSpatialChat_(speaking_object, L"", OutOfBand(file, string), player_object, target_id, text_size, chat_type_id, mood_id, whisper_target_animate);
             return;
         }
     }
 
-    SendSpatialChat_(speaking_object, custom_message, ProsePackage(), player_object, target_id, text_size, chat_type_id, mood_id, whisper_target_animate);
+    SendSpatialChat_(speaking_object, custom_message, OutOfBand(), player_object, target_id, text_size, chat_type_id, mood_id, whisper_target_animate);
 }
 
-void MessageLib::SendSpatialChat(CreatureObject* const speaking_object, const ProsePackage& prose_message, const PlayerObject* const player_object, uint64_t target_id, uint16_t text_size, SocialChatType chat_type_id, MoodType mood_id, uint8_t whisper_target_animate) {
+void MessageLib::SendSpatialChat(CreatureObject* const speaking_object, const OutOfBand& prose_message, const PlayerObject* const player_object, uint64_t target_id, uint16_t text_size, SocialChatType chat_type_id, MoodType mood_id, uint8_t whisper_target_animate) {
     SendSpatialChat_(speaking_object, L"", prose_message, player_object, target_id, text_size, chat_type_id, mood_id, whisper_target_animate);
 }
 
-void MessageLib::SendSpatialChat_(CreatureObject* const speaking_object, const std::wstring& custom_message, const ProsePackage& prose_message, const PlayerObject* const player_object, uint64_t target_id, uint16_t text_size, SocialChatType chat_type_id, MoodType mood_id, uint8_t whisper_target_animate) {
+void MessageLib::SendSpatialChat_(CreatureObject* const speaking_object, const std::wstring& custom_message, const OutOfBand& prose_message, const PlayerObject* const player_object, uint64_t target_id, uint16_t text_size, SocialChatType chat_type_id, MoodType mood_id, uint8_t whisper_target_animate) {
     Message* message;
 
     mMessageFactory->StartMessage();
@@ -141,7 +145,8 @@ void MessageLib::SendSpatialChat_(CreatureObject* const speaking_object, const s
     
     // Add the ProsePackage to the message if no custom string was set.
     if (!custom_message.length()) {
-        prose_message.WriteToMessageFactory(mMessageFactory);
+        const ByteBuffer* attachment = prose_message.Pack();
+        mMessageFactory->addData(attachment->Data(), attachment->Size());
     } else {
         mMessageFactory->addUint32(0);
     }

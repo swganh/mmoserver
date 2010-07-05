@@ -160,7 +160,7 @@ public:
      *                     only. By default this is false meaning messages are by default displayed on screen and the chatbox.
      * @param send_to_inrange If true the message is sent to all in-range players of the target recipient.
      */
-    bool SendSystemMessage(const std::wstring& custom_message, PlayerObject* player = NULL, bool chatbox_only = false, bool send_to_inrange = false);
+    bool SendSystemMessage(const std::wstring& custom_message, const PlayerObject* const player = NULL, bool chatbox_only = false, bool send_to_inrange = false);
 
     /**
      * Sends a STF package as a system message.
@@ -171,14 +171,12 @@ public:
      *                     only. By default this is false meaning messages are by default displayed on screen and the chatbox.
      * @param send_to_inrange If true the message is sent to all in-range players of the target recipient.
      */
-    bool SendSystemMessage(const common::OutOfBand& prose, PlayerObject* player = NULL, bool chatbox_only = false, bool send_to_inrange = false);
+    bool SendSystemMessage(const common::OutOfBand& prose, const PlayerObject* const player = NULL, bool chatbox_only = false, bool send_to_inrange = false);
 	
 	bool				sendSystemMessage(PlayerObject* playerObject, std::wstring customMessage = L"", std::string mainFile = "",
 											std::string mainVar = "",std::string toFile = "",std::string toVar = "", std::wstring toCustom = L"",int32 di = 0,
 											std::string ttFile = "",std::string ttVar = "",std::wstring ttCustom = L"",uint64 ttId = 0,uint64 toId = 0,uint64 tuId = 0,
 											std::string tuFile = "",std::string tuVar = "",std::wstring tuCustom = L"");
-
-	bool				sendMacroSystemMessage(PlayerObject* playerObject,BString message,BString macro);
 
 	ResourceLocation	sendSurveyMessage(uint16 range,uint16 points,CurrentResource* resource,PlayerObject* targetObject);
 	bool				sendPlayMusicMessage(uint32 soundId,PlayerObject* targetObject);

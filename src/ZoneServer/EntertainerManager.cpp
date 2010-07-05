@@ -1997,19 +1997,21 @@ bool EntertainerManager::handlePerformanceTick(CreatureObject* mObject)
 
 
 
-		atMacroString* aMS = new atMacroString();
+        ::common::ProsePackage prose;
 
-		if(entertainer->getPerformingState() == PlayerPerformance_Dance)
-			aMS->addMBstf("performance","dance_too_tired");
-		else
-			aMS->addMBstf("performance","music_too_tired");
+		if(entertainer->getPerformingState() == PlayerPerformance_Dance) {
+			prose.base_stf_file = "performance";
+            prose.base_stf_label = "dance_too_tired";
+        } else {
+			prose.base_stf_file = "performance";
+            prose.base_stf_label = "music_too_tired";
+        }
 
 		//do the sys message before that so we get it right
 		stopEntertaining(entertainer);
 
-		aMS->addTextModule();
-		gMessageLib->sendMacroSystemMessage(entertainer,L"",aMS->assemble());
-		delete aMS;
+        gMessageLib->SendSystemMessage(::common::OutOfBand(prose), entertainer);
+
 		gLogger->log(LogManager::DEBUG,"end tick %"PRIu64"",entertainer->getId());
 		return (false);
 

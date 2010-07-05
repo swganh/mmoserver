@@ -94,7 +94,7 @@ void CloningTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject
 							(gWorldManager->getDatabase())->ExecuteSqlAsync(NULL,NULL,sql);
 
 							// Clone location successfully updated
-							gMessageLib->sendSystemMessage(playerObject, L"", "base_player", "clone_success");
+                            gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "clone_success"), playerObject);
 
 							// Inform Tutorial about the cloning.
 							playerObject->getTutorial()->tutorialResponse("cloneDataSaved");
@@ -153,28 +153,24 @@ void CloningTerminal::handleUIEvent(uint32 action,int32 element,BString inputStr
 				if (creditsAtBank == cloningCost - 1)
 				{
 					// nsf_clone1       You lack the 1 additional credit required to cover the cost of cloning.
-					gMessageLib->sendSystemMessage(playerObject, L"", "error_message", "nsf_clone1", "", "", L"");
+                    gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "nsf_clone1"), playerObject);
 				}
 				else
 				{
 					// You lack the %DI additional credits required to cover the cost of cloning.
-					gMessageLib->sendSystemMessage(playerObject, L"", "error_message", "nsf_clone", "", "", L"", cloningCost - creditsAtBank);
+                    gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "nsf_clone", 0, 0, 0, cloningCost - creditsAtBank, 0.0f), playerObject);
 				}
 			}
 			else if ((dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->updateCredits(-cloningCost)))
 			{
 				// The credits is drawn from the player bank.
 				// System message: You successfully make a payment of %DI credits to %TO.
-				gMessageLib->sendSystemMessage(playerObject,
-												L"",
-												"base_player",
-												"prose_pay_acct_success",
-												"terminal_name",
-												"terminal_cloning",		// Cloning Terminal
-												// "money/acct_n",
-												// "cloningsystem",		// Cloning System
-												L"",
-												cloningCost);
+                ::common::ProsePackage prose("base_player", "prose_pay_acct_success");
+                prose.to_stf_file = "terminal_name";
+                prose.to_stf_label = "terminal_cloning";
+                prose.di_integer = cloningCost;
+
+                gMessageLib->SendSystemMessage(::common::OutOfBand(prose), playerObject);
 
 				// Update player with pre-des cloning facility. It's a terminal in a cell in a building...
 				playerObject->setPreDesignatedCloningFacilityId(gWorldManager->getObjectById(this->getParentId())->getParentId());

@@ -249,10 +249,10 @@ void AdminManager::cancelAdminRequest(uint64 requestType, BString message)
 			const PlayerObject* const player = (*it).second;
 			if (player->isConnected())
 			{
-				gMessageLib->sendSystemMessage((PlayerObject*)player, L"Server shutdown canceled.");
+                gMessageLib->SendSystemMessage(L"", player);
 				if (message.getLength())
 				{
-          gMessageLib->sendSystemMessage((PlayerObject*)player, message.getUnicode16());
+                    gMessageLib->SendSystemMessage(message.getUnicode16(), player);
 				}
 			}
 			++it;
@@ -346,9 +346,10 @@ uint64 AdminManager::handleAdminRequest(uint64 requestType, uint64 timeOverdue)
 				{
 					if (optReason.getLength())
 					{
-            gMessageLib->sendSystemMessage((PlayerObject*)player, optReason.getUnicode16());
+                        gMessageLib->SendSystemMessage(optReason.getUnicode16(), player);
 					}
-          gMessageLib->sendSystemMessage((PlayerObject*)player, broadcast.getUnicode16());
+                    
+                    gMessageLib->SendSystemMessage(broadcast.getUnicode16(), player);
 				}
 				++it;
 			}

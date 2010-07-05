@@ -605,7 +605,7 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 				asyncContainer->mStructureId	= structure->getId();
 				int8 sql[150];
 				sprintf(sql,"select sf_DefaultHarvesterUpdateDeed(%"PRIu64",%"PRIu64")", structure->getId(),structure->getOwner()+INVENTORY_OFFSET);
-				mDatabase->ExecuteProcedureAsync(this,asyncContainer,sql);
+				mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
 
 			}
 			else

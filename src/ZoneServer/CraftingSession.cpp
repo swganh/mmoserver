@@ -120,7 +120,7 @@ CraftingSession::~CraftingSession()
 
 	// send cancel session
 	gMessageLib->sendSharedNetworkMessage(mOwner,0,1);
-	gMessageLib->sendSystemMessage(mOwner,L"","ui_craft","session_ended");
+    gMessageLib->SendSystemMessage(::common::OutOfBand("ui_craft", "session_ended"), mOwner);
 
 	// send player updates
 	gMessageLib->sendStateUpdate(mOwner);
@@ -418,7 +418,7 @@ bool CraftingSession::selectDraftSchematic(uint32 schematicIndex)
 	if(!mDraftSchematic->isCraftEnabled())
 	{
 		gLogger->log(LogManager::NOTICE,"CraftingSession::selectDraftSchematic: schematic not craftable crc:%u",schemCrc);
-		gMessageLib->sendSystemMessage(mOwner,L"This item is currently not craftable.");
+		gMessageLib->SendSystemMessage(L"This item is currently not craftable.", mOwner);
 		return(true);
 	}
 

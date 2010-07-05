@@ -56,16 +56,12 @@ void ByteBuffer::Append(const ByteBuffer& from) {
     Write(from.Data(), from.Size());
 }
 
-void ByteBuffer::Reserve(size_t length) {
-  data_.reserve(length);
+void ByteBuffer::Reserve(size_t size) {
+  data_.reserve(size);
 }
 
 size_t ByteBuffer::Size() const {
 	return data_.size();
-}
-
-size_t ByteBuffer::Capacity() const {
-	return data_.capacity();
 }
 
 void ByteBuffer::Write(const unsigned char* data, size_t size) {

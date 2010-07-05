@@ -30,6 +30,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 namespace common {
 
+ProsePackage::ProsePackage() {}
+
+ProsePackage::ProsePackage(std::string stf_file, std::string stf_label) 
+: base_stf_file(stf_file) 
+, base_stf_label(stf_label) {
+
+}
+
+ProsePackage::~ProsePackage() {}
+
 OutOfBand::OutOfBand()
 : count_(0)
 , data_(new ByteBuffer()) {

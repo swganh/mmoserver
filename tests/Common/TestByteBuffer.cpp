@@ -38,17 +38,11 @@ TEST(ByteBufferTests, ByteBufferIsEmptyWhenCreated) {
     EXPECT_EQ(0, buffer.Size());
 }
 
-TEST(ByteBufferTests, ByteBufferDefaultCapacityIsZero) {
-    ByteBuffer buffer;
-    EXPECT_EQ(0, buffer.Capacity());
-}
-
 TEST(ByteBufferTests, WritingIntReportsCorrectSizeAndCapacity) {
     ByteBuffer buffer;
     buffer.Write<int>(10);
     
     EXPECT_EQ(4, buffer.Size());
-    EXPECT_EQ(4, buffer.Capacity());
 }
 
 TEST(ByteBufferTests, WritingTwoIntsReportsCorrectSizeAndCapacity) {
@@ -56,11 +50,9 @@ TEST(ByteBufferTests, WritingTwoIntsReportsCorrectSizeAndCapacity) {
     
     buffer.Write<int>(10);
     EXPECT_EQ(4, buffer.Size());
-    EXPECT_EQ(4, buffer.Capacity());
     
     buffer.Write<int>(20);
     EXPECT_EQ(8, buffer.Size());
-    EXPECT_EQ(8, buffer.Capacity());
 }
 
 TEST(ByteBufferTests, CanReadIntWrittenToTheBuffer) {
@@ -90,12 +82,10 @@ TEST(ByteBufferTests, ReadingPastBufferEndThrowsException) {
 TEST(ByteBufferTests, WritingStringReportsCorrectSizeAndCapacity) {
     ByteBuffer buffer;
     EXPECT_EQ(0, buffer.Size());
-    EXPECT_EQ(0, buffer.Capacity());
     
     buffer.Write<std::string>(std::string("test string"));
     
     EXPECT_EQ(13, buffer.Size());
-    EXPECT_EQ(13, buffer.Capacity());
 }
 
 TEST(ByteBufferTests, CanReadStringWrittenToTheBuffer) {
@@ -122,13 +112,11 @@ TEST(ByteBufferTests, CanReadTwoStringsWrittenToTheBuffer) {
 TEST(ByteBufferTests, WritingUnicodeStringReportsCorrectSizeAndCapacity) {
     ByteBuffer buffer;
     EXPECT_EQ(0, buffer.Size());
-    EXPECT_EQ(0, buffer.Capacity());
     
     buffer.Write<std::wstring>(std::wstring(L"test string"));
     
-    // Length and Capacity should be size of int + size of string * size of wchar_t.
+    // Size should be size of int + size of string * size of wchar_t.
     EXPECT_EQ(sizeof(uint32_t) + (11 * 2), buffer.Size());
-    EXPECT_EQ(sizeof(uint32_t) + (11 * 2), buffer.Capacity());
 }
 
 TEST(ByteBufferTests, CanReadUnicodeStringWrittenToTheBuffer) {

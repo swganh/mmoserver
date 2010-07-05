@@ -36,31 +36,74 @@ namespace common {
 
 class ByteBuffer;
 
+/**
+ * The ProsePackage is part of the OutOfBand attachment and is used to send custom STF strings.
+ *
+ * Several types of text responses such as spatial chat and system messages use 
+ * this package for displaying custom text or text from an STF file. Once initialized
+ * with data the ProsePackage can then be appended to these types of messages.
+ *
+ * The ProsePackage works off the base STF message passed in. This message can contain
+ * place holders which are replaced by the associated variables. It is believed the 
+ * priority within the different types is: object id -> stf -> custom string
+ *
+ * Placeholders:
+ *      TU - Text You
+ *      TT - Text Target
+ *      TO - Text Object
+ *      DI - Decimal Integer
+ *      DF - Decimal Float
+ *
+ * Credit to Xenozephyr for information.
+ */
 struct ProsePackage {
-    std::string base_stf_file;
-    std::string base_stf_label;
+    /**
+     * Default constructor.
+     *
+     * This default constructor creates an empty ProsePackage.
+     */
+    ProsePackage();
 
-    uint64_t     tu_object_id;
-    std::string  tu_stf_file;
-    std::string  tu_stf_label;
-    std::wstring tu_custom_string;
+    /** 
+     * Custom constructor taking the message STF.
+     *
+     * This overloaded constructor takes the message STF as its 
+     * arguments. Custom data can then be set as needed.
+     *
+     * @param stf_file The file containing the STF message.
+     * @param stf_label The label of the STF message.
+     */
+    ProsePackage(std::string stf_file, std::string stf_label);
     
-    uint64_t     tt_object_id;
-    std::string  tt_stf_file;
-    std::string  tt_stf_label;
-    std::wstring tt_custom_string;
+    /// Default deconstructor.
+    ~ProsePackage();
 
-    uint64_t     to_object_id;
-    std::string  to_stf_file;
-    std::string  to_stf_label;
-    std::wstring to_custom_string;
+    std::string base_stf_file; ///< File containing the STF message.
+    std::string base_stf_label; ///< Label of the STF message.
 
-    int32_t di_integer;
-    float df_float;
+    uint64_t     tu_object_id;     ///< Text You value: object id
+    std::string  tu_stf_file;      ///< Text You value: STF file
+    std::string  tu_stf_label;     ///< Text You value: STF label
+    std::wstring tu_custom_string; ///< Text You value: custom string
+    
+    uint64_t     tt_object_id;     ///< Text Target value: object id
+    std::string  tt_stf_file;      ///< Text Target value: STF file
+    std::string  tt_stf_label;     ///< Text Target value: STF label
+    std::wstring tt_custom_string; ///< Text Target value: custom string
 
-    bool display_flag;
+    uint64_t     to_object_id;     ///< Text Object value: object id
+    std::string  to_stf_file;      ///< Text Object value: STF file
+    std::string  to_stf_label;     ///< Text Object value: STF label
+    std::wstring to_custom_string; ///< Text Object value: custom string
+
+    int32_t di_integer; ///< Decimal value: integer
+    float df_float;     ///< Decimal value: float
+
+    // @todo: this value needs further testing.
+    bool display_flag; ///< True display's the message and false leaves it blank
 };
 
+// @todo fully document the WaypointPackage
 struct WaypointPackage {
     float position_x;
     float position_y;
@@ -72,12 +115,23 @@ struct WaypointPackage {
     bool activated;
 };
 
+/**
+ * The OutOfBand attachment is used in multiple places to send out customized data
+ * to the client. The OutOfBand attachment is actually made up of several sub-types,
+ * for further information on each sub-type supported see it's related struct.
+ *
+ * @see ProsePackage
+ * @see WaypointPackage
+ */
 class OutOfBand {
 public:
+    /// Default constructor, generates an empty OutOfBand package.
     OutOfBand();    
 
     /**
      * Constructor overload for OutOfBand taking a ProsePackage.
+     *
+     * @see ProsePackage for further information on parameters.
      */
     OutOfBand(const std::string& base_stf_file, const std::string& base_stf_string, 
         uint64_t tu_object_id = 0, const std::string& tu_stf_file = "", const std::string& tu_stf_string ="", const std::wstring& tu_custom_string = L"",
@@ -87,6 +141,8 @@ public:
     
     /**
      * Constructor overload for OutOfBand taking a ProsePackage that uses object ids for value replacement.
+     *
+     * @see ProsePackage for further information on parameters.
      */
     OutOfBand(const std::string& base_stf_file, const std::string& base_stf_string, 
         uint64_t tu_object_id, uint64_t tt_object_id, uint64_t to_object_id,
@@ -95,6 +151,8 @@ public:
     
     /**
      * Constructor overload for OutOfBand taking a ProsePackage that uses stfs for value replacement.
+     *
+     * @see ProsePackage for further information on parameters.
      */
     OutOfBand(const std::string& base_stf_file, const std::string& base_stf_string, 
         const std::string& tu_stf_file, const std::string& tu_stf_string,
@@ -104,11 +162,14 @@ public:
     
     /**
      * Constructor overload for OutOfBand taking a ProsePackage that uses custom strings for value replacement.
+     *
+     * @see ProsePackage for further information on parameters.
      */
     OutOfBand(const std::string& base_stf_file, const std::string& base_stf_string, 
         const std::wstring& tu_custom_string, const std::wstring& tt_custom_string, const std::wstring& to_custom_string,
         int32_t di_integer = 0, float df_float = 0.0f, bool display_flag = 0);
 
+    /// Default deconstructor.
     ~OutOfBand();
 
     /**

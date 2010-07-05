@@ -94,9 +94,19 @@ TEST(OutOfBandTests, PackingAttachmentReturnsCorrectOutput) {
 }
 
 TEST(OutOfBandTests, CanCreateOutOfBandFromProse) {
+    // First test simple stf string prose creation.
     OutOfBand attachment("test_file", "test_label");
     
     EXPECT_EQ(1, attachment.Count());
+    
+    // Next test a more complex created prose (for example, prose loaded at startup).
+    ProsePackage prose;
+    prose.base_stf_file = "test_file";
+    prose.base_stf_label = "test_label";
+    
+    OutOfBand attachment2(prose);
+
+    EXPECT_EQ(1, attachment2.Count());
 }
 
 TEST(OutOfBandTests, CanAddMultipleProsePackages) {

@@ -46,6 +46,14 @@ OutOfBand::OutOfBand()
     Initialize_();
 }
 
+OutOfBand::OutOfBand(const ProsePackage& prose)
+: count_(0)
+, data_(new ByteBuffer()) {
+    Initialize_();
+
+    AddProsePackage(prose);
+}
+
 OutOfBand::OutOfBand(const std::string& base_stf_file, const std::string& base_stf_label, 
     uint64_t tu_object_id, const std::string& tu_stf_file, const std::string& tu_stf_label, const std::wstring& tu_custom_string,
     uint64_t tt_object_id, const std::string& tt_stf_file, const std::string& tt_stf_label, const std::wstring& tt_custom_string,

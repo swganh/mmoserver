@@ -133,6 +133,13 @@ public:
      *
      * @see ProsePackage for further information on parameters.
      */
+    explicit OutOfBand(const ProsePackage& prose);
+
+    /**
+     * Constructor overload for OutOfBand taking a ProsePackage.
+     *
+     * @see ProsePackage for further information on parameters.
+     */
     OutOfBand(const std::string& base_stf_file, const std::string& base_stf_string, 
         uint64_t tu_object_id = 0, const std::string& tu_stf_file = "", const std::string& tu_stf_string ="", const std::wstring& tu_custom_string = L"",
         uint64_t tt_object_id = 0, const std::string& tt_stf_file = "", const std::string& tt_stf_string ="", const std::wstring& tt_custom_string = L"",

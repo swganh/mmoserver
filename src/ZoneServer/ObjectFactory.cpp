@@ -619,7 +619,7 @@ void ObjectFactory::requestNewWaypoint(ObjectFactoryCallback* ofCallback,BString
 	sprintf(restStr,"',%"PRIu64",%f,%f,%f,%u,%u)", ownerId, coords.x, coords.y, coords.z, planetId, wpType);
 	strcat(sql,restStr);
 
-	mDatabase->ExecuteProcedureAsync(this,asyncContainer,sql);
+	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
 
 }
 //=============================================================================

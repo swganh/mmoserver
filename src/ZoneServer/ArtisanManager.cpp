@@ -482,7 +482,7 @@ bool ArtisanManager::handleSample(Object* player,Object* target,Message* message
 //      gMessageLib->sendSystemMessage(player,L"","survey","sample_failed","","",resName.getUnicode16());
 //		}
 //
-//		else if((dieRoll > 91)&&(dieRoll < 96))
+//		else if((dieRoll == 98))
 //		{
 //			//EVENT WINDOW CASE
 //			int32 eventRoll = int(gRandom->getRand()%2)+1;
@@ -540,13 +540,14 @@ bool ArtisanManager::handleSample(Object* player,Object* target,Message* message
 //				player->getSampleData()->mSampleNodeFlag = false;
 //			}
 //			else
-//			if(dieRoll >= 96) 
+//			if(dieRoll == 100) 
 //			{
 //				if(player->getSampleData()->mSampleGambleFlag)
 //				{
 //					gMessageLib->sendSystemMessage(player,L"","survey","gamble_success");
 //					sampleAmount = (static_cast<uint32>(3*maxSample));
-//                    sampleAmount = std::max(sampleAmount, static_cast<uint>(1));
+//                  sampleAmount = std::max(sampleAmount, static_cast<uint>(1));
+//					gMessageLib->sendSystemMessage(this,L"","survey","sample_located","","",resName.getUnicode16(),sampleAmount);
 //					player->getSampleData()->mSampleGambleFlag = false;
 //					player->getSampleData()->mSampleEventFlag = false;
 //				}

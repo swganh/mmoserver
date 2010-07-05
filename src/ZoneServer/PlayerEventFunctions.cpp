@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Inventory.h"
 #include "MissionManager.h"
 #include "ObjectFactory.h"
+#include "ResourceManager.h"
 #include "ResourceContainer.h"
 #include "ResourceCollectionManager.h"
 #include "ResourceType.h"
@@ -131,6 +132,7 @@ void PlayerObject::onSample(const SampleEvent* event)
 {
 	SurveyTool*			tool		= event->getTool();
 	CurrentResource*	resource	= event->getResource();
+	uint32				zoneId		= gWorldManager->getZoneId();
 
 	//====================================================
 	//check whether we are able to sample in the first place
@@ -381,6 +383,8 @@ void PlayerObject::onSample(const SampleEvent* event)
 			{
 				sampleAmount = (static_cast<uint32>(3*maxSample));
                 sampleAmount = std::max(sampleAmount,static_cast<uint>(1));
+				// deplete resource
+				gResourceManager->setResourceDepletion(resource, zoneId, sampleAmount);
 				gMessageLib->sendSystemMessage(this,L"","survey","node_recovery");
 				getSampleData()->mSampleEventFlag = false;
 				getSampleData()->mSampleNodeFlag = false;
@@ -393,6 +397,8 @@ void PlayerObject::onSample(const SampleEvent* event)
 					gMessageLib->sendSystemMessage(this,L"","survey","gamble_success");
 					sampleAmount = (static_cast<uint32>(3*maxSample));
                     sampleAmount = std::max(sampleAmount, static_cast<uint>(1));
+					// deplete resource
+					gResourceManager->setResourceDepletion(resource, zoneId, sampleAmount);
 					gMessageLib->sendSystemMessage(this,L"","survey","sample_located","","",resName.getUnicode16(),sampleAmount);
 					getSampleData()->mSampleGambleFlag = false;
 					getSampleData()->mSampleEventFlag = false;
@@ -402,6 +408,8 @@ void PlayerObject::onSample(const SampleEvent* event)
 				//CRITICAL SUCCESS
 					sampleAmount = (static_cast<uint32>(2*maxSample));
                     sampleAmount = std::max(sampleAmount, static_cast<uint>(1));
+					// deplete resource
+					gResourceManager->setResourceDepletion(resource, zoneId, sampleAmount);
                     gMessageLib->sendSystemMessage(this,L"","survey","critical_success","","",resName.getUnicode16());
 					gMessageLib->sendSystemMessage(this,L"","survey","sample_located","","",resName.getUnicode16(),sampleAmount);
 				}
@@ -411,6 +419,8 @@ void PlayerObject::onSample(const SampleEvent* event)
 				//NORMAL SUCCESS
 				sampleAmount = (static_cast<uint32>(floor(static_cast<float>((maxSample-minSample)*(dieRoll-failureChance)/(90-failureChance)+minSample))));         // floor == round down, so 9.9 == 9
                 sampleAmount = std::max(sampleAmount, static_cast<uint>(1));
+				// deplete resource
+				gResourceManager->setResourceDepletion(resource, zoneId, sampleAmount);
                 gMessageLib->sendSystemMessage(this,L"","survey","sample_located","","",resName.getUnicode16(),sampleAmount);
 			}
 		}
@@ -424,20 +434,18 @@ void PlayerObject::onSample(const SampleEvent* event)
 	
 
 	// show the effects
-	if (successSample) 
+	gMessageLib->sendPlayClientEffectLocMessage(effect,mPosition,this);
+
+	while(it != mKnownObjects.end())
 	{
-		gMessageLib->sendPlayClientEffectLocMessage(effect,mPosition,this);
-
-		while(it != mKnownObjects.end())
+		if(PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(*it))
 		{
-			if(PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(*it))
-			{
-				gMessageLib->sendPlayClientEffectLocMessage(effect,mPosition,targetPlayer);
-			}
-
-			++it;
+			gMessageLib->sendPlayClientEffectLocMessage(effect,mPosition,targetPlayer);
 		}
+
+		++it;
 	}
+
 
 	if (sampleAmount > 0)
 	{

@@ -138,6 +138,21 @@ void PlayerObject::onSample(const SampleEvent* event)
 	//check whether we are able to sample in the first place
 	//
 
+	//check if the resource is still in the map
+	if (!gResourceManager->getResourceById(resource->getId()))
+	{
+		getSampleData()->mPendingSample = false;
+		mPosture		= CreaturePosture_Upright;
+		gMessageLib->sendSystemMessage(this,L"","survey","sample_cancel");
+		gMessageLib->sendSystemMessage(this,L"","ui","survey_nothingfound");
+		mHam.updateRegenRates();
+		updateMovementProperties();
+
+		gMessageLib->sendUpdateMovementProperties(this);
+		gMessageLib->sendPostureAndStateUpdate(this);
+		gMessageLib->sendSelfPostureUpdate(this);
+		return;
+	}
 	if(!getSampleData()->mPendingSample || !resource || !tool || !isConnected())
 	{
 		getSampleData()->mPendingSample = false;

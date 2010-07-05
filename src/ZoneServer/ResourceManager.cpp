@@ -338,6 +338,7 @@ void ResourceManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 				// remove from map
 				Resource* resource = asyncContainer->mCurrentResource;
 				mResourceCRCNameMap.erase(resource->mName.getCrc());
+				mResourceIdMap.erase(resource->getId());
 				(getResourceCategoryById(resource->mType->mCatId))->removeResource(resource);
 			}
 		}

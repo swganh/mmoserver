@@ -106,7 +106,7 @@ bool ArtisanManager::handleRequestSurvey(Object* player,Object* target,Message* 
 	if(playerObject->getSurveyState())
 	{
 		playerObject->getSampleData()->mPendingSample = false;
-		gMessageLib->sendSystemMessage(playerObject,L"","survey","survey_sample");
+		gMessageLib->sendSysMsg(playerObject,"survey","survey_sample");
 	}
 
 	SurveyTool*			tool			= dynamic_cast<SurveyTool*>(target);
@@ -143,6 +143,11 @@ bool ArtisanManager::handleRequestSurvey(Object* player,Object* target,Message* 
 
 		// schedule execution
 		player->getController()->addEvent(new SurveyEvent(tool,resource),5000);
+	}
+	else
+	{
+		gMessageLib->sendSystemMessage(playerObject,L"","ui","survey_nothingfound");
+		return false;
 	}
 	return true;
 }
@@ -197,7 +202,10 @@ bool ArtisanManager::handleRequestCoreSample(Object* player,Object* target, Mess
 	resource = reinterpret_cast<CurrentResource*>(gResourceManager->getResourceByNameCRC(resourceName.getCrc()));
 
 	if(resource == NULL || tool == NULL)
+	{
+		gMessageLib->sendSystemMessage(playerObject,L"","ui","survey_noresource");
 		return false;
+	}
 
 	if((resource->getType()->getCategoryId() == 903)||(resource->getType()->getCategoryId() == 904))
 	{

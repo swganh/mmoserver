@@ -75,7 +75,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 PlayerObject::PlayerObject()
 : CreatureObject()
-, mPlayerSaveTime
 , mBazaarPoint(NULL)
 , mClient(NULL)
 , mCraftingSession(NULL)
@@ -96,7 +95,6 @@ PlayerObject::PlayerObject()
 , mTradePartner(NULL)
 , mAccountId(0)
 , mClientTickCount(0)
-, mPlayerSaveTime(0)
 , mCraftingStage(0)
 , mDConnTime(60)
 , mExperimentationFlag(0)

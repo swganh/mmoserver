@@ -168,9 +168,6 @@ void WorldManager::savePlayer(uint32 accId,bool remove, WMLogOut mLogout, Charac
 							,playerObject->mPosition.x,playerObject->mPosition.y,playerObject->mPosition.z
 							,mZoneId,playerObject->getJediState(),playerObject->getId());
 	}
-	// reset the save timer on the player
-	playerObject->setSaveTimer(0);
-
 
 }
 
@@ -214,7 +211,6 @@ void WorldManager::savePlayerSync(uint32 accId,bool remove)
 
 
 	gBuffManager->SaveBuffs(playerObject, GetCurrentGlobalTick());
-	playerObject->setSaveTimer(0);
 	if(remove)
 		destroyObject(playerObject);
 }
@@ -469,7 +465,41 @@ void WorldManager::warpPlanet(PlayerObject* playerObject, const glm::vec3& desti
 	playerObject->getHam()->checkForRegen();
 	playerObject->getStomach()->checkForRegen();
 }
+//======================================================================================================================
+//
+// Handles the saving of all players on a fixed interval
+// eventually we will put some logic to only save x players at a time
+// in this once the server becomes more stable
+// 
+bool	WorldManager::_handlePlayerSaveTimers(uint64 callTime, void* ref)
+{
+	//uint32 playerCount = mPlayerAccMap.size();
+	//// don't save all players if > 100
+	uint32 playerSaveCount = 0;
+	PlayerAccMap::iterator playerIt = mPlayerAccMap.begin();
+	while (playerIt != mPlayerAccMap.end())
+	{
+		const PlayerObject* const playerObject = (*playerIt).second;
+		if (playerObject)
+		{
+			if (playerObject->isConnected())
+			{
+				// TODO: don't save all players if > x players (100ish)
+				// set the timer to save rest of players again
+				// TODO: check if player has saved recently
+				// save player async
+				gWorldManager->savePlayer(playerObject->getAccountId(), false, WMLogOut_No_LogOut);
+				++playerSaveCount;
+			}
+			
+		}
 
+		++playerIt;
+	}
+	gLogger->log(LogManager::NOTICE, "Periodic Save of %u Players", playerSaveCount);
+	//setSaveTaskId(mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handlePlayerSaveTimers), 4, 60000, NULL));
+	return true;
+}
 //======================================================================================================================
 //
 // Handle update of player movements. We need to have a consistent update of the world around us,

@@ -916,6 +916,9 @@ void WorldManager::_handleLoadComplete()
 	//whenever someone creates something near us were updated on it anyway ... ?
 	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handlePlayerMovementUpdateTimers),4,5000,NULL);
 	
+	//save player
+	setSaveTaskId(mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handlePlayerSaveTimers), 4, 120000, NULL));
+	
 	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleGeneralObjectTimers),5,2000,NULL);
 	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleGroupObjectTimers),5,gWorldConfig->getGroupMissionUpdateTime(),NULL);
 	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleVariousUpdates),7,1000, NULL);

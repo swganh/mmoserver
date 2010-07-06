@@ -235,6 +235,10 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		uint64					addBuffToProcess(Buff* buff);
 		void					removeBuffToProcess(uint64 taskId);
 
+		// adds a save process
+		uint64					getSaveTaskId(){return mSaveTaskId;}
+		void					setSaveTaskId(uint64 taskId){mSaveTaskId = taskId;}
+
 		// saves a player asyncronously to the database
 		void					savePlayer(uint32 accId,bool remove, WMLogOut mLogout, CharacterLoadingContainer* clContainer = NULL);
 
@@ -412,6 +416,9 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		bool	_handleFireworkLaunchTimers(uint64 callTime,void* ref);
 		bool	_handleVariousUpdates(uint64 callTime, void* ref);
 
+		//		Save players, who haven't saved in x minutes
+		bool	_handlePlayerSaveTimers(uint64 callTime, void* ref);
+
 		bool	_handlePlayerMovementUpdateTimers(uint64 callTime, void* ref);
 
 		bool	_handleGeneralObjectTimers(uint64 callTime, void* ref);
@@ -494,6 +501,8 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		uint64						mTick;
 		uint32						mTotalObjectCount;
 		uint32						mZoneId;
+
+		uint64						mSaveTaskId;
 		
 		bool						mDebug;
 };
